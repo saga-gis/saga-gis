@@ -46,20 +46,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
-#include <opencv/cv.h>
+#include <opencv2/core.hpp>
+
 
 //---------------------------------------------------------
 // 2. Place general tool library informations here...
@@ -75,7 +67,7 @@ CSG_String Get_Info(int i)
 		return( _TL("Imagery") );
 
 	case TLB_INFO_Author:
-		return( _TL("O. Conrad (c) 2009") );
+		return( "O. Conrad (c) 2009" );
 
 	case TLB_INFO_Description:
 		{
@@ -89,7 +81,7 @@ CSG_String Get_Info(int i)
 		}
 
 	case TLB_INFO_Version:
-		return( SG_T("1.0") );
+		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
 		return( _TL("Imagery") );

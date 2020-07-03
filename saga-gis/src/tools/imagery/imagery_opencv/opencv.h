@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: opencv.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__opencv_H
 #define HEADER_INCLUDED__opencv_H
 
@@ -69,10 +57,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
-//---------------------------------------------------------
-#include <opencv/cv.h>
+#include <opencv2/core.hpp>
+#include <opencv2/core/types_c.h>
+#include <opencv2/core/core_c.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -84,8 +73,8 @@
 //---------------------------------------------------------
 int			Get_CVMatrix_Type		(TSG_Data_Type Type);
 
-bool		Copy_Grid_To_CVMatrix	(CSG_Grid *pGrid, cv::Mat *pMatrix, bool bCheckSize = true);
-bool		Copy_CVMatrix_To_Grid	(CSG_Grid *pGrid, cv::Mat *pMatrix, bool bCheckSize = true);
+bool		Copy_Grid_To_CVMatrix	(CSG_Grid *pGrid, cv::Mat &Matrix, bool bCheckSize = true);
+bool		Copy_CVMatrix_To_Grid	(CSG_Grid *pGrid, cv::Mat &Matrix, bool bCheckSize = true);
 
 bool		Get_CVMatrix			(cv::Mat &Matrix, int nx, int ny , TSG_Data_Type Type);
 bool		Get_CVMatrix			(cv::Mat &Matrix, CSG_Grid *pGrid, TSG_Data_Type Type = SG_DATATYPE_Undefined);

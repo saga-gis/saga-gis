@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: opencv_svd.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "opencv_svd.h"
 
 
@@ -72,53 +60,50 @@ COpenCV_SVD::COpenCV_SVD(void)
 {
 	Set_Name		(_TL("Single Value Decomposition (OpenCV)"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2009"));
+	Set_Author		("O.Conrad (c) 2009");
 
 	Set_Description	(_TW(
-		"References:\n"
-		"OpenCV - Open Source Computer Vision\n"
-		"<a target=\"_blank\" href=\"http://opencv.willowgarage.com\">http://opencv.willowgarage.com</a>"
+		"Single Value Decomposition."
 	));
 
-	Parameters.Add_Grid(
-		NULL	, "INPUT"		, _TL("Input"),
+	Add_Reference("https://opencv.org/", SG_T("OpenCV - Open Source Computer Vision"));
+
+	//-----------------------------------------------------
+	Parameters.Add_Grid("",
+		"INPUT"		, _TL("Input"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "OUTPUT"		, _TL("Output"),
+	Parameters.Add_Grid("",
+		"OUTPUT"	, _TL("Output"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Range(
-		NULL	, "RANGE"		, _TL("Range"),
+	Parameters.Add_Range("",
+		"RANGE"		, _TL("Range"),
 		_TL(""),
-		0.1, 0.9, 0.0, true
+		0.1, 0.9, 0., true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool COpenCV_SVD::On_Execute(void)
 {
-	int			sMin, sMax;
-	CSG_Grid	*pInput, *pOutput;
+	CSG_Grid	*pInput  = Parameters("INPUT" )->asGrid();
+	CSG_Grid	*pOutput = Parameters("OUTPUT")->asGrid();
 
-	int	n	= MIN(Get_NY(), Get_NX());
-	int	m	= MAX(Get_NY(), Get_NX());
+	int	n    = MIN(Get_NY(), Get_NX());
+	int	m    = MAX(Get_NY(), Get_NX());
 
-	pInput	= Parameters("INPUT")	->asGrid();
-	pOutput	= Parameters("OUTPUT")	->asGrid();
-	sMin	= (int)(Parameters("RANGE")	->asRange()->Get_Min() * n);
-	sMax	= (int)(Parameters("RANGE")	->asRange()->Get_Max() * n);
+	int	sMin = Parameters("RANGE.MIN")->asInt() * n;
+	int	sMax = Parameters("RANGE.MAX")->asInt() * n;
 
 	//-----------------------------------------------------
 	IplImage	*cv_pInput	= Get_CVImage(pInput, SG_DATATYPE_Double);
@@ -139,18 +124,23 @@ bool COpenCV_SVD::On_Execute(void)
 	CSG_Matrix	svd(Get_NY(), Get_NX());
 
 	for(int i=0; i<n; i++)
+	{
 		if( i < sMin || i > sMax )
-			w[i][i]	= 0.0;
+		{
+			w[i][i]	= 0.;
+		}
+	}
 
 	svd	= u * w;
 	svd	*= v.Get_Transpose();
 
-	for(int y=0; y<Get_NY(); y++)
-		for(int x=0; x<Get_NX(); x++)
-			pOutput->Set_Value(x, y, svd[y][x]);
-//			pOutput->Set_Value(x, y, u[y][x]);
-//			pOutput->Set_Value(x, y, v[y][x]);
-//			pOutput->Set_Value(x, y, w[y][x]);
+	for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
+	{
+		pOutput->Set_Value(x, y, svd[y][x]);
+	//	pOutput->Set_Value(x, y, u  [y][x]);
+	//	pOutput->Set_Value(x, y, v  [y][x]);
+	//	pOutput->Set_Value(x, y, w  [y][x]);
+	}
 
 	//-----------------------------------------------------
 

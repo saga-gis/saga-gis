@@ -21,7 +21,6 @@ opencv_morphology.cpp\
 opencv_nnet.cpp\
 opencv_stereo_match.cpp\
 opencv_svd.cpp\
-MLB_Interface.h\
 opencv.h\
 opencv_fourier.h\
 opencv_ml.h\

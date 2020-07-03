@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: opencv_morphology.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,16 +46,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "opencv_morphology.h"
+
+#include <opencv2/imgproc.hpp>
+#include <opencv2/imgproc/imgproc_c.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -72,30 +63,31 @@ COpenCV_Morphology::COpenCV_Morphology(void)
 {
 	Set_Name		(_TL("Morphological Filter (OpenCV)"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2009"));
+	Set_Author		("O.Conrad (c) 2009");
 
 	Set_Description	(_TW(
-		"References:\n"
-		"OpenCV - Open Source Computer Vision\n"
-		"<a target=\"_blank\" href=\"http://opencv.willowgarage.com\">http://opencv.willowgarage.com</a>"
+		"Morphological Filter."
 	));
 
+	Add_Reference("https://opencv.org/", SG_T("OpenCV - Open Source Computer Vision"));
+
+	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "INPUT"		, _TL("Input"),
+		"", "INPUT"		, _TL("Input"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "OUTPUT"		, _TL("Output"),
+		"", "OUTPUT"	, _TL("Output"),
 		_TL(""),
 		PARAMETER_OUTPUT, SG_DATATYPE_Byte
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "TYPE"		, _TL("Operation"),
+		"", "TYPE"		, _TL("Operation"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s",
 			_TL("dilation"),
 			_TL("erosion"),
 			_TL("opening"),
@@ -107,32 +99,30 @@ COpenCV_Morphology::COpenCV_Morphology(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "SHAPE"		, _TL("Element Shape"),
+		"", "SHAPE"		, _TL("Element Shape"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s",
 			_TL("ellipse"),
 			_TL("rectangle"),
 			_TL("cross")
 		)
 	);
 
-	Parameters.Add_Value(
-		NULL	, "RADIUS"		, _TL("Radius (cells)"),
+	Parameters.Add_Int(
+		"", "RADIUS"		, _TL("Radius (cells)"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 1.0, 0.0, true
+		1, 0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "ITERATIONS"	, _TL("Iterations"),
+	Parameters.Add_Int(
+		"", "ITERATIONS"	, _TL("Iterations"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 1.0, 1.0, true
+		1, 1, true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -142,20 +132,20 @@ bool COpenCV_Morphology::On_Execute(void)
 	int			Type, Shape, Radius, Iterations;
 	CSG_Grid	*pInput, *pOutput;
 
-	pInput		= Parameters("INPUT")		->asGrid();
-	pOutput		= Parameters("OUTPUT")		->asGrid();
-	Type		= Parameters("TYPE")		->asInt();
-	Shape		= Parameters("SHAPE")		->asInt();
-	Radius		= Parameters("RADIUS")		->asInt();
-	Iterations	= Parameters("ITERATIONS")	->asInt();
+	pInput		= Parameters("INPUT"     )->asGrid();
+	pOutput		= Parameters("OUTPUT"    )->asGrid();
+	Type		= Parameters("TYPE"      )->asInt();
+	Shape		= Parameters("SHAPE"     )->asInt();
+	Radius		= Parameters("RADIUS"    )->asInt();
+	Iterations	= Parameters("ITERATIONS")->asInt();
 
 	//-----------------------------------------------------
 	switch( Shape )
 	{
 	default:
 	case 0:	Shape	= CV_SHAPE_ELLIPSE;	break;
-	case 1:	Shape	= CV_SHAPE_RECT;	break;
-	case 2:	Shape	= CV_SHAPE_CROSS;	break;
+	case 1:	Shape	= CV_SHAPE_RECT   ;	break;
+	case 2:	Shape	= CV_SHAPE_CROSS  ;	break;
 	}
 
 	//-----------------------------------------------------

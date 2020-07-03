@@ -55,22 +55,48 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
-
-#include "opencv2/core/version.hpp"
-
-#if CV_MAJOR_VERSION >= 3
-
-#include <opencv2/ml.hpp>
-
-//---------------------------------------------------------
-using namespace cv;
-using namespace cv::ml;
+#include "opencv.h"
 
 
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#if CV_MAJOR_VERSION < 3
+	#define new_COpenCV_ML_NBayes TLB_INTERFACE_SKIP_TOOL
+	#define new_COpenCV_ML_KNN    TLB_INTERFACE_SKIP_TOOL
+	#define new_COpenCV_ML_SVM    TLB_INTERFACE_SKIP_TOOL
+	#define new_COpenCV_ML_DTrees TLB_INTERFACE_SKIP_TOOL
+	#define new_COpenCV_ML_Boost  TLB_INTERFACE_SKIP_TOOL
+	#define new_COpenCV_ML_RTrees TLB_INTERFACE_SKIP_TOOL
+	#define new_COpenCV_ML_ANN    TLB_INTERFACE_SKIP_TOOL
+	#define new_COpenCV_ML_LogR   TLB_INTERFACE_SKIP_TOOL
+#else // CV_MAJOR_VERSION >= 3
+	#define new_COpenCV_ML_NBayes new COpenCV_ML_NBayes
+	#define new_COpenCV_ML_KNN    new COpenCV_ML_KNN
+	#define new_COpenCV_ML_SVM    new COpenCV_ML_SVM
+	#define new_COpenCV_ML_DTrees new COpenCV_ML_DTrees
+	#define new_COpenCV_ML_Boost  new COpenCV_ML_Boost
+	#define new_COpenCV_ML_RTrees new COpenCV_ML_RTrees
+	#define new_COpenCV_ML_ANN    new COpenCV_ML_ANN
+	#define new_COpenCV_ML_LogR   new COpenCV_ML_LogR
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#include <opencv2/ml.hpp>
+
+using namespace cv;
+using namespace cv::ml;
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -302,35 +328,8 @@ protected:
 
 };
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-#define new_COpenCV_ML_NBayes new COpenCV_ML_NBayes
-#define new_COpenCV_ML_KNN    new COpenCV_ML_KNN
-#define new_COpenCV_ML_SVM    new COpenCV_ML_SVM
-#define new_COpenCV_ML_DTrees new COpenCV_ML_DTrees
-#define new_COpenCV_ML_Boost  new COpenCV_ML_Boost
-#define new_COpenCV_ML_RTrees new COpenCV_ML_RTrees
-#define new_COpenCV_ML_ANN    new COpenCV_ML_ANN
-#define new_COpenCV_ML_LogR   new COpenCV_ML_LogR
-
-#else // CV_MAJOR_VERSION == 3
-
-#define new_COpenCV_ML_NBayes TLB_INTERFACE_SKIP_TOOL
-#define new_COpenCV_ML_KNN    TLB_INTERFACE_SKIP_TOOL
-#define new_COpenCV_ML_SVM    TLB_INTERFACE_SKIP_TOOL
-#define new_COpenCV_ML_DTrees TLB_INTERFACE_SKIP_TOOL
-#define new_COpenCV_ML_Boost  TLB_INTERFACE_SKIP_TOOL
-#define new_COpenCV_ML_RTrees TLB_INTERFACE_SKIP_TOOL
-#define new_COpenCV_ML_ANN    TLB_INTERFACE_SKIP_TOOL
-#define new_COpenCV_ML_LogR   TLB_INTERFACE_SKIP_TOOL
-
-#endif
+#endif // CV_MAJOR_VERSION >= 3
 
 
 ///////////////////////////////////////////////////////////

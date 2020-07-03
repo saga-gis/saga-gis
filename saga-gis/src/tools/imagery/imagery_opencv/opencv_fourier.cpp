@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: opencv_fourier.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "opencv_fourier.h"
 
 
@@ -82,28 +70,29 @@ COpenCV_FFT::COpenCV_FFT(void)
 {
 	Set_Name		(_TL("Fourier Transformation (OpenCV)"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2009"));
+	Set_Author		("O.Conrad (c) 2009");
 
 	Set_Description	(_TW(
-		"References:\n"
-		"OpenCV - Open Source Computer Vision\n"
-		"<a target=\"_blank\" href=\"http://opencv.willowgarage.com\">http://opencv.willowgarage.com</a>"
+		"Fourier Transformation."
 	));
 
+	Add_Reference("https://opencv.org/", SG_T("OpenCV - Open Source Computer Vision"));
+
+	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "INPUT"		, _TL("Input"),
+		"", "INPUT"	, _TL("Input"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "REAL"		, _TL("Fourier Transformation (Real)"),
+		"", "REAL"	, _TL("Fourier Transformation (Real)"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "IMAG"		, _TL("Fourier Transformation (Imaginary)"),
+		"", "IMAG"	, _TL("Fourier Transformation (Imaginary)"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -112,18 +101,14 @@ COpenCV_FFT::COpenCV_FFT(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool COpenCV_FFT::On_Execute(void)
 {
-	CSG_Grid	*pInput, *pReal, *pImag;
-
-	pInput		= Parameters("INPUT")	->asGrid();
-	pReal		= Parameters("REAL")	->asGrid();
-	pImag		= Parameters("IMAG")	->asGrid();
+	CSG_Grid	*pInput	= Parameters("INPUT")->asGrid();
+	CSG_Grid	*pReal	= Parameters("REAL" )->asGrid();
+	CSG_Grid	*pImag	= Parameters("IMAG" )->asGrid();
 
 	//-----------------------------------------------------
 	IplImage	*cv_pInput	= Get_CVImage(pInput, SG_DATATYPE_Float);
