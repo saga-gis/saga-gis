@@ -196,6 +196,63 @@ double	CT_Get_ETpot_Penman	(double T, double Rg, double rH, double V, int DayOfY
 
 ///////////////////////////////////////////////////////////
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+/**
+* Daily potential FAO grass reference evapotranspiration (ETpot) after Penman & Monteith:
+* T    = daily mean of temperature [°C]
+* Tmin = daily minimum of temperature [°C]
+* Tmax = daily maximum of temperature [°C]
+* Rg   = daily sum of global radiation [J/cm^2]
+* rH   = daily mean relative humidity [%]
+* V    = daily mean of wind speed at 2m above ground [m/s]
+* P    = atmospheric pressure [kPa]
+* DVWK (1996): Ermittlung der Verdunstung von Land- u. Wasserflaechen. Merkblaetter 238/1996.
+* Allen R.G., Pereira L.S., Raes D., Smith M. (1998):
+* Crop evapotranspiration: guidelines for computing crop water requirements.
+* FAO Irrigation and Drainage Paper 56. FAO, Rome
+* http://www.fao.org/3/X0490E/x0490e00.htm
+*/
+//---------------------------------------------------------
+double	CT_Get_ETpot_FAORef	(double T, double Tmin, double Tmax, double Rg, double rH, double V, double P, double dZ)
+{
+	if( T <= 237.3 || Rg <= 0. )
+	{
+		return( 0. );
+	}
+
+	if( dZ != 0. ) // (3. 1) adjustment of the atmospheric pressure [kPa]
+	{
+		P	*= pow(1. - (0.0065 * dZ / (273.15 + T)), 5.255);
+	}
+
+	// (3. 2) psychrometric constant [kPa/°C]
+	double	y	= 0.664742 * P;
+
+	// (3. 6) slope of saturation vapour pressure curve at air temperature T [kPa/°C]
+	double	A	= 4098. * (0.6108 * exp((17.27 * T) / (T + 237.3))) / SG_Get_Square(T + 237.3);
+
+	// (3. 4) saturation vapour pressure at the air temperature T [kPa]
+	#define Get_PVapourSat(t)	(0.610 * exp((17.27 * t) / (t + 237.3)))
+
+	// (3. 5) (mean!) saturation vapour pressure [kPa]
+	double	es	= 0.5 * (Get_PVapourSat(Tmin) + Get_PVapourSat(Tmax));
+
+	// (3.12) actual vapour pressure (e0(Tmean) * rH / 100.) [kPa]
+	double	ea	= Get_PVapourSat(T) * rH / 100.;
+
+	Rg	/= 100.; // [J/cm^2] -> [MJ/m^2] -> 10,000 / 1,000,000
+
+	// (3.28) reference evapotranspiration [mm/day]
+	double	ETpot	= (0.408 * A * Rg + y * (900. / (T + 273.15)) * V * (es - ea)) / (A + y * (1. + 0.34 * V));
+
+	return( ETpot < 0. ? 0. : ETpot );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////

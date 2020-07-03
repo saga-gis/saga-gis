@@ -82,6 +82,8 @@ double	CT_Get_ETpot_Turc						(double T, double Rg, double rH);
 double	CT_Get_ETpot_Penman						(double T, double Rg, double rH, double V, double S0);
 double	CT_Get_ETpot_Penman						(double T, double Rg, double rH, double V, int DayOfYear, double Latitude);
 
+double	CT_Get_ETpot_FAORef						(double T, double Tmin, double Tmax, double Rg, double rH, double V, double P=101.325, double dZ = 0.);
+
 
 ///////////////////////////////////////////////////////////
 //														 //

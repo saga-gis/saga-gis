@@ -192,7 +192,7 @@ bool CETpot_Day_To_Hour::On_Execute(void)
 //---------------------------------------------------------
 CETpot_Table::CETpot_Table(void)
 {
-	Set_Name		(_TL("Evapotranspiration (Table)"));
+	Set_Name		(CSG_String::Format("%s (%s)", _TL("Evapotranspiration"), _TL("Table")));
 
 	Set_Author		("O.Conrad (c) 2011");
 
@@ -233,12 +233,19 @@ CETpot_Table::CETpot_Table(void)
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field("TABLE", "T"	   , _TL("Mean Temperature"   ), _TL("[Degree C]"));
-	Parameters.Add_Table_Field("TABLE", "T_MIN", _TL("Minimum Temperature"), _TL("[Degree C]"));
-	Parameters.Add_Table_Field("TABLE", "T_MAX", _TL("Maximum Temperature"), _TL("[Degree C]"));
-	Parameters.Add_Table_Field("TABLE", "RH"   , _TL("Relative Humidity"  ), _TL("[Percent]" ));
-	Parameters.Add_Table_Field("TABLE", "SR"   , _TL("Solar Radiation"    ), _TL("daily mean of wind speed at 2m above ground [m/s][Degree C]"));
-	Parameters.Add_Table_Field("TABLE", "WS"   , _TL("Wind Speed"         ), _TL("daily sum of global radiation [J/cm^2]"));
+	Parameters.Add_Table("",
+		"RESULT", _TL("Evapotranspiration"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
+	Parameters.Add_Table_Field("TABLE", "T"	   , _TL("Mean Temperature"   ), _TL("[Celsius]"));
+	Parameters.Add_Table_Field("TABLE", "T_MIN", _TL("Minimum Temperature"), _TL("[Celsius]"));
+	Parameters.Add_Table_Field("TABLE", "T_MAX", _TL("Maximum Temperature"), _TL("[Celsius]"));
+	Parameters.Add_Table_Field("TABLE", "RH"   , _TL("Relative Humidity"  ), _TL("[Percent]"));
+	Parameters.Add_Table_Field("TABLE", "SR"   , _TL("Solar Radiation"    ), _TL("daily sum of global radiation [J/cm^2]"));
+	Parameters.Add_Table_Field("TABLE", "WS"   , _TL("Wind Speed"         ), _TL("daily mean of wind speed at 2m above ground [m/s]"));
+	Parameters.Add_Table_Field("TABLE", "P"    , _TL("Air Pressure"       ), _TL("[kPa]"));
 	Parameters.Add_Table_Field("TABLE", "DATE" , _TL("Date"               ), _TL(""));
 
 	Parameters.Add_Table_Field("TABLE", "ET"   , _TL("Evapotranspiration" ), _TL(""), true);
@@ -252,10 +259,11 @@ CETpot_Table::CETpot_Table(void)
 	Parameters.Add_Choice("",
 		"METHOD", _TL("Method"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Turc"),
 			_TL("Hargreave"),
-			_TL("Penman (simplified)")
+			_TL("Penman (simplified)"),
+			_TL("Penman-Monteith")
 		), 0
 	);
 }
@@ -270,13 +278,16 @@ int CETpot_Table::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 {
 	if( pParameter->Cmp_Identifier("METHOD") )
 	{
-		pParameters->Set_Enabled("T_MIN", pParameter->asInt() == 1);
-		pParameters->Set_Enabled("T_MAX", pParameter->asInt() == 1);
-		pParameters->Set_Enabled("RH"   , pParameter->asInt() != 1);
-		pParameters->Set_Enabled("SR"   , pParameter->asInt() != 1);
-		pParameters->Set_Enabled("WS"   , pParameter->asInt() == 2);
-		pParameters->Set_Enabled("DATE" , pParameter->asInt() != 0);
-		pParameters->Set_Enabled("LAT"  , pParameter->asInt() != 0);
+		int	M	= pParameter->asInt();
+
+		pParameters->Set_Enabled("T_MIN", M == 1 || M == 3);
+		pParameters->Set_Enabled("T_MAX", M == 1 || M == 3);
+		pParameters->Set_Enabled("RH"   , M != 1);
+		pParameters->Set_Enabled("SR"   , M != 1);
+		pParameters->Set_Enabled("WS"   , M == 2);
+		pParameters->Set_Enabled("P"    , M == 3);
+		pParameters->Set_Enabled("DATE" , M != 0 && M != 3);
+		pParameters->Set_Enabled("LAT"  , M != 0 && M != 3);
 	}
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
@@ -290,8 +301,18 @@ int CETpot_Table::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 //---------------------------------------------------------
 bool CETpot_Table::On_Execute(void)
 {
-	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
+	CSG_Table	*pTable  = Parameters("TABLE")->asTable();
 
+	if( Parameters("RESULT")->asTable() && Parameters("RESULT")->asTable() != pTable )
+	{
+		Parameters("RESULT")->asTable()->Create(*pTable);
+
+		pTable	= Parameters("RESULT")->asTable();
+
+		pTable->Fmt_Name("%s [%s]", pTable->Get_Name(), _TL("Evapotranspiration"));
+	}
+
+	//-----------------------------------------------------
 	int	fET     = pTable->Get_Field_Count();
 
 	pTable->Add_Field("ET", SG_DATATYPE_Double);
@@ -303,6 +324,7 @@ bool CETpot_Table::On_Execute(void)
 	int	fRH     = Parameters("RH"    )->asInt();
 	int	fSR     = Parameters("SR"    )->asInt();
 	int	fWS     = Parameters("WS"    )->asInt();
+	int	fP      = Parameters("P"     )->asInt();
 	int	fDate   = Parameters("DATE"  )->asInt();
 	double	Lat	= Parameters("LAT")->asDouble();
 
@@ -334,7 +356,7 @@ bool CETpot_Table::On_Execute(void)
 					CSG_DateTime	Date(V.asString(fDate));
 
 					ET = CT_Get_ETpot_Hargreave(
-						V.asDouble(fT),
+						V.asDouble(fT   ),
 						V.asDouble(fTmin),
 						V.asDouble(fTmax),
 						Date.Get_DayOfYear(), Lat
@@ -348,11 +370,25 @@ bool CETpot_Table::On_Execute(void)
 					CSG_DateTime	Date(V.asString(fDate));
 
 					ET = CT_Get_ETpot_Penman(
-						V.asDouble(fT),
+						V.asDouble(fT ),
 						V.asDouble(fSR),
 						V.asDouble(fRH),
 						V.asDouble(fWS),
 						Date.Get_DayOfYear(), Lat
+					);
+				}
+
+			case  3: // Penman-Monteith, FAO reference
+				if( !V.is_NoData(fTmin) && !V.is_NoData(fTmax) && !V.is_NoData(fSR) && !V.is_NoData(fRH) && !V.is_NoData(fWS) )
+				{
+					ET = CT_Get_ETpot_FAORef(
+						V.asDouble(fT   ),
+						V.asDouble(fTmin),
+						V.asDouble(fTmax),
+						V.asDouble(fSR  ),
+						V.asDouble(fRH  ),
+						V.asDouble(fWS  ),
+						V.asDouble(fP   )
 					);
 				}
 				break;
@@ -370,7 +406,10 @@ bool CETpot_Table::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	DataObject_Update(pTable);
+	if( pTable != Parameters("TABLE")->asTable() )
+	{
+		DataObject_Update(pTable);
+	}
 
 	return( true );
 }
@@ -385,7 +424,7 @@ bool CETpot_Table::On_Execute(void)
 //---------------------------------------------------------
 CETpot_Grid::CETpot_Grid(void)
 {
-	Set_Name		(_TL("Evapotranspiration (Grid)"));
+	Set_Name		(CSG_String::Format("%s (%s)", _TL("Evapotranspiration"), _TL("Grid")));
 
 	Set_Author		("O.Conrad (c) 2015");
 
@@ -415,12 +454,13 @@ CETpot_Grid::CETpot_Grid(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_or_Const("", "T"    , _TL("Mean Temperature"   ), _TL(""), 10.);
-	Parameters.Add_Grid_or_Const("", "T_MIN", _TL("Minimum Temperature"), _TL(""),  0.);
-	Parameters.Add_Grid_or_Const("", "T_MAX", _TL("Maximum Temperature"), _TL(""), 20.);
-	Parameters.Add_Grid_or_Const("", "RH"   , _TL("Relative Humidity"  ), _TL(""), 50., 0., true, 100., true);
-	Parameters.Add_Grid_or_Const("", "SR"   , _TL("Solar Radiation"    ), _TL(""),  2., 0., true);
-	Parameters.Add_Grid_or_Const("", "WS"   , _TL("Wind Speed"         ), _TL(""),  5., 0., true);
+	Parameters.Add_Grid_or_Const("", "T"    , _TL("Mean Temperature"   ), _TL("[Celsius]"),  10. , -273.15, true);
+	Parameters.Add_Grid_or_Const("", "T_MIN", _TL("Minimum Temperature"), _TL("[Celsius]"),   0. , -273.15, true);
+	Parameters.Add_Grid_or_Const("", "T_MAX", _TL("Maximum Temperature"), _TL("[Celsius]"),  20. , -273.15, true);
+	Parameters.Add_Grid_or_Const("", "RH"   , _TL("Relative Humidity"  ), _TL("[Percent]"),  50. ,    0.  , true, 100., true);
+	Parameters.Add_Grid_or_Const("", "SR"   , _TL("Solar Radiation"    ), _TL("[J/cm^2]" ),   2. ,    0.  , true);
+	Parameters.Add_Grid_or_Const("", "WS"   , _TL("Wind Speed"         ), _TL("[m/s]"    ),   5. ,    0.  , true);
+	Parameters.Add_Grid_or_Const("", "P"    , _TL("Air Pressure"       ), _TL("[kPa]"    ), 101.3,    0.  , true);
 
 	Parameters.Add_Grid("",
 		"ET"   , _TL("Potential Evapotranspiration"),
@@ -431,10 +471,11 @@ CETpot_Grid::CETpot_Grid(void)
 	Parameters.Add_Choice("",
 		"METHOD", _TL("Method"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Turc"),
 			_TL("Hargreave"),
-			_TL("Penman (simplified)")
+			_TL("Penman (simplified)"),
+			_TL("Penman-Monteith")
 		), 0
 	);
 
@@ -476,13 +517,16 @@ int CETpot_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter
 {
 	if( pParameter->Cmp_Identifier("METHOD") )
 	{
-		pParameters->Set_Enabled("T_MIN", pParameter->asInt() == 1);
-		pParameters->Set_Enabled("T_MAX", pParameter->asInt() == 1);
-		pParameters->Set_Enabled("RH"   , pParameter->asInt() != 1);
-		pParameters->Set_Enabled("SR"   , pParameter->asInt() != 1);
-		pParameters->Set_Enabled("WS"   , pParameter->asInt() == 2);
-		pParameters->Set_Enabled("TIME" , pParameter->asInt() != 0);
-		pParameters->Set_Enabled("LAT"  , pParameter->asInt() != 0);
+		int	M	= pParameter->asInt();
+
+		pParameters->Set_Enabled("T_MIN", M == 1 || M == 3);
+		pParameters->Set_Enabled("T_MAX", M == 1 || M == 3);
+		pParameters->Set_Enabled("RH"   , M != 1);
+		pParameters->Set_Enabled("SR"   , M != 1);
+		pParameters->Set_Enabled("WS"   , M == 2);
+		pParameters->Set_Enabled("P"    , M == 3);
+		pParameters->Set_Enabled("TIME" , M != 0 && M != 3);
+		pParameters->Set_Enabled("LAT"  , M != 0 && M != 3);
 	}
 
 	if( pParameter->Cmp_Identifier("METHOD") || pParameter->Cmp_Identifier("T") )
@@ -514,6 +558,7 @@ bool CETpot_Grid::On_Execute(void)
 	CSG_Grid *pRH   = Parameters("RH"   )->asGrid(); double RH   = Parameters("RH"   )->asDouble();
 	CSG_Grid *pSR   = Parameters("SR"   )->asGrid(); double SR   = Parameters("SR"   )->asDouble();
 	CSG_Grid *pWS   = Parameters("WS"   )->asGrid(); double WS   = Parameters("WS"   )->asDouble();
+	CSG_Grid *pP    = Parameters("P"    )->asGrid(); double P    = Parameters("P"    )->asDouble();
 	CSG_Grid *pET   = Parameters("ET"   )->asGrid();
 
 	int	Method	= Parameters("METHOD")->asInt();
@@ -600,6 +645,26 @@ bool CETpot_Grid::On_Execute(void)
 							pRH ? pRH->asDouble(x, y) : RH,
 							pWS ? pWS->asDouble(x, y) : WS,
 							pLat ? CT_Get_Radiation_Daily_TopOfAtmosphere(Day, pLat->asDouble(x, y)) : R0_const
+						);
+					}
+					break;
+
+				case  3: // Penman-Monteith, FAO reference
+					if( (!pTmin || !pTmin->is_NoData(x, y))
+					&&  (!pTmax || !pTmax->is_NoData(x, y))
+					&&  (!pSR   || !pSR  ->is_NoData(x, y))
+					&&  (!pRH   || !pRH  ->is_NoData(x, y))
+					&&  (!pWS   || !pWS  ->is_NoData(x, y))
+					&&  (!pP    || !pP   ->is_NoData(x, y)) )
+					{
+						ET	= CT_Get_ETpot_FAORef(
+							pT    ? pT   ->asDouble(x, y) : T   ,
+							pTmin ? pTmin->asDouble(x, y) : Tmin,
+							pTmax ? pTmax->asDouble(x, y) : Tmax,
+							pSR   ? pSR  ->asDouble(x, y) : SR  ,
+							pRH   ? pRH  ->asDouble(x, y) : RH  ,
+							pWS   ? pWS  ->asDouble(x, y) : WS  ,
+							pP    ? pP   ->asDouble(x, y) : P
 						);
 					}
 					break;
