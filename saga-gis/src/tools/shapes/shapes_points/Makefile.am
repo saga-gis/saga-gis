@@ -21,6 +21,7 @@ DistanceMatrix.cpp\
 FitNPointsToShape.cpp\
 gps_track_aggregation.cpp\
 MLB_Interface.cpp\
+point_to_line_distance.cpp\
 points_filter.cpp\
 Points_From_Lines.cpp\
 Points_From_Table.cpp\
@@ -43,6 +44,7 @@ DistanceMatrix.h\
 FitNPointsToShape.h\
 gps_track_aggregation.h\
 MLB_Interface.h\
+point_to_line_distance.h\
 points_filter.h\
 Points_From_Lines.h\
 Points_From_Table.h\

@@ -324,6 +324,7 @@
     <ClCompile Include="Points_From_Lines.cpp" />
     <ClCompile Include="Points_From_Table.cpp" />
     <ClCompile Include="points_thinning.cpp" />
+    <ClCompile Include="point_to_line_distance.cpp" />
     <ClCompile Include="random_points.cpp" />
     <ClCompile Include="remove_duplicates.cpp" />
     <ClCompile Include="select_3d_points.cpp" />
@@ -365,6 +366,7 @@
     <ClInclude Include="Points_From_Lines.h" />
     <ClInclude Include="Points_From_Table.h" />
     <ClInclude Include="points_thinning.h" />
+    <ClInclude Include="point_to_line_distance.h" />
     <ClInclude Include="random_points.h" />
     <ClInclude Include="remove_duplicates.h" />
     <ClInclude Include="select_3d_points.h" />

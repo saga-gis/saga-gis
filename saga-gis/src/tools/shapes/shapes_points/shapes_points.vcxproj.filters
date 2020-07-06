@@ -80,6 +80,9 @@
     <ClCompile Include="select_3d_points.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="point_to_line_distance.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -197,6 +200,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="select_3d_points.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="point_to_line_distance.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
