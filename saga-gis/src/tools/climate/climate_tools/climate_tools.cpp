@@ -217,7 +217,7 @@ double	CT_Get_ETpot_Penman	(double T, double Rg, double rH, double V, int DayOfY
 //---------------------------------------------------------
 double	CT_Get_ETpot_FAORef	(double T, double Tmin, double Tmax, double Rg, double rH, double V, double P, double dZ)
 {
-	if( T <= 237.3 || Rg <= 0. )
+	if( T <= -237.3 || Rg <= 0. )
 	{
 		return( 0. );
 	}

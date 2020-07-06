@@ -561,7 +561,10 @@ bool CETpot_Grid::On_Execute(void)
 	CSG_Grid *pP    = Parameters("P"    )->asGrid(); double P    = Parameters("P"    )->asDouble();
 	CSG_Grid *pET   = Parameters("ET"   )->asGrid();
 
+	//-----------------------------------------------------
 	int	Method	= Parameters("METHOD")->asInt();
+
+	pET->Fmt_Name("%s [%s]", _TL("Potential Evapotranspiration"), Parameters("METHOD")->asString());
 
 	//-----------------------------------------------------
 	CSG_Grid	Lat, *pLat	= NULL;
