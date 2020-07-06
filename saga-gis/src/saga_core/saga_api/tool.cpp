@@ -178,7 +178,7 @@ void CSG_Tool::Set_Description(const CSG_String &String)
 
 const CSG_String & CSG_Tool::Get_Description(void) const
 {
-	return( Parameters.Get_Description() );
+	return( Parameters.Get_Description().is_Empty() ? Get_Name() : Parameters.Get_Description() );
 }
 
 //---------------------------------------------------------
