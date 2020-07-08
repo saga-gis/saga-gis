@@ -87,6 +87,12 @@ CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Byte
 	);
 
+	Parameters.Add_Table("CLASSES",
+		"CLASSES_LUT"	, _TL("Look-up Table"),
+		_TL("A reference list of the grid values that have been assigned to the training classes."),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
 	Parameters.Add_Grid("",
 		"QUALITY"		, _TL("Quality"),
 		_TL("Dependent on chosen method, these are distances or probabilities."),
@@ -468,6 +474,25 @@ bool CGrid_Classify_Supervised::Set_Classification(CSG_Classifier_Supervised &Cl
 		DataObject_Set_Colors(pQuality, 11, SG_COLORS_YELLOW_GREEN, true);
 
 		pQuality->Fmt_Name("%s [%s]", _TL("Classification Quality"), CSG_Classifier_Supervised::Get_Name_of_Quality(Parameters("METHOD")->asInt()).c_str());
+	}
+
+	//-----------------------------------------------------
+	if( Parameters("CLASSES_LUT")->asTable() )
+	{
+		CSG_Table	&LUT	= *Parameters("CLASSES_LUT")->asTable();
+
+		LUT.Destroy();
+		LUT.Set_Name(pClasses->Get_Name());
+		LUT.Add_Field("VALUE", pClasses->Get_Type());
+		LUT.Add_Field("CLASS", SG_DATATYPE_String);
+
+		for(int i=0; i<Classifier.Get_Class_Count(); i++)
+		{
+			CSG_Table_Record	&Class	= *LUT.Add_Record();
+
+			Class.Set_Value(0, i + 1);
+			Class.Set_Value(1, Classifier.Get_Class_ID(i).c_str());
+		}
 	}
 
 	//-----------------------------------------------------
