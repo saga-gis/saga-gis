@@ -17,6 +17,7 @@ diffusion_gradient_concentration.cpp\
 KinWav_D8.cpp\
 MLB_Interface.cpp\
 overland_flow.cpp\
+soilwater_glugla.cpp\
 timed_flow_accumulation.cpp\
 topmodel.cpp\
 topmodel_values.cpp\
@@ -26,6 +27,7 @@ diffusion_gradient_concentration.h\
 DVWK_SoilMoisture.h\
 KinWav_D8.h\
 overland_flow.h\
+soilwater_glugla.h\
 timed_flow_accumulation.h\
 topmodel.h\
 topmodel_values.h\

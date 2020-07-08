@@ -316,6 +316,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="overland_flow.cpp" />
+    <ClCompile Include="soilwater_glugla.cpp" />
     <ClCompile Include="timed_flow_accumulation.cpp" />
     <ClCompile Include="topmodel.cpp" />
     <ClCompile Include="topmodel_values.cpp" />
@@ -344,6 +345,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
     <ClInclude Include="overland_flow.h" />
+    <ClInclude Include="soilwater_glugla.h" />
     <ClInclude Include="timed_flow_accumulation.h" />
     <ClInclude Include="topmodel.h" />
     <ClInclude Include="topmodel_values.h" />

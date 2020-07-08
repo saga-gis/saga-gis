@@ -1,19 +1,18 @@
 
 ///////////////////////////////////////////////////////////
 //                                                       //
-//                         SAGA                          //
+//                        SAGA                           //
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                     Tool Library                      //
-//                     sim_hydrology                     //
+//                    Tool Library                       //
+//                    sim_hydrology                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//                 soilwater_glugla.h                    //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                      Olaf Conrad                      //
+//                Olaf Conrad (C) 2020                   //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,96 +39,73 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__soilwater_glugla_H
+#define HEADER_INCLUDED__soilwater_glugla_H
 
+
+///////////////////////////////////////////////////////////
+//                                                       //												
+//                                                       //												
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
 
-//---------------------------------------------------------
-// 2. Place general tool library informations here...
-
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("Hydrology") );
-
-	case TLB_INFO_Category:
-		return( _TL("Simulation") );
-
-	case TLB_INFO_Author:
-		return( "O.Conrad (c) 2019" );
-
-	case TLB_INFO_Description:
-		return( _TL("Simulation of hydrological processes.") );
-
-	case TLB_INFO_Version:
-		return( "1.0" );
-
-	case TLB_INFO_Menu_Path:
-		return( _TL("Simulation|Hydrology") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your tools here...
-
-#include "DVWK_SoilMoisture.h"
-#include "KinWav_D8.h"
-#include "topmodel.h"
-#include "WaterRetentionCapacity.h"
-#include "diffuse_pollution_risk.h"
-#include "diffusion_gradient_concentration.h"
-#include "timed_flow_accumulation.h"
-#include "overland_flow.h"
-#include "soilwater_glugla.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your tools to be created here...
-
-CSG_Tool *		Create_Tool(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CDVWK_SoilMoisture );
-	case  1:	return( new CKinWav_D8 );
-	case  2:	return( new CTOPMODEL );
-	case  3:	return( new CWaterRetentionCapacity );
-	case  4:	return( new CDiffuse_Pollution_Risk );
-	case  5:	return( new CSim_Diffusion_Gradient );
-	case  6:	return( new CSim_Diffusion_Concentration );
-	case  7:	return( new CSim_Diffusion_Gradient_And_Concentration );
-	case  8:	return( new CTimed_Flow_Accumulation );
-	case  9:	return( new COverland_Flow );
-	case 10:	return( new CSoilWater_Glugla_Table );
-	case 11:	return( new CSoilWater_Glugla_Grid );
-
-	case 12:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
-	}
-}
-
-
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //												
+//                                                       //												
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CSoilWater_Glugla_Table : public CSG_Tool
+{
+public:
+	CSoilWater_Glugla_Table(void);
 
-	TLB_INTERFACE
 
-//}}AFX_SAGA
+protected:
+
+	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool		On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CSoilWater_Glugla_Grid : public CSG_Tool_Grid
+{
+public:
+	CSoilWater_Glugla_Grid(void);
+
+
+protected:
+
+	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool		On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//                                                       //												
+//                                                       //												
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__soilwater_glugla_H
