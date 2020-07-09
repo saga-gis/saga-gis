@@ -724,7 +724,8 @@ public:
 				return( false );
 			}
 
-			m_pWater->Get_Grid((int)i)->Set_Value(x, y, Water);
+			if( Water >= 0. )
+				m_pWater->Get_Grid((int)i)->Set_Value(x, y, Water);
 		}
 
 		return( true );
@@ -998,7 +999,7 @@ bool CSoilWater_Glugla_Grid::On_Execute(void)
 		for(int i=0; i<(int)Model.Get_nLayers(); i++)
 		{
 			pWater->Get_Grid(i)->Fmt_Name("SWC_%d", i + 1);
-			pWater->Get_Grid(i)->Assign(Layers[i].asDouble("Water_0"));
+			pWater->Get_Grid(i)->Assign(Layers[i].asDouble("Depth") * Layers[i].asDouble("Water_0") * 0.1);
 
 			DataObject_Add(pWater->Get_Grid(i));
 		}
