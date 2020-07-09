@@ -58,12 +58,20 @@
 //---------------------------------------------------------
 CQGIS_ToolBox::CQGIS_ToolBox(void)
 {
-	Set_Name	("Tool Interface Files for QGIS");
+	Set_Name	("QGIS Tool Interface Generator");
 
 	Set_Author	("O.Conrad (c) 2020");
 
 	Set_Description	(_TW(
-		""
+		"Replace the binaries in:\n"
+		"> C:\\Program Files\\QGIS X.Y\\apps\\saga(-ltr)\n"
+		"\n"
+		"Adjust the interface in:\n"
+		"> C:\\Program Files\\QGIS X.Y\\apps\\qgis\\python\\plugins\\processing\\algs\\saga(-ltr)\n"
+		"\n"
+		"Adjust version in file:\n"
+		"> SagaAlgorithmProvider.py\n"
+		">> REQUIRED_VERSION = '7.7.'\n"
 	));
 
 	//-----------------------------------------------------
@@ -100,6 +108,18 @@ bool CQGIS_ToolBox::On_Execute(void)
 		{
 			SG_File_Delete(Files[i]);
 		}
+
+		SG_Dir_List_Files(Files, Directory + "/description");
+
+		for(int i=0; i<Files.Get_Count(); i++)
+		{
+			SG_File_Delete(Files[i]);
+		}
+	}
+
+	if( !SG_Dir_Exists(Directory + "/description") )
+	{
+		SG_Dir_Create(Directory + "/description");
 	}
 
 	//-----------------------------------------------------
@@ -112,10 +132,11 @@ bool CQGIS_ToolBox::On_Execute(void)
 		CSG_Tool_Library	*pLibrary	= SG_Get_Tool_Library_Manager().Get_Library(iLibrary);
 
 		if( !pLibrary->Get_Category    ().Cmp("Garden"           )	// generally exclude certain categories/libraries
+		||  !pLibrary->Get_Category    ().Cmp("Grid Collection"  )
 		||  !pLibrary->Get_Category    ().Cmp("Reports"          )
 		||  !pLibrary->Get_Category    ().Cmp("Table"            )
 		||  !pLibrary->Get_Category    ().Cmp("TIN"              )
-		||  !pLibrary->Get_Library_Name().Cmp("garden_3d_viewer" )
+		||  !pLibrary->Get_Category    ().Cmp("Visualization"    )
 		||  !pLibrary->Get_Library_Name().Cmp("grid_calculus_bsl")
 		||  !pLibrary->Get_Library_Name().Cmp("db_odbc"          )
 		||  !pLibrary->Get_Library_Name().Cmp("db_pgsql"         ) )
@@ -139,7 +160,7 @@ bool CQGIS_ToolBox::On_Execute(void)
 
 				CSG_File	Stream;
 
-				if( Stream.Open(SG_File_Make_Path(Directory, Name, "txt"), SG_FILE_W, false) )
+				if( Stream.Open(SG_File_Make_Path(Directory + "/description", Name, "txt"), SG_FILE_W, false) )
 				{
 					Stream.Write(Code);
 
@@ -314,10 +335,6 @@ bool CQGIS_ToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_String &Paramet
 			"|TARGET_USER_SIZE"
 			"|Cellsize|QgsProcessingParameterNumber.Double|100.0|False|None|None";
 
-		Parameter	+= "\nQgsProcessingParameterEnum"
-			"|TARGET_USER_FITS"
-			"|Fit|[0] nodes;[1] cells";
-
 		return( true );
 	}
 
@@ -349,7 +366,7 @@ bool CQGIS_ToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_String &Paramet
 		{
 			PARAMETER_SET("RasterLayer");
 			PARAMETER_STR("None");
-			PARAMETER_STR("False");
+			PARAMETER_BOL(pParameter->is_Optional());
 		}
 		else
 		{
@@ -363,7 +380,7 @@ bool CQGIS_ToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_String &Paramet
 			PARAMETER_SET("MultipleLayers");
 			PARAMETER_INT(3);
 			PARAMETER_STR("None");
-			PARAMETER_STR("False");
+			PARAMETER_BOL(pParameter->is_Optional());
 		}
 		else
 		{
@@ -376,8 +393,32 @@ bool CQGIS_ToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_String &Paramet
 		return( false );
 
 	case PARAMETER_TYPE_Table          :
+		if( pParameter->is_Input() )
+		{
+			PARAMETER_SET("FeatureSource");
+			PARAMETER_INT(5);
+			PARAMETER_STR("None");
+			PARAMETER_BOL(pParameter->is_Optional());
+		}
+		else
+		{
+			PARAMETER_SET("VectorDestination");
+		}
+		break;
+
 	case PARAMETER_TYPE_Table_List     :
-		return( pParameter->is_Optional() || pParameter->is_Output() );
+		if( pParameter->is_Input() )
+		{
+			PARAMETER_SET("MultipleLayers");
+			PARAMETER_INT(5);
+			PARAMETER_STR("None");
+			PARAMETER_BOL(pParameter->is_Optional());
+		}
+		else
+		{
+			PARAMETER_SET("VectorDestination");
+		}
+		break;
 
 	case PARAMETER_TYPE_Shapes         :
 		if( pParameter->is_Input() )
@@ -385,7 +426,7 @@ bool CQGIS_ToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_String &Paramet
 			PARAMETER_SET("FeatureSource");
 			PARAMETER_INT(Get_Shape_Type(((CSG_Parameter_Shapes *)pParameter)->Get_Shape_Type()));
 			PARAMETER_STR("None");
-			PARAMETER_STR("False");
+			PARAMETER_BOL(pParameter->is_Optional());
 		}
 		else
 		{
@@ -396,10 +437,10 @@ bool CQGIS_ToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_String &Paramet
 	case PARAMETER_TYPE_Shapes_List    :
 		if( pParameter->is_Input() )
 		{
-			PARAMETER_SET("FeatureSource");
+			PARAMETER_SET("MultipleLayers");
 			PARAMETER_INT(Get_Shape_Type(((CSG_Parameter_Shapes_List *)pParameter)->Get_Shape_Type()));
 			PARAMETER_STR("None");
-			PARAMETER_STR("False");
+			PARAMETER_BOL(pParameter->is_Optional());
 		}
 		else
 		{
