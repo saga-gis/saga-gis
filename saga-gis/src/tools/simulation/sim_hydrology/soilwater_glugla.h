@@ -71,6 +71,8 @@ class CSoilWater_Glugla_Table : public CSG_Tool
 public:
 	CSoilWater_Glugla_Table(void);
 
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("A:Simulation|Soil Hydrology") );	}
+
 
 protected:
 
@@ -90,6 +92,8 @@ class CSoilWater_Glugla_Grid : public CSG_Tool_Grid
 {
 public:
 	CSoilWater_Glugla_Grid(void);
+
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("A:Simulation|Soil Hydrology") );	}
 
 
 protected:

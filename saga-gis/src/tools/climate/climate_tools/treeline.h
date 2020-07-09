@@ -147,7 +147,7 @@ class CWater_Balance : public CSG_Tool_Grid
 public:
 	CWater_Balance(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Soils") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Simulation|Soil Hydrology") );	}
 
 
 protected:
@@ -174,7 +174,7 @@ class CWater_Balance_Interactive : public CSG_Tool_Grid_Interactive
 public:
 	CWater_Balance_Interactive(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Soils") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Simulation|Soil Hydrology") );	}
 
 
 protected:
