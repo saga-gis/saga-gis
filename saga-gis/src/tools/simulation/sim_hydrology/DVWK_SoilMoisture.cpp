@@ -131,10 +131,10 @@ CDVWK_SoilMoisture::CDVWK_SoilMoisture(void)
 		_TL("")
 	)->asTable();
 
-	m_pClimate->Set_Name (_TL("Climate Data"         ));
-	m_pClimate->Add_Field(_TL("Precipitation [mm]"   ), SG_DATATYPE_Double);
-	m_pClimate->Add_Field(_TL("Temperature [2pm °C]" ), SG_DATATYPE_Double);
-	m_pClimate->Add_Field(_TL("Air Humidity [2pm [%]"), SG_DATATYPE_Double);
+	m_pClimate->Set_Name (_TL("Climate Data"           ));
+	m_pClimate->Add_Field(_TL("Precipitation [mm]"     ), SG_DATATYPE_Double);
+	m_pClimate->Add_Field(_TL("Temperature [2pm Deg.C]"), SG_DATATYPE_Double);
+	m_pClimate->Add_Field(_TL("Air Humidity [2pm [%]"  ), SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
 	m_pCropCoeff = Parameters.Add_FixedTable("",
