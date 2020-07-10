@@ -738,6 +738,17 @@ bool			SG_Dir_Create(const CSG_String &Directory)
 }
 
 //---------------------------------------------------------
+bool			SG_Dir_Delete(const CSG_String &Directory, bool bRecursive)
+{
+	if( !SG_Dir_Exists(Directory) )
+	{
+		return( true );
+	}
+
+	return( wxDir::Remove(Directory.c_str(), bRecursive ? wxPATH_RMDIR_RECURSIVE : 0) );
+}
+
+//---------------------------------------------------------
 CSG_String		SG_Dir_Get_Current(void)
 {
 	wxString cwd = wxFileName::GetCwd();

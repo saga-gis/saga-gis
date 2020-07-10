@@ -1164,6 +1164,7 @@ protected:
 //---------------------------------------------------------
 SAGA_API_DLL_EXPORT bool			SG_Dir_Exists				(const CSG_String &Directory);
 SAGA_API_DLL_EXPORT bool			SG_Dir_Create				(const CSG_String &Directory);
+SAGA_API_DLL_EXPORT bool			SG_Dir_Delete				(const CSG_String &Directory, bool bRecursive = false);
 SAGA_API_DLL_EXPORT CSG_String		SG_Dir_Get_Current			(void);
 SAGA_API_DLL_EXPORT CSG_String		SG_Dir_Get_Temp				(void);
 SAGA_API_DLL_EXPORT bool			SG_Dir_List_Subdirectories	(CSG_Strings &List, const CSG_String &Directory);
