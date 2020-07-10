@@ -4718,6 +4718,8 @@ TEXT	TRANSLATION
 "Real Surface Area"	""
 "Real-valued Numerical Features"	""
 "Recalculate"	""
+"Recharge"	""
+"Recharge Sum"	""
 "Reciprocal Flattening (rf)"	""
 "Reclassification of distance grid to buffer zones with a width equal to the equidistance value."	""
 "Reclassified"	""

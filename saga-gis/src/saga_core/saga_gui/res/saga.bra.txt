@@ -4718,6 +4718,8 @@ TEXT	TRANSLATION
 "Real Surface Area"	"Área real de superfície"
 "Real-valued Numerical Features"	"Feições Numéricas com valor de reais"
 "Recalculate"	"Recalcular"
+"Recharge"	""
+"Recharge Sum"	""
 "Reciprocal Flattening (rf)"	"Aplanamento recíproco (RF)"
 "Reclassification of distance grid to buffer zones with a width equal to the equidistance value."	"Reclassificação de grade por distância de zonas-de buffer, com uma largura igual ao valor de eqüidistância."
 "Reclassified"	""
