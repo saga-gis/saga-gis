@@ -23,7 +23,7 @@ SET EXE_SWIG="D:\libs\swigwin-4.0.1\swig.exe"
 
 
 REM ___________________________________
-SET SAGA_ROOT=%SAGA%
+SET SAGA_ROOT=%CD%\..\..\..
 
 IF /i "%ARCHITECTURE%" == "win32" (
 	SET SAGA_LIB="%SAGA_ROOT%\bin\saga_vc_win32"

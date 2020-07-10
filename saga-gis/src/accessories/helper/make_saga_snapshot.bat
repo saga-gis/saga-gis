@@ -8,7 +8,7 @@ ECHO Enter date of snapshot:
 SET /P DATUM=
 
 SET SAGA_VERSION=saga_%VERSION%_%DATUM%
-SET SAGA_ROOT=%SAGA%
+SET SAGA_ROOT=%CD%\..\..\..
 
 SET ZIPEXE="C:\Program Files\7-Zip\7z.exe" a -r -y -mx5
 

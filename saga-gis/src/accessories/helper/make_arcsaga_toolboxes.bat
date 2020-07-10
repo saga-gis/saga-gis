@@ -1,7 +1,7 @@
 @ECHO OFF
 
 REM ___________________________________
-SET SAGA_ROOT=%SAGA%
+SET SAGA_ROOT=%CD%\..\..\..
 
 REM ___________________________________
 IF /i "%ARC_VERSION%" == "0" (
