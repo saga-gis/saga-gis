@@ -633,11 +633,11 @@ CSG_Grid & CSG_Grid::_Operation_Arithmetic(const CSG_Grid &Grid, TSG_Grid_Operat
 		?	GRID_RESAMPLING_NearestNeighbour
 		:	GRID_RESAMPLING_BSpline;
 
-		for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+		#pragma omp parallel for
+		for(int y=0; y<Get_NY(); y++)
 		{
 			double	yWorld	= Get_YMin() + y * Get_Cellsize();
 
-			#pragma omp parallel for
 			for(int x=0; x<Get_NX(); x++)
 			{
 				if( !is_NoData(x, y) )
@@ -666,19 +666,6 @@ CSG_Grid & CSG_Grid::_Operation_Arithmetic(const CSG_Grid &Grid, TSG_Grid_Operat
 				}
 			}
 		}
-
-		SG_UI_Process_Set_Ready();
-
-		//-------------------------------------------------
-		CSG_String	Name;
-
-		switch( Operation )
-		{
-		case GRID_OPERATION_Addition      :	Name	= _TL("Addition"      );	break;
-		case GRID_OPERATION_Subtraction   :	Name	= _TL("Subtraction"   );	break;
-		case GRID_OPERATION_Multiplication:	Name	= _TL("Multiplication");	break;
-		case GRID_OPERATION_Division      :	Name	= _TL("Division"      );	break;
-		}
 	}
 
 	return( *this );
@@ -687,32 +674,25 @@ CSG_Grid & CSG_Grid::_Operation_Arithmetic(const CSG_Grid &Grid, TSG_Grid_Operat
 //---------------------------------------------------------
 CSG_Grid & CSG_Grid::_Operation_Arithmetic(double Value, TSG_Grid_Operation Operation)
 {
-	//-----------------------------------------------------
-	CSG_String	Name;
-
 	switch( Operation )
 	{
 	case GRID_OPERATION_Addition      :
-		Name	=  _TL("Addition");
 		if( Value == 0. )
 			return( *this );
 		break;
 
 	case GRID_OPERATION_Subtraction   :
-		Name	=  _TL("Subtraction");
 		if( Value == 0. )
 			return( *this );
 		Value	= -Value;
 		break;
 
 	case GRID_OPERATION_Multiplication:
-		Name	=  _TL("Multiplication");
 		if( Value == 1. )
 			return( *this );
 		break;
 
 	case GRID_OPERATION_Division      :
-		Name	=  _TL("Division");
 		if( Value == 0. )
 			return( *this );
 		Value	= 1. / Value;
