@@ -63,15 +63,7 @@ CQGIS_ToolBox::CQGIS_ToolBox(void)
 	Set_Author	("O.Conrad (c) 2020");
 
 	Set_Description	(_TW(
-		"Replace the binaries in:\n"
-		"> C:\\Program Files\\QGIS X.Y\\apps\\saga(-ltr)\n"
-		"\n"
-		"Adjust the interface in:\n"
-		"> C:\\Program Files\\QGIS X.Y\\apps\\qgis\\python\\plugins\\processing\\algs\\saga(-ltr)\n"
-		"\n"
-		"Adjust version in file:\n"
-		"> SagaAlgorithmProvider.py\n"
-		">> REQUIRED_VERSION = '7.7.'\n"
+		""
 	));
 
 	//-----------------------------------------------------
@@ -109,12 +101,7 @@ bool CQGIS_ToolBox::On_Execute(void)
 			SG_File_Delete(Files[i]);
 		}
 
-		SG_Dir_List_Files(Files, Directory + "/description");
-
-		for(int i=0; i<Files.Get_Count(); i++)
-		{
-			SG_File_Delete(Files[i]);
-		}
+		SG_Dir_Delete(Directory + "/description", true);
 	}
 
 	if( !SG_Dir_Exists(Directory + "/description") )
@@ -221,6 +208,22 @@ bool CQGIS_ToolBox::On_Execute(void)
 
 			Stream.Write("algorithms = {\n" + Algorithms + "}\n\n");
 			Stream.Write("def decoratedAlgorithmName(name):\n\treturn algorithms.get(name, name)\n\n");
+		}
+
+		//-------------------------------------------------
+		if( Stream.Open(SG_File_Make_Path(Directory, "readme", "txt"), SG_FILE_W, false) )
+		{
+			Stream.Write(
+				"Replace the SAGA binaries in:\n"
+				"> C:\\Program Files\\QGIS X.Y\\apps\\saga(-ltr)\n"
+				"\n"
+				"Adjust the interface in:\n"
+				"> C:\\Program Files\\QGIS X.Y\\apps\\qgis(-ltr)\\python\\plugins\\processing\\algs\\saga(-ltr)\n"
+				"\n"
+				"Adjust version in file:\n"
+				"> SagaAlgorithmProvider.py\n"
+				">> REQUIRED_VERSION = '7.7.'\n"
+			);
 		}
 	}
 
