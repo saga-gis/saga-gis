@@ -1,0 +1,968 @@
+************************************************************************
+                            SAGA TOOL CHAINS
+                              cheat sheat
+
+                         Volker Wichmann, 2017-19
+************************************************************************
+
+
+________________________________________________________________________
+
+1. Separate metafile for toolchain category (optional)
+------------------------------------------------------
+
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchains version="1.0.0">
+	<group>lis_toolchains</group>
+	<identifier>lis_toolchains</identifier>
+	<name>LiS Tool Chains</name>
+	<author>(c) 2017 by LASERDATA</author>
+	<menu absolute="TRUE">LiS Pro 3D|Tool Chains</menu>
+	<description>
+		Tool chains for LASERDATA LiS.
+	</description>
+</toolchains>
+
+>> note the "toolchainS" root tag here, instead of "toolchain"
+
+
+________________________________________________________________________
+
+2. Main file structure
+----------------------
+
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchain saga-version="2.4.0">
+	<group>lis_toolchains</group>
+	<identifier>mls_classification</identifier>
+	<name>MLS Classification</name>
+	<author>(c) 2017 by LASERDATA</author>
+	<menu absolute="TRUE">LiS Pro 3D|Toolchains</menu>
+	<description>Classification of MLS point clouds.</description>
+	<reference>
+		<authors>Zhu, Z., Woodcock, C.E.</authors>
+		<year>2012</year>
+		<title>Object-based cloud and cloud shadow detection in Landsat imagery</title>
+		<where>Remote Sensing of Environment 118, 83-94.</where>
+		<link>https://www.sciencedirect.com/science/article/pii/S0034425711003853</link>
+		<link_text>ScienceDirect</link_text>
+	</reference>
+	<parameters>
+		... the parameter interface visible to the user
+	</parameters>
+	<tools>
+		... the chained tools
+	</tools>
+</toolchain>
+
+
+If the menu path should be relative, set "absolute" to "FALSE" or omit the
+attribute completely:
+
+<menu>Imagery|Tools</menu>
+
+
+
+TODO: In general, you can place comments either by the XML convention
+
+<!-- this is a comment -->
+
+or by using the <comment> element (!??)
+
+
+
+________________________________________________________________________
+
+3. Parameter Interface
+-----------------------
+
+The parameter interface is described within the <parameters> element. A
+parameter is either <input>, <output> or <option>.
+
+Common to all parameters are the <name> and <description> elements:
+
+<name>The parameter name</name>
+<description>The parameter description</description>
+
+
+Individual parameters can be exposed depending on the application (GUI, CMD)
+from which the tool chain is called.
+
+For parameters only valid in saga_gui, set the attribute "with_gui" in the
+<input>, <output> or <option> element:
+
+with_gui="true"
+
+For parameters only valid in saga_cmd, set the attribute "with_cmd" in the
+<input>, <output> or <option> element:
+
+with_cmd="true"
+
+
+
+
+3.1. Dataobjects
+-----------------
+
+Dataobjects are defined either as <input> or <output> (note: file(s) and file
+path(s) are defined as <option>!).
+
+All parameters have a "varname" attribute, defining the parameter identifier.
+The identifier is used in a <tool> element to access the parameters.
+
+Additionally, the "type" attribute defines the type of the dataobject, like grid
+or shapes.
+
+Besides that, all <input> and <output> parameters share the additional
+attribute "optional", indicating whether a dataset is mandatory or optional.
+
+Some attributes are special to certain dataobjects, see the examples below.
+
+The name of output datasets can be set explicitely:
+
+<output varname="OUTPUT_GRID" type="grid">
+	<name>Output Grid</name>
+	<output_name>overwrite_name_with_this_one</output_name>
+</output>
+
+It is also possible to use the input name (here from parameter "GRIDS") and add
+an suffix:
+
+<output_name input="true" suffix="Gaussian Filter">GRIDS</output_name>
+
+
+For ouput datasets there is also the possibility to specify a colour palette
+with the <colours> element (using the SAGA API enumerator value):
+
+<colours>14</colours>
+
+The <colours> element has a "revert" attribute to indicate if the colour
+palette should be mirrored:
+ 
+<colours revert="TRUE">14</colours>
+
+
+
+
+3.1.1. Grids
+------------
+
+Grid inputs/outputs can use a defined grid system (otherwise each grid defines
+its own grid system, cluttering up the parameter interface):
+
+<option varname="GRID_SYSTEM" type="grid_system">
+	<name>Grid System</name>
+</option>
+
+The grid system is then provided with the "parent" attribute (if you do not
+like to pass a grid system, simply omit the "parent" attribute).
+
+An input grid is defined as:
+ 
+<input varname="INPUT_GRID" type="grid" parent="GRID_SYSTEM">
+	<name>Input Grid</name>
+</input>
+
+An output grid is defined as:
+
+<output varname="OUTPUT_GRID" type="grid" parent="GRID_SYSTEM">
+	<name>Output Grid</name>
+</output>
+
+Both input and output datasets can be "optional":
+
+<output varname="OUTPUT_GRID" type="grid" optional="true" parent="GRID_SYSTEM">
+	<name>Optional Output Grid</name>
+</output>
+
+An output grid can also have the "target" attribute set to "none" in case the
+grid system of the output grid is unknown:
+
+<output varname="OUTPUT_GRID" type="grid" target="none">
+	<name>Optional Output Grid</name>
+</output>
+
+
+
+3.1.2. Grid Lists
+-----------------
+
+Grid lists are defined as of type "grid_list", besides that they share most of
+the attributes available for single grids.
+
+Grid lists can be input or output:
+
+<input varname="INPUT_GRID_LIST" type="grid_list">
+	<name>Input Grid List</name>
+</input>
+
+<output varname="OUTPUT_GRID_LIST" type="grid_list">
+	<name>Output Grid List</name>
+</output>
+
+
+
+3.1.3. Grid Collections
+-----------------------
+
+Grid collections are of type "grids":
+
+<input varname="INPUT_GRID_COLLECTION" type="grids">
+	<name>Input Grid Collection</name>
+</input>
+
+<output varname="OUTPUT_GRID_COLLECTION" type="grids">
+	<name>Output Grid Collection</name>
+</output>
+
+
+3.1.4. Grid Collections Lists
+------------------------------
+
+Grid collection lists are of type "grids_list":
+
+<input varname="INPUT_GRID_COLLECTION_LIST" type="grids_list">
+	<name>Input Grid Collection List</name>
+</input>
+
+<output varname="OUTPUT_GRID_COLLECTION_LIST" type="grids_list">
+	<name>Output Grid Collection List</name>
+</output>
+
+
+
+3.1.5. Shapes
+-------------
+
+Shapes layers are defined as of type "shapes" and can be input or output:
+
+<input varname="INPUT_SHAPES" type="shapes">
+	<name>Input Shapes</name>
+</input>
+
+<output varname="OUTPUT_SHAPES" type="shapes">
+	<name>Output Shapes</name>
+</output>
+
+The feature type of an input or output shapes layer can be defined explicitely
+with the "feature_type" attribute:
+
+<input varname="INPUT_POINT_SHAPE" type="shapes" feature_type="point">
+	<name>Input Point Shape</name>
+</input>
+
+<input varname="INPUT_LINE_SHAPE" type="shapes" feature_type="line">
+	<name>Input Line Shape</name>
+</input>
+
+<input varname="INPUT_POLYGON_SHAPE" type="shapes" feature_type="polygon">
+	<name>Input Polygon Shape</name>
+</input>
+
+Table fields of shapes layers are defined in an <option> element and must define
+the "varname" (parameter identifier) of the shapes layer as "parent":
+
+<input varname="INPUT_SHAPES" type="shapes">
+	<name>Input Shape</name>
+</input>
+<option varname="ATTRIBUTE" type="table_field" parent="INPUT_SHAPES">
+	<name>Attribute</name>
+</option>
+
+
+
+TODO: ... type "table_fields"
+
+
+
+3.1.6. Shapes List
+-------------------
+
+Shapes lists are defined as of type "shapes_list". They share most of
+the attributes available for single shapes layers.
+
+<input varname="INPUT_SHAPES_LIST" type="shapes_list">
+	<name>Input Shape</name>
+</input>
+
+
+
+
+3.1.7. Tables
+-------------
+
+Tables are defined as oy type "table". Table fields are defined like with
+shapes datasets:
+
+<input varname="INPUT_TABLE" type="table">
+	<name>Input Table</name>
+</input>
+<option varname="FIELD_A" type="table_field" parent="INPUT_TABLE">
+	<name>Field A</name>
+</option>
+<option varname="FIELD_B" type="table_field" parent="INPUT_TABLE">
+	<name>Field B</name>
+</option>
+
+Note: fixed tables are a special case, such tables can be defined directly
+within the <tool> element, see below.
+
+
+
+3.1.8. Table List
+------------------
+
+Table lists are defined as of type "table_list". They share most of
+the attributes available for single tables.
+
+<input varname="INPUT_TABLE_LIST" type="table_list">
+	<name>Input Table List</name>
+</input>
+
+
+
+3.1.9. Point Clouds
+-------------------
+
+Point clouds are defined as of type "points". Similar to tables and shapes,
+table fields can be defined.
+
+<input varname="INPUT_POINTCLOUD" type="points">
+	<name>Input Point Cloud</name>
+</input>
+<option varname="FIELD_A" type="table_field" parent="INPUT_POINTCLOUD">
+	<name>Field A</name>
+</option>
+
+<output varname="OUTPUT_POINTCLOUD" type="points">
+	<name>Output Point Cloud</name>
+</output>
+
+
+
+3.1.10. Point Cloud Lists
+------------------------
+
+Point cloud lists are defined as of type "points_list".
+
+<input varname="INPUT_PC_LIST" type="points_list">
+    <name>Input Point Cloud List</name>
+</input>
+
+<output varname="OUTPUT_PC_LIST" type="points_list">
+    <name>Output Point Cloud List</name>
+</output>
+
+
+
+3.1.11. TIN
+-----------
+
+TINs are defined as of type "tin".
+
+<input varname="INPUT_TIN" type="tin">
+	<name>Input TIN</name>
+</input>
+
+<output varname="OUTPUT_TIN" type="tin">
+	<name>Output TIN</name>
+</output>
+
+
+
+3.1.12. TIN Lists
+------------------
+
+TIN lists are defined as of type "tin_list".
+
+<input varname="INPUT_TIN" type="tin">
+	<name>Input TIN</name>
+</input>
+
+<output varname="OUTPUT_TIN" type="tin">
+	<name>Output TIN</name>
+</output>
+
+
+
+
+3.1.13. Files and File Paths
+-----------------------------
+
+Files and filepaths are not defined as dataobjects in the SAGA API, but from a
+user perspective they are quite similar. Nevertheless they are not defined in
+<input> or <output> elements, but in an <option> element. Input and output files
+and directories are distinguished by the "save" attribute:
+
+<option varname="INPUT_FILE" type="file" save="false">
+	<name>Input File</name>
+	<description>The full path to the input file (*.png)"</description>
+	<value></value>
+	<filter>png|*.png|All Files|*.*</filter>
+</option>
+
+<option varname="OUTPUT_FILE" type="file" save="true">
+	<name>Output File</name>
+	<description>The full path to the output file (*.txt)"</description>
+	<value></value>
+	<filter>Tab delimited text|*.txt|All Files|*.*</filter>
+</option>
+
+
+Besides the name, description and default value elements, it is good practice to
+also specify a <filter> element, so that only files of the expected type are
+displayed in the file dialog.
+
+Files and filepaths are distinguished by the "directory" attribute:
+
+<option varname="OUTPUT_DIRECTORY" type="file" save="true" directory="true">
+	<name>Output Directory</name>
+</option>
+
+Finally, there is the "multiple" attribute to indicate that several files can
+be selected:
+
+<option varname="INPUT_FILES" type="file" save="false" multiple="true">
+	<name>Input File</name>
+	<description>The full path to the input file (*.png)"</description>
+	<value></value>
+	<filter>png|*.png|All Files|*.*</filter>
+</option>
+
+
+NOTE: in order to pass such a parameter to a tool interface (see below), it is
+necessary to indicate this by setting varname="true", e.g.:
+
+<tool>
+	...
+	<option id="FILE" varname="true">INPUT_FILE</option>
+	...
+</tool>
+
+Otherwise the tool does not expect that the "INPUT_FILE" variable is actually
+a parameter identifier defined in the parameter interface of the tool chain.
+This is not required for <input> and <output> dataobjects, here the provided
+variable is checked against the parameter interface automatically.
+
+
+
+
+3.2. Options
+-------------
+
+Besides the file and filepath parameers, the following parameter types are
+defined as <option>:
+
+- boolean
+- integer
+- double
+- range
+- choice
+- choices
+- degree
+- text
+- long_text
+- date
+- colours (with attribute "revert")
+
+
+Options can have a default value, specified with the <value> element. The
+<value> element can also have the attributes "min" and "max" to define the
+minimum and maximum values allowed for that parameter:
+
+<option varname="RF_TREE_COUNT" type="integer">
+	<name>Random Forest Tree Count</name>
+	<value min="1">32</value>
+	<description>The number of trees to create</description>
+</option>
+
+
+There is also a <unit> element to indicate the unit of the value:
+
+<unit>Minutes</unit>
+
+
+Examples:
+
+<option varname="FILL_SINKS" type="boolean">
+	<name>Fill Sinks</name>
+	<description>Check this parameter to fill sinks in the DEM"</description>
+	<value>FALSE</value>
+</option>
+
+
+<option varname="CLUSTERS" type="integer">
+	<name>Number of Clusters</name>
+	<value>5</value>
+</option>
+
+
+<option varname="CELL_SIZE" type="double">
+	<name>Cell Size</name>
+	<description>The cell size of the target grid</description>
+	<value>10.0</value>
+</option>
+
+
+<option varname="RANGE" type="range">
+	<name>Range</name>
+	<description>The minimum and maximum range</description>
+	<value>1.0;5.0</value>
+</option>
+
+
+<option varname="METHOD" type="choice">
+	<name>Thinning Method</name>
+	<choices>lowest|highest|nearest|mean</choices>
+	<description>The available thinning methods (choice index starts at zero)</description>
+	<value>2</value>
+</option>
+
+
+<option varname="ATTRIBUTE_SUFFIX" type="text">
+	<name>Attribute Suffix</name>
+	<description>The suffix to append to the attribute name</description>
+	<value>_suffix</value>
+</option>
+
+
+<option varname="LINE_WKT" type="long_text">
+	<name>Line as WKT</name>
+	<description>The profile line in WKT format</description>
+	<value>LINESTRING(75400 164080, 75400 164180, 75500 164180)</value>
+</option>
+
+
+
+Parameters can also be nested in order to make their relation more obvious to
+the user. This is accomplished with the "parent" attribute:
+
+<option varname="SEPARATOR" type="choice">
+	<name>Separator</name>
+	<choices>tabulator|;|,|space|other</choices>
+</option>
+<option varname="SEP_OTHER" type="text" parent="SEPARATOR">
+	<name>Separator (other)</name>
+	<value>*</value>
+</option>
+
+
+
+TO DO:	parameter nodes !?
+
+
+
+________________________________________________________________________
+
+4. Tools
+--------
+
+4.1. Tool calls
+---------------
+
+The actual chaining of tools is done within the <tools> element. Each tool is
+encapsulated in a <tool> element. The tool elements are processed from top to
+bottom.
+
+Like in the tool chain's parameter interface, the tools have either <input>,
+<output> or <option> elements. The <tool> element has the following attrinbutes:
+- id: an arbitrary identifier, optional
+- library: the tool library to be called
+- tool: the tool, i.e. its identifier in the tool library, to be called
+- name: the name of the tool to be called, optional
+
+Example:
+
+<tool id="tool_01" library="ta_lighting" tool="0" name="Analytical Hillshading">
+	<input id="ELEVATION">DTM</input>
+	<output id="SHADE">SHADING</output>
+	<option id="METHOD">0</option>
+	<option id="AZIMUTH">315.000000</option>
+	<option id="DECLINATION">45.000000</option>
+	<option id="EXAGGERATION">4.000000</option>
+</tool>
+
+
+
+4.2. Parameter Passing
+----------------------
+
+As stated above, <input> and <output> parameter identifiers defined in the tool
+chain's parameter interface can be passed directly to a tool interface. In the
+above example this would be the case for the "DTM" and "SHADING" identifiers.
+If we would like to also pass the azimuth parameter from the tool chain's
+parameter interface, we must (i) define it there as "double" parameter
+
+<option varname="SUN_AZIMUTH" type="double">
+	<name>Azimuth of the Sun</name>
+	<value min="0.0" max="360.0">315.0</value>
+</option>
+
+and then (ii) use the "varname" attribute in the tool call to indicate that we
+want to use the variable from the parameter interface
+
+<tool id="tool_01" library="ta_lighting" tool="0" name="Analytical Hillshading">
+	<input id="ELEVATION">DTM</input>
+	<output id="SHADE">SHADING</output>
+	<option id="METHOD">0</option>
+	<option id="AZIMUTH" varname="true">SUN_AZIMUTH</option>
+	<option id="DECLINATION">45.000000</option>
+	<option id="EXAGGERATION">4.000000</option>
+</tool>
+
+So setting the varname="true" attribute in a tool parameter indicates that tool
+parameter should get passed a variable from the tool chain's parameter
+interface. Here is another example:
+
+<tool library="ta_hydrology" tool="0" name="Flow Accumulation (Top-Down)">
+	<input id="ELEVATION">DTM</input>
+	<output id="FLOW">FLOWACC</output>
+	<option id="STEP">1</option>
+	<option id="FLOW_UNIT">1</option>
+	<option id="METHOD" varname="true">IDENTIFIER_FROM_PARAM_INTERFACE</option>
+	<option id="LINEAR_DO">FALSE</option>
+	<option id="CONVERGENCE">1.100000</option>
+</tool>
+
+
+Take care of the exact definition of a parameter type. If the tool expects a
+certain parameter type, e.g. a polygon shapes layer, then you have to pass
+exactly such a data type. If this is an input dataset, you would have to define
+the tool chain's input parameter as
+
+<input varname="INPUT_POLYGON_SHAPE" type="shapes" feature_type="polygon">
+	<name>Input Polygon Shape</name>
+</input>
+
+
+Sometimes it is necessary to be able to pass a single data object to a parameter
+list or, vice versa, a data object in a parameter list to a parameter expecting
+a single data object. As this is not directly possible (this violates the exact
+parameter type definition), there are mechanisms to pass single data objects
+to a parameter list and to address single data objects within a parameter list.
+
+If the tool's parameter interface has in input data list, like the "Grid
+Calculator" tool for example, you can pass several single datasets to this list
+by passing the parameter identifier of the list (here "GRIDS") several times:
+
+<tool library="grid_calculus" tool="1" name="Grid Calculator">
+	<input  id="GRIDS"  >GRID_A</input>
+	<input  id="GRIDS"  >GRID_B</input>
+	<input  id="GRIDS"  >GRID_C</input>
+	<output id="RESULT" >RESULT</output>
+	<option id="FORMULA">g2 + g1 * g3 / 100</option>
+	<option id="NAME"   >Temperature at Sea Level</option>
+</tool> 
+
+This is an other example, this time with a shapes input list:
+
+<tool library="shapes_tools" tool="2" name="Merge Layers">
+	<input id="INPUT">SHAPES_1</input>
+	<input id="INPUT">SHAPES_2</input>
+	<input id="INPUT">SHAPES_3</input>
+	<output id="MERGED">SHAPES_MERGED</output>
+</tool>
+
+
+
+Single data objects in parameter lists can be adressed via the index operator:
+
+<input id="ELEVATION">CLIPPED[0]</input>
+
+with 'CLIPPED' being defined as parameter list. The index values start at 0,
+i.e. the fist data object in a list is adressed by [0], the second by [1] and
+so on. 
+
+
+Table fields are passed as a comma seperated string with the field numbers:
+
+<tool library="table_calculus" tool="14" name="Cluster Analysis (Shapes)">
+	<option id="FIELDS">3,4,5,10,11</option>
+	<option id="METHOD">1</option>
+	<option id="NCLUSTER"  varname="TRUE">NCLUSTER</option>
+	<option id="NORMALISE" varname="TRUE">NORMALIZE</option>
+	<input  id="INPUT" >OBJECTS</input>
+	<output id="RESULT">CLUSTERS</output>
+</tool>
+
+
+
+
+4.3. Conditions
+---------------
+
+Within the <tools> element it is possible to check for certain conditions. An
+example is to execute a tool only if a certain conditions evaluates to "true",
+for example:
+
+<condition type="=" value="TRUE" variable="FILL_SINKS">
+	<tool id="tool_02" library="ta_preprocessor" tool="3" name="Fill Sinks (Planchon/Darboux, 2001)">
+		<input id="DEM">DTM</input>
+		<output id="RESULT">DTM</output>
+		<option id="MINSLOPE">0.010000</option>
+	</tool>
+</condition>
+
+
+Within the <tools> element it is possible to check for certain conditions. An
+example is to execute a tool only if a certain conditions evaluates to "true",
+for example:
+
+<condition type="=" value="TRUE" variable="FILL_SINKS">
+	<tool id="tool_02" library="ta_preprocessor" tool="3" name="Fill Sinks (Planchon/Darboux, 2001)">
+		<input id="DEM">DTM</input>
+		<output id="RESULT">DTM</output>
+		<option id="MINSLOPE">0.010000</option>
+	</tool>
+</condition>
+
+
+
+4.3.1. Condition Types
+----------------------
+
+The condition element has the attributes "type" "value" and "variable". The
+part of the tool chain that should only be executed if the condition evaluates
+to "true" is enculapsed by the <condition> tags. 
+
+
+Here is a list of the available condition types:
+
+- execution environment:
+
+<condition type="has_gui" value="true"></condition>
+--> is tool chain executed from saga_gui?
+
+
+- data objects:
+
+<condition type="exists">DATASET_IDENTIFIER</condition>
+--> does data object exist?
+
+<condition type="not_exists">DATASET_IDENTIFIER</condition>
+--> does data object not exist?
+
+
+- boolean parameters:
+
+<condition type="equal" value="TRUE" variable="PARAM_IDENTIFIER">
+
+<condition type="not_equal" value="TRUE" variable="PARAM_IDENTIFIER">
+
+
+- parameter types integer, double, degree, color, choice, string, text and
+  file path:
+	
+<condition type="equal" value="TRUE" variable="PARAM_IDENTIFIER">
+
+<condition type="not_equal" value="TRUE" variable="PARAM_IDENTIFIER">
+
+<condition type="less" value="TRUE" variable="PARAM_IDENTIFIER">
+
+<condition type="greater" value="TRUE" variable="PARAM_IDENTIFIER">
+
+
+Note that "equal" can also be written as "=", "not_equal" as "!", "less" as "<"
+and "greater" ">"
+
+
+Here is another example, where the condition checks the availability of a
+dataset:
+
+<condition type="exists" variable="THERMAL">
+	<tool library="grid_calculus" tool="1" name="Grid Calculator">
+		<option id="FORMULA">ifelse(lt(h1-273.15,27),g1,nodata())</option>
+		<option id=   "TYPE">2</option>
+		<input  id= "XGRIDS">THERMAL</input>
+		<input  id=  "GRIDS">CLOUDS</input>
+		<output id= "RESULT">CLOUDS</output>
+	</tool>	
+</condition>
+
+
+
+4.3.2. If/Else Statements
+-------------------------
+
+Within a <condition> element, a <if> and <else> elements can be used to control
+which code is executed if the condition evaluates to "true" and which code
+when the condition evaluates to "false". For example, if the "CHANNEL_LINES"
+dataset alraedy exists, it is directly converted to a grid, otherwise it is
+first created from a DEM and then gridded:
+
+<condition type="exists" variable="CHANNEL_LINES">
+	<if>
+		<tool library="grid_gridding" tool="0" name="Shapes to Grid">
+			<option id="MULTIPLE">3</option>
+			<option id="TARGET_DEFINITION">1</option>
+			<input  id="INPUT">CHANNEL_LINES</input>
+			<option id="FIELD" varname="true">CHANNEL_ORDER</option>
+			<output id="GRID">CHANNEL_GRID</output>
+		</tool>
+	</if>
+	<else>
+		<tool library="ta_preprocessor" tool="2" name="Sink Removal">
+			<input  id="DEM">DEM</input>
+			<output id="DEM_PREPROC">DEM_NOSINKS</output>
+		</tool>
+		<tool library="ta_channels" tool="5" name="Channel Network and Drainage Basins">
+			<option id="THRESHOLD">5</option>
+			<input  id="DEM">DEM_NOSINKS</input>
+			<output id="SEGMENTS">CHANNEL_LINES</output>
+		</tool>
+		<tool library="grid_gridding" tool="0" name="Shapes to Grid">
+			<option id="OUTPUT">2</option>
+			<option id="MULTIPLE">3</option>
+			<option id="TARGET_DEFINITION">1</option>
+			<input  id="INPUT">CHANNEL_LINES</input>
+			<option id="FIELD" varname="false">ORDER</option>
+			<output id="GRID">CHANNEL_GRID</output>
+		</tool>
+	</else>
+</condition>
+
+
+
+4.3.3. Parameter Enabling
+-------------------------
+
+Conditions can also be used in the tool chain's parameter interface in order to
+show some parameters only if a certain condition is met. In the following
+example, the "Kernel Radius" parameter is only shown in the parameter interface
+if the "Method" parameter is set to choice number 3 (index starts at zero), i.e.
+if "user defined kernel" is chosen: 
+
+<option varname="METHOD" type="choice">
+	<name>Method</name>
+	<choices>standard kernel 1|standard kernel 2|standard kernel 3|user defined kernel</choices>
+	<value>3</value>
+</option>
+<option varname="KERNEL_RADIUS" type="integer">
+	<condition value="3" type="=">METHOD</condition>
+	<name>Kernel Radius</name>
+	<value>2</value>
+</option>
+
+Otherwise, the "Kernel Radius" parameter is hidden.
+
+
+
+
+4.4. For Each Statements
+------------------------
+
+Within the <tools> element, a <foreach> element can be used to iterate over
+data object lists and call a tool (or several) for each of the datasets in the
+list:
+
+<foreach input="FILES">
+	<tool library="io_table" tool="1" name="Import Text Table">
+		<option id="HEADLINE"  varname="true">HEADLINE</option>
+		<option id="SEPARATOR" varname="true">SEPARATOR</option>
+		<option id="SEP_OTHER" varname="true">SEP_OTHER</option>
+		<option id="FILENAME"  varname="true">FILES</option>
+		<output id="TABLE">TABLES</output>
+	</tool>
+</foreach>
+
+It is obvious, that such a construct creates several output datasets. These
+datasets have to be gathered in a data object list. Such a list can be defined
+and used directly within the <tools> element:
+
+<datalist type="grid_list">LIST</datalist>
+
+<foreach input="GRIDS">
+	<tool library="grid_filter" tool="1" name="Gaussian Filter">
+		<option id="SIGMA"         varname="1">SIGMA</option>
+		<option id="KERNEL_TYPE"   varname="1">KERNEL_TYPE</option>
+		<option id="KERNEL_RADIUS" varname="1">KERNEL_RADIUS</option>
+		<input  id="INPUT" >GRIDS</input>
+		<output id="RESULT">LIST</output>
+	</tool>
+</foreach>
+
+
+
+"For each" statements can also be used to iterate over parameter values. For
+this, the attributes "varname" (to indicate the tool parameter which should be
+iterated), "begin", "end" and "step" are used. The latter describe the initial
+parameter value, the final parameter value and the increment applied after each
+iteration.
+
+For the "begin", "end", and "steps" attributes corresponding parameters must be
+defined in the tool chain's parameter interface:
+
+<parameters>
+	<option varname="BEGIN" type="double">
+		<name>Start Direction</name><value>0</value><description>[degree]</description>
+	</option>
+	<option varname="END" type="double">
+		<name>Stop Direction</name><value>359</value><description>[degree]</description>
+	</option>
+	<option varname="STEP" type="double">
+		<name>Directional Step</name><value min="1">45.0</value><description>[degree]</description>
+	</option>
+</parameters>
+
+These parameters can then be used in the "for each" statement, here to iterate
+of the "DIRECTION" parameter:
+
+<tools>
+	<foreach varname="DIRECTION" begin="BEGIN" end="END" step="STEP">
+		<tool library="statistics_grid" tool="6" name="Directional Statistics for Single Grid">
+			<option id="DIRECTION"     varname="true">DIRECTION</option>
+			<option id="TOLERANCE"     varname="true">TOLERANCE</option>
+			<option id="MAXDISTANCE"   varname="true">MAXDISTANCE</option>
+			<option id="DW_WEIGHTING"  varname="true">DW_WEIGHTING</option>
+			<option id="DW_IDW_POWER"  varname="true">DW_IDW_POWER</option>
+			<option id="DW_IDW_OFFSET" varname="true">DW_IDW_OFFSET</option>
+			<option id="DW_BANDWIDTH"  varname="true">DW_BANDWIDTH</option>
+			<input  id="GRID">GRID</input>
+			<output id="MEAN">MEAN</output>
+		</tool>
+	</foreach>
+</tools>
+
+
+
+
+5. Fixed Tables
+---------------
+
+Fixed tables are a special type of input tables. These tables are defined and
+edited within a tool's parameter interface. Such tables can also be used and
+defined within tool chains. They must be defined within the <tool> element of
+a tool, just like every other tool parameter. The example shows the definition
+of a fixed table (parameter identifier "RETAB"). The table is used for
+reclassification and has three fields (min, max, new) and two records:
+
+<option id="RETAB">
+    <OPTION type="static_table" id="RETAB" name="Lookup Table">
+      <FIELDS>
+        <FIELD type="DOUBLE">minimum</FIELD>
+        <FIELD type="DOUBLE">maximum</FIELD>
+        <FIELD type="DOUBLE">new</FIELD>
+      </FIELDS>
+      <RECORDS>
+        <RECORD>
+          <FIELD>14.000000</FIELD>
+          <FIELD>15.000000</FIELD>
+          <FIELD>7.000000</FIELD>
+        </RECORD>
+        <RECORD>
+          <FIELD>15.000000</FIELD>
+          <FIELD>16.000000</FIELD>
+          <FIELD>8.000000</FIELD>
+        </RECORD>
+      </RECORDS>
+    </OPTION>
+</option>
+
+
+
+
+
+TODO:	tag "delete" ???
+
+
+
