@@ -228,7 +228,7 @@ double	CT_Get_ETpot_FAORef	(double T, double Tmin, double Tmax, double Rg, doubl
 	}
 
 	// (3. 2) psychrometric constant [kPa/°C]
-	double	y	= 0.664742 * P;
+	double	y	= 0.000664742 * P;
 
 	// (3. 6) slope of saturation vapour pressure curve at air temperature T [kPa/°C]
 	double	A	= 4098. * (0.6108 * exp((17.27 * T) / (T + 237.3))) / SG_Get_Square(T + 237.3);
