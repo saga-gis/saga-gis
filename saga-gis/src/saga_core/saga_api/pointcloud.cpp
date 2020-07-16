@@ -1191,7 +1191,7 @@ bool CSG_PointCloud::_Stats_Update(int iField) const
 		return( true );
 	}
 
-	if( Get_Max_Samples() > 0 && Get_Max_Samples() < Get_Count() )
+	if( iField > 2 && Get_Max_Samples() > 0 && Get_Max_Samples() < Get_Count() )
 	{
 		double	d	= (double)Get_Count() / (double)Get_Max_Samples();
 
