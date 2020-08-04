@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: svm_grids.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "svm_grids.h"
 
 
@@ -83,18 +71,19 @@ void	SVM_Printf(const char *s)
 //---------------------------------------------------------
 CSVM_Grids::CSVM_Grids(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("SVM Classification"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2012"));
+	Set_Author		("O.Conrad (c) 2012");
 
 	Set_Description	(_TW(
-		"Support Vector Machine (SVM) based classification for grids.\n"
-		"Reference:\n"
-		"Chang, C.-C. / Lin, C.-J. (2011): A library for support vector machines. "
-		"ACM Transactions on Intelligent Systems and Technology, vol.2/3, p.1-27. "
-		"<a target=\"_blank\" href=\"http://www.csie.ntu.edu.tw/~cjlin/libsvm\">LIBSVM Homepage</a>.\n"
+		"Support Vector Machine (SVM) based classification for grids."
 	));
+
+	Add_Reference("Chang, C.-C. & Lin, C.-J.", "2011",
+		"A library for support vector machines",
+		"ACM Transactions on Intelligent Systems and Technology, vol.2/3, p.1-27.",
+		SG_T("http://www.csie.ntu.edu.tw/~cjlin/libsvm"), SG_T("LIBSVM Homepage")
+	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List("",
@@ -109,10 +98,16 @@ CSVM_Grids::CSVM_Grids(void)
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Short
 	);
 
+	Parameters.Add_Table("CLASSES",
+		"CLASSES_LUT"	, _TL("Look-up Table"),
+		_TL("A reference list of the grid values that have been assigned to the training classes."),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
 	Parameters.Add_Choice("",
 		"SCALING"		, _TL("Scaling"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("none"),
 			_TL("normalize (0-1)"),
 			_TL("standardize")
@@ -128,7 +123,7 @@ CSVM_Grids::CSVM_Grids(void)
 	Parameters.Add_Choice("",
 		"MODEL_SRC"		, _TL("Model Source"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("create from training areas"),
 			_TL("restore from file")
 		), 0
@@ -167,7 +162,7 @@ CSVM_Grids::CSVM_Grids(void)
 	Parameters.Add_Choice("MODEL_TRAIN",
 		"SVM_TYPE"	, _TL("SVM Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s",
 			_TL("C-SVC"),
 			_TL("nu-SVC"),
 			_TL("one-class SVM"),
@@ -179,7 +174,7 @@ CSVM_Grids::CSVM_Grids(void)
 	Parameters.Add_Choice("MODEL_TRAIN",
 		"KERNEL_TYPE", _TL("Kernel Type"),
 		_TL("linear: u'*v\npolynomial: (gamma*u'*v + coef0)^degree\nradial basis function: exp(-gamma*|u-v|^2)\nsigmoid: tanh(gamma*u'*v + coef0)"),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("linear"),
 			_TL("polynomial"),
 			_TL("radial basis function"),
@@ -261,8 +256,6 @@ CSVM_Grids::CSVM_Grids(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -270,17 +263,15 @@ int CSVM_Grids::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 {
 	if(	pParameter->Cmp_Identifier(SG_T("MODEL_SRC")) )
 	{
-		pParameters->Get_Parameter("MODEL_TRAIN")->Set_Enabled(pParameter->asInt() == 0);
-		pParameters->Get_Parameter("MODEL_LOAD" )->Set_Enabled(pParameter->asInt() == 1);
+		pParameters->Set_Enabled("MODEL_TRAIN", pParameter->asInt() == 0);
+		pParameters->Set_Enabled("MODEL_LOAD" , pParameter->asInt() == 1);
 	}
 
-	return( 1 );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -291,28 +282,25 @@ inline double CSVM_Grids::Get_Value(int x, int y, int iGrid)
 
 	switch( m_Scaling )
 	{
-	default:	return( (pGrid->asDouble(x, y)) );
-	case  1:	return( (pGrid->asDouble(x, y) - pGrid->Get_Min()) / pGrid->Get_Range() );
-	case  2:	return( (pGrid->asDouble(x, y) - pGrid->Get_Mean()) / pGrid->Get_StdDev() );
+	default: return( (pGrid->asDouble(x, y)) );
+	case  1: return( (pGrid->asDouble(x, y) - pGrid->Get_Min ()) / pGrid->Get_Range () );
+	case  2: return( (pGrid->asDouble(x, y) - pGrid->Get_Mean()) / pGrid->Get_StdDev() );
 	}
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSVM_Grids::On_Execute(void)
 {
-	//-----------------------------------------------------
 	m_pModel	= NULL;
 
 	m_pClasses	= Parameters("CLASSES")->asGrid();
-	m_pClasses	->Set_NoData_Value(-1);
-	m_pClasses	->Assign(0.0);
+	m_pClasses	->Set_NoData_Value(-1.);
+	m_pClasses	->Assign(0.);
 
 	m_Scaling	= Parameters("SCALING")->asInt();
 
@@ -320,7 +308,7 @@ bool CSVM_Grids::On_Execute(void)
 
 	for(int i=m_pGrids->Get_Grid_Count()-1; i>=0; i--)
 	{
-		if( m_pGrids->Get_Grid(i)->Get_Range() <= 0.0 )
+		if( m_pGrids->Get_Grid(i)->Get_Range() <= 0. )
 		{
 			Message_Fmt("\n%s: %s", _TL("grid has been dropped"), m_pGrids->Get_Grid(i)->Get_Name());
 
@@ -418,8 +406,6 @@ bool CSVM_Grids::Predict(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -462,8 +448,6 @@ bool CSVM_Grids::Load(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -575,7 +559,7 @@ bool CSVM_Grids::Training(void)
 
 			if( param.svm_type == EPSILON_SVR || param.svm_type == NU_SVR )
 			{
-				double	total_error = 0.0, sum_v = 0.0, sum_y = 0.0, sum_vv = 0.0, sum_yy = 0.0, sum_vy = 0.0;
+				double	total_error = 0., sum_v = 0., sum_y = 0., sum_vv = 0., sum_yy = 0., sum_vy = 0.;
 
 				for(int i=0; i<m_Problem.l; i++)
 				{
@@ -617,7 +601,7 @@ bool CSVM_Grids::Training(void)
 				Summary	 = CSG_String::Format(SG_T("%s\n\t%s: %g%%\n"),
 					_TL("Cross Validation"),
 					_TL("Accuracy"),
-					100.0 * total_correct / m_Problem.l
+					100. * total_correct / m_Problem.l
 				);
 			}
 
@@ -653,7 +637,7 @@ bool CSVM_Grids::Training_Get_Parameters(struct svm_parameter &param)
 
 	if( param.gamma == 0 && m_pGrids->Get_Grid_Count() > 0 )
 	{
-		param.gamma	= 1.0 / m_pGrids->Get_Grid_Count();
+		param.gamma	= 1. / m_pGrids->Get_Grid_Count();
 	}
 
 	return( true );
@@ -737,48 +721,62 @@ bool CSVM_Grids::Training_Get_Elements(CSG_Table &Elements)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSVM_Grids::Finalize(void)
 {
+	m_pClasses->Fmt_Name("%s [%s]", _TL("Classification"), _TL("SVM"));
+
 	//-----------------------------------------------------
-	CSG_Parameters	P;
-
-	if( DataObject_Get_Parameters(m_pClasses, P) && P("COLORS_TYPE") && P("LUT") )
+	if( m_Classes.Get_Count() > 0 )
 	{
-		CSG_Table	*pTable	= P("LUT")->asTable();
+		CSG_Parameter	*pLUT	= DataObject_Get_Parameter(m_pClasses, "LUT");
 
-		for(int iClass=0; iClass<m_Classes.Get_Count(); iClass++)
+		if( pLUT )
 		{
-			CSG_Table_Record	*pRecord	= pTable->Get_Record(iClass);
-
-			if( pRecord == NULL )
+			for(int i=0; i<m_Classes.Get_Count(); i++)
 			{
-				pRecord	= pTable->Add_Record();
-				pRecord->Set_Value(0, SG_GET_RGB(rand() * 255.0 / RAND_MAX, rand() * 255.0 / RAND_MAX, rand() * 255.0 / RAND_MAX));
+				CSG_Table_Record	*pClass	= pLUT->asTable()->Get_Record(i);
+
+				if( !pClass )
+				{
+					(pClass	= pLUT->asTable()->Add_Record())->Set_Value(0, SG_Color_Get_Random());
+				}
+
+				pClass->Set_Value(1, m_Classes[i].asString(0));
+				pClass->Set_Value(2, m_Classes[i].asString(0));
+				pClass->Set_Value(3, i + 1);
+				pClass->Set_Value(4, i + 1);
 			}
 
-			pRecord->Set_Value(1, m_Classes[iClass].asString(0));
-			pRecord->Set_Value(2, m_Classes[iClass].asString(0));
-			pRecord->Set_Value(3, iClass + 1);
-			pRecord->Set_Value(4, iClass + 1);
+			pLUT->asTable()->Set_Record_Count(m_Classes.Get_Count());
+
+			DataObject_Set_Parameter(m_pClasses, pLUT);
+			DataObject_Set_Parameter(m_pClasses, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
 		}
 
-		while( pTable->Get_Record_Count() > m_Classes.Get_Count() )
+		//-------------------------------------------------
+		if( Parameters("CLASSES_LUT")->asTable() )
 		{
-			pTable->Del_Record(pTable->Get_Record_Count() - 1);
+			CSG_Table	&LUT	= *Parameters("CLASSES_LUT")->asTable();
+
+			LUT.Destroy();
+			LUT.Set_Name(m_pClasses->Get_Name());
+			LUT.Add_Field("VALUE", SG_DATATYPE_Int   );
+			LUT.Add_Field("CLASS", SG_DATATYPE_String);
+
+			for(int i=0; i<m_Classes.Get_Count(); i++)
+			{
+				CSG_Table_Record	&Class	= *LUT.Add_Record();
+
+				Class.Set_Value(0, m_Classes[i].asInt   (0));
+				Class.Set_Value(1, m_Classes[i].asString(1));
+			}
 		}
 
-		P("COLORS_TYPE")->Set_Value(1);	// Color Classification Type: Lookup Table
-
-		DataObject_Set_Parameters(m_pClasses, P);
+		m_Classes.Destroy();
 	}
-
-	//-----------------------------------------------------
-	m_pClasses->Fmt_Name("%s [%s]", _TL("Classification"), _TL("SVM"));
 
 	//-----------------------------------------------------
 	return( true );

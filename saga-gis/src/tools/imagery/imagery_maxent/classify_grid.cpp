@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: template.cpp 911 2011-11-11 11:11:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "classify_grid.h"
 
 //---------------------------------------------------------
@@ -76,7 +64,6 @@ using namespace std;
 //---------------------------------------------------------
 CClassify_Grid::CClassify_Grid(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Maximum Entropy Classifcation"));
 
 	Set_Author		("O.Conrad (c) 2015");
@@ -118,9 +105,15 @@ CClassify_Grid::CClassify_Grid(void)
 	);
 
 	Parameters.Add_Grid("",
-		"CLASSES"			, _TL("Classes"),
+		"CLASSES"		, _TL("Classes"),
 		_TL(""),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Short
+	);
+
+	Parameters.Add_Table("CLASSES",
+		"CLASSES_LUT"	, _TL("Look-up Table"),
+		_TL("A reference list of the grid values that have been assigned to the training classes."),
+		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid("",
@@ -143,9 +136,9 @@ CClassify_Grid::CClassify_Grid(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Choice("",
-		"METHOD"			, _TL("Method"),
+		"METHOD"		, _TL("Method"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("Yoshimasa Tsuruoka"),
 			_TL("Dekang Lin")
 		)
@@ -167,17 +160,17 @@ CClassify_Grid::CClassify_Grid(void)
 	Parameters.Add_Choice("",
 		"YT_REGUL"		, _TL("Regularization"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s",
 			_TL("none"),
 			SG_T("L1"),
 			SG_T("L2")
 		), 1
 	);
 
-	Parameters.Add_Value("YT_REGUL",
+	Parameters.Add_Double("YT_REGUL",
 		"YT_REGUL_VAL"	, _TL("Regularization Factor"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0, 0.0, true
+		1., 0., true
 	);
 
 	Parameters.Add_Bool("",
@@ -196,7 +189,7 @@ CClassify_Grid::CClassify_Grid(void)
 	Parameters.Add_Double("",
 		"DL_THRESHOLD"	, _TL("Threshold"),
 		_TL(""),
-		0.0, 0.0, true
+		0., 0., true
 	);
 
 	Parameters.Add_Int("",
@@ -207,7 +200,7 @@ CClassify_Grid::CClassify_Grid(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Int("",
-		"NUM_CLASSES"		, _TL("Number of Numeric Value Classes"),
+		"NUM_CLASSES"	, _TL("Number of Numeric Value Classes"),
 		_TL(""),
 		32, 1, true
 	);
@@ -215,7 +208,7 @@ CClassify_Grid::CClassify_Grid(void)
 	Parameters.Add_Double("",
 		"PROB_MIN"		, _TL("Minimum Probability"),
 		_TL("Minimum probability to accept a classification result for a cell."),
-		 0.0, 0.0, true, 1.0, true
+		 0., 0., true, 1., true
 	);
 }
 
@@ -227,10 +220,10 @@ CClassify_Grid::CClassify_Grid(void)
 //---------------------------------------------------------
 int CClassify_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	bool	bFile	= SG_File_Exists(pParameters->Get_Parameter("YT_FILE_LOAD")->asString());
-	int		Method	= pParameters->Get_Parameter("METHOD")->asInt();
+	bool	bFile	= SG_File_Exists((*pParameters)("YT_FILE_LOAD")->asString());
+	int		Method	= (*pParameters)("METHOD")->asInt();
 
-	pParameters->Set_Enabled("NUM_CLASSES"  , Method == 1 || !pParameters->Get_Parameter("YT_NUMASREAL")->asBool());
+	pParameters->Set_Enabled("NUM_CLASSES"  , Method == 1 || !(*pParameters)("YT_NUMASREAL")->asBool());
 
 	pParameters->Set_Enabled("TRAINING"     , Method == 1 || !bFile);
 
@@ -255,7 +248,6 @@ int CClassify_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 bool CClassify_Grid::On_Execute(void)
 {
-	//-----------------------------------------------------
 	EventSet	DL_Events ;	m_DL_Events  = &DL_Events ;
 	GISTrainer	DL_Trainer;	m_DL_Trainer = &DL_Trainer;
 	MaxEntModel	DL_Model  ;	m_DL_Model   = &DL_Model  ;
@@ -265,6 +257,13 @@ bool CClassify_Grid::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Grid	*pClasses	= Parameters("CLASSES")->asGrid();
 	CSG_Grid	*pProb		= Parameters("PROB"   )->asGrid();
+
+	pClasses->Set_NoData_Value(-1);
+
+	if( !pProb->Get_Range() )
+	{
+		DataObject_Set_Colors(pProb, 11, SG_COLORS_YELLOW_GREEN);
+	}
 
 	m_pProbs		= Parameters("PROBS_CREATE")->asBool() ? Parameters("PROBS")->asGridList() : NULL;
 	m_Method		= Parameters("METHOD"      )->asInt ();
@@ -294,10 +293,6 @@ bool CClassify_Grid::On_Execute(void)
 		return( false );
 	}
 
-	pClasses->Set_NoData_Value(-1);
-
-	if( !pProb->Get_Range() )	DataObject_Set_Colors(pProb, 11, SG_COLORS_YELLOW_GREEN);
-
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("prediction"));
 
@@ -308,10 +303,9 @@ bool CClassify_Grid::On_Execute(void)
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			int			i;
 			CSG_Strings	Values;
 
-			for(i=0; i<m_nFeatures; i++)
+			for(int i=0; i<m_nFeatures; i++)
 			{
 				if( !m_Features[i].pGrid->is_NoData(x, y) )
 				{
@@ -327,67 +321,71 @@ bool CClassify_Grid::On_Execute(void)
 			{
 				pClasses->Set_NoData(x, y);
 
-				for(i=0; m_pProbs && i<m_pProbs->Get_Grid_Count(); i++)
+				for(int i=0; m_pProbs && i<m_pProbs->Get_Grid_Count(); i++)
 				{
 					m_pProbs->Get_Grid(i)->Set_NoData(x, y);
 				}
 			}
+
+			//---------------------------------------------
 			else switch( m_Method )
 			{
-			//---------------------------------------------
-			default:	// Kyoshida
+			default: {	// Kyoshida
+				ME_Sample	Sample;
+
+				for(int i=0; i<m_nFeatures; i++)
 				{
-					ME_Sample	Sample;
-
-					for(i=0; i<m_nFeatures; i++)
+					if( m_bYT_Weights && m_Features[i].bNumeric )
 					{
-						if( m_bYT_Weights && m_Features[i].bNumeric )
-						{
-							Sample.add_feature(m_Features[i].Name, m_Features[i].pGrid->asDouble(x, y));
-						}
-						else
-						{
-							Sample.add_feature(Values[i].b_str());
-						}
+						Sample.add_feature(m_Features[i].Name, m_Features[i].pGrid->asDouble(x, y));
 					}
-
-					vector<double> Probs	= m_YT_Model.classify(Sample);
-
-					pProb   ->Set_Value(x, y, Probs[i = m_YT_Model.get_class_id(Sample.label)]);
-					pClasses->Set_Value(x, y, Probs[i] >= minProb ? i : -1);
-
-					for(i=0; m_pProbs && i<m_pProbs->Get_Grid_Count() && i<(int)Probs.size(); i++)
+					else
 					{
-						m_pProbs->Get_Grid(i)->Set_Value(x, y, Probs[i]);
+						Sample.add_feature(Values[i].b_str());
 					}
 				}
-				break;
+
+				vector<double> Probs	= m_YT_Model.classify(Sample);
+
+				int	p	= m_YT_Model.get_class_id(Sample.label);
+
+				pProb   ->Set_Value(x, y, Probs[p]);
+				pClasses->Set_Value(x, y, Probs[p] >= minProb ? p : -1);
+
+				for(int i=0; m_pProbs && i<m_pProbs->Get_Grid_Count() && i<(int)Probs.size(); i++)
+				{
+					m_pProbs->Get_Grid(i)->Set_Value(x, y, Probs[i]);
+				}
+
+			break; }
 
 			//---------------------------------------------
-			case  1:	// Dekang Lin
+			case  1: {	// Dekang Lin
+				MaxEntEvent Event;	Event.count(1);
+
+				for(int i=0; i<m_nFeatures; i++)
 				{
-					MaxEntEvent Event;	Event.count(1);
-
-					for(i=0; i<m_nFeatures; i++)
-					{
-						Event.push_back(m_DL_Trainer->getId(Values[i].b_str()));
-					}
-
-					vector<double> Probs;
-
-					pProb   ->Set_Value(x, y, Probs[i = m_DL_Model->getProbs(Event, Probs)]);
-					pClasses->Set_Value(x, y, Probs[i] >= minProb ? i : -1);
-
-					for(i=0; m_pProbs && i<m_pProbs->Get_Grid_Count() && i<(int)Probs.size(); i++)
-					{
-						m_pProbs->Get_Grid(i)->Set_Value(x, y, Probs[i]);
-					}
+					Event.push_back(m_DL_Trainer->getId(Values[i].b_str()));
 				}
-				break;
+
+				vector<double> Probs;
+
+				int	p	= m_DL_Model->getProbs(Event, Probs);
+
+				pProb   ->Set_Value(x, y, Probs[p]);
+				pClasses->Set_Value(x, y, Probs[p] >= minProb ? p : -1);
+
+				for(int i=0; m_pProbs && i<m_pProbs->Get_Grid_Count() && i<(int)Probs.size(); i++)
+				{
+					m_pProbs->Get_Grid(i)->Set_Value(x, y, Probs[i]);
+				}
+
+				break; }
 			}
 		}
 	}
 
+	//-----------------------------------------------------
 	return( true );
 }
 
@@ -445,11 +443,10 @@ bool CClassify_Grid::Get_Features(CSG_Array &Features)
 //---------------------------------------------------------
 bool CClassify_Grid::Get_Training(void)
 {
-	//-----------------------------------------------------
-	CSG_Shapes	*pTraining	= Parameters("TRAINING")->asShapes();
-	int			Field		= Parameters("FIELD"   )->asInt   ();
+	CSG_Shapes *pAreas = Parameters("TRAINING")->asShapes();
+	int        Field   = Parameters("FIELD"   )->asInt   ();
 
-	if( pTraining->Get_Count() <= 0 )
+	if( pAreas->Get_Count() < 1 )
 	{
 		Error_Set(_TL("invalid training data"));
 
@@ -457,72 +454,90 @@ bool CClassify_Grid::Get_Training(void)
 	}
 
 	//-----------------------------------------------------
-	int				nClasses	= 0;
-	CSG_String		Name;
-	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(Parameters("CLASSES")->asGrid(), "LUT");
+	CSG_Strings	Classes; CSG_String Class;
 
-	pTraining->Set_Index(Field, TABLE_INDEX_Ascending);
+	CSG_Index Index; pAreas->Set_Index(Index, Field);
 
-	for(int i=0; i<pTraining->Get_Count(); i++)
+	for(int i=0; i<pAreas->Get_Count(); i++)
 	{
-		CSG_Shape	*pArea	= pTraining->Get_Shape_byIndex(i);
+		CSG_Shape_Polygon	*pArea	= (CSG_Shape_Polygon *)pAreas->Get_Shape(Index[i]);
 
-		if( i == 0 || Name.Cmp(pArea->asString(Field)) )
+		if( i == 0 || Class.Cmp(pArea->asString(Field)) )
 		{
-			Name	= pTraining->Get_Shape_byIndex(i)->asString(Field);
+			Classes	+= (Class = pArea->asString(Field));
 
 			if( m_pProbs )
 			{
-				CSG_Grid	*pGrid	= m_pProbs->Get_Grid(i);
+				CSG_Grid	*pProb	= m_pProbs->Get_Grid(i);
 
-				if( !pGrid )
+				if( !pProb )
 				{
-					m_pProbs->Add_Item(pGrid = SG_Create_Grid(Get_System()));
-
-					DataObject_Set_Colors(pGrid, 11, SG_COLORS_YELLOW_GREEN);
+					m_pProbs->Add_Item(pProb = SG_Create_Grid(Get_System()));
 				}
 
-				pGrid->Set_Name(Name);
-			}
-
-			if( pLUT && pLUT->asTable() )
-			{
-				CSG_Table_Record	*pClass	= pLUT->asTable()->Get_Record(nClasses);
-
-				if( !pClass )
-				{
-					(pClass	= pLUT->asTable()->Add_Record())->Set_Value(0, SG_Color_Get_Random());
-				}
-
-				pClass->Set_Value(1, Name);
-				pClass->Set_Value(3, nClasses);
-				pClass->Set_Value(4, nClasses);
+				pProb->Set_Name(Class);
 			}
 
 			if( m_Method == 1 )	// Dekang Lin
 			{
-				m_DL_Trainer->addClass(Name.b_str());
+				m_DL_Trainer->addClass(Class.b_str());
 			}
-
-			nClasses++;
 		}
 
-		Get_Training(Name, (CSG_Shape_Polygon *)pArea);
+		Get_Training(Class, pArea);
 	}
 
-	if( nClasses <= 1 )
+	if( Classes.Get_Count() < 1 )
 	{
-		Error_Set(_TL("only one class in training data"));
+		Error_Set(_TL("no classes found in training data"));
 
 		return( false );
 	}
 
+	//-----------------------------------------------------
+	CSG_Grid	*pClasses	= Parameters("CLASSES")->asGrid();
+
+	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(pClasses, "LUT");
+
 	if( pLUT && pLUT->asTable() )
 	{
-		pLUT->asTable()->Set_Record_Count(nClasses);
+		for(int i=0; i<Classes.Get_Count(); i++)
+		{
+			CSG_Table_Record	*pClass	= pLUT->asTable()->Get_Record(i);
 
-		DataObject_Set_Parameter(Parameters("CLASSES")->asGrid(), pLUT);
-		DataObject_Set_Parameter(Parameters("CLASSES")->asGrid(), "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
+			if( !pClass )
+			{
+				(pClass	= pLUT->asTable()->Add_Record())->Set_Value(0, SG_Color_Get_Random());
+			}
+
+			pClass->Set_Value(1, Classes[i]);
+			pClass->Set_Value(3,         i );
+			pClass->Set_Value(4,         i );
+		}
+
+		pLUT->asTable()->Set_Record_Count(Classes.Get_Count());
+
+		DataObject_Set_Parameter(pClasses, pLUT            );
+		DataObject_Set_Parameter(pClasses, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
+	}
+
+	//-----------------------------------------------------
+	if( Parameters("CLASSES_LUT")->asTable() )
+	{
+		CSG_Table	&LUT	= *Parameters("CLASSES_LUT")->asTable();
+
+		LUT.Destroy();
+		LUT.Set_Name(pClasses->Get_Name());
+		LUT.Add_Field("VALUE", pClasses->Get_Type());
+		LUT.Add_Field("CLASS", SG_DATATYPE_String  );
+
+		for(int i=0; i<Classes.Get_Count(); i++)
+		{
+			CSG_Table_Record	&Class	= *LUT.Add_Record();
+
+			Class.Set_Value(0,         i );
+			Class.Set_Value(1, Classes[i]);
+		}
 	}
 
 	//-----------------------------------------------------
@@ -530,22 +545,21 @@ bool CClassify_Grid::Get_Training(void)
 
 	switch( m_Method )
 	{
-	//-----------------------------------------------------
-	default:	// Kyoshida
+	default: {	// Kyoshida
 		switch( Parameters("YT_REGUL")->asInt() )
 		{
 		default:
-			m_YT_Model.use_l1_regularizer(0.0);
-			m_YT_Model.use_l2_regularizer(0.0);
+			m_YT_Model.use_l1_regularizer(0.);
+			m_YT_Model.use_l2_regularizer(0.);
 			break;
 
 		case  1:
 			m_YT_Model.use_l1_regularizer(Parameters("YT_REGUL_VAL")->asDouble());
-			m_YT_Model.use_l2_regularizer(0.0);
+			m_YT_Model.use_l2_regularizer(0.);
 			break;
 
 		case  2:
-			m_YT_Model.use_l1_regularizer(0.0);
+			m_YT_Model.use_l1_regularizer(0.);
 			m_YT_Model.use_l2_regularizer(Parameters("YT_REGUL_VAL")->asDouble());
 			break;
 		}
@@ -554,126 +568,116 @@ bool CClassify_Grid::Get_Training(void)
 
 		m_YT_Model.train();
 
+	/*	list< pair< pair<string, string>, double > > Features;
+
+		m_YT_Model.get_features(Features);
+
+		for(list< pair< pair<string, string>, double> >::const_iterator i=Features.begin(); i!=Features.end(); i++)
 		{
-		/*	list< pair< pair<string, string>, double > > Features;
-
-			m_YT_Model.get_features(Features);
-
-			for(list< pair< pair<string, string>, double> >::const_iterator i=Features.begin(); i!=Features.end(); i++)
-			{
-				Message_Fmt("\n%10.3f  %-10s %s", i->second, i->first.first.c_str(), i->first.second.c_str());
-			}/**/
-
-			CSG_String	File(Parameters("YT_FILE_SAVE")->asString());
-
-			if( !File.is_Empty() )
-			{
-				m_YT_Model.save_to_file(File.b_str());
-			}
+			Message_Fmt("\n%10.3f  %-10s %s", i->second, i->first.first.c_str(), i->first.second.c_str());
 		}
-		break;
+	*/
+
+		CSG_String	File(Parameters("YT_FILE_SAVE")->asString());
+
+		if( !File.is_Empty() )
+		{
+			m_YT_Model.save_to_file(File.b_str());
+		}
+
+		break; }
 
 	//-----------------------------------------------------
-	case  1:	// Dekang Lin
+	case  1: {	// Dekang Lin
 		m_DL_Trainer->printDetails(true);	// show the parameters during training
 
 		m_DL_Trainer->Set_Alpha     (Parameters("DL_ALPHA"     )->asDouble());
 		m_DL_Trainer->Set_Threshold (Parameters("DL_THRESHOLD" )->asDouble());
-		m_DL_Trainer->Set_Iterations(Parameters("DL_ITERATIONS")->asInt());
+		m_DL_Trainer->Set_Iterations(Parameters("DL_ITERATIONS")->asInt   ());
 
 		m_DL_Model->classes(m_DL_Trainer->classes().size());
 
 		m_DL_Trainer->train(*m_DL_Model, *m_DL_Events);	// train the model
 
-		break;
+		break; }
 	}
 
 	//-----------------------------------------------------
 	return( true );
 }
 
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 void CClassify_Grid::Get_Training(const CSG_String &ID, CSG_Shape_Polygon *pArea)
 {
-	int	xMin	= Get_System().Get_xWorld_to_Grid(pArea->Get_Extent().Get_XMin());
-	int	xMax	= Get_System().Get_xWorld_to_Grid(pArea->Get_Extent().Get_XMax());
-	int	yMin	= Get_System().Get_yWorld_to_Grid(pArea->Get_Extent().Get_YMin());
-	int	yMax	= Get_System().Get_yWorld_to_Grid(pArea->Get_Extent().Get_YMax());
-
-	if( xMin < 0 ) xMin = 0; else if( xMin >= Get_NX() ) xMin = Get_NX() - 1;
-	if( xMax < 0 ) xMax = 0; else if( xMax >= Get_NX() ) xMax = Get_NX() - 1;
-	if( yMin < 0 ) yMin = 0; else if( yMin >= Get_NY() ) yMin = Get_NY() - 1;
-	if( yMax < 0 ) yMax = 0; else if( yMax >= Get_NY() ) yMax = Get_NY() - 1;
+	int	xMin = Get_System().Get_xWorld_to_Grid(pArea->Get_Extent().Get_XMin()); if( xMin <  0        ) xMin = 0           ;
+	int	xMax = Get_System().Get_xWorld_to_Grid(pArea->Get_Extent().Get_XMax()); if( xMax >= Get_NX() ) xMax = Get_NX() - 1;
+	int	yMin = Get_System().Get_yWorld_to_Grid(pArea->Get_Extent().Get_YMin()); if( yMin <  0        ) yMin = 0           ;
+	int	yMax = Get_System().Get_yWorld_to_Grid(pArea->Get_Extent().Get_YMax()); if( yMax >= Get_NY() ) yMax = Get_NY() - 1;
 
 	//-----------------------------------------------------
-	for(int y=yMin; y<=yMax; y++)
+	for(int y=yMin; y<=yMax; y++) for(int x=xMin; x<=xMax; x++)
 	{
-		for(int x=xMin; x<=xMax; x++)
+		if( !pArea->Contains(Get_System().Get_Grid_to_World(x, y)) )
 		{
-			if( pArea->Contains(Get_System().Get_Grid_to_World(x, y)) )
+			continue;
+		}
+
+		CSG_Strings	Values;
+
+		for(int i=0; i<m_nFeatures; i++)
+		{
+			if( !m_Features[i].pGrid->is_NoData(x, y) )
 			{
-				int			i;
-				CSG_Strings	Values;
+				Values.Add(Get_Feature(x, y, i));
+			}
+			else
+			{
+				break;
+			}
+		}
 
-				for(i=0; i<m_nFeatures; i++)
+		if( Values.Get_Count() < m_nFeatures )
+		{
+			continue;
+		}
+
+		//-------------------------------------------------
+		switch( m_Method )
+		{
+		default: {	// Kyoshida
+			ME_Sample	Sample(ID.b_str());
+
+			for(int i=0; i<m_nFeatures; i++)
+			{
+				if( m_bYT_Weights && m_Features[i].bNumeric )
 				{
-					if( !m_Features[i].pGrid->is_NoData(x, y) )
-					{
-						Values.Add(Get_Feature(x, y, i));
-					}
-					else
-					{
-						break;
-					}
+					Sample.add_feature(m_Features[i].Name, m_Features[i].pGrid->asDouble(x, y));
 				}
-
-				if( Values.Get_Count() == m_nFeatures )
+				else
 				{
-					switch( m_Method )
-					{
-					default:	// Kyoshida
-						{
-							ME_Sample	Sample(ID.b_str());
-
-							for(i=0; i<m_nFeatures; i++)
-							{
-								if( m_bYT_Weights && m_Features[i].bNumeric )
-								{
-									Sample.add_feature(m_Features[i].Name, m_Features[i].pGrid->asDouble(x, y));
-								}
-								else
-								{
-									Sample.add_feature(Values[i].b_str());
-								}
-							}
-
-							m_YT_Model.add_training_sample(Sample);
-						}
-						break;
-
-					case  1:	// Dekang Lin
-						{
-							MaxEntEvent	*pEvent	= new MaxEntEvent;
-
-							pEvent->count(1);
-							pEvent->classId(m_DL_Trainer->getClassId(ID.b_str()));
-
-							for(i=0; i<m_nFeatures; i++)
-							{
-								pEvent->push_back(m_DL_Trainer->getId(Values[i].b_str()));
-							}
-
-							m_DL_Events->push_back(pEvent);
-						}
-						break;
-					}
+					Sample.add_feature(Values[i].b_str());
 				}
 			}
+
+			m_YT_Model.add_training_sample(Sample);
+
+			break; }
+
+		//-------------------------------------------------
+		case  1: {	// Dekang Lin
+			MaxEntEvent	*pEvent	= new MaxEntEvent;
+
+			pEvent->count(1);
+			pEvent->classId(m_DL_Trainer->getClassId(ID.b_str()));
+
+			for(int i=0; i<m_nFeatures; i++)
+			{
+				pEvent->push_back(m_DL_Trainer->getId(Values[i].b_str()));
+			}
+
+			m_DL_Events->push_back(pEvent);
+
+			break; }
 		}
 	}
 }
@@ -686,10 +690,9 @@ void CClassify_Grid::Get_Training(const CSG_String &ID, CSG_Shape_Polygon *pArea
 //---------------------------------------------------------
 bool CClassify_Grid::Get_File(const CSG_String &File)
 {
-	//-----------------------------------------------------
 	if( !m_YT_Model.load_from_file(File.b_str()) )
 	{
-		Error_Set(_TL("could not load model from file"));
+		Error_Fmt("%s: %s", _TL("could not load model from file"), File.c_str());
 
 		return( false );
 	}
@@ -707,53 +710,77 @@ bool CClassify_Grid::Get_File(const CSG_String &File)
 	}/**/
 
 	//-----------------------------------------------------
-	if( m_YT_Model.num_classes() <= 1 )
+	if( m_YT_Model.num_classes() < 2 )
 	{
-		Error_Set(_TL("less than two classes in model"));
+		Error_Fmt("%s: %s", _TL("less than two classes in model"), File.c_str());
 
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(Parameters("CLASSES")->asGrid(), "LUT");
-
-	for(int iClass=0; iClass<m_YT_Model.num_classes(); iClass++)
+	for(int i=0; i<m_YT_Model.num_classes(); i++)
 	{
 		if( m_pProbs )
 		{
-			CSG_Grid	*pGrid	= m_pProbs->Get_Grid(iClass);
+			CSG_Grid	*pGrid	= m_pProbs->Get_Grid(i);
 
 			if( !pGrid )
 			{
 				m_pProbs->Add_Item(pGrid = SG_Create_Grid(Get_System()));
-
-				DataObject_Set_Colors(pGrid, 11, SG_COLORS_YELLOW_GREEN);
 			}
 
-			pGrid->Set_Name(m_YT_Model.get_class_label(iClass).c_str());
+			pGrid->Set_Name(m_YT_Model.get_class_label(i).c_str());
 		}
+	}
 
-		if( pLUT && pLUT->asTable() )
+	//-----------------------------------------------------
+	CSG_Grid	*pClasses	= Parameters("CLASSES")->asGrid();
+
+	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(pClasses, "LUT");
+
+	if( pLUT && pLUT->asTable() )
+	{
+		for(int i=0; i<m_YT_Model.num_classes(); i++)
 		{
-			CSG_Table_Record	*pClass	= pLUT->asTable()->Get_Record(iClass);
+			CSG_Table_Record	*pClass	= pLUT->asTable()->Get_Record(i);
 
 			if( !pClass )
 			{
 				(pClass	= pLUT->asTable()->Add_Record())->Set_Value(0, SG_Color_Get_Random());
 			}
 
-			pClass->Set_Value(1, m_YT_Model.get_class_label(iClass).c_str());
-			pClass->Set_Value(3, m_YT_Model.get_class_id(m_YT_Model.get_class_label(iClass)));
-			pClass->Set_Value(4, m_YT_Model.get_class_id(m_YT_Model.get_class_label(iClass)));
-		}
-	}
+			std::string	Label	= m_YT_Model.get_class_label(i);
 
-	if( pLUT && pLUT->asTable() )
-	{
+			pClass->Set_Value(1, Label.c_str());
+			pClass->Set_Value(3, m_YT_Model.get_class_id(Label));
+			pClass->Set_Value(4, m_YT_Model.get_class_id(Label));
+		}
+
 		pLUT->asTable()->Set_Record_Count(m_YT_Model.num_classes());
 
-		DataObject_Set_Parameter(Parameters("CLASSES")->asGrid(), pLUT);
-		DataObject_Set_Parameter(Parameters("CLASSES")->asGrid(), "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
+		DataObject_Set_Parameter(pClasses, pLUT            );
+		DataObject_Set_Parameter(pClasses, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
+	}
+
+	//-----------------------------------------------------
+	if( Parameters("CLASSES_LUT")->asTable() )
+	{
+		CSG_Table	&LUT	= *Parameters("CLASSES_LUT")->asTable();
+
+		LUT.Destroy();
+		LUT.Set_Name(pClasses->Get_Name());
+		LUT.Add_Field("VALUE", pClasses->Get_Type());
+		LUT.Add_Field("CLASS", SG_DATATYPE_String  );
+
+		for(int i=0; i<m_YT_Model.num_classes(); i++)
+		{
+			CSG_Table_Record	&Class	= *LUT.Add_Record();
+
+			std::string	Label	= m_YT_Model.get_class_label(i);
+
+			Class.Set_Value(0, m_YT_Model.get_class_id(Label));
+			Class.Set_Value(1, Label.c_str());
+		}
 	}
 
 	//-----------------------------------------------------

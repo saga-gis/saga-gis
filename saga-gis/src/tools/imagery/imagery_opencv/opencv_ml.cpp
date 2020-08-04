@@ -94,7 +94,7 @@ COpenCV_ML::COpenCV_ML(bool bProbability)
 	Parameters.Add_Bool("FEATURES",
 		"RGB_COLORS"	, _TL("Update Colors from Features"),
 		_TL("Use the first three features in list to obtain blue, green, red components for class colour in look-up table."),
-		true
+		false
 	)->Set_UseInCMD(false);
 
 	if( bProbability )
@@ -110,6 +110,12 @@ COpenCV_ML::COpenCV_ML(bool bProbability)
 		"CLASSES"		, _TL("Classification"),
 		_TL(""),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Short
+	);
+
+	Parameters.Add_Table("CLASSES",
+		"CLASSES_LUT"	, _TL("Look-up Table"),
+		_TL("A reference list of the grid values that have been assigned to the training classes."),
+		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_FilePath("",
@@ -192,6 +198,7 @@ int COpenCV_ML::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 
 		pParameters->Set_Enabled("MODEL_TRAIN", !bOkay);
 		pParameters->Set_Enabled("RGB_COLORS" , !bOkay);
+		pParameters->Set_Enabled("CLASSES_LUT", !bOkay);
 	}
 
 	if( pParameter->Cmp_Identifier("TRAIN_AREAS") )
@@ -217,7 +224,7 @@ bool COpenCV_ML::_Initialize(void)
 	m_bNormalize	= Parameters("NORMALIZE"  )->asBool();
 
 	//-----------------------------------------------------
-	m_pClasses->Set_NoData_Value(-1.0);
+	m_pClasses->Set_NoData_Value(-1.);
 
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
@@ -231,7 +238,7 @@ bool COpenCV_ML::_Initialize(void)
 				bNoData	= m_pFeatures->Get_Grid(i)->is_NoData(x, y);
 			}
 
-			m_pClasses->Set_Value(x, y, bNoData ? -1.0 : 0.0);
+			m_pClasses->Set_Value(x, y, bNoData ? -1. : 0.);
 		}
 	}
 
@@ -242,49 +249,6 @@ bool COpenCV_ML::_Initialize(void)
 //---------------------------------------------------------
 bool COpenCV_ML::_Finalize(void)
 {
-	//-----------------------------------------------------
-	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(m_pClasses, "LUT");
-
-	if( pLUT && m_Classes.Get_Count() > 0 )
-	{
-		bool	bRGB	= m_pFeatures->Get_Grid_Count() >= 3 && Parameters("RGB_COLORS")->asBool();
-
-		for(int i=0; i<m_Classes.Get_Count(); i++)
-		{
-			CSG_Table_Record	*pClass	= pLUT->asTable()->Get_Record(i);
-
-			if( !pClass )
-			{
-				(pClass	= pLUT->asTable()->Add_Record())->Set_Value(0, SG_Color_Get_Random());
-			}
-
-			pClass->Set_Value(1, m_Classes[i].asString(1));
-			pClass->Set_Value(2, m_Classes[i].asString(1));
-			pClass->Set_Value(3, m_Classes[i].asInt   (0));
-			pClass->Set_Value(4, m_Classes[i].asInt   (0));
-
-			if( bRGB )
-			{
-				#define SET_COLOR_COMPONENT(c, i)	c = 127 + 127 * (m_bNormalize ? c : (c - m_pFeatures->Get_Grid(i)->Get_Mean()) / m_pFeatures->Get_Grid(i)->Get_StdDev());\
-					if( c < 0 ) c = 0; else if( c > 255 ) c = 255;
-
-				double	r = m_Classes[i].asDouble(CLASS_R) / m_Classes[i].asInt(CLASS_COUNT); SET_COLOR_COMPONENT(r, 2);
-				double	g = m_Classes[i].asDouble(CLASS_G) / m_Classes[i].asInt(CLASS_COUNT); SET_COLOR_COMPONENT(g, 1);
-				double	b = m_Classes[i].asDouble(CLASS_B) / m_Classes[i].asInt(CLASS_COUNT); SET_COLOR_COMPONENT(b, 0);
-
-				pClass->Set_Value(0, SG_GET_RGB(r, g, b));
-			}
-		}
-
-		pLUT->asTable()->Set_Record_Count(m_Classes.Get_Count());
-
-		DataObject_Set_Parameter(m_pClasses, pLUT);
-		DataObject_Set_Parameter(m_pClasses, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
-	}
-
-	//-----------------------------------------------------
-	m_Classes.Destroy();
-
 	m_pClasses->Set_Name(Get_Name());
 
 	if( m_pProbability )
@@ -292,6 +256,71 @@ bool COpenCV_ML::_Finalize(void)
 		m_pProbability->Set_Name(Get_Name() + " [" + _TL("Probability") + "]");
 	}
 
+	//-----------------------------------------------------
+	if( m_Classes.Get_Count() > 0 )
+	{
+		CSG_Parameter	*pLUT	= DataObject_Get_Parameter(m_pClasses, "LUT");
+
+		if( pLUT )
+		{
+			bool	bRGB	= m_pFeatures->Get_Grid_Count() >= 3 && Parameters("RGB_COLORS")->asBool();
+
+			for(int i=0; i<m_Classes.Get_Count(); i++)
+			{
+				CSG_Table_Record	*pClass	= pLUT->asTable()->Get_Record(i);
+
+				if( !pClass )
+				{
+					(pClass	= pLUT->asTable()->Add_Record())->Set_Value(0, SG_Color_Get_Random());
+				}
+
+				pClass->Set_Value(1, m_Classes[i].asString(1));
+				pClass->Set_Value(2, m_Classes[i].asString(1));
+				pClass->Set_Value(3, m_Classes[i].asInt   (0));
+				pClass->Set_Value(4, m_Classes[i].asInt   (0));
+
+				if( bRGB )
+				{
+					#define SET_COLOR_COMPONENT(c, i)	c = 127 + 127 * (m_bNormalize ? c : (c - m_pFeatures->Get_Grid(i)->Get_Mean()) / m_pFeatures->Get_Grid(i)->Get_StdDev());\
+						if( c < 0 ) c = 0; else if( c > 255 ) c = 255;
+
+					double	r = m_Classes[i].asDouble(CLASS_R) / m_Classes[i].asInt(CLASS_COUNT); SET_COLOR_COMPONENT(r, 2);
+					double	g = m_Classes[i].asDouble(CLASS_G) / m_Classes[i].asInt(CLASS_COUNT); SET_COLOR_COMPONENT(g, 1);
+					double	b = m_Classes[i].asDouble(CLASS_B) / m_Classes[i].asInt(CLASS_COUNT); SET_COLOR_COMPONENT(b, 0);
+
+					pClass->Set_Value(0, SG_GET_RGB(r, g, b));
+				}
+			}
+
+			pLUT->asTable()->Set_Record_Count(m_Classes.Get_Count());
+
+			DataObject_Set_Parameter(m_pClasses, pLUT);
+			DataObject_Set_Parameter(m_pClasses, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
+		}
+
+		//-------------------------------------------------
+		if( Parameters("CLASSES_LUT")->asTable() )
+		{
+			CSG_Table	&LUT	= *Parameters("CLASSES_LUT")->asTable();
+
+			LUT.Destroy();
+			LUT.Set_Name(m_pClasses->Get_Name());
+			LUT.Add_Field("VALUE", SG_DATATYPE_Int   );
+			LUT.Add_Field("CLASS", SG_DATATYPE_String);
+
+			for(int i=0; i<m_Classes.Get_Count(); i++)
+			{
+				CSG_Table_Record	&Class	= *LUT.Add_Record();
+
+				Class.Set_Value(0, m_Classes[i].asInt   (0));
+				Class.Set_Value(1, m_Classes[i].asString(1));
+			}
+		}
+
+		m_Classes.Destroy();
+	}
+
+	//-----------------------------------------------------
 	return( true );
 }
 
@@ -461,8 +490,7 @@ bool COpenCV_ML::_Get_Training(CSG_Matrix &Data)
 //---------------------------------------------------------
 bool COpenCV_ML::_Get_Training(CSG_Matrix &Data, CSG_Table_Record *pClass, CSG_Shape_Polygon *pArea)
 {
-	int		ID	= pClass->asInt(CLASS_ID), n	= 0;
-	double	r	= 0.0, g	= 0.0, b	= 0.0;
+	int	ID = pClass->asInt(CLASS_ID), n = 0; double	r = 0., g = 0., b = 0.;
 
 	int	xMin	= Get_System().Get_xWorld_to_Grid(pArea->Get_Extent().Get_XMin());	if( xMin <  0        ) xMin = 0;
 	int	xMax	= Get_System().Get_xWorld_to_Grid(pArea->Get_Extent().Get_XMax());	if( xMax >= Get_NX() ) xMax = Get_NX() - 1;
