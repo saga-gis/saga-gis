@@ -244,7 +244,7 @@ bool CSG_Tool::has_GUI(void) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Tool::Execute(void)
+bool CSG_Tool::Execute(bool bAddHistory)
 {
 	if( m_bExecutes )
 	{
@@ -276,7 +276,7 @@ bool CSG_Tool::Execute(void)
 #endif
 ///////////////////////////////////////////////////////////
 
-			bResult	= On_Execute();
+		bResult	= On_Execute();
 
 ///////////////////////////////////////////////////////////
 #ifdef _TOOL_EXCEPTION
@@ -288,7 +288,7 @@ bool CSG_Tool::Execute(void)
 #endif
 ///////////////////////////////////////////////////////////
 
-		if( bResult )
+		if( bResult && bAddHistory )
 		{
 			_Set_Output_History();
 		}
@@ -308,7 +308,7 @@ bool CSG_Tool::Execute(void)
 	//-----------------------------------------------------
 	Destroy();
 
-	SG_UI_Process_Set_Okay();
+	SG_UI_Process_Set_Okay ();
 	SG_UI_Process_Set_Ready();
 
 	m_bExecutes	= false;

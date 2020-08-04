@@ -329,7 +329,7 @@ bool CWKSP_Tool::Execute(bool bDialog)
 
 			STATUSBAR_Set_Text(m_pTool->Get_Name().w_str());
 
-			bResult		= m_pTool->Execute();
+			bResult		= m_pTool->Execute(true);
 
 			m_pTool->On_After_Execution();
 

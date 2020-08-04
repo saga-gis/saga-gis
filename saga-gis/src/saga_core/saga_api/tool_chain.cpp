@@ -1244,7 +1244,7 @@ bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool, bool bShowError)
 	{
 		if( bShowError ) Error_Fmt("%s [%s].[%s]", _TL("tool initialization failed"        ), pTool->Get_Library().c_str(), pTool->Get_Name().c_str());
 	}
-	else if( !(bResult = pTool->Execute()) )
+	else if( !(bResult = pTool->Execute(false)) )
 	{
 	//	if( bShowError ) Error_Fmt("%s [%s].[%s]", _TL("tool execution failed"             ), pTool->Get_Library().c_str(), pTool->Get_Name().c_str());
 	}

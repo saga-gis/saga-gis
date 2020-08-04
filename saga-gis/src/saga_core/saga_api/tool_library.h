@@ -264,7 +264,7 @@ SAGA_API_DLL_EXPORT CSG_Tool_Library_Manager &	SG_Get_Tool_Library_Manager	(void
 		{\
 			SG_UI_Msg_Add_Error(CSG_String::Format("%s [%s].[%s]", _TL("could not initialize tool"), SG_T(LIBRARY), pTool->Get_Name().c_str()));\
 		}\
-		else if( !pTool->Execute() )\
+		else if( !pTool->Execute(false) )\
 		{\
 			SG_UI_Msg_Add_Error(CSG_String::Format("%s [%s].[%s]", _TL("could not execute tool"   ), SG_T(LIBRARY), pTool->Get_Name().c_str()));\
 		}\
@@ -310,7 +310,7 @@ SAGA_API_DLL_EXPORT CSG_Tool_Library_Manager &	SG_Get_Tool_Library_Manager	(void
 		{\
 			SG_UI_Msg_Add_Error(CSG_String::Format("%s [%s].[%s]", _TL("could not initialize tool"), SG_T(LIBRARY), pTool->Get_Name().c_str()));\
 		}\
-		else if( !pTool->Execute() )\
+		else if( !pTool->Execute(false) )\
 		{\
 			SG_UI_Msg_Add_Error(CSG_String::Format("%s [%s].[%s]", _TL("could not execute tool"   ), SG_T(LIBRARY), pTool->Get_Name().c_str()));\
 		}\

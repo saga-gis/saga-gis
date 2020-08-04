@@ -217,7 +217,7 @@ public:
 	virtual bool				On_Before_Execution			(void)	{	return( true );	}
 	virtual bool				On_After_Execution			(void)	{	return( true );	}
 
-	bool						Execute						(void);
+	bool						Execute						(bool bAddHistory = false);
 
 
 protected:

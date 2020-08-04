@@ -194,7 +194,7 @@ bool CCMD_Tool::Execute(int argc, char *argv[])
 
 	if( m_pTool->On_Before_Execution() )
 	{
-		bResult	= m_pTool->Execute();
+		bResult	= m_pTool->Execute(true);
 
 		m_pTool->On_After_Execution();
 	}
