@@ -313,40 +313,60 @@ bool CSG_Parameter_Bool::_Serialize(CSG_MetaData &Entry, bool bSave)
 CSG_Parameter_Value::CSG_Parameter_Value(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint)
 	: CSG_Parameter(pOwner, pParent, ID, Name, Description, Constraint)
 {
-	m_Minimum	= 0.0;
+	m_Minimum	= 0.;
 	m_bMinimum	= false;
 
-	m_Maximum	= 0.0;
+	m_Maximum	= 0.;
 	m_bMaximum	= false;
 }
 
 //---------------------------------------------------------
 bool CSG_Parameter_Value::Set_Valid_Range(double Minimum, double Maximum)
 {
-	m_Minimum	= !m_bMaximum || Minimum < Maximum ? Minimum : Maximum;
-	m_Maximum	= !m_bMinimum || Minimum < Maximum ? Maximum : Minimum;
+	if( m_bMinimum && m_bMaximum && Minimum > Maximum )
+	{
+		m_Minimum	= Maximum;
+		m_Maximum	= Minimum;
+	}
+	else
+	{
+		m_Minimum	= Minimum;
+		m_Maximum	= Maximum;
+	}
+
+	int	Result;
 
 	switch( Get_Type() )
 	{
-	case PARAMETER_TYPE_Int   : return( _Set_Value(asInt   ()) != SG_PARAMETER_DATA_SET_FALSE );
 	case PARAMETER_TYPE_Double:
-	case PARAMETER_TYPE_Degree: return( _Set_Value(asDouble()) != SG_PARAMETER_DATA_SET_FALSE );
-
-	default:
-		return( false );
+	case PARAMETER_TYPE_Degree: Result = _Set_Value(asDouble()); break;
+	case PARAMETER_TYPE_Int   : Result = _Set_Value(asInt   ()); break;
+	default                   : return( false );
 	}
+
+	if( Result == SG_PARAMETER_DATA_SET_CHANGED )
+	{
+		has_Changed();
+	}
+
+	return( Result != SG_PARAMETER_DATA_SET_FALSE );
 }
 
 //---------------------------------------------------------
 void CSG_Parameter_Value::Set_Minimum(double Minimum, bool bOn)
 {
-	if( bOn == false || (m_bMaximum && Minimum >= m_Maximum) )
+	if( bOn == false )
 	{
 		m_bMinimum	= false;
 	}
 	else
 	{
 		m_bMinimum	= true;
+
+		if( m_bMaximum && m_Maximum < Minimum )
+		{
+			m_Maximum	= Minimum;
+		}
 
 		Set_Valid_Range(Minimum, m_Maximum);
 	}
@@ -355,13 +375,18 @@ void CSG_Parameter_Value::Set_Minimum(double Minimum, bool bOn)
 //---------------------------------------------------------
 void CSG_Parameter_Value::Set_Maximum(double Maximum, bool bOn)
 {
-	if( bOn == false || (m_bMaximum && Maximum <= m_Minimum) )
+	if( bOn == false )
 	{
 		m_bMaximum	= false;
 	}
 	else
 	{
 		m_bMaximum	= true;
+
+		if( m_bMinimum && m_Minimum > Maximum )
+		{
+			m_Minimum	= Maximum;
+		}
 
 		Set_Valid_Range(m_Minimum, Maximum);
 	}

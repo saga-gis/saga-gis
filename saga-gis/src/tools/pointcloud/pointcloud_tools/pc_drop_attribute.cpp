@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,15 +47,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "pc_drop_attribute.h"
 
 #include <set>
@@ -85,19 +73,19 @@ CPC_Drop_Attribute::CPC_Drop_Attribute(void)
 	));
 
 	//-----------------------------------------------------
-	CSG_Parameter *pNode = Parameters.Add_PointCloud(
-		NULL	, "INPUT"		,_TL("Input"),
+	Parameters.Add_PointCloud("",
+		"INPUT"		, _TL("Input"),
 		_TL("Point cloud to drop attribute(s) from."),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Fields(
-		pNode	, "FIELDS"		, _TL("Attributes"),
+	Parameters.Add_Table_Fields("INPUT",
+		"FIELDS"	, _TL("Attributes"),
 		_TL("The attribute field(s) to drop.")
 	);
 
-	Parameters.Add_PointCloud(
-		NULL	, "OUTPUT"		, _TL("Output"),
+	Parameters.Add_PointCloud("",
+		"OUTPUT"	, _TL("Output"),
 		_TL("Point cloud with attribute(s) dropped."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
@@ -111,7 +99,6 @@ CPC_Drop_Attribute::CPC_Drop_Attribute(void)
 //---------------------------------------------------------
 bool CPC_Drop_Attribute::On_Execute(void)
 {
-	//-------------------------------------------------
 	int	*Features	= (int *)Parameters("FIELDS")->asPointer();
 	int	nFeatures	=        Parameters("FIELDS")->asInt    ();
 
@@ -123,8 +110,8 @@ bool CPC_Drop_Attribute::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_PointCloud	*pInput		= Parameters("INPUT" )->asPointCloud();
-	CSG_PointCloud	*pOutput	= Parameters("OUTPUT")->asPointCloud(), Output;
+	CSG_PointCloud	*pInput  = Parameters("INPUT" )->asPointCloud();
+	CSG_PointCloud	*pOutput = Parameters("OUTPUT")->asPointCloud(), Output;
 
 	if( !pOutput || pOutput == pInput )
 	{

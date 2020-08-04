@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -55,15 +52,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "pc_cluster_analysis.h"
 
 
@@ -76,9 +64,6 @@
 //---------------------------------------------------------
 CPC_Cluster_Analysis::CPC_Cluster_Analysis(void)
 {
-	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("Cluster Analysis for Point Clouds"));
 
 	Set_Author		("Volker Wichmann (c) 2010, LASERDATA GmbH");
@@ -99,10 +84,7 @@ CPC_Cluster_Analysis::CPC_Cluster_Analysis(void)
 		"J. Theoretical Biology, 15:103-144."
 	);
 
-
 	//-----------------------------------------------------
-	// 2. Datasets...
-
 	Parameters.Add_PointCloud("",
 		"PC_IN"			,_TL("Point Cloud"),
 		_TL("Input"),
@@ -126,10 +108,7 @@ CPC_Cluster_Analysis::CPC_Cluster_Analysis(void)
 		PARAMETER_OUTPUT
 	);
 
-
 	//-----------------------------------------------------
-	// 3. General Parameters...
-
 	Parameters.Add_Choice("",
 		"METHOD"		, _TL("Method"),
 		_TL(""),
@@ -137,7 +116,7 @@ CPC_Cluster_Analysis::CPC_Cluster_Analysis(void)
 			_TL("Iterative Minimum Distance (Forgy 1965)"),
 			_TL("Hill-Climbing (Rubin 1967)"),
 			_TL("Combined Minimum Distance / Hillclimbing") 
-		),1
+		), 1
 	);
 
 	Parameters.Add_Int("",

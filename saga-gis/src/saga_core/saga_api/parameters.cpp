@@ -927,6 +927,8 @@ CSG_Parameter * CSG_Parameters::_Add_Value(const CSG_String &ParentID, const CSG
 
 	CSG_Parameter	*pParameter	= _Add(ParentID, ID, Name, Description, Type, bInformation ? PARAMETER_INFORMATION : 0);
 
+	bool	bCallback	= Set_Callback(false);
+
 	if( !bInformation )
 	{
 		if( Type == PARAMETER_TYPE_Int
@@ -938,8 +940,8 @@ CSG_Parameter * CSG_Parameters::_Add_Value(const CSG_String &ParentID, const CSG
 		}
 	}
 
-	bool	bCallback	= Set_Callback(false);
-	pParameter->Set_Value  (Value);
+	pParameter->Set_Value(Value);
+
 	Set_Callback(bCallback);
 
 	if( !bInformation )
@@ -1285,9 +1287,11 @@ bool CSG_Parameters::_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
 {
 	if( m_Callback && m_bCallback )
 	{
-		Set_Callback(false);
+		bool	bCallback	= Set_Callback(false);
+
 		m_Callback(pParameter, Flags);
-		Set_Callback(true);
+
+		Set_Callback(bCallback);
 
 		return( true );
 	}
