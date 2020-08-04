@@ -1,6 +1,4 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
+
 ///////////////////////////////////////////////////////////
 //                                                       //
 //                         SAGA                          //
@@ -8,7 +6,7 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                      Grid_Tools                       //
+//                      grid_tools                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -49,13 +47,6 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 #include "Grid_Aggregate.h"
 
@@ -69,7 +60,6 @@
 //---------------------------------------------------------
 CGrid_Aggregate::CGrid_Aggregate(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Aggregate"));
 
 	Set_Author		("V.Olaya (c) 2005");
@@ -102,13 +92,14 @@ CGrid_Aggregate::CGrid_Aggregate(void)
 	Parameters.Add_Choice("",
 		"METHOD"	, _TL("Method"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s",
 			_TL("Sum"),
 			_TL("Minimum"),
 			_TL("Maximum"),
 			_TL("Median"),
-			_TL("Mean")
-		), 0
+			_TL("Mean"),
+			_TL("Mode")
+		), 4
 	);
 }
 
@@ -133,35 +124,68 @@ bool CGrid_Aggregate::On_Execute(void)
 	int	Method	= Parameters("METHOD")->asInt();
 
 	//-----------------------------------------------------
-	for(int y=0, yy=-Size/2; y<System.Get_NY(); yy+=Size, y++)
+	#pragma omp parallel for
+	for(int y=0; y<System.Get_NY(); y++)
 	{
+		int	yy	= -Size/2 + y * Size;
+
 		for(int x=0, xx=-Size/2; x<System.Get_NX(); xx+=Size, x++)
 		{
-			CSG_Simple_Statistics	s(Method == 3);
-
-			for(int iy=yy; iy<yy+Size; iy++)
+			if( Method == 5 )	// Mode
 			{
-				for(int ix=xx; ix<xx+Size; ix++)
+				CSG_Unique_Number_Statistics	s;
+
+				for(int iy=yy; iy<yy+Size; iy++)
 				{
-					if( pGrid->is_InGrid(ix, iy) )
+					for(int ix=xx; ix<xx+Size; ix++)
 					{
-						s	+= pGrid->asDouble(ix, iy);
+						if( pGrid->is_InGrid(ix, iy) )
+						{
+							s	+= pGrid->asDouble(ix, iy);
+						}
 					}
+				}
+
+				double	Value;
+
+				if( s.Get_Majority(Value) == false )
+				{
+					pOutput->Set_NoData(x, y);
+				}
+				else
+				{
+					pOutput->Set_Value(x, y, Value);
 				}
 			}
 
 			//---------------------------------------------
-			if( s.Get_Count() == 0 )
+			else
 			{
-				pOutput->Set_NoData(x, y);
-			}
-			else switch( Method )
-			{
-			default: pOutput->Set_Value(x, y, s.Get_Sum    ()); break;
-			case  1: pOutput->Set_Value(x, y, s.Get_Minimum()); break;
-			case  2: pOutput->Set_Value(x, y, s.Get_Maximum()); break;
-			case  3: pOutput->Set_Value(x, y, s.Get_Median ()); break;
-			case  4: pOutput->Set_Value(x, y, s.Get_Mean   ()); break;
+				CSG_Simple_Statistics	s(Method == 3);
+
+				for(int iy=yy; iy<yy+Size; iy++)
+				{
+					for(int ix=xx; ix<xx+Size; ix++)
+					{
+						if( pGrid->is_InGrid(ix, iy) )
+						{
+							s	+= pGrid->asDouble(ix, iy);
+						}
+					}
+				}
+
+				if( s.Get_Count() == 0 )
+				{
+					pOutput->Set_NoData(x, y);
+				}
+				else switch( Method )
+				{
+				default: pOutput->Set_Value(x, y, s.Get_Sum    ()); break;
+				case  1: pOutput->Set_Value(x, y, s.Get_Minimum()); break;
+				case  2: pOutput->Set_Value(x, y, s.Get_Maximum()); break;
+				case  3: pOutput->Set_Value(x, y, s.Get_Median ()); break;
+				case  4: pOutput->Set_Value(x, y, s.Get_Mean   ()); break;
+				}
 			}
 		}
 	}
