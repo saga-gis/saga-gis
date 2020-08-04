@@ -1106,6 +1106,10 @@ bool CSG_PointCloud::Del_Points(void)
 
 	m_Selection.Set_Array(0);
 
+	Set_Modified();
+	Set_Update_Flag();
+	_Stats_Invalidate();
+
 	return( true );
 }
 
@@ -1575,6 +1579,10 @@ int CSG_PointCloud::Del_Selection(void)
 		}
 
 		m_Array_Points.Set_Array(m_nRecords = n, (void **)&m_Points);
+
+		Set_Modified();
+		Set_Update_Flag();
+		_Stats_Invalidate();
 	}
 
 	return( n );
