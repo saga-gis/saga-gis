@@ -876,6 +876,7 @@ private:
 
 	bool							_WKT_to_Proj4_Set_Datum		(CSG_String &Proj4, const CSG_MetaData &WKT)	const;
 
+	bool							_Proj4_Find_Parameter		(                   const CSG_String &Proj4, const CSG_String &Key)	const;
 	bool							_Proj4_Read_Parameter		(CSG_String &Value, const CSG_String &Proj4, const CSG_String &Key)	const;
 	bool							_Proj4_Get_Ellipsoid		(CSG_String &Value, const CSG_String &Proj4)	const;
 	bool							_Proj4_Get_Datum			(CSG_String &Value, const CSG_String &Proj4)	const;
