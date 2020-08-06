@@ -7,7 +7,7 @@ environment:
   GDAL: C:\deps\libs4saga_x64\gdal-3.0.0
   HARU: C:\deps\libs4saga_x64\libharu-2.2.0
   LIBLAS: C:\deps\libs4saga_x64\liblas-1.2.1
-  OPENCV: C:\deps\libs4saga_x64\opencv-3.4.0
+  OPENCV: C:\deps\libs4saga_x64\opencv-4.3.0
   VIGRA: c:\deps\libs4saga_x64\vigra-1.11.1
   WXWIN: c:\deps\wxWidgets-3.1.2
   PDAL: C:\deps\libs4saga_x64\pdal-2.0.1
