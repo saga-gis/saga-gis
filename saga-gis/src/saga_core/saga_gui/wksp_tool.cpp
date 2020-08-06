@@ -508,6 +508,7 @@ CSG_String CWKSP_Tool::_Get_XML(bool bHeader, const CSG_String &FileName)
 	Tools.Add_Child("menu"       , m_pTool->Get_MenuPath(true))->Add_Property("absolute", "true");
 	Tools.Add_Child("parameters" )->Add_Children(Parameters);
 	Tools.Add_Child("tools"      )->Add_Child(Tool);
+	Tools          ("tools"      )->Add_Property("history", "false");
 
 	return( Tools.asText(1) );
 }

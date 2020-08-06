@@ -109,6 +109,8 @@ protected:
 
 private:
 
+	bool						m_bAddHistory;
+
 	CSG_String					m_Library_Name, m_Menu;
 
 	CSG_MetaData				m_Chain, m_Conditions;

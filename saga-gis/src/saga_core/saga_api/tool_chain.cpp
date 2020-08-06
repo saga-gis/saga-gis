@@ -193,8 +193,7 @@ bool CSG_Tool_Chain::Create(const CSG_String &File)
 //---------------------------------------------------------
 bool CSG_Tool_Chain::Create(const CSG_MetaData &Chain)
 {
-	//-----------------------------------------------------
-	if( !Chain.Cmp_Name("toolchain") || !Chain("identifier") || !Chain("parameters") )
+	if( !Chain.Cmp_Name("toolchain") || !Chain("identifier") || !Chain("parameters") || !Chain("tools") )
 	{
 		return( false );
 	}
@@ -234,6 +233,8 @@ bool CSG_Tool_Chain::Create(const CSG_MetaData &Chain)
 		else
 			m_Menu.Prepend("R:");	// relative path
 	}
+
+	m_bAddHistory	= IS_TRUE_PROPERTY(m_Chain["tools"], "history");
 
 	//-----------------------------------------------------
 	for(int i=0; i<m_Chain["parameters"].Get_Children_Count(); i++)
@@ -1244,7 +1245,7 @@ bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool, bool bShowError)
 	{
 		if( bShowError ) Error_Fmt("%s [%s].[%s]", _TL("tool initialization failed"        ), pTool->Get_Library().c_str(), pTool->Get_Name().c_str());
 	}
-	else if( !(bResult = pTool->Execute(false)) )
+	else if( !(bResult = pTool->Execute(m_bAddHistory)) )
 	{
 	//	if( bShowError ) Error_Fmt("%s [%s].[%s]", _TL("tool execution failed"             ), pTool->Get_Library().c_str(), pTool->Get_Name().c_str());
 	}
