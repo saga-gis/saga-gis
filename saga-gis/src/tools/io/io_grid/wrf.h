@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: wrf.h 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__wrf_Import_H
 #define HEADER_INCLUDED__wrf_Import_H
 
@@ -69,7 +57,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -92,7 +80,7 @@ public:
 	
 	bool					m_SIGNED, m_ENDIAN;
 
-	int						m_TYPE, m_WORDSIZE, m_TILE_X, m_TILE_Y, m_TILE_Z, m_TILE_Z_START, m_TILE_Z_END, m_CATEGORY_MIN, m_CATEGORY_MAX, m_TILE_BDR, m_ROW_ORDER;
+	int						m_NAME_DIGITS, m_TYPE, m_WORDSIZE, m_TILE_X, m_TILE_Y, m_TILE_Z, m_TILE_Z_START, m_TILE_Z_END, m_CATEGORY_MIN, m_CATEGORY_MAX, m_TILE_BDR, m_ROW_ORDER;
 
 	int						m_ISWATER, m_ISLAKE, m_ISICE, m_ISURBAN, m_ISOILWATER;
 
