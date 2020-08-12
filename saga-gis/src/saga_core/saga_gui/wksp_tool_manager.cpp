@@ -245,30 +245,34 @@ bool CWKSP_Tool_Manager::Initialise(void)
 	#endif
 
 	//-----------------------------------------------------
-	bool	bCompatible	= true;
+	wxString Version; bool bCompatible = CONFIG_Read("/VERSION", "SAGA" , Version) && !Version.Cmp(SAGA_VERSION);
 
 	#ifdef __GNUC__
-		long	Version;
-		if( !CONFIG_Read("/VERSION", "GNUC" , Version) || Version != __GNUC__ )
+	if( bCompatible ) // gcc builds: don't load stored libraries when there is no abi compatibility assured!
+	{
+		long	Number;
+
+		if( !CONFIG_Read("/VERSION", "GNUC" , Number) || Number != __GNUC__ )
 		{
 			bCompatible	= false;
 		}
 		#ifdef __GNUC_MINOR__
-			else if( !CONFIG_Read("/VERSION", "GNUC_MINOR" , Version) || Version != __GNUC_MINOR__ )
+			else if( !CONFIG_Read("/VERSION", "GNUC_MINOR" , Number) || Number != __GNUC_MINOR__ )
 			{
 				bCompatible	= false;
 			}
 			#ifdef __GNUC_PATCHLEVEL__
-				else if( !CONFIG_Read("/VERSION", "GNUC_PATCHLEVEL" , Version) || Version != __GNUC_PATCHLEVEL__ )
+				else if( !CONFIG_Read("/VERSION", "GNUC_PATCHLEVEL" , Number) || Number != __GNUC_PATCHLEVEL__ )
 				{
 					bCompatible	= false;
 				}
 			#endif
 		#endif
+	}
 	#endif
 
 	//-----------------------------------------------------
-	if( bCompatible )	// gcc builds: don't load stored libraries when there is no abi compatibility assured!
+	if( bCompatible )
 	{
 		wxString	Library;
 
