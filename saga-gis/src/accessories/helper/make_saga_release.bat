@@ -9,9 +9,9 @@ REM ___________________________________
 REM Tools
 
 SET ZIPEXE="C:\Program Files\7-Zip\7z.exe" a -r -y -mx5
-SET ISETUP="C:\Program Files (x86)\Inno Setup 5\ISCC.exe"
-SET GITEXE=git
-SET DOXEXE=doxygen.exe
+SET ISETUP="C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+SET GITEXE="C:\Program Files\Git\bin\git.exe"
+SET DOXEXE="C:\Program Files\doxygen\bin\doxygen.exe"
 
 REM ___________________________________
 REM Version
@@ -61,6 +61,11 @@ REM ###################################
 REM PACKAGE BINARIES
 REM ###################################
 
+SET SAGA4QGIS=saga4qgis.zip
+
+CALL ..\make_saga4qgis_toolboxes.bat
+
+
 REM ___________________________________
 REM win32 Binaries
 SET SAGA_CONFIG=win32
@@ -68,7 +73,7 @@ MKDIR "%SAGA_VERSION%_%SAGA_CONFIG%"
 PUSHD "%SAGA_VERSION%_%SAGA_CONFIG%"
 XCOPY /C/S/Q/Y/H "%SAGA_ROOT%\bin\saga_vc_%SAGA_CONFIG%"
 DEL /F *.ini *.cfg *.exp *.pdb *.tmp tools\*.exp tools\*.lib tools\*.pdb tools\dev_tools.*
-RMDIR /S/Q _private
+COPY ..\%SAGA4QGIS% .\tools\%SAGA4QGIS%
 POPD
 %ZIPEXE% "%SAGA_VERSION%_%SAGA_CONFIG%.zip" "%SAGA_VERSION%_%SAGA_CONFIG%"
 
@@ -86,7 +91,7 @@ MKDIR "%SAGA_VERSION%_%SAGA_CONFIG%"
 PUSHD "%SAGA_VERSION%_%SAGA_CONFIG%"
 XCOPY /C/S/Q/Y/H "%SAGA_ROOT%\bin\saga_vc_%SAGA_CONFIG%"
 DEL /F *.ini *.cfg *.exp *.pdb *.tmp tools\*.exp tools\*.lib tools\*.pdb tools\dev_tools.*
-RMDIR /S/Q _private
+COPY ..\%SAGA4QGIS% .\tools\%SAGA4QGIS%
 POPD
 %ZIPEXE% "%SAGA_VERSION%_%SAGA_CONFIG%.zip" "%SAGA_VERSION%_%SAGA_CONFIG%"
 
@@ -96,6 +101,8 @@ COPY "%SAGA_ROOT%\..\saga_setup_%SAGA_CONFIG%.iss" "%SAGA_VERSION%_%SAGA_CONFIG%
 MOVE "%SAGA_VERSION%_%SAGA_CONFIG%\%SAGA_VERSION%_%SAGA_CONFIG%_setup.exe"
 
 RMDIR /S/Q "%SAGA_VERSION%_%SAGA_CONFIG%"
+
+DEL /F saga4qgis.zip
 
 
 REM ___________________________________
@@ -107,7 +114,7 @@ REM ___________________________________
 REM GIT Source Code Repository
 %GITEXE% clone git://git.code.sf.net/p/saga-gis/code %SAGA_VERSION%_src -q
 PUSHD %SAGA_VERSION%_src
-%GITEXE% checkout release-%SAGA_VER_TEXT%
+REM %GITEXE% checkout release-%SAGA_VER_TEXT%
 REM Create a branch (better do manually)
 REM %GITEXE% branch release-%SAGA_VER_TEXT%
 REM %GITEXE% checkout release-%SAGA_VER_TEXT%

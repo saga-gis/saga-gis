@@ -14,17 +14,30 @@ SET ARCHITECTURE=%2
 SET MAKE_ZIP=%3
 SET MAKE_CLEAN=%4
 
+IF %SAGA_ROOT% == "" (
+	SET SAGA_ROOT=%CD%\..\..\..
+)
+
+SET PYTHONROOT=F:\develop\libs\Python
+
 
 REM ___________________________________
 REM Tools
 
-SET EXE_ZIP="C:\Program Files\7-Zip\7z.exe" a -r -y -mx5
-SET EXE_SWIG="D:\libs\swigwin-4.0.1\swig.exe"
+IF "%ZIP%" == "" (
+	SET EXE_ZIP="C:\Program Files\7-Zip\7z.exe" a -r -y -mx5
+) ELSE (
+	SET EXE_ZIP="%ZIP%" a -r -y -mx5
+)
+
+IF "%SWIG%" == "" (
+	SET EXE_SWIG="F:\develop\libs\swigwin-4.0.1\swig.exe"
+) ELSE (
+	SET EXE_SWIG="%SWIG%"
+)
 
 
 REM ___________________________________
-SET SAGA_ROOT=%CD%\..\..\..
-
 IF /i "%ARCHITECTURE%" == "win32" (
 	SET SAGA_LIB="%SAGA_ROOT%\bin\saga_vc_win32"
 
@@ -43,21 +56,21 @@ IF /i "%ARCHITECTURE%" == "win32" (
 IF "%PYTHON_VERSION%" == "2" (
 	SET PYTHONVER=27
 	IF /i "%ARCHITECTURE%" == "win32" (
-		SET PYTHONDIR=D:\libs\Python\Python27_win32
-		SET PYTHONPKG=D:\libs\Python\Python27_win32\Lib\site-packages
+		SET PYTHONDIR=%PYTHONROOT%\Python27_win32
+		SET PYTHONPKG=%PYTHONROOT%\Python27_win32\Lib\site-packages
 	) ELSE (
-		SET PYTHONDIR=D:\libs\Python\Python27_x64
-		SET PYTHONPKG=D:\libs\Python\Python27_x64\Lib\site-packages
-	)	
+		SET PYTHONDIR=%PYTHONROOT%\Python27_x64
+		SET PYTHONPKG=%PYTHONROOT%\Python27_x64\Lib\site-packages
+	)
 ) ELSE (
 	SET PYTHONVER=35
 	IF /i "%ARCHITECTURE%" == "win32" (
-		SET PYTHONDIR=D:\libs\Python\Python35_win32\PCbuild\win32
-		SET PYTHONPKG=D:\libs\Python\Python35_win32\Lib\site-packages
+		SET PYTHONDIR=%PYTHONROOT%\Python35_win32\PCbuild\win32
+		SET PYTHONPKG=%PYTHONROOT%\Python35_win32\Lib\site-packages
 	) ELSE (
-		SET PYTHONDIR=D:\libs\Python\Python35_x64\PCbuild\amd64
-		SET PYTHONPKG=D:\libs\Python\Python35_x64\Lib\site-packages
-	)	
+		SET PYTHONDIR=%PYTHONROOT%\Python35_x64\PCbuild\amd64
+		SET PYTHONPKG=%PYTHONROOT%\Python35_x64\Lib\site-packages
+	)
 )
 
 

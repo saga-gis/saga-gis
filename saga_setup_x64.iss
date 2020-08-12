@@ -9,7 +9,7 @@
 AppName=SAGA - System for Automated Geoscientific Analyses
 AppVerName=SAGA 7.8.0
 
-DefaultDirName={pf}\SAGA-GIS
+DefaultDirName={commonpf}\SAGA-GIS
 DefaultGroupName=SAGA GIS
 UninstallDisplayIcon={app}\saga_gui.exe
 
