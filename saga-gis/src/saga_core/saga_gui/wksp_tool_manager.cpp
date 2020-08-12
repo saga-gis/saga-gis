@@ -296,10 +296,7 @@ bool CWKSP_Tool_Manager::Initialise(void)
 	//-----------------------------------------------------
 	if( SG_Get_Tool_Library_Manager().Get_Count() == 0 )
 	{
-		SG_Get_Tool_Library_Manager().Add_Directory(&Default_Path, true);
-		#ifdef _SAGA_LINUX
-		SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(SHARE_PATH, "toolchains"), false);
-		#endif
+		On_Command(ID_CMD_TOOL_RELOAD);
 	}
 
 	_Update(false);
