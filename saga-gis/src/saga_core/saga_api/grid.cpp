@@ -563,13 +563,7 @@ bool CSG_Grid::Get_Value(double x, double y, double &Value, TSG_Grid_Resampling 
 
 		if( bNoData || is_InGrid(ix + (int)(0.5 + dx), iy + (int)(0.5 + dy)) )
 		{
-			if( !dx && !dy )
-			{
-				Value	= asDouble(ix, iy);
-
-				return( true );
-			}
-			else switch( Resampling )
+			switch( Resampling )
 			{
 			case GRID_RESAMPLING_NearestNeighbour: return( _Get_ValAtPos_NearestNeighbour(Value, ix, iy, dx, dy           ) );
 			case GRID_RESAMPLING_Bilinear        : return( _Get_ValAtPos_BiLinear        (Value, ix, iy, dx, dy, bByteWise) );
