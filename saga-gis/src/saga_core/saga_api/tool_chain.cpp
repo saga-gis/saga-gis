@@ -1471,15 +1471,6 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 			{
 				switch( pParameter->Get_Type() )
 				{
-				default:
-					pParameter->Set_Value(Parameter.Get_Content());
-
-					if( pOwner )
-					{
-						pOwner->has_Changed();
-					}
-					break;
-
 				case PARAMETER_TYPE_FixedTable:
 					if( Parameter("OPTION") )
 					{
@@ -1487,10 +1478,11 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 					}
 					break;
 
-				case PARAMETER_TYPE_String:
-					{
-						CSG_String	Value(Parameter.Get_Content());
+				default: {
+					CSG_String	Value(Parameter.Get_Content());
 
+					if( Value.Find("$(") >= 0 )
+					{
 						for(int j=0; j<Parameters.Get_Count(); j++)
 						{
 							CSG_String	Var; Var.Printf("$(%s)", Parameters(j)->Get_Identifier());
@@ -1500,10 +1492,16 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 								Value.Replace(Var, Parameters(j)->asString());
 							}
 						}
-
-						pParameter->Set_Value(Value);
 					}
-					break;
+
+					pParameter->Set_Value(Value);
+
+					if( pOwner )
+					{
+						pOwner->has_Changed();
+					}
+
+					break; }
 				}
 			}
 		}
