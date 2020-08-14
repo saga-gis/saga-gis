@@ -2,8 +2,9 @@
 <toolchain saga-version="7.7.0">
 	<group></group>
 	<identifier>grid_and_polygon_to_table</identifier>
-	<name>Points Table from Grid and Polygon Data</name>
-	<description>Converts a grid to a points table with additional polygon attributes</description>
+	<name>Grid Values and Polygon Attributes to Points</name>
+	<menu absolute="true">Shapes|Shapes-Grid Tools|Vectorization</menu>
+	<description>Converts a grid to a points table with additional polygon attribute.</description>
 
 	<parameters>
 		<input varname="GRID" type="grid">
