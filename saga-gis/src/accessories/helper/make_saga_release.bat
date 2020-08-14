@@ -14,9 +14,15 @@ SET GITEXE="C:\Program Files\Git\bin\git.exe"
 SET DOXEXE="C:\Program Files\doxygen\bin\doxygen.exe"
 
 REM ___________________________________
+REM Absolute Path to SAGA Root Directory
+
+PUSHD %CD%\..\..\..
+SET SAGA_ROOT=%CD%
+POPD
+
+REM ___________________________________
 REM Version
 
-SET SAGA_ROOT=%CD%\..\..\..
 SET SAGA_VER_MAJOR=7
 SET SAGA_VER_MINOR=8
 SET SAGA_VER_RELEASE=0
