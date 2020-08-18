@@ -46,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
 #include <saga_api/saga_api.h>
@@ -135,8 +126,9 @@ CSG_Tool *		Create_Tool(int i)
 	case 17:	return( new CGrid_Statistics_Build );
 	case 19:	return( new CGrid_Statistics_Add );
 	case 18:	return( new CGrid_Statistics_Evaluate );
+	case 20:	return( new CGSGrid_Unique_Value_Statistics );
 
-	case 20:	return( NULL );
+	case 21:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

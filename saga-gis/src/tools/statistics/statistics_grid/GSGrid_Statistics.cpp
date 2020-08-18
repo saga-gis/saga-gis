@@ -96,7 +96,7 @@ CGSGrid_Statistics::CGSGrid_Statistics(void)
 			_TL("Bilinear Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
-		), 3
+		), 0
 	);
 
 	Parameters.Add_Grid("", "MEAN"    , _TL("Arithmetic Mean"             ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
@@ -111,7 +111,7 @@ CGSGrid_Statistics::CGSGrid_Statistics(void)
 	Parameters.Add_Grid("", "STDDEVHI", _TL("Mean plus Standard Deviation"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	Parameters.Add_Grid("", "PCTL"    , _TL("Percentile"                  ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 
-	Parameters.Add_Double("",
+	Parameters.Add_Double("PCTL",
 		"PCTL_VAL"	, _TL("Percentile"),
 		_TL(""),
 		50., 0., true, 100., true
@@ -147,7 +147,6 @@ int CGSGrid_Statistics::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Pa
 //---------------------------------------------------------
 bool CGSGrid_Statistics::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
 
 	if( pGrids->Get_Grid_Count() <= 1 )
@@ -176,33 +175,42 @@ bool CGSGrid_Statistics::On_Execute(void)
 
 	switch( Parameters("RESAMPLING")->asInt() )
 	{
-	default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
-	case  1:	Resampling	= GRID_RESAMPLING_Bilinear        ;	break;
-	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline   ;	break;
-	case  3:	Resampling	= GRID_RESAMPLING_BSpline         ;	break;
+	default: Resampling = GRID_RESAMPLING_NearestNeighbour; break;
+	case  1: Resampling = GRID_RESAMPLING_Bilinear        ; break;
+	case  2: Resampling = GRID_RESAMPLING_BicubicSpline   ; break;
+	case  3: Resampling = GRID_RESAMPLING_BSpline         ; break;
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid	*pMean			= Parameters("MEAN"    )->asGrid();
-	CSG_Grid	*pMin			= Parameters("MIN"     )->asGrid();
-	CSG_Grid	*pMax			= Parameters("MAX"     )->asGrid();
-	CSG_Grid	*pRange			= Parameters("RANGE"   )->asGrid();
-	CSG_Grid	*pSum			= Parameters("SUM"     )->asGrid();
-	CSG_Grid	*pSum2			= Parameters("SUM2"    )->asGrid();
-	CSG_Grid	*pVar			= Parameters("VAR"     )->asGrid();
-	CSG_Grid	*pStdDev		= Parameters("STDDEV"  )->asGrid();
-	CSG_Grid	*pStdDevLo		= Parameters("STDDEVLO")->asGrid();
-	CSG_Grid	*pStdDevHi		= Parameters("STDDEVHI")->asGrid();
-	CSG_Grid	*pPercentile	= Parameters("PCTL"    )->asGrid();
+	#define Get_Output(id) Parameters(id)->asGrid(); if( Parameters(id)->asGrid() ) bHasOutput = true;
 
-	if( !pMean && !pMin && !pMax && !pRange && !pSum && !pSum2 && !pVar && !pStdDev && !pStdDevLo && !pStdDevHi && !pPercentile )
+	bool	bHasOutput	= false;
+
+	CSG_Grid *pMean       = Get_Output("MEAN"    );
+	CSG_Grid *pMin        = Get_Output("MIN"     );
+	CSG_Grid *pMax        = Get_Output("MAX"     );
+	CSG_Grid *pRange      = Get_Output("RANGE"   );
+	CSG_Grid *pSum        = Get_Output("SUM"     );
+	CSG_Grid *pSum2       = Get_Output("SUM2"    );
+	CSG_Grid *pVar        = Get_Output("VAR"     );
+	CSG_Grid *pStdDev     = Get_Output("STDDEV"  );
+	CSG_Grid *pStdDevLo   = Get_Output("STDDEVLO");
+	CSG_Grid *pStdDevHi   = Get_Output("STDDEVHI");
+	CSG_Grid *pPercentile = Get_Output("PCTL"    );
+
+	if( !bHasOutput )
 	{
-		Error_Set(_TL("no parameter output specified"));
+		Error_Set(_TL("no output parameter has been selected"));
 
 		return( false );
 	}
 
-	double	dRank	= Parameters("PCTL_VAL")->asDouble();
+	double	Rank	= Parameters("PCTL_VAL")->asDouble();
+
+	if( pPercentile )
+	{
+		pPercentile->Fmt_Name("%s [%.1f]", _TL("Percentile"), Rank);
+	}
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -210,7 +218,7 @@ bool CGSGrid_Statistics::On_Execute(void)
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			CSG_Simple_Statistics	s(pPercentile != NULL);
+			CSG_Simple_Statistics s(pPercentile != NULL);
 
 			for(int i=0; i<pGrids->Get_Grid_Count(); i++)
 			{
@@ -232,34 +240,146 @@ bool CGSGrid_Statistics::On_Execute(void)
 				}
 			}
 
-			//-----------------------------------------
-			if( s.Get_Count() <= 0 )
+			//---------------------------------------------
+			if( s.Get_Count() < 1 )
 			{
-				if( pMean       )	pMean      ->Set_NoData(x, y);
-				if( pMin        )	pMin       ->Set_NoData(x, y);
-				if( pMax        )	pMax       ->Set_NoData(x, y);
-				if( pRange      )	pRange     ->Set_NoData(x, y);
-				if( pSum        )	pSum       ->Set_NoData(x, y);
-				if( pSum2       )	pSum2      ->Set_NoData(x, y);
-				if( pVar        )	pVar       ->Set_NoData(x, y);
-				if( pStdDev     )	pStdDev    ->Set_NoData(x, y);
-				if( pStdDevLo   )	pStdDevLo  ->Set_NoData(x, y);
-				if( pStdDevHi   )	pStdDevHi  ->Set_NoData(x, y);
-				if( pPercentile )	pPercentile->Set_NoData(x, y);
+				if( pMean       ) pMean      ->Set_NoData(x, y);
+				if( pMin        ) pMin       ->Set_NoData(x, y);
+				if( pMax        ) pMax       ->Set_NoData(x, y);
+				if( pRange      ) pRange     ->Set_NoData(x, y);
+				if( pSum        ) pSum       ->Set_NoData(x, y);
+				if( pSum2       ) pSum2      ->Set_NoData(x, y);
+				if( pVar        ) pVar       ->Set_NoData(x, y);
+				if( pStdDev     ) pStdDev    ->Set_NoData(x, y);
+				if( pStdDevLo   ) pStdDevLo  ->Set_NoData(x, y);
+				if( pStdDevHi   ) pStdDevHi  ->Set_NoData(x, y);
+				if( pPercentile ) pPercentile->Set_NoData(x, y);
 			}
 			else
 			{
-				if( pMean       )	pMean      ->Set_Value(x, y, s.Get_Mean          ());
-				if( pMin        )	pMin       ->Set_Value(x, y, s.Get_Minimum       ());
-				if( pMax        )	pMax       ->Set_Value(x, y, s.Get_Maximum       ());
-				if( pRange      )	pRange     ->Set_Value(x, y, s.Get_Range         ());
-				if( pSum        )	pSum       ->Set_Value(x, y, s.Get_Sum           ());
-				if( pSum2       )	pSum2      ->Set_Value(x, y, s.Get_Sum_Of_Squares());
-				if( pVar        )	pVar       ->Set_Value(x, y, s.Get_Variance      ());
-				if( pStdDev     )	pStdDev    ->Set_Value(x, y, s.Get_StdDev        ());
-				if( pStdDevLo   )	pStdDevLo  ->Set_Value(x, y, s.Get_Mean() - s.Get_StdDev());
-				if( pStdDevHi   )	pStdDevHi  ->Set_Value(x, y, s.Get_Mean() + s.Get_StdDev());
-				if( pPercentile )	pPercentile->Set_Value(x, y, s.Get_Percentile(dRank));
+				if( pMean       ) pMean      ->Set_Value(x, y, s.Get_Mean          ());
+				if( pMin        ) pMin       ->Set_Value(x, y, s.Get_Minimum       ());
+				if( pMax        ) pMax       ->Set_Value(x, y, s.Get_Maximum       ());
+				if( pRange      ) pRange     ->Set_Value(x, y, s.Get_Range         ());
+				if( pSum        ) pSum       ->Set_Value(x, y, s.Get_Sum           ());
+				if( pSum2       ) pSum2      ->Set_Value(x, y, s.Get_Sum_Of_Squares());
+				if( pVar        ) pVar       ->Set_Value(x, y, s.Get_Variance      ());
+				if( pStdDev     ) pStdDev    ->Set_Value(x, y, s.Get_StdDev        ());
+				if( pStdDevLo   ) pStdDevLo  ->Set_Value(x, y, s.Get_Mean() - s.Get_StdDev());
+				if( pStdDevHi   ) pStdDevHi  ->Set_Value(x, y, s.Get_Mean() + s.Get_StdDev());
+				if( pPercentile ) pPercentile->Set_Value(x, y, s.Get_Percentile(Rank));
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CGSGrid_Unique_Value_Statistics::CGSGrid_Unique_Value_Statistics(void)
+{
+	Set_Name		(_TL("Unique Value Statistics for Grids"));
+
+	Set_Author		("O.Conrad (c) 2020");
+
+	Set_Description	(_TW(
+		"This tool analyzes for each cell position the uniquely appearing values "
+		"of the input grids. Output is the number of unique values, the most "
+		"frequent value (the majority), and the least frequent value (minority). "
+	));
+
+	Parameters.Add_Grid_List("",
+		"GRIDS"		, _TL("Values"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid("", "MAJORITY", _TL("Majority"               ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid("", "MINORITY", _TL("Minority"               ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid("", "NUNIQUES", _TL("Number of Unique Values"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGSGrid_Unique_Value_Statistics::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGSGrid_Unique_Value_Statistics::On_Execute(void)
+{
+	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
+
+	if( pGrids->Get_Grid_Count() <= 1 )
+	{
+		Error_Set(_TL("no grids in selection"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	#define Get_Output(id) Parameters(id)->asGrid(); if( Parameters(id)->asGrid() ) bHasOutput = true;
+
+	bool	bHasOutput	= false;
+
+	CSG_Grid *pMajority   = Get_Output("MAJORITY");
+	CSG_Grid *pMinority   = Get_Output("MINORITY");
+	CSG_Grid *pNUniques   = Get_Output("NUNIQUES");
+
+	//-----------------------------------------------------
+	if( !bHasOutput )
+	{
+		Error_Set(_TL("no output parameter has been selected"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
+		{
+			CSG_Unique_Number_Statistics s;
+
+			for(int i=0; i<pGrids->Get_Grid_Count(); i++)
+			{
+				if( !pGrids->Get_Grid(i)->is_NoData(x, y) )
+				{
+					s	+= pGrids->Get_Grid(i)->asDouble(x, y);
+				}
+			}
+
+			//---------------------------------------------
+			if( s.Get_Count() < 1 )
+			{
+				if( pMajority ) pMajority->Set_NoData(x, y);
+				if( pMinority ) pMinority->Set_NoData(x, y);
+				if( pNUniques ) pNUniques->Set_NoData(x, y);
+			}
+			else
+			{
+				if( pMajority ) { double d; s.Get_Majority(d); pMajority->Set_Value(x, y, d); }
+				if( pMinority ) { double d; s.Get_Minority(d); pMinority->Set_Value(x, y, d); }
+				if( pNUniques ) pNUniques->Set_Value(x, y, s.Get_Count());
 			}
 		}
 	}

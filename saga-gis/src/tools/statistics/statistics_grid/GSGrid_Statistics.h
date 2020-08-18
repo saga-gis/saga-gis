@@ -51,6 +51,13 @@
 #ifndef HEADER_INCLUDED__GSGrid_Statistics_H
 #define HEADER_INCLUDED__GSGrid_Statistics_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
@@ -66,6 +73,26 @@ class CGSGrid_Statistics : public CSG_Tool_Grid
 {
 public:
 	CGSGrid_Statistics(void);
+
+
+protected:
+
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGSGrid_Unique_Value_Statistics : public CSG_Tool_Grid  
+{
+public:
+	CGSGrid_Unique_Value_Statistics(void);
 
 
 protected:
