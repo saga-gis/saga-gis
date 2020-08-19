@@ -1,30 +1,61 @@
+#_______________________________________________________#
+#########################################################
+#                                                       #
+#          Copyright (C) 2020 by Olaf Conrad            #
+#                                                       #
+#_______________________________________________________#
+#                                                       #
+# This file is part of 'SAGA - System for Automated     #
+# Geoscientific Analyses'.                              #
+#                                                       #
+# This library is free software; you can redistribute   #
+# it and/or modify it under the terms of the GNU Lesser #
+# General Public License as published by the Free       #
+# Software Foundation, either version 2.1 of the        #
+# License, or (at your option) any later version.       #
+#                                                       #
+# This library is distributed in the hope that it will  #
+# be useful, but WITHOUT ANY WARRANTY; without even the #
+# implied warranty of MERCHANTABILITY or FITNESS FOR A  #
+# PARTICULAR PURPOSE. See the GNU Lesser General Public #
+# License for more details.                             #
+#                                                       #
+# You should have received a copy of the GNU Lesser     #
+# General Public License along with this program; if    #
+# not, see <http://www.gnu.org/licenses/>.              #
+#                                                       #
+#_______________________________________________________#
+#                                                       #
+#    contact:    Olaf Conrad                            #
+#                Institute of Geography                 #
+#                University of Hamburg                  #
+#                Germany                                #
+#                                                       #
+#    e-mail:     oconrad@saga-gis.org                   #
+#                                                       #
+#########################################################
+
+#########################################################
+#________________________________________________________
 import sys, os, glob, subprocess, arcpy, ConversionUtils, shutil
 
-##########################################
+
+#########################################################
 # Globals
-#_________________________________________
-DIR_SELF = os.path.dirname(__file__)
-
+#________________________________________________________
 DIR_LOG  = None
-#DIR_LOG  = DIR_SELF # uncomment to create logs in toolbox directory
-
-DIR_SAGA = None	# assuming SAGA directory is included in the PATH environment variable
-#DIR_SAGA = 'D:\\saga\\saga-code\\trunk\\saga-gis\\bin\\saga_vc_x64'	# ...or define hard coded path to SAGA directory
-
-dir, tail = os.path.split(DIR_SELF)
-if os.path.isfile(dir + os.sep + 'saga_cmd.exe') == True:
-	DIR_SAGA = dir	# use SAGA instance of this installation
+#DIR_LOG  = os.path.dirname(__file__) # uncomment to create logs in toolbox directory
 
 CREATE_NO_WINDOW = 0x08000000
 
 
-##########################################
+#########################################################
 # File Tools
-#_________________________________________
+#________________________________________________________
 def File_Get_TempName(Extension):
 	return os.tempnam(None, 'arc_saga_') + '.' + Extension
 
-#_________________________________________
+#________________________________________________________
 def File_Cmp_Extension(File, Extension):
 	if File != '#' and File != None:
 		File, ext = os.path.splitext(File)
@@ -32,7 +63,7 @@ def File_Cmp_Extension(File, Extension):
 			return True
 	return False
 
-#_________________________________________
+#________________________________________________________
 def File_Set_Extension(File, Extension):
 	if File != '#' and File != None:
 		File, ext = os.path.splitext(File)
@@ -40,7 +71,7 @@ def File_Set_Extension(File, Extension):
 		return File
 	return None
 
-#_________________________________________
+#________________________________________________________
 def File_Remove_All(File_Name):
 	if File_Name != '#' and File_Name != None:
 		Files = File_Set_Extension(File_Name, '*')
@@ -49,14 +80,14 @@ def File_Remove_All(File_Name):
 	return
 
 
-##########################################
+#########################################################
 # The SAGA Tool Execution Class
-#_________________________________________
+#________________________________________________________
 class SAGA_Tool:
 
-	######################################
+	#####################################################
 	# Construction
-	#_____________________________________
+	#____________________________________________________
 	def __init__(self, Library, Tool):
 		self.Library    = Library
 		self.Tool       = Tool
@@ -64,20 +95,26 @@ class SAGA_Tool:
 		self.Temporary  = None
 		self.Output     = None
 
-		if DIR_SAGA == None:
-			self.saga_cmd =                     ['saga_cmd']
+		saga_cmd = None
+	#	saga_cmd = 'F:/develop/saga/saga-code/master/saga-gis/bin/saga_vc_x64/saga_cmd.exe'	# define hard coded path to saga_cmd.exe
+		if saga_cmd == None:
+			head, tail = os.path.split(os.path.dirname(__file__))
+			saga_cmd = head + os.sep + 'saga_cmd.exe'
+
+		if os.path.isfile(saga_cmd) == True:
+			self.saga_cmd =  saga_cmd	# use SAGA instance of this installation
 		else:
-			self.saga_cmd = [DIR_SAGA + os.sep + 'saga_cmd']
+			self.saga_cmd = 'saga_cmd'	# assuming saga_cmd is included in the PATH environment variable
 
 
-	######################################
+	#####################################################
 	# Execution
-	#_____________________________________
+	#____________________________________________________
 	def Run(self, bIgnoreLog = False):
 		cmd_string  = '_________________________\n'
-		cmd_string += 'saga_cmd ' + self.Library + ' ' + self.Tool
+		cmd_string += self.saga_cmd + ' ' + self.Library + ' ' + self.Tool
 		for Item in self.Parameters:
-			cmd_string += ' ' + Item
+			cmd_string += ' ' + Item.strip('""')
 
 		cmd    = [self.saga_cmd, '-f=q', self.Library, self.Tool] + self.Parameters
 		
@@ -104,9 +141,9 @@ class SAGA_Tool:
 		return Result
 
 
-	######################################
+	#####################################################
 	# Data Lists
-	#_____________________________________
+	#____________________________________________________
 	def Add_Output(self, Identifier, File, Type):
 		if self.Output == None:
 			self.Output  = [[Identifier, File, Type]]
@@ -114,7 +151,7 @@ class SAGA_Tool:
 			self.Output += [[Identifier, File, Type]]
 		return
 
-	#_____________________________________
+	#____________________________________________________
 	def Add_Temporary(self, File):
 		if self.Temporary == None:
 			self.Temporary  = [File]
@@ -122,26 +159,26 @@ class SAGA_Tool:
 			self.Temporary += [File]
 		return
 
-	#_____________________________________
+	#____________________________________________________
 	def Get_Temporary(self, Extension):
 		File = File_Get_TempName(Extension)
 		self.Add_Temporary(File)
 		return File
 
 
-	######################################
+	#####################################################
 	# Parameters
-	#_____________________________________
+	#____________________________________________________
 	def Set_Option(self, Identifier, Value):
 		if Value != '#' and Value != None:
-			Value.strip()
+			Value = '""' + Value.strip() + '""'
 			if self.Parameters == None:
 				self.Parameters  = ['-' + Identifier, Value]
 			else:
 				self.Parameters += ['-' + Identifier, Value]
 		return
 
-	#_____________________________________
+	#____________________________________________________
 	def Set_Input(self, Identifier, Value, Type):
 		Files = None
 
@@ -173,7 +210,7 @@ class SAGA_Tool:
 
 		return Files
 
-	#_____________________________________
+	#____________________________________________________
 	def Set_Output(self, Identifier, Value, Type):
 		Files = None
 
@@ -212,7 +249,7 @@ class SAGA_Tool:
 
 		return Files
 
-	#_____________________________________
+	#____________________________________________________
 	def Get_Output(self, SagaFile, ArcFile, Type):
 		if ArcFile != '#' and ArcFile != None:
 			List  = ArcFile.split(';')
@@ -228,9 +265,9 @@ class SAGA_Tool:
 		return
 
 
-##########################################
+#########################################################
 # Raster Conversion
-#_________________________________________
+#________________________________________________________
 def Arc_To_SAGA_Raster(Raster):
 	Supported = ['sdat', 'tif', 'img', 'asc']
 	for ext in Supported:
@@ -243,7 +280,7 @@ def Arc_To_SAGA_Raster(Raster):
 
 	return File
 
-#_________________________________________
+#________________________________________________________
 def SAGA_To_Arc_Raster(File, Raster):
 	if File_Cmp_Extension(Raster, 'sdat') == False: # conversion needed
 		Tool = SAGA_Tool('io_gdal', '2') # 'Export Raster to GeoTIFF'
@@ -268,9 +305,9 @@ def SAGA_To_Arc_Raster(File, Raster):
 	return True
 
 
-##########################################
+#########################################################
 # Feature Conversion
-#_________________________________________
+#________________________________________________________
 def Arc_To_SAGA_Feature(Feature):
 	if File_Cmp_Extension(Feature, 'shp') == True:
 		return Feature
@@ -280,7 +317,7 @@ def Arc_To_SAGA_Feature(Feature):
 
 	return File
 
-#_________________________________________
+#________________________________________________________
 def SAGA_To_Arc_Feature(File, Feature):
 	if File_Cmp_Extension(Feature, 'shp') == False:
 		ConversionUtils.CopyFeatures(File, Feature)
@@ -291,9 +328,9 @@ def SAGA_To_Arc_Feature(File, Feature):
 	return True
 
 
-##########################################
+#########################################################
 # Table Conversion
-#_________________________________________
+#________________________________________________________
 def Arc_To_SAGA_Table(Table):
 	if File_Cmp_Extension(Table, 'dbf') == True:
 		return Table
@@ -303,7 +340,7 @@ def Arc_To_SAGA_Table(Table):
 
 	return File
 
-#_________________________________________
+#________________________________________________________
 def SAGA_To_Arc_Table(File, Table):
 	if File_Cmp_Extension(Table, 'dbf') == False:
 		ConversionUtils.CopyRows(File, Table)
@@ -312,20 +349,22 @@ def SAGA_To_Arc_Table(File, Table):
 	return True
 
 	
-##########################################
+#########################################################
 # ArcMap Interaction
-#_________________________________________
+#________________________________________________________
 def Arc_Load_Layer(Layer):
 	if Layer == '#' or not Layer:
 		return
-	# ------------------------------------
+
+	#____________________________________________________
 	Map_Project = arcpy.mapping.MapDocument("CURRENT")
 	Map_Frame   = arcpy.mapping.ListDataFrames(Map_Project)[0]
 	Map_Layer   = arcpy.mapping.Layer(Layer)
 
 	if Map_Layer.isRasterLayer:
-		if os.path.isfile(DIR_SELF + os.sep + 'grid.lyr') == True:
-			Src_Layer = arcpy.mapping.Layer(DIR_SELF + os.sep + 'grid.lyr')
+		File = os.path.dirname(__file__) + os.sep + 'grid.lyr'
+		if os.path.isfile(File) == True:
+			Src_Layer = arcpy.mapping.Layer(File)
 			arcpy.mapping.UpdateLayer(Map_Frame, Map_Layer, Src_Layer, True)
 
 	arcpy.mapping.AddLayer(Map_Frame, Map_Layer, 'AUTO_ARRANGE')
@@ -333,5 +372,5 @@ def Arc_Load_Layer(Layer):
 	return
 
 
-##########################################
-#_________________________________________
+#########################################################
+#________________________________________________________
