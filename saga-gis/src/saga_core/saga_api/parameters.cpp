@@ -610,7 +610,7 @@ CSG_Parameter * CSG_Parameters::Add_Grid_List(const CSG_String &ParentID, const 
 	{
 		SystemID	= pParent->Get_Identifier();
 	}
-	else if( bSystem_Dependent && m_pGrid_System && (Constraint & PARAMETER_INPUT) )
+	else if( bSystem_Dependent && m_pGrid_System && !((Constraint & PARAMETER_OUTPUT) && (Constraint & PARAMETER_OPTIONAL)) )
 	{
 		SystemID	= m_pGrid_System->Get_Identifier();
 	}

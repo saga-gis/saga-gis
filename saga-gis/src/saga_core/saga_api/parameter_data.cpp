@@ -1767,23 +1767,21 @@ CSG_Parameter_Grid_System::CSG_Parameter_Grid_System(CSG_Parameters *pOwner, CSG
 //---------------------------------------------------------
 int CSG_Parameter_Grid_System::_Set_Value(void *Value)
 {
-	//-----------------------------------------------------
-	CSG_Grid_System	Invalid;
+	CSG_Grid_System	System;
 
-	if( Value == NULL )
+	if( Value != NULL )
 	{
-		Value	= &Invalid;
+		System.Create(*((CSG_Grid_System *)Value));
 	}
 
-	//-----------------------------------------------------
-	if( m_System.is_Equal(*((CSG_Grid_System *)Value)) )
+	if( m_System == System )
 	{
 		return( SG_PARAMETER_DATA_SET_TRUE );
 	}
 
-	//-----------------------------------------------------
-	m_System.Assign(*((CSG_Grid_System *)Value));
+	m_System	= System;
 
+	//-----------------------------------------------------
 	CSG_Data_Manager *pManager    = Get_Manager();
 
 	for(int i=0; i<Get_Children_Count(); i++)
@@ -2750,22 +2748,50 @@ CSG_Parameter_List::CSG_Parameter_List(CSG_Parameters *pOwner, CSG_Parameter *pP
 //---------------------------------------------------------
 bool CSG_Parameter_List::Add_Item(CSG_Data_Object *pObject)
 {
-	return( pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE && m_Objects.Add(pObject) );
+	if( pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE && m_Objects.Add(pObject) )
+	{
+		_Set_String();
+
+		return( true );
+	}
+
+	return( false );
 }
 
 bool CSG_Parameter_List::Del_Item(CSG_Data_Object *pObject, bool bUpdateData)
 {
-	return( m_Objects.Del(pObject) > 0 );
+	if( m_Objects.Del(pObject) > 0 )
+	{
+		_Set_String();
+
+		return( true );
+	}
+
+	return( false );
 }
 
 bool CSG_Parameter_List::Del_Item(int Index, bool bUpdateData)
 {
-	return( m_Objects.Del(Index) );
+	if( m_Objects.Del(Index) )
+	{
+		_Set_String();
+
+		return( true );
+	}
+
+	return( false );
 }
 
 bool CSG_Parameter_List::Del_Items(void)
 {
-	return( m_Objects.Set_Array(0) );
+	if( m_Objects.Set_Array(0) )
+	{
+		_Set_String();
+
+		return( true );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -2890,13 +2916,23 @@ bool CSG_Parameter_Grid_List::Add_Item(CSG_Data_Object *pObject)
 	}
 
 	//-----------------------------------------------------
-	if( Get_System() )	// check grid system compatibility
+	CSG_Grid_System *pSystem = Get_System();
+
+	if( pSystem )	// check grid system compatibility
 	{
 		CSG_Grid_System	System	= pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid
 			? ((CSG_Grid  *)pObject)->Get_System()
 			: ((CSG_Grids *)pObject)->Get_System();
 
-		if( !Get_System()->is_Equal(System) )
+		SG_UI_Msg_Add("add grid to list: ", true);
+		SG_UI_Msg_Add(pSystem->Get_Name(), false);
+
+		if( !pSystem->is_Valid() )
+		{
+			Get_Parent()->Set_Value((void *)&System);
+			SG_UI_Msg_Add("grid system set", true);
+		}
+		else if( !pSystem->is_Equal(System) )
 		{
 			for(int i=0; i<Get_Parent()->Get_Children_Count(); i++)
 			{
@@ -2956,23 +2992,21 @@ bool CSG_Parameter_Grid_List::Update_Data(void)
 	{
 		switch( Get_Item(i)->Get_ObjectType() )
 		{
-		case SG_DATAOBJECT_TYPE_Grid:
+		case SG_DATAOBJECT_TYPE_Grid: {
 			m_Grids.Add(Get_Item(i));
-			break;
+			break; }
 
-		case SG_DATAOBJECT_TYPE_Grids:
+		case SG_DATAOBJECT_TYPE_Grids: {
+			CSG_Grids	*pGrids	= (CSG_Grids *)Get_Item(i);
+
+			for(int j=0; j<pGrids->Get_Grid_Count(); j++)
 			{
-				CSG_Grids	*pGrids	= (CSG_Grids *)Get_Item(i);
-
-				for(int j=0; j<pGrids->Get_Grid_Count(); j++)
-				{
-					m_Grids.Add(pGrids->Get_Grid_Ptr(j));
-				}
+				m_Grids.Add(pGrids->Get_Grid_Ptr(j));
 			}
-			break;
+			break; }
 
-		default:
-			break;
+		default: {
+			break; }
 		}
 
 	}
@@ -3014,13 +3048,15 @@ bool CSG_Parameter_Grids_List::Add_Item(CSG_Data_Object *pObject)
 	}
 
 	//-----------------------------------------------------
-	if( Get_System() )	// check grid system compatibility
+	CSG_Grid_System *pSystem = Get_System();
+
+	if( pSystem )	// check grid system compatibility
 	{
 		CSG_Grid_System	System	= Get_Type() == PARAMETER_TYPE_Grid_List
 			? ((CSG_Grid  *)pObject)->Get_System()
 			: ((CSG_Grids *)pObject)->Get_System();
 
-		if( !Get_System()->is_Equal(System) )
+		if( pSystem->is_Valid() && !pSystem->is_Equal(System) )
 		{
 			for(int i=0; i<Get_Parent()->Get_Children_Count(); i++)
 			{
@@ -3043,9 +3079,9 @@ bool CSG_Parameter_Grids_List::Add_Item(CSG_Data_Object *pObject)
 					}
 				}
 			}
-
-			Get_Parent()->Set_Value((void *)&System);
 		}
+
+		Get_Parent()->Set_Value((void *)&System);
 	}
 
 	return( CSG_Parameter_List::Add_Item(pObject) );
