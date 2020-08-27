@@ -14,7 +14,7 @@ SET ARCHITECTURE=%2
 SET MAKE_ZIP=%3
 SET MAKE_CLEAN=%4
 
-IF %SAGA_ROOT% == "" (
+IF "%SAGA_ROOT%" == "" (
 	SET SAGA_ROOT=%CD%\..\..\..
 )
 
