@@ -79,18 +79,7 @@ COverland_Flow::COverland_Flow(void)
 		0.03, 0., true
 	);
 
-	Parameters.Add_Grid_or_Const("",
-		"PRECIP"	, _TL("Precipitation [mm/h]"),
-		_TL(""),
-		0., 0., true
-	);
-
-	Parameters.Add_Grid_or_Const("",
-		"ET_POT"	, _TL("Potential Evapotranspiration [mm/h]"),
-		_TL(""),
-		0., 0., true
-	);
-
+	//-----------------------------------------------------
 	Parameters.Add_Grid_or_Const("",
 		"INTER_MAX"	, _TL("Interception Capacity [mm]"),
 		_TL(""),
@@ -137,6 +126,24 @@ COverland_Flow::COverland_Flow(void)
 		"VELOCITY"	, _TL("Velocity [m/s]"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
+	);
+
+	//-----------------------------------------------------
+	Parameters.Add_Grid_System("",
+		"WEATHER"	, _TL("Weather Grid System"),
+		_TL("")
+	);
+
+	Parameters.Add_Grid_or_Const("WEATHER",
+		"PRECIP"	, _TL("Precipitation [mm/h]"),
+		_TL(""),
+		0., 0., true
+	);
+
+	Parameters.Add_Grid_or_Const("WEATHER",
+		"ET_POT"	, _TL("Potential Evapotranspiration [mm/h]"),
+		_TL(""),
+		0., 0., true
 	);
 
 	Parameters.Add_Bool("",
@@ -419,55 +426,70 @@ bool COverland_Flow::Do_Time_Step(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_GRID_OR_CONST(g, c)	(g && !g->is_NoData(x, y) ? g->asDouble(x, y) : c)
-
-//---------------------------------------------------------
-inline double COverland_Flow::Get_Roughness(int x, int y)
-{
-	double	Roughness	  = GET_GRID_OR_CONST(m_pRoughness, m_Roughness);
-
-	return( Roughness > 0. ? Roughness : 0. );
-}
+#define GET_GRID_OR_CONST(g, c)	{ double v; if( !g || !g->Get_Value(Get_System().Get_Grid_to_World(x, y), v) ) { v = c; } return( v > 0. ? m_dTime * v : 0. ); }
 
 //---------------------------------------------------------
 inline double COverland_Flow::Get_Precipitation(int x, int y)
 {
-	double	Precipitation = GET_GRID_OR_CONST(m_pPrecipitation, m_Precipitation);
-
-	return( Precipitation > 0. ? m_dTime * Precipitation : 0. );
+	GET_GRID_OR_CONST(m_pPrecipitation, m_Precipitation);
 }
 
 //---------------------------------------------------------
 inline double COverland_Flow::Get_ETpot(int x, int y)
 {
-	double	ETpot	      = GET_GRID_OR_CONST(m_pETpot, m_ETpot);
+	GET_GRID_OR_CONST(m_pETpot, m_ETpot);
+}
 
-	return( ETpot > 0. ? m_dTime * ETpot : 0. );
+//---------------------------------------------------------
+#undef GET_GRID_OR_CONST
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define GET_GRID_OR_CONST(g, c)	(g && !g->is_NoData(x, y) ? g->asDouble(x, y) : c)
+
+//---------------------------------------------------------
+inline double COverland_Flow::Get_Roughness(int x, int y)
+{
+	double	Value = GET_GRID_OR_CONST(m_pRoughness, m_Roughness);
+
+	return( Value > 0. ? Value : 0. );
 }
 
 //---------------------------------------------------------
 inline double COverland_Flow::Get_Intercept_max(int x, int y)
 {
-	double	Intercept_max = GET_GRID_OR_CONST(m_pIntercept_max, m_Intercept_max);
+	double	Value = GET_GRID_OR_CONST(m_pIntercept_max, m_Intercept_max);
 
-	return( Intercept_max > 0. ? Intercept_max : 0. );
+	return( Value > 0. ? Value : 0. );
 }
 
 //---------------------------------------------------------
 inline double COverland_Flow::Get_Ponding(int x, int y)
 {
-	double	Ponding_max = GET_GRID_OR_CONST(m_pPonding_max, m_Ponding_max);
+	double	Value = GET_GRID_OR_CONST(m_pPonding_max, m_Ponding_max);
 
-	return( Ponding_max > 0. ? Ponding_max : 0. );
+	return( Value > 0. ? Value : 0. );
 }
 
 //---------------------------------------------------------
 inline double COverland_Flow::Get_Infiltration(int x, int y)
 {
-	double	Infiltrat_max = GET_GRID_OR_CONST(m_pInfiltrat_max, m_Infiltrat_max);
+	double	Value = GET_GRID_OR_CONST(m_pInfiltrat_max, m_Infiltrat_max);
 
-	return( Infiltrat_max > 0. ? m_dTime * Infiltrat_max : 0. );
+	return( Value > 0. ? m_dTime * Value : 0. );
 }
+
+//---------------------------------------------------------
+#undef GET_GRID_OR_CONST
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 inline double COverland_Flow::Get_Surface(int x, int y)

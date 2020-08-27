@@ -103,9 +103,10 @@ private:
 
 	bool					Do_Time_Step			(void);
 
-	double					Get_Roughness			(int x, int y);
 	double					Get_Precipitation		(int x, int y);
 	double					Get_ETpot				(int x, int y);
+
+	double					Get_Roughness			(int x, int y);
 	double					Get_Intercept_max		(int x, int y);
 	double					Get_Ponding				(int x, int y);
 	double					Get_Infiltration		(int x, int y);
