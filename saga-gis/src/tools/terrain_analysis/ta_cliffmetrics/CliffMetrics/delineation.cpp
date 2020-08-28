@@ -3,11 +3,8 @@
  * \file delineation.cpp
  * \brief The start-of-simulation routine
  * \details TODO A more detailed description of this routine.
- * \author Andres Payo 
- * \author David Favis-Mortlock
- * \author Martin Husrt
- * \author Monica Palaseanu-Lovejoy
- * \date 2017
+ * \author Andres Payo, David Favis-Mortlock, Martin Husrt, Monica Palaseanu-Lovejoy
+ * \date 2020
  * \copyright GNU General Public License
  *
  */
@@ -79,10 +76,10 @@ CDelineation::CDelineation(void)
    m_nCoastMax                                     =
    m_nCoastMin                                     = 0;
    
-#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
    m_GDALWriteIntDataType                          =
    m_GDALWriteFloatDataType                        = GDT_Unknown;
-#endif // #if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
+#endif // #if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
 
    m_lGDALMaxCanWrite                              =
    m_lGDALMinCanWrite                              = 0;
@@ -96,8 +93,6 @@ CDelineation::CDelineation(void)
    for (int i = 0; i < NRNG; i++)
       m_ulRandSeed[i]  = 0;
 
-   for (int i = 0; i < SAVEMAX; i++)
-      m_dUSaveTime[i] = 0;
 
    m_dEleTolerance                              = 1e-16;  // must be larger than zero, so it is initialized with a very small value but still larger than 0
    m_dNorthWestXExtCRS                          =
@@ -113,17 +108,10 @@ CDelineation::CDelineation(void)
    m_dClkLast                                   =
    m_dCPUClock                                  =
    m_dStillWaterLevel                           =
-   m_dOrigSWL                                   =
-   m_dFinalSWL                                  =
-   m_dC_0                                       =
-   m_dL_0                                       =
-   m_dR                                         =
-   m_dG                                         =
    m_dCoastNormalAvgSpacing                     =
    m_dCoastNormalLength                         =
    m_dProfileMaxSlope                           =
-   m_dSimpleSmoothWeight                        =
-   m_dCoastNormalRandSpaceFact                  = 0;
+   m_dSimpleSmoothWeight                        = 0;
 
    m_dMinSWL                                    = DBL_MAX;
    m_dMaxSWL                                    = DBL_MIN;
@@ -180,7 +168,7 @@ int CDelineation::nGetGridYMax(void) const
  The nDoSimulation member function of CDelineation sets up and runs the simulation
 
 ==============================================================================================================================*/
-#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
 int CDelineation::nDoDelineation(int nArg, char* pcArgv[])
 {
 #ifdef RANDCHECK
@@ -260,20 +248,19 @@ int CDelineation::nDoDelineation(int nArg, char* pcArgv[])
    }
 
    // May wish to read in the shoreline vector file instead of calculating it from the raster
-/*   AnnounceReadVectorFiles();
    if (! m_strInitialCoastlineFile.empty())
    {
-      AnnounceReadInitialCoastlineGIS();
+      AnnounceReadUserCoastLine();
 
       // Create a new coastline object
       CCoast CoastTmp;
       m_VCoast.push_back(CoastTmp);
 
-      // Read in
-      nRet = nReadVectorGISData(COAST_VEC);
+      // Read in the points of user defined coastline
+      nRet = nReadVectorCoastlineData();
       if (nRet != RTN_OK)
          return (nRet);
-   }*/
+   }
 
 
    // Open OUT file
@@ -345,7 +332,7 @@ int CDelineation::nDoDelineation(int nArg, char* pcArgv[])
    return RTN_OK;
 } // end DoDelineation
 
-#else // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
+#else // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
 int CDelineation::nDoDelineation(CSG_Parameters *pParameters)
 {
 	m_pParameters	= pParameters;	CSG_Parameters	&Parameters	= *pParameters;
@@ -360,7 +347,7 @@ int CDelineation::nDoDelineation(CSG_Parameters *pParameters)
 	m_strMailAddress;	// Email address, only useful if running under Linux/Unix
 
 						// We have the name of the run-data input file, so read it   if (! bReadRunData())
-	CSG_String	OutPath	= Parameters("OutPath")->asString();
+	CSG_String	OutPath	= Parameters["OutPath"].asString();
 
 	m_strOutPath	= OutPath.b_str();		// Path for CliffMetrics output
 
@@ -375,23 +362,23 @@ int CDelineation::nDoDelineation(CSG_Parameters *pParameters)
 	SG_UI_Msg_Add_Execution("\noutput file: ", false); SG_UI_Msg_Add_Execution(m_strOutFile.c_str(), false);
 	SG_UI_Msg_Add_Execution("\nlog file: "   , false); SG_UI_Msg_Add_Execution(m_strLogFile.c_str(), false);
 
-	m_dStillWaterLevel			= Parameters("StillWaterLevel"  )->asDouble();	//  Still water level (m) used to extract the shoreline
-	m_nCoastSmooth				= Parameters("CoastSmooth"      )->asInt();	// Vector coastline smoothing algorithm: 0 = none, 1 = running mean, 2 = Savitsky-Golay
-	m_nCoastSmoothWindow		= Parameters("CoastSmoothWindow")->asInt() * 2 + 1;	// Size of coastline smoothing window: must be odd
-	m_nSavGolCoastPoly			= Parameters("SavGolCoastPoly"  )->asInt();	// Order of coastline profile smoothing polynomial for Savitsky-Golay: usually 2 or 4, max is 6
+	m_dStillWaterLevel			= Parameters["StillWaterLevel"  ].asDouble();	//  Still water level (m) used to extract the shoreline
+	m_nCoastSmooth				= Parameters["CoastSmooth"      ].asInt();	// Vector coastline smoothing algorithm: 0 = none, 1 = running mean, 2 = Savitsky-Golay
+	m_nCoastSmoothWindow		= Parameters["CoastSmoothWindow"].asInt() * 2 + 1;	// Size of coastline smoothing window: must be odd
+	m_nSavGolCoastPoly			= Parameters["SavGolCoastPoly"  ].asInt();	// Order of coastline profile smoothing polynomial for Savitsky-Golay: usually 2 or 4, max is 6
 
-	m_strInitialLandformFile;	// Optional shoreline shape file (can be blank)
+//	m_strInitialLandformFile;	// Optional shoreline shape file (can be blank)
 	m_strRasterGISOutFormat;	// Raster GIS output format (note must retain original case). Blank means use same format as input DEM file (if possible)
 	m_bWorldFile	= true;	// If needed, also output GIS raster world file?
 
-	m_bScaleRasterOutput		= Parameters("ScaleRasterOutput"    )->asBool();	// If needed, scale GIS raster output values?
+	m_bScaleRasterOutput		= Parameters["ScaleRasterOutput"    ].asBool();	// If needed, scale GIS raster output values?
 	m_strVectorGISOutFormat;	// Vector GIS output format (note must retain original case)
-	m_bRandomCoastEdgeSearch	= Parameters("RandomCoastEdgeSearch")->asBool();	// Random edge for coastline search?
-	m_dCoastNormalLength		= Parameters("CoastNormalLength"    )->asDouble();	// Length of coastline normals (m)
-	m_dEleTolerance				= Parameters("EleTolerance"         )->asDouble();	// Vertical tolerance avoid false CliffTops/Toes
+	m_bRandomCoastEdgeSearch	= Parameters["RandomCoastEdgeSearch"].asBool();	// Random edge for coastline search?
+	m_dCoastNormalLength		= Parameters["CoastNormalLength"    ].asDouble();	// Length of coastline normals (m)
+	m_dEleTolerance				= Parameters["EleTolerance"         ].asDouble();	// Vertical tolerance avoid false CliffTops/Toes
 
 	// Initialize the random number generators
-	//	m_ulRandSeed[0]	= Parameters("RandSeed")->asInt();	// Random number seed(s) MUST BE > 0!!!
+	//	m_ulRandSeed[0]	= Parameters["RandSeed"].asInt();	// Random number seed(s) MUST BE > 0!!!
 	// Only one seed specified, so make all seeds the same
 	//	for(int n=1; n < NRNG; n++)	m_ulRandSeed[n] = m_ulRandSeed[n-1];
 	m_ulRandSeed[0]	= 280761;	// Random number seed(s) MUST BE > 0!!!
@@ -400,7 +387,7 @@ int CDelineation::nDoDelineation(CSG_Parameters *pParameters)
 	InitRand1(m_ulRandSeed[1]);
 
 	// reset output tables
-	Parameters("PROFILES")->asTable()->Destroy();
+	Parameters["PROFILES"].asTable()->Destroy();
 
 	// Open log file
 	if (! bOpenLogFile())
@@ -431,6 +418,23 @@ int CDelineation::nDoDelineation(CSG_Parameters *pParameters)
 		//    cerr << ERR << "polygon creation works poorly if profile spacing is less than " << m_dCellSide << " x the size of raster cells" << endl;
 		//return RTN_ERR_PROFILESPACING;
 		//}
+	}
+
+	m_nCoastSeaHandiness	= Parameters["CoastSeaHandiness"].asInt();
+
+	// May wish to read in the shoreline vector file instead of calculating it from the raster
+	if( Parameters["COAST_INITIAL"].asShapes() )
+	{
+		AnnounceReadUserCoastLine();
+
+		// Create a new coastline object
+		CCoast CoastTmp;
+		m_VCoast.push_back(CoastTmp);
+
+		// Read in the points of user defined coastline
+		nRet = nReadVectorCoastlineData(Parameters["COAST_INITIAL"].asShapes());
+		if (nRet != RTN_OK)
+			return (nRet);
 	}
 
 	// Open OUT file
@@ -501,4 +505,4 @@ int CDelineation::nDoDelineation(CSG_Parameters *pParameters)
 
 	return RTN_OK;
 } // end DoDelineation
-#endif // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
+#endif // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)

@@ -62,7 +62,7 @@ CCliffMetrics_Tool::CCliffMetrics_Tool(void)
 {
 	Set_Name		(_TL("CliffMetrics"));
 
-	Set_Author		("Payo et al. (c) 2018, SAGA Interface by O.Conrad (c) 2019");
+	Set_Author		("SAGA Interface by O.Conrad (c) 2019, CliffMetrics by Payo et al. (c) 2018");
 
 	Set_Description	(_TW(
 		"CliffMetrics (Automatic Cliff Metrics delineation) delineates the location of the "
@@ -101,6 +101,21 @@ CCliffMetrics_Tool::CCliffMetrics_Tool(void)
 	);
 
 	//-----------------------------------------------------
+	Parameters.Add_Shapes("",
+		"COAST_INITIAL"		, _TL("Initial Coastline Points"),
+		_TL(""),
+		PARAMETER_INPUT_OPTIONAL, SHAPE_TYPE_Point
+	);
+
+	Parameters.Add_Choice("COAST_INITIAL",
+		"CoastSeaHandiness"	, _TL("Sea handiness"),
+		_TL("which side of shoreline the sea is?"),
+		CSG_String::Format("%s|%s",
+			_TL("right"),
+			_TL("left")
+		)
+	);
+
 	Parameters.Add_Shapes("",
 		"COAST"				, _TL("Coastline"),
 		_TL(""),
@@ -217,6 +232,11 @@ CCliffMetrics_Tool::CCliffMetrics_Tool(void)
 //---------------------------------------------------------
 int CCliffMetrics_Tool::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if( pParameter->Cmp_Identifier("COAST_INITIAL") )
+	{
+		pParameters->Set_Enabled("CoastSeaHandiness", pParameter->asShapes() != NULL);
+	}
+
 	if( pParameter->Cmp_Identifier("CoastSmooth") )
 	{
 		pParameters->Set_Enabled("CoastSmoothWindow", pParameter->asInt() != 0);

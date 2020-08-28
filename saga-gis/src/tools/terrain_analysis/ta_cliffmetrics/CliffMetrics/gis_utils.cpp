@@ -32,10 +32,10 @@ using std::ios;
 #include <cmath>
 #include <cfloat>
 
-#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
 #include <gdal_priv.h>
 #include <ogrsf_frmts.h>
-#endif // #if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
+#endif // #if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
 
 #include "cliffmetrics.h"
 #include "delineation.h"
@@ -438,7 +438,7 @@ C2DPoint CDelineation::PtGetPerpendicular(C2DPoint* const PtStart, C2DPoint* con
 ===============================================================================================================================*/
 bool CDelineation::bCheckRasterGISOutputFormat(void)
 {
-#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
    // Register all available GDAL raster and vector drivers (GDAL 2)
    GDALAllRegister();
 
@@ -571,9 +571,9 @@ bool CDelineation::bCheckRasterGISOutputFormat(void)
    // This driver does not even support byte output
    cerr << ERR << "Cannot write using raster GDAL driver '" << m_strRasterGISOutFormat << ", not even byte output is supported'. Choose another GIS raster format." << endl;
    return false;
-#else // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
+#else // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
    return true;
-#endif // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
+#endif // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
 }
 
 
@@ -584,7 +584,7 @@ bool CDelineation::bCheckRasterGISOutputFormat(void)
 ===============================================================================================================================*/
 bool CDelineation::bCheckVectorGISOutputFormat(void)
 {
-#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
    // Load the vector GDAL driver (NOTE this assumes that GDALAllRegister() has already been called)
    GDALDriver* pDriver = GetGDALDriverManager()->GetDriverByName(m_strVectorGISOutFormat.c_str());
    if (NULL == pDriver)
@@ -621,7 +621,7 @@ bool CDelineation::bCheckVectorGISOutputFormat(void)
 
    }
    // TODO Others
-#endif // #if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
+#endif // #if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
 
    return true;
 }
@@ -634,35 +634,35 @@ bool CDelineation::bCheckVectorGISOutputFormat(void)
 ==============================================================================================================================*/
 bool CDelineation::bSaveAllRasterGISFiles(void)
 {
-#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
    // Increment file number
-   // m_nGISSave++;
+  // m_nGISSave++;
 
    // Set for next save
    //  m_nThisSave = tMin(++m_nThisSave, m_nUSave);
 
    // These are always written
-	if (! bWriteRasterGISFloat(PLOT_SEDIMENT_TOP_ELEV, &PLOT_SEDIMENT_TOP_ELEV_TITLE))
-		return false;
+   if (! bWriteRasterGISFloat(PLOT_SEDIMENT_TOP_ELEV, &PLOT_SEDIMENT_TOP_ELEV_TITLE))
+      return false;
 
-	if (m_bRasterCoastlineSave)
-	{
-		if (! bWriteRasterGISInt(PLOT_RASTER_COAST, &PLOT_RASTER_COAST_TITLE))
-			return false;
-	}
+   if (m_bRasterCoastlineSave)
+   {
+      if (! bWriteRasterGISInt(PLOT_RASTER_COAST, &PLOT_RASTER_COAST_TITLE))
+         return false;
+   }
 
-	if (m_bRasterNormalSave)
-	{
-		if (! bWriteRasterGISInt(PLOT_RASTER_NORMAL, &PLOT_RASTER_NORMAL_TITLE))
-			return false;
-	}
+   if (m_bRasterNormalSave)
+   {
+      if (! bWriteRasterGISInt(PLOT_RASTER_NORMAL, &PLOT_RASTER_NORMAL_TITLE))
+         return false;
+   }
 
    // These are optional
    //if (! bWriteRasterGISInt(PLOT_LANDFORM, &PLOT_LANDFORM_TITLE))
    //     return false;*/
    
     return true;
-#else // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
+#else // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
 	CSG_Grid	*pGrid;
 
 	if( (pGrid = (*m_pParameters)("SEDIMENT_TOP" )->asGrid()) )
@@ -698,7 +698,7 @@ bool CDelineation::bSaveAllRasterGISFiles(void)
 	//}
 
 	return( true );
-#endif // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
+#endif // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
 }
 
 
@@ -709,7 +709,7 @@ bool CDelineation::bSaveAllRasterGISFiles(void)
 ==============================================================================================================================*/
 bool CDelineation::bSaveAllVectorGISFiles(void)
 {
-#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
    // Always written
    if (! bWriteVectorGIS(PLOT_COAST, &PLOT_COAST_TITLE))
       return false;
@@ -740,7 +740,7 @@ bool CDelineation::bSaveAllVectorGISFiles(void)
    }
 
    return true;
-#else // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
+#else // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
 	if( !bWriteVectorGIS(PLOT_COAST      , (*m_pParameters)("COAST"      )->asShapes()) )
 		return false;
 
@@ -770,7 +770,7 @@ bool CDelineation::bSaveAllVectorGISFiles(void)
 	}
 
 	return( true );
-#endif // #if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
+#endif // #if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
 }
 
 
@@ -782,8 +782,7 @@ bool CDelineation::bSaveAllVectorGISFiles(void)
 void CDelineation::GetRasterOutputMinMax(int const nDataItem, double& dMin, double& dMax)
 {
    // If this is a binary mask layer, we already know the max and min values
-   if ((nDataItem == PLOT_POTENTIAL_PLATFORM_EROSION_MASK) ||
-       (nDataItem == PLOT_RASTER_COAST) ||
+   if ((nDataItem == PLOT_RASTER_COAST) ||
        (nDataItem == PLOT_RASTER_NORMAL))
        
    {
@@ -831,7 +830,7 @@ void CDelineation::GetRasterOutputMinMax(int const nDataItem, double& dMin, doub
 ===============================================================================================================================*/
 void CDelineation::SetRasterFileCreationDefaults(void)
 {
-#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
    string
       strDriver = strToLower(&m_strRasterGISOutFormat),
       strComment =  "Created by " + PROGNAME + " for " + PLATFORM + " " + strGetBuild() + " running on " + strGetComputerName();
@@ -890,5 +889,9 @@ void CDelineation::SetRasterFileCreationDefaults(void)
 //    for (int i = 0; m_papszGDALRasterOptions[i] != NULL; i++)
 //       cout << m_papszGDALRasterOptions[i] << endl;
 //    cout << endl;
-#endif // #if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
+#endif // #if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
 }
+
+
+
+

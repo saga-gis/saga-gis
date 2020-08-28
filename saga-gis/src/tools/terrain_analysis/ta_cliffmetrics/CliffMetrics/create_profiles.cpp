@@ -121,12 +121,11 @@ int CDelineation::nCreateAllProfiles(void)
             if (! bVPointSearched[n])
                nStillToSearch++;
          }
-
          // Are there any coastline points still to be searched?
          if (nStillToSearch == 0)
-            // Nope, we are done here
+            {// Nope, we are done here
             break;
-
+            }
             // Look along the vector of pairs starting at the most convex end
             for (int n = 0; n < nCoastSize; n++)
             {

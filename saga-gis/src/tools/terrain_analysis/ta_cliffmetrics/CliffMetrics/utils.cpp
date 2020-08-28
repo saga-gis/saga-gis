@@ -30,7 +30,6 @@
    #include <io.h>                  // for isatty()
 #else
    #include <sys/resource.h>        // needed for CalcProcessStats()
-   #include <unistd.h>
 #endif
 
 #include <iostream>
@@ -45,9 +44,9 @@ using std::resetiosflags;
 using std::setprecision;
 using std::setw;
 
-#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
 #include <gdal_priv.h>
-#elif defined(_OPENMP)
+#else if defined(_OPENMP)
 #include <omp.h>
 #endif
 
@@ -62,8 +61,8 @@ using std::setw;
 ==============================================================================================================================*/
 int CDelineation::nHandleCommandLineParams(int nArg, char* pcArgv[])
 {
-#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
-	for (int i = 1; i < nArg; i++)
+#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
+   for (int i = 1; i < nArg; i++)
    {
       string strArg = pcArgv[i];
 #ifdef _WIN32
@@ -74,7 +73,7 @@ int CDelineation::nHandleCommandLineParams(int nArg, char* pcArgv[])
       // change to lower case
       strArg = strToLower(&strArg);
 
-	  if (strArg.find("--gdal") != string::npos)
+      if (strArg.find("--gdal") != string::npos)
       {
          // User wants to know what GDAL raster drivers are available
          cout << GDALDRIVERS << endl << endl;
@@ -116,7 +115,7 @@ int CDelineation::nHandleCommandLineParams(int nArg, char* pcArgv[])
          return (RTN_HELPONLY);
       }
    }
-#endif // #if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
+#endif // #if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
 
    return RTN_OK;
 }
@@ -166,7 +165,7 @@ void CDelineation::StartClock(void)
 ==============================================================================================================================*/
 bool CDelineation::bFindExeDir(char* pcArg)
 {
-#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
    string strTmp;
    char szBuf[BUFSIZE];
 
@@ -193,7 +192,7 @@ bool CDelineation::bFindExeDir(char* pcArg)
    // It's OK, so trim off the executable's name
    int nPos = strTmp.find_last_of(PATH_SEPARATOR);
    m_strCLIFFDir = strTmp.substr(0, nPos+1);            // Note that this must be terminated with a backslash
-#endif // #if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
+#endif // #if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
 
    return true;
 }
@@ -369,13 +368,17 @@ void CDelineation::AnnounceAllocateMemory(void)
 
 /*==============================================================================================================================
 
- Now reading vector GIS files
+ Tell the user that we are now reading the user defined Coastline
 
 ==============================================================================================================================*/
-// void CDelineation::AnnounceReadVectorFiles(void)
-// {
-//    cout << READVECTORFILES << endl;
-// }
+ void CDelineation::AnnounceReadUserCoastLine(void)
+ {
+#ifdef _WIN32
+   cout << READVECTORFILES << pstrChangeToForwardSlash(&m_strDTMFile) << endl;
+#else
+   cout << READVECTORFILES << m_strInitialCoastlineFile << endl;
+#endif
+ }
 
 
 
@@ -484,119 +487,9 @@ string CDelineation::strListVectorFiles(void) const
 
 /*==============================================================================================================================
 
- Update and print grand totals at the end of each timestep
-
-==============================================================================================================================*/
-void CDelineation::UpdateGrandTotals(void)
-{
-   LogStream << endl << "TOTALS FOR ITERATION " << m_ulTimestep << " ===============================================================" << endl;
-   LogStream << "Potential platform erosion = " << m_dThisTimestepPotentialPlatformErosion << endl;
-
-   LogStream << "Actual fine platform erosion = " << m_dThisTimestepActualFinePlatformErosion << endl;
-   LogStream << "Actual sand platform erosion = " << m_dThisTimestepActualSandPlatformErosion << endl;
-   LogStream << "Actual coarse platform erosion = " << m_dThisTimestepActualCoarsePlatformErosion << endl;
-
-   // Cliff collapse
-   LogStream << "Cliff collapse fine = " << m_dThisTimestepCliffCollapseFine << endl;
-   LogStream << "Cliff collapse sand = " << m_dThisTimestepCliffCollapseSand << endl;
-   LogStream << "Cliff collapse coarse = " << m_dThisTimestepCliffCollapseCoarse << endl;
-
-   // Cliff collapse talus deposition
-   LogStream << "Cliff collapse sand talus deposition = " << m_dThisTimestepCliffTalusSandDeposition << endl;
-   LogStream << "Cliff collapse coarse talus deposition = " << m_dThisTimestepCliffTalusCoarseDeposition << endl;
-
-   // Cliff collapse talus erosion
-   LogStream << "Cliff collapse fine talus erosion = " << m_dThisTimestepCliffTalusFineErosion << endl;
-   LogStream << "Cliff collapse sand talus erosion = " << m_dThisTimestepCliffTalusSandErosion << endl;
-   LogStream << "Cliff collapse coarse talus erosion = " <<    m_dThisTimestepCliffTalusCoarseErosion << endl;
-
-   // Beach erosion
-   LogStream << "Potential beach erosion = " << m_dThisTimestepPotentialBeachErosion << endl;
-
-   LogStream << "Actual fine beach erosion = " << m_dThisTimestepActualFineBeachErosion << endl;
-   LogStream << "Actual sand beach erosion = " << m_dThisTimestepActualSandBeachErosion << endl;
-   LogStream << "Actual coarse beach erosion = " << m_dThisTimestepActualCoarseBeachErosion << endl;
-
-   // Beach deposition
-   LogStream << "Sand beach deposition = " << m_dThisTimestepSandBeachDeposition << endl;
-   LogStream << "Coarse beach deposition = " << m_dThisTimestepCoarseBeachDeposition << endl;
-
-   // Sediment lost due to beach erosion
-   LogStream << "Off-grid potential beach erosion = " << m_dThisTimestepPotentialSedLostBeachErosion << endl;
-
-   LogStream << "Off-grid actual fine beach erosion = " << m_dThisTimestepActualFineSedLostBeachErosion << endl;
-   LogStream << "Off-grid actual sand beach erosion = " << m_dThisTimestepActualSandSedLostBeachErosion << endl;
-   LogStream << "Off-grid actual coarse beach erosion = " << m_dThisTimestepActualCoarseSedLostBeachErosion << endl;
-
-   // Sediment lost due to cliff collapse
-   LogStream << "Off-grid sand cliff collapse = " << m_dThisTimestepSandSedLostCliffCollapse << endl;
-   LogStream << "Off-grid coarse cliff collapse = " << m_dThisTimestepCoarseSedLostCliffCollapse << endl;
-
-   // Suspended sediment
-   LogStream << "Suspended sediment = " << m_dThisTimestepFineSedimentToSuspension << endl << endl;
-
-   // Any errors?
-   LogStream << "Erosion errors = " << m_dThisTimestepMassBalanceErosionError << endl;
-   LogStream << "Deposition errors = " << m_dThisTimestepMassBalanceDepositionError << endl << endl;
-
-
-   // Platform erosion
-   m_ldGTotPotentialPlatformErosion        += m_dThisTimestepPotentialPlatformErosion;
-
-   m_ldGTotFineActualPlatformErosion       += m_dThisTimestepActualFinePlatformErosion;
-   m_ldGTotSandActualPlatformErosion       += m_dThisTimestepActualSandPlatformErosion;
-   m_ldGTotCoarseActualPlatformErosion     += m_dThisTimestepActualCoarsePlatformErosion;
-
-   // Cliff collapse
-   m_ldGTotCliffCollapseFine               += m_dThisTimestepCliffCollapseFine;
-   m_ldGTotCliffCollapseSand               += m_dThisTimestepCliffCollapseSand;
-   m_ldGTotCliffCollapseCoarse             += m_dThisTimestepCliffCollapseCoarse;
-
-   // Cliff collapse talus deposition
-   m_ldGTotCliffTalusSandDeposition        += m_dThisTimestepCliffTalusSandDeposition;
-   m_ldGTotCliffTalusCoarseDeposition      += m_dThisTimestepCliffTalusCoarseDeposition;
-
-   // Cliff collapse talus erosion
-   m_ldGTotCliffTalusFineErosion           += m_dThisTimestepCliffTalusFineErosion;
-   m_ldGTotCliffTalusSandErosion           += m_dThisTimestepCliffTalusSandErosion;
-   m_ldGTotCliffTalusCoarseErosion         += m_dThisTimestepCliffTalusCoarseErosion;
-
-   // Beach erosion
-   m_ldGTotPotentialBeachErosion           += m_dThisTimestepPotentialBeachErosion;
-
-   m_ldGTotActualFineBeachErosion          += m_dThisTimestepActualFineBeachErosion;
-   m_ldGTotActualSandBeachErosion          += m_dThisTimestepActualSandBeachErosion;
-   m_ldGTotActualCoarseBeachErosion        += m_dThisTimestepActualCoarseBeachErosion;
-
-   // Beach deposition
-   m_ldGTotSandBeachDeposition             += m_dThisTimestepSandBeachDeposition;
-   m_ldGTotCoarseBeachDeposition           += m_dThisTimestepCoarseBeachDeposition;
-
-   // Sediment lost due to beach erosion
-   m_ldGTotPotentialSedLostBeachErosion    += m_dThisTimestepPotentialSedLostBeachErosion;
-
-   m_ldGTotActualFineSedLostBeachErosion   += m_dThisTimestepActualFineSedLostBeachErosion;
-   m_ldGTotActualSandSedLostBeachErosion   += m_dThisTimestepActualSandSedLostBeachErosion;
-   m_ldGTotActualCoarseSedLostBeachErosion += m_dThisTimestepActualCoarseSedLostBeachErosion;
-
-   // Sediment lost due to cliff collapse
-   m_ldGTotSandSedLostCliffCollapse        += m_dThisTimestepSandSedLostCliffCollapse;
-   m_ldGTotCoarseSedLostCliffCollapse      += m_dThisTimestepCoarseSedLostCliffCollapse;
-
-   // Suspended sediment
-   m_ldGTotSuspendedSediment               += m_dThisTimestepFineSedimentToSuspension;
-
-   // Errors
-   m_ldGTotMassBalanceErosionError         += m_dThisTimestepMassBalanceErosionError;
-   m_ldGTotMassBalanceDepositionError      += m_dThisTimestepMassBalanceDepositionError;
-}
-
-/*==============================================================================================================================
-
  Returns a string, hopefully giving the name of the computer on which the simulation is running
 
 ==============================================================================================================================*/
-
 string CDelineation::strGetComputerName(void)
 {
    string strComputerName;
@@ -728,28 +621,6 @@ void CDelineation::CalcTime(double const dRunLength)
    OutStream << "Run time elapsed: " << strDispTime(dDuration, false, false);
    LogStream << "Run time elapsed: " << strDispTime(dDuration, false, false);
 
-   // Calculate run time per timestep
-   double fPerTimestep = dDuration / m_ulTotTimestep;
-
-   // And write run time per timestep to OutStream and LogStream
-   OutStream << resetiosflags(ios::floatfield);
-   OutStream << " (" << setiosflags(ios::fixed) << setprecision(4) << fPerTimestep << " per timestep)" << endl;
-   LogStream << resetiosflags(ios::floatfield);
-   LogStream << " (" << setiosflags(ios::fixed) << setprecision(4) << fPerTimestep << " per timestep)" << endl;
-
-   // Calculate ratio of run time to time simulated
-   OutStream << "In terms of run time, this is ";
-   LogStream << "In terms of run time, this is ";
-   if (dDuration > dRunLength)
-   {
-      OutStream << setiosflags(ios::fixed) << setprecision(3) << dDuration / dRunLength << " x slower than reality" << endl;
-      LogStream << setiosflags(ios::fixed) << setprecision(3) << dDuration / dRunLength << " x slower than reality" << endl;
-   }
-   else
-   {
-      OutStream << setiosflags(ios::fixed) << setprecision(3) << dRunLength / dDuration << " x faster than reality" << endl;
-      LogStream << setiosflags(ios::fixed) << setprecision(3) << dRunLength / dDuration << " x faster than reality" << endl;
-   }
 }
 
 /*==============================================================================================================================
@@ -1073,11 +944,11 @@ void CDelineation::CalcProcessStats(void)
       OutStream << "Process timings                              \t: " << NA << endl;
 
    // Finally get more process statistics: this needs psapi.dll, so only proceed if it is present on this system
-#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
    HINSTANCE hDLL = LoadLibrary("psapi.dll");
-#else // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
+#else // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
    HINSTANCE hDLL = LoadLibrary(SG_T("psapi.dll"));
-#endif // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
+#endif // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
    if (hDLL != NULL)
    {
       // The dll has been found
@@ -1293,12 +1164,10 @@ void CDelineation::DoDelineationEnd(int const nRtn)
 #ifdef __GNUG__
    if (isatty(1))
    {
-#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
       // Stdout is connected to a tty, so not running as a background job
       cout << endl << PRESSKEY;
       cout.flush();
       getchar();
-#endif // #if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
    }
    else
    {
@@ -1348,10 +1217,7 @@ void CDelineation::DoDelineationEnd(int const nRtn)
             strCmd.append(m_strMailAddress);
          }
          int nRet = system(strCmd.c_str());
-		 #ifndef WEXITSTATUS	// FreeBSD/clang build
-		 #define WEXITSTATUS(x) ((x) & 0xff)
-		 #endif
-		 if (WEXITSTATUS(nRet) != 0)
+         if (WEXITSTATUS(nRet) != 0)
             cerr << ERR << EMAILERROR << endl;
       }
    }

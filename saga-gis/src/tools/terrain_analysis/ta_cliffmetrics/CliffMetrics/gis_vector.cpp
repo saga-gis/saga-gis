@@ -29,10 +29,10 @@ using std::cerr;
 using std::endl;
 using std::ios;
 
-#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
 #include <gdal_priv.h>
 #include <ogrsf_frmts.h>
-#endif // #if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
+#endif // #if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
 
 #include "cliffmetrics.h"
 #include "delineation.h"
@@ -43,7 +43,7 @@ using std::ios;
  Writes vector GIS files using OGR
 
 ===============================================================================================================================*/
-#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
 bool CDelineation::bWriteVectorGIS(int const nDataItem, string const* strPlotTitle)
 {
    // Begin constructing the file name for this save
@@ -516,7 +516,7 @@ bool CDelineation::bWriteVectorGIS(int const nDataItem, string const* strPlotTit
    return true;
 }
 
-#else // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
+#else // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
 bool CDelineation::bWriteVectorGIS(int const nDataItem, CSG_Shapes *pShapes)
 {
 	if( !pShapes )
@@ -709,5 +709,96 @@ bool CDelineation::bWriteVectorGIS(int const nDataItem, CSG_Shapes *pShapes)
 
 	return( true );
 }
+#endif // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
 
-#endif // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
+/*==============================================================================================================================
+
+Reads a vector User defined Coastline data to the vector array
+
+===============================================================================================================================*/
+#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
+int CDelineation::nReadVectorCoastlineData(void)
+{
+	// Open the User defined coastline  << from https://gdal.org/tutorials/vector_api_tut.html
+	GDALDataset       *poDS;
+	poDS = (GDALDataset*) GDALOpenEx( m_strInitialCoastlineFile.c_str(), GDAL_OF_VECTOR, NULL, NULL, NULL );
+	if (poDS == NULL)
+	{
+		// Can't open file (note will already have sent GDAL error message to stdout)
+		cerr << ERR << "cannot open " << m_strInitialCoastlineFile << " for input: " << CPLGetLastErrorMsg() << endl;
+		return RTN_ERR_VECTOR_FILE_READ;
+	}
+
+	// Get shapefile properties
+	m_strOGRICDriverCode = poDS->GetDriver()->GetDescription();
+	// m_strOGRICDataType = poDS->G;
+	//m_strOGRICDataValue = 
+	//m_strOGRICGeometry = 
+
+	// Check how many layers the User defined coastline vector shape have
+	int nLayers = poDS->GetLayerCount();
+	if (nLayers > 1)
+	{
+		// Warn the user that only one layer of Coastline vector is used
+		cout << WARN << "user coastline " << m_strInitialCoastlineFile << " has more than one layer, only first one is used" << endl;
+	}
+	// Read in the first layer of vector Coastline
+	OGRLayer  *poLayer;
+
+	poLayer = poDS->GetLayer(0);
+	poLayer->ResetReading();
+	OGRFeature *poFeature;
+
+	int nCoast = m_VCoast.size()-1;
+
+	while( (poFeature = poLayer->GetNextFeature()) != NULL )
+	{
+		OGRGeometry *poGeometry = poFeature->GetGeometryRef();
+		if( poGeometry != NULL && wkbFlatten(poGeometry->getGeometryType()) == wkbPoint)
+		{
+			OGRPoint *poPoint = (OGRPoint *) poGeometry;
+
+			m_VCoast[nCoast].AppendToCoastline( poPoint->getX(), poPoint->getY() );
+
+			//printf( "%.3f,%3.f\n", poPoint->getX(), poPoint->getY() );
+		}
+		else
+		{
+			// Error: Geometry type of Shape file for user defined coastline is not Point type
+			cerr << ERR << "Not Point geometry type in " << m_strInitialCoastlineFile << endl;
+			return RTN_ERR_VECTOR_GIS_OUT_FORMAT;
+		}
+		OGRFeature::DestroyFeature( poFeature );
+	}
+
+	GDALClose( poDS );
+
+	return RTN_OK;
+}
+
+#else // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
+int CDelineation::nReadVectorCoastlineData(CSG_Shapes *pShapes)
+{
+	if( pShapes == NULL || pShapes->Get_Count() < 1 )
+	{	// Can't open file (note will already have sent GDAL error message to stdout)
+		return RTN_ERR_VECTOR_FILE_READ;
+	}
+
+	if( pShapes->Get_Type() != SHAPE_TYPE_Point )
+	{	// Error: Geometry type of Shape file for user defined coastline is not Point type
+		cerr << ERR << "Not Point geometry type in " << m_strInitialCoastlineFile << endl;
+		return RTN_ERR_VECTOR_GIS_OUT_FORMAT;
+	}
+
+	int nCoast = m_VCoast.size()-1;
+
+	for(int i=0; i<pShapes->Get_Count(); i++)
+	{
+		CSG_Point	Point	= pShapes->Get_Shape(i)->Get_Point(0);
+
+		m_VCoast[nCoast].AppendToCoastline(Point.x, Point.y);
+	}
+
+	return RTN_OK;
+}
+#endif // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)

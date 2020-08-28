@@ -3,10 +3,8 @@
  * \file smooth_line.cpp
  * \brief Smoothing routines for CLine objects
  * \details The Savitzky-Golay routines are modified from C originals by Jean-Pierre Moreau (jpmoreau@wanadoo.fr, http://jean-pierre.moreau.pagesperso-orange.fr/index.html), to whom we are much indebted
- * \author David Favis-Mortlock
- * \author Andres Payo
- * \author Jim Hall
- * \date 2017
+ * \author Andres Payo, David Favis-Mortlock, Martin Husrt, Monica Palaseanu-Lovejoy
+ * \date 2020
  * \copyright GNU General Public License
  *
  */

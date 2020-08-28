@@ -3,10 +3,8 @@
  * \file init_grid.cpp
  * \brief Initialises the raster grid and calculates sea depth on each cell
  * \details TODO A more detailed description of this routine.
- * \author David Favis-Mortlock
- * \author Andres Payo
- * \author Jim Hall
- * \date 2017
+ * \author Andres Payo, David Favis-Mortlock, Martin Husrt, Monica Palaseanu-Lovejoy
+ * \date 2020
  * \copyright GNU General Public License
  *
  */
@@ -42,57 +40,15 @@ using std::endl;
 int CDelineation::nInitGridAndCalcStillWaterLevel(void)
 {
    // Clear all vector coastlines, profiles, and polygons
-   m_VCoast.clear();
+   if (m_strInitialCoastlineFile.empty())
+      m_VCoast.clear();
+   
    m_pVCoastPolygon.clear();
 
    // Do some per-timestep initialization
    m_ulThisTimestepNumSeaCells                      =
    m_ulThisTimestepNumCoastCells                    = 0;
-   
-   m_dThisTimestepTotSeaDepth                       =
-   m_dThisTimestepPotentialPlatformErosion          =
-   m_dThisTimestepActualFinePlatformErosion         =
-   m_dThisTimestepActualSandPlatformErosion         =
-   m_dThisTimestepActualCoarsePlatformErosion       =
-   m_dThisTimestepPotentialBeachErosion             =
-   m_dThisTimestepActualFineBeachErosion            =
-   m_dThisTimestepActualSandBeachErosion            =
-   m_dThisTimestepActualCoarseBeachErosion          =
-   m_dThisTimestepSandBeachDeposition               =
-   m_dThisTimestepCoarseBeachDeposition             =
-   m_dThisTimestepPotentialSedLostBeachErosion      =
-   m_dThisTimestepActualFineSedLostBeachErosion     =
-   m_dThisTimestepActualSandSedLostBeachErosion     =
-   m_dThisTimestepActualCoarseSedLostBeachErosion   =
-   m_dThisTimestepEstimatedActualFineBeachErosion   =
-   m_dThisTimestepEstimatedActualSandBeachErosion   =
-   m_dThisTimestepEstimatedActualCoarseBeachErosion =
-   m_dThisTimestepSandSedLostCliffCollapse          =
-   m_dThisTimestepCoarseSedLostCliffCollapse        =
-   m_dThisTimestepCliffCollapseFine                 =
-   m_dThisTimestepCliffCollapseSand                 =
-   m_dThisTimestepCliffCollapseCoarse               =
-   m_dThisTimestepCliffTalusSandDeposition          =
-   m_dThisTimestepCliffTalusCoarseDeposition        =
-   m_dThisTimestepFineSedimentToSuspension          =
-   m_dThisTimestepMassBalanceErosionError           =
-   m_dThisTimestepMassBalanceDepositionError        = 0;
 
-   /*for (int n = 0; n < m_nLayers; n++)
-   {
-      m_bConsChangedThisTimestep[n] = false;
-      m_bUnconsChangedThisTimestep[n] = false;
-   }*/
-
-   // TODO Calculate depth of closure using 'average of the maximum values observed during a typical year'
-   //    dL = 2.28 * Hsx − (68.5 * Hsx^2 / (g * Tsx^2))
-   // where:
-   //    Hsx is the nearshore storm wave height that is exceeded only 12 hours each year
-   //    Tsx is the associated wave period
-   // from Hallermeier, R.J. (1978). Uses for a calculated limit depth to beach erosion. Proc. 16th Coastal Engineering Conf., ASCE, New York. Pp 1493 - 1512
-   //
-   // For the time being, and since we assume wave height and period constant just use the actual wave height and period to calculate the depth of closure
-   m_dDepthOfClosure = (2.28 * m_dDeepWaterWaveHeight) - (68.5 * m_dDeepWaterWaveHeight * m_dDeepWaterWaveHeight / (m_dG * m_dWavePeriod * m_dWavePeriod));
 
    // And go through all cells in the RasterGrid array
    for (int nX = 0; nX < m_nXGridMax; nX++)
@@ -102,11 +58,8 @@ int CDelineation::nInitGridAndCalcStillWaterLevel(void)
          // Initialize values for this cell
          m_pRasterGrid->pGetCell(nX, nY)->InitCell();
 
-   //      if (m_ulTimestep == 1)
-   //      {
-            // For the first timestep only, calculate the elevation of all this cell's layers. During the rest of the simulation, each cell's elevation is re-calculated just after any change occurs on that cell
+            // Calculate the elevation of all this cell's layers. During the rest of the simulation, each cell's elevation is re-calculated just after any change occurs on that cell
             m_pRasterGrid->pGetCell(nX, nY)->CalcAllLayerElevs();
-   //      }
       }
    }
 

@@ -364,23 +364,28 @@ bool CDelineation::bReadRunData(void)
                if ((strRH[0] == PATH_SEPARATOR) || (strRH[0] == '~') || (strRH[1] == ':'))
                {
                   // It has an absolute path, so use it 'as is'
-                  m_strInitialLandformFile = strRH;
+                  m_strInitialCoastlineFile = strRH;
                }
                else
                {
                   // It has a relative path, so prepend the CliffMetrics dir
-                  m_strInitialLandformFile = m_strCLIFFDir;
-                  m_strInitialLandformFile.append(strRH);
+                  m_strInitialCoastlineFile = m_strCLIFFDir;
+                  m_strInitialCoastlineFile.append(strRH);
                }
             }
             break;
-
-         case 8:
+	 
+	 case 8:
+	    if (! m_strInitialCoastlineFile.empty())
+	    {
+	       m_nCoastSeaHandiness = atoi(strRH.c_str());
+	    }
+         case 9:
             // Raster GIS output format (note must retain original case). Blank means use same format as input DEM file (if possible)
             m_strRasterGISOutFormat = strTrimLeft(&strRH);
             break;
 
-         case 9:
+         case 10:
             // If needed, also output GIS raster world file?
             strRH = strToLower(&strRH);
 
@@ -389,7 +394,7 @@ bool CDelineation::bReadRunData(void)
                m_bWorldFile = true;
             break;
 
-         case 10:
+         case 11:
             // If needed, scale GIS raster output values?
             strRH = strToLower(&strRH);
 
@@ -398,7 +403,7 @@ bool CDelineation::bReadRunData(void)
                m_bScaleRasterOutput = true;
             break;
 
-        case 11:
+        case 12:
             // Vector GIS output format (note must retain original case)
             m_strVectorGISOutFormat = strRH;
 
@@ -406,7 +411,7 @@ bool CDelineation::bReadRunData(void)
                strErr = "vector GIS output format";
             break;
 	    
-         case 12:
+         case 13:
             // Random edge for coastline search?
             strRH = strToLower(&strRH);
 
@@ -415,7 +420,7 @@ bool CDelineation::bReadRunData(void)
                m_bRandomCoastEdgeSearch = true;
             break;
          
-         case 13:
+         case 14:
             // Random number seed(s)
             m_ulRandSeed[0] = atol(strRH.c_str());
             if (0 == m_ulRandSeed[0])
@@ -452,14 +457,14 @@ bool CDelineation::bReadRunData(void)
             }
             break;
 
-         case 14:
+         case 15:
             // Length of coastline normals (m)
             m_dCoastNormalLength = atof(strRH.c_str());
             if (m_dCoastNormalLength <= 0)
                strErr = "length of coastline normals must be greater than zero";
             break;
 
-         case 15:
+         case 16:
             // Vertical tolerance avoid false CliffTops/Toes
              m_dEleTolerance = atof(strRH.c_str());
             if (m_dEleTolerance <= 0)

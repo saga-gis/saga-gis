@@ -3,10 +3,8 @@
  * \file locate_coast.cpp
  * \brief Finds the coastline on the raster grid
  * \details TODO A more detailed description of these routines.
- * \author David Favis-Mortlock
- * \author Andres Payo
- * \author Jim Hall
- * \date 2017
+ * \author Andres Payo, David Favis-Mortlock, Martin Husrt, Monica Palaseanu-Lovejoy
+ * \date 2020
  * \copyright GNU General Public License
  *
  */
@@ -52,14 +50,47 @@ using std::stack;
 ===============================================================================================================================*/
 int CDelineation::nLocateSeaAndCoasts(void)
 {
-   // Find all connected sea cells
-   FindAllSeaCells();
+   if (m_strInitialCoastlineFile.empty())
+   {
+      // Find all connected sea cells
+      FindAllSeaCells();
 
-   // Find every coastline on the raster grid, mark raster cells, then create the vector coastline
-   int nRet = nTraceAllCoasts();
-   if (nRet != RTN_OK)
-      return nRet;
-
+      // Find every coastline on the raster grid, mark raster cells, then create the vector coastline
+      int nRet = nTraceAllCoasts();
+      if (nRet != RTN_OK)
+	 return nRet;
+   }
+   else
+   {
+      // User has defined a Vector coastline, to be used instead
+      int nCoast = m_VCoast.size()-1;
+ 
+      // Next, set values for the coast's other attributes. First set the coast's handedness, and start and end edges
+      m_VCoast[nCoast].SetSeaHandedness(m_nCoastSeaHandiness);
+      
+      // Mark these cells as coast cells
+      for (int n = 0; n < m_VCoast[nCoast].nGetCoastlineSize(); n++)
+      {
+	  // The start point of the normal, must convert from the external CRS to grid CRS. If this is the first line segment of the profile, then the start point is the centroid of a coastline cell
+      double
+         dXn = dExtCRSXToGridX(m_VCoast[nCoast].pPtGetVectorCoastlinePoint(n)->dGetX()),
+         dYn = dExtCRSYToGridY(m_VCoast[nCoast].pPtGetVectorCoastlinePoint(n)->dGetY());
+      int
+         nXn = static_cast<int>(dXn),
+         nYn = static_cast<int>(dYn);
+	 
+	C2DIPoint Pti(nXn, nYn);
+	 
+	// Also store the locations of the corresponding unsmoothed points (in raster-grid CRS) in the coast's m_VCellsMarkedAsCoastline vector
+         m_VCoast[nCoast].AppendCellMarkedAsCoastline(&Pti);
+	
+	 if (bIsWithinGrid(nXn, nYn))
+	    m_pRasterGrid->pGetCell(nXn, nYn)->SetAsCoastline(true);
+      }
+      
+      // To calculate the curvature of the vector coastline
+      DoCoastCurvature(nCoast, m_nCoastSeaHandiness);
+   }
    return RTN_OK;
 }
 
@@ -176,8 +207,6 @@ void CDelineation::FloodFillSea(int const nXStart, int const nYStart)
          // Mark as sea
          m_pRasterGrid->pGetCell(nX, nY)->SetInContiguousSea();
 
-         // Set all sea cells to have deep water (off-shore) wave orientation and height, will change this later for cells closer to the shoreline if we have on-shore waves
-         m_pRasterGrid->pGetCell(nX, nY)->SetWaveOrientation(m_dDeepWaterWaveOrientation);
         
          if ((! bSpanAbove) && (nY > 0) && (m_pRasterGrid->pGetCell(nX, nY-1)->bIsInundated()) && (m_pRasterGrid->pGetCell(nX, nY-1)->dGetSeaDepth() == 0))
          {

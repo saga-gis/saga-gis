@@ -169,9 +169,9 @@ void CDelineation::WriteStartRunDetails(void)
    {
       OutStream << " Initial Coastline file                                    \t: " << m_strInitialCoastlineFile << endl;
       OutStream << " OGR Initial Coastline file driver code                    \t: " << m_strOGRICDriverCode << endl;
-      OutStream << " OGR Initial Coastline file data type                      \t: " << m_strOGRICDataType << endl;
-      OutStream << " OGR Initial Coastline file data value                     \t: " << m_strOGRICDataValue << endl;
-      OutStream << " OGR Initial Coastline file geometry                       \t: " << m_strOGRICGeometry << endl;
+     // OutStream << " OGR Initial Coastline file data type                      \t: " << m_strOGRICDataType << endl;
+     // OutStream << " OGR Initial Coastline file data value                     \t: " << m_strOGRICDataValue << endl;
+     // OutStream << " OGR Initial Coastline file geometry                       \t: " << m_strOGRICGeometry << endl;
       OutStream << endl;
    }
    OutStream << endl;
@@ -209,7 +209,7 @@ int CDelineation::nSaveProfile(int const nProfile, int const nCoast, int const n
  Writes values for a single profile, for checking purposes
 
 ==============================================================================================================================*/
-#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
 bool CDelineation::bWriteProfileData(int const nCoast, int const nProfile, int const nProfSize, vector<double>* const pdVDistXY, vector<double>* const pdVZ, vector<C2DIPoint>* const pPtVGridProfile, vector<double>* const pdetrendedZ)
 {
    string strFName = m_strOutPath;
@@ -245,7 +245,7 @@ bool CDelineation::bWriteProfileData(int const nCoast, int const nProfile, int c
 
    return true;
 }
-#else // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
+#else // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
 bool CDelineation::bWriteProfileData(int const nCoast, int const nProfile, int const nProfSize, vector<double>* const pdVDistXY, vector<double>* const pdVZ, vector<C2DIPoint>* const pPtVGridProfile, vector<double>* const pdetrendedZ)
 {
 	if( m_strOutPath.size() && SG_Dir_Exists(m_strOutPath.c_str()) )
@@ -315,7 +315,7 @@ bool CDelineation::bWriteProfileData(int const nCoast, int const nProfile, int c
 	return( true );
 }
 
-#endif // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
+#endif // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
 
 
 
