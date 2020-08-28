@@ -30,6 +30,7 @@
    #include <io.h>                  // for isatty()
 #else
    #include <sys/resource.h>        // needed for CalcProcessStats()
+   #include <unistd.h>
 #endif
 
 #include <iostream>
@@ -44,9 +45,9 @@ using std::resetiosflags;
 using std::setprecision;
 using std::setw;
 
-#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
 #include <gdal_priv.h>
-#else if defined(_OPENMP)
+#elif defined(_OPENMP)
 #include <omp.h>
 #endif
 
@@ -61,7 +62,7 @@ using std::setw;
 ==============================================================================================================================*/
 int CDelineation::nHandleCommandLineParams(int nArg, char* pcArgv[])
 {
-#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
    for (int i = 1; i < nArg; i++)
    {
       string strArg = pcArgv[i];
@@ -115,7 +116,7 @@ int CDelineation::nHandleCommandLineParams(int nArg, char* pcArgv[])
          return (RTN_HELPONLY);
       }
    }
-#endif // #if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
+#endif // #if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
 
    return RTN_OK;
 }
@@ -165,7 +166,7 @@ void CDelineation::StartClock(void)
 ==============================================================================================================================*/
 bool CDelineation::bFindExeDir(char* pcArg)
 {
-#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
    string strTmp;
    char szBuf[BUFSIZE];
 
@@ -192,7 +193,7 @@ bool CDelineation::bFindExeDir(char* pcArg)
    // It's OK, so trim off the executable's name
    int nPos = strTmp.find_last_of(PATH_SEPARATOR);
    m_strCLIFFDir = strTmp.substr(0, nPos+1);            // Note that this must be terminated with a backslash
-#endif // #if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
+#endif // #if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
 
    return true;
 }
@@ -944,11 +945,11 @@ void CDelineation::CalcProcessStats(void)
       OutStream << "Process timings                              \t: " << NA << endl;
 
    // Finally get more process statistics: this needs psapi.dll, so only proceed if it is present on this system
-#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
    HINSTANCE hDLL = LoadLibrary("psapi.dll");
-#else // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
+#else // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
    HINSTANCE hDLL = LoadLibrary(SG_T("psapi.dll"));
-#endif // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
+#endif // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
    if (hDLL != NULL)
    {
       // The dll has been found

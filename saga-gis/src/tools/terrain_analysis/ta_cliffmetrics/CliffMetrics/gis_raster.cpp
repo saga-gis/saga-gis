@@ -33,9 +33,9 @@ using std::ios;
 #include <sstream>
 using std::stringstream;
 
-#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
 #include <gdal_priv.h>
-#endif  // #if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
+#endif  // #if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
 
 #include "cliffmetrics.h"
 #include "delineation.h"
@@ -47,7 +47,7 @@ using std::stringstream;
  Reads a raster DTM elevation data to the Cell array
 
 ===============================================================================================================================*/
-#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
 int CDelineation::nReadDTMData(void)
 {
    // Use GDAL to create a dataset object, which then opens the DTM file
@@ -191,7 +191,7 @@ int CDelineation::nReadDTMData(void)
    return RTN_OK;
 }
 
-#else // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
+#else // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
 int CDelineation::nReadDTMData(CSG_Grid *pDEM)
 {
 	m_dGeoTransform[0] = pDEM->Get_XMin(true); m_dGeoTransform[1] =  pDEM->Get_Cellsize(); m_dGeoTransform[2] = 0.;
@@ -236,7 +236,7 @@ int CDelineation::nReadDTMData(CSG_Grid *pDEM)
 	return RTN_OK;
 }
 
-#endif // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
+#endif // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
 
 
 
@@ -246,7 +246,7 @@ int CDelineation::nReadDTMData(CSG_Grid *pDEM)
  Writes floating point GIS raster files using GDAL, using data from the RasterGrid array
 
 ===============================================================================================================================*/
-#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
 bool CDelineation::bWriteRasterGISFloat(int const nDataItem, string const* strPlotTitle)
 {
    // Begin constructing the file name for this save
@@ -444,7 +444,7 @@ bool CDelineation::bWriteRasterGISFloat(int const nDataItem, string const* strPl
    return true;
 }
 
-#else // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
+#else // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
 bool CDelineation::bWriteRasterGISFloat(int const nDataItem, CSG_Grid *pGrid)
 {
 	if( !pGrid || pGrid->Get_NX() != m_nXGridMax || pGrid->Get_NY() != m_nYGridMax )
@@ -469,7 +469,7 @@ bool CDelineation::bWriteRasterGISFloat(int const nDataItem, CSG_Grid *pGrid)
 	return( true );
 }
 
-#endif // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
+#endif // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
 
 
 
@@ -478,7 +478,7 @@ bool CDelineation::bWriteRasterGISFloat(int const nDataItem, CSG_Grid *pGrid)
  Writes integer GIS raster files using GDAL, using data from the RasterGrid array
 
 ===============================================================================================================================*/
-#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
 bool CDelineation::bWriteRasterGISInt(int const nDataItem, string const* strPlotTitle, double const dElev)
 {
    // Begin constructing the file name for this save
@@ -729,7 +729,7 @@ bool CDelineation::bWriteRasterGISInt(int const nDataItem, string const* strPlot
    return true;
 }
 
-#else // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
+#else // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
 bool CDelineation::bWriteRasterGISInt(int const nDataItem, class CSG_Grid *pGrid, double const dElev)
 {
 	if( !pGrid || pGrid->Get_NX() != m_nXGridMax || pGrid->Get_NY() != m_nYGridMax )
@@ -798,4 +798,4 @@ bool CDelineation::bWriteRasterGISInt(int const nDataItem, class CSG_Grid *pGrid
 	return( true );
 }
 
-#endif // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
+#endif // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
