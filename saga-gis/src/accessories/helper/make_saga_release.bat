@@ -139,6 +139,10 @@ POPD
 %ZIPEXE% "%SAGA_VERSION%_api_doc.zip" "%SAGA_VERSION%_api_doc"
 RMDIR /S/Q "%SAGA_VERSION%_api_doc"
 
+PUSHD %SAGA_VERSION%_src
+%DOXEXE% saga_api_Doxyfile_chm
+POPD
+
 REM ___________________________________
 REM Drop Sources
 RMDIR /S/Q %SAGA_VERSION%_src
