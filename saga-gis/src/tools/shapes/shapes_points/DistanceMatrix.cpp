@@ -1,6 +1,4 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
+
 /*******************************************************************************
     DistanceMatrix.cpp
     Copyright (C) Victor Olaya
@@ -39,7 +37,7 @@
 //---------------------------------------------------------
 CDistanceMatrix::CDistanceMatrix(void)
 {	
-	Set_Name		(_TL("Point Distances"));
+	Set_Name		(_TL("Point to Point Distances"));
 
 	Set_Author		("V.Olaya (c) 2004, O.Conrad (c) 2014");
 
@@ -77,19 +75,26 @@ CDistanceMatrix::CDistanceMatrix(void)
 		PARAMETER_OUTPUT
 	);
 
+	Parameters.Add_Shapes("",
+		"LINES"		, _TL("Distances as Lines"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Line
+	);
+
 	Parameters.Add_Choice("",
 		"FORMAT"	, _TL("Output Format"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|%s",
 			_TL("complete input times near points matrix"),
-			_TL("each pair with a single record")
+			_TL("each pair with a single record"),
+			_TL("find only the nearest point for each input point")
 		), 1
 	);
 
 	Parameters.Add_Double("",
 		"MAX_DIST"	, _TL("Maximum Distance"),
 		_TL("ignored if set to zero (consider all pairs)"),
-		0.0, 0.0, true
+		0., 0., true
 	);
 }
 
@@ -104,6 +109,7 @@ int CDistanceMatrix::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 	if( pParameter->Cmp_Identifier("FORMAT") )
 	{
 		pParameters->Set_Enabled("MAX_DIST", pParameter->asInt() == 1);
+		pParameters->Set_Enabled("LINES"   , pParameter->asInt() >= 1);
 	}
 
 	if( pParameter->Cmp_Identifier("NEAR") )
@@ -120,18 +126,18 @@ int CDistanceMatrix::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_ID(p, id, i)	(id < 0 ? CSG_String::Format(SG_T("%d"), i + 1) : CSG_String(p->Get_Shape(i)->asString(id)))
+#define GET_ID(p, id, i)	(id < 0 ? CSG_String::Format("%d", i + 1) : CSG_String(p->Get_Shape(i)->asString(id)))
 
 //---------------------------------------------------------
 bool CDistanceMatrix::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Shapes	*pPoints	= Parameters("POINTS"   )->asShapes();
-	int			id_Points	= Parameters("ID_POINTS")->asInt   ();
-	CSG_Shapes	*pNear		= Parameters("NEAR"     )->asShapes();
-	int			id_Near		= Parameters("ID_NEAR"  )->asInt   ();
+	CSG_Shapes	*pPoints    = Parameters("POINTS"   )->asShapes();
+	int			id_Points   = Parameters("ID_POINTS")->asInt   ();
+	CSG_Shapes	*pNear      = Parameters("NEAR"     )->asShapes();
+	int			id_Near     = Parameters("ID_NEAR"  )->asInt   ();
 	CSG_Table	*pDistances = Parameters("DISTANCES")->asTable ();
-	double		max_Dist	= Parameters("MAX_DIST" )->asDouble();
+	double		max_Dist    = Parameters("MAX_DIST" )->asDouble();
+	CSG_Shapes	*pLines     = Parameters("LINES"    )->asShapes();
 
 	//-----------------------------------------------------
 	if( pNear == NULL )
@@ -151,44 +157,13 @@ bool CDistanceMatrix::On_Execute(void)
 		pDistances->Fmt_Name("%s [%s]", _TL("Distances"), pPoints->Get_Name());
 	}
 
-	//-----------------------------------------------------
-	if( Parameters("FORMAT")->asInt() == 1 )
+	switch( Parameters("FORMAT")->asInt() )
 	{
-		pDistances->Add_Field("ID_POINT", SG_DATATYPE_String);
-		pDistances->Add_Field("ID_NEAR" , SG_DATATYPE_String);
-		pDistances->Add_Field("DISTANCE", SG_DATATYPE_Double);
-
-		for(int iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
-		{
-			TSG_Point	Point	= pPoints->Get_Shape(iPoint)->Get_Point(0);
-
-			for(int iNear=0; iNear<pNear->Get_Count(); iNear++)
-			{
-				if( pPoints != pNear || iPoint != iNear )
-				{
-					double	Distance	= SG_Get_Distance(Point, pNear->Get_Shape(iNear)->Get_Point(0));
-
-					if( Distance <= max_Dist || max_Dist <= 0.0 )
-					{
-						CSG_Table_Record	*pRecord	= pDistances->Add_Record();
-
-						pRecord->Set_Value(0, GET_ID(pPoints, id_Points, iPoint));
-						pRecord->Set_Value(1, GET_ID(pNear  , id_Near  , iNear ));
-						pRecord->Set_Value(2, Distance);
-					}
-				}
-			}
-		}
-	}
-
 	//-----------------------------------------------------
-	else // Matrix
-	{
-		int	iNear;
-
+	case  0: { // complete input times near points matrix
 		pDistances->Add_Field("ID_POINT", SG_DATATYPE_String);
 
-		for(iNear=0; iNear<pNear->Get_Count(); iNear++)
+		for(int iNear=0; iNear<pNear->Get_Count(); iNear++)
 		{
 			pDistances->Add_Field(GET_ID(pNear, id_Near, iNear), SG_DATATYPE_Double);
 		}
@@ -201,11 +176,106 @@ bool CDistanceMatrix::On_Execute(void)
 
 			pRecord->Set_Value(0, GET_ID(pPoints, id_Points, iPoint));
 
-			for(iNear=0; iNear<pNear->Get_Count(); iNear++)
+			for(int iNear=0; iNear<pNear->Get_Count(); iNear++)
 			{
 				pRecord->Set_Value(1 + iNear, SG_Get_Distance(Point, pNear->Get_Shape(iNear)->Get_Point(0)));
 			}
 		}
+		break; }
+
+	//-----------------------------------------------------
+	default: { // each pair with a single record
+		pDistances->Add_Field("ID_POINT", SG_DATATYPE_String);
+		pDistances->Add_Field("ID_NEAR" , SG_DATATYPE_String);
+		pDistances->Add_Field("DISTANCE", SG_DATATYPE_Double);
+
+		if( pLines )
+		{
+			pLines->Create(SHAPE_TYPE_Line, pDistances->Get_Name(), pDistances);
+		}
+
+		for(int iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
+		{
+			TSG_Point	Point	= pPoints->Get_Shape(iPoint)->Get_Point(0);
+
+			for(int iNear=0; iNear<pNear->Get_Count(); iNear++)
+			{
+				if( pPoints != pNear || iPoint != iNear )
+				{
+					double	Distance	= SG_Get_Distance(Point, pNear->Get_Shape(iNear)->Get_Point(0));
+
+					if( Distance <= max_Dist || max_Dist <= 0. )
+					{
+						CSG_Table_Record	*pRecord	= pDistances->Add_Record();
+
+						pRecord->Set_Value(0, GET_ID(pPoints, id_Points, iPoint));
+						pRecord->Set_Value(1, GET_ID(pNear  , id_Near  , iNear ));
+						pRecord->Set_Value(2, Distance);
+
+						if( pLines )
+						{
+							CSG_Shape	*pLine	= pLines->Add_Shape(pRecord, SHAPE_COPY_ATTR);
+
+							pLine->Add_Point(Point);
+							pLine->Add_Point(pNear->Get_Shape(iNear)->Get_Point(0));
+						}
+					}
+				}
+			}
+		}
+		break; }
+
+	//-----------------------------------------------------
+	case  2: { // find only the nearest point for each input point
+		pDistances->Add_Field("ID_POINT", SG_DATATYPE_String);
+		pDistances->Add_Field("ID_NEAR" , SG_DATATYPE_String);
+		pDistances->Add_Field("DISTANCE", SG_DATATYPE_Double);
+
+		if( pLines )
+		{
+			pLines->Create(SHAPE_TYPE_Line, pDistances->Get_Name(), pDistances);
+		}
+
+		for(int iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
+		{
+			TSG_Point	Point	= pPoints->Get_Shape(iPoint)->Get_Point(0), Point_Near;
+
+			CSG_Table_Record	*pRecord	= NULL;
+
+			for(int iNear=0; iNear<pNear->Get_Count(); iNear++)
+			{
+				if( pPoints != pNear || iPoint != iNear )
+				{
+					double	Distance	= SG_Get_Distance(Point, pNear->Get_Shape(iNear)->Get_Point(0));
+
+					if( !pRecord || Distance < max_Dist )
+					{
+						if( !pRecord )
+						{
+							pRecord	= pDistances->Add_Record();
+
+							pRecord->Set_Value(0, GET_ID(pPoints, id_Points, iPoint));
+						}
+
+						pRecord->Set_Value(1, GET_ID(pNear  , id_Near  , iNear ));
+						pRecord->Set_Value(2, Distance);
+
+						max_Dist	= Distance;
+
+						Point_Near	= pNear->Get_Shape(iNear)->Get_Point(0);
+					}
+				}
+			}
+
+			if( pLines && pRecord )
+			{
+				CSG_Shape	*pLine	= pLines->Add_Shape(pRecord, SHAPE_COPY_ATTR);
+
+				pLine->Add_Point(Point     );
+				pLine->Add_Point(Point_Near);
+			}
+		}
+		break; }
 	}
 
 	//-----------------------------------------------------
