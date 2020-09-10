@@ -118,12 +118,6 @@
     <ClCompile Include="view_layout_control.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="view_layout_info.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="view_layout_printout.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="view_map.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -310,6 +304,9 @@
     <ClCompile Include="active_info.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="view_layout_info.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ACTIVE.h">
@@ -409,12 +406,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VIEW_Layout_Control.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VIEW_Layout_Info.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VIEW_Layout_Printout.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VIEW_Map.h">
@@ -601,6 +592,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="active_info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="view_layout_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

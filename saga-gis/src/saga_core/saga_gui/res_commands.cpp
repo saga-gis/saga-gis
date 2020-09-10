@@ -305,11 +305,26 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAP3D_SEQ_PLAY_LOOP:	return( _TL("Play Loop [Ctrl + L]") );
 	case ID_CMD_MAP3D_SEQ_SAVE:			return( _TL("Play And Save as Images...") );
 
+	case ID_CMD_LAYOUT_LOAD:			return( _TL("Load") );
+	case ID_CMD_LAYOUT_SAVE:			return( _TL("Save") );
 	case ID_CMD_LAYOUT_PRINT_SETUP:		return( _TL("Print Setup") );
 	case ID_CMD_LAYOUT_PAGE_SETUP:		return( _TL("Page Setup") );
 	case ID_CMD_LAYOUT_PRINT:			return( _TL("Print") );
 	case ID_CMD_LAYOUT_PRINT_PREVIEW:	return( _TL("Print Preview") );
-	case ID_CMD_LAYOUT_FIT_SCALE:		return( _TL("Fit Scale...") );
+	case ID_CMD_LAYOUT_ITEM_MAP:		return( _TL("Map") );
+	case ID_CMD_LAYOUT_ITEM_LEGEND:		return( _TL("Legend") );
+	case ID_CMD_LAYOUT_ITEM_SCALEBAR:	return( _TL("Scalebar") );
+	case ID_CMD_LAYOUT_ITEM_SCALE:		return( _TL("Scale") );
+	case ID_CMD_LAYOUT_ITEM_LABEL:		return( _TL("Label") );
+	case ID_CMD_LAYOUT_ITEM_TEXT:		return( _TL("Text") );
+	case ID_CMD_LAYOUT_ITEM_IMAGE:		return( _TL("Image") );
+	case ID_CMD_LAYOUT_ITEM_PASTE:		return( _TL("Clipboard") );
+	case ID_CMD_LAYOUT_MOVE_TOP:		return( _TL("Bring to Front") );
+	case ID_CMD_LAYOUT_MOVE_BOTTOM:		return( _TL("Send to Back") );
+	case ID_CMD_LAYOUT_MOVE_UP:			return( _TL("Bring Forward") );
+	case ID_CMD_LAYOUT_MOVE_DOWN:		return( _TL("Send Backward") );
+	case ID_CMD_LAYOUT_PROPERTIES:		return( _TL("Properties") );
+	case ID_CMD_LAYOUT_DELETE:			return( _TL("Delete") );
 
 	case ID_CMD_TABLE_FIELD_ADD:		return( _TL("Add Field") );
 	case ID_CMD_TABLE_FIELD_DEL:		return( _TL("Delete Fields") );

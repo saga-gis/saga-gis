@@ -210,7 +210,7 @@ wxString		Get_TableInfo_asHTML(const CSG_Table *pTable)
 //---------------------------------------------------------
 bool	Set_Font(CSG_Parameter *pFont, wxFont &Font, wxColour &Colour)
 {
-	if( !pFont )
+	if( !pFont || pFont->Get_Type() != PARAMETER_TYPE_Font )
 	{
 		return( false );
 	}
@@ -229,7 +229,7 @@ bool	Set_Font(CSG_Parameter *pFont, wxFont &Font, wxColour &Colour)
 //---------------------------------------------------------
 bool	Set_Font(const wxFont &Font, wxColour Colour, CSG_Parameter *pFont)
 {
-	if( !pFont )
+	if( !pFont || pFont->Get_Type() != PARAMETER_TYPE_Font )
 	{
 		return( false );
 	}

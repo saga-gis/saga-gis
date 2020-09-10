@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -42,21 +39,10 @@
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -71,7 +57,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "view_layout_printout.h"
+#include <wx/wx.h>
+
+//---------------------------------------------------------
+#include <saga_gdi/sgdi_layout_items.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -84,41 +73,70 @@
 class CVIEW_Layout_Info
 {
 public:
+	enum
+	{
+		ItemID_Map	= 0,
+		ItemID_Legend,
+		ItemID_Scalebar,
+		ItemID_Scale,
+		ItemID_Label,
+		ItemID_Text,
+		ItemID_Image,
+		ItemID_None
+	};
+
 	CVIEW_Layout_Info(class CWKSP_Map *pMap);
 	virtual ~CVIEW_Layout_Info(void);
 
+	CSGDI_Layout_Items				m_Items;
+
 	class CWKSP_Map *				Get_Map					(void)	{	return( m_pMap );	}
 
-	bool							Setup_Print				(void);
-	bool							Setup_Page				(void);
-	bool							Print					(void);
-	bool							Print_Preview			(void);
+	wxString						Get_Name				(void);
+	int								Get_Page_Count			(void);
 
 	wxSize							Get_PaperSize			(void);
 	wxRect							Get_Margins				(void);
 	wxPoint							Get_Margin_TopLeft		(void);
 	wxPoint							Get_Margin_BottomRight	(void);
 
-	wxString						Get_Name				(void);
-	int								Get_Page_Count			(void);
+	bool							Page_Setup				(void);
+	bool							Print_Setup				(void);
+	bool							Print					(void);
+	bool							Print_Preview			(void);
 
-	CVIEW_Layout_Printout *			Get_Printout			(void);
+	bool							Set_Zoom				(double Zoom);
+	double							Get_Zoom				(void)	const	{	return( m_Zoom );	}
 
-	void							Fit_Scale				(void);
+	wxRect							Get_PaperToDC			(const wxRect &Rect)	const;
+	double							Get_PaperToDC			(void)	const	{	return( m_PaperToDC );	}
 
-	bool							Draw					(wxDC &dc);
+	bool							Draw					(wxDC &dc, bool bScale = false);
+
+	bool							Load					(void);
+	bool							Save					(void);
+
+	bool							Can_Delete				(void);
+	bool							Toggle_Item				(int ItemID);
+	bool							Add_Item				(int ItemID);
+	class CLayout_Item *			Get_Item				(int ItemID);
+	bool							Clipboard_Paste			(void);
 
 
 protected:
 
+	double							m_Zoom, m_PaperToDC;
+
 	class CWKSP_Map					*m_pMap;
 
-	class wxPrintData				*m_pPrint;
+	class wxPrintData				*m_pPrintData;
 
-	class wxPageSetupData			*m_pPage;
+	class wxPageSetupData			*m_pPrintPage;
+
+	CSGDI_Layout_Items				m_Items_Hidden;
 
 
-	bool							_Get_Layout				(wxSize sClient, double &zMap, int &fMap, wxRect &rMap, double &zLegend, wxRect &rLegend);
+	void							_Fit_Scale				(void);
 
 };
 

@@ -60,7 +60,6 @@ view_histogram.cpp\
 view_layout.cpp\
 view_layout_control.cpp\
 view_layout_info.cpp\
-view_layout_printout.cpp\
 view_map.cpp\
 view_map_3d.cpp\
 view_map_3d_panel.cpp\
@@ -157,7 +156,6 @@ view_histogram.h\
 view_layout.h\
 view_layout_control.h\
 view_layout_info.h\
-view_layout_printout.h\
 view_map.h\
 view_map_3d.h\
 view_map_3d_panel.h\
