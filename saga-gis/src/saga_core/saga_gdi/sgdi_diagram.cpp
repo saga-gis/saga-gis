@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -45,28 +42,12 @@
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Hamburg                  //
-//                Bundesstr. 55                          //
-//                20146 Hamburg                          //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <wx/wxprec.h>
-
-#ifdef __BORLANDC__
-	#pragma hdrstop
-#endif
-
 #include <wx/settings.h>
 #include <wx/dc.h>
 #include <wx/dcclient.h>
@@ -116,10 +97,25 @@ CSGDI_Diagram::~CSGDI_Diagram(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSGDI_Diagram::Set_xScale(double Minimum, double Maximum)
+{
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSGDI_Diagram::Set_yScale(double Minimum, double Maximum)
+{
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 void CSGDI_Diagram::_On_Mouse_Click(wxMouseEvent &event)
 {
-//	wxMessageBox("Sonk", "Sonk");
-
 	if( event.RightDown() && SG_UI_Dlg_Continue(_TL("Copy to Clipboard"), _TL("Variogram")) )
 	{
 		wxBitmap	BMP(GetSize());
@@ -202,10 +198,10 @@ int CSGDI_Diagram::Get_xToScreen(double x, bool bKeepInRange)
 
 	if( bKeepInRange )
 	{
-		if( i		< m_rDiagram.GetLeft  () - DIAGRAM_BUFFER )
-			i		= m_rDiagram.GetLeft  () - DIAGRAM_BUFFER;
-		else if( i	> m_rDiagram.GetRight () + DIAGRAM_BUFFER )
-			i		= m_rDiagram.GetRight () + DIAGRAM_BUFFER;
+		if(      i < m_rDiagram.GetLeft  () - DIAGRAM_BUFFER )
+		         i = m_rDiagram.GetLeft  () - DIAGRAM_BUFFER;
+		else if( i > m_rDiagram.GetRight () + DIAGRAM_BUFFER )
+		         i = m_rDiagram.GetRight () + DIAGRAM_BUFFER;
 	}
 
 	return( i );
@@ -218,10 +214,10 @@ int CSGDI_Diagram::Get_yToScreen(double y, bool bKeepInRange)
 
 	if( bKeepInRange )
 	{
-		if( i		< m_rDiagram.GetTop   () - DIAGRAM_BUFFER )
-			i		= m_rDiagram.GetTop   () - DIAGRAM_BUFFER;
-		else if( i	> m_rDiagram.GetBottom() + DIAGRAM_BUFFER )
-			i		= m_rDiagram.GetBottom() + DIAGRAM_BUFFER;
+		if(      i < m_rDiagram.GetTop   () - DIAGRAM_BUFFER )
+		         i = m_rDiagram.GetTop   () - DIAGRAM_BUFFER;
+		else if( i > m_rDiagram.GetBottom() + DIAGRAM_BUFFER )
+		         i = m_rDiagram.GetBottom() + DIAGRAM_BUFFER;
 	}
 
 	return( i );

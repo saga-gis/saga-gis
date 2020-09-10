@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -45,28 +42,12 @@
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Hamburg                  //
-//                Bundesstr. 55                          //
-//                20146 Hamburg                          //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <wx/wxprec.h>
-
-#ifdef __BORLANDC__
-	#pragma hdrstop
-#endif
-
 #include <wx/dc.h>
 
 //---------------------------------------------------------
@@ -81,11 +62,11 @@
 
 //---------------------------------------------------------
 #ifndef M_PI
-#define M_PI						3.141592653589793
+	#define M_PI			3.141592653589793
 #endif
 
 #ifndef M_DEG_TO_RAD
-#define M_DEG_TO_RAD				(M_PI / 180.0)
+	#define M_DEG_TO_RAD	(M_PI / 180.)
 #endif
 
 
@@ -131,11 +112,10 @@ void		Draw_Text(wxDC &dc, int Align, int x, int y, const wxString &Text)
 //---------------------------------------------------------
 void		Draw_Text(wxDC &dc, int Align, int x, int y, double Angle, const wxString &Text)
 {
-	double	d;
-	wxCoord	xSize, ySize;
-
 	if( Align != TEXTALIGN_TOPLEFT )
 	{
+		wxCoord	xSize, ySize;	double	d;
+
 		dc.GetTextExtent(Text, &xSize, &ySize);
 
 		//-------------------------------------------------
@@ -143,8 +123,8 @@ void		Draw_Text(wxDC &dc, int Align, int x, int y, double Angle, const wxString 
 
 		if		( Align & TEXTALIGN_XCENTER )
 		{
-			x	-= (int)(xSize * cos(d) / 2.0);
-			y	+= (int)(xSize * sin(d) / 2.0);
+			x	-= (int)(xSize * cos(d) / 2.);
+			y	+= (int)(xSize * sin(d) / 2.);
 		}
 		else if	( Align & TEXTALIGN_RIGHT )
 		{
@@ -153,12 +133,12 @@ void		Draw_Text(wxDC &dc, int Align, int x, int y, double Angle, const wxString 
 		}
 
 		//-------------------------------------------------
-		d	 = M_DEG_TO_RAD * (Angle - 90.0);
+		d	 = M_DEG_TO_RAD * (Angle - 90.);
 
 		if		( Align & TEXTALIGN_YCENTER )
 		{
-			x	-= (int)(ySize * cos(d) / 2.0);
-			y	+= (int)(ySize * sin(d) / 2.0);
+			x	-= (int)(ySize * cos(d) / 2.);
+			y	+= (int)(ySize * sin(d) / 2.);
 		}
 		else if	( Align & TEXTALIGN_BOTTOM )
 		{
@@ -203,8 +183,8 @@ bool		Draw_Ruler(wxDC &dc, const wxRect &r, bool bHorizontal, double zMin, doubl
 		//-------------------------------------------------
 		zToDC		= (double)Width / (zMax - zMin);
 
-		dz			= pow(10.0, floor(log10(zMax - zMin)) - 1.0);
-		Decimals	= dz >= 1.0 ? 0 : (int)fabs(log10(dz));
+		dz			= pow(10., floor(log10(zMax - zMin)) - 1.);
+		Decimals	= dz >= 1. ? 0 : (int)fabs(log10(dz));
 
 		s.Printf(wxT("%.*f"), Decimals, zMax);
 		dyFont		= RULER_TEXT_SPACE + dc.GetTextExtent(s).y;
@@ -303,8 +283,8 @@ bool CSGDI_Slider::Set_Range(double minValue, double maxValue)
 {
 	if( maxValue == minValue )
 	{
-		minValue	= 0.0;
-		maxValue	= 1.0;
+		minValue	= 0.;
+		maxValue	= 1.;
 	}
 
 	m_Min	= minValue;
@@ -390,8 +370,8 @@ bool CSGDI_SpinCtrl::Set_Range(double minValue, double maxValue)
 {
 	if( maxValue == minValue )
 	{
-		minValue	= 0.0;
-		maxValue	= 1.0;
+		minValue	= 0.;
+		maxValue	= 1.;
 	}
 
 	m_Min	= minValue;

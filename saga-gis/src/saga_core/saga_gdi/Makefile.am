@@ -16,25 +16,32 @@ libsaga_gdi_la_SOURCES =\
 3d_view_dialog.cpp\
 3d_view_panel.cpp\
 3d_view_projector.cpp\
+RectTracker.cpp\
 sgdi_diagram.cpp\
 sgdi_dialog.cpp\
 sgdi_helper.cpp\
+sgdi_layout_items.cpp\
 saga_gdi.cpp\
 3d_view.h\
 3d_view_tools.h\
+RectTracker.h\
 sgdi_core.h\
 sgdi_diagram.h\
 sgdi_dialog.h\
 sgdi_helper.h\
+sgdi_layout_items.h\
 saga_gdi.h
 
 otherincludedir = $(pkgincludedir)/saga_core/saga_gdi
-otherinclude_HEADERS = saga_gdi.h \
+otherinclude_HEADERS =\
 3d_view.h\
 3d_view_tools.h\
+RectTracker.h\
 sgdi_core.h\
 sgdi_diagram.h\
 sgdi_dialog.h\
-sgdi_helper.h
+sgdi_helper.h\
+sgdi_layout_items.h\
+saga_gdi.h
 
 libsaga_gdi_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
