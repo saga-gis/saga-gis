@@ -709,8 +709,8 @@ CSG_Parameter_Range::CSG_Parameter_Range(CSG_Parameters *pOwner, CSG_Parameter *
 	}
 	else
 	{
-		m_pMin	= (CSG_Parameter_Double *)m_pRange->Add_Double    (ID, "MIN", "Minimum", Description, PARAMETER_TYPE_Double);
-		m_pMax	= (CSG_Parameter_Double *)m_pRange->Add_Double    (ID, "MAX", "Maximum", Description, PARAMETER_TYPE_Double);
+		m_pMin	= (CSG_Parameter_Double *)m_pRange->Add_Double    (ID, "MIN", "Minimum", Description);
+		m_pMax	= (CSG_Parameter_Double *)m_pRange->Add_Double    (ID, "MAX", "Maximum", Description);
 	}
 }
 
@@ -1919,7 +1919,7 @@ bool CSG_Parameter_Table_Field::Add_Default(double Value, double Minimum, bool b
 	{
 		m_Default	= Get_Children_Count();
 
-		Get_Parameters()->Add_Double(Get_Identifier(), CSG_String::Format("%s.Default", Get_Identifier()),
+		Get_Parameters()->Add_Double(Get_Identifier(), CSG_String::Format("%s_DEFAULT", Get_Identifier()),
 			_TL("Default"), _TL("default value if no attribute has been selected"),
 			Value, Minimum, bMinimum, Maximum, bMaximum
 		);
@@ -2440,7 +2440,7 @@ bool CSG_Parameter_Grid::Add_Default(double Value, double Minimum, bool bMinimum
 	{
 		m_Default	= Get_Children_Count();
 
-		Get_Parameters()->Add_Double(Get_Identifier(), CSG_String::Format("%s.Default", Get_Identifier()),
+		Get_Parameters()->Add_Double(Get_Identifier(), CSG_String::Format("%s_DEFAULT", Get_Identifier()),
 			_TL("Default"), _TL("default value if no grid has been selected"),
 			Value, Minimum, bMinimum, Maximum, bMaximum
 		);

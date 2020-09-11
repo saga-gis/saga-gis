@@ -135,7 +135,6 @@ void CCMD_Tool::Usage(void)
 //---------------------------------------------------------
 bool CCMD_Tool::Execute(int argc, char *argv[])
 {
-	//-----------------------------------------------------
 	if( !m_pTool )
 	{
 		return( false );
@@ -242,6 +241,8 @@ wxString CCMD_Tool::_Get_ID(CSG_Parameter *pParameter, const wxString &Modifier)
 	{
 		ID	+= "_" + Modifier;
 	}
+
+	ID.Replace(".", "_");
 
 	return( ID );
 }

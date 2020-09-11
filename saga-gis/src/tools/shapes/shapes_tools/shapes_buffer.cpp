@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -44,16 +41,8 @@
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Hamburg                  //
-//                Bundesstr. 55                          //
-//                20146 Hamburg                          //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -69,7 +58,6 @@
 //---------------------------------------------------------
 CShapes_Buffer::CShapes_Buffer(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Shapes Buffer"));
 
 	Set_Author		("O.Conrad (c) 2008");
@@ -168,7 +156,6 @@ int CShapes_Buffer::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 bool CShapes_Buffer::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_Shapes	*pShapes	= Parameters("SHAPES")->asShapes();
 	CSG_Shapes	*pBuffers	= Parameters("BUFFER")->asShapes();
 
@@ -240,7 +227,6 @@ bool CShapes_Buffer::On_Execute(void)
 //---------------------------------------------------------
 bool CShapes_Buffer::Get_Buffers(CSG_Shapes *pShapes, int Field, CSG_Shapes *pBuffers, double Scale, bool bDissolve)
 {
-	//-----------------------------------------------------
 	double		Distance;
 	CSG_Shapes	Part(SHAPE_TYPE_Polygon);
 	CSG_Shape	*pPart	= Part.Add_Shape(), *pBuffer;
