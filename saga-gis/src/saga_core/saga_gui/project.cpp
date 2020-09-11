@@ -733,6 +733,8 @@ bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 
 	pItem->Parameters_Changed();
 
+	((CWKSP_Data_Item *)pItem)->Get_Object()->Set_Modified(false);	// differing no-data values might have set the modified flag, ...ignore it here!
+
 	return( true );
 }
 
