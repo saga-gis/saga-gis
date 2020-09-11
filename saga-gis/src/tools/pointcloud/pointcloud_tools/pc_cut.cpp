@@ -60,6 +60,7 @@
 
 //---------------------------------------------------------
 #include "pc_cut.h"
+#include <set>
 
 
 ///////////////////////////////////////////////////////////
@@ -76,15 +77,13 @@ CPC_Cut::CPC_Cut(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Point Cloud Cutter"));
 
-	Set_Author		("O. Conrad, V. Wichmann (c) 2009-16");
+	Set_Author		("O. Conrad, V. Wichmann (c) 2009-2020");
 
 	Set_Description	(_TW(
 		"This tool allows one to extract subsets from one or several "
 		"point cloud datasets. The area-of-interest "
 		"is defined either by bounding box coordinates, the extent of a grid system or "
-		"a shapes layer, or by polygons of a shapes layer. Note that the latter "
-		"does not support the inverse selection in case the shapes layer contains more "
-		"than one polygon.\n"
+		"a shapes layer, or by polygons of a shapes layer.\n"
 		"In case a polygon shapes layer is used and one or more polygons are selected, "
 		"only the selected polygons are processed."
 	));
@@ -209,13 +208,6 @@ bool CPC_Cut::On_Execute(void)
 				return( false );
 			}
 
-			if( Parameters("INVERSE")->asBool() && Get_Parameters("POLYGONS")->Get_Parameter("POLYGONS")->asShapes()->Get_Count() > 1 )
-			{
-				SG_UI_Msg_Add_Error(_TL("The inverse selection is not implemented for input shapefiles with more than one polygon!"));
-
-				return (false);
-			}
-
 			return( Get_Cut(pPointsList, pCutList, Get_Parameters("POLYGONS")->Get_Parameter("POLYGONS")->asShapes(), Parameters("INVERSE")->asBool()) );
 		}
 		break;
@@ -295,6 +287,8 @@ bool CPC_Cut::Get_Cut(CSG_Parameter_PointCloud_List *pPointsList, CSG_Parameter_
 
 		CSG_PointCloud	*pPoints = pPointsList->Get_PointCloud(iItem);
 
+        std::set<int>   IdxInPoly;
+
 		if( pPoints && pPoints->is_Valid() )
 		{
 			CSG_PointCloud *pCut = new CSG_PointCloud(pPoints);
@@ -303,26 +297,32 @@ bool CPC_Cut::Get_Cut(CSG_Parameter_PointCloud_List *pPointsList, CSG_Parameter_
 
 			if( pPolygons && pPolygons->Get_Type() == SHAPE_TYPE_Polygon && pPolygons->Get_Extent().Intersects(pPoints->Get_Extent()) )
 			{
-				for(int i=0; i<pPoints->Get_Point_Count() && SG_UI_Process_Set_Progress(i, pPoints->Get_Point_Count()); i++)
+				for(int i=0; i<pPoints->Get_Point_Count() && SG_UI_Process_Set_Progress(i, pPoints->Get_Point_Count() * 2); i++)
 				{
-					pPoints->Set_Cursor(i);
-
-					if( (Contains(pPolygons, pPoints->Get_X(), pPoints->Get_Y()) && !bInverse) || (!Contains(pPolygons, pPoints->Get_X(), pPoints->Get_Y()) && bInverse) )
+					if( Contains(pPolygons, pPoints->Get_X(i), pPoints->Get_Y(i)) )
 					{
-						pCut->Add_Point(pPoints->Get_X(), pPoints->Get_Y(), pPoints->Get_Z());
-
-						for (int j=0; j<pPoints->Get_Attribute_Count(); j++)
-						{
-							switch (pPoints->Get_Attribute_Type(j))
-							{
-							default:					pCut->Set_Attribute(j, pPoints->Get_Attribute(i, j));		break;
-							case SG_DATATYPE_Date:
-							case SG_DATATYPE_String:	CSG_String sAttr; pPoints->Get_Attribute(i, j, sAttr); pCut->Set_Attribute(j, sAttr);		break;
-							}
-						}
+						IdxInPoly.insert(i);
 					}
 				}
 			}
+
+            for(int i=0; i<pPoints->Get_Point_Count() && SG_UI_Process_Set_Progress(pPoints->Get_Point_Count() + i, pPoints->Get_Point_Count() * 2); i++)
+            {
+                if( (IdxInPoly.find(i) != IdxInPoly.end() && !bInverse) || (IdxInPoly.find(i) == IdxInPoly.end() && bInverse) )
+                {
+                    pCut->Add_Point(pPoints->Get_X(i), pPoints->Get_Y(i), pPoints->Get_Z(i));
+
+                    for (int j=0; j<pPoints->Get_Attribute_Count(); j++)
+                    {
+                        switch (pPoints->Get_Attribute_Type(j))
+                        {
+                        default:					pCut->Set_Attribute(j, pPoints->Get_Attribute(i, j));		break;
+                        case SG_DATATYPE_Date:
+                        case SG_DATATYPE_String:	CSG_String sAttr; pPoints->Get_Attribute(i, j, sAttr); pCut->Set_Attribute(j, sAttr);		break;
+                        }
+                    }
+                }
+            }
 
 			if( pCut->Get_Count() <= 0 )
 			{
