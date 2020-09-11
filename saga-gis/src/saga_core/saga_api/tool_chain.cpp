@@ -1404,25 +1404,44 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 
 			if( pData && (pParameter->is_DataObject() || pParameter->is_DataObject_List()) )
 			{
-				if( pParameter->Get_Type() == pData->Get_Type() )
+				if( Index >= 0 && (pData->is_DataObject_List() || pData->asGrids()) )
 				{
-					bResult	= pParameter->Assign(pData);
+					CSG_Data_Object	*pObject	= pData->is_DataObject_List()
+						? pData->asList ()->Get_Item    (Index)
+						: pData->asGrids()->Get_Grid_Ptr(Index);
+
+					if( pParameter->is_DataObject() )
+					{
+						bResult	= pParameter->Set_Value(pObject);
+					}
+					if( pParameter->is_DataObject_List() )
+					{
+						bResult	= pParameter->asList()->Add_Item(pObject);
+					}
 				}
-				else if( Parameter_isCompatible(pParameter->Get_Type(), pData->Get_Type()) )
+				else if( pParameter->Get_Type() == pData->Get_Type() )
 				{
-					bResult = pParameter->Set_Value(pData->asDataObject());
+					if( pParameter->is_DataObject_List() && pParameter->asList()->Get_Item_Count() > 0 )
+					{
+						bResult	= true;
+
+						for(int i=0; bResult && i<pData->asList()->Get_Item_Count(); i++)
+						{
+							bResult	= pParameter->asList()->Add_Item(pData->asList()->Get_Item(i));
+						}
+					}
+					else
+					{
+						bResult	= pParameter->Assign(pData);
+					}
 				}
 				else if( pParameter->is_DataObject_List() && pData->is_DataObject() )
 				{
 					bResult	= pParameter->asList()->Add_Item(pData->asDataObject());
 				}
-				else if( pParameter->is_DataObject() && pData->is_DataObject_List() && Index >= 0 )
+				else if( Parameter_isCompatible(pParameter->Get_Type(), pData->Get_Type()) )
 				{
-					bResult	= pParameter->Set_Value(pData->asList()->Get_Data(Index));
-				}
-				else if( pParameter->is_DataObject() && pData->asGrids() && Index >= 0 )
-				{
-					bResult	= pParameter->Set_Value(pData->asGrids()->Get_Grid_Ptr(Index));
+					bResult = pParameter->Set_Value(pData->asDataObject());
 				}
 			}
 
