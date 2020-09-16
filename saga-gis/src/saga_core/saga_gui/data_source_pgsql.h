@@ -101,6 +101,9 @@ public:
 
 private:
 
+	long						m_Wait4Response;
+
+
 	void						On_Item_Activated	(wxTreeEvent &event);
 	void						On_Item_RClick		(wxTreeEvent &event);
 	void						On_Item_Menu		(wxTreeEvent &event);
@@ -138,8 +141,8 @@ private:
 	void						Append_Table		(const wxTreeItemId &Parent, const SG_Char *Name, int Type, int Image);
 
 
-//---------------------------------------------------------
-DECLARE_EVENT_TABLE()
+	//-----------------------------------------------------
+	DECLARE_EVENT_TABLE()
 };
 
 

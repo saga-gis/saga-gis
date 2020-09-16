@@ -166,6 +166,43 @@ static	wxString	g_Password	= "postgres";
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <wx/socket.h>
+
+//---------------------------------------------------------
+bool	is_Server_Responding	(const CSG_String &Host, const CSG_String &Port, int Seconds)
+{
+	wxIPV4address	Address;
+
+	if( !Address.Hostname(Host.c_str()) )
+	{
+		return( false );
+	}
+
+	if( !Port.is_Empty() && !Address.Service(Port.c_str()) )
+	{
+		return( false );
+	}
+
+	wxSocketClient	Client;
+
+	Client.Connect(Address, false);
+
+	if( !Client.IsConnected() && Seconds > 0 )
+	{
+		Client.WaitOnConnect(Seconds, 0);
+	}
+
+	return( Client.IsConnected() );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool	PGSQL_Connect			(const CSG_String &Host, const CSG_String &Port, const CSG_String &DBName)
 {
 	if( PGSQL_is_Connected(Host, Port, DBName) )
@@ -174,6 +211,11 @@ bool	PGSQL_Connect			(const CSG_String &Host, const CSG_String &Port, const CSG_
 	}
 
 	if( !DLG_Login(g_Username, g_Password, wxString::Format("%s: %s [%s:%s]", _TL("Connect to Database"), DBName.c_str(), Host.c_str(), Port.c_str())) )
+	{
+		return( false );
+	}
+
+	if( !is_Server_Responding(Host, Port, g_pData->Get_Parameter("PROJECT_DB_WAIT")->asInt()) )
 	{
 		return( false );
 	}
@@ -414,6 +456,8 @@ CData_Source_PgSQL::CData_Source_PgSQL(wxWindow *pParent)
 
 	AddRoot(_TL("PostgreSQL Sources"), IMG_ROOT, IMG_ROOT, new CData_Source_PgSQL_Data(TYPE_ROOT));
 
+	m_Wait4Response	= g_pData->Get_Parameter("PROJECT_DB_WAIT")->asInt();
+
 	//-----------------------------------------------------
 	SG_UI_Msg_Lock(true);
 
@@ -463,7 +507,7 @@ CData_Source_PgSQL::~CData_Source_PgSQL(void)
 			{
 				CSG_String	Connection	= pData->Get_Server().c_str();
 
-				if( Reopen != 0 && pData->is_Connected() && !pData->Get_Username().is_Empty() )	// store user and password
+				if( Reopen && pData->is_Connected() && !pData->Get_Username().is_Empty() )	// store user and password
 				{
 					Connection	+= "|" + pData->Get_Username() + "|" + pData->Get_Password();
 				}
@@ -1034,19 +1078,22 @@ bool CData_Source_PgSQL::Source_Open(CData_Source_PgSQL_Data *pData, bool bDialo
 	//-----------------------------------------------------
 	MSG_General_Add(wxString::Format("%s: %s...", _TL("Connect to Database"), pData->Get_Server().c_str()), true, true);
 
-	RUN_TOOL(DB_PGSQL_Get_Connection, false, false,	// CGet_Connection
-			SET_PARAMETER("PG_HOST", pData->Get_Host    ())
-		&&	SET_PARAMETER("PG_PORT", pData->Get_Port    ())
-		&&	SET_PARAMETER("PG_USER", pData->Get_Username())
-		&&	SET_PARAMETER("PG_PWD" , pData->Get_Password())
-		&&	SET_PARAMETER("PG_NAME", pData->Get_DBName  ())
-	);
-
-	if( bResult )
+	if( m_Wait4Response <= 0 || is_Server_Responding(pData->Get_Host(), pData->Get_Port(), m_Wait4Response) )
 	{
-		MSG_General_Add(_TL("okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
+		RUN_TOOL(DB_PGSQL_Get_Connection, false, false,	// CGet_Connection
+			SET_PARAMETER("PG_HOST", pData->Get_Host    ())
+			&&	SET_PARAMETER("PG_PORT", pData->Get_Port    ())
+			&&	SET_PARAMETER("PG_USER", pData->Get_Username())
+			&&	SET_PARAMETER("PG_PWD" , pData->Get_Password())
+			&&	SET_PARAMETER("PG_NAME", pData->Get_DBName  ())
+		);
 
-		return( true );
+		if( bResult )
+		{
+			MSG_General_Add(_TL("okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
+
+			return( true );
+		}
 	}
 
 	MSG_General_Add(_TL("failed"), false, false, SG_UI_MSG_STYLE_FAILURE);
