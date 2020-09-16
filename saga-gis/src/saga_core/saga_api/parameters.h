@@ -1768,8 +1768,11 @@ public:
 	bool						Assign_Values			(CSG_Parameters *pSource);
 	bool						Assign_Parameters		(CSG_Parameters *pSource);
 
-	bool						Serialize				(const CSG_String &File_Name, bool bSave);
-	bool						Serialize				(CSG_MetaData &Entry        , bool bSave);
+	bool						Serialize				(const CSG_String &File            )	const;
+	bool						Serialize				(const CSG_String &File, bool bSave);
+	bool						Serialize				(CSG_MetaData     &Root            )	const;
+	bool						Serialize				(CSG_MetaData     &Root, bool bSave);
+
 	bool						Serialize_Compatibility	(CSG_File &Stream);
 
 	//-----------------------------------------------------

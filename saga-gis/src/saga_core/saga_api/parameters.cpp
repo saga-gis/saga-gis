@@ -1981,46 +1981,62 @@ bool CSG_Parameters::Reset_Grid_System(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Parameters::Serialize(const CSG_String &File_Name, bool bSave)
+// Constant version of Serialize, only for saving to meta data file.
+bool CSG_Parameters::Serialize(const CSG_String &File)	const
 {
 	CSG_MetaData	MetaData;
 
-	if( bSave )
-	{
-		return( Serialize(MetaData, true) && MetaData.Save(File_Name) );
-	}
-	else
-	{
-		return( MetaData.Load(File_Name) && Serialize(MetaData, false) );
-	}
+	return( Serialize(MetaData) && MetaData.Save(File) );
+}
+	
+//---------------------------------------------------------
+// Stores/loads parameter list settings to/from XML coded file.
+bool CSG_Parameters::Serialize(const CSG_String &File, bool bSave)
+{
+	CSG_MetaData	MetaData;
+
+	return( bSave
+		? (Serialize(MetaData, bSave) && MetaData.Save(File))
+		: (MetaData.Load(File) && Serialize(MetaData, bSave))
+	);
 }
 
 //---------------------------------------------------------
-bool CSG_Parameters::Serialize(CSG_MetaData &MetaData, bool bSave)
+// Constant version of Serialize, only for saving to meta data.
+bool CSG_Parameters::Serialize(CSG_MetaData &Root)	const
+{
+	Root.Destroy();
+
+	Root.Set_Name("parameters");
+	Root.Set_Property("name", m_Name);
+
+	for(int i=0; i<Get_Count(); i++)
+	{
+		m_Parameters[i]->Serialize(Root, true);
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+// Stores/loads parameter list settings to/from CSG_MetaData object 'Root'.
+bool CSG_Parameters::Serialize(CSG_MetaData &Root, bool bSave)
 {
 	if( bSave )
 	{
-		MetaData.Destroy();
-
-		MetaData.Set_Name("parameters");
-		MetaData.Set_Property("name", m_Name);
-
-		for(int i=0; i<Get_Count(); i++)
-		{
-			m_Parameters[i]->Serialize(MetaData, true);
-		}
-
-		return( true );
+		return( Serialize(Root) );
 	}
-	else if( MetaData.Cmp_Name("parameters") )
+
+	//-----------------------------------------------------
+	if( Root.Cmp_Name("parameters") )
 	{
-		MetaData.Get_Property("name", m_Name);
+		Root.Get_Property("name", m_Name);
 
-		for(int i=0; i<MetaData.Get_Children_Count(); i++)
+		for(int i=0; i<Root.Get_Children_Count(); i++)
 		{
-			CSG_Parameter	*pParameter = Get_Parameter(MetaData.Get_Child(i)->Get_Property("id"));
+			CSG_Parameter	*pParameter = Get_Parameter(Root(i)->Get_Property("id"));
 
-			if(	pParameter && pParameter->Serialize(*MetaData.Get_Child(i), false) )
+			if(	pParameter && pParameter->Serialize(*Root(i), false) )
 			{
 				pParameter->has_Changed();
 			}
