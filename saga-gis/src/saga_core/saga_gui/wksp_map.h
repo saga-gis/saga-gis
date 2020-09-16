@@ -120,6 +120,8 @@ public:
 
 	virtual void				Parameters_Changed		(void);
 
+	bool						Serialize				(CSG_MetaData &Root, const wxString &ProjectDir, bool bSave);
+
 	const CSG_Rect &			Get_Extent				(void)		{	return( m_Extents.Get_Extent() );	}
 	bool						Set_Extent				(const CSG_Rect &Extent, bool bReset = false, bool bPan = false);
 	bool						Set_Extent				(const CSG_Rect &Extent, const CSG_Projection &Projection, bool bPan = false);
@@ -183,7 +185,7 @@ public:
 	void						Draw_Map				(wxDC &dc                        , double Zoom, const wxRect &rClient, int Flags = 0, int Background = -1);
 	void						Draw_Map				(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wxRect &rClient, int Flags = 0, int Background = -1);
 	void						Draw_Frame				(wxDC &dc, wxRect rMap, int Width);
-	void						Draw_Frame				(wxDC &dc, const CSG_Rect &rWorld, wxRect rMap, int Width);
+	void						Draw_Frame				(wxDC &dc, const CSG_Rect &rWorld, wxRect rMap, int Width, bool bScaleBar);
 	bool						Draw_Legend				(wxDC &dc, double Zoom_Map, double Zoom, wxPoint Position, wxSize *pSize = NULL);
 
 	bool						Draw_North_Arrow		(class CWKSP_Map_DC &dc_Map, const CSG_Rect &rWorld, const wxRect &rClient);
@@ -195,9 +197,6 @@ public:
 	bool						Get_Legend_Size			(wxSize &Size, double Zoom_Map = 1.0, double Zoom = 1.0);
 
 	int							Get_Frame_Width			(void);
-	int							Get_Print_Resolution	(void);
-	int							Get_Print_Frame			(void);
-	int							Get_Print_Legend		(void);
 
 	void						Set_Projection			(void);
 	CSG_Projection &			Get_Projection			(void)	{	return( m_Projection );	}

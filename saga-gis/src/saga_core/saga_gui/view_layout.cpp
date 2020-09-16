@@ -77,10 +77,13 @@ IMPLEMENT_CLASS(CVIEW_Layout, CVIEW_Base);
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CVIEW_Layout, CVIEW_Base)
 
+	EVT_KEY_DOWN (CVIEW_Layout::On_Key_Event)
+
 	EVT_SIZE     (CVIEW_Layout::On_Size)
 
 	EVT_MENU     (ID_CMD_LAYOUT_LOAD         , CVIEW_Layout::On_Load         )
 	EVT_MENU     (ID_CMD_LAYOUT_SAVE         , CVIEW_Layout::On_Save         )
+	EVT_MENU     (ID_CMD_LAYOUT_PROPERTIES   , CVIEW_Layout::On_Properties   )
 	EVT_MENU     (ID_CMD_LAYOUT_PAGE_SETUP   , CVIEW_Layout::On_Page_Setup   )
 	EVT_MENU     (ID_CMD_LAYOUT_PRINT_SETUP  , CVIEW_Layout::On_Print_Setup  )
 	EVT_MENU     (ID_CMD_LAYOUT_PRINT        , CVIEW_Layout::On_Print        )
@@ -138,6 +141,7 @@ wxMenu * CVIEW_Layout::_Create_Menu(void)
 	CMD_Menu_Add_Item(pMenu   , false, ID_CMD_LAYOUT_LOAD);
 	CMD_Menu_Add_Item(pMenu   , false, ID_CMD_LAYOUT_SAVE);
 	pMenu->AppendSeparator();
+	CMD_Menu_Add_Item(pMenu   , false, ID_CMD_LAYOUT_PROPERTIES);
 	CMD_Menu_Add_Item(pMenu   , false, ID_CMD_LAYOUT_PAGE_SETUP);
 //	CMD_Menu_Add_Item(pMenu   , false, ID_CMD_LAYOUT_PRINT_SETUP);
 	CMD_Menu_Add_Item(pMenu   , false, ID_CMD_LAYOUT_PRINT_PREVIEW);
@@ -167,6 +171,7 @@ wxToolBarBase * CVIEW_Layout::_Create_ToolBar(void)
 {
 	wxToolBarBase	*pToolBar	= CMD_ToolBar_Create(ID_TB_VIEW_LAYOUT);
 
+//	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_LAYOUT_PROPERTIES);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_LAYOUT_PAGE_SETUP);
 //	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_LAYOUT_PRINT_SETUP);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_LAYOUT_PRINT_PREVIEW);
@@ -183,6 +188,14 @@ wxToolBarBase * CVIEW_Layout::_Create_ToolBar(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CVIEW_Layout::Do_Destroy(void)
+{
+	m_pControl->Do_Destroy();
+
+	CVIEW_Base::Do_Destroy();
+}
+
+//---------------------------------------------------------
 void CVIEW_Layout::Do_Update(void)
 {
 	m_pControl->Refresh(false);
@@ -192,6 +205,22 @@ void CVIEW_Layout::Do_Update(void)
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Layout::On_Key_Event(wxKeyEvent &event)
+{
+	if( event.GetKeyCode() == WXK_DELETE )
+	{
+		if( m_pLayout->Can_Delete() && m_pLayout->m_Items.Del(m_pLayout->m_Items.Get_Active()) )
+		{
+			m_pControl->Refresh(false);
+		}
+	}
+	else
+	{
+		m_pLayout->m_Items.On_Key_Event(event);
+	}
+}
 
 //---------------------------------------------------------
 void CVIEW_Layout::On_Size(wxSizeEvent &event)
@@ -256,10 +285,11 @@ void CVIEW_Layout::On_Save(wxCommandEvent &event)
 	m_pLayout->Save();
 }
 
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
+//---------------------------------------------------------
+void CVIEW_Layout::On_Properties(wxCommandEvent &event)
+{
+	m_pLayout->Properties();
+}
 
 //---------------------------------------------------------
 void CVIEW_Layout::On_Page_Setup(wxCommandEvent &event)
@@ -301,10 +331,10 @@ void CVIEW_Layout::On_Item_UI(wxUpdateUIEvent &event)
 {
 	switch( event.GetId() )
 	{
-	case ID_CMD_LAYOUT_ITEM_MAP     : event.Check(m_pLayout->Get_Item(CVIEW_Layout_Info::ItemID_Map     ) != NULL); break;
-	case ID_CMD_LAYOUT_ITEM_LEGEND  : event.Check(m_pLayout->Get_Item(CVIEW_Layout_Info::ItemID_Legend  ) != NULL); break;
-	case ID_CMD_LAYOUT_ITEM_SCALEBAR: event.Check(m_pLayout->Get_Item(CVIEW_Layout_Info::ItemID_Scalebar) != NULL); break;
-	case ID_CMD_LAYOUT_ITEM_SCALE   : event.Check(m_pLayout->Get_Item(CVIEW_Layout_Info::ItemID_Scale   ) != NULL); break;
+	case ID_CMD_LAYOUT_ITEM_MAP     : event.Check(m_pLayout->is_Shown(CVIEW_Layout_Info::ItemID_Map     ) != NULL); break;
+	case ID_CMD_LAYOUT_ITEM_LEGEND  : event.Check(m_pLayout->is_Shown(CVIEW_Layout_Info::ItemID_Legend  ) != NULL); break;
+	case ID_CMD_LAYOUT_ITEM_SCALEBAR: event.Check(m_pLayout->is_Shown(CVIEW_Layout_Info::ItemID_Scalebar) != NULL); break;
+	case ID_CMD_LAYOUT_ITEM_SCALE   : event.Check(m_pLayout->is_Shown(CVIEW_Layout_Info::ItemID_Scale   ) != NULL); break;
 	}
 }
 

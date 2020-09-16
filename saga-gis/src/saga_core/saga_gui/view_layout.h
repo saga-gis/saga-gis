@@ -75,6 +75,7 @@ public:
 	static class wxToolBarBase *	_Create_ToolBar		(void);
 	static class wxMenu *			_Create_Menu		(void);
 
+	virtual void					Do_Destroy			(void);
 	virtual void					Do_Update			(void);
 
 	void							Ruler_Set_Position	(int x, int y);
@@ -90,10 +91,13 @@ private:
 	class CVIEW_Layout_Control		*m_pControl;
 
 
+	void							On_Key_Event		(wxKeyEvent      &event);
 	void							On_Size				(wxSizeEvent     &event);
 
 	void							On_Load				(wxCommandEvent  &event);
 	void							On_Save				(wxCommandEvent  &event);
+
+	void							On_Properties		(wxCommandEvent  &event);
 
 	void							On_Page_Setup		(wxCommandEvent  &event);
 	void							On_Print_Setup		(wxCommandEvent  &event);

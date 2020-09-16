@@ -74,6 +74,11 @@
 class SGDI_API_DLL_EXPORT CSGDI_Layout_Items
 {
 public:
+	static bool	Compare	(const wxRect &r1, const wxRect &r2)
+	{
+		return( r1.x == r2.x && r1.y == r2.y && r1.width == r2.width && r1.height == r2.height );
+	}
+
 	class SGDI_API_DLL_EXPORT CSGDI_Layout_Item
 	{
 		friend class CSGDI_Layout_Items;
@@ -81,6 +86,8 @@ public:
 	public:
 		CSGDI_Layout_Item(void);
 		virtual ~CSGDI_Layout_Item(void);
+
+		bool						is_Shown			(void)	const			{	return( m_bShow );	}
 
 		const wxRect &				Get_Rect			(void)	const			{	return( m_Rect );	}
 		bool						Set_Rect			(const wxRect &r);
@@ -93,6 +100,8 @@ public:
 
 
 	protected:
+
+		bool						m_bShow;
 
 		wxRect						m_Rect;
 
@@ -118,15 +127,18 @@ public:
 
 	bool							Set_Parent			(wxWindow *pParent);
 
-	size_t							Get_Count			(void)	const	{	return( m_Items.Get_Size() );	}
-	CSGDI_Layout_Item *				Get_Item			(size_t Index)	{	return( (CSGDI_Layout_Item *)m_Items[Index] );	}
-	CSGDI_Layout_Item *				operator ()			(size_t Index)	{	return(  Get_Item(Index) );	}
-	CSGDI_Layout_Item &				operator []			(size_t Index)	{	return( *Get_Item(Index) );	}
+	size_t							Get_Count			(void)			const	{	return( m_Items.Get_Size() );	}
+	CSGDI_Layout_Item *				Get_Item			(size_t Index)	const	{	return( (CSGDI_Layout_Item *)m_Items[Index] );	}
+	CSGDI_Layout_Item *				operator ()			(size_t Index)	const	{	return(  Get_Item(Index) );	}
+	CSGDI_Layout_Item &				operator []			(size_t Index)			{	return( *Get_Item(Index) );	}
 
 	bool							Add					(CSGDI_Layout_Item *pItem, const wxRect &Rect, bool bActivate = false);
 	bool							Add					(CSGDI_Layout_Item *pItem, bool bActivate = false);
 	bool							Del					(CSGDI_Layout_Item *pItem, bool bDetach = false);
 	bool							Del					(size_t             iItem, bool bDetach = false);
+
+	bool							Hide				(CSGDI_Layout_Item *pItem);
+	bool							Show				(CSGDI_Layout_Item *pItem);
 
 	bool							Scale				(double Scale);
 
@@ -142,6 +154,7 @@ public:
 
 	bool							On_Tracker_Changed	(void);
 
+	bool							On_Key_Event		(wxKeyEvent   &event);
 	bool							On_Mouse_Event		(wxMouseEvent &event);
 
 	bool							Draw				(wxDC &dc);

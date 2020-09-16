@@ -74,15 +74,15 @@
 class CLayout_Item : public CSGDI_Layout_Items::CSGDI_Layout_Item
 {
 public:
-	CVIEW_Layout_Info	*m_pLayout;	CSG_Parameters	m_Parameters;
+	virtual int			Get_Type		(void)	const	= 0;
 
-	CLayout_Item(CVIEW_Layout_Info *pLayout)
+	//-----------------------------------------------------
+	CLayout_Item(CVIEW_Layout_Info *pLayout, double x = 10, double y = 10, double width = 100, double height = 100)
 		: m_pLayout(pLayout)
-	{}
-
-	void				Set_Rect_Percentage	(double x, double y, double width, double height)
 	{
-		wxSize	Size(m_pLayout->Get_PaperSize());
+		m_Parameters.Set_Name("properties");
+
+		wxSize	Size(m_pLayout->Get_PaperSize());	// default size
 
 		m_Rect.x      = (int)(0.5 + x      * Size.GetWidth () / 100.);
 		m_Rect.width  = (int)(0.5 + width  * Size.GetWidth () / 100.);
@@ -90,69 +90,90 @@ public:
 		m_Rect.height = (int)(0.5 + height * Size.GetHeight() / 100.);
 	}
 
+	//-----------------------------------------------------
 	virtual bool		Properties			(wxWindow *pParent)
 	{
 		return( m_Parameters.Get_Count() > 0 && DLG_Parameters(&m_Parameters) );
 	}
+
+	//-----------------------------------------------------
+	CVIEW_Layout_Info	*m_pLayout;	CSG_Parameters	m_Parameters;
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CLayout_Map : public CLayout_Item
 {
 public:
-	virtual int			Get_ID			(void)	const	{	return( CVIEW_Layout_Info::ItemID_Map );	}
+	virtual int			Get_Type		(void)	const	{	return( CVIEW_Layout_Info::ItemID_Map );	}
 
 	//-----------------------------------------------------
-	CLayout_Map(CVIEW_Layout_Info *pLayout, CWKSP_Map *pMap)
-		: CLayout_Item(pLayout)
+	CLayout_Map(CVIEW_Layout_Info *pLayout)
+		: CLayout_Item(pLayout, 2, 2, 73, 83)
 	{
-		Set_Rect_Percentage(5, 5, 75, 85);
-
 		m_Parameters.Add_Bool(""          , "FRAME_SHOW", _TL("Frame"), _TL(""), true);
-		m_Parameters.Add_Int ("FRAME_SHOW", "FRAME_SIZE", _TL("Size" ), _TL(""), 10, 5, true);
+		m_Parameters.Add_Int ("FRAME_SHOW", "FRAME_SIZE", _TL("Size" ), _TL(""), 5, 2, true);
+	}
+
+	//-----------------------------------------------------
+	wxRect				Get_Rect_Map	(void)
+	{
+		wxRect	r(m_Rect);
+		
+		if( m_Parameters["FRAME_SHOW"].asBool() )
+		{
+			int	Frame	= m_Parameters["FRAME_SIZE"].asInt();//(int)(0.5 + m_Parameters["FRAME_SIZE"].asInt() * m_pLayout->Get_Paper2DC());
+
+			r.Deflate(Frame);
+		}
+
+		return(	m_pLayout->Get_Screen2DC(r) );
 	}
 
 	//-----------------------------------------------------
 	virtual bool		Draw			(wxDC &dc)
 	{
-		int	Frame	= m_Parameters["FRAME_SHOW"].asBool() ? m_Parameters["FRAME_SIZE"].asInt() : 0;
+		wxRect	rFrame(m_pLayout->Get_Screen2DC(m_Rect)), rMap(Get_Rect_Map());
 
-		wxRect	r(m_Rect); if( Frame > 5 ) { r.Deflate(Frame); } r = m_pLayout->Get_PaperToDC(r);
+		m_pLayout->Get_Map()->Draw_Map(dc, m_pLayout->Get_Paper2DC(), rMap, LAYER_DRAW_FLAG_NOEDITS);
 
-		double	PaperToDC	= m_pLayout->Get_PaperToDC();
-
-		m_pLayout->Get_Map()->Draw_Map(dc, PaperToDC, r, LAYER_DRAW_FLAG_NOEDITS);
-
-		if( Frame >= 5 )
+		if( m_Parameters["FRAME_SHOW"].asBool() )
 		{
-			m_pLayout->Get_Map()->Draw_Frame(dc, r, (int)(0.5 + PaperToDC * Frame));
+			m_pLayout->Get_Map()->Draw_Frame(dc, m_pLayout->Get_Map()->Get_World(rMap), rMap, rMap.x - rFrame.x, false);
 		}
 
 		return( true );
 	}
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 class CLayout_Legend : public CLayout_Item
 {
 public:
-	virtual int			Get_ID			(void)	const	{	return( CVIEW_Layout_Info::ItemID_Legend );	}
+	virtual int			Get_Type		(void)	const	{	return( CVIEW_Layout_Info::ItemID_Legend );	}
 
 	//-----------------------------------------------------
-	CLayout_Legend(CVIEW_Layout_Info *pLayout, CWKSP_Map *pMap)
-		: CLayout_Item(pLayout)
-	{
-		Set_Rect_Percentage(85, 5, 10, 85);
-	}
+	CLayout_Legend(CVIEW_Layout_Info *pLayout)
+		: CLayout_Item(pLayout, 77, 2, 21, 48)
+	{}
 
 	//-----------------------------------------------------
 	virtual bool		Draw			(wxDC &dc)
 	{
-		wxSize	Size;	double	d	= m_pLayout->Get_PaperToDC();
+		wxSize	Size;	double	d	= m_pLayout->Get_Paper2DC();
 
 		if( m_pLayout->Get_Map()->Get_Legend_Size(Size, d) )
 		{
-			wxRect	r(m_pLayout->Get_PaperToDC(m_Rect));
+			wxRect	r(m_pLayout->Get_Screen2DC(m_Rect));
 
 			double	Scale	= r.GetHeight() / (double)Size.y;
 
@@ -170,72 +191,145 @@ public:
 	}
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 class CLayout_Scalebar : public CLayout_Item
 {
 public:
-	virtual int			Get_ID			(void)	const	{	return( CVIEW_Layout_Info::ItemID_Scalebar );	}
+	virtual int			Get_Type		(void)	const	{	return( CVIEW_Layout_Info::ItemID_Scalebar );	}
 
 	//-----------------------------------------------------
 	CLayout_Scalebar(CVIEW_Layout_Info *pLayout)
-		: CLayout_Item(pLayout)
+		: CLayout_Item(pLayout, 2, 87, 50, 5)
 	{
-		Set_Rect_Percentage(5, 95, 75, 2.5);
+		m_Parameters.Add_Choice("",
+			"UNIT"	, _TL("Unit"),
+			_TL(""),
+			CSG_String::Format("%s|%s",
+				_TL("do not show"),
+				_TL("automatically")
+			), 1
+		);
+
+		m_Parameters.Add_Choice("",
+			"STYLE"	, _TL("Style"),
+			_TL(""),
+			CSG_String::Format("%s|%s",
+				_TL("scale line"),
+				_TL("alternating scale bar")
+			), 1
+		);
 	}
 
 	//-----------------------------------------------------
 	virtual bool		Draw				(wxDC &dc)
 	{
-	//	m_pLayout->Get_Map()->Draw_ScaleBar(dc, m_pLayout->Get_Map()->Get_Extent(), m_pLayout->Get_PaperToDC(m_Rect));
+		int	Style	= SCALE_STYLE_LINECONN|SCALE_STYLE_GLOOMING|SCALE_STYLE_UNIT_BELOW;
+
+		if( m_Parameters("STYLE")->asInt() == 1 )
+		{
+			Style	|= SCALE_STYLE_BLACKWHITE;
+		}
+
+		wxRect	r(m_pLayout->Get_Screen2DC(m_Rect)), rMap(((CLayout_Map *)m_pLayout->Get_Item(CVIEW_Layout_Info::ItemID_Map))->Get_Rect_Map());
+
+		double	Length	= r.width * m_pLayout->Get_Map()->Get_World(rMap).Get_XRange() / rMap.width;
+
+		CSG_String	Unit;
+
+		if( m_Parameters("UNIT")->asInt() >= 1 )
+		{
+			CSG_Projection	Projection(m_pLayout->Get_Map()->Get_Projection());
+
+			if( Projection.is_Okay() )
+			{
+				Unit	= SG_Get_Projection_Unit_Name(Projection.Get_Unit(), true);
+
+				if( Unit.is_Empty() )	Unit	= Projection.Get_Unit_Name();
+
+				if( Projection.Get_Unit() == SG_PROJ_UNIT_Meter && Length > 10000. )
+				{
+					Unit	 = SG_Get_Projection_Unit_Name(SG_PROJ_UNIT_Kilometer, true);
+
+					Length	/= 1000.;
+				}
+			}
+		}
+
+		Draw_Scale(dc, r, 0., Length, SCALE_HORIZONTAL, SCALE_TICK_TOP, Style, Unit.c_str());
 
 		return( true );
 	}
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CLayout_Scale : public CLayout_Item
 {
 public:
-	virtual int			Get_ID			(void)	const	{	return( CVIEW_Layout_Info::ItemID_Scale );	}
+	virtual int			Get_Type		(void)	const	{	return( CVIEW_Layout_Info::ItemID_Scale );	}
 
 	//-----------------------------------------------------
 	CLayout_Scale(CVIEW_Layout_Info *pLayout)
-		: CLayout_Item(pLayout)
+		: CLayout_Item(pLayout, 77, 50, 21, 21)
 	{
-		Set_Rect_Percentage(5, 95, 75, 2.5);
+		m_Parameters.Add_String("", "TEXT" , _TL("Text" ), _TL(""), _TL("Scale"));
+		m_Parameters.Add_Font  ("", "FONT" , _TL("Font" ), _TL(""));
 	}
 
 	//-----------------------------------------------------
 	virtual bool		Draw				(wxDC &dc)
 	{
-		wxRect	rPaper(m_pLayout->Get_PaperToDC(m_Rect));
+		wxRect	r(m_pLayout->Get_Screen2DC(m_Rect)), rMap(((CLayout_Map *)m_pLayout->Get_Item(CVIEW_Layout_Info::ItemID_Map))->Get_Rect_Map());
 
-		double	Scale	= m_pLayout->Get_Map()->Get_World(rPaper).Get_XRange() / (rPaper.GetWidth() * 0.001 / m_pLayout->Get_PaperToDC());
-	//	double	Scale	= m_pMap->Get_World(dc_rMap).Get_XRange() / (dc_rMap.GetWidth() * 0.001 / dPaperToDC);
+		double	Scale	= m_pLayout->Get_Map()->Get_World(rMap).Get_XRange() / (0.001 * rMap.width);
 
-		wxRect	rDC(m_pLayout->Get_PaperToDC(m_Rect));
+		wxString	Text(m_Parameters["TEXT"].asString()); if( Text.IsEmpty() ) Text += " ";
 
-		dc.DrawText(wxString::Format("%s 1:%s", _TL("Scale"), Get_SignificantDecimals_String(Scale).c_str()),
-			rDC.GetLeft  (),
-			rDC.GetBottom()
-		);
+		Text	+= "1 : " + Get_SignificantDecimals_String(Scale);
+
+		wxFont	Font, oldFont(dc.GetFont()); wxColour Color, oldColor = dc.GetTextForeground();
+
+		Set_Font(m_Parameters("FONT"), Font, Color);
+
+		Font.SetPointSize((int)(0.5 + Font.GetPointSize() * m_pLayout->Get_Paper2DC()));
+	//	Font.Scale((float)(m_pLayout->Get_Paper2DC()));
+
+		dc.SetFont(Font);
+		dc.SetTextForeground(Color);
+
+		Draw_Text(dc, TEXTALIGN_CENTER, r.x + r.width / 2, r.y + r.height / 2, Text);
+
+		dc.SetFont(oldFont);	// restore old font and color
+		dc.SetTextForeground(oldColor);
 
 		return( true );
 	}
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 class CLayout_Label : public CLayout_Item
 {
 public:
-	virtual int			Get_ID			(void)	const	{	return( CVIEW_Layout_Info::ItemID_Label );	}
+	virtual int			Get_Type		(void)	const	{	return( CVIEW_Layout_Info::ItemID_Label );	}
 
 	//-----------------------------------------------------
-	CLayout_Label(CVIEW_Layout_Info *pLayout, const wxString &Text = "", bool bLongText = false)
-		: CLayout_Item(pLayout)
+	CLayout_Label(CVIEW_Layout_Info *pLayout, bool bProperties = false, const wxString &Text = "", bool bLongText = false)
+		: CLayout_Item(pLayout, 10, 10, 100, 30)
 	{
-		Set_Rect_Percentage(10, 10, 100, 30);
-
 		m_Parameters.Add_String("", "TEXT" , _TL("Text" ), _TL(""), _TL("Text"), bLongText);
 		m_Parameters.Add_Font  ("", "FONT" , _TL("Font" ), _TL(""));
 		m_Parameters.Add_Choice("", "ALIGN", _TL("Align"), _TL(""), CSG_String::Format("%s|%s|%s", _TL("left"), _TL("center"), _TL("right")));
@@ -245,13 +339,16 @@ public:
 			CSG_String _Text(&Text); m_Parameters["TEXT"].Set_Value(_Text);
 		}
 
-		Properties(MDI_Get_Frame());
+		if( bProperties )
+		{
+			Properties(MDI_Get_Frame());
+		}
 	}
 
 	//-----------------------------------------------------
 	virtual bool		Draw				(wxDC &dc)
 	{
-		wxRect	r(m_pLayout->Get_PaperToDC(m_Rect));
+		wxRect	r(m_pLayout->Get_Screen2DC(m_Rect));
 
 		int	x, y, Align;
 
@@ -266,7 +363,8 @@ public:
 
 		Set_Font(m_Parameters("FONT"), Font, Color);
 
-		Font.SetPointSize((int)(0.5 + Font.GetPointSize() * m_pLayout->Get_PaperToDC()));
+	//	Font.SetPointSize((int)(0.5 + Font.GetPointSize() * m_pLayout->Get_Zoom()));// * m_pLayout->Get_PaperToDC()));
+		Font.Scale((float)(m_pLayout->Get_Paper2DC()));
 
 		dc.SetFont(Font);
 		dc.SetTextForeground(Color);
@@ -284,19 +382,24 @@ public:
 class CLayout_Text : public CLayout_Label
 {
 public:
-	virtual int			Get_ID			(void)	const	{	return( CVIEW_Layout_Info::ItemID_Text );	}
+	virtual int			Get_Type		(void)	const	{	return( CVIEW_Layout_Info::ItemID_Text );	}
 
 	//-----------------------------------------------------
-	CLayout_Text(CVIEW_Layout_Info *pLayout, const wxString &Text = "")
-		: CLayout_Label(pLayout, Text, true)
+	CLayout_Text(CVIEW_Layout_Info *pLayout, bool bProperties = false, const wxString &Text = "")
+		: CLayout_Label(pLayout, bProperties, Text, true)
 	{}
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CLayout_Image : public CLayout_Item
 {
 public:
-	virtual int			Get_ID			(void)	const	{	return( CVIEW_Layout_Info::ItemID_Image );	}
+	virtual int			Get_Type		(void)	const	{	return( CVIEW_Layout_Info::ItemID_Image );	}
 
 	//-----------------------------------------------------
 	CLayout_Image(CVIEW_Layout_Info *pLayout, const wxImage &Image)
@@ -350,7 +453,7 @@ public:
 	{
 		if( m_Image.IsOk() && m_Rect.GetWidth() > 0 && m_Rect.GetHeight() > 0 )
 		{
-			wxRect	r(m_pLayout->Get_PaperToDC(m_Rect));
+			wxRect	r(m_pLayout->Get_Screen2DC(m_Rect));
 
 			dc.DrawBitmap(wxBitmap(m_Image.Scale(r.GetWidth(), r.GetHeight())), r.GetLeft(), r.GetTop());
 
@@ -383,7 +486,43 @@ public:
 
 		if( pDC )
 		{
-			return( m_pLayout->Draw(*pDC, true) );
+			if( !m_Bmp.IsOk() )	// initialize bitmap...
+			{
+				wxSize	Size(pDC->GetSize());	double Scale = 1.;
+
+				if( Scale != 1. )
+				{
+					Size.x = (int)(0.5 + Scale * Size.x);
+					Size.y = (int)(0.5 + Scale * Size.y);
+				}
+
+				m_Bmp.Create(Size.x, Size.y);
+
+				wxMemoryDC	dc_Bmp(m_Bmp);
+
+				dc_Bmp.SetBackground(*wxWHITE_BRUSH);
+				dc_Bmp.Clear();
+
+				m_pLayout->Draw(dc_Bmp, true);
+			}
+
+			//---------------------------------------------
+			if( m_Bmp.IsOk() )	// bitmap has been initialized...
+			{
+				wxMemoryDC	dc_Bmp(m_Bmp);
+
+				if( m_Bmp.GetWidth () != pDC->GetSize().GetWidth ()
+				||  m_Bmp.GetHeight() != pDC->GetSize().GetHeight() )
+				{
+					pDC->StretchBlit(wxPoint(0, 0), pDC->GetSize(), &dc_Bmp, wxPoint(0, 0), dc_Bmp.GetSize());
+				}
+				else
+				{
+					pDC->       Blit(wxPoint(0, 0), pDC->GetSize(), &dc_Bmp, wxPoint(0, 0));
+				}
+
+				return( true );
+			}
 		}
 
 		return( false );
@@ -407,6 +546,8 @@ public:
 
 
 protected:
+
+	wxBitmap					m_Bmp;
 
 	CVIEW_Layout_Info			*m_pLayout;
 
@@ -432,11 +573,16 @@ CVIEW_Layout_Info::CVIEW_Layout_Info(CWKSP_Map *pMap)
 	m_pPrintPage->SetMarginTopLeft    (wxPoint(10, 10));
 	m_pPrintPage->SetMarginBottomRight(wxPoint(10, 10));
 
-	m_Items.Add(new CLayout_Map   (this, pMap));
-	m_Items.Add(new CLayout_Legend(this, pMap));
+	m_Items.Add(new CLayout_Map     (this));
+	m_Items.Add(new CLayout_Legend  (this));
+	m_Items.Add(new CLayout_Scalebar(this));
+	m_Items.Add(new CLayout_Scale   (this));
 
-	m_Zoom		= 1.;
-	m_PaperToDC	= 1.;
+	m_Items.Hide(Get_Item(ItemID_Scale));
+
+	m_Zoom      = 1.;
+	m_Screen2DC = 1.;
+	m_Paper2DC  = 1.;
 }
 
 //---------------------------------------------------------
@@ -461,6 +607,17 @@ wxString CVIEW_Layout_Info::Get_Name(void)
 int CVIEW_Layout_Info::Get_Page_Count(void)
 {
 	return( 1 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CVIEW_Layout_Info::Properties(void)
+{
+	return( true );
 }
 
 
@@ -598,12 +755,177 @@ bool CVIEW_Layout_Info::Print(void)
 //---------------------------------------------------------
 bool CVIEW_Layout_Info::Load(void)
 {
+	wxString	File, Filter = wxString::Format(
+		"%s|*.sg-layout;*.xml|"
+		"%s (*.sg-layout)|*.sg-layout|"
+		"%s (*.xml)|*.xml|"
+		"%s|*.*",
+		_TL("Recognized Files"),
+		_TL("SAGA Print Layout"),
+		_TL("XML Files"),
+		_TL("All Files")
+	);
+
+	if( DLG_Open(File, wxString::Format("%s %s", _TL("Load"), _TL("Print Layout")), Filter) )
+	{
+		CSG_MetaData	Layout;
+
+		return( Layout.Load(&File) && Load(Layout) );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CVIEW_Layout_Info::Save(void)	const
+{
+	wxString	File, Filter = wxString::Format(
+		"%s (*.sg-layout)|*.sg-layout|"
+		"%s (*.xml)|*.xml|"
+		"%s|*.*",
+		_TL("SAGA Print Layout"),
+		_TL("XML Files"),
+		_TL("All Files")
+	);
+
+	if( DLG_Save(File, wxString::Format("%s %s", _TL("Save"), _TL("Print Layout")), Filter) )
+	{
+		CSG_MetaData	Layout;
+
+		return( Save(Layout) && Layout.Save(&File) );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CVIEW_Layout_Info::Load(const CSG_MetaData &Layout)
+{
+	if( !Layout.Cmp_Name("layout") || !Layout("general") || !Layout("items") )
+	{
+		return( false );
+	}
+
+	if( SG_Compare_Version(Layout.Get_Property("saga-version"), "7.8.0") < 0 )
+	{
+		SG_UI_Msg_Add_Error(CSG_String::Format("%s %s: %s", _TL("Warning"), _TL("unsupported version"), Layout.Get_Property("saga-version")));
+	}
+
+	for(size_t i=m_Items.Get_Count(); i>0; i--)
+	{
+		CLayout_Item	*pItem	= (CLayout_Item *)m_Items.Get_Item(i - 1);
+
+		if( pItem->Get_Type() == ItemID_Label
+		||  pItem->Get_Type() == ItemID_Text
+		||  pItem->Get_Type() == ItemID_Image )
+		{
+			m_Items.Del(pItem);
+		}
+	}
+
+	//-----------------------------------------------------
+	const CSG_MetaData	&General = Layout["general"];
+
+	if( General("parameters") )
+	{
+		m_Parameters.Serialize(*General("parameters"), false);
+	}
+
+	//-----------------------------------------------------
+	const CSG_MetaData	&Items   = Layout["items"];
+
+	for(int i=0; i<Items.Get_Children_Count(); i++)
+	{
+		const CSG_MetaData	&Item	= Items[i];
+
+		CLayout_Item *pItem = NULL; int	Type; if( !Item.Get_Property("type", Type) ) { Type = ItemID_None; }
+
+		switch( Type )
+		{
+		case ItemID_Map     : pItem = Get_Item(ItemID_Map     ); break;
+		case ItemID_Legend  : pItem = Get_Item(ItemID_Legend  ); break;
+		case ItemID_Scalebar: pItem = Get_Item(ItemID_Scalebar); break;
+		case ItemID_Scale   : pItem = Get_Item(ItemID_Scale   ); break;
+
+		case ItemID_Label   : pItem = new CLayout_Label  (this); break;
+		case ItemID_Text    : pItem = new CLayout_Text   (this); break;
+		case ItemID_Image   : pItem = new CLayout_Image  (this); break;
+		}
+
+		if( pItem )
+		{
+			if( Item("left") && Item("top") && Item("width") && Item("height") )
+			{
+				wxRect	r;	double	d;
+
+				Item["left"  ].Get_Content().asDouble(d); r.x      = (int)(0.5 + m_Zoom * d);
+				Item["top"   ].Get_Content().asDouble(d); r.y      = (int)(0.5 + m_Zoom * d);
+				Item["width" ].Get_Content().asDouble(d); r.width  = (int)(0.5 + m_Zoom * d);
+				Item["height"].Get_Content().asDouble(d); r.height = (int)(0.5 + m_Zoom * d);
+
+				pItem->Set_Rect(r);
+			}
+
+			if( Item("parameters") )
+			{
+				pItem->m_Parameters.Serialize(*Item("parameters"), false);
+			}
+
+			if( pItem->Get_Type() == ItemID_Label
+			||  pItem->Get_Type() == ItemID_Text
+			||  pItem->Get_Type() == ItemID_Image )
+			{
+				m_Items.Add(pItem);
+			}
+			else if( Item.Cmp_Property("show", "false", true) )
+			{
+				m_Items.Hide(pItem);
+			}
+			else
+			{
+				m_Items.Show(pItem);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
 	return( true );
 }
 
 //---------------------------------------------------------
-bool CVIEW_Layout_Info::Save(void)
+bool CVIEW_Layout_Info::Save(CSG_MetaData &Layout)	const
 {
+	Layout.Set_Name    ("layout");
+	Layout.Add_Property("saga-version", SAGA_VERSION);
+
+	//-----------------------------------------------------
+	CSG_MetaData	&General = *Layout.Add_Child("general");
+
+	m_Parameters.Serialize(*General.Add_Child());
+
+	//-----------------------------------------------------
+	CSG_MetaData	&Items   = *Layout.Add_Child("items");
+
+	for(size_t i=0; i<m_Items.Get_Count(); i++)
+	{
+		CSG_MetaData	&Item	= *Items.Add_Child("item");
+
+		CLayout_Item	*pItem	= (CLayout_Item *)m_Items.Get_Item(i);
+
+		Item.Add_Property("type", pItem->Get_Type());
+		Item.Add_Property("show", pItem->is_Shown());
+
+		wxRect	r(pItem->Get_Rect());
+
+		Item.Add_Child("left"  , r.x      / m_Zoom);
+		Item.Add_Child("top"   , r.y      / m_Zoom);
+		Item.Add_Child("width" , r.width  / m_Zoom);
+		Item.Add_Child("height", r.height / m_Zoom);
+
+		pItem->m_Parameters.Serialize(*Item.Add_Child());
+	}
+
+	//-----------------------------------------------------
 	return( true );
 }
 
@@ -618,10 +940,18 @@ bool CVIEW_Layout_Info::Can_Delete(void)
 	CLayout_Item	*pActive	= (CLayout_Item *)m_Items.Get_Active();
 
 	return( pActive
-		&& (pActive->Get_ID() == ItemID_Label
-		||  pActive->Get_ID() == ItemID_Text
-		||  pActive->Get_ID() == ItemID_Image)
+		&& (pActive->Get_Type() == ItemID_Label
+		||  pActive->Get_Type() == ItemID_Text
+		||  pActive->Get_Type() == ItemID_Image)
 	);
+}
+
+//---------------------------------------------------------
+bool CVIEW_Layout_Info::is_Shown(int ItemID)
+{
+	CLayout_Item	*pItem	= Get_Item(ItemID);
+
+	return( pItem && pItem->is_Shown() );
 }
 
 //---------------------------------------------------------
@@ -631,23 +961,7 @@ bool CVIEW_Layout_Info::Toggle_Item(int ItemID)
 
 	if( pItem )
 	{
-		m_Items       .Del(pItem, true);
-		m_Items_Hidden.Add(pItem);
-
-		return( true );
-	}
-
-	for(size_t i=0; i<m_Items_Hidden.Get_Count(); i++)
-	{
-		if( ((CLayout_Item *)m_Items_Hidden(i))->Get_ID() == ItemID )
-		{
-			pItem	= (CLayout_Item *)m_Items_Hidden(i);
-
-			m_Items_Hidden.Del(pItem, true);
-			m_Items       .Add(pItem);
-
-			return( true );
-		}
+		return( pItem->is_Shown() ? m_Items.Hide(pItem) : m_Items.Show(pItem) );
 	}
 
 	return( false );
@@ -658,7 +972,7 @@ CLayout_Item * CVIEW_Layout_Info::Get_Item(int ItemID)
 {
 	for(size_t i=0; i<m_Items.Get_Count(); i++)
 	{
-		if( ((CLayout_Item *)m_Items(i))->Get_ID() == ItemID )
+		if( ((CLayout_Item *)m_Items(i))->Get_Type() == ItemID )
 		{
 			return( (CLayout_Item *)m_Items(i) );
 		}
@@ -672,9 +986,9 @@ bool CVIEW_Layout_Info::Add_Item(int ItemID)
 {
 	switch( ItemID )
 	{
-	case ItemID_Label: m_Items.Add(new CLayout_Label(this), true); break;
-	case ItemID_Text : m_Items.Add(new CLayout_Text (this), true); break;
-	case ItemID_Image: m_Items.Add(new CLayout_Image(this), true); break;
+	case ItemID_Label: m_Items.Add(new CLayout_Label(this, true), true); break;
+	case ItemID_Text : m_Items.Add(new CLayout_Text (this, true), true); break;
+	case ItemID_Image: m_Items.Add(new CLayout_Image(this      ), true); break;
 	}
 
 	return( true );
@@ -695,7 +1009,7 @@ bool CVIEW_Layout_Info::Clipboard_Paste(void)
 
 			if( wxTheClipboard->GetData(Data) )
 			{
-				m_Items.Add(new CLayout_Text(this, Data.GetText()));
+				m_Items.Add(new CLayout_Text(this, true, Data.GetText()));
 
 				bResult	= true;
 			}
@@ -742,20 +1056,49 @@ bool CVIEW_Layout_Info::Set_Zoom(double Zoom)
 }
 
 //---------------------------------------------------------
-wxRect CVIEW_Layout_Info::Get_PaperToDC(const wxRect &Rect)	const
+inline wxRect CVIEW_Layout_Info::Get_Scaled(const wxRect &Rect, double Scale)	const
 {
-	return( wxRect(
-		(int)(0.5 + m_PaperToDC * Rect.x     ),
-		(int)(0.5 + m_PaperToDC * Rect.y     ),
-		(int)(0.5 + m_PaperToDC * Rect.width ),
-		(int)(0.5 + m_PaperToDC * Rect.height))
-	);
+	wxRect	r;
+
+	r.x      = (int)(0.5 + Scale * Rect.x     );
+	r.y      = (int)(0.5 + Scale * Rect.y     );
+	r.width  = (int)(0.5 + Scale * Rect.width );
+	r.height = (int)(0.5 + Scale * Rect.height);
+
+	return( r );
 }
 
 //---------------------------------------------------------
-bool CVIEW_Layout_Info::Draw(wxDC &dc, bool bScale)
+wxRect CVIEW_Layout_Info::Get_Screen2DC(const wxRect &Rect)	const
 {
-	m_PaperToDC	= !bScale ? 1. : dc.GetSize().GetWidth() / (m_Zoom * Get_PaperSize().GetWidth());
+	return( Get_Scaled(Rect, m_Screen2DC) );
+}
+
+//---------------------------------------------------------
+wxRect CVIEW_Layout_Info::Get_Paper2DC(const wxRect &Rect)	const
+{
+	return( Get_Scaled(Rect, m_Paper2DC) );
+}
+
+//---------------------------------------------------------
+bool CVIEW_Layout_Info::Draw(wxDC &dc, bool bPrintOut)
+{
+	if( bPrintOut )
+	{
+		double	Screen2DC = m_Screen2DC; m_Screen2DC = dc.GetSize().GetWidth() / (m_Zoom * Get_PaperSize().GetWidth());
+		double	Paper2DC  = m_Paper2DC ; m_Paper2DC  = dc.GetSize().GetWidth() / ((double) Get_PaperSize().GetWidth());
+
+		m_Items.Draw(dc);
+
+		m_Screen2DC	= Screen2DC;
+		m_Paper2DC	= Paper2DC;
+
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	m_Screen2DC	= 1.;
+	m_Paper2DC	= m_Zoom;
 
 	m_Items.Draw(dc);
 
@@ -773,7 +1116,7 @@ void CVIEW_Layout_Info::_Fit_Scale(void)
 	wxRect		dc_rMap(Get_Margins());
 	CSG_Rect	rWorld(m_pMap->Get_World(dc_rMap));
 
-	double	dDCToMeter	= 0.001 / m_PaperToDC;
+	double	dDCToMeter	= 0.001 / m_Screen2DC;
 	double	Scale		= rWorld.Get_XRange() / (dDCToMeter * dc_rMap.GetWidth());
 
 	if( DLG_Get_Number(Scale, _TL("Fit Map Scale"), _TL("Scale 1 : ")) )

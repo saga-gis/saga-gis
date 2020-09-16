@@ -676,7 +676,7 @@ void wxRectTracker::Disable()
 		m_state ^= RT_STATE_MOUSE_CAPTURED;
 	}
     //SetSize(wxRect(0, 0, 0, 0));
-    Update();
+//    Update();
     m_state |= RT_STATE_DISABLED;
 }
 

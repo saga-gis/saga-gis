@@ -59,6 +59,8 @@
 
 #include "saga_frame.h"
 
+#include "wksp_base_control.h"
+
 #include "wksp_data_manager.h"
 #include "wksp_data_menu_files.h"
 
@@ -806,193 +808,22 @@ bool CWKSP_Project::_Save_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 //---------------------------------------------------------
 bool CWKSP_Project::_Load_Map(CSG_MetaData &Entry, const wxString &ProjectDir)
 {
-	TSG_Rect	Extent;
-
-	if( !Entry.Cmp_Name("MAP")
-	||	!Entry("XMIN") || !Entry("XMIN")->Get_Content().asDouble(Extent.xMin)
-	||	!Entry("XMAX") || !Entry("XMAX")->Get_Content().asDouble(Extent.xMax)
-	||	!Entry("YMIN") || !Entry("YMIN")->Get_Content().asDouble(Extent.yMin)
-	||	!Entry("YMAX") || !Entry("YMAX")->Get_Content().asDouble(Extent.yMax) )
-	{
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	CSG_MetaData	*pNode	= Entry.Get_Child("LAYERS");
-
-	if( pNode == NULL || pNode->Get_Children_Count() <= 0 )
-	{
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	int		i, n;
-
-	for(i=0, n=0; i<pNode->Get_Children_Count(); i++)
-	{
-		CSG_MetaData	&Layer	= *pNode->Get_Child(i);
-
-		if( Layer.Cmp_Name("FILE") )
-		{
-			wxString	FileName(Layer.Get_Content().w_str());
-
-			if( FileName.Find("PGSQL") != 0 )
-			{
-				FileName	= Get_FilePath_Absolute(ProjectDir, FileName);
-			}
-
-			CWKSP_Base_Item	*pItem	= _Get_byFileName(FileName);
-
-			if(	pItem &&
-			(   pItem->Get_Type() == WKSP_ITEM_Grid
-			||  pItem->Get_Type() == WKSP_ITEM_Grids
-			||  pItem->Get_Type() == WKSP_ITEM_TIN
-			||  pItem->Get_Type() == WKSP_ITEM_PointCloud
-			||  pItem->Get_Type() == WKSP_ITEM_Shapes) )
-			{
-				n++;
-			}
-		}
-	}
-
-	if( n == 0 )
-	{
-		return( false );
-	}
-
-	//-----------------------------------------------------
 	CWKSP_Map	*pMap	= new CWKSP_Map;
 
-	g_pMaps->Add(pMap);
-
-	if( Entry("PROJECTION") )
+	if( g_pMaps->Add(pMap) && pMap->Serialize(Entry, ProjectDir, false) )
 	{
-		pMap->Get_Projection().Load(Entry["PROJECTION"]);
+		return( true );
 	}
 
-	pMap->Get_Parameter("CRS_CHECK")->Set_Value(false);
+	g_pMaps->Get_Control()->Del_Item(pMap, true);
 
-	for(int i=0; i<pNode->Get_Children_Count(); i++)
-	{
-		CSG_MetaData	&Layer	= *pNode->Get_Child(i);
-
-		if( Layer.Cmp_Name("FILE") )
-		{
-			wxString	FileName(Layer.Get_Content().w_str());
-
-			if( FileName.Find("PGSQL") != 0 )
-			{
-				FileName	= Get_FilePath_Absolute(ProjectDir, FileName);
-			}
-
-			CWKSP_Base_Item	*pItem	= _Get_byFileName(FileName);
-
-			if(	pItem &&
-			(   pItem->Get_Type() == WKSP_ITEM_Grid
-			||  pItem->Get_Type() == WKSP_ITEM_Grids
-			||  pItem->Get_Type() == WKSP_ITEM_TIN
-			||  pItem->Get_Type() == WKSP_ITEM_PointCloud
-			||  pItem->Get_Type() == WKSP_ITEM_Shapes) )
-			{
-				CWKSP_Map_Layer	*pLayer	= pMap->Add_Layer((CWKSP_Layer *)pItem);
-
-				if( pLayer )
-				{
-					pLayer->Load_Settings(&Layer);
-				}
-			}
-		}
-		else if( Layer.Cmp_Name("PARAMETERS") )
-		{
-			if( Layer.Cmp_Property("name", "GRATICULE") )
-			{
-				pMap->Add_Graticule(&Layer);
-			}
-
-			if( Layer.Cmp_Property("name", "BASEMAP") )
-			{
-				pMap->Add_BaseMap  (&Layer);
-			}
-		}
-	}
-
-	pMap->Get_Parameter("CRS_CHECK")->Set_Value(true);
-
-	//-----------------------------------------------------
-	if( Entry.Get_Child("PARAMETERS") && pMap->Get_Parameters()->Serialize(*Entry.Get_Child("PARAMETERS"), false) )
-	{
-		pMap->Parameters_Changed();
-	}
-
-	pMap->Set_Extent(Extent, true);
-	pMap->View_Show(true);
-
-	return( true );
+	return( false );
 }
-
 
 //---------------------------------------------------------
 bool CWKSP_Project::_Save_Map(CSG_MetaData &Entry, const wxString &ProjectDir, CWKSP_Map *pMap)
 {
-	if( !pMap )
-	{
-		return( false );
-	}
-
-	CSG_MetaData	*pEntry	= Entry.Add_Child("MAP");
-
-	if( pMap->Get_Projection().is_Okay() )
-	{
-		pMap->Get_Projection().Save(*pEntry->Add_Child("PROJECTION"));
-	}
-
-	pEntry->Add_Child("XMIN", pMap->Get_Extent().Get_XMin());
-	pEntry->Add_Child("XMAX", pMap->Get_Extent().Get_XMax());
-	pEntry->Add_Child("YMIN", pMap->Get_Extent().Get_YMin());
-	pEntry->Add_Child("YMAX", pMap->Get_Extent().Get_YMax());
-
-	pMap->Get_Parameters()->Serialize(*pEntry->Add_Child("PARAMETERS"), true);
-
-	CSG_MetaData	&Layers	= *pEntry->Add_Child("LAYERS");
-
-	for(int i=pMap->Get_Count()-1; i>=0; i--)
-	{
-		if( pMap->Get_Item(i)->Get_Type() == WKSP_ITEM_Map_Layer )
-		{
-			CWKSP_Map_Layer	*pLayer		= (CWKSP_Map_Layer *)pMap->Get_Item(i);
-			CSG_Data_Object	*pObject	= pLayer->Get_Layer()->Get_Object();
-
-			if( pObject && pObject->Get_File_Name(false) && *pObject->Get_File_Name(false) )
-			{
-				wxString	FileName(pObject->Get_File_Name(false));
-
-				if( FileName.Find("PGSQL") == 0 )
-				{
-					pLayer->Save_Settings(
-						Layers.Add_Child("FILE", &FileName)
-					);
-				}
-				else if( wxFileExists(FileName) )
-				{
-					pLayer->Save_Settings(
-						Layers.Add_Child("FILE", SG_File_Get_Path_Relative(&ProjectDir, &FileName))
-					);
-				}
-			}
-		}
-
-		else if( pMap->Get_Item(i)->Get_Type() == WKSP_ITEM_Map_Graticule )
-		{
-			((CWKSP_Map_Graticule *)pMap->Get_Item(i))->Save(Layers);
-		}
-
-		else if( pMap->Get_Item(i)->Get_Type() == WKSP_ITEM_Map_BaseMap )
-		{
-			((CWKSP_Map_BaseMap   *)pMap->Get_Item(i))->Save(Layers);
-		}
-	}
-
-	return( true );
+	return( pMap && pMap->Serialize(Entry, ProjectDir, true) );
 }
 
 

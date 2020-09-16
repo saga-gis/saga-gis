@@ -95,6 +95,8 @@ public:
 	wxString						Get_Name				(void);
 	int								Get_Page_Count			(void);
 
+	bool							Properties				(void);
+
 	wxSize							Get_PaperSize			(void);
 	wxRect							Get_Margins				(void);
 	wxPoint							Get_Margin_TopLeft		(void);
@@ -108,15 +110,24 @@ public:
 	bool							Set_Zoom				(double Zoom);
 	double							Get_Zoom				(void)	const	{	return( m_Zoom );	}
 
-	wxRect							Get_PaperToDC			(const wxRect &Rect)	const;
-	double							Get_PaperToDC			(void)	const	{	return( m_PaperToDC );	}
+	wxRect							Get_Scaled				(const wxRect &Rect, double Scale)	const;
 
-	bool							Draw					(wxDC &dc, bool bScale = false);
+	wxRect							Get_Screen2DC			(const wxRect &Rect)	const;
+	double							Get_Screen2DC			(void)					const	{	return( m_Screen2DC );	}
+
+	wxRect							Get_Paper2DC			(const wxRect &Rect)	const;
+	double							Get_Paper2DC			(void)					const	{	return( m_Paper2DC  );	}
+
+	bool							Draw					(wxDC &dc, bool bPrintOut = false);
 
 	bool							Load					(void);
-	bool							Save					(void);
+	bool							Save					(void)	const;
+
+	bool							Load					(const CSG_MetaData &Layout);
+	bool							Save					(CSG_MetaData &Layout)	const;
 
 	bool							Can_Delete				(void);
+	bool							is_Shown				(int ItemID);
 	bool							Toggle_Item				(int ItemID);
 	bool							Add_Item				(int ItemID);
 	class CLayout_Item *			Get_Item				(int ItemID);
@@ -125,15 +136,15 @@ public:
 
 protected:
 
-	double							m_Zoom, m_PaperToDC;
+	double							m_Zoom, m_Paper2DC, m_Screen2DC;
+
+	CSG_Parameters					m_Parameters;
 
 	class CWKSP_Map					*m_pMap;
 
 	class wxPrintData				*m_pPrintData;
 
 	class wxPageSetupData			*m_pPrintPage;
-
-	CSGDI_Layout_Items				m_Items_Hidden;
 
 
 	void							_Fit_Scale				(void);

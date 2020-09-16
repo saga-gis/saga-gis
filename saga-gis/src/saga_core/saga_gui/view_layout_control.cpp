@@ -100,18 +100,18 @@ BEGIN_EVENT_TABLE(CVIEW_Layout_Control, wxScrolledWindow)
 
 	EVT_MOUSEWHEEL  (CVIEW_Layout_Control::On_Mouse_Wheel)
 
-	EVT_MENU        (ID_CMD_LAYOUT_PROPERTIES , CVIEW_Layout_Control::On_Item_Menu)
-	EVT_MENU        (ID_CMD_LAYOUT_DELETE     , CVIEW_Layout_Control::On_Item_Menu)
+	EVT_MENU        (ID_CMD_LAYOUT_ITEM_PROPERTIES , CVIEW_Layout_Control::On_Item_Menu)
+	EVT_MENU        (ID_CMD_LAYOUT_ITEM_DELETE     , CVIEW_Layout_Control::On_Item_Menu)
 
-	EVT_MENU        (ID_CMD_LAYOUT_MOVE_TOP   , CVIEW_Layout_Control::On_Item_Menu)
-	EVT_MENU        (ID_CMD_LAYOUT_MOVE_BOTTOM, CVIEW_Layout_Control::On_Item_Menu)
-	EVT_MENU        (ID_CMD_LAYOUT_MOVE_UP    , CVIEW_Layout_Control::On_Item_Menu)
-	EVT_MENU        (ID_CMD_LAYOUT_MOVE_DOWN  , CVIEW_Layout_Control::On_Item_Menu)
+	EVT_MENU        (ID_CMD_LAYOUT_ITEM_MOVE_TOP   , CVIEW_Layout_Control::On_Item_Menu)
+	EVT_MENU        (ID_CMD_LAYOUT_ITEM_MOVE_BOTTOM, CVIEW_Layout_Control::On_Item_Menu)
+	EVT_MENU        (ID_CMD_LAYOUT_ITEM_MOVE_UP    , CVIEW_Layout_Control::On_Item_Menu)
+	EVT_MENU        (ID_CMD_LAYOUT_ITEM_MOVE_DOWN  , CVIEW_Layout_Control::On_Item_Menu)
 
-	EVT_UPDATE_UI   (ID_CMD_LAYOUT_MOVE_TOP   , CVIEW_Layout_Control::On_Item_Menu_UI)
-	EVT_UPDATE_UI   (ID_CMD_LAYOUT_MOVE_BOTTOM, CVIEW_Layout_Control::On_Item_Menu_UI)
-	EVT_UPDATE_UI   (ID_CMD_LAYOUT_MOVE_UP    , CVIEW_Layout_Control::On_Item_Menu_UI)
-	EVT_UPDATE_UI   (ID_CMD_LAYOUT_MOVE_DOWN  , CVIEW_Layout_Control::On_Item_Menu_UI)
+	EVT_UPDATE_UI   (ID_CMD_LAYOUT_ITEM_MOVE_TOP   , CVIEW_Layout_Control::On_Item_Menu_UI)
+	EVT_UPDATE_UI   (ID_CMD_LAYOUT_ITEM_MOVE_BOTTOM, CVIEW_Layout_Control::On_Item_Menu_UI)
+	EVT_UPDATE_UI   (ID_CMD_LAYOUT_ITEM_MOVE_UP    , CVIEW_Layout_Control::On_Item_Menu_UI)
+	EVT_UPDATE_UI   (ID_CMD_LAYOUT_ITEM_MOVE_DOWN  , CVIEW_Layout_Control::On_Item_Menu_UI)
 
 END_EVENT_TABLE()
 
@@ -139,9 +139,24 @@ CVIEW_Layout_Control::CVIEW_Layout_Control(CVIEW_Layout *pParent, CVIEW_Layout_I
 //---------------------------------------------------------
 CVIEW_Layout_Control::~CVIEW_Layout_Control(void)
 {
-	m_pLayout->Set_Zoom(1.);
+	Do_Destroy();
+}
 
-	m_pLayout->m_Items.Set_Parent(NULL);
+//---------------------------------------------------------
+bool CVIEW_Layout_Control::Do_Destroy(void)
+{
+	if( m_pLayout )
+	{
+		m_pLayout->Set_Zoom(1.);
+
+		m_pLayout->m_Items.Set_Parent(NULL);
+
+		m_pLayout	= NULL;
+
+		return( true );
+	}
+
+	return( false );
 }
 
 
@@ -186,6 +201,8 @@ void CVIEW_Layout_Control::Set_Zoom_Centered(double Zoom, wxPoint Center)
 	Set_Zoom(m_Zoom * Zoom);
 
 	Scroll(x, y);
+
+	Refresh();
 }
 
 //---------------------------------------------------------
@@ -280,16 +297,16 @@ void CVIEW_Layout_Control::On_Mouse_Event(wxMouseEvent &event)
 
 			if( m_pLayout->Can_Delete() )
 			{
-				CMD_Menu_Add_Item(&Menu, false, ID_CMD_LAYOUT_DELETE);
+				CMD_Menu_Add_Item(&Menu, false, ID_CMD_LAYOUT_ITEM_DELETE);
 				Menu.AppendSeparator();
 			}
 
-			CMD_Menu_Add_Item(&Menu, false, ID_CMD_LAYOUT_MOVE_TOP   );
-			CMD_Menu_Add_Item(&Menu, false, ID_CMD_LAYOUT_MOVE_BOTTOM);
-			CMD_Menu_Add_Item(&Menu, false, ID_CMD_LAYOUT_MOVE_UP    );
-			CMD_Menu_Add_Item(&Menu, false, ID_CMD_LAYOUT_MOVE_DOWN  );
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_LAYOUT_ITEM_MOVE_TOP   );
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_LAYOUT_ITEM_MOVE_BOTTOM);
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_LAYOUT_ITEM_MOVE_UP    );
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_LAYOUT_ITEM_MOVE_DOWN  );
 			Menu.AppendSeparator();
-			CMD_Menu_Add_Item(&Menu, false, ID_CMD_LAYOUT_PROPERTIES );
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_LAYOUT_ITEM_PROPERTIES );
 
 			PopupMenu(&Menu, event.GetPosition());
 		}
@@ -320,13 +337,13 @@ void CVIEW_Layout_Control::On_Item_Menu(wxCommandEvent &event)
 {
 	switch( event.GetId() )
 	{
-	case ID_CMD_LAYOUT_MOVE_TOP   : m_pLayout->m_Items.Active_Move_Top   (); break;
-	case ID_CMD_LAYOUT_MOVE_BOTTOM: m_pLayout->m_Items.Active_Move_Bottom(); break;
-	case ID_CMD_LAYOUT_MOVE_UP    : m_pLayout->m_Items.Active_Move_Up    (); break;
-	case ID_CMD_LAYOUT_MOVE_DOWN  : m_pLayout->m_Items.Active_Move_Down  (); break;
+	case ID_CMD_LAYOUT_ITEM_MOVE_TOP   : m_pLayout->m_Items.Active_Move_Top   (); break;
+	case ID_CMD_LAYOUT_ITEM_MOVE_BOTTOM: m_pLayout->m_Items.Active_Move_Bottom(); break;
+	case ID_CMD_LAYOUT_ITEM_MOVE_UP    : m_pLayout->m_Items.Active_Move_Up    (); break;
+	case ID_CMD_LAYOUT_ITEM_MOVE_DOWN  : m_pLayout->m_Items.Active_Move_Down  (); break;
 
-	case ID_CMD_LAYOUT_PROPERTIES : m_pLayout->m_Items.Active_Properties (); break;
-	case ID_CMD_LAYOUT_DELETE     :
+	case ID_CMD_LAYOUT_ITEM_PROPERTIES : m_pLayout->m_Items.Active_Properties (); break;
+	case ID_CMD_LAYOUT_ITEM_DELETE     :
 		if( m_pLayout->m_Items.Del(m_pLayout->m_Items.Get_Active()) )
 		{
 			Refresh(false);
@@ -340,10 +357,10 @@ void CVIEW_Layout_Control::On_Item_Menu_UI(wxUpdateUIEvent &event)
 {
 	switch( event.GetId() )
 	{
-	case ID_CMD_LAYOUT_MOVE_TOP   : event.Enable(!m_pLayout->m_Items.Active_is_Top   ()); break;
-	case ID_CMD_LAYOUT_MOVE_BOTTOM: event.Enable(!m_pLayout->m_Items.Active_is_Bottom()); break;
-	case ID_CMD_LAYOUT_MOVE_UP    : event.Enable(!m_pLayout->m_Items.Active_is_Top   ()); break;
-	case ID_CMD_LAYOUT_MOVE_DOWN  : event.Enable(!m_pLayout->m_Items.Active_is_Bottom()); break;
+	case ID_CMD_LAYOUT_ITEM_MOVE_TOP   : event.Enable(!m_pLayout->m_Items.Active_is_Top   ()); break;
+	case ID_CMD_LAYOUT_ITEM_MOVE_BOTTOM: event.Enable(!m_pLayout->m_Items.Active_is_Bottom()); break;
+	case ID_CMD_LAYOUT_ITEM_MOVE_UP    : event.Enable(!m_pLayout->m_Items.Active_is_Top   ()); break;
+	case ID_CMD_LAYOUT_ITEM_MOVE_DOWN  : event.Enable(!m_pLayout->m_Items.Active_is_Bottom()); break;
 	}
 }
 

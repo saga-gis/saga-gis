@@ -151,10 +151,16 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_Parameters.Add_Choice("NODE_GENERAL",
 		"PROJECT_DB_REOPEN"		, _TL("Reopen Database Connections"),
 		_TL("Reopen PostgreSQL database connections. Warning: if set to true account information including unencrypted passwords for automatic connection will be stored."),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("no"),
 			_TL("yes")
 		), 0
+	);
+
+	m_Parameters.Add_Int("PROJECT_DB_REOPEN",
+		"PROJECT_DB_WAIT"		, _TL("Response Time"),
+		_TL("Maximum time (seconds) to wait for server response. If zero it waits until the PostgreSQL connection is established or refused."),
+		2, 0, true
 	);
 
 	m_Parameters.Add_Bool("NODE_GENERAL",

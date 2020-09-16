@@ -74,6 +74,8 @@ public:
 	CVIEW_Layout_Control(class CVIEW_Layout *pParent, class CVIEW_Layout_Info *pLayout);
 	virtual ~CVIEW_Layout_Control(void);
 
+	bool							Do_Destroy			(void);
+
 	bool							Fit_To_Size			(int x, int y);
 
 	bool							Set_Scrollbars		(void);
