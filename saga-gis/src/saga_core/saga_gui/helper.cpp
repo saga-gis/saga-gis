@@ -208,6 +208,26 @@ wxString		Get_TableInfo_asHTML(const CSG_Table *pTable)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+wxRect				Get_Rect_Scaled					(const wxRect &Rect, double Scale)
+{
+	wxRect	r;
+
+	r.x      = (int)(0.5 + Scale * Rect.x     );
+	r.y      = (int)(0.5 + Scale * Rect.y     );
+	r.width  = (int)(0.5 + Scale * Rect.width );
+	r.height = (int)(0.5 + Scale * Rect.height);
+
+	return( r );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool	Set_Font(CSG_Parameter *pFont, wxFont &Font, wxColour &Colour)
 {
 	if( !pFont || pFont->Get_Type() != PARAMETER_TYPE_Font )

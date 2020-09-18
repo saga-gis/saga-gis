@@ -131,39 +131,56 @@ void CWKSP_Map_DC::Draw(wxDC &dc_Target)
 //---------------------------------------------------------
 void CWKSP_Map_DC::Draw_DC(CWKSP_Map_DC &dc_Source, double Transparency)
 {
-	wxMemoryDC	mdc;
-	wxBitmap	bmp(m_rDC.GetWidth(), m_rDC.GetHeight());
-
-	mdc.SelectObject(bmp);
-	mdc.Blit(0, 0, m_rDC.GetWidth(), m_rDC.GetHeight(), &          dc, 0, 0);
-	mdc.SelectObject(wxNullBitmap);
-	wxImage dst_img	= bmp.ConvertToImage();
-	BYTE   *dst_rgb	= dst_img.GetData();
-
-	mdc.SelectObject(bmp);
-	mdc.Blit(0, 0, m_rDC.GetWidth(), m_rDC.GetHeight(), &dc_Source.dc, 0, 0);
-	mdc.SelectObject(wxNullBitmap);
-	wxImage src_img	= bmp.ConvertToImage();
-	BYTE   *src_rgb	= src_img.GetData();
-
-	//-----------------------------------------------------
-	int	n	= m_rDC.GetHeight() * m_rDC.GetWidth();
-
-	for(int i=0; i<n; i++, src_rgb+=3, dst_rgb+=3)
+	if( IMG_Draw_Begin(Transparency) )
 	{
-		if( src_rgb[0] != dc_Source.m_Background[0]
-		||  src_rgb[1] != dc_Source.m_Background[1]
-		||  src_rgb[2] != dc_Source.m_Background[2] )
-		{
-			dst_rgb[0]	= (int)((1. - Transparency) * src_rgb[0] + Transparency * dst_rgb[0]);
-			dst_rgb[1]	= (int)((1. - Transparency) * src_rgb[1] + Transparency * dst_rgb[1]);
-			dst_rgb[2]	= (int)((1. - Transparency) * src_rgb[2] + Transparency * dst_rgb[2]);
-		}
-	}
+		wxImage src_img	= dc_Source.dc_BMP.ConvertToImage(); if( !src_img.GetData() ) { return; }
 
-	//-----------------------------------------------------
-	dc.DrawBitmap(wxBitmap(dst_img), 0, 0, true);
+		#pragma omp parallel for
+		for(int y=0; y<m_rDC.GetHeight(); y++)
+		{
+			int	i = y * 3 * m_rDC.GetWidth(); BYTE *src_rgb	= src_img.GetData() + i;
+
+			for(int x=0; x<m_rDC.GetWidth(); x++, i+=3, src_rgb+=3)
+			{
+				if( src_rgb[0] != dc_Source.m_Background[0]
+				||  src_rgb[1] != dc_Source.m_Background[1]
+				||  src_rgb[2] != dc_Source.m_Background[2] )
+				{
+					IMG_Set_Pixel_Direct(i, *((int *)src_rgb));
+				}
+			}
+		}
+
+		IMG_Draw_End();
+	}
 }
+//{
+//	wxImage dst_img	=           dc_BMP.ConvertToImage();
+//	wxImage src_img	= dc_Source.dc_BMP.ConvertToImage();
+//
+//	//-----------------------------------------------------
+//	#pragma omp parallel for
+//	for(int y=0; y<m_rDC.GetHeight(); y++)
+//	{
+//		BYTE   *src_rgb	= src_img.GetData() + y * 3 * m_rDC.GetWidth();
+//		BYTE   *dst_rgb	= dst_img.GetData() + y * 3 * m_rDC.GetWidth();
+//
+//		for(int x=0; x<m_rDC.GetWidth(); x++, src_rgb+=3, dst_rgb+=3)
+//		{
+//			if( src_rgb[0] != dc_Source.m_Background[0]
+//			||  src_rgb[1] != dc_Source.m_Background[1]
+//			||  src_rgb[2] != dc_Source.m_Background[2] )
+//			{
+//				dst_rgb[0]	= (int)((1. - Transparency) * src_rgb[0] + Transparency * dst_rgb[0]);
+//				dst_rgb[1]	= (int)((1. - Transparency) * src_rgb[1] + Transparency * dst_rgb[1]);
+//				dst_rgb[2]	= (int)((1. - Transparency) * src_rgb[2] + Transparency * dst_rgb[2]);
+//			}
+//		}
+//	}
+//
+//	//-----------------------------------------------------
+//	dc.DrawBitmap(wxBitmap(dst_img), 0, 0, true);
+//}
 
 
 ///////////////////////////////////////////////////////////
@@ -235,6 +252,16 @@ bool CWKSP_Map_DC::IMG_Draw_Begin(double Transparency, int Mode)
 		tmp_dc.SelectObject(tmp_BMP);
 		tmp_dc.Blit(0, 0, m_rDC.GetWidth(), m_rDC.GetHeight(), &dc, 0, 0);
 		tmp_dc.SelectObject(wxNullBitmap);
+
+		if( !tmp_BMP.IsOk() )
+		{
+			m_img.Destroy();
+			m_img_rgb		= NULL;
+			m_img_nx		= 0;
+			m_img_nBytes	= 0;
+
+			return( false );
+		}
 
 		m_img_dc		= tmp_BMP.ConvertToImage();
 		m_img_dc_rgb	= m_img_dc.GetData();

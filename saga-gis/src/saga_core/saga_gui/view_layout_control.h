@@ -58,7 +58,6 @@
 
 //---------------------------------------------------------
 #include <wx/scrolwin.h>
-#include <wx/image.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -80,31 +79,22 @@ public:
 
 	bool							Set_Scrollbars		(void);
 
-	virtual void					OnDraw				(wxDC &dc);
-
 
 private:
 
 	double							m_Zoom;
 
-	wxPoint							m_Mouse_Down, m_Mouse_Move;
-
-	wxImage							m_Image;
+	wxPanel							*m_pPaper;
 
 	class CVIEW_Layout_Info			*m_pLayout;
 
 
 	bool							Set_Zoom			(double Zoom);
 	void							Set_Zoom_Centered	(double Zooming, wxPoint Center);
+
 	void							Set_Rulers			(void);
 
-	void							On_Tracker_Changed	(wxCommandEvent  &event);
-
-	void							On_Mouse_Event		(wxMouseEvent    &event);
-	void							On_Mouse_Wheel		(wxMouseEvent    &event);
-
-	void							On_Item_Menu		(wxCommandEvent  &event);
-	void							On_Item_Menu_UI		(wxUpdateUIEvent &event);
+	void							On_Mouse_Wheel		(wxMouseEvent &event);
 
 
 	//-----------------------------------------------------

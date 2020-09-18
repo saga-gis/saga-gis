@@ -86,8 +86,9 @@ BEGIN_EVENT_TABLE(CVIEW_Layout, CVIEW_Base)
 	EVT_MENU     (ID_CMD_LAYOUT_PROPERTIES   , CVIEW_Layout::On_Properties   )
 	EVT_MENU     (ID_CMD_LAYOUT_PAGE_SETUP   , CVIEW_Layout::On_Page_Setup   )
 	EVT_MENU     (ID_CMD_LAYOUT_PRINT_SETUP  , CVIEW_Layout::On_Print_Setup  )
-	EVT_MENU     (ID_CMD_LAYOUT_PRINT        , CVIEW_Layout::On_Print        )
 	EVT_MENU     (ID_CMD_LAYOUT_PRINT_PREVIEW, CVIEW_Layout::On_Print_Preview)
+	EVT_MENU     (ID_CMD_LAYOUT_PRINT        , CVIEW_Layout::On_Print        )
+	EVT_MENU     (ID_CMD_LAYOUT_EXPORT       , CVIEW_Layout::On_Export       )
 	EVT_MENU     (ID_CMD_LAYOUT_ITEM_MAP     , CVIEW_Layout::On_Item_Show    )
 	EVT_MENU     (ID_CMD_LAYOUT_ITEM_LEGEND  , CVIEW_Layout::On_Item_Show    )
 	EVT_MENU     (ID_CMD_LAYOUT_ITEM_SCALEBAR, CVIEW_Layout::On_Item_Show    )
@@ -145,7 +146,9 @@ wxMenu * CVIEW_Layout::_Create_Menu(void)
 	CMD_Menu_Add_Item(pMenu   , false, ID_CMD_LAYOUT_PAGE_SETUP);
 //	CMD_Menu_Add_Item(pMenu   , false, ID_CMD_LAYOUT_PRINT_SETUP);
 	CMD_Menu_Add_Item(pMenu   , false, ID_CMD_LAYOUT_PRINT_PREVIEW);
+	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu   , false, ID_CMD_LAYOUT_PRINT);
+	CMD_Menu_Add_Item(pMenu   , false, ID_CMD_LAYOUT_EXPORT);
 	pMenu->AppendSeparator();
 
 	pSubMenu	= new wxMenu;
@@ -176,6 +179,7 @@ wxToolBarBase * CVIEW_Layout::_Create_ToolBar(void)
 //	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_LAYOUT_PRINT_SETUP);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_LAYOUT_PRINT_PREVIEW);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_LAYOUT_PRINT);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_LAYOUT_EXPORT);
 
 	CMD_ToolBar_Add(pToolBar, _TL("Layout"));
 
@@ -288,7 +292,10 @@ void CVIEW_Layout::On_Save(wxCommandEvent &event)
 //---------------------------------------------------------
 void CVIEW_Layout::On_Properties(wxCommandEvent &event)
 {
-	m_pLayout->Properties();
+	if( m_pLayout->Properties() )
+	{
+		m_pControl->Refresh();
+	}
 }
 
 //---------------------------------------------------------
@@ -310,15 +317,21 @@ void CVIEW_Layout::On_Print_Setup(wxCommandEvent &event)
 }
 
 //---------------------------------------------------------
+void CVIEW_Layout::On_Print_Preview(wxCommandEvent &event)
+{
+	m_pLayout->Print_Preview();
+}
+
+//---------------------------------------------------------
 void CVIEW_Layout::On_Print(wxCommandEvent &event)
 {
 	m_pLayout->Print();
 }
 
 //---------------------------------------------------------
-void CVIEW_Layout::On_Print_Preview(wxCommandEvent &event)
+void CVIEW_Layout::On_Export(wxCommandEvent &event)
 {
-	m_pLayout->Print_Preview();
+	m_pLayout->Export();
 }
 
 

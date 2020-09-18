@@ -74,10 +74,165 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SCROLL_RATE		5
+class CVIEW_Layout_Paper : public wxPanel
+{
+public:
+	CVIEW_Layout_Paper(CVIEW_Layout_Control *pParent, class CVIEW_Layout_Info *pLayout);
 
-#define SCROLL_BAR_DX	wxSystemSettings::GetMetric(wxSYS_VSCROLL_X)
-#define SCROLL_BAR_DY	wxSystemSettings::GetMetric(wxSYS_HSCROLL_Y)
+
+private:
+
+	wxPoint							m_Mouse_Down, m_Mouse_Move;
+
+	class CVIEW_Layout_Info			*m_pLayout;
+
+
+	void							On_Paint			(wxPaintEvent    &event);
+
+	void							On_Tracker_Changed	(wxCommandEvent  &event);
+
+	void							On_Mouse_Event		(wxMouseEvent    &event);
+
+	void							On_Item_Menu		(wxCommandEvent  &event);
+	void							On_Item_Menu_UI		(wxUpdateUIEvent &event);
+
+
+	//-----------------------------------------------------
+	DECLARE_EVENT_TABLE()
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+BEGIN_EVENT_TABLE(CVIEW_Layout_Paper, wxPanel)
+
+	EVT_PAINT       (CVIEW_Layout_Paper::On_Paint)
+
+	EVT_TRACKER_CHANGED(wxID_ANY, CVIEW_Layout_Paper::On_Tracker_Changed)
+
+	EVT_LEFT_DOWN   (CVIEW_Layout_Paper::On_Mouse_Event)
+	EVT_LEFT_UP     (CVIEW_Layout_Paper::On_Mouse_Event)
+	EVT_LEFT_DCLICK (CVIEW_Layout_Paper::On_Mouse_Event)
+	EVT_RIGHT_DOWN  (CVIEW_Layout_Paper::On_Mouse_Event)
+	EVT_RIGHT_UP    (CVIEW_Layout_Paper::On_Mouse_Event)
+	EVT_RIGHT_DCLICK(CVIEW_Layout_Paper::On_Mouse_Event)
+	EVT_MOTION      (CVIEW_Layout_Paper::On_Mouse_Event)
+
+	EVT_MENU        (ID_CMD_LAYOUT_ITEM_PROPERTIES , CVIEW_Layout_Paper::On_Item_Menu)
+	EVT_MENU        (ID_CMD_LAYOUT_ITEM_HIDE       , CVIEW_Layout_Paper::On_Item_Menu)
+	EVT_MENU        (ID_CMD_LAYOUT_ITEM_DELETE     , CVIEW_Layout_Paper::On_Item_Menu)
+	EVT_MENU        (ID_CMD_LAYOUT_ITEM_MOVE_TOP   , CVIEW_Layout_Paper::On_Item_Menu)
+	EVT_MENU        (ID_CMD_LAYOUT_ITEM_MOVE_BOTTOM, CVIEW_Layout_Paper::On_Item_Menu)
+	EVT_MENU        (ID_CMD_LAYOUT_ITEM_MOVE_UP    , CVIEW_Layout_Paper::On_Item_Menu)
+	EVT_MENU        (ID_CMD_LAYOUT_ITEM_MOVE_DOWN  , CVIEW_Layout_Paper::On_Item_Menu)
+	EVT_MENU        (ID_CMD_LAYOUT_IMAGE_SAVE      , CVIEW_Layout_Paper::On_Item_Menu)
+	EVT_MENU        (ID_CMD_LAYOUT_IMAGE_RESTORE   , CVIEW_Layout_Paper::On_Item_Menu)
+
+	EVT_UPDATE_UI   (ID_CMD_LAYOUT_ITEM_HIDE       , CVIEW_Layout_Paper::On_Item_Menu_UI)
+	EVT_UPDATE_UI   (ID_CMD_LAYOUT_ITEM_MOVE_TOP   , CVIEW_Layout_Paper::On_Item_Menu_UI)
+	EVT_UPDATE_UI   (ID_CMD_LAYOUT_ITEM_MOVE_BOTTOM, CVIEW_Layout_Paper::On_Item_Menu_UI)
+	EVT_UPDATE_UI   (ID_CMD_LAYOUT_ITEM_MOVE_UP    , CVIEW_Layout_Paper::On_Item_Menu_UI)
+	EVT_UPDATE_UI   (ID_CMD_LAYOUT_ITEM_MOVE_DOWN  , CVIEW_Layout_Paper::On_Item_Menu_UI)
+
+END_EVENT_TABLE()
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CVIEW_Layout_Paper::CVIEW_Layout_Paper(CVIEW_Layout_Control *pParent, CVIEW_Layout_Info *pLayout)
+	: wxPanel(pParent)
+{
+	SetBackgroundColour(*wxWHITE);
+
+	m_pLayout	= pLayout;
+	m_pLayout->m_Items.Set_Parent(this);
+
+	SetSize(m_pLayout->Get_PaperSize());
+
+//	SetCursor(IMG_Get_Cursor(ID_IMG_CRS_MAGNIFIER));
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Layout_Paper::On_Paint(wxPaintEvent &event)
+{
+	wxPaintDC	dc(this);
+
+	m_pLayout->Draw(dc);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Layout_Paper::On_Tracker_Changed(wxCommandEvent &event)
+{
+	m_pLayout->m_Items.On_Tracker_Changed();
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Layout_Paper::On_Mouse_Event(wxMouseEvent &event)
+{
+	if( event.LeftDown() || event.RightDown() )
+	{
+		m_Mouse_Down	= m_Mouse_Move	= event.GetPosition();
+	}
+
+	if( event.Moving() || event.Dragging() )
+	{
+		m_Mouse_Move	= event.GetPosition();
+
+		((CVIEW_Layout *)GetParent()->GetParent())->Ruler_Set_Position(m_Mouse_Move.x, m_Mouse_Move.y);
+	}
+
+	m_pLayout->m_Items.On_Mouse_Event(event);
+
+	if( event.RightUp() )
+	{
+		wxMenu	*pMenu	= m_pLayout->Menu_Get_Active();
+
+		if( pMenu )
+		{
+			PopupMenu(pMenu, event.GetPosition());
+
+			delete(pMenu);
+		}
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Layout_Paper::On_Item_Menu(wxCommandEvent &event)
+{
+	m_pLayout->Menu_On_Command(event);
+}
+
+//---------------------------------------------------------
+void CVIEW_Layout_Paper::On_Item_Menu_UI(wxUpdateUIEvent &event)
+{
+	m_pLayout->Menu_On_Command_UI(event);
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -88,31 +243,7 @@
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CVIEW_Layout_Control, wxScrolledWindow)
-	EVT_TRACKER_CHANGED(wxID_ANY, CVIEW_Layout_Control::On_Tracker_Changed)
-
-	EVT_LEFT_DOWN   (CVIEW_Layout_Control::On_Mouse_Event)
-	EVT_LEFT_UP     (CVIEW_Layout_Control::On_Mouse_Event)
-	EVT_LEFT_DCLICK (CVIEW_Layout_Control::On_Mouse_Event)
-	EVT_RIGHT_DOWN  (CVIEW_Layout_Control::On_Mouse_Event)
-	EVT_RIGHT_UP    (CVIEW_Layout_Control::On_Mouse_Event)
-	EVT_RIGHT_DCLICK(CVIEW_Layout_Control::On_Mouse_Event)
-	EVT_MOTION      (CVIEW_Layout_Control::On_Mouse_Event)
-
 	EVT_MOUSEWHEEL  (CVIEW_Layout_Control::On_Mouse_Wheel)
-
-	EVT_MENU        (ID_CMD_LAYOUT_ITEM_PROPERTIES , CVIEW_Layout_Control::On_Item_Menu)
-	EVT_MENU        (ID_CMD_LAYOUT_ITEM_DELETE     , CVIEW_Layout_Control::On_Item_Menu)
-
-	EVT_MENU        (ID_CMD_LAYOUT_ITEM_MOVE_TOP   , CVIEW_Layout_Control::On_Item_Menu)
-	EVT_MENU        (ID_CMD_LAYOUT_ITEM_MOVE_BOTTOM, CVIEW_Layout_Control::On_Item_Menu)
-	EVT_MENU        (ID_CMD_LAYOUT_ITEM_MOVE_UP    , CVIEW_Layout_Control::On_Item_Menu)
-	EVT_MENU        (ID_CMD_LAYOUT_ITEM_MOVE_DOWN  , CVIEW_Layout_Control::On_Item_Menu)
-
-	EVT_UPDATE_UI   (ID_CMD_LAYOUT_ITEM_MOVE_TOP   , CVIEW_Layout_Control::On_Item_Menu_UI)
-	EVT_UPDATE_UI   (ID_CMD_LAYOUT_ITEM_MOVE_BOTTOM, CVIEW_Layout_Control::On_Item_Menu_UI)
-	EVT_UPDATE_UI   (ID_CMD_LAYOUT_ITEM_MOVE_UP    , CVIEW_Layout_Control::On_Item_Menu_UI)
-	EVT_UPDATE_UI   (ID_CMD_LAYOUT_ITEM_MOVE_DOWN  , CVIEW_Layout_Control::On_Item_Menu_UI)
-
 END_EVENT_TABLE()
 
 
@@ -127,13 +258,11 @@ CVIEW_Layout_Control::CVIEW_Layout_Control(CVIEW_Layout *pParent, CVIEW_Layout_I
 	SYS_Set_Color_BG(this, wxSYS_COLOUR_APPWORKSPACE);
 
 	m_Zoom		= 1.;
-
 	m_pLayout	= pLayout;
-	m_pLayout->m_Items.Set_Parent(this);
+
+	m_pPaper	= new CVIEW_Layout_Paper(this, pLayout);
 
 	Set_Scrollbars();
-
-//	SetCursor(IMG_Get_Cursor(ID_IMG_CRS_MAGNIFIER));
 }
 
 //---------------------------------------------------------
@@ -165,6 +294,12 @@ bool CVIEW_Layout_Control::Do_Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define SCROLL_RATE		5
+
+#define SCROLL_BAR_DX	wxSystemSettings::GetMetric(wxSYS_VSCROLL_X)
+#define SCROLL_BAR_DY	wxSystemSettings::GetMetric(wxSYS_HSCROLL_Y)
+
+//---------------------------------------------------------
 bool CVIEW_Layout_Control::Fit_To_Size(int x, int y)
 {
 	wxSize	Size(m_pLayout->Get_PaperSize());
@@ -182,6 +317,9 @@ bool CVIEW_Layout_Control::Set_Zoom(double Zoom)
 	{
 		m_pLayout->Set_Zoom(m_Zoom = Zoom);
 
+		m_pPaper->SetSize(Get_Rect_Scaled(m_pLayout->Get_PaperSize(), m_Zoom));
+		m_pPaper->Refresh();
+
 		return( Set_Scrollbars() );
 	}
 
@@ -198,11 +336,14 @@ void CVIEW_Layout_Control::Set_Zoom_Centered(double Zoom, wxPoint Center)
 	x	= (int)((Zoom * (x * SCROLL_RATE + Center.x) - GetClientSize().x / 2) / SCROLL_RATE);
 	y	= (int)((Zoom * (y * SCROLL_RATE + Center.y) - GetClientSize().y / 2) / SCROLL_RATE);
 
-	Set_Zoom(m_Zoom * Zoom);
+	Freeze();
 
-	Scroll(x, y);
+	if( Set_Zoom(m_Zoom * Zoom) )
+	{
+		Scroll(x, y);
+	}
 
-	Refresh();
+	Thaw();
 }
 
 //---------------------------------------------------------
@@ -214,6 +355,8 @@ bool CVIEW_Layout_Control::Set_Scrollbars(void)
 	int	h	= (int)(0.5 + (m_Zoom * Size.GetHeight() + SCROLL_BAR_DY) / SCROLL_RATE);
 
 	SetScrollbars(SCROLL_RATE, SCROLL_RATE, w, h);
+
+	Set_Rulers();
 
 	return( true );
 }
@@ -241,126 +384,15 @@ void CVIEW_Layout_Control::Set_Rulers(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CVIEW_Layout_Control::OnDraw(wxDC &dc)
-{
-	wxRect	r(m_pLayout->Get_PaperSize());
-
-	r.width  *= m_Zoom;
-	r.height *= m_Zoom;
-
-	dc.SetBrush(*wxWHITE_BRUSH);
-	dc.DrawRectangle(r);
-
-	m_pLayout->Draw(dc);
-
-	Set_Rulers();
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CVIEW_Layout_Control::On_Tracker_Changed(wxCommandEvent &event)
-{
-	m_pLayout->m_Items.On_Tracker_Changed();
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CVIEW_Layout_Control::On_Mouse_Event(wxMouseEvent &event)
-{
-	if( event.LeftDown() || event.RightDown() )
-	{
-		m_Mouse_Down	= m_Mouse_Move	= event.GetPosition();
-	}
-
-	if( event.Moving() || event.Dragging() )
-	{
-		m_Mouse_Move	= event.GetPosition();
-
-		((CVIEW_Layout *)GetParent())->Ruler_Set_Position(m_Mouse_Move.x, m_Mouse_Move.y);
-	}
-
-	m_pLayout->m_Items.On_Mouse_Event(event);
-
-	if( event.RightUp() )
-	{
-		if( m_pLayout->m_Items.Get_Active() && m_pLayout->m_Items.Get_Count() > 1 )
-		{
-			wxMenu	Menu;
-
-			if( m_pLayout->Can_Delete() )
-			{
-				CMD_Menu_Add_Item(&Menu, false, ID_CMD_LAYOUT_ITEM_DELETE);
-				Menu.AppendSeparator();
-			}
-
-			CMD_Menu_Add_Item(&Menu, false, ID_CMD_LAYOUT_ITEM_MOVE_TOP   );
-			CMD_Menu_Add_Item(&Menu, false, ID_CMD_LAYOUT_ITEM_MOVE_BOTTOM);
-			CMD_Menu_Add_Item(&Menu, false, ID_CMD_LAYOUT_ITEM_MOVE_UP    );
-			CMD_Menu_Add_Item(&Menu, false, ID_CMD_LAYOUT_ITEM_MOVE_DOWN  );
-			Menu.AppendSeparator();
-			CMD_Menu_Add_Item(&Menu, false, ID_CMD_LAYOUT_ITEM_PROPERTIES );
-
-			PopupMenu(&Menu, event.GetPosition());
-		}
-	}
-}
-
-//---------------------------------------------------------
 void CVIEW_Layout_Control::On_Mouse_Wheel(wxMouseEvent &event)
 {
 	if( event.ControlDown() )
 	{
-		Set_Zoom_Centered(event.GetWheelRotation() > 0 ? 1.2 / 1. : 1. / 1.2, event.GetPosition());
+		Set_Zoom_Centered(event.GetWheelRotation() > 0 ? 1.25 / 1. : 1. / 1.25, event.GetPosition());
 	}
 	else
 	{
 		event.Skip();
-	}
-}
-
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CVIEW_Layout_Control::On_Item_Menu(wxCommandEvent &event)
-{
-	switch( event.GetId() )
-	{
-	case ID_CMD_LAYOUT_ITEM_MOVE_TOP   : m_pLayout->m_Items.Active_Move_Top   (); break;
-	case ID_CMD_LAYOUT_ITEM_MOVE_BOTTOM: m_pLayout->m_Items.Active_Move_Bottom(); break;
-	case ID_CMD_LAYOUT_ITEM_MOVE_UP    : m_pLayout->m_Items.Active_Move_Up    (); break;
-	case ID_CMD_LAYOUT_ITEM_MOVE_DOWN  : m_pLayout->m_Items.Active_Move_Down  (); break;
-
-	case ID_CMD_LAYOUT_ITEM_PROPERTIES : m_pLayout->m_Items.Active_Properties (); break;
-	case ID_CMD_LAYOUT_ITEM_DELETE     :
-		if( m_pLayout->m_Items.Del(m_pLayout->m_Items.Get_Active()) )
-		{
-			Refresh(false);
-		}
-		break;
-	}
-}
-
-//---------------------------------------------------------
-void CVIEW_Layout_Control::On_Item_Menu_UI(wxUpdateUIEvent &event)
-{
-	switch( event.GetId() )
-	{
-	case ID_CMD_LAYOUT_ITEM_MOVE_TOP   : event.Enable(!m_pLayout->m_Items.Active_is_Top   ()); break;
-	case ID_CMD_LAYOUT_ITEM_MOVE_BOTTOM: event.Enable(!m_pLayout->m_Items.Active_is_Bottom()); break;
-	case ID_CMD_LAYOUT_ITEM_MOVE_UP    : event.Enable(!m_pLayout->m_Items.Active_is_Top   ()); break;
-	case ID_CMD_LAYOUT_ITEM_MOVE_DOWN  : event.Enable(!m_pLayout->m_Items.Active_is_Bottom()); break;
 	}
 }
 

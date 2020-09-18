@@ -307,10 +307,11 @@ wxString CMD_Get_Name(int Cmd_ID)
 
 	case ID_CMD_LAYOUT_LOAD:			return( _TL("Load") );
 	case ID_CMD_LAYOUT_SAVE:			return( _TL("Save") );
-	case ID_CMD_LAYOUT_PRINT_SETUP:		return( _TL("Print Setup") );
 	case ID_CMD_LAYOUT_PAGE_SETUP:		return( _TL("Page Setup") );
-	case ID_CMD_LAYOUT_PRINT:			return( _TL("Print") );
+	case ID_CMD_LAYOUT_PRINT_SETUP:		return( _TL("Print Setup") );
 	case ID_CMD_LAYOUT_PRINT_PREVIEW:	return( _TL("Print Preview") );
+	case ID_CMD_LAYOUT_PRINT:			return( _TL("Print") );
+	case ID_CMD_LAYOUT_EXPORT:			return( _TL("Export") );
 	case ID_CMD_LAYOUT_PROPERTIES:		return( _TL("Properties") );
 	case ID_CMD_LAYOUT_ITEM_MAP:		return( _TL("Map") );
 	case ID_CMD_LAYOUT_ITEM_LEGEND:		return( _TL("Legend") );
@@ -321,11 +322,14 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_LAYOUT_ITEM_IMAGE:		return( _TL("Image") );
 	case ID_CMD_LAYOUT_ITEM_PASTE:		return( _TL("Clipboard") );
 	case ID_CMD_LAYOUT_ITEM_PROPERTIES:	return( _TL("Properties") );
+	case ID_CMD_LAYOUT_ITEM_HIDE:		return( _TL("Hide") );
 	case ID_CMD_LAYOUT_ITEM_DELETE:		return( _TL("Delete") );
 	case ID_CMD_LAYOUT_ITEM_MOVE_TOP:	return( _TL("Bring to Front") );
 	case ID_CMD_LAYOUT_ITEM_MOVE_BOTTOM:return( _TL("Send to Back") );
 	case ID_CMD_LAYOUT_ITEM_MOVE_UP:	return( _TL("Bring Forward") );
 	case ID_CMD_LAYOUT_ITEM_MOVE_DOWN:	return( _TL("Send Backward") );
+	case ID_CMD_LAYOUT_IMAGE_SAVE:		return( _TL("Save") );
+	case ID_CMD_LAYOUT_IMAGE_RESTORE:	return( _TL("Restore") );
 
 	case ID_CMD_TABLE_FIELD_ADD:		return( _TL("Add Field") );
 	case ID_CMD_TABLE_FIELD_DEL:		return( _TL("Delete Fields") );
@@ -444,10 +448,11 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_MAP3D_SHIFT_Z_MORE:		return( ID_IMG_TB_MAP3D_SHIFT_Z_MORE );
 	case ID_CMD_MAP3D_STEREO:			return( ID_IMG_TB_MAP3D_STEREO );
 
-	case ID_CMD_LAYOUT_PRINT_SETUP:		return( ID_IMG_TB_LAYOUT_PRINT_SETUP );
 	case ID_CMD_LAYOUT_PAGE_SETUP:		return( ID_IMG_TB_LAYOUT_PAGE_SETUP );
-	case ID_CMD_LAYOUT_PRINT:			return( ID_IMG_TB_LAYOUT_PRINT );
+	case ID_CMD_LAYOUT_PRINT_SETUP:		return( ID_IMG_TB_LAYOUT_PRINT_SETUP );
 	case ID_CMD_LAYOUT_PRINT_PREVIEW:	return( ID_IMG_TB_LAYOUT_PRINT_PREVIEW );
+	case ID_CMD_LAYOUT_PRINT:			return( ID_IMG_TB_LAYOUT_PRINT );
+	case ID_CMD_LAYOUT_EXPORT:			return( ID_IMG_TB_SAVE );
 
 	case ID_CMD_TABLE_FIELD_ADD:		return( ID_IMG_TB_TABLE_COL_ADD );
 	case ID_CMD_TABLE_FIELD_DEL:		return( ID_IMG_TB_TABLE_COL_DEL );

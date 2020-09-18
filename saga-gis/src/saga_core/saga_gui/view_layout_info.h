@@ -95,6 +95,8 @@ public:
 	wxString						Get_Name				(void);
 	int								Get_Page_Count			(void);
 
+	CSG_Parameter &					Get_Parameter			(const CSG_String &ID)	{	return( m_Parameters[ID] );	}
+
 	bool							Properties				(void);
 
 	wxSize							Get_PaperSize			(void);
@@ -107,36 +109,43 @@ public:
 	bool							Print					(void);
 	bool							Print_Preview			(void);
 
-	bool							Set_Zoom				(double Zoom);
-	double							Get_Zoom				(void)	const	{	return( m_Zoom );	}
-
-	wxRect							Get_Scaled				(const wxRect &Rect, double Scale)	const;
-
-	wxRect							Get_Screen2DC			(const wxRect &Rect)	const;
-	double							Get_Screen2DC			(void)					const	{	return( m_Screen2DC );	}
-
-	wxRect							Get_Paper2DC			(const wxRect &Rect)	const;
-	double							Get_Paper2DC			(void)					const	{	return( m_Paper2DC  );	}
-
-	bool							Draw					(wxDC &dc, bool bPrintOut = false);
-
 	bool							Load					(void);
-	bool							Save					(void)	const;
-
 	bool							Load					(const CSG_MetaData &Layout);
+	bool							Save					(void)	const;
 	bool							Save					(CSG_MetaData &Layout)	const;
 
-	bool							Can_Delete				(void);
 	bool							is_Shown				(int ItemID);
+	bool							Can_Hide				(class CLayout_Item *pItem = NULL);
+	bool							Can_Delete				(class CLayout_Item *pItem = NULL);
+	bool							Toggle_Item				(class CLayout_Item *pItem = NULL);
 	bool							Toggle_Item				(int ItemID);
 	bool							Add_Item				(int ItemID);
 	class CLayout_Item *			Get_Item				(int ItemID);
 	bool							Clipboard_Paste			(void);
 
+	wxMenu *						Menu_Get_Active			(void);
+	bool							Menu_On_Command			(wxCommandEvent  &event);
+	bool							Menu_On_Command_UI		(wxUpdateUIEvent &event);
+
+	bool							Set_Zoom				(double Zoom);
+
+	double							Get_Item2Paper			(void)					const	{	return(                       m_Item2Paper   );	}
+	wxRect							Get_Item2Paper			(const wxRect &Rect)	const	{	return( Get_Rect_Scaled(Rect, m_Item2Paper ) );	}
+
+	double							Get_Item2DC				(void)					const	{	return(                       m_Item2DC      );	}
+	wxRect							Get_Item2DC				(const wxRect &Rect)	const	{	return( Get_Rect_Scaled(Rect, m_Item2DC    ) );	}
+
+	double							Get_Paper2DC			(void)					const	{	return(                       m_Paper2DC     );	}
+	wxRect							Get_Paper2DC			(const wxRect &Rect)	const	{	return( Get_Rect_Scaled(Rect, m_Paper2DC   ) );	}
+
+	bool							Draw					(wxDC &dc, bool bPrintOut = false);
+
+	bool							Export					(void);
+
 
 protected:
 
-	double							m_Zoom, m_Paper2DC, m_Screen2DC;
+	double							m_Zoom, m_Item2Paper, m_Item2DC, m_Paper2DC;
 
 	CSG_Parameters					m_Parameters;
 

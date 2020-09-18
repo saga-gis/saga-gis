@@ -63,6 +63,8 @@ CSGDI_Layout_Items::CSGDI_Layout_Item::CSGDI_Layout_Item(void)
 {
 	m_pTracker	= NULL;
 	m_bShow		= true;
+	m_bSizer	= true;
+	m_Ratio		= 0.;
 }
 
 //---------------------------------------------------------
@@ -72,6 +74,60 @@ CSGDI_Layout_Items::CSGDI_Layout_Item::~CSGDI_Layout_Item(void)
 	{
 		delete(m_pTracker);
 	}
+}
+
+//---------------------------------------------------------
+bool CSGDI_Layout_Items::CSGDI_Layout_Item::Set_Sizer(bool bOn)
+{
+	if( m_bSizer != bOn )
+	{
+		m_bSizer	= bOn;
+
+		if( m_pTracker )
+		{
+			m_pTracker->SetHandlerMask(m_bSizer ? RT_MASK_ALL : RT_MASK_NONE);
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSGDI_Layout_Items::CSGDI_Layout_Item::Set_Fixed(bool bOn)
+{
+	if( m_bFixed != bOn )
+	{
+		m_bFixed	= bOn;
+
+		if( m_pTracker )
+		{
+		//	m_pTracker->SetFixedSize(m_bFixed ? RT_MASK_ALL : RT_MASK_NONE);
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSGDI_Layout_Items::CSGDI_Layout_Item::Set_Ratio(double Ratio)
+{
+	if( m_Ratio != Ratio )
+	{
+		m_Ratio	= Ratio;
+
+		if( m_pTracker )
+		{
+			m_pTracker->SetRatio(m_Ratio);
+		}
+
+		return( true );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -107,6 +163,7 @@ bool CSGDI_Layout_Items::CSGDI_Layout_Item::_Tracker_Create(wxWindow *pParent)
 		m_pTracker	= new wxRectTrackerRatio(pParent);
 		m_pTracker->Disable();
 		m_pTracker->SetTrackerRect(m_Rect);
+		m_pTracker->SetHandlerMask(m_bSizer ? RT_MASK_ALL : RT_MASK_NONE);
 
 		m_pTracker->SetMinRect(wxRect(0, 0, 10, 10));
 	//	m_pTracker->SetGreyOutColour(50);
@@ -302,12 +359,17 @@ bool CSGDI_Layout_Items::Del(size_t Index, bool bDetachOnly)
 			m_pActive	= NULL;
 		}
 
+		m_Items.Del(Index);
+
+		if( m_pParent )
+		{
+			m_pParent->Refresh(true, &pItem->Get_Rect());
+		}
+
 		if( !bDetachOnly )
 		{
 			delete(pItem);
 		}
-
-		m_Items.Del(Index);
 
 		return( true );
 	}

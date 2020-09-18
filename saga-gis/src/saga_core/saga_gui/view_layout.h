@@ -101,8 +101,9 @@ private:
 
 	void							On_Page_Setup		(wxCommandEvent  &event);
 	void							On_Print_Setup		(wxCommandEvent  &event);
-	void							On_Print			(wxCommandEvent  &event);
 	void							On_Print_Preview	(wxCommandEvent  &event);
+	void							On_Print			(wxCommandEvent  &event);
+	void							On_Export			(wxCommandEvent  &event);
 
 	void							On_Item_Show		(wxCommandEvent  &event);
 	void							On_Item_Add			(wxCommandEvent  &event);

@@ -89,6 +89,10 @@ public:
 
 		bool						is_Shown			(void)	const			{	return( m_bShow );	}
 
+		bool						Set_Sizer			(bool bOn);
+		bool						Set_Fixed			(bool bOn);
+		bool						Set_Ratio			(double Ratio = 0.);
+
 		const wxRect &				Get_Rect			(void)	const			{	return( m_Rect );	}
 		bool						Set_Rect			(const wxRect &r);
 
@@ -101,7 +105,9 @@ public:
 
 	protected:
 
-		bool						m_bShow;
+		bool						m_bShow, m_bSizer, m_bFixed;
+
+		double						m_Ratio;
 
 		wxRect						m_Rect;
 
