@@ -115,6 +115,16 @@ typedef enum ESG_Tool_Error
 }
 TSG_Tool_Error;
 
+//---------------------------------------------------------
+typedef enum ESG_Tool_Script_Type
+{
+	TOOL_SCRIPT_CMD_SHELL	= 0,
+	TOOL_SCRIPT_CMD_BATCH,
+	TOOL_SCRIPT_PYTHON,
+	TOOL_SCRIPT_CHAIN
+}
+TSG_Tool_Script_Type;
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -219,6 +229,8 @@ public:
 
 	bool						Execute						(bool bAddHistory = false);
 
+	CSG_String					Get_Script					(TSG_Tool_Script_Type Type, bool bHeader, bool bAllParameters = false);
+
 
 protected:
 
@@ -319,6 +331,12 @@ private:
 
 
 	bool						_Synchronize_DataObjects	(void);
+
+	CSG_String					_Get_Script_CMD				(bool bHeader, bool bAllParameters, TSG_Tool_Script_Type Type);
+	void						_Get_Script_CMD				(CSG_String &Script, CSG_Parameters *pParameters, bool bAllParameters);
+
+	CSG_String					_Get_Script_Python			(bool bHeader, bool bAllParameters);
+	void						_Get_Script_Python			(CSG_String &Script, CSG_Parameters *pParameters, bool bAllParameters, const CSG_String &Prefix = "");
 
 	CSG_MetaData				_Get_Output_History			(void);
 	void						_Set_Output_History			(void);

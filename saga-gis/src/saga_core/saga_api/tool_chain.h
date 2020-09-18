@@ -99,6 +99,10 @@ public:
 	virtual CSG_String			Get_MenuPath			(void)			{	return( m_Menu );	}
 	const CSG_String &			Get_Library_Name		(void)	const	{	return( m_Library_Name );	}
 
+	static CSG_String			Get_Script				(CSG_Tool *pTool, bool bHeader, bool bAllParameters = true);
+
+	static bool					Save_History_to_Model	(const CSG_MetaData &History, const CSG_String &File);
+
 
 protected:
 
@@ -147,12 +151,12 @@ private:
 	bool						Tool_Initialize			(const CSG_MetaData &Tool, CSG_Tool *pTool);
 	bool						Tool_Finalize			(const CSG_MetaData &Tool, CSG_Tool *pTool);
 
+	//-----------------------------------------------------
+	static bool					_Get_Script_Tool		(CSG_MetaData &Tool      , CSG_Parameters *pParameters, bool bAllParameters, const CSG_String &Prefix, bool bVarNames);
+	static bool					_Get_Script_Parameters	(CSG_MetaData &Parameters, CSG_Parameters *pParameters, const CSG_String &Prefix);
 
-//---------------------------------------------------------
-public: 	static bool			Save_History_to_Model	(const CSG_MetaData &History, const CSG_String &File);
-
-private:	static bool			_Save_History_Add_Tool	(const CSG_MetaData &History, CSG_MetaData &Parms, CSG_MetaData &Tools, bool bAddOutput = false);
-private:	static bool			_Save_History_Add_Input	(const CSG_MetaData &History, CSG_MetaData &Parms, CSG_MetaData &Tool);
+	static bool					_Save_History_Add_Tool	(const CSG_MetaData &History, CSG_MetaData &Parms, CSG_MetaData &Tools, bool bAddOutput = false);
+	static bool					_Save_History_Add_Input	(const CSG_MetaData &History, CSG_MetaData &Parms, CSG_MetaData &Tool);
 
 };
 

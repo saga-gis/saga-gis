@@ -41,8 +41,6 @@
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -50,9 +48,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "tool.h"
-
+#include "saga_api.h"
 #include "data_manager.h"
+#include "tool.h"
+#include "tool_chain.h"
 
 #include <wx/string.h>
 
@@ -467,8 +466,6 @@ bool CSG_Tool::Dlg_Parameters(CSG_Parameters *pParameters, const CSG_String &Cap
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -1161,12 +1158,486 @@ void CSG_Tool::_Update_Parameter_States(CSG_Parameters *pParameters)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//						History							 //
+//						Script							 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "saga_api.h"
+CSG_String CSG_Tool::Get_Script(TSG_Tool_Script_Type Type, bool bHeader, bool bAllParameters)
+{
+	switch( Type )
+	{
+	case TOOL_SCRIPT_CMD_SHELL: return( _Get_Script_CMD           (      bHeader, bAllParameters, Type) );
+	case TOOL_SCRIPT_CMD_BATCH: return( _Get_Script_CMD           (      bHeader, bAllParameters, Type) );
+	case TOOL_SCRIPT_PYTHON   : return( _Get_Script_Python        (      bHeader, bAllParameters      ) );
+	case TOOL_SCRIPT_CHAIN    : return( CSG_Tool_Chain::Get_Script(this, bHeader, bAllParameters      ) );
+	}
+
+	return( "" );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_String CSG_Tool::_Get_Script_CMD(bool bHeader, bool bAllParameters, TSG_Tool_Script_Type Type)
+{
+	CSG_String	Script;
+
+	if( bHeader )
+	{
+		switch( Type )
+		{
+		case TOOL_SCRIPT_CMD_BATCH:	// DOS/Windows Batch Script
+			Script	+= "@ECHO OFF\n\n";
+			Script	+= "REM SET SAGA_TLB=C:\\MyTools\n";
+			Script	+= "REM SET PATH=%PATH%;C:\\SAGA\n\n";
+			Script	+= "REM Tool: ";
+			break;
+
+		default                   :	// Bash Shell Script
+			Script	+= "#!/bin/bash\n\n";
+			Script	+= "# export SAGA_TLB=/home/myhome/mytools\n\n";
+			Script	+= "# tool: ";
+			break;
+		}
+
+		Script	+= Get_Name() + "\n\n";
+	}
+
+	//-----------------------------------------------------
+	Script	+= "saga_cmd";
+
+	Script	+= Get_Library().Contains(" ")	// white space? use quotation marks!
+		? " \"" + Get_Library() + "\""
+		: " "   + Get_Library();
+
+	Script	+= Get_ID().Contains     (" ")	// white space? use quotation marks!
+		? " \"" + Get_ID     () + "\""
+		: " "   + Get_ID     ();
+
+	_Get_Script_CMD(Script, Get_Parameters(), bAllParameters);
+
+	for(int i=0; i<Get_Parameters_Count(); i++)
+	{
+		_Get_Script_CMD(Script, Get_Parameters(i), bAllParameters);
+	}
+
+	//-----------------------------------------------------
+	if( bHeader && Type == TOOL_SCRIPT_CMD_BATCH )
+	{
+		Script	+= "\n\nPAUSE\n";
+	}
+
+	return( Script );
+}
+
+//---------------------------------------------------------
+void CSG_Tool::_Get_Script_CMD(CSG_String &Script, CSG_Parameters *pParameters, bool bAllParameters)
+{
+	#define GET_ID1(p)		(p->Get_Parameters()->Get_Identifier().Length() > 0 \
+		? CSG_String::Format("%s_%s", p->Get_Parameters()->Get_Identifier().c_str(), p->Get_Identifier()) \
+		: CSG_String::Format(p->Get_Identifier())).c_str()
+
+	#define GET_ID2(p, s)	CSG_String::Format("%s_%s", GET_ID1(p), s).c_str()
+
+	//-----------------------------------------------------
+	for(int iParameter=0; iParameter<pParameters->Get_Count(); iParameter++)
+	{
+		CSG_Parameter	*p	= pParameters->Get_Parameter(iParameter);
+
+		if( !bAllParameters && (!p->is_Enabled(false) || p->is_Information() || !p->do_UseInCMD()) )
+		{
+			continue;
+		}
+
+		switch( p->Get_Type() )
+		{
+		default:
+			break;
+
+		case PARAMETER_TYPE_Bool:
+			Script	+= CSG_String::Format(" -%s=%d", GET_ID1(p), p->asBool() ? 1 : 0);
+			break;
+
+		case PARAMETER_TYPE_Int:
+		case PARAMETER_TYPE_Choice:
+		case PARAMETER_TYPE_Table_Field:
+			Script	+= CSG_String::Format(" -%s=%d", GET_ID1(p), p->asInt());
+			break;
+
+		case PARAMETER_TYPE_Choices     :
+		case PARAMETER_TYPE_Table_Fields:
+			if( p->asString() && *p->asString() )
+				Script	+= CSG_String::Format(" -%s=%s", GET_ID1(p), p->asString());
+			break;
+
+		case PARAMETER_TYPE_Double:
+		case PARAMETER_TYPE_Degree:
+			Script	+= CSG_String::Format(" -%s=%f", GET_ID1(p), p->asDouble());
+			break;
+
+		case PARAMETER_TYPE_Range:
+			Script	+= CSG_String::Format(" -%s=%f", GET_ID2(p, SG_T("MIN")), p->asRange()->Get_Min());
+			Script	+= CSG_String::Format(" -%s=%f", GET_ID2(p, SG_T("MAX")), p->asRange()->Get_Max());
+			break;
+
+		case PARAMETER_TYPE_Date:
+		case PARAMETER_TYPE_String:
+		case PARAMETER_TYPE_Text:
+		case PARAMETER_TYPE_FilePath:
+			Script	+= CSG_String::Format(" -%s=%s", GET_ID1(p), p->asString());
+			break;
+
+		case PARAMETER_TYPE_FixedTable:
+			Script	+= CSG_String::Format(" -%s=%s", GET_ID1(p), p->asString());
+			break;
+
+		case PARAMETER_TYPE_Grid_System:
+			if( p->Get_Children_Count() == 0 )
+			{
+				Script	+= CSG_String::Format(" -%s=%d", GET_ID2(p, SG_T("NX")), p->asGrid_System()->Get_NX());
+				Script	+= CSG_String::Format(" -%s=%d", GET_ID2(p, SG_T("NY")), p->asGrid_System()->Get_NY());
+				Script	+= CSG_String::Format(" -%s=%f", GET_ID2(p, SG_T( "X")), p->asGrid_System()->Get_XMin());
+				Script	+= CSG_String::Format(" -%s=%f", GET_ID2(p, SG_T( "Y")), p->asGrid_System()->Get_YMin());
+				Script	+= CSG_String::Format(" -%s=%f", GET_ID2(p, SG_T( "D")), p->asGrid_System()->Get_Cellsize());
+			}
+			break;
+
+		case PARAMETER_TYPE_DataObject_Output:
+		case PARAMETER_TYPE_Grid             :
+		case PARAMETER_TYPE_Grids            :
+		case PARAMETER_TYPE_Table            :
+		case PARAMETER_TYPE_Shapes           :
+		case PARAMETER_TYPE_TIN              :
+		case PARAMETER_TYPE_PointCloud       :
+			Script	+= CSG_String::Format(" -%s=%s", GET_ID1(p), SG_Get_Data_Manager().Exists(p->asDataObject()) && p->asDataObject()->Get_File_Name() ? p->asDataObject()->Get_File_Name() : SG_T("file"));
+			break;
+
+		case PARAMETER_TYPE_Grid_List        :
+		case PARAMETER_TYPE_Grids_List       :
+		case PARAMETER_TYPE_Table_List       :
+		case PARAMETER_TYPE_Shapes_List      :
+		case PARAMETER_TYPE_TIN_List         :
+		case PARAMETER_TYPE_PointCloud_List  :
+			if( p->is_Input() )
+			{
+				Script	+= CSG_String::Format(" -%s=", GET_ID1(p));
+
+				if( p->asList()->Get_Item_Count() == 0 )
+				{
+					Script	+= "file(s)";
+				}
+				else
+				{
+					Script	+= SG_File_Exists(p->asList()->Get_Item(0)->Get_File_Name())
+						? p->asList()->Get_Item(0)->Get_File_Name() : _TL("memory");
+
+					for(int iObject=1; iObject<p->asList()->Get_Item_Count(); iObject++)
+					{
+						Script	+= ";";
+						Script	+= SG_File_Exists(p->asList()->Get_Item(iObject)->Get_File_Name())
+							? p->asList()->Get_Item(iObject)->Get_File_Name() : _TL("memory");
+					}
+				}
+			}
+			break;
+		}
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
+{
+	CSG_String	Script;
+
+	//-----------------------------------------------------
+	if( bHeader )
+	{
+		Script	+= "#! /usr/bin/env python\n";
+		Script	+= "\n";
+		Script	+= "#_________________________________________\n";
+		Script	+= "# Initialize the environment...\n";
+		Script	+= "\n";
+		Script	+= "import os\n";
+		Script	+= "\n";
+		Script	+= "if os.name == 'nt': # Windows\n";
+		Script	+= "    if os.getenv('SAGA_PATH') is None: # in case you did not define a 'SAGA_PATH' environment variable pointing to your SAGA installation directory\n";
+		Script	+= "        os.environ['SAGA_PATH'] = 'C:/saga_win32'\n";
+		Script	+= "    os.environ['PATH'     ] = os.environ['SAGA_PATH'] + os.sep +    ';' + os.environ['PATH']\n";
+		Script	+= "    os.environ['PATH'     ] = os.environ['SAGA_PATH'] + os.sep + 'dll;' + os.environ['PATH']\n";
+		Script	+= "    os.environ['PROJ_LIB' ] = os.environ['SAGA_PATH'] + os.sep + 'dll' + os.sep + 'proj-data'\n";
+		Script	+= "    os.environ['GDAL-DATA'] = os.environ['SAGA_PATH'] + os.sep + 'dll' + os.sep + 'gdal-data'\n";
+		Script	+= "    Dir_Tools = os.environ['SAGA_PATH'] + os.sep + 'tools'\n";
+		Script	+= "else:               # Linux\n";
+		Script	+= "    Dir_Tools = '/usr/local/lib/saga' # you might have to adjust this path to your system\n";
+		Script	+= "\n";
+		Script	+= "import sys, saga_api\n";
+		Script	+= "\n";
+		Script	+= "\n";
+		Script += "#_________________________________________\n";
+		Script += "# Load the tools...\n";
+		Script += "\n";
+		Script += "saga_api.SG_UI_Msg_Lock(True) # avoid too much noise\n";
+		Script += "saga_api.SG_Get_Tool_Library_Manager().Add_Directory(Dir_Tools, False)\n";
+		Script += "if os.getenv('SAGA_TLB') is not None:\n";
+		Script += "    saga_api.SG_Get_Tool_Library_Manager().Add_Directory(os.environ['SAGA_TLB'], False)\n";
+		Script += "saga_api.SG_UI_Msg_Lock(False)\n";
+		Script += "\n";
+		Script += "\n";
+		Script += "#_________________________________________\n";
+		Script += "# Print versions and number of loaded tools...\n";
+		Script += "\n";
+		Script += "print('Python - Version ' + sys.version)\n";
+		Script += "print(saga_api.SAGA_API_Get_Version())\n";
+		Script += "print('number of loaded libraries: ' + str(saga_api.SG_Get_Tool_Library_Manager().Get_Count()))\n";
+		Script += "print()\n";
+		Script += "\n";
+		Script += "\n";
+		Script += "#_________________________________________\n";
+		Script += "##########################################\n";
+	}
+
+	//-----------------------------------------------------
+	Script += "def Run_SAGA_Tool(File):\n";
+
+	if( bHeader )
+	{
+		Script += "    #_____________________________________\n";
+		Script += "    # Provide your input dataset(s), here -as example- load a dataset from file.\n";
+		Script += "    # Using SAGA's central data manager instance for such jobs is an easy way to go...\n";
+		Script += "    Data = saga_api.SG_Get_Data_Manager().Add(File)\n";
+		Script += "    if Data == None or Data.is_Valid() == False:\n";
+        Script += "        print('Failed to load dataset [' + File + ']')\n";
+		Script += "        return False\n";
+		Script += "\n";
+	}
+
+	Script += "    #_____________________________________\n";
+	Script += "    # Create a new instance of tool '" + Get_Name() + "'\n";
+	Script += "    Tool = saga_api.SG_Get_Tool_Library_Manager().Create_Tool('" + Get_Library() + "', '" + Get_ID() + "')\n";
+	Script += "    if Tool == None:\n";
+    Script += "        print('Failed to create tool: " + Get_Name() + "')\n";
+	Script += "        return False\n";
+	Script += "\n";
+
+	if( Get_Type() == TOOL_TYPE_Grid )
+	{
+		Script += "    Tool.Get_Parameters().Reset_Grid_System()\n";
+		Script += "\n";
+	}
+
+	//-------------------------------------------------
+	_Get_Script_Python(Script, Get_Parameters(), bAllParameters);
+
+	for(int iParameters=0; iParameters<Get_Parameters_Count(); iParameters++)
+	{
+		_Get_Script_Python(Script, Get_Parameters(iParameters), bAllParameters, Get_Parameters(iParameters)->Get_Identifier());
+	}
+
+	//-------------------------------------------------
+	Script += "\n";
+    Script += "    print('Executing tool: ' + Tool.Get_Name().c_str())\n";
+	Script += "    if Tool.Execute() == False:\n";
+    Script += "        print('failed')\n";
+	Script += "        return False\n";
+    Script += "    print('okay')\n";
+	Script += "\n";
+	Script += "    #_____________________________________\n";
+	Script += "    # Save results to file:\n";
+	Script += "    Path = os.path.split(File)[0] + os.sep\n";
+
+	for(int iParameter=0; iParameter<Get_Parameters()->Get_Count(); iParameter++)
+	{
+		CSG_Parameter	*p	= Get_Parameters()->Get_Parameter(iParameter);
+
+		if( p->is_Output() )
+		{
+			CSG_String	id(p->Get_Identifier()), ext;
+
+			switch( p->Get_DataObject_Type() )
+			{
+			case SG_DATAOBJECT_TYPE_Grid      : ext = " + '.sg-grd-z'"; break;
+			case SG_DATAOBJECT_TYPE_Grids     : ext = " + '.sg-gds-z'"; break;
+			case SG_DATAOBJECT_TYPE_Table     : ext = " + '.txt'"     ; break;
+			case SG_DATAOBJECT_TYPE_Shapes    : ext = " + '.geojson'" ; break;
+			case SG_DATAOBJECT_TYPE_PointCloud: ext = " + '.sg-pts-z'"; break;
+			case SG_DATAOBJECT_TYPE_TIN       : ext = " + '.geojson'" ; break;
+			default                           : ext = ""              ; break;
+			}
+
+			Script += "\n";
+
+			if( p->is_DataObject() )
+			{
+				Script += "    Data = Tool.Get_Parameter('" +  id + "').asDataObject()\n";
+				Script += "    Data.Save(Path + Data.Get_Name()" + ext + ")\n";
+			}
+			else if( p->is_DataObject_List() )
+			{
+				Script += "    List = Tool.Get_Parameter('" +  id + "').asList()\n";
+				Script += "    Name = Path + List.Get_Name()\n";
+				Script += "    for i in range(0, List.Get_Data_Count()):\n";
+				Script += "        List.Get_Data(i).Save(Name + str(i)" + ext + ")\n";
+			}
+		}
+	}
+
+	Script += "\n";
+	Script += "    #_____________________________________\n";
+	Script += "    # remove this tool instance, if you don't need it anymore\n";
+	Script += "    saga_api.SG_Get_Tool_Library_Manager().Delete_Tool(Tool)\n";
+	Script += "\n";
+	Script += "    # job is done, free memory resources\n";
+	Script += "    saga_api.SG_Get_Data_Manager().Delete_All()\n";
+	Script += "\n";
+	Script += "    return True\n";
+	Script += "\n";
+
+	//-----------------------------------------------------
+	if( bHeader )
+	{
+		Script += "\n";
+		Script += "#_________________________________________\n";
+		Script += "##########################################\n";
+		Script += "if __name__ == '__main__':\n";
+        Script += "    print('Usage: %s <in: filename>')\n";
+        Script += "    print('This is a simple template for using a SAGA tool through Python.')\n";
+        Script += "    print('Please edit the script to make it work properly before using it!')\n";
+		Script += "    sys.exit()\n";
+		Script += "    # For a single file based input it might look like following:\n";
+		Script += "    File = sys.argv[1]\n";
+		Script += "\n";
+		Script += "    #____________________________________\n";
+		Script += "    Run_SAGA_Tool(File)\n";
+	}
+
+	return( Script );
+}
+
+//---------------------------------------------------------
+void CSG_Tool::_Get_Script_Python(CSG_String &Script, CSG_Parameters *pParameters, bool bAllParameters, const CSG_String &Prefix)
+{
+	for(int iParameter=0; iParameter<pParameters->Get_Count(); iParameter++)
+	{
+		CSG_Parameter	*p	= pParameters->Get_Parameter(iParameter);
+
+		if( !bAllParameters && (!p->is_Enabled(false) || p->is_Information() || !p->do_UseInCMD()) )
+		{
+			continue;
+		}
+
+		CSG_String	ID(p->Get_Identifier());
+
+		if( !Prefix.is_Empty() )
+		{
+			ID.Prepend(Prefix + ".");
+		}
+
+		switch( p->Get_Type() )
+		{
+		default:
+			break;
+
+		case PARAMETER_TYPE_Bool           :
+			Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', %s)\n", ID.c_str(), p->asBool() ? SG_T("True") : SG_T("False"));
+			break;
+
+		case PARAMETER_TYPE_Int            :
+			Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', %d)\n", ID.c_str(), p->asInt());
+			break;
+
+		case PARAMETER_TYPE_Choice         :
+		case PARAMETER_TYPE_Choices        :
+		case PARAMETER_TYPE_Table_Field    :
+		case PARAMETER_TYPE_Table_Fields   :
+			Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', '%s')\n", ID.c_str(), p->asString());
+			break;
+
+		case PARAMETER_TYPE_Double         :
+		case PARAMETER_TYPE_Degree         :
+			Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', %f)\n", ID.c_str(), p->asDouble());
+			break;
+
+		case PARAMETER_TYPE_Range          :
+			Script	+= CSG_String::Format("    Tool.Set_Parameter('%s.MIN', %f)\n", ID.c_str(), p->asRange()->Get_Min());
+			Script	+= CSG_String::Format("    Tool.Set_Parameter('%s.MAX', %f)\n", ID.c_str(), p->asRange()->Get_Max());
+			break;
+
+		case PARAMETER_TYPE_Date           :
+		case PARAMETER_TYPE_String         :
+		case PARAMETER_TYPE_Text           :
+		case PARAMETER_TYPE_FilePath       :
+			Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', '%s')\n", ID.c_str(), p->asString());
+			break;
+
+		case PARAMETER_TYPE_FixedTable     :
+			Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', saga_api.SG_Create_Table('table.txt'))\n", ID.c_str());
+			break;
+
+		case PARAMETER_TYPE_Grid_System    :
+			if( p->Get_Children_Count() == 0 )
+			{
+				Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', saga_api.CSG_Grid_System(%f, %f, %f, %d, %d))\n", ID.c_str(),
+					p->asGrid_System()->Get_Cellsize(),
+					p->asGrid_System()->Get_XMin(), p->asGrid_System()->Get_YMin(),
+					p->asGrid_System()->Get_NX  (), p->asGrid_System()->Get_NY  ()
+				);
+			}
+			break;
+
+		case PARAMETER_TYPE_Grid           :
+		case PARAMETER_TYPE_Grids          :
+		case PARAMETER_TYPE_Table          :
+		case PARAMETER_TYPE_Shapes         :
+		case PARAMETER_TYPE_TIN            :
+
+			if( p->is_Input() )
+			{
+				Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', '%s input%s')\n", ID.c_str(),
+					SG_Get_DataObject_Name(p->Get_DataObject_Type()).c_str(), p->is_Optional() ? SG_T(", optional") : SG_T("")
+				);
+			}
+			else if( p->is_Output() && p->is_Optional() )
+			{
+				Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', saga_api.SG_Get_Create_Pointer()) # optional output, remove this line, if you don't want to create it\n", ID.c_str());
+			}
+			break;
+
+		case PARAMETER_TYPE_Grid_List      :
+		case PARAMETER_TYPE_Grids_List     :
+		case PARAMETER_TYPE_Table_List     :
+		case PARAMETER_TYPE_Shapes_List    :
+		case PARAMETER_TYPE_TIN_List       :
+		case PARAMETER_TYPE_PointCloud_List:
+			if( p->is_Input() )
+			{
+				Script	+= CSG_String::Format("    Tool.Get_Parameter('%s').asList().Add_Item('%s input list%s')\n", ID.c_str(),
+					SG_Get_DataObject_Name(p->Get_DataObject_Type()).c_str(), p->is_Optional() ? SG_T(", optional") : SG_T("")
+				);
+			}
+			break;
+
+		case PARAMETER_TYPE_Parameters     :
+			_Get_Script_Python(Script, p->asParameters(), bAllParameters, ID);
+			break;
+		}
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//						History							 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CSG_MetaData CSG_Tool::_Get_Output_History(void)
