@@ -207,16 +207,19 @@ bool CSG_Parameter::Set_Enabled(bool bEnabled)
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter::is_Enabled(void) const
+bool CSG_Parameter::is_Enabled(bool bCheckEnv) const
 {
-	if( !do_UseInGUI() &&  m_pParameters->has_GUI() )
+	if( bCheckEnv )
 	{
-		return( false );
-	}
+		if( !do_UseInGUI() &&  m_pParameters->has_GUI() )
+		{
+			return( false );
+		}
 
-	if( !do_UseInCMD() && !m_pParameters->has_GUI() )
-	{
-		return( false );
+		if( !do_UseInCMD() && !m_pParameters->has_GUI() )
+		{
+			return( false );
+		}
 	}
 
 	return( m_bEnabled && (m_pParent == NULL || m_pParent->is_Enabled()) );
@@ -1381,6 +1384,7 @@ bool CSG_Parameters_Grid_Target::On_Parameters_Enable(CSG_Parameters *pParameter
 	}
 
 	pParameters->Set_Enabled(m_Prefix + "SYSTEM"   , pParameter->asInt() == 1);
+	pParameters->Set_Enabled(m_Prefix + "TEMPLATE" , pParameter->asInt() == 1);
 
 	pParameters->Set_Enabled(m_Prefix + "USER_SIZE", pParameter->asInt() == 0);
 	pParameters->Set_Enabled(m_Prefix + "USER_XMIN", pParameter->asInt() == 0);

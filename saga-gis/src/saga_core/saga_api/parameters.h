@@ -223,8 +223,8 @@ public:	///////////////////////////////////////////////////
 	CSG_String						Get_Description			(int Flags)								const;
 	CSG_String						Get_Description			(int Flags, const SG_Char *Separator)	const;
 
-	bool							Set_Enabled				(bool bEnabled = true);
-	bool							is_Enabled				(void)	const;
+	bool							Set_Enabled				(bool bEnabled  = true);
+	bool							is_Enabled				(bool bCheckEnv = true)	const;
 
 	virtual bool					is_Valid				(void)	const	{	return( true );	}
 	bool							is_Input				(void)	const	{	return( !!(m_Constraint & PARAMETER_INPUT      ) );	}
