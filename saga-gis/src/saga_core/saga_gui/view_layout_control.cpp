@@ -146,7 +146,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_Layout_Paper::CVIEW_Layout_Paper(CVIEW_Layout_Control *pParent, CVIEW_Layout_Info *pLayout)
-	: wxPanel(pParent)
+	: wxPanel(pParent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL|wxBORDER_SIMPLE)
 {
 	SetBackgroundColour(*wxWHITE);
 

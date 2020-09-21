@@ -320,8 +320,9 @@ public:
 	CLayout_Scale(CVIEW_Layout_Info *pLayout)
 		: CLayout_Item(pLayout, 77, 50, 21, 21)
 	{
-		m_Parameters.Add_String("", "TEXT" , _TL("Text" ), _TL(""), _TL("Scale"));
-		m_Parameters.Add_Font  ("", "FONT" , _TL("Font" ), _TL(""));
+		m_Parameters.Add_String("", "TEXT"    , _TL("Text"    ), _TL(""), _TL("Scale"));
+		m_Parameters.Add_Font  ("", "FONT"    , _TL("Font"    ), _TL(""));
+		m_Parameters.Add_Int   ("", "DECIMALS", _TL("Decimals"), _TL("Ignored if set to -1."), 0, -1, true);
 
 		Set_Sizer(false);
 
@@ -372,9 +373,20 @@ public:
 
 		double	Scale	= 1000. * m_pLayout->Get_Map()->Get_World(rMap).Get_XRange() / (rMap.width / m_pLayout->Get_Paper2DC());	// to meter
 
-		wxString	Text(m_Parameters["TEXT"].asString()); if( Text.IsEmpty() ) Text += " ";
+		wxString	Text(m_Parameters["TEXT"].asString());
+		
+		Text	+= Text.IsEmpty() ? " 1 : " : "1 : ";
 
-		Text	+= "1 : " + Get_SignificantDecimals_String(Scale);
+		int	Decimals	= m_Parameters["DECIMALS"].asInt();
+
+		if( Decimals < 0 )
+		{
+			Text	+= Get_SignificantDecimals_String(Scale);
+		}
+		else
+		{
+			Text	+= wxString::Format("%.*f", Decimals, Scale);
+		}
 
 		return( Text );
 	}
@@ -554,7 +566,7 @@ public:
 
 	bool				Load				(const wxString &File, bool bAdjustSize)
 	{
-		if( m_Image.LoadFile(File) && m_Image.IsOk() )
+		if( wxFileExists(File) && m_Image.LoadFile(File) && m_Image.IsOk() )
 		{
 			m_File	= File.wc_str();
 
@@ -1045,13 +1057,18 @@ bool CVIEW_Layout_Info::Load(const CSG_MetaData &Layout)
 			{
 				m_Items.Add(pItem);
 			}
-			else if( Item.Cmp_Property("show", "false", true) )
-			{
-				m_Items.Hide(pItem);
-			}
 			else
 			{
-				m_Items.Show(pItem);
+				m_Items.Move_Top(pItem);
+
+				if( Item.Cmp_Property("show", "false", true) )
+				{
+					m_Items.Hide(pItem);
+				}
+				else
+				{
+					m_Items.Show(pItem);
+				}
 			}
 
 			if( Type == ItemID_Image )
@@ -1107,7 +1124,6 @@ bool CVIEW_Layout_Info::Save(CSG_MetaData &Layout)	const
 
 		CLayout_Item	*pItem	= (CLayout_Item *)m_Items.Get_Item(i);
 
-		Item.Add_Property("order", (int)i);
 		Item.Add_Property("type" , pItem->Get_Type());
 		Item.Add_Property("show" , pItem->is_Shown());
 

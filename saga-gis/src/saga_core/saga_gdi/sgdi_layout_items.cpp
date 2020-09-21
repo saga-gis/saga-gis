@@ -413,13 +413,13 @@ bool CSGDI_Layout_Items::Scale(double Scale)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-size_t CSGDI_Layout_Items::Active_Get_Position(void)	const
+size_t CSGDI_Layout_Items::Get_Position(CSGDI_Layout_Item *pItem)	const
 {
-	if( m_pActive )
+	if( pItem )
 	{
 		for(size_t i=0; i<m_Items.Get_Size(); i++)
 		{
-			if( m_pActive == m_Items[i] )
+			if( pItem == m_Items[i] )
 			{
 				return( i );
 			}
@@ -430,21 +430,21 @@ size_t CSGDI_Layout_Items::Active_Get_Position(void)	const
 }
 
 //---------------------------------------------------------
-bool CSGDI_Layout_Items::Active_is_Top(void)	const
+bool CSGDI_Layout_Items::is_Top(CSGDI_Layout_Item *pItem)	const
 {
-	return( m_pActive && Active_Get_Position() == m_Items.Get_Size() - 1 );
+	return( Get_Position(pItem) == m_Items.Get_Size() - 1 );
 }
 
 //---------------------------------------------------------
-bool CSGDI_Layout_Items::Active_is_Bottom(void)	const
+bool CSGDI_Layout_Items::is_Bottom(CSGDI_Layout_Item *pItem)	const
 {
-	return( m_pActive && Active_Get_Position() == 0 );
+	return( Get_Position(pItem) == 0 );
 }
 
 //---------------------------------------------------------
-bool CSGDI_Layout_Items::Active_Move_Top(void)
+bool CSGDI_Layout_Items::Move_Top(CSGDI_Layout_Item *pItem)
 {
-	size_t	Position	= Active_Get_Position();
+	size_t	Position	= Get_Position(pItem);
 
 	if( Position < m_Items.Get_Size() - 1 )
 	{
@@ -453,9 +453,12 @@ bool CSGDI_Layout_Items::Active_Move_Top(void)
 			m_Items[i]	= m_Items[i + 1];
 		}
 
-		m_Items[m_Items.Get_Size() - 1]	= m_pActive;
+		m_Items[m_Items.Get_Size() - 1]	= pItem;
 
-		m_pParent->Refresh();
+		if( m_pParent )
+		{
+			m_pParent->Refresh(true, &pItem->Get_Rect());
+		}
 
 		return( true );
 	}
@@ -464,9 +467,9 @@ bool CSGDI_Layout_Items::Active_Move_Top(void)
 }
 
 //---------------------------------------------------------
-bool CSGDI_Layout_Items::Active_Move_Bottom(void)
+bool CSGDI_Layout_Items::Move_Bottom(CSGDI_Layout_Item *pItem)
 {
-	size_t	Position	= Active_Get_Position();
+	size_t	Position	= Get_Position(pItem);
 
 	if( Position > 0 )
 	{
@@ -475,50 +478,106 @@ bool CSGDI_Layout_Items::Active_Move_Bottom(void)
 			m_Items[i]	= m_Items[i - 1];
 		}
 
-		m_Items[0]	= m_pActive;
+		m_Items[0]	= pItem;
 
-		m_pParent->Refresh();
+		if( m_pParent )
+		{
+			m_pParent->Refresh(true, &pItem->Get_Rect());
+		}
 
 		return( true );
 	}
 
 	return( false );
+}
+
+//---------------------------------------------------------
+bool CSGDI_Layout_Items::Move_Up(CSGDI_Layout_Item *pItem)
+{
+	size_t	Position	= Get_Position(pItem);
+
+	if( Position < m_Items.Get_Size() - 1 )
+	{
+		m_Items[Position    ]	= m_Items[Position + 1];
+		m_Items[Position + 1]	= pItem;
+
+		if( m_pParent )
+		{
+			m_pParent->Refresh(true, &pItem->Get_Rect());
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSGDI_Layout_Items::Move_Down(CSGDI_Layout_Item *pItem)
+{
+	size_t	Position	= Get_Position(pItem);
+
+	if( Position > 0 )
+	{
+		m_Items[Position    ]	= m_Items[Position - 1];
+		m_Items[Position - 1]	= pItem;
+
+		if( m_pParent )
+		{
+			m_pParent->Refresh(true, &pItem->Get_Rect());
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+size_t CSGDI_Layout_Items::Active_Get_Position(void)	const
+{
+	return( Get_Position(m_pActive) );
+}
+
+//---------------------------------------------------------
+bool CSGDI_Layout_Items::Active_is_Top(void)	const
+{
+	return( is_Top(m_pActive) );
+}
+
+//---------------------------------------------------------
+bool CSGDI_Layout_Items::Active_is_Bottom(void)	const
+{
+	return( is_Bottom(m_pActive) );
+}
+
+//---------------------------------------------------------
+bool CSGDI_Layout_Items::Active_Move_Top(void)
+{
+	return( Move_Top(m_pActive) );
+}
+
+//---------------------------------------------------------
+bool CSGDI_Layout_Items::Active_Move_Bottom(void)
+{
+	return( Move_Bottom(m_pActive) );
 }
 
 //---------------------------------------------------------
 bool CSGDI_Layout_Items::Active_Move_Up(void)
 {
-	size_t	Position	= Active_Get_Position();
-
-	if( Position < m_Items.Get_Size() - 1 )
-	{
-		m_Items[Position    ]	= m_Items[Position + 1];
-		m_Items[Position + 1]	= m_pActive;
-
-		m_pParent->Refresh();
-
-		return( true );
-	}
-
-	return( false );
+	return( Move_Up(m_pActive) );
 }
 
 //---------------------------------------------------------
 bool CSGDI_Layout_Items::Active_Move_Down(void)
 {
-	size_t	Position	= Active_Get_Position();
-
-	if( Position > 0 )
-	{
-		m_Items[Position    ]	= m_Items[Position - 1];
-		m_Items[Position - 1]	= m_pActive;
-
-		m_pParent->Refresh();
-
-		return( true );
-	}
-
-	return( false );
+	return( Move_Up(m_pActive) );
 }
 
 //---------------------------------------------------------

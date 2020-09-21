@@ -148,6 +148,14 @@ public:
 
 	bool							Scale				(double Scale);
 
+	size_t							Get_Position		(CSGDI_Layout_Item *pItem)	const;
+	bool							is_Top				(CSGDI_Layout_Item *pItem)	const;
+	bool							is_Bottom			(CSGDI_Layout_Item *pItem)	const;
+	bool							Move_Top			(CSGDI_Layout_Item *pItem);
+	bool							Move_Bottom			(CSGDI_Layout_Item *pItem);
+	bool							Move_Up				(CSGDI_Layout_Item *pItem);
+	bool							Move_Down			(CSGDI_Layout_Item *pItem);
+
 	CSGDI_Layout_Item *				Get_Active			(void)	const	{	return( m_pActive );	}
 	size_t							Active_Get_Position	(void)	const;
 	bool							Active_is_Top		(void)	const;
