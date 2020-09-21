@@ -145,6 +145,11 @@ public:
 	virtual CSG_String				Get_File_Name		(int i)	const	{	return( "" );	}
 	virtual CSG_String				Get_Menu			(int i)	const;
 
+	void							Add_Reference			(const CSG_String &Authors, const CSG_String &Year, const CSG_String &Title, const CSG_String &Where, const SG_Char *Link = NULL, const SG_Char *Link_Text = NULL);
+	void							Add_Reference			(const CSG_String &Link, const SG_Char *Link_Text = NULL);
+	void							Del_References			(void);
+	const CSG_Strings &				Get_References			(void)	const	{	return( m_References );		}
+
 
 protected:
 
@@ -160,6 +165,8 @@ private:
 
 	bool							_Destroy			(void);
 
+
+	CSG_Strings						m_References;
 
 	CSG_Tool_Library_Interface		*m_pInterface;
 

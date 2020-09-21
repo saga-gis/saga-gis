@@ -236,6 +236,45 @@ CSG_String CSG_Tool_Library::Get_Menu(int i) const
 
 ///////////////////////////////////////////////////////////
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CSG_Tool_Library::Add_Reference(const CSG_String &Authors, const CSG_String &Year, const CSG_String &Title, const CSG_String &Where, const SG_Char *Link, const SG_Char *Link_Text)
+{
+	CSG_String	Reference	= Authors;
+
+	Reference.Printf("<b>%s (%s):</b> %s. %s", Authors.c_str(), Year.c_str(), Title.c_str(), Where.c_str());
+
+	if( Link && *Link )
+	{
+		Reference	+= CSG_String::Format(" <a href=\"%s\">%s</a>.", Link, Link_Text && *Link_Text ? Link_Text : Link);
+	}
+
+	if( !Reference.is_Empty() )
+	{
+		m_References	+= Reference;
+	}
+
+	m_References.Sort();
+}
+
+//---------------------------------------------------------
+void CSG_Tool_Library::Add_Reference(const CSG_String &Link, const SG_Char *Link_Text)
+{
+	m_References	+= CSG_String::Format("<a href=\"%s\">%s</a>", Link.c_str(), Link_Text && *Link_Text ? Link_Text : Link.c_str());
+
+	m_References.Sort();
+}
+
+//---------------------------------------------------------
+void CSG_Tool_Library::Del_References(void)
+{
+	m_References.Clear();
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////

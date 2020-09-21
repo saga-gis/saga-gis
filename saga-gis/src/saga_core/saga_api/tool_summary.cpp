@@ -48,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "saga_api.h"
 
 
@@ -680,6 +671,18 @@ CSG_String CSG_Tool_Library::Get_Summary(int Format, bool bWithGUINeeded) const
 
 		s	+= Get_Info(TLB_INFO_Description);
 
+		if( Get_References().Get_Count() > 0 )
+		{
+			s	+= CSG_String::Format("<hr><h4>%s</h4><ul>", _TL("References"));
+
+			for(int i=0; i<Get_References().Get_Count(); i++)
+			{
+				s	+= "<li>" + Get_References()[i] + "</li>";
+			}
+
+			s	+= "</ul>";
+		}
+
 		//-------------------------------------------------
 		s	+= CSG_String::Format("<hr><h4>%s</h4>", _TL("Tools"));
 
@@ -719,6 +722,16 @@ CSG_String CSG_Tool_Library::Get_Summary(int Format, bool bWithGUINeeded) const
 		}
 
 		s	+= CSG_String::Format("\n%s:\n", _TL("Description")) + Get_Info(TLB_INFO_Description);
+
+		if( Get_References().Get_Count() > 0 )
+		{
+			s	+= CSG_String::Format("\n%s:\n", _TL("References"));
+
+			for(int i=0; i<Get_References().Get_Count(); i++)
+			{
+				s	+= " - " + Get_References()[i] + "\n";
+			}
+		}
 
 		s	+= CSG_String::Format("\n\n%s:\n", _TL("Tools"));
 
