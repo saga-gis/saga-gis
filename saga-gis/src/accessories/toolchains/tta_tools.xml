@@ -10,11 +10,19 @@
 		Two tools have been created using  SAGA GIS Tool Chains. The SAGA Tool Chains capability uses a simple xml scripting code that allows the joining of multiple SAGA processes. The two tools produced are (1) for land cover grid creation and (2) travel time calculation, the latter requiring the output of the first. Separating the two tools allows for simpler and faster execution to test multiple scenarios  with the Travel Time Grid creation tool without having to recalculate the base land cover grid each analysis iteration.
 
 		Find further information at Rohan Fisher's web page on &lt;a href="http://rohanfisher.wordpress.com/travel-time-modelling-saga/"&gt;Travel Time Modelling with SAGA&lt;/a&gt;.
-
-		References:
-		&lt;ul&gt;
-		&lt;li&gt;Fisher, R., and J. Lassa. "Interactive, open source, travel time scenario modelling: tools to facilitate participation in health service access analysis." International journal of health geographics 16(1) (2017): 13.&lt;/li&gt;
-		&lt;li&gt;Ray, Nicolas, and Steeve Ebener. "AccessMod 3.0: computing geographic coverage and accessibility to health care services using anisotropic movement of patients." International Journal of Health Geographics 7.1 (2008): 63.&lt;/li&gt;
-		&lt;/ul&gt;
 	</description>
+	<reference>
+		<authors>Fisher, R., and Lassa, J.</authors>
+		<year>2017</year>
+		<title>Interactive, open source, travel time scenario modelling: tools to facilitate participation in health service access analysis</title>
+		<where>International Journal of Health Geographics, 16(13).</where>
+		<doi>10.1186/s12942-017-0086-8</doi>
+	</reference>
+	<reference>
+		<authors>Ray, N., and Ebener, S.</authors>
+		<year>2008</year>
+		<title>AccessMod 3.0: computing geographic coverage and accessibility to health care services using anisotropic movement of patients</title>
+		<where>International Journal of Health Geographics, 7(63).</where>
+		<doi>10.1186/1476-072X-7-63</doi>
+	</reference>
 </toolchains>

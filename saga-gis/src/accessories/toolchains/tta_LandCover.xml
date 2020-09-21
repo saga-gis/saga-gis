@@ -11,16 +11,18 @@
 		Find further information at Rohan Fisher's web page on &lt;a href="http://rohanfisher.wordpress.com/travel-time-modelling-saga/"&gt;Travel Time Modelling with SAGA&lt;/a&gt;.
 	</description>
 	<reference>
-		<authors>Fisher, R., and J. Lassa</authors>
+		<authors>Fisher, R., and Lassa, J.</authors>
 		<year>2017</year>
 		<title>Interactive, open source, travel time scenario modelling: tools to facilitate participation in health service access analysis</title>
-		<where>International journal of health geographics, 16(1), p.13</where>
+		<where>International Journal of Health Geographics, 16(13).</where>
+		<doi>10.1186/s12942-017-0086-8</doi>
 	</reference>
 	<reference>
-		<authors>Ray, Nicolas, and Steeve Ebener</authors>
+		<authors>Ray, N., and Ebener, S.</authors>
 		<year>2008</year>
 		<title>AccessMod 3.0: computing geographic coverage and accessibility to health care services using anisotropic movement of patients</title>
-		<where>International Journal of Health Geographics 7.1.</where>
+		<where>International Journal of Health Geographics, 7(63).</where>
+		<doi>10.1186/1476-072X-7-63</doi>
 	</reference>
 	
 

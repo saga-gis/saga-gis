@@ -106,6 +106,7 @@ CSG_Tool_Chain::~CSG_Tool_Chain(void)
 void CSG_Tool_Chain::Reset(void)
 {
 	Parameters.Del_Parameters();
+	Parameters.Del_References();
 
 	m_Chain.Destroy();
 
@@ -392,7 +393,7 @@ void CSG_Tool_Chain::Add_References(void)
 	{
 		if( !m_Chain[i].Get_Name().CmpNoCase("REFERENCE") )
 		{
-			CSG_String	Authors, Year, Title, Where, Link, Link_Text;
+			CSG_String	Authors, Year, Title, Where, Link, Link_Text, DOI;
 
 			if( m_Chain[i]("AUTHORS"  ) ) Authors   = m_Chain[i].Get_Content("AUTHORS"  );
 			if( m_Chain[i]("YEAR"     ) ) Year      = m_Chain[i].Get_Content("YEAR"     );
@@ -400,6 +401,12 @@ void CSG_Tool_Chain::Add_References(void)
 			if( m_Chain[i]("WHERE"    ) ) Where     = m_Chain[i].Get_Content("WHERE"    );
 			if( m_Chain[i]("LINK"     ) ) Link      = m_Chain[i].Get_Content("LINK"     );
 			if( m_Chain[i]("LINK_TEXT") ) Link_Text = m_Chain[i].Get_Content("LINK_TEXT");
+			if( m_Chain[i]("DOI"      ) ) DOI       = m_Chain[i].Get_Content("DOI"      );
+
+			if( !DOI.is_Empty() )
+			{
+				Link = "https://doi.org/" + DOI; Link_Text = "doi:" + DOI;
+			}
 
 			if( !Authors.is_Empty() && !Year.is_Empty() && !Title.is_Empty() )
 			{
@@ -1917,6 +1924,37 @@ CSG_Tool_Chains::CSG_Tool_Chains(const CSG_String &Library_Name, const CSG_Strin
 
 		m_Description.Replace("[[", "<");	// support for xml/html tags
 		m_Description.Replace("]]", ">");
+
+		// add references...
+		for(int i=0; i<XML.Get_Children_Count(); i++)
+		{
+			if( !XML[i].Get_Name().CmpNoCase("REFERENCE") )
+			{
+				CSG_String	Authors, Year, Title, Where, Link, Link_Text, DOI;
+
+				if( XML[i]("AUTHORS"  ) ) Authors   = XML[i].Get_Content("AUTHORS"  );
+				if( XML[i]("YEAR"     ) ) Year      = XML[i].Get_Content("YEAR"     );
+				if( XML[i]("TITLE"    ) ) Title     = XML[i].Get_Content("TITLE"    );
+				if( XML[i]("WHERE"    ) ) Where     = XML[i].Get_Content("WHERE"    );
+				if( XML[i]("LINK"     ) ) Link      = XML[i].Get_Content("LINK"     );
+				if( XML[i]("LINK_TEXT") ) Link_Text = XML[i].Get_Content("LINK_TEXT");
+				if( XML[i]("DOI"      ) ) DOI       = XML[i].Get_Content("DOI"      );
+
+				if( !DOI.is_Empty() )
+				{
+					Link = "https://doi.org/" + DOI; Link_Text = "doi:" + DOI;
+				}
+
+				if( !Authors.is_Empty() && !Year.is_Empty() && !Title.is_Empty() )
+				{
+					Add_Reference(Authors, Year, Title, Where, Link.c_str(), Link_Text.c_str());
+				}
+				else if( !Link.is_Empty() )
+				{
+					Add_Reference(Link, Link_Text.c_str());
+				}
+			}
+		}
 	}
 }
 
