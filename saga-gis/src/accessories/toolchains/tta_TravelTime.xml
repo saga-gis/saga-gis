@@ -57,9 +57,10 @@
 	<tools>
 		<tool library="grid_tools" tool="15" name="Reclassify Grid Values">
 			<option id="NODATAOPT">true</option>
-			<option id="NODATA">-99999.000000</option>
+			<option id="NODATA">-99999</option>
 			<option id="RESULT_NODATA_CHOICE">1</option>
-			<option id="RESULT_NODATA_VALUE">-99999.000000</option>
+			<option id="RESULT_NODATA_VALUE">-99999</option>
+			<option id="RESULT_TYPE">6</option>
 			<option id="METHOD">3</option>
 			<option id="TOPERATOR">1</option>
 			<option id="F_MIN"  varname="TRUE">FIELD_LANDCOVER</option>
