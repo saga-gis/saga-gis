@@ -1644,6 +1644,7 @@ public:
 
 	void						Add_Reference			(const CSG_String &Authors, const CSG_String &Year, const CSG_String &Title, const CSG_String &Where, const SG_Char *Link = NULL, const SG_Char *Link_Text = NULL);
 	void						Add_Reference			(const CSG_String &Link, const SG_Char *Link_Text = NULL);
+	void						Del_References			(void);
 	const CSG_Strings &			Get_References			(void)	const	{	return( m_References );		}
 
 	void						Set_Enabled				(bool bEnabled = true);
