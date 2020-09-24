@@ -220,6 +220,11 @@ void CVIEW_Layout::On_Key_Event(wxKeyEvent &event)
 			m_pControl->Refresh(false);
 		}
 	}
+	else if( (event.ControlDown() && event.GetUnicodeKey() == 'V')
+		||   (event.ShiftDown  () && event.GetKeyCode   () == WXK_INSERT) )
+	{
+		m_pLayout->Clipboard_Paste();
+	}
 	else
 	{
 		m_pLayout->m_Items.On_Key_Event(event);

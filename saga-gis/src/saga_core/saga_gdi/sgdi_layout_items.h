@@ -74,11 +74,15 @@
 class SGDI_API_DLL_EXPORT CSGDI_Layout_Items
 {
 public:
-	static bool	Compare	(const wxRect &r1, const wxRect &r2)
+	static bool						Compare				(const wxRect &r1, const wxRect &r2)
 	{
 		return( r1.x == r2.x && r1.y == r2.y && r1.width == r2.width && r1.height == r2.height );
 	}
 
+	static wxRect					Get_Scaled			(const wxRect &Rect, double Scale);
+
+
+	//-----------------------------------------------------
 	class SGDI_API_DLL_EXPORT CSGDI_Layout_Item
 	{
 		friend class CSGDI_Layout_Items;
@@ -94,7 +98,7 @@ public:
 		bool						Set_Ratio			(double Ratio = 0.);
 
 		const wxRect &				Get_Rect			(void)	const			{	return( m_Rect );	}
-		bool						Set_Rect			(const wxRect &r);
+		bool						Set_Rect			(const wxRect &Rect);
 
 		virtual int					Get_ID				(void)	const			{	return( 0      );	}
 
@@ -107,7 +111,9 @@ public:
 
 		bool						m_bShow, m_bSizer, m_bFixed;
 
-		double						m_Ratio;
+		int							m_Raster;
+
+		double						m_Scale, m_Ratio;
 
 		wxRect						m_Rect;
 
@@ -117,9 +123,14 @@ public:
 	private:
 
 		bool						_Tracker_Create		(wxWindow *pParent);
+		bool						_Tracker_Set_Scale	(double Scale);
 		bool						_Tracker_Changed	(void);
 		bool						_Tracker_Enable		(void);
 		bool						_Tracker_Disable	(void);
+		bool						_Tracker_Refresh	(wxWindow *pParent, bool bErase = true);
+		bool						_Tracker_Contains	(const wxPoint &Point);
+		bool						_Tracker_Set_Rect	(const wxRect &Rect);
+		wxRect						_Tracker_Get_Rect	(void);
 
 	};
 
@@ -132,6 +143,7 @@ public:
 	bool							Destroy				(bool bDetachItems = false);
 
 	bool							Set_Parent			(wxWindow *pParent);
+	bool							Set_Raster			(int Raster);
 
 	size_t							Get_Count			(void)			const	{	return( m_Items.Get_Size() );	}
 	CSGDI_Layout_Item *				Get_Item			(size_t Index)	const	{	return( (CSGDI_Layout_Item *)m_Items[Index] );	}
@@ -175,6 +187,10 @@ public:
 
 
 protected:
+
+	int								m_Raster;
+
+	double							m_Scale;
 
 	wxWindow						*m_pParent;
 

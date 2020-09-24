@@ -79,6 +79,8 @@ public:
 
 	bool							Set_Scrollbars		(void);
 
+	void							Set_Rulers			(void);
+
 
 private:
 
@@ -91,8 +93,6 @@ private:
 
 	bool							Set_Zoom			(double Zoom);
 	void							Set_Zoom_Centered	(double Zooming, wxPoint Center);
-
-	void							Set_Rulers			(void);
 
 	void							On_Mouse_Wheel		(wxMouseEvent &event);
 

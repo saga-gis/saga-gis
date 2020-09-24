@@ -166,6 +166,8 @@ CVIEW_Layout_Paper::CVIEW_Layout_Paper(CVIEW_Layout_Control *pParent, CVIEW_Layo
 //---------------------------------------------------------
 void CVIEW_Layout_Paper::On_Paint(wxPaintEvent &event)
 {
+	((CVIEW_Layout_Control *)GetParent())->Set_Rulers();
+
 	wxPaintDC	dc(this);
 
 	m_pLayout->Draw(dc);
@@ -243,7 +245,7 @@ void CVIEW_Layout_Paper::On_Item_Menu_UI(wxUpdateUIEvent &event)
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CVIEW_Layout_Control, wxScrolledWindow)
-	EVT_MOUSEWHEEL  (CVIEW_Layout_Control::On_Mouse_Wheel)
+	EVT_MOUSEWHEEL(CVIEW_Layout_Control::On_Mouse_Wheel)
 END_EVENT_TABLE()
 
 

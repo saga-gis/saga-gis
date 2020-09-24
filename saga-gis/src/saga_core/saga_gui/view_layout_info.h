@@ -76,15 +76,19 @@ public:
 	enum
 	{
 		ItemID_Map	= 0,
-		ItemID_Legend,
 		ItemID_Scalebar,
 		ItemID_Scale,
+		ItemID_Legend,
 		ItemID_Label,
 		ItemID_Text,
 		ItemID_Image,
 		ItemID_None
 	};
 
+	static const char *				Get_Item_Type_Name		(int Type);
+
+
+	//-----------------------------------------------------
 	CVIEW_Layout_Info(class CWKSP_Map *pMap);
 	virtual ~CVIEW_Layout_Info(void);
 
@@ -129,12 +133,6 @@ public:
 
 	bool							Set_Zoom				(double Zoom);
 
-	double							Get_Item2Paper			(void)					const	{	return(                       m_Item2Paper   );	}
-	wxRect							Get_Item2Paper			(const wxRect &Rect)	const	{	return( Get_Rect_Scaled(Rect, m_Item2Paper ) );	}
-
-	double							Get_Item2DC				(void)					const	{	return(                       m_Item2DC      );	}
-	wxRect							Get_Item2DC				(const wxRect &Rect)	const	{	return( Get_Rect_Scaled(Rect, m_Item2DC    ) );	}
-
 	double							Get_Paper2DC			(void)					const	{	return(                       m_Paper2DC     );	}
 	wxRect							Get_Paper2DC			(const wxRect &Rect)	const	{	return( Get_Rect_Scaled(Rect, m_Paper2DC   ) );	}
 
@@ -145,7 +143,7 @@ public:
 
 protected:
 
-	double							m_Zoom, m_Item2Paper, m_Item2DC, m_Paper2DC;
+	double							m_Zoom, m_Paper2DC;
 
 	CSG_Parameters					m_Parameters;
 
@@ -154,9 +152,6 @@ protected:
 	class wxPrintData				*m_pPrintData;
 
 	class wxPageSetupData			*m_pPrintPage;
-
-
-	void							_Fit_Scale				(void);
 
 };
 
