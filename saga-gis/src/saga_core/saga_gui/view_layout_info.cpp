@@ -915,7 +915,7 @@ CVIEW_Layout_Info::CVIEW_Layout_Info(CWKSP_Map *pMap)
 	m_Parameters.Add_Bool("RASTER",
 		"RASTER_SHOW"	, _TL("Show"),
 		_TL(""),
-		false
+		true
 	);
 
 	m_Parameters.Add_Bool("RASTER",
@@ -1157,6 +1157,16 @@ bool CVIEW_Layout_Info::Load(const CSG_MetaData &Layout)
 	//-----------------------------------------------------
 	const CSG_MetaData	&General = Layout["general"];
 
+	if( General("orientation") )
+	{
+		m_pPrintData->SetOrientation(General["orientation"].Cmp_Content("landscape") ? wxLANDSCAPE : wxPORTRAIT);
+	}
+
+	if( General("paperformat") )
+	{
+		m_pPrintData->SetPaperId((wxPaperSize)General["paperformat"].Get_Content().asInt());
+	}
+
 	if( General("parameters") )
 	{
 		m_Parameters.Serialize(*General("parameters"), false);
@@ -1255,6 +1265,9 @@ bool CVIEW_Layout_Info::Save(CSG_MetaData &Layout)	const
 
 	//-----------------------------------------------------
 	CSG_MetaData	&General = *Layout.Add_Child("general");
+
+	General.Add_Child("orientation", m_pPrintData->GetOrientation() == wxLANDSCAPE ? "landscape" : "portrait");
+	General.Add_Child("paperformat", m_pPrintData->GetPaperId());
 
 	m_Parameters.Serialize(*General.Add_Child());
 
@@ -1530,28 +1543,36 @@ bool CVIEW_Layout_Info::Set_Zoom(double Zoom)
 //---------------------------------------------------------
 bool CVIEW_Layout_Info::Draw(wxDC &dc, bool bPrintOut)
 {
-	m_Paper2DC	= dc.GetSize().GetWidth() / ((double)Get_PaperSize().GetWidth());
+	if( bPrintOut )
+	{
+		m_Paper2DC	= dc.GetSize().GetWidth() / ((double)Get_PaperSize().GetWidth());
+	}
 
 	//-----------------------------------------------------
-	if( !bPrintOut && m_Parameters["RASTER_SHOW"].asBool() )
+	else
 	{
-		wxPen	oldPen(dc.GetPen());	dc.SetPen(*wxBLACK_PEN);
+		m_Paper2DC	= m_Zoom;
 
-		double	Step	= m_Parameters["RASTER_SIZE"].asDouble();
+		dc.SetBrush(*wxWHITE_BRUSH);
+		dc.SetPen  (*wxBLACK_PEN  );
+		dc.DrawRectangle(Get_Rect_Scaled(Get_PaperSize(), m_Zoom));
 
-		for(int y=Step; y<Get_PaperSize().GetHeight()-1; y+=Step)
+		if( m_Parameters["RASTER_SHOW"].asBool() )
 		{
-			int	yy	= (int)(0.5 + y * m_Paper2DC);
+			double	Step	= m_Parameters["RASTER_SIZE"].asDouble();
 
-			for(int x=Step; x<Get_PaperSize().GetWidth()-1; x+=Step)
+			for(int y=Step; y<Get_PaperSize().GetHeight()-1; y+=Step)
 			{
-				int	xx	= (int)(0.5 + x * m_Paper2DC);
+				int	yy	= (int)(0.5 + y * m_Paper2DC);
 
-				dc.DrawPoint(xx, yy);
+				for(int x=Step; x<Get_PaperSize().GetWidth()-1; x+=Step)
+				{
+					int	xx	= (int)(0.5 + x * m_Paper2DC);
+
+					dc.DrawPoint(xx, yy);
+				}
 			}
 		}
-
-		dc.SetPen(oldPen);
 	}
 
 	//-----------------------------------------------------

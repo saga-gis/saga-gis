@@ -76,17 +76,15 @@ public:
 	bool							Do_Destroy			(void);
 
 	bool							Fit_To_Size			(int x, int y);
-
 	bool							Set_Scrollbars		(void);
-
 	void							Set_Rulers			(void);
+
+	virtual void					OnDraw				(wxDC &dc);
 
 
 private:
 
 	double							m_Zoom;
-
-	wxPanel							*m_pPaper;
 
 	class CVIEW_Layout_Info			*m_pLayout;
 
@@ -94,7 +92,13 @@ private:
 	bool							Set_Zoom			(double Zoom);
 	void							Set_Zoom_Centered	(double Zooming, wxPoint Center);
 
-	void							On_Mouse_Wheel		(wxMouseEvent &event);
+	void							On_Tracker_Changed	(wxCommandEvent  &event);
+
+	void							On_Mouse_Event		(wxMouseEvent    &event);
+	void							On_Mouse_Wheel		(wxMouseEvent    &event);
+
+	void							On_Item_Menu		(wxCommandEvent  &event);
+	void							On_Item_Menu_UI		(wxUpdateUIEvent &event);
 
 
 	//-----------------------------------------------------
