@@ -63,32 +63,38 @@ CCRS_Assign::CCRS_Assign(void)
 	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
-		"The tool allows one to define the Coordinate Reference System (CRS) "
-		"of the supplied data sets. The tool applies no transformation to "
+		"This tool allows you to define the Coordinate Reference System (CRS) "
+		"for the supplied data sets. The tool applies no transformation to "
 		"the data sets, it just updates their CRS metadata.\n"
 		"A complete and correct description of the CRS of a dataset is necessary "
 		"in order to be able to actually apply a projection with one of the "
-		"'Coordinate Transformation' tools later.\n\n"
+		"'Coordinate Transformation' tools."
 	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List("",
-		"GRIDS" , _TL("Grids"),
+		"GRIDS"     , _TL("Grids"),
+		_TL(""),
+		PARAMETER_INPUT_OPTIONAL
+	);
+
+	Parameters.Add_Grid_List("",
+		"GRIDS_OUT" , _TL("Grids"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
+	)->Set_UseInGUI(false);
+
+	Parameters.Add_Shapes_List("",
+		"SHAPES"    , _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Shapes_List("",
-		"SHAPES", _TL("Shapes"),
+		"SHAPES_OUT", _TL("Shapes"),
 		_TL(""),
-		PARAMETER_INPUT_OPTIONAL
-	);
-
-//	Parameters.Add_TIN_List("",
-//		"TINS"  , _TL("TINs"),
-//		_TL(""),
-//		PARAMETER_INPUT_OPTIONAL
-//	);
+		PARAMETER_OUTPUT_OPTIONAL
+	)->Set_UseInGUI(false);
 }
 
 
@@ -101,7 +107,6 @@ bool CCRS_Assign::On_Execute(void)
 {
 	int	nTotal	= Parameters("GRIDS" )->asList()->Get_Item_Count()
 				+ Parameters("SHAPES")->asList()->Get_Item_Count();
-	//			+ Parameters("TINS"  )->asList()->Get_Item_Count();
 
 	if( nTotal <= 0 )
 	{
@@ -121,9 +126,8 @@ bool CCRS_Assign::On_Execute(void)
 	//-----------------------------------------------------
 	int	nProjected	= 0;
 
-	nProjected	+= Set_Projections(Projection, Parameters("GRIDS" )->asList());
-	nProjected	+= Set_Projections(Projection, Parameters("SHAPES")->asList());
-//	nProjected	+= Set_Projections(Projection, Parameters("TINS"  )->asList());
+	nProjected	+= Set_Projections(Projection, Parameters("GRIDS" )->asList(), has_GUI() ? NULL : Parameters("GRIDS_OUT" )->asList());
+	nProjected	+= Set_Projections(Projection, Parameters("SHAPES")->asList(), has_GUI() ? NULL : Parameters("SHAPES_OUT")->asList());
 
 	//-----------------------------------------------------
 	return( nProjected > 0 );
@@ -135,8 +139,13 @@ bool CCRS_Assign::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CCRS_Assign::Set_Projections(const CSG_Projection &Projection, CSG_Parameter_List *pList)
+int CCRS_Assign::Set_Projections(const CSG_Projection &Projection, CSG_Parameter_List *pList, CSG_Parameter_List *pList_Out)
 {
+	if( pList_Out )
+	{
+		pList_Out->Del_Items();
+	}
+
 	int	nProjected	= 0;
 
 	for(int i=0; i<pList->Get_Item_Count(); i++)
@@ -148,6 +157,11 @@ int CCRS_Assign::Set_Projections(const CSG_Projection &Projection, CSG_Parameter
 			DataObject_Update(pList->Get_Item(i));
 
 			nProjected++;
+
+			if( pList_Out )
+			{
+				pList_Out->Add_Item(pList->Get_Item(i));
+			}
 		}
 	}
 

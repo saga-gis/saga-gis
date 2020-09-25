@@ -80,7 +80,7 @@ protected:
 
 private:
 
-	int					Set_Projections				(const CSG_Projection &Projection, CSG_Parameter_List *pList);
+	int					Set_Projections				(const CSG_Projection &Projection, CSG_Parameter_List *pList, CSG_Parameter_List *pList_Out);
 
 };
 
