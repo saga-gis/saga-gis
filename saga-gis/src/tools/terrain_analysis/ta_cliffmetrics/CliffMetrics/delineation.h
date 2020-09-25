@@ -93,7 +93,9 @@ private:
       m_nThisSave,
       m_nCoastMax,
       m_nCoastMin,
-      m_nCoastSeaHandiness;
+      m_nCoastSeaHandiness,
+      m_nStartEdgeUserCoastline,            // ORIENTATION_NORTH, etc...
+      m_nEndEdgeUserCoastline;              // ORIENTATION_NORTH, etc... ;
    
 #if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
    GDALDataType
@@ -211,6 +213,7 @@ private:
 
    // The coastline objects
    vector<CCoast> m_VCoast;
+   vector<CCoast> m_VUserCoast;
 
    // Pointers to coast polygon objects
    vector<CCoastPolygon*> m_pVCoastPolygon;

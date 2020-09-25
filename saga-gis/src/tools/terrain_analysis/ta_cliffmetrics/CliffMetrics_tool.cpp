@@ -102,20 +102,28 @@ CCliffMetrics_Tool::CCliffMetrics_Tool(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes("",
-		"COAST_INITIAL"		, _TL("Initial Coastline Points"),
-		_TL(""),
+		"COAST_INITIAL"		, _TL("User Defined Coastline Points"),
+		_TL("if non empty, cliffmetric will use the user defined coastal line to draw the transects"),
 		PARAMETER_INPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Choice("COAST_INITIAL",
+	Parameters.Add_Int("COAST_INITIAL",
 		"CoastSeaHandiness"	, _TL("Sea handiness"),
-		_TL("which side of shoreline the sea is?"),
-		CSG_String::Format("%s|%s",
-			_TL("right"),
-			_TL("left")
-		)
+		_TL("as you traverse the coastline, on which side of shoreline the sea is? [right = 1 or left = 0]"),
+		0, 0, true, 1, true
 	);
 
+	Parameters.Add_Int("COAST_INITIAL",
+		"StartEdgeUserCoastLine", _TL("Start edge coastline"),
+		_TL("on which edge of the DTM the start of coastline is? [N = 1, E = 2, S = 3, W = 4]"),
+		 1, 1, true, 4, true
+	);
+
+	Parameters.Add_Int("COAST_INITIAL",
+		"EndEdgeUserCoastLine", _TL("End edge coastline"),
+		_TL("on which edge of the DTM the end of coastline is? [N = 1, E = 2, S = 3, W = 4]"),
+		1, 1, true, 4, true
+	);
 	Parameters.Add_Shapes("",
 		"COAST"				, _TL("Coastline"),
 		_TL(""),
@@ -235,6 +243,8 @@ int CCliffMetrics_Tool::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Pa
 	if( pParameter->Cmp_Identifier("COAST_INITIAL") )
 	{
 		pParameters->Set_Enabled("CoastSeaHandiness", pParameter->asShapes() != NULL);
+		pParameters->Set_Enabled("StartEdgeUserCoastLine", pParameter->asShapes() != NULL);
+		pParameters->Set_Enabled("EndEdgeUserCoastLine", pParameter->asShapes() != NULL);
 	}
 
 	if( pParameter->Cmp_Identifier("CoastSmooth") )

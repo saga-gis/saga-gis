@@ -790,13 +790,13 @@ int CDelineation::nReadVectorCoastlineData(CSG_Shapes *pShapes)
 		return RTN_ERR_VECTOR_GIS_OUT_FORMAT;
 	}
 
-	int nCoast = m_VCoast.size()-1;
+	 int nCoast = m_VUserCoast.size()-1;
 
 	for(int i=0; i<pShapes->Get_Count(); i++)
 	{
 		CSG_Point	Point	= pShapes->Get_Shape(i)->Get_Point(0);
 
-		m_VCoast[nCoast].AppendToCoastline(Point.x, Point.y);
+		m_VUserCoast[nCoast].AppendToCoastline(Point.x, Point.y);
 	}
 
 	return RTN_OK;

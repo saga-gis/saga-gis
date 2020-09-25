@@ -349,12 +349,14 @@ int CDelineation::nDoDelineation(CSG_Parameters *pParameters)
 						// We have the name of the run-data input file, so read it   if (! bReadRunData())
 	CSG_String	OutPath	= Parameters["OutPath"].asString();
 
-	m_strOutPath	= OutPath.b_str();		// Path for CliffMetrics output
 
 	if( !SG_Dir_Exists(OutPath) )
 	{
 		OutPath	= SG_Dir_Get_Temp();
 	}
+
+	m_strOutPath	= OutPath.b_str();		// Path for CliffMetrics output
+	
 
 	m_strOutFile	= SG_File_Make_Path(OutPath, "cliffmetrics", "txt").b_str();	// Text output file names, don't change case
 	m_strLogFile	= SG_File_Make_Path(OutPath, "cliffmetrics", "log").b_str();	// Text output file names, don't change case
@@ -420,7 +422,11 @@ int CDelineation::nDoDelineation(CSG_Parameters *pParameters)
 		//}
 	}
 
-	m_nCoastSeaHandiness	= Parameters["CoastSeaHandiness"].asInt();
+	m_nCoastSeaHandiness	        = Parameters["CoastSeaHandiness"].asInt();
+	CSG_String InitialCoastlineFile = Parameters["COAST_INITIAL"].asString();
+	m_strInitialCoastlineFile       = InitialCoastlineFile.b_str();					// Filename user define coastline for CliffMetrics output
+	m_nStartEdgeUserCoastline		= Parameters["StartEdgeUserCoastLine"].asInt();
+	m_nEndEdgeUserCoastline			= Parameters["EndEdgeUserCoastLine"].asInt();
 
 	// May wish to read in the shoreline vector file instead of calculating it from the raster
 	if( Parameters["COAST_INITIAL"].asShapes() )
@@ -429,7 +435,7 @@ int CDelineation::nDoDelineation(CSG_Parameters *pParameters)
 
 		// Create a new coastline object
 		CCoast CoastTmp;
-		m_VCoast.push_back(CoastTmp);
+		m_VUserCoast.push_back(CoastTmp);
 
 		// Read in the points of user defined coastline
 		nRet = nReadVectorCoastlineData(Parameters["COAST_INITIAL"].asShapes());

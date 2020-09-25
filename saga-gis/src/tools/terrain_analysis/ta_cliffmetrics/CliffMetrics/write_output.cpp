@@ -103,7 +103,12 @@ void CDelineation::WriteStartRunDetails(void)
 #else
       << m_strLogFile << endl;
 #endif
-
+   OutStream << " Output folder                                             \t: "
+#ifdef _WIN32
+	   << pstrChangeToForwardSlash(&m_strOutPath) << endl;
+#else
+	   << m_strOutPath << endl;
+#endif
    OutStream << " Coastline vector smoothing algorithm                      \t: ";
    switch (m_nCoastSmooth)
    {
@@ -219,8 +224,6 @@ bool CDelineation::bWriteProfileData(int const nCoast, int const nProfile, int c
    char szNumTmp1[7] = "";
    pszLongToSz(nProfile, szNumTmp1, 7);          // Pad with zeros
    strFName.append(pszTrimLeft(szNumTmp1));
-   strFName.append("_");
-   strFName.append(m_strRunName);
    strFName.append(".csv");
 
    ofstream OutProfStream;
@@ -251,14 +254,12 @@ bool CDelineation::bWriteProfileData(int const nCoast, int const nProfile, int c
 	if( m_strOutPath.size() && SG_Dir_Exists(m_strOutPath.c_str()) )
 	{
 		string strFName = m_strOutPath;
-		strFName.append("coast_");
+		strFName.append("\\coast_");
 		strFName.append(NumberToString(nCoast));
 		strFName.append("_profile_");
 		char szNumTmp1[7] = "";
 		pszLongToSz(nProfile, szNumTmp1, 7);          // Pad with zeros
 		strFName.append(pszTrimLeft(szNumTmp1));
-		strFName.append("_");
-		strFName.append(m_strRunName);
 		strFName.append(".csv");
 
 		ofstream OutProfStream;

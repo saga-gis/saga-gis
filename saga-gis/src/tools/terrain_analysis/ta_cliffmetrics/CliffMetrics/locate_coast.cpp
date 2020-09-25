@@ -50,7 +50,7 @@ using std::stack;
 ===============================================================================================================================*/
 int CDelineation::nLocateSeaAndCoasts(void)
 {
-   if (m_strInitialCoastlineFile.empty())
+   if (m_strInitialCoastlineFile.empty() || m_VUserCoast.size() < 1)
    {
       // Find all connected sea cells
       FindAllSeaCells();
@@ -62,29 +62,70 @@ int CDelineation::nLocateSeaAndCoasts(void)
    }
    else
    {
-      // User has defined a Vector coastline, to be used instead
-      int nCoast = m_VCoast.size()-1;
- 
+      // User has defined a Vector coastline, to be used instead 
+       int
+           nCoast     = m_VUserCoast.size() - 1,
+           nCoastSize = m_VUserCoast[nCoast].nGetCoastlineSize(),
+           nStartEdge = ORIENTATION_NONE,
+           nEndEdge   = ORIENTATION_NONE;
+
+       if (m_nStartEdgeUserCoastline == 1)
+           nStartEdge = ORIENTATION_NORTH;
+       else if (m_nStartEdgeUserCoastline == 2)
+           nStartEdge = ORIENTATION_EAST;
+       else if (m_nStartEdgeUserCoastline == 3)
+           nStartEdge = ORIENTATION_SOUTH;
+       else if (m_nStartEdgeUserCoastline == 4)
+           nStartEdge = ORIENTATION_WEST;
+
+       if (m_nEndEdgeUserCoastline == 1)
+           nEndEdge = ORIENTATION_NORTH;
+       else if (m_nEndEdgeUserCoastline == 2)
+           nEndEdge = ORIENTATION_EAST;
+       else if (m_nEndEdgeUserCoastline == 3)
+           nEndEdge = ORIENTATION_SOUTH;
+       else if (m_nEndEdgeUserCoastline == 4)
+           nEndEdge = ORIENTATION_WEST;
+
+
+      // Initialize a temporal line with User Coastline points for smoothing  
+      CLine LTempExtCRS;
+      for (int j = 0; j < nCoastSize; j++)
+          LTempExtCRS.Append(m_VUserCoast[nCoast].pPtGetVectorCoastlinePoint(j)->dGetX(), m_VUserCoast[nCoast].pPtGetVectorCoastlinePoint(j)->dGetY());
+
+      // Now do some smoothing of the vector output, if desired
+      if (m_nCoastSmooth == SMOOTH_RUNNING_MEAN)
+          LTempExtCRS = LSmoothCoastRunningMean(&LTempExtCRS, nStartEdge, nEndEdge);
+      else if (m_nCoastSmooth == SMOOTH_SAVITZKY_GOLAY)
+          LTempExtCRS = LSmoothCoastSavitzkyGolay(&LTempExtCRS, nStartEdge, nEndEdge);
+
+      // Create a new coast object
+      CCoast CoastTmp;
+      m_VCoast.push_back(CoastTmp);
+
       // Next, set values for the coast's other attributes. First set the coast's handedness, and start and end edges
       m_VCoast[nCoast].SetSeaHandedness(m_nCoastSeaHandiness);
       
-      // Mark these cells as coast cells
-      for (int n = 0; n < m_VCoast[nCoast].nGetCoastlineSize(); n++)
+      // Save smoothed coastline and Mark these cells as coast cells
+      for (int n = 0; n < nCoastSize; n++)
       {
-	  // The start point of the normal, must convert from the external CRS to grid CRS. If this is the first line segment of the profile, then the start point is the centroid of a coastline cell
-      double
-         dXn = dExtCRSXToGridX(m_VCoast[nCoast].pPtGetVectorCoastlinePoint(n)->dGetX()),
-         dYn = dExtCRSYToGridY(m_VCoast[nCoast].pPtGetVectorCoastlinePoint(n)->dGetY());
-      int
+       
+       // Store the smoothed points (in external CRS) in the coast's m_LCoastline object, also append dummy values to the other attribute vectors
+       m_VCoast[nCoast].AppendToCoastline(LTempExtCRS[n].dGetX(), LTempExtCRS[n].dGetY());
+
+       // Also store the locations of the corresponding unsmoothed points (in raster-grid CRS) in the coast's m_VCellsMarkedAsCoastline vector
+       double
+         dXn = dExtCRSXToGridX(m_VUserCoast[nCoast].pPtGetVectorCoastlinePoint(n)->dGetX()),
+         dYn = dExtCRSYToGridY(m_VUserCoast[nCoast].pPtGetVectorCoastlinePoint(n)->dGetY());
+       int 
          nXn = static_cast<int>(dXn),
          nYn = static_cast<int>(dYn);
 	 
-	C2DIPoint Pti(nXn, nYn);
-	 
-	// Also store the locations of the corresponding unsmoothed points (in raster-grid CRS) in the coast's m_VCellsMarkedAsCoastline vector
-         m_VCoast[nCoast].AppendCellMarkedAsCoastline(&Pti);
+	   C2DIPoint Pti(nXn, nYn);
+     
+       m_VCoast[nCoast].AppendCellMarkedAsCoastline(&Pti); // mark unsmoothed cells centroids as coastline
 	
-	 if (bIsWithinGrid(nXn, nYn))
+	    if (bIsWithinGrid(nXn, nYn))
 	    m_pRasterGrid->pGetCell(nXn, nYn)->SetAsCoastline(true);
       }
       

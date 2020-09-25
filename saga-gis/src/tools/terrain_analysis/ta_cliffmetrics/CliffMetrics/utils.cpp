@@ -770,7 +770,7 @@ string CDelineation::strGetBuild(void)
 ==============================================================================================================================*/
 void CDelineation::AnnounceProgress(void)
 {
-   if (isatty(1))
+   if (_isatty(1))
    {
       // Stdout is connected to a tty, so not running as a background job
       static double sdElapsed = 0;
