@@ -349,10 +349,10 @@ void CVIEW_Layout::On_Item_UI(wxUpdateUIEvent &event)
 {
 	switch( event.GetId() )
 	{
-	case ID_CMD_LAYOUT_ITEM_MAP     : event.Check(m_pLayout->is_Shown(CVIEW_Layout_Info::ItemID_Map     ) != NULL); break;
-	case ID_CMD_LAYOUT_ITEM_LEGEND  : event.Check(m_pLayout->is_Shown(CVIEW_Layout_Info::ItemID_Legend  ) != NULL); break;
-	case ID_CMD_LAYOUT_ITEM_SCALEBAR: event.Check(m_pLayout->is_Shown(CVIEW_Layout_Info::ItemID_Scalebar) != NULL); break;
-	case ID_CMD_LAYOUT_ITEM_SCALE   : event.Check(m_pLayout->is_Shown(CVIEW_Layout_Info::ItemID_Scale   ) != NULL); break;
+	case ID_CMD_LAYOUT_ITEM_MAP     : event.Check(m_pLayout->is_Shown(CVIEW_Layout_Info::ItemID_Map     )); break;
+	case ID_CMD_LAYOUT_ITEM_LEGEND  : event.Check(m_pLayout->is_Shown(CVIEW_Layout_Info::ItemID_Legend  )); break;
+	case ID_CMD_LAYOUT_ITEM_SCALEBAR: event.Check(m_pLayout->is_Shown(CVIEW_Layout_Info::ItemID_Scalebar)); break;
+	case ID_CMD_LAYOUT_ITEM_SCALE   : event.Check(m_pLayout->is_Shown(CVIEW_Layout_Info::ItemID_Scale   )); break;
 	}
 }
 
