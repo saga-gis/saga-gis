@@ -139,6 +139,7 @@ public:
 	bool							Draw					(wxDC &dc, bool bPrintOut = false);
 
 	bool							Export					(void);
+	bool							Clipboard_Copy			(void);
 
 
 protected:

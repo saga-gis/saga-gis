@@ -539,6 +539,8 @@ public:
 		{
 			Properties(MDI_Get_Frame());
 		}
+
+		Adjust_Size();
 	}
 
 	//-----------------------------------------------------
@@ -718,7 +720,21 @@ public:
 
 	bool				Restore				(void)
 	{
-		return( m_Image.IsOk() && Set_Size(m_Image.GetSize()) );
+		if( m_Image.IsOk() )
+		{
+			Refresh(true);
+
+			Set_Rect(wxRect(m_Rect.x, m_Rect.y,
+				m_Image.GetSize().GetWidth (),
+				m_Image.GetSize().GetHeight())
+			);
+
+			Refresh(false);
+
+			return( true );
+		}
+
+		return( false );
 	}
 
 	//-----------------------------------------------------
@@ -797,14 +813,14 @@ public:
 			{
 				wxSize	Size(pDC->GetSize());
 
-				double	DPI	= Size.GetWidth() * 25.4 / m_pLayout->Get_PaperSize().GetWidth();
+				double	dpi	= Size.GetWidth() * 25.4 / m_pLayout->Get_PaperSize().GetWidth();
 
-				if( DPI > m_pLayout->Get_Parameter("MAX_DPI").asDouble() )
+				if( dpi > m_pLayout->Get_Parameter("MAX_DPI").asDouble() )
 				{
-					DPI	= m_pLayout->Get_Parameter("MAX_DPI").asDouble();
+					dpi	= m_pLayout->Get_Parameter("MAX_DPI").asDouble();
 
-					Size.x = (int)(0.5 + m_pLayout->Get_PaperSize().GetWidth () * DPI / 25.4);
-					Size.y = (int)(0.5 + m_pLayout->Get_PaperSize().GetHeight() * DPI / 25.4);
+					Size.x = (int)(0.5 + m_pLayout->Get_PaperSize().GetWidth () * dpi / 25.4);
+					Size.y = (int)(0.5 + m_pLayout->Get_PaperSize().GetHeight() * dpi / 25.4);
 				}
 
 				m_Bmp.Create(Size.x, Size.y);
@@ -1167,6 +1183,8 @@ bool CVIEW_Layout_Info::Load(const CSG_MetaData &Layout)
 		m_pPrintData->SetPaperId((wxPaperSize)General["paperformat"].Get_Content().asInt());
 	}
 
+	m_pPrintPage->SetPrintData(*m_pPrintData);
+
 	if( General("parameters") )
 	{
 		m_Parameters.Serialize(*General("parameters"), false);
@@ -1208,6 +1226,13 @@ bool CVIEW_Layout_Info::Load(const CSG_MetaData &Layout)
 			||  pItem->Get_Type() == ItemID_Text
 			||  pItem->Get_Type() == ItemID_Image )
 			{
+				if( Type == ItemID_Image )
+				{
+					((CLayout_Image *)pItem)->Load(pItem->m_Parameters["FILE"].asString(), false);
+				}
+
+				pItem->Adjust_Size();
+
 				m_Items.Add(pItem);
 			}
 			else
@@ -1222,11 +1247,6 @@ bool CVIEW_Layout_Info::Load(const CSG_MetaData &Layout)
 				{
 					m_Items.Show(pItem);
 				}
-			}
-
-			if( Type == ItemID_Image )
-			{
-				((CLayout_Image *)pItem)->Load(pItem->m_Parameters["FILE"].asString(), false);
 			}
 		}
 	}
@@ -1441,10 +1461,10 @@ bool CVIEW_Layout_Info::Clipboard_Paste(void)
 //---------------------------------------------------------
 wxMenu * CVIEW_Layout_Info::Menu_Get_Active(void)
 {
+	wxMenu	*pMenu	= new wxMenu;
+
 	if( m_Items.Get_Active() )
 	{
-		wxMenu	*pMenu	= new wxMenu;
-
 		if( Can_Hide() )
 		{
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_LAYOUT_ITEM_HIDE);
@@ -1479,12 +1499,23 @@ wxMenu * CVIEW_Layout_Info::Menu_Get_Active(void)
 			pMenu->AppendSeparator();
 		}
 
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_LAYOUT_ITEM_PROPERTIES );
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_LAYOUT_ITEM_PROPERTIES);
+	}
+	else
+	{
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_LAYOUT_TO_CLIPBOARD);
 
-		return( pMenu );
+		if( wxTheClipboard->IsSupported(wxDF_TEXT  )
+		||  wxTheClipboard->IsSupported(wxDF_BITMAP) )
+		{
+			CMD_Menu_Add_Item(pMenu, false, ID_CMD_LAYOUT_ITEM_PASTE);
+		}
+
+		pMenu->AppendSeparator();
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_LAYOUT_PROPERTIES );
 	}
 
-	return( NULL );
+	return( pMenu );
 }
 
 //---------------------------------------------------------
@@ -1492,14 +1523,25 @@ bool CVIEW_Layout_Info::Menu_On_Command(wxCommandEvent &event)
 {
 	switch( event.GetId() )
 	{
-	case ID_CMD_LAYOUT_ITEM_PROPERTIES : m_Items.Active_Properties()      ; break;
-	case ID_CMD_LAYOUT_ITEM_DELETE     : m_Items.Del(m_Items.Get_Active()); break;
-	case ID_CMD_LAYOUT_ITEM_HIDE       : Toggle_Item()                    ; break;
+	case ID_CMD_LAYOUT_TO_CLIPBOARD    : Clipboard_Copy                 (); break;
+	case ID_CMD_LAYOUT_ITEM_PASTE      : Clipboard_Paste                (); break;
 
-	case ID_CMD_LAYOUT_ITEM_MOVE_TOP   : m_Items.Active_Move_Top   (); break;
-	case ID_CMD_LAYOUT_ITEM_MOVE_BOTTOM: m_Items.Active_Move_Bottom(); break;
-	case ID_CMD_LAYOUT_ITEM_MOVE_UP    : m_Items.Active_Move_Up    (); break;
-	case ID_CMD_LAYOUT_ITEM_MOVE_DOWN  : m_Items.Active_Move_Down  (); break;
+	case ID_CMD_LAYOUT_ITEM_MAP        : Toggle_Item(ItemID_Map          ); break;
+	case ID_CMD_LAYOUT_ITEM_LEGEND     : Toggle_Item(ItemID_Legend       ); break;
+	case ID_CMD_LAYOUT_ITEM_SCALEBAR   : Toggle_Item(ItemID_Scalebar     ); break;
+	case ID_CMD_LAYOUT_ITEM_SCALE      : Toggle_Item(ItemID_Scale        ); break;
+	case ID_CMD_LAYOUT_ITEM_LABEL      :    Add_Item(ItemID_Label        ); break;
+	case ID_CMD_LAYOUT_ITEM_TEXT       :    Add_Item(ItemID_Text         ); break;
+	case ID_CMD_LAYOUT_ITEM_IMAGE      :    Add_Item(ItemID_Image        ); break;
+
+	case ID_CMD_LAYOUT_ITEM_PROPERTIES : m_Items.Active_Properties      (); break;
+	case ID_CMD_LAYOUT_ITEM_DELETE     : m_Items.Del(m_Items.Get_Active()); break;
+	case ID_CMD_LAYOUT_ITEM_HIDE       : Toggle_Item                    (); break;
+
+	case ID_CMD_LAYOUT_ITEM_MOVE_TOP   : m_Items.Active_Move_Top        (); break;
+	case ID_CMD_LAYOUT_ITEM_MOVE_BOTTOM: m_Items.Active_Move_Bottom     (); break;
+	case ID_CMD_LAYOUT_ITEM_MOVE_UP    : m_Items.Active_Move_Up         (); break;
+	case ID_CMD_LAYOUT_ITEM_MOVE_DOWN  : m_Items.Active_Move_Down       (); break;
 
 	case ID_CMD_LAYOUT_IMAGE_SAVE      : ((CLayout_Image *)m_Items.Get_Active())->Save   (); break;
 	case ID_CMD_LAYOUT_IMAGE_RESTORE   : ((CLayout_Image *)m_Items.Get_Active())->Restore(); break;
@@ -1513,10 +1555,20 @@ bool CVIEW_Layout_Info::Menu_On_Command_UI(wxUpdateUIEvent &event)
 {
 	switch( event.GetId() )
 	{
+	case ID_CMD_LAYOUT_ITEM_MAP        : event.Check(is_Shown(ItemID_Map     )); break;
+	case ID_CMD_LAYOUT_ITEM_LEGEND     : event.Check(is_Shown(ItemID_Legend  )); break;
+	case ID_CMD_LAYOUT_ITEM_SCALEBAR   : event.Check(is_Shown(ItemID_Scalebar)); break;
+	case ID_CMD_LAYOUT_ITEM_SCALE      : event.Check(is_Shown(ItemID_Scale   )); break;
+
 	case ID_CMD_LAYOUT_ITEM_MOVE_TOP   : event.Enable(!m_Items.Active_is_Top   ()); break;
 	case ID_CMD_LAYOUT_ITEM_MOVE_BOTTOM: event.Enable(!m_Items.Active_is_Bottom()); break;
 	case ID_CMD_LAYOUT_ITEM_MOVE_UP    : event.Enable(!m_Items.Active_is_Top   ()); break;
 	case ID_CMD_LAYOUT_ITEM_MOVE_DOWN  : event.Enable(!m_Items.Active_is_Bottom()); break;
+
+	case ID_CMD_LAYOUT_ITEM_PASTE      : event.Enable(
+		    wxTheClipboard->IsSupported(wxDF_TEXT  )
+		||  wxTheClipboard->IsSupported(wxDF_BITMAP) );
+		break;
 	}
 
 	return( true );
@@ -1589,33 +1641,74 @@ bool CVIEW_Layout_Info::Draw(wxDC &dc, bool bPrintOut)
 //---------------------------------------------------------
 bool CVIEW_Layout_Info::Export(void)
 {
-	wxString	File;	int	Type;	int DPI;
+	wxString	File;	int	Type;
 
-	if( DLG_Image_Save(File, Type, "", Get_Name()) && DLG_Get_Number(DPI = 150, _TL("Export to Image Resolution"), _TL("Dots per Inch")) )
+	if( !DLG_Image_Save(File, Type, "", Get_Name()) )
 	{
-		Set_Buisy_Cursor(true);
-
-		wxRect		r(Get_Rect_Scaled(Get_PaperSize(), DPI / 25.4));
-		wxBitmap	Bmp(r.GetWidth(), r.GetHeight());
-		wxMemoryDC	dc(Bmp);
-
-		dc.SetBackground(*wxWHITE_BRUSH); dc.Clear();
-
-		Draw(dc, true);
-
-		dc.SelectObject(wxNullBitmap);
-
-		if( Bmp.SaveFile(File, (wxBitmapType)Type) )
-		{
-			Set_Buisy_Cursor(false);
-
-			return( true );
-		}
-
-		Set_Buisy_Cursor(false);
+		return( false );
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	int	dpi	= 150;
+
+	if( !DLG_Get_Number(dpi, _TL("Copy Map to Clipboard"), wxString::Format("%s [dpi]", _TL("Resolution"))) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	Set_Buisy_Cursor(true);
+
+	wxRect		r(Get_Rect_Scaled(Get_PaperSize(), dpi / 25.4));
+	wxBitmap	Bmp(r.GetWidth(), r.GetHeight());
+	wxMemoryDC	dc(Bmp); dc.SetBackground(*wxWHITE_BRUSH); dc.Clear();
+
+	Draw(dc, true);
+
+	dc.SelectObject(wxNullBitmap);
+
+	bool	bResult	= Bmp.SaveFile(File, (wxBitmapType)Type);
+
+	Set_Buisy_Cursor(false);
+
+	return( bResult );
+}
+
+//---------------------------------------------------------
+bool CVIEW_Layout_Info::Clipboard_Copy(void)
+{
+	if( !wxTheClipboard->Open() )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	int	dpi	= 150;
+
+	if( !DLG_Get_Number(dpi, _TL("Copy Map to Clipboard"), wxString::Format("%s [dpi]", _TL("Resolution"))) )
+	{
+		wxTheClipboard->Close();
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	Set_Buisy_Cursor(true);
+
+	wxRect		r(Get_Rect_Scaled(Get_PaperSize(), dpi / 25.4));
+	wxBitmap	Bmp(r.GetWidth(), r.GetHeight());
+	wxMemoryDC	dc(Bmp); dc.SetBackground(*wxWHITE_BRUSH); dc.Clear();
+
+	Draw(dc, true);
+
+	dc.SelectObject(wxNullBitmap);
+
+	wxTheClipboard->SetData(new wxBitmapDataObject(Bmp));
+	wxTheClipboard->Close();
+
+	Set_Buisy_Cursor(false);
+
+	return( true );
 }
 
 

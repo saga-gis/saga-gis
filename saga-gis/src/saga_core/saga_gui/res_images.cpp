@@ -118,6 +118,10 @@
 #include "./res/xpm/tb_layout_print.xpm"
 #include "./res/xpm/tb_layout_print_preview.xpm"
 #include "./res/xpm/tb_layout_print_setup.xpm"
+#include "./res/xpm/tb_zoom_in.xpm"
+#include "./res/xpm/tb_zoom_out.xpm"
+#include "./res/xpm/tb_zoom_full.xpm"
+#include "./res/xpm/tb_zoom_original.xpm"
 #include "./res/xpm/tb_map3d_central_less.xpm"
 #include "./res/xpm/tb_map3d_central_more.xpm"
 #include "./res/xpm/tb_map3d_exaggerate_less.xpm"
@@ -269,6 +273,10 @@ const char ** IMG_Get_XPM(int ID_IMG)
 	case ID_IMG_TB_LAYOUT_PRINT:	return( tb_layout_print_xpm );
 	case ID_IMG_TB_LAYOUT_PRINT_PREVIEW:	return( tb_layout_print_preview_xpm );
 	case ID_IMG_TB_LAYOUT_PRINT_SETUP:	return( tb_layout_print_setup_xpm );
+	case ID_IMG_TB_ZOOM_IN:	return( tb_zoom_in_xpm );
+	case ID_IMG_TB_ZOOM_OUT:	return( tb_zoom_out_xpm );
+	case ID_IMG_TB_ZOOM_FULL:	return( tb_zoom_full_xpm );
+	case ID_IMG_TB_ZOOM_ORIGINAL:	return( tb_zoom_original_xpm );
 	case ID_IMG_TB_MAP3D_CENTRAL_LESS:	return( tb_map3d_central_less_xpm );
 	case ID_IMG_TB_MAP3D_CENTRAL_MORE:	return( tb_map3d_central_more_xpm );
 	case ID_IMG_TB_MAP3D_EXAGGERATE_LESS:	return( tb_map3d_exaggerate_less_xpm );

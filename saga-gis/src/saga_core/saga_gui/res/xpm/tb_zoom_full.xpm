@@ -1,0 +1,26 @@
+/* XPM */
+static const char *tb_zoom_full_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 4 1",
+"X c Black",
+"x c #AAAAAA",
+". c #FFFFFF",
+"  c None",
+/* pixels */
+"xxxxxxxXxxxxxxx ",
+"x.....XXX.....x ",
+"x....XXXXX....x ",
+"x...XXXXXXX...x ",
+"x..X.......X..x ",
+"x.XX.......XX.x ",
+"xXXX.......XXXx ",
+"XXXX.......XXXX ",
+"xXXX.......XXXx ",
+"x.XX.......XX.x ",
+"x..X.......X..x ",
+"x...XXXXXXX...x ",
+"x....XXXXX....x ",
+"x.....XXX.....x ",
+"xxxxxxxXxxxxxxx ",
+"                "
+};

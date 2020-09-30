@@ -75,6 +75,7 @@
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CVIEW_Layout_Control, wxScrolledWindow)
+
 	EVT_TRACKER_CHANGED(wxID_ANY, CVIEW_Layout_Control::On_Tracker_Changed)
 
 	EVT_LEFT_DOWN   (CVIEW_Layout_Control::On_Mouse_Event)
@@ -85,22 +86,6 @@ BEGIN_EVENT_TABLE(CVIEW_Layout_Control, wxScrolledWindow)
 	EVT_RIGHT_DCLICK(CVIEW_Layout_Control::On_Mouse_Event)
 	EVT_MOTION      (CVIEW_Layout_Control::On_Mouse_Event)
 	EVT_MOUSEWHEEL  (CVIEW_Layout_Control::On_Mouse_Wheel)
-
-	EVT_MENU        (ID_CMD_LAYOUT_ITEM_PROPERTIES , CVIEW_Layout_Control::On_Item_Menu)
-	EVT_MENU        (ID_CMD_LAYOUT_ITEM_HIDE       , CVIEW_Layout_Control::On_Item_Menu)
-	EVT_MENU        (ID_CMD_LAYOUT_ITEM_DELETE     , CVIEW_Layout_Control::On_Item_Menu)
-	EVT_MENU        (ID_CMD_LAYOUT_ITEM_MOVE_TOP   , CVIEW_Layout_Control::On_Item_Menu)
-	EVT_MENU        (ID_CMD_LAYOUT_ITEM_MOVE_BOTTOM, CVIEW_Layout_Control::On_Item_Menu)
-	EVT_MENU        (ID_CMD_LAYOUT_ITEM_MOVE_UP    , CVIEW_Layout_Control::On_Item_Menu)
-	EVT_MENU        (ID_CMD_LAYOUT_ITEM_MOVE_DOWN  , CVIEW_Layout_Control::On_Item_Menu)
-	EVT_MENU        (ID_CMD_LAYOUT_IMAGE_SAVE      , CVIEW_Layout_Control::On_Item_Menu)
-	EVT_MENU        (ID_CMD_LAYOUT_IMAGE_RESTORE   , CVIEW_Layout_Control::On_Item_Menu)
-
-	EVT_UPDATE_UI   (ID_CMD_LAYOUT_ITEM_HIDE       , CVIEW_Layout_Control::On_Item_Menu_UI)
-	EVT_UPDATE_UI   (ID_CMD_LAYOUT_ITEM_MOVE_TOP   , CVIEW_Layout_Control::On_Item_Menu_UI)
-	EVT_UPDATE_UI   (ID_CMD_LAYOUT_ITEM_MOVE_BOTTOM, CVIEW_Layout_Control::On_Item_Menu_UI)
-	EVT_UPDATE_UI   (ID_CMD_LAYOUT_ITEM_MOVE_UP    , CVIEW_Layout_Control::On_Item_Menu_UI)
-	EVT_UPDATE_UI   (ID_CMD_LAYOUT_ITEM_MOVE_DOWN  , CVIEW_Layout_Control::On_Item_Menu_UI)
 
 END_EVENT_TABLE()
 
@@ -154,20 +139,67 @@ bool CVIEW_Layout_Control::Do_Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define ZOOM_STEP		1.25
+
 #define SCROLL_RATE		5
 
 #define SCROLL_BAR_DX	wxSystemSettings::GetMetric(wxSYS_VSCROLL_X)
 #define SCROLL_BAR_DY	wxSystemSettings::GetMetric(wxSYS_HSCROLL_Y)
 
 //---------------------------------------------------------
-bool CVIEW_Layout_Control::Fit_To_Size(int x, int y)
+bool CVIEW_Layout_Control::Zoom_In(void)
 {
-	wxSize	Size(m_pLayout->Get_PaperSize());
+	return( Set_Zoom_Centered(ZOOM_STEP / 1.) );
+}
 
-	double	dx	= (x - SCROLL_BAR_DX) / (double)Size.x;
-	double	dy	= (y - SCROLL_BAR_DY) / (double)Size.y;
+bool CVIEW_Layout_Control::Zoom_Out(void)
+{
+	return( Set_Zoom_Centered(1. / ZOOM_STEP) );
+}
+
+bool CVIEW_Layout_Control::Zoom_Original(void)
+{
+	return( Set_Zoom_Centered(2. / m_Zoom) );
+}
+
+bool CVIEW_Layout_Control::Zoom_Full(void)
+{
+	wxSize	Client(GetClientSize()), Paper(m_pLayout->Get_PaperSize());
+
+	double	dx	= (Client.x - SCROLL_BAR_DX) / (double)Paper.x;
+	double	dy	= (Client.y - SCROLL_BAR_DY) / (double)Paper.y;
 
 	return( Set_Zoom(dx < dy ? dx : dy) );
+}
+
+//---------------------------------------------------------
+bool CVIEW_Layout_Control::Set_Zoom_Centered(double Zooming)
+{
+	wxPoint	Center(GetClientSize().GetWidth() / 2, GetClientSize().GetHeight() / 2);
+
+	CalcUnscrolledPosition(Center);
+
+	return( Set_Zoom_Centered(Zooming, Center) );
+}
+
+//---------------------------------------------------------
+bool CVIEW_Layout_Control::Set_Zoom_Centered(double Zooming, wxPoint Center)
+{
+	int	x, y;	GetViewStart(&x, &y);
+
+	x	= (int)((Zooming * (x * SCROLL_RATE + Center.x) - GetClientSize().x / 2) / SCROLL_RATE);
+	y	= (int)((Zooming * (y * SCROLL_RATE + Center.y) - GetClientSize().y / 2) / SCROLL_RATE);
+
+	Freeze();
+
+	if( Set_Zoom(m_Zoom * Zooming) )
+	{
+		Scroll(x, y);
+	}
+
+	Thaw();
+
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -181,24 +213,6 @@ bool CVIEW_Layout_Control::Set_Zoom(double Zoom)
 	}
 
 	return( false );
-}
-
-//---------------------------------------------------------
-void CVIEW_Layout_Control::Set_Zoom_Centered(double Zoom, wxPoint Center)
-{
-	int	x, y;	GetViewStart(&x, &y);
-
-	x	= (int)((Zoom * (x * SCROLL_RATE + Center.x) - GetClientSize().x / 2) / SCROLL_RATE);
-	y	= (int)((Zoom * (y * SCROLL_RATE + Center.y) - GetClientSize().y / 2) / SCROLL_RATE);
-
-	Freeze();
-
-	if( Set_Zoom(m_Zoom * Zoom) )
-	{
-		Scroll(x, y);
-	}
-
-	Thaw();
 }
 
 //---------------------------------------------------------
@@ -303,29 +317,12 @@ void CVIEW_Layout_Control::On_Mouse_Wheel(wxMouseEvent &event)
 {
 	if( event.ControlDown() )
 	{
-		Set_Zoom_Centered(event.GetWheelRotation() > 0 ? 1.25 / 1. : 1. / 1.25, event.GetPosition());
+		Set_Zoom_Centered(event.GetWheelRotation() > 0 ? ZOOM_STEP : 1. / ZOOM_STEP, event.GetPosition());
 	}
 	else
 	{
 		event.Skip();
 	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CVIEW_Layout_Control::On_Item_Menu(wxCommandEvent &event)
-{
-	m_pLayout->Menu_On_Command(event);
-}
-
-//---------------------------------------------------------
-void CVIEW_Layout_Control::On_Item_Menu_UI(wxUpdateUIEvent &event)
-{
-	m_pLayout->Menu_On_Command_UI(event);
 }
 
 

@@ -1672,8 +1672,7 @@ bool CSG_Parameters::DataObjects_Synchronize(void)
 				if( pObject != DATAOBJECT_NOTSET
 				&&  pObject != DATAOBJECT_CREATE )
 				{
-					if( pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes
-					&&  p->asShapes()->Get_Type() == SHAPE_TYPE_Undefined
+					if( pObject->asShapes() && pObject->asShapes()->Get_Type() == SHAPE_TYPE_Undefined
 					&&  (m_pManager == &SG_Get_Data_Manager() || !SG_Get_Data_Manager().Exists(pObject)) )
 					{
 						if( m_pManager && !m_pManager->Delete(pObject) )

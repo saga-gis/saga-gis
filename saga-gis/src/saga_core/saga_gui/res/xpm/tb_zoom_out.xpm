@@ -1,0 +1,25 @@
+/* XPM */
+static const char *tb_zoom_out_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 3 1",
+"X c Black",
+". c #FFFFFF",
+"  c None",
+/* pixels */
+"     ....       ",
+"   ..XXXX..     ",
+"  .XX....XX.    ",
+" .X........X.   ",
+" .X........X.   ",
+".X..........X.  ",
+".X..XXXXXX..X.  ",
+".X..XXXXXX..X.  ",
+".X..........X.  ",
+" .X........X.   ",
+" .X........X.   ",
+"  .XX....XXX.   ",
+"   ..XXXXXXX.   ",
+"     .....XXX.  ",
+"          .XXX. ",
+"           .XX. "
+};

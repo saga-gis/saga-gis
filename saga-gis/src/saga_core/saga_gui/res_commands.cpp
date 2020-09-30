@@ -312,7 +312,12 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_LAYOUT_PRINT_PREVIEW:	return( _TL("Print Preview") );
 	case ID_CMD_LAYOUT_PRINT:			return( _TL("Print") );
 	case ID_CMD_LAYOUT_EXPORT:			return( _TL("Export") );
+	case ID_CMD_LAYOUT_TO_CLIPBOARD:	return( _TL("Copy to Clipboard") );
 	case ID_CMD_LAYOUT_PROPERTIES:		return( _TL("Properties") );
+	case ID_CMD_LAYOUT_ZOOM_IN:			return( _TL("Zoom In") );
+	case ID_CMD_LAYOUT_ZOOM_OUT:		return( _TL("Zoom Out") );
+	case ID_CMD_LAYOUT_ZOOM_FULL:		return( _TL("Zoom Whole Page") );
+	case ID_CMD_LAYOUT_ZOOM_ORIGINAL:	return( _TL("Zoom to 100%") );
 	case ID_CMD_LAYOUT_ITEM_MAP:		return( _TL("Map") );
 	case ID_CMD_LAYOUT_ITEM_LEGEND:		return( _TL("Legend") );
 	case ID_CMD_LAYOUT_ITEM_SCALEBAR:	return( _TL("Scalebar") );
@@ -320,7 +325,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_LAYOUT_ITEM_LABEL:		return( _TL("Label") );
 	case ID_CMD_LAYOUT_ITEM_TEXT:		return( _TL("Text") );
 	case ID_CMD_LAYOUT_ITEM_IMAGE:		return( _TL("Image") );
-	case ID_CMD_LAYOUT_ITEM_PASTE:		return( _TL("Clipboard") );
+	case ID_CMD_LAYOUT_ITEM_PASTE:		return( _TL("Paste from Clipboard") );
 	case ID_CMD_LAYOUT_ITEM_PROPERTIES:	return( _TL("Properties") );
 	case ID_CMD_LAYOUT_ITEM_HIDE:		return( _TL("Hide") );
 	case ID_CMD_LAYOUT_ITEM_DELETE:		return( _TL("Delete") );
@@ -453,6 +458,10 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_LAYOUT_PRINT_PREVIEW:	return( ID_IMG_TB_LAYOUT_PRINT_PREVIEW );
 	case ID_CMD_LAYOUT_PRINT:			return( ID_IMG_TB_LAYOUT_PRINT );
 	case ID_CMD_LAYOUT_EXPORT:			return( ID_IMG_TB_SAVE );
+	case ID_CMD_LAYOUT_ZOOM_IN:			return( ID_IMG_TB_ZOOM_IN );
+	case ID_CMD_LAYOUT_ZOOM_OUT:		return( ID_IMG_TB_ZOOM_OUT );
+	case ID_CMD_LAYOUT_ZOOM_FULL:		return( ID_IMG_TB_ZOOM_FULL );
+	case ID_CMD_LAYOUT_ZOOM_ORIGINAL:	return( ID_IMG_TB_ZOOM_ORIGINAL );
 
 	case ID_CMD_TABLE_FIELD_ADD:		return( ID_IMG_TB_TABLE_COL_ADD );
 	case ID_CMD_TABLE_FIELD_DEL:		return( ID_IMG_TB_TABLE_COL_DEL );

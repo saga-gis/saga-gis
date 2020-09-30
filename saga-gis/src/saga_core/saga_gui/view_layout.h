@@ -105,9 +105,10 @@ private:
 	void							On_Print			(wxCommandEvent  &event);
 	void							On_Export			(wxCommandEvent  &event);
 
-	void							On_Item_Show		(wxCommandEvent  &event);
-	void							On_Item_Add			(wxCommandEvent  &event);
-	void							On_Item_UI			(wxUpdateUIEvent &event);
+	void							On_Zoom				(wxCommandEvent  &event);
+
+	void							On_Command			(wxCommandEvent  &event);
+	void							On_Command_UI		(wxUpdateUIEvent &event);
 
 
 	//-----------------------------------------------------

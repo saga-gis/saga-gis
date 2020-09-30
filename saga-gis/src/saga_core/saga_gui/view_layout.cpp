@@ -81,27 +81,47 @@ BEGIN_EVENT_TABLE(CVIEW_Layout, CVIEW_Base)
 
 	EVT_SIZE     (CVIEW_Layout::On_Size)
 
-	EVT_MENU     (ID_CMD_LAYOUT_LOAD         , CVIEW_Layout::On_Load         )
-	EVT_MENU     (ID_CMD_LAYOUT_SAVE         , CVIEW_Layout::On_Save         )
-	EVT_MENU     (ID_CMD_LAYOUT_PROPERTIES   , CVIEW_Layout::On_Properties   )
-	EVT_MENU     (ID_CMD_LAYOUT_PAGE_SETUP   , CVIEW_Layout::On_Page_Setup   )
-	EVT_MENU     (ID_CMD_LAYOUT_PRINT_SETUP  , CVIEW_Layout::On_Print_Setup  )
-	EVT_MENU     (ID_CMD_LAYOUT_PRINT_PREVIEW, CVIEW_Layout::On_Print_Preview)
-	EVT_MENU     (ID_CMD_LAYOUT_PRINT        , CVIEW_Layout::On_Print        )
-	EVT_MENU     (ID_CMD_LAYOUT_EXPORT       , CVIEW_Layout::On_Export       )
-	EVT_MENU     (ID_CMD_LAYOUT_ITEM_MAP     , CVIEW_Layout::On_Item_Show    )
-	EVT_MENU     (ID_CMD_LAYOUT_ITEM_LEGEND  , CVIEW_Layout::On_Item_Show    )
-	EVT_MENU     (ID_CMD_LAYOUT_ITEM_SCALEBAR, CVIEW_Layout::On_Item_Show    )
-	EVT_MENU     (ID_CMD_LAYOUT_ITEM_SCALE   , CVIEW_Layout::On_Item_Show    )
-	EVT_MENU     (ID_CMD_LAYOUT_ITEM_LABEL   , CVIEW_Layout::On_Item_Add     )
-	EVT_MENU     (ID_CMD_LAYOUT_ITEM_TEXT    , CVIEW_Layout::On_Item_Add     )
-	EVT_MENU     (ID_CMD_LAYOUT_ITEM_IMAGE   , CVIEW_Layout::On_Item_Add     )
-	EVT_MENU     (ID_CMD_LAYOUT_ITEM_PASTE   , CVIEW_Layout::On_Item_Add     )
+	EVT_MENU     (ID_CMD_LAYOUT_LOAD            , CVIEW_Layout::On_Load         )
+	EVT_MENU     (ID_CMD_LAYOUT_SAVE            , CVIEW_Layout::On_Save         )
+	EVT_MENU     (ID_CMD_LAYOUT_PROPERTIES      , CVIEW_Layout::On_Properties   )
+	EVT_MENU     (ID_CMD_LAYOUT_PAGE_SETUP      , CVIEW_Layout::On_Page_Setup   )
+	EVT_MENU     (ID_CMD_LAYOUT_PRINT_SETUP     , CVIEW_Layout::On_Print_Setup  )
+	EVT_MENU     (ID_CMD_LAYOUT_PRINT_PREVIEW   , CVIEW_Layout::On_Print_Preview)
+	EVT_MENU     (ID_CMD_LAYOUT_PRINT           , CVIEW_Layout::On_Print        )
+	EVT_MENU     (ID_CMD_LAYOUT_EXPORT          , CVIEW_Layout::On_Export       )
+	EVT_MENU     (ID_CMD_LAYOUT_TO_CLIPBOARD    , CVIEW_Layout::On_Command      )
+	EVT_MENU     (ID_CMD_LAYOUT_ZOOM_IN         , CVIEW_Layout::On_Zoom         )
+	EVT_MENU     (ID_CMD_LAYOUT_ZOOM_OUT        , CVIEW_Layout::On_Zoom         )
+	EVT_MENU     (ID_CMD_LAYOUT_ZOOM_FULL       , CVIEW_Layout::On_Zoom         )
+	EVT_MENU     (ID_CMD_LAYOUT_ZOOM_ORIGINAL   , CVIEW_Layout::On_Zoom         )
+	EVT_MENU     (ID_CMD_LAYOUT_ITEM_MAP        , CVIEW_Layout::On_Command      )
+	EVT_MENU     (ID_CMD_LAYOUT_ITEM_LEGEND     , CVIEW_Layout::On_Command      )
+	EVT_MENU     (ID_CMD_LAYOUT_ITEM_SCALEBAR   , CVIEW_Layout::On_Command      )
+	EVT_MENU     (ID_CMD_LAYOUT_ITEM_SCALE      , CVIEW_Layout::On_Command      )
+	EVT_MENU     (ID_CMD_LAYOUT_ITEM_LABEL      , CVIEW_Layout::On_Command      )
+	EVT_MENU     (ID_CMD_LAYOUT_ITEM_TEXT       , CVIEW_Layout::On_Command      )
+	EVT_MENU     (ID_CMD_LAYOUT_ITEM_IMAGE      , CVIEW_Layout::On_Command      )
+	EVT_MENU     (ID_CMD_LAYOUT_ITEM_PASTE      , CVIEW_Layout::On_Command      )
+	EVT_MENU     (ID_CMD_LAYOUT_ITEM_PROPERTIES , CVIEW_Layout::On_Command      )
+	EVT_MENU     (ID_CMD_LAYOUT_ITEM_HIDE       , CVIEW_Layout::On_Command      )
+	EVT_MENU     (ID_CMD_LAYOUT_ITEM_DELETE     , CVIEW_Layout::On_Command      )
+	EVT_MENU     (ID_CMD_LAYOUT_ITEM_MOVE_TOP   , CVIEW_Layout::On_Command      )
+	EVT_MENU     (ID_CMD_LAYOUT_ITEM_MOVE_BOTTOM, CVIEW_Layout::On_Command      )
+	EVT_MENU     (ID_CMD_LAYOUT_ITEM_MOVE_UP    , CVIEW_Layout::On_Command      )
+	EVT_MENU     (ID_CMD_LAYOUT_ITEM_MOVE_DOWN  , CVIEW_Layout::On_Command      )
+	EVT_MENU     (ID_CMD_LAYOUT_IMAGE_SAVE      , CVIEW_Layout::On_Command      )
+	EVT_MENU     (ID_CMD_LAYOUT_IMAGE_RESTORE   , CVIEW_Layout::On_Command      )
 
-	EVT_UPDATE_UI(ID_CMD_LAYOUT_ITEM_MAP     , CVIEW_Layout::On_Item_UI      )
-	EVT_UPDATE_UI(ID_CMD_LAYOUT_ITEM_LEGEND  , CVIEW_Layout::On_Item_UI      )
-	EVT_UPDATE_UI(ID_CMD_LAYOUT_ITEM_SCALEBAR, CVIEW_Layout::On_Item_UI      )
-	EVT_UPDATE_UI(ID_CMD_LAYOUT_ITEM_SCALE   , CVIEW_Layout::On_Item_UI      )
+	EVT_UPDATE_UI(ID_CMD_LAYOUT_ITEM_MAP        , CVIEW_Layout::On_Command_UI   )
+	EVT_UPDATE_UI(ID_CMD_LAYOUT_ITEM_LEGEND     , CVIEW_Layout::On_Command_UI   )
+	EVT_UPDATE_UI(ID_CMD_LAYOUT_ITEM_SCALEBAR   , CVIEW_Layout::On_Command_UI   )
+	EVT_UPDATE_UI(ID_CMD_LAYOUT_ITEM_SCALE      , CVIEW_Layout::On_Command_UI   )
+	EVT_UPDATE_UI(ID_CMD_LAYOUT_ITEM_PASTE      , CVIEW_Layout::On_Command_UI   )
+	EVT_UPDATE_UI(ID_CMD_LAYOUT_ITEM_HIDE       , CVIEW_Layout::On_Command_UI   )
+	EVT_UPDATE_UI(ID_CMD_LAYOUT_ITEM_MOVE_TOP   , CVIEW_Layout::On_Command_UI   )
+	EVT_UPDATE_UI(ID_CMD_LAYOUT_ITEM_MOVE_BOTTOM, CVIEW_Layout::On_Command_UI   )
+	EVT_UPDATE_UI(ID_CMD_LAYOUT_ITEM_MOVE_UP    , CVIEW_Layout::On_Command_UI   )
+	EVT_UPDATE_UI(ID_CMD_LAYOUT_ITEM_MOVE_DOWN  , CVIEW_Layout::On_Command_UI   )
 
 END_EVENT_TABLE()
 
@@ -149,7 +169,15 @@ wxMenu * CVIEW_Layout::_Create_Menu(void)
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu   , false, ID_CMD_LAYOUT_PRINT);
 	CMD_Menu_Add_Item(pMenu   , false, ID_CMD_LAYOUT_EXPORT);
+	CMD_Menu_Add_Item(pMenu   , false, ID_CMD_LAYOUT_TO_CLIPBOARD);
 	pMenu->AppendSeparator();
+
+	pSubMenu	= new wxMenu;
+	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_LAYOUT_ZOOM_IN);
+	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_LAYOUT_ZOOM_OUT);
+	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_LAYOUT_ZOOM_FULL);
+//	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_LAYOUT_ZOOM_ORIGINAL);
+	pMenu->AppendSubMenu(pSubMenu, _TL("Zoom"));
 
 	pSubMenu	= new wxMenu;
 //	CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_LAYOUT_ITEM_MAP);
@@ -180,6 +208,12 @@ wxToolBarBase * CVIEW_Layout::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_LAYOUT_PRINT_PREVIEW);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_LAYOUT_PRINT);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_LAYOUT_EXPORT);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_LAYOUT_TO_CLIPBOARD);
+	CMD_ToolBar_Add_Separator(pToolBar);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_LAYOUT_ZOOM_IN);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_LAYOUT_ZOOM_OUT);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_LAYOUT_ZOOM_FULL);
+//	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_LAYOUT_ZOOM_ORIGINAL);
 
 	CMD_ToolBar_Add(pToolBar, _TL("Layout"));
 
@@ -246,7 +280,7 @@ void CVIEW_Layout::On_Size(wxSizeEvent &event)
 	m_pRuler_X->SetSize(wxRect(B, A, dX, d ));
 	m_pControl->SetSize(wxRect(B, B, dX, dY));
 
-	m_pControl->Fit_To_Size(dX, dY);
+	m_pControl->Zoom_Full();
 
 	Thaw();
 
@@ -339,46 +373,33 @@ void CVIEW_Layout::On_Export(wxCommandEvent &event)
 	m_pLayout->Export();
 }
 
+//---------------------------------------------------------
+void CVIEW_Layout::On_Zoom(wxCommandEvent &event)
+{
+	switch( event.GetId() )
+	{
+	case ID_CMD_LAYOUT_ZOOM_IN      : m_pControl->Zoom_In      (); break;
+	case ID_CMD_LAYOUT_ZOOM_OUT     : m_pControl->Zoom_Out     (); break;
+	case ID_CMD_LAYOUT_ZOOM_FULL    : m_pControl->Zoom_Full    (); break;
+	case ID_CMD_LAYOUT_ZOOM_ORIGINAL: m_pControl->Zoom_Original(); break;
+	}
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CVIEW_Layout::On_Item_UI(wxUpdateUIEvent &event)
+void CVIEW_Layout::On_Command(wxCommandEvent &event)
 {
-	switch( event.GetId() )
-	{
-	case ID_CMD_LAYOUT_ITEM_MAP     : event.Check(m_pLayout->is_Shown(CVIEW_Layout_Info::ItemID_Map     )); break;
-	case ID_CMD_LAYOUT_ITEM_LEGEND  : event.Check(m_pLayout->is_Shown(CVIEW_Layout_Info::ItemID_Legend  )); break;
-	case ID_CMD_LAYOUT_ITEM_SCALEBAR: event.Check(m_pLayout->is_Shown(CVIEW_Layout_Info::ItemID_Scalebar)); break;
-	case ID_CMD_LAYOUT_ITEM_SCALE   : event.Check(m_pLayout->is_Shown(CVIEW_Layout_Info::ItemID_Scale   )); break;
-	}
+	m_pLayout->Menu_On_Command(event);
 }
 
 //---------------------------------------------------------
-void CVIEW_Layout::On_Item_Show(wxCommandEvent &event)
+void CVIEW_Layout::On_Command_UI(wxUpdateUIEvent &event)
 {
-	switch( event.GetId() )
-	{
-	case ID_CMD_LAYOUT_ITEM_MAP     : if( m_pLayout->Toggle_Item(CVIEW_Layout_Info::ItemID_Map     ) ) Refresh(false); break;
-	case ID_CMD_LAYOUT_ITEM_LEGEND  : if( m_pLayout->Toggle_Item(CVIEW_Layout_Info::ItemID_Legend  ) ) Refresh(false); break;
-	case ID_CMD_LAYOUT_ITEM_SCALEBAR: if( m_pLayout->Toggle_Item(CVIEW_Layout_Info::ItemID_Scalebar) ) Refresh(false); break;
-	case ID_CMD_LAYOUT_ITEM_SCALE   : if( m_pLayout->Toggle_Item(CVIEW_Layout_Info::ItemID_Scale   ) ) Refresh(false); break;
-	}
-}
-
-//---------------------------------------------------------
-void CVIEW_Layout::On_Item_Add(wxCommandEvent &event)
-{
-	switch( event.GetId() )
-	{
-	case ID_CMD_LAYOUT_ITEM_LABEL: m_pLayout->Add_Item(CVIEW_Layout_Info::ItemID_Label); break;
-	case ID_CMD_LAYOUT_ITEM_TEXT : m_pLayout->Add_Item(CVIEW_Layout_Info::ItemID_Text ); break;
-	case ID_CMD_LAYOUT_ITEM_IMAGE: m_pLayout->Add_Item(CVIEW_Layout_Info::ItemID_Image); break;
-
-	case ID_CMD_LAYOUT_ITEM_PASTE: m_pLayout->Clipboard_Paste(); break;
-	}
+	m_pLayout->Menu_On_Command_UI(event);
 }
 
 

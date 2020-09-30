@@ -100,6 +100,8 @@ public:
 		const wxRect &				Get_Rect			(void)	const			{	return( m_Rect );	}
 		bool						Set_Rect			(const wxRect &Rect);
 
+		bool						Refresh				(bool bErase = true);
+
 		virtual int					Get_ID				(void)	const			{	return( 0      );	}
 
 		virtual bool				Draw				(wxDC &dc)				{	return( true   );	}
@@ -117,17 +119,18 @@ public:
 
 		wxRect						m_Rect;
 
+		CSGDI_Layout_Items			*m_pOwner;
+
 		class wxRectTrackerRatio	*m_pTracker;
 
 
 	private:
 
-		bool						_Tracker_Create		(wxWindow *pParent);
+		bool						_Tracker_Create		(void);
 		bool						_Tracker_Set_Scale	(double Scale);
 		bool						_Tracker_Changed	(void);
 		bool						_Tracker_Enable		(void);
 		bool						_Tracker_Disable	(void);
-		bool						_Tracker_Refresh	(wxWindow *pParent, bool bErase = true);
 		bool						_Tracker_Contains	(const wxPoint &Point);
 		bool						_Tracker_Set_Rect	(const wxRect &Rect);
 		wxRect						_Tracker_Get_Rect	(void);

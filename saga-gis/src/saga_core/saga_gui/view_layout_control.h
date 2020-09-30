@@ -75,7 +75,11 @@ public:
 
 	bool							Do_Destroy			(void);
 
-	bool							Fit_To_Size			(int x, int y);
+	bool							Zoom_In				(void);
+	bool							Zoom_Out			(void);
+	bool							Zoom_Full			(void);
+	bool							Zoom_Original		(void);
+
 	bool							Set_Scrollbars		(void);
 	void							Set_Rulers			(void);
 
@@ -90,16 +94,13 @@ private:
 
 
 	bool							Set_Zoom			(double Zoom);
-	void							Set_Zoom_Centered	(double Zooming, wxPoint Center);
+	bool							Set_Zoom_Centered	(double Zooming);
+	bool							Set_Zoom_Centered	(double Zooming, wxPoint Center);
 
 	void							On_Tracker_Changed	(wxCommandEvent  &event);
 
 	void							On_Mouse_Event		(wxMouseEvent    &event);
 	void							On_Mouse_Wheel		(wxMouseEvent    &event);
-
-	void							On_Item_Menu		(wxCommandEvent  &event);
-	void							On_Item_Menu_UI		(wxUpdateUIEvent &event);
-
 
 	//-----------------------------------------------------
 	DECLARE_EVENT_TABLE()
