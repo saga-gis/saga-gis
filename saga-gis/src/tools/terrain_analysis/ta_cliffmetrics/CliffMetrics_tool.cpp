@@ -109,7 +109,7 @@ CCliffMetrics_Tool::CCliffMetrics_Tool(void)
 
 	Parameters.Add_Int("COAST_INITIAL",
 		"CoastSeaHandiness"	, _TL("Sea handiness"),
-		_TL("as you traverse the coastline, on which side of shoreline the sea is? [right = 1 or left = 0]"),
+		_TL("as you traverse the coastline, on which side of shoreline the sea is? [right = 0 or left = 1]"),
 		0, 0, true, 1, true
 	);
 
