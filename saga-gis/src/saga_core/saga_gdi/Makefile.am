@@ -34,7 +34,6 @@ otherincludedir = $(pkgincludedir)/saga_core/saga_gdi
 otherinclude_HEADERS =\
 3d_view.h\
 3d_view_tools.h\
-RectTracker.h\
 sgdi_core.h\
 sgdi_diagram.h\
 sgdi_dialog.h\
