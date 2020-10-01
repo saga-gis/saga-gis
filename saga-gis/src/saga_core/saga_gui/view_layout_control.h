@@ -97,10 +97,8 @@ private:
 	bool							Set_Zoom_Centered	(double Zooming);
 	bool							Set_Zoom_Centered	(double Zooming, wxPoint Center);
 
-	void							On_Tracker_Changed	(wxCommandEvent  &event);
-
-	void							On_Mouse_Event		(wxMouseEvent    &event);
-	void							On_Mouse_Wheel		(wxMouseEvent    &event);
+	void							On_Mouse_Event		(wxMouseEvent &event);
+	void							On_Mouse_Wheel		(wxMouseEvent &event);
 
 	//-----------------------------------------------------
 	DECLARE_EVENT_TABLE()

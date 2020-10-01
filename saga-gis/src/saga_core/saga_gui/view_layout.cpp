@@ -208,7 +208,7 @@ wxToolBarBase * CVIEW_Layout::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_LAYOUT_PRINT_PREVIEW);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_LAYOUT_PRINT);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_LAYOUT_EXPORT);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_LAYOUT_TO_CLIPBOARD);
+//	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_LAYOUT_TO_CLIPBOARD);
 	CMD_ToolBar_Add_Separator(pToolBar);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_LAYOUT_ZOOM_IN);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_LAYOUT_ZOOM_OUT);

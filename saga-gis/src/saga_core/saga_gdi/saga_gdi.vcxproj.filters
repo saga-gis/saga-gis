@@ -32,9 +32,6 @@
     <ClCompile Include="3d_view_projector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RectTracker.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="sgdi_layout_items.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -59,9 +56,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="3d_view_tools.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RectTracker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="sgdi_layout_items.h">

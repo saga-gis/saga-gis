@@ -74,6 +74,7 @@
 class SGDI_API_DLL_EXPORT CSGDI_Layout_Items
 {
 public:
+
 	static bool						Compare				(const wxRect &r1, const wxRect &r2)
 	{
 		return( r1.x == r2.x && r1.y == r2.y && r1.width == r2.width && r1.height == r2.height );
@@ -85,7 +86,7 @@ public:
 	//-----------------------------------------------------
 	class SGDI_API_DLL_EXPORT CSGDI_Layout_Item
 	{
-		friend class CSGDI_Layout_Items;
+		friend CSGDI_Layout_Items;
 
 	public:
 		CSGDI_Layout_Item(void);
@@ -94,7 +95,6 @@ public:
 		bool						is_Shown			(void)	const			{	return( m_bShow );	}
 
 		bool						Set_Sizer			(bool bOn);
-		bool						Set_Fixed			(bool bOn);
 		bool						Set_Ratio			(double Ratio = 0.);
 
 		const wxRect &				Get_Rect			(void)	const			{	return( m_Rect );	}
@@ -111,31 +111,23 @@ public:
 
 	protected:
 
-		bool						m_bShow, m_bSizer, m_bFixed;
+		bool						m_bShow, m_bSizer;
 
-		int							m_Raster;
-
-		double						m_Scale, m_Ratio;
+		double						m_Ratio;
 
 		wxRect						m_Rect;
 
 		CSGDI_Layout_Items			*m_pOwner;
 
-		class wxRectTrackerRatio	*m_pTracker;
-
 
 	private:
 
-		bool						_Tracker_Create		(void);
-		bool						_Tracker_Set_Scale	(double Scale);
-		bool						_Tracker_Changed	(void);
-		bool						_Tracker_Enable		(void);
-		bool						_Tracker_Disable	(void);
-		bool						_Tracker_Contains	(const wxPoint &Point);
-		bool						_Tracker_Set_Rect	(const wxRect &Rect);
 		wxRect						_Tracker_Get_Rect	(void);
+		bool						_Tracker_Set_Rect	(const wxRect &Rect);
+		bool						_Tracker_Contains	(const wxPoint &Point);
 
 	};
+
 
 //---------------------------------------------------------
 public:
@@ -181,17 +173,15 @@ public:
 	bool							Active_Move_Down	(void);
 	bool							Active_Properties	(void);
 
-	bool							On_Tracker_Changed	(void);
-
 	bool							On_Key_Event		(wxKeyEvent   &event);
 	bool							On_Mouse_Event		(wxMouseEvent &event);
 
-	bool							Draw				(wxDC &dc);
+	bool							Draw				(wxDC &dc, bool bTracker);
 
 
 protected:
 
-	int								m_Raster;
+	int								m_Handle, m_Raster;
 
 	double							m_Scale;
 
@@ -202,28 +192,57 @@ protected:
 	CSG_Array_Pointer				m_Items;
 
 
-	bool							Select				(const wxPoint &p, bool bDown);
+	bool							Select				(const wxPoint &Point);
+
+
+//---------------------------------------------------------
+private:
+	typedef enum EHandle
+	{
+		HANDLE_TOP_LEFT		= 0,
+		HANDLE_TOP_CENTER,
+		HANDLE_TOP_RIGHT,
+		HANDLE_LEFT_CENTER,
+		HANDLE_RIGHT_CENTER,
+		HANDLE_BOTTOM_LEFT,
+		HANDLE_BOTTOM_CENTER,
+		HANDLE_BOTTOM_RIGHT,
+		HANDLE_TRACKER,
+		HANDLE_NONE
+	}
+	THandle;
+
+	class CSGDI_Layout_Tracker
+	{
+	public:
+		CSGDI_Layout_Tracker(void);
+		virtual ~CSGDI_Layout_Tracker(void);
+
+		wxRect						Get_Rect			(THandle Handle);
+
+		THandle						Hit_Test			(const wxPoint &Point);
+
+		bool						Drag_Start			(const wxPoint &Point);
+		bool						Drag_Move			(const wxPoint &Point);
+		bool						Drag_Stop			(const wxPoint &Point);
+		wxRect						Drag_Rect			(const wxPoint &From, const wxPoint &To);
+		void						Drag_Draw			(const wxRect &Rect);
+
+		bool						Draw				(wxDC &dc);
+
+
+		THandle						m_Drag_Mode;
+
+		wxPoint						m_Drag_Start, m_Drag_Last;
+
+		CSGDI_Layout_Items			*m_pOwner;
+
+	};
+
+
+	CSGDI_Layout_Tracker			m_Tracker;
 
 };
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-wxDECLARE_EXPORTED_EVENT(SGDI_API_DLL_EXPORT, wxEVT_TRACKER_CHANGING, wxCommandEvent);
-
-/// Event fired when the user is being moving or resizing the tracker (dragging in process)
-#define EVT_TRACKER_CHANGING(id, fn)	wxDECLARE_EVENT_TABLE_ENTRY(wxEVT_TRACKER_CHANGING, id, wxID_ANY,\
- (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction)& fn, NULL),
-
-//---------------------------------------------------------
-wxDECLARE_EXPORTED_EVENT(SGDI_API_DLL_EXPORT, wxEVT_TRACKER_CHANGED , wxCommandEvent);
-
-/// Event fired when the user has decided a new position for the tracker (dragging is finished)
-#define EVT_TRACKER_CHANGED(id, fn)		wxDECLARE_EVENT_TABLE_ENTRY(wxEVT_TRACKER_CHANGED, id, wxID_ANY,\
- (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction)& fn, NULL),
 
 
 ///////////////////////////////////////////////////////////

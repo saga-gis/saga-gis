@@ -1628,7 +1628,7 @@ bool CVIEW_Layout_Info::Draw(wxDC &dc, bool bPrintOut)
 	}
 
 	//-----------------------------------------------------
-	m_Items.Draw(dc);
+	m_Items.Draw(dc, !bPrintOut);
 
 	return( true );
 }

@@ -7,7 +7,6 @@ set(SAGA_GDI_SOURCES
 	3d_view_dialog.cpp
 	3d_view_panel.cpp
 	3d_view_projector.cpp
-	RectTracker.cpp
 	sgdi_diagram.cpp
 	sgdi_dialog.cpp
 	sgdi_helper.cpp
@@ -26,7 +25,6 @@ set(SAGA_GDI_PUBLIC_HEADERS
 	saga_gdi.h
 	3d_view.h
 	3d_view_tools.h
-	RectTracker.h
 	sgdi_core.h
 	sgdi_diagram.h
 	sgdi_dialog.h

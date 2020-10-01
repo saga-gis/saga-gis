@@ -76,8 +76,6 @@
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CVIEW_Layout_Control, wxScrolledWindow)
 
-	EVT_TRACKER_CHANGED(wxID_ANY, CVIEW_Layout_Control::On_Tracker_Changed)
-
 	EVT_LEFT_DOWN   (CVIEW_Layout_Control::On_Mouse_Event)
 	EVT_LEFT_UP     (CVIEW_Layout_Control::On_Mouse_Event)
 	EVT_LEFT_DCLICK (CVIEW_Layout_Control::On_Mouse_Event)
@@ -269,17 +267,6 @@ void CVIEW_Layout_Control::OnDraw(wxDC &dc)
 	//dcBmp.SelectObject(wxNullBitmap);
 
 	//dc.DrawBitmap(Bmp, 0, 0);
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CVIEW_Layout_Control::On_Tracker_Changed(wxCommandEvent &event)
-{
-	m_pLayout->m_Items.On_Tracker_Changed();
 }
 
 

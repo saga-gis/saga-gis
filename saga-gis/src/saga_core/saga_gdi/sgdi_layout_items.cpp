@@ -49,8 +49,6 @@
 //---------------------------------------------------------
 #include "sgdi_layout_items.h"
 
-#include "RectTracker.h"
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -62,9 +60,6 @@
 CSGDI_Layout_Items::CSGDI_Layout_Item::CSGDI_Layout_Item(void)
 {
 	m_pOwner	= NULL;
-	m_pTracker	= NULL;
-	m_Scale		= 1.;
-	m_Raster	= 0;
 	m_bShow		= true;
 	m_bSizer	= true;
 	m_Ratio		= 0.;
@@ -72,12 +67,7 @@ CSGDI_Layout_Items::CSGDI_Layout_Item::CSGDI_Layout_Item(void)
 
 //---------------------------------------------------------
 CSGDI_Layout_Items::CSGDI_Layout_Item::~CSGDI_Layout_Item(void)
-{
-	if( m_pTracker )
-	{
-		delete(m_pTracker);
-	}
-}
+{}
 
 //---------------------------------------------------------
 bool CSGDI_Layout_Items::CSGDI_Layout_Item::Set_Sizer(bool bOn)
@@ -85,29 +75,6 @@ bool CSGDI_Layout_Items::CSGDI_Layout_Item::Set_Sizer(bool bOn)
 	if( m_bSizer != bOn )
 	{
 		m_bSizer	= bOn;
-
-		if( m_pTracker )
-		{
-			m_pTracker->SetHandlerMask(m_bSizer ? RT_MASK_ALL : RT_MASK_NONE);
-		}
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CSGDI_Layout_Items::CSGDI_Layout_Item::Set_Fixed(bool bOn)
-{
-	if( m_bFixed != bOn )
-	{
-		m_bFixed	= bOn;
-
-		if( m_pTracker )
-		{
-		//	m_pTracker->SetFixedSize(m_bFixed ? RT_MASK_ALL : RT_MASK_NONE);
-		}
 
 		return( true );
 	}
@@ -122,11 +89,6 @@ bool CSGDI_Layout_Items::CSGDI_Layout_Item::Set_Ratio(double Ratio)
 	{
 		m_Ratio	= Ratio;
 
-		if( m_pTracker )
-		{
-			m_pTracker->SetRatio(m_Ratio);
-		}
-
 		return( true );
 	}
 
@@ -140,7 +102,7 @@ bool CSGDI_Layout_Items::CSGDI_Layout_Item::Set_Rect(const wxRect &Rect)
 	{
 		m_Rect	= Rect;
 
-		return( _Tracker_Set_Rect(Rect) );
+		return( true );
 	}
 
 	return( false );
@@ -151,7 +113,9 @@ bool CSGDI_Layout_Items::CSGDI_Layout_Item::Refresh(bool bErase)
 {
 	if( m_pOwner && m_pOwner->m_pParent )
 	{
-		wxRect	rTracker(Get_Scaled(m_Rect, m_Scale));
+		wxRect	rTracker(Get_Scaled(m_Rect, m_pOwner->m_Scale));
+
+		rTracker.Inflate(2);
 
 		m_pOwner->m_pParent->Refresh(bErase, &rTracker);
 
@@ -162,88 +126,62 @@ bool CSGDI_Layout_Items::CSGDI_Layout_Item::Refresh(bool bErase)
 }
 
 //---------------------------------------------------------
-bool CSGDI_Layout_Items::CSGDI_Layout_Item::_Tracker_Create(void)
+inline bool CSGDI_Layout_Items::CSGDI_Layout_Item::_Tracker_Contains(const wxPoint &Point)
 {
-	if( m_pTracker )
-	{
-		delete(m_pTracker);
-
-		m_pTracker	= NULL;
-	}
-
-	if( m_pOwner && m_pOwner->m_pParent )
-	{
-		m_pTracker	= new wxRectTrackerRatio(m_pOwner->m_pParent);
-
-		m_pTracker->Disable();	// disabled by default
-
-		_Tracker_Set_Rect(m_Rect);
-
-		m_pTracker->SetHandlerMask(m_bSizer ? RT_MASK_ALL : RT_MASK_NONE);
-		m_pTracker->SetMinRect(wxRect(0, 0, 10, 10));
-	//	m_pTracker->SetGreyOutColour(50);
-	//	m_pTracker->SetHandlesWidth ( 5);
-
-		return( true );
-	}
-
-	return( false );
+	return( Get_Scaled(m_Rect, m_pOwner->m_Scale).Contains(Point) );
 }
 
 //---------------------------------------------------------
-bool CSGDI_Layout_Items::CSGDI_Layout_Item::_Tracker_Set_Scale(double Scale)
+wxRect CSGDI_Layout_Items::CSGDI_Layout_Item::_Tracker_Get_Rect(void)
 {
-	if( Scale > 0. && Scale != m_Scale )
-	{
-		m_Scale	= Scale;
-
-		_Tracker_Set_Rect(m_Rect);
-
-		return( true );
-	}
-
-	return( false );
+	return( Get_Scaled(m_Rect, m_pOwner ? m_pOwner->m_Scale : 1.) );
 }
 
 //---------------------------------------------------------
-bool CSGDI_Layout_Items::CSGDI_Layout_Item::_Tracker_Changed(void)
+bool CSGDI_Layout_Items::CSGDI_Layout_Item::_Tracker_Set_Rect(const wxRect &newRect)
 {
-	if( m_pTracker && m_Scale > 0. )
+	if( m_pOwner && m_pOwner->m_Scale > 0. )
 	{
-		wxRect	Rect(Get_Scaled(m_pTracker->GetTrackerRect(), 1. / m_Scale));
+		wxRect	Rect(Get_Scaled(newRect, 1. / m_pOwner->m_Scale));
 
 		if( !Rect.IsEmpty() )
 		{
-			if( m_Raster > 1 )
+			if( m_pOwner->m_Raster > 1 )
 			{
 				if( Rect.x != m_Rect.x )
 				{
-					Rect.x	= m_Raster * (int)(0.5 + Rect.x / (double)m_Raster);
+					Rect.x	= m_pOwner->m_Raster * (int)(0.5 + Rect.x / (double)m_pOwner->m_Raster);
 				}
 				else if( Rect.width != m_Rect.width )
 				{
-					int	w = m_Raster * (int)(0.5 + (Rect.x + Rect.width) / (double)m_Raster);
+					int	w = m_pOwner->m_Raster * (int)(0.5 + (Rect.x + Rect.width) / (double)m_pOwner->m_Raster);
 
 					Rect.width  = w - Rect.x;
 				}
 
 				if( Rect.y != m_Rect.y )
 				{
-					Rect.y	= m_Raster * (int)(0.5 + Rect.y / (double)m_Raster);
+					Rect.y	= m_pOwner->m_Raster * (int)(0.5 + Rect.y / (double)m_pOwner->m_Raster);
 				}
 				else if( Rect.height != m_Rect.height )
 				{
-					int	h = m_Raster * (int)(0.5 + (Rect.y + Rect.height) / (double)m_Raster);
+					int	h = m_pOwner->m_Raster * (int)(0.5 + (Rect.y + Rect.height) / (double)m_pOwner->m_Raster);
 
 					Rect.height  = h - Rect.y;
 				}
 			}
 
+			if( m_Ratio > 0. )
+			{
+			}
+
 			if( !Rect.IsEmpty() && !Compare(Rect, m_Rect) )
 			{
+				Refresh(true);
+
 				m_Rect	= Rect;
 
-				_Tracker_Set_Rect(Rect);
+				Refresh(false);
 
 				return( true );
 			}
@@ -251,75 +189,6 @@ bool CSGDI_Layout_Items::CSGDI_Layout_Item::_Tracker_Changed(void)
 	}
 
 	return( false );
-}
-
-//---------------------------------------------------------
-bool CSGDI_Layout_Items::CSGDI_Layout_Item::_Tracker_Enable(void)
-{
-	if( m_pTracker )
-	{
-		_Tracker_Set_Rect(m_Rect);
-
-		if( m_pTracker->IsEnabled() == false )
-		{
-		//	double	d	= m_Rect.GetWidth() / (double)m_Rect.GetHeight();
-
-		//	m_pTracker->SetRatio      (0);
-		//	m_pTracker->SetRatio      (d);
-		//	m_pTracker->SetOrientation(d > 1. ? 1 : -1);
-
-			m_pTracker->Enable();
-		}
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CSGDI_Layout_Items::CSGDI_Layout_Item::_Tracker_Disable(void)
-{
-	if( m_pTracker && m_pTracker->IsEnabled() == true )
-	{
-		m_pTracker->Disable();
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-inline bool CSGDI_Layout_Items::CSGDI_Layout_Item::_Tracker_Contains(const wxPoint &Point)
-{
-	wxRect	rTracker(Get_Scaled(m_Rect, m_Scale));
-
-	return( rTracker.Contains(Point) );
-}
-
-//---------------------------------------------------------
-bool CSGDI_Layout_Items::CSGDI_Layout_Item::_Tracker_Set_Rect(const wxRect &Rect)
-{
-	if( m_pTracker && m_Scale > 0. )
-	{
-		wxRect	rTracker(Get_Scaled(Rect, m_Scale));
-
-		if( !Compare(rTracker, m_pTracker->GetTrackerRect()) )
-		{
-			m_pTracker->SetTrackerRect(rTracker);
-		}
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-wxRect CSGDI_Layout_Items::CSGDI_Layout_Item::_Tracker_Get_Rect(void)
-{
-	return( Get_Scaled(m_Rect, m_Scale) );
 }
 
 
@@ -335,6 +204,9 @@ CSGDI_Layout_Items::CSGDI_Layout_Items(void)
 
 	m_Scale		= 1.;
 	m_Raster	= 0;
+	m_Handle	= 7;
+
+	m_Tracker.m_pOwner	= this;
 }
 
 //---------------------------------------------------------
@@ -399,11 +271,6 @@ bool CSGDI_Layout_Items::Set_Parent(wxWindow *pParent)
 	{
 		m_pParent	= pParent;
 
-		for(size_t i=0; i<m_Items.Get_Size(); i++)
-		{
-			Get_Item(i)->_Tracker_Create();
-		}
-
 		return( true );
 	}
 
@@ -413,14 +280,14 @@ bool CSGDI_Layout_Items::Set_Parent(wxWindow *pParent)
 //---------------------------------------------------------
 bool CSGDI_Layout_Items::Set_Raster(int Raster)
 {
-	m_Raster	= Raster;
-
-	for(size_t i=0; i<m_Items.Get_Size(); i++)
+	if( Raster >= 0 )
 	{
-		Get_Item(i)->m_Raster	= m_Raster;
+		m_Raster	= Raster;
+
+		return( true );
 	}
 
-	return( true );
+	return( false );
 }
 
 
@@ -435,24 +302,21 @@ bool CSGDI_Layout_Items::Add(CSGDI_Layout_Item *pItem, const wxRect &Rect, bool 
 	{
 		pItem->m_pOwner = this;
 		pItem->m_Rect   = Rect;
-		pItem->m_Raster = m_Raster;
-		pItem->_Tracker_Set_Scale(m_Scale);
-		pItem->_Tracker_Create();
 
 		m_Items.Add(pItem);
 
 		if( bActivate )
 		{
-			if( m_pActive && m_pActive->_Tracker_Disable() )
+			if( m_pActive )
 			{
-				m_pActive->Refresh();
+				m_pActive->Refresh(false);
 			}
 
 			m_pActive	= pItem;
 
-			if( m_pActive && m_pActive->_Tracker_Enable() )
+			if( m_pActive )
 			{
-				m_pActive->Refresh();
+				m_pActive->Refresh(false);
 			}
 		}
 
@@ -522,11 +386,6 @@ bool CSGDI_Layout_Items::Scale(double Scale)
 	if( Scale > 0. && Scale != m_Scale )
 	{
 		m_Scale	= Scale;
-
-		for(size_t i=0; i<m_Items.Get_Size(); i++)
-		{
-			Get_Item(i)->_Tracker_Set_Scale(m_Scale);
-		}
 
 		return( true );
 	}
@@ -723,8 +582,6 @@ bool CSGDI_Layout_Items::Hide(CSGDI_Layout_Item *pItem)
 	{
 		if( m_pActive == pItem )
 		{
-			m_pActive->_Tracker_Disable();
-
 			m_pActive	= NULL;
 		}
 
@@ -741,12 +598,7 @@ bool CSGDI_Layout_Items::Show(CSGDI_Layout_Item *pItem)
 {
 	if( !pItem->is_Shown() )
 	{
-		if( m_pActive == pItem )
-		{
-			m_pActive->_Tracker_Enable();
-		}
-
-		pItem->Refresh();
+		pItem->Refresh(false);
 
 		pItem->m_bShow	= true;
 	}
@@ -760,7 +612,7 @@ bool CSGDI_Layout_Items::Show(CSGDI_Layout_Item *pItem)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSGDI_Layout_Items::Draw(wxDC &dc)
+bool CSGDI_Layout_Items::Draw(wxDC &dc, bool bTracker)
 {
 	for(size_t i=0; i<m_Items.Get_Size(); i++)
 	{
@@ -770,20 +622,12 @@ bool CSGDI_Layout_Items::Draw(wxDC &dc)
 		}
 	}
 
-	return( true );
-}
-
-//---------------------------------------------------------
-bool CSGDI_Layout_Items::On_Tracker_Changed(void)
-{
-	if( m_pActive && m_pActive->_Tracker_Changed() )
+	if( bTracker )
 	{
-		m_pParent->Refresh(false);
-
-		return( true );
+		m_Tracker.Draw(dc);
 	}
 
-	return( false );
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -843,32 +687,54 @@ bool CSGDI_Layout_Items::On_Mouse_Event(wxMouseEvent &event)
 	}
 
 	//-----------------------------------------------------
-	if     ( event.LeftDown  () )
+	if     ( event.Moving    () )
 	{
-		Select(p, true);
+		switch( m_Tracker.Hit_Test(p) )
+		{
+		case HANDLE_TOP_LEFT     : m_pParent->SetCursor(wxCURSOR_SIZENWSE); break;
+		case HANDLE_TOP_CENTER   : m_pParent->SetCursor(wxCURSOR_SIZENS  ); break;
+		case HANDLE_TOP_RIGHT    : m_pParent->SetCursor(wxCURSOR_SIZENESW); break;
+		case HANDLE_LEFT_CENTER  : m_pParent->SetCursor(wxCURSOR_SIZEWE  ); break;
+		case HANDLE_RIGHT_CENTER : m_pParent->SetCursor(wxCURSOR_SIZEWE  ); break;
+		case HANDLE_BOTTOM_LEFT  : m_pParent->SetCursor(wxCURSOR_SIZENESW); break;
+		case HANDLE_BOTTOM_CENTER: m_pParent->SetCursor(wxCURSOR_SIZENS  ); break;
+		case HANDLE_BOTTOM_RIGHT : m_pParent->SetCursor(wxCURSOR_SIZENWSE); break;
+		case HANDLE_TRACKER      : m_pParent->SetCursor(wxCURSOR_HAND    ); break;
+		case HANDLE_NONE         : m_pParent->SetCursor(wxNullCursor     ); break;
+		}
+	}
+
+	//-----------------------------------------------------
+	else if( event.LeftDown  () )
+	{
+		Select(p);
+
+		m_Tracker.Drag_Start(p);
+	}
+	else if( event.Dragging  () )
+	{
+		m_Tracker.Drag_Move (p);
 	}
 	else if( event.LeftUp    () )
 	{
-		Select(p, false);
+		m_Tracker.Drag_Stop (p);
 	}
-	else if( event.RightUp   () )
+
+	//-----------------------------------------------------
+	else if( event.RightDown () )
 	{
-		Select(p, true);
-		Select(p, false);
+		Select(p);
 	}
+
+	//-----------------------------------------------------
 	else if( event.LeftDClick() )
 	{
-		Select(p, true);
-		Select(p, false);
+		Select(p);
 
 		if( m_pActive && Active_Properties() )
 		{
-			m_pActive->Refresh();
+			m_pActive->Refresh(false);
 		}
-	}
-	else
-	{
-		event.Skip();
 	}
 
 	//-----------------------------------------------------
@@ -876,66 +742,256 @@ bool CSGDI_Layout_Items::On_Mouse_Event(wxMouseEvent &event)
 }
 
 //---------------------------------------------------------
-bool CSGDI_Layout_Items::Select(const wxPoint &p, bool bDown)
+bool CSGDI_Layout_Items::Select(const wxPoint &Point)
 {
-	if( bDown )
+	if( m_pActive )
 	{
-		if( m_pActive )
+		switch( m_Tracker.Hit_Test(Point) )
 		{
-			switch( m_pActive->m_pTracker->HitTest(p.x, p.y) )
-			{
-			default:
-				return( true );
+		default:
+			return( true );
 
-			case RT_HANDLER_OUTSIDE:
-			case RT_HANDLER_NONE:
-				break;
-			}
-		}
-
-		//-----------------------------------------------------
-		CSGDI_Layout_Item	*pActivate	= NULL;
-
-		for(size_t i=0, j=m_Items.Get_Size()-1; !pActivate && i<m_Items.Get_Size(); i++, j--)
-		{
-			if( Get_Item(j)->is_Shown() && Get_Item(j)->_Tracker_Contains(p) )
-			{
-				pActivate	= Get_Item(j);
-			}
-		}
-
-		//-----------------------------------------------------
-		if( pActivate == NULL || pActivate != m_pActive )
-		{
-			if( m_pActive )
-			{
-				m_pActive->_Tracker_Disable();
-			}
-
-			m_pActive	= NULL;
-		}
-
-		if( pActivate != NULL )
-		{
-			m_pActive	= pActivate;
+		case HANDLE_TRACKER:
+		case HANDLE_NONE:
+			break;
 		}
 	}
-	else
+
+	//-----------------------------------------------------
+	CSGDI_Layout_Item	*pActivate	= NULL;
+
+	for(size_t i=0, j=m_Items.Get_Size()-1; !pActivate && i<m_Items.Get_Size(); i++, j--)
+	{
+		if( Get_Item(j)->is_Shown() && Get_Item(j)->_Tracker_Contains(Point) )
+		{
+			pActivate	= Get_Item(j);
+		}
+	}
+
+	//-----------------------------------------------------
+	if( m_pActive != pActivate )
 	{
 		if( m_pActive )
 		{
-			if( m_pActive->_Tracker_Contains(p) )
-			{
-				if( m_pActive->_Tracker_Enable() )
-				{
-					m_pActive->Refresh(false);
-				}
-			}
-			else
-			{
-				m_pActive	= NULL;
-			}
+			m_pActive->Refresh(false);
 		}
+
+		m_pActive	= pActivate;
+
+		if( m_pActive )
+		{
+			m_pActive->Refresh(false);
+		}
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSGDI_Layout_Items::CSGDI_Layout_Tracker::CSGDI_Layout_Tracker(void)
+{
+	m_pOwner	= NULL;
+}
+
+//---------------------------------------------------------
+CSGDI_Layout_Items::CSGDI_Layout_Tracker::~CSGDI_Layout_Tracker(void)
+{}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+inline wxRect CSGDI_Layout_Items::CSGDI_Layout_Tracker::Get_Rect(THandle Handle)
+{
+	if( m_pOwner->m_pActive && m_pOwner->m_Scale > 0. && Handle != HANDLE_NONE )
+	{
+		wxRect	r(Get_Scaled(m_pOwner->m_pActive->m_Rect, m_pOwner->m_Scale));	int	w	= m_pOwner->m_Handle;
+
+		switch( Handle )
+		{
+		case HANDLE_TOP_LEFT     : return( wxRect(r.x                    , r.y                     , w, w) );
+		case HANDLE_TOP_CENTER   : return( wxRect(r.x + (r.width - w) / 2, r.y                     , w, w) );
+		case HANDLE_TOP_RIGHT    : return( wxRect(r.x + (r.width - w)    , r.y                     , w, w) );
+		case HANDLE_LEFT_CENTER  : return( wxRect(r.x                    , r.y + (r.height - w) / 2, w, w) );
+		case HANDLE_RIGHT_CENTER : return( wxRect(r.x + (r.width - w)    , r.y + (r.height - w) / 2, w, w) );
+		case HANDLE_BOTTOM_LEFT  : return( wxRect(r.x                    , r.y + (r.height - w)    , w, w) );
+		case HANDLE_BOTTOM_CENTER: return( wxRect(r.x + (r.width - w) / 2, r.y + (r.height - w)    , w, w) );
+		case HANDLE_BOTTOM_RIGHT : return( wxRect(r.x + (r.width - w)    , r.y + (r.height - w)    , w, w) );
+		default                  : return( r );
+		}
+	}
+
+	return( wxRect(0, 0, 0, 0) );
+}
+
+//---------------------------------------------------------
+inline CSGDI_Layout_Items::THandle CSGDI_Layout_Items::CSGDI_Layout_Tracker::Hit_Test(const wxPoint &Point)
+{
+	if( m_pOwner->m_pActive && Get_Rect(HANDLE_TRACKER).Contains(Point) )
+	{
+		if( m_pOwner->m_pActive->m_bSizer )
+		{
+			if( Get_Rect(HANDLE_TOP_LEFT     ).Contains(Point) ) { return( HANDLE_TOP_LEFT     ); }
+			if( Get_Rect(HANDLE_TOP_CENTER   ).Contains(Point) ) { return( HANDLE_TOP_CENTER   ); }
+			if( Get_Rect(HANDLE_TOP_RIGHT    ).Contains(Point) ) { return( HANDLE_TOP_RIGHT    ); }
+			if( Get_Rect(HANDLE_LEFT_CENTER  ).Contains(Point) ) { return( HANDLE_LEFT_CENTER  ); }
+			if( Get_Rect(HANDLE_RIGHT_CENTER ).Contains(Point) ) { return( HANDLE_RIGHT_CENTER ); }
+			if( Get_Rect(HANDLE_BOTTOM_LEFT  ).Contains(Point) ) { return( HANDLE_BOTTOM_LEFT  ); }
+			if( Get_Rect(HANDLE_BOTTOM_CENTER).Contains(Point) ) { return( HANDLE_BOTTOM_CENTER); }
+			if( Get_Rect(HANDLE_BOTTOM_RIGHT ).Contains(Point) ) { return( HANDLE_BOTTOM_RIGHT ); }
+		}
+
+		return( HANDLE_TRACKER );
+	}
+
+	return( HANDLE_NONE );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSGDI_Layout_Items::CSGDI_Layout_Tracker::Drag_Start(const wxPoint &Point)
+{
+	if( !m_pOwner->m_pActive )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	m_Drag_Mode		= Hit_Test(Point);
+	m_Drag_Start	= Point;
+	m_Drag_Last		= Point;
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSGDI_Layout_Items::CSGDI_Layout_Tracker::Drag_Move(const wxPoint &Point)
+{
+	if( m_Drag_Mode == HANDLE_NONE )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	Drag_Draw(Drag_Rect(m_Drag_Start, m_Drag_Last        ));
+	Drag_Draw(Drag_Rect(m_Drag_Start, m_Drag_Last = Point));
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSGDI_Layout_Items::CSGDI_Layout_Tracker::Drag_Stop(const wxPoint &Point)
+{
+	if( !m_pOwner->m_pActive || m_Drag_Mode == HANDLE_NONE )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( m_Drag_Start != m_Drag_Last )
+	{
+		Drag_Draw(Drag_Rect(m_Drag_Start, m_Drag_Last));
+	}
+
+	m_pOwner->m_pActive->_Tracker_Set_Rect(Drag_Rect(m_Drag_Start, Point));
+
+	m_Drag_Mode	= HANDLE_NONE;
+
+	return( true );
+}
+
+//---------------------------------------------------------
+wxRect CSGDI_Layout_Items::CSGDI_Layout_Tracker::Drag_Rect(const wxPoint &From, const wxPoint &To)
+{
+	wxRect	r(Get_Scaled(m_pOwner->m_pActive->m_Rect, m_pOwner->m_Scale));
+
+	if( From != To )
+	{
+		int	dx	= To.x - From.x;
+		int	dy	= To.y - From.y;
+
+		if( m_pOwner->m_pActive && m_pOwner->m_pActive->m_Ratio > 0. )
+		{
+			// to do, fix the ratio...
+		}
+
+		switch( m_Drag_Mode )
+		{
+		case HANDLE_TOP_LEFT     : r.x += dx; r.width -= dx; r.y += dy; r.height -= dy; break;
+		case HANDLE_TOP_CENTER   :                           r.y += dy; r.height -= dy; break;
+		case HANDLE_TOP_RIGHT    :            r.width += dx; r.y += dy; r.height -= dy; break;
+		case HANDLE_LEFT_CENTER  : r.x += dx; r.width -= dx;                            break;
+		case HANDLE_RIGHT_CENTER :            r.width += dx;                            break;
+		case HANDLE_BOTTOM_LEFT  : r.x += dx; r.width -= dx;            r.height += dy; break;
+		case HANDLE_BOTTOM_CENTER:                                      r.height += dy; break;
+		case HANDLE_BOTTOM_RIGHT :            r.width += dx;            r.height += dy; break;
+		case HANDLE_TRACKER      : r.x += dx;                r.y += dy;                 break;
+		default                  :                                                      break;
+		}
+	}
+
+	return( r );
+}
+
+//---------------------------------------------------------
+void CSGDI_Layout_Items::CSGDI_Layout_Tracker::Drag_Draw(const wxRect &Rect)
+{
+	if( m_pOwner->m_pParent )
+	{
+		wxClientDC	dc(m_pOwner->m_pParent);
+
+		dc.SetLogicalFunction(wxINVERT);
+		dc.SetBrush(*wxTRANSPARENT_BRUSH);
+	//	dc.SetPen(*wxWHITE_PEN);
+		dc.DrawRectangle(Rect);
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSGDI_Layout_Items::CSGDI_Layout_Tracker::Draw(wxDC &dc)
+{
+	if( !m_pOwner->m_pParent || !m_pOwner->m_pActive )
+	{
+		return( false );
+	}
+
+	dc.SetBrush(*wxTRANSPARENT_BRUSH);
+	dc.SetPen  (*wxWHITE_PEN );
+	dc.DrawRectangle(Get_Rect(HANDLE_TRACKER));
+	dc.SetPen  (*wxBLACK_DASHED_PEN );
+	dc.DrawRectangle(Get_Rect(HANDLE_TRACKER));
+
+	if( m_pOwner->m_pActive->m_bSizer )
+	{
+		dc.SetBrush(*wxBLACK_BRUSH      );
+		dc.SetPen  (*wxTRANSPARENT_PEN  );
+
+		dc.DrawRectangle(Get_Rect(HANDLE_TOP_LEFT     ));
+		dc.DrawRectangle(Get_Rect(HANDLE_TOP_CENTER   ));
+		dc.DrawRectangle(Get_Rect(HANDLE_TOP_RIGHT    ));
+		dc.DrawRectangle(Get_Rect(HANDLE_LEFT_CENTER  ));
+		dc.DrawRectangle(Get_Rect(HANDLE_RIGHT_CENTER ));
+		dc.DrawRectangle(Get_Rect(HANDLE_BOTTOM_LEFT  ));
+		dc.DrawRectangle(Get_Rect(HANDLE_BOTTOM_CENTER));
+		dc.DrawRectangle(Get_Rect(HANDLE_BOTTOM_RIGHT ));
 	}
 
 	return( true );
