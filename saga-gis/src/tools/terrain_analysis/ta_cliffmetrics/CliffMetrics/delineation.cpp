@@ -422,11 +422,11 @@ int CDelineation::nDoDelineation(CSG_Parameters *pParameters)
 		//}
 	}
 
-	m_nCoastSeaHandiness	        = Parameters["CoastSeaHandiness"].asInt();
-	CSG_String InitialCoastlineFile = Parameters["COAST_INITIAL"].asString();
+	m_nCoastSeaHandiness	        = Parameters["CoastSeaHandiness"     ].asInt() == 0 ? 0 : 1; // [right = 0 or left = 1]
+	CSG_String InitialCoastlineFile = Parameters["COAST_INITIAL"         ].asString();
 	m_strInitialCoastlineFile       = InitialCoastlineFile.b_str();					// Filename user define coastline for CliffMetrics output
-	m_nStartEdgeUserCoastline		= Parameters["StartEdgeUserCoastLine"].asInt();
-	m_nEndEdgeUserCoastline			= Parameters["EndEdgeUserCoastLine"].asInt();
+	m_nStartEdgeUserCoastline		= Parameters["StartEdgeUserCoastLine"].asInt() + 1; // [N = 1, E = 2, S = 3, W = 4]
+	m_nEndEdgeUserCoastline			= Parameters["EndEdgeUserCoastLine"  ].asInt() + 1; // [N = 1, E = 2, S = 3, W = 4]
 
 	// May wish to read in the shoreline vector file instead of calculating it from the raster
 	if( Parameters["COAST_INITIAL"].asShapes() )

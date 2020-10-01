@@ -75,6 +75,12 @@ CCliffMetrics_Tool::CCliffMetrics_Tool(void)
 		SG_T("https://doi.org/10.5194/gmd-11-4317-2018"), SG_T("doi: 10.5194/gmd-11-4317-2018.")
 	);
 
+	Add_Reference("Payo, A.", "2020",
+		"SAGA-CliffMetric User guide",
+		"",
+		SG_T("https://bgs.sharefile.eu/d-s81693fc760140e18"), SG_T("Download")
+	);
+
 	//-----------------------------------------------------
 	Parameters.Add_Grid("",
 		"DEM"				, _TL("Elevation"),
@@ -107,23 +113,37 @@ CCliffMetrics_Tool::CCliffMetrics_Tool(void)
 		PARAMETER_INPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Int("COAST_INITIAL",
+	Parameters.Add_Choice("COAST_INITIAL",
 		"CoastSeaHandiness"	, _TL("Sea handiness"),
-		_TL("as you traverse the coastline, on which side of shoreline the sea is? [right = 0 or left = 1]"),
-		0, 0, true, 1, true
+		_TL("as you traverse the coastline, on which side of shoreline the sea is?"),
+		CSG_String::Format("%s|%s",
+			_TL("right"),
+			_TL("left")
+		), 0
 	);
 
-	Parameters.Add_Int("COAST_INITIAL",
+	Parameters.Add_Choice("COAST_INITIAL",
 		"StartEdgeUserCoastLine", _TL("Start edge coastline"),
-		_TL("on which edge of the DTM the start of coastline is? [N = 1, E = 2, S = 3, W = 4]"),
-		 1, 1, true, 4, true
+		_TL("on which edge of the DTM the start of coastline is?"),
+		CSG_String::Format("%s|%s|%s|%s",
+			_TL("North"),
+			_TL("East" ),
+			_TL("South"),
+			_TL("West" )
+		), 0
 	);
 
-	Parameters.Add_Int("COAST_INITIAL",
+	Parameters.Add_Choice("COAST_INITIAL",
 		"EndEdgeUserCoastLine", _TL("End edge coastline"),
-		_TL("on which edge of the DTM the end of coastline is? [N = 1, E = 2, S = 3, W = 4]"),
-		1, 1, true, 4, true
+		_TL("on which edge of the DTM the end of coastline is?"),
+		CSG_String::Format("%s|%s|%s|%s",
+			_TL("North"),
+			_TL("East" ),
+			_TL("South"),
+			_TL("West" )
+		), 0
 	);
+
 	Parameters.Add_Shapes("",
 		"COAST"				, _TL("Coastline"),
 		_TL(""),
@@ -242,9 +262,9 @@ int CCliffMetrics_Tool::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Pa
 {
 	if( pParameter->Cmp_Identifier("COAST_INITIAL") )
 	{
-		pParameters->Set_Enabled("CoastSeaHandiness", pParameter->asShapes() != NULL);
+		pParameters->Set_Enabled("CoastSeaHandiness"     , pParameter->asShapes() != NULL);
 		pParameters->Set_Enabled("StartEdgeUserCoastLine", pParameter->asShapes() != NULL);
-		pParameters->Set_Enabled("EndEdgeUserCoastLine", pParameter->asShapes() != NULL);
+		pParameters->Set_Enabled("EndEdgeUserCoastLine"  , pParameter->asShapes() != NULL);
 	}
 
 	if( pParameter->Cmp_Identifier("CoastSmooth") )
