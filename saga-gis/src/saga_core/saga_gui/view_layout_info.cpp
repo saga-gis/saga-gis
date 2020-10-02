@@ -53,9 +53,9 @@
 #include <wx/dataobj.h>
 
 #include <saga_api/saga_api.h>
+#include <saga_gdi/sgdi_helper.h>
 
 #include "helper.h"
-#include "dc_helper.h"
 
 #include "res_commands.h"
 #include "res_dialogs.h"
@@ -662,15 +662,20 @@ public:
 			)
 		);
 
+		m_Parameters.Add_Bool("", "FIXRATIO", _TL("Fix Ratio"), _TL(""), true);
+
 		return( true );
 	}
 
+	//-----------------------------------------------------
 	bool				Set_Size			(const wxSize &Size)
 	{
 		m_Rect.x      =  10;
 		m_Rect.y      =  10;
 		m_Rect.width  = (int)(200 * Size.x / (double)Size.y);
 		m_Rect.height = 200;
+
+		Fix_Ratio(m_Parameters["FIXRATIO"].asBool());
 
 		return( true );
 	}
@@ -702,6 +707,7 @@ public:
 		return( false );
 	}
 
+	//-----------------------------------------------------
 	bool				Save				(void)
 	{
 		wxString	File;	int	Type;
@@ -718,6 +724,7 @@ public:
 		return( false );
 	}
 
+	//-----------------------------------------------------
 	bool				Restore				(void)
 	{
 		if( m_Image.IsOk() )
@@ -728,6 +735,8 @@ public:
 				m_Image.GetSize().GetWidth (),
 				m_Image.GetSize().GetHeight())
 			);
+
+			Fix_Ratio(m_Parameters["FIXRATIO"].asBool());
 
 			Refresh(false);
 
@@ -749,6 +758,8 @@ public:
 					m_Parameters["FILE"].Set_Value(m_File);
 				}
 			}
+
+			Fix_Ratio(m_Parameters["FIXRATIO"].asBool());
 
 			return( true );
 		}
@@ -962,7 +973,7 @@ CVIEW_Layout_Info::~CVIEW_Layout_Info(void)
 //---------------------------------------------------------
 wxString CVIEW_Layout_Info::Get_Name(void)
 {
-	return( wxString::Format("SAGA %s: %s", _TL("Printout"), m_pMap->Get_Name().c_str()) );
+	return( m_pMap->Get_Name().c_str() );
 }
 
 //---------------------------------------------------------
@@ -1252,6 +1263,11 @@ bool CVIEW_Layout_Info::Load(const CSG_MetaData &Layout)
 	}
 
 	//-----------------------------------------------------
+	if( m_Items.Get_Parent() )
+	{
+		m_Items.Get_Parent()->Refresh();
+	}
+
 	return( true );
 }
 
@@ -1427,7 +1443,7 @@ bool CVIEW_Layout_Info::Clipboard_Paste(void)
 
 			if( wxTheClipboard->GetData(Data) )
 			{
-				m_Items.Add(new CLayout_Text(this, true, Data.GetText()));
+				m_Items.Add(new CLayout_Text(this, true, Data.GetText()), true);
 
 				bResult	= true;
 			}
@@ -1439,7 +1455,7 @@ bool CVIEW_Layout_Info::Clipboard_Paste(void)
 
 			if( wxTheClipboard->GetData(Data) )
 			{
-				m_Items.Add(new CLayout_Image(this, Data.GetBitmap().ConvertToImage()));
+				m_Items.Add(new CLayout_Image(this, Data.GetBitmap().ConvertToImage()), true);
 
 				bResult	= true;
 			}
@@ -1461,7 +1477,7 @@ bool CVIEW_Layout_Info::Clipboard_Paste(void)
 //---------------------------------------------------------
 wxMenu * CVIEW_Layout_Info::Menu_Get_Active(void)
 {
-	wxMenu	*pMenu	= new wxMenu;
+	wxMenu	*pMenu	= new wxMenu, *pSubMenu;
 
 	if( m_Items.Get_Active() )
 	{
@@ -1501,7 +1517,9 @@ wxMenu * CVIEW_Layout_Info::Menu_Get_Active(void)
 
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_LAYOUT_ITEM_PROPERTIES);
 	}
-	else
+
+	//-----------------------------------------------------
+	else // Layout Menu...
 	{
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_LAYOUT_TO_CLIPBOARD);
 
@@ -1510,6 +1528,21 @@ wxMenu * CVIEW_Layout_Info::Menu_Get_Active(void)
 		{
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_LAYOUT_ITEM_PASTE);
 		}
+
+		pMenu->AppendSeparator();
+
+		pSubMenu	= new wxMenu;
+	//	CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_LAYOUT_ITEM_MAP);
+		CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_LAYOUT_ITEM_LEGEND);
+		CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_LAYOUT_ITEM_SCALEBAR);
+		CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_LAYOUT_ITEM_SCALE);
+		pMenu->AppendSubMenu(pSubMenu, _TL("Show"));
+
+		pSubMenu	= new wxMenu;
+		CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_LAYOUT_ITEM_LABEL);
+		CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_LAYOUT_ITEM_TEXT);
+		CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_LAYOUT_ITEM_IMAGE);
+		pMenu->AppendSubMenu(pSubMenu, _TL("Add"));
 
 		pMenu->AppendSeparator();
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_LAYOUT_PROPERTIES );
@@ -1593,41 +1626,37 @@ bool CVIEW_Layout_Info::Set_Zoom(double Zoom)
 }
 
 //---------------------------------------------------------
-bool CVIEW_Layout_Info::Draw(wxDC &dc, bool bPrintOut)
+bool CVIEW_Layout_Info::Draw_Paper(wxDC &dc)
 {
-	if( bPrintOut )
+	dc.SetBrush(*wxWHITE_BRUSH);
+	dc.SetPen  (*wxBLACK_PEN  );
+	dc.DrawRectangle(Get_Rect_Scaled(Get_PaperSize(), m_Zoom));
+
+	if( m_Parameters["RASTER_SHOW"].asBool() )
 	{
-		m_Paper2DC	= dc.GetSize().GetWidth() / ((double)Get_PaperSize().GetWidth());
-	}
+		double	Step	= m_Parameters["RASTER_SIZE"].asDouble();
 
-	//-----------------------------------------------------
-	else
-	{
-		m_Paper2DC	= m_Zoom;
-
-		dc.SetBrush(*wxWHITE_BRUSH);
-		dc.SetPen  (*wxBLACK_PEN  );
-		dc.DrawRectangle(Get_Rect_Scaled(Get_PaperSize(), m_Zoom));
-
-		if( m_Parameters["RASTER_SHOW"].asBool() )
+		for(int y=Step; y<Get_PaperSize().GetHeight()-1; y+=Step)
 		{
-			double	Step	= m_Parameters["RASTER_SIZE"].asDouble();
+			int	yy	= (int)(0.5 + y * m_Zoom);
 
-			for(int y=Step; y<Get_PaperSize().GetHeight()-1; y+=Step)
+			for(int x=Step; x<Get_PaperSize().GetWidth()-1; x+=Step)
 			{
-				int	yy	= (int)(0.5 + y * m_Paper2DC);
+				int	xx	= (int)(0.5 + x * m_Zoom);
 
-				for(int x=Step; x<Get_PaperSize().GetWidth()-1; x+=Step)
-				{
-					int	xx	= (int)(0.5 + x * m_Paper2DC);
-
-					dc.DrawPoint(xx, yy);
-				}
+				dc.DrawPoint(xx, yy);
 			}
 		}
 	}
 
-	//-----------------------------------------------------
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CVIEW_Layout_Info::Draw(wxDC &dc, bool bPrintOut)
+{
+	m_Paper2DC	= bPrintOut ? dc.GetSize().GetWidth() / ((double)Get_PaperSize().GetWidth()) : m_Zoom;
+
 	m_Items.Draw(dc, !bPrintOut);
 
 	return( true );
@@ -1649,7 +1678,7 @@ bool CVIEW_Layout_Info::Export(void)
 	}
 
 	//-----------------------------------------------------
-	int	dpi	= 150;
+	static int	dpi	= 150;
 
 	if( !DLG_Get_Number(dpi, _TL("Copy Map to Clipboard"), wxString::Format("%s [dpi]", _TL("Resolution"))) )
 	{

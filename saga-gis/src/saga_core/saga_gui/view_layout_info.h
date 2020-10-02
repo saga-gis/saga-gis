@@ -136,6 +136,7 @@ public:
 	double							Get_Paper2DC			(void)					const	{	return(                       m_Paper2DC     );	}
 	wxRect							Get_Paper2DC			(const wxRect &Rect)	const	{	return( Get_Rect_Scaled(Rect, m_Paper2DC   ) );	}
 
+	bool							Draw_Paper				(wxDC &dc);
 	bool							Draw					(wxDC &dc, bool bPrintOut = false);
 
 	bool							Export					(void);

@@ -96,6 +96,7 @@ public:
 
 		bool						Set_Sizer			(bool bOn);
 		bool						Set_Ratio			(double Ratio = 0.);
+		bool						Fix_Ratio			(bool bOn = true);
 
 		const wxRect &				Get_Rect			(void)	const			{	return( m_Rect );	}
 		bool						Set_Rect			(const wxRect &Rect);
@@ -138,6 +139,7 @@ public:
 	bool							Destroy				(bool bDetachItems = false);
 
 	bool							Set_Parent			(wxWindow *pParent);
+	wxWindow *						Get_Parent			(void)			const	{	return( m_pParent );	}
 	bool							Set_Raster			(int Raster);
 
 	size_t							Get_Count			(void)			const	{	return( m_Items.Get_Size() );	}
@@ -228,7 +230,8 @@ private:
 		wxRect						Drag_Rect			(const wxPoint &From, const wxPoint &To);
 		void						Drag_Draw			(const wxRect &Rect);
 
-		bool						Draw				(wxDC &dc);
+		bool						Draw				(          bool bWhite = false);
+		bool						Draw				(wxDC &dc, bool bWhite = false);
 
 
 		THandle						m_Drag_Mode;

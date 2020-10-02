@@ -52,13 +52,13 @@
 #include <wx/dcmemory.h>
 #include <wx/image.h>
 
+#include <saga_gdi/sgdi_helper.h>
 #include <saga_gdi/sgdi_layout_items.h>
 
 #include "res_commands.h"
 #include "res_images.h"
 
 #include "helper.h"
-#include "dc_helper.h"
 
 #include "wksp_map.h"
 
@@ -75,6 +75,8 @@
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CVIEW_Layout_Control, wxScrolledWindow)
+
+	EVT_ERASE_BACKGROUND(CVIEW_Layout_Control::On_EraseBackground)
 
 	EVT_LEFT_DOWN   (CVIEW_Layout_Control::On_Mouse_Event)
 	EVT_LEFT_UP     (CVIEW_Layout_Control::On_Mouse_Event)
@@ -96,16 +98,12 @@ END_EVENT_TABLE()
 CVIEW_Layout_Control::CVIEW_Layout_Control(CVIEW_Layout *pParent, CVIEW_Layout_Info *pLayout)
 	: wxScrolledWindow(pParent)
 {
-	SYS_Set_Color_BG(this, wxSYS_COLOUR_APPWORKSPACE);
-
 	m_Zoom		= 1.;
 	m_pLayout	= pLayout;
 
 	m_pLayout->m_Items.Set_Parent(this);
 
 	Set_Scrollbars();
-
-//	SetCursor(IMG_Get_Cursor(ID_IMG_CRS_MAGNIFIER));
 }
 
 //---------------------------------------------------------
@@ -267,6 +265,23 @@ void CVIEW_Layout_Control::OnDraw(wxDC &dc)
 	//dcBmp.SelectObject(wxNullBitmap);
 
 	//dc.DrawBitmap(Bmp, 0, 0);
+}
+
+//---------------------------------------------------------
+void CVIEW_Layout_Control::On_EraseBackground(wxEraseEvent &event)
+{
+	if( event.GetDC() )
+	{
+		wxDC	&dc	= *event.GetDC();
+
+		dc.SetBrush(SYS_Get_Color(wxSYS_COLOUR_APPWORKSPACE));
+		dc.SetPen  (*wxTRANSPARENT_PEN);
+		dc.DrawRectangle(dc.GetSize());
+
+		DoPrepareDC(dc);
+
+		m_pLayout->Draw_Paper(dc);
+	}
 }
 
 

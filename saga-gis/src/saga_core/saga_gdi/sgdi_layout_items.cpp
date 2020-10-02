@@ -95,6 +95,16 @@ bool CSGDI_Layout_Items::CSGDI_Layout_Item::Set_Ratio(double Ratio)
 	return( false );
 }
 
+bool CSGDI_Layout_Items::CSGDI_Layout_Item::Fix_Ratio(bool bOn)
+{
+	if( bOn )
+	{
+		return( m_Rect.width && m_Rect.height && Set_Ratio(m_Rect.height / (double)m_Rect.width) );
+	}
+
+	return( Set_Ratio(0.) );
+}
+
 //---------------------------------------------------------
 bool CSGDI_Layout_Items::CSGDI_Layout_Item::Set_Rect(const wxRect &Rect)
 {
@@ -115,7 +125,15 @@ bool CSGDI_Layout_Items::CSGDI_Layout_Item::Refresh(bool bErase)
 	{
 		wxRect	rTracker(Get_Scaled(m_Rect, m_pOwner->m_Scale));
 
-		rTracker.Inflate(2);
+		rTracker.Inflate(5);
+
+		if( wxDynamicCast(m_pOwner->m_pParent, wxScrolledWindow) )
+		{
+			wxPoint	Offset((wxDynamicCast(m_pOwner->m_pParent, wxScrolledWindow)->CalcUnscrolledPosition(wxPoint(0, 0))));
+
+			rTracker.x	-= Offset.x;
+			rTracker.y	-= Offset.y;
+		}
 
 		m_pOwner->m_pParent->Refresh(bErase, &rTracker);
 
@@ -309,16 +327,13 @@ bool CSGDI_Layout_Items::Add(CSGDI_Layout_Item *pItem, const wxRect &Rect, bool 
 		{
 			if( m_pActive )
 			{
-				m_pActive->Refresh(false);
+				m_pActive->Refresh();
 			}
 
 			m_pActive	= pItem;
-
-			if( m_pActive )
-			{
-				m_pActive->Refresh(false);
-			}
 		}
+
+		pItem->Refresh(false);
 
 		return( true );
 	}
@@ -598,7 +613,7 @@ bool CSGDI_Layout_Items::Show(CSGDI_Layout_Item *pItem)
 {
 	if( !pItem->is_Shown() )
 	{
-		pItem->Refresh(false);
+		pItem->Refresh();
 
 		pItem->m_bShow	= true;
 	}
@@ -646,27 +661,14 @@ bool CSGDI_Layout_Items::On_Key_Event(wxKeyEvent &event)
 		}
 
 		//-------------------------------------------------
-		wxRect	r(m_pActive->m_Rect), rMoved(m_pActive->m_Rect);
-
-		int	Move	= event.ControlDown() ? 1 : !event.ShiftDown() ? 5 : 20;
+		wxRect	r(m_pActive->m_Rect); int Move = event.ControlDown() ? 1 : !event.ShiftDown() ? 5 : 20;
 
 		switch( event.GetKeyCode() )
 		{
-		case WXK_LEFT : rMoved.Offset(-Move,     0); break;
-		case WXK_RIGHT: rMoved.Offset( Move,     0); break;
-		case WXK_UP   : rMoved.Offset(    0, -Move); break;
-		case WXK_DOWN : rMoved.Offset(    0,  Move); break;
-		}
-
-		if( !Compare(r, rMoved) )
-		{
-			m_pActive->Set_Rect(rMoved);
-
-			r.Union(rMoved); r = Get_Scaled(r, m_Scale); r.Inflate(2);
-
-			m_pParent->Refresh(true, &r);
-
-			return( true );
+		case WXK_LEFT : r.Offset(-Move,     0); return( m_pActive->_Tracker_Set_Rect(Get_Scaled(r, m_Scale)) );
+		case WXK_RIGHT: r.Offset( Move,     0); return( m_pActive->_Tracker_Set_Rect(Get_Scaled(r, m_Scale)) );
+		case WXK_UP   : r.Offset(    0, -Move); return( m_pActive->_Tracker_Set_Rect(Get_Scaled(r, m_Scale)) );
+		case WXK_DOWN : r.Offset(    0,  Move); return( m_pActive->_Tracker_Set_Rect(Get_Scaled(r, m_Scale)) );
 		}
 	}
 
@@ -707,9 +709,16 @@ bool CSGDI_Layout_Items::On_Mouse_Event(wxMouseEvent &event)
 	//-----------------------------------------------------
 	else if( event.LeftDown  () )
 	{
+		if( m_pParent->GetParent() )
+		{
+			m_pParent->GetParent()->SetFocus();
+		}
+
 		Select(p);
 
 		m_Tracker.Drag_Start(p);
+
+		m_pParent->CaptureMouse();
 	}
 	else if( event.Dragging  () )
 	{
@@ -718,11 +727,18 @@ bool CSGDI_Layout_Items::On_Mouse_Event(wxMouseEvent &event)
 	else if( event.LeftUp    () )
 	{
 		m_Tracker.Drag_Stop (p);
+
+		m_pParent->ReleaseMouse();
 	}
 
 	//-----------------------------------------------------
 	else if( event.RightDown () )
 	{
+		if( m_pParent->GetParent() )
+		{
+			m_pParent->GetParent()->SetFocus();
+		}
+
 		Select(p);
 	}
 
@@ -733,7 +749,7 @@ bool CSGDI_Layout_Items::On_Mouse_Event(wxMouseEvent &event)
 
 		if( m_pActive && Active_Properties() )
 		{
-			m_pActive->Refresh(false);
+			m_pActive->Refresh();
 		}
 	}
 
@@ -774,14 +790,13 @@ bool CSGDI_Layout_Items::Select(const wxPoint &Point)
 		if( m_pActive )
 		{
 			m_pActive->Refresh(false);
+
+			m_Tracker.Draw(true);
 		}
 
 		m_pActive	= pActivate;
 
-		if( m_pActive )
-		{
-			m_pActive->Refresh(false);
-		}
+		m_Tracker.Draw();
 	}
 
 	return( true );
@@ -923,11 +938,6 @@ wxRect CSGDI_Layout_Items::CSGDI_Layout_Tracker::Drag_Rect(const wxPoint &From, 
 		int	dx	= To.x - From.x;
 		int	dy	= To.y - From.y;
 
-		if( m_pOwner->m_pActive && m_pOwner->m_pActive->m_Ratio > 0. )
-		{
-			// to do, fix the ratio...
-		}
-
 		switch( m_Drag_Mode )
 		{
 		case HANDLE_TOP_LEFT     : r.x += dx; r.width -= dx; r.y += dy; r.height -= dy; break;
@@ -941,6 +951,34 @@ wxRect CSGDI_Layout_Items::CSGDI_Layout_Tracker::Drag_Rect(const wxPoint &From, 
 		case HANDLE_TRACKER      : r.x += dx;                r.y += dy;                 break;
 		default                  :                                                      break;
 		}
+
+		if( abs(r.width) < 25 || abs(r.height) < 25 )
+		{
+			wxRect	rOriginal(Get_Scaled(m_pOwner->m_pActive->m_Rect, m_pOwner->m_Scale));
+
+			if( abs(r.width ) < 25 ) { r.x = rOriginal.x; r.width  = 25; }
+			if( abs(r.height) < 25 ) { r.y = rOriginal.y; r.height = 25; }
+		}
+
+		if( m_pOwner->m_pActive && m_pOwner->m_pActive->m_Ratio > 0. )
+		{
+			int	b	= r.width && m_pOwner->m_pActive->m_Ratio < (r.height / (double)r.width) ? 1 : 0;
+			int	rx	= (int)(0.5 + r.height / m_pOwner->m_pActive->m_Ratio);
+			int	ry	= (int)(0.5 + r.width  * m_pOwner->m_pActive->m_Ratio);
+
+			switch( m_Drag_Mode )
+			{
+			case HANDLE_TOP_LEFT     : if( b ) { r.x += r.width - rx; r.width = rx; } else { r.y += r.height - ry; r.height = ry; } break;
+			case HANDLE_TOP_CENTER   :         {                      r.width = rx; }                                               break;
+			case HANDLE_TOP_RIGHT    : if( b ) {                      r.width = rx; } else { r.y += r.height - ry; r.height = ry; } break;
+			case HANDLE_LEFT_CENTER  :                                                     {                       r.height = ry; } break;
+			case HANDLE_RIGHT_CENTER :                                                     {                       r.height = ry; } break;
+			case HANDLE_BOTTOM_LEFT  : if( b ) { r.x += r.width - rx; r.width = rx; } else {                       r.height = ry; } break;
+			case HANDLE_BOTTOM_CENTER:         {                      r.width = rx; }                                               break;
+			case HANDLE_BOTTOM_RIGHT : if( b ) {                      r.width = rx; } else {                       r.height = ry; } break;
+			default                  :                                                                                              break;
+			}
+		}
 	}
 
 	return( r );
@@ -952,6 +990,11 @@ void CSGDI_Layout_Items::CSGDI_Layout_Tracker::Drag_Draw(const wxRect &Rect)
 	if( m_pOwner->m_pParent )
 	{
 		wxClientDC	dc(m_pOwner->m_pParent);
+
+		if( wxDynamicCast(m_pOwner->m_pParent, wxScrolledWindow) )
+		{
+			wxDynamicCast(m_pOwner->m_pParent, wxScrolledWindow)->DoPrepareDC(dc);
+		}
 
 		dc.SetLogicalFunction(wxINVERT);
 		dc.SetBrush(*wxTRANSPARENT_BRUSH);
@@ -966,7 +1009,25 @@ void CSGDI_Layout_Items::CSGDI_Layout_Tracker::Drag_Draw(const wxRect &Rect)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSGDI_Layout_Items::CSGDI_Layout_Tracker::Draw(wxDC &dc)
+bool CSGDI_Layout_Items::CSGDI_Layout_Tracker::Draw(bool bWhite)
+{
+	if( m_pOwner->m_pParent && m_pOwner->m_pActive )
+	{
+		wxClientDC	dc(m_pOwner->m_pParent);
+
+		if( wxDynamicCast(m_pOwner->m_pParent, wxScrolledWindow) )
+		{
+			wxDynamicCast(m_pOwner->m_pParent, wxScrolledWindow)->DoPrepareDC(dc);
+		}
+
+		return( Draw(dc, bWhite) );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSGDI_Layout_Items::CSGDI_Layout_Tracker::Draw(wxDC &dc, bool bWhite)
 {
 	if( !m_pOwner->m_pParent || !m_pOwner->m_pActive )
 	{
@@ -974,15 +1035,20 @@ bool CSGDI_Layout_Items::CSGDI_Layout_Tracker::Draw(wxDC &dc)
 	}
 
 	dc.SetBrush(*wxTRANSPARENT_BRUSH);
-	dc.SetPen  (*wxWHITE_PEN );
+
+	dc.SetPen(*wxWHITE_PEN);
 	dc.DrawRectangle(Get_Rect(HANDLE_TRACKER));
-	dc.SetPen  (*wxBLACK_DASHED_PEN );
-	dc.DrawRectangle(Get_Rect(HANDLE_TRACKER));
+
+	if( !bWhite )
+	{
+		dc.SetPen  (*wxBLACK_DASHED_PEN );
+		dc.DrawRectangle(Get_Rect(HANDLE_TRACKER));
+	}
 
 	if( m_pOwner->m_pActive->m_bSizer )
 	{
-		dc.SetBrush(*wxBLACK_BRUSH      );
-		dc.SetPen  (*wxTRANSPARENT_PEN  );
+		dc.SetBrush(bWhite ? *wxWHITE_BRUSH : *wxBLACK_BRUSH);
+		dc.SetPen(*wxTRANSPARENT_PEN);
 
 		dc.DrawRectangle(Get_Rect(HANDLE_TOP_LEFT     ));
 		dc.DrawRectangle(Get_Rect(HANDLE_TOP_CENTER   ));
