@@ -357,6 +357,7 @@ copy sgdi_layout_items.h $(OutDir)include\saga_gdi
     <ClCompile Include="3d_view_dialog.cpp" />
     <ClCompile Include="3d_view_panel.cpp" />
     <ClCompile Include="3d_view_projector.cpp" />
+    <ClCompile Include="sgdi_controls.cpp" />
     <ClCompile Include="sgdi_diagram.cpp" />
     <ClCompile Include="sgdi_dialog.cpp" />
     <ClCompile Include="sgdi_helper.cpp" />
@@ -366,6 +367,7 @@ copy sgdi_layout_items.h $(OutDir)include\saga_gdi
     <ClInclude Include="3d_view.h" />
     <ClInclude Include="3d_view_tools.h" />
     <ClInclude Include="saga_gdi.h" />
+    <ClInclude Include="sgdi_controls.h" />
     <ClInclude Include="sgdi_core.h" />
     <ClInclude Include="sgdi_diagram.h" />
     <ClInclude Include="sgdi_dialog.h" />

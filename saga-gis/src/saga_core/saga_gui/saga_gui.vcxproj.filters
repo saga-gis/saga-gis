@@ -40,9 +40,6 @@
     <ClCompile Include="callback.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dc_helper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="dlg_about.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -328,9 +325,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Callback.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DC_Helper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dlg_about.h">

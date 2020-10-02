@@ -49,11 +49,11 @@
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
+#include <saga_gdi/sgdi_helper.h>
 
 #include "res_dialogs.h"
 
 #include "helper.h"
-#include "dc_helper.h"
 
 #include "wksp_data_manager.h"
 

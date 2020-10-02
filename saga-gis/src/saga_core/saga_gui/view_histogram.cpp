@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -42,8 +39,6 @@
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -51,25 +46,17 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <wx/window.h>
 #include <wx/toolbar.h>
 #include <wx/clipbrd.h>
+
+#include <saga_gdi/sgdi_helper.h>
 
 #include "res_commands.h"
 #include "res_controls.h"
 #include "res_images.h"
 
 #include "helper.h"
-#include "dc_helper.h"
 #include "res_dialogs.h"
 
 #include "active.h"

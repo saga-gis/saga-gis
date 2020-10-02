@@ -53,13 +53,14 @@
 #include <wx/scrolwin.h>
 #include <wx/clipbrd.h>
 
+#include <saga_gdi/sgdi_helper.h>
+
 #include "res_commands.h"
 #include "res_controls.h"
 #include "res_images.h"
 #include "res_dialogs.h"
 
 #include "helper.h"
-#include "dc_helper.h"
 
 #include "wksp_table.h"
 

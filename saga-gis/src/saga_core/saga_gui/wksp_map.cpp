@@ -54,11 +54,12 @@
 #include <wx/clipbrd.h>
 #include <wx/dataobj.h>
 
+#include <saga_gdi/sgdi_helper.h>
+
 #include "res_commands.h"
 #include "res_dialogs.h"
 
 #include "helper.h"
-#include "dc_helper.h"
 
 #include "active.h"
 #include "active_legend.h"

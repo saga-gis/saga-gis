@@ -49,6 +49,7 @@
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
+#include <saga_gdi/sgdi_helper.h>
 
 #include <wx/odcombo.h>
 
@@ -56,7 +57,6 @@
 #include "res_dialogs.h"
 
 #include "helper.h"
-#include "dc_helper.h"
 
 #include "dlg_colors.h"
 #include "dlg_colors_control.h"

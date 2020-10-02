@@ -11,9 +11,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                     sgdi_dialog.h                     //
+//                   sgdi_controls.cpp                   //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
+//                 Copyright (C) 2020 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -47,15 +47,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__SAGA_GDI_sgdi_dialog_H
-#define HEADER_INCLUDED__SAGA_GDI_sgdi_dialog_H
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
+#include <wx/wxprec.h>
+#include <wx/dc.h>
 
 //---------------------------------------------------------
 #include "sgdi_controls.h"
@@ -68,51 +61,64 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SGDI_DLG_STYLE_CTRLS_RIGHT			0x01
-#define SGDI_DLG_STYLE_START_MAXIMISED		0x02
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
+#define SLIDER_RANGE	100
 
 //---------------------------------------------------------
-class SGDI_API_DLL_EXPORT CSGDI_Dialog : public wxDialog
+CSGDI_Slider::CSGDI_Slider(wxWindow *pParent, int ID, double Value, double minValue, double maxValue, const wxPoint &Point, const wxSize &Size, long Style)
+	: wxSlider(pParent, ID, 0, 0, SLIDER_RANGE, Point, Size, Style)
 {
-public:
-	CSGDI_Dialog(const wxString &Name, int Style = 0);
-	virtual ~CSGDI_Dialog(void);
+	Set_Range(minValue, maxValue);
 
-	virtual int				ShowModal			(void);
+	Set_Value(Value);
 
+	SetTickFreq(SLIDER_RANGE / 10);
+}
 
-protected:
+//---------------------------------------------------------
+CSGDI_Slider::~CSGDI_Slider(void)
+{}
 
-	void					Add_Spacer			(int Space = SGDI_CTRL_SPACE);
-	wxButton *				Add_Button			(const wxString &Name, int ID, const wxSize &Size = SGDI_BTN_SIZE);
-	wxChoice *				Add_Choice			(const wxString &Name, const wxArrayString &Choices, int iSelect = 0, int ID = wxID_ANY);
-	wxCheckBox *			Add_CheckBox		(const wxString &Name, bool bCheck, int ID = wxID_ANY);
-	wxTextCtrl *			Add_TextCtrl		(const wxString &Name, int Style = 0, const wxString &Text = wxT(""), int ID = wxID_ANY);
-	CSGDI_Slider *			Add_Slider			(const wxString &Name, double Value, double minValue, double maxValue, bool bValueAsPercent = false, int ID = wxID_ANY, int Width = SGDI_CTRL_WIDTH);
-	CSGDI_SpinCtrl *		Add_SpinCtrl		(const wxString &Name, double Value, double minValue, double maxValue, bool bValueAsPercent = false, int ID = wxID_ANY, int Width = SGDI_CTRL_WIDTH);
-	void					Add_CustomCtrl		(const wxString &Name, wxWindow *pControl);
+//---------------------------------------------------------
+bool CSGDI_Slider::Set_Value(double Value)
+{
+	int		Position	= (int)((double)SLIDER_RANGE * (Value - m_Min) / (m_Max - m_Min));
 
-	bool					Add_Output			(wxWindow *pOutput);
-	bool					Add_Output			(wxWindow *pOutput_A, wxWindow *pOutput_B, int Proportion_A = 1, int Proportion_B = 0);
+	if( Position <= 0 )
+	{
+		SetValue(0);
+	}
+	else if( Position >= SLIDER_RANGE )
+	{
+		SetValue(SLIDER_RANGE);
+	}
+	else
+	{
+		SetValue(Position);
+	}
 
+	return( true );
+}
 
-private:
+//---------------------------------------------------------
+double CSGDI_Slider::Get_Value(void)
+{
+	return( m_Min + GetValue() * (m_Max - m_Min) / (double)SLIDER_RANGE );
+}
 
-	wxColour				m_Ctrl_Color;
+//---------------------------------------------------------
+bool CSGDI_Slider::Set_Range(double minValue, double maxValue)
+{
+	if( maxValue == minValue )
+	{
+		minValue	= 0.;
+		maxValue	= 1.;
+	}
 
-	wxSizer					*m_pSizer_Ctrl, *m_pSizer_Output;
+	m_Min	= minValue;
+	m_Max	= maxValue;
 
-
-	DECLARE_EVENT_TABLE()
-
-};
+	return( true );
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -122,4 +128,90 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__SAGA_GDI_sgdi_dialog_H
+CSGDI_SpinCtrl::CSGDI_SpinCtrl(wxWindow *pParent, int ID, double Value, double minValue, double maxValue, bool bPercent, const wxPoint &Point, const wxSize &Size, long Style)
+	: wxSpinCtrl(pParent, ID, wxEmptyString, Point, Size, Style, bPercent ? 0 : (int)minValue, bPercent ? 100 : (int)maxValue)
+{
+	m_bPercent	= bPercent;
+
+	Set_Range(minValue, maxValue);
+
+	Set_Value(Value);
+}
+
+//---------------------------------------------------------
+CSGDI_SpinCtrl::~CSGDI_SpinCtrl(void)
+{}
+
+//---------------------------------------------------------
+bool CSGDI_SpinCtrl::Set_Value(double Value)
+{
+	if( m_bPercent )
+	{
+		int		Position	= (int)((double)SLIDER_RANGE * (Value - m_Min) / (m_Max - m_Min));
+
+		if( Position <= 0 )
+		{
+			SetValue(0);
+		}
+		else if( Position >= SLIDER_RANGE )
+		{
+			SetValue(SLIDER_RANGE);
+		}
+		else
+		{
+			SetValue(Position);
+		}
+	}
+	else
+	{
+		if( Value <= m_Min )
+		{
+			SetValue((int)m_Min);
+		}
+		else if( Value >= m_Max )
+		{
+			SetValue((int)m_Max);
+		}
+		else
+		{
+			SetValue((int)Value);
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+double CSGDI_SpinCtrl::Get_Value(void)
+{
+	if( m_bPercent )
+	{
+		return( m_Min + GetValue() * (m_Max - m_Min) / (double)SLIDER_RANGE );
+	}
+
+	return( GetValue() );
+}
+
+//---------------------------------------------------------
+bool CSGDI_SpinCtrl::Set_Range(double minValue, double maxValue)
+{
+	if( maxValue == minValue )
+	{
+		minValue	= 0.;
+		maxValue	= 1.;
+	}
+
+	m_Min	= minValue;
+	m_Max	= maxValue;
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

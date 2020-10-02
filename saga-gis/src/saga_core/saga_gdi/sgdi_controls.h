@@ -11,9 +11,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                     sgdi_dialog.h                     //
+//                    sgdi_controls.h                    //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
+//                 Copyright (C) 2020 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -47,8 +47,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__SAGA_GDI_sgdi_dialog_H
-#define HEADER_INCLUDED__SAGA_GDI_sgdi_dialog_H
+#ifndef HEADER_INCLUDED__SAGA_GDI_sgdi_controls_H
+#define HEADER_INCLUDED__SAGA_GDI_sgdi_controls_H
 
 
 ///////////////////////////////////////////////////////////
@@ -58,7 +58,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "sgdi_controls.h"
+#include "sgdi_core.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -68,8 +68,18 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SGDI_DLG_STYLE_CTRLS_RIGHT			0x01
-#define SGDI_DLG_STYLE_START_MAXIMISED		0x02
+#include <wx/wxprec.h>
+
+#include <wx/dc.h>
+#include <wx/button.h>
+#include <wx/choice.h>
+#include <wx/checkbox.h>
+#include <wx/textctrl.h>
+#include <wx/slider.h>
+#include <wx/spinctrl.h>
+#include <wx/dialog.h>
+#include <wx/panel.h>
+#include <wx/image.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -79,38 +89,40 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SGDI_API_DLL_EXPORT CSGDI_Dialog : public wxDialog
+#define SGDI_CTRL_WIDTH				100
+#define SGDI_CTRL_SPACE				10
+#define SGDI_CTRL_SMALLSPACE		2
+
+#define SGDI_BTN_HEIGHT				25
+#define SGDI_BTN_WIDTH				SGDI_CTRL_WIDTH
+#define SGDI_BTN_SIZE				wxSize(SGDI_BTN_WIDTH, SGDI_BTN_HEIGHT)
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SGDI_API_DLL_EXPORT CSGDI_Slider : public wxSlider
 {
 public:
-	CSGDI_Dialog(const wxString &Name, int Style = 0);
-	virtual ~CSGDI_Dialog(void);
+	CSGDI_Slider(wxWindow *pParent, int ID, double Value, double minValue, double maxValue, const wxPoint &Point = wxDefaultPosition, const wxSize &Size = wxDefaultSize, long Style = wxSL_HORIZONTAL);
+	virtual ~CSGDI_Slider(void);
 
-	virtual int				ShowModal			(void);
+	bool				Set_Value			(double Value);
+	double				Get_Value			(void);
 
-
-protected:
-
-	void					Add_Spacer			(int Space = SGDI_CTRL_SPACE);
-	wxButton *				Add_Button			(const wxString &Name, int ID, const wxSize &Size = SGDI_BTN_SIZE);
-	wxChoice *				Add_Choice			(const wxString &Name, const wxArrayString &Choices, int iSelect = 0, int ID = wxID_ANY);
-	wxCheckBox *			Add_CheckBox		(const wxString &Name, bool bCheck, int ID = wxID_ANY);
-	wxTextCtrl *			Add_TextCtrl		(const wxString &Name, int Style = 0, const wxString &Text = wxT(""), int ID = wxID_ANY);
-	CSGDI_Slider *			Add_Slider			(const wxString &Name, double Value, double minValue, double maxValue, bool bValueAsPercent = false, int ID = wxID_ANY, int Width = SGDI_CTRL_WIDTH);
-	CSGDI_SpinCtrl *		Add_SpinCtrl		(const wxString &Name, double Value, double minValue, double maxValue, bool bValueAsPercent = false, int ID = wxID_ANY, int Width = SGDI_CTRL_WIDTH);
-	void					Add_CustomCtrl		(const wxString &Name, wxWindow *pControl);
-
-	bool					Add_Output			(wxWindow *pOutput);
-	bool					Add_Output			(wxWindow *pOutput_A, wxWindow *pOutput_B, int Proportion_A = 1, int Proportion_B = 0);
+	double				Get_Min				(void)	{	return( m_Min );	}
+	double				Get_Max				(void)	{	return( m_Max );	}
+	double				Get_Range			(void)	{	return( m_Max - m_Min );	}
+	bool				Set_Range			(double minValue, double maxValue);
 
 
 private:
 
-	wxColour				m_Ctrl_Color;
-
-	wxSizer					*m_pSizer_Ctrl, *m_pSizer_Output;
-
-
-	DECLARE_EVENT_TABLE()
+	double				m_Min, m_Max;
 
 };
 
@@ -122,4 +134,35 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__SAGA_GDI_sgdi_dialog_H
+class SGDI_API_DLL_EXPORT CSGDI_SpinCtrl : public wxSpinCtrl
+{
+public:
+	CSGDI_SpinCtrl(wxWindow *pParent, int ID, double Value, double minValue, double maxValue, bool bPercent = false, const wxPoint &Point = wxDefaultPosition, const wxSize &Size = wxDefaultSize, long Style = wxSP_ARROW_KEYS);
+	virtual ~CSGDI_SpinCtrl(void);
+
+	bool				Set_Value			(double Value);
+	double				Get_Value			(void);
+
+	double				Get_Min				(void)	{	return( m_Min );	}
+	double				Get_Max				(void)	{	return( m_Max );	}
+	double				Get_Range			(void)	{	return( m_Max - m_Min );	}
+	bool				Set_Range			(double minValue, double maxValue);
+
+
+private:
+
+	bool				m_bPercent;
+
+	double				m_Min, m_Max;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__SAGA_GDI_sgdi_controls_H

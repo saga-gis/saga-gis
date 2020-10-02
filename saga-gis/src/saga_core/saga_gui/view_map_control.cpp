@@ -52,10 +52,11 @@
 #include <wx/image.h>
 #include <wx/dcclient.h>
 
+#include <saga_gdi/sgdi_helper.h>
+
 #include "res_images.h"
 
 #include "helper.h"
-#include "dc_helper.h"
 
 #include "wksp_map.h"
 #include "wksp_tool.h"

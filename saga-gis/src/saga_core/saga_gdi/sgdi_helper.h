@@ -60,26 +60,8 @@
 //---------------------------------------------------------
 #include "sgdi_core.h"
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-#include <wx/wxprec.h>
-
 #include <wx/dc.h>
-#include <wx/button.h>
-#include <wx/choice.h>
-#include <wx/checkbox.h>
-#include <wx/textctrl.h>
-#include <wx/slider.h>
-#include <wx/spinctrl.h>
-#include <wx/dialog.h>
-#include <wx/panel.h>
-#include <wx/image.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -89,13 +71,25 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SGDI_CTRL_WIDTH				100
-#define SGDI_CTRL_SPACE				10
-#define SGDI_CTRL_SMALLSPACE		2
+enum
+{
+	EDGE_STYLE_SIMPLE,
+	EDGE_STYLE_STATIC,
+	EDGE_STYLE_SUNKEN,
+	EDGE_STYLE_RAISED
+};
 
-#define SGDI_BTN_HEIGHT				25
-#define SGDI_BTN_WIDTH				SGDI_CTRL_WIDTH
-#define SGDI_BTN_SIZE				wxSize(SGDI_BTN_WIDTH, SGDI_BTN_HEIGHT)
+//---------------------------------------------------------
+SGDI_API_DLL_EXPORT void	Draw_Edge			(wxDC &dc, int Edge_Style, int ax, int ay, int bx, int by);
+SGDI_API_DLL_EXPORT void	Draw_Edge			(wxDC &dc, int Edge_Style, wxRect r);
+
+//---------------------------------------------------------
+SGDI_API_DLL_EXPORT void	Draw_Rect			(wxDC &dc, wxColour Color, int ax, int ay, int bx, int by);
+SGDI_API_DLL_EXPORT void	Draw_Rect			(wxDC &dc, wxColour Color, wxRect r);
+
+//---------------------------------------------------------
+SGDI_API_DLL_EXPORT void	Draw_FillRect		(wxDC &dc, wxColour Color, int ax, int ay, int bx, int by);
+SGDI_API_DLL_EXPORT void	Draw_FillRect		(wxDC &dc, wxColour Color, wxRect r);
 
 
 ///////////////////////////////////////////////////////////
@@ -122,71 +116,54 @@
 #define TEXTALIGN_BOTTOMCENTER		(TEXTALIGN_BOTTOM |TEXTALIGN_XCENTER)
 #define TEXTALIGN_BOTTOMRIGHT		(TEXTALIGN_BOTTOM |TEXTALIGN_RIGHT)
 
+#define	TEXTEFFECT_NONE				0x00
+#define	TEXTEFFECT_TOP				0x01
+#define	TEXTEFFECT_TOPLEFT			0x02
+#define	TEXTEFFECT_LEFT				0x04
+#define	TEXTEFFECT_BOTTOMLEFT		0x08
+#define	TEXTEFFECT_BOTTOM			0x10
+#define	TEXTEFFECT_BOTTOMRIGHT		0x20
+#define	TEXTEFFECT_RIGHT			0x40
+#define	TEXTEFFECT_TOPRIGHT			0x80
+#define	TEXTEFFECT_FRAME			(TEXTEFFECT_TOPLEFT|TEXTEFFECT_BOTTOMLEFT|TEXTEFFECT_BOTTOMRIGHT|TEXTEFFECT_TOPRIGHT)
+
 //---------------------------------------------------------
 SGDI_API_DLL_EXPORT void	Draw_Text	(wxDC &dc, int Align, int x, int y, const wxString &Text);
 SGDI_API_DLL_EXPORT void	Draw_Text	(wxDC &dc, int Align, int x, int y, double Angle, const wxString &Text);
 
+SGDI_API_DLL_EXPORT void	Draw_Text	(wxDC &dc, int Align, int x, int y              , const wxString &Text, int Effect, wxColour Effect_Color, int Effect_Size = 1);
+SGDI_API_DLL_EXPORT void	Draw_Text	(wxDC &dc, int Align, int x, int y, double Angle, const wxString &Text, int Effect, wxColour Effect_Color, int Effect_Size = 1);
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define SCALE_HORIZONTAL		0x00
+#define SCALE_VERTICAL			0x01
+
+//---------------------------------------------------------
+#define SCALE_TICK_NONE			0x00
+#define SCALE_TICK_TOP			0x01
+#define SCALE_TICK_BOTTOM		0x02
+
+//---------------------------------------------------------
+#define SCALE_STYLE_DEFAULT		0x00
+#define SCALE_STYLE_DESCENDENT	0x02
+#define SCALE_STYLE_LINECONN	0x04
+#define SCALE_STYLE_BLACKWHITE	0x08
+#define SCALE_STYLE_GLOOMING	0x10
+#define SCALE_STYLE_UNIT_ABOVE	0x20
+#define SCALE_STYLE_UNIT_BELOW	0x40
+
+//---------------------------------------------------------
+SGDI_API_DLL_EXPORT void	Draw_Scale	(wxDC &dc, const wxRect &r, double min_Value, double max_Value, int Orientation = SCALE_HORIZONTAL, int Tick = SCALE_TICK_NONE, int Style = SCALE_STYLE_DEFAULT, const wxString &Unit = "");
+SGDI_API_DLL_EXPORT void	Draw_Scale	(wxDC &dc, const wxRect &r, double min_Value, double max_Value, bool bHorizontal, bool bAscendent, bool bTickAtTop);
+
 SGDI_API_DLL_EXPORT bool	Draw_Ruler	(wxDC &dc, const wxRect &r, bool bHorizontal, double zMin, double zMax, bool bAscendent = true, int FontSize = 7, const wxColour &Colour = wxColour(127, 127, 127));
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class SGDI_API_DLL_EXPORT CSGDI_Slider : public wxSlider
-{
-public:
-	CSGDI_Slider(wxWindow *pParent, int ID, double Value, double minValue, double maxValue, const wxPoint &Point = wxDefaultPosition, const wxSize &Size = wxDefaultSize, long Style = wxSL_HORIZONTAL);
-	virtual ~CSGDI_Slider(void);
-
-	bool				Set_Value			(double Value);
-	double				Get_Value			(void);
-
-	double				Get_Min				(void)	{	return( m_Min );	}
-	double				Get_Max				(void)	{	return( m_Max );	}
-	double				Get_Range			(void)	{	return( m_Max - m_Min );	}
-	bool				Set_Range			(double minValue, double maxValue);
-
-
-private:
-
-	double				m_Min, m_Max;
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class SGDI_API_DLL_EXPORT CSGDI_SpinCtrl : public wxSpinCtrl
-{
-public:
-	CSGDI_SpinCtrl(wxWindow *pParent, int ID, double Value, double minValue, double maxValue, bool bPercent = false, const wxPoint &Point = wxDefaultPosition, const wxSize &Size = wxDefaultSize, long Style = wxSP_ARROW_KEYS);
-	virtual ~CSGDI_SpinCtrl(void);
-
-	bool				Set_Value			(double Value);
-	double				Get_Value			(void);
-
-	double				Get_Min				(void)	{	return( m_Min );	}
-	double				Get_Max				(void)	{	return( m_Max );	}
-	double				Get_Range			(void)	{	return( m_Max - m_Min );	}
-	bool				Set_Range			(double minValue, double maxValue);
-
-
-private:
-
-	bool				m_bPercent;
-
-	double				m_Min, m_Max;
-
-};
 
 
 ///////////////////////////////////////////////////////////

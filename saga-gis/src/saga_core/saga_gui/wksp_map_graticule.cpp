@@ -49,9 +49,9 @@
 #include <wx/window.h>
 
 #include <saga_api/saga_api.h>
+#include <saga_gdi/sgdi_helper.h>
 
 #include "helper.h"
-#include "dc_helper.h"
 
 #include "res_commands.h"
 

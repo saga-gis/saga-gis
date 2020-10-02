@@ -50,11 +50,12 @@
 //---------------------------------------------------------
 #include <wx/filename.h>
 
+#include <saga_gdi/sgdi_helper.h>
+
 #include "res_commands.h"
 #include "res_images.h"
 
 #include "helper.h"
-#include "dc_helper.h"
 
 #include "wksp_layer_classify.h"
 

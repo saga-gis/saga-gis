@@ -48,8 +48,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <saga_gdi/sgdi_helper.h>
+
 #include "helper.h"
-#include "dc_helper.h"
 
 #include "wksp_shapes_point.h"
 #include "wksp_shapes_line.h"

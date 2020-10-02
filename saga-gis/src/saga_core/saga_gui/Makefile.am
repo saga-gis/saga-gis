@@ -30,7 +30,6 @@ data_source.cpp\
 data_source_files.cpp\
 data_source_odbc.cpp\
 data_source_pgsql.cpp\
-dc_helper.cpp\
 dlg_about.cpp\
 dlg_about_logo.cpp\
 dlg_base.cpp\
@@ -126,7 +125,6 @@ data_source.h\
 data_source_files.h\
 data_source_odbc.h\
 data_source_pgsql.h\
-dc_helper.h\
 dlg_about.h\
 dlg_about_logo.h\
 dlg_base.h\

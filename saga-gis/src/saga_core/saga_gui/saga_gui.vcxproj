@@ -444,16 +444,6 @@ copy ..\..\accessories\toolchains\*.xml $(OutDir)\tools\toolchains
     <ClCompile Include="data_source_files.cpp" />
     <ClCompile Include="data_source_odbc.cpp" />
     <ClCompile Include="data_source_pgsql.cpp" />
-    <ClCompile Include="dc_helper.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
     <ClCompile Include="dlg_about.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -1136,7 +1126,6 @@ copy ..\..\accessories\toolchains\*.xml $(OutDir)\tools\toolchains
     <ClInclude Include="data_source_files.h" />
     <ClInclude Include="data_source_odbc.h" />
     <ClInclude Include="data_source_pgsql.h" />
-    <ClInclude Include="dc_helper.h" />
     <ClInclude Include="dlg_about.h" />
     <ClInclude Include="dlg_about_logo.h" />
     <ClInclude Include="dlg_base.h" />
