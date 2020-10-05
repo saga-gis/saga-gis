@@ -223,6 +223,7 @@ CSGDI_Layout_Items::CSGDI_Layout_Items(void)
 	m_Scale		= 1.;
 	m_Raster	= 0;
 	m_Handle	= 7;
+	m_MinSize	= 5;
 
 	m_Tracker.m_pOwner	= this;
 }
@@ -952,12 +953,14 @@ wxRect CSGDI_Layout_Items::CSGDI_Layout_Tracker::Drag_Rect(const wxPoint &From, 
 		default                  :                                                      break;
 		}
 
-		if( abs(r.width) < 25 || abs(r.height) < 25 )
+		double MinSize	= m_pOwner->m_Scale * m_pOwner->m_MinSize;
+
+		if( fabs(r.width) < MinSize || fabs(r.height) < MinSize )
 		{
 			wxRect	rOriginal(Get_Scaled(m_pOwner->m_pActive->m_Rect, m_pOwner->m_Scale));
 
-			if( abs(r.width ) < 25 ) { r.x = rOriginal.x; r.width  = 25; }
-			if( abs(r.height) < 25 ) { r.y = rOriginal.y; r.height = 25; }
+			if( fabs(r.width ) < MinSize ) { r.x = rOriginal.x; r.width  = MinSize; }
+			if( fabs(r.height) < MinSize ) { r.y = rOriginal.y; r.height = MinSize; }
 		}
 
 		if( m_pOwner->m_pActive && m_pOwner->m_pActive->m_Ratio > 0. )

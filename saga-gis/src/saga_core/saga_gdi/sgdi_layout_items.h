@@ -183,7 +183,7 @@ public:
 
 protected:
 
-	int								m_Handle, m_Raster;
+	int								m_Handle, m_Raster, m_MinSize;
 
 	double							m_Scale;
 

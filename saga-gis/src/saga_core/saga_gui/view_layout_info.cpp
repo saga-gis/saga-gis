@@ -474,9 +474,12 @@ public:
 		{
 			double	Ratio	= Size.y / (double)Size.x;
 
-			Set_Ratio(Ratio);
+			if( Ratio > 0. && Ratio != m_Ratio )
+			{
+				m_Rect.height	= Ratio * m_Rect.width;
 
-			return( true );
+				return( Set_Ratio(Ratio) );
+			}
 		}
 
 		return( false );
