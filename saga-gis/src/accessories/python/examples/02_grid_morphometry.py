@@ -41,7 +41,7 @@ def run_morphometry(File):
         print('Error: executing tool [' + Tool.Get_Name().c_str() + ']')
         return False
 
-    Tool.Get_Parameter('CLASS').asGrid().Save(Path + '/ccurv' + '.sg-grd-z')
+    Tool.Get_Parameter('CLASSES').asGrid().Save(Path + '/ccurv' + '.sg-grd-z')
 
     # -----------------------------------
     print('Success')
