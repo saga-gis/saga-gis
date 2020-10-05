@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: relative_heights.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -44,19 +41,8 @@
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Hamburg                  //
-//                Bundesstr. 55                          //
-//                20146 Hamburg                          //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -72,97 +58,54 @@
 //---------------------------------------------------------
 CRelative_Heights::CRelative_Heights(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Relative Heights and Slope Positions"));
 
-	Set_Author		(SG_T("J.Boehner, O.Conrad (c) 2008"));
+	Set_Author		("J.Boehner, O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
-		"The tool allows one to calculate several terrain indices from a digital "
-		"elevation model.\n\n"
-		"General information on the computational concept can be found in:\n"
-		"- Boehner, J. and Selige, T. (2006): Spatial prediction of soil attributes using "
-		"terrain analysis and climate regionalisation. In: Boehner, J., McCloy, K.R., Strobl, J. "
-		"[Ed.]: SAGA - Analysis and Modelling Applications, Goettinger Geographische Abhandlungen, "
-		"Goettingen: 13-28. "
-		"(<a target=\"_blank\" href=\"http://downloads.sourceforge.net/saga-gis/gga115_02.pdf\">pdf</a>)\n\n"
+		"This tool calculates several terrain indices related to the terrain position "
+		"from a digital elevation model using an iterative approach. You can control "
+		"the results with three parameters.\n"
+		"The parameter 'w' weights the influence of catchment size on relative elevation (inversely proportional).\n"
+		"The parameter 't' controls the amount by which a maximum in the neighbourhood "
+		"of a cell is taken over into the cell (considering the local slope between the cells). "
+		"The smaller 't' and/or the smaller the slope, the more of the maximum value "
+		"is taken over into the cell. This results in a greater generalization/smoothing "
+		"of the result. The greater 't' and/or the higher the slope, the less is taken "
+		"over into the cell and the result will show a more irregular pattern caused "
+		"by small changes in elevation between the cells.\n"
+		"The parameter 'e' controls the position of relative height maxima as a function of slope. "
+		"More details about the computational concept can be found in Boehner & Selige (2006). "
 	));
 
+	Add_Reference("Boehner, J. & Selige, T.", "2006",
+		"Spatial prediction of soil attributes using terrain analysis and climate regionalisation",
+		"In: Boehner, J., McCloy, K.R., Strobl, J. [Eds.]: SAGA - Analysis and Modelling Applications, Goettinger Geographische Abhandlungen, 13-28. ",
+		SG_T("https://sourceforge.net/projects/saga-gis/files/SAGA%20-%20Documentation/GGA115/gga115_02.pdf"), SG_T("online")
+	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("Elevation"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
+	Parameters.Add_Grid("", "DEM", _TL("Elevation"          ), _TL(""), PARAMETER_INPUT );
 
-	Parameters.Add_Grid(
-		NULL	, "HO"			, _TL("Slope Height"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
+	Parameters.Add_Grid("", "HO" , _TL("Slope Height"       ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid("", "HU" , _TL("Valley Depth"       ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid("", "NH" , _TL("Normalized Height"  ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid("", "SH" , _TL("Standardized Height"), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid("", "MS" , _TL("Mid-Slope Positon"  ), _TL(""), PARAMETER_OUTPUT);
 
-	Parameters.Add_Grid(
-		NULL	, "HU"			, _TL("Valley Depth"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "NH"			, _TL("Normalized Height"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "SH"			, _TL("Standardized Height"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "MS"			, _TL("Mid-Slope Positon"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Value(
-		NULL	, "W"			, _TL("w"),
-		_TW("The parameter weights the influence of catchment size on relative elevation "
-			"(inversely proportional)."),
-		PARAMETER_TYPE_Double	,  0.5, 0.0, true
-	);
-
-	Parameters.Add_Value(
-		NULL	, "T"			, _TL("t"),
-		_TW("The parameter controls the amount by which a maximum in the neighbourhood "
-			"of a cell is taken over into the cell (considering the local slope between the cells). "
-			"The smaller 't' and/or the smaller the slope, the more of the maximum value "
-			"is taken over into the cell. This results in a greater generalization/smoothing "
-			"of the result. The greater 't' and/or the higher the slope, the less is taken "
-			"over into the cell and the result will show a more irregular pattern caused "
-			"by small changes in elevation between the cells."),
-		PARAMETER_TYPE_Double	, 10.0, 0.0, true
-	);
-
-	Parameters.Add_Value(
-		NULL	, "E"			, _TL("e"),
-		_TL("The parameter controls the position of relative height maxima as a function of slope."),
-		PARAMETER_TYPE_Double	,  2.0, 0.0, true
-	);
+	Parameters.Add_Double("", "W", _TL("w"), _TL(""),  0.5, 0., true);
+	Parameters.Add_Double("", "T", _TL("t"), _TL(""), 10.0, 0., true);
+	Parameters.Add_Double("", "E", _TL("e"), _TL(""),  2.0, 0., true);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CRelative_Heights::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_Grid	*pDEM	= Parameters("DEM")->asGrid();
 	CSG_Grid	*pHO	= Parameters("HO" )->asGrid();
 	CSG_Grid	*pHU	= Parameters("HU" )->asGrid();
@@ -194,8 +137,6 @@ bool CRelative_Heights::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -210,7 +151,6 @@ bool CRelative_Heights::Get_Heights(CSG_Grid *pDEM, CSG_Grid *pH, bool bInverse,
 		pDEM	= &Inverse;
 	}
 
-	//-----------------------------------------------------
 	return(	Get_Heights_Catchment(pDEM, pH, w)
 		&&	Get_Heights_Modified (pDEM, pH, t, e)
 	);
@@ -219,8 +159,6 @@ bool CRelative_Heights::Get_Heights(CSG_Grid *pDEM, CSG_Grid *pH, bool bInverse,
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -228,61 +166,59 @@ bool CRelative_Heights::Get_Heights_Catchment(CSG_Grid *pDEM, CSG_Grid *pH, doub
 {
 	const double	MFD_Converge	= 1.1;
 
-	int			x, y, i, ix, iy;
-	double		z, d, dz[8], dzSum, c, w, h;
-	CSG_Grid	C, W;
-
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("Relative heights calculation..."));
 
-	C  .Create(Get_System());
-	W  .Create(Get_System());
+	CSG_Grid	C(Get_System());
+	CSG_Grid	W(Get_System());
 
 	C  .Assign(Get_Cellarea());
-	W  .Assign(0.0);
-	pH->Assign(0.0);
+	W  .Assign(0.);
+	pH->Assign(0.);
 
 	//-----------------------------------------------------
 	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
+		int	x, y;
+
 		if( !pDEM->Get_Sorted(n, x, y, true, false) || pDEM->is_NoData(x, y) )
 		{
 			pH->Set_NoData(x, y);
 		}
 		else
 		{
-			z		= pDEM->asDouble(x, y);
-			c		= C    .asDouble(x, y);
-			w		= W    .asDouble(x, y) + pow(1.0 / c, Weight);		//{W[p] = (1/C[p])^w;}
-			h		= pH  ->asDouble(x, y) + pow(1.0 / c, Weight) * z;	//{H[p] = (1/C[p])^w * M[p];}
+			double	z	= pDEM->asDouble(x, y), dzSum = 0., dz[8];
+			double	c	= C    .asDouble(x, y);
+			double	w	= W    .asDouble(x, y) + pow(1. / c, Weight);		//{W[p] = (1/C[p])^w;}
+			double	h	= pH  ->asDouble(x, y) + pow(1. / c, Weight) * z;	//{H[p] = (1/C[p])^w * M[p];}
 
 			pH->Set_Value(x, y, h / w - z);	//{H[p] = -1 * (M[p] - H[p]/W[p]);}
 
-			for(i=0, dzSum=0.0; i<8; i++)
+			for(int i=0; i<8; i++)
 			{
-				ix		= Get_xTo(i, x);
-				iy		= Get_yTo(i, y);
+				int ix = Get_xTo(i, x), iy = Get_yTo(i, y);
 
-				if( pDEM->is_InGrid(ix, iy) && (d = z - pDEM->asDouble(ix, iy)) > 0.0 )
+				double	d	= pDEM->is_InGrid(ix, iy) ? z - pDEM->asDouble(ix, iy) : 0.;
+
+				if( d > 0. )
 				{
 					dzSum	+= (dz[i] = pow(atan(d / Get_Length(i)), MFD_Converge));
 				}
 				else
 				{
-					dz[i]	= 0.0;
+					dz[i]	= 0.;
 				}
 			}
 
-			if( dzSum > 0.0 )
+			if( dzSum > 0. )
 			{
-				for(i=0; i<8; i++)
+				for(int i=0; i<8; i++)
 				{
-					if( dz[i] > 0.0 )
+					if( dz[i] > 0. )
 					{
-						ix		= Get_xTo(i, x);
-						iy		= Get_yTo(i, y);
+						int ix = Get_xTo(i, x), iy = Get_yTo(i, y);
 
-						d		= dz[i] / dzSum;
+						double	d	= dz[i] / dzSum;
 
 						C  .Add_Value(ix, iy, d * c);
 						W  .Add_Value(ix, iy, d * w);	//{W[p] = W[p] + W[p+pul] * UL[p] + W[p+pl] * LL[p] + W[p+pol] * OL[p] + W[p+po] * OO[p] + W[p+por] * OR[p] + W[p+pr] * RR[p] + W[p+pur] * UR[p] + W[p+pu] * UU[p]; gefunden = 1;}
@@ -312,16 +248,11 @@ bool CRelative_Heights::Get_Heights_Catchment(CSG_Grid *pDEM, CSG_Grid *pH, doub
 //---------------------------------------------------------
 bool CRelative_Heights::Get_Heights_Modified(CSG_Grid *pDEM, CSG_Grid *pH, double t, double e)
 {
-	int			y;
-
-	CSG_Grid	H, H_Last, T;
-
-	//-----------------------------------------------------
 	Process_Set_Text(_TL("Modify: pre-processing..."));
 
-	T.Create(pH);
+	CSG_Grid	H, H_Last, T(pH);
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -332,7 +263,7 @@ bool CRelative_Heights::Get_Heights_Modified(CSG_Grid *pDEM, CSG_Grid *pH, doubl
 			{
 				pH->Set_Value(x, y, d = pow(pH->asDouble(x, y), e));	// {X[p] = H[p]^e;}
 				z	= pow(t, z);
-				z	= pow(1.0 / z, exp(z));
+				z	= pow(1. / z, exp(z));
 				T.Set_Value(x, y, z);
 			}
 			else
@@ -352,8 +283,8 @@ bool CRelative_Heights::Get_Heights_Modified(CSG_Grid *pDEM, CSG_Grid *pH, doubl
 	{
 		nChanges	= 0;
 
-		#pragma omp parallel for private(y) reduction(+:nChanges)
-		for(y=0; y<Get_NY(); y++)
+		#pragma omp parallel for reduction(+:nChanges)
+		for(int y=0; y<Get_NY(); y++)
 		{
 			Process_Get_Okay();
 
@@ -377,8 +308,8 @@ bool CRelative_Heights::Get_Heights_Modified(CSG_Grid *pDEM, CSG_Grid *pH, doubl
 		{
 			nChanges	= 0;
 
-			#pragma omp parallel for private(y) reduction(+:nChanges)
-			for(y=0; y<Get_NY(); y++)
+			#pragma omp parallel for reduction(+:nChanges)
+			for(int y=0; y<Get_NY(); y++)
 			{
 				Process_Get_Okay();
 
@@ -400,7 +331,7 @@ bool CRelative_Heights::Get_Heights_Modified(CSG_Grid *pDEM, CSG_Grid *pH, doubl
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("Modify: post-processing..."));
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -428,7 +359,7 @@ bool CRelative_Heights::Get_Heights_Modified(CSG_Grid *pDEM, CSG_Grid *pH, doubl
 
 				if( bRecalculate )
 				{
-					for(iy=y-1, z=0.0, n=0; iy<=y+1; iy++)
+					for(iy=y-1, z=0., n=0; iy<=y+1; iy++)
 					{
 						for(ix=x-1; ix<=x+1; ix++)
 						{
@@ -447,7 +378,7 @@ bool CRelative_Heights::Get_Heights_Modified(CSG_Grid *pDEM, CSG_Grid *pH, doubl
 					z	= H.asDouble(x, y);
 				}
 
-				pH->Set_Value(x, y, pow(z, 1.0 / e));
+				pH->Set_Value(x, y, pow(z, 1. / e));
 			}
 		}
 	}
@@ -465,8 +396,7 @@ double CRelative_Heights::Get_Local_Maximum(CSG_Grid *pGrid, int x, int y)
 
 		for(int i=0; i<8; i++)
 		{
-			int	ix	= Get_xTo(i, x);
-			int	iy	= Get_yTo(i, y);
+			int ix = Get_xTo(i, x), iy = Get_yTo(i, y);
 
 			if( pGrid->is_InGrid(ix, iy) && pGrid->asDouble(ix, iy) > z )
 			{
@@ -477,13 +407,11 @@ double CRelative_Heights::Get_Local_Maximum(CSG_Grid *pGrid, int x, int y)
 		return( z );
 	}
 
-	return( 0.0 );
+	return( 0. );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -505,9 +433,9 @@ bool CRelative_Heights::Get_Results(CSG_Grid *pDEM, CSG_Grid *pHO, CSG_Grid *pHU
 {
 	Process_Set_Text(_TL("Final processing..."));
 
-	CSG_Grid	*pNH	= Parameters("NH")	->asGrid();
-	CSG_Grid	*pSH	= Parameters("SH")	->asGrid();
-	CSG_Grid	*pMS	= Parameters("MS")	->asGrid();
+	CSG_Grid	*pNH	= Parameters("NH")->asGrid();
+	CSG_Grid	*pSH	= Parameters("SH")->asGrid();
+	CSG_Grid	*pMS	= Parameters("MS")->asGrid();
 
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
@@ -517,7 +445,7 @@ bool CRelative_Heights::Get_Results(CSG_Grid *pDEM, CSG_Grid *pHO, CSG_Grid *pHU
 			double	ho, hu, nh;
 
 			if( pDEM->is_NoData(x, y) || pHO->is_NoData(x, y) || pHU->is_NoData(x, y)
-			||  ((ho = pHO->asDouble(x, y)) + (hu = pHU->asDouble(x, y))) == 0.0 )
+			||  ((ho = pHO->asDouble(x, y)) + (hu = pHU->asDouble(x, y))) == 0. )
 			{
 				pNH->Set_NoData(x, y);
 				pSH->Set_NoData(x, y);
@@ -525,14 +453,20 @@ bool CRelative_Heights::Get_Results(CSG_Grid *pDEM, CSG_Grid *pHO, CSG_Grid *pHU
 			}
 			else
 			{
-				nh	= 0.5 * (1.0 + (ho - hu) / (ho + hu));
+				nh	= 0.5 * (1. + (ho - hu) / (ho + hu));
 
 				pNH->Set_Value(x, y, nh);
 				pSH->Set_Value(x, y, nh * (pDEM->asDouble(x, y) - pDEM->Get_Min()) + pDEM->Get_Min());	//, nh * pDEM->asDouble(x, y));
-				pMS->Set_Value(x, y, fabs(2.0 * nh - 1.0));
+				pMS->Set_Value(x, y, fabs(2. * nh - 1.));
 			}
 		}
 	}
+
+	DataObject_Set_Colors(pHO, 11, SG_COLORS_RED_GREY_BLUE,  true);
+	DataObject_Set_Colors(pHU, 11, SG_COLORS_RED_GREY_BLUE, false);
+	DataObject_Set_Colors(pNH, 11, SG_COLORS_RED_GREY_BLUE,  true);
+	DataObject_Set_Colors(pSH, 11, SG_COLORS_RED_GREY_BLUE,  true);
+	DataObject_Set_Colors(pMS, 11, SG_COLORS_RED_GREY_BLUE, false);
 
 	return( true );
 }
