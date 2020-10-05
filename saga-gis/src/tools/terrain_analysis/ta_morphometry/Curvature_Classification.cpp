@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Curvature_Classification.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -44,19 +41,8 @@
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -77,57 +63,121 @@ CCurvature_Classification::CCurvature_Classification(void)
 	Set_Author		("O.Conrad (c) 2001");
 
 	Set_Description	(_TW(
-		"Surface curvature based terrain classification.\n"
-		"Reference:\n"
-		"Dikau, R. (1988):\n'Entwurf einer geomorphographisch-analytischen Systematik von Reliefeinheiten',\n"
-		"Heidelberger Geographische Bausteine, Heft 5\n\n"
-		"0 - V  / V\n"
-		"1 - GE / V\n"
-		"2 - X  / V\n"
-		"3 - V  / GR\n"
-		"4 - GE / GR\n"
-		"5 - X  / GR\n"
-		"6 - V  / X\n"
-		"7 - GE / X\n"
-		"8 - X  / X\n"
+		"Landform classification based on the profile and tangential (across slope) curvatures. "
 	));
 
-	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("Elevation"),
+	Add_Reference("Dikau, R.", "1988",
+		"Entwurf einer geomorphographisch-analytischen Systematik von Reliefeinheiten",
+		"Heidelberger Geographische Bausteine, Heft 5."
+	);
+
+	Add_Reference("R.A. MacMillan & P.A. Shary", "2009",
+		"Landforms and Landform Elements in Geomorphometry",
+		"In: Hengl, T. & Reuter, H.I. [Eds.]: Geomorphometry - Concepts, Software, Applications. Developments in Soil Science, Vol.33:227-254.",
+		SG_T("https://doi.org/10.1016/S0166-2481(08)00009-3"), SG_T("doi:10.1016/S0166-2481(08)00009-3")
+	);
+
+	//-----------------------------------------------------
+	Parameters.Add_Grid("",
+		"DEM"		, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "CLASS"		, _TL("Curvature Classification"),
+	Parameters.Add_Grid("",
+		"CLASSES"	, _TL("Curvature Classification"),
 		_TL(""),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Char
 	);
 
-	Parameters.Add_Value(
-		NULL	, "THRESHOLD"	, _TL("Threshold for plane"),
+	Parameters.Add_Double("",
+		"STRAIGHT"	, _TL("Threshold Radius"),
+		_TL("Curvature radius threshold [map units] to distinct between straight and curved surfaces."),
+		2000., 0.00001, true
+	);
+
+	Parameters.Add_Choice("",
+		"VERTICAL"	, _TL("Vertical Curvature"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 0.0005, 0.0, true
+		CSG_String::Format("%s|%s|%s",
+			_TL("longitudinal curvature"),
+			_TL("profile curvature"),
+			_TL("")
+		), 1
+	);
+
+	Parameters.Add_Choice("",
+		"HORIZONTAL", _TL("Horizontal Curvature"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("cross-sectional curvature"),
+			_TL("tangential curvature"),
+			_TL("plan curvature")
+		), 1
+	);
+
+	Parameters.Add_Int("",
+		"SMOOTH"	, _TL("Smoothing"),
+		_TL("Smoothing kernel radius. No smoothing will be done, if set to zero."),
+		0, 0, true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CCurvature_Classification::On_Execute(void)
 {
-	//-----------------------------------------------------
-	double		Threshold;
-	CSG_Grid	*pClass;
+	m_pDEM       = Parameters("DEM")->asGrid();
 
-	m_pDEM		= Parameters("DEM"      )->asGrid();
-	pClass		= Parameters("CLASS"    )->asGrid();
-	Threshold	= Parameters("THRESHOLD")->asDouble();
+	m_Vertical   = Parameters("VERTICAL"  )->asInt();
+	m_Horizontal = Parameters("HORIZONTAL")->asInt();
+
+	double	Threshold	= 1. / Parameters("STRAIGHT")->asDouble();
+
+	CSG_Grid	DEM, *pClassification	= Parameters("CLASSES")->asGrid();
+
+	//-----------------------------------------------------
+	if( Parameters("SMOOTH")->asInt() > 0 && DEM.Create(Get_System()) )
+	{
+		CSG_Grid_Cell_Addressor	Kernel; Kernel.Set_Circle(Parameters("SMOOTH")->asDouble());
+
+		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		{
+			#pragma omp parallel for
+			for(int x=0; x<Get_NX(); x++)
+			{
+				CSG_Simple_Statistics	s;
+
+				if( !m_pDEM->is_NoData(x, y) )
+				{
+					for(int i=0; i<Kernel.Get_Count(); i++)
+					{
+						int ix = Kernel.Get_X(i, x), iy = Kernel.Get_Y(i, y);
+
+						if( m_pDEM->is_InGrid(ix, iy) )
+						{
+							s	+= m_pDEM->asDouble(ix, iy);
+						}
+					}
+				}
+
+				if( s.Get_Count() > 0 )
+				{
+					DEM.Set_Value(x, y, s.Get_Mean());
+				}
+				else
+				{
+					DEM.Set_NoData(x, y);
+				}
+			}
+		}
+
+		m_pDEM	= &DEM;
+	}
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -139,24 +189,38 @@ bool CCurvature_Classification::On_Execute(void)
 
 			if( Get_Curvature(x, y, Plan, Prof) )
 			{
-				pClass->Set_Value(x, y,
-						(fabs(Plan) < Threshold ? 3 : Plan < 0 ? 0 : 6)
-					+	(fabs(Prof) < Threshold ? 1 : Prof < 0 ? 0 : 2)
+				pClassification->Set_Value(x, y,
+						(fabs(Plan) < Threshold ? 3 : Plan < 0. ? 0 : 6)
+					+	(fabs(Prof) < Threshold ? 1 : Prof < 0. ? 0 : 2)
 				);
 			}
 			else
 			{
-				pClass->Set_NoData(x, y);
+				pClassification->Set_NoData(x, y);
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	CSG_Parameters	P;
+	CSG_Parameter	*pClasses	= DataObject_Get_Parameter(pClassification, "LUT");
 
-	if( DataObject_Get_Parameters(pClass, P) && P("COLORS_TYPE") && P("LUT") )
+	if( pClasses && pClasses->asTable() )
 	{
-		int Color[9]	=
+		const char	*Name[9]	=
+		{
+			 "V / V" ,
+			"GE / V" ,
+			 "X / V" ,
+			 "V / GR",
+			"GE / GR",
+			 "X / GR",
+			 "V / X" ,
+			"GE / X" ,
+			 "X / X"
+		};
+
+		//-------------------------------------------------
+		const int Color[9]	=
 		{
 			SG_GET_RGB(  0,   0, 127),	// V / V
 			SG_GET_RGB(  0,  63, 200),	// G / V
@@ -170,37 +234,21 @@ bool CCurvature_Classification::On_Execute(void)
 		};
 
 		//-------------------------------------------------
-		CSG_Strings	Name, Desc;
-
-		Name	+= _TL( "V / V" );	Desc	+= _TL( "V / V" );
-		Name	+= _TL("GE / V" );	Desc	+= _TL("GE / V" );
-		Name	+= _TL( "X / V" );	Desc	+= _TL( "X / V" );
-		Name	+= _TL( "V / GR");	Desc	+= _TL( "V / GR");
-		Name	+= _TL("GE / GR");	Desc	+= _TL("GE / GR");
-		Name	+= _TL( "X / GR");	Desc	+= _TL( "X / GR");
-		Name	+= _TL( "V / X" );	Desc	+= _TL( "V / X" );
-		Name	+= _TL("GE / X" );	Desc	+= _TL("GE / X" );
-		Name	+= _TL( "X / X" );	Desc	+= _TL( "X / X" );
-
-		//-------------------------------------------------
-		CSG_Table	*pTable	= P("LUT")->asTable();
-
-		pTable->Del_Records();
+		pClasses->asTable()->Del_Records();
 
 		for(int i=0; i<9; i++)
 		{
-			CSG_Table_Record	*pRecord	= pTable->Add_Record();
+			CSG_Table_Record	&Class	= *pClasses->asTable()->Add_Record();
 
-			pRecord->Set_Value(0, Color[i]);
-			pRecord->Set_Value(1, Name [i].c_str());
-			pRecord->Set_Value(2, Desc [i].c_str());
-			pRecord->Set_Value(3, i);
-			pRecord->Set_Value(4, i);
+			Class.Set_Value(0, Color[i]);
+			Class.Set_Value(1, Name [i]);
+			Class.Set_Value(2, Name [i]);
+			Class.Set_Value(3,       i );
+			Class.Set_Value(4,       i );
 		}
 
-		P("COLORS_TYPE")->Set_Value(1);	// Color Classification Type: Lookup Table
-
-		DataObject_Set_Parameters(pClass, P);
+		DataObject_Set_Parameter(pClassification, pClasses);
+		DataObject_Set_Parameter(pClassification, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
 	}
 
 	//-----------------------------------------------------
@@ -209,8 +257,6 @@ bool CCurvature_Classification::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -224,7 +270,7 @@ bool CCurvature_Classification::Get_Curvature(int x, int y, double &Plan, double
 		return( false );
 	}
 
-	double	z	= m_pDEM->asDouble(x, y), Z[9];	Z[4]	= 0.0;
+	double	z	= m_pDEM->asDouble(x, y), Z[9];	Z[4]	= 0.;
 
 	for(int i=0, ix, iy; i<8; i++)
 	{
@@ -238,18 +284,28 @@ bool CCurvature_Classification::Get_Curvature(int x, int y, double &Plan, double
 		}
 		else
 		{
-			Z[Index[i]]	= 0.0;
+			Z[Index[i]]	= 0.;
 		}
 	}
 
-	double	D	= ((Z[3] + Z[5]) / 2.0 - Z[4]) * 2.00 / Get_Cellarea();
-	double	E	= ((Z[1] + Z[7]) / 2.0 - Z[4]) * 2.00 / Get_Cellarea();
-	double	F	=  (Z[0] - Z[2] - Z[6] + Z[8]) * 0.25 / Get_Cellarea();
-	double	G	=  (Z[5] - Z[3])               * 0.50 / Get_Cellsize();
-    double	H	=  (Z[7] - Z[1])               * 0.50 / Get_Cellsize();
+	double	r	= ((Z[3] + Z[5]) / 2.  - Z[4]) * 2.00 / Get_Cellarea();
+	double	t	= ((Z[1] + Z[7]) / 2.  - Z[4]) * 2.00 / Get_Cellarea();
+	double	s	=  (Z[0] - Z[2] - Z[6] + Z[8]) * 0.25 / Get_Cellarea();
+	double	p	=  (Z[5] - Z[3])               * 0.50 / Get_Cellsize();
+    double	q	=  (Z[7] - Z[1])               * 0.50 / Get_Cellsize();
 
-	Profile	= -2.0 * (D * G*G + E * H*H + F*G*H) / (G*G + H*H);
-	Plan	= -2.0 * (E * G*G + D * H*H - F*G*H) / (G*G + H*H);
+	switch( m_Vertical )
+	{
+	case  0: Profile = -2. * (r * p*p + t * q*q + s*p*q) / ((p*p + q*q)                           ); break; // longitudinal
+	default: Profile = -(r * p*p + t * q*q + 2. * s*p*q) / ((p*p + q*q) * pow(1. + p*p + q*q, 1.5)); break; // profile
+	}
+
+	switch( m_Horizontal )
+	{
+	case  0: Plan    = -2. * (t * p*p + r * q*q + s*p*q) / ((p*p + q*q)                           ); break; // cross-sectional
+	default: Plan    = -(t * p*p + r * q*q - 2. * s*p*q) / ((p*p + q*q) * pow(1. + p*p + q*q, 0.5)); break; // tangential
+	case  2: Plan    = -(t * p*p + r * q*q - 2. * s*p*q) / (              pow(1. + p*p + q*q, 1.5)); break; // plan
+	}
 
 	return( true );
 }
