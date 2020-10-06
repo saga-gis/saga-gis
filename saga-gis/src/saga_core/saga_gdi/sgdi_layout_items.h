@@ -95,19 +95,21 @@ public:
 		bool						is_Shown			(void)	const			{	return( m_bShow );	}
 
 		bool						Set_Sizer			(bool bOn);
+
 		bool						Set_Ratio			(double Ratio = 0.);
+		double						Get_Ratio			(void)	const			{	return( m_Ratio );	}
 		bool						Fix_Ratio			(bool bOn = true);
 
-		const wxRect &				Get_Rect			(void)	const			{	return( m_Rect );	}
+		const wxRect &				Get_Rect			(void)	const			{	return( m_Rect  );	}
 		bool						Set_Rect			(const wxRect &Rect);
 
 		bool						Refresh				(bool bErase = true);
 
-		virtual int					Get_ID				(void)	const			{	return( 0      );	}
+		virtual int					Get_ID				(void)	const			{	return( 0       );	}
 
-		virtual bool				Draw				(wxDC &dc)				{	return( true   );	}
+		virtual bool				Draw				(wxDC &dc)				{	return( true    );	}
 
-		virtual bool				Properties			(wxWindow *pParent)		{	return( false  );	}
+		virtual bool				Properties			(wxWindow *pParent)		{	return( false   );	}
 
 
 	protected:
@@ -121,9 +123,7 @@ public:
 		CSGDI_Layout_Items			*m_pOwner;
 
 
-	private:
-
-		wxRect						_Tracker_Get_Rect	(void);
+		wxRect						_Tracker_Get_Rect	(void)	const;
 		bool						_Tracker_Set_Rect	(const wxRect &Rect);
 		bool						_Tracker_Contains	(const wxPoint &Point);
 
@@ -156,6 +156,7 @@ public:
 	bool							Show				(CSGDI_Layout_Item *pItem);
 
 	bool							Scale				(double Scale);
+	double							Get_Scale			(void)	const	{	return( m_Scale );	}
 
 	size_t							Get_Position		(CSGDI_Layout_Item *pItem)	const;
 	bool							is_Top				(CSGDI_Layout_Item *pItem)	const;

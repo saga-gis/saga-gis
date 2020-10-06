@@ -150,7 +150,7 @@ inline bool CSGDI_Layout_Items::CSGDI_Layout_Item::_Tracker_Contains(const wxPoi
 }
 
 //---------------------------------------------------------
-wxRect CSGDI_Layout_Items::CSGDI_Layout_Item::_Tracker_Get_Rect(void)
+wxRect CSGDI_Layout_Items::CSGDI_Layout_Item::_Tracker_Get_Rect(void)	const
 {
 	return( Get_Scaled(m_Rect, m_pOwner ? m_pOwner->m_Scale : 1.) );
 }
