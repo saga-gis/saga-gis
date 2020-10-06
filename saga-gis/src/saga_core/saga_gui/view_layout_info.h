@@ -73,16 +73,16 @@
 class CVIEW_Layout_Info
 {
 public:
-	enum
+	typedef enum
 	{
-		ItemID_Map	= 0,
-		ItemID_Scalebar,
-		ItemID_Scale,
-		ItemID_Legend,
-		ItemID_Label,
-		ItemID_Text,
-		ItemID_Image,
-		ItemID_None
+		Item_Type_Map	= 0,
+		Item_Type_Scalebar,
+		Item_Type_Scale,
+		Item_Type_Legend,
+		Item_Type_Label,
+		Item_Type_Text,
+		Item_Type_Image,
+		Item_Type_None
 	};
 
 	static const char *				Get_Item_Type_Name		(int Type);
@@ -118,13 +118,15 @@ public:
 	bool							Save					(void)	const;
 	bool							Save					(CSG_MetaData &Layout)	const;
 
-	bool							is_Shown				(int ItemID);
+	bool							is_Shown				(int Item_Type);
+	bool							is_Stock				(int Item_Type);
 	bool							Can_Hide				(class CLayout_Item *pItem = NULL);
 	bool							Can_Delete				(class CLayout_Item *pItem = NULL);
-	bool							Toggle_Item				(class CLayout_Item *pItem = NULL);
-	bool							Toggle_Item				(int ItemID);
-	bool							Add_Item				(int ItemID);
-	class CLayout_Item *			Get_Item				(int ItemID);
+	class CLayout_Item *			Get_Item				(size_t Index)	const	{	return( (CLayout_Item *)m_Items(Index) );	}
+	bool							Add_Item				(int Item_Type);
+	class CLayout_Item *			Get_Stock_Item			(int Item_Type);
+	bool							Toggle_Stock_Item		(int Item_Type);
+	bool							Toggle_Stock_Item		(class CLayout_Item *pItem = NULL);
 	bool							Clipboard_Paste			(void);
 
 	wxMenu *						Menu_Get_Active			(void);

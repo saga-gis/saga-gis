@@ -46,11 +46,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "wx/wx.h"
-#include "wx/print.h"
-#include "wx/printdlg.h"
+#include <wx/wx.h>
+#include <wx/print.h>
+#include <wx/printdlg.h>
 #include <wx/clipbrd.h>
 #include <wx/dataobj.h>
+#include <wx/filename.h>
 
 #include <saga_api/saga_api.h>
 #include <saga_gdi/sgdi_helper.h>
@@ -82,14 +83,14 @@ const char * CVIEW_Layout_Info::Get_Item_Type_Name(int Type)
 {
 	switch( Type )
 	{
-	case ItemID_Map     : return( "map"      );
-	case ItemID_Scalebar: return( "scalebar" );
-	case ItemID_Scale   : return( "scale"    );
-	case ItemID_Legend  : return( "legend"   );
-	case ItemID_Label   : return( "label"    );
-	case ItemID_Text    : return( "text"     );
-	case ItemID_Image   : return( "image"    );
-	default             : return( ""         );
+	case Item_Type_Map     : return( "map"      );
+	case Item_Type_Scalebar: return( "scalebar" );
+	case Item_Type_Scale   : return( "scale"    );
+	case Item_Type_Legend  : return( "legend"   );
+	case Item_Type_Label   : return( "label"    );
+	case Item_Type_Text    : return( "text"     );
+	case Item_Type_Image   : return( "image"    );
+	default                : return( ""         );
 	}
 }
 
@@ -211,7 +212,7 @@ public:
 class CLayout_Map : public CLayout_Item
 {
 public:
-	virtual int			Get_Type		(void)	const	{	return( CVIEW_Layout_Info::ItemID_Map );	}
+	virtual int			Get_Type		(void)	const	{	return( CVIEW_Layout_Info::Item_Type_Map );	}
 
 	//-----------------------------------------------------
 	CLayout_Map(CVIEW_Layout_Info *pLayout)
@@ -272,6 +273,21 @@ public:
 
 		return( true );
 	}
+
+	//-----------------------------------------------------
+	virtual bool		Properties		(wxWindow *pParent)
+	{
+		if( m_Parameters["SCALE_FIXED"].asBool() == false )
+		{
+			wxRect	rMap(Get_Rect_DC());
+
+			double	Scale	= 1000. * m_pLayout->Get_Map()->Get_World(rMap).Get_XRange() / (rMap.width / m_pLayout->Get_Paper2DC());	// to meter
+
+			m_Parameters["SCALE_NUMBER"].Set_Value(Scale);
+		}
+
+		return( CLayout_Item::Properties(pParent) );
+	}
 };
 
 
@@ -283,7 +299,7 @@ public:
 class CLayout_Scalebar : public CLayout_Item
 {
 public:
-	virtual int			Get_Type		(void)	const	{	return( CVIEW_Layout_Info::ItemID_Scalebar );	}
+	virtual int			Get_Type		(void)	const	{	return( CVIEW_Layout_Info::Item_Type_Scalebar );	}
 
 	//-----------------------------------------------------
 	CLayout_Scalebar(CVIEW_Layout_Info *pLayout)
@@ -319,7 +335,7 @@ public:
 		}
 
 		//-------------------------------------------------
-		CLayout_Map	*pMap	= (CLayout_Map *)m_pLayout->Get_Item(CVIEW_Layout_Info::ItemID_Map);
+		CLayout_Map	*pMap	= (CLayout_Map *)m_pLayout->Get_Stock_Item(CVIEW_Layout_Info::Item_Type_Map);
 
 		wxRect rDC(m_pLayout->Get_Paper2DC(m_Rect)), rMap(pMap->Get_Rect_DC()); CSG_Rect rWorld(pMap->Get_Rect_World());
 
@@ -363,7 +379,7 @@ public:
 class CLayout_Scale : public CLayout_Item
 {
 public:
-	virtual int			Get_Type		(void)	const	{	return( CVIEW_Layout_Info::ItemID_Scale );	}
+	virtual int			Get_Type		(void)	const	{	return( CVIEW_Layout_Info::Item_Type_Scale );	}
 
 	//-----------------------------------------------------
 	CLayout_Scale(CVIEW_Layout_Info *pLayout)
@@ -398,7 +414,7 @@ public:
 	{
 		Adjust_Size();
 
-		wxRect	rDC(m_pLayout->Get_Paper2DC(m_Rect)), rMap(((CLayout_Map *)m_pLayout->Get_Item(CVIEW_Layout_Info::ItemID_Map))->Get_Rect_DC());
+		wxRect	rDC(m_pLayout->Get_Paper2DC(m_Rect)), rMap(((CLayout_Map *)m_pLayout->Get_Stock_Item(CVIEW_Layout_Info::Item_Type_Map))->Get_Rect_DC());
 
 		wxFont	Font, oldFont(dc.GetFont()); wxColour Color, oldColor = dc.GetTextForeground();
 
@@ -418,7 +434,7 @@ public:
 	//-----------------------------------------------------
 	wxString			Get_Scale_Text		(void)
 	{
-		CLayout_Map	*pMap	= (CLayout_Map *)m_pLayout->Get_Item(CVIEW_Layout_Info::ItemID_Map);
+		CLayout_Map	*pMap	= (CLayout_Map *)m_pLayout->Get_Stock_Item(CVIEW_Layout_Info::Item_Type_Map);
 
 		double	Scale	= pMap->m_Parameters["SCALE_FIXED"].asBool() ? pMap->m_Parameters["SCALE_NUMBER"].asDouble() : 0.;
 
@@ -432,7 +448,7 @@ public:
 		//-------------------------------------------------
 		wxString	Text(m_Parameters["TEXT"].asString());
 		
-		Text	+= Text.IsEmpty() ? " 1 : " : "1 : ";
+		Text	+= Text.IsEmpty() ? "1 : " : " 1 : ";
 
 		int	Decimals	= m_Parameters["DECIMALS"].asInt();
 
@@ -458,7 +474,7 @@ public:
 class CLayout_Legend : public CLayout_Item
 {
 public:
-	virtual int			Get_Type		(void)	const	{	return( CVIEW_Layout_Info::ItemID_Legend );	}
+	virtual int			Get_Type		(void)	const	{	return( CVIEW_Layout_Info::Item_Type_Legend );	}
 
 	//-----------------------------------------------------
 	CLayout_Legend(CVIEW_Layout_Info *pLayout)
@@ -521,7 +537,7 @@ public:
 class CLayout_Label : public CLayout_Item
 {
 public:
-	virtual int			Get_Type		(void)	const	{	return( CVIEW_Layout_Info::ItemID_Label );	}
+	virtual int			Get_Type		(void)	const	{	return( CVIEW_Layout_Info::Item_Type_Label );	}
 
 	//-----------------------------------------------------
 	CLayout_Label(CVIEW_Layout_Info *pLayout, bool bProperties = false, const wxString &Text = "", bool bLongText = false)
@@ -595,7 +611,7 @@ public:
 class CLayout_Text : public CLayout_Label
 {
 public:
-	virtual int			Get_Type		(void)	const	{	return( CVIEW_Layout_Info::ItemID_Text );	}
+	virtual int			Get_Type		(void)	const	{	return( CVIEW_Layout_Info::Item_Type_Text );	}
 
 	//-----------------------------------------------------
 	CLayout_Text(CVIEW_Layout_Info *pLayout, bool bProperties = false, const wxString &Text = "")
@@ -612,7 +628,7 @@ public:
 class CLayout_Image : public CLayout_Item
 {
 public:
-	virtual int			Get_Type		(void)	const	{	return( CVIEW_Layout_Info::ItemID_Image );	}
+	virtual int			Get_Type		(void)	const	{	return( CVIEW_Layout_Info::Item_Type_Image );	}
 
 	//-----------------------------------------------------
 	CLayout_Image(CVIEW_Layout_Info *pLayout, bool bDialog = false)
@@ -711,11 +727,9 @@ public:
 	}
 
 	//-----------------------------------------------------
-	bool				Save				(void)
+	bool				Save				(const wxString &File, wxBitmapType Type)
 	{
-		wxString	File;	int	Type;
-
-		if( m_Image.IsOk() && DLG_Image_Save(File, Type) && m_Image.SaveFile(File, (wxBitmapType)Type) )
+		if( m_Image.IsOk() && m_Image.SaveFile(File, Type) )
 		{
 			m_File	= File.wc_str();
 
@@ -725,6 +739,13 @@ public:
 		}
 
 		return( false );
+	}
+
+	bool				Save				(void)
+	{
+		wxString	File;	int	Type;
+
+		return( m_Image.IsOk() && DLG_Image_Save(File, Type) && Save(File, (wxBitmapType)Type) );
 	}
 
 	//-----------------------------------------------------
@@ -925,10 +946,10 @@ CVIEW_Layout_Info::CVIEW_Layout_Info(CWKSP_Map *pMap)
 	m_Items.Add(new CLayout_Legend  (this));
 
 	//-----------------------------------------------------
-	Get_Item(ItemID_Map     )->Set_Position( 2, 70,  2, 90); // default layout
-	Get_Item(ItemID_Scalebar)->Set_Position( 2, 50, 92, 95);
-	Get_Item(ItemID_Scale   )->Set_Position(55, 70, 92, 95); // m_Items.Hide(Get_Item(ItemID_Scale));
-	Get_Item(ItemID_Legend  )->Set_Position(72, 98,  2, 95);
+	Get_Stock_Item(Item_Type_Map     )->Set_Position( 2, 70,  2, 90); // default layout
+	Get_Stock_Item(Item_Type_Scalebar)->Set_Position( 2, 50, 92, 95);
+	Get_Stock_Item(Item_Type_Scale   )->Set_Position(55, 70, 92, 95); // m_Items.Hide(Get_Stock_Item(Item_Type_Scale));
+	Get_Stock_Item(Item_Type_Legend  )->Set_Position(72, 98,  2, 95);
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Int("",
@@ -951,7 +972,7 @@ CVIEW_Layout_Info::CVIEW_Layout_Info(CWKSP_Map *pMap)
 	m_Parameters.Add_Bool("RASTER",
 		"RASTER_ALIGN"	, _TL("Align"),
 		_TL(""),
-		false
+		true
 	);
 
 	m_Parameters.Add_Int("RASTER",
@@ -1174,11 +1195,11 @@ bool CVIEW_Layout_Info::Load(const CSG_MetaData &Layout)
 
 	for(size_t i=m_Items.Get_Count(); i>0; i--)
 	{
-		CLayout_Item	*pItem	= (CLayout_Item *)m_Items.Get_Item(i - 1);
+		CLayout_Item	*pItem	= Get_Item(i - 1);
 
-		if( pItem->Get_Type() == ItemID_Label
-		||  pItem->Get_Type() == ItemID_Text
-		||  pItem->Get_Type() == ItemID_Image )
+		if( pItem->Get_Type() == Item_Type_Label
+		||  pItem->Get_Type() == Item_Type_Text
+		||  pItem->Get_Type() == Item_Type_Image )
 		{
 			m_Items.Del(pItem);
 		}
@@ -1213,18 +1234,18 @@ bool CVIEW_Layout_Info::Load(const CSG_MetaData &Layout)
 	{
 		const CSG_MetaData	&Item	= Items[i];
 
-		CLayout_Item *pItem = NULL; int	Type; if( !Item.Get_Property("type", Type) ) { Type = ItemID_None; }
+		CLayout_Item *pItem = NULL; int	Type; if( !Item.Get_Property("type", Type) ) { Type = Item_Type_None; }
 
 		switch( Type )
 		{
-		case ItemID_Map     : pItem = Get_Item(ItemID_Map     ); break;
-		case ItemID_Scalebar: pItem = Get_Item(ItemID_Scalebar); break;
-		case ItemID_Scale   : pItem = Get_Item(ItemID_Scale   ); break;
-		case ItemID_Legend  : pItem = Get_Item(ItemID_Legend  ); break;
+		case Item_Type_Map     : pItem = Get_Stock_Item(Item_Type_Map     ); break;
+		case Item_Type_Scalebar: pItem = Get_Stock_Item(Item_Type_Scalebar); break;
+		case Item_Type_Scale   : pItem = Get_Stock_Item(Item_Type_Scale   ); break;
+		case Item_Type_Legend  : pItem = Get_Stock_Item(Item_Type_Legend  ); break;
 
-		case ItemID_Label   : pItem = new CLayout_Label  (this); break;
-		case ItemID_Text    : pItem = new CLayout_Text   (this); break;
-		case ItemID_Image   : pItem = new CLayout_Image  (this); break;
+		case Item_Type_Label   : pItem = new CLayout_Label  (this); break;
+		case Item_Type_Text    : pItem = new CLayout_Text   (this); break;
+		case Item_Type_Image   : pItem = new CLayout_Image  (this); break;
 		}
 
 		if( pItem )
@@ -1236,11 +1257,11 @@ bool CVIEW_Layout_Info::Load(const CSG_MetaData &Layout)
 				pItem->Update_Position(false);
 			}
 
-			if( pItem->Get_Type() == ItemID_Label
-			||  pItem->Get_Type() == ItemID_Text
-			||  pItem->Get_Type() == ItemID_Image )
+			if( pItem->Get_Type() == Item_Type_Label
+			||  pItem->Get_Type() == Item_Type_Text
+			||  pItem->Get_Type() == Item_Type_Image )
 			{
-				if( Type == ItemID_Image )
+				if( Type == Item_Type_Image )
 				{
 					((CLayout_Image *)pItem)->Load(pItem->m_Parameters["FILE"].asString(), false);
 				}
@@ -1288,6 +1309,21 @@ bool CVIEW_Layout_Info::Save(void)	const
 
 	if( DLG_Save(File, wxString::Format("%s %s", _TL("Save"), _TL("Print Layout")), Filter) )
 	{
+		if( 1 )	// automatically save unsaved images...
+		{
+			for(size_t i=0, j=0; i<m_Items.Get_Count(); i++)
+			{
+				CLayout_Image	*pItem	= Get_Item(i)->Get_Type() == Item_Type_Image ? (CLayout_Image *)Get_Item(i) : NULL;
+
+				if( pItem && !SG_File_Exists(pItem->m_File) )
+				{
+					wxFileName	fn(File); fn.SetName(fn.GetName() + wxString::Format("_%d", ++j)); fn.SetExt("png");
+
+					pItem->Save(fn.GetFullPath(), wxBITMAP_TYPE_PNG);
+				}
+			}
+		}
+
 		CSG_MetaData	Layout;
 
 		return( Save(Layout) && Layout.Save(&File) );
@@ -1317,7 +1353,7 @@ bool CVIEW_Layout_Info::Save(CSG_MetaData &Layout)	const
 	{
 		CSG_MetaData	&Item	= *Items.Add_Child("item");
 
-		CLayout_Item	*pItem	= (CLayout_Item *)m_Items.Get_Item(i);
+		CLayout_Item	*pItem	= Get_Item(i);
 
 		Item.Add_Property("name", Get_Item_Type_Name(pItem->Get_Type()));
 		Item.Add_Property("type", pItem->Get_Type());
@@ -1338,11 +1374,21 @@ bool CVIEW_Layout_Info::Save(CSG_MetaData &Layout)	const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CVIEW_Layout_Info::is_Shown(int ItemID)
+bool CVIEW_Layout_Info::is_Shown(int Item_Type)
 {
-	CLayout_Item	*pItem	= Get_Item(ItemID);
+	CLayout_Item	*pItem	= Get_Stock_Item(Item_Type);
 
 	return( pItem && pItem->is_Shown() );
+}
+
+//---------------------------------------------------------
+bool CVIEW_Layout_Info::is_Stock(int Item_Type)
+{
+	return( Item_Type == Item_Type_Map
+		||  Item_Type == Item_Type_Scalebar
+		||  Item_Type == Item_Type_Scale
+		||  Item_Type == Item_Type_Legend
+	);
 }
 
 //---------------------------------------------------------
@@ -1353,10 +1399,10 @@ bool CVIEW_Layout_Info::Can_Hide(CLayout_Item *pItem)
 		pItem	= (CLayout_Item *)m_Items.Get_Active();
 	}
 
-	return( pItem
-		&& (pItem->Get_Type() == ItemID_Scalebar
-		||  pItem->Get_Type() == ItemID_Scale
-		||  pItem->Get_Type() == ItemID_Legend  )
+	return( pItem // && is_Stock(pItem->Get_Type()) );
+		&& (pItem->Get_Type() == Item_Type_Scalebar
+		||  pItem->Get_Type() == Item_Type_Scale
+		||  pItem->Get_Type() == Item_Type_Legend  )
 	);
 }
 
@@ -1368,15 +1414,54 @@ bool CVIEW_Layout_Info::Can_Delete(CLayout_Item *pItem)
 		pItem	= (CLayout_Item *)m_Items.Get_Active();
 	}
 
-	return( pItem
-		&& (pItem->Get_Type() == ItemID_Label
-		||  pItem->Get_Type() == ItemID_Text
-		||  pItem->Get_Type() == ItemID_Image)
-	);
+	return( pItem && !is_Stock(pItem->Get_Type()) );
 }
 
 //---------------------------------------------------------
-bool CVIEW_Layout_Info::Toggle_Item(CLayout_Item *pItem)
+bool CVIEW_Layout_Info::Add_Item(int Item_Type)
+{
+	switch( Item_Type )
+	{
+	case Item_Type_Label: m_Items.Add(new CLayout_Label(this, true), true); break;
+	case Item_Type_Text : m_Items.Add(new CLayout_Text (this, true), true); break;
+	case Item_Type_Image: m_Items.Add(new CLayout_Image(this, true), true); break;
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+CLayout_Item * CVIEW_Layout_Info::Get_Stock_Item(int Item_Type)
+{
+	if( is_Stock(Item_Type) )
+	{
+		for(size_t i=0; i<m_Items.Get_Count(); i++)
+		{
+			if( Get_Item(i)->Get_Type() == Item_Type )
+			{
+				return( Get_Item(i) );
+			}
+		}
+	}
+
+	return( NULL );
+}
+
+//---------------------------------------------------------
+bool CVIEW_Layout_Info::Toggle_Stock_Item(int Item_Type)
+{
+	CLayout_Item	*pItem	= Get_Stock_Item(Item_Type);
+
+	if( pItem )
+	{
+		return( pItem->is_Shown() ? m_Items.Hide(pItem) : m_Items.Show(pItem) );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CVIEW_Layout_Info::Toggle_Stock_Item(CLayout_Item *pItem)
 {
 	if( !pItem  )
 	{
@@ -1389,46 +1474,6 @@ bool CVIEW_Layout_Info::Toggle_Item(CLayout_Item *pItem)
 	}
 
 	return( false );
-}
-
-//---------------------------------------------------------
-bool CVIEW_Layout_Info::Toggle_Item(int ItemID)
-{
-	CLayout_Item	*pItem	= Get_Item(ItemID);
-
-	if( pItem )
-	{
-		return( pItem->is_Shown() ? m_Items.Hide(pItem) : m_Items.Show(pItem) );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-CLayout_Item * CVIEW_Layout_Info::Get_Item(int ItemID)
-{
-	for(size_t i=0; i<m_Items.Get_Count(); i++)
-	{
-		if( ((CLayout_Item *)m_Items(i))->Get_Type() == ItemID )
-		{
-			return( (CLayout_Item *)m_Items(i) );
-		}
-	}
-
-	return( NULL );
-}
-
-//---------------------------------------------------------
-bool CVIEW_Layout_Info::Add_Item(int ItemID)
-{
-	switch( ItemID )
-	{
-	case ItemID_Label: m_Items.Add(new CLayout_Label(this, true), true); break;
-	case ItemID_Text : m_Items.Add(new CLayout_Text (this, true), true); break;
-	case ItemID_Image: m_Items.Add(new CLayout_Image(this, true), true); break;
-	}
-
-	return( true );
 }
 
 //---------------------------------------------------------
@@ -1505,7 +1550,7 @@ wxMenu * CVIEW_Layout_Info::Menu_Get_Active(void)
 			pMenu->AppendSeparator();
 		}
 
-		if( ((CLayout_Item *)m_Items.Get_Active())->Get_Type() == ItemID_Image )
+		if( ((CLayout_Item *)m_Items.Get_Active())->Get_Type() == Item_Type_Image )
 		{
 			CLayout_Image	*pItem	= (CLayout_Image *)m_Items.Get_Active();
 
@@ -1559,25 +1604,25 @@ bool CVIEW_Layout_Info::Menu_On_Command(wxCommandEvent &event)
 {
 	switch( event.GetId() )
 	{
-	case ID_CMD_LAYOUT_TO_CLIPBOARD    : Clipboard_Copy                 (); break;
-	case ID_CMD_LAYOUT_ITEM_PASTE      : Clipboard_Paste                (); break;
+	case ID_CMD_LAYOUT_TO_CLIPBOARD    : Clipboard_Copy                     (); break;
+	case ID_CMD_LAYOUT_ITEM_PASTE      : Clipboard_Paste                    (); break;
 
-	case ID_CMD_LAYOUT_ITEM_MAP        : Toggle_Item(ItemID_Map          ); break;
-	case ID_CMD_LAYOUT_ITEM_LEGEND     : Toggle_Item(ItemID_Legend       ); break;
-	case ID_CMD_LAYOUT_ITEM_SCALEBAR   : Toggle_Item(ItemID_Scalebar     ); break;
-	case ID_CMD_LAYOUT_ITEM_SCALE      : Toggle_Item(ItemID_Scale        ); break;
-	case ID_CMD_LAYOUT_ITEM_LABEL      :    Add_Item(ItemID_Label        ); break;
-	case ID_CMD_LAYOUT_ITEM_TEXT       :    Add_Item(ItemID_Text         ); break;
-	case ID_CMD_LAYOUT_ITEM_IMAGE      :    Add_Item(ItemID_Image        ); break;
+	case ID_CMD_LAYOUT_ITEM_MAP        : Toggle_Stock_Item(Item_Type_Map     ); break;
+	case ID_CMD_LAYOUT_ITEM_LEGEND     : Toggle_Stock_Item(Item_Type_Legend  ); break;
+	case ID_CMD_LAYOUT_ITEM_SCALEBAR   : Toggle_Stock_Item(Item_Type_Scalebar); break;
+	case ID_CMD_LAYOUT_ITEM_SCALE      : Toggle_Stock_Item(Item_Type_Scale   ); break;
+	case ID_CMD_LAYOUT_ITEM_LABEL      :          Add_Item(Item_Type_Label   ); break;
+	case ID_CMD_LAYOUT_ITEM_TEXT       :          Add_Item(Item_Type_Text    ); break;
+	case ID_CMD_LAYOUT_ITEM_IMAGE      :          Add_Item(Item_Type_Image   ); break;
 
-	case ID_CMD_LAYOUT_ITEM_PROPERTIES : m_Items.Active_Properties      (); break;
-	case ID_CMD_LAYOUT_ITEM_DELETE     : m_Items.Del(m_Items.Get_Active()); break;
-	case ID_CMD_LAYOUT_ITEM_HIDE       : Toggle_Item                    (); break;
+	case ID_CMD_LAYOUT_ITEM_PROPERTIES : m_Items.Active_Properties          (); break;
+	case ID_CMD_LAYOUT_ITEM_DELETE     : m_Items.Del(m_Items.Get_Active    ()); break;
+	case ID_CMD_LAYOUT_ITEM_HIDE       : Toggle_Stock_Item                  (); break;
 
-	case ID_CMD_LAYOUT_ITEM_MOVE_TOP   : m_Items.Active_Move_Top        (); break;
-	case ID_CMD_LAYOUT_ITEM_MOVE_BOTTOM: m_Items.Active_Move_Bottom     (); break;
-	case ID_CMD_LAYOUT_ITEM_MOVE_UP    : m_Items.Active_Move_Up         (); break;
-	case ID_CMD_LAYOUT_ITEM_MOVE_DOWN  : m_Items.Active_Move_Down       (); break;
+	case ID_CMD_LAYOUT_ITEM_MOVE_TOP   : m_Items.Active_Move_Top            (); break;
+	case ID_CMD_LAYOUT_ITEM_MOVE_BOTTOM: m_Items.Active_Move_Bottom         (); break;
+	case ID_CMD_LAYOUT_ITEM_MOVE_UP    : m_Items.Active_Move_Up             (); break;
+	case ID_CMD_LAYOUT_ITEM_MOVE_DOWN  : m_Items.Active_Move_Down           (); break;
 
 	case ID_CMD_LAYOUT_IMAGE_SAVE      : ((CLayout_Image *)m_Items.Get_Active())->Save   (); break;
 	case ID_CMD_LAYOUT_IMAGE_RESTORE   : ((CLayout_Image *)m_Items.Get_Active())->Restore(); break;
@@ -1591,10 +1636,10 @@ bool CVIEW_Layout_Info::Menu_On_Command_UI(wxUpdateUIEvent &event)
 {
 	switch( event.GetId() )
 	{
-	case ID_CMD_LAYOUT_ITEM_MAP        : event.Check(is_Shown(ItemID_Map     )); break;
-	case ID_CMD_LAYOUT_ITEM_LEGEND     : event.Check(is_Shown(ItemID_Legend  )); break;
-	case ID_CMD_LAYOUT_ITEM_SCALEBAR   : event.Check(is_Shown(ItemID_Scalebar)); break;
-	case ID_CMD_LAYOUT_ITEM_SCALE      : event.Check(is_Shown(ItemID_Scale   )); break;
+	case ID_CMD_LAYOUT_ITEM_MAP        : event.Check(is_Shown(Item_Type_Map     )); break;
+	case ID_CMD_LAYOUT_ITEM_LEGEND     : event.Check(is_Shown(Item_Type_Legend  )); break;
+	case ID_CMD_LAYOUT_ITEM_SCALEBAR   : event.Check(is_Shown(Item_Type_Scalebar)); break;
+	case ID_CMD_LAYOUT_ITEM_SCALE      : event.Check(is_Shown(Item_Type_Scale   )); break;
 
 	case ID_CMD_LAYOUT_ITEM_MOVE_TOP   : event.Enable(!m_Items.Active_is_Top   ()); break;
 	case ID_CMD_LAYOUT_ITEM_MOVE_BOTTOM: event.Enable(!m_Items.Active_is_Bottom()); break;
