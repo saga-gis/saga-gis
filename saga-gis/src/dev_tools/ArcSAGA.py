@@ -44,7 +44,7 @@ import sys, os, glob, subprocess, arcpy, ConversionUtils, shutil
 # Globals
 #________________________________________________________
 DIR_LOG  = None
-#DIR_LOG  = os.path.dirname(__file__) # uncomment to create logs in toolbox directory
+DIR_LOG  = os.path.dirname(__file__) # uncomment to create logs in toolbox directory
 
 CREATE_NO_WINDOW = 0x08000000
 
@@ -111,23 +111,22 @@ class SAGA_Tool:
 	# Execution
 	#____________________________________________________
 	def Run(self, bIgnoreLog = False):
-		cmd_string  = '_________________________\n'
-		cmd_string += self.saga_cmd + ' ' + self.Library + ' ' + self.Tool
+		cmd = '\"' + self.saga_cmd + '\" -f=q ' + self.Library + ' ' + self.Tool
 		for Item in self.Parameters:
-			cmd_string += ' ' + Item.strip('""')
+			cmd += ' ' + Item
 
-		cmd    = [self.saga_cmd, '-f=q', self.Library, self.Tool] + self.Parameters
-		
 		if bIgnoreLog == False and DIR_LOG != None:
 			cmd_out = open(DIR_LOG + os.sep + 'arcsaga.log'      , 'w')
 			cmd_err = open(DIR_LOG + os.sep + 'arcsaga.error.log', 'w')
-			cmd_out.write(cmd_string)	# print to log file
+			cmd_out.write('_________________________\n')
+			cmd_out.write(cmd)	# print to log file
 			Result = subprocess.call(cmd, creationflags=CREATE_NO_WINDOW, stdout=cmd_out, stderr=cmd_err)
 		else:
 			Result = subprocess.call(cmd, creationflags=CREATE_NO_WINDOW)
 
 		if Result != 0:
-			arcpy.AddMessage(cmd_string)
+			arcpy.AddMessage('_________________________\n')
+			arcpy.AddMessage(cmd)
 			arcpy.AddError('...failed to run SAGA tool!')
 
 		elif self.Output != None:
@@ -171,7 +170,7 @@ class SAGA_Tool:
 	#____________________________________________________
 	def Set_Option(self, Identifier, Value):
 		if Value != '#' and Value != None:
-			Value = '""' + Value.strip() + '""'
+			Value = '\"' + Value.strip() + '\"'
 			if self.Parameters == None:
 				self.Parameters  = ['-' + Identifier, Value]
 			else:
