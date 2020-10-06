@@ -1,7 +1,7 @@
 @ECHO OFF
 
 REM ___________________________________
-IF %SAGA_ROOT% == "" (
+IF "%SAGA_ROOT%" == "" (
 	SET SAGA_ROOT=%CD%\..\..\..
 )
 
