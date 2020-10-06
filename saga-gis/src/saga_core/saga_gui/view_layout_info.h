@@ -73,7 +73,7 @@
 class CVIEW_Layout_Info
 {
 public:
-	typedef enum
+	enum
 	{
 		Item_Type_Map	= 0,
 		Item_Type_Scalebar,
