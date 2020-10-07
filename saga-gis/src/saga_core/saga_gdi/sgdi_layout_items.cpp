@@ -955,7 +955,7 @@ wxRect CSGDI_Layout_Items::CSGDI_Layout_Tracker::Drag_Rect(const wxPoint &From, 
 
 		double MinSize	= m_pOwner->m_Scale * m_pOwner->m_MinSize;
 
-		if( fabs(r.width) < MinSize || fabs(r.height) < MinSize )
+		if( m_Drag_Mode != HANDLE_TRACKER && (fabs(r.width) < MinSize || fabs(r.height) < MinSize) )
 		{
 			wxRect	rOriginal(Get_Scaled(m_pOwner->m_pActive->m_Rect, m_pOwner->m_Scale));
 

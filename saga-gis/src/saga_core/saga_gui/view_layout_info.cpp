@@ -116,7 +116,7 @@ public:
 		Set_Position(Position, Position + 10, Position, Position + 10);	// default size
 
 		//-----------------------------------------------------
-		m_Parameters.Set_Name("properties");
+		m_Parameters.Create(this, _TL("Properties"));
 
 		m_Parameters.Add_Node("", "POSITION", _TL("Position"), _TL("Position on paper measured in millimeters from left to right and top to bottom."));
 
@@ -128,6 +128,8 @@ public:
 			m_Parameters.Add_Int("POSITION", "POSITION_RIGHT" , _TL("Right" ), _TL(""));
 			m_Parameters.Add_Int("POSITION", "POSITION_BOTTOM", _TL("Bottom"), _TL(""));
 		}
+
+		m_Parameters.Set_Callback_On_Parameter_Changed(Parameter_Changed);
 	}
 
 	//-----------------------------------------------------
@@ -200,6 +202,19 @@ public:
 	}
 
 	//-----------------------------------------------------
+	virtual bool		On_Parameter_Changed	(CSG_Parameters &Parameters, CSG_Parameter &Parameter)
+	{
+		return( true );
+	}
+
+	static int			Parameter_Changed		(CSG_Parameter *pParameter, int Flags)
+	{
+		CLayout_Item	*pItem	= pParameter && pParameter->Get_Parameters() ? (CLayout_Item *)pParameter->Get_Parameters()->Get_Owner() : NULL;
+
+		return( pItem && pItem->On_Parameter_Changed(*pParameter->Get_Parameters(), *pParameter) ? 0 : 1 );
+	}
+
+	//-----------------------------------------------------
 	CVIEW_Layout_Info	*m_pLayout;	CSG_Parameters	m_Parameters;
 };
 
@@ -223,6 +238,15 @@ public:
 
 		m_Parameters.Add_Bool  (""           , "SCALE_FIXED" , _TL("Fixed Scale" ), _TL(""), false);
 		m_Parameters.Add_Double("SCALE_FIXED", "SCALE_NUMBER", _TL("Scale Number"), _TL(""), 10000, 0.0001, true);
+	}
+
+	//-----------------------------------------------------
+	virtual bool		On_Parameter_Changed	(CSG_Parameters &Parameters, CSG_Parameter &Parameter)
+	{
+		Parameters.Set_Enabled("FRAME_SIZE"  , Parameters["FRAME_SHOW" ].asBool());
+		Parameters.Set_Enabled("SCALE_NUMBER", Parameters["SCALE_FIXED"].asBool());
+
+		return( true );
 	}
 
 	//-----------------------------------------------------
@@ -325,6 +349,12 @@ public:
 	}
 
 	//-----------------------------------------------------
+	virtual bool		On_Parameter_Changed	(CSG_Parameters &Parameters, CSG_Parameter &Parameter)
+	{
+		return( true );
+	}
+
+	//-----------------------------------------------------
 	virtual bool		Draw				(wxDC &dc)
 	{
 		int	Style	= SCALE_STYLE_LINECONN|SCALE_STYLE_GLOOMING|SCALE_STYLE_UNIT_BELOW;
@@ -392,6 +422,12 @@ public:
 		Set_Sizer(false);
 
 		Adjust_Size();
+	}
+
+	//-----------------------------------------------------
+	virtual bool		On_Parameter_Changed	(CSG_Parameters &Parameters, CSG_Parameter &Parameter)
+	{
+		return( true );
 	}
 
 	//-----------------------------------------------------
@@ -1525,29 +1561,40 @@ bool CVIEW_Layout_Info::Clipboard_Paste(void)
 //---------------------------------------------------------
 wxMenu * CVIEW_Layout_Info::Menu_Get_Active(void)
 {
-	wxMenu	*pMenu	= new wxMenu, *pSubMenu;
+	wxMenu	*pMenu	= new wxMenu;
 
+	//-----------------------------------------------------
+	wxMenu	*pMenu_Show	= new wxMenu;
+
+//	CMD_Menu_Add_Item(pMenu_Show,  true, ID_CMD_LAYOUT_ITEM_MAP);
+	CMD_Menu_Add_Item(pMenu_Show,  true, ID_CMD_LAYOUT_ITEM_LEGEND);
+	CMD_Menu_Add_Item(pMenu_Show,  true, ID_CMD_LAYOUT_ITEM_SCALEBAR);
+	CMD_Menu_Add_Item(pMenu_Show,  true, ID_CMD_LAYOUT_ITEM_SCALE);
+
+	//-----------------------------------------------------
+	wxMenu	*pMenu_Add	= new wxMenu;
+
+	CMD_Menu_Add_Item(pMenu_Add, false, ID_CMD_LAYOUT_ITEM_LABEL);
+	CMD_Menu_Add_Item(pMenu_Add, false, ID_CMD_LAYOUT_ITEM_TEXT);
+	CMD_Menu_Add_Item(pMenu_Add, false, ID_CMD_LAYOUT_ITEM_IMAGE);
+
+	if( wxTheClipboard->IsSupported(wxDF_TEXT  )
+	||  wxTheClipboard->IsSupported(wxDF_BITMAP) )
+	{
+		CMD_Menu_Add_Item(pMenu_Add, false, ID_CMD_LAYOUT_ITEM_PASTE);
+	}
+
+	//-----------------------------------------------------
 	if( m_Items.Get_Active() )
 	{
 		if( Can_Hide() )
 		{
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_LAYOUT_ITEM_HIDE);
-			pMenu->AppendSeparator();
 		}
 
 		if( Can_Delete() )
 		{
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_LAYOUT_ITEM_DELETE);
-			pMenu->AppendSeparator();
-		}
-
-		if( m_Items.Get_Count() > 1 )
-		{
-			CMD_Menu_Add_Item(pMenu, false, ID_CMD_LAYOUT_ITEM_MOVE_TOP   );
-			CMD_Menu_Add_Item(pMenu, false, ID_CMD_LAYOUT_ITEM_MOVE_BOTTOM);
-			CMD_Menu_Add_Item(pMenu, false, ID_CMD_LAYOUT_ITEM_MOVE_UP    );
-			CMD_Menu_Add_Item(pMenu, false, ID_CMD_LAYOUT_ITEM_MOVE_DOWN  );
-			pMenu->AppendSeparator();
 		}
 
 		if( ((CLayout_Item *)m_Items.Get_Active())->Get_Type() == Item_Type_Image )
@@ -1560,9 +1607,29 @@ wxMenu * CVIEW_Layout_Info::Menu_Get_Active(void)
 			}
 
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_LAYOUT_IMAGE_RESTORE);
+		}
+
+		if( pMenu->GetMenuItemCount() > 0 )
+		{
 			pMenu->AppendSeparator();
 		}
 
+		if( m_Items.Get_Count() > 1 )
+		{
+			wxMenu	*pMenu_Order	= new wxMenu;
+
+			CMD_Menu_Add_Item(pMenu_Order, false, ID_CMD_LAYOUT_ITEM_MOVE_TOP   );
+			CMD_Menu_Add_Item(pMenu_Order, false, ID_CMD_LAYOUT_ITEM_MOVE_BOTTOM);
+			CMD_Menu_Add_Item(pMenu_Order, false, ID_CMD_LAYOUT_ITEM_MOVE_UP    );
+			CMD_Menu_Add_Item(pMenu_Order, false, ID_CMD_LAYOUT_ITEM_MOVE_DOWN  );
+
+			pMenu->AppendSubMenu(pMenu_Order, _TL("Order"));
+		}
+
+		pMenu->AppendSubMenu(pMenu_Show, _TL("Show"));
+		pMenu->AppendSubMenu(pMenu_Add , _TL("Add" ));
+
+		pMenu->AppendSeparator();
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_LAYOUT_ITEM_PROPERTIES);
 	}
 
@@ -1571,26 +1638,10 @@ wxMenu * CVIEW_Layout_Info::Menu_Get_Active(void)
 	{
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_LAYOUT_TO_CLIPBOARD);
 
-		if( wxTheClipboard->IsSupported(wxDF_TEXT  )
-		||  wxTheClipboard->IsSupported(wxDF_BITMAP) )
-		{
-			CMD_Menu_Add_Item(pMenu, false, ID_CMD_LAYOUT_ITEM_PASTE);
-		}
-
 		pMenu->AppendSeparator();
 
-		pSubMenu	= new wxMenu;
-	//	CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_LAYOUT_ITEM_MAP);
-		CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_LAYOUT_ITEM_LEGEND);
-		CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_LAYOUT_ITEM_SCALEBAR);
-		CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_LAYOUT_ITEM_SCALE);
-		pMenu->AppendSubMenu(pSubMenu, _TL("Show"));
-
-		pSubMenu	= new wxMenu;
-		CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_LAYOUT_ITEM_LABEL);
-		CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_LAYOUT_ITEM_TEXT);
-		CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_LAYOUT_ITEM_IMAGE);
-		pMenu->AppendSubMenu(pSubMenu, _TL("Add"));
+		pMenu->AppendSubMenu(pMenu_Show, _TL("Show"));
+		pMenu->AppendSubMenu(pMenu_Add , _TL("Add" ));
 
 		pMenu->AppendSeparator();
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_LAYOUT_PROPERTIES );

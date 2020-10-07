@@ -94,6 +94,7 @@ BEGIN_EVENT_TABLE(CVIEW_Layout, CVIEW_Base)
 	EVT_MENU     (ID_CMD_LAYOUT_ZOOM_OUT        , CVIEW_Layout::On_Zoom         )
 	EVT_MENU     (ID_CMD_LAYOUT_ZOOM_FULL       , CVIEW_Layout::On_Zoom         )
 	EVT_MENU     (ID_CMD_LAYOUT_ZOOM_ORIGINAL   , CVIEW_Layout::On_Zoom         )
+
 	EVT_MENU     (ID_CMD_LAYOUT_ITEM_MAP        , CVIEW_Layout::On_Command      )
 	EVT_MENU     (ID_CMD_LAYOUT_ITEM_LEGEND     , CVIEW_Layout::On_Command      )
 	EVT_MENU     (ID_CMD_LAYOUT_ITEM_SCALEBAR   , CVIEW_Layout::On_Command      )
@@ -236,7 +237,7 @@ void CVIEW_Layout::Do_Destroy(void)
 //---------------------------------------------------------
 void CVIEW_Layout::Do_Update(void)
 {
-	m_pControl->Refresh(false);
+	m_pControl->Refresh(true);
 }
 
 
@@ -247,7 +248,11 @@ void CVIEW_Layout::Do_Update(void)
 //---------------------------------------------------------
 void CVIEW_Layout::On_Key_Event(wxKeyEvent &event)
 {
-	if( event.GetKeyCode() == WXK_DELETE )
+	if( event.GetKeyCode() == WXK_F5 )
+	{
+		m_pControl->Refresh();
+	}
+	else if( event.GetKeyCode() == WXK_DELETE )
 	{
 		if( m_pLayout->Can_Delete() && m_pLayout->m_Items.Del(m_pLayout->m_Items.Get_Active()) )
 		{
