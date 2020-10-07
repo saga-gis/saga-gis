@@ -332,7 +332,7 @@ SAGA_API_DLL_EXPORT CSG_Tool_Library_Manager &	SG_Get_Tool_Library_Manager	(void
 	}\
 }
 
-#define SG_RUN_TOOL_KEEP_PARMS_ExitOnError(LIBRARY, TOOL, CONDITION)	{\
+#define SG_RUN_TOOL_KEEP_PARMS_ExitOnError(LIBRARY, TOOL, PARMS, CONDITION)	{\
 	\
 	bool	bResult;\
 	\
