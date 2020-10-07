@@ -58,22 +58,22 @@ CSG_String Get_Info(int i)
 	switch( i )
 	{
 	case TLB_INFO_Name:	default:
-		return( _TL("Climate Tools") );
+		return( _TL("Climate and Weather Tools") );
 
 	case TLB_INFO_Category:
-		return( _TL("Climate") );
+		return( _TL("Climate and Weather") );
 
 	case TLB_INFO_Author:
 		return( "O.Conrad (c) 2012" );
 
 	case TLB_INFO_Description:
-		return( _TL("Tools for weather and climate data.") );
+		return( _TL("Tools for the processing and analysis of climate and weather data.") );
 
 	case TLB_INFO_Version:
 		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
-		return( _TL("Climate") );
+		return( _TL("Climate and Weather") );
 	}
 }
 
@@ -98,6 +98,7 @@ CSG_String Get_Info(int i)
 #include "cloud_overlap.h"
 #include "temperature_lapse_rates.h"
 #include "air_pressure.h"
+#include "land_surface_temperature.h"
 
 
 //---------------------------------------------------------
@@ -147,6 +148,8 @@ CSG_Tool *		Create_Tool(int i)
 	case 26:	return( new CTemperature_Lapse_Rates );
 
 	case 27:	return( new CAirPressure_Scaling );
+
+	case 28:	return( new CLand_Surface_Temperature );
 
 	//-----------------------------------------------------
 	case 30:	return( NULL );

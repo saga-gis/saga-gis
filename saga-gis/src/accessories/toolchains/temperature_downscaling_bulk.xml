@@ -2,7 +2,7 @@
 <toolchain saga-version="4.1.0">
 	<group>climate_tools</group>
 	<identifier>t_downscale_bulk</identifier>
-	<menu absolute="true">Climate|Tools</menu>
+	<menu absolute="true">Climate and Weather|Temperature</menu>
 	<name>Lapse Rate Based Temperature Downscaling (Bulk Processing)</name>
 	<author>O.Conrad (c) 2017</author>
 	<description>

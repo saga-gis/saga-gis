@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                frost_change_frequency.h               //
+//               land_surface_temperature.h              //
 //                                                       //
-//                 Copyright (C) 2016 by                 //
+//                 Copyright (C) 2020 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -36,7 +36,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     oconrad@saga-gis.de                    //
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
@@ -46,13 +46,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__frost_change_frequency_H
-#define HEADER_INCLUDED__frost_change_frequency_H
+#ifndef HEADER_INCLUDED__land_surface_temperature_H
+#define HEADER_INCLUDED__land_surface_temperature_H
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -62,87 +62,36 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CFrost_Change_Frequency_Calculator
-{
-public:
-	CFrost_Change_Frequency_Calculator(void);
-
-	bool						Set_Temperatures		(CSG_Parameter_Grid_List *pTmin, CSG_Parameter_Grid_List *pTmax);
-
-	bool						Get_Statistics			(int x, int y, CSG_Simple_Statistics &Dif, CSG_Simple_Statistics &Min);
-	bool						Get_Statistics			(int x, int y, CSG_Simple_Statistics &Dif, CSG_Simple_Statistics &Min, CSG_Vector &Tmin, CSG_Vector &Tmax);
-
-
-private:
-
-	CSG_Parameter_Grid_List		*m_pTmin, *m_pTmax;
-
-
-	bool						Get_Daily				(int x, int y, CSG_Parameter_Grid_List *pTemperatures, CSG_Vector &Daily);
-	bool						Get_From_Daily			(int x, int y, CSG_Parameter_Grid_List *pTemperatures, CSG_Vector &Daily);
-	bool						Get_From_Monthly		(int x, int y, CSG_Parameter_Grid_List *pTemperatures, CSG_Vector &Daily);
-
-};
-
-
-///////////////////////////////////////////////////////////
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CFrost_Change_Frequency : public CSG_Tool_Grid
+class CLand_Surface_Temperature : public CSG_Tool_Grid
 {
 public:
-	CFrost_Change_Frequency(void);
+	CLand_Surface_Temperature(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Temperature") );	}
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Temperature") );	}
 
 
 protected:
 
-	virtual bool				On_Execute				(void);
+	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CFrost_Change_Frequency_Interactive : public CSG_Tool_Grid_Interactive
-{
-public:
-	CFrost_Change_Frequency_Interactive(void);
-
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Temperature") );	}
-
-
-protected:
-
-	virtual bool				On_Execute				(void);
-	virtual bool				On_Execute_Position		(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
+	virtual bool		On_Execute				(void);
 
 
 private:
 
-	CFrost_Change_Frequency_Calculator	m_Calculator;
-
-	CSG_Table					*m_pStatistics, *m_pDaily;
-
 };
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__frost_change_frequency_H
+#endif // #ifndef HEADER_INCLUDED__land_surface_temperature_H

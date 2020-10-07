@@ -311,6 +311,7 @@
     <ClCompile Include="frost_change_frequency.cpp" />
     <ClCompile Include="grid_levels_interpolation.cpp" />
     <ClCompile Include="growing_degree_days.cpp" />
+    <ClCompile Include="land_surface_temperature.cpp" />
     <ClCompile Include="milankovic.cpp" />
     <ClCompile Include="MLB_Interface.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -347,6 +348,7 @@
     <ClInclude Include="frost_change_frequency.h" />
     <ClInclude Include="grid_levels_interpolation.h" />
     <ClInclude Include="growing_degree_days.h" />
+    <ClInclude Include="land_surface_temperature.h" />
     <ClInclude Include="milankovic.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\dataobject.h" />

@@ -21,6 +21,7 @@ evapotranspiration.cpp\
 frost_change_frequency.cpp\
 grid_levels_interpolation.cpp\
 growing_degree_days.cpp\
+land_surface_temperature.cpp\
 milankovic.cpp\
 phenips.cpp\
 MLB_Interface.cpp\
@@ -40,6 +41,7 @@ evapotranspiration.h\
 frost_change_frequency.h\
 grid_levels_interpolation.h\
 growing_degree_days.h\
+land_surface_temperature.h\
 milankovic.h\
 phenips.h\
 MLB_Interface.h\

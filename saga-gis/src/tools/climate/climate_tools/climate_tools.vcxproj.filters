@@ -71,6 +71,9 @@
     <ClCompile Include="air_pressure.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="land_surface_temperature.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h">
@@ -176,6 +179,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="air_pressure.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="land_surface_temperature.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

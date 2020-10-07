@@ -2,9 +2,9 @@
 <toolchains version="1.0.0">
   <group>climate_tools</group>
   <identifier>climate_tools</identifier>
-  <name>Climate Tools</name>
-	<menu>Climate|Tools</menu>
+  <name>Climate and Weather Tools</name>
+	<menu>Climate and Weather|Tools</menu>
 	<description>
-		Tools for the processing and analysis of climate data.
+		Tools for the processing and analysis of climate and weather data.
 	</description>
 </toolchains>
