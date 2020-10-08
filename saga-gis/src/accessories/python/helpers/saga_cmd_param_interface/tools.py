@@ -378,7 +378,7 @@ tools = [
 ['shapes_points', 0, 'Convert Table to Points'],
 ['shapes_points', 1, 'Count Points in Polygons'],
 ['shapes_points', 2, 'Create Point Grid'],
-['shapes_points', 3, 'Point Distances'],
+['shapes_points', 3, 'Point to Point Distances'],
 ['shapes_points', 4, 'Populate Polygons with Points'],
 ['shapes_points', 5, 'Convert Lines to Points'],
 ['shapes_points', 6, 'Add Coordinates to Points'],
@@ -780,5 +780,7 @@ tools = [
 ['sim_hydrology', 11, 'Soil Water Simulation after Glugla (Grid)'],
 ['table_calculus', 19, 'Confusion Matrix (Table Fields)'],
 ['ta_hydrology', 30, 'Isochrones Variable Speed'],
-['ta_preprocessor', 7, 'Breach Depressions']
+['ta_preprocessor', 7, 'Breach Depressions'],
+['climate_tools', 28, 'Land Surface Temperature'],
+['statistics_grid', 20, 'Unique Value Statistics for Grids']
 ]
