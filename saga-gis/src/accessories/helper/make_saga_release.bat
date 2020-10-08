@@ -79,7 +79,7 @@ MKDIR "%SAGA_VERSION%_%SAGA_CONFIG%"
 PUSHD "%SAGA_VERSION%_%SAGA_CONFIG%"
 XCOPY /C/S/Q/Y/H "%SAGA_ROOT%\bin\saga_vc_%SAGA_CONFIG%"
 DEL /F *.ini *.cfg *.exp *.pdb *.tmp tools\*.exp tools\*.lib tools\*.pdb tools\dev_tools.*
-COPY ..\%SAGA4QGIS% .\tools\%SAGA4QGIS%
+COPY ..\%SAGA4QGIS% .\%SAGA4QGIS%
 POPD
 %ZIPEXE% "%SAGA_VERSION%_%SAGA_CONFIG%.zip" "%SAGA_VERSION%_%SAGA_CONFIG%"
 
@@ -97,7 +97,7 @@ MKDIR "%SAGA_VERSION%_%SAGA_CONFIG%"
 PUSHD "%SAGA_VERSION%_%SAGA_CONFIG%"
 XCOPY /C/S/Q/Y/H "%SAGA_ROOT%\bin\saga_vc_%SAGA_CONFIG%"
 DEL /F *.ini *.cfg *.exp *.pdb *.tmp tools\*.exp tools\*.lib tools\*.pdb tools\dev_tools.*
-COPY ..\%SAGA4QGIS% .\tools\%SAGA4QGIS%
+COPY ..\%SAGA4QGIS% .\%SAGA4QGIS%
 POPD
 %ZIPEXE% "%SAGA_VERSION%_%SAGA_CONFIG%.zip" "%SAGA_VERSION%_%SAGA_CONFIG%"
 
@@ -134,14 +134,10 @@ REM Source Code
 REM ___________________________________
 REM Doxygen API Documentation
 PUSHD %SAGA_VERSION%_src
-%DOXEXE% saga_api_Doxyfile
+%DOXEXE% saga_api_Doxyfile_chm
 POPD
 %ZIPEXE% "%SAGA_VERSION%_api_doc.zip" "%SAGA_VERSION%_api_doc"
 RMDIR /S/Q "%SAGA_VERSION%_api_doc"
-
-PUSHD %SAGA_VERSION%_src
-%DOXEXE% saga_api_Doxyfile_chm
-POPD
 
 REM ___________________________________
 REM Drop Sources

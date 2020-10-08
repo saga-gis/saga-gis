@@ -204,6 +204,8 @@ public:
 	//-----------------------------------------------------
 	virtual bool		On_Parameter_Changed	(CSG_Parameters &Parameters, CSG_Parameter &Parameter)
 	{
+		Parameters.Set_Enabled("POSITION_BOTTOM", ((CLayout_Item *)Parameters.Get_Owner())->m_Ratio <= 0);
+
 		return( true );
 	}
 
@@ -246,7 +248,7 @@ public:
 		Parameters.Set_Enabled("FRAME_SIZE"  , Parameters["FRAME_SHOW" ].asBool());
 		Parameters.Set_Enabled("SCALE_NUMBER", Parameters["SCALE_FIXED"].asBool());
 
-		return( true );
+		return( CLayout_Item::On_Parameter_Changed(Parameters, Parameter) );
 	}
 
 	//-----------------------------------------------------
@@ -351,7 +353,7 @@ public:
 	//-----------------------------------------------------
 	virtual bool		On_Parameter_Changed	(CSG_Parameters &Parameters, CSG_Parameter &Parameter)
 	{
-		return( true );
+		return( CLayout_Item::On_Parameter_Changed(Parameters, Parameter) );
 	}
 
 	//-----------------------------------------------------
@@ -427,7 +429,7 @@ public:
 	//-----------------------------------------------------
 	virtual bool		On_Parameter_Changed	(CSG_Parameters &Parameters, CSG_Parameter &Parameter)
 	{
-		return( true );
+		return( CLayout_Item::On_Parameter_Changed(Parameters, Parameter) );
 	}
 
 	//-----------------------------------------------------
@@ -515,7 +517,25 @@ public:
 	//-----------------------------------------------------
 	CLayout_Legend(CVIEW_Layout_Info *pLayout)
 		: CLayout_Item(pLayout)
-	{}
+	{
+		m_Parameters.Add_Bool  (""       , "FILL"        , _TL("Fill"    ), _TL(""), false);
+		m_Parameters.Add_Color ("FILL"   , "FILL_RGB"    , _TL("Color"   ), _TL(""), SG_COLOR_WHITE);
+		m_Parameters.Add_Bool  (""       , "OUTLINE"     , _TL("Outline" ), _TL(""), false);
+		m_Parameters.Add_Color ("OUTLINE", "OUTLINE_RGB" , _TL("Color"   ), _TL(""), SG_COLOR_BLACK);
+		m_Parameters.Add_Int   ("OUTLINE", "OUTLINE_SIZE", _TL("Width"   ), _TL(""), 1, 1, true);
+		m_Parameters.Add_Int   (""       , "INFLATE"     , _TL("Distance"), _TL(""), 1, 1, true);
+	}
+
+	//-----------------------------------------------------
+	virtual bool		On_Parameter_Changed	(CSG_Parameters &Parameters, CSG_Parameter &Parameter)
+	{
+		Parameters.Set_Enabled("FILL_RGB"    , Parameters["FILL"   ].asBool());
+		Parameters.Set_Enabled("OUTLINE_RGB" , Parameters["OUTLINE"].asBool());
+		Parameters.Set_Enabled("OUTLINE_SIZE", Parameters["OUTLINE"].asBool());
+		Parameters.Set_Enabled("INFLATE"     , Parameters["OUTLINE"].asBool() || Parameters["FILL"].asBool());
+
+		return( CLayout_Item::On_Parameter_Changed(Parameters, Parameter) );
+	}
 
 	//-----------------------------------------------------
 	virtual bool		Adjust_Size			(void)
@@ -548,6 +568,21 @@ public:
 		{
 			wxRect	rDC(m_pLayout->Get_Paper2DC(m_Rect));
 
+			if( m_Parameters["FILL"].asBool() || m_Parameters["OUTLINE"].asBool() )
+			{
+				dc.SetBrush(!m_Parameters["FILL"   ].asBool() ? *wxTRANSPARENT_BRUSH : wxBrush(
+					Get_Color_asWX(m_Parameters["FILL_RGB"   ].asInt())
+				));
+
+				dc.SetPen  (!m_Parameters["OUTLINE"].asBool() ? *wxTRANSPARENT_PEN   : wxPen  (
+					Get_Color_asWX(m_Parameters["OUTLINE_RGB"].asInt()), m_Parameters["OUTLINE_SIZE"].asInt()
+				));
+
+				dc.DrawRectangle(rDC);
+
+				rDC	= m_pLayout->Get_Paper2DC(wxRect(m_Rect).Deflate(m_Parameters["INFLATE"].asInt()));
+			}
+
 			double	Scale	= rDC.GetHeight() / (double)Size.y;
 
 			if( Scale * Size.x > rDC.GetWidth() )
@@ -579,9 +614,20 @@ public:
 	CLayout_Label(CVIEW_Layout_Info *pLayout, bool bProperties = false, const wxString &Text = "", bool bLongText = false)
 		: CLayout_Item(pLayout, false)
 	{
-		m_Parameters.Add_String("", "TEXT" , _TL("Text" ), _TL(""), _TL("Text"), bLongText);
-		m_Parameters.Add_Font  ("", "FONT" , _TL("Font" ), _TL(""));
-		m_Parameters.Add_Choice("", "ALIGN", _TL("Align"), _TL(""), CSG_String::Format("%s|%s|%s", _TL("left"), _TL("center"), _TL("right")));
+		m_Parameters.Add_String(""       , "TEXT"        , _TL("Text"    ), _TL(""), _TL("Text"), bLongText);
+		m_Parameters.Add_Font  (""       , "FONT"        , _TL("Font"    ), _TL(""));
+
+		if( bLongText )
+		{
+			m_Parameters.Add_Choice(""   , "ALIGN"       , _TL("Align"   ), _TL(""), CSG_String::Format("%s|%s|%s", _TL("left"), _TL("center"), _TL("right")));
+		}
+
+		m_Parameters.Add_Bool  (""       , "FILL"        , _TL("Fill"    ), _TL(""), false);
+		m_Parameters.Add_Color ("FILL"   , "FILL_RGB"    , _TL("Color"   ), _TL(""), SG_COLOR_GREY_LIGHT);
+		m_Parameters.Add_Bool  (""       , "OUTLINE"     , _TL("Outline" ), _TL(""), false);
+		m_Parameters.Add_Color ("OUTLINE", "OUTLINE_RGB" , _TL("Color"   ), _TL(""), SG_COLOR_BLACK);
+		m_Parameters.Add_Int   ("OUTLINE", "OUTLINE_SIZE", _TL("Width"   ), _TL(""), 1, 1, true);
+		m_Parameters.Add_Int   (""       , "INFLATE"     , _TL("Distance"), _TL(""), 1, 1, true);
 
 		Set_Sizer(false);
 
@@ -599,6 +645,17 @@ public:
 	}
 
 	//-----------------------------------------------------
+	virtual bool		On_Parameter_Changed	(CSG_Parameters &Parameters, CSG_Parameter &Parameter)
+	{
+		Parameters.Set_Enabled("FILL_RGB"    , Parameters["FILL"   ].asBool());
+		Parameters.Set_Enabled("OUTLINE_RGB" , Parameters["OUTLINE"].asBool());
+		Parameters.Set_Enabled("OUTLINE_SIZE", Parameters["OUTLINE"].asBool());
+		Parameters.Set_Enabled("INFLATE"     , Parameters["OUTLINE"].asBool() || Parameters["FILL"].asBool());
+
+		return( CLayout_Item::On_Parameter_Changed(Parameters, Parameter) );
+	}
+
+	//-----------------------------------------------------
 	virtual bool		Adjust_Size			(void)
 	{
 		wxRect	r(m_Rect);
@@ -608,6 +665,8 @@ public:
 		r.width  = (int)(0.5 + r.width  * PointsPerMM);
 		r.height = (int)(0.5 + r.height * PointsPerMM);
 
+		r.Inflate(m_Parameters["INFLATE"].asInt());
+
 		Set_Rect(r);
 
 		return( true );
@@ -616,16 +675,22 @@ public:
 	//-----------------------------------------------------
 	virtual bool		Draw				(wxDC &dc)
 	{
-		wxRect	rDC(m_pLayout->Get_Paper2DC(m_Rect));
-
-		int	x, y, Align;
-
-		switch( m_Parameters["ALIGN"].asInt() )
+		if( m_Parameters["FILL"].asBool() || m_Parameters["OUTLINE"].asBool() )
 		{
-		default: Align = TEXTALIGN_LEFT   ; x = rDC.x                ; y = rDC.y; break;
-		case  1: Align = TEXTALIGN_XCENTER; x = rDC.x + rDC.width / 2; y = rDC.y; break;
-		case  2: Align = TEXTALIGN_RIGHT  ; x = rDC.x + rDC.width    ; y = rDC.y; break;
+			wxRect	rDC(m_pLayout->Get_Paper2DC(m_Rect));
+
+			dc.SetBrush(!m_Parameters["FILL"   ].asBool() ? *wxTRANSPARENT_BRUSH : wxBrush(
+				Get_Color_asWX(m_Parameters["FILL_RGB"   ].asInt())
+			));
+
+			dc.SetPen  (!m_Parameters["OUTLINE"].asBool() ? *wxTRANSPARENT_PEN   : wxPen  (
+				Get_Color_asWX(m_Parameters["OUTLINE_RGB"].asInt()), m_Parameters["OUTLINE_SIZE"].asInt()
+			));
+
+			dc.DrawRectangle(rDC);
 		}
+
+		wxRect	rDC(m_pLayout->Get_Paper2DC(wxRect(m_Rect).Deflate(m_Parameters["INFLATE"].asInt())));
 
 		wxFont	Font, oldFont(dc.GetFont()); wxColour Color, oldColor = dc.GetTextForeground();
 
@@ -634,7 +699,16 @@ public:
 		dc.SetFont(Font);
 		dc.SetTextForeground(Color);
 
-		Draw_Text(dc, Align, x, y, m_Parameters["TEXT"].asString());
+		if( Get_Type() == CVIEW_Layout_Info::Item_Type_Label )
+		{
+			Draw_Text(dc, TEXTALIGN_LEFT, rDC.x, rDC.y, m_Parameters["TEXT"].asString());
+		}
+		else
+		{
+			int	Align	= m_Parameters["ALIGN"].asInt();
+
+			dc.DrawLabel(m_Parameters["TEXT"].asString(), rDC, Align == 2 ? wxALIGN_RIGHT : Align == 1 ? wxALIGN_CENTER : wxALIGN_LEFT);
+		}
 
 		dc.SetFont(oldFont);	// restore old font and color
 		dc.SetTextForeground(oldColor);
@@ -678,21 +752,16 @@ public:
 		}
 	}
 
-	CLayout_Image(CVIEW_Layout_Info *pLayout, const CSG_String &File)
-		: CLayout_Item(pLayout)
-	{
-		On_Construction();
-
-		if( !m_Image.LoadFile(File.c_str()) )
-		{
-			Load();
-		}
-	}
-
 	CLayout_Image(CVIEW_Layout_Info *pLayout, const wxImage &Image)
 		: CLayout_Item(pLayout), m_Image(Image)
 	{
 		On_Construction();
+
+		if( m_Image.HasAlpha() )
+		{
+			m_Parameters["MASK"    ].Set_Value(true);
+			m_Parameters["MASK_RGB"].Set_Value((int)SG_GET_RGB(m_Image.GetMaskRed(), m_Image.GetMaskGreen(), m_Image.GetMaskBlue()));
+		}
 
 		Set_Size(m_Image.GetSize());
 	}
@@ -717,9 +786,19 @@ public:
 			)
 		);
 
-		m_Parameters.Add_Bool("", "FIXRATIO", _TL("Fix Ratio"), _TL(""), true);
+		m_Parameters.Add_Bool (""    , "FIXRATIO", _TL("Fix Ratio"   ), _TL(""), true);
+		m_Parameters.Add_Bool (""    , "MASK"    , _TL("Transparency"), _TL(""), false);
+		m_Parameters.Add_Color("MASK", "MASK_RGB", _TL("Color"       ), _TL(""), SG_COLOR_WHITE);
 
 		return( true );
+	}
+
+	//-----------------------------------------------------
+	virtual bool		On_Parameter_Changed	(CSG_Parameters &Parameters, CSG_Parameter &Parameter)
+	{
+		Parameters.Set_Enabled("MASK_RGB", Parameters["MASK"].asBool());
+
+		return( CLayout_Item::On_Parameter_Changed(Parameters, Parameter) );
 	}
 
 	//-----------------------------------------------------
@@ -750,6 +829,9 @@ public:
 			m_File	= File.wc_str();
 
 			m_Parameters["FILE"].Set_Value(m_File);
+
+			m_Parameters["MASK"    ].Set_Value(m_Image.HasAlpha());
+			m_Parameters["MASK_RGB"].Set_Value((int)SG_GET_RGB(m_Image.GetMaskRed(), m_Image.GetMaskGreen(), m_Image.GetMaskBlue()));
 
 			if( bAdjustSize )
 			{
@@ -807,6 +889,42 @@ public:
 	}
 
 	//-----------------------------------------------------
+	bool				Set_Transparency	(bool bOn, long Color = 0)
+	{
+		if( m_Image.IsOk() )
+		{
+			if( bOn )
+			{
+				if( m_Image.HasAlpha() )
+				{
+					if( m_Image.GetMaskRed  () == SG_GET_R(Color)
+					&&  m_Image.GetMaskGreen() == SG_GET_G(Color)
+					&&  m_Image.GetMaskBlue () == SG_GET_B(Color) )
+					{
+						return( true );
+					}
+
+					m_Image.ClearAlpha();
+				}
+
+				m_Image.SetMask();
+				m_Image.SetMaskColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
+				m_Image.InitAlpha();
+
+				return( true );
+			}
+			else if( m_Image.HasAlpha() )
+			{
+				m_Image.ClearAlpha();
+
+				return( true );
+			}
+		}
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
 	virtual bool		Properties			(wxWindow *pParent)
 	{
 		if( CLayout_Item::Properties(pParent) )
@@ -818,6 +936,8 @@ public:
 					m_Parameters["FILE"].Set_Value(m_File);
 				}
 			}
+
+			Set_Transparency(m_Parameters["MASK"].asBool(), m_Parameters["MASK_RGB"].asColor());
 
 			Fix_Ratio(m_Parameters["FIXRATIO"].asBool());
 
@@ -1299,7 +1419,14 @@ bool CVIEW_Layout_Info::Load(const CSG_MetaData &Layout)
 			{
 				if( Type == Item_Type_Image )
 				{
-					((CLayout_Image *)pItem)->Load(pItem->m_Parameters["FILE"].asString(), false);
+					((CLayout_Image *)pItem)->Load(
+						pItem->m_Parameters["FILE"].asString(), false
+					);
+
+					((CLayout_Image *)pItem)->Set_Transparency(
+						pItem->m_Parameters["MASK"    ].asBool (),
+						pItem->m_Parameters["MASK_RGB"].asColor()
+					);
 				}
 
 				pItem->Adjust_Size();
