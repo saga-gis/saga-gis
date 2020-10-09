@@ -814,6 +814,7 @@ bool CSGDI_Layout_Items::Select(const wxPoint &Point)
 CSGDI_Layout_Items::CSGDI_Layout_Tracker::CSGDI_Layout_Tracker(void)
 {
 	m_pOwner	= NULL;
+	m_Drag_Mode	= HANDLE_NONE;
 }
 
 //---------------------------------------------------------
@@ -896,7 +897,7 @@ bool CSGDI_Layout_Items::CSGDI_Layout_Tracker::Drag_Start(const wxPoint &Point)
 //---------------------------------------------------------
 bool CSGDI_Layout_Items::CSGDI_Layout_Tracker::Drag_Move(const wxPoint &Point)
 {
-	if( m_Drag_Mode == HANDLE_NONE )
+	if( !m_pOwner->m_pActive || m_Drag_Mode == HANDLE_NONE )
 	{
 		return( false );
 	}
