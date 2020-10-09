@@ -18,11 +18,8 @@ IF "%SAGA_ROOT%" == "" (
 	SET SAGA_ROOT=%CD%\..\..\..
 )
 
-SET PYTHONROOT=F:\develop\libs\Python
-
-
 REM ___________________________________
-REM Tools
+REM Tool paths, adjust to your system!
 
 IF "%ZIP%" == "" (
 	SET EXE_ZIP="C:\Program Files\7-Zip\7z.exe" a -r -y -mx5
@@ -36,60 +33,66 @@ IF "%SWIG%" == "" (
 	SET EXE_SWIG="%SWIG%"
 )
 
+IF "%PYTHON_VERSION%" == "2" (
+	SET PYTHONVER=27
+	IF /i "%ARCHITECTURE%" == "win32" (
+		SET PYTHONDIR=F:\develop\libs\Python\Python27_win32
+	) ELSE (
+		SET PYTHONDIR=F:\develop\libs\Python\Python27_x64
+	)
+) ELSE (
+	SET PYTHONVER=35
+	IF /i "%ARCHITECTURE%" == "win32" (
+		SET PYTHONDIR=F:\develop\libs\Python\Python35_win32
+	) ELSE (
+		SET PYTHONDIR=F:\develop\libs\Python\Python35_x64
+	)
+)
+
 
 REM ___________________________________
 IF /i "%ARCHITECTURE%" == "win32" (
 	SET SAGA_LIB="%SAGA_ROOT%\bin\saga_vc_win32"
 
 	REM VS2015 x86 x64 Cross Tools Command Prompt
-	rem	call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat"
+	CALL "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat"
 	
 ) ELSE (
 	SET SAGA_LIB="%SAGA_ROOT%\bin\saga_vc_x64"
 
 	REM VS2015 x86 x64 Cross Tools Command Prompt
-	call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86_amd64
+	CALL "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86_amd64
 	SET DISTUTILS_USE_SDK=1
 	SET MSSDK=1
-)
-
-IF "%PYTHON_VERSION%" == "2" (
-	SET PYTHONVER=27
-	IF /i "%ARCHITECTURE%" == "win32" (
-		SET PYTHONDIR=%PYTHONROOT%\Python27_win32
-		SET PYTHONPKG=%PYTHONROOT%\Python27_win32\Lib\site-packages
-	) ELSE (
-		SET PYTHONDIR=%PYTHONROOT%\Python27_x64
-		SET PYTHONPKG=%PYTHONROOT%\Python27_x64\Lib\site-packages
-	)
-) ELSE (
-	SET PYTHONVER=35
-	IF /i "%ARCHITECTURE%" == "win32" (
-		SET PYTHONDIR=%PYTHONROOT%\Python35_win32\PCbuild\win32
-		SET PYTHONPKG=%PYTHONROOT%\Python35_win32\Lib\site-packages
-	) ELSE (
-		SET PYTHONDIR=%PYTHONROOT%\Python35_x64\PCbuild\amd64
-		SET PYTHONPKG=%PYTHONROOT%\Python35_x64\Lib\site-packages
-	)
 )
 
 
 REM ___________________________________
 REM Compiling SWIG / Python
 
+ECHO __________________
+ECHO ##################
+ECHO Generating SAGA-Python-API...
+
 PUSHD "%SAGA_ROOT%\src\saga_core\saga_api"
 
 IF NOT EXIST saga_api_wrap.cxx (
 	ECHO __________________
-	ECHO SWIG Compilation
+	ECHO SWIG Compilation...
+	ECHO.
+
 	%EXE_SWIG% -c++ -python -includeall -I. -D_SAGA_PYTHON saga_api.h
 )
 
 ECHO __________________
-ECHO Python Compilation
+ECHO Python%PYTHON_VERSION% Compilation (%ARCHITECTURE%)...
+ECHO.
+
 "%PYTHONDIR%\python.exe" saga_api_to_python_win.py install
 
 RMDIR /S/Q build
+
+SET PYTHONPKG=%PYTHONDIR%\Lib\site-packages
 
 COPY saga_api.py "%PYTHONPKG%\saga_api.py"
 
@@ -104,12 +107,17 @@ POPD
 REM ___________________________________
 REM Collecting files...
 
+ECHO __________________
+ECHO Collecting files...
+ECHO.
+
 SET PYTHONOUT=Python%PYTHONVER%_%ARCHITECTURE%
 
-RMDIR /S/Q "%PYTHONOUT%"
+IF EXIST "%PYTHONOUT%" (
+	RMDIR /S/Q "%PYTHONOUT%"
+)
 
 XCOPY /C/Q/Y/H "%SAGA_ROOT%\src\accessories\python\examples\*.py" "%PYTHONOUT%\Lib\site-packages\saga_api_examples\"
-COPY "%SAGA_ROOT%\src\accessories\python\examples\dem.sg-grd-z" "%PYTHONOUT%\Lib\site-packages\saga_api_examples\"
 COPY "%SAGA_ROOT%\src\accessories\python\examples\test_all.bat" "%PYTHONOUT%\Lib\site-packages\saga_api_examples\"
 COPY "%SAGA_ROOT%\src\accessories\python\saga_python_api.txt" "%PYTHONOUT%\Lib\site-packages\"
 
@@ -120,6 +128,12 @@ IF /i "%MAKE_ZIP%" == "true" (
 	%EXE_ZIP% %SAGA_VERSION%_%ARCHITECTURE%_python%PYTHONVER%.zip "%PYTHONOUT%"
 	RMDIR /S/Q "%PYTHONOUT%"
 )
+
+ECHO __________________
+ECHO ...finished!
+ECHO.
+ECHO.
+ECHO.
 
 
 REM ___________________________________
