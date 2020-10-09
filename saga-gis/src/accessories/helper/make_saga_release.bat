@@ -23,10 +23,8 @@ POPD
 REM ___________________________________
 REM Version
 
-SET SAGA_VER_MAJOR=7
-SET SAGA_VER_MINOR=8
-SET SAGA_VER_RELEASE=0
-SET SAGA_VER_TEXT=%SAGA_VER_MAJOR%.%SAGA_VER_MINOR%.%SAGA_VER_RELEASE%
+SET SAGA_VER_TEXT=7.9.0
+SET SAGA_VER_NEXT=7.10.0
 SET SAGA_VERSION=saga-%SAGA_VER_TEXT%
 
 ECHO __________________________________
@@ -134,7 +132,7 @@ REM Source Code
 REM ___________________________________
 REM Doxygen API Documentation
 PUSHD %SAGA_VERSION%_src
-%DOXEXE% saga_api_Doxyfile_chm
+%DOXEXE% saga_api_Doxyfile
 POPD
 %ZIPEXE% "%SAGA_VERSION%_api_doc.zip" "%SAGA_VERSION%_api_doc"
 RMDIR /S/Q "%SAGA_VERSION%_api_doc"
@@ -185,9 +183,7 @@ ECHO.    including an up-to-date 'readme.txt'
 ECHO.
 ECHO - Upload API Documentation to saga-gis.org
 ECHO.
-ECHO - Create SAGA Tools Reference Documentation
-ECHO.    sagadoc-code: ./parse_modules.py
-ECHO.    upload created version folder to saga-gis.org and update link
+ECHO - Create new branch: release-%SAGA_VER_NEXT%
 ECHO.
 ECHO - Update version numbers accordingly:
 ECHO.    ./saga_setup_win32.iss
@@ -195,11 +191,13 @@ ECHO.    ./saga_setup_x64.iss
 ECHO.    ./saga_api_Doxyfile
 ECHO.    ./saga-gis/configure.ac
 ECHO.    ./saga-gis/version.cmake
-ECHO.    ./saga-gis/README
 ECHO.    ./saga-gis/src/saga_core/saga_api/saga_api.h
 ECHO.    ./saga-gis/src/accessories/helper/make_saga_release.bat (this file!)
+ECHO.  and commit: SAGA version updated to next aspired version %SAGA_VER_NEXT%
 ECHO.
-ECHO - Create new branch: release-%SAGA_VER_TEXT%
+ECHO - Create SAGA Tools Reference Documentation
+ECHO.    sagadoc-code: ./parse_modules.py
+ECHO.    upload created version folder to saga-gis.org and update link
 ECHO.
 ECHO - Add new bug tracker milestone for next aspired version
 ECHO.    https://sourceforge.net/p/saga-gis/bugs/milestones
