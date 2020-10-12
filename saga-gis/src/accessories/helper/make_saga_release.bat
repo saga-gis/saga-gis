@@ -23,8 +23,8 @@ POPD
 REM ___________________________________
 REM Version
 
-SET SAGA_VER_TEXT=7.8.1
-SET SAGA_VER_NEXT=7.8.2
+SET SAGA_VER_TEXT=7.9.0
+SET SAGA_VER_NEXT=7.10.0
 SET SAGA_VERSION=saga-%SAGA_VER_TEXT%
 
 ECHO __________________________________
