@@ -728,7 +728,7 @@ void CSG_Parameter_Range::_Set_String(void)
 //---------------------------------------------------------
 int CSG_Parameter_Range::_Set_Value(const CSG_String &Value)
 {
-	return( Set_Range(Value.BeforeFirst(';').asDouble(), Value.AfterFirst(';').asDouble()) );
+	return( Set_Range(Value.BeforeFirst(';').asDouble(), Value.AfterFirst(';').asDouble()) ? SG_PARAMETER_DATA_SET_CHANGED : SG_PARAMETER_DATA_SET_FALSE );
 }
 
 bool CSG_Parameter_Range::Set_Range(double Min, double Max)

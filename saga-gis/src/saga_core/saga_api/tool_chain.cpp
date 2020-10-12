@@ -1372,10 +1372,8 @@ bool CSG_Tool_Chain::Tool_Get_Parameter(const CSG_MetaData &Parameter, CSG_Tool 
 //---------------------------------------------------------
 bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 {
-	int		i;
-
 	//-----------------------------------------------------
-	for(i=0; i<Tool.Get_Children_Count(); i++)	// check for invalid parameters...
+	for(int i=0; i<Tool.Get_Children_Count(); i++)	// check for invalid parameters...
 	{
 		const CSG_MetaData	&Parameter	= Tool[i];	if( Parameter.Cmp_Name("comment") )	{	continue;	}
 
@@ -1390,7 +1388,7 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 	}
 
 	//-----------------------------------------------------
-	for(i=0; i<Tool.Get_Children_Count(); i++)	// set data input first
+	for(int i=0; i<Tool.Get_Children_Count(); i++)	// set data input first
 	{
 		const CSG_MetaData	&Parameter	= Tool[i];	if( Parameter.Cmp_Name("comment") )	{	continue;	}
 
@@ -1469,7 +1467,7 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 	}
 
 	//-----------------------------------------------------
-	for(i=0; i<Tool.Get_Children_Count(); i++)	// now set all options
+	for(int i=0; i<Tool.Get_Children_Count(); i++)	// now set all options
 	{
 		const CSG_MetaData	&Parameter	= Tool[i];	if( Parameter.Cmp_Name("comment") )	{	continue;	}
 
@@ -1534,7 +1532,7 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 	}
 
 	//-----------------------------------------------------
-	for(i=0; i<Tool.Get_Children_Count(); i++)	// finally set the data output
+	for(int i=0; i<Tool.Get_Children_Count(); i++)	// finally set the data output
 	{
 		const CSG_MetaData	&Parameter	= Tool[i];	if( Parameter.Cmp_Name("comment") )	{	continue;	}
 
