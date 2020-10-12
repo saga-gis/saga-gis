@@ -4,7 +4,7 @@ REM ___________________________________
 SET GITEXE=git
 
 SET SAGA_ROOT=%CD%\..\..\..
-SET SAGA_CMD="%SAGA_ROOT%\bin\saga_vc_win32\saga_cmd.exe"
+SET SAGA_CMD="%SAGA_ROOT%\bin\saga_vc_x64\saga_cmd.exe"
 SET SAGA_SRC=saga_src
 
 SET RESPATH=%SAGA_ROOT%\src\saga_core\saga_gui\res

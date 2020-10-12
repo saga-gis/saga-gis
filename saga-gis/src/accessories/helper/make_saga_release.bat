@@ -26,6 +26,7 @@ REM Version
 SET SAGA_VER_TEXT=7.9.0
 SET SAGA_VER_NEXT=7.10.0
 SET SAGA_VERSION=saga-%SAGA_VER_TEXT%
+REM SET SWITCH_TO_BRANCH=true
 
 ECHO __________________________________
 ECHO ##################################
@@ -39,6 +40,7 @@ ECHO #                                #
 ECHO ##################################
 ECHO __________________________________
 ECHO Things you should have updated and committed before:
+ECHO.  - dev_tools.dll (x64)
 ECHO.  - Translation Files
 ECHO.  - Tools Interface (Python)
 ECHO.
@@ -49,26 +51,56 @@ IF NOT '%CONTINUE%' == 'y' EXIT
 
 REM ___________________________________
 REM ###################################
-REM MAKE RELEASE
+REM BEGIN: MAKE RELEASE
 REM ###################################
 
-REM ___________________________________
-CALL make_arcsaga_toolboxes.bat
+CLS
 
-REM ___________________________________
 MKDIR "%SAGA_VERSION%"
 PUSHD "%SAGA_VERSION%"
 
 
 REM ___________________________________
 REM ###################################
-REM PACKAGE BINARIES
+REM SOURCE
 REM ###################################
 
+REM ___________________________________
+REM GIT Source Code Repository
+%GITEXE% clone git://git.code.sf.net/p/saga-gis/code %SAGA_VERSION%_src
+
+PUSHD %SAGA_VERSION%_src
+
+REM Create a branch (better do manually)
+REM %GITEXE% branch release-%SAGA_VER_TEXT%
+
+IF /i "%SWITCH_TO_BRANCH%" == "true" (
+	%GITEXE% checkout release-%SAGA_VER_TEXT%
+)
+
+RMDIR /S/Q .git
+POPD
+
+REM ___________________________________
+REM Zip Source Code
+%ZIPEXE% %SAGA_VERSION%_src.zip %SAGA_VERSION%_src
+
+REM ___________________________________
+REM Drop Sources
+RMDIR /S/Q %SAGA_VERSION%_src
+
+
+REM ___________________________________
+REM ###################################
+REM BINARIES
+REM ###################################
+
+REM ___________________________________
 SET SAGA4QGIS=saga4qgis.zip
 
 CALL ..\make_saga4qgis_toolboxes.bat
 
+CALL ..\make_arcsaga_toolboxes.bat
 
 REM ___________________________________
 REM win32 Binaries
@@ -111,35 +143,15 @@ DEL /F saga4qgis.zip
 
 REM ___________________________________
 REM ###################################
-REM SOURCE AND HELP
+REM Doxygen API Documentation
 REM ###################################
 
-REM ___________________________________
-REM GIT Source Code Repository
-%GITEXE% clone git://git.code.sf.net/p/saga-gis/code %SAGA_VERSION%_src -q
-PUSHD %SAGA_VERSION%_src
-REM %GITEXE% checkout release-%SAGA_VER_TEXT%
-REM Create a branch (better do manually)
-REM %GITEXE% branch release-%SAGA_VER_TEXT%
-REM %GITEXE% checkout release-%SAGA_VER_TEXT%
-RMDIR /S/Q .git
-POPD
-
-REM ___________________________________
-REM Source Code
-%ZIPEXE% %SAGA_VERSION%_src.zip %SAGA_VERSION%_src
-
-REM ___________________________________
-REM Doxygen API Documentation
-PUSHD %SAGA_VERSION%_src
-%DOXEXE% saga_api_Doxyfile
-POPD
+%DOXEXE% ..\doxygen_saga_api_html"
 %ZIPEXE% "%SAGA_VERSION%_api_doc.zip" "%SAGA_VERSION%_api_doc"
-RMDIR /S/Q "%SAGA_VERSION%_api_doc"
 
-REM ___________________________________
-REM Drop Sources
-RMDIR /S/Q %SAGA_VERSION%_src
+%DOXEXE% ..\doxygen_saga_api_chm"
+
+RMDIR /S/Q "%SAGA_VERSION%_api_doc"
 
 
 REM ___________________________________
@@ -186,12 +198,13 @@ ECHO.
 ECHO - Create new branch: release-%SAGA_VER_NEXT%
 ECHO.
 ECHO - Update version numbers accordingly:
-ECHO.    ./saga_setup_win32.iss
 ECHO.    ./saga_setup_x64.iss
-ECHO.    ./saga_api_Doxyfile
+ECHO.    ./saga_setup_win32.iss
 ECHO.    ./saga-gis/configure.ac
 ECHO.    ./saga-gis/version.cmake
 ECHO.    ./saga-gis/src/saga_core/saga_api/saga_api.h
+ECHO.    ./saga-gis/src/accessories/helper/doxygen_saga_api_chm
+ECHO.    ./saga-gis/src/accessories/helper/doxygen_saga_api_html
 ECHO.    ./saga-gis/src/accessories/helper/make_saga_release.bat (this file!)
 ECHO.  and commit: SAGA version updated to next aspired version %SAGA_VER_NEXT%
 ECHO.

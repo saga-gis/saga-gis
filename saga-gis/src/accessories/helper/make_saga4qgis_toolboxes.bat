@@ -15,7 +15,7 @@ SET OUTDIR=saga4qgis
 IF EXIST "%OUTDIR%" RMDIR "%OUTDIR%" /S/Q
 MKDIR "%OUTDIR%"
 
-"%SAGA_ROOT%\bin\saga_vc_win32\saga_cmd.exe" dev_tools 7 -DIRECTORY=%OUTDIR%
+"%SAGA_ROOT%\bin\saga_vc_x64\saga_cmd.exe" dev_tools 7 -DIRECTORY=%OUTDIR%
 
 IF "%ZIP%" == "" (
 	SET EXE_ZIP="C:\Program Files\7-Zip\7z.exe" a -r -y -mx5
