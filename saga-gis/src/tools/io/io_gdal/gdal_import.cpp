@@ -137,7 +137,7 @@ CGDAL_Import::CGDAL_Import(void)
 
 	Parameters.Add_String("",
 		"SELECTION"		, _TL("Select from Multiple Bands"),
-		_TL("Semicolon separated list of band indexes. Do not set to select all bands for import."),
+		_TL("Semicolon separated list of band indexes. If empty (default) all bands will be imported."),
 		""
 	)->Set_UseInGUI(false);
 
@@ -149,9 +149,9 @@ CGDAL_Import::CGDAL_Import(void)
 
 	Parameters.Add_Bool(has_GUI() ? "SELECT" : "",
 		"SELECT_SORT"	, _TL("Alphanumeric Sorting"),
-		_TL(""),
-		true
-	);
+		_TL("Sorts bands by their name before the selection dialog opens."),
+		false
+	)->Set_UseInCMD(false);
 
 	//-----------------------------------------------------
 	Parameters.Add_Bool("",
@@ -353,11 +353,6 @@ bool CGDAL_Import::Load(const CSG_String &File)
 		Bands.Add_Record()->Set_Value(0, DataSet.Get_Name(i));
 	}
 
-	if( Parameters("SELECT_SORT")->asBool() )
-	{
-		Bands.Set_Index(0, TABLE_INDEX_Ascending);
-	}
-
 	//-----------------------------------------------------
 	if( DataSet.Get_Count() > 1 )
 	{
@@ -375,6 +370,11 @@ bool CGDAL_Import::Load(const CSG_String &File)
 		}
 		else if( Parameters("SELECT")->asBool() )
 		{
+			if( Parameters("SELECT_SORT")->asBool() )
+			{
+				Bands.Set_Index(0, TABLE_INDEX_Ascending);
+			}
+
 			CSG_Parameters	P(_TL("Select from Multiple Bands"), _TL(""), SG_T("SELECTION"));
 
 			P.Set_Callback_On_Parameter_Changed(&On_Selection_Changed);
@@ -499,6 +499,8 @@ bool CGDAL_Import::Load(const CSG_String &File)
 		pCollection->Set_Description(DataSet.Get_Description());
 
 		pCollection->Get_MetaData().Add_Child("GDAL_DRIVER", DataSet.Get_DriverID());
+
+		DataSet.Get_MetaData(*pCollection->Get_MetaData().Add_Child("Metadata"));
 
 		for(size_t i=0; i<pGrids.Get_Size(); i++)
 		{

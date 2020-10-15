@@ -675,7 +675,7 @@ void CWKSP_Layer_Legend::_Draw_Continuum_V(wxDC &dc, int y, double yToDC, double
 				_Draw_Label(dc, iy, METRIC_GET_STRING(z, dz), TEXTALIGN_YCENTER);
 			}
 
-			while( abs(iy - METRIC_POS_V(z - dz)) > 2 * dyFont )
+			while( dz >= 10. && abs(iy - METRIC_POS_V(z - dz)) > 2 * dyFont )
 				dz	*= 0.1;
 		}
 		break;
@@ -696,7 +696,7 @@ void CWKSP_Layer_Legend::_Draw_Continuum_V(wxDC &dc, int y, double yToDC, double
 				_Draw_Label(dc, iy, METRIC_GET_STRING(z, dz), TEXTALIGN_YCENTER);
 			}
 
-			while( abs(iy - METRIC_POS_V(z + dz)) > 2 * dyFont )
+			while( dz >= 10. && abs(iy - METRIC_POS_V(z + dz)) > 2 * dyFont )
 				dz	*= 0.1;
 		}
 		break;
