@@ -319,42 +319,44 @@ bool CXYZ_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Points_Z Points; CSG_Rect Extent;
+	Process_Set_Text(CSG_String::Format("%s...", _TL("Reading")));
 
-	while( !Stream.is_EOF() && Set_Progress((double)Stream.Tell(), (double)Stream.Length()) )
+	CSG_PointCloud Points;	double Length = (double)Stream.Length();
+
+	while( !Stream.is_EOF() && Set_Progress((double)Stream.Tell(), Length) )
 	{
 		TSG_Point p; double z;
 
 		if( Read_Values(Stream, p.x, p.y, z) )
 		{
-			Points.Add(p.x, p.y, z);
-
-			if( Points.Get_Count() <= 1 )
-			{
-				Extent.Assign(p, p);
-			}
-			else
-			{
-				Extent.Union(p);
-			}
+			Points.Add_Point(p.x, p.y, z);
 		}
 	}
 
-	if( Points.Get_Count() < 2 || !(Extent.Get_XRange() > 0. && Extent.Get_YRange() > 0.) )
+	CSG_Rect	Extent(Points.Get_Extent());
+
+	if( !(Extent.Get_XRange() > 0. && Extent.Get_YRange() > 0.) )
 	{
 		Error_Set(_TL("failed to read coordinates from file."));
 
 		return( false );
 	}
 
+	Message_Fmt("\nn: %d\nx: [%f]-[%f]=[%f]\ny: [%f]-[%f]=[%f]", Points.Get_Count(),
+		Extent.Get_XMin(), Extent.Get_XMax(), Extent.Get_XRange(),
+		Extent.Get_YMin(), Extent.Get_YMax(), Extent.Get_YRange()
+	);
+
 	//-----------------------------------------------------
+	Process_Set_Text(CSG_String::Format("%s...", _TL("Gridding preparations")));
+
 	double	Cellsize	= Parameters("CELLSIZE")->asDouble();
 
 	if( Cellsize <= 0. )
 	{
 		Cellsize	= Extent.Get_XRange() / (1. + sqrt(Points.Get_Count() * Extent.Get_XRange() / Extent.Get_YRange()));
 
-		double	d	= fabs(Points[0].x - Points[1].x); if( d > 0. && d < Cellsize ) { Cellsize	= d; }
+		double	d	= fabs(Points.Get_Point(0).x - Points.Get_Point(1).x); if( d > 0. && d < Cellsize ) { Cellsize	= d; }
 
 		CSG_Parameters	P;	P.Add_Double("", "CELLSIZE", _TL("Cellsize"), _TL(""), Cellsize, 0., true);
 
@@ -421,18 +423,22 @@ bool CXYZ_Import::On_Execute(void)
 	pCount->Fmt_Name("%s [%s]", pGrid->Get_Name(), _TL("Count"));
 
 	//-----------------------------------------------------
+	Process_Set_Text(CSG_String::Format("%s...", _TL("Gridding")));
+
 	for(int i=0; i<Points.Get_Count() && Set_Progress(i, Points.Get_Count()); i++)
 	{
-		int	x, y;
+		int	x, y;	CSG_Point_Z	p(Points.Get_Point(i));
 
-		if( pGrid->Get_System().Get_World_to_Grid(x, y, Points[i].x, Points[i].y) )
+		if( pGrid->Get_System().Get_World_to_Grid(x, y, p.x, p.y) )
 		{
-			pGrid ->Add_Value(x, y, Points[i].z);
-			pCount->Add_Value(x, y, 1);
+			pGrid ->Add_Value(x, y, p.z);
+			pCount->Add_Value(x, y, 1  );
 		}
 	}
 
 	//-----------------------------------------------------
+	Process_Set_Text(CSG_String::Format("%s...", _TL("Postprocessing")));
+
 	for(int y=0; y<pGrid->Get_NY() && Set_Progress(y, pGrid->Get_NY()); y++)
 	{
 		#pragma omp parallel for
@@ -465,17 +471,14 @@ inline bool CXYZ_Import::Read_Values(CSG_File &Stream, double &x, double &y, dou
 {
 	CSG_String	sLine;
 
-	if( !Stream.Read_Line(sLine) )
+	if( Stream.Read_Line(sLine) )
 	{
-		return( false );
+		CSG_Strings	Values(SG_String_Tokenize(sLine, m_Delimiters));
+
+		return( Values.Get_Count() > 2 && Values[0].asDouble(x) && Values[1].asDouble(y) && Values[2].asDouble(z) );
 	}
 
-	CSG_String_Tokenizer	Tokenizer(sLine, m_Delimiters);
-
-	return( Tokenizer.Has_More_Tokens() && Tokenizer.Get_Next_Token().asDouble(x)
-		&&  Tokenizer.Has_More_Tokens() && Tokenizer.Get_Next_Token().asDouble(y)
-		&&  Tokenizer.Has_More_Tokens() && Tokenizer.Get_Next_Token().asDouble(z)
-	);
+	return( false );
 }
 
 
