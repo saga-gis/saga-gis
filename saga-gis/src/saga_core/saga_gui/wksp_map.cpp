@@ -1854,7 +1854,7 @@ void CWKSP_Map::_Img_Save(wxString file, int type)
 	//-----------------------------------------------------
 	int	nx    = m_Img_Parms("WIDTH" )->asInt();
 	int	ny    = m_Img_Parms("HEIGHT")->asInt();
-	int	Frame = m_Img_Parms("FRAME")->asBool() ? m_Img_Parms("FRAME_SIZE")->asInt() : 0;
+	int	Frame = m_Img_Parms("FRAME")->asBool() ? m_Img_Parms("FRAME_WIDTH")->asInt() : 0;
 
 	wxRect		r(0, 0, nx + 2 * Frame, ny + 2 * Frame);
 	wxBitmap	BMP(r.GetWidth(), r.GetHeight());
@@ -1872,7 +1872,7 @@ void CWKSP_Map::_Img_Save(wxString file, int type)
 	BMP.SaveFile(file, (wxBitmapType)type);
 
 	//-----------------------------------------------------
-	if( m_Img_Parms("WORLD_FILE")->asBool() )
+	if( m_Img_Parms("GEOREF")->asBool() )
 	{
 		CSG_File	Stream;
 		wxFileName	fn(file);
