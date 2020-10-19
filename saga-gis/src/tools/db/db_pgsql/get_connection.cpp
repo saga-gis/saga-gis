@@ -712,6 +712,13 @@ bool CDatabase_Create::On_Execute(void)
 			if( pConnection->Execute("CREATE EXTENSION postgis") )
 			{
 				Message_Fmt("\n%s [%s:%d]: %s", Name, Host, Port, _TL("PostGIS extension added"));
+
+				CSG_String	Major(pConnection->Get_PostGIS().BeforeFirst('.'));
+
+				if( Major.asInt() >= 3 && pConnection->Execute("CREATE EXTENSION postgis_raster") )
+				{
+					Message_Fmt("\n%s [%s:%d]: %s", Name, Host, Port, _TL("PostGIS raster extension added"));
+				}
 			}
 
 			pConnection->GUI_Update();
