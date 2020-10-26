@@ -53,7 +53,9 @@
 
 #include <pdal/Options.hpp>
 #include <pdal/PointTable.hpp>
-#include <pdal/PointView.hpp>
+#include <pdal/PointLayout.hpp>
+#include <pdal/StageFactory.hpp>
+#include <pdal/filters/StreamCallbackFilter.hpp>
 #include <pdal/io/LasReader.hpp>
 #include <pdal/io/LasHeader.hpp>
 
@@ -101,7 +103,7 @@ CPDAL_Reader::CPDAL_Reader(void)
 {
 	Set_Name		(_TL("Import Point Cloud"));
 
-	Set_Author		("O.Conrad (c) 2020");
+	Set_Author		("O.Conrad, V.Wichmann (c) 2020");
 
 	Set_Description(_TW(
 		"Import point cloud data sets from files using the Point Data Abstraction Library (PDAL)."
@@ -192,6 +194,15 @@ bool CPDAL_Reader::On_Execute(void)
 	{
 		Process_Set_Text("[%d/%d] %s: %s", i + 1, Files.Get_Count(), _TL("File"), SG_File_Get_Name(Files[i], true).c_str());
 
+        if( Files.Get_Count() == 1 )
+        {
+            Set_Progress(50.0);
+        }
+        else
+        {
+            Set_Progress(i + 1, Files.Get_Count());
+        }
+
 		Parameters("POINTS")->asPointCloudList()->Add_Item(Read_Points(Files[i]));
 	}
 
@@ -207,22 +218,38 @@ bool CPDAL_Reader::On_Execute(void)
 //---------------------------------------------------------
 CSG_PointCloud * CPDAL_Reader::Read_Points(const CSG_String &File)
 {
-	pdal::LasReader	Reader;
+    pdal::StageFactory  Factory;
+    std::string         ReaderDriver = Factory.inferReaderDriver(File.b_str());
+
+    if( ReaderDriver.empty() )
+    {
+        Message_Fmt("\n%s, %s: %s", _TL("Warning"), _TL("could not infer input file type"), File.c_str());
+
+        return( NULL );
+    }
+
+    pdal::Stage *pReader = Factory.createStage(ReaderDriver);
+
+    if( !pReader )
+    {
+        Message_Fmt("\n%s, %s: %s", _TL("Warning"), _TL("PDAL reader creation failed"), File.c_str());
+
+        return( NULL );
+    }
 
 	pdal::Options	Options;
 	Options.add(pdal::Option("filename", File.b_str()));
-	Reader.setOptions(Options);
+    pReader->setOptions(Options);
 
-	pdal::PointTable	Table;	  Reader.prepare(Table);
-	pdal::PointViewSet	ViewSet	= Reader.execute(Table);
-	pdal::PointViewPtr	pView	= *ViewSet.begin();
+    pdal::StreamCallbackFilter StreamFilter;
+    StreamFilter.setInput(*pReader);
 
-	if( Reader.header().pointCount() != pView->size() || Reader.header().pointCount() < 1 )
-	{
-		Message_Fmt("\n%s, %s: %s", _TL("Warning"), _TL("invalid or empty file"), File.c_str());
+    pdal::point_count_t     TableCapacity = 10000;
+    pdal::FixedPointTable   Table(TableCapacity);
+    StreamFilter.prepare(Table);
 
-		return( NULL );
-	}
+    pdal::PointLayoutPtr    PointLayout = Table.layout();
+
 
 	//-----------------------------------------------------
 	CSG_PointCloud	*pPoints	= SG_Create_PointCloud();
@@ -242,42 +269,58 @@ CSG_PointCloud * CPDAL_Reader::Read_Points(const CSG_String &File)
 
 	for(int Field=0; !g_Attributes[Field].ID.is_Empty(); Field++)
 	{
-		if( (Parameters("VARS")->asBool() || Parameters(g_Attributes[Field].ID)->asBool()) && pView->hasDim(g_Attributes[Field].PDAL_ID) )
+		if( (Parameters("VARS")->asBool() || Parameters(g_Attributes[Field].ID)->asBool()) && PointLayout->hasDim(g_Attributes[Field].PDAL_ID) )
 		{
 			Fields	+= Field; pPoints->Add_Field(g_Attributes[Field].Name, g_Attributes[Field].Type);
 		}
 	}
-
+    
 	int	RGB_Range	= Parameters("RGB_RANGE")->asInt();
-	int	RGB_Field	= Parameters("VAR_COLOR")->asBool() && Reader.header().hasColor() ? pPoints->Get_Field_Count() : 0;
-	if( RGB_Field )
-	{
-		pPoints->Add_Field("Color", SG_DATATYPE_Int);
-	}
+	int	RGB_Field	= 0;
+    
+    if( Parameters("VAR_COLOR")->asBool() )
+    {
+        if( !(PointLayout->hasDim(pdal::Dimension::Id::Red) && PointLayout->hasDim(pdal::Dimension::Id::Green) && PointLayout->hasDim(pdal::Dimension::Id::Blue)) )
+        {
+            Message_Fmt("\n%s, %s: %s", _TL("Warning"), _TL("file does not provide RGB dimensions"), File.c_str());
+        }
+        else
+        {
+            RGB_Field = pPoints->Get_Field_Count();
+            pPoints->Add_Field("Color", SG_DATATYPE_Int);
+        }
+    }
+
 
 	//-----------------------------------------------------
-	for(pdal::PointId i=0; i<pView->size() && Set_Progress(100. * i / (double)pView->size()); i++)
-	{
-		pPoints->Add_Point(
-			pView->getFieldAs<double>(pdal::Dimension::Id::X, i),
-			pView->getFieldAs<double>(pdal::Dimension::Id::Y, i),
-			pView->getFieldAs<double>(pdal::Dimension::Id::Z, i)
-		);
+    auto CallbackReadPoint = [=](pdal::PointRef &point)->bool
+    {
+        pPoints->Add_Point(
+            point.getFieldAs<double>(pdal::Dimension::Id::X),
+            point.getFieldAs<double>(pdal::Dimension::Id::Y),
+            point.getFieldAs<double>(pdal::Dimension::Id::Z)
+        );
 
-		for(int Field=0; Field<Fields.Get_Size(); Field++)
-		{
-			pPoints->Set_Value(3 + Field, pView->getFieldAs<double>(g_Attributes[Fields[Field]].PDAL_ID, i));
-		}
+        for(int Field=0; Field<Fields.Get_Size(); Field++)
+        {
+            pPoints->Set_Value(3 + Field, point.getFieldAs<double>(g_Attributes[Fields[Field]].PDAL_ID));
+        }
 
-		if( RGB_Field )
-		{
-			double	r	= pView->getFieldAs<double>(pdal::Dimension::Id::Red  , i); if( RGB_Range ) { r *= 255. / 65535.; }
-			double	g	= pView->getFieldAs<double>(pdal::Dimension::Id::Green, i); if( RGB_Range ) { g *= 255. / 65535.; }
-			double	b	= pView->getFieldAs<double>(pdal::Dimension::Id::Blue , i); if( RGB_Range ) { b *= 255. / 65535.; }
+        if( RGB_Field )
+        {
+            double	r	= point.getFieldAs<double>(pdal::Dimension::Id::Red  ); if( RGB_Range ) { r *= 255. / 65535.; }
+            double	g	= point.getFieldAs<double>(pdal::Dimension::Id::Green); if( RGB_Range ) { g *= 255. / 65535.; }
+            double	b	= point.getFieldAs<double>(pdal::Dimension::Id::Blue ); if( RGB_Range ) { b *= 255. / 65535.; }
 
-			pPoints->Set_Value(RGB_Field, SG_GET_RGB(r, g, b));
-		}
-	}
+            pPoints->Set_Value(RGB_Field, SG_GET_RGB(r, g, b));
+        }
+
+        return( true );
+    };
+    
+    StreamFilter.setCallback(CallbackReadPoint);
+    StreamFilter.execute(Table);
+
 
 	//-----------------------------------------------------
 	if( pPoints->Get_Count() < 1 )
