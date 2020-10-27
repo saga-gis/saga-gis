@@ -35,6 +35,7 @@ LeastCostPathProfile_Points.cpp\
 MLB_Interface.cpp\
 owa.cpp\
 Soil_Texture.cpp\
+soil_water_capacity.cpp\
 Cost_Isotropic.h\
 coverage_of_categories.h\
 CoveredDistance.h\
@@ -58,7 +59,8 @@ LeastCostPathProfile.h\
 LeastCostPathProfile_Points.h\
 MLB_Interface.h\
 owa.h\
-Soil_Texture.h
+Soil_Texture.h\
+soil_water_capacity.h
 
 libgrid_analysis_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la $(ADD_MLBS)
 

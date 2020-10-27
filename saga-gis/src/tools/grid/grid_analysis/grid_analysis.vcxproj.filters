@@ -86,6 +86,9 @@
     <ClCompile Include="coverage_of_categories.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="soil_water_capacity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cost_Isotropic.h">
@@ -191,6 +194,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="coverage_of_categories.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="soil_water_capacity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

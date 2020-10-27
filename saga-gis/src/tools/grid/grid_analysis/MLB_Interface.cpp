@@ -36,19 +36,13 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     volaya@ya.com                          //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    Victor Olaya Ferrero                   //
-//                Madrid                                 //
-//                Spain                                  //
+//    contact:    Olaf Conrad                            //
+//                Institute of Geography                 //
+//                University of Hamburg                  //
+//                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -77,7 +71,7 @@ CSG_String Get_Info(int i)
 		return( _TL("Some Grid Analysis Tools.") );
 
 	case TLB_INFO_Version:
-		return( SG_T("1.0") );
+		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
 		return( _TL("Grid|Analysis") );
@@ -102,6 +96,7 @@ CSG_String Get_Info(int i)
 #include "CrossClassification.h"
 
 #include "Soil_Texture.h"
+#include "soil_water_capacity.h"
 
 #include "fragmentation_standard.h"
 #include "fragmentation_resampling.h"
@@ -140,6 +135,8 @@ CSG_Tool *		Create_Tool(int i)
 
 	case 14:	return( new CSoil_Texture );
 	case 20:	return( new CSoil_Texture_Table );
+	case 27:	return( new CSoil_Water_Capacity(false) );
+	case 28:	return( new CSoil_Water_Capacity( true) );
 
 	case 15:	return( new CFragmentation_Standard );
 	case 16:	return( new CFragmentation_Resampling );
@@ -157,7 +154,7 @@ CSG_Tool *		Create_Tool(int i)
 
 	case 26:	return( new CCoverage_of_Categories );
 
-	case 27:	return( NULL );
+	case 29:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
