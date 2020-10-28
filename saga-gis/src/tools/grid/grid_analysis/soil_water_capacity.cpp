@@ -101,12 +101,6 @@ CSoil_Water_Capacity::CSoil_Water_Capacity(bool bGrids)
 		SG_T("https://doi.org/10.1016/S0016-7061(02)00105-2"), SG_T("doi:10.1016/S0016-7061(02)00105-2")
 	);
 
-	Add_Reference("Hodnett, M.G., Tomasella, J.", "2002",
-		"Marked differences between van Genuchten soil water-retention parameters for temperate and tropical soils: A new water-retention pedo-transfer functions developed for tropical soils",
-		"Geoderma 108(3):155-180.",
-		SG_T("https://doi.org/10.1016/S0016-7061(02)00105-2"), SG_T("doi:10.1016/S0016-7061(02)00105-2")
-	);
-
 	Add_Reference("Toth, B., Weynants, M., Nemes, A., Mako, A., Bilas, G., Toth, G.", "2015",
 		"New generation of hydraulic pedotransfer functions for Europe",
 		"European Journal of Soil Science, 66, 226–238.",
@@ -119,9 +113,15 @@ CSoil_Water_Capacity::CSoil_Water_Capacity(bool bGrids)
 		SG_T("https://doi.org/10.1002/hyp.11203"), SG_T("doi:10.1002/hyp.11203")
 	);
 
+	Add_Reference("Woesten, J.H.M., Verzandvoort, S.J.E., Leenaars, J.G.B., Hoogland, T., Wesseling, J.G.", "2013",
+		"Soil hydraulic information for river basin studies in semi-arid regions",
+		"Geoderma 195:79-86.",
+		SG_T("https://doi.org/10.1016/j.geoderma.2012.11.021"), SG_T("doi:10.1016/j.geoderma.2012.11.021")
+	);
+
 	Add_Reference(
 		"https://github.com/cran/GSIF/blob/master/R/AWCPTF.R",
-		SG_T("R-Script AWCPTF by Tomislav Hengl version 0.5-5")
+		SG_T("R-Script AWCPTF {GSIF} by J. Leenaars, M. Ruiperez Gonzalez and T. Hengl")
 	);
 
 	//-----------------------------------------------------
@@ -186,7 +186,7 @@ CSoil_Water_Capacity::CSoil_Water_Capacity(bool bGrids)
 	Parameters.Add_Bool("",
 		"USERDEF"		, _TL("User Defined Coefficients"),
 		_TL(""),
-		true
+		false
 	);
 
 	CSG_Table	&a = *Parameters.Add_FixedTable("USERDEF",
@@ -308,33 +308,35 @@ bool CSoil_Water_Capacity::Get_HodnettTomasella(void)
 	//-----------------------------------------------------
 	if( m_bGrids )
 	{
-		int	nz	= 0;
+		CSG_Table	Layers;
 
-		#define CHECK_NZ(pGrids) if( pGrids && pGrids->Get_NZ() && (!nz || nz > pGrids->Get_NZ()) ) { nz = pGrids->Get_NZ(); }
-		CSG_Grids *pSand = Parameters("SAND"  )->asGrids();	CHECK_NZ(pSand);
-		CSG_Grids *pSilt = Parameters("SILT"  )->asGrids();	CHECK_NZ(pSilt);
-		CSG_Grids *pClay = Parameters("CLAY"  )->asGrids();	CHECK_NZ(pClay);
-		CSG_Grids *pBulk = Parameters("BULK"  )->asGrids();	CHECK_NZ(pBulk);
-		CSG_Grids *pCorg = Parameters("CORG"  )->asGrids();	CHECK_NZ(pCorg);
-		CSG_Grids *pCEC  = Parameters("CEC"   )->asGrids();	CHECK_NZ(pCEC );
-		CSG_Grids *ppH   = Parameters("PH"    )->asGrids();	CHECK_NZ(ppH  );
-		#undef CHECK_NZ
+		#define CHECK_LAYERS(pGrids) if( pGrids && pGrids->Get_NZ() && (!Layers.Get_Count() || Layers.Get_Count() > pGrids->Get_NZ()) ) { Layers.Create(pGrids->Get_Attributes()); }
+		CSG_Grids *pSand = Parameters("SAND"  )->asGrids();	CHECK_LAYERS(pSand);
+		CSG_Grids *pSilt = Parameters("SILT"  )->asGrids();	CHECK_LAYERS(pSilt);
+		CSG_Grids *pClay = Parameters("CLAY"  )->asGrids();	CHECK_LAYERS(pClay);
+		CSG_Grids *pBulk = Parameters("BULK"  )->asGrids();	CHECK_LAYERS(pBulk);
+		CSG_Grids *pCorg = Parameters("CORG"  )->asGrids();	CHECK_LAYERS(pCorg);
+		CSG_Grids *pCEC  = Parameters("CEC"   )->asGrids();	CHECK_LAYERS(pCEC );
+		CSG_Grids *ppH   = Parameters("PH"    )->asGrids();	CHECK_LAYERS(ppH  );
+		#undef CHECK_LAYERS
 
-		if( nz == 0 )
+		if( !Layers.Get_Count() )
 		{
-			Error_Set(_TL("Each grid collection must provide at least one z level."));
+			Error_Set(_TL("Each grid collection must provide at least one level."));
 
 			return( false );
 		}
 
-		CSG_Grids *pFC	= Parameters("FC"     )->asGrids();	if( pFC  ) pFC ->Set_Grid_Count(nz);
-		CSG_Grids *pPWP	= Parameters("PWP"    )->asGrids();	if( pPWP ) pPWP->Set_Grid_Count(nz);
-		CSG_Grids *pT_s	= Parameters("THETA_S")->asGrids();	if( pT_s ) pT_s->Set_Grid_Count(nz);
+		#define CREATE_LAYERS(pGrids, Name) if( pGrids ) { pGrids->Create(Get_System(), Layers, 0, SG_DATATYPE_Short, true); pGrids->Set_Scaling(Scale / 1000.); pGrids->Set_Name(Name); }
+		CSG_Grids *pFC	= Parameters("FC"     )->asGrids();	CREATE_LAYERS(pFC , "FC"     );
+		CSG_Grids *pPWP	= Parameters("PWP"    )->asGrids();	CREATE_LAYERS(pPWP, "PWP"    );
+		CSG_Grids *pT_s	= Parameters("THETA_S")->asGrids();	CREATE_LAYERS(pT_s, "Theta s");
+		#undef CREATE_LAYERS
 
 		//-------------------------------------------------
-		for(int z=0; z<nz && Process_Get_Okay(); z++)
+		for(int z=0; z<Layers.Get_Count() && Process_Get_Okay(); z++)
 		{
-			Process_Set_Text("%s [%d/%d]", _TL("processing"), z + 1, nz);
+			Process_Set_Text("%s [%d/%d]", _TL("processing"), z + 1, Layers.Get_Count());
 
 			for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 			{
@@ -526,28 +528,30 @@ bool CSoil_Water_Capacity::Get_Toth(void)
 	//-----------------------------------------------------
 	if( m_bGrids )
 	{
-		int	nz	= 0;
+		CSG_Table	Layers;
 
-		#define CHECK_NZ(pGrids) if( pGrids && pGrids->Get_NZ() && (!nz || nz > pGrids->Get_NZ()) ) { nz = pGrids->Get_NZ(); }
-		CSG_Grids *pSilt = Parameters("SILT"  )->asGrids();	CHECK_NZ(pSilt);
-		CSG_Grids *pClay = Parameters("CLAY"  )->asGrids();	CHECK_NZ(pClay);
-		CSG_Grids *pCorg = Parameters("CORG"  )->asGrids();	CHECK_NZ(pCorg);
-		#undef CHECK_NZ
+		#define CHECK_LAYERS(pGrids) if( pGrids && pGrids->Get_NZ() && (!Layers.Get_Count() || Layers.Get_Count() > pGrids->Get_NZ()) ) { Layers.Create(pGrids->Get_Attributes()); }
+		CSG_Grids *pSilt = Parameters("SILT"  )->asGrids();	CHECK_LAYERS(pSilt);
+		CSG_Grids *pClay = Parameters("CLAY"  )->asGrids();	CHECK_LAYERS(pClay);
+		CSG_Grids *pCorg = Parameters("CORG"  )->asGrids();	CHECK_LAYERS(pCorg);
+		#undef CHECK_LAYERS
 
-		if( nz == 0 )
+		if( !Layers.Get_Count() )
 		{
 			Error_Set(_TL("Each grid collection must provide at least one z level."));
 
 			return( false );
 		}
 
-		CSG_Grids *pFC	 = Parameters("FC"  )->asGrids();	if( pFC  ) pFC ->Set_Grid_Count(nz);
-		CSG_Grids *pPWP	 = Parameters("PWP" )->asGrids();	if( pPWP ) pPWP->Set_Grid_Count(nz);
+		#define CREATE_LAYERS(pGrids, Name) if( pGrids ) { pGrids->Create(Get_System(), Layers, 0, SG_DATATYPE_Short, true); pGrids->Set_Scaling(Scale / 1000.); pGrids->Set_Name(Name); }
+		CSG_Grids *pFC	= Parameters("FC" )->asGrids();	CREATE_LAYERS(pFC , "FC" );
+		CSG_Grids *pPWP	= Parameters("PWP")->asGrids();	CREATE_LAYERS(pPWP, "PWP");
+		#undef CREATE_LAYERS
 
 		//-------------------------------------------------
-		for(int z=0; z<nz && Process_Get_Okay(); z++)
+		for(int z=0; z<Layers.Get_Count() && Process_Get_Okay(); z++)
 		{
-			Process_Set_Text("%s [%d/%d]", _TL("processing"), z + 1, nz);
+			Process_Set_Text("%s [%d/%d]", _TL("processing"), z + 1, Layers.Get_Count());
 
 			for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 			{
