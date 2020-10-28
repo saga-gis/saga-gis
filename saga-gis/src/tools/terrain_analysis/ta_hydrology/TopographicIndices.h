@@ -135,7 +135,7 @@ private:
 	double					m_Erosivity;
 
 
-	double					Get_LS			(double Slope, double Area);
+	double					Get_LS			(double Slope, double SCA, bool bFeet);
 
 };
 
