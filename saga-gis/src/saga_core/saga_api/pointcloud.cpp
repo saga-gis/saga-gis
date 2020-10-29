@@ -1175,6 +1175,11 @@ bool CSG_PointCloud::On_Update(void)
 
 		m_ZMin = m_Field_Stats[2]->Get_Minimum();
 		m_ZMax = m_Field_Stats[2]->Get_Maximum();
+
+        for(int iField=3; iField<m_nFields; iField++)
+        {
+            m_Field_Stats[iField]->Invalidate();
+        }
 	}
 
 	return( true );
