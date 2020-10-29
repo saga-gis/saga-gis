@@ -34,6 +34,12 @@
 			<name>LS Factor</name> <colours revert="true">12</colours>
 		</output>
 
+		<option varname="FEET" type="boolean">
+			<name>Feet Conversion</name>
+			<description>Needed if area and lengths come from coordinates measured in feet.</description>
+			<value>false</value>
+		</option>
+
 		<option varname="LS_METHOD" type="choice">
 			<name>Method</name>
 			<choices>Moore et al. 1991|Desmond &amp; Govers 1996</choices>
@@ -55,6 +61,12 @@
 	</parameters>
 
 	<tools>
+		<!-- Slope -->
+		<tool library="ta_morphometry" tool= "0" name="Slope, Aspect, Curvature">
+			<input  id="ELEVATION">DEM</input>
+			<output id="SLOPE">SLOPE</output>
+		</tool>
+
 		<condition variable="PREPROCESSING" type="equal" value="0"><if>
 			<!-- Flow Accumulation -->
 			<tool library="ta_hydrology" tool= "0" name="Flow Accumulation (Top-Down)">
@@ -96,15 +108,10 @@
 			<output id="SCA">SCA</output>
 		</tool>
 
-		<!-- Slope -->
-		<tool library="ta_morphometry" tool= "0" name="Slope, Aspect, Curvature">
-			<input  id="ELEVATION">DEM</input>
-			<output id="SLOPE">SLOPE</output>
-		</tool>
-
 		<!-- LS Factor -->
 		<tool library="ta_hydrology" tool="22" name="LS Factor">
 			<option id="CONV">0</option>
+			<option id="FEET" varname="true">FEET</option>
 			<option id="METHOD" varname="true">LS_METHOD</option>
 			<option id="EROSIVITY">1.0</option>
 			<option id="STABILITY">0</option>

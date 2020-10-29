@@ -46,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Erosion_LS_Fields_H
 #define HEADER_INCLUDED__Erosion_LS_Fields_H
 
@@ -95,7 +86,7 @@ private:
 
 	bool					m_bStopAtEdge;
 
-	int						m_nFields, m_Method, m_Method_Slope, m_Method_Area, m_Stability;
+	int						m_nFields, m_Method, m_Method_Slope, m_Stability;
 
 	double					m_Erosivity;
 
@@ -106,7 +97,7 @@ private:
 	double					Get_Flow				(int x, int y, double dz[8]);
 
 	bool					Get_LS					(void);
-	double					Get_LS					(int x, int y);
+	double					Get_LS					(int x, int y, bool bFeet);
 
 	bool					Set_Fields				(void);
 

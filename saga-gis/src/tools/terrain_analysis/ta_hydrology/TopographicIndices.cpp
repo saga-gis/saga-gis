@@ -313,14 +313,11 @@ CStream_Power::CStream_Power(void)
 //---------------------------------------------------------
 bool CStream_Power::On_Execute(void)
 {
-	bool		bConvert;
-	CSG_Grid	*pArea, *pSlope, *pSPI;
+	CSG_Grid	*pSlope	= Parameters("SLOPE")->asGrid();
+	CSG_Grid	*pArea	= Parameters("AREA" )->asGrid();
+	CSG_Grid	*pSPI	= Parameters("SPI"  )->asGrid();
 
-	//-----------------------------------------------------
-	pSlope		= Parameters("SLOPE")->asGrid();
-	pArea		= Parameters("AREA" )->asGrid();
-	pSPI		= Parameters("SPI"  )->asGrid();
-	bConvert	= Parameters("CONV" )->asInt() == 1;
+	bool	bConvert	= Parameters("CONV" )->asInt() == 1;
 
 	DataObject_Set_Colors(pSPI, 11, SG_COLORS_RED_GREY_GREEN, true);
 
@@ -424,6 +421,12 @@ CLS_Factor::CLS_Factor(void)
 		), 0
 	);
 
+	Parameters.Add_Bool("",
+		"FEET"		, _TL("Feet Adjustment"),
+		_TL("Needed if area and lengths come from coordinates measured in feet."),
+		false
+	);
+
 	//-----------------------------------------------------
 	Parameters.Add_Choice("",
 		"METHOD"	, _TL("Method (LS)"),
@@ -464,15 +467,14 @@ CLS_Factor::CLS_Factor(void)
 //---------------------------------------------------------
 bool CLS_Factor::On_Execute(void)
 {
-	int			Conversion;
-	CSG_Grid	*pArea, *pSlope, *pLS;
+	CSG_Grid	*pSlope	= Parameters("SLOPE")->asGrid();
+	CSG_Grid	*pArea	= Parameters("AREA" )->asGrid();
+	CSG_Grid	*pLS	= Parameters("LS"   )->asGrid();
 
-	//-----------------------------------------------------
-	pSlope		= Parameters("SLOPE"    )->asGrid();
-	pArea		= Parameters("AREA"     )->asGrid();
-	pLS			= Parameters("LS"       )->asGrid();
+	int	Conversion	= Parameters("CONV")->asInt();
 
-	Conversion	= Parameters("CONV"     )->asInt();
+	bool	bFeet	= Parameters("FEET")->asBool();
+
 	m_Method	= Parameters("METHOD"   )->asInt();
 	m_Erosivity	= Parameters("EROSIVITY")->asInt();
 	m_Stability	= Parameters("STABILITY")->asInt();
@@ -491,16 +493,16 @@ bool CLS_Factor::On_Execute(void)
 			}
 			else
 			{
-				double	Area;
+				double	Slope	= pSlope->asDouble(x, y);
+				double	Area	= pArea ->asDouble(x, y);
 
 				switch( Conversion )
 				{
-				default:	Area	= pArea->asDouble(x, y);					// no conversion...
-				case 1:		Area	= pArea->asDouble(x, y) / Get_Cellsize();	// pseudo specific catchment area...
-				case 2:		Area	= sqrt(pArea->asDouble(x, y));				// pseudo slope length...
+				case 1: Area /= Get_Cellsize(); break; // pseudo specific catchment area...
+				case 2: Area  = sqrt(Area)    ; break; // pseudo slope length...
 				}
 
-				pLS->Set_Value(x, y, Get_LS(pSlope->asDouble(x, y), Area));
+				pLS->Set_Value(x, y, Get_LS(Slope, Area, bFeet));
 			}
 		}
 	}
@@ -509,80 +511,72 @@ bool CLS_Factor::On_Execute(void)
 }
 
 //---------------------------------------------------------
-double CLS_Factor::Get_LS(double Slope, double Area)
+inline double CLS_Factor::Get_LS(double Slope, double SCA, bool bFeet)
 {
-	double	LS, sinSlope;
+	if( bFeet )
+	{
+		SCA	*= 0.3048;
+	}
+
+	double	LS, sinSlope = sin(Slope);
 
 	switch( m_Method )
 	{
 	//-----------------------------------------------------
-	case 0:	default:
-		{
-			LS			= (0.4 + 1) * pow(Area / 22.13, 0.4) * pow(sin(Slope) / 0.0896, 1.3);
-		}
-		break;
+	default: {
+		LS		= (0.4 + 1) * pow(SCA / 22.13, 0.4) * pow(sinSlope / 0.0896, 1.3);
+		break; }
 
 	//-----------------------------------------------------
-	case 1:
+	case  1: {
+		double	L, S, m, x, d;
+
+		d		= (bFeet ? 0.3048 : 1.) * Get_Cellsize();
+
+		m		= m_Erosivity * (sinSlope / 0.0896) / (3. * pow(sinSlope, 0.8) + 0.56);
+		m		= m / (1. + m);
+
+		x		= 1.;
+
+		// x : coefficient that adjusts for width of flow at the center of the cell.
+		// It has a value of 1. when the flow is toward a side and sqrt(2.) when the flow is toward a corner.
+		// (Peter I. A. Kinnell: 'ALTERNATIVE APPROACHES FOR DETERMINING THE USLE-M SLOPE LENGTH FACTOR FOR GRID CELLS'
+		// https://www.soils.org/publications/sssaj/abstracts/69/3/0674)
+
+		L		= (pow(SCA + d*d, m + 1.) - pow(SCA, m + 1.))
+				/ (pow(d, m + 2.) * pow(22.13, m) * pow(x, m));
+
+		//-------------------------------------------------
+		if( Slope < 0.08975817419 )		// < 9% Steigung := atan(0.09), ca. 5 Degree
 		{
-			double	L, S, m, x, d;
-
-			sinSlope	= sin(Slope);
-
-			d			= Get_Cellsize();
-
-			m			= m_Erosivity * (sinSlope / 0.0896) / (3. * pow(sinSlope, 0.8) + 0.56);
-			m			= m / (1. + m);
-
-		//	x			= Aspect < 0. ? 0. : fmod(Aspect, M_PI_090);
-		//	x			= sin(x) + cos(x);
-			x			= 1.;
-
-			// x : coefficient that adjusts for width of flow at the center of the cell.
-			//     It has a value of 1. when the flow is toward a side and sqrt(2.) when
-			//     the flow is toward a corner.
-			//     (Peter I. A. Kinnell: 'ALTERNATIVE APPROACHES FOR DETERMINING THE
-			//     USLE-M SLOPE LENGTH FACTOR FOR GRID CELLS'
-			//     https://www.soils.org/publications/sssaj/abstracts/69/3/0674)
-
-			L			= (pow(Area + d*d, m + 1.) - pow(Area, m + 1.))
-						/ (pow(d, m + 2.) * pow(22.13, m) * pow(x, m));
-
-			//-----------------------------------------------------
-			if( Slope < 0.08975817419 )		// < 9% Steigung := atan(0.09), ca. 5 Degree
-			{
-				S		= 10.8 * sinSlope + 0.03;	
-			}
-			else if( m_Stability == 0 )		// >= 9% Steigung, stabil
-			{
-				S		= 16.8 * sinSlope - 0.5;
-			}
-			else							// >= 9% Steigung, tauend u. instabil
-			{
-				S		= pow(sinSlope / 0.896, 0.6);
-			}
-
-			LS			= L * S;
+			S	= 10.8 * sinSlope + 0.03;	
 		}
-		break;
+		else if( m_Stability == 0 )		// >= 9% Steigung, stabil
+		{
+			S	= 16.8 * sinSlope - 0.5;
+		}
+		else							// >= 9% Steigung, tauend u. instabil
+		{
+			S	= pow(sinSlope / 0.896, 0.6);
+		}
+
+		LS		= L * S;
+
+		break; }
 
 	//-----------------------------------------------------
-	case 2:
+	case  2: {
+		if( Slope > 0.0505 )	// >  ca. 3 Degree
 		{
-			sinSlope	= sin(Slope);
-
-			if( Slope > 0.0505 )	// >  ca. 3 Degree
-			{
-				LS		= sqrt(Area / 22.13)
-						* (65.41 * sinSlope * sinSlope + 4.56 * sinSlope + 0.065);
-			}
-			else					// <= ca. 3 Degree
-			{
-				LS		= pow (Area / 22.13, 3. * pow(Slope, 0.6))
-						* (65.41 * sinSlope * sinSlope + 4.56 * sinSlope + 0.065);
-			}
+			LS	= sqrt(SCA / 22.13)
+				* (65.41 * sinSlope * sinSlope + 4.56 * sinSlope + 0.065);
 		}
-		break;
+		else					// <= ca. 3 Degree
+		{
+			LS	= pow (SCA / 22.13, 3. * pow(Slope, 0.6))
+				* (65.41 * sinSlope * sinSlope + 4.56 * sinSlope + 0.065);
+		}
+		break; }
 	}
 
 	return( LS );
