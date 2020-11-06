@@ -160,19 +160,19 @@ CSG_String		SG_Get_Double_asString(double Number, int Width, int Precision, bool
 {
 	if( bScientific )
 	{
-		if( Width > 0 && Precision >= 0 )	return( CSG_String::Format(SG_T("%*.*e"), Width, Precision, Number) );
-		if( Width > 0                   )	return( CSG_String::Format(SG_T("%*e"  ), Width           , Number) );
-		if(              Precision >= 0 )	return( CSG_String::Format(SG_T("%.*e" ),        Precision, Number) );
+		if( Width > 0 && Precision >= 0 )	return( CSG_String::Format("%*.*e", Width, Precision, Number) );
+		if( Width > 0                   )	return( CSG_String::Format("%*e"  , Width           , Number) );
+		if(              Precision >= 0 )	return( CSG_String::Format("%.*e" ,        Precision, Number) );
 
-		return( CSG_String::Format(SG_T("%e"), Number) );
+		return( CSG_String::Format("%e", Number) );
 	}
 	else
 	{
-		if( Width > 0 && Precision >= 0 )	return( CSG_String::Format(SG_T("%*.*f"), Width, Precision, Number) );
-		if( Width > 0                   )	return( CSG_String::Format(SG_T("%*f"  ), Width           , Number) );
-		if(              Precision >= 0 )	return( CSG_String::Format(SG_T("%.*f" ),        Precision, Number) );
+		if( Width > 0 && Precision >= 0 )	return( CSG_String::Format("%*.*f", Width, Precision, Number) );
+		if( Width > 0                   )	return( CSG_String::Format("%*f"  , Width           , Number) );
+		if(              Precision >= 0 )	return( CSG_String::Format("%.*f" ,        Precision, Number) );
 
-		return( CSG_String::Format(SG_T("%f"), Number) );
+		return( CSG_String::Format("%f", Number) );
 	}
 }
 
@@ -617,19 +617,35 @@ double CSG_Simple_Statistics::Get_SkewnessPearson(void)
 */
 double CSG_Simple_Statistics::Get_Quantile(double Quantile)
 {
-	if( m_Values.Get_Size() > 0 )
+	if( m_Values.Get_Size()  < 1 )
 	{
-		if( !m_bSorted )
-		{
-			qsort(m_Values.Get_Array(), m_Values.Get_Size(), sizeof(double), SG_Compare_Double);
-
-			m_bSorted	= true;
-		}
-
-		return( Get_Value((sLong)(0.5 + (m_Values.Get_Size() - 1.) * Quantile)) );
+		return( m_Mean );
 	}
 
-	return( m_Mean );
+	//-----------------------------------------------------
+	if( !m_bSorted )
+	{
+		qsort(m_Values.Get_Array(), m_Values.Get_Size(), sizeof(double), SG_Compare_Double);
+
+		m_bSorted	= true;
+	}
+
+	if( Quantile <= 0. || m_Values.Get_Size() == 1 )
+	{
+		return( Get_Values()[0] );
+	}
+
+	if( Quantile >= 1. )
+	{
+		return( Get_Values()[m_Values.Get_Size() - 1] );
+	}
+
+	//-----------------------------------------------------
+	double	r	= Quantile * (m_Values.Get_Size() - 1);
+
+	sLong	i	= (sLong)r; r -= i;
+
+	return( r == 0. ? Get_Values()[i] : ((1. - r) * Get_Values()[i] + r * Get_Values()[i + 1]) );
 }
 
 //---------------------------------------------------------
