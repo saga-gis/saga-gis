@@ -408,7 +408,7 @@ void CWKSP_Tool::Save_to_Clipboard(void)
 		case 1:	Script = m_pTool->Get_Script(TOOL_SCRIPT_CHAIN    ,  true); break;	// Tool Chain with Header
 		#ifdef _SAGA_MSW
 		case 2:	Script = m_pTool->Get_Script(TOOL_SCRIPT_CMD_BATCH, false); break;	// Command Line
-		case 3:	Script = m_pTool->Get_Script(TOOL_SCRIPT_CMD_SHELL,  true); break;	// Command Line with Header
+		case 3:	Script = m_pTool->Get_Script(TOOL_SCRIPT_CMD_BATCH,  true); break;	// Command Line with Header
 		#else
 		case 2:	Script = m_pTool->Get_Script(TOOL_SCRIPT_CMD_SHELL, false); break;	// Command Line
 		case 3:	Script = m_pTool->Get_Script(TOOL_SCRIPT_CMD_SHELL,  true); break;	// Command Line with Header
