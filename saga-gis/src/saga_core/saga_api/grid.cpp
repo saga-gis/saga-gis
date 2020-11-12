@@ -263,13 +263,21 @@ bool CSG_Grid::Create(const CSG_Grid &Grid)
 //---------------------------------------------------------
 bool CSG_Grid::Create(CSG_Grid *pGrid, TSG_Data_Type Type, bool bCached)
 {
-	if( pGrid && Create(Type, pGrid->Get_NX(), pGrid->Get_NY(), pGrid->Get_Cellsize(), pGrid->Get_XMin(), pGrid->Get_YMin(), bCached) )
+	if( pGrid )
 	{
-		Set_NoData_Value_Range(pGrid->Get_NoData_Value(), pGrid->Get_NoData_hiValue());
+		if( Type == SG_DATATYPE_Undefined )
+		{
+			Type	= pGrid->Get_Type();
+		}
 
-		Get_Projection()	= pGrid->Get_Projection();
+		if( Create(Type, pGrid->Get_NX(), pGrid->Get_NY(), pGrid->Get_Cellsize(), pGrid->Get_XMin(), pGrid->Get_YMin(), bCached) )
+		{
+			Set_NoData_Value_Range(pGrid->Get_NoData_Value(), pGrid->Get_NoData_hiValue());
 
-		return( true );
+			Get_Projection()	= pGrid->Get_Projection();
+
+			return( true );
+		}
 	}
 
 	return( false );
