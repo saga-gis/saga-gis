@@ -297,9 +297,7 @@ bool CGrids_Create::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Table	*pTable, Table;
-
-	int	zField;
+	CSG_Table	*pTable, Table;	int	zField;
 
 	switch( Parameters("ATTRIBUTES")->asInt() )
 	{
@@ -335,8 +333,10 @@ bool CGrids_Create::On_Execute(void)
 
 	case  2:	// table with values
 		{
-			pTable	= Parameters("TABLE")->asTable();
+			pTable	= Parameters("TABLE"  )->asTable();
+			zField	= Parameters("TABLE_Z")->asInt  ();
 		}
+		break;
 
 	case  3:	// copy from other grid collection
 		{
