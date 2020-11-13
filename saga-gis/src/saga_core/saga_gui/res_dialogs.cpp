@@ -379,9 +379,11 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 		return( wxString::Format(
 			"%s (*.sg-gds-z)|*.sg-gds-z|"
 			"%s (*.sg-gds)|*.sg-gds|"
+			"%s (*.tif)|*.tif|"
 			"%s|*.*",
 			_TL("SAGA Compressed Grid Collections"),
 			_TL("SAGA Uncompressed Grid Collections"),
+			_TL("Multi-Band GeoTIFF"),
 			_TL("All Files")
 		));
 
