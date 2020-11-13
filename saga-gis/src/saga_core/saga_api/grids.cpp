@@ -1719,17 +1719,31 @@ bool CSG_Grids::Save(const CSG_String &FileName, int Format)
 
 	if( Format == GRIDS_FILE_FORMAT_Undefined )
 	{
-		Format	= SG_File_Cmp_Extension(FileName, "sg-gds")
-			? GRIDS_FILE_FORMAT_Normal
-			: GRIDS_FILE_FORMAT_Compressed;
+		Format	= GRIDS_FILE_FORMAT_Compressed;	// default
+
+		if( SG_File_Cmp_Extension(FileName, "sg-gds"  ) )	Format	= GRIDS_FILE_FORMAT_Normal    ;
+		if( SG_File_Cmp_Extension(FileName, "sg-gds-z") )	Format	= GRIDS_FILE_FORMAT_Compressed;
+		if( SG_File_Cmp_Extension(FileName, "tif"     ) )	Format	= GRIDS_FILE_FORMAT_GeoTIFF   ;
 	}
 
 	bool	bResult	= false;
 
 	switch( Format )
 	{
-	case GRIDS_FILE_FORMAT_Normal    : bResult = _Save_Normal    (FileName); break;
-	case GRIDS_FILE_FORMAT_Compressed: bResult = _Save_Compressed(FileName); break;
+	case GRIDS_FILE_FORMAT_Normal    :
+		bResult = _Save_Normal    (FileName);
+		break;
+
+	case GRIDS_FILE_FORMAT_Compressed: default:
+		bResult = _Save_Compressed(FileName);
+		break;
+
+	case GRIDS_FILE_FORMAT_GeoTIFF   :
+		SG_RUN_TOOL(bResult, "io_gdal", 2,	// Export GeoTIFF
+			SG_TOOL_PARAMLIST_ADD("GRIDS", this)
+		&&	SG_TOOL_PARAMETER_SET("FILE" , FileName)
+		);
+		break;
 	}
 
 	//-----------------------------------------------------
