@@ -2762,7 +2762,10 @@ bool CSG_Parameter_List::Del_Item(CSG_Data_Object *pObject, bool bUpdateData)
 {
 	if( m_Objects.Del(pObject) > 0 )
 	{
-		_Set_String();
+		if( bUpdateData )
+		{
+			_Set_String();
+		}
 
 		return( true );
 	}
@@ -2774,7 +2777,10 @@ bool CSG_Parameter_List::Del_Item(int Index, bool bUpdateData)
 {
 	if( m_Objects.Del(Index) )
 	{
-		_Set_String();
+		if( bUpdateData )
+		{
+			_Set_String();
+		}
 
 		return( true );
 	}
