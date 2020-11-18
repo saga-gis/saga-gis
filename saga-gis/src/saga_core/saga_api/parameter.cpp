@@ -934,6 +934,8 @@ bool CSG_Parameter::Check(bool bSilent)
 			}
 		}
 
+		_Set_String();
+
 		asList()->Update_Data();
 
 		return( is_Output() || is_Optional() || asList()->Get_Item_Count() > 0 );

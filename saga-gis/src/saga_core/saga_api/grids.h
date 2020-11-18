@@ -91,7 +91,8 @@ typedef enum ESG_Grids_File_Format
 {
 	GRIDS_FILE_FORMAT_Undefined	= 0,
 	GRIDS_FILE_FORMAT_Normal,
-	GRIDS_FILE_FORMAT_Compressed
+	GRIDS_FILE_FORMAT_Compressed,
+	GRIDS_FILE_FORMAT_GeoTIFF
 }
 TSG_Grids_File_Format;
 

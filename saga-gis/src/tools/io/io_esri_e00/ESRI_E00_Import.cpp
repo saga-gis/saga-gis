@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: ESRI_E00_Import.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -44,19 +41,8 @@
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -72,12 +58,9 @@
 //---------------------------------------------------------
 CESRI_E00_Import::CESRI_E00_Import(void)
 {
-	//-----------------------------------------------------
-	// 1. info_Table...
+	Set_Name		(_TL("Import ESRI E00 File"));
 
-	Set_Name	(_TL("Import ESRI E00 File"));
-
-	Set_Author		(SG_T("(c) 2004 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2004");
 
 	Set_Description	(_TW(
 		"Import data sets from ESRI's E00 interchange format.\n\n"
@@ -89,65 +72,63 @@ CESRI_E00_Import::CESRI_E00_Import(void)
 
 		"The <a target=\"_blank\" href=\"http://avce00.maptools.org/e00compr/index.html\">\'E00Compr\' library</a> "
 		"written by Daniel Morissette has been used for e00 file access, so that "
-		"compressed e00 files also can be read.\n")
-	);
-
+		"compressed e00 files also can be read.\n"
+	));
 
 	//-----------------------------------------------------
-	// 2. Parameters...
-
 	Parameters.Add_Table_List(
-		NULL	, "TABLES"	, _TL("Tables"),
+		"", "TABLES"	, _TL("Tables"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Shapes_List(
-		NULL	, "SHAPES"	, _TL("Shapes"),
+		"", "SHAPES"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"	, _TL("Grids"),
+		"", "GRIDS"		, _TL("Grids"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Table_Output(
-		NULL	, "TABLE"	, _TL("Table"),
+		"", "TABLE"		, _TL("Table"),
 		_TL("")
 	);
 
 	Parameters.Add_FilePath(
-		NULL	, "FILE"	, _TL("File"),
+		"", "FILE"		, _TL("File"),
 		_TL(""),
-		_TL("ESRI E00 Files|*.e00|All Files|*.*"), NULL, false, false, true
+		CSG_String::Format("ESRI E00 %s|*.e00|%s|*.*",
+			_TL("Files"),
+			_TL("All Files")
+		), NULL, false, false, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "BBND"	, _TL("Import Extents"),
+	Parameters.Add_Bool(
+		"", "BBND"		, _TL("Import Extents"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Value(
-		NULL	, "BTIC"	, _TL("Import Tick Points"),
+	Parameters.Add_Bool(
+		"", "BTIC"		, _TL("Import Tick Points"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Value(
-		NULL	, "BTABLES"	, _TL("Import Tables"),
+	Parameters.Add_Bool(
+		"", "BTABLES"	, _TL("Import Tables"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -186,8 +167,6 @@ bool CESRI_E00_Import::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -247,8 +226,6 @@ bool CESRI_E00_Import::E00_Goto_Line(int iLine)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -293,8 +270,6 @@ bool CESRI_E00_Import::Load(const CSG_String &FileName)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -547,8 +522,6 @@ bool CESRI_E00_Import::Load(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//						Grid							 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -912,8 +885,6 @@ void CESRI_E00_Import::Arcs2Polygon(CSG_Shapes *pArcs, CSG_Shapes *pPolygons, in
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -970,8 +941,6 @@ CSG_Shapes * CESRI_E00_Import::getlabels(int prec, double scale)	// shape_type: 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1025,8 +994,6 @@ CSG_Shapes * CESRI_E00_Import::getsites(int prec, double scale)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -1440,9 +1407,9 @@ bool CESRI_E00_Import::Assign_Attributes(CSG_Shapes *pShapes)
 
 	Process_Set_Text(_TL("Assign attributes to shapes..."));
 
-	int	iField, off_Field	= pShapes->Get_Field_Count();
+	int	off_Field	= pShapes->Get_Field_Count();
 
-	for(iField=0; iField<m_pPAT->Get_Field_Count(); iField++)
+	for(int iField=0; iField<m_pPAT->Get_Field_Count(); iField++)
 	{
 		pShapes->Add_Field(m_pPAT->Get_Field_Name(iField), m_pPAT->Get_Field_Type(iField));
 	}
@@ -1451,16 +1418,23 @@ bool CESRI_E00_Import::Assign_Attributes(CSG_Shapes *pShapes)
 	{
 		CSG_Shape	*pShape	= pShapes->Get_Shape(i);
 
-		CSG_Table_Record	*pRecord	= m_pPAT->Get_Record(pShape->asInt(0) - 1);
-
-		if( pRecord )
+		if( pShape )
 		{
-			for(iField=0; iField<m_pPAT->Get_Field_Count(); iField++)
+			CSG_Table_Record	*pRecord	= m_pPAT->Get_Record(pShape->asInt(0) - 1);
+
+			if( pRecord )
 			{
-				if( SG_Data_Type_is_Numeric(m_pPAT->Get_Field_Type(iField)) )
-					pShape->Set_Value(off_Field + iField, pRecord->asDouble(iField));
-				else
-					pShape->Set_Value(off_Field + iField, pRecord->asString(iField));
+				for(int iField=0; iField<m_pPAT->Get_Field_Count(); iField++)
+				{
+					if( SG_Data_Type_is_Numeric(m_pPAT->Get_Field_Type(iField)) )
+					{
+						pShape->Set_Value(off_Field + iField, pRecord->asDouble(iField));
+					}
+					else
+					{
+						pShape->Set_Value(off_Field + iField, pRecord->asString(iField));
+					}
+				}
 			}
 		}
 	}
@@ -1501,8 +1475,6 @@ bool CESRI_E00_Import::Assign_Attributes(CSG_Shapes *pShapes)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//						Skips							 //
 //														 //
 ///////////////////////////////////////////////////////////
 

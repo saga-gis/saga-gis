@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -41,22 +38,11 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -71,6 +57,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <wx/arrstr.h>
 #include <wx/menu.h>
 
 
@@ -90,27 +77,28 @@ public:
 	wxMenu *					Create		(TSG_Data_Object_Type DataType);
 	void						Destroy		(void);
 
-	void						Update		(wxMenu *pMenu);
+	void						Update		(void);
 
-	void						Add			(const wxString &FileName);
-	void						Del			(const wxString &FileName);
-	bool						Get			(wxArrayString &FileNames, bool bAppend);
+	void						Add			(const wxString &File);
+	void						Del			(const wxString &File);
+	bool						Get			(wxArrayString &Files, bool bAppend);
 
-	bool						Open		(int Cmd_ID);
+	bool						Open		(int CmdID);
 
 
 private:
 
-	int							m_Recent_First, m_Recent_Count;
-
-	wxString					*m_Recent, m_Recent_Group;
+	size_t						m_Offset;
+	
+	int							m_CmdID[2];
 
 	TSG_Data_Object_Type		m_DataType;
 
+	wxString					m_Group;
 
-	void						_Create		(void);
+	wxArrayString				m_Files;
 
-	void						_Del		(int Cmd_ID);
+	wxMenu						*m_pMenu;
 
 };
 

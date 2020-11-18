@@ -1017,6 +1017,29 @@ bool CSG_Strings::Add(const CSG_String &String)
 }
 
 //---------------------------------------------------------
+bool CSG_Strings::Ins(const CSG_String &String, size_t Index)
+{
+	if( Index >= Get_Size() )
+	{
+		return( Add(String) );
+	}
+
+	if( m_Strings.Inc_Array() )
+	{
+		for(size_t i=Get_Size()-1; i>Index; i--)
+		{
+			m_Strings[i]	= m_Strings[i - 1];
+		}
+
+		m_Strings[Index]	=  new CSG_String(String);
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 bool CSG_Strings::Del(size_t Index)
 {
 	if( Index >= Get_Size() )

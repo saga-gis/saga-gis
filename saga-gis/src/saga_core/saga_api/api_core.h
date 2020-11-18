@@ -655,6 +655,8 @@ public:
 
 	bool							Add					(const CSG_Strings &Strings);
 	bool							Add					(const CSG_String  &String );
+	bool							Ins					(const CSG_String  &String , int    Index)	{	return( Ins(String, (size_t)Index) );	}
+	bool							Ins					(const CSG_String  &String , size_t Index);
 	bool							Del					(int    Index)	{	return( Del((size_t)Index) );	}
 	bool							Del					(size_t Index);
 

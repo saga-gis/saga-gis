@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: import_clip_resample.cpp 1380 2012-04-26 12:02:19Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "import_clip_resample.h"
 
 
@@ -70,26 +58,23 @@
 //---------------------------------------------------------
 CImport_Clip_Resample::CImport_Clip_Resample(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Import, Clip and Resample Grids"));
 
 	Set_Author		("O.Conrad (c) 2015");
 
 	Set_Description	(_TW(
-		""
+		"Imports and optionally clips and/or resamples selected raster files. "
 	));
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode;
-
-	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"		, _TL("Grids"),
+	Parameters.Add_Grid_List("",
+		"GRIDS"		, _TL("Grids"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "FILES"		, _TL("Image Files"),
+	Parameters.Add_FilePath("",
+		"FILES"		, _TL("Files"),
 		_TL(""),
 		CSG_String::Format("%s|*.tif;*.tiff|%s|*.*",
 			_TL("GeoTIFF Files"),
@@ -98,41 +83,68 @@ CImport_Clip_Resample::CImport_Clip_Resample(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Bool(
-		NULL	, "KEEP_TYPE"	, _TL("Preserve Data Type"),
+	Parameters.Add_Bool("",
+		"KEEP_TYPE"	, _TL("Preserve Data Type"),
 		_TL(""),
 		false
 	);
 
-	pNode	= Parameters.Add_Bool(
-		NULL	, "NODATA"		, _TL("User Defined No-Data Value"),
+	Parameters.Add_Bool("",
+		"NODATA"	, _TL("User Defined No-Data Value"),
 		_TL(""),
 		false
 	);
 
-	Parameters.Add_Double(
-		pNode	, "NODATA_VAL"	, _TL("No-Data Value"),
+	Parameters.Add_Double("NODATA",
+		"NODATA_VAL", _TL("No-Data Value"),
 		_TL("")
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		NULL	, "CLIP"		, _TL("Region of Interest"),
+	Parameters.Add_Shapes("",
+		"CLIP"		, _TL("Region of Interest"),
 		_TL("bounding box for clipping"),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Bool(
-		NULL	, "RESAMPLE"	, _TL("Resample"),
+	Parameters.Add_Bool("",
+		"RESAMPLE"	, _TL("Resample"),
 		_TL(""),
-		true
+		false
 	);
 
-	Parameters.Add_Double(
-		pNode	, "CELLSIZE"	, _TL("Cell Size"),
+	Parameters.Add_Double("RESAMPLE",
+		"CELLSIZE"	, _TL("Cell Size"),
 		_TL(""),
-		100.0, 0.0, true
+		100., 0., true
+	);
+
+	Parameters.Add_Choice("RESAMPLE",
+		"SCALE_UP"	, _TL("Upscaling Method"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s",
+			_TL("Nearest Neighbour"),
+			_TL("Bilinear Interpolation"),
+			_TL("Bicubic Spline Interpolation"),
+			_TL("B-Spline Interpolation"),
+			_TL("Mean Value"),
+			_TL("Mean Value (cell area weighted)"),
+			_TL("Minimum Value"),
+			_TL("Maximum Value"),
+			_TL("Majority")
+		), 5
+	);
+
+	Parameters.Add_Choice("RESAMPLE",
+		"SCALE_DOWN", _TL("Downscaling Method"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|%s",
+			_TL("Nearest Neighbour"),
+			_TL("Bilinear Interpolation"),
+			_TL("Bicubic Spline Interpolation"),
+			_TL("B-Spline Interpolation")
+		), 3
 	);
 }
 
@@ -157,7 +169,7 @@ int CImport_Clip_Resample::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 
 	if( pParameter->Cmp_Identifier("RESAMPLE") )
 	{
-		pParameters->Set_Enabled("CELLSIZE"  , pParameter->asBool());
+		pParameter->Set_Children_Enabled(pParameter->asBool());
 	}
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
@@ -171,7 +183,6 @@ int CImport_Clip_Resample::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 //---------------------------------------------------------
 bool CImport_Clip_Resample::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_Strings	Files;
 
 	if( !Parameters("FILES")->asFilePath()->Get_FilePaths(Files) || Files.Get_Count() == 0 )
@@ -209,7 +220,7 @@ bool CImport_Clip_Resample::Load_File(const CSG_String &File)
 {
 	CSG_Data_Manager	Grids;
 
-	if( !Grids.Add(File) || !Grids.Get_Grid_System(0) || !Grids.Get_Grid_System(0)->Get(0) )
+	if( !Grids.Add_Grid(File) || !Grids.Get_Grid_System(0) || !Grids.Get_Grid_System(0)->Get(0) )
 	{
 		Error_Set(CSG_String::Format("%s: %s", _TL("could not load file"), File.c_str()));
 
@@ -258,12 +269,40 @@ bool CImport_Clip_Resample::Load_Grid(CSG_Grid *pImport)
 	}
 
 	//-----------------------------------------------------
+	TSG_Grid_Resampling	Resampling	= GRID_RESAMPLING_Undefined;
+
 	if( Parameters("RESAMPLE")->asBool() )
 	{
 		double	Cellsize	= Parameters("CELLSIZE")->asDouble();
 
-		if( Cellsize > 0.0 && Cellsize != System.Get_Cellsize() )
+		if( Cellsize > 0. && Cellsize != System.Get_Cellsize() )
 		{
+			if( Cellsize < System.Get_Cellsize() )	// Up-Scaling...
+			{
+				switch( Parameters("SCALE_UP")->asInt() )
+				{
+				default: Resampling = GRID_RESAMPLING_NearestNeighbour; break;
+				case  1: Resampling = GRID_RESAMPLING_Bilinear        ; break;
+				case  2: Resampling = GRID_RESAMPLING_BicubicSpline   ; break;
+				case  3: Resampling = GRID_RESAMPLING_BSpline         ; break;
+				case  4: Resampling = GRID_RESAMPLING_Mean_Nodes      ; break;
+				case  5: Resampling = GRID_RESAMPLING_Mean_Cells      ; break;
+				case  6: Resampling = GRID_RESAMPLING_Minimum         ; break;
+				case  7: Resampling = GRID_RESAMPLING_Maximum         ; break;
+				case  8: Resampling = GRID_RESAMPLING_Majority        ; break;
+				}
+			}
+			else // Get_Cellsize() >= System.Get_Cellsize()	// Down-Scaling...
+			{
+				switch( Parameters("SCALE_DOWN")->asInt() )
+				{
+				default: Resampling = GRID_RESAMPLING_NearestNeighbour; break;
+				case  1: Resampling = GRID_RESAMPLING_Bilinear        ; break;
+				case  2: Resampling = GRID_RESAMPLING_BicubicSpline   ; break;
+				case  3: Resampling = GRID_RESAMPLING_BSpline         ; break;
+				}
+			}
+
 			System.Assign(Cellsize, System.Get_Extent());
 		}
 	}
@@ -279,7 +318,7 @@ bool CImport_Clip_Resample::Load_Grid(CSG_Grid *pImport)
 
 	if( pGrid )
 	{
-		pGrid->Assign  (pImport);
+		pGrid->Assign  (pImport, Resampling);
 		pGrid->Set_Name(pImport->Get_Name());
 
 		m_pGrids->Add_Item(pGrid);

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 	
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -41,22 +38,11 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -84,8 +70,8 @@
 //---------------------------------------------------------
 CWKSP_Data_Menu_File::CWKSP_Data_Menu_File(void)
 {
-	m_Recent	= NULL;
 	m_DataType	= SG_DATAOBJECT_TYPE_Undefined;
+	m_pMenu		= NULL;
 }
 
 //---------------------------------------------------------
@@ -97,18 +83,15 @@ CWKSP_Data_Menu_File::~CWKSP_Data_Menu_File(void)
 //---------------------------------------------------------
 void CWKSP_Data_Menu_File::Destroy(void)
 {
-	if( m_Recent )
-	{
-		for(int i=0; i<m_Recent_Count; i++)
-		{
-			CONFIG_Write(wxString::Format("RECENT_FILES/%s", m_Recent_Group.c_str()), wxString::Format("FILE_%02d", i + 1), m_Recent[i]);
-		}
+	CONFIG_Delete("RECENT_FILES/" + m_Group);
 
-		delete[](m_Recent);
+	for(size_t i=0; i<m_Files.Count(); i++)
+	{
+		CONFIG_Write("RECENT_FILES/" + m_Group, wxString::Format("FILE_%02d", i + 1), m_Files[i]);
 	}
 
-	m_Recent	= NULL;
 	m_DataType	= SG_DATAOBJECT_TYPE_Undefined;
+	m_pMenu		= NULL;
 }
 
 
@@ -123,81 +106,98 @@ wxMenu * CWKSP_Data_Menu_File::Create(TSG_Data_Object_Type DataType)
 
 	m_DataType	= DataType;
 
+	m_pMenu	= new wxMenu;
+
 	//-----------------------------------------------------
 	switch( m_DataType )
 	{
 	case SG_DATAOBJECT_TYPE_Undefined:
-		m_Recent_First	= ID_CMD_DATA_PROJECT_RECENT_FIRST;
-		m_Recent_Count	= ID_CMD_DATA_PROJECT_RECENT_LAST - m_Recent_First + 1;
-		m_Recent_Group	= "Project";
+		m_Group		= "Project";
+		m_CmdID[0]	= ID_CMD_DATA_PROJECT_RECENT_FIRST;
+		m_CmdID[1]	= ID_CMD_DATA_PROJECT_RECENT_LAST - m_CmdID[0] + 1;
+
+		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_DATA_PROJECT_OPEN   );
+		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_DATA_PROJECT_BROWSE );
+		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_DATA_PROJECT_CLOSE  );
+		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_DATA_PROJECT_SAVE   );
+		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_DATA_PROJECT_SAVE_AS);
+		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_DATA_PROJECT_COPY   );
 		break;
 
 	case SG_DATAOBJECT_TYPE_Table:
-		m_Recent_First	= ID_CMD_TABLE_RECENT_FIRST;
-		m_Recent_Count	= ID_CMD_TABLE_RECENT_LAST        - m_Recent_First + 1;
-		m_Recent_Group	= "Table";
+		m_Group		= "Table";
+		m_CmdID[0]	= ID_CMD_TABLE_RECENT_FIRST;
+		m_CmdID[1]	= ID_CMD_TABLE_RECENT_LAST        - m_CmdID[0] + 1;
+
+		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_TABLE_OPEN);
 		break;
 
 	case SG_DATAOBJECT_TYPE_Shapes:
-		m_Recent_First	= ID_CMD_SHAPES_RECENT_FIRST;
-		m_Recent_Count	= ID_CMD_SHAPES_RECENT_LAST       - m_Recent_First + 1;
-		m_Recent_Group	= "Shapes";
+		m_Group		= "Shapes";
+		m_CmdID[0]	= ID_CMD_SHAPES_RECENT_FIRST;
+		m_CmdID[1]	= ID_CMD_SHAPES_RECENT_LAST       - m_CmdID[0] + 1;
+
+		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_SHAPES_OPEN);
 		break;
 
 	case SG_DATAOBJECT_TYPE_TIN:
-		m_Recent_First	= ID_CMD_TIN_RECENT_FIRST;
-		m_Recent_Count	= ID_CMD_TIN_RECENT_LAST          - m_Recent_First + 1;
-		m_Recent_Group	= "TIN";
+		m_Group		= "TIN";
+		m_CmdID[0]	= ID_CMD_TIN_RECENT_FIRST;
+		m_CmdID[1]	= ID_CMD_TIN_RECENT_LAST          - m_CmdID[0] + 1;
+
+		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_TIN_OPEN);
 		break;
 
 	case SG_DATAOBJECT_TYPE_PointCloud:
-		m_Recent_First	= ID_CMD_POINTCLOUD_RECENT_FIRST;
-		m_Recent_Count	= ID_CMD_POINTCLOUD_RECENT_LAST   - m_Recent_First + 1;
-		m_Recent_Group	= "Point Cloud";
+		m_Group		= "Point Cloud";
+		m_CmdID[0]	= ID_CMD_POINTCLOUD_RECENT_FIRST;
+		m_CmdID[1]	= ID_CMD_POINTCLOUD_RECENT_LAST   - m_CmdID[0] + 1;
+
+		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_POINTCLOUD_OPEN);
 		break;
 
 	case SG_DATAOBJECT_TYPE_Grid:
-		m_Recent_First	= ID_CMD_GRID_RECENT_FIRST;
-		m_Recent_Count	= ID_CMD_GRID_RECENT_LAST         - m_Recent_First + 1;
-		m_Recent_Group	= "Grid";
+		m_Group		= "Grid";
+		m_CmdID[0]	= ID_CMD_GRID_RECENT_FIRST;
+		m_CmdID[1]	= ID_CMD_GRID_RECENT_LAST         - m_CmdID[0] + 1;
+
+		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_GRID_OPEN);
 		break;
 
 	case SG_DATAOBJECT_TYPE_Grids:
-		m_Recent_First	= ID_CMD_GRIDS_RECENT_FIRST;
-		m_Recent_Count	= ID_CMD_GRIDS_RECENT_LAST        - m_Recent_First + 1;
-		m_Recent_Group	= "Grids";
+		m_Group		= "Grids";
+		m_CmdID[0]	= ID_CMD_GRIDS_RECENT_FIRST;
+		m_CmdID[1]	= ID_CMD_GRIDS_RECENT_LAST        - m_CmdID[0] + 1;
+
+		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_GRIDS_OPEN);
 		break;
 
 	default:
-		m_Recent_First	= 0;
-		m_Recent_Count	= 0;
-		m_Recent_Group	= "";
+		m_CmdID[0]	= 0;
+		m_CmdID[1]	= 0;
 		break;
 	}
 
-	if( m_Recent_Count > 0 )
+	//-----------------------------------------------------
+	m_Offset	= m_pMenu->GetMenuItemCount();
+
+	if( m_CmdID[0] )
 	{
-		m_Recent	= new wxString[m_Recent_Count];
+		int	i = 0; wxString File;
 
-		for(int i=0, n=0; i<m_Recent_Count; i++)
+		while( CONFIG_Read("RECENT_FILES/" + m_Group, wxString::Format("FILE_%02d", ++i), File) )
 		{
-			wxString	Recent;
-
-			CONFIG_Read(wxString::Format("RECENT_FILES/%s", m_Recent_Group.c_str()), wxString::Format("FILE_%02d", i + 1), Recent);
-
-			if( wxFileExists(Recent) )
+			if( wxFileExists(File) )
 			{
-				m_Recent[n++]	= Recent;
+				m_Files.Add(File);
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	wxMenu	*pMenu	= new wxMenu;
+	Update();
 
-	Update(pMenu);
-
-	return( pMenu );
+	return( m_pMenu );
 }
 
 
@@ -206,81 +206,53 @@ wxMenu * CWKSP_Data_Menu_File::Create(TSG_Data_Object_Type DataType)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Data_Menu_File::Update(wxMenu *pMenu)
+void CWKSP_Data_Menu_File::Update(void)
 {
-	bool	bFirst;
-	int		i;
+	if( !m_pMenu )
+	{
+		return;
+	}
 
 	//-----------------------------------------------------
-	if( pMenu )
+	for(int i=m_Files.GetCount(); i>0; i--)
 	{
-		for(i=pMenu->GetMenuItemCount()-1; i>=0; i--)
+		if( !wxFileExists(m_Files[i - 1]) )
 		{
-			pMenu->Destroy(pMenu->GetMenuItems()[i]);
+			m_Files.RemoveAt(i - 1);
+		}
+	}
+
+	//-----------------------------------------------------
+	if( m_Files.GetCount() == 0 )
+	{
+		for(size_t i=m_pMenu->GetMenuItemCount(); i>m_Offset; i--)
+		{
+			m_pMenu->Destroy(m_pMenu->GetMenuItems()[i - 1]);
+		}
+	}
+
+	//-----------------------------------------------------
+	else
+	{
+		if( m_pMenu->GetMenuItemCount() == m_Offset )
+		{
+			m_pMenu->AppendSeparator();
 		}
 
-		//-------------------------------------------------
-		switch( m_DataType )
+		for(size_t i=m_pMenu->GetMenuItemCount(); i>m_Offset + 1 + m_Files.GetCount(); i--)
 		{
-		case SG_DATAOBJECT_TYPE_Undefined:
-			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_OPEN);
-		//	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_OPEN_ADD);
-			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_BROWSE);
-			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_CLOSE);
-			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_SAVE);
-			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_SAVE_AS);
-			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_COPY);
-		//	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_COPY_DB);
-			break;
-
-		case SG_DATAOBJECT_TYPE_Table:
-			CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_OPEN);
-			break;
-
-		case SG_DATAOBJECT_TYPE_Shapes:
-			CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_OPEN);
-			break;
-
-		case SG_DATAOBJECT_TYPE_TIN:
-			CMD_Menu_Add_Item(pMenu, false, ID_CMD_TIN_OPEN);
-			break;
-
-		case SG_DATAOBJECT_TYPE_PointCloud:
-			CMD_Menu_Add_Item(pMenu, false, ID_CMD_POINTCLOUD_OPEN);
-			break;
-
-		case SG_DATAOBJECT_TYPE_Grid:
-			CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRID_OPEN);
-			break;
-
-		case SG_DATAOBJECT_TYPE_Grids:
-			CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_OPEN);
-			break;
-
-		default:
-			return;
+			m_pMenu->Destroy(m_pMenu->GetMenuItems()[i - 1]);
 		}
 
-		//-------------------------------------------------
-		for(i=m_Recent_Count-1; i>=0; i--)
+		for(size_t i=0; i<m_Files.GetCount(); i++)
 		{
-			if( !m_Recent[i].IsEmpty() && !wxFileExists(m_Recent[i]) )
+			if( m_pMenu->GetMenuItemCount() <= m_Offset + 1 + i )
 			{
-				Del(m_Recent[i]);
+				m_pMenu->Append  (m_CmdID[0] + i, m_Files[i]);
 			}
-		}
-
-		for(i=0, bFirst=false; i<m_Recent_Count; i++)
-		{
-			if( m_Recent[i].Length() > 0 )
+			else //if( m_pMenu->GetLabel(m_CmdID[0] + i).Cmp(m_Files[i]) )
 			{
-				if( !bFirst )
-				{
-					bFirst	= true;
-					pMenu->AppendSeparator();
-				}
-
-				pMenu->Append(m_Recent_First + i, m_Recent[i]);
+				m_pMenu->SetLabel(m_CmdID[0] + i, m_Files[i]);
 			}
 		}
 	}
@@ -292,75 +264,50 @@ void CWKSP_Data_Menu_File::Update(wxMenu *pMenu)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Data_Menu_File::Add(const wxString &FileName)
+void CWKSP_Data_Menu_File::Add(const wxString &File)
 {
-	if( m_Recent && m_Recent_Count > 0 )
+	Del(File);
+
+	if( wxFileExists(File) )
 	{
-		wxString	s_tmp(FileName);
+		m_Files.Insert(File, 0);
 
-		Del(FileName);
-
-		for(int i=m_Recent_Count-1; i>0; i--)
+		while( m_Files.Count() > m_CmdID[1] )
 		{
-			m_Recent[i]	= m_Recent[i - 1];
-		}
-
-		m_Recent[0]	= s_tmp;
-	}
-}
-
-//---------------------------------------------------------
-void CWKSP_Data_Menu_File::Del(const wxString &FileName)
-{
-	if( m_Recent && m_Recent_Count > 0 && !FileName.IsEmpty() )
-	{
-		wxString	s_tmp(FileName);
-
-		for(int i=m_Recent_Count-1; i>=0; i--)
-		{
-			if( m_Recent[i].Cmp(s_tmp) == 0 )
-			{
-				_Del(m_Recent_First + i);
-			}
+			m_Files.RemoveAt(m_CmdID[1]);
 		}
 	}
 }
 
 //---------------------------------------------------------
-void CWKSP_Data_Menu_File::_Del(int Cmd_ID)
+void CWKSP_Data_Menu_File::Del(const wxString &File)
 {
-	if( m_Recent && m_Recent_First <= Cmd_ID && Cmd_ID < m_Recent_First + m_Recent_Count )
+	for(size_t i=m_Files.GetCount(); i>0; i--)
 	{
-		for(int i=Cmd_ID-m_Recent_First; i<m_Recent_Count-1; i++)
+		if( !m_Files[i - 1].Cmp(File) )
 		{
-			m_Recent[i]	= m_Recent[i + 1];
+			m_Files.RemoveAt(i - 1);
 		}
-
-		m_Recent[m_Recent_Count - 1].Clear();
 	}
 }
 
-
 //---------------------------------------------------------
-bool CWKSP_Data_Menu_File::Get(wxArrayString &FileNames, bool bAppend)
+bool CWKSP_Data_Menu_File::Get(wxArrayString &Files, bool bAppend)
 {
 	if( !bAppend )
 	{
-		FileNames.Clear();
+		Files.Clear();
 	}
 
-	if( m_Recent )
+	for(int i=0; i<m_Files.GetCount(); i++)
 	{
-		for(int i=0; i<m_Recent_Count; i++)
+		if( wxFileExists(m_Files[i]) )
 		{
-			if( wxFileExists(m_Recent[i]) )
-			{
-				FileNames.Add(m_Recent[i]);
-			}
+			Files.Add(m_Files[i]);
 		}
 	}
 
-	return( FileNames.Count() > 0 );
+	return( Files.Count() > 0 );
 }
 
 
@@ -369,18 +316,16 @@ bool CWKSP_Data_Menu_File::Get(wxArrayString &FileNames, bool bAppend)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Data_Menu_File::Open(int Cmd_ID)
+bool CWKSP_Data_Menu_File::Open(int CmdID)
 {
-	bool	bSuccess	= false;
+	bool bSuccess = false; int i = CmdID - m_CmdID[0];
 
-	if( m_Recent && m_Recent_First <= Cmd_ID && Cmd_ID < m_Recent_First + m_Recent_Count )
+	if( i >= 0 && i < m_Files.GetCount() )
 	{
-		wxString	File(m_Recent[Cmd_ID - m_Recent_First]);
-
 		switch( m_DataType )
 		{
 		case SG_DATAOBJECT_TYPE_Undefined:
-			bSuccess	= g_pData->Open(File);
+			bSuccess	= g_pData->Open(wxString(m_Files[i]));
 			break;
 
 		case SG_DATAOBJECT_TYPE_Table     :
@@ -389,7 +334,7 @@ bool CWKSP_Data_Menu_File::Open(int Cmd_ID)
 		case SG_DATAOBJECT_TYPE_PointCloud:
 		case SG_DATAOBJECT_TYPE_Grid      :
 		case SG_DATAOBJECT_TYPE_Grids     :
-			bSuccess	= g_pData->Open(File, m_DataType) != NULL;
+			bSuccess	= g_pData->Open(wxString(m_Files[i]), m_DataType) != NULL;
 			break;
 
 		default:

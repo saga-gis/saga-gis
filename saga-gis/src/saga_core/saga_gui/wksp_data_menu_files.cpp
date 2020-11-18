@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 	
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -41,22 +38,11 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -124,22 +110,24 @@ bool CWKSP_Data_Menu_Files::Recent_Open(int Cmd_ID)
 //---------------------------------------------------------
 void CWKSP_Data_Menu_Files::Recent_Add(int DataType, const wxString &FileName)
 {
-	if( m_bUpdate && _Get_Menu(DataType) )
-	{
-		_Get_Menu(DataType)->Add(FileName);
+	CWKSP_Data_Menu_File	*pMenu	= m_bUpdate ? _Get_Menu(DataType) : NULL;
 
-		_Update();
+	if( pMenu )
+	{
+		pMenu->Add(FileName);
+		pMenu->Update();
 	}
 }
 
 //---------------------------------------------------------
 void CWKSP_Data_Menu_Files::Recent_Del(int DataType, const wxString &FileName)
 {
-	if( m_bUpdate && _Get_Menu(DataType) )
-	{
-		_Get_Menu(DataType)->Del(FileName);
+	CWKSP_Data_Menu_File	*pMenu	= m_bUpdate ? _Get_Menu(DataType) : NULL;
 
-		_Update();
+	if( pMenu )
+	{
+		pMenu->Del(FileName);
+		pMenu->Update();
 	}
 }
 
@@ -169,25 +157,6 @@ inline CWKSP_Data_Menu_File * CWKSP_Data_Menu_Files::_Get_Menu(int DataType)
 	}
 
 	return( NULL );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CWKSP_Data_Menu_Files::_Update(void)
-{
-	g_pSAGA_Frame->Freeze();
-	m_Project   .Update(m_pMenu->FindItem(ID_CMD_DATA_FIRST      )->GetSubMenu());
-	m_Table     .Update(m_pMenu->FindItem(ID_CMD_TABLE_FIRST     )->GetSubMenu());
-	m_Shapes    .Update(m_pMenu->FindItem(ID_CMD_SHAPES_FIRST    )->GetSubMenu());
-	m_TIN       .Update(m_pMenu->FindItem(ID_CMD_TIN_FIRST       )->GetSubMenu());
-	m_PointCloud.Update(m_pMenu->FindItem(ID_CMD_POINTCLOUD_FIRST)->GetSubMenu());
-	m_Grid      .Update(m_pMenu->FindItem(ID_CMD_GRID_FIRST      )->GetSubMenu());
-	m_Grids     .Update(m_pMenu->FindItem(ID_CMD_GRIDS_FIRST     )->GetSubMenu());
-	g_pSAGA_Frame->Thaw();
 }
 
 
