@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: table_regression_multiple.cpp 1098 2011-06-16 16:06:32Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "table_regression_multiple.h"
 
 
@@ -70,48 +58,45 @@
 //---------------------------------------------------------
 void CTable_Regression_Multiple_Base::Initialise(void)
 {
-	//-----------------------------------------------------
-	Set_Author		(SG_T("O.Conrad (c) 2012"));
+	Set_Author		("O.Conrad (c) 2012");
 
 	Set_Description	(_TW(
 		"Multiple linear regression analysis using ordinary least squares."
 	));
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode	= Parameters("TABLE");
-
-	Parameters.Add_Table_Field(
-		pNode	, "DEPENDENT"	, _TL("Dependent Variable"),
+	Parameters.Add_Table_Field("TABLE",
+		"DEPENDENT"		, _TL("Dependent Variable"),
 		_TL("")
 	);
 
-	Parameters.Add_Parameters(
-		pNode	, "PREDICTORS"	, _TL("Predictors"),
+	Parameters.Add_Parameters("TABLE",
+		"PREDICTORS"	, _TL("Predictors"),
 		_TL("")
 	);
 
-	Parameters.Add_Table(
-		NULL	, "INFO_COEFF"	, _TL("Details: Coefficients"),
+	Parameters.Add_Table("",
+		"INFO_COEFF"	, _TL("Details: Coefficients"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Table(
-		NULL	, "INFO_MODEL"	, _TL("Details: Model"),
+	Parameters.Add_Table("",
+		"INFO_MODEL"	, _TL("Details: Model"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Table(
-		NULL	, "INFO_STEPS"	, _TL("Details: Steps"),
+	Parameters.Add_Table("",
+		"INFO_STEPS"	, _TL("Details: Steps"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(
-		NULL	,"METHOD"		, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"		, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("include all"),
 			_TL("forward"),
 			_TL("backward"),
@@ -119,16 +104,16 @@ void CTable_Regression_Multiple_Base::Initialise(void)
 		), 3
 	);
 
-	Parameters.Add_Value(
-		NULL	, "P_VALUE"		, _TL("Significance Level"),
+	Parameters.Add_Double("",
+		"P_VALUE"		, _TL("Significance Level"),
 		_TL("Significance level (aka p-value) as threshold for automated predictor selection, given as percentage"),
-		PARAMETER_TYPE_Double, 5.0, 0.0, true, 100.0, true
+		5., 0., true, 100., true
 	);
 
-	Parameters.Add_Choice(
-		NULL	,"CROSSVAL"		, _TL("Cross Validation"),
+	Parameters.Add_Choice("",
+		"CROSSVAL"		, _TL("Cross Validation"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("none"),
 			_TL("leave one out"),
 			_TL("2-fold"),
@@ -136,10 +121,10 @@ void CTable_Regression_Multiple_Base::Initialise(void)
 		), 0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "CROSSVAL_K"	, _TL("Cross Validation Subsamples"),
+	Parameters.Add_Int("",
+		"CROSSVAL_K"	, _TL("Cross Validation Subsamples"),
 		_TL("number of subsamples for k-fold cross validation"),
-		PARAMETER_TYPE_Int, 10, 2, true
+		10, 2, true
 	);
 }
 
@@ -151,10 +136,10 @@ void CTable_Regression_Multiple_Base::Initialise(void)
 //---------------------------------------------------------
 int CTable_Regression_Multiple_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( pParameter->Cmp_Identifier(SG_T("TABLE")) )
+	if( pParameter->Cmp_Identifier("TABLE") )
 	{
-		CSG_Table		*pTable			= pParameter->asTable();
-		CSG_Parameters	*pPredictors	= pParameters->Get_Parameter("PREDICTORS")->asParameters();
+		CSG_Table      *pTable      = pParameter->asTable();
+		CSG_Parameters *pPredictors = (*pParameters)("PREDICTORS")->asParameters();
 
 		pPredictors->Del_Parameters();
 
@@ -164,29 +149,29 @@ int CTable_Regression_Multiple_Base::On_Parameter_Changed(CSG_Parameters *pParam
 			{
 				if( SG_Data_Type_is_Numeric(pTable->Get_Field_Type(i)) )
 				{
-					pPredictors->Add_Value(NULL, SG_Get_String(i), pTable->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false);
+					pPredictors->Add_Bool("", SG_Get_String(i), pTable->Get_Field_Name(i), _TL(""), false);
 				}
 			}
 		}
 	}
 
-	return( true );
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
 int CTable_Regression_Multiple_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	pParameter->Cmp_Identifier(SG_T("METHOD")) )
+	if(	pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Set_Enabled("P_VALUE", pParameter->asInt() > 0);
 	}
 
-	if(	pParameter->Cmp_Identifier(SG_T("CROSSVAL")) )
+	if(	pParameter->Cmp_Identifier("CROSSVAL") )
 	{
-		pParameters->Get_Parameter("CROSSVAL_K")->Set_Enabled(pParameter->asInt() == 3);	// k-fold
+		pParameters->Set_Enabled("CROSSVAL_K", pParameter->asInt() == 3);	// k-fold
 	}
 
-	return( 0 );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -197,10 +182,9 @@ int CTable_Regression_Multiple_Base::On_Parameters_Enable(CSG_Parameters *pParam
 //---------------------------------------------------------
 bool CTable_Regression_Multiple_Base::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_Parameters	*pPredictors	= Parameters("PREDICTORS")->asParameters();
 
-	if( pPredictors->Get_Count() <= 0 )
+	if( pPredictors->Get_Count() < 1 )
 	{
 		Message_Add(_TL("no predictors available"));
 
@@ -208,132 +192,30 @@ bool CTable_Regression_Multiple_Base::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int			Dependent, iPredictor, nPredictors, *Predictors, iSample;
-	CSG_Strings	Names;
-	CSG_Table	*pTable;
+	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
 
-	Dependent	= Parameters("DEPENDENT")->asInt();
-	Predictors	= new int[pPredictors->Get_Count()];
+	int  Dependent	= Parameters("DEPENDENT")->asInt();
+	int *Predictors	= new int[pPredictors->Get_Count()], nPredictors = 0;
 
-	pTable		= Parameters("TABLE")->asTable();
+	CSG_Strings	Names; Names += pTable->Get_Field_Name(Dependent);
 
-	Names	+= pTable->Get_Field_Name(Dependent);
-
-	for(iPredictor=0, nPredictors=0; iPredictor<pPredictors->Get_Count(); iPredictor++)	// Independent Variables
+	for(int iPredictor=0; iPredictor<pPredictors->Get_Count(); iPredictor++)	// Independent Variables
 	{
 		if( pPredictors->Get_Parameter(iPredictor)->asBool() )
 		{
-			Names	+= pTable->Get_Field_Name(
-				Predictors[nPredictors++]	= CSG_String(pPredictors->Get_Parameter(iPredictor)->Get_Identifier()).asInt()
+			Names	+= pTable->Get_Field_Name(Predictors[nPredictors++]	=
+				CSG_String(pPredictors->Get_Parameter(iPredictor)->Get_Identifier()).asInt()
 			);
 		}
 	}
 
-	if( nPredictors <= 0 )
+	if( nPredictors < 1 )
 	{
 		Message_Add(_TL("no predictors in selection"));
 
 		delete[](Predictors);
 
 		return( false );
-	}
-
-	//-----------------------------------------------------
-	CSG_Vector	Sample(1 + nPredictors);
-	CSG_Matrix	Samples;
-
-	for(iSample=0; iSample<pTable->Get_Count(); iSample++)
-	{
-		CSG_Table_Record	*pRecord	= pTable->Get_Record(iSample);
-
-		if( !pRecord->is_NoData(Dependent) )
-		{
-			bool	bOkay	= true;
-
-			Sample[0]	= pRecord->asDouble(Dependent);
-
-			for(iPredictor=0; iPredictor<nPredictors && bOkay; iPredictor++)
-			{
-				if( !pRecord->is_NoData(Predictors[iPredictor]) )
-				{
-					Sample[1 + iPredictor]	= pRecord->asDouble(Predictors[iPredictor]);
-				}
-				else
-				{
-					bOkay	= false;
-				}
-			}
-
-			if( bOkay )
-			{
-				Samples.Add_Row(Sample);
-			}
-		}
-	}
-
-	if( Samples.Get_NRows() <= 0 )
-	{
-		Message_Add(_TL("no valid samples in data set"));
-
-		delete[](Predictors);
-
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	CSG_Regression_Multiple	Regression;
-
-	double	P	= Parameters("P_VALUE")->asDouble();
-
-	switch( Parameters("METHOD")->asInt() )
-	{
-	default:
-	case 0:	if( !Regression.Get_Model         (Samples      , &Names) )	return( false );	break;
-	case 1:	if( !Regression.Get_Model_Forward (Samples, P   , &Names) )	return( false );	break;
-	case 2:	if( !Regression.Get_Model_Backward(Samples,    P, &Names) )	return( false );	break;
-	case 3:	if( !Regression.Get_Model_Stepwise(Samples, P, P, &Names) )	return( false );	break;
-	}
-
-	Message_Add(Regression.Get_Info(), false);
-
-	//-----------------------------------------------------
-	int	CrossVal;
-
-	switch( Parameters("CROSSVAL")->asInt() )
-	{
-	default:	CrossVal	= 0;									break;	// none
-	case 1:		CrossVal	= 1;									break;	// leave one out (LOOVC)
-	case 2:		CrossVal	= 2;									break;	// 2-fold
-	case 3:		CrossVal	= Parameters("CROSSVAL_K")->asInt();	break;	// k-fold
-	}
-
-	if( CrossVal > 0 && Regression.Get_CrossValidation(CrossVal) )
-	{
-		Message_Fmt("\n%s:", _TL("Cross Validation"));
-		Message_Fmt("\n\t%s:\t%s"  , _TL("Type"   ), Parameters("CROSSVAL")->asString());
-		Message_Fmt("\n\t%s:\t%d"  , _TL("Samples"), Regression.Get_CV_nSamples()      );
-		Message_Fmt("\n\t%s:\t%f"  , _TL("RMSE"   ), Regression.Get_CV_RMSE()          );
-		Message_Fmt("\n\t%s:\t%.2f", _TL("NRMSE"  ), Regression.Get_CV_NRMSE()  * 100.0);
-		Message_Fmt("\n\t%s:\t%.2f", _TL("R2"     ), Regression.Get_CV_R2()     * 100.0);
-	}
-
-	//-----------------------------------------------------
-	if( Parameters("INFO_COEFF")->asTable() )
-	{
-		Parameters("INFO_COEFF")->asTable()->Assign(Regression.Get_Info_Regression());
-		Parameters("INFO_COEFF")->asTable()->Set_Name(_TL("MLRA Coefficients"));
-	}
-
-	if( Parameters("INFO_MODEL")->asTable() )
-	{
-		Parameters("INFO_MODEL")->asTable()->Assign(Regression.Get_Info_Model());
-		Parameters("INFO_MODEL")->asTable()->Set_Name(_TL("MLRA Model"));
-	}
-
-	if( Parameters("INFO_STEPS")->asTable() )
-	{
-		Parameters("INFO_STEPS")->asTable()->Assign(Regression.Get_Info_Steps());
-		Parameters("INFO_STEPS")->asTable()->Set_Name(_TL("MLRA Steps"));
 	}
 
 	//-----------------------------------------------------
@@ -357,30 +239,119 @@ bool CTable_Regression_Multiple_Base::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int	Offset	= pTable->Get_Field_Count();
+	CSG_Matrix	Samples;	CSG_Vector	Sample(1 + nPredictors);
 
-	pTable->Add_Field(_TL("PREDICTED"), SG_DATATYPE_Double);
-	pTable->Add_Field(_TL("RESIDUAL" ), SG_DATATYPE_Double);
-
-	for(iSample=0; iSample<pTable->Get_Count(); iSample++)
+	for(int iSample=0; iSample<pTable->Get_Count(); iSample++)
 	{
 		CSG_Table_Record	*pRecord	= pTable->Get_Record(iSample);
 
-		bool	bOkay	= false;
-		double	z		= Regression.Get_RConst();
-
 		if( !pRecord->is_NoData(Dependent) )
 		{
-			for(iPredictor=0, bOkay=true; iPredictor<Regression.Get_nPredictors() && bOkay; iPredictor++)
+			Sample[0]	= pRecord->asDouble(Dependent);
+
+			bool	bOkay	= true;
+
+			for(int iPredictor=0; bOkay && iPredictor<nPredictors; iPredictor++)
 			{
-				if( !pRecord->is_NoData(Predictors[iPredictor]) )
+				if( (bOkay = !pRecord->is_NoData(Predictors[iPredictor])) == true )
 				{
-					z	+= Regression.Get_RCoeff(Regression.Get_Predictor(iPredictor)) * pRecord->asDouble(Predictors[iPredictor]);
+					Sample[1 + iPredictor]	= pRecord->asDouble(Predictors[iPredictor]);
 				}
-				else
-				{
-					bOkay	= false;
-				}
+			}
+
+			if( bOkay )
+			{
+				Samples.Add_Row(Sample);
+			}
+		}
+	}
+
+	if( Samples.Get_NRows() < 1 )
+	{
+		Message_Add(_TL("no valid samples in data set"));
+
+		delete[](Predictors);
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Regression_Multiple	Regression;
+
+	double	P	= Parameters("P_VALUE")->asDouble();
+
+	switch( Parameters("METHOD")->asInt() )
+	{
+	default: if( !Regression.Get_Model         (Samples      , &Names) ) return( false ); break;
+	case  1: if( !Regression.Get_Model_Forward (Samples, P   , &Names) ) return( false ); break;
+	case  2: if( !Regression.Get_Model_Backward(Samples,    P, &Names) ) return( false ); break;
+	case  3: if( !Regression.Get_Model_Stepwise(Samples, P, P, &Names) ) return( false ); break;
+	}
+
+	Message_Add(Regression.Get_Info(), false);
+
+	//-----------------------------------------------------
+	int	CrossVal;
+
+	switch( Parameters("CROSSVAL")->asInt() )
+	{
+	default: CrossVal = 0                                ; break;	// none
+	case  1: CrossVal = 1                                ; break;	// leave one out (LOOVC)
+	case  2: CrossVal = 2                                ; break;	// 2-fold
+	case  3: CrossVal = Parameters("CROSSVAL_K")->asInt(); break;	// k-fold
+	}
+
+	if( CrossVal > 0 && Regression.Get_CrossValidation(CrossVal) )
+	{
+		Message_Fmt("\n%s:", _TL("Cross Validation"));
+		Message_Fmt("\n\t%s:\t%s"  , _TL("Type"   ), Parameters("CROSSVAL")->asString());
+		Message_Fmt("\n\t%s:\t%d"  , _TL("Samples"), Regression.Get_CV_nSamples()      );
+		Message_Fmt("\n\t%s:\t%f"  , _TL("RMSE"   ), Regression.Get_CV_RMSE()          );
+		Message_Fmt("\n\t%s:\t%.2f", _TL("NRMSE"  ), Regression.Get_CV_NRMSE()   * 100.);
+		Message_Fmt("\n\t%s:\t%.2f", _TL("R2"     ), Regression.Get_CV_R2()      * 100.);
+	}
+
+	//-----------------------------------------------------
+	if( Parameters("INFO_COEFF")->asTable() )
+	{
+		Parameters("INFO_COEFF")->asTable()->Assign(Regression.Get_Info_Regression());
+		Parameters("INFO_COEFF")->asTable()->Set_Name(_TL("MLRA Coefficients"));
+	}
+
+	if( Parameters("INFO_MODEL")->asTable() )
+	{
+		Parameters("INFO_MODEL")->asTable()->Assign(Regression.Get_Info_Model());
+		Parameters("INFO_MODEL")->asTable()->Set_Name(_TL("MLRA Model"));
+	}
+
+	if( Parameters("INFO_STEPS")->asTable() )
+	{
+		Parameters("INFO_STEPS")->asTable()->Assign(Regression.Get_Info_Steps());
+		Parameters("INFO_STEPS")->asTable()->Set_Name(_TL("MLRA Steps"));
+	}
+
+	//-----------------------------------------------------
+	int	Offset	= pTable->Get_Field_Count();
+
+	pTable->Add_Field(_TL("Estimated"), SG_DATATYPE_Double);
+	pTable->Add_Field(_TL("Residual" ), SG_DATATYPE_Double);
+	pTable->Add_Field(_TL("StdResid" ), SG_DATATYPE_Double);
+
+	CSG_Simple_Statistics	Residuals;
+
+	for(int iSample=0; iSample<pTable->Get_Count(); iSample++)
+	{
+		CSG_Table_Record	*pRecord	= pTable->Get_Record(iSample);
+
+		double	z	= Regression.Get_RConst();
+
+		bool	bOkay	= !pRecord->is_NoData(Dependent);
+
+		for(int iPredictor=0; bOkay && iPredictor<Regression.Get_nPredictors(); iPredictor++)
+		{
+			if( (bOkay = !pRecord->is_NoData(Predictors[iPredictor])) == true )
+			{
+				z	+= Regression.Get_RCoeff(Regression.Get_Predictor(iPredictor)) * pRecord->asDouble(Predictors[iPredictor]);
 			}
 		}
 
@@ -388,6 +359,8 @@ bool CTable_Regression_Multiple_Base::On_Execute(void)
 		{
 			pRecord->Set_Value(Offset + 0, z);
 			pRecord->Set_Value(Offset + 1, z - pRecord->asDouble(Dependent));
+
+			Residuals	+= z - pRecord->asDouble(Dependent);
 		}
 		else
 		{
@@ -396,12 +369,27 @@ bool CTable_Regression_Multiple_Base::On_Execute(void)
 		}
 	}
 
+	//-----------------------------------------------------
+	for(int iSample=0; iSample<pTable->Get_Count(); iSample++)	// standardized residuals...
+	{
+		CSG_Table_Record	*pRecord	= pTable->Get_Record(iSample);
+
+		if( !pRecord->is_NoData(Offset + 1) && Residuals.Get_StdDev() > 0. )
+		{
+			pRecord->Set_Value(Offset + 2, pRecord->asDouble(Offset + 1) / Residuals.Get_StdDev());
+		}
+		else
+		{
+			pRecord->Set_NoData(Offset + 2);
+		}
+	}
+
+	//-----------------------------------------------------
 	if( pTable != Parameters("RESULTS")->asTable() )
 	{
 		DataObject_Update(pTable);
 	}
 
-	//-----------------------------------------------------
 	delete[](Predictors);
 
 	return( true );
@@ -418,19 +406,10 @@ bool CTable_Regression_Multiple_Base::On_Execute(void)
 CTable_Regression_Multiple::CTable_Regression_Multiple(void)
 	: CTable_Regression_Multiple_Base()
 {
-	Set_Name		(_TL("Multiple Linear Regression Analysis"));
+	Set_Name(CSG_String::Format("%s (%s)", _TL("Multiple Linear Regression Analysis"), _TL("Table")));
 
-	Parameters.Add_Table(
-		NULL	, "TABLE"	, _TL("Table"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
-
-	Parameters.Add_Table(
-		NULL	, "RESULTS"	, _TL("Results"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
+	Parameters.Add_Table("", "TABLE"  , _TL("Table"  ), _TL(""), PARAMETER_INPUT          );
+	Parameters.Add_Table("", "RESULTS", _TL("Results"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 
 	Initialise();
 }
@@ -446,19 +425,10 @@ CTable_Regression_Multiple::CTable_Regression_Multiple(void)
 CTable_Regression_Multiple_Shapes::CTable_Regression_Multiple_Shapes(void)
 	: CTable_Regression_Multiple_Base()
 {
-	Set_Name		(_TL("Multiple Linear Regression Analysis (Shapes)"));
+	Set_Name(CSG_String::Format("%s (%s)", _TL("Multiple Linear Regression Analysis"), _TL("Shapes")));
 
-	Parameters.Add_Shapes(
-		NULL	, "TABLE"	, _TL("Shapes"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
-
-	Parameters.Add_Shapes(
-		NULL	, "RESULTS"	, _TL("Results"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
+	Parameters.Add_Shapes("", "TABLE"  , _TL("Shapes" ), _TL(""), PARAMETER_INPUT          );
+	Parameters.Add_Shapes("", "RESULTS", _TL("Results"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 
 	Initialise();
 }
