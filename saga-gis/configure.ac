@@ -99,12 +99,8 @@ if test "`wx-config --list | grep unicode`" == "" ; then
 fi
 
 # postgresql/postgis
+# can be disabled by passing --with-postgresql=no
 AX_LIB_POSTGRESQL([8.0])
-if test "x$found_postgresql" = "xyes"; then
-  echo "checking whether to enable postgresql... yes"
-else
-  echo "checking whether to enable postgresql... no"
-fi
 AM_CONDITIONAL(HAVE_POSTGRESQL, test "x$found_postgresql" = "xyes")
 
 # debug
