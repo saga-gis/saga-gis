@@ -7,8 +7,8 @@ endif
 
 DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS           = -I$(top_srcdir)/src/saga_core $(POSTGRESQL_CFLAGS)
-AM_CXXFLAGS        = $(CXX_INCS) $(DEF_SAGA) $(DBGFLAGS) $(GOMPFLAGS)
-AM_LDFLAGS         = $(DEP_LFLG) $(POSTGRESQL_LDFLAGS) $(DEP_LIBS) -shared -lpq -avoid-version
+AM_CXXFLAGS        = $(CXX_INCS) $(DEF_SAGA) $(DBGFLAGS) $(GOMPFLAGS) $(POSTGRESQL_CPPFLAGS)
+AM_LDFLAGS         = $(DEP_LFLG) $(POSTGRESQL_LDFLAGS) $(POSTGRESQL_LIBS) $(DEP_LIBS) -shared -avoid-version
 pkglib_LTLIBRARIES = libdb_pgsql.la
 libdb_pgsql_la_SOURCES =\
 get_connection.cpp\
