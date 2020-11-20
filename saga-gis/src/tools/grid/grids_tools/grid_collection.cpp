@@ -115,7 +115,7 @@ CGrids_Create::CGrids_Create(void)
 	Parameters.Add_Table("ATTRIBUTES",
 		"TABLE"		, _TL("Attributes"),
 		_TL(""),
-		PARAMETER_INPUT_OPTIONAL
+		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table_Field("TABLE",
@@ -340,7 +340,8 @@ bool CGrids_Create::On_Execute(void)
 
 	case  3:	// copy from other grid collection
 		{
-			pTable	= Parameters("COPY")->asGrids()->Get_Attributes_Ptr();
+			Table.Create(Parameters("COPY")->asGrids()->Get_Attributes());
+			pTable	= &Table;
 			zField	= Parameters("COPY")->asGrids()->Get_Z_Attribute();
 		}
 		break;
