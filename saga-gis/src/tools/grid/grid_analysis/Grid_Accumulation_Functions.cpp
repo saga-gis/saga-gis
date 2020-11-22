@@ -262,146 +262,147 @@ bool CGrid_Accumulation_Functions::On_Execute(void)
 
 	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
-		pSurface->Get_Sorted(n, x, y, true);
-
-		if( pSurface->is_NoData(x, y) || pInput->is_NoData(x, y) || (operation != 0 && pControl->is_NoData(x, y)) )
-		{
-			pFlux->Set_NoData(x, y);
-			if( pStateOut != NULL )
-				pStateOut->Set_NoData(x, y);
-		}
-		else
-		{
-			if( operation != 0 )
-				control		= pControl->asDouble(x, y);
-
-			flux			= pInput->asDouble(x, y) + pFlux->asDouble(x, y);
-			
-			switch(operation)
+		if( pSurface->Get_Sorted(n, x, y, true, false) )
+        {
+		    if( pSurface->is_NoData(x, y) || pInput->is_NoData(x, y) || (operation != 0 && pControl->is_NoData(x, y)) )
 		    {
-			case 0:			// accuflux
-			default:
-				break;
+			    pFlux->Set_NoData(x, y);
+			    if( pStateOut != NULL )
+				    pStateOut->Set_NoData(x, y);
+		    }
+		    else
+		    {
+			    if( operation != 0 )
+				    control		= pControl->asDouble(x, y);
 
-            case 1:			// accucapacityflux/state
-                if( flux > control )
-				{
-					state	= flux - control;
-					flux	= control;
-				}
-				else
-					state	= 0.0;
-				break;
+			    flux			= pInput->asDouble(x, y) + pFlux->asDouble(x, y);
+			
+			    switch(operation)
+		        {
+			    case 0:			// accuflux
+			    default:
+				    break;
 
-            case 2:			// accufractionflux/state
-				state		= flux * (1.0 - control);
-				flux		*= control;
-				break;
+                case 1:			// accucapacityflux/state
+                    if( flux > control )
+				    {
+					    state	= flux - control;
+					    flux	= control;
+				    }
+				    else
+					    state	= 0.0;
+				    break;
 
-			case 3:			// accuthresholdflux/state
-				if( flux > control )
-				{
-					state	= control;
-					flux	-= control;
-				}
-				else
-				{
-					state	= flux;
-					flux	= 0.0;
-				}
-				break;
+                case 2:			// accufractionflux/state
+				    state		= flux * (1.0 - control);
+				    flux		*= control;
+				    break;
 
-			case 4:			// accutriggerflux/state
-				if( flux > control )
-					state	= 0.0;
-				else
-				{
-					state	= flux;
-					flux	= 0.0;
-				}
-				break;
-			}
+			    case 3:			// accuthresholdflux/state
+				    if( flux > control )
+				    {
+					    state	= control;
+					    flux	-= control;
+				    }
+				    else
+				    {
+					    state	= flux;
+					    flux	= 0.0;
+				    }
+				    break;
 
-			z				= pSurface->asDouble(x, y);
-			dzSum			= 0.0;
-			maxGrad			= 0.0;
-			bool bBorder	= false;
+			    case 4:			// accutriggerflux/state
+				    if( flux > control )
+					    state	= 0.0;
+				    else
+				    {
+					    state	= flux;
+					    flux	= 0.0;
+				    }
+				    break;
+			    }
 
-			// get successor cells
-			//-----------------------------------------------------
-			if( pLinearCtrl != NULL )
-				linearCtrl = pLinearCtrl->asDouble(x, y);
-			else
-				linearCtrl = flux;
+			    z				= pSurface->asDouble(x, y);
+			    dzSum			= 0.0;
+			    maxGrad			= 0.0;
+			    bool bBorder	= false;
 
-			for(int i=0; i<8; i++)											
-			{
-				ix	= Get_xTo(i, x);			
-				iy	= Get_yTo(i, y);
+			    // get successor cells
+			    //-----------------------------------------------------
+			    if( pLinearCtrl != NULL )
+				    linearCtrl = pLinearCtrl->asDouble(x, y);
+			    else
+				    linearCtrl = flux;
 
-				if( is_InGrid(ix, iy) )
-				{
-					if( !pSurface->is_NoData(ix, iy) && (d = pSurface->asDouble(ix, iy)) < z )
-					{
-						if( bLinearFlow && linearCtrl > thresLinear )	// D8
-						{
-							dzSum = (z - d) / Get_Length(i);
-							if( maxGrad < dzSum )
-							{
-								maxGrad = dzSum;
-								steepestN = i;
-							}
-						}
-						else											// MFD Freeman 1991
-						{
-							gradient = (z - d) / Get_Length(i);
-							dzSum	+= (dz[i]	= pow(gradient, Convergence));
-						}
-					}
-					else
-					{
-						dz[i]	= 0.0;
-					}
-				}
-				else
-					bBorder = true;
-			}
+			    for(int i=0; i<8; i++)											
+			    {
+				    ix	= Get_xTo(i, x);			
+				    iy	= Get_yTo(i, y);
+
+				    if( is_InGrid(ix, iy) )
+				    {
+					    if( !pSurface->is_NoData(ix, iy) && (d = pSurface->asDouble(ix, iy)) < z )
+					    {
+						    if( bLinearFlow && linearCtrl > thresLinear )	// D8
+						    {
+							    dzSum = (z - d) / Get_Length(i);
+							    if( maxGrad < dzSum )
+							    {
+								    maxGrad = dzSum;
+								    steepestN = i;
+							    }
+						    }
+						    else											// MFD Freeman 1991
+						    {
+							    gradient = (z - d) / Get_Length(i);
+							    dzSum	+= (dz[i]	= pow(gradient, Convergence));
+						    }
+					    }
+					    else
+					    {
+						    dz[i]	= 0.0;
+					    }
+				    }
+				    else
+					    bBorder = true;
+			    }
 
 			
-			// routing
-			//-----------------------------------------------------
-			if( dzSum > 0.0 && !bBorder )
-			{
-				if( bLinearFlow && linearCtrl > thresLinear )
-				{
-					ix	= Get_xTo(steepestN, x);
-					iy	= Get_yTo(steepestN, y);
+			    // routing
+			    //-----------------------------------------------------
+			    if( dzSum > 0.0 && !bBorder )
+			    {
+				    if( bLinearFlow && linearCtrl > thresLinear )
+				    {
+					    ix	= Get_xTo(steepestN, x);
+					    iy	= Get_yTo(steepestN, y);
 	
-					pFlux->Add_Value(ix, iy, flux);	
-				}
-				else
-				{
-					d_flux	=  flux / dzSum;
+					    pFlux->Add_Value(ix, iy, flux);	
+				    }
+				    else
+				    {
+					    d_flux	=  flux / dzSum;
 
-					for(int i=0; i<8; i++)
-					{
-						if( dz[i] > 0.0 )
-						{
-							ix	= Get_xTo(i, x);
-							iy	= Get_yTo(i, y);
+					    for(int i=0; i<8; i++)
+					    {
+						    if( dz[i] > 0.0 )
+						    {
+							    ix	= Get_xTo(i, x);
+							    iy	= Get_yTo(i, y);
 
-							pFlux->Add_Value(ix, iy, d_flux * dz[i]);
-						}
-					}
-				}
-			}
+							    pFlux->Add_Value(ix, iy, d_flux * dz[i]);
+						    }
+					    }
+				    }
+			    }
 
-			pFlux->Set_Value(x, y, flux);
+			    pFlux->Set_Value(x, y, flux);
 
-			if( operation != 0 )
-				pStateOut->Set_Value(x, y, state);
+			    if( operation != 0 )
+				    pStateOut->Set_Value(x, y, state);
 
-		}// NoData
+		    }
+        }
 	}// for
 
 	DataObject_Set_Colors(pFlux, 11, SG_COLORS_WHITE_BLUE);
