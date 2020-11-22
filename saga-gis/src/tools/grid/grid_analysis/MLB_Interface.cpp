@@ -104,6 +104,7 @@ CSG_String Get_Info(int i)
 
 #include "Grid_Accumulation_Functions.h"
 #include "Grid_IMCORR.h"
+#include "Grid_Iterative_Truncation.h"
 
 #include "diversity_analysis.h"
 #include "diversity_shannon.h"
@@ -153,8 +154,10 @@ CSG_Tool *		Create_Tool(int i)
 	case 25:	return( new CDiversity_Raos_Q );
 
 	case 26:	return( new CCoverage_of_Categories );
+    
+    case 29:    return( new CGrid_Iterative_Truncation );
 
-	case 29:	return( NULL );
+	case 30:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

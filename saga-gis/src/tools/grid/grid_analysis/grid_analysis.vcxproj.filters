@@ -89,6 +89,9 @@
     <ClCompile Include="soil_water_capacity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Grid_Iterative_Truncation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cost_Isotropic.h">
@@ -197,6 +200,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="soil_water_capacity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Grid_Iterative_Truncation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
