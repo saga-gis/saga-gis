@@ -87,7 +87,7 @@ void CWKSP_Data_Menu_File::Destroy(void)
 
 	for(size_t i=0; i<m_Files.Count(); i++)
 	{
-		CONFIG_Write("RECENT_FILES/" + m_Group, wxString::Format("FILE_%02d", i + 1), m_Files[i]);
+		CONFIG_Write("RECENT_FILES/" + m_Group, wxString::Format("FILE_%02zu", i + 1), m_Files[i]);
 	}
 
 	m_DataType	= SG_DATAOBJECT_TYPE_Undefined;
