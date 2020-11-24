@@ -1491,16 +1491,14 @@ bool CLandFlow::On_Execute(void)
 					{
 						WriteRivBalance(m_sYear, dC, -1, -1);
 
-						int rx, ry;
-
-						for(int l=0; l < m_pDTM->Get_NCells() && Set_Progress_NCells(l); l++) //ueber alle Zellen des m_pDEM-Grids
+						for(sLong l=0; l < m_pDTM->Get_NCells() && Set_Progress_NCells(l); l++) //ueber alle Zellen des m_pDEM-Grids
 						{
-							m_pDTM->Get_Sorted(l, rx, ry); //sortieren der Zellen von hoechster (l=0) nach niedrigster...
+							int rx, ry;
 
-							if( m_pRivBalanceGrid->asDouble(rx,ry) != 0)
-								{
-									WriteRivBalance(rx, ry, m_pRivBalanceGrid->asDouble(rx,ry), m_pChannelFlow->asDouble(rx,ry) / 86400 );
-								}
+							if( m_pDTM->Get_Sorted(l, rx, ry) && m_pRivBalanceGrid->asDouble(rx,ry) != 0 ) //sortieren der Zellen von hoechster (l=0) nach niedrigster...
+							{
+								WriteRivBalance(rx, ry, m_pRivBalanceGrid->asDouble(rx,ry), m_pChannelFlow->asDouble(rx,ry) / 86400 );
+							}
 						}
 
 					}
@@ -2267,39 +2265,40 @@ void CLandFlow::TestR1Share(int HGx, int HGy)
 	{
 		for(int l=0; l < m_pDTM->Get_NCells() && Set_Progress_NCells(l); l++) //ueber alle Zellen des m_pDEM-Grids
 		{
-			m_pDTM->Get_Sorted(l, x, y); //sortieren der Zellen von hoechster (l=0) nach niedrigster - 1.Durchlauf um zu gucken, ob Abflusspfad in (HGx, HGy) endet
-
-			while( !m_pDTM->is_NoData(x,y) && ( x != HGx || y != HGy ) )
+			if( m_pDTM->Get_Sorted(l, x, y) ) //sortieren der Zellen von hoechster (l=0) nach niedrigster - 1.Durchlauf um zu gucken, ob Abflusspfad in (HGx, HGy) endet
 			{
-				int i = m_pDTM->Get_Gradient_NeighborDir(x, y);
-				
-				if(i >= 0) //es gibt eine niedrigere Nachbarzelle...
+				while( !m_pDTM->is_NoData(x,y) && ( x != HGx || y != HGy ) )
 				{
-					x = Get_xTo(i, x);
-					y = Get_yTo(i, y);
-				
-					if(x == HGx && y == HGy)
-					{
-						m_pDTM->Get_Sorted(l, x, y);		//2.Durchlauf um Abflusspfad mit den koordinaten der HG-Rasterzelle (HGx, HGy) zu markieren.
+					int i = m_pDTM->Get_Gradient_NeighborDir(x, y);
 
-						while( !m_pDTM->is_NoData(x,y) && ( x != HGx || y != HGy )  )
+					if(i >= 0) //es gibt eine niedrigere Nachbarzelle...
+					{
+						x = Get_xTo(i, x);
+						y = Get_yTo(i, y);
+
+						if( x == HGx && y == HGy && m_pDTM->Get_Sorted(l, x, y) )	//2.Durchlauf um Abflusspfad mit den koordinaten der HG-Rasterzelle (HGx, HGy) zu markieren.
 						{
-							int j = m_pDTM->Get_Gradient_NeighborDir(x, y);
-			
-							if(j >= 0) //es gibt eine niedrigere Nachbarzelle...
+							while( !m_pDTM->is_NoData(x,y) && ( x != HGx || y != HGy )  )
 							{
-								m_pTestR1Share->Set_Value(x, y, r); //Koordinaten der Ziel-Flussgridbox werden gesetzt
-								
-								x = Get_xTo(j, x);
-								y = Get_yTo(j, y);
-							}
-							else
+								int j = m_pDTM->Get_Gradient_NeighborDir(x, y);
+
+								if(j >= 0) //es gibt eine niedrigere Nachbarzelle...
+								{
+									m_pTestR1Share->Set_Value(x, y, r); //Koordinaten der Ziel-Flussgridbox werden gesetzt
+
+									x = Get_xTo(j, x);
+									y = Get_yTo(j, y);
+								}
+								else
 								{break;} //Nur fuer den Fall; j = -1 sollte eigentlich nicht mehr moeglich sein, da letzte Gridbox ja HG-Rasterzelle...
+							}
 						}
 					}
+					else
+					{
+						break; //Senke liegt vor
+					}
 				}
-				else
-					break; //Senke liegt vor
 			}
 		}
 	}

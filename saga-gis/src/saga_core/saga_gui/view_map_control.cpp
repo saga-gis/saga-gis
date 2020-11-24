@@ -472,7 +472,7 @@ void CVIEW_Map_Control::_Distance_Add(const wxPoint &Point)
 	m_Distance_Move	= 0.0;
 
 	wxClientDC	dc(this);
-	
+
 	_Distance_Draw(dc);
 }
 

@@ -375,81 +375,81 @@ bool CRivBasin::Set_BasinShare(void) //Fuer alle Werte innerhalb des RiverBasin 
 
 		for(int l=0; l < m_pDTM->Get_NCells() && Set_Progress_NCells(l); l++) //ueber alle Zellen des m_pDEM-Grids
 		{
-			m_pDTM->Get_Sorted(l, x, y); //sortieren der Zellen von hoechster (l=0) nach niedrigster...
-			
-			CellNum = 1; //Initialisierung der Zaehlung "vorherigerNachbarzellen" fuer erste Nachbarzelle (falls folgende if-Bedingung nicht erfuellt -> "gegenstandlos")
-			CellNum0 = 0;
-
-			//Erster Durchlauf: Zu "Gipfelzelle l" wird anhand des Abflusses die Muendungszelle im Flussgrid bestimmt (entspricht dem (x,y) fuer das gilt: m_pRivGrids->asDouble(x,y) != 0 )... 
-			if(m_pNumInFlowCells->asDouble(x,y) == 0 && !m_pDTM->is_NoData(x,y)) //starten nur wenn Gipfelzelle (enstspricht: m_pNumInputCells->asDouble(x,y) == 0); falls != gab es schon eine Zelle die hoeher war u damit wurde der Zweig schon abgegangen 
+			if( m_pDTM->Get_Sorted(l, x, y) ) //sortieren der Zellen von hoechster (l=0) nach niedrigster...
 			{
-				while( !m_pDTM->is_NoData(x,y) && m_pRivGrids->asDouble(x,y) == 0 )
+				CellNum = 1; //Initialisierung der Zaehlung "vorherigerNachbarzellen" fuer erste Nachbarzelle (falls folgende if-Bedingung nicht erfuellt -> "gegenstandlos")
+				CellNum0 = 0;
+
+				//Erster Durchlauf: Zu "Gipfelzelle l" wird anhand des Abflusses die Muendungszelle im Flussgrid bestimmt (entspricht dem (x,y) fuer das gilt: m_pRivGrids->asDouble(x,y) != 0 )... 
+				if(m_pNumInFlowCells->asDouble(x,y) == 0 && !m_pDTM->is_NoData(x,y)) //starten nur wenn Gipfelzelle (enstspricht: m_pNumInputCells->asDouble(x,y) == 0); falls != gab es schon eine Zelle die hoeher war u damit wurde der Zweig schon abgegangen 
 				{
-
-					i = m_pDTM->Get_Gradient_NeighborDir(x, y);
-					
-					if(i >= 0) //es gibt eine niedrigere Nachbarzelle...
-					{
-											
-						x = Get_xTo(i, x);
-						y = Get_yTo(i, y);
-						
-						if(m_pNumInFlowCells->asDouble(x,y) <= 0) //Wenn Null -> erstes Durchlaufen dieses Astes -> immer plus 1 fuer Naechstebarchbarzelle
-						{
-							CellNum0 = CellNum;
-							CellNum = CellNum + 1;
-						}
-						else //Ast wurde vorher schon durchlaufen -> vorherige DurchlaufWerte plus die statische Anzahl der Zellen (CellNum) des noch nicht durchlaufenden Astabschnittes 
-							CellNum0 = m_pNumInFlowCells->asDouble(x,y) + CellNum;
-												
-						m_pNumInFlowCells->Set_Value(x, y, CellNum0); //Anzahl voheriger Zellen im Abflusverlauf werden gesetzt... vorher bereits Durchlaufene "aeste" sind beruecksichtigt
-
-					}
-					else		//Senke liegt vor
-					{
-						CellNum0 = m_pNumInFlowCells->asDouble(x,y) * -1;
-						m_pNumInFlowCells->Set_Value(x, y, CellNum0);
-						break;
-					}
-
-				}
-
-				// Bei Zelle (x,y) handelt es sich nun um eine Flussrasterzelle oder eine Senke...
-				
-				if(m_pRivGrids->asDouble(x,y) != 0) //Wenn es eine Flussrasterzelle (also Muendungszelle) ist, Wert fuer alle alle Flaechenrasterzellen setzen, die in die Flussrasterzelle (x,y) muenden
-				{
-					
-					m_pBasinShare->Set_Value(x, y, 0); //Muendungsrasterzelle wird auf Null gesetzt
-									
-					//KoordinatenDouble erzeugen FORMAT: xxxxyyyy
-					double r = 0;
-					int u = 10000*x + y;
-					//
-										
-					r = u; //Wert der gesetzt wird : FORMAT: xxxxyyyy (Koordinate der "Ziel"Flussgridbox in die voherige Gitterboxen muenden)
-					
-					m_pDTM->Get_Sorted(l, x, y); //selber Durchlauf nochmal;  von der l-ten Gridbox bis Ziel-Flussfgridbox
-					
-					//Zweiter Durchlauf: Wiederum bei "Gipfelzelle l" beginnend wird nun fuer alle Gitterzellen auf dem Weg zur Muendungszelle der KoordinatenWert r gesetzt
 					while( !m_pDTM->is_NoData(x,y) && m_pRivGrids->asDouble(x,y) == 0 )
 					{
+
 						i = m_pDTM->Get_Gradient_NeighborDir(x, y);
 
-						if(i >= 0)
+						if(i >= 0) //es gibt eine niedrigere Nachbarzelle...
 						{
-							m_pBasinShare->Set_Value(x, y, r); //Koordinaten der Ziel-Flussgridbox werden gesetzt
 
 							x = Get_xTo(i, x);
-							y = Get_yTo(i, y);						
-						}
-						else
-							{break;} //Nur fuer den Fall; i = -1 sollte eigentlich nicht mehr moeglich sein, da letzte Gridbox ja Flussgridbox...
-					}
-				}
-				else
-					{}
-			}
+							y = Get_yTo(i, y);
 
+							if(m_pNumInFlowCells->asDouble(x,y) <= 0) //Wenn Null -> erstes Durchlaufen dieses Astes -> immer plus 1 fuer Naechstebarchbarzelle
+							{
+								CellNum0 = CellNum;
+								CellNum = CellNum + 1;
+							}
+							else //Ast wurde vorher schon durchlaufen -> vorherige DurchlaufWerte plus die statische Anzahl der Zellen (CellNum) des noch nicht durchlaufenden Astabschnittes 
+								CellNum0 = m_pNumInFlowCells->asDouble(x,y) + CellNum;
+
+							m_pNumInFlowCells->Set_Value(x, y, CellNum0); //Anzahl voheriger Zellen im Abflusverlauf werden gesetzt... vorher bereits Durchlaufene "aeste" sind beruecksichtigt
+
+						}
+						else		//Senke liegt vor
+						{
+							CellNum0 = m_pNumInFlowCells->asDouble(x,y) * -1;
+							m_pNumInFlowCells->Set_Value(x, y, CellNum0);
+							break;
+						}
+
+					}
+
+					// Bei Zelle (x,y) handelt es sich nun um eine Flussrasterzelle oder eine Senke...
+
+					if(m_pRivGrids->asDouble(x,y) != 0) //Wenn es eine Flussrasterzelle (also Muendungszelle) ist, Wert fuer alle alle Flaechenrasterzellen setzen, die in die Flussrasterzelle (x,y) muenden
+					{
+
+						m_pBasinShare->Set_Value(x, y, 0); //Muendungsrasterzelle wird auf Null gesetzt
+
+														   //KoordinatenDouble erzeugen FORMAT: xxxxyyyy
+						double r = 0;
+						int u = 10000*x + y;
+						//
+
+						r = u; //Wert der gesetzt wird : FORMAT: xxxxyyyy (Koordinate der "Ziel"Flussgridbox in die voherige Gitterboxen muenden)
+
+						m_pDTM->Get_Sorted(l, x, y, true, false); //selber Durchlauf nochmal;  von der l-ten Gridbox bis Ziel-Flussfgridbox
+
+													 //Zweiter Durchlauf: Wiederum bei "Gipfelzelle l" beginnend wird nun fuer alle Gitterzellen auf dem Weg zur Muendungszelle der KoordinatenWert r gesetzt
+						while( !m_pDTM->is_NoData(x,y) && m_pRivGrids->asDouble(x,y) == 0 )
+						{
+							i = m_pDTM->Get_Gradient_NeighborDir(x, y);
+
+							if(i >= 0)
+							{
+								m_pBasinShare->Set_Value(x, y, r); //Koordinaten der Ziel-Flussgridbox werden gesetzt
+
+								x = Get_xTo(i, x);
+								y = Get_yTo(i, y);						
+							}
+							else
+							{break;} //Nur fuer den Fall; i = -1 sollte eigentlich nicht mehr moeglich sein, da letzte Gridbox ja Flussgridbox...
+						}
+					}
+					else
+					{}
+				}
+			}
 
 			if(m_pDTM->is_NoData(x,y))
 			{
