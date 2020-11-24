@@ -91,7 +91,7 @@ private:
 
 	CSG_Parameters_Search_Points	m_Search;
 
-	CSG_Shapes						*m_pPoints;
+	CSG_Shapes						*m_pShapes, m_Centroids;
 
 
 	bool							Initialize				(void);

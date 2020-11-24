@@ -58,22 +58,24 @@
 //---------------------------------------------------------
 CGW_Multi_Regression_Points::CGW_Multi_Regression_Points(void)
 {
-	Set_Name		(_TL("GWR for Multiple Predictors"));
+	Set_Name		(_TL("GWR for Multiple Predictors (Shapes)"));
 
 	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
 		"Geographically Weighted Regression for multiple predictors. "
-		"Regression details are stored in a copy of input points. "
+		"Regression details are stored in a copy of the input data set. "
+		"If the input data set is not a point data set, the feature "
+		"centroids are used as spatial reference. "
 	));
 
 	GWR_Add_References(true);
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes("",
-		"POINTS"	, _TL("Points"),
+		"POINTS"	, _TL("Shapes"),
 		_TL(""),
-		PARAMETER_INPUT, SHAPE_TYPE_Point
+		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table_Field("POINTS",
@@ -89,7 +91,7 @@ CGW_Multi_Regression_Points::CGW_Multi_Regression_Points(void)
 	Parameters.Add_Shapes("",
 		"REGRESSION", _TL("Regression"),
 		_TL(""),
-		PARAMETER_OUTPUT, SHAPE_TYPE_Point
+		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Bool("",
@@ -121,7 +123,7 @@ int CGW_Multi_Regression_Points::On_Parameter_Changed(CSG_Parameters *pParameter
 	{
 		m_Search.On_Parameter_Changed(pParameters, pParameter);
 
-		pParameters->Set_Parameter("DW_BANDWIDTH", GWR_Fit_To_Density(pParameter->asShapes(), 4.0, 1));
+		pParameters->Set_Parameter("DW_BANDWIDTH", GWR_Fit_To_Density(pParameter->asShapes(), 4., 1));
 	}
 
 	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
@@ -145,80 +147,91 @@ int CGW_Multi_Regression_Points::On_Parameters_Enable(CSG_Parameters *pParameter
 //---------------------------------------------------------
 bool CGW_Multi_Regression_Points::Initialize(void)
 {
-	//-----------------------------------------------------
-	m_pPoints	= Parameters("REGRESSION")->asShapes();
-
 	m_Weighting.Set_Parameters(Parameters);
-
-	//-----------------------------------------------------
-	int			iDependent	= Parameters("DEPENDENT")->asInt   ();
-	CSG_Shapes	*pPoints	= Parameters("POINTS"   )->asShapes();
-
-	m_pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format("%s.%s [%s]", pPoints->Get_Name(), pPoints->Get_Field_Name(iDependent), _TL("GWR")));
-	m_pPoints->Add_Field(pPoints->Get_Field_Name(iDependent), SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
 	CSG_Parameter_Table_Fields	*pFields	= Parameters("PREDICTORS")->asTableFields();
 
-	if( (m_nPredictors = pFields->Get_Count()) <= 0 )
+	if( (m_nPredictors = pFields->Get_Count()) < 1 )
 	{
 		Error_Set(_TL("no predictors have been selected"));
 
 		return( false );
 	}
 
+	int	Dependent	= Parameters("DEPENDENT")->asInt();
+
 	//-----------------------------------------------------
-	int		i;
+	CSG_Shapes	*pShapes	= Parameters("POINTS")->asShapes();
 
-	for(i=0; i<m_nPredictors; i++)	// predictor values
+	m_pShapes	= Parameters("REGRESSION")->asShapes();
+
+	m_pShapes->Create(pShapes->Get_Type(), CSG_String::Format("%s.%s [%s]", pShapes->Get_Name(), pShapes->Get_Field_Name(Dependent), _TL("GWR")));
+
+	CSG_Shapes	*pPoints	= m_pShapes->Get_Type() == SHAPE_TYPE_Point ? m_pShapes : &m_Centroids;
+
+	if( pPoints == &m_Centroids )
 	{
-		m_pPoints->Add_Field(pPoints->Get_Field_Name(pFields->Get_Index(i)), SG_DATATYPE_Double);
+		m_Centroids.Create(SHAPE_TYPE_Point); m_Centroids.Add_Field("ID", SG_DATATYPE_DWord);
 	}
 
-	m_pPoints->Add_Field("DEPENDENT" , SG_DATATYPE_Double);	// m_nPredictors + 0
-	m_pPoints->Add_Field("R2"        , SG_DATATYPE_Double);	// m_nPredictors + 1
-	m_pPoints->Add_Field("REGRESSION", SG_DATATYPE_Double);	// m_nPredictors + 2
-	m_pPoints->Add_Field("RESIDUAL"  , SG_DATATYPE_Double);	// m_nPredictors + 3
-	m_pPoints->Add_Field("INTERCEPT" , SG_DATATYPE_Double);	// m_nPredictors + 4
-
-	for(i=0; i<m_nPredictors; i++)	// predictor model slopes
+	//-----------------------------------------------------
+	for(int i=0; i<m_nPredictors; i++)	// predictor values
 	{
-		m_pPoints->Add_Field(CSG_String::Format("%s.%s", _TL("SLOPE"), pPoints->Get_Field_Name(pFields->Get_Index(i))), SG_DATATYPE_Double);
+		m_pShapes->Add_Field(pShapes->Get_Field_Name(pFields->Get_Index(i)), SG_DATATYPE_Double);
 	}
 
-	for(int iPoint=0; iPoint<pPoints->Get_Count(); iPoint++)
+	m_pShapes->Add_Field(CSG_String::Format("Observed (%s)", pShapes->Get_Field_Name(Dependent)), SG_DATATYPE_Double);
+
+	m_pShapes->Add_Field("Predicted"   , SG_DATATYPE_Double);	// m_nPredictors + 1
+	m_pShapes->Add_Field("Residual"    , SG_DATATYPE_Double);	// m_nPredictors + 2
+	m_pShapes->Add_Field("Std.Residual", SG_DATATYPE_Double);	// m_nPredictors + 3
+	m_pShapes->Add_Field("Local R2"    , SG_DATATYPE_Double);	// m_nPredictors + 4
+	m_pShapes->Add_Field("Intercept"   , SG_DATATYPE_Double);	// m_nPredictors + 5
+
+	for(int i=0; i<m_nPredictors; i++)	// m_nPredictors + 6..., predictor model slope(s)
 	{
-		CSG_Shape	*pPoint	= pPoints->Get_Shape(iPoint);
+		m_pShapes->Add_Field(CSG_String::Format("Slope.%d (%s)", i + 1, pShapes->Get_Field_Name(pFields->Get_Index(i))), SG_DATATYPE_Double);
+	}
 
-		bool	bOkay	= !pPoint->is_NoData(iDependent);
+	for(int iShape=0; iShape<pShapes->Get_Count(); iShape++)
+	{
+		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
 
-		for(i=0; bOkay && i<m_nPredictors; i++)
+		bool	bOkay	= pShape->is_Valid() && !pShape->is_NoData(Dependent);
+
+		for(int i=0; bOkay && i<m_nPredictors; i++)
 		{
-			bOkay	= !pPoint->is_NoData(pFields->Get_Index(i));
+			bOkay	= !pShape->is_NoData(pFields->Get_Index(i));
 		}
 
 		if( bOkay )
 		{
-			CSG_Shape	*pAdd	= m_pPoints->Add_Shape(pPoint, SHAPE_COPY_GEOM);
+			CSG_Shape	*pCopy	= m_pShapes->Add_Shape(pShape, SHAPE_COPY_GEOM);
 
-			for(i=0; i<m_nPredictors; i++)
+			for(int i=0; i<m_nPredictors; i++)
 			{
-				pAdd->Set_Value(i, pPoint->asDouble(pFields->Get_Index(i)));
+				pCopy->Set_Value(i, pShape->asDouble(pFields->Get_Index(i)));
 			}
 
-			pAdd->Set_Value(m_nPredictors, pPoint->asDouble(iDependent));
+			pCopy->Set_Value(m_nPredictors, pShape->asDouble(Dependent));
+
+			if( pPoints == &m_Centroids )
+			{
+				m_Centroids.Add_Shape()->Set_Point(pCopy->Get_Centroid(), 0);
+			}
 		}
 	}
 
 	//-----------------------------------------------------
-	if( m_pPoints->Get_Count() == 0 )
+	if( m_pShapes->Get_Count() < 1 )
 	{
 		Error_Set(_TL("invalid data"));
 
 		return( false );
 	}
 
-	if( !m_Search.Initialize(m_pPoints, -1) )
+	if( !m_Search.Initialize(pPoints, -1) )
 	{
 		Error_Set(_TL("failed to create searche engine"));
 
@@ -232,6 +245,8 @@ bool CGW_Multi_Regression_Points::Initialize(void)
 void CGW_Multi_Regression_Points::Finalize(void)
 {
 	m_Search.Finalize();
+
+	m_Centroids.Destroy();
 }
 
 
@@ -251,22 +266,26 @@ bool CGW_Multi_Regression_Points::On_Execute(void)
 
 	bool	bLogistic	= Parameters("LOGISTIC")->asBool();
 
-	//-----------------------------------------------------
-	for(int iPoint=0; iPoint<m_pPoints->Get_Count() && Set_Progress(iPoint, m_pPoints->Get_Count()); iPoint++)
-	{
-		CSG_Shape	*pPoint = m_pPoints->Get_Shape(iPoint);
+	CSG_Simple_Statistics	Residuals;
 
+	//-----------------------------------------------------
+	for(int iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
+	{
 		CSG_Regression_Weighted	Model;
 
-		if( Get_Model(pPoint->Get_Point(0), Model, bLogistic) )
+		CSG_Shape	*pShape = m_pShapes->Get_Shape(iShape);
+
+		if( Get_Model(pShape->Get_Centroid(), Model, bLogistic) )
 		{
-			double	Value	= Model[0];
+			double	Value	= Model[0];	// Intercept
 
-			for(int i=1; i<=m_nPredictors; i++)
+			pShape->Set_Value(m_nPredictors + 5, Model[0]);
+
+			for(int i=0; i<m_nPredictors; i++)
 			{
-				pPoint->Set_Value(m_nPredictors + 4 + i, Model[i]);
+				Value	+= Model[1 + i] * pShape->asDouble(i);
 
-				Value	+= Model[i] * pPoint->asDouble(i);
+				pShape->Set_Value(m_nPredictors + 6 + i, Model[1 + i]);
 			}
 
 			if( bLogistic )
@@ -274,9 +293,30 @@ bool CGW_Multi_Regression_Points::On_Execute(void)
 				Value	= 1. / (1. + exp(-Value));
 			}
 
-			pPoint->Set_Value(m_nPredictors + 1, Model.Get_R2());
-			pPoint->Set_Value(m_nPredictors + 2, Value);
-			pPoint->Set_Value(m_nPredictors + 3, pPoint->asDouble(0) - Value);	// Residual
+			double	Residual = pShape->asDouble(m_nPredictors) - Value; Residuals += Residual;
+
+			pShape->Set_Value(m_nPredictors + 1, Value         ); // Predicted
+			pShape->Set_Value(m_nPredictors + 2, Residual      ); // Residual
+			pShape->Set_Value(m_nPredictors + 4, Model.Get_R2()); // Local R2
+		}
+		else for(int i=1+m_nPredictors; i<m_pShapes->Get_Field_Count(); i++)
+		{
+			pShape->Set_NoData(i);
+		}
+	}
+
+	//-----------------------------------------------------
+	for(int iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
+	{
+		CSG_Shape	*pShape = m_pShapes->Get_Shape(iShape);
+
+		if( Residuals.Get_StdDev() > 0. && !pShape->is_NoData(m_nPredictors + 2) )
+		{
+			pShape->Set_Value(m_nPredictors + 3, pShape->asDouble(m_nPredictors + 2) / Residuals.Get_StdDev()); // Std.Residual
+		}
+		else
+		{
+			pShape->Set_NoData(m_nPredictors + 3);
 		}
 	}
 
@@ -294,29 +334,24 @@ bool CGW_Multi_Regression_Points::On_Execute(void)
 //---------------------------------------------------------
 bool CGW_Multi_Regression_Points::Get_Model(const TSG_Point &Point, CSG_Regression_Weighted &Model, bool bLogistic)
 {
-	int	nPoints	= m_Search.Set_Location(Point);
+	int	nShapes	= m_Search.Set_Location(Point);
 
 	CSG_Vector	Predictors(m_nPredictors);
 
 	Model.Destroy();
 
-	for(int iPoint=0; iPoint<nPoints; iPoint++)
+	for(int iShape=0; iShape<nShapes; iShape++)
 	{
-		double	ix, iy, iz;
+		double	ix, iy, iz; int Index = !m_Search.Do_Use_All() && m_Search.Get_Point(iShape, ix, iy, iz) ? (int)iz : iShape;
 
-		CSG_Shape	*pPoint = m_Search.Do_Use_All() && m_Search.Get_Point(iPoint, ix, iy, iz)
-			? m_pPoints->Get_Shape((int)iz)
-			: m_pPoints->Get_Shape(iPoint);
+		CSG_Shape	*pShape = m_pShapes->Get_Shape(Index);
 
-		for(int iPredictor=0; iPredictor<m_nPredictors; iPredictor++)
+		for(int i=0; i<m_nPredictors; i++)
 		{
-			Predictors[iPredictor]	= pPoint->asDouble(iPredictor);
+			Predictors[i]	= pShape->asDouble(i);
 		}
 
-		Model.Add_Sample(
-			m_Weighting.Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point(0))),
-			pPoint->asDouble(m_nPredictors), Predictors
-		);
+		Model.Add_Sample(m_Weighting.Get_Weight(SG_Get_Distance(Point, pShape->Get_Centroid())), pShape->asDouble(m_nPredictors), Predictors);
 	}
 
 	return( Model.Calculate(bLogistic) );

@@ -358,9 +358,9 @@ bool CTable_Regression_Multiple_Base::On_Execute(void)
 		if( bOkay )
 		{
 			pRecord->Set_Value(Offset + 0, z);
-			pRecord->Set_Value(Offset + 1, z - pRecord->asDouble(Dependent));
+			pRecord->Set_Value(Offset + 1, pRecord->asDouble(Dependent) - z);
 
-			Residuals	+= z - pRecord->asDouble(Dependent);
+			Residuals	+= pRecord->asDouble(Dependent) - z;
 		}
 		else
 		{
