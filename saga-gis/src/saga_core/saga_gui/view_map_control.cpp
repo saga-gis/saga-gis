@@ -215,11 +215,21 @@ inline void CVIEW_Map_Control::_Set_StatusBar(const TSG_Point &Point)
 		}
 		else if( Get_Active_Layer() )
 		{
-			TSG_Point	p(Point);
+			double epsilon	= _Get_Client2World(2.); // 2 pixel tolerance...
 
-			SG_Get_Projected(m_pMap->Get_Projection(), Get_Active_Layer()->Get_Object()->Get_Projection(), p);
+			TSG_Point	p(Point), q(Point);	q.x	+= epsilon; q.y += epsilon;
 
-			STATUSBAR_Set_Text(wxString::Format("Z %s", Get_Active_Layer()->Get_Value(p, _Get_Client2World(2.)).c_str()), STATUSBAR_VIEW_Z);
+			if( SG_Get_Projected(m_pMap->Get_Projection(), Get_Active_Layer()->Get_Object()->Get_Projection(), p)
+			&&  SG_Get_Projected(m_pMap->Get_Projection(), Get_Active_Layer()->Get_Object()->Get_Projection(), q) )
+			{
+				epsilon	= (fabs(q.x - p.x) + fabs(q.y - p.y)) / 2.;
+
+				STATUSBAR_Set_Text(wxString::Format("Z %s", Get_Active_Layer()->Get_Value(p, epsilon).c_str()), STATUSBAR_VIEW_Z);
+			}
+			else
+			{
+				STATUSBAR_Set_Text("Z", STATUSBAR_VIEW_Z);
+			}
 		}
 		else
 		{
