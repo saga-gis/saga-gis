@@ -78,6 +78,11 @@ protected:
 
 	virtual bool				On_Execute				(void);
 
+
+private:
+
+	bool						Set_Classification		(CSG_Shapes *pShapes, int Field);
+
 };
 
 

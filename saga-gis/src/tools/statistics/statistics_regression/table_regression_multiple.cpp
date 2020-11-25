@@ -233,7 +233,7 @@ bool CTable_Regression_Multiple_Base::On_Execute(void)
 			pResults->Create(*pTable);
 		}
 
-		pResults->Fmt_Name("%s [%s]", pTable->Get_Name(), _TL("Regression"));
+		pResults->Fmt_Name("%s.%s [%s]", pTable->Get_Name(), pTable->Get_Field_Name(Dependent), _TL("OLS"));
 
 		pTable	= pResults;
 	}
@@ -385,12 +385,52 @@ bool CTable_Regression_Multiple_Base::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	delete[](Predictors);
+
 	if( pTable != Parameters("RESULTS")->asTable() )
 	{
 		DataObject_Update(pTable);
 	}
 
-	delete[](Predictors);
+	Set_Classification(pTable->asShapes(), Offset + 2);
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CTable_Regression_Multiple_Base::Set_Classification(CSG_Shapes *pShapes, int Field)
+{
+	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(pShapes, "LUT");
+
+	if( pLUT && pLUT->asTable() )
+	{
+		pLUT->asTable()->Del_Records();
+
+		#define ADD_CLASS(r, g, b, min, max, name) { CSG_Table_Record *pClass = pLUT->asTable()->Add_Record();\
+			pClass->Set_Value(0, SG_GET_RGB(r, g, b));\
+			pClass->Set_Value(1, name);\
+			pClass->Set_Value(2, "");\
+			pClass->Set_Value(3, min);\
+			pClass->Set_Value(4, max);\
+		}
+
+		ADD_CLASS( 69, 117, 181, -1e6, -2.5,      "< -2.5 Std.Dev");
+		ADD_CLASS(132, 158, 168, -2.5, -1.5, "-2.5 - -1.5 Std.Dev");
+		ADD_CLASS(192, 204, 190, -1.5, -0.5, "-1.5 - -0.5 Std.Dev");
+		ADD_CLASS(255, 255, 191, -0.5,  0.5,  "-0.5 - 0.5 Std.Dev");
+		ADD_CLASS(250, 185, 132,  0.5,  1.5,   "0.5 - 1.5 Std.Dev");
+		ADD_CLASS(237, 117,  81,  1.5,  2.5,   "1.5 - 2.5 Std.Dev");
+		ADD_CLASS(214,  47,  39,  2.5,  1e6,       "> 2.5 Std.Dev");
+
+		DataObject_Set_Parameter(pShapes, pLUT);
+		DataObject_Set_Parameter(pShapes, "COLORS_TYPE",     1);	// Color Classification Type: Lookup Table
+		DataObject_Set_Parameter(pShapes, "LUT_ATTRIB" , Field);	// Lookup Table Attribute   : StdResid
+	}
 
 	return( true );
 }

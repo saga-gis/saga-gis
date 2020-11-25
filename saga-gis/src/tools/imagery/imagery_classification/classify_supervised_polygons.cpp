@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "classify_supervised_polygons.h"
 
 
@@ -72,16 +60,7 @@ CPolygon_Classify_Supervised::CPolygon_Classify_Supervised(bool bShapes)
 {
 	m_bShapes	= bShapes;
 
-	//-----------------------------------------------------
-	int				i;
-	CSG_String		s;
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
-	Set_Name		(m_bShapes
-		? _TL("Supervised Classification for Shapes")
-		: _TL("Supervised Classification for Tables")
-	);
+	Set_Name		(CSG_String::Format("%s (%s)", _TL("Supervised Classification"), m_bShapes ? _TL("Shapes") : _TL("Tables")));
 
 	Set_Author		("O.Conrad (c) 2012");
 
@@ -94,112 +73,112 @@ CPolygon_Classify_Supervised::CPolygon_Classify_Supervised(bool bShapes)
 	//-----------------------------------------------------
 	if( m_bShapes )
 	{
-		pNode	= Parameters.Add_Shapes(
-			NULL	, "SHAPES"		, _TL("Shapes"),
+		Parameters.Add_Shapes("",
+			"SHAPES"	, _TL("Shapes"),
 			_TL(""),
 			PARAMETER_INPUT
 		);
 
-		Parameters.Add_Shapes(
-			NULL	, "CLASSES"		, _TL("Classification"),
+		Parameters.Add_Shapes("",
+			"CLASSES"	, _TL("Classification"),
 			_TL(""),
 			PARAMETER_OUTPUT
 		);
 	}
 	else
 	{
-		pNode	= Parameters.Add_Table(
-			NULL	, "TABLE"		, _TL("Table"),
+		Parameters.Add_Table("",
+			"TABLE"		, _TL("Table"),
 			_TL(""),
 			PARAMETER_INPUT
 		);
 
-		Parameters.Add_Table(
-			NULL	, "CLASSES"		, _TL("Classification"),
+		Parameters.Add_Table("",
+			"CLASSES"	, _TL("Classification"),
 			_TL(""),
 			PARAMETER_OUTPUT
 		);
 	}
 
-	Parameters.Add_Table_Fields(
-		pNode	, "FEATURES"		, _TL("Features"),
+	//-----------------------------------------------------
+	Parameters.Add_Table_Fields(m_bShapes ? "SHAPES" : "TABLE",
+		"FEATURES"		, _TL("Features"),
 		_TL("")
 	);
 
-	Parameters.Add_Value(
-		pNode	, "NORMALISE"		, _TL("Normalise"),
+	Parameters.Add_Bool(m_bShapes ? "SHAPES" : "TABLE",
+		"NORMALISE"		, _TL("Normalise"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "TRAINING"		, _TL("Training Classes"),
+	Parameters.Add_Table_Field(m_bShapes ? "SHAPES" : "TABLE",
+		"TRAINING"		, _TL("Training Classes"),
 		_TL(""),
 		true
 	);
 
-	Parameters.Add_FilePath(
-		pNode	, "FILE_LOAD"		, _TL("Load Statistics from File..."),
+	Parameters.Add_FilePath(m_bShapes ? "SHAPES" : "TABLE",
+		"FILE_LOAD"		, _TL("Load Statistics from File..."),
 		_TL(""),
 		NULL, NULL, false
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "FILE_SAVE"		, _TL("Save Statistics to File..."),
+	Parameters.Add_FilePath("",
+		"FILE_SAVE"		, _TL("Save Statistics to File..."),
 		_TL(""),
 		NULL, NULL, true
 	);
 
 	//-----------------------------------------------------
-	for(i=0; i<=SG_CLASSIFY_SUPERVISED_WTA; i++)
+	CSG_String	Methods;
+
+	for(int i=0; i<=SG_CLASSIFY_SUPERVISED_WTA; i++)
 	{
-		s	+= CSG_Classifier_Supervised::Get_Name_of_Method(i) + "|";
+		Methods	+= CSG_Classifier_Supervised::Get_Name_of_Method(i) + "|";
 	}
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"			, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"		, _TL("Method"),
 		_TL(""),
-		s, SG_CLASSIFY_SUPERVISED_MinimumDistance
+		Methods, SG_CLASSIFY_SUPERVISED_MinimumDistance
 	);
 
-	Parameters.Add_Value(
-		NULL	, "THRESHOLD_DIST"	, _TL("Distance Threshold"),
+	Parameters.Add_Double("",
+		"THRESHOLD_DIST", _TL("Distance Threshold"),
 		_TL("Let pixel stay unclassified, if minimum euclidian or mahalanobis distance is greater than threshold."),
-		PARAMETER_TYPE_Double, 0.0, 0.0, true
+		0., 0., true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "THRESHOLD_ANGLE"	, _TL("Spectral Angle Threshold (Degree)"),
+	Parameters.Add_Double("",
+		"THRESHOLD_ANGLE", _TL("Spectral Angle Threshold (Degree)"),
 		_TL("Let pixel stay unclassified, if spectral angle distance is greater than threshold."),
-		PARAMETER_TYPE_Double, 0.0, 0.0, true, 90.0, true
+		0., 0., true, 90., true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "THRESHOLD_PROB"	, _TL("Probability Threshold"),
+	Parameters.Add_Double("",
+		"THRESHOLD_PROB", _TL("Probability Threshold"),
 		_TL("Let pixel stay unclassified, if maximum likelihood probability value is less than threshold."),
-		PARAMETER_TYPE_Double, 0.0, 0.0, true, 100.0, true
+		0., 0., true, 100., true
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "RELATIVE_PROB"	, _TL("Probability Reference"),
+	Parameters.Add_Choice("",
+		"RELATIVE_PROB"	, _TL("Probability Reference"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("absolute"),
 			_TL("relative")
 		), 1
 	);
 
-	pNode	= Parameters.Add_Node(
-		NULL	, "WTA"				, _TL("Winner Takes All"),
+	Parameters.Add_Node("",
+		"WTA"			, _TL("Winner Takes All"),
 		_TL("")
 	);
 
-	for(i=0; i<SG_CLASSIFY_SUPERVISED_WTA; i++)
+	for(int i=0; i<SG_CLASSIFY_SUPERVISED_WTA; i++)
 	{
-		Parameters.Add_Value(
-			pNode, CSG_String::Format("WTA_%d", i), CSG_Classifier_Supervised::Get_Name_of_Method(i), _TL(""),
-			PARAMETER_TYPE_Bool, false
-		);
+		Parameters.Add_Bool("WTA", CSG_String::Format("WTA_%d", i), CSG_Classifier_Supervised::Get_Name_of_Method(i), _TL(""), false);
 	}
 }
 
@@ -238,7 +217,6 @@ int CPolygon_Classify_Supervised::On_Parameters_Enable(CSG_Parameters *pParamete
 //---------------------------------------------------------
 bool CPolygon_Classify_Supervised::On_Execute(void)
 {
-	//-----------------------------------------------------
 	if( !Get_Features() )
 	{
 		Error_Set(_TL("invalid features"));
@@ -277,9 +255,7 @@ bool CPolygon_Classify_Supervised::On_Execute(void)
 
 	for(int iRecord=0; iRecord<m_pTable->Get_Count() && Set_Progress(iRecord, m_pTable->Get_Count()); iRecord++)
 	{
-		int			Class;
-		double		Quality;
-		CSG_Vector	Features(m_nFeatures);
+		int	Class;	double	Quality;	CSG_Vector	Features(m_nFeatures);
 
 		if( Get_Features(iRecord, Features) && Classifier.Get_Class(Features, Class, Quality, Method) )
 		{
@@ -394,7 +370,6 @@ bool CPolygon_Classify_Supervised::Set_Classifier(CSG_Classifier_Supervised &Cla
 //---------------------------------------------------------
 bool CPolygon_Classify_Supervised::Set_Classifier(CSG_Classifier_Supervised &Classifier, int Training)
 {
-	//-----------------------------------------------------
 	Process_Set_Text(_TL("training"));
 
 	for(int iRecord=0; iRecord<m_pTable->Get_Count() && Set_Progress(iRecord, m_pTable->Get_Count()); iRecord++)
@@ -431,7 +406,6 @@ bool CPolygon_Classify_Supervised::Set_Classifier(CSG_Classifier_Supervised &Cla
 //---------------------------------------------------------
 bool CPolygon_Classify_Supervised::Set_Classification(CSG_Classifier_Supervised &Classifier)
 {
-	//-----------------------------------------------------
 	CSG_Table	*pClasses	= Parameters("CLASSES")->asTable();
 
 	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(pClasses, "LUT");
@@ -462,7 +436,6 @@ bool CPolygon_Classify_Supervised::Set_Classification(CSG_Classifier_Supervised 
 
 	pClasses->Fmt_Name("%s [%s]", m_pTable->Get_Name(), CSG_Classifier_Supervised::Get_Name_of_Method(Parameters("METHOD")->asInt()).c_str());
 
-	//-----------------------------------------------------
 	return( true );
 }
 

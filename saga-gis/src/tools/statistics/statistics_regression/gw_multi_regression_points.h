@@ -95,7 +95,9 @@ private:
 
 
 	bool							Initialize				(void);
-	void							Finalize				(void);
+	bool							Finalize				(void);
+
+	bool							Set_Classification		(void);
 
 	bool							Get_Model				(const TSG_Point &Point, CSG_Regression_Weighted &Model, bool bLogistic);
 
