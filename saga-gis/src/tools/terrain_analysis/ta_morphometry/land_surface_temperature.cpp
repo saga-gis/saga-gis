@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: land_surface_temperature.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -44,19 +41,8 @@
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Hamburg                  //
-//                Bundesstr. 55                          //
-//                20146 Hamburg                          //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -72,8 +58,7 @@
 //---------------------------------------------------------
 CLand_Surface_Temperature::CLand_Surface_Temperature(void)
 {
-	//-----------------------------------------------------
-	Set_Name		(_TL("Land Surface Temperature"));
+	Set_Name		(_TL("Land Surface Temperature (Lapse Rates)"));
 
 	Set_Author		("O.Conrad (c) 2008");
 
@@ -120,7 +105,7 @@ CLand_Surface_Temperature::CLand_Surface_Temperature(void)
 	Parameters.Add_Double("LAI",
 		"LAI_MAX"		, _TL("Maximum LAI"),
 		_TL(""),
-		8.0, 0.01, true
+		8., 0.01, true
 	);
 
 	Parameters.Add_Grid("",
@@ -137,13 +122,13 @@ CLand_Surface_Temperature::CLand_Surface_Temperature(void)
 	Parameters.Add_Double("REFERENCE",
 		"Z_REFERENCE"	, _TL("Elevation"),
 		_TL(""),
-		0.0
+		0.
 	);
 
 	Parameters.Add_Double("REFERENCE",
 		"T_REFERENCE"	, _TL("Temperature"),
 		_TL("Temperature at reference station in degree Celsius."),
-		0.0
+		0.
 	);
 
 	Parameters.Add_Double("",
@@ -155,7 +140,7 @@ CLand_Surface_Temperature::CLand_Surface_Temperature(void)
 	Parameters.Add_Double("",
 		"C_FACTOR"		, _TL("C Factor"),
 		_TL(""),
-		1.0
+		1.
 	);
 }
 
@@ -183,7 +168,6 @@ int CLand_Surface_Temperature::On_Parameters_Enable(CSG_Parameters *pParameters,
 //---------------------------------------------------------
 bool CLand_Surface_Temperature::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_Grid	*pDEM	= Parameters("DEM")->asGrid();
 	CSG_Grid	*pSWR	= Parameters("SWR")->asGrid();
 	CSG_Grid	*pLAI	= Parameters("LAI")->asGrid();
@@ -191,7 +175,7 @@ bool CLand_Surface_Temperature::On_Execute(void)
 
 	double	Z_reference	= Parameters("Z_REFERENCE")->asDouble();
 	double	T_reference	= Parameters("T_REFERENCE")->asDouble();
-	double	T_gradient	= Parameters("T_GRADIENT" )->asDouble() / 100.0;	// lapse rate per meter
+	double	T_gradient	= Parameters("T_GRADIENT" )->asDouble() / 100.;	// lapse rate per meter
 	double	C_Factor	= Parameters("C_FACTOR"   )->asDouble();
 	double	LAI_max		= Parameters("LAI_MAX"    )->asDouble();
 
@@ -201,7 +185,7 @@ bool CLand_Surface_Temperature::On_Execute(void)
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			if( pDEM->is_NoData(x, y) || (pLAI && pLAI->is_NoData(x, y)) || (pSWR && (pSWR->is_NoData(x, y) || pSWR->asDouble(x, y) <= 0.0)) )
+			if( pDEM->is_NoData(x, y) || (pLAI && pLAI->is_NoData(x, y)) || (pSWR && (pSWR->is_NoData(x, y) || pSWR->asDouble(x, y) <= 0.)) )
 			{
 				pLST->Set_NoData(x, y);
 			}
@@ -211,12 +195,12 @@ bool CLand_Surface_Temperature::On_Execute(void)
 
 				if( pSWR )
 				{
-					C	*= pSWR->asDouble(x, y) - 1.0 / pSWR->asDouble(x, y);
+					C	*= pSWR->asDouble(x, y) - 1. / pSWR->asDouble(x, y);
 				}
 
 				if( pLAI )
 				{
-					C	*= 1.0 - pLAI->asDouble(x, y) / LAI_max;
+					C	*= 1. - pLAI->asDouble(x, y) / LAI_max;
 				}
 
 				double	T	= T_reference - T_gradient * (pDEM->asDouble(x, y) - Z_reference);

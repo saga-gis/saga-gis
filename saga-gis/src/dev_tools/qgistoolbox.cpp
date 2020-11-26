@@ -133,14 +133,21 @@ bool CQGIS_ToolBox::On_Execute(void)
 
 		Process_Set_Text(CSG_String::Format("%s: %s", SG_T("Library"), pLibrary->Get_Library_Name().c_str()));
 
+		CSG_String	Library((pLibrary->Get_Category().Cmp("Tool Chains") ? "" : "toolchains_") + pLibrary->Get_Library_Name());
+
+		Library.Make_Lower();
+		Library.Replace(" ", "_");
+
 		for(int iTool=0, nAdded=0; iTool<pLibrary->Get_Count(); iTool++)
 		{
-			CSG_String	Code;	CSG_Tool	*pTool	= pLibrary->Get_Tool(iTool);
+			CSG_Tool	*pTool	= pLibrary->Get_Tool(iTool);
+			CSG_String	Code	= pTool->Get_Name() + "\n" + Library + "\n";
 
 			if( Get_Tool(pTool, Code) )
 			{
 				CSG_String	Name(pLibrary->Get_Library_Name() + "_" + pTool->Get_Name());
 
+				Name.Make_Lower();
 				Name.Replace(" ", "_");
 				Name.Replace("/", "-");
 				Name.Replace(":", "_");
@@ -174,7 +181,7 @@ bool CQGIS_ToolBox::On_Execute(void)
 					//-------------------------------------------------
 					if( ++nAdded == 1 )
 					{
-						s[0]	= pLibrary->Get_Library_Name();
+						s[0]	= Library;
 
 						s[1]	= pLibrary->Get_Category() + " - " + pLibrary->Get_Name();
 						s[1].Replace("'", "''");
@@ -239,7 +246,7 @@ bool CQGIS_ToolBox::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CQGIS_ToolBox::Get_Tool(CSG_Tool* pTool, CSG_String &Code)
+bool CQGIS_ToolBox::Get_Tool(CSG_Tool *pTool, CSG_String &Code)
 {
 	if( pTool == NULL || pTool == TLB_INTERFACE_SKIP_TOOL || pTool->needs_GUI() || pTool->is_Interactive() )
 	{
@@ -250,12 +257,6 @@ bool CQGIS_ToolBox::Get_Tool(CSG_Tool* pTool, CSG_String &Code)
 	{
 		return( false );
 	}
-
-	//-----------------------------------------------------
-	Code.Clear();
-
-	Code	+= pTool->Get_Name   () + "\n";
-	Code	+= pTool->Get_Library() + "\n";
 
 	//-----------------------------------------------------
 	CSG_Parameters	*pParameters	= pTool->Get_Parameters();
@@ -481,7 +482,7 @@ bool CQGIS_ToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_String &Paramet
 	case PARAMETER_TYPE_Double         :
 		PARAMETER_SET("Number");
 		PARAMETER_STR("QgsProcessingParameterNumber.Double");
-		PARAMETER_STR(pParameter->asString());
+		PARAMETER_FLT(pParameter->asDouble());
 		PARAMETER_BOL(false);
 		if( pParameter->asValue()->has_Minimum() ) { PARAMETER_FLT(pParameter->asValue()->Get_Minimum()); } else { PARAMETER_STR("None"); }
 		if( pParameter->asValue()->has_Maximum() ) { PARAMETER_FLT(pParameter->asValue()->Get_Maximum()); } else { PARAMETER_STR("None"); }

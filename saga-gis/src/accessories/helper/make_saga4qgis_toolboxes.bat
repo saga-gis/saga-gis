@@ -1,13 +1,13 @@
 @ECHO OFF
 
 REM ___________________________________
-IF %SAGA_ROOT% == "" (
+IF "%SAGA_ROOT%" == "" (
 	SET SAGA_ROOT=%CD%\..\..\..
 )
 
 REM ___________________________________
 IF "%SAGA4QGIS%" == "" (
-	SET SAGA4QGIS=saga4qgis.zip
+	SET SAGA4QGIS=saga4qgis
 )
 
 SET OUTDIR=saga4qgis
@@ -23,7 +23,7 @@ IF "%ZIP%" == "" (
 	SET EXE_ZIP="%ZIP%" a -r -y -mx5
 )
 
-%EXE_ZIP% saga4qgis.zip "%OUTDIR%"
+%EXE_ZIP% "%SAGA4QGIS%.zip" "%OUTDIR%"
 
 RMDIR "%OUTDIR%" /S/Q
 
