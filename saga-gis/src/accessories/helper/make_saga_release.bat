@@ -138,7 +138,7 @@ MOVE "%SAGA_VERSION%_%SAGA_CONFIG%\%SAGA_VERSION%_%SAGA_CONFIG%_setup.exe"
 
 RMDIR /S/Q "%SAGA_VERSION%_%SAGA_CONFIG%"
 
-DEL /F saga4qgis.zip
+DEL /F %SAGA4QGIS%
 
 
 REM ___________________________________
