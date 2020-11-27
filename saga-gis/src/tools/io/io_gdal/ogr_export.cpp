@@ -127,6 +127,16 @@ COGR_Export::COGR_Export(void)
 		_TL(""),
 		Formats
 	);
+
+    Parameters.Add_String("",
+        "OPTIONS"	, _TL("Creation Options"),
+        _TL("The dataset creation options. A space separated list of key-value pairs (K=V)."), _TL("")		
+    );
+
+    Parameters.Add_String("",
+        "LAYER_OPTIONS"	, _TL("Layer Creation Options"),
+        _TL("The layer creation options. A space separated list of key-value pairs (K=V)."), _TL("")		
+    );
 }
 
 
@@ -182,14 +192,14 @@ bool COGR_Export::On_Execute(void)
 	}
 #endif
 
-	if( !DataSource.Create(Parameters("FILE")->asString(), Driver) )
+	if( !DataSource.Create(Parameters("FILE")->asString(), Driver, Parameters("OPTIONS")->asString()) )
 	{
 		Error_Set(_TL("data set creation failed"));
 
 		return( false );
 	}
 
-	if( !DataSource.Write(Parameters("SHAPES")->asShapes()) )
+	if( !DataSource.Write(Parameters("SHAPES")->asShapes(), Parameters("LAYER_OPTIONS")->asString()) )
 	{
 		Error_Set(_TL("failed to write data"));
 

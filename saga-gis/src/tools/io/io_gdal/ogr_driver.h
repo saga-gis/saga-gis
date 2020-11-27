@@ -152,7 +152,7 @@ public:
 	virtual ~CSG_OGR_DataSet(void);
 
 	bool						Create				(const CSG_String &File);
-	bool						Create				(const CSG_String &File, const CSG_String &DriverName);
+	bool						Create				(const CSG_String &File, const CSG_String &DriverName, const CSG_String &Options);
 	bool						Destroy				(void);
 
 	CSG_String					Get_DriverID		(void)			const;
@@ -166,7 +166,7 @@ public:
 	CSG_Projection				Get_Projection		(int iLayer)	const;
 
 	CSG_Shapes *				Read				(int iLayer, int iGeomTypeChoice);
-	bool						Write				(CSG_Shapes *pShapes);
+	bool						Write				(CSG_Shapes *pShapes, const CSG_String &CreationOptions);
 
 
 private:

@@ -478,7 +478,7 @@ bool CSG_OGR_DataSet::Create(const CSG_String &File)
 	return( m_pDataSet != NULL );
 }
 
-bool CSG_OGR_DataSet::Create(const CSG_String &File, const CSG_String &DriverName)
+bool CSG_OGR_DataSet::Create(const CSG_String &File, const CSG_String &DriverName, const CSG_String &Options)
 {
 	GDALDriverH	pDriver;
 
@@ -486,7 +486,23 @@ bool CSG_OGR_DataSet::Create(const CSG_String &File, const CSG_String &DriverNam
 
 	if( (pDriver = gSG_OGR_Drivers.Get_Driver(DriverName)) != NULL )
 	{
-		m_pDataSet	= GDALCreate(pDriver, File, 0, 0, 0, GDT_Unknown, NULL);
+        //SG_UI_Msg_Add(CSG_String::Format("%s %s: %s", _TL("Creation option(s) supported by the driver"), CSG_String(GDALGetDriverShortName(pDriver)).c_str(), CSG_String(GDALGetDriverCreationOptionList(pDriver)).c_str()), true);
+
+        //--------------------------------------------------------
+        char	**pOptions	= Options.is_Empty() ? NULL : CSLTokenizeString2(Options, " ", CSLT_STRIPLEADSPACES);
+
+        if( !GDALValidateCreationOptions(pDriver, pOptions) )
+        {
+            SG_UI_Msg_Add_Error(CSG_String::Format("%s: %s", _TL("Creation option(s) not supported by the driver"), Options.c_str()));
+
+            CSLDestroy(pOptions);
+
+            return( false );
+        }
+
+		m_pDataSet	= GDALCreate(pDriver, File, 0, 0, 0, GDT_Unknown, pOptions);
+
+        CSLDestroy(pOptions);
 	}
 
 	return( m_pDataSet != NULL );
@@ -559,7 +575,7 @@ bool CSG_OGR_DataSet::Create(const CSG_String &File)
 	return( m_pDataSet != NULL );
 }
 
-bool CSG_OGR_DataSet::Create(const CSG_String &File, const CSG_String &DriverName)
+bool CSG_OGR_DataSet::Create(const CSG_String &File, const CSG_String &DriverName, const CSG_String &Options)
 {
 	Destroy();
 
@@ -567,7 +583,12 @@ bool CSG_OGR_DataSet::Create(const CSG_String &File, const CSG_String &DriverNam
 
 	if( pDriver != NULL )
 	{
-		m_pDataSet	= OGR_Dr_CreateDataSource(pDriver, File, NULL);
+        //--------------------------------------------------------
+        char	**pOptions	= Options.is_Empty() ? NULL : CSLTokenizeString2(Options, " ", CSLT_STRIPLEADSPACES);
+
+		m_pDataSet	= OGR_Dr_CreateDataSource(pDriver, File, pOptions);
+
+        CSLDestroy(pOptions);
 	}
 
 	return( m_pDataSet != NULL );
@@ -896,7 +917,7 @@ bool CSG_OGR_DataSet::_Read_Polygon(CSG_Shape *pShape, OGRGeometryH pPolygon)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_OGR_DataSet::Write(CSG_Shapes *pShapes)
+bool CSG_OGR_DataSet::Write(CSG_Shapes *pShapes, const CSG_String &CreationOptions)
 {
 	if( !m_pDataSet || !pShapes || !pShapes->is_Valid() )
 	{
@@ -921,13 +942,16 @@ bool CSG_OGR_DataSet::Write(CSG_Shapes *pShapes)
 		}
 	}
 
+    //--------------------------------------------------------
+    char	**pOptions	= CreationOptions.is_Empty() ? NULL : CSLTokenizeString2(CreationOptions, " ", CSLT_STRIPLEADSPACES);
+
 #ifdef GDAL_V2_0_OR_NEWER
 	OGRLayerH	pLayer	= GDALDatasetCreateLayer(m_pDataSet, CSG_String(pShapes->Get_Name()), pSRS,
-		(OGRwkbGeometryType)gSG_OGR_Drivers.Get_Shape_Type(pShapes->Get_Type(), pShapes->Get_Vertex_Type() != SG_VERTEX_TYPE_XY), NULL
+		(OGRwkbGeometryType)gSG_OGR_Drivers.Get_Shape_Type(pShapes->Get_Type(), pShapes->Get_Vertex_Type() != SG_VERTEX_TYPE_XY), pOptions
 	);
 #else
 	OGRLayerH	pLayer	= OGR_DS_CreateLayer(m_pDataSet, CSG_String(pShapes->Get_Name()), pSRS,
-		(OGRwkbGeometryType)gSG_OGR_Drivers.Get_Shape_Type(pShapes->Get_Type(), pShapes->Get_Vertex_Type() != SG_VERTEX_TYPE_XY), NULL
+		(OGRwkbGeometryType)gSG_OGR_Drivers.Get_Shape_Type(pShapes->Get_Type(), pShapes->Get_Vertex_Type() != SG_VERTEX_TYPE_XY), pOptions
 	);
 #endif
 
