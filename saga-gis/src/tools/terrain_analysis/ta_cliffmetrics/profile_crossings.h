@@ -10,10 +10,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//                   profile_crossings.h                 //
 //                                                       //
-//                 Copyright (C) 2019 by                 //
-//                      Olaf Conrad                      //
+//                 Copyright (C) 2020 by                 //
+//               Andres Payo & Olaf Conrad               //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -46,74 +46,58 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__profile_crossings_H
+#define HEADER_INCLUDED__profile_crossings_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
 
-//---------------------------------------------------------
-// 2. Place general tool library informations here...
-
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("CliffMetrics") );
-
-	case TLB_INFO_Category:
-		return( _TL("Terrain Analysis") );
-
-	case TLB_INFO_Author:
-		return( "SAGA Interface by O.Conrad (c) 2019, CliffMetrics by Payo et al. (c) 2018" );
-
-	case TLB_INFO_Description:
-		return( _TW(
-			"CliffMetrics (Automatic Cliff Metrics delineation) delineates the location of the "
-			"coastline, coastline normals, and cliff top and toe location along these normals. "
-		));
-
-	case TLB_INFO_Version:
-		return( "1.0" );
-
-	case TLB_INFO_Menu_Path:
-		return( _TL("Terrain Analysis|Coastal Morphology") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your tools here...
-
-#include "CliffMetrics_tool.h"
-#include "profile_crossings.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your tools to be created here...
-
-CSG_Tool *		Create_Tool(int i)
-{
-	switch( i )
-	{
-	case  0: return( new CCliffMetrics_Tool );
-	case  1: return( new CProfile_Crossings );
-
-	case 11: return( NULL );
-	default: return( TLB_INTERFACE_SKIP_TOOL );
-	}
-}
-
-
 ///////////////////////////////////////////////////////////
-//                                                       //
-//                                                       //
-//                                                       //
+//														 //
+//														 //
+//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CProfile_Crossings : public CSG_Tool  
+{
+public:
+	CProfile_Crossings(void);
 
-	TLB_INTERFACE
 
-//}}AFX_SAGA
+protected:
+
+	virtual bool			On_Execute			(void);
+
+
+private:
+
+	bool					Get_Crossing		(CSG_Shapes *pLines_A, CSG_Shapes *pLines_B, CSG_Shapes *pCrossings_AB, int Attributes, CSG_Shapes *pDistances_AB, double disSeaward );
+
+	bool					Add_Attributes		(CSG_Shapes *pCrossings, CSG_Shapes *pLines);
+	bool					Set_Attributes		(CSG_Shape  *pCrossing , CSG_Shape  *pLine, int &Offset);
+
+	bool					Set_Crossing		(const TSG_Point &Crossing, CSG_Shape *pA, CSG_Shape *pB, CSG_Shape *pCrossing, int Attributes);
+
+	bool					Set_Distance		(const TSG_Point StartPoint, const TSG_Point Crossing, CSG_Shape *pA, CSG_Shape *pB, CSG_Shape *pDistances, double disSeaward);
+	bool					Set_Attributes      (CSG_Shape  *pDistances, double dDistance, int &Offset);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__profile_crossings_H

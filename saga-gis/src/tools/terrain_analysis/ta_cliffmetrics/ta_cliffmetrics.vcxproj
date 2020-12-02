@@ -336,6 +336,7 @@
     <ClInclude Include="CliffMetrics\profile.h" />
     <ClInclude Include="CliffMetrics\raster_grid.h" />
     <ClInclude Include="CliffMetrics_tool.h" />
+    <ClInclude Include="profile_crossings.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CliffMetrics\2di_point.cpp" />
@@ -370,6 +371,7 @@
     <ClCompile Include="CliffMetrics\utils_global.cpp" />
     <ClCompile Include="CliffMetrics\write_output.cpp" />
     <ClCompile Include="CliffMetrics_tool.cpp" />
+    <ClCompile Include="profile_crossings.cpp" />
     <ClCompile Include="TLB_Interface.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
