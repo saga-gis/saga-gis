@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: grid_multi_grid_regression.cpp 1160 2011-09-14 15:11:54Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -44,19 +41,8 @@
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -72,7 +58,6 @@
 //---------------------------------------------------------
 CGrid_Multi_Grid_Regression::CGrid_Multi_Grid_Regression(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Multiple Regression Analysis (Grid and Predictor Grids)"));
 
 	Set_Author		("O.Conrad (c) 2011");
@@ -81,61 +66,47 @@ CGrid_Multi_Grid_Regression::CGrid_Multi_Grid_Regression(void)
 		"Linear regression analysis of one grid as dependent and multiple grids as indepentent (predictor) variables. "
 		"Details of the regression/correlation analysis will be saved to a table. "
 		"Optionally the regression model is used to create a new grid with regression based values. "
-		"The multiple regression analysis uses a forward selection procedure. \n"
-		"\n"
-		"Reference:\n"
-		"- Bahrenberg, G., Giese, E., Nipper, J. (1992): "
-		"'Statistische Methoden in der Geographie 2 - Multivariate Statistik', "
-		"Stuttgart, 415p.\n"
+		"The multiple regression analysis uses a forward selection procedure. "
 	));
 
-	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "DEPENDENT"	, _TL("Dependent Variable"),
-		_TL(""),
-		PARAMETER_INPUT
+	Add_Reference("Bahrenberg, G., Giese, E., Nipper, J.", "1992",
+		"Statistische Methoden in der Geographie 2 - Multivariate Statistik",
+		"Stuttgart, 415p."
 	);
 
-	Parameters.Add_Grid_List(
-		NULL	, "PREDICTORS"	, _TL("Predictors"),
+	//-----------------------------------------------------
+	Parameters.Add_Grid("",
+		"DEPENDENT"		, _TL("Dependent Variable"),
 		_TL(""),
 		PARAMETER_INPUT, false
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "REGRESSION"	, _TL("Regression"),
+	Parameters.Add_Grid_List("",
+		"PREDICTORS"	, _TL("Predictors"),
+		_TL(""),
+		PARAMETER_INPUT, false
+	);
+
+	Parameters.Add_Grid("",
+		"REGRESSION"	, _TL("Regression"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "RESIDUALS"	, _TL("Residuals"),
+	Parameters.Add_Grid("",
+		"RESIDUALS"		, _TL("Residuals"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Table(
-		NULL	, "INFO_COEFF"	, _TL("Details: Coefficients"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
+	Parameters.Add_Table("", "INFO_COEFF", CSG_String::Format("%s: %s", _TL("Details"), _TL("Coefficients")), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Table("", "INFO_MODEL", CSG_String::Format("%s: %s", _TL("Details"), _TL("Model"       )), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Table("", "INFO_STEPS", CSG_String::Format("%s: %s", _TL("Details"), _TL("Steps"       )), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 
-	Parameters.Add_Table(
-		NULL	, "INFO_MODEL"	, _TL("Details: Model"),
+	Parameters.Add_Choice("",
+		"RESAMPLING"	, _TL("Resampling"),
 		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
-
-	Parameters.Add_Table(
-		NULL	, "INFO_STEPS"	, _TL("Details: Steps"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
-
-	Parameters.Add_Choice(
-		NULL	, "RESAMPLING"	, _TL("Resampling"),
-		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
@@ -143,22 +114,13 @@ CGrid_Multi_Grid_Regression::CGrid_Multi_Grid_Regression(void)
 		), 3
 	);
 
-	Parameters.Add_Value(
-		NULL	, "COORD_X"		, _TL("Include X Coordinate"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, false
-	);
+	Parameters.Add_Bool("", "COORD_X", _TL("Include X Coordinate"), _TL(""), false);
+	Parameters.Add_Bool("", "COORD_Y", _TL("Include Y Coordinate"), _TL(""), false);
 
-	Parameters.Add_Value(
-		NULL	, "COORD_Y"		, _TL("Include Y Coordinate"),
+	Parameters.Add_Choice("",
+		"METHOD"		, _TL("Method"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
-	);
-
-	Parameters.Add_Choice(
-		NULL	,"METHOD"		, _TL("Method"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("include all"),
 			_TL("forward"),
 			_TL("backward"),
@@ -166,16 +128,16 @@ CGrid_Multi_Grid_Regression::CGrid_Multi_Grid_Regression(void)
 		), 3
 	);
 
-	Parameters.Add_Value(
-		NULL	, "P_VALUE"		, _TL("Significance Level"),
+	Parameters.Add_Double("",
+		"P_VALUE"		, _TL("Significance Level"),
 		_TL("Significance level (aka p-value) as threshold for automated predictor selection, given as percentage"),
-		PARAMETER_TYPE_Double, 5.0, 0.0, true, 100.0, true
+		5., 0., true, 100., true
 	);
 
-	Parameters.Add_Choice(
-		NULL	,"CROSSVAL"		, _TL("Cross Validation"),
+	Parameters.Add_Choice("",
+		"CROSSVAL"		, _TL("Cross Validation"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("none"),
 			_TL("leave one out"),
 			_TL("2-fold"),
@@ -183,17 +145,15 @@ CGrid_Multi_Grid_Regression::CGrid_Multi_Grid_Regression(void)
 		), 0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "CROSSVAL_K"	, _TL("Cross Validation Subsamples"),
+	Parameters.Add_Int("",
+		"CROSSVAL_K"	, _TL("Cross Validation Subsamples"),
 		_TL("number of subsamples for k-fold cross validation"),
-		PARAMETER_TYPE_Int, 10, 2, true
+		10, 2, true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -210,173 +170,163 @@ int CGrid_Multi_Grid_Regression::On_Parameters_Enable(CSG_Parameters *pParameter
 		pParameters->Set_Enabled("P_VALUE", pParameter->asInt() > 0);
 	}
 
-	return( 0 );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGrid_Multi_Grid_Regression::On_Execute(void)
 {
-	bool					bResult;
-	double					P;
-	CSG_Strings				Names;
-	CSG_Matrix				Samples;
-	CSG_Grid				*pDependent, *pRegression, *pResiduals;
-	CSG_Parameter_Grid_List	*pGrids;
+	CSG_Grid                *pDependent  = Parameters("DEPENDENT" )->asGrid    ();
+	CSG_Parameter_Grid_List	*pPredictors = Parameters("PREDICTORS")->asGridList();
 
 	//-----------------------------------------------------
-	pDependent		= Parameters("DEPENDENT" )->asGrid();
-	pGrids			= Parameters("PREDICTORS")->asGridList();
-	pRegression		= Parameters("REGRESSION")->asGrid();
-	pResiduals		= Parameters("RESIDUALS" )->asGrid();
-	P				= Parameters("P_VALUE"   )->asDouble() / 100.0;
-
-	//-----------------------------------------------------
-	if( !Get_Samples(pGrids, pDependent, Samples, Names) )
+	switch( Parameters("RESAMPLING")->asInt() )
 	{
+	default: m_Resampling = GRID_RESAMPLING_NearestNeighbour; break;
+	case  1: m_Resampling = GRID_RESAMPLING_Bilinear        ; break;
+	case  2: m_Resampling = GRID_RESAMPLING_BicubicSpline   ; break;
+	case  3: m_Resampling = GRID_RESAMPLING_BSpline         ; break;
+	}
+
+	//-----------------------------------------------------
+	CSG_Matrix	Samples;	CSG_Strings	Names;
+
+	if( !Get_Samples(pDependent, pPredictors, Samples, Names) )
+	{
+		Error_Set(_TL("Sample collection failed"));
+
 		return( false );
 	}
 
 	//-----------------------------------------------------
+	CSG_Regression_Multiple	Regression;
+
+	bool	bResult;	double	p	= Parameters("P_VALUE")->asDouble() / 100.;
+
 	switch( Parameters("METHOD")->asInt() )
 	{
-	default:
-	case 0:	bResult	= m_Regression.Get_Model         (Samples      , &Names);	break;
-	case 1:	bResult	= m_Regression.Get_Model_Forward (Samples, P   , &Names);	break;
-	case 2:	bResult	= m_Regression.Get_Model_Backward(Samples,    P, &Names);	break;
-	case 3:	bResult	= m_Regression.Get_Model_Stepwise(Samples, P, P, &Names);	break;
+	default: bResult = Regression.Get_Model         (Samples      , &Names); break;
+	case  1: bResult = Regression.Get_Model_Forward (Samples, p   , &Names); break;
+	case  2: bResult = Regression.Get_Model_Backward(Samples,    p, &Names); break;
+	case  3: bResult = Regression.Get_Model_Stepwise(Samples, p, p, &Names); break;
 	}
+
+	Message_Add(Regression.Get_Info(), false);
 
 	if( bResult == false )
 	{
+		Error_Set(_TL("Regression analysis failed"));
+
 		return( false );
 	}
-
-	Message_Add(m_Regression.Get_Info(), false);
 
 	//-----------------------------------------------------
 	int	CrossVal;
 
 	switch( Parameters("CROSSVAL")->asInt() )
 	{
-	default:	CrossVal	= 0;									break;	// none
-	case 1:		CrossVal	= 1;									break;	// leave one out (LOOVC)
-	case 2:		CrossVal	= 2;									break;	// 2-fold
-	case 3:		CrossVal	= Parameters("CROSSVAL_K")->asInt();	break;	// k-fold
+	default: CrossVal = 0                                ; break; // none
+	case  1: CrossVal = 1                                ; break; // leave one out (LOOVC)
+	case  2: CrossVal = 2                                ; break; // 2-fold
+	case  3: CrossVal = Parameters("CROSSVAL_K")->asInt(); break; // k-fold
 	}
 
-	if( CrossVal > 0 && m_Regression.Get_CrossValidation(CrossVal) )
+	if( CrossVal > 0 && Regression.Get_CrossValidation(CrossVal) )
 	{
 		Message_Fmt("\n%s:", _TL("Cross Validation"));
 		Message_Fmt("\n\t%s:\t%s"  , _TL("Type"   ), Parameters("CROSSVAL")->asString() );
-		Message_Fmt("\n\t%s:\t%d"  , _TL("Samples"), m_Regression.Get_CV_nSamples()     );
-		Message_Fmt("\n\t%s:\t%f"  , _TL("RMSE"   ), m_Regression.Get_CV_RMSE()         );
-		Message_Fmt("\n\t%s:\t%.2f", _TL("NRMSE"  ), m_Regression.Get_CV_NRMSE() * 100.0);
-		Message_Fmt("\n\t%s:\t%.2f", _TL("R2"     ), m_Regression.Get_CV_R2()    * 100.0);
+		Message_Fmt("\n\t%s:\t%d"  , _TL("Samples"), Regression.Get_CV_nSamples()       );
+		Message_Fmt("\n\t%s:\t%f"  , _TL("RMSE"   ), Regression.Get_CV_RMSE    ()       );
+		Message_Fmt("\n\t%s:\t%.2f", _TL("NRMSE"  ), Regression.Get_CV_NRMSE   () * 100.);
+		Message_Fmt("\n\t%s:\t%.2f", _TL("R2"     ), Regression.Get_CV_R2      () * 100.);
 	}
-
-	//-----------------------------------------------------
-	Set_Regression(pGrids, pDependent, pRegression, pResiduals, CSG_String::Format(SG_T("%s [%s]"), pDependent->Get_Name(), _TL("Regression Model")));
 
 	//-----------------------------------------------------
 	if( Parameters("INFO_COEFF")->asTable() )
 	{
-		Parameters("INFO_COEFF")->asTable()->Assign(m_Regression.Get_Info_Regression());
-		Parameters("INFO_COEFF")->asTable()->Set_Name(_TL("MLRA Coefficients"));
+		Parameters("INFO_COEFF")->asTable()->Assign(Regression.Get_Info_Regression());
+		Parameters("INFO_COEFF")->asTable()->Set_Name(_TL("Regression Coefficients"));
 	}
 
 	if( Parameters("INFO_MODEL")->asTable() )
 	{
-		Parameters("INFO_MODEL")->asTable()->Assign(m_Regression.Get_Info_Model());
-		Parameters("INFO_MODEL")->asTable()->Set_Name(_TL("MLRA Model"));
+		Parameters("INFO_MODEL")->asTable()->Assign(Regression.Get_Info_Model());
+		Parameters("INFO_MODEL")->asTable()->Set_Name(_TL("Regression Model"));
 	}
 
 	if( Parameters("INFO_STEPS")->asTable() )
 	{
-		Parameters("INFO_STEPS")->asTable()->Assign(m_Regression.Get_Info_Steps());
-		Parameters("INFO_STEPS")->asTable()->Set_Name(_TL("MLRA Steps"));
+		Parameters("INFO_STEPS")->asTable()->Assign(Regression.Get_Info_Steps());
+		Parameters("INFO_STEPS")->asTable()->Set_Name(_TL("Regression Steps"));
 	}
 
 	//-----------------------------------------------------
-	m_Regression.Destroy();
+	CSG_Grid	*pRegression	= Parameters("REGRESSION")->asGrid();
 
+	pRegression->Fmt_Name("%s [OLS]", pDependent->Get_Name());
+
+	Set_Regression(pRegression, pPredictors, Regression);
+
+	Set_Residuals(pDependent, pRegression, Parameters("RESIDUALS")->asGrid());
+
+	//-----------------------------------------------------
 	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Multi_Grid_Regression::Get_Samples(CSG_Parameter_Grid_List *pGrids, CSG_Grid *pDependent, CSG_Matrix &Samples, CSG_Strings &Names)
+bool CGrid_Multi_Grid_Regression::Get_Samples(CSG_Grid *pDependent, CSG_Parameter_Grid_List *pPredictors, CSG_Matrix &Samples, CSG_Strings &Names)
 {
-	int			iGrid, x, y;
-	double		zGrid;
-	TSG_Point	p;
-	CSG_Vector	Sample;
+	int	nValues = 1 + pPredictors->Get_Grid_Count();
 
-	//-----------------------------------------------------
-	bool	bCoord_X	= Parameters("COORD_X")->asBool();
-	bool	bCoord_Y	= Parameters("COORD_Y")->asBool();
+	int	xCoord = Parameters("COORD_X")->asBool() ? nValues++ : 0;
+	int	yCoord = Parameters("COORD_X")->asBool() ? nValues++ : 0;
 
-	TSG_Grid_Resampling	Resampling;
+	CSG_Vector	Sample(nValues);
 
-	switch( Parameters("RESAMPLING")->asInt() )
+	Names	+= pDependent->Get_Name();	// dependent variable
+
+	for(int i=0; i<pPredictors->Get_Grid_Count(); i++)	// predictors
 	{
-	default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
-	case  1:	Resampling	= GRID_RESAMPLING_Bilinear;			break;
-	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
-	case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
+		Names	+= pPredictors->Get_Grid(i)->Get_Name();
 	}
 
-	Names	+= pDependent->Get_Name();					// Dependent Variable
-
-	for(iGrid=0; iGrid<pGrids->Get_Grid_Count(); iGrid++)	// Independent Variables
-	{
-		Names	+= pGrids->Get_Grid(iGrid)->Get_Name();
-	}
-
-	if( bCoord_X )	{	Names	+= SG_T("X");	}
-	if( bCoord_Y )	{	Names	+= SG_T("Y");	}
-
-	Sample.Create(1 + pGrids->Get_Grid_Count() + (bCoord_X ? 1 : 0) + (bCoord_Y ? 1 : 0));
+	if( xCoord )	{	Names	+= "X";	}
+	if( yCoord )	{	Names	+= "Y";	}
 
 	//-----------------------------------------------------
-	for(y=0, p.y=Get_YMin(); y<Get_NY() && Set_Progress(y); y++, p.y+=Get_Cellsize())
+	for(int y=0; y<pDependent->Get_NY() && Set_Progress(y, pDependent->Get_NY()); y++)
 	{
-		for(x=0, p.x=Get_XMin(); x<Get_NX(); x++, p.x+=Get_Cellsize())
+		double	py	= pDependent->Get_YMin() + y * pDependent->Get_Cellsize();
+
+		for(int x=0; x<pDependent->Get_NX(); x++)
 		{
 			if( !pDependent->is_NoData(x, y) )
 			{
-				bool		bAdd	= true;
+				double	px	= pDependent->Get_XMin() + x * pDependent->Get_Cellsize();
 
-				for(iGrid=0; iGrid<pGrids->Get_Grid_Count() && bAdd; iGrid++)
+				bool	bOkay = true;
+
+				for(int i=0; bOkay && i<pPredictors->Get_Grid_Count(); i++)
 				{
-					if( pGrids->Get_Grid(iGrid)->Get_Value(p, zGrid, Resampling) )
-					{
-						Sample[1 + iGrid]	= zGrid;
-					}
-					else
-					{
-						bAdd	= false;
-					}
+					bOkay	= pPredictors->Get_Grid(i)->Get_Value(px, py, Sample[1 + i], m_Resampling);
 				}
 
-				if( bAdd )
+				if( bOkay )
 				{
-					Sample[0]	= pDependent->asDouble(x, y);
+					if( xCoord )	{	Sample[xCoord]	= px;	}
+					if( yCoord )	{	Sample[yCoord]	= py;	}
 
-					if( bCoord_X )	{	Sample[1 + iGrid++]	= p.x;	}
-					if( bCoord_Y )	{	Sample[1 + iGrid++]	= p.y;	}
+					Sample[0]	= pDependent->asDouble(x, y);
 
 					Samples.Add_Row(Sample);
 				}
@@ -385,122 +335,125 @@ bool CGrid_Multi_Grid_Regression::Get_Samples(CSG_Parameter_Grid_List *pGrids, C
 	}
 
 	//-----------------------------------------------------
-	return( Samples.Get_NRows() >= pGrids->Get_Grid_Count() );
+	return( Samples.Get_NRows() >= pPredictors->Get_Grid_Count() );
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Multi_Grid_Regression::Set_Regression(CSG_Parameter_Grid_List *pGrids, CSG_Grid *pDependent, CSG_Grid *pRegression, CSG_Grid *pResiduals, const CSG_String &Name)
+bool CGrid_Multi_Grid_Regression::Set_Regression(CSG_Grid *pRegression, CSG_Parameter_Grid_List *pPredictors, CSG_Regression_Multiple &Regression)
 {
-	//-----------------------------------------------------
-	int			iGrid, nGrids, x, y;
-	TSG_Point	p;
+	CSG_Array_Pointer Grids; int xCoord = 0, yCoord = 0;
 
-	TSG_Grid_Resampling	Resampling;
-
-	switch( Parameters("RESAMPLING")->asInt() )
+	for(int i=0; i<Regression.Get_nPredictors(); i++)
 	{
-	default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
-	case  1:	Resampling	= GRID_RESAMPLING_Bilinear;			break;
-	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
-	case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
-	}
-
-	CSG_Grid	**ppGrids	= (CSG_Grid **)SG_Malloc(m_Regression.Get_nPredictors() * sizeof(CSG_Grid *));
-
-	bool	bCoord_X		= false;
-	bool	bCoord_Y		= false;
-
-	for(iGrid=0, nGrids=0; iGrid<m_Regression.Get_nPredictors(); iGrid++)
-	{
-		if( m_Regression.Get_Predictor(iGrid) < pGrids->Get_Grid_Count() )
+		if( Regression.Get_Predictor(i) < pPredictors->Get_Grid_Count() )
 		{
-			ppGrids[nGrids++]	= pGrids->Get_Grid(m_Regression.Get_Predictor(iGrid));
+			Grids	+= pPredictors->Get_Grid(Regression.Get_Predictor(i));
 		}
-		else if( m_Regression.Get_Predictor(iGrid) == pGrids->Get_Grid_Count() && Parameters("COORD_X")->asBool() )
+		else if( Regression.Get_Predictor(i) == pPredictors->Get_Grid_Count() && Parameters("COORD_X")->asBool() )
 		{
-			bCoord_X = true;
+			xCoord	= 1;
 		}
-		else // if( m_Regression.Get_Predictor(iGrid) > pGrids->Get_Count() || Parameters("COORD_X")->asBool() == false )
+		else // if( Regression.Get_Predictor(iGrid) > pGrids->Get_Count() || Parameters("COORD_X")->asBool() == false )
 		{
-			bCoord_Y = true;
+			yCoord	= 1;
 		}
 	}
 
-	pRegression->Set_Name(Name);
+	int	nValues	= Grids.Get_Size();
 
-	if( pDependent && pResiduals )
-	{
-		pResiduals->Fmt_Name("%s [%s]", Name.c_str(), _TL("Residuals"));
-	}
-	else
-	{
-		pResiduals	= NULL;
-	}
+	if( xCoord )	{	xCoord	= nValues++;	}
+	if( yCoord )	{	yCoord	= nValues++;	}
 
 	//-----------------------------------------------------
-	for(y=0, p.y=Get_YMin(); y<Get_NY() && Set_Progress(y); y++, p.y+=Get_Cellsize())
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0, p.x=Get_XMin(); x<Get_NX(); x++, p.x+=Get_Cellsize())
-		{
-			bool	bOkay;
-			double	z	= m_Regression.Get_RConst();
+		double	py	= Get_YMin() + y * Get_Cellsize();
 
-			for(iGrid=0, bOkay=true; bOkay && iGrid<nGrids; iGrid++)
+		#pragma omp parallel for
+		for(int x=0; x<pRegression->Get_NX(); x++)
+		{
+			double	px	= Get_XMin() + x * Get_Cellsize();
+
+			double	z	= Regression.Get_RConst(), pz;
+
+			bool	bOkay	= true;
+
+			for(int i=0; bOkay && i<Grids.Get_Size(); i++)
 			{
-				double	zGrid;
-
-				if( ppGrids[iGrid]->Get_Value(p, zGrid, Resampling) )
+				if( (bOkay = ((CSG_Grid *)Grids[i])->Get_Value(px, py, pz, m_Resampling)) == true )
 				{
-					z	+= m_Regression.Get_RCoeff(iGrid) * zGrid;
-				}
-				else
-				{
-					bOkay	= false;
+					z	+= Regression.Get_RCoeff(i) * pz;
 				}
 			}
 
 			//---------------------------------------------
 			if( bOkay )
 			{
-				if( bCoord_X )
+				if( xCoord )
 				{
-					z	+= m_Regression.Get_RCoeff(iGrid++) * Get_System().Get_xGrid_to_World(x);
+					z	+= Regression.Get_RCoeff(xCoord) * px;
 				}
 
-				if( bCoord_Y )
+				if( yCoord )
 				{
-					z	+= m_Regression.Get_RCoeff(iGrid++) * Get_System().Get_yGrid_to_World(y);
+					z	+= Regression.Get_RCoeff(yCoord) * py;
 				}
 
-				pRegression->Set_Value (x, y, z);
-
-				if( pResiduals )
-				{
-					pResiduals->Set_Value(x, y, pDependent->asDouble(x, y) - z);
-				}
+				pRegression->Set_Value(x, y, z);
 			}
 			else
 			{
 				pRegression->Set_NoData(x, y);
-
-				if( pResiduals )
-				{
-					pResiduals->Set_NoData(x, y);
-				}
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	SG_Free(ppGrids);
+	return( true );
+}
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Multi_Grid_Regression::Set_Residuals(CSG_Grid *pDependent, CSG_Grid *pRegression, CSG_Grid *pResiduals)
+{
+	if( !pResiduals )
+	{
+		return( false );
+	}
+
+	pResiduals->Fmt_Name("%s [OLS %s]", pDependent->Get_Name(), _TL("Residuals"));
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		double	py	= Get_YMin() + y * Get_Cellsize();
+
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
+		{
+			double	px	= Get_XMin() + x * Get_Cellsize(), pz;
+
+			if( !pRegression->is_NoData(x, y) && pDependent->Get_Value(px, py, pz, m_Resampling) )
+			{
+				pResiduals->Set_Value(x, y, pz - pRegression->asDouble(x, y));
+			}
+			else
+			{
+				pResiduals->Set_NoData(x, y);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
 	return( true );
 }
 
