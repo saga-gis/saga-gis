@@ -861,39 +861,41 @@ bool CLandsat_TOAR::On_Execute(void)
 
 		if( pList->Get_Grid_Count() > 0 )
 		{
-			CSG_Grids	*pGrids	= SG_Create_Grids();
+			CSG_Grids	*pBands	= SG_Create_Grids();
 
-			pGrids->Set_Name(Parameters("GRIDS_NAME")->asString());
-			pGrids->Set_Description(Info.asText());
-			pGrids->Get_MetaData().Add_Children(Info);
+			pBands->Set_Name(Parameters("GRIDS_NAME")->asString());
+			pBands->Set_Description(Info.asText());
+			pBands->Get_MetaData().Add_Children(Info);
 
-			pGrids->Get_Attributes_Ptr()->Destroy();
-			pGrids->Add_Attribute("BAND"    , SG_DATATYPE_Int   );
-			pGrids->Add_Attribute("NAME"    , SG_DATATYPE_String);
-			pGrids->Add_Attribute("WAVE_MIN", SG_DATATYPE_Double);
-			pGrids->Add_Attribute("WAVE_MID", SG_DATATYPE_Double);
-			pGrids->Add_Attribute("WAVE_MAX", SG_DATATYPE_Double);
+			pBands->Get_Attributes_Ptr()->Destroy();
+			pBands->Add_Attribute("BAND"    , SG_DATATYPE_Int   );
+			pBands->Add_Attribute("NAME"    , SG_DATATYPE_String);
+			pBands->Add_Attribute("WAVE_MIN", SG_DATATYPE_Double);
+			pBands->Add_Attribute("WAVE_MID", SG_DATATYPE_Double);
+			pBands->Add_Attribute("WAVE_MAX", SG_DATATYPE_Double);
+
+			CSG_Table	Attributes(pBands->Get_Attributes_Ptr()); Attributes.Add_Record();
 
 			for(int i=0; i<pList->Get_Grid_Count(); i++)
 			{
-				CSG_Grid	*pGrid	= pList->Get_Grid(i);
+				CSG_Grid	*pBand	= pList->Get_Grid(i);
 
-				pGrids->Add_Grid(i, pGrid, true);
+				const CSG_MetaData	&Info_Band	= pBand->Get_MetaData();
 
-				const CSG_MetaData	&Info_Band	= pGrid->Get_MetaData();
+				Attributes[0].Set_Value("BAND"    , Info_Band.Get_Content("BAND"    ));
+				Attributes[0].Set_Value("NAME"    , Info_Band.Get_Content("NAME"    ));
+				Attributes[0].Set_Value("WAVE_MIN", Info_Band.Get_Content("WAVE_MIN"));
+				Attributes[0].Set_Value("WAVE_MID", Info_Band.Get_Content("WAVE_MID"));
+				Attributes[0].Set_Value("WAVE_MAX", Info_Band.Get_Content("WAVE_MAX"));
 
-				pGrids->Get_Attributes(i).Set_Value("BAND"    , Info_Band.Get_Content("BAND"    ));
-				pGrids->Get_Attributes(i).Set_Value("NAME"    , Info_Band.Get_Content("NAME"    ));
-				pGrids->Get_Attributes(i).Set_Value("WAVE_MIN", Info_Band.Get_Content("WAVE_MIN"));
-				pGrids->Get_Attributes(i).Set_Value("WAVE_MID", Info_Band.Get_Content("WAVE_MID"));
-				pGrids->Get_Attributes(i).Set_Value("WAVE_MAX", Info_Band.Get_Content("WAVE_MAX"));
+				pBands->Add_Grid(Attributes[0], pBand, true);
 			}
 
-			pGrids->Set_Z_Attribute (3);
-			pGrids->Set_Z_Name_Field(1);
+			pBands->Set_Z_Attribute (3);
+			pBands->Set_Z_Name_Field(1);
 
 			pList->Del_Items();
-			pList->Add_Item(pGrids);
+			pList->Add_Item(pBands);
 		}
 	}
 
