@@ -272,11 +272,11 @@ bool CWKSP_Map_Control::Del_Item(CWKSP_Map *pMap, CWKSP_Base_Item *pItem)
 			break;
 
 		case WKSP_ITEM_Map_Layer:
-			pItem	= pMap->Find_Layer(((CWKSP_Map_Layer *)pItem)->Get_Layer());
+			pItem	= pMap->Get_Map_Layer(((CWKSP_Map_Layer *)pItem)->Get_Layer());
 			break;
 
 		default:
-			pItem	= pMap->Find_Layer(((CWKSP_Layer     *)pItem));
+			pItem	= pMap->Get_Map_Layer(((CWKSP_Layer     *)pItem));
 			break;
 		}
 

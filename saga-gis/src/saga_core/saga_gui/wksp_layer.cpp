@@ -39,8 +39,6 @@
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -1064,7 +1062,7 @@ bool CWKSP_Layer::Show(CWKSP_Map *pMap)
 	{
 		for(int i=0; i<g_pMaps->Get_Count(); i++)
 		{
-			if( g_pMaps->Get_Map(i)->Find_Layer(this) != NULL )
+			if( g_pMaps->Get_Map(i)->Get_Map_Layer(this) != NULL )
 			{
 				pMap	= g_pMaps->Get_Map(i);
 

@@ -39,8 +39,6 @@
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -218,7 +216,7 @@ inline void CVIEW_Map_Control::_Set_StatusBar(const TSG_Point &Point)
 		{
 			TSG_Point	p(Point);	double epsilon	= _Get_Client2World(2.); // 2 pixel tolerance...
 
-			CWKSP_Map_Layer *pMapLayer = m_pMap->Find_Layer(Get_Active_Layer());
+			CWKSP_Map_Layer *pMapLayer = m_pMap->Get_Map_Layer(Get_Active_Layer());
 
 			if( !pMapLayer || pMapLayer->is_Projecting() )
 			{
@@ -264,7 +262,7 @@ inline CSG_Point CVIEW_Map_Control::_Get_Client2World(const wxPoint &Point, bool
 {
 	TSG_Point	pWorld	= m_pMap->Get_World(wxRect(GetClientSize()), Point);
 
-	if( bToActive && m_pMap->Find_Active() )
+	if( bToActive && m_pMap->Get_Map_Layer_Active() )
 	{
 		SG_Get_Projected(m_pMap->Get_Projection(), Get_Active_Layer()->Get_Object()->Get_Projection(), pWorld);
 	}
@@ -277,7 +275,7 @@ inline double CVIEW_Map_Control::_Get_Client2World(double Length, bool bToActive
 {
 	wxRect	rClient(GetClientSize());	CSG_Rect	rWorld(m_pMap->Get_World(rClient));
 
-	if( bToActive && m_pMap->Find_Active() )
+	if( bToActive && m_pMap->Get_Map_Layer_Active() )
 	{
 		SG_Get_Projected(m_pMap->Get_Projection(), Get_Active_Layer()->Get_Object()->Get_Projection(), rWorld.m_rect);
 	}
@@ -579,7 +577,7 @@ void CVIEW_Map_Control::Refresh_Map(void)
 //---------------------------------------------------------
 void CVIEW_Map_Control::On_Key_Down(wxKeyEvent &event)
 {
-	if( m_pMap->Find_Active(true) && Get_Active_Layer()->Edit_On_Key_Down(event.GetKeyCode()) )
+	if( m_pMap->Get_Map_Layer_Active(true) && Get_Active_Layer()->Edit_On_Key_Down(event.GetKeyCode()) )
 	{
 		return;
 	}
@@ -677,7 +675,7 @@ void CVIEW_Map_Control::On_Mouse_LDown(wxMouseEvent &event)
 			m_Drag_Mode		= ((CSG_Tool_Interactive *)g_pTool->Get_Tool())->Get_Drag_Mode();
 			bCaptureMouse	= !g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_LDOWN, GET_KEYS(event));
 		}
-		else if( m_pMap->Find_Active(false) )
+		else if( m_pMap->Get_Map_Layer_Active(false) )
 		{
 			switch(	Get_Active_Layer()->Get_Type() )
 			{
@@ -689,7 +687,7 @@ void CVIEW_Map_Control::On_Mouse_LDown(wxMouseEvent &event)
 												   : TOOL_INTERACTIVE_DRAG_BOX ; break;
 			}
 
-			if( m_pMap->Find_Active(true) )
+			if( m_pMap->Get_Map_Layer_Active(true) )
 			{
 				Get_Active_Layer()->Edit_On_Mouse_Down(
 					_Get_Client2World(event.GetPosition()), _Get_Client2World(1.), GET_KEYS(event)
@@ -755,13 +753,13 @@ void CVIEW_Map_Control::On_Mouse_LUp(wxMouseEvent &event)
 		{
 			g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_LUP, GET_KEYS(event));
 		}
-		else if( m_pMap->Find_Active(true) )
+		else if( m_pMap->Get_Map_Layer_Active(true) )
 		{
 			Get_Active_Layer()->Edit_On_Mouse_Up(
 				_Get_Client2World(event.GetPosition()), _Get_Client2World(1.), GET_KEYS(event)|TOOL_INTERACTIVE_KEY_LEFT
 			);
 		}
-		else if( m_pMap->Find_Active() )	// on-the-fly projected layer !
+		else if( m_pMap->Get_Map_Layer_Active() )	// on-the-fly projected layer !
 		{
 			double	d	= _Get_Client2World(1., true);
 
@@ -834,7 +832,7 @@ void CVIEW_Map_Control::On_Mouse_RDown(wxMouseEvent &event)
 		{
 			g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_RDOWN, GET_KEYS(event));
 		}
-		else if( m_pMap->Find_Active(true) )
+		else if( m_pMap->Get_Map_Layer_Active(true) )
 		{
 			Get_Active_Layer()->Edit_On_Mouse_Down(
 				_Get_Client2World(event.GetPosition()), _Get_Client2World(1.), GET_KEYS(event)
@@ -863,7 +861,7 @@ void CVIEW_Map_Control::On_Mouse_RUp(wxMouseEvent &event)
 		{
 			g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_RUP, GET_KEYS(event));
 		}
-		else if( m_pMap->Find_Active(true) && !Get_Active_Layer()->Edit_On_Mouse_Up(
+		else if( m_pMap->Get_Map_Layer_Active(true) && !Get_Active_Layer()->Edit_On_Mouse_Up(
 			_Get_Client2World(event.GetPosition()), _Get_Client2World(1.), GET_KEYS(event)|TOOL_INTERACTIVE_KEY_RIGHT) )
 		{
 			pMenu	= Get_Active_Layer()->Edit_Get_Menu();
@@ -1050,7 +1048,7 @@ void CVIEW_Map_Control::On_Mouse_Motion(wxMouseEvent &event)
 
 			g_pTool->Execute(_Get_Client2World(Point), iMode, GET_KEYS(event));
 		}
-		else if( m_pMap->Find_Active(true) )
+		else if( m_pMap->Get_Map_Layer_Active(true) )
 		{
 			Get_Active_Layer()->Edit_On_Mouse_Move(
 				this, m_pMap->Get_World(GetClientSize()),
