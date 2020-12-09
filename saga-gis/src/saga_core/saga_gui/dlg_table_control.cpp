@@ -172,27 +172,26 @@ bool CDLG_Table_Control::Update_Table(void)
 
 		switch( m_pTable->Get_Field_Type(iField) )
 		{
-		default:
-		case SG_DATATYPE_Byte:
-		case SG_DATATYPE_Char:
+		case SG_DATATYPE_Byte  : default:
+		case SG_DATATYPE_Char  :
 		case SG_DATATYPE_String:
-		case SG_DATATYPE_Date:
+		case SG_DATATYPE_Date  :
 		case SG_DATATYPE_Binary:
 			SetColFormatCustom(iField, wxGRID_VALUE_STRING);
 			break;
 
-		case SG_DATATYPE_Bit:
-		case SG_DATATYPE_Word:
-		case SG_DATATYPE_Short:
-		case SG_DATATYPE_DWord:
-		case SG_DATATYPE_Int:
-		case SG_DATATYPE_ULong:
-		case SG_DATATYPE_Long:
-		case SG_DATATYPE_Color:
+		case SG_DATATYPE_Bit   :
+		case SG_DATATYPE_Word  :
+		case SG_DATATYPE_Short :
+		case SG_DATATYPE_DWord :
+		case SG_DATATYPE_Int   :
+		case SG_DATATYPE_ULong :
+		case SG_DATATYPE_Long  :
+		case SG_DATATYPE_Color :
 			SetColFormatNumber(iField);
 			break;
 
-		case SG_DATATYPE_Float:
+		case SG_DATATYPE_Float :
 		case SG_DATATYPE_Double:
 			SetColFormatFloat(iField);
 			break;
@@ -276,10 +275,10 @@ bool CDLG_Table_Control::Update_Sorting(int iField, int Direction)
 	{
 		switch( Direction )
 		{
-		default:	m_pTable->Toggle_Index(iField);	break;
-		case  0:	m_pTable->Set_Index(iField, TABLE_INDEX_None      );	break;
-		case  1:	m_pTable->Set_Index(iField, TABLE_INDEX_Ascending );	break;
-		case  2:	m_pTable->Set_Index(iField, TABLE_INDEX_Descending);	break;
+		default: m_pTable->Toggle_Index(iField);                      break;
+		case  0: m_pTable->Set_Index(iField, TABLE_INDEX_None      ); break;
+		case  1: m_pTable->Set_Index(iField, TABLE_INDEX_Ascending ); break;
+		case  2: m_pTable->Set_Index(iField, TABLE_INDEX_Descending); break;
 		}
 
 		return( _Set_Records() );
