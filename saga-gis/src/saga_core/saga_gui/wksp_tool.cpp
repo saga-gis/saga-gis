@@ -39,8 +39,6 @@
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -86,6 +84,7 @@ CWKSP_Tool::CWKSP_Tool(CSG_Tool *pTool, const wxString &Menu_Library)
 {
 	m_pTool		= pTool;
 	m_Menu_ID	= -1;
+	m_bCloseGUI	= false;
 }
 
 //---------------------------------------------------------
@@ -287,16 +286,19 @@ bool CWKSP_Tool::Execute(bool bDialog)
 		{
 			if( g_pTool->is_Executing() )
 			{
-				if( !bDialog || DLG_Message_Confirm(_TL("Shall execution be stopped?"), _TL("Tool Execution")) )
+				if( !bDialog || DLG_Message_Confirm(_TL("Shall execution be stopped?"), m_pTool->Get_Name().c_str()) )
 				{
+					bResult	= true;
+
 					PROCESS_Set_Okay(false);
 				}
 			}
 			else if( m_pTool->is_Interactive() )
 			{
-				if( !bDialog || DLG_Message_Confirm(_TL("Shall execution be stopped?"), _TL("Tool Execution")) )
+				if( !bDialog || DLG_Message_Confirm(_TL("Shall execution be stopped?"), m_pTool->Get_Name().c_str()) )
 				{
-					bResult		= ((CSG_Tool_Interactive *)m_pTool)->Execute_Finish();
+					bResult	= ((CSG_Tool_Interactive *)m_pTool)->Execute_Finish();
+
 					g_pTool	= NULL;
 
 					PROCESS_Set_Okay(true);
@@ -357,6 +359,13 @@ bool CWKSP_Tool::Execute(bool bDialog)
 		{
 			g_pTool	= NULL;
 		}
+
+		if( m_bCloseGUI )
+		{
+			m_bCloseGUI	= false;
+
+			MDI_Get_Frame()->Close();
+		}
 	}
 
 	//-----------------------------------------------------
@@ -369,6 +378,19 @@ bool CWKSP_Tool::Execute(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode, int 
 	if( g_pTool == this && m_pTool->is_Interactive() )
 	{
 		return( ((CSG_Tool_Interactive *)m_pTool)->Execute_Position(ptWorld, Mode, Keys) );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Tool::Finish(bool bDialog, bool bCloseGUI)
+{
+	if( is_Executing() && Execute(bDialog) )
+	{
+		m_bCloseGUI	= bCloseGUI;
+
+		return( true );
 	}
 
 	return( false );

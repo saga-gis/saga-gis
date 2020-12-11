@@ -39,8 +39,6 @@
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -448,16 +446,12 @@ void CSAGA_Frame::On_Close(wxCloseEvent &event)
 	{
 		if( g_pTool->is_Executing() )
 		{
-			DLG_Message_Show(wxString::Format("[%s]\n%s", g_pTool->Get_Name().c_str(),
-				_TL("Please wait until the tool has terminated its execution.")), _TL("Exit SAGA")
-			);
-
-			event.Veto();
-
-			return;
+			g_pTool->Finish( true,  true);
 		}
-
-		g_pTool->Execute(false);
+		else
+		{
+			g_pTool->Finish(false, false);
+		}
 	}
 
 	if( !g_pTool && DLG_Message_Confirm(ID_DLG_CLOSE) && g_pData->Finalise() && g_pData->Close(true) )
