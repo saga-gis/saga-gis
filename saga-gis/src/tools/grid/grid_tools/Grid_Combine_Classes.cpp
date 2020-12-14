@@ -46,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Grid_Combine_Classes.h"
 
 
@@ -67,7 +58,6 @@
 //---------------------------------------------------------
 CGrid_Combine_Classes::CGrid_Combine_Classes(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Combine Classes"));
 
 	Set_Author		("O.Conrad (c) 2017");
@@ -144,11 +134,9 @@ bool CGrid_Combine_Classes::Set_Classes(CSG_Parameters *pParameters)
 	CSG_Table	&LUT	= *pLUT->asTable();
 
 	//-----------------------------------------------------
-	int		i;
-
 	CSG_String	Classes;
 
-	for(i=0; i<LUT.Get_Count(); i++)
+	for(int i=0; i<LUT.Get_Count(); i++)
 	{
 		if( i > 0 )
 		{
@@ -163,11 +151,9 @@ bool CGrid_Combine_Classes::Set_Classes(CSG_Parameters *pParameters)
 
 	pClasses->Del_Parameters();
 
-	for(i=0; i<LUT.Get_Count(); i++)
+	for(int i=0; i<LUT.Get_Count(); i++)
 	{
-		pClasses->Add_Choice(NULL,
-			CSG_String::Format("CLASS%d", i), LUT[i].asString(1), "", Classes, i
-		);
+		pClasses->Add_Choice("", CSG_String::Format("CLASS%d", i), LUT[i].asString(1), "", Classes, i);
 	}
 
 	//-----------------------------------------------------
@@ -182,7 +168,6 @@ bool CGrid_Combine_Classes::Set_Classes(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 bool CGrid_Combine_Classes::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(Parameters("GRID")->asGrid(), "LUT");
 
 	if( !pLUT || !pLUT->asTable() )

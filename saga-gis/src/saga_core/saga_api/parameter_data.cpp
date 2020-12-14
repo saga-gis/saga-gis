@@ -843,17 +843,7 @@ void CSG_Parameter_Choice::Set_Items(const SG_Char *String)
 
 	if( String && *String != '\0' )
 	{
-		CSG_String_Tokenizer	Items(String, "|");
-
-		while( Items.Has_More_Tokens() )
-		{
-			CSG_String	Item(Items.Get_Next_Token());
-
-			if( !Item.is_Empty() )
-			{
-				m_Items	+= Item;
-			}
-		}
+		m_Items	= SG_String_Tokenize(String, "|");
 	}
 
 	if( m_Value < 0 && m_Items.Get_Count() > 0 )
