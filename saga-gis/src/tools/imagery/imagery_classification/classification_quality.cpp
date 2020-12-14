@@ -371,7 +371,7 @@ bool CClassification_Quality::Get_Classes(CSG_Shapes *pPolygons, int Field, CSG_
 
 	Confusion.Destroy();
 
-	Confusion.Add_Field("CLASS", pPolygons->Get_Field_Type(Field));
+	Confusion.Add_Field("CLASS", SG_DATATYPE_String);
 
 	for(int iClass=0; iClass<Classes.Get_Count(); iClass++)
 	{
