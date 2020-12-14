@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: grid_multi_grid_regression.h 1160 2011-09-14 15:11:54Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -44,27 +41,23 @@
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #ifndef HEADER_INCLUDED__grid_multi_grid_regression_H
 #define HEADER_INCLUDED__grid_multi_grid_regression_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -89,12 +82,14 @@ protected:
 
 private:
 
-	CSG_Regression_Multiple		m_Regression;
+	TSG_Grid_Resampling			m_Resampling;
 
 
-	bool						Get_Samples		(CSG_Parameter_Grid_List *pGrids, CSG_Grid *pDependent, CSG_Matrix &Samples, CSG_Strings &Names);
+	bool						Get_Samples		(CSG_Grid *pDependent,  CSG_Parameter_Grid_List *pPredictors, CSG_Matrix &Samples, CSG_Strings &Names);
 
-	bool						Set_Regression	(CSG_Parameter_Grid_List *pGrids, CSG_Grid *pDependent, CSG_Grid *pRegression, CSG_Grid *pResiduals, const CSG_String &Name);
+	bool						Set_Regression	(CSG_Grid *pRegression, CSG_Parameter_Grid_List *pPredictors, CSG_Regression_Multiple &Regression);
+
+	bool						Set_Residuals	(CSG_Grid *pDependent, CSG_Grid *pRegression, CSG_Grid *pResiduals);
 
 };
 

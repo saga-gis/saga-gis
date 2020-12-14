@@ -39,8 +39,6 @@
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -113,7 +111,9 @@ CWKSP_Map_Extents::CWKSP_Map_Extents(void)
 CSG_Rect CWKSP_Map_Extents::Set_Back(void)
 {
 	if( m_iExtent < 0 )
+	{
 		return( m_Dummy );
+	}
 
 	if( !is_First() )
 	{
@@ -127,7 +127,9 @@ CSG_Rect CWKSP_Map_Extents::Set_Back(void)
 CSG_Rect CWKSP_Map_Extents::Set_Forward(void)
 {
 	if( m_iExtent < 0 )
+	{
 		return( m_Dummy );
+	}
 
 	if( !is_Last() )
 	{
@@ -197,9 +199,9 @@ CWKSP_Map::CWKSP_Map(void)
 //---------------------------------------------------------
 CWKSP_Map::~CWKSP_Map(void)
 {
-	if( m_pView    )	m_pView   ->Do_Destroy();
-	if( m_pView_3D )	m_pView_3D->Do_Destroy();
-	if( m_pLayout  )	m_pLayout ->Do_Destroy();
+	if( m_pView    ) m_pView   ->Do_Destroy();
+	if( m_pView_3D ) m_pView_3D->Do_Destroy();
+	if( m_pLayout  ) m_pLayout ->Do_Destroy();
 
 	delete(m_pLayout_Info);
 }
@@ -807,7 +809,7 @@ bool CWKSP_Map::Update(CWKSP_Layer *pLayer, bool bMapOnly)
 }
 
 //---------------------------------------------------------
-int CWKSP_Map::Get_Layer(CWKSP_Layer *pLayer)
+int CWKSP_Map::Get_Map_Layer_Index(CWKSP_Layer *pLayer)
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
@@ -821,7 +823,7 @@ int CWKSP_Map::Get_Layer(CWKSP_Layer *pLayer)
 }
 
 //---------------------------------------------------------
-CWKSP_Map_Layer * CWKSP_Map::Find_Layer(CWKSP_Layer *pLayer)
+CWKSP_Map_Layer * CWKSP_Map::Get_Map_Layer(CWKSP_Layer *pLayer)
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
@@ -835,9 +837,9 @@ CWKSP_Map_Layer * CWKSP_Map::Find_Layer(CWKSP_Layer *pLayer)
 }
 
 //---------------------------------------------------------
-CWKSP_Map_Layer * CWKSP_Map::Find_Active(bool bEditable)
+CWKSP_Map_Layer * CWKSP_Map::Get_Map_Layer_Active(bool bEditable)
 {
-	CWKSP_Map_Layer	*pLayer	= Find_Layer(Get_Active_Layer());
+	CWKSP_Map_Layer	*pLayer	= Get_Map_Layer(Get_Active_Layer());
 
 	return( pLayer && !(bEditable && pLayer->is_Projecting()) ? pLayer : NULL );
 }
@@ -845,7 +847,7 @@ CWKSP_Map_Layer * CWKSP_Map::Find_Active(bool bEditable)
 //---------------------------------------------------------
 CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 {
-	if( Get_Layer(pLayer) >= 0 )	// don't load a layer more than once
+	if( Get_Map_Layer_Index(pLayer) >= 0 )	// don't load a layer more than once
 	{
 		return( NULL );
 	}
@@ -1093,25 +1095,6 @@ bool CWKSP_Map::Set_Extent(const CSG_Rect &Extent, const CSG_Projection &Project
 }
 
 //---------------------------------------------------------
-bool CWKSP_Map::Set_Extent(void)
-{
-	CSG_Parameters	P(_TL("Map Extent"));
-
-	P.Add_Range("", "X", _TL("West-East"  ), _TL(""), Get_Extent().Get_XMin(), Get_Extent().Get_XMax());
-	P.Add_Range("", "Y", _TL("South-North"), _TL(""), Get_Extent().Get_YMin(), Get_Extent().Get_YMax());
-
-	if( DLG_Parameters(&P) )
-	{
-		return( Set_Extent(CSG_Rect(
-			P("X")->asRange()->Get_Min(), P("Y")->asRange()->Get_Min(),
-			P("X")->asRange()->Get_Max(), P("Y")->asRange()->Get_Max())
-		));
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
 bool CWKSP_Map::Set_Extent_Full(void)
 {
 	CSG_Rect	Extent;
@@ -1139,19 +1122,41 @@ bool CWKSP_Map::Set_Extent_Full(void)
 //---------------------------------------------------------
 bool CWKSP_Map::Set_Extent_Active(bool bPan)
 {
-	return( Get_Active_Layer() && Set_Extent(
-		Get_Active_Layer()->Get_Extent(),
-		Get_Active_Layer()->Get_Object()->Get_Projection(), bPan)
-	);
+	CWKSP_Layer	*pLayer	= Get_Active_Layer();
+
+	if( pLayer )
+	{
+		CWKSP_Map_Layer	*pMapLayer	= Get_Map_Layer(pLayer);
+
+		if( pMapLayer )
+		{
+			return( Set_Extent(pMapLayer->Get_Extent(), bPan) );
+		}
+
+		return( Set_Extent(pLayer->Get_Extent(), pLayer->Get_Object()->Get_Projection(), bPan) );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
-bool CWKSP_Map::Set_Extent_Selection(void)
+bool CWKSP_Map::Set_Extent_Selection(bool bPan)
 {
-	return( Get_Active_Layer() && Set_Extent(
-		Get_Active_Layer()->Edit_Get_Extent(),
-		Get_Active_Layer()->Get_Object()->Get_Projection())
-	);
+	CWKSP_Layer	*pLayer	= Get_Active_Layer();
+
+	if( pLayer )
+	{
+		CWKSP_Map_Layer	*pMapLayer	= Get_Map_Layer(Get_Active_Layer());
+
+		if( pMapLayer && !pMapLayer->do_Project() )
+		{
+			return( Set_Extent(pLayer->Edit_Get_Extent(), bPan) );
+		}
+
+		return( Set_Extent(pLayer->Edit_Get_Extent(), pLayer->Get_Object()->Get_Projection(), bPan) );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -1181,6 +1186,25 @@ bool CWKSP_Map::Set_Extent_Forward(bool bCheck_Only)
 		}
 
 		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Map::Set_Extent(void)
+{
+	CSG_Parameters	P(_TL("Map Extent"));
+
+	P.Add_Range("", "X", _TL("West-East"  ), _TL(""), Get_Extent().Get_XMin(), Get_Extent().Get_XMax());
+	P.Add_Range("", "Y", _TL("South-North"), _TL(""), Get_Extent().Get_YMin(), Get_Extent().Get_YMax());
+
+	if( DLG_Parameters(&P) )
+	{
+		return( Set_Extent(CSG_Rect(
+			P("X")->asRange()->Get_Min(), P("Y")->asRange()->Get_Min(),
+			P("X")->asRange()->Get_Max(), P("Y")->asRange()->Get_Max())
+		));
 	}
 
 	return( false );

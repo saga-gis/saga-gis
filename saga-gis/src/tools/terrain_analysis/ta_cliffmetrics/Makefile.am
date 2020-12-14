@@ -8,6 +8,7 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(DBGFLAGS) $(GOMPFLAGS)
 AM_LDFLAGS         = -fPIC -shared -avoid-version 
 pkglib_LTLIBRARIES = libta_cliffmetrics.la
 libta_cliffmetrics_la_SOURCES =\
+profile_crossings.cpp\
 CliffMetrics_tool.cpp\
 TLB_Interface.cpp\
 CliffMetrics/2di_point.cpp\
@@ -41,6 +42,7 @@ CliffMetrics/smooth_line.cpp\
 CliffMetrics/utils.cpp\
 CliffMetrics/utils_global.cpp\
 CliffMetrics/write_output.cpp\
+profile_crossings.h\
 CliffMetrics_tool.h\
 CliffMetrics/2di_point.h\
 CliffMetrics/2di_shape.h\

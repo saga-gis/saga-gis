@@ -39,8 +39,6 @@
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -142,14 +140,14 @@ CWKSP_Layer::CWKSP_Layer(CSG_Data_Object *pObject)
 //---------------------------------------------------------
 CWKSP_Layer::~CWKSP_Layer(void)
 {
-	g_pSAGA_Frame->Freeze();
+	if( g_pSAGA_Frame ) { g_pSAGA_Frame->Freeze(); }
 
-	if( g_pMaps     )	{	g_pMaps->Del(this);	}
+	if( g_pMaps       ) { g_pMaps->Del(this);      }
 
-	if( m_pClassify )	{	delete(m_pClassify);	}
-	if( m_pLegend   )	{	delete(m_pLegend  );	}
+	if( m_pClassify   ) { delete(m_pClassify);     }
+	if( m_pLegend     ) { delete(m_pLegend  );     }
 
-	g_pSAGA_Frame->Thaw();
+	if( g_pSAGA_Frame ) { g_pSAGA_Frame->Thaw();   }
 }
 
 
@@ -1064,7 +1062,7 @@ bool CWKSP_Layer::Show(CWKSP_Map *pMap)
 	{
 		for(int i=0; i<g_pMaps->Get_Count(); i++)
 		{
-			if( g_pMaps->Get_Map(i)->Find_Layer(this) != NULL )
+			if( g_pMaps->Get_Map(i)->Get_Map_Layer(this) != NULL )
 			{
 				pMap	= g_pMaps->Get_Map(i);
 

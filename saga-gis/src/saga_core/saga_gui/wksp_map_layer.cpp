@@ -205,10 +205,7 @@ bool CWKSP_Map_Layer::On_Command(int Cmd_ID)
 		break;
 
 	case ID_CMD_MAPS_PROJECT:
-		if( (m_bProject = !m_bProject) == true )
-		{
-			((CWKSP_Map *)Get_Manager())->View_Refresh(false);
-		}
+		m_bProject	= !m_bProject; ((CWKSP_Map *)Get_Manager())->View_Refresh(false);
 		break;
 	}
 
@@ -406,14 +403,14 @@ CSG_Rect CWKSP_Map_Layer::Get_Extent(void)
 	if( rLayer.Get_XRange() == 0. || rLayer.Get_YRange() == 0. )
 	{
 		if( m_pLayer->Get_Object()->asShapes()
-			&&  m_pLayer->Get_Object()->asShapes()->Get_Count() == 1
-			&&  m_pLayer->Get_Object()->asShapes()->Get_Type() == SHAPE_TYPE_Point )
+		&&  m_pLayer->Get_Object()->asShapes()->Get_Count() == 1
+		&&  m_pLayer->Get_Object()->asShapes()->Get_Type() == SHAPE_TYPE_Point )
 		{
 			rLayer.Inflate(1., false);
 		}
 
 		if( m_pLayer->Get_Object()->asPointCloud()
-			&&  m_pLayer->Get_Object()->asPointCloud()->Get_Count() == 1 )
+		&&  m_pLayer->Get_Object()->asPointCloud()->Get_Count() == 1 )
 		{
 			rLayer.Inflate(1., false);
 		}

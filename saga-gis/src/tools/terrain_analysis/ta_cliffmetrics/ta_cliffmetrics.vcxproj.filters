@@ -119,6 +119,9 @@
     <ClInclude Include="CliffMetrics\raster_grid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="profile_crossings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CliffMetrics_tool.cpp">
@@ -218,6 +221,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CliffMetrics\write_output.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="profile_crossings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

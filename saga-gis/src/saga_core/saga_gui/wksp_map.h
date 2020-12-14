@@ -128,7 +128,7 @@ public:
 	bool						Set_Extent				(void);
 	bool						Set_Extent_Full			(void);
 	bool						Set_Extent_Active		(bool bPan);
-	bool						Set_Extent_Selection	(void);
+	bool						Set_Extent_Selection	(bool bPan);
 	bool						Set_Extent_Back			(bool bCheck_Only = false);
 	bool						Set_Extent_Forward		(bool bCheck_Only = false);
 
@@ -149,9 +149,9 @@ public:
 	void						Set_CrossHair_Off		(void);
 
 	bool						Update					(class CWKSP_Layer *pLayer, bool bMapOnly);
-	int							Get_Layer				(class CWKSP_Layer *pLayer);
-	class CWKSP_Map_Layer *		Find_Layer				(class CWKSP_Layer *pLayer);
-	class CWKSP_Map_Layer *		Find_Active				(bool bEditable = false);
+	int							Get_Map_Layer_Index		(class CWKSP_Layer *pLayer);
+	class CWKSP_Map_Layer *		Get_Map_Layer			(class CWKSP_Layer *pLayer);
+	class CWKSP_Map_Layer *		Get_Map_Layer_Active	(bool bEditable = false);
 	class CWKSP_Map_Layer *		Add_Layer				(class CWKSP_Layer *pLayer);
 	class CWKSP_Map_Graticule *	Add_Graticule			(CSG_MetaData *pEntry = NULL);
 	class CWKSP_Map_BaseMap *	Add_BaseMap				(CSG_MetaData *pEntry = NULL);

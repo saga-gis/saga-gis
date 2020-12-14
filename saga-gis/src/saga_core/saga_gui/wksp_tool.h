@@ -95,8 +95,12 @@ public:
 	bool							Execute				(bool bDialog);
 	bool							Execute				(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode, int Keys);
 
+	bool							Finish				(bool bDialog, bool bCloseGUI);
+
 
 private:
+
+	bool							m_bCloseGUI;
 
 	int								m_Menu_ID;
 

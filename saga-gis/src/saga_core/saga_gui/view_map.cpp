@@ -39,8 +39,6 @@
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -546,7 +544,7 @@ void CVIEW_Map::On_Map_PanTo_Active(wxCommandEvent &event)
 //---------------------------------------------------------
 void CVIEW_Map::On_Map_Zoom_Selection(wxCommandEvent &event)
 {
-	m_pMap->Set_Extent_Selection();
+	m_pMap->Set_Extent_Selection(false);
 }
 
 //---------------------------------------------------------
