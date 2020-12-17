@@ -37,6 +37,7 @@ shapes_polar_to_cartes.cpp\
 shapes_split.cpp\
 shapes_split_by_attribute.cpp\
 shapes_split_randomly.cpp\
+visualize_gradients.cpp\
 beachball.h\
 CreateChartLayer.h\
 GraticuleBuilder.h\
@@ -62,7 +63,8 @@ shapes_generate.h\
 shapes_polar_to_cartes.h\
 shapes_split.h\
 shapes_split_by_attribute.h\
-shapes_split_randomly.h
+shapes_split_randomly.h\
+visualize_gradients.h
 
 libshapes_tools_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 

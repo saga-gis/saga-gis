@@ -92,6 +92,9 @@
     <ClCompile Include="beachball.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="visualize_gradients.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -221,6 +224,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="beachball.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="visualize_gradients.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

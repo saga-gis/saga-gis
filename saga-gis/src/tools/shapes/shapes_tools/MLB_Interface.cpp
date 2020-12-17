@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -44,25 +41,14 @@
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
@@ -79,13 +65,13 @@ CSG_String Get_Info(int i)
 		return( _TL("Shapes") );
 
 	case TLB_INFO_Author:
-		return( SG_T("O. Conrad, V. Olaya, V. Wichmann (c) 2002-2016") );
+		return( "O. Conrad, V. Olaya, V. Wichmann (c) 2002-2016" );
 
 	case TLB_INFO_Description:
 		return( _TL("Tools for the manipulation of vector data.") );
 
 	case TLB_INFO_Version:
-		return( SG_T("1.0") );
+		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
 		return( _TL("Shapes|Tools") );
@@ -129,6 +115,8 @@ CSG_String Get_Info(int i)
 #include "shapes_clean.h"
 
 #include "beachball.h"
+
+#include "visualize_gradients.h"
 
 
 //---------------------------------------------------------
@@ -176,7 +164,9 @@ CSG_Tool *		Create_Tool(int i)
 
 	case 29:	return( new CBeachball );
 
-	case 30:	return( NULL );
+	case 30:	return( new CVisualize_Gradients );
+
+	case 31:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

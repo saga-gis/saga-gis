@@ -336,6 +336,7 @@
     <ClCompile Include="shapes_split_randomly.cpp" />
     <ClCompile Include="Shapes_Support_Tool_Chains.cpp" />
     <ClCompile Include="TransformShapes.cpp" />
+    <ClCompile Include="visualize_gradients.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\saga_core\saga_api\grid_pyramid.h" />
@@ -381,6 +382,7 @@
     <ClInclude Include="shapes_split_randomly.h" />
     <ClInclude Include="Shapes_Support_Tool_Chains.h" />
     <ClInclude Include="TransformShapes.h" />
+    <ClInclude Include="visualize_gradients.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
