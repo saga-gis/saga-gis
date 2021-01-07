@@ -132,6 +132,28 @@ double		SG_Get_Distance(const TSG_Point &A, const TSG_Point &B)
 }
 
 //---------------------------------------------------------
+double		SG_Get_Distance(double ax, double ay, double az, double bx, double by, double bz)
+{
+    ax	-= bx;
+    ay	-= by;
+    az  -= bz;
+
+    return( sqrt(ax*ax + ay*ay + az*az) );
+}
+
+//---------------------------------------------------------
+double		SG_Get_Distance(const TSG_Point_Z &A, const TSG_Point_Z &B)
+{
+    double	dx,	dy, dz;
+
+    dx	= B.x - A.x;
+    dy	= B.y - A.y;
+    dz	= B.z - A.z;
+
+    return( sqrt(dx*dx + dy*dy + dz*dz) );
+}
+
+//---------------------------------------------------------
 double	SG_Get_Distance_Polar(double aLon, double aLat, double bLon, double bLat, double a, double e, bool bDegree)
 {
 	if( bDegree )

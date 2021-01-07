@@ -916,6 +916,9 @@ SAGA_API_DLL_EXPORT double		SG_Get_Distance					(const TSG_Point &A, const TSG_P
 SAGA_API_DLL_EXPORT double		SG_Get_Distance					(double ax, double ay, double bx, double by);
 SAGA_API_DLL_EXPORT double		SG_Get_Distance					(const TSG_Point &A, const TSG_Point &B);
 
+SAGA_API_DLL_EXPORT double		SG_Get_Distance					(double ax, double ay, double az, double bx, double by, double bz);
+SAGA_API_DLL_EXPORT double		SG_Get_Distance					(const TSG_Point_Z &A, const TSG_Point_Z &B);
+
 SAGA_API_DLL_EXPORT double		SG_Get_Distance_Polar			(double aLon, double aLat, double bLon, double bLat, double a = 6378137., double e = 298.257223563, bool bDegree = true);
 SAGA_API_DLL_EXPORT double		SG_Get_Distance_Polar			(const TSG_Point &A      , const TSG_Point &B      , double a = 6378137., double e = 298.257223563, bool bDegree = true);
 
