@@ -301,6 +301,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="extract_closed_lines.cpp" />
     <ClCompile Include="Lines_From_Points.cpp" />
     <ClCompile Include="Lines_From_Polygons.cpp" />
     <ClCompile Include="line_crossings.cpp" />
@@ -328,6 +329,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\pointcloud.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
+    <ClInclude Include="extract_closed_lines.h" />
     <ClInclude Include="Lines_From_Points.h" />
     <ClInclude Include="Lines_From_Polygons.h" />
     <ClInclude Include="line_crossings.h" />
