@@ -349,16 +349,19 @@ bool CGrid_Value_Reclassify::On_Execute(void)
 		case 2:			
 						switch( pResult->Get_Type() )
 						{
-						case 0:		pResult->Set_NoData_Value(                       0.0);				break;
-						case 1:		pResult->Set_NoData_Value(                       0.0);				break;
-						case 2:		pResult->Set_NoData_Value(                    -127.0);				break;
-						case 3:		pResult->Set_NoData_Value(                   65535.0);				break;
-						case 4:		pResult->Set_NoData_Value(                  -32767.0);				break;
-						case 5:		pResult->Set_NoData_Value(              4294967295.0);				break;
-						case 6:		pResult->Set_NoData_Value(             -2147483647.0);				break;
-						case 7:		pResult->Set_NoData_Value(                  -99999.0);				break;
-						case 8:		pResult->Set_NoData_Value(                  -99999.0);				break;
-						default:	pResult->Set_NoData_Value(pInput->Get_NoData_Value());				break;
+                        case SG_DATATYPE_Bit   : pResult->Set_NoData_Value(          0.);	break;
+                        case SG_DATATYPE_Byte  : pResult->Set_NoData_Value(          0.);	break;
+                        case SG_DATATYPE_Char  : pResult->Set_NoData_Value(       -127.);	break;
+                        case SG_DATATYPE_Word  : pResult->Set_NoData_Value(      65535.);	break;
+                        case SG_DATATYPE_Short : pResult->Set_NoData_Value(     -32767.);	break;
+                        case SG_DATATYPE_DWord : pResult->Set_NoData_Value( 4294967295.);	break;
+                        case SG_DATATYPE_Int   : pResult->Set_NoData_Value(-2147483647.);	break;
+                        case SG_DATATYPE_ULong : pResult->Set_NoData_Value( 4294967295.);	break;
+                        case SG_DATATYPE_Long  : pResult->Set_NoData_Value(-2147483647.);	break;
+                        case SG_DATATYPE_Float : pResult->Set_NoData_Value(     -99999.);	break;
+                        case SG_DATATYPE_Double: pResult->Set_NoData_Value(     -99999.);	break;
+                        case SG_DATATYPE_Color : pResult->Set_NoData_Value( 4294967295.);	break;
+						default:	pResult->Set_NoData_Value(pInput->Get_NoData_Value());	break;
 						}
 			
 						break;
