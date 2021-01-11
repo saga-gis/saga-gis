@@ -293,6 +293,11 @@ bool CKriging_Base::On_Execute(void)
 
 				bResult	= m_Model.Set_Formula(Parameters("VAR_MODEL")->asString())
 					&& (m_Model.Get_Trend() || m_Model.Get_Parameter_Count() == 0);
+
+				if( !bResult )
+				{
+					Error_Set(_TL("failed to fit model function to empirical variogram."));
+				}
 			}
 		}
 	}
