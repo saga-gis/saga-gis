@@ -41,8 +41,6 @@
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -1766,6 +1764,13 @@ CSG_Grid * CSG_Parameters_Grid_Target::Get_Grid(const CSG_String &Identifier, TS
 	if( !System.is_Valid() )
 	{
 		return( NULL );
+	}
+
+	CSG_Parameter	*pSystem	= (*m_pParameters)(m_Prefix + "SYSTEM");
+
+	if( pSystem->asGrid_System() && !pSystem->asGrid_System()->is_Equal(System) )
+	{
+		pSystem->asGrid_System()->Assign(System);
 	}
 
 	CSG_Grid	*pGrid	= NULL;

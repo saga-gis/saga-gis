@@ -41,8 +41,6 @@
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -250,7 +248,6 @@ TSG_Data_Type CShapes2Grid::Get_Data_Type(int Field)
 //---------------------------------------------------------
 bool CShapes2Grid::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_Shapes	*pShapes	= Parameters("INPUT")->asShapes();
 
 	m_Multiple	= Parameters("MULTIPLE")->asInt();
@@ -260,9 +257,9 @@ bool CShapes2Grid::On_Execute(void)
 
 	switch( pShapes->Get_Type() )
 	{
-	default                :	bFat	= false;	break;
-	case SHAPE_TYPE_Line   :	bFat	= Parameters("LINE_TYPE")->asInt() == 1;	break;
-	case SHAPE_TYPE_Polygon:	bFat	= Parameters("POLY_TYPE")->asInt() == 1;	break;
+	default                : bFat = false;                                 break;
+	case SHAPE_TYPE_Line   : bFat = Parameters("LINE_TYPE")->asInt() == 1; break;
+	case SHAPE_TYPE_Polygon: bFat = Parameters("POLY_TYPE")->asInt() == 1; break;
 	}
 
 	//-----------------------------------------------------
@@ -270,9 +267,9 @@ bool CShapes2Grid::On_Execute(void)
 
 	switch( Parameters("OUTPUT")->asInt() )
 	{
-	case  0:	Field	= OUTPUT_NODATA;	break;		// data / no-data
-	case  1:	Field	= OUTPUT_INDEX ;	break;		// index number
-	default:	Field	= Parameters("FIELD")->asInt();	// attribute
+	case  0: Field = OUTPUT_NODATA;         break;	// data / no-data
+	case  1: Field = OUTPUT_INDEX ;         break;	// index number
+	default: Field = Parameters("FIELD")->asInt();	// attribute
 		if( Field < 0 || !SG_Data_Type_is_Numeric(pShapes->Get_Field_Type(Field)) )
 		{
 			Message_Add(_TL("WARNING: selected attribute is not numeric."));
