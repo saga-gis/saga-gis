@@ -73,9 +73,12 @@ CExtract_Closed_Lines::CExtract_Closed_Lines(void)
 	Set_Author		(SG_T("V. Wichmann (c) 2021"));
 
 	Set_Description	(_TW(
-		"The tool allows one to extract all closed lines from the input "
+		"The tool allows one to extract closed lines from the input "
 		"shapefile. Closed lines are detected by examining the distance "
-        "between the first and last line vertex.\n\n"
+        "between the first and last line vertex.\n"
+        "The 'tolerance' parameter describes the maximum distance allowed "
+        "between the first and last line vertex. The 'maximum length' "
+        "parameter can be used to exclude long lines.\n\n"
 	));
 
 	//-----------------------------------------------------
@@ -96,6 +99,12 @@ CExtract_Closed_Lines::CExtract_Closed_Lines(void)
 		_TL("The maximum distance between the first and last line vertex [map units]."),
 		0.001, 0.0, true
 	);
+
+    Parameters.Add_Double("",
+        "MAX_LENGTH"    , _TL("Maximum Length"),
+        _TL("The maximum length of extracted lines [map units]."),
+        10000.0, 0.0, true
+    );
 }
 
 
@@ -112,7 +121,7 @@ bool CExtract_Closed_Lines::On_Execute(void)
 	CSG_Shapes  *pLines		= Parameters("LINES_IN")->asShapes();
 	CSG_Shapes  *pClosed	= Parameters("LINES_OUT")->asShapes();
 	double      dTolerance	= Parameters("TOLERANCE")->asDouble();
-
+    double      dMaxLength	= Parameters("MAX_LENGTH")->asDouble();
 
     pClosed->Create(SHAPE_TYPE_Line, CSG_String::Format(SG_T("%s_closed_lines"), pLines->Get_Name()), pLines, pLines->Get_Vertex_Type());
 
@@ -143,7 +152,7 @@ bool CExtract_Closed_Lines::On_Execute(void)
             }
 
             //--------------------------------------------------------
-            if( SG_Get_Distance(p1, p2) <= dTolerance )
+            if( SG_Get_Distance(p1, p2) <= dTolerance && ((CSG_Shape_Line *)pLineIn)->Get_Length(iPart) <= dMaxLength )
             {
                 CSG_Shape *pLineOut = pClosed->Add_Shape(pLineIn, SHAPE_COPY_ATTR);
 
