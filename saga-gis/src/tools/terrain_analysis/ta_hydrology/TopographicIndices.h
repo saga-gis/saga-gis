@@ -115,6 +115,29 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class CCIT : public CSG_Tool_Grid
+{
+public:
+    CCIT(void);
+
+    virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Topographic Indices" ));	}
+
+
+protected:
+
+    virtual bool			On_Execute		(void);
+
+
+private:
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CLS_Factor : public CSG_Tool_Grid
 {
 public:

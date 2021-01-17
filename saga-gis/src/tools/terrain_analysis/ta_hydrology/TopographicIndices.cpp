@@ -273,7 +273,7 @@ CStream_Power::CStream_Power(void)
 	Add_Reference(
 		"Moore, I.D., Grayson, R.B., Ladson, A.R.", "1991",
 		"Digital terrain modelling: a review of hydrogical, geomorphological, and biological applications",
-		"Hydrological Processes, Vol.5, No.1\n"
+		"Hydrological Processes, Vol.5, No.1"
 	);
 
 	//-----------------------------------------------------
@@ -339,6 +339,104 @@ bool CStream_Power::On_Execute(void)
 	}
 
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CCIT::CCIT(void)
+{
+    Set_Name		(_TL("CIT Index"));
+
+    Set_Author		("V. Wichmann (c) 2021");
+
+    Set_Description	(_TW(
+        "The tool allows one to calculate a variant of the Stream Power Index, "
+        "which was introduced to detect channel heads (channel initiation) "
+        "based on a drainage area-slope threshold. The Channel Initiation Threshold "
+        "(CIT) index is calculated as: CIT = SCA * tan(Slope)^2\n\n"
+    ));
+
+    Add_Reference(
+        "Montgomery, D.R., Dietrich, W.E.", "1989",
+        "Source areas, drainage density and channel initiation",
+        "Water Resources Research 25, p.1907-1918."
+    );
+
+    Add_Reference(
+        "Montgomery, D.R., Foufoula-Georgiou, E.", "1993",
+        "Channel network source representation using digital elevation models",
+        "Water Resources Research 29, p.3925-3934."
+    );
+
+    //-----------------------------------------------------
+    Parameters.Add_Grid("",
+        "SLOPE"	, _TL("Slope"),
+        _TL("The slope grid [radians]."),
+        PARAMETER_INPUT
+    );
+
+    Parameters.Add_Grid("",
+        "AREA"	, _TL("Catchment Area"),
+        _TL("The catchment area grid [map units^2]."),
+        PARAMETER_INPUT
+    );
+
+    Parameters.Add_Grid("",
+        "CIT"	, _TL("CIT Index"),
+        _TL("The Channel Initiation Threshold index."),
+        PARAMETER_OUTPUT
+    );
+
+    Parameters.Add_Choice("",
+        "CONV"	, _TL("Area Conversion"),
+        _TL(""),
+        CSG_String::Format("%s|%s",
+            _TL("no conversion (areas already given as specific catchment area)"),
+            _TL("1 / cell size (pseudo specific catchment area)")
+        ), 0
+    );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CCIT::On_Execute(void)
+{
+    CSG_Grid	*pSlope	= Parameters("SLOPE")->asGrid();
+    CSG_Grid	*pArea	= Parameters("AREA" )->asGrid();
+    CSG_Grid	*pCIT	= Parameters("CIT"  )->asGrid();
+
+    bool	bConvert	= Parameters("CONV" )->asInt() == 1;
+
+    DataObject_Set_Colors(pCIT, 11, SG_COLORS_RED_GREY_GREEN, true);
+
+    //-----------------------------------------------------
+    for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+    {
+        #pragma omp parallel for
+        for(int x=0; x<Get_NX(); x++)
+        {
+            if( pArea->is_NoData(x, y) || pSlope->is_NoData(x, y) )
+            {
+                pCIT->Set_NoData(x, y);
+            }
+            else
+            {
+                pCIT->Set_Value(x, y, (pArea->asDouble(x, y) / (bConvert ? Get_Cellsize() : 1.)) * pow(tan(pSlope->asDouble(x, y)), 2));
+            }
+        }
+    }
+
+    return( true );
 }
 
 
