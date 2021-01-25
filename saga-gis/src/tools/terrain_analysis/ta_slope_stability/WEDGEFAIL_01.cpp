@@ -16,7 +16,7 @@
 //                    WEDGEFAIL_01.cpp                   //
 //                                                       //
 //                 Copyright (C) 2012 by                 //
-//                     Andreas Günther                   //
+//                     Andreas Gï¿½nther                   //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -41,7 +41,7 @@
 //                                                       //
 //    e-mail:     a.guenther@bgr.de                      //
 //                                                       //
-//    contact:    Andreas Günther                        //
+//    contact:    Andreas Gï¿½nther                        //
 //                B2.2								     //
 //                BGR				                     //
 //                Germany                                //
@@ -88,10 +88,13 @@ CWEDGEFAIL::CWEDGEFAIL(void)
 		"using global or grid-based friction angle data. Optionally, a cone value can be set allowing for some variance in discontinuity dip orientations. "
 		"The tool operates in slide (testing for plane and wedge sliding) or topple (testing for plane and wedge toppling) modes.\n"
 		"\n"
-		"Reference:\n"
-		"<a href=\"http://link.springer.com/article/10.1007/s11069-011-9771-2.\">G&uuml;nther A., Wienh&ouml;fer J., Konietzky H. (2012) Automated mapping of rock slope geometry, kinematics and stability with RSS-GIS. Natural Hazards, 61, 29-49.</a>.\n"
-
 	));
+
+	Add_Reference("G&uuml;nther A., Wienh&ouml;fer J., Konietzky H.", "2012",
+		"Automated mapping of rock slope geometry, kinematics and stability with RSS-GIS",
+		"Natural Hazards, 61, pp. 29-49.",
+		SG_T("https://link.springer.com/article/10.1007/s11069-011-9771-2")
+	);
 
 	Parameters.Add_Grid(
 		NULL, "DEM", "DEM", "A DEM", PARAMETER_INPUT
@@ -118,23 +121,23 @@ CWEDGEFAIL::CWEDGEFAIL(void)
 		);
 
 	Parameters.Add_Value(
-		NULL, "fC", "Global dip/plunge direction (degree)", "Constant value if no raster set", PARAMETER_TYPE_Double, 0					//Initialisierung eines fixen wertes vs Grid für density
+		NULL, "fC", "Global dip/plunge direction (degree)", "Constant value if no raster set", PARAMETER_TYPE_Double, 0					//Initialisierung eines fixen wertes vs Grid fï¿½r density
 		);
 
 	Parameters.Add_Value(
-		NULL, "fD", "Global dip/plunge (degree)", "Constant value if no raster set", PARAMETER_TYPE_Double, 35						//Initialisierung eines fixen wertes vs Grid für conductivity
+		NULL, "fD", "Global dip/plunge (degree)", "Constant value if no raster set", PARAMETER_TYPE_Double, 35						//Initialisierung eines fixen wertes vs Grid fï¿½r conductivity
 		);
 
 	Parameters.Add_Value(
-		NULL, "fEmin", "Min global friction angle (degree)", "Constant value if no raster set", PARAMETER_TYPE_Double, 35							//Initialisierung eines fixen wertes vs Grid für depth
+		NULL, "fEmin", "Min global friction angle (degree)", "Constant value if no raster set", PARAMETER_TYPE_Double, 35							//Initialisierung eines fixen wertes vs Grid fï¿½r depth
 		);
 
 	Parameters.Add_Value(
-		NULL, "fEmax", "Max global friction angle (degree)", "Constant value if no raster set", PARAMETER_TYPE_Double, 35							//Initialisierung eines fixen wertes vs Grid für depth
+		NULL, "fEmax", "Max global friction angle (degree)", "Constant value if no raster set", PARAMETER_TYPE_Double, 35							//Initialisierung eines fixen wertes vs Grid fï¿½r depth
 		);
 
 	Parameters.Add_Value(
-		NULL, "ff", "Cone radius (degree)", "Radius of optional cone variance (in degrees)", PARAMETER_TYPE_Int, 0							//Initialisierung eines fixen wertes vs Grid für depth
+		NULL, "ff", "Cone radius (degree)", "Radius of optional cone variance (in degrees)", PARAMETER_TYPE_Int, 0							//Initialisierung eines fixen wertes vs Grid fï¿½r depth
 		);	
 	
 	Parameters.Add_Grid(
