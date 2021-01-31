@@ -32,6 +32,9 @@
     <ClCompile Include="slic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="connected_components.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h">
@@ -98,6 +101,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="slic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="connected_components.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

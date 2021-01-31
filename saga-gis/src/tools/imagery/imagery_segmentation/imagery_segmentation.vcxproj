@@ -301,6 +301,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="connected_components.cpp" />
     <ClCompile Include="grid_seeds.cpp" />
     <ClCompile Include="MLB_Interface.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -324,6 +325,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\pointcloud.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
+    <ClInclude Include="connected_components.h" />
     <ClInclude Include="grid_seeds.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\dataobject.h" />

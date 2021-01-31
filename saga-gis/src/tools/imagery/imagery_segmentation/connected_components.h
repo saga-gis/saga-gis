@@ -1,3 +1,6 @@
+/**********************************************************
+ * Version $Id$
+ *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -10,10 +13,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//                connected_components.h                 //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
-//                 SAGA User Group Assoc.                //
+//                 Copyright (C) 2021 by                 //
+//                    Volker Wichmann                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -36,86 +39,31 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     author@email.de                        //
+//    e-mail:     wichmann@laserdata                     //
 //                                                       //
-//    contact:    Author                                 //
-//                Sesame Street. 7                       //
-//                12345 Metropolis                       //
-//                Nirwana                                //
+//    contact:    Volker Wichmann                        //
+//                LASERDATA GmbH                         //
+//                Management and analysis of             //
+//                laserscanning data                     //
+//                Innsbruck, Austria                     //
 //                                                       //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifndef HEADER_INCLUDED__Connected_Components_H
+#define HEADER_INCLUDED__Connected_Components_H
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//           The Tool Link Library Interface             //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-
 #include <saga_api/saga_api.h>
 
-
-//---------------------------------------------------------
-// 2. Place general tool library informations here...
-
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("Segmentation") );
-
-	case TLB_INFO_Category:
-		return( _TL("Imagery") );
-
-	case TLB_INFO_Author:
-		return( SG_T("SAGA User Group Assoc. (c) 2009-2021") );
-
-	case TLB_INFO_Description:
-		return( _TL("Image segmentation algorithms.") );
-
-	case TLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case TLB_INFO_Menu_Path:
-		return( _TL("Imagery|Segmentation") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your tools here...
-
-#include "watershed_segmentation.h"
-#include "skeletonization.h"
-#include "grid_seeds.h"
-#include "rga_basic.h"
-#include "slic.h"
-#include "connected_components.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your tools to be created here...
-
-CSG_Tool *		Create_Tool(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CWatershed_Segmentation );
-	case  1:	return( new CSkeletonization );
-	case  2:	return( new CGrid_Seeds );
-	case  3:	return( new CRGA_Basic );
-	case  4:	return( new CSLIC );
-    case  5:    return( new CConnected_Components );
-
-	//-----------------------------------------------------
-	case  6:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
-	}
-}
+#include <queue>
 
 
 ///////////////////////////////////////////////////////////
@@ -125,8 +73,24 @@ CSG_Tool *		Create_Tool(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CConnected_Components : public CSG_Tool_Grid
+{
+public:
+	CConnected_Components(void);
 
-	TLB_INTERFACE
 
-//}}AFX_SAGA
+protected:
+
+	virtual bool		On_Execute(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__Connected_Components_H

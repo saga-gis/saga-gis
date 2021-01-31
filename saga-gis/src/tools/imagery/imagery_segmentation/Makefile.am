@@ -11,12 +11,14 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(DBGFLAGS) $(GOMPFLAGS)
 AM_LDFLAGS         = -fPIC -shared -avoid-version
 pkglib_LTLIBRARIES = libimagery_segmentation.la
 libimagery_segmentation_la_SOURCES =\
+connected_components.cpp\
 grid_seeds.cpp\
 MLB_Interface.cpp\
 rga_basic.cpp\
 skeletonization.cpp\
 slic.cpp\
 watershed_segmentation.cpp\
+connected_components.h\
 grid_seeds.h\
 rga_basic.h\
 skeletonization.h\
