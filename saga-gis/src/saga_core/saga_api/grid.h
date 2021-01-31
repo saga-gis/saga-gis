@@ -757,6 +757,7 @@ public:		///////////////////////////////////////////////
 			case SG_DATATYPE_DWord : Value = (double)((DWORD  **)m_Values)[y][x]; break;
 			case SG_DATATYPE_Int   : Value = (double)((int    **)m_Values)[y][x]; break;
 			case SG_DATATYPE_Long  : Value = (double)((sLong  **)m_Values)[y][x]; break;
+            case SG_DATATYPE_ULong : Value = (double)((uLong  **)m_Values)[y][x]; break;
 			case SG_DATATYPE_Bit   : Value = (double)(((BYTE  **)m_Values)[y][x / 8] & m_Bitmask[x % 8]) == 0 ? 0.0 : 1.0;	break;
 
 			default:
