@@ -44,7 +44,7 @@ CGraticuleBuilder::CGraticuleBuilder(void)
 	Set_Author		("V.Olaya (c) 2004");
 
 	Set_Description	(_TW(
-		"(c) 2004 by Victor Olaya. "
+		"The tool allows one to create a graticule with a user-specified width and height.\n"
 	));
 
 	//-----------------------------------------------------
@@ -111,6 +111,12 @@ CGraticuleBuilder::CGraticuleBuilder(void)
 			_TL("centered")
 		), 0
 	);
+
+    Parameters.Add_Bool(
+        NULL    , "ROUND"           , _TL("Round"),
+        _TL("Round bounding box coordinates to whole numbers; this blows up the bounding box."),
+        false
+    );
 }
 
 
@@ -137,6 +143,7 @@ int CGraticuleBuilder::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Par
 	{
 		pParameters->Set_Enabled("EXTENT_X", pParameter->asShapes() == NULL);
 		pParameters->Set_Enabled("EXTENT_Y", pParameter->asShapes() == NULL);
+        pParameters->Set_Enabled("ROUND"   , pParameter->asShapes() != NULL);
 	}
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
@@ -156,6 +163,14 @@ bool CGraticuleBuilder::On_Execute(void)
 	if( Parameters("EXTENT")->asShapes() )
 	{
 		Extent		= Parameters("EXTENT")->asShapes()->Get_Extent();
+
+        if( Parameters("ROUND")->asBool() )
+        {
+            Extent.xMin = floor(Extent.xMin);
+            Extent.xMax = ceil(Extent.xMax);
+            Extent.yMin = floor(Extent.yMin);
+            Extent.yMax = ceil(Extent.yMax);
+        }
 	}
 	else
 	{
