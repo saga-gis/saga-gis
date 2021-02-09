@@ -372,7 +372,6 @@ CSAGA_Frame::CSAGA_Frame(void)
 //---------------------------------------------------------
 CSAGA_Frame::~CSAGA_Frame(void)
 {
-	//-----------------------------------------------------
 	if( IsIconized() )
 	{
 		Iconize(false);
@@ -392,7 +391,6 @@ CSAGA_Frame::~CSAGA_Frame(void)
 		CONFIG_Write("/FL", "DY"   , (long)GetSize    ().y);
 	}
 
-	//-----------------------------------------------------
 	CONFIG_Write("/FL", "MANAGER", m_pLayout->SavePerspective());
 
 	m_pLayout->UnInit();
@@ -400,8 +398,6 @@ CSAGA_Frame::~CSAGA_Frame(void)
 	delete(m_pLayout);
 
 	//-----------------------------------------------------
-	On_Child_Activates(-1);
-
 	delete(m_pMN_Table      );
 	delete(m_pMN_Diagram    );
 	delete(m_pMN_Map        );
