@@ -398,6 +398,11 @@ CSAGA_Frame::~CSAGA_Frame(void)
 	delete(m_pLayout);
 
 	//-----------------------------------------------------
+	if( GetMenuBar()->GetMenuCount() == 5 )
+	{
+		GetMenuBar()->Remove(2);
+	}
+
 	delete(m_pMN_Table      );
 	delete(m_pMN_Diagram    );
 	delete(m_pMN_Map        );
