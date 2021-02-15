@@ -520,7 +520,8 @@ int CLandsat_Scene_Import::Get_Info_Version(const CSG_MetaData &Metadata)
 		return( VERSION_MET );
 	}
 
-	if( !Metadata.Get_Name().Cmp("L1_METADATA_FILE") )
+	if( !Metadata.Get_Name().Cmp(     "L1_METADATA_FILE")
+	||  !Metadata.Get_Name().Cmp("LANDSAT_METADATA_FILE") )
 	{
 		return(	Metadata("BAND1_FILE_NAME") != NULL	// FILE_NAME_BAND_1
 			? VERSION_MTL_1 : VERSION_MTL_2
@@ -1087,7 +1088,7 @@ bool CLandsat_Scene_Import::Get_Temperature(CSG_Grid *pBand, const CSG_Table_Rec
 	{
 		double	MaxVal	= (pBand->Get_Type() == SG_DATATYPE_Byte ? 256 : 256*256) - 1;
 		pBand->Set_NoData_Value(MaxVal--);
-		pBand->Set_Scaling(100.0 / MaxVal, (Unit == 0 ? 273.15 : 0.0) - 40.0);	// -40°C to 60°C
+		pBand->Set_Scaling(100.0 / MaxVal, (Unit == 0 ? 273.15 : 0.0) - 40.0);	// -40ï¿½C to 60ï¿½C
 	}
 
 	pBand->Set_Unit(Unit == 0 ? "Kelvin" : "Celsius");
