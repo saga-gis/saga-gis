@@ -255,7 +255,7 @@ CDirect_Georeferencing::CDirect_Georeferencing(void)
 
 	Set_Description	(_TW(
 		"Direct georeferencing of aerial photographs uses extrinsic "
-		"(position, attitude) and intrinsic (focal length, physical "
+		"(position, altitude) and intrinsic (focal length, physical "
 		"pixel size) camera parameters. Orthorectification routine supports "
 		"additional data from a Digital Elevation Model (DEM).\n"
 	));
@@ -263,7 +263,7 @@ CDirect_Georeferencing::CDirect_Georeferencing(void)
 	Add_Reference("Baumker, M. & Heimes, F.J.", "2001",
 		"New Calibration and Computing Method for Direct Georeferencing of Image and Scanner Data Using the Position and Angular Data of an Hybrid Inertial Navigation System",
 		"OEEPE Workshop, Integrated Sensor Orientation, Hannover 2001.",
-		SG_T("http://www.hochschule-bochum.de/fileadmin/media/fb_v/veroeffentlichungen/baeumker/baheimesoeepe.pdf"), SG_T("online")
+		SG_T("https://www.researchgate.net/publication/254001148_New_Calibration_and_Computing_Method_for_Direct_Georeferencing_of_Image_and_Scanner_Data_Using_the_Position_and_Angular_Data_of_an_Hybrid_Inertial_Navigation_System"), SG_T("ResearchGate")
 	);
 
 	//-----------------------------------------------------
@@ -549,7 +549,7 @@ CDirect_Georeferencing_WorldFile::CDirect_Georeferencing_WorldFile(void)
 	Add_Reference("Baumker, M. & Heimes, F.J.", "2001",
 		"New Calibration and Computing Method for Direct Georeferencing of Image and Scanner Data Using the Position and Angular Data of an Hybrid Inertial Navigation System",
 		"OEEPE Workshop, Integrated Sensor Orientation, Hannover 2001.",
-		SG_T("http://www.hochschule-bochum.de/fileadmin/media/fb_v/veroeffentlichungen/baeumker/baheimesoeepe.pdf"), SG_T("online")
+		SG_T("https://www.researchgate.net/publication/254001148_New_Calibration_and_Computing_Method_for_Direct_Georeferencing_of_Image_and_Scanner_Data_Using_the_Position_and_Angular_Data_of_an_Hybrid_Inertial_Navigation_System"), SG_T("ResearchGate")
 	);
 
 	//-----------------------------------------------------
