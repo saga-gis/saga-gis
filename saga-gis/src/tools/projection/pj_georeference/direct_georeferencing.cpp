@@ -199,7 +199,7 @@ bool CSG_Direct_Georeferencer::Get_Extent(TSG_Point Points[4])
 inline TSG_Point CSG_Direct_Georeferencer::World_to_Image(double x, double y)
 {
 	CSG_Vector	P(3);
-	
+
 	P[0]	= x;
 	P[1]	= y;
 
@@ -222,7 +222,7 @@ inline TSG_Point CSG_Direct_Georeferencer::World_to_Image(double x, double y)
 inline TSG_Point CSG_Direct_Georeferencer::Image_to_World(double x, double y)
 {
 	CSG_Vector	P(3);
-	
+
 	P[0]	= (m_O[0] - x) * m_s;
 	P[1]	= (m_O[1] - y) * m_s;
 	P[2]	= m_f;
@@ -263,7 +263,7 @@ CDirect_Georeferencing::CDirect_Georeferencing(void)
 	Add_Reference("Baumker, M. & Heimes, F.J.", "2001",
 		"New Calibration and Computing Method for Direct Georeferencing of Image and Scanner Data Using the Position and Angular Data of an Hybrid Inertial Navigation System",
 		"OEEPE Workshop, Integrated Sensor Orientation, Hannover 2001.",
-		SG_T("https://www.researchgate.net/publication/254001148_New_Calibration_and_Computing_Method_for_Direct_Georeferencing_of_Image_and_Scanner_Data_Using_the_Position_and_Angular_Data_of_an_Hybrid_Inertial_Navigation_System"), SG_T("ResearchGate")
+		SG_T("https://www.ipi.uni-hannover.de/fileadmin/ipi/publications/oeepe_cd.pdf"), SG_T("PDF")
 	);
 
 	//-----------------------------------------------------
@@ -549,7 +549,7 @@ CDirect_Georeferencing_WorldFile::CDirect_Georeferencing_WorldFile(void)
 	Add_Reference("Baumker, M. & Heimes, F.J.", "2001",
 		"New Calibration and Computing Method for Direct Georeferencing of Image and Scanner Data Using the Position and Angular Data of an Hybrid Inertial Navigation System",
 		"OEEPE Workshop, Integrated Sensor Orientation, Hannover 2001.",
-		SG_T("https://www.researchgate.net/publication/254001148_New_Calibration_and_Computing_Method_for_Direct_Georeferencing_of_Image_and_Scanner_Data_Using_the_Position_and_Angular_Data_of_an_Hybrid_Inertial_Navigation_System"), SG_T("ResearchGate")
+		SG_T("https://www.ipi.uni-hannover.de/fileadmin/ipi/publications/oeepe_cd.pdf"), SG_T("PDF")
 	);
 
 	//-----------------------------------------------------
