@@ -279,6 +279,11 @@ bool CSG_CRSProjector::Set_Source(const CSG_Projection &Projection)
 //---------------------------------------------------------
 bool CSG_CRSProjector::Set_Target(const CSG_Projection &Projection)
 {
+	if( !Projection.is_Okay() )
+	{
+		return( false );
+	}
+
 	SG_UI_Msg_Add_Execution(CSG_String::Format("\n%s: %s", _TL("target"), Projection.Get_Proj4().c_str()), false);
 
 	return( _Set_Projection(Projection, &m_pTarget, false) && m_Target.Create(Projection) );
