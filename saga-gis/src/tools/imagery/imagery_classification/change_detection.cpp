@@ -63,14 +63,20 @@ CChange_Detection::CChange_Detection(void)
 	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
-		"Compares two classified grids and creates a confusion matrix "
+		"The tool allows one to compare two classified grids. "
+        "It creates a confusion matrix "
 		"and derived coefficients as well as the combinations of both "
-		"classifications as new grid. "
-		"Grid classes have to be defined with a look-up table and "
-		"values of both grids must match each other for the "
-		"subsequent comparison. "
+		"classifications as new grid. The values of both grids must "
+        "match each other in order to do the comparison.\n"
+        "The tool provides three options to define the grid classes:\n"
+        "- by providing a look-up table for each grid\n"
+        "- by coloring each grid with a look-up table (colors type = classified) "
+        " beforehand (only available in the GUI)\n"
+        "- by preparing the grid values appropriately; i.e., if no "
+        "look-up table is provided, the tool simply extracts the classes "
+        "from the grid values found in each grid\n"
 		"A typical application is a change detection analysis "
-		"based on land cover classification of satellite imagery. "
+		"based on land cover classification of satellite imagery.\n"
 	));
 
 	//-----------------------------------------------------
@@ -469,7 +475,9 @@ bool CChange_Detection::Get_Classes(CSG_Table &Classes, CSG_Grid *pGrid, bool bI
 	}
 
 	//-----------------------------------------------------
-	else if( DataObject_Get_Parameter(pGrid, "LUT") && (pClasses = DataObject_Get_Parameter(pGrid, "LUT")->asTable()) != NULL )
+	else if( DataObject_Get_Parameter(pGrid, "COLORS_TYPE")->asInt() == 1
+          && DataObject_Get_Parameter(pGrid, "LUT") 
+          && (pClasses = DataObject_Get_Parameter(pGrid, "LUT")->asTable()) != NULL )
 	{
 		pClasses->Set_Index(3, TABLE_INDEX_Ascending);
 

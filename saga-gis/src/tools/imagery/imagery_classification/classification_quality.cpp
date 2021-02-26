@@ -436,7 +436,9 @@ bool CClassification_Quality::Get_Classes(CSG_Grid *pGrid, CSG_Table *pConfusion
 		if( fNam < 0 || fNam >= pLUT->Get_Field_Count() )	{	fNam	= fMin;	}
 		if( fMax < 0 || fMax >= pLUT->Get_Field_Count() )	{	fMax	= fMin;	}
 	}
-	else if( DataObject_Get_Parameter(pGrid, "LUT") && (pLUT = DataObject_Get_Parameter(pGrid, "LUT")->asTable()) != NULL )
+	else if( DataObject_Get_Parameter(pGrid, "COLORS_TYPE")->asInt() == 1
+          && DataObject_Get_Parameter(pGrid, "LUT")
+          && (pLUT = DataObject_Get_Parameter(pGrid, "LUT")->asTable()) != NULL )
 	{
 		fNam	= 1;
 		fMin	= 3;
