@@ -106,11 +106,12 @@ public:
 
 private:
 
-	bool						m_bShow, m_bProject, m_bResample, m_bFitColors;
+	bool						m_bShow, m_bProject, m_bProject_Area, m_bResample, m_bFitColors;
 
 	class CWKSP_Layer			*m_pLayer;
 
 
+	bool						_Set_Extent_Points			(const CSG_Rect &Extent, CSG_Shapes &Points, int Resolution = 100);
 	bool						_Projected_Get_Projections	(CSG_Projection &prj_Layer, CSG_Projection &prj_Map);
 	CSG_Rect					_Projected_Get_Layer_Extent	(const CSG_Rect &rMap);
 	bool						_Projected_Shapes_Clipped	(const CSG_Rect &rMap, CSG_Shapes *pShapes, CSG_Shapes &Clipped);

@@ -244,6 +244,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAPS_MOVE_DOWN:					return( _TL("Move Down") );
 	case ID_CMD_MAPS_GRID_FITCOLORS:			return( _TL("Adjust Histogram Stretch to Map Extent") );
 	case ID_CMD_MAPS_PROJECT:					return( _TL("On-The-Fly Projection") );
+	case ID_CMD_MAPS_PROJECT_AREA:				return( _TL("Restricted Area Projection") );
 
 	//-----------------------------------------------------
 	// Views...
