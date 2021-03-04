@@ -1130,7 +1130,7 @@ bool CWKSP_Map::Set_Extent_Active(bool bPan)
 
 		if( pMapLayer )
 		{
-			return( Set_Extent(pMapLayer->Get_Extent(), bPan) );
+			return( Set_Extent(pMapLayer->Get_Extent(), false, bPan) );
 		}
 
 		return( Set_Extent(pLayer->Get_Extent(), pLayer->Get_Object()->Get_Projection(), bPan) );
@@ -1150,7 +1150,7 @@ bool CWKSP_Map::Set_Extent_Selection(bool bPan)
 
 		if( pMapLayer && !pMapLayer->do_Project() )
 		{
-			return( Set_Extent(pLayer->Edit_Get_Extent(), bPan) );
+			return( Set_Extent(pLayer->Edit_Get_Extent(), false, bPan) );
 		}
 
 		return( Set_Extent(pLayer->Edit_Get_Extent(), pLayer->Get_Object()->Get_Projection(), bPan) );
