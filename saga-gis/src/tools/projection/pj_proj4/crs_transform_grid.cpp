@@ -173,7 +173,7 @@ int CCRS_Transform_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_P
 	||  pParameter->Cmp_Identifier("CRS_EPSG_PROJCS")
 	||  pParameter->Cmp_Identifier("SOURCE"         ) )
 	{
-		Set_Target_System(pParameters);
+		Set_Target_System(pParameters, 100, false);
 
 		return( Result );
 	}
@@ -779,16 +779,18 @@ bool CCRS_Transform_Grid::Set_Target_System(CSG_Parameters *pParameters, int Res
 
 		for(y=0, d=System.Get_YMin(); y<System.Get_NY(); y+=yStep, d+=yStep*System.Get_Cellsize())
 		{
-			Get_MinMax(Extent, System.Get_XMin(), d);
-			Get_MinMax(Extent, System.Get_XMax(), d);
+			Get_MinMax(Extent, System.Get_Extent().Get_XMin   (), d);
+			Get_MinMax(Extent, System.Get_Extent().Get_XCenter(), d);
+			Get_MinMax(Extent, System.Get_Extent().Get_XMax   (), d);
 		}
 
 		int	xStep	= 1 + System.Get_NX() / Resolution;
 
 		for(x=0, d=System.Get_XMin(); x<System.Get_NX(); x+=xStep, d+=xStep*System.Get_Cellsize())
 		{
-			Get_MinMax(Extent, d, System.Get_YMin());
-			Get_MinMax(Extent, d, System.Get_YMax());
+			Get_MinMax(Extent, d, System.Get_Extent().Get_YMin   ());
+			Get_MinMax(Extent, d, System.Get_Extent().Get_YCenter());
+			Get_MinMax(Extent, d, System.Get_Extent().Get_YMax   ());
 		}
 	}
 
@@ -915,22 +917,22 @@ bool CCRS_Transform_Grid::Set_Target_Area(const CSG_Grid_System &Source, const C
 
 	for(p.x=r.Get_XMin(), p.y=r.Get_YMin(); p.y<r.Get_YMax(); p.y+=dy)
 	{
-		m_Projector.Get_Projection(q = p);	pArea->Add_Point(q);
+		if( m_Projector.Get_Projection(q = p) ) { pArea->Add_Point(q); }
 	}
 
 	for(p.x=r.Get_XMin(), p.y=r.Get_YMax(); p.x<r.Get_XMax(); p.x+=dx)
 	{
-		m_Projector.Get_Projection(q = p);	pArea->Add_Point(q);
+		if( m_Projector.Get_Projection(q = p) ) { pArea->Add_Point(q); }
 	}
 
 	for(p.x=r.Get_XMax(), p.y=r.Get_YMax(); p.y>r.Get_YMin(); p.y-=dy)
 	{
-		m_Projector.Get_Projection(q = p);	pArea->Add_Point(q);
+		if( m_Projector.Get_Projection(q = p) ) { pArea->Add_Point(q); }
 	}
 
 	for(p.x=r.Get_XMax(), p.y=r.Get_YMin(); p.x>r.Get_XMin(); p.x-=dx)
 	{
-		m_Projector.Get_Projection(q = p);	pArea->Add_Point(q);
+		if( m_Projector.Get_Projection(q = p) ) { pArea->Add_Point(q); }
 	}
 
 	m_Projector.Set_Inverse(true);
