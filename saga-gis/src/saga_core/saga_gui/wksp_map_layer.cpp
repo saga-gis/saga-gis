@@ -500,10 +500,10 @@ CSG_Rect CWKSP_Map_Layer::_Projected_Get_Layer_Extent(const CSG_Rect &rMap)
 
 	TSG_Rect	rLayer	= Extent.Get_Extent();
 
-	if( isinf(rLayer.xMin) ) rLayer.xMin = m_pLayer->Get_Extent().Get_XMin();
-	if( isinf(rLayer.xMax) ) rLayer.xMax = m_pLayer->Get_Extent().Get_XMax();
-	if( isinf(rLayer.yMin) ) rLayer.yMin = m_pLayer->Get_Extent().Get_YMin();
-	if( isinf(rLayer.yMax) ) rLayer.yMax = m_pLayer->Get_Extent().Get_YMax();
+	if( std::isinf(rLayer.xMin) ) rLayer.xMin = m_pLayer->Get_Extent().Get_XMin();
+	if( std::isinf(rLayer.xMax) ) rLayer.xMax = m_pLayer->Get_Extent().Get_XMax();
+	if( std::isinf(rLayer.yMin) ) rLayer.yMin = m_pLayer->Get_Extent().Get_YMin();
+	if( std::isinf(rLayer.yMax) ) rLayer.yMax = m_pLayer->Get_Extent().Get_YMax();
 
 	return( rLayer );
 }
@@ -537,8 +537,8 @@ bool CWKSP_Map_Layer::_Projected_Shapes_Clipped(const CSG_Rect &rMap, CSG_Shapes
 		{
 			TSG_Point	p	= Extent.Get_Shape(i)->Get_Point(0);
 
-			if( isinf(p.x) ) p.x = std::signbit(p.x) ? Extent.Get_Extent().Get_XMin() : Extent.Get_Extent().Get_XMax();
-			if( isinf(p.y) ) p.y = std::signbit(p.y) ? Extent.Get_Extent().Get_YMin() : Extent.Get_Extent().Get_YMax();
+			if( std::isinf(p.x) ) p.x = std::signbit(p.x) ? Extent.Get_Extent().Get_XMin() : Extent.Get_Extent().Get_XMax();
+			if( std::isinf(p.y) ) p.y = std::signbit(p.y) ? Extent.Get_Extent().Get_YMin() : Extent.Get_Extent().Get_YMax();
 
 			if( std::isfinite(p.x) && std::isfinite(p.y) )
 			{
