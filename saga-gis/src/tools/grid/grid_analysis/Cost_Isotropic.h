@@ -1,6 +1,4 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
+
 /*******************************************************************************
     Cost_Isotropic.h
     Copyright (C) Victor Olaya
@@ -19,6 +17,14 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/ 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Cost_Isotropic_H
 #define HEADER_INCLUDED__Cost_Isotropic_H
 
@@ -30,7 +36,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -42,45 +48,6 @@
 //---------------------------------------------------------
 class CCost_Accumulated : public CSG_Tool_Grid
 {
-private:
-
-	class CPoints
-	{
-	public:
-		CPoints(void)
-		{
-			m_Points.Create(sizeof(TSG_Point_Int), 0, SG_ARRAY_GROWTH_1);
-		}
-
-		void					Clear			(void)	{	m_Points.Set_Array(0, false);	}
-
-		bool					Add				(int x, int y)
-		{
-			if( m_Points.Inc_Array() )
-			{
-				TSG_Point_Int	*p	= (TSG_Point_Int *)m_Points.Get_Entry(m_Points.Get_Size() - 1);
-
-				p->x	= x;
-				p->y	= y;
-
-				return( true );
-			}
-
-			return( false );
-		}
-
-		int						Get_Count		(void)	{	return( (int)m_Points.Get_Size() );	}
-		const TSG_Point_Int &	operator []		(int i)	{	return( *((TSG_Point_Int *)m_Points.Get_Entry(i)) );	}
-
-
-	private:
-
-		CSG_Array				m_Points;
-
-	};
-
-
-//---------------------------------------------------------
 public:
 
 	CCost_Accumulated(void);
@@ -97,20 +64,18 @@ protected:
 
 private:
 
-	bool					m_bDegree;
+	double                  m_Cost_Min;
 
-	double					m_dK;
-
-	CSG_Grid				*m_pCost, *m_pDirection, *m_pAccumulated, *m_pAllocation;
+	CSG_Grid				*m_pCost, *m_pAccumulated, *m_pAllocation;
 
 
-	bool					Get_Destinations		(CPoints &Points);
+	bool					Get_Destinations		(CSG_Points_Int &Destinations);
 
-	bool					Get_Cost				(CPoints &Points);
+	double					Get_Cost				(int x, int y);
+	bool					Get_Cost				(CSG_Points_Int &Destinations);
 
-	bool					Get_Allocation			(void);
 	int						Get_Allocation			(int x, int y);
-
+	bool					Get_Allocation			(void);
 
 };
 
