@@ -163,12 +163,11 @@ bool CCost_Accumulated::On_Execute(void)
 	m_pAllocation	= Parameters("ALLOCATION" )->asGrid();
 
 	//-----------------------------------------------------
-	m_Cost_Min	= Parameters("COST_MIN")->asDouble();
+	m_Cost_Min	= m_pCost->Get_Min() > 0. ? 0. : Parameters("COST_MIN")->asDouble();
 
-	if( m_pCost->Get_Min() <= 0. )
+	if( m_Cost_Min > 0. )
 	{
-		Message_Fmt("\n[%s] %s"     , _TL("Warning"), _TL("Minimum cost value is zero or negative."));
-		Message_Fmt("\n[%s] %s (%f)", _TL("Warning"), _TL("A minimum cost value will be used."), m_Cost_Min);
+		Message_Fmt("\n[%s] %s (%f)", _TL("Warning"), _TL("Minimum cost value is zero or negative. A minimum cost value will be used."), m_Cost_Min);
 	}
 
 	//-----------------------------------------------------
