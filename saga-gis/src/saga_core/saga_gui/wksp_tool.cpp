@@ -386,7 +386,7 @@ bool CWKSP_Tool::Execute(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode, int 
 //---------------------------------------------------------
 bool CWKSP_Tool::Finish(bool bDialog, bool bCloseGUI)
 {
-	if( is_Executing() && Execute(bDialog) )
+	if( Execute(bDialog) )
 	{
 		m_bCloseGUI	= bCloseGUI;
 
