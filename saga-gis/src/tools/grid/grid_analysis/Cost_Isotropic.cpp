@@ -74,9 +74,15 @@ CCost_Accumulated::CCost_Accumulated(void)
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Double("COST",
-		"COST_MIN"		, _TL("Minimum Cost"),
-		_TL("Zero cost works like a barrier. Use this option to define a minimum cost applied everywhere."),
+	Parameters.Add_Bool("COST",
+		"COST_BMIN"		, _TL("Minimum Cost"),
+		_TL("Zero cost works like a barrier. Use this option to define a minimum cost applied everywhere where the supplied local cost falls below this value."),
+		true
+	);
+
+	Parameters.Add_Double("COST_BMIN",
+		"COST_MIN"		, _TL("Threshold"),
+		_TL("Zero cost works like a barrier. Use this option to define a minimum cost applied everywhere where the supplied local cost falls below this value."),
 		0.01, 0., true
 	);
 
@@ -130,9 +136,9 @@ CCost_Accumulated::CCost_Accumulated(void)
 //---------------------------------------------------------
 int CCost_Accumulated::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( pParameter->Cmp_Identifier("COST") )
+	if( pParameter->Cmp_Identifier("COST_BMIN") )
 	{
-		pParameters->Set_Enabled("COST_MIN"   , pParameter->asGrid() && pParameter->asGrid()->Get_Min() <= 0.);
+		pParameters->Set_Enabled("COST_MIN"   , pParameter->asBool());
 	}
 
 	if( pParameter->Cmp_Identifier("DIR_MAXCOST") )
@@ -163,11 +169,12 @@ bool CCost_Accumulated::On_Execute(void)
 	m_pAllocation	= Parameters("ALLOCATION" )->asGrid();
 
 	//-----------------------------------------------------
-	m_Cost_Min	= m_pCost->Get_Min() > 0. ? 0. : Parameters("COST_MIN")->asDouble();
+	m_Cost_Min	= Parameters("COST_BMIN")->asBool()
+				? Parameters("COST_MIN")->asDouble() : 0.;
 
-	if( m_Cost_Min > 0. )
+	if( m_Cost_Min <= 0. && m_pCost->Get_Min() <= 0. )
 	{
-		Message_Fmt("\n[%s] %s (%f)", _TL("Warning"), _TL("Minimum cost value is zero or negative. A minimum cost value will be used."), m_Cost_Min);
+		Message_Fmt("\n[%s] %s", _TL("Warning"), _TL("Minimum local cost value is zero or negative."));
 	}
 
 	//-----------------------------------------------------
