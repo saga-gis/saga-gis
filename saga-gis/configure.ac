@@ -392,6 +392,7 @@ AC_OUTPUT(Makefile \
 	src/tools/grid/grids_tools/Makefile \
 	src/tools/imagery/Makefile \
 	src/tools/imagery/imagery_classification/Makefile \
+	src/tools/imagery/imagery_isocluster/Makefile \
 	src/tools/imagery/imagery_opencv/Makefile \
 	src/tools/imagery/imagery_maxent/Makefile \
 	src/tools/imagery/imagery_photogrammetry/Makefile \
