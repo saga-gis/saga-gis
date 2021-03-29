@@ -87,32 +87,53 @@ CTopographic_Openness::CTopographic_Openness(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		"", "DEM"		, _TL("Elevation"),
+	Parameters.Add_Grid("",
+		"DEM"		, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		"", "POS"		, _TL("Positive Openness"),
+	Parameters.Add_Grid("",
+		"POS"		, _TL("Positive Openness"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		"", "NEG"		, _TL("Negative Openness"),
+	Parameters.Add_Grid("",
+		"NEG"		, _TL("Negative Openness"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Double(
-		"", "RADIUS"	, _TL("Radial Limit"),
-		_TL(""),
+	Parameters.Add_Double("",
+		"RADIUS"	, _TL("Radial Limit"),
+		_TL("Maximum search distance [map units]."),
 		10000., 0., true
 	);
 
-	Parameters.Add_Choice(
-		"", "METHOD"	, _TL("Method"),
+	Parameters.Add_Choice("",
+		"DIRECTIONS", _TL("Directions"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("single"),
+			_TL("all")
+		), 1
+	);
+
+	Parameters.Add_Double("DIRECTIONS",
+		"DIRECTION"	, _TL("Direction"),
+		_TL("Single direction given as degree measured clockwise from the North direction."),
+		315., -360., true, 360., true
+	);
+
+	Parameters.Add_Int("DIRECTIONS",
+		"NDIRS"		, _TL("Number of Sectors"),
+		_TL(""),
+		8, 4, true
+	);
+
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Method"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
 			_TL("multi scale"),
@@ -120,20 +141,14 @@ CTopographic_Openness::CTopographic_Openness(void)
 		), 1
 	);
 
-	Parameters.Add_Double(
-		"", "DLEVEL"	, _TL("Multi Scale Factor"),
+	Parameters.Add_Double("METHOD",
+		"DLEVEL"	, _TL("Multi Scale Factor"),
 		_TL(""),
 		3., 1.25, true
 	);
 
-	Parameters.Add_Int(
-		"", "NDIRS"		, _TL("Number of Sectors"),
-		_TL(""),
-		8, 2, true
-	);
-
-	Parameters.Add_Choice(
-		"", "UNIT"		, _TL("Unit"),
+	Parameters.Add_Choice("",
+		"UNIT"		, _TL("Unit"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
 			_TL("Radians"),
@@ -141,8 +156,8 @@ CTopographic_Openness::CTopographic_Openness(void)
 		), 0
 	);
 
-	Parameters.Add_Bool(
-		"", "NADIR"		, _TL("Difference from Nadir"),
+	Parameters.Add_Bool("",
+		"NADIR"		, _TL("Difference from Nadir"),
 		_TL("If set, output angles are the mean difference from nadir, or else from a plane."),
 		true
 	);
@@ -156,6 +171,13 @@ CTopographic_Openness::CTopographic_Openness(void)
 //---------------------------------------------------------
 int CTopographic_Openness::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if( pParameter->Cmp_Identifier("DIRECTIONS") )
+	{
+		pParameters->Set_Enabled("DIRECTION", pParameter->asInt() == 0);
+		pParameters->Set_Enabled("NDIRS"    , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("METHOD"   , pParameter->asInt() == 1);
+	}
+
 	if( pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Set_Enabled("DLEVEL", pParameter->asInt() == 0);
@@ -174,8 +196,9 @@ bool CTopographic_Openness::On_Execute(void)
 {
 	m_pDEM	= Parameters("DEM")->asGrid();
 
-	m_Radius	= Parameters("RADIUS")->asDouble();
-	m_Method	= Parameters("METHOD")->asInt();
+	m_Radius	= Parameters("RADIUS"    )->asDouble();
+	m_Method	= Parameters("DIRECTIONS")->asInt() == 1 // all directions
+				? Parameters("METHOD"    )->asInt() : 1;
 
 	bool	bPlane	= Parameters("NADIR")->asBool() == false;
 	bool	bDegree	= Parameters("UNIT" )->asInt() == 1;
@@ -198,7 +221,7 @@ bool CTopographic_Openness::On_Execute(void)
 
 		m_nLevels	= m_Pyramid.Get_Count();
 
-		if( m_Radius > 0.0 )
+		if( m_Radius > 0. )
 		{
 			while( m_nLevels > 0 && m_Pyramid.Get_Grid(m_nLevels - 1)->Get_Cellsize() > m_Radius )
 			{
@@ -206,13 +229,13 @@ bool CTopographic_Openness::On_Execute(void)
 			}
 		}
 	}
-	else if( m_Radius <= 0.0 )
+	else if( m_Radius <= 0. )
 	{
 		m_Radius	= Get_Cellsize() * M_GET_LENGTH(Get_NX(), Get_NY());
 	}
 
 	//-----------------------------------------------------
-	bool	bResult	= Initialise(Parameters("NDIRS")->asInt());
+	bool	bResult	= Initialise();
 
 	if( bResult )
 	{
@@ -262,15 +285,28 @@ bool CTopographic_Openness::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTopographic_Openness::Initialise(int nDirections)
+bool CTopographic_Openness::Initialise(void)
 {
-	m_Direction.Set_Count(nDirections);
-
-	for(int i=0; i<nDirections; i++)
+	if( Parameters("DIRECTIONS")->asInt() == 0 )	// single direction
 	{
-		m_Direction[i].z	= (M_PI_360 * i) / nDirections;
-		m_Direction[i].x	= sin(m_Direction[i].z);
-		m_Direction[i].y	= cos(m_Direction[i].z);
+		m_Direction.Set_Count(1);
+
+		m_Direction[0].z	= Parameters("DIRECTION")->asDouble() * M_DEG_TO_RAD;
+		m_Direction[0].x	= sin(m_Direction[0].z);
+		m_Direction[0].y	= cos(m_Direction[0].z);
+	}
+	else
+	{
+		int	nDirections	= Parameters("NDIRS")->asInt();
+
+		m_Direction.Set_Count(nDirections);
+
+		for(int i=0; i<nDirections; i++)
+		{
+			m_Direction[i].z	= (M_PI_360 * i) / nDirections;
+			m_Direction[i].x	= sin(m_Direction[i].z);
+			m_Direction[i].y	= cos(m_Direction[i].z);
+		}
 	}
 
 	return( true );
@@ -293,8 +329,8 @@ bool CTopographic_Openness::Get_Openness(int x, int y, double &Pos, double &Neg)
 	}
 
 	//-----------------------------------------------------
-	Pos	= 0.0;
-	Neg	= 0.0;
+	Pos	= 0.;
+	Neg	= 0.;
 
 	for(int i=0; i<m_Direction.Get_Count(); i++)
 	{
@@ -391,10 +427,10 @@ bool CTopographic_Openness::Get_Angle_Sectoral(int x, int y, int i, double &Max,
 	dy			= m_Direction[i].y;
 	ix			= x;
 	iy			= y;
-	iDistance	= 0.0;
+	iDistance	= 0.;
 	dDistance	= Get_Cellsize() * M_GET_LENGTH(dx, dy);
-	Max			= 0.0;
-	Min			= 0.0;
+	Max			= 0.;
+	Min			= 0.;
 
 	bool	bOkay	= false;
 

@@ -93,7 +93,7 @@ private:
 	CSG_Grid				*m_pDEM;
 
 
-	bool					Initialise				(int nDirections);
+	bool					Initialise				(void);
 
 	bool					Get_Openness			(int x, int y, double &Pos, double &Neg);
 
