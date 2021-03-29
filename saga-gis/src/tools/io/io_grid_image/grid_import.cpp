@@ -127,210 +127,147 @@ CGrid_Import::CGrid_Import(void)
 //---------------------------------------------------------
 bool CGrid_Import::On_Execute(void)
 {
-	bool				bTransform;
-	int					x, y, yy, Method;
-	double				ax, ay, dx, dy, rx, ry, xMin, yMin, Cellsize;
-	CSG_Colors			Colors;
-	CSG_String			fImage, fWorld, Name;
-	CSG_Grid			*pImage;
-	CSG_File			Stream;
-	wxImage				Image;
-	wxImageHistogram	Histogram;
+	CSG_String	File	= Parameters("FILE")->asString();
 
-	//-----------------------------------------------------
-	fImage	= Parameters("FILE")	->asString();
-	Method	= Parameters("METHOD")	->asInt();
-
-	Name	= SG_File_Get_Name(fImage, false);
-
-	//-----------------------------------------------------
-	wxImageHandler	*pImgHandler = NULL;
-
-	if( !has_GUI() )
+	if( !SG_File_Exists(File) )
 	{
-		CSG_String	fName = SG_File_Get_Name(fImage, true);
+		Error_Set(_TL("File not found!"));
 
-		if(      SG_File_Cmp_Extension(fName, SG_T("jpg")) )
-			pImgHandler = new wxJPEGHandler;
-		else if( SG_File_Cmp_Extension(fName, SG_T("pcx")) )
-			pImgHandler = new wxPCXHandler;
-		else if( SG_File_Cmp_Extension(fName, SG_T("tif")) )
-			pImgHandler = new wxTIFFHandler;
-		else if( SG_File_Cmp_Extension(fName, SG_T("gif")) )
-			pImgHandler = new wxGIFHandler;
-		else if( SG_File_Cmp_Extension(fName, SG_T("pnm")) )
-			pImgHandler = new wxPNMHandler;
-		else if( SG_File_Cmp_Extension(fName, SG_T("xpm")) )
-			pImgHandler = new wxXPMHandler;
-#ifdef _SAGA_MSW
-		else if( SG_File_Cmp_Extension(fName, SG_T("bmp")) )
-			pImgHandler = new wxBMPHandler;
-#endif
-		else if( SG_File_Cmp_Extension(fName, SG_T("png")) )
-			pImgHandler = new wxPNGHandler;
-
-		wxImage::AddHandler(pImgHandler);
+		return( false );
 	}
 
-	if( !Image.LoadFile(fImage.c_str()) )
+	//-----------------------------------------------------
+	if( wxImage::GetHandlers().GetCount() <= 1 ) // wxBMPHandler is always installed by default
+	{
+		wxInitAllImageHandlers();
+	}
+
+	wxImage	Image;
+
+	if( !Image.LoadFile(File.c_str()) )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	if(           SG_File_Cmp_Extension(fImage, "bmp") )
-	{
-		fWorld	= SG_File_Make_Path("", fImage, "bpw");
-	}
-	else if(      SG_File_Cmp_Extension(fImage, "jpg") )
-	{
-		fWorld	= SG_File_Make_Path("", fImage, "jgw");
-	}
-	else if(      SG_File_Cmp_Extension(fImage, "png") )
-	{
-		fWorld	= SG_File_Make_Path("", fImage, "pgw");
-	}
-	else if(      SG_File_Cmp_Extension(fImage, "tif") )
-	{
-		fWorld	= SG_File_Make_Path("", fImage, "tfw");
-	}
-	else
-	{
-		fWorld	= SG_File_Make_Path("", fImage, "world");
-	}
+	CSG_File	Stream;
 
-	bTransform	= false;
-	xMin		= 0.0;
-	yMin		= 0.0;
-	Cellsize	= 1.0;
+	if     ( SG_File_Cmp_Extension(File, "bmp") ) { Stream.Open(SG_File_Make_Path("", File,   "bpw"), SG_FILE_R, false); }
+	else if( SG_File_Cmp_Extension(File, "jpg") ) { Stream.Open(SG_File_Make_Path("", File,   "jgw"), SG_FILE_R, false); }
+	else if( SG_File_Cmp_Extension(File, "png") ) { Stream.Open(SG_File_Make_Path("", File,   "pgw"), SG_FILE_R, false); }
+	else if( SG_File_Cmp_Extension(File, "tif") ) { Stream.Open(SG_File_Make_Path("", File,   "tfw"), SG_FILE_R, false); }
+	else                                          { Stream.Open(SG_File_Make_Path("", File, "world"), SG_FILE_R, false); }
 
-	if(	Stream.Open(fWorld, SG_FILE_R, false) && Stream.Scan(dx) && Stream.Scan(ry) && Stream.Scan(rx) && Stream.Scan(dy) && Stream.Scan(ax) && Stream.Scan(ay) )
+	bool bTransform = false; double xMin = 0., yMin = 0., Cellsize = 1., m[6];
+
+	if(	Stream.is_Open() && Stream.Scan(m[0]) && Stream.Scan(m[1]) && Stream.Scan(m[2]) && Stream.Scan(m[3]) && Stream.Scan(m[4]) && Stream.Scan(m[5]) )
 	{
-		if( dx != -dy || rx != 0.0 || ry != 0.0 )
+		if( m[0] != -m[3] || m[2] != 0. || m[1] != 0. )
 		{
 			bTransform	= true;
 		}
 		else
 		{
-			xMin		= ax;
-			yMin		= ay + dy * (Image.GetHeight() - 1);
-			Cellsize	= dx;
+			xMin     = m[4];
+			yMin     = m[5] + m[3] * (Image.GetHeight() - 1);
+			Cellsize = m[0];
 		}
 	}
 
 	//-----------------------------------------------------
-	// color look-up table...
+	#define SET_METADATA(pGrid, Suffix, Output) {\
+		pGrid->Set_Name(SG_File_Get_Name(File, false) + Suffix);\
+		pGrid->Get_Projection().Load(SG_File_Make_Path("", File, "prj"), SG_PROJ_FMT_WKT);\
+		Parameters(Output)->Set_Value(pGrid);\
+		DataObject_Set_Colors(pGrid, 11, SG_COLORS_BLACK_WHITE);\
+	}
 
-	if( Method == 0 && (yy = Image.ComputeHistogram(Histogram)) <= 256 )
+	wxImageHistogram	Histogram;
+
+	//-----------------------------------------------------
+	// look-up color table...
+
+	if( Parameters("METHOD")->asInt() == 0 && Image.ComputeHistogram(Histogram) <= 256 )
 	{
-		Colors.Set_Count(yy);
+		CSG_Colors	Colors((int)Histogram.size());
 
 		for(wxImageHistogram::iterator i=Histogram.begin(); i!=Histogram.end(); ++i)
 		{
 			Colors.Set_Color(i->second.index, SG_GET_R(i->first), SG_GET_G(i->first), SG_GET_B(i->first));
 		}
 
-		pImage	= SG_Create_Grid(yy <= 2 ? SG_DATATYPE_Bit : SG_DATATYPE_Byte, Image.GetWidth(), Image.GetHeight(), Cellsize, xMin, yMin);
+		CSG_Grid *pRGB = SG_Create_Grid(Histogram.size() <= 2 ? SG_DATATYPE_Bit : SG_DATATYPE_Byte, Image.GetWidth(), Image.GetHeight(), Cellsize, xMin, yMin);
 
-		for(y=0; y<pImage->Get_NY() && Set_Progress(y, pImage->Get_NY()); y++)
+		for(int y=0; y<pRGB->Get_NY() && Set_Progress(y, pRGB->Get_NY()); y++)
 		{
-			yy	= bTransform ? y : pImage->Get_NY() - 1 - y;
+			int	yy	= bTransform ? y : pRGB->Get_NY() - 1 - y;
 
-			for(x=0; x<pImage->Get_NX(); x++)
+			for(int x=0; x<pRGB->Get_NX(); x++)
 			{
-				pImage->Set_Value(x, y, Histogram[SG_GET_RGB(Image.GetRed(x, yy), Image.GetGreen(x, yy), Image.GetBlue(x, yy))].index);
+				pRGB->Set_Value(x, y, Histogram[SG_GET_RGB(Image.GetRed(x, yy), Image.GetGreen(x, yy), Image.GetBlue(x, yy))].index);
 			}
 		}
 
 		if( bTransform )
 		{
-			Set_Transformation(&pImage, ax, ay, dx, dy, rx, ry);
+			Set_Transformation(&pRGB, m[4], m[5], m[0], m[3], m[2], m[1]);
 		}
 
-		pImage->Set_Name(Name);
-		pImage->Get_Projection().Load(SG_File_Make_Path("", fImage, "prj"));
-		Parameters("OUT_GRID")->Set_Value(pImage);
-		DataObject_Set_Colors(pImage, Colors);
-		DataObject_Update(pImage, 0, Colors.Get_Count() - 1);
+		SET_METADATA(pRGB, "", "OUT_GRID");
+
+		DataObject_Set_Colors(pRGB, Colors);
+		DataObject_Update(pRGB, 0, Colors.Get_Count() - 1);
 	}
 
 	//-----------------------------------------------------
-	else	// true color...
+	// true color...
+
+	else
 	{
-		pImage	= SG_Create_Grid(SG_DATATYPE_Int, Image.GetWidth(), Image.GetHeight(), Cellsize, xMin, yMin);
-		pImage	->Set_Name(Name);
+		CSG_Grid *pRGB = SG_Create_Grid(SG_DATATYPE_Int, Image.GetWidth(), Image.GetHeight(), Cellsize, xMin, yMin);
 
-		for(y=0; y<pImage->Get_NY() && Set_Progress(y, pImage->Get_NY()); y++)
+		for(int y=0; y<pRGB->Get_NY() && Set_Progress(y, pRGB->Get_NY()); y++)
 		{
-			yy	= bTransform ? y : pImage->Get_NY() - 1 - y;
+			int	yy	= bTransform ? y : pRGB->Get_NY() - 1 - y;
 
-			for(x=0; x<pImage->Get_NX(); x++)
+			for(int x=0; x<pRGB->Get_NX(); x++)
 			{
-				pImage->Set_Value(x, y, SG_GET_RGB(Image.GetRed(x, yy), Image.GetGreen(x, yy), Image.GetBlue(x, yy)));
+				pRGB->Set_Value(x, y, SG_GET_RGB(Image.GetRed(x, yy), Image.GetGreen(x, yy), Image.GetBlue(x, yy)));
 			}
 		}
 
 		if( bTransform )
 		{
-			Set_Transformation(&pImage, ax, ay, dx, dy, rx, ry);
+			Set_Transformation(&pRGB, m[4], m[5], m[0], m[3], m[2], m[1]);
 		}
 
 		//-------------------------------------------------
-		if( Method != 1 )	// true color...
+		if( Parameters("METHOD")->asInt() != 1 ) // true color...
 		{
-			pImage->Get_Projection().Load(fImage, SG_PROJ_FMT_WKT);
-			pImage->Set_Name(Name);
-			pImage->Get_Projection().Load(SG_File_Make_Path("", fImage, "prj"));
-			Parameters("OUT_GRID")->Set_Value(pImage);
-			DataObject_Set_Colors(pImage, 11, SG_COLORS_BLACK_WHITE);
-			DataObject_Set_Parameter(pImage, "COLORS_TYPE", 5);	// Color Classification Type: RGB Coded Values
+			SET_METADATA(pRGB, "", "OUT_GRID");
+
+			DataObject_Set_Parameter(pRGB, "COLORS_TYPE", 5);	// Color Classification Type: RGB Coded Values
 		}
-
-		//-------------------------------------------------
-		else				// split channels...
+		else                                     // split channels...
 		{
-			CSG_Grid	*pR, *pG, *pB;
+			CSG_Grid *pR = SG_Create_Grid(pRGB->Get_System(), SG_DATATYPE_Byte);
+			CSG_Grid *pG = SG_Create_Grid(pRGB->Get_System(), SG_DATATYPE_Byte);
+			CSG_Grid *pB = SG_Create_Grid(pRGB->Get_System(), SG_DATATYPE_Byte);
 
-			pR	= SG_Create_Grid(pImage->Get_System(), SG_DATATYPE_Byte);
-			pG	= SG_Create_Grid(pImage->Get_System(), SG_DATATYPE_Byte);
-			pB	= SG_Create_Grid(pImage->Get_System(), SG_DATATYPE_Byte);
-
-			for(y=0; y<pImage->Get_NY() && Set_Progress(y, pImage->Get_NY()); y++)
+			for(int y=0; y<pRGB->Get_NY() && Set_Progress(y, pRGB->Get_NY()); y++)
 			{
-				for(x=0; x<pImage->Get_NX(); x++)
+				for(int x=0; x<pRGB->Get_NX(); x++)
 				{
-					pR->Set_Value(x, y, SG_GET_R(pImage->asInt(x, y)));
-					pG->Set_Value(x, y, SG_GET_G(pImage->asInt(x, y)));
-					pB->Set_Value(x, y, SG_GET_B(pImage->asInt(x, y)));
+					pR->Set_Value(x, y, SG_GET_R(pRGB->asInt(x, y)));
+					pG->Set_Value(x, y, SG_GET_G(pRGB->asInt(x, y)));
+					pB->Set_Value(x, y, SG_GET_B(pRGB->asInt(x, y)));
 				}
 			}
 
-			pR->Get_Projection().Load(fImage, SG_PROJ_FMT_WKT);
-			pG->Get_Projection().Load(fImage, SG_PROJ_FMT_WKT);
-			pB->Get_Projection().Load(fImage, SG_PROJ_FMT_WKT);
-
-			pR->Fmt_Name("%s [R]", Name.c_str());
-			pG->Fmt_Name("%s [G]", Name.c_str());
-			pB->Fmt_Name("%s [B]", Name.c_str());
-
-			pR->Get_Projection().Load(SG_File_Make_Path("", fImage, "prj"));
-			pG->Get_Projection().Load(SG_File_Make_Path("", fImage, "prj"));
-			pB->Get_Projection().Load(SG_File_Make_Path("", fImage, "prj"));
-
-			Parameters("OUT_RED"  )->Set_Value(pR);
-			Parameters("OUT_GREEN")->Set_Value(pG);
-			Parameters("OUT_BLUE" )->Set_Value(pB);
-
-			DataObject_Set_Colors(pR, 11, SG_COLORS_WHITE_RED  );
-			DataObject_Set_Colors(pG, 11, SG_COLORS_WHITE_GREEN);
-			DataObject_Set_Colors(pB, 11, SG_COLORS_WHITE_BLUE );
+			SET_METADATA(pR, " [R]", "OUT_RED"  );
+			SET_METADATA(pG, " [G]", "OUT_GREEN");
+			SET_METADATA(pB, " [B]", "OUT_BLUE" );
 		}
-	}
-
-	//-----------------------------------------------------
-	if( !has_GUI() && pImgHandler != NULL)
-	{
-		wxImage::RemoveHandler(pImgHandler->GetName());
 	}
 
 	//-----------------------------------------------------
@@ -345,22 +282,19 @@ bool CGrid_Import::On_Execute(void)
 //---------------------------------------------------------
 void CGrid_Import::Set_Transformation(CSG_Grid **ppImage, double ax, double ay, double dx, double dy, double rx, double ry)
 {
-	int			x, y;
-	double		z;
-	TSG_Rect	r;
-	CSG_Vector	A(2), XSrc(2), XTgt(2);
-	CSG_Matrix	D(2, 2), DInv;
-	CSG_Grid	*pSource, *pTarget;
+	CSG_Vector	A(2);	CSG_Matrix	D(2, 2), DInv;
 
-	//-----------------------------------------------------
-	pSource		= *ppImage;
+	A[0]    = ax; A[1]    = ay;
+	D[0][0] = dx; D[0][1] = rx;
+	D[1][0] = ry; D[1][1] = dy;
 
-	A[0]	= ax;	A[1]	= ay;
-	D[0][0]	= dx;	D[0][1]	= rx;
-	D[1][0]	= ry;	D[1][1]	= dy;
 	DInv	= D.Get_Inverse();
 
 	//-----------------------------------------------------
+	CSG_Grid	*pSource	= *ppImage;
+
+	TSG_Rect	r;	CSG_Vector	XSrc(2), XTgt(2);
+
 	XSrc[0]	= pSource->Get_XMin();	XSrc[1]	= pSource->Get_YMin();	XTgt	= D * XSrc + A;
 	r.xMin	= r.xMax	= XTgt[0];
 	r.yMin	= r.yMax	= XTgt[1];
@@ -377,12 +311,12 @@ void CGrid_Import::Set_Transformation(CSG_Grid **ppImage, double ax, double ay, 
 	if( r.xMin > XTgt[0] )	r.xMin	= XTgt[0];	else if( r.xMax < XTgt[0] )	r.xMax	= XTgt[0];
 	if( r.yMin > XTgt[1] )	r.yMin	= XTgt[1];	else if( r.yMax < XTgt[1] )	r.yMax	= XTgt[1];
 
-	z	= fabs(dx) < fabs(dy) ? fabs(dx) : fabs(dy);	// guess a suitable cellsize; could be improved...
-	x	= 1 + (int)((r.xMax - r.xMin) / z);
-	y	= 1 + (int)((r.yMax - r.yMin) / z);
-
 	//-----------------------------------------------------
-	pTarget		= *ppImage	= SG_Create_Grid(pSource->Get_Type(), x, y, z, r.xMin, r.yMin);
+	double z = fabs(dx) < fabs(dy) ? fabs(dx) : fabs(dy);	// guess a suitable cellsize; could be improved...
+	int    x = 1 + (int)((r.xMax - r.xMin) / z);
+	int    y = 1 + (int)((r.yMax - r.yMin) / z);
+
+	CSG_Grid	*pTarget	= *ppImage	= SG_Create_Grid(pSource->Get_Type(), x, y, z, r.xMin, r.yMin);
 
 	for(y=0, XTgt[1]=pTarget->Get_YMin(); y<pTarget->Get_NY() && Set_Progress(y, pTarget->Get_NY()); y++, XTgt[1]+=pTarget->Get_Cellsize())
 	{
