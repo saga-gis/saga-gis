@@ -38,9 +38,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -377,7 +375,8 @@ int CVIEW_Table_Diagram_Control::_On_Parameter_Changed(CSG_Parameter *pParameter
 
 		if( !s.Cmp("TYPE") )
 		{
-			pParameters->Set_Enabled("NODE_POINTS"  , pParameter->asInt() >= 2);
+			pParameters->Set_Enabled("NODE_POINTS"  , pParameter->asInt() == 3 || pParameter->asInt() == 2);
+			pParameters->Set_Enabled("NODE_LINES"   , pParameter->asInt() == 1 || pParameter->asInt() == 2);
 		}
 
 		if( !s.Cmp("POINTS_COLOR_FIELD") )
@@ -536,6 +535,7 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 
 		m_Parameters.Add_Node("", "NODE_GENERAL", _TL("General"   ), _TL(""));
 		m_Parameters.Add_Node("", "NODE_POINTS" , _TL("Points"    ), _TL(""));
+		m_Parameters.Add_Node("", "NODE_LINES"  , _TL("Lines"     ), _TL(""));
 		m_Parameters.Add_Node("", "NODE_X"      , _TL("X Axis"    ), _TL(""));
 		m_Parameters.Add_Node("", "NODE_Y"      , _TL("Y Axis"    ), _TL(""));
 		m_Parameters.Add_Node("", "NODE_FIELDS" , _TL("Attributes"), _TL(""));
@@ -611,6 +611,13 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 		m_Parameters.Add_Colors("NODE_POINTS",
 			"POINTS_COLORS"	, _TL("Colors"),
 			_TL("")
+		);
+
+		//-------------------------------------------------
+		m_Parameters.Add_Int("NODE_LINES",
+			"LINES_SIZE"	, _TL("Size"),
+			_TL(""),
+			1, 1, true
 		);
 
 		//-------------------------------------------------
@@ -994,7 +1001,9 @@ void CVIEW_Table_Diagram_Control::_Draw_Lines(wxDC &dc, wxRect r, double dx, dou
 	{
 		iField	= m_Fields[iField];
 
-		dc.SetPen  (wxPen  (Get_Color_asWX(m_Colors.Get_Color(iField)), 0, wxPENSTYLE_SOLID));
+		int Size = m_Parameters("LINES_SIZE")->asInt();
+
+		dc.SetPen  (wxPen  (Get_Color_asWX(m_Colors.Get_Color(iField)), Size, wxPENSTYLE_SOLID));
 		dc.SetBrush(wxBrush(Get_Color_asWX(m_Colors.Get_Color(iField)), wxBRUSHSTYLE_SOLID));
 
 		for(int iRecord=0, bLast=0, xLast, yLast; iRecord<m_pTable->Get_Count(); iRecord++)
@@ -1031,7 +1040,7 @@ void CVIEW_Table_Diagram_Control::_Draw_Bars(wxDC &dc, wxRect r, double dx, doub
 
 	iField	= m_Fields[iField];
 
-	dc.SetPen(wxPen(Get_Color_asWX(m_Colors.Get_Color(iField)), 0, wxPENSTYLE_SOLID));
+	dc.SetPen(wxPen(Get_Color_asWX(m_Colors.Get_Color(iField)), 1, wxPENSTYLE_SOLID));
 
 	for(int iRecord=0; iRecord<m_pTable->Get_Count(); iRecord++)
 	{
