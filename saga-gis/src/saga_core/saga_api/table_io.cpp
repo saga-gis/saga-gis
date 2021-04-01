@@ -392,7 +392,7 @@ bool CSG_Table::_Load_Text(const CSG_String &FileName, bool bHeadline, const SG_
 			{
 				double	Value;
 
-				if( sField.asDouble(Value) == false )
+				if( sField.asDouble(Value) == false || sField.Find('.', false) < sField.Find('.', true) )
 				{
 					Type[iField]	= SG_DATATYPE_String;
 				}
