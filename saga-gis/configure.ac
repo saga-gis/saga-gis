@@ -21,7 +21,6 @@ AC_CHECK_LIB([opencv_core], [cvGetRows], CVFOUND=1,,)
 AC_CHECK_LIB([geotrans], [Set_Mercator_Coordinates])
 AC_CHECK_LIB([fftw3],[fftw_execute],FFTWFOUND=1,)
 AC_CHECK_LIB([las], [LAS_GetVersion], LASFOUND=1,,)
-AC_CHECK_LIB([pdal], [versionString], PDALFOUND=1,,)
 AC_CHECK_LIB(hpdf, HPDF_Pages_New, HARUFOUND=1,,)
 AC_CHECK_LIB([odbc], [SQLFetch], ODBCFOUND=1,[ODBC \(libodbc\) library not found])
 # PROJ4 has projects.h and old API function:
@@ -174,7 +173,7 @@ AC_ARG_ENABLE(openmp,
 AC_SUBST(GOMPFLAGS)
 
 
-# proj.4
+# proj
 PROJ_INC_DIR=
 PROJ_LIB_DIR=
 
@@ -224,6 +223,77 @@ AC_SUBST(PROJ6FLAGS)
 AX_LIB_GDAL([1.7])
 
 
+# pdal
+HAVE_PDAL=
+PDAL_INC=
+PDAL_LIBS=
+PDAL_CPPFLAGS=
+
+AC_ARG_WITH(pdal,
+[  --with-pdal[=[ARG]]
+                          Enable PDAL support, specify full path to
+                          pdal-config script, e.g. 
+                          '--with-pdal=/usr/bin/pdal-config',
+                          default: no)],, with_pdal="no")
+
+AC_MSG_CHECKING(whether to build with PDAL)
+
+if test "`basename xx/$with_pdal`" = "pdal-config" ; then
+  PDAL_CONFIG="$with_pdal"
+fi
+
+if test "$with_pdal" = "no" ; then
+  AC_MSG_RESULT(no)
+else
+  AC_MSG_RESULT(yes)
+  AC_PATH_PROG(PDAL_CONFIG, pdal-config, no)
+
+  if test "$PDAL_CONFIG" = "no" ; then
+    AC_MSG_ERROR([*** could not find pdal-config])
+  fi
+
+  if test "$PDAL_CONFIG" != "" ; then
+    PDAL_INC=`"$PDAL_CONFIG" --includes`
+    PDAL_CPPFLAGS=`"$PDAL_CONFIG" --cxxflags`
+    PDAL_LIBS=`"$PDAL_CONFIG" --libs`
+  fi
+
+  AC_LANG_SAVE
+  AC_LANG_CPLUSPLUS
+  
+  ac_save_cppflags="$CPPFLAGS"
+  ac_save_libs="$LIBS"
+  
+  LIBS="$LIBS $PDAL_LIBS"
+  CPPFLAGS="$CPPFLAGS $PDAL_CPPFLAGS $PDAL_INC"
+  
+  AC_TRY_LINK([#include <pdal/PointTable.hpp>],[pdal::PointTable table;],,[
+  AC_TRY_LINK([#include <pdal/PointTable.hpp>],[pdal::PointTable table;],PDAL_LIBS="$PDAL_LIBS",[
+  AC_MSG_ERROR([*** Unable to locate PDAL library.])
+  ])
+  ])
+  
+  CPPFLAGS=${ac_save_cppflags}
+  LIBS=${ac_save_libs}
+  
+  AC_LANG_C
+  AC_LANG_RESTORE
+
+  PDALFOUND=1
+    
+  AC_SUBST(PDAL_INC)
+  AC_SUBST(PDAL_CPPFLAGS)
+  AC_SUBST(PDAL_LIBS)
+fi
+
+AM_CONDITIONAL(HAVE_PDAL, test -n "$PDALFOUND")
+
+if test -n "$PDALFOUND" ; then 
+  AC_MSG_RESULT([        Building with PDAL])
+fi
+
+
+# triangle/qhull
 AC_ARG_ENABLE(triangle,
         AS_HELP_STRING([--disable-triangle],[ Compile without triangle.c (only free for non-commercial usage), and use qhull instead (requires qhull)]),
 	,
@@ -299,7 +369,6 @@ AM_CONDITIONAL([SYSTEM_SVM], [test x$SYSTEM_SVM = xyes])
 #AM_CONDITIONAL(X86_64, test "`uname -m`" = "x86_64")
 AM_CONDITIONAL(HAVE_CV, test -n "$CVFOUND")
 AM_CONDITIONAL(HAVE_LLAS, test -n "$LASFOUND")
-AM_CONDITIONAL(HAVE_PDAL, test -n "$PDALFOUND")
 AM_CONDITIONAL(HAVE_VIGRA, test -n "$VIGRAFOUND" -a -n "$FFTWFOUND")
 AM_CONDITIONAL(HAVE_HARU, test -n "$HARUFOUND")
 AM_CONDITIONAL(HAVE_HDF5, test -n "$LIBHDF5FOUND")
@@ -311,10 +380,6 @@ fi
 
 if test -n "$LASFOUND" ; then 
   AC_MSG_RESULT([        Building with libLAS])
-fi
-
-if test -n "$PDALFOUND" ; then 
-  AC_MSG_RESULT([        Building with PDAL])
 fi
 
 if test -n "$VIGRAFOUND" -a -n "$FFTWFOUND" ; then 
@@ -353,6 +418,7 @@ AX_PKG_SWIG(1.3.17,[],[])
 AX_SWIG_ENABLE_CXX
 AX_SWIG_PYTHON
 fi
+
 #AC_CONFIG_FILES([Makefile])
 AC_OUTPUT(Makefile \
 	src/Makefile \
