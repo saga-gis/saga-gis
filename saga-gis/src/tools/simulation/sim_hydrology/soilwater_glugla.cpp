@@ -133,7 +133,7 @@ public:
 		{
 			TLayer	&Layer	= *(TLayer *)m_Layers[m_Layers.Get_Size() - 1];
 
-			Layer.Depth   = Depth;
+			Layer.Depth   = Depth               ;	//            [mm]
 			Layer.Water   = Depth * Water / 100.;	// [vol.%] -> [mm]
 			Layer.FC      = Depth * FC    / 100.;	// [vol.%] -> [mm]
 			Layer.PWP     = Depth * PWP   / 100.;	// [vol.%] -> [mm]
@@ -164,9 +164,9 @@ public:
 	{
 		switch( Unit )
 		{
-		default: return( Get_Layer(i).Water );
-		case  1: return( Get_Layer(i).Water * 100. / Get_Depth(i) );
-		case  2: return( Get_Layer(i).Water * 100. / Get_FC   (i) );
+		default: return( Get_Layer(i).Water                       );	// [mm]
+		case  1: return( Get_Layer(i).Water * 100. / Get_Depth(i) );	// [vol.%]
+		case  2: return( Get_Layer(i).Water * 100. / Get_FC   (i) );	// [fc %]
 		}
 	}
 
@@ -278,19 +278,32 @@ protected:
 			}
 		}
 
-		Water		-= ETa;
+		if( Water > ETa )
+		{
+			Water	-= ETa;
+		}
+		else // if( Water <= ETa )
+		{
+			ETa		 = Water;
+			Water	 = 0.;
+		}
 
 		if( Water > FC )
 		{
 			P		 = Water - FC;
 			Water	 =         FC;
 		}
-		else
+		else if( Water > PWP )
 		{
 			double g = Lambda * SG_Get_Square(Water - PWP);	// Glugla
 
 			P		 = g;
 			Water	-= g;
+		}
+		else
+		{
+			P		 = 0.;
+			Water	 = PWP;
 		}
 
 		ETp			-= ETa;
@@ -454,7 +467,7 @@ CSoilWater_Glugla_Table::CSoilWater_Glugla_Table(void)
 		_TL("Provide a row for each soil layer: depth [cm], field capacity [vol.%], permanent wilting point [vol.%], maximum ET [vol.%/day], rooting [% of total], initial water content [vol.%].")
 	)->asTable();
 
-	Layers.Add_Field("Depth"  , SG_DATATYPE_Double);
+	Layers.Add_Field("Size"   , SG_DATATYPE_Double);
 	Layers.Add_Field("FC"     , SG_DATATYPE_Double);
 	Layers.Add_Field("PWP"    , SG_DATATYPE_Double);
 	Layers.Add_Field("ETmax"  , SG_DATATYPE_Double);
@@ -462,7 +475,7 @@ CSoilWater_Glugla_Table::CSoilWater_Glugla_Table(void)
 	Layers.Add_Field("Water_0", SG_DATATYPE_Double);
 
 	#define ADD_LAYER(FC, PWP, ETmax, Depth, Rooting, Water_0) { CSG_Table_Record &r = *Layers.Add_Record();\
-		r.Set_Value("Depth"  , Depth  );\
+		r.Set_Value("Size"   , Depth  );\
 		r.Set_Value("FC"     , FC     );\
 		r.Set_Value("PWP"    , PWP    );\
 		r.Set_Value("ETmax"  , ETmax  );\
@@ -567,7 +580,7 @@ bool CSoilWater_Glugla_Table::On_Execute(void)
 		for(int i=0; i<Layers.Get_Count(); i++)
 		{
 			Model.Add_Layer(
-				Layers[i].asDouble("Depth"  ) * 10.,	// [cm] -> [mm]
+				Layers[i].asDouble("Size"   ) * 10.,	// [cm] -> [mm]
 				Layers[i].asDouble("Water_0"),
 				Layers[i].asDouble("FC"     ),
 				Layers[i].asDouble("PWP"    ),
@@ -673,12 +686,30 @@ public:
 		m_pRooting	= pRooting;
 	}
 
-	virtual void	Set_Storage			(CSG_Grid *pLitter, CSG_Parameter_Grid_List *pWater, CSG_Grid *pRecharge)
+	virtual bool	Set_Storage			(CSG_Grid *pLitter, CSG_Parameter_Grid_List *pWater, CSG_Grid *pRecharge)
 	{
 		m_pLitter	= pLitter  ;
-		m_pWater	= pWater   ;
 		m_pRecharge = pRecharge;
+		m_pWater	= pWater   ;
+
+		m_System	= *m_pWater->Get_System();
+
+		for(int i=m_pWater->Get_Grid_Count(); i<(int)Get_nLayers(); i++)
+		{
+			CSG_Grid	*pGrid	= SG_Create_Grid(m_System);
+
+			pGrid->Fmt_Name("SWC_%d", i + 1);
+
+			m_pWater->Add_Item(pGrid);
+
+			SG_UI_DataObject_Add(pGrid, false);
+		}
+
+		return( m_pWater->Get_Grid_Count() >= (int)Get_nLayers() );
 	}
+
+	//-----------------------------------------------------
+	int				Get_Output_Unit		(void)	const	{	return( m_Unit );	}
 
 	void			Set_Output_Unit		(int Unit)
 	{
@@ -686,51 +717,93 @@ public:
 	}
 
 	//-----------------------------------------------------
-	virtual double	Get_Litter			(int x, int y)	const	{	return( m_Litter[0] );	}
+	virtual double	Get_Litter			(int x, int y)				const	{	return( m_Litter[0] );	}
 
-	virtual double	Get_Water			(int x, int y, size_t i)	const
+	virtual double	Get_Water			(int x, int y, size_t i)	const	{	return( Get_Layer(i).Water  );	}
+
+	bool			Set_Water			(size_t i, double Water)	// Water as [vol.%]
 	{
-		double	Water	= m_pWater->Get_Grid((int)i)->asDouble(x, y);
-
-		switch( m_Unit )
+		if( i >= Get_nLayers() )
 		{
-		default: return( Water );
-		case  1: return( Water * 100. / Get_Depth(i) );
-		case  2: return( Water * 100. / Get_FC   (i) );
-		}
-	}
-
-	virtual bool	Set_Water			(int x, int y, size_t i, double Water)
-	{
-		if( Water >= 0. )
-		{
-			switch( m_Unit )
-			{
-			default: break;
-			case  1: Water *= Get_Depth(i) / 100.; break;
-			case  2: Water *= Get_FC   (i) / 100.; break;
-			}
-
-			m_pWater->Get_Grid((int)i)->Set_Value(x, y, Water);
-
-			return( true );
+			return( false );		
 		}
 
-		return( false );
+		Water	*= Get_Depth(i) / 100.;	// Water as [mm]
+
+		#pragma omp parallel for
+		for(int y=0; y<m_System.Get_NY(); y++) for(int x=0; x<m_System.Get_NX(); x++)
+		{
+			_Set_Water(x, y, i, Water);
+		}
+
+		return( true );
 	}
 
 	//-----------------------------------------------------
-	virtual bool	Set_Balance			(int x, int y)
+	virtual bool	Set_Balance			(CSG_Grid *pP, CSG_Grid *pETp, CSG_Grid *pLAI, double LAI)
 	{
-		if( m_Depth <= 0. || m_Glugla <= 0. )
+		Set_Dynamic_Input(pP, pETp, pLAI, LAI);
+
+		#pragma omp parallel for
+		for(int y=0; y<m_System.Get_NY(); y++) for(int x=0; x<m_System.Get_NX(); x++)
+		{
+			_Set_Balance(x, y);
+		}
+
+		return( true );
+	}
+
+	virtual double	Get_FC		(size_t i)	const	{	return( CSoilWater_Model::Get_FC     (i) );	}
+	virtual double	Get_PWP		(size_t i)	const	{	return( CSoilWater_Model::Get_PWP    (i) );	}
+	virtual double	Get_ETmax	(size_t i)	const	{	return( CSoilWater_Model::Get_ETmax  (i) );	}
+	virtual double	Get_Rooting	(size_t i)	const	{	return( CSoilWater_Model::Get_Rooting(i) );	}
+
+	virtual double	Get_FC		(size_t i, const TSG_Point &p)	const	{	return( _Get_Layer(p, i, m_pFC     , Get_FC     (i),  true) );	}
+	virtual double	Get_PWP		(size_t i, const TSG_Point &p)	const	{	return( _Get_Layer(p, i, m_pPWP    , Get_PWP    (i),  true) );	}
+	virtual double	Get_ETmax	(size_t i, const TSG_Point &p)	const	{	return( _Get_Layer(p, i, m_pETmax  , Get_ETmax  (i),  true) );	}
+	virtual double	Get_Rooting	(size_t i, const TSG_Point &p)	const	{	return( _Get_Layer(p, i, m_pRooting, Get_Rooting(i), false) );	}
+
+
+protected:
+
+	int							m_Unit;
+
+	double						m_LAI;
+
+	CSG_Grid_System				m_System;
+
+	CSG_Grid					*m_pP, *m_pETp, *m_pLAI, *m_pGlugla, *m_pLitter, *m_pRecharge;
+
+	CSG_Parameter_Grid_List		*m_pFC, *m_pPWP, *m_pETmax, *m_pRooting, *m_pWater;
+
+
+	virtual double				_Get_Layer	(const TSG_Point &p, size_t i, CSG_Parameter_Grid_List *pGrids, double Default, bool bToMM)	const
+	{
+		double	Value;
+
+		if( pGrids && pGrids->Get_Grid((int)i) && pGrids->Get_Grid((int)i)->Get_Value(p, Value) )
+		{
+			if( bToMM )
+			{
+				return( Value * Get_Depth(i) / 100. );
+			}
+
+			return( Value / 100. );
+		}
+
+		return( Default );
+	}
+
+	//-----------------------------------------------------
+	virtual bool	_Set_Balance			(int x, int y)
+	{
+		if( m_Depth <= 0. || m_Glugla <= 0. || m_pWater->Get_Grid(0)->is_NoData(x, y) )
 		{
 			return( false );
 		}
 
-		TSG_Point	p	= m_pWater->Get_Grid(0)->Get_System().Get_Grid_to_World(x, y);
+		double	P, ETp;	TSG_Point	p	= m_System.Get_Grid_to_World(x, y);
 
-		double	P, ETp;
-		
 		if( !m_pP->Get_Value(p, P) || !m_pETp->Get_Value(p, ETp) )
 		{
 			for(int i=0; i<m_pWater->Get_Grid_Count(); i++)
@@ -776,14 +849,14 @@ public:
 
 		for(size_t i=0; i<Get_nLayers(); i++)
 		{
-			double	Water	= Get_Water(x, y, i);
+			double	Water	= _Get_Water(x, y, i);
 
 			if( !Set_Soil_Water(P, ETp, Water, Get_FC(i, p), Get_PWP(i, p), Get_ETmax(i, p), Get_Rooting(i, p), Lambda) )
 			{
 				return( false );
 			}
 
-			Set_Water(x, y, i, Water);
+			_Set_Water(x, y, i, Water);
 		}
 
 		//-------------------------------------------------
@@ -795,38 +868,36 @@ public:
 		return( true );
 	}
 
-	virtual double	Get_FC		(size_t i)	const	{	return( CSoilWater_Model::Get_FC     (i) );	}
-	virtual double	Get_PWP		(size_t i)	const	{	return( CSoilWater_Model::Get_PWP    (i) );	}
-	virtual double	Get_ETmax	(size_t i)	const	{	return( CSoilWater_Model::Get_ETmax  (i) );	}
-	virtual double	Get_Rooting	(size_t i)	const	{	return( CSoilWater_Model::Get_Rooting(i) );	}
-
-	virtual double	Get_FC		(size_t i, const TSG_Point &p)	const	{	return( _Get_Layer(p, i, m_pFC     , Get_FC     (i)) );	}
-	virtual double	Get_PWP		(size_t i, const TSG_Point &p)	const	{	return( _Get_Layer(p, i, m_pPWP    , Get_PWP    (i)) );	}
-	virtual double	Get_ETmax	(size_t i, const TSG_Point &p)	const	{	return( _Get_Layer(p, i, m_pETmax  , Get_ETmax  (i)) );	}
-	virtual double	Get_Rooting	(size_t i, const TSG_Point &p)	const	{	return( _Get_Layer(p, i, m_pRooting, Get_Rooting(i)) );	}
-
-
-protected:
-
-	int							m_Unit;
-
-	double						m_LAI;
-
-	CSG_Grid					*m_pP, *m_pETp, *m_pLAI, *m_pGlugla, *m_pLitter, *m_pRecharge;
-
-	CSG_Parameter_Grid_List		*m_pFC, *m_pPWP, *m_pETmax, *m_pRooting, *m_pWater;
-
-
-	virtual double				_Get_Layer	(const TSG_Point &p, size_t i, CSG_Parameter_Grid_List *pGrids, double Default)	const
+	//-----------------------------------------------------
+	virtual double				_Get_Water	(int x, int y, size_t i)	const
 	{
-		double	Value;
+		double	Water	= m_pWater->Get_Grid((int)i)->asDouble(x, y);
 
-		if( pGrids && pGrids->Get_Grid((int)i) && pGrids->Get_Grid((int)i)->Get_Value(p, Value) )
+		switch( m_Unit )
 		{
-			return( Value );
+		default: return( Water );
+		case  1: return( Water * 0.01 * Get_Depth(i) );
+		case  2: return( Water * 0.01 * Get_FC   (i, m_System.Get_Grid_to_World(x, y)) );
+		}
+	}
+
+	virtual bool				_Set_Water	(int x, int y, size_t i, double Water)
+	{
+		if( Water >= 0. )
+		{
+			switch( m_Unit )
+			{
+			default: break;
+			case  1: Water *= 100. / Get_Depth(i); break;
+			case  2: Water *= 100. / Get_FC   (i, m_System.Get_Grid_to_World(x, y)); break;
+			}
+
+			m_pWater->Get_Grid((int)i)->Set_Value(x, y, Water);
+
+			return( true );
 		}
 
-		return( Default );
+		return( false );
 	}
 
 };
@@ -855,10 +926,14 @@ CSoilWater_Glugla_Grid::CSoilWater_Glugla_Grid(void)
 	ADD_REFERENCES;
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List("", "P"  , _TL("Precipitation"               ), _TL("[mm]"), PARAMETER_INPUT, false);
-	Parameters.Add_Grid_List("", "ETP", _TL("Potential Evapotranspiration"), _TL("[mm]"), PARAMETER_INPUT, false);
+	Parameters.Add_Grid_List("", "P"      , _TL("Precipitation"               ), _TL("[mm]"        ), PARAMETER_INPUT         , false);
+	Parameters.Add_Grid_List("", "ETP"    , _TL("Potential Evapotranspiration"), _TL("[mm]"        ), PARAMETER_INPUT         , false);
 
-	//-----------------------------------------------------
+	Parameters.Add_Grid_List("", "FC"     , _TL("Field Capacity"              ), _TL("[vol.%]"     ), PARAMETER_INPUT_OPTIONAL, false);
+	Parameters.Add_Grid_List("", "PWP"    , _TL("Permanent Wilting Point"     ), _TL("[vol.%]"     ), PARAMETER_INPUT_OPTIONAL, false);
+	Parameters.Add_Grid_List("", "ETMAX"  , _TL("Maxmimum Evapotranspiration" ), _TL("[vol.%/day]" ), PARAMETER_INPUT_OPTIONAL, false);
+//	Parameters.Add_Grid_List("", "ROOTING", _TL("Rooting"                     ), _TL("[% of total]"), PARAMETER_INPUT_OPTIONAL, false);
+
 	Parameters.Add_Grid_or_Const("",
 		"LAI"			, _TL("Leaf Area Index"),
 		_TL(""),
@@ -871,18 +946,13 @@ CSoilWater_Glugla_Grid::CSoilWater_Glugla_Grid(void)
 		150., 0., true, 0., false, false
 	);
 
-	Parameters.Add_Grid_List("", "FC"     , _TL("Field Capacity"             ), _TL("[vol.%]"     ), PARAMETER_INPUT_OPTIONAL, false);
-	Parameters.Add_Grid_List("", "PWP"    , _TL("Permanent Wilting Point"    ), _TL("[vol.%]"     ), PARAMETER_INPUT_OPTIONAL, false);
-	Parameters.Add_Grid_List("", "ETMAX"  , _TL("Maxmimum Evapotranspiration"), _TL("[vol.%/day]" ), PARAMETER_INPUT_OPTIONAL, false);
-//	Parameters.Add_Grid_List("", "ROOTING", _TL("Rooting"                    ), _TL("[% of total]"), PARAMETER_INPUT_OPTIONAL, false);
-
+	//-----------------------------------------------------
 	Parameters.Add_Grid_List("",
 		"SOIL_WATER"	, _TL("Soil Water Content"),
-		_TL("[mm]" ),
+		_TL("" ),
 		PARAMETER_OUTPUT
 	);
 
-	//-----------------------------------------------------
 	Parameters.Add_Grid("",
 		"LITTER"		, _TL("Litter Water Content"),
 		_TL("[mm]"),
@@ -962,6 +1032,7 @@ CSoilWater_Glugla_Grid::CSoilWater_Glugla_Grid(void)
 		), 0
 	);
 
+	//-----------------------------------------------------
 	CSG_Table	&Layers	= *Parameters.Add_FixedTable("",
 		"SOIL_LAYERS"	, _TL("Soil Layers"),
 		_TL("Provide a row for each soil layer: size [cm], field capacity [vol.%], permanent wilting point [vol.%], maximum ET [vol.%/day], rooting [% of total], initial water content [vol.%].")
@@ -978,6 +1049,19 @@ CSoilWater_Glugla_Grid::CSoilWater_Glugla_Grid(void)
 	ADD_LAYER(25, 12, 20, 20, 30, 20);
 	ADD_LAYER(25, 12, 20, 20, 15, 20);
 	ADD_LAYER(25, 12, 20, 10,  5, 20);
+
+	//-----------------------------------------------------
+	Parameters.Add_Bool("",
+		"UPDATE"		, _TL("Update"),
+		_TL(""),
+		false
+	)->Set_UseInCMD(false);
+
+	Parameters.Add_Bool("",
+		"OVERWRITE"		, _TL("Overwrite"),
+		_TL("Overwrite soil water grids from previous simulations."),
+		true
+	)->Set_UseInCMD(false);
 }
 
 
@@ -1006,6 +1090,8 @@ int CSoilWater_Glugla_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CS
 		pParameters->Set_Enabled("LITTER_0" , pParameter->asBool() && (*pParameters)("LITTER_MAX")->asDouble() > 0.);
 	}
 
+	pParameters->Set_Enabled("OVERWRITE", (*pParameters)("SOIL_WATER")->asGridList()->Get_Grid_Count() > 0);
+
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
@@ -1032,6 +1118,8 @@ bool CSoilWater_Glugla_Grid::On_Execute(void)
 
 	//-----------------------------------------------------
 	CSoilWater_Model_Grid	Model;
+
+	Model.Set_Output_Unit(Parameters("OUTPUT_UNIT")->asInt());
 
 	Model.Set_Storage_Leaf(
 		Parameters(  "I_MAX"   )->asDouble(),
@@ -1064,7 +1152,7 @@ bool CSoilWater_Glugla_Grid::On_Execute(void)
 	for(int i=0; i<Layers.Get_Count(); i++)
 	{
 		Model.Add_Layer(
-			Layers[i].asDouble("Depth"  ) * 10.,	// [cm] -> [mm]
+			Layers[i].asDouble("Size"   ) * 10.,	// [cm] -> [mm]
 			Layers[i].asDouble("Water_0"),
 			Layers[i].asDouble("FC"     ),
 			Layers[i].asDouble("PWP"    ),
@@ -1072,8 +1160,6 @@ bool CSoilWater_Glugla_Grid::On_Execute(void)
 			Layers[i].asDouble("Rooting")
 		);
 	}
-
-	Model.Set_Output_Unit(Parameters("OUTPUT_UNIT")->asInt());
 
 	//-----------------------------------------------------
 	CSG_Parameter_Grid_List	*pWater	= Parameters("SOIL_WATER")->asGridList();
@@ -1091,44 +1177,39 @@ bool CSoilWater_Glugla_Grid::On_Execute(void)
 		pRecharge	= &Recharge;
 	}
 
+	if( has_GUI() && Parameters("OVERWRITE")->asBool() == false )
+	{
+		pWater->Del_Items();
+	}
+
+	if( !Model.Set_Storage(pLitter, pWater, pRecharge) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
 	if( Parameters("RESET")->asBool() )
 	{
 		if( pLitter )
 		{
 			pLitter->Assign(Parameters("LITTER_0")->asDouble());
-
-			DataObject_Set_Colors(pLitter, 11, SG_COLORS_YELLOW_BLUE);
-		}
-
-		for(int i=pWater->Get_Grid_Count(); i<(int)Model.Get_nLayers(); i++)
-		{
-			pWater->Add_Item(SG_Create_Grid(Get_System()));
-
-			DataObject_Add       (pWater->Get_Grid(i));
-			DataObject_Set_Colors(pWater->Get_Grid(i), 11, SG_COLORS_YELLOW_BLUE);
-		}
-
-		for(int i=0; i<(int)Model.Get_nLayers(); i++)
-		{
-			pWater->Get_Grid(i)->Fmt_Name("SWC_%d", i + 1);
-			pWater->Get_Grid(i)->Assign(Model.Get_Depth(i) * Layers[i].asDouble("Water_0") / 100.);
 		}
 
 		if( pRecharge_Sum )
 		{
 			pRecharge_Sum->Assign(0.);
-
-			DataObject_Set_Colors(pRecharge_Sum, 11, SG_COLORS_YELLOW_BLUE);
 		}
 
-		DataObject_Set_Colors(pRecharge, 11, SG_COLORS_YELLOW_BLUE);
-	}
+		for(size_t i=0; i<Model.Get_nLayers(); i++)
+		{
+			Model.Set_Water(i, Layers[i].asDouble("Water_0"));
 
-	Model.Set_Storage(pLitter, pWater, pRecharge);
+			DataObject_Set_Colors(pWater->Get_Grid((int)i), 11, SG_COLORS_COUNT + 9, true);
+		}
 
-	if( pWater->Get_Grid_Count() < (int)Model.Get_nLayers() )
-	{
-		return( false );
+		DataObject_Set_Colors(pLitter      , 11, SG_COLORS_COUNT + 9, true);
+		DataObject_Set_Colors(pRecharge    , 11, SG_COLORS_COUNT + 9, true);
+		DataObject_Set_Colors(pRecharge_Sum, 11, SG_COLORS_COUNT + 9, true);
 	}
 
 	//-----------------------------------------------------
@@ -1136,13 +1217,7 @@ bool CSoilWater_Glugla_Grid::On_Execute(void)
 	{
 		Process_Set_Text(CSG_String::Format("[%d / %d]", iDay + 1, nDays));
 
-		Model.Set_Dynamic_Input(pP->Get_Grid(iDay), pETp->Get_Grid(iDay), pLAI, LAI);
-
-		#pragma omp parallel for
-		for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
-		{
-			Model.Set_Balance(x, y);
-		}
+		Model.Set_Balance(pP->Get_Grid(iDay), pETp->Get_Grid(iDay), pLAI, LAI);
 
 		if( pRecharge_Sum )
 		{
@@ -1150,18 +1225,29 @@ bool CSoilWater_Glugla_Grid::On_Execute(void)
 		}
 
 		//-------------------------------------------------
-		SG_UI_ProgressAndMsg_Lock(true);
-
-		for(size_t i=0; i<Model.Get_nLayers(); i++)
+		if( has_GUI() && Parameters("UPDATE")->asBool() )
 		{
-			DataObject_Update(pWater->Get_Grid((int)i), Model.Get_PWP(i), Model.Get_FC(i));
+			SG_UI_ProgressAndMsg_Lock(true);
+
+			for(size_t i=0; i<Model.Get_nLayers(); i++)
+			{
+				CSG_Vector	Range(2); Range[0] = Model.Get_FC(i); Range[1] = Model.Get_PWP(i);
+
+				switch( Model.Get_Output_Unit() )
+				{
+				case 1: Range *= 100. / Model.Get_Depth(i); break;
+				case 2: Range *= 100. / Model.Get_FC   (i); break;
+				}
+
+				DataObject_Update(pWater->Get_Grid((int)i), Range[0], Range[1]);
+			}
+
+			DataObject_Update(pLitter      );
+			DataObject_Update(pRecharge    );
+			DataObject_Update(pRecharge_Sum);
+
+			SG_UI_ProgressAndMsg_Lock(false);
 		}
-
-		DataObject_Update(pLitter      );
-		DataObject_Update(pRecharge    );
-		DataObject_Update(pRecharge_Sum);
-
-		SG_UI_ProgressAndMsg_Lock(false);
 	}
 
 	//-----------------------------------------------------
