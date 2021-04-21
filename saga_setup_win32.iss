@@ -9,8 +9,8 @@
 AppName=SAGA - System for Automated Geoscientific Analyses
 AppVerName=SAGA 7.10.0
 
-DefaultDirName={commonpf}\SAGA-GIS
-DefaultGroupName=SAGA GIS
+DefaultDirName={commonpf}\SAGA
+DefaultGroupName=SAGA
 UninstallDisplayIcon={app}\saga_gui.exe
 
 InfoBeforeFile=saga_setup_readme.rtf
@@ -24,7 +24,7 @@ OutputBaseFilename=saga-7.10.0_win32_setup
 VersionInfoVersion=7.10.0.0
 VersionInfoCompany=SAGA User Group Association
 VersionInfoCopyright=(c) 2005-2018 by O. Conrad
-VersionInfoDescription=SAGA GIS single-file installer
+VersionInfoDescription=SAGA single-file installer
 
 PrivilegesRequired=admin
 
@@ -36,15 +36,18 @@ Source: "*.*"; Excludes: "*.iss,*.ini,*.cfg,*.bak,*.exe,*.bat,*.rtf"; DestDir: "
 Source: "tools\*.*"; DestDir: "{app}\tools"
 Source: "tools\toolchains\*.*"; DestDir: "{app}\tools\toolchains"
 Source: "dll\*.*"; DestDir: "{app}\dll"
+Source: "dll\gdal-data\*.*"; DestDir: "{app}\dll\gdal-data"
+Source: "dll\proj-data\*.*"; DestDir: "{app}\dll\proj-data"
+Source: "ArcSAGA Toolboxes\*.*"; DestDir: "{app}\ArcSAGA Toolboxes"
 
 [Icons]
 ; Start up in tools folder so SAGA will load all tools automatically.
-Name: "{commonprograms}\SAGA GIS"; Filename: "{app}\saga_gui.exe"; WorkingDir: "{app}"
-Name: "{commondesktop}\SAGA GIS"; Filename: "{app}\saga_gui.exe"; WorkingDir: "{app}"
+Name: "{commonprograms}\SAGA"; Filename: "{app}\saga_gui.exe"; WorkingDir: "{app}"
+Name: "{commondesktop}\SAGA"; Filename: "{app}\saga_gui.exe"; WorkingDir: "{app}"
 
 [Registry]
 Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\saga_gui.exe"; ValueType: string; ValueName: ""; ValueData: "{app}\saga_gui.exe"; Flags: uninsdeletekey
 Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\saga_gui.exe"; ValueType: string; ValueName: "Path"; ValueData: "{app}"
 
-Root: HKLM; Subkey: "SOFTWARE\SAGA User Group Association\SAGA GIS\7.10.0"; ValueType: string; ValueName: "InstallDir"; ValueData: "{app}"; Flags: uninsdeletekey
-Root: HKLM; Subkey: "SOFTWARE\SAGA User Group Association\SAGA GIS\7.10.0"; ValueType: string; ValueName: "Version"; ValueData: "7.10.0.0"
+Root: HKLM; Subkey: "SOFTWARE\SAGA User Group Association\SAGA\7.10.0"; ValueType: string; ValueName: "InstallDir"; ValueData: "{app}"; Flags: uninsdeletekey
+Root: HKLM; Subkey: "SOFTWARE\SAGA User Group Association\SAGA\7.10.0"; ValueType: string; ValueName: "Version"; ValueData: "7.10.0.0"
