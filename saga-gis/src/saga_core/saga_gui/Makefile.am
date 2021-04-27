@@ -1,18 +1,16 @@
 #
 # $Id$
 #
-INCS = -I.. -I.
 if DEBUG
-DBGFLAGS = -g -DDEBUG
+DBGFLAGS    = -g -DDEBUG
 endif
-MLIBPATH = "MODULE_LIBRARY_PATH=\"$(libdir)/saga\""
-MSHAREPATH = "SHARE_PATH=\"$(prefix)/share/saga\""
 
-BASEFLAGS = -fPIC -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_DONOTUSE_HARU -D$(MLIBPATH) -D$(MSHAREPATH) $(DBGFLAGS) $(INCS)
+MTOOLSPATH  = "TOOLS_PATH=\"$(libdir)/saga\""
+MSHAREPATH  = "SHARE_PATH=\"$(prefix)/share/saga\""
+BASEFLAGS   = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D$(MTOOLSPATH) -D$(MSHAREPATH) -D_SAGA_DONOTUSE_HARU -I. -I..
 
-AM_CXXFLAGS = $(BASEFLAGS) `wx-config --unicode=yes --cxxflags` $(GOMPFLAGS)
-AM_LDFLAGS = -fPIC `wx-config --unicode=yes --libs adv,aui,base,core,html,net,propgrid,xml`
-
+AM_CXXFLAGS = -fPIC `wx-config --unicode=yes --cxxflags` $(BASEFLAGS) $(GOMPFLAGS) $(DBGFLAGS)
+AM_LDFLAGS  = -fPIC `wx-config --unicode=yes --libs adv,aui,base,core,html,net,propgrid,xml`
 
 bin_PROGRAMS = saga_gui
 

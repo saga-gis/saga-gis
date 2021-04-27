@@ -829,6 +829,9 @@ public:
 	CSG_Projections(void);
 	virtual ~CSG_Projections(void);
 
+									CSG_Projections			(bool bLoad_DB);
+	bool							Create					(bool bLoad_DB = true);
+
 									CSG_Projections			(const CSG_String &File_DB);
 	bool							Create					(const CSG_String &File_DB);
 

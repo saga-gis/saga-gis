@@ -690,6 +690,37 @@ CSG_Projections::CSG_Projections(void)
 }
 
 //---------------------------------------------------------
+CSG_Projections::CSG_Projections(bool bLoadDefaults)
+{
+	_On_Construction();
+
+	Create(bLoadDefaults);
+}
+
+bool CSG_Projections::Create(bool bLoadDefaults)
+{
+	Destroy();
+
+	if( bLoadDefaults )	// load spatial reference system database and dictionary
+	{
+		#if defined(_SAGA_LINUX)
+			CSG_String	Path_Shared	= SHARE_PATH;
+		#else
+			CSG_String	Path_Shared	= SG_File_Get_Path(SG_UI_Get_Application_Path());
+		#endif
+
+		SG_UI_Msg_Lock(true);
+
+		Load_Dictionary(SG_File_Make_Path(Path_Shared, "saga_prj", "dic"));
+		Load_DB        (SG_File_Make_Path(Path_Shared, "saga_prj", "srs"));
+
+		SG_UI_Msg_Lock(false);
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
 CSG_Projections::CSG_Projections(const CSG_String &File_DB)
 {
 	_On_Construction();
@@ -737,6 +768,8 @@ void CSG_Projections::Destroy(void)
 	{
 		m_pProjections->Del_Records();
 	}
+
+	Reset_Dictionary();
 }
 
 

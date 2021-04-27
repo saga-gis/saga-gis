@@ -38,9 +38,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -374,43 +372,16 @@ bool		Execute_Script(const CSG_String &Script)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		Load_Libraries(const CSG_String &Directory)
+bool		Load_Libraries(void)
 {
 	bool	bShow	= CMD_Get_Show_Messages();
 
 	CMD_Set_Show_Messages(false);
-	int	n	= SG_Get_Tool_Library_Manager().Add_Directory(Directory, false);
-	CMD_Set_Show_Messages(bShow);
 
-	return( n > 0 );
-}
+	SG_Initialize_Environment();	// loads default tools
 
-//---------------------------------------------------------
-bool		Load_Libraries(void)
-{
-	wxString	Path, CMD_Path	= SG_File_Get_Path(SG_UI_Get_Application_Path()).c_str();
-
-    #if defined(_SAGA_LINUX)
-		Load_Libraries(MODULE_LIBRARY_PATH);
-		Load_Libraries(SG_File_Make_Path(CSG_String(SHARE_PATH), SG_T("toolchains")));	// look for tool chains
-	#else
-		wxString	DLL_Path	= CMD_Path + "\\dll";
-
-		if( wxGetEnv("PATH", &Path) && !Path.IsEmpty() )
-		{
-			wxSetEnv("PATH", DLL_Path + ";" + Path);
-		}
-		else
-		{
-			wxSetEnv("PATH", DLL_Path);
-		}
-
-		wxSetEnv("GDAL_DRIVER_PATH", DLL_Path);
-		wxSetEnv("PROJ_LIB"        , DLL_Path + "\\proj-data");
-		wxSetEnv("GDAL_DATA"       , DLL_Path + "\\gdal-data");
-
-		Load_Libraries(SG_File_Make_Path(&CMD_Path, "tools"));
-    #endif
+	//-----------------------------------------------------
+	wxString Path;
 
 	if( (wxGetEnv("SAGA_TLB", &Path) || wxGetEnv("SAGA_MLB", &Path)) && !Path.IsEmpty() )
 	{
@@ -422,9 +393,12 @@ bool		Load_Libraries(void)
 
 		while( Paths.Has_More_Tokens() )
 		{
-			Load_Libraries(Paths.Get_Next_Token());
+			SG_Get_Tool_Library_Manager().Add_Directory(Paths.Get_Next_Token(), false);
 		}
 	}
+
+	//-----------------------------------------------------
+	CMD_Set_Show_Messages(bShow);
 
 	if( SG_Get_Tool_Library_Manager().Get_Count() <= 0 )
 	{
@@ -515,15 +489,6 @@ bool		Check_Flags		(const CSG_String &Argument)
 			SG_Printf(CSG_String::Format("\n%s:", _TL("loading translation dictionary")));
 			SG_Printf(CSG_String::Format("\n%s.\n",
 				SG_Get_Translator().Create(SG_File_Make_Path(Path_Shared, SG_T("saga"), SG_T("lng")), false)
-				? _TL("success") : _TL("failed")
-			));
-		}
-
-		if( s.Find('p') >= 0 )	// p: load projections dictionary
-		{
-			SG_Printf(CSG_String::Format("\n%s:", _TL("loading spatial reference system database")));
-			SG_Printf(CSG_String::Format("\n%s.\n",
-				SG_Get_Projections().Create(SG_File_Make_Path(Path_Shared, SG_T("saga_prj"), SG_T("srs")))
 				? _TL("success") : _TL("failed")
 			));
 		}
@@ -753,13 +718,12 @@ void		Print_Help		(void)
 #ifdef _OPENMP
 		"[-c], [--cores]  : number of physical processors to use for computation\n"
 #endif
-		"[-f], [--flags]  : various flags for general usage [qrsilpxo]\n"
+		"[-f], [--flags]  : various flags for general usage [qrsilxo]\n"
 		"  q              : no progress report\n"
 		"  r              : no messages report\n"
 		"  s              : silent mode (no progress and no messages report)\n"
 		"  i              : allow user interaction\n"
 		"  l              : load translation dictionary\n"
-		"  p              : load projections dictionary\n"
 		"  x              : use XML markups for synopses and messages\n"
 		"  o              : load old style naming\n"
 		"<LIBRARY>        : name of the library\n"

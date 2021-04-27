@@ -173,15 +173,6 @@ bool	Config_Load		(wxConfigBase *pConfig)
 		);
 	}
 
-	if( Config_Read(pConfig, "TOOLS", "PROJECTIONS", bValue) && bValue == true )	// load projections dictionary
-	{
-		SG_Printf(CSG_String::Format("\n%s:", _TL("loading spatial reference system database")));
-		SG_Printf(CSG_String::Format("\n%s.\n",
-			SG_Get_Projections().Create(SG_File_Make_Path(Path_Shared, SG_T("saga_prj"), SG_T("srs")))
-			? _TL("success") : _TL("failed")
-		));
-	}
-
 	if( Config_Read(pConfig, "TOOLS", "OMP_THREADS_MAX"     , iValue) )	{	SG_OMP_Set_Max_Num_Threads(iValue);	}
 
 	if( Config_Read(pConfig, "TOOLS", "ADD_LIB_PATHS"       , sValue) && !sValue.IsEmpty() )

@@ -38,9 +38,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -163,24 +161,6 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 	);
 
 	m_Parameters.Add_FilePath("NODE_FILES",
-		"CRS_FILE_SRS"	, _TL("CRS Database"),
-		_TL("Database with Coordinate Reference System (CRS) definitions. You need to restart SAGA to apply the changes."),
-		CSG_String::Format("%s (*.srs)|*.srs|%s|*.*",
-			_TL("Spatial Reference System Files"),
-			_TL("All Files")
-		)
-	);
-
-	m_Parameters.Add_FilePath("NODE_FILES",
-		"CRS_FILE_DIC"	, _TL("CRS Dictionary"),
-		_TL("Dictionary for Proj.4/OGC WKT translations. You need to restart SAGA to apply the changes."),
-		CSG_String::Format("%s (*.dic)|*.dic|%s|*.*",
-			_TL("Dictionary Files"),
-			_TL("All Files")
-		)
-	);
-
-	m_Parameters.Add_FilePath("NODE_FILES",
 		"TOOL_MENUS"	, _TL("User defined tool menus"),
 		_TL("User defined tool menus."),
 		CSG_String::Format("%s|*.xml|%s|*.*",
@@ -241,7 +221,7 @@ bool CWKSP_Tool_Manager::Initialise(void)
 	#ifdef _SAGA_MSW
 		wxString	Default_Path(g_pSAGA->Get_App_Path());
 	#else
-		wxString	Default_Path(MODULE_LIBRARY_PATH);
+		wxString	Default_Path(TOOLS_PATH);
 	#endif
 
 	//-----------------------------------------------------
@@ -327,7 +307,7 @@ bool CWKSP_Tool_Manager::Finalise(void)
 	#ifdef _SAGA_MSW
 		wxString	Default_Path(g_pSAGA->Get_App_Path());
 	#else
-		wxString	Default_Path(MODULE_LIBRARY_PATH);
+		wxString	Default_Path(TOOLS_PATH);
 	#endif
 
 	CONFIG_Delete(CFG_LIBS);
@@ -376,8 +356,6 @@ int CWKSP_Tool_Manager::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 		{
 			if( pParameter->Cmp_Identifier("LNG_OLDSTYLE")
 			||  pParameter->Cmp_Identifier("LNG_FILE_DIC")
-			||  pParameter->Cmp_Identifier("CRS_FILE_SRS")
-			||  pParameter->Cmp_Identifier("CRS_FILE_DIC")
 			||  pParameter->Cmp_Identifier("LOOK_TB_SIZE") )
 			{
 				if( DLG_Message_Confirm(_TL("Restart now ?"), _TL("Restart SAGA to apply the changes")) && g_pData->Close(true) )
@@ -477,8 +455,8 @@ bool CWKSP_Tool_Manager::On_Command(int Cmd_ID)
 
 	case ID_CMD_TOOL_RELOAD:
 		#if defined(_SAGA_LINUX)
-			SG_Get_Tool_Library_Manager().Add_Directory(CSG_String(MODULE_LIBRARY_PATH), false);
-			SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(CSG_String(SHARE_PATH), SG_T("toolchains")), false);
+			SG_Get_Tool_Library_Manager().Add_Directory(CSG_String(TOOLS_PATH), false);
+			SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(SHARE_PATH, "toolchains"), false);
 		#else
 			SG_Get_Tool_Library_Manager().Add_Directory(CSG_String(&g_pSAGA->Get_App_Path()) + "/tools", false);
 		#endif

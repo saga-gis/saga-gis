@@ -40,9 +40,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -50,16 +48,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <wx/utils.h>
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "api_core.h"
+#include "tool_library.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -129,22 +121,22 @@ CSG_String	SG_Data_Type_Get_Name	(TSG_Data_Type Type)
 {
 	switch( Type )
 	{
-	default                : return( _TL("undefined") );
-	case SG_DATATYPE_Bit   : return( _TL("bit") );
-	case SG_DATATYPE_Byte  : return( _TL("unsigned 1 byte integer") );
-	case SG_DATATYPE_Char  : return( _TL("signed 1 byte integer") );
-	case SG_DATATYPE_Word  : return( _TL("unsigned 2 byte integer") );
-	case SG_DATATYPE_Short : return( _TL("signed 2 byte integer") );
-	case SG_DATATYPE_DWord : return( _TL("unsigned 4 byte integer") );
-	case SG_DATATYPE_Int   : return( _TL("signed 4 byte integer") );
-	case SG_DATATYPE_ULong : return( _TL("unsigned 8 byte integer") );
-	case SG_DATATYPE_Long  : return( _TL("signed 8 byte integer") );
+	default                : return( _TL("undefined"                   ) );
+	case SG_DATATYPE_Bit   : return( _TL("bit"                         ) );
+	case SG_DATATYPE_Byte  : return( _TL("unsigned 1 byte integer"     ) );
+	case SG_DATATYPE_Char  : return( _TL("signed 1 byte integer"       ) );
+	case SG_DATATYPE_Word  : return( _TL("unsigned 2 byte integer"     ) );
+	case SG_DATATYPE_Short : return( _TL("signed 2 byte integer"       ) );
+	case SG_DATATYPE_DWord : return( _TL("unsigned 4 byte integer"     ) );
+	case SG_DATATYPE_Int   : return( _TL("signed 4 byte integer"       ) );
+	case SG_DATATYPE_ULong : return( _TL("unsigned 8 byte integer"     ) );
+	case SG_DATATYPE_Long  : return( _TL("signed 8 byte integer"       ) );
 	case SG_DATATYPE_Float : return( _TL("4 byte floating point number") );
 	case SG_DATATYPE_Double: return( _TL("8 byte floating point number") );
-	case SG_DATATYPE_String: return( _TL("string") );
-	case SG_DATATYPE_Date  : return( _TL("date") );
-	case SG_DATATYPE_Color : return( _TL("color") );
-	case SG_DATATYPE_Binary: return( _TL("binary") );
+	case SG_DATATYPE_String: return( _TL("string"                      ) );
+	case SG_DATATYPE_Date  : return( _TL("date"                        ) );
+	case SG_DATATYPE_Color : return( _TL("color"                       ) );
+	case SG_DATATYPE_Binary: return( _TL("binary"                      ) );
 	}
 };
 
@@ -180,24 +172,23 @@ bool SG_Data_Type_is_Numeric(TSG_Data_Type Type)
 {
 	switch( Type )
 	{
-	case SG_DATATYPE_Bit:
-	case SG_DATATYPE_Byte:
-	case SG_DATATYPE_Char:
-	case SG_DATATYPE_Word:
-	case SG_DATATYPE_Short:
-	case SG_DATATYPE_DWord:
-	case SG_DATATYPE_Int:
-	case SG_DATATYPE_ULong:
-	case SG_DATATYPE_Long:
-	case SG_DATATYPE_Float:
+	case SG_DATATYPE_Bit   :
+	case SG_DATATYPE_Byte  :
+	case SG_DATATYPE_Char  :
+	case SG_DATATYPE_Word  :
+	case SG_DATATYPE_Short :
+	case SG_DATATYPE_DWord :
+	case SG_DATATYPE_Int   :
+	case SG_DATATYPE_ULong :
+	case SG_DATATYPE_Long  :
+	case SG_DATATYPE_Float :
 	case SG_DATATYPE_Double:
 		return( true );
 
-	default:
 	case SG_DATATYPE_String:
-	case SG_DATATYPE_Date:
-	case SG_DATATYPE_Color:
-	case SG_DATATYPE_Binary:
+	case SG_DATATYPE_Date  :
+	case SG_DATATYPE_Color :
+	case SG_DATATYPE_Binary: default:
 		return( false );
 	}
 }
@@ -210,16 +201,16 @@ bool SG_Data_Type_Range_Check(TSG_Data_Type Type, double &Value)
 	switch( Type )
 	{
 		default:
-		case SG_DATATYPE_Double:	Value	= (double)Value;	return( true );
-		case SG_DATATYPE_Float:		Value	= (float )Value;	return( true );
+		case SG_DATATYPE_Double: Value = (double)Value; return( true );
+		case SG_DATATYPE_Float : Value = (float )Value; return( true );
 
-		case SG_DATATYPE_Bit:		min	=           0.0;	max =          1.0;	break;
-		case SG_DATATYPE_Byte:		min	=           0.0;	max =        255.0; break;
-		case SG_DATATYPE_Char:		min	=        -128.0;	max =        127.0;	break;
-		case SG_DATATYPE_Word:		min	=           0.0;	max =      65535.0;	break;
-		case SG_DATATYPE_Short:		min	=      -32768.0;	max =      32767.0;	break;
-		case SG_DATATYPE_DWord:		min	=           0.0;	max = 4294967295.0;	break;
-		case SG_DATATYPE_Int:		min	= -2147483648.0;	max = 2147483647.0;	break;
+		case SG_DATATYPE_Bit   : min =           0.; max =          1.; break;
+		case SG_DATATYPE_Byte  : min =           0.; max =        255.; break;
+		case SG_DATATYPE_Char  : min =        -128.; max =        127.; break;
+		case SG_DATATYPE_Word  : min =           0.; max =      65535.; break;
+		case SG_DATATYPE_Short : min =      -32768.; max =      32767.; break;
+		case SG_DATATYPE_DWord : min =           0.; max = 4294967295.; break;
+		case SG_DATATYPE_Int   : min = -2147483648.; max = 2147483647.; break;
 	}
 
 	if( Value < min )
@@ -231,6 +222,82 @@ bool SG_Data_Type_Range_Check(TSG_Data_Type Type, double &Value)
 		Value	= max;
 	}
 
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                     Environment                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char *Directory)
+{
+	#if defined(_SAGA_MSW)
+	{
+		wxString App_Path, Dll_Path, Path;
+
+		if( Directory && SG_Dir_Exists(Directory) )
+		{
+			App_Path	= Directory;
+		}
+		else
+		{
+			App_Path	= SG_File_Get_Path(SG_UI_Get_Application_Path()).c_str();
+		}
+
+		Dll_Path	= App_Path + "\\dll";
+
+		if( wxGetEnv("PATH", &Path) && !Path.IsEmpty() )
+		{
+			wxSetEnv("PATH", Dll_Path + ";" + Path);
+		}
+		else
+		{
+			wxSetEnv("PATH", Dll_Path);
+		}
+
+		wxSetEnv("GDAL_DRIVER_PATH", Dll_Path);
+		wxSetEnv("PROJ_LIB"        , Dll_Path + "\\proj-data");
+		wxSetEnv("GDAL_DATA"       , Dll_Path + "\\gdal-data");
+
+		if( bLibraries )
+		{
+			SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(&App_Path, "tools"), false);
+		}
+
+		if( bProjections )
+		{
+			SG_UI_ProgressAndMsg_Lock(true);
+
+			SG_Get_Projections().Load_Dictionary(SG_File_Make_Path(&App_Path, "saga_prj", "dic"));
+			SG_Get_Projections().Load_DB        (SG_File_Make_Path(&App_Path, "saga_prj", "srs"));
+
+			SG_UI_ProgressAndMsg_Lock(false);
+		}
+	}
+	#else // #if defined(_SAGA_LINUX)
+	{
+		if( bLibraries )
+		{
+			Load_Libraries(TOOLS_PATH);
+			Load_Libraries(SG_File_Make_Path(SHARE_PATH, "toolchains"));	// look for tool chains
+		}
+
+		if( bProjections )
+		{
+			SG_UI_Msg_Lock(true);
+
+			SG_Get_Projections().Load_Dictionary(SG_File_Make_Path(SHARE_PATH, "saga_prj", "dic"));
+			SG_Get_Projections().Load_DB        (SG_File_Make_Path(SHARE_PATH, "saga_prj", "srs"));
+
+			SG_UI_Msg_Lock(false);
+		}
+	}
+	#endif
+		
 	return( true );
 }
 

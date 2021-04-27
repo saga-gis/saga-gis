@@ -302,10 +302,10 @@ public:
 	CSG_Array(void);
 	~CSG_Array(void);
 
-	CSG_Array		(const CSG_Array &Array);
+	CSG_Array							(const CSG_Array &Array);
 	void *				Create			(const CSG_Array &Array);
 
-	CSG_Array		(size_t Value_Size, size_t nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0);
+	CSG_Array							(size_t Value_Size, size_t nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0);
 	void *				Create			(size_t Value_Size, size_t nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0);
 
 	void				Destroy			(void);
@@ -1568,6 +1568,16 @@ SAGA_API_DLL_EXPORT bool					SG_UI_ODBC_Update			(const CSG_String &Server);
 
 SAGA_API_DLL_EXPORT void *					SG_UI_Get_Window_Main		(void);
 SAGA_API_DLL_EXPORT CSG_String				SG_UI_Get_Application_Path	(void);
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                     Environment                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+SAGA_API_DLL_EXPORT bool					SG_Initialize_Environment	(bool bLibraries = true, bool bProjections = true, const SG_Char *Directory = NULL);
 
 
 ///////////////////////////////////////////////////////////

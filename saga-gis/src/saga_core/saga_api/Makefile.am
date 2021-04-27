@@ -1,16 +1,20 @@
 #
 # $Id$
 #
-if DEBUG
-DBGFLAGS = -g -DDEBUG
-endif
-
 if SAGA_PYTHON
-SAGAPYTHONFLAGS= -D_SAGA_PYTHON
+SAGAPYFLAGS = -D_SAGA_PYTHON
 endif
 
-AM_CXXFLAGS = -fPIC -Wall `wx-config --unicode=yes --cxxflags base` -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_API_EXPORTS $(DISABLELIBHARU) $(DBGFLAGS) $(SAGAPYTHONFLAGS) $(GOMPFLAGS)
-AM_LDFLAGS = -fPIC -shared -Wall `wx-config --unicode=yes --libs base,net,xml,html` $(HARU_LIB) $(SAGAPYTHONFLAGS)
+if DEBUG
+DBGFLAGS    = -g -DDEBUG
+endif
+
+MTOOLSPATH  = "TOOLS_PATH=\"$(libdir)/saga\""
+MSHAREPATH  = "SHARE_PATH=\"$(prefix)/share/saga\""
+BASEFLAGS   = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D$(MTOOLSPATH) -D$(MSHAREPATH) -I..
+
+AM_CXXFLAGS = -fPIC -Wall `wx-config --unicode=yes --cxxflags base` $(BASEFLAGS) $(GOMPFLAGS) $(DBGFLAGS) $(SAGAPYFLAGS)
+AM_LDFLAGS  = -fPIC -shared -Wall `wx-config --unicode=yes --libs base,net,xml,html` $(SAGAPYFLAGS)
 
 libsaga_api_la_LDFLAGS =$(AM_LDFLAGS) -release $(VERSION)
 
@@ -138,7 +142,7 @@ install-exec-hook:
 if SAGA_PYTHON
 SWIGUNICODEFLAGS = -D_SWIG_WCHAR
 
-_saga_api_la_CPPFLAGS = $(PYTHON_CPPFLAGS) $(SWIGUNICODEFLAGS) $(DISABLELIBHARU)
+_saga_api_la_CPPFLAGS = $(PYTHON_CPPFLAGS) $(SWIGUNICODEFLAGS)
 _saga_api_la_LDFLAGS = -module -release $(VERSION) $(SWIG_LIB)
 nodist__saga_api_la_SOURCES = saga_api_wrap.cxx
 _saga_api_la_LIBADD = libsaga_api.la
@@ -147,7 +151,7 @@ pyexec_LTLIBRARIES = _saga_api.la
 nodist_pyexec_PYTHON = saga_api.py
 
 saga_api_wrap.cxx:
-	$(SWIG) -includeall -python $(SWIGUNICODEFLAGS) $(DISABLELIBHARU) $(SAGAPYTHONFLAGS) ./saga_api.h 
+	$(SWIG) -includeall -python $(SWIGUNICODEFLAGS) $(SAGAPYFLAGS) ./saga_api.h 
 endif
 
 CLEANFILES = saga_api_wrap.cxx

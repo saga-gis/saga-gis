@@ -38,9 +38,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -155,27 +153,8 @@ bool CSAGA::OnInit(void)
 	wxYield();
 
 	//-----------------------------------------------------
-	#if defined(_SAGA_MSW)
-		wxString	Path, DLL_Path	= Get_App_Path() + "\\dll";
-
-		if( wxGetEnv("PATH", &Path) && Path.Length() > 0 )
-		{
-			wxSetEnv("PATH", DLL_Path + ";" + Path);
-		}
-		else
-		{
-			wxSetEnv("PATH", DLL_Path);
-		}
-
-		wxSetEnv("GDAL_DRIVER_PATH", DLL_Path);
-		wxSetEnv("PROJ_LIB"        , DLL_Path + "\\proj-data");
-		wxSetEnv("GDAL_DATA"       , DLL_Path + "\\gdal-data");
-	#endif // defined(_SAGA_MSW)
-
-	//-----------------------------------------------------
 	wxString	File;
 
-	//-----------------------------------------------------
 	if( !CONFIG_Read("/TOOLS", "LNG_FILE_DIC", File) || !wxFileExists(File) )
 	{
 		File	= wxFileName(Get_App_Path(), "saga", "lng").GetFullPath();
@@ -190,35 +169,7 @@ bool CSAGA::OnInit(void)
 	long oldstyle; if( CONFIG_Read("/TOOLS", "LNG_OLDSTYLE", oldstyle) && oldstyle ) SG_Set_OldStyle_Naming();
 	//-----------------------------------------------------
 
-	//-----------------------------------------------------
-	if( !CONFIG_Read("/TOOLS", "CRS_FILE_DIC", File) || !wxFileExists(File) )
-	{
-	#if defined(_SAGA_LINUX)
-		File	= wxFileName(SHARE_PATH    , "saga_prj", "dic").GetFullPath();
-	#else //#if defined(_SAGA_MSW)
-		File	= wxFileName(Get_App_Path(), "saga_prj", "dic").GetFullPath();
-	#endif
-	}
-
-	if( !SG_Get_Projections().Load_Dictionary(&File) )
-	{
-		CONFIG_Delete("/TOOLS", "CRS_FILE_DIC");
-	}
-
-	//-----------------------------------------------------
-	if( !CONFIG_Read("/TOOLS", "CRS_FILE_SRS", File) || !wxFileExists(File) )
-	{
-	#if defined(_SAGA_LINUX)
-		File	= wxFileName(SHARE_PATH    , "saga_prj", "srs").GetFullPath();
-	#else // #if defined(_SAGA_MSW)
-		File	= wxFileName(Get_App_Path(), "saga_prj", "srs").GetFullPath();
-	#endif
-	}
-
-	if( !SG_Get_Projections().Load_DB(&File) )
-	{
-		CONFIG_Delete("/TOOLS", "CRS_FILE_SRS");
-	}
+	SG_Initialize_Environment(false);
 
 	//-----------------------------------------------------
 	SetTopWindow(new CSAGA_Frame());
