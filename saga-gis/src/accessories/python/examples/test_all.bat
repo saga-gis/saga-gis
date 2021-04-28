@@ -8,11 +8,11 @@ ECHO #
 ECHO ##################################
 ECHO.
 
+PUSHD %~dp0
+
 REM Adjust here the paths to your SAGA and Python installations:
-REM SET SAGA_PATH=%SAGA%\bin\saga_vc_win32
-REM SET PYTHON_EXE=C:\Python27\ArcGIS10.5\python.exe
 SET SAGA_PATH=%SAGA%\bin\saga_vc_x64
-SET PYTHON_EXE=F:\develop\libs\Python\Python35_x64\PCbuild\amd64\python.exe
+SET PYTHON_EXE=F:\develop\libs\Python\Python35_x64\python.exe
 
 %PYTHON_EXE% 00_grid_create_dummy.py
 %PYTHON_EXE% 01_grid_asc_to_saga.py

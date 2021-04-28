@@ -1356,49 +1356,29 @@ void CSG_Tool::_Get_Script_CMD(CSG_String &Script, CSG_Parameters *pParameters, 
 //---------------------------------------------------------
 CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 {
-	CSG_String	Script;
+	CSG_String	Script, Name(Get_Name()); Name.Replace(" ", "_"); Name.Replace("(", ""); Name.Replace(")", ""); Name.Replace("[", ""); Name.Replace("]", "");
 
 	//-----------------------------------------------------
 	if( bHeader )
 	{
-		Script	+= "#! /usr/bin/env python\n";
-		Script	+= "\n";
-		Script	+= "#_________________________________________\n";
-		Script	+= "# Initialize the environment...\n";
-		Script	+= "\n";
-		Script	+= "import os\n";
-		Script	+= "\n";
-		Script	+= "if os.name == 'nt': # Windows\n";
-		Script	+= "    if os.getenv('SAGA_PATH') is None: # in case you did not define a 'SAGA_PATH' environment variable pointing to your SAGA installation directory\n";
-		Script	+= "        os.environ['SAGA_PATH'] = 'C:/saga_win32'\n";
-		Script	+= "    os.environ['PATH'     ] = os.environ['SAGA_PATH'] + os.sep +    ';' + os.environ['PATH']\n";
-		Script	+= "    os.environ['PATH'     ] = os.environ['SAGA_PATH'] + os.sep + 'dll;' + os.environ['PATH']\n";
-		Script	+= "    os.environ['PROJ_LIB' ] = os.environ['SAGA_PATH'] + os.sep + 'dll' + os.sep + 'proj-data'\n";
-		Script	+= "    os.environ['GDAL-DATA'] = os.environ['SAGA_PATH'] + os.sep + 'dll' + os.sep + 'gdal-data'\n";
-		Script	+= "    Dir_Tools = os.environ['SAGA_PATH'] + os.sep + 'tools'\n";
-		Script	+= "else:               # Linux\n";
-		Script	+= "    Dir_Tools = '/usr/local/lib/saga' # you might have to adjust this path to your system\n";
-		Script	+= "\n";
-		Script	+= "import sys, saga_api\n";
-		Script	+= "\n";
-		Script	+= "\n";
-		Script += "#_________________________________________\n";
-		Script += "# Load the tools...\n";
-		Script += "\n";
-		Script += "saga_api.SG_UI_Msg_Lock(True) # avoid too much noise\n";
-		Script += "saga_api.SG_Get_Tool_Library_Manager().Add_Directory(Dir_Tools, False)\n";
-		Script += "if os.getenv('SAGA_TLB') is not None:\n";
-		Script += "    saga_api.SG_Get_Tool_Library_Manager().Add_Directory(os.environ['SAGA_TLB'], False)\n";
-		Script += "saga_api.SG_UI_Msg_Lock(False)\n";
-		Script += "\n";
+		Script += "#! /usr/bin/env python\n";
 		Script += "\n";
 		Script += "#_________________________________________\n";
-		Script += "# Print versions and number of loaded tools...\n";
+		Script += "##########################################\n";
+		Script += "# Initialize the environment...\n";
 		Script += "\n";
-		Script += "print('Python - Version ' + sys.version)\n";
-		Script += "print(saga_api.SAGA_API_Get_Version())\n";
-		Script += "print('number of loaded libraries: ' + str(saga_api.SG_Get_Tool_Library_Manager().Get_Count()))\n";
-		Script += "print()\n";
+		Script += "import os\n";
+		Script += "\n";
+		Script += "if os.name == 'nt': # Windows\n";
+		Script += "    if os.getenv('SAGA_PATH') is None: # in case you did not define a 'SAGA_PATH' environment variable pointing to your SAGA installation directory\n";
+		Script += "        os.environ['SAGA_PATH'] = 'C:\\saga_win32'\n";
+		Script += "    os.environ['PATH'] = os.environ['SAGA_PATH'] + '\\;' + os.environ['PATH']\n";
+		Script += "\n";
+		Script += "import saga_api\n";
+		Script += "\n";
+		Script += "saga_api.SG_Initialize_Environment(True, True, os.environ['SAGA_PATH'])\n";
+		Script += "\n";
+		Script += "print('{:s}\\n[{:d} libraries, {:d} tools]\\n'.format(saga_api.SAGA_API_Get_Version(), saga_api.SG_Get_Tool_Library_Manager().Get_Count(), saga_api.SG_Get_Tool_Library_Manager().Get_Tool_Count()))\n";
 		Script += "\n";
 		Script += "\n";
 		Script += "#_________________________________________\n";
@@ -1406,7 +1386,7 @@ CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 	}
 
 	//-----------------------------------------------------
-	Script += "def Run_SAGA_Tool(File):\n";
+	Script += "def Run_" + Name + "(File):\n";
 
 	if( bHeader )
 	{
@@ -1516,7 +1496,7 @@ CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 		Script += "    File = sys.argv[1]\n";
 		Script += "\n";
 		Script += "    #____________________________________\n";
-		Script += "    Run_SAGA_Tool(File)\n";
+		Script += "    Run_" + Name + "(File):\n";
 	}
 
 	return( Script );
