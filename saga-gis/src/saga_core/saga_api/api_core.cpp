@@ -282,8 +282,8 @@ bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char
 	{
 		if( bLibraries )
 		{
-			Load_Libraries(TOOLS_PATH);
-			Load_Libraries(SG_File_Make_Path(SHARE_PATH, "toolchains"));	// look for tool chains
+			SG_Get_Tool_Library_Manager().Add_Directory(TOOLS_PATH);
+			SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(SHARE_PATH, "toolchains"));	// look for tool chains
 		}
 
 		if( bProjections )
