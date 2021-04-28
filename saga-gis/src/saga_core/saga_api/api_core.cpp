@@ -235,7 +235,10 @@ bool SG_Data_Type_Range_Check(TSG_Data_Type Type, double &Value)
 //---------------------------------------------------------
 bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char *Directory)
 {
-	#if defined(_SAGA_MSW)
+	SG_UI_ProgressAndMsg_Lock(true);
+
+	//-----------------------------------------------------
+	#ifdef _SAGA_MSW
 	{
 		wxString App_Path, Dll_Path, Path;
 
@@ -260,8 +263,8 @@ bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char
 		}
 
 		wxSetEnv("GDAL_DRIVER_PATH", Dll_Path);
-		wxSetEnv("PROJ_LIB"        , Dll_Path + "\\proj-data");
 		wxSetEnv("GDAL_DATA"       , Dll_Path + "\\gdal-data");
+		wxSetEnv("PROJ_LIB"        , Dll_Path + "\\proj-data");
 
 		if( bLibraries )
 		{
@@ -270,15 +273,11 @@ bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char
 
 		if( bProjections )
 		{
-			SG_UI_ProgressAndMsg_Lock(true);
-
 			SG_Get_Projections().Load_Dictionary(SG_File_Make_Path(&App_Path, "saga_prj", "dic"));
 			SG_Get_Projections().Load_DB        (SG_File_Make_Path(&App_Path, "saga_prj", "srs"));
-
-			SG_UI_ProgressAndMsg_Lock(false);
 		}
 	}
-	#else // #if defined(_SAGA_LINUX)
+	#else // #ifdef _SAGA_LINUX
 	{
 		if( bLibraries )
 		{
@@ -288,16 +287,35 @@ bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char
 
 		if( bProjections )
 		{
-			SG_UI_Msg_Lock(true);
-
 			SG_Get_Projections().Load_Dictionary(SG_File_Make_Path(SHARE_PATH, "saga_prj", "dic"));
 			SG_Get_Projections().Load_DB        (SG_File_Make_Path(SHARE_PATH, "saga_prj", "srs"));
-
-			SG_UI_Msg_Lock(false);
 		}
 	}
 	#endif
 		
+	//-----------------------------------------------------
+	if( bLibraries )
+	{
+		wxString Path;
+
+		if( wxGetEnv("SAGA_TLB", &Path) && SG_Dir_Exists(&Path) )
+		{
+			#ifdef _SAGA_MSW
+				CSG_Strings	Paths = SG_String_Tokenize(&Path, ";" ); // colon (':') would split drive from paths!
+			#else // #ifdef _SAGA_LINUX
+				CSG_Strings	Paths = SG_String_Tokenize(&Path, ";:"); // colon (':') is more native to non-windows os than semi-colon (';'), we support both...
+			#endif
+
+			for(int i=0; i<Paths.Get_Count(); i++)
+			{
+				SG_Get_Tool_Library_Manager().Add_Directory(Paths[i]);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	SG_UI_ProgressAndMsg_Lock(false);
+
 	return( true );
 }
 

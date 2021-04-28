@@ -380,24 +380,6 @@ bool		Load_Libraries(void)
 
 	SG_Initialize_Environment();	// loads default tools
 
-	//-----------------------------------------------------
-	wxString Path;
-
-	if( (wxGetEnv("SAGA_TLB", &Path) || wxGetEnv("SAGA_MLB", &Path)) && !Path.IsEmpty() )
-	{
-		#if defined(_SAGA_MSW)
-			CSG_String_Tokenizer	Paths(&Path, ";");	// colon (':') would split drive from paths!
-		#else
-			CSG_String_Tokenizer	Paths(&Path, ";:");	// colon (':') is more native to non-windows os than semi-colon (';'), we support both...
-		#endif
-
-		while( Paths.Has_More_Tokens() )
-		{
-			SG_Get_Tool_Library_Manager().Add_Directory(Paths.Get_Next_Token(), false);
-		}
-	}
-
-	//-----------------------------------------------------
 	CMD_Set_Show_Messages(bShow);
 
 	if( SG_Get_Tool_Library_Manager().Get_Count() <= 0 )
