@@ -317,6 +317,24 @@ CSG_Tool_Library_Manager::~CSG_Tool_Library_Manager(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CSG_Tool_Library_Manager::Get_Tool_Count(void)	const
+{
+	int	nTools	= 0;
+
+	for(int i=0; i<m_nLibraries; i++)
+	{
+		nTools	+= m_pLibraries[i]->Get_Count();
+	}
+
+	return( nTools );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CSG_Tool_Library * CSG_Tool_Library_Manager::Add_Library(const CSG_String &File)
 {
 	//-----------------------------------------------------

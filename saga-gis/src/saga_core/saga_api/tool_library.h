@@ -191,6 +191,7 @@ public:
 	bool						Destroy				(void);
 
 	int							Get_Count			(void)	const	{	return( m_nLibraries );	}
+	int							Get_Tool_Count		(void)	const;
 
 	CSG_Tool_Library *			Add_Library			(const CSG_String &File);
 	CSG_Tool_Library *			Add_Library			(const char       *File);
