@@ -276,12 +276,10 @@ bool CWKSP_Tool_Manager::Initialise(void)
 	//-----------------------------------------------------
 	if( SG_Get_Tool_Library_Manager().Get_Count() == 0 )
 	{
-		On_Command(ID_CMD_TOOL_RELOAD);
+		return( _Reload() );
 	}
 
-	_Update(false);
-
-	return( true );
+	return( _Update(false) );
 }
 
 //---------------------------------------------------------
@@ -454,13 +452,7 @@ bool CWKSP_Tool_Manager::On_Command(int Cmd_ID)
 		break;
 
 	case ID_CMD_TOOL_RELOAD:
-		#if defined(_SAGA_LINUX)
-			SG_Get_Tool_Library_Manager().Add_Directory(CSG_String(TOOLS_PATH), false);
-			SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(SHARE_PATH, "toolchains"), false);
-		#else
-			SG_Get_Tool_Library_Manager().Add_Directory(CSG_String(&g_pSAGA->Get_App_Path()) + "/tools", false);
-		#endif
-			_Update(false);
+		_Reload();
 		break;
 
 	case ID_CMD_TOOL_SEARCH:
@@ -502,8 +494,8 @@ bool CWKSP_Tool_Manager::On_Command_UI(wxUpdateUIEvent &event)
 		return( CWKSP_Base_Manager::On_Command_UI(event) );
 
 	case ID_CMD_WKSP_ITEM_CLOSE:
-	case ID_CMD_TOOL_SEARCH:
-	case ID_CMD_TOOL_SAVE_DOCS:
+	case ID_CMD_TOOL_SEARCH    :
+	case ID_CMD_TOOL_SAVE_DOCS :
 		event.Enable(Get_Count() > 0 && g_pTool == NULL);
 		break;
 	}
@@ -581,6 +573,35 @@ CWKSP_Tool_Library * CWKSP_Tool_Manager::Get_Library(CSG_Tool_Library *pLibrary)
 	}
 
 	return( NULL );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Tool_Manager::_Reload(void)
+{
+	#ifdef _SAGA_MSW
+		SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(&g_pSAGA->Get_App_Path(), "tools"));
+	#else // #ifdef _SAGA_LINUX
+		SG_Get_Tool_Library_Manager().Add_Directory(TOOLS_PATH);
+		SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(SHARE_PATH, "toolchains"));	// look for tool chains
+	#endif
+
+	wxString Path;
+
+	if( wxGetEnv("SAGA_TLB", &Path) && SG_Dir_Exists(&Path) )
+	{
+		#ifdef _SAGA_MSW
+			CSG_Strings	Paths = SG_String_Tokenize(&Path, ";" ); // colon (':') would split drive from paths!
+		#else // #ifdef _SAGA_LINUX
+			CSG_Strings	Paths = SG_String_Tokenize(&Path, ";:"); // colon (':') is more native to non-windows os than semi-colon (';'), we support both...
+		#endif
+
+		for(int i=0; i<Paths.Get_Count(); i++)
+		{
+			SG_Get_Tool_Library_Manager().Add_Directory(Paths[i]);
+		}
+	}
+
+	return( _Update(false) );
 }
 
 //---------------------------------------------------------

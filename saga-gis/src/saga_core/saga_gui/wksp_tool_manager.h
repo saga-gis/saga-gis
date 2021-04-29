@@ -121,6 +121,7 @@ private:
 	class CWKSP_Tool_Menu			*m_pMenu_Tools;
 
 
+	bool							_Reload				(void);
 	bool							_Update				(bool bSyncToCtrl);
 
 };
