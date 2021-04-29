@@ -298,7 +298,7 @@ bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char
 	{
 		wxString Path;
 
-		if( wxGetEnv("SAGA_TLB", &Path) && SG_Dir_Exists(&Path) )
+		if( wxGetEnv("SAGA_TLB", &Path) )
 		{
 			#ifdef _SAGA_MSW
 				CSG_Strings	Paths = SG_String_Tokenize(&Path, ";" ); // colon (':') would split drive from paths!
