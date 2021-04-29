@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -43,17 +40,9 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -69,7 +58,6 @@
 //---------------------------------------------------------
 CRemove_Duplicates::CRemove_Duplicates(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Remove Duplicate Points"));
 
 	Set_Author		("O.Conrad (c) 2008");
@@ -236,12 +224,9 @@ bool CRemove_Duplicates::On_Execute(void)
 //---------------------------------------------------------
 void CRemove_Duplicates::Set_Attributes(CSG_Shape *pPoint, CSG_PRQuadTree_Leaf_List *pList)
 {
-	int			iDuplicate;
-	double		dKeep;
-	CSG_Shape	*pKeep	= NULL;
+	CSG_Shape	*pKeep	= NULL;	double	dKeep;
 
-	//-----------------------------------------------------
-	for(iDuplicate=0; iDuplicate<pList->Get_Count(); iDuplicate++)
+	for(int iDuplicate=0; iDuplicate<pList->Get_Count(); iDuplicate++)
 	{
 		CSG_Shape	*pDuplicate	= m_pPoints->Get_Shape((int)pList->Get_Value(iDuplicate));
 
@@ -292,7 +277,7 @@ void CRemove_Duplicates::Set_Attributes(CSG_Shape *pPoint, CSG_PRQuadTree_Leaf_L
 			{
 				CSG_Simple_Statistics	s;
 
-				for(iDuplicate=0; iDuplicate<pList->Get_Count(); iDuplicate++)
+				for(int iDuplicate=0; iDuplicate<pList->Get_Count(); iDuplicate++)
 				{
 					CSG_Shape	*pDuplicate	= m_pPoints->Get_Shape((int)pList->Get_Value(iDuplicate));
 
@@ -304,9 +289,9 @@ void CRemove_Duplicates::Set_Attributes(CSG_Shape *pPoint, CSG_PRQuadTree_Leaf_L
 
 				switch( m_Numeric )
 				{
-				case 1:	pPoint->Set_Value(iField, s.Get_Minimum());	break;	// minimun value
-				case 2:	pPoint->Set_Value(iField, s.Get_Maximum());	break;	// maximum value
-				case 3:	pPoint->Set_Value(iField, s.Get_Mean   ());	break;	// mean value
+				case 1: pPoint->Set_Value(iField, s.Get_Minimum()); break;	// minimun value
+				case 2: pPoint->Set_Value(iField, s.Get_Maximum()); break;	// maximum value
+				case 3: pPoint->Set_Value(iField, s.Get_Mean   ()); break;	// mean value
 				}
 			}
 		}

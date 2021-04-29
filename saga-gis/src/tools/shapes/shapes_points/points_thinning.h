@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: points_thinning.h 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,18 +45,19 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 #ifndef HEADER_INCLUDED__points_thinning_H
 #define HEADER_INCLUDED__points_thinning_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -77,23 +75,34 @@ public:
 
 protected:
 
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
 	virtual bool				On_Execute				(void);
 
 
 private:
 
+	int							m_Field;
+
 	double						m_Resolution;
 
-	CSG_PRQuadTree				m_Search;
+	CSG_Shapes					*m_pPoints, *m_pThinned;
 
-	CSG_Shapes					*m_pPoints;
+	CSG_PRQuadTree				m_QuadTree;
+
+	CSG_Grid_System				m_Raster[4];
 
 
-	bool						Set_Search_Engine		(CSG_Shapes *pPoints, int Field);
+	CSG_Rect					Get_Extent				(int Method);
 
-	void						Get_Points				(CSG_PRQuadTree_Item            *pItem);
-	void						Add_Point				(CSG_PRQuadTree_Leaf            *pLeaf);
-	void						Add_Point				(CSG_PRQuadTree_Node_Statistics *pNode);
+	void						Add_Point				(double x, double y, int Count, double Mean, double Minimum, double Maximum, double StdDev);
+
+	bool						Raster_Execute			(const CSG_Rect &Extent);
+
+	bool						QuadTree_Execute		(const CSG_Rect &Extent);
+	void						QuadTree_Get_Points		(CSG_PRQuadTree_Item            *pItem);
+	void						QuadTree_Add_Point		(CSG_PRQuadTree_Leaf            *pLeaf);
+	void						QuadTree_Add_Point		(CSG_PRQuadTree_Node_Statistics *pNode);
 
 };
 

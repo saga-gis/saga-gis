@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: points_thinning.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,12 +45,6 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 #include "points_thinning.h"
 
@@ -67,16 +58,24 @@
 //---------------------------------------------------------
 CPoints_Thinning::CPoints_Thinning(void)
 {
-	Set_Name		(_TL("Points Thinning"));
+	Set_Name		(_TL("Point Thinning"));
 
 	Set_Author		("O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
-		"Points Thinning."
+		"The Points Thinning tool aggregates points at a level "
+		"that fits the specified resolution. The information of "
+		"those points that become aggregated is based on basic "
+		"statistics, i.e. mean values for coordinates and mean, "
+		"minimum, maximum, standard deviation for the selected "
+		"attribute. Due to the underlying spatial structure "
+		"the quadtree and the raster method lead to differing, "
+		"though comparable results. "
+
 	));
 
 	Parameters.Add_Shapes("",
-		"POINTS"		, _TL("Points"),
+		"POINTS"	, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
@@ -86,17 +85,55 @@ CPoints_Thinning::CPoints_Thinning(void)
 		_TL("")
 	);
 
+	Parameters.Add_Bool("",
+		"OUTPUT_PC"	, _TL("Output to Point Cloud"),
+		_TL(""),
+		false
+	);
+
 	Parameters.Add_Shapes("",
-		"THINNED"		, _TL("Thinned Points"),
+		"THINNED"	, _TL("Thinned Points"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
+	Parameters.Add_PointCloud("",
+		"THINNED_PC", _TL("Thinned Points"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
 	Parameters.Add_Double("",
-		"RESOLUTION"	, _TL("Resolution"),
+		"RESOLUTION", _TL("Resolution"),
 		_TL(""),
 		1., 0., true
 	);
+
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Method"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("quadtree"),
+			_TL("raster")
+		), 1
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CPoints_Thinning::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("OUTPUT_PC") )
+	{
+		pParameters->Set_Enabled("THINNED"   , pParameter->asBool() == false);
+		pParameters->Set_Enabled("THINNED_PC", pParameter->asBool() ==  true);
+	}
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -107,65 +144,79 @@ CPoints_Thinning::CPoints_Thinning(void)
 //---------------------------------------------------------
 bool CPoints_Thinning::On_Execute(void)
 {
-	int			Field;
-	CSG_Shapes	*pPoints;
+	m_pPoints	= Parameters("POINTS")->asShapes();
 
-	//-----------------------------------------------------
-	pPoints			= Parameters("POINTS"    )->asShapes();
-	Field			= Parameters("FIELD"     )->asInt();
-	m_pPoints		= Parameters("THINNED"   )->asShapes();
-	m_Resolution	= Parameters("RESOLUTION")->asDouble();
-
-	//-----------------------------------------------------
-	if( m_Resolution <= 0.0 )
-	{
-		Error_Set(_TL("resolution has to be greater than zero"));
-
-		return( false );
-	}
-
-	if( !pPoints->is_Valid() )
+	if( !m_pPoints->is_Valid() )
 	{
 		Error_Set(_TL("invalid points layer"));
 
 		return( false );
 	}
 
-	if( pPoints->Get_Count() < 2 )
+	if( m_pPoints->Get_Count() < 2 )
 	{
-		Error_Set(_TL("not more than one point in layer"));
-
-		return( false );
-	}
-
-	if( !Set_Search_Engine(pPoints, Field) )
-	{
-		Error_Set(_TL("failed to initialise search engine"));
+		Error_Set(_TL("nothing to do, there are less than two points in layer"));
 
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	m_pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format("%s [%s]", pPoints->Get_Name(), pPoints->Get_Field_Name(Field)));
-	m_pPoints->Add_Field(_TL("Count"  ), SG_DATATYPE_Int   );
-	m_pPoints->Add_Field(_TL("Mean"   ), SG_DATATYPE_Double);
-	m_pPoints->Add_Field(_TL("Minimun"), SG_DATATYPE_Double);
-	m_pPoints->Add_Field(_TL("Maximun"), SG_DATATYPE_Double);
-	m_pPoints->Add_Field(_TL("StdDev" ), SG_DATATYPE_Double);
+	m_Resolution	= Parameters("RESOLUTION")->asDouble();
 
-	pPoints->Select();
+	if( m_Resolution <= 0. )
+	{
+		Error_Set(_TL("resolution has to be greater than zero"));
+
+		return( false );
+	}
+
+	if( m_Resolution >= m_pPoints->Get_Extent().Get_XRange()
+	&&  m_Resolution >= m_pPoints->Get_Extent().Get_YRange() )
+	{
+		Error_Set(_TL("nothing to do, resolution needs to be set smaller than the points' extent"));
+
+		return( false );
+	}
 
 	//-----------------------------------------------------
-	Get_Points(m_Search.Get_Root_Pointer());
+	m_pPoints->Select();
+
+	if( Parameters("OUTPUT_PC")->asBool() )
+	{
+		m_pThinned	= Parameters("THINNED_PC")->asShapes();
+		m_pThinned->asPointCloud()->Create();
+	}
+	else
+	{
+		m_pThinned	= Parameters("THINNED"   )->asShapes();
+		m_pThinned->asShapes    ()->Create(SHAPE_TYPE_Point);
+	}
+
+	m_Field		= Parameters("FIELD")->asInt();
+
+	m_pThinned->Fmt_Name("%s [%s]", m_pPoints->Get_Name(), m_pPoints->Get_Field_Name(m_Field));
+
+	m_pThinned->Add_Field("Count"  , SG_DATATYPE_Int   );
+	m_pThinned->Add_Field("Mean"   , SG_DATATYPE_Double);
+	m_pThinned->Add_Field("Minimun", SG_DATATYPE_Double);
+	m_pThinned->Add_Field("Maximun", SG_DATATYPE_Double);
+	m_pThinned->Add_Field("StdDev" , SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
-	if( m_pPoints->Get_Count() == pPoints->Get_Count() )
+	switch( Parameters("METHOD")->asInt() )
+	{
+	default: if( !QuadTree_Execute(Get_Extent(0)) ) { return( false ); } break;
+	case  1: if( !  Raster_Execute(Get_Extent(1)) ) { return( false ); } break;
+	}
+
+	//-----------------------------------------------------
+	if( m_pThinned->Get_Count() == m_pPoints->Get_Count() )
 	{
 		Message_Add(_TL("no points removed"));
 	}
 	else
 	{
-		Message_Fmt("\n%d %s", pPoints->Get_Count() - m_pPoints->Get_Count(), _TL("no points removed"));
+		Message_Fmt("\n%d %s", m_pPoints->Get_Count() - m_pThinned->Get_Count(), _TL("points removed"));
 	}
 
 	return( true );
@@ -177,67 +228,161 @@ bool CPoints_Thinning::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPoints_Thinning::Set_Search_Engine(CSG_Shapes *pPoints, int Field)
+CSG_Rect CPoints_Thinning::Get_Extent(int Method)
 {
-	CSG_Rect	r(pPoints->Get_Extent());
-
-	r.Assign(
-		r.Get_XCenter() - 0.5 * m_Resolution,
-		r.Get_YCenter() - 0.5 * m_Resolution,
-		r.Get_XCenter() + 0.5 * m_Resolution,
-		r.Get_YCenter() + 0.5 * m_Resolution
-	);
-
-	while( r.Intersects(pPoints->Get_Extent()) != INTERSECTION_Contains )
+	if( Method == 0 )
 	{
-		r.Inflate(200.0);
+		CSG_Rect	Extent(m_pPoints->Get_Extent());
+
+		Extent.Assign(
+			Extent.Get_XCenter() - 0.5 * m_Resolution, Extent.Get_YCenter() - 0.5 * m_Resolution,
+			Extent.Get_XCenter() + 0.5 * m_Resolution, Extent.Get_YCenter() + 0.5 * m_Resolution
+		);
+
+		while( Extent.Intersects(m_pPoints->Get_Extent()) != INTERSECTION_Contains )
+		{
+			Extent.Inflate(200.);
+		}
+
+		return( Extent );
 	}
 
-	if( !m_Search.Create(r, true) )
+	//-----------------------------------------------------
+	CSG_Rect	Extent(m_pPoints->Get_Extent());
+
+	double	dx = 0.5 * m_Resolution * (1 + (int)(Extent.Get_XRange() / m_Resolution));
+	double	dy = 0.5 * m_Resolution * (1 + (int)(Extent.Get_YRange() / m_Resolution));
+
+	Extent.Assign(
+		Extent.Get_XCenter() - dx, Extent.Get_YCenter() - dy,
+		Extent.Get_XCenter() + dx, Extent.Get_YCenter() + dy
+	);
+
+	return( Extent );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+inline void CPoints_Thinning::Add_Point(double x, double y, int Count, double Mean, double Minimum, double Maximum, double StdDev)
+{
+	if( m_pThinned->asPointCloud() )
 	{
+		m_pThinned->asPointCloud()->Add_Point    (x, y, Mean);
+		m_pThinned->asPointCloud()->Set_Attribute(0, Count  );
+		m_pThinned->asPointCloud()->Set_Attribute(1, Mean   );
+		m_pThinned->asPointCloud()->Set_Attribute(2, Minimum);
+		m_pThinned->asPointCloud()->Set_Attribute(3, Maximum);
+		m_pThinned->asPointCloud()->Set_Attribute(4, StdDev );
+	}
+	else if( m_pThinned->asShapes() )
+	{
+		CSG_Shape	*pPoint	= m_pThinned->Add_Shape();
+
+		pPoint->Add_Point(x, y);
+
+		pPoint->Set_Value(0, Count  );
+		pPoint->Set_Value(1, Mean   );
+		pPoint->Set_Value(2, Minimum);
+		pPoint->Set_Value(3, Maximum);
+		pPoint->Set_Value(4, StdDev );
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CPoints_Thinning::QuadTree_Execute(const CSG_Rect &Extent)
+{
+	Process_Set_Text(_TL("initializing..."));
+
+	if( !m_QuadTree.Create(Extent, true) )
+	{
+		Error_Set(_TL("initialization failed"));
+
 		return( false );
 	}
 
-	for(int i=0; i<pPoints->Get_Count() && Set_Progress(i, pPoints->Get_Count()); i++)
+	for(int i=0; i<m_pPoints->Get_Count() && Set_Progress(i, m_pPoints->Get_Count()); i++)
 	{
-		CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
+		CSG_Shape	*pPoint	= m_pPoints->Get_Shape(i);
 
-		m_Search.Add_Point(
-			pPoint->Get_Point(0).x,
-			pPoint->Get_Point(0).y,
-			pPoint->asDouble(Field)
-		);
+		m_QuadTree.Add_Point(pPoint->Get_Point(0), pPoint->asDouble(m_Field));
 	}
+
+	//-----------------------------------------------------
+	Process_Set_Text(_TL("evaluating..."));
+
+	QuadTree_Get_Points(m_QuadTree.Get_Root_Pointer());
+
+	m_QuadTree.Destroy();
 
 	return( true );
 }
 
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-void CPoints_Thinning::Get_Points(CSG_PRQuadTree_Item *pItem)
+void CPoints_Thinning::QuadTree_Get_Points(CSG_PRQuadTree_Item *pItem)
 {
 	if( pItem )
 	{
 		if( pItem->is_Leaf() )
 		{
-			Add_Point(pItem->asLeaf());
+			QuadTree_Add_Point(pItem->asLeaf());
 		}
 		else if( pItem->Get_Size() <= m_Resolution )
 		{
-			Add_Point((CSG_PRQuadTree_Node_Statistics *)pItem);
+			QuadTree_Add_Point((CSG_PRQuadTree_Node_Statistics *)pItem);
 		}
-		else
+		else for(int i=0; i<4; i++)
 		{
-			for(int i=0; i<4; i++)
-			{
-				Get_Points(pItem->asNode()->Get_Child(i));
-			}
+			QuadTree_Get_Points(pItem->asNode()->Get_Child(i));
 		}
 	}
+}
+
+//---------------------------------------------------------
+inline void CPoints_Thinning::QuadTree_Add_Point(CSG_PRQuadTree_Leaf *pLeaf)
+{
+	if( pLeaf->has_Statistics() )
+	{
+		CSG_PRQuadTree_Leaf_List	*pList	= (CSG_PRQuadTree_Leaf_List *)pLeaf;
+
+		Add_Point(pLeaf->Get_X(), pLeaf->Get_Y(),
+	   (int)pList->Get_Count  (), // Count
+			pList->Get_Mean   (), // Mean
+			pList->Get_Minimum(), // Minimun
+			pList->Get_Maximum(), // Maximun
+			pList->Get_StdDev ()  // StdDev
+		);
+	}
+	else
+	{
+		Add_Point(pLeaf->Get_X(), pLeaf->Get_Y(),
+			1             , // Count
+			pLeaf->Get_Z(), // Mean
+			pLeaf->Get_Z(), // Minimun
+			pLeaf->Get_Z(), // Maximun
+			0.              // StdDev
+		);
+	}
+}
+
+//---------------------------------------------------------
+inline void CPoints_Thinning::QuadTree_Add_Point(CSG_PRQuadTree_Node_Statistics *pNode)
+{
+	Add_Point(pNode->Get_X()->Get_Mean(), pNode->Get_Y()->Get_Mean(),
+   (int)pNode->Get_Z()->Get_Count  (), // Count
+		pNode->Get_Z()->Get_Mean   (), // Mean
+		pNode->Get_Z()->Get_Minimum(), // Minimun
+		pNode->Get_Z()->Get_Maximum(), // Maximun
+		pNode->Get_Z()->Get_StdDev ()  // StdDev
+	);
 }
 
 
@@ -246,44 +391,81 @@ void CPoints_Thinning::Get_Points(CSG_PRQuadTree_Item *pItem)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CPoints_Thinning::Add_Point(CSG_PRQuadTree_Leaf *pLeaf)
+bool CPoints_Thinning::Raster_Execute(const CSG_Rect &Extent)
 {
-	CSG_Shape	*pPoint	= m_pPoints->Add_Shape();
+	Process_Set_Text(_TL("initializing..."));
 
-	pPoint->Add_Point(pLeaf->Get_X(), pLeaf->Get_Y());
+	CSG_Grid_System System(m_Resolution, Extent);
 
-	if( pLeaf->has_Statistics() )
+	CSG_Grid X   (System, SG_DATATYPE_Double                );
+	CSG_Grid Y   (System, SG_DATATYPE_Double                );
+	CSG_Grid N   (System, SG_DATATYPE_Word                  );
+	CSG_Grid Sum (System, SG_DATATYPE_Double                );
+	CSG_Grid Sum2(System, SG_DATATYPE_Double                );
+	CSG_Grid Min (System, m_pPoints->Get_Field_Type(m_Field));
+	CSG_Grid Max (System, m_pPoints->Get_Field_Type(m_Field));
+
+	if( !X.is_Valid() || !Y.is_Valid() || !N.is_Valid() || !Sum.is_Valid() || !Sum2.is_Valid() || !Min.is_Valid() || !Max.is_Valid() )
 	{
-		CSG_PRQuadTree_Leaf_List	*pList	= (CSG_PRQuadTree_Leaf_List *)pLeaf;
+		Error_Set(_TL("initialization failed"));
 
-		pPoint->Set_Value(0, pList->Get_Count  ());	// Count
-		pPoint->Set_Value(1, pList->Get_Mean   ());	// Mean
-		pPoint->Set_Value(2, pList->Get_Minimum());	// Minimun
-		pPoint->Set_Value(3, pList->Get_Maximum());	// Maximun
-		pPoint->Set_Value(4, pList->Get_StdDev ());	// StdDev
+		return( false );
 	}
-	else
+
+	//---------------------------------------------------------
+	for(int i=0; i<m_pPoints->Get_Count() && Set_Progress(i, m_pPoints->Get_Count()); i++)
 	{
-		pPoint->Set_Value(0, 1);					// Count
-		pPoint->Set_Value(1, pLeaf->Get_Z());		// Mean
-		pPoint->Set_Value(2, pLeaf->Get_Z());		// Minimun
-		pPoint->Set_Value(3, pLeaf->Get_Z());		// Maximun
-		pPoint->Set_Value(4, 0.0);					// StdDev
+		int	x, y;	CSG_Shape	*pPoint	= m_pPoints->Get_Shape(i);
+
+		if( System.Get_World_to_Grid(x, y, pPoint->Get_Point(0)) )
+		{
+			double	Value	= pPoint->asDouble(m_Field);
+
+			X   .Add_Value(x, y, pPoint->Get_Point(0).x);
+			Y   .Add_Value(x, y, pPoint->Get_Point(0).y);
+			N   .Add_Value(x, y, 1.);
+			Sum .Add_Value(x, y, Value);
+			Sum2.Add_Value(x, y, Value * Value);
+
+			if( N.asInt(x, y) <= 1 )
+			{
+				Max.Set_Value(x, y, Value);
+				Min.Set_Value(x, y, Value);
+			}
+			else
+			{
+				if( Max.asDouble(x, y) < Value ) { Max.Set_Value(x, y, Value); }
+				if( Min.asDouble(x, y) > Value ) { Min.Set_Value(x, y, Value); }
+			}
+		}
 	}
-}
 
-//---------------------------------------------------------
-void CPoints_Thinning::Add_Point(CSG_PRQuadTree_Node_Statistics *pNode)
-{
-	CSG_Shape	*pPoint	= m_pPoints->Add_Shape();
+	//---------------------------------------------------------
+	Process_Set_Text(_TL("evaluating..."));
 
-	pPoint->Add_Point(pNode->Get_X()->Get_Mean(), pNode->Get_Y()->Get_Mean());
+	for(int y=0; y<System.Get_NY() && Set_Progress(y, System.Get_NY()); y++)
+	{
+		for(int x=0; x<System.Get_NX(); x++)
+		{
+			int	n	= N.asInt(x, y);
 
-	pPoint->Set_Value(0, pNode->Get_Z()->Get_Count  ());	// Count
-	pPoint->Set_Value(1, pNode->Get_Z()->Get_Mean   ());	// Mean
-	pPoint->Set_Value(2, pNode->Get_Z()->Get_Minimum());	// Minimun
-	pPoint->Set_Value(3, pNode->Get_Z()->Get_Maximum());	// Maximun
-	pPoint->Set_Value(4, pNode->Get_Z()->Get_StdDev ());	// StdDev
+			if( n > 0 )
+			{
+				double	Mean	= Sum.asDouble(x, y) / n;
+
+				Add_Point(X.asDouble(x, y) / n, Y.asDouble(x, y) / n,
+					n,
+					Mean,
+					Min.asDouble(x, y),
+					Max.asDouble(x, y),
+					Sum2.asDouble(x, y) / n - Mean*Mean
+				);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 
