@@ -458,7 +458,7 @@ bool CPoints_Thinning::Raster_Execute(const CSG_Rect &Extent)
 					Mean,
 					Min.asDouble(x, y),
 					Max.asDouble(x, y),
-					Sum2.asDouble(x, y) / n - Mean*Mean
+					sqrt(Sum2.asDouble(x, y) / n - Mean*Mean)
 				);
 			}
 		}
