@@ -284,7 +284,7 @@ int CETpot_Table::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 		pParameters->Set_Enabled("T_MAX", M == 1 || M == 3);
 		pParameters->Set_Enabled("RH"   , M != 1);
 		pParameters->Set_Enabled("SR"   , M != 1);
-		pParameters->Set_Enabled("WS"   , M == 2);
+		pParameters->Set_Enabled("WS"   , M == 2 || M == 3);
 		pParameters->Set_Enabled("P"    , M == 3);
 		pParameters->Set_Enabled("DATE" , M != 0 && M != 3);
 		pParameters->Set_Enabled("LAT"  , M != 0 && M != 3);
@@ -523,7 +523,7 @@ int CETpot_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter
 		pParameters->Set_Enabled("T_MAX", M == 1 || M == 3);
 		pParameters->Set_Enabled("RH"   , M != 1);
 		pParameters->Set_Enabled("SR"   , M != 1);
-		pParameters->Set_Enabled("WS"   , M == 2);
+		pParameters->Set_Enabled("WS"   , M == 2 || M == 3);
 		pParameters->Set_Enabled("P"    , M == 3);
 		pParameters->Set_Enabled("TIME" , M != 0 && M != 3);
 		pParameters->Set_Enabled("LAT"  , M != 0 && M != 3);
