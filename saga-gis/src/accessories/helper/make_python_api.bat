@@ -28,7 +28,7 @@ IF "%ZIP%" == "" (
 )
 
 IF "%SWIG%" == "" (
-	SET EXE_SWIG="F:\develop\libs\swigwin-4.0.1\swig.exe"
+	SET EXE_SWIG="F:\develop\libs\swigwin-4.0.2\swig.exe"
 ) ELSE (
 	SET EXE_SWIG="%SWIG%"
 )

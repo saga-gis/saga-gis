@@ -4,28 +4,28 @@ configuration: Release
 
 environment:
   SAGA: c:\project\saga
-  GDAL: C:\deps\libs4saga_x64\gdal-3.1.2
+  GDAL: C:\deps\libs4saga_x64\gdal-3.2.1
   HARU: C:\deps\libs4saga_x64\libharu-2.2.0
   LIBLAS: C:\deps\libs4saga_x64\liblas-1.2.1
   OPENCV: C:\deps\libs4saga_x64\opencv-4.3.0
   VIGRA: c:\deps\libs4saga_x64\vigra-1.11.1
-  WXWIN: c:\deps\wxWidgets-3.1.2
+  WXWIN: c:\deps\wxWidgets-3.1.5
   PDAL: C:\deps\libs4saga_x64\pdal-2.0.1
 
 before_build:
   - cmd: mkdir c:\deps
   #get wxwidgets libs + inludes
-  - ps: Start-FileDownload https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.2/wxMSW-3.1.2_vc140_x64_Dev.7z
-  - ps: Start-FileDownload https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.2/wxWidgets-3.1.2-headers.7z
-  - ps: Start-FileDownload https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.2/wxMSW-3.1.2_vc140_x64_ReleaseDLL.7z
-  - cmd: 7z x wxMSW-3.1.2_vc140_x64_Dev.7z -o%WXWIN% -bb2
-  - cmd: 7z x wxWidgets-3.1.2-headers.7z -o%WXWIN% -bb2
-  - cmd: 7z x wxMSW-3.1.2_vc140_x64_ReleaseDLL.7z -o%WXWIN% -bb2
+  - ps: Start-FileDownload https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.5/wxMSW-3.1.5_vc14x_x64_Dev.7z
+  - ps: Start-FileDownload https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.5/wxWidgets-3.1.5-headers.7z
+  - ps: Start-FileDownload https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.5/wxMSW-3.1.5_vc14x_x64_ReleaseDLL.7z
+  - cmd: 7z x wxMSW-3.1.5_vc14x_x64_Dev.7z -o%WXWIN% -bb2
+  - cmd: 7z x wxWidgets-3.1.5-headers.7z -o%WXWIN% -bb2
+  - cmd: 7z x wxMSW-3.1.5_vc14x_x64_ReleaseDLL.7z -o%WXWIN% -bb2
     #small fix because wxwindows paths are different when downloading than when compiling yourself
-  - cmd: move %WXWIN%\lib\vc140_x64_dll %WXWIN%\lib\vc_x64_dll
+  - cmd: move %WXWIN%\lib\vc14x_x64_dll %WXWIN%\lib\vc_x64_dll
   #get libs4saga
-  - ps: Start-FileDownload https://downloads.sourceforge.net/project/saga-gis/For%20Developers/libs4saga/libs4saga_2020-08-26_x64.zip
-  - cmd: 7z x libs4saga_2020-08-26_x64.zip -oc:\deps\
+  - ps: Start-FileDownload https://downloads.sourceforge.net/project/saga-gis/For%20Developers/libs4saga/libs4saga_2020-05-11_x64.zip
+  - cmd: 7z x libs4saga_2020-05-11_x64.zip -oc:\deps\
   # disable riegl import as it requires an SDK
   - cmd: sed -i '/{A89FB596-3D86-4BF0-A57B-DAC3A7D2E740}.*Build\.0.*/d' saga-gis/src/saga.vc14.sln
 
@@ -33,8 +33,8 @@ build:
   project: saga-gis\src\saga.vc14.sln
 
 after_build:
-  - cmd: cp %WXWIN%/lib/vc_x64_dll/wxmsw312u_*.dll %SAGA%/saga-gis/bin/saga_vc_x64 
-  - cmd: cp %WXWIN%/lib/vc_x64_dll/wxbase312u_*.dll %SAGA%/saga-gis/bin/saga_vc_x64 
+  - cmd: cp %WXWIN%/lib/vc_x64_dll/wxmsw315u_*.dll %SAGA%/saga-gis/bin/saga_vc_x64 
+  - cmd: cp %WXWIN%/lib/vc_x64_dll/wxbase315u_*.dll %SAGA%/saga-gis/bin/saga_vc_x64 
   - cmd: cp -r c:\deps\libs4saga_x64\_bin\dll %SAGA%\saga-gis\bin\saga_vc_x64 
   - cmd: 7z a saga_vc_x64.7z %SAGA%\saga-gis\bin\saga_vc_x64
 
