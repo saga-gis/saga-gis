@@ -14,16 +14,16 @@ environment:
 
 before_build:
   - cmd: mkdir c:\deps
-  #get wxwidgets libs + inludes
+  # get wxwidgets libs + inludes
   - ps: Start-FileDownload https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.5/wxMSW-3.1.5_vc14x_x64_Dev.7z
   - ps: Start-FileDownload https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.5/wxWidgets-3.1.5-headers.7z
   - ps: Start-FileDownload https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.5/wxMSW-3.1.5_vc14x_x64_ReleaseDLL.7z
   - cmd: 7z x wxMSW-3.1.5_vc14x_x64_Dev.7z -o%WXWIN% -bb2
-  - cmd: 7z x wxWidgets-3.1.5-headers.7z -o%WXWIN% -bb2
-  - cmd: 7z x wxMSW-3.1.5_vc14x_x64_ReleaseDLL.7z -o%WXWIN% -bb2
-    #small fix because wxwindows paths are different when downloading than when compiling yourself
+  - cmd: 7z x wxWidgets-3.1.5-headers.7z -o%WXWIN% -bb2 -aoa
+  - cmd: 7z x wxMSW-3.1.5_vc14x_x64_ReleaseDLL.7z -o%WXWIN% -bb2 -aoa
+    # small fix because wxwindows paths are different when downloading than when compiling yourself
   - cmd: move %WXWIN%\lib\vc14x_x64_dll %WXWIN%\lib\vc_x64_dll
-  #get libs4saga
+  # get libs4saga
   - ps: Start-FileDownload https://downloads.sourceforge.net/project/saga-gis/For%20Developers/libs4saga/libs4saga_2021-05-11_x64.zip
   - cmd: 7z x libs4saga_2021-05-11_x64.zip -oc:\deps\
   # disable riegl import as it requires an SDK
