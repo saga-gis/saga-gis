@@ -215,9 +215,9 @@ void CVIEW_Base::On_Size(wxSizeEvent &event)
 //---------------------------------------------------------
 void CVIEW_Base::On_Activate(wxActivateEvent &event)
 {
-	if( g_pSAGA_Frame )
+	if( g_pSAGA_Frame && event.GetActive() )
 	{
-		g_pSAGA_Frame->On_Child_Activates(event.GetActive() ? m_View_ID : -1);
+		g_pSAGA_Frame->On_Child_Activates(m_View_ID);
 	}
 }
 

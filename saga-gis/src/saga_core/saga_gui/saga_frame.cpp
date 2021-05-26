@@ -1041,57 +1041,52 @@ int CSAGA_Frame::_Get_MDI_Children_Count(void)
 void CSAGA_Frame::On_Child_Activates(int View_ID)
 {
 #ifdef MDI_TABBED
-	if( View_ID < 0 && GetNotebook()->GetPageCount() > 0 )	// child view closes, but it's not the last one
+	if( View_ID < 0 && _Get_MDI_Children_Count() > 0 )	// child view closes, but it's not the last one
 #else
-	if( View_ID < 0 && _Get_MDI_Children_Count    () > 1 )	// child view closes, but it's not the last one
+	if( View_ID < 0 && _Get_MDI_Children_Count() > 1 )	// child view closes, but it's not the last one
 #endif
 	{
 		return;	// nothing to do, another child will be activated next!
 	}
 
 	//-----------------------------------------------------
-	wxString		Title;
-	wxMenu			*pMenu		= NULL;
-	wxToolBarBase	*pToolBar	= NULL;
+	_Bar_Show(m_pTB_Main       , true                            );
+	_Bar_Show(m_pTB_Table      , View_ID == ID_VIEW_TABLE        );
+	_Bar_Show(m_pTB_Diagram    , View_ID == ID_VIEW_TABLE_DIAGRAM);
+	_Bar_Show(m_pTB_Map        , View_ID == ID_VIEW_MAP          );
+	_Bar_Show(m_pTB_Map_3D     , View_ID == ID_VIEW_MAP_3D       );
+	_Bar_Show(m_pTB_Histogram  , View_ID == ID_VIEW_HISTOGRAM    );
+	_Bar_Show(m_pTB_ScatterPlot, View_ID == ID_VIEW_SCATTERPLOT  );
+	_Bar_Show(m_pTB_Layout     , View_ID == ID_VIEW_LAYOUT       );
+
+	//-----------------------------------------------------
+	wxMenu	*pMenu = NULL; wxString Title;
 
 	switch( View_ID )
 	{
-	case ID_VIEW_TABLE        : pToolBar = m_pTB_Table      ; pMenu	= m_pMN_Table      ; Title = _TL("Table"      ); break;
-	case ID_VIEW_TABLE_DIAGRAM: pToolBar = m_pTB_Diagram    ; pMenu	= m_pMN_Diagram    ; Title = _TL("Diagram"    ); break;
-	case ID_VIEW_MAP          : pToolBar = m_pTB_Map        ; pMenu	= m_pMN_Map        ; Title = _TL("Map"        ); break;
-	case ID_VIEW_MAP_3D       : pToolBar = m_pTB_Map_3D     ; pMenu	= m_pMN_Map_3D     ; Title = _TL("3D View"    ); break;
-	case ID_VIEW_HISTOGRAM    : pToolBar = m_pTB_Histogram  ; pMenu	= m_pMN_Histogram  ; Title = _TL("Histogram"  ); break;
-	case ID_VIEW_SCATTERPLOT  : pToolBar = m_pTB_ScatterPlot; pMenu	= m_pMN_ScatterPlot; Title = _TL("Scatterplot"); break;
-	case ID_VIEW_LAYOUT       : pToolBar = m_pTB_Layout     ; pMenu	= m_pMN_Layout     ; Title = _TL("Layout"     ); break;
+	case ID_VIEW_TABLE        : pMenu = m_pMN_Table      ; Title = _TL("Table"      ); break;
+	case ID_VIEW_TABLE_DIAGRAM: pMenu = m_pMN_Diagram    ; Title = _TL("Diagram"    ); break;
+	case ID_VIEW_MAP          : pMenu = m_pMN_Map        ; Title = _TL("Map"        ); break;
+	case ID_VIEW_MAP_3D       : pMenu = m_pMN_Map_3D     ; Title = _TL("3D View"    ); break;
+	case ID_VIEW_HISTOGRAM    : pMenu = m_pMN_Histogram  ; Title = _TL("Histogram"  ); break;
+	case ID_VIEW_SCATTERPLOT  : pMenu = m_pMN_ScatterPlot; Title = _TL("Scatterplot"); break;
+	case ID_VIEW_LAYOUT       : pMenu = m_pMN_Layout     ; Title = _TL("Layout"     ); break;
 	}
-
-	//-----------------------------------------------------
-	_Bar_Show(m_pTB_Main       , true                         );
-	_Bar_Show(m_pTB_Table      , pToolBar == m_pTB_Table      );
-	_Bar_Show(m_pTB_Diagram    , pToolBar == m_pTB_Diagram    );
-	_Bar_Show(m_pTB_Map        , pToolBar == m_pTB_Map        );
-	_Bar_Show(m_pTB_Map_3D     , pToolBar == m_pTB_Map_3D     );
-	_Bar_Show(m_pTB_Histogram  , pToolBar == m_pTB_Histogram  );
-	_Bar_Show(m_pTB_ScatterPlot, pToolBar == m_pTB_ScatterPlot);
-	_Bar_Show(m_pTB_Layout     , pToolBar == m_pTB_Layout     );
-
-	//-----------------------------------------------------
-	wxMenuBar	*pMenuBar	= GetMenuBar();
 
 	if( pMenu )
 	{
-		if( pMenuBar->GetMenuCount() < 5 )
+		if( GetMenuBar()->GetMenuCount() < 5 )
 		{
-			pMenuBar->Insert (2, pMenu, Title);
+			GetMenuBar()->Insert (2, pMenu, Title);
 		}
-		else if( pMenuBar->GetMenu(2) != pMenu )
+		else if( GetMenuBar()->GetMenu(2) != pMenu )
 		{
-			pMenuBar->Replace(2, pMenu, Title);
+			GetMenuBar()->Replace(2, pMenu, Title);
 		}
 	}
-	else if( pMenuBar->GetMenuCount() == 5 )
+	else if( GetMenuBar()->GetMenuCount() == 5 )
 	{
-		pMenuBar->Remove(2);
+		GetMenuBar()->Remove(2);
 	}
 }
 
