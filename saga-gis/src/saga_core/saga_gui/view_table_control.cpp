@@ -785,10 +785,6 @@ void CVIEW_Table_Control::On_LClick_Label(wxGridEvent &event)
 	}
 
 	m_Cursor	= m_Scroll_Start + event.GetRow();
-
-	SetGridCursor(event.GetRow(), GetGridCursorCol());
-
-	GetGridWindow()->SetFocus();
 }
 
 //---------------------------------------------------------
