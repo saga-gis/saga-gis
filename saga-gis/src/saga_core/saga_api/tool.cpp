@@ -1192,24 +1192,23 @@ CSG_String CSG_Tool::_Get_Script_CMD(bool bHeader, bool bAllParameters, TSG_Tool
 		{
 		case TOOL_SCRIPT_CMD_BATCH:	// DOS/Windows Batch Script
 			Script	+= "@ECHO OFF\n\n";
-			Script	+= "REM SET SAGA_TLB=C:\\MyTools\n";
-			Script	+= "REM SET PATH=%PATH%;C:\\SAGA\n\n";
-			Script	+= "REM Tool: ";
+			Script	+= "PUSHD %~dp0\n\n";
+			Script	+= "REM SET SAGA_TLB=C:\\MyTools\n\n";
+			Script	+= "SET SAGA_CMD=C:\\SAGA\\saga_cmd.exe\n\n";
+			Script	+= "REM Tool: " + Get_Name() + "\n\n";
+			Script	+= "%SAGA_CMD%";
 			break;
 
 		default                   :	// Bash Shell Script
 			Script	+= "#!/bin/bash\n\n";
 			Script	+= "# export SAGA_TLB=/home/myhome/mytools\n\n";
-			Script	+= "# tool: ";
+			Script	+= "# tool: " + Get_Name() + "\n\n";
+			Script	+= "saga_cmd";
 			break;
 		}
-
-		Script	+= Get_Name() + "\n\n";
 	}
 
 	//-----------------------------------------------------
-	Script	+= "saga_cmd";
-
 	Script	+= Get_Library().Contains(" ")	// white space? use quotation marks!
 		? " \"" + Get_Library() + "\""
 		: " "   + Get_Library();
