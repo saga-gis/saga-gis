@@ -49,6 +49,7 @@
 
 //---------------------------------------------------------
 #include <wx/utils.h>
+#include <wx/dir.h>
 
 #include "api_core.h"
 #include "tool_library.h"
@@ -233,6 +234,46 @@ bool SG_Data_Type_Range_Check(TSG_Data_Type Type, double &Value)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool SG_Add_Dll_Paths(const wxString &Directory, wxString &Paths)
+{
+	wxDir	Dir(Directory);
+
+	if( Dir.IsOpened() )
+	{
+		wxString	Path;
+
+		if( Dir.GetFirst(&Path, "*.dll", wxDIR_HIDDEN|wxDIR_FILES) )
+		{
+			if( !Path.IsEmpty() )
+			{
+				Paths	+= ";";
+			}
+
+			Paths	+= Directory;
+		}
+
+		if( Dir.GetFirst(&Path, wxEmptyString, wxDIR_HIDDEN|wxDIR_DIRS) )
+		{
+			do
+			{
+				wxString	SubDir(Directory + "\\" + Path);
+
+				if(      !Path.CmpNoCase("gdal-plugins") ) { wxSetEnv("GDAL_DRIVER_PATH", SubDir); }
+				else if( !Path.CmpNoCase("gdal-data"   ) ) { wxSetEnv("GDAL_DATA"       , SubDir); }
+				else if( !Path.CmpNoCase("proj-data"   ) ) { wxSetEnv("PROJ_LIB"        , SubDir); }
+				else
+				{
+					SG_Add_Dll_Paths(SubDir, Paths);
+				}
+			}
+			while( Dir.GetNext(&Path) );
+		}
+	}
+
+	return( !Paths.IsEmpty() );
+}
+
+//---------------------------------------------------------
 bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char *Directory)
 {
 	SG_UI_ProgressAndMsg_Lock(true);
@@ -240,7 +281,7 @@ bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char
 	//-----------------------------------------------------
 	#ifdef _SAGA_MSW
 	{
-		wxString App_Path, Dll_Path, Path;
+		wxString App_Path, Dll_Paths;
 
 		if( Directory && SG_Dir_Exists(Directory) )
 		{
@@ -248,23 +289,15 @@ bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char
 		}
 		else
 		{
-			App_Path	= SG_File_Get_Path(SG_UI_Get_Application_Path()).c_str();
+			App_Path	= SG_File_Get_Path_Absolute(SG_File_Get_Path(SG_UI_Get_Application_Path())).c_str();
 		}
 
-		Dll_Path	= App_Path + "\\dll";
+		wxGetEnv("PATH", &Dll_Paths);
 
-		if( wxGetEnv("PATH", &Path) && !Path.IsEmpty() )
+		if( SG_Add_Dll_Paths(App_Path + "\\dll", Dll_Paths) )
 		{
-			wxSetEnv("PATH", Dll_Path + ";" + Path);
+			wxSetEnv("PATH", Dll_Paths);
 		}
-		else
-		{
-			wxSetEnv("PATH", Dll_Path);
-		}
-
-		wxSetEnv("GDAL_DRIVER_PATH", Dll_Path);
-		wxSetEnv("GDAL_DATA"       , Dll_Path + "\\gdal-data");
-		wxSetEnv("PROJ_LIB"        , Dll_Path + "\\proj-data");
 
 		if( bLibraries )
 		{
