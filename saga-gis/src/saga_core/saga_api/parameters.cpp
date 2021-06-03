@@ -1957,20 +1957,18 @@ bool CSG_Parameters::Set_History(CSG_MetaData &MetaData, bool bOptions, bool bDa
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+/**
+* Sets the parameters' grid system if it has one. This is
+* typically the case, if it represents the parameters list of a 
+* CSG_Tool_Grid object.
+*/
 bool CSG_Parameters::Set_Grid_System(const CSG_Grid_System &System)
 {
-	if( m_pGrid_System && m_pGrid_System->asGrid_System() )
-	{
-		m_pGrid_System->Set_Value((void *)&System);
-
-		return( true );
-	}
-
-	return( false );
+	return( m_pGrid_System && m_pGrid_System->asGrid_System() && m_pGrid_System->Set_Value((void *)&System) );
 }
 
 //---------------------------------------------------------
-/*
+/**
 * Resets the parameters' grid system if it has one. This is
 * typically the case, if it represents the parameters list of a 
 * CSG_Tool_Grid object.

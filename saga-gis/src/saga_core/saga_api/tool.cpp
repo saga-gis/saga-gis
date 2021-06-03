@@ -1096,22 +1096,42 @@ bool CSG_Tool::Set_Parameter(const wchar_t    *ID, const wchar_t    *Value, int 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Tool::Set_Grid_System(const CSG_Grid_System &System)
+/**
+* Resets the tools' parameters list. All input and output
+* data objects and object lists are cleared and parameter
+* defaults are restored.
+*/
+bool CSG_Tool::Reset(void)
 {
-//	for(int i=0; i<m_npParameters; i++)
-//	{
-//		m_pParameters[i]->Set_Grid_System(System);
-//	}
+	for(int i=0; i<m_npParameters; i++)
+	{
+		m_pParameters[i]->Restore_Defaults(true);
+		m_pParameters[i]->Reset_Grid_System();
+	}
 
-	return( Parameters.Set_Grid_System(System) );
+	return( Parameters.Restore_Defaults(true)
+		&&  Parameters.Reset_Grid_System()
+	);
 }
 
 //---------------------------------------------------------
+/**
+* Resets the tools' grid system, if it has one, which is
+* typically the case for all derivatives of CSG_Tool_Grid.
+*/
 bool CSG_Tool::Reset_Grid_System(void)
 {
-	CSG_Grid_System	System;
+	return( Parameters.Reset_Grid_System() );
+}
 
-	return( Set_Grid_System(System) );
+//---------------------------------------------------------
+/**
+* Sets the tools' grid system, if it has one, which is
+* typically the case for all derivatives of CSG_Tool_Grid.
+*/
+bool CSG_Tool::Set_Grid_System(const CSG_Grid_System &System)
+{
+	return( Parameters.Set_Grid_System(System) );
 }
 
 
@@ -1400,18 +1420,13 @@ CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 	}
 
 	Script += "    #_____________________________________\n";
-	Script += "    # Create a new instance of tool '" + Get_Name() + "'\n";
-	Script += "    Tool = saga_api.SG_Get_Tool_Library_Manager().Create_Tool('" + Get_Library() + "', '" + Get_ID() + "')\n";
+	Script += "    Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('" + Get_Library() + "', '" + Get_ID() + "')\n";
 	Script += "    if Tool == None:\n";
     Script += "        print('Failed to create tool: " + Get_Name() + "')\n";
 	Script += "        return False\n";
 	Script += "\n";
-
-	if( Get_Type() == TOOL_TYPE_Grid )
-	{
-		Script += "    Tool.Get_Parameters().Reset_Grid_System()\n";
-		Script += "\n";
-	}
+	Script += "    Tool.Reset()\n";
+	Script += "\n";
 
 	//-------------------------------------------------
 	_Get_Script_Python(Script, Get_Parameters(), bAllParameters);
@@ -1423,11 +1438,9 @@ CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 
 	//-------------------------------------------------
 	Script += "\n";
-    Script += "    print('Executing tool: ' + Tool.Get_Name().c_str())\n";
 	Script += "    if Tool.Execute() == False:\n";
-    Script += "        print('failed')\n";
+    Script += "        print('failed to execute tool: ' + Tool.Get_Name().c_str())\n";
 	Script += "        return False\n";
-    Script += "    print('okay')\n";
 	Script += "\n";
 	Script += "    #_____________________________________\n";
 	Script += "    # Save results to file:\n";
@@ -1471,11 +1484,7 @@ CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 
 	Script += "\n";
 	Script += "    #_____________________________________\n";
-	Script += "    # remove this tool instance, if you don't need it anymore\n";
-	Script += "    saga_api.SG_Get_Tool_Library_Manager().Delete_Tool(Tool)\n";
-	Script += "\n";
-	Script += "    # job is done, free memory resources\n";
-	Script += "    saga_api.SG_Get_Data_Manager().Delete_All()\n";
+	Script += "    saga_api.SG_Get_Data_Manager().Delete_All() # job is done, free memory resources\n";
 	Script += "\n";
 	Script += "    return True\n";
 	Script += "\n";

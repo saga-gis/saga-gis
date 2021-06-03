@@ -201,8 +201,9 @@ public:
 	bool						Set_Parameter				(const char       *ID, const wchar_t    *Value, int Type = PARAMETER_TYPE_Undefined);
 	bool						Set_Parameter				(const wchar_t    *ID, const wchar_t    *Value, int Type = PARAMETER_TYPE_Undefined);
 
-	bool						Set_Grid_System				(const CSG_Grid_System &System);
+	bool						Reset						(void);
 	bool						Reset_Grid_System			(void);
+	bool						Set_Grid_System				(const CSG_Grid_System &System);
 
 	bool						Update_Parameter_States		(void);
 
