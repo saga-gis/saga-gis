@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "SAGA_CMD 1"
-.TH SAGA_CMD 1 "2014-11-03" "2.1.3" " "
+.TH SAGA_CMD 1 "2021-05-06" "7.10.0" " "
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -142,49 +142,69 @@
 saga_cmd \- command\-line interface to the System for Automated Geoscientific Analyses
 .SH "SYNOPSIS"
 .IX Header "SYNOPSIS"
-\&\fBsaga_cmd\fR [\fB\-d, \-\-docs\fR]
-.PP
-\&\fBsaga_cmd\fR [\fB\-b, \-\-batch\fR]
-.PP
 \&\fBsaga_cmd\fR [\fB\-h, \-\-help\fR]
 .PP
-\&\fBsaga_cmd\fR [\fB\-f, \-\-flags\fR][=qrsilpxo][\-s, \-\-story][=#][\-c, \-\-cores][=#] \fI\s-1LIBRARY\s0\fR [\fI\s-1MODULE\s0\fR] <module specific options...>
+\&\fBsaga_cmd\fR [\fB\-v, \-\-version\fR]
 .PP
-\&\fBsaga_cmd\fR [\fB\-f, \-\-flags\fR][=qrsilpxo][\-s, \-\-story][=#][\-c, \-\-cores][=#] \fI\s-1SCRIPT\s0\fR
+\&\fBsaga_cmd\fR [\fB\-C, \-\-config\fR][=#][\-s, \-\-story][=#][\-c, \-\-cores][=#][\-f, \-\-flags][=#] \fI\s-1<LIBRARY>\s0\fR [\fI\s-1<TOOL>\s0\fR] [\fI\s-1<OPTIONS>\s0\fR]
+.PP
+\&\fBsaga_cmd\fR [\fB\-C, \-\-config\fR][=#][\-s, \-\-story][=#][\-c, \-\-cores][=#][\-f, \-\-flags][=#] \fI\s-1<SCRIPT>\s0\fR
+.PP
+\&\fBsaga_cmd\fR \fB\-\-create\-config\fR[=file]
+   Create a default configuration file. If no file name is specified
+   it will use '\s-1saga_cmd.ini\s0'.
+.PP
+\&\fBsaga_cmd\fR \fB\-\-create\-batch\fR[=file]
+   Create a batch script file example.
+.PP 
+\&\fBsaga_cmd\fR \fB\-\-create\-docs\fR[=directory]
+   Create tool documentation in current working directory, if no
+   other directory is given.
+.PP
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-\&\s-1SAGA GIS \s0(System for Automated Geoscientific Analysis) is a free and open source geographic information system used for editing and analysing spatial data. It includes a large number of modules for the analysis of vector, table, grid and image data.
+\&\s-1SAGA GIS \s0(System for Automated Geoscientific Analysis) is a free and
+open source geographic information system used for editing and analysing spatial
+data. It includes a large number of tools for the analysis of vector, table,
+grid and image data.
 .PP
 The \s-1SAGA\s0 command line interpreter is particularly useful for the processing
 of complex work flows by defining a series of subsequent tool calls in a
-script file. Calling saga_cmd with the option '\fB\-b\fR' or '\fB\-\-batch\fR' will
+script file. Calling saga_cmd with the option '\fB\-\-create-batch\fR' will
 create an example of a \s-1DOS\s0 batch script file, which might be a good starting
 point for the implementation of your own specific work flows.
 .PP
-When run without arguments, the module libraries in the current module library are listed. By default this is the directory which was set at installtion (/usr/lib/saga). This can be overwritten by setting the environment variable \fI\s-1SAGA_MLB\s0\fR.
+When run without arguments, the tool libraries found in the SAGA installation
+directory (e.g. /usr/lib/saga) will be loaded automatically. Additional
+directories can be specified by adding the environment variable '\s-1SAGA_TLB\s0'
+and let it point to one or more directories, just the way it is done with the
+DOS 'PATH' variable.
 .SH "OPTIONS"
 .IX Header "OPTIONS"
-.IP "[\fI\s-1SAGA_MLB\s0\fR=dirname]" 8
-.IX Item "[SAGA_MLB=dirname]"
-Module libraries are expected to be located in the directory that is specified by the environment variable '\s-1SAGA_MLB\s0'. If this is not found the module installation directory (/usr/lib/saga) will be searched for instead.
-.IP "\fI\s-1LIBRARY\s0\fR [\fI\s-1MODULE\s0\fR] [\fI\s-1MODULE OPTIONS\s0\fR]" 8
-.IX Item "LIBRARY [MODULE] [MODULE OPTIONS]"
-Specify the library (ie ta_morphometry) and the module (number or name). If no module is specified the different modules of a library are listed.
+.IP "\fI\s-1LIBRARY\s0\fR [\fI\s-1TOOL\s0\fR] [\fI\s-1OPTIONS\s0\fR]" 8
+.IX Item "LIBRARY [TOOL] [OPTIONS]"
+Specify the library (e.g. ta_morphometry) and the tool (number or name). If no tool is specified the different tools of a library are listed.
+.IP "\fI\s-1SCRIPT\s0\fR" 8
+.IX Item "SCRIPT"
+Saga cmd script file with one or more tool calls
 .IP "\fB\-h, \-\-help\fR" 8
 .IX Item "-h, --help"
-Display help and exit
-.IP "\fB\-d, \-\-docs\fR" 8
-.IX Item "-d, --docs"
-Create tool documentation in the current working directory
-.IP "\fB\-b, \-\-batch\fR" 8
-.IX Item "-b, --batch"
-Create batch file examples in the current working directory
+Help on usage
+.IP "\fB\-v, \-\-version\fR" 8
+.IX Item "-v, --version"
+Version information
+.IP "\fB\-s, \-\-story\fR" 8
+.IX Item "-s, --story"
+Maximum data history depth (default is unlimited)
+.IP "\fB\-C, \-\-config\fR" 8
+.IX Item "-C, --config"
+Configuration file (default is 'saga_cmd.ini')
 .IP "\fB\-c, \-\-cores\fR" 8
 .IX Item "-c, --cores"
 Number of physical processors to use for computation
 .IP "\fB\-f, \-\-flags\fR" 8
 .IX Item "-f, --flags"
-Various flags for general usage [qrsilpxo]
+Various flags for general usage [qrsilxo]
 .RS 8
 .IP "\fBq\fR No progress report" 9
 .IX Item "q No progress report"
@@ -197,31 +217,40 @@ Various flags for general usage [qrsilpxo]
 .IX Item "i Allow user interaction"
 .IP "\fBl\fR Load translation dictionary" 9
 .IX Item "l Load translation dictionary"
-.IP "\fBp\fR Load projections dictionary" 9
-.IX Item "p Load projections dictionary"
 .IP "\fBx\fR Use \s-1XML\s0 markups for synopses and messages" 9
 .IX Item "x Use XML markups for synopses and messages"
 .IP "\fBo\fR Load old style naming" 9
 .IX Item "o Load old style naming"
 .RE
+.PD
+.IP "\fB\-\-create\-config\fR" 8
+.IX Item "--create-config"
+Create a default configuration file. If no file name is specified
+it will use 'saga_cmd.ini'
+.IP "\fB\-\-create\-batch\fR" 8
+.IX Item "--create-batch"
+Create batch file examples in the current working directory
+.IP "\fB\-\-create\-docs\fR" 8
+.IX Item "--create-docs"
+Create tool documentation in the current working directory
 .RS 8
 .RE
 .PD
 .SH "EXAMPLE"
 .IX Header "EXAMPLE"
-export SAGA_MLB=/usr/lib/saga
+export SAGA_TLB=/usr/lib/saga
 .PP
-\&\fBsaga_cmd\fR ta_morphometry \*(L"Local Morphometry\*(R" \-ELEVATION dem.sgrd \-SLOPE slope.sgrd \-ASPECT aspect.sgrd \-METHOD 1
+\&\fBsaga_cmd\fR ta_lighting \*(L"Analytical Hillshading\*(R" \-ELEVATION=c:\\dem.sg-grd \-SHADE=c:\\shade.sg-grd
 .PP
 Multiple input files can be specified by separating them by a semicolon (;).
 .PP
-\&\fBsaga_cmd\fR libgrid_tools Merging \-GRIDS test1.sgrd\e;test2.sgrd \-GRID_TARGET merged.sgrd
+\&\fBsaga_cmd\fR grid_tools Mosaicking \-GRIDS test1.sg-grd;test2.sg-grd \-TARGET_OUT_GRID merged.sg-grd
 .SH "BUGS"
 .IX Header "BUGS"
 On the website of \fIhttp://www.saga\-gis.org\fR, a list of known bugs can be found and new bug reports can be submitted.
 .SH "AUTHORS"
 .IX Header "AUTHORS"
-\&\fB\s-1SAGA\s0\fR was written by Olaf Conrad with help from a large number of contributors. This manual page was written by Johan Van de Wauw.
+\&\fB\s-1SAGA\s0\fR was written by Olaf Conrad with help from a large number of contributors. This manual page was written by Johan Van de Wauw and updated by Rainer Hurling.
 Both are released under the \s-1GNU\s0 General Public License v2.
 .PP
 More info  \fIhttp://www.saga\-gis.org\fR
