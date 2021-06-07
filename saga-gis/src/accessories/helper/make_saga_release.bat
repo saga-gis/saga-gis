@@ -203,6 +203,8 @@ ECHO.    ./saga_setup_win32.iss
 ECHO.    ./saga-gis/configure.ac
 ECHO.    ./saga-gis/version.cmake
 ECHO.    ./saga-gis/src/saga_core/saga_api/saga_api.h
+ECHO.    ./saga-gis/src/saga_core/saga_cmd/man/saga_cmd.1
+ECHO.    ./saga-gis/src/saga_core/saga_gui/man/saga_gui.1
 ECHO.    ./saga-gis/src/accessories/helper/doxygen_saga_api_chm
 ECHO.    ./saga-gis/src/accessories/helper/doxygen_saga_api_html
 ECHO.    ./saga-gis/src/accessories/helper/make_saga_release.bat (this file!)
