@@ -930,11 +930,13 @@ void CData_Source_PgSQL::Update_Source(const wxTreeItemId &Item)
 			CSG_String	s(Tables[i].asString(0));
 
 			if( bSkipPostGISTables == false
-			|| (s.CmpNoCase("geography_columns")
-			&&  s.CmpNoCase("geometry_columns" )
-			&&  s.CmpNoCase("raster_columns"   )
-			&&  s.CmpNoCase("raster_overviews" )
-			&&  s.CmpNoCase("spatial_ref_sys"  )) )
+			|| (s.CmpNoCase("geography_columns" )
+			&&  s.CmpNoCase("geometry_columns"  )
+			&&  s.CmpNoCase("raster_columns"    )
+			&&  s.CmpNoCase("raster_overviews"  )
+			&&  s.CmpNoCase("pointcloud_columns")
+			&&  s.CmpNoCase("pointcloud_formats")
+			&&  s.CmpNoCase("spatial_ref_sys"   )) )
 			{
 				s	= Tables[i].asString(1);
 
