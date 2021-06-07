@@ -38,9 +38,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -193,8 +191,8 @@ wxString CDLG_About::_Get_Version(void)
 	s	+= "SAGA GUI\n";
 	s	+= "SAGA Graphical User Interface\n";
 	s	+= "\n";
-	s	+= "Copyrights (c) 2005-2020 by Olaf Conrad\n";
-	s	+= "Portions (c) 2008-2020 by Volker Wichmann\n";
+	s	+= "Copyrights (c) 2005-2021 by Olaf Conrad\n";
+	s	+= "Portions (c) 2008-2021 by Volker Wichmann\n";
 	s	+= "\n";
 	s	+= "GNU General Public License (GPL)\n";
 
@@ -203,8 +201,8 @@ wxString CDLG_About::_Get_Version(void)
 	s	+= "SAGA API\n";
 	s	+= "SAGA Application Programming Interface\n";
 	s	+= "\n";
-	s	+= "Copyrights (c) 2002-2020 by Olaf Conrad\n";
-	s	+= "Portions (c) 2008-2020 by Volker Wichmann\n";
+	s	+= "Copyrights (c) 2002-2021 by Olaf Conrad\n";
+	s	+= "Portions (c) 2008-2021 by Volker Wichmann\n";
 	s	+= "Portions (c) 2005-2006 by Victor Olaya\n";
 	s	+= "Portions (c) 2002 by Andre Ringeler\n";	// " (mat_formula.cpp)\n";
 	s	+= "\n";
@@ -282,8 +280,10 @@ wxString CDLG_About::_Get_Version(void)
 				"Microsoft Visual C++ 2013"
 			#elif __VISUALC__ >= 1900 && __VISUALC__ < 1910
 				"Microsoft Visual C++ 2015"
-			#elif __VISUALC__ >= 1910 && __VISUALC__ < 2000
+			#elif __VISUALC__ >= 1910 && __VISUALC__ < 1920
 				"Microsoft Visual C++ 2017"
+			#elif __VISUALC__ >= 1920 && __VISUALC__ < 2000
+				"Microsoft Visual C++ 2019"
 			#else
 				"Microsoft Visual C++"
 			#endif
