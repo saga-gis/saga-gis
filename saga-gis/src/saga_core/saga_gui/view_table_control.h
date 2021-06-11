@@ -38,9 +38,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -86,14 +84,9 @@ public:
 
 protected:
 
-	virtual void				AdjustScrollbars	(void);
+	void						On_Selecting		(wxGridRangeSelectEvent &event);
+	void						On_Selected			(wxGridRangeSelectEvent &event);
 
-	void						On_Scroll			(wxScrollWinEvent &event);
-	void						On_Key				(wxKeyEvent       &event);
-	void						On_Size				(wxSizeEvent      &event);
-
-	void						On_Edit_Start		(wxGridEvent      &event);
-	void						On_Edit_Stop		(wxGridEvent      &event);
 	void						On_Changed			(wxGridEvent      &event);
 
 	void						On_LClick			(wxGridEvent      &event);
@@ -102,8 +95,6 @@ protected:
 
 	void						On_RClick			(wxGridEvent      &event);
 	void						On_RClick_Label		(wxGridEvent      &event);
-
-	void						On_Select			(wxGridRangeSelectEvent &event);
 
 	void						On_Sel_Only			(wxCommandEvent   &event);
 	void						On_Sel_Only_UI		(wxUpdateUIEvent  &event);
@@ -142,28 +133,20 @@ protected:
 
 private:
 
-	bool						m_bSelOnly, m_bEditing;
-
-	int							m_Scroll_Start, m_Scroll_Range, m_Cursor, m_Decimals;
-
-	CSG_Table					*m_pTable;
+	int							m_Cursor, m_Decimals;
 
 	CSG_Parameters				m_Field_Calc;
 
+	CSG_Table					*m_pTable;
 
-	void						_Update_Views		(void);
+	class CVIEW_Table_Data		*m_pData;
 
-	bool						_Update_Sorting		(int iField, int Direction);
 
 	bool						_Update_Records		(void);
 
-	int							_Get_Record_Count	(void);
-	CSG_Table_Record *			_Get_Record			(int iRow);
-	bool						_Set_Record			(int iRow);
-	wxString					_Get_Value			(CSG_Table_Record *pRecord, int iField);
+	bool						_Update_Selection	(bool bViews);
 
-	int							_Get_Scroll_Start	(int Position);
-	bool						_Set_Scroll_Start	(int Position, bool bEnforceUpdate = true);
+	bool						_Update_Sorting		(int iField, int Direction);
 
 	bool						_Get_DataSource		(wxString &Source);
 
@@ -172,8 +155,7 @@ private:
 	static int					_Parameter_Callback	(CSG_Parameter *pParameter, int Flags);
 
 
-//---------------------------------------------------------
-DECLARE_EVENT_TABLE()
+	DECLARE_EVENT_TABLE()
 };
 
 
