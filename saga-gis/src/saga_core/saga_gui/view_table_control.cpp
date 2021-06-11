@@ -126,32 +126,44 @@ public:
 	//-----------------------------------------------------
 	virtual bool		InsertRows			(size_t Position = 0, size_t Number = 1)
 	{
-		return( GetView()->ProcessTableMessage(wxGridTableMessage(this, wxGRIDTABLE_NOTIFY_ROWS_INSERTED, Position, Number)) );
+		wxGridTableMessage msg(this, wxGRIDTABLE_NOTIFY_ROWS_INSERTED, Position, Number);
+
+		return( GetView()->ProcessTableMessage(msg) );
 	}
 
 	virtual bool		AppendRows			(                     size_t Number = 1)
 	{
-		return( GetView()->ProcessTableMessage(wxGridTableMessage(this, wxGRIDTABLE_NOTIFY_ROWS_APPENDED,           Number)) );
+		wxGridTableMessage msg(this, wxGRIDTABLE_NOTIFY_ROWS_APPENDED,           Number);
+
+		return( GetView()->ProcessTableMessage(msg) );
 	}
 
 	virtual bool		DeleteRows			(size_t Position = 0, size_t Number = 1)
 	{
-		return( GetView()->ProcessTableMessage(wxGridTableMessage(this, wxGRIDTABLE_NOTIFY_ROWS_DELETED , Position, Number)) );
+		wxGridTableMessage msg(this, wxGRIDTABLE_NOTIFY_ROWS_DELETED , Position, Number);
+
+		return( GetView()->ProcessTableMessage(msg) );
 	}
 
 	virtual bool		InsertCols			(size_t Position = 0, size_t Number = 1)
 	{
-		return( GetView()->ProcessTableMessage(wxGridTableMessage(this, wxGRIDTABLE_NOTIFY_COLS_INSERTED, Position, Number)) );
+		wxGridTableMessage msg(this, wxGRIDTABLE_NOTIFY_COLS_INSERTED, Position, Number);
+
+		return( GetView()->ProcessTableMessage(msg) );
 	}
 
 	virtual bool		AppendCols			(                     size_t Number = 1)
 	{
-		return( GetView()->ProcessTableMessage(wxGridTableMessage(this, wxGRIDTABLE_NOTIFY_COLS_APPENDED,           Number)) );
+		wxGridTableMessage msg(this, wxGRIDTABLE_NOTIFY_COLS_APPENDED,           Number);
+
+		return( GetView()->ProcessTableMessage(msg) );
 	}
 
 	virtual bool		DeleteCols			(size_t Position = 0, size_t Number = 1)
 	{
-		return( GetView()->ProcessTableMessage(wxGridTableMessage(this, wxGRIDTABLE_NOTIFY_COLS_DELETED , Position, Number)) );
+		wxGridTableMessage msg(this, wxGRIDTABLE_NOTIFY_COLS_DELETED , Position, Number);
+
+		return( GetView()->ProcessTableMessage(msg) );
 	}
 
 	//-----------------------------------------------------
