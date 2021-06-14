@@ -304,6 +304,9 @@
     <ClCompile Include="view_layout_info.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="view_table_data.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ACTIVE.h">
@@ -589,6 +592,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="view_layout_info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="view_table_data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
