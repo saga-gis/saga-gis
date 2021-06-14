@@ -125,7 +125,11 @@ CActive_Attributes_Control::CActive_Attributes_Control(wxWindow *pParent)
 	SetRowLabelAlignment(wxALIGN_RIGHT, wxALIGN_CENTRE);
 	SetCellHighlightColour(SYS_Get_Color(wxSYS_COLOUR_HIGHLIGHT));
 
+#if (wxMAJOR_VERSION == 3 && wxMINOR_VERSION == 1 && wxRELEASE_NUMBER < 5)
+	SetTable(m_pData, true, wxGrid::wxGridSelectCells);
+#else
 	SetTable(m_pData, true, wxGrid::wxGridSelectNone);
+#endif
 
 	Set_Row_Labeling(false);
 
