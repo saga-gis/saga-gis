@@ -47,8 +47,6 @@
 
 //---------------------------------------------------------
 #include <wx/window.h>
-#include <wx/filename.h>
-#include <wx/clipbrd.h>
 
 #include <saga_api/saga_api.h>
 
@@ -59,264 +57,8 @@
 
 #include "wksp_data_manager.h"
 
+#include "view_table_data.h"
 #include "view_table_control.h"
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CVIEW_Table_Data : public wxGridTableBase
-{
-public:
-	CVIEW_Table_Data(CSG_Table *pTable) : m_bSelection(false), m_pTable(pTable)
-	{}
-
-	//-----------------------------------------------------
-	CSG_Table_Record *	Get_Record			(int iRecord)
-	{
-		return( m_bSelection
-			? m_pTable->Get_Selection((size_t)iRecord)
-			: m_pTable->Get_Record_byIndex(   iRecord)
-		);
-	}
-
-	CSG_Table_Record *	Get_Record			(int iRecord, int iField)
-	{
-		if( iField >= 0 && iField < m_pTable->Get_Field_Count() )
-		{
-			return( m_bSelection
-				? m_pTable->Get_Selection((size_t)iRecord)
-				: m_pTable->Get_Record_byIndex(   iRecord)
-			);
-		}
-
-		return( NULL );
-	}
-
-	//-----------------------------------------------------
-	virtual int			GetNumberRows		(void)
-	{
-		return( m_bSelection ? m_pTable->Get_Selection_Count() : m_pTable->Get_Record_Count() );
-	}
-
-	virtual int			GetNumberCols		(void)
-	{
-		return( m_pTable->Get_Field_Count() );
-	}
-
-//	virtual wxString	GetRowLabelValue	(int iRecord)
-//	{
-//		return( wxString::Format("%d", 1 + iRecord) );
-//	}
-
-	virtual wxString	GetColLabelValue	(int iField)
-	{
-		if( iField >= 0 && iField < m_pTable->Get_Field_Count() )
-		{
-			return( m_pTable->Get_Field_Name(iField) );
-		}
-
-		return( wxEmptyString );
-	}
-
-	//-----------------------------------------------------
-	virtual bool		InsertRows			(size_t Position = 0, size_t Number = 1)
-	{
-		wxGridTableMessage msg(this, wxGRIDTABLE_NOTIFY_ROWS_INSERTED, Position, Number);
-
-		return( GetView()->ProcessTableMessage(msg) );
-	}
-
-	virtual bool		AppendRows			(                     size_t Number = 1)
-	{
-		wxGridTableMessage msg(this, wxGRIDTABLE_NOTIFY_ROWS_APPENDED,           Number);
-
-		return( GetView()->ProcessTableMessage(msg) );
-	}
-
-	virtual bool		DeleteRows			(size_t Position = 0, size_t Number = 1)
-	{
-		wxGridTableMessage msg(this, wxGRIDTABLE_NOTIFY_ROWS_DELETED , Position, Number);
-
-		return( GetView()->ProcessTableMessage(msg) );
-	}
-
-	virtual bool		InsertCols			(size_t Position = 0, size_t Number = 1)
-	{
-		wxGridTableMessage msg(this, wxGRIDTABLE_NOTIFY_COLS_INSERTED, Position, Number);
-
-		return( GetView()->ProcessTableMessage(msg) );
-	}
-
-	virtual bool		AppendCols			(                     size_t Number = 1)
-	{
-		wxGridTableMessage msg(this, wxGRIDTABLE_NOTIFY_COLS_APPENDED,           Number);
-
-		return( GetView()->ProcessTableMessage(msg) );
-	}
-
-	virtual bool		DeleteCols			(size_t Position = 0, size_t Number = 1)
-	{
-		wxGridTableMessage msg(this, wxGRIDTABLE_NOTIFY_COLS_DELETED , Position, Number);
-
-		return( GetView()->ProcessTableMessage(msg) );
-	}
-
-	//-----------------------------------------------------
-	virtual wxString	GetTypeName			(int iRecord, int iField)
-	{
-		if( iField >= 0 && iField < m_pTable->Get_Field_Count() )
-		{
-			switch( m_pTable->Get_Field_Type(iField) )
-			{
-			case SG_DATATYPE_Bit   : return( wxGRID_VALUE_BOOL   );
-
-			case SG_DATATYPE_Byte  :
-			case SG_DATATYPE_Char  :
-			case SG_DATATYPE_Word  :
-			case SG_DATATYPE_Short :
-			case SG_DATATYPE_DWord :
-			case SG_DATATYPE_Int   :
-			case SG_DATATYPE_ULong :
-			case SG_DATATYPE_Long  : return( wxGRID_VALUE_NUMBER );
-
-			case SG_DATATYPE_Float :
-			case SG_DATATYPE_Double: return( wxGRID_VALUE_FLOAT  );
-
-			case SG_DATATYPE_Date  : return( wxGRID_VALUE_DATE   );
-
-			case SG_DATATYPE_Color : return( wxGRID_VALUE_STRING );
-			}
-		}
-
-		return( wxGRID_VALUE_STRING );
-	}
-
-	//-----------------------------------------------------
-	virtual bool		IsEmptyCell			(int iRecord, int iField)
-	{
-		CSG_Table_Record *pRecord = Get_Record(iRecord, iField);
-
-		return( !pRecord || pRecord->is_NoData(iField) );
-	}
-
-	//-----------------------------------------------------
-	virtual wxString	GetValue			(int iRecord, int iField)
-	{
-		CSG_Table_Record *pRecord = Get_Record(iRecord, iField);
-
-		if( pRecord && !pRecord->is_NoData(iField) )
-		{
-			switch( m_pTable->Get_Field_Type(iField) )
-			{
-			default:
-				{
-					return( pRecord->asString(iField) );
-				}
-
-			case SG_DATATYPE_Color:
-				{
-					int c = pRecord->asInt(iField);
-
-					return( wxString::Format("#%02X%02X%02X", SG_GET_R(c), SG_GET_G(c), SG_GET_B(c)) );
-				}
-			}
-		}
-
-		return( wxEmptyString );
-	}
-
-	virtual void		SetValue			(int iRecord, int iField, const wxString &Value)
-	{
-		CSG_Table_Record *pRecord = Get_Record(iRecord, iField);
-
-		if( pRecord )
-		{
-			if( Value.IsEmpty() )
-			{
-				pRecord->Set_NoData(iField);
-			}
-			else switch( m_pTable->Get_Field_Type(iField) )
-			{
-			default:
-				{
-					pRecord->Set_Value(iField, &Value);
-				}
-				break;
-
-			case SG_DATATYPE_Color:
-				{
-					if( Value[0] == '#' )
-					{
-						wxColour Color; Color.Set(Value);
-
-						pRecord->Set_Value(iField, Get_Color_asInt(Color));
-					}
-					else
-					{
-						pRecord->Set_Value(iField, &Value);
-					}
-				}
-				break;
-			}
-		}
-	}
-
-	//-----------------------------------------------------
-	virtual long		GetValueAsLong		(int iRecord, int iField)
-	{
-		CSG_Table_Record *pRecord = Get_Record(iRecord, iField);
-
-		return( pRecord ? pRecord->asInt(iField) : 0l );
-	}
-
-	virtual void		SetValueAsLong		(int iRecord, int iField, long Value)
-	{
-		CSG_Table_Record *pRecord = Get_Record(iRecord, iField);
-
-		if( pRecord ) { pRecord->Set_Value(iField, Value); }
-	}
-
-	//-----------------------------------------------------
-	virtual double		GetValueAsDouble	(int iRecord, int iField)
-	{
-		CSG_Table_Record *pRecord = Get_Record(iRecord, iField);
-
-		return( pRecord ? pRecord->asDouble(iField) : 0l );
-	}
-
-	virtual void SetValueAsDouble(int iRecord, int iField, double Value)
-	{
-		CSG_Table_Record *pRecord = Get_Record(iRecord, iField);
-
-		if( pRecord ) { pRecord->Set_Value(iField, Value); }
-	}
-
-	//-----------------------------------------------------
-	virtual bool		GetValueAsBool		(int iRecord, int iField)
-	{
-		CSG_Table_Record *pRecord = Get_Record(iRecord, iField);
-
-		return( pRecord ? pRecord->asInt(iField) != 0 : false );
-	}
-
-	virtual void		SetValueAsBool		(int iRecord, int iField, bool Value)
-	{
-		CSG_Table_Record *pRecord = Get_Record(iRecord, iField);
-
-		if( pRecord ) { pRecord->Set_Value(iField, Value); }
-	}
-
-	//-----------------------------------------------------
-	bool			m_bSelection;
-
-	CSG_Table		*m_pTable;
-
-};
 
 
 ///////////////////////////////////////////////////////////
@@ -330,8 +72,12 @@ IMPLEMENT_CLASS(CVIEW_Table_Control, wxGrid)
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CVIEW_Table_Control, wxGrid)
-	EVT_GRID_RANGE_SELECTING  (CVIEW_Table_Control::On_Selecting    ) // RANGE_SELECT was split in RANGE_SELECTING and SELECTED in 3.2
-	EVT_GRID_RANGE_SELECTED   (CVIEW_Table_Control::On_Selected     ) // RANGE_SELECT was split in RANGE_SELECTING and SELECTED in 3.2
+#if (wxMAJOR_VERSION == 3 && wxMINOR_VERSION == 1 && wxRELEASE_NUMBER < 5)
+	EVT_GRID_RANGE_SELECT     (CVIEW_Table_Control::On_Selected     ) // RANGE_SELECT was split in RANGE_SELECTING and SELECTED in 3.2
+#else
+	EVT_GRID_RANGE_SELECTING  (CVIEW_Table_Control::On_Selecting    )
+	EVT_GRID_RANGE_SELECTED   (CVIEW_Table_Control::On_Selected     )
+#endif
 
 	EVT_GRID_CELL_CHANGED     (CVIEW_Table_Control::On_Changed      )
 
@@ -387,20 +133,15 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_Table_Control::CVIEW_Table_Control(wxWindow *pParent, CSG_Table *pTable, int Constraint)
-	: wxGrid(pParent, -1, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS|wxSUNKEN_BORDER)
+	: wxGrid(pParent, -1, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS)
 {
-	m_pData	= new CVIEW_Table_Data(m_pTable = pTable);
+	m_pData  = new CVIEW_Table_Data(m_pTable = pTable);
 
-	m_Cursor	= -1;
-
-	m_Decimals	= -1;
+	m_Cursor = -1;
 
 	EnableDragGridSize(false);
-
 	DisableDragRowSize();
-
 	SetRowLabelAlignment(wxALIGN_RIGHT, wxALIGN_CENTRE);
-
 	SetCellHighlightColour(SYS_Get_Color(wxSYS_COLOUR_HIGHLIGHT));
 
 	SetTable(m_pData, true, wxGrid::wxGridSelectRows);
@@ -453,14 +194,8 @@ bool CVIEW_Table_Control::Save(const wxString &File, int Format)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CVIEW_Table_Control::Update_Table(void)
+bool CVIEW_Table_Control::Update_Float_Format(void)
 {
-	if( GetBatchCount() > 0 )
-	{
-		return( false );
-	}
-
-	//-----------------------------------------------------
 	CWKSP_Base_Item	*pItem	= (CWKSP_Base_Item *)g_pData->Get(m_pTable);
 
 	if( pItem && pItem->Get_Parameter("TABLE_FLT_STYLE") && pItem->Get_Parameter("TABLE_FLT_DECIMALS") )
@@ -487,10 +222,22 @@ bool CVIEW_Table_Control::Update_Table(void)
 			pRenderer->SetFormat   (wxGRID_FLOAT_FORMAT_FIXED  ); // Decimal floating point (f)
 			break;
 		}
+
+		SetDefaultRenderer(pRenderer);
 	}
 
-	//-----------------------------------------------------
-	return( _Update_Records() );
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CVIEW_Table_Control::Update_Table(void)
+{
+	return( GetBatchCount() == 0 && _Update_Records() );
 }
 
 //---------------------------------------------------------
@@ -507,6 +254,8 @@ bool CVIEW_Table_Control::Update_Selection(void)
 //---------------------------------------------------------
 bool CVIEW_Table_Control::_Update_Records(void)
 {
+	Update_Float_Format();
+
 	//-----------------------------------------------------
 	int	dCols = m_pData->GetNumberCols() - GetNumberCols();
 
@@ -608,34 +357,6 @@ bool CVIEW_Table_Control::_Update_Selection(bool bViews)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CVIEW_Table_Control::_Update_Sorting(int iField, int Direction)
-{
-	if( iField >= 0 && iField < GetNumberCols() )
-	{
-		m_Cursor	= -1;
-
-		switch( Direction )
-		{
-		default: m_pTable->Toggle_Index(iField                        ); break;
-		case  0: m_pTable->Set_Index   (iField, TABLE_INDEX_None      ); break;
-		case  1: m_pTable->Set_Index   (iField, TABLE_INDEX_Ascending ); break;
-		case  2: m_pTable->Set_Index   (iField, TABLE_INDEX_Descending); break;
-		}
-
-		_Update_Records();
-
-		return( true );
-	}
-
-	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 void CVIEW_Table_Control::On_Selecting(wxGridRangeSelectEvent &event)
 {
 	if( event.Selecting() )
@@ -681,28 +402,7 @@ void CVIEW_Table_Control::On_Selected(wxGridRangeSelectEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_Changed(wxGridEvent &event)
 {
-	CSG_Table_Record *pRecord = m_pData->Get_Record(event.GetRow());
-
-	if( pRecord )
-	{
-		switch( m_pTable->Get_Field_Type(event.GetCol()) )
-		{
-		default:
-		{
-			// nop
-		}
-		break;
-
-		case SG_DATATYPE_Color:
-		{
-			wxColour Colour(Get_Color_asWX(pRecord->asInt(event.GetCol())));
-
-			SetCellBackgroundColour(event.GetRow(), event.GetCol(), Colour);
-			SetCellTextColour      (event.GetRow(), event.GetCol(), Colour);
-		}
-		break;
-		}
-	}
+	m_pData->On_Changed(event.GetRow(), event.GetCol());
 }
 
 
@@ -752,7 +452,7 @@ void CVIEW_Table_Control::On_LClick_Label(wxGridEvent &event)
 
 				for(int iRecord=iFirst; iRecord<=iLast; iRecord++)
 				{
-					m_pTable->Select(m_pTable->Get_Record_byIndex(iRecord)->Get_Index(), true);
+					m_pTable->Select(m_pData->Get_Record(iRecord), true);
 				}
 			}
 
@@ -772,41 +472,18 @@ void CVIEW_Table_Control::On_LClick_Label(wxGridEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_LDClick_Label(wxGridEvent &event)
 {
-	_Update_Sorting(event.GetCol(), -1);
+	if( m_pData->Sort(event.GetCol(), -1) )
+	{
+		m_Cursor	= -1;
+
+		_Update_Records();
+	}
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CVIEW_Table_Control::_Get_DataSource(wxString &Source)
-{
-	if( Source.Find("PGSQL:"  ) == 0
-	||	Source.Find("ftp://"  ) == 0
-	||	Source.Find("http://" ) == 0
-	||	Source.Find("https://") == 0
-	||	Source.Find("file://" ) == 0
-	||  wxFileExists(Source)  )
-	{
-		return( true );
-	}
-
-	if( m_pTable->Get_File_Name(false) )
-	{
-		wxFileName	fn(Source), dir(m_pTable->Get_File_Name(false));
-
-		if( fn.MakeAbsolute(dir.GetPath()) && fn.Exists() )
-		{
-			Source	= fn.GetFullPath();
-
-			return( true );
-		}
-	}
-
-	return( false );
-}
 
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_RClick(wxGridEvent &event)
@@ -830,7 +507,7 @@ void CVIEW_Table_Control::On_RClick(wxGridEvent &event)
 
 			wxString	Value	= GetCellValue(event.GetRow(), event.GetCol());
 
-			if( _Get_DataSource(Value) )
+			if( m_pData->is_DataSource(Value) )
 			{
 				CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_OPEN_DATA);
 			}
@@ -992,7 +669,7 @@ void CVIEW_Table_Control::On_Cell_Open(wxCommandEvent &event)
 
 	if( event.GetId() == ID_CMD_TABLE_FIELD_OPEN_DATA )
 	{
-		if( !_Get_DataSource(Value) || !g_pData->Open(Value) )
+		if( !m_pData->is_DataSource(Value) || !g_pData->Open(Value) )
 		{
 			DLG_Message_Show_Error(_TL("failed"), CMD_Get_Name(ID_CMD_TABLE_FIELD_OPEN_DATA));
 		}
@@ -1007,44 +684,7 @@ void CVIEW_Table_Control::On_Cell_Open(wxCommandEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_ToClipboard(wxCommandEvent &event)
 {
-	_ToClipboard();
-}
-
-//---------------------------------------------------------
-bool CVIEW_Table_Control::_ToClipboard(void)
-{
-	if( wxTheClipboard->Open() )
-	{
-		wxString	Data;
-
-		int	i, j, n	= m_pTable->Get_Selection_Count()
-			? m_pTable->Get_Selection_Count() : m_pTable->Get_Count();
-
-		for(j=0; j<m_pTable->Get_Field_Count(); j++)
-		{
-			Data	+= m_pTable->Get_Field_Name(j);
-			Data	+= j + 1 < m_pTable->Get_Field_Count() ? '\t' : '\n';
-		}
-
-		for(i=0; i<n; i++)
-		{
-			CSG_Table_Record	*pRecord	= m_pTable->Get_Selection_Count()
-				? m_pTable->Get_Selection(i) : m_pTable->Get_Record_byIndex(i);
-
-			for(j=0; j<m_pTable->Get_Field_Count(); j++)
-			{
-				Data	+= pRecord->asString(j);
-				Data	+= j + 1 < m_pTable->Get_Field_Count() ? '\t' : '\n';
-			}
-		}
-
-		wxTheClipboard->SetData(new wxTextDataObject(Data));
-		wxTheClipboard->Close();
-
-		return( true );
-	}
-
-	return( false );
+	m_pData->To_Clipboard();
 }
 
 
@@ -1187,7 +827,7 @@ void CVIEW_Table_Control::On_Field_Del_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_Field_Rename(wxCommandEvent &event)
 {
-	CSG_Parameters	P(_TL("Rename Fields"));
+	CSG_Parameters P(_TL("Rename Fields"));
 
 	for(int i=0; i<m_pTable->Get_Field_Count(); i++)
 	{
@@ -1226,9 +866,9 @@ void CVIEW_Table_Control::On_Field_Rename_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_Field_Type(wxCommandEvent &event)
 {
-	CSG_Parameters	P(_TL("Change Field Type"));
+	CSG_Parameters P(_TL("Change Field Type"));
 
-	CSG_Array_Int	Types(m_pTable->Get_Field_Count());
+	CSG_Array_Int Types(m_pTable->Get_Field_Count());
 
 	for(int i=0; i<m_pTable->Get_Field_Count(); i++)
 	{
@@ -1308,6 +948,8 @@ void CVIEW_Table_Control::On_Field_Type(wxCommandEvent &event)
 
 		if( bChanged )
 		{
+			Update_Table();
+
 			g_pData->Update(m_pTable, NULL);
 		}
 	}
@@ -1326,40 +968,8 @@ void CVIEW_Table_Control::On_Field_Type_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_Field_Sort(wxCommandEvent &event)
 {
-	CSG_String	Fields, Order;
-
-	for(int i=0; i<m_pTable->Get_Field_Count(); i++)
+	if( m_pData->On_Sort() )
 	{
-		Fields	+= m_pTable->Get_Field_Name(i) + CSG_String("|");
-	}
-
-	Order.Printf("%s|%s|%s|",
-		_TL("do not sort"),
-		_TL("ascending"),
-		_TL("descending")
-	);
-
-	//-----------------------------------------------------
-	CSG_Parameters	P(_TL("Sort Table"));
-
-	P.Add_Choice(""       , "FIELD_1", _TL("Sort first by" ), _TL(""), Fields, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(0));
-	P.Add_Choice("FIELD_1", "ORDER_1", _TL("Direction"     ), _TL(""), Order , !m_pTable->is_Indexed() ? 1 : m_pTable->Get_Index_Order(0));
-
-	P.Add_Choice(""       , "FIELD_2", _TL("Sort second by"), _TL(""), Fields, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(1));
-	P.Add_Choice("FIELD_2", "ORDER_2", _TL("Direction"     ), _TL(""), Order , !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Order(1));
-
-	P.Add_Choice(""       , "FIELD_3", _TL("Sort third by" ), _TL(""), Fields, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(2));
-	P.Add_Choice("FIELD_3", "ORDER_3", _TL("Direction"     ), _TL(""), Order , !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Order(2));
-
-	//-----------------------------------------------------
-	if( DLG_Parameters(&P) )
-	{
-		m_pTable->Set_Index(
-			P("FIELD_1")->asInt(), P("ORDER_1")->asInt() == 1 ? TABLE_INDEX_Ascending : P("ORDER_1")->asInt() == 2 ? TABLE_INDEX_Descending : TABLE_INDEX_None,
-			P("FIELD_2")->asInt(), P("ORDER_2")->asInt() == 1 ? TABLE_INDEX_Ascending : P("ORDER_2")->asInt() == 2 ? TABLE_INDEX_Descending : TABLE_INDEX_None,
-			P("FIELD_3")->asInt(), P("ORDER_3")->asInt() == 1 ? TABLE_INDEX_Ascending : P("ORDER_3")->asInt() == 2 ? TABLE_INDEX_Descending : TABLE_INDEX_None
-		);
-
 		_Update_Records();
 	}
 }
@@ -1454,6 +1064,7 @@ void CVIEW_Table_Control::On_Record_Add(wxCommandEvent &event)
 {
 	if( m_pTable->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table && m_pTable->Add_Record() )
 	{
+		_Update_Records();
 	}
 }
 

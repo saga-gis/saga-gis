@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: active_attributes_control.h 2665 2015-10-28 12:55:25Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef _HEADER_INCLUDED__SAGA_GUI__active_attributes_control_H
 #define _HEADER_INCLUDED__SAGA_GUI__active_attributes_control_H
 
@@ -87,55 +75,54 @@ public:
 	CActive_Attributes_Control(wxWindow *pParent);
 	virtual ~CActive_Attributes_Control(void);
 
-	void						On_Field_Open		(wxCommandEvent  &event);
+	CSG_Table &					Get_Table			(void)	{	return( m_Table );	}
 
-	void						On_Autosize_Cols	(wxCommandEvent  &event);
-	void						On_Autosize_Rows	(wxCommandEvent  &event);
+	void						Set_Row_Labeling	(bool bOn);
 
-	void						On_Field_Add		(wxCommandEvent  &event);
-	void						On_Field_Del		(wxCommandEvent  &event);
-	void						On_Field_Sort		(wxCommandEvent  &event);
-	void						On_Field_Rename		(wxCommandEvent  &event);
-	void						On_Field_Type		(wxCommandEvent  &event);
+	bool						Update_Table		(void);
 
-	void						On_ToClipboard		(wxCommandEvent  &event);
 
-	void						On_Size				(wxSizeEvent     &event);
+protected:
+
 	void						On_Key				(wxKeyEvent      &event);
 
 	void						On_Edit_Start		(wxGridEvent     &event);
 	void						On_Edit_Stop		(wxGridEvent     &event);
 	void						On_Changed			(wxGridEvent     &event);
+
 	void						On_LClick			(wxGridEvent     &event);
-	void						On_RClick			(wxGridEvent     &event);
 	void						On_LClick_Label		(wxGridEvent     &event);
+	void						On_RClick			(wxGridEvent     &event);
 	void						On_RClick_Label		(wxGridEvent     &event);
 
-	void						Set_Row_Labeling	(bool bOn);
+	void						On_Autosize_Cols	(wxCommandEvent  &event);
+	void						On_Autosize_Rows	(wxCommandEvent  &event);
 
-	class CSG_Table *			Get_Table			(void)	{	return( m_pTable );	}
+	void						On_Cell_Open		(wxCommandEvent  &event);
 
-	bool						Update_Table		(void);
+	void						On_Field_Add		(wxCommandEvent  &event);
+	void						On_Field_Del		(wxCommandEvent  &event);
+	void						On_Field_Rename		(wxCommandEvent  &event);
+	void						On_Field_Type		(wxCommandEvent  &event);
+
+	void						On_ToClipboard		(wxCommandEvent  &event);
 
 
 private:
 
 	bool						m_bEditing;
 
-	int							m_Field_Offset;
+	CSG_Table					m_Table;
 
-	class CSG_Table				*m_pTable;
-
-
-	bool						_Set_Record			(int iRecord);
-
-	bool						_Get_DataSource		(wxString &Source);
-
-	bool						_ToClipboard		(void);
+	class CVIEW_Table_Data		*m_pData;
 
 
-//---------------------------------------------------------
-DECLARE_EVENT_TABLE()
+	bool						_Update_Records		(void);
+
+	CSG_Grids *					_Get_Grids			(void);
+
+
+	DECLARE_EVENT_TABLE()
 };
 
 

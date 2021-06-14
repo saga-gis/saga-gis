@@ -133,7 +133,7 @@ void CActive_Attributes::On_Button(wxCommandEvent &event)
 
 void CActive_Attributes::On_Button_UI(wxUpdateUIEvent &event)
 {
-	event.Enable(m_pControl->Get_Table()->is_Modified());
+	event.Enable(m_pControl->Get_Table().is_Modified());
 }
 
 
@@ -192,8 +192,8 @@ void CActive_Attributes::Set_Attributes(void)
 
 	if( m_pItem && m_pItem->Edit_Get_Attributes()->is_Valid() )
 	{
-		m_pControl->Get_Table()->Assign(m_pItem->Edit_Get_Attributes());
-		m_pControl->Get_Table()->Set_Modified(false);
+		m_pControl->Get_Table().Assign(m_pItem->Edit_Get_Attributes());
+		m_pControl->Get_Table().Set_Modified(false);
 
 		if( _Get_Table() && _Get_Table()->Get_Selection_Count() > 1 )
 		{
@@ -207,7 +207,7 @@ void CActive_Attributes::Set_Attributes(void)
 	}
 	else
 	{
-		m_pControl->Get_Table()->Destroy();
+		m_pControl->Get_Table().Destroy();
 	}
 
 	m_pControl->Set_Row_Labeling(_Get_Table() != NULL);
@@ -228,9 +228,9 @@ void CActive_Attributes::Set_Attributes(void)
 //---------------------------------------------------------
 void CActive_Attributes::Save_Changes(bool bConfirm)
 {
-	if( m_pItem && m_pControl->Get_Table()->is_Modified() && (!bConfirm || DLG_Message_Confirm(_TL("Save changes?"), _TL("Attributes"))) )
+	if( m_pItem && m_pControl->Get_Table().is_Modified() && (!bConfirm || DLG_Message_Confirm(_TL("Save changes?"), _TL("Attributes"))) )
 	{
-		m_pItem->Edit_Get_Attributes()->Assign_Values(m_pControl->Get_Table());
+		m_pItem->Edit_Get_Attributes()->Assign_Values(&m_pControl->Get_Table());
 		m_pItem->Edit_Set_Attributes();
 
 		Set_Attributes();

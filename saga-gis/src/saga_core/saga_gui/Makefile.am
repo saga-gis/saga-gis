@@ -65,6 +65,7 @@ view_ruler.cpp\
 view_scatterplot.cpp\
 view_table.cpp\
 view_table_control.cpp\
+view_table_data.cpp\
 view_table_diagram.cpp\
 wksp.cpp\
 wksp_base_control.cpp\
@@ -160,6 +161,7 @@ view_ruler.h\
 view_scatterplot.h\
 view_table.h\
 view_table_control.h\
+view_table_data.h\
 view_table_diagram.h\
 wksp.h\
 wksp_base_control.h\

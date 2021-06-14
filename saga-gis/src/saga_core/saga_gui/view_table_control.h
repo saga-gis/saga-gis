@@ -81,6 +81,8 @@ public:
 	bool						Update_Table		(void);
 	bool						Update_Selection	(void);
 
+	bool						Update_Float_Format	(void);
+
 
 protected:
 
@@ -133,24 +135,18 @@ protected:
 
 private:
 
-	int							m_Cursor, m_Decimals;
-
-	CSG_Parameters				m_Field_Calc;
+	int							m_Cursor;
 
 	CSG_Table					*m_pTable;
 
 	class CVIEW_Table_Data		*m_pData;
 
+	CSG_Parameters				m_Field_Calc;
+
 
 	bool						_Update_Records		(void);
 
 	bool						_Update_Selection	(bool bViews);
-
-	bool						_Update_Sorting		(int iField, int Direction);
-
-	bool						_Get_DataSource		(wxString &Source);
-
-	bool						_ToClipboard		(void);
 
 	static int					_Parameter_Callback	(CSG_Parameter *pParameter, int Flags);
 

@@ -104,7 +104,7 @@ CDLG_Table::CDLG_Table(CSG_Table *pTable, wxString Caption)
 	Add_Button(ID_BTN_DELETE);
 	Add_Button(ID_BTN_DELETE_ALL);
 
-	if( pTable->Get_Field_Count() > 0 && pTable->Get_Field_Type(0) == SG_DATATYPE_Color )
+	if( m_pTable->Get_Field_Count() > 0 && m_pTable->Get_Field_Type(0) == SG_DATATYPE_Color )
 	{
 		Add_Button(-1);
 		Add_Button(ID_BTN_COLORS);
@@ -148,13 +148,13 @@ void CDLG_Table::Set_Position(wxRect r)
 //---------------------------------------------------------
 void CDLG_Table::Save_Changes(void)
 {
-	CSG_Table	*pTable	= m_pControl->Get_Table();
+	CSG_Table	&Table	= m_pControl->Get_Table();
 
 	m_pTable->Del_Records();
 
-	for(int i=0; i<pTable->Get_Count(); i++)
+	for(int i=0; i<Table.Get_Count(); i++)
 	{
-		m_pTable->Add_Record(pTable->Get_Record_byIndex(i));	// apply any sorting
+		m_pTable->Add_Record(Table.Get_Record_byIndex(i));	// apply any sorting
 	}
 }
 
@@ -211,7 +211,7 @@ void CDLG_Table::On_WKSP_Load(wxCommandEvent &event)
 
 			if( dlg.ShowModal() == wxID_OK )
 			{
-				m_pControl->Get_Table()->Assign_Values((CSG_Table *)pTables->Get(Index[dlg.GetSelection()].asInt(0)));
+				m_pControl->Get_Table().Assign_Values((CSG_Table *)pTables->Get(Index[dlg.GetSelection()].asInt(0)));
 				m_pControl->Update_Table();
 
 				Refresh();
@@ -231,7 +231,7 @@ void CDLG_Table::On_WKSP_Save(wxCommandEvent &event)
 
 	if( dlg.ShowModal() == wxID_OK && !dlg.GetValue().IsEmpty() )
 	{
-		CSG_Table	*pTable	= SG_Create_Table(*m_pControl->Get_Table());
+		CSG_Table	*pTable	= SG_Create_Table(m_pControl->Get_Table());
 
 		wxString	Name(dlg.GetValue());
 
@@ -268,26 +268,24 @@ void CDLG_Table::On_Delete_All(wxCommandEvent &event)
 //---------------------------------------------------------
 void CDLG_Table::On_Colors(wxCommandEvent &event)
 {
-	if( m_pControl->Get_Table()->Get_Count() > 0 )
+	if( m_pControl->Get_Table().Get_Count() > 0 )
 	{
-		int		i;
+		CSG_Table	&Table	= m_pControl->Get_Table();
 
-		CSG_Table	*pTable	= m_pControl->Get_Table();
+		CSG_Colors	Colors(Table.Get_Count());
 
-		CSG_Colors	Colors(pTable->Get_Count());
-
-		for(i=0; i<pTable->Get_Count(); i++)
+		for(int i=0; i<Table.Get_Count(); i++)
 		{
-			Colors[i]	= pTable->Get_Record(i)->asInt(0);
+			Colors[i]	= Table.Get_Record(i)->asInt(0);
 		}
 
 		if( DLG_Colors(&Colors) )
 		{
-			Colors.Set_Count(pTable->Get_Count());
+			Colors.Set_Count(Table.Get_Count());
 
-			for(i=0; i<pTable->Get_Count(); i++)
+			for(int i=0; i<Table.Get_Count(); i++)
 			{
-				pTable->Get_Record(i)->Set_Value(0, Colors[i]);
+				Table.Get_Record(i)->Set_Value(0, Colors[i]);
 			}
 
 			m_pControl->Update_Table();
