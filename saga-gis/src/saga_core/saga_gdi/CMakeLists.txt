@@ -11,10 +11,10 @@ set(SAGA_GDI_SOURCES
 	sgdi_diagram.cpp
 	sgdi_dialog.cpp
 	sgdi_helper.cpp
+	sgdi_layout_items.cpp
 	saga_gdi.cpp
 	3d_view.h
 	3d_view_tools.h
-	RectTracker.h
 	saga_gdi.h
 	sgdi_controls.h
 	sgdi_core.h
@@ -24,9 +24,9 @@ set(SAGA_GDI_SOURCES
 	sgdi_layout_items.h
 )
 set(SAGA_GDI_PUBLIC_HEADERS
-	saga_gdi.h
 	3d_view.h
 	3d_view_tools.h
+	saga_gdi.h
 	sgdi_controls.h
 	sgdi_core.h
 	sgdi_diagram.h

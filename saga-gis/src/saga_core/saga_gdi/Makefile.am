@@ -24,24 +24,24 @@ sgdi_layout_items.cpp\
 saga_gdi.cpp\
 3d_view.h\
 3d_view_tools.h\
+saga_gdi.h\
 sgdi_controls.h\
 sgdi_core.h\
 sgdi_diagram.h\
 sgdi_dialog.h\
 sgdi_helper.h\
-sgdi_layout_items.h\
-saga_gdi.h
+sgdi_layout_items.h
 
 otherincludedir = $(pkgincludedir)/saga_core/saga_gdi
 otherinclude_HEADERS =\
 3d_view.h\
 3d_view_tools.h\
+saga_gdi.h\
 sgdi_controls.h\
 sgdi_core.h\
 sgdi_diagram.h\
 sgdi_dialog.h\
 sgdi_helper.h\
-sgdi_layout_items.h\
-saga_gdi.h
+sgdi_layout_items.h
 
 libsaga_gdi_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la

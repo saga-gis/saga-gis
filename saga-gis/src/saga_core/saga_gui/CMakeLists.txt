@@ -8,6 +8,7 @@ set(SAGA_GUI_SOURCES
 	active_attributes_control.cpp
 	active_description.cpp
 	active_history.cpp
+	active_info.cpp
 	active_legend.cpp
 	active_parameters.cpp
 	callback.cpp
@@ -44,7 +45,6 @@ set(SAGA_GUI_SOURCES
 	view_layout.cpp
 	view_layout_control.cpp
 	view_layout_info.cpp
-	view_layout_printout.cpp
 	view_map.cpp
 	view_map_3d.cpp
 	view_map_3d_panel.cpp
@@ -53,6 +53,7 @@ set(SAGA_GUI_SOURCES
 	view_scatterplot.cpp
 	view_table.cpp
 	view_table_control.cpp
+	view_table_data.cpp
 	view_table_diagram.cpp
 	wksp.cpp
 	wksp_base_control.cpp
@@ -103,6 +104,7 @@ set(SAGA_GUI_SOURCES
 	active_attributes_control.h
 	active_description.h
 	active_history.h
+	active_info.h
 	active_legend.h
 	active_parameters.h
 	callback.h
@@ -139,7 +141,6 @@ set(SAGA_GUI_SOURCES
 	view_layout.h
 	view_layout_control.h
 	view_layout_info.h
-	view_layout_printout.h
 	view_map.h
 	view_map_3d.h
 	view_map_3d_panel.h
@@ -148,6 +149,7 @@ set(SAGA_GUI_SOURCES
 	view_scatterplot.h
 	view_table.h
 	view_table_control.h
+	view_table_data.h
 	view_table_diagram.h
 	wksp.h
 	wksp_base_control.h
@@ -207,6 +209,10 @@ target_link_libraries(saga_gui ${wxWidgets_LIBRARIES})
 # add compile definition needed
 target_compile_definitions(saga_gui PRIVATE -D${MLIBPATH})
 target_compile_definitions(saga_gui PRIVATE -D${MSHAREPATH})
+
+if(MSVC)
+	target_link_options(saga_gui PRIVATE /SUBSYSTEM:WINDOWS)
+endif()
 
 # add man page
 add_subdirectory(man)
