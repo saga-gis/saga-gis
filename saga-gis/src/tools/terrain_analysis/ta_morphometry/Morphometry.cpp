@@ -918,25 +918,26 @@ void CMorphometry::Set_Haralick(int x, int y)
 	const int	QMtrx[]			= { 4200, 4200, 700, 1000, 700 };
 
 	//-----------------------------------------------------
-	int		i, ix, iy, n;
-	double	Sum, Z[25], k[5];
+	double	Z[25], k[5];
 
 	Get_SubMatrix5x5(x, y, Z);
 
-	for(i=0; i<5; i++)
+	for(int i=0; i<5; i++)
 	{
-		for(n=0, Sum=0., iy=0; iy<5; iy++)
+		k[i]	= 0.;
+
+		for(int iy=0, n=0; iy<5; iy++)
 		{
-			for(ix=0; ix<5; ix++, n++)
+			for(int ix=0; ix<5; ix++, n++)
 			{
-				Sum	+= Z[n] * Mtrx[i][ix][iy];
+				k[i]	+= Z[n] * Mtrx[i][ix][iy];
 			}
 		}
 
-		k[i]	= 0.1 * Sum / QMtrx[i];
+		k[i]	/= QMtrx[i];
 	}
 
-	Set_From_Polynom(x, y, 0.01 * k[4], 0.01 * k[2], k[3], k[1], k[0]);
+	Set_From_Polynom(x, y, k[4], k[2], k[3], k[1], k[0]);
 }
 
 //---------------------------------------------------------
