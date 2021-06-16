@@ -144,6 +144,16 @@ CVIEW_Table_Control::CVIEW_Table_Control(wxWindow *pParent, CSG_Table *pTable, i
 	SetRowLabelAlignment(wxALIGN_RIGHT, wxALIGN_CENTRE);
 	SetCellHighlightColour(SYS_Get_Color(wxSYS_COLOUR_HIGHLIGHT));
 
+	wxGridCellRenderer *pRenderer;
+
+	pRenderer = GetDefaultRendererForType(wxGRID_VALUE_FLOAT);
+	pRenderer->DecRef();
+	pRenderer->SetParameters("-1,-1,g"); // Use the shorter of e or f (g)
+
+	pRenderer = GetDefaultRendererForType(wxGRID_VALUE_DATE );
+	pRenderer->DecRef();
+	pRenderer->SetParameters("%Y-%m-%d");
+
 	SetTable(m_pData, true, wxGrid::wxGridSelectRows);
 
 	Update_Table();
@@ -202,6 +212,8 @@ bool CVIEW_Table_Control::Update_Float_Format(void)
 	{
 		wxGridCellFloatRenderer	*pRenderer = (wxGridCellFloatRenderer *)GetDefaultRendererForType(wxGRID_VALUE_FLOAT);
 
+		pRenderer->DecRef();
+
 		switch( pItem->Get_Parameter("TABLE_FLT_STYLE")->asInt() )
 		{
 		default:	// system default
@@ -222,8 +234,6 @@ bool CVIEW_Table_Control::Update_Float_Format(void)
 			pRenderer->SetFormat   (wxGRID_FLOAT_FORMAT_FIXED  ); // Decimal floating point (f)
 			break;
 		}
-
-		SetDefaultRenderer(pRenderer);
 	}
 
 	return( true );

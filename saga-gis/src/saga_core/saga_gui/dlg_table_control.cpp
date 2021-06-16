@@ -135,6 +135,16 @@ CDLG_Table_Control::CDLG_Table_Control(wxWindow *pParent, CSG_Table *pTable)
 	SetRowLabelAlignment(wxALIGN_RIGHT, wxALIGN_CENTRE);
 	SetCellHighlightColour(SYS_Get_Color(wxSYS_COLOUR_HIGHLIGHT));
 
+	wxGridCellRenderer *pRenderer;
+
+	pRenderer = GetDefaultRendererForType(wxGRID_VALUE_FLOAT);
+	pRenderer->DecRef();
+	pRenderer->SetParameters("-1,-1,g"); // Use the shorter of e or f (g)
+
+	pRenderer = GetDefaultRendererForType(wxGRID_VALUE_DATE );
+	pRenderer->DecRef();
+	pRenderer->SetParameters("%Y-%m-%d");
+
 	SetTable(m_pData, true, wxGrid::wxGridSelectRows);
 
 	Update_Table();

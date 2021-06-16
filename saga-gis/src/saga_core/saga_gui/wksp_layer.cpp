@@ -259,7 +259,7 @@ void CWKSP_Layer::On_Create_Parameters(void)
 			_TL("Specify floating point decimal precision in table and similar views."),
 			CSG_String::Format("%s|%s|%s",
 				_TL("system default"),
-				_TL("maximum number of significant decimals"),
+				_TL("compact"),
 				_TL("fix number of decimals")
 			), g_pData->Get_Parameter("TABLE_FLT_STYLE")->asInt()
 		);
@@ -748,7 +748,7 @@ int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 
 		if( pParameter->Cmp_Identifier("TABLE_FLT_STYLE") )
 		{
-			pParameters->Set_Enabled("TABLE_FLT_DECIMALS", pParameter->asInt() > 0);
+			pParameters->Set_Enabled("TABLE_FLT_DECIMALS", pParameter->asInt() == 2);
 		}
 
 		if(	pParameter->Cmp_Identifier("COLORS_TYPE") )

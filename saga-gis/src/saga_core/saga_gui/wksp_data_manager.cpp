@@ -316,7 +316,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 		_TL(""),
 		CSG_String::Format("%s|%s|%s",
 			_TL("system default"),
-			_TL("maximum number of significant decimals"),
+			_TL("compact"),
 			_TL("fix number of decimals")
 		), 1
 	);
@@ -755,7 +755,7 @@ int CWKSP_Data_Manager::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 
 		if(	pParameter->Cmp_Identifier("TABLE_FLT_STYLE") )
 		{
-			pParameters->Set_Enabled("TABLE_FLT_DECIMALS", pParameter->asInt() != 0);
+			pParameters->Set_Enabled("TABLE_FLT_DECIMALS", pParameter->asInt() == 2);
 		}
 	}
 

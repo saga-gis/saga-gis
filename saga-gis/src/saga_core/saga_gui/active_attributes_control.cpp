@@ -125,6 +125,16 @@ CActive_Attributes_Control::CActive_Attributes_Control(wxWindow *pParent)
 	SetRowLabelAlignment(wxALIGN_RIGHT, wxALIGN_CENTRE);
 	SetCellHighlightColour(SYS_Get_Color(wxSYS_COLOUR_HIGHLIGHT));
 
+	wxGridCellRenderer *pRenderer;
+
+	pRenderer = GetDefaultRendererForType(wxGRID_VALUE_FLOAT);
+	pRenderer->DecRef();
+	pRenderer->SetParameters("-1,-1,g"); // Use the shorter of e or f (g)
+
+	pRenderer = GetDefaultRendererForType(wxGRID_VALUE_DATE );
+	pRenderer->DecRef();
+	pRenderer->SetParameters("%Y-%m-%d");
+
 #if (wxMAJOR_VERSION == 3 && wxMINOR_VERSION == 1 && wxRELEASE_NUMBER < 5)
 	SetTable(m_pData, true, wxGrid::wxGridSelectCells);
 #else
