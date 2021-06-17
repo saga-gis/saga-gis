@@ -915,8 +915,6 @@ void CMorphometry::Set_Haralick(int x, int y)
 	{	{  4,  2,  0,- 2,- 4}, {  2,  1,  0,- 1,- 2}, {  0,  0,  0,  0,  0}, {- 2,- 1,  0,  1,  2}, {- 4,- 2,  0,  2,  4}	},
 	{	{  2,- 1,- 2,- 1,  2}, {  2,- 1,- 2,- 1,  2}, {  2,- 1,- 2,- 1,  2}, {  2,- 1,- 2,- 1,  2}, {  2,- 1,- 2,- 1,  2}	},	};
 
-	const int	QMtrx[]			= { 4200, 4200, 700, 1000, 700 };
-
 	//-----------------------------------------------------
 	double	Z[25], k[5];
 
@@ -933,9 +931,13 @@ void CMorphometry::Set_Haralick(int x, int y)
 				k[i]	+= Z[n] * Mtrx[i][ix][iy];
 			}
 		}
-
-		k[i]	/= QMtrx[i];
 	}
+
+	k[0] /= 420. * Get_Cellsize();
+	k[1] /= 420. * Get_Cellsize();
+	k[2] /=  70. * Get_Cellarea();
+	k[3] /= 100. * Get_Cellarea();
+	k[4] /=  70. * Get_Cellarea();
 
 	Set_From_Polynom(x, y, k[4], k[2], k[3], k[1], k[0]);
 }
