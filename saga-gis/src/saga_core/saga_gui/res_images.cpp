@@ -172,6 +172,7 @@
 #include "./res/xpm/tb_table_row_del.xpm"
 #include "./res/xpm/tb_table_row_del_all.xpm"
 #include "./res/xpm/tb_table_row_ins.xpm"
+#include "./res/xpm/tb_table_selection_only.xpm"
 #include "./res/xpm/tb_wksp.xpm"
 
 #include "./res/xpm/wksp_data_manager.xpm"
@@ -327,6 +328,7 @@ const char ** IMG_Get_XPM(int ID_IMG)
 	case ID_IMG_TB_TABLE_ROW_DEL:	return( tb_table_row_del_xpm );
 	case ID_IMG_TB_TABLE_ROW_DEL_ALL:	return( tb_table_row_del_all_xpm );
 	case ID_IMG_TB_TABLE_ROW_INS:	return( tb_table_row_ins_xpm );
+	case ID_IMG_TB_TABLE_SELECTION_ONLY:	return( tb_table_selection_only_xpm );
 	case ID_IMG_TB_WKSP:	return( tb_wksp_xpm );
 
 	case ID_IMG_WKSP_DATA_MANAGER:	return( wksp_data_manager_xpm );

@@ -1,0 +1,27 @@
+/* XPM */
+static const char *tb_table_selection_only_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 5 1",
+"  c Black",
+"X c #FFFFFF",
+"o c #000084",
+"O c #00FFFF",
+". c None",
+/* pixels */
+"               .",
+" XXXXXXXXXXXXX .",
+" XXXXXXXXXXXXX .",
+"               .",
+" OOOOOOOOOOOOO .",
+" OOOOOOOOOOOOO .",
+"               .",
+" OOOOOOOOOOOOO .",
+" OOOOOOOOOOOOO .",
+"               .",
+" XXXXXXXXXXXXX .",
+" XXXXXXXXXXXXX .",
+"               .",
+" XXXXXXXXXXXXX .",
+" XXXXXXXXXXXXX .",
+"               ."
+};

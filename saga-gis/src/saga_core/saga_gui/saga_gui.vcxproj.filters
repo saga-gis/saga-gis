@@ -971,6 +971,9 @@
     <None Include="res\xpm\tb_map_pan_active.xpm">
       <Filter>Resource Files\XPM</Filter>
     </None>
+    <None Include="res\xpm\tb_table_selection_only.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="res\saga_gui.rc">

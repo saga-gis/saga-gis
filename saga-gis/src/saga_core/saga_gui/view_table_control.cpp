@@ -555,15 +555,15 @@ void CVIEW_Table_Control::On_RClick_Label(wxGridEvent &event)
 	{
 		wxMenu	Menu(_TL("Columns"));
 
-		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_ADD);
-		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_DEL);
-		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_RENAME);
-		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_TYPE);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_ADD    );
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_DEL    );
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_RENAME );
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_TYPE   );
 		Menu.AppendSeparator();
-		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_SORT);
-		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_CALC);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_SORT   );
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_CALC   );
 		Menu.AppendSeparator();
-		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_TO_CLIPBOARD);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_TO_CLIPBOARD );
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_AUTOSIZE_COLS);
 
 		PopupMenu(&Menu, event.GetPosition().x, event.GetPosition().y - GetColLabelSize());
@@ -576,23 +576,23 @@ void CVIEW_Table_Control::On_RClick_Label(wxGridEvent &event)
 
 		if( m_pData->m_bSelection )
 		{
-			CMD_Menu_Add_Item(&Menu,  true, ID_CMD_TABLE_SELECTION_ONLY);
+			CMD_Menu_Add_Item(&Menu,  true, ID_CMD_TABLE_SELECTION_ONLY );
 			Menu.AppendSeparator();
-			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_TO_CLIPBOARD);
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_TO_CLIPBOARD   );
 		}
 		else
 		{
-			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_RECORD_ADD);
-			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_RECORD_INS);
-			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_RECORD_DEL);
-			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_RECORD_DEL_ALL);
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_RECORD_ADD     );
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_RECORD_INS     );
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_RECORD_DEL     );
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_RECORD_DEL_ALL );
 		//	Menu.AppendSeparator();
-		//	CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_AUTOSIZE_ROWS);
+		//	CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_AUTOSIZE_ROWS  );
 			Menu.AppendSeparator();
-			CMD_Menu_Add_Item(&Menu,  true, ID_CMD_TABLE_SELECTION_ONLY);
+			CMD_Menu_Add_Item(&Menu,  true, ID_CMD_TABLE_SELECTION_ONLY );
 			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_SELECTION_CLEAR);
 			Menu.AppendSeparator();
-			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_TO_CLIPBOARD);
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_TO_CLIPBOARD   );
 		}
 
 		PopupMenu(&Menu, event.GetPosition().x - GetRowLabelSize(), event.GetPosition().y);
