@@ -150,9 +150,11 @@ CVIEW_Table_Control::CVIEW_Table_Control(wxWindow *pParent, CSG_Table *pTable, i
 	pRenderer->DecRef();
 	pRenderer->SetParameters("-1,-1,g"); // Use the shorter of e or f (g)
 
+#if !(wxMAJOR_VERSION == 3 && wxMINOR_VERSION <= 1 && wxRELEASE_NUMBER < 5)
 	pRenderer = GetDefaultRendererForType(wxGRID_VALUE_DATE );
 	pRenderer->DecRef();
 	pRenderer->SetParameters("%Y-%m-%d");
+#endif
 
 	SetTable(m_pData, true, wxGrid::wxGridSelectRows);
 

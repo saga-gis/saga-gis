@@ -131,14 +131,14 @@ CActive_Attributes_Control::CActive_Attributes_Control(wxWindow *pParent)
 	pRenderer->DecRef();
 	pRenderer->SetParameters("-1,-1,g"); // Use the shorter of e or f (g)
 
+#if !(wxMAJOR_VERSION == 3 && wxMINOR_VERSION <= 1 && wxRELEASE_NUMBER < 5)
 	pRenderer = GetDefaultRendererForType(wxGRID_VALUE_DATE );
 	pRenderer->DecRef();
 	pRenderer->SetParameters("%Y-%m-%d");
 
-#if (wxMAJOR_VERSION == 3 && wxMINOR_VERSION == 1 && wxRELEASE_NUMBER < 5)
-	SetTable(m_pData, true, wxGrid::wxGridSelectCells);
-#else
 	SetTable(m_pData, true, wxGrid::wxGridSelectNone);
+#else
+	SetTable(m_pData, true, wxGrid::wxGridSelectCells);
 #endif
 
 	Set_Row_Labeling(false);
