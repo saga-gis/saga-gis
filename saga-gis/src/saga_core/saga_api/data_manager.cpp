@@ -510,7 +510,8 @@ CSG_Data_Object * CSG_Data_Manager::_Add_External(const CSG_String &File)
 		||	SG_File_Cmp_Extension(File, "gif")
 		||	SG_File_Cmp_Extension(File, "jpg")
 		||	SG_File_Cmp_Extension(File, "png")
-		||	SG_File_Cmp_Extension(File, "pcx") )
+		||	SG_File_Cmp_Extension(File, "pcx")
+		||	SG_File_Cmp_Extension(File, "xpm") )
 	&&  (pImport = SG_Get_Tool_Library_Manager().Create_Tool("io_grid_image", 1)) != NULL
 	&&   pImport->Set_Parameter("FILE", File, PARAMETER_TYPE_FilePath) )
 	{
