@@ -701,6 +701,8 @@ CSG_Parameter * CParameters_Control::_Get_Parameter(wxPGProperty *pProperty)
 //---------------------------------------------------------
 void CParameters_Control::_Set_Parameter(wxPGProperty *pProperty)
 {
+	Freeze();
+
 	CSG_Parameter	*pParameter	=  _Get_Parameter(pProperty);
 
 	if( pParameter )
@@ -745,6 +747,8 @@ void CParameters_Control::_Set_Parameter(wxPGProperty *pProperty)
 			m_pPG->SelectProperty(pProperty);
 		}
 	}
+
+	Thaw();
 }
 
 //---------------------------------------------------------

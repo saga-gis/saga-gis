@@ -59,6 +59,7 @@
 #include "res_dialogs.h"
 
 #include "active.h"
+#include "active_parameters.h"
 
 #include "wksp_data_control.h"
 #include "wksp_data_manager.h"
@@ -304,31 +305,22 @@ bool CWKSP_Data_Control::Set_Item_Selected(CWKSP_Base_Item *pItem, bool bKeepMul
 		return( false );
 	}
 
+	g_pActive->Get_Parameters()->Freeze();
+
 	if( bKeepMultipleSelection )
 	{
 		ToggleItemSelection(pItem->GetId());
+
+		g_pActive->Set_Active(Get_Item_Selected());
 	}
 	else
 	{
-		m_bUpdate_Selection	= true;
-		SelectItem(pItem->GetId());
-		m_bUpdate_Selection	= false;
+		UnselectAll(); SelectItem(pItem->GetId());
 
-		wxArrayTreeItemIds	IDs;
-				
-		if( GetSelections(IDs) > 1 )
-		{
-			for(size_t i=0; i<IDs.Count(); i++)
-			{
-				if( IDs[i] != pItem->GetId() )
-				{
-					UnselectItem(IDs[i]);
-				}
-			}
-		}
+		g_pActive->Set_Active(pItem);
 	}
 
-	g_pActive->Set_Active(Get_Item_Selected());
+	g_pActive->Get_Parameters()->Thaw();
 
 	return( true );
 }
