@@ -10,7 +10,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    air_pressure.h                     //
+//                    air_humidity.h                     //
 //                                                       //
 //                 Copyright (C) 2020 by                 //
 //                      Olaf Conrad                      //
@@ -46,8 +46,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__air_pressure_H
-#define HEADER_INCLUDED__air_pressure_H
+#ifndef HEADER_INCLUDED__air_humidity_H
+#define HEADER_INCLUDED__air_humidity_H
 
 
 ///////////////////////////////////////////////////////////
@@ -67,10 +67,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CAirPressure_Scaling : public CSG_Tool_Grid
+class CAirHumidity_Conversion : public CSG_Tool_Grid
 {
 public:
-	CAirPressure_Scaling(void);
+	CAirHumidity_Conversion(void);
 
 	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Climate Variables") );	}
 
@@ -91,4 +91,4 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__air_pressure_H
+#endif // #ifndef HEADER_INCLUDED__air_humidity_H

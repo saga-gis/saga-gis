@@ -99,6 +99,7 @@ CSG_String Get_Info(int i)
 #include "temperature_lapse_rates.h"
 #include "air_pressure.h"
 #include "land_surface_temperature.h"
+#include "air_humidity.h"
 
 
 //---------------------------------------------------------
@@ -148,6 +149,7 @@ CSG_Tool *		Create_Tool(int i)
 	case 26:	return( new CTemperature_Lapse_Rates );
 
 	case 27:	return( new CAirPressure_Scaling );
+	case 29:	return( new CAirHumidity_Conversion );
 
 	case 28:	return( new CLand_Surface_Temperature );
 
