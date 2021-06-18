@@ -335,6 +335,17 @@ bool CVIEW_Table_Control::_Update_Selection(bool bViews)
 
 	if( m_pData->m_bSelection )
 	{
+		int	dRows = m_pData->GetNumberRows() - GetNumberRows();
+
+		if( dRows > 0 )
+		{
+			AppendRows(dRows);
+		}
+		else if( dRows < 0 )
+		{
+			DeleteRows(0, -dRows);
+		}
+
 		SelectAll();
 	}
 	else
@@ -371,7 +382,7 @@ bool CVIEW_Table_Control::_Update_Selection(bool bViews)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_Selecting(wxGridRangeSelectEvent &event)
 {
-	if( event.Selecting() )
+	if( !m_pData->m_bSelection && event.Selecting() )
 	{
 		if( m_pTable->Get_Selection_Count() > 0 )
 		{
@@ -385,7 +396,7 @@ void CVIEW_Table_Control::On_Selecting(wxGridRangeSelectEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_Selected(wxGridRangeSelectEvent &event)
 {
-	if( event.Selecting() )
+	if( !m_pData->m_bSelection && event.Selecting() )
 	{
 		int	iFirst	= event.GetBottomRow() <= event.GetTopRow() ? event.GetBottomRow() : event.GetTopRow();
 		int	iLast	= event.GetBottomRow() >  event.GetTopRow() ? event.GetBottomRow() : event.GetTopRow();
@@ -623,7 +634,7 @@ void CVIEW_Table_Control::On_Sel_Only(wxCommandEvent  &event)
 
 void CVIEW_Table_Control::On_Sel_Only_UI(wxUpdateUIEvent &event)
 {
-	event.Enable(m_pTable->Get_Selection_Count() > 0);
+	event.Enable(m_pData->m_bSelection || m_pTable->Get_Selection_Count() > 0);
 
 	event.Check(m_pData->m_bSelection);
 }
