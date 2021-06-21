@@ -38,9 +38,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -107,23 +105,23 @@ IMPLEMENT_CLASS(CWKSP_Base_Control, wxTreeCtrl)
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CWKSP_Base_Control, wxTreeCtrl)
-	EVT_TREE_ITEM_RIGHT_CLICK	(ID_WND_WKSP_TOOLS, CWKSP_Base_Control::On_Item_RClick)
-	EVT_TREE_DELETE_ITEM		(ID_WND_WKSP_TOOLS, CWKSP_Base_Control::On_Item_Delete)
-	EVT_TREE_SEL_CHANGED		(ID_WND_WKSP_TOOLS, CWKSP_Base_Control::On_Item_SelChanged)
-	EVT_TREE_KEY_DOWN			(ID_WND_WKSP_TOOLS, CWKSP_Base_Control::On_Item_KeyDown)
+	EVT_TREE_ITEM_RIGHT_CLICK(ID_WND_WKSP_TOOLS, CWKSP_Base_Control::On_Item_RClick    )
+	EVT_TREE_DELETE_ITEM     (ID_WND_WKSP_TOOLS, CWKSP_Base_Control::On_Item_Delete    )
+	EVT_TREE_SEL_CHANGED     (ID_WND_WKSP_TOOLS, CWKSP_Base_Control::On_Item_SelChanged)
+	EVT_TREE_KEY_DOWN        (ID_WND_WKSP_TOOLS, CWKSP_Base_Control::On_Item_KeyDown   )
 
-	EVT_TREE_ITEM_RIGHT_CLICK	(ID_WND_WKSP_DATA , CWKSP_Base_Control::On_Item_RClick)
-	EVT_TREE_DELETE_ITEM		(ID_WND_WKSP_DATA , CWKSP_Base_Control::On_Item_Delete)
-	EVT_TREE_SEL_CHANGED		(ID_WND_WKSP_DATA , CWKSP_Base_Control::On_Item_SelChanged)
-	EVT_TREE_KEY_DOWN			(ID_WND_WKSP_DATA , CWKSP_Base_Control::On_Item_KeyDown)
+	EVT_TREE_ITEM_RIGHT_CLICK(ID_WND_WKSP_DATA , CWKSP_Base_Control::On_Item_RClick    )
+	EVT_TREE_DELETE_ITEM     (ID_WND_WKSP_DATA , CWKSP_Base_Control::On_Item_Delete    )
+	EVT_TREE_SEL_CHANGED     (ID_WND_WKSP_DATA , CWKSP_Base_Control::On_Item_SelChanged)
+	EVT_TREE_KEY_DOWN        (ID_WND_WKSP_DATA , CWKSP_Base_Control::On_Item_KeyDown   )
 
-	EVT_TREE_ITEM_RIGHT_CLICK	(ID_WND_WKSP_MAPS , CWKSP_Base_Control::On_Item_RClick)
-	EVT_TREE_DELETE_ITEM		(ID_WND_WKSP_MAPS , CWKSP_Base_Control::On_Item_Delete)
-	EVT_TREE_SEL_CHANGED		(ID_WND_WKSP_MAPS , CWKSP_Base_Control::On_Item_SelChanged)
-	EVT_TREE_KEY_DOWN			(ID_WND_WKSP_MAPS , CWKSP_Base_Control::On_Item_KeyDown)
+	EVT_TREE_ITEM_RIGHT_CLICK(ID_WND_WKSP_MAPS , CWKSP_Base_Control::On_Item_RClick    )
+	EVT_TREE_DELETE_ITEM     (ID_WND_WKSP_MAPS , CWKSP_Base_Control::On_Item_Delete    )
+	EVT_TREE_SEL_CHANGED     (ID_WND_WKSP_MAPS , CWKSP_Base_Control::On_Item_SelChanged)
+	EVT_TREE_KEY_DOWN        (ID_WND_WKSP_MAPS , CWKSP_Base_Control::On_Item_KeyDown   )
 
-	EVT_LEFT_DOWN				(CWKSP_Base_Control::On_Item_LClick)
-	EVT_LEFT_DCLICK				(CWKSP_Base_Control::On_Item_LDClick)
+	EVT_LEFT_DOWN            (CWKSP_Base_Control::On_Item_LClick )
+	EVT_LEFT_DCLICK          (CWKSP_Base_Control::On_Item_LDClick)
 END_EVENT_TABLE()
 
 
@@ -140,6 +138,7 @@ CWKSP_Base_Control::CWKSP_Base_Control(wxWindow *pParent, wxWindowID id)
 	m_pManager	= NULL;
 
 	AssignImageList(new wxImageList(IMG_SIZE_TREECTRL, IMG_SIZE_TREECTRL, true, 0));
+
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_NOITEMS);
 }
 
@@ -423,14 +422,14 @@ CWKSP_Base_Item * CWKSP_Base_Control::Get_Item_Selected(bool bUpdate)
 //---------------------------------------------------------
 bool CWKSP_Base_Control::Set_Item_Selected(CWKSP_Base_Item *pItem, bool bKeepMultipleSelection)
 {
-	if( !pItem || !pItem->GetId().IsOk() || pItem->Get_Control() != this )
+	if( pItem && pItem->GetId().IsOk() && pItem->Get_Control() == this )
 	{
-		return( false );
+		SelectItem(pItem->GetId());
+
+		return( true );
 	}
 
-	SelectItem(pItem->GetId());
-
-	return( true );
+	return( false );
 }
 
 
@@ -476,28 +475,26 @@ bool CWKSP_Base_Control::_Show_Active(void)
 
 	if( (GetWindowStyle() & wxTR_MULTIPLE) != 0 && GetSelections(IDs) > 0 && ((CWKSP_Base_Item *)GetItemData(IDs[0]))->Get_Control() == this )
 	{
-		int				iMap;
-		size_t			iItem;
-		CWKSP_Base_Item	*pItem;
+		int	iMap = 0;
 
-		for(iItem=0, iMap=0; iItem<IDs.GetCount(); iItem++)
+		for(size_t iItem=0; iItem<IDs.GetCount(); iItem++)
 		{
-			if( IDs[iItem].IsOk() )
-			{
-				pItem	= (CWKSP_Base_Item *)GetItemData(IDs[iItem]);
+			CWKSP_Base_Item *pItem = IDs[iItem].IsOk() ? (CWKSP_Base_Item *)GetItemData(IDs[iItem]) : NULL;
 
+			if( pItem )
+			{
 				switch( pItem->Get_Type() )
 				{
-				case WKSP_ITEM_Grid:
-				case WKSP_ITEM_Grids:
-				case WKSP_ITEM_Shapes:
-				case WKSP_ITEM_TIN:
-				case WKSP_ITEM_PointCloud:
-					iMap	= 1;
+				case WKSP_ITEM_Table     :
+					((CWKSP_Table *)pItem)->Set_View(true);
 					break;
 
-				case WKSP_ITEM_Table:
-					((CWKSP_Table *)pItem)->Set_View(true);
+				case WKSP_ITEM_Grid      :
+				case WKSP_ITEM_Grids     :
+				case WKSP_ITEM_Shapes    :
+				case WKSP_ITEM_TIN       :
+				case WKSP_ITEM_PointCloud:
+					iMap	= 1;
 					break;
 
 				default:
@@ -508,18 +505,18 @@ bool CWKSP_Base_Control::_Show_Active(void)
 
 		if( iMap && (iMap = DLG_Maps_Add()) >= 0 )
 		{
-			for(iItem=0; iItem<IDs.GetCount(); iItem++)
+			for(size_t iItem=0; iItem<IDs.GetCount(); iItem++)
 			{
-				if( IDs[iItem].IsOk() )
-				{
-					pItem	= (CWKSP_Base_Item *)GetItemData(IDs[iItem]);
+				CWKSP_Base_Item *pItem = IDs[iItem].IsOk() ? (CWKSP_Base_Item *)GetItemData(IDs[iItem]) : NULL;
 
+				if( pItem )
+				{
 					switch( pItem->Get_Type() )
 					{
-					case WKSP_ITEM_Grid:
-					case WKSP_ITEM_Grids:
-					case WKSP_ITEM_Shapes:
-					case WKSP_ITEM_TIN:
+					case WKSP_ITEM_Grid      :
+					case WKSP_ITEM_Grids     :
+					case WKSP_ITEM_Shapes    :
+					case WKSP_ITEM_TIN       :
 					case WKSP_ITEM_PointCloud:
 						g_pMaps->Add((CWKSP_Layer *)pItem, g_pMaps->Get_Map(iMap));
 						break;
@@ -687,11 +684,12 @@ bool CWKSP_Base_Control::_Copy_Settings(CSG_Parameters *pParameters, CWKSP_Base_
 //---------------------------------------------------------
 bool CWKSP_Base_Control::_Copy_Settings(void)
 {
-	wxArrayTreeItemIds	IDs;
-	CSG_Parameters		*pParameters;
+	CSG_Parameters	*pParameters = Get_Selection_Count() > 0 ? DLG_Copy_Settings() : NULL;
 
-	if( Get_Selection_Count() > 0 && (pParameters = DLG_Copy_Settings()) != NULL )
+	if( pParameters )
 	{
+		wxArrayTreeItemIds	IDs;
+
 		if(	(GetWindowStyle() & wxTR_MULTIPLE) && GetSelections(IDs) > 0 )
 		{
 			for(size_t i=0; i<IDs.GetCount(); i++)

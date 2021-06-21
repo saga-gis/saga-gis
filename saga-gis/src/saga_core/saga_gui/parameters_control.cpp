@@ -358,7 +358,7 @@ bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 	{
 		m_bFocus++;
 
-		m_pPG->Freeze();
+		GetParent()->Freeze();
 
 		m_bModified	= false;
 		m_pPG->ClearModifiedStatus();
@@ -397,7 +397,7 @@ bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 			_Init_Pararameters();
 		}
 
-		m_pPG->Thaw();
+		GetParent()->Thaw();
 
 		m_bFocus--;
 	}
@@ -914,6 +914,8 @@ void CParameters_Control::_Update_Parameters(void)
 {
 	if( m_pParameters )
 	{
+		GetParent()->Freeze();
+
 		for(int i=0; i<m_pParameters->Get_Count(); i++)
 		{
 			_Update_Parameter(m_pParameters->Get_Parameter(i));
@@ -927,6 +929,8 @@ void CParameters_Control::_Update_Parameters(void)
 		UPDATE_DATA_NODE("_DATAOBJECT_OPTIONS");
 
 		m_pPG->Refresh();
+
+		GetParent()->Thaw();
 	}
 }
 

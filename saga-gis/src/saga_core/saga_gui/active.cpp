@@ -292,12 +292,17 @@ bool CActive::Set_Active(CWKSP_Base_Item *pItem)
 		if( g_pData_Buttons )	g_pData_Buttons->Refresh();
 		if( g_pMap_Buttons  )	g_pMap_Buttons ->Refresh();
 
+		size_t	nPages	= GetPageCount();
+
 		_Hide_Page(m_pHistory   );
 		_Hide_Page(m_pLegend    );
 		_Hide_Page(m_pAttributes);
 		_Hide_Page(m_pInfo      );
 
-		SendSizeEvent();
+		if( nPages != GetPageCount() )
+		{
+			SendSizeEvent();
+		}
 
 		return( true );
 	}
@@ -306,10 +311,17 @@ bool CActive::Set_Active(CWKSP_Base_Item *pItem)
 	if( g_pSAGA_Frame )	g_pSAGA_Frame->Set_Pane_Caption(this, wxString(_TL("Properties")) + ": " + m_pItem->Get_Name());
 
 	//-----------------------------------------------------
+	size_t	nPages	= GetPageCount();
+
 	_Show_Page(m_pHistory   , Get_Active_Data_Item () != NULL);
 	_Show_Page(m_pLegend    , Get_Active_Layer     () != NULL || Get_Active_Map() != NULL);
 	_Show_Page(m_pAttributes, Get_Active_Layer     () != NULL);
 	_Show_Page(m_pInfo      , Get_Active_Shapes(true) != NULL);
+
+	if( nPages != GetPageCount() )
+	{
+		SendSizeEvent();
+	}
 
 	//-----------------------------------------------------
 	if( g_pData_Buttons )	g_pData_Buttons->Refresh(false);
@@ -328,8 +340,6 @@ bool CActive::Set_Active(CWKSP_Base_Item *pItem)
 	{
 		g_pData->Update_Views(pObject);
 	}
-
-	SendSizeEvent();
 
 	return( true );
 }

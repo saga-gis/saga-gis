@@ -188,6 +188,8 @@ void CActive_Attributes::Set_Attributes(void)
 {
 	Freeze();
 
+	m_pControl->DisableCellEditControl();
+
 	m_pSelections->Clear();
 
 	if( m_pItem && m_pItem->Edit_Get_Attributes()->is_Valid() )

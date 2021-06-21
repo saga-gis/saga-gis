@@ -59,7 +59,6 @@
 #include "res_dialogs.h"
 
 #include "active.h"
-#include "active_parameters.h"
 
 #include "wksp_data_control.h"
 #include "wksp_data_manager.h"
@@ -143,8 +142,6 @@ CWKSP_Data_Control::CWKSP_Data_Control(wxWindow *pParent)
 	: CWKSP_Base_Control(pParent, ID_WND_WKSP_DATA)
 {
 	g_pData_Ctrl		= this;
-
-	m_bUpdate_Selection	= false;
 
 	SetWindowStyle(wxTR_HAS_BUTTONS|wxTR_MULTIPLE);
 
@@ -272,11 +269,6 @@ int CWKSP_Data_Control::Get_Selection_Count(void)
 //---------------------------------------------------------
 CWKSP_Base_Item * CWKSP_Data_Control::Get_Item_Selected(bool bUpdate)
 {
-	if( m_bUpdate_Selection )
-	{
-		return( NULL );
-	}
-
 	if( bUpdate )
 	{
 		Get_Manager()->MultiSelect_Check();
@@ -300,29 +292,25 @@ CWKSP_Base_Item * CWKSP_Data_Control::Get_Item_Selected(bool bUpdate)
 //---------------------------------------------------------
 bool CWKSP_Data_Control::Set_Item_Selected(CWKSP_Base_Item *pItem, bool bKeepMultipleSelection)
 {
-	if( !pItem || !pItem->GetId().IsOk() || pItem->Get_Control() != this )
+	if( pItem && pItem->GetId().IsOk() && pItem->Get_Control() == this )
 	{
-		return( false );
+		if( bKeepMultipleSelection )
+		{
+			ToggleItemSelection(pItem->GetId());
+
+			g_pActive->Set_Active(Get_Item_Selected());
+		}
+		else
+		{
+			UnselectAll(); SelectItem(pItem->GetId());
+
+			g_pActive->Set_Active(pItem);
+		}
+
+		return( true );
 	}
 
-	g_pActive->Get_Parameters()->Freeze();
-
-	if( bKeepMultipleSelection )
-	{
-		ToggleItemSelection(pItem->GetId());
-
-		g_pActive->Set_Active(Get_Item_Selected());
-	}
-	else
-	{
-		UnselectAll(); SelectItem(pItem->GetId());
-
-		g_pActive->Set_Active(pItem);
-	}
-
-	g_pActive->Get_Parameters()->Thaw();
-
-	return( true );
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -340,8 +328,6 @@ bool CWKSP_Data_Control::_Del_Active(bool bSilent)
 		return( false );
 	}
 
-	m_bUpdate_Selection	= true;
-
 	UnselectAll();
 
 	g_pActive->Set_Active(NULL);
@@ -353,8 +339,6 @@ bool CWKSP_Data_Control::_Del_Active(bool bSilent)
 			_Del_Item((CWKSP_Base_Item *)GetItemData(IDs[i]), true);
 		}
 	}
-
-	m_bUpdate_Selection	= false;
 
 	Get_Manager()->MultiSelect_Check();
 
