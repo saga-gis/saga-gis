@@ -67,7 +67,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#if defined(_SAGA_MSW) || defined(HAVE_LIBCURL)
+#if defined(HAVE_LIBCURL)
 #define SG_USE_CURL
 #endif
 

@@ -9,6 +9,12 @@ file(GLOB subdirectories *)
 # sudo apt install  libsvm-dev  libqhull-dev  libdxflib-dev
 
 # add all tool subdirectories with CMakeLists files
+if(MSVC)
+	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+endif()
+
 foreach(dir ${subdirectories})
 	if(IS_DIRECTORY "${dir}" AND EXISTS "${dir}/CMakeLists.txt")
 		message(STATUS "auto-add tool subdirectory: ${dir}")

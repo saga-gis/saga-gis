@@ -1,6 +1,6 @@
-option(WITH_TOOL_DOCS_PDF "Check to install tool docs_pdf" OFF)
+option(WITH_TOOLS_HARU "Build with HARU PDF dependent tools" OFF)
 
-if (WITH_TOOL_DOCS_PDF OR WITH_ALL_TOOLS)
+if(WITH_TOOLS AND WITH_TOOLS_HARU)
 	project(docs_pdf)
 
 	# load common tool template

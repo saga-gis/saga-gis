@@ -1,6 +1,4 @@
-option(WITH_TOOL_GRID_FILTER "Check to install tool grid_filter" OFF)
-
-if (WITH_TOOL_GRID_FILTER OR WITH_ALL_STANDARD_TOOLS OR WITH_ALL_TOOLS)
+if(WITH_TOOLS)
 	project(grid_filter)
 
 	# add files in sudirectories

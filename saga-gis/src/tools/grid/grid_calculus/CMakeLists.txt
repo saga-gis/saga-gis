@@ -1,6 +1,4 @@
-option(WITH_TOOL_GRID_CALCULUS "Check to install tool grid_calculus" OFF)
-
-if (WITH_TOOL_GRID_CALCULUS OR WITH_ALL_STANDARD_TOOLS OR WITH_ALL_TOOLS)
+if(WITH_TOOLS)
 	project(grid_calculus)
 
 	# add files in sudirectories

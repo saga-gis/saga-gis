@@ -1,10 +1,11 @@
-option(WITH_TOOL_IO_SHAPES_LAS "Check to install tool io_shapes_las" OFF)
+option(WITH_TOOLS_LIBLAS "Build with libLAS dependent tools" OFF)
 
-if (WITH_TOOL_IO_SHAPES_LAS OR WITH_ALL_TOOLS)
+if(WITH_TOOLS AND WITH_TOOLS_LIBLAS)
 	project(io_shapes_las)
 
 	# load common tool template
 	include(../../CMakePluginTemplate.cmake)
+
 	# link las library
 	# Ubuntu 16.04 package liblas-dev
 	find_package(LAS REQUIRED)

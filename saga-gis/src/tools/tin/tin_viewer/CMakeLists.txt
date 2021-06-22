@@ -1,6 +1,4 @@
-option(WITH_TOOL_TIN_VIEWER "Check to install tool tin_viewer" OFF)
-
-if (WITH_TOOL_TIN_VIEWER OR WITH_ALL_TOOLS)
+if(WITH_TOOLS AND WITH_GUI)
 	project(tin_viewer)
 
 	# load common tool template
@@ -8,6 +6,7 @@ if (WITH_TOOL_TIN_VIEWER OR WITH_ALL_TOOLS)
 
 	# include directories of wxWidgets are already present
 	find_package(wxWidgets REQUIRED)
+	include(${wxWidgets_USE_FILE})
 	target_link_libraries(${PROJECT_NAME} ${wxWidgets_LIBRARIES})
 
 	# link saga_gdi

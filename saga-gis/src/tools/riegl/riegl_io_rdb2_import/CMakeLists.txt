@@ -1,6 +1,6 @@
-option(WITH_TOOL_RIEGL_IO_RDB2_IMPORT "Check to install tool riegl_io_rdb2_import" OFF)
+option(WITH_TOOLS_RIEGL "Check to install tool riegl_io_rdb2_import" OFF)
 
-if (WITH_TOOL_RIEGL_IO_RDB2_IMPORT OR WITH_ALL_TOOLS)
+if(WITH_TOOLS AND WITH_TOOLS_RIEGL)
 	project(riegl_io_rdb2_import)
 
 	# load common tool template

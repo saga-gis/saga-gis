@@ -8,11 +8,11 @@ if (POLICY CMP0043)
 endif (POLICY CMP0043)
 
 # define project name and its description
-project(saga-gis)
+project(saga)
 message(STATUS "folder: ${PROJECT_NAME}")
 set(TOP_PROJECT ${PROJECT_NAME})
 string(TOLOWER ${TOP_PROJECT} TOP_PROJECT_LOWER)
-set(PROJECT_DESCRIPTION "saga-gis project")
+set(PROJECT_DESCRIPTION "SAGA - System for Automated Geoscientific Analyses")
 
 # Set a default build type for single-configuration cmake generators if
 # no build type is set.
@@ -22,13 +22,10 @@ if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
 endif()
 
 # options
-option (WITH_GDI "Build saga-gdi. Dependency of the GUI and some tools" ON)
-option (WITH_GUI "Build saga-gis with GUI" ON)
-option (WITH_TOOLS "Build saga-gis with tools" ON)
-option (WITH_ALL_STANDARD_TOOLS "Build all saga-gis tools, which have no external dependencies" OFF)
-option (WITH_ALL_TOOLS "Build all saga-gis tools" OFF)
-option (WITH_LINK_TESTER "Check to enable testing if tools are successfully linking" OFF)
-option (WITH_OPENMP "Compile with OpenMP optimizations" ON)
+option(WITH_GUI "Build SAGA with GUI" ON)
+option(WITH_TOOLS "Build SAGA with tools" ON)
+option(WITH_OPENMP "Compile with OpenMP optimizations" ON)
+option(WITH_LINK_TESTER "Check to enable testing if tools are successfully linking" OFF)
 
 if(MSVC)
 	option (PARALLEL_BUILD "Pass /MP to msbuild to compile in parallel" ON)
@@ -59,11 +56,11 @@ include_directories("${PROJECT_BINARY_DIR}")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 # find wxWidgets
-find_package(wxWidgets REQUIRED)
-include("${wxWidgets_USE_FILE}")
+#find_package(wxWidgets REQUIRED)
+#include("${wxWidgets_USE_FILE}")
 
 # compile with OpenMP optimizations
-if (WITH_OPENMP)
+if(WITH_OPENMP)
 	find_package(OpenMP QUIET REQUIRED)
 	message(STATUS "compile with OpenMP optimizations")
 	set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")

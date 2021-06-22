@@ -1,6 +1,6 @@
-option(WITH_TOOL_DB_PGSQL "Check to install tool db_pgsql" OFF)
+option(WITH_TOOLS_POSTGRES "Build with Postgres tools" ON)
 
-if (WITH_TOOL_DB_PGSQL OR WITH_ALL_TOOLS)
+if(WITH_TOOLS_POSTGRES)
 	project(db_pgsql)
 
 	# load common tool template

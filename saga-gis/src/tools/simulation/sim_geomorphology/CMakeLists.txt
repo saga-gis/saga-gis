@@ -1,5 +1,5 @@
 if(WITH_TOOLS)
-	project(ta_channels)
+	project(sim_geomorphology)
 
 	# load common tool template
 	include(../../CMakePluginTemplate.cmake )

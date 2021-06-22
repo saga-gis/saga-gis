@@ -1,6 +1,4 @@
-option(WITH_TOOL_TA_CLIFFMETRICS "Check to install tool ta_cliffmetrics" OFF)
-
-if (WITH_TOOL_TA_CLIFFMETRICS OR WITH_ALL_STANDARD_TOOLS OR WITH_ALL_TOOLS)
+if(WITH_TOOLS)
 	project(ta_cliffmetrics)
 
 	# add files in sudirectories
@@ -37,7 +35,6 @@ if (WITH_TOOL_TA_CLIFFMETRICS OR WITH_ALL_STANDARD_TOOLS OR WITH_ALL_TOOLS)
 		CliffMetrics/utils_global.cpp
 		CliffMetrics/write_output.cpp
 	)
-
 	set(SAGA_TOOL_CUSTOM_HEADER_LIST
 		CliffMetrics/2di_point.h
 		CliffMetrics/2di_shape.h
@@ -58,10 +55,12 @@ if (WITH_TOOL_TA_CLIFFMETRICS OR WITH_ALL_STANDARD_TOOLS OR WITH_ALL_TOOLS)
 		CliffMetrics/raster_grid.h
 	)
 
+	if(UNIX)
+		add_definitions(-DCPU -Dx86)
+	endif()
+
+	add_definitions(-DUNICODE)
+
 	# load common tool template
 	include(../../CMakePluginTemplate.cmake )
-
-    if(UNIX)
-        add_definitions(-DCPU -Dx86)
-    endif()
 endif()

@@ -1,6 +1,6 @@
-option(WITH_TOOL_IMAGERY_OPENCV "Check to install tool imagery_opencv" OFF)
+option(WITH_TOOLS_OPENCV "Build with OpenCV dependent tools" OFF)
 
-if (WITH_TOOL_IMAGERY_OPENCV OR WITH_ALL_TOOLS)
+if(WITH_TOOLS AND WITH_TOOLS_OPENCV)
 	project(imagery_opencv)
 
 	# load common tool template

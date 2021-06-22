@@ -1,10 +1,15 @@
-option(WITH_TOOL_IO_SHAPES_DXF "Check to install tool io_shapes_dxf" OFF)
-option(WITH_TOOL_IO_SHAPES_DXF_USE_SYSTEM_DXF "Check to use system version of dxflib library instead of embedded copy" OFF)
+option(WITH_SYSTEM_DXF "Check to use system version of dxflib library instead of embedded copy" OFF)
 
-if (WITH_TOOL_IO_SHAPES_DXF OR WITH_ALL_TOOLS)
+if(WITH_TOOLS)
 	project(io_shapes_dxf)
 
-	if (NOT WITH_TOOL_IO_SHAPES_DXF_USE_SYSTEM_DXF)
+	if(WITH_SYSTEM_DXF)
+		# link dxflib library
+		# Ubuntu 16.04 package libdxflib-dev
+		find_package(dxflib REQUIRED)
+		target_include_directories(${PROJECT_NAME} PRIVATE ${dxflib_INCLUDE_DIRS})
+		target_link_libraries(${PROJECT_NAME} ${dxflib_LIBRARIES})
+	else()
 		# add files in sudirectories
 		set(SAGA_TOOL_CUSTOM_SOURCE_LIST
 			dxflib/dl_dxf.cpp
@@ -23,13 +28,7 @@ if (WITH_TOOL_IO_SHAPES_DXF OR WITH_ALL_TOOLS)
 			dxflib/dl_writer_ascii.h
 		)
 	endif()
+
 	# load common tool template
 	include(../../CMakePluginTemplate.cmake)
-	if (WITH_TOOL_IO_SHAPES_DXF_USE_SYSTEM_DXF)
-		# link dxflib library
-		# Ubuntu 16.04 package libdxflib-dev
-		find_package(dxflib REQUIRED)
-		target_include_directories(${PROJECT_NAME} PRIVATE ${dxflib_INCLUDE_DIRS})
-		target_link_libraries(${PROJECT_NAME} ${dxflib_LIBRARIES})
-	endif()
 endif()

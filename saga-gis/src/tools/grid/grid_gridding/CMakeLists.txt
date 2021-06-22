@@ -1,8 +1,7 @@
-option(WITH_TOOL_GRID_GRIDDING "Check to install tool grid_gridding" OFF)
-option(WITH_TOOL_GRID_GRIDDING_DISABLE_TRIANGLE
+option(WITHOUT_TRIANGLE
 	"Check to compile without triangle.c (only free for non-commercial usage), and use qhull instead (requires qhull)" OFF)
 
-if (WITH_TOOL_GRID_GRIDDING OR WITH_ALL_TOOLS)
+if(WITH_TOOLS)
 	project(grid_gridding)
 
 	# add files in sudirectories
@@ -26,7 +25,7 @@ if (WITH_TOOL_GRID_GRIDDING OR WITH_ALL_TOOLS)
 		Interpolation_Shepard.h
 		Interpolation_Triangulation.h
 	)
-	if(NOT WITH_TOOL_GRID_GRIDDING_DISABLE_TRIANGLE)
+	if(NOT WITHOUT_TRIANGLE)
 		# use embedded triangle.c
 		list(APPEND SAGA_TOOL_CUSTOM_SOURCE_LIST
 			nn/triangle.c)
@@ -37,7 +36,7 @@ if (WITH_TOOL_GRID_GRIDDING OR WITH_ALL_TOOLS)
 	# load common tool template
 	include(../../CMakePluginTemplate.cmake )
 
-	if(WITH_TOOL_GRID_GRIDDING_DISABLE_TRIANGLE)
+	if(WITHOUT_TRIANGLE)
 		# link Qhull library
 		# on Ubuntu 16.04 package libqhull-dev
 		find_package(Qhull REQUIRED)

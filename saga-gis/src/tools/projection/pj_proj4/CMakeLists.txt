@@ -1,6 +1,6 @@
-option(WITH_TOOL_PJ_PROJ4 "Check to install tool pj_proj4" OFF)
+option(WITH_TOOLS_PROJ "Build with Proj tools" ON)
 
-if (WITH_TOOL_PJ_PROJ4 OR WITH_ALL_STANDARD_TOOLS OR WITH_ALL_TOOLS)
+if(WITH_TOOLS_PROJ)
 	project(pj_proj4)
 
 	# load common tool template
@@ -11,4 +11,6 @@ if (WITH_TOOL_PJ_PROJ4 OR WITH_ALL_STANDARD_TOOLS OR WITH_ALL_TOOLS)
 	find_package(proj REQUIRED)
 	target_include_directories(${PROJECT_NAME} PRIVATE ${proj_INCLUDE_DIRS})
 	target_link_libraries(${PROJECT_NAME} ${proj_LIBRARIES})
+
+	add_definitions(/DPROJ6)
 endif()

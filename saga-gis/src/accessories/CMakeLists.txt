@@ -1,4 +1,4 @@
-project(assesories)
+project(accessories)
 message(STATUS "folder: ${PROJECT_NAME}")
 
 #add_subdirectory(toolchains)

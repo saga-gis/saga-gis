@@ -1,4 +1,5 @@
 project(saga_api)
+
 message(STATUS "project: ${PROJECT_NAME}")
 
 # TODO: if SAGA_PYTHON
@@ -129,15 +130,16 @@ add_library(saga_api SHARED
 target_include_directories(saga_api INTERFACE "${saga_core_include_dir}")
 
 find_package(wxWidgets COMPONENTS base net xml html REQUIRED)
-target_link_libraries(saga_api ${wxWidgets_LIBRARIES})
+target_link_libraries(saga_api PRIVATE ${wxWidgets_LIBRARIES})
 
 if(MSVC) # windows msvc
-	target_compile_definitions(saga_api PUBLIC -D_SAGA_MSW)
+	target_compile_definitions(saga_api PUBLIC -D_SAGA_MSW -DUNICODE)
+
 else() #expect g++ on linux
 	set_target_properties(saga_api PROPERTIES COMPILE_FLAGS -fPIC)
 	target_compile_definitions(saga_api PUBLIC -D_SAGA_LINUX)
 endif()
-target_compile_definitions(saga_api PUBLIC -D_SAGA_UNICODE)
+
 target_compile_definitions(saga_api PUBLIC -D_TYPEDEF_BYTE -D_TYPEDEF_WORD)
 
 # define for compiling libraries

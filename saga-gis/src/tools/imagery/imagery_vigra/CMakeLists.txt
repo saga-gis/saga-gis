@@ -1,7 +1,7 @@
-option(WITH_TOOL_IMAGERY_VIGRA "Check to install imagery_vigra" OFF)
-option(WITH_TOOL_IMAGERY_VIGRA_WITH_HDF5 "Check to use system version of libsvm instead of embedded copy" OFF)
+option(WITH_VIGRA "Build with ViGra dependent tools" OFF)
+option(WITH_VIGRA_HDF5 "Check for ViGra HDF5 support" OFF)
 
-if (WITH_TOOL_IMAGERY_VIGRA OR WITH_ALL_TOOLS)
+if(WITH_VIGRA)
 	project(imagery_vigra)
 
 	# load common tool template
@@ -15,6 +15,7 @@ if (WITH_TOOL_IMAGERY_VIGRA OR WITH_ALL_TOOLS)
 	find_package(fftw3 REQUIRED)
 	target_include_directories(${PROJECT_NAME} PRIVATE ${fftw3_INCLUDE_DIRS})
 	target_link_libraries(${PROJECT_NAME} ${fftw3_LIBRARIES})
+
 	# link vigraimpex
 	# on Ubuntu 16.04 package libvigraimpex-dev
 	find_package(vigra REQUIRED)
@@ -23,7 +24,7 @@ if (WITH_TOOL_IMAGERY_VIGRA OR WITH_ALL_TOOLS)
 	message("target_include_directories(${PROJECT_NAME} PRIVATE ${vigra_INCLUDE_DIRS}) ")
 	message("target_link_libraries(${PROJECT_NAME} ${vigra_LIBRARIES}) ")
 
-	if(WITH_TOOL_IMAGERY_VIGRA_WITH_HDF5)
+	if(WITH_VIGRA_HDF5)
 		# link HDF5
 		# on Ubuntu 16.04 package libhdf5-dev
 		find_package(HDF5 REQUIRED)
@@ -34,7 +35,5 @@ if (WITH_TOOL_IMAGERY_VIGRA OR WITH_ALL_TOOLS)
 
 		# add definition
 		target_compile_definitions(${PROJECT_NAME} PUBLIC -DWITH_HDF5)
-
-		#target_link_libraries(link_tester_${PROJECT_NAME} ${HDF5_LIBRARIES})
 	endif()
 endif()
