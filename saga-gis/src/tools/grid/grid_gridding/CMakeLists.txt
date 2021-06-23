@@ -1,5 +1,4 @@
-option(WITHOUT_TRIANGLE
-	"Check to compile without triangle.c (only free for non-commercial usage), and use qhull instead (requires qhull)" OFF)
+option(WITH_TRIANGLE "Check to compile with triangle.c (only free for non-commercial usage), or use qhull instead (requires qhull)" ON)
 
 if(WITH_TOOLS)
 	project(grid_gridding)
@@ -25,18 +24,15 @@ if(WITH_TOOLS)
 		Interpolation_Shepard.h
 		Interpolation_Triangulation.h
 	)
-	if(NOT WITHOUT_TRIANGLE)
-		# use embedded triangle.c
-		list(APPEND SAGA_TOOL_CUSTOM_SOURCE_LIST
-			nn/triangle.c)
-		list(APPEND SAGA_TOOL_CUSTOM_HEADER_LIST
-			nn/triangle.h)
+	if(WITH_TRIANGLE)	# use embedded triangle.c
+		list(APPEND SAGA_TOOL_CUSTOM_SOURCE_LIST nn/triangle.c)
+		list(APPEND SAGA_TOOL_CUSTOM_HEADER_LIST nn/triangle.h)
         message(STATUS "building with triangle")
 	endif()
-	# load common tool template
-	include(../../CMakePluginTemplate.cmake )
 
-	if(WITHOUT_TRIANGLE)
+	include(../../CMakePluginTemplate.cmake)	# load common tool template
+
+	if(NOT WITH_TRIANGLE)
 		# link Qhull library
 		# on Ubuntu 16.04 package libqhull-dev
 		find_package(Qhull REQUIRED)

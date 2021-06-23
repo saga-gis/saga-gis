@@ -1,15 +1,13 @@
-option(WITH_GDAL "Build with GDAL/OGR tools" ON)
+option(GDAL_TOOLS "Build with GDAL/OGR tools" ON)
 
-if(WITH_GDAL)
+if(WITH_TOOLS AND GDAL_TOOLS)
 	project(io_gdal)
 
-	# load common tool template
-	include(../../CMakePluginTemplate.cmake)
+	include(../../CMakePluginTemplate.cmake)	# load common tool template
 
-	# Ubuntu 16.04 package libgdal-dev
-	find_package(gdal REQUIRED)
-	target_include_directories(${PROJECT_NAME} PUBLIC ${gdal_INCLUDE_DIR})
-	target_link_libraries(${PROJECT_NAME} ${gdal_LIBRARY})
-#	message("[${PROJECT_NAME}] GDAL include: ${gdal_INCLUDE_DIR}")
-#	message("[${PROJECT_NAME}] GDAL library: ${gdal_LIBRARY}")
+	find_package(gdal REQUIRED)	# Ubuntu package libgdal-dev
+	target_include_directories(${PROJECT_NAME} PUBLIC ${GDAL_INCLUDE_DIR})
+	target_link_libraries(${PROJECT_NAME} ${GDAL_LIBRARY})
+#	message("[${PROJECT_NAME}] GDAL include: ${GDAL_INCLUDE_DIR}")
+#	message("[${PROJECT_NAME}] GDAL library: ${GDAL_LIBRARY}")
 endif()

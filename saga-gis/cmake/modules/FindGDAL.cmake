@@ -1,16 +1,16 @@
 #########################################
-# Find the gdal library
+# Find the GDAL library
 #
-# gdal_FOUND       - true if gdal_INCLUDE_DIR and gdal_LIBRARY are found
-# gdal_INCLUDE_DIR - where to find gdal.h, etc.
-# gdal_LIBRARY     - the gdal library
+# GDAL_FOUND       - true if GDAL_INCLUDE_DIR and GDAL_LIBRARY are found
+# GDAL_INCLUDE_DIR - where to find gdal.h, etc.
+# GDAL_LIBRARY     - the GDAL library
 #
 #########################################
 
-find_path   (gdal_INCLUDE_DIR NAMES gdal.h DOC "The GDAL include directory")
-find_library(gdal_LIBRARY NAMES     gdal   DOC "The GDAL library")
+find_path   (GDAL_INCLUDE_DIR NAMES gdal.h DOC "The GDAL include directory")
+find_library(GDAL_LIBRARY NAMES     gdal   DOC "The GDAL library")
 
 include(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(gdal REQUIRED_VARS gdal_LIBRARY gdal_INCLUDE_DIR)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(gdal REQUIRED_VARS GDAL_LIBRARY GDAL_INCLUDE_DIR)
 
-mark_as_advanced(gdal_INCLUDE_DIR gdal_LIBRARY)
+mark_as_advanced(GDAL_INCLUDE_DIR GDAL_LIBRARY)

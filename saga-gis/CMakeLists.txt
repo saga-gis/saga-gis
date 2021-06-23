@@ -24,11 +24,11 @@ endif()
 # options
 option(WITH_GUI "Build SAGA with GUI" ON)
 option(WITH_TOOLS "Build SAGA with tools" ON)
-option(WITH_OPENMP "Compile with OpenMP optimizations" ON)
-option(WITH_LINK_TESTER "Check to enable testing if tools are successfully linking" OFF)
+option(OpenMP_SUPPORT "Compile with OpenMP optimizations" ON)
+#option(WITH_LINK_TESTER "Check to enable testing if tools are successfully linking" OFF)
 
 if(MSVC)
-	option (PARALLEL_BUILD "Pass /MP to msbuild to compile in parallel" ON)
+	option(PARALLEL_BUILD "Multi-processor compilation (/MP)" ON)
 	if(PARALLEL_BUILD)
 		add_definitions(/MP)
 	endif()
@@ -60,7 +60,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 #include("${wxWidgets_USE_FILE}")
 
 # compile with OpenMP optimizations
-if(WITH_OPENMP)
+if(OpenMP_SUPPORT)
 	find_package(OpenMP QUIET REQUIRED)
 	message(STATUS "compile with OpenMP optimizations")
 	set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")

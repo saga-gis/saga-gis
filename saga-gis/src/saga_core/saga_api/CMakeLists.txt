@@ -27,6 +27,7 @@ set(SAGA_API_PUBLIC_HEADERS
 	tool.h
 	tool_library.h
 )
+
 # define sources
 set(SAGA_API_SOURCES
 	api_callback.cpp
@@ -135,14 +136,13 @@ target_link_libraries(saga_api PRIVATE ${wxWidgets_LIBRARIES})
 if(MSVC) # windows msvc
 	target_compile_definitions(saga_api PUBLIC -D_SAGA_MSW -DUNICODE)
 
-else() #expect g++ on linux
+else() # unix like systems
 	set_target_properties(saga_api PROPERTIES COMPILE_FLAGS -fPIC)
 	target_compile_definitions(saga_api PUBLIC -D_SAGA_LINUX)
+	target_compile_definitions(saga_api PRIVATE -D${MTOOLSPATH} -D${MSHAREPATH})
 endif()
 
 target_compile_definitions(saga_api PUBLIC -D_TYPEDEF_BYTE -D_TYPEDEF_WORD)
-
-# define for compiling libraries
 target_compile_definitions(saga_api PRIVATE -D_SAGA_API_EXPORTS)
 
 # set version number for library

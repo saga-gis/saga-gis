@@ -196,9 +196,8 @@ set(SAGA_GUI_SOURCES
 	wksp_tool_menu.h
 )
 
-add_executable(saga_gui
-	${SAGA_GUI_SOURCES}
-)
+add_executable(saga_gui ${SAGA_GUI_SOURCES})
+
 # link needed saga libraries
 target_link_libraries(saga_gui saga_api saga_gdi)
 
@@ -207,11 +206,14 @@ find_package(wxWidgets COMPONENTS adv aui base core html net propgrid xml REQUIR
 target_link_libraries(saga_gui ${wxWidgets_LIBRARIES})
 
 # add compile definition needed
-target_compile_definitions(saga_gui PRIVATE -D${MLIBPATH})
-target_compile_definitions(saga_gui PRIVATE -D${MSHAREPATH})
-
 if(MSVC)
+	target_compile_definitions(saga_cmd PUBLIC -D_SAGA_MSW -DUNICODE)
 	target_link_options(saga_gui PRIVATE /SUBSYSTEM:WINDOWS)
+
+else() # unix like systems
+	set_target_properties(saga_gui PROPERTIES COMPILE_FLAGS -fPIC)
+	target_compile_definitions(saga_gui PUBLIC -D_SAGA_LINUX)
+	target_compile_definitions(saga_gui PRIVATE -D${MTOOLSPATH} -D${MSHAREPATH})
 endif()
 
 # add man page

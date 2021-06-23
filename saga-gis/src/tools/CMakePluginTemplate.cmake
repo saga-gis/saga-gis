@@ -30,6 +30,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE "${saga_core_include_dir}")
 # set common compile flags
 if(MSVC)
 	target_compile_definitions(${PROJECT_NAME} PUBLIC -DUNICODE)
+#	target_link_options(${PROJECT_NAME} PRIVATE /OUT:${CMAKE_BINARY_DIR}/${CMAKE_CFG_INTDIR}/tools/${PROJECT_NAME}.dll)
 
 else() # if(NOT MSVC) # expect g++ on Linux
 	set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS -fPIC)

@@ -1,16 +1,13 @@
-option(WITH_TOOLS_PROJ "Build with Proj tools" ON)
+option(PROJ_TOOLS "Build with Proj tools" ON)
 
-if(WITH_TOOLS_PROJ)
+if(PROJ_TOOLS)
 	project(pj_proj4)
 
-	# load common tool template
-	include(../../CMakePluginTemplate.cmake )
+	include(../../CMakePluginTemplate.cmake)	# load common tool template
 
-	# link proj4
-	# Ubuntu 16.04 package libproj-dev
-	find_package(proj REQUIRED)
-	target_include_directories(${PROJECT_NAME} PRIVATE ${proj_INCLUDE_DIRS})
-	target_link_libraries(${PROJECT_NAME} ${proj_LIBRARIES})
+	find_package(proj REQUIRED)	# Ubuntu package libproj-dev
+	target_include_directories(${PROJECT_NAME} PRIVATE ${PROJ_INCLUDE_DIR})
+	target_link_libraries(${PROJECT_NAME} ${PROJ_LIBRARY})
 
 	add_definitions(/DPROJ6)
 endif()

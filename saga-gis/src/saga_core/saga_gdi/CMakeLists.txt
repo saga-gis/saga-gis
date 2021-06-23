@@ -39,15 +39,24 @@ add_library(saga_gdi SHARED
 	${SAGA_GDI_SOURCES}
 	${SAGA_GDI_PUBLIC_HEADERS} # just cosmetic, show headers in IDE
 )
+
 # link saga_api
 target_link_libraries(saga_gdi saga_api)
-
-# define for compiling libraries
-target_compile_definitions(${PROJECT_NAME} PRIVATE -D_SAGA_GDI_EXPORTS)
 
 # include directories of wxWidgets are already present
 find_package(wxWidgets REQUIRED)
 target_link_libraries(saga_gdi ${wxWidgets_LIBRARIES})
+
+if(MSVC) # windows msvc
+	target_compile_definitions(saga_gdi PUBLIC -D_SAGA_MSW -DUNICODE)
+
+else() # unix like systems
+	set_target_properties(saga_cmd PROPERTIES COMPILE_FLAGS -fPIC)
+	target_compile_definitions(saga_gdi PUBLIC -D_SAGA_LINUX)
+endif()
+
+# define for compiling libraries
+target_compile_definitions(${PROJECT_NAME} PRIVATE -D_SAGA_GDI_EXPORTS)
 
 # set version number for library
 set_target_properties(saga_gdi PROPERTIES

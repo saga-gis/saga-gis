@@ -1,13 +1,11 @@
-option(WITH_TOOLS_PDAL "Build with PDAL dependent tools" OFF)
+option(PDAL_TOOLS "Build with PDAL dependent tools" OFF)
 
-if(WITH_TOOLS AND WITH_TOOLS_PDAL)
+if(WITH_TOOLS AND PDAL_TOOLS)
 	project(io_pdal)
 
-	# load common tool template
-	include(../../CMakePluginTemplate.cmake)
+	include(../../CMakePluginTemplate.cmake)	# load common tool template
 
-	# link PDAL library
-	find_package(PDAL REQUIRED)
-	target_include_directories(${PROJECT_NAME} PUBLIC ${PDAL_INCLUDE_DIRS})
-	target_link_libraries(${PROJECT_NAME} ${PDAL_LIBRARIES})
+	find_package(PDAL REQUIRED)	# link PDAL library
+	target_include_directories(${PROJECT_NAME} PUBLIC ${PDAL_INCLUDE_DIR})
+	target_link_libraries(${PROJECT_NAME} ${PDAL_LIB_CPP} ${PDAL_LIB_UTIL})
 endif()
