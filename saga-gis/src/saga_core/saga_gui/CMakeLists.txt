@@ -196,7 +196,7 @@ set(SAGA_GUI_SOURCES
 	wksp_tool_menu.h
 )
 
-add_executable(saga_gui ${SAGA_GUI_SOURCES})
+add_executable(saga_gui ${SAGA_GUI_SOURCES} res/saga_gui.rc)
 
 # link needed saga libraries
 target_link_libraries(saga_gui saga_api saga_gdi)

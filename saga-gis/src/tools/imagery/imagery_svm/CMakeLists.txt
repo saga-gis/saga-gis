@@ -3,22 +3,14 @@ option(WITH_SYSTEM_SVM "Check to use system version of libsvm instead of embedde
 if(WITH_TOOLS)
 	project(imagery_svm)
 
-	if(WITH_SYSTEM_SVM)
-		# load libsvm
-		# ubuntu 16.04 packages libsvm-dev
-		find_package(libsvm REQUIRED)
-		target_include_directories(${PROJECT_NAME} PRIVATE ${libsvm_INCLUDE_DIRS})
-		target_link_libraries(${PROJECT_NAME} ${libsvm_LIBRARIES})
+	find_package(svm QUIET)	# ubuntu packages libsvm-dev
+	if(WITH_SYSTEM_SVM AND SVM_FOUND)
+		target_include_directories(${PROJECT_NAME} PRIVATE ${SVM_INCLUDE})
+		target_link_libraries(${PROJECT_NAME} ${SVM_LIBRARY})
 	else()
-		# add files in sudirectories
-		set(SAGA_TOOL_CUSTOM_SOURCE_LIST
-			svm/svm.cpp
-		)
-		set(SAGA_TOOL_CUSTOM_HEADER_LIST
-			svm/svm.h
-		)
+		set(SAGA_TOOL_CUSTOM_SOURCE_LIST svm/svm.cpp)
+		set(SAGA_TOOL_CUSTOM_HEADER_LIST svm/svm.h)
 	endif()
 
-	# load common tool template
-	include(../../CMakePluginTemplate.cmake )
+	include(../../CMakePluginTemplate.cmake)	# load common tool template
 endif()

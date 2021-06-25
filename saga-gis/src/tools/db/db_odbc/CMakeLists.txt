@@ -1,16 +1,15 @@
 if(WITH_TOOLS)
-	project(db_odbc)
-
-	# load common tool template
-	include(../../CMakePluginTemplate.cmake )
-
 	if(MSVC)
+		project(db_odbc)
+		include(../../CMakePluginTemplate.cmake)	# load common tool template
 		target_link_libraries(${PROJECT_NAME} odbc32 odbccp32)
 	else()
-		# load odbc library
-		# ubuntu 16.04 packages unixodbc-dev
-		find_package(ODBC REQUIRED)
-		#target_include_directories(${PROJECT_NAME} PRIVATE "${ODBC_INCLUDE_DIRS}")
-		target_link_libraries(${PROJECT_NAME} "${ODBC_LIBRARIES}")
+		find_package(ODBC)	# ubuntu package unixodbc-dev
+		if(ODBC_FOUND)
+			project(db_odbc)
+			include(../../CMakePluginTemplate.cmake)	# load common tool template
+			target_include_directories(${PROJECT_NAME} PRIVATE "${ODBC_INCLUDE_DIRS}")
+			target_link_libraries(${PROJECT_NAME} "${ODBC_LIBRARIES}")
+		endif()
 	endif()		
 endif()
