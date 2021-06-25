@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Grid_Values_AddTo_Points.h"
 
 
@@ -72,40 +60,38 @@
 //---------------------------------------------------------
 CGrid_Values_AddTo_Points::CGrid_Values_AddTo_Points(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Add Grid Values to Points"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2003"));
+	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
 		"Spatial Join: Retrieves information from the selected grids at the positions "
-		"of the points of the selected points layer and adds it to the resulting layer."
+		"of the points of the selected points layer and adds it to the resulting layer. "
 	));
 
-
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		NULL	, "SHAPES"		, _TL("Points"),
+	Parameters.Add_Shapes("",
+		"SHAPES"	, _TL("Points"),
 		_TL(""),
-		PARAMETER_INPUT			, SHAPE_TYPE_Point
+		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"		, _TL("Grids"),
+	Parameters.Add_Grid_List("",
+		"GRIDS"		, _TL("Grids"),
 		_TL(""),
-		PARAMETER_INPUT			, false
+		PARAMETER_INPUT, false
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "RESULT"		, _TL("Result"),
+	Parameters.Add_Shapes("",
+		"RESULT"	, _TL("Result"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "RESAMPLING"	, _TL("Resampling"),
+	Parameters.Add_Choice("",
+		"RESAMPLING", _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
@@ -117,44 +103,36 @@ CGrid_Values_AddTo_Points::CGrid_Values_AddTo_Points(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGrid_Values_AddTo_Points::On_Execute(void)
 {
-	int						iShape, iGrid, iField, Offset;
-	double					Value;
-	CSG_Shapes				*pShapes;
-	CSG_Parameter_Grid_List	*pGrids;
+	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
 
-	//-----------------------------------------------------
-	pShapes			= Parameters("RESULT")->asShapes();
-	pGrids			= Parameters("GRIDS" )->asGridList();
-
-	//-----------------------------------------------------
-	if( pGrids->Get_Grid_Count() <= 0 )
+	if( pGrids->Get_Grid_Count() < 1 )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
+	CSG_Shapes	*pShapes	= Parameters("RESULT")->asShapes();
+
 	if( pShapes == NULL )
 	{
-		pShapes		= Parameters("SHAPES")->asShapes();
+		pShapes	= Parameters("SHAPES")->asShapes();
 	}
 	else if( pShapes != Parameters("SHAPES")->asShapes() )
 	{
 		pShapes->Create(*Parameters("SHAPES")->asShapes());
 	}
 
-	Offset		= pShapes->Get_Field_Count();
+	int	Offset	= pShapes->Get_Field_Count();
 
 	//-----------------------------------------------------
-	for(iGrid=0; iGrid<pGrids->Get_Grid_Count(); iGrid++)
+	for(int iGrid=0; iGrid<pGrids->Get_Grid_Count(); iGrid++)
 	{
-		pShapes->Add_Field(pGrids->Get_Grid(iGrid)->Get_Name(), SG_DATATYPE_Double);
+		pShapes->Add_Field(pGrids->Get_Grid(iGrid)->Get_Name(), pGrids->Get_Grid(iGrid)->Get_Type());
 	}
 
 	//-----------------------------------------------------
@@ -162,20 +140,20 @@ bool CGrid_Values_AddTo_Points::On_Execute(void)
 
 	switch( Parameters("RESAMPLING")->asInt() )
 	{
-	default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
-	case  1:	Resampling	= GRID_RESAMPLING_Bilinear;			break;
-	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
-	case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
+	default: Resampling	= GRID_RESAMPLING_NearestNeighbour; break;
+	case  1: Resampling	= GRID_RESAMPLING_Bilinear        ; break;
+	case  2: Resampling	= GRID_RESAMPLING_BicubicSpline   ; break;
+	case  3: Resampling	= GRID_RESAMPLING_BSpline         ; break;
 	}
 
 	//-----------------------------------------------------
-	for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 	{
 		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
 
-		for(iGrid=0, iField=Offset; iGrid<pGrids->Get_Grid_Count(); iGrid++, iField++)
+		for(int iGrid=0, iField=Offset; iGrid<pGrids->Get_Grid_Count(); iGrid++, iField++)
 		{
-			CSG_Grid	*pGrid	= pGrids->Get_Grid(iGrid);
+			CSG_Grid	*pGrid	= pGrids->Get_Grid(iGrid);	double Value;
 
 			if( pGrid->Get_Value(pShape->Get_Point(0), Value, Resampling) )
 			{

@@ -551,7 +551,7 @@ bool CSG_Grids::Update_Z_Order(void)
 		
 		CSG_Grid	**pGrids	= (CSG_Grid **)Grids.Create(m_Grids);
 
-		for(int i=0; i<Attributes.Get_Count(); i++)
+		for(int i=0; i<Get_Grid_Count(); i++)
 		{
 			int	Index	= Attributes[i].Get_Index();
 
@@ -563,6 +563,11 @@ bool CSG_Grids::Update_Z_Order(void)
 
 				m_Attributes[i].Assign(&Attributes[i]);
 			}
+		}
+
+		for(int i=0; i<Get_Grid_Count(); i++)
+		{
+			pGrids[i]->Set_Name(Get_Grid_Name(i));
 		}
 	}
 
@@ -687,8 +692,6 @@ bool CSG_Grids::Add_Grid(CSG_Table_Record &Attributes)
 
 	//-----------------------------------------------------
 	m_Attributes.Add_Record(&Attributes);
-
-	m_pGrids[n]->Fmt_Name("%s [%s]", Get_Name(), SG_Get_String(Get_Z(n), -10).c_str());
 
 	SG_FREE_SAFE(m_Index);	// invalidate index
 
