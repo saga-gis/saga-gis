@@ -344,7 +344,7 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid, CSG_Grid *pTarget)
 	pTarget->Assign_NoData();
 
 	//-----------------------------------------------------
-	#ifdef PROJ6	// proj.4 is not parallelizable?!
+	#if PROJ_VERSION_MAJOR >= 6	// proj.4 is not parallelizable?!
 	m_Projector.Set_Copies(SG_OMP_Get_Max_Num_Threads());
 	#endif
 
@@ -352,7 +352,7 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid, CSG_Grid *pTarget)
 	{
 		double	yTarget	= pTarget->Get_YMin() + y * pTarget->Get_Cellsize();
 
-		#ifdef PROJ6	// proj.4 is not parallelizable?!
+		#if PROJ_VERSION_MAJOR >= 6	// proj.4 is not parallelizable?!
 		#pragma omp parallel for
 		#endif
 		for(int x=0; x<pTarget->Get_NX(); x++)
@@ -365,7 +365,7 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid, CSG_Grid *pTarget)
 			double	z, ySource, xSource	= pTarget->Get_XMin() + x * pTarget->Get_Cellsize();
 
 			//---------------------------------------------------------
-			#ifdef PROJ6
+			#if PROJ_VERSION_MAJOR >= 6
 			if( !m_Projector[SG_OMP_Get_Thread_Num()].Get_Projection(xSource, ySource = yTarget) )
 			#else
 			if( !m_Projector.Get_Projection(xSource, ySource = yTarget) )
@@ -499,7 +499,7 @@ bool CCRS_Transform_Grid::Transform(const CSG_Array_Pointer &Grids, CSG_Paramete
 	}
 
 	//-------------------------------------------------
-	#ifdef PROJ6	// proj.4 is not parallelizable?!
+	#if PROJ_VERSION_MAJOR >= 6	// proj.4 is not parallelizable?!
 	m_Projector.Set_Copies(SG_OMP_Get_Max_Num_Threads());
 	#endif
 
@@ -507,7 +507,7 @@ bool CCRS_Transform_Grid::Transform(const CSG_Array_Pointer &Grids, CSG_Paramete
 	{
 		double	yTarget	= Target_System.Get_YMin() + y * Target_System.Get_Cellsize();
 
-		#ifdef PROJ6	// proj.4 is not parallelizable?!
+		#if PROJ_VERSION_MAJOR >= 6	// proj.4 is not parallelizable?!
 		#pragma omp parallel for
 		#endif
 		for(int x=0; x<Target_System.Get_NX(); x++)
@@ -519,7 +519,7 @@ bool CCRS_Transform_Grid::Transform(const CSG_Array_Pointer &Grids, CSG_Paramete
 
 			double	z, ySource, xSource	= Target_System.Get_XMin() + x * Target_System.Get_Cellsize();
 
-			#ifdef PROJ6
+			#if PROJ_VERSION_MAJOR >= 6
 			if( !m_Projector[SG_OMP_Get_Thread_Num()].Get_Projection(xSource, ySource = yTarget) )
 			#else
 			if( !m_Projector.Get_Projection(xSource, ySource = yTarget) )

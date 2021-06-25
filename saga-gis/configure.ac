@@ -198,15 +198,15 @@ fi
 
 if test -n "$PROJ5FOUND" ; then 
   AC_MSG_RESULT([        using PROJ version 5])
-  PROJ6FLAGS=""
+  PROJ6FLAGS="-DPROJ_VERSION_MAJOR=5"
 else
   if test -n "$PROJ6FOUND" ; then 
     AC_MSG_RESULT([        using PROJ version 6]) 
-    PROJ6FLAGS="-DPROJ6 -std=c++0x"
+    PROJ6FLAGS="-DPROJ_VERSION_MAJOR=6 -std=c++0x"
   else
     if test -n "$PROJ4FOUND" ; then 
       AC_MSG_RESULT([        using PROJ version 4]) 
-      PROJ6FLAGS=""
+      PROJ6FLAGS="PROJ_VERSION_MAJOR=4"
     else
       AC_MSG_ERROR(SAGA requires the PROJ library)
       exit

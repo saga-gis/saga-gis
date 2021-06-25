@@ -106,7 +106,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(GDAL_32)/include/proj6;../../../saga_core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>PROJ6;_DEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PROJ_VERSION_MAJOR=6;_DEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -158,7 +158,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(GDAL)/include/proj6;../../../saga_core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>PROJ6;_DEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PROJ_VERSION_MAJOR=6;_DEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -210,7 +210,7 @@
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>$(GDAL_32)/include/proj6;../../../saga_core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>PROJ6;NDEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PROJ_VERSION_MAJOR=6;NDEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -262,7 +262,7 @@
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>$(GDAL)/include/proj6;../../../saga_core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>PROJ6;NDEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PROJ_VERSION_MAJOR=6;NDEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>

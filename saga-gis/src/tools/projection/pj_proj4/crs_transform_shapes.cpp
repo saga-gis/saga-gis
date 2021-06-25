@@ -118,7 +118,7 @@ CCRS_Transform_Shapes::CCRS_Transform_Shapes(bool bList)
 		true
 	);
 
-	#ifdef PROJ6	// proj.4 is not parallelizable?!
+	#if PROJ_VERSION_MAJOR >= 6	// proj.4 is not parallelizable?!
 	Parameters.Add_Bool("",
 		"PARALLEL"		, _TL("Parallel Processing"),
 		_TL(""),

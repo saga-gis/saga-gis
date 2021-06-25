@@ -56,7 +56,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef PROJ6
+#if PROJ_VERSION_MAJOR < 6
 	extern "C" {
 		#include <projects.h>
 	}
@@ -200,7 +200,7 @@ CCRS_Base::CCRS_Base(void)
 	)->Set_UseInCMD(false);
 
 	//-----------------------------------------------------
-#ifndef PROJ6
+#if PROJ_VERSION_MAJOR < 6
 	Parameters.Add_Bool("",
 		"PRECISE"		, _TL("Precise Datum Conversion"),
 		_TL("avoids precision problems when source and target crs use different geodedtic datums."),
@@ -264,7 +264,7 @@ CSG_Projection CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 			Projection.Create(WKT_GCS_WGS84, sProj4);
 		}
 
-//#ifdef PROJ6
+//#if PROJ_VERSION_MAJOR >= 6
 //		if( !Projection.is_Okay() )
 //		{
 //			PJ	*Proj4	= proj_create(PJ_DEFAULT_CTX, sProj4);

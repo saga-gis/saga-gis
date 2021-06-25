@@ -56,7 +56,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef PROJ6
+#if PROJ_VERSION_MAJOR < 6
 	extern "C" {
 		#include <projects.h>
 	}
@@ -98,7 +98,7 @@ CSG_CRSProjector::~CSG_CRSProjector(void)
 {
 	Destroy();
 
-	#ifdef PROJ6
+	#if PROJ_VERSION_MAJOR >= 6
 		proj_context_destroy((PJ_CONTEXT *)m_pContext);
 
 		#if PROJ_VERSION_MINOR >= 2
@@ -119,7 +119,7 @@ void CSG_CRSProjector::_On_Construction(void)
 	m_Copies	= NULL;
 	m_nCopies	= 0;
 
-	#ifndef PROJ6
+	#if PROJ_VERSION_MAJOR < 6
 		m_pContext	= NULL;
 	#else
 		m_pContext	= proj_context_create();
@@ -203,7 +203,7 @@ CSG_CRSProjector & CSG_CRSProjector::operator [] (int iCopy)
 //---------------------------------------------------------
 CSG_String CSG_CRSProjector::Get_Version(void)
 {
-	#ifndef PROJ6
+	#if PROJ_VERSION_MAJOR < 6
 		return( pj_release );
 	#else
 		return( CSG_String::Format("%d.%d.%d", PROJ_VERSION_MAJOR, PROJ_VERSION_MINOR, PROJ_VERSION_PATCH) );
@@ -238,7 +238,7 @@ bool CSG_CRSProjector::_Set_Projection(const CSG_Projection &Projection, void **
 	PROJ4_FREE(*ppProjection);
 
 	//-------------------------------------------------
-	#ifndef PROJ6
+	#if PROJ_VERSION_MAJOR < 6
 	if( (*ppProjection = pj_init_plus(Projection.Get_Proj4())) == NULL )
 	{
 		CSG_String	Error(pj_strerrno(pj_errno));
@@ -254,7 +254,7 @@ bool CSG_CRSProjector::_Set_Projection(const CSG_Projection &Projection, void **
 	}
 
 	//-------------------------------------------------
-	#ifndef PROJ6
+	#if PROJ_VERSION_MAJOR < 6
 	if( bInverse && ((PJ *)(*ppProjection))->inv == NULL )
 	#else
 	if( bInverse && !proj_pj_info((PJ *)(*ppProjection)).has_inverse )
@@ -293,7 +293,7 @@ bool CSG_CRSProjector::Set_Inverse(bool bOn)
 		return( true );
 	}
 
-	#ifndef PROJ6
+	#if PROJ_VERSION_MAJOR < 6
 	if( m_pTarget && ((PJ *)m_pTarget)->inv )
 	#else
 	if( m_pTarget && proj_pj_info((PJ *)m_pTarget).has_inverse )
@@ -320,7 +320,7 @@ bool CSG_CRSProjector::Set_Precise_Mode(bool bOn)
 	{
 		if( m_pGCS == NULL )
 		{
-			#ifndef PROJ6
+			#if PROJ_VERSION_MAJOR < 6
 			return( (m_pGCS = pj_init_plus("+proj=longlat +datum=WGS84")) != NULL );
 			#else
 			return( (m_pGCS = proj_create((PJ_CONTEXT *)m_pContext, "+proj=longlat +datum=WGS84")) != NULL );
@@ -348,7 +348,7 @@ bool CSG_CRSProjector::Get_Projection(double &x, double &y)	const
 		return( false );
 	}
 
-	#ifndef PROJ6
+	#if PROJ_VERSION_MAJOR < 6
 	if( pj_is_latlong((PJ *)m_pSource) )
 	#else
 	if( proj_angular_output((PJ *)m_pSource, PJ_FWD) )
@@ -358,7 +358,7 @@ bool CSG_CRSProjector::Get_Projection(double &x, double &y)	const
 		y	*= M_DEG_TO_RAD;
 	}
 
-	#ifndef PROJ6
+	#if PROJ_VERSION_MAJOR < 6
 	if( m_pGCS )	// precise datum conversion
 	{
 		if( pj_transform((PJ *)m_pSource, (PJ *)m_pGCS   , 1, 0, &x, &y, NULL) != 0
@@ -384,7 +384,7 @@ bool CSG_CRSProjector::Get_Projection(double &x, double &y)	const
 	y	= c.v[1];
 	#endif
 
-	#ifndef PROJ6
+	#if PROJ_VERSION_MAJOR < 6
 	if( pj_is_latlong((PJ *)m_pTarget) )
 	#else
 	if( proj_angular_output((PJ *)m_pTarget, PJ_FWD) )
@@ -427,7 +427,7 @@ bool CSG_CRSProjector::Get_Projection(double &x, double &y, double &z)	const
 		return( false );
 	}
 
-	#ifndef PROJ6
+	#if PROJ_VERSION_MAJOR < 6
 	if( pj_is_latlong((PJ *)m_pSource) )
 	#else
 	if( proj_angular_output((PJ *)m_pSource, PJ_FWD) )
@@ -437,7 +437,7 @@ bool CSG_CRSProjector::Get_Projection(double &x, double &y, double &z)	const
 		y	*= M_DEG_TO_RAD;
 	}
 
-	#ifndef PROJ6
+	#if PROJ_VERSION_MAJOR < 6
 	if( m_pGCS )	// precise datum conversion
 	{
 		if( pj_transform((PJ *)m_pSource, (PJ *)m_pGCS   , 1, 0, &x, &y, &z) != 0
@@ -464,7 +464,7 @@ bool CSG_CRSProjector::Get_Projection(double &x, double &y, double &z)	const
 	z	= c.v[2];
 	#endif
 
-	#ifndef PROJ6
+	#if PROJ_VERSION_MAJOR < 6
 	if( pj_is_latlong((PJ *)m_pTarget) )
 	#else
 	if( proj_angular_output((PJ *)m_pTarget, PJ_FWD) )
