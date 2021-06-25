@@ -1,5 +1,5 @@
 if(WITH_TOOLS)
-	find_package(gdal)	# Ubuntu package libgdal-dev
+	find_package(GDAL)	# Ubuntu package libgdal-dev
 	if(GDAL_FOUND)
 		project(io_gdal)
 		include(../../CMakePluginTemplate.cmake)	# load common tool template
