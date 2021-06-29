@@ -7,14 +7,14 @@
 #
 #########################################
 
-find_path   (VIGRA_FFTW3_INCLUDE NAMES fftw3.h            DOC "fftw3 include directory")
-find_library(VIGRA_FFTW3_LIBRARY NAMES fftw3              DOC "fftw3 library")
-find_path   (VIGRA_INCLUDE       NAMES vigra/stdimage.hxx DOC "VIGRA include directory")
-find_library(VIGRA_LIBRARY       NAMES vigraimpex         DOC "VIGRA library")
+find_path   (VIGRA_FFTW3_INCLUDE NAMES fftw3.h            PATHS "$ENV{VIGRA}/include" DOC "fftw3 include directory")
+find_library(VIGRA_FFTW3_LIBRARY NAMES fftw3 libfftw3-3   PATHS "$ENV{VIGRA}/lib"     DOC "fftw3 library")
+find_path   (VIGRA_INCLUDE       NAMES vigra/stdimage.hxx PATHS "$ENV{VIGRA}/include" DOC "VIGRA include directory")
+find_library(VIGRA_LIBRARY       NAMES vigraimpex         PATHS "$ENV{VIGRA}/lib"     DOC "VIGRA library")
 
 if(MSVC)
-	find_path(VIGRA_HDF5_INCLUDE   NAMES hdf5.h   DOC "[optional] hdf5 include directory")
-	find_path(VIGRA_HDF5_LIBRARIES NAMES hdf5.lib DOC "[optional] hdf5 libraries directory")
+	find_path(VIGRA_HDF5_INCLUDE   NAMES hdf5.h   PATHS "$ENV{GDAL}/include" DOC "[optional] hdf5 include directory")
+	find_path(VIGRA_HDF5_LIBRARIES NAMES hdf5.lib PATHS "$ENV{GDAL}/lib"     DOC "[optional] hdf5 libraries directory")
 endif()
 
 include(FindPackageHandleStandardArgs)
