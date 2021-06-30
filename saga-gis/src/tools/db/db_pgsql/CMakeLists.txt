@@ -1,5 +1,5 @@
 if(WITH_TOOLS)
-	find_package(Postgres)	# ubuntu package libpq-dev
+	find_package(Postgres QUIET)	# ubuntu package libpq-dev
 	if(POSTGRES_FOUND)
 		project(db_pgsql)
 		include(../../CMakePluginTemplate.cmake)	# load common tool template

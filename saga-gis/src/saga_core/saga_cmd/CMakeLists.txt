@@ -18,7 +18,7 @@ add_executable(saga_cmd ${SAGA_CMD_SOURCES})
 target_link_libraries(saga_cmd saga_api)
 
 # find and use wxWidgeds
-find_package(wxWidgets COMPONENTS base REQUIRED)
+find_package(wxWidgets COMPONENTS base REQUIRED QUIET)
 target_link_libraries(saga_cmd ${wxWidgets_LIBRARIES})
 
 if(MSVC) # windows msvc

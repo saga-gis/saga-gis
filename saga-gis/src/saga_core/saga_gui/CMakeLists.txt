@@ -202,7 +202,7 @@ add_executable(saga_gui ${SAGA_GUI_SOURCES} res/saga_gui.rc)
 target_link_libraries(saga_gui saga_api saga_gdi)
 
 # find and link wxWidgets libraries
-find_package(wxWidgets COMPONENTS adv aui base core html net propgrid xml REQUIRED)
+find_package(wxWidgets COMPONENTS adv aui base core html net propgrid xml REQUIRED QUIET)
 target_link_libraries(saga_gui ${wxWidgets_LIBRARIES})
 
 # add compile definition needed

@@ -28,6 +28,8 @@ option(OpenMP_SUPPORT "Compile with OpenMP optimizations" ON)
 #option(WITH_LINK_TESTER "Check to enable testing if tools are successfully linking" OFF)
 
 if(MSVC)
+	option(DEPS_FROM_ENVARS "Library locations from environment" ON)
+
 	option(PARALLEL_BUILD "Multi-processor compilation (/MP)" ON)
 	if(PARALLEL_BUILD)
 		add_definitions(/MP)

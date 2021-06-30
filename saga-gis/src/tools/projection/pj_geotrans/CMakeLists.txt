@@ -2,9 +2,7 @@ option(WITH_SYSTEM_GEOTRANS "Check to use system version of geotrans instead of 
 
 if(WITH_TOOLS)
 	project(pj_geotrans)
-
-	# load common tool template
-	include(../../CMakePluginTemplate.cmake )
+	include(../../CMakePluginTemplate.cmake)	# load common tool template
 
 	# compile and link geotrans
 	if(WITH_SYSTEM_GEOTRANS)

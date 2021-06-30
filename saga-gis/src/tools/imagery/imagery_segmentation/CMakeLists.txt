@@ -1,6 +1,4 @@
-if(WITH_TOOLS AND WITH_TOOLS_OPENCV)
+if(WITH_TOOLS)
 	project(imagery_segmentation)
-
-	# load common tool template
-	include(../../CMakePluginTemplate.cmake )
+	include(../../CMakePluginTemplate.cmake)	# load common tool template
 endif()

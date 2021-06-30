@@ -1,5 +1,5 @@
 if(WITH_TOOLS)
-	find_package(PDAL)	# link PDAL library
+	find_package(PDAL QUIET)	# link PDAL library
 	if(PDAL_FOUND)
 		project(io_pdal)
 		include(../../CMakePluginTemplate.cmake)	# load common tool template

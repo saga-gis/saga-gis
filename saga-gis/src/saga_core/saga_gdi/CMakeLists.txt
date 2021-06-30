@@ -44,7 +44,7 @@ add_library(saga_gdi SHARED
 target_link_libraries(saga_gdi saga_api)
 
 # include directories of wxWidgets are already present
-find_package(wxWidgets REQUIRED)
+find_package(wxWidgets REQUIRED QUIET)
 target_link_libraries(saga_gdi ${wxWidgets_LIBRARIES})
 
 if(MSVC) # windows msvc

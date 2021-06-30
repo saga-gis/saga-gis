@@ -1,5 +1,5 @@
 if(WITH_TOOLS)
-	find_package(VIGRA)	# on Ubuntu package libvigraimpex-dev
+	find_package(VIGRA QUIET)	# on Ubuntu package libvigraimpex-dev
 	if(VIGRA_FOUND)
 		project(imagery_vigra)
 		include(../../CMakePluginTemplate.cmake)	# load common tool template

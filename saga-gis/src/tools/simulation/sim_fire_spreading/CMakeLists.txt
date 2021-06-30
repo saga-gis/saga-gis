@@ -1,12 +1,10 @@
 if(WITH_TOOLS)
 	project(sim_fire_spreading)
 
-	# blacklist some unused files
-	file(GLOB SAGA_TOOL_BLACKLIST
+	file(GLOB SAGA_TOOL_BLACKLIST	# blacklist some unused files
 		SimulateVariableWind.cpp
 		SimulateVariableWind.h)
-	message("blacklist: ${SAGA_TOOL_BLACKLIST}")
+#	message("blacklist: ${SAGA_TOOL_BLACKLIST}")
 
-	# load common tool template
-	include(../../CMakePluginTemplate.cmake )
+	include(../../CMakePluginTemplate.cmake)	# load common tool template
 endif()

@@ -1,5 +1,5 @@
 if(WITH_TOOLS)
-	find_package(Proj)	# Ubuntu package libproj-dev
+	find_package(Proj QUIET)	# Ubuntu package libproj-dev
 	if(PROJ_FOUND)
 		project(pj_proj4)
 		include(../../CMakePluginTemplate.cmake)	# load common tool template

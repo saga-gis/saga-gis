@@ -1,5 +1,5 @@
 if(WITH_TOOLS)
-	find_package(HPDF)	# ubuntu package libhpdf-dev
+	find_package(HPDF QUIET)	# ubuntu package libhpdf-dev
 	if(HPDF_FOUND)
 		project(docs_pdf)
 		include(../../CMakePluginTemplate.cmake)	# load common tool template

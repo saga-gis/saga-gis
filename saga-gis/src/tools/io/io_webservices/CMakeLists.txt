@@ -3,7 +3,7 @@ if(WITH_TOOLS)
 	include(../../CMakePluginTemplate.cmake)	# load common tool template
 
 	#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-	if(MSVC)
+	if(MSVC AND DEPS_FROM_ENVARS)
 		find_path(CURL_INCLUDE_DIRS NAMES curl/curl.h PATHS "$ENV{GDAL}/include")
 		find_library(CURL_LIBRARIES NAMES curl libcurl_imp PATHS "$ENV{GDAL}/lib")
 		include(FindPackageHandleStandardArgs)

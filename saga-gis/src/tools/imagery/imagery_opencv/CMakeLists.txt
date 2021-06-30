@@ -1,6 +1,6 @@
 if(WITH_TOOLS)
 	#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-	if(MSVC)
+	if(MSVC AND DEPS_FROM_ENVARS)
 		find_path(OpenCV_INCLUDE_DIRS NAMES opencv2/opencv.hpp PATHS "$ENV{OPENCV}/include")
 		find_path(OpenCV_LIBRARIES    NAMES opencv_core430.lib PATHS "$ENV{OPENCV}/lib")
 		include(FindPackageHandleStandardArgs)
