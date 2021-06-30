@@ -455,7 +455,7 @@ void CSAGA_Frame::On_Close(wxCloseEvent &event)
 		}
 	}
 
-	if( !g_pTool && (!g_pData->Get_Count() || (DLG_Message_Confirm(ID_DLG_CLOSE) && g_pData->Finalise() && g_pData->Close(true))) )
+	if( !g_pTool && g_pData->Finalise() && g_pData->Close(true) )
 	{
 		g_pTools->Finalise();
 
