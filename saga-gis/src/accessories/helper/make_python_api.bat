@@ -88,7 +88,7 @@ ECHO __________________
 ECHO Python%PYTHON_VERSION% Compilation (%ARCHITECTURE%)...
 ECHO.
 
-"%PYTHONDIR%\python.exe" saga_api_to_python_win.py install
+"%PYTHONDIR%\python.exe" saga_api_to_python.py install
 
 RMDIR /S/Q build
 

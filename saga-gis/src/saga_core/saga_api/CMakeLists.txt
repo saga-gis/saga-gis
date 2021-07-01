@@ -2,8 +2,6 @@ project(saga_api)
 
 message(STATUS "project: ${PROJECT_NAME}")
 
-# TODO: if SAGA_PYTHON
-
 # define headers
 set(SAGA_API_PUBLIC_HEADERS
 	api_core.h
@@ -135,11 +133,10 @@ target_link_libraries(saga_api PRIVATE ${wxWidgets_LIBRARIES})
 
 if(MSVC) # windows msvc
 	target_compile_definitions(saga_api PUBLIC -D_SAGA_MSW -DUNICODE)
-
 else() # unix like systems
-	set_target_properties(saga_api PROPERTIES COMPILE_FLAGS -fPIC)
 	target_compile_definitions(saga_api PUBLIC -D_SAGA_LINUX)
 	target_compile_definitions(saga_api PRIVATE -D${MTOOLSPATH} -D${MSHAREPATH})
+	set_target_properties(saga_api PROPERTIES COMPILE_FLAGS -fPIC)
 endif()
 
 target_compile_definitions(saga_api PUBLIC -D_TYPEDEF_BYTE -D_TYPEDEF_WORD)
@@ -148,8 +145,43 @@ target_compile_definitions(saga_api PRIVATE -D_SAGA_API_EXPORTS)
 # set version number for library
 set_target_properties(saga_api PROPERTIES
 	VERSION ${SAGA_VERSION_STRING}
-	SOVERSION ${SAGA_VERSION_MAJOR})
+	SOVERSION ${SAGA_VERSION_MAJOR}
+)
 
 # where to install the library
 install(TARGETS saga_api DESTINATION lib)
 install(FILES ${SAGA_API_PUBLIC_HEADERS} DESTINATION include/saga/saga_core/saga_api)
+
+#-#-#-#-#-# SWIG / Python #-#-#-#-#-#
+find_package(SWIG COMPONENTS python QUIET)
+if(SWIG_FOUND AND SWIG_python_FOUND)
+	message(STATUS "SWIG for Python found")
+	find_package(PythonLibs QUIET)
+	if(PythonLibs_FOUND)
+		message(STATUS "PythonLibs found")
+
+		if(POLICY CMP0078)	# SWIG: use standard target name.
+		  cmake_policy(SET CMP0078 NEW)
+		endif()
+
+		if(POLICY CMP0086)	# SWIG: use SWIG_MODULE_NAME property.
+		  cmake_policy(SET CMP0086 NEW)
+		endif()
+
+		include(UseSWIG)
+
+		include_directories("${PYTHON_INCLUDE_PATH}")
+		include_directories("${PYTHON_INCLUDE_PATH}/../PC")	# msvc builds
+		include_directories(".")
+
+		set(CMAKE_SWIG_FLAGS "-D_SAGA_PYTHON -D_SWIG_WCHAR")
+
+		set_property(SOURCE saga_api.i PROPERTY CPLUSPLUS ON)
+		set_property(SOURCE saga_api.i PROPERTY COMPILE_OPTIONS "-includeall")
+
+		swig_add_library(_saga_api LANGUAGE Python SOURCES saga_api.i)
+
+		swig_link_libraries(_saga_api saga_api)
+		swig_link_libraries(_saga_api ${PYTHON_LIBRARIES})
+	endif()
+endif()
