@@ -153,8 +153,8 @@ install(TARGETS saga_api DESTINATION lib)
 install(FILES ${SAGA_API_PUBLIC_HEADERS} DESTINATION include/saga/saga_core/saga_api)
 
 #-#-#-#-#-# SWIG / Python #-#-#-#-#-#
-find_package(SWIG COMPONENTS python QUIET)
-if(SWIG_FOUND AND SWIG_python_FOUND)
+find_package(SWIG QUIET)
+if(SWIG_FOUND)
 	message(STATUS "SWIG for Python found")
 	find_package(PythonLibs QUIET)
 	if(PythonLibs_FOUND)
@@ -183,5 +183,12 @@ if(SWIG_FOUND AND SWIG_python_FOUND)
 
 		swig_link_libraries(_saga_api saga_api)
 		swig_link_libraries(_saga_api ${PYTHON_LIBRARIES})
+
+		if(NOT MSVC)
+			execute_process(COMMAND python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()" OUTPUT_VARIABLE PYTHON_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE)
+			install(TARGETS _saga_api DESTINATION ${PYTHON_SITE_PACKAGES})
+			install(FILES ${CMAKE_BINARY_DIR}/src/saga_core/saga_api/saga_api.py DESTINATION ${PYTHON_SITE_PACKAGES})
+			install(FILES ${CMAKE_SOURCE_DIR}/src/saga_core/saga_api/saga_helper.py DESTINATION ${PYTHON_SITE_PACKAGES})
+		endif()
 	endif()
 endif()
