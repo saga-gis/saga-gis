@@ -1,5 +1,3 @@
-message("folder: tools/imagery")
-
 add_subdirectory(imagery_classification)
 add_subdirectory(imagery_isocluster)
 add_subdirectory(imagery_maxent)

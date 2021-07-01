@@ -1,5 +1,3 @@
-message("folder: tools/io")
-
 add_subdirectory(io_esri_e00)
 add_subdirectory(io_gdal)
 add_subdirectory(io_gps)

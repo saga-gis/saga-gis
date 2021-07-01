@@ -1,5 +1,3 @@
-message("folder: tools/grid")
-
 add_subdirectory(grid_analysis)
 add_subdirectory(grid_calculus)
 add_subdirectory(grid_calculus_bsl)
