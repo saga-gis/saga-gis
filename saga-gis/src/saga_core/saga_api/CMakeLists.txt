@@ -153,42 +153,4 @@ install(TARGETS saga_api DESTINATION lib)
 install(FILES ${SAGA_API_PUBLIC_HEADERS} DESTINATION include/saga/saga_core/saga_api)
 
 #-#-#-#-#-# SWIG / Python #-#-#-#-#-#
-find_package(SWIG QUIET)
-if(SWIG_FOUND)
-	message(STATUS "SWIG for Python found")
-	find_package(PythonLibs QUIET)
-	if(PythonLibs_FOUND)
-		message(STATUS "PythonLibs found")
-
-		if(POLICY CMP0078)	# SWIG: use standard target name.
-		  cmake_policy(SET CMP0078 NEW)
-		endif()
-
-		if(POLICY CMP0086)	# SWIG: use SWIG_MODULE_NAME property.
-		  cmake_policy(SET CMP0086 NEW)
-		endif()
-
-		include(UseSWIG)
-
-		include_directories("${PYTHON_INCLUDE_PATH}")
-		include_directories("${PYTHON_INCLUDE_PATH}/../PC")	# msvc builds
-		include_directories(".")
-
-		set(CMAKE_SWIG_FLAGS "-D_SAGA_PYTHON -D_SWIG_WCHAR")
-
-		set_property(SOURCE saga_api.i PROPERTY CPLUSPLUS ON)
-		set_property(SOURCE saga_api.i PROPERTY COMPILE_OPTIONS "-includeall")
-
-		swig_add_library(_saga_api LANGUAGE Python SOURCES saga_api.i)
-
-		swig_link_libraries(_saga_api saga_api)
-		swig_link_libraries(_saga_api ${PYTHON_LIBRARIES})
-
-		if(NOT MSVC)
-			execute_process(COMMAND python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()" OUTPUT_VARIABLE PYTHON_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE)
-			install(TARGETS _saga_api DESTINATION ${PYTHON_SITE_PACKAGES})
-			install(FILES ${CMAKE_BINARY_DIR}/src/saga_core/saga_api/saga_api.py DESTINATION ${PYTHON_SITE_PACKAGES})
-			install(FILES ${CMAKE_SOURCE_DIR}/src/saga_core/saga_api/saga_helper.py DESTINATION ${PYTHON_SITE_PACKAGES})
-		endif()
-	endif()
-endif()
+add_subdirectory(saga_api_python)
