@@ -1,18 +1,5 @@
 if(WITH_TOOLS)
-	if(MSVC AND DEPS_FROM_ENVARS)
-		if("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "Win32")
-			set(LIB4SAGA $ENV{GDAL_32})
-		else()
-			set(LIB4SAGA $ENV{GDAL})
-		endif()
-		find_path   (PROJ_INCLUDE_DIR NAMES proj_api.h           PATHS "${LIB4SAGA}/include/proj6")
-		find_library(PROJ_LIBRARY     NAMES proj_6_1 proj_i proj PATHS "${LIB4SAGA}/lib")
-		include(FindPackageHandleStandardArgs)
-		FIND_PACKAGE_HANDLE_STANDARD_ARGS(PROJ REQUIRED_VARS PROJ_LIBRARY PROJ_INCLUDE_DIR)
-	endif()
-	if(NOT PROJ_FOUND)
-		find_package(Proj QUIET)	# Ubuntu package libproj-dev
-	endif()
+	find_package(Proj QUIET)	# Ubuntu package libproj-dev
 	if(PROJ_FOUND)
 		project(pj_proj4)
 		include(../../CMakePluginTemplate.cmake)	# load common tool template

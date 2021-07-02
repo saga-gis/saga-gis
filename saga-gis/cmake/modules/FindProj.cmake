@@ -36,20 +36,32 @@ IF (APPLE)
   ENDIF ()
 ENDIF (APPLE)
 
+if(MSVC AND DEPS_FROM_ENVARS)
+	if("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "Win32")
+		set(LIB4SAGA $ENV{GDAL_32})
+	else()
+		set(LIB4SAGA $ENV{GDAL})
+	endif()
+endif()
+
 FIND_PATH(PROJ_INCLUDE_DIR proj_api.h
   "$ENV{INCLUDE}"
   "$ENV{LIB_DIR}/include"
+  "${LIB4SAGA}/include/proj6"
+  "${LIB4SAGA}/include/proj7"
   )
 IF (NOT PROJ_INCLUDE_DIR)
   FIND_PATH(PROJ_INCLUDE_DIR proj.h
     "$ENV{INCLUDE}"
     "$ENV{LIB_DIR}/include"
+    "${LIB4SAGA}/include"
     )
 ENDIF (NOT PROJ_INCLUDE_DIR)
 
 FIND_LIBRARY(PROJ_LIBRARY NAMES proj_6_1 proj_i proj PATHS
   "$ENV{LIB}"
   "$ENV{LIB_DIR}/lib"
+  "${LIB4SAGA}/lib"
   )
 
 IF (PROJ_INCLUDE_DIR AND PROJ_LIBRARY)
