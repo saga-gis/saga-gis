@@ -8,15 +8,14 @@
 #
 #########################################
 
-find_path(HPDF_INCLUDE NAMES hpdf.h
-	PATHS "$ENV{HARU}/include"
-	DOC "The Haru PDF (hpdf) include directory"
-)
+if("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "Win32")
+	set(LIB4SAGA $ENV{HARU_32})
+else()
+	set(LIB4SAGA $ENV{HARU})
+endif()
 
-find_library(HPDF_LIBRARY NAMES hpdf libhpdf
-	PATHS "$ENV{HARU}"
-	DOC "The Haru PDF (hpdf) library"
-)
+find_path   (HPDF_INCLUDE NAMES hpdf.h       PATHS "${LIB4SAGA}/include" DOC "The Haru PDF (hpdf) include directory")
+find_library(HPDF_LIBRARY NAMES hpdf libhpdf PATHS "${LIB4SAGA}"         DOC "The Haru PDF (hpdf) library")
 
 if(HPDF_INCLUDE AND EXISTS "${HPDF_INCLUDE}/hpdf_version.h")
 	file(STRINGS "${HPDF_INCLUDE}/hpdf_version.h" hpdf_version_str REGEX "^#define[\t ]+HPDF_VERSION_TEXT[\t ]+\".*\"")

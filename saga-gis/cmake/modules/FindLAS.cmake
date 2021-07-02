@@ -8,15 +8,8 @@
 #
 #########################################
 
-find_path(LAS_INCLUDE NAMES liblas/liblas.hpp
-	PATHS "$ENV{LIBLAS}/include"
-	DOC "The LAS include directory"
-)
-
-find_library(LAS_LIBRARY NAMES las liblas
-	PATHS "$ENV{LIBLAS}/lib"
-	DOC "The LAS library"
-)
+find_path   (LAS_INCLUDE NAMES liblas/liblas.hpp PATHS "$ENV{LIBLAS}/include")
+find_library(LAS_LIBRARY NAMES las liblas        PATHS "$ENV{LIBLAS}/lib")
 
 #define LIBLAS_LIB_VERSION "1_6"
 if(LAS_INCLUDE AND EXISTS "${LAS_INCLUDE}/liblas/version.hpp")

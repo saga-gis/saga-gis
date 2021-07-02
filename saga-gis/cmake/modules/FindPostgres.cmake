@@ -29,7 +29,6 @@ IF(WIN32 AND NOT ANDROID)
       c:/msys/local/include
       "$ENV{LIB_DIR}/include/postgresql"
       "$ENV{LIB_DIR}/include"
-      "$ENV{GDAL}/include"
       )
   ENDIF (NOT POSTGRES_INCLUDE_DIR)
 
@@ -39,7 +38,6 @@ IF(WIN32 AND NOT ANDROID)
       /usr/lib 
       c:/msys/local/lib
       "$ENV{LIB_DIR}/lib"
-      "$ENV{GDAL}/lib"
       )
   ENDIF (NOT POSTGRES_LIBRARY)
 

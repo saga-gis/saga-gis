@@ -7,15 +7,25 @@
 #
 #########################################
 
-find_path   (VIGRA_FFTW3_INCLUDE NAMES fftw3.h            PATHS "$ENV{VIGRA}/include" DOC "fftw3 include directory")
-find_library(VIGRA_FFTW3_LIBRARY NAMES fftw3 libfftw3-3   PATHS "$ENV{VIGRA}/lib"     DOC "fftw3 library")
-find_path   (VIGRA_INCLUDE       NAMES vigra/stdimage.hxx PATHS "$ENV{VIGRA}/include" DOC "VIGRA include directory")
-find_library(VIGRA_LIBRARY       NAMES vigraimpex         PATHS "$ENV{VIGRA}/lib"     DOC "VIGRA library")
-
 if(MSVC)
-	find_path(VIGRA_HDF5_INCLUDE   NAMES hdf5.h   PATHS "$ENV{GDAL}/include" DOC "[optional] hdf5 include directory")
-	find_path(VIGRA_HDF5_LIBRARIES NAMES hdf5.lib PATHS "$ENV{GDAL}/lib"     DOC "[optional] hdf5 libraries directory")
+	if(DEPS_FROM_ENVARS)
+		if("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "Win32")
+			set(GDAL  $ENV{GDAL_32})
+			set(VIGRA $ENV{VIGRA_32})
+		else()
+			set(GDAL  $ENV{GDAL})
+			set(VIGRA $ENV{VIGRA})
+		endif()
+	endif()
+
+	find_path(VIGRA_HDF5_INCLUDE   NAMES hdf5.h   PATHS "${GDAL}/include")
+	find_path(VIGRA_HDF5_LIBRARIES NAMES hdf5.lib PATHS "${GDAL}/lib"    )
 endif()
+
+find_path   (VIGRA_FFTW3_INCLUDE NAMES fftw3.h            PATHS "${VIGRA}/include")
+find_library(VIGRA_FFTW3_LIBRARY NAMES fftw3 libfftw3-3   PATHS "${VIGRA}/lib"    )
+find_path   (VIGRA_INCLUDE       NAMES vigra/stdimage.hxx PATHS "${VIGRA}/include")
+find_library(VIGRA_LIBRARY       NAMES vigraimpex         PATHS "${VIGRA}/lib"    )
 
 include(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(VIGRA REQUIRED_VARS VIGRA_FFTW3_INCLUDE VIGRA_FFTW3_LIBRARY VIGRA_INCLUDE VIGRA_LIBRARY)

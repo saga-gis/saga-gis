@@ -1,5 +1,19 @@
 if(WITH_TOOLS)
-	find_package(LAS)	# Ubuntu package liblas-dev
+	if(MSVC AND DEPS_FROM_ENVARS)
+		if("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "Win32")
+			set(LIB4SAGA $ENV{LIBLAS_32})
+		else()
+			set(LIB4SAGA $ENV{LIBLAS})
+		endif()
+		find_path   (LAS_INCLUDE NAMES liblas/liblas.hpp PATHS "${LIB4SAGA}/include")
+		find_library(LAS_LIBRARY NAMES las liblas        PATHS "${LIB4SAGA}/lib")
+		mark_as_advanced(LAS_INCLUDE LAS_LIBRARY)
+		include(FindPackageHandleStandardArgs)
+		FIND_PACKAGE_HANDLE_STANDARD_ARGS(LAS REQUIRED_VARS LAS_LIBRARY LAS_INCLUDE)
+	endif()
+	if(NOT LAS_FOUND)
+		find_package(LAS)	# Ubuntu package liblas-dev
+	endif()
 	if(LAS_FOUND)
 		project(io_shapes_las)
 		include(../../CMakePluginTemplate.cmake)	# load common tool template

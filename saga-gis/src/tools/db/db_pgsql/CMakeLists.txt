@@ -1,5 +1,18 @@
 if(WITH_TOOLS)
-	find_package(Postgres QUIET)	# ubuntu package libpq-dev
+	if(MSVC AND DEPS_FROM_ENVARS)
+		if("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "Win32")
+			set(LIB4SAGA $ENV{GDAL_32})
+		else()
+			set(LIB4SAGA $ENV{GDAL})
+		endif()
+		find_path   (POSTGRES_INCLUDE_DIR NAMES libpq-fe.h    PATHS "${LIB4SAGA}/include")
+		find_library(POSTGRES_LIBRARY NAMES pq libpq libpqdll PATHS "${LIB4SAGA}/lib")
+		include(FindPackageHandleStandardArgs)
+		FIND_PACKAGE_HANDLE_STANDARD_ARGS(POSTGRES REQUIRED_VARS POSTGRES_LIBRARY POSTGRES_INCLUDE_DIR)
+	endif()
+	if(NOT POSTGRES_FOUND)
+		find_package(Postgres QUIET)	# ubuntu package libpq-dev
+	endif()
 	if(POSTGRES_FOUND)
 		project(db_pgsql)
 		include(../../CMakePluginTemplate.cmake)	# load common tool template

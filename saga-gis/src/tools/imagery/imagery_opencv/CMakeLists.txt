@@ -1,8 +1,13 @@
 if(WITH_TOOLS)
 	#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 	if(MSVC AND DEPS_FROM_ENVARS)
-		find_path(OpenCV_INCLUDE_DIRS NAMES opencv2/opencv.hpp PATHS "$ENV{OPENCV}/include")
-		find_path(OpenCV_LIBRARIES    NAMES opencv_core430.lib PATHS "$ENV{OPENCV}/lib")
+		if("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "Win32")
+			set(LIB4SAGA $ENV{OPENCV_32})
+		else()
+			set(LIB4SAGA $ENV{OPENCV})
+		endif()
+		find_path(OpenCV_INCLUDE_DIRS NAMES opencv2/opencv.hpp PATHS "${LIB4SAGA}/include")
+		find_path(OpenCV_LIBRARIES    NAMES opencv_core430.lib PATHS "${LIB4SAGA}/lib")
 		include(FindPackageHandleStandardArgs)
 		FIND_PACKAGE_HANDLE_STANDARD_ARGS(OpenCV REQUIRED_VARS OpenCV_LIBRARIES OpenCV_INCLUDE_DIRS)
 		mark_as_advanced(OpenCV_INCLUDE_DIRS OpenCV_LIBRARIES)
@@ -22,7 +27,7 @@ if(WITH_TOOLS)
 	endif()
 	#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 
-	find_package(OpenCV)	# on Ubuntu package libopencv-dev
+	find_package(OpenCV QUIET)	# on Ubuntu package libopencv-dev
 	if(OpenCV_FOUND)
 		project(imagery_opencv)
 		include(../../CMakePluginTemplate.cmake)	# load common tool template

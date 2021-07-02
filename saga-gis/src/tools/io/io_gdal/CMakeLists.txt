@@ -1,5 +1,19 @@
 if(WITH_TOOLS)
-	find_package(GDAL QUIET)	# Ubuntu package libgdal-dev
+	if(MSVC AND DEPS_FROM_ENVARS)
+		if("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "Win32")
+			set(LIB4SAGA $ENV{GDAL_32})
+		else()
+			set(LIB4SAGA $ENV{GDAL})
+		endif()
+		find_path   (GDAL_INCLUDE_DIR NAMES gdal.h      PATHS "${LIB4SAGA}/include")
+		find_library(GDAL_LIBRARY     NAMES gdal gdal_i PATHS "${LIB4SAGA}/lib")
+		mark_as_advanced(GDAL_INCLUDE_DIR GDAL_LIBRARY)
+		include(FindPackageHandleStandardArgs)
+		FIND_PACKAGE_HANDLE_STANDARD_ARGS(GDAL REQUIRED_VARS GDAL_LIBRARY GDAL_INCLUDE_DIR)
+	endif()
+	if(NOT GDAL_FOUND)
+		find_package(GDAL QUIET)	# Ubuntu package libgdal-dev
+	endif()
 	if(GDAL_FOUND)
 		project(io_gdal)
 		include(../../CMakePluginTemplate.cmake)	# load common tool template

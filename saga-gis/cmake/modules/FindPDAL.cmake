@@ -21,7 +21,6 @@
 # searching for the same item do nothing.
 
 FIND_PATH(PDAL_INCLUDE_DIR pdal/pdal.hpp
-  "$ENV{PDAL}/include"
   "$ENV{LIB_DIR}/include"
   "/usr/include"
   c:/msys/local/include
@@ -30,7 +29,6 @@ FIND_PATH(PDAL_INCLUDE_DIR pdal/pdal.hpp
 FIND_PATH(PDAL_INCLUDE_DIR pdal/pdal.hpp)
 
 FIND_LIBRARY(PDAL_CPP_LIBRARY NAMES pdalcpp libpdalcpp PATHS
-  "$ENV{PDAL}/lib"
   "$ENV{LIB_DIR}/lib"
   c:/msys/local/lib
   NO_DEFAULT_PATH
@@ -38,7 +36,6 @@ FIND_LIBRARY(PDAL_CPP_LIBRARY NAMES pdalcpp libpdalcpp PATHS
 FIND_LIBRARY(PDAL_CPP_LIBRARY NAMES pdalcpp libpdalcpp)
 
 FIND_LIBRARY(PDAL_UTIL_LIBRARY NAMES pdal_util libpdal_util PATHS
-  "$ENV{PDAL}/lib"
   "$ENV{LIB_DIR}/lib"
   c:/msys/local/lib
   NO_DEFAULT_PATH

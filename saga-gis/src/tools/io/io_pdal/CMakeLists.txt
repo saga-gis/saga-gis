@@ -1,5 +1,21 @@
 if(WITH_TOOLS)
-	find_package(PDAL QUIET)	# link PDAL library
+	if(MSVC AND DEPS_FROM_ENVARS)
+		if("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "Win32")
+			set(LIB4SAGA $ENV{PDAL_32})
+		else()
+			set(LIB4SAGA $ENV{PDAL})
+		endif()
+		find_path   (PDAL_INCLUDE_DIR  NAMES pdal/pdal.hpp          PATHS "${LIB4SAGA}/include")
+		find_library(PDAL_LIBRARY_CPP  NAMES pdalcpp libpdalcpp     PATHS "${LIB4SAGA}/lib")
+		find_library(PDAL_LIBRARY_UTIL NAMES pdal_util libpdal_util PATHS "${LIB4SAGA}/lib")
+		mark_as_advanced(PDAL_INCLUDE_DIR PDAL_LIBRARY_CPP PDAL_LIBRARY_UTIL)
+		include(FindPackageHandleStandardArgs)
+		FIND_PACKAGE_HANDLE_STANDARD_ARGS(PDAL REQUIRED_VARS PDAL_LIBRARY_UTIL PDAL_LIBRARY_CPP PDAL_INCLUDE_DIR)
+		set(PDAL_LIBRARIES ${PDAL_LIBRARY_CPP} ${PDAL_LIBRARY_UTIL})
+	endif()
+	if(NOT PDAL_FOUND)
+		find_package(PDAL QUIET)	# link PDAL library
+	endif()
 	if(PDAL_FOUND)
 		project(io_pdal)
 		include(../../CMakePluginTemplate.cmake)	# load common tool template
