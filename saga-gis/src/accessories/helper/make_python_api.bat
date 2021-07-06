@@ -81,7 +81,7 @@ IF NOT EXIST saga_api_wrap.cxx (
 	ECHO SWIG Compilation...
 	ECHO.
 
-	%EXE_SWIG% -c++ -python -includeall -I. -D_SAGA_PYTHON saga_api.h
+	%EXE_SWIG% -c++ -python -includeall -I. -D_SAGA_PYTHON saga_api.i
 )
 
 ECHO __________________

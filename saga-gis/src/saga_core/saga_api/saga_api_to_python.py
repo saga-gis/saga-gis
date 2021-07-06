@@ -12,8 +12,7 @@ if os.name == 'nt': # Windows
             '-D_TYPEDEF_BYTE',
             '-D_TYPEDEF_WORD',
             '-D_SAGA_API_EXPORTS',
-            '-D_SAGA_PYTHON',
-            '-D_SAGA_MSW'
+            '-D_SAGA_PYTHON'
         ]
     )
 else:               # Linux
