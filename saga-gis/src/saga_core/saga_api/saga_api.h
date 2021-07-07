@@ -50,43 +50,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifdef SWIG
-#if defined(_SAGA_PYTHON)
-%include <typemaps.i>
-%include <python/cwstring.i>
-#endif
-
-%module saga_api
-%{
-#include "api_core.h"
-#include "dataobject.h"
-#include "data_manager.h"
-#include "geo_tools.h"
-#include "grid.h"
-#include "grids.h"
-#include "grid_pyramid.h"
-#include "mat_tools.h"
-#include "metadata.h"
-#include "tool.h"
-#include "tool_library.h"
-#include "parameters.h"
-#include "pointcloud.h"
-#include "saga_api.h"
-#include "shapes.h"
-#include "table.h"
-#include "table_value.h"
-#include "tin.h"
-%}
-#endif	// #ifdef SWIG
-//---------------------------------------------------------
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__SAGA_API__saga_api_H
 #define HEADER_INCLUDED__SAGA_API__saga_api_H
 
@@ -121,10 +84,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SAGA_MAJOR_VERSION		7
-#define SAGA_MINOR_VERSION		10
+#define SAGA_MAJOR_VERSION		8
+#define SAGA_MINOR_VERSION		0
 #define SAGA_RELEASE_NUMBER		0
-#define SAGA_VERSION			SG_T("7.10.0")
+#define SAGA_VERSION			SG_T("8.0.0")
 
 
 ///////////////////////////////////////////////////////////

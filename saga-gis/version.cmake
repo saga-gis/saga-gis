@@ -1,6 +1,6 @@
 # The version number.
-set (SAGA_VERSION_MAJOR 7)
-set (SAGA_VERSION_MINOR 10)
+set (SAGA_VERSION_MAJOR 8)
+set (SAGA_VERSION_MINOR 0)
 set (SAGA_VERSION_PATCH 0)
 
 # get git commit hash (or dirty if git is not installed)
