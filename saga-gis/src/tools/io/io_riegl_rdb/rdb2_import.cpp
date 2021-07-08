@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-//---------------------------------------------------------
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -12,28 +10,20 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "rdb2_import.h"
-
 #include <algorithm> // std::find
 #include <array>
 #include <vector>
 #include <sstream>
+
 #include <riegl/rdb.hpp>
+
 #include "rapidjson/document.h"
 #include "rapidjson/pointer.h"
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/prettywriter.h"
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-
-//---------------------------------------------------------
-#define	ADD_FIELD(id, var, name, type)	if( Parameters(id)->asBool() ) { iField[var] = nFields++; pPoints->Add_Field(name, type); } else { iField[var] = -1; }
+#include "rdb2_import.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -45,57 +35,49 @@
 //---------------------------------------------------------
 CRDB2_Import::CRDB2_Import(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("Import RDB2 Files"));
 
-	Set_Author		(SG_T("R.Gschweicher (c) 2016, Riegl GmbH"));
+	Set_Author		("R.Gschweicher, Riegl GmbH (c) 2016");
 
-	CSG_String		Description(_TW(
+	Set_Description(_TW(
 		"Import a pointcloud from Riegl RDB 2 format. "
 		"This is a work in progress."
 	));
 
-	Set_Description	(Description);
-
 	//-----------------------------------------------------
-	// 2. Parameters...
-	Parameters.Add_FilePath(
-		NULL	, "FILES"		, _TL("Input Files"),
+	Parameters.Add_FilePath("",
+		"FILES"		, _TL("Input Files"),
 		_TL(""),
 		_TL("RDB2 Files (*.rdbx)|*.rdbx|RDB2 Files (*.RDBX)|*.RDBX|All Files|*.*"),
 		NULL, false, false, true
 	);
 
-	Parameters.Add_PointCloud_List(
-		NULL	, "POINTS"		, _TL("Point Clouds"),
+	Parameters.Add_PointCloud_List("",
+		"POINTS"	, _TL("Point Clouds"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	pNode	= Parameters.Add_Node(
-		NULL	, "NODE_VARS"	, _TL("Attributes to import besides x,y,z ..."),
-		_TL("")
+	Parameters.Add_Node("",
+		"NODE_VARS"	, _TL("Optional Attributes"),
+		_TL("Attributes to import besides the coordinates (X/Y/Z).")
 	);
 
-	Parameters.Add_Value(pNode, "id",   _TL("point source ID")      , _TL(""), PARAMETER_TYPE_Bool, false);
-	Parameters.Add_Value(pNode, "ts",   _TL("timestamp")            , _TL(""), PARAMETER_TYPE_Bool, false);
-	Parameters.Add_Value(pNode, "ampl", _TL("amplitude")            , _TL(""), PARAMETER_TYPE_Bool, false);
-	Parameters.Add_Value(pNode, "refl", _TL("reflectance")          , _TL(""), PARAMETER_TYPE_Bool, false);
-	Parameters.Add_Value(pNode, "dev",  _TL("deviation")            , _TL(""), PARAMETER_TYPE_Bool, false);
-	Parameters.Add_Value(pNode, "pw",   _TL("pulse_width")          , _TL(""), PARAMETER_TYPE_Bool, false);
-	Parameters.Add_Value(pNode, "t_idx",_TL("target_index")         , _TL(""), PARAMETER_TYPE_Bool, false);
-	Parameters.Add_Value(pNode, "t_cnt",_TL("target_count")         , _TL(""), PARAMETER_TYPE_Bool, false);
-	Parameters.Add_Value(pNode, "class",_TL("class")                , _TL(""), PARAMETER_TYPE_Bool, false);
-	Parameters.Add_Value(pNode, "rgba", _TL("rgb color")            , _TL(""), PARAMETER_TYPE_Bool, false);
+	Parameters.Add_Bool("NODE_VARS", "id"   , _TL("Point Source ID"), _TL(""), false);
+	Parameters.Add_Bool("NODE_VARS", "ts"   , _TL("Time Stamp"     ), _TL(""), false);
+	Parameters.Add_Bool("NODE_VARS", "ampl" , _TL("Amplitude"      ), _TL(""), false);
+	Parameters.Add_Bool("NODE_VARS", "refl" , _TL("Reflectance"    ), _TL(""), false);
+	Parameters.Add_Bool("NODE_VARS", "dev"  , _TL("Deviation"      ), _TL(""), false);
+	Parameters.Add_Bool("NODE_VARS", "pw"   , _TL("Pulse Width"    ), _TL(""), false);
+	Parameters.Add_Bool("NODE_VARS", "t_idx", _TL("Target Index"   ), _TL(""), false);
+	Parameters.Add_Bool("NODE_VARS", "t_cnt", _TL("Target Count"   ), _TL(""), false);
+	Parameters.Add_Bool("NODE_VARS", "class", _TL("Class"          ), _TL(""), false);
+	Parameters.Add_Bool("NODE_VARS", "rgba" , _TL("RGP Color"      ), _TL(""), false);
 
-	Parameters.Add_Value(
-		NULL	, "epsg" , _TL("Load epsg geo-tag"),
+	Parameters.Add_Bool("",
+		"epsg" , _TL("Load EPSG Geo-Tag"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 }
 
@@ -105,24 +87,28 @@ CRDB2_Import::CRDB2_Import(void)
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 namespace
 {
-bool parse_json_int(rapidjson::Document &json, const char *pointer, int &target)
-{
-	if (rapidjson::Value *obj = rapidjson::Pointer(pointer).Get(json))
+	bool parse_json_int(rapidjson::Document &json, const char *pointer, int &target)
 	{
-		if (obj->IsInt())
+		if (rapidjson::Value *obj = rapidjson::Pointer(pointer).Get(json))
 		{
-			target = obj->GetInt();
+			if (obj->IsInt())
+			{
+				target = obj->GetInt();
+			}
+			else
+			{
+				SG_UI_Msg_Add_Error(CSG_String::Format(_TL("json_keys_int: key '%s' cannot be parsed as integer"), pointer));
+
+				return false;
+			}
 		}
-		else
-		{
-			SG_UI_Msg_Add_Error(CSG_String::Format(_TL("json_keys_int: key '%s' cannot be parsed as integer"), pointer));
-			return false;
-		}
-	}
-	return true;
-};
+
+		return true;
+	};
 }
 
 //---------------------------------------------------------
@@ -280,10 +266,10 @@ bool CRDB2_Import::On_Execute(void)
 			//select.bind("riegl.id",          riegl::rdb::pointcloud::UINT64, &bufferPointNumber[0]);
 			select.bind("riegl.xyz",                riegl::rdb::pointcloud::DOUBLE, buffer_xyz.data());
 			auto create_and_bind_attribute = [&att_id_cnt, &select, pPoints] (
-					const char *att, int &att_id, void *buffer,
-					const riegl::rdb::pointcloud::DataType rdb_type,
-					ESG_Data_Type saga_type
-					)
+				const char *att, int &att_id, void *buffer,
+				const riegl::rdb::pointcloud::DataType rdb_type,
+				ESG_Data_Type saga_type
+				)
 			{
 				select.bind(att,        rdb_type, buffer);
 				pPoints->Add_Field(att, saga_type);
@@ -296,54 +282,54 @@ bool CRDB2_Import::On_Execute(void)
 
 			if (param_id)
 				create_and_bind_attribute(
-							"riegl.id", att_id_id, buffer_id.data(),
-							riegl::rdb::pointcloud::UINT64,
-							SG_DATATYPE_ULong);
+					"riegl.id", att_id_id, buffer_id.data(),
+					riegl::rdb::pointcloud::UINT64,
+					SG_DATATYPE_ULong);
 			if (param_ts)
 				create_and_bind_attribute(
-							"riegl.timestamp", att_id_ts, buffer_ts.data(),
-							riegl::rdb::pointcloud::DOUBLE,
-							SG_DATATYPE_Double);
+					"riegl.timestamp", att_id_ts, buffer_ts.data(),
+					riegl::rdb::pointcloud::DOUBLE,
+					SG_DATATYPE_Double);
 			if (param_ampl)
 				create_and_bind_attribute(
-							"riegl.amplitude", att_id_ampl, buffer_ampl.data(),
-							riegl::rdb::pointcloud::SINGLE,
-							SG_DATATYPE_Float);
+					"riegl.amplitude", att_id_ampl, buffer_ampl.data(),
+					riegl::rdb::pointcloud::SINGLE,
+					SG_DATATYPE_Float);
 			if (param_refl)
 				create_and_bind_attribute(
-							"riegl.reflectance", att_id_refl, buffer_refl.data(),
-							riegl::rdb::pointcloud::SINGLE,
-							SG_DATATYPE_Float);
+					"riegl.reflectance", att_id_refl, buffer_refl.data(),
+					riegl::rdb::pointcloud::SINGLE,
+					SG_DATATYPE_Float);
 			if (param_dev)
 				create_and_bind_attribute(
-							"riegl.deviation", att_id_dev, buffer_dev.data(),
-							riegl::rdb::pointcloud::INT16,
-							SG_DATATYPE_Short);
+					"riegl.deviation", att_id_dev, buffer_dev.data(),
+					riegl::rdb::pointcloud::INT16,
+					SG_DATATYPE_Short);
 			if (param_pw)
 				create_and_bind_attribute(
-							"riegl.pulse_width", att_id_pw, buffer_pw.data(),
-							riegl::rdb::pointcloud::SINGLE,
-							SG_DATATYPE_Float);
+					"riegl.pulse_width", att_id_pw, buffer_pw.data(),
+					riegl::rdb::pointcloud::SINGLE,
+					SG_DATATYPE_Float);
 			if (param_t_idx)
 				create_and_bind_attribute(
-							"riegl.target_index", att_id_t_idx, buffer_t_idx.data(),
-							riegl::rdb::pointcloud::UINT8,
-							SG_DATATYPE_Byte);
+					"riegl.target_index", att_id_t_idx, buffer_t_idx.data(),
+					riegl::rdb::pointcloud::UINT8,
+					SG_DATATYPE_Byte);
 			if (param_t_cnt)
 				create_and_bind_attribute(
-							"riegl.target_count", att_id_t_cnt, buffer_t_cnt.data(),
-							riegl::rdb::pointcloud::UINT8,
-							SG_DATATYPE_Byte);
+					"riegl.target_count", att_id_t_cnt, buffer_t_cnt.data(),
+					riegl::rdb::pointcloud::UINT8,
+					SG_DATATYPE_Byte);
 			if (param_class)
 				create_and_bind_attribute(
-							"riegl.class", att_id_class, buffer_class.data(),
-							riegl::rdb::pointcloud::UINT16,
-							SG_DATATYPE_Word);
+					"riegl.class", att_id_class, buffer_class.data(),
+					riegl::rdb::pointcloud::UINT16,
+					SG_DATATYPE_Word);
 			if (param_rgba)
 				create_and_bind_attribute(
-							"riegl.rgba", att_id_rgba, buffer_rgba.data(),
-							riegl::rdb::pointcloud::UINT8,
-							SG_DATATYPE_Int);
+					"riegl.rgba", att_id_rgba, buffer_rgba.data(),
+					riegl::rdb::pointcloud::UINT8,
+					SG_DATATYPE_Int);
 
 			SG_UI_Msg_Add(CSG_String::Format(_TL("read points. Total: %d"), root.pointCountTotal), true);
 			int iPoint = 0;
@@ -433,4 +419,3 @@ bool CRDB2_Import::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-

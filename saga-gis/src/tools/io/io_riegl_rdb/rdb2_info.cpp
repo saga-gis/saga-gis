@@ -2,36 +2,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-//---------------------------------------------------------
 
-
-///////////////////////////////////////////////////////////
+ ///////////////////////////////////////////////////////////
 //														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "rdb2_info.h"
-
 #include <algorithm> // std::find
 #include <array>
 #include <vector>
 #include <sstream>
+
 #include <riegl/rdb.hpp>
+
 #include "rapidjson/document.h"
 #include "rapidjson/pointer.h"
 #include "rapidjson/stringbuffer.h"
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-
-//---------------------------------------------------------
-#define	ADD_FIELD(id, var, name, type)	if( Parameters(id)->asBool() ) { iField[var] = nFields++; pPoints->Add_Field(name, type); } else { iField[var] = -1; }
+#include "rdb2_info.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -43,24 +33,18 @@
 //---------------------------------------------------------
 CRDB2_Info::CRDB2_Info(void)
 {
-	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("Info about RDB2 Files"));
 
-	Set_Author		(SG_T("R.Gschweicher (c) 2016, Riegl GmbH"));
+	Set_Author		("R.Gschweicher, Riegl GmbH (c) 2016");
 
-	CSG_String		Description(_TW(
+	Set_Description	(_TW(
 		"Print info about a Riegl RDB 2 file. "
 		"This is a work in progress."
 	));
 
-	Set_Description	(Description);
-
 	//-----------------------------------------------------
-	// 2. Parameters...
-	Parameters.Add_FilePath(
-		NULL	, "FILES"		, _TL("Input Files"),
+	Parameters.Add_FilePath("",
+		"FILES", _TL("Input Files"),
 		_TL(""),
 		_TL("RDB2 Files (*.rdbx)|*.rdbx|RDB2 Files (*.RDBX)|*.RDBX|All Files|*.*"),
 		NULL, false, false, true
@@ -74,25 +58,29 @@ CRDB2_Info::CRDB2_Info(void)
 //														 //
 ///////////////////////////////////////////////////////////
 
+//---------------------------------------------------------
 namespace
 {
-bool parse_json_int(rapidjson::Document &json, const char *pointer, int &target)
-{
-	if (rapidjson::Value *obj = rapidjson::Pointer(pointer).Get(json))
+	bool parse_json_int(rapidjson::Document &json, const char *pointer, int &target)
 	{
-		if (obj->IsInt())
+		if (rapidjson::Value *obj = rapidjson::Pointer(pointer).Get(json))
 		{
-			target = obj->GetInt();
+			if (obj->IsInt())
+			{
+				target = obj->GetInt();
+			}
+			else
+			{
+				SG_UI_Msg_Add_Error(CSG_String::Format(_TL("json_keys_int: key '%s' cannot be parsed as integer"), pointer));
+
+				return false;
+			}
 		}
-		else
-		{
-			SG_UI_Msg_Add_Error(CSG_String::Format(_TL("json_keys_int: key '%s' cannot be parsed as integer"), pointer));
-			return false;
-		}
-	}
-	return true;
-};
+
+		return true;
+	};
 }
+
 //---------------------------------------------------------
 bool CRDB2_Info::On_Execute(void)
 {

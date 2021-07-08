@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 14 for Windows Desktop
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1525
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "saga_api", "saga_core\saga_api\saga_api.vcxproj", "{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}"
 EndProject
@@ -388,11 +388,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_geomorphology", "tools\
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "riegl_io_rdb2_import", "tools\riegl\riegl_io_rdb2_import\riegl_io_rdb2_import.vcxproj", "{A89FB596-3D86-4BF0-A57B-DAC3A7D2E740}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "grids_tools", "tools\grid\grids_tools\grids_tools.vcxproj", "{3300798D-E3ED-484C-BD9D-D54CC6C65817}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
@@ -410,6 +405,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_pdal", "tools\io\io_pdal\io_pdal.vcxproj", "{FF9D12B1-9773-401E-9927-3E7395DF2975}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_air_flow", "tools\simulation\sim_air_flow\sim_air_flow.vcxproj", "{19F5D2BA-E929-498B-AB0D-903958AE6855}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_riegl_rdb", "tools\io\io_riegl_rdb\io_riegl_rdb.vcxproj", "{15A26280-7C45-4B9F-A72A-91FF59D25BB6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1041,10 +1038,6 @@ Global
 		{BFA29823-586C-4639-8330-75FD41604B18}.Release|Win32.Build.0 = Release|Win32
 		{BFA29823-586C-4639-8330-75FD41604B18}.Release|x64.ActiveCfg = Release|x64
 		{BFA29823-586C-4639-8330-75FD41604B18}.Release|x64.Build.0 = Release|x64
-		{A89FB596-3D86-4BF0-A57B-DAC3A7D2E740}.Debug|Win32.ActiveCfg = Debug|Win32
-		{A89FB596-3D86-4BF0-A57B-DAC3A7D2E740}.Debug|x64.ActiveCfg = Debug|x64
-		{A89FB596-3D86-4BF0-A57B-DAC3A7D2E740}.Release|Win32.ActiveCfg = Release|Win32
-		{A89FB596-3D86-4BF0-A57B-DAC3A7D2E740}.Release|x64.ActiveCfg = Release|x64
 		{3300798D-E3ED-484C-BD9D-D54CC6C65817}.Debug|Win32.ActiveCfg = Debug|Win32
 		{3300798D-E3ED-484C-BD9D-D54CC6C65817}.Debug|Win32.Build.0 = Debug|Win32
 		{3300798D-E3ED-484C-BD9D-D54CC6C65817}.Debug|x64.ActiveCfg = Debug|x64
@@ -1091,8 +1084,19 @@ Global
 		{19F5D2BA-E929-498B-AB0D-903958AE6855}.Release|Win32.Build.0 = Release|Win32
 		{19F5D2BA-E929-498B-AB0D-903958AE6855}.Release|x64.ActiveCfg = Release|x64
 		{19F5D2BA-E929-498B-AB0D-903958AE6855}.Release|x64.Build.0 = Release|x64
+		{15A26280-7C45-4B9F-A72A-91FF59D25BB6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{15A26280-7C45-4B9F-A72A-91FF59D25BB6}.Debug|Win32.Build.0 = Debug|Win32
+		{15A26280-7C45-4B9F-A72A-91FF59D25BB6}.Debug|x64.ActiveCfg = Debug|x64
+		{15A26280-7C45-4B9F-A72A-91FF59D25BB6}.Debug|x64.Build.0 = Debug|x64
+		{15A26280-7C45-4B9F-A72A-91FF59D25BB6}.Release|Win32.ActiveCfg = Release|Win32
+		{15A26280-7C45-4B9F-A72A-91FF59D25BB6}.Release|Win32.Build.0 = Release|Win32
+		{15A26280-7C45-4B9F-A72A-91FF59D25BB6}.Release|x64.ActiveCfg = Release|x64
+		{15A26280-7C45-4B9F-A72A-91FF59D25BB6}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D3787348-A814-4717-A114-FDE0916E2880}
 	EndGlobalSection
 EndGlobal

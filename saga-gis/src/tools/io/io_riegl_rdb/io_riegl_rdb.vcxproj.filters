@@ -65,9 +65,6 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="MLB_Interface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="rdb2_import.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -76,13 +73,13 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MLB_Interface.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="rdb2_import.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="rdb2_info.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TLB_Interface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -3,27 +3,38 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 //---------------------------------------------------------
+#ifndef HEADER_INCLUDED__rdb2_import_H
+#define HEADER_INCLUDED__rdb2_import_H
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//				Include the SAGA-API here				 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#ifndef HEADER_INCLUDED__riegl_io_rdb2_import_H
-#define HEADER_INCLUDED__riegl_io_rdb2_import_H
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#ifdef riegl_io_rdb2_import_EXPORTS
-	#define	riegl_io_rdb2_import_EXPORT	_SAGA_DLL_EXPORT
-#else
-	#define	riegl_io_rdb2_import_EXPORT	_SAGA_DLL_IMPORT
-#endif
+class CRDB2_Import : public CSG_Tool
+{
+public:
+	CRDB2_Import(void);
+
+
+protected:
+
+	virtual bool			On_Execute		(void);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -33,4 +44,4 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__riegl_io_rdb2_import_H
+#endif // #ifndef HEADER_INCLUDED__rdb2_import_H
