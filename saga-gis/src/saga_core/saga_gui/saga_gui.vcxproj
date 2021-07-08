@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -20,31 +20,32 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{160C7E9B-CD3D-44D7-A20B-AABA043CE290}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -107,7 +108,7 @@
       <AdditionalOptions>/EHsc  %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>./..;.;$(WXWIN_32)/include;$(WXWIN_32)/lib/vc_dll/mswu;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./..;.;$(WXWIN)/include;$(WXWIN)/lib/vc_dll/mswu;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_WINDOWS;NOPCH;WIN32;__WXMSW__;WXUSINGDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;MDI_NOT_TABBED;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -136,7 +137,7 @@
       <AdditionalDependencies>wxbase31u_xml.lib;wxbase31u_net.lib;wxmsw31u_propgrid.lib;wxmsw31u_html.lib;wxmsw31u_aui.lib;wxmsw31u_adv.lib;wxmsw31u_core.lib;wxbase31u.lib;saga_api.lib;saga_gdi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>$(WXWIN_32)/lib/vc_dll;$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(WXWIN)/lib/vc_dll;$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ProgramDatabaseFile>
       </ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
@@ -177,7 +178,7 @@ copy ..\..\accessories\toolchains\*.xml $(OutDir)\tools\toolchains
     <ClCompile>
       <AdditionalOptions>/EHsc  %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>./..;.;$(WXWIN_32)/include;$(WXWIN_32)/lib/vc_dll/mswud;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./..;.;$(WXWIN)/include;$(WXWIN)/lib/vc_dll/mswud;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_WINDOWS;NOPCH;WIN32;_DEBUG;__WXMSW__;WXUSINGDLL;__WXDEBUG__;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;MDI_NOT_TABBED;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -207,7 +208,7 @@ copy ..\..\accessories\toolchains\*.xml $(OutDir)\tools\toolchains
       <AdditionalDependencies>wxbase31ud_xml.lib;wxbase31ud_net.lib;wxmsw31ud_propgrid.lib;wxmsw31ud_html.lib;wxmsw31ud_aui.lib;wxmsw31ud_adv.lib;wxmsw31ud_core.lib;wxbase31ud.lib;saga_api.lib;saga_gdi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>$(WXWIN_32)/lib/vc_dll;$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(WXWIN)/lib/vc_dll;$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
@@ -1305,6 +1306,7 @@ copy ..\..\accessories\toolchains\*.xml $(OutDir)\tools\toolchains
     <None Include="RES\XPM\TB_TABLE_ROW_DEL.xpm" />
     <None Include="res\xpm\tb_table_row_del_all.xpm" />
     <None Include="RES\XPM\TB_TABLE_ROW_INS.xpm" />
+    <None Include="res\xpm\tb_table_selection_only.xpm" />
     <None Include="res\xpm\tb_update.xpm" />
     <None Include="RES\XPM\TB_WKSP.xpm" />
     <None Include="RES\XPM\WKSP_DATA_MANAGER.xpm" />

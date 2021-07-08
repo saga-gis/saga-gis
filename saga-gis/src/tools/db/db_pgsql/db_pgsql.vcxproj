@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -20,31 +20,32 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B6ADFFE2-B695-4015-B235-7B57A4CA69AC}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -126,7 +127,7 @@
       <Culture>0x0407</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>saga_api.lib;libpqdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>saga_api.lib;libpq.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\..\..\bin\saga_vc_$(Platform)_d\;$(GDAL_32)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -178,7 +179,7 @@
       <Culture>0x0407</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>saga_api.lib;libpqdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>saga_api.lib;libpq.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\..\..\bin\saga_vc_$(Platform)_d\;$(GDAL)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -229,7 +230,7 @@
       <Culture>0x0407</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>saga_api.lib;libpqdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>saga_api.lib;libpq.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\..\..\bin\saga_vc_$(Platform)\;$(GDAL_32)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -281,7 +282,7 @@
       <Culture>0x0407</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>saga_api.lib;libpqdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>saga_api.lib;libpq.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\..\..\bin\saga_vc_$(Platform)\;$(GDAL)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

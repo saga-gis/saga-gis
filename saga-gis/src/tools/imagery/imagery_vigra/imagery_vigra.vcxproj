@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -20,31 +20,32 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{596A318C-D642-4397-BC7E-6B68BEAA95FC}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -127,7 +128,7 @@
       <Culture>0x0407</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>saga_api.lib;vigraimpex.lib;libfftw3-3.lib;hdf5.lib;hdf5_hl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>saga_api.lib;hdf5.lib;hdf5_hl.lib;libfftw3-3.lib;vigraimpex.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>$(VIGRA_32)\lib;$(GDAL_32)\lib;..\..\..\..\bin\saga_vc_$(Platform)_d\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -180,7 +181,7 @@
       <Culture>0x0407</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>saga_api.lib;vigraimpex.lib;libfftw3-3.lib;hdf5.lib;hdf5_hl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>saga_api.lib;hdf5.lib;hdf5_hl.lib;libfftw3-3.lib;vigraimpex.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>$(VIGRA)\lib;$(GDAL)\lib;..\..\..\..\bin\saga_vc_$(Platform)_d\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -232,7 +233,7 @@
       <Culture>0x0407</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>saga_api.lib;libfftw3-3.lib;hdf5.lib;hdf5_hl.lib;vigraimpex.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>saga_api.lib;hdf5.lib;hdf5_hl.lib;libfftw3-3.lib;vigraimpex.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>$(VIGRA_32)\lib;$(GDAL_32)\lib;..\..\..\..\bin\saga_vc_$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -285,7 +286,7 @@
       <Culture>0x0407</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>saga_api.lib;vigraimpex.lib;libfftw3-3.lib;hdf5.lib;hdf5_hl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>saga_api.lib;hdf5.lib;hdf5_hl.lib;libfftw3-3.lib;vigraimpex.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>$(VIGRA)\lib;$(GDAL)\lib;..\..\..\..\bin\saga_vc_$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
