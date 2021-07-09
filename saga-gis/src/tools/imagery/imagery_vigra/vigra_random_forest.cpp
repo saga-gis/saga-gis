@@ -56,7 +56,12 @@
 
 //---------------------------------------------------------
 #if defined(WITH_HDF5)
-#include <vigra/random_forest_hdf5_impex.hxx>
+	#include <hdf5.h>
+	#if (H5_VERS_MAJOR == 1 && H5_VERS_MINOR < 11) // not (yet) supported by VIGRA!
+		#include <vigra/random_forest_hdf5_impex.hxx>
+	#else
+		#undef WITH_HDF5
+	#endif
 #endif
 
 
