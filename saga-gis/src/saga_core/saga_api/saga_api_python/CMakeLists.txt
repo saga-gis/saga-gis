@@ -63,12 +63,13 @@ if(SWIG_FOUND)
 			set(PYTHON_SITE_PACKAGES "${PYTHON_INCLUDE_PATH}/../Lib/site-packages")
 		else() #if(NOT MSVC)
 			execute_process(
-				COMMAND python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"
+				COMMAND python -c "import site; print(site.getsitepackages()[0])"
 				OUTPUT_VARIABLE PYTHON_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE
 			)
 		endif()
 
 		if(EXISTS ${PYTHON_SITE_PACKAGES})
+			message(STATUS "Python site-packages: ${PYTHON_SITE_PACKAGES}")
 			install(TARGETS saga_api_python DESTINATION ${PYTHON_SITE_PACKAGES})
 			install(FILES ${CMAKE_BINARY_DIR}/src/saga_core/saga_api/saga_api_python/saga_api.py DESTINATION ${PYTHON_SITE_PACKAGES})
 			install(FILES ${CMAKE_SOURCE_DIR}/src/accessories/python/examples/saga_helper.py DESTINATION ${PYTHON_SITE_PACKAGES})
