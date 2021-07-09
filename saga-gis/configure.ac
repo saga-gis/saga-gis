@@ -206,7 +206,7 @@ else
   else
     if test -n "$PROJ4FOUND" ; then 
       AC_MSG_RESULT([        using PROJ version 4]) 
-      PROJ6FLAGS="PROJ_VERSION_MAJOR=4"
+      PROJ6FLAGS="-DPROJ_VERSION_MAJOR=4"
     else
       AC_MSG_ERROR(SAGA requires the PROJ library)
       exit
