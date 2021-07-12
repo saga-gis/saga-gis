@@ -37,7 +37,7 @@ build:
 after_build:
   - cmd: cp %WXWIN%/lib/vc_x64_dll/wxmsw315u_*.dll %SAGA%/saga-gis/bin/saga_vc_x64 
   - cmd: cp %WXWIN%/lib/vc_x64_dll/wxbase315u_*.dll %SAGA%/saga-gis/bin/saga_vc_x64 
-  - cmd: cp -r c:\deps\libs4saga_x64\_bin\dll %SAGA%\saga-gis\bin\saga_vc_x64 
+  - cmd: cp -r c:\deps\libs4saga_x64\dll %SAGA%\saga-gis\bin\saga_vc_x64 
   - cmd: 7z a saga_vc_x64.7z %SAGA%\saga-gis\bin\saga_vc_x64
 
 artifacts:
