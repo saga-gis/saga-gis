@@ -74,7 +74,7 @@ CSG_String Get_Info(int i)
 		return( "0.1" );
 
 	case TLB_INFO_Menu_Path:
-		return( "Riegl" );
+		return( "File|Shapes|Import|Riegl" );
 	}
 }
 
