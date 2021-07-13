@@ -2960,13 +2960,13 @@ bool CSG_Parameter_Grid_List::Add_Item(CSG_Data_Object *pObject)
 //---------------------------------------------------------
 bool CSG_Parameter_Grid_List::Del_Item(CSG_Data_Object *pItem, bool bUpdateData)
 {
-	return( CSG_Parameter_List::Del_Item(pItem) && (!bUpdateData || Update_Data()) );
+	return( CSG_Parameter_List::Del_Item(pItem, bUpdateData) );
 }
 
 //---------------------------------------------------------
 bool CSG_Parameter_Grid_List::Del_Item(int Index, bool bUpdateData)
 {
-	return( CSG_Parameter_List::Del_Item(Index) && (!bUpdateData || Update_Data()) );
+	return( CSG_Parameter_List::Del_Item(Index, bUpdateData) );
 }
 
 //---------------------------------------------------------
