@@ -72,7 +72,7 @@ IMPLEMENT_CLASS(CDLG_Table_Control, wxGrid)
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CDLG_Table_Control, wxGrid)
-#if (wxMAJOR_VERSION == 3 && wxMINOR_VERSION == 1 && wxRELEASE_NUMBER < 5)
+#if (wxMAJOR_VERSION == 3 && wxMINOR_VERSION <= 1 && wxRELEASE_NUMBER < 5)
 	EVT_GRID_RANGE_SELECT     (CDLG_Table_Control::On_Selected     ) // RANGE_SELECT was split in RANGE_SELECTING and SELECTED in 3.2
 #else
 	EVT_GRID_RANGE_SELECTED   (CDLG_Table_Control::On_Selected     )
