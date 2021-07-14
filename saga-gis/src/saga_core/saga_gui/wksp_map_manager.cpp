@@ -355,9 +355,9 @@ bool CWKSP_Map_Manager::Add(CWKSP_Map *pMap)
 
 bool CWKSP_Map_Manager::Add(CWKSP_Layer *pLayer)
 {
-	int		iMap;
+	int	iMap = DLG_Maps_Add();
 
-	if( (iMap = DLG_Maps_Add()) >= 0 && Add(pLayer, Get_Map(iMap)) )
+	if( iMap >= 0 && Add(pLayer, Get_Map(iMap)) )
 	{
 		Get_Map(iMap)->View_Show(true);
 

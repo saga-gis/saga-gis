@@ -154,10 +154,14 @@ void CVIEW_Base::Do_Show(void)
 	}
 
 #ifndef MDI_TABBED
+	if( !g_pSAGA_Frame->GetActiveChild() )
+	{
+		Maximize();
+	}
+
 	Show();
 #endif
 
-//	Activate();
 	g_pSAGA_Frame->On_Child_Activates(m_View_ID);
 }
 
