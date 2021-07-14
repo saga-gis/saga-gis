@@ -151,7 +151,7 @@ pyexec_LTLIBRARIES = _saga_api.la
 nodist_pyexec_PYTHON = saga_api.py
 
 saga_api_wrap.cxx:
-	$(SWIG) -includeall -python $(SWIGUNICODEFLAGS) $(SAGAPYFLAGS) ./saga_api.h 
+	$(SWIG) -includeall -python $(SWIGUNICODEFLAGS) $(SAGAPYFLAGS) ./saga_api.i 
 endif
 
 CLEANFILES = saga_api_wrap.cxx
