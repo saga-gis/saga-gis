@@ -161,6 +161,8 @@ public:
 			#if !(wxMAJOR_VERSION == 3 && wxMINOR_VERSION <= 1 && wxRELEASE_NUMBER < 5)
 			case SG_DATATYPE_Date  : return( wxGRID_VALUE_DATE   );
 			#endif
+
+			default                : break;
 			}
 		}
 
