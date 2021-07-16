@@ -107,7 +107,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(GDAL_32)\include;../../../saga_core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;WIN32;_USRDLL;_MBCS;WXUSINGDLL;__WXDEBUG__;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;$(ProjectName)_EXPORTS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;WIN32;_USRDLL;_MBCS;WXUSINGDLL;__WXDEBUG__;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;HAVE_LIBCURL;$(ProjectName)_EXPORTS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -159,7 +159,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(GDAL)\include;../../../saga_core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;WIN32;_USRDLL;_MBCS;WXUSINGDLL;__WXDEBUG__;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;$(ProjectName)_EXPORTS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;WIN32;_USRDLL;_MBCS;WXUSINGDLL;__WXDEBUG__;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;HAVE_LIBCURL;$(ProjectName)_EXPORTS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -211,7 +211,7 @@
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>$(GDAL_32)\include;../../../saga_core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NDEBUG;WIN32;_USRDLL;_MBCS;WXUSINGDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;$(ProjectName)_EXPORTS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_USRDLL;_MBCS;WXUSINGDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;HAVE_LIBCURL;$(ProjectName)_EXPORTS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -263,7 +263,7 @@
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>$(GDAL)\include;../../../saga_core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NDEBUG;WIN32;_USRDLL;_MBCS;WXUSINGDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;$(ProjectName)_EXPORTS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_USRDLL;_MBCS;WXUSINGDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;HAVE_LIBCURL;$(ProjectName)_EXPORTS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
