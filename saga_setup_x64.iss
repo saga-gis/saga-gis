@@ -38,9 +38,7 @@ Source: "saga_cmd.exe"; DestDir: "{app}"
 Source: "*.*"; Excludes: "*.iss,*.ini,*.cfg,*.bak,*.exe,*.bat,*.rtf"; DestDir: "{app}"
 Source: "tools\*.*"; DestDir: "{app}\tools"
 Source: "tools\toolchains\*.*"; DestDir: "{app}\tools\toolchains"
-Source: "dll\*.*"; DestDir: "{app}\dll"
-Source: "dll\gdal-data\*.*"; DestDir: "{app}\dll\gdal-data"
-Source: "dll\proj-data\*.*"; DestDir: "{app}\dll\proj-data"
+Source: "dll\*.*"; DestDir: "{app}\dll"; Flags: recursesubdirs
 Source: "ArcSAGA Toolboxes\*.*"; DestDir: "{app}\ArcSAGA Toolboxes"
 
 [Icons]
