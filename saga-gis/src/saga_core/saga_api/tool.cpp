@@ -1586,7 +1586,7 @@ void CSG_Tool::_Get_Script_Python(CSG_String &Script, CSG_Parameters *pParameter
 		case PARAMETER_TYPE_Table          :
 		case PARAMETER_TYPE_Shapes         :
 		case PARAMETER_TYPE_TIN            :
-
+		case PARAMETER_TYPE_PointCloud     :
 			if( p->is_Input() )
 			{
 				Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', '%s input%s')\n", ID.c_str(),
