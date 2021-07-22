@@ -134,7 +134,7 @@ bool CInterpolation_Shepard::On_Initialize(void)
 		m_Points[0].Get_Data(),
 		m_Points[1].Get_Data(),
 		m_Points[2].Get_Data(),
-		m_Points[0].Get_Size() - 1,
+		(int)m_Points[0].Get_Size() - 1,
 		Parameters("QUADRATIC_NEIGHBORS")->asInt(),
 		Parameters("WEIGHTING_NEIGHBORS")->asInt()
 	);

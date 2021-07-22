@@ -6,9 +6,6 @@
 #define HEADER_INCLUDED__Shepard_H
 
 //---------------------------------------------------------
-#define abs(x)((x) >= 0 ?(x) : -(x))
-#define dabs(x)(double)abs(x)
-
 #ifndef min
 	#define min(a, b)	((a) <= (b) ? (a) : (b))
 #endif

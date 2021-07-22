@@ -575,9 +575,9 @@ int qshep2_(int *n,   double *x,   double *y,   double *f,   int *
         /* TEST THE SYSTEM FOR ILL - CONDITIONING. */
 
         /* Computing MIN */
-        r__1 = dabs(b[0]), r__2 = dabs(b[7]), r__1 = min(r__1, r__2), r__2 =
-                                      dabs(b[14]), r__1 = min(r__1, r__2), r__2 = dabs(b[21]), r__1 =
-                                                              min(r__1, r__2), r__2 = dabs(b[28]);
+        r__1 = fabs(b[0]), r__2 = fabs(b[7]), r__1 = min(r__1, r__2), r__2 =
+                                      fabs(b[14]), r__1 = min(r__1, r__2), r__2 = fabs(b[21]), r__1 =
+                                                              min(r__1, r__2), r__2 = fabs(b[28]);
         dmin__ = dmin(r__1, r__2);
         if (dmin__ * rq >= dtol)
         {
@@ -668,9 +668,9 @@ int qshep2_(int *n,   double *x,   double *y,   double *f,   int *
         /* TEST THE STABILIZED SYSTEM FOR ILL - CONDITIONING. */
 
         /* Computing MIN */
-        r__1 = dabs(b[0]), r__2 = dabs(b[7]), r__1 = min(r__1, r__2), r__2 =
-                                      dabs(b[14]), r__1 = min(r__1, r__2), r__2 = dabs(b[21]), r__1 =
-                                                              min(r__1, r__2), r__2 = dabs(b[28]);
+        r__1 = fabs(b[0]), r__2 = fabs(b[7]), r__1 = min(r__1, r__2), r__2 =
+                                      fabs(b[14]), r__1 = min(r__1, r__2), r__2 = fabs(b[21]), r__1 =
+                                                              min(r__1, r__2), r__2 = fabs(b[28]);
         dmin__ = dmin(r__1, r__2);
         if (dmin__ * rq < dtol)
         {
@@ -1594,7 +1594,7 @@ L9:
 
     aa = *a;
     bb = *b;
-    if (dabs(aa) <= dabs(bb))
+    if (fabs(aa) <= fabs(bb))
     {
         goto L1;
     }
