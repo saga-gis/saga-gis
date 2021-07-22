@@ -319,6 +319,8 @@ bool CShapes2Grid::On_Execute(void)
 	{
 		CSG_Shape	*pShape	= pShapes->Get_Shape(i);
 
+		m_Cells_On_Shape.clear();
+
 		if( pShapes->Get_Selection_Count() <= 0 || pShape->is_Selected() )
 		{
 			if( Field < 0 || !pShape->is_NoData(Field) )
@@ -371,8 +373,18 @@ bool CShapes2Grid::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline void CShapes2Grid::Set_Value(int x, int y, double Value)
+inline void CShapes2Grid::Set_Value(int x, int y, double Value, bool bCheckDuplicates)
 {
+	if( bCheckDuplicates )
+	{
+		sLong n = y * m_pGrid->Get_NX() + x;
+
+		if( !m_Cells_On_Shape.insert(n).second )
+		{
+			return;		// this cell has already been rendered for this shape
+		}
+	}
+
 	if( m_pGrid->is_InGrid(x, y, false) )
 	{
 		if( m_pCount->asInt(x, y) == 0 )
@@ -427,7 +439,8 @@ void CShapes2Grid::Set_Points(CSG_Shape *pShape, double Value)
 
 			Set_Value(
 				(int)(0.5 + X_WORLD_TO_GRID(p.x)),
-				(int)(0.5 + Y_WORLD_TO_GRID(p.y)), Value
+				(int)(0.5 + Y_WORLD_TO_GRID(p.y)), Value,
+				false
 			);
 		}
 	}

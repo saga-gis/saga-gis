@@ -58,7 +58,7 @@
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
-
+#include <set>
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -89,10 +89,12 @@ private:
 
 	CSG_Grid					*m_pGrid, *m_pCount;
 
+	std::set<sLong>				m_Cells_On_Shape;
+
 
 	TSG_Data_Type				Get_Data_Type			(int Field);
 
-	void						Set_Value				(int x, int y, double Value);
+	void						Set_Value				(int x, int y, double Value, bool bCheckDuplicates = true);
 
 	void						Set_Points				(CSG_Shape *pShape, double Value);
 
