@@ -60,7 +60,6 @@
 
 //---------------------------------------------------------
 #include "Filter_Terrain_SlopeBased.h"
-#include "./../grid_tools/Grid_Gaps.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -79,68 +78,74 @@ CFilter_Terrain_SlopeBased::CFilter_Terrain_SlopeBased(void)
 	Set_Author(_TL("Volker Wichmann (c) 2010, LASERDATA GmbH"));
 
 	Set_Description	(_TW(
-		"The tool can be used to filter a digital surface model (DSM), i.e. to classify "
-		"its cells into bare earth and object cells (ground and nonground cells).\n\n"
-		"The tool uses concepts described by VOSSELMAN (2000) and is based on the "
+		"The tool can be used to filter a digital elevation model in order to classify "
+		"its cells into bare earth and object cells (ground and non-ground cells).\n"
+		"The tool uses concepts as described by Vosselman (2000) and is based on the "
 		"assumption that a large height difference between two nearby cells is unlikely "
 		"to be caused by a steep slope in the terrain. The probability that the higher cell "
-		"could be a ground point decreases if the distance between the two cells decreases. "
-		"Therefore the filter defines the acceptable height difference between two cells as "
-		"a function of the distance between the cells. A cell is classified as terrain if "
-		"there is no other cell within the kernel search radius such that the height difference "
-		"between these cells is larger than the allowed maximum height difference at the distance "
-		"between these cells.\n\n"
-		"The approximate terrain slope parameter is used to modify the filter function to match "
-		"the overall slope in the study area. A confidence interval may be used to reject outliers.\n\n"
-		"Reference:\n"
-		"VOSSELMAN, G. (2000): Slope based filtering of laser altimetry data. IAPRS, Vol. XXXIII, "
-		"Part B3, Amsterdam, The Netherlands. pp. 935-942\n\n")
+		"might be non-ground increases when the distance between the two cells decreases. "
+		"Therefore the filter defines a maximum height difference (dz_max) between two cells as "
+		"a function of the distance (d) between the cells (dz_max(d) = d). A cell is classified "
+		"as terrain if there is no cell within the kernel radius to which the height difference "
+		"is larger than the allowed maximum height difference at the distance between these two cells.\n"
+		"The approximate terrain slope (s) parameter is used to modify the filter function to match "
+		"the overall slope in the study area (dz_max(d) = d * s).\n"
+		"A 5% confidence interval (ci = 1.65 * sqrt(2 * stddev)) may be used to modify the "
+		"filter function even further by either relaxing (dz_max(d) = d * s + ci) or amplifying "
+		"(dz_max(d) = d * s - ci) the filter criterium.\n\n")
 	);
 
+	Add_Reference("Vosselman, G.", "2000",
+		"Slope based filtering of laser altimetry data",
+		"IAPRS, Vol. XXXIII, Part B3, Amsterdam, The Netherlands, 935-942"
+	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL, "INPUT", _TL("Grid to filter"),
+	Parameters.Add_Grid("",
+		"INPUT", _TL("DEM"),
 		_TL("The grid to filter."),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Value(
-		NULL, "RADIUS", _TL("Search Radius"),
-		_TL("Search radius of kernel in cells."),
-		PARAMETER_TYPE_Int, 2, 1, true
-	);
-
-	/*Parameters.Add_Value(
-		NULL, "ITERATIONS", _TL("Iterations"),
-		_TL("Number of iterations, starts with search radius and increments with one cell by iteration."),
-		PARAMETER_TYPE_Int, 1, 1, true
-	);*/
-
-	Parameters.Add_Value(
-		NULL, "TERRAINSLOPE", _TL("Approx. Terrain Slope"),
-		_TL("Approximate Terrain Slope [%]"),
-		PARAMETER_TYPE_Double, 30.0, 0.0, true
-	);
-
-	Parameters.Add_Value(
-		NULL, "STDDEV", _TL("Use Confidence Interval"),
-		_TL("Use 5 percent confidence interval"),
-		PARAMETER_TYPE_Bool, false
-	);
-
-	Parameters.Add_Grid(
-		NULL, "GROUND", _TL("Bare Earth"),
-		_TL("Filtered DTM"),
+	Parameters.Add_Grid("",
+		"GROUND", _TL("Bare Earth"),
+		_TL("The filtered DEM containing only cells classified as ground."),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL, "NONGROUND", _TL("Removed Objects"),
-		_TL("Objects removed from input grid"),
-		PARAMETER_OUTPUT
+	Parameters.Add_Grid("",
+		"NONGROUND", _TL("Removed Objects"),
+		_TL("The non-ground objects removed by the filter."),
+		PARAMETER_OUTPUT_OPTIONAL
 	);
 
+	Parameters.Add_Int("",
+		"RADIUS", _TL("Kernel Radius"),
+		_TL("The radius of the filter kernel [grid cells]. Must be large enough to reach ground cells next to non-ground objects."),
+		5, 1, true
+	);
+
+	Parameters.Add_Double("",
+		"TERRAINSLOPE", _TL("Terrain Slope [%]"),
+		_TL("The approximate terrain slope [%]. Used to relax the filter criterium in steeper terrain."),
+		30.0, 0.0, true
+	);
+
+	Parameters.Add_Choice("",
+		"FILTERMOD", _TL("Filter Modification"),
+		_TL("Choose whether to apply the filter kernel without modification or to use a confidence interval to relax or amplify the height criterium."),
+		CSG_String::Format("%s|%s|%s",
+			_TL("none"),
+			_TL("relax filter"),
+			_TL("amplify filter")
+		), 0
+	);
+
+	Parameters.Add_Double("",
+		"STDDEV", _TL("Standard Deviation"),
+		_TL("The standard deviation used to calculate a 5% confidence interval applied to the height threshold [map units]."),
+		0.1, 0.0, true
+	);
 }
 
 //---------------------------------------------------------
@@ -157,138 +162,113 @@ CFilter_Terrain_SlopeBased::~CFilter_Terrain_SlopeBased(void)
 //---------------------------------------------------------
 bool CFilter_Terrain_SlopeBased::On_Execute(void)
 {
-	CSG_Grid			*pInput, *pGround, *pNonGround;
-	CSG_Grid_Radius		gridRadius;
-	int					sradius;
-	int					iterations;
-	double				tslope;
-	bool				bStdDev;
-
-	CSG_Grid			*pFilter;
-	std::vector<double>	dzKernel;
-	int					gradius;
-	int					x, y, ix, iy, iPoint;
-	double				dz;
-	int					n;
-	double				sum, sumsq, stddev, confInter;
-	double				min_z, ie;
-	
-	//---------------------------------------------------------
-
-    pInput		= Parameters("INPUT")->asGrid();
-	pGround		= Parameters("GROUND")->asGrid();
-	pNonGround	= Parameters("NONGROUND")->asGrid();
-	sradius		= Parameters("RADIUS")->asInt() + 1;
-	iterations	= 1; //Parameters("ITERATIONS")->asInt();
-	tslope		= Parameters("TERRAINSLOPE")->asDouble() / 100.0;
-    bStdDev     = Parameters("STDDEV")->asBool();
+	CSG_Grid	*pInput			= Parameters("INPUT")->asGrid();
+	CSG_Grid	*pGround		= Parameters("GROUND")->asGrid();
+	CSG_Grid	*pNonGround		= Parameters("NONGROUND")->asGrid();
+	int			iRadius			= Parameters("RADIUS")->asInt() + 1;
+	double		dTerrainSlope	= Parameters("TERRAINSLOPE")->asDouble() / 100.0;
+    int			iFilterMod		= Parameters("FILTERMOD")->asInt();
+	double		dStdDev			= Parameters("STDDEV")->asDouble();
 
 	
 	//---------------------------------------------------------
-	pFilter    = SG_Create_Grid(SG_DATATYPE_Double, pInput->Get_NX(), pInput->Get_NY(), pInput->Get_Cellsize(), pInput->Get_XMin(), pInput->Get_YMin());
+	pGround->Assign_NoData();
 	
-	pGround		->Assign(pInput);
-	pFilter		->Assign_NoData();
-	pNonGround	->Assign_NoData();
-
-
-
-	for( int iter=0; iter<iterations; iter++ )
+	if( pNonGround != NULL )
 	{
-		//---------------------------------------------------------
-		//Create dzKernel
+		pNonGround->Assign_NoData();
+	}
+
+
+	//---------------------------------------------------------
+	// create kernel with maximum height difference
 		
-		gradius = sradius + iter;
+	CSG_Grid_Radius		Kernel;		Kernel.Create(iRadius);
+	std::vector<double>	dzKernel(Kernel.Get_nPoints());
 
-		gridRadius.Create(gradius);
+	{
+		int x, y;
 
-		x = gradius + 1;
-		y = gradius + 1;
-
-		for( iPoint=0; iPoint<gridRadius.Get_nPoints(); iPoint++ )
+		for(int iPoint=0; iPoint<Kernel.Get_nPoints(); iPoint++)
 		{
-			dz = gridRadius.Get_Point(iPoint, x, y, ix, iy) * tslope;
-			dzKernel.push_back(dz);
-		}
-		
-		for( y=0; y<pGround->Get_NY() && Set_Progress(y); y++ )
-		{
-			for( x=0; x<pGround->Get_NX(); x++ )
+			double dDist = Kernel.Get_Point(iPoint, x, y);
+
+			switch (iFilterMod)
 			{
-				if( !pGround->is_NoData(x, y) )
-				{
-					if( bStdDev )
-					{
-						// calc stddev
-						sum	= sumsq	= 0.0;
-						n	= 0;
-
-						for( iPoint=1; iPoint<gridRadius.Get_nPoints(); iPoint++ )
-						{
-							gridRadius.Get_Point(iPoint, x, y, ix, iy);
-
-							if( pGround->is_InGrid(ix, iy, true) )
-							{
-								n++;
-								sum		+= pGround->asDouble(ix, iy);
-								sumsq	+= pGround->asDouble(ix, iy) * pGround->asDouble(ix, iy);
-							}
-						}
-						
-						stddev = sqrt(sumsq - n * pow(sum/n, 2)) / (n - 1);
-						//stddev = sqrt((sumsq - sum * sum / n) / n);
-
-						confInter = 1.65 * sqrt(2 * stddev);
-					}
-					else
-						confInter = 0.0;
+			default:
+			case 0:		dzKernel[iPoint] = dDist * dTerrainSlope;								break;
+			case 1:		dzKernel[iPoint] = dDist * dTerrainSlope + 1.65 * sqrt(2 * dStdDev);	break;
+			case 2:		double dz = dDist * dTerrainSlope - 1.65 * sqrt(2 * dStdDev);
+						dz > 0.0 ? dzKernel[iPoint] = dz : dzKernel[iPoint] = 0.0;
+						break;
+			}
+		}
+	}
 
 
-					// calc erosion
-					min_z	= 999999.0;
+	//---------------------------------------------------------
+	// filter
 
-					for( iPoint=1; iPoint<gridRadius.Get_nPoints(); iPoint++ )
-					{
-						gridRadius.Get_Point(iPoint, x, y, ix, iy);
-
-						if( pGround->is_InGrid(ix, iy, true) )
-						{
-							ie = pGround->asDouble(ix, iy) + dzKernel[iPoint] + confInter;
-
-							if( ie < min_z )
-								min_z = ie;
-						}
-					}
-
-					// classify
-					if( pGround->asDouble(x, y) <= min_z )
-						pFilter->Set_Value(x, y, pGround->asDouble(x, y));
-					else
-						pNonGround->Set_Value(x, y, pGround->asDouble(x, y));
-				}// if not NoData
-			}// for x
-		}// for y
-
-		pGround->Assign(pFilter);
-		pFilter->Assign_NoData();
-
-		gridRadius.Destroy();
-
-		/*CGrid_Gaps	CloseGaps;
-
-		if(	!CloseGaps.Get_Parameters()->Set_Parameter(SG_T("INPUT")	, PARAMETER_TYPE_Grid, pGround)
-		||	!CloseGaps.Execute() )
+	for(int y=0; y<pInput->Get_NY() && Set_Progress(y); y++)
+	{
+		#pragma omp parallel for
+		for(int x=0; x<pInput->Get_NX(); x++ )
 		{
-			return( false );
-		}*/
+			if( pInput->is_NoData(x, y) )
+			{
+				continue;
+			}
 
-	}// for iter
+			int		ix, iy;
+			bool	bNonGround = false;
 
+			for(int iPoint=1; iPoint<Kernel.Get_nPoints(); iPoint++)	// iPoint=0 is the central cell
+			{
+				Kernel.Get_Point(iPoint, ix, iy);						// ix, iy are the offset to the neighbor cell
+
+				ix += x;
+				iy += y;
+
+				if( pInput->is_InGrid(ix, iy, true) )
+				{
+					double dz = pInput->asDouble(x, y) - pInput->asDouble(ix, iy);
+
+					if( dz > 0.0 && dz > dzKernel[iPoint] )
+					{
+						bNonGround = true;
+						break;
+					}
+				}
+			}
+
+			if( !bNonGround )
+			{
+				pGround->Set_Value(x, y, pInput->asDouble(x, y));
+			}
+			else if( pNonGround != NULL )
+			{
+				pNonGround->Set_Value(x, y, pInput->asDouble(x, y));
+			}
+		}
+	}
 
 	//-----------------------------------------------------
 	return( true );
 }
 
+
+//---------------------------------------------------------
+int CFilter_Terrain_SlopeBased::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	//-----------------------------------------------------
+	if (pParameter->Cmp_Identifier("FILTERMOD"))
+	{
+		pParameters->Get_Parameter("STDDEV")->Set_Enabled(pParameter->asInt() > 0);
+	}
+
+	//-----------------------------------------------------
+	return (1);
+}
 
 
 ///////////////////////////////////////////////////////////
