@@ -1174,6 +1174,9 @@ public:
 								CSG_KDTree_2D		(CSG_Shapes *pPoints, int Field = -1);
 	bool						Create				(CSG_Shapes *pPoints, int Field = -1);
 
+								CSG_KDTree_2D		(CSG_PointCloud *pPoints);
+	bool						Create				(CSG_PointCloud *pPoints);
+
 								CSG_KDTree_2D		(const CSG_Matrix &Points);
 	bool						Create				(const CSG_Matrix &Points);
 

@@ -386,6 +386,35 @@ bool CSG_KDTree_2D::Create(CSG_Shapes *pPoints, int Field)
 
 //---------------------------------------------------------
 /**
+* Creates a spatial index for the given points.
+*/
+//---------------------------------------------------------
+CSG_KDTree_2D::CSG_KDTree_2D(CSG_PointCloud *pPoints)
+{
+	_On_Construction();
+
+	Create(pPoints);
+}
+
+bool CSG_KDTree_2D::Create(CSG_PointCloud *pPoints)
+{
+	if (pPoints->Get_Count() < 1)
+	{
+		return(false);
+	}
+
+	Destroy();
+
+	m_pAdaptor = new CSG_KDTree_Adaptor_PointCloud(pPoints);
+	m_pKDTree = new CSG_KDTree_Adaptor::kd_tree_2d(2, *m_pAdaptor, nanoflann::KDTreeSingleIndexAdaptorParams(10));
+
+	((CSG_KDTree_Adaptor::kd_tree_2d *)m_pKDTree)->buildIndex();
+
+	return(true);
+}
+
+//---------------------------------------------------------
+/**
 * Points matrix is expected to provide coordinates ordered in rows,
 * with first and second column holding x and y coordinate.
 */
