@@ -319,6 +319,7 @@
     <ClCompile Include="pc_from_grid.cpp" />
     <ClCompile Include="pc_from_shapes.cpp" />
     <ClCompile Include="pc_from_table.cpp" />
+    <ClCompile Include="pc_ground_filter.cpp" />
     <ClCompile Include="pc_merge.cpp" />
     <ClCompile Include="pc_reclass_extract.cpp" />
     <ClCompile Include="pc_support_tool_chains.cpp" />
@@ -353,6 +354,7 @@
     <ClInclude Include="pc_from_grid.h" />
     <ClInclude Include="pc_from_shapes.h" />
     <ClInclude Include="pc_from_table.h" />
+    <ClInclude Include="pc_ground_filter.h" />
     <ClInclude Include="pc_merge.h" />
     <ClInclude Include="pc_reclass_extract.h" />
     <ClInclude Include="pc_support_tool_chains.h" />

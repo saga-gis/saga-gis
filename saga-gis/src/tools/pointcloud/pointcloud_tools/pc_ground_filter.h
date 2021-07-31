@@ -1,7 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
-
 ///////////////////////////////////////////////////////////
 //                                                       //
 //                         SAGA                          //
@@ -13,10 +9,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//                   pc_ground_filter.h                  //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
-//                      Olaf Conrad                      //
+//                 Copyright (C) 2021 by                 //
+//                    Volker Wichmann                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -39,12 +35,11 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     wichmann@laserdata                     //
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Hamburg                  //
-//                Germany                                //
+//    contact:    Volker Wichmann                        //
+//                LASERDATA GmbH                         //
+//                Innsbruck, Austria                     //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -53,7 +48,18 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//           The Tool Link Library Interface             //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifndef HEADER_INCLUDED__pc_ground_filter_H
+#define HEADER_INCLUDED__pc_ground_filter_H
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -61,86 +67,34 @@
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("Point Clouds") );
-
-	case TLB_INFO_Category:
-		return( _TL("Shapes") );
-
-	case TLB_INFO_Author:
-		return( SG_T("O.Conrad, V.Wichmann, M.Bremer (c) 2009-2021") );
-
-	case TLB_INFO_Description:
-		return( _TL("Tools for point clouds.") );
-
-	case TLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case TLB_INFO_Menu_Path:
-		return( _TL("Shapes|Point Clouds") );
-	}
-}
-
-
-//---------------------------------------------------------
-#include "pc_attribute_calculator.h"
-#include "pc_cluster_analysis.h"
-#include "pc_cut.h"
-#include "pc_drop_attribute.h"
-#include "pc_from_grid.h"
-#include "pc_from_shapes.h"
-#include "pc_from_table.h"
-#include "pc_ground_filter.h"
-#include "pc_merge.h"
-#include "pc_reclass_extract.h"
-#include "pc_support_tool_chains.h"
-#include "pc_thinning_simple.h"
-#include "pc_to_grid.h"
-#include "pc_to_shapes.h"
-#include "pc_transform.h"
-
-
-//---------------------------------------------------------
-CSG_Tool *		Create_Tool(int i)
-{
-	switch( i )
-	{
-	case 0:		return( new CPC_Cut );
-	case 1:		return( new CPC_Cut_Interactive );
-	case 2:		return( new CPC_From_Grid );
-	case 3:		return( new CPC_From_Shapes );
-	case 4:		return( new CPC_To_Grid );
-	case 5:		return( new CPC_To_Shapes );
-	case 6:		return( new CPC_Reclass_Extract );
-	case 7:		return( new CPC_Drop_Attribute );
-	case 8:		return( new CPC_Transform );
-	case 9:		return( new CPC_Thinning_Simple );
-	case 10:	return( new CPC_Attribute_Calculator );
-	case 11:	return( new CPC_Cluster_Analysis );
-	case 12:	return( new CPC_Merge );
-	case 13:	return( new CPC_From_Table );
-	case 14:	return( new CSelect_PointCloud_From_List );
-	case 15:	return( new CGround_Filter );
-	}
-
-	return( NULL );
-}
-
-
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CGround_Filter : public CSG_Tool
+{
+public:
+	CGround_Filter(void);
 
-	TLB_INTERFACE
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Classification") );	}
 
-//}}AFX_SAGA
+
+protected:
+
+	virtual bool			On_Execute			(void);
+	virtual bool			On_After_Execution	(void);
+	virtual int				On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__pc_ground_filter_H

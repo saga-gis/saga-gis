@@ -19,6 +19,7 @@ pc_drop_attribute.cpp\
 pc_from_grid.cpp\
 pc_from_shapes.cpp\
 pc_from_table.cpp\
+pc_ground_filter.cpp\
 pc_merge.cpp\
 pc_reclass_extract.cpp\
 pc_support_tool_chains.cpp\
@@ -34,6 +35,7 @@ pc_drop_attribute.h\
 pc_from_grid.h\
 pc_from_shapes.h\
 pc_from_table.h\
+pc_ground_filter.h\
 pc_merge.h\
 pc_reclass_extract.h\
 pc_support_tool_chains.h\
