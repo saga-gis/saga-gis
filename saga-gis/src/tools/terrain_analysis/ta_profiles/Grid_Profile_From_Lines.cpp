@@ -251,7 +251,14 @@ bool CGrid_Profile_From_Lines::Set_Profile(int Line_ID, CSG_Shape *pLine)
 				A	= B;
 				B	= pLine->Get_Point(iPoint, iPart);
 
-				Set_Profile(Line_ID, iPoint == 1, A, B);
+				bool bLastPoint = false;
+
+				if( iPart == pLine->Get_Part_Count() - 1 && iPoint == pLine->Get_Point_Count(iPart) - 1 )
+				{
+					bLastPoint = true;
+				}
+				
+				Set_Profile(Line_ID, iPoint == 1, A, B, bLastPoint);
 			}
 		}
 
@@ -262,7 +269,7 @@ bool CGrid_Profile_From_Lines::Set_Profile(int Line_ID, CSG_Shape *pLine)
 }
 
 //---------------------------------------------------------
-bool CGrid_Profile_From_Lines::Set_Profile(int Line_ID, bool bStart, const TSG_Point &A, const TSG_Point &B)
+bool CGrid_Profile_From_Lines::Set_Profile(int Line_ID, bool bStart, const TSG_Point &A, const TSG_Point &B, bool bLastPoint)
 {
 	double		dx, dy, d, n;
 	TSG_Point	p;
@@ -304,6 +311,11 @@ bool CGrid_Profile_From_Lines::Set_Profile(int Line_ID, bool bStart, const TSG_P
 			Add_Point(Line_ID, bStart, p);
 
 			bStart	= false;
+		}
+
+		if( bLastPoint && SG_Get_Distance(p, B) > M_ALMOST_ZERO )
+		{
+			Add_Point(Line_ID, bStart, B);
 		}
 	}
 
