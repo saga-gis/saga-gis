@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,12 +48,25 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
 #include <math.h>
 #include <stdlib.h>
+
 #include "Shepard.h"
 
+//---------------------------------------------------------
+#define _min(a, b)	((a) <= (b) ? (a) : (b))
+#define _max(a, b)	((a) >= (b) ? (a) : (b))
+
+static int qshep2_(int *n, double *x, double *y, double *f, int *
+            nq, int *nw, int *nr, int *lcell, int *lnext, double *
+            xmin, double *ymin, double *dx, double *dy, double *rmax, double *rsq, double *a,
+            int *ier);
+
+static double qs2val_(double *px, double *py, int *n, double *x, double *y, double *f,
+               int *nr, int *lcell, int *lnext, double *xmin, double *ymin,
+               double *dx, double *dy, double *rmax, double *rsq, double *a);
+
+//---------------------------------------------------------
 double _missing_;
 
 CShepard2d::CShepard2d (void)
@@ -106,7 +116,7 @@ int CShepard2d::Interpolate (double *X, double * Y, double * F, int N_Points, in
     if (N_Points < 6)
         return -1;
 
-    lmax = min(40, N_Points - 1);
+    lmax = _min(40, N_Points - 1);
     if (Quadratic_Neighbors < 5 || Quadratic_Neighbors > lmax)
         return -1;
     if (Weighting_Neighbors < 1 || Weighting_Neighbors > lmax)
@@ -162,21 +172,6 @@ Precision: Single.
 Details  : Fullsource
 Sites    : (1) NETLIB
 //////////////////////////////////////////////////////////////////////////////////////*/ 
-
-
-
-struct
-{
-    double y;
-}
-stcom_;
-
-#define stcom_1 stcom_
-
-/* Table of constant values */
-
-static int c__1 = 1;
-
 
 
 int qshep2_(int *n,   double *x,   double *y,   double *f,   int *
@@ -423,10 +418,10 @@ int qshep2_(int *n,   double *x,   double *y,   double *f,   int *
     nnq = *nq;
     nnw = *nw;
     nnr = *nr;
-    nqwmax = max(nnq, nnw);
+    nqwmax = _max(nnq, nnw);
     /* Computing MIN */
     i__1 = 40, i__2 = nn - 1;
-    lmax = min(i__1, i__2);
+    lmax = _min(i__1, i__2);
     if (5 > nnq || 1 > nnw || nqwmax > lmax || nnr < 1)
     {
         goto L20;
@@ -549,7 +544,7 @@ int qshep2_(int *n,   double *x,   double *y,   double *f,   int *
     L5:
         ++i__;
         np = npts[i__ - 1];
-        irow = min(i__, 6);
+        irow = _min(i__, 6);
         setup2_(&xk, &yk, &fk, &x[np], &y[np], &f[np], &av, &avsq, &rq, &b[
                     irow * 6 - 6]);
         if (i__ == 1)
@@ -575,10 +570,10 @@ int qshep2_(int *n,   double *x,   double *y,   double *f,   int *
         /* TEST THE SYSTEM FOR ILL - CONDITIONING. */
 
         /* Computing MIN */
-        r__1 = fabs(b[0]), r__2 = fabs(b[7]), r__1 = min(r__1, r__2), r__2 =
-                                      fabs(b[14]), r__1 = min(r__1, r__2), r__2 = fabs(b[21]), r__1 =
-                                                              min(r__1, r__2), r__2 = fabs(b[28]);
-        dmin__ = dmin(r__1, r__2);
+        r__1 = fabs(b[0]), r__2 = fabs(b[7]), r__1 = _min(r__1, r__2), r__2 =
+                                      fabs(b[14]), r__1 = _min(r__1, r__2), r__2 = fabs(b[21]), r__1 =
+                                                              _min(r__1, r__2), r__2 = fabs(b[28]);
+        dmin__ = (double)_min(r__1, r__2);
         if (dmin__ * rq >= dtol)
         {
             goto L13;
@@ -668,10 +663,10 @@ int qshep2_(int *n,   double *x,   double *y,   double *f,   int *
         /* TEST THE STABILIZED SYSTEM FOR ILL - CONDITIONING. */
 
         /* Computing MIN */
-        r__1 = fabs(b[0]), r__2 = fabs(b[7]), r__1 = min(r__1, r__2), r__2 =
-                                      fabs(b[14]), r__1 = min(r__1, r__2), r__2 = fabs(b[21]), r__1 =
-                                                              min(r__1, r__2), r__2 = fabs(b[28]);
-        dmin__ = dmin(r__1, r__2);
+        r__1 = fabs(b[0]), r__2 = fabs(b[7]), r__1 = _min(r__1, r__2), r__2 =
+                                      fabs(b[14]), r__1 = _min(r__1, r__2), r__2 = fabs(b[21]), r__1 =
+                                                              _min(r__1, r__2), r__2 = fabs(b[28]);
+        dmin__ = (double)_min(r__1, r__2);
         if (dmin__ * rq < dtol)
         {
             goto L22;
