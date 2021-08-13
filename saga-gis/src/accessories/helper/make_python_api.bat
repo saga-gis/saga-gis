@@ -28,25 +28,18 @@ IF "%ZIP%" == "" (
 )
 
 IF "%SWIG%" == "" (
-	SET EXE_SWIG="F:\develop\libs\swigwin-4.0.2\swig.exe"
+	SET EXE_SWIG="D:\develop\libs\swigwin-4.0.2\swig.exe"
 ) ELSE (
 	SET EXE_SWIG="%SWIG%"
 )
 
-IF "%PYTHON_VERSION%" == "2" (
-	SET PYTHONVER=27
-	IF /i "%ARCHITECTURE%" == "win32" (
-		SET PYTHONDIR=F:\develop\libs\Python\Python27_win32
-	) ELSE (
-		SET PYTHONDIR=F:\develop\libs\Python\Python27_x64
-	)
-) ELSE (
-	SET PYTHONVER=35
-	IF /i "%ARCHITECTURE%" == "win32" (
-		SET PYTHONDIR=F:\develop\libs\Python\Python35_win32
-	) ELSE (
-		SET PYTHONDIR=F:\develop\libs\Python\Python35_x64
-	)
+IF "%VARSALL%" == "" (
+REM	SET "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat"
+	SET EXE_VARSALL="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat"
+)
+
+IF "%PYTHONDIR%" == "" (
+	SET PYTHONDIR=F:\develop\libs\Python\Python35_x64
 )
 
 
@@ -55,13 +48,13 @@ IF /i "%ARCHITECTURE%" == "win32" (
 	SET SAGA_LIB="%SAGA_ROOT%\bin\saga_vc_win32"
 
 	REM VS2015 x86 x64 Cross Tools Command Prompt
-	CALL "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat"
+	CALL %EXE_VARSALL%
 	
 ) ELSE (
 	SET SAGA_LIB="%SAGA_ROOT%\bin\saga_vc_x64"
 
 	REM VS2015 x86 x64 Cross Tools Command Prompt
-	CALL "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86_amd64
+	CALL %EXE_VARSALL% x86_amd64
 	SET DISTUTILS_USE_SDK=1
 	SET MSSDK=1
 )
@@ -111,7 +104,7 @@ ECHO __________________
 ECHO Collecting files...
 ECHO.
 
-SET PYTHONOUT=Python%PYTHONVER%_%ARCHITECTURE%
+SET PYTHONOUT=Python%PYTHON_VERSION%_%ARCHITECTURE%
 
 IF EXIST "%PYTHONOUT%" (
 	RMDIR /S/Q "%PYTHONOUT%"
@@ -125,7 +118,7 @@ COPY "%PYTHONPKG%\*saga_api*.pyd" "%PYTHONOUT%\Lib\site-packages\"
 COPY "%PYTHONPKG%\*saga_api*.py"  "%PYTHONOUT%\Lib\site-packages\"
 
 IF /i "%MAKE_ZIP%" == "true" (
-	%EXE_ZIP% %SAGA_VERSION%_%ARCHITECTURE%_python%PYTHONVER%.zip "%PYTHONOUT%"
+	%EXE_ZIP% %SAGA_VERSION%_%ARCHITECTURE%_python%PYTHON_VERSION%.zip "%PYTHONOUT%"
 	RMDIR /S/Q "%PYTHONOUT%"
 )
 
