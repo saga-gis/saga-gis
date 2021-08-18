@@ -4,7 +4,7 @@ from distutils.core import setup, Extension, os
 
 if os.name == 'nt': # Windows
     saga_module = Extension('_saga_api', sources = ['saga_api_wrap.cxx'], include_dirs = ['./'],
-        library_dirs = [os.environ['SAGA_LIB']], libraries = ['saga_api'],
+        library_dirs = [os.environ['SAGA_LIBDIR']], libraries = ['saga_api'],
         extra_compile_args = [
             '-D_FILE_OFFSET_BITS=64',
             '-D_LARGE_FILES',

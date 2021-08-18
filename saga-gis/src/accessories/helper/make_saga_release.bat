@@ -159,17 +159,10 @@ REM ###################################
 REM PYTHON API
 REM ###################################
 
-SET PYTHONDIR=F:\develop\libs\Python\Python27_win32
-CALL ..\make_python_api.bat 27 win32 true false
-
-SET PYTHONDIR=F:\develop\libs\Python\Python27_x64
-CALL ..\make_python_api.bat 27 x64 true false
-
-SET PYTHONDIR=F:\develop\libs\Python\Python35_win32
-CALL ..\make_python_api.bat 35 win32 true false
-
-SET PYTHONDIR=F:\develop\libs\Python\Python35_x64
-CALL ..\make_python_api.bat 35 x64 true true
+CALL ..\make_python_api.bat 36 x64 true false F:\develop\libs\Python\Python-3.6.14
+CALL ..\make_python_api.bat 37 x64 true false F:\develop\libs\Python\Python-3.7.11
+CALL ..\make_python_api.bat 38 x64 true false F:\develop\libs\Python\Python-3.8.11
+CALL ..\make_python_api.bat 39 x64 true true  F:\develop\libs\Python\Python-3.9.6
 
 
 REM ___________________________________

@@ -1,25 +1,21 @@
 @ECHO OFF
 
 REM ___________________________________
-REM SET SAGA_VERSION=saga-7.4.0
-
 REM This batch script expects 4 arguments
-REM 1. python version (2/3)
+REM 1. Python version suffix ('27', '35', ...)
 REM 2. architecture (win32/x64)
 REM 3. output to zip (true/false)
 REM 4. clean swig wrapper (true/false)
+REM 5. Python root directory
 
 SET PYTHON_VERSION=%1
 SET ARCHITECTURE=%2
 SET MAKE_ZIP=%3
 SET MAKE_CLEAN=%4
-
-IF "%SAGA_ROOT%" == "" (
-	SET SAGA_ROOT=%CD%\..\..\..
-)
+SET PYTHONDIR=%5
 
 REM ___________________________________
-REM Tool paths, adjust to your system!
+REM File paths, adjusted to your system in the calling batch or take the defaults!
 
 IF "%ZIP%" == "" (
 	SET EXE_ZIP="C:\Program Files\7-Zip\7z.exe" a -r -y -mx5
@@ -33,26 +29,31 @@ IF "%SWIG%" == "" (
 	SET EXE_SWIG="%SWIG%"
 )
 
+IF "%PYTHONDIR%" == "" (
+	SET PYTHONDIR=F:\develop\libs\Python\Python39_x64
+)
+
+IF "%SAGA_ROOT%" == "" (
+	SET SAGA_ROOT=%CD%\..\..\..
+)
+
+IF "%SAGA_LIBDIR%" == "" (
+	SET SAGA_LIBDIR=%SAGA_ROOT%\bin\saga_vc_%ARCHITECTURE%
+)
+
 IF "%VARSALL%" == "" (
 REM	SET "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat"
 	SET EXE_VARSALL="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat"
 )
 
-IF "%PYTHONDIR%" == "" (
-	SET PYTHONDIR=F:\develop\libs\Python\Python35_x64
-)
-
 
 REM ___________________________________
+REM Initialization of the MSVC environment
 IF /i "%ARCHITECTURE%" == "win32" (
-	SET SAGA_LIB="%SAGA_ROOT%\bin\saga_vc_win32"
-
 	REM VS2015 x86 x64 Cross Tools Command Prompt
-	CALL %EXE_VARSALL%
-	
-) ELSE (
-	SET SAGA_LIB="%SAGA_ROOT%\bin\saga_vc_x64"
+	CALL %EXE_VARSALL% x86
 
+) ELSE (
 	REM VS2015 x86 x64 Cross Tools Command Prompt
 	CALL %EXE_VARSALL% x86_amd64
 	SET DISTUTILS_USE_SDK=1
@@ -118,7 +119,13 @@ COPY "%PYTHONPKG%\*saga_api*.pyd" "%PYTHONOUT%\Lib\site-packages\"
 COPY "%PYTHONPKG%\*saga_api*.py"  "%PYTHONOUT%\Lib\site-packages\"
 
 IF /i "%MAKE_ZIP%" == "true" (
-	%EXE_ZIP% %SAGA_VERSION%_%ARCHITECTURE%_python%PYTHON_VERSION%.zip "%PYTHONOUT%"
+	SETLOCAL EnableDelayedExpansion
+
+	IF "%SAGA_VERSION%" == "" (
+		SET SAGA_VERSION=saga-snapshot
+	)
+
+	%EXE_ZIP% !SAGA_VERSION!_%ARCHITECTURE%_python%PYTHON_VERSION%.zip "%PYTHONOUT%"
 	RMDIR /S/Q "%PYTHONOUT%"
 )
 
