@@ -14,6 +14,7 @@ SET MAKE_ZIP=%3
 SET MAKE_CLEAN=%4
 SET PYTHONDIR=%5
 
+
 REM ___________________________________
 REM File paths, adjusted to your system in the calling batch or take the defaults!
 
@@ -24,7 +25,7 @@ IF "%ZIP%" == "" (
 )
 
 IF "%SWIG%" == "" (
-	SET EXE_SWIG="D:\develop\libs\swigwin-4.0.2\swig.exe"
+	SET EXE_SWIG="F:\develop\libs\swigwin-4.0.2\swig.exe"
 ) ELSE (
 	SET EXE_SWIG="%SWIG%"
 )
@@ -82,11 +83,17 @@ ECHO __________________
 ECHO Python%PYTHON_VERSION% Compilation (%ARCHITECTURE%)...
 ECHO.
 
+SET PYTHONPKG=%PYTHONDIR%\Lib\site-packages
+
+REM Remove previous instances of saga-python-api
+DEL "%PYTHONPKG%\*saga_api*.py*"
+DEL "%PYTHONPKG%\*saga_*.egg-info"
+
+REM Compilation
 "%PYTHONDIR%\python.exe" saga_api_to_python.py install
 
+REM Postprocessing jobs
 RMDIR /S/Q build
-
-SET PYTHONPKG=%PYTHONDIR%\Lib\site-packages
 
 COPY saga_api.py "%PYTHONPKG%\saga_api.py"
 
@@ -135,6 +142,7 @@ ECHO.
 ECHO.
 ECHO.
 
+EXIT
 
 REM ___________________________________
 REM The End
