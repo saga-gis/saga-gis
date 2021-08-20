@@ -352,6 +352,29 @@ public:
 	static int					Set_Precision		(int Decimals);
 	static int					Get_Precision		(void);
 
+	sLong						Get_IndexFromRowCol	(int  x, int  y)	const
+	{
+		if( m_NX > 0 )
+		{
+			return( (sLong)y * m_NX + x );
+		}
+
+		return( -1 );
+	}
+
+	bool						Get_RowColFromIndex	(int &x, int &y, sLong i)	const
+	{
+		if( m_NX > 0 )
+		{
+			x	= (int)(i % m_NX);
+			y	= (int)(i / m_NX);
+
+			return( true );
+		}
+
+		return( false );
+	}
+
 
 private:	///////////////////////////////////////////////
 
