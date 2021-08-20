@@ -141,7 +141,7 @@ bool CQGIS_ToolBox::On_Execute(void)
 		for(int iTool=0, nAdded=0; iTool<pLibrary->Get_Count(); iTool++)
 		{
 			CSG_Tool	*pTool	= pLibrary->Get_Tool(iTool);
-			CSG_String	Code	= pTool->Get_Name() + "\n" + Library + "\n";
+			CSG_String	Code	= pTool->Get_Name() + "|" + pTool->Get_ID() + "\n" + Library + "\n";
 
 			if( Get_Tool(pTool, Code) )
 			{
