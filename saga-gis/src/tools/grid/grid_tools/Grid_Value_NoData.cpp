@@ -172,7 +172,7 @@ bool CGrid_Value_NoData::On_Execute(void)
 
 		DataObject_Set_Parameters(pGrid, Parameters("GRID")->asGrid());
 
-		pGrid->Fmt_Name("%s [%s]", Parameters("INPUT")->asGrid()->Get_Name(), _TL("Changed"));
+		pGrid->Fmt_Name("%s [%s]", Parameters("GRID")->asGrid()->Get_Name(), _TL("Changed"));
 	}
 
 	//-----------------------------------------------------
