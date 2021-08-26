@@ -89,7 +89,6 @@ const CSG_String	Vars[NVARS][2]	=
 //---------------------------------------------------------
 CBioclimatic_Vars::CBioclimatic_Vars(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Bioclimatic Variables"));
 
 	Set_Author		("O.Conrad (c) 2016");
@@ -167,25 +166,25 @@ CBioclimatic_Vars::CBioclimatic_Vars(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(NULL,
+	Parameters.Add_Grid_List("",
 		"TMEAN"	, _TL("Mean Temperature"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_List(NULL,
+	Parameters.Add_Grid_List("",
 		"TMIN"	, _TL("Minimum Temperature"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_List(NULL,
+	Parameters.Add_Grid_List("",
 		"TMAX"	, _TL("Maximum Temperature"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_List(NULL,
+	Parameters.Add_Grid_List("",
 		"P"		, _TL("Precipitation"),
 		_TL(""),
 		PARAMETER_INPUT
@@ -194,10 +193,19 @@ CBioclimatic_Vars::CBioclimatic_Vars(void)
 	//-----------------------------------------------------
 	for(int i=0; i<NVARS; i++)
 	{
-		Parameters.Add_Grid(NULL, CSG_String::Format("BIO_%02d", i + 1), Vars[i][0], Vars[i][1], PARAMETER_OUTPUT);
+		Parameters.Add_Grid("", CSG_String::Format("BIO_%02d", i + 1), Vars[i][0], Vars[i][1], PARAMETER_OUTPUT);
 	}
 
-	Parameters.Add_Choice(NULL,
+	#define ADD_TIME_GRID(id, name)	Parameters.Add_Grid("", id, name,\
+		_TL("Result is the number of the 2nd of three consecutive months (Dec-Jan-Feb=1, Jan-Feb-Mar=2, ...)."),\
+		PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Char)
+
+	ADD_TIME_GRID("QUARTER_COLDEST", _TL("Coldest Quarter"));
+	ADD_TIME_GRID("QUARTER_WARMEST", _TL("Warmest Quarter"));
+	ADD_TIME_GRID("QUARTER_DRIEST" , _TL("Driest Quarter" ));
+	ADD_TIME_GRID("QUARTER_WETTEST", _TL("Wettest Quarter"));
+
+	Parameters.Add_Choice("",
 		"SEASONALITY", _TL("Temperature Seasonality"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
@@ -226,11 +234,10 @@ int CBioclimatic_Vars::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Par
 //---------------------------------------------------------
 bool CBioclimatic_Vars::On_Execute(void)
 {
-	//-----------------------------------------------------
-	m_pT		= Parameters("TMEAN")->asGridList();
-	m_pTmin		= Parameters("TMIN" )->asGridList();
-	m_pTmax		= Parameters("TMAX" )->asGridList();
-	m_pP		= Parameters("P"    )->asGridList();
+	m_pT    = Parameters("TMEAN")->asGridList();
+	m_pTmin = Parameters("TMIN" )->asGridList();
+	m_pTmax = Parameters("TMAX" )->asGridList();
+	m_pP    = Parameters("P"    )->asGridList();
 
 	if( m_pT   ->Get_Grid_Count() != 12
 	||  m_pTmin->Get_Grid_Count() != 12
@@ -266,6 +273,11 @@ bool CBioclimatic_Vars::On_Execute(void)
 		}
 	}
 
+	Set_Quarter_Classes(m_pVars[NVARS + 0] = Parameters("QUARTER_COLDEST")->asGrid());
+	Set_Quarter_Classes(m_pVars[NVARS + 1] = Parameters("QUARTER_WARMEST")->asGrid());
+	Set_Quarter_Classes(m_pVars[NVARS + 2] = Parameters("QUARTER_DRIEST" )->asGrid());
+	Set_Quarter_Classes(m_pVars[NVARS + 3] = Parameters("QUARTER_WETTEST")->asGrid());
+
 	m_Seasonality	= Parameters("SEASONALITY")->asInt();
 
 	//-----------------------------------------------------
@@ -291,9 +303,45 @@ bool CBioclimatic_Vars::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CBioclimatic_Vars::Set_Quarter_Classes(CSG_Grid *pGrid)
+{
+	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(pGrid, "LUT");
+
+	if( pLUT && pLUT->asTable() )
+	{
+		const CSG_String Month[12] = {
+			"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+		};
+
+		pLUT->asTable()->Del_Records();
+
+		for(int i=0, j=11, k=10; i<12; k=j, j=i++)
+		{
+			CSG_Table_Record	*pClass	= pLUT->asTable()->Add_Record();
+
+			#define GET_VALUE(c) 255. * (0.5 + 0.5 * cos(M_PI * (j / 6. +  c * 2. / 3.)))
+
+			pClass->Set_Value(0, SG_GET_RGB(GET_VALUE(1), GET_VALUE(2), GET_VALUE(0)));
+			pClass->Set_Value(1, Month[k] + "-" + Month[j] + "-" + Month[i]);
+			pClass->Set_Value(2, Month[k] + "-" + Month[j] + "-" + Month[i]);
+			pClass->Set_Value(3, i + 1);
+			pClass->Set_Value(4, i + 1);
+		}
+
+		DataObject_Set_Parameter(pGrid, pLUT);
+		DataObject_Set_Parameter(pGrid, "COLORS_TYPE", 1);	// Classified
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 void CBioclimatic_Vars::Set_NoData(int x, int y)
 {
-	for(int i=0; i<NVARS; i++)
+	for(int i=0; i<NVARS+4; i++)
 	{
 		SG_GRID_PTR_SAFE_SET_NODATA(m_pVars[i], x, y);
 	}
@@ -302,12 +350,10 @@ void CBioclimatic_Vars::Set_NoData(int x, int y)
 //---------------------------------------------------------
 bool CBioclimatic_Vars::Set_Variables(int x, int y)
 {
-	int		i;
-
-	CSG_Vector	T(12), Tmin(12), Tmax(12), P(12), dTD(12), T4(12), P4(12);
+	CSG_Vector	T(12), Tmin(12), Tmax(12), P(12), dTD(12), T3(12), P3(12);
 	
 	//-----------------------------------------------------
-	for(i=0; i<12; i++)
+	for(int i=0; i<12; i++)
 	{
 		if( m_pT   ->Get_Grid(i)->is_NoData(x, y)
 		||  m_pTmin->Get_Grid(i)->is_NoData(x, y)
@@ -325,19 +371,17 @@ bool CBioclimatic_Vars::Set_Variables(int x, int y)
 	}
 
 	//-----------------------------------------------------
-	int		T4min = 0, T4max = 0, P4min = 0, P4max = 0;
+	int		T3min = 0, T3max = 0, P3min = 0, P3max = 0;
 
-	for(i=0; i<12; i++)
-	{
-		T4[i]	= (T[i] + T[(i + 1) % 12] + T[(i + 13) % 12]) / 3;
+	for(int i=0, j=11, k=10; i<12; k=j, j=i++)
+	{	// find the minima and maxima for three consecutive months' mean temperatures and precipitation sums
+		T3[i]	= (T[i] + T[j] + T[k]) / 3.; // mean temperature
+		P3[i]	= (P[i] + P[j] + P[k])     ; // precipitation sum
 
-		if( T4[i] < T4[T4min] )	{	T4min	= i;	}
-		if( T4[i] > T4[T4max] )	{	T4max	= i;	}
-
-		P4[i]	= (P[i] + P[(i + 1) % 12] + P[(i + 13) % 12]);
-
-		if( P4[i] < P4[P4min] )	{	P4min	= i;	}
-		if( P4[i] > P4[P4max] )	{	P4max	= i;	}
+		if( T3[i] < T3[T3min] ) { T3min = i; }
+		if( T3[i] > T3[T3max] ) { T3max = i; }
+		if( P3[i] < P3[P3min] ) { P3min = i; }
+		if( P3[i] > P3[P3max] ) { P3max = i; }
 	}
 
 	//-----------------------------------------------------
@@ -350,9 +394,9 @@ bool CBioclimatic_Vars::Set_Variables(int x, int y)
 	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[ 1], x, y, sdTD.Get_Mean());
 
 	// Isothermality (BIO2/BIO7) (* 100)
-	if( sTmax.Get_Maximum() - sTmin.Get_Minimum() > 0.0 )
+	if( sTmax.Get_Maximum() - sTmin.Get_Minimum() > 0. )
 	{
-		SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[ 2], x, y, 100.0 * sdTD.Get_Mean() / (sTmax.Get_Maximum() - sTmin.Get_Minimum()));
+		SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[ 2], x, y, 100. * sdTD.Get_Mean() / (sTmax.Get_Maximum() - sTmin.Get_Minimum()));
 	}
 	else
 	{
@@ -362,11 +406,11 @@ bool CBioclimatic_Vars::Set_Variables(int x, int y)
 	// Temperature Seasonality
 	if( m_Seasonality == 0 )
 	{	// standard deviation of the mean temperatures expressed as a percentage of the mean of those temperatures (i.e. the annual mean)
-		SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[ 3], x, y, 100.0 * sT.Get_StdDev() / (sT.Get_Mean() + 273.15));
+		SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[ 3], x, y, 100. * sT.Get_StdDev() / (sT.Get_Mean() + 273.15));
 	}
 	else
 	{	// standard deviation * 100
-		SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[ 3], x, y, 100.0 * sT.Get_StdDev());
+		SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[ 3], x, y, 100. * sT.Get_StdDev());
 	}
 
 	// Max Temperature of Warmest Month
@@ -379,16 +423,16 @@ bool CBioclimatic_Vars::Set_Variables(int x, int y)
 	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[ 6], x, y, sTmax.Get_Maximum() - sTmin.Get_Minimum());
 
 	// Mean Temperature of Wettest Quarter
-	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[ 7], x, y, T4[P4max]);
+	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[ 7], x, y, T3[P3max]);
 
 	// Mean Temperature of Driest Quarter
-	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[ 8], x, y, T4[P4min]);
+	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[ 8], x, y, T3[P3min]);
 
 	// Mean Temperature of Warmest Quarter
-	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[ 9], x, y, T4[T4max]);
+	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[ 9], x, y, T3[T3max]);
 
 	// Mean Temperature of Coldest Quarter
-	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[10], x, y, T4[T4min]);
+	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[10], x, y, T3[T3min]);
 
 	// Annual Precipitation
 	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[11], x, y, sP.Get_Sum());
@@ -400,19 +444,31 @@ bool CBioclimatic_Vars::Set_Variables(int x, int y)
 	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[13], x, y, sP.Get_Minimum());
 
 	// Precipitation Seasonality (Coefficient of Variation)
-	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[14], x, y, sP.Get_StdDev() * 100.0 / sP.Get_Mean());
+	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[14], x, y, sP.Get_StdDev() * 100. / sP.Get_Mean());
 
 	// Precipitation of Wettest Quarter
-	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[15], x, y, P4[P4max]);
+	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[15], x, y, P3[P3max]);
 
 	// Precipitation of Driest Quarter
-	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[16], x, y, P4[P4min]);
+	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[16], x, y, P3[P3min]);
 
 	// Precipitation of Warmest Quarter
-	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[17], x, y, P4[T4max]);
+	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[17], x, y, P3[T3max]);
 
 	// Precipitation of Coldest Quarter
-	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[18], x, y, P4[T4min]);
+	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[18], x, y, P3[T3min]);
+
+	// Number of Coldest Quarter
+	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[19], x, y, 1 + T3min);
+
+	// Number of Warmest Quarter
+	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[20], x, y, 1 + T3max);
+
+	// Number of Driest Quarter
+	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[21], x, y, 1 + P3min);
+
+	// Number of Wettest Quarter
+	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[22], x, y, 1 + P3max);
 
 	//-----------------------------------------------------
 	return( true );

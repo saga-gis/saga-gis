@@ -96,8 +96,9 @@ private:
 
 	CSG_Parameter_Grid_List		*m_pT, *m_pTmin, *m_pTmax, *m_pP;
 
-	CSG_Grid					*m_pVars[NVARS];
+	CSG_Grid					*m_pVars[NVARS + 4];
 
+	void						Set_Quarter_Classes		(CSG_Grid *pGrid);
 
 	void						Set_NoData				(int x, int y);
 	bool						Set_Variables			(int x, int y);
