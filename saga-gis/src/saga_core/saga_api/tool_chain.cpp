@@ -486,12 +486,16 @@ bool CSG_Tool_Chain::Data_Add(const CSG_String &ID, CSG_Parameter *pData)
 		return( false );
 	}
 
-	CSG_Parameter	*pParameter	= m_Data(ID);
+	CSG_Parameter	*pParameter	= m_Data(ID);	// check if the local data manager already has a parameter with this identifier
 
-	if( pParameter )	// don't add twice with same identifier
+	if( pParameter )	// it has, so don't add twice!
 	{
-		if(0&& pParameter->Get_Type() != pData->Get_Type() )
+		if( pParameter->Get_Type() != pData->Get_Type() )	// don't allow to change parameter's data object type!
 		{
+			Error_Fmt("%s\n[%s] %s <> %s", _TL("Tool chain uses same variable name for different data object types."),
+				ID.c_str(), pParameter->Get_Type_Identifier().c_str(), pData->Get_Type_Identifier().c_str()
+			);
+
 			return( false );
 		}
 	}
@@ -665,10 +669,8 @@ bool CSG_Tool_Chain::Data_Initialize(void)
 //---------------------------------------------------------
 bool CSG_Tool_Chain::Data_Finalize(void)
 {
-	int		i;
-
 	//-----------------------------------------------------
-	for(i=0; i<Parameters.Get_Count(); i++)	// detach non temporary data before freeing the local data manager !!!
+	for(int i=0; i<Parameters.Get_Count(); i++)	// detach non temporary data before freeing the local data manager !!!
 	{
 		if( Parameters(i)->is_DataObject() )
 		{
@@ -703,7 +705,7 @@ bool CSG_Tool_Chain::Data_Finalize(void)
 	m_Data.Destroy();
 
 	//-----------------------------------------------------
-	for(i=0; i<m_Chain["parameters"].Get_Children_Count(); i++)
+	for(int i=0; i<m_Chain["parameters"].Get_Children_Count(); i++)
 	{
 		const CSG_MetaData	&Parameter	= m_Chain["parameters"][i];
 
