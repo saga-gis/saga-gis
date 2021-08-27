@@ -3,6 +3,8 @@ option(WITH_SYSTEM_SVM "Check to use system version of libsvm instead of embedde
 if(WITH_TOOLS)
 	project(imagery_svm)
 
+	include(../../CMakePluginTemplate.cmake)	# load common tool template
+
 	if(WITH_SYSTEM_SVM)
 		find_package(SVM QUIET)	# ubuntu packages libsvm-dev
 		if(SVM_FOUND)
@@ -15,6 +17,4 @@ if(WITH_TOOLS)
 		set(SAGA_TOOL_CUSTOM_SOURCE_LIST svm/svm.cpp)
 		set(SAGA_TOOL_CUSTOM_HEADER_LIST svm/svm.h)
 	endif()
-
-	include(../../CMakePluginTemplate.cmake)	# load common tool template
 endif()
