@@ -93,6 +93,8 @@ CBioclimatic_Vars::CBioclimatic_Vars(void)
 
 	Set_Author		("O.Conrad (c) 2016");
 
+	Set_Version		("1.1");
+
 	Set_Description	(_TW(
 		"This tool calculates biogically meaningful variables from "
 		"monthly climate data (mean, minimum and maximum temperature "
@@ -324,8 +326,8 @@ void CBioclimatic_Vars::Set_Quarter_Classes(CSG_Grid *pGrid)
 			pClass->Set_Value(0, SG_GET_RGB(GET_VALUE(1), GET_VALUE(2), GET_VALUE(0)));
 			pClass->Set_Value(1, Month[k] + "-" + Month[j] + "-" + Month[i]);
 			pClass->Set_Value(2, Month[k] + "-" + Month[j] + "-" + Month[i]);
-			pClass->Set_Value(3, i + 1);
-			pClass->Set_Value(4, i + 1);
+			pClass->Set_Value(3, 1 + j); // i is the leading month, but we refer to the middle month (j)
+			pClass->Set_Value(4, 1 + j);
 		}
 
 		DataObject_Set_Parameter(pGrid, pLUT);
@@ -371,17 +373,17 @@ bool CBioclimatic_Vars::Set_Variables(int x, int y)
 	}
 
 	//-----------------------------------------------------
-	int		T3min = 0, T3max = 0, P3min = 0, P3max = 0;
+	int		T3min = 11, T3max = 11, P3min = 11, P3max = 11;
 
 	for(int i=0, j=11, k=10; i<12; k=j, j=i++)
 	{	// find the minima and maxima for three consecutive months' mean temperatures and precipitation sums
-		T3[i]	= (T[i] + T[j] + T[k]) / 3.; // mean temperature
-		P3[i]	= (P[i] + P[j] + P[k])     ; // precipitation sum
+		T3[j]	= (T[i] + T[j] + T[k]) / 3.;	// mean temperature
+		P3[j]	= (P[i] + P[j] + P[k])     ;	// precipitation sum
 
-		if( T3[i] < T3[T3min] ) { T3min = i; }
-		if( T3[i] > T3[T3max] ) { T3max = i; }
-		if( P3[i] < P3[P3min] ) { P3min = i; }
-		if( P3[i] > P3[P3max] ) { P3max = i; }
+		if( T3[j] < T3[T3min] ) { T3min = j; }	// we use the middle month (j) for indexing
+		if( T3[j] > T3[T3max] ) { T3max = j; }
+		if( P3[j] < P3[P3min] ) { P3min = j; }
+		if( P3[j] > P3[P3max] ) { P3max = j; }
 	}
 
 	//-----------------------------------------------------
