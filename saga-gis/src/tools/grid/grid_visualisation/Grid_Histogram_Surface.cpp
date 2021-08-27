@@ -141,8 +141,8 @@ bool CGrid_Histogram_Surface::Get_Lines(bool bRows)
 	Parameters("HIST")->Set_Value(pHist	= SG_Create_Grid(m_pGrid));
 
 	pHist->Set_NoData_Value_Range(
-		m_pGrid->Get_NoData_Value(),
-		m_pGrid->Get_NoData_hiValue()
+		m_pGrid->Get_NoData_Value(false),
+		m_pGrid->Get_NoData_Value(true )
 	);
 
 	n_i	= bRows ? Get_NX() : Get_NY();
@@ -206,8 +206,8 @@ bool CGrid_Histogram_Surface::Get_Circle(void)
 	Parameters("HIST")->Set_Value(pHist);
 
 	pHist->Set_NoData_Value_Range(
-		m_pGrid->Get_NoData_Value(),
-		m_pGrid->Get_NoData_hiValue()
+		m_pGrid->Get_NoData_Value(false),
+		m_pGrid->Get_NoData_Value(true )
 	);
 
 	if( !m_pGrid->Set_Index() )

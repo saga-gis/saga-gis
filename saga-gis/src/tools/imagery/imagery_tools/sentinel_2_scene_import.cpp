@@ -405,7 +405,7 @@ CSG_Grid * CSentinel_2_Scene_Import::Load_Band(const CSG_String &Path, const CSG
 
 			pBand->Set_Name              (pTmp->Get_Name());
 			pBand->Set_Description       (pTmp->Get_Description());
-			pBand->Set_NoData_Value_Range(pTmp->Get_NoData_Value(), pTmp->Get_NoData_hiValue());
+			pBand->Set_NoData_Value_Range(pTmp->Get_NoData_Value(), pTmp->Get_NoData_Value(true));
 			pBand->Set_Scaling           (pTmp->Get_Scaling(), pTmp->Get_Offset());
 
 			#pragma omp parallel for

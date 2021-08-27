@@ -986,7 +986,7 @@ bool CGrids_Merge::On_Execute(void)
 		return( false );
 	}
 
-	pMosaic->Set_NoData_Value_Range(pGrids->Get_NoData_Value(), pGrids->Get_NoData_hiValue());
+	pMosaic->Set_NoData_Value_Range(pGrids->Get_NoData_Value(), pGrids->Get_NoData_Value(true));
 	pMosaic->Set_Scaling(pGrids->Get_Scaling(), pGrids->Get_Offset());
 	pMosaic->Set_Z_Name_Field(pGrids->Get_Z_Name_Field());
 

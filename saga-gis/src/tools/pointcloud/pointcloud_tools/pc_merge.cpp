@@ -142,7 +142,7 @@ bool CPC_Merge::On_Execute(void)
 
 	pResult->Create(pPoints);
 	pResult->Set_Name(_TL("Merged"));
-	pResult->Set_NoData_Value_Range(pPoints->Get_NoData_Value(), pPoints->Get_NoData_hiValue());
+	pResult->Set_NoData_Value_Range(pPoints->Get_NoData_Value(), pPoints->Get_NoData_Value(true));
 
 	int	ID = 0, fID = Parameters("ADD_IDENTIFIER")->asBool() ? pResult->Get_Field_Count() : -1;
 

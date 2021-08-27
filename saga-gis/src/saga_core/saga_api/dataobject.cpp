@@ -189,8 +189,8 @@ CSG_Data_Object::CSG_Data_Object(void)
 	m_File_Type			= 0;
 	m_bModified			= true;
 
-	m_NoData_Value		= -99999.;
-	m_NoData_hiValue	= -99999.;
+	m_NoData_Value[0]	= -99999.;
+	m_NoData_Value[1]	= -99999.;
 
 	m_Max_Samples		= gSG_DataObject_Max_Samples;
 
@@ -400,19 +400,17 @@ bool CSG_Data_Object::Set_NoData_Value(double Value)
 }
 
 //---------------------------------------------------------
-bool CSG_Data_Object::Set_NoData_Value_Range(double loValue, double hiValue)
+bool CSG_Data_Object::Set_NoData_Value_Range(double Lower, double Upper)
 {
-	if( loValue > hiValue )
+	if( Lower > Upper )
 	{
-		double	d	= loValue;
-		loValue		= hiValue;
-		hiValue		= d;
+		double d = Lower; Lower = Upper; Upper = d;
 	}
 
-	if( loValue != m_NoData_Value || hiValue != m_NoData_hiValue )
+	if( Lower != m_NoData_Value[0] || Upper != m_NoData_Value[1] )
 	{
-		m_NoData_Value		= loValue;
-		m_NoData_hiValue	= hiValue;
+		m_NoData_Value[0]	= Lower;
+		m_NoData_Value[1]	= Upper;
 
 		Set_Modified();
 

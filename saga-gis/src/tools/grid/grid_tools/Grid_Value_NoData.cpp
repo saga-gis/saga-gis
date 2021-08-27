@@ -129,11 +129,11 @@ int CGrid_Value_NoData::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 		);
 
 		pParameters->Get_Parameter("RANGE")->asRange()->Set_Range(
-			pGrid->Get_NoData_Value(), pGrid->Get_NoData_hiValue()
+			pGrid->Get_NoData_Value(), pGrid->Get_NoData_Value(true)
 		);
 
 		pParameters->Set_Parameter("TYPE",
-			pGrid->Get_NoData_Value() < pGrid->Get_NoData_hiValue() ? 1 : 0
+			pGrid->Get_NoData_Value() < pGrid->Get_NoData_Value(true) ? 1 : 0
 		);
 
 		On_Parameters_Enable(pParameters, (*pParameters)("TYPE"));
@@ -184,8 +184,8 @@ bool CGrid_Value_NoData::On_Execute(void)
 		? Parameters("VALUE"    )->asDouble()
 		: Parameters("RANGE.MAX")->asDouble();
 
-	if( nodata_min == pGrid->Get_NoData_Value  ()
-	&&  nodata_max == pGrid->Get_NoData_hiValue() )
+	if( nodata_min == pGrid->Get_NoData_Value(false)
+	&&  nodata_max == pGrid->Get_NoData_Value(true ) )
 	{
 		Message_Fmt("\n%s\n%s", _TL("Nothing to do!"), _TL("Targeted no-data value (range) is already present."));
 

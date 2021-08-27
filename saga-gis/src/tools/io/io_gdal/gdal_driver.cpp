@@ -1205,7 +1205,7 @@ bool CSG_GDAL_DataSet::Get_Transformation(CSG_Grid **ppGrid, TSG_Grid_Resampling
 	pWorld->Set_Description       (pImage->Get_Description ());
 	pWorld->Set_Unit              (pImage->Get_Unit        ());
 	pWorld->Set_Scaling           (pImage->Get_Scaling     (), pImage->Get_Offset());
-	pWorld->Set_NoData_Value_Range(pImage->Get_NoData_Value(), pImage->Get_NoData_hiValue());
+	pWorld->Set_NoData_Value_Range(pImage->Get_NoData_Value(), pImage->Get_NoData_Value(true));
 	pWorld->Get_MetaData()	     = pImage->Get_MetaData    ();
 	pWorld->Get_Projection()     = pImage->Get_Projection  ();
 

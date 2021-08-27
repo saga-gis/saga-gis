@@ -214,7 +214,7 @@ bool CGeoRef_with_Coordinate_Grids::On_Execute(void)
 				if( bKeepType )
 				{
 					((CSG_Grid  *)pOutput)->Set_Scaling(pGrid->Get_Scaling(), pGrid->Get_Offset());
-					pOutput->Set_NoData_Value_Range(pObject->Get_NoData_Value(), pObject->Get_NoData_hiValue());
+					pOutput->Set_NoData_Value_Range(pObject->Get_NoData_Value(), pObject->Get_NoData_Value(true));
 				}
 			}
 			break;
@@ -230,7 +230,7 @@ bool CGeoRef_with_Coordinate_Grids::On_Execute(void)
 				if( bKeepType )
 				{
 					((CSG_Grids *)pOutput)->Set_Scaling(pGrids->Get_Scaling(), pGrids->Get_Offset());
-					pOutput->Set_NoData_Value_Range(pObject->Get_NoData_Value(), pObject->Get_NoData_hiValue());
+					pOutput->Set_NoData_Value_Range(pObject->Get_NoData_Value(), pObject->Get_NoData_Value(true));
 				}
 			}
 			break;

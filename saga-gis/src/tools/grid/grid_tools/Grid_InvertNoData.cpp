@@ -88,7 +88,7 @@ bool CInvertNoData::On_Execute(void)
 	//-----------------------------------------------------
 	double	Value	= Parameters("VALUE")->asDouble();
 
-	if( SG_IS_BETWEEN(pGrid->Get_NoData_Value(), Value, pGrid->Get_NoData_hiValue()) )
+	if( SG_IS_BETWEEN(pGrid->Get_NoData_Value(), Value, pGrid->Get_NoData_Value(true)) )
 	{
 		Message_Fmt("%s: %s", _TL("Warning"), _TL("targeted data value is a no-data value"));
 	}

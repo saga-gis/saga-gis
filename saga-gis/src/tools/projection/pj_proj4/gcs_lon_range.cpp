@@ -219,7 +219,7 @@ bool CGCS_Grid_Longitude_Range::On_Execute(void)
 		CSG_Grid	*pOut	= SG_Create_Grid(Target, pIn->Get_Type());
 
 		pOut->Set_Name(pIn->Get_Name());
-		pOut->Set_NoData_Value_Range(pIn->Get_NoData_Value(), pIn->Get_NoData_hiValue());
+		pOut->Set_NoData_Value_Range(pIn->Get_NoData_Value(), pIn->Get_NoData_Value(true));
 		pOut->Set_Scaling(pIn->Get_Scaling(), pIn->Get_Offset());
 
 		pOutput->Add_Item(pOut);

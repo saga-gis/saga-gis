@@ -274,7 +274,7 @@ bool CSG_Table::Create(const CSG_Table *pTemplate)
 
 	Set_Name              (pTemplate->Get_Name       ());
 	Set_Description       (pTemplate->Get_Description());
-	Set_NoData_Value_Range(pTemplate->Get_NoData_Value(), pTemplate->Get_NoData_hiValue());
+	Set_NoData_Value_Range(pTemplate->Get_NoData_Value(), pTemplate->Get_NoData_Value(true));
 
 	m_Encoding	= pTemplate->m_Encoding;
 

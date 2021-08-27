@@ -284,7 +284,7 @@ CSG_Grid * CLandsat_Import::Get_Band(const CSG_String &File)
 
 			pBand->Set_Name              (pTmp->Get_Name());
 			pBand->Set_Description       (pTmp->Get_Description());
-			pBand->Set_NoData_Value_Range(pTmp->Get_NoData_Value(), pTmp->Get_NoData_hiValue());
+			pBand->Set_NoData_Value_Range(pTmp->Get_NoData_Value(), pTmp->Get_NoData_Value(true));
 			pBand->Set_Scaling           (pTmp->Get_Scaling(), pTmp->Get_Offset());
 
 			#pragma omp parallel for

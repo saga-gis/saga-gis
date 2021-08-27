@@ -266,7 +266,7 @@ bool CGrid_Clip_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Int
 						((CSG_Grid  *)pClip)->Set_Unit   (pGrid ->Get_Unit());
 						((CSG_Grid  *)pClip)->Set_Scaling(pGrid ->Get_Scaling(), pGrid ->Get_Offset());
 
-						pClip->Set_NoData_Value_Range(pObject->Get_NoData_Value(), pObject->Get_NoData_hiValue());
+						pClip->Set_NoData_Value_Range(pObject->Get_NoData_Value(), pObject->Get_NoData_Value(true));
 
 						((CSG_Grid  *)pClip)->Assign(pGrid, GRID_RESAMPLING_NearestNeighbour);
 					}
@@ -281,7 +281,7 @@ bool CGrid_Clip_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Int
 						((CSG_Grids *)pClip)->Set_Unit   (pGrids->Get_Unit());
 						((CSG_Grids *)pClip)->Set_Scaling(pGrids->Get_Scaling(), pGrids->Get_Offset());
 
-						pClip->Set_NoData_Value_Range(pObject->Get_NoData_Value(), pObject->Get_NoData_hiValue());
+						pClip->Set_NoData_Value_Range(pObject->Get_NoData_Value(), pObject->Get_NoData_Value(true));
 
 						((CSG_Grids *)pClip)->Assign(pGrids, GRID_RESAMPLING_NearestNeighbour);
 					}
@@ -522,7 +522,7 @@ bool CGrid_Clip::On_Execute(void)
 				((CSG_Grid  *)pClip)->Set_Unit   (pGrid ->Get_Unit());
 				((CSG_Grid  *)pClip)->Set_Scaling(pGrid ->Get_Scaling(), pGrid ->Get_Offset());
 
-				pClip->Set_NoData_Value_Range(pObject->Get_NoData_Value(), pObject->Get_NoData_hiValue());
+				pClip->Set_NoData_Value_Range(pObject->Get_NoData_Value(), pObject->Get_NoData_Value(true));
 
 				((CSG_Grid  *)pClip)->Assign(pGrid, GRID_RESAMPLING_NearestNeighbour);
 			}
@@ -542,7 +542,7 @@ bool CGrid_Clip::On_Execute(void)
 				((CSG_Grids *)pClip)->Set_Unit   (pGrids->Get_Unit());
 				((CSG_Grids *)pClip)->Set_Scaling(pGrids->Get_Scaling(), pGrids->Get_Offset());
 
-				pClip->Set_NoData_Value_Range(pObject->Get_NoData_Value(), pObject->Get_NoData_hiValue());
+				pClip->Set_NoData_Value_Range(pObject->Get_NoData_Value(), pObject->Get_NoData_Value(true));
 
 				((CSG_Grids *)pClip)->Assign(pGrids, GRID_RESAMPLING_NearestNeighbour);
 			}

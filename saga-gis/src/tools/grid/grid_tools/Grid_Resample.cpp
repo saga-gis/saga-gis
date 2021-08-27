@@ -244,7 +244,7 @@ bool CGrid_Resample::On_Execute(void)
 				if( bKeepType )
 				{
 					((CSG_Grid  *)pResampled)->Set_Scaling(pGrid->Get_Scaling(), pGrid->Get_Offset());
-					pResampled->Set_NoData_Value_Range(pObject->Get_NoData_Value(), pObject->Get_NoData_hiValue());
+					pResampled->Set_NoData_Value_Range(pObject->Get_NoData_Value(), pObject->Get_NoData_Value(true));
 				}
 
 				((CSG_Grid  *)pResampled)->Assign(pGrid, Resampling);
@@ -262,7 +262,7 @@ bool CGrid_Resample::On_Execute(void)
 				if( bKeepType )
 				{
 					((CSG_Grids *)pResampled)->Set_Scaling(pGrids->Get_Scaling(), pGrids->Get_Offset());
-					pResampled->Set_NoData_Value_Range(pObject->Get_NoData_Value(), pObject->Get_NoData_hiValue());
+					pResampled->Set_NoData_Value_Range(pObject->Get_NoData_Value(), pObject->Get_NoData_Value(true));
 				}
 
 				((CSG_Grids *)pResampled)->Assign(pGrids, Resampling);

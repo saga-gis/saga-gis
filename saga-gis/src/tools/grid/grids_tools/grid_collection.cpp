@@ -528,7 +528,7 @@ bool CGrids_Add_Grid::On_Execute(void)
 
 		pGrids->Set_Name(pGrid->Get_Name());
 		pGrids->Set_Unit(pGrid->Get_Unit());
-		pGrids->Set_NoData_Value_Range(pGrid->Get_NoData_Value(), pGrid->Get_NoData_hiValue());
+		pGrids->Set_NoData_Value_Range(pGrid->Get_NoData_Value(), pGrid->Get_NoData_Value(true));
 
 		Parameters("GRIDS")->Set_Value(pGrids);
 	}
@@ -766,7 +766,7 @@ bool CGrids_Extract_Grid::On_Execute(void)
 
 	pGrid->Create(pGrids->Get_System(), pGrids->Get_Type());
 
-	pGrid->Set_NoData_Value_Range(pGrids->Get_NoData_Value(), pGrids->Get_NoData_hiValue());
+	pGrid->Set_NoData_Value_Range(pGrids->Get_NoData_Value(), pGrids->Get_NoData_Value(true));
 
 	if( pZ )
 	{

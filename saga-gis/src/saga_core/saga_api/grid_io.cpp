@@ -280,7 +280,7 @@ bool CSG_Grid::_Load_External(const CSG_String &FileName, bool bCached, bool bLo
 		Get_MetaData  ()	= pGrid->Get_MetaData  ();
 		Get_Projection()	= pGrid->Get_Projection();
 
-		Set_NoData_Value_Range(pGrid->Get_NoData_Value(), pGrid->Get_NoData_hiValue());
+		Set_NoData_Value_Range(pGrid->Get_NoData_Value(), pGrid->Get_NoData_Value(true));
 		
 		return( true );
 	}
@@ -1084,8 +1084,8 @@ bool CSG_Grid_File_Info::Create(const CSG_Grid &Grid)
 	m_Type			= Grid.Get_Type();
 	m_zScale		= Grid.Get_Scaling();
 	m_zOffset		= Grid.Get_Offset();
-	m_NoData[0]		= Grid.Get_NoData_Value  ();
-	m_NoData[1]		= Grid.Get_NoData_hiValue();
+	m_NoData[0]		= Grid.Get_NoData_Value();
+	m_NoData[1]		= Grid.Get_NoData_Value(true);
 	m_Data_File		.Clear();
 	m_bFlip			= false;
 	m_bSwapBytes	= false;

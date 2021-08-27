@@ -336,7 +336,7 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid, CSG_Grid *pTarget)
 	bool	bGeogCS_Adjust	= m_Projector.Get_Source().Get_Type() == SG_PROJ_TYPE_CS_Geographic && pGrid->Get_XMax() > 180.;
 
 	//-------------------------------------------------
-	pTarget->Set_NoData_Value_Range (pGrid->Get_NoData_Value(), pGrid->Get_NoData_hiValue());
+	pTarget->Set_NoData_Value_Range (pGrid->Get_NoData_Value(), pGrid->Get_NoData_Value(true));
 	pTarget->Set_Scaling            (pGrid->Get_Scaling(), pGrid->Get_Offset());
 	pTarget->Set_Name               (pGrid->Get_Name());
 	pTarget->Set_Unit               (pGrid->Get_Unit());
@@ -460,7 +460,7 @@ bool CCRS_Transform_Grid::Transform(const CSG_Array_Pointer &Grids, CSG_Paramete
 			{
 				pTargets->Add_Item(pTarget);
 
-				pTarget->Set_NoData_Value_Range (pSource->Get_NoData_Value(), pSource->Get_NoData_hiValue());
+				pTarget->Set_NoData_Value_Range (pSource->Get_NoData_Value(), pSource->Get_NoData_Value(true));
 				pTarget->Set_Scaling            (pSource->Get_Scaling(), pSource->Get_Offset());
 				pTarget->Set_Name               (pSource->Get_Name());
 				pTarget->Set_Unit               (pSource->Get_Unit());
@@ -485,7 +485,7 @@ bool CCRS_Transform_Grid::Transform(const CSG_Array_Pointer &Grids, CSG_Paramete
 					pTarget->Add_Grid(pSource->Get_Attributes(iBand));
 				}
 
-				pTarget->Set_NoData_Value_Range (pSource->Get_NoData_Value(), pSource->Get_NoData_hiValue());
+				pTarget->Set_NoData_Value_Range (pSource->Get_NoData_Value(), pSource->Get_NoData_Value(true));
 				pTarget->Set_Scaling            (pSource->Get_Scaling(), pSource->Get_Offset());
 				pTarget->Set_Name               (pSource->Get_Name());
 				pTarget->Set_Unit               (pSource->Get_Unit());

@@ -390,10 +390,10 @@ bool CWKSP_Data_Item::DataObject_Changed(void)
 {
 	m_Parameters.Set_Name(CSG_String::Format("%02d. %s", 1 + Get_ID(), m_pObject->Get_Name()));
 
-	m_Parameters.Set_Parameter("OBJECT_NAME"      , m_pObject->Get_Name          ());
-	m_Parameters.Set_Parameter("OBJECT_DESC"      , m_pObject->Get_Description   ());
-	m_Parameters.Set_Parameter("OBJECT_NODATA.MIN", m_pObject->Get_NoData_Value  ());
-	m_Parameters.Set_Parameter("OBJECT_NODATA.MAX", m_pObject->Get_NoData_hiValue());
+	m_Parameters.Set_Parameter("OBJECT_NAME"      , m_pObject->Get_Name             ());
+	m_Parameters.Set_Parameter("OBJECT_DESC"      , m_pObject->Get_Description      ());
+	m_Parameters.Set_Parameter("OBJECT_NODATA.MIN", m_pObject->Get_NoData_Value(false));
+	m_Parameters.Set_Parameter("OBJECT_NODATA.MAX", m_pObject->Get_NoData_Value(true ));
 
 	//-----------------------------------------------------
 	On_DataObject_Changed();

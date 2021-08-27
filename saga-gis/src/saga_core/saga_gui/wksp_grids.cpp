@@ -146,7 +146,7 @@ wxString CWKSP_Grids::Get_Description(void)
 	DESC_ADD_FLT (_TL("Value Minimum"     ), Get_Grids()->Get_Min         ());
 	DESC_ADD_FLT (_TL("Value Maximum"     ), Get_Grids()->Get_Max         ());
 	DESC_ADD_FLT (_TL("Value Range"       ), Get_Grids()->Get_Range       ());
-	DESC_ADD_STR (_TL("No Data Value"     ), Get_Grids()->Get_NoData_Value() < Get_Grids()->Get_NoData_hiValue() ? CSG_String::Format("%f - %f", Get_Grids()->Get_NoData_Value(), Get_Grids()->Get_NoData_hiValue()).c_str() : SG_Get_String(Get_Grids()->Get_NoData_Value(), -2).c_str());
+	DESC_ADD_STR (_TL("No Data Value"     ), Get_Grids()->Get_NoData_Value() < Get_Grids()->Get_NoData_Value(true) ? CSG_String::Format("%f - %f", Get_Grids()->Get_NoData_Value(), Get_Grids()->Get_NoData_Value(true)).c_str() : SG_Get_String(Get_Grids()->Get_NoData_Value(), -2).c_str());
 	DESC_ADD_FLT (_TL("Arithmetic Mean"   ), Get_Grids()->Get_Mean        ());
 	DESC_ADD_FLT (_TL("Standard Deviation"), Get_Grids()->Get_StdDev      ());
 	DESC_ADD_STR (_TL("Memory Size"       ), Get_nBytes_asString(Get_Grids()->Get_Memory_Size(), 2).c_str());

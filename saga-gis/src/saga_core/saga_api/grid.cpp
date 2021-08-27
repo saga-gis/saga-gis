@@ -234,7 +234,7 @@ bool CSG_Grid::Create(const CSG_Grid &Grid)
 		Set_Name              (Grid.Get_Name       ());
 		Set_Description       (Grid.Get_Description());
 		Set_Unit              (Grid.Get_Unit       ());
-		Set_NoData_Value_Range(Grid.Get_NoData_Value(), Grid.Get_NoData_hiValue());
+		Set_NoData_Value_Range(Grid.Get_NoData_Value(), Grid.Get_NoData_Value(true));
 
 		for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 		{
@@ -272,7 +272,7 @@ bool CSG_Grid::Create(CSG_Grid *pGrid, TSG_Data_Type Type, bool bCached)
 
 		if( Create(Type, pGrid->Get_NX(), pGrid->Get_NY(), pGrid->Get_Cellsize(), pGrid->Get_XMin(), pGrid->Get_YMin(), bCached) )
 		{
-			Set_NoData_Value_Range(pGrid->Get_NoData_Value(), pGrid->Get_NoData_hiValue());
+			Set_NoData_Value_Range(pGrid->Get_NoData_Value(), pGrid->Get_NoData_Value(true));
 
 			Get_Projection()	= pGrid->Get_Projection();
 

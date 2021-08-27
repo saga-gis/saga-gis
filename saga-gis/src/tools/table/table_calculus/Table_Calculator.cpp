@@ -228,8 +228,8 @@ bool CTable_Calculator_Base::On_Execute(void)
 	//-----------------------------------------------------
 	m_bNoData	= Parameters("USE_NODATA")->asBool();
 
-	g_NoData_loValue	= pTable->Get_NoData_Value  ();
-	g_NoData_hiValue	= pTable->Get_NoData_hiValue();
+	g_NoData_loValue	= pTable->Get_NoData_Value(false);
+	g_NoData_hiValue	= pTable->Get_NoData_Value(true );
 
 	if( pTable->Get_Selection_Count() > 0 && Parameters("SELECTION")->asBool() )
 	{

@@ -297,7 +297,7 @@ bool CGEOTRANS_Grid::Set_Grid(CSG_Grid *pSource, CSG_Grid *pTarget, TSG_Grid_Res
 
 	if( pSource && pTarget && Set_Transformation_Inverse() )
 	{
-		pTarget->Set_NoData_Value_Range(pSource->Get_NoData_Value(), pSource->Get_NoData_hiValue());
+		pTarget->Set_NoData_Value_Range(pSource->Get_NoData_Value(), pSource->Get_NoData_Value(true));
 		pTarget->Set_Scaling(pSource->Get_Scaling(), pSource->Get_Offset());
 		pTarget->Set_Name	(pSource->Get_Name());
 		pTarget->Set_Unit	(pSource->Get_Unit());
