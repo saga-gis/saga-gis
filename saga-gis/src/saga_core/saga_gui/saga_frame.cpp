@@ -105,9 +105,9 @@
 
 //---------------------------------------------------------
 #ifdef _DEBUG
-	#define SAGA_CAPTION	wxT("SAGA [Debug]")
+	#define SAGA_CAPTION	wxString::Format("DEBUG|SAGA %s", SAGA_VERSION)
 #else
-	#define SAGA_CAPTION	wxT("SAGA")
+	#define SAGA_CAPTION	wxString::Format("SAGA %s", SAGA_VERSION)
 #endif
 
 
@@ -938,7 +938,7 @@ void CSAGA_Frame::Set_Project_Name(wxString Project_Name)
 {
 	if( Project_Name.Length() > 0 )
 	{
-		SetTitle(wxString::Format(wxT("%s [%s]"), SAGA_CAPTION, Project_Name.c_str()));
+		SetTitle(wxString::Format("%s [%s]", SAGA_CAPTION, Project_Name.c_str()));
 	}
 	else
 	{
