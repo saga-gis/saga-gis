@@ -872,6 +872,19 @@ bool CSG_Projections::Save_DB(const CSG_String &File)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+const CSG_Projection & CSG_Projections::Get_GCS_WGS84(void)
+{
+	static CSG_Projection Projection(WKT_GCS_WGS84, PROJ4_GCS_WGS84);
+
+	return( Projection );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 int CSG_Projections::Get_Count(void) const
 {
 	return( m_pProjections->Get_Count() );

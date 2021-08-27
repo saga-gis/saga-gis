@@ -792,6 +792,11 @@ public:
 	CSG_String						Get_Type_Identifier		(void)	const	{	return( SG_Get_Projection_Type_Identifier(m_Type) );	}
 	CSG_String						Get_Type_Name			(void)	const	{	return( SG_Get_Projection_Type_Name      (m_Type) );	}
 
+	bool							is_Projection			(void)	const	{	return( m_Type == SG_PROJ_TYPE_CS_Projected  );	}
+	bool							is_Geographic			(void)	const	{	return( m_Type == SG_PROJ_TYPE_CS_Geographic );	}
+	bool							is_Geocentric			(void)	const	{	return( m_Type == SG_PROJ_TYPE_CS_Geocentric );	}
+
+
 	TSG_Projection_Unit				Get_Unit				(void)	const	{	return( m_Unit  );	}
 	CSG_String						Get_Unit_Identifier		(void)	const	{	return( SG_Get_Projection_Unit_Identifier(m_Unit) );	}
 	CSG_String						Get_Unit_Name			(void)	const	{	return( m_Unit_Name     );	}
@@ -864,6 +869,8 @@ public:
 
 	bool							EPSG_to_Proj4			(CSG_String &Proj4, int EPSG_Code)				const;
 	bool							EPSG_to_WKT				(CSG_String &WKT  , int EPSG_Code)				const;
+
+	static const CSG_Projection &	Get_GCS_WGS84			(void);
 
 
 private:
