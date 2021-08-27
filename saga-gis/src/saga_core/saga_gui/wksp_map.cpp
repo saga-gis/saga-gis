@@ -2343,6 +2343,52 @@ bool CWKSP_Map::Draw_Extent(CWKSP_Map_DC &dc_Map, const CSG_Rect &rWorld, const 
 
 ///////////////////////////////////////////////////////////
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CWKSP_Map::Show_Coordinate(const CSG_Point &Coordinate) const
+{
+	CSG_Parameters	P(_TL("Coordinate"));
+
+	if( m_Projection.is_Okay() )
+	{
+		TSG_Point	Degree(Coordinate);
+
+		if( m_Projection.is_Geographic() || SG_Get_Projected(m_Projection, CSG_Projections::Get_GCS_WGS84(), Degree) )
+		{
+			if( !m_Projection.is_Geographic() )
+			{
+				P.Add_Node("", "MAP", m_Projection.Get_Name(), m_Projection.Get_Proj4());
+				P.Add_Info_Value("MAP", "MAP_X", _TL("Easting" ), _TL(""), PARAMETER_TYPE_Double, Coordinate.x);
+				P.Add_Info_Value("MAP", "MAP_Y", _TL("Northing"), _TL(""), PARAMETER_TYPE_Double, Coordinate.y);
+			}
+
+			P.Add_Node("", "DEG", _TL("Decimal Degrees"), _TL(""));
+			P.Add_Info_Value("DEG", "DEG_LON", _TL("Longitude"), _TL(""), PARAMETER_TYPE_Double, Degree.x);
+			P.Add_Info_Value("DEG", "DEG_LAT", _TL("Latitude" ), _TL(""), PARAMETER_TYPE_Double, Degree.y);
+
+			P.Add_Node("", "DMS", _TL("Degrees, Minutes, Seconds"), _TL(""));
+			P.Add_Info_Value("DMS", "DMS_LON", _TL("Longitude"), _TL(""), PARAMETER_TYPE_Degree, Degree.x);
+			P.Add_Info_Value("DMS", "DMS_LAT", _TL("Latitude" ), _TL(""), PARAMETER_TYPE_Degree, Degree.y);
+		}
+		else
+		{
+			P.Add_Info_Value("", "MAP_X", _TL("Easting" ), _TL(""), PARAMETER_TYPE_Double, Coordinate.x);
+			P.Add_Info_Value("", "MAP_Y", _TL("Northing"), _TL(""), PARAMETER_TYPE_Double, Coordinate.y);
+		}
+	}
+	else
+	{
+		P.Add_Info_Value("", "MAP_X", "X", _TL(""), PARAMETER_TYPE_Double, Coordinate.x);
+		P.Add_Info_Value("", "MAP_Y", "Y", _TL(""), PARAMETER_TYPE_Double, Coordinate.y);
+	}
+
+	DLG_Parameters(&P);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////

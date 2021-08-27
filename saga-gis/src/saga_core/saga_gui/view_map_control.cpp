@@ -861,10 +861,17 @@ void CVIEW_Map_Control::On_Mouse_RUp(wxMouseEvent &event)
 		{
 			g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_RUP, GET_KEYS(event));
 		}
-		else if( m_pMap->Get_Map_Layer_Active(true) && !Get_Active_Layer()->Edit_On_Mouse_Up(
-			_Get_Client2World(event.GetPosition()), _Get_Client2World(1.), GET_KEYS(event)|TOOL_INTERACTIVE_KEY_RIGHT) )
+		else
 		{
-			pMenu	= Get_Active_Layer()->Edit_Get_Menu();
+			if( m_pMap->Get_Map_Layer_Active(true) && !Get_Active_Layer()->Edit_On_Mouse_Up(
+				_Get_Client2World(event.GetPosition()), _Get_Client2World(1.), GET_KEYS(event)|TOOL_INTERACTIVE_KEY_RIGHT) )
+			{
+				pMenu	= Get_Active_Layer()->Edit_Get_Menu();
+			}
+			else if( event.ControlDown() )	// request coordinate
+			{
+				m_pMap->Show_Coordinate(_Get_Client2World(event.GetPosition()));
+			}
 		}
 		break;
 

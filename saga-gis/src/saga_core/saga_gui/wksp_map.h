@@ -201,6 +201,8 @@ public:
 	void						Set_Projection			(void);
 	CSG_Projection &			Get_Projection			(void)	{	return( m_Projection );	}
 
+	void						Show_Coordinate			(const CSG_Point &Coordinate)	const;
+
 
 protected:
 
