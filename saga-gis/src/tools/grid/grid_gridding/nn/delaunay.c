@@ -323,7 +323,9 @@ delaunay* delaunay_build(int np, point points[], int ns, int segments[], int nh,
 //---------------------------------------------------------
 #else /* USE_QHULL */
 
-#ifdef HAVE_LIBQHULL_QHULL_A_H
+#ifdef HAVE_LIBQHULL_R_QHULL_RA_H
+    #include <libqhull_r/qhull_ra.h>
+#elif HAVE_LIBQHULL_QHULL_A_H
     #include <libqhull/qhull_a.h>
 #else
     #ifdef HAVE_QHULL_QHULL_A_H
@@ -393,8 +395,20 @@ delaunay* delaunay_build(int np, point points[], int ns, int segments[], int nh,
    * climax 
    */
 
+#ifdef HAVE_LIBQHULL_R_QHULL_RA_H
+  qhT qh_qh;
+  qhT *qh= &qh_qh;
+  
+  QHULL_LIB_CHECK
+  
+  qh_zero(qh, errfile);
+  
+  exitcode = qh_new_qhull (qh, dim, np, qpoints, ismalloc,
+			   flags, outfile, errfile);
+#else
   exitcode = qh_new_qhull (dim, np, qpoints, ismalloc,
 			   flags, outfile, errfile);
+#endif
 
   if(!exitcode) {
 
@@ -435,10 +449,17 @@ delaunay* delaunay_build(int np, point points[], int ns, int segments[], int nh,
       }
     }
 
+#ifdef HAVE_LIBQHULL_R_QHULL_RA_H
+    qh_findgood_all (qh, qh->facet_list);
+    qh_countfacets (qh, qh->facet_list, NULL, !qh_ALL, &numfacets,
+		    &numsimplicial, &totneighbors, &numridges,
+		    &numcoplanars, &numtricoplanars);
+#else
     qh_findgood_all (qh facet_list);
     qh_countfacets (qh facet_list, NULL, !qh_ALL, &numfacets,
 		    &numsimplicial, &totneighbors, &numridges,
 		    &numcoplanars, &numtricoplanars);
+#endif
 
     ntriangles = 0;
     FORALLfacets {
@@ -463,7 +484,12 @@ delaunay* delaunay_build(int np, point points[], int ns, int segments[], int nh,
 
 	j = 0;
 	FOREACHvertex_(facet->vertices)
+	
+#ifdef HAVE_LIBQHULL_R_QHULL_RA_H
+	  t->vids[j++] = qh_pointid(qh, vertex->point);
+#else
 	  t->vids[j++] = qh_pointid(vertex->point);
+#endif
 
 	j = 0;
 	FOREACHneighbor_(facet)
@@ -543,8 +569,15 @@ delaunay* delaunay_build(int np, point points[], int ns, int segments[], int nh,
   }
 
   free(qpoints);
+  
+#ifdef HAVE_LIBQHULL_R_QHULL_RA_H
+  qh_freeqhull(qh, !qh_ALL);                 /* free long memory */
+  qh_memfreeshort (qh, &curlong, &totlong);  /* free short memory and memory allocator */
+#else
   qh_freeqhull(!qh_ALL);                 /* free long memory */
   qh_memfreeshort (&curlong, &totlong);  /* free short memory and memory allocator */
+#endif
+
   if (curlong || totlong) 
     fprintf (errfile,
 	     "qhull: did not free %d bytes of long memory (%d pieces)\n",

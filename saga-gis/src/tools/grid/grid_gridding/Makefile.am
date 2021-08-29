@@ -57,7 +57,12 @@ libgrid_gridding_la_SOURCES +=\
 ./nn/triangle.c\
 ./nn/triangle.h
 else
-AM_CXXFLAGS        += -DUSE_QHULL $(QHULLFLAGS)
+AM_CFLAGS          = -DUSE_QHULL $(QHULLFLAGS)
+if QHULL_R
+AM_LDFLAGS         += -lqhull_r
+else
+AM_LDFLAGS         += -lqhull
+endif
 endif
 
 libgrid_gridding_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
