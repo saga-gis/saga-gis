@@ -868,7 +868,7 @@ void CVIEW_Map_Control::On_Mouse_RUp(wxMouseEvent &event)
 			{
 				pMenu	= Get_Active_Layer()->Edit_Get_Menu();
 			}
-			else if( event.ControlDown() )	// request coordinate
+			else if( event.AltDown() )	// request coordinate
 			{
 				m_pMap->Show_Coordinate(_Get_Client2World(event.GetPosition()));
 			}
@@ -891,6 +891,10 @@ void CVIEW_Map_Control::On_Mouse_RUp(wxMouseEvent &event)
 		if( event.ControlDown() )	// context menu
 		{
 			pMenu	= m_pParent->_Create_Menu();
+		}
+		else if( event.AltDown() )	// request coordinate
+		{
+			m_pMap->Show_Coordinate(_Get_Client2World(event.GetPosition()));
 		}
 		else	// zoom out
 		{
