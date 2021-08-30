@@ -323,6 +323,8 @@ if test "x$use_triangle" != xyes; then
   else
     AC_MSG_FAILURE([--disable-triangle was given but test for qhull failed])
   fi
+else
+  AM_CONDITIONAL(QHULL_R, false)
 fi
 
 AC_SUBST(QHULLFLAGS)
