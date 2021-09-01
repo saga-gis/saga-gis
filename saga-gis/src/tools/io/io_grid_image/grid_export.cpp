@@ -700,7 +700,6 @@ bool CGrid_Export::Add_Shading(CSG_Grid &Grid)
 	Scale	= 255 * (1 - Transparency) / (Maximum - Minimum);
 
 	//-----------------------------------------------------
-	#pragma omp parallel
 	for(int y=0; y<Get_NY(); y++)
 	{
 		int	yy	= Get_NY() - y - 1;
