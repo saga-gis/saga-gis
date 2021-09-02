@@ -87,6 +87,8 @@
 CWKSP_Grid::CWKSP_Grid(CSG_Grid *pGrid)
 	: CWKSP_Layer(pGrid)
 {
+	m_Edit_Attributes.Add_Field("ROW", SG_DATATYPE_Int);
+
 	On_Create_Parameters();
 
 	DataObject_Changed();
@@ -926,7 +928,7 @@ TSG_Rect CWKSP_Grid::Edit_Get_Extent(void)
 		return( CSG_Rect(
 			-Get_Grid()->Get_Cellsize() / 2. + Get_Grid()->Get_System().Get_xGrid_to_World(m_xSel),
 			-Get_Grid()->Get_Cellsize() / 2. + Get_Grid()->Get_System().Get_yGrid_to_World(m_ySel),
-			-Get_Grid()->Get_Cellsize() / 2. + Get_Grid()->Get_System().Get_xGrid_to_World(m_xSel + m_Edit_Attributes.Get_Field_Count()),
+			-Get_Grid()->Get_Cellsize() / 2. + Get_Grid()->Get_System().Get_xGrid_to_World(m_xSel + m_Edit_Attributes.Get_Field_Count() - 1),
 			-Get_Grid()->Get_Cellsize() / 2. + Get_Grid()->Get_System().Get_yGrid_to_World(m_ySel + m_Edit_Attributes.Get_Count()))
 		);
 	}
@@ -955,6 +957,7 @@ bool CWKSP_Grid::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key
 		g_pActive->Update_Attributes();
 
 		m_Edit_Attributes.Destroy();
+		m_Edit_Attributes.Add_Field("ROW", SG_DATATYPE_Int);
 
 		CSG_Rect	rWorld(m_Edit_Mouse_Down, Point);
 
@@ -970,7 +973,7 @@ bool CWKSP_Grid::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key
 
 			if( nx > 0 && ny > 0 )
 			{
-				int	x, y, Maximum = g_pData->Get_Parameter("GRID_SELECT_MAX")->asInt();
+				int	Maximum = g_pData->Get_Parameter("GRID_SELECT_MAX")->asInt();
 
 				if( nx > Maximum )
 				{
@@ -984,24 +987,26 @@ bool CWKSP_Grid::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key
 					ny		= Maximum;
 				}
 
-				for(x=0; x<nx; x++)
+				for(int x=0; x<nx; x++)
 				{
-					m_Edit_Attributes.Add_Field(CSG_String::Format("%d", x + 1), Get_Grid()->Get_Type());
+					m_Edit_Attributes.Add_Field(CSG_String::Format("%d", m_xSel + 1 + x), Get_Grid()->Get_Type());
 				}
 
-				for(y=0; y<ny; y++)
+				for(int y=0; y<ny; y++)
 				{
 					CSG_Table_Record	*pRecord	= m_Edit_Attributes.Add_Record();
 
-					for(x=0; x<nx; x++)
+					for(int x=0; x<nx; x++)
 					{
+						pRecord->Set_Value(0, m_ySel + ny - y);
+
 						if( !Get_Grid()->is_NoData(m_xSel + x, m_ySel + ny - 1 - y) )
 						{
-							pRecord->Set_Value(x, Get_Grid()->asDouble(m_xSel + x, m_ySel + ny - 1 - y));
+							pRecord->Set_Value(1 + x, Get_Grid()->asDouble(m_xSel + x, m_ySel + ny - 1 - y));
 						}
 						else
 						{
-							pRecord->Set_NoData(x);
+							pRecord->Set_NoData(1 + x);
 						}
 					}
 				}
@@ -1027,11 +1032,11 @@ bool CWKSP_Grid::Edit_Set_Attributes(void)
 		{
 			CSG_Table_Record	*pRecord	= m_Edit_Attributes.Get_Record(m_Edit_Attributes.Get_Count() - 1 - y);
 
-			for(int x=0; x<m_Edit_Attributes.Get_Field_Count(); x++)
+			for(int x=0, xx=1; xx<m_Edit_Attributes.Get_Field_Count(); x++, xx++)
 			{
-				if( !pRecord->is_NoData(x) )
+				if( !pRecord->is_NoData(xx) )
 				{
-					Get_Grid()->Set_Value(m_xSel + x, m_ySel + y, pRecord->asDouble(x));
+					Get_Grid()->Set_Value(m_xSel + x, m_ySel + y, pRecord->asDouble(xx));
 				}
 				else
 				{
@@ -1077,9 +1082,9 @@ bool CWKSP_Grid::_Edit_Del_Selection(void)
 	{
 		for(int y=0; y<m_Edit_Attributes.Get_Count(); y++)
 		{
-			for(int x=0; x<m_Edit_Attributes.Get_Field_Count(); x++)
+			for(int x=0, xx=1; xx<m_Edit_Attributes.Get_Field_Count(); x++, xx++)
 			{
-				m_Edit_Attributes[y].Set_NoData(x);
+				m_Edit_Attributes[y].Set_NoData(xx);
 
 				Get_Grid()->Set_NoData(m_xSel + x, m_ySel + y);
 			}
@@ -1720,7 +1725,7 @@ void CWKSP_Grid::_Draw_Edit(CWKSP_Map_DC &dc_Map)
 		CSG_Rect	r(
 			-Get_Grid()->Get_Cellsize() / 2. + Get_Grid()->Get_System().Get_xGrid_to_World(m_xSel),
 			-Get_Grid()->Get_Cellsize() / 2. + Get_Grid()->Get_System().Get_yGrid_to_World(m_ySel),
-			-Get_Grid()->Get_Cellsize() / 2. + Get_Grid()->Get_System().Get_xGrid_to_World(m_xSel + m_Edit_Attributes.Get_Field_Count()),
+			-Get_Grid()->Get_Cellsize() / 2. + Get_Grid()->Get_System().Get_xGrid_to_World(m_xSel + m_Edit_Attributes.Get_Field_Count() - 1),
 			-Get_Grid()->Get_Cellsize() / 2. + Get_Grid()->Get_System().Get_yGrid_to_World(m_ySel + m_Edit_Attributes.Get_Count())
 		);
 

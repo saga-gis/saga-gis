@@ -206,13 +206,19 @@ void CActive_Attributes::Set_Attributes(void)
 
 			m_pSelections->Select(m_pItem->Edit_Get_Index());
 		}
+
+		m_pControl->Set_Row_Labeling(
+			m_pItem->Get_Type() == WKSP_ITEM_Shapes
+		||	m_pItem->Get_Type() == WKSP_ITEM_PointCloud
+		||	m_pItem->Get_Type() == WKSP_ITEM_Grid
+		);
 	}
 	else
 	{
 		m_pControl->Get_Table().Destroy();
+		m_pControl->Set_Row_Labeling(false);
 	}
 
-	m_pControl->Set_Row_Labeling(_Get_Table() != NULL);
 	m_pControl->Update_Table();
 
 	m_pSelections->Show(m_pSelections->GetCount() > 1);
