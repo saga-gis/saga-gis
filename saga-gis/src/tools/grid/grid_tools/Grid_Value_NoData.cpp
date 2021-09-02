@@ -64,10 +64,11 @@ CGrid_Value_NoData::CGrid_Value_NoData(void)
 
 	Set_Description	(_TW(
 		"This tool allows changing a grid's no-data value or value range "
-		"definition. It does not change the cell values of the grid. "
+		"definition. It does not change the cell values of the grid, "
+		"unless you check the 'Change Values' option. "
 		"Its main purpose is to support this type of operation for tool "
 		"chains and scripting environments. "
-		"If the change value option is set all no-data cells will be "
+		"If the 'Change Values' option is checked all no-data cells will be "
 		"changed to the new no-data value. "
 	));
 
@@ -170,9 +171,7 @@ bool CGrid_Value_NoData::On_Execute(void)
 
 		pGrid	= Parameters("OUTPUT")->asGrid();
 
-		DataObject_Set_Parameters(pGrid, Parameters("GRID")->asGrid());
-
-		pGrid->Fmt_Name("%s [%s]", Parameters("GRID")->asGrid()->Get_Name(), _TL("Changed"));
+		pGrid->Fmt_Name("%s [%s]", pGrid->Get_Name(), _TL("No-Data Changed"));
 	}
 
 	//-----------------------------------------------------

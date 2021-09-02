@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: esri_arcinfo.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "esri_arcinfo.h"
 
 
@@ -92,7 +80,6 @@
 //---------------------------------------------------------
 CESRI_ArcInfo_Import::CESRI_ArcInfo_Import(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Import ESRI Arc/Info Grid"));
 
 	Set_Author		("O.Conrad (c) 2007");
@@ -156,9 +143,24 @@ CESRI_ArcInfo_Import::CESRI_ArcInfo_Import(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CESRI_ArcInfo_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("NODATA") )
+	{
+		pParameters->Set_Enabled("NODATA_VAL", pParameter->asInt() == 1);
+	}
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CESRI_ArcInfo_Import::On_Execute(void)
 {
-	//-----------------------------------------------------
 	int		iNoData	= Parameters("NODATA"    )->asInt   ();
 	double	dNoData	= Parameters("NODATA_VAL")->asDouble();
 
@@ -166,10 +168,10 @@ bool CESRI_ArcInfo_Import::On_Execute(void)
 
 	switch( Parameters("GRID_TYPE")->asInt() )
 	{
-	case  0:	Datatype = SG_DATATYPE_Short ;	break;
-	case  1:	Datatype = SG_DATATYPE_Int   ;	break;
-	default:	Datatype = SG_DATATYPE_Float ;	break;
-	case  3:	Datatype = SG_DATATYPE_Double;	break;
+	case  0: Datatype = SG_DATATYPE_Short ; break;
+	case  1: Datatype = SG_DATATYPE_Int   ; break;
+	default: Datatype = SG_DATATYPE_Float ; break;
+	case  3: Datatype = SG_DATATYPE_Double; break;
 	}
 
 	CSG_Grid	*pGrid	= NULL;
@@ -254,8 +256,7 @@ bool CESRI_ArcInfo_Import::On_Execute(void)
 //---------------------------------------------------------
 double CESRI_ArcInfo_Import::Read_Value(CSG_File &Stream)
 {
-	int			c;
-	CSG_String	s;
+	CSG_String	s;	int	c;
 
 	while( !Stream.is_EOF() && !SG_is_Character_Numeric(c = Stream.Read_Char()) );	// ignore leading white space...
 
@@ -277,30 +278,27 @@ double CESRI_ArcInfo_Import::Read_Value(CSG_File &Stream)
 }
 
 //---------------------------------------------------------
-bool CESRI_ArcInfo_Import::Read_Header_Line(CSG_File &Stream, CSG_String &sLine)
+CSG_String CESRI_ArcInfo_Import::Read_Header_Line(CSG_File &Stream)
 {
-	int		c;
-
-	sLine.Clear();
+	CSG_String	s;	int	c;
 
 	while( !Stream.is_EOF() && (c = Stream.Read_Char()) != 0x0A )
 	{
 		if( c != 0x0D )
 		{
-			sLine	+= (char)c;
+			s	+= (char)c;
 		}
 	}
 
-	sLine.Make_Upper();
-	sLine.Replace(SG_T(","), SG_T("."));
+	s.Make_Upper();	s.Replace(",", ".");
 
-	return( sLine.Length() > 0 );
+	return( s );
 }
 
 //---------------------------------------------------------
-bool CESRI_ArcInfo_Import::Read_Header_Value(const CSG_String &sKey, CSG_String &sLine, int &Value)
+bool CESRI_ArcInfo_Import::Read_Header_Value(CSG_File &Stream, const CSG_String &sKey, int &Value)
 {
-	sLine.Make_Upper();
+	CSG_String	sLine(Read_Header_Line(Stream));
 
 	if( sLine.Contains(sKey) )
 	{
@@ -313,9 +311,9 @@ bool CESRI_ArcInfo_Import::Read_Header_Value(const CSG_String &sKey, CSG_String 
 }
 
 //---------------------------------------------------------
-bool CESRI_ArcInfo_Import::Read_Header_Value(const CSG_String &sKey, CSG_String &sLine, double &Value)
+bool CESRI_ArcInfo_Import::Read_Header_Value(CSG_File &Stream, const CSG_String &sKey, double &Value)
 {
-	sLine.Make_Upper();
+	CSG_String	sLine(Read_Header_Line(Stream));
 
 	if( sLine.Contains(sKey) )
 	{
@@ -330,77 +328,44 @@ bool CESRI_ArcInfo_Import::Read_Header_Value(const CSG_String &sKey, CSG_String 
 //---------------------------------------------------------
 CSG_Grid * CESRI_ArcInfo_Import::Read_Header(CSG_File &Stream, TSG_Data_Type Datatype)
 {
-	bool		bCorner_X, bCorner_Y;
-	int			NX, NY;
-	double		CellSize, xMin, yMin, NoData	= -9999.0;
-	CSG_String	sLine;
-	CSG_Grid	*pGrid;
-
-	//-----------------------------------------------------
-	if( !Stream.is_EOF() )
+	if( Stream.is_EOF() )
 	{
-		//-------------------------------------------------
-		Read_Header_Line(Stream, sLine);
-
-		if( !Read_Header_Value(HDR_NCOLS   , sLine, NX) )
-			return( NULL );
-
-		//-------------------------------------------------
-		Read_Header_Line(Stream, sLine);
-
-		if( !Read_Header_Value(HDR_NROWS   , sLine, NY) )
-			return( NULL );
-
-		//-------------------------------------------------
-		Read_Header_Line(Stream, sLine);
-
-		if(	     Read_Header_Value(HDR_X_CORNER, sLine, xMin) )
-			bCorner_X	= true;
-		else if( Read_Header_Value(HDR_X_CENTER, sLine, xMin) )
-			bCorner_X	= false;
-		else
-			return( NULL );
-
-		//-------------------------------------------------
-		Read_Header_Line(Stream, sLine);
-
-		if(	     Read_Header_Value(HDR_Y_CORNER, sLine, yMin) )
-			bCorner_Y	= true;
-		else if( Read_Header_Value(HDR_Y_CENTER, sLine, yMin) )
-			bCorner_Y	= false;
-		else
-			return( NULL );
-
-		//-------------------------------------------------
-		Read_Header_Line(Stream, sLine);
-
-		if( !Read_Header_Value(HDR_CELLSIZE, sLine, CellSize) )
-			return( NULL );
-
-		//-------------------------------------------------
-		Read_Header_Line(Stream, sLine);
-
-		if( !Read_Header_Value(HDR_NODATA  , sLine, NoData) )
-		//	return( NULL );
-		{}
-
-		//-------------------------------------------------
-		if( bCorner_X )
-			xMin	+= CellSize / 2.0;
-
-		if( bCorner_Y )
-			yMin	+= CellSize / 2.0;
-
-		//-------------------------------------------------
-		if( (pGrid = SG_Create_Grid(Datatype, NX, NY, CellSize, xMin, yMin)) != NULL )
-		{
-			pGrid->Set_NoData_Value(NoData);
-
-			return( pGrid );
-		}
+		return( NULL );
 	}
 
-	return( NULL );
+	//-----------------------------------------------------
+	int NX; if( !Read_Header_Value(Stream, HDR_NCOLS, NX) ) { return( NULL ); }
+	int NY; if( !Read_Header_Value(Stream, HDR_NROWS, NY) ) { return( NULL ); }
+
+	//-------------------------------------------------
+	double	xMin;	bool bCorner_X;
+
+	if     ( Read_Header_Value(Stream, HDR_X_CORNER, xMin) ) { bCorner_X =  true; }
+	else if( Read_Header_Value(Stream, HDR_X_CENTER, xMin) ) { bCorner_X = false; } else { return( NULL ); }
+
+	double	yMin;	bool bCorner_Y;
+
+	if     ( Read_Header_Value(Stream, HDR_Y_CORNER, yMin) ) { bCorner_Y =  true; }
+	else if( Read_Header_Value(Stream, HDR_Y_CENTER, yMin) ) { bCorner_Y = false; } else { return( NULL ); }
+
+	//-------------------------------------------------
+	double Cellsize; if( !Read_Header_Value(Stream, HDR_CELLSIZE, Cellsize) ) { return( NULL ); }
+
+	if( bCorner_X ) { xMin += Cellsize / 2.; }
+	if( bCorner_Y ) { yMin += Cellsize / 2.; }
+
+	//-------------------------------------------------
+	double	NoData; Read_Header_Value(Stream, HDR_NODATA, NoData = -9999.);
+
+	//-------------------------------------------------
+	CSG_Grid	*pGrid	= SG_Create_Grid(Datatype, NX, NY, Cellsize, xMin, yMin);
+
+	if( pGrid )
+	{
+		pGrid->Set_NoData_Value(NoData);
+	}
+
+	return( pGrid );
 }
 
 
@@ -413,7 +378,6 @@ CSG_Grid * CESRI_ArcInfo_Import::Read_Header(CSG_File &Stream, TSG_Data_Type Dat
 //---------------------------------------------------------
 CESRI_ArcInfo_Export::CESRI_ArcInfo_Export(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Export ESRI Arc/Info Grid"));
 
 	Set_Author		("O.Conrad (c) 2007");
@@ -511,31 +475,23 @@ int CESRI_ArcInfo_Export::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_
 //---------------------------------------------------------
 bool CESRI_ArcInfo_Export::On_Execute(void)
 {
-	bool		bResult, bSwapBytes, bComma;
-	int			x, y, iy, Precision;
 	CSG_File	Stream;
-	CSG_Grid	*pGrid;
-	CSG_String	fName;
 
-	//-----------------------------------------------------
-	bResult		= false;
-
-	pGrid		= Parameters("GRID"  )->asGrid();
-	fName		= Parameters("FILE"  )->asString();
-	Precision	= Parameters("PREC"  )->asInt();
-	bComma		= Parameters("DECSEP")->asInt() == 1;
-	bSwapBytes	= false;	//	bSwapBytes	= Parameters("BYTEORD")	->asInt() == 1;
-
+	CSG_Grid	*pGrid	= Parameters("GRID"  )->asGrid();
+	CSG_String	File	= Parameters("FILE"  )->asString();
+	int		Precision	= Parameters("PREC"  )->asInt();
+	bool	bComma		= Parameters("DECSEP")->asInt() == 1;
 
 	//-----------------------------------------------------
 	// Binary...
 
 	if( Parameters("FORMAT")->asInt() == 0 )
 	{
-		if( Stream.Open(SG_File_Make_Path("", fName, "hdr"), SG_FILE_W, false)
-		&&	Write_Header(Stream, pGrid, bComma)
-		&&	Stream.Open(SG_File_Make_Path("", fName, "flt"), SG_FILE_W, true) )
+		if( Stream.Open(SG_File_Make_Path("", File, "hdr"), SG_FILE_W, false) && Write_Header(Stream, pGrid, bComma)
+		&&	Stream.Open(SG_File_Make_Path("", File, "flt"), SG_FILE_W, true) )
 		{
+			bool	bSwapBytes	= false;	//	bSwapBytes	= Parameters("BYTEORD")	->asInt() == 1;
+
 			float	*Line	= (float *)SG_Malloc(pGrid->Get_NX() * sizeof(float));
 
 			for(int iy=0, y=pGrid->Get_NY()-1; iy<pGrid->Get_NY() && Set_Progress(iy, pGrid->Get_NY()); iy++, y--)
@@ -555,7 +511,7 @@ bool CESRI_ArcInfo_Export::On_Execute(void)
 
 			SG_Free(Line);
 
-			pGrid->Get_Projection().Save(SG_File_Make_Path("", fName, "prj"));
+			pGrid->Get_Projection().Save(SG_File_Make_Path("", File, "prj"));
 
 			return( true );
 		}
@@ -565,11 +521,11 @@ bool CESRI_ArcInfo_Export::On_Execute(void)
 	//-----------------------------------------------------
 	// ASCII...
 
-	else if( Stream.Open(fName, SG_FILE_W, false) && Write_Header(Stream, pGrid, bComma) )
+	else if( Stream.Open(File, SG_FILE_W, false) && Write_Header(Stream, pGrid, bComma) )
 	{
-		for(iy=0, y=pGrid->Get_NY()-1; iy<pGrid->Get_NY() && Set_Progress(iy, pGrid->Get_NY()); iy++, y--)
+		for(int iy=0, y=pGrid->Get_NY()-1; iy<pGrid->Get_NY() && Set_Progress(iy, pGrid->Get_NY()); iy++, y--)
 		{
-			for(x=0; x<pGrid->Get_NX(); x++)
+			for(int x=0; x<pGrid->Get_NX(); x++)
 			{
 				if( x > 0 )
 				{
@@ -582,7 +538,7 @@ bool CESRI_ArcInfo_Export::On_Execute(void)
 			Stream.Write("\n");
 		}
 
-		pGrid->Get_Projection().Save(SG_File_Make_Path("", fName, "prj"));
+		pGrid->Get_Projection().Save(SG_File_Make_Path("", File, "prj"));
 
 		return( true );
 	}
@@ -603,24 +559,24 @@ inline CSG_String CESRI_ArcInfo_Export::Write_Value(double Value, int Precision,
 
 	if( Precision < 0 )
 	{
-		s.Printf(SG_T("%f")  , Value);
+		s.Printf("%g"  , Value);
 	}
 	else if( Precision > 0 )
 	{
-		s.Printf(SG_T("%.*f"), Precision, Value);
+		s.Printf("%.*f", Precision, Value);
 	}
 	else
 	{
-		s.Printf(SG_T("%d")  , (int)(Value > 0.0 ? Value + 0.5 : Value - 0.5));
+		s.Printf("%d"  , (int)(Value > 0. ? Value + 0.5 : Value - 0.5));
 	}
 
 	if( bComma )
 	{
-		s.Replace(SG_T("."), SG_T(","));
+		s.Replace(".", ",");
 	}
 	else
 	{
-		s.Replace(SG_T(","), SG_T("."));
+		s.Replace(",", ".");
 	}
 
 	return( s );
@@ -638,16 +594,16 @@ bool CESRI_ArcInfo_Export::Write_Header(CSG_File &Stream, CSG_Grid *pGrid, bool 
 
 		if( Parameters("GEOREF")->asInt() == 0 )
 		{
-			s	+= CSG_String::Format("%s %s\n", HDR_X_CORNER, Write_Value(pGrid->Get_XMin() - 0.5 * pGrid->Get_Cellsize(), 10, bComma).c_str());
-			s	+= CSG_String::Format("%s %s\n", HDR_Y_CORNER, Write_Value(pGrid->Get_YMin() - 0.5 * pGrid->Get_Cellsize(), 10, bComma).c_str());
+			s	+= CSG_String::Format("%s %s\n", HDR_X_CORNER, Write_Value(pGrid->Get_XMin() - 0.5 * pGrid->Get_Cellsize(), CSG_Grid_System::Get_Precision(), bComma).c_str());
+			s	+= CSG_String::Format("%s %s\n", HDR_Y_CORNER, Write_Value(pGrid->Get_YMin() - 0.5 * pGrid->Get_Cellsize(), CSG_Grid_System::Get_Precision(), bComma).c_str());
 		}
 		else
 		{
-			s	+= CSG_String::Format("%s %s\n", HDR_X_CENTER, Write_Value(pGrid->Get_XMin(), 10, bComma).c_str());
-			s	+= CSG_String::Format("%s %s\n", HDR_Y_CENTER, Write_Value(pGrid->Get_YMin(), 10, bComma).c_str());
+			s	+= CSG_String::Format("%s %s\n", HDR_X_CENTER, Write_Value(pGrid->Get_XMin(), CSG_Grid_System::Get_Precision(), bComma).c_str());
+			s	+= CSG_String::Format("%s %s\n", HDR_Y_CENTER, Write_Value(pGrid->Get_YMin(), CSG_Grid_System::Get_Precision(), bComma).c_str());
 		}
 
-		s	+= CSG_String::Format("%s %s\n", HDR_CELLSIZE, Write_Value(pGrid->Get_Cellsize(), -1, bComma).c_str());
+		s	+= CSG_String::Format("%s %s\n", HDR_CELLSIZE, Write_Value(pGrid->Get_Cellsize(), CSG_Grid_System::Get_Precision(), bComma).c_str());
 		s	+= CSG_String::Format("%s %s\n", HDR_NODATA  , Write_Value(pGrid->Get_NoData_Value(), Parameters("PREC")->asInt(), bComma).c_str());
 
 		if( Parameters("FORMAT")->asInt() == 0 )	// binary

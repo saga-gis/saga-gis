@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: esri_arcinfo.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//					ESRI_ArcInfo.h						 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__ESRI_ArcInfo_H
 #define HEADER_INCLUDED__ESRI_ArcInfo_H
 
@@ -71,7 +59,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CESRI_ArcInfo_Import : public CSG_Tool
@@ -84,6 +79,8 @@ public:
 
 protected:
 
+	virtual int				On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
 	virtual bool			On_Execute			(void);
 
 
@@ -91,17 +88,15 @@ private:
 
 	double					Read_Value			(CSG_File &Stream);
 
-	bool					Read_Header_Value	(const CSG_String &sKey, CSG_String &sLine, int    &Value);
-	bool					Read_Header_Value	(const CSG_String &sKey, CSG_String &sLine, double &Value);
-	bool					Read_Header_Line	(CSG_File &Stream, CSG_String &sLine);
+	CSG_String				Read_Header_Line	(CSG_File &Stream);
+	bool					Read_Header_Value	(CSG_File &Stream, const CSG_String &sKey, int    &Value);
+	bool					Read_Header_Value	(CSG_File &Stream, const CSG_String &sKey, double &Value);
 	CSG_Grid *				Read_Header			(CSG_File &Stream, TSG_Data_Type Datatype = SG_DATATYPE_Float);
 
 };
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
