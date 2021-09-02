@@ -104,10 +104,18 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifdef _DEBUG
-	#define SAGA_CAPTION	wxString::Format("DEBUG|SAGA %s", SAGA_VERSION)
+#if defined(_DEBUG)
+	#if defined(_SAGA_MSW) && !defined(_WIN64)
+		#define SAGA_CAPTION	wxString::Format("DEBUG|32-Bit|SAGA %s", SAGA_VERSION)
+	#else
+		#define SAGA_CAPTION	wxString::Format("DEBUG|SAGA %s", SAGA_VERSION)
+	#endif
 #else
-	#define SAGA_CAPTION	wxString::Format("SAGA %s", SAGA_VERSION)
+	#if defined(_SAGA_MSW) && !defined(_WIN64)
+		#define SAGA_CAPTION	wxString::Format("32-Bit|SAGA %s", SAGA_VERSION)
+	#else
+		#define SAGA_CAPTION	wxString::Format("SAGA %s", SAGA_VERSION)
+	#endif
 #endif
 
 
