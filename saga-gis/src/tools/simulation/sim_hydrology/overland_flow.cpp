@@ -169,6 +169,18 @@ COverland_Flow::COverland_Flow(void)
 		_TL(""),
 		1., 0., true
 	);
+
+	Parameters.Add_Bool("TIME_UPDATE",
+		"UPDATE_FLOW_AUTO", _TL("Color Adjustment for Flow"),
+		_TL(""),
+		true
+	);
+
+	Parameters.Add_Range("UPDATE_FLOW_AUTO",
+		"UPDATE_FLOW_RANGE", _TL("Fixed Range"),
+		_TL(""),
+		0., 1., 0., true
+	);
 }
 
 
@@ -192,6 +204,11 @@ int COverland_Flow::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 	if( pParameter->Cmp_Identifier("INFIL_MAX") )
 	{
 		pParameters->Set_Enabled("INFILTRAT", pParameter->asGrid() || pParameter->asDouble() > 0.);
+	}
+
+	if( pParameter->Cmp_Identifier("UPDATE_FLOW_AUTO") )
+	{
+		pParameters->Set_Enabled("UPDATE_FLOW_RANGE", pParameter->asBool() == false);
 	}
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
@@ -347,8 +364,15 @@ bool COverland_Flow::Do_Updates(void)
 {
 	DataObject_Update(m_pIntercept);
 	DataObject_Update(m_pInfiltrat);
-	DataObject_Update(m_pFlow     );
 	DataObject_Update(m_pVelocity, 0., 10.);
+
+	if( Parameters("UPDATE_FLOW_AUTO")->asBool() == false )
+	{
+		DataObject_Update(m_pFlow,
+			Parameters("UPDATE_FLOW_RANGE.MIN")->asDouble(),
+			Parameters("UPDATE_FLOW_RANGE.MAX")->asDouble()
+		);
+	}
 
 	return( true );
 }
