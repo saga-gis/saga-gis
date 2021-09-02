@@ -366,7 +366,11 @@ bool COverland_Flow::Do_Updates(void)
 	DataObject_Update(m_pInfiltrat);
 	DataObject_Update(m_pVelocity, 0., 10.);
 
-	if( Parameters("UPDATE_FLOW_AUTO")->asBool() == false )
+	if( Parameters("UPDATE_FLOW_AUTO")->asBool() )
+	{
+		DataObject_Update(m_pFlow);
+	}
+	else
 	{
 		DataObject_Update(m_pFlow,
 			Parameters("UPDATE_FLOW_RANGE.MIN")->asDouble(),
