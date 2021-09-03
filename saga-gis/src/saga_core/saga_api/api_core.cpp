@@ -238,11 +238,11 @@ bool SG_Data_Type_Range_Check(TSG_Data_Type Type, double &Value)
 /**
 * This class is for internal use only. It has a single instance
 * (g_App_Initialize) that is used to make a call to wxInitialize()
-* once SG_Initialize_Environment() is called to ensure
-* wxWidgets is fully working even if SAGA API is used outside of
-* SAGA's GUI or CMD. On destruction (i.e. when SAGA's API is
-* unloaded) it automatically calls wxUninitialize(), what is
-* suggested by wxWidgets documentation.
+* when SG_Initialize_Environment() is called to ensure
+* wxWidgets is fully working, even if SAGA API is used outside of
+* SAGA's GUI or CMD (i.e. from Python). On destruction (i.e. when
+* SAGA's API is unloaded) it automatically calls wxUninitialize(),
+* what is suggested to be done by wxWidgets documentation.
 */ 
 class CSG_App_Initialize
 {
