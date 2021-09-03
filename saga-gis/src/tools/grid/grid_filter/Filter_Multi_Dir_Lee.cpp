@@ -227,16 +227,16 @@ CFilter_Multi_Dir_Lee::CFilter_Multi_Dir_Lee(void)
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
+	Parameters.Add_Double(
 		"", "NOISE_ABS"	, _TL("Estimated Noise (absolute)"),
 		_TL("Estimated noise in units of input data"),
-		PARAMETER_TYPE_Double, 1.0
+		1.0, 0.0, true
 	);
 
 	Parameters.Add_Double(
 		"", "NOISE_REL"	, _TL("Estimated Noise (relative)"),
 		_TL("Estimated noise relative to mean standard deviation"),
-		1.0
+		1.0, 0.0, true
 	);
 
 	Parameters.Add_Bool(
@@ -304,7 +304,7 @@ bool CFilter_Multi_Dir_Lee::Get_Filter(bool bAbsolute)
 {
 	bool	bWeighted	= Parameters("WEIGHTED")->asBool();
 
-	double	Noise	= Parameters("NOISE_ABS")->asDouble();
+	double	Noise   	= Parameters("NOISE_ABS")->asDouble();
 
 	CSG_Grid	Temp;
 
@@ -391,7 +391,7 @@ bool CFilter_Multi_Dir_Lee::Get_Filter(bool bAbsolute)
 			
 				if( b > Noise )
 				{
-					b	= (b*b - Noise*Noise) / b*b;
+					b	= (b*b - Noise*Noise) / (b*b);
 
 					m_pFiltered->Set_Value(i, m_pInput->asDouble(i) * b + (1. - b) * m_pFiltered->asDouble(i));
 				}
@@ -520,6 +520,22 @@ bool CFilter_Multi_Dir_Lee::Get_Filter_Ringeler(void)
 	}
 
 	return( true );
+}
+
+
+//---------------------------------------------------------
+int CFilter_Multi_Dir_Lee::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+    //-----------------------------------------------------
+    if( pParameter->Cmp_Identifier("METHOD") )
+    {
+        pParameters->Get_Parameter("NOISE_ABS"  )->Set_Enabled(pParameter->asInt() != 1);
+        pParameters->Get_Parameter("NOISE_REL"  )->Set_Enabled(pParameter->asInt() == 1);
+        pParameters->Get_Parameter("WEIGHTED"   )->Set_Enabled(pParameter->asInt()  < 2);
+    }
+    
+    //-----------------------------------------------------
+    return (1);
 }
 
 
