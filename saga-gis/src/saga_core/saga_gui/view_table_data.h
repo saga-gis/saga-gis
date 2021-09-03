@@ -140,6 +140,8 @@ public:
 	//-----------------------------------------------------
 	virtual wxString	GetTypeName			(int iRecord, int iField)
 	{
+		if( m_bRowLabels ) { iField++; }
+
 		if( iField >= 0 && iField < m_pTable->Get_Field_Count() )
 		{
 			switch( m_pTable->Get_Field_Type(iField) )
@@ -174,7 +176,7 @@ public:
 	//-----------------------------------------------------
 	virtual bool		IsEmptyCell			(int iRecord, int iField)
 	{
-		CSG_Table_Record *pRecord = Get_Record(iRecord, iField);
+		if( m_bRowLabels ) { iField++; } CSG_Table_Record *pRecord = Get_Record(iRecord, iField);
 
 		return( !pRecord || pRecord->is_NoData(iField) );
 	}
