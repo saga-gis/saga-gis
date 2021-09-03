@@ -74,9 +74,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SAGA_GUI_BUILD	"20140214"
-
-//---------------------------------------------------------
 CSAGA	*g_pSAGA	= NULL;
 
 //---------------------------------------------------------
@@ -108,7 +105,6 @@ CSAGA::~CSAGA(void)
 //---------------------------------------------------------
 bool CSAGA::OnInit(void)
 {
-	//-----------------------------------------------------
 	g_pSAGA	= this;
 
 	SetVendorName("www.saga-gis.org");
@@ -251,25 +247,6 @@ void CSAGA::_Init_Config(void)
 	#endif
 
 	wxConfigBase::Set(pConfig);
-
-	//-----------------------------------------------------
-	wxString	s;
-
-	if( !CONFIG_Read("Version", "Build", s) || s.Cmp(SAGA_GUI_BUILD) )
-	{
-		long	l;
-
-		pConfig->SetPath("/");
-
-		while( pConfig->GetFirstGroup(s, l) )
-		{
-			pConfig->DeleteGroup(s);
-		}
-
-		pConfig->Flush();
-
-		CONFIG_Write("Version", "Build", SAGA_GUI_BUILD);
-	}
 }
 
 
