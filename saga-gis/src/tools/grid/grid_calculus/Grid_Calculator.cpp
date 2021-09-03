@@ -78,7 +78,6 @@ double CGrid_Calculator_Base::m_NoData_Value	= -99999;
 //---------------------------------------------------------
 CGrid_Calculator_Base::CGrid_Calculator_Base(void)
 {
-	//-----------------------------------------------------
 	CSG_String	s(_TW(
 		"The Grid Calculator calculates a new grid based on existing grids and a mathematical formula. "
 		"The grid variables in the formula begin with the letter 'g' followed by a position index, "
@@ -94,10 +93,10 @@ CGrid_Calculator_Base::CGrid_Calculator_Base(void)
 
 	const CSG_String	Operators[5][2]	=
 	{
-		{	"xpos(), ypos()"  , _TL("Get the x/y coordinates for the current cell")	},
-		{	"col(), row()"    , _TL("Get the current cell's column/row index"     )	},
-		{	"ncols(), nrows()", _TL("Get the number of columns/rows"              )	},
-		{	"nodata()"        , _TL("Returns resulting grid's no-data value"      )	},
+		{	"xpos(), ypos()"  , _TL("Get the x/y coordinates for the current cell"         )	},
+		{	"col(), row()"    , _TL("Get the current cell's column/row index (zero based)" )	},
+		{	"ncols(), nrows()", _TL("Get the number of columns/rows"                       )	},
+		{	"nodata()"        , _TL("Returns resulting grid's no-data value"               )	},
 		{	"", ""	}
 	};
 
