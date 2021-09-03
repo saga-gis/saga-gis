@@ -49,6 +49,7 @@
 
 //---------------------------------------------------------
 #include <wx/utils.h>
+#include <wx/app.h>
 #include <wx/dir.h>
 
 #include "api_core.h"
@@ -234,6 +235,73 @@ bool SG_Data_Type_Range_Check(TSG_Data_Type Type, double &Value)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+/**
+* This class is for internal use only. It has a single instance
+* (g_App_Initialize) that is used to make a call to wxInitialize()
+* once SG_Initialize_Environment() is called to ensure
+* wxWidgets is fully working even if SAGA API is used outside of
+* SAGA's GUI or CMD. On destruction (i.e. when SAGA's API is
+* unloaded) it automatically calls wxUninitialize(), what is
+* suggested by wxWidgets documentation.
+*/ 
+class CSG_App_Initialize
+{
+public:
+	CSG_App_Initialize(void)
+	{
+		m_Initialized	= 0;
+	}
+
+	virtual ~CSG_App_Initialize(void)
+	{
+		while( m_Initialized > 0 )
+		{
+			Uninitialize();
+		}
+	}
+
+	bool	Initialize		(void)
+	{
+		if( wxInitialize() )
+		{
+			m_Initialized++;
+
+			return( true );
+		}
+
+		return( false );
+	}
+
+	bool	Uninitialize	(void)
+	{
+		if( m_Initialized > 0 )
+		{
+			wxUninitialize();
+
+			m_Initialized--;
+
+			return( true );
+		}
+
+		return( false );
+	}
+
+
+private:
+
+	int		m_Initialized;
+
+};
+
+//---------------------------------------------------------
+CSG_App_Initialize	g_App_Initialize;
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool SG_Add_Dll_Paths(const wxString &Directory, wxString &Paths)
 {
 	wxDir	Dir(Directory);
@@ -281,6 +349,8 @@ bool SG_Add_Dll_Paths(const wxString &Directory, wxString &Paths)
 //---------------------------------------------------------
 bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char *Directory)
 {
+	g_App_Initialize.Initialize();
+
 	SG_UI_ProgressAndMsg_Lock(true);
 
 	//-----------------------------------------------------
