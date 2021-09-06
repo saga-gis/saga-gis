@@ -64,7 +64,7 @@ using namespace std;
 //---------------------------------------------------------
 CClassify_Grid::CClassify_Grid(void)
 {
-	Set_Name		(_TL("Maximum Entropy Classifcation"));
+	Set_Name		(_TL("Maximum Entropy Classification"));
 
 	Set_Author		("O.Conrad (c) 2015");
 
