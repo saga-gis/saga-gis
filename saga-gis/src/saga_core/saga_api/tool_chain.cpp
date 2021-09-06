@@ -490,7 +490,7 @@ bool CSG_Tool_Chain::Data_Add(const CSG_String &ID, CSG_Parameter *pData)
 
 	if( pParameter )	// it has, so don't add twice!
 	{
-		if( pParameter->Get_Type() != pData->Get_Type() )	// don't allow to change parameter's data object type!
+		if( pParameter->is_Input() && pParameter->Get_Type() != pData->Get_Type() )	// don't allow to change parameter's data object type!
 		{
 			Error_Fmt("%s\n[%s] %s <> %s", _TL("Tool chain uses same variable name for different data object types."),
 				ID.c_str(), pParameter->Get_Type_Identifier().c_str(), pData->Get_Type_Identifier().c_str()

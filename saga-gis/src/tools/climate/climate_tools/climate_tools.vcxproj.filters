@@ -77,6 +77,9 @@
     <ClCompile Include="air_humidity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="temperature_lapse_downscaling.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h">
@@ -188,6 +191,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="air_humidity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="temperature_lapse_downscaling.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

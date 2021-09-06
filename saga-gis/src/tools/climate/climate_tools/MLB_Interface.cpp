@@ -100,6 +100,7 @@ CSG_String Get_Info(int i)
 #include "air_pressure.h"
 #include "land_surface_temperature.h"
 #include "air_humidity.h"
+#include "temperature_lapse_downscaling.h"
 
 
 //---------------------------------------------------------
@@ -147,6 +148,7 @@ CSG_Tool *		Create_Tool(int i)
 
 	case 25:	return( new CCloud_Overlap );
 	case 26:	return( new CTemperature_Lapse_Rates );
+	case 30:	return( new CTemperature_Lapse_Downscaling );
 
 	case 27:	return( new CAirPressure_Scaling );
 	case 29:	return( new CAirHumidity_Conversion );
@@ -154,7 +156,7 @@ CSG_Tool *		Create_Tool(int i)
 	case 28:	return( new CLand_Surface_Temperature );
 
 	//-----------------------------------------------------
-	case 30:	return( NULL );
+	case 31:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

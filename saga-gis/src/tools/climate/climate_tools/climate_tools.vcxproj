@@ -328,6 +328,7 @@
     <ClCompile Include="phenips.cpp" />
     <ClCompile Include="snow_cover.cpp" />
     <ClCompile Include="soil_water_balance.cpp" />
+    <ClCompile Include="temperature_lapse_downscaling.cpp" />
     <ClCompile Include="temperature_lapse_rates.cpp" />
     <ClCompile Include="thermal_belts.cpp" />
     <ClCompile Include="treeline.cpp" />
@@ -367,6 +368,7 @@
     <ClInclude Include="phenips.h" />
     <ClInclude Include="snow_cover.h" />
     <ClInclude Include="soil_water_balance.h" />
+    <ClInclude Include="temperature_lapse_downscaling.h" />
     <ClInclude Include="temperature_lapse_rates.h" />
     <ClInclude Include="thermal_belts.h" />
     <ClInclude Include="treeline.h" />

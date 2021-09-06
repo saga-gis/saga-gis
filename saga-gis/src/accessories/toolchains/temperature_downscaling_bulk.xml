@@ -40,8 +40,9 @@
 
 	<tools>
 		<foreach input="LORES_T">
-			<tool library="climate_tools" tool="t_downscale" name="Lapse Rate Based Temperature Downscaling">
-				<option id="LAPSE_RATE" varname="true">LAPSE_RATE</option>
+			<tool library="climate_tools" tool="30" name="Lapse Rate Based Temperature Downscaling (with options)">
+				<option id="LAPSE_METHOD">0</option>
+				<option id="CONST_LAPSE" varname="true">LAPSE_RATE</option>
 				<input  id="LORES_DEM">LORES_DEM</input>
 				<input  id="HIRES_DEM">HIRES_DEM</input>
 				<input  id="LORES_T"  >LORES_T</input>

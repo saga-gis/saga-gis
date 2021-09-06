@@ -28,6 +28,7 @@ phenips.cpp\
 MLB_Interface.cpp\
 soil_water_balance.cpp\
 snow_cover.cpp\
+temperature_lapse_downscaling.cpp\
 temperature_lapse_rates.cpp\
 thermal_belts.cpp\
 treeline.cpp\
@@ -49,6 +50,7 @@ phenips.h\
 MLB_Interface.h\
 soil_water_balance.h\
 snow_cover.h\
+temperature_lapse_downscaling.h\
 temperature_lapse_rates.h\
 thermal_belts.h\
 treeline.h\
