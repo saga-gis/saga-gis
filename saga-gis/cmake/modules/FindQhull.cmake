@@ -34,11 +34,13 @@
 # (To distribute this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
-find_path(Qhull_INCLUDE_DIR NAMES qhull/qhull.h libqhull_r/libqhull_r.h
+# PATH_SUFFIXES needed to add subdir(s)
+find_path(Qhull_INCLUDE_DIR NAMES libqhull_r.h libqhull.h qhull.h
+          PATH_SUFFIXES libqhull_r libqhull qhull
           DOC "The Qhull include directory"
 )
 
-find_library(Qhull_LIBRARY NAMES qhull
+find_library(Qhull_LIBRARY NAMES qhull_r qhull
           DOC "The Qhull library"
 )
 
