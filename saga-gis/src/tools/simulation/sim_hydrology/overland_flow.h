@@ -75,6 +75,7 @@ public:
 
 protected:
 
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool			On_Execute				(void);
@@ -82,9 +83,9 @@ protected:
 
 private:
 
-	double					m_dTime;
+	bool					m_bStrickler, m_bFlow_Out;
 
-	CSG_Vector				m_vMax;
+	double					m_dTime, m_vMax, m_vMin, m_Flow_Out;
 
 	CSG_Grid				*m_pDEM, m_Flow, *m_pFlow, *m_pVelocity, *m_pIntercept, *m_pPonding, *m_pInfiltrat;
 
@@ -112,12 +113,10 @@ private:
 	double					Get_Infiltration		(int x, int y);
 
 	double					Get_Surface				(int x, int y);
-	double					Get_Velocity			(double Flow, double Slope, double Roughness);
-
 	bool					Get_Neighbour			(int x, int y, int i, int &ix, int &iy);
+	double					Get_Slope				(int x, int y, int i);
 
-	double					Get_Gradient			(int x, int y, int i);
-
+	double					Get_Velocity			(double Flow, double Slope, double Roughness);
 	bool					Get_Velocity			(int x, int y);
 
 	double					Get_Flow_Lateral		(int x, int y, int i, bool bInverse);
