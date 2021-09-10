@@ -6,15 +6,15 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
+//                                                       //
 //                       io_pdal                         //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    pdal_reader.h                      //
+//                   pdal_driver.cpp                     //
 //                                                       //
-//               Copyrights (C) 2020-2021                //
-//                     Olaf Conrad                       //
-//                   Volker Wichmann                     //
+//                 Copyright (C) 2021 by                 //
+//                    Volker Wichmann                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,34 +37,20 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     wichmann@laserdata                     //
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Hamburg                  //
-//                Germany                                //
-//                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#ifndef HEADER_INCLUDED__pdal_reader_H
-#define HEADER_INCLUDED__pdal_reader_H
-
-
-///////////////////////////////////////////////////////////
-//                                                       //
-//                                                       //
+//    contact:    Volker Wichmann                        //
+//                LASERDATA GmbH                         //
+//                Innsbruck, Austria                     //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #include "pdal_driver.h"
 
-#include <pdal/Options.hpp>
-#include <pdal/PointTable.hpp>
-#include <pdal/PointLayout.hpp>
+#include <pdal/pdal_config.hpp>
+#include <pdal/PluginManager.hpp>
 #include <pdal/StageFactory.hpp>
-#include <pdal/filters/StreamCallbackFilter.hpp>
 
 
 ///////////////////////////////////////////////////////////
@@ -74,31 +60,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPDAL_Reader : public CSG_Tool
+CSG_PDAL_Drivers  gSG_PDAL_Drivers;
+
+const CSG_PDAL_Drivers &  SG_Get_PDAL_Drivers (void)
 {
-public:
-    CPDAL_Reader(void);
-
-    virtual CSG_String  Get_MenuPath            (void)  { return( _TL("Import") );  }
-
-    virtual bool        do_Sync_Projections     (void)  const { return( false );  }
-
-
-protected:
-
-    virtual int         On_Parameters_Enable    (CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
-    virtual bool        On_Execute              (void);
-
-
-private:
-
-    CSG_PointCloud *    _Read_Points            (const CSG_String &File, bool bVar_All, bool bVar_Color, int iRGB_Range);
-
-    void                _Init_PointCloud        (CSG_PointCloud *pPoints, pdal::PointLayoutPtr &PointLayout,
-                                                 pdal::SpatialReference &SpatialRef, const CSG_String &File,
-                                                 const bool &bVar_All, const bool &bVar_Color, CSG_Array_Int &Fields, int iRGB_Field);
-};
+    return( gSG_PDAL_Drivers );
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -108,4 +75,107 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__pdal_reader_H
+CSG_PDAL_Drivers::CSG_PDAL_Drivers(void)
+{
+    pdal::PluginManager<pdal::Stage>::loadAll();
+}
+
+//---------------------------------------------------------
+CSG_PDAL_Drivers::~CSG_PDAL_Drivers(void)
+{
+    // do we have to clean-up something?
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_String CSG_PDAL_Drivers::Get_Version(void) const
+{
+    return( pdal::Config::fullVersionString().c_str() );
+}
+
+//---------------------------------------------------------
+int CSG_PDAL_Drivers::Get_Count(void) const
+{
+    return( (int)pdal::PluginManager<pdal::Stage>::names().size() );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_PDAL_Drivers::Get_Driver_Name(int iIndex) const
+{
+    return( pdal::PluginManager<pdal::Stage>::names().at(iIndex).c_str() );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_PDAL_Drivers::Get_Driver_Description(int iIndex) const
+{
+    return( pdal::PluginManager<pdal::Stage>::description(std::string(Get_Driver_Name(iIndex))).c_str() );
+}
+
+//---------------------------------------------------------
+CSG_Strings CSG_PDAL_Drivers::Get_Driver_Extensions(int iIndex) const
+{
+    pdal::StageExtensions& StageExtensions = pdal::PluginManager<pdal::Stage>::extensions();
+    
+    pdal::StringList Extensions = StageExtensions.extensions(std::string(Get_Driver_Name(iIndex)));
+
+    CSG_Strings Exts;
+
+    for(auto Ext : Extensions)
+    {
+        Exts.Add(Ext.c_str());    
+    }
+
+    return( Exts );
+}
+
+//---------------------------------------------------------
+bool CSG_PDAL_Drivers::is_Reader(int Index) const
+{
+    CSG_String Prefix = Get_Driver_Name(Index).BeforeFirst('.');
+
+    if( Prefix.Cmp(SG_T("readers")) == 0 )
+    {
+        return( true );
+    }
+
+    return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_PDAL_Drivers::is_Writer(int Index) const
+{
+    CSG_String Prefix = Get_Driver_Name(Index).BeforeFirst('.');
+
+    if( Prefix.Cmp(SG_T("writers")) == 0 )
+    {
+        return( true );
+    }
+
+    return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_PDAL_Drivers::is_Filter(int Index) const
+{
+    CSG_String Prefix = Get_Driver_Name(Index).BeforeFirst('.');
+
+    if( Prefix.Cmp(SG_T("filters")) == 0 )
+    {
+        return( true );
+    }
+
+    return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

@@ -319,9 +319,11 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\shapes.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
+    <ClInclude Include="pdal_driver.h" />
     <ClInclude Include="pdal_reader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="pdal_driver.cpp" />
     <ClCompile Include="pdal_reader.cpp" />
     <ClCompile Include="TLB_Interface.cpp" />
   </ItemGroup>

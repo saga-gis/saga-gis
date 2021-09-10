@@ -68,12 +68,18 @@
     <ClInclude Include="pdal_reader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="pdal_driver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pdal_reader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TLB_Interface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdal_driver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

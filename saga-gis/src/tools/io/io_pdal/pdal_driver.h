@@ -6,15 +6,15 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
+//                                                       //
 //                       io_pdal                         //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    pdal_reader.h                      //
+//                    pdal_driver.h                      //
 //                                                       //
-//               Copyrights (C) 2020-2021                //
-//                     Olaf Conrad                       //
-//                   Volker Wichmann                     //
+//                 Copyright (C) 2021 by                 //
+//                    Volker Wichmann                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,34 +37,17 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     wichmann@laserdata                     //
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Hamburg                  //
-//                Germany                                //
-//                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#ifndef HEADER_INCLUDED__pdal_reader_H
-#define HEADER_INCLUDED__pdal_reader_H
-
-
-///////////////////////////////////////////////////////////
-//                                                       //
-//                                                       //
+//    contact:    Volker Wichmann                        //
+//                LASERDATA GmbH                         //
+//                Innsbruck, Austria                     //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "pdal_driver.h"
-
-#include <pdal/Options.hpp>
-#include <pdal/PointTable.hpp>
-#include <pdal/PointLayout.hpp>
-#include <pdal/StageFactory.hpp>
-#include <pdal/filters/StreamCallbackFilter.hpp>
+#ifndef HEADER_INCLUDED__pdal_driver_H
+#define HEADER_INCLUDED__pdal_driver_H
 
 
 ///////////////////////////////////////////////////////////
@@ -74,31 +57,67 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPDAL_Reader : public CSG_Tool
+#include <saga_api/saga_api.h>
+
+
+//---------------------------------------------------------
+// list of drivers that are available with the currently used
+// windows build of PDAL (2.0.1) but which do not work and
+// thus need to be skipped / disabled by us
+// 
+// test data can be found at
+// https://github.com/PDAL/PDAL/tree/master/test/data
+
+
+//---------------------------------------------------------
+struct NON_WORKING_DRIVERS
+{
+    CSG_String	Name;
+};
+
+const struct NON_WORKING_DRIVERS g_Non_Working_Drivers[]	=
+{
+    {	"readers.bpf"           },
+    {	"readers.ept"           },
+    {	"readers.faux"          },
+    {	"readers.gdal"          },
+    {	"readers.memoryview"    },
+    {	"readers.optech"        },
+    {	""                      }
+};
+
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CSG_PDAL_Drivers
 {
 public:
-    CPDAL_Reader(void);
+    CSG_PDAL_Drivers(void);
+    virtual ~CSG_PDAL_Drivers(void);
 
-    virtual CSG_String  Get_MenuPath            (void)  { return( _TL("Import") );  }
-
-    virtual bool        do_Sync_Projections     (void)  const { return( false );  }
-
-
-protected:
-
-    virtual int         On_Parameters_Enable    (CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
-    virtual bool        On_Execute              (void);
+    CSG_String                  Get_Version             (void)                  const;
+    int                         Get_Count               (void)                  const;
+    CSG_String                  Get_Driver_Name         (int Index)             const;
+    CSG_String                  Get_Driver_Description  (int Index)             const;
+    CSG_Strings                 Get_Driver_Extensions   (int Index)             const;
+    bool                        is_Reader               (int Index)             const;
+    bool                        is_Writer               (int Index)             const;
+    bool                        is_Filter               (int Index)             const;
 
 
 private:
 
-    CSG_PointCloud *    _Read_Points            (const CSG_String &File, bool bVar_All, bool bVar_Color, int iRGB_Range);
-
-    void                _Init_PointCloud        (CSG_PointCloud *pPoints, pdal::PointLayoutPtr &PointLayout,
-                                                 pdal::SpatialReference &SpatialRef, const CSG_String &File,
-                                                 const bool &bVar_All, const bool &bVar_Color, CSG_Array_Int &Fields, int iRGB_Field);
 };
+
+
+//---------------------------------------------------------
+const CSG_PDAL_Drivers &  SG_Get_PDAL_Drivers (void);
 
 
 ///////////////////////////////////////////////////////////
@@ -108,4 +127,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__pdal_reader_H
+#endif // #ifndef HEADER_INCLUDED__pdal_driver_H

@@ -67,12 +67,11 @@ CSG_String Get_Info(int i)
 		return( "Import/Export" );
 
 	case TLB_INFO_Author:
-		return( "O.Conrad (c) 2020" );
+		return( "O.Conrad, V. Wichmann (c) 2020-2021" );
 
 	case TLB_INFO_Description:
-		return( CSG_String::Format(_TL("Tools utilizing the Point Data Abstraction Library (PDAL)."))
-		//	+ CSG_String::Format("\nPDAL %s: ", _TL("Version")) + CSG_String(pdal::GetVersionString     ().c_str())
-		//	+ CSG_String::Format("\nPDAL %s: ", _TL("Version")) + CSG_String(pdal::Config::versionString().c_str())
+		return( CSG_String::Format(_TL("Tools that use the Point Data Abstraction Library (PDAL)."))
+			+ CSG_String::Format("\n\nPDAL %s: ", _TL("Version")) + CSG_String(pdal::Config::fullVersionString().c_str())
 		);
 
 	case TLB_INFO_Version:
