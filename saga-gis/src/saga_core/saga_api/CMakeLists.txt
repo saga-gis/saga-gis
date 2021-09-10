@@ -152,5 +152,32 @@ set_target_properties(saga_api PROPERTIES
 install(TARGETS saga_api DESTINATION lib)
 install(FILES ${SAGA_API_PUBLIC_HEADERS} DESTINATION include/saga/saga_core/saga_api)
 
+if(MSVC)
+	string(REPLACE "/" "\\" SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/")
+	add_custom_command(TARGET saga_api POST_BUILD
+		COMMAND IF NOT EXIST "$(OutDir)include" MKDIR "$(OutDir)include"
+		COMMAND IF EXIST "$(OutDir)include\\saga_api" RMDIR /S/Q "$(OutDir)include\\saga_api"
+		COMMAND MKDIR    "$(OutDir)include\\saga_api"
+		COMMAND COPY "${SOURCE_DIR}api_core.h"     "$(OutDir)include\\saga_api"
+		COMMAND COPY "${SOURCE_DIR}data_manager.h" "$(OutDir)include\\saga_api"
+		COMMAND COPY "${SOURCE_DIR}dataobject.h"   "$(OutDir)include\\saga_api"
+		COMMAND COPY "${SOURCE_DIR}datetime.h"     "$(OutDir)include\\saga_api"
+		COMMAND COPY "${SOURCE_DIR}geo_tools.h"    "$(OutDir)include\\saga_api"
+		COMMAND COPY "${SOURCE_DIR}grid.h"         "$(OutDir)include\\saga_api"
+		COMMAND COPY "${SOURCE_DIR}grid_pyramid.h" "$(OutDir)include\\saga_api"
+		COMMAND COPY "${SOURCE_DIR}grids.h"        "$(OutDir)include\\saga_api"
+		COMMAND COPY "${SOURCE_DIR}mat_tools.h"    "$(OutDir)include\\saga_api"
+		COMMAND COPY "${SOURCE_DIR}metadata.h"     "$(OutDir)include\\saga_api"
+		COMMAND COPY "${SOURCE_DIR}tool.h"         "$(OutDir)include\\saga_api"
+		COMMAND COPY "${SOURCE_DIR}tool_library.h" "$(OutDir)include\\saga_api"
+		COMMAND COPY "${SOURCE_DIR}parameters.h"   "$(OutDir)include\\saga_api"
+		COMMAND COPY "${SOURCE_DIR}pointcloud.h"   "$(OutDir)include\\saga_api"
+		COMMAND COPY "${SOURCE_DIR}saga_api.h"     "$(OutDir)include\\saga_api"
+		COMMAND COPY "${SOURCE_DIR}shapes.h"       "$(OutDir)include\\saga_api"
+		COMMAND COPY "${SOURCE_DIR}table_value.h"  "$(OutDir)include\\saga_api"
+		COMMAND COPY "${SOURCE_DIR}tin.h"          "$(OutDir)include\\saga_api"
+	)
+endif()
+
 #-#-#-#-#-# SWIG / Python #-#-#-#-#-#
 add_subdirectory(saga_api_python)

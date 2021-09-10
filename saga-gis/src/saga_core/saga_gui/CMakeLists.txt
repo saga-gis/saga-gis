@@ -223,3 +223,23 @@ add_subdirectory(res)
 
 # where to install the binary
 install(TARGETS saga_gui DESTINATION bin)
+
+if(MSVC)
+	string(REPLACE "/" "\\" SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/")
+	add_custom_command(TARGET saga_gui POST_BUILD
+		COMMAND COPY "${SOURCE_DIR}res\\saga.rus.txt" "$(OutDir)saga.rus.txt"
+		COMMAND COPY "${SOURCE_DIR}res\\saga.ger.txt" "$(OutDir)saga.ger.txt"
+		COMMAND COPY "${SOURCE_DIR}res\\saga.lng.txt" "$(OutDir)saga.lng.txt"
+		COMMAND COPY "${SOURCE_DIR}res\\saga.bra.txt" "$(OutDir)saga.bra.txt"
+		COMMAND COPY "${SOURCE_DIR}res\\saga.ger.txt" "$(OutDir)saga.ger.txt"
+		COMMAND COPY "${SOURCE_DIR}res\\saga.rus.txt" "$(OutDir)saga.rus.txt"
+		COMMAND COPY "${SOURCE_DIR}res\\saga_tip.txt" "$(OutDir)saga_gui.tip"
+		COMMAND COPY "${SOURCE_DIR}res\\saga_srs.txt" "$(OutDir)saga_prj.srs"
+		COMMAND COPY "${SOURCE_DIR}res\\saga_dic.txt" "$(OutDir)saga_prj.dic"
+		COMMAND IF NOT EXIST "$(OutDir)tools" MKDIR "$(OutDir)tools"
+		COMMAND IF EXIST "$(OutDir)tools\\toolchains" RMDIR /S/Q "$(OutDir)tools\\toolchains"
+		COMMAND MKDIR    "$(OutDir)tools\\toolchains"
+		COMMAND XCOPY /C/Q/Y/H "${SOURCE_DIR}..\\..\\accessories\\toolchains\\*.xml" "$(OutDir)\\tools\\toolchains"
+	#	COMMAND COPY "${SOURCE_DIR}..\\..\\accessories\\toolchains\\*.xml" "$(OutDir)\\tools\\toolchains"
+	)
+endif()

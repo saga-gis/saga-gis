@@ -66,3 +66,20 @@ set_target_properties(saga_gdi PROPERTIES
 # where to install the binary
 install(TARGETS saga_gdi DESTINATION lib)
 install(FILES ${SAGA_GDI_PUBLIC_HEADERS} DESTINATION include/saga/saga_core/saga_gdi)
+
+if(MSVC)
+	string(REPLACE "/" "\\" SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/")
+	add_custom_command(TARGET saga_gdi POST_BUILD
+		COMMAND IF NOT EXIST "$(OutDir)include" MKDIR "$(OutDir)include"
+		COMMAND IF EXIST "$(OutDir)include\\saga_gdi" RMDIR /S/Q "$(OutDir)include\\saga_gdi"
+		COMMAND MKDIR    "$(OutDir)include\\saga_gdi"
+		COMMAND COPY "${SOURCE_DIR}3d_view.h"           "$(OutDir)include\\saga_gdi"
+		COMMAND COPY "${SOURCE_DIR}3d_view_tools.h"     "$(OutDir)include\\saga_gdi"
+		COMMAND COPY "${SOURCE_DIR}saga_gdi.h"          "$(OutDir)include\\saga_gdi"
+		COMMAND COPY "${SOURCE_DIR}sgdi_core.h"         "$(OutDir)include\\saga_gdi"
+		COMMAND COPY "${SOURCE_DIR}sgdi_diagram.h"      "$(OutDir)include\\saga_gdi"
+		COMMAND COPY "${SOURCE_DIR}sgdi_dialog.h"       "$(OutDir)include\\saga_gdi"
+		COMMAND COPY "${SOURCE_DIR}sgdi_helper.h"       "$(OutDir)include\\saga_gdi"
+		COMMAND COPY "${SOURCE_DIR}sgdi_layout_items.h" "$(OutDir)include\\saga_gdi"
+	)
+endif()
