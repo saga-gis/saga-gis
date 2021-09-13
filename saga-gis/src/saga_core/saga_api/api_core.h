@@ -1577,7 +1577,8 @@ SAGA_API_DLL_EXPORT CSG_String				SG_UI_Get_Application_Path	(void);
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT bool					SG_Initialize_Environment	(bool bLibraries = true, bool bProjections = true, const SG_Char *Directory = NULL);
+SAGA_API_DLL_EXPORT bool					SG_Initialize_Environment	(bool bLibraries = true, bool bProjections = true, const SG_Char *Directory = NULL, bool bInitializeWX = true);
+SAGA_API_DLL_EXPORT bool					SG_Uninitialize_Environment	(void);
 
 
 ///////////////////////////////////////////////////////////
