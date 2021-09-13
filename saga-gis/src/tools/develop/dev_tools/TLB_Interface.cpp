@@ -59,22 +59,22 @@ CSG_String Get_Info(int i)
 	switch( i )
 	{
 	case TLB_INFO_Name:	default:
-		return( "Development Tools" );
+		return( _TL("Development Tools") );
 
 	case TLB_INFO_Category:
-		return( "Garden" );
+		return( "SAGA Development" );
 
 	case TLB_INFO_Author:
 		return( "O. Conrad (c) 2010" );
 
 	case TLB_INFO_Description:
-		return( "Tools and helpers for the SAGA development." );
+		return( _TL("Tools and helpers for the SAGA development.") );
 
 	case TLB_INFO_Version:
 		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
-		return( "Garden|Development Tools" );
+		return( "SAGA Development|Development Tools" );
 	}
 }
 
