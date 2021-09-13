@@ -97,7 +97,7 @@ private:
 
     void                _Init_PointCloud        (CSG_PointCloud *pPoints, pdal::PointLayoutPtr &PointLayout,
                                                  pdal::SpatialReference &SpatialRef, const CSG_String &File,
-                                                 const bool &bVar_All, const bool &bVar_Color, CSG_Array_Int &Fields, int iRGB_Field);
+                                                 const bool &bVar_All, const bool &bVar_Color, CSG_Array_Int &Fields, int &iRGB_Field);
 };
 
 

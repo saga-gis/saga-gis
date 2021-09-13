@@ -187,9 +187,10 @@ CPDAL_Reader::CPDAL_Reader(void)
         Parameters.Add_Bool("VARS", g_Attributes[i].ID, g_Attributes[i].Name, _TL(""));
     }
 
-    Parameters.Add_Bool("VARS",
+    Parameters.Add_Bool("",
         "VAR_COLOR" , _TL("RGB-Coded Color"),
-        _TL("")
+        _TL(""),
+        true
     );
 
     Parameters.Add_Choice("VAR_COLOR",
@@ -226,7 +227,7 @@ int CPDAL_Reader::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 
 
 ///////////////////////////////////////////////////////////
-//                             //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -411,7 +412,7 @@ CSG_PointCloud * CPDAL_Reader::_Read_Points(const CSG_String &File, bool bVar_Al
 //---------------------------------------------------------
 void CPDAL_Reader::_Init_PointCloud(CSG_PointCloud *pPoints, pdal::PointLayoutPtr &PointLayout,
                                     pdal::SpatialReference &SpatialRef, const CSG_String &File,
-                                    const bool &bVar_All, const bool &bVar_Color, CSG_Array_Int &Fields, int iRGB_Field)
+                                    const bool &bVar_All, const bool &bVar_Color, CSG_Array_Int &Fields, int &iRGB_Field)
 {
     if( !SpatialRef.empty() )
     {
