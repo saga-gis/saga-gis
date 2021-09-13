@@ -162,11 +162,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "garden_games", "tools\garde
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "garden_learn_to_program", "tools\garden\garden_learn_to_program\garden_learn_to_program.vcxproj", "{D6C98656-B6CB-493A-BA75-508A55EE29EA}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "garden_webservices", "tools\garden\garden_webservices\garden_webservices.vcxproj", "{8914FE0F-2F05-446F-AE55-8CAF6A750FB1}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
@@ -695,14 +690,6 @@ Global
 		{7452BCEA-D3F9-4484-AA10-B9695AA6C822}.Release|Win32.Build.0 = Release|Win32
 		{7452BCEA-D3F9-4484-AA10-B9695AA6C822}.Release|x64.ActiveCfg = Release|x64
 		{7452BCEA-D3F9-4484-AA10-B9695AA6C822}.Release|x64.Build.0 = Release|x64
-		{D6C98656-B6CB-493A-BA75-508A55EE29EA}.Debug|Win32.ActiveCfg = Debug|Win32
-		{D6C98656-B6CB-493A-BA75-508A55EE29EA}.Debug|Win32.Build.0 = Debug|Win32
-		{D6C98656-B6CB-493A-BA75-508A55EE29EA}.Debug|x64.ActiveCfg = Debug|x64
-		{D6C98656-B6CB-493A-BA75-508A55EE29EA}.Debug|x64.Build.0 = Debug|x64
-		{D6C98656-B6CB-493A-BA75-508A55EE29EA}.Release|Win32.ActiveCfg = Release|Win32
-		{D6C98656-B6CB-493A-BA75-508A55EE29EA}.Release|Win32.Build.0 = Release|Win32
-		{D6C98656-B6CB-493A-BA75-508A55EE29EA}.Release|x64.ActiveCfg = Release|x64
-		{D6C98656-B6CB-493A-BA75-508A55EE29EA}.Release|x64.Build.0 = Release|x64
 		{8914FE0F-2F05-446F-AE55-8CAF6A750FB1}.Debug|Win32.ActiveCfg = Debug|Win32
 		{8914FE0F-2F05-446F-AE55-8CAF6A750FB1}.Debug|Win32.Build.0 = Debug|Win32
 		{8914FE0F-2F05-446F-AE55-8CAF6A750FB1}.Debug|x64.ActiveCfg = Debug|x64

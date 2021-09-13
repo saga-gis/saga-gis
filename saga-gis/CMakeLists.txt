@@ -21,13 +21,9 @@ if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release)
 endif()
 
-# options
-option(WITH_GUI "Build SAGA with GUI" ON)
-option(WITH_TOOLS "Build SAGA with tools" ON)
-option(OpenMP_SUPPORT "Compile with OpenMP optimizations" ON)
-#option(WITH_LINK_TESTER "Check to enable testing if tools are successfully linking" OFF)
-
 if(MSVC)
+	set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
+
 	option(DEPS_FROM_ENVARS "Library locations from environment" ON)
 
 	option(PARALLEL_BUILD "Multi-processor compilation (/MP)" ON)
@@ -35,6 +31,12 @@ if(MSVC)
 		add_definitions(/MP)
 	endif()
 endif()
+
+# options
+option(WITH_GUI "Build SAGA with GUI" ON)
+option(WITH_TOOLS "Build SAGA with tools" ON)
+option(OpenMP_SUPPORT "Compile with OpenMP optimizations" ON)
+#option(WITH_LINK_TESTER "Check to enable testing if tools are successfully linking" OFF)
 
 # include version and debianize
 include(version.cmake)
