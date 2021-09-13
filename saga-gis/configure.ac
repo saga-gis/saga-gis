@@ -448,7 +448,6 @@ AC_OUTPUT(Makefile \
 	src/tools/garden/garden_3d_viewer/Makefile \
 	src/tools/garden/garden_fractals/Makefile \
 	src/tools/garden/garden_games/Makefile \
-	src/tools/garden/garden_learn_to_program/Makefile \
 	src/tools/garden/garden_webservices/Makefile \
 	src/tools/grid/Makefile \
 	src/tools/grid/grid_analysis/Makefile \
