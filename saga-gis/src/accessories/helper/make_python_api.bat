@@ -39,7 +39,7 @@ IF "%SAGA_ROOT%" == "" (
 )
 
 IF "%SAGA_LIBDIR%" == "" (
-	SET SAGA_LIBDIR=%SAGA_ROOT%\bin\saga_vc_%ARCHITECTURE%
+	SET SAGA_LIBDIR=%SAGA_ROOT%\bin\build_%ARCHITECTURE%\saga_%ARCHITECTURE%
 )
 
 IF "%VARSALL%" == "" (

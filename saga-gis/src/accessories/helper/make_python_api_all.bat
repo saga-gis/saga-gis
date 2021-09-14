@@ -10,6 +10,8 @@ ECHO.
 
 PUSHD %~dp0
 
+REM SET SAGA_ROOT=%CD%\..\..\..
+REM SET SAGA_LIBDIR=%SAGA_ROOT%\bin\build_x64\saga_64
 REM SET SAGA_VERSION=saga-major.minor.release
 REM SET ZIP=C:\Program Files\7-Zip\7z.exe
 REM SET SWIG=F:\develop\libs\swigwin-4.0.2\swig.exe

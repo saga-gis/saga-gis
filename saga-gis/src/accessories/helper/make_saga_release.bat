@@ -22,6 +22,14 @@ PUSHD %CD%\..\..\..
 SET SAGA_ROOT=%CD%
 POPD
 
+IF "%SAGA_DIR_WIN32%" == "" (
+	SET SAGA_DIR_WIN32=%SAGA_ROOT%\bin\build_win32\saga_win32
+)
+
+IF "%SAGA_DIR_X64%" == "" (
+	SET SAGA_DIR_X64=%SAGA_ROOT%\bin\build_x64\saga_x64
+)
+
 REM ___________________________________
 REM Version
 
@@ -109,8 +117,8 @@ REM win32 Binaries
 SET SAGA_CONFIG=win32
 MKDIR "%SAGA_VERSION%_%SAGA_CONFIG%"
 PUSHD "%SAGA_VERSION%_%SAGA_CONFIG%"
-XCOPY /C/S/Q/Y/H "%SAGA_ROOT%\bin\saga_vc_%SAGA_CONFIG%"
-DEL /F *.ini *.cfg *.exp *.pdb *.tmp tools\*.exp tools\*.lib tools\*.pdb tools\dev_tools.*
+XCOPY /C/S/Q/Y/H "%SAGA_DIR_WIN32%"
+DEL /F *.ini *.cfg *.exp *.pdb *.tmp tools\*.exp tools\*.lib tools\*.pdb tools\dev_*.*
 COPY ..\%SAGA4QGIS% .\%SAGA4QGIS%
 POPD
 %ZIPEXE% "%SAGA_VERSION%_%SAGA_CONFIG%.zip" "%SAGA_VERSION%_%SAGA_CONFIG%"
@@ -127,8 +135,8 @@ REM x64 Binaries
 SET SAGA_CONFIG=x64
 MKDIR "%SAGA_VERSION%_%SAGA_CONFIG%"
 PUSHD "%SAGA_VERSION%_%SAGA_CONFIG%"
-XCOPY /C/S/Q/Y/H "%SAGA_ROOT%\bin\saga_vc_%SAGA_CONFIG%"
-DEL /F *.ini *.cfg *.exp *.pdb *.tmp tools\*.exp tools\*.lib tools\*.pdb tools\dev_tools.*
+XCOPY /C/S/Q/Y/H "%SAGA_DIR_X64%"
+DEL /F *.ini *.cfg *.exp *.pdb *.tmp tools\*.exp tools\*.lib tools\*.pdb tools\dev_*.*
 COPY ..\%SAGA4QGIS% .\%SAGA4QGIS%
 POPD
 %ZIPEXE% "%SAGA_VERSION%_%SAGA_CONFIG%.zip" "%SAGA_VERSION%_%SAGA_CONFIG%"
