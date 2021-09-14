@@ -1,7 +1,5 @@
 @ECHO OFF
 
-PUSHD %~dp0
-
 REM ___________________________________
 IF "%SAGA_ROOT%" == "" (
 	SET SAGA_ROOT=%CD%\..\..\..
@@ -35,5 +33,4 @@ IF "%ZIP%" == "" (
 RMDIR "%OUTDIR%" /S/Q
 
 REM ___________________________________
-POPD
 REM PAUSE
