@@ -80,6 +80,7 @@ BEGIN_EVENT_TABLE(CDLG_Table_Control, wxGrid)
 	EVT_GRID_CELL_CHANGED     (CDLG_Table_Control::On_Changed      )
 
 	EVT_GRID_CELL_LEFT_CLICK  (CDLG_Table_Control::On_LClick       )
+	EVT_GRID_CELL_LEFT_DCLICK (CDLG_Table_Control::On_LDClick      )
 	EVT_GRID_LABEL_LEFT_CLICK (CDLG_Table_Control::On_LClick_Label )
 	EVT_GRID_LABEL_LEFT_DCLICK(CDLG_Table_Control::On_LDClick_Label)
 
@@ -318,6 +319,36 @@ void CDLG_Table_Control::On_LClick(wxGridEvent &event)
 	if( event.ControlDown() && m_Table.Get_Field_Type(event.GetCol()) == SG_DATATYPE_String )
 	{
 		g_pData->Open   (GetCellValue(event.GetRow(), event.GetCol()));
+	}
+}
+
+//---------------------------------------------------------
+void CDLG_Table_Control::On_LDClick(wxGridEvent &event)
+{
+	if( m_pData->Get_Field_Type(event.GetCol()) == SG_DATATYPE_Color )
+	{
+		CSG_Table_Record *pRecord = m_pData->Get_Record(event.GetRow());
+
+		if( pRecord )
+		{
+			long Value = pRecord->asInt(event.GetCol());
+
+			if( DLG_Color_From_Text(Value) )
+			{
+				pRecord->Set_Value(event.GetCol(), Value);
+
+				wxColour Colour(Get_Color_asWX(Value));
+
+				SetCellBackgroundColour(event.GetRow(), event.GetCol(), Colour);
+				SetCellTextColour      (event.GetRow(), event.GetCol(), Colour);
+
+				ForceRefresh();
+			}
+		}
+	}
+	else
+	{
+		event.Skip();
 	}
 }
 

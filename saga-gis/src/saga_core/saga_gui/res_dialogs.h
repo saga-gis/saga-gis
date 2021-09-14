@@ -151,6 +151,7 @@ bool				DLG_List				(const wxString &Caption, class CSG_Parameter_List *pList);
 bool				DLG_Colors				(class CSG_Colors *pColors);
 bool				DLG_Colors				(int &Palette);
 bool				DLG_Color				(long &Colour);
+bool				DLG_Color_From_Text		(long &Colour);
 
 bool				DLG_Font				(class CSG_Parameter *pFont);
 

@@ -806,6 +806,40 @@ bool		DLG_Color(long &_Colour)
 }
 
 //---------------------------------------------------------
+bool		DLG_Color_From_Text(long &Colour)
+{
+	wxString Text(wxString::Format("#%02X%02X%02X", SG_GET_R(Colour), SG_GET_G(Colour), SG_GET_B(Colour)));
+
+	if( DLG_Get_Text(Text, _TL("Enter Color Code"), wxString::Format("%s,\n%s\n(%s)",
+		_TL("Enter comma separated red, green, blue values"),
+		_TL("or use a leading '#' for their hexadecimal representation."),
+		_TL("use right mouse button to open a color dialog"))) )
+	{
+		long oldColour = Colour;
+
+		if( Text[0] == '#' )
+		{
+			wxColour c; c.Set(Text);
+
+			Colour = Get_Color_asInt(c);
+		}
+		else
+		{
+			CSG_Strings	c = SG_String_Tokenize(&Text, ",;");
+
+			if( c.Get_Count() >= 3 )
+			{
+				Colour = SG_GET_RGB(c[0].asInt(), c[1].asInt(), c[2].asInt());
+			}
+		}
+
+		return( Colour != oldColour );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 bool		DLG_Font(CSG_Parameter *pFont)
 {
 	wxFont		Font;

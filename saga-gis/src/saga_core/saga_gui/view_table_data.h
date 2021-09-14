@@ -138,6 +138,18 @@ public:
 	virtual bool		DeleteCols			(size_t Position = 0, size_t Number = 1);
 
 	//-----------------------------------------------------
+	TSG_Data_Type		Get_Field_Type		(int iField)
+	{
+		if( m_bRowLabels ) { iField++; }
+
+		if( iField >= 0 && iField < m_pTable->Get_Field_Count() )
+		{
+			return( m_pTable->Get_Field_Type(iField) );
+		}
+
+		return( SG_DATATYPE_Undefined );
+	}
+
 	virtual wxString	GetTypeName			(int iRecord, int iField)
 	{
 		if( m_bRowLabels ) { iField++; }

@@ -91,6 +91,7 @@ protected:
 	void						On_Changed			(wxGridEvent     &event);
 
 	void						On_LClick			(wxGridEvent     &event);
+	void						On_LDClick			(wxGridEvent     &event);
 	void						On_LClick_Label		(wxGridEvent     &event);
 	void						On_RClick			(wxGridEvent     &event);
 	void						On_RClick_Label		(wxGridEvent     &event);
