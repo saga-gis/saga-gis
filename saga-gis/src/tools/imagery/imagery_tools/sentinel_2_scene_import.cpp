@@ -200,6 +200,40 @@ CSentinel_2_Scene_Import::CSentinel_2_Scene_Import(void)
 			_TL("B-Spline Interpolation")
 		), 3
 	);
+
+	//-----------------------------------------------------
+	Parameters.Add_Choice("",
+		"EXTENT"		, _TL("Extent"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|%s",
+			_TL("original"),
+			_TL("user defined"),
+			_TL("grid system"),
+			_TL("shapes extent")
+		), 0
+	);
+
+	Parameters.Add_Double("EXTENT", "EXTENT_XMIN", _TL("Left"  ), _TL(""));
+	Parameters.Add_Double("EXTENT", "EXTENT_XMAX", _TL("Right" ), _TL(""));
+	Parameters.Add_Double("EXTENT", "EXTENT_YMIN", _TL("Bottom"), _TL(""));
+	Parameters.Add_Double("EXTENT", "EXTENT_YMAX", _TL("Top"   ), _TL(""));
+
+	Parameters.Add_Grid_System("EXTENT",
+		"EXTENT_GRID"	, _TL("Grid System"),
+		_TL("")
+	);
+
+	Parameters.Add_Shapes("EXTENT",
+		"EXTENT_SHAPES"	, _TL("Shapes Extent"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Double("EXTENT",
+		"EXTENT_BUFFER"	, _TL("Buffer"),
+		_TL(""),
+		0., 0., true
+	);
 }
 
 
@@ -213,6 +247,17 @@ int CSentinel_2_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, 
 	if( pParameter->Cmp_Identifier("PROJECTION") )
 	{
 		pParameters->Set_Enabled("RESAMPLING", pParameter->asInt() == 2);
+	}
+
+	if(	pParameter->Cmp_Identifier("EXTENT") )
+	{
+		pParameters->Set_Enabled("EXTENT_XMIN"  , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("EXTENT_XMAX"  , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("EXTENT_YMIN"  , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("EXTENT_YMAX"  , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("EXTENT_GRID"  , pParameter->asInt() == 2);
+		pParameters->Set_Enabled("EXTENT_SHAPES", pParameter->asInt() == 3);
+		pParameters->Set_Enabled("EXTENT_BUFFER", pParameter->asInt() >= 2);
 	}
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
@@ -357,6 +402,57 @@ bool CSentinel_2_Scene_Import::Load_Metadata(const CSG_String &File, CSG_MetaDat
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_Grid * CSentinel_2_Scene_Import::Load_Grid(const CSG_String &File)
+{
+	CSG_Rect Extent;
+
+	switch( Parameters("EXTENT")->asInt() )
+	{
+	default: // original
+		return( SG_Create_Grid(File) );
+
+	case  1: // user defined
+		Extent.Assign(
+			Parameters("EXTENT_XMIN")->asDouble(),
+			Parameters("EXTENT_YMIN")->asDouble(),
+			Parameters("EXTENT_XMAX")->asDouble(),
+			Parameters("EXTENT_YMAX")->asDouble()
+		);
+		break;
+
+	case  2: // grid system
+		Extent = Parameters("EXTENT_GRID"  )->asGrid_System()->Get_Extent();
+		Extent.Inflate(Parameters("EXTENT_BUFFER")->asDouble(), false);
+		break;
+
+	case  3: // shapes extent
+		Extent = Parameters("EXTENT_SHAPES")->asShapes     ()->Get_Extent();
+		Extent.Inflate(Parameters("EXTENT_BUFFER")->asDouble(), false);
+		break;
+	}
+
+	//-----------------------------------------------------
+	CSG_Grid	*pGrid	= NULL;
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("io_gdal", 0);	// Import Raster
+
+	if( pTool && pTool->Set_Manager(NULL)
+	&&  pTool->Set_Parameter("FILES"      , File)
+	&&	pTool->Set_Parameter("EXTENT"     , 1)
+	&&	pTool->Set_Parameter("EXTENT_XMIN", Extent.Get_XMin())
+	&&	pTool->Set_Parameter("EXTENT_XMAX", Extent.Get_XMax())
+	&&	pTool->Set_Parameter("EXTENT_YMIN", Extent.Get_YMin())
+	&&	pTool->Set_Parameter("EXTENT_YMAX", Extent.Get_YMax())
+	&&  pTool->Execute() )
+	{
+		pGrid	= pTool->Get_Parameter("GRIDS")->asGridList()->Get_Grid(0);
+	}
+
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+	return( pGrid );
+}
+
+//---------------------------------------------------------
 CSG_Grid * CSentinel_2_Scene_Import::Load_Band(const CSG_String &Path, const CSG_MetaData &Granule)
 {
 	Process_Set_Text("%s: %s", _TL("loading"), Granule.Get_Content().AfterLast('_').c_str());
@@ -368,7 +464,7 @@ CSG_Grid * CSentinel_2_Scene_Import::Load_Band(const CSG_String &Path, const CSG
 #endif
 
 	//-----------------------------------------------------
-	CSG_Grid	*pBand	= SG_Create_Grid(File);
+	CSG_Grid	*pBand	= Load_Grid(File);
 
 	if( !pBand )
 	{

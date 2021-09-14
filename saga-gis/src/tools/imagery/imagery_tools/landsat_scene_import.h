@@ -114,6 +114,7 @@ private:
 	bool					Get_Info_Band			(const CSG_MetaData &Metadata, int Version, int Sensor, int Band, int Key, CSG_String &Value);
 	bool					Set_Info_Band			(int Sensor, int Band, CSG_Table_Record &Info);
 
+	CSG_Grid *				Load_Grid				(const CSG_String &File);
 	CSG_Grid *				Load_Band				(const CSG_String &File);
 
 	bool					Get_Float				(CSG_Grid *pBand, CSG_Grid &DN);

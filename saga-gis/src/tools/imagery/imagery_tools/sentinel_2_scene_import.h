@@ -87,6 +87,7 @@ private:
 
 	bool					Load_Metadata			(const CSG_String &File, CSG_MetaData &General, CSG_MetaData &Granule);
 
+	CSG_Grid *				Load_Grid				(const CSG_String &File);
 	CSG_Grid *				Load_Band				(const CSG_String &Path, const CSG_MetaData &Granule);
 
 };
