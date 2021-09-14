@@ -434,7 +434,7 @@ void CPDAL_Reader::_Init_PointCloud(CSG_PointCloud *pPoints, pdal::PointLayoutPt
     {
         if( !(PointLayout->hasDim(pdal::Dimension::Id::Red) && PointLayout->hasDim(pdal::Dimension::Id::Green) && PointLayout->hasDim(pdal::Dimension::Id::Blue)) )
         {
-            SG_UI_Msg_Add_Execution(CSG_String::Format("\n%s, %s: %s", _TL("Warning"), _TL("file does not provide RGB dimensions")), File.c_str());
+            SG_UI_Msg_Add_Execution(CSG_String::Format("\n%s, %s: %s", _TL("Warning"), _TL("file does not provide RGB dimensions"), File.c_str()), true);
         }
         else
         {
