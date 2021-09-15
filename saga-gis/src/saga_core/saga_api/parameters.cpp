@@ -1392,6 +1392,8 @@ bool CSG_Parameters::Set_Parameter(const wchar_t    *ID, const wchar_t *Value, i
 //---------------------------------------------------------
 bool CSG_Parameters::Restore_Defaults(bool bClearData)
 {
+	Set_Callback(false);
+
 	for(int i=0; i<Get_Count(); i++)
 	{
 		m_Parameters[i]->Restore_Default();
@@ -1408,6 +1410,8 @@ bool CSG_Parameters::Restore_Defaults(bool bClearData)
 			}
 		}
 	}
+
+	Set_Callback(true);
 
 	return( true );
 }
