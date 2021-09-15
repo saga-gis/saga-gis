@@ -95,9 +95,7 @@ CWKSP_Tool_Library::~CWKSP_Tool_Library(void)
 //---------------------------------------------------------
 void CWKSP_Tool_Library::Update(void)
 {
-	int		i;
-
-	for(i=Get_Count()-1; i>=0; i--)	// first remove tools that are not available anymore
+	for(int i=Get_Count()-1; i>=0; i--)	// first remove tools that are not available anymore
 	{
 		CWKSP_Tool	*pItem	= Get_Tool(i);
 
@@ -109,7 +107,7 @@ void CWKSP_Tool_Library::Update(void)
 		}
 	}
 
-	for(i=0; i<m_pLibrary->Get_Count(); i++)	// then add tools that are not yet present in the list
+	for(int i=0; i<m_pLibrary->Get_Count(); i++)	// then add tools that are not yet present in the list
 	{
 		CSG_Tool	*pTool	= m_pLibrary->Get_Tool(i);
 

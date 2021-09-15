@@ -616,9 +616,7 @@ CSG_String CSG_Tool_Library::Get_Summary(int Format, bool bWithGUINeeded) const
 {
 	bool	bToolChains	= Get_File_Name().is_Empty();
 
-	int			i;
 	CSG_String	s;
-	CSG_String	tool_name;
 
 	switch( Format )
 	{
@@ -631,15 +629,15 @@ CSG_String CSG_Tool_Library::Get_Summary(int Format, bool bWithGUINeeded) const
 		s	+= CSG_String::Format("\t<%s>%s</%s>\n", SG_XML_LIBRARY_NAME, Get_Info(TLB_INFO_Name).c_str(), SG_XML_LIBRARY_NAME);
 		s	+= CSG_String::Format("\t<%s>%s</%s>\n", SG_XML_LIBRARY_CATEGORY, Get_Info(TLB_INFO_Category).c_str(), SG_XML_LIBRARY_CATEGORY);
 
-		for(i=0; i<Get_Count(); i++)
+		for(int i=0; i<Get_Count(); i++)
 		{
 			if( Get_Tool(i) && (bWithGUINeeded || !Get_Tool(i)->needs_GUI()) )
 			{
-				tool_name = Get_Tool(i)->Get_Name();
-				tool_name.Replace("&", "&amp;");
+				CSG_String Name(Get_Tool(i)->Get_Name());
+				Name.Replace("&", "&amp;");
 				s	+= CSG_String::Format("\t<%s %s=\"%s\" %s=\"%s\"/>\n", SG_XML_TOOL,
-					SG_XML_TOOL_ATT_ID  , Get_Tool(i)->Get_ID  ().c_str(),
-					SG_XML_TOOL_ATT_NAME, tool_name.c_str()
+					SG_XML_TOOL_ATT_ID  , Get_Tool(i)->Get_ID().c_str(),
+					SG_XML_TOOL_ATT_NAME, Name.c_str()
 				);
 			}
 		}
@@ -658,11 +656,10 @@ CSG_String CSG_Tool_Library::Get_Summary(int Format, bool bWithGUINeeded) const
 
 		s	+= "<table border=\"0\">";
 
-		s	+= SUMMARY_ADD_STR(_TL("Name"   ), Get_Info(TLB_INFO_Name   ).c_str());
-		s	+= SUMMARY_ADD_STR(_TL("Author" ), Get_Info(TLB_INFO_Author ).c_str());
-		s	+= SUMMARY_ADD_STR(_TL("Version"), Get_Info(TLB_INFO_Version).c_str());
-		s	+= SUMMARY_ADD_STR(_TL("ID"     ), Get_Library_Name        ().c_str());
-		s	+= SUMMARY_ADD_STR(_TL("File"   ), Get_File_Name           ().c_str());
+		s	+= SUMMARY_ADD_STR(_TL("Name"  ), Get_Info(TLB_INFO_Name   ).c_str());
+		s	+= SUMMARY_ADD_STR(_TL("Author"), Get_Info(TLB_INFO_Author ).c_str());
+		s	+= SUMMARY_ADD_STR(_TL("ID"    ), Get_Library_Name        ().c_str());
+		s	+= SUMMARY_ADD_STR(_TL("File"  ), Get_File_Name           ().c_str());
 
 		s	+= "</table>";
 
@@ -690,7 +687,7 @@ CSG_String CSG_Tool_Library::Get_Summary(int Format, bool bWithGUINeeded) const
 
 		s	+= CSG_String::Format("<tr align=\"left\"><th>%s</th><th>%s</th></tr>", _TL("ID"), _TL("Name"));
 
-		for(i=0; i<Get_Count(); i++)
+		for(int i=0; i<Get_Count(); i++)
 		{
 			if( Get_Tool(i) && (bWithGUINeeded || !Get_Tool(i)->needs_GUI()) )
 			{
@@ -735,7 +732,7 @@ CSG_String CSG_Tool_Library::Get_Summary(int Format, bool bWithGUINeeded) const
 
 		s	+= CSG_String::Format("\n\n%s:\n", _TL("Tools"));
 
-		for(i=0; i<Get_Count(); i++)
+		for(int i=0; i<Get_Count(); i++)
 		{
 			if( Get_Tool(i) && (bWithGUINeeded || !Get_Tool(i)->needs_GUI()) )
 			{
