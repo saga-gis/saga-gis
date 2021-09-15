@@ -60,35 +60,35 @@
 //---------------------------------------------------------
 CExercise_10::CExercise_10(void)
 {
-	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("10: Dynamic Simulation - Life"));
 
-	Set_Author		("O.Conrad (c) 2003");
+	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
 		"Conway's game of life. A cellular automate."
 	));
 
+	Add_Reference("Conrad, O.", "2007",
+		"SAGA - Entwurf, Funktionsumfang und Anwendung eines Systems für Automatisierte Geowissenschaftliche Analysen",
+		"ediss.uni-goettingen.de.", SG_T("http://hdl.handle.net/11858/00-1735-0000-0006-B26C-6"), SG_T("Online")
+	);
+
 
 	//-----------------------------------------------------
-	// 2. Grids...
-
-	Parameters.Add_Grid(
-		"", "RESULT"	, _TL("Life"),
+	Parameters.Add_Grid("",
+		"RESULT"	, _TL("Life"),
 		_TL(""),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Byte
 	);
 
-	Parameters.Add_Bool(
-		"", "REFRESH"	, _TL("Refresh"),
+	Parameters.Add_Bool("",
+		"REFRESH"	, _TL("Refresh"),
 		_TL(""),
 		true
 	);
 
-	Parameters.Add_Int(
-		"", "COLORS"	, _TL("Fade Color Count"),
+	Parameters.Add_Int("",
+		"COLORS"	, _TL("Fade Color Count"),
 		_TL(""),
 		64, 3, true, 255, true
 	);

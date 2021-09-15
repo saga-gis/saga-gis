@@ -69,6 +69,8 @@ public: ////// public members and functions: //////////////
 
 protected: /// protected members and functions: ///////////
 
+	virtual int			On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
 	virtual bool		On_Execute(void);		// always override this function
 
 

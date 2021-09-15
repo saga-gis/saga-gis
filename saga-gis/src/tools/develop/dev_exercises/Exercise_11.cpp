@@ -62,11 +62,16 @@ CExercise_11::CExercise_11(void)
 {
 	Set_Name		(_TL("11: Dynamic Simulation - Soil Nitrogen Dynamics"));
 
-	Set_Author		("O.Conrad (c) 2003");
+	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
 		"Spatially Distributed Simulation of Soil Nitrogen Dynamics."
 	));
+
+	Add_Reference("Conrad, O.", "2007",
+		"SAGA - Entwurf, Funktionsumfang und Anwendung eines Systems für Automatisierte Geowissenschaftliche Analysen",
+		"ediss.uni-goettingen.de.", SG_T("http://hdl.handle.net/11858/00-1735-0000-0006-B26C-6"), SG_T("Online")
+	);
 
 	Add_Reference("Hugget, R.J.", "1993",
 		"Modelling the Human Impact on Nature",

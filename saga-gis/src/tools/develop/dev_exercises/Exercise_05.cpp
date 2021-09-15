@@ -60,12 +60,9 @@
 //---------------------------------------------------------
 CExercise_05::CExercise_05(void)
 {
-	//-----------------------------------------------------
-	// Give some information about your tool...
-
 	Set_Name		(_TL("05: Direct neighbours - slope and aspect"));
 
-	Set_Author		("O.Conrad (c) 2003");
+	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
 		"Simple neighbourhood analysis for grid cells."
@@ -76,10 +73,13 @@ CExercise_05::CExercise_05(void)
 		"Earth Surface Processes and Landforms, 12: 47-56."
 	);
 
+	Add_Reference("Conrad, O.", "2007",
+		"SAGA - Entwurf, Funktionsumfang und Anwendung eines Systems für Automatisierte Geowissenschaftliche Analysen",
+		"ediss.uni-goettingen.de.", SG_T("http://hdl.handle.net/11858/00-1735-0000-0006-B26C-6"), SG_T("Online")
+	);
+
 
 	//-----------------------------------------------------
-	// Define your parameters list...
-
 	Parameters.Add_Grid(
 		"", "ELEVATION"	, _TL("Input grid"),
 		_TL("This must be your input data of type grid."),

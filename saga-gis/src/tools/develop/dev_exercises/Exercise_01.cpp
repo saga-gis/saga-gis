@@ -65,11 +65,16 @@ CExercise_01::CExercise_01(void)
 
 	Set_Name		(_TL("01: My first tool"));
 
-	Set_Author		("O.Conrad (c) 2003");
+	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
 		"My first tool."
 	));
+
+	Add_Reference("Conrad, O.", "2007",
+		"SAGA - Entwurf, Funktionsumfang und Anwendung eines Systems für Automatisierte Geowissenschaftliche Analysen",
+		"ediss.uni-goettingen.de.", SG_T("http://hdl.handle.net/11858/00-1735-0000-0006-B26C-6"), SG_T("Online")
+	);
 
 
 	//-----------------------------------------------------

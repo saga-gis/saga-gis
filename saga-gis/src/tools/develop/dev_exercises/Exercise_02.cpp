@@ -60,21 +60,21 @@
 //---------------------------------------------------------
 CExercise_02::CExercise_02(void)
 {
-	//-----------------------------------------------------
-	// Give some information about your tool...
-
 	Set_Name		(_TL("02: Pixel by pixel operations with two grids"));
 
-	Set_Author		("O.Conrad (c) 2003");
+	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
 		"Pixel by pixel operations with two grids."
 	));
 
+	Add_Reference("Conrad, O.", "2007",
+		"SAGA - Entwurf, Funktionsumfang und Anwendung eines Systems für Automatisierte Geowissenschaftliche Analysen",
+		"ediss.uni-goettingen.de.", SG_T("http://hdl.handle.net/11858/00-1735-0000-0006-B26C-6"), SG_T("Online")
+	);
+
 
 	//-----------------------------------------------------
-	// Define your parameters list...
-
 	Parameters.Add_Grid(
 		"", "INPUT_A"	, _TL("First input grid"),
 		_TL("This must be your input data of type grid."),

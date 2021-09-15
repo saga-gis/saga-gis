@@ -60,21 +60,21 @@
 //---------------------------------------------------------
 CExercise_09::CExercise_09(void)
 {
-	//-----------------------------------------------------
-	// Give some information about your tool...
-
 	Set_Name		(_TL("09: Extended neighbourhoods - catchment areas (recursive)"));
 
-	Set_Author		("O.Conrad (c) 2003");
+	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
 		"Extended Neighbourhoods - Use recursive function calls for catchment area calculations."
 	));
 
+	Add_Reference("Conrad, O.", "2007",
+		"SAGA - Entwurf, Funktionsumfang und Anwendung eines Systems für Automatisierte Geowissenschaftliche Analysen",
+		"ediss.uni-goettingen.de.", SG_T("http://hdl.handle.net/11858/00-1735-0000-0006-B26C-6"), SG_T("Online")
+	);
+
 
 	//-----------------------------------------------------
-	// Define your parameters list...
-
 	Parameters.Add_Grid(
 		"", "ELEVATION"	, _TL("Elevation grid"),
 		_TL("This must be your input data of type grid."),
@@ -91,41 +91,38 @@ CExercise_09::CExercise_09(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CExercise_09::On_Execute(void)
 {
-	int			x, y;
-	CSG_Grid	*pDTM;
-
 	//-----------------------------------------------------
 	// Get parameter settings...
 
-	pDTM		= Parameters("ELEVATION")->asGrid();
-	m_pArea		= Parameters("AREA"     )->asGrid();
+	CSG_Grid *pDTM = Parameters("ELEVATION")->asGrid();
 
 
 	//-----------------------------------------------------
 	// Initialisations...
 
-	m_pArea		->Assign(0.0);
-	m_pArea		->Set_Unit(SG_T("m\xc2\xb2"));
-	DataObject_Set_Colors(m_pArea, 100, SG_COLORS_WHITE_BLUE);
+	m_pArea = Parameters("AREA")->asGrid();
+
+	m_pArea->Assign(0.);
+	m_pArea->Set_Unit("m^2");
+
+	DataObject_Set_Colors(m_pArea, 11, SG_COLORS_WHITE_BLUE);
 
 
 	//-----------------------------------------------------
 	// Save flow directions to temporary grid...
 
-	m_pDir		= new CSG_Grid(pDTM, SG_DATATYPE_Char);	// this object has to be deleted later...
+	m_Dir.Create(Get_System(), SG_DATATYPE_Char);
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
-			m_pDir->Set_Value(x, y, pDTM->Get_Gradient_NeighborDir(x, y) % 8);
+			m_Dir.Set_Value(x, y, pDTM->Get_Gradient_NeighborDir(x, y) % 8);
 		}
 	}
 
@@ -133,9 +130,9 @@ bool CExercise_09::On_Execute(void)
 	//-------------------------------------------------
 	// Execute calculation...
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
 			Get_Area(x, y);
 		}
@@ -145,7 +142,7 @@ bool CExercise_09::On_Execute(void)
 	//-----------------------------------------------------
 	// Finalisations...
 
-	delete(m_pDir);
+	m_Dir.Destroy();
 
 
 	//-----------------------------------------------------
@@ -162,11 +159,7 @@ bool CExercise_09::On_Execute(void)
 //---------------------------------------------------------
 double CExercise_09::Get_Area(int x, int y)
 {
-	int		i, ix, iy;
-	double	area;
-
-	//-----------------------------------------------------
-	area	= m_pArea->asDouble(x, y);
+	double	area	= m_pArea->asDouble(x, y);
 
 	if( area <= 0.0 )												// cell has not been processed yet...
 	{
@@ -174,12 +167,12 @@ double CExercise_09::Get_Area(int x, int y)
 
 		area	= Get_Cellsize() * Get_Cellsize();								// initialize the cell's area with its own cell size...
 
-		for(i=0; i<8; i++)
+		for(int i=0; i<8; i++)
 		{
-			ix	= Get_xFrom(i, x);
-			iy	= Get_yFrom(i, y);
+			int	ix	= Get_xFrom(i, x);
+			int	iy	= Get_yFrom(i, y);
 
-			if( is_InGrid(ix, iy) && i == m_pDir->asInt(ix, iy) )	// drains ith neigbour into this cell ???...
+			if( is_InGrid(ix, iy) && i == m_Dir.asInt(ix, iy) )	// drains ith neigbour into this cell ???...
 			{
 				area	+= Get_Area(ix, iy);						// ...then add its area (recursive call of this function!)...
 			}

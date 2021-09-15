@@ -60,21 +60,20 @@
 //---------------------------------------------------------
 CExercise_13::CExercise_13(void)
 {
-	//-----------------------------------------------------
-	// Give some information about your tool...
-
 	Set_Name		(_TL("13: Reprojecting a shapes layer"));
 
-	Set_Author		("O.Conrad (c) 2003");
+	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
 		"Copy a shapes layer and move it to a new position."
 	));
 
+	Add_Reference("Conrad, O.", "2007",
+		"SAGA - Entwurf, Funktionsumfang und Anwendung eines Systems für Automatisierte Geowissenschaftliche Analysen",
+		"ediss.uni-goettingen.de.", SG_T("http://hdl.handle.net/11858/00-1735-0000-0006-B26C-6"), SG_T("Online")
+	);
 
 	//-----------------------------------------------------
-	// Shapes input and output...
-
 	Parameters.Add_Shapes("",
 		"INPUT"		, _TL("Input"),
 		_TL("This must be your input data of type shapes."),
@@ -104,9 +103,6 @@ CExercise_13::CExercise_13(void)
 		)
 	);
 
-	//-----------------------------------------------------
-	// Transformation parameters...
-
 	Parameters.Add_Node("", "TRANS", _TL("Translation"  ), _TL(""));
 	Parameters.Add_Double("TRANS", "TRANS_X", "X", _TL(""), 10.);
 	Parameters.Add_Double("TRANS", "TRANS_Y", "Y", _TL(""), 10.);
@@ -132,81 +128,98 @@ CExercise_13::CExercise_13(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SET_MATRIX(M, a1, a2, a3, b1, b2, b3, c1, c2, c3)	{\
-	M[0][0]=a1; M[1][0]=b1; M[2][0]=c1;\
-	M[0][1]=a2; M[1][1]=b2; M[2][1]=c2;\
-	M[0][2]=a3; M[1][2]=b3; M[2][2]=c3;\
+int CExercise_13::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("METHOD") )
+	{
+		pParameters->Set_Enabled("TRANS", pParameter->asInt() == 0 || pParameter->asInt() >= 4);
+		pParameters->Set_Enabled("SCALE", pParameter->asInt() == 1 || pParameter->asInt() >= 4);
+		pParameters->Set_Enabled("SHEAR", pParameter->asInt() == 2 || pParameter->asInt() >= 4);
+		pParameters->Set_Enabled("ROTAT", pParameter->asInt() == 3 || pParameter->asInt() >= 4);
+	}
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CExercise_13::On_Execute(void)
 {
-	int			Method;
-	double		trn_x, trn_y, scl_x, scl_y, shr_x, shr_y, rot,
-				m_trn[3][3], m_scl[3][3], m_shr[3][3], m_rot[3][3], m[3][3];
-	CSG_Shapes	*pShapes_A, *pShapes_B;
-
-
 	//-----------------------------------------------------
 	// Get parameter settings...
 
-	pShapes_A	= Parameters("INPUT")	->asShapes();
-	pShapes_B	= Parameters("OUTPUT")	->asShapes();
+	CSG_Shapes	*pShapes_A	= Parameters("INPUT" )->asShapes();
+	CSG_Shapes	*pShapes_B	= Parameters("OUTPUT")->asShapes();
 
 	pShapes_B->Create(pShapes_A->Get_Type(), _TL("Transformation"), pShapes_A);
 
-	Method		= Parameters("METHOD")	->asInt();
+	double	trn_x = Parameters("TRANS_X")->asDouble();
+	double	trn_y = Parameters("TRANS_Y")->asDouble();
 
-	trn_x		= Parameters("TRANS_X")	->asDouble();
-	trn_y		= Parameters("TRANS_Y")	->asDouble();
+	double	scl_x = Parameters("SCALE_X")->asDouble();
+	double	scl_y = Parameters("SCALE_Y")->asDouble();
 
-	scl_x		= Parameters("SCALE_X")	->asDouble();
-	scl_y		= Parameters("SCALE_Y")	->asDouble();
+	double	shr_x = Parameters("SHEAR_X")->asDouble();
+	double	shr_y = Parameters("SHEAR_Y")->asDouble();
 
-	shr_x		= Parameters("SHEAR_X")	->asDouble();
-	shr_y		= Parameters("SHEAR_Y")	->asDouble();
-
-	rot			= Parameters("ROTAT")	->asDouble() * M_DEG_TO_RAD;
+	double	rot   = Parameters("ROTAT"  )->asDouble() * M_DEG_TO_RAD;
 
 
 	//-----------------------------------------------------
 	// Initialise transformation matrices...
 
+	#define SET_MATRIX(M, a1, a2, a3, b1, b2, b3, c1, c2, c3)	{\
+		M[0][0]=a1; M[1][0]=b1; M[2][0]=c1;\
+		M[0][1]=a2; M[1][1]=b2; M[2][1]=c2;\
+		M[0][2]=a3; M[1][2]=b3; M[2][2]=c3;\
+	}
+
+	double	m_trn[3][3], m_scl[3][3], m_shr[3][3], m_rot[3][3], m[3][3];
+
 	// Translation...
 	SET_MATRIX(m_trn,
-		1.0			, 0.0		, trn_x	,
-		0.0			, 1.0		, trn_y	,
-		0.0			, 0.0		, 1.0	);
+		1.0      , 0.0      , trn_x,
+		0.0      , 1.0      , trn_y,
+		0.0      , 0.0      , 1.0
+	);
 
 	// Scaling...
 	SET_MATRIX(m_scl,
-		scl_x		, 0.0		, 0.0	,
-		0.0			, scl_y		, 0.0	,
-		0.0			, 0.0		, 1.0	);
+		scl_x    , 0.0      , 0.0,
+		0.0      , scl_y    , 0.0,
+		0.0      , 0.0      , 1.0
+	);
 
 	// Shearing...
 	SET_MATRIX(m_shr,
-		1.0			, shr_x		, 0.0	,
-		shr_y		, 1.0		, 0.0	,
-		0.0			, 0.0		, 1.0	);
+		1.0      , shr_x    , 0.0,
+		shr_y    , 1.0      , 0.0,
+		0.0      , 0.0      , 1.0
+	);
 
 	// Rotation...
 	SET_MATRIX(m_rot,
-		 cos(rot)	, sin(rot)	, 0.0	,
-		-sin(rot)	, cos(rot)	, 0.0	,
-		 0.0		, 0.0		, 1.0	);
+		 cos(rot), sin(rot), 0.0,
+		-sin(rot), cos(rot), 0.0,
+		 0.0     , 0.0     , 1.0
+	);
 
 	// Initialise m as matrix, that does nothing...
 	SET_MATRIX(m,
-		1.0			, 0.0		, 0.0	,
-		0.0			, 1.0		, 0.0	,
-		0.0			, 0.0		, 1.0	);
+		1.0      , 0.0      , 0.0,
+		0.0      , 1.0      , 0.0,
+		0.0      , 0.0      , 1.0
+	);
 
 
 	//-----------------------------------------------------
 	// Set final transformation matrix m...
 
-	switch( Method )
+	switch( Parameters("METHOD" )->asInt() )
 	{
 	case 0:	// Translation...
 		Multiply_Matrices(m, m_trn);
@@ -260,31 +273,24 @@ bool CExercise_13::On_Execute(void)
 //---------------------------------------------------------
 void CExercise_13::Transformation(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B, double m[3][3])
 {
-	int			iShape, iPart, iPoint;
-	double		x;
-	TSG_Point	p;
-	CSG_Shape		*pShape_A, *pShape_B;
-
-
 	//-----------------------------------------------------
 	// Copy shapes layer A to B and reproject each point's position using matrix m...
 
-	for(iShape=0; iShape<pShapes_A->Get_Count() && Set_Progress(iShape, pShapes_A->Get_Count()); iShape++)
+	for(int iShape=0; iShape<pShapes_A->Get_Count() && Set_Progress(iShape, pShapes_A->Get_Count()); iShape++)
 	{
-		pShape_A	= pShapes_A->Get_Shape(iShape);
-		pShape_B	= pShapes_B->Add_Shape(pShape_A, SHAPE_COPY_ATTR);
+		CSG_Shape *pShape_A	= pShapes_A->Get_Shape(iShape);
+		CSG_Shape *pShape_B	= pShapes_B->Add_Shape(pShape_A, SHAPE_COPY_ATTR);
 
-		for(iPart=0; iPart<pShape_A->Get_Part_Count(); iPart++)
+		for(int iPart=0; iPart<pShape_A->Get_Part_Count(); iPart++)
 		{
-			for(iPoint=0; iPoint<pShape_A->Get_Point_Count(iPart); iPoint++)
+			for(int iPoint=0; iPoint<pShape_A->Get_Point_Count(iPart); iPoint++)
 			{
-				p	= pShape_A->Get_Point(iPoint, iPart);
+				TSG_Point	b, a	= pShape_A->Get_Point(iPoint, iPart);
 
-				x	= m[0][0] * p.x + m[0][1] * p.y + m[0][2];
-				p.y	= m[1][0] * p.x + m[1][1] * p.y + m[1][2];
-				p.x	= x;
+				b.x = m[0][0] * a.x + m[0][1] * a.y + m[0][2];
+				b.y = m[1][0] * a.x + m[1][1] * a.y + m[1][2];
 
-				pShape_B->Add_Point(p, iPart);
+				pShape_B->Add_Point(b, iPart);
 			}
 		}
 	}
@@ -298,29 +304,28 @@ void CExercise_13::Transformation(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B, 
 //---------------------------------------------------------
 void CExercise_13::Multiply_Matrices(double A[3][3], double B[3][3])
 {
-	int		x, y, k;
 	double	C[3][3];
 
 	//-----------------------------------------------------
-	for(x=0; x<3; x++)
+	for(int i=0; i<3; i++)
 	{
-		for(y=0; y<3; y++)
+		for(int j=0; j<3; j++)
 		{
-			C[x][y]	= 0.0;
+			C[i][j]	= 0.;
 
-			for(k=0; k<3; k++)
+			for(int k=0; k<3; k++)
 			{				
-				C[x][y]	+= A[x][k] * B[k][y];
+				C[i][j]	+= A[i][k] * B[k][j];
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	for(x=0; x<3; x++)
+	for(int i=0; i<3; i++)
 	{
-		for(y=0; y<3; y++)
+		for(int j=0; j<3; j++)
 		{
-			A[x][y]	= C[x][y];
+			A[i][j]	= C[i][j];
 		}
 	}
 }

@@ -60,21 +60,21 @@
 //---------------------------------------------------------
 CExercise_07::CExercise_07(void)
 {
-	//-----------------------------------------------------
-	// Give some information about your tool...
-
 	Set_Name		(_TL("07: Extended neighbourhoods - catchment areas (trace flow)"));
 
-	Set_Author		("O.Conrad (c) 2003");
+	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
 		"Extended Neighbourhoods - Catchment areas."
 	));
 
+	Add_Reference("Conrad, O.", "2007",
+		"SAGA - Entwurf, Funktionsumfang und Anwendung eines Systems für Automatisierte Geowissenschaftliche Analysen",
+		"ediss.uni-goettingen.de.", SG_T("http://hdl.handle.net/11858/00-1735-0000-0006-B26C-6"), SG_T("Online")
+	);
+
 
 	//-----------------------------------------------------
-	// Define your parameters list...
-
 	Parameters.Add_Grid(
 		"", "ELEVATION"	, _TL("Elevation grid"),
 		_TL("This must be your input data of type grid."),

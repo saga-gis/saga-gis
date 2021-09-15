@@ -60,21 +60,21 @@
 //---------------------------------------------------------
 CExercise_08::CExercise_08(void)
 {
-	//-----------------------------------------------------
-	// Give some information about your tool...
-
 	Set_Name		(_TL("08: Extended neighbourhoods - catchment areas (parallel)"));
 
-	Set_Author		("O.Conrad (c) 2003");
+	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
 		"Extended Neighbourhoods - Catchment areas."
 	));
 
+	Add_Reference("Conrad, O.", "2007",
+		"SAGA - Entwurf, Funktionsumfang und Anwendung eines Systems für Automatisierte Geowissenschaftliche Analysen",
+		"ediss.uni-goettingen.de.", SG_T("http://hdl.handle.net/11858/00-1735-0000-0006-B26C-6"), SG_T("Online")
+	);
+
 
 	//-----------------------------------------------------
-	// Define your parameters list...
-
 	Parameters.Add_Grid(
 		"", "ELEVATION"	, _TL("Elevation grid"),
 		_TL("This must be your input data of type grid."),
@@ -105,46 +105,27 @@ CExercise_08::CExercise_08(void)
 //---------------------------------------------------------
 bool CExercise_08::On_Execute(void)
 {
-	bool	bResult;
-	int		Method;
-
 	//-----------------------------------------------------
 	// Get parameter settings...
 
-	m_pDTM		= Parameters("ELEVATION")->asGrid();
+	m_pDTM	= Parameters("ELEVATION")->asGrid();
 
-	m_pArea		= Parameters("AREA"     )->asGrid();
+	m_pArea	= Parameters("AREA")->asGrid();
 
-	Method		= Parameters("METHOD")->asInt();
+	m_pArea->Assign(0.);
+	m_pArea->Set_Unit("m^2");
 
-
-	m_pArea		->Assign(0.0);
-	m_pArea		->Set_Unit(SG_T("m\xc2\xb2"));
 	DataObject_Set_Colors(m_pArea, 100, SG_COLORS_WHITE_BLUE);
 
 
 	//-----------------------------------------------------
 	// Execute calculation...
 
-	switch( Method )
+	switch( Parameters("METHOD")->asInt() )
 	{
-	case 0:
-		bResult	= Method_01();
-		break;
-
-	case 1:
-		bResult	= Method_02();
-		break;
-
-	default:
-		bResult	= false;
+	default: return( Method_01() );
+	case  1: return( Method_02() );
 	}
-
-
-	//-----------------------------------------------------
-	// Return 'true' if everything went okay...
-
-	return( bResult );
 }
 
 
@@ -155,14 +136,9 @@ bool CExercise_08::On_Execute(void)
 //---------------------------------------------------------
 bool CExercise_08::Method_01(void)
 {
-	int		x, y, i, ix, iy, iMax;
-	double	z, dz, dzMax,
-			Area_of_Cell	= Get_Cellsize() * Get_Cellsize();
-
-	//-----------------------------------------------------
 	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
-		m_pDTM->Get_Sorted(n, x, y, true, false);
+		int	x, y; m_pDTM->Get_Sorted(n, x, y, true, false);
 
 		if( m_pDTM->is_NoData(x, y) )
 		{
@@ -170,21 +146,20 @@ bool CExercise_08::Method_01(void)
 		}
 		else
 		{
-			m_pArea->Add_Value(x, y, Area_of_Cell);
+			m_pArea->Add_Value(x, y, Get_Cellarea());
 
-			z		= m_pDTM->asDouble(x, y);
-			iMax	= -1;
+			double z = m_pDTM->asDouble(x, y), dzMax = 0.; int iMax = -1;
 
-			for(i=0; i<8; i++)
+			for(int i=0; i<8; i++)
 			{
-				ix		= Get_xTo(i, x);
-				iy		= Get_yTo(i, y);
+				int	ix	= Get_xTo(i, x);
+				int	iy	= Get_yTo(i, y);
 
 				if( is_InGrid(ix, iy) && !m_pDTM->is_NoData(ix, iy) )
 				{
-					dz	= (z - m_pDTM->asDouble(ix, iy)) / Get_Length(i);
+					double	dz	= (z - m_pDTM->asDouble(ix, iy)) / Get_Length(i);
 
-					if( dz > 0.0 && (iMax < 0 || (iMax >= 0 && dzMax < dz)) )
+					if( dz > 0. && (iMax < 0 || (iMax >= 0 && dzMax < dz)) )
 					{
 						iMax	= i;
 						dzMax	= dz;
@@ -194,8 +169,8 @@ bool CExercise_08::Method_01(void)
 
 			if( iMax >= 0 )
 			{
-				ix		= Get_xTo(iMax, x);
-				iy		= Get_yTo(iMax, y);
+				int ix	= Get_xTo(iMax, x);
+				int	iy	= Get_yTo(iMax, y);
 
 				m_pArea->Add_Value(ix, iy, m_pArea->asDouble(x, y));
 			}
@@ -209,15 +184,11 @@ bool CExercise_08::Method_01(void)
 //---------------------------------------------------------
 bool CExercise_08::Method_02(void)
 {
-	int		x, y, i, ix, iy;
-	double	z, d, dz[8], dzSum,
-			Area_of_Cell	= Get_Cellsize() * Get_Cellsize(),
-			MFD_Converge	= 1.1;
+	const double	MFD_Converge	= 1.1;
 
-	//-----------------------------------------------------
 	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
-		m_pDTM->Get_Sorted(n, x, y, true, false);
+		int x, y; m_pDTM->Get_Sorted(n, x, y, true, false);
 
 		if( m_pDTM->is_NoData(x, y) )
 		{
@@ -225,37 +196,36 @@ bool CExercise_08::Method_02(void)
 		}
 		else
 		{
-			m_pArea->Add_Value(x, y, Area_of_Cell);
+			m_pArea->Add_Value(x, y, Get_Cellarea());
 
-			z		= m_pDTM->asDouble(x, y);
-			dzSum	= 0.0;
+			double z = m_pDTM->asDouble(x, y), d, dz[8], dzSum = 0.;
 
-			for(i=0; i<8; i++)
+			for(int i=0; i<8; i++)
 			{
-				ix		= Get_xTo(i, x);
-				iy		= Get_yTo(i, y);
+				int	ix	= Get_xTo(i, x);
+				int	iy	= Get_yTo(i, y);
 
-				if( is_InGrid(ix, iy) && !m_pDTM->is_NoData(ix, iy) && (d = z - m_pDTM->asDouble(ix, iy)) > 0.0 )
+				if( is_InGrid(ix, iy) && !m_pDTM->is_NoData(ix, iy) && (d = z - m_pDTM->asDouble(ix, iy)) > 0. )
 				{
 					dz[i]	= pow(d / Get_Length(i), MFD_Converge);
 					dzSum	+= dz[i];
 				}
 				else
 				{
-					dz[i]	= 0.0;
+					dz[i]	= 0.;
 				}
 			}
 
-			if( dzSum > 0.0 )
+			if( dzSum > 0. )
 			{
-				d		= m_pArea->asDouble(x, y) / dzSum;
+				d	= m_pArea->asDouble(x, y) / dzSum;
 
-				for(i=0; i<8; i++)
+				for(int i=0; i<8; i++)
 				{
-					if( dz[i] > 0.0 )
+					if( dz[i] > 0. )
 					{
-						ix		= Get_xTo(i, x);
-						iy		= Get_yTo(i, y);
+						int	ix	= Get_xTo(i, x);
+						int	iy	= Get_yTo(i, y);
 
 						m_pArea->Add_Value(ix, iy, dz[i] * d);
 					}

@@ -74,7 +74,7 @@ protected: /// protected members and functions: ///////////
 
 private: ///// private members and functions: /////////////
 
-	CSG_Grid			*m_pArea, *m_pDir;
+	CSG_Grid			*m_pArea, m_Dir;
 
 
 	double				Get_Area(int x, int y);
