@@ -118,9 +118,11 @@ bool CQGIS_ToolBox::On_Execute(void)
 	{
 		CSG_Tool_Library	*pLibrary	= SG_Get_Tool_Library_Manager().Get_Library(iLibrary);
 
-		if( !pLibrary->Get_Category    ().Cmp("Garden"           )	// generally exclude certain categories/libraries
+		if( !pLibrary->Get_Category    ().Cmp("SAGA Development" )	// generally exclude certain categories/libraries
+		||  !pLibrary->Get_Category    ().Cmp("Garden"           )
 		||  !pLibrary->Get_Category    ().Cmp("Grid Collection"  )
 		||  !pLibrary->Get_Category    ().Cmp("Reports"          )
+		||  !pLibrary->Get_Category    ().Cmp("Simulation"       )
 		||  !pLibrary->Get_Category    ().Cmp("Table"            )
 		||  !pLibrary->Get_Category    ().Cmp("TIN"              )
 		||  !pLibrary->Get_Category    ().Cmp("Visualization"    )
