@@ -250,12 +250,7 @@ bool CQGIS_ToolBox::On_Execute(void)
 //---------------------------------------------------------
 bool CQGIS_ToolBox::Get_Tool(CSG_Tool *pTool, CSG_String &Code)
 {
-	if( pTool == NULL || pTool == TLB_INTERFACE_SKIP_TOOL || pTool->needs_GUI() || pTool->is_Interactive() )
-	{
-		return( false );
-	}
-
-	if( pTool->Get_Parameters_Count() > 0 )
+	if( pTool == NULL || pTool == TLB_INTERFACE_SKIP_TOOL || pTool->needs_GUI() || pTool->is_Interactive() || pTool->Get_Parameters_Count() > 0 )
 	{
 		return( false );
 	}

@@ -316,9 +316,6 @@ const CSG_String	ArcDataTypes[ARC_nTypes][2]	=
 //---------------------------------------------------------
 bool CArcToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_Strings &Infos, CSG_Strings &Init, CSG_MetaData &Descs, const CSG_String &Name, const CSG_String &Identifier)
 {
-	int		i;
-
-	//-----------------------------------------------------
 	CSG_String	Info("\t\tparam = arcpy.Parameter(");
 
 	Info	+=     "displayName=\"" + Name       + "\"";
@@ -386,7 +383,7 @@ bool CArcToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_Strings &Infos, C
 	case PARAMETER_TYPE_Choice:
 		Info	+= ArcDataType(ARC_String   , false);
 		Info	+= "\t\tparam.filter.list = [\"";
-		for(i=0; i<pParameter->asChoice()->Get_Count(); i++)
+		for(int i=0; i<pParameter->asChoice()->Get_Count(); i++)
 		{
 			Info	+= pParameter->asChoice()->Get_Item(i) + CSG_String(i < pParameter->asChoice()->Get_Count() - 1 ? "\", \"" : "\"]\n");
 		}
@@ -535,17 +532,10 @@ bool CArcToolBox::Get_Tool(CSG_Tool_Library *pLibrary, int iTool, CSG_String &Co
 {
 	CSG_Tool	*pTool	= pLibrary->Get_Tool(iTool);
 
-	if( pTool == NULL || pTool == TLB_INTERFACE_SKIP_TOOL || pTool->needs_GUI() )
+	if( pTool == NULL || pTool == TLB_INTERFACE_SKIP_TOOL || pTool->needs_GUI() || pTool->is_Interactive() || pTool->Get_Parameters_Count() > 0 )
 	{
 		return( false );
 	}
-
-	if( pTool->Get_Parameters_Count() > 0 )
-	{
-		return( false );
-	}
-
-	int		i;
 
 	Code.Clear();
 
@@ -584,7 +574,7 @@ bool CArcToolBox::Get_Tool(CSG_Tool_Library *pLibrary, int iTool, CSG_String &Co
 
 	CSG_Parameter	*pGridTarget	= Get_GridTarget(pTool->Get_Parameters());
 
-	for(i=0; i<pTool->Get_Parameters()->Get_Count(); i++)
+	for(int i=0; i<pTool->Get_Parameters()->Get_Count(); i++)
 	{
 		if( !Get_Parameter(pTool->Get_Parameters()->Get_Parameter(i), Info, Init, *Description["tool"]("parameters"), pGridTarget) )
 		{
@@ -605,7 +595,7 @@ bool CArcToolBox::Get_Tool(CSG_Tool_Library *pLibrary, int iTool, CSG_String &Co
 	Code	+= "\n";
 	Code	+= "\tdef getParameterInfo(self):\n";
 
-	for(i=0; i<Info.Get_Count(); i++)
+	for(int i=0; i<Info.Get_Count(); i++)
 	{
 		Code	+= Info[i];
 	}
@@ -626,7 +616,7 @@ bool CArcToolBox::Get_Tool(CSG_Tool_Library *pLibrary, int iTool, CSG_String &Co
 	Code	+= "\tdef execute(self, parameters, messages):\n";
 	Code	+= "\t\tTool = ArcSAGA.SAGA_Tool('" + pLibrary->Get_Library_Name() + "', '" + pTool->Get_ID() + "')\n";
 
-	for(i=0; i<Init.Get_Count(); i++)
+	for(int i=0; i<Init.Get_Count(); i++)
 	{
 		Code	+= Init[i];
 	}
@@ -651,20 +641,20 @@ bool CArcToolBox::Save(CSG_Tool_Library *pLibrary, const CSG_String &Directory, 
 		return( false );
 	}
 
-	int			i;
-	CSG_String	s;
-	CSG_File	f;
-
 	CSG_String	FileName	= Parameters("BOX_NAMING")->asInt() == 0
 		? SG_File_Make_Path(Directory, Get_Formatted(pLibrary->Get_Library_Name(), FORMAT_FILE), SG_T(""))
 		: SG_File_Make_Path(Directory, Get_Formatted(pLibrary->Get_Category    (), FORMAT_FILE), SG_T("")) + " - " + Get_Formatted(pLibrary->Get_Name(), FORMAT_FILE);
 
-	if( !f.Open(FileName + ".pyt", SG_FILE_W, true) )
+	CSG_File	Stream;
+
+	if( !Stream.Open(FileName + ".pyt", SG_FILE_W, true) )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
+	CSG_String	s;
+
 	s	+= "import arcpy, ArcSAGA\n";
 	s	+= "\n";
 	s	+= "class Toolbox(object):\n";
@@ -673,33 +663,33 @@ bool CArcToolBox::Save(CSG_Tool_Library *pLibrary, const CSG_String &Directory, 
 	s	+= "\t\tself.alias = \"\"\n";
 	s	+= "\t\tself.tools = [";
 
-	for(i=0; i<Names.Get_Count(); i++)
+	for(int i=0; i<Names.Get_Count(); i++)
 	{
 		s	+= Names[i] + (i < Names.Get_Count() - 1 ? ", " : "]");
 	}
 
-	for(i=0; i<Codes.Get_Count(); i++)
+	for(int i=0; i<Codes.Get_Count(); i++)
 	{
 		s	+= Codes[i];
 	}
 
 	while( s.Length() > 0 )
 	{
-		f.Write(s.BeforeFirst('\n'));	f.Write("\n");	s	= s.AfterFirst('\n');
+		Stream.Write(s.BeforeFirst('\n')); Stream.Write("\n"); s = s.AfterFirst('\n');
 	}
 
 	//-----------------------------------------------------
-	for(i=0; i<Descs.Get_Count(); i++)
+	for(int i=0; i<Descs.Get_Count(); i++)
 	{
 		s	= FileName + "." + Names[i] + ".pyt.xml";
 
-		if( f.Open(s, SG_FILE_W, true) )
+		if( Stream.Open(s, SG_FILE_W, true) )
 		{
 			s	= Descs[i];	s.Replace("&amp;", "&");
 
 			while( s.Length() > 0 )
 			{
-				f.Write(s.BeforeFirst('\n'));	f.Write("\n");	s	= s.AfterFirst('\n');
+				Stream.Write(s.BeforeFirst('\n')); Stream.Write("\n"); s = s.AfterFirst('\n');
 			}
 		}
 	}
