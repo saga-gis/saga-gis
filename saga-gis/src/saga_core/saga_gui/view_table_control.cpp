@@ -104,6 +104,8 @@ BEGIN_EVENT_TABLE(CVIEW_Table_Control, wxGrid)
 
 	EVT_MENU     (ID_CMD_TABLE_FIELD_ADD      , CVIEW_Table_Control::On_Field_Add      )
 	EVT_UPDATE_UI(ID_CMD_TABLE_FIELD_ADD      , CVIEW_Table_Control::On_Field_Add_UI   )
+	EVT_MENU     (ID_CMD_TABLE_FIELD_MOVE     , CVIEW_Table_Control::On_Field_Move     )
+	EVT_UPDATE_UI(ID_CMD_TABLE_FIELD_MOVE     , CVIEW_Table_Control::On_Field_Move_UI  )
 	EVT_MENU     (ID_CMD_TABLE_FIELD_DEL      , CVIEW_Table_Control::On_Field_Del      )
 	EVT_UPDATE_UI(ID_CMD_TABLE_FIELD_DEL      , CVIEW_Table_Control::On_Field_Del_UI   )
 	EVT_MENU     (ID_CMD_TABLE_FIELD_RENAME   , CVIEW_Table_Control::On_Field_Rename   )
@@ -598,6 +600,7 @@ void CVIEW_Table_Control::On_RClick_Label(wxGridEvent &event)
 		wxMenu	Menu(_TL("Columns"));
 
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_ADD    );
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_MOVE   );
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_DEL    );
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_RENAME );
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_TYPE   );
@@ -787,13 +790,13 @@ void CVIEW_Table_Control::On_Field_Add(wxCommandEvent &event)
 	);
 
 	P.Add_Choice(
-		"", "FIELD"	, _TL("Insert Position"),
+		"", "POSITION"	, _TL("Insert at Position"),
 		_TL(""),
 		Fields, m_pTable->Get_Field_Count() - 1
 	);
 
 	P.Add_Choice(
-		"", "INSERT"	, _TL("Insert Method"),
+		"", "AFTER"		, _TL("Insert..."),
 		_TL(""),
 		CSG_String::Format("%s|%s",
 			_TL("before"),
@@ -824,7 +827,7 @@ void CVIEW_Table_Control::On_Field_Add(wxCommandEvent &event)
 		case 13: Type = SG_DATATYPE_Binary; break;
 		}
 
-		int Position = P("FIELD")->asInt() + P("INSERT")->asInt();
+		int Position = P("POSITION")->asInt() + P("AFTER")->asInt();
 
 		m_pTable->Add_Field(P("NAME")->asString(), Type, Position);
 
@@ -838,11 +841,55 @@ void CVIEW_Table_Control::On_Field_Add_UI(wxUpdateUIEvent &event)
 }
 
 //---------------------------------------------------------
+void CVIEW_Table_Control::On_Field_Move(wxCommandEvent &event)
+{
+	CSG_String	Fields; int Offset = m_pTable->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud ? 3 : 0;
+
+	for(int i=Offset; i<m_pTable->Get_Field_Count(); i++)
+	{
+		Fields	+= m_pTable->Get_Field_Name(i) + CSG_String('|');
+	}
+
+	//-----------------------------------------------------
+	CSG_Parameters	P(_TL("Move Field"));
+
+	P.Add_Choice(
+		"", "FIELD"		, _TL("Field"),
+		_TL(""),
+		Fields
+	);
+
+	P.Add_Choice(
+		"", "POSITION"	, _TL("Move to Position"),
+		_TL(""),
+		Fields
+	);
+
+	//-----------------------------------------------------
+	if( DLG_Parameters(&P) )
+	{
+		int	Field = Offset + P("FIELD")->asInt(), Position = Offset + P("POSITION")->asInt();
+
+		if( m_pTable->Mov_Field(Field, Position) )
+		{
+			g_pData->Update(m_pTable, NULL);
+		}
+	}
+}
+
+void CVIEW_Table_Control::On_Field_Move_UI(wxUpdateUIEvent &event)
+{
+	int	Offset = m_pTable->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud ? 3 : 0;
+
+	event.Enable(m_pTable->Get_Field_Count() > Offset + 1);
+}
+
+//---------------------------------------------------------
 void CVIEW_Table_Control::On_Field_Del(wxCommandEvent &event)
 {
-	CSG_Parameters	P(_TL("Delete Fields"));
+	CSG_Parameters	P(_TL("Delete Fields")); int Offset = m_pTable->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud ? 3 : 0;
 
-	for(int i=0; i<m_pTable->Get_Field_Count(); i++)
+	for(int i=Offset; i<m_pTable->Get_Field_Count(); i++)
 	{
 		P.Add_Bool("", SG_Get_String(i), m_pTable->Get_Field_Name(i), _TL(""), false);
 	}
@@ -851,7 +898,7 @@ void CVIEW_Table_Control::On_Field_Del(wxCommandEvent &event)
 	{
 		bool bChanged = false;
 
-		for(int i=m_pTable->Get_Field_Count()-1; i>=0; i--)
+		for(int i=m_pTable->Get_Field_Count()-1; i>=Offset; i--)
 		{
 			if( P(SG_Get_String(i))->asBool() && m_pTable->Del_Field(i) )
 			{
@@ -870,7 +917,9 @@ void CVIEW_Table_Control::On_Field_Del(wxCommandEvent &event)
 
 void CVIEW_Table_Control::On_Field_Del_UI(wxUpdateUIEvent &event)
 {
-	event.Enable(m_pTable->Get_Field_Count() > 0);
+	int	Offset	= m_pTable->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud ? 3 : 0;
+
+	event.Enable(m_pTable->Get_Field_Count() > Offset + 0);
 }
 
 

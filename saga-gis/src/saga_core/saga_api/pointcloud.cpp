@@ -803,6 +803,61 @@ bool CSG_PointCloud::Del_Field(int iField)
 }
 
 //---------------------------------------------------------
+bool CSG_PointCloud::Mov_Field(int iField, int Position)
+{
+	if( Position < 0 )
+	{
+		Position	= 0;
+	}
+	else if( Position >= m_nFields - 1 )
+	{
+		Position	= m_nFields - 1;
+	}
+
+	if( iField < 3 || iField >= m_nFields || iField == Position )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( Position > iField )
+	{
+		Position++;
+	}
+
+	if( !Add_Field(Get_Field_Name(iField), Get_Field_Type(iField), Position) )
+	{
+		return( false );
+	}
+
+	if( Position < iField )
+	{
+		iField++;
+	}
+
+	size_t	Size	= PC_GET_NBYTES(m_Field_Type[iField]);
+
+	#pragma omp parallel for
+	for(int i=0; i<m_nRecords; i++)
+	{
+		memcpy(m_Points[i] + m_Field_Offset[Position], m_Points[i] + m_Field_Offset[iField], Size);
+	}
+
+	if( !Del_Field(iField) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_PointCloud::Set_Field_Type(int iField, TSG_Data_Type Type)
 {
 	if( iField < 3 || iField >= m_nFields )

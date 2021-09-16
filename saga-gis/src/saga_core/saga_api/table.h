@@ -264,8 +264,9 @@ public:
 	bool							is_Compatible		(CSG_Table *pTable, bool bExactMatch = false)	const;
 
 	//-----------------------------------------------------
-	virtual bool					Add_Field			(const CSG_String &Name, TSG_Data_Type Type, int iField = -1);
+	virtual bool					Add_Field			(const CSG_String &Name, TSG_Data_Type Type, int Position = -1);
 	virtual bool					Del_Field			(int iField);
+	virtual bool					Mov_Field			(int iField, int Position);
 
 	int								Get_Field_Count		(void)			const	{	return( m_nFields );	}
 	const SG_Char *					Get_Field_Name		(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Name[iField]->c_str() : NULL );			}

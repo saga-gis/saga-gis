@@ -465,40 +465,37 @@ bool CSG_Table::is_Compatible(CSG_Table *pTable, bool bExactMatch) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Table::Add_Field(const CSG_String &Name, TSG_Data_Type Type, int add_Field)
+bool CSG_Table::Add_Field(const CSG_String &Name, TSG_Data_Type Type, int Position)
 {
-	int		iField, iRecord;
-
-	//-----------------------------------------------------
-	if( add_Field < 0 || add_Field > m_nFields )
+	if( Position < 0 || Position > m_nFields )
 	{
-		add_Field	= m_nFields;
+		Position	= m_nFields;
 	}
 
 	//-----------------------------------------------------
 	m_nFields++;
 
-	m_Field_Name	= (CSG_String            **)SG_Realloc(m_Field_Name , m_nFields * sizeof(CSG_String *));
-	m_Field_Type	= (TSG_Data_Type          *)SG_Realloc(m_Field_Type , m_nFields * sizeof(TSG_Data_Type));
+	m_Field_Name	= (CSG_String            **)SG_Realloc(m_Field_Name , m_nFields * sizeof(CSG_String            *));
+	m_Field_Type	= (TSG_Data_Type          *)SG_Realloc(m_Field_Type , m_nFields * sizeof(TSG_Data_Type          ));
 	m_Field_Stats	= (CSG_Simple_Statistics **)SG_Realloc(m_Field_Stats, m_nFields * sizeof(CSG_Simple_Statistics *));
 
 	//-----------------------------------------------------
-	for(iField=m_nFields-1; iField>add_Field; iField--)
+	for(int i=m_nFields-1; i>Position; i--)
 	{
-		m_Field_Name [iField]	= m_Field_Name [iField - 1];
-		m_Field_Type [iField]	= m_Field_Type [iField - 1];
-		m_Field_Stats[iField]	= m_Field_Stats[iField - 1];
+		m_Field_Name [i]	= m_Field_Name [i - 1];
+		m_Field_Type [i]	= m_Field_Type [i - 1];
+		m_Field_Stats[i]	= m_Field_Stats[i - 1];
 	}
 
 	//-----------------------------------------------------
-	m_Field_Name [add_Field]	= new CSG_String(!Name.is_Empty() ? Name : CSG_String::Format("FIELD_%d", m_nFields));
-	m_Field_Type [add_Field]	= Type;
-	m_Field_Stats[add_Field]	= new CSG_Simple_Statistics();
+	m_Field_Name [Position]	= new CSG_String(!Name.is_Empty() ? Name : CSG_String::Format("FIELD_%d", m_nFields));
+	m_Field_Type [Position]	= Type;
+	m_Field_Stats[Position]	= new CSG_Simple_Statistics();
 
 	//-----------------------------------------------------
-	for(iRecord=0; iRecord<m_nRecords; iRecord++)
+	for(int i=0; i<m_nRecords; i++)
 	{
-		m_Records[iRecord]->_Add_Field(add_Field);
+		m_Records[i]->_Add_Field(Position);
 	}
 
 	Set_Modified();
@@ -509,42 +506,93 @@ bool CSG_Table::Add_Field(const CSG_String &Name, TSG_Data_Type Type, int add_Fi
 //---------------------------------------------------------
 bool CSG_Table::Del_Field(int del_Field)
 {
-	int		iRecord, iField;
-
-	if( del_Field >= 0 && del_Field < m_nFields )
+	if( del_Field < 0 || del_Field >= m_nFields )
 	{
-		m_nFields--;
-
-		//-------------------------------------------------
-		delete(m_Field_Name [del_Field]);
-		delete(m_Field_Stats[del_Field]);
-
-		//-------------------------------------------------
-		for(iField=del_Field; iField<m_nFields; iField++)
-		{
-			m_Field_Name [iField]	= m_Field_Name [iField + 1];
-			m_Field_Type [iField]	= m_Field_Type [iField + 1];
-			m_Field_Stats[iField]	= m_Field_Stats[iField + 1];
-		}
-
-		//-------------------------------------------------
-		m_Field_Name	= (CSG_String            **)SG_Realloc(m_Field_Name , m_nFields * sizeof(CSG_String *));
-		m_Field_Type	= (TSG_Data_Type          *)SG_Realloc(m_Field_Type , m_nFields * sizeof(TSG_Data_Type));
-		m_Field_Stats	= (CSG_Simple_Statistics **)SG_Realloc(m_Field_Stats, m_nFields * sizeof(CSG_Simple_Statistics *));
-
-		//-------------------------------------------------
-		for(iRecord=0; iRecord<m_nRecords; iRecord++)
-		{
-			m_Records[iRecord]->_Del_Field(del_Field);
-		}
-
-		Set_Modified();
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	delete(m_Field_Name [del_Field]);
+	delete(m_Field_Stats[del_Field]);
+
+	//-------------------------------------------------
+	m_nFields--;
+
+	for(int i=del_Field; i<m_nFields; i++)
+	{
+		m_Field_Name [i]	= m_Field_Name [i + 1];
+		m_Field_Type [i]	= m_Field_Type [i + 1];
+		m_Field_Stats[i]	= m_Field_Stats[i + 1];
+	}
+
+	//-------------------------------------------------
+	m_Field_Name	= (CSG_String            **)SG_Realloc(m_Field_Name , m_nFields * sizeof(CSG_String            *));
+	m_Field_Type	= (TSG_Data_Type          *)SG_Realloc(m_Field_Type , m_nFields * sizeof(TSG_Data_Type          ));
+	m_Field_Stats	= (CSG_Simple_Statistics **)SG_Realloc(m_Field_Stats, m_nFields * sizeof(CSG_Simple_Statistics *));
+
+	//-------------------------------------------------
+	for(int i=0; i<m_nRecords; i++)
+	{
+		m_Records[i]->_Del_Field(del_Field);
+	}
+
+	Set_Modified();
+
+	return( true );
 }
+
+//---------------------------------------------------------
+bool CSG_Table::Mov_Field(int iField, int Position)
+{
+	if( Position < 0 )
+	{
+		Position	= 0;
+	}
+	else if( Position >= m_nFields - 1 )
+	{
+		Position	= m_nFields - 1;
+	}
+
+	if( iField < 0 || iField >= m_nFields || iField == Position )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( Position > iField )
+	{
+		Position++;
+	}
+
+	if( !Add_Field(Get_Field_Name(iField), Get_Field_Type(iField), Position) )
+	{
+		return( false );
+	}
+
+	if( Position < iField )
+	{
+		iField++;
+	}
+
+	#pragma omp parallel for
+	for(int i=0; i<m_nRecords; i++)
+	{
+		*m_Records[i]->Get_Value(Position) = *m_Records[i]->Get_Value(iField);
+	}
+
+	if( !Del_Field(iField) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSG_Table::Set_Field_Name(int iField, const SG_Char *Name)

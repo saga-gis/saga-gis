@@ -106,6 +106,7 @@ wxMenu * CVIEW_Table::_Create_Menu(void)
 	wxMenu	*pMenu	= new wxMenu;
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_ADD      );
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_MOVE     );
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_DEL      );
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_RENAME   );
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_TYPE     );
@@ -186,6 +187,7 @@ void CVIEW_Table::On_Command(wxCommandEvent &event)
 	switch( event.GetId() )
 	{
 	case ID_CMD_TABLE_FIELD_ADD      :
+	case ID_CMD_TABLE_FIELD_MOVE     :
 	case ID_CMD_TABLE_FIELD_DEL      :
 	case ID_CMD_TABLE_FIELD_RENAME   :
 	case ID_CMD_TABLE_FIELD_TYPE     :
@@ -214,6 +216,7 @@ void CVIEW_Table::On_Command_UI(wxUpdateUIEvent &event)
 	switch( event.GetId() )
 	{
 	case ID_CMD_TABLE_FIELD_ADD      :
+	case ID_CMD_TABLE_FIELD_MOVE     :
 	case ID_CMD_TABLE_FIELD_DEL      :
 	case ID_CMD_TABLE_FIELD_RENAME   :
 	case ID_CMD_TABLE_FIELD_TYPE     :

@@ -113,6 +113,8 @@ protected:
 
 	void						On_Field_Add		(wxCommandEvent   &event);
 	void						On_Field_Add_UI		(wxUpdateUIEvent  &event);
+	void						On_Field_Move		(wxCommandEvent   &event);
+	void						On_Field_Move_UI	(wxUpdateUIEvent  &event);
 	void						On_Field_Del		(wxCommandEvent   &event);
 	void						On_Field_Del_UI		(wxUpdateUIEvent  &event);
 	void						On_Field_Sort		(wxCommandEvent   &event);

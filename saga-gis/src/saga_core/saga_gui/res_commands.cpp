@@ -338,6 +338,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_LAYOUT_IMAGE_RESTORE:	return( _TL("Restore") );
 
 	case ID_CMD_TABLE_FIELD_ADD:		return( _TL("Add Field") );
+	case ID_CMD_TABLE_FIELD_MOVE:		return( _TL("Move Field") );
 	case ID_CMD_TABLE_FIELD_DEL:		return( _TL("Delete Fields") );
 	case ID_CMD_TABLE_FIELD_SORT:		return( _TL("Sort Fields") );
 	case ID_CMD_TABLE_FIELD_RENAME:		return( _TL("Rename Fields") );
