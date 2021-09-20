@@ -83,11 +83,19 @@ CWKSP_Data_Menu_File::~CWKSP_Data_Menu_File(void)
 //---------------------------------------------------------
 void CWKSP_Data_Menu_File::Destroy(void)
 {
-	CONFIG_Delete("RECENT_FILES/" + m_Group);
-
-	for(size_t i=0; i<m_Files.Count(); i++)
+	if( !m_Group.IsEmpty() )
 	{
-		CONFIG_Write("RECENT_FILES/" + m_Group, wxString::Format("FILE_%02zu", i + 1), m_Files[i]);
+		CONFIG_Delete("RECENT_FILES/" + m_Group);
+
+		for(size_t i=0; i<m_Files.Count(); i++)
+		{
+			CONFIG_Write("RECENT_FILES/" + m_Group, wxString::Format("FILE_%02zu", i + 1), m_Files[i]);
+		}
+
+		for(size_t i=m_Files.Count(); i<=m_CmdID[1]; i++)
+		{
+			CONFIG_Delete("RECENT_FILES/" + m_Group, wxString::Format("FILE_%02zu", i + 1));
+		}
 	}
 
 	m_DataType	= SG_DATAOBJECT_TYPE_Undefined;
@@ -187,7 +195,14 @@ wxMenu * CWKSP_Data_Menu_File::Create(TSG_Data_Object_Type DataType)
 
 		while( CONFIG_Read("RECENT_FILES/" + m_Group, wxString::Format("FILE_%02d", ++i), File) )
 		{
-			if( wxFileExists(File) )
+			bool bAdd = wxFileExists(File);
+
+			for(int j=0; bAdd && j<m_Files.Count(); j++)
+			{
+				bAdd = File.Cmp(m_Files[j]) != 0;
+			}
+
+			if( bAdd )
 			{
 				m_Files.Add(File);
 			}
