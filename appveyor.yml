@@ -43,5 +43,5 @@ after_build:
   - cmd: 7z a saga_vc_x64.7z %SAGA%\saga-gis\saga_x64
 
 artifacts:
-  - path: saga_vc_x64.7z
+  - path: %SAGA%\saga-gis\saga_vc_x64.7z
     name: saga
