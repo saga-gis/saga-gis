@@ -357,9 +357,9 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_TABLE_TO_CLIPBOARD:		return( _TL("Copy to Clipboard") );
 
 	case ID_CMD_DIAGRAM_PARAMETERS:		return( _TL("Properties") );
-	case ID_CMD_DIAGRAM_SIZE_FIT:		return( _TL("Fit Diagram to Window") );
-	case ID_CMD_DIAGRAM_SIZE_INC:		return( _TL("Increase Diagram Size") );
-	case ID_CMD_DIAGRAM_SIZE_DEC:		return( _TL("Decrease Diagram Size") );
+	case ID_CMD_DIAGRAM_SIZE_FIT:		return( _TL("Fit Size") );
+	case ID_CMD_DIAGRAM_SIZE_INC:		return( _TL("Zoom In [PgDn]") );
+	case ID_CMD_DIAGRAM_SIZE_DEC:		return( _TL("Zoom Out [PgUp]") );
 	case ID_CMD_DIAGRAM_TO_CLIPBOARD:	return( _TL("Copy to Clipboard") );
 
 	case ID_CMD_SCATTERPLOT_PARAMETERS:		return( _TL("Properties") );

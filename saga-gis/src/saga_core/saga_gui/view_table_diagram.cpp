@@ -72,21 +72,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define MIN_SIZE		100
-
-#define SCROLL_RATE		5
-
-#define SCROLL_BAR_DX	wxSystemSettings::GetMetric(wxSYS_VSCROLL_X)
-#define SCROLL_BAR_DY	wxSystemSettings::GetMetric(wxSYS_HSCROLL_Y)
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 class CVIEW_Table_Diagram_Control : public wxScrolledWindow
 {
 public:
@@ -96,10 +81,10 @@ public:
 	bool							Update_Diagram		(void);
 
 	bool							Set_Size			(const wxSize &Size);
-	bool							Set_Size			(double Zoom, wxPoint Center);
 	bool							Fit_Size			(void);
-	bool							Inc_Size			(void);
-	bool							Dec_Size			(void);
+
+	bool							Set_Zoom			(double Zoom);
+	bool							Set_Zoom			(double Zoom, wxPoint Center);
 
 	bool							Set_Parameters		(void);
 
@@ -107,14 +92,20 @@ public:
 
 	virtual void					OnDraw				(wxDC &dc);
 
+	void							On_Size				(wxSizeEvent  &event);
+	void							On_Mouse_LDown		(wxMouseEvent &event);
+	void							On_Mouse_RDown		(wxMouseEvent &event);
+	void							On_Mouse_Wheel		(wxMouseEvent &event);
+	void							On_Key_Down			(wxKeyEvent   &event);
+
 
 private:
 
-	bool							m_bFitSize;
-
-	int								m_nFields, *m_Fields, m_xField;
+	int								m_xField;
 
 	double							m_xMin, m_xMax, m_yMin, m_yMax, m_yScale;
+
+	CSG_Array_Int					m_Fields;
 
 	CSG_Colors						m_Colors;
 
@@ -122,27 +113,24 @@ private:
 
 	CSG_Table						*m_pTable, m_Structure;
 
-	wxSize							m_sDraw;
+	wxSize							m_Size;
 
 
-	void							On_Size				(wxSizeEvent  &event);
-	void							On_Mouse_LDown		(wxMouseEvent &event);
-	void							On_Mouse_RDown		(wxMouseEvent &event);
+	void							_Destroy				(void);
+	bool							_Create					(void);
+
+	bool							_Initialize				(void);
 
 	static int						_On_Parameter_Changed	(CSG_Parameter *pParameter, int Flags);
 
-	void							_Destroy			(void);
-	bool							_Create				(void);
-	bool							_Initialize			(void);
+	int								_Get_Field_By_Name		(const CSG_String &sField);
 
-	int								_Get_Field_By_Name	(const CSG_String &sField);
-
-	void							_Draw				(wxDC &dc, wxRect r);
-	void							_Draw_Frame			(wxDC &dc, wxRect r, double dx, double dy);
-	void							_Draw_Legend		(wxDC &dc, wxRect r);
-	void							_Draw_Points		(wxDC &dc, wxRect r, double dx, double dy, int iField);
-	void							_Draw_Lines			(wxDC &dc, wxRect r, double dx, double dy, int iField);
-	void							_Draw_Bars			(wxDC &dc, wxRect r, double dx, double dy, int iField);
+	void							_Draw					(wxDC &dc, wxRect r);
+	void							_Draw_Frame				(wxDC &dc, wxRect r, double dx, double dy);
+	void							_Draw_Legend			(wxDC &dc, wxRect r);
+	void							_Draw_Points			(wxDC &dc, wxRect r, double dx, double dy, int iField);
+	void							_Draw_Lines				(wxDC &dc, wxRect r, double dx, double dy, int iField);
+	void							_Draw_Bars				(wxDC &dc, wxRect r, double dx, double dy, int iField);
 
 
 	//-----------------------------------------------------
@@ -161,9 +149,11 @@ IMPLEMENT_CLASS(CVIEW_Table_Diagram_Control, wxScrolledWindow);
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CVIEW_Table_Diagram_Control, wxScrolledWindow)
-	EVT_SIZE			(CVIEW_Table_Diagram_Control::On_Size)
-	EVT_LEFT_DOWN		(CVIEW_Table_Diagram_Control::On_Mouse_LDown)
-	EVT_RIGHT_DOWN		(CVIEW_Table_Diagram_Control::On_Mouse_RDown)
+	EVT_SIZE      (CVIEW_Table_Diagram_Control::On_Size)
+	EVT_LEFT_DOWN (CVIEW_Table_Diagram_Control::On_Mouse_LDown)
+	EVT_RIGHT_DOWN(CVIEW_Table_Diagram_Control::On_Mouse_RDown)
+	EVT_MOUSEWHEEL(CVIEW_Table_Diagram_Control::On_Mouse_Wheel)
+	EVT_KEY_DOWN  (CVIEW_Table_Diagram_Control::On_Key_Down)
 END_EVENT_TABLE()
 
 
@@ -179,12 +169,7 @@ CVIEW_Table_Diagram_Control::CVIEW_Table_Diagram_Control(wxWindow *pParent, CWKS
 
 	m_pTable	= pTable->Get_Table();
 
-	m_nFields	= 0;
-	m_Fields	= NULL;
-
-	m_bFitSize	= false;
-
-	Fit_Size();
+	m_Size		= pParent->GetClientSize();
 
 	_Initialize();
 }
@@ -203,12 +188,7 @@ CVIEW_Table_Diagram_Control::~CVIEW_Table_Diagram_Control(void)
 //---------------------------------------------------------
 bool CVIEW_Table_Diagram_Control::Set_Parameters(void)
 {
-	if( DLG_Parameters(&m_Parameters) )
-	{
-		return( _Create() );
-	}
-
-	return( false );
+	return( DLG_Parameters(&m_Parameters) && _Create() );
 }
 
 //---------------------------------------------------------
@@ -217,25 +197,65 @@ bool CVIEW_Table_Diagram_Control::Update_Diagram(void)
 	return( m_Structure.is_Compatible(m_pTable, true) ? _Create() : _Initialize() );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define MIN_SIZE		100
+
+#define SCROLL_RATE		5
+
+#define SCROLL_BAR_DX	wxSystemSettings::GetMetric(wxSYS_VSCROLL_X)
+#define SCROLL_BAR_DY	wxSystemSettings::GetMetric(wxSYS_HSCROLL_Y)
+
+//---------------------------------------------------------
+bool CVIEW_Table_Diagram_Control::Fit_Size(void)
+{
+	wxSize	Size(GetParent()->GetClientSize());
+
+	Size.x	-= (int)(1.5 * SCROLL_BAR_DX);
+	Size.y	-= (int)(1.5 * SCROLL_BAR_DY);
+
+	if( m_Parameters("FIX_RATIO")->asBool() )
+	{
+		double	Ratio	= m_Parameters("RATIO")->asDouble();
+
+		if( Size.x / (double)Size.y > Ratio )
+		{
+			Size.x = (int)(Size.y * Ratio);
+		}
+		else
+		{
+			Size.y = (int)(Size.x / Ratio);
+		}
+	}
+
+	return( Set_Size(Size) );
+}
+
 //---------------------------------------------------------
 bool CVIEW_Table_Diagram_Control::Set_Size(const wxSize &Size)
 {
-	if( Size.x >= MIN_SIZE && Size.y >= MIN_SIZE )
+	static bool bSizing = false;
+
+	if( !bSizing && Size.x >= MIN_SIZE && Size.y >= MIN_SIZE )
 	{
-		if( Size.x != m_sDraw.x || Size.y != m_sDraw.y )
+		if( Size.x != m_Size.x || Size.y != m_Size.y )
 		{
-			bool	bFitSize	= m_bFitSize;
+			bSizing	= true;
 
-			m_bFitSize	= false;
-
-			m_sDraw.x	= Size.x;
-			m_sDraw.y	= Size.y;
+			m_Size	= Size;
 		
-			SetScrollbars(SCROLL_RATE, SCROLL_RATE, (m_sDraw.x + SCROLL_BAR_DX) / SCROLL_RATE, (m_sDraw.y + SCROLL_BAR_DY) / SCROLL_RATE);
+			SetScrollbars(SCROLL_RATE, SCROLL_RATE,
+				(m_Size.x + SCROLL_BAR_DX) / SCROLL_RATE,
+				(m_Size.y + SCROLL_BAR_DY) / SCROLL_RATE
+			);
 
 			Refresh(false);
 
-			m_bFitSize	= bFitSize;
+			bSizing	= false;
 		}
 
 		return( true );
@@ -244,7 +264,13 @@ bool CVIEW_Table_Diagram_Control::Set_Size(const wxSize &Size)
 	return( false );
 }
 
-bool CVIEW_Table_Diagram_Control::Set_Size(double Zoom, wxPoint Center)
+//---------------------------------------------------------
+bool CVIEW_Table_Diagram_Control::Set_Zoom(double Zoom)
+{
+	return( Set_Zoom(Zoom, wxPoint(GetClientSize().x / 2, GetClientSize().y / 2)) );
+}
+
+bool CVIEW_Table_Diagram_Control::Set_Zoom(double Zoom, wxPoint Center)
 {
 	if( Zoom > 0. )
 	{
@@ -253,7 +279,7 @@ bool CVIEW_Table_Diagram_Control::Set_Size(double Zoom, wxPoint Center)
 		x	= (int)((Zoom * (x * SCROLL_RATE + Center.x) - GetClientSize().x / 2) / SCROLL_RATE);
 		y	= (int)((Zoom * (y * SCROLL_RATE + Center.y) - GetClientSize().y / 2) / SCROLL_RATE);
 
-		if( Set_Size(wxSize((int)(m_sDraw.x * Zoom), (int)(m_sDraw.y * Zoom))) )
+		if( Set_Size(wxSize((int)(m_Size.x * Zoom), (int)(m_Size.y * Zoom))) )
 		{
 			Scroll(x, y);
 
@@ -264,29 +290,6 @@ bool CVIEW_Table_Diagram_Control::Set_Size(double Zoom, wxPoint Center)
 	return( false );
 }
 
-//---------------------------------------------------------
-bool CVIEW_Table_Diagram_Control::Fit_Size(void)
-{
-	wxSize	Size(GetParent()->GetClientSize());
-
-	Size.x	-= (int)(1.5 * SCROLL_BAR_DX);
-	Size.y	-= (int)(1.5 * SCROLL_BAR_DY);
-
-	return( Set_Size(Size) );
-}
-
-//---------------------------------------------------------
-bool CVIEW_Table_Diagram_Control::Inc_Size(void)
-{
-	return( Set_Size(1.2, wxPoint(GetClientSize().x / 2, GetClientSize().y / 2)) );
-}
-
-//---------------------------------------------------------
-bool CVIEW_Table_Diagram_Control::Dec_Size(void)
-{
-	return( Set_Size(1. / 1.2, wxPoint(GetClientSize().x / 2, GetClientSize().y / 2)) );
-}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -295,7 +298,7 @@ bool CVIEW_Table_Diagram_Control::Dec_Size(void)
 //---------------------------------------------------------
 void CVIEW_Table_Diagram_Control::On_Size(wxSizeEvent &WXUNUSED(event))
 {
-	if( m_bFitSize )
+	if( m_Parameters("FIT_SIZE") && m_Parameters("FIT_SIZE")->asBool() )
 	{
 		Fit_Size();
 	}
@@ -304,37 +307,102 @@ void CVIEW_Table_Diagram_Control::On_Size(wxSizeEvent &WXUNUSED(event))
 //---------------------------------------------------------
 void CVIEW_Table_Diagram_Control::On_Mouse_LDown(wxMouseEvent &event)
 {
-	Set_Size(1.2, event.GetPosition());
+	event.Skip();
 }
 
 //---------------------------------------------------------
 void CVIEW_Table_Diagram_Control::On_Mouse_RDown(wxMouseEvent &event)
 {
-	Set_Size(1. / 1.2, event.GetPosition());
+	wxMenu	Menu;
+
+	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DIAGRAM_TO_CLIPBOARD);
+	Menu.AppendSeparator();
+	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DIAGRAM_SIZE_FIT);
+	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DIAGRAM_SIZE_INC);
+	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DIAGRAM_SIZE_DEC);
+	Menu.AppendSeparator();
+	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DIAGRAM_PARAMETERS);
+
+	PopupMenu(&Menu, event.GetPosition());
 }
+
+//---------------------------------------------------------
+void CVIEW_Table_Diagram_Control::On_Mouse_Wheel(wxMouseEvent &event)
+{
+	Set_Zoom(event.GetWheelRotation() > 0 ? 1.2 : 1. / 1.2, event.GetPosition());
+}
+
+//---------------------------------------------------------
+void CVIEW_Table_Diagram_Control::On_Key_Down(wxKeyEvent &event)
+{
+	switch( event.GetKeyCode() )
+	{
+	default: event.Skip(); break;
+
+	case WXK_PAGEDOWN: Set_Zoom(     1.2); break;
+	case WXK_PAGEUP  : Set_Zoom(1. / 1.2); break;
+
+	case WXK_DOWN : { wxPoint p(GetViewStart()); Scroll(p.x, p.y + SCROLL_RATE); } break;
+	case WXK_UP   : { wxPoint p(GetViewStart()); Scroll(p.x, p.y - SCROLL_RATE); } break;
+
+	case WXK_LEFT : { wxPoint p(GetViewStart()); Scroll(p.x - SCROLL_RATE, p.y); } break;
+	case WXK_RIGHT: { wxPoint p(GetViewStart()); Scroll(p.x + SCROLL_RATE, p.y); } break;
+
+	case 'C':
+		if( event.GetModifiers() == wxMOD_CONTROL )
+		{
+			SaveToClipboard();
+		}
+		break;
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Table_Diagram_Control::OnDraw(wxDC &dc)
+{
+	wxBitmap	Bmp(m_Size);
+	wxMemoryDC	dc_Bmp(Bmp);
+
+	dc_Bmp.SetBackground(*wxWHITE_BRUSH);
+	dc_Bmp.Clear();
+
+	_Draw(dc_Bmp, m_Size);
+
+	dc_Bmp.SelectObject(wxNullBitmap);
+
+	dc.DrawBitmap(Bmp, 0, 0);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CVIEW_Table_Diagram_Control::SaveToClipboard(void)
 {
 	Set_Buisy_Cursor(true);
 
-	wxBitmap	BMP;
-	wxMemoryDC	dc;
+	wxBitmap	Bmp(m_Size);
+	wxMemoryDC	dc_Bmp(Bmp);
 
-	BMP.Create(m_sDraw.x, m_sDraw.y);
-	dc.SelectObject(BMP);
-	dc.SetBackground(*wxWHITE_BRUSH);
-	dc.Clear();
+	dc_Bmp.SetBackground(*wxWHITE_BRUSH);
+	dc_Bmp.Clear();
 
-	_Draw(dc, wxRect(0, 0, m_sDraw.x, m_sDraw.y));
+	_Draw(dc_Bmp, wxRect(m_Size));
 
-	dc.SelectObject(wxNullBitmap);
+	dc_Bmp.SelectObject(wxNullBitmap);
 
 	if( wxTheClipboard->Open() )
 	{
-		wxBitmapDataObject	*pBMP	= new wxBitmapDataObject;
-		pBMP->SetBitmap(BMP);
-		wxTheClipboard->SetData(pBMP);
+		wxBitmapDataObject	*pBmp	= new wxBitmapDataObject;
+		pBmp->SetBitmap(Bmp);
+		wxTheClipboard->SetData(pBmp);
 		wxTheClipboard->Close();
 	}
 
@@ -347,114 +415,9 @@ void CVIEW_Table_Diagram_Control::SaveToClipboard(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CVIEW_Table_Diagram_Control::_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
-{
-	CSG_Parameters	*pParameters	= pParameter ? pParameter->Get_Parameters() : NULL;
-
-	if( !pParameters )
-	{
-		return( 0 );
-	}
-
-	//-----------------------------------------------------
-	if( Flags & PARAMETER_CHECK_VALUES )
-	{
-		if( pParameter->Cmp_Identifier("SHOW_FIELDS") )
-		{
-			bool bDifferent = (*pParameters)("TYPE")->asInt() >= 4;
-
-			for(int i=0; i<pParameter->Get_Children_Count(); i++)
-			{
-				pParameter->Get_Child(i)->Set_Value                (pParameter->asBool());
-				pParameter->Get_Child(i)->Get_Child(0)->Set_Enabled(pParameter->asBool());
-				pParameter->Get_Child(i)->Get_Child(1)->Set_Enabled(pParameter->asBool() && bDifferent);
-			}
-		}
-	}
-
-	//-----------------------------------------------------
-	if( Flags & PARAMETER_CHECK_ENABLE )
-	{
-		if( pParameter->Cmp_Identifier("TYPE") )
-		{
-			pParameters->Set_Enabled("NODE_POINTS"  , pParameter->asInt() == 3 || pParameter->asInt() == 2 || pParameter->asInt() >= 4);
-			pParameters->Set_Enabled("NODE_LINES"   , pParameter->asInt() == 1 || pParameter->asInt() == 2 || pParameter->asInt() >= 4);
-
-			CSG_Parameter *pFields = (*pParameters)("SHOW_FIELDS");
-
-			for(int i=0; i<pFields->Get_Children_Count(); i++)
-			{
-				pFields->Get_Child(i)->Get_Child(1)->Set_Enabled(pFields->Get_Child(i)->asBool() && pParameter->asInt() >= 4);
-			}
-		}
-
-		if( pParameter->Cmp_Identifier("POINTS_COLOR_FIELD") )
-		{
-			pParameters->Set_Enabled("POINTS_COLORS", pParameter->asInt() < pParameter->asChoice()->Get_Count() - 1);
-		}
-
-		if( pParameter->Cmp_Identifier("LEGEND") )
-		{
-			pParameters->Set_Enabled("LEGEND_WIDTH", pParameter->asBool());
-		}
-
-		if( pParameter->Cmp_Identifier("X_FIELD") )
-		{
-			bool	bNone	= pParameter->asInt() >= pParameter->asChoice()->Get_Count() - 1;
-
-			pParameters->Set_Enabled("Y_SCALE_TO_X", bNone == false);
-			pParameters->Set_Enabled("Y_MAX_FIX"   , bNone || (*pParameters)("Y_SCALE_TO_X")->asBool() == false);
-		}
-
-		if( pParameter->Cmp_Identifier("Y_SCALE_TO_X") )
-		{
-			pParameters->Set_Enabled("Y_SCALE_RATIO", pParameter->asBool() ==  true);
-			pParameters->Set_Enabled("Y_MAX_FIX"    , pParameter->asBool() == false);
-		}
-
-		if( pParameter->Cmp_Identifier("Y_MIN_FIX") )
-		{
-			pParameters->Set_Enabled("Y_MIN_VAL"    , pParameter->asBool());
-		}
-
-		if( pParameter->Cmp_Identifier("Y_MAX_FIX") )
-		{
-			pParameters->Set_Enabled("Y_MAX_VAL"    , pParameter->asBool());
-		}
-
-		if( pParameter->Cmp_Identifier("X_FIELD") )
-		{
-			pParameters->Set_Enabled("X_LABEL"      , pParameter->asInt() >= pParameter->asChoice()->Get_Count() - 1);
-		}
-
-		CSG_String	ID(pParameter->Get_Identifier());
-
-		if( ID.Find("FIELD_") == 0 )
-		{
-			pParameters->Set_Enabled("COLOR_" + ID.AfterFirst('_'), pParameter->asBool());
-			pParameters->Set_Enabled("TYPE_"  + ID.AfterFirst('_'), pParameter->asBool() && (*pParameters)("TYPE")->asInt() >= 4);
-		}
-	}
-
-	//-----------------------------------------------------
-	return( 1 );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 void CVIEW_Table_Diagram_Control::_Destroy(void)
 {
-	if( m_nFields > 0 )
-	{
-		SG_Free(m_Fields);
-
-		m_Fields	= NULL;
-		m_nFields	= 0;
-	}
+	m_Fields.Destroy();
 }
 
 //---------------------------------------------------------
@@ -465,8 +428,6 @@ bool CVIEW_Table_Diagram_Control::_Create(void)
 	//-----------------------------------------------------
 	if( m_pTable && m_pTable->Get_Field_Count() > 0 )
 	{
-		m_bFitSize	= m_Parameters("FIT_SIZE")->asBool();
-
 		m_xField	= _Get_Field_By_Name(m_Parameters("X_FIELD")->asString());
 
 		if( m_xField < 0 || m_pTable->Get_Range(m_xField) <= 0. )
@@ -492,14 +453,11 @@ bool CVIEW_Table_Diagram_Control::_Create(void)
 			if( SG_Data_Type_is_Numeric(m_pTable->Get_Field_Type(iField))
 			&&  m_Parameters(CSG_String::Format("FIELD_%d", iField))->asBool() )
 			{
-				m_Fields			= (int *)SG_Realloc(m_Fields, (m_nFields + 1) * sizeof(int));
-				m_Fields[m_nFields]	= iField;
+				m_Fields	+= iField;
 
 				m_Colors.Set_Color(iField, m_Parameters(CSG_String::Format("COLOR_%d", iField))->asColor());
 
-				m_nFields++;
-
-				if( m_nFields == 1 )
+				if( m_Fields.Get_Size() == 1 )
 				{
 					m_yMin	= m_pTable->Get_Minimum(iField);
 					m_yMax	= m_pTable->Get_Maximum(iField);
@@ -535,8 +493,13 @@ bool CVIEW_Table_Diagram_Control::_Create(void)
 
 	Refresh(false);
 
-	return( m_nFields > 0 );
+	return( m_Fields.Get_Size() > 0 );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CVIEW_Table_Diagram_Control::_Initialize(void)
@@ -609,6 +572,8 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 	m_Parameters.Add_Int   ("LEGEND"      , "LEGEND_WIDTH"     , _TL("Width"             ), _TL("Percent"), 15, 0, true, 50, true);
 
 	m_Parameters.Add_Bool  ("NODE_GENERAL", "FIT_SIZE"         , _TL("Fit Size to Window"), _TL(""), true);
+	m_Parameters.Add_Bool  ("NODE_GENERAL", "FIX_RATIO"        , _TL("Keep Ratio"        ), _TL(""), false);
+	m_Parameters.Add_Double("FIX_RATIO"   , "RATIO"            , _TL("Ratio"             ), _TL(""), (1. + sqrt(5.)) / 2., 0.01, true, 100., true);
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Node  ("NODE_GENERAL", "NODE_FRAME"       , _TL("Frame"             ), _TL(""));
@@ -633,7 +598,106 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 	m_Parameters.Add_Bool  ("NODE_Y"      , "Y_MAX_FIX"	       , _TL("Fix Maximum"       ), _TL(""), false);
 	m_Parameters.Add_Double("Y_MAX_FIX"   , "Y_MAX_VAL"        , _TL("Maximum"           ), _TL(""), 1000.);
 
-	return( _Create() );
+	return( _Create() && Fit_Size() );
+}
+
+//---------------------------------------------------------
+int CVIEW_Table_Diagram_Control::_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
+{
+	CSG_Parameters	*pParameters	= pParameter ? pParameter->Get_Parameters() : NULL;
+
+	if( !pParameters )
+	{
+		return( 0 );
+	}
+
+	//-----------------------------------------------------
+	if( Flags & PARAMETER_CHECK_VALUES )
+	{
+		if( pParameter->Cmp_Identifier("SHOW_FIELDS") )
+		{
+			bool bDifferent = (*pParameters)("TYPE")->asInt() >= 4;
+
+			for(int i=0; i<pParameter->Get_Children_Count(); i++)
+			{
+				pParameter->Get_Child(i)->Set_Value                (pParameter->asBool());
+				pParameter->Get_Child(i)->Get_Child(0)->Set_Enabled(pParameter->asBool());
+				pParameter->Get_Child(i)->Get_Child(1)->Set_Enabled(pParameter->asBool() && bDifferent);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	if( Flags & PARAMETER_CHECK_ENABLE )
+	{
+		if( pParameter->Cmp_Identifier("TYPE") )
+		{
+			pParameters->Set_Enabled("NODE_POINTS"  , pParameter->asInt() == 3 || pParameter->asInt() == 2 || pParameter->asInt() >= 4);
+			pParameters->Set_Enabled("NODE_LINES"   , pParameter->asInt() == 1 || pParameter->asInt() == 2 || pParameter->asInt() >= 4);
+
+			CSG_Parameter *pFields = (*pParameters)("SHOW_FIELDS");
+
+			for(int i=0; i<pFields->Get_Children_Count(); i++)
+			{
+				pFields->Get_Child(i)->Get_Child(1)->Set_Enabled(pFields->Get_Child(i)->asBool() && pParameter->asInt() >= 4);
+			}
+		}
+
+		if( pParameter->Cmp_Identifier("POINTS_COLOR_FIELD") )
+		{
+			pParameters->Set_Enabled("POINTS_COLORS", pParameter->asInt() < pParameter->asChoice()->Get_Count() - 1);
+		}
+
+		if( pParameter->Cmp_Identifier("LEGEND") )
+		{
+			pParameters->Set_Enabled("LEGEND_WIDTH", pParameter->asBool());
+		}
+
+		if( pParameter->Cmp_Identifier("FIX_RATIO") )
+		{
+			pParameters->Set_Enabled("RATIO", pParameter->asBool());
+		}
+
+		if( pParameter->Cmp_Identifier("X_FIELD") )
+		{
+			bool	bNone	= pParameter->asInt() >= pParameter->asChoice()->Get_Count() - 1;
+
+			pParameters->Set_Enabled("Y_SCALE_TO_X", bNone == false);
+			pParameters->Set_Enabled("Y_MAX_FIX"   , bNone || (*pParameters)("Y_SCALE_TO_X")->asBool() == false);
+		}
+
+		if( pParameter->Cmp_Identifier("Y_SCALE_TO_X") )
+		{
+			pParameters->Set_Enabled("Y_SCALE_RATIO", pParameter->asBool() ==  true);
+			pParameters->Set_Enabled("Y_MAX_FIX"    , pParameter->asBool() == false);
+		}
+
+		if( pParameter->Cmp_Identifier("Y_MIN_FIX") )
+		{
+			pParameters->Set_Enabled("Y_MIN_VAL"    , pParameter->asBool());
+		}
+
+		if( pParameter->Cmp_Identifier("Y_MAX_FIX") )
+		{
+			pParameters->Set_Enabled("Y_MAX_VAL"    , pParameter->asBool());
+		}
+
+		if( pParameter->Cmp_Identifier("X_FIELD") )
+		{
+			pParameters->Set_Enabled("X_LABEL"      , pParameter->asInt() >= pParameter->asChoice()->Get_Count() - 1);
+		}
+
+		CSG_String	ID(pParameter->Get_Identifier());
+
+		if( ID.Find("FIELD_") == 0 )
+		{
+			pParameters->Set_Enabled("COLOR_" + ID.AfterFirst('_'), pParameter->asBool());
+			pParameters->Set_Enabled("TYPE_"  + ID.AfterFirst('_'), pParameter->asBool() && (*pParameters)("TYPE")->asInt() >= 4);
+		}
+	}
+
+	//-----------------------------------------------------
+	return( 1 );
 }
 
 
@@ -664,29 +728,6 @@ int CVIEW_Table_Diagram_Control::_Get_Field_By_Name(const CSG_String &sField)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CVIEW_Table_Diagram_Control::OnDraw(wxDC &dc)
-{
-	wxBitmap	bmp(m_sDraw);
-
-	wxMemoryDC	dcMem;
-
-	dcMem.SelectObject(bmp);
-	dcMem.SetBackground(*wxWHITE_BRUSH);
-	dcMem.Clear();
-
-	_Draw(dcMem, m_sDraw);
-
-	dcMem.SelectObject(wxNullBitmap);
-
-	dc.DrawBitmap(bmp, 0, 0);
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 void CVIEW_Table_Diagram_Control::_Draw(wxDC &dc, wxRect rDC)
 {
 	#define DO_ERROR(s)	Draw_Text(dc, TEXTALIGN_CENTER, rDC.GetLeft() + rDC.GetWidth() / 2, rDC.GetTop() + rDC.GetHeight() / 2, s); return;
@@ -694,7 +735,7 @@ void CVIEW_Table_Diagram_Control::_Draw(wxDC &dc, wxRect rDC)
 	dc.SetFont(Get_Font(m_Parameters("FONT")));
 
 	//-----------------------------------------------------
-	if( m_nFields < 1 )
+	if( m_Fields.Get_Size() < 1 )
 	{
 		DO_ERROR(_TL("invalid data set!"));
 	}
@@ -723,7 +764,7 @@ void CVIEW_Table_Diagram_Control::_Draw(wxDC &dc, wxRect rDC)
 
 		if( m_yScale > 0. )
 		{
-			dy	= dx * m_yScale;
+			dy	= dx * m_yScale; m_yMax = m_yMin + r.GetHeight() / dy;
 		}
 		else if( m_yMin < m_yMax )
 		{
@@ -742,7 +783,7 @@ void CVIEW_Table_Diagram_Control::_Draw(wxDC &dc, wxRect rDC)
 	//-----------------------------------------------------
 	int Type = m_Parameters("TYPE")->asInt(); bool bDifferent = Type >= 4;
 
-	for(int iField=0; iField<m_nFields; iField++)
+	for(size_t iField=0; iField<m_Fields.Get_Size(); iField++)
 	{
 		if( bDifferent )
 		{
@@ -862,12 +903,13 @@ void CVIEW_Table_Diagram_Control::_Draw_Frame(wxDC &dc, wxRect r, double dx, dou
 //---------------------------------------------------------
 void CVIEW_Table_Diagram_Control::_Draw_Legend(wxDC &dc, wxRect r)
 {
-	const int	dyFont	= 12;
-	const int	dyBox	= dyFont + 4;
+	int	dyFont	= (int)(0.08 * r.GetWidth());
+	int	dyBox	= dyFont + 4;
+	int	dxBox	= dyFont * 2;
 
 	const int minMargin = 10;
 
-	r.SetTopLeft(wxPoint(r.GetLeft() + minMargin, r.GetBottom() - m_nFields * dyBox));
+	r.SetTopLeft(wxPoint(r.GetLeft() + minMargin, r.GetBottom() - m_Fields.Get_Size() * dyBox));
 
 	wxFont	Font(dc.GetFont());
 	Font.SetPointSize(dyFont);
@@ -876,9 +918,9 @@ void CVIEW_Table_Diagram_Control::_Draw_Legend(wxDC &dc, wxRect r)
 	dc.SetPen(*wxBLACK_PEN);
 
 	//-----------------------------------------------------
-	for(int iField=0; iField<m_nFields; iField++)
+	for(size_t iField=0; iField<m_Fields.Get_Size(); iField++)
 	{
-		wxRect	rBox(r.GetLeft(), r.GetTop() + iField * dyBox, 20, dyBox);
+		wxRect	rBox(r.GetLeft(), r.GetTop() + iField * dyBox, dxBox, dyBox);
 		wxBrush	Brush(dc.GetBrush());
 		Brush.SetColour(Get_Color_asWX(m_Colors.Get_Color(m_Fields[iField])));
 		dc.SetBrush(Brush);
@@ -994,8 +1036,8 @@ void CVIEW_Table_Diagram_Control::_Draw_Lines(wxDC &dc, wxRect r, double dx, dou
 //---------------------------------------------------------
 void CVIEW_Table_Diagram_Control::_Draw_Bars(wxDC &dc, wxRect r, double dx, double dy, int iField)
 {
-	int	dxa	= m_xField < 0 ? (int)(dx / m_nFields * iField) : iField + 0;
-	int	dxb	= m_xField < 0 ? (int)(dx / m_nFields         ) : iField + 1;
+	int	dxa	= m_xField < 0 ? (int)(dx / m_Fields.Get_Size() * iField) : iField + 0;
+	int	dxb	= m_xField < 0 ? (int)(dx / m_Fields.Get_Size()         ) : iField + 1;
 
 	iField	= m_Fields[iField];
 
@@ -1030,14 +1072,14 @@ IMPLEMENT_CLASS(CVIEW_Table_Diagram, CVIEW_Base);
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CVIEW_Table_Diagram, CVIEW_Base)
-	EVT_SIZE			(CVIEW_Table_Diagram::On_Size)
-	EVT_KEY_DOWN		(CVIEW_Table_Diagram::On_Key_Down)
+	EVT_SIZE    (CVIEW_Table_Diagram::On_Size)
+	EVT_KEY_DOWN(CVIEW_Table_Diagram::On_Key_Down)
 
-	EVT_MENU			(ID_CMD_DIAGRAM_PARAMETERS		, CVIEW_Table_Diagram::On_Parameters)
-	EVT_MENU			(ID_CMD_DIAGRAM_SIZE_FIT		, CVIEW_Table_Diagram::On_Size_Fit)
-	EVT_MENU			(ID_CMD_DIAGRAM_SIZE_INC		, CVIEW_Table_Diagram::On_Size_Inc)
-	EVT_MENU			(ID_CMD_DIAGRAM_SIZE_DEC		, CVIEW_Table_Diagram::On_Size_Dec)
-	EVT_MENU			(ID_CMD_DIAGRAM_TO_CLIPBOARD	, CVIEW_Table_Diagram::On_SaveToClipboard)
+	EVT_MENU(ID_CMD_DIAGRAM_PARAMETERS  , CVIEW_Table_Diagram::On_Parameters)
+	EVT_MENU(ID_CMD_DIAGRAM_SIZE_FIT    , CVIEW_Table_Diagram::On_Size_Fit)
+	EVT_MENU(ID_CMD_DIAGRAM_SIZE_INC    , CVIEW_Table_Diagram::On_Size_Inc)
+	EVT_MENU(ID_CMD_DIAGRAM_SIZE_DEC    , CVIEW_Table_Diagram::On_Size_Dec)
+	EVT_MENU(ID_CMD_DIAGRAM_TO_CLIPBOARD, CVIEW_Table_Diagram::On_SaveToClipboard)
 END_EVENT_TABLE()
 
 
@@ -1052,12 +1094,9 @@ CVIEW_Table_Diagram::CVIEW_Table_Diagram(CWKSP_Table *pTable)
 	SYS_Set_Color_BG_Window(this);
 
 	m_pControl	= new CVIEW_Table_Diagram_Control(this, pTable);
-	m_pControl->SetSize(GetClientSize());
 
 	if( m_pControl->Set_Parameters() )
 	{
-		m_pControl->Fit_Size();
-
 		Do_Show();
 	}
 	else
@@ -1125,28 +1164,7 @@ void CVIEW_Table_Diagram::On_Size(wxSizeEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Diagram::On_Key_Down(wxKeyEvent &event)
 {
-
-	switch( event.GetKeyCode() )
-	{
-	default:
-		event.Skip();
-		break;
-
-	case WXK_UP:
-		m_pControl->Inc_Size();
-		break;
-
-	case WXK_DOWN:
-		m_pControl->Dec_Size();
-		break;
-
-	case 'C':
-		if( event.GetModifiers() == wxMOD_CONTROL )
-		{
-			m_pControl->SaveToClipboard();
-		}
-		break;
-	}
+	m_pControl->On_Key_Down(event);
 }
 
 
@@ -1169,13 +1187,13 @@ void CVIEW_Table_Diagram::On_Size_Fit(wxCommandEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Diagram::On_Size_Inc(wxCommandEvent &event)
 {
-	m_pControl->Inc_Size();
+	m_pControl->Set_Zoom(1.2);
 }
 
 //---------------------------------------------------------
 void CVIEW_Table_Diagram::On_Size_Dec(wxCommandEvent &event)
 {
-	m_pControl->Dec_Size();
+	m_pControl->Set_Zoom(1. / 1.2);
 }
 
 //---------------------------------------------------------
