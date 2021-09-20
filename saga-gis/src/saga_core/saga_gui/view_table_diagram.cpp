@@ -169,8 +169,6 @@ CVIEW_Table_Diagram_Control::CVIEW_Table_Diagram_Control(wxWindow *pParent, CWKS
 
 	m_pTable	= pTable->Get_Table();
 
-	m_Size		= pParent->GetClientSize();
-
 	_Initialize();
 }
 
@@ -188,7 +186,19 @@ CVIEW_Table_Diagram_Control::~CVIEW_Table_Diagram_Control(void)
 //---------------------------------------------------------
 bool CVIEW_Table_Diagram_Control::Set_Parameters(void)
 {
-	return( DLG_Parameters(&m_Parameters) && _Create() );
+	double	Ratio	= m_Parameters("FIX_RATIO")->asBool() ? m_Parameters("RATIO")->asDouble() : 0.;
+
+	if( DLG_Parameters(&m_Parameters) && _Create() )
+	{
+		if( ((Ratio == 0.) == m_Parameters("FIX_RATIO")->asBool()) || ((Ratio != 0.) && Ratio != m_Parameters("RATIO")->asDouble()) )
+		{
+			Fit_Size();
+		}
+
+		return( true );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -489,6 +499,11 @@ bool CVIEW_Table_Diagram_Control::_Create(void)
 		{
 			m_yMax	= m_Parameters("Y_MAX_VAL")->asDouble();
 		}
+	}
+
+	if( !m_Size.GetWidth() || !m_Size.GetHeight() )
+	{
+		SetSize(GetParent()->GetClientSize());
 	}
 
 	Refresh(false);
