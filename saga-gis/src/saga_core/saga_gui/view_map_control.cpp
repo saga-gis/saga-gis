@@ -214,22 +214,22 @@ inline void CVIEW_Map_Control::_Set_StatusBar(const TSG_Point &Point)
 		}
 		else if( Get_Active_Layer() )
 		{
-			TSG_Point	p(Point);	double epsilon	= _Get_Client2World(2.); // 2 pixel tolerance...
+			CWKSP_Layer *pLayer = Get_Active_Layer(); CWKSP_Map_Layer *pMapLayer = m_pMap->Get_Map_Layer(pLayer);
 
-			CWKSP_Map_Layer *pMapLayer = m_pMap->Get_Map_Layer(Get_Active_Layer());
+			TSG_Point	p(Point);	double epsilon	= _Get_Client2World(2.); // 2 pixel tolerance...
 
 			if( !pMapLayer || pMapLayer->is_Projecting() )
 			{
 				TSG_Point	e(Point); e.x += epsilon; e.y += epsilon;
 
-				if( SG_Get_Projected(m_pMap->Get_Projection(), Get_Active_Layer()->Get_Object()->Get_Projection(), p)
-				&&  SG_Get_Projected(m_pMap->Get_Projection(), Get_Active_Layer()->Get_Object()->Get_Projection(), e) )
+				if( SG_Get_Projected(m_pMap->Get_Projection(), pLayer->Get_Object()->Get_Projection(), p)
+				&&  SG_Get_Projected(m_pMap->Get_Projection(), pLayer->Get_Object()->Get_Projection(), e) )
 				{
 					epsilon	= (fabs(e.x - e.x) + fabs(e.y - e.y)) / 2.;
 				}
 			}
 
-			STATUSBAR_Set_Text(wxString::Format("Z %s", Get_Active_Layer()->Get_Value(p, epsilon).c_str()), STATUSBAR_VIEW_Z);
+			STATUSBAR_Set_Text(wxString::Format("Z %s", pLayer->Get_Value(p, epsilon).c_str()), STATUSBAR_VIEW_Z);
 		}
 		else
 		{

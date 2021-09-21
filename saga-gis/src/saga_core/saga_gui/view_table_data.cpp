@@ -144,7 +144,7 @@ bool CVIEW_Table_Data::DeleteCols			(size_t Position, size_t Number)
 //---------------------------------------------------------
 void CVIEW_Table_Data::SetValue(int iRecord, int iField, const wxString &Value)
 {
-	if( m_bRowLabels ) iField++; CSG_Table_Record *pRecord = Get_Record(iRecord, iField);
+	CSG_Table_Record *pRecord = Get_Field(iField) ? Get_Record(iRecord, iField) : NULL;
 
 	if( pRecord )
 	{
@@ -181,7 +181,7 @@ void CVIEW_Table_Data::SetValue(int iRecord, int iField, const wxString &Value)
 //---------------------------------------------------------
 void CVIEW_Table_Data::SetValueAsLong(int iRecord, int iField, long Value)
 {
-	if( m_bRowLabels ) iField++; CSG_Table_Record *pRecord = Get_Record(iRecord, iField);
+	CSG_Table_Record *pRecord = Get_Field(iField) ? Get_Record(iRecord, iField) : NULL;
 
 	if( pRecord ) { pRecord->Set_Value(iField, Value); }
 }
@@ -189,7 +189,7 @@ void CVIEW_Table_Data::SetValueAsLong(int iRecord, int iField, long Value)
 //---------------------------------------------------------
 void CVIEW_Table_Data::SetValueAsDouble(int iRecord, int iField, double Value)
 {
-	if( m_bRowLabels ) iField++; CSG_Table_Record *pRecord = Get_Record(iRecord, iField);
+	CSG_Table_Record *pRecord = Get_Field(iField) ? Get_Record(iRecord, iField) : NULL;
 
 	if( pRecord ) { pRecord->Set_Value(iField, Value); }
 }
@@ -197,7 +197,7 @@ void CVIEW_Table_Data::SetValueAsDouble(int iRecord, int iField, double Value)
 //---------------------------------------------------------
 void CVIEW_Table_Data::SetValueAsBool(int iRecord, int iField, bool Value)
 {
-	if( m_bRowLabels ) iField++; CSG_Table_Record *pRecord = Get_Record(iRecord, iField);
+	CSG_Table_Record *pRecord = Get_Field(iField) ? Get_Record(iRecord, iField) : NULL;
 
 	if( pRecord ) { pRecord->Set_Value(iField, Value); }
 }
@@ -209,7 +209,7 @@ void CVIEW_Table_Data::SetValueAsBool(int iRecord, int iField, bool Value)
 //---------------------------------------------------------
 bool CVIEW_Table_Data::On_Changed(int iRecord, int iField)
 {
-	if( m_bRowLabels ) { iField++; } CSG_Table_Record *pRecord = Get_Record(iRecord, iField);
+	CSG_Table_Record *pRecord = Get_Field(iField) ? Get_Record(iRecord, iField) : NULL;
 
 	if( pRecord && GetView() )
 	{

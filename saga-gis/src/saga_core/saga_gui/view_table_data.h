@@ -74,6 +74,31 @@ public:
 	~CVIEW_Table_Data(void);
 
 	//-----------------------------------------------------
+	bool				Get_Field			(int &iField)
+	{
+		if( iField < 0 )
+		{
+			return( false );
+		}
+
+		if( m_Fields.Get_Size() )
+		{
+			if( iField >= (int)m_Fields.Get_Size() )
+			{
+				return( false );
+			}
+
+			iField	= m_Fields[iField];
+		}
+		else if( m_bRowLabels )
+		{
+			iField++;
+		}
+
+		return( iField < m_pTable->Get_Field_Count() );
+	}
+
+	//-----------------------------------------------------
 	virtual int			GetNumberRows		(void)
 	{
 		return( m_bSelection ? m_pTable->Get_Selection_Count() : m_pTable->Get_Record_Count() );
@@ -81,7 +106,7 @@ public:
 
 	virtual int			GetNumberCols		(void)
 	{
-		return( m_bRowLabels ? m_pTable->Get_Field_Count() - 1 : m_pTable->Get_Field_Count() );
+		return( m_Fields.Get_Size() ? (int)m_Fields.Get_Size() : m_bRowLabels ? m_pTable->Get_Field_Count() - 1 : m_pTable->Get_Field_Count() );
 	}
 
 	//-----------------------------------------------------
@@ -119,9 +144,7 @@ public:
 
 	virtual wxString	GetColLabelValue	(int iField)
 	{
-		if( m_bRowLabels ) { iField++; }
-
-		if( iField >= 0 && iField < m_pTable->Get_Field_Count() )
+		if( Get_Field(iField) )
 		{
 			return( m_pTable->Get_Field_Name(iField) );
 		}
@@ -140,9 +163,7 @@ public:
 	//-----------------------------------------------------
 	TSG_Data_Type		Get_Field_Type		(int iField)
 	{
-		if( m_bRowLabels ) { iField++; }
-
-		if( iField >= 0 && iField < m_pTable->Get_Field_Count() )
+		if( Get_Field(iField) )
 		{
 			return( m_pTable->Get_Field_Type(iField) );
 		}
@@ -152,9 +173,7 @@ public:
 
 	virtual wxString	GetTypeName			(int iRecord, int iField)
 	{
-		if( m_bRowLabels ) { iField++; }
-
-		if( iField >= 0 && iField < m_pTable->Get_Field_Count() )
+		if( Get_Field(iField) )
 		{
 			switch( m_pTable->Get_Field_Type(iField) )
 			{
@@ -188,7 +207,7 @@ public:
 	//-----------------------------------------------------
 	virtual bool		IsEmptyCell			(int iRecord, int iField)
 	{
-		if( m_bRowLabels ) { iField++; } CSG_Table_Record *pRecord = Get_Record(iRecord, iField);
+		CSG_Table_Record *pRecord = Get_Field(iField) ? Get_Record(iRecord, iField) : NULL;
 
 		return( !pRecord || pRecord->is_NoData(iField) );
 	}
@@ -196,7 +215,7 @@ public:
 	//-----------------------------------------------------
 	virtual wxString	GetValue			(int iRecord, int iField)
 	{
-		if( m_bRowLabels ) { iField++; } CSG_Table_Record *pRecord = Get_Record(iRecord, iField);
+		CSG_Table_Record *pRecord = Get_Field(iField) ? Get_Record(iRecord, iField) : NULL;
 
 		if( pRecord && !pRecord->is_NoData(iField) )
 		{
@@ -222,7 +241,7 @@ public:
 	//-----------------------------------------------------
 	virtual long		GetValueAsLong		(int iRecord, int iField)
 	{
-		if( m_bRowLabels ) { iField++; } CSG_Table_Record *pRecord = Get_Record(iRecord, iField);
+		CSG_Table_Record *pRecord = Get_Field(iField) ? Get_Record(iRecord, iField) : NULL;
 
 		return( pRecord ? pRecord->asInt(iField) : 0l );
 	}
@@ -230,7 +249,7 @@ public:
 	//-----------------------------------------------------
 	virtual double		GetValueAsDouble	(int iRecord, int iField)
 	{
-		if( m_bRowLabels ) { iField++; } CSG_Table_Record *pRecord = Get_Record(iRecord, iField);
+		CSG_Table_Record *pRecord = Get_Field(iField) ? Get_Record(iRecord, iField) : NULL;
 
 		return( pRecord ? pRecord->asDouble(iField) : 0. );
 	}
@@ -238,7 +257,7 @@ public:
 	//-----------------------------------------------------
 	virtual bool		GetValueAsBool		(int iRecord, int iField)
 	{
-		if( m_bRowLabels ) { iField++; } CSG_Table_Record *pRecord = Get_Record(iRecord, iField);
+		CSG_Table_Record *pRecord = Get_Field(iField) ? Get_Record(iRecord, iField) : NULL;
 
 		return( pRecord ? pRecord->asInt(iField) != 0 : false );
 	}
@@ -262,6 +281,8 @@ public:
 
 	//-----------------------------------------------------
 	bool				m_bSelection, m_bRowLabels;
+
+	CSG_Array_Int		m_Fields;
 
 	CSG_Table			*m_pTable;
 

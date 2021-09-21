@@ -119,11 +119,12 @@ wxMenu * CVIEW_Table::_Create_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_SELECTION_CLEAR);
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_TABLE_SELECTION_ONLY );
 	pMenu->AppendSeparator();
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_AUTOSIZE_COLS  );
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_HIDE     );
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_SORT     );
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_CALC     );
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_TO_CLIPBOARD   );
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_AUTOSIZE_COLS  );
 
 	return( pMenu );
 }
@@ -191,6 +192,7 @@ void CVIEW_Table::On_Command(wxCommandEvent &event)
 	case ID_CMD_TABLE_FIELD_DEL      :
 	case ID_CMD_TABLE_FIELD_RENAME   :
 	case ID_CMD_TABLE_FIELD_TYPE     :
+	case ID_CMD_TABLE_FIELD_HIDE     :
 	case ID_CMD_TABLE_FIELD_SORT     :
 	case ID_CMD_TABLE_FIELD_CALC     :
 	case ID_CMD_TABLE_RECORD_ADD     :
@@ -220,6 +222,7 @@ void CVIEW_Table::On_Command_UI(wxUpdateUIEvent &event)
 	case ID_CMD_TABLE_FIELD_DEL      :
 	case ID_CMD_TABLE_FIELD_RENAME   :
 	case ID_CMD_TABLE_FIELD_TYPE     :
+	case ID_CMD_TABLE_FIELD_HIDE     :
 	case ID_CMD_TABLE_FIELD_SORT     :
 	case ID_CMD_TABLE_FIELD_CALC     :
 	case ID_CMD_TABLE_RECORD_ADD     :

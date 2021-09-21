@@ -108,6 +108,8 @@ BEGIN_EVENT_TABLE(CVIEW_Table_Control, wxGrid)
 	EVT_UPDATE_UI(ID_CMD_TABLE_FIELD_MOVE     , CVIEW_Table_Control::On_Field_Move_UI  )
 	EVT_MENU     (ID_CMD_TABLE_FIELD_DEL      , CVIEW_Table_Control::On_Field_Del      )
 	EVT_UPDATE_UI(ID_CMD_TABLE_FIELD_DEL      , CVIEW_Table_Control::On_Field_Del_UI   )
+	EVT_MENU     (ID_CMD_TABLE_FIELD_HIDE     , CVIEW_Table_Control::On_Field_Hide     )
+	EVT_UPDATE_UI(ID_CMD_TABLE_FIELD_HIDE     , CVIEW_Table_Control::On_Field_Hide_UI  )
 	EVT_MENU     (ID_CMD_TABLE_FIELD_RENAME   , CVIEW_Table_Control::On_Field_Rename   )
 	EVT_UPDATE_UI(ID_CMD_TABLE_FIELD_RENAME   , CVIEW_Table_Control::On_Field_Rename_UI)
 	EVT_MENU     (ID_CMD_TABLE_FIELD_TYPE     , CVIEW_Table_Control::On_Field_Type     )
@@ -605,11 +607,12 @@ void CVIEW_Table_Control::On_RClick_Label(wxGridEvent &event)
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_RENAME );
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_TYPE   );
 		Menu.AppendSeparator();
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_AUTOSIZE_COLS);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_HIDE   );
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_SORT   );
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_CALC   );
 		Menu.AppendSeparator();
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_TO_CLIPBOARD );
-		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_AUTOSIZE_COLS);
 
 		PopupMenu(&Menu, event.GetPosition().x, event.GetPosition().y - GetColLabelSize());
 	}
@@ -910,6 +913,8 @@ void CVIEW_Table_Control::On_Field_Del(wxCommandEvent &event)
 
 		if( bChanged )
 		{
+			m_pData->m_Fields.Destroy();
+
 			g_pData->Update(m_pTable, NULL);
 		}
 	}
@@ -920,6 +925,51 @@ void CVIEW_Table_Control::On_Field_Del_UI(wxUpdateUIEvent &event)
 	int	Offset	= m_pTable->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud ? 3 : 0;
 
 	event.Enable(m_pTable->Get_Field_Count() > Offset + 0);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Table_Control::On_Field_Hide(wxCommandEvent &event)
+{
+	CSG_Parameters P(_TL("Hide Fields"));
+
+	for(int i=0; i<m_pTable->Get_Field_Count(); i++)
+	{
+		P.Add_Bool("", SG_Get_String(i), m_pTable->Get_Field_Name(i), _TL(""), m_pData->m_Fields.Get_Size());
+	}
+
+	for(int i=0; i<(int)m_pData->m_Fields.Get_Size(); i++)
+	{
+		if( P(m_pData->m_Fields[i]) )
+		{
+			P[m_pData->m_Fields[i]].Set_Value(false);
+		}
+	}
+
+	//-----------------------------------------------------
+	if( DLG_Parameters(&P) )
+	{
+		m_pData->m_Fields.Destroy();
+
+		for(int i=0; i<m_pTable->Get_Field_Count(); i++)
+		{
+			if( !P[i].asBool() )
+			{
+				m_pData->m_Fields += i;
+			}
+		}
+
+		Update_Table();
+	}
+}
+
+void CVIEW_Table_Control::On_Field_Hide_UI(wxUpdateUIEvent &event)
+{
+	event.Enable(m_pTable->Get_Field_Count() > 1);
 }
 
 

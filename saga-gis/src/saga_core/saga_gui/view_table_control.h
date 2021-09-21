@@ -117,6 +117,8 @@ protected:
 	void						On_Field_Move_UI	(wxUpdateUIEvent  &event);
 	void						On_Field_Del		(wxCommandEvent   &event);
 	void						On_Field_Del_UI		(wxUpdateUIEvent  &event);
+	void						On_Field_Hide		(wxCommandEvent   &event);
+	void						On_Field_Hide_UI	(wxUpdateUIEvent  &event);
 	void						On_Field_Sort		(wxCommandEvent   &event);
 	void						On_Field_Sort_UI	(wxUpdateUIEvent  &event);
 	void						On_Field_Rename		(wxCommandEvent   &event);
