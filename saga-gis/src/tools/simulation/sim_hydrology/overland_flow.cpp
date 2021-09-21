@@ -268,9 +268,9 @@ bool COverland_Flow::On_Execute(void)
 	//-----------------------------------------------------
 	double	Update_Last	= 0., Update = Parameters("TIME_UPDATE")->asDouble() / 60.;	// from minutes to hours
 
-	double	Time_Stop	= Parameters("TIME_STOP")->asDouble();
+	double	Time, Time_Stop	= Parameters("TIME_STOP")->asDouble();
 
-	for(double Time=0.; Time<=Time_Stop && Set_Time_Stamp(Time); Time+=m_dTime)
+	for(Time=0.; Time<=Time_Stop && Set_Time_Stamp(Time); Time+=m_dTime)
 	{
 		SG_UI_ProgressAndMsg_Lock(true);
 
@@ -288,6 +288,13 @@ bool COverland_Flow::On_Execute(void)
 
 		SG_UI_ProgressAndMsg_Lock(false);
 	}
+
+	//-----------------------------------------------------
+	double	s	= Time;
+	int		h	= (int)s; s = 60. * (s - h);
+	int		m	= (int)s; s = 60. * (s - m);
+
+	Message_Fmt("\n____\n%s: %02dh %02dm %02fs (= %g %s)\n", _TL("Simulation Time"), h, m, s, Time, _TL("hours"));
 
 	//-----------------------------------------------------
 	Finalize();
