@@ -1391,7 +1391,10 @@ CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 		Script += "if os.name == 'nt': # Windows\n";
 		Script += "    if os.getenv('SAGA_PATH') is None: # in case you did not define a 'SAGA_PATH' environment variable pointing to your SAGA installation directory\n";
 		Script += "        os.environ['SAGA_PATH'] = 'C:\\saga_win32'\n";
-		Script += "    os.environ['PATH'] = os.environ['SAGA_PATH'] + '\\;' + os.environ['PATH']\n";
+		Script += "    if 'add_dll_directory' in dir(os):\n";
+		Script += "        os.add_dll_directory(os.environ['SAGA_PATH'])\n";
+		Script += "    else:\n";
+		Script += "        os.environ['PATH'] = os.environ['SAGA_PATH'] + '\\;' + os.environ['PATH']\n";
 		Script += "\n";
 		Script += "import saga_api\n";
 		Script += "\n";
