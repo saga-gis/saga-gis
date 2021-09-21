@@ -31,7 +31,7 @@ IF "%SWIG%" == "" (
 )
 
 IF "%PYTHONDIR%" == "" (
-	SET PYTHONDIR=F:\develop\libs\Python\Python39_x64
+	SET PYTHONDIR=F:\develop\libs\Python\Python-3.9.6
 )
 
 IF "%SAGA_ROOT%" == "" (

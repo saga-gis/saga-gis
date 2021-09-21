@@ -8,7 +8,7 @@ REM ###################################
 REM ___________________________________
 REM Tools
 
-SET ZIPEXE="C:\Program Files\7-Zip\7z.exe" a -r -y -mx5
+SET ZIPEXE="C:\Program Files\7-Zip\7z.exe"
 SET ISETUP="C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
 SET GITEXE="C:\Program Files\Git\bin\git.exe"
 SET DOXEXE="C:\Program Files\doxygen\bin\doxygen.exe"
@@ -77,9 +77,9 @@ REM ###################################
 
 REM ___________________________________
 REM GIT Source Code Repository
-%GITEXE% clone git://git.code.sf.net/p/saga-gis/code %SAGA_VERSION%_src
+%GITEXE% clone git://git.code.sf.net/p/saga-gis/code %SAGA_VERSION%
 
-PUSHD %SAGA_VERSION%_src
+PUSHD %SAGA_VERSION%
 
 REM Create a branch (better do manually)
 REM %GITEXE% branch release-%SAGA_VER_TEXT%
@@ -93,11 +93,17 @@ POPD
 
 REM ___________________________________
 REM Zip Source Code
-%ZIPEXE% %SAGA_VERSION%_src.zip %SAGA_VERSION%_src
+%ZIPEXE% a -r -y -mx5 %SAGA_VERSION%_src.zip %SAGA_VERSION%
+
+REM Create a tarball
+%ZIPEXE% a -r -y -ttar %SAGA_VERSION%.tar %SAGA_VERSION%
+%ZIPEXE% a -y -mx5 -tgzip %SAGA_VERSION%.tar.gz %SAGA_VERSION%.tar
+DEL %SAGA_VERSION%.tar
+
 
 REM ___________________________________
 REM Drop Sources
-RMDIR /S/Q %SAGA_VERSION%_src
+RMDIR /S/Q %SAGA_VERSION%
 
 
 REM ___________________________________
@@ -121,7 +127,7 @@ XCOPY /C/S/Q/Y/H "%SAGA_DIR_WIN32%"
 DEL /F *.ini *.cfg *.exp *.pdb *.tmp tools\*.exp tools\*.lib tools\*.pdb tools\dev_*.*
 COPY ..\%SAGA4QGIS% .\%SAGA4QGIS%
 POPD
-%ZIPEXE% "%SAGA_VERSION%_%SAGA_CONFIG%.zip" "%SAGA_VERSION%_%SAGA_CONFIG%"
+%ZIPEXE% a -r -y -mx5 "%SAGA_VERSION%_%SAGA_CONFIG%.zip" "%SAGA_VERSION%_%SAGA_CONFIG%"
 
 COPY "%SAGA_ROOT%\..\saga_setup_readme.rtf" "%SAGA_VERSION%_%SAGA_CONFIG%"
 COPY "%SAGA_ROOT%\..\saga_setup_%SAGA_CONFIG%.iss" "%SAGA_VERSION%_%SAGA_CONFIG%"
@@ -139,7 +145,7 @@ XCOPY /C/S/Q/Y/H "%SAGA_DIR_X64%"
 DEL /F *.ini *.cfg *.exp *.pdb *.tmp tools\*.exp tools\*.lib tools\*.pdb tools\dev_*.*
 COPY ..\%SAGA4QGIS% .\%SAGA4QGIS%
 POPD
-%ZIPEXE% "%SAGA_VERSION%_%SAGA_CONFIG%.zip" "%SAGA_VERSION%_%SAGA_CONFIG%"
+%ZIPEXE% a -r -y -mx5 "%SAGA_VERSION%_%SAGA_CONFIG%.zip" "%SAGA_VERSION%_%SAGA_CONFIG%"
 
 COPY "%SAGA_ROOT%\..\saga_setup_readme.rtf" "%SAGA_VERSION%_%SAGA_CONFIG%"
 COPY "%SAGA_ROOT%\..\saga_setup_%SAGA_CONFIG%.iss" "%SAGA_VERSION%_%SAGA_CONFIG%"
@@ -157,7 +163,7 @@ REM Doxygen API Documentation
 REM ###################################
 
 %DOXEXE% ..\doxygen_saga_api_html"
-%ZIPEXE% "%SAGA_VERSION%_api_doc.zip" "%SAGA_VERSION%_api_doc"
+%ZIPEXE% a -r -y -mx5 "%SAGA_VERSION%_api_doc.zip" "%SAGA_VERSION%_api_doc"
 
 %DOXEXE% ..\doxygen_saga_api_chm"
 
