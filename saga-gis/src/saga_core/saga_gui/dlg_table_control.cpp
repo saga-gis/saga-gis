@@ -237,22 +237,15 @@ bool CDLG_Table_Control::_Update_Selection(void)
 	//-----------------------------------------------------
 	BeginBatch();
 
-	if( m_pData->m_bSelection )
-	{
-		SelectAll();
-	}
-	else
-	{
-		ClearSelection();
+	ClearSelection();
 
-		if( m_Table.Get_Selection_Count() > 0 )
+	if( m_Table.Get_Selection_Count() > 0 )
+	{
+		for(int i=0; i<m_pData->GetRowsCount(); i++)
 		{
-			for(int i=0; i<m_pData->GetRowsCount(); i++)
+			if( m_pData->Get_Record(i)->is_Selected() )
 			{
-				if( m_pData->Get_Record(i)->is_Selected() )
-				{
-					SelectRow(i, true);
-				}
+				SelectRow(i, true);
 			}
 		}
 	}
@@ -270,22 +263,18 @@ bool CDLG_Table_Control::_Update_Selection(void)
 //---------------------------------------------------------
 void CDLG_Table_Control::On_Selected(wxGridRangeSelectEvent &event)
 {
-	if( GetBatchCount() == 0 )
+	if( event.Selecting() )
 	{
-		for(int iRow=event.GetTopRow(); iRow<=event.GetBottomRow(); iRow++)
-		{
-			CSG_Table_Record	*pRecord	= m_Table.Get_Record_byIndex(iRow);
+		m_Table.Select();	// clear current selection
 
-			if( pRecord->is_Selected() != event.Selecting() )
+		for(int i=0; i<m_Table.Get_Count(); i++)
+		{
+			if( IsInSelection(i, 0) )
 			{
-				m_Table.Select(pRecord, true);
+				m_Table.Select(i, true);
 			}
 		}
-
-		_Update_Selection();
 	}
-
-	event.Skip();
 }
 
 
@@ -551,7 +540,7 @@ bool CDLG_Table_Control::Ins_Record(void)
 //---------------------------------------------------------
 bool CDLG_Table_Control::Del_Record(void)
 {
-	return( m_Table.Del_Record(GetGridCursorRow())
+	return( (m_Table.Get_Selection_Count() ? m_Table.Del_Selection() > 0 : m_Table.Del_Record(GetGridCursorRow()))
 		&& _Update_Records()
 	);
 }

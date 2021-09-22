@@ -121,17 +121,15 @@ CDLG_Table::CDLG_Table(CSG_Table *pTable, wxString Caption)
 //---------------------------------------------------------
 void CDLG_Table::On_Key(wxKeyEvent &event)
 {
-	if( event.GetKeyCode() == WXK_RETURN )
-	{
-		if( m_pControl->IsCellEditControlShown() )
-		{
-			m_pControl->SaveEditControlValue();
-
-			return;
-		}
+	if( event.GetKeyCode() == WXK_RETURN && m_pControl->IsCellEditControlShown() )
+	{	// neccessary here when editing a cell, because 'return' would otherwise directly close the dialog!
+		m_pControl->SaveEditControlValue();
+		m_pControl->HideCellEditControl ();
 	}
-
-	event.Skip();
+	else
+	{
+		event.Skip();	// let the base class do the standard processings
+	}
 }
 
 //---------------------------------------------------------
