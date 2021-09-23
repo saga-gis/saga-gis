@@ -268,6 +268,7 @@ bool CGrid_Terrain_Map::Generate_Topography()
 	}
 
 
+	pShade->Fmt_Name("%s (%s)", _TL("Shading"), Parameters("DEM")->asGrid()->Get_Name());
 	DataObject_Update(Parameters("DEM")->asGrid()	, SG_UI_DATAOBJECT_SHOW_NEW_MAP);
 	DataObject_Update(pShade						, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
 
@@ -318,7 +319,6 @@ bool CGrid_Terrain_Map::Generate_Morphology()
 	)
 
 	pOpenness->Subtract(TMP1);
-	pOpenness->Set_Name(_TL("Openness"));
 
 
 	//-----------------------------------------------------
@@ -343,6 +343,8 @@ bool CGrid_Terrain_Map::Generate_Morphology()
 	}
 
 
+	pOpenness->Fmt_Name("%s (%s)", _TL("Openness"), Parameters("DEM")->asGrid()->Get_Name());
+	pSlope->Fmt_Name("%s (%s)", _TL("Slope"), Parameters("DEM")->asGrid()->Get_Name());
 	DataObject_Update(pOpenness	, SG_UI_DATAOBJECT_SHOW_NEW_MAP);
 	DataObject_Update(pSlope	, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
 
