@@ -722,9 +722,12 @@ bool CSG_GDAL_DataSet::Get_MetaData(CSG_MetaData &MetaData)	const
 		{
 			while( *pMetaData )
 			{
-				CSG_String	s(*pMetaData);
+				CSG_String s(*pMetaData);
 
-				MetaData.Add_Child(s.BeforeFirst('='), s.AfterFirst('='));
+				CSG_String Key   = s.BeforeFirst('='); Key.Replace("#", "."); // '#' in tag is not XML conform
+				CSG_String Value = s. AfterFirst('=');
+
+				MetaData.Add_Child(Key, Value);
 
 				pMetaData++;
 			}
@@ -749,7 +752,10 @@ bool CSG_GDAL_DataSet::Get_MetaData(CSG_MetaData &MetaData, const char *pszDomai
 			{
 				CSG_String	s(*pMetaData);
 
-				MetaData.Add_Child(s.BeforeFirst('='), s.AfterFirst('='));
+				CSG_String Key   = s.BeforeFirst('='); Key.Replace("#", "."); // '#' in tag is not XML conform
+				CSG_String Value = s. AfterFirst('=');
+
+				MetaData.Add_Child(Key, Value);
 
 				pMetaData++;
 			}
