@@ -236,6 +236,19 @@ bool CVIEW_Table_Data::On_Changed(int iRecord, int iField)
 }
 
 //---------------------------------------------------------
+int Sort_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
+{
+	CSG_String ID(pParameter->Get_Identifier());
+
+	if( ID.Find("ORDER") == 0 )
+	{
+		pParameter->Set_Children_Enabled(pParameter->asInt() > 0);
+	}
+
+	return( 1 );
+}
+
+//---------------------------------------------------------
 bool CVIEW_Table_Data::On_Sort(void)
 {
 	CSG_String	Fields, Order;
@@ -254,14 +267,16 @@ bool CVIEW_Table_Data::On_Sort(void)
 	//-----------------------------------------------------
 	CSG_Parameters	P(_TL("Sort Table"));
 
-	P.Add_Choice(""       , "FIELD_1", _TL("Sort first by" ), _TL(""), Fields, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(0));
-	P.Add_Choice("FIELD_1", "ORDER_1", _TL("Direction"     ), _TL(""), Order , !m_pTable->is_Indexed() ? 1 : m_pTable->Get_Index_Order(0));
+	P.Set_Callback_On_Parameter_Changed(Sort_Parameter_Changed);
 
-	P.Add_Choice(""       , "FIELD_2", _TL("Sort second by"), _TL(""), Fields, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(1));
-	P.Add_Choice("FIELD_2", "ORDER_2", _TL("Direction"     ), _TL(""), Order , !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Order(1));
+	P.Add_Choice(""       , "ORDER_1", _TL("Sorting Order"    ), _TL(""), Order , !m_pTable->is_Indexed() ? 1 : m_pTable->Get_Index_Order(0));
+	P.Add_Choice("ORDER_1", "FIELD_1", _TL("Field"            ), _TL(""), Fields, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(0));
 
-	P.Add_Choice(""       , "FIELD_3", _TL("Sort third by" ), _TL(""), Fields, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(2));
-	P.Add_Choice("FIELD_3", "ORDER_3", _TL("Direction"     ), _TL(""), Order , !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Order(2));
+	P.Add_Choice("ORDER_1", "ORDER_2", _TL("2nd Sorting Order"), _TL(""), Order , !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Order(1));
+	P.Add_Choice("ORDER_2", "FIELD_2", _TL("2nd Field"        ), _TL(""), Fields, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(1));
+
+	P.Add_Choice("ORDER_2", "ORDER_3", _TL("3rd Sorting Order"), _TL(""), Order , !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Order(2));
+	P.Add_Choice("ORDER_3", "FIELD_3", _TL("3rd Field"        ), _TL(""), Fields, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(2));
 
 	//-----------------------------------------------------
 	if( DLG_Parameters(&P) )

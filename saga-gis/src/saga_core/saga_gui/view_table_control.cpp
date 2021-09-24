@@ -1123,6 +1123,8 @@ void CVIEW_Table_Control::On_Field_Sort(wxCommandEvent &event)
 {
 	if( m_pData->On_Sort() )
 	{
+		m_Cursor	= -1;
+
 		_Update_Records();
 	}
 }
