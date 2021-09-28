@@ -361,8 +361,6 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 	}
 	else
 	{
-		int		i;
-
 		CSG_String	Version(Project.Get_Property("VERSION"));
 
 		bSuccess	= true;
@@ -370,12 +368,12 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 		//-------------------------------------------------
 		g_pData->Get_Menu_Files()->Set_Update(false);
 
-		for(i=0; i<pNode->Get_Children_Count(); i++)
+		for(int i=0; i<pNode->Get_Children_Count(); i++)
 		{
 			_Load_Data(*pNode->Get_Child(i), SG_File_Get_Path(&FileName).w_str(), true , Version);
 		}
 
-		for(i=0; i<pNode->Get_Children_Count(); i++)
+		for(int i=0; i<pNode->Get_Children_Count(); i++)
 		{
 			_Load_Data(*pNode->Get_Child(i), SG_File_Get_Path(&FileName).w_str(), false, Version);
 		}
@@ -387,9 +385,11 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 
 		if( (pNode = Project.Get_Child("MAPS")) != NULL && pNode->Get_Children_Count() > 0 )
 		{
-			for(int j=0; j<pNode->Get_Children_Count(); j++)
+			g_pSAGA_Frame->Cascade();
+
+			for(int i=0; i<pNode->Get_Children_Count(); i++)
 			{
-				_Load_Map(*pNode->Get_Child(j), SG_File_Get_Path(&FileName).w_str());
+				_Load_Map(*pNode->Get_Child(i), SG_File_Get_Path(&FileName).w_str());
 			}
 		}
 

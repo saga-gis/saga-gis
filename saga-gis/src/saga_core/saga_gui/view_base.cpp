@@ -154,7 +154,7 @@ void CVIEW_Base::Do_Show(void)
 	}
 
 #ifndef MDI_TABBED
-	if( !g_pSAGA_Frame->GetActiveChild() )
+	if( !g_pSAGA_Frame->GetActiveChild() && !g_pSAGA_Frame->IsFrozen() )
 	{
 		Maximize();
 	}
