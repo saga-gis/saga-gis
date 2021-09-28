@@ -99,10 +99,10 @@ CTemperature_Lapse_Downscaling::CTemperature_Lapse_Downscaling(void)
 		), 1
 	);
 
-	Parameters.Add_Double("LAPSE_METHOD",
-		"CONST_LAPSE"	, _TL("Lapse Rate"),
-		_TL("Constant lapse rate in degree of temperature per 100 meter."),
-		0.6
+	Parameters.Add_Table("",
+		"REGRS_SUMMARY"	, _TL("Regression Summary"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Choice("LAPSE_METHOD",
@@ -113,6 +113,18 @@ CTemperature_Lapse_Downscaling::CTemperature_Lapse_Downscaling(void)
 			_TL("elevation and position"),
 			_TL("elevation and position (2nd order polynom)")
 		), 2
+	);
+
+	Parameters.Add_Bool("LAPSE_METHOD",
+		"LIMIT_LAPSE"	, _TL("Limit Minimum Lapse Rate"),
+		_TL("If set, lapse rates from regression are limited to a minimum as specified by the constant lapse rate parameter."),
+		false
+	);
+
+	Parameters.Add_Double("LAPSE_METHOD",
+		"CONST_LAPSE"	, _TL("Constant Lapse Rate"),
+		_TL("Constant lapse rate in degree of temperature per 100 meter."),
+		0.6
 	);
 }
 
@@ -126,9 +138,20 @@ int CTemperature_Lapse_Downscaling::On_Parameters_Enable(CSG_Parameters *pParame
 {
 	if( pParameter->Cmp_Identifier("LAPSE_METHOD") )
 	{
-		pParameters->Set_Enabled("CONST_LAPSE", pParameter->asInt() == 0);
-		pParameters->Set_Enabled("REGRS_LAPSE", pParameter->asInt() == 1);
-		pParameters->Set_Enabled("LORES_LAPSE", pParameter->asInt() == 2);
+		int Method = pParameter->asInt(); bool bLimit = (*pParameters)("LIMIT_LAPSE")->asBool();
+
+		pParameters->Set_Enabled("CONST_LAPSE"  , Method == 0 || (Method == 1 && bLimit));
+		pParameters->Set_Enabled("REGRS_SUMMARY", Method == 1);
+		pParameters->Set_Enabled("REGRS_LAPSE"  , Method == 1);
+		pParameters->Set_Enabled("LIMIT_LAPSE"  , Method == 1);
+		pParameters->Set_Enabled("LORES_LAPSE"  , Method == 2);
+	}
+
+	if( pParameter->Cmp_Identifier("LIMIT_LAPSE") )
+	{
+		int Method = (*pParameters)("LAPSE_METHOD")->asInt(); bool bLimit = pParameter->asBool();
+
+		pParameters->Set_Enabled("CONST_LAPSE", Method == 0 || (Method == 1 && bLimit));
 	}
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
@@ -304,7 +327,32 @@ bool CTemperature_Lapse_Downscaling::Get_Regression(CSG_Grid *pT, CSG_Grid *pZ, 
 
 	dT	= -Regression.Get_RCoeff(0);
 
+	if( Parameters("LIMIT_LAPSE")->asBool() )
+	{
+		double dT_min = Parameters("CONST_LAPSE")->asDouble() / 100.;
+
+		if( dT < dT_min )
+		{
+			dT	= dT_min;
+		}
+	}
+
 	Message_Fmt("\n\n%s: %g", _TL("Constant lapse rate from regression"), dT * 100.);
+
+	CSG_Table *pSummary = Parameters("REGRS_SUMMARY")->asTable();
+
+	if( pSummary )
+	{
+		pSummary->Destroy();
+		pSummary->Fmt_Name("%s (%s: %s)", _TL("Lapse Rate"), _TL("Regression"), pT->Get_Name());
+		pSummary->Add_Field(_TL("Parameter"), SG_DATATYPE_String);
+		pSummary->Add_Field(_TL("Value"    ), SG_DATATYPE_Double);
+
+		#define Add_Entry(name, value) { CSG_Table_Record &r = *pSummary->Add_Record(); r.Set_Value(0, name); r.Set_Value(1, value); }
+
+		Add_Entry(_TL("Lapse Rate"), dT * 100.          );
+		Add_Entry(_TL("R-squared" ), Regression.Get_R2());
+	}
 
 	return( true );
 }
