@@ -951,7 +951,6 @@ double CSG_Regression_Multiple::Get_Parameter(int iVariable, int Parameter)	cons
 //---------------------------------------------------------
 CSG_String CSG_Regression_Multiple::Get_Info(void)	const
 {
-	int			i;
 	CSG_String	s;
 
 	if( Get_nPredictors() < 1 )
@@ -962,15 +961,15 @@ CSG_String CSG_Regression_Multiple::Get_Info(void)	const
 	//-----------------------------------------------------
 	if( m_pSteps->Get_Count() > 0 )
 	{
-		s	+= CSG_String::Format(SG_T("\n%s:\n\n"), _TL("Steps"));
-		s	+= CSG_String::Format(SG_T("No.   \tR     \tR2    \tR2 adj\tStdErr\tF     \tP     \tF step\tP step\tVariable\n"));
-		s	+= CSG_String::Format(SG_T("------\t------\t------\t------\t------\t------\t------\t------\t------\t------\n"));
+		s	+= CSG_String::Format("\n%s:\n\n", _TL("Steps"));
+		s	+= CSG_String::Format("No.   \tR     \tR2    \tR2 adj\tStdErr\tF     \tP     \tF step\tP step\tVariable\n");
+		s	+= CSG_String::Format("------\t------\t------\t------\t------\t------\t------\t------\t------\t------\n");
 
-		for(i=0; i<m_pSteps->Get_Count(); i++)
+		for(int i=0; i<m_pSteps->Get_Count(); i++)
 		{
 			CSG_Table_Record	*pRecord	= m_pSteps->Get_Record(i);
 
-			s	+= CSG_String::Format(SG_T("%d.\t%.2f\t%.2f\t%.2f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%s %s\n"),
+			s	+= CSG_String::Format("%d.\t%.2f\t%.2f\t%.2f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%s %s\n",
 				pRecord->asInt   (MLR_STEP_NR     ),
 				pRecord->asDouble(MLR_STEP_R      ),
 				pRecord->asDouble(MLR_STEP_R2     ) * 100.0,
@@ -987,15 +986,15 @@ CSG_String CSG_Regression_Multiple::Get_Info(void)	const
 	}
 
 	//-----------------------------------------------------
-	s	+= CSG_String::Format(SG_T("\n%s:\n\n"), _TL("Correlation"));
-	s	+= CSG_String::Format(SG_T("No.   \tR     \tR2    \tR2 adj\tStdErr\tt     \tSig.  \tb     \tVariable\n"));
-	s	+= CSG_String::Format(SG_T("------\t------\t------\t------\t------\t------\t------\t------\t------\n"));
+	s	+= CSG_String::Format("\n%s:\n\n", _TL("Correlation"));
+	s	+= CSG_String::Format("No.   \tR     \tR2    \tR2 adj\tStdErr\tt     \tSig.     \tb        \t\tVariable\n");
+	s	+= CSG_String::Format("------\t------\t------\t------\t------\t------\t---------\t---------\t\t---------\n");
 
-	for(i=0; i<m_pRegression->Get_Count(); i++)
+	for(int i=0; i<m_pRegression->Get_Count(); i++)
 	{
 		CSG_Table_Record	*pRecord	= m_pRegression->Get_Record(i);
 
-		s	+= CSG_String::Format(SG_T("%d.\t%.2f\t%.2f\t%.2f\t%.3f\t%.3f\t%.3f\t%.3f\t%s\n"),
+		s	+= CSG_String::Format("%d.\t%.2f\t%.2f\t%.2f\t%.3f\t%.3f\t%.6f\t%.6f\t%s\n",
 			i,
 			pRecord->asDouble(MLR_VAR_R     ),
 			pRecord->asDouble(MLR_VAR_R2    ) * 100.0,
@@ -1009,11 +1008,21 @@ CSG_String CSG_Regression_Multiple::Get_Info(void)	const
 	}
 
 	//-----------------------------------------------------
-	s	+= SG_T("\n");
+	s	+= CSG_String::Format("\n%s: %g", _TL("Formula"), Get_RConst());
 
-	s	+= CSG_String::Format(SG_T("%s: %f (%s: %d)\n"), _TL("Residual standard error"), Get_StdError(), _TL("degrees of freedom"), Get_DegFreedom());
-	s	+= CSG_String::Format(SG_T("%s: %f (%s: %f)\n"), _TL("Multiple R-squared"), 100.0 * Get_R2(), _TL("adjusted"), 100.0 * Get_R2_Adj());
-	s	+= CSG_String::Format(SG_T("%s: %f (%d/%d DF), %s: %g\n"), _TL("F-statistic"), Get_F(), Get_nPredictors(), Get_DegFreedom(), _TL("p-value"), Get_P());
+	for(int i=0; i<Get_nPredictors(); i++)
+	{
+		double	b	= Get_RCoeff(i);
+
+		s	+= CSG_String::Format(" %c %g * X%d", b < 0. ? '-' : '+', fabs(b), i + 1);
+	}
+
+	//-----------------------------------------------------
+	s	+= "\n\n";
+
+	s	+= CSG_String::Format("%s: %f (%s: %d)\n", _TL("Residual standard error"), Get_StdError(), _TL("degrees of freedom"), Get_DegFreedom());
+	s	+= CSG_String::Format("%s: %f (%s: %f)\n", _TL("Multiple R-squared"), 100.0 * Get_R2(), _TL("adjusted"), 100.0 * Get_R2_Adj());
+	s	+= CSG_String::Format("%s: %f (%d/%d DF), %s: %g\n", _TL("F-statistic"), Get_F(), Get_nPredictors(), Get_DegFreedom(), _TL("p-value"), Get_P());
 
 	//-----------------------------------------------------
 	return( s );
