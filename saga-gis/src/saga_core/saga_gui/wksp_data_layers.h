@@ -134,6 +134,7 @@ private:
 
 	void						On_Size				(wxSizeEvent  &event);
 	void						On_Mouse_LDown		(wxMouseEvent &event);
+	void						On_Mouse_RDown		(wxMouseEvent &event);
 
 	bool						_Del_Items			(void);
 	bool						_Add_Items			(class CWKSP_Base_Item    *pItem);
@@ -142,7 +143,6 @@ private:
 
 	void						_Set_Positions		(void);
 
-	//-----------------------------------------------------
 	DECLARE_EVENT_TABLE()
 };
 

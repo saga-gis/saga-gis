@@ -78,11 +78,11 @@ IMPLEMENT_CLASS(CWKSP_Map_Button, wxPanel)
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CWKSP_Map_Button, wxPanel)
-	EVT_PAINT			(CWKSP_Map_Button::On_Paint)
-	EVT_KEY_DOWN		(CWKSP_Map_Button::On_Key)
-	EVT_LEFT_DOWN		(CWKSP_Map_Button::On_Mouse_LDown)
-	EVT_LEFT_DCLICK		(CWKSP_Map_Button::On_Mouse_LDClick)
-	EVT_RIGHT_DOWN		(CWKSP_Map_Button::On_Mouse_RDown)
+	EVT_PAINT      (CWKSP_Map_Button::On_Paint)
+	EVT_KEY_DOWN   (CWKSP_Map_Button::On_Key)
+	EVT_LEFT_DOWN  (CWKSP_Map_Button::On_Mouse_LDown)
+	EVT_LEFT_DCLICK(CWKSP_Map_Button::On_Mouse_LDClick)
+	EVT_RIGHT_DOWN (CWKSP_Map_Button::On_Mouse_RDown)
 END_EVENT_TABLE()
 
 
@@ -237,8 +237,9 @@ IMPLEMENT_CLASS(CWKSP_Map_Buttons, wxScrolledWindow)
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CWKSP_Map_Buttons, wxScrolledWindow)
-	EVT_SIZE			(CWKSP_Map_Buttons::On_Size)
-	EVT_LEFT_DOWN		(CWKSP_Map_Buttons::On_Mouse_LDown)
+	EVT_SIZE      (CWKSP_Map_Buttons::On_Size)
+	EVT_LEFT_DOWN (CWKSP_Map_Buttons::On_Mouse_LDown)
+	EVT_RIGHT_DOWN(CWKSP_Map_Buttons::On_Mouse_RDown)
 END_EVENT_TABLE()
 
 
@@ -283,11 +284,20 @@ void CWKSP_Map_Buttons::On_Size(wxSizeEvent &event)
 //---------------------------------------------------------
 void CWKSP_Map_Buttons::On_Mouse_LDown(wxMouseEvent &event)
 {
-	g_pMap_Ctrl->UnselectAll();
+	g_pMap_Ctrl->Set_Item_Selected(g_pMaps);
+}
 
-	g_pActive->Set_Active(NULL);
+//---------------------------------------------------------
+void CWKSP_Map_Buttons::On_Mouse_RDown(wxMouseEvent &event)
+{
+	wxMenu	*pMenu	= g_pMaps->Get_Menu();
 
-	Refresh(false);
+	if( pMenu )
+	{
+		PopupMenu(pMenu);
+
+		delete(pMenu);
+	}
 }
 
 

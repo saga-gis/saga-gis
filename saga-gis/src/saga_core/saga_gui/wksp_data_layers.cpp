@@ -80,11 +80,11 @@ IMPLEMENT_CLASS(CWKSP_Data_Button, wxPanel)
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CWKSP_Data_Button, wxPanel)
-	EVT_PAINT			(CWKSP_Data_Button::On_Paint)
-	EVT_KEY_DOWN		(CWKSP_Data_Button::On_Key)
-	EVT_LEFT_DOWN		(CWKSP_Data_Button::On_Mouse_LDown)
-	EVT_LEFT_DCLICK		(CWKSP_Data_Button::On_Mouse_LDClick)
-	EVT_RIGHT_DOWN		(CWKSP_Data_Button::On_Mouse_RDown)
+	EVT_PAINT      (CWKSP_Data_Button::On_Paint)
+	EVT_KEY_DOWN   (CWKSP_Data_Button::On_Key)
+	EVT_LEFT_DOWN  (CWKSP_Data_Button::On_Mouse_LDown)
+	EVT_LEFT_DCLICK(CWKSP_Data_Button::On_Mouse_LDClick)
+	EVT_RIGHT_DOWN (CWKSP_Data_Button::On_Mouse_RDown)
 END_EVENT_TABLE()
 
 
@@ -221,11 +221,11 @@ void CWKSP_Data_Button::On_Mouse_RDown(wxMouseEvent &event)
 		_Set_Active(false);
 	}
 
-	wxMenu	*pMenu	= g_pData_Ctrl->Get_Context_Menu();
+	wxMenu	*pMenu	= g_pData_Ctrl->Get_Menu();
 
 	if( pMenu )
 	{
-		GetParent()->PopupMenu(pMenu, GetParent()->ScreenToClient(ClientToScreen(event.GetPosition())));
+		GetParent()->PopupMenu(pMenu);
 
 		delete(pMenu);
 	}
@@ -303,8 +303,9 @@ IMPLEMENT_CLASS(CWKSP_Data_Buttons, wxScrolledWindow)
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CWKSP_Data_Buttons, wxScrolledWindow)
-	EVT_SIZE			(CWKSP_Data_Buttons::On_Size)
-	EVT_LEFT_DOWN		(CWKSP_Data_Buttons::On_Mouse_LDown)
+	EVT_SIZE      (CWKSP_Data_Buttons::On_Size)
+	EVT_LEFT_DOWN (CWKSP_Data_Buttons::On_Mouse_LDown)
+	EVT_RIGHT_DOWN(CWKSP_Data_Buttons::On_Mouse_RDown)
 END_EVENT_TABLE()
 
 
@@ -349,11 +350,20 @@ void CWKSP_Data_Buttons::On_Size(wxSizeEvent &event)
 //---------------------------------------------------------
 void CWKSP_Data_Buttons::On_Mouse_LDown(wxMouseEvent &event)
 {
-	g_pData_Ctrl->UnselectAll();
+	g_pData_Ctrl->Set_Item_Selected(g_pData);
+}
 
-	g_pActive->Set_Active(NULL);
+//---------------------------------------------------------
+void CWKSP_Data_Buttons::On_Mouse_RDown(wxMouseEvent &event)
+{
+	wxMenu	*pMenu	= g_pData->Get_Menu();
 
-	Refresh(false);
+	if( pMenu )
+	{
+		PopupMenu(pMenu);
+
+		delete(pMenu);
+	}
 }
 
 

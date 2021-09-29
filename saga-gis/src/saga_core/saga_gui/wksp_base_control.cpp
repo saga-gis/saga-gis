@@ -54,6 +54,8 @@
 
 #include "helper.h"
 
+#include "saga_frame.h"
+
 #include "res_commands.h"
 #include "res_controls.h"
 #include "res_dialogs.h"
@@ -302,6 +304,8 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 			{
 				if( g_pData_Buttons )	{	g_pData_Buttons->Freeze();	}
 				if( g_pMap_Buttons  )	{	g_pMap_Buttons ->Freeze();	}
+
+				g_pSAGA_Frame->Close_Children();
 			}
 
 			//---------------------------------------------
@@ -438,11 +442,11 @@ bool CWKSP_Base_Control::Set_Item_Selected(CWKSP_Base_Item *pItem, bool bKeepMul
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxMenu * CWKSP_Base_Control::Get_Context_Menu(void)
+wxMenu * CWKSP_Base_Control::Get_Menu(void)
 {
 	CWKSP_Base_Item	*pItem	= Get_Item_Selected();
 
-	return( pItem ?	pItem->Get_Menu() : NULL );
+	return( pItem ? pItem->Get_Menu() : NULL );
 }
 
 
@@ -872,7 +876,7 @@ void CWKSP_Base_Control::On_Item_RClick(wxTreeEvent &event)
 		g_pActive->Set_Active(Get_Item_Selected());
 	}
 
-	wxMenu	*pMenu	= Get_Context_Menu();
+	wxMenu	*pMenu	= Get_Menu();
 
 	if( pMenu )
 	{
@@ -887,24 +891,28 @@ void CWKSP_Base_Control::On_Item_RClick(wxTreeEvent &event)
 //---------------------------------------------------------
 void CWKSP_Base_Control::On_Item_KeyDown(wxTreeEvent &event)
 {
-	CWKSP_Base_Item	*pItem;
-
-	if( event.GetKeyCode() == WXK_DELETE )
+	switch( event.GetKeyCode() )
 	{
+	case WXK_DELETE:
 		_Del_Active(false);
-	}
-	else if( (pItem = Get_Item_Selected()) != NULL )
-	{
-		switch( event.GetKeyCode() )
-		{
-		default:
-			pItem->On_Command(event.GetKeyCode());
-			break;
+		break;
 
-		case WXK_RETURN:
-			pItem->On_Command(ID_CMD_WKSP_ITEM_RETURN);
-			break;
+	default: {
+		CWKSP_Base_Item	*pItem = Get_Item_Selected();
+
+		if( pItem )
+		{
+			switch( event.GetKeyCode() )
+			{
+			default:
+				break;
+
+			case WXK_RETURN:
+				pItem->On_Command(ID_CMD_WKSP_ITEM_RETURN);
+				break;
+			}
 		}
+		break; }
 	}
 }
 
