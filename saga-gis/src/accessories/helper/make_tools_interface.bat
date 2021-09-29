@@ -8,7 +8,7 @@ IF "%SAGA_ROOT%" == "" (
 )
 
 IF "%SAGA_DIR_X64%" == "" (
-	SET SAGA_DIR_X64=%SAGA_ROOT%\bin\build_x64\saga_x64
+	SET SAGA_DIR_X64=%SAGA_ROOT%\bin\saga_x64
 )
 
 REM ___________________________________

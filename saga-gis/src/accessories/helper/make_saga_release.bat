@@ -23,11 +23,11 @@ SET SAGA_ROOT=%CD%
 POPD
 
 IF "%SAGA_DIR_WIN32%" == "" (
-	SET SAGA_DIR_WIN32=%SAGA_ROOT%\bin\build_win32\saga_win32
+	SET SAGA_DIR_WIN32=%SAGA_ROOT%\bin_win32\saga_win32
 )
 
 IF "%SAGA_DIR_X64%" == "" (
-	SET SAGA_DIR_X64=%SAGA_ROOT%\bin\build_x64\saga_x64
+	SET SAGA_DIR_X64=%SAGA_ROOT%\bin\saga_x64
 )
 
 REM ___________________________________

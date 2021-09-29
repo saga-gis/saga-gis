@@ -6,11 +6,11 @@ IF "%SAGA_ROOT%" == "" (
 )
 
 IF "%SAGA_DIR_X64%" == "" (
-	SET SAGA_DIR_X64=%SAGA_ROOT%\bin\build_x64\saga_x64
+	SET SAGA_DIR_X64=%SAGA_ROOT%\bin\saga_x64
 )
 
 IF "%SAGA_DIR_WIN32%" == "" (
-	SET SAGA_DIR_WIN32=%SAGA_ROOT%\bin\build_win32\saga_Win32
+	SET SAGA_DIR_WIN32=%SAGA_ROOT%\bin_win32\saga_Win32
 )
 
 REM ___________________________________

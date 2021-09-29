@@ -4,7 +4,7 @@ import os, sys
 
 if os.name == 'nt': # Windows
 	if os.getenv('SAGA_PATH') is None:
-		os.environ['SAGA_PATH'] = 'F:/develop/saga/saga-code/master/saga-gis/bin/saga_vc_x64'
+		os.environ['SAGA_PATH'] = 'F:/develop/saga/saga-code/master/saga-gis/bin/saga_x64'
 	if 'add_dll_directory' in dir(os):
 		os.add_dll_directory(os.environ['SAGA_PATH'])
 	else:

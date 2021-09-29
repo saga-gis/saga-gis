@@ -39,7 +39,7 @@ IF "%SAGA_ROOT%" == "" (
 )
 
 IF "%SAGA_LIBDIR%" == "" (
-	SET SAGA_LIBDIR=%SAGA_ROOT%\bin\build_%ARCHITECTURE%\saga_%ARCHITECTURE%
+	SET SAGA_LIBDIR=%SAGA_ROOT%\bin\saga_%ARCHITECTURE%
 )
 
 IF "%VARSALL%" == "" (
@@ -86,7 +86,7 @@ ECHO.
 SET PYTHONPKG=%PYTHONDIR%\Lib\site-packages
 
 REM Remove previous instances of saga-python-api
-DEL "%PYTHONPKG%\*saga_api*.py*"
+DEL "%PYTHONPKG%\*saga_*.py*"
 DEL "%PYTHONPKG%\*saga_*.egg-info"
 
 REM Compilation
@@ -122,8 +122,9 @@ XCOPY /C/Q/Y/H "%SAGA_ROOT%\src\accessories\python\examples\*.py" "%PYTHONOUT%\L
 COPY "%SAGA_ROOT%\src\accessories\python\examples\test_all.bat" "%PYTHONOUT%\Lib\site-packages\saga_api_examples\"
 COPY "%SAGA_ROOT%\src\accessories\python\saga_python_api.txt" "%PYTHONOUT%\Lib\site-packages\"
 
-COPY "%PYTHONPKG%\*saga_api*.pyd" "%PYTHONOUT%\Lib\site-packages\"
-COPY "%PYTHONPKG%\*saga_api*.py"  "%PYTHONOUT%\Lib\site-packages\"
+COPY "%SAGA_ROOT%\src\accessories\python\examples\saga_helper.py" "%PYTHONPKG%\"
+
+COPY "%PYTHONPKG%\*saga_*.py*" "%PYTHONOUT%\Lib\site-packages\"
 
 IF /i "%MAKE_ZIP%" == "true" (
 	SETLOCAL EnableDelayedExpansion
