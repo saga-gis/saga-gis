@@ -1,6 +1,4 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
+
 /*******************************************************************************
     CropToData.cpp
     Copyright (C) Victor Olaya
@@ -42,29 +40,27 @@ CCropToData::CCropToData(void)
 {
 	Set_Name		(_TL("Crop to Data"));
 
-	Set_Author		(SG_T("V.Olaya (c) 2004"));
+	Set_Author		("V.Olaya (c) 2004");
 
 	Set_Description	(_TW(
-		"Crop grids to valid data cells"
+		"Crop grids to valid data cells. "
 	));
 
-	Parameters.Add_Grid_List(
-		NULL	, "INPUT"	, _TL("Grids"),
+	Parameters.Add_Grid_List("",
+		"INPUT"	, _TL("Grids"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_List(
-		NULL	, "OUTPUT"	, _TL("Cropped Grids"),
+	Parameters.Add_Grid_List("",
+		"OUTPUT", _TL("Cropped Grids"),
 		_TL(""),
-		PARAMETER_OUTPUT
+		PARAMETER_OUTPUT_OPTIONAL, false
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//                                                       //
-//                                                       //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -73,7 +69,6 @@ bool CCropToData::On_Execute(void)
 {
 	CSG_Parameter_Grid_List	*pGrids	= Parameters("INPUT")->asGridList();
 
-	//-----------------------------------------------------
 	if( pGrids->Get_Grid_Count() <= 0 )
 	{
 		Error_Set(_TL("no grids in selection"));
@@ -82,53 +77,34 @@ bool CCropToData::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	bool	bCrop	= false;
+	Process_Set_Text("%s...", _TL("analyzing"));
 
-	int		xMin, yMin, xMax, yMax;
+	bool bCrop = false; int xMin, yMin, xMax, yMax;
 
-	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
-			bool	bData	= false;
+			bool bData = false;
 
 			for(int i=0; i<pGrids->Get_Grid_Count() && !bData; i++)
 			{
-				if( !pGrids->Get_Grid(i)->is_NoData(x, y) )
-				{
-					bData	= true;
-				}
+				bData = !pGrids->Get_Grid(i)->is_NoData(x, y);
 			}
 
 			if( bData )
 			{
 				if( bCrop == false )
 				{
-					bCrop	= true;
+					bCrop = true;
 
-					xMin	= xMax	= x;
-					yMin	= yMax	= y;
+					xMin = xMax = x;
+					yMin = yMax = y;
 				}
 				else
 				{
-					if( xMin > x )
-					{
-						xMin	= x;
-					}
-					else if( xMax < x )
-					{
-						xMax	= x;
-					}
-
-					if( yMin > y )
-					{
-						yMin	= y;
-					}
-					else if( yMax < y )
-					{
-						yMax	= y;
-					}
+					if( xMin > x ) { xMin = x; } else if( xMax < x ) { xMax = x; }
+					if( yMin > y ) { yMin = y; } else if( yMax < y ) { yMax = y; }
 				}
 			}
 		}
@@ -138,33 +114,49 @@ bool CCropToData::On_Execute(void)
 	if( bCrop == false )
 	{
 		Message_Fmt("\n%s: %s", _TL("nothing to crop"), _TL("no valid data found in grid(s)"));
+
+		return( false );
 	}
-	else if( (1 + xMax - xMin) == Get_NX() && (1 + yMax - yMin) == Get_NY() )
+
+	CSG_Grid_System System( Get_Cellsize(),
+		Get_XMin() + xMin * Get_Cellsize(),
+		Get_YMin() + yMin * Get_Cellsize(),
+		1 + xMax - xMin,
+		1 + yMax - yMin
+	);
+
+	if( System.Get_NX() == Get_NX() && System.Get_NY() == Get_NY() )
 	{
 		Message_Fmt("\n%s: %s", _TL("nothing to crop"), _TL("valid data cells match original grid extent"));
+
+		return( false );
 	}
-	else
+
+	//-----------------------------------------------------
+	Process_Set_Text("%s...", _TL("cropping"));
+
+	Message_Fmt("\n%s\nx: %d - %d -> (%d)\ny: %d - %d -> %d", _TL("cropping"),
+		Get_NX(), Get_NX() - System.Get_NX(), System.Get_NX(),
+		Get_NY(), Get_NY() - System.Get_NY(), System.Get_NY()
+	);
+
+	CSG_Parameter_Grid_List *pCropped = Parameters("OUTPUT")->asGridList(); pCropped->Del_Items();
+
+	for(int i=0; i<pGrids->Get_Grid_Count(); i++)
 	{
-		CSG_Parameter_Grid_List	*pCropped	= Parameters("OUTPUT")->asGridList();
+		CSG_Grid *pGrid = pGrids->Get_Grid(i);
+		CSG_Grid *pCrop = SG_Create_Grid(System, pGrid->Get_Type());
 
-		pCropped->Del_Items();
+		pCrop->Set_Name             (pGrid->Get_Name        ());
+		pCrop->Set_Description      (pGrid->Get_Description ());
+		pCrop->Set_Unit             (pGrid->Get_Unit        ());
+		pCrop->Set_Scaling          (pGrid->Get_Scaling     ());
+		pCrop->Set_NoData_Value     (pGrid->Get_NoData_Value());
+		pCrop->Get_MetaData().Create(pGrid->Get_MetaData    ());
 
-		for(int i=0; i<pGrids->Get_Grid_Count(); i++)
-		{
-			CSG_Grid	*pGrid	= SG_Create_Grid(
-				pGrids->Get_Grid(i)->Get_Type(),
-				1 + xMax - xMin,
-				1 + yMax - yMin,
-				Get_Cellsize(),
-				Get_XMin() + xMin * Get_Cellsize(),
-				Get_YMin() + yMin * Get_Cellsize()
-			);
+		pCrop->Assign(pGrid, GRID_RESAMPLING_NearestNeighbour);
 
-			pGrid->Assign(pGrids->Get_Grid(i), GRID_RESAMPLING_NearestNeighbour);
-			pGrid->Set_Name(pGrids->Get_Grid(i)->Get_Name());
-
-			pCropped->Add_Item(pGrid);
-		}
+		pCropped->Add_Item(pCrop);
 	}
 
 	//-----------------------------------------------------
