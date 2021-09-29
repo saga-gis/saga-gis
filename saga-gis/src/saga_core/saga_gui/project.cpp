@@ -385,7 +385,10 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 
 		if( (pNode = Project.Get_Child("MAPS")) != NULL && pNode->Get_Children_Count() > 0 )
 		{
-			g_pSAGA_Frame->Cascade();
+			if( g_pSAGA_Frame->GetActiveChild() && g_pSAGA_Frame->GetActiveChild()->IsMaximized() )
+			{
+				g_pSAGA_Frame->GetActiveChild()->Restore();
+			}
 
 			for(int i=0; i<pNode->Get_Children_Count(); i++)
 			{
@@ -393,10 +396,23 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 			}
 		}
 
-		switch( g_pData->Get_Parameter("PROJECT_MAP_ARRANGE")->asInt() )
+		if( g_pMaps->Get_Count() > 1 )
 		{
-		case 1:	g_pSAGA_Frame->Tile(wxHORIZONTAL);	break;
-		case 2:	g_pSAGA_Frame->Tile(wxVERTICAL  );	break;
+			switch( g_pData->Get_Parameter("PROJECT_MAP_ARRANGE")->asInt() )
+			{
+			case 1:	g_pSAGA_Frame->Tile(wxHORIZONTAL); break;
+			case 2:	g_pSAGA_Frame->Tile(wxVERTICAL  ); break;
+			case 3:
+				if( g_pSAGA_Frame->GetActiveChild() )
+				{
+					g_pSAGA_Frame->GetActiveChild()->Maximize();
+				}
+				break;
+			}
+		}
+		else if( g_pSAGA_Frame->GetActiveChild() )
+		{
+			g_pSAGA_Frame->GetActiveChild()->Maximize();
 		}
 
 		g_pSAGA_Frame->Thaw();
@@ -432,16 +448,8 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 //---------------------------------------------------------
 bool CWKSP_Project::_Save(const wxString &FileName, bool bSaveModified, bool bUpdateMenu)
 {
-	int							i, j;
-	wxString					ProjectDir, oldFileName(m_File_Name);
-	CSG_MetaData				Project, *pNode;
-	CWKSP_Table_Manager			*pTables;
-	CWKSP_Shapes_Manager		*pShapes;
-	CWKSP_TIN_Manager			*pTINs;
-	CWKSP_PointCloud_Manager	*pPointClouds;
-	CWKSP_Grid_Manager			*pGrids;
+	wxString oldFileName(m_File_Name);
 
-	//-----------------------------------------------------
 	m_File_Name	= FileName;
 
 	if( bSaveModified && !g_pData->Save_Modified() )
@@ -452,81 +460,76 @@ bool CWKSP_Project::_Save(const wxString &FileName, bool bSaveModified, bool bUp
 	}
 
 	//-----------------------------------------------------
-	ProjectDir	= SG_File_Get_Path(&FileName).w_str();
+	CSG_MetaData Project, *pNode = Project.Add_Child("DATA");
+
+	wxString ProjectDir(SG_File_Get_Path(&FileName).w_str());
 
 	Project.Set_Name    ("SAGA_PROJECT");
 	Project.Add_Property("VERSION", SAGA_VERSION);
 
 	//-----------------------------------------------------
-	pNode		= Project.Add_Child("DATA");
+	CWKSP_Table_Manager *pTables = g_pData->Get_Tables();
 
-	if( (pTables = g_pData->Get_Tables()) != NULL )
+	for(int i=0; pTables && i<pTables->Get_Count(); i++)
 	{
-		for(i=0; i<pTables->Get_Count(); i++)
+		_Save_Data(*pNode, ProjectDir,
+			pTables->Get_Data(i)->Get_Object(),
+			pTables->Get_Data(i)->Get_Parameters()
+		);
+	}
+
+	CWKSP_TIN_Manager *pTINs = g_pData->Get_TINs();
+
+	for(int i=0; pTINs && i<pTINs->Get_Count(); i++)
+	{
+		_Save_Data(*pNode, ProjectDir,
+			pTINs->Get_Data(i)->Get_Object(),
+			pTINs->Get_Data(i)->Get_Parameters()
+		);
+	}
+
+	CWKSP_PointCloud_Manager *pPointClouds = g_pData->Get_PointClouds();
+
+	for(int i=0; pPointClouds && i<pPointClouds->Get_Count(); i++)
+	{
+		_Save_Data(*pNode, ProjectDir,
+			pPointClouds->Get_Data(i)->Get_Object(),
+			pPointClouds->Get_Data(i)->Get_Parameters()
+		);
+	}
+
+	CWKSP_Shapes_Manager *pShapes = g_pData->Get_Shapes();
+
+	for(int j=0; pShapes && j<pShapes->Get_Count(); j++)
+	{
+		for(int i=0; i<pShapes->Get_Shapes_Type(j)->Get_Count(); i++)
 		{
 			_Save_Data(*pNode, ProjectDir,
-				pTables->Get_Data(i)->Get_Object(),
-				pTables->Get_Data(i)->Get_Parameters()
+				pShapes->Get_Shapes_Type(j)->Get_Data(i)->Get_Object(),
+				pShapes->Get_Shapes_Type(j)->Get_Data(i)->Get_Parameters()
 			);
 		}
 	}
 
-	if( (pTINs = g_pData->Get_TINs()) != NULL )
+	CWKSP_Grid_Manager *pGrids = g_pData->Get_Grids();
+
+	for(int j=0; pGrids && j<pGrids->Get_Count(); j++)
 	{
-		for(i=0; i<pTINs->Get_Count(); i++)
+		for(int i=0; i<pGrids->Get_System(j)->Get_Count(); i++)
 		{
 			_Save_Data(*pNode, ProjectDir,
-				pTINs->Get_Data(i)->Get_Object(),
-				pTINs->Get_Data(i)->Get_Parameters()
+				((CWKSP_Data_Item *)pGrids->Get_System(j)->Get_Item(i))->Get_Object(),
+				((CWKSP_Data_Item *)pGrids->Get_System(j)->Get_Item(i))->Get_Parameters()
 			);
-		}
-	}
-
-	if( (pPointClouds = g_pData->Get_PointClouds()) != NULL )
-	{
-		for(i=0; i<pPointClouds->Get_Count(); i++)
-		{
-			_Save_Data(*pNode, ProjectDir,
-				pPointClouds->Get_Data(i)->Get_Object(),
-				pPointClouds->Get_Data(i)->Get_Parameters()
-			);
-		}
-	}
-
-	if( (pShapes = g_pData->Get_Shapes()) != NULL )
-	{
-		for(j=0; j<pShapes->Get_Count(); j++)
-		{
-			for(i=0; i<pShapes->Get_Shapes_Type(j)->Get_Count(); i++)
-			{
-				_Save_Data(*pNode, ProjectDir,
-					pShapes->Get_Shapes_Type(j)->Get_Data(i)->Get_Object(),
-					pShapes->Get_Shapes_Type(j)->Get_Data(i)->Get_Parameters()
-				);
-			}
-		}
-	}
-
-	if( (pGrids = g_pData->Get_Grids()) != NULL )
-	{
-		for(j=0; j<pGrids->Get_Count(); j++)
-		{
-			for(i=0; i<pGrids->Get_System(j)->Get_Count(); i++)
-			{
-				_Save_Data(*pNode, ProjectDir,
-					((CWKSP_Data_Item *)pGrids->Get_System(j)->Get_Item(i))->Get_Object(),
-					((CWKSP_Data_Item *)pGrids->Get_System(j)->Get_Item(i))->Get_Parameters()
-				);
-			}
 		}
 	}
 
 	//-----------------------------------------------------
 	if( g_pMaps->Get_Count() > 0 )
 	{
-		pNode		= Project.Add_Child("MAPS");
+		pNode	= Project.Add_Child("MAPS");
 
-		for(i=0; i<g_pMaps->Get_Count(); i++)
+		for(int i=0; i<g_pMaps->Get_Count(); i++)
 		{
 			_Save_Map(*pNode, ProjectDir, g_pMaps->Get_Map(i));
 		}
@@ -538,7 +541,9 @@ bool CWKSP_Project::_Save(const wxString &FileName, bool bSaveModified, bool bUp
 		m_File_Name	= FileName;
 
 		if( bUpdateMenu )
+		{
 			g_pData->Get_Menu_Files()->Recent_Add(SG_DATAOBJECT_TYPE_Undefined, FileName);
+		}
 
 		MSG_General_Add(_TL("Project has been saved."), true, true, SG_UI_MSG_STYLE_SUCCESS);
 
@@ -552,7 +557,9 @@ bool CWKSP_Project::_Save(const wxString &FileName, bool bSaveModified, bool bUp
 	m_File_Name.Clear();
 
 	if( bUpdateMenu )
+	{
 		g_pData->Get_Menu_Files()->Recent_Del(SG_DATAOBJECT_TYPE_Undefined, FileName);
+	}
 
 	MSG_General_Add(_TL("Could not save project."), true, true, SG_UI_MSG_STYLE_FAILURE);
 
@@ -569,10 +576,9 @@ bool CWKSP_Project::_Save(const wxString &FileName, bool bSaveModified, bool bUp
 //---------------------------------------------------------
 bool CWKSP_Project::_Load_DBConnections(CSG_MetaData &Data)
 {
-	int			i;
 	CSG_Strings	Connections;
 
-	for(i=0; i<Data.Get_Children_Count(); i++)
+	for(int i=0; i<Data.Get_Children_Count(); i++)
 	{
 		CSG_String	Connection(Data[i].Get_Child("FILE") ? Data[i].Get_Child("FILE")->Get_Content() : "");
 
@@ -601,7 +607,7 @@ bool CWKSP_Project::_Load_DBConnections(CSG_MetaData &Data)
 		}
 	}
 
-	for(i=0; i<Connections.Get_Count(); i++)
+	for(int i=0; i<Connections.Get_Count(); i++)
 	{
 		CSG_String	Host  (Connections[i].BeforeFirst(':'));
 		CSG_String	Port  (Connections[i].AfterFirst (':').BeforeLast(':'));

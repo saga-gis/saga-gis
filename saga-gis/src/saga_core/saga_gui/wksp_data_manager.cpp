@@ -137,10 +137,11 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_Parameters.Add_Choice("NODE_GENERAL",
 		"PROJECT_MAP_ARRANGE"	, _TL("Map Window Arrangement"),
 		_TL("initial map window arrangement after a project is loaded"),
-		CSG_String::Format("%s|%s|%s",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Cascade"),
 			_TL("Tile Horizontally"),
-			_TL("Tile Vertically")
+			_TL("Tile Vertically"),
+			_TL("Maximized")
 		), 2
 	);
 
@@ -548,6 +549,17 @@ wxMenu * CWKSP_Data_Manager::Get_Menu(void)
 	//-----------------------------------------------------
 	wxMenu	*pMenu	= new wxMenu(_TL("Data"));
 
+	if( wxGetKeyState(WXK_CONTROL) ) // add advanced/hidden commands
+	{
+		wxMenu *pAdvanced = new wxMenu;
+
+		CMD_Menu_Add_Item(pAdvanced, false, ID_CMD_DATA_MANAGER_LIST);
+
+		pMenu->AppendSubMenu(pAdvanced, _TL("Advanced"));
+		pMenu->AppendSeparator();
+	}
+
+	//-----------------------------------------------------
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_OPEN);
 //	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_OPEN_ADD);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_CLOSE);
@@ -562,6 +574,7 @@ wxMenu * CWKSP_Data_Manager::Get_Menu(void)
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SEARCH);
 	}
 
+	//-----------------------------------------------------
 	return( pMenu );
 }
 
@@ -573,7 +586,6 @@ wxMenu * CWKSP_Data_Manager::Get_Menu(void)
 //---------------------------------------------------------
 bool CWKSP_Data_Manager::On_Command(int Cmd_ID)
 {
-	//-----------------------------------------------------
 	if( Open_CMD(Cmd_ID) )
 	{
 		return( true );
@@ -616,30 +628,34 @@ bool CWKSP_Data_Manager::On_Command(int Cmd_ID)
 		return( CWKSP_Base_Manager::On_Command(Cmd_ID) );
 
 	//-----------------------------------------------------
-	case ID_CMD_DATA_PROJECT_OPEN    :	m_pProject->Load(false);	break;
-	case ID_CMD_DATA_PROJECT_OPEN_ADD:	m_pProject->Load( true);	break;
-	case ID_CMD_DATA_PROJECT_BROWSE  :	Open_Browser();				break;
-	case ID_CMD_DATA_PROJECT_CLOSE   :	Close(false);				break;
-	case ID_CMD_DATA_PROJECT_SAVE    :	m_pProject->Save(true);		break;
-	case ID_CMD_DATA_PROJECT_SAVE_AS :	m_pProject->Save();			break;
-	case ID_CMD_DATA_PROJECT_COPY    :	m_pProject->Copy();			break;
-	case ID_CMD_DATA_PROJECT_COPY_DB :	m_pProject->CopyToDB();		break;
+	case ID_CMD_WKSP_ITEM_RETURN     :                                      break;
+	case ID_CMD_WKSP_ITEM_CLOSE      : Close(false);                        break;
 
 	//-----------------------------------------------------
-	case ID_CMD_TABLE_OPEN           :	Open(SG_DATAOBJECT_TYPE_Table     );	break;
-	case ID_CMD_SHAPES_OPEN          :	Open(SG_DATAOBJECT_TYPE_Shapes    );	break;
-	case ID_CMD_TIN_OPEN             :	Open(SG_DATAOBJECT_TYPE_TIN       );	break;
-	case ID_CMD_POINTCLOUD_OPEN      :	Open(SG_DATAOBJECT_TYPE_PointCloud);	break;
-	case ID_CMD_GRID_OPEN            :	Open(SG_DATAOBJECT_TYPE_Grid      );	break;
-	case ID_CMD_GRIDS_OPEN           :	Open(SG_DATAOBJECT_TYPE_Grids     );	break;
+	case ID_CMD_DATA_PROJECT_OPEN    : m_pProject->Load(false);             break;
+	case ID_CMD_DATA_PROJECT_OPEN_ADD: m_pProject->Load( true);             break;
+	case ID_CMD_DATA_PROJECT_BROWSE  : Open_Browser();                      break;
+	case ID_CMD_DATA_PROJECT_CLOSE   : Close(false);                        break;
+	case ID_CMD_DATA_PROJECT_SAVE    : m_pProject->Save(true);              break;
+	case ID_CMD_DATA_PROJECT_SAVE_AS : m_pProject->Save();                  break;
+	case ID_CMD_DATA_PROJECT_COPY    : m_pProject->Copy();                  break;
+	case ID_CMD_DATA_PROJECT_COPY_DB : m_pProject->CopyToDB();              break;
 
 	//-----------------------------------------------------
-	case ID_CMD_WKSP_ITEM_RETURN:
-		break;
+	case ID_CMD_TABLE_OPEN           : Open(SG_DATAOBJECT_TYPE_Table     ); break;
+	case ID_CMD_SHAPES_OPEN          : Open(SG_DATAOBJECT_TYPE_Shapes    ); break;
+	case ID_CMD_TIN_OPEN             : Open(SG_DATAOBJECT_TYPE_TIN       ); break;
+	case ID_CMD_POINTCLOUD_OPEN      : Open(SG_DATAOBJECT_TYPE_PointCloud); break;
+	case ID_CMD_GRID_OPEN            : Open(SG_DATAOBJECT_TYPE_Grid      ); break;
+	case ID_CMD_GRIDS_OPEN           : Open(SG_DATAOBJECT_TYPE_Grids     ); break;
 
-	case ID_CMD_WKSP_ITEM_CLOSE:
-		Close(false);
-		break;
+	//-----------------------------------------------------
+	case ID_CMD_DATA_MANAGER_LIST    : {
+		CSG_String s(SG_Get_Data_Manager().Get_Summary());
+		MSG_General_Add_Line();
+		MSG_General_Add(s.c_str());
+		MSG_General_Add_Line();
+		break; }
 	}
 
 	//-----------------------------------------------------

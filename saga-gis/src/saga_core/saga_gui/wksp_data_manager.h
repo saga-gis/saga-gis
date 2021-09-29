@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,15 +45,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -172,11 +160,11 @@ private:
 
 	class CWKSP_Grid_Manager		*m_pGrids;
 
+
 	static int						_Modified_Changed	(class CSG_Parameter  *pParameter, int Flags);
 	bool							_Modified_Get		(class CSG_Parameters *pParameters, class CWKSP_Base_Item *pItem, const wxString &Directory, bool bSelections);
 	bool							_Modified_Get		(class CSG_Parameters *pParameters, class CWKSP_Base_Item *pItem, const wxString &Directory, class CSG_Data_Object *pObject);
 	bool							_Modified_Save		(class CSG_Parameters *pParameters);
-
 
 };
 

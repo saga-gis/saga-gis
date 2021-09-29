@@ -1019,6 +1019,11 @@ wxWindow * CSAGA_Frame::Top_Window_Get(void)
 //---------------------------------------------------------
 void CSAGA_Frame::Close_Children(void)
 {
+	if( GetActiveChild() && GetActiveChild()->IsMaximized() )
+	{
+		GetActiveChild()->Restore();
+	}
+
 	while( GetActiveChild() != NULL )
 	{
 		delete(GetActiveChild());
