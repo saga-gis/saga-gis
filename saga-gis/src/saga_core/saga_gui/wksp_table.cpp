@@ -141,9 +141,7 @@ wxString CWKSP_Table::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_Table::Get_Menu(void)
 {
-	wxMenu	*pMenu;
-
-	pMenu	= new wxMenu(m_pObject->Get_Name());
+	wxMenu	*pMenu	= new wxMenu(m_pObject->Get_Name());
 
 	if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table )
 	{
@@ -261,6 +259,25 @@ void CWKSP_Table::On_DataObject_Changed(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CWKSP_Table::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
+{
+	if( Flags & PARAMETER_CHECK_ENABLE )
+	{
+		if( pParameter->Cmp_Identifier("TABLE_FLT_STYLE") )
+		{
+			pParameters->Set_Enabled("TABLE_FLT_DECIMALS", pParameter->asInt() == 2); // fix number of decimals
+		}
+	}
+
+	return( CWKSP_Data_Item::On_Parameter_Changed(pParameters, pParameter, Flags) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 void CWKSP_Table::Set_View(bool bShow)
 {
 	if( bShow && !m_pView )
@@ -319,8 +336,8 @@ bool CWKSP_Table::Show(int Flags)
 //---------------------------------------------------------
 bool CWKSP_Table::View_Closes(MDI_ChildFrame *pView)
 {
-	if( pView == m_pView    )	m_pView		= NULL;
-	if( pView == m_pDiagram )	m_pDiagram	= NULL;
+	if( pView == m_pView    ) m_pView    = NULL;
+	if( pView == m_pDiagram ) m_pDiagram = NULL;
 
 	return( CWKSP_Data_Item::View_Closes(pView) );
 }

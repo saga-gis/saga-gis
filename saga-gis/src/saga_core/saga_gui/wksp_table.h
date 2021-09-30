@@ -100,6 +100,7 @@ public:
 
 	virtual void					On_Create_Parameters	(void);
 	virtual void					On_DataObject_Changed	(void);
+	virtual int						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
 
 	class CVIEW_Table *				Get_View				(void)			{	return( m_pView );	}
 	void							Set_View				(bool bShow);
