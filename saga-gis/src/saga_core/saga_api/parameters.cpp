@@ -1806,15 +1806,23 @@ bool CSG_Parameters::Get_String(CSG_String &String, bool bOptionsOnly)
 
 	if( Get_Count() > 0 )
 	{
+		if( m_pGrid_System )
+		{
+			m_pGrid_System->_Set_String();
+
+			String	+= CSG_String::Format("%s: %s\n", m_pGrid_System->Get_Name(), m_pGrid_System->asString());
+		}
+
 		for(int i=0; i<Get_Count(); i++)
 		{
 			CSG_Parameter	*p	= m_Parameters[i];
 
-			if( (!bOptionsOnly || p->is_Option()) && p->is_Enabled() && !p->is_Information() && !(p->Get_Type() == PARAMETER_TYPE_String && ((CSG_Parameter_String *)p)->is_Password()) )
+			if( (!bOptionsOnly || p->is_Option()) && !p->asGrid_System() && p->is_Enabled() && !p->is_Information() && !(p->Get_Type() == PARAMETER_TYPE_String && ((CSG_Parameter_String *)p)->is_Password()) )
 			{
 				bResult	= true;
 
-			//	String	+= CSG_String::Format("[%s] %s: %s\n", p->Get_Type_Name(), p->Get_Name(), p->asString());
+				p->_Set_String(); // forcing update (at scripting level some parameter types can be changed without the Set_Parameter() mechanism)
+
 				String	+= CSG_String::Format("%s: %s\n", p->Get_Name(), p->asString());
 			}
 		}
@@ -1826,14 +1834,13 @@ bool CSG_Parameters::Get_String(CSG_String &String, bool bOptionsOnly)
 //---------------------------------------------------------
 bool CSG_Parameters::Msg_String(bool bOptionsOnly)
 {
-	CSG_String	s;
+	CSG_String	Msg;
 
-	if( Get_String(s, bOptionsOnly) )
+	if( Get_String(Msg, bOptionsOnly) )
 	{
-		SG_UI_Msg_Add_Execution("\n", false);
-		SG_UI_Msg_Add_Execution(bOptionsOnly ? _TL("Options") : _TL("Parameters"), false);
-		SG_UI_Msg_Add_Execution("\n", false);
-		SG_UI_Msg_Add_Execution(s, false, SG_UI_MSG_STYLE_01);
+		SG_UI_Msg_Add_Execution(CSG_String::Format("\n__________\n%s\n", bOptionsOnly ? _TL("Options") : _TL("Parameters")), false);
+		SG_UI_Msg_Add_Execution(Msg, false, SG_UI_MSG_STYLE_01);
+		SG_UI_Msg_Add_Execution(CSG_String::Format(  "__________\n"), false);
 
 		return( true );
 	}

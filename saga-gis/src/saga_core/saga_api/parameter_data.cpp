@@ -544,7 +544,7 @@ int  CSG_Parameter_Double::_Set_Value(const CSG_String &Value)
 //---------------------------------------------------------
 void CSG_Parameter_Double::_Set_String(void)
 {
-	m_String.Printf("%f", m_Value);
+	m_String.Printf("%g", m_Value);
 }
 
 //---------------------------------------------------------
@@ -722,7 +722,7 @@ CSG_Parameter_Range::~CSG_Parameter_Range(void)
 //---------------------------------------------------------
 void CSG_Parameter_Range::_Set_String(void)
 {
-	m_String.Printf("%f; %f", Get_Min(), Get_Max());
+	m_String.Printf("%g; %g", Get_Min(), Get_Max());
 }
 
 //---------------------------------------------------------
@@ -805,7 +805,7 @@ bool CSG_Parameter_Range::_Serialize(CSG_MetaData &Entry, bool bSave)
 {
 	if( bSave )
 	{
-		Entry.Fmt_Content("%f; %f", Get_Min(), Get_Max());
+		Entry.Fmt_Content("%g; %g", Get_Min(), Get_Max());
 
 		return( true );
 	}
