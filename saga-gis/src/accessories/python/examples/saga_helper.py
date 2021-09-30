@@ -27,8 +27,11 @@ def Initialize(Verbose):
 
 	if Verbose == True:
 		print('_______')
-		print('Python - Version ' + sys.version)
-		print(saga_api.SAGA_API_Get_Version())
+		print('Python-' + sys.version)
+		print('SAGA-{:s} (loaded {:d} libraries, {:d} tools)'.format(saga_api.SAGA_VERSION,
+			saga_api.SG_Get_Tool_Library_Manager().Get_Count(),
+			saga_api.SG_Get_Tool_Library_Manager().Get_Tool_Count()
+		))
 		print('number of loaded libraries: ' + str(saga_api.SG_Get_Tool_Library_Manager().Get_Count()))
 		print('_______')
 
