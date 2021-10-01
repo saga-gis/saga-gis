@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Grid_Color_Rotate.h"
 
 
@@ -74,16 +62,54 @@ CGrid_Color_Rotate::CGrid_Color_Rotate(void)
 {
 	Set_Name		(_TL("Color Palette Rotation"));
 
-	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
 		"The 'Color Palette Rotator' rotates the grids color palette. "
 	));
 
-	Parameters.Add_Grid(	NULL, "GRID"	, _TL("Grid")	, _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Colors(	NULL, "COLORS"	, _TL("Colors")	, _TL(""));
-	Parameters.Add_Value(	NULL, "DIR"		, _TL("Down")	, _TL(""), PARAMETER_TYPE_Bool, true);
+	Parameters.Add_Grid  ("", "GRID"  , _TL("Grid"  ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Colors("", "COLORS", _TL("Colors"), _TL(""));
+	Parameters.Add_Bool  ("", "DOWN"  , _TL("Down"  ), _TL(""), true);
+}
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Color_Rotate::On_Execute(void)
+{
+	CSG_Colors Colors = *Parameters("COLORS")->asColors();
+
+	if( Colors.Get_Count() < 2 )
+	{
+		return( false );
+	}
+
+	CSG_Grid *pGrid = Parameters("GRID")->asGrid();
+
+	bool bDown = Parameters("DOWN")->asBool();
+
+	int n = Colors.Get_Count() - 1, d = bDown ? 1 : -1;
+
+	do
+	{
+		long Color = Colors[bDown ? 0 : n];
+
+		for(int i=0, j=bDown?0:n; i<n; i++, j+=d)
+		{
+			Colors[j] = Colors[j + d];
+		}
+
+		Colors[bDown ? n : 0] = Color;
+
+		DataObject_Set_Colors(pGrid, Colors);
+	}
+	while( Process_Get_Okay() );
+
+	return( SG_UI_Process_Set_Okay() );
 }
 
 
@@ -94,48 +120,3 @@ CGrid_Color_Rotate::CGrid_Color_Rotate(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Color_Rotate::On_Execute(void)
-{
-	bool	bDown;
-	int		i;
-	long	c;
-	CSG_Grid	*pGrid;
-	CSG_Colors	*pColors;
-
-	pGrid	= Parameters("GRID")->asGrid();
-	pColors	= Parameters("COLORS")->asColors();
-	bDown	= Parameters("DIR")->asBool();
-
-	if( pColors->Get_Count() > 1 )
-	{
-		do
-		{
-			if( bDown )
-			{
-				for(i=0, c=pColors->Get_Color(0); i<pColors->Get_Count() - 1; i++)
-				{
-					pColors->Set_Color(i, pColors->Get_Color(i + 1));
-				}
-
-				pColors->Set_Color(pColors->Get_Count() - 1, c);
-			}
-			else
-			{
-				for(i=pColors->Get_Count()-1, c=pColors->Get_Color(pColors->Get_Count()-1); i>0; i--)
-				{
-					pColors->Set_Color(i, pColors->Get_Color(i - 1));
-				}
-
-				pColors->Set_Color(0, c);
-			}
-
-			DataObject_Set_Colors(pGrid, *pColors);
-			DataObject_Update(pGrid, true);
-		}
-		while( Process_Get_Okay(true) );
-
-		return( true );
-	}
-
-	return( false );
-}

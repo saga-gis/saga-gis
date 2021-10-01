@@ -32,7 +32,6 @@ def Initialize(Verbose):
 			saga_api.SG_Get_Tool_Library_Manager().Get_Count(),
 			saga_api.SG_Get_Tool_Library_Manager().Get_Tool_Count()
 		))
-		print('number of loaded libraries: ' + str(saga_api.SG_Get_Tool_Library_Manager().Get_Count()))
 		print('_______')
 
 	return True
