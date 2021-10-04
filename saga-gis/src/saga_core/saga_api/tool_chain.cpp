@@ -383,7 +383,7 @@ bool CSG_Tool_Chain::Create(const CSG_MetaData &Chain)
 //---------------------------------------------------------
 bool CSG_Tool_Chain::do_Sync_Projections(void)	const
 {
-	return( !m_Chain("CRS_SYNC") || !IS_TRUE_STRING(m_Chain["CRS_SYNC"].Get_Content()) );
+	return( !m_Chain("CRS_SYNC") || IS_TRUE_STRING(m_Chain["CRS_SYNC"].Get_Content()) );
 }
 
 //---------------------------------------------------------
@@ -1672,6 +1672,7 @@ CSG_String CSG_Tool_Chain::Get_Script(CSG_Tool *pTool, bool bHeader, bool bAllPa
 	Tools.Add_Child("author"     );
 	Tools.Add_Child("description");
 	Tools.Add_Child("menu"       , pTool->Get_MenuPath(true))->Add_Property("absolute", "true");
+	Tools.Add_Child("crs_sync"   , "true");
 	Tools.Add_Child("parameters" )->Add_Children(Parameters);
 	Tools.Add_Child("tools"      )->Add_Child(Tool);
 	Tools          ("tools"      )->Add_Property("history", "false");
