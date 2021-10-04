@@ -129,6 +129,7 @@ COPY ..\%SAGA4QGIS% .\%SAGA4QGIS%
 POPD
 %ZIPEXE% a -r -y -mx5 "%SAGA_VERSION%_%SAGA_CONFIG%.zip" "%SAGA_VERSION%_%SAGA_CONFIG%"
 
+ATTRIB -H "%SAGA_VERSION%_%SAGA_CONFIG%\*.*" /S /D
 COPY "%SAGA_ROOT%\..\saga_setup_readme.rtf" "%SAGA_VERSION%_%SAGA_CONFIG%"
 COPY "%SAGA_ROOT%\..\saga_setup_%SAGA_CONFIG%.iss" "%SAGA_VERSION%_%SAGA_CONFIG%"
 %ISETUP% "%SAGA_VERSION%_%SAGA_CONFIG%\saga_setup_%SAGA_CONFIG%.iss"
@@ -147,6 +148,7 @@ COPY ..\%SAGA4QGIS% .\%SAGA4QGIS%
 POPD
 %ZIPEXE% a -r -y -mx5 "%SAGA_VERSION%_%SAGA_CONFIG%.zip" "%SAGA_VERSION%_%SAGA_CONFIG%"
 
+ATTRIB -H "%SAGA_VERSION%_%SAGA_CONFIG%\*.*" /S /D
 COPY "%SAGA_ROOT%\..\saga_setup_readme.rtf" "%SAGA_VERSION%_%SAGA_CONFIG%"
 COPY "%SAGA_ROOT%\..\saga_setup_%SAGA_CONFIG%.iss" "%SAGA_VERSION%_%SAGA_CONFIG%"
 %ISETUP% "%SAGA_VERSION%_%SAGA_CONFIG%\saga_setup_%SAGA_CONFIG%.iss"
@@ -175,19 +177,19 @@ REM ###################################
 REM PYTHON API
 REM ###################################
 
+SET SAGA_LIBDIR=%SAGA_DIR_WIN32%
 CMD /C CALL ..\make_python_api.bat 27 win32 true false F:\develop\libs\Python\_win32\Python-2.7.10
-CMD /C CALL ..\make_python_api.bat 35 win32 true false F:\develop\libs\Python\_win32\Python-3.5.9
 CMD /C CALL ..\make_python_api.bat 36 win32 true false F:\develop\libs\Python\_win32\Python-3.6.14
 CMD /C CALL ..\make_python_api.bat 37 win32 true false F:\develop\libs\Python\_win32\Python-3.7.11
 CMD /C CALL ..\make_python_api.bat 38 win32 true false F:\develop\libs\Python\_win32\Python-3.8.11
-CMD /C CALL ..\make_python_api.bat 39 win32 true false F:\develop\libs\Python\_win32\Python-3.9.6
+CMD /C CALL ..\make_python_api.bat 39 win32 true false F:\develop\libs\Python\_win32\Python-3.9.7
 
+SET SAGA_LIBDIR=%SAGA_DIR_X64%
 CMD /C CALL ..\make_python_api.bat 27 x64 true false F:\develop\libs\Python\Python-2.7.10
-CMD /C CALL ..\make_python_api.bat 35 x64 true false F:\develop\libs\Python\Python-3.5.9
 CMD /C CALL ..\make_python_api.bat 36 x64 true false F:\develop\libs\Python\Python-3.6.14
 CMD /C CALL ..\make_python_api.bat 37 x64 true false F:\develop\libs\Python\Python-3.7.11
 CMD /C CALL ..\make_python_api.bat 38 x64 true false F:\develop\libs\Python\Python-3.8.11
-CMD /C CALL ..\make_python_api.bat 39 x64 true true  F:\develop\libs\Python\Python-3.9.6
+CMD /C CALL ..\make_python_api.bat 39 x64 true true  F:\develop\libs\Python\Python-3.9.7
 
 
 REM ___________________________________

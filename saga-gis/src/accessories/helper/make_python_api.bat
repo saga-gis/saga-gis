@@ -31,7 +31,7 @@ IF "%SWIG%" == "" (
 )
 
 IF "%PYTHONDIR%" == "" (
-	SET PYTHONDIR=F:\develop\libs\Python\Python-3.9.6
+	SET PYTHONDIR=F:\develop\libs\Python\Python-3.9.7
 )
 
 IF "%SAGA_ROOT%" == "" (
@@ -39,7 +39,11 @@ IF "%SAGA_ROOT%" == "" (
 )
 
 IF "%SAGA_LIBDIR%" == "" (
-	SET SAGA_LIBDIR=%SAGA_ROOT%\bin\saga_%ARCHITECTURE%
+	IF /i "%ARCHITECTURE%" == "win32" (
+		SET SAGA_LIBDIR=%SAGA_ROOT%\bin_win32\saga_%ARCHITECTURE%
+	) ELSE (
+		SET SAGA_LIBDIR=%SAGA_ROOT%\bin\saga_%ARCHITECTURE%
+	)
 )
 
 IF "%VARSALL%" == "" (
