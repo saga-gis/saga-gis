@@ -223,6 +223,8 @@ ECHO.
 ECHO - Upload API Documentation to saga-gis.org
 ECHO.
 ECHO - Create new branch: release-%SAGA_VER_NEXT%
+ECHO.    and don't forget to activate the SWITCH_TO_BRANCH flag
+ECHO.    for all bug-fix-releases!
 ECHO.
 ECHO - Update version numbers accordingly:
 ECHO.    ./saga_setup_x64.iss
