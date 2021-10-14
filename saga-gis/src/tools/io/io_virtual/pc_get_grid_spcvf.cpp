@@ -306,6 +306,8 @@ bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(int iFieldToGrid)
 
 		for(int i=0; i<sFilePaths.Get_Count() && SG_UI_Process_Set_Progress(i, sFilePaths.Get_Count()); i++)
 		{
+            SG_UI_ProgressAndMsg_Lock(true);
+
 			CSG_PointCloud	*pPC = SG_Create_PointCloud(sFilePaths.Get_String(i));
 
 			if( pGrid == NULL && i == 0 )
@@ -375,6 +377,8 @@ bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(int iFieldToGrid)
 			}
 
 			delete( pPC );
+
+            SG_UI_ProgressAndMsg_Lock(false);
 		}
 
 		//---------------------------------------------------------
