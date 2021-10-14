@@ -168,14 +168,15 @@ if(MSVC)
 		COMMAND COPY "${SOURCE_DIR}grids.h"        "$(OutDir)include\\saga_api"
 		COMMAND COPY "${SOURCE_DIR}mat_tools.h"    "$(OutDir)include\\saga_api"
 		COMMAND COPY "${SOURCE_DIR}metadata.h"     "$(OutDir)include\\saga_api"
-		COMMAND COPY "${SOURCE_DIR}tool.h"         "$(OutDir)include\\saga_api"
-		COMMAND COPY "${SOURCE_DIR}tool_library.h" "$(OutDir)include\\saga_api"
 		COMMAND COPY "${SOURCE_DIR}parameters.h"   "$(OutDir)include\\saga_api"
 		COMMAND COPY "${SOURCE_DIR}pointcloud.h"   "$(OutDir)include\\saga_api"
 		COMMAND COPY "${SOURCE_DIR}saga_api.h"     "$(OutDir)include\\saga_api"
 		COMMAND COPY "${SOURCE_DIR}shapes.h"       "$(OutDir)include\\saga_api"
+		COMMAND COPY "${SOURCE_DIR}table.h"        "$(OutDir)include\\saga_api"
 		COMMAND COPY "${SOURCE_DIR}table_value.h"  "$(OutDir)include\\saga_api"
 		COMMAND COPY "${SOURCE_DIR}tin.h"          "$(OutDir)include\\saga_api"
+		COMMAND COPY "${SOURCE_DIR}tool.h"         "$(OutDir)include\\saga_api"
+		COMMAND COPY "${SOURCE_DIR}tool_library.h" "$(OutDir)include\\saga_api"
 	)
 endif()
 
