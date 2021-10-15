@@ -1,4 +1,6 @@
-if(WITH_TOOLS)
+option(WITH_TOOLS_VIGRA "Check to create build targets for ViGrA tools" ON)
+
+if(WITH_TOOLS_VIGRA)
 	find_package(VIGRA QUIET)	# on Ubuntu package libvigraimpex-dev
 	if(VIGRA_FOUND)
 		project(imagery_vigra)

@@ -1,4 +1,6 @@
-if(WITH_TOOLS)
+option(WITH_TOOLS_PROJ "Check to create build targets for Proj tools" ON)
+
+if(WITH_TOOLS_PROJ)
 	find_package(Proj QUIET)	# Ubuntu package libproj-dev
 	if(PROJ_FOUND)
 		project(pj_proj4)

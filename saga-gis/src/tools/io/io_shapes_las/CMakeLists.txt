@@ -1,4 +1,6 @@
-if(WITH_TOOLS)
+option(WITH_TOOLS_LAS "Check to create build targets for liblas tools" OFF)
+
+if(WITH_TOOLS_LAS)
 	if(MSVC AND DEPS_FROM_ENVARS)
 		if("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "Win32")
 			set(LIB4SAGA $ENV{LIBLAS_32})

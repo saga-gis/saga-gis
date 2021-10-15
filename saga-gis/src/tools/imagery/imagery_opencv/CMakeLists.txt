@@ -1,4 +1,6 @@
-if(WITH_TOOLS)
+option(WITH_TOOLS_OPENCV "Check to create build targets for OpenCV tools" ON)
+
+if(WITH_TOOLS_OPENCV)
 	#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 	if(MSVC AND DEPS_FROM_ENVARS)
 		if("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "Win32")

@@ -1,4 +1,6 @@
-if(WITH_TOOLS)
+option(WITH_TOOLS_PDAL "Check to create build targets for PDAL tools" ON)
+
+if(WITH_TOOLS_PDAL)
 	if(MSVC AND DEPS_FROM_ENVARS)
 		if("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "Win32")
 			set(LIB4SAGA $ENV{PDAL_32})

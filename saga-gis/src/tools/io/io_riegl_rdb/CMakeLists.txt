@@ -1,4 +1,6 @@
-if(WITH_TOOLS)
+option(WITH_TOOLS_RIEGL "Check to create build targets for Riegle DB tools" OFF)
+
+if(WITH_TOOLS_RIEGL)
 	if(MSVC AND DEPS_FROM_ENVARS)
 		if("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "Win32")
 			set(RIEGL_RDB $ENV{RIEGL_RDB_32})
