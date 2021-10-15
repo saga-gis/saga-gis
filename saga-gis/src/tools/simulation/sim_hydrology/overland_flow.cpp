@@ -185,6 +185,12 @@ COverland_Flow::COverland_Flow(void)
 		false
 	);
 
+	Parameters.Add_Table("",
+		"SUMMARY"	, _TL("Overland Flow Summary"),
+			_TL(""),
+			PARAMETER_OUTPUT_OPTIONAL
+		);
+
 	Parameters.Add_Double("",
 		"TIME_UPDATE", _TL("Map Update Frequency [Minutes]"),
 		_TL("Map update frequency in minutes. Set to zero to update each simulation time step."),
@@ -245,6 +251,11 @@ int COverland_Flow::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 	if( pParameter->Cmp_Identifier("UPDATE_VELO_FIXED") )
 	{
 		pParameters->Set_Enabled("UPDATE_VELO_RANGE", pParameter->asBool());
+	}
+
+	if( pParameter->Cmp_Identifier("FLOW_OUT") )
+	{
+		pParameters->Set_Enabled("SUMMARY", pParameter->asBool());
 	}
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
@@ -433,6 +444,23 @@ bool COverland_Flow::Finalize(void)
 			_TL("infiltration"),    Inf_Sum,
 			_TL("total"       ), m_Flow_Out + Flow_Sum + Inf_Sum
 		);
+
+		CSG_Table	*pSummary	= Parameters("SUMMARY")->asTable();
+
+		if( pSummary )
+		{
+			pSummary->Destroy();
+			pSummary->Set_Name(_TL("Overland Flow Summary"));
+			pSummary->Add_Field(_TL("Parameter"), SG_DATATYPE_String);
+			pSummary->Add_Field(_TL("Value"    ), SG_DATATYPE_Double);
+
+			#define Add_Entry(name, value) { CSG_Table_Record &r = *pSummary->Add_Record(); r.Set_Value(0, name); r.Set_Value(1, value); }
+
+			Add_Entry(_TL("flow in area"),   Flow_Sum);
+			Add_Entry(_TL("flow out"    ), m_Flow_Out);
+			Add_Entry(_TL("infiltration"),    Inf_Sum);
+			Add_Entry(_TL("total"       ), m_Flow_Out + Flow_Sum + Inf_Sum);
+		}
 	}
 
 	return( true );
