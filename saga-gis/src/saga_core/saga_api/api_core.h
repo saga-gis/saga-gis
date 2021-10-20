@@ -1429,9 +1429,6 @@ SAGA_API_DLL_EXPORT const SG_Char *		SG_Translate		(const CSG_String &Text);
 #define _TL(s)	SG_Translate(L ## s)
 #define _TW(s)	SG_Translate(CSG_String(s))
 
-//---------------------------------------------------------
-SAGA_API_DLL_EXPORT bool SG_Set_OldStyle_Naming(void);
-
 
 ///////////////////////////////////////////////////////////
 //														 //

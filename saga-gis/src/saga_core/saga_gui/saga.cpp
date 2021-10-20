@@ -162,9 +162,6 @@ bool CSAGA::OnInit(void)
 	}
 
 	//-----------------------------------------------------
-	long oldstyle; if( CONFIG_Read("/TOOLS", "LNG_OLDSTYLE", oldstyle) && oldstyle ) SG_Set_OldStyle_Naming();
-	//-----------------------------------------------------
-
 	SG_Initialize_Environment(false, true, NULL, false);
 
 	//-----------------------------------------------------

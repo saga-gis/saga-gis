@@ -143,12 +143,6 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 	//-----------------------------------------------------
 	m_Parameters.Add_Node("", "NODE_FILES", _TL("Files"), _TL(""));
 
-	m_Parameters.Add_Bool("NODE_FILES",
-		"LNG_OLDSTYLE"	, _TL("Old Style Namings"),
-		_TL("Use old style namings (e.g. 'modules' instead of 'tools'). Ignored if translation file is used. You need to restart SAGA to apply the changes."),
-		false
-	);
-
 	m_Parameters.Add_FilePath("NODE_FILES",
 		"LNG_FILE_DIC"	, _TL("Language Translations"),
 		_TL("Dictionary for translations from built-in (English) to local language (editable text table, utf-8 encoded). You need to restart SAGA to apply the changes."),
@@ -352,8 +346,7 @@ int CWKSP_Tool_Manager::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 	{
 		if( g_pSAGA_Frame && g_pData )
 		{
-			if( pParameter->Cmp_Identifier("LNG_OLDSTYLE")
-			||  pParameter->Cmp_Identifier("LNG_FILE_DIC")
+			if( pParameter->Cmp_Identifier("LNG_FILE_DIC")
 			||  pParameter->Cmp_Identifier("LOOK_TB_SIZE") )
 			{
 				if( DLG_Message_Confirm(_TL("Restart now ?"), _TL("Restart SAGA to apply the changes")) && g_pData->Close(true) )

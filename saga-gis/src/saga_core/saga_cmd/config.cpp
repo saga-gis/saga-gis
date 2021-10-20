@@ -124,7 +124,6 @@ bool	Config_Create	(wxConfigBase *pConfig)
 	Config_Write(pConfig,   "CMD", "INTERACTIVE"         , false   );	// i: allow user interaction
 	Config_Write(pConfig,   "CMD", "XML_MESSAGE"         , false   );	// x: message output as xml
 
-	Config_Write(pConfig, "TOOLS", "LNG_OLDSTYLE"        , false   );	// load old style naming, has no effect if l-flag is set.
 	Config_Write(pConfig, "TOOLS", "LNG_FILE_DIC"        , SG_T(""));	// translation dictionary
 	Config_Write(pConfig, "TOOLS", "PROJECTIONS"         , false   );	// load projections dictionary
 	Config_Write(pConfig, "TOOLS", "OMP_THREADS_MAX"     , SG_OMP_Get_Max_Num_Procs());
@@ -158,11 +157,6 @@ bool	Config_Load		(wxConfigBase *pConfig)
 	Config_Read(pConfig, "CMD", "XML_MESSAGE", bValue = false); CMD_Set_XML          (bValue ==  true);	// x: message output as xml
 
 	//-----------------------------------------------------
-	if( Config_Read(pConfig, "TOOLS", "LNG_OLDSTYLE", bValue) && bValue == true )	// load old style naming, has no effect if l-flag is set.
-	{
-		SG_Set_OldStyle_Naming();
-	}
-
 	if( Config_Read(pConfig, "TOOLS", "LNG_FILE_DIC", sValue) && wxFileExists(sValue) )	// load translation dictionary
 	{
 		SG_Printf("\n%s:", _TL("loading translation dictionary"));

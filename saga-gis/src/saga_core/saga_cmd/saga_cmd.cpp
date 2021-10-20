@@ -475,11 +475,6 @@ bool		Check_Flags		(const CSG_String &Argument)
 			));
 		}
 
-		if( s.Find('o') >= 0 )	// o: load old style naming, has no effect if l-flag is set.
-		{
-			SG_Set_OldStyle_Naming();
-		}
-
 		return( true );
 	}
 
@@ -707,7 +702,6 @@ void		Print_Help		(void)
 		"  i              : allow user interaction\n"
 		"  l              : load translation dictionary\n"
 		"  x              : use XML markups for synopses and messages\n"
-		"  o              : load old style naming\n"
 		"<LIBRARY>        : name of the library\n"
 		"<TOOL>           : either name or index of the tool\n"
 		"<OPTIONS>        : tool specific options\n"
