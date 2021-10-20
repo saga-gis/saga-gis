@@ -1,4 +1,4 @@
-option(WITH_TOOLS_RIEGL "Check to create build targets for Riegle DB tools" OFF)
+option(WITH_TOOLS_RIEGL "Check to create build targets for Riegl DB tools" OFF)
 
 if(WITH_TOOLS_RIEGL)
 	if(MSVC AND DEPS_FROM_ENVARS)
