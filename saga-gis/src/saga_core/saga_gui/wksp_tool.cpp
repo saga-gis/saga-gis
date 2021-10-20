@@ -268,13 +268,6 @@ bool CWKSP_Tool::is_Executing(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define MSG_ADD(s)			MSG_General_Add  (s, true, true);\
-							MSG_Execution_Add(s, true, true);
-
-#define MSG_ADD2(b, s1, s2)	MSG_General_Add  (b ? s1 : s2, true, true, b ? SG_UI_MSG_STYLE_SUCCESS : SG_UI_MSG_STYLE_FAILURE);\
-							MSG_Execution_Add(b ? s1 : s2, true, true, b ? SG_UI_MSG_STYLE_SUCCESS : SG_UI_MSG_STYLE_FAILURE);
-
-//---------------------------------------------------------
 bool CWKSP_Tool::Execute(bool bDialog)
 {
 	bool	bResult	= false;
@@ -300,13 +293,6 @@ bool CWKSP_Tool::Execute(bool bDialog)
 					bResult	= ((CSG_Tool_Interactive *)m_pTool)->Execute_Finish();
 
 					g_pTool	= NULL;
-
-					PROCESS_Set_Okay(true);
-
-					MSG_ADD2(bResult,
-						_TL("Interactive tool execution has been stopped"),
-						_TL("Interactive tool execution failed")
-					);
 				}
 			}
 		}
@@ -325,34 +311,20 @@ bool CWKSP_Tool::Execute(bool bDialog)
 		{
 			g_pTools->Set_Recently_Used(this);
 
-			MSG_General_Add_Line();
-			MSG_Execution_Add_Line();
-			MSG_ADD(wxString::Format("%s: %s", _TL("Executing tool"), m_pTool->Get_Name().c_str()));
+			MSG_General_Add_Line(); MSG_Execution_Add_Line();
 
 			STATUSBAR_Set_Text(m_pTool->Get_Name().w_str());
 
-			bResult		= m_pTool->Execute(true);
+			bResult	= m_pTool->Execute(true);
 
 			m_pTool->On_After_Execution();
 
 			g_pActive->Get_Parameters()->Update_Parameters(m_pTool->Get_Parameters(), false);
 
-			if( m_pTool->is_Interactive() )
+			if( g_pTools && g_pTools->Do_Beep() )
 			{
-				MSG_ADD2(bResult,
-					_TL("Interactive tool execution has been started"),
-					_TL("Interactive tool execution failed")
-				);
+				Do_Beep();
 			}
-			else
-			{
-				MSG_ADD2(bResult,
-					_TL("Tool execution succeeded"),
-					_TL("Tool execution failed")
-				);
-			}
-
-			if( g_pTools && g_pTools->Do_Beep() )	{	Do_Beep();	}
 		}
 
 		if( !m_pTool->is_Interactive() || !bResult )

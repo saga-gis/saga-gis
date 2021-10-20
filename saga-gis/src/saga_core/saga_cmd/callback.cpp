@@ -309,6 +309,11 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_PROCESS_SET_READY:
 
+		if( iPercent >= 0 )
+		{
+			SG_Printf("\n");
+		}
+
 		iPercent	= -1;
 
 		break;

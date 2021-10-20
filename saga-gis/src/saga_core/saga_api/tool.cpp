@@ -63,6 +63,16 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define ADD_MESSAGE_EXECUTION(Text, Style)	{ SG_UI_Msg_Add(Text, true, Style); if( has_GUI() ) { SG_UI_Msg_Add_Execution(Text, true, Style); } }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CSG_Tool::CSG_Tool(void)
 {
 	m_ID			= "-1";
@@ -252,65 +262,117 @@ bool CSG_Tool::Execute(bool bAddHistory)
 
 	m_bExecutes	= true;
 
+	//-----------------------------------------------------
+	if( Parameters.Get_Manager() == &SG_Get_Data_Manager() )
+	{
+		ADD_MESSAGE_EXECUTION(CSG_String::Format("[%s] %s...", Get_Name().c_str(), _TL("Execution started")), SG_UI_MSG_STYLE_SUCCESS);
+	}
+
 	Destroy();
 
-	bool	bResult	= false;
+	m_Execution_Info.Clear();
 
 	Update_Parameter_States();
 
-	//-----------------------------------------------------
 	if( !Parameters.DataObjects_Create() )
 	{
 		Message_Dlg(_TL("could not initialize data objects"));
+
+		Destroy();
+
+		m_bExecutes	= false;
+
+		return( false );
 	}
-	else
-	{
-		Parameters.Msg_String(false);
+
+	Parameters.Msg_String(false);
 
 ///////////////////////////////////////////////////////////
 #if !defined(_DEBUG) && !defined(_OPENMP) && defined(_SAGA_MSW)
 #define _TOOL_EXCEPTION
-		__try
-		{
+	__try
+	{
 #endif
 ///////////////////////////////////////////////////////////
 
-		bResult	= On_Execute();
+	CSG_DateTime Started(CSG_DateTime::Now());
+	bool bResult = On_Execute();
+	CSG_TimeSpan Span = CSG_DateTime::Now() - Started;
 
 ///////////////////////////////////////////////////////////
 #ifdef _TOOL_EXCEPTION
-		}	// try
-		__except(1)
-		{
-			Message_Dlg(SG_T("Tool caused access violation!"));
-		}	// except(1)
+	}	// try
+	__except(1)
+	{
+		Message_Dlg("Tool caused access violation!");
+	}	// except(1)
 #endif
 ///////////////////////////////////////////////////////////
 
-		if( bResult && bAddHistory )
-		{
-			_Set_Output_History();
-		}
+	if( !Process_Get_Okay(false) )
+	{
+		SG_UI_Process_Set_Okay();
 
-		if( !Process_Get_Okay(false) )
-		{
-			SG_UI_Process_Set_Okay();
+		SG_UI_Msg_Add(_TL("Execution has been stopped by user!"), true);
 
-			SG_UI_Msg_Add(_TL("Execution has been stopped by user!"), true);
-
-			bResult	= false;
-		}
-
-		_Synchronize_DataObjects();
+		bResult	= false;
 	}
+
+	if( bResult && bAddHistory )
+	{
+		_Set_Output_History();
+	}
+
+	_Synchronize_DataObjects();
 
 	//-----------------------------------------------------
 	Destroy();
 
-	SG_UI_Process_Set_Okay ();
-	SG_UI_Process_Set_Ready();
-
 	m_bExecutes	= false;
+
+	SG_UI_Process_Set_Okay(); SG_UI_Process_Set_Ready();
+
+	//---------------------------------------------------------
+	if( is_Interactive() )
+	{
+		if( bResult )
+		{
+			CSG_String Text(CSG_String::Format("\n%s...", _TL("Interactive tool started and is waiting for user input.")));
+
+			SG_UI_Msg_Add          (Text, false, SG_UI_MSG_STYLE_BOLD);
+			SG_UI_Msg_Add_Execution(Text, false, SG_UI_MSG_STYLE_BOLD);
+		}
+		else
+		{
+			ADD_MESSAGE_EXECUTION(_TL("Interactive tool initialization failed."), SG_UI_MSG_STYLE_FAILURE);
+		}
+	}
+	else
+	{
+		#define ADD_MESSAGE_TIME(Time, Style)	{ CSG_String s;\
+			if( Time.Get_Hours       () >= 1 ) { s = Time.Format("%Hh %Mm %Ss"); } else\
+			if( Time.Get_Minutes     () >= 1 ) { s = Time.Format(    "%Mm %Ss"); } else\
+			if( Time.Get_Seconds     () >= 1 ) { s = Time.Format(        "%Ss"); } else\
+			if( Time.Get_Milliseconds() >= 1 ) { s = Time.Format("%l ") + _TL("milliseconds"); } else { s = _TL("less than 1 millisecond"); }\
+			SG_UI_Msg_Add_Execution(CSG_String::Format("\n[%s] %s %s", Get_Name().c_str(), _TL("finished in"), s.c_str()), false, Style);\
+		}
+		if( Parameters.Get_Manager() == &SG_Get_Data_Manager() )
+		{
+			SG_UI_Msg_Add_Execution(CSG_String::Format("\n__________"), false);
+
+			ADD_MESSAGE_TIME(Span, SG_UI_MSG_STYLE_BOLD);
+
+			ADD_MESSAGE_EXECUTION(CSG_String::Format("[%s] %s (%ld %s)", Get_Name().c_str(),
+				bResult ? _TL("Execution succeeded") : _TL("Execution failed"),
+				Span.Get_Milliseconds(), _TL("milliseconds")),
+				bResult ? SG_UI_MSG_STYLE_SUCCESS : SG_UI_MSG_STYLE_FAILURE
+			);
+		}
+		else
+		{
+			ADD_MESSAGE_TIME(Span, SG_UI_MSG_STYLE_NORMAL);
+		}
+	}
 
 	return( bResult );
 }
@@ -617,19 +679,21 @@ bool CSG_Tool::Error_Set(TSG_Tool_Error Error_ID)
 }
 
 //---------------------------------------------------------
-bool CSG_Tool::Error_Set(const CSG_String &Error_Text)
+bool CSG_Tool::Error_Set(const CSG_String &Text)
 {
-	SG_UI_Msg_Add_Error(Error_Text);
+	SG_UI_Msg_Add_Error(Text);
+
+	m_Execution_Info += "\n____\n" + Text;
 
 	if( SG_UI_Process_Get_Okay(false) && !m_bError_Ignore )
 	{
-		switch( SG_UI_Dlg_Error(Error_Text, _TL("Error: Continue anyway ?")) )
+		switch( SG_UI_Dlg_Error(Text, CSG_String::Format("%s: %s?", _TL("Error"), _TL("Ignore"))) )
 		{
-		case 0: default:
+		default:
 			SG_UI_Process_Set_Okay(false);
 			break;
 
-		case 1:
+		case  1:
 			m_bError_Ignore	= true;
 			break;
 		}
@@ -806,6 +870,13 @@ void CSG_Tool::Process_Set_Text(const wchar_t *Format, ...)
 void CSG_Tool::Message_Add(const CSG_String &Text, bool bNewLine)
 {
 	SG_UI_Msg_Add_Execution(Text, bNewLine);
+
+	if( bNewLine )
+	{
+		m_Execution_Info += "\n";
+	}
+
+	m_Execution_Info += Text;
 }
 
 //---------------------------------------------------------
@@ -830,7 +901,7 @@ void CSG_Tool::Message_Fmt(const char *Format, ...)
 
 	CSG_String	s(&_s);
 
-	SG_UI_Msg_Add_Execution(s, false);
+	Message_Add(s, false);
 }
 
 //---------------------------------------------------------
@@ -855,7 +926,7 @@ void CSG_Tool::Message_Fmt(const wchar_t *Format, ...)
 
 	CSG_String	s(&_s);
 
-	SG_UI_Msg_Add_Execution(s, false);
+	Message_Add(s, false);
 }
 
 
@@ -1386,21 +1457,13 @@ CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 		Script += "##########################################\n";
 		Script += "# Initialize the environment...\n";
 		Script += "\n";
-		Script += "import os\n";
+		Script += "# Windows: you might want to set/adjust the 'SAGA_PATH' environment variable pointing to your SAGA installation\n";
+		Script += "# import os\n";
+		Script += "# os.environ['SAGA_PATH'] = 'C:\\saga_win32'\n";
 		Script += "\n";
-		Script += "if os.name == 'nt': # Windows\n";
-		Script += "    if os.getenv('SAGA_PATH') is None: # in case you did not define a 'SAGA_PATH' environment variable pointing to your SAGA installation directory\n";
-		Script += "        os.environ['SAGA_PATH'] = 'C:\\saga_win32'\n";
-		Script += "    if 'add_dll_directory' in dir(os):\n";
-		Script += "        os.add_dll_directory(os.environ['SAGA_PATH'])\n";
-		Script += "    else:\n";
-		Script += "        os.environ['PATH'] = os.environ['SAGA_PATH'] + '\\;' + os.environ['PATH']\n";
+		Script += "import saga_helper, saga_api\n";
 		Script += "\n";
-		Script += "import saga_api\n";
-		Script += "\n";
-		Script += "saga_api.SG_Initialize_Environment(True, True, os.environ['SAGA_PATH'])\n";
-		Script += "\n";
-		Script += "print('{:s}\\n[{:d} libraries, {:d} tools]\\n'.format(saga_api.SAGA_API_Get_Version(), saga_api.SG_Get_Tool_Library_Manager().Get_Count(), saga_api.SG_Get_Tool_Library_Manager().Get_Tool_Count()))\n";
+		Script += "saga_helper.Initialize(True)\n";
 		Script += "\n";
 		Script += "\n";
 		Script += "#_________________________________________\n";
@@ -1499,15 +1562,14 @@ CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 		Script += "#_________________________________________\n";
 		Script += "##########################################\n";
 		Script += "if __name__ == '__main__':\n";
-        Script += "    print('Usage: %s <in: filename>')\n";
         Script += "    print('This is a simple template for using a SAGA tool through Python.')\n";
         Script += "    print('Please edit the script to make it work properly before using it!')\n";
+		Script += "    import sys\n";
 		Script += "    sys.exit()\n";
+		Script += "\n";
 		Script += "    # For a single file based input it might look like following:\n";
 		Script += "    File = sys.argv[1]\n";
-		Script += "\n";
-		Script += "    #____________________________________\n";
-		Script += "    Run_" + Name + "(File):\n";
+		Script += "    Run_" + Name + "(File)\n";
 	}
 
 	return( Script );

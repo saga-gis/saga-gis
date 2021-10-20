@@ -1838,9 +1838,12 @@ bool CSG_Parameters::Msg_String(bool bOptionsOnly)
 
 	if( Get_String(Msg, bOptionsOnly) )
 	{
-		SG_UI_Msg_Add_Execution(CSG_String::Format("\n__________\n%s\n", bOptionsOnly ? _TL("Options") : _TL("Parameters")), false);
+		SG_UI_Msg_Add_Execution(CSG_String::Format("\n__________\n[%s] %s:\n", m_Name.c_str(),
+			bOptionsOnly ? _TL("Options") : _TL("Parameters")),
+			false, SG_UI_MSG_STYLE_NORMAL
+		);
+
 		SG_UI_Msg_Add_Execution(Msg, false, SG_UI_MSG_STYLE_01);
-		SG_UI_Msg_Add_Execution(CSG_String::Format(  "__________\n"), false);
 
 		return( true );
 	}

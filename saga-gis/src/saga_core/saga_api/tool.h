@@ -230,6 +230,8 @@ public:
 
 	bool						Execute						(bool bAddHistory = false);
 
+	const SG_Char *				Get_Execution_Info			(void)	const	{	return( m_Execution_Info );	}
+
 	CSG_String					Get_Script					(TSG_Tool_Script_Type Type, bool bHeader, bool bAllParameters = false);
 
 
@@ -271,8 +273,12 @@ protected:
 	void						Message_Dlg					(const CSG_String &Text, const SG_Char *Caption = NULL);
 	bool						Message_Dlg_Confirm			(const CSG_String &Text, const SG_Char *Caption = NULL);
 
+	void						Message_Add					(const CSG_String &Text, bool bNewLine = true);
+	void						Message_Fmt					(const char    *Format, ...);
+	void						Message_Fmt					(const wchar_t *Format, ...);
+
 	bool						Error_Set					(TSG_Tool_Error Error_ID = TOOL_ERROR_Unknown);
-	bool						Error_Set					(const CSG_String &Error_Text);
+	bool						Error_Set					(const CSG_String &Text);
 	bool						Error_Fmt					(const char    *Format, ...);
 	bool						Error_Fmt					(const wchar_t *Format, ...);
 
@@ -292,10 +298,6 @@ public:	// static functions...
 	static void					Process_Set_Text			(const CSG_String &Text);
 	static void					Process_Set_Text			(const char    *Format, ...);
 	static void					Process_Set_Text			(const wchar_t *Format, ...);
-
-	static void					Message_Add					(const CSG_String &Text, bool bNewLine = true);
-	static void					Message_Fmt					(const char    *Format, ...);
-	static void					Message_Fmt					(const wchar_t *Format, ...);
 
 	static bool					DataObject_Update			(CSG_Data_Object *pDataObject                                , int Show = SG_UI_DATAOBJECT_UPDATE_ONLY);
 	static bool					DataObject_Update			(CSG_Data_Object *pDataObject, double Minimum, double Maximum, int Show = SG_UI_DATAOBJECT_UPDATE_ONLY);
@@ -328,7 +330,7 @@ private:
 
 	CSG_Parameters				**m_pParameters;
 
-	CSG_String					m_ID, m_Library, m_Library_Menu, m_File_Name, m_Author, m_Version;
+	CSG_String					m_ID, m_Library, m_Library_Menu, m_File_Name, m_Author, m_Version, m_Execution_Info;
 
 
 	bool						_Synchronize_DataObjects	(void);

@@ -60,6 +60,24 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define ADD_MESSAGE_EXECUTION(Text, Style)	{ SG_UI_Msg_Add(Text, true, Style); if( m_pTool->has_GUI() ) { SG_UI_Msg_Add_Execution(Text, true, Style); } }
+
+#define ADD_MESSAGE_TIME(Start)	{ CSG_TimeSpan Time = CSG_DateTime::Now() - Start; CSG_String s;\
+	if( Time.Get_Hours       () >= 1 ) { s = Time.Format("%Hh %Mm %Ss"); } else\
+	if( Time.Get_Minutes     () >= 1 ) { s = Time.Format(    "%Mm %Ss"); } else\
+	if( Time.Get_Seconds     () >= 1 ) { s = Time.Format(        "%Ss"); } else\
+	if( Time.Get_Milliseconds() >= 1 ) { s = Time.Format("%l ") + _TL("milliseconds"); } else { s = _TL("less than 1 millisecond"); }\
+	SG_UI_Msg_Add_Execution(CSG_String::Format("\n[%s] %s %s", m_pTool->Get_Name().c_str(), _TL("finished in"), s.c_str()), false);\
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CSG_Tool_Interactive_Base::CSG_Tool_Interactive_Base(void)
 {
 	m_pTool		= NULL;
@@ -88,26 +106,22 @@ bool CSG_Tool_Interactive_Base::Execute_Position(CSG_Point ptWorld, TSG_Tool_Int
 		return( false );
 	}
 
-	m_pTool->m_bExecutes		= true;
-	m_pTool->m_bError_Ignore	= false;
+	m_pTool->m_bError_Ignore = false;
+	m_pTool->m_bExecutes     = true;
+	m_Point_Last             = m_Point;
+	m_Point                  = ptWorld;
+	m_Keys                   = Keys;
 
-	m_Point_Last	= m_Point;
-	m_Point			= ptWorld;
+	CSG_DateTime Started(CSG_DateTime::Now());
+	bool bResult = On_Execute_Position(m_Point, Mode);
+	if( bResult ) ADD_MESSAGE_TIME(Started);
 
-	m_Keys			= Keys;
+	m_Keys                   = 0;
+	m_pTool->m_bExecutes     = false;
 
-	bool	bResult	= On_Execute_Position(m_Point, Mode);
+	m_pTool->_Synchronize_DataObjects();
 
-	m_Keys			= 0;
-
-	if( bResult )
-	{
-		m_pTool->_Synchronize_DataObjects();
-	}
-
-	m_pTool->m_bExecutes		= false;
-
-	SG_UI_Process_Set_Okay();
+	SG_UI_Process_Set_Okay(); SG_UI_Process_Set_Ready();
 
 	return( bResult );
 }
@@ -120,25 +134,25 @@ bool CSG_Tool_Interactive_Base::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_
 //---------------------------------------------------------
 bool CSG_Tool_Interactive_Base::Execute_Keyboard(int Character, int Keys)
 {
-	bool	bResult	= false;
-
-	if( m_pTool && !m_pTool->m_bExecutes )
+	if( !m_pTool || m_pTool->m_bExecutes )
 	{
-		m_pTool->m_bExecutes		= true;
-		m_pTool->m_bError_Ignore	= false;
-
-		m_Keys						= Keys;
-
-		bResult						= On_Execute_Keyboard(Character);
-
-		m_Keys						= 0;
-
-		m_pTool->_Synchronize_DataObjects();
-
-		m_pTool->m_bExecutes		= false;
-
-		SG_UI_Process_Set_Okay();
+		return( false );
 	}
+
+	m_pTool->m_bError_Ignore = false;
+	m_pTool->m_bExecutes     = true;
+	m_Keys                   = Keys;
+
+	CSG_DateTime Started(CSG_DateTime::Now());
+	bool bResult = On_Execute_Keyboard(Character);
+	if( bResult ) ADD_MESSAGE_TIME(Started);
+
+	m_Keys                   = 0;
+	m_pTool->m_bExecutes     = false;
+
+	m_pTool->_Synchronize_DataObjects();
+
+	SG_UI_Process_Set_Okay(); SG_UI_Process_Set_Ready();
 
 	return( bResult );
 }
@@ -151,21 +165,29 @@ bool CSG_Tool_Interactive_Base::On_Execute_Keyboard(int Character)
 //---------------------------------------------------------
 bool CSG_Tool_Interactive_Base::Execute_Finish(void)
 {
-	bool	bResult	= false;
-
-	if( m_pTool && !m_pTool->m_bExecutes )
+	if( !m_pTool || m_pTool->m_bExecutes )
 	{
-		m_pTool->m_bExecutes		= true;
-		m_pTool->m_bError_Ignore	= false;
-
-		bResult						= On_Execute_Finish();
-
-		m_pTool->_Synchronize_DataObjects();
-
-		m_pTool->m_bExecutes		= false;
-
-		SG_UI_Process_Set_Okay();
+		return( false );
 	}
+
+	m_pTool->m_bError_Ignore = false;
+	m_pTool->m_bExecutes     = true;
+
+	CSG_DateTime Started(CSG_DateTime::Now());
+	bool bResult = On_Execute_Finish();
+	if( bResult ) ADD_MESSAGE_TIME(Started);
+
+	m_pTool->m_bExecutes     = false;
+
+	m_pTool->_Synchronize_DataObjects();
+
+	SG_UI_Process_Set_Okay(); SG_UI_Process_Set_Ready();
+
+	ADD_MESSAGE_EXECUTION(CSG_String::Format("[%s] %s", m_pTool->Get_Name().c_str(), bResult
+		? _TL("Interactive tool execution has been stopped")
+		: _TL("Interactive tool execution failed")),
+		bResult ? SG_UI_MSG_STYLE_SUCCESS : SG_UI_MSG_STYLE_FAILURE
+	);
 
 	return( bResult );
 }
