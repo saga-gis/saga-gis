@@ -72,6 +72,8 @@
 #include "wksp_layer_classify.h"
 #include "wksp_layer_legend.h"
 
+#include "wksp_shapes.h"
+
 #include "view_histogram.h"
 
 
@@ -392,6 +394,10 @@ void CWKSP_Layer::ColorsParms_Add(void)
 	{
 		m_Parameters.Add_Choice("NODE_METRIC", "METRIC_ATTRIB", _TL("Attribute"), _TL(""), _TL("<default>"));
 		m_Parameters.Add_Choice("NODE_METRIC", "METRIC_NORMAL", _TL("Normalize"), _TL(""), _TL("<default>"));
+
+		m_Parameters.Add_Choice("METRIC_NORMAL", "METRIC_NORFMT", _TL("Labeling"), _TL(""),
+			CSG_String::Format("%s|%s", _TL("fraction"), _TL("percentage")), 1
+		);
 	}
 	else if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud
 		||   m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN )
@@ -579,11 +585,26 @@ bool CWKSP_Layer::ColorsParms_Adjust(CSG_Parameters &Parameters, CSG_Data_Object
 			return( false );
 		}
 
-		if( pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes
-		||  pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN )
+		if( pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN )
 		{	// currently no support for histogram stretch options with shapes and tin...
-			Parameters.Set_Parameter("METRIC_ZRANGE" + Suffix + ".MIN", ((CSG_Shapes *)pObject)->Get_Minimum(Field));
-			Parameters.Set_Parameter("METRIC_ZRANGE" + Suffix + ".MAX", ((CSG_Shapes *)pObject)->Get_Maximum(Field));
+			Parameters.Set_Parameter("METRIC_ZRANGE" + Suffix + ".MIN", ((CSG_TIN *)pObject)->Get_Minimum(Field));
+			Parameters.Set_Parameter("METRIC_ZRANGE" + Suffix + ".MAX", ((CSG_TIN *)pObject)->Get_Maximum(Field));
+
+			return( true );
+		}
+
+		if( pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
+		{	// currently no support for histogram stretch options with shapes and tin...
+			CWKSP_Shapes *pShapes = (CWKSP_Shapes *)this;
+
+			pShapes->Set_Metrics(
+				Parameters("METRIC_ATTRIB")->asInt(),
+				Parameters("METRIC_NORMAL")->asInt(),
+				Parameters("METRIC_NORFMT")->asInt()
+			);
+
+			Parameters.Set_Parameter("METRIC_ZRANGE" + Suffix + ".MIN", pShapes->Get_Value_Minimum());
+			Parameters.Set_Parameter("METRIC_ZRANGE" + Suffix + ".MAX", pShapes->Get_Value_Maximum());
 
 			return( true );
 		}

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,15 +45,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -123,10 +111,13 @@ public:
 
 	int							Get_Field_Value			(void)	{	return( m_fValue  );	}
 	int							Get_Field_Normal		(void)	{	return( m_fNormal );	}
+	double						Get_Scale_Normal		(void)	{	return( m_dNormal );	}
 	int							Get_Field_Info			(void)	{	return( m_fInfo   );	}
 	int							Get_Field_Label			(void)	{	return( m_fLabel  );	}
 
 	wxString					Get_Name_Attribute		(void);
+
+	bool						Set_Metrics				(int zField, int nField, int nType);
 
 	bool						is_Editing				(void)	{	return( m_Edit_pShape != NULL );	}
 
@@ -148,6 +139,8 @@ protected:
 								m_fLabel, m_Label_Prec, m_Label_Eff, m_Label_Eff_Size,
 								m_Edit_Mode, m_Edit_iPart, m_Edit_iPoint;
 
+	double						m_dNormal;
+
 	wxColour					m_Edit_Color, m_Sel_Color, m_Label_Eff_Color;
 
 	CSG_Simple_Statistics		m_Metrics;
@@ -156,8 +149,6 @@ protected:
 
 	class CWKSP_Table			*m_pTable;
 
-
-	bool						Set_Metrics				(int zField, int nField);
 
 	virtual void				On_Create_Parameters	(void);
 	virtual void				On_DataObject_Changed	(void);

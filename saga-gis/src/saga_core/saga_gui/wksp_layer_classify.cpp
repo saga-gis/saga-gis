@@ -669,7 +669,8 @@ bool CWKSP_Layer_Classify::Histogram_Update(void)
 	case WKSP_ITEM_Shapes:
 		_Histogram_Update(((CWKSP_Shapes *)m_pLayer)->Get_Shapes(),
 			((CWKSP_Shapes *)m_pLayer)->Get_Field_Value (),
-			((CWKSP_Shapes *)m_pLayer)->Get_Field_Normal()
+			((CWKSP_Shapes *)m_pLayer)->Get_Field_Normal(),
+			((CWKSP_Shapes *)m_pLayer)->Get_Scale_Normal()
 		);
 		break;
 
@@ -763,7 +764,7 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Grids *pGrids)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Shapes *pShapes, int Attribute, int Normalize)
+bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Shapes *pShapes, int Attribute, int Normalize, double Scale)
 {
 	if( Attribute < 0 || Attribute >= pShapes->Get_Field_Count() )
 	{
@@ -792,7 +793,7 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Shapes *pShapes, int Attribute,
 				}
 				else if( !pShape->is_NoData(Normalize) && pShape->asDouble(Normalize) )
 				{
-					m_Histogram	+= Get_Class(pShape->asDouble(Attribute) / pShape->asDouble(Normalize));
+					m_Histogram	+= Get_Class(Scale * pShape->asDouble(Attribute) / pShape->asDouble(Normalize));
 				}
 			}
 		}
@@ -825,7 +826,7 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Shapes *pShapes, int Attribute,
 			}
 			else if( !pShape->is_NoData(Normalize) && pShape->asDouble(Normalize) )
 			{
-				m_Histogram	+= Get_Class(pShape->asDouble(Attribute) / pShape->asDouble(Normalize));
+				m_Histogram	+= Get_Class(Scale * pShape->asDouble(Attribute) / pShape->asDouble(Normalize));
 			}
 		}
 	}

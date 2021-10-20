@@ -446,7 +446,8 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 		{
 			Set_Metrics(
 				(*pParameters)("METRIC_ATTRIB")->asInt(),
-				(*pParameters)("METRIC_NORMAL")->asInt()
+				(*pParameters)("METRIC_NORMAL")->asInt(),
+				(*pParameters)("METRIC_NORFMT")->asInt()
 			);
 
 			(*pParameters)("METRIC_ZRANGE")->asRange()->Set_Range(
