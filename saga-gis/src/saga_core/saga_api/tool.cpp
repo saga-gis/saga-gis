@@ -1285,7 +1285,7 @@ CSG_String CSG_Tool::_Get_Script_CMD(bool bHeader, bool bAllParameters, TSG_Tool
 			Script	+= "@ECHO OFF\n\n";
 			Script	+= "PUSHD %~dp0\n\n";
 			Script	+= "REM SET SAGA_TLB=C:\\MyTools\n\n";
-			Script	+= "SET SAGA_CMD=C:\\SAGA\\saga_cmd.exe\n\n";
+			Script	+= "SET SAGA_CMD=" + SG_UI_Get_Application_Path(true) + "saga_cmd.exe\n\n";
 			Script	+= "REM Tool: " + Get_Name() + "\n\n";
 			Script	+= "%SAGA_CMD%";
 			break;
@@ -1333,6 +1333,12 @@ void CSG_Tool::_Get_Script_CMD(CSG_String &Script, CSG_Parameters *pParameters, 
 
 	#define GET_ID2(p, s)	CSG_String::Format("%s_%s", GET_ID1(p), s).c_str()
 
+#ifdef _SAGA_MSW
+	CSG_String Prefix = " ^\n -";
+#else
+	CSG_String Prefix = " \\\n -";
+#endif
+
 	//-----------------------------------------------------
 	for(int iParameter=0; iParameter<pParameters->Get_Count(); iParameter++)
 	{
@@ -1349,50 +1355,50 @@ void CSG_Tool::_Get_Script_CMD(CSG_String &Script, CSG_Parameters *pParameters, 
 			break;
 
 		case PARAMETER_TYPE_Bool:
-			Script	+= CSG_String::Format(" -%s=%d", GET_ID1(p), p->asBool() ? 1 : 0);
+			Script	+= Prefix + CSG_String::Format("%s=%d", GET_ID1(p), p->asBool() ? 1 : 0);
 			break;
 
 		case PARAMETER_TYPE_Int:
 		case PARAMETER_TYPE_Choice:
 		case PARAMETER_TYPE_Table_Field:
-			Script	+= CSG_String::Format(" -%s=%d", GET_ID1(p), p->asInt());
+			Script	+= Prefix + CSG_String::Format("%s=%d", GET_ID1(p), p->asInt());
 			break;
 
 		case PARAMETER_TYPE_Choices     :
 		case PARAMETER_TYPE_Table_Fields:
 			if( p->asString() && *p->asString() )
-				Script	+= CSG_String::Format(" -%s=%s", GET_ID1(p), p->asString());
+				Script	+= Prefix + CSG_String::Format("%s=%s", GET_ID1(p), p->asString());
 			break;
 
 		case PARAMETER_TYPE_Double:
 		case PARAMETER_TYPE_Degree:
-			Script	+= CSG_String::Format(" -%s=%f", GET_ID1(p), p->asDouble());
+			Script	+= Prefix + CSG_String::Format("%s=%g", GET_ID1(p), p->asDouble());
 			break;
 
 		case PARAMETER_TYPE_Range:
-			Script	+= CSG_String::Format(" -%s=%f", GET_ID2(p, SG_T("MIN")), p->asRange()->Get_Min());
-			Script	+= CSG_String::Format(" -%s=%f", GET_ID2(p, SG_T("MAX")), p->asRange()->Get_Max());
+			Script	+= Prefix + CSG_String::Format("%s=%g", GET_ID2(p, SG_T("MIN")), p->asRange()->Get_Min());
+			Script	+= Prefix + CSG_String::Format("%s=%g", GET_ID2(p, SG_T("MAX")), p->asRange()->Get_Max());
 			break;
 
 		case PARAMETER_TYPE_Date:
 		case PARAMETER_TYPE_String:
 		case PARAMETER_TYPE_Text:
 		case PARAMETER_TYPE_FilePath:
-			Script	+= CSG_String::Format(" -%s=%s", GET_ID1(p), p->asString());
+			Script	+= Prefix + CSG_String::Format("%s=%s", GET_ID1(p), p->asString());
 			break;
 
 		case PARAMETER_TYPE_FixedTable:
-			Script	+= CSG_String::Format(" -%s=%s", GET_ID1(p), p->asString());
+			Script	+= Prefix + CSG_String::Format("%s=%s", GET_ID1(p), p->asString());
 			break;
 
 		case PARAMETER_TYPE_Grid_System:
 			if( p->Get_Children_Count() == 0 )
 			{
-				Script	+= CSG_String::Format(" -%s=%d", GET_ID2(p, SG_T("NX")), p->asGrid_System()->Get_NX());
-				Script	+= CSG_String::Format(" -%s=%d", GET_ID2(p, SG_T("NY")), p->asGrid_System()->Get_NY());
-				Script	+= CSG_String::Format(" -%s=%f", GET_ID2(p, SG_T( "X")), p->asGrid_System()->Get_XMin());
-				Script	+= CSG_String::Format(" -%s=%f", GET_ID2(p, SG_T( "Y")), p->asGrid_System()->Get_YMin());
-				Script	+= CSG_String::Format(" -%s=%f", GET_ID2(p, SG_T( "D")), p->asGrid_System()->Get_Cellsize());
+				Script	+= Prefix + CSG_String::Format("%s=%d", GET_ID2(p, SG_T("NX")), p->asGrid_System()->Get_NX());
+				Script	+= Prefix + CSG_String::Format("%s=%d", GET_ID2(p, SG_T("NY")), p->asGrid_System()->Get_NY());
+				Script	+= Prefix + CSG_String::Format("%s=%g", GET_ID2(p, SG_T( "X")), p->asGrid_System()->Get_XMin());
+				Script	+= Prefix + CSG_String::Format("%s=%g", GET_ID2(p, SG_T( "Y")), p->asGrid_System()->Get_YMin());
+				Script	+= Prefix + CSG_String::Format("%s=%g", GET_ID2(p, SG_T( "D")), p->asGrid_System()->Get_Cellsize());
 			}
 			break;
 
@@ -1403,7 +1409,27 @@ void CSG_Tool::_Get_Script_CMD(CSG_String &Script, CSG_Parameters *pParameters, 
 		case PARAMETER_TYPE_Shapes           :
 		case PARAMETER_TYPE_TIN              :
 		case PARAMETER_TYPE_PointCloud       :
-			Script	+= CSG_String::Format(" -%s=%s", GET_ID1(p), SG_Get_Data_Manager().Exists(p->asDataObject()) && p->asDataObject()->Get_File_Name() ? p->asDataObject()->Get_File_Name() : SG_T("file"));
+			if( p->is_Input() )
+			{
+				Script	+= Prefix + CSG_String::Format("%s=\"%s\"", GET_ID1(p), SG_Get_Data_Manager().Exists(p->asDataObject()) && p->asDataObject()->Get_File_Name() ? p->asDataObject()->Get_File_Name() : SG_T("input file"));
+			}
+			else
+			{
+				CSG_String	ext;
+
+				switch( p->Get_DataObject_Type() )
+				{
+				case SG_DATAOBJECT_TYPE_Grid      : ext = "sg-grd-z"; break;
+				case SG_DATAOBJECT_TYPE_Grids     : ext = "sg-gds-z"; break;
+				case SG_DATAOBJECT_TYPE_Table     : ext = "txt"     ; break;
+				case SG_DATAOBJECT_TYPE_Shapes    : ext = "geojson" ; break;
+				case SG_DATAOBJECT_TYPE_PointCloud: ext = "sg-pts-z"; break;
+				case SG_DATAOBJECT_TYPE_TIN       : ext = "geojson" ; break;
+				default                           : ext = "dat"     ; break;
+				}
+
+				Script	+= Prefix + CSG_String::Format("%s=\"%s.%s\"", GET_ID1(p), p->Get_Name(), ext.c_str());
+			}
 			break;
 
 		case PARAMETER_TYPE_Grid_List        :
@@ -1414,7 +1440,7 @@ void CSG_Tool::_Get_Script_CMD(CSG_String &Script, CSG_Parameters *pParameters, 
 		case PARAMETER_TYPE_PointCloud_List  :
 			if( p->is_Input() )
 			{
-				Script	+= CSG_String::Format(" -%s=", GET_ID1(p));
+				Script	+= Prefix + CSG_String::Format("%s=", GET_ID1(p));
 
 				if( p->asList()->Get_Item_Count() == 0 )
 				{
@@ -1457,11 +1483,16 @@ CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 		Script += "##########################################\n";
 		Script += "# Initialize the environment...\n";
 		Script += "\n";
-		Script += "# Windows: you might want to set/adjust the 'SAGA_PATH' environment variable pointing to your SAGA installation\n";
-		Script += "# import os\n";
-		Script += "# os.environ['SAGA_PATH'] = 'C:\\saga_win32'\n";
-		Script += "\n";
+#ifdef _SAGA_MSW
+		CSG_String AppPath = SG_UI_Get_Application_Path(true); AppPath.Replace("\\", "/");
+		Script += "# Windows: set/adjust the 'SAGA_PATH' environment variable before importing saga_helper\n";
+		Script += "import os\n";
+		Script += "if os.name == 'nt' and os.getenv('SAGA_PATH') is None:\n";
+		Script += "    os.environ['SAGA_PATH'] = '" + AppPath + "'\n";
 		Script += "import saga_helper, saga_api\n";
+#else
+		Script += "import os, saga_helper, saga_api\n";
+#endif // _SAGA_MSW
 		Script += "\n";
 		Script += "saga_helper.Initialize(True)\n";
 		Script += "\n";
@@ -1472,20 +1503,6 @@ CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 
 	//-----------------------------------------------------
 	Script += "def Run_" + Name + "(File):\n";
-
-	if( bHeader )
-	{
-		Script += "    #_____________________________________\n";
-		Script += "    # Provide your input dataset(s), here -as example- load a dataset from file.\n";
-		Script += "    # Using SAGA's central data manager instance for such jobs is an easy way to go...\n";
-		Script += "    Data = saga_api.SG_Get_Data_Manager().Add(File)\n";
-		Script += "    if Data == None or Data.is_Valid() == False:\n";
-        Script += "        print('Failed to load dataset [' + File + ']')\n";
-		Script += "        return False\n";
-		Script += "\n";
-	}
-
-	Script += "    #_____________________________________\n";
 	Script += "    Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('" + Get_Library() + "', '" + Get_ID() + "')\n";
 	Script += "    if Tool == None:\n";
     Script += "        print('Failed to create tool: " + Get_Name() + "')\n";
@@ -1616,12 +1633,12 @@ void CSG_Tool::_Get_Script_Python(CSG_String &Script, CSG_Parameters *pParameter
 
 		case PARAMETER_TYPE_Double         :
 		case PARAMETER_TYPE_Degree         :
-			Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', %f)\n", ID.c_str(), p->asDouble());
+			Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', %g)\n", ID.c_str(), p->asDouble());
 			break;
 
 		case PARAMETER_TYPE_Range          :
-			Script	+= CSG_String::Format("    Tool.Set_Parameter('%s.MIN', %f)\n", ID.c_str(), p->asRange()->Get_Min());
-			Script	+= CSG_String::Format("    Tool.Set_Parameter('%s.MAX', %f)\n", ID.c_str(), p->asRange()->Get_Max());
+			Script	+= CSG_String::Format("    Tool.Set_Parameter('%s.MIN', %g)\n", ID.c_str(), p->asRange()->Get_Min());
+			Script	+= CSG_String::Format("    Tool.Set_Parameter('%s.MAX', %g)\n", ID.c_str(), p->asRange()->Get_Max());
 			break;
 
 		case PARAMETER_TYPE_Date           :
@@ -1638,7 +1655,7 @@ void CSG_Tool::_Get_Script_Python(CSG_String &Script, CSG_Parameters *pParameter
 		case PARAMETER_TYPE_Grid_System    :
 			if( p->Get_Children_Count() == 0 )
 			{
-				Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', saga_api.CSG_Grid_System(%f, %f, %f, %d, %d))\n", ID.c_str(),
+				Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', saga_api.CSG_Grid_System(%g, %g, %g, %d, %d))\n", ID.c_str(),
 					p->asGrid_System()->Get_Cellsize(),
 					p->asGrid_System()->Get_XMin(), p->asGrid_System()->Get_YMin(),
 					p->asGrid_System()->Get_NX  (), p->asGrid_System()->Get_NY  ()
@@ -1654,7 +1671,7 @@ void CSG_Tool::_Get_Script_Python(CSG_String &Script, CSG_Parameters *pParameter
 		case PARAMETER_TYPE_PointCloud     :
 			if( p->is_Input() )
 			{
-				Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', '%s input%s')\n", ID.c_str(),
+				Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', saga_api.SG_Get_Data_Manager().Add('%s input file%s'))\n", ID.c_str(),
 					SG_Get_DataObject_Name(p->Get_DataObject_Type()).c_str(), p->is_Optional() ? SG_T(", optional") : SG_T("")
 				);
 			}

@@ -607,9 +607,16 @@ void *		SG_UI_Get_Window_Main(void)
 }
 
 //---------------------------------------------------------
-CSG_String	SG_UI_Get_Application_Path(void)
+CSG_String	SG_UI_Get_Application_Path(bool bPathOnly)
 {
-	return( CSG_String(wxStandardPaths::Get().GetExecutablePath().wc_str()) );
+	CSG_String	App_Path(wxStandardPaths::Get().GetExecutablePath().wc_str());
+
+	if( bPathOnly )
+	{
+		App_Path = SG_File_Get_Path(App_Path);
+	}
+
+	return( SG_File_Get_Path_Absolute(App_Path) );
 }
 
 

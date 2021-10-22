@@ -380,7 +380,7 @@ bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char
 		}
 		else
 		{
-			App_Path	= SG_File_Get_Path_Absolute(SG_File_Get_Path(SG_UI_Get_Application_Path())).c_str();
+			App_Path	= SG_UI_Get_Application_Path(true).c_str();
 		}
 
 		wxGetEnv("PATH", &Dll_Paths);
