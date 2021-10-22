@@ -499,7 +499,7 @@ void CData_Source_ODBC::Table_Open(const wxTreeItemId &Item)
 
 	CSG_Table	*pTable	= SG_Create_Table();
 
-	MSG_General_Add(wxString::Format("%s: [%s] %s...", _TL("Load table"), pData->Get_Server().c_str(), pData->Get_Value().c_str()), true, true);
+	MSG_General_Add(wxString::Format("%s %s: [%s] %s...", _TL("Loading"), _TL("table"), pData->Get_Server().c_str(), pData->Get_Value().c_str()), true, true);
 
 	bool	bResult;
 

@@ -706,7 +706,7 @@ bool CSG_Projections::Create(bool bLoadDefaults)
 		#if defined(_SAGA_LINUX)
 			CSG_String	Path_Shared	= SHARE_PATH;
 		#else
-			CSG_String	Path_Shared	= SG_File_Get_Path(SG_UI_Get_Application_Path());
+			CSG_String	Path_Shared	= SG_UI_Get_Application_Path(true);
 		#endif
 
 		SG_UI_Msg_Lock(true);

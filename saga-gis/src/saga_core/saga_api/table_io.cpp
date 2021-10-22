@@ -154,7 +154,7 @@ bool CSG_Table::Save(const CSG_String &FileName, int Format)
 //---------------------------------------------------------
 bool CSG_Table::Save(const CSG_String &FileName, int Format, SG_Char Separator, int Encoding)
 {
-	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Save table"), FileName.c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s %s: %s...", _TL("Saving"), _TL("table"), FileName.c_str()), true);
 
 	Set_File_Encoding(Encoding);
 

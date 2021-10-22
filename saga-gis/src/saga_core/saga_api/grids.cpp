@@ -1720,7 +1720,7 @@ bool CSG_Grids::Load(const CSG_String &FileName, bool bLoadData)
 //---------------------------------------------------------
 bool CSG_Grids::Save(const CSG_String &FileName, int Format)
 {
-	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Saving grid collection"), FileName.c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s %s: %s...", _TL("Saving"), _TL("grid collection"), FileName.c_str()), true);
 
 	if( Format == GRIDS_FILE_FORMAT_Undefined )
 	{

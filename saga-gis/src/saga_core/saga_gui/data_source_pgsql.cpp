@@ -1078,7 +1078,7 @@ bool CData_Source_PgSQL::Source_Open(CData_Source_PgSQL_Data *pData, bool bDialo
 	}
 
 	//-----------------------------------------------------
-	MSG_General_Add(wxString::Format("%s: %s...", _TL("Connect to Database"), pData->Get_Server().c_str()), true, true);
+	MSG_General_Add(wxString::Format("%s: %s...", _TL("Connecting to database"), pData->Get_Server().c_str()), true, true);
 
 	if( m_Wait4Response <= 0 || is_Server_Responding(pData->Get_Host(), pData->Get_Port(), m_Wait4Response) )
 	{

@@ -145,7 +145,7 @@ bool	Config_Load		(wxConfigBase *pConfig)
 #if   defined(_SAGA_LINUX)
 	CSG_String	Path_Shared	= SHARE_PATH;
 #elif defined(_SAGA_MSW)
-	CSG_String	Path_Shared	= SG_File_Get_Path(SG_UI_Get_Application_Path());
+	CSG_String	Path_Shared	= SG_UI_Get_Application_Path(true);
 #endif
 
 	bool bValue; int iValue; double dValue; wxString sValue;
@@ -204,7 +204,7 @@ bool	Config_Load		(wxConfigBase *pConfig)
 wxConfigBase *	Config_Default(bool bCreate)
 {
 #if defined(_SAGA_MSW)
-	wxFileName	fLocal(SG_UI_Get_Application_Path().c_str());	fLocal.SetExt("ini");
+	wxFileName	fLocal(SG_UI_Get_Application_Path(false).c_str()); fLocal.SetExt("ini");
 
 	if( !fLocal.FileExists() && !bCreate )
 	{

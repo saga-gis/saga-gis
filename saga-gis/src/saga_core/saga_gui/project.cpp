@@ -328,7 +328,7 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 
 	//-------------------------------------------------
 	MSG_General_Add_Line();
-	MSG_General_Add(wxString::Format("%s: %s", _TL("Load project"), FileName), true, true);
+	MSG_General_Add(wxString::Format("%s %s: %s...", _TL("Loading"), _TL("project"), FileName), true, true);
 
 	//-------------------------------------------------
 	bool			bSuccess	= false;

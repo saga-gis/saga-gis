@@ -107,7 +107,7 @@ CWKSP_Data_Item::~CWKSP_Data_Item(void)
 	//-----------------------------------------------------
 	if( pObject )
 	{
-		MSG_General_Add(wxString::Format("%s: %s...", _TL("Close"), pObject->Get_Name()), true, true);
+		MSG_General_Add(wxString::Format("%s: %s...", _TL("Closing"), pObject->Get_Name()), true, true);
 
 		g_pData->On_Data_Deletion(pObject);
 

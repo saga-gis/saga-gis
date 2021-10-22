@@ -451,7 +451,7 @@ bool		Check_Flags		(const CSG_String &Argument)
 #if   defined(_SAGA_LINUX)
 	CSG_String	Path_Shared	= SHARE_PATH;
 #elif defined(_SAGA_MSW)
-	CSG_String	Path_Shared	= SG_File_Get_Path(SG_UI_Get_Application_Path());
+	CSG_String	Path_Shared	= SG_UI_Get_Application_Path(true);
 #endif
 
 	//-----------------------------------------------------

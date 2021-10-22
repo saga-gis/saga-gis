@@ -222,7 +222,7 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 {
 	Destroy();
 
-	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Load shapes"), File_Name.c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s %s: %s...", _TL("Loading"), _TL("shapes"), File_Name.c_str()), true);
 
 	bool	bResult	= false;
 
@@ -436,7 +436,7 @@ CSG_String				SG_Shapes_Get_File_Extension_Default	(void)
 //---------------------------------------------------------
 bool CSG_Shapes::Save(const CSG_String &File_Name, int Format)
 {
-	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Save shapes"), File_Name.c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s %s: %s...", _TL("Saving"), _TL("shapes"), File_Name.c_str()), true);
 
 	//-----------------------------------------------------
 	if( Format == SHAPE_FILE_FORMAT_Undefined )

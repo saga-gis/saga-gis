@@ -146,7 +146,7 @@ CSG_String				SG_Grid_Get_File_Extension_Default	(void)
 //---------------------------------------------------------
 bool CSG_Grid::Save(const CSG_String &FileName, int Format)
 {
-	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Saving grid"), FileName.c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s %s: %s...", _TL("Saving"), _TL("grid"), FileName.c_str()), true);
 
 	//-----------------------------------------------------
 	if( Format == GRID_FILE_FORMAT_Undefined )

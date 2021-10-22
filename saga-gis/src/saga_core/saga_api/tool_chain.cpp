@@ -1240,8 +1240,6 @@ bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool, bool bShowError)
 	//-----------------------------------------------------
 	Process_Set_Text(pTool->Get_Name());
 
-	Message_Fmt("\n%s: %s", _TL("Run Tool"), pTool->Get_Name().c_str());
-
 	pTool->Settings_Push(&m_Data_Manager);
 
 	bool	bResult	= false;

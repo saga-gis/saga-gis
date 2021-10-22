@@ -1504,12 +1504,12 @@ TSG_UI_Callback_ID;
 class SAGA_API_DLL_EXPORT CSG_UI_Parameter
 {
 public:
-	CSG_UI_Parameter(void)						: Boolean(false), Number( 0.  ), Pointer(NULL)		{}
-	CSG_UI_Parameter(bool              Value)	: Boolean(Value), Number( 0.  ), Pointer(NULL)		{}
-	CSG_UI_Parameter(int               Value)	: Boolean(false), Number(Value), Pointer(NULL)		{}
-	CSG_UI_Parameter(double            Value)	: Boolean(false), Number(Value), Pointer(NULL)		{}
-	CSG_UI_Parameter(const CSG_String &Value)	: Boolean(false), Number( 0.  ), Pointer(NULL), String(Value)	{}
-	CSG_UI_Parameter(void             *Value)	: Boolean(false), Number( 0.  ), Pointer(Value)	{}
+	CSG_UI_Parameter(void)                    : Boolean(false), Number( 0.  ), Pointer(NULL)	{}
+	CSG_UI_Parameter(bool              Value) : Boolean(Value), Number( 0.  ), Pointer(NULL)	{}
+	CSG_UI_Parameter(int               Value) : Boolean(false), Number(Value), Pointer(NULL)	{}
+	CSG_UI_Parameter(double            Value) : Boolean(false), Number(Value), Pointer(NULL)	{}
+	CSG_UI_Parameter(const CSG_String &Value) : Boolean(false), Number( 0.  ), Pointer(NULL), String(Value)	{}
+	CSG_UI_Parameter(void             *Value) : Boolean(false), Number( 0.  ), Pointer(Value)	{}
 	CSG_UI_Parameter(const CSG_UI_Parameter &Copy);
 
 	bool		Boolean;
@@ -1564,7 +1564,7 @@ SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Params_Set	(class CSG_Data_Object 
 SAGA_API_DLL_EXPORT bool					SG_UI_ODBC_Update			(const CSG_String &Server);
 
 SAGA_API_DLL_EXPORT void *					SG_UI_Get_Window_Main		(void);
-SAGA_API_DLL_EXPORT CSG_String				SG_UI_Get_Application_Path	(void);
+SAGA_API_DLL_EXPORT CSG_String				SG_UI_Get_Application_Path	(bool bPathOnly = false);
 
 
 ///////////////////////////////////////////////////////////

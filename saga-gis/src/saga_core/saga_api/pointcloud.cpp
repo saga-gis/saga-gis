@@ -246,7 +246,7 @@ bool CSG_PointCloud::Destroy(void)
 //---------------------------------------------------------
 bool CSG_PointCloud::_Load(const CSG_String &FileName)
 {
-	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Loading point cloud"), FileName.c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s %s: %s...", _TL("Loading"), _TL("point cloud"), FileName.c_str()), true);
 
 	bool	bResult	= false;
 
@@ -336,7 +336,7 @@ bool CSG_PointCloud::Save(const CSG_String &_FileName, int Format)
 		{
 			SG_File_Set_Extension(FileName, "sg-pts-z");
 
-			SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Saving point cloud"), FileName.c_str()), true);
+			SG_UI_Msg_Add(CSG_String::Format("%s %s: %s...", _TL("Saving"), _TL("point cloud"), FileName.c_str()), true);
 
 			CSG_File_Zip	Stream(FileName, SG_FILE_W);
 
@@ -369,7 +369,7 @@ bool CSG_PointCloud::Save(const CSG_String &_FileName, int Format)
 		{
 			SG_File_Set_Extension(FileName, "sg-pts");
 
-			SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Saving point cloud"), FileName.c_str()), true);
+			SG_UI_Msg_Add(CSG_String::Format("%s %s: %s...", _TL("Saving"), _TL("point cloud"), FileName.c_str()), true);
 
 			CSG_File	Stream(FileName, SG_FILE_W, true);
 
