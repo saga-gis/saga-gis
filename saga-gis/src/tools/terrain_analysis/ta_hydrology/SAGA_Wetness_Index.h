@@ -84,7 +84,7 @@ protected:
 
 private:
 
-	CSG_Grid				*m_pDEM, *m_pSlope, *m_pArea, *m_pAreaMod, *m_pTWI, m_Suction;
+	CSG_Grid				*m_pDEM, *m_pSlope, *m_pArea, *m_pAmod, *m_pTWI, m_Suction;
 
 
 	double					Get_Local_Maximum	(CSG_Grid *pGrid, int x, int y);
