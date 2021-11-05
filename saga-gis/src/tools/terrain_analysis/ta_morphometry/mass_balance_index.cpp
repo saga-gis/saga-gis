@@ -58,14 +58,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define MBI_LEVEL_2
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 CMass_Balance_Index::CMass_Balance_Index(void)
 {
 	Set_Name		(_TL("Mass Balance Index"));
@@ -96,25 +88,12 @@ CMass_Balance_Index::CMass_Balance_Index(void)
 	);
 
 	//-----------------------------------------------------
-#ifdef MBI_LEVEL_2
 	Parameters.Add_Grid(
 		"", "DEM"		, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
-#else
-	Parameters.Add_Grid(
-		"", "SLOPE"		, _TL("Slope"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
 
-	Parameters.Add_Grid(
-		"", "CURVE"		, _TL("Curvature"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
-#endif
 	Parameters.Add_Grid(
 		"", "HREL"		, _TL("Vertical Distance to Channel Network"),
 		_TL(""),
@@ -154,67 +133,49 @@ CMass_Balance_Index::CMass_Balance_Index(void)
 //---------------------------------------------------------
 bool CMass_Balance_Index::On_Execute(void)
 {
-	int			x, y;
-	double		TSlope, TCurve, THRel, fSlope, fCurve, fHRel;
+	CSG_Grid *pDEM  = Parameters("DEM"   )->asGrid();
+	CSG_Grid *pHRel = Parameters("HREL"  )->asGrid();
+	CSG_Grid *pMBI  = Parameters("MBI"   )->asGrid();
 
-	//-----------------------------------------------------
-#ifdef MBI_LEVEL_2
-	CSG_Grid	*pDEM		= Parameters("DEM"  )->asGrid();
-#else
-	CSG_Grid	*pSlope		= Parameters("SLOPE")->asGrid();
-	CSG_Grid	*pCurve		= Parameters("CURVE")->asGrid();
-#endif
-	CSG_Grid	*pHRel		= Parameters("HREL" )->asGrid();
-	CSG_Grid	*pMBI		= Parameters("MBI"  )->asGrid();
+	double TSlope   = Parameters("TSLOPE")->asDouble();
+	double TCurve   = Parameters("TCURVE")->asDouble();
+	double THRel    = Parameters("THREL" )->asDouble();
 
-	TSlope		= Parameters("TSLOPE")->asDouble();
-	TCurve		= Parameters("TCURVE")->asDouble();
-	THRel		= Parameters("THREL" )->asDouble();
-
-	//-----------------------------------------------------
 	DataObject_Set_Colors(pMBI, 11, SG_COLORS_RED_GREY_BLUE, true);
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
-#ifdef MBI_LEVEL_2
-			if( (pHRel == NULL || !pHRel->is_NoData(x, y)) && Get_Morphometry(x, y, pDEM, fSlope, fCurve) )
+			double	Slope, Curve;
+
+			if( (!pHRel || !pHRel->is_NoData(x, y)) && Get_Morphometry(x, y, pDEM, Slope, Curve) )
 			{
-#else
-			if( (pHRel == NULL || !pHRel->is_NoData(x, y)) && !pSlope->is_NoData(x, y) && pCurve->is_NoData(x, y) )
-			{
-				fSlope	= pSlope->asDouble(x, y);
-				fCurve	= pCurve->asDouble(x, y);
-#endif
+				Slope	= Get_Transformed(Slope, TSlope);
+				Curve	= Get_Transformed(Curve, TCurve);
+
 				if( pHRel )
 				{
-					fHRel	= pHRel	->asDouble(x, y);
+					double	HRel	= Get_Transformed(pHRel->asDouble(x, y), THRel);
 
-					fSlope	= Get_Transformed(fSlope, TSlope);
-					fCurve	= Get_Transformed(fCurve, TCurve);
-					fHRel	= Get_Transformed(fHRel	, THRel);
-
-					pMBI	->Set_Value(x, y, fCurve < 0.
-						? fCurve * (1. - fSlope) * (1. - fHRel)
-						: fCurve * (1. + fSlope) * (1. + fHRel)
+					pMBI->Set_Value(x, y, Curve < 0.
+						? Curve * (1. - Slope) * (1. - HRel)
+						: Curve * (1. + Slope) * (1. + HRel)
 					);
 				}
 				else
 				{
-					fSlope	= Get_Transformed(fSlope, TSlope);
-					fCurve	= Get_Transformed(fCurve, TCurve);
-
-					pMBI	->Set_Value(x, y, fCurve < 0.
-						? fCurve * (1. - fSlope)
-						: fCurve * (1. + fSlope)
+					pMBI->Set_Value(x, y, Curve < 0.
+						? Curve * (1. - Slope)
+						: Curve * (1. + Slope)
 					);
 				}
 			}
 			else
 			{
-				pMBI	->Set_NoData(x, y);
+				pMBI->Set_NoData(x, y);
 			}
 		}
 	}
@@ -231,9 +192,7 @@ bool CMass_Balance_Index::On_Execute(void)
 //---------------------------------------------------------
 inline double CMass_Balance_Index::Get_Transformed(double x, double t)
 {
-	t	+= fabs(x);
-
-	return( t > 0. ? x / t : 0. );
+	t	+= fabs(x); return( t > 0. ? x / t : 0. );
 }
 
 
@@ -244,54 +203,53 @@ inline double CMass_Balance_Index::Get_Transformed(double x, double t)
 //---------------------------------------------------------
 bool CMass_Balance_Index::Get_Morphometry(int x, int y, CSG_Grid *pDEM, double &Slope, double &Curve)
 {
-	int		i, ix, iy;
-	double	z, zm[8], G, H, E, D;
-
-	if( pDEM->is_InGrid(x, y) )
+	if( !pDEM->is_InGrid(x, y) )
 	{
-		z		= pDEM->asDouble(x, y);
+		Slope	= 0.;
+		Curve	= 0.;
 
-		for(i=0; i<8; i++)
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	double	zm[8], z = pDEM->asDouble(x, y);
+
+	for(int i=0; i<8; i++)
+	{
+		int ix = Get_xTo(i, x);
+		int iy = Get_yTo(i, y);
+
+		if( pDEM->is_InGrid(ix, iy) )
 		{
-			ix		= pDEM->Get_System().Get_xTo(i, x);
-			iy		= pDEM->Get_System().Get_yTo(i, y);
+			zm[i]	= pDEM->asDouble(ix, iy) - z;
+		}
+		else
+		{
+			ix = Get_xFrom(i, x);
+			iy = Get_yFrom(i, y);
 
-			if( is_InGrid(ix, iy) )
+			if( pDEM->is_InGrid(ix, iy) )
 			{
-				zm[i]	= pDEM->asDouble(ix, iy) - z;
+				zm[i]	= z - pDEM->asDouble(ix, iy);
 			}
 			else
 			{
-				ix		= pDEM->Get_System().Get_xFrom(i, x);
-				iy		= pDEM->Get_System().Get_yFrom(i, y);
-
-				if( is_InGrid(ix, iy) )
-				{
-					zm[i]	= z - pDEM->asDouble(ix, iy);
-				}
-				else
-				{
-					zm[i]	= 0.;
-				}
+				zm[i]	= 0.;
 			}
 		}
-
-		D		= ((zm[0] + zm[4]) / 2.) / pDEM->Get_Cellarea();
-		E		= ((zm[2] + zm[6]) / 2.) / pDEM->Get_Cellarea();
-	//	F		=  (zm[5] - zm[7] - zm[3] + zm[1]) / (4. * pDEM->Get_Cellarea());
-		G		=  (zm[0] - zm[4]) / (2. * pDEM->Get_Cellsize());
-        H		=  (zm[2] - zm[6]) / (2. * pDEM->Get_Cellsize());
-
-		Slope	= atan(sqrt(G*G + H*H));
-		Curve	= -2. * (E + D);
-
-		return( true );
 	}
 
-	Slope	= 0.;
-	Curve	= 0.;
+	//-----------------------------------------------------
+	double D = ((zm[0] + zm[4]) / 2.) / Get_Cellarea();
+	double E = ((zm[2] + zm[6]) / 2.) / Get_Cellarea();
+//	double F =  (zm[5] - zm[7] - zm[3] + zm[1]) / (4. * Get_Cellarea());
+	double G =  (zm[0] - zm[4]) / (2. * Get_Cellsize());
+	double H =  (zm[2] - zm[6]) / (2. * Get_Cellsize());
 
-	return( false );
+	Slope	= atan(sqrt(G*G + H*H));
+	Curve	= -2. * (E + D);
+
+	return( true );
 }
 
 
