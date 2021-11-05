@@ -207,7 +207,12 @@ target_link_libraries(saga_gui ${wxWidgets_LIBRARIES})
 
 # add compile definition needed
 if(MSVC)
-	target_compile_definitions(saga_cmd PUBLIC -D_SAGA_MSW -DUNICODE)
+	option(WITH_GUI_TABBED_MDI "GUI with Tabbed MDI" OFF)
+	if(WITH_GUI_TABBED_MDI)
+		target_compile_definitions(saga_gui PRIVATE MDI_TABBED)
+	endif()
+
+	target_compile_definitions(saga_gui PUBLIC -D_SAGA_MSW -DUNICODE)
 	target_link_options(saga_gui PRIVATE /SUBSYSTEM:WINDOWS)
 
 else() # unix like systems
