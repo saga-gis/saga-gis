@@ -1472,7 +1472,7 @@ void CSG_Tool::_Get_Script_CMD(CSG_String &Script, CSG_Parameters *pParameters, 
 //---------------------------------------------------------
 CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 {
-	CSG_String	Script, Name(Get_Name()); Name.Replace(" ", "_"); Name.Replace("(", ""); Name.Replace(")", ""); Name.Replace("[", ""); Name.Replace("]", "");
+	CSG_String	Script, Name(Get_Name()); Name.Replace(" ", "_"); Name.Replace("(", ""); Name.Replace(")", ""); Name.Replace("[", ""); Name.Replace("]", ""); Name.Replace(".", "");
 
 	//-----------------------------------------------------
 	if( bHeader )
