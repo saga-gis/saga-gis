@@ -370,10 +370,12 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_SCATTERPLOT_AS_TABLE:		return( _TL("Convert To Table") );
 	case ID_CMD_SCATTERPLOT_TO_CLIPBOARD:	return( _TL("Copy to Clipboard") );
 
+	case ID_CMD_HISTOGRAM_PARAMETERS:		return( _TL("Properties") );
+	case ID_CMD_HISTOGRAM_GAUSSIAN:			return( _TL("Normal Distribution") );
 	case ID_CMD_HISTOGRAM_CUMULATIVE:		return( _TL("Cumulative") );
-	case ID_CMD_HISTOGRAM_CLASS_COUNT:		return( _TL("Change Number of Classes") );
 	case ID_CMD_HISTOGRAM_AS_TABLE:			return( _TL("Convert To Table") );
 	case ID_CMD_HISTOGRAM_TO_CLIPBOARD:		return( _TL("Copy to Clipboard") );
+	case ID_CMD_HISTOGRAM_SET_MINMAX:		return( _TL("Adjust to Full Range") );
 	}
 
 	//-----------------------------------------------------
@@ -477,7 +479,9 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_TABLE_RECORD_DEL_ALL:	return( ID_IMG_TB_TABLE_ROW_DEL_ALL );
 	case ID_CMD_TABLE_SELECTION_ONLY:	return( ID_IMG_TB_TABLE_SELECTION_ONLY );
 
+	case ID_CMD_HISTOGRAM_PARAMETERS    :	return( ID_IMG_WND_HISTOGRAM );
 	case ID_CMD_HISTOGRAM_CUMULATIVE    :	return( ID_IMG_TB_HISTOGRAM_CUMULATIVE );
+	case ID_CMD_HISTOGRAM_GAUSSIAN      :	break; // return( ID_IMG_TB_HISTOGRAM_GAUSSIAN );
 	case ID_CMD_HISTOGRAM_AS_TABLE      :	return( ID_IMG_TB_HISTOGRAM_AS_TABLE );
 	case ID_CMD_HISTOGRAM_TO_CLIPBOARD  :	return( ID_IMG_TB_CLIPBOARD );
 

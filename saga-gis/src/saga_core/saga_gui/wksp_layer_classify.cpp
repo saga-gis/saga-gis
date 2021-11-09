@@ -637,6 +637,8 @@ void CWKSP_Layer_Classify::Metric2EqualElements(void)
 //---------------------------------------------------------
 bool CWKSP_Layer_Classify::Histogram_Update(void)
 {
+	m_Statistics.Create();
+
 	if( Get_Class_Count() < 1 )
 	{
 		m_Histogram.Destroy();
@@ -713,6 +715,8 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Grid *pGrid)
 
 		m_Histogram.Scale_Element_Count(d);
 
+		m_Statistics	= pGrid->Get_Statistics();
+
 		return( true );
 	}
 
@@ -723,6 +727,8 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Grid *pGrid)
 			m_Histogram	+= Get_Class(pGrid->asDouble(i));
 		}
 	}
+
+	m_Statistics	= pGrid->Get_Statistics();
 
 	return( true );
 }
@@ -749,6 +755,8 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Grids *pGrids)
 
 		m_Histogram.Scale_Element_Count(d);
 
+		m_Statistics	= pGrids->Get_Statistics();
+
 		return( true );
 	}
 
@@ -759,6 +767,8 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Grids *pGrids)
 			m_Histogram	+= Get_Class(pGrids->asDouble(i));
 		}
 	}
+
+	m_Statistics	= pGrids->Get_Statistics();
 
 	return( true );
 }
@@ -787,13 +797,17 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Shapes *pShapes, int Attribute,
 			}
 			else if( !pShape->is_NoData(Attribute) )
 			{
+				double z = pShape->asDouble(Attribute);
+
 				if( Normalize < 0 )
 				{
-					m_Histogram	+= Get_Class(pShape->asDouble(Attribute));
+					m_Histogram += Get_Class(z); m_Statistics += z;
 				}
 				else if( !pShape->is_NoData(Normalize) && pShape->asDouble(Normalize) )
 				{
-					m_Histogram	+= Get_Class(Scale * pShape->asDouble(Attribute) / pShape->asDouble(Normalize));
+					z *= Scale / pShape->asDouble(Normalize);
+
+					m_Histogram += Get_Class(z); m_Statistics += z;
 				}
 			}
 		}
@@ -820,13 +834,17 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Shapes *pShapes, int Attribute,
 		}
 		else if( !pShape->is_NoData(Attribute) )
 		{
+			double z = pShape->asDouble(Attribute);
+
 			if( Normalize < 0 )
 			{
-				m_Histogram	+= Get_Class(pShape->asDouble(Attribute));
+				m_Histogram += Get_Class(z); m_Statistics += z;
 			}
 			else if( !pShape->is_NoData(Normalize) && pShape->asDouble(Normalize) )
 			{
-				m_Histogram	+= Get_Class(Scale * pShape->asDouble(Attribute) / pShape->asDouble(Normalize));
+				z *= Scale / pShape->asDouble(Normalize);
+
+				m_Histogram += Get_Class(z); m_Statistics += z;
 			}
 		}
 	}

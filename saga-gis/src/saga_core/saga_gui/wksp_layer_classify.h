@@ -523,9 +523,11 @@ public: ///////////////////////////////////////////////////
 	///////////////////////////////////////////////////////
 
 	//-----------------------------------------------------
-	bool						Histogram_Update		(void);
+	bool							Histogram_Update	(void);
 
-	const CSG_Histogram &		Histogram_Get			(void)	const	{	return( m_Histogram );	}
+	const CSG_Histogram &			Histogram_Get		(void)	const	{	return( m_Histogram );	}
+
+	const CSG_Simple_Statistics &	Statistics_Get		(void)	const	{	return( m_Statistics );	}
 
 
 protected: ////////////////////////////////////////////////
@@ -535,6 +537,8 @@ protected: ////////////////////////////////////////////////
 	double						m_zMin, m_zRange, m_zLogRange, m_zLogMax;
 
 	CSG_Histogram				m_Histogram;
+
+	CSG_Simple_Statistics		m_Statistics;
 
 	CSG_Colors					*m_pColors;
 

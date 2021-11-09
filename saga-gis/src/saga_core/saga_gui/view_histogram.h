@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef _HEADER_INCLUDED__SAGA_GUI__VIEW_Histogram_H
 #define _HEADER_INCLUDED__SAGA_GUI__VIEW_Histogram_H
 
@@ -96,7 +84,9 @@ public:
 
 private:
 
-	bool							m_bCumulative, m_bMouse_Down;
+	bool							m_bCumulative, m_bGaussian, m_bMouse_Down;
+
+	int								m_XLabeling;
 
 	wxPoint							m_Mouse_Down, m_Mouse_Move;
 
@@ -116,8 +106,10 @@ private:
 	void							On_Mouse_LUp		(wxMouseEvent    &event);
 	void							On_Mouse_RDown		(wxMouseEvent    &event);
 
+	void							On_Properties		(wxCommandEvent  &event);
 	void							On_Cumulative		(wxCommandEvent  &event);
-	void							On_ClassCount		(wxCommandEvent  &event);
+	void							On_Gaussian			(wxCommandEvent  &event);
+	void							On_Set_MinMax		(wxCommandEvent  &event);
 	void							On_AsTable			(wxCommandEvent  &event);
 	void							On_ToClipboard		(wxCommandEvent  &event);
 

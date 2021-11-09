@@ -1328,7 +1328,7 @@ void CSG_Histogram::Add_Value(double Value)
 {
 	m_Statistics	+= Value;
 
-	if( m_Minimum <= Value && Value <= m_Maximum )
+	if( m_nClasses > 0 && m_Minimum <= Value && Value <= m_Maximum )
 	{
 		size_t	Class	= (size_t)((Value - m_Minimum) / m_ClassWidth);
 
