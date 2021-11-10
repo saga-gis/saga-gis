@@ -187,7 +187,7 @@ bool CSG_Scaler::Set_Percentile(CSG_Grids *pGrids, double Interval, double Minim
 //---------------------------------------------------------
 CWKSP_Layer_Classify::CWKSP_Layer_Classify(void)
 {
-	m_Count			= 100;
+	m_Count			= 64;
 
 	m_Mode			= CLASSIFY_SINGLE;
 	m_Shade_Mode	= SHADE_MODE_DSC_GREY;
@@ -215,8 +215,12 @@ bool CWKSP_Layer_Classify::Initialise(CWKSP_Layer *pLayer, CSG_Table *pLUT, CSG_
 	m_pLUT		= pLUT;
 	m_pColors	= pColors;
 
+	m_Count		=  m_pLayer->Get_Object()->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid
+				|| m_pLayer->Get_Object()->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grids
+				|| m_pLayer->Get_Object()->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud ? 64 : 16;
+
 	//-----------------------------------------------------
-	if( m_pLUT && m_pLUT->Get_Record_Count() == 0 )
+	if( m_pLUT && m_pLUT->Get_Count() == 0 )
 	{
 		CSG_Table_Record	*pRecord;
 
