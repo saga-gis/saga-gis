@@ -367,13 +367,13 @@ wxString CMD_Get_Name(int Cmd_ID)
 
 	case ID_CMD_SCATTERPLOT_PARAMETERS:		return( _TL("Properties") );
 	case ID_CMD_SCATTERPLOT_UPDATE:			return( _TL("Update Data") );
-	case ID_CMD_SCATTERPLOT_AS_TABLE:		return( _TL("Convert To Table") );
+	case ID_CMD_SCATTERPLOT_AS_TABLE:		return( _TL("Save to Table") );
 	case ID_CMD_SCATTERPLOT_TO_CLIPBOARD:	return( _TL("Copy to Clipboard") );
 
 	case ID_CMD_HISTOGRAM_PARAMETERS:		return( _TL("Properties") );
 	case ID_CMD_HISTOGRAM_GAUSSIAN:			return( _TL("Normal Distribution") );
 	case ID_CMD_HISTOGRAM_CUMULATIVE:		return( _TL("Cumulative") );
-	case ID_CMD_HISTOGRAM_AS_TABLE:			return( _TL("Convert To Table") );
+	case ID_CMD_HISTOGRAM_AS_TABLE:			return( _TL("Save to Table") );
 	case ID_CMD_HISTOGRAM_TO_CLIPBOARD:		return( _TL("Copy to Clipboard") );
 	case ID_CMD_HISTOGRAM_SET_MINMAX:		return( _TL("Adjust to Full Range") );
 	}
@@ -406,6 +406,7 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_FRAME_HELP:				return( ID_IMG_TB_HELP );
 	case ID_CMD_DATA_OPEN:				return( ID_IMG_TB_OPEN );
 	case ID_CMD_DATA_PROJECT_SAVE:		return( ID_IMG_TB_SAVE );
+	case ID_CMD_DATA_PROJECT_CLOSE:		return( ID_IMG_TB_NEW_PROJECT );
 	case ID_CMD_TOOL_OPEN:				return( ID_IMG_TB_OPEN_TOOL );
 	case ID_CMD_TOOL_SEARCH:			return( ID_IMG_NB_WKSP_TOOLS );
 	case ID_CMD_TABLE_OPEN:				return( ID_IMG_TB_OPEN_TABLE );
@@ -481,7 +482,7 @@ int CMD_Get_ImageID(int Cmd_ID)
 
 	case ID_CMD_HISTOGRAM_PARAMETERS    :	return( ID_IMG_WND_HISTOGRAM );
 	case ID_CMD_HISTOGRAM_CUMULATIVE    :	return( ID_IMG_TB_HISTOGRAM_CUMULATIVE );
-	case ID_CMD_HISTOGRAM_GAUSSIAN      :	break; // return( ID_IMG_TB_HISTOGRAM_GAUSSIAN );
+	case ID_CMD_HISTOGRAM_GAUSSIAN      :	return( ID_IMG_TB_HISTOGRAM_GAUSSIAN );
 	case ID_CMD_HISTOGRAM_AS_TABLE      :	return( ID_IMG_TB_HISTOGRAM_AS_TABLE );
 	case ID_CMD_HISTOGRAM_TO_CLIPBOARD  :	return( ID_IMG_TB_CLIPBOARD );
 

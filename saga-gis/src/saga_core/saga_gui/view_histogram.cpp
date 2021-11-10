@@ -111,14 +111,20 @@ CVIEW_Histogram::CVIEW_Histogram(CWKSP_Layer *pLayer)
 {
 	SYS_Set_Color_BG_Window(this);
 
-	m_pLayer		= pLayer;
+	m_pLayer         = pLayer;
 
-	m_bCumulative	= false;
-	m_bGaussian		= false;
+	m_bCumulative    = false;
+	m_bGaussian      = false;
+	m_Gaussian_Color = 0;
+	m_Gaussian_Size  = 1;
+	m_bColored       = true;
 
-	m_XLabeling		= 0;
+	m_XLabeling      = 0;
 
-	m_bMouse_Down	= false;
+	m_Margin_Left    = 30;
+	m_Margin_Bottom  = m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_LUT ? 100 : 30;
+
+	m_bMouse_Down    = false;
 
 	Do_Update();
 }
@@ -187,9 +193,7 @@ void CVIEW_Histogram::Do_Update(void)
 //---------------------------------------------------------
 void CVIEW_Histogram::Draw(wxDC &dc, wxRect r)
 {
-	wxFont	Font;
-	Font.SetFamily(wxFONTFAMILY_SWISS);
-	dc.SetFont(Font);
+	wxFont Font; Font.SetFamily(wxFONTFAMILY_SWISS); dc.SetFont(Font);
 
 	r	= Draw_Get_rDiagram(r);
 
@@ -249,7 +253,7 @@ void CVIEW_Histogram::Draw_Histogram(wxDC &dc, wxRect r)
 		int bx = ax; ax = r.GetLeft() + (int)(dx * (iClass + 1.));
 		int by = ay - (int)((r.GetHeight() - 1) * Value);
 
-		if( m_pLayer->Get_Classifier()->Get_Mode() != CLASSIFY_OVERLAY )
+		if( m_bColored && m_pLayer->Get_Classifier()->Get_Mode() != CLASSIFY_OVERLAY && m_pLayer->Get_Classifier()->Get_Mode() != CLASSIFY_SHADE )
 		{
 			Color	= m_pLayer->Get_Classifier()->Get_Class_Color(iClass);
 		}
@@ -260,37 +264,52 @@ void CVIEW_Histogram::Draw_Histogram(wxDC &dc, wxRect r)
 	//-----------------------------------------------------
 	if( s.Get_Count() > 0 )
 	{
+		#define FUNC_NORMAL(X) (m_bCumulative\
+			? (1. / (1. + exp(-((X - s.Get_Mean()) / (0.5 * s.Get_StdDev())))) - y0)\
+			: (exp(-SG_Get_Square(X - s.Get_Mean()) / (2. * s.Get_Variance())))\
+		)
+
+		#define DRAW_LINE(X) if( Minimum < (X) && (X) < Maximum ) {\
+			int ix = r.GetLeft() + (int)(((X) - Minimum) / dx);\
+			dc.DrawLine(ix, r.GetBottom(), ix, r.GetBottom() - (int)(dy * FUNC_NORMAL(X)));\
+		}
+
 		double	Minimum = m_pLayer->Get_Classifier()->Get_RelativeToMetric(0.);
 		double	Maximum = m_pLayer->Get_Classifier()->Get_RelativeToMetric(1.);
 
 		double dx = (Maximum - Minimum) / (double)r.GetWidth(), dy = r.GetHeight() - 1;
 
-		if     ( s.Get_Mean() < Minimum )
+		double y0 = 0.; double yMin = FUNC_NORMAL(Minimum), yMax = FUNC_NORMAL(Maximum);
+
+		if( m_bCumulative )
 		{
-			dy	/= exp(-SG_Get_Square(Minimum - s.Get_Mean()) / (2. * s.Get_Variance()));
+			dy	/= (yMax - yMin); y0 = yMin;
+		}
+		else if( s.Get_Mean() < Minimum )
+		{
+			dy	/= yMin;
 		}
 		else if( s.Get_Mean() > Maximum )
 		{
-			dy	/= exp(-SG_Get_Square(Maximum - s.Get_Mean()) / (2. * s.Get_Variance()));
+			dy	/= yMax;
 		}
 
-		#define DRAWLINE(x, y) if( Minimum < (x) && (x) < Maximum ) {\
-			int ix = r.GetLeft() + (int)(((x) - Minimum) / dx);\
-			dc.DrawLine(ix, r.GetBottom(), ix, r.GetBottom() - (int)(dy * y));\
-		}
+		wxPen oldPen(dc.GetPen()); dc.SetPen(wxPen(Get_Color_asWX(m_Gaussian_Color), m_Gaussian_Size));
 
-		DRAWLINE(s.Get_Mean()                 , 1.       );
-		DRAWLINE(s.Get_Mean() - s.Get_StdDev(), exp(-0.5));
-		DRAWLINE(s.Get_Mean() + s.Get_StdDev(), exp(-0.5));
+		DRAW_LINE(s.Get_Mean()                 );
+		DRAW_LINE(s.Get_Mean() - s.Get_StdDev());
+		DRAW_LINE(s.Get_Mean() + s.Get_StdDev());
 
-		double y = dy * exp(-SG_Get_Square(Minimum - s.Get_Mean()) / (2. * s.Get_Variance()));
+		int y = (int)(dy * FUNC_NORMAL(Minimum));
 
 		for(size_t i=1; i<r.GetWidth(); i++)
 		{
-			double x = Minimum + i * dx, ay = y; y = dy * exp(-SG_Get_Square(x - s.Get_Mean()) / (2. * s.Get_Variance()));
+			double x = Minimum + i * dx; int ay = y; y = (int)(dy * FUNC_NORMAL(x));
 
 			dc.DrawLine(r.GetLeft() + i - 1, r.GetBottom() - ay, r.GetLeft() + i, r.GetBottom() - y);
 		}
+
+		dc.SetPen(oldPen);
 	}
 }
 
@@ -318,9 +337,7 @@ void CVIEW_Histogram::Draw_Frame(wxDC &dc, wxRect r)
 	}
 
 	//-----------------------------------------------------
-	wxFont	Font	= dc.GetFont();
-	Font.SetPointSize((int)(0.7 * FontSize));
-	dc.SetFont(Font);
+	wxFont Font(dc.GetFont()); Font.SetPointSize((int)(0.7 * FontSize)); dc.SetFont(Font);
 
 	//-----------------------------------------------------
 	if( m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_LUT )
@@ -379,17 +396,17 @@ void CVIEW_Histogram::Draw_Frame(wxDC &dc, wxRect r)
 //---------------------------------------------------------
 wxRect CVIEW_Histogram::Draw_Get_rDiagram(wxRect r)
 {
-	if( m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_LUT )
+	if( m_XLabeling != 0 || m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_LUT )
 	{
 		return(	wxRect(
-			wxPoint(r.GetLeft()  + 30, r.GetTop()    +  10),
-			wxPoint(r.GetRight() - 10, r.GetBottom() - 100)
+			wxPoint(r.GetLeft () + m_Margin_Left, r.GetTop   () +  10),
+			wxPoint(r.GetRight() - 10           , r.GetBottom() - m_Margin_Bottom)
 		));
 	}
 
 	return(	wxRect(
-		wxPoint(r.GetLeft()  + 30, r.GetTop()    + 10),
-		wxPoint(r.GetRight() - 10, r.GetBottom() - 40)
+		wxPoint(r.GetLeft () + m_Margin_Left, r.GetTop   () + 10),
+		wxPoint(r.GetRight() - 10           , r.GetBottom() - 30)
 	));
 }
 
@@ -446,7 +463,7 @@ void CVIEW_Histogram::On_Mouse_LDown(wxMouseEvent &event)
 	switch( m_pLayer->Get_Classifier()->Get_Mode() )
 	{
 	case CLASSIFY_GRADUATED:
-	case CLASSIFY_METRIC   :
+	case CLASSIFY_DISCRETE   :
 	case CLASSIFY_SHADE    :
 	case CLASSIFY_OVERLAY  :
 		m_bMouse_Down	= true;
@@ -487,11 +504,17 @@ void CVIEW_Histogram::On_Mouse_RDown(wxMouseEvent &event)
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_HISTOGRAM_SET_MINMAX);
 		Menu.AppendSeparator();
 	}
+
 	CMD_Menu_Add_Item(&Menu, true , ID_CMD_HISTOGRAM_CUMULATIVE);
-	CMD_Menu_Add_Item(&Menu, true , ID_CMD_HISTOGRAM_GAUSSIAN);
+	if( m_pLayer->Get_Classifier()->Get_Mode() != CLASSIFY_LUT )
+	{
+		CMD_Menu_Add_Item(&Menu, true , ID_CMD_HISTOGRAM_GAUSSIAN);
+	}
+
 	Menu.AppendSeparator();
 	CMD_Menu_Add_Item(&Menu, false, ID_CMD_HISTOGRAM_AS_TABLE);
 	CMD_Menu_Add_Item(&Menu, false, ID_CMD_HISTOGRAM_TO_CLIPBOARD);
+
 	Menu.AppendSeparator();
 	CMD_Menu_Add_Item(&Menu, false, ID_CMD_HISTOGRAM_PARAMETERS);
 
@@ -509,21 +532,33 @@ void CVIEW_Histogram::On_Command_UI(wxUpdateUIEvent &event)
 	switch( event.GetId() )
 	{
 	case ID_CMD_HISTOGRAM_CUMULATIVE:
-		event.Check(m_bCumulative);
+		if( m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_SINGLE
+		||  m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_RGB
+		||  m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_LUT )
+		{
+			event.Enable(false);
+			event.Check (false);
+		}
+		else
+		{
+			event.Enable(true);
+			event.Check (m_bCumulative);
+		}
 		break;
 
 	case ID_CMD_HISTOGRAM_GAUSSIAN:
-		if( m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_GRADUATED
+		if( m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_DISCRETE
+		||  m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_GRADUATED
 		||  m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_SHADE
 		||  m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_OVERLAY )
 		{
 			event.Enable(true);
-			event.Check(m_bGaussian);
+			event.Check (m_bGaussian);
 		}
 		else
 		{
 			event.Enable(false);
-			event.Check(false);
+			event.Check (false);
 		}
 		break;
 
@@ -536,35 +571,47 @@ void CVIEW_Histogram::On_Properties(wxCommandEvent &event)
 {
 	CSG_Parameters P(_TL("Histogram"));
 
-	if( m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_GRADUATED
-	||	m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_SHADE
-	||	m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_OVERLAY )
-	{
-		P.Add_Int("", "NCLASSES", _TL("Number of Bins"), _TL(""), m_pLayer->Get_Classifier()->Get_Class_Count(), 1, true);
-	}
+	P.Add_Int   (""        , "NCLASSES"      , _TL("Number of Bins"     ), _TL(""), m_pLayer->Get_Classifier()->Get_Class_Count(), 1, true);
 
-	P.Add_Bool("", "CUMULATIVE", _TL("Cumulative"         ), _TL(""), m_bCumulative);
-	P.Add_Bool("", "GAUSSIAN"  , _TL("Normal Distribution"), _TL(""), m_bGaussian  );
+	P.Add_Bool  (""        , "CUMULATIVE"    , _TL("Cumulative"         ), _TL(""), m_bCumulative);
+	P.Add_Bool  (""        , "COLORED"       , _TL("Colored"            ), _TL(""), m_bColored);
 
-	P.Add_Choice("", "XLABELING", _TL("Class Labeling"), _TL(""),
-		CSG_String::Format("%s|%s",
-			_TL("horizontal"),
-			_TL("diagonal"),
-			_TL("vertical")
-		), m_XLabeling
+	P.Add_Choice(""        , "XLABELING"     , _TL("Class Labeling"     ), _TL(""),
+		CSG_String::Format("%s|%s", _TL("horizontal"), _TL("diagonal"), _TL("vertical")), m_XLabeling
 	);
 
+	P.Add_Node  (""        , "MARGINS"       , _TL("Margins"            ), _TL(""));
+	P.Add_Int   ("MARGINS" , "MARGIN_LEFT"   , _TL("Left"               ), _TL(""), m_Margin_Left  , 10, true);
+	P.Add_Int   ("MARGINS" , "MARGIN_BOTTOM" , _TL("Bottom"             ), _TL(""), m_Margin_Bottom, 10, true);
+
+	P.Add_Bool  (""        , "GAUSSIAN"      , _TL("Normal Distribution"), _TL(""), m_bGaussian  );
+	P.Add_Color ("GAUSSIAN", "GAUSSIAN_COLOR", _TL("Color"              ), _TL(""), m_Gaussian_Color);
+	P.Add_Int   ("GAUSSIAN", "GAUSSIAN_SIZE" , _TL("Line Width"         ), _TL(""), m_Gaussian_Size, 1, true);
+
+	//-----------------------------------------------------
+	P.Set_Enabled("NCLASSES",
+		m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_GRADUATED
+	||	m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_SHADE
+	||	m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_OVERLAY
+	);
+
+	P.Set_Enabled("CUMULATIVE", m_pLayer->Get_Classifier()->Get_Mode() != CLASSIFY_LUT);
+	P.Set_Enabled("GAUSSIAN"  , m_pLayer->Get_Classifier()->Get_Mode() != CLASSIFY_LUT);
+	P.Set_Enabled("XLABELING" , m_pLayer->Get_Classifier()->Get_Mode() != CLASSIFY_LUT);
+
+	//-----------------------------------------------------
 	if( DLG_Parameters(&P) )
 	{
-		if( P("NCLASSES") )
-		{
-			m_pLayer->Get_Classifier()->Set_Class_Count(P("NCLASSES")->asInt());
-		}
+		m_pLayer->Get_Classifier()->Set_Class_Count(P("NCLASSES")->asInt());
 
-		m_bCumulative = P("CUMULATIVE")->asBool();
-		m_bGaussian   = P("GAUSSIAN"  )->asBool();
-
-		m_XLabeling   = P("XLABELING")->asInt();
+		m_bCumulative    = P("CUMULATIVE"    )->asBool();
+		m_bColored       = P("COLORED"       )->asBool();
+		m_XLabeling      = P("XLABELING"     )->asInt();
+		m_Margin_Left    = P("MARGIN_LEFT"   )->asInt();
+		m_Margin_Bottom  = P("MARGIN_BOTTOM" )->asInt();
+		m_bGaussian      = P("GAUSSIAN"      )->asBool();
+		m_Gaussian_Color = P("GAUSSIAN_COLOR")->asInt();
+		m_Gaussian_Size  = P("GAUSSIAN_SIZE" )->asInt();
 
 		Refresh();
 	}
@@ -589,19 +636,10 @@ void CVIEW_Histogram::On_Gaussian(wxCommandEvent &event)
 //---------------------------------------------------------
 void CVIEW_Histogram::On_Set_MinMax(wxCommandEvent &event)
 {
-	switch( m_pLayer->Get_Classifier()->Get_Mode() )
-	{
-	case CLASSIFY_GRADUATED:
-	case CLASSIFY_METRIC   :
-	case CLASSIFY_SHADE    :
-	case CLASSIFY_OVERLAY  :
-		m_pLayer->Set_Color_Range(
-			m_pLayer->Get_Value_Minimum(),
-			m_pLayer->Get_Value_Maximum()
-		);
-
-	default: break;
-	}
+	m_pLayer->Set_Color_Range(
+		m_pLayer->Get_Value_Minimum(),
+		m_pLayer->Get_Value_Maximum()
+	);
 }
 
 //---------------------------------------------------------

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,15 +45,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -112,10 +100,10 @@ bool CSG_Scaler::Set_Interval(double Interval)
 }
 
 //-----------------------------------------------------
-bool CSG_Scaler::Set_Linear(CSG_Table *pTable, int Field, double Interval, double Percent)
+bool CSG_Scaler::Set_Linear(CSG_Table *pTable, int Field, double Interval, double Minimum, double Maximum)
 {
-	double	Minimum	= pTable->Get_Minimum(Field) + 0.01 * Percent;
-	double	Maximum	= pTable->Get_Maximum(Field) - 0.01 * Percent;
+	Minimum	= pTable->Get_Minimum(Field) + pTable->Get_Range(Field) * Minimum / 100.;
+	Maximum	= pTable->Get_Minimum(Field) + pTable->Get_Range(Field) * Maximum / 100.;
 
 	return( Create(Minimum, Maximum, Interval) );
 }
@@ -128,7 +116,7 @@ bool CSG_Scaler::Set_StdDev(CSG_Table *pTable, int Field, double Interval, doubl
 	return( Create(Minimum, Maximum, Interval) );
 }
 
-bool CSG_Scaler::Set_Percentile(CSG_Table *pTable, int Field, double Interval, double Percentile)
+bool CSG_Scaler::Set_Percentile(CSG_Table *pTable, int Field, double Interval, double Minimum, double Maximum)
 {
 	return( false );
 
@@ -140,10 +128,10 @@ bool CSG_Scaler::Set_Percentile(CSG_Table *pTable, int Field, double Interval, d
 
 
 //-----------------------------------------------------
-bool CSG_Scaler::Set_Linear(CSG_Grid *pGrid, double Interval, double Percent)
+bool CSG_Scaler::Set_Linear(CSG_Grid *pGrid, double Interval, double Minimum, double Maximum)
 {
-	double	Minimum	= pGrid->Get_Min() + 0.01 * Percent;
-	double	Maximum	= pGrid->Get_Max() - 0.01 * Percent;
+	Minimum	= pGrid->Get_Min() + pGrid->Get_Range() * Minimum / 100.;
+	Maximum	= pGrid->Get_Min() + pGrid->Get_Range() * Maximum / 100.;
 
 	return( Create(Minimum, Maximum, Interval) );
 }
@@ -156,19 +144,19 @@ bool CSG_Scaler::Set_StdDev(CSG_Grid *pGrid, double Interval, double StdDev, boo
 	return( Create(Minimum, Maximum, Interval) );
 }
 
-bool CSG_Scaler::Set_Percentile(CSG_Grid *pGrid, double Interval, double Percentile)
+bool CSG_Scaler::Set_Percentile(CSG_Grid *pGrid, double Interval, double Minimum, double Maximum)
 {
-	double	Minimum	= pGrid->Get_Percentile(       Percentile);
-	double	Maximum	= pGrid->Get_Percentile(100. - Percentile);
+	Minimum	= pGrid->Get_Percentile(Minimum);
+	Maximum	= pGrid->Get_Percentile(Maximum);
 
 	return( Create(Minimum, Maximum, Interval) );
 }
 
 //-----------------------------------------------------
-bool CSG_Scaler::Set_Linear(CSG_Grids *pGrids, double Interval, double Percent)
+bool CSG_Scaler::Set_Linear(CSG_Grids *pGrids, double Interval, double Minimum, double Maximum)
 {
-	double	Minimum	= pGrids->Get_Min() + 0.01 * Percent;
-	double	Maximum	= pGrids->Get_Max() - 0.01 * Percent;
+	Minimum	= pGrids->Get_Min() + pGrids->Get_Range() * Minimum / 100.;
+	Maximum	= pGrids->Get_Min() + pGrids->Get_Range() * Maximum / 100.;
 
 	return( Create(Minimum, Maximum, Interval) );
 }
@@ -181,10 +169,10 @@ bool CSG_Scaler::Set_StdDev(CSG_Grids *pGrids, double Interval, double StdDev, b
 	return( Create(Minimum, Maximum, Interval) );
 }
 
-bool CSG_Scaler::Set_Percentile(CSG_Grids *pGrids, double Interval, double Percentile)
+bool CSG_Scaler::Set_Percentile(CSG_Grids *pGrids, double Interval, double Minimum, double Maximum)
 {
-	double	Minimum	= pGrids->Get_Percentile(       Percentile);
-	double	Maximum	= pGrids->Get_Percentile(100. - Percentile);
+	Minimum	= pGrids->Get_Percentile(Minimum);
+	Maximum	= pGrids->Get_Percentile(Maximum);
 
 	return( Create(Minimum, Maximum, Interval) );
 }
@@ -201,7 +189,7 @@ CWKSP_Layer_Classify::CWKSP_Layer_Classify(void)
 {
 	m_Count			= 100;
 
-	m_Mode			= CLASSIFY_UNIQUE;
+	m_Mode			= CLASSIFY_SINGLE;
 	m_Shade_Mode	= SHADE_MODE_DSC_GREY;
 
 	m_pLayer		= NULL;
@@ -275,7 +263,7 @@ double CWKSP_Layer_Classify::Get_Class_Value_Minimum(int iClass)
 		break;
 
 	case CLASSIFY_GRADUATED:
-	case CLASSIFY_METRIC:
+	case CLASSIFY_DISCRETE:
 	case CLASSIFY_SHADE:
 	case CLASSIFY_OVERLAY:
 		if( m_zRange > 0.0 )
@@ -302,7 +290,7 @@ double CWKSP_Layer_Classify::Get_Class_Value_Maximum(int iClass)
 		break;
 
 	case CLASSIFY_GRADUATED:
-	case CLASSIFY_METRIC:
+	case CLASSIFY_DISCRETE:
 	case CLASSIFY_SHADE:
 	case CLASSIFY_OVERLAY:
 		if( m_zRange > 0.0 )
@@ -329,7 +317,7 @@ double CWKSP_Layer_Classify::Get_Class_Value_Center(int iClass)
 		break;
 
 	case CLASSIFY_GRADUATED:
-	case CLASSIFY_METRIC:
+	case CLASSIFY_DISCRETE:
 	case CLASSIFY_SHADE:
 	case CLASSIFY_OVERLAY:
 		if( m_zRange > 0.0 )
@@ -359,7 +347,7 @@ wxString CWKSP_Layer_Classify::Get_Class_Name(int iClass)
 		break;
 
 	case CLASSIFY_GRADUATED:
-	case CLASSIFY_METRIC:
+	case CLASSIFY_DISCRETE:
 	case CLASSIFY_SHADE:
 	case CLASSIFY_OVERLAY:
 		s	= SG_Get_String(Get_Class_Value_Minimum(iClass), -2) + SG_T(" < ")

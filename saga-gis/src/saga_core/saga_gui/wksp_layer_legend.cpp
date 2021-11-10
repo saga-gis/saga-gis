@@ -426,7 +426,7 @@ void CWKSP_Layer_Legend::_Draw_Point(wxDC &dc, CWKSP_Shapes_Point *pLayer)
 
 		_Set_Size(0, SIZE_HEIGHT + dc.GetFont().GetPointSize());
 
-		if( m_pClassify->Get_Mode() == CLASSIFY_UNIQUE )
+		if( m_pClassify->Get_Mode() == CLASSIFY_SINGLE )
 		{
 			return;
 		}
@@ -462,7 +462,7 @@ void CWKSP_Layer_Legend::_Draw_Line(wxDC &dc, CWKSP_Shapes_Line *pLayer)
 			_Draw_Label	(dc, y, wxString::Format(wxT("%f"), size_Min_Value + (iSize - size_Min) / size_dValue), TEXTALIGN_TOP);
 		}
 
-		if( m_pClassify->Get_Mode() == CLASSIFY_UNIQUE )
+		if( m_pClassify->Get_Mode() == CLASSIFY_SINGLE )
 		{
 			return;
 		}
@@ -502,7 +502,7 @@ void CWKSP_Layer_Legend::_Draw_Grid(wxDC &dc, CWKSP_Grid *pLayer)
 	switch( m_pClassify->Get_Mode() )
 	{
 	case CLASSIFY_GRADUATED:
-	case CLASSIFY_METRIC:
+	case CLASSIFY_DISCRETE:
 	case CLASSIFY_SHADE:
 		if( !pLayer->Get_Grid()->Get_Unit().is_Empty() )
 		{
@@ -526,7 +526,7 @@ void CWKSP_Layer_Legend::_Draw_Grids(wxDC &dc, CWKSP_Grids *pLayer)
 	switch( m_pClassify->Get_Mode() )
 	{
 	case CLASSIFY_GRADUATED:
-	case CLASSIFY_METRIC:
+	case CLASSIFY_DISCRETE:
 	case CLASSIFY_SHADE:
 		if( *pLayer->Get_Grids()->Get_Unit() )
 		{

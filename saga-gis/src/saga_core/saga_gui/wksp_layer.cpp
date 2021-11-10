@@ -280,18 +280,18 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	||  m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN )
 	{
 		m_Parameters.Add_Choice("NODE_COLORS", "COLORS_TYPE", _TL("Type"), _TL(""), CSG_String::Format("%s|%s|%s|%s",
-			_TL("Single Symbol"   ),	// CLASSIFY_UNIQUE
+			_TL("Single Symbol"   ),	// CLASSIFY_SINGLE
 			_TL("Classified"      ),	// CLASSIFY_LUT
-			_TL("Discrete Colors" ),	// CLASSIFY_METRIC
+			_TL("Discrete Colors" ),	// CLASSIFY_DISCRETE
 			_TL("Graduated Colors") 	// CLASSIFY_GRADUATED
 		), 0);
 	}
 	else if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud )
 	{
 		m_Parameters.Add_Choice("NODE_COLORS", "COLORS_TYPE", _TL("Type"), _TL(""), CSG_String::Format("%s|%s|%s|%s|%s",
-			_TL("Single Symbol"   ),	// CLASSIFY_UNIQUE
+			_TL("Single Symbol"   ),	// CLASSIFY_SINGLE
 			_TL("Classified"      ),	// CLASSIFY_LUT
-			_TL("Discrete Colors" ),	// CLASSIFY_METRIC
+			_TL("Discrete Colors" ),	// CLASSIFY_DISCRETE
 			_TL("Graduated Colors"),	// CLASSIFY_GRADUATED
 			_TL("RGB Coded Values")		// CLASSIFY_OVERLAY !!!
 		), 0);
@@ -299,9 +299,9 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	else if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grids )
 	{
 		m_Parameters.Add_Choice("NODE_COLORS", "COLORS_TYPE", _TL("Type"), _TL(""), CSG_String::Format("%s|%s|%s|%s|%s",
-			_TL("Single Symbol"   ),	// CLASSIFY_UNIQUE
+			_TL("Single Symbol"   ),	// CLASSIFY_SINGLE
 			_TL("Classified"      ),	// CLASSIFY_LUT
-			_TL("Discrete Colors" ),	// CLASSIFY_METRIC
+			_TL("Discrete Colors" ),	// CLASSIFY_DISCRETE
 			_TL("Graduated Colors"),	// CLASSIFY_GRADUATED
 			_TL("RGB Composite"   )		// CLASSIFY_OVERLAY
 		), 4);
@@ -315,9 +315,9 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	else if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid )
 	{
 		m_Parameters.Add_Choice("NODE_COLORS", "COLORS_TYPE", _TL("Type"), _TL(""), CSG_String::Format("%s|%s|%s|%s|%s|%s|%s",
-			_TL("Single Symbol"   ),	// CLASSIFY_UNIQUE
+			_TL("Single Symbol"   ),	// CLASSIFY_SINGLE
 			_TL("Classified"      ),	// CLASSIFY_LUT
-			_TL("Discrete Colors" ),	// CLASSIFY_METRIC
+			_TL("Discrete Colors" ),	// CLASSIFY_DISCRETE
 			_TL("Graduated Colors"),	// CLASSIFY_GRADUATED
 			_TL("RGB Composite"   ),	// CLASSIFY_OVERLAY
 			_TL("RGB Coded Values"),	// CLASSIFY_RGB
@@ -331,12 +331,12 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	static	BYTE	s_Def_Layer_Colour	= 0;
 
 	m_Parameters.Add_Node("NODE_COLORS",
-		"NODE_UNISYMBOL"	, _TL("Single Symbol"),
+		"NODE_SINGLE"	, _TL("Single Symbol"),
 		_TL("")
 	);
 
-	m_Parameters.Add_Color("NODE_UNISYMBOL",
-		"UNISYMBOL_COLOR"	, _TL("Color"),
+	m_Parameters.Add_Color("NODE_SINGLE",
+		"SINGLE_COLOR"	, _TL("Color"),
 		_TL(""),
 		s_Def_Layer_Colours[s_Def_Layer_Colour++ % DEF_LAYER_COLOUR_COUNT]
 	);
@@ -436,15 +436,15 @@ void CWKSP_Layer::ColorsParms_Add(void)
 			CSG_String::Format("%s|%s|%s|%s",
 				_TL("Linear"),
 				_TL("Standard Deviation"),
-				_TL("Percentile"),
+				_TL("Percent Clip"),
 				_TL("Manual")
 			), g_pData->Get_Parameter("GRID_STRETCH_DEFAULT")->asInt()
 		);
 
-		m_Parameters.Add_Double("STRETCH_DEFAULT",
+		m_Parameters.Add_Range("STRETCH_DEFAULT",
 			"STRETCH_LINEAR"	, _TL("Linear Percent Stretch"),
 			_TL("Linear percent stretch allows you to trim extreme values from both ends of the histogram using the percentage specified here."),
-			5., 0., true, 50., true
+			5., 95., 0., true, 100., true
 		);
 
 		m_Parameters.Add_Double("STRETCH_DEFAULT",
@@ -459,10 +459,10 @@ void CWKSP_Layer::ColorsParms_Add(void)
 			true
 		);
 
-		m_Parameters.Add_Double("STRETCH_DEFAULT",
-			"STRETCH_PCTL"		, _TL("Percentile"),
+		m_Parameters.Add_Range("STRETCH_DEFAULT",
+			"STRETCH_PCTL"		, _TL("Percent Clip"),
 			_TL(""),
-			2., 0., true, 50., true
+			2., 98., 0., true, 100., true
 		);
 	}
 
@@ -479,10 +479,10 @@ void CWKSP_Layer::ColorsParms_Add(void)
 			), 1
 		);
 
-		m_Parameters.Add_Double("STRETCH_DEFAULT",
+		m_Parameters.Add_Range("STRETCH_DEFAULT",
 			"STRETCH_LINEAR"	, _TL("Linear Percent Stretch"),
 			_TL("Linear percent stretch allows you to trim extreme values from both ends of the histogram using the percentage specified here."),
-			5., 0., true, 50., true
+			5., 95., 0., true, 100., true
 		);
 
 		m_Parameters.Add_Double("STRETCH_DEFAULT",
@@ -497,10 +497,10 @@ void CWKSP_Layer::ColorsParms_Add(void)
 			true
 		);
 
-		m_Parameters.Add_Double("STRETCH_DEFAULT",
-			"STRETCH_PCTL"		, _TL("Percentile"),
+		m_Parameters.Add_Range("STRETCH_DEFAULT",
+			"STRETCH_PCTL"		, _TL("Percent Clip"),
 			_TL(""),
-			2., 0., true, 50., true
+			2., 98., 0., true, 100., true
 		);
 	}
 
@@ -639,12 +639,13 @@ bool CWKSP_Layer::ColorsParms_Adjust(CSG_Parameters &Parameters, CSG_Data_Object
 			return( false );
 		}
 
-		double	d	= Parameters("STRETCH_DEFAULT")->asInt() ? 0.
-					: Parameters("STRETCH_LINEAR")->asDouble() * 0.01 * (Maximum - Minimum);
+		if( Parameters("STRETCH_DEFAULT")->asInt() == 0 )
+		{
+			double Range = (Maximum - Minimum) / 100.;
 
-		Minimum	+= d;
-		Maximum	-= d;
-
+			Maximum	= Minimum + Range * Parameters("STRETCH_LINEAR.MAX")->asDouble();
+			Minimum	= Minimum + Range * Parameters("STRETCH_LINEAR.MIN")->asDouble();
+		}
 		break;	}
 
 	//-----------------------------------------------------
@@ -687,18 +688,16 @@ bool CWKSP_Layer::ColorsParms_Adjust(CSG_Parameters &Parameters, CSG_Data_Object
 
 	//-----------------------------------------------------
 	case  2: {
-		double	d	= Parameters("STRETCH_PCTL")->asDouble();
-
 		switch( pObject->Get_ObjectType() )
 		{
 		case SG_DATAOBJECT_TYPE_Grid:
-			Minimum	= ((CSG_Grid  *)pObject)->Get_Percentile(      d);
-			Maximum	= ((CSG_Grid  *)pObject)->Get_Percentile(100 - d);
+			Minimum	= ((CSG_Grid  *)pObject)->Get_Percentile(Parameters("STRETCH_PCTL.MIN")->asDouble());
+			Maximum	= ((CSG_Grid  *)pObject)->Get_Percentile(Parameters("STRETCH_PCTL.MAX")->asDouble());
 			break;
 
 		case SG_DATAOBJECT_TYPE_Grids:
-			Minimum	= ((CSG_Grids *)pObject)->Get_Percentile(      d);
-			Maximum	= ((CSG_Grids *)pObject)->Get_Percentile(100 - d);
+			Minimum	= ((CSG_Grids *)pObject)->Get_Percentile(Parameters("STRETCH_PCTL.MIN")->asDouble());
+			Maximum	= ((CSG_Grids *)pObject)->Get_Percentile(Parameters("STRETCH_PCTL.MAX")->asDouble());
 			break;
 
 		default:
@@ -776,13 +775,13 @@ int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		{
 			int		Value	= pParameter->asInt();
 
-			pParameters->Set_Enabled("METRIC_COLORS" , Value == CLASSIFY_METRIC || Value == CLASSIFY_GRADUATED);
-			pParameters->Set_Enabled("NODE_UNISYMBOL", Value == CLASSIFY_UNIQUE);
+			pParameters->Set_Enabled("METRIC_COLORS" , Value == CLASSIFY_DISCRETE || Value == CLASSIFY_GRADUATED);
+			pParameters->Set_Enabled("NODE_SINGLE", Value == CLASSIFY_SINGLE);
 			pParameters->Set_Enabled("NODE_LUT"      , Value == CLASSIFY_LUT);
 		
 			if( m_pObject->Get_ObjectType() != SG_DATAOBJECT_TYPE_Grids )
 			{
-				pParameters->Set_Enabled("NODE_METRIC", Value != CLASSIFY_UNIQUE && Value != CLASSIFY_LUT && Value != CLASSIFY_RGB);
+				pParameters->Set_Enabled("NODE_METRIC", Value != CLASSIFY_SINGLE && Value != CLASSIFY_LUT && Value != CLASSIFY_RGB);
 			}
 		}
 	}
@@ -806,7 +805,7 @@ void CWKSP_Layer::On_Parameters_Changed(void)
 
 	m_pClassify->Set_Mode(m_Parameters("COLORS_TYPE")->asInt());
 
-	m_pClassify->Set_Unique_Color(m_Parameters("UNISYMBOL_COLOR")->asInt());
+	m_pClassify->Set_Unique_Color(m_Parameters("SINGLE_COLOR")->asInt());
 
 	m_pClassify->Set_Metric(
 		m_Parameters("METRIC_SCALE_MODE")->asInt   (),

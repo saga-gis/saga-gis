@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,15 +45,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -266,7 +254,7 @@ void CWKSP_TIN::On_Parameters_Changed(void)
 		m_fValue	= -1;
 	}
 
-	long	DefColor	= m_Parameters("UNISYMBOL_COLOR")->asColor();
+	long	DefColor	= m_Parameters("SINGLE_COLOR")->asColor();
 	m_Color_Pen			= wxColour(SG_GET_R(DefColor), SG_GET_G(DefColor), SG_GET_B(DefColor));
 }
 
@@ -300,7 +288,7 @@ int CWKSP_TIN::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 //---------------------------------------------------------
 wxString CWKSP_TIN::Get_Name_Attribute(void)
 {
-	return(	m_fValue < 0 || m_pClassify->Get_Mode() == CLASSIFY_UNIQUE ? SG_T("") : asTIN()->Get_Field_Name(m_fValue) );
+	return(	m_fValue < 0 || m_pClassify->Get_Mode() == CLASSIFY_SINGLE ? SG_T("") : asTIN()->Get_Field_Name(m_fValue) );
 }
 
 //---------------------------------------------------------

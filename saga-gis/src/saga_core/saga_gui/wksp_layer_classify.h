@@ -73,9 +73,9 @@
 //---------------------------------------------------------
 enum
 {
-	CLASSIFY_UNIQUE	= 0,
+	CLASSIFY_SINGLE	= 0,
 	CLASSIFY_LUT,
-	CLASSIFY_METRIC,
+	CLASSIFY_DISCRETE,
 	CLASSIFY_GRADUATED,
 	CLASSIFY_OVERLAY,
 	CLASSIFY_RGB,
@@ -137,17 +137,17 @@ public:
 	bool						Create				(double Minimum, double Maximum, double Interval = 0.);
 
 	//-----------------------------------------------------
-	bool						Set_Linear			(CSG_Table *pTable, int Field, double Interval, double Percent);
+	bool						Set_Linear			(CSG_Table *pTable, int Field, double Interval, double Minimum, double Maximum);
 	bool						Set_StdDev			(CSG_Table *pTable, int Field, double Interval, double StdDev, bool bKeepInRange);
-	bool						Set_Percentile		(CSG_Table *pTable, int Field, double Interval, double Percentile);
+	bool						Set_Percentile		(CSG_Table *pTable, int Field, double Interval, double Minimum, double Maximum);
 
-	bool						Set_Linear			(CSG_Grid  *pGrid            , double Interval, double Percent);
+	bool						Set_Linear			(CSG_Grid  *pGrid            , double Interval, double Minimum, double Maximum);
 	bool						Set_StdDev			(CSG_Grid  *pGrid            , double Interval, double StdDev, bool bKeepInRange);
-	bool						Set_Percentile		(CSG_Grid  *pGrid            , double Interval, double Percentile);
+	bool						Set_Percentile		(CSG_Grid  *pGrid            , double Interval, double Minimum, double Maximum);
 
-	bool						Set_Linear			(CSG_Grids *pGrids           , double Interval, double Percent);
+	bool						Set_Linear			(CSG_Grids *pGrids           , double Interval, double Minimum, double Maximum);
 	bool						Set_StdDev			(CSG_Grids *pGrids           , double Interval, double StdDev, bool bKeepInRange);
-	bool						Set_Percentile		(CSG_Grids *pGrids           , double Interval, double Percentile);
+	bool						Set_Percentile		(CSG_Grids *pGrids           , double Interval, double Minimum, double Maximum);
 
 	//-----------------------------------------------------
 	double						Get_Minimum			(void)	const	{	return( m_Minimum           );	}
@@ -251,7 +251,7 @@ public: ///////////////////////////////////////////////////
 	{
 		switch( m_Mode )
 		{
-		case CLASSIFY_UNIQUE   : default:
+		case CLASSIFY_SINGLE   : default:
 			return( 1 );
 
 		case CLASSIFY_LUT      :
@@ -262,7 +262,7 @@ public: ///////////////////////////////////////////////////
 		case CLASSIFY_OVERLAY  :
 			return( m_Count );
 
-		case CLASSIFY_METRIC   :
+		case CLASSIFY_DISCRETE   :
 			return( m_pColors->Get_Count() );
 		}
 	}
@@ -272,14 +272,14 @@ public: ///////////////////////////////////////////////////
 	{
 		switch( m_Mode )
 		{
-		case CLASSIFY_UNIQUE   : default:
+		case CLASSIFY_SINGLE   : default:
 			return( 0 );
 
 		case CLASSIFY_LUT      :
 			return( _LUT_Get_Class(Value) );
 
 		case CLASSIFY_GRADUATED:
-		case CLASSIFY_METRIC   :
+		case CLASSIFY_DISCRETE   :
 		case CLASSIFY_SHADE    :
 		case CLASSIFY_OVERLAY  :
 			return( _METRIC_Get_Class(Value) );
@@ -312,7 +312,7 @@ public: ///////////////////////////////////////////////////
 	{
 		switch( m_Mode )
 		{
-		case CLASSIFY_UNIQUE   : default:
+		case CLASSIFY_SINGLE   : default:
 			Color	= m_UNI_Color;
 			break;
 
@@ -328,7 +328,7 @@ public: ///////////////////////////////////////////////////
 			break;
 
 
-		case CLASSIFY_METRIC   :
+		case CLASSIFY_DISCRETE   :
 			Color	= m_pColors->Get_Color(iClass < 0 ? 0 : iClass >= m_pColors->Get_Count() ? m_pColors->Get_Count() - 1 : iClass);
 			break;
 
@@ -355,7 +355,7 @@ public: ///////////////////////////////////////////////////
 	{
 		switch( m_Mode )
 		{
-		case CLASSIFY_UNIQUE   : default:
+		case CLASSIFY_SINGLE   : default:
 			{
 				return( Get_Class_Color(0, Color) );
 			}
@@ -365,7 +365,7 @@ public: ///////////////////////////////////////////////////
 				return( Get_Class_Color(_LUT_Get_Class(Value), Color) );
 			}
 
-		case CLASSIFY_METRIC   :
+		case CLASSIFY_DISCRETE   :
 			{
 				return( Get_Class_Color(_METRIC_Get_Class(Value), Color) );
 			}

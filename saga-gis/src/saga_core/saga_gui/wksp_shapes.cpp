@@ -518,7 +518,7 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 	//-----------------------------------------------------
 	switch( m_Parameters("COLORS_TYPE")->asInt() )
 	{
-	default:	// CLASSIFY_UNIQUE
+	default:	// CLASSIFY_SINGLE
 		m_fValue	= -1;
 		m_fNormal	= -1;
 		break;
@@ -545,12 +545,12 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 
 	if( m_fValue < 0 )
 	{
-		m_pClassify->Set_Mode(CLASSIFY_UNIQUE);
+		m_pClassify->Set_Mode(CLASSIFY_SINGLE);
 	}
 
-	m_pClassify->Set_Unique_Color(m_pClassify->Get_Mode() == CLASSIFY_UNIQUE
-		? m_Parameters("UNISYMBOL_COLOR")->asColor()
-		: m_Parameters("NODATA_COLOR"   )->asColor()
+	m_pClassify->Set_Unique_Color(m_pClassify->Get_Mode() == CLASSIFY_SINGLE
+		? m_Parameters("SINGLE_COLOR")->asColor()
+		: m_Parameters("NODATA_COLOR")->asColor()
 	);
 
 	m_bNoData	= m_Parameters("NODATA_SHOW")->asBool();
@@ -1089,12 +1089,12 @@ wxString CWKSP_Shapes::Get_Name_Attribute(void)
 {
 	wxString	s;
 
-	if(	m_fValue >= 0 && m_pClassify->Get_Mode() != CLASSIFY_UNIQUE )
+	if(	m_fValue >= 0 && m_pClassify->Get_Mode() != CLASSIFY_SINGLE )
 	{
 		s	= Get_Shapes()->Get_Field_Name(m_fValue);
 
 		if( m_fNormal >= 0
-		&& (m_pClassify->Get_Mode() == CLASSIFY_METRIC
+		&& (m_pClassify->Get_Mode() == CLASSIFY_DISCRETE
 		||  m_pClassify->Get_Mode() == CLASSIFY_GRADUATED) )
 		{
 			s	+= " / "; s += Get_Shapes()->Get_Field_Name(m_fNormal);
@@ -1474,7 +1474,7 @@ bool CWKSP_Shapes::Get_Class_Color(CSG_Shape *pShape, int &Color)
 	//-----------------------------------------------------
 	Color	= m_pClassify->Get_Unique_Color();
 
-	return( m_pClassify->Get_Mode() == CLASSIFY_UNIQUE );
+	return( m_pClassify->Get_Mode() == CLASSIFY_SINGLE );
 }
 
 

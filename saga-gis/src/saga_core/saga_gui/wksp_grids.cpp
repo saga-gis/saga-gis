@@ -618,16 +618,16 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		||  pParameter->Cmp_Identifier("OVERLAY_FIT")
 		||  pParameter->Cmp_Identifier("DISPLAY_TRANSPARENCY") )
 		{
-			pParameters->Set_Enabled("DISPLAY_RESAMPLING", Type != CLASSIFY_LUT && Type != CLASSIFY_UNIQUE);
+			pParameters->Set_Enabled("DISPLAY_RESAMPLING", Type != CLASSIFY_LUT && Type != CLASSIFY_SINGLE);
 
-			pParameters->Set_Enabled("NODE_UNISYMBOL"    , Type == CLASSIFY_UNIQUE);
+			pParameters->Set_Enabled("NODE_SINGLE"       , Type == CLASSIFY_SINGLE);
 			pParameters->Set_Enabled("NODE_LUT"          , Type == CLASSIFY_LUT);
-			pParameters->Set_Enabled("NODE_METRIC"       , Type != CLASSIFY_UNIQUE && Type != CLASSIFY_LUT);
+			pParameters->Set_Enabled("NODE_METRIC"       , Type != CLASSIFY_SINGLE && Type != CLASSIFY_LUT);
 
-			pParameters->Set_Enabled("BAND"              , Type == CLASSIFY_METRIC || Type == CLASSIFY_GRADUATED || Type == CLASSIFY_LUT);
+			pParameters->Set_Enabled("BAND"              , Type == CLASSIFY_DISCRETE || Type == CLASSIFY_GRADUATED || Type == CLASSIFY_LUT);
 
-			pParameters->Set_Enabled("METRIC_ZRANGE"     , Type == CLASSIFY_METRIC || Type == CLASSIFY_GRADUATED || (Type == CLASSIFY_OVERLAY && (*pParameters)["OVERLAY_FIT"].asInt() == 0));
-			pParameters->Set_Enabled("METRIC_SCALE_MODE" , Type == CLASSIFY_METRIC || Type == CLASSIFY_GRADUATED ||  Type == CLASSIFY_OVERLAY);
+			pParameters->Set_Enabled("METRIC_ZRANGE"     , Type == CLASSIFY_DISCRETE || Type == CLASSIFY_GRADUATED || (Type == CLASSIFY_OVERLAY && (*pParameters)["OVERLAY_FIT"].asInt() == 0));
+			pParameters->Set_Enabled("METRIC_SCALE_MODE" , Type == CLASSIFY_DISCRETE || Type == CLASSIFY_GRADUATED ||  Type == CLASSIFY_OVERLAY);
 
 			pParameters->Set_Enabled("BAND_R"            , Type == CLASSIFY_OVERLAY);
 			pParameters->Set_Enabled("BAND_G"            , Type == CLASSIFY_OVERLAY);
@@ -834,7 +834,7 @@ wxString CWKSP_Grids::Get_Value(CSG_Point ptWorld, double Epsilon)
 
 		switch( m_pClassify->Get_Mode() )
 		{
-		case CLASSIFY_METRIC:
+		case CLASSIFY_DISCRETE:
 		case CLASSIFY_GRADUATED:
 			if( Get_Grid()->Get_Value(ptWorld, Value, GRID_RESAMPLING_NearestNeighbour) )
 			{
@@ -892,7 +892,7 @@ double CWKSP_Grids::Get_Value_StdDev (void)	{	return( ((CSG_Grids *)m_pObject)->
 //---------------------------------------------------------
 bool CWKSP_Grids::Fit_Colors(const CSG_Rect &rWorld)
 {
-	if( m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_METRIC
+	if( m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_DISCRETE
 	||  m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_GRADUATED )
 	{
 		if( _Fit_Colors(rWorld, Get_Grid(), m_pClassify) )
@@ -947,9 +947,8 @@ bool CWKSP_Grids::_Fit_Colors(const CSG_Rect &rWorld, CSG_Data_Object *pObject, 
 		break;	}
 
 	case  2: {	CSG_Histogram			h;	if( !GET_HIST ) return( false );
-		double	d	= m_Parameters("STRETCH_PCTL")->asDouble() * 0.01;
-		Minimum	= h.Get_Quantile(    d);
-		Maximum	= h.Get_Quantile(1 - d);
+		Minimum	= h.Get_Quantile(m_Parameters("STRETCH_PCTL.MIN")->asDouble() / 100.);
+		Maximum	= h.Get_Quantile(m_Parameters("STRETCH_PCTL.MAX")->asDouble() / 100.);
 		break;	}
 	}
 
@@ -1142,9 +1141,9 @@ void CWKSP_Grids::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	//-----------------------------------------------------
 	switch( m_Parameters("COLORS_TYPE")->asInt() )
 	{
-	case CLASSIFY_UNIQUE   : m_pClassify->Set_Mode(CLASSIFY_UNIQUE   ); break;
+	case CLASSIFY_SINGLE   : m_pClassify->Set_Mode(CLASSIFY_SINGLE   ); break;
 	case CLASSIFY_LUT      : m_pClassify->Set_Mode(CLASSIFY_LUT      ); break;
-	case CLASSIFY_METRIC   : m_pClassify->Set_Mode(CLASSIFY_METRIC   ); break;
+	case CLASSIFY_DISCRETE   : m_pClassify->Set_Mode(CLASSIFY_DISCRETE   ); break;
 	case CLASSIFY_GRADUATED: m_pClassify->Set_Mode(CLASSIFY_GRADUATED); break;
 	case CLASSIFY_OVERLAY  : m_pClassify->Set_Mode(CLASSIFY_OVERLAY  ); break;
 	}
@@ -1152,7 +1151,7 @@ void CWKSP_Grids::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	//-----------------------------------------------------
 	TSG_Grid_Resampling	Resampling;
 
-	if( m_pClassify->Get_Mode() == CLASSIFY_UNIQUE
+	if( m_pClassify->Get_Mode() == CLASSIFY_SINGLE
 	||  m_pClassify->Get_Mode() == CLASSIFY_LUT )
 	{
 		Resampling	= GRID_RESAMPLING_NearestNeighbour;

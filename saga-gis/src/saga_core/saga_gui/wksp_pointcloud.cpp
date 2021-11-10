@@ -384,9 +384,9 @@ void CWKSP_PointCloud::On_Parameters_Changed(void)
 	//-----------------------------------------------------
 	switch( m_Parameters("COLORS_TYPE")->asInt() )
 	{
-	default: m_fValue = -1                                    ; break;	// CLASSIFY_UNIQUE
+	default: m_fValue = -1                                    ; break;	// CLASSIFY_SINGLE
 	case  1: m_fValue = m_Parameters("LUT_ATTRIB"   )->asInt(); break;	// CLASSIFY_LUT
-	case  2: m_fValue = m_Parameters("METRIC_ATTRIB")->asInt(); break;	// CLASSIFY_METRIC
+	case  2: m_fValue = m_Parameters("METRIC_ATTRIB")->asInt(); break;	// CLASSIFY_DISCRETE
 	case  3: m_fValue = m_Parameters("METRIC_ATTRIB")->asInt(); break;	// CLASSIFY_GRADUATED
 	case  4: m_fValue = m_Parameters("RGB_ATTRIB"   )->asInt(); break;	// CLASSIFY_RGB
 	}
@@ -395,7 +395,7 @@ void CWKSP_PointCloud::On_Parameters_Changed(void)
 	{
 		m_fValue	= -1;
 
-		m_pClassify->Set_Mode(CLASSIFY_UNIQUE);
+		m_pClassify->Set_Mode(CLASSIFY_SINGLE);
 	}
 	else if( m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY )
 	{
@@ -405,7 +405,7 @@ void CWKSP_PointCloud::On_Parameters_Changed(void)
 	m_pObject->Set_Max_Samples(Get_PointCloud()->Get_Count() * (m_Parameters("MAX_SAMPLES")->asDouble() / 100.) );
 
 	//-----------------------------------------------------
-	long	DefColor	= m_Parameters("UNISYMBOL_COLOR")->asColor();
+	long	DefColor	= m_Parameters("SINGLE_COLOR")->asColor();
 	m_Color_Pen			= wxColour(SG_GET_R(DefColor), SG_GET_G(DefColor), SG_GET_B(DefColor));
 
 	m_PointSize			= m_Parameters("DISPLAY_SIZE")->asInt();
@@ -448,9 +448,9 @@ int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 		{
 			int	Value	= pParameter->asInt();
 
-			pParameters->Set_Enabled("NODE_UNISYMBOL", Value == CLASSIFY_UNIQUE);
+			pParameters->Set_Enabled("NODE_SINGLE"   , Value == CLASSIFY_SINGLE);
 			pParameters->Set_Enabled("NODE_LUT"      , Value == CLASSIFY_LUT);
-			pParameters->Set_Enabled("NODE_METRIC"   , Value == CLASSIFY_METRIC || Value == CLASSIFY_GRADUATED);
+			pParameters->Set_Enabled("NODE_METRIC"   , Value == CLASSIFY_DISCRETE || Value == CLASSIFY_GRADUATED);
 			pParameters->Set_Enabled("NODE_RGB"	     , Value == 4);
 
 			return( 1 );
@@ -469,7 +469,7 @@ int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 //---------------------------------------------------------
 wxString CWKSP_PointCloud::Get_Name_Attribute(void)
 {
-	return(	m_fValue < 0 || m_pClassify->Get_Mode() == CLASSIFY_UNIQUE ? SG_T("") : Get_PointCloud()->Get_Field_Name(m_fValue) );
+	return(	m_fValue < 0 || m_pClassify->Get_Mode() == CLASSIFY_SINGLE ? SG_T("") : Get_PointCloud()->Get_Field_Name(m_fValue) );
 }
 
 //---------------------------------------------------------
@@ -727,7 +727,7 @@ wxString CWKSP_PointCloud::Get_Value(CSG_Point ptWorld, double Epsilon)
 			case CLASSIFY_LUT:
 				return( m_pClassify->Get_Class_Name_byValue(pShape->asDouble(m_fValue)) );
 
-			case CLASSIFY_METRIC:	default:
+			case CLASSIFY_DISCRETE:	default:
 				return( pShape->asString(m_fValue) );
 
 			case CLASSIFY_RGB:
