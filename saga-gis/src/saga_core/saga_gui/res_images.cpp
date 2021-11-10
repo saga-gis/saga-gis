@@ -111,6 +111,7 @@
 #include "./res/xpm/tb_help.xpm"
 #include "./res/xpm/tb_histogram_as_table.xpm"
 #include "./res/xpm/tb_histogram_cumulative.xpm"
+#include "./res/xpm/tb_histogram_gaussian.xpm"
 #include "./res/xpm/tb_info.xpm"
 #include "./res/xpm/tb_update.xpm"
 #include "./res/xpm/tb_clipboard.xpm"
@@ -157,6 +158,7 @@
 #include "./res/xpm/tb_map_zoom_next.xpm"
 #include "./res/xpm/tb_map_zoom_selection.xpm"
 #include "./res/xpm/tb_map_crosshair.xpm"
+#include "./res/xpm/tb_new_project.xpm"
 #include "./res/xpm/tb_open.xpm"
 #include "./res/xpm/tb_open_grid.xpm"
 #include "./res/xpm/tb_open_module.xpm"
@@ -267,6 +269,7 @@ const char ** IMG_Get_XPM(int ID_IMG)
 	case ID_IMG_TB_HELP:	return( tb_help_xpm );
 	case ID_IMG_TB_HISTOGRAM_AS_TABLE:	return( tb_histogram_as_table_xpm );
 	case ID_IMG_TB_HISTOGRAM_CUMULATIVE:	return( tb_histogram_cumulative_xpm );
+	case ID_IMG_TB_HISTOGRAM_GAUSSIAN:	return( tb_histogram_gaussian_xpm );
 	case ID_IMG_TB_INFO:	return( tb_info_xpm );
 	case ID_IMG_TB_UPDATE:	return( tb_update_xpm );
 	case ID_IMG_TB_CLIPBOARD:	return( tb_clipboard_xpm );
@@ -313,6 +316,7 @@ const char ** IMG_Get_XPM(int ID_IMG)
 	case ID_IMG_TB_MAP_ZOOM_NEXT:	return( tb_map_zoom_next_xpm );
 	case ID_IMG_TB_MAP_ZOOM_SELECTION:	return( tb_map_zoom_selection_xpm );
 	case ID_IMG_TB_MAP_CROSSHAIR:	return( tb_map_crosshair_xpm );
+	case ID_IMG_TB_NEW_PROJECT:	return( tb_new_project_xpm );
 	case ID_IMG_TB_OPEN:	return( tb_open_xpm );
 	case ID_IMG_TB_OPEN_GRID:	return( tb_open_grid_xpm );
 	case ID_IMG_TB_OPEN_TOOL:	return( tb_open_module_xpm );

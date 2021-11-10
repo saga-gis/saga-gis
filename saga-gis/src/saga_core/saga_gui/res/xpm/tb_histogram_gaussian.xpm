@@ -1,0 +1,29 @@
+/* XPM */
+static const char *tb_histogram_gaussian_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 7 1",
+". c Black",
+"+ c #000084",
+"a c #00FFFF",
+"- c #007BFF",
+"O c #0000FF",
+"  c None",
+"o c #00C6FF",
+/* pixels */
+"                ",
+"                ",
+"       ++       ",
+"      +oa+      ",
+"     +ooaa+     ",
+"     +ooaa+     ",
+"     +ooaa+     ",
+"    +oooaaa+    ",
+"    +oooaaa+    ",
+"    +oooaaa+    ",
+"   +-oooaaa-+   ",
+"   +-oooaaa-+   ",
+"  +--oooaaa--+  ",
+" +---oooaaa---+ ",
+"+----oooaaa----+",
+"................"
+};
