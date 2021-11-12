@@ -47,6 +47,11 @@ Makefile
 /src/saga_core/saga_cmd/saga_cmd
 /src/saga_core/saga_gui/saga_gui
 
+# possible cmake targets 
+
+/bin
+/build
+
 # Prerequisites
 *.d
 
