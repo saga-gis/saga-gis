@@ -47,8 +47,20 @@
 //---------------------------------------------------------
 #include "gdal_buildvrt.h"
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #ifdef GDAL_V2_1_OR_NEWER
+
+//---------------------------------------------------------
+#include <cpl_string.h>
+#include <gdal_utils.h>
+#include "gdal_driver.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -60,7 +72,6 @@
 //---------------------------------------------------------
 CGDAL_BuildVRT::CGDAL_BuildVRT(void)
 {
-	//-----------------------------------------------------
 	Set_Name	(_TL("Create Virtual Raster (VRT)"));
 
 	Set_Author	("V. Wichmann (c) 2019");
@@ -119,17 +130,16 @@ CGDAL_BuildVRT::CGDAL_BuildVRT(void)
 
 	Filter.Prepend(CSG_String::Format("%s|%s|" , _TL("All Recognized Files"), Filter_All.c_str()));
 	Filter.Append (CSG_String::Format("%s|*.*" , _TL("All Files")));
-
 	
 	//-----------------------------------------------------
 	Parameters.Add_FilePath("",
-		"FILES", _TL("Files"),
+		"FILES"		, _TL("Files"),
 		_TL("The input files."),
 		Filter, NULL, false, false, true
 	);
 
 	Parameters.Add_FilePath("",
-		"FILE_LIST", _TL("Input File List"),
+		"FILE_LIST"	, _TL("Input File List"),
 		_TL("A text file with the full path to an input grid on each line."),
 		CSG_String::Format("%s|*.txt|%s|*.*",
 			_TL("Text Files"),
@@ -138,10 +148,10 @@ CGDAL_BuildVRT::CGDAL_BuildVRT(void)
 	)->Set_UseInGUI(false);
 
 	Parameters.Add_FilePath("",
-		"VRT_NAME", _TL("VRT Filename"),
+		"VRT_NAME"	, _TL("VRT Filename"),
 		_TL("The full path and name of the .vrt output file."),
-		CSG_String::Format("%s|*.vrt|%s|*.*",
-			_TL("Virtual Dataset (*.vrt)"),
+		CSG_String::Format("%s (*.vrt)|*.vrt|%s|*.*",
+			_TL("Virtual Dataset"),
 			_TL("All Files")
 		), NULL, true, false, false
  	);
@@ -149,28 +159,57 @@ CGDAL_BuildVRT::CGDAL_BuildVRT(void)
 	Parameters.Add_Choice("",
 		"RESAMPLING", _TL("Resampling"),
         _TL("The resampling algorithm used when datasets are queried from the VRT."),
-		CSG_String::Format(SG_T("{%s}%s|{%s}%s|{%s}%s|{%s}%s|{%s}%s|{%s}%s|{%s}%s"),
+		CSG_String::Format("{%s}%s|{%s}%s|{%s}%s|{%s}%s|{%s}%s|{%s}%s|{%s}%s",
 			// we use the choices' data item for the option names that have to be passed (untranslated) to the gdal utility call
-            SG_T("nearest"),		_TL("nearest"),	
-			SG_T("bilinear"),		_TL("bilinear"),
-			SG_T("cubic"),			_TL("cubic"),
-			SG_T("cubicspline"),	_TL("cubic spline"),
-			SG_T("lanczos"),		_TL("lanczos"),
-			SG_T("average"),		_TL("average"),
-			SG_T("mode"),			_TL("mode")
+            SG_T("nearest"    ), _TL("nearest"     ),	
+			SG_T("bilinear"   ), _TL("bilinear"    ),
+			SG_T("cubic"      ), _TL("cubic"       ),
+			SG_T("cubicspline"), _TL("cubic spline"),
+			SG_T("lanczos"    ), _TL("lanczos"     ),
+			SG_T("average"    ), _TL("average"     ),
+			SG_T("mode"       ), _TL("mode"        )
         ), 0
     );
 
 	Parameters.Add_Choice("",
 		"RESOLUTION", _TL("Resolution"),
         _TL("The method how to compute the output resolution if the resolution of all input files is not the same."),
-        CSG_String::Format(SG_T("{%s}%s|{%s}%s|{%s}%s"),
-            SG_T("highest"),		_TL("highest"),
-            SG_T("lowest"),			_TL("lowest"),
-			SG_T("average"),		_TL("average")
-			// "user"could also be implemented if required someday
+        CSG_String::Format("{%s}%s|{%s}%s|{%s}%s|{%s}%s",
+            SG_T("highest"), _TL("highest"),
+            SG_T("lowest" ), _TL("lowest" ),
+			SG_T("average"), _TL("average"),
+			SG_T("user"   ), _TL("user"   )
         ), 0
     );
+
+	Parameters.Add_Double("",
+		"CELLSIZE"	, _TL("Cellsize"),
+		_TL(""),
+		1., 0., true
+	);
+
+	Parameters.Add_Bool("",
+		"ALIGN"		, _TL("Align"),
+		_TL("Align the coordinates of the extent to the cellsize."),
+		true
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGDAL_BuildVRT::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("RESOLUTION") )
+	{
+		pParameters->Set_Enabled("CELLSIZE", pParameter->asInt() == 3);
+		pParameters->Set_Enabled("ALIGN"   , pParameter->asInt() == 3);
+	}
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -181,80 +220,100 @@ CGDAL_BuildVRT::CGDAL_BuildVRT(void)
 //---------------------------------------------------------
 bool CGDAL_BuildVRT::On_Execute(void)
 {
-	CSG_Strings	Files;
-	char		**pSourceFiles = NULL, **pParms = NULL;;
-	int			FileCount = 0;
-
-	//-----------------------------------------------------
-	CSG_String	Filename = Parameters("VRT_NAME")->asString();
+	char **pFiles = NULL; int nFiles = 0; CSG_Strings Files;
 
 	if( Parameters("FILES")->asFilePath()->Get_FilePaths(Files) )
 	{
 		for(int i=0; i<Files.Get_Count(); i++)
 		{
-			pSourceFiles = CSLAddString(pSourceFiles, Files.Get_String(i).b_str());
-			FileCount++;
+			CSG_String File(Files.Get_String(i));
+
+			if( SG_File_Exists(File) )
+			{
+				pFiles = CSLAddString(pFiles, File.b_str()); nFiles++;
+			}
 		}
 	}
-	else
+	else if( has_GUI() == false )
 	{
 		SG_UI_Msg_Add(_TL("No files specified with the \"Files\" parameter, trying to use input file list."), true);
 
-		CSG_Table	Table;
+		CSG_Table Table(Parameters("FILE_LIST")->asString(), TABLE_FILETYPE_Text_NoHeadLine);
 
-		if( !Table.Create(Parameters("FILE_LIST")->asString(), TABLE_FILETYPE_Text_NoHeadLine) )
+		if( Table.Get_Field_Count() < 1 || Table.Get_Count() < 1 )
 		{
 			Error_Set(_TL("Input file list could not be opened or is empty!"));
 
 			return( false );
 		}
 		
-		for(int i=0; i<Table.Get_Count(); i++)		// build our own list, as the -input_file_list option is not available in the library call, only in the gdal binary
+		for(int i=0; i<Table.Get_Count(); i++)	// build our own list, as the -input_file_list option is not available in the library call, only in the gdal binary
 		{
-			CSG_String	File = Table.Get_Record(i)->asString(0);
-			pSourceFiles = CSLAddString(pSourceFiles, File.b_str());
-			FileCount++;
+			CSG_String File(Table.Get_Record(i)->asString(0));
+
+			if( SG_File_Exists(File) )
+			{
+				pFiles = CSLAddString(pFiles, File.b_str()); nFiles++;
+			}
 		}
 	}
 
-
-	pParms = CSLAddString(pParms, CSG_String::Format("-r").b_str());
-	pParms = CSLAddString(pParms, Parameters("RESAMPLING")->asChoice()->Get_Data().b_str());
-	pParms = CSLAddString(pParms, CSG_String::Format("-resolution").b_str());
-	pParms = CSLAddString(pParms, Parameters("RESOLUTION")->asChoice()->Get_Data().b_str());
-
-	GDALBuildVRTOptions *pOptions = GDALBuildVRTOptionsNew(pParms, nullptr);
-
-	//-----------------------------------------------------
-  	int bUsageError = false;
-
-	GDALDatasetH hOutDS = GDALBuildVRT(Filename.b_str(), FileCount, nullptr, pSourceFiles, pOptions, &bUsageError);
-
-    if( bUsageError )
+	if( nFiles < 1 )
 	{
-		Error_Set(_TL("Unable to build virtual dataset."));
+		Error_Set(_TL("No existing files have been selected for input."));
+
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	GDALBuildVRTOptionsFree(pOptions);
-	CSLDestroy(pSourceFiles);
+	char **pOpts = NULL;
 
-	GDALClose(hOutDS);
+	pOpts = CSLAddString(pOpts, "-r");
+	pOpts = CSLAddString(pOpts, Parameters("RESAMPLING")->asChoice()->Get_Data().b_str());
+	pOpts = CSLAddString(pOpts, "-resolution");
+	pOpts = CSLAddString(pOpts, Parameters("RESOLUTION")->asChoice()->Get_Data().b_str());
 
+	if( Parameters("RESOLUTION")->asInt() == 3 ) // user
+	{
+		CSG_String Cellsize(Parameters("CELLSIZE")->asString());
+	
+		pOpts = CSLAddString(pOpts, "-tr");
+		pOpts = CSLAddString(pOpts, Cellsize.b_str()); // xres
+		pOpts = CSLAddString(pOpts, Cellsize.b_str()); // yres
+
+		if( Parameters("ALIGN")->asBool() )
+		{
+			pOpts = CSLAddString(pOpts, "-tap");
+		}
+	}
+
+	GDALBuildVRTOptions *pOptions = GDALBuildVRTOptionsNew(pOpts, nullptr);
 
 	//-----------------------------------------------------
-	return( true );
+	int bUsageError = 0;
+
+	CSG_String File(Parameters("VRT_NAME")->asString());
+	
+	GDALDatasetH hVRT = GDALBuildVRT(File.b_str(), nFiles, nullptr, pFiles, pOptions, &bUsageError);
+
+    if( bUsageError != 0 )
+	{
+		Error_Set(_TL("Unable to build virtual dataset."));
+	}
+
+	CSLDestroy(pFiles);
+	GDALBuildVRTOptionsFree(pOptions);
+	GDALClose(hVRT);
+
+	return( bUsageError == 0 );
 }
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #endif // GDAL_V2_1_OR_NEWER
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------

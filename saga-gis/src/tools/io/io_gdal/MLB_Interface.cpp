@@ -72,7 +72,7 @@ CSG_String Get_Info(int i)
 		return( _TL("Import/Export") );
 
 	case TLB_INFO_Author:
-		return( _TL("SAGA User Group Associaton (c) 2008-19" ));
+		return( _TL("SAGA User Group Associaton (c) 2008-21" ));
 
 	case TLB_INFO_Description:
 		return( CSG_String::Format(SG_T("%s\n%s %s\n%s: %s"),
@@ -82,7 +82,7 @@ CSG_String Get_Info(int i)
 		));
 
 	case TLB_INFO_Version:
-		return( SG_T("2.0") );
+		return( "2.0" );
 
 	case TLB_INFO_Menu_Path:
 		return( _TL("File") );
