@@ -139,7 +139,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DATA_PROJECT_OPEN:		return( _TL("Load Project") );
 	case ID_CMD_DATA_PROJECT_OPEN_ADD:	return( _TL("Add Project") );
 	case ID_CMD_DATA_PROJECT_BROWSE:	return( _TL("Search for Projects") );		
-	case ID_CMD_DATA_PROJECT_CLOSE:		return( _TL("Close Project") );
+	case ID_CMD_DATA_PROJECT_NEW:		return( _TL("New Project") );
 	case ID_CMD_DATA_PROJECT_SAVE:		return( _TL("Save Project") );
 	case ID_CMD_DATA_PROJECT_SAVE_AS:	return( _TL("Save Project as...") );
 	case ID_CMD_DATA_PROJECT_COPY:		return( _TL("Copy Project to...") );
@@ -406,7 +406,7 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_FRAME_HELP:				return( ID_IMG_TB_HELP );
 	case ID_CMD_DATA_OPEN:				return( ID_IMG_TB_OPEN );
 	case ID_CMD_DATA_PROJECT_SAVE:		return( ID_IMG_TB_SAVE );
-	case ID_CMD_DATA_PROJECT_CLOSE:		return( ID_IMG_TB_NEW_PROJECT );
+	case ID_CMD_DATA_PROJECT_NEW:		return( ID_IMG_TB_NEW_PROJECT );
 	case ID_CMD_TOOL_OPEN:				return( ID_IMG_TB_OPEN_TOOL );
 	case ID_CMD_TOOL_SEARCH:			return( ID_IMG_NB_WKSP_TOOLS );
 	case ID_CMD_TABLE_OPEN:				return( ID_IMG_TB_OPEN_TABLE );

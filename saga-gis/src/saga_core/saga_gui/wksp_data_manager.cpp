@@ -562,7 +562,7 @@ wxMenu * CWKSP_Data_Manager::Get_Menu(void)
 	//-----------------------------------------------------
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_OPEN);
 //	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_OPEN_ADD);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_CLOSE);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_NEW);
 
 	if( Get_Count() > 0 )
 	{
@@ -635,7 +635,7 @@ bool CWKSP_Data_Manager::On_Command(int Cmd_ID)
 	case ID_CMD_DATA_PROJECT_OPEN    : m_pProject->Load(false);             break;
 	case ID_CMD_DATA_PROJECT_OPEN_ADD: m_pProject->Load( true);             break;
 	case ID_CMD_DATA_PROJECT_BROWSE  : Open_Browser();                      break;
-	case ID_CMD_DATA_PROJECT_CLOSE   : Close(false);                        break;
+	case ID_CMD_DATA_PROJECT_NEW   : Close(false);                        break;
 	case ID_CMD_DATA_PROJECT_SAVE    : m_pProject->Save(true);              break;
 	case ID_CMD_DATA_PROJECT_SAVE_AS : m_pProject->Save();                  break;
 	case ID_CMD_DATA_PROJECT_COPY    : m_pProject->Copy();                  break;
@@ -670,7 +670,7 @@ bool CWKSP_Data_Manager::On_Command_UI(wxUpdateUIEvent &event)
 	default:
 		return( CWKSP_Base_Manager::On_Command_UI(event) );
 
-	case ID_CMD_DATA_PROJECT_CLOSE:
+	case ID_CMD_DATA_PROJECT_NEW:
 		event.Enable(Get_Count() > 0 && g_pTool == NULL);
 		break;
 
