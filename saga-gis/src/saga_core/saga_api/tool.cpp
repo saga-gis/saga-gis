@@ -313,7 +313,7 @@ bool CSG_Tool::Execute(bool bAddHistory)
 	{
 		SG_UI_Process_Set_Okay();
 
-		SG_UI_Msg_Add(_TL("Execution has been stopped by user!"), true);
+		SG_UI_Msg_Add(_TL("Execution has been stopped by user!"), true, SG_UI_MSG_STYLE_BOLD);
 
 		bResult	= false;
 	}
@@ -349,28 +349,31 @@ bool CSG_Tool::Execute(bool bAddHistory)
 	}
 	else
 	{
-		#define ADD_MESSAGE_TIME(Time, Style)	{ CSG_String s;\
-			if( Time.Get_Hours       () >= 1 ) { s = Time.Format("%Hh %Mm %Ss"); } else\
-			if( Time.Get_Minutes     () >= 1 ) { s = Time.Format(    "%Mm %Ss"); } else\
-			if( Time.Get_Seconds     () >= 1 ) { s = Time.Format(        "%Ss"); } else\
-			if( Time.Get_Milliseconds() >= 1 ) { s = Time.Format("%l ") + _TL("milliseconds"); } else { s = _TL("less than 1 millisecond"); }\
-			SG_UI_Msg_Add_Execution(CSG_String::Format("\n[%s] %s %s", Get_Name().c_str(), _TL("finished in"), s.c_str()), false, Style);\
-		}
-		if( Parameters.Get_Manager() == &SG_Get_Data_Manager() )
+		CSG_String Time =
+		  Span.Get_Hours       () >= 1 ? (Span.Format("%Hh %Mm %Ss"))
+		: Span.Get_Minutes     () >= 1 ? (Span.Format(    "%Mm %Ss"))
+		: Span.Get_Seconds     () >= 1 ? (Span.Format(        "%Ss"))
+		: Span.Get_Milliseconds() >= 1 ? (Span.Format("%l ") + _TL("milliseconds"))
+		: CSG_String(_TL("less than 1 millisecond"));
+
+		if( Parameters.Get_Manager() != &SG_Get_Data_Manager() )
 		{
-			SG_UI_Msg_Add_Execution(CSG_String::Format("\n__________"), false);
-
-			ADD_MESSAGE_TIME(Span, SG_UI_MSG_STYLE_BOLD);
-
-			ADD_MESSAGE_EXECUTION(CSG_String::Format("[%s] %s (%ld %s)", Get_Name().c_str(),
-				bResult ? _TL("Execution succeeded") : _TL("Execution failed"),
-				Span.Get_Milliseconds(), _TL("milliseconds")),
-				bResult ? SG_UI_MSG_STYLE_SUCCESS : SG_UI_MSG_STYLE_FAILURE
+			SG_UI_Msg_Add_Execution(CSG_String::Format("\n[%s] %s: %s", Get_Name().c_str(),
+				_TL("execution time"), Time.c_str()),
+				false, SG_UI_MSG_STYLE_NORMAL
 			);
 		}
 		else
 		{
-			ADD_MESSAGE_TIME(Span, SG_UI_MSG_STYLE_NORMAL);
+			SG_UI_Msg_Add_Execution(CSG_String::Format("\n__________\n%s %s: %ld %s (%s)\n", _TL("total"),
+				_TL("execution time"), Span.Get_Milliseconds(), _TL("milliseconds"), Time.c_str()),
+				false, SG_UI_MSG_STYLE_BOLD
+			);
+
+			ADD_MESSAGE_EXECUTION(CSG_String::Format("[%s] %s (%s)", Get_Name().c_str(),
+				bResult ? _TL("Execution succeeded") : _TL("Execution failed"), Time.c_str()),
+				bResult ? SG_UI_MSG_STYLE_SUCCESS : SG_UI_MSG_STYLE_FAILURE
+			);
 		}
 	}
 
