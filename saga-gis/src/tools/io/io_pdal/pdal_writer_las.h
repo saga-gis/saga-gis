@@ -10,10 +10,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//                  pdal_writer_las.h                    //
 //                                                       //
-//                 Copyrights (C) 2020                   //
-//                     Olaf Conrad                       //
+//                 Copyrights (C) 2021                   //
+//                   Volker Wichmann                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -36,86 +36,69 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     wichmann@laserdata                     //
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Hamburg                  //
-//                Germany                                //
+//    contact:    Volker Wichmann                        //
+//                LASERDATA GmbH                         //
+//                Innsbruck, Austria                     //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-
-#include <saga_api/saga_api.h>
-
-#include <pdal/pdal_config.hpp>
-
-
-//---------------------------------------------------------
-// 2. Place general module library informations here...
-
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("PDAL") );
-
-	case TLB_INFO_Category:
-		return( "Import/Export" );
-
-	case TLB_INFO_Author:
-		return( "O.Conrad, V. Wichmann (c) 2020-2021" );
-
-	case TLB_INFO_Description:
-		return( CSG_String::Format(_TL("Tools that use the Point Data Abstraction Library (PDAL)."))
-			+ CSG_String::Format("\n\nPDAL %s: ", _TL("Version")) + CSG_String(pdal::Config::fullVersionString().c_str())
-		);
-
-	case TLB_INFO_Version:
-		return( "1.0" );
-
-	case TLB_INFO_Menu_Path:
-		return( "File|Shapes" );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "pdal_reader.h"
-#include "pdal_writer_las.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Tool *		Create_Tool(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CPDAL_Reader );
-    case  1:	return( new CPDAL_Writer_Las );
-
-	//-----------------------------------------------------
-	case 10:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
-	}
-}
+#ifndef HEADER_INCLUDED__pdal_writer_las_H
+#define HEADER_INCLUDED__pdal_writer_las_H
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+#include "pdal_driver.h"
 
-	TLB_INTERFACE
+#include <pdal/Options.hpp>
+#include <pdal/PointTable.hpp>
+#include <pdal/StageFactory.hpp>
+#include <pdal/io/BufferReader.hpp>
 
-//}}AFX_SAGA
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CPDAL_Writer_Las : public CSG_Tool
+{
+public:
+    CPDAL_Writer_Las(void);
+
+    virtual CSG_String  Get_MenuPath            (void)  { return( _TL("Export") );  }
+
+    virtual bool        do_Sync_Projections     (void)  const { return( false );  }
+
+
+protected:
+
+    virtual int         On_Parameters_Enable    (CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+    virtual int         On_Parameter_Changed    (CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+    virtual bool        On_Execute              (void);
+
+
+private:
+
+};
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__pdal_writer_las_H

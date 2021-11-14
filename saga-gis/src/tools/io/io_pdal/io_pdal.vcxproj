@@ -321,10 +321,12 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
     <ClInclude Include="pdal_driver.h" />
     <ClInclude Include="pdal_reader.h" />
+    <ClInclude Include="pdal_writer_las.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pdal_driver.cpp" />
     <ClCompile Include="pdal_reader.cpp" />
+    <ClCompile Include="pdal_writer_las.cpp" />
     <ClCompile Include="TLB_Interface.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
