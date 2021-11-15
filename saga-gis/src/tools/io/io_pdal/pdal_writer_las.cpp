@@ -166,7 +166,7 @@ CPDAL_Writer_Las::CPDAL_Writer_Las(void)
         CSG_String::Format(SG_T("%s|%s"),
             _TL("LAS 1.2"),
             _TL("LAS 1.4")
-        ), 1
+        ), 0
     );
 
     Parameters.Add_Choice(Parameters("FILE"),
@@ -180,7 +180,7 @@ CPDAL_Writer_Las::CPDAL_Writer_Las(void)
             _TL("6"),
             _TL("7"),
             _TL("8")
-        ), 4
+        ), 3
     );
 
     Parameters.Add_Choice("",
@@ -293,7 +293,7 @@ int CPDAL_Writer_Las::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
         }
         else // == 1
         {
-            pParameters->Get_Parameter("FORMAT")->Set_Value(4);     // LAS 1.4 default: point data record format 6
+            pParameters->Get_Parameter("FORMAT")->Set_Value(5);     // LAS 1.4 default: point data record format 7
         }
     }
     
