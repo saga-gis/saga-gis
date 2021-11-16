@@ -168,7 +168,8 @@ bool CCut_Lines::On_Execute(void)
 	// the distance walked since the last point.
 	int ID_Segm = 1;
 	double Distance_Overhang = 0.;
-	double Length_Even = 0.;
+	double Cap_Length = 0.;
+	bool Caps_Differ = false;
 
 	for( int i=0; i<pInputLines->Get_Count(); i++ )
 	{
@@ -179,27 +180,45 @@ bool CCut_Lines::On_Execute(void)
 			// Get the current part and reset the overhang.
 			CSG_Shape_Part *pPart = pLine->Get_Part(j);	
 
+
+			// Length distribution options
+			// 0: Start Full Length 		= Reset the overhang
+			// 1: Start Remaining Length 	= Don't reset the overhang
+			// 2: Even Caps					= Float Modulus divided by 2
 			if( Parameters("DISTRIBUTION")->asInt() == 0 )
 			{
-				if( Parameters("CAPS_LENGTH")->asInt() == 1 )
+				if( Parameters("CAPS_LENGTH")->asInt() == 0 )
 					Distance_Overhang = 0.0;
 
 				if( Parameters("CAPS_LENGTH")->asInt() == 2 )
-					Length_Even = fmod(pLine->Get_Length(j), Parameters("LENGTH")->asDouble())/2;
+				{
+					Cap_Length = fmod(pLine->Get_Length(j), Parameters("LENGTH")->asDouble())/2;
+					Caps_Differ = true;
+				}
 			}
 
+			// Number distribution options
+			// 0: 
+			// TODO
 			if( Parameters("DISTRIBUTION")->asInt() == 1 )
 			{
 				if( Parameters("CAPS_NUMBER")->asInt() == 0 )
-					Cut_Length = pLine->Get_Length(j) / Parameters("NUMBER")->asInt()+1;	
+				{
+					Cap_Length = pLine->Get_Length(j) / Parameters("NUMBER")->asInt()+1;	
+					Caps_Differ = true;
+				}
 
-				if( Parameters("CAPS_NUMBER")->asInt() == 0 )
-					Cut_Length = pLine->Get_Length(j) / Parameters("NUMBER")->asInt();	
+				if( Parameters("CAPS_NUMBER")->asInt() == 1 )
+				{
+					Cap_Length = pLine->Get_Length(j) / Parameters("NUMBER")->asInt();	
+					Caps_Differ = true;
+				}
 			}	
 
 			// Only cut lines ( a line has > 2 points )
 			if( pPart->Get_Count() > 1 )
 			{
+				int Segment_Counter = 0;
 				// Reset the Segment Number and write the meta-data
 				// in the new shape. Increment ongoing counter
 				// TODO Is the Segment Number at this place smart???
@@ -226,12 +245,10 @@ bool CCut_Lines::On_Execute(void)
 					double Seg_Reductor = Length_Seg;
 
 
-					double Cut_Length_Target = Cut_Length;
-					if( Parameters("DISTRIBUTION")->asInt() == 1
-					&&	Parameters("CAPS_NUMBER")->asInt()  == 1
-					&&	Cap == true  )
+					if( (Segment_Counter == 0 || Segment_Counter == Parameters("NUMBER")->asInt()-1)
+					&&	Caps_Differ == true )
 					{
-						Cut_Length_Target = Cut_Length / 2;
+						Cut_Length = Cap_Length;
 					}
 
 					// Check if there is still space left in the segment to fit 
@@ -239,9 +256,9 @@ bool CCut_Lines::On_Execute(void)
 					//	
 					// ~-Distance_Overhang-|---Seg_Reductor-------|
 					// --o--------------------------x-------------o--------
-					// -------Cut_Length_Target-----|\_position of cut
+					// -------------Cut_Length------|\_position of cut
 					//
-					while( Seg_Reductor + Distance_Overhang > Cut_Length_Target )
+					while( Seg_Reductor + Distance_Overhang > Cut_Length )
 					{
 						// Decrement the reductor and reset the overhang
 						Seg_Reductor -= ( Cut_Length - Distance_Overhang );
@@ -269,10 +286,13 @@ bool CCut_Lines::On_Execute(void)
 						Nr_Segm++;
 						ID_Segm++;
 						
-						// Flip the Cap bool
-						if( Cap )
-							Cap = false;
-
+						Segment_Counter++;
+						
+						if( Segment_Counter == Parameters("NUMBER")->asInt()-1
+						&&	Caps_Differ == true )
+						{
+							Cut_Length = Cap_Length;
+						}
 
 					}
 
