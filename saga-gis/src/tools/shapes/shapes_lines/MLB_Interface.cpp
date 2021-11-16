@@ -106,6 +106,7 @@ CSG_String Get_Info(int i)
 #include "line_smoothing.h"
 #include "line_crossings.h"
 #include "extract_closed_lines.h"
+#include "cut_lines.h"
 
 
 //---------------------------------------------------------
@@ -126,8 +127,9 @@ CSG_Tool *		Create_Tool(int i)
 	case  7:	return( new CLine_Smoothing );
 	case  9:	return( new CLine_Crossings );
     case 10:    return( new CExtract_Closed_Lines );
+	case 11:	return( new CCut_Lines );
 
-	case 11:	return( NULL );
+	case 12:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
