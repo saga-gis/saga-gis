@@ -79,16 +79,42 @@ CCut_Lines::CCut_Lines(void)
 	// TODO Better better description
 	Parameters.Add_Choice(
 		NULL, "DISTRIBUTION", _TL("Distribution"), _TL(""),
-		CSG_String::Format("%s|%s|", _TL("By Length"), _TL("By Number")), 0
+		CSG_String::Format("%s|%s|",
+			_TL("By Length"), 
+			_TL("By Number")
+		), 0
 	);
 
 	Parameters.Add_Double(
 		"DISTRIBUTION", "LENGTH", _TL("Length"), _TL("Length where the lines will be cutted in Meter"), 5.0, 0.0, true
 	);
 
-	Parameters.Add_Int(
-		"DISTRIBUTION", "NUMBER", _TL("Number"), _TL("Number of cuts per line"), 5, 0, true
+	Parameters.Add_Choice(
+		"DISTRIBUTION", "CAPS_LENGTH", _TL("Caps"), _TL(""),
+		CSG_String::Format("%s|%s|%s|",
+			_TL("Start Full Length"), 
+			_TL("Start Remaining Length"), 
+			_TL("Even Ends")
+		), 0
 	);
+
+	Parameters.Add_Int(
+		"DISTRIBUTION", "NUMBER", _TL("Number of cuts"), _TL("Number of cuts per line"), 5, 0, true
+	);
+
+	Parameters.Add_Choice(
+		"DISTRIBUTION", "CAPS_NUMBER", _TL("Caps"), _TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("Full Segment"),
+			_TL("Half Segment")
+		),0
+	);
+
+	Parameters.Add_Choice(
+		NULL, "FEATURE", _TL("Cut Into"), _TL("Cut and put every piece in a individual shape or organize the pieces of one shape in parts"),
+		CSG_String::Format("%s|%s|", _TL("Shapes"), _TL("Parts")),0
+	);
+
 
 
 }
@@ -101,8 +127,10 @@ int CCut_Lines::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 {
 	if( pParameter->Cmp_Identifier("DISTRIBUTION") )
 	{
-		pParameters->Set_Enabled("LENGTH", pParameter->asInt() == 0);
-		pParameters->Set_Enabled("NUMBER", pParameter->asInt() == 1);
+		pParameters->Set_Enabled("LENGTH", 		pParameter->asInt() == 0);
+		pParameters->Set_Enabled("CAPS_LENGTH", pParameter->asInt() == 0);
+		pParameters->Set_Enabled("NUMBER", 		pParameter->asInt() == 1);
+		pParameters->Set_Enabled("CAPS_NUMBER", pParameter->asInt() == 1);
 	}
 
 	return( CSG_Tool::On_Parameters_Enable( pParameters, pParameter ) );
@@ -113,7 +141,6 @@ bool CCut_Lines::On_Execute(void)
 	CSG_Shapes	*pInputLines 	= Parameters("INPUT")->asShapes();
 	CSG_Shapes	*pOutputLines 	= Parameters("OUTPUT")->asShapes();
 
-	double No_Data_Value = pOutputLines->Get_NoData_Value();
 	double Cut_Length = Parameters("LENGTH")->asDouble();
 
 	// Check for projection unit. This tool only works with projected
@@ -141,6 +168,7 @@ bool CCut_Lines::On_Execute(void)
 	// the distance walked since the last point.
 	int ID_Segm = 1;
 	double Distance_Overhang = 0.;
+	double Length_Even = 0.;
 
 	for( int i=0; i<pInputLines->Get_Count(); i++ )
 	{
@@ -150,7 +178,24 @@ bool CCut_Lines::On_Execute(void)
 		{
 			// Get the current part and reset the overhang.
 			CSG_Shape_Part *pPart = pLine->Get_Part(j);	
-			Distance_Overhang = 0.0;
+
+			if( Parameters("DISTRIBUTION")->asInt() == 0 )
+			{
+				if( Parameters("CAPS_LENGTH")->asInt() == 1 )
+					Distance_Overhang = 0.0;
+
+				if( Parameters("CAPS_LENGTH")->asInt() == 2 )
+					Length_Even = fmod(pLine->Get_Length(j), Parameters("LENGTH")->asDouble())/2;
+			}
+
+			if( Parameters("DISTRIBUTION")->asInt() == 1 )
+			{
+				if( Parameters("CAPS_NUMBER")->asInt() == 0 )
+					Cut_Length = pLine->Get_Length(j) / Parameters("NUMBER")->asInt()+1;	
+
+				if( Parameters("CAPS_NUMBER")->asInt() == 0 )
+					Cut_Length = pLine->Get_Length(j) / Parameters("NUMBER")->asInt();	
+			}	
 
 			// Only cut lines ( a line has > 2 points )
 			if( pPart->Get_Count() > 1 )
@@ -180,14 +225,23 @@ bool CCut_Lines::On_Execute(void)
 					double Length_Seg 	= SG_Get_Distance( Front, Back );
 					double Seg_Reductor = Length_Seg;
 
+
+					double Cut_Length_Target = Cut_Length;
+					if( Parameters("DISTRIBUTION")->asInt() == 1
+					&&	Parameters("CAPS_NUMBER")->asInt()  == 1
+					&&	Cap == true  )
+					{
+						Cut_Length_Target = Cut_Length / 2;
+					}
+
 					// Check if there is still space left in the segment to fit 
 					// a cut considering the overhang
 					//	
 					// ~-Distance_Overhang-|---Seg_Reductor-------|
 					// --o--------------------------x-------------o--------
-					// --------------Cut_Length-----|\_position of cut
+					// -------Cut_Length_Target-----|\_position of cut
 					//
-					while( Seg_Reductor + Distance_Overhang > Cut_Length )
+					while( Seg_Reductor + Distance_Overhang > Cut_Length_Target )
 					{
 						// Decrement the reductor and reset the overhang
 						Seg_Reductor -= ( Cut_Length - Distance_Overhang );
@@ -214,6 +268,11 @@ bool CCut_Lines::On_Execute(void)
 
 						Nr_Segm++;
 						ID_Segm++;
+						
+						// Flip the Cap bool
+						if( Cap )
+							Cap = false;
+
 
 					}
 
