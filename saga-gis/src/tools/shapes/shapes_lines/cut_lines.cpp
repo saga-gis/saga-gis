@@ -52,12 +52,18 @@ CCut_Lines::CCut_Lines(void)
 {
 	Set_Name(_TL("Cut Lines"));
 
-	Set_Author(_TL("Justus Spitzmüller \u00a9 scilands GmbH 2021"));
+	Set_Author(_TL("Justus Spitzmüller, scilands GmbH \u00a9 2021"));
+
+	Set_Version("1.1");
 
 	Set_Description (_TW(
 		"Tool cuts lines in a regular distance and assigns shape- and segment-numbers along with an ongoing identifier."
 		"The Tool only works with projected datasets and will terminate by other projection-units than meter. In this case set the coordinate reference system if it is missing or re-project it."
-		"The Output will named after the input with a \"_cut_xx\" suffix where xx is the length with truncated decimals (to prevent filesystem complications)")
+		"The Output will named after the input with a \"_cut_xx\" suffix where xx is the length with truncated decimals (to prevent filesystem complications)"
+		"\n\n"
+		"&#8226 ")
+		
+
 	);
 
 	Parameters.Add_Shapes(
@@ -70,14 +76,37 @@ CCut_Lines::CCut_Lines(void)
 		PARAMETER_OUTPUT, SHAPE_TYPE_Line
 	);
 
-	Parameters.Add_Double(
-		NULL, "LENGTH", _TL("Length"), _TL("Length where the lines will be cutted in Meter"), 5.0, 0.0, true
+	// TODO Better better description
+	Parameters.Add_Choice(
+		NULL, "DISTRIBUTION", _TL("Distribution"), _TL(""),
+		CSG_String::Format("%s|%s|", _TL("By Length"), _TL("By Number")), 0
 	);
+
+	Parameters.Add_Double(
+		"DISTRIBUTION", "LENGTH", _TL("Length"), _TL("Length where the lines will be cutted in Meter"), 5.0, 0.0, true
+	);
+
+	Parameters.Add_Int(
+		"DISTRIBUTION", "NUMBER", _TL("Number"), _TL("Number of cuts per line"), 5, 0, true
+	);
+
 
 }
 
 CCut_Lines::~CCut_Lines(void)
 {}
+
+
+int CCut_Lines::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("DISTRIBUTION") )
+	{
+		pParameters->Set_Enabled("LENGTH", pParameter->asInt() == 0);
+		pParameters->Set_Enabled("NUMBER", pParameter->asInt() == 1);
+	}
+
+	return( CSG_Tool::On_Parameters_Enable( pParameters, pParameter ) );
+}
 
 bool CCut_Lines::On_Execute(void)
 {
