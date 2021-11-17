@@ -54,12 +54,12 @@ CCut_Lines::CCut_Lines(void)
 
 	Set_Author(_TL("Justus Spitzmüller, scilands GmbH \u00a9 2021"));
 
-	Set_Version("1.1");
+	Set_Version("1.2");
 
 	Set_Description (_TW(
-		"Tool cuts lines in a regular distance and assigns shape- and segment-numbers along with an ongoing identifier."
+		"Tool cuts lines in a regular distance or number"
 		"The Tool only works with projected datasets and will terminate by other projection-units than meter. In this case set the coordinate reference system if it is missing or re-project it."
-		"The Output will named after the input with a \"_cut_xx\" suffix where xx is the length with truncated decimals (to prevent filesystem complications)"
+		"The Output will named after the input with a \"_cut\" suffix"
 		"\n\n"
 		"&#8226 ")
 		
@@ -110,10 +110,10 @@ CCut_Lines::CCut_Lines(void)
 		),0
 	);
 
-	Parameters.Add_Choice(
-		NULL, "FEATURE", _TL("Cut Into"), _TL("Cut and put every piece in a individual shape or organize the pieces of one shape in parts"),
-		CSG_String::Format("%s|%s|", _TL("Shapes"), _TL("Parts")),0
-	);
+//	Parameters.Add_Choice(
+//		NULL, "FEATURE", _TL("Cut Into"), _TL("Cut and put every piece in a individual shape or organize the pieces of one shape in parts"),
+//		CSG_String::Format("%s|%s|", _TL("Shapes"), _TL("Parts")),0
+//	);
 
 
 
@@ -141,12 +141,17 @@ bool CCut_Lines::On_Execute(void)
 	CSG_Shapes	*pInputLines 	= Parameters("INPUT")->asShapes();
 	CSG_Shapes	*pOutputLines 	= Parameters("OUTPUT")->asShapes();
 
+	if( pInputLines == pOutputLines )
+	{
+		Error_Set(_TL("You selected the input also as the output. This would destroy your input! Abort!"));
+		return false;
+	}
 
 	// Check for projection unit. This tool only works with projected
 	// Coordinate Reference Systems and assumes meter. Could be extended
 	if( pInputLines->Get_Projection().Get_Unit() != SG_PROJ_UNIT_Meter )
 	{
-		Error_Set(_TL("The input line feature has an other projection unit then meter."));
+		Error_Set(_TL("The input line feature has an other projection unit then meter. Abort!"));
 		return false;
 	}
 
@@ -154,16 +159,14 @@ bool CCut_Lines::On_Execute(void)
 	// add the line and segment number and the id-field. Remember the field indexes
 	pOutputLines->Assign(pInputLines);
 	pOutputLines->Del_Shapes();
-	//pOutputLines->Set_Name(CSG_String::Format("%s_cut_%d", pInputLines->Get_Name(), (int) Cut_Length ));
 	pOutputLines->Set_Name(CSG_String::Format("%s_cut", pInputLines->Get_Name()));
+	//pOutputLines->Set_Name(CSG_String::Format("%s_cut_%d", pInputLines->Get_Name(), (int) Cut_Length ));
 
 	// Note: The Overhang is one of the crucial parts. This accumulates 
-	// the distance walked since the last point.
-	//double 	Target_Cut_Length = Parameters("LENGTH")->asDouble();
+	// the distance walked since the last point. 
+	// Switch_To_Default (Length) will happen after the first cut.
 	double 	Distance_Overhang = 0.;
-	//double 	Cap_Length = 0.;
-	//double 	Cut_Length = Target_Cut_Length;
-	bool 	Caps_Differ = false;
+	bool 	Switch_To_Default = false;
 
 	for( int i=0; i<pInputLines->Get_Count(); i++ )
 	{
@@ -171,73 +174,66 @@ bool CCut_Lines::On_Execute(void)
 
 		for( int j=0; j<pLine->Get_Part_Count(); j++ )
 		{
-			// Get the current part and reset the overhang.
 			CSG_Shape_Part *pPart = pLine->Get_Part(j);	
 
-
-			// This tool supports different cap styles. For this purposes it had
-			// three variables: cut-, cap- and target-length. The cut-length is 
-			// in the middle, cap on both ends and target is where the tool actually 
-			// cuts. If Caps and Cuts differ. Target will be set from caps to cuts.
-			// TODO: Can i ditch Caps?
-			double Cut_Length 		 = 0.0;
-			double Cap_Length 		 = 0.0;
+			// This tool supports different cap styles. 			
+			// The default length is the length used for every mid part. Initialize 
+			// the target length witch the cap if needed. This will be set to default 
+			// after the fist cut. The end-cap is inherent.
+			double Default_Length 	 = 0.0;
 			double Target_Cut_Length = 0.0;
 
 			// Length distribution options
-			// 0: Start Full Length 		= Reset the overhang
-			// 1: Start Remaining Length 	= Don't reset the overhang
-			// 2: Even Caps					= Float Modulus divided by 2
+			// 0: Start Full Length 		= Reset the overhang and set length to parameter
+			// 1: Start Remaining Length 	= Don't reset the overhang, set length to parameter
+			// 2: Even Caps					= Calculate the cap: a half of the rest (modulo) 
 			if( Parameters("DISTRIBUTION")->asInt() == 0 )
 			{
 				if( Parameters("CAPS_LENGTH")->asInt() == 0 )
 				{
-					Target_Cut_Length = Parameters("LENGTH")->asDouble();
 					Distance_Overhang = 0.0;
+					Target_Cut_Length = Parameters("LENGTH")->asDouble();
+				}
+
+				if( Parameters("CAPS_LENGTH")->asInt() == 1 )
+				{
+					Target_Cut_Length = Parameters("LENGTH")->asDouble();
 				}
 
 				if( Parameters("CAPS_LENGTH")->asInt() == 2 )
 				{
-					Caps_Differ = true;
+					Switch_To_Default = true;
 					Distance_Overhang = 0.0;
-					Cut_Length = Parameters("LENGTH")->asDouble();
-					Cap_Length = fmod(pLine->Get_Length(j), Target_Cut_Length )/2;
-
-					Target_Cut_Length = Cap_Length;
+					Default_Length = Parameters("LENGTH")->asDouble();
+					Target_Cut_Length = fmod(pLine->Get_Length(j), Default_Length )/2;
 				}
 			}
 
 			// Number distribution options
-			// 0: 
-			// TODO
+			// 0: Full Segment	= n cuts mean n+1 parts
+			// 1: Half Segment	= half caps are (l/n)2 .
 			if( Parameters("DISTRIBUTION")->asInt() == 1 )
 			{
 				if( Parameters("CAPS_NUMBER")->asInt() == 0 )
 				{
-					Target_Cut_Length = pLine->Get_Length(j) / (Parameters("NUMBER")->asInt() + 1);
 					Distance_Overhang = 0.0;
+					Target_Cut_Length = pLine->Get_Length(j) / (Parameters("NUMBER")->asInt() + 1);
 				}
 
 				if( Parameters("CAPS_NUMBER")->asInt() == 1 )
 				{
-					Caps_Differ = true;
-					Cut_Length = pLine->Get_Length(j) / Parameters("NUMBER")->asInt();	
-					Cap_Length = Cut_Length / 2.0;
-					Target_Cut_Length = Cap_Length;
+					Switch_To_Default = true;
 					Distance_Overhang = 0.0;
+					Default_Length = pLine->Get_Length(j) / Parameters("NUMBER")->asInt();	
+					Target_Cut_Length = Default_Length / 2.0;
 				}
 			}	
 
 			// Only cut lines ( a line has > 2 points )
 			if( pPart->Get_Count() > 1 )
 			{
-				int Segment_Counter = 0;
-				// Reset the Segment Number and write the meta-data
-				// in the new shape. Increment ongoing counter
-				// TODO Is the Segment Number at this place smart???
-				CSG_Shape *pSegment = pOutputLines->Add_Shape(pLine, SHAPE_COPY_ATTR);
-
 				// Write the first Point to the new shape
+				CSG_Shape *pSegment = pOutputLines->Add_Shape(pLine, SHAPE_COPY_ATTR);
 				pSegment->Add_Point( pPart->Get_Point(0) ); 
 
 				// This loop investigates all segments. A segment is a
@@ -250,19 +246,29 @@ bool CCut_Lines::On_Execute(void)
 					double Length_Seg 	= SG_Get_Distance( Front, Back );
 					double Seg_Reductor = Length_Seg;
 
+					if( Target_Cut_Length <= 0.0 )
+					{
+						Error_Set(  CSG_String::Format("%s %s %s\n%s %d, %d, %d. Abort!",
+									_TL("Cut Length is set to or below zero. This will likely result in a infinite loop."),
+									_TL("Ether your input parameter caused this or some weird edge-case with the input-data "),
+									_TL("or it is a Bug"), //newline
+									_TL("Verbose: Shape-, Part-, Point-Indices are:"), i, j, k)
+						);
+						return false;
+					}
+
 					// Check if there is still space left in the segment to fit 
 					// a cut considering the overhang
 					//	
 					// ~-Distance_Overhang-|---Seg_Reductor-------|
 					// --o--------------------------x-------------o--------
-					// -------------Cut_Length------|\_position of cut
+					// ------Target_Cut_Length------|\_position of cut
 					//
 					while( Seg_Reductor + Distance_Overhang > Target_Cut_Length )
 					{
 						// Decrement the reductor and reset the overhang
-						Seg_Reductor -= ( Cut_Length - Distance_Overhang );
+						Seg_Reductor -= ( Target_Cut_Length - Distance_Overhang );
 						Distance_Overhang = 0.0;
-
 
 						// Construct the intermediate point with the angel and the
 						// length.
@@ -272,26 +278,28 @@ bool CCut_Lines::On_Execute(void)
 						Intermediate_Point.x = Front.x + ( Construct_Dist * sin(Construct_Angle) );
 						Intermediate_Point.y = Front.y + ( Construct_Dist * cos(Construct_Angle) );
 
-						// Add the intermediate point as the last point, add a new 
-						// shape and add the intermediate as the first point and
-						// set the metadata and also increment the counter
+						// Prevent edge-case caused by Seg_Reductor == Target_Cut_Length 
+						// This checks if the constructed intermediate point is actually Back.
+						// Break out will just add back at the end of the loop
+						if( k == pPart->Get_Count()-1
+						&& Intermediate_Point.x == Back.x
+						&& Intermediate_Point.y == Back.y )
+							break;
+
+						// Use the intermediate point as last and also as the first point in new shape
 						pSegment->Add_Point( Intermediate_Point );
 						pSegment = pOutputLines->Add_Shape(pLine, SHAPE_COPY_ATTR);
 						pSegment->Add_Point( Intermediate_Point );
 
-
-						// If the caps have different sizes set the cut length to the normal
-						// size after the first segment.
-						// Note: No need to flip it back before the last. The last action is just
-						// the last point because caps are always smaller than the normal.
-						if( Segment_Counter == 0 && Caps_Differ == true )
-							Target_Cut_Length = Cut_Length;
-
-						Segment_Counter++;
-
+						// Switch to the default length after the first cut is placed
+						if( Switch_To_Default == true )
+						{
+							Switch_To_Default = false;
+							Target_Cut_Length = Default_Length;
+						}
 					}
 
-					// Close the shape with the last point
+					// Set existing points
 					pSegment->Add_Point( Back );
 
 					// Accumulate the overhang
