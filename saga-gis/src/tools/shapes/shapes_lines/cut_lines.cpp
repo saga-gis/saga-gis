@@ -159,10 +159,10 @@ bool CCut_Lines::On_Execute(void)
 
 	// Note: The Overhang is one of the crucial parts. This accumulates 
 	// the distance walked since the last point.
-	double 	Cut_Length = Parameters("LENGTH")->asDouble();
+	//double 	Target_Cut_Length = Parameters("LENGTH")->asDouble();
 	double 	Distance_Overhang = 0.;
-	double 	Cap_Length = 0.;
-	double 	Target_Cut_Length = Cut_Length;
+	//double 	Cap_Length = 0.;
+	//double 	Cut_Length = Target_Cut_Length;
 	bool 	Caps_Differ = false;
 
 	for( int i=0; i<pInputLines->Get_Count(); i++ )
@@ -175,6 +175,15 @@ bool CCut_Lines::On_Execute(void)
 			CSG_Shape_Part *pPart = pLine->Get_Part(j);	
 
 
+			// This tool supports different cap styles. For this purposes it had
+			// three variables: cut-, cap- and target-length. The cut-length is 
+			// in the middle, cap on both ends and target is where the tool actually 
+			// cuts. If Caps and Cuts differ. Target will be set from caps to cuts.
+			// TODO: Can i ditch Caps?
+			double Cut_Length 		 = 0.0;
+			double Cap_Length 		 = 0.0;
+			double Target_Cut_Length = 0.0;
+
 			// Length distribution options
 			// 0: Start Full Length 		= Reset the overhang
 			// 1: Start Remaining Length 	= Don't reset the overhang
@@ -183,6 +192,7 @@ bool CCut_Lines::On_Execute(void)
 			{
 				if( Parameters("CAPS_LENGTH")->asInt() == 0 )
 				{
+					Target_Cut_Length = Parameters("LENGTH")->asDouble();
 					Distance_Overhang = 0.0;
 				}
 
@@ -190,8 +200,10 @@ bool CCut_Lines::On_Execute(void)
 				{
 					Caps_Differ = true;
 					Distance_Overhang = 0.0;
-					Target_Cut_Length = Parameters("LENGTH")->asDouble();
+					Cut_Length = Parameters("LENGTH")->asDouble();
 					Cap_Length = fmod(pLine->Get_Length(j), Target_Cut_Length )/2;
+
+					Target_Cut_Length = Cap_Length;
 				}
 			}
 
@@ -202,16 +214,16 @@ bool CCut_Lines::On_Execute(void)
 			{
 				if( Parameters("CAPS_NUMBER")->asInt() == 0 )
 				{
-					Cut_Length = pLine->Get_Length(j) / (Parameters("NUMBER")->asInt() + 1);
+					Target_Cut_Length = pLine->Get_Length(j) / (Parameters("NUMBER")->asInt() + 1);
 					Distance_Overhang = 0.0;
 				}
 
 				if( Parameters("CAPS_NUMBER")->asInt() == 1 )
 				{
 					Caps_Differ = true;
-					Target_Cut_Length = pLine->Get_Length(j) / Parameters("NUMBER")->asInt();	
-					Cap_Length = Target_Cut_Length / 2.0;
-					Cut_Length = Target_Cut_Length;
+					Cut_Length = pLine->Get_Length(j) / Parameters("NUMBER")->asInt();	
+					Cap_Length = Cut_Length / 2.0;
+					Target_Cut_Length = Cap_Length;
 					Distance_Overhang = 0.0;
 				}
 			}	
@@ -238,10 +250,6 @@ bool CCut_Lines::On_Execute(void)
 					double Length_Seg 	= SG_Get_Distance( Front, Back );
 					double Seg_Reductor = Length_Seg;
 
-
-					if( Segment_Counter == 0 &&  Caps_Differ == true )
-						Cut_Length = Cap_Length;
-
 					// Check if there is still space left in the segment to fit 
 					// a cut considering the overhang
 					//	
@@ -249,7 +257,7 @@ bool CCut_Lines::On_Execute(void)
 					// --o--------------------------x-------------o--------
 					// -------------Cut_Length------|\_position of cut
 					//
-					while( Seg_Reductor + Distance_Overhang > Cut_Length )
+					while( Seg_Reductor + Distance_Overhang > Target_Cut_Length )
 					{
 						// Decrement the reductor and reset the overhang
 						Seg_Reductor -= ( Cut_Length - Distance_Overhang );
@@ -277,29 +285,8 @@ bool CCut_Lines::On_Execute(void)
 						// Note: No need to flip it back before the last. The last action is just
 						// the last point because caps are always smaller than the normal.
 						if( Segment_Counter == 0 && Caps_Differ == true )
-							Cut_Length = Target_Cut_Length;
+							Target_Cut_Length = Cut_Length;
 
-
-						// Length, even ends only had to flip at the begin.
-						/*
-						if( Parameters("DISTRIBUTION")->asInt() == 0
-						&&	Parameters("CAPS_LENGTH")->asInt()  == 2
-						&&	Segment_Counter == 0
-						&&	Caps_Differ == true )
-						{
-							Cut_Length = Target_Cut_Length;
-						}
-						
-						if( Parameters("DISTRIBUTION")->asInt() == 1
-						&&	Parameters("CAPS_LENG")->asInt()  == 2
-						if( Segment_Counter == Parameters("NUMBER")->asInt()-1
-						&&	Caps_Differ == true )
-						{
-							Cut_Length = Target_Cut_Length;
-						}
-						*/
-
-						// Increment the segment counter
 						Segment_Counter++;
 
 					}
