@@ -141,7 +141,6 @@ bool CCut_Lines::On_Execute(void)
 	CSG_Shapes	*pInputLines 	= Parameters("INPUT")->asShapes();
 	CSG_Shapes	*pOutputLines 	= Parameters("OUTPUT")->asShapes();
 
-	double Cut_Length = Parameters("LENGTH")->asDouble();
 
 	// Check for projection unit. This tool only works with projected
 	// Coordinate Reference Systems and assumes meter. Could be extended
@@ -153,23 +152,18 @@ bool CCut_Lines::On_Execute(void)
 
 	// Remove everything. Set the name (input + '_cut_xx' xx=length) and
 	// add the line and segment number and the id-field. Remember the field indexes
-	pOutputLines->Destroy();
-	pOutputLines->Set_Name(CSG_String::Format("%s_cut_%d", pInputLines->Get_Name(), (int) Cut_Length ));
-	pOutputLines->Add_Field("NR_LINE", SG_DATATYPE_Int);
-	pOutputLines->Add_Field("NR_SEGM", SG_DATATYPE_Int);
-	pOutputLines->Add_Field("ID_SEGM", SG_DATATYPE_Int);
+	pOutputLines->Assign(pInputLines);
+	pOutputLines->Del_Shapes();
+	//pOutputLines->Set_Name(CSG_String::Format("%s_cut_%d", pInputLines->Get_Name(), (int) Cut_Length ));
+	pOutputLines->Set_Name(CSG_String::Format("%s_cut", pInputLines->Get_Name()));
 
-	int Field_Nr_Line = pOutputLines->Get_Field("NR_LINE");
-	int Field_Nr_Segm = pOutputLines->Get_Field("NR_SEGM");
-	int Field_ID_Segm = pOutputLines->Get_Field("ID_SEGM");
-
-	// Start the ongoing id-index and set the overhang to 0.
 	// Note: The Overhang is one of the crucial parts. This accumulates 
 	// the distance walked since the last point.
-	int ID_Segm = 1;
-	double Distance_Overhang = 0.;
-	double Cap_Length = 0.;
-	bool Caps_Differ = false;
+	double 	Cut_Length = Parameters("LENGTH")->asDouble();
+	double 	Distance_Overhang = 0.;
+	double 	Cap_Length = 0.;
+	double 	Target_Cut_Length = Cut_Length;
+	bool 	Caps_Differ = false;
 
 	for( int i=0; i<pInputLines->Get_Count(); i++ )
 	{
@@ -188,12 +182,16 @@ bool CCut_Lines::On_Execute(void)
 			if( Parameters("DISTRIBUTION")->asInt() == 0 )
 			{
 				if( Parameters("CAPS_LENGTH")->asInt() == 0 )
+				{
 					Distance_Overhang = 0.0;
+				}
 
 				if( Parameters("CAPS_LENGTH")->asInt() == 2 )
 				{
-					Cap_Length = fmod(pLine->Get_Length(j), Parameters("LENGTH")->asDouble())/2;
 					Caps_Differ = true;
+					Distance_Overhang = 0.0;
+					Target_Cut_Length = Parameters("LENGTH")->asDouble();
+					Cap_Length = fmod(pLine->Get_Length(j), Target_Cut_Length )/2;
 				}
 			}
 
@@ -204,14 +202,17 @@ bool CCut_Lines::On_Execute(void)
 			{
 				if( Parameters("CAPS_NUMBER")->asInt() == 0 )
 				{
-					Cap_Length = pLine->Get_Length(j) / Parameters("NUMBER")->asInt()+1;	
-					Caps_Differ = true;
+					Cut_Length = pLine->Get_Length(j) / (Parameters("NUMBER")->asInt() + 1);
+					Distance_Overhang = 0.0;
 				}
 
 				if( Parameters("CAPS_NUMBER")->asInt() == 1 )
 				{
-					Cap_Length = pLine->Get_Length(j) / Parameters("NUMBER")->asInt();	
 					Caps_Differ = true;
+					Target_Cut_Length = pLine->Get_Length(j) / Parameters("NUMBER")->asInt();	
+					Cap_Length = Target_Cut_Length / 2.0;
+					Cut_Length = Target_Cut_Length;
+					Distance_Overhang = 0.0;
 				}
 			}	
 
@@ -222,14 +223,7 @@ bool CCut_Lines::On_Execute(void)
 				// Reset the Segment Number and write the meta-data
 				// in the new shape. Increment ongoing counter
 				// TODO Is the Segment Number at this place smart???
-				int Nr_Segm = 1;
-				CSG_Shape *pSegment = pOutputLines->Add_Shape();
-				pSegment->Set_Value( Field_Nr_Line, i );
-				pSegment->Set_Value( Field_Nr_Segm, Nr_Segm );
-				pSegment->Set_Value( Field_ID_Segm, ID_Segm );
-
-				Nr_Segm++;
-				ID_Segm++;
+				CSG_Shape *pSegment = pOutputLines->Add_Shape(pLine, SHAPE_COPY_ATTR);
 
 				// Write the first Point to the new shape
 				pSegment->Add_Point( pPart->Get_Point(0) ); 
@@ -245,11 +239,8 @@ bool CCut_Lines::On_Execute(void)
 					double Seg_Reductor = Length_Seg;
 
 
-					if( (Segment_Counter == 0 || Segment_Counter == Parameters("NUMBER")->asInt()-1)
-					&&	Caps_Differ == true )
-					{
+					if( Segment_Counter == 0 &&  Caps_Differ == true )
 						Cut_Length = Cap_Length;
-					}
 
 					// Check if there is still space left in the segment to fit 
 					// a cut considering the overhang
@@ -277,22 +268,39 @@ bool CCut_Lines::On_Execute(void)
 						// shape and add the intermediate as the first point and
 						// set the metadata and also increment the counter
 						pSegment->Add_Point( Intermediate_Point );
-						pSegment = pOutputLines->Add_Shape();
-						pSegment->Set_Value( Field_Nr_Line, i );
-						pSegment->Set_Value( Field_Nr_Segm, Nr_Segm );
-						pSegment->Set_Value( Field_ID_Segm, ID_Segm );
+						pSegment = pOutputLines->Add_Shape(pLine, SHAPE_COPY_ATTR);
 						pSegment->Add_Point( Intermediate_Point );
 
-						Nr_Segm++;
-						ID_Segm++;
+
+						// If the caps have different sizes set the cut length to the normal
+						// size after the first segment.
+						// Note: No need to flip it back before the last. The last action is just
+						// the last point because caps are always smaller than the normal.
+						if( Segment_Counter == 0 && Caps_Differ == true )
+							Cut_Length = Target_Cut_Length;
+
+
+						// Length, even ends only had to flip at the begin.
+						/*
+						if( Parameters("DISTRIBUTION")->asInt() == 0
+						&&	Parameters("CAPS_LENGTH")->asInt()  == 2
+						&&	Segment_Counter == 0
+						&&	Caps_Differ == true )
+						{
+							Cut_Length = Target_Cut_Length;
+						}
 						
-						Segment_Counter++;
-						
+						if( Parameters("DISTRIBUTION")->asInt() == 1
+						&&	Parameters("CAPS_LENG")->asInt()  == 2
 						if( Segment_Counter == Parameters("NUMBER")->asInt()-1
 						&&	Caps_Differ == true )
 						{
-							Cut_Length = Cap_Length;
+							Cut_Length = Target_Cut_Length;
 						}
+						*/
+
+						// Increment the segment counter
+						Segment_Counter++;
 
 					}
 
