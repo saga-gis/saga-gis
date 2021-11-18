@@ -96,14 +96,15 @@ CPDAL_Reader::CPDAL_Reader(void)
     Set_Author    ("O.Conrad, V.Wichmann (c) 2020-2021");
 
     Add_Reference("https://pdal.io/", SG_T("PDAL Homepage"));
+    Add_Reference("https://github.com/ASPRSorg/LAS/", SG_T("ASPRS LAS Specification"));
 
     CSG_String  Description, Filter, Filter_All;
 
     Description = _TW(
         "The tool allows one to import point cloud data from various file formats using the "
         "\"Point Data Abstraction Library\" (PDAL).\n"
-        "By default, all available attributes of the respective format will be imported. For LAS/LAZ files "
-        "individual attributes can be selected.\n"
+        "By default, all supported attributes will be imported. Note that the list of attributes "
+        "supported by the tool is currently based on the attributes defined in the ASPRS LAS specification.\n\n"
     );
 
     Description += CSG_String::Format("\n\nPDAL %s:%s\n\n", _TL("Version"), SG_Get_PDAL_Drivers().Get_Version().c_str());
@@ -178,7 +179,7 @@ CPDAL_Reader::CPDAL_Reader(void)
 
     Parameters.Add_Bool("",
         "VARS"    , _TL("Import All Attributes"),
-        _TL("Check this to import all attributes provided by the data set, or select the attributes you want to become imported individually."),
+        _TL("Check this to import all supported attributes, or select the attributes you want to become imported individually."),
         true
     );
 
@@ -187,15 +188,15 @@ CPDAL_Reader::CPDAL_Reader(void)
         Parameters.Add_Bool("VARS", g_Attributes[i].ID, g_Attributes[i].Name, _TL(""));
     }
 
-    Parameters.Add_Bool("",
+    Parameters.Add_Bool("VARS",
         "VAR_COLOR" , _TL("RGB-Coded Color"),
-        _TL(""),
-        true
+        _TL("Import R,G,B values as SAGA RGB-coded value."),
+        false
     );
 
-    Parameters.Add_Choice("VAR_COLOR",
+    Parameters.Add_Choice("",
         "RGB_RANGE" , _TL("RGB Value Range"),
-        _TL("Data depth of red, green, blue values in LAS file."),
+        _TL("The color depth of red, green, blue (and NIR) values in the LAS file."),
         CSG_String::Format("%s|%s",
             _TL( "8 bit"),
             _TL("16 bit")
@@ -424,19 +425,22 @@ void CPDAL_Reader::_Init_PointCloud(CSG_PointCloud *pPoints, pdal::PointLayoutPt
 
     for(int Field=0; !g_Attributes[Field].ID.is_Empty(); Field++)
     {
-        if( (bVar_All || Parameters(g_Attributes[Field].ID)->asBool()) && PointLayout->hasDim(g_Attributes[Field].PDAL_ID) )
+        if( (bVar_All || Parameters(g_Attributes[Field].ID)->asBool()) )
         {
-            Fields  += Field; pPoints->Add_Field(g_Attributes[Field].Name, g_Attributes[Field].Type);
+            if( PointLayout->hasDim(g_Attributes[Field].PDAL_ID) )
+            {
+                Fields  += Field; pPoints->Add_Field(g_Attributes[Field].Name, g_Attributes[Field].Type);
+            }
+            else
+            {
+                SG_UI_Msg_Add_Execution(CSG_String::Format("\n%s, %s%s: %s", _TL("Warning"), _TL("file does not provide the dimension "), g_Attributes[Field].Name.c_str(), File.c_str()), true);
+            }
         }
     }
     
-    if( bVar_Color )
+    if( bVar_All || bVar_Color )
     {
-        if( !(PointLayout->hasDim(pdal::Dimension::Id::Red) && PointLayout->hasDim(pdal::Dimension::Id::Green) && PointLayout->hasDim(pdal::Dimension::Id::Blue)) )
-        {
-            SG_UI_Msg_Add_Execution(CSG_String::Format("\n%s, %s: %s", _TL("Warning"), _TL("file does not provide RGB dimensions"), File.c_str()), true);
-        }
-        else
+        if( PointLayout->hasDim(pdal::Dimension::Id::Red) && PointLayout->hasDim(pdal::Dimension::Id::Green) && PointLayout->hasDim(pdal::Dimension::Id::Blue) )
         {
             iRGB_Field = pPoints->Get_Field_Count();
             pPoints->Add_Field("Color", SG_DATATYPE_Int);
