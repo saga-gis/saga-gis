@@ -57,7 +57,7 @@ CCut_Lines::CCut_Lines(void)
 	Set_Version("1.3");
 
 	Set_Description (_TW(
-		"The Tool provides methods to split lines in a regular distance or number"
+		"The Tool provides methods to split lines in multiple lines based on a regular distance or number"
 		)
 	);
 
@@ -133,8 +133,13 @@ int CCut_Lines::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 
 bool CCut_Lines::On_Execute(void)
 {
-	CSG_Shapes	*pInputLines 	= Parameters("INPUT")->asShapes();
-	CSG_Shapes	*pOutputLines 	= Parameters("OUTPUT")->asShapes();
+	CSG_Shapes	*pInputLines 		= Parameters("INPUT")->asShapes();
+	CSG_Shapes	*pOutputLines 		= Parameters("OUTPUT")->asShapes();
+	int			Distribution_Option = Parameters("DISTRIBUTION")->asInt();
+	int			Caps_Length_Option	= Parameters("CAPS_LENGTH")->asInt();
+	int			Caps_Number_Option  = Parameters("CAPS_NUMBER")->asInt();
+	double		Length				= Parameters("LENGTH")->asDouble();
+	int 		Number				= Parameters("NUMBER")->asInt();
 
 	if( pInputLines == pOutputLines )
 	{
@@ -182,45 +187,45 @@ bool CCut_Lines::On_Execute(void)
 			// 0: Start Full Length 		= Reset the overhang and set length to parameter
 			// 1: Start Remaining Length 	= Don't reset the overhang, set length to parameter
 			// 2: Even Caps					= Calculate the cap: a half of the rest (modulo) 
-			if( Parameters("DISTRIBUTION")->asInt() == 0 )
+			if( Distribution_Option == 0 )
 			{
-				if( Parameters("CAPS_LENGTH")->asInt() == 0 )
+				if( Caps_Length_Option == 0 )
 				{
 					Distance_Overhang = 0.0;
-					Target_Cut_Length = Parameters("LENGTH")->asDouble();
+					Target_Cut_Length = Length;
 				}
 
-				if( Parameters("CAPS_LENGTH")->asInt() == 1 )
+				if( Caps_Length_Option == 1 )
 				{
-					Target_Cut_Length = Parameters("LENGTH")->asDouble();
+					Target_Cut_Length = Length;
 				}
 
-				if( Parameters("CAPS_LENGTH")->asInt() == 2 )
+				if( Caps_Length_Option == 2 )
 				{
-					Switch_To_Default = true;
-					Distance_Overhang = 0.0;
-					Default_Length = Parameters("LENGTH")->asDouble();
-					Target_Cut_Length = fmod(pLine->Get_Length(j), Default_Length )/2;
+					Switch_To_Default 	= true;
+					Distance_Overhang 	= 0.0;
+					Default_Length 		= Length;
+					Target_Cut_Length 	= fmod(pLine->Get_Length(j), Default_Length )/2;
 				}
 			}
 
 			// Number distribution options
 			// 0: Full Segment	= n cuts mean n+1 parts
 			// 1: Half Segment	= half caps are (l/n)2 .
-			if( Parameters("DISTRIBUTION")->asInt() == 1 )
+			if( Distribution_Option == 1 )
 			{
-				if( Parameters("CAPS_NUMBER")->asInt() == 0 )
+				if( Caps_Number_Option == 0 )
 				{
 					Distance_Overhang = 0.0;
-					Target_Cut_Length = pLine->Get_Length(j) / (Parameters("NUMBER")->asInt() + 1);
+					Target_Cut_Length = pLine->Get_Length(j) / (Number + 1);
 				}
 
-				if( Parameters("CAPS_NUMBER")->asInt() == 1 )
+				if( Caps_Number_Option == 1 )
 				{
-					Switch_To_Default = true;
-					Distance_Overhang = 0.0;
-					Default_Length = pLine->Get_Length(j) / Parameters("NUMBER")->asInt();	
-					Target_Cut_Length = Default_Length / 2.0;
+					Switch_To_Default	= true;
+					Distance_Overhang 	= 0.0;
+					Default_Length 		= pLine->Get_Length(j) / Number;	
+					Target_Cut_Length 	= Default_Length / 2.0;
 				}
 			}	
 
