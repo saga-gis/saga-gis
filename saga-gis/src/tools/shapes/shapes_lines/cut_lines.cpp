@@ -50,20 +50,15 @@
 
 CCut_Lines::CCut_Lines(void)
 {
-	Set_Name(_TL("Cut Lines"));
+	Set_Name(_TL("Split Lines"));
 
-	Set_Author(_TL("Justus Spitzmüller, scilands GmbH \u00a9 2021"));
+	Set_Author(_TL("Justus Spitzm\u00fcller, scilands GmbH \u00a9 2021"));
 
-	Set_Version("1.2");
+	Set_Version("1.3");
 
 	Set_Description (_TW(
-		"Tool cuts lines in a regular distance or number"
-		"The Tool only works with projected datasets and will terminate by other projection-units than meter. In this case set the coordinate reference system if it is missing or re-project it."
-		"The Output will named after the input with a \"_cut\" suffix"
-		"\n\n"
-		"&#8226 ")
-		
-
+		"The Tool provides methods to split lines in a regular distance or number"
+		)
 	);
 
 	Parameters.Add_Shapes(
@@ -86,7 +81,7 @@ CCut_Lines::CCut_Lines(void)
 	);
 
 	Parameters.Add_Double(
-		"DISTRIBUTION", "LENGTH", _TL("Length"), _TL("Length where the lines will be cutted in Meter"), 5.0, 0.0, true
+		"DISTRIBUTION", "LENGTH", _TL("Length"), _TL("Length where the lines will be cutted in map-units"), 5.0, 0.0, true
 	);
 
 	Parameters.Add_Choice(
@@ -99,7 +94,7 @@ CCut_Lines::CCut_Lines(void)
 	);
 
 	Parameters.Add_Int(
-		"DISTRIBUTION", "NUMBER", _TL("Number of cuts"), _TL("Number of cuts per line"), 5, 0, true
+		"DISTRIBUTION", "NUMBER", _TL("Number Of Splits"), _TL("Number of splits per line"), 5, 0, true
 	);
 
 	Parameters.Add_Choice(
@@ -111,7 +106,7 @@ CCut_Lines::CCut_Lines(void)
 	);
 
 //	Parameters.Add_Choice(
-//		NULL, "FEATURE", _TL("Cut Into"), _TL("Cut and put every piece in a individual shape or organize the pieces of one shape in parts"),
+//		NULL, "FEATURE", _TL("Cut Into"), _TL("Cut and put every piece in a individual Shape or organize the pieces of one Shape in Parts"),
 //		CSG_String::Format("%s|%s|", _TL("Shapes"), _TL("Parts")),0
 //	);
 
@@ -149,11 +144,11 @@ bool CCut_Lines::On_Execute(void)
 
 	// Check for projection unit. This tool only works with projected
 	// Coordinate Reference Systems and assumes meter. Could be extended
-	if( pInputLines->Get_Projection().Get_Unit() != SG_PROJ_UNIT_Meter )
-	{
-		Error_Set(_TL("The input line feature has an other projection unit then meter. Abort!"));
-		return false;
-	}
+	//if( pInputLines->Get_Projection().Get_Unit() != SG_PROJ_UNIT_Meter )
+	//{
+	//	Error_Set(_TL("The input line feature has an other projection unit then meter. Abort!"));
+	//	return false;
+	//}
 
 	// Remove everything. Set the name (input + '_cut_xx' xx=length) and
 	// add the line and segment number and the id-field. Remember the field indexes
