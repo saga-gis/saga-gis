@@ -62,6 +62,7 @@ CPDAL_Writer_Las::CPDAL_Writer_Las(void)
     Set_Author    ("V.Wichmann (c) 2021");
 
     Add_Reference("https://pdal.io/", SG_T("PDAL Homepage"));
+    Add_Reference("https://github.com/ASPRSorg/LAS/", SG_T("ASPRS LAS Specification"));
 
     CSG_String  Description;
 
@@ -70,6 +71,9 @@ CPDAL_Writer_Las::CPDAL_Writer_Las(void)
         "\"Point Data Abstraction Library\" (PDAL).\n"
         "The file extension of the output file determines whether the file is written compressed (*.laz) "
         "or uncompressed (*.las).\n"
+        "The number and type of attributes that can be exported depends on the chosen LAS file version "
+        "and point data record format. Please have a look at the ASPRS LAS specification on how these "
+        "formats are defined."
     );
 
     Description += CSG_String::Format("\n\nPDAL %s:%s\n\n", _TL("Version"), SG_Get_PDAL_Drivers().Get_Version().c_str());
@@ -166,7 +170,7 @@ CPDAL_Writer_Las::CPDAL_Writer_Las(void)
         CSG_String::Format(SG_T("%s|%s"),
             _TL("LAS 1.2"),
             _TL("LAS 1.4")
-        ), 0
+        ), 1
     );
 
     Parameters.Add_Choice(Parameters("FILE"),
@@ -185,7 +189,7 @@ CPDAL_Writer_Las::CPDAL_Writer_Las(void)
 
     Parameters.Add_Choice("",
         "RGB_RANGE", _TL("Input R,G,B (and NIR) Value Range"),
-        _TL("Range of the R,G,B (and NIR) values in the input point cloud. 8 bit values will be scaled to 16 bit."),
+        _TL("Color depth of the R,G,B (and NIR) values in the input point cloud. 8 bit values will be scaled to 16 bit."),
         CSG_String::Format(SG_T("%s|%s|"),
             _TL("16 bit"),
             _TL("8 bit")
@@ -226,13 +230,6 @@ CPDAL_Writer_Las::CPDAL_Writer_Las(void)
 //---------------------------------------------------------
 int CPDAL_Writer_Las::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-    if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FILE_FORMAT")) )
-    {
-        int i = pParameters->Get_Parameter("FILE_FORMAT")->asInt(); // 0 = 1.2, 1 = 1.4
-
-        pParameters->Get_Parameter("sCH"        )->Set_Enabled(i == 1);
-    }
-
     if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FORMAT")) )
     {
         int	i = pParameters->Get_Parameter("FORMAT")->asInt();    // this is the choices list index, not the point data record format!
@@ -244,6 +241,7 @@ int CPDAL_Writer_Las::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
         pParameters->Get_Parameter("C"			)->Set_Enabled(i == 2 || i == 3 || i >= 5);
         pParameters->Get_Parameter("RGB_RANGE"	)->Set_Enabled(i == 2 || i == 3 || i >= 5);
         pParameters->Get_Parameter("NIR"		)->Set_Enabled(i == 6);
+        pParameters->Get_Parameter("sCH"        )->Set_Enabled(i >= 3);
     }
 
     //-----------------------------------------------------
@@ -284,19 +282,7 @@ int CPDAL_Writer_Las::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
             pParameters->Get_Parameter("OFF_Z")->Set_Value((double)iXYZ[2]);
         }
     }
-
-    if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FILE_FORMAT")) )
-    {
-        if (pParameters->Get_Parameter("FILE_FORMAT")->asInt() == 0)
-        {
-            pParameters->Get_Parameter("FORMAT")->Set_Value(3);     // LAS 1.2 default: point data record format 3
-        }
-        else // == 1
-        {
-            pParameters->Get_Parameter("FORMAT")->Set_Value(5);     // LAS 1.4 default: point data record format 7
-        }
-    }
-    
+   
     //-----------------------------------------------------
     return (true);
 }
