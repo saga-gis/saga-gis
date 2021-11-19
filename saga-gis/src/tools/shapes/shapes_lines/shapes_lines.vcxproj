@@ -302,7 +302,6 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="cut_lines.cpp" />
     <ClCompile Include="extract_closed_lines.cpp" />
     <ClCompile Include="Lines_From_Points.cpp" />
     <ClCompile Include="Lines_From_Polygons.cpp" />
@@ -312,6 +311,7 @@
     <ClCompile Include="line_properties.cpp" />
     <ClCompile Include="line_simplification.cpp" />
     <ClCompile Include="line_smoothing.cpp" />
+    <ClCompile Include="line_split.cpp" />
     <ClCompile Include="line_split_with_lines.cpp" />
     <ClCompile Include="MLB_Interface.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -331,7 +331,6 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\pointcloud.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
-    <ClInclude Include="cut_lines.h" />
     <ClInclude Include="extract_closed_lines.h" />
     <ClInclude Include="Lines_From_Points.h" />
     <ClInclude Include="Lines_From_Polygons.h" />
@@ -341,6 +340,7 @@
     <ClInclude Include="line_properties.h" />
     <ClInclude Include="line_simplification.h" />
     <ClInclude Include="line_smoothing.h" />
+    <ClInclude Include="line_split.h" />
     <ClInclude Include="line_split_with_lines.h" />
     <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />

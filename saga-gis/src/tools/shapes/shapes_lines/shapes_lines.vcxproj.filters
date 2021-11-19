@@ -47,7 +47,7 @@
     <ClCompile Include="extract_closed_lines.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cut_lines.cpp">
+    <ClCompile Include="line_split.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -136,7 +136,7 @@
     <ClInclude Include="extract_closed_lines.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cut_lines.h">
+    <ClInclude Include="line_split.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
