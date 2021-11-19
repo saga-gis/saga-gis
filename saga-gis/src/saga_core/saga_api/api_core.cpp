@@ -372,7 +372,7 @@ bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char
 	//-----------------------------------------------------
 	#ifdef _SAGA_MSW
 	{
-		wxString App_Path, Dll_Paths;
+		wxString App_Path, Dll_Paths, System_Paths;
 
 		if( Directory && SG_Dir_Exists(Directory) )
 		{
@@ -383,8 +383,12 @@ bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char
 			App_Path	= SG_UI_Get_Application_Path(true).c_str();
 		}
 
+        wxGetEnv("PATH", &System_Paths);
+
 		if( SG_Add_Dll_Paths(App_Path + "\\dll", Dll_Paths) )
 		{
+            Dll_Paths   += ';' + System_Paths;
+
 			wxSetEnv("PATH", Dll_Paths);
 		}
 
