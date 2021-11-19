@@ -106,7 +106,7 @@ CSG_String Get_Info(int i)
 #include "line_smoothing.h"
 #include "line_crossings.h"
 #include "extract_closed_lines.h"
-#include "cut_lines.h"
+#include "line_split.h"
 
 
 //---------------------------------------------------------

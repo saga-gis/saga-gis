@@ -46,7 +46,7 @@
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
-#include "cut_lines.h"
+#include "line_split.h"
 
 CCut_Lines::CCut_Lines(void)
 {
