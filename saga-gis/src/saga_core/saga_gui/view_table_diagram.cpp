@@ -74,6 +74,8 @@
 //---------------------------------------------------------
 class CVIEW_Table_Diagram_Control : public wxScrolledWindow
 {
+	friend CVIEW_Table_Diagram;
+
 public:
 	CVIEW_Table_Diagram_Control(wxWindow *pParent, CWKSP_Table *pTable);
 	virtual ~CVIEW_Table_Diagram_Control(void);
@@ -330,6 +332,7 @@ void CVIEW_Table_Diagram_Control::On_Mouse_RDown(wxMouseEvent &event)
 	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DIAGRAM_SIZE_FIT);
 	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DIAGRAM_SIZE_INC);
 	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DIAGRAM_SIZE_DEC);
+	CMD_Menu_Add_Item(&Menu,  true, ID_CMD_DIAGRAM_LEGEND);
 	Menu.AppendSeparator();
 	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DIAGRAM_PARAMETERS);
 
@@ -580,6 +583,9 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 	m_Parameters.Add_Node  ("TYPE"       , "NODE_LINES"        , _TL("Lines"             ), _TL(""));
 	m_Parameters.Add_Int   ("NODE_LINES" , "LINES_SIZE"        , _TL("Size"              ), _TL(""), 1, 1, true);
 
+	m_Parameters.Add_Node  ("TYPE"       , "NODE_BARS"         , _TL("Bars"              ), _TL(""));
+	m_Parameters.Add_Choice("NODE_BARS"  , "BARS_OFFSET"       , _TL("Offset"            ), _TL(""), CSG_String::Format("%s|%s|%s", _TL("origin"), _TL("bottom"), _TL("top")), 0);
+
 	//-----------------------------------------------------
 	m_Parameters.Add_Font  ("NODE_GENERAL", "FONT"             , _TL("Font"              ), _TL(""));
 
@@ -593,6 +599,7 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 	//-----------------------------------------------------
 	m_Parameters.Add_Node  ("NODE_GENERAL", "NODE_FRAME"       , _TL("Frame"             ), _TL(""));
 	m_Parameters.Add_Choice("NODE_FRAME"  , "FRAME_FULL"       , _TL("Axes"              ), _TL(""), CSG_String::Format("%s|%s", _TL("all sides"), _TL("left/bottom")), 1);
+	m_Parameters.Add_Bool  ("NODE_FRAME"  , "AXES_ORIGINS"     , _TL("Show Origins"      ), _TL(""), false);
 	m_Parameters.Add_Node  ("NODE_FRAME"  , "NODE_MARGINS"     , _TL("Margins"           ), _TL(""));
 	m_Parameters.Add_Int   ("NODE_MARGINS", "MARGIN_LEFT"      , _TL("Left"              ), _TL("Pixels"), 50, 0, true);
 	m_Parameters.Add_Int   ("NODE_MARGINS", "MARGIN_RIGHT"     , _TL("Right"             ), _TL("Pixels"), 10, 0, true);
@@ -847,6 +854,23 @@ void CVIEW_Table_Diagram_Control::_Draw_Frame(wxDC &dc, wxRect r, double dx, dou
 		Draw_Edge(dc, EDGE_STYLE_SIMPLE, r.GetLeft(), r.GetBottom(), r.GetRight(), r.GetBottom());
 	}
 
+	if( m_Parameters("AXES_ORIGINS")->asBool() )
+	{
+		if( m_xField >= 0 && m_xMin < 0 && 0 < m_xMax )
+		{
+			int x = r.GetLeft() + (int)(dx * (0 - m_xMin));
+
+			dc.DrawLine(x, r.GetBottom(), x, r.GetTop());
+		}
+
+		if( m_yMin < 0 && 0 < m_yMax )
+		{
+			int y = r.GetBottom() - (int)(dy * (0 - m_yMin));
+
+			dc.DrawLine(r.GetLeft(), y, r.GetRight(), y);
+		}
+	}
+
 	//-----------------------------------------------------
 	wxFont	Font(dc.GetFont());
 	Font.SetPointSize((int)(0.7 * dyFont));
@@ -1052,7 +1076,14 @@ void CVIEW_Table_Diagram_Control::_Draw_Lines(wxDC &dc, wxRect r, double dx, dou
 void CVIEW_Table_Diagram_Control::_Draw_Bars(wxDC &dc, wxRect r, double dx, double dy, int iField)
 {
 	int	dxa	= m_xField < 0 ? (int)(dx / m_Fields.Get_Size() * iField) : iField + 0;
-	int	dxb	= m_xField < 0 ? (int)(dx / m_Fields.Get_Size()         ) : iField + 1;
+	int	dxb	= m_xField < 0 ? (int)(dx / m_Fields.Get_Size()         ) : iField + 1, yOffset;
+
+	switch( m_Parameters("BARS_OFFSET")->asInt() )
+	{
+	default: yOffset = r.GetBottom() - (int)(dy * (0 - m_yMin)); break;
+	case  1: yOffset = r.GetBottom()                           ; break;
+	case  2: yOffset = r.GetTop   ()                           ; break;
+	}
 
 	iField	= m_Fields[iField];
 
@@ -1069,7 +1100,7 @@ void CVIEW_Table_Diagram_Control::_Draw_Bars(wxDC &dc, wxRect r, double dx, doub
 
 			for(int xb=x+dxb; x<=xb; x++)
 			{
-				dc.DrawLine(x, r.GetBottom(), x, y);
+				dc.DrawLine(x, yOffset, x, y);
 			}
 		}
 	}
@@ -1094,6 +1125,7 @@ BEGIN_EVENT_TABLE(CVIEW_Table_Diagram, CVIEW_Base)
 	EVT_MENU(ID_CMD_DIAGRAM_SIZE_FIT    , CVIEW_Table_Diagram::On_Size_Fit)
 	EVT_MENU(ID_CMD_DIAGRAM_SIZE_INC    , CVIEW_Table_Diagram::On_Size_Inc)
 	EVT_MENU(ID_CMD_DIAGRAM_SIZE_DEC    , CVIEW_Table_Diagram::On_Size_Dec)
+	EVT_MENU(ID_CMD_DIAGRAM_LEGEND      , CVIEW_Table_Diagram::On_Legend)
 	EVT_MENU(ID_CMD_DIAGRAM_TO_CLIPBOARD, CVIEW_Table_Diagram::On_SaveToClipboard)
 END_EVENT_TABLE()
 
@@ -1131,9 +1163,12 @@ wxMenu * CVIEW_Table_Diagram::_Create_Menu(void)
 	wxMenu	*pMenu	= new wxMenu;
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DIAGRAM_PARAMETERS);
+	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DIAGRAM_SIZE_FIT);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DIAGRAM_SIZE_INC);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DIAGRAM_SIZE_DEC);
+	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_DIAGRAM_LEGEND);
+	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DIAGRAM_TO_CLIPBOARD);
 
 	return( pMenu );
@@ -1212,9 +1247,32 @@ void CVIEW_Table_Diagram::On_Size_Dec(wxCommandEvent &event)
 }
 
 //---------------------------------------------------------
+void CVIEW_Table_Diagram::On_Legend(wxCommandEvent &event)
+{
+	m_pControl->m_Parameters("LEGEND")->Set_Value(!m_pControl->m_Parameters("LEGEND")->asBool());
+
+	m_pControl->Refresh();
+}
+
+//---------------------------------------------------------
 void CVIEW_Table_Diagram::On_SaveToClipboard(wxCommandEvent &event)
 {
 	m_pControl->SaveToClipboard();
+}
+
+//---------------------------------------------------------
+void CVIEW_Table_Diagram::On_Command_UI(wxUpdateUIEvent &event)
+{
+	switch( event.GetId() )
+	{
+	case ID_CMD_DIAGRAM_LEGEND:
+		event.Check(m_pControl->m_Parameters("LEGEND")->asBool());
+		break;
+
+	//-----------------------------------------------------
+	default:
+		break;
+	}
 }
 
 

@@ -98,7 +98,7 @@ BEGIN_EVENT_TABLE(CVIEW_Histogram, CVIEW_Base)
 	EVT_MENU      (ID_CMD_HISTOGRAM_SET_MINMAX  , CVIEW_Histogram::On_Set_MinMax)
 	EVT_MENU      (ID_CMD_HISTOGRAM_AS_TABLE    , CVIEW_Histogram::On_AsTable)
 	EVT_MENU      (ID_CMD_HISTOGRAM_TO_CLIPBOARD, CVIEW_Histogram::On_ToClipboard)
-	END_EVENT_TABLE()
+END_EVENT_TABLE()
 
 
 ///////////////////////////////////////////////////////////
