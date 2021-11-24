@@ -542,10 +542,7 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 	m_Parameters.Set_Callback_On_Parameter_Changed(_On_Parameter_Changed);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Node("", "NODE_GENERAL", _TL("General"   ), _TL(""));
-	m_Parameters.Add_Node("", "NODE_FIELDS" , _TL("Attributes"), _TL(""));
-
-	m_Parameters.Add_Bool("NODE_FIELDS", "SHOW_FIELDS", _TL("Show/Hide All"), _TL("Show or hide all attributes."));
+	m_Parameters.Add_Bool("", "SHOW_FIELDS", _TL("Show/Hide All Attributes"), _TL("Show or hide all attributes."));
 
 	for(int iField=0; iField<m_pTable->Get_Field_Count(); iField++)
 	{
@@ -572,53 +569,55 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 	sFields_All	+= CSG_String::Format("<%s>", _TL("none"));
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Choice("NODE_GENERAL", "TYPE"             , _TL("Chart Type"        ), _TL(""), CSG_String::Format("%s|%s|%s|%s|%s", CHART_TYPES), 1);
-
-	m_Parameters.Add_Node  ("TYPE"       , "NODE_POINTS"       , _TL("Points"            ), _TL(""));
-	m_Parameters.Add_Int   ("NODE_POINTS", "POINTS_SIZE"       , _TL("Size"              ), _TL(""), 2, 1, true);
-	m_Parameters.Add_Bool  ("NODE_POINTS", "POINTS_OUTLINE"    , _TL("Outline"           ), _TL(""), false);
-	m_Parameters.Add_Choice("NODE_POINTS", "POINTS_COLOR_FIELD", _TL("Color by Attribute"), _TL(""), sFields_Num, nFields_Num);
-	m_Parameters.Add_Colors("NODE_POINTS", "POINTS_COLORS"     , _TL("Colors"            ), _TL(""));
-
-	m_Parameters.Add_Node  ("TYPE"       , "NODE_LINES"        , _TL("Lines"             ), _TL(""));
-	m_Parameters.Add_Int   ("NODE_LINES" , "LINES_SIZE"        , _TL("Size"              ), _TL(""), 1, 1, true);
-
-	m_Parameters.Add_Node  ("TYPE"       , "NODE_BARS"         , _TL("Bars"              ), _TL(""));
-	m_Parameters.Add_Choice("NODE_BARS"  , "BARS_OFFSET"       , _TL("Offset"            ), _TL(""), CSG_String::Format("%s|%s|%s", _TL("origin"), _TL("bottom"), _TL("top")), 0);
+	m_Parameters.Add_Node  (""            , "NODE_X"            , _TL("X Axis"            ), _TL(""));
+	m_Parameters.Add_Choice("NODE_X"      , "X_FIELD"           , _TL("Values"            ), _TL(""), sFields_Num, nFields_Num);
+	m_Parameters.Add_Choice("NODE_X"      , "X_LABEL"           , _TL("Label"             ), _TL(""), sFields_All, m_pTable->Get_Field_Count());
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Font  ("NODE_GENERAL", "FONT"             , _TL("Font"              ), _TL(""));
-
-	m_Parameters.Add_Bool  ("NODE_GENERAL", "LEGEND"           , _TL("Legend"            ), _TL(""), true);
-	m_Parameters.Add_Int   ("LEGEND"      , "LEGEND_WIDTH"     , _TL("Width"             ), _TL("Percent"), 15, 0, true, 50, true);
-
-	m_Parameters.Add_Bool  ("NODE_GENERAL", "FIT_SIZE"         , _TL("Fit Size to Window"), _TL(""), true);
-	m_Parameters.Add_Bool  ("NODE_GENERAL", "FIX_RATIO"        , _TL("Keep Ratio"        ), _TL(""), false);
-	m_Parameters.Add_Double("FIX_RATIO"   , "RATIO"            , _TL("Ratio"             ), _TL(""), (1. + sqrt(5.)) / 2., 0.01, true, 100., true);
-
-	//-----------------------------------------------------
-	m_Parameters.Add_Node  ("NODE_GENERAL", "NODE_FRAME"       , _TL("Frame"             ), _TL(""));
-	m_Parameters.Add_Choice("NODE_FRAME"  , "FRAME_FULL"       , _TL("Axes"              ), _TL(""), CSG_String::Format("%s|%s", _TL("all sides"), _TL("left/bottom")), 1);
-	m_Parameters.Add_Bool  ("NODE_FRAME"  , "AXES_ORIGINS"     , _TL("Show Origins"      ), _TL(""), false);
-	m_Parameters.Add_Node  ("NODE_FRAME"  , "NODE_MARGINS"     , _TL("Margins"           ), _TL(""));
-	m_Parameters.Add_Int   ("NODE_MARGINS", "MARGIN_LEFT"      , _TL("Left"              ), _TL("Pixels"), 50, 0, true);
-	m_Parameters.Add_Int   ("NODE_MARGINS", "MARGIN_RIGHT"     , _TL("Right"             ), _TL("Pixels"), 10, 0, true);
-	m_Parameters.Add_Int   ("NODE_MARGINS", "MARGIN_TOP"       , _TL("Top"               ), _TL("Pixels"), 10, 0, true);
-	m_Parameters.Add_Int   ("NODE_MARGINS", "MARGIN_BOTTOM"    , _TL("Bottom"            ), _TL("Pixels"), 50, 0, true);
+	m_Parameters.Add_Node  (""            , "NODE_Y"            , _TL("Y Axis"            ), _TL(""));
+	m_Parameters.Add_Bool  ("NODE_Y"      , "Y_SCALE_TO_X"      , _TL("Scale"             ), _TL("Scale Y axis to match X axis by a factor (ratio)."), false);
+	m_Parameters.Add_Double("Y_SCALE_TO_X", "Y_SCALE_RATIO"     , _TL("Ratio"             ), _TL(""), 1., 0., true);
+	m_Parameters.Add_Bool  ("NODE_Y"      , "Y_MIN_FIX"	        , _TL("Fix Minimum"       ), _TL(""), false);
+	m_Parameters.Add_Double("Y_MIN_FIX"   , "Y_MIN_VAL"	        , _TL("Minimum"           ), _TL(""), 0.);
+	m_Parameters.Add_Bool  ("NODE_Y"      , "Y_MAX_FIX"	        , _TL("Fix Maximum"       ), _TL(""), false);
+	m_Parameters.Add_Double("Y_MAX_FIX"   , "Y_MAX_VAL"         , _TL("Maximum"           ), _TL(""), 1000.);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Node  ("NODE_GENERAL", "NODE_X"           , _TL("X Axis"            ), _TL(""));
-	m_Parameters.Add_Choice("NODE_X"      , "X_FIELD"          , _TL("Values"            ), _TL(""), sFields_Num, nFields_Num);
-	m_Parameters.Add_Choice("NODE_X"      , "X_LABEL"          , _TL("Label"             ), _TL(""), sFields_All, m_pTable->Get_Field_Count());
+	m_Parameters.Add_Font  (""            , "FONT"              , _TL("Font"              ), _TL(""));
+
+	m_Parameters.Add_Bool  (""            , "LEGEND"            , _TL("Legend"            ), _TL(""), true);
+	m_Parameters.Add_Int   ("LEGEND"      , "LEGEND_WIDTH"      , _TL("Width"             ), _TL("Percent"), 15, 0, true, 50, true);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Node  ("NODE_GENERAL", "NODE_Y"           , _TL("Y Axis"            ), _TL(""));
-	m_Parameters.Add_Bool  ("NODE_Y"      , "Y_SCALE_TO_X"     , _TL("Scale"             ), _TL("Scale Y axis to match X axis by a factor (ratio)."), false);
-	m_Parameters.Add_Double("Y_SCALE_TO_X", "Y_SCALE_RATIO"    , _TL("Ratio"             ), _TL(""), 1., 0., true);
-	m_Parameters.Add_Bool  ("NODE_Y"      , "Y_MIN_FIX"	       , _TL("Fix Minimum"       ), _TL(""), false);
-	m_Parameters.Add_Double("Y_MIN_FIX"   , "Y_MIN_VAL"	       , _TL("Minimum"           ), _TL(""), 0.);
-	m_Parameters.Add_Bool  ("NODE_Y"      , "Y_MAX_FIX"	       , _TL("Fix Maximum"       ), _TL(""), false);
-	m_Parameters.Add_Double("Y_MAX_FIX"   , "Y_MAX_VAL"        , _TL("Maximum"           ), _TL(""), 1000.);
+	m_Parameters.Add_Node  (""            , "NODE_CHART"        , _TL("Chart Settings"    ), _TL(""));
+
+	m_Parameters.Add_Choice("NODE_CHART"  , "TYPE"              , _TL("Chart Type"        ), _TL(""), CSG_String::Format("%s|%s|%s|%s|%s", CHART_TYPES), 4);
+
+	m_Parameters.Add_Node  ("NODE_CHART"  , "NODE_BARS"         , _TL("Bars"              ), _TL(""));
+	m_Parameters.Add_Choice("NODE_BARS"   , "BARS_OFFSET"       , _TL("Offset"            ), _TL(""), CSG_String::Format("%s|%s|%s", _TL("origin"), _TL("bottom"), _TL("top")), 0);
+
+	m_Parameters.Add_Node  ("NODE_CHART"  , "NODE_LINES"        , _TL("Lines"             ), _TL(""));
+	m_Parameters.Add_Int   ("NODE_LINES"  , "LINES_SIZE"        , _TL("Size"              ), _TL(""), 1, 1, true);
+
+	m_Parameters.Add_Node  ("NODE_CHART"  , "NODE_POINTS"       , _TL("Points"            ), _TL(""));
+	m_Parameters.Add_Int   ("NODE_POINTS" , "POINTS_SIZE"       , _TL("Size"              ), _TL(""), 2, 1, true);
+	m_Parameters.Add_Bool  ("NODE_POINTS" , "POINTS_OUTLINE"    , _TL("Outline"           ), _TL(""), false);
+	m_Parameters.Add_Choice("NODE_POINTS" , "POINTS_COLOR_FIELD", _TL("Color by Attribute"), _TL(""), sFields_Num, nFields_Num);
+	m_Parameters.Add_Colors("NODE_POINTS" , "POINTS_COLORS"     , _TL("Colors"            ), _TL(""));
+
+	//-----------------------------------------------------
+	m_Parameters.Add_Node  (""            , "NODE_FRAME"        , _TL("Frame"             ), _TL(""));
+	m_Parameters.Add_Choice("NODE_FRAME"  , "FRAME_FULL"        , _TL("Draw Frame"        ), _TL(""), CSG_String::Format("%s|%s", _TL("all sides"), _TL("left/bottom")), 1);
+	m_Parameters.Add_Bool  ("NODE_FRAME"  , "AXES_ORIGINS"      , _TL("Show Origins"      ), _TL(""), false);
+	m_Parameters.Add_Bool  ("NODE_FRAME"  , "FIT_SIZE"          , _TL("Fit Size to Window"), _TL("Fit diagram's frame size to the parent window, when its size has changed."), true);
+	m_Parameters.Add_Bool  ("NODE_FRAME"  , "FIX_RATIO"         , _TL("Fix Ratio"         ), _TL("Use a fix width to height ratio."), false);
+	m_Parameters.Add_Double("FIX_RATIO"   , "RATIO"             , _TL("Ratio"             ), _TL(""), (1. + sqrt(5.)) / 2., 0.01, true, 100., true);
+
+	m_Parameters.Add_Node  (""            , "NODE_MARGINS"      , _TL("Frame Margins"     ), _TL(""));
+	m_Parameters.Add_Int   ("NODE_MARGINS", "MARGIN_LEFT"       , _TL("Left"              ), _TL("Pixels"), 50, 0, true);
+	m_Parameters.Add_Int   ("NODE_MARGINS", "MARGIN_RIGHT"      , _TL("Right"             ), _TL("Pixels"), 10, 0, true);
+	m_Parameters.Add_Int   ("NODE_MARGINS", "MARGIN_TOP"        , _TL("Top"               ), _TL("Pixels"), 10, 0, true);
+	m_Parameters.Add_Int   ("NODE_MARGINS", "MARGIN_BOTTOM"     , _TL("Bottom"            ), _TL("Pixels"), 50, 0, true);
 
 	return( _Create() && Fit_Size() );
 }
@@ -654,8 +653,9 @@ int CVIEW_Table_Diagram_Control::_On_Parameter_Changed(CSG_Parameter *pParameter
 	{
 		if( pParameter->Cmp_Identifier("TYPE") )
 		{
-			pParameters->Set_Enabled("NODE_POINTS"  , pParameter->asInt() == 3 || pParameter->asInt() == 2 || pParameter->asInt() >= 4);
-			pParameters->Set_Enabled("NODE_LINES"   , pParameter->asInt() == 1 || pParameter->asInt() == 2 || pParameter->asInt() >= 4);
+			pParameters->Set_Enabled("NODE_BARS"    , pParameter->asInt() >= 4 || pParameter->asInt() == 0                            );
+			pParameters->Set_Enabled("NODE_LINES"   , pParameter->asInt() >= 4 || pParameter->asInt() == 1 || pParameter->asInt() == 3);
+			pParameters->Set_Enabled("NODE_POINTS"  , pParameter->asInt() >= 4 || pParameter->asInt() == 2 || pParameter->asInt() == 3);
 
 			CSG_Parameter *pFields = (*pParameters)("SHOW_FIELDS");
 
