@@ -326,8 +326,6 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 				if( g_pData_Buttons )	{	g_pData_Buttons->Thaw();	g_pData_Buttons->Update_Buttons();	}
 				if( g_pMap_Buttons  )	{	g_pMap_Buttons ->Thaw();	g_pMap_Buttons ->Update_Buttons();	}
 			}
-
-			return( true );
 		}
 	}
 
@@ -380,12 +378,10 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 		{
 			g_pMap_Buttons->Update_Buttons();
 		}
-
-		return( true );
 	}
 
 	//-----------------------------------------------------
-	return( false );
+	return( true );
 }
 
 //---------------------------------------------------------

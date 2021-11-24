@@ -635,7 +635,7 @@ bool CWKSP_Data_Manager::On_Command(int Cmd_ID)
 	case ID_CMD_DATA_PROJECT_OPEN    : m_pProject->Load(false);             break;
 	case ID_CMD_DATA_PROJECT_OPEN_ADD: m_pProject->Load( true);             break;
 	case ID_CMD_DATA_PROJECT_BROWSE  : Open_Browser();                      break;
-	case ID_CMD_DATA_PROJECT_NEW   : Close(false);                        break;
+	case ID_CMD_DATA_PROJECT_NEW     : Close(false);                        break;
 	case ID_CMD_DATA_PROJECT_SAVE    : m_pProject->Save(true);              break;
 	case ID_CMD_DATA_PROJECT_SAVE_AS : m_pProject->Save();                  break;
 	case ID_CMD_DATA_PROJECT_COPY    : m_pProject->Copy();                  break;
@@ -669,10 +669,6 @@ bool CWKSP_Data_Manager::On_Command_UI(wxUpdateUIEvent &event)
 	{
 	default:
 		return( CWKSP_Base_Manager::On_Command_UI(event) );
-
-	case ID_CMD_DATA_PROJECT_NEW:
-		event.Enable(Get_Count() > 0 && g_pTool == NULL);
-		break;
 
 	case ID_CMD_WKSP_ITEM_CLOSE:
 		event.Enable(Get_Count() > 0 && g_pTool == NULL);
@@ -1229,14 +1225,7 @@ bool CWKSP_Data_Manager::Save_Modified_Sel(void)
 //---------------------------------------------------------
 bool CWKSP_Data_Manager::Close(bool bSilent)
 {
-	if( Get_Count() == 0 )
-	{
-		m_pProject->Clr_File_Name();
-
-		return( true );
-	}
-
-	if( (bSilent || DLG_Message_Confirm(_TL("Close all data sets"), _TL("Close"))) && Save_Modified(this) )
+	if( Get_Count() == 0 || ((bSilent || DLG_Message_Confirm(_TL("Close all data sets"), _TL("Close"))) && Save_Modified(this)) )
 	{
 		m_pProject->Clr_File_Name();
 
@@ -1246,7 +1235,9 @@ bool CWKSP_Data_Manager::Close(bool bSilent)
 
 		g_pMaps->Close(true);
 
-		return( g_pData_Ctrl->Close(true) );
+		g_pData_Ctrl->Close(true);
+
+		return( true );
 	}
 
 	return( false );
@@ -1258,10 +1249,10 @@ bool CWKSP_Data_Manager::Close(bool bSilent)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_MANAGER(pManager, Class)	if( !pManager && bAdd ) Add_Item(pManager = new Class); return( pManager );
-
 CWKSP_Base_Manager * CWKSP_Data_Manager::Get_Manager(TSG_Data_Object_Type Type, bool bAdd)
 {
+	#define GET_MANAGER(pManager, Class)	if( !pManager && bAdd ) Add_Item(pManager = new Class); return( pManager );
+
 	switch( Type )
 	{
 	case SG_DATAOBJECT_TYPE_Table     : GET_MANAGER(m_pTables     , CWKSP_Table_Manager     );

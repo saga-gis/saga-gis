@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_H
 #define _HEADER_INCLUDED__SAGA_GUI__WKSP_H
 
@@ -100,10 +88,10 @@ public:
 	void							On_Command_Tool			(wxCommandEvent  &event);
 	void							On_Command_UI_Tool		(wxUpdateUIEvent &event);
 
-	class CWKSP_Tool_Control *		Get_Tools				(void)	{	return( m_pTools );		}
-	class CWKSP_Data_Control *		Get_Data				(void)	{	return( m_pData );			}
+	class CWKSP_Tool_Control *		Get_Tools				(void)	{	return( m_pTools        );	}
+	class CWKSP_Data_Control *		Get_Data				(void)	{	return( m_pData         );	}
 	class CWKSP_Data_Buttons *		Get_Data_Buttons		(void)	{	return( m_pData_Buttons );	}
-	class CWKSP_Map_Control *		Get_Maps				(void)	{	return( m_pMaps );			}
+	class CWKSP_Map_Control *		Get_Maps				(void)	{	return( m_pMaps         );	}
 	class CWKSP_Map_Buttons *		Get_Maps_Buttons		(void)	{	return( m_pMaps_Buttons );	}
 
 	bool							Open					(void);
@@ -123,12 +111,16 @@ private:
 	class CWKSP_Map_Buttons			*m_pMaps_Buttons;
 
 
-//---------------------------------------------------------
-DECLARE_EVENT_TABLE()
+	DECLARE_EVENT_TABLE()
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-extern CWKSP						*g_pWKSP;
+extern CWKSP *g_pWKSP;
 
 
 ///////////////////////////////////////////////////////////
