@@ -88,10 +88,10 @@
 				*gt(g1-0.5*g3-0.08,0)
 				*gt(g4/h1,0.75)
 				*lt((abs(g1-g5)+abs(g2-g5)+abs(g3-g5))/g5,0.7)
-				,1,nodata())
+				,1,0)
 			</option>
 			<option id= "NAME">Clouds</option>
-			<option id= "TYPE">2</option>
+			<option id= "TYPE">1</option>
 			<input  id= "GRIDS">BLUE</input>
 			<input  id= "GRIDS">GREEN</input>
 			<input  id= "GRIDS">RED</input>
@@ -104,8 +104,8 @@
 
 		<condition type="exists" variable="THERMAL">
 			<tool library="grid_calculus" tool="1" name="Grid Calculator">
-				<option id="FORMULA">ifelse(lt(h1-273.15,27),g1,nodata())</option>
-				<option id=   "TYPE">2</option>
+				<option id="FORMULA">ifelse(lt(h1-273.15,27),g1,0)</option>
+				<option id=   "TYPE">1</option>
 				<input  id= "XGRIDS">THERMAL</input>
 				<input  id=  "GRIDS">CLOUDS</input>
 				<output id= "RESULT">CLOUDS</output>
@@ -115,11 +115,33 @@
 		<condition type="exists" variable="CIRRUS">
 			<tool library="grid_calculus" tool="1" name="Grid Calculator">
 				<option id="FORMULA">ifelse(gt(h1,0.01),1,g1)</option>
-				<option id=   "TYPE">2</option>
+				<option id=   "TYPE">1</option>
 				<input  id= "XGRIDS">CIRRUS</input>
 				<input  id=  "GRIDS">CLOUDS</input>
 				<output id= "RESULT">CLOUDS</output>
 			</tool>	
+		</condition>
+
+		<condition type="has_gui" variable="true">
+			<tool library="grid_visualisation" tool="11" name="Create a Table from Look-up Table">
+				<output id="TABLE">CLASS_DEF</output>
+				<option id="LUT"><OPTION type="static_table" id="LUT" name="Lookup Table">
+					<FIELDS>
+						<FIELD type="COLOR" >Color</FIELD>
+						<FIELD type="STRING">Name</FIELD>
+						<FIELD type="STRING">Description</FIELD>
+						<FIELD type="DOUBLE">Minimum</FIELD>
+						<FIELD type="DOUBLE">Maximum</FIELD>
+					</FIELDS><RECORDS>
+						<RECORD><FIELD>255</FIELD><FIELD >Cloud</FIELD><FIELD></FIELD><FIELD> 1</FIELD><FIELD> 1</FIELD></RECORD>
+					</RECORDS>
+				</OPTION></option>
+			</tool>
+
+			<tool library="grid_visualisation" tool="10" name="Select Look-up Table for Grid Visualization">
+				<input id="GRID">CLOUDS</input>
+				<input id="LUT">CLASS_DEF</input>
+			</tool>
 		</condition>
 	</tools>
 </toolchain>
