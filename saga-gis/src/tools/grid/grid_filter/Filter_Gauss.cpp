@@ -171,9 +171,9 @@ bool CFilter_Gauss::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( pInput == &Input )
+	if( pResult == Parameters("INPUT")->asGrid() )
 	{
-		DataObject_Update(pInput);
+		DataObject_Update(pResult);
 	}
 
 	return( true );

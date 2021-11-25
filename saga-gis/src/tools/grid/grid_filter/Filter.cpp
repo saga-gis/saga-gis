@@ -170,9 +170,9 @@ bool CFilter::On_Execute(void)
 	}
 
 	//-------------------------------------------------
-	if( m_pInput == &Input )
+	if( pResult == Parameters("INPUT")->asGrid() )
 	{
-		DataObject_Update(m_pInput);
+		DataObject_Update(pResult);
 	}
 
 	m_Kernel.Destroy();

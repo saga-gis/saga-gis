@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Filter_Morphology.h"
 
 
@@ -70,7 +58,6 @@
 //---------------------------------------------------------
 CFilter_Morphology::CFilter_Morphology(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Morphological Filter"));
 
 	Set_Author		("O.Conrad (c) 2010");
@@ -99,7 +86,7 @@ CFilter_Morphology::CFilter_Morphology(void)
 	Parameters.Add_Choice(NULL,
 		"METHOD"		, _TL("Method"),
 		_TL("Choose the operation to perform."),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Dilation"),
 			_TL("Erosion" ),
 			_TL("Opening" ),
@@ -134,7 +121,6 @@ bool CFilter_Morphology::On_After_Execution(void)
 //---------------------------------------------------------
 bool CFilter_Morphology::On_Execute(void)
 {
-	//-----------------------------------------------------
 	if( !m_Kernel.Set_Parameters(Parameters) )
 	{
 		Error_Set(_TL("could not initialize kernel"));
