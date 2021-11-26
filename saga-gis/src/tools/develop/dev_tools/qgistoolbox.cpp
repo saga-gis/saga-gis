@@ -135,7 +135,7 @@ bool CQGIS_ToolBox::On_Execute(void)
 
 		Process_Set_Text(CSG_String::Format("%s: %s", SG_T("Library"), pLibrary->Get_Library_Name().c_str()));
 
-		CSG_String	Library((pLibrary->Get_Category().Cmp("Tool Chains") ? "" : "toolchains_") + pLibrary->Get_Library_Name());
+		CSG_String	Library(pLibrary->Get_Library_Name());
 
 		Library.Make_Lower();
 		Library.Replace(" ", "_");
@@ -372,6 +372,12 @@ bool CQGIS_ToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_String &Paramet
 		else
 		{
 			PARAMETER_SET("RasterDestination");
+
+			if( pParameter->is_Optional() )
+			{
+				PARAMETER_STR("None");
+				PARAMETER_BOL(true);
+			}
 		}
 		break;
 
@@ -386,6 +392,12 @@ bool CQGIS_ToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_String &Paramet
 		else
 		{
 			PARAMETER_SET("RasterDestination");
+
+			if( pParameter->is_Optional() )
+			{
+				PARAMETER_STR("None");
+				PARAMETER_BOL(true);
+			}
 		}
 		break;
 
