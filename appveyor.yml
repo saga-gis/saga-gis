@@ -1,21 +1,21 @@
-clone_folder: C:\project\saga
+clone_folder: C:/project/saga
 platform: x64
 configuration: Release
 image: Visual Studio 2017
 
 environment:
-  SAGA: C:\project\saga
-  WXWIN: C:\deps\wxWidgets-3.1.5
-  GDAL: C:\deps\libs4saga_x64\gdal-3.3.3
-  HARU: C:\deps\libs4saga_x64\libharu-2.2.0
-  OPENCV: C:\deps\libs4saga_x64\opencv-4.3.0
-  VIGRA: C:\deps\libs4saga_x64\vigra-1.11.1
-  LIBLAS: C:\deps\libs4saga_x64\liblas-1.2.1
-  RIEGL_RDB: C:\deps\libs4saga_x64\rdblib-2.3.5
-  PDAL: C:\deps\libs4saga_x64\pdal-2.0.1
+  SAGA: C:/project/saga
+  WXWIN: C:/deps/wxWidgets-3.1.5
+  GDAL: C:/deps/libs4saga_x64/gdal-3.3.3
+  HARU: C:/deps/libs4saga_x64/libharu-2.2.0
+  OPENCV: C:/deps/libs4saga_x64/opencv-4.3.0
+  VIGRA: C:/deps/libs4saga_x64/vigra-1.11.1
+  LIBLAS: C:/deps/libs4saga_x64/liblas-1.2.1
+  RIEGL_RDB: C:/deps/libs4saga_x64/rdblib-2.3.5
+  PDAL: C:/deps/libs4saga_x64/pdal-2.0.1
 
 before_build:
-  - cmd: mkdir C:\deps
+  - cmd: mkdir C:/deps
   # get wxwidgets libs + inludes
   - ps: Start-FileDownload https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.5/wxMSW-3.1.5_vc14x_x64_Dev.7z
   - ps: Start-FileDownload https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.5/wxWidgets-3.1.5-headers.7z
@@ -24,25 +24,25 @@ before_build:
   - cmd: 7z x wxWidgets-3.1.5-headers.7z -o%WXWIN% -bb2 -aoa
   - cmd: 7z x wxMSW-3.1.5_vc14x_x64_ReleaseDLL.7z -o%WXWIN% -bb2 -aoa
   # small fix because wxwindows paths are different when downloading than when compiling yourself
-  - cmd: move %WXWIN%\lib\vc14x_x64_dll %WXWIN%\lib\vc_x64_dll
+  - cmd: move %WXWIN%/lib/vc14x_x64_dll %WXWIN%/lib/vc_x64_dll
   # get libs4saga
   - ps: Start-FileDownload https://downloads.sourceforge.net/project/saga-gis/For%20Developers/libs4saga/libs4saga_2021-11-25_x64.zip
-  - cmd: 7z x libs4saga_2021-11-25_x64.zip -oC:\deps\
+  - cmd: 7z x libs4saga_2021-11-25_x64.zip -oC:/deps/
   # disable riegl import as it requires an SDK
   # cmd: sed -i '/{A89FB596-3D86-4BF0-A57B-DAC3A7D2E740}.*Build\.0.*/d' saga-gis/src/saga.vc14.sln
-  - cmd: cd %SAGA%\saga-gis
+  - cmd: cd %SAGA%/saga-gis
   - cmd: cmake . -G "Visual Studio 15 2017" -A x64
 
 build:
-  project: saga-gis\saga.sln
+  project: saga-gis/saga.sln
 
 after_build:
-  - cmd: cp %WXWIN%\lib\vc_x64_dll\wxmsw315u_*.dll %SAGA%\saga-gis\saga_x64 
-  - cmd: cp %WXWIN%\lib\vc_x64_dll\wxbase315u_*.dll %SAGA%\saga-gis\saga_x64 
-  - cmd: cp -r C:\deps\libs4saga_x64\dll %SAGA%\saga-gis\saga_x64
-  - cmd: ls C:\deps\libs4saga_x64\
-  - cmd: cp C:\deps\libs4saga_x64\dll_vcredist\*.dll %SAGA%\saga-gis\saga_x64
-  - cmd: 7z a %SAGA%\saga_vc_x64.7z %SAGA%\saga-gis\saga_x64
+  - cmd: cp %WXWIN%/lib/vc_x64_dll/wxmsw315u_*.dll %SAGA%/saga-gis/saga_x64 
+  - cmd: cp %WXWIN%/lib/vc_x64_dll/wxbase315u_*.dll %SAGA%/saga-gis/saga_x64 
+  - cmd: cp -r C:/deps/libs4saga_x64/dll %SAGA%/saga-gis/saga_x64
+  - cmd: ls C:/deps/libs4saga_x64/
+  - cmd: cp C:/deps/libs4saga_x64/dll_vcredist/*.dll %SAGA%/saga-gis/saga_x64
+  - cmd: 7z a %SAGA%/saga_vc_x64.7z %SAGA%/saga-gis/saga_x64
 
 artifacts:
   - path: saga_vc_x64.7z
