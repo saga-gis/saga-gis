@@ -57,7 +57,6 @@
 //---------------------------------------------------------
 CLandsat_Scene_Import::CLandsat_Scene_Import(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Import Landsat Scene"));
 
 	Set_Author		("O.Conrad (c) 2017");
@@ -236,7 +235,7 @@ int CLandsat_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 
 			const CSG_Table_Record	&Info_Band	= Info_Bands[0];
 
-			bool	bRadiance	=  (Info_Band.asString("REFLECTANCE_ADD") && Info_Band.asString("REFLECTANCE_MUL"))
+			bool	bRadiance	=  (Info_Band.asString("RADIANCE_ADD") && Info_Band.asString("RADIANCE_MUL"))
 								|| (Info_Band.asString("L_MIN") && Info_Band.asString("QCAL_MIN")
 								&&  Info_Band.asString("L_MAX") && Info_Band.asString("QCAL_MAX"));
 
@@ -1035,7 +1034,7 @@ bool CLandsat_Scene_Import::Get_Float(CSG_Grid *pBand, CSG_Grid &DN)
 	pBand->Get_Projection().Create(DN.Get_Projection());
 	pBand->Set_Name        (DN.Get_Name());
 	pBand->Set_Description (DN.Get_Description());
-	pBand->Set_NoData_Value(-1.0);
+	pBand->Set_NoData_Value(-1.);
 
 	return( true );
 }
@@ -1046,11 +1045,11 @@ bool CLandsat_Scene_Import::Get_Radiance(CSG_Grid *pBand, const CSG_Table_Record
 	//-----------------------------------------------------
 	double	Offset, Scale, DNmin;
 
-	if( Info_Band.asString("REFLECTANCE_ADD") && Info_Band.asString("REFLECTANCE_MUL") )
+	if( Info_Band.asString("RADIANCE_ADD") && Info_Band.asString("RADIANCE_MUL") )
 	{
-		DNmin	=  0.0;
-		Offset	=  Info_Band.asDouble("REFLECTANCE_ADD");
-		Scale	=  Info_Band.asDouble("REFLECTANCE_MUL");
+		DNmin	=  0.;
+		Offset	=  Info_Band.asDouble("RADIANCE_ADD");
+		Scale	=  Info_Band.asDouble("RADIANCE_MUL");
 	}
 	else if( Info_Band.asString("L_MIN") && Info_Band.asString("L_MAX") && Info_Band.asString("QCAL_MIN") && Info_Band.asString("QCAL_MAX") )
 	{
@@ -1076,7 +1075,7 @@ bool CLandsat_Scene_Import::Get_Radiance(CSG_Grid *pBand, const CSG_Table_Record
 	{
 		double	MaxVal	= (pBand->Get_Type() == SG_DATATYPE_Byte ? 256 : 256*256) - 1;
 		pBand->Set_NoData_Value(MaxVal--);
-		pBand->Set_Scaling(1000.0 / MaxVal, 0.0);
+		pBand->Set_Scaling(1000. / MaxVal, 0.);
 	}
 
 	pBand->Set_Unit("W/(m2*sr*um");
@@ -1130,7 +1129,7 @@ bool CLandsat_Scene_Import::Get_Reflectance(CSG_Grid *pBand, const CSG_Table_Rec
 	{
 		double	MaxVal	= (pBand->Get_Type() == SG_DATATYPE_Byte ? 256 : 256*256) - 1;
 		pBand->Set_NoData_Value(MaxVal--);
-		pBand->Set_Scaling(1. / MaxVal, 0.0);	// 0 to 1 (reflectance)
+		pBand->Set_Scaling(1. / MaxVal, 0.);	// 0 to 1 (reflectance)
 	}
 
 	pBand->Set_Unit(_TL("Reflectance"));
@@ -1184,7 +1183,7 @@ bool CLandsat_Scene_Import::Get_Temperature(CSG_Grid *pBand, const CSG_Table_Rec
 	{
 		double	MaxVal	= (pBand->Get_Type() == SG_DATATYPE_Byte ? 256 : 256*256) - 1;
 		pBand->Set_NoData_Value(MaxVal--);
-		pBand->Set_Scaling(100.0 / MaxVal, (Unit == 0 ? 273.15 : 0.0) - 40.0);	// -40�C to 60�C
+		pBand->Set_Scaling(100. / MaxVal, (Unit == 0 ? 273.15 : 0.) - 40.);	// -40�C to 60�C
 	}
 
 	pBand->Set_Unit(Unit == 0 ? "Kelvin" : "Celsius");
@@ -1201,7 +1200,7 @@ bool CLandsat_Scene_Import::Get_Temperature(CSG_Grid *pBand, const CSG_Table_Rec
 		{
 			double	r	= Offset + Scale * DN.asDouble(i);
 
-			pBand->Set_Value(i, k2 / log(1.0 + (k1 / r)) - (Unit == 0 ? 0.0 : 273.15));
+			pBand->Set_Value(i, k2 / log(1. + (k1 / r)) - (Unit == 0 ? 0. : 273.15));
 		}
 	}
 
