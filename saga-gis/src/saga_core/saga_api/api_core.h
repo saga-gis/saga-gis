@@ -110,6 +110,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <wchar.h>
+#include <string>
 
 #endif	// #ifdef SWIG
 
@@ -621,7 +622,8 @@ public:
 	CSG_Buffer						to_MBChar			(                int Encoding)			const;
 	bool							to_ASCII			(char **pString, char Replace = '_')	const;
 	CSG_Buffer						to_ASCII			(                char Replace = '_')	const;
-
+    std::string						to_StdString		(void)                                  const;
+    std::wstring					to_StdWstring		(void)                                  const;
 
 protected:
 
