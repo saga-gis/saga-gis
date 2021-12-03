@@ -88,7 +88,7 @@ CLAS_Export::CLAS_Export(void)
 	//-----------------------------------------------------
 	// 1. Info...
 
-	Set_Name		(_TL("Export LAS Files"));
+	Set_Name		(_TL("[deprecated] Export LAS Files"));
 
 	Set_Author		(SG_T("Volker Wichmann (c) 2010, LASERDATA GmbH"));
 

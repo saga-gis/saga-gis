@@ -71,7 +71,7 @@
 //---------------------------------------------------------
 CLAS_Info::CLAS_Info(void)
 {
-	Set_Name		(_TL("LAS Info"));
+	Set_Name		(_TL("[deprecated] LAS Info"));
 
 	Set_Author		("Volker Wichmann (c) 2010, LASERDATA GmbH");
 

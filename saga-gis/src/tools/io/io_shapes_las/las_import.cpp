@@ -91,7 +91,7 @@ enum
 //---------------------------------------------------------
 CLAS_Import::CLAS_Import(void)
 {
-	Set_Name		(_TL("Import LAS Files"));
+	Set_Name		(_TL("[deprecated] Import LAS Files"));
 
 	Set_Author		("O. Conrad, V. Wichmann (c) 2009");
 
