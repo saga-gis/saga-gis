@@ -938,6 +938,33 @@ CSG_Buffer CSG_String::to_ASCII(char Replace) const
 	return( String );
 }
 
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+/**
+* This function returns the string as an std::string in the
+* current locale encoding. Note that if the conversion of
+* the string contents to the current locale fails, the
+* return string will be empty.
+*/
+//---------------------------------------------------------
+std::string CSG_String::to_StdString(void) const
+{
+    return( m_pString->ToStdString() );
+}
+
+//---------------------------------------------------------
+/**
+* This function returns the string as an std::wstring.
+*/
+//---------------------------------------------------------
+std::wstring CSG_String::to_StdWstring(void) const
+{
+    return( m_pString->ToStdWstring() );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

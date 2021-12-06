@@ -59,7 +59,7 @@ CSG_String Get_Info(int i)
 	switch( i )
 	{
 	case TLB_INFO_Name:	default:
-		return( _TL("LAS") );
+		return( _TL("[deprecated] LAS") );
 
 	case TLB_INFO_Category:
 		return( _TL("Import/Export") );
@@ -68,7 +68,10 @@ CSG_String Get_Info(int i)
 		return( "O. Conrad, V. Wichmann (c) 2009-10" );
 
 	case TLB_INFO_Description:
-		return( _TL("Tools for the import and export of ASPRS LAS files.") );
+		return( _TW(
+			"Tools for the import and export of ASPRS LAS files.\n"
+			"Deprecated: Please switch to PDAL - Import/Export tools instead."
+		) );
 
 	case TLB_INFO_Version:
 		return( "1.0" );
