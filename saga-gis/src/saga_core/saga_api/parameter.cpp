@@ -1754,10 +1754,10 @@ CSG_Grid * CSG_Parameters_Grid_Target::Get_Grid(const CSG_String &Identifier, TS
 
 	CSG_Grid	*pGrid	= NULL;
 
-	if( (*m_pParameters)(m_Prefix + "DEFINITION")->asInt() == 0 )
+	if( (*m_pParameters)(m_Prefix + "DEFINITION")->asInt() == 0
+	&&  (*m_pParameters)(Identifier + "_CREATE") ) // only with GUI !
 	{
-		if( (*m_pParameters)(Identifier + "_CREATE") == NULL
-		||  (*m_pParameters)(Identifier + "_CREATE")->asBool() )
+		if( (*m_pParameters)(Identifier + "_CREATE")->asBool() )
 		{
 			pGrid	= SG_Create_Grid(System, Type);
 		}
@@ -1766,7 +1766,7 @@ CSG_Grid * CSG_Parameters_Grid_Target::Get_Grid(const CSG_String &Identifier, TS
 	{
 		pGrid	= pParameter->asGrid();
 
-		if( (pGrid == DATAOBJECT_NOTSET && !pParameter->is_Optional()) || pGrid == DATAOBJECT_CREATE )
+		if( pParameter->asPointer() == DATAOBJECT_CREATE || (!pGrid && !pParameter->is_Optional()) )
 		{
 			pGrid	= SG_Create_Grid(System, Type);
 		}
@@ -1819,10 +1819,10 @@ CSG_Grids * CSG_Parameters_Grid_Target::Get_Grids(const CSG_String &Identifier, 
 
 	CSG_Grids	*pGrids	= NULL;
 
-	if( (*m_pParameters)(m_Prefix + "DEFINITION")->asInt() == 0 )
+	if( (*m_pParameters)(m_Prefix + "DEFINITION")->asInt() == 0
+	&&  (*m_pParameters)(Identifier + "_CREATE") )
 	{
-		if( (*m_pParameters)(Identifier + "_CREATE") == NULL
-		||  (*m_pParameters)(Identifier + "_CREATE")->asBool() )
+		if( (*m_pParameters)(Identifier + "_CREATE")->asBool() )
 		{
 			pGrids	= SG_Create_Grids(System, 0, 0., Type);
 		}
@@ -1831,7 +1831,7 @@ CSG_Grids * CSG_Parameters_Grid_Target::Get_Grids(const CSG_String &Identifier, 
 	{
 		pGrids	= pParameter->asGrids();
 
-		if( (pGrids == DATAOBJECT_NOTSET && !pParameter->is_Optional()) || pGrids == DATAOBJECT_CREATE )
+		if( pParameter->asPointer() == DATAOBJECT_CREATE || (!pGrids && !pParameter->is_Optional()) )
 		{
 			pGrids	= SG_Create_Grids(System, 0, 0., Type);
 		}

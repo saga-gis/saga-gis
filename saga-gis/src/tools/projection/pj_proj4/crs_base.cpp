@@ -147,15 +147,19 @@ CCRS_Base::CCRS_Base(void)
 
 	Parameters.Add_Parameters("CRS_PROJ4",
 		"CRS_GRID"	, _TL("Loaded Grid")  , _TL("")
-	)->asParameters()->Add_Grid("",
+	)->Set_UseInCMD(false);
+
+	Parameters("CRS_GRID")->asParameters()->Add_Grid("",
 		"PICK"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL, false
-	)->Set_UseInCMD(false);
+	);
 
 	Parameters.Add_Parameters("CRS_PROJ4",
 		"CRS_SHAPES", _TL("Loaded Shapes"), _TL("")
-	)->asParameters()->Add_Shapes("",
+	)->Set_UseInCMD(false);
+	
+	Parameters("CRS_SHAPES")->asParameters()->Add_Shapes("",
 		"PICK"		, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
