@@ -139,7 +139,7 @@ _except(1)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(__VISUALC__) && __VISUALC__ < 1910
 	CMD_Set_Interactive(true);
 	CMD_Get_Pause();
 #endif
@@ -351,6 +351,23 @@ bool		Execute_Script(const CSG_String &Script)
 
 	while( Stream.Read_Line(Command) )
 	{
+		if( Command.Length() > 0 && Command[Command.Length() - 1] == '^' )
+		{
+			CSG_String	c;
+
+			while( Stream.Read_Line(c) )
+			{
+				Command += c;
+
+				if( c.Length() < 1 || c[c.Length() - 1] != '^' )
+				{
+					break;
+				}
+			}
+
+			Command.Replace("^", "");
+		}
+
 		Set_Environment(Command);
 
 		if( !Execute(Command) )
