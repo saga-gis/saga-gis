@@ -378,7 +378,7 @@ bool		Load_Libraries(void)
 
 	CMD_Set_Show_Messages(false);
 
-	SG_Initialize_Environment();	// loads default tools
+	SG_Initialize_Environment(true, true, NULL, false);	// loads default tools, but skip wx-initialization (already done in main())
 
 	CMD_Set_Show_Messages(bShow);
 
