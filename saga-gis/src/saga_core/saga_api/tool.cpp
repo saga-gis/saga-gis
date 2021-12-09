@@ -1301,6 +1301,10 @@ CSG_String CSG_Tool::_Get_Script_CMD(bool bHeader, bool bAllParameters, TSG_Tool
 			break;
 		}
 	}
+	else
+	{
+		Script	+= "saga_cmd";
+	}
 
 	//-----------------------------------------------------
 	Script	+= Get_Library().Contains(" ")	// white space? use quotation marks!
@@ -1357,44 +1361,44 @@ void CSG_Tool::_Get_Script_CMD(CSG_String &Script, CSG_Parameters *pParameters, 
 		default:
 			break;
 
-		case PARAMETER_TYPE_Bool:
+		case PARAMETER_TYPE_Bool             :
 			Script	+= Prefix + CSG_String::Format("%s=%d", GET_ID1(p), p->asBool() ? 1 : 0);
 			break;
 
-		case PARAMETER_TYPE_Int:
-		case PARAMETER_TYPE_Choice:
-		case PARAMETER_TYPE_Table_Field:
+		case PARAMETER_TYPE_Int              :
+		case PARAMETER_TYPE_Choice           :
+		case PARAMETER_TYPE_Table_Field      :
 			Script	+= Prefix + CSG_String::Format("%s=%d", GET_ID1(p), p->asInt());
 			break;
 
-		case PARAMETER_TYPE_Choices     :
+		case PARAMETER_TYPE_Choices          :
 		case PARAMETER_TYPE_Table_Fields:
 			if( p->asString() && *p->asString() )
 				Script	+= Prefix + CSG_String::Format("%s=%s", GET_ID1(p), p->asString());
 			break;
 
-		case PARAMETER_TYPE_Double:
-		case PARAMETER_TYPE_Degree:
+		case PARAMETER_TYPE_Double           :
+		case PARAMETER_TYPE_Degree           :
 			Script	+= Prefix + CSG_String::Format("%s=%g", GET_ID1(p), p->asDouble());
 			break;
 
-		case PARAMETER_TYPE_Range:
+		case PARAMETER_TYPE_Range            :
 			Script	+= Prefix + CSG_String::Format("%s=%g", GET_ID2(p, SG_T("MIN")), p->asRange()->Get_Min());
 			Script	+= Prefix + CSG_String::Format("%s=%g", GET_ID2(p, SG_T("MAX")), p->asRange()->Get_Max());
 			break;
 
-		case PARAMETER_TYPE_Date:
-		case PARAMETER_TYPE_String:
-		case PARAMETER_TYPE_Text:
-		case PARAMETER_TYPE_FilePath:
+		case PARAMETER_TYPE_Date             :
+		case PARAMETER_TYPE_String           :
+		case PARAMETER_TYPE_Text             :
+		case PARAMETER_TYPE_FilePath         :
+			Script	+= Prefix + CSG_String::Format("%s=\"%s\"", GET_ID1(p), p->asString());
+			break;
+
+		case PARAMETER_TYPE_FixedTable       :
 			Script	+= Prefix + CSG_String::Format("%s=%s", GET_ID1(p), p->asString());
 			break;
 
-		case PARAMETER_TYPE_FixedTable:
-			Script	+= Prefix + CSG_String::Format("%s=%s", GET_ID1(p), p->asString());
-			break;
-
-		case PARAMETER_TYPE_Grid_System:
+		case PARAMETER_TYPE_Grid_System      :
 			if( p->Get_Children_Count() == 0 )
 			{
 				Script	+= Prefix + CSG_String::Format("%s=%d", GET_ID2(p, SG_T("NX")), p->asGrid_System()->Get_NX());
