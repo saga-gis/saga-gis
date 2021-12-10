@@ -196,6 +196,8 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 		return( false );
 	}
 
+    fDBF.Move_First();
+
     if( fDBF.Get_Field_Count() < 1 )
 	{
 		SG_UI_Msg_Add_Error(_TL("DBase file does not contain any attribute fields."));
