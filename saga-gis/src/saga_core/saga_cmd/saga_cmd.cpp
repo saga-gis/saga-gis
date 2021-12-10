@@ -333,6 +333,12 @@ bool		Execute(CSG_String Command)
 //---------------------------------------------------------
 bool		Execute_Script(const CSG_String &Script)
 {
+	#ifdef _SAGA_MSW
+		#define CONTINUE_LINE '^'
+	#else
+		#define CONTINUE_LINE '\\'
+	#endif
+
 	if( CMD_Get_Show_Messages() )
 	{
 		CMD_Print(CSG_String::Format("%s: %s", _TL("Running Script"), Script.c_str()));
@@ -351,7 +357,9 @@ bool		Execute_Script(const CSG_String &Script)
 
 	while( Stream.Read_Line(Command) )
 	{
-		if( Command.Length() > 0 && Command[Command.Length() - 1] == '^' )
+		Command.Trim(true);
+
+		if( Command.Length() > 0 && Command[Command.Length() - 1] == CONTINUE_LINE )
 		{
 			CSG_String	c;
 
@@ -359,13 +367,13 @@ bool		Execute_Script(const CSG_String &Script)
 			{
 				Command += c;
 
-				if( c.Length() < 1 || c[c.Length() - 1] != '^' )
+				if( c.Length() < 1 || c[c.Length() - 1] != CONTINUE_LINE )
 				{
 					break;
 				}
 			}
 
-			Command.Replace("^", "");
+			Command.Replace(CONTINUE_LINE, "");
 		}
 
 		Set_Environment(Command);
