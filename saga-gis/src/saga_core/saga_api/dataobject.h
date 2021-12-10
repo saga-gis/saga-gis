@@ -226,6 +226,8 @@ public:
 	CSG_MetaData &					Get_History		(void)					{	return( *m_pMD_History  );	}
 	const CSG_MetaData &			Get_History		(void)	const			{	return( *m_pMD_History  );	}
 
+	virtual const CSG_Rect &		Get_Extent		(void) = 0;
+
 	CSG_Projection &				Get_Projection	(void);
 	const CSG_Projection &			Get_Projection	(void)	const;
 

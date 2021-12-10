@@ -526,6 +526,8 @@ public:		///////////////////////////////////////////////
 
 	const CSG_Grid_System &			Get_System		(void)	const	{	return( m_System );					}
 
+	virtual const CSG_Rect &		Get_Extent		(void)			{	return( m_System.Get_Extent() );	}
+
 	int								Get_NX			(void)	const	{	return( m_System.Get_NX() );		}
 	int								Get_NY			(void)	const	{	return( m_System.Get_NY() );		}
 	sLong							Get_NCells		(void)	const	{	return( m_System.Get_NCells() );	}

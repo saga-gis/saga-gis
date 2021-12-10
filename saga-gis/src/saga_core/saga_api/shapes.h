@@ -716,7 +716,7 @@ public:
 
 	TSG_Vertex_Type					Get_Vertex_Type			(void)	const			{	return( m_Vertex_Type );	}
 
-	const CSG_Rect &				Get_Extent				(void)					{	Update();	return( m_Extent );	}
+	virtual const CSG_Rect &		Get_Extent				(void)					{	Update();	return( m_Extent );	}
 
 	double							Get_ZMin				(void)					{	Update();	return( m_ZMin );	}
 	double							Get_ZMax				(void)					{	Update();	return( m_ZMax );	}
@@ -758,7 +758,7 @@ protected:
 
 	TSG_Vertex_Type					m_Vertex_Type;
 
-	CSG_Rect						m_Extent, m_Extent_Selected;
+	CSG_Rect						m_Extent_Selected;
 
 
 	virtual bool					On_Update				(void);

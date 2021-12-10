@@ -176,6 +176,8 @@ public:		///////////////////////////////////////////////
 
 	const CSG_Grid_System &			Get_System			(void)	const	{	return( m_pGrids[0]->Get_System() );		}
 
+	virtual const CSG_Rect &		Get_Extent			(void)			{	return( Get_System().Get_Extent() );		}
+
 	int								Get_NX				(void)	const	{	return( m_pGrids[0]->Get_System().Get_NX() );	}
 	int								Get_NY				(void)	const	{	return( m_pGrids[0]->Get_System().Get_NY() );	}
 	int								Get_NZ				(void)	const	{	return( m_Attributes.Get_Count()           );	}

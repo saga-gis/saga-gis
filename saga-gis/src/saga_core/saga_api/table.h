@@ -264,6 +264,9 @@ public:
 	bool							is_Compatible		(CSG_Table *pTable, bool bExactMatch = false)	const;
 
 	//-----------------------------------------------------
+	virtual const CSG_Rect &		Get_Extent			(void)					{	return( m_Extent );	}
+
+	//-----------------------------------------------------
 	virtual bool					Add_Field			(const CSG_String &Name, TSG_Data_Type Type, int Position = -1);
 	virtual bool					Del_Field			(int iField);
 	virtual bool					Mov_Field			(int iField, int Position);
@@ -372,6 +375,8 @@ protected:
 	CSG_Simple_Statistics			**m_Field_Stats;
 
 	CSG_Array						m_Selection;
+
+	CSG_Rect						m_Extent;
 
 
 	virtual void					_On_Construction	(void);
