@@ -196,7 +196,7 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 		return( false );
 	}
 
-	if( !fDBF.Move_First() || fDBF.Get_Record_Count() <= 0 )
+	if( !fDBF.Move_First() || fDBF.Get_Field_Count() < 1 )
 	{
 		SG_UI_Msg_Add_Error(_TL("DBase file does not contain any records."));
 
