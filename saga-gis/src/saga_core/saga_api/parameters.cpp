@@ -1553,7 +1553,7 @@ bool CSG_Parameters::DataObjects_Create(void)
 		}
 		else if( p->is_Input() )
 		{
-			bResult	= p->Check(true);
+			bResult	= !p->is_Enabled() || p->Check(true);
 		}
 
 		//-------------------------------------------------
