@@ -318,12 +318,12 @@ bool CSG_Tool::Execute(bool bAddHistory)
 		bResult	= false;
 	}
 
+	_Synchronize_DataObjects();
+
 	if( bResult && bAddHistory )
 	{
 		_Set_Output_History();
 	}
-
-	_Synchronize_DataObjects();
 
 	//-----------------------------------------------------
 	Destroy();

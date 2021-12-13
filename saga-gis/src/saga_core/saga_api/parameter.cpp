@@ -883,12 +883,6 @@ bool CSG_Parameter::Restore_Default(void)
 //---------------------------------------------------------
 bool CSG_Parameter::Check(bool bSilent)
 {
-	if( !is_Enabled() )
-	{
-		return( true );
-	}
-
-	//-----------------------------------------------------
 	if( Get_Type() == PARAMETER_TYPE_Parameters )
 	{
 		return( asParameters()->DataObjects_Check(bSilent) );
@@ -1754,10 +1748,10 @@ CSG_Grid * CSG_Parameters_Grid_Target::Get_Grid(const CSG_String &Identifier, TS
 
 	CSG_Grid	*pGrid	= NULL;
 
-	if( (*m_pParameters)(m_Prefix + "DEFINITION")->asInt() == 0
-	&&  (*m_pParameters)(Identifier + "_CREATE") ) // only with GUI !
+	if( (*m_pParameters)(m_Prefix + "DEFINITION")->asInt() == 0 && m_pParameters->Get_Tool()->has_GUI() )
 	{
-		if( (*m_pParameters)(Identifier + "_CREATE")->asBool() )
+		if( (*m_pParameters)(Identifier + "_CREATE") == NULL
+		||  (*m_pParameters)(Identifier + "_CREATE")->asBool() )
 		{
 			pGrid	= SG_Create_Grid(System, Type);
 		}
