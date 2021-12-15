@@ -81,6 +81,10 @@ REM GIT Source Code Repository
 
 PUSHD %SAGA_VERSION%
 
+REM Create a tag
+%GITEXE% tag v%SAGA_VER_TEXT%
+%GITEXE% push v%SAGA_VER_TEXT%
+
 REM Create a branch (better do manually)
 REM %GITEXE% branch release-%SAGA_VER_TEXT%
 
