@@ -47,6 +47,22 @@
 
 //---------------------------------------------------------
 #include "daily_sun.h"
+#include "climate_tools.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+double SG_Range_Set_0_to_24(double Value)
+{
+	Value	= fmod(Value, 24.);
+
+	return( Value < 0. ? Value	+ 24. : Value );
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -58,7 +74,6 @@
 //---------------------------------------------------------
 CDaily_Sun::CDaily_Sun(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Sunrise and Sunset"));
 
 	Set_Author		("O.Conrad (c) 2015");
@@ -100,20 +115,7 @@ CDaily_Sun::CDaily_Sun(void)
 //---------------------------------------------------------
 int CDaily_Sun::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-double SG_Range_Set_0_to_24(double Value)
-{
-	Value	= fmod(Value, 24.0);
-
-	return( Value < 0.0 ? Value	+ 24.0 : Value );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -124,7 +126,6 @@ double SG_Range_Set_0_to_24(double Value)
 //---------------------------------------------------------
 bool CDaily_Sun::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_Grid	*pTarget	= Parameters("TARGET")->asGrid();
 
 	if( !pTarget->Get_Projection().is_Okay() )
@@ -164,17 +165,17 @@ bool CDaily_Sun::On_Execute(void)
 
 	SG_Get_Sun_Position(Time, RA, Dec);
 
-	T	= ((int)Time.Get_JDN() - 2451545.0 ) / 36525.0;	// Number of Julian centuries since 2000/01/01 at 12 UT (JDN = 2451545.0)
+	T	= ((int)Time.Get_JDN() - 2451545. ) / 36525.;	// Number of Julian centuries since 2000/01/01 at 12 UT (JDN = 2451545.)
 
-	RAm	= fmod(18.71506921 + 2400.0513369 * T + (2.5862e-5 - 1.72e-9 * T) * T*T, 24.0);
-	RA	= fmod(RA * 12.0 / M_PI, 24.0);	if( RA < 0.0 ) RA += 24.0;
+	RAm	= fmod(18.71506921 + 2400.0513369 * T + (2.5862e-5 - 1.72e-9 * T) * T*T, 24.);
+	RA	= fmod(RA * 12. / M_PI, 24.);	if( RA < 0. ) RA += 24.;
 
 	T	= 1.0027379 * (RAm - RA);
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-	//	#pragma omp parallel for
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
 			if( pTarget->is_NoData(x, y) )
@@ -185,39 +186,138 @@ bool CDaily_Sun::On_Execute(void)
 			}
 			else
 			{
-				double	dT	= (sin(-Lat.asDouble(x, y) / 60.0) - sin(Lat.asDouble(x, y)) * sin(Dec)) / (cos(Lat.asDouble(x, y)) * cos(Dec));
+				double	dT	= (sin(-Lat.asDouble(x, y) / 60.) - sin(Lat.asDouble(x, y)) * sin(Dec)) / (cos(Lat.asDouble(x, y)) * cos(Dec));
 
-				if( dT > 1.0 )
+				if( dT > 1. )
 				{
 					pSunrise ->Set_NoData(x, y);
 					pSunset  ->Set_NoData(x, y);
-					pDuration->Set_Value (x, y,  0.0);
+					pDuration->Set_Value (x, y,  0.);
 				}
-				else if( dT < -1.0 )
+				else if( dT < -1. )
 				{
 					pSunrise ->Set_NoData(x, y);
 					pSunset  ->Set_NoData(x, y);
-					pDuration->Set_Value (x, y, 24.0);
+					pDuration->Set_Value (x, y, 24.);
 				}
 				else
 				{
-					dT	= acos(dT) * 12.0 / M_PI;
+					dT	= acos(dT) * 12. / M_PI;
 
-					double	Sunrise	= SG_Range_Set_0_to_24(12.0 - dT - T);
-					double	Sunset	= SG_Range_Set_0_to_24(12.0 + dT - T);
+					double	Sunrise	= SG_Range_Set_0_to_24(12. - dT - T);
+					double	Sunset	= SG_Range_Set_0_to_24(12. + dT - T);
 
 					pDuration->Set_Value(x, y, Sunset - Sunrise);
 
 					if( bWorld )
 					{
-						Sunrise	= SG_Range_Set_0_to_24(Sunrise - M_RAD_TO_DEG * Lon.asDouble(x, y) / 15.0);
-						Sunset	= SG_Range_Set_0_to_24(Sunset  - M_RAD_TO_DEG * Lon.asDouble(x, y) / 15.0);
+						Sunrise	= SG_Range_Set_0_to_24(Sunrise - M_RAD_TO_DEG * Lon.asDouble(x, y) / 15.);
+						Sunset	= SG_Range_Set_0_to_24(Sunset  - M_RAD_TO_DEG * Lon.asDouble(x, y) / 15.);
 					}
 
 					pSunrise ->Set_Value(x, y, Sunrise);
 					pSunset  ->Set_Value(x, y, Sunset );
 				}
 			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSolarRadiation::CSolarRadiation(void)
+{
+	Set_Name		(_TL("Daily Solar Radiation"));
+
+	Set_Author		("O.Conrad (c) 2021");
+
+	Set_Description	(_TW(
+		"This tool calculates the daily solar radiation (Rg) based on "
+		"the date and the latitudinal position for incoming top of "
+		"atmosphere radiation (R0) estimation and the sunshine duration (Sd) "
+		"provided as percentage of its potential maximum (S0). It uses "
+		"a simple empiric formula:\n"
+		"Rg = R0 * (0.19 + 0.55 * Sd/S0)"
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Grid("", "LATITUDE", _TL("Latitude"       ), _TL("[Degree]"), PARAMETER_INPUT );
+	Parameters.Add_Grid("", "SOLARRAD", _TL("Solar Radiation"), _TL("[J/cm^2]"), PARAMETER_OUTPUT);
+
+	//-----------------------------------------------------
+	Parameters.Add_Choice("",
+		"MONTH"		, _TL("Month"),
+		_TL(""),
+		CSG_DateTime::Get_Month_Choices(), CSG_DateTime::Get_Current_Month()
+	);
+
+	Parameters.Add_Int("TIME",
+		"DAY"		, _TL("Day of Month"),
+		_TL(""),
+		CSG_DateTime::Get_Current_Day(), 1, true, 31, true
+	);
+
+	Parameters.Add_Double("",
+		"SUNSHINE"	, _TL("Sunshine Duration"),
+		_TL("Daily sunshine duration as percentage of its potential maximum."),
+		50., 0., true, 100., true
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CSolarRadiation::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSolarRadiation::On_Execute(void)
+{
+	CSG_Grid *pLat = Parameters("LATITUDE")->asGrid();
+	CSG_Grid *pSR  = Parameters("SOLARRAD")->asGrid();
+
+	pSR->Fmt_Name("%s [%s, %d]", _TL("Solar Radiation"), Parameters("MONTH")->asString(), Parameters("DAY")->asInt());
+	pSR->Set_Unit("J/cm^2");
+
+	CSG_DateTime	Date(
+		(CSG_DateTime::TSG_DateTime)Parameters("DAY"  )->asInt(),
+		(CSG_DateTime::Month       )Parameters("MONTH")->asInt()
+	);
+
+	int    DayOfYear = Date.Get_DayOfYear();
+
+	double Sunshine  = Parameters("SUNSHINE")->asDouble() / 100.;
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
+		{
+			double SR = 100. * CT_Get_Radiation_Daily_TopOfAtmosphere(DayOfYear, pLat->asDouble(x, y), false); // top of atmosphere radiation: 100 * [MJ/m2] >> [J/cm2]
+
+			SR *= 0.19 + 0.55 * Sunshine; // ToA radiation >> global radiation
+
+			pSR->Set_Value(x, y, SR);
 		}
 	}
 

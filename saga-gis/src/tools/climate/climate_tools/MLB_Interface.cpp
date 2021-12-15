@@ -123,6 +123,7 @@ CSG_Tool *		Create_Tool(int i)
 	case  8:	return( new CETpot_Grid );
 
 	case  9:	return( new CDaily_Sun );
+	case 31:	return( new CSolarRadiation );
 
 	case 10:	return( new CBioclimatic_Vars );
 	case 11:	return( new CTree_Growth );
@@ -156,7 +157,7 @@ CSG_Tool *		Create_Tool(int i)
 	case 28:	return( new CLand_Surface_Temperature );
 
 	//-----------------------------------------------------
-	case 31:	return( NULL );
+	case 32:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
