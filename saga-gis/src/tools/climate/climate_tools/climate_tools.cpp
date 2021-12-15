@@ -95,6 +95,8 @@ double	CT_Get_Radiation_Daily_TopOfAtmosphere	(int DayOfYear, double Latitude, b
 * Crop evapotranspiration: guidelines for computing crop water requirements.
 * FAO Irrigation and Drainage Paper 56. FAO, Rome
 * http://www.fao.org/docrep/X0490E/x0490e07.htm#an%20alternative%20equation%20for%20eto%20when%20weather%20data%20are%20missing
+* T, Tmin, Tmax = temperatures [°C]
+* R0 = extraterrestrial radiation [MJ/m2/day]
 */
 //---------------------------------------------------------
 double	CT_Get_ETpot_Hargreave	(double T, double Tmin, double Tmax, double R0)
@@ -112,7 +114,7 @@ double	CT_Get_ETpot_Hargreave	(double T, double Tmin, double Tmax, double R0)
 //---------------------------------------------------------
 double	CT_Get_ETpot_Hargreave	(double T, double Tmin, double Tmax, int DayOfYear, double Latitude)
 {
-	double	R0	= CT_Get_Radiation_Daily_TopOfAtmosphere(DayOfYear, Latitude);
+	double	R0	= CT_Get_Radiation_Daily_TopOfAtmosphere(DayOfYear, Latitude, false);
 
 	return( CT_Get_ETpot_Hargreave(T, Tmin, Tmax, R0) );
 }
