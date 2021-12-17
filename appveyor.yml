@@ -7,7 +7,7 @@ environment:
   SAGA: C:\project\saga
   WXWIN: C:\deps\wxWidgets-3.1.5
   LIBS4SAGA: C:\deps\libs4saga_x64
-  GDAL: C:\deps\libs4saga_x64\gdal-3.3.3
+  GDAL: C:\deps\libs4saga_x64\gdal-3.4.0
   HARU: C:\deps\libs4saga_x64\libharu-2.2.0
   OPENCV: C:\deps\libs4saga_x64\opencv-4.3.0
   VIGRA: C:\deps\libs4saga_x64\vigra-1.11.1
