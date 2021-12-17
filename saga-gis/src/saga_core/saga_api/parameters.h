@@ -1579,8 +1579,6 @@ public:
 
 private:
 
-	bool						m_bFitToCells;
-
 	CSG_String					m_Prefix;
 
 	CSG_Parameters				*m_pParameters;
