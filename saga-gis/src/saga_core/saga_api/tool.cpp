@@ -1506,15 +1506,14 @@ CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 		Script += "\n";
 		Script += "#_________________________________________\n";
 		Script += "##########################################\n";
+		Script += "def Run_" + Name + "(File):\n";
 	}
 
 	//-----------------------------------------------------
-	Script += "def Run_" + Name + "(File):\n";
 	Script += "    Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('" + Get_Library() + "', '" + Get_ID() + "')\n";
 	Script += "    if Tool == None:\n";
-    Script += "        print('Failed to create tool: " + Get_Name() + "')\n";
+    Script += "        print('Failed to request tool: " + Get_Name() + "')\n";
 	Script += "        return False\n";
-	Script += "\n";
 	Script += "    Tool.Reset()\n";
 	Script += "\n";
 
@@ -1572,16 +1571,15 @@ CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 		}
 	}
 
-	Script += "\n";
-	Script += "    #_____________________________________\n";
-	Script += "    saga_api.SG_Get_Data_Manager().Delete_All() # job is done, free memory resources\n";
-	Script += "\n";
-	Script += "    return True\n";
-	Script += "\n";
-
 	//-----------------------------------------------------
 	if( bHeader )
 	{
+		Script += "\n";
+		Script += "    #_____________________________________\n";
+		Script += "    saga_api.SG_Get_Data_Manager().Delete_All() # job is done, free memory resources\n";
+		Script += "\n";
+		Script += "    return True\n";
+		Script += "\n";
 		Script += "\n";
 		Script += "#_________________________________________\n";
 		Script += "##########################################\n";
@@ -1632,6 +1630,9 @@ void CSG_Tool::_Get_Script_Python(CSG_String &Script, CSG_Parameters *pParameter
 			break;
 
 		case PARAMETER_TYPE_Choice         :
+			Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', %d) # '%s'\n", ID.c_str(), p->asInt(), p->asString());
+			break;
+
 		case PARAMETER_TYPE_Choices        :
 		case PARAMETER_TYPE_Table_Field    :
 		case PARAMETER_TYPE_Table_Fields   :
