@@ -260,7 +260,9 @@ bool CSG_Tool::Execute(bool bAddHistory)
 		return( false );
 	}
 
-	m_bExecutes	= true;
+	m_bExecutes  = true;
+
+	bool bResult = false;
 
 	//-----------------------------------------------------
 	if( Parameters.Get_Manager() == &SG_Get_Data_Manager() )
@@ -277,15 +279,10 @@ bool CSG_Tool::Execute(bool bAddHistory)
 	if( !Parameters.DataObjects_Create() )
 	{
 		Message_Dlg(_TL("could not initialize data objects"));
-
-		Destroy();
-
-		m_bExecutes	= false;
-
-		return( false );
 	}
-
-	Parameters.Msg_String(false);
+	else
+	{
+		Parameters.Msg_String(false);
 
 ///////////////////////////////////////////////////////////
 #if !defined(_DEBUG) && !defined(_OPENMP) && defined(_SAGA_MSW)
@@ -295,9 +292,9 @@ bool CSG_Tool::Execute(bool bAddHistory)
 #endif
 ///////////////////////////////////////////////////////////
 
-	CSG_DateTime Started(CSG_DateTime::Now());
-	bool bResult = On_Execute();
-	CSG_TimeSpan Span = CSG_DateTime::Now() - Started;
+		CSG_DateTime Started(CSG_DateTime::Now());
+		bool bResult = On_Execute();
+		CSG_TimeSpan Span = CSG_DateTime::Now() - Started;
 
 ///////////////////////////////////////////////////////////
 #ifdef _TOOL_EXCEPTION
@@ -309,73 +306,72 @@ bool CSG_Tool::Execute(bool bAddHistory)
 #endif
 ///////////////////////////////////////////////////////////
 
-	if( !Process_Get_Okay(false) )
-	{
-		SG_UI_Process_Set_Okay();
+		if( !Process_Get_Okay(false) )
+		{
+			SG_UI_Msg_Add(_TL("Execution has been stopped by user!"), true, SG_UI_MSG_STYLE_BOLD);
 
-		SG_UI_Msg_Add(_TL("Execution has been stopped by user!"), true, SG_UI_MSG_STYLE_BOLD);
+			bResult	= false;
+		}
 
-		bResult	= false;
-	}
+		if( bResult && bAddHistory )
+		{
+			_Set_Output_History();
+		}
 
-	_Synchronize_DataObjects();
+		//-------------------------------------------------
+		if( is_Interactive() )
+		{
+			if( bResult )
+			{
+				CSG_String Text(CSG_String::Format("\n%s...", _TL("Interactive tool started and is waiting for user input.")));
 
-	if( bResult && bAddHistory )
-	{
-		_Set_Output_History();
+				SG_UI_Msg_Add          (Text, false, SG_UI_MSG_STYLE_BOLD);
+				SG_UI_Msg_Add_Execution(Text, false, SG_UI_MSG_STYLE_BOLD);
+			}
+			else
+			{
+				ADD_MESSAGE_EXECUTION(_TL("Interactive tool initialization failed."), SG_UI_MSG_STYLE_FAILURE);
+			}
+		}
+		else
+		{
+			CSG_String Time =
+				  Span.Get_Hours       () >= 1 ? (Span.Format("%Hh %Mm %Ss"))
+				: Span.Get_Minutes     () >= 1 ? (Span.Format(    "%Mm %Ss"))
+				: Span.Get_Seconds     () >= 1 ? (Span.Format(        "%Ss"))
+				: Span.Get_Milliseconds() >= 1 ? (Span.Format("%l ") + _TL("milliseconds"))
+				: CSG_String(_TL("less than 1 millisecond"));
+
+			if( Parameters.Get_Manager() != &SG_Get_Data_Manager() )
+			{
+				SG_UI_Msg_Add_Execution(CSG_String::Format("\n[%s] %s: %s", Get_Name().c_str(),
+					_TL("execution time"), Time.c_str()),
+					false, SG_UI_MSG_STYLE_NORMAL
+				);
+			}
+			else
+			{
+				SG_UI_Msg_Add_Execution(CSG_String::Format("\n__________\n%s %s: %ld %s (%s)\n", _TL("total"),
+					_TL("execution time"), Span.Get_Milliseconds(), _TL("milliseconds"), Time.c_str()),
+					false, SG_UI_MSG_STYLE_BOLD
+				);
+
+				ADD_MESSAGE_EXECUTION(CSG_String::Format("[%s] %s (%s)", Get_Name().c_str(),
+					bResult ? _TL("Execution succeeded") : _TL("Execution failed"), Time.c_str()),
+					bResult ? SG_UI_MSG_STYLE_SUCCESS : SG_UI_MSG_STYLE_FAILURE
+				);
+			}
+		}
 	}
 
 	//-----------------------------------------------------
+	_Synchronize_DataObjects();
+
 	Destroy();
 
 	m_bExecutes	= false;
 
 	SG_UI_Process_Set_Okay(); SG_UI_Process_Set_Ready();
-
-	//---------------------------------------------------------
-	if( is_Interactive() )
-	{
-		if( bResult )
-		{
-			CSG_String Text(CSG_String::Format("\n%s...", _TL("Interactive tool started and is waiting for user input.")));
-
-			SG_UI_Msg_Add          (Text, false, SG_UI_MSG_STYLE_BOLD);
-			SG_UI_Msg_Add_Execution(Text, false, SG_UI_MSG_STYLE_BOLD);
-		}
-		else
-		{
-			ADD_MESSAGE_EXECUTION(_TL("Interactive tool initialization failed."), SG_UI_MSG_STYLE_FAILURE);
-		}
-	}
-	else
-	{
-		CSG_String Time =
-		  Span.Get_Hours       () >= 1 ? (Span.Format("%Hh %Mm %Ss"))
-		: Span.Get_Minutes     () >= 1 ? (Span.Format(    "%Mm %Ss"))
-		: Span.Get_Seconds     () >= 1 ? (Span.Format(        "%Ss"))
-		: Span.Get_Milliseconds() >= 1 ? (Span.Format("%l ") + _TL("milliseconds"))
-		: CSG_String(_TL("less than 1 millisecond"));
-
-		if( Parameters.Get_Manager() != &SG_Get_Data_Manager() )
-		{
-			SG_UI_Msg_Add_Execution(CSG_String::Format("\n[%s] %s: %s", Get_Name().c_str(),
-				_TL("execution time"), Time.c_str()),
-				false, SG_UI_MSG_STYLE_NORMAL
-			);
-		}
-		else
-		{
-			SG_UI_Msg_Add_Execution(CSG_String::Format("\n__________\n%s %s: %ld %s (%s)\n", _TL("total"),
-				_TL("execution time"), Span.Get_Milliseconds(), _TL("milliseconds"), Time.c_str()),
-				false, SG_UI_MSG_STYLE_BOLD
-			);
-
-			ADD_MESSAGE_EXECUTION(CSG_String::Format("[%s] %s (%s)", Get_Name().c_str(),
-				bResult ? _TL("Execution succeeded") : _TL("Execution failed"), Time.c_str()),
-				bResult ? SG_UI_MSG_STYLE_SUCCESS : SG_UI_MSG_STYLE_FAILURE
-			);
-		}
-	}
 
 	return( bResult );
 }

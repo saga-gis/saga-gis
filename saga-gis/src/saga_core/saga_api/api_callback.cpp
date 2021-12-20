@@ -137,6 +137,16 @@ int			SG_UI_Progress_Lock(bool bOn)
 }
 
 //---------------------------------------------------------
+int			SG_UI_Progress_Reset(void)
+{
+	int Locked = gSG_UI_Progress_Lock;
+
+	gSG_UI_Progress_Lock = 0;
+
+	return( Locked );
+}
+
+//---------------------------------------------------------
 bool		SG_UI_Process_Get_Okay(bool bBlink)
 {
 	if( gSG_UI_Callback )
@@ -375,6 +385,16 @@ int			SG_UI_Msg_Lock(bool bOn)
 }
 
 //---------------------------------------------------------
+int			SG_UI_Msg_Reset(void)
+{
+	int Locked = gSG_UI_Msg_Lock;
+
+	gSG_UI_Msg_Lock = 0;
+
+	return( Locked );
+}
+
+//---------------------------------------------------------
 void		SG_UI_Msg_Add(const CSG_String &Message, bool bNewLine, TSG_UI_MSG_STYLE Style)
 {
 	if( gSG_UI_Msg_Lock )
@@ -450,6 +470,13 @@ void		SG_UI_ProgressAndMsg_Lock	(bool bOn)
 {
 	SG_UI_Progress_Lock(bOn);
 	SG_UI_Msg_Lock     (bOn);
+}
+
+//---------------------------------------------------------
+void		SG_UI_ProgressAndMsg_Reset	(void)
+{
+	SG_UI_Progress_Reset();
+	SG_UI_Msg_Reset     ();
 }
 
 

@@ -1533,6 +1533,7 @@ SAGA_API_DLL_EXPORT TSG_PFNC_UI_Callback	SG_Get_UI_Callback			(void);
 
 //---------------------------------------------------------
 SAGA_API_DLL_EXPORT int						SG_UI_Progress_Lock			(bool bOn);
+SAGA_API_DLL_EXPORT int						SG_UI_Progress_Reset		(void);
 SAGA_API_DLL_EXPORT bool					SG_UI_Process_Get_Okay		(bool bBlink = false);
 SAGA_API_DLL_EXPORT bool					SG_UI_Process_Set_Okay		(bool bOkay = true);
 SAGA_API_DLL_EXPORT bool					SG_UI_Process_Set_Progress	(double Position, double Range);
@@ -1547,11 +1548,13 @@ SAGA_API_DLL_EXPORT int						SG_UI_Dlg_Error				(const CSG_String &Message, cons
 SAGA_API_DLL_EXPORT bool					SG_UI_Dlg_Parameters		(class CSG_Parameters *pParameters, const CSG_String &Caption);
 
 SAGA_API_DLL_EXPORT int						SG_UI_Msg_Lock				(bool bOn);
+SAGA_API_DLL_EXPORT int						SG_UI_Msg_Reset				(void);
 SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add				(const CSG_String &Message, bool bNewLine, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
 SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add_Error			(const CSG_String &Message);
 SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add_Execution		(const CSG_String &Message, bool bNewLine, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
 
 SAGA_API_DLL_EXPORT void					SG_UI_ProgressAndMsg_Lock	(bool bOn);
+SAGA_API_DLL_EXPORT void					SG_UI_ProgressAndMsg_Reset	(void);
 
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Add		(class CSG_Data_Object *pDataObject, int Show);
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Update		(class CSG_Data_Object *pDataObject, int Show, class CSG_Parameters *pParameters);
