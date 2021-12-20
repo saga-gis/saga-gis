@@ -1228,38 +1228,47 @@ bool CSG_Parameters_Grid_Target::On_Parameter_Changed(CSG_Parameters *pParameter
 			yMin += 0.5 * Size; yMax -= 0.5 * Size;
 		}
 	}
-	else if( pParameter->Cmp_Identifier(pSize->Get_Identifier()) && Size > 0. )
-	{
-		xMax	= xMin + Size * (int)(0.5 + (xMax - xMin) / Size);
-		yMax	= yMin + Size * (int)(0.5 + (yMax - yMin) / Size);
-	}
-	else if( pParameter->Cmp_Identifier(pCols->Get_Identifier()) && pCols->asInt() > 0 )
-	{
-		xMax	= xMin + Size * (pCols->asInt() - 1);
-	}
-	else if( pParameter->Cmp_Identifier(pXMin->Get_Identifier()) )
-	{
-		xMax	= xMin + Size * (xMin > xMax ? (pCols->asInt() - 1) : (int)(0.5 + (xMax - xMin) / Size));
-	}
-	else if( pParameter->Cmp_Identifier(pXMax->Get_Identifier()) )
-	{
-		xMin	= xMax - Size * (xMin > xMax ? (pCols->asInt() - 1) : (int)(0.5 + (xMax - xMin) / Size));
-	}
-	else if( pParameter->Cmp_Identifier(pRows->Get_Identifier()) && pRows->asInt() > 0 )
-	{
-		yMax	= yMin + Size * (pRows->asInt() - 1);
-	}
-	else if( pParameter->Cmp_Identifier(pYMin->Get_Identifier()) )
-	{
-		yMax	= yMin + Size * (yMin > yMax ? (pRows->asInt() - 1) : (int)(0.5 + (yMax - yMin) / Size));
-	}
-	else if( pParameter->Cmp_Identifier(pYMax->Get_Identifier()) )
-	{
-		yMin	= yMax - Size * (yMin > yMax ? (pRows->asInt() - 1) : (int)(0.5 + (yMax - yMin) / Size));
-	}
 	else
 	{
-		bChanged	= false;	// none of the relevant parameters did change so far
+		if( pFits->asInt() == 1 ) // fit cells >> fit nodes
+		{
+			xMin += 0.5 * Size; xMax -= 0.5 * Size;
+			yMin += 0.5 * Size; yMax -= 0.5 * Size;
+		}
+
+		if( pParameter->Cmp_Identifier(pSize->Get_Identifier()) && Size > 0. )
+		{
+			xMax	= xMin + Size * (int)(0.5 + (xMax - xMin) / Size);
+			yMax	= yMin + Size * (int)(0.5 + (yMax - yMin) / Size);
+		}
+		else if( pParameter->Cmp_Identifier(pCols->Get_Identifier()) && pCols->asInt() > 0 )
+		{
+			xMax	= xMin + Size * (pCols->asInt() - 1);
+		}
+		else if( pParameter->Cmp_Identifier(pXMin->Get_Identifier()) )
+		{
+			xMax	= xMin + Size * (xMin > xMax ? (pCols->asInt() - 1) : (int)(0.5 + (xMax - xMin) / Size));
+		}
+		else if( pParameter->Cmp_Identifier(pXMax->Get_Identifier()) )
+		{
+			xMin	= xMax - Size * (xMin > xMax ? (pCols->asInt() - 1) : (int)(0.5 + (xMax - xMin) / Size));
+		}
+		else if( pParameter->Cmp_Identifier(pRows->Get_Identifier()) && pRows->asInt() > 0 )
+		{
+			yMax	= yMin + Size * (pRows->asInt() - 1);
+		}
+		else if( pParameter->Cmp_Identifier(pYMin->Get_Identifier()) )
+		{
+			yMax	= yMin + Size * (yMin > yMax ? (pRows->asInt() - 1) : (int)(0.5 + (yMax - yMin) / Size));
+		}
+		else if( pParameter->Cmp_Identifier(pYMax->Get_Identifier()) )
+		{
+			yMin	= yMax - Size * (yMin > yMax ? (pRows->asInt() - 1) : (int)(0.5 + (yMax - yMin) / Size));
+		}
+		else
+		{
+			bChanged	= false;	// none of the relevant parameters did change so far
+		}
 	}
 
 	//-----------------------------------------------------
@@ -1268,7 +1277,7 @@ bool CSG_Parameters_Grid_Target::On_Parameter_Changed(CSG_Parameters *pParameter
 		pCols->Set_Value(1 + (int)((xMax - xMin) / Size));
 		pRows->Set_Value(1 + (int)((yMax - yMin) / Size));
 
-		if( (*pParameters)(m_Prefix + "USER_FITS")->asInt() == 1 )
+		if( pFits->asInt() == 1 )
 		{
 			xMin -= 0.5 * Size; xMax += 0.5 * Size;
 			yMin -= 0.5 * Size; yMax += 0.5 * Size;
@@ -1450,14 +1459,19 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, C
 
 	CSG_Rect	r	= pPoints->Get_Extent();
 
-	double	Size	= sqrt(r.Get_Area() / pPoints->Get_Count());	// edge length of a square given as average area per point (cell size)
+	double	Size	= sqrt(r.Get_Area() / pPoints->Get_Count()) / (Scale > 1 ? Scale : 1);	// edge length of a square given as average area per point (cell size)
+
+	if( Rounding > 0 )
+	{
+		Size	= SG_Get_Rounded_To_SignificantFigures(Size, Rounding);
+
+		r.m_rect.xMin = Size * floor(r.m_rect.xMin / Size);
+		r.m_rect.xMax = Size * ceil (r.m_rect.xMax / Size);
+		r.m_rect.yMin = Size * floor(r.m_rect.yMin / Size);
+		r.m_rect.yMax = Size * ceil (r.m_rect.yMax / Size);
+	}
 
 	int		Rows	= 1 + (int)(0.5 + r.Get_YRange() / Size);
-
-	if( Scale > 1 )
-	{
-		Rows	*= Scale;
-	}
 
 	return( Set_User_Defined(pParameters, r, Rows, 0) );
 }
