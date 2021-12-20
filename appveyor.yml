@@ -28,7 +28,7 @@ before_build:
   - cmd: move %WXWIN%\lib\vc14x_x64_dll %WXWIN%\lib\vc_x64_dll
   # get libs4saga
   - ps: Start-FileDownload https://downloads.sourceforge.net/project/saga-gis/For%20Developers/libs4saga/libs4saga_2021-12-17_x64.zip
-  - cmd: 7z x libs4saga_2021-11-25_x64.zip -oC:\deps\
+  - cmd: 7z x libs4saga_2021-12-17_x64.zip -oC:\deps\
   # disable riegl import as it requires an SDK
   # cmd: sed -i '/{A89FB596-3D86-4BF0-A57B-DAC3A7D2E740}.*Build\.0.*/d' saga-gis/src/saga.vc14.sln
   - cmd: cd %SAGA%\saga-gis
