@@ -33,10 +33,9 @@ IF "%SAGA_DIR_X64%" == "" (
 REM ___________________________________
 REM Version
 
-SET SAGA_VER_TEXT=8.1.0
-SET SAGA_VER_NEXT=8.2.0
+SET SAGA_VER_TEXT=8.2.0
+SET SAGA_VER_NEXT=8.3.0
 SET SAGA_VERSION=saga-%SAGA_VER_TEXT%
-REM SET SWITCH_TO_BRANCH=true
 
 ECHO __________________________________
 ECHO ##################################
@@ -55,8 +54,24 @@ ECHO.  - Translation Files
 ECHO.  - Tools Interface (Python)
 ECHO.
 ECHO Enter 'y' to continue!
-SET /P CONTINUE=
-IF NOT '%CONTINUE%' == 'y' EXIT
+SET /P ANSWER0=
+IF /i NOT '%ANSWER0%' == 'y' EXIT
+
+ECHO __________________________________
+ECHO Create tag/branch %SAGA_VER_TEXT% [y/n]
+SET /P ANSWER1=
+IF /i '%ANSWER1%' == 'y' (
+	SET GIT_BRANCH=true
+) ELSE (
+	REM yes for bug-fix releases (it's the master otherwise!)
+	ECHO.
+	ECHO Switch to branch %SAGA_VER_TEXT% [y/n]
+	SET /P ANSWER2=
+	IF /i '%ANSWER2%' == 'y' (
+		SET SWITCH_TO_BRANCH=true
+		ECHO switch to branch
+	)
+)
 
 
 REM ___________________________________
@@ -81,12 +96,15 @@ REM GIT Source Code Repository
 
 PUSHD %SAGA_VERSION%
 
-REM Create a tag
-%GITEXE% tag v%SAGA_VER_TEXT%
-%GITEXE% push v%SAGA_VER_TEXT%
+IF /i "%GIT_BRANCH%" == "true" (
+	REM Create a tag
+	%GITEXE% tag v%SAGA_VER_TEXT%
+	%GITEXE% push v%SAGA_VER_TEXT%
 
-REM Create a branch (better do manually)
-REM %GITEXE% branch release-%SAGA_VER_TEXT%
+	REM Create a branch (better do manually?!)
+	%GITEXE% branch release-%SAGA_VER_NEXT%
+	%GITEXE% push release-%SAGA_VER_NEXT%
+)
 
 IF /i "%SWITCH_TO_BRANCH%" == "true" (
 	%GITEXE% checkout release-%SAGA_VER_TEXT%
@@ -181,19 +199,24 @@ REM ###################################
 REM PYTHON API
 REM ###################################
 
+MKDIR SAGA-Python-API
+PUSHD SAGA-Python-API
+
 SET SAGA_LIBDIR=%SAGA_DIR_WIN32%
-CMD /C CALL ..\make_python_api.bat 27 win32 true false F:\develop\libs\Python\_win32\Python-2.7.10
-CMD /C CALL ..\make_python_api.bat 36 win32 true false F:\develop\libs\Python\_win32\Python-3.6.14
-CMD /C CALL ..\make_python_api.bat 37 win32 true false F:\develop\libs\Python\_win32\Python-3.7.11
-CMD /C CALL ..\make_python_api.bat 38 win32 true false F:\develop\libs\Python\_win32\Python-3.8.11
-CMD /C CALL ..\make_python_api.bat 39 win32 true false F:\develop\libs\Python\_win32\Python-3.9.7
+CMD /C CALL ..\..\make_python_api.bat 27 win32 true false F:\develop\libs\Python\_win32\Python-2.7.10
+CMD /C CALL ..\..\make_python_api.bat 36 win32 true false F:\develop\libs\Python\_win32\Python-3.6.14
+CMD /C CALL ..\..\make_python_api.bat 37 win32 true false F:\develop\libs\Python\_win32\Python-3.7.11
+CMD /C CALL ..\..\make_python_api.bat 38 win32 true false F:\develop\libs\Python\_win32\Python-3.8.11
+CMD /C CALL ..\..\make_python_api.bat 39 win32 true false F:\develop\libs\Python\_win32\Python-3.9.7
 
 SET SAGA_LIBDIR=%SAGA_DIR_X64%
-CMD /C CALL ..\make_python_api.bat 27 x64 true false F:\develop\libs\Python\Python-2.7.10
-CMD /C CALL ..\make_python_api.bat 36 x64 true false F:\develop\libs\Python\Python-3.6.14
-CMD /C CALL ..\make_python_api.bat 37 x64 true false F:\develop\libs\Python\Python-3.7.11
-CMD /C CALL ..\make_python_api.bat 38 x64 true false F:\develop\libs\Python\Python-3.8.11
-CMD /C CALL ..\make_python_api.bat 39 x64 true true  F:\develop\libs\Python\Python-3.9.7
+CMD /C CALL ..\..\make_python_api.bat 27 x64 true false F:\develop\libs\Python\Python-2.7.10
+CMD /C CALL ..\..\make_python_api.bat 36 x64 true false F:\develop\libs\Python\Python-3.6.14
+CMD /C CALL ..\..\make_python_api.bat 37 x64 true false F:\develop\libs\Python\Python-3.7.11
+CMD /C CALL ..\..\make_python_api.bat 38 x64 true false F:\develop\libs\Python\Python-3.8.11
+CMD /C CALL ..\..\make_python_api.bat 39 x64 true true  F:\develop\libs\Python\Python-3.9.7
+
+POPD
 
 
 REM ___________________________________
