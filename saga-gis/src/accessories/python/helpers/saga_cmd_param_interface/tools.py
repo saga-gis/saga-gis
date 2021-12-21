@@ -298,9 +298,9 @@ tools = [
 ['io_shapes', 19, 'Import Simple Features from Well Known Text'],
 ['io_shapes', 20, 'Export Simple Features to Well Known Text'],
 ['io_shapes_dxf', 0, 'Import DXF Files'],
-['io_shapes_las', 0, 'Export LAS Files'],
-['io_shapes_las', 1, 'Import LAS Files'],
-['io_shapes_las', 2, 'LAS Info'],
+['io_shapes_las', 0, '[deprecated] Export LAS Files'],
+['io_shapes_las', 1, '[deprecated] Import LAS Files'],
+['io_shapes_las', 2, '[deprecated] LAS Info'],
 ['io_table', 0, 'Export Text Table'],
 ['io_table', 1, 'Import Text Table'],
 ['io_table', 2, 'Import Text Table with Numbers only'],
@@ -335,7 +335,7 @@ tools = [
 ['pj_proj4', 15, 'Coordinate Reference System Picker'],
 ['pj_proj4', 16, 'Tissot\'s Indicatrix'],
 ['pj_proj4', 17, 'Geographic Coordinate Grids'],
-['pj_proj4', 18, 'Coordinate Transformation (Point Cloud List)'],
+['pj_proj4', 18, 'Rotated to Regular Grid'],
 ['pj_proj4', 19, 'Coordinate Transformation (Point Cloud)'],
 ['pj_proj4', 20, 'Geographic Distances'],
 ['pj_proj4', 21, 'Geographic Distances (Pair of Coordinates)'],
@@ -810,5 +810,8 @@ tools = [
 ['io_riegl_rdb', 1, 'Info about RDB2 Files'],
 ['pointcloud_tools', 15, 'Ground Classification'],
 ['shapes_lines', 10, 'Extract Closed Lines'],
-['ta_hydrology', 31, 'CIT Index']
+['ta_hydrology', 31, 'CIT Index'],
+['climate_tools', 31, 'Daily Solar Radiation'],
+['io_pdal', 1, 'Export LAS/LAZ File'],
+['shapes_lines', 11, 'Split Lines']
 ]
