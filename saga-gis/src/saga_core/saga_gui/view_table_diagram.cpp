@@ -130,9 +130,9 @@ private:
 	void							_Draw					(wxDC &dc, wxRect r);
 	void							_Draw_Frame				(wxDC &dc, wxRect r, double dx, double dy);
 	void							_Draw_Legend			(wxDC &dc, wxRect r);
-	void							_Draw_Points			(wxDC &dc, wxRect r, double dx, double dy, int iField);
-	void							_Draw_Lines				(wxDC &dc, wxRect r, double dx, double dy, int iField);
-	void							_Draw_Bars				(wxDC &dc, wxRect r, double dx, double dy, int iField);
+	void							_Draw_Points			(wxDC &dc, wxRect r, double dx, double dy, int iField, double Offset, double Scale);
+	void							_Draw_Lines				(wxDC &dc, wxRect r, double dx, double dy, int iField, double Offset, double Scale);
+	void							_Draw_Bars				(wxDC &dc, wxRect r, double dx, double dy, int iField, double Offset, double Scale);
 
 
 	//-----------------------------------------------------
@@ -461,6 +461,8 @@ bool CVIEW_Table_Diagram_Control::_Create(void)
 		}
 
 		//-------------------------------------------------
+		bool	bScaling	= m_Parameters("Y_SCALING")->asBool();
+
 		for(int iField=0; iField<m_pTable->Get_Field_Count(); iField++)
 		{
 			if( SG_Data_Type_is_Numeric(m_pTable->Get_Field_Type(iField))
@@ -468,20 +470,28 @@ bool CVIEW_Table_Diagram_Control::_Create(void)
 			{
 				m_Fields	+= iField;
 
-				m_Colors.Set_Color(iField, m_Parameters(CSG_String::Format("COLOR_%d", iField))->asColor());
+				m_Colors.Set_Color(iField, m_Parameters(CSG_String::Format("COLOR_%d" , iField))->asColor());
+
+				double Offset = bScaling ? m_Parameters(CSG_String::Format("OFFSET_%d", iField))->asDouble() : 0.;
+				double Scale  = bScaling ? m_Parameters(CSG_String::Format("SCALE_%d" , iField))->asDouble() : 1.;
+
+				double yMin = Scale * m_pTable->Get_Minimum(iField) + Offset;
+				double yMax = Scale * m_pTable->Get_Maximum(iField) + Offset;
+
+				if( yMin > yMax ) { double y = yMin; yMin = yMax; yMax = y; }
 
 				if( m_Fields.Get_Size() == 1 )
 				{
-					m_yMin	= m_pTable->Get_Minimum(iField);
-					m_yMax	= m_pTable->Get_Maximum(iField);
+					m_yMin	= yMin;
+					m_yMax	= yMax;
 				}
 				else
 				{
-					if( m_yMin	> m_pTable->Get_Minimum(iField) )
-						m_yMin	= m_pTable->Get_Minimum(iField);
+					if( m_yMin	> yMin )
+						m_yMin	= yMin;
 
-					if( m_yMax	< m_pTable->Get_Maximum(iField) )
-						m_yMax	= m_pTable->Get_Maximum(iField);
+					if( m_yMax	< yMax )
+						m_yMax	= yMax;
 				}
 			}
 		}
@@ -551,8 +561,10 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 			CSG_String	ID; ID.Printf("FIELD_%d", iField);
 
 			m_Parameters.Add_Bool("SHOW_FIELDS", ID, m_pTable->Get_Field_Name(iField), _TL("Show"), false);
-			m_Parameters.Add_Color (ID, CSG_String::Format("COLOR_%d", iField), "", _TL("Color"), m_Colors.Get_Color(iField));
-			m_Parameters.Add_Choice(ID, CSG_String::Format("TYPE_%d" , iField), "", _TL("Type" ), CSG_String::Format("%s|%s|%s|%s", CHART_TYPES), 1);
+			m_Parameters.Add_Color (ID, CSG_String::Format("COLOR_%d" , iField), _TL("Color" ), "", m_Colors.Get_Color(iField));
+			m_Parameters.Add_Choice(ID, CSG_String::Format("TYPE_%d"  , iField), _TL("Type"  ), "", CSG_String::Format("%s|%s|%s|%s", CHART_TYPES), 1);
+			m_Parameters.Add_Double(ID, CSG_String::Format("OFFSET_%d", iField), _TL("Offset"), "", 0.);
+			m_Parameters.Add_Double(ID, CSG_String::Format("SCALE_%d" , iField), _TL("Scale" ), "", 1.);
 		}
 
 		if( SG_Data_Type_is_Numeric(m_pTable->Get_Field_Type(iField))
@@ -581,6 +593,7 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 	m_Parameters.Add_Double("Y_MIN_FIX"   , "Y_MIN_VAL"	        , _TL("Minimum"           ), _TL(""), 0.);
 	m_Parameters.Add_Bool  ("NODE_Y"      , "Y_MAX_FIX"	        , _TL("Fix Maximum"       ), _TL(""), false);
 	m_Parameters.Add_Double("Y_MAX_FIX"   , "Y_MAX_VAL"         , _TL("Maximum"           ), _TL(""), 1000.);
+	m_Parameters.Add_Bool  ("NODE_Y"      , "Y_SCALING"         , _TL("Edit Scaling"      ), _TL("Edit offset and scaling for each attribute."), false);
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Font  (""            , "FONT"              , _TL("Font"              ), _TL(""));
@@ -593,8 +606,8 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 
 	m_Parameters.Add_Choice("NODE_CHART"  , "TYPE"              , _TL("Chart Type"        ), _TL(""), CSG_String::Format("%s|%s|%s|%s|%s", CHART_TYPES), 4);
 
-	m_Parameters.Add_Node  ("NODE_CHART"  , "NODE_BARS"         , _TL("Bars"              ), _TL(""));
-	m_Parameters.Add_Choice("NODE_BARS"   , "BARS_OFFSET"       , _TL("Offset"            ), _TL(""), CSG_String::Format("%s|%s|%s", _TL("origin"), _TL("bottom"), _TL("top")), 0);
+//	m_Parameters.Add_Node  ("NODE_CHART"  , "NODE_BARS"         , _TL("Bars"              ), _TL(""));
+//	m_Parameters.Add_Choice("NODE_BARS"   , "BARS_OFFSET"       , _TL("Offset"            ), _TL(""), CSG_String::Format("%s|%s|%s", _TL("origin"), _TL("bottom"), _TL("top")), 0);
 
 	m_Parameters.Add_Node  ("NODE_CHART"  , "NODE_LINES"        , _TL("Lines"             ), _TL(""));
 	m_Parameters.Add_Int   ("NODE_LINES"  , "LINES_SIZE"        , _TL("Size"              ), _TL(""), 1, 1, true);
@@ -653,7 +666,7 @@ int CVIEW_Table_Diagram_Control::_On_Parameter_Changed(CSG_Parameter *pParameter
 	{
 		if( pParameter->Cmp_Identifier("TYPE") )
 		{
-			pParameters->Set_Enabled("NODE_BARS"    , pParameter->asInt() >= 4 || pParameter->asInt() == 0                            );
+		//	pParameters->Set_Enabled("NODE_BARS"    , pParameter->asInt() >= 4 || pParameter->asInt() == 0                            );
 			pParameters->Set_Enabled("NODE_LINES"   , pParameter->asInt() >= 4 || pParameter->asInt() == 1 || pParameter->asInt() == 3);
 			pParameters->Set_Enabled("NODE_POINTS"  , pParameter->asInt() >= 4 || pParameter->asInt() == 2 || pParameter->asInt() == 3);
 
@@ -661,7 +674,22 @@ int CVIEW_Table_Diagram_Control::_On_Parameter_Changed(CSG_Parameter *pParameter
 
 			for(int i=0; i<pFields->Get_Children_Count(); i++)
 			{
-				pFields->Get_Child(i)->Get_Child(1)->Set_Enabled(pFields->Get_Child(i)->asBool() && pParameter->asInt() >= 4);
+				CSG_Parameter *pField = pFields->Get_Child(i);
+
+				pField->Get_Child(1)->Set_Enabled(pField->asBool() && pParameter->asInt() >= 4);
+			}
+		}
+
+		if( pParameter->Cmp_Identifier("Y_SCALING") )
+		{
+			CSG_Parameter *pFields = (*pParameters)("SHOW_FIELDS");
+
+			for(int i=0; i<pFields->Get_Children_Count(); i++)
+			{
+				CSG_Parameter *pField = pFields->Get_Child(i);
+
+				pField->Get_Child(2)->Set_Enabled(pField->asBool() && pParameter->asBool());
+				pField->Get_Child(3)->Set_Enabled(pField->asBool() && pParameter->asBool());
 			}
 		}
 
@@ -713,8 +741,10 @@ int CVIEW_Table_Diagram_Control::_On_Parameter_Changed(CSG_Parameter *pParameter
 
 		if( ID.Find("FIELD_") == 0 )
 		{
-			pParameters->Set_Enabled("COLOR_" + ID.AfterFirst('_'), pParameter->asBool());
-			pParameters->Set_Enabled("TYPE_"  + ID.AfterFirst('_'), pParameter->asBool() && (*pParameters)("TYPE")->asInt() >= 4);
+			pParameters->Set_Enabled("COLOR_"  + ID.AfterFirst('_'), pParameter->asBool());
+			pParameters->Set_Enabled("TYPE_"   + ID.AfterFirst('_'), pParameter->asBool() && (*pParameters)("TYPE")->asInt() >= 4);
+			pParameters->Set_Enabled("OFFSET_" + ID.AfterFirst('_'), pParameter->asBool() && (*pParameters)("Y_SCALING")->asBool());
+			pParameters->Set_Enabled("SCALE_"  + ID.AfterFirst('_'), pParameter->asBool() && (*pParameters)("Y_SCALING")->asBool());
 		}
 	}
 
@@ -803,7 +833,7 @@ void CVIEW_Table_Diagram_Control::_Draw(wxDC &dc, wxRect rDC)
 	}
 
 	//-----------------------------------------------------
-	int Type = m_Parameters("TYPE")->asInt(); bool bDifferent = Type >= 4;
+	int Type = m_Parameters("TYPE")->asInt(); bool bDifferent = Type >= 4, bScaling = m_Parameters("Y_SCALING")->asBool();
 
 	for(size_t iField=0; iField<m_Fields.Get_Size(); iField++)
 	{
@@ -814,13 +844,16 @@ void CVIEW_Table_Diagram_Control::_Draw(wxDC &dc, wxRect rDC)
 			Type = pParameter ? pParameter->asInt() : -1;
 		}
 
+		double Offset = bScaling ? m_Parameters(CSG_String::Format("OFFSET_%d", m_Fields[iField]))->asDouble() : 0.;
+		double Scale  = bScaling ? m_Parameters(CSG_String::Format("SCALE_%d" , m_Fields[iField]))->asDouble() : 1.;
+
 		switch( Type )
 		{
-		case  0: _Draw_Bars  (dc, r, dx, dy, iField); break; // bars
-		default: _Draw_Lines (dc, r, dx, dy, iField); break; // lines
-		case  2: _Draw_Points(dc, r, dx, dy, iField); break; // points
-		case  3: _Draw_Lines (dc, r, dx, dy, iField);        // points connected with lines
-		         _Draw_Points(dc, r, dx, dy, iField); break;
+		case  0: _Draw_Bars  (dc, r, dx, dy, iField, Offset, Scale); break; // bars
+		default: _Draw_Lines (dc, r, dx, dy, iField, Offset, Scale); break; // lines
+		case  2: _Draw_Points(dc, r, dx, dy, iField, Offset, Scale); break; // points
+		case  3: _Draw_Lines (dc, r, dx, dy, iField, Offset, Scale);        // points connected with lines
+		         _Draw_Points(dc, r, dx, dy, iField, Offset, Scale); break;
 		}
 	}
 
@@ -975,10 +1008,10 @@ void CVIEW_Table_Diagram_Control::_Draw_Legend(wxDC &dc, wxRect r)
 
 //---------------------------------------------------------
 #define DRAW_GET_XPOS	(r.GetLeft  () + (int)(dx * (m_xField >= 0 ? (pRecord->asDouble(m_xField) - m_xMin) : (double)iRecord)))
-#define DRAW_GET_YPOS	(r.GetBottom() - (int)(dy * (                (pRecord->asDouble(  iField) - m_yMin)                  )))
+#define DRAW_GET_YPOS	(r.GetBottom() - (int)(dy * ((Scale * pRecord->asDouble(iField) + Offset) - m_yMin)))
 
 //---------------------------------------------------------
-void CVIEW_Table_Diagram_Control::_Draw_Points(wxDC &dc, wxRect r, double dx, double dy, int iField)
+void CVIEW_Table_Diagram_Control::_Draw_Points(wxDC &dc, wxRect r, double dx, double dy, int iField, double Offset, double Scale)
 {
 	bool	bOutline	= m_Parameters("POINTS_OUTLINE")->asBool();
 	int		Size		= m_Parameters("POINTS_SIZE"   )->asInt();
@@ -1035,7 +1068,7 @@ void CVIEW_Table_Diagram_Control::_Draw_Points(wxDC &dc, wxRect r, double dx, do
 }
 
 //---------------------------------------------------------
-void CVIEW_Table_Diagram_Control::_Draw_Lines(wxDC &dc, wxRect r, double dx, double dy, int iField)
+void CVIEW_Table_Diagram_Control::_Draw_Lines(wxDC &dc, wxRect r, double dx, double dy, int iField, double Offset, double Scale)
 {
 	if( m_pTable->Get_Count() > 1 )
 	{
@@ -1073,17 +1106,12 @@ void CVIEW_Table_Diagram_Control::_Draw_Lines(wxDC &dc, wxRect r, double dx, dou
 }
 
 //---------------------------------------------------------
-void CVIEW_Table_Diagram_Control::_Draw_Bars(wxDC &dc, wxRect r, double dx, double dy, int iField)
+void CVIEW_Table_Diagram_Control::_Draw_Bars(wxDC &dc, wxRect r, double dx, double dy, int iField, double Offset, double Scale)
 {
 	int	dxa	= m_xField < 0 ? (int)(dx / m_Fields.Get_Size() * iField) : iField + 0;
-	int	dxb	= m_xField < 0 ? (int)(dx / m_Fields.Get_Size()         ) : iField + 1, yOffset;
+	int	dxb	= m_xField < 0 ? (int)(dx / m_Fields.Get_Size()         ) : iField + 1;
 
-	switch( m_Parameters("BARS_OFFSET")->asInt() )
-	{
-	default: yOffset = r.GetBottom() - (int)(dy * (0 - m_yMin)); break;
-	case  1: yOffset = r.GetBottom()                           ; break;
-	case  2: yOffset = r.GetTop   ()                           ; break;
-	}
+	int yOffset = r.GetBottom() - (int)(dy * (Offset - m_yMin));
 
 	iField	= m_Fields[iField];
 
