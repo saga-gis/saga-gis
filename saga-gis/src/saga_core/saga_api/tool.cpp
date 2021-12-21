@@ -260,9 +260,15 @@ bool CSG_Tool::Execute(bool bAddHistory)
 		return( false );
 	}
 
-	m_bExecutes  = true;
+	m_bExecutes     = true;
 
-	bool bResult = false;
+	m_bError_Ignore	= false;
+
+	bool bResult    = false;
+
+	m_Execution_Info.Clear();
+
+	History_Supplement.Destroy();
 
 	//-----------------------------------------------------
 	if( Parameters.Get_Manager() == &SG_Get_Data_Manager() )
@@ -270,15 +276,13 @@ bool CSG_Tool::Execute(bool bAddHistory)
 		ADD_MESSAGE_EXECUTION(CSG_String::Format("[%s] %s...", Get_Name().c_str(), _TL("Execution started")), SG_UI_MSG_STYLE_SUCCESS);
 	}
 
-	Destroy();
-
-	m_Execution_Info.Clear();
-
 	Update_Parameter_States();
 
-	if( !Parameters.DataObjects_Create() )
+	if( Parameters.DataObjects_Create() == false )
 	{
 		Message_Dlg(_TL("could not initialize data objects"));
+
+		_Synchronize_DataObjects();	// not all, but some objects might have been created!
 	}
 	else
 	{
@@ -293,7 +297,7 @@ bool CSG_Tool::Execute(bool bAddHistory)
 ///////////////////////////////////////////////////////////
 
 		CSG_DateTime Started(CSG_DateTime::Now());
-		bool bResult = On_Execute();
+		bResult = On_Execute();
 		CSG_TimeSpan Span = CSG_DateTime::Now() - Started;
 
 ///////////////////////////////////////////////////////////
@@ -305,6 +309,8 @@ bool CSG_Tool::Execute(bool bAddHistory)
 	}	// except(1)
 #endif
 ///////////////////////////////////////////////////////////
+
+		_Synchronize_DataObjects();
 
 		if( !Process_Get_Okay(false) )
 		{
@@ -365,13 +371,9 @@ bool CSG_Tool::Execute(bool bAddHistory)
 	}
 
 	//-----------------------------------------------------
-	_Synchronize_DataObjects();
-
-	Destroy();
+	History_Supplement.Destroy();
 
 	m_bExecutes	= false;
-
-	SG_UI_Process_Set_Okay(); SG_UI_Process_Set_Ready();
 
 	return( bResult );
 }

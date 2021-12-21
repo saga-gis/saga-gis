@@ -172,11 +172,9 @@ bool CCMD_Tool::Execute(int argc, char *argv[])
 	}
 
 	//-----------------------------------------------------
-	int		i;
-
 	bool	bResult	= _Get_Parameters(m_pTool->Get_Parameters(), true);
 
-	for(i=0; bResult && i<m_pTool->Get_Parameters_Count(); i++)
+	for(int i=0; bResult && i<m_pTool->Get_Parameters_Count(); i++)
 	{
 		bResult	= _Get_Parameters(m_pTool->Get_Parameters(i), true);
 	}
@@ -205,7 +203,7 @@ bool CCMD_Tool::Execute(int argc, char *argv[])
 	{
 		_Save_Output(m_pTool->Get_Parameters());
 
-		for(i=0; i<m_pTool->Get_Parameters_Count(); i++)
+		for(int i=0; i<m_pTool->Get_Parameters_Count(); i++)
 		{
 			_Save_Output(m_pTool->Get_Parameters(i));
 		}
@@ -216,6 +214,8 @@ bool CCMD_Tool::Execute(int argc, char *argv[])
 	{
 		CMD_Print_Error(_TL("executing tool"), m_pTool->Get_Name());
 	}
+
+	SG_UI_ProgressAndMsg_Reset(); SG_UI_Process_Set_Okay();
 
 	return( bResult );
 }

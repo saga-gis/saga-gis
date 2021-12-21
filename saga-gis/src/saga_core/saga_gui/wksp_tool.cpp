@@ -326,7 +326,7 @@ bool CWKSP_Tool::Execute(bool bDialog)
 				Do_Beep();
 			}
 
-			SG_UI_ProgressAndMsg_Reset();
+			SG_UI_ProgressAndMsg_Reset(); SG_UI_Process_Set_Okay(); SG_UI_Process_Set_Ready();
 		}
 
 		if( !m_pTool->is_Interactive() || !bResult )
