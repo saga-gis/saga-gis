@@ -53,7 +53,10 @@ CREATE_NO_WINDOW = 0x08000000
 # File Tools
 #________________________________________________________
 def File_Get_TempName(Extension):
-	return os.tempnam(None, 'arc_saga_') + '.' + Extension
+	if sys.version_info.major < 3: # ArcGIS Desktop
+		return os.tempnam(None, 'arc_saga_') + '.' + Extension
+	import tempfile
+	return tempfile._get_default_tempdir() + os.sep + 'arcsaga_' + next(tempfile._get_candidate_names()) + '.' + Extension
 
 #________________________________________________________
 def File_Cmp_Extension(File, Extension):
@@ -356,18 +359,22 @@ def Arc_Load_Layer(Layer):
 		return
 
 	#____________________________________________________
-	Map_Project = arcpy.mapping.MapDocument("CURRENT")
-	Map_Frame   = arcpy.mapping.ListDataFrames(Map_Project)[0]
-	Map_Layer   = arcpy.mapping.Layer(Layer)
+	if sys.version_info.major < 3: # ArcGIS Desktop
+		Map_Project = arcpy.mapping.MapDocument("CURRENT")
+		Map_Frame   = arcpy.mapping.ListDataFrames(Map_Project)[0]
+		Map_Layer   = arcpy.mapping.Layer(Layer)
+		if Map_Layer.isRasterLayer:
+			File = os.path.dirname(__file__) + os.sep + 'grid.lyr'
+			if os.path.isfile(File) == True:
+				Src_Layer = arcpy.mapping.Layer(File)
+				arcpy.mapping.UpdateLayer(Map_Frame, Map_Layer, Src_Layer, True)
+		arcpy.mapping.AddLayer(Map_Frame, Map_Layer, 'AUTO_ARRANGE')
+		return
 
-	if Map_Layer.isRasterLayer:
-		File = os.path.dirname(__file__) + os.sep + 'grid.lyr'
-		if os.path.isfile(File) == True:
-			Src_Layer = arcpy.mapping.Layer(File)
-			arcpy.mapping.UpdateLayer(Map_Frame, Map_Layer, Src_Layer, True)
-
-	arcpy.mapping.AddLayer(Map_Frame, Map_Layer, 'AUTO_ARRANGE')
-	
+	#____________________________________________________
+	Project = arcpy.mp.ArcGISProject("CURRENT")
+	Map     = Project.listMaps()[0]
+	Layer   = Map.addDataFromPath(Layer)
 	return
 
 
