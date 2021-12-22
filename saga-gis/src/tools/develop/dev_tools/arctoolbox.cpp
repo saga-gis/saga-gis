@@ -223,17 +223,26 @@ CSG_String CArcToolBox::Get_Formatted(CSG_String String, int Type)
 //---------------------------------------------------------
 CSG_String CArcToolBox::Get_Description(CSG_Tool *pTool, int Type)
 {
-	CSG_String	s(pTool->Get_Description());
+	CSG_String	s; if( pTool ) s += (pTool->Get_Description());
 
-	s	+= "<p><hr>";
-	s	+= "<span STYLE=\"font-style:italic;font-size:9pt;font-weight:bold\">";
-	s	+= "SAGA - System for Automated Geoscientific Analyses<br></span>";
-	s	+= "<span STYLE=\"font-style:italic;font-size:8pt\">";
-	s	+= "www.saga-gis.org<br></span>";
-	s	+= "<span STYLE=\"font-style:italic;font-size:6pt\">_____<br>Reference:<br>";
-	s	+= "Conrad, O., Bechtel, B., Bock, M., Dietrich, H., Fischer, E., Gerlitz, L., Wehberg, J., Wichmann, V., and Böhner, J. (2015): ";
-	s	+= "System for Automated Geoscientific Analyses (SAGA) v. 2.1.4, Geosci. Model Dev., 8, 1991-2007, doi:10.5194/gmd-8-1991-2015.";
-	s	+= "</span></p>";
+	if( Type == FORMAT_HTML || Type == FORMAT_HTML_TXT )
+	{
+		s	+= "<p><hr>";
+		s	+= "<span STYLE=\"font-style:italic;font-size:9pt;font-weight:bold\">";
+		s	+= "SAGA - System for Automated Geoscientific Analyses<br></span>";
+		s	+= "<span STYLE=\"font-style:italic;font-size:8pt\">";
+		s	+= "www.saga-gis.org<br></span>";
+		s	+= "<span STYLE=\"font-style:italic;font-size:6pt\">_____<br>Reference:<br>";
+		s	+= "Conrad, O., Bechtel, B., Bock, M., Dietrich, H., Fischer, E., Gerlitz, L., Wehberg, J., Wichmann, V., and Böhner, J. (2015): ";
+		s	+= "System for Automated Geoscientific Analyses (SAGA) v. 2.1.4, Geosci. Model Dev., 8, 1991-2007, doi:10.5194/gmd-8-1991-2015.";
+		s	+= "</span></p>";
+	}
+	else
+	{
+		s	+= "Conrad, O., Bechtel, B., Bock, M., Dietrich, H., Fischer, E., Gerlitz, L., Wehberg, J., Wichmann, V., and Böhner, J. (2015): ";
+		s	+= "System for Automated Geoscientific Analyses (SAGA) v. 2.1.4, Geosci. Model Dev., 8, 1991-2007, doi:10.5194/gmd-8-1991-2015. ";
+		s	+= "[SAGA - System for Automated Geoscientific Analyses - saga-gis.org] ";
+	}
 
 	return( Get_Formatted(s, Type) );
 }
@@ -559,12 +568,12 @@ bool CArcToolBox::Get_Tool(CSG_Tool_Library *pLibrary, int iTool, CSG_String &Co
 		Tool.Add_Property("xmlns"        , "");
 	//	Tool.Add_Child   ("arcToolboxHelpPath", "");
 		Tool.Add_Child   ("parameters");
-	//	Tool.Add_Child   ("summary"      , Get_Description(pTool, FORMAT_HTML_TXT));
+		Tool.Add_Child   ("summary"      , pTool->Get_Description());
 
 		CSG_MetaData	&Info	= *Description.Add_Child("dataIdInfo");
-		Info.Add_Child   ("idCitation")->Add_Child("resTitle", pTool->Get_Name());
+		Info.Add_Child   ("idCitation")->Add_Child("resTitle", Get_Formatted(pTool->Get_Author(), FORMAT_ASCII));
 	//	Info.Add_Child   ("idAbs"        , Get_Description(pTool, FORMAT_HTML_TXT));
-		Info.Add_Child   ("idCredit"     , Get_Formatted(pTool->Get_Author(), FORMAT_ASCII));
+		Info.Add_Child   ("idCredit"     , Get_Description(NULL, FORMAT_ASCII));
 		Info.Add_Child   ("searchKeys");
 		Info("searchKeys")->Add_Child("SAGA");
 	}
