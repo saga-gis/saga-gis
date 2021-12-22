@@ -375,6 +375,9 @@ bool CSG_Tool::Execute(bool bAddHistory)
 
 	m_bExecutes	= false;
 
+	SG_UI_Process_Set_Okay ();
+	SG_UI_Process_Set_Ready();
+
 	return( bResult );
 }
 
