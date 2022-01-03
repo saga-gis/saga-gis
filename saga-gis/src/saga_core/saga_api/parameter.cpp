@@ -910,7 +910,7 @@ bool CSG_Parameter::Check(bool bSilent)
 			}
 		}
 
-		return( asDataObject() || is_Optional() );
+		return( is_Optional() || !is_Enabled() || asDataObject() );
 	}
 
 	//-----------------------------------------------------
@@ -930,7 +930,7 @@ bool CSG_Parameter::Check(bool bSilent)
 
 		asList()->Update_Data();
 
-		return( is_Output() || is_Optional() || asList()->Get_Item_Count() > 0 );
+		return( is_Optional() || !is_Enabled() || is_Output() || asList()->Get_Item_Count() > 0 );
 	}
 
 	//-----------------------------------------------------
