@@ -49,6 +49,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifdef WITH_MRMR
+
+//---------------------------------------------------------
 // A C++ program to implement the mRMR selection using mutual information
 // written by Hanchuan Peng.
 //
@@ -1016,3 +1019,4 @@ template <class T> void CSG_mRMR::Copy_Vector(T *srcdata, long len, int *desdata
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#endif // WITH_MRMR

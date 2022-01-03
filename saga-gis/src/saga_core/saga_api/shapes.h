@@ -1262,10 +1262,10 @@ public:
 	CSG_Parameters_PointSearch(void);
 	virtual ~CSG_Parameters_PointSearch(void)	{}
 
-	virtual bool				Create					(CSG_Parameters *pParameters, const CSG_String &Parent = "", size_t minPoints = 0);
+	virtual bool				Create					(class CSG_Parameters *pParameters, const CSG_String &Parent = "", size_t minPoints = 0);
 
-	virtual bool				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-	virtual bool				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual bool				On_Parameter_Changed	(class CSG_Parameters *pParameters, class CSG_Parameter *pParameter);
+	virtual bool				On_Parameters_Enable	(class CSG_Parameters *pParameters, class CSG_Parameter *pParameter);
 
 	virtual bool				Update					(void);
 
@@ -1282,7 +1282,7 @@ protected:
 
 	double						m_Radius;
 
-	CSG_Parameters				*m_pParameters;
+	class CSG_Parameters		*m_pParameters;
 
 };
 
@@ -1293,8 +1293,8 @@ public:
 	CSG_Parameters_Search_Points(void);
 	virtual ~CSG_Parameters_Search_Points(void)	{}
 
-	virtual bool				Create					(CSG_Parameters *pParameters, class CSG_Parameter *pParent       , int nPoints_Min = -1);
-	virtual bool				Create					(CSG_Parameters *pParameters, const CSG_String     &Parent = ""  , int nPoints_Min = -1);
+	virtual bool				Create					(class CSG_Parameters *pParameters, class CSG_Parameter *pParent       , int nPoints_Min = -1);
+	virtual bool				Create					(class CSG_Parameters *pParameters, const CSG_String     &Parent = ""  , int nPoints_Min = -1);
 
 	virtual bool				Update					(void);
 

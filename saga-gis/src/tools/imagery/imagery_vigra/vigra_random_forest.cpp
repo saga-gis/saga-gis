@@ -386,11 +386,13 @@ CViGrA_Random_Forest::CViGrA_Random_Forest(void)
 		false
 	);
 
+#ifdef WITH_MRMR
 	CSG_mRMR::Parameters_Add(&Parameters, Parameters.Add_Bool("TRAINING",
 		"DO_MRMR"		, _TL("Minimum Redundancy Feature Selection"),
 		_TL("Use only features selected by the minimum Redundancy Maximum Relevance (mRMR) algorithm"),
 		false
 	));
+#endif // WITH_MRMR
 
 	//-----------------------------------------------------
 	CRandom_Forest::Parameters_Create(Parameters);
@@ -413,6 +415,7 @@ int CViGrA_Random_Forest::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_
 		pParameters->Set_Enabled("IMPORTANCES", bTraining);
 	}
 
+#ifdef WITH_MRMR
 	if( pParameter->Cmp_Identifier("DO_MRMR") )
 	{
 		(*pParameters)("DO_MRMR")->Set_Children_Enabled(pParameter->asBool());
@@ -422,6 +425,7 @@ int CViGrA_Random_Forest::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_
 	{
 		CSG_mRMR::Parameters_Enable(pParameters, pParameter);
 	}
+#endif // WITH_MRMR
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
@@ -658,6 +662,7 @@ bool CViGrA_Random_Forest::Get_Training(CSG_Matrix &Data, CSG_Table &Classes)
 		pClass->Add_Value(CLASS_COUNT, Get_Training(Data, ID, (CSG_Shape_Polygon *)pArea));
 	}
 
+#ifdef WITH_MRMR
 	if( Data.Get_NCols() > 1 && Data.Get_NRows() > 1 && Parameters("DO_MRMR")->asBool() )
 	{
 		CSG_mRMR	Selector;
@@ -696,6 +701,7 @@ bool CViGrA_Random_Forest::Get_Training(CSG_Matrix &Data, CSG_Table &Classes)
 			delete[](bSelected);
 		}
 	}
+#endif // WITH_MRMR
 
 	return( Data.Get_NCols() > 1 && Data.Get_NRows() > 1 );
 }
@@ -901,11 +907,13 @@ CViGrA_RF_Presence::CViGrA_RF_Presence(void)
 	);
 
 	//-----------------------------------------------------
+#ifdef WITH_MRMR
 	CSG_mRMR::Parameters_Add(&Parameters, Parameters.Add_Bool("",
 		"DO_MRMR"		, _TL("Minimum Redundancy Feature Selection"),
 		_TL("Use only features selected by the minimum Redundancy Maximum Relevance (mRMR) algorithm"),
 		false
 	));
+#endif // WITH_MRMR
 
 	//-----------------------------------------------------
 	CRandom_Forest::Parameters_Create(Parameters);
@@ -927,6 +935,7 @@ int CViGrA_RF_Presence::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Pa
 		pParameters->Set_Enabled("PRESENCE"  , bTraining);
 	}
 
+#ifdef WITH_MRMR
 	if( pParameter->Cmp_Identifier("DO_MRMR") )
 	{
 		(*pParameters)("DO_MRMR")->Set_Children_Enabled(pParameter->asBool());
@@ -936,8 +945,9 @@ int CViGrA_RF_Presence::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Pa
 	{
 		CSG_mRMR::Parameters_Enable(pParameters, pParameter);
 	}
+#endif // WITH_MRMR
 
-	return( 1 );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -1096,6 +1106,7 @@ bool CViGrA_RF_Presence::Get_Training(CSG_Matrix &Data)
 	}
 
 	//-----------------------------------------------------
+#ifdef WITH_MRMR
 	if( Data.Get_NCols() > 1 && Data.Get_NRows() > 1 && Parameters("DO_MRMR")->asBool() )
 	{
 		CSG_mRMR	Selector;
@@ -1134,6 +1145,7 @@ bool CViGrA_RF_Presence::Get_Training(CSG_Matrix &Data)
 			delete[](bSelected);
 		}
 	}
+#endif // WITH_MRMR
 
 	return( Data.Get_NCols() > 1 && Data.Get_NRows() > 1 );
 }

@@ -1298,16 +1298,16 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifdef WITH_MRMR
+#undef WITH_MRMR
+#define WITH_MRMR
+
+//---------------------------------------------------------
 enum ESG_mRMR_Method
 {
 	SG_mRMR_Method_MID	= 0,	// Mutual Information Difference (MID)
 	SG_mRMR_Method_MIQ			// Mutual Information Quotient (MIQ)
 };
-
-
-///////////////////////////////////////////////////////////
-//                                                       //
-///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_mRMR
@@ -1375,6 +1375,9 @@ private: ///// private members and functions: /////////////
 	static int					Pool_Compare		(const void *a, const void *b);
 
 };
+
+//---------------------------------------------------------
+#endif // WITH_MRMR
 
 
 ///////////////////////////////////////////////////////////

@@ -56,7 +56,6 @@ set(SAGA_API_SOURCES
 	mat_regression.cpp
 	mat_regression_multiple.cpp
 	mat_regression_weighted.cpp
-	mat_mRMR.cpp
 	mat_spline.cpp
 	mat_tools.cpp
 	mat_trend.cpp
@@ -121,6 +120,17 @@ set(SAGA_API_SOURCES
 	tool_library.h
 )
 
+#________________________________________
+option(WITH_MRMR "Check to include mRMR code (Minimum Redundancy Feature Selection, incompatible with Debian licensing)" OFF)
+
+if(WITH_MRMR)
+	set(SAGA_API_SOURCES
+		${SAGA_API_SOURCES}
+		mat_mRMR.cpp
+	)
+endif()
+
+#________________________________________
 add_library(saga_api SHARED
 	${SAGA_API_SOURCES}
 	${SAGA_API_PUBLIC_HEADERS} # just cosmetic, show headers in IDE
@@ -141,6 +151,10 @@ endif()
 
 target_compile_definitions(saga_api PUBLIC -D_TYPEDEF_BYTE -D_TYPEDEF_WORD)
 target_compile_definitions(saga_api PRIVATE -D_SAGA_API_EXPORTS)
+
+if(WITH_MRMR)
+	target_compile_definitions(saga_api PUBLIC -DWITH_MRMR)
+endif()
 
 # set version number for library
 set_target_properties(saga_api PROPERTIES

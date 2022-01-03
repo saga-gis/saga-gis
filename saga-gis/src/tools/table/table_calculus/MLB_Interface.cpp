@@ -120,7 +120,9 @@ CSG_Tool *		Create_Tool(int i)
 
 	case 11:	return( new CTable_Field_Extreme );
 
+#ifdef WITH_MRMR
 	case 12:	return( new CTable_mRMR );
+#endif // WITH_MRMR
 
 	case 15:	return( new CTable_Field_Statistics() );
 	case 16:	return( new CTable_Record_Statistics() );
