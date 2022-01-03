@@ -1299,8 +1299,6 @@ private:
 
 //---------------------------------------------------------
 #ifdef WITH_MRMR
-#undef WITH_MRMR
-#define WITH_MRMR
 
 //---------------------------------------------------------
 enum ESG_mRMR_Method
