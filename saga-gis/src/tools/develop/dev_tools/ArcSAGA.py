@@ -53,7 +53,7 @@ CREATE_NO_WINDOW = 0x08000000
 # File Tools
 #________________________________________________________
 def File_Get_TempName(Extension):
-	if sys.version_info.major < 3: # ArcGIS Desktop
+	if 'tempnam' in dir(os): # sys.version_info.major < 3: # ArcGIS Desktop
 		return os.tempnam(None, 'arc_saga_') + '.' + Extension
 	import tempfile
 	return tempfile._get_default_tempdir() + os.sep + 'arcsaga_' + next(tempfile._get_candidate_names()) + '.' + Extension
@@ -118,11 +118,14 @@ class SAGA_Tool:
 		for Item in self.Parameters:
 			cmd += ' ' + Item
 
+		if bIgnoreLog == False:
+			arcpy.AddMessage('_________________________\n')
+			arcpy.AddMessage(cmd)
+
 		if bIgnoreLog == False and DIR_LOG != None:
 			cmd_out = open(DIR_LOG + os.sep + 'arcsaga.log'      , 'w')
 			cmd_err = open(DIR_LOG + os.sep + 'arcsaga.error.log', 'w')
-			cmd_out.write('_________________________\n')
-			cmd_out.write(cmd)	# print to log file
+			cmd_out.write('\n___\nPython-' + sys.version + '\n___\n' + cmd)	# print to log file
 			Result = subprocess.call(cmd, creationflags=CREATE_NO_WINDOW, stdout=cmd_out, stderr=cmd_err)
 		else:
 			Result = subprocess.call(cmd, creationflags=CREATE_NO_WINDOW)
@@ -273,7 +276,7 @@ class SAGA_Tool:
 def Arc_To_SAGA_Raster(Raster):
 	Supported = ['sdat', 'tif', 'img', 'asc']
 	for ext in Supported:
-		if File_Cmp_Extension(Raster, ext):
+		if File_Cmp_Extension(Raster, ext) and os.path.isfile(Raster):
 			return Raster
 
 	File   = File_Get_TempName('tif')
