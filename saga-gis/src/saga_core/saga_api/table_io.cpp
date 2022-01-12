@@ -399,7 +399,7 @@ bool CSG_Table::_Load_Text(const CSG_String &FileName, bool bHeadline, const SG_
 				{
 					Type[iField]	= SG_DATATYPE_String;
 				}
-				else if( Type[iField] != SG_DATATYPE_Double && Value - (int)Value != 0. || sField.Find('.') >= 0 )
+				else if( Type[iField] != SG_DATATYPE_Double && (Value - (int)Value != 0. || sField.Find('.') >= 0) )
 				{
 					Type[iField]	= SG_DATATYPE_Double;
 				}
