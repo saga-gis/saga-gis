@@ -79,7 +79,7 @@ CSAGA_Wetness_Index::CSAGA_Wetness_Index(void)
 		"Soil Regionalisation by Means of Terrain Analysis and Process Parameterisation",
 		"In: Micheli, E., Nachtergaele, F., Montanarella, L. [Ed.]: Soil Classification 2001. "
 		"European Soil Bureau, Research Report No. 7, EUR 20398 EN, Luxembourg. pp.213-222.",
-		SG_T("http://eusoils.jrc.ec.europa.eu/ESDB_Archive/eusoils_docs/esb_rr/EUR22646EN.pdf")
+		SG_T("https://esdac.jrc.ec.europa.eu/ESDB_Archive/eusoils_docs/esb_rr/n07_ESBResRep07/601Bohner.pdf")
 	);
 
 	Add_Reference(
@@ -87,7 +87,7 @@ CSAGA_Wetness_Index::CSAGA_Wetness_Index(void)
 		"Spatial prediction of soil attributes using terrain analysis and climate regionalisation",
 		"In: Boehner, J., McCloy, K.R., Strobl, J. [Eds.]: SAGA - Analysis and Modelling Applications, "
 		"Goettinger Geographische Abhandlungen, Goettingen: 13-28.",
-		SG_T("http://downloads.sourceforge.net/saga-gis/gga115_02.pdf")
+		SG_T("https://downloads.sourceforge.net/saga-gis/gga115_02.pdf")
 	);
 
 	//-----------------------------------------------------
