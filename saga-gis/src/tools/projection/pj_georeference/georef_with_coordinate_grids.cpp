@@ -89,7 +89,7 @@ CGeoRef_with_Coordinate_Grids::CGeoRef_with_Coordinate_Grids(void)
 	Parameters.Add_Grid_List("",
 		"OUTPUT"	, _TL("Grids"),
 		_TL(""),
-		PARAMETER_OUTPUT
+		PARAMETER_OUTPUT, false
 	);
 
 	Parameters.Add_Choice("",
@@ -176,6 +176,8 @@ bool CGeoRef_with_Coordinate_Grids::On_Execute(void)
 		return( false );
 	}
 
+	CSG_Grid_System	System(Coords->Get_System());
+
 	//-----------------------------------------------------
 	TSG_Grid_Resampling	Resampling;
 
@@ -193,47 +195,43 @@ bool CGeoRef_with_Coordinate_Grids::On_Execute(void)
 	CSG_Parameter_Grid_List	*pGrids[2];
 
 	pGrids[0]	= Parameters("GRIDS" )->asGridList();
-	pGrids[1]	= Parameters("OUTPUT")->asGridList();
+	pGrids[1]	= Parameters("OUTPUT")->asGridList(); pGrids[1]->Del_Items();
 
 	for(int i=0; i<pGrids[0]->Get_Item_Count() && Process_Get_Okay(); i++)
 	{
 		bool	bKeepType	= bByteWise || Parameters("KEEP_TYPE")->asBool();
 
-		CSG_Data_Object	*pOutput, *pObject = pGrids[0]->Get_Item(i);
+		CSG_Data_Object	*pOutput, *pInput = pGrids[0]->Get_Item(i);
 
-		switch( pObject->Get_ObjectType() )
+		switch( pInput->Get_ObjectType() )
 		{
-		default:
+		default: {
+			CSG_Grid	*pGrid	= (CSG_Grid  *)pInput;
+
+			pOutput	= SG_Create_Grid (System,
+				bKeepType ? pGrid->Get_Type() : SG_DATATYPE_Undefined
+			);
+
+			if( bKeepType )
 			{
-				CSG_Grid	*pGrid	= (CSG_Grid  *)pObject;
-
-				pOutput	= SG_Create_Grid (Coords[0].Get_System(),
-					bKeepType ? pGrid->Get_Type() : SG_DATATYPE_Undefined
-				);
-
-				if( bKeepType )
-				{
-					((CSG_Grid  *)pOutput)->Set_Scaling(pGrid->Get_Scaling(), pGrid->Get_Offset());
-					pOutput->Set_NoData_Value_Range(pObject->Get_NoData_Value(), pObject->Get_NoData_Value(true));
-				}
+				((CSG_Grid  *)pOutput)->Set_Scaling(pGrid->Get_Scaling(), pGrid->Get_Offset());
+				pOutput->Set_NoData_Value_Range(pInput->Get_NoData_Value(), pInput->Get_NoData_Value(true));
 			}
-			break;
+			break; }
 
-			case SG_DATAOBJECT_TYPE_Grids:
+		case SG_DATAOBJECT_TYPE_Grids: {
+			CSG_Grids	*pGrids	= (CSG_Grids *)pInput;
+
+			pOutput	= SG_Create_Grids(System, pGrids->Get_Attributes(), pGrids->Get_Z_Attribute(),
+				bKeepType ? pGrids->Get_Type() : SG_DATATYPE_Undefined, true
+			);
+
+			if( bKeepType )
 			{
-				CSG_Grids	*pGrids	= (CSG_Grids *)pObject;
-
-				pOutput	= SG_Create_Grids(Coords[0].Get_System(), pGrids->Get_Attributes(), pGrids->Get_Z_Attribute(),
-					bKeepType ? pGrids->Get_Type() : SG_DATATYPE_Undefined, true
-				);
-
-				if( bKeepType )
-				{
-					((CSG_Grids *)pOutput)->Set_Scaling(pGrids->Get_Scaling(), pGrids->Get_Offset());
-					pOutput->Set_NoData_Value_Range(pObject->Get_NoData_Value(), pObject->Get_NoData_Value(true));
-				}
+				((CSG_Grids *)pOutput)->Set_Scaling(pGrids->Get_Scaling(), pGrids->Get_Offset());
+				pOutput->Set_NoData_Value_Range(pInput->Get_NoData_Value(), pInput->Get_NoData_Value(true));
 			}
-			break;
+			break; }
 		}
 
 		if( !pOutput )
@@ -243,24 +241,24 @@ bool CGeoRef_with_Coordinate_Grids::On_Execute(void)
 			return( false );
 		}
 
-		pOutput->Set_Name             (pObject->Get_Name       ());
-		pOutput->Set_Description      (pObject->Get_Description());
-		pOutput->Get_MetaData().Assign(pObject->Get_MetaData   ());
+		pOutput->Set_Name             (pInput->Get_Name       ());
+		pOutput->Set_Description      (pInput->Get_Description());
+		pOutput->Get_MetaData().Assign(pInput->Get_MetaData   ());
 
 		pGrids[1]->Add_Item(pOutput);
 	}
 
 	//-----------------------------------------------------
-	for(int y=0; y<Coords[0].Get_NY() && Set_Progress(y, Coords[0].Get_NY()); y++)
+	for(int y=0; y<System.Get_NY() && Set_Progress(y, System.Get_NY()); y++)
 	{
 		#ifndef _DEBUG
 		#pragma omp parallel for
 		#endif
-		for(int x=0; x<Coords[0].Get_NX(); x++)
+		for(int x=0; x<System.Get_NX(); x++)
 		{
-			if( Coords[0].is_NoData(x, y) || Coords[0].is_NoData(x, y) )
+			if( Coords[0].is_NoData(x, y) || Coords[1].is_NoData(x, y) )
 			{
-				for(int i=0; i<pGrids[0]->Get_Grid_Count(); i++)
+				for(int i=0; i<pGrids[1]->Get_Grid_Count(); i++)
 				{
 					pGrids[1]->Get_Grid(i)->Set_NoData(x, y);
 				}
@@ -272,7 +270,7 @@ bool CGeoRef_with_Coordinate_Grids::On_Execute(void)
 				cx	= Get_XMin() + Get_Cellsize() * Coords[0].asDouble(x, y);
 				cy	= Get_XMin() + Get_Cellsize() * Coords[1].asDouble(x, y);
 
-				for(int i=0; i<pGrids[0]->Get_Grid_Count(); i++)
+				for(int i=0; i<pGrids[1]->Get_Grid_Count(); i++)
 				{
 					if( pGrids[0]->Get_Grid(i)->Get_Value(cx, cy, z, Resampling, false, bByteWise) )
 					{
@@ -288,7 +286,7 @@ bool CGeoRef_with_Coordinate_Grids::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int i=0; i<pGrids[0]->Get_Item_Count() && Process_Get_Okay(); i++)
+	for(int i=0; i<pGrids[1]->Get_Item_Count() && Process_Get_Okay(); i++)
 	{
 		DataObject_Add(pGrids[1]->Get_Item(i));
 		DataObject_Set_Parameters(pGrids[1]->Get_Item(i), pGrids[0]->Get_Item(i));
