@@ -165,6 +165,8 @@ public:
 	int							Get_Count			(void)	const;
 	CSG_String					Get_Name			(int i)	const;
 	CSG_String					Get_Description		(int i)	const;
+	bool						Set_Description		(int i, const CSG_String &Description);
+	CSG_String					Get_MetaData		(int i)	const;
 	bool						Get_MetaData		(int i, CSG_MetaData &MetaData)	const;
 	const char *				Get_MetaData_Item	(int i, const char *pszName)	const;
 	bool						Get_MetaData_Item	(int i, const char *pszName, CSG_String &MetaData)	const;

@@ -783,9 +783,9 @@ CSG_String CSG_GDAL_DataSet::Get_Name(int i)	const
 {
 	CSG_String		Name;
 
-	GDALRasterBandH	pBand;
+	GDALRasterBandH	pBand = is_Reading() ? GDALGetRasterBand(m_pDataSet, i + 1) : NULL;
 
-	if( is_Reading() && (pBand = GDALGetRasterBand(m_pDataSet, i + 1)) != NULL )
+	if( pBand )
 	{
 		const char	*s;
 
@@ -820,7 +820,10 @@ CSG_String CSG_GDAL_DataSet::Get_Name(int i)	const
 				Name	= _TL("Band");
 			}
 
-			Name	+= CSG_String::Format(" %0*d", SG_Get_Digit_Count(Get_Count() + 1), i + 1);
+			if( Get_Count() > 1 )
+			{
+				Name	+= CSG_String::Format(" %0*d", SG_Get_Digit_Count(Get_Count() + 1), i + 1);
+			}
 		}
 	}
 
@@ -830,52 +833,74 @@ CSG_String CSG_GDAL_DataSet::Get_Name(int i)	const
 //---------------------------------------------------------
 CSG_String CSG_GDAL_DataSet::Get_Description(int i)	const
 {
-	CSG_String		Description;
+	GDALRasterBandH	pBand = is_Reading() ? GDALGetRasterBand(m_pDataSet, i + 1) : NULL;
 
-	GDALRasterBandH	pBand;
+	const char *s = pBand ? GDALGetDescription(pBand) : NULL;
 
-	if( is_Reading() && (pBand = GDALGetRasterBand(m_pDataSet, i + 1)) != NULL )
+	return( s ? s : "" );
+}
+
+//---------------------------------------------------------
+bool CSG_GDAL_DataSet::Set_Description(int i, const CSG_String &Description)
+{
+	GDALRasterBandH	pBand = is_Writing() ? GDALGetRasterBand(m_pDataSet, i + 1) : NULL;
+
+	if( pBand )
 	{
-		char	**pMetaData	= GDALGetMetadata(pBand, 0);
+		GDALSetDescription(pBand, Description.b_str());
 
-		if( pMetaData )
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_GDAL_DataSet::Get_MetaData(int i)	const
+{
+	CSG_String		MetaData;
+
+	GDALRasterBandH	pBand = is_Reading() ? GDALGetRasterBand(m_pDataSet, i + 1) : NULL;
+
+	char **pMetaData = pBand ? GDALGetMetadata(pBand, NULL) : NULL;
+
+	if( pMetaData )
+	{
+		while( *pMetaData )
 		{
-			while( *pMetaData )
+			if( !MetaData.is_Empty() )
 			{
-				CSG_String	s(*pMetaData);
-
-				Description	+= s + "\n";
-
-				pMetaData++;
+				MetaData	+= "\n";
 			}
+
+			MetaData	+= *pMetaData;
+
+			pMetaData++;
 		}
 	}
 
-	return( Description );
+	return( MetaData );
 }
 
 //---------------------------------------------------------
 bool CSG_GDAL_DataSet::Get_MetaData(int i, CSG_MetaData &MetaData)	const
 {
-	GDALRasterBandH	pBand;
+	GDALRasterBandH	pBand = is_Reading() ? GDALGetRasterBand(m_pDataSet, i + 1) : NULL;
 
-	if( is_Reading() && (pBand = GDALGetRasterBand(m_pDataSet, i + 1)) != NULL )
+	char **pMetaData = pBand ? GDALGetMetadata(pBand, NULL) : NULL;
+
+	if( pMetaData )
 	{
-		char	**pMetaData	= GDALGetMetadata(pBand, 0);
-
-		if( pMetaData )
+		while( *pMetaData )
 		{
-			while( *pMetaData )
-			{
-				CSG_String	s(*pMetaData);
+			CSG_String	s(*pMetaData);
 
-				MetaData.Add_Child(s.BeforeFirst('='), s.AfterFirst('='));
+			MetaData.Add_Child(s.BeforeFirst('='), s.AfterFirst('='));
 
-				pMetaData++;
-			}
-
-			return( true );
+			pMetaData++;
 		}
+
+		return( true );
 	}
 
 	return( false );
@@ -916,39 +941,39 @@ CSG_Grid * CSG_GDAL_DataSet::Read(int i)
 		return( NULL );
 	}
 
-	//-------------------------------------------------
-	GDALRasterBandH	pBand	= GDALGetRasterBand(m_pDataSet, i + 1);
+	//-----------------------------------------------------
+	GDALRasterBandH pBand = GDALGetRasterBand(m_pDataSet, i + 1);
 
 	if( !pBand )
 	{
 		return( NULL );
 	}
 
-	//-------------------------------------------------
-	TSG_Data_Type	Type	= gSG_GDAL_Drivers.Get_SAGA_Type(GDALGetRasterDataType(pBand));
+	//-----------------------------------------------------
+	TSG_Data_Type Type = gSG_GDAL_Drivers.Get_SAGA_Type(GDALGetRasterDataType(pBand));
 
-	CSG_Grid	*pGrid	= SG_Create_Grid(Type, Get_NX(), Get_NY(), Get_Cellsize(), Get_xMin(), Get_yMin());
+	CSG_Grid *pGrid = SG_Create_Grid(Type, Get_NX(), Get_NY(), Get_Cellsize(), Get_xMin(), Get_yMin());
 
 	if( !pGrid )
 	{
 		return( NULL );
 	}
 
-	//-------------------------------------------------
+	//-----------------------------------------------------
 	int		bSuccess;
 
-	double	zScale	= GDALGetRasterScale (pBand, &bSuccess);	if( !bSuccess || !zScale )	zScale	= 1.;
-	double	zOffset	= GDALGetRasterOffset(pBand, &bSuccess);	if( !bSuccess            )	zOffset	= 0.;
+	double	zScale	= GDALGetRasterScale (pBand, &bSuccess); if( !bSuccess || !zScale ) zScale  = 1.;
+	double	zOffset	= GDALGetRasterOffset(pBand, &bSuccess); if( !bSuccess            ) zOffset = 0.;
 
-	pGrid->Set_Name			(Get_Name       (i));
-	pGrid->Set_Description	(Get_Description(i));
-	pGrid->Set_Unit			(CSG_String(GDALGetRasterUnitType(pBand)));
-	pGrid->Set_Scaling		(zScale, zOffset);
+	pGrid->Set_Name       (Get_Name       (i));
+	pGrid->Set_Description(Get_Description(i));
+	pGrid->Set_Unit       (CSG_String(GDALGetRasterUnitType(pBand)));
+	pGrid->Set_Scaling    (zScale, zOffset);
 
-	//-------------------------------------------------
-	OGRSpatialReferenceH	SRef	= OSRNewSpatialReference(Get_Projection());
+	//-----------------------------------------------------
+	OGRSpatialReferenceH SRef = OSRNewSpatialReference(Get_Projection());
 
-	char	*Proj4	= NULL;
+	char *Proj4 = NULL;
 
 	if( OSRExportToProj4(SRef, &Proj4) == OGRERR_NONE )
 	{
@@ -965,7 +990,7 @@ CSG_Grid * CSG_GDAL_DataSet::Read(int i)
 
 	if( pGrid->Get_Projection().is_Okay() == false )
 	{
-		CSG_String	Data;	int	EPSG;
+		CSG_String Data; int EPSG;
 
 		if( !Get_MetaData_Item(Data, "EPSG") || !Data.asInt(EPSG) || !pGrid->Get_Projection().Create(EPSG) )
 		{
@@ -976,7 +1001,7 @@ CSG_Grid * CSG_GDAL_DataSet::Read(int i)
 		}
 	}
 
-	//-------------------------------------------------
+	//-----------------------------------------------------
 	CSG_MetaData	&MetaData	= pGrid->Get_MetaData();
 
 	MetaData.Add_Child("GDAL_DRIVER", Get_DriverID());
@@ -985,7 +1010,7 @@ CSG_Grid * CSG_GDAL_DataSet::Read(int i)
 
 	Get_MetaData(i, *MetaData.Add_Child("Band"));
 
-	//-------------------------------------------------
+	//-----------------------------------------------------
 	double	zNoData	= GDALGetRasterNoDataValue(pBand, &bSuccess);
 
 	if( bSuccess )
@@ -998,8 +1023,8 @@ CSG_Grid * CSG_GDAL_DataSet::Read(int i)
 		}
 	}
 
-	//-------------------------------------------------
-	void	*zLine;	GDALDataType	zType;
+	//-----------------------------------------------------
+	void *zLine; GDALDataType zType;
 
 	switch( Type )
 	{
@@ -1067,6 +1092,8 @@ bool CSG_GDAL_DataSet::Write(int i, CSG_Grid *pGrid, double noDataValue)
 	}
 
 	//-----------------------------------------------------
+	Set_Description(i, pGrid->Get_Description());
+
 	GDALSetRasterNoDataValue(pBand, noDataValue);
 	GDALSetRasterStatistics (pBand, pGrid->Get_Min(), pGrid->Get_Max(), pGrid->Get_Mean(), pGrid->Get_StdDev());
 
@@ -1076,7 +1103,7 @@ bool CSG_GDAL_DataSet::Write(int i, CSG_Grid *pGrid, double noDataValue)
 //---------------------------------------------------------
 bool CSG_GDAL_DataSet::Write(int i, CSG_Grid *pGrid)
 {
-	return (CSG_GDAL_DataSet::Write (i, pGrid, pGrid->Get_NoData_Value()));
+	return (CSG_GDAL_DataSet::Write(i, pGrid, pGrid->Get_NoData_Value()));
 }
 
 

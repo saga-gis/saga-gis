@@ -502,9 +502,28 @@ bool CGDAL_Import::Load(const CSG_String &File)
 
 		DataSet.Get_MetaData(*pCollection->Get_MetaData().Add_Child("Metadata"));
 
+		int fDesc = 0;
+
+		for(size_t i=0; !fDesc && i<pGrids.Get_Size(); i++)
+		{
+			if( *((CSG_Grid *)pGrids.Get(i))->Get_Description() )
+			{
+				fDesc = pCollection->Get_Attributes().Get_Field_Count();
+
+				pCollection->Add_Attribute("Description", SG_DATATYPE_String);
+			}
+		}
+
 		for(size_t i=0; i<pGrids.Get_Size(); i++)
 		{
-			pCollection->Add_Grid((double)i, (CSG_Grid *)pGrids.Get(i), true);
+			CSG_Grid *pGrid = (CSG_Grid *)pGrids.Get(i); const SG_Char *Description = pGrid->Get_Description();
+
+			pCollection->Add_Grid((double)i, pGrid, true);
+
+			if( fDesc )
+			{
+				pCollection->Get_Attributes_Ptr()->Set_Value(i, fDesc, Description);
+			}
 		}
 
 		pList->Add_Item(pCollection);

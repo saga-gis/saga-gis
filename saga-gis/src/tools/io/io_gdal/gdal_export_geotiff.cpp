@@ -132,9 +132,7 @@ bool CGDAL_Export_GeoTIFF::On_Execute(void)
 		return( false );
 	}
 
-	CSG_Projection	Projection;	Get_Projection(Projection);
-
-	CSG_GDAL_DataSet	DataSet;
+	CSG_GDAL_DataSet DataSet; CSG_Projection Projection; Get_Projection(Projection);
 
 	if( !DataSet.Open_Write(Parameters("FILE")->asString(), "GTiff", Parameters("OPTIONS")->asString(),
 		SG_Get_Grid_Type(pGrids), pGrids->Get_Grid_Count(), Get_System(), Projection) )
