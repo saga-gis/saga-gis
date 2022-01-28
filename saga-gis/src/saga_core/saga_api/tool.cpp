@@ -547,7 +547,7 @@ void CSG_Tool::Set_Callback(bool bActive)
 }
 
 //---------------------------------------------------------
-bool CSG_Tool::Set_Manager(class CSG_Data_Manager *pManager)
+bool CSG_Tool::Set_Manager(CSG_Data_Manager *pManager)
 {
 	Parameters.Set_Manager(pManager);
 
@@ -557,6 +557,12 @@ bool CSG_Tool::Set_Manager(class CSG_Data_Manager *pManager)
 	}
 
 	return( true );
+}
+
+//---------------------------------------------------------
+CSG_Data_Manager *  CSG_Tool::Get_Manager(void)	const
+{
+	return( Parameters.Get_Manager() );
 }
 
 
@@ -1176,17 +1182,31 @@ bool CSG_Tool::Set_Parameter(const wchar_t    *ID, const wchar_t    *Value, int 
 * data objects and object lists are cleared and parameter
 * defaults are restored.
 */
-bool CSG_Tool::Reset(void)
+bool CSG_Tool::Reset(bool bManager)
 {
+	Reset_Grid_System();
+
+	if( bManager )
+	{
+		Reset_Manager();
+	}
+
 	for(int i=0; i<m_npParameters; i++)
 	{
 		m_pParameters[i]->Restore_Defaults(true);
-		m_pParameters[i]->Reset_Grid_System();
 	}
 
-	return( Parameters.Restore_Defaults(true)
-		&&  Parameters.Reset_Grid_System()
-	);
+	return( Parameters.Restore_Defaults(true) );
+}
+
+//---------------------------------------------------------
+/**
+* Resets the tools' data manager so it will be the SAGA API's
+* default manager as can be requested by SG_Get_Data_Manager().
+*/
+bool CSG_Tool::Reset_Manager(void)
+{
+	return( Set_Manager(&SG_Get_Data_Manager()) );
 }
 
 //---------------------------------------------------------
@@ -1196,6 +1216,11 @@ bool CSG_Tool::Reset(void)
 */
 bool CSG_Tool::Reset_Grid_System(void)
 {
+	for(int i=0; i<m_npParameters; i++)
+	{
+		m_pParameters[i]->Reset_Grid_System();
+	}
+
 	return( Parameters.Reset_Grid_System() );
 }
 
@@ -1207,6 +1232,16 @@ bool CSG_Tool::Reset_Grid_System(void)
 bool CSG_Tool::Set_Grid_System(const CSG_Grid_System &System)
 {
 	return( Parameters.Set_Grid_System(System) );
+}
+
+//---------------------------------------------------------
+/**
+* Gets the tools' grid system, if it has one, which is
+* typically the case for all derivatives of CSG_Tool_Grid.
+*/
+CSG_Grid_System * CSG_Tool::Get_Grid_System(void) const
+{
+	return( Parameters.Get_Grid_System() );
 }
 
 

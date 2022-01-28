@@ -529,7 +529,14 @@ bool CCMD_Tool::_Get_Options(CSG_Parameters *pParameters, bool bInitialize)
 			case PARAMETER_TYPE_Colors:
 				if( m_CMD.Found(_Get_ID(pParameter), &s) )
 				{
-					pParameter->asColors()->Load(CSG_String(&s));
+					if( SG_File_Exists(&s) )
+					{
+						pParameter->asColors()->Load(&s);
+					}
+					else if( s.ToLong(&l) )
+					{
+						pParameter->Set_Value((int)l);
+					}
 				}
 				break;
 

@@ -201,14 +201,19 @@ public:
 	bool						Set_Parameter				(const char       *ID, const wchar_t    *Value, int Type = PARAMETER_TYPE_Undefined);
 	bool						Set_Parameter				(const wchar_t    *ID, const wchar_t    *Value, int Type = PARAMETER_TYPE_Undefined);
 
-	bool						Reset						(void);
+	bool						Reset						(bool bManager = true);
+	bool						Reset_Manager				(void);
 	bool						Reset_Grid_System			(void);
-	bool						Set_Grid_System				(const CSG_Grid_System &System);
 
 	bool						Update_Parameter_States		(void);
 
 	void						Set_Callback				(bool bActive = true);
+
 	bool						Set_Manager					(class CSG_Data_Manager *pManager);
+	class CSG_Data_Manager *	Get_Manager					(void)	const;
+
+	bool						Set_Grid_System				(const CSG_Grid_System &System);
+	CSG_Grid_System *			Get_Grid_System				(void)	const;
 
 	bool						Settings_Push				(class CSG_Data_Manager *pManager = NULL);
 	bool						Settings_Pop				(void);
