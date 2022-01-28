@@ -294,7 +294,7 @@ void CSG_Data_Object::Set_Description(const CSG_String &Description)
 
 const SG_Char * CSG_Data_Object::Get_Description(void) const
 {
-	return( m_pOwner ? m_pOwner->m_Description : m_Description );
+	return( m_Description.is_Empty() && m_pOwner ? m_pOwner->m_Description : m_Description );
 }
 
 //---------------------------------------------------------
