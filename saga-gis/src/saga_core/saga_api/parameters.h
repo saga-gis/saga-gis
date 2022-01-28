@@ -916,6 +916,8 @@ protected:
 	CSG_Colors					m_Colors;
 
 
+	virtual int					_Set_Value				(int Value);
+
 	virtual void				_Set_String				(void);
 
 	virtual int					_asInt					(void)	const;

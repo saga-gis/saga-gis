@@ -1570,11 +1570,24 @@ CSG_Parameter_Colors::CSG_Parameter_Colors(CSG_Parameters *pOwner, CSG_Parameter
 }
 
 //---------------------------------------------------------
+int CSG_Parameter_Colors::_Set_Value(int Value)
+{
+	if( Value >= 0 && Value < CSG_Colors::Get_Predefined_Count() )
+	{
+		if( m_Colors.Create(m_Colors.Get_Count(), Value) )
+		{
+			return( SG_PARAMETER_DATA_SET_CHANGED );
+		}
+	}
+
+	return( SG_PARAMETER_DATA_SET_FALSE );
+}
+
+//---------------------------------------------------------
 void CSG_Parameter_Colors::_Set_String(void)
 {
 	m_String.Printf("%d %s", m_Colors.Get_Count(), _TL("colors"));
 }
-
 
 //---------------------------------------------------------
 int CSG_Parameter_Colors::_asInt(void)	const
