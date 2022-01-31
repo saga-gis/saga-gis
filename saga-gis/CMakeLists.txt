@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.13.3)
 
 # Policy CMP0043 introduced in cmake version 3.0 IGNORES the use of COMPILE_DEFINITIONS
 # suffixed variables, e.g. COMPILE_DEFINITIONS_DEBUG
