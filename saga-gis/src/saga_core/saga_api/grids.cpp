@@ -1792,20 +1792,24 @@ bool CSG_Grids::_Load_External(const CSG_String &FileName)
 	&&	pTool->Execute()
 	&&  Data.Grid_System_Count() > 0 && Data.Get_Grid_System(0)->Count() > 0 && Data.Get_Grid_System(0)->Get(0)->is_Valid() )
 	{
-		CSG_Grids	*pGrids	= (CSG_Grids *)Data.Get_Grid_System(0)->Get(0);
+		CSG_Grids *pGrids = (CSG_Grids *)Data.Get_Grid_System(0)->Get(0);
+
+		m_Attributes.Create(&pGrids->m_Attributes);
 
 		for(int i=0; i<pGrids->Get_Grid_Count(); i++)
 		{
-			Add_Grid(pGrids->Get_Z(i), pGrids->Get_Grid_Ptr(i), true);
+			Add_Grid(pGrids->Get_Attributes(i), pGrids->Get_Grid_Ptr(i), true);
 		}
-
-		pGrids->Del_Grids(true);
 
 		Set_File_Name(FileName, false);
 
-		Set_Name       (pGrids->Get_Name       ());
-		Set_Description(pGrids->Get_Description());
-		
+		Set_Name        (pGrids->Get_Name        ());
+		Set_Description (pGrids->Get_Description ());
+		Set_Z_Attribute (pGrids->Get_Z_Attribute ());
+		Set_Z_Name_Field(pGrids->Get_Z_Name_Field());
+
+		pGrids->Del_Grids(true);
+
 		bResult	= true;
 	}
 

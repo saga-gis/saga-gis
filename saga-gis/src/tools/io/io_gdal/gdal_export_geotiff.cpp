@@ -146,6 +146,16 @@ bool CGDAL_Export_GeoTIFF::On_Execute(void)
 		Process_Set_Text("%s %d", _TL("Band"), i + 1);
 
 		DataSet.Write(i, pGrids->Get_Grid(i));
+
+		if( pGrids->Get_Grid_Count() > 1 )
+		{
+			DataSet.Set_Description(i, pGrids->Get_Grid(i)->Get_Name());
+		}
+	}
+
+	if( pGrids->Get_Grid_Count() == 1 )
+	{
+		DataSet.Set_Description(0, pGrids->Get_Grid(0)->Get_Description());
 	}
 
 	//-----------------------------------------------------
