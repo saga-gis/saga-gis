@@ -66,6 +66,10 @@ CCold_Air_Flow::CCold_Air_Flow(void)
 		"A simple cold air flow simulation."
 	));
 
+	Add_Reference("Bendix, J.", "2005",
+		"Gelaendeklimatologie", "Studienreihe Geographie."
+	);
+
 	Add_Reference("Schwab, A.", "2000",
 		"Reliefanalytische Verfahren zur Abschaetzung naechtlicher Kaltluftbewegungen",
 		"Freiburger Geographische Hefte, 61."
@@ -269,6 +273,18 @@ bool CCold_Air_Flow::Finalize(void)
 	m_Air     .Destroy();
 	m_Velocity.Destroy();
 
+	if( !Process_Get_Okay() )
+	{
+		SG_UI_Process_Set_Okay();
+
+		m_pAir->Update(true);
+		
+		if( m_pVelocity )
+		{
+			m_pVelocity->Update(true);
+		}
+	}
+
 	return( true );
 }
 
@@ -308,9 +324,7 @@ inline double CCold_Air_Flow::Get_Production(int x, int y)
 //---------------------------------------------------------
 inline double CCold_Air_Flow::Get_Friction(int x, int y)
 {
-	double	Friction	= m_pFriction && !m_pFriction->is_NoData(x, y) ? m_pFriction->asDouble(x, y) : m_Friction;
-
-	return( Friction > 0. ? Friction : 0. );
+	return( !m_pFriction ? m_Friction : m_pFriction->is_NoData(x, y) ? 0. : m_pFriction->asDouble(x, y) );
 }
 
 //---------------------------------------------------------
@@ -368,9 +382,9 @@ inline bool CCold_Air_Flow::Get_Neighbour(int x, int y, int i, int &ix, int &iy)
 //---------------------------------------------------------
 inline double CCold_Air_Flow::Get_Velocity(int x, int y)
 {
-	double	dzSum = 0., v = 0., Air = m_pAir->asDouble(x, y);
+	double	dzSum = 0., v = 0., Air = m_pAir->asDouble(x, y), Friction = Get_Friction(x, y);
 
-	if( Air > 0. )
+	if( Air > 0. && Friction > 0. )
 	{
 		double	z = Get_Surface(x, y);
 
@@ -403,7 +417,7 @@ inline double CCold_Air_Flow::Get_Velocity(int x, int y)
 		{
 			double	s = Get_Gradient(x, y);
 
-			v	= 3600. * sqrt(m_g_dT * (Air / m_Friction) * sin(s));	// [m/h]
+			v	= 3600. * sqrt(m_g_dT * (Air / Friction) * sin(s));	// [m / h]
 		}
 	}
 
@@ -417,37 +431,32 @@ inline double CCold_Air_Flow::Get_Velocity(int x, int y)
 //---------------------------------------------------------
 bool CCold_Air_Flow::Get_Velocity(void)
 {
-	CSG_Vector	vMax(SG_OMP_Get_Max_Num_Threads());
+	double vMax = 0.;
 
 	#pragma omp parallel for
-	for(int y=0; y<Get_NY(); y++)
+	for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
 	{
-		for(int x=0; x<Get_NX(); x++)
+		if( !m_pDEM->is_NoData(x, y) )
 		{
-			if( !m_pDEM->is_NoData(x, y) )
-			{
-				double	v = Get_Velocity(x, y);
+			double	v = Get_Velocity(x, y);
 
-				if( vMax[SG_OMP_Get_Thread_Num()] < v )
+			if( vMax < v )
+			{
+				#pragma omp critical
 				{
-					vMax[SG_OMP_Get_Thread_Num()] = v;
+					if( vMax < v )	// could have been changed by another thread after the comparison outside the critical section
+					{
+						vMax = v;
+					}
 				}
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	for(int i=1; i<SG_OMP_Get_Max_Num_Threads(); i++)
+	if( vMax > 0. )
 	{
-		if( vMax[0] < vMax[i] )
-		{
-			vMax[0] = vMax[i];
-		}
-	}
-
-	if( vMax[0] > 0. )
-	{
-		m_dTime	= m_Delay * Get_Cellsize() / vMax[0];
+		m_dTime	= m_Delay * Get_Cellsize() / vMax;
 
 		return( true );
 	}
@@ -466,14 +475,11 @@ bool CCold_Air_Flow::Get_Velocity(void)
 bool CCold_Air_Flow::Set_Air(void)
 {
 	#pragma omp parallel for
-	for(int y=0; y<Get_NY(); y++)
+	for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
 	{
-		for(int x=0; x<Get_NX(); x++)
+		if( !m_pDEM->is_NoData(x, y) )
 		{
-			if( !m_pDEM->is_NoData(x, y) )
-			{
-				Set_Air(x, y);
-			}
+			Set_Air(x, y);
 		}
 	}
 
