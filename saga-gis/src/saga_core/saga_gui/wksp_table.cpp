@@ -280,11 +280,18 @@ int CWKSP_Table::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 //---------------------------------------------------------
 void CWKSP_Table::Set_View(bool bShow)
 {
-	if( bShow && !m_pView )
+	if( bShow )
 	{
-		m_pView	= new CVIEW_Table(this);
+		if( !m_pView )
+		{
+			m_pView	= new CVIEW_Table(this);
+		}
+		else
+		{
+			m_pView->Activate();
+		}
 	}
-	else if( !bShow && m_pView )
+	else if( m_pView )
 	{
 		m_pView->Destroy();
 	}
