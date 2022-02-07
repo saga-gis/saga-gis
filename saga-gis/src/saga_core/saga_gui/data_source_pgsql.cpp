@@ -415,6 +415,7 @@ BEGIN_EVENT_TABLE(CData_Source_PgSQL, wxTreeCtrl)
 	EVT_MENU                 (ID_CMD_DB_SOURCE_CLOSE     , CData_Source_PgSQL::On_Source_Close    )
 	EVT_MENU                 (ID_CMD_DB_SOURCE_CLOSE_ALL , CData_Source_PgSQL::On_Sources_Close   )
 	EVT_MENU                 (ID_CMD_DB_SOURCE_DELETE    , CData_Source_PgSQL::On_Source_Delete   )
+	EVT_MENU                 (ID_CMD_DB_SOURCE_SQL       , CData_Source_PgSQL::On_Source_SQL      )
 	EVT_MENU                 (ID_CMD_DB_TABLE_OPEN       , CData_Source_PgSQL::On_Table_Open      )
 	EVT_MENU                 (ID_CMD_DB_TABLE_FROM_QUERY , CData_Source_PgSQL::On_Table_From_Query)
 	EVT_MENU                 (ID_CMD_DB_TABLE_RENAME     , CData_Source_PgSQL::On_Table_Rename    )
@@ -607,6 +608,12 @@ void CData_Source_PgSQL::On_Source_Delete(wxCommandEvent &WXUNUSED(event))
 }
 
 //---------------------------------------------------------
+void CData_Source_PgSQL::On_Source_SQL(wxCommandEvent &WXUNUSED(event))
+{
+	Source_SQL(GetSelection());
+}
+
+//---------------------------------------------------------
 void CData_Source_PgSQL::On_Table_Open(wxCommandEvent &WXUNUSED(event))
 {
 	Table_Open(GetSelection());
@@ -710,6 +717,7 @@ void CData_Source_PgSQL::On_Item_Menu(wxTreeEvent &event)
 		else
 		{
 			CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_REFRESH);
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_SOURCE_SQL);
 			CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_SOURCE_DROP);
 			CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_SOURCE_CLOSE);
 			CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_SOURCE_DELETE);
@@ -1164,6 +1172,30 @@ void CData_Source_PgSQL::Source_Close(const wxTreeItemId &Item, bool bDelete)
 void CData_Source_PgSQL::Sources_Close(void)
 {
 	RUN_TOOL(DB_PGSQL_Del_Connections, true, false, true);
+}
+
+//---------------------------------------------------------
+void CData_Source_PgSQL::Source_SQL(const wxTreeItemId &Item)
+{
+	CData_Source_PgSQL_Data	*pData	= Item.IsOk() ? (CData_Source_PgSQL_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
+
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Execute_SQL, true);
+
+	if(	pTool && pTool->On_Before_Execution() )
+	{
+		if( pData->Get_Type() == TYPE_SERVER )
+		{
+			pTool->Set_Parameter("PG_HOST", pData->Get_Host());
+			pTool->Set_Parameter("PG_PORT", pData->Get_Port());
+		}
+
+		if( DLG_Parameters(pTool->Get_Parameters()) )
+		{
+			pTool->Execute();
+		}
+	}
+
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 }
 
 

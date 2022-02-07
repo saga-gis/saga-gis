@@ -122,6 +122,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DB_SOURCE_CLOSE:		return( _TL("Close") );
 	case ID_CMD_DB_SOURCE_CLOSE_ALL:	return( _TL("Close All") );
 	case ID_CMD_DB_SOURCE_DELETE:		return( _TL("Remove") );
+	case ID_CMD_DB_SOURCE_SQL:			return( _TL("Execute SQL") );
 	case ID_CMD_DB_TABLE_OPEN:			return( _TL("Load") );
 	case ID_CMD_DB_TABLE_DELETE:		return( _TL("Delete") );
 	case ID_CMD_DB_TABLE_RENAME:		return( _TL("Rename") );
