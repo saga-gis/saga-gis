@@ -687,11 +687,6 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 			);
 		}
 
-		if( pParameter->Cmp_Identifier("METRIC_NORMAL") )
-		{
-			pParameters->Set_Enabled("METRIC_NORFMT", pParameter->asInt() >= 0 && pParameter->asInt() < Get_Shapes()->Get_Field_Count());
-		}
-
 		if(	pParameter->Cmp_Identifier("LUT_ATTRIB")
 		&&  pParameter->asInt() >= 0 && pParameter->asInt() < Get_Shapes()->Get_Field_Count() )
 		{
@@ -768,6 +763,15 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 				s.Replace("FIELD_", "COLOR_");
 
 				pParameters->Set_Enabled(s, pParameter->asBool());
+			}
+		}
+
+		{
+			CSG_Parameter *pNormalize = pParameters->Get_Parameter("METRIC_NORMAL");
+
+			if( pNormalize )
+			{
+				pNormalize->Set_Children_Enabled(pNormalize->asInt() >= 0 && pNormalize->asInt() < Get_Shapes()->Get_Field_Count());
 			}
 		}
 	}
