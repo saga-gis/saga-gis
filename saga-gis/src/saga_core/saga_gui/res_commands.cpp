@@ -116,18 +116,18 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DATASOURCE_OPEN:		return( _TL("Open") );
 
 	case ID_CMD_DB_REFRESH:				return( _TL("Refresh") );
-	case ID_CMD_DB_SOURCE_CREATE:		return( _TL("New") );
-	case ID_CMD_DB_SOURCE_DROP:			return( _TL("Drop") );
-	case ID_CMD_DB_SOURCE_OPEN:			return( _TL("Open") );
-	case ID_CMD_DB_SOURCE_CLOSE:		return( _TL("Close") );
+	case ID_CMD_DB_SOURCE_CREATE:		return( _TL("Create Database") );
+	case ID_CMD_DB_SOURCE_DROP:			return( _TL("Drop Database") );
+	case ID_CMD_DB_SOURCE_OPEN:			return( _TL("Open Database") );
+	case ID_CMD_DB_SOURCE_CLOSE:		return( _TL("Close Database") );
 	case ID_CMD_DB_SOURCE_CLOSE_ALL:	return( _TL("Close All") );
-	case ID_CMD_DB_SOURCE_DELETE:		return( _TL("Remove") );
+	case ID_CMD_DB_SOURCE_DELETE:		return( _TL("Remove Database") );
 	case ID_CMD_DB_SOURCE_SQL:			return( _TL("Execute SQL") );
 	case ID_CMD_DB_TABLE_OPEN:			return( _TL("Load") );
 	case ID_CMD_DB_TABLE_DELETE:		return( _TL("Delete") );
 	case ID_CMD_DB_TABLE_RENAME:		return( _TL("Rename") );
 	case ID_CMD_DB_TABLE_INFO:			return( _TL("Field Description") );
-	case ID_CMD_DB_TABLE_FROM_QUERY:	return( _TL("Query") );
+	case ID_CMD_DB_TABLE_FROM_QUERY:	return( _TL("Table from Query") );
 
 	case ID_CMD_TOOL_OPEN:				return( _TL("Load Tool Library") );
 	case ID_CMD_TOOL_RELOAD:			return( _TL("Reload Standard Tool Libraries") );

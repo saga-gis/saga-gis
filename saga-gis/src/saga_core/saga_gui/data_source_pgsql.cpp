@@ -113,6 +113,7 @@ enum
 	DB_PGSQL_Table_Save			= 13,
 	DB_PGSQL_Table_Drop			= 14,
 	DB_PGSQL_Table_Query		= 15,
+	DB_PGSQL_Table_Query_GUI	= 16,
 
 	DB_PGSQL_Shapes_Load		= 20,
 	DB_PGSQL_Shapes_Save		= 21,
@@ -717,11 +718,13 @@ void CData_Source_PgSQL::On_Item_Menu(wxTreeEvent &event)
 		else
 		{
 			CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_REFRESH);
+			Menu.AppendSeparator();
 			CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_SOURCE_SQL);
-			CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_SOURCE_DROP);
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_TABLE_FROM_QUERY);
+			Menu.AppendSeparator();
 			CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_SOURCE_CLOSE);
 			CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_SOURCE_DELETE);
-			CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_TABLE_FROM_QUERY);
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_SOURCE_DROP);
 		}
 		break;
 
@@ -1021,8 +1024,7 @@ bool CData_Source_PgSQL::Source_Create(const wxTreeItemId &Item)
 		{
 			if( pData->Get_Type() == TYPE_SERVER )
 			{
-				pTool->Set_Parameter("PG_HOST", pData->Get_Host());
-				pTool->Set_Parameter("PG_PORT", pData->Get_Port());
+				pTool->Set_Parameter("CONNECTION", pData->Get_Server());
 			}
 
 			if( DLG_Parameters(pTool->Get_Parameters()) )
@@ -1125,8 +1127,7 @@ void CData_Source_PgSQL::Source_Open(const wxTreeItemId &Item)
 		{
 			if( pData->Get_Type() == TYPE_SERVER )
 			{
-				pTool->Set_Parameter("PG_HOST", pData->Get_Host());
-				pTool->Set_Parameter("PG_PORT", pData->Get_Port());
+				pTool->Set_Parameter("CONNECTION", pData->Get_Server());
 			}
 
 			if( DLG_Parameters(pTool->Get_Parameters()) )
@@ -1179,23 +1180,17 @@ void CData_Source_PgSQL::Source_SQL(const wxTreeItemId &Item)
 {
 	CData_Source_PgSQL_Data	*pData	= Item.IsOk() ? (CData_Source_PgSQL_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
 
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Execute_SQL, true);
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", DB_PGSQL_Execute_SQL);
 
 	if(	pTool && pTool->On_Before_Execution() )
 	{
-		if( pData->Get_Type() == TYPE_SERVER )
-		{
-			pTool->Set_Parameter("PG_HOST", pData->Get_Host());
-			pTool->Set_Parameter("PG_PORT", pData->Get_Port());
-		}
+		pTool->Set_Parameter("CONNECTION", pData->Get_Server());
 
 		if( DLG_Parameters(pTool->Get_Parameters()) )
 		{
 			pTool->Execute();
 		}
 	}
-
-	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 }
 
 
@@ -1264,15 +1259,11 @@ void CData_Source_PgSQL::Table_From_Query(const wxTreeItemId &Item)
 {
 	CData_Source_PgSQL_Data	*pData	= Item.IsOk() ? (CData_Source_PgSQL_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
 
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Table_Query, true);
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Table_Query_GUI, true);
 
 	if(	pTool && pTool->On_Before_Execution() )
 	{
-		if( pData->Get_Type() == TYPE_SERVER )
-		{
-			pTool->Set_Parameter("PG_HOST", pData->Get_Host());
-			pTool->Set_Parameter("PG_PORT", pData->Get_Port());
-		}
+		pTool->Set_Parameter("CONNECTION", pData->Get_Server());
 
 		if( DLG_Parameters(pTool->Get_Parameters()) )
 		{
