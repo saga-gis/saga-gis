@@ -847,8 +847,10 @@ CWKSP_Map_Layer * CWKSP_Map::Get_Map_Layer_Active(bool bEditable)
 //---------------------------------------------------------
 CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 {
-	if( Get_Map_Layer_Index(pLayer) >= 0 )	// don't load a layer more than once
+	if( Get_Map_Layer_Index(pLayer) >= 0 )	// don't load a layer more than once...
 	{
+		m_pView->Activate(); // ...but bring the map to top!
+
 		return( NULL );
 	}
 
