@@ -203,12 +203,12 @@ bool CJoin_Tables_Base::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Table *pUnjoined = Parameters("UNJOINED")->asTable();
+	CSG_Table *pUnjoined = Parameters("UNJOINED")->asTable(); int nUnjoined = 0;
 
 	if( pUnjoined )
 	{
 		pUnjoined->Create(pTable_B);
-		pUnjoined->Fmt_Name("%s [%s]", pTable_B->Get_Name(), _TL("Unjoined Entries"));
+		pUnjoined->Fmt_Name("%s [%s]", pTable_B->Get_Name(), _TL("Unjoined Records"));
 	}
 
 	//-----------------------------------------------------
@@ -224,30 +224,30 @@ bool CJoin_Tables_Base::On_Execute(void)
 
 	CSG_Table_Record *pRecord_B = pTable_B->Get_Record(Index_B[0]);
 
-	for(int a=0, b=0, Cmp, nJoins=0; pRecord_B && a<pTable_A->Get_Count() && Set_Progress(a, pTable_A->Get_Count()); a++)
+	for(int a=0, b=0, nJoined=0, Cmp; a<pTable_A->Get_Count() && Set_Progress(a, pTable_A->Get_Count()); a++)
 	{
 		CSG_Table_Record *pRecord_A = pTable_A->Get_Record(Index_A[a]);
 
 		while( (Cmp = Cmp_Keys(pRecord_A->Get_Value(Key_A), pRecord_B ? pRecord_B->Get_Value(Key_B) : NULL)) < 0 )
 		{
-			if( pUnjoined && nJoins < 1 )
+			if( pUnjoined && nJoined < 1 )
 			{
 				pUnjoined->Add_Record(pRecord_B);
 			}
 
-			pRecord_B = pTable_B->Get_Record(Index_B[++b]); nJoins = 0;
+			pRecord_B = pTable_B->Get_Record(Index_B[++b]); nJoined = 0;
 		}
 
 		if( Cmp == 0 )
 		{
-			nJoins++;
+			nJoined++;
 
 			for(int i=0; i<(int)Joins.Get_Size(); i++)
 			{
 				*pRecord_A->Get_Value(Offset + i) = *pRecord_B->Get_Value(Joins[i]);
 			}
 		}
-		else if( Delete.Get_Field_Count() == 0 )
+		else if( !Delete.Get_Field_Count() )
 		{
 			for(int i=0; i<(int)Joins.Get_Size(); i++)
 			{
@@ -256,7 +256,7 @@ bool CJoin_Tables_Base::On_Execute(void)
 		}
 		else
 		{
-			Delete.Add_Record()->Set_Value(0, pRecord_A->Get_Index());
+			Delete.Add_Record()->Set_Value(0, Index_A[a]);
 		}
 	}
 
