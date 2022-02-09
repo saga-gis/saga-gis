@@ -118,7 +118,7 @@ public:
 	static CSG_String			Make_Table_Name			(const CSG_String &Table_Name);
 	static CSG_String			Make_Table_Field_Name	(const CSG_Table &Table, int Field);
 
-	bool						Execute					(const CSG_String &SQL, CSG_Table *pTable = NULL, bool bToUTF8 = false);
+	bool						Execute					(const CSG_String &SQL, CSG_Table *pTable = NULL, bool bToUTF8 = true);
 
 	bool						Begin					(const CSG_String &SavePoint = "");
 	bool						Rollback				(const CSG_String &SavePoint = "");
