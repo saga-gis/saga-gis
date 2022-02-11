@@ -72,14 +72,14 @@ CTable_Enumerate::CTable_Enumerate(bool bShapes)
 
 	if( bShapes )
 	{
-		Set_Name(_TL("Table Field Enumeration (Shapes)"));
+		Set_Name(_TL("Field Enumeration (Shapes)"));
 
 		Parameters.Add_Shapes("", "INPUT" , _TL("Input" ), _TL(""), PARAMETER_INPUT);
 		Parameters.Add_Shapes("", "OUTPUT", _TL("Output"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	}
 	else
 	{
-		Set_Name(_TL("Table Field Enumeration"));
+		Set_Name(_TL("Field Enumeration"));
 
 		Parameters.Add_Table ("", "INPUT" , _TL("Input" ), _TL(""), PARAMETER_INPUT);
 		Parameters.Add_Table ("", "OUTPUT", _TL("Output"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
@@ -118,7 +118,7 @@ CSG_String CTable_Enumerate::Get_MenuPath(void)
 {
 	if( Parameters("INPUT")->Get_Type() == PARAMETER_TYPE_Shapes )
 	{
-		return( _TL("A:Shapes|Table") );
+		return( _TL("A:Shapes|Attributes") );
 	}
 
 	return( CSG_Tool::Get_MenuPath() );

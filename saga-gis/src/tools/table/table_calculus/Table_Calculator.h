@@ -89,7 +89,7 @@ class CTable_Calculator_Shapes : public CTable_Calculator_Base
 public:
 	CTable_Calculator_Shapes(void) : CTable_Calculator_Base(true)	{}
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Shapes|Table") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Shapes|Attributes") );	}
 
 };
 

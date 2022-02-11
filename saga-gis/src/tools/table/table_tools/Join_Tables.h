@@ -103,7 +103,7 @@ class CJoin_Tables_Shapes : public CJoin_Tables_Base
 public:
 	CJoin_Tables_Shapes(void);
 
-	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("A:Shapes|Table") );	}
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("A:Shapes|Attributes") );	}
 
 };
 
