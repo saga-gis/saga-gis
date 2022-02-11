@@ -501,11 +501,17 @@ bool CSG_Colors::Set_Predefined(int Index, bool bRevert, int nColors)
 		break;
 
 	case SG_COLORS_YELLOW_RED:
-		Set_Ramp(SG_GET_RGB(255, 255,   0), SG_GET_RGB(191,   0,   0));
+		Set_Count(3);
+		Set_Color(0, SG_GET_RGB(127, 255, 255));
+		Set_Color(1, SG_GET_RGB(  0, 127, 255));
+		Set_Color(2, SG_GET_RGB(  0,   0, 127));
 		break;
 
 	case SG_COLORS_YELLOW_GREEN:
-		Set_Ramp(SG_GET_RGB(255, 255,   0), SG_GET_RGB(  0,  63,   0));
+		Set_Count(3);
+		Set_Color(0, SG_GET_RGB(127, 255, 255));
+		Set_Color(1, SG_GET_RGB(  0, 255, 127));
+		Set_Color(2, SG_GET_RGB(  0, 127,   0));
 		break;
 
 	case SG_COLORS_YELLOW_BLUE:
@@ -516,12 +522,10 @@ bool CSG_Colors::Set_Predefined(int Index, bool bRevert, int nColors)
 		break;
 
 	case SG_COLORS_RED_GREEN:
-		Set_Count(5);
-		Set_Color(0, SG_GET_RGB(159,   0,   0));
-		Set_Color(1, SG_GET_RGB(255, 159,   0));
-		Set_Color(2, SG_GET_RGB(255, 255,   0));
-		Set_Color(3, SG_GET_RGB(159, 255,   0));
-		Set_Color(4, SG_GET_RGB(  0, 159,   0));
+		Set_Count(3);
+		Set_Color(0, SG_GET_RGB(127,   0,   0));
+		Set_Color(1, SG_GET_RGB(255, 255,   0));
+		Set_Color(3, SG_GET_RGB(  0, 255,   0));
 		break;
 
 	case SG_COLORS_RED_BLUE:
