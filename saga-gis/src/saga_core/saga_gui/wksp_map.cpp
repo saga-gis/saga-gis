@@ -849,7 +849,7 @@ CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 {
 	if( Get_Map_Layer_Index(pLayer) >= 0 )	// don't load a layer more than once...
 	{
-		m_pView->Activate(); // ...but bring the map to top!
+		View_Show(true); // ...but bring the map to top!
 
 		return( NULL );
 	}
