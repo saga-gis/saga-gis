@@ -669,6 +669,9 @@ bool CWKSP_Map::Serialize(CSG_MetaData &Root, const wxString &ProjectDir, bool b
 					}
 				}
 				break; }
+
+			default:
+				break;
 			}
 		}
 	}

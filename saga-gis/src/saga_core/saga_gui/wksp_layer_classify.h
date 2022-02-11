@@ -443,7 +443,7 @@ public: ///////////////////////////////////////////////////
 		}
 	}
 
-	bool						Get_Class_Color_byValue	(const CSG_String &Value, int &Color)
+	bool						Get_Class_Color_byValue	(const CSG_String &Value, int &Color)	const
 	{
 		if( m_Mode == CLASSIFY_LUT )
 		{
@@ -454,14 +454,14 @@ public: ///////////////////////////////////////////////////
 	}
 
 	//-----------------------------------------------------
-	int							Get_Class_Color_byValue	(double Value)
+	int							Get_Class_Color_byValue	(double Value)	const
 	{
 		int		Color;
 
 		return( Get_Class_Color_byValue(Value, Color) ? Color : 0 );
 	}
 
-	int							Get_Class_Color_byValue	(const CSG_String &Value)
+	int							Get_Class_Color_byValue	(const CSG_String &Value)	const
 	{
 		int		Color;
 
