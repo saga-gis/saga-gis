@@ -78,7 +78,7 @@ public:
 	CSG_String				Get_Description		(void);
 	CSG_String				Get_Methods			(void);
 
-	bool					Initialise			(int Method, CSG_Grid *pDTM, CSG_Grid *pRoute, CSG_Grid *pFlow, double MFD_Converge);
+	bool					Initialise			(int Method, CSG_Grid *pDTM, CSG_Grid *pRoute, CSG_Grid *pFlow, double MFD_Converge, bool MFD_bContour);
 	bool					Finalise			(void);
 
 	bool					Add_Target			(int x, int y);
@@ -93,6 +93,8 @@ private:
 	int						m_Method;
 
 	double					m_MFD_Converge;
+
+	bool					m_MFD_bContour;
 
 	CSG_Grid				*m_pDEM, *m_pRoute, *m_pFlow;
 

@@ -146,7 +146,7 @@ CSG_String CFlow_AreaUpslope::Get_Methods(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CFlow_AreaUpslope::Initialise(int Method, CSG_Grid *pDTM, CSG_Grid *pRoute, CSG_Grid *pFlow, double MFD_Converge)
+bool CFlow_AreaUpslope::Initialise(int Method, CSG_Grid *pDTM, CSG_Grid *pRoute, CSG_Grid *pFlow, double MFD_Converge, bool MFD_bContour)
 {
 	Finalise();
 
@@ -154,6 +154,7 @@ bool CFlow_AreaUpslope::Initialise(int Method, CSG_Grid *pDTM, CSG_Grid *pRoute,
 	{
 		m_Method		= Method;
 		m_MFD_Converge	= MFD_Converge;
+		m_MFD_bContour	= MFD_bContour;
 		m_pDEM			= pDTM;
 		m_pFlow			= pFlow;
 		m_pFlow->Set_NoData_Value(0.);
@@ -332,7 +333,7 @@ void CFlow_AreaUpslope::Set_MFD(int x, int y)
 
 		if( dz[i] > 0. )
 		{
-			dzSum	+= (dz[i] = pow(dz[i] / m_pDEM->Get_System().Get_Length(i), m_MFD_Converge));
+			dzSum	+= (dz[i] = pow(dz[i] / m_pDEM->Get_System().Get_Length(i), m_MFD_Converge) * (m_MFD_bContour && i % 2 ? sqrt(2.) / 2. : 1.));
 
 			if( m_pFlow->asDouble(ix, iy) > 0. )
 			{
@@ -398,7 +399,7 @@ void CFlow_AreaUpslope::Set_MMDGFD(int x, int y)
 		{
 			if( dz[i] > 0. )
 			{
-				dzSum	+= (dz[i] = pow(dz[i], dzMax));
+				dzSum	+= (dz[i] = pow(dz[i], dzMax) * (m_MFD_bContour && i % 2 ? sqrt(2.) / 2. : 1.));
 			}
 		}
 
@@ -540,7 +541,7 @@ void CFlow_AreaUpslope::Set_MDInf(int x, int y)
 				}
 			}
 
-			valley[i] = pow(valley[i], this->m_MFD_Converge);
+			valley[i] = pow(valley[i], m_MFD_Converge);
 			dzSum += valley[i];
 		} 
 
@@ -638,8 +639,14 @@ CFlow_AreaUpslope_Interactive::CFlow_AreaUpslope_Interactive(void)
 
 	Parameters.Add_Double("",
 		"CONVERGE"	, _TL("Convergence"),
-		_TL("Convergence factor for Multiple Flow Direction algorithm"),
+		_TL("Convergence factor for Multiple Flow Direction Algorithm (Freeman 1991).\nApplies also to the Multiple Triangular Flow Directon Algorithm."),
 		1.1, 0.001, true
+	);
+
+	Parameters.Add_Bool("",
+		"MFD_CONTOUR", _TL("Contour Length"),
+		_TL("Include (pseudo) contour length as additional weighting factor in multiple flow direction routing, reduces flow to diagonal neighbour cells by a factor of 0.71 (s. Quinn et al. 1991 for details)."),
+		false
 	);
 
 	Set_Drag_Mode(TOOL_INTERACTIVE_DRAG_NONE);
@@ -655,7 +662,8 @@ int CFlow_AreaUpslope_Interactive::On_Parameters_Enable(CSG_Parameters *pParamet
 {
 	if( pParameter->Cmp_Identifier("METHOD") )
 	{
-		pParameters->Set_Enabled("CONVERGE", pParameter->asInt() == 2 || pParameter->asInt() == 3);
+		pParameters->Set_Enabled("CONVERGE"   , pParameter->asInt() == 2 || pParameter->asInt() == 3);
+		pParameters->Set_Enabled("MFD_CONTOUR", pParameter->asInt() == 2 || pParameter->asInt() == 3);
 	}
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
@@ -670,11 +678,12 @@ int CFlow_AreaUpslope_Interactive::On_Parameters_Enable(CSG_Parameters *pParamet
 bool CFlow_AreaUpslope_Interactive::On_Execute(void)
 {
 	if( m_Calculator.Initialise(
-		Parameters("METHOD"   )->asInt   (),
-		Parameters("ELEVATION")->asGrid  (),
-		Parameters("SINKROUTE")->asGrid  (),
-		Parameters("AREA"     )->asGrid  (),
-		Parameters("CONVERGE" )->asDouble()) )
+		Parameters("METHOD"     )->asInt   (),
+		Parameters("ELEVATION"  )->asGrid  (),
+		Parameters("SINKROUTE"  )->asGrid  (),
+		Parameters("AREA"       )->asGrid  (),
+		Parameters("CONVERGE"   )->asDouble(),
+		Parameters("MFD_CONTOUR")->asBool  ()) )
 	{
 		DataObject_Set_Colors(Parameters("AREA")->asGrid(), 11, SG_COLORS_WHITE_BLUE);
 		DataObject_Update    (Parameters("AREA")->asGrid(), SG_UI_DATAOBJECT_SHOW);
@@ -808,11 +817,12 @@ bool CFlow_AreaUpslope_Area::On_Execute(void)
 	bool	bResult	= false;
 
 	if( m_Calculator.Initialise(
-		Parameters("METHOD"   )->asInt   (),
-		Parameters("ELEVATION")->asGrid  (),
-		Parameters("SINKROUTE")->asGrid  (),
-		Parameters("AREA"     )->asGrid  (),
-		Parameters("CONVERGE" )->asDouble()	) )
+		Parameters("METHOD"     )->asInt   (),
+		Parameters("ELEVATION"  )->asGrid  (),
+		Parameters("SINKROUTE"  )->asGrid  (),
+		Parameters("AREA"       )->asGrid  (),
+		Parameters("CONVERGE"   )->asDouble(),
+		Parameters("MFD_CONTOUR")->asBool  ()) )
 	{
 		m_Calculator.Clr_Target();
 

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Flow_RecursiveUp.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Flow_RecursiveUp.h"
 
 
@@ -91,31 +79,32 @@ CFlow_RecursiveUp::CFlow_RecursiveUp(void)
 
 	Add_Reference("Fairfield, J. & Leymarie, P.", "1991",
 		"Drainage networks from grid digital elevation models",
-		"Water Resources Research, 27:709-717."
+		"Water Resources Research, 27:709-717.",
+		SG_T("https://doi.org/10.1029/90WR02658"), SG_T("doi:10.1029/90WR02658")
 	);
 
 	Add_Reference("Freeman, G.T.", "1991",
 		"Calculating catchment area with divergent flow based on a regular grid",
-		"Computers and Geosciences, 17:413-22."
+		"Computers and Geosciences, 17:413-22.",
+		SG_T("https://doi.org/10.1016/0098-3004(91)90048-I"), SG_T("doi:10.1016/0098-3004(91)90048-I")
 	);
 
 	Add_Reference("O'Callaghan, J.F. & Mark, D.M.", "1984",
 		"The extraction of drainage networks from digital elevation data",
-		"Computer Vision, Graphics and Image Processing, 28:323-344."
+		"Computer Vision, Graphics and Image Processing, 28:323-344.",
+		SG_T("https://doi.org/10.1016/S0734-189X(84)80011-0"), SG_T("doi:10.1016/S0734-189X(84)80011-0")
 	);
 
 	Add_Reference("Quinn, P.F., Beven, K.J., Chevallier, P. & Planchon, O.", "1991",
 		"The prediction of hillslope flow paths for distributed hydrological modelling using digital terrain models",
 		"Hydrological Processes, 5:59-79.",
-		SG_T("https://www.researchgate.net/profile/Olivier_Planchon/publication/32978462_The_Prediction_of_Hillslope_Flow_Paths_for_Distributed_Hydrological_Modeling_Using_Digital_Terrain_Model/links/0912f5130c356c86e6000000.pdf"),
-		SG_T("ResearchGate")
+		SG_T("https://doi.org/10.1002/hyp.3360050106"), SG_T("doi:10.1002/hyp.3360050106")
 	);
 
 	Add_Reference("Tarboton, D.G.", "1997",
 		"A new method for the determination of flow directions and upslope areas in grid digital elevation models",
 		"Water Resources Research, Vol.33, No.2, p.309-319.",
-		SG_T("http://onlinelibrary.wiley.com/doi/10.1029/96WR03137/pdf"),
-		SG_T("Wiley")
+		SG_T("https://doi.org/10.1029/96WR03137"), SG_T("doi:10.1029/96WR03137")
 	);
 
 	//-----------------------------------------------------
@@ -153,7 +142,13 @@ CFlow_RecursiveUp::CFlow_RecursiveUp(void)
 	Parameters.Add_Double("",
 		"CONVERGENCE"	, _TL("Convergence"),
 		_TL("Convergence factor for Multiple Flow Direction Algorithm (Freeman 1991)"),
-		1.1, 0.0, true
+		1.1, 0., true
+	);
+
+	Parameters.Add_Bool("",
+		"MFD_CONTOUR"	, _TL("Contour Length"),
+		_TL("Include (pseudo) contour length as additional weighting factor in multiple flow direction routing, reduces flow to diagonal neighbour cells by a factor of 0.71 (s. Quinn et al. 1991 for details)."),
+		false
 	);
 
 	Parameters.Add_Bool("",
@@ -179,6 +174,7 @@ int CFlow_RecursiveUp::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Par
 	if( pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Set_Enabled("CONVERGENCE", pParameter->asInt() == 4 || pParameter->asInt() == 5);
+		pParameters->Set_Enabled("MFD_CONTOUR", pParameter->asInt() == 4 || pParameter->asInt() == 5);
 	}
 
 	if( pParameter->Cmp_Identifier("WEIGHTS") )
@@ -197,19 +193,16 @@ int CFlow_RecursiveUp::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Par
 //---------------------------------------------------------
 void CFlow_RecursiveUp::On_Create(void)
 {
-	int	x, y;
-
-	//-----------------------------------------------------
 	On_Destroy();
 
 	m_Flow		= (double ***)SG_Malloc(    Get_NY    () * sizeof(double **));
 	double *p	= (double   *)SG_Malloc(8 * Get_NCells() * sizeof(double   ));
 
-	for(y=0; y<Get_NY(); y++)
+	for(int y=0; y<Get_NY(); y++)
 	{
 		m_Flow[y]	= (double **)SG_Malloc( Get_NX    () * sizeof(double  *));
 
-		for(x=0; x<Get_NX(); x++, p+=8)
+		for(int x=0; x<Get_NX(); x++, p+=8)
 		{
 			m_Flow[y][x]	= p;
 		}
@@ -222,20 +215,20 @@ void CFlow_RecursiveUp::On_Create(void)
 
 	memset(m_Flow[0][0], 0, 8 * Get_NCells() * sizeof(double) );
 
-	for(y=0; y<Get_NY(); y++)
+	for(int y=0; y<Get_NY(); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
 			if( m_pRoute && m_pRoute->asChar(x, y) > 0 )
 			{
-				m_Flow[y][x][m_pRoute->asChar(x, y) % 8]	= 1.0;
+				m_Flow[y][x][m_pRoute->asChar(x, y) % 8] = 1.;
 			}
 			else switch( Method )
 			{
-				case 0:	Set_D8  (x, y);	break;
-				case 1:	Set_Rho8(x, y);	break;
-				case 2:	Set_DInf(x, y);	break;
-				case 3:	Set_MFD (x, y);	break;
+			case  0: Set_D8  (x, y); break;
+			case  1: Set_Rho8(x, y); break;
+			case  2: Set_DInf(x, y); break;
+			default: Set_MFD (x, y); break;
 			}
 		}
 	}
@@ -267,8 +260,9 @@ void CFlow_RecursiveUp::On_Destroy(void)
 //---------------------------------------------------------
 void CFlow_RecursiveUp::On_Initialize(void)
 {
-	m_pFlow_Length	= Parameters("FLOW_LENGTH")->asGrid();
-	m_Converge		= Parameters("CONVERGENCE")->asDouble();
+	m_pFlow_Length	= Parameters("FLOW_LENGTH")->asGrid  ();
+	m_MFD_Converge	= Parameters("CONVERGENCE")->asDouble();
+	m_MFD_bContour	= Parameters("MFD_CONTOUR")->asDouble();
 
 	m_bNoNegatives	= m_pWeights ? Parameters("NO_NEGATIVES")->asBool() : false;
 	m_pLoss			= Parameters("WEIGHT_LOSS")->asGrid();
@@ -342,7 +336,7 @@ void CFlow_RecursiveUp::Get_Flow(int x, int y)
 				int		iDir	= (i + 4) % 8;
 				double	iFlow	= m_Flow[iy][ix][iDir];
 
-				if( iFlow > 0.0 )
+				if( iFlow > 0. )
 				{
 					Get_Flow    (ix, iy);
 					Add_Fraction(ix, iy, iDir, iFlow);
@@ -350,127 +344,115 @@ void CFlow_RecursiveUp::Get_Flow(int x, int y)
 			}
 		}
 
-		if( m_bNoNegatives && m_pFlow->asDouble(x, y) < 0.0 )
+		if( m_bNoNegatives && m_pFlow->asDouble(x, y) < 0. )
 		{
 			if( m_pLoss )
 			{
 				m_pLoss->Set_Value(x, y, fabs(m_pFlow->asDouble(x, y)));
 			}
 
-			m_pFlow->Set_Value(x, y, 0.0);
+			m_pFlow->Set_Value(x, y, 0.);
 		}
 	}
 }
 
 
 ///////////////////////////////////////////////////////////
+//														 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CFlow_RecursiveUp::Set_D8(int x, int y)
 {
-	int		Direction	= m_pDTM->Get_Gradient_NeighborDir(x,y);
+	int i = m_pDTM->Get_Gradient_NeighborDir(x, y);
 
-	if( Direction >= 0 )
+	if( i >= 0 )
 	{
-		m_Flow[y][x][Direction % 8]	= 1.0;
+		m_Flow[y][x][i % 8]	= 1.;
 	}
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CFlow_RecursiveUp::Set_Rho8(int x, int y)
 {
-	int		Direction;
-
 	double 	Slope, Aspect;
 
 	Get_Gradient(x, y, Slope, Aspect);
 
 	Aspect	*= M_RAD_TO_DEG;
 
-	if( Aspect >= 0 )
+	if( Aspect >= 0. )
 	{
-		Direction	= (int)(Aspect / 45.0);
+		int i = (int)(Aspect / 45.);
 
-		if( fmod(Aspect,45) / 45.0 > rand() / (double)RAND_MAX )
-			Direction++;
+		if( fmod(Aspect, 45.) / 45. > rand() / (double)RAND_MAX )
+		{
+			i = (i + 1) % 8;
+		}
 
-		Direction	%= 8;
-
-		m_Flow[y][x][Direction]	= 1.0;
+		m_Flow[y][x][i]	= 1.;
 	}
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CFlow_RecursiveUp::Set_DInf(int x, int y)
 {
-	int		Direction;
-
-	double 	Slope, Aspect;
+	double Slope, Aspect;
 
 	Get_Gradient(x, y, Slope, Aspect);
 
 	Aspect	*= M_RAD_TO_DEG;
 
-	if( Aspect >= 0 )
+	if( Aspect >= 0. )
 	{
-		Direction	= (int)(Aspect / 45.0);
-		Aspect		= fmod(Aspect,45) / 45.0;
+		int i  = (int)(Aspect / 45.);
+		Aspect = fmod (Aspect,  45.) / 45.;
 
-		m_Flow[y][x][(Direction    ) % 8]	= 1 - Aspect;
-		m_Flow[y][x][(Direction + 1) % 8]	=     Aspect;
+		m_Flow[y][x][(i    ) % 8] = 1. - Aspect;
+		m_Flow[y][x][(i + 1) % 8] =      Aspect;
 	}
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CFlow_RecursiveUp::Set_MFD(int x, int y)
 {
-	int		i;
-	double	z, *dz, dzSum;
+	double	*dz = m_Flow[y][x], dzSum = 0., z = m_pDTM->asDouble(x, y);
 
-	for(i=0, dzSum=0.0, dz=m_Flow[y][x], z=m_pDTM->asDouble(x, y); i<8; i++)
+	for(int i=0, ix, iy; i<8; i++)
 	{
-		int	ix	= Get_xTo(i,x);
-		int	iy	= Get_yTo(i,y);
-
-		if( is_InGrid(ix,iy) )
+		if( is_InGrid(ix = Get_xTo(i, x), iy = Get_yTo(i, y)) )
 		{
-			double	d	= z - m_pDTM->asDouble(ix,iy);
+			dz[i]	= z - m_pDTM->asDouble(ix, iy);
 
-			if( d > 0 )
+			if( dz[i] > 0. )
 			{
-				dzSum	+= dz[i]	= pow(d / Get_Length(i), m_Converge);
+				dzSum	+= (dz[i] = pow(dz[i] / Get_Length(i), m_MFD_Converge) * (m_MFD_bContour && i % 2 ? sqrt(2.) / 2. : 1.));
 			}
 		}
 	}
 
-	if( dzSum )
+	if( dzSum > 0. )
 	{
-		for(i=0; i<8; i++)
+		for(int i=0; i<8; i++)
 		{
-			if( dz[i] > 0 )
+			if( dz[i] > 0. )
 			{
 				dz[i]	/= dzSum;
 			}
