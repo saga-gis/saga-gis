@@ -393,15 +393,22 @@ bool CSG_Table::_Load_Text(const CSG_String &FileName, bool bHeadline, const SG_
 			//---------------------------------------------
 			if( Type[iField] != SG_DATATYPE_String && !sField.is_Empty() )
 			{
-				double	Value;
+				try
+				{
+					size_t pos; double Value = std::stod(sField.to_StdString(), &pos);
 
-				if( sField.asDouble(Value) == false || sField.Find('.', false) < sField.Find('.', true) )
+					if( pos < sField.Length() )
+					{
+						Type[iField]	= SG_DATATYPE_String;
+					}
+					else if( Type[iField] != SG_DATATYPE_Double && (Value - (int)Value != 0. || sField.Find('.') >= 0) )
+					{
+						Type[iField]	= SG_DATATYPE_Double;
+					}
+				}
+				catch(...)
 				{
 					Type[iField]	= SG_DATATYPE_String;
-				}
-				else if( Type[iField] != SG_DATATYPE_Double && (Value - (int)Value != 0. || sField.Find('.') >= 0) )
-				{
-					Type[iField]	= SG_DATATYPE_Double;
 				}
 			}
 
@@ -425,12 +432,7 @@ bool CSG_Table::_Load_Text(const CSG_String &FileName, bool bHeadline, const SG_
 			{
 				if( *Table[iRecord].asString(iField) )
 				{
-					switch( Get_Field_Type(iField) )
-					{
-					default                : pRecord->Set_Value(iField, Table[iRecord].asString(iField)); break;
-					case SG_DATATYPE_Int   : pRecord->Set_Value(iField, Table[iRecord].asInt   (iField)); break;
-					case SG_DATATYPE_Double: pRecord->Set_Value(iField, Table[iRecord].asDouble(iField)); break;
-					}
+					pRecord->Set_Value(iField, Table[iRecord].asString(iField));
 				}
 				else
 				{
