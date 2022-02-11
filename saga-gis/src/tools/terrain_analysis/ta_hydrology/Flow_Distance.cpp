@@ -77,19 +77,20 @@ CFlow_Distance::CFlow_Distance(void)
 
 	Add_Reference("Freeman, G.T.", "1991",
 		"Calculating catchment area with divergent flow based on a regular grid",
-		"Computers and Geosciences, 17:413-22."
+		"Computers and Geosciences, 17:413-22.",
+		SG_T("https://doi.org/10.1016/0098-3004(91)90048-I"), SG_T("doi:10.1016/0098-3004(91)90048-I")
 	);
 
 	Add_Reference("O'Callaghan, J.F. & Mark, D.M.", "1984",
 		"The extraction of drainage networks from digital elevation data",
-		"Computer Vision, Graphics and Image Processing, 28:323-344."
+		"Computer Vision, Graphics and Image Processing, 28:323-344.",
+		SG_T("https://doi.org/10.1016/S0734-189X(84)80011-0"), SG_T("doi:10.1016/S0734-189X(84)80011-0")
 	);
 
 	Add_Reference("Quinn, P.F., Beven, K.J., Chevallier, P. & Planchon, O.", "1991",
 		"The prediction of hillslope flow paths for distributed hydrological modelling using digital terrain models",
 		"Hydrological Processes, 5:59-79.",
-		SG_T("https://www.researchgate.net/profile/Olivier_Planchon/publication/32978462_The_Prediction_of_Hillslope_Flow_Paths_for_Distributed_Hydrological_Modeling_Using_Digital_Terrain_Model/links/0912f5130c356c86e6000000.pdf"),
-		SG_T("ResearchGate")
+		SG_T("https://doi.org/10.1002/hyp.3360050106"), SG_T("doi:10.1002/hyp.3360050106")
 	);
 
 	//-----------------------------------------------------

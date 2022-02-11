@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Flow_Length.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Flow_Length.h"
 
 
@@ -70,7 +58,6 @@
 //---------------------------------------------------------
 CFlow_Length::CFlow_Length(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Maximum Flow Path Length"));
 
 	Set_Author		("O.Conrad (c) 2016");
@@ -83,7 +70,8 @@ CFlow_Length::CFlow_Length(void)
 
 	Add_Reference("O'Callaghan, J.F. & Mark, D.M.", "1984",
 		"The extraction of drainage networks from digital elevation data",
-		"Computer Vision, Graphics and Image Processing, 28:323-344."
+		"Computer Vision, Graphics and Image Processing, 28:323-344.",
+		SG_T("https://doi.org/10.1016/S0734-189X(84)80011-0"), SG_T("doi:10.1016/S0734-189X(84)80011-0")
 	);
 
 	//-----------------------------------------------------
@@ -108,7 +96,7 @@ CFlow_Length::CFlow_Length(void)
 	Parameters.Add_Choice("",
 		"DIRECTION"	, _TL("Direction of Measurement"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("downstream"),
 			_TL("upstream")
 		), 0
@@ -123,9 +111,9 @@ CFlow_Length::CFlow_Length(void)
 //---------------------------------------------------------
 bool CFlow_Length::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Grid	*pDEM		= Parameters("ELEVATION")->asGrid();
-	CSG_Grid	*pWeights	= Parameters("WEIGHTS"  )->asGrid();
+	CSG_Grid *pDEM      = Parameters("ELEVATION")->asGrid();
+	CSG_Grid *pWeights  = Parameters("WEIGHTS"  )->asGrid();
+	CSG_Grid *pDistance = Parameters("DISTANCE" )->asGrid();
 
 	if( !pDEM->Set_Index() )
 	{
@@ -134,13 +122,8 @@ bool CFlow_Length::On_Execute(void)
 		return( false );
 	}
 
-	//-----------------------------------------------------
-	CSG_Grid	*pDistance	= Parameters("DISTANCE")->asGrid();
-
-	pDistance->Set_NoData_Value(-1.0);
+	pDistance->Set_NoData_Value(-1.);
 	pDistance->Assign_NoData();
-
-	int		x, y, i;
 
 	//-----------------------------------------------------
 	if( Parameters("DIRECTION")->asInt() == 0 )	// downstream
@@ -151,11 +134,13 @@ bool CFlow_Length::On_Execute(void)
 
 		for(sLong iCell=0; iCell<Get_NCells() && Set_Progress_NCells(iCell); iCell++)
 		{
+			int x, y;
+
 			if( pDEM->Get_Sorted(iCell, x, y, false) )
 			{
-				double	Distance	= 0.0;
+				double Distance = 0.; int i = pDEM->Get_Gradient_NeighborDir(x, y, true, false);
 
-				if( (i = pDEM->Get_Gradient_NeighborDir(x, y, true, false)) >= 0 )
+				if( i >= 0 )
 				{
 					int	ix	= Get_xTo(i, x);
 					int	iy	= Get_yTo(i, y);
@@ -180,14 +165,18 @@ bool CFlow_Length::On_Execute(void)
 
 		for(sLong iCell=0; iCell<Get_NCells() && Set_Progress_NCells(iCell); iCell++)
 		{
+			int x, y;
+
 			if( pDEM->Get_Sorted(iCell, x, y, true) )
 			{
 				if( pDistance->is_NoData(x, y) )
 				{
-					pDistance->Set_Value(x, y, 0.0);
+					pDistance->Set_Value(x, y, 0.);
 				}
 
-				if( (i = pDEM->Get_Gradient_NeighborDir(x, y, true, false)) >= 0 )
+				int i = pDEM->Get_Gradient_NeighborDir(x, y, true, false);
+
+				if( i >= 0 )
 				{
 					int	ix	= Get_xTo(i, x);
 					int	iy	= Get_yTo(i, y);
