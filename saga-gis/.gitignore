@@ -81,4 +81,5 @@ Makefile
 *.out
 *.app
 
-
+# macOS tmp file
+.DS_Store*
