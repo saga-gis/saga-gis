@@ -203,7 +203,7 @@ bool CJoin_Tables_Base::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Table *pUnjoined = Parameters("UNJOINED")->asTable(); int nUnjoined = 0;
+	CSG_Table *pUnjoined = Parameters("UNJOINED")->asTable(); int nUnjoined[2]; nUnjoined[0] = nUnjoined[1] = 0;
 
 	if( pUnjoined )
 	{
@@ -230,9 +230,14 @@ bool CJoin_Tables_Base::On_Execute(void)
 
 		while( (Cmp = Cmp_Keys(pRecord_A->Get_Value(Key_A), pRecord_B ? pRecord_B->Get_Value(Key_B) : NULL)) < 0 )
 		{
-			if( pUnjoined && nJoined < 1 )
+			if( nJoined < 1 )
 			{
-				pUnjoined->Add_Record(pRecord_B);
+				nUnjoined[1]++;
+
+				if( pUnjoined )
+				{
+					pUnjoined->Add_Record(pRecord_B);
+				}
 			}
 
 			pRecord_B = pTable_B->Get_Record(Index_B[++b]); nJoined = 0;
@@ -247,16 +252,44 @@ bool CJoin_Tables_Base::On_Execute(void)
 				*pRecord_A->Get_Value(Offset + i) = *pRecord_B->Get_Value(Joins[i]);
 			}
 		}
-		else if( !Delete.Get_Field_Count() )
+		else
 		{
-			for(int i=0; i<(int)Joins.Get_Size(); i++)
+			nUnjoined[0]++;
+
+			if( Delete.Get_Field_Count() )
+			{
+				Delete.Add_Record()->Set_Value(0, Index_A[a]);
+			}
+			else for(int i=0; i<(int)Joins.Get_Size(); i++)
 			{
 				pRecord_A->Set_NoData(Offset + i);
 			}
 		}
+	}
+
+	//-----------------------------------------------------
+	if( nUnjoined[0] >= pTable_A->Get_Count() )
+	{
+		Message_Fmt("\n%s", _TL("no record found a join"));
+	}
+	else
+	{
+		if( nUnjoined[0] )
+		{
+			Message_Fmt("\n%s: %d", _TL("number of unjoined input records"), nUnjoined[0]);
+		}
 		else
 		{
-			Delete.Add_Record()->Set_Value(0, Index_A[a]);
+			Message_Fmt("\n%s", _TL("all input records found a join"));
+		}
+
+		if( nUnjoined[1] )
+		{
+			Message_Fmt("\n%s: %d", _TL("number of unjoined join table records"), nUnjoined[1]);
+		}
+		else
+		{
+			Message_Fmt("\n%s", _TL("all join table records found at least one join"));
 		}
 	}
 
@@ -269,8 +302,6 @@ bool CJoin_Tables_Base::On_Execute(void)
 		{
 			pTable_A->Del_Record(Delete[i].asInt(0));
 		}
-
-		Message_Fmt("\n%d %s", Delete.Get_Count(), _TL("unjoined records have been removed"));
 	}
 
 	if( pTable_A == Parameters("TABLE_A")->asTable() )
