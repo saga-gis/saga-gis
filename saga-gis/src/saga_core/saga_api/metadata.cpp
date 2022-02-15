@@ -438,6 +438,42 @@ bool CSG_MetaData::Cmp_Name(const CSG_String &String, bool bNoCase) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_MetaData::Get_Content(const CSG_String &Name, CSG_String &Value)	const
+{
+	const SG_Char	*cString	= Name.is_Empty() ? Get_Content() : Get_Content(Name);
+
+	if( cString )
+	{
+		Value	= cString;
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_MetaData::Get_Content(const CSG_String &Name, double     &Value)	const
+{
+	CSG_String	s;
+
+	return( Get_Content(Name, s) && s.asDouble(Value) );
+}
+
+//---------------------------------------------------------
+bool CSG_MetaData::Get_Content(const CSG_String &Name, int        &Value)	const
+{
+	CSG_String	s;
+
+	return( Get_Content(Name, s) && s.asInt(Value) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 void CSG_MetaData::Fmt_Content(const char *Format, ...)
 {
 	wxString	s;
