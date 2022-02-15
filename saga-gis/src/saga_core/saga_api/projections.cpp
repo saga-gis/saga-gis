@@ -571,64 +571,85 @@ bool CSG_Projection::is_Equal(const CSG_Projection &Projection)	const
 		return(	m_Authority.CmpNoCase(Projection.m_Authority) == 0 && m_Authority_ID == Projection.m_Authority_ID );
 	}
 
-	if( m_Proj4.CmpNoCase(Projection.m_Proj4) == 0 )	// the simple case...
+	if( m_Proj4.CmpNoCase(Projection.m_Proj4) == 0 )	// the simple case, identical strings...
 	{
 		return( true );
 	}
 
 	//-----------------------------------------------------
-	CSG_Table	parms[2];	// okay, let's perform a more detailed check...
+	CSG_MetaData Parms[2];	// okay, let's perform a more detailed check...
 
-	for(int i=0; i<2; i++)
+	for(int j=0; j<2; j++) // collect the key/value pairs
 	{
-		parms[i].Add_Field("key", SG_DATATYPE_String);
-		parms[i].Add_Field("val", SG_DATATYPE_String);
+		CSG_Strings s = SG_String_Tokenize(j == 0 ? m_Proj4 : Projection.m_Proj4, "+");
 
-		CSG_Strings	s	= SG_String_Tokenize(i == 0 ? m_Proj4 : Projection.m_Proj4, "+");
-
-		for(int j=0, k=0; j<s.Get_Count(); j++)
+		for(int i=0; i<s.Get_Count(); i++)
 		{
-			CSG_String	key	= s[j].BeforeFirst('='); key.Trim(false); key.Trim(true); key.Make_Lower();
-			CSG_String	val	= s[j].AfterFirst ('='); val.Trim(false); val.Trim(true); val.Make_Lower();
+			CSG_String key = s[i].BeforeFirst('='); key.Trim_Both(); key.Make_Lower();
+			CSG_String val = s[i].AfterFirst ('='); val.Trim_Both(); val.Make_Lower();
 
-			if( !key.is_Empty() && key.Cmp("no_defs") && parms[i].Add_Record() )
+			if( !key.is_Empty() && key.Cmp("no_defs") && !Parms[j](key) ) // key must not be empty, no_defs might be ignored, no key should appear twice!
 			{
-				parms[i][k][0]	= key;
-				parms[i][k][1]	= val;
-
-				k++;
+				Parms[j].Add_Child(key, val);
 			}
 		}
 	}
 
-	if( parms[0].Get_Count() != parms[1].Get_Count() )	// should be the same...
+	for(int j=0, k=1; j<2; j++, k=++k%2) // cross check
 	{
-		return( false );
-	}
-
-	parms[0].Set_Index(0, TABLE_INDEX_Ascending);	// sort by key...
-	parms[1].Set_Index(0, TABLE_INDEX_Ascending);
-
-	for(int j=0; j<parms[0].Get_Count(); j++)
-	{
-		if( SG_STR_CMP(parms[0][j].asString(0), parms[1][j].asString(0)) )	// does the key match ?
+		for(int i=0; i<Parms[j].Get_Children_Count(); i++)
 		{
-			return( false );
-		}
+			CSG_String key = Parms[j][i].Get_Name();
 
-		if( SG_STR_CMP(parms[0][j].asString(1), parms[1][j].asString(1)) )	// doe the value string match ?
-		{
-			double	d[2];
-
-			if( !CSG_String(parms[0][j].asString(1)).asDouble(d[0])	// does the numerical value representation match ?
-			||  !CSG_String(parms[1][j].asString(1)).asDouble(d[1]) || d[0] != d[1] )
+			if( Parms[k](key) )
 			{
-				return( false );
+				if( !Parms[k][key].Cmp_Content(Parms[j][i].Get_Content()) )
+				{
+					double	d[2];
+
+					if( !Parms[j].Get_Content().asDouble(d[0])	// does the numerical value representation match ?
+					||  !Parms[j].Get_Content().asDouble(d[1]) || d[0] != d[1] )
+					{
+						return( false );
+					}
+				}
+			}
+			else // key not present in other list, check for blacklist...
+			{
+				if( !key.CmpNoCase("units") && Parms[j].Cmp_Content("m") ) // meter is default(!?)
+				{
+					continue;
+				}
+
+				if( !key.CmpNoCase("datum"  ) // ignore everything related to datum, will be checked below...
+				||  !key.CmpNoCase("ellps"  )
+				||  !key.CmpNoCase("a"      )
+				||  !key.CmpNoCase("b"      )
+				||  !key.CmpNoCase("rf"     )
+				||  !key.CmpNoCase("e"      )
+				||  !key.CmpNoCase("es"     )
+				||  !key.CmpNoCase("ellps"  )
+				||  !key.CmpNoCase("towgs84") )
+				{
+					continue;
+				}
 			}
 		}
 	}
 
-	return( true );
+	//-----------------------------------------------------
+	CSG_String Datum[2];
+
+	#define GET_DATUM(d, p) { CSG_String s; CSG_Projections::_Proj4_Get_Datum(s, p); d.Clear();\
+		for(int i=0, add=1; i<s.Length(); i++) {\
+			if( s[i] == '\"' ) { add = add ? 0 : 1; } else if( add ) { d += s[i]; }\
+		}\
+	}
+
+	GET_DATUM(Datum[0],            m_Proj4);
+	GET_DATUM(Datum[1], Projection.m_Proj4);
+
+	return( Datum[0].is_Same_As(Datum[1]) );
 }
 
 
@@ -1051,14 +1072,9 @@ CSG_String CSG_Projections::Get_Names_List(TSG_Projection_Type Type) const
 //---------------------------------------------------------
 bool CSG_Projections::_WKT_to_MetaData(CSG_MetaData &MetaData, const CSG_String &WKT)
 {
-	int			i, l;
-	CSG_String	Key;
-	CSG_Strings	Content;
+	CSG_String Key; CSG_Strings Content; Content.Add("");
 
-	//-----------------------------------------------------
-	Content.Add("");
-
-	for(i=0, l=-1; l!=0 && i<(int)WKT.Length(); i++)
+	for(int i=0, l=-1; l!=0 && i<(int)WKT.Length(); i++)
 	{
 		if( l < 0 )	// read key
 		{
@@ -1148,7 +1164,7 @@ bool CSG_Projections::_WKT_to_MetaData(CSG_MetaData &MetaData, const CSG_String 
 	}
 
 	//-----------------------------------------------------
-	for(i=0; i<Content.Get_Count(); i++)
+	for(int i=0; i<Content.Get_Count(); i++)
 	{
 		_WKT_to_MetaData(*pKey, Content[i]);
 	}
@@ -1402,13 +1418,13 @@ bool CSG_Projections::WKT_to_Proj4(CSG_String &Proj4, const CSG_String &WKT) con
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Projections::_Proj4_Find_Parameter(const CSG_String &Proj4, const CSG_String &Key) const
+bool CSG_Projections::_Proj4_Find_Parameter(const CSG_String &Proj4, const CSG_String &Key)
 {
 	return(	Proj4.Find("+" + Key) >= 0 );
 }
 
 //---------------------------------------------------------
-bool CSG_Projections::_Proj4_Read_Parameter(CSG_String &Value, const CSG_String &Proj4, const CSG_String &Key) const
+bool CSG_Projections::_Proj4_Read_Parameter(CSG_String &Value, const CSG_String &Proj4, const CSG_String &Key)
 {
 	Value.Clear();
 
@@ -1481,7 +1497,7 @@ bool CSG_Projections::_Proj4_Read_Parameter(CSG_String &Value, const CSG_String 
 	{	"sphere"	, "6370997.0"	, "6370997.0"	}	// Normal Sphere (r=6370997)
 */
 
-bool CSG_Projections::_Proj4_Get_Ellipsoid(CSG_String &Value, const CSG_String &Proj4) const
+bool CSG_Projections::_Proj4_Get_Ellipsoid(CSG_String &Value, const CSG_String &Proj4)
 {
 	const char	ellipsoid[42][2][32]	= 
 	{	//  ellipsoid	      a				   b
@@ -1561,7 +1577,7 @@ bool CSG_Projections::_Proj4_Get_Ellipsoid(CSG_String &Value, const CSG_String &
 }
 
 //---------------------------------------------------------
-bool CSG_Projections::_Proj4_Get_Datum(CSG_String &Value, const CSG_String &Proj4) const
+bool CSG_Projections::_Proj4_Get_Datum(CSG_String &Value, const CSG_String &Proj4)
 {
 	const char	datum[9][3][64]	=
 	{	//	datum_id		  ellipse		  definition
@@ -1600,6 +1616,13 @@ bool CSG_Projections::_Proj4_Get_Datum(CSG_String &Value, const CSG_String &Proj
 
 		if( _Proj4_Read_Parameter(ToWGS84, Proj4, "towgs84") )
 		{
+			CSG_Strings s = SG_String_Tokenize(ToWGS84, ",");
+
+			if( s.Get_Count() == 3 )
+			{
+				ToWGS84	+= ",0,0,0,0";
+			}
+
 			Value	+= ",TOWGS84[" + ToWGS84 + "]";
 		}
 		else
@@ -1619,7 +1642,7 @@ bool CSG_Projections::_Proj4_Get_Datum(CSG_String &Value, const CSG_String &Proj
 }
 
 //---------------------------------------------------------
-bool CSG_Projections::_Proj4_Get_Prime_Meridian(CSG_String &Value, const CSG_String &Proj4) const
+bool CSG_Projections::_Proj4_Get_Prime_Meridian(CSG_String &Value, const CSG_String &Proj4)
 {
 	const char	meridian[12][2][16]	=
 	{
@@ -1667,7 +1690,7 @@ bool CSG_Projections::_Proj4_Get_Prime_Meridian(CSG_String &Value, const CSG_Str
 }
 
 //---------------------------------------------------------
-bool CSG_Projections::_Proj4_Get_Unit(CSG_String &Value, const CSG_String &Proj4) const
+bool CSG_Projections::_Proj4_Get_Unit(CSG_String &Value, const CSG_String &Proj4)
 {
 	//-----------------------------------------------------
 	TSG_Projection_Unit	Unit	= _Proj4_Read_Parameter(Value, Proj4, "units") ? SG_Get_Projection_Unit(Value) : SG_PROJ_UNIT_Undefined;

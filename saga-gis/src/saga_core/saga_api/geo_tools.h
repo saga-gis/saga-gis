@@ -830,6 +830,8 @@ private:
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Projections
 {
+	friend class CSG_Projection;
+
 public:
 	CSG_Projections(void);
 	virtual ~CSG_Projections(void);
@@ -886,12 +888,12 @@ private:
 
 	bool							_WKT_to_Proj4_Set_Datum		(CSG_String &Proj4, const CSG_MetaData &WKT)	const;
 
-	bool							_Proj4_Find_Parameter		(                   const CSG_String &Proj4, const CSG_String &Key)	const;
-	bool							_Proj4_Read_Parameter		(CSG_String &Value, const CSG_String &Proj4, const CSG_String &Key)	const;
-	bool							_Proj4_Get_Ellipsoid		(CSG_String &Value, const CSG_String &Proj4)	const;
-	bool							_Proj4_Get_Datum			(CSG_String &Value, const CSG_String &Proj4)	const;
-	bool							_Proj4_Get_Prime_Meridian	(CSG_String &Value, const CSG_String &Proj4)	const;
-	bool							_Proj4_Get_Unit				(CSG_String &Value, const CSG_String &Proj4)	const;
+	static bool						_Proj4_Find_Parameter		(                   const CSG_String &Proj4, const CSG_String &Key);
+	static bool						_Proj4_Read_Parameter		(CSG_String &Value, const CSG_String &Proj4, const CSG_String &Key);
+	static bool						_Proj4_Get_Ellipsoid		(CSG_String &Value, const CSG_String &Proj4);
+	static bool						_Proj4_Get_Datum			(CSG_String &Value, const CSG_String &Proj4);
+	static bool						_Proj4_Get_Prime_Meridian	(CSG_String &Value, const CSG_String &Proj4);
+	static bool						_Proj4_Get_Unit				(CSG_String &Value, const CSG_String &Proj4);
 
 	bool							_Set_Dictionary				(CSG_Table      &Dictionary, int Direction);
 	bool							_Set_Dictionary				(CSG_Translator &Dictionary, int Direction);
