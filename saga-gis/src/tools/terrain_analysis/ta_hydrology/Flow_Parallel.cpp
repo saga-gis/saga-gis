@@ -183,7 +183,7 @@ CFlow_Parallel::CFlow_Parallel(void)
 	Parameters.Add_Double("",
 		"CONVERGENCE"	, _TL("Convergence"),
 		_TL("Convergence factor for Multiple Flow Direction Algorithm (Freeman 1991).\nApplies also to the Multiple Triangular Flow Directon Algorithm."),
-		1.1, 0., true
+		1.1, 0.001, true
 	);
 
 	Parameters.Add_Bool("",
