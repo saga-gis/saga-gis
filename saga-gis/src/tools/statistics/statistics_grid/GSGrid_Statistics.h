@@ -69,7 +69,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGSGrid_Statistics : public CSG_Tool_Grid  
+class CGSGrid_Statistics : public CSG_Tool_Grid
 {
 public:
 	CGSGrid_Statistics(void);
@@ -89,7 +89,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGSGrid_Unique_Value_Statistics : public CSG_Tool_Grid  
+class CGSGrid_Unique_Value_Statistics : public CSG_Tool_Grid
 {
 public:
 	CGSGrid_Unique_Value_Statistics(void);
@@ -109,7 +109,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGSGrid_Statistics_To_Table : public CSG_Tool_Grid  
+class CGSGrid_Statistics_To_Table : public CSG_Tool
 {
 public:
 	CGSGrid_Statistics_To_Table(void);
