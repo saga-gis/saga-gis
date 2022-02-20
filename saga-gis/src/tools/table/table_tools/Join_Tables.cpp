@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Join_Tables.cpp 1010 2011-04-26 11:52:02Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Join_Tables.h"
 
 
@@ -70,9 +58,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CJoin_Tables_Base::Initialise(void)
+void CJoin_Tables_Base::On_Construction(void)
 {
-	//-----------------------------------------------------
 	Set_Author		("V.Olaya (c) 2005, O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
@@ -81,12 +68,12 @@ void CJoin_Tables_Base::Initialise(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Table_Field("TABLE_A",
-		"ID_A"		, _TL("Identifier"),
+		"ID_A"		, _TL("Input Join Field"),
 		_TL("")
 	);
 
 	Parameters.Add_Table_Field("TABLE_B",
-		"ID_B"		, _TL("Identifier"),
+		"ID_B"		, _TL("Join Table Field"),
 		_TL("")
 	);
 
@@ -111,6 +98,12 @@ void CJoin_Tables_Base::Initialise(void)
 		"CMP_CASE"	, _TL("Case Sensitive String Comparison"),
 		_TL(""),
 		true
+	);
+
+	Parameters.Add_Table("",
+		"UNJOINED"	, _TL("Unjoined Records"),
+		_TL("Collect unjoined records from join table."),
+		PARAMETER_OUTPUT_OPTIONAL
 	);
 }
 
@@ -138,151 +131,185 @@ int CJoin_Tables_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Par
 //---------------------------------------------------------
 bool CJoin_Tables_Base::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Table	*pT_A	= Parameters("TABLE_A")->asTable();
-	int			 id_A	= Parameters(   "ID_A")->asInt();
+	CSG_Table *pTable_A = Parameters("TABLE_A")->asTable(); int Key_A = Parameters("ID_A")->asInt();
 
-	CSG_Table	*pT_B	= Parameters("TABLE_B")->asTable();
-	int			 id_B	= Parameters(   "ID_B")->asInt();
-
-	if(	id_A < 0 || id_A >= pT_A->Get_Field_Count() || pT_A->Get_Count() <= 0
-	||	id_B < 0 || id_B >= pT_B->Get_Field_Count() || pT_B->Get_Count() <= 0 )
+	if(	pTable_A->Get_Field_Count() < 1 || pTable_A->Get_Count() < 1 )
 	{
+		Error_Fmt("%s [%s]", _TL("Table contains no records or fields"), pTable_A->Get_Name());
+
+		return( false );
+	}
+
+	CSG_Table *pTable_B = Parameters("TABLE_B")->asTable(); int Key_B = Parameters("ID_B")->asInt();
+
+	if(	pTable_B->Get_Field_Count() < 2 || pTable_B->Get_Count() < 1 ) // id/key field of join is redundant and should be ignored
+	{
+		Error_Fmt("%s [%s]", _TL("Join table contains no records or less than two fields"), pTable_B->Get_Name());
+
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	if( Parameters("RESULT")->asTable() && Parameters("RESULT")->asTable() != pT_A )
+	if( Parameters("RESULT")->asTable() && Parameters("RESULT")->asTable() != pTable_A )
 	{
-		pT_A	= Parameters("RESULT")->asTable();
+		pTable_A = Parameters("RESULT")->asTable();
 
 		if( Parameters("RESULT")->asTable()->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
 		{
-			((CSG_Shapes *)pT_A)->Create(*Parameters("TABLE_A")->asShapes());
+			((CSG_Shapes *)pTable_A)->Create(*Parameters("TABLE_A")->asShapes());
 		}
 		else
 		{
-			pT_A->Create(*Parameters("TABLE_A")->asTable());
+			((CSG_Table  *)pTable_A)->Create(*Parameters("TABLE_A")->asTable ());
 		}
+
+		pTable_A->Fmt_Name("%s [%s]", pTable_A->Get_Name(), pTable_B->Get_Name());
 	}
 
 	//-----------------------------------------------------
-	int		nJoins, *Join, Offset	= pT_A->Get_Field_Count();
+	CSG_Array_Int Joins; int Offset = pTable_A->Get_Field_Count();
 
 	if( Parameters("FIELDS_ALL")->asBool() )
 	{
-		if( (nJoins = pT_B->Get_Field_Count() - 1) <= 0 )
+		for(int i=0; i<pTable_B->Get_Field_Count(); i++)
 		{
-			Error_Set(_TL("no fields to add"));
-
-			return( false );
-		}
-
-		Join	= new int[nJoins];
-
-		for(int i=0, j=0; i<pT_B->Get_Field_Count(); i++)
-		{
-			if( i != id_B )
+			if( i != Key_B )
 			{
-				pT_A->Add_Field(pT_B->Get_Field_Name(i), pT_B->Get_Field_Type(i));
+				pTable_A->Add_Field(pTable_B->Get_Field_Name(i), pTable_B->Get_Field_Type(i));
 
-				Join[j++]	= i;
+				Joins += i;
 			}
 		}
 	}
 	else
 	{
-		CSG_Parameter_Table_Fields	*pFields	= Parameters("FIELDS")->asTableFields();
-
-		if( (nJoins = pFields->Get_Count()) <= 0 )
-		{
-			Error_Set(_TL("no fields to add"));
-
-			return( false );
-		}
-
-		Join	= new int[nJoins];
+		CSG_Parameter_Table_Fields *pFields = Parameters("FIELDS")->asTableFields();
 
 		for(int j=0; j<pFields->Get_Count(); j++)
 		{
-			int	i	= pFields->Get_Index(j);
+			int i = pFields->Get_Index(j);
 
-			pT_A->Add_Field(pT_B->Get_Field_Name(i), pT_B->Get_Field_Type(i));
+			pTable_A->Add_Field(pTable_B->Get_Field_Name(i), pTable_B->Get_Field_Type(i));
 
-			Join[j]	= i;
+			Joins += i;
 		}
 	}
 
-	pT_A->Fmt_Name("%s [%s]", pT_A->Get_Name(), pT_B->Get_Name());
+	if( Joins.Get_Size() < 1 )
+	{
+		Error_Set(_TL("no fields to add"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Table *pUnjoined = Parameters("UNJOINED")->asTable(); int nUnjoined[2]; nUnjoined[0] = nUnjoined[1] = 0;
+
+	if( pUnjoined )
+	{
+		pUnjoined->Create(pTable_B);
+		pUnjoined->Fmt_Name("%s [%s]", pTable_B->Get_Name(), _TL("Unjoined Records"));
+	}
 
 	//-----------------------------------------------------
 	m_bCmpNoCase	= Parameters("CMP_CASE")->asBool() == false;
 
-	m_bCmpNumeric	=  SG_Data_Type_is_Numeric(pT_A->Get_Field_Type(id_A))
-					|| SG_Data_Type_is_Numeric(pT_B->Get_Field_Type(id_B));
+	m_bCmpNumeric	=  SG_Data_Type_is_Numeric(pTable_A->Get_Field_Type(Key_A))
+					|| SG_Data_Type_is_Numeric(pTable_B->Get_Field_Type(Key_B));
 
-	CSG_Table	Delete;	if( !Parameters("KEEP_ALL")->asBool() )	Delete.Add_Field("ID", SG_DATATYPE_Int);
+	CSG_Table Delete; if( !Parameters("KEEP_ALL")->asBool() ) Delete.Add_Field("ID", SG_DATATYPE_Int);
 
-	pT_A->Set_Index(id_A, TABLE_INDEX_Ascending);
-	pT_B->Set_Index(id_B, TABLE_INDEX_Ascending);
+	CSG_Index Index_A; pTable_A->Set_Index(Index_A, Key_A);
+	CSG_Index Index_B; pTable_B->Set_Index(Index_B, Key_B);
 
-	CSG_Table_Record	*pRecord_B	= pT_B->Get_Record_byIndex(0);
+	CSG_Table_Record *pRecord_B = pTable_B->Get_Record(Index_B[0]);
 
-	for(int a=0, b=0, Cmp; pRecord_B && a<pT_A->Get_Count() && Set_Progress(a, pT_A->Get_Count()); a++)
+	for(int a=0, b=0, nJoined=0, Cmp; a<pTable_A->Get_Count() && Set_Progress(a, pTable_A->Get_Count()); a++)
 	{
-		CSG_Table_Record	*pRecord_A	= pT_A->Get_Record_byIndex(a);
+		CSG_Table_Record *pRecord_A = pTable_A->Get_Record(Index_A[a]);
 
-		while( pRecord_B && (Cmp = Cmp_Keys(pRecord_A->Get_Value(id_A), pRecord_B->Get_Value(id_B))) < 0 )
+		while( (Cmp = Cmp_Keys(pRecord_A->Get_Value(Key_A), pRecord_B ? pRecord_B->Get_Value(Key_B) : NULL)) < 0 )
 		{
-			pRecord_B	= pT_B->Get_Record_byIndex(++b);
-		}
-
-		if( pRecord_B && Cmp == 0 )
-		{
-			for(int i=0; i<nJoins; i++)
+			if( nJoined < 1 )
 			{
-				*pRecord_A->Get_Value(Offset + i)	= *pRecord_B->Get_Value(Join[i]);
+				nUnjoined[1]++;
+
+				if( pUnjoined )
+				{
+					pUnjoined->Add_Record(pRecord_B);
+				}
 			}
+
+			pRecord_B = pTable_B->Get_Record(Index_B[++b]); nJoined = 0;
 		}
-		else if( Delete.Get_Field_Count() == 0 )
+
+		if( Cmp == 0 )
 		{
-			for(int i=0; i<nJoins; i++)
+			nJoined++;
+
+			for(int i=0; i<(int)Joins.Get_Size(); i++)
 			{
-				pRecord_A->Set_NoData(Offset + i);
+				*pRecord_A->Get_Value(Offset + i) = *pRecord_B->Get_Value(Joins[i]);
 			}
 		}
 		else
 		{
-			Delete.Add_Record()->Set_Value(0, pRecord_A->Get_Index());
+			nUnjoined[0]++;
+
+			if( Delete.Get_Field_Count() )
+			{
+				Delete.Add_Record()->Set_Value(0, Index_A[a]);
+			}
+			else for(int i=0; i<(int)Joins.Get_Size(); i++)
+			{
+				pRecord_A->Set_NoData(Offset + i);
+			}
 		}
 	}
 
 	//-----------------------------------------------------
-	delete[](Join);
+	if( nUnjoined[0] >= pTable_A->Get_Count() )
+	{
+		Message_Fmt("\n%s", _TL("no record found a join"));
+	}
+	else
+	{
+		if( nUnjoined[0] )
+		{
+			Message_Fmt("\n%s: %d", _TL("number of unjoined input records"), nUnjoined[0]);
+		}
+		else
+		{
+			Message_Fmt("\n%s", _TL("all input records found a join"));
+		}
 
-	pT_A->Set_Index(id_A, TABLE_INDEX_None);
-	pT_B->Set_Index(id_B, TABLE_INDEX_None);
+		if( nUnjoined[1] )
+		{
+			Message_Fmt("\n%s: %d", _TL("number of unjoined join table records"), nUnjoined[1]);
+		}
+		else
+		{
+			Message_Fmt("\n%s", _TL("all join table records found at least one join"));
+		}
+	}
 
+	//-----------------------------------------------------
 	if( Delete.Get_Count() > 0 )
 	{
 		Delete.Set_Index(0, TABLE_INDEX_Descending);
 
 		for(int i=0; i<Delete.Get_Count(); i++)
 		{
-		//	((CSG_Shapes *)pT_A)->Del_Shape(Delete[i].asInt(0));
-
-			pT_A->Del_Record(Delete[i].asInt(0));
+			pTable_A->Del_Record(Delete[i].asInt(0));
 		}
-
-		Message_Fmt("\n%d %s", pT_A->Get_Selection_Count(), _TL("unjoined records have been removed"));
 	}
 
-	if( pT_A == Parameters("TABLE_A")->asTable() )
+	if( pTable_A == Parameters("TABLE_A")->asTable() )
 	{
-		DataObject_Update(pT_A);
+		DataObject_Update(pTable_A);
 	}
 
-	return( pT_A->Get_Count() > 0 );
+	return( pTable_A->Get_Count() > 0 );
 }
 
 
@@ -302,7 +329,7 @@ inline int CJoin_Tables_Base::Cmp_Keys(CSG_Table_Value *pA, CSG_Table_Value *pB)
 	{
 		double	d	= pB->asDouble() - pA->asDouble();
 
-		return( d < 0.0 ? -1 : d > 0.0 ? 1 : 0 );
+		return( d < 0. ? -1 : d > 0. ? 1 : 0 );
 	}
 
 	CSG_String	Key(pB->asString());
@@ -323,7 +350,7 @@ CJoin_Tables::CJoin_Tables(void)
 	Set_Name		(_TL("Join Attributes from a Table"));
 
 	Parameters.Add_Table("",
-		"TABLE_A"	, _TL("Table"),
+		"TABLE_A"	, _TL("Input Table"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
@@ -340,7 +367,7 @@ CJoin_Tables::CJoin_Tables(void)
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Initialise();
+	On_Construction();
 }
 
 
@@ -356,7 +383,7 @@ CJoin_Tables_Shapes::CJoin_Tables_Shapes(void)
 	Set_Name		(_TL("Join Attributes from a Table (Shapes)"));
 
 	Parameters.Add_Shapes("",
-		"TABLE_A"	, _TL("Shapes"),
+		"TABLE_A"	, _TL("Input Table"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
@@ -373,7 +400,7 @@ CJoin_Tables_Shapes::CJoin_Tables_Shapes(void)
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Initialise();
+	On_Construction();
 }
 
 
@@ -390,7 +417,7 @@ CTable_Append_Cols::CTable_Append_Cols(void)
 
 	Set_Author		("O.Conrad (c) 2012");
 
-	Set_Description(_TW(
+	Set_Description	(_TW(
 		""
 	));
 
@@ -421,20 +448,16 @@ CTable_Append_Cols::CTable_Append_Cols(void)
 //---------------------------------------------------------
 bool CTable_Append_Cols::On_Execute(void)
 {
-	CSG_Table	*pTable, *pOutput, *pAppend;
+	CSG_Table *pTable  = Parameters("INPUT" )->asTable();
 
-	//-----------------------------------------------------
-	pTable	= Parameters("INPUT" )->asTable();
-	pOutput	= Parameters("OUTPUT")->asTable();
-	pAppend	= Parameters("APPEND")->asTable();
-
-	//-----------------------------------------------------
 	if( pTable->Get_Record_Count() <= 0 )
 	{
 		Error_Set(_TL("no records in data set"));
 
 		return( false );
 	}
+
+	CSG_Table *pAppend = Parameters("APPEND")->asTable();
 
 	if( pAppend->Get_Record_Count() <= 0 )
 	{
@@ -444,20 +467,19 @@ bool CTable_Append_Cols::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( pOutput && pOutput != pTable )
+	if( Parameters("OUTPUT")->asTable() && Parameters("OUTPUT")->asTable() != pTable )
 	{
-		pOutput->Create		(*pTable);
-		pOutput->Set_Name	( pTable->Get_Name());
+		CSG_Table *pOutput = Parameters("OUTPUT")->asTable();
+		pOutput->Create  (*pTable);
+		pOutput->Set_Name( pTable->Get_Name());
 		pTable	= pOutput;
 	}
 
 	//-----------------------------------------------------
-	int		iField, jField, aField, nRecords;
+	int	nRecords = pTable->Get_Count() < pAppend->Get_Count() ? pTable->Get_Count() : pAppend->Get_Count();
+	int offField = pTable->Get_Field_Count();
 
-	nRecords	= pTable->Get_Count() < pAppend->Get_Count() ? pTable->Get_Count() : pAppend->Get_Count();
-	aField		= pTable->Get_Field_Count();
-
-	for(iField=0; iField<pAppend->Get_Field_Count(); iField++)
+	for(int iField=0; iField<pAppend->Get_Field_Count(); iField++)
 	{
 		pTable->Add_Field(pAppend->Get_Field_Name(iField), pAppend->Get_Field_Type(iField));
 	}
@@ -465,12 +487,12 @@ bool CTable_Append_Cols::On_Execute(void)
 	//-----------------------------------------------------
 	for(int iRecord=0; iRecord<nRecords && Set_Progress(iRecord, nRecords); iRecord++)
 	{
-		CSG_Table_Record	*pRec	= pTable ->Get_Record(iRecord);
-		CSG_Table_Record	*pAdd	= pAppend->Get_Record(iRecord);
+		CSG_Table_Record &Record = *pTable ->Get_Record(iRecord);
+		CSG_Table_Record &Append = *pAppend->Get_Record(iRecord);
 
-		for(iField=0, jField=aField; iField<pAppend->Get_Field_Count(); iField++)
+		for(int iField=0; iField<pAppend->Get_Field_Count(); iField++)
 		{
-			*pRec->Get_Value(jField++)	= *pAdd->Get_Value(iField);
+			*Record.Get_Value(offField + iField) = *Append.Get_Value(iField);
 		}
 	}
 

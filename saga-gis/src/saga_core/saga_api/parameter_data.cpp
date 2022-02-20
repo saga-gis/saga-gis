@@ -634,6 +634,11 @@ int CSG_Parameter_Date::_Set_Value(const CSG_String &Value)
 {
 	CSG_DateTime	Date;
 
+	if( Date.Parse_ISODate(Value) )
+	{
+		return( _Set_Value(Date.Get_JDN()) );
+	}
+
 	if( Date.Parse_Date(Value) )
 	{
 		return( _Set_Value(Date.Get_JDN()) );

@@ -21,7 +21,7 @@
 #ifdef _SAGA_MSW
 #define isinf(x) (!_finite(x))
 #else
-#define isinf(x) (!finite(x))
+#define isinf(x) (!isfinite(x))
 #endif
 
 /** The input array contains a set of log probabilities lp1, lp2, lp3

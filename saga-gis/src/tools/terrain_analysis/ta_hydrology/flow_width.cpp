@@ -72,14 +72,13 @@ CFlow_Width::CFlow_Width(void)
 		"Gruber, S., Peckham, S.", "2008",
 		"Land-Surface Parameters and Objects in Hydrology",
 		"In: Hengl, T. and Reuter, H.I. [Eds.]: Geomorphometry: Concepts, Software, Applications. Developments in Soil Science, Elsevier, 33:293-308.",
-		SG_T("https://www.elsevier.com/books/geomorphometry/hengl/978-0-12-374345-9")
+		SG_T("https://doi.org/10.1016/S0166-2481(08)00007-X"), SG_T("doi:10.1016/S0166-2481(08)00007-X")
 	);
 
-	Add_Reference(
-		"Quinn, P.F., Beven, K.J., Chevallier, P., Planchon, O.", "1991",
+	Add_Reference("Quinn, P.F., Beven, K.J., Chevallier, P. & Planchon, O.", "1991",
 		"The prediction of hillslope flow paths for distributed hydrological modelling using digital terrain models",
-		"Hydrological Processes, 5:59-79",
-		SG_T("http://onlinelibrary.wiley.com/doi/10.1002/hyp.3360050106/full")
+		"Hydrological Processes, 5:59-79.",
+		SG_T("https://doi.org/10.1002/hyp.3360050106"), SG_T("doi:10.1002/hyp.3360050106")
 	);
 
 	//-----------------------------------------------------
@@ -223,9 +222,9 @@ bool CFlow_Width::On_Execute(void)
 //---------------------------------------------------------
 inline double CFlow_Width::Get_D8(int x, int y)
 {
-	int		Direction;
+	int Direction = m_pDEM->Get_Gradient_NeighborDir(x, y);
 
-	if( (Direction = m_pDEM->Get_Gradient_NeighborDir(x, y)) >= 0 )
+	if( Direction >= 0 )
 	{
 		return( Get_Length(Direction) );
 	}

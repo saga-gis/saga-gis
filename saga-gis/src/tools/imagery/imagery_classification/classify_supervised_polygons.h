@@ -70,7 +70,7 @@ class CPolygon_Classify_Supervised : public CSG_Tool
 public:
 	CPolygon_Classify_Supervised(bool bShapes);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( m_bShapes ? _TL("A:Shapes|Table") : _TL("A:Table|Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( m_bShapes ? _TL("A:Shapes|Attributes") : _TL("A:Table|Tools") );	}
 
 
 protected:

@@ -125,7 +125,7 @@ class CField_Formatted_String_Shapes : public CField_Formatted_String_Base
 public:
 	CField_Formatted_String_Shapes(void) : CField_Formatted_String_Base(true)	{}
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Shapes|Table") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Shapes|Attributes") );	}
 
 };
 

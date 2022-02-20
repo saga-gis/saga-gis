@@ -631,6 +631,8 @@ bool CExecute_SQL::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	Get_Connection()->GUI_Update();
+
 	return( nErrors == 0 );
 }
 

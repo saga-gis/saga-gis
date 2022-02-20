@@ -412,6 +412,19 @@ bool CWKSP_Layer_Classify::Set_Class_Count(int Count)
 }
 
 //---------------------------------------------------------
+CSG_Colors CWKSP_Layer_Classify::Get_Class_Colors(void)	const
+{
+	CSG_Colors Colors(Get_Class_Count());
+
+	for(int i=0; i<Get_Class_Count(); i++)
+	{
+		Colors[i] = Get_Class_Color(i);
+	}
+
+	return( Colors );
+}
+
+//---------------------------------------------------------
 void CWKSP_Layer_Classify::Set_Metric(int Mode, double LogFactor, double zMin, double zMax)
 {
 	m_zMode		= Mode;
@@ -434,7 +447,7 @@ void CWKSP_Layer_Classify::Set_Metric(int Mode, double LogFactor, double zMin, d
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline int CWKSP_Layer_Classify::_LUT_Cmp_Class(double Value, int iClass)
+inline int CWKSP_Layer_Classify::_LUT_Cmp_Class(double Value, int iClass)	const
 {
 	CSG_Table_Record	*pClass	= m_pLUT->Get_Record_byIndex(iClass);
 
@@ -452,7 +465,7 @@ inline int CWKSP_Layer_Classify::_LUT_Cmp_Class(double Value, int iClass)
 }
 
 //---------------------------------------------------------
-int CWKSP_Layer_Classify::_LUT_Get_Class(double Value)
+int CWKSP_Layer_Classify::_LUT_Get_Class(double Value)	const
 {
 	int		a, b, i, c;
 
@@ -497,7 +510,7 @@ int CWKSP_Layer_Classify::_LUT_Get_Class(double Value)
 }
 
 //---------------------------------------------------------
-inline int CWKSP_Layer_Classify::_LUT_Cmp_Class(const CSG_String &Value, int iClass)
+inline int CWKSP_Layer_Classify::_LUT_Cmp_Class(const CSG_String &Value, int iClass)	const
 {
 	CSG_Table_Record	*pClass	= m_pLUT->Get_Record_byIndex(iClass);
 
@@ -517,7 +530,7 @@ inline int CWKSP_Layer_Classify::_LUT_Cmp_Class(const CSG_String &Value, int iCl
 }
 
 //---------------------------------------------------------
-int CWKSP_Layer_Classify::_LUT_Get_Class(const CSG_String &Value)
+int CWKSP_Layer_Classify::_LUT_Get_Class(const CSG_String &Value)	const
 {
 	int		a, b, i, c;
 

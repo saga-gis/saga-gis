@@ -461,7 +461,7 @@ CGSGrid_Statistics_To_Table::CGSGrid_Statistics_To_Table(void)
 //---------------------------------------------------------
 int CGSGrid_Statistics_To_Table::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -472,7 +472,7 @@ int CGSGrid_Statistics_To_Table::On_Parameters_Enable(CSG_Parameters *pParameter
 		pParameters->Set_Enabled("PCTL_HST", *pParameter->asString() != '\0');
 	}
 
-	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -521,11 +521,11 @@ bool CGSGrid_Statistics_To_Table::On_Execute(void)
 
 	for(CSG_String_Tokenizer Values(Parameters("PCTL_VAL")->asString(), ";"); Values.Has_More_Tokens(); )
 	{
-		CSG_String	s(Values.Get_Next_Token()); s.Trim_Both();	double	v;
+		CSG_String s(Values.Get_Next_Token()); s.Trim_Both(); double v;
 
 		if( s.asDouble(v) && v >= 0. && v <= 100. )
 		{
-			int	n	= Percentiles.Get_Count();
+			int n = Percentiles.Get_Count();
 
 			Percentiles.Add_Record();
 
@@ -544,16 +544,16 @@ bool CGSGrid_Statistics_To_Table::On_Execute(void)
 		return( false );
 	}
 
-	sLong nSamples[2]; nSamples[0] = (sLong)(pGrids->Get_System()->Get_NCells() * Parameters("SAMPLES")->asDouble() / 100.);
+	double Samples = Parameters("SAMPLES")->asDouble() / 100.;
 
 	//-----------------------------------------------------
 	for(int i=0; i<pGrids->Get_Grid_Count() && Process_Get_Okay(); i++)
 	{
-		CSG_Grid	*pGrid	= pGrids->Get_Grid(i);
+		CSG_Grid *pGrid = pGrids->Get_Grid(i); CSG_Table_Record *pRecord = pTable->Add_Record();
 
-		CSG_Table_Record	*pRecord	= pTable->Add_Record();
+		CSG_Simple_Statistics s;
 
-		CSG_Simple_Statistics	s;
+		sLong nSamples[2]; nSamples[0] = (sLong)(pGrid->Get_NCells() * Samples);
 
 		if( nSamples[0] > (nSamples[1] = pGrid->Get_Max_Samples()) )
 		{

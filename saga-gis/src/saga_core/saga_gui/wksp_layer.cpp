@@ -496,12 +496,6 @@ void CWKSP_Layer::ColorsParms_Add(void)
 			_TL("Prevents that minimum or maximum stretch value fall outside the data value range."),
 			true
 		);
-
-		m_Parameters.Add_Range("STRETCH_DEFAULT",
-			"STRETCH_PCTL"		, _TL("Percent Clip"),
-			_TL(""),
-			2., 98., 0., true, 100., true
-		);
 	}
 
 	//-----------------------------------------------------

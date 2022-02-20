@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: table_categories_to_indicators.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "table_categories_to_indicators.h"
 
 
@@ -70,7 +58,6 @@
 //---------------------------------------------------------
 CTable_Categories_to_Indicators::CTable_Categories_to_Indicators(void)
 {
-	//-----------------------------------------------------
 	Set_Name	(_TL("Add Indicator Fields for Categories"));
 
 	Set_Author	("O.Conrad (c) 2015");
@@ -84,25 +71,25 @@ CTable_Categories_to_Indicators::CTable_Categories_to_Indicators(void)
 	));
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode	= Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Table"),
+	Parameters.Add_Table("",
+		"TABLE"		, _TL("Table"),
 		_TL("Input table or shapefile"),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD"		, _TL("Categories"),
+	Parameters.Add_Table_Field("TABLE",
+		"FIELD"		, _TL("Categories"),
 		_TL("")
 	);
 
-	Parameters.Add_Table(
-		NULL	, "OUT_TABLE"	, _TL("Output table with field(s) deleted"),
+	Parameters.Add_Table("",
+		"OUT_TABLE"	, _TL("Output table with field(s) deleted"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "OUT_SHAPES"	, _TL("Output shapes with field(s) deleted"),
+	Parameters.Add_Shapes("",
+		"OUT_SHAPES", _TL("Output shapes with field(s) deleted"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
@@ -120,16 +107,16 @@ int CTable_Categories_to_Indicators::On_Parameters_Enable(CSG_Parameters *pParam
 	{
 		CSG_Data_Object	*pObject	= pParameter->asDataObject();
 
-		pParameters->Get_Parameter("OUT_TABLE" )->Set_Enabled(pObject &&
+		pParameters->Set_Enabled("OUT_TABLE" , pObject &&
 			pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table
 		);
 
-		pParameters->Get_Parameter("OUT_SHAPES")->Set_Enabled(pObject &&
+		pParameters->Set_Enabled("OUT_SHAPES", pObject &&
 			pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes
 		);
 	}
 
-	return( 1 );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -140,17 +127,16 @@ int CTable_Categories_to_Indicators::On_Parameters_Enable(CSG_Parameters *pParam
 //---------------------------------------------------------
 bool CTable_Categories_to_Indicators::On_Execute(void)
 {
-	//-----------------------------------------------------
-	int		iCategory	= Parameters("FIELD")->asInt();
+	int     iCategory = Parameters("FIELD")->asInt();
 
-	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
+	CSG_Table *pTable = Parameters("TABLE")->asTable();
 
 	//-----------------------------------------------------
 	if( pTable->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
 	{
-		if( Parameters("OUT_SHAPES")->asShapes() != NULL && Parameters("OUT_SHAPES")->asShapes() != pTable )
+		if( Parameters("OUT_SHAPES")->asShapes() && Parameters("OUT_SHAPES")->asShapes() != pTable )
 		{
-			CSG_Shapes	*pOutput	= Parameters("OUT_SHAPES")->asShapes();
+			CSG_Shapes *pOutput = Parameters("OUT_SHAPES")->asShapes();
 
 			pOutput->Create(((CSG_Shapes *)pTable)->Get_Type(), NULL, (CSG_Table *)0, ((CSG_Shapes *)pTable)->Get_Vertex_Type());
 			pOutput->Fmt_Name("%s [%s]", pTable->Get_Name(), pTable->Get_Field_Name(iCategory));
@@ -158,22 +144,22 @@ bool CTable_Categories_to_Indicators::On_Execute(void)
 
 			for(int i=0; i<pTable->Get_Count(); i++)
 			{
-				CSG_Table_Record	*pRecord	= pOutput->Add_Shape((CSG_Shape *)pTable->Get_Record(i), SHAPE_COPY_GEOM);
+				CSG_Table_Record *pRecord = pOutput->Add_Shape((CSG_Shape *)pTable->Get_Record(i), SHAPE_COPY_GEOM);
 
-				*(pRecord->Get_Value(0))	= *(pTable->Get_Record(i)->Get_Value(iCategory));
+				*(pRecord->Get_Value(0)) = *(pTable->Get_Record(i)->Get_Value(iCategory));
 			}
 
-			pTable		= pOutput;
-			iCategory	= 0;
+			pTable    = pOutput;
+			iCategory = 0;
 		}
 	}
 
 	//-----------------------------------------------------
 	else // if( pTable->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table )
 	{
-		if( Parameters("OUT_TABLE"  )->asTable() != NULL && Parameters("OUT_TABLE"  )->asTable() != pTable )
+		if( Parameters("OUT_TABLE")->asTable() && Parameters("OUT_TABLE")->asTable() != pTable )
 		{
-			CSG_Table	*pOutput	= Parameters("OUT_SHAPES")->asTable();
+			CSG_Table *pOutput = Parameters("OUT_TABLE")->asTable();
 
 			pOutput->Destroy();
 			pOutput->Fmt_Name("%s [%s]", pTable->Get_Name(), pTable->Get_Field_Name(iCategory));
@@ -181,47 +167,47 @@ bool CTable_Categories_to_Indicators::On_Execute(void)
 
 			for(int i=0; i<pTable->Get_Count(); i++)
 			{
-				CSG_Table_Record	*pRecord	= pOutput->Add_Record();
+				CSG_Table_Record *pRecord = pOutput->Add_Record();
 
-				*(pRecord->Get_Value(0))	= *(pTable->Get_Record(i)->Get_Value(iCategory));
+				*(pRecord->Get_Value(0)) = *(pTable->Get_Record(i)->Get_Value(iCategory));
 			}
 
-			pTable		= pOutput;
-			iCategory	= 0;
+			pTable    = pOutput;
+			iCategory = 0;
 		}
 	}
 
 	//-----------------------------------------------------
-	TSG_Table_Index_Order	old_Order	= pTable->Get_Index_Order(0);
-	int						old_Field	= pTable->Get_Index_Field(0);
+	int nCategories = 0;
 
-	pTable->Set_Index(iCategory, TABLE_INDEX_Descending);
+	CSG_Index Index; pTable->Set_Index(Index, iCategory, false);
 
-	int		nCategories	= 0;
-
-	CSG_String	Value;
+	CSG_String Value;
 
 	for(int iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
 	{
-		CSG_Table_Record	*pRecord	= pTable->Get_Record_byIndex(iRecord);
+		CSG_Table_Record *pRecord = pTable->Get_Record(Index[iRecord]);
 
 		if( iRecord == 0 || Value.Cmp(pRecord->asString(iCategory)) )
 		{
-			Value	= pRecord->asString(iCategory);
+			Value = pRecord->asString(iCategory);
 
 			pTable->Add_Field(Value, SG_DATATYPE_Int);
 
 			nCategories++;
 		}
 
-		pRecord->Set_Value(pTable->Get_Field_Count() - 1, 1.0);
+		pRecord->Set_Value(pTable->Get_Field_Count() - 1, 1.);
 	}
 
-	pTable->Set_Index(old_Field, old_Order);
-
+	//-----------------------------------------------------
 	Message_Fmt("\n%s: %d", _TL("number of categories"), nCategories);
 
-	//-----------------------------------------------------
+	if( pTable == Parameters("TABLE")->asTable() )
+	{
+		DataObject_Update(pTable);
+	}
+
 	return( true );
 }
 

@@ -72,7 +72,7 @@ class CTable_Cluster_Analysis : public CSG_Tool
 public:
 	CTable_Cluster_Analysis(bool bShapes);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( m_bShapes ? _TL("A:Shapes|Table") : _TL("") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( m_bShapes ? _TL("A:Shapes|Attributes") : _TL("") );	}
 
 
 protected:

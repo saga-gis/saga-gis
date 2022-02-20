@@ -91,23 +91,24 @@ CFlow_RecursiveDown::CFlow_RecursiveDown(void)
 	Add_Reference("Costa-Cabral, M. & Burges, S.J.", "1994",
 		"Digital Elevation Model Networks (DEMON): a model of flow over hillslopes for computation of contributing and dispersal areas",
 		"Water Resources Research, 30:1681-1692.",
-		SG_T("https://www.researchgate.net/profile/Mariza_Costa-Cabral/publication/233756725_Digital_Elevation_Model_Networks_DEMON_A_model_of_flow_over_hillslopes_for_computation_of_contributing_and_dispersal_areas/links/0912f50b3c13976e7d000000.pdf"),
-		SG_T("ResearchGate")
+		SG_T("https://doi.org/10.1029/93WR03512"), SG_T("doi:10.1029/93WR03512")
 	);
 
 	Add_Reference("Fairfield, J. & Leymarie, P.", "1991",
 		"Drainage networks from grid digital elevation models",
-		"Water Resources Research, 27:709-717."
+		"Water Resources Research, 27:709-717.",
+		SG_T("https://doi.org/10.1029/90WR02658"), SG_T("doi:10.1029/90WR02658")
 	);
 
 	Add_Reference("Lea, N.L.", "1992",
 		"An aspect driven kinematic routing algorithm",
-		"In: Parsons, A.J. & Abrahams, A.D. [Eds.], 'Overland Flow: hydraulics and erosion mechanics', London, 147-175."
+		"In: Parsons, A.J. & Abrahams, A.D. [Eds.], 'Overland Flow: hydraulics and erosion mechanics', London, 147-175.",
+		SG_T("https://doi.org/10.1201/b12648"), SG_T("doi:10.1201/b12648")
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Choice("",
-		"METHOD"	, _TL("m_Method"),
+		"METHOD"	, _TL("Method"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s",
 			_TL("Rho 8"),
@@ -123,7 +124,7 @@ CFlow_RecursiveDown::CFlow_RecursiveDown(void)
 	);
 
 	Parameters.Add_Double("",
-		"MINDQV"	, _TL("DEMON - Min. DQV"),
+		"MINDQV"	, _TL("Minimum DQV"),
 		_TL("DEMON - Minimum Drainage Quota Volume (DQV) for traced flow tubes"),
 		0., 0., true, 1., true
 	);
@@ -154,9 +155,9 @@ int CFlow_RecursiveDown::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 //---------------------------------------------------------
 void CFlow_RecursiveDown::On_Initialize(void)
 {
-	m_Method		= Parameters("METHOD" )->asInt   ();
-	m_bWeighting	= Parameters("CORRECT")->asBool  ();
-	DEMON_minDQV	= Parameters("MINDQV" )->asDouble();
+	m_Method     = Parameters("METHOD" )->asInt   ();
+	m_bWeighting = Parameters("CORRECT")->asBool  ();
+	DEMON_minDQV = Parameters("MINDQV" )->asDouble();
 
 	Lock_Create();
 
@@ -249,7 +250,7 @@ bool CFlow_RecursiveDown::Calculate(void)
 //---------------------------------------------------------
 bool CFlow_RecursiveDown::Calculate(int x, int y)
 {
-	double	Flow	= m_pDTM->is_NoData(x, y) ? 0. : m_pWeights ? m_pWeights->asDouble(x, y) : 1.;
+	double Flow = m_pDTM->is_NoData(x, y) ? 0. : m_pWeights ? m_pWeights->asDouble(x, y) : 1.;
 
 	if( Flow > 0. )
 	{
@@ -277,8 +278,8 @@ bool CFlow_RecursiveDown::Calculate(int x, int y)
 //---------------------------------------------------------
 inline void CFlow_RecursiveDown::Add_Flow(int x, int y, double Flow)
 {
-	if( m_pFlow     ) m_pFlow    ->Add_Value(x, y, Flow               );
-	if( m_pVal_Mean ) m_pVal_Mean->Add_Value(x, y, Flow * m_Val_Input );
+	if( m_pFlow     ) m_pFlow    ->Add_Value(x, y, Flow              );
+	if( m_pVal_Mean ) m_pVal_Mean->Add_Value(x, y, Flow * m_Val_Input);
 }
 
 

@@ -9,7 +9,7 @@ ECHO.
 ECHO Enter date of snapshot:
 SET /P DATUM=
 
-SET SAGA_VERSION=saga_%VERSION%_%DATUM%
+SET SAGA_VERSION=saga-%VERSION%_%DATUM%
 
 REM ___________________________________
 SET ZIPEXE="C:\Program Files\7-Zip\7z.exe" a -r -y -mx5

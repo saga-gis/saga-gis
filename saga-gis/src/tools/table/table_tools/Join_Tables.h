@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Join_Tables.h 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,6 +48,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifndef HEADER_INCLUDED__Join_Tables_H
+#define HEADER_INCLUDED__Join_Tables_H
 
 
 ///////////////////////////////////////////////////////////
@@ -60,11 +59,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Join_Tables_H
-#define HEADER_INCLUDED__Join_Tables_H
-
-//---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -78,19 +73,19 @@ class CJoin_Tables_Base : public CSG_Tool
 {
 protected:
 
-	void						Initialise				(void);
+	void				On_Construction			(void);
 
-	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool				On_Execute				(void);
+	virtual bool		On_Execute				(void);
 
 
 private:
 
-	bool						m_bCmpNumeric, m_bCmpNoCase;
+	bool				m_bCmpNumeric, m_bCmpNoCase;
 
 
-	int							Cmp_Keys				(CSG_Table_Value *pA, CSG_Table_Value *pB);
+	int					Cmp_Keys				(CSG_Table_Value *pA, CSG_Table_Value *pB);
 
 };
 
@@ -108,7 +103,7 @@ class CJoin_Tables_Shapes : public CJoin_Tables_Base
 public:
 	CJoin_Tables_Shapes(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Shapes|Table") );	}
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("A:Shapes|Attributes") );	}
 
 };
 
@@ -126,7 +121,7 @@ public:
 
 protected:
 
-	virtual bool				On_Execute				(void);
+	virtual bool		On_Execute				(void);
 
 };
 

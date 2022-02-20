@@ -45,15 +45,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "flow_accumulation_mp.h"
 
 
@@ -66,7 +57,6 @@
 //---------------------------------------------------------
 CFlow_Accumulation_MP::CFlow_Accumulation_MP(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Flow Accumulation (Parallelizable)"));
 
 	Set_Author		("O.Conrad (c) 2018");
@@ -78,19 +68,19 @@ CFlow_Accumulation_MP::CFlow_Accumulation_MP(void)
 	Add_Reference("Freeman, G.T.", "1991",
 		"Calculating catchment area with divergent flow based on a regular grid",
 		"Computers and Geosciences, 17:413-22.",
-		SG_T("https://www.sciencedirect.com/science/article/pii/009830049190048I"), SG_T("ScienceDirect")
+		SG_T("https://doi.org/10.1016/0098-3004(91)90048-I"), SG_T("doi:10.1016/0098-3004(91)90048-I")
 	);
 
 	Add_Reference("O'Callaghan, J.F. & Mark, D.M.", "1984",
 		"The extraction of drainage networks from digital elevation data",
 		"Computer Vision, Graphics and Image Processing, 28:323-344.",
-		SG_T("https://www.sciencedirect.com/science/article/pii/S0734189X84800110"), SG_T("ScienceDirect")
+		SG_T("https://doi.org/10.1016/S0734-189X(84)80011-0"), SG_T("doi:10.1016/S0734-189X(84)80011-0")
 	);
 
 	Add_Reference("Tarboton, D.G.", "1997",
 		"A new method for the determination of flow directions and upslope areas in grid digital elevation models",
 		"Water Resources Research, Vol.33, No.2, p.309-319.",
-		SG_T("http://onlinelibrary.wiley.com/doi/10.1029/96WR03137/pdf"), SG_T("Wiley")
+		SG_T("https://doi.org/10.1029/96WR03137"), SG_T("doi:10.1029/96WR03137")
 	);
 
 	//-----------------------------------------------------
@@ -125,7 +115,7 @@ CFlow_Accumulation_MP::CFlow_Accumulation_MP(void)
 	Parameters.Add_Double("",
 		"CONVERGENCE"	, _TL("Convergence"),
 		_TL(""),
-		1.1, 0.0, true
+		1.1, 0., true
 	);
 }
 

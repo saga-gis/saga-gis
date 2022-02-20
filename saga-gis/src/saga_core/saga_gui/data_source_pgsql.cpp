@@ -113,6 +113,7 @@ enum
 	DB_PGSQL_Table_Save			= 13,
 	DB_PGSQL_Table_Drop			= 14,
 	DB_PGSQL_Table_Query		= 15,
+	DB_PGSQL_Table_Query_GUI	= 16,
 
 	DB_PGSQL_Shapes_Load		= 20,
 	DB_PGSQL_Shapes_Save		= 21,
@@ -415,6 +416,7 @@ BEGIN_EVENT_TABLE(CData_Source_PgSQL, wxTreeCtrl)
 	EVT_MENU                 (ID_CMD_DB_SOURCE_CLOSE     , CData_Source_PgSQL::On_Source_Close    )
 	EVT_MENU                 (ID_CMD_DB_SOURCE_CLOSE_ALL , CData_Source_PgSQL::On_Sources_Close   )
 	EVT_MENU                 (ID_CMD_DB_SOURCE_DELETE    , CData_Source_PgSQL::On_Source_Delete   )
+	EVT_MENU                 (ID_CMD_DB_SOURCE_SQL       , CData_Source_PgSQL::On_Source_SQL      )
 	EVT_MENU                 (ID_CMD_DB_TABLE_OPEN       , CData_Source_PgSQL::On_Table_Open      )
 	EVT_MENU                 (ID_CMD_DB_TABLE_FROM_QUERY , CData_Source_PgSQL::On_Table_From_Query)
 	EVT_MENU                 (ID_CMD_DB_TABLE_RENAME     , CData_Source_PgSQL::On_Table_Rename    )
@@ -607,6 +609,12 @@ void CData_Source_PgSQL::On_Source_Delete(wxCommandEvent &WXUNUSED(event))
 }
 
 //---------------------------------------------------------
+void CData_Source_PgSQL::On_Source_SQL(wxCommandEvent &WXUNUSED(event))
+{
+	Source_SQL(GetSelection());
+}
+
+//---------------------------------------------------------
 void CData_Source_PgSQL::On_Table_Open(wxCommandEvent &WXUNUSED(event))
 {
 	Table_Open(GetSelection());
@@ -710,10 +718,13 @@ void CData_Source_PgSQL::On_Item_Menu(wxTreeEvent &event)
 		else
 		{
 			CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_REFRESH);
-			CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_SOURCE_DROP);
+			Menu.AppendSeparator();
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_SOURCE_SQL);
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_TABLE_FROM_QUERY);
+			Menu.AppendSeparator();
 			CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_SOURCE_CLOSE);
 			CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_SOURCE_DELETE);
-			CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_TABLE_FROM_QUERY);
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_SOURCE_DROP);
 		}
 		break;
 
@@ -1013,8 +1024,7 @@ bool CData_Source_PgSQL::Source_Create(const wxTreeItemId &Item)
 		{
 			if( pData->Get_Type() == TYPE_SERVER )
 			{
-				pTool->Set_Parameter("PG_HOST", pData->Get_Host());
-				pTool->Set_Parameter("PG_PORT", pData->Get_Port());
+				pTool->Set_Parameter("CONNECTION", pData->Get_Server());
 			}
 
 			if( DLG_Parameters(pTool->Get_Parameters()) )
@@ -1117,8 +1127,7 @@ void CData_Source_PgSQL::Source_Open(const wxTreeItemId &Item)
 		{
 			if( pData->Get_Type() == TYPE_SERVER )
 			{
-				pTool->Set_Parameter("PG_HOST", pData->Get_Host());
-				pTool->Set_Parameter("PG_PORT", pData->Get_Port());
+				pTool->Set_Parameter("CONNECTION", pData->Get_Server());
 			}
 
 			if( DLG_Parameters(pTool->Get_Parameters()) )
@@ -1164,6 +1173,24 @@ void CData_Source_PgSQL::Source_Close(const wxTreeItemId &Item, bool bDelete)
 void CData_Source_PgSQL::Sources_Close(void)
 {
 	RUN_TOOL(DB_PGSQL_Del_Connections, true, false, true);
+}
+
+//---------------------------------------------------------
+void CData_Source_PgSQL::Source_SQL(const wxTreeItemId &Item)
+{
+	CData_Source_PgSQL_Data	*pData	= Item.IsOk() ? (CData_Source_PgSQL_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
+
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", DB_PGSQL_Execute_SQL);
+
+	if(	pTool && pTool->On_Before_Execution() )
+	{
+		pTool->Set_Parameter("CONNECTION", pData->Get_Server());
+
+		if( DLG_Parameters(pTool->Get_Parameters()) )
+		{
+			pTool->Execute();
+		}
+	}
 }
 
 
@@ -1232,15 +1259,11 @@ void CData_Source_PgSQL::Table_From_Query(const wxTreeItemId &Item)
 {
 	CData_Source_PgSQL_Data	*pData	= Item.IsOk() ? (CData_Source_PgSQL_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
 
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Table_Query, true);
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Table_Query_GUI, true);
 
 	if(	pTool && pTool->On_Before_Execution() )
 	{
-		if( pData->Get_Type() == TYPE_SERVER )
-		{
-			pTool->Set_Parameter("PG_HOST", pData->Get_Host());
-			pTool->Set_Parameter("PG_PORT", pData->Get_Port());
-		}
+		pTool->Set_Parameter("CONNECTION", pData->Get_Server());
 
 		if( DLG_Parameters(pTool->Get_Parameters()) )
 		{

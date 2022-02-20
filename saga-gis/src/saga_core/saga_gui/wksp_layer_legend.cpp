@@ -371,18 +371,16 @@ void CWKSP_Layer_Legend::_Draw_Boxes(wxDC &dc, int y, int Style, double zFactor)
 	switch( m_pClassify->Get_Mode() )
 	{
 	case CLASSIFY_GRADUATED:
-	case CLASSIFY_SHADE:
-		if( METRIC_HEIGHT < m_pClassify->Get_Class_Count() * BOX_HEIGHT )
+	case CLASSIFY_SHADE    :
+		_Draw_Continuum(dc, m_Position.y, zFactor);
+		break;
+
+	default:
+		for(int iClass=m_pClassify->Get_Class_Count()-1; iClass>=0; iClass--, y+=BOX_HEIGHT)
 		{
-			_Draw_Continuum(dc, m_Position.y, zFactor);
-
-			return;
+			_Draw_Box(dc, y, BOX_HEIGHT, Style, iClass);
 		}
-	}
-
-	for(int iClass=m_pClassify->Get_Class_Count()-1; iClass>=0; iClass--, y+=BOX_HEIGHT)
-	{
-		_Draw_Box(dc, y, BOX_HEIGHT, Style, iClass);
+		break;
 	}
 }
 
@@ -632,18 +630,26 @@ void CWKSP_Layer_Legend::_Draw_Continuum(wxDC &dc, int y, double zFactor)
 //---------------------------------------------------------
 void CWKSP_Layer_Legend::_Draw_Continuum_V(wxDC &dc, int y, double yToDC, double zMin, double zMax, double zFactor, double dz, int dyFont)
 {
-	int		i, iy, jy;
-	double	z;
+	CSG_Colors Colors(*m_pClassify->Get_Metric_Colors());
 
-	//-----------------------------------------------------
-	for(i=0, z=y+METRIC_HEIGHT; i<m_pClassify->Get_Class_Count(); i++, z-=yToDC)
+	Colors.Set_Count(METRIC_HEIGHT);
+
+	wxPen oldPen(dc.GetPen());
+
+	for(int i=0, iy=y+METRIC_HEIGHT; i<Colors.Get_Count(); i++, iy--)
 	{
-		Draw_FillRect(dc, Get_Color_asWX(m_pClassify->Get_Class_Color(i)), m_xBox, (int)(z), m_xTick, (int)(z - yToDC));
+		dc.SetPen(wxPen(Get_Color_asWX(Colors[i])));
+
+		dc.DrawLine(m_xBox, iy, m_xTick, iy);
 	}
+
+	dc.SetPen(oldPen);
 
 	Draw_Edge(dc, EDGE_STYLE_SIMPLE, m_xBox, y, m_xTick, y + METRIC_HEIGHT);
 
 	//-----------------------------------------------------
+	int iy, jy; double z;
+
 	switch( m_pClassify->Get_Metric_Mode() )
 	{
 	case METRIC_MODE_NORMAL:	default:
@@ -709,22 +715,29 @@ void CWKSP_Layer_Legend::_Draw_Continuum_V(wxDC &dc, int y, double yToDC, double
 //---------------------------------------------------------
 void CWKSP_Layer_Legend::_Draw_Continuum_H(wxDC &dc, int y, double yToDC, double zMin, double zMax, double zFactor, double dz, int dyFont)
 {
-	int			i, iy, jy, yTick, yText, sx, sy;
-	double		z;
-	wxString	s;
+	CSG_Colors Colors(*m_pClassify->Get_Metric_Colors());
 
-	yTick	= y + m_dxBox;
-	yText	= y + m_dxBox + m_dxTick;
+	Colors.Set_Count(METRIC_HEIGHT);
 
-	//-----------------------------------------------------
-	for(i=0, z=m_xBox; i<m_pClassify->Get_Class_Count(); i++, z+=yToDC)
+	wxPen oldPen(dc.GetPen());
+
+	int yTick = y + m_dxBox;
+	int yText = y + m_dxBox + m_dxTick;
+
+	for(int i=0, ix=m_xBox; i<Colors.Get_Count(); i++, ix++)
 	{
-		Draw_FillRect(dc, Get_Color_asWX(m_pClassify->Get_Class_Color(i)), (int)(z), y, (int)(z + yToDC), yTick);
+		dc.SetPen(wxPen(Get_Color_asWX(Colors[i])));
+
+		dc.DrawLine(ix, y, ix, yTick);
 	}
+
+	dc.SetPen(oldPen);
 
 	Draw_Edge(dc, EDGE_STYLE_SIMPLE, m_xBox, y, m_xBox + METRIC_HEIGHT, yTick);
 
 	//-----------------------------------------------------
+	int iy, jy, sx, sy; double z; wxString s;
+
 	switch( m_pClassify->Get_Metric_Mode() )
 	{
 	case METRIC_MODE_NORMAL:	default:
