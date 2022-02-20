@@ -75,7 +75,9 @@ CGPP_Model::CGPP_Model(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Gravitational Process Path Model"));
 
-	Set_Author		(SG_T("V. Wichmann (c) 2016"));
+	Set_Author		(SG_T("V. Wichmann (c) 2016-2022"));
+
+    Set_Version     ("1.1");
 
 	Set_Description	(_TW("The Gravitational Process Path (GPP) model can be used to simulate the process path and "
                          "run-out area of gravitational processes based on a digital terrain model (DTM). The "
@@ -90,7 +92,7 @@ CGPP_Model::CGPP_Model(void)
                          "applicability in numerous studies, also including geomorphological research questions "
                          "such as the delineation of sediment cascades or the study of process connectivity.<br/><br/>"
 						 "Please provide the reference cited below in your work if you are using the GPP model.<br/><br/>"
-                         "Addendum:<br/>"
+                         "<b>Addendum:</b><br/>"
                          "The article is not clear about the way the impact on the slope is exactly modelled when the 'Shadow Angle' "
                          "or '1-parameter' friction model is used. Besides the 'Threshold Angle Free Fall' criterion to determine the "
                          "location of the first impact, it is also assumed that the particle must leave its own release "
@@ -98,8 +100,16 @@ CGPP_Model::CGPP_Model(void)
                          "account that free fall usually occurs in steep rock faces (release areas), and the fact, that "
                          "such rockfaces are not characterised very well in a 2.5D elevation model. You can work around that "
                          "conceptual design by providing a grid describing the 'slope impact areas' as input. Using such a "
-                         "grid disables the 'Threshold Angle Free Fall' parameter."
-	));
+                         "grid disables the 'Threshold Angle Free Fall' parameter.<br/><br/>"
+                         "<b>New in version 1.1:</b><br/>"
+                         "Since version 1.1 the model supports the monitoring of potentially endangered objects like infrastructure "
+                         "and reports from which process paths and release areas objects might be hit. In order to enable this "
+                         "backtracking, the user must provide an 'Objects' grid as input. The grid can be used to store different types "
+                         "or classes of objects, using one-hot categorical data encoding for each object class, i.e. powers "
+                         "of ten: 1, 10, 100, 1000, etc. (all other cells NoData). The 'Endangered Objects' output grid will "
+                         "contain combinations of these numbers if several different classes were hit from a grid cell, allowing "
+                         "to analyse which object classes might be hit from which location."
+    ));
 
 	Add_Reference("Wichmann, V.", "2017",
 		"The Gravitational Process Path (GPP) model (v1.0) - a GIS-based simulation framework for gravitational processes",
@@ -186,6 +196,43 @@ bool CGPP_Model::On_Execute(void)
 	}
 
 
+    //---------------------------------------------------------
+    if( m_pObjects != NULL )
+    {
+        m_pEndangered->Assign_NoData();
+
+        m_pObjectClasses = new CSG_Grid(m_pObjects, SG_DATATYPE_Int);
+
+        #pragma omp parallel for
+        for(int y=0; y<m_pObjects->Get_NY(); y++)
+        {
+            for(int x=0; x<m_pObjects->Get_NX(); x++)
+            {
+                if( m_pObjects->is_NoData(x, y) )
+                {
+                    m_pObjectClasses->Set_NoData(x, y);
+                }
+                else
+                {
+                    sLong n = m_pObjects->asLong(x, y);
+
+                    int decimal = 0, i = 0, remainder;
+
+                    while( n != 0 )
+                    {
+                        remainder = n%10;
+                        n /= 10;
+                        decimal += (int)(remainder * pow(2, i));
+                        ++i;
+                    }
+
+                    m_pObjectClasses->Set_Value(x, y, decimal);
+                }
+            }
+        }
+    }
+
+
 	//---------------------------------------------------------
 	SG_UI_Process_Set_Text(_TL("Processing ..."));
 
@@ -253,6 +300,12 @@ int CGPP_Model::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 		pParameters->Get_Parameter("SINK_MIN_SLOPE"				)->Set_Enabled( pParameter->asGrid() != NULL );
 		pParameters->Get_Parameter("DEPOSITION"					)->Set_Enabled( pParameter->asGrid() != NULL );
 	}
+
+    //-----------------------------------------------------
+    if(	pParameter->Cmp_Identifier(SG_T("OBJECTS")) )
+    {
+        pParameters->Get_Parameter("ENDANGERED" 		        )->Set_Enabled( pParameter->asGrid() != NULL );
+    }
 
 	//-----------------------------------------------------
 	if(	pParameter->Cmp_Identifier(SG_T("PROCESS_PATH_MODEL")) )

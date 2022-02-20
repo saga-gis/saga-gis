@@ -344,7 +344,6 @@ sLong CGPP_Model_Particle::_Get_Cell_Number_Grid(CSG_Grid *pGrid, int x, int y)
 	return( y * pGrid->Get_NX() + x );
 }
 
-
 //---------------------------------------------------------
 void CGPP_Model_Particle::Deposit_Material(CSG_Grid *pGrid, double dSlope)
 {
@@ -421,6 +420,38 @@ void CGPP_Model_Particle::Deposit_Material(CSG_Grid *pGrid, double dSlope)
 	return;
 }
 
+//---------------------------------------------------------
+void CGPP_Model_Particle::Evaluate_Damage_Potential(CSG_Grid *pObjectClasses, CSG_Grid *pEndangered)
+{
+    int iEndangered = 0;
+
+    for(std::vector<PATH_CELL>::reverse_iterator rit=m_vPath.rbegin(); rit!=m_vPath.rend(); ++rit)
+    {
+        int x = (*rit).position.x;
+        int y = (*rit).position.y;
+
+        if( !pObjectClasses->is_NoData(x, y) )
+        {
+            int iObject = pObjectClasses->asInt(x, y);
+
+            iEndangered |= iObject;
+        }
+
+        if (iEndangered > 0)
+        {
+            if( pEndangered->is_NoData(x, y) )
+            {
+                pEndangered->Set_Value(x, y, iEndangered);
+            }
+            else
+            {
+                pEndangered->Set_Value(x, y, pEndangered->asInt(x, y) | iEndangered);
+            }
+        }
+    }
+
+    return;
+}
 
 //---------------------------------------------------------
 void CGPP_Model_BASE::Add_Dataset_Parameters(CSG_Parameters *pParameters)
@@ -467,6 +498,12 @@ void CGPP_Model_BASE::Add_Dataset_Parameters(CSG_Parameters *pParameters)
 		PARAMETER_INPUT_OPTIONAL
 	);
 
+    pParameters->Add_Grid(
+        NULL, "OBJECTS", _TL("Objects"),
+        _TL("Potentially endangered objects (like infrastructure) to monitor, using one-hot categorical data encoding for each object class [1, 10, 100, 1000, ...]."),
+        PARAMETER_INPUT_OPTIONAL
+    );
+
 	pParameters->Add_Grid(	
 		NULL, "PROCESS_AREA", _TL("Process Area"), 
 		_TL("Delineated process area with encoded transition frequencies [count]."), 
@@ -490,6 +527,12 @@ void CGPP_Model_BASE::Add_Dataset_Parameters(CSG_Parameters *pParameters)
 		_TL("Stopping positions, showing cells in which the run-out length has been reached [count]."), 
 		PARAMETER_OUTPUT_OPTIONAL
 	);
+
+    pParameters->Add_Grid(	
+        NULL, "ENDANGERED", _TL("Endangered Objects"), 
+        _TL("Endangered objects, showing cells from which objects were hit. Cell values indicate which object classes were hit [combination of object classes]. Optional output in case a grid with potentially endangered objects is provided as input."), 
+        PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Long
+    );
 }
 
 //---------------------------------------------------------
@@ -723,6 +766,7 @@ bool CGPP_Model_BASE::Initialize_Parameters(CSG_Parameters &Parameters)
 	m_pImpactAreas			= Parameters("SLOPE_IMPACT_GRID")->asGrid();
 	m_pFrictionMu			= Parameters("FRICTION_MU_GRID")->asGrid();
 	m_pFrictionMassToDrag	= Parameters("FRICTION_MASS_TO_DRAG_GRID")->asGrid();
+    m_pObjects				= Parameters("OBJECTS")->asGrid();
 
 	m_GPP_Path_Model		= Parameters("PROCESS_PATH_MODEL")->asInt();
 	m_iIterations			= Parameters("GPP_ITERATIONS")->asInt();
@@ -750,6 +794,7 @@ bool CGPP_Model_BASE::Initialize_Parameters(CSG_Parameters &Parameters)
 	m_pDeposition			= Parameters("DEPOSITION")->asGrid();
 	m_pMaxVelocity			= Parameters("MAX_VELOCITY")->asGrid();			if( m_pMaxVelocity != NULL )	m_pMaxVelocity->Assign_NoData();
 	m_pStopPositions		= Parameters("STOP_POSITIONS")->asGrid();		if( m_pStopPositions != NULL )	m_pStopPositions->Assign(0.0);
+    m_pEndangered           = Parameters("ENDANGERED")->asGrid();
 	
 	m_GPP_Deposition_Model	= Parameters("DEPOSITION_MODEL")->asInt();
 	m_PercentInitialDeposit	= Parameters("DEPOSITION_INITIAL")->asDouble() / 100.0;
@@ -769,6 +814,16 @@ bool CGPP_Model_BASE::Initialize_Parameters(CSG_Parameters &Parameters)
 		return( false );
 	}
 
+    //---------------------------------------------------------
+    if( m_pObjects != NULL && m_pEndangered == NULL )
+    {
+        m_pEndangered = new CSG_Grid(m_pObjects, SG_DATATYPE_Long);
+        m_pEndangered->Set_Name(_TL("Endangered Objects"));
+
+        Parameters("ENDANGERED")->Set_Value(m_pEndangered);
+    }
+
+    //---------------------------------------------------------
 	return( true );;
 }
 
@@ -790,11 +845,12 @@ void CGPP_Model_BASE::Initialize_Random_Generator(void)
 //---------------------------------------------------------
 void CGPP_Model_BASE::Finalize(CSG_Parameters *pParameters)
 {
+    //---------------------------------------------------------
 	if( m_pDeposition != NULL )
 	{
+        #pragma omp parallel for
 		for (int y=0; y<m_pDEM->Get_NY(); y++)
-		{
-			#pragma omp parallel for
+		{	
 			for (int x=0; x<m_pDEM->Get_NX(); x++)
 			{
 				if( m_pDEM->is_NoData(x, y) )
@@ -807,6 +863,7 @@ void CGPP_Model_BASE::Finalize(CSG_Parameters *pParameters)
 		m_pDeposition->Set_NoData_Value(0.0);
 	}
 
+    //---------------------------------------------------------
 	delete( m_pDEM );
 
 	m_pProcessArea->Set_NoData_Value(0.0);
@@ -815,6 +872,40 @@ void CGPP_Model_BASE::Finalize(CSG_Parameters *pParameters)
 	{
 		m_pStopPositions->Set_NoData_Value(0.0);
 	}
+
+    //---------------------------------------------------------
+    if( m_pObjects != NULL )
+    {
+        #pragma omp parallel for
+        for(int y=0; y<m_pEndangered->Get_NY(); y++)
+        {
+            for(int x=0; x<m_pEndangered->Get_NX(); x++)
+            {
+                if( !m_pEndangered->is_NoData(x, y) )
+                {
+                    int n = m_pEndangered->asInt(x, y);
+
+                    sLong binary = 0;
+                    int remainder, i = 1;
+
+                    while( n != 0 )
+                    {
+                        remainder = n%2;
+                        n /= 2;
+                        binary += remainder * i;
+                        i *= 10;
+                    }
+
+                    m_pEndangered->Set_Value(x, y, (double)binary);
+                }
+            }
+        }
+
+        delete (m_pObjectClasses);
+    }
+
+    //---------------------------------------------------------
+    return;
 }
 
 //---------------------------------------------------------
@@ -1001,6 +1092,12 @@ void CGPP_Model_BASE::Run_GPP_Model(std::vector<class CGPP_Model_Particle> *pvPr
 				if( (sLong)Particle.Get_Count_Path_Positions() > m_pDEM->Get_NCells() )
 				{
 					SG_UI_Msg_Add(CSG_String::Format(_TL("WARNING: particle %zu of release area %d terminated in interation %d in order to prevent endless loop!"), iParticle, Particle.Get_ReleaseID(), iIter), true);
+
+                    if( m_pObjects != NULL )
+                    {
+                        Particle.Evaluate_Damage_Potential(m_pObjectClasses, m_pEndangered);
+                    }
+
 					break;
 				}
 			} // while( true )
@@ -1051,6 +1148,11 @@ bool CGPP_Model_BASE::Update_Path(CGPP_Model_Particle *pParticle, double dMateri
 				Update_Material_Start_Cell(pParticleStartCell, pParticle, dMaterialDeposit);
 			}
 		}
+
+        if( m_pObjects != NULL )
+        {
+            pParticle->Evaluate_Damage_Potential(m_pObjectClasses, m_pEndangered);
+        }
 	}
 
 	return( bResult );
@@ -1631,6 +1733,11 @@ bool CGPP_Model_BASE::Update_Speed(CGPP_Model_Particle *pParticle, CGPP_Model_Pa
 
 			Update_Material_Start_Cell(pParticleStartCell, pParticle, dMaterialDeposit);
 		}
+
+        if( m_pObjects != NULL )
+        {
+            pParticle->Evaluate_Damage_Potential(m_pObjectClasses, m_pEndangered);
+        }
 	}
 
 	return( bResult );

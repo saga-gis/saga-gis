@@ -299,6 +299,7 @@ public:
 	void		Set_Material(double dMaterial);
 	void		Deposit_Material(CSG_Grid *pGrid, double dSlope);
 
+    void        Evaluate_Damage_Potential(CSG_Grid *pObjectClasses, CSG_Grid *pEndangered);
 
 protected:
 
@@ -364,8 +365,9 @@ protected:
 	CGPP_Model_Particle Init_Particle(int iReleaseID, GRID_CELL gPosition);
 	void		Finalize(CSG_Parameters *pParameters);
 
-	CSG_Grid	*m_pDEM, *m_pReleaseAreas, *m_pMaterial, *m_pFrictionAngles, *m_pImpactAreas, *m_pFrictionMu, *m_pFrictionMassToDrag;
-	CSG_Grid	*m_pProcessArea, *m_pDeposition, *m_pMaxVelocity, *m_pStopPositions;
+	CSG_Grid	*m_pDEM, *m_pReleaseAreas, *m_pMaterial, *m_pFrictionAngles, *m_pImpactAreas, *m_pFrictionMu, *m_pFrictionMassToDrag, *m_pObjects;
+	CSG_Grid	*m_pProcessArea, *m_pDeposition, *m_pMaxVelocity, *m_pStopPositions, *m_pEndangered;
+    CSG_Grid    *m_pObjectClasses;
 
 	int			m_GPP_Path_Model;
 	int			m_iIterations;
