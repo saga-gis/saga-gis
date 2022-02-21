@@ -636,12 +636,26 @@ int CSG_Parameter_Date::_Set_Value(const CSG_String &Value)
 
 	if( Date.Parse_ISODate(Value) )
 	{
-		return( _Set_Value(Date.Get_JDN()) );
+		if( !m_Date.is_EqualTo(Date) )
+		{
+			m_Date.Set(Date);
+
+			return( SG_PARAMETER_DATA_SET_CHANGED );
+		}
+
+		return( SG_PARAMETER_DATA_SET_TRUE );
 	}
 
 	if( Date.Parse_Date(Value) )
 	{
-		return( _Set_Value(Date.Get_JDN()) );
+		if( !m_Date.is_EqualTo(Date) )
+		{
+			m_Date.Set(Date);
+
+			return( SG_PARAMETER_DATA_SET_CHANGED );
+		}
+
+		return( SG_PARAMETER_DATA_SET_TRUE );
 	}
 
 	return( SG_PARAMETER_DATA_SET_FALSE );
