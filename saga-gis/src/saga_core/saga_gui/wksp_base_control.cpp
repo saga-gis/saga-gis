@@ -318,6 +318,11 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 				g_pTools->Update();
 			}
 
+			if( g_pData == m_pManager )
+			{
+				g_pData->MultiSelect_Check();
+			}
+
 			//---------------------------------------------
 			Thaw();
 
