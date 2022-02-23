@@ -55,59 +55,70 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define BAND_IS_10m(b)	(b ==  2 || b ==  3 || b ==  4 || b ==  8)
-#define BAND_IS_20m(b)	(b ==  5 || b ==  6 || b ==  7 || b ==  9 || b == 12 || b == 13)
-#define BAND_IS_60m(b)	(b ==  1 || b == 10 || b == 11)
-#define BAND_IS_TCI(b)	(b == 14)
-
-//---------------------------------------------------------
-#define FIELD_BAND	1
-#define FIELD_NAME	2
-#define FIELD_WAVE	3
+enum EBand_Head
+{
+	INFO_FIELD_ID = 0,
+	INFO_FIELD_BAND,
+	INFO_FIELD_NAME,
+	INFO_FIELD_RES,
+	INFO_FIELD_WAVE_MIN,
+	INFO_FIELD_WAVE,
+	INFO_FIELD_WAVE_MAX,
+	INFO_FIELD_COUNT
+};
 
 //---------------------------------------------------------
 CSG_Table CSentinel_2_Scene_Import::Get_Info_Bands(void)
 {
-	enum EBand_Head
-	{
-		BAND_HEAD_ID	= 0,
-		BAND_HEAD_NR,
-		BAND_HEAD_NAME,
-		BAND_HEAD_WAVE_LEN,
-		BAND_HEAD_COUNT
-	};
-
 	CSG_Table	Info_Bands;
 
-	Info_Bands.Add_Field("ID"      , SG_DATATYPE_Int   );
-	Info_Bands.Add_Field("BAND"    , SG_DATATYPE_String);
-	Info_Bands.Add_Field("NAME"    , SG_DATATYPE_String);
-	Info_Bands.Add_Field("WAVE_LEN", SG_DATATYPE_Double);
+	Info_Bands.Add_Field("ID"        , SG_DATATYPE_Int   );
+	Info_Bands.Add_Field("BAND"      , SG_DATATYPE_String);
+	Info_Bands.Add_Field("NAME"      , SG_DATATYPE_String);
+	Info_Bands.Add_Field("RESOLUTION", SG_DATATYPE_Int   );
+	Info_Bands.Add_Field("WAVE_MIN"  , SG_DATATYPE_Double);
+	Info_Bands.Add_Field("WAVE"      , SG_DATATYPE_Double);
+	Info_Bands.Add_Field("WAVE_MAX"  , SG_DATATYPE_Double);
 
-	#define ADD_INFO_BAND(band, name, wave)	{ CSG_Table_Record &Info = *Info_Bands.Add_Record();\
-		Info.Set_Value(BAND_HEAD_ID      , 1 + Info.Get_Index());\
-		Info.Set_Value(BAND_HEAD_NR      , band);\
-		Info.Set_Value(BAND_HEAD_NAME    , CSG_String::Format("[%s] %s", SG_T(band), name));\
-		Info.Set_Value(BAND_HEAD_WAVE_LEN, wave);\
+	#define ADD_INFO_BAND(band, name, res, wmin, wave, wmax) { CSG_Table_Record &Info = *Info_Bands.Add_Record();\
+		Info.Set_Value(INFO_FIELD_ID  , 1 + Info.Get_Index());\
+		Info.Set_Value(INFO_FIELD_BAND, band);\
+		Info.Set_Value(INFO_FIELD_NAME, CSG_String::Format("[%s] %s", SG_T(band), name));\
+		Info.Set_Value(INFO_FIELD_RES , res);\
+		Info.Set_Value(INFO_FIELD_WAVE_MIN, wave);\
+		Info.Set_Value(INFO_FIELD_WAVE    , wave);\
+		Info.Set_Value(INFO_FIELD_WAVE_MAX, wave);\
 	}
 
-	ADD_INFO_BAND("01" , _TL("Aerosols"        ),  443);	//  1, 60m
-	ADD_INFO_BAND("02" , _TL("Blue"            ),  490);	//  2, 10m
-	ADD_INFO_BAND("03" , _TL("Green"           ),  560);	//  3, 10m
-	ADD_INFO_BAND("04" , _TL("Red"             ),  665);	//  4, 10m
-	ADD_INFO_BAND("05" , _TL("Red Edge"        ),  705);	//  5, 20m
-	ADD_INFO_BAND("06" , _TL("Red Edge"        ),  740);	//  6, 20m
-	ADD_INFO_BAND("07" , _TL("Red Edge"        ),  783);	//  7, 20m
-	ADD_INFO_BAND("08" , _TL("NIR"             ),  842);	//  8, 10m
-	ADD_INFO_BAND("8A" , _TL("NIR"             ),  865);	//  9, 20m
-	ADD_INFO_BAND("09" , _TL("Water Vapour"    ),  945);	// 10, 20m
-	ADD_INFO_BAND("10" , _TL("Cirrus"          ), 1375);	// 11, 60m
-	ADD_INFO_BAND("11" , _TL("SWIR"            ), 1610);	// 12, 60m
-	ADD_INFO_BAND("12" , _TL("SWIR"            ), 2190);	// 13, 20m
-	ADD_INFO_BAND("TCI", _TL("True Color Image"),    0);	// 14, 10m
+	ADD_INFO_BAND("B01", _TL("Aerosols"                 ), 60,  412,  442.7,  456);	//  1, 60m
+	ADD_INFO_BAND("B02", _TL("Blue"                     ), 10,  456,  492.7,  533);	//  2, 10m
+	ADD_INFO_BAND("B03", _TL("Green"                    ), 10,  538,  559.8,  583);	//  3, 10m
+	ADD_INFO_BAND("B04", _TL("Red"                      ), 10,  646,  664.6,  684);	//  4, 10m
+	ADD_INFO_BAND("B05", _TL("Red Edge"                 ), 20,  695,  704.1,  714);	//  5, 20m
+	ADD_INFO_BAND("B06", _TL("Red Edge"                 ), 20,  731,  740.5,  749);	//  6, 20m
+	ADD_INFO_BAND("B07", _TL("Red Edge"                 ), 20,  769,  782.8,  797);	//  7, 20m
+	ADD_INFO_BAND("B08", _TL("NIR"                      ), 10,  760,  832.8,  907);	//  8, 10m
+	ADD_INFO_BAND("B8A", _TL("NIR"                      ), 20,  837,  864.7,  881);	//  9, 20m
+	ADD_INFO_BAND("B09", _TL("Water Vapour"             ), 60,  932,  945.1,  958);	// 10, 60m
+	ADD_INFO_BAND("B10", _TL("Cirrus"                   ), 60, 1337, 1373.5, 1412);	// 11, 60m
+	ADD_INFO_BAND("B11", _TL("SWIR"                     ), 20, 1539, 1613.7, 1682);	// 12, 20m
+	ADD_INFO_BAND("B12", _TL("SWIR"                     ), 20, 2078, 2202.4, 2320);	// 13, 20m
+	ADD_INFO_BAND("TCI", _TL("True Color Image"         ), 10,    0,    0.0,    0);	// 14, 10m
+	ADD_INFO_BAND("AOT", _TL("Aerosol Optical Thickness"), 10,    0,    0.0,    0);	// 15, 10m
+	ADD_INFO_BAND("WVP", _TL("Water Vapour"             ), 10,    0,    0.0,    0);	// 16, 10m
+	ADD_INFO_BAND("SCL", _TL("Scene Classification"     ), 20,    0,    0.0,    0);	// 17, 20m
 
 	return( Info_Bands );
 }
+
+//---------------------------------------------------------
+#define BAND_IS_10m(b)	(b+1 ==  2 || b+1 ==  3 || b+1 ==  4 || b+1 ==  8)
+#define BAND_IS_20m(b)	(b+1 ==  5 || b+1 ==  6 || b+1 ==  7 || b+1 ==  9 || b+1 == 12 || b+1 == 13)
+#define BAND_IS_60m(b)	(b+1 ==  1 || b+1 == 10 || b+1 == 11)
+#define BAND_IS_TCI(b)	(b+1 == 14)
+#define BAND_IS_AOT(b)	(b+1 == 15)
+#define BAND_IS_WVP(b)	(b+1 == 16)
+#define BAND_IS_SCL(b)	(b+1 == 17)
 
 
 ///////////////////////////////////////////////////////////
@@ -119,7 +130,6 @@ CSG_Table CSentinel_2_Scene_Import::Get_Info_Bands(void)
 //---------------------------------------------------------
 CSentinel_2_Scene_Import::CSentinel_2_Scene_Import(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Import Sentinel-2 Scene"));
 
 	Set_Author		("O.Conrad (c) 2019");
@@ -159,17 +169,11 @@ CSentinel_2_Scene_Import::CSentinel_2_Scene_Import(void)
 		true
 	);
 
-	Parameters.Add_Bool("",
-		"SKIP_TCI"		, _TL("Skip True Color Image"),
-		_TL(""),
-		true
-	);
-
-	Parameters.Add_Bool("",
-		"SKIP_60M"		, _TL("Skip Aerosol, Vapour, Cirrus"),
-		_TL(""),
-		true
-	);
+	Parameters.Add_Bool("", "LOAD_60M", _TL("Aerosol, Vapour, Cirrus"  ), _TL(""), false);
+//	Parameters.Add_Bool("", "LOAD_TCI", _TL("True Color Image"         ), _TL(""), false);
+//	Parameters.Add_Bool("", "LOAD_AOT", _TL("Aerosol Optical Thickness"), _TL(""), false);
+//	Parameters.Add_Bool("", "LOAD_WVP", _TL("Water Vapour"             ), _TL(""), false);
+	Parameters.Add_Bool("", "LOAD_SCL", _TL("Scene Classification"     ), _TL(""), false);
 
 	Parameters.Add_Choice("",
 		"REFLECTANCE"	, _TL("Reflectance Values"),
@@ -271,7 +275,6 @@ int CSentinel_2_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, 
 //---------------------------------------------------------
 bool CSentinel_2_Scene_Import::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_MetaData	Info_General, Info_Granule;
 
 	if( !Load_Metadata(Parameters("METAFILE")->asString(), Info_General, Info_Granule) )
@@ -286,8 +289,12 @@ bool CSentinel_2_Scene_Import::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_String	Path	= SG_File_Get_Path(Parameters("METAFILE")->asString());
 
-	bool	bSkipTCI	= Parameters("SKIP_TCI"   )->asBool();
-	bool	bSkip60m	= Parameters("SKIP_60M"   )->asBool();
+	bool	bLoadTCI	= Parameters("LOAD_TCI") && Parameters("LOAD_TCI")->asBool();
+	bool	bLoadAOT	= Parameters("LOAD_AOT") && Parameters("LOAD_AOT")->asBool();
+	bool	bLoadWVP	= Parameters("LOAD_WVP") && Parameters("LOAD_WVP")->asBool();
+	bool	bLoadSCL	= Parameters("LOAD_SCL") && Parameters("LOAD_SCL")->asBool();
+	bool	bLoad60m	= Parameters("LOAD_60M") && Parameters("LOAD_60M")->asBool();
+
 	bool	bMultiGrids	= Parameters("MULTI2GRIDS")->asBool();
 	double	Scaling		= Parameters("REFLECTANCE")->asInt () == 0 ? 1. : 1. / 10000.;
 
@@ -296,24 +303,20 @@ bool CSentinel_2_Scene_Import::On_Execute(void)
 	//-----------------------------------------------------
 	Parameters("BANDS")->asGridList()->Del_Items();
 
-	CSG_Grids	*pBands[2]; pBands[0] = pBands[1] = NULL;
+	CSG_Grids *pBands[2]; pBands[0] = pBands[1] = NULL;
 
-	for(int i=0, Band=0; Band<Info_Bands.Get_Count() && i<Info_Granule.Get_Children_Count() && Process_Get_Okay(); i++)
+	for(int Band=0; Band<Info_Bands.Get_Count() && Process_Get_Okay(); Band++)
 	{
-		if( !Info_Granule[i].Cmp_Name("IMAGE_FILE") )
+		if( (!bLoadTCI && BAND_IS_TCI(Band))
+		||  (!bLoadAOT && BAND_IS_AOT(Band))
+		||  (!bLoadWVP && BAND_IS_WVP(Band))
+		||  (!bLoadSCL && BAND_IS_SCL(Band))
+		||  (!bLoad60m && BAND_IS_60m(Band)) )
 		{
 			continue;
 		}
 
-		Band++;
-
-		if( (bSkipTCI && BAND_IS_TCI(Band))
-		||  (bSkip60m && BAND_IS_60m(Band)) )
-		{
-			continue;
-		}
-
-		CSG_Grid	*pBand	= Load_Band(Path, Info_Granule[i]);
+		CSG_Grid	*pBand	= Load_Band(Path, Find_Band(Info_Bands[Band], Info_Granule));
 
 		if( !pBand )
 		{
@@ -323,7 +326,7 @@ bool CSentinel_2_Scene_Import::On_Execute(void)
 		pBand->Get_MetaData().Add_Child(Info_General)->Set_Name("SENTINEL-2");
 		pBand->Set_Description(Info_General.asText());
 
-		if( bMultiGrids && !BAND_IS_60m(Band) && !BAND_IS_TCI(Band) )
+		if( bMultiGrids && (BAND_IS_10m(Band) || BAND_IS_20m(Band)) )
 		{
 			int	b	= BAND_IS_10m(Band) ? 0 : 1;
 
@@ -339,15 +342,23 @@ bool CSentinel_2_Scene_Import::On_Execute(void)
 				Parameters("BANDS")->asGridList()->Add_Item(pBands[b]);
 			}
 
-			pBands[b]->Add_Grid(Info_Bands[Band - 1], pBand, true);
+			pBands[b]->Add_Grid(Info_Bands[Band], pBand, true);
 		}
 		else
 		{
-			pBand->Fmt_Name("S2_%s_%s", Date.c_str(), Info_Bands[Band - 1].asString(FIELD_BAND));
+			pBand->Fmt_Name("S2_%s_%s", Date.c_str(), Info_Bands[Band].asString(INFO_FIELD_BAND));
 
-			pBand->Set_Scaling(Scaling);
+			if( BAND_IS_10m(Band) || BAND_IS_20m(Band) || BAND_IS_60m(Band) )
+			{
+				pBand->Set_Scaling(Scaling);
+			}
 
 			Parameters("BANDS")->asGridList()->Add_Item(pBand);
+
+			if( BAND_IS_SCL(Band) )
+			{
+				Load_Classification(pBand, Parameters("METAFILE")->asString());
+			}
 		}
 	}
 
@@ -359,8 +370,8 @@ bool CSentinel_2_Scene_Import::On_Execute(void)
 			pBands[i]->Fmt_Name("S2_%s_%dm", Date.c_str(), i == 0 ? 10 : 20);
 			pBands[i]->Get_MetaData().Add_Child(Info_General)->Set_Name("SENTINEL-2");
 			pBands[i]->Set_Description(Info_General.asText());
-			pBands[i]->Set_Z_Attribute (FIELD_WAVE);
-			pBands[i]->Set_Z_Name_Field(FIELD_NAME);
+			pBands[i]->Set_Z_Attribute (INFO_FIELD_WAVE);
+			pBands[i]->Set_Z_Name_Field(INFO_FIELD_NAME);
 			pBands[i]->Set_Scaling(Scaling);
 		}
 	}
@@ -402,69 +413,36 @@ bool CSentinel_2_Scene_Import::Load_Metadata(const CSG_String &File, CSG_MetaDat
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Grid * CSentinel_2_Scene_Import::Load_Grid(const CSG_String &File)
+CSG_String CSentinel_2_Scene_Import::Find_Band(const CSG_Table_Record &Band, const CSG_MetaData &Granule)
 {
-	CSG_Rect Extent;
+	CSG_String IDold(Band.asString(1)), IDnew(CSG_String::Format("%s_%dm", Band.asString(1), Band.asInt(3)));
 
-	switch( Parameters("EXTENT")->asInt() )
+	for(int i=0; i<Granule.Get_Children_Count(); i++)
 	{
-	default: // original
-		return( SG_Create_Grid(File) );
-
-	case  1: // user defined
-		Extent.Assign(
-			Parameters("EXTENT_XMIN")->asDouble(),
-			Parameters("EXTENT_YMIN")->asDouble(),
-			Parameters("EXTENT_XMAX")->asDouble(),
-			Parameters("EXTENT_YMAX")->asDouble()
-		);
-		break;
-
-	case  2: // grid system
-		Extent = Parameters("EXTENT_GRID"  )->asGrid_System()->Get_Extent();
-		Extent.Inflate(Parameters("EXTENT_BUFFER")->asDouble(), false);
-		break;
-
-	case  3: // shapes extent
-		Extent = Parameters("EXTENT_SHAPES")->asShapes     ()->Get_Extent();
-		Extent.Inflate(Parameters("EXTENT_BUFFER")->asDouble(), false);
-		break;
+		if(  Granule[i].Cmp_Name("IMAGE_FILE")
+		&& (!Granule[i].Get_Content().Right(IDnew.Length()).Cmp(IDnew)
+		||  !Granule[i].Get_Content().Right(IDold.Length()).Cmp(IDold)) )
+		{
+			return( Granule[i].Get_Content() );
+		}
 	}
 
-	//-----------------------------------------------------
-	CSG_Grid	*pGrid	= NULL;
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("io_gdal", 0);	// Import Raster
-
-	if( pTool && pTool->Set_Manager(NULL)
-	&&  pTool->Set_Parameter("FILES"      , File)
-	&&	pTool->Set_Parameter("EXTENT"     , 1)
-	&&	pTool->Set_Parameter("EXTENT_XMIN", Extent.Get_XMin())
-	&&	pTool->Set_Parameter("EXTENT_XMAX", Extent.Get_XMax())
-	&&	pTool->Set_Parameter("EXTENT_YMIN", Extent.Get_YMin())
-	&&	pTool->Set_Parameter("EXTENT_YMAX", Extent.Get_YMax())
-	&&  pTool->Execute() )
-	{
-		pGrid	= pTool->Get_Parameter("GRIDS")->asGridList()->Get_Grid(0);
-	}
-
-	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
-
-	return( pGrid );
+	return( "" );
 }
 
 //---------------------------------------------------------
-CSG_Grid * CSentinel_2_Scene_Import::Load_Band(const CSG_String &Path, const CSG_MetaData &Granule)
+CSG_Grid * CSentinel_2_Scene_Import::Load_Band(const CSG_String &Path, const CSG_String &File)
 {
-	Process_Set_Text("%s: %s", _TL("loading"), Granule.Get_Content().AfterLast('_').c_str());
-
-	CSG_String	File	= Path + "/" + Granule.Get_Content() + ".jp2";
-
-#ifdef _SAGA_MSW
-	File.Replace("/", "\\");
-#endif
+	Process_Set_Text("%s: %s", _TL("loading"), File.AfterLast('/').c_str());
 
 	//-----------------------------------------------------
-	CSG_Grid	*pBand	= Load_Grid(File);
+	CSG_String	_File(Path + "/" + File + ".jp2");
+
+	#ifdef _SAGA_MSW
+	_File.Replace("/", "\\");
+	#endif
+
+	CSG_Grid	*pBand	= Load_Grid(_File);
 
 	if( !pBand )
 	{
@@ -545,6 +523,121 @@ CSG_Grid * CSentinel_2_Scene_Import::Load_Band(const CSG_String &Path, const CSG
 
 	//-----------------------------------------------------
 	return( pBand );
+}
+
+//---------------------------------------------------------
+CSG_Grid * CSentinel_2_Scene_Import::Load_Grid(const CSG_String &File)
+{
+	CSG_Rect Extent;
+
+	switch( Parameters("EXTENT")->asInt() )
+	{
+	default: // original
+		return( SG_Create_Grid(File) );
+
+	case  1: // user defined
+		Extent.Assign(
+			Parameters("EXTENT_XMIN")->asDouble(),
+			Parameters("EXTENT_YMIN")->asDouble(),
+			Parameters("EXTENT_XMAX")->asDouble(),
+			Parameters("EXTENT_YMAX")->asDouble()
+		);
+		break;
+
+	case  2: // grid system
+		Extent = Parameters("EXTENT_GRID"  )->asGrid_System()->Get_Extent();
+		Extent.Inflate(Parameters("EXTENT_BUFFER")->asDouble(), false);
+		break;
+
+	case  3: // shapes extent
+		Extent = Parameters("EXTENT_SHAPES")->asShapes     ()->Get_Extent();
+		Extent.Inflate(Parameters("EXTENT_BUFFER")->asDouble(), false);
+		break;
+	}
+
+	//-----------------------------------------------------
+	CSG_Grid	*pGrid	= NULL;
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("io_gdal", 0);	// Import Raster
+
+	if( pTool && pTool->Set_Manager(NULL)
+		&&  pTool->Set_Parameter("FILES"      , File)
+		&&	pTool->Set_Parameter("EXTENT"     , 1)
+		&&	pTool->Set_Parameter("EXTENT_XMIN", Extent.Get_XMin())
+		&&	pTool->Set_Parameter("EXTENT_XMAX", Extent.Get_XMax())
+		&&	pTool->Set_Parameter("EXTENT_YMIN", Extent.Get_YMin())
+		&&	pTool->Set_Parameter("EXTENT_YMAX", Extent.Get_YMax())
+		&&  pTool->Execute() )
+	{
+		pGrid	= pTool->Get_Parameter("GRIDS")->asGridList()->Get_Grid(0);
+	}
+
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+	return( pGrid );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSentinel_2_Scene_Import::Load_Classification(CSG_Grid *pGrid, const CSG_String &File)
+{
+	CSG_MetaData	Metadata;
+
+	if( !Metadata.Load(File)
+	||  !Metadata("n1:General_Info")
+	||  !Metadata["n1:General_Info"]("Product_Image_Characteristics")
+	||  !Metadata["n1:General_Info"]["Product_Image_Characteristics"]("Scene_Classification_List") )
+	{
+		return( false );
+	}
+
+	CSG_MetaData ClassList = Metadata["n1:General_Info"]["Product_Image_Characteristics"]["Scene_Classification_List"];
+
+	//-----------------------------------------------------
+	CSG_Table LUT;
+
+	LUT.Add_Field("Color"      , SG_DATATYPE_Color );
+	LUT.Add_Field("Name"       , SG_DATATYPE_String);
+	LUT.Add_Field("Description", SG_DATATYPE_String);
+	LUT.Add_Field("Minimum"    , SG_DATATYPE_Double);
+	LUT.Add_Field("Maximum"    , SG_DATATYPE_Double);
+
+	for(int i=0, Index; i<ClassList.Get_Children_Count(); i++)
+	{
+		if( ClassList[i].Cmp_Name("Scene_Classification_ID")
+		&&  ClassList[i]("SCENE_CLASSIFICATION_TEXT" )
+		&&  ClassList[i].Get_Content("SCENE_CLASSIFICATION_INDEX", Index) )
+		{
+			CSG_String Name(ClassList[i]["SCENE_CLASSIFICATION_TEXT"].Get_Content().AfterFirst('_')); Name.Replace("_", " ");
+
+			CSG_Table_Record &Class = *LUT.Add_Record();
+
+			Class.Set_Value(0, SG_Color_Get_Random());
+			Class.Set_Value(1, Name);
+			Class.Set_Value(3, Index);
+			Class.Set_Value(4, Index);
+		}
+	}
+
+	if( LUT.Get_Count() > 0 )
+	{
+		DataObject_Add(pGrid);
+
+		CSG_Parameter *pLUT = DataObject_Get_Parameter(pGrid, "LUT");
+
+		if( pLUT && pLUT->asTable() && pLUT->asTable()->Assign_Values(&LUT) )
+		{
+			DataObject_Set_Parameter(pGrid, pLUT);
+			DataObject_Set_Parameter(pGrid, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
+
+			return( true );
+		}
+	}
+
+	return( false );
 }
 
 
