@@ -536,7 +536,6 @@ int CETpot_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter
 	pParameters->Set_Enabled("RH"      , Method != 1);
 	pParameters->Set_Enabled("SR"      , Method != 1 && !bCalcSR);
 	pParameters->Set_Enabled("SR_EST"  , Method != 1);
-	pParameters->Set_Enabled("SR"      , bCalcSR == false);
 	pParameters->Set_Enabled("SUNSHINE", bCalcSR ==  true);
 	pParameters->Set_Enabled("WS"      , Method == 2 || Method == 3);
 	pParameters->Set_Enabled("P"       , Method == 3);
