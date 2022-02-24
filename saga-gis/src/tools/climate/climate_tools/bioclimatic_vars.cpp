@@ -368,7 +368,7 @@ bool CBioclimatic_Vars::Set_Variables(int x, int y)
 		T   [i]	= m_pT   ->Get_Grid(i)->asDouble(x, y);
 		Tmin[i]	= m_pTmin->Get_Grid(i)->asDouble(x, y);
 		Tmax[i]	= m_pTmax->Get_Grid(i)->asDouble(x, y);
-		P   [i]	= m_pP   ->Get_Grid(i)->asDouble(x, y);
+		P   [i]	= m_pP   ->Get_Grid(i)->asDouble(x, y); if( P[i] < 0. ) { P[i] = 0.; }
 		dTD [i]	= Tmax[i] - Tmin[i];
 	}
 
