@@ -173,7 +173,7 @@ CSentinel_2_Scene_Import::CSentinel_2_Scene_Import(void)
 //	Parameters.Add_Bool("", "LOAD_TCI", _TL("True Color Image"         ), _TL(""), false);
 //	Parameters.Add_Bool("", "LOAD_AOT", _TL("Aerosol Optical Thickness"), _TL(""), false);
 //	Parameters.Add_Bool("", "LOAD_WVP", _TL("Water Vapour"             ), _TL(""), false);
-	Parameters.Add_Bool("", "LOAD_SCL", _TL("Scene Classification"     ), _TL(""), false);
+	Parameters.Add_Bool("", "LOAD_SCL", _TL("Scene Classification"     ), _TL(""),  true);
 
 	Parameters.Add_Choice("",
 		"REFLECTANCE"	, _TL("Reflectance Values"),
@@ -248,6 +248,16 @@ CSentinel_2_Scene_Import::CSentinel_2_Scene_Import(void)
 //---------------------------------------------------------
 int CSentinel_2_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if( pParameter->Cmp_Identifier("METAFILE") )
+	{
+		bool bLevel2 = SG_File_Exists  (pParameter->asString())
+					&& SG_File_Get_Name(pParameter->asString(), false).Find("MTD_MSIL2") == 0;
+
+		pParameters->Set_Enabled("LOAD_AOT", bLevel2);
+		pParameters->Set_Enabled("LOAD_WVP", bLevel2);
+		pParameters->Set_Enabled("LOAD_SCL", bLevel2);
+	}
+
 	if( pParameter->Cmp_Identifier("PROJECTION") )
 	{
 		pParameters->Set_Enabled("RESAMPLING", pParameter->asInt() == 2);
@@ -303,7 +313,7 @@ bool CSentinel_2_Scene_Import::On_Execute(void)
 	//-----------------------------------------------------
 	Parameters("BANDS")->asGridList()->Del_Items();
 
-	CSG_Grids *pBands[2]; pBands[0] = pBands[1] = NULL;
+	CSG_Grids *pBands[2]; pBands[0] = pBands[1] = NULL; CSG_Grid *pSCL = NULL;
 
 	for(int Band=0; Band<Info_Bands.Get_Count() && Process_Get_Okay(); Band++)
 	{
@@ -353,12 +363,12 @@ bool CSentinel_2_Scene_Import::On_Execute(void)
 				pBand->Set_Scaling(Scaling);
 			}
 
-			Parameters("BANDS")->asGridList()->Add_Item(pBand);
-
 			if( BAND_IS_SCL(Band) )
 			{
-				Load_Classification(pBand, Parameters("METAFILE")->asString());
+				pSCL = pBand;
 			}
+
+			Parameters("BANDS")->asGridList()->Add_Item(pBand);
 		}
 	}
 
@@ -373,7 +383,14 @@ bool CSentinel_2_Scene_Import::On_Execute(void)
 			pBands[i]->Set_Z_Attribute (INFO_FIELD_WAVE);
 			pBands[i]->Set_Z_Name_Field(INFO_FIELD_NAME);
 			pBands[i]->Set_Scaling(Scaling);
+
+			DataObject_Add(pBands[i], true);
 		}
+	}
+
+	if( pSCL )
+	{
+		Load_Classification(pSCL, Parameters("METAFILE")->asString());
 	}
 
 	return( true );
