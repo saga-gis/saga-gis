@@ -498,7 +498,7 @@ bool CSG_Parameter_Int::_Serialize(CSG_MetaData &Entry, bool bSave)
 CSG_Parameter_Double::CSG_Parameter_Double(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint)
 	: CSG_Parameter_Value(pOwner, pParent, ID, Name, Description, Constraint)
 {
-	m_Value		= 0.0;
+	m_Value		= 0.;
 }
 
 //---------------------------------------------------------
@@ -544,7 +544,7 @@ int  CSG_Parameter_Double::_Set_Value(const CSG_String &Value)
 //---------------------------------------------------------
 void CSG_Parameter_Double::_Set_String(void)
 {
-	m_String.Printf("%g", m_Value);
+	m_String.Printf("%.*f", SG_Get_Significant_Decimals(m_Value, 16), m_Value);
 }
 
 //---------------------------------------------------------
@@ -560,7 +560,7 @@ bool CSG_Parameter_Double::_Serialize(CSG_MetaData &Entry, bool bSave)
 {
 	if( bSave )
 	{
-		Entry.Set_Content(asString());
+		Entry.Fmt_Content("%.*f", SG_Get_Significant_Decimals(m_Value, 16), m_Value);
 	}
 	else
 	{
@@ -741,7 +741,10 @@ CSG_Parameter_Range::~CSG_Parameter_Range(void)
 //---------------------------------------------------------
 void CSG_Parameter_Range::_Set_String(void)
 {
-	m_String.Printf("%g; %g", Get_Min(), Get_Max());
+	m_String.Printf("%.*f; %.*f",
+		SG_Get_Significant_Decimals(Get_Min(), 16), Get_Min(),
+		SG_Get_Significant_Decimals(Get_Min(), 16), Get_Max()
+	);
 }
 
 //---------------------------------------------------------
@@ -824,7 +827,10 @@ bool CSG_Parameter_Range::_Serialize(CSG_MetaData &Entry, bool bSave)
 {
 	if( bSave )
 	{
-		Entry.Fmt_Content("%g; %g", Get_Min(), Get_Max());
+		Entry.Fmt_Content("%.*f; %.*f",
+			SG_Get_Significant_Decimals(Get_Min(), 16), Get_Min(),
+			SG_Get_Significant_Decimals(Get_Min(), 16), Get_Max()
+		);
 
 		return( true );
 	}

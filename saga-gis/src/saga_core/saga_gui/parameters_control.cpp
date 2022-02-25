@@ -586,7 +586,7 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 		break;
 
 	case PARAMETER_TYPE_Range           :
-		ADD_PROPERTY(new CParameters_PG_Range (Name, ID, pParameter            ), false);
+		ADD_PROPERTY(new CParameters_PG_Range (Name, ID, pParameter, m_Precision), false);
 		break;
 
 	case PARAMETER_TYPE_Degree          :

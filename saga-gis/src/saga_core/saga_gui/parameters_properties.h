@@ -148,7 +148,7 @@ WX_PG_DECLARE_VARIANT_DATA(CPG_Parameter_Value)
 class CParameters_PG_Range : public wxPGProperty
 {
 public:
-	CParameters_PG_Range(const wxString &label = wxPG_LABEL, const wxString &name = wxPG_LABEL, CSG_Parameter *pParameter = NULL);
+	CParameters_PG_Range(const wxString &label = wxPG_LABEL, const wxString &name = wxPG_LABEL, CSG_Parameter *pParameter = NULL, int Precision = -1);
 
 	bool						Update				(void)			{	SetValue(m_value);	return( true );	}
 

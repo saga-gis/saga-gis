@@ -782,15 +782,19 @@ bool CPG_Parameter_Value::Do_Dialog(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameters_PG_Range::CParameters_PG_Range(const wxString &label, const wxString &name, CSG_Parameter *pParameter)
+CParameters_PG_Range::CParameters_PG_Range(const wxString &label, const wxString &name, CSG_Parameter *pParameter, int Precision)
 	: wxPGProperty(label, name)
 {
 	if( pParameter && pParameter->Get_Type() == PARAMETER_TYPE_Range )
 	{
 		m_value	= WXVARIANT(CPG_Parameter_Value(pParameter));
 
-		AddPrivateChild( new wxFloatProperty("Minimum", wxPG_LABEL, pParameter->asRange()->Get_Min()) );
-		AddPrivateChild( new wxFloatProperty("Maximum", wxPG_LABEL, pParameter->asRange()->Get_Max()) );
+		#define ADD_CHILD(name, value) { wxFloatProperty *pProperty = new wxFloatProperty(name, wxPG_LABEL, value);\
+			pProperty->SetAttribute(wxPG_FLOAT_PRECISION, Precision); AddPrivateChild(pProperty);\
+		}
+
+		ADD_CHILD(_TL("Minimum"), pParameter->asRange()->Get_Min());
+		ADD_CHILD(_TL("Maximum"), pParameter->asRange()->Get_Max());
 	}
 }
 
