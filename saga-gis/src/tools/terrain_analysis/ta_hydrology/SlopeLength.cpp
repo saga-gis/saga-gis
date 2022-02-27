@@ -44,18 +44,27 @@ CSlopeLength::CSlopeLength(void)
 	Set_Author		(SG_T("V.Olaya (c) 2004"));
 
 	Set_Description	(_TW(
-		""
+		"The tool allows one to calculate a special version of slope (or flowpath) length. "
+        "In a first processing step, the slope of each cell is calculated with the method of "
+        "Zevenbergen & Thorne (1986). The slope length values are then accumulated downslope "
+        "using the Deterministic 8 (D8) single flow direction algorithm and a threshold "
+        "criterion: the slope length is only accumulated downslope if the "
+        "slope of the receiving cell is steeper than half of the slope of the contributing "
+        "cell (i.e. the accumulation stops if the slope profile gets abruptly flatter).\n"
+        "If several cells are contributing to a cell, the maximum of the "
+        "accumulated slope length values found in these cells is passed to the receiving "
+        "cell and then routed further downslope.\n"
 	));
 
 	Parameters.Add_Grid(
 		NULL	, "DEM"		, _TL("Elevation"),
-		_TL(""),
+		_TL("The digital elevation model."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "LENGTH"	, _TL("Slope Length"),
-		_TL(""),
+		_TL("The maximum slope (flowpath) length."),
 		PARAMETER_OUTPUT
 	);
 }
