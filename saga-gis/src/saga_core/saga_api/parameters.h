@@ -1769,10 +1769,16 @@ public:
 	bool						Assign_Values			(CSG_Parameters *pSource);
 	bool						Assign_Parameters		(CSG_Parameters *pSource);
 
-	bool						Serialize				(const CSG_String &File            )	const;
-	bool						Serialize				(const CSG_String &File, bool bSave);
-	bool						Serialize				(CSG_MetaData     &Root            )	const;
-	bool						Serialize				(CSG_MetaData     &Root, bool bSave);
+	bool						Load					(const CSG_MetaData &Data);
+	bool						Save					(      CSG_MetaData &Data)	const;
+
+	bool						Load					(const CSG_String   &File);
+	bool						Save					(const CSG_String   &File)	const;
+
+	bool						Serialize				(      CSG_MetaData &Data, bool bSave)       { return( bSave ? Save(Data) : Load(Data) ); }
+	bool						Serialize				(      CSG_MetaData &Data            ) const { return(         Save(Data) );              }
+	bool						Serialize				(const CSG_String   &File, bool bSave)       { return( bSave ? Save(File) : Load(File) ); }
+	bool						Serialize				(const CSG_String   &File            ) const { return(         Save(File)              ); }
 
 	bool						Serialize_Compatibility	(CSG_File &Stream);
 

@@ -2005,62 +2005,17 @@ bool CSG_Parameters::Reset_Grid_System(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// Constant version of Serialize, only for saving to meta data file.
-bool CSG_Parameters::Serialize(const CSG_String &File)	const
+bool CSG_Parameters::Load(const CSG_MetaData &Data)
 {
-	CSG_MetaData	MetaData;
-
-	return( Serialize(MetaData) && MetaData.Save(File) );
-}
-	
-//---------------------------------------------------------
-// Stores/loads parameter list settings to/from XML coded file.
-bool CSG_Parameters::Serialize(const CSG_String &File, bool bSave)
-{
-	CSG_MetaData	MetaData;
-
-	return( bSave
-		? (Serialize(MetaData, bSave) && MetaData.Save(File))
-		: (MetaData.Load(File) && Serialize(MetaData, bSave))
-	);
-}
-
-//---------------------------------------------------------
-// Constant version of Serialize, only for saving to meta data.
-bool CSG_Parameters::Serialize(CSG_MetaData &Root)	const
-{
-	Root.Destroy();
-
-	Root.Set_Name("parameters");
-	Root.Set_Property("name", m_Name);
-
-	for(int i=0; i<Get_Count(); i++)
+	if( Data.Cmp_Name("parameters") )
 	{
-		m_Parameters[i]->Serialize(Root, true);
-	}
+		Data.Get_Property("name", m_Name);
 
-	return( true );
-}
-
-//---------------------------------------------------------
-// Stores/loads parameter list settings to/from CSG_MetaData object 'Root'.
-bool CSG_Parameters::Serialize(CSG_MetaData &Root, bool bSave)
-{
-	if( bSave )
-	{
-		return( Serialize(Root) );
-	}
-
-	//-----------------------------------------------------
-	if( Root.Cmp_Name("parameters") )
-	{
-		Root.Get_Property("name", m_Name);
-
-		for(int i=0; i<Root.Get_Children_Count(); i++)
+		for(int i=0; i<Data.Get_Children_Count(); i++)
 		{
-			CSG_Parameter	*pParameter = Get_Parameter(Root(i)->Get_Property("id"));
+			CSG_Parameter	*pParameter = Get_Parameter(Data(i)->Get_Property("id"));
 
-			if(	pParameter && pParameter->Serialize(*Root(i), false) )
+			if(	pParameter && pParameter->Serialize(*Data(i), false) )
 			{
 				pParameter->has_Changed();
 			}
@@ -2070,6 +2025,34 @@ bool CSG_Parameters::Serialize(CSG_MetaData &Root, bool bSave)
 	}
 
 	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameters::Save(CSG_MetaData &Data) const
+{
+	Data.Destroy();
+
+	Data.Set_Name("parameters");
+	Data.Set_Property("name", m_Name);
+
+	for(int i=0; i<Get_Count(); i++)
+	{
+		m_Parameters[i]->Serialize(Data, true);
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameters::Load(const CSG_String &File)
+{
+	CSG_MetaData Data; return( Data.Load(File) && Load(Data) );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameters::Save(const CSG_String &File) const
+{
+	CSG_MetaData Data; return( Save(Data) && Data.Save(File) );
 }
 
 //---------------------------------------------------------
