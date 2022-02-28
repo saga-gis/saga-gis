@@ -137,6 +137,8 @@ public:
 	bool							MultiSelect_Check	(void);
 	bool							MultiSelect_Update	(void);
 
+	static CSG_Parameters *			Get_Settings_Dialog	(void);
+
 
 private:
 
@@ -161,10 +163,12 @@ private:
 	class CWKSP_Grid_Manager		*m_pGrids;
 
 
-	static int						_Modified_Changed	(class CSG_Parameter  *pParameter, int Flags);
-	bool							_Modified_Get		(class CSG_Parameters *pParameters, class CWKSP_Base_Item *pItem, const wxString &Directory, bool bSelections);
-	bool							_Modified_Get		(class CSG_Parameters *pParameters, class CWKSP_Base_Item *pItem, const wxString &Directory, class CSG_Data_Object *pObject);
-	bool							_Modified_Save		(class CSG_Parameters *pParameters);
+	static int						_Modified_Changed		(class CSG_Parameter  *pParameter, int Flags);
+	bool							_Modified_Get			(class CSG_Parameters *pParameters, class CWKSP_Base_Item *pItem, const wxString &Directory, bool bSelections);
+	bool							_Modified_Get			(class CSG_Parameters *pParameters, class CWKSP_Base_Item *pItem, const wxString &Directory, class CSG_Data_Object *pObject);
+	bool							_Modified_Save			(class CSG_Parameters *pParameters);
+
+	static void						_Get_Settings_Dialog	(CSG_Table &List, CWKSP_Base_Item *pItem);
 
 };
 

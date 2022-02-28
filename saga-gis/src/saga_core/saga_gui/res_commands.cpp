@@ -104,8 +104,6 @@ wxString CMD_Get_Name(int Cmd_ID)
 
 	case ID_CMD_WKSP_ITEM_CLOSE:		return( _TL("Close") );
 	case ID_CMD_WKSP_ITEM_SHOW:			return( _TL("Show") );
-	case ID_CMD_WKSP_ITEM_SETTINGS_LOAD:return( _TL("Load Settings") );
-	case ID_CMD_WKSP_ITEM_SETTINGS_COPY:return( _TL("Copy Settings from other Layer") );
 	case ID_CMD_WKSP_ITEM_SEARCH:		return( _TL("Search for...") );
 
 	case ID_CMD_INFO_CLEAR:				return( _TL("Clear") );
@@ -168,6 +166,8 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DATA_PROJECTION:		return( _TL("Spatial Reference") );
 	case ID_CMD_DATA_METADATA:			return( _TL("View Metadata") );
 	case ID_CMD_DATA_FORCE_UPDATE:		return( _TL("Force Update") );
+	case ID_CMD_DATA_SETTINGS_LOAD:		return( _TL("Load Settings") );
+	case ID_CMD_DATA_SETTINGS_COPY:		return( _TL("Copy Settings") );
 
 	case ID_CMD_GRID_OPEN:
 	case ID_CMD_GRIDS_OPEN:

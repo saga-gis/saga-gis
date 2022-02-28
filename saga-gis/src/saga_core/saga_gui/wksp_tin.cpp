@@ -146,7 +146,8 @@ wxMenu * CWKSP_TIN::Get_Menu(void)
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_METADATA);
 
 	pMenu->AppendSeparator();
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SETTINGS_COPY);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_FORCE_UPDATE);
 
 	pMenu->AppendSeparator();
 	wxMenu	*pTable	= new wxMenu(_TL("Table"));

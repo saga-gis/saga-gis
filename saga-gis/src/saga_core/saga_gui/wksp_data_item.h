@@ -112,6 +112,14 @@ public:
 
 	virtual bool					Update_Views			(bool bAll = true);
 
+	bool							Force_Update			(void);
+
+	bool							Load_Settings			(const CSG_MetaData &Data);
+	bool							Load_Settings			(void);
+
+	bool							Copy_Settings			(CSG_Parameters *pParameters);
+	bool							Copy_Settings			(void);
+
 
 protected:
 

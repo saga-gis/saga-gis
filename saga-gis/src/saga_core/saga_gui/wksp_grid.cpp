@@ -206,11 +206,11 @@ wxMenu * CWKSP_Grid::Get_Menu(void)
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_GRID_HISTOGRAM);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRID_SCATTERPLOT);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_FORCE_UPDATE);
 
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRID_SET_LUT);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SETTINGS_COPY);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_FORCE_UPDATE);
 
 	return( pMenu );
 }

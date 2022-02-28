@@ -538,10 +538,12 @@ wxMenu * CWKSP_Data_Manager::Get_Menu(void)
 	{
 		wxMenu	*pMenu	= new wxMenu;
 
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SHOW);
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SETTINGS_LOAD);
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
+		pMenu->AppendSeparator();
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SETTINGS_LOAD);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SETTINGS_COPY);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_FORCE_UPDATE);
 
 		return( pMenu );
 	}
@@ -655,6 +657,40 @@ bool CWKSP_Data_Manager::On_Command(int Cmd_ID)
 		MSG_General_Add_Line();
 		MSG_General_Add(s.c_str());
 		MSG_General_Add_Line();
+		break; }
+
+	//-----------------------------------------------------
+	case ID_CMD_DATA_FORCE_UPDATE: {
+		{
+			for(size_t i=0; i<MultiSelect_Count(); i++)
+			{
+				((CWKSP_Data_Item *)Get_Control()->GetItemData(m_Sel_Items[i]))->Force_Update();
+			}
+		}
+		break; }
+
+	case ID_CMD_DATA_SETTINGS_LOAD: {
+		wxString File; CSG_MetaData Data;
+
+		if( DLG_Open(File, ID_DLG_PARAMETERS_OPEN) && Data.Load(&File) )
+		{
+			for(size_t i=0; i<MultiSelect_Count(); i++)
+			{
+				((CWKSP_Data_Item *)Get_Control()->GetItemData(m_Sel_Items[i]))->Load_Settings(Data);
+			}
+		}
+		break; }
+
+	case ID_CMD_DATA_SETTINGS_COPY: {
+		CSG_Parameters *pParameters = Get_Settings_Dialog();
+
+		if( pParameters )
+		{
+			for(size_t i=0; i<MultiSelect_Count(); i++)
+			{
+				((CWKSP_Data_Item *)Get_Control()->GetItemData(m_Sel_Items[i]))->Copy_Settings(pParameters);
+			}
+		}
 		break; }
 	}
 
@@ -1617,6 +1653,72 @@ bool CWKSP_Data_Manager::MultiSelect_Update(void)
 	m_Sel_Parms[1].Assign_Values(&m_Sel_Parms[0]);		// update backup list with changed values
 
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CWKSP_Data_Manager::_Get_Settings_Dialog(CSG_Table &List, CWKSP_Base_Item *pItem)
+{
+	if( pItem )
+	{
+		if( pItem->is_Manager() )
+		{
+			for(int i=0; i<((CWKSP_Base_Manager *)pItem)->Get_Count(); i++)
+			{
+				_Get_Settings_Dialog(List, ((CWKSP_Base_Manager *)pItem)->Get_Item(i));
+			}
+		}
+		else if( pItem->Get_Parameters() )
+		{
+			CSG_Table_Record	*pEntry	= List.Add_Record();
+
+			pEntry->Set_Value(0, CSG_String(wxString::Format("[%s] %s", pItem->Get_Manager()->Get_Name(), pItem->Get_Name()).wc_str()));
+			pEntry->Set_Value(1, CSG_String::Format("%p", pItem->Get_Parameters()));
+		}
+	}
+}
+
+//---------------------------------------------------------
+CSG_Parameters * CWKSP_Data_Manager::Get_Settings_Dialog(void)
+{
+	CSG_Table	List;
+
+	List.Add_Field("NAME", SG_DATATYPE_String);
+	List.Add_Field("PRMS", SG_DATATYPE_String);
+
+	_Get_Settings_Dialog(List, g_pData->Get_Grids      ());
+	_Get_Settings_Dialog(List, g_pData->Get_Shapes     ());
+	_Get_Settings_Dialog(List, g_pData->Get_TINs       ());
+	_Get_Settings_Dialog(List, g_pData->Get_PointClouds());
+
+	if( List.Get_Count() > 0 )
+	{
+		wxArrayString	Items;
+
+		for(int i=0; i<List.Get_Count(); i++)
+		{
+			Items.Add(List.Get_Record(i)->asString(0));
+		}
+
+		wxSingleChoiceDialog	dlg(MDI_Get_Top_Window(),
+			_TL("Copy Settings from..."),
+			_TL("Select a layer to copy settings from it."),
+			Items
+		);
+
+		void	*pParameters;
+
+		if( dlg.ShowModal() == wxID_OK && SG_SSCANF(List.Get_Record(dlg.GetSelection())->asString(1), SG_T("%p"), &pParameters) == 1 )
+		{
+			return( (CSG_Parameters *)pParameters );
+		}
+	}
+
+	return( NULL );
 }
 
 
