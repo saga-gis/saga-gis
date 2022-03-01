@@ -127,8 +127,9 @@ CSG_Tool *		Create_Tool(int i)
 	case 19:	return( new CGrid_Statistics_Add );
 	case 18:	return( new CGrid_Statistics_Evaluate );
 	case 20:	return( new CGSGrid_Unique_Value_Statistics );
+	case 21:	return( new CGSGrid_Histogram );
 
-	case 21:	return( NULL );
+	case 22:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

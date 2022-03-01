@@ -127,6 +127,45 @@ protected:
 
 ///////////////////////////////////////////////////////////
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGSGrid_Histogram : public CSG_Tool_Grid
+{
+public:
+	CGSGrid_Histogram(void);
+
+
+protected:
+
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+
+
+private:
+
+	enum
+	{
+		FIELD_ID = 0,
+		FIELD_CLASS,
+		FIELD_MIN,
+		FIELD_MAX,
+		FIELD_COUNT,
+		FIELD_CUMUL,
+		FIELD_AREA
+	};
+
+	bool					Add_Value				(CSG_Table &Histogram, double Value, bool bUnclassed);
+
+	CSG_Table &				Get_Table				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////

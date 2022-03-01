@@ -601,3 +601,314 @@ bool CGSGrid_Statistics_To_Table::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CGSGrid_Histogram::CGSGrid_Histogram(void)
+{
+	Set_Name		(_TL("Grid Histogram"));
+
+	Set_Author		("O.Conrad (c) 2022");
+
+	Set_Description	(_TW(
+		"This tool creates a histogram for the supplied grid using the specified classification. "
+	));
+
+	Parameters.Add_Grid("",
+		"GRID"		, _TL("Grid"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Table("",
+		"HISTOGRAM"	, _TL("Histogram"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Choice("",
+		"CLASSIFY"	, _TL("Classification"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("value range and number of classes"),
+			_TL("lookup table")
+		), 0
+	);
+
+	Parameters.Add_Int("CLASSIFY",
+		"BINS"		, _TL("Number of Classes"),
+		_TL(""),
+		64, 1, true
+	);
+
+	Parameters.Add_Range("CLASSIFY",
+		"RANGE"		, _TL("Value Range"),
+		_TL(""),
+		0., 1.
+	);
+
+	Parameters.Add_FixedTable("CLASSIFY",
+		"LUT"		, _TL("Lookup Table"),
+		_TL("")
+	);
+
+	Parameters.Add_Bool("",
+		"UNCLASSED"	, _TL("Report Unclassified Cells"),
+		_TL(""),
+		false
+	);
+
+	Parameters.Add_Bool("",
+		"PARALLEL"	, _TL("Parallelized"),
+		_TL(""),
+		true
+	);
+
+	Parameters.Add_Double("",
+		"MAXSAMPLES", _TL("Maximum Samples"),
+		_TL("Maximum number of samples [percent]."),
+		100., 0., true, 100., true
+	);
+
+	//-----------------------------------------------------
+	CSG_Table &LUT = *Parameters("LUT")->asTable();
+	LUT.Add_Field("Minimum", SG_DATATYPE_Double);
+	LUT.Add_Field("Maximum", SG_DATATYPE_Double);
+	LUT.Set_Count(1); LUT[0].Set_Value(0, 0.); LUT[0].Set_Value(1, 1.);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGSGrid_Histogram::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("GRID") && pParameter->asGrid() )
+	{
+		(*pParameters)("RANGE")->asRange()->Set_Range(
+			pParameter->asGrid()->Get_Min(),
+			pParameter->asGrid()->Get_Max()
+		);
+
+		if( has_GUI() )
+		{
+			pParameters->Set_Parameter("MAXSAMPLES", 1e09 / pParameter->asGrid()->Get_NCells()); // 10 mio. samples
+		}
+	}
+
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
+int CGSGrid_Histogram::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("CLASSIFY") )
+	{
+		pParameters->Set_Enabled("RANGE", pParameter->asInt() == 0);
+		pParameters->Set_Enabled("BINS" , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("LUT"  , pParameter->asInt() == 1);
+	}
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGSGrid_Histogram::On_Execute(void)
+{
+	CSG_Grid *pGrid = Parameters("GRID")->asGrid();
+
+	CSG_Table &Histogram = Get_Table();
+
+	bool bUnclassed = Parameters("UNCLASSED")->asBool();
+
+	//-----------------------------------------------------
+	double Samples = 0.01 * Parameters("MAXSAMPLES")->asDouble();
+
+	if( Samples <= 1. / Get_NX() )
+	{
+		Samples  = 1. / Get_NX(); // at least one sample per line!
+	}
+	else if( Samples > 1. )
+	{
+		Samples  = 1.;
+	}
+
+	int Step = (int)(Get_NX() / (Get_NX() * Samples));
+
+	//-----------------------------------------------------
+	if( Parameters("PARALLEL")->asBool() == false )
+	{
+		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		{
+			for(int x=0; x<Get_NX(); x+=Step)
+			{
+				Add_Value(Histogram, pGrid->asDouble(x, y), bUnclassed);
+			}
+		}
+	}
+	else
+	{
+		int nThreads = SG_OMP_Get_Max_Num_Threads();
+
+		CSG_Table *Histograms = new CSG_Table[nThreads];
+
+		for(int iThread=0; iThread<nThreads; iThread++)
+		{
+			Histograms[iThread].Create(Histogram);
+		}
+
+		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		{
+			#pragma omp parallel for
+			for(int x=0; x<Get_NX(); x+=Step)
+			{
+				int iThread = SG_OMP_Get_Thread_Num();
+
+				Add_Value(Histograms[iThread], pGrid->asDouble(x, y), bUnclassed);
+			}
+		}
+
+		for(int iThread=0; iThread<nThreads; iThread++)
+		{
+			for(int i=0; i<Histogram.Get_Count(); i++)
+			{
+				Histogram[i].Add_Value(FIELD_COUNT, Histograms[iThread][i].asInt(FIELD_COUNT));
+			}
+		}
+
+		delete[](Histograms);
+	}
+
+	//-----------------------------------------------------
+	for(int i=0; i<Histogram.Get_Count(); i++)
+	{
+		if( Samples < 1. )
+		{
+			Histogram[i].Mul_Value(FIELD_COUNT, 1. / Samples);
+		}
+
+		Histogram[i].Set_Value(FIELD_AREA, Histogram[i].asInt(FIELD_COUNT) * Get_Cellarea());
+
+		if( i < 1 )
+		{
+			Histogram[i].Set_Value(FIELD_CUMUL, Histogram[i].asInt(FIELD_COUNT));
+		}
+		else if( !bUnclassed || i < Histogram.Get_Count() - 1 )
+		{
+			Histogram[i].Set_Value(FIELD_CUMUL, Histogram[i].asInt(FIELD_COUNT) + Histogram[i - 1].asInt(FIELD_CUMUL));
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGSGrid_Histogram::Add_Value(CSG_Table &Histogram, double Value, bool bUnclassed)
+{
+	int n = bUnclassed ? Histogram.Get_Count() - 1 : Histogram.Get_Count();
+
+	for(int i=0; i<n; i++)
+	{
+		if( Histogram[i].asDouble(FIELD_MIN) <= Value && Value <= Histogram[i].asDouble(FIELD_MAX) )
+		{
+			Histogram[i].Add_Value(FIELD_COUNT, 1);
+
+			return( true );
+		}
+	}
+
+	if( bUnclassed )
+	{
+		Histogram[n].Add_Value(FIELD_COUNT, 1);
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Table & CGSGrid_Histogram::Get_Table(void)
+{
+	CSG_Table &Histogram = *Parameters("HISTOGRAM")->asTable();
+
+	Histogram.Destroy();
+	Histogram.Fmt_Name("%s [%s]", _TL("Histogram"), Parameters("GRID")->asGrid()->Get_Name());
+	Histogram.Add_Field("ID"        , SG_DATATYPE_Int   ); // FIELD_ID
+	Histogram.Add_Field("Class"     , SG_DATATYPE_String); // FIELD_CLASS
+	Histogram.Add_Field("Minimum"   , SG_DATATYPE_Double); // FIELD_MIN
+	Histogram.Add_Field("Maximum"   , SG_DATATYPE_Double); // FIELD_MAX
+	Histogram.Add_Field("Count"     , SG_DATATYPE_Long  ); // FIELD_COUNT
+	Histogram.Add_Field("Cumulative", SG_DATATYPE_Long  ); // FIELD_CUMUL
+	Histogram.Add_Field("Area"      , SG_DATATYPE_Double); // FIELD_AREA
+
+	switch( Parameters("CLASSIFY")->asInt() )
+	{
+	default: {
+		int    n =  Parameters("BINS")->asInt();
+		double a =  Parameters("RANGE.MIN")->asDouble();
+		double b = (Parameters("RANGE.MAX")->asDouble() - a) / (double)n;
+
+		for(int i=0; i<n; i++)
+		{
+			double min = a + b * i, max = a + b * (i + 1);
+
+			CSG_Table_Record &Class = *Histogram.Add_Record();
+
+			Class.Set_Value(FIELD_ID   , i + 1);
+			Class.Set_Value(FIELD_CLASS, SG_Get_String(min, -6) + " - " + SG_Get_String(max, -6));
+			Class.Set_Value(FIELD_MIN  , a + (i    ) * b);
+			Class.Set_Value(FIELD_MAX  , a + (i + 1) * b);
+		}
+		break; }
+
+	case  1: {
+		CSG_Table &LUT = *Parameters("LUT")->asTable();
+
+		for(int i=0; i<LUT.Get_Count(); i++)
+		{
+			CSG_Table_Record &Class = *Histogram.Add_Record();
+
+			Class.Set_Value(FIELD_ID   , i + 1);
+			Class.Set_Value(FIELD_CLASS, CSG_String::Format("%s - %s", LUT[i].asString(0), LUT[i].asString(1)));
+			Class.Set_Value(FIELD_MIN  , LUT[i].asDouble(0));
+			Class.Set_Value(FIELD_MAX  , LUT[i].asDouble(1));
+		}
+		break; }
+	}
+
+	if( Parameters("UNCLASSED")->asBool() )
+	{
+		CSG_Table_Record &Class = *Histogram.Add_Record();
+
+		Class.Set_Value (FIELD_ID   , -1);
+		Class.Set_Value (FIELD_CLASS, "Unclassified");
+		Class.Set_NoData(FIELD_MIN  );
+		Class.Set_NoData(FIELD_MAX  );
+		Class.Set_NoData(FIELD_CUMUL);
+	}
+
+	return( Histogram );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
