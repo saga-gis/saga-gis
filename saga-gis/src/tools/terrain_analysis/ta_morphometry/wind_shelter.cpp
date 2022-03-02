@@ -194,9 +194,9 @@ bool CWind_Shelter::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	#pragma omp parallel for
-	for(int y=0; y<Get_NY(); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
 			double	Index;
