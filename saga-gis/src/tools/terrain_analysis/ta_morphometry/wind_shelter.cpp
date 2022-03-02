@@ -70,13 +70,13 @@ CWind_Shelter::CWind_Shelter(void)
 	Add_Reference("Plattner, C., Braun, L.N., Brenning, A.", "2004",
 		"Spatial variability of snow accumulation on Vernagtferner, Austrian Alps, in winter 2003/2004",
 		"Zeitschrift fuer Gletscherkunde und Glazialgeologie, 39: 43-57.",
-		SG_T("http://www.academia.edu/download/30283083/Plattner-et-al-2006-ZGletscherk.pdf"), SG_T("[PDF] academia.edu")
+		SG_T("https://www.academia.edu/825084/Plattner_C_L_N_Braun_and_A_Brenning_2004_The_spatial_variability_of_snow_accumulation_on_Vernagtferner_Austrian_Alps_in_Winter_2003_2004_Zeitschrift_f%C3%BCr_Gletscherkunde_und_Glazialgeologie_39_43_57?pop_sutd=false"), SG_T("PDF at academia.edu")
 	);
 
 	Add_Reference("Winstral, A., Elder, K., Davis, R.E.", "2002",
 		"Spatial snow modeling of wind-redistributed snow using terrain-based parameters",
 		"Journal of Hydrometeorology, 3: 524-538.",
-		SG_T("https://doi.org/10.1175/1525-7541(2002)003%3C0524:SSMOWR%3E2.0.CO;2"), SG_T("[PDF] ametsoc.org")
+		SG_T("https://doi.org/10.1175/1525-7541(2002)003%3C0524:SSMOWR%3E2.0.CO;2"), SG_T("doi:10.1175/1525-7541(2002)003%3C0524:SSMOWR%3E2.0.CO;2")
 	);
 
 	Parameters.Add_Grid("",
@@ -89,6 +89,15 @@ CWind_Shelter::CWind_Shelter(void)
 		"SHELTER"	, _TL("Wind Shelter Index"),
 		_TL(""),
 		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Choice("SHELTER",
+		"UNIT"		, _TL("Unit"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("degree"),
+			_TL("radians")
+		)
 	);
 
 	Parameters.Add_Double("",
@@ -158,15 +167,14 @@ bool CWind_Shelter::On_Execute(void)
 
 	DataObject_Set_Colors(pShelter, 11, SG_COLORS_YELLOW_BLUE);
 
-	double	Direction	= Parameters("DIRECTION")->asDouble();
-	double	Tolerance	= Parameters("TOLERANCE")->asDouble();
-	double	Distance	= Parameters("DISTANCE" )->asDouble();
+	double Direction = Parameters("DIRECTION")->asDouble();
+	double Tolerance = Parameters("TOLERANCE")->asDouble();
+	double Distance  = Parameters("DISTANCE" )->asDouble();
 
-	m_Quantile	= Parameters("QUANTILE")->asDouble();
-
-	m_Negatives	= Parameters("NEGATIVES")->asBool();
-
-	m_Method	= Parameters("METHOD")->asInt();
+	m_bDegree   = Parameters("UNIT"     )->asInt() == 0;
+	m_Negatives = Parameters("NEGATIVES")->asBool();
+	m_Quantile  = Parameters("QUANTILE" )->asDouble();
+	m_Method    = Parameters("METHOD"   )->asInt();
 
 	if( m_Method == 0 )
 	{
@@ -199,7 +207,7 @@ bool CWind_Shelter::On_Execute(void)
 			}
 			else
 			{
-				pShelter->Set_Value(x, y, 90. - Index);
+				pShelter->Set_Value(x, y, Index);
 			}
 		}
 	}
@@ -248,9 +256,14 @@ bool CWind_Shelter::Get_Index(int x, int y, double &Index)
 		}
 	}
 
-	Index	= s.Get_Count() < 1 ? 0. : M_RAD_TO_DEG * atan(
-		m_Quantile < 1. ? s.Get_Quantile(m_Quantile) : s.Get_Maximum()
+	Index	= M_PI_090 - (s.Get_Count() < 1 ? 0. :
+		atan(m_Quantile < 1. ? s.Get_Quantile(m_Quantile) : s.Get_Maximum())
 	);
+
+	if( m_bDegree )
+	{
+		Index *= M_RAD_TO_DEG;
+	}
 
 	return( true );
 }

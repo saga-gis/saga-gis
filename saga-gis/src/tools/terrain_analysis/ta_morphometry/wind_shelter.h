@@ -84,7 +84,7 @@ protected:
 
 private:
 
-	bool					m_Negatives;
+	bool					m_bDegree, m_Negatives;
 
 	int						m_Method;
 
