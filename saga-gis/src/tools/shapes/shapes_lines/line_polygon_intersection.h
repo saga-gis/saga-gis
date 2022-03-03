@@ -80,9 +80,16 @@ protected:
 
 private:
 
+    typedef struct	{
+        double			Az, Am, Bz, Bm;
+    }ZM;
+
 	bool					Get_Intersection	(CSG_Shape_Polygon *pPolygon, CSG_Shape *pLine, CSG_Shapes &Intersection);
 
-	int						Get_Crossings		(CSG_Shape_Polygon *pPolygon, const TSG_Point &a, const TSG_Point &b, CSG_Table &Crossings);
+	int						Get_Crossings		(CSG_Shape_Polygon *pPolygon, const TSG_Point &a, const TSG_Point &b, CSG_Table &Crossings, TSG_Vertex_Type VertexType, ZM &zmValues);
+
+    void                    _Get_ZM             (CSG_Shape *pLine, int iPoint, int iPart, double &z, double &m);
+    void                    _Set_ZM             (CSG_Shape *pSegment, int iPoint, int iPart, double &z, double &m);
 
 };
 

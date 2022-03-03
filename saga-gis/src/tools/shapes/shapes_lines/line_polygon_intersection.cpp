@@ -134,12 +134,12 @@ bool CLine_Polygon_Intersection::On_Execute(void)
 
 	int	Attributes	= Parameters("ATTRIBUTES")->asInt();
 
-	pIntersection->Create(SHAPE_TYPE_Line, NULL, Attributes == 0 ? pPolygons : pLines);
+	pIntersection->Create(SHAPE_TYPE_Line, NULL, Attributes == 0 ? pPolygons : pLines, pLines->Get_Vertex_Type());
 	pIntersection->Fmt_Name("%s [%s: %s]", pLines->Get_Name(), _TL("Intersection"), pPolygons->Get_Name());
 
 	if( pDifference )
 	{
-		pDifference->Create(SHAPE_TYPE_Line, NULL, pLines);
+		pDifference->Create(SHAPE_TYPE_Line, NULL, pLines, pLines->Get_Vertex_Type());
 		pDifference->Fmt_Name("%s [%s: %s]", pLines->Get_Name(), _TL("Difference"), pPolygons->Get_Name());
 	}
 
@@ -159,8 +159,8 @@ bool CLine_Polygon_Intersection::On_Execute(void)
 	//-----------------------------------------------------
 	for(int iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
 	{
-		CSG_Shapes	Intersection(SHAPE_TYPE_Line, NULL, pLines);
-		CSG_Shapes	Difference  (SHAPE_TYPE_Line, NULL, pLines);
+		CSG_Shapes	Intersection(SHAPE_TYPE_Line, NULL, pLines, pLines->Get_Vertex_Type());
+		CSG_Shapes	Difference  (SHAPE_TYPE_Line, NULL, pLines, pLines->Get_Vertex_Type());
 
 		CSG_Shape	*pLine	= Difference.Add_Shape(pLines->Get_Shape(iLine));
 
@@ -226,13 +226,21 @@ bool CLine_Polygon_Intersection::Get_Intersection(CSG_Shape_Polygon *pPolygon, C
 	}
 
 	//-----------------------------------------------------
-	CSG_Shapes	Segments(SHAPE_TYPE_Line);
+	CSG_Shapes	Segments(SHAPE_TYPE_Line, NULL, (CSG_Table *)0, Intersection.Get_Vertex_Type());
 
 	CSG_Table	Crossings;
 
 	Crossings.Add_Field("X", SG_DATATYPE_Double);
 	Crossings.Add_Field("Y", SG_DATATYPE_Double);
 	Crossings.Add_Field("D", SG_DATATYPE_Double);
+
+    if( Intersection.Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
+    {
+        Crossings.Add_Field("Z", SG_DATATYPE_Double);
+        Crossings.Add_Field("M", SG_DATATYPE_Double);
+    }
+
+    ZM          zmValues;
 
 	//-----------------------------------------------------
 	for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
@@ -244,20 +252,40 @@ bool CLine_Polygon_Intersection::Get_Intersection(CSG_Shape_Polygon *pPolygon, C
 
 		TSG_Point	A	= pLine->Get_Point(0, iPart);
 
+        if( pLine->Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
+        {
+            _Get_ZM(pLine, 0, iPart, zmValues.Az, zmValues.Am);
+        }
+
 		CSG_Shape	*pSegment	= Segments.Add_Shape();
 		
 		pSegment->Add_Point(A);
 
+        if( Intersection.Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
+        {
+            _Set_ZM(pSegment, pSegment->Get_Point_Count() - 1, 0, zmValues.Az, zmValues.Am);
+        }
+
 		for(int iPoint=1; iPoint<pLine->Get_Point_Count(iPart); iPoint++)
 		{
 			TSG_Point	B = A; A = pLine->Get_Point(iPoint, iPart);
+
+            if( Intersection.Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
+            {
+                zmValues.Bz = zmValues.Az; zmValues.Az = pLine->Get_Z(iPoint, iPart);
+
+                if( Intersection.Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
+                {
+                    zmValues.Bm = zmValues.Am; zmValues.Am = pLine->Get_M(iPoint, iPart);
+                }
+            }
 
 			if( A.x == B.x && A.y == B.y )
 			{
 				continue;
 			}
 
-			if( Get_Crossings(pPolygon, A, B, Crossings) > 0 )
+			if( Get_Crossings(pPolygon, A, B, Crossings, Intersection.Get_Vertex_Type(), zmValues) > 0 )
 			{
 				for(int iCrossing=0; iCrossing<Crossings.Get_Count(); iCrossing++)
 				{
@@ -265,12 +293,34 @@ bool CLine_Polygon_Intersection::Get_Intersection(CSG_Shape_Polygon *pPolygon, C
 					B.y	= Crossings[iCrossing].asDouble(1);
 
 					pSegment->Add_Point(B);
+
+                    if( Intersection.Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
+                    {
+                        double z = Crossings[iCrossing].asDouble(3);
+                        double m = Crossings[iCrossing].asDouble(4);
+
+                        _Set_ZM(pSegment, pSegment->Get_Point_Count() - 1, 0, z, m);
+                    }
+
 					pSegment = Segments.Add_Shape();
 					pSegment->Add_Point(B);
+
+                    if( Intersection.Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
+                    {
+                        double z = Crossings[iCrossing].asDouble(3);
+                        double m = Crossings[iCrossing].asDouble(4);
+
+                        _Set_ZM(pSegment, pSegment->Get_Point_Count() - 1, 0, z, m);
+                    }
 				}
 			}
 
 			pSegment->Add_Point(A);
+
+            if( Intersection.Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
+            {
+                _Set_ZM(pSegment, pSegment->Get_Point_Count() - 1, 0, zmValues.Az, zmValues.Am);
+            }
 		}
 	}
 
@@ -316,8 +366,25 @@ bool CLine_Polygon_Intersection::Get_Intersection(CSG_Shape_Polygon *pPolygon, C
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CLine_Polygon_Intersection::Get_Crossings(CSG_Shape_Polygon *pPolygon, const TSG_Point &a, const TSG_Point &b, CSG_Table &Crossings)
+int CLine_Polygon_Intersection::Get_Crossings(CSG_Shape_Polygon *pPolygon, const TSG_Point &a, const TSG_Point &b, CSG_Table &Crossings, TSG_Vertex_Type VertexType, ZM &zmValues)
 {
+    double dz = 0.0, dm = 0.0;
+
+    if( VertexType != SG_VERTEX_TYPE_XY )
+    {
+        double dLength = SG_Get_Distance(a, b);
+
+        if( dLength > 0.0 )
+        {
+            dz = (zmValues.Az - zmValues.Bz) / dLength;
+
+            if( VertexType == SG_VERTEX_TYPE_XYZM )
+            {
+                dm = (zmValues.Am - zmValues.Bm) / dLength;
+            }
+        }
+    }
+
 	Crossings.Del_Records();
 
 	for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
@@ -330,11 +397,23 @@ int CLine_Polygon_Intersection::Get_Crossings(CSG_Shape_Polygon *pPolygon, const
 
 			if( SG_Get_Crossing(C, A, B, a, b) )
 			{
+                double dDist = SG_Get_Distance(b, C);
+
 				CSG_Table_Record	*pCrossing	= Crossings.Add_Record();
 
 				pCrossing->Set_Value(0, C.x);
 				pCrossing->Set_Value(1, C.y);
-				pCrossing->Set_Value(2, SG_Get_Distance(b, C));
+				pCrossing->Set_Value(2, dDist);
+
+                if( VertexType != SG_VERTEX_TYPE_XY )
+                {
+                    pCrossing->Set_Value(3, zmValues.Bz + dDist * dz);
+
+                    if( VertexType == SG_VERTEX_TYPE_XYZM )
+                    {
+                        pCrossing->Set_Value(4, zmValues.Bm + dDist * dm);
+                    }
+                }
 			}
 		}
 	}
@@ -344,6 +423,31 @@ int CLine_Polygon_Intersection::Get_Crossings(CSG_Shape_Polygon *pPolygon, const
 	return( Crossings.Get_Count() );
 }
 
+//---------------------------------------------------------
+void CLine_Polygon_Intersection::_Get_ZM(CSG_Shape *pLine, int iPoint, int iPart, double &z, double &m)
+{
+    z = pLine->Get_Z(iPoint, iPart);
+
+    if( pLine->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
+    {
+        m = pLine->Get_M(iPoint, iPart);
+    }
+
+    return;
+}
+
+//---------------------------------------------------------
+void CLine_Polygon_Intersection::_Set_ZM(CSG_Shape *pSegment, int iPoint, int iPart, double &z, double &m)
+{
+    pSegment->Set_Z(z, pSegment->Get_Point_Count() - 1, 0);
+
+    if( pSegment->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
+    {
+        pSegment->Set_M(m, pSegment->Get_Point_Count() - 1, 0);
+    }
+
+    return;
+}
 
 ///////////////////////////////////////////////////////////
 //														 //
