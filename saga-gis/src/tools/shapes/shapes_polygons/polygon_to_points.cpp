@@ -113,7 +113,7 @@ bool CPolygon_To_Points::On_Execute(void)
 	//-----------------------------------------------------
 	if( pShapes->is_Valid() )
 	{
-		pPoints->Create(SHAPE_TYPE_Point, pShapes->Get_Name());
+		pPoints->Create(SHAPE_TYPE_Point, pShapes->Get_Name(), (CSG_Table *)0, pShapes->Get_Vertex_Type());
 		pPoints->Add_Field(SG_T("ID")		, SG_DATATYPE_String);
 		pPoints->Add_Field(SG_T("ID_SHAPE")	, SG_DATATYPE_Int);
 		pPoints->Add_Field(SG_T("ID_PART")	, SG_DATATYPE_Int);
@@ -171,10 +171,13 @@ bool CPolygon_To_Points::On_Execute(void)
 						break;
 
 					case SG_VERTEX_TYPE_XYZ:
+                        pPoint->Set_Z(pShape->Get_Z(iPoint, iPart), iPoint, iPart);
 						pPoint->Set_Value(n++, pShape->Get_Z(iPoint, iPart));
 						break;
 
 					case SG_VERTEX_TYPE_XYZM:
+                        pPoint->Set_Z(pShape->Get_Z(iPoint, iPart), iPoint, iPart);
+                        pPoint->Set_M(pShape->Get_M(iPoint, iPart), iPoint, iPart);
 						pPoint->Set_Value(n++, pShape->Get_Z(iPoint, iPart));
 						pPoint->Set_Value(n++, pShape->Get_M(iPoint, iPart));
 						break;
