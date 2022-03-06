@@ -229,6 +229,7 @@ private:
 	bool						_Edit_Merge				(void);
 	bool						_Edit_Split				(void);
 	bool						_Edit_Move				(bool bToggle = true);
+    bool                        _Edit_Sel_Copy_New_Layer(void);
 
 	void						_Edit_Shape_Draw_Point	(wxDC &dc, TSG_Point_Int Point, bool bSelected);
 	void						_Edit_Shape_Draw_Point	(wxDC &dc, int x, int y, bool bSelected);

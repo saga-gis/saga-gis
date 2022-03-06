@@ -258,6 +258,24 @@ bool CWKSP_PointCloud::On_Command(int Cmd_ID)
 		}
 		break;
 
+    case ID_CMD_SHAPES_EDIT_SEL_COPY_TO_NEW_LAYER:
+        if( Get_PointCloud()->Get_Selection_Count() > 0 )
+        {
+            CSG_PointCloud *pCopy = new CSG_PointCloud(Get_PointCloud());
+
+            pCopy->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Get_PointCloud()->Get_Name(), _TL("Selection")));
+
+            for(int i=0; i<Get_PointCloud()->Get_Selection_Count() && SG_UI_Process_Set_Progress(i, Get_PointCloud()->Get_Selection_Count()); i++)
+            {
+                pCopy->Add_Shape(Get_PointCloud()->Get_Selection(i), SHAPE_COPY);
+            }
+
+            SG_UI_Process_Set_Okay();
+
+            SG_UI_DataObject_Add(pCopy, false);
+        }
+        break;
+
 	case ID_CMD_TABLE_SHOW:
 		m_pTable->Toggle_View();
 		break;
@@ -281,6 +299,22 @@ bool CWKSP_PointCloud::On_Command_UI(wxUpdateUIEvent &event)
 	{
 	default:
 		return( CWKSP_Layer::On_Command_UI(event) );
+
+    case ID_CMD_SHAPES_EDIT_SEL_CLEAR:
+        event.Enable(Get_PointCloud()->Get_Selection_Count() > 0);
+        break;
+
+    case ID_CMD_SHAPES_EDIT_SEL_INVERT:
+        event.Enable(true);
+        break;
+
+    case ID_CMD_SHAPES_EDIT_DEL_SHAPE:
+        event.Enable(Get_PointCloud()->Get_Selection_Count() > 0);
+        break;
+
+    case ID_CMD_SHAPES_EDIT_SEL_COPY_TO_NEW_LAYER:
+        event.Enable(Get_PointCloud()->Get_Selection_Count() > 0);
+        break;
 
 	case ID_CMD_POINTCLOUD_LAST:
 		break;
@@ -779,6 +813,7 @@ wxMenu * CWKSP_PointCloud::Edit_Get_Menu(void)
 	wxMenu	*pMenu	= new wxMenu;
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_DEL_SHAPE);
+    CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_COPY_TO_NEW_LAYER);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_CLEAR);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_INVERT);
 

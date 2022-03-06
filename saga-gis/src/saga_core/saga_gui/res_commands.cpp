@@ -210,18 +210,19 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_GRIDS_FIT_PCTL  :		return( _TL("Histogram Stretch to Percentile") );
 	case ID_CMD_GRIDS_FIT_DIALOG:		return( _TL("Histogram Stretch Dialog") );
 
-	case ID_CMD_SHAPES_SAVE_ATTRIBUTES:	return( _TL("Save Attributes as...") );
-	case ID_CMD_SHAPES_EDIT_SHAPE:		return( _TL("Edit Selection") );
-	case ID_CMD_SHAPES_EDIT_SEL_CLEAR:	return( _TL("Clear Selection") );
-	case ID_CMD_SHAPES_EDIT_SEL_INVERT:	return( _TL("Invert Selection") );
-	case ID_CMD_SHAPES_EDIT_ADD_SHAPE:	return( _TL("Add Shape") );
-	case ID_CMD_SHAPES_EDIT_ADD_PART:	return( _TL("Add Part") );
-	case ID_CMD_SHAPES_EDIT_DEL_SHAPE:	return( _TL("Delete Selection") );
-	case ID_CMD_SHAPES_EDIT_DEL_PART:	return( _TL("Delete Selected Part") );
-	case ID_CMD_SHAPES_EDIT_DEL_POINT:	return( _TL("Delete Selected Point") );
-	case ID_CMD_SHAPES_EDIT_SPLIT:		return( _TL("Split with Line") );
-	case ID_CMD_SHAPES_EDIT_MERGE:		return( _TL("Merge Selection") );
-	case ID_CMD_SHAPES_EDIT_MOVE:		return( _TL("Move") );
+	case ID_CMD_SHAPES_SAVE_ATTRIBUTES:             return( _TL("Save Attributes as...") );
+	case ID_CMD_SHAPES_EDIT_SHAPE:                  return( _TL("Edit Selection") );
+	case ID_CMD_SHAPES_EDIT_SEL_CLEAR:              return( _TL("Clear Selection") );
+	case ID_CMD_SHAPES_EDIT_SEL_INVERT:             return( _TL("Invert Selection") );
+	case ID_CMD_SHAPES_EDIT_ADD_SHAPE:              return( _TL("Add Shape") );
+	case ID_CMD_SHAPES_EDIT_ADD_PART:               return( _TL("Add Part") );
+	case ID_CMD_SHAPES_EDIT_DEL_SHAPE:              return( _TL("Delete Selection") );
+	case ID_CMD_SHAPES_EDIT_DEL_PART:               return( _TL("Delete Selected Part") );
+	case ID_CMD_SHAPES_EDIT_DEL_POINT:              return( _TL("Delete Selected Point") );
+	case ID_CMD_SHAPES_EDIT_SPLIT:                  return( _TL("Split with Line") );
+	case ID_CMD_SHAPES_EDIT_MERGE:                  return( _TL("Merge Selection") );
+	case ID_CMD_SHAPES_EDIT_MOVE:                   return( _TL("Move") );
+    case ID_CMD_SHAPES_EDIT_SEL_COPY_TO_NEW_LAYER:  return( _TL("Copy Selection to new Layer") );
 
 	case ID_CMD_POINTCLOUD_RANGE_MINMAX:		return( _TL("Set Range to Minimum/Maximum") );
 	case ID_CMD_POINTCLOUD_RANGE_STDDEV150:		return( _TL("Set Range to Standard Deviation (1.5)") );

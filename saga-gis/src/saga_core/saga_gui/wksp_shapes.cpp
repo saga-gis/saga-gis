@@ -231,15 +231,16 @@ bool CWKSP_Shapes::On_Command(int Cmd_ID)
 	case ID_CMD_SHAPES_HISTOGRAM     :	Histogram_Toggle();	break;
 
 	//-----------------------------------------------------
-	case ID_CMD_SHAPES_EDIT_SHAPE    :	_Edit_Shape    ();	break;
-	case ID_CMD_SHAPES_EDIT_ADD_SHAPE:	_Edit_Shape_Add();	break;
-	case ID_CMD_SHAPES_EDIT_DEL_SHAPE:	_Edit_Shape_Del();	break;
-	case ID_CMD_SHAPES_EDIT_ADD_PART :	_Edit_Part_Add ();	break;
-	case ID_CMD_SHAPES_EDIT_DEL_PART :	_Edit_Part_Del ();	break;
-	case ID_CMD_SHAPES_EDIT_DEL_POINT:	_Edit_Point_Del();	break;
-	case ID_CMD_SHAPES_EDIT_MERGE    :	_Edit_Merge    ();	break;
-	case ID_CMD_SHAPES_EDIT_SPLIT    :	_Edit_Split    ();	break;
-	case ID_CMD_SHAPES_EDIT_MOVE     :	_Edit_Move     ();	break;
+	case ID_CMD_SHAPES_EDIT_SHAPE                :	_Edit_Shape             (); break;
+	case ID_CMD_SHAPES_EDIT_ADD_SHAPE            :	_Edit_Shape_Add         (); break;
+	case ID_CMD_SHAPES_EDIT_DEL_SHAPE            :	_Edit_Shape_Del         (); break;
+	case ID_CMD_SHAPES_EDIT_ADD_PART             :	_Edit_Part_Add          (); break;
+	case ID_CMD_SHAPES_EDIT_DEL_PART             :	_Edit_Part_Del          (); break;
+	case ID_CMD_SHAPES_EDIT_DEL_POINT            :	_Edit_Point_Del         (); break;
+	case ID_CMD_SHAPES_EDIT_MERGE                :	_Edit_Merge             (); break;
+	case ID_CMD_SHAPES_EDIT_SPLIT                :	_Edit_Split             (); break;
+	case ID_CMD_SHAPES_EDIT_MOVE                 :	_Edit_Move              (); break;
+    case ID_CMD_SHAPES_EDIT_SEL_COPY_TO_NEW_LAYER:  _Edit_Sel_Copy_New_Layer(); break;
 
 	case ID_CMD_SHAPES_EDIT_SEL_CLEAR:
 		Get_Shapes()->Select();
@@ -316,6 +317,10 @@ bool CWKSP_Shapes::On_Command_UI(wxUpdateUIEvent &event)
 	case ID_CMD_SHAPES_EDIT_SEL_INVERT:
 		event.Enable(m_Edit_pShape == NULL);
 		break;
+
+    case ID_CMD_SHAPES_EDIT_SEL_COPY_TO_NEW_LAYER:
+        event.Enable(m_Edit_pShape == NULL && Get_Shapes()->Get_Selection_Count() > 0);
+        break;
 
 	case ID_CMD_TABLE_SHOW:
 		event.Check(m_pTable->Get_View() != NULL);

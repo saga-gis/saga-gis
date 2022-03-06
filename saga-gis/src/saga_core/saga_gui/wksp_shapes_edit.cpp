@@ -99,6 +99,7 @@ wxMenu * CWKSP_Shapes::Edit_Get_Menu(void)
 		pMenu->AppendSeparator();
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_ADD_SHAPE);
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_DEL_SHAPE);
+        CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_COPY_TO_NEW_LAYER);
 		pMenu->AppendSeparator();
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_INVERT);
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_CLEAR);
@@ -732,6 +733,43 @@ bool CWKSP_Shapes::_Edit_Move(bool bToggle)
 	return( false );
 }
 
+
+//---------------------------------------------------------
+bool CWKSP_Shapes::_Edit_Sel_Copy_New_Layer(void)
+{
+    if( Get_Shapes()->Get_Selection_Count() < 1 )
+    {
+        return( false );
+    }
+
+    CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("shapes_tools", 6);  // Copy Selection to New Shapes Layer
+
+    if(	pTool )
+    {
+        CSG_Shapes *pCopy = new CSG_Shapes();
+
+        pTool->Set_Manager(NULL);
+
+        bool bResult = pTool->Get_Parameters()->Set_Parameter("INPUT" , Get_Shapes())
+                 &&    pTool->Get_Parameters()->Set_Parameter("OUTPUT", pCopy)
+                 &&    pTool->Execute();
+
+        SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+        if( bResult )
+        {
+            SG_UI_DataObject_Add(pCopy, false);
+        }
+        else
+        {
+            delete( pCopy );
+        }
+
+        return( bResult );
+    }
+
+    return( false );
+}
 
 ///////////////////////////////////////////////////////////
 //														 //

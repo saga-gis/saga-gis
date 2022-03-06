@@ -174,6 +174,7 @@ bool CWKSP_Map_Layer::On_Command(int Cmd_ID)
 	case ID_CMD_SHAPES_EDIT_DEL_POINT:
 	case ID_CMD_SHAPES_EDIT_SEL_CLEAR:
 	case ID_CMD_SHAPES_EDIT_SEL_INVERT:
+    case ID_CMD_SHAPES_EDIT_SEL_COPY_TO_NEW_LAYER:
 		return( m_pLayer->On_Command(Cmd_ID) );
 
 	case ID_CMD_WKSP_ITEM_RETURN:
@@ -241,6 +242,7 @@ bool CWKSP_Map_Layer::On_Command_UI(wxUpdateUIEvent &event)
 	case ID_CMD_SHAPES_EDIT_DEL_POINT:
 	case ID_CMD_SHAPES_EDIT_SEL_CLEAR:
 	case ID_CMD_SHAPES_EDIT_SEL_INVERT:
+    case ID_CMD_SHAPES_EDIT_SEL_COPY_TO_NEW_LAYER:
 		return( m_pLayer->On_Command_UI(event) );
 
 	case ID_CMD_MAPS_LAYER_SHOW:
