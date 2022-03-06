@@ -1518,7 +1518,7 @@ bool CSG_PointCloud::Select(int iRecord, bool bInvert)
 //---------------------------------------------------------
 bool CSG_PointCloud::Select(CSG_Shape *pShape, bool bInvert)
 {
-	return( false );
+    return( CSG_Table::Select(pShape, bInvert) );
 }
 
 //---------------------------------------------------------
