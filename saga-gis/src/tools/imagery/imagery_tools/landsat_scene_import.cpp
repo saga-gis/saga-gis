@@ -158,10 +158,11 @@ CLandsat_Scene_Import::CLandsat_Scene_Import(void)
 	Parameters.Add_Choice("",
 		"PROJECTION"	, _TL("Coordinate System"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("UTM North"),
 			_TL("UTM South"),
-			_TL("Geographic Coordinates")
+			_TL("Geographic Coordinates"),
+			_TL("Different UTM Zone")
 		), 0
 	);
 
@@ -174,6 +175,18 @@ CLandsat_Scene_Import::CLandsat_Scene_Import(void)
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
 		), 3
+	);
+
+	Parameters.Add_Int("PROJECTION",
+		"UTM_ZONE"		, _TL("Zone"),
+		_TL(""),
+		32, 1, true, 60, true
+	);
+
+	Parameters.Add_Bool("PROJECTION",
+		"UTM_SOUTH"		, _TL("South"),
+		_TL(""),
+		false
 	);
 
 	//-----------------------------------------------------
@@ -270,7 +283,9 @@ int CLandsat_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 
 	if( pParameter->Cmp_Identifier("PROJECTION") )
 	{
-		pParameters->Set_Enabled("RESAMPLING", pParameter->asInt() == 2);
+		pParameters->Set_Enabled("RESAMPLING", pParameter->asInt() >= 2);
+		pParameters->Set_Enabled("UTM_ZONE"  , pParameter->asInt() == 3);
+		pParameters->Set_Enabled("UTM_SOUTH" , pParameter->asInt() == 3);
 	}
 
 	if(	pParameter->Cmp_Identifier("EXTENT") )
@@ -939,10 +954,14 @@ CSG_Grid * CLandsat_Scene_Import::Load_Grid(const CSG_String &File)
 //---------------------------------------------------------
 CSG_Grid * CLandsat_Scene_Import::Load_Band(const CSG_String &File)
 {
+	SG_UI_Msg_Lock(true);
 	CSG_Grid	*pBand	= Load_Grid(File);
+	SG_UI_Msg_Lock(false);
 
 	if( !pBand )
 	{
+		Message_Fmt("\n%s [%s]", _TL("loading failed"), File.c_str());
+
 		return( NULL );
 	}
 
@@ -954,7 +973,7 @@ CSG_Grid * CLandsat_Scene_Import::Load_Band(const CSG_String &File)
 	}
 
 	//-----------------------------------------------------
-	else if( Parameters("PROJECTION")->asInt() != 2 ) // UTM
+	else if( Parameters("PROJECTION")->asInt() <= 1 ) // UTM
 	{
 		CSG_Grid	*pTmp	= pBand;
 
@@ -1015,6 +1034,41 @@ CSG_Grid * CLandsat_Scene_Import::Load_Band(const CSG_String &File)
 			}
 
 			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+		}
+	}
+
+	//-----------------------------------------------------
+	else if( Parameters("PROJECTION")->asInt() == 3 )	// Different UTM Zone
+	{
+		CSG_Projection Projection = CSG_Projections::Get_UTM_WGS84(
+			Parameters("UTM_ZONE" )->asInt (),
+			Parameters("UTM_SOUTH")->asBool()
+		);
+
+		if( !Projection.is_Equal(pBand->Get_Projection()) )
+		{
+			CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4);	// Coordinate Transformation (Grid)
+
+			if(	pTool )
+			{
+				Message_Fmt("\n%s (%s: %s >> %s)\n", _TL("re-projection to different UTM Zone"), _TL("original"), pBand->Get_Projection().Get_Proj4().c_str(), Projection.Get_Proj4().c_str());
+
+				pTool->Set_Manager(NULL);
+
+				if( pTool->Set_Parameter("CRS_PROJ4"       , Projection.Get_Proj4())
+				&&  pTool->Set_Parameter("SOURCE"          , pBand)
+				&&  pTool->Set_Parameter("RESAMPLING"      , Parameters("RESAMPLING"))
+				&&  pTool->Set_Parameter("KEEP_TYPE"       , true)
+				&&  pTool->Set_Parameter("TARGET_USER_SIZE", pBand->Get_Cellsize())
+				&&  pTool->Execute() )
+				{
+					delete(pBand);
+
+					pBand	= pTool->Get_Parameters()->Get_Parameter("GRID")->asGrid();
+				}
+
+				SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+			}
 		}
 	}
 
