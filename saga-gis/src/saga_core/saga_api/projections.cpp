@@ -900,6 +900,16 @@ const CSG_Projection & CSG_Projections::Get_GCS_WGS84(void)
 	return( Projection );
 }
 
+//---------------------------------------------------------
+CSG_Projection CSG_Projections::Get_UTM_WGS84(int Zone, bool bSouth)
+{
+	CSG_Projection Projection;
+
+	Projection.Set_UTM_WGS84(Zone, bSouth);
+
+	return( Projection );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

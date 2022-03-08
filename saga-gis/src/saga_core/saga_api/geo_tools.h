@@ -873,6 +873,7 @@ public:
 	bool							EPSG_to_WKT				(CSG_String &WKT  , int EPSG_Code)				const;
 
 	static const CSG_Projection &	Get_GCS_WGS84			(void);
+	static CSG_Projection			Get_UTM_WGS84			(int Zone, bool bSouth = false);
 
 
 private:
