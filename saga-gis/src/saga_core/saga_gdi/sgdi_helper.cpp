@@ -342,7 +342,7 @@ void			Draw_Text			(wxDC &dc, int Align, int x, int y, double Angle, const wxStr
 #define TEXTSPACE	6
 
 //---------------------------------------------------------
-void		Draw_Scale(wxDC &dc, const wxRect &r, double zMin, double zMax, int Orientation, int Tick, int Style, const wxString &Unit)
+void		Draw_Scale(wxDC &dc, const wxRect &r, double zMin, double zMax, int Orientation, int Tick, int Style, const wxString &Unit, bool bUseDCFont)
 {
 	//-----------------------------------------------------
 	int	Width	= Orientation != SCALE_VERTICAL ? r.GetWidth() : r.GetHeight();
@@ -381,10 +381,18 @@ void		Draw_Scale(wxDC &dc, const wxRect &r, double zMin, double zMax, int Orient
 	wxBrush	oldBrush(dc.GetBrush());
 	wxFont	oldFont (dc.GetFont ());
 
-	dc.SetFont(wxFont(
-		(int)((Tick == SCALE_TICK_NONE ? 0.60 : 0.45) * (double)Height),
-		wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL
-	));
+	if( bUseDCFont )
+	{
+		wxFont Font(dc.GetFont());
+		Font.SetPointSize((int)((Tick == SCALE_TICK_NONE ? 0.60 : 0.45) * (double)Height));
+		dc.SetFont(Font);
+	}
+	else
+	{
+		dc.SetFont(wxFont((int)((Tick == SCALE_TICK_NONE ? 0.60 : 0.45) * (double)Height),
+			wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL
+		));
+	}
 
 	//-----------------------------------------------------
 	double	zToDC		= (double)Width / (zMax - zMin);

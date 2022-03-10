@@ -910,9 +910,8 @@ void CVIEW_Table_Diagram_Control::_Draw_Frame(wxDC &dc, wxRect r, double dx, dou
 	dc.SetFont(Font);
 
 	//-----------------------------------------------------
-	Draw_Scale(dc, wxRect(r.GetLeft() - 20, r.GetTop(), 20, r.GetHeight()),	// Y Axis
-		m_yMin, m_yMax,
-		false, false, false
+	Draw_Scale(dc, wxRect(r.GetLeft() - 20, r.GetTop(), 20, r.GetHeight()),	m_yMin, m_yMax, // Y Axis
+		SCALE_VERTICAL, SCALE_TICK_BOTTOM, SCALE_STYLE_DESCENDENT, "", true
 	);
 
 	//-----------------------------------------------------
@@ -920,9 +919,8 @@ void CVIEW_Table_Diagram_Control::_Draw_Frame(wxDC &dc, wxRect r, double dx, dou
 	{
 		if( m_pTable->Get_Field_Type(m_xField) != SG_DATATYPE_Date )
 		{
-			Draw_Scale(dc, wxRect(r.GetLeft(), r.GetBottom(), r.GetWidth(), 20),
-				m_xMin, m_xMax,
-				true , true , true
+			Draw_Scale(dc, wxRect(r.GetLeft(), r.GetBottom(), r.GetWidth(), 20), m_xMin, m_xMax,
+				SCALE_HORIZONTAL , SCALE_TICK_TOP , SCALE_STYLE_DEFAULT, "", true
 			);
 		}
 		else // if( m_pTable->Get_Field_Type(m_xField) == SG_DATATYPE_Date )
@@ -949,9 +947,8 @@ void CVIEW_Table_Diagram_Control::_Draw_Frame(wxDC &dc, wxRect r, double dx, dou
 
 		if( iLabel < 0 || iLabel >= m_pTable->Get_Field_Count() )
 		{
-			Draw_Scale(dc, wxRect(r.GetLeft(), r.GetBottom(), r.GetWidth(), 20),
-				1, m_pTable->Get_Count(),
-				true , true , true
+			Draw_Scale(dc, wxRect(r.GetLeft(), r.GetBottom(), r.GetWidth(), 20), 1, m_pTable->Get_Count(),
+				SCALE_HORIZONTAL , SCALE_TICK_TOP , SCALE_STYLE_DEFAULT, "", true
 			);
 		}
 		else

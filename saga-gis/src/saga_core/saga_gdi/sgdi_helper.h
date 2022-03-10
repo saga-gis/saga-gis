@@ -160,7 +160,7 @@ SGDI_API_DLL_EXPORT void	Draw_Text	(wxDC &dc, int Align, int x, int y, double An
 #define SCALE_STYLE_UNIT_BELOW	0x40
 
 //---------------------------------------------------------
-SGDI_API_DLL_EXPORT void	Draw_Scale	(wxDC &dc, const wxRect &r, double min_Value, double max_Value, int Orientation = SCALE_HORIZONTAL, int Tick = SCALE_TICK_NONE, int Style = SCALE_STYLE_DEFAULT, const wxString &Unit = "");
+SGDI_API_DLL_EXPORT void	Draw_Scale	(wxDC &dc, const wxRect &r, double min_Value, double max_Value, int Orientation = SCALE_HORIZONTAL, int Tick = SCALE_TICK_NONE, int Style = SCALE_STYLE_DEFAULT, const wxString &Unit = "", bool bUseDCFont = false);
 SGDI_API_DLL_EXPORT void	Draw_Scale	(wxDC &dc, const wxRect &r, double min_Value, double max_Value, bool bHorizontal, bool bAscendent, bool bTickAtTop);
 
 SGDI_API_DLL_EXPORT bool	Draw_Ruler	(wxDC &dc, const wxRect &r, bool bHorizontal, double zMin, double zMax, bool bAscendent = true, int FontSize = 7, const wxColour &Colour = wxColour(127, 127, 127));
