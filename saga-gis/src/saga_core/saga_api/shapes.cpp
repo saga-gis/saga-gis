@@ -281,7 +281,15 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 	}
 	else
 	{
-		bResult	= _Load_ESRI(File_Name) || _Load_GDAL(File_Name);
+		if( SG_File_Cmp_Extension(File_Name, "shp") )
+		{
+			bResult	= _Load_ESRI(File_Name);
+		}
+
+		if( !bResult )
+		{
+			bResult	= _Load_GDAL(File_Name);
+		}
 	}
 
 	//-----------------------------------------------------
