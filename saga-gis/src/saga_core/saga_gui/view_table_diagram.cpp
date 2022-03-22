@@ -105,6 +105,8 @@ private:
 
 	int								m_xField;
 
+	CSG_Index						m_xIndex;
+
 	double							m_xMin, m_xMax, m_yMin, m_yMax, m_yScale;
 
 	CSG_Array_Int					m_Fields;
@@ -126,6 +128,7 @@ private:
 	static int						_On_Parameter_Changed	(CSG_Parameter *pParameter, int Flags);
 
 	int								_Get_Field_By_Name		(const CSG_String &sField);
+	CSG_Table_Record *				_Get_Record				(int iRecord);
 
 	void							_Draw					(wxDC &dc, wxRect r);
 	void							_Draw_Frame				(wxDC &dc, wxRect r, double dx, double dy);
@@ -431,6 +434,7 @@ void CVIEW_Table_Diagram_Control::SaveToClipboard(void)
 void CVIEW_Table_Diagram_Control::_Destroy(void)
 {
 	m_Fields.Destroy();
+	m_xIndex.Destroy();
 }
 
 //---------------------------------------------------------
@@ -445,19 +449,16 @@ bool CVIEW_Table_Diagram_Control::_Create(void)
 
 		if( m_xField < 0 || m_pTable->Get_Range(m_xField) <= 0. )
 		{
-			m_xMin		= 1;
-			m_xMax		= 1 + m_pTable->Get_Count();
-			m_xField	= -1;
-		}
-		else if( m_pTable->Get_Field_Type(m_xField) == SG_DATATYPE_Date )
-		{
-			m_xMin		= m_pTable->Get_Minimum(m_xField);
-			m_xMax		= m_pTable->Get_Maximum(m_xField);
+			m_xField = -1;
+			m_xMin   = 1;
+			m_xMax   = m_pTable->Get_Count();
 		}
 		else
 		{
-			m_xMin		= m_pTable->Get_Minimum(m_xField);
-			m_xMax		= m_pTable->Get_Maximum(m_xField);
+			m_xMin   = m_pTable->Get_Minimum(m_xField);
+			m_xMax   = m_pTable->Get_Maximum(m_xField);
+
+			m_pTable->Set_Index(m_xIndex, m_xField);
 		}
 
 		//-------------------------------------------------
@@ -774,6 +775,15 @@ int CVIEW_Table_Diagram_Control::_Get_Field_By_Name(const CSG_String &sField)
 	return( -1 );
 }
 
+//---------------------------------------------------------
+inline CSG_Table_Record * CVIEW_Table_Diagram_Control::_Get_Record(int iRecord)
+{
+	return( !m_pTable ? NULL : m_xField >= 0 && m_xIndex.Get_Count() == m_pTable->Get_Count()
+		? m_pTable->Get_Record(m_xIndex[iRecord])
+		: m_pTable->Get_Record_byIndex( iRecord )
+	);
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -961,7 +971,7 @@ void CVIEW_Table_Diagram_Control::_Draw_Frame(wxDC &dc, wxRect r, double dx, dou
 
 				dc.DrawLine(ix, r.GetBottom(), ix, r.GetBottom() + 5);
 
-				CSG_Table_Record *pRecord = m_pTable->Get_Record_byIndex(iRecord);
+				CSG_Table_Record *pRecord = _Get_Record(iRecord);
 
 				Draw_Text(dc, TEXTALIGN_CENTERRIGHT, ix, r.GetBottom() + 7, 45., pRecord->asString(iLabel));
 			}
@@ -1023,7 +1033,7 @@ void CVIEW_Table_Diagram_Control::_Draw_Points(wxDC &dc, wxRect r, double dx, do
 
 		for(int iRecord=0; iRecord<m_pTable->Get_Count(); iRecord++)
 		{
-			CSG_Table_Record	*pRecord	= m_pTable->Get_Record_byIndex(iRecord);
+			CSG_Table_Record *pRecord = _Get_Record(iRecord);
 
 			if( !pRecord->is_NoData(iField) && (m_pTable->Get_Selection_Count() < 1 || pRecord->is_Selected()) )
 			{
@@ -1044,7 +1054,7 @@ void CVIEW_Table_Diagram_Control::_Draw_Points(wxDC &dc, wxRect r, double dx, do
 
 		for(int iRecord=0; iRecord<m_pTable->Get_Count(); iRecord++)
 		{
-			CSG_Table_Record	*pRecord	= m_pTable->Get_Record_byIndex(iRecord);
+			CSG_Table_Record *pRecord = _Get_Record(iRecord);
 
 			if( !pRecord->is_NoData(iField) && (m_pTable->Get_Selection_Count() < 1 || pRecord->is_Selected()) )
 			{
@@ -1078,7 +1088,7 @@ void CVIEW_Table_Diagram_Control::_Draw_Lines(wxDC &dc, wxRect r, double dx, dou
 
 		for(int iRecord=0, bLast=0, xLast, yLast; iRecord<m_pTable->Get_Count(); iRecord++)
 		{
-			CSG_Table_Record	*pRecord	= m_pTable->Get_Record_byIndex(iRecord);
+			CSG_Table_Record *pRecord = _Get_Record(iRecord);
 
 			if( !pRecord->is_NoData(iField) && (m_pTable->Get_Selection_Count() < 1 || pRecord->is_Selected()) )
 			{
@@ -1116,7 +1126,7 @@ void CVIEW_Table_Diagram_Control::_Draw_Bars(wxDC &dc, wxRect r, double dx, doub
 
 	for(int iRecord=0; iRecord<m_pTable->Get_Count(); iRecord++)
 	{
-		CSG_Table_Record	*pRecord	= m_pTable->Get_Record_byIndex(iRecord);
+		CSG_Table_Record *pRecord = _Get_Record(iRecord);
 
 		if( !pRecord->is_NoData(iField) && (m_pTable->Get_Selection_Count() < 1 || pRecord->is_Selected()) )
 		{
