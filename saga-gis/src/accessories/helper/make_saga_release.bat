@@ -203,18 +203,20 @@ MKDIR SAGA-Python-API
 PUSHD SAGA-Python-API
 
 SET SAGA_LIBDIR=%SAGA_DIR_WIN32%
-CMD /C CALL ..\..\make_python_api.bat 27 win32 true false F:\develop\libs\Python\_win32\Python-2.7.10
-CMD /C CALL ..\..\make_python_api.bat 36 win32 true false F:\develop\libs\Python\_win32\Python-3.6.14
-CMD /C CALL ..\..\make_python_api.bat 37 win32 true false F:\develop\libs\Python\_win32\Python-3.7.11
-CMD /C CALL ..\..\make_python_api.bat 38 win32 true false F:\develop\libs\Python\_win32\Python-3.8.11
-CMD /C CALL ..\..\make_python_api.bat 39 win32 true false F:\develop\libs\Python\_win32\Python-3.9.7
+CMD /C CALL ..\..\make_python_api.bat 27  win32 true false F:\develop\libs\Python\_win32\Python-2.7
+CMD /C CALL ..\..\make_python_api.bat 36  win32 true false F:\develop\libs\Python\_win32\Python-3.6
+CMD /C CALL ..\..\make_python_api.bat 37  win32 true false F:\develop\libs\Python\_win32\Python-3.7
+CMD /C CALL ..\..\make_python_api.bat 38  win32 true false F:\develop\libs\Python\_win32\Python-3.8
+CMD /C CALL ..\..\make_python_api.bat 39  win32 true false F:\develop\libs\Python\_win32\Python-3.9
+CMD /C CALL ..\..\make_python_api.bat 310 win32 true false F:\develop\libs\Python\_win32\Python-3.10
 
 SET SAGA_LIBDIR=%SAGA_DIR_X64%
-CMD /C CALL ..\..\make_python_api.bat 27 x64 true false F:\develop\libs\Python\Python-2.7.10
-CMD /C CALL ..\..\make_python_api.bat 36 x64 true false F:\develop\libs\Python\Python-3.6.14
-CMD /C CALL ..\..\make_python_api.bat 37 x64 true false F:\develop\libs\Python\Python-3.7.11
-CMD /C CALL ..\..\make_python_api.bat 38 x64 true false F:\develop\libs\Python\Python-3.8.11
-CMD /C CALL ..\..\make_python_api.bat 39 x64 true true  F:\develop\libs\Python\Python-3.9.7
+CMD /C CALL ..\..\make_python_api.bat 27  x64 true false F:\develop\libs\Python\Python-2.7
+CMD /C CALL ..\..\make_python_api.bat 36  x64 true false F:\develop\libs\Python\Python-3.6
+CMD /C CALL ..\..\make_python_api.bat 37  x64 true false F:\develop\libs\Python\Python-3.7
+CMD /C CALL ..\..\make_python_api.bat 38  x64 true false F:\develop\libs\Python\Python-3.8
+CMD /C CALL ..\..\make_python_api.bat 39  x64 true false F:\develop\libs\Python\Python-3.9
+CMD /C CALL ..\..\make_python_api.bat 310 x64 true true  F:\develop\libs\Python\Python-3.10
 
 POPD
 
