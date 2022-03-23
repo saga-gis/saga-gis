@@ -306,12 +306,19 @@ void CSG_Data_Object::Set_File_Name	(const CSG_String &FileName)
 //---------------------------------------------------------
 void CSG_Data_Object::Set_File_Name(const CSG_String &FileName, bool bNative)
 {
-	m_FileName		= FileName;
-	m_File_bNative	= bNative;
-
-	m_Name			= SG_File_Get_Name(FileName, false);
-
-	m_bModified		= false;
+	if( SG_File_Exists(FileName) )
+	{
+		m_FileName		= FileName;
+		m_File_bNative	= bNative;
+		m_bModified		= false;
+		m_Name			= SG_File_Get_Name(FileName, false);
+	}
+	else
+	{
+		m_FileName      .Clear();
+		m_File_bNative	= false;
+		m_bModified		= true;
+	}
 }
 
 //---------------------------------------------------------
