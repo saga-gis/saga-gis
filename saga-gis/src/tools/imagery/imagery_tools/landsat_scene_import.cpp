@@ -399,6 +399,11 @@ bool CLandsat_Scene_Import::On_Execute(void)
 			pBand->Get_MetaData().Add_Child(Info_Scene)->Set_Name("LANDSAT");
 			pBand->Set_Description(Info_Scene.asText());
 
+			if( is_Panchromatic(Sensor, i) )
+			{
+				DataObject_Add(pBand); DataObject_Set_Colors(pBand, 2, SG_COLORS_BLACK_WHITE);
+			}
+
 			if( bMultiGrids && is_Multispectral(Sensor, i) && !is_Aerosol(Sensor, i) && !is_Cirrus(Sensor, i) )
 			{
 				if( pBands == NULL )
@@ -1073,6 +1078,8 @@ CSG_Grid * CLandsat_Scene_Import::Load_Band(const CSG_String &File)
 	}
 
 	//-----------------------------------------------------
+	pBand->Set_File_Name("");
+
 	return( pBand );
 }
 
