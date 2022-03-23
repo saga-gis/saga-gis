@@ -857,6 +857,26 @@ CWKSP_Base_Item * CWKSP_Data_Manager::Open(const wxString &File, int DataType)
 //---------------------------------------------------------
 bool CWKSP_Data_Manager::Open(const wxString &File)
 {
+	if( SG_File_Cmp_Extension(&File, "txt") && File.Right(8).CmpNoCase("_MTL.txt") == 0 )
+	{
+		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Get_Tool("imagery_tools", 14); // Import Landsat Scene
+
+		return(	pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("METAFILE", &File)
+			&& DLG_Parameters(pTool->Get_Parameters()) && pTool->Execute()
+		);
+	}
+
+	//-----------------------------------------------------
+	if( SG_File_Cmp_Extension(&File, "xml") && SG_File_Get_Name(&File, false).Find("MTD_MSI") == 0 )
+	{
+		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Get_Tool("imagery_tools", 15); // Import Sentinel-2 Scene
+
+		return(	pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("METAFILE", &File)
+			&& DLG_Parameters(pTool->Get_Parameters()) && pTool->Execute()
+		);
+	}
+
+	//-----------------------------------------------------
 	if( SG_File_Cmp_Extension(&File, "sprj") )
 	{
 		return( m_pProject->Load(File, false, true) );

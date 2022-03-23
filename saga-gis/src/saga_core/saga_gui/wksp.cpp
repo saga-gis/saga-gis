@@ -395,15 +395,15 @@ void CWKSP::On_Command_UI_Tool(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 bool CWKSP::Open(void)
 {
-	wxArrayString	File_Paths;
+	wxArrayString	Files;
 
-	if( DLG_Open(File_Paths, ID_DLG_FILE_OPEN) )
+	if( DLG_Open(Files, ID_DLG_FILE_OPEN) )
 	{
 		MSG_General_Add_Line();
 
-		for(size_t i=0; i<File_Paths.GetCount(); i++)
+		for(size_t i=0; i<Files.GetCount(); i++)
 		{
-			Open(File_Paths[i]);
+			Open(Files[i]);
 		}
 
 		return( true );
@@ -413,10 +413,10 @@ bool CWKSP::Open(void)
 }
 
 //---------------------------------------------------------
-bool CWKSP::Open(const wxString &File_Name)
+bool CWKSP::Open(const wxString &File)
 {
-	return(	m_pTools->Get_Manager()->Open(File_Name)
-		||  m_pData ->Get_Manager()->Open(File_Name)
+	return(	m_pData ->Get_Manager()->Open(File)
+		||  m_pTools->Get_Manager()->Open(File)
 	);
 }
 
