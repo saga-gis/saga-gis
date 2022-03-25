@@ -50,15 +50,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//					class CData_Object					 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "dataobject.h"
 
 #include <wx/string.h>
@@ -306,18 +297,18 @@ void CSG_Data_Object::Set_File_Name	(const CSG_String &FileName)
 //---------------------------------------------------------
 void CSG_Data_Object::Set_File_Name(const CSG_String &FileName, bool bNative)
 {
-	if( SG_File_Exists(FileName) )
+	if( FileName.is_Empty() )
+	{
+		m_FileName      .Clear();
+		m_File_bNative	= false;
+		m_bModified		= true;
+	}
+	else
 	{
 		m_FileName		= FileName;
 		m_File_bNative	= bNative;
 		m_bModified		= false;
 		m_Name			= SG_File_Get_Name(FileName, false);
-	}
-	else
-	{
-		m_FileName      .Clear();
-		m_File_bNative	= false;
-		m_bModified		= true;
 	}
 }
 
