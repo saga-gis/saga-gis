@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{066F3C43-B3D4-4DA3-85A1-E8689911D75D}</ProjectGuid>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -39,7 +39,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -318,6 +318,7 @@
     </ClCompile>
     <ClCompile Include="overland_flow.cpp" />
     <ClCompile Include="soilwater_glugla.cpp" />
+    <ClCompile Include="soilwater_glugla_coefficient.cpp" />
     <ClCompile Include="timed_flow_accumulation.cpp" />
     <ClCompile Include="topmodel.cpp" />
     <ClCompile Include="topmodel_values.cpp" />
@@ -347,6 +348,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
     <ClInclude Include="overland_flow.h" />
     <ClInclude Include="soilwater_glugla.h" />
+    <ClInclude Include="soilwater_glugla_coefficient.h" />
     <ClInclude Include="timed_flow_accumulation.h" />
     <ClInclude Include="topmodel.h" />
     <ClInclude Include="topmodel_values.h" />

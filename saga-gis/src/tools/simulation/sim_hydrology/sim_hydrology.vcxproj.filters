@@ -47,6 +47,9 @@
     <ClCompile Include="soilwater_glugla.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="soilwater_glugla_coefficient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h">
@@ -128,6 +131,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="soilwater_glugla.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="soilwater_glugla_coefficient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
