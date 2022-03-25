@@ -1,7 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
-
 ///////////////////////////////////////////////////////////
 //                                                       //
 //                         SAGA                          //
@@ -55,9 +51,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -65,135 +61,63 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//				Construction/Destruction				 //
-//														 //
+//                                                       //
+//              Construction/Destruction                 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CPC_Transform::CPC_Transform(void)
 {
-	CSG_Parameter *pNode_0, *pNode_1;
+    //-----------------------------------------------------
+    Set_Name(_TL("Transform Point Cloud"));
 
-	//-----------------------------------------------------
-	Set_Name(_TL("Transform Point Cloud"));
+    Set_Author(_TL("V. Wichmann (c) 2010"));
 
-	Set_Author(_TL("Volker Wichmann (c) 2010, LASERDATA GmbH"));
+    Set_Description (_TW(
+        "The tool allows one to move, rotate and/or scale a point cloud.\n\n")
+    );
 
-	Set_Description	(_TW(
-		"The tool can be used to shift, rotate and/or scale a Point Cloud.\n\n")
-	);
+    //-----------------------------------------------------
+    Parameters.Add_PointCloud("",
+        "IN"    , _TL("Input"),
+        _TL("The input point cloud."),
+        PARAMETER_INPUT
+    );
 
+    Parameters.Add_PointCloud("",
+        "OUT"   , _TL("Output"), 
+        _TL("The transformed output point cloud."),
+        PARAMETER_OUTPUT
+    );
 
-	//-----------------------------------------------------
-	Parameters.Add_PointCloud(
-		NULL	, "IN"		, _TL("Input"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
+    //-----------------------------------------------------
+    Parameters.Add_Node("", "MOVE"      , _TL("Translation")    , _TL("The amount in map units that vertices will be moved."));
 
-	Parameters.Add_PointCloud(
-		NULL	, "OUT"		, _TL("Output"), 
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
+    Parameters.Add_Double("MOVE"    , "DX"      , _TL("dX")         , _TL("The shift along the x-axis [map units].")        , 0.0);
+    Parameters.Add_Double("MOVE"    , "DY"      , _TL("dY")         , _TL("The shift along the y-axis [map units].")        , 0.0);
+    Parameters.Add_Double("MOVE"    , "DZ"      , _TL("dZ")         , _TL("The shift along the z-axis [map units].")        , 0.0);
 
-	//-----------------------------------------------------
-	pNode_0	= Parameters.Add_Node(
-		NULL	, "MOVE"	, _TL("Move"),
-		_TL("")
-	);
+    //-----------------------------------------------------
+    Parameters.Add_Node("", "ROTATE"    , _TL("Rotation")       , _TL("The rotation angles around coordinate axes in degree counting clockwise."));
+    
+    Parameters.Add_Double("ROTATE"  , "ANGLEX"  , _TL("Angle X")    , _TL("Angle in degrees, clockwise around x-axis.")     , 0.0);
+    Parameters.Add_Double("ROTATE"  , "ANGLEY"  , _TL("Angle Y")    , _TL("Angle in degrees, clockwise around y-axis.")     , 0.0);
+    Parameters.Add_Double("ROTATE"  , "ANGLEZ"  , _TL("Angle Z")    , _TL("Angle in degrees, clockwise around z-axis.")     , 0.0);
 
-	pNode_1 = Parameters.Add_Value(
-		pNode_0	, "DX"		, _TL("dX"), 
-		_TL("dX (Map Units)"), 
-		PARAMETER_TYPE_Double, 0.0
-	);
+    //-----------------------------------------------------
+    Parameters.Add_Node("", "SCALE"     , _TL("Scaling")        , _TL("The scale factors to apply."));
 
-	pNode_1 = Parameters.Add_Value(
-		pNode_0, "DY"		, _TL("dY"), 
-		_TL("dY (Map Units)"), 
-		PARAMETER_TYPE_Double, 0.0
-	);
+    Parameters.Add_Double("SCALE"   , "SCALEX"  , _TL("Scale Factor X") , _TL("The scale factor in x-direction.")           , 1.0);
+    Parameters.Add_Double("SCALE"   , "SCALEY"  , _TL("Scale Factor Y") , _TL("The scale factor in y-direction.")           , 1.0);
+    Parameters.Add_Double("SCALE"   , "SCALEZ"  , _TL("Scale Factor Z") , _TL("The scale factor in z-direction.")           , 1.0);
 
-	pNode_1 = Parameters.Add_Value(
-		pNode_0, "DZ"		, _TL("dZ"),
-		_TL("dZ (Map Units)"),
-		PARAMETER_TYPE_Double, 0.0
-		);
+    //-----------------------------------------------------
+    Parameters.Add_Node("", "ANCHOR"    , _TL("Anchor Point")   , _TL("The anchor point for scaling and rotation."));
 
-	//-----------------------------------------------------
-	pNode_0	= Parameters.Add_Node(
-		NULL	, "ROTATE"	,
-		_TL("Rotate"),
-		_TL(""));
-	
-	pNode_1 = Parameters.Add_Value(
-		pNode_0	, "ANGLEX"	, _TL("Angle X"),
-		_TL("Angle in degrees, clockwise around x axis"),
-		PARAMETER_TYPE_Double, 0.0
-	);
-
-	pNode_1 = Parameters.Add_Value(
-		pNode_0	, "ANGLEY"	, _TL("Angle Y"),
-		_TL("Angle in degrees, clockwise around y axis"),
-		PARAMETER_TYPE_Double, 0.0
-		);
-
-	pNode_1 = Parameters.Add_Value(
-		pNode_0	, "ANGLEZ"	, _TL("Angle Z"),
-		_TL("Angle in degrees, clockwise around z axis"),
-		PARAMETER_TYPE_Double, 0.0
-		);
-
-	//-----------------------------------------------------
-	pNode_0	= Parameters.Add_Node(
-		NULL	, "SCALE"	, _TL("Scale"),
-		_TL("")
-	);
-
-	pNode_1 = Parameters.Add_Value(
-		pNode_0	, "SCALEX"	, _TL("Scale Factor X"), 
-		_TL("Scale Factor X"), 
-		PARAMETER_TYPE_Double, 1.0
-	);
-
-	pNode_1 = Parameters.Add_Value(
-		pNode_0	, "SCALEY"	, _TL("Scale Factor Y"), 
-		_TL("Scale Factor Y"), 
-		PARAMETER_TYPE_Double, 1.0
-	);
-
-	pNode_1 = Parameters.Add_Value(
-		pNode_0	, "SCALEZ"	, _TL("Scale Factor Z"),
-		_TL("Scale Factor Z"),
-		PARAMETER_TYPE_Double, 1.0
-		);
-
-
-	//-----------------------------------------------------
-	pNode_0	= Parameters.Add_Node(
-		NULL	, "ANCHOR"	, _TL("Anchor Point"),
-		_TL("")
-	);
-
-	pNode_1 = Parameters.Add_Value(
-		pNode_0	, "ANCHORX"	, _TL("X"), 
-		_TL("X"), 
-		PARAMETER_TYPE_Double, 0.0
-	);
-
-	pNode_1 = Parameters.Add_Value(
-		pNode_0	, "ANCHORY"	, _TL("Y"), 
-		_TL("Y"), 
-		PARAMETER_TYPE_Double, 0.0
-	);
-
-	pNode_1 = Parameters.Add_Value(
-		pNode_0	, "ANCHORZ"	, _TL("Z"),
-		_TL("Z"),
-		PARAMETER_TYPE_Double, 0.0
-		);
+    Parameters.Add_Double("ANCHOR"  , "ANCHORX" , _TL("X")              , _TL("The x-coordinate of the anchor point.")      , 0.0);
+    Parameters.Add_Double("ANCHOR"  , "ANCHORY" , _TL("Y")              , _TL("The y-coordinate of the anchor point.")      , 0.0);
+    Parameters.Add_Double("ANCHOR"  , "ANCHORZ" , _TL("Z")              , _TL("The z-coordinate of the anchor point.")      , 0.0);
 }
 
 //---------------------------------------------------------
@@ -202,113 +126,131 @@ CPC_Transform::~CPC_Transform(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CPC_Transform::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+    if( pParameter->Cmp_Identifier("IN") && pParameter->asPointCloud() != NULL )
+    {
+        pParameters->Set_Parameter("ANCHORX",  pParameter->asPointCloud()->Get_Extent().Get_Center().Get_X());
+        pParameters->Set_Parameter("ANCHORY",  pParameter->asPointCloud()->Get_Extent().Get_Center().Get_Y());
+        pParameters->Set_Parameter("ANCHORZ", (pParameter->asPointCloud()->Get_ZMin() + pParameter->asPointCloud()->Get_ZMax()) / 2.0);
+    }
+
+    return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CPC_Transform::On_Execute(void)
 {
-	bool			bCopy;
-	double			angleX, angleY, angleZ;
-	TSG_Point_Z		P, Q, Move, Scale, Anchor;
-	CSG_PointCloud	*pIn, *pOut;
-	double a11, a12, a13, a21, a22, a23, a31, a32, a33;
+    bool            bCopy;
+    double          angleX, angleY, angleZ;
+    TSG_Point_Z     P, Q, Move, Scale, Anchor;
+    CSG_PointCloud  *pIn, *pOut;
+    double          a11, a12, a13, a21, a22, a23, a31, a32, a33;
 
-	//-----------------------------------------------------
-	pIn			= Parameters("IN")		->asPointCloud();
-	pOut		= Parameters("OUT")		->asPointCloud();
-	Scale.x		= Parameters("SCALEX")	->asDouble();
-	Scale.y		= Parameters("SCALEY")	->asDouble();
-	Scale.z		= Parameters("SCALEZ")	->asDouble();
-	Move.x		= Parameters("DX")		->asDouble();
-	Move.y		= Parameters("DY")		->asDouble();
-	Move.z		= Parameters("DZ")		->asDouble();
-	Anchor.x	= Parameters("ANCHORX")	->asDouble();
-	Anchor.y	= Parameters("ANCHORY")	->asDouble();
-	Anchor.z	= Parameters("ANCHORZ")	->asDouble();
+    //-----------------------------------------------------
+    pIn         = Parameters("IN")      ->asPointCloud();
+    pOut        = Parameters("OUT")     ->asPointCloud();
+    Scale.x     = Parameters("SCALEX")  ->asDouble();
+    Scale.y     = Parameters("SCALEY")  ->asDouble();
+    Scale.z     = Parameters("SCALEZ")  ->asDouble();
+    Move.x      = Parameters("DX")      ->asDouble();
+    Move.y      = Parameters("DY")      ->asDouble();
+    Move.z      = Parameters("DZ")      ->asDouble();
+    Anchor.x    = Parameters("ANCHORX") ->asDouble();
+    Anchor.y    = Parameters("ANCHORY") ->asDouble();
+    Anchor.z    = Parameters("ANCHORZ") ->asDouble();
 
-	angleX		= Parameters("ANGLEX")	->asDouble() * -M_DEG_TO_RAD;
-	angleY		= Parameters("ANGLEY")	->asDouble() * -M_DEG_TO_RAD;
-	angleZ		= Parameters("ANGLEZ")	->asDouble() * -M_DEG_TO_RAD;
+    angleX      = Parameters("ANGLEX")  ->asDouble() * -M_DEG_TO_RAD;
+    angleY      = Parameters("ANGLEY")  ->asDouble() * -M_DEG_TO_RAD;
+    angleZ      = Parameters("ANGLEZ")  ->asDouble() * -M_DEG_TO_RAD;
 
-	if( pIn == pOut )
-	{
-		bCopy	= true;
-		pOut	= SG_Create_PointCloud();
-	}
-	else
-		bCopy	= false;
+    if( pIn == pOut )
+    {
+        bCopy   = true;
+        pOut    = SG_Create_PointCloud();
+    }
+    else
+        bCopy   = false;
 
-	pOut->Create(pIn);
+    pOut->Create(pIn);
 
-	pOut->Fmt_Name("%s [%s]", pIn->Get_Name(), _TL("Transformed"));
-
-
-	//-----------------------------------------------------
-	for (int iPoint=0; iPoint<pIn->Get_Point_Count(); iPoint++)
-	{
-		P	= pIn->Get_Point(iPoint);
-
-		//anchor shift
-		P.x	-= Anchor.x;
-		P.y	-= Anchor.y;
-		P.z -= Anchor.z;
-
-		// create rotation matrix
-		a11 = cos(angleY) * cos(angleZ);
-		a12 = -cos(angleX) * sin(angleZ) + sin(angleX) * sin(angleY) * cos(angleZ);
-		a13 = sin(angleX) * sin(angleZ) + cos(angleX) * sin(angleY) * cos(angleZ);
-
-		a21 = cos(angleY) * sin(angleZ);
-		a22 = cos(angleX) * cos(angleZ) + sin(angleX) * sin(angleY) * sin(angleZ);
-		a23 = -sin(angleX) * cos(angleZ) + cos(angleX) * sin(angleY) * sin(angleZ);
-
-		a31 = -sin(angleY);
-		a32 =  sin(angleX) * cos(angleY);
-		a33 = cos(angleX) * cos(angleY);
+    pOut->Fmt_Name("%s [%s]", pIn->Get_Name(), _TL("Transformed"));
 
 
-		//transform
-		Q.x = (P.x * a11 + P.y * a12 + P.z * a13) * Scale.x;
-		Q.y = (P.x * a21 + P.y * a22 + P.z * a23) * Scale.y;
-		Q.z = (P.x * a31 + P.y * a32 + P.z * a33) * Scale.z;
+    //-----------------------------------------------------
+    for (int iPoint=0; iPoint<pIn->Get_Point_Count(); iPoint++)
+    {
+        P   = pIn->Get_Point(iPoint);
 
-		//undo anchor shift and apply move
-		Q.x	+= Anchor.x + Move.x;
-		Q.y	+= Anchor.y + Move.y;
-		Q.z += Anchor.z + Move.z;
+        // anchor shift
+        P.x -= Anchor.x;
+        P.y -= Anchor.y;
+        P.z -= Anchor.z;
 
-		pOut->Add_Point(Q.x, Q.y, Q.z);
+        // create rotation matrix
+        a11 = cos(angleY) * cos(angleZ);
+        a12 = -cos(angleX) * sin(angleZ) + sin(angleX) * sin(angleY) * cos(angleZ);
+        a13 = sin(angleX) * sin(angleZ) + cos(angleX) * sin(angleY) * cos(angleZ);
 
-		for (int j=0; j<pIn->Get_Attribute_Count(); j++)
-		{
-			switch (pIn->Get_Attribute_Type(j))
-			{
-			default:					pOut->Set_Attribute(iPoint, j, pIn->Get_Attribute(iPoint, j));		break;
-			case SG_DATATYPE_Date:
-			case SG_DATATYPE_String:	CSG_String sAttr; pIn->Get_Attribute(iPoint, j, sAttr); pOut->Set_Attribute(iPoint, j, sAttr);		break;
-			}
-		}
-	}
+        a21 = cos(angleY) * sin(angleZ);
+        a22 = cos(angleX) * cos(angleZ) + sin(angleX) * sin(angleY) * sin(angleZ);
+        a23 = -sin(angleX) * cos(angleZ) + cos(angleX) * sin(angleY) * sin(angleZ);
 
-	//-----------------------------------------------------
-	if( bCopy )
-	{
-		pIn->Assign(pOut);
-		delete(pOut);
-	}
+        a31 = -sin(angleY);
+        a32 =  sin(angleX) * cos(angleY);
+        a33 = cos(angleX) * cos(angleY);
 
-	//-----------------------------------------------------
-	return( true );
+
+        // transform
+        Q.x = (P.x * a11 + P.y * a12 + P.z * a13) * Scale.x;
+        Q.y = (P.x * a21 + P.y * a22 + P.z * a23) * Scale.y;
+        Q.z = (P.x * a31 + P.y * a32 + P.z * a33) * Scale.z;
+
+        // undo anchor shift and apply move
+        Q.x += Anchor.x + Move.x;
+        Q.y += Anchor.y + Move.y;
+        Q.z += Anchor.z + Move.z;
+
+        pOut->Add_Point(Q.x, Q.y, Q.z);
+
+        for (int j=0; j<pIn->Get_Attribute_Count(); j++)
+        {
+            switch (pIn->Get_Attribute_Type(j))
+            {
+            default:                    pOut->Set_Attribute(iPoint, j, pIn->Get_Attribute(iPoint, j));      break;
+            case SG_DATATYPE_Date:
+            case SG_DATATYPE_String:    CSG_String sAttr; pIn->Get_Attribute(iPoint, j, sAttr); pOut->Set_Attribute(iPoint, j, sAttr);      break;
+            }
+        }
+    }
+
+    //-----------------------------------------------------
+    if( bCopy )
+    {
+        pIn->Assign(pOut);
+        delete(pOut);
+    }
+
+    //-----------------------------------------------------
+    return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
