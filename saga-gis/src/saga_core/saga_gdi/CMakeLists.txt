@@ -65,7 +65,7 @@ set_target_properties(saga_gdi PROPERTIES
 
 # where to install the binary
 install(TARGETS saga_gdi DESTINATION lib)
-install(FILES ${SAGA_GDI_PUBLIC_HEADERS} DESTINATION include/saga/saga_core/saga_gdi)
+install(FILES ${SAGA_GDI_PUBLIC_HEADERS} DESTINATION include/saga/saga_gdi)
 
 if(MSVC)
 	string(REPLACE "/" "\\" SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/")

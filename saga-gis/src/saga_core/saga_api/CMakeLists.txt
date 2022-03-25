@@ -164,7 +164,7 @@ set_target_properties(saga_api PROPERTIES
 
 # where to install the library
 install(TARGETS saga_api DESTINATION lib)
-install(FILES ${SAGA_API_PUBLIC_HEADERS} DESTINATION include/saga/saga_core/saga_api)
+install(FILES ${SAGA_API_PUBLIC_HEADERS} DESTINATION include/saga/saga_api)
 
 if(MSVC)
 	string(REPLACE "/" "\\" SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/")
