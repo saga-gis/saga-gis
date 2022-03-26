@@ -1,7 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
-
 ///////////////////////////////////////////////////////////
 //                                                       //
 //                         SAGA                          //
@@ -15,7 +11,7 @@
 //                                                       //
 //               AccumulationFunctions.cpp               //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
+//               Copyright (C) 2009-2022 by              //
 //                    Volker Wichmann                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -73,19 +69,21 @@ CGrid_Accumulation_Functions::CGrid_Accumulation_Functions(void)
 {
 	Set_Name		(_TL("Accumulation Functions"));
 
-	Set_Author		("Copyrights (c) 2009 by Volker Wichmann");
+	Set_Author		("V. Wichmann (c) 2009-2022");
+
+    Set_Version     ("1.1");
 
 	Parameters.Set_Description(_TW(
-		"Provides \"accumulation functions\" that can be used to e.g. move material over a \"local "
+		"The tool allows one to use different \"accumulation functions\" to, e.g., move material over a \"local "
 		"drain direction\" (LDD) network. The LDD net is computed for the supplied surface by MFD "
 		"and D8 flow-routing algorithms. It is possible to switch from MFD to D8 as soon as a "
-		"threshold is exceeded.\n"
+		"flow threshold is exceeded.\n"
 		"The input to each cell on the grid can be supplied from e.g. time series and the material "
 		"can be moved over the net in several ways. All of these, except the \"accuflux\" operation, "
 		"compute both the flux and the state for a given cell. For time series modelling (batch "
 		"processing), the state of each cell at time t can be initialized with the previous state t - 1.\n"
 		"The capacity, fraction, threshold and trigger operations compute the fluxes and cell states "
-		"at time t + 1 according to cell-specific parameters that control the way the flux is computed. "
+		"at time t + 1 according to cell-specific parameters that control the way the flux is computed.\n"
 		"The capacity function limits the cell-to-cell flux by a (channel) capacity control; the fraction "
 		"function transports only a given proportion of material from cell to cell, the threshold "
 		"function transports material only once a given threshold has been exceeded, and the trigger "
@@ -104,6 +102,15 @@ CGrid_Accumulation_Functions::CGrid_Accumulation_Functions(void)
 		"per cell. No flow occurs if the threshold is not exceeded.\n\n"
 		"\t* ACCUTRIGGERFLUX / STATE: The operation only allows transport (flux) to occur if "
 		"a trigger value is exceeded, otherwise no transport occurs and storage accumulates.\n\n"
+        "Instead of choosing a single global operation with the \"Operation\" choice parameter, an input "
+        "grid can be provided which encodes the operation per grid cell. This makes it possible to use different "
+        "operations across the LDD (e.g. for different land use classes). The cell values used to "
+        "encode the operation in the grid are the index numbers of the \"Operation\" choice parameter:\n\n"
+        "0: accuflux\n"
+        "1: accucapacityflux / state\n"
+        "2: accufractionflux / state\n"
+        "3: accuthresholdflux / state\n"
+        "4: accutriggerflux / state\n\n"
 	));
 
 	Add_Reference("Burrough, P.A.", "1998",
@@ -129,9 +136,15 @@ CGrid_Accumulation_Functions::CGrid_Accumulation_Functions(void)
 		PARAMETER_INPUT_OPTIONAL
 	);
 
+    Parameters.Add_Grid("",
+        "OPERATION_GRID", _TL("Operation Grid"), 
+        _TL("Grid encoding the mode of operation per grid cell. Can be used instead of a global setting (\"Operation\" choice). Operations use the same identifers as the \"Operation\" choice parameter [0-4]."), 
+        PARAMETER_INPUT_OPTIONAL
+    );
+
 	Parameters.Add_Grid("",
 		"CONTROL"	, _TL("Operation Control"), 
-		_TL("Depending on mode of operation either transport capacity, transport fraction, threshold value or trigger value."), 
+		_TL("Depending on the mode of operation either transport capacity, transport fraction, threshold value or trigger value."), 
 		PARAMETER_INPUT_OPTIONAL
 	);
 
@@ -155,7 +168,7 @@ CGrid_Accumulation_Functions::CGrid_Accumulation_Functions(void)
 
 	Parameters.Add_Choice("",
 		"OPERATION"	, _TL("Operation"),
-		_TL("Select a mode of operation"),
+		_TL("Select a mode of operation."),
 		CSG_String::Format("%s|%s|%s|%s|%s",
 			_TL("accuflux"),
 			_TL("accucapacityflux / state"),
@@ -167,14 +180,14 @@ CGrid_Accumulation_Functions::CGrid_Accumulation_Functions(void)
 
 	Parameters.Add_Bool("",
 		"LINEAR"	, _TL("Switch to Linear Flow"), 
-		_TL("Switch from MFD8 to D8 if linear flow threshold is crossed."), 
+		_TL("Switch from MFD8 to D8 if the linear flow threshold is crossed."), 
 		true
 	);
 
 	Parameters.Add_Double("LINEAR",
 		"THRES_LINEAR", _TL("Threshold Linear Flow"), 
 		_TL("Threshold for linear flow, if exceeded D8 is used."), 
-		0.0
+		0.0, 0.0, true
 	);
 }
 
@@ -186,6 +199,20 @@ CGrid_Accumulation_Functions::CGrid_Accumulation_Functions(void)
 //---------------------------------------------------------
 int CGrid_Accumulation_Functions::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+    if(	pParameter->Cmp_Identifier("OPERATION_GRID") )
+    {
+        if (pParameter->asGrid() != NULL)
+        {
+            pParameters->Set_Enabled("CONTROL"      , true);
+            pParameters->Set_Enabled("OPERATION"    , false);
+        }
+        else
+        {
+            pParameters->Set_Enabled("OPERATION"    , true);
+            pParameters->Set_Enabled("CONTROL"      , pParameters->Get_Parameter("OPERATION")->asInt() > 0);
+        }
+    }
+
 	if(	pParameter->Cmp_Identifier("OPERATION") )
 	{
 		pParameters->Set_Enabled("CONTROL", pParameter->asInt() > 0);
@@ -208,7 +235,7 @@ int CGrid_Accumulation_Functions::On_Parameters_Enable(CSG_Parameters *pParamete
 //---------------------------------------------------------
 bool CGrid_Accumulation_Functions::On_Execute(void)
 {
-	CSG_Grid		*pSurface, *pInput, *pFlux, *pControl, *pStateIn, *pStateOut, *pLinearCtrl;
+	CSG_Grid		*pSurface, *pInput, *pFlux, *pControl, *pStateIn, *pStateOut, *pLinearCtrl, *pOperation;
 
 	int				x, y, ix, iy;
 	double			z, d, dz[8], dzSum, gradient, maxGrad, thresLinear;
@@ -223,6 +250,7 @@ bool CGrid_Accumulation_Functions::On_Execute(void)
 	pInput			= Parameters("INPUT")->asGrid();
 	pStateIn		= Parameters("STATE_IN")->asGrid();
 	pStateOut		= Parameters("STATE_OUT")->asGrid();
+    pOperation      = Parameters("OPERATION_GRID")->asGrid();
 	pControl		= Parameters("CONTROL")->asGrid();
 	pFlux			= Parameters("FLUX")->asGrid();
 	pLinearCtrl		= Parameters("CTRL_LINEAR")->asGrid();
@@ -233,10 +261,10 @@ bool CGrid_Accumulation_Functions::On_Execute(void)
 	thresLinear		= Parameters("THRES_LINEAR")->asDouble();
 
 
-	if( operation != 0 && pControl == NULL )
+	if( ((pOperation == NULL && operation != 0) || pOperation != NULL) && pControl == NULL)
 	{
-		Message_Add(CSG_String::Format(_TL("You need to specify a operation control grid as input!\n")));
-		return (false);
+        Error_Set(_TL("You must specify an operation control grid as input!\n"));
+		return( false );
 	}
 
 	if( pStateIn == NULL )
@@ -245,7 +273,7 @@ bool CGrid_Accumulation_Functions::On_Execute(void)
 		pFlux->Assign(pStateIn);
 
 
-	if( operation != 0 && pStateOut == NULL )
+	if( (pOperation != NULL || (pOperation == NULL && operation != 0)) && pStateOut == NULL )
 	{
 		pStateOut	= SG_Create_Grid(pInput, SG_DATATYPE_Double);
 		Parameters("STATE_OUT")->Set_Value(pStateOut);
@@ -264,23 +292,33 @@ bool CGrid_Accumulation_Functions::On_Execute(void)
 	{
 		if( pSurface->Get_Sorted(n, x, y, true, false) )
         {
-		    if( pSurface->is_NoData(x, y) || pInput->is_NoData(x, y) || (operation != 0 && pControl->is_NoData(x, y)) )
+		    if( pSurface->is_NoData(x, y) || pInput->is_NoData(x, y) || (operation != 0 && pControl->is_NoData(x, y)) || (pOperation != NULL && pOperation->is_NoData(x, y)) )
 		    {
 			    pFlux->Set_NoData(x, y);
+
 			    if( pStateOut != NULL )
+                {
 				    pStateOut->Set_NoData(x, y);
+                }
 		    }
 		    else
 		    {
-			    if( operation != 0 )
+			    if( (pOperation != NULL || (pOperation == NULL && operation != 0)) )
+                {
 				    control		= pControl->asDouble(x, y);
+                }
+
+                if( pOperation != NULL )
+                {
+                    operation   = pOperation->asInt(x, y);
+                }
 
 			    flux			= pInput->asDouble(x, y) + pFlux->asDouble(x, y);
 			
 			    switch(operation)
 		        {
 			    case 0:			// accuflux
-			    default:
+                    state	= 0.0;
 				    break;
 
                 case 1:			// accucapacityflux/state
@@ -320,6 +358,11 @@ bool CGrid_Accumulation_Functions::On_Execute(void)
 					    flux	= 0.0;
 				    }
 				    break;
+
+                default:
+                    state	= 0.0;
+                    Message_Add(CSG_String::Format(_TL("Unkown operation value %d in grid cell %d,%d (x,y), computing accuflux ..."), operation, x, y));
+                    break;
 			    }
 
 			    z				= pSurface->asDouble(x, y);
@@ -398,9 +441,10 @@ bool CGrid_Accumulation_Functions::On_Execute(void)
 
 			    pFlux->Set_Value(x, y, flux);
 
-			    if( operation != 0 )
+			    if( pStateOut != NULL )
+                {
 				    pStateOut->Set_Value(x, y, state);
-
+                }
 		    }
         }
 	}// for
