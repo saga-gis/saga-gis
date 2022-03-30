@@ -569,7 +569,7 @@ tools = [
 ['ta_preprocessor', 6, 'Burn Stream Network into DEM'],
 ['ta_profiles', 3, 'Cross Profiles'],
 ['ta_profiles', 4, 'Profiles from Lines'],
-['ta_profiles', 5, 'Profile from points'],
+['ta_profiles', 5, 'Profile from Points'],
 ['ta_slope_stability', 0, 'SAFETYFACTOR'],
 ['ta_slope_stability', 1, 'TOBIA'],
 ['ta_slope_stability', 2, 'SHALSTAB'],
@@ -589,7 +589,7 @@ tools = [
 ['table_calculus', 15, 'Field Statistics'],
 ['table_tools', 0, 'Create New Table'],
 ['table_tools', 1, 'Transpose Table'],
-['table_tools', 2, 'Table Field Enumeration'],
+['table_tools', 2, 'Field Enumeration'],
 ['table_tools', 3, 'Join Attributes from a Table'],
 ['table_tools', 4, 'Join Attributes from a Table (Shapes)'],
 ['table_tools', 5, 'Change Date Format'],
@@ -708,7 +708,7 @@ tools = [
 ['sim_landscape_evolution', 0, 'SaLEM'],
 ['ta_hydrology', 28, 'Flow between fields'],
 ['shapes_tools', 28, 'Copy Shapes'],
-['table_tools', 21, 'Table Field Enumeration (Shapes)'],
+['table_tools', 21, 'Field Enumeration (Shapes)'],
 ['table_tools', 22, 'Copy Table'],
 ['db_pgsql', 34, 'Export Grid Collection to PostGIS'],
 ['grid_gridding', 9, 'Polygons to Grid'],
@@ -813,5 +813,7 @@ tools = [
 ['ta_hydrology', 31, 'CIT Index'],
 ['climate_tools', 31, 'Daily Solar Radiation'],
 ['io_pdal', 1, 'Export LAS/LAZ File'],
-['shapes_lines', 11, 'Split Lines']
+['shapes_lines', 11, 'Split Lines'],
+['sim_hydrology', 12, 'Glugla Coefficient'],
+['statistics_grid', 21, 'Grid Histogram']
 ]
