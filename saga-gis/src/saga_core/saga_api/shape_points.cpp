@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -53,15 +50,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "shapes.h"
 
 
@@ -75,10 +63,12 @@
 CSG_Shape_Points::CSG_Shape_Points(CSG_Shapes *pOwner, int Index)
 	: CSG_Shape(pOwner, Index)
 {
-	m_pParts	= NULL;
-	m_nParts	= 0;
+	m_pParts  = NULL;
+	m_nParts  = 0;
 
-	m_bUpdate	= true;
+	m_nPoints = 0; // total number of points
+
+	m_bUpdate = true;
 }
 
 //---------------------------------------------------------
@@ -89,8 +79,6 @@ CSG_Shape_Points::~CSG_Shape_Points(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -105,8 +93,6 @@ void CSG_Shape_Points::Destroy(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -118,13 +104,13 @@ bool CSG_Shape_Points::On_Assign(CSG_Shape *pShape)
 
 	if( pShape->Get_Type() == SHAPE_TYPE_Point )	// just in case...
 	{
-		Add_Point(pShape->Get_Point(0));
+		Add_Point(pShape->Get_Point(0), 0);
 
 		switch( Vertex_Type )
 		{
-		case SG_VERTEX_TYPE_XYZM:	Get_Part(0)->Set_M(pShape->Get_M(0), 0);
-		case SG_VERTEX_TYPE_XYZ :	Get_Part(0)->Set_Z(pShape->Get_Z(0), 0);
-		default:	break;
+		case SG_VERTEX_TYPE_XYZM: Get_Part(0)->Set_M(pShape->Get_M(0), 0);
+		case SG_VERTEX_TYPE_XYZ : Get_Part(0)->Set_Z(pShape->Get_Z(0), 0);
+		default: break;
 		}
 
 		return( true );
@@ -141,17 +127,14 @@ bool CSG_Shape_Points::On_Assign(CSG_Shape *pShape)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 int CSG_Shape_Points::_Add_Part(void)
 {
-	m_pParts			= (CSG_Shape_Part **)SG_Realloc(m_pParts , (m_nParts + 1) * sizeof(CSG_Shape_Part *));
-	m_pParts[m_nParts]	= _Get_Part();
+	m_pParts = (CSG_Shape_Part **)SG_Realloc(m_pParts, (m_nParts + 1) * sizeof(CSG_Shape_Part *));
 
-	m_nParts++;
+	m_pParts[m_nParts++] = _Get_Part();
 
 	return( m_nParts );
 }
@@ -159,7 +142,7 @@ int CSG_Shape_Points::_Add_Part(void)
 //---------------------------------------------------------
 int CSG_Shape_Points::Add_Part(CSG_Shape_Part *pPart)
 {
-	int		iPart	= m_nParts;
+	int iPart = m_nParts;
 
 	if( pPart && _Add_Part() > iPart )
 	{
@@ -174,16 +157,16 @@ int CSG_Shape_Points::Del_Part(int del_Part)
 {
 	if( del_Part >= 0 && del_Part < m_nParts )
 	{
-		delete(m_pParts[del_Part]);
-
 		m_nParts--;
+
+		delete(m_pParts[del_Part]);
 
 		for(int iPart=del_Part; iPart<m_nParts; iPart++)
 		{
-			m_pParts[iPart]	= m_pParts[iPart + 1];
+			m_pParts[iPart] = m_pParts[iPart + 1];
 		}
 
-		m_pParts	= (CSG_Shape_Part **)SG_Realloc(m_pParts , m_nParts * sizeof(CSG_Shape_Part *));
+		m_pParts = (CSG_Shape_Part **)SG_Realloc(m_pParts, m_nParts * sizeof(CSG_Shape_Part *));
 
 		_Invalidate();
 	}
@@ -205,23 +188,7 @@ int CSG_Shape_Points::Del_Parts(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-int CSG_Shape_Points::Add_Point(double x, double y, int iPart)
-{
-	if( iPart >= m_nParts )
-	{
-		for(int i=m_nParts; i<=iPart; i++)
-		{
-			_Add_Part();
-		}
-	}
-
-	return( iPart >= 0 && iPart < m_nParts ? m_pParts[iPart]->Add_Point(x, y) : 0 );
-}
 
 //---------------------------------------------------------
 int CSG_Shape_Points::Ins_Point(double x, double y, int iPoint, int iPart)
@@ -238,19 +205,88 @@ int CSG_Shape_Points::Ins_Point(double x, double y, int iPoint, int iPart)
 }
 
 //---------------------------------------------------------
+int CSG_Shape_Points::Ins_Point(const TSG_Point_Z &p, int iPoint, int iPart)
+{
+	if( Ins_Point(p.x, p.y, iPoint, iPart) )
+	{
+		Set_Z(p.z, iPoint, iPart);
+
+		return( 1 );
+	}
+
+	return( 0 );
+}
+
+//---------------------------------------------------------
+int CSG_Shape_Points::Ins_Point(const TSG_Point_ZM &p, int iPoint, int iPart)
+{
+	if( Ins_Point(p.x, p.y, iPoint, iPart) )
+	{
+		Set_Z(p.z, iPoint, iPart);
+		Set_M(p.m, iPoint, iPart);
+
+		return( 1 );
+	}
+
+	return( 0 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 int CSG_Shape_Points::Set_Point(double x, double y, int iPoint, int iPart)
 {
 	return( iPart >= 0 && iPart < m_nParts ? m_pParts[iPart]->Set_Point(x, y, iPoint) : 0 );
 }
 
 //---------------------------------------------------------
-int CSG_Shape_Points::Del_Point(int del_Point, int iPart)
+int CSG_Shape_Points::Set_Point(const TSG_Point_Z &p, int iPoint, int iPart)
 {
-	return( iPart >= 0 && iPart < m_nParts ? m_pParts[iPart]->Del_Point(del_Point) : 0 );
+	if( Set_Point(p.x, p.y, iPoint, iPart) )
+	{
+		Set_Z(p.z, iPoint, iPart);
+
+		return( 1 );
+	}
+
+	return( 0 );
 }
 
 //---------------------------------------------------------
-TSG_Point CSG_Shape_Points::Get_Point(int iPoint)
+int CSG_Shape_Points::Set_Point(const TSG_Point_ZM &p, int iPoint, int iPart)
+{
+	if( Set_Point(p.x, p.y, iPoint, iPart) )
+	{
+		Set_Z(p.z, iPoint, iPart);
+		Set_M(p.m, iPoint, iPart);
+
+		return( 1 );
+	}
+
+	return( 0 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CSG_Shape_Points::Del_Point(int iPoint, int iPart)
+{
+	return( iPart >= 0 && iPart < m_nParts ? m_pParts[iPart]->Del_Point(iPoint) : 0 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+TSG_Point CSG_Shape_Points::Get_Point(int iPoint) const
 {
 	for(int iPart=0; iPart<m_nParts; iPoint-=m_pParts[iPart++]->Get_Count())
 	{
@@ -260,13 +296,11 @@ TSG_Point CSG_Shape_Points::Get_Point(int iPoint)
 		}
 	}
 
-	return( CSG_Point(0.0, 0.0) );
+	return( CSG_Point(0., 0.) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -275,58 +309,56 @@ void CSG_Shape_Points::_Update_Extent(void)
 {
 	if( m_bUpdate )
 	{
-		bool	bFirst;
-		int		iPart;
+		int nPoints = 0;
 
-		for(iPart=0, bFirst=true, m_nPoints=0; iPart<m_nParts; iPart++)
+		for(int iPart=0; iPart<m_nParts; iPart++)
 		{
-			CSG_Shape_Part	*pPart	= m_pParts[iPart];
+			CSG_Shape_Part *pPart = m_pParts[iPart];
 
 			if( pPart->Get_Count() > 0 )
 			{
-				m_nPoints	+= pPart->Get_Count();
-
-				if( bFirst )
+				if( nPoints == 0 )
 				{
-					bFirst		= false;
+					nPoints  = pPart->Get_Count();
 
-					m_Extent	= pPart->Get_Extent();
+					m_Extent = pPart->Get_Extent();
 
-					m_ZMin		= pPart->Get_ZMin();
-					m_ZMax		= pPart->Get_ZMax();
+					m_ZMin   = pPart->Get_ZMin();
+					m_ZMax   = pPart->Get_ZMax();
 
-					m_MMin		= pPart->Get_MMin();
-					m_MMax		= pPart->Get_MMax();
+					m_MMin   = pPart->Get_MMin();
+					m_MMax   = pPart->Get_MMax();
 				}
 				else
 				{
+					nPoints += pPart->Get_Count();
+
 					m_Extent.Union(pPart->Get_Extent());
 
-					if( m_ZMin > pPart->Get_ZMin() )	m_ZMin	= pPart->Get_ZMin();
-					if( m_ZMax < pPart->Get_ZMax() )	m_ZMax	= pPart->Get_ZMax();
+					if     ( m_ZMin > pPart->Get_ZMin() ) { m_ZMin = pPart->Get_ZMin(); }
+					else if( m_ZMax < pPart->Get_ZMax() ) { m_ZMax = pPart->Get_ZMax(); }
 
-					if( m_MMin > pPart->Get_MMin() )	m_MMin	= pPart->Get_MMin();
-					if( m_MMax < pPart->Get_MMax() )	m_MMax	= pPart->Get_MMax();
+					if     ( m_MMin > pPart->Get_MMin() ) { m_MMin = pPart->Get_MMin(); }
+					else if( m_MMax < pPart->Get_MMax() ) { m_MMax = pPart->Get_MMax(); }
 				}
 			}
 		}
 
-		m_bUpdate	= false;
+		m_bUpdate = false;
+
+		//_ASSERT(nPoints == m_nPoints);
 	}
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 TSG_Point CSG_Shape_Points::Get_Centroid(void)
 {
-	int			n	= 0;
-	CSG_Point	c(0.0, 0.0);
+	int n = 0; CSG_Point c(0., 0.);
 
 	for(int iPart=0; iPart<Get_Part_Count(); iPart++)
 	{
@@ -348,34 +380,32 @@ TSG_Point CSG_Shape_Points::Get_Centroid(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CSG_Shape_Points::Get_Distance(TSG_Point Point)
+double CSG_Shape_Points::Get_Distance(TSG_Point Point) const 
 {
-	TSG_Point	Next;
-
-	return( Get_Distance(Point, Next) );
+	TSG_Point Next; return( Get_Distance(Point, Next) );
 }
 
 //---------------------------------------------------------
-double CSG_Shape_Points::Get_Distance(TSG_Point Point, TSG_Point &Next)
+double CSG_Shape_Points::Get_Distance(TSG_Point Point, int iPart) const 
 {
-	int			iPart;
-	double		d, Distance;
-	TSG_Point	pt;
+	TSG_Point Next; return( Get_Distance(Point, Next, iPart) );
+}
 
-	Distance	= Get_Distance(Point, Next, 0);
+//---------------------------------------------------------
+double CSG_Shape_Points::Get_Distance(TSG_Point Point, TSG_Point &Next) const 
+{
+	double Distance = Get_Distance(Point, Next, 0);
 
-	for(iPart=1; iPart<m_nParts && Distance!=0.0; iPart++)
+	for(int iPart=1; iPart<m_nParts && Distance!=0.; iPart++)
 	{
-		if(	(d = Get_Distance(Point, pt, iPart)) >= 0.0
-		&&	(d < Distance || Distance < 0.0) )
+		TSG_Point iNext; double iDistance = Get_Distance(Point, iNext, iPart);
+
+		if(	iDistance >= 0. && (iDistance < Distance || Distance < 0.) )
 		{
-			Distance	= d;
-			Next		= pt;
+			Distance = iDistance; Next = iNext;
 		}
 	}
 
@@ -383,30 +413,21 @@ double CSG_Shape_Points::Get_Distance(TSG_Point Point, TSG_Point &Next)
 }
 
 //---------------------------------------------------------
-double CSG_Shape_Points::Get_Distance(TSG_Point Point, int iPart)
+double CSG_Shape_Points::Get_Distance(TSG_Point Point, TSG_Point &Next, int iPart) const 
 {
-	TSG_Point	Next;
-
-	return( Get_Distance(Point, Next, iPart) );
-}
-
-//---------------------------------------------------------
-double CSG_Shape_Points::Get_Distance(TSG_Point Point, TSG_Point &Next, int iPart)
-{
-	int			i;
-	double		d, Distance;
-	TSG_Point	*pA;
-
-	Distance	= -1.0;
+	double Distance = -1.;
 
 	if( iPart >= 0 && iPart < m_nParts )
 	{
-		for(i=0, pA=m_pParts[iPart]->m_Points; i<m_pParts[iPart]->Get_Count() && Distance!=0.0; i++, pA++)
+		TSG_Point *pPoint = m_pParts[iPart]->m_Points;
+
+		for(int iPoint=0; iPoint<m_pParts[iPart]->Get_Count() && Distance!=0.; iPoint++, pPoint++)
 		{
-			if(	(d = SG_Get_Distance(Point, *pA)) < Distance || Distance < 0.0 )
+			double iDistance = SG_Get_Distance(Point, *pPoint);
+
+			if(	iDistance < Distance || Distance < 0. )
 			{
-				Distance	= d;
-				Next		= *pA;
+				Distance = iDistance; Next = *pPoint;
 			}
 		}
 	}
@@ -416,8 +437,6 @@ double CSG_Shape_Points::Get_Distance(TSG_Point Point, TSG_Point &Next, int iPar
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

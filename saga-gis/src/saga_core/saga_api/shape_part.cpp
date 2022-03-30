@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -53,15 +50,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "shapes.h"
 
 
@@ -74,15 +62,15 @@
 //---------------------------------------------------------
 CSG_Shape_Part::CSG_Shape_Part(CSG_Shape_Points *pOwner)
 {
-	m_pOwner	= pOwner;
+	m_pOwner  = pOwner;
 
-	m_Points	= NULL;
-	m_Z			= NULL;
-	m_M			= NULL;
-	m_nPoints	= 0;
-	m_nBuffer	= 0;
+	m_nBuffer = 0;
+	m_nPoints = 0;
+	m_Points  = NULL;
+	m_Z       = NULL;
+	m_M       = NULL;
 
-	m_bUpdate	= true;
+	m_bUpdate = true;
 }
 
 //---------------------------------------------------------
@@ -91,10 +79,27 @@ CSG_Shape_Part::~CSG_Shape_Part(void)
 	Destroy();
 }
 
+//---------------------------------------------------------
+bool CSG_Shape_Part::Destroy(void)
+{
+	if( m_pOwner ) { m_pOwner->m_nPoints -= m_nPoints; }
+
+	m_nPoints = 0;
+	m_nBuffer = 0;
+
+	if( m_Points ) { SG_Free(m_Points); m_Points = NULL; }
+	if( m_Z      ) { SG_Free(m_Z     ); m_Z      = NULL; }
+	if( m_M      ) { SG_Free(m_M     ); m_M      = NULL; }
+
+	m_bUpdate = true;
+
+	_Invalidate();
+
+	return( true );
+}
+
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -166,46 +171,15 @@ bool CSG_Shape_Part::_Alloc_Memory(int nPoints)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CSG_Shape_Part::Destroy(void)
-{
-	if( m_Points != NULL )
-	{
-		SG_Free(m_Points);
-	}
-
-	if( m_Z != NULL )
-	{
-		SG_Free(m_Z);
-	}
-
-	if( m_M != NULL )
-	{
-		SG_Free(m_M);
-	}
-
-	m_Points	= NULL;
-	m_Z			= NULL;
-	m_M			= NULL;
-	m_nPoints	= 0;
-	m_nBuffer	= 0;
-
-	m_bUpdate	= true;
-
-	_Invalidate();
-
-	return( true );
-}
 
 //---------------------------------------------------------
 bool CSG_Shape_Part::Assign(CSG_Shape_Part *pPart)
 {
-	if( _Alloc_Memory(pPart->Get_Count()) )
+	if( _Alloc_Memory(pPart->m_nPoints) )
 	{
+		if( m_pOwner ) { m_pOwner->m_nPoints += pPart->m_nPoints - m_nPoints; }
+
 		m_nPoints	= pPart->m_nPoints;
 
 		memcpy(m_Points, pPart->m_Points, m_nPoints * sizeof(TSG_Point));
@@ -244,15 +218,7 @@ bool CSG_Shape_Part::Assign(CSG_Shape_Part *pPart)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-int CSG_Shape_Part::Add_Point(double x, double y)
-{
-	return( Ins_Point(x, y, m_nPoints) );
-}
 
 //---------------------------------------------------------
 int CSG_Shape_Part::Ins_Point(double x, double y, int iPoint)
@@ -261,37 +227,48 @@ int CSG_Shape_Part::Ins_Point(double x, double y, int iPoint)
 	{
 		for(int i=m_nPoints; i>iPoint; i--)
 		{
-			m_Points[i]	= m_Points[i - 1];
+			m_Points[i] = m_Points[i - 1];
 
-			if( m_Z )
-			{
-				m_Z[i]	= m_Z[i - 1];
-
-				if( m_M )
-				{
-					m_M[i]	= m_M[i - 1];
-				}
-			}
+			if( m_Z ) { m_Z[i] = m_Z[i - 1]; }
+			if( m_M ) { m_M[i] = m_M[i - 1]; }
 		}
 
-		m_nPoints++;
+		m_nPoints++; if( m_pOwner ) { m_pOwner->m_nPoints++; }
 
-		m_Points[iPoint].x	= x;
-		m_Points[iPoint].y	= y;
+		m_Points[iPoint].x = x;
+		m_Points[iPoint].y = y;
 
-		if( m_Z )
-		{
-			m_Z[iPoint]	= 0.0;
-
-			if( m_M )
-			{
-				m_M[iPoint]	= 0.0;
-			}
-		}
+		if( m_Z ) { m_Z[iPoint]	= 0.; }
+		if( m_M ) { m_M[iPoint]	= 0.; }
 
 		_Invalidate();
 
-		return( m_nPoints );
+		return( 1 );
+	}
+
+	return( 0 );
+}
+
+int CSG_Shape_Part::Ins_Point(const TSG_Point_Z &p, int iPoint)
+{
+	if( Ins_Point(p.x, p.y, iPoint) )
+	{
+		Set_Z(p.z, iPoint);
+
+		return( 1 );
+	}
+
+	return( 0 );
+}
+
+int CSG_Shape_Part::Ins_Point(const TSG_Point_ZM &p, int iPoint)
+{
+	if( Ins_Point(p.x, p.y, iPoint) )
+	{
+		Set_Z(p.z, iPoint);
+		Set_M(p.m, iPoint);
+
+		return( 1 );
 	}
 
 	return( 0 );
@@ -302,10 +279,35 @@ int CSG_Shape_Part::Set_Point(double x, double y, int iPoint)
 {
 	if( iPoint >= 0 && iPoint < m_nPoints )
 	{
-		m_Points[iPoint].x	= x;
-		m_Points[iPoint].y	= y;
+		m_Points[iPoint].x = x;
+		m_Points[iPoint].y = y;
 
 		_Invalidate();
+
+		return( 1 );
+	}
+
+	return( 0 );
+}
+
+int CSG_Shape_Part::Set_Point(const TSG_Point_Z &p, int iPoint)
+{
+	if( Set_Point(p.x, p.y, iPoint) )
+	{
+		Set_Z(p.z, iPoint);
+
+		return( 1 );
+	}
+
+	return( 0 );
+}
+
+int CSG_Shape_Part::Set_Point(const TSG_Point_ZM &p, int iPoint)
+{
+	if( Set_Point(p.x, p.y, iPoint) )
+	{
+		Set_Z(p.z, iPoint);
+		Set_M(p.m, iPoint);
 
 		return( 1 );
 	}
@@ -318,7 +320,7 @@ int CSG_Shape_Part::Del_Point(int iPoint)
 {
 	if( iPoint >= 0 && iPoint < m_nPoints )
 	{
-		m_nPoints--;
+		m_nPoints--; if( m_pOwner ) { m_pOwner->m_nPoints--; }
 
 		for(int i=iPoint; i<m_nPoints; i++)
 		{
@@ -348,8 +350,6 @@ int CSG_Shape_Part::Del_Point(int iPoint)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -357,25 +357,10 @@ bool CSG_Shape_Part::Revert_Points(void)
 {
 	for(int i=0, j=m_nPoints-1; i<j; i++, j--)
 	{
-		TSG_Point	p	= m_Points[i];
-		m_Points[i]		= m_Points[j];
-		m_Points[j]		= p;
+		TSG_Point p	= m_Points[i]; m_Points[i] = m_Points[j]; m_Points[j] = p;
 
-		if( m_Z )
-		{
-			double	d;
-					
-			d		= m_Z[i];
-			m_Z[i]	= m_Z[j];
-			m_Z[j]	= d;
-
-			if( m_M )
-			{
-				d		= m_M[i];
-				m_M[i]	= m_M[j];
-				m_M[j]	= d;
-			}
-		}
+		if( m_Z ) { double z = m_Z[i]; m_Z[i] = m_Z[j]; m_Z[j] = z; }
+		if( m_M ) { double m = m_M[i]; m_M[i] = m_M[j]; m_M[j] = m; }
 	}
 
 	return( true );
@@ -384,14 +369,12 @@ bool CSG_Shape_Part::Revert_Points(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 inline void CSG_Shape_Part::_Invalidate(void)
 {
-	m_bUpdate	= true;
+	m_bUpdate = true;
 
 	if( m_pOwner )
 	{
@@ -402,41 +385,29 @@ inline void CSG_Shape_Part::_Invalidate(void)
 //---------------------------------------------------------
 void CSG_Shape_Part::_Update_Extent(void)
 {
-	if( !m_bUpdate )
+	if( m_bUpdate )
 	{
-		return;
-	}
+		CSG_Simple_Statistics x, y, z, m;
 
-	//-----------------------------------------------------
-	int						i;
-	TSG_Point				*p;
-	CSG_Simple_Statistics	x, y, z, m;
-
-	for(i=0, p=m_Points; i<m_nPoints; i++, p++)
-	{
-		x.Add_Value(p->x);
-		y.Add_Value(p->y);
-
-		if( m_Z )
+		for(int i=0; i<m_nPoints; i++)
 		{
-			z.Add_Value(m_Z[i]);
+			x.Add_Value(m_Points[i].x);
+			y.Add_Value(m_Points[i].y);
 
-			if( m_M )
-			{
-				m.Add_Value(m_M[i]);
-			}
+			if( m_Z ) { z.Add_Value(m_Z[i]); }
+			if( m_M ) { m.Add_Value(m_M[i]); }
 		}
+
+		m_Extent.Assign(
+			x.Get_Minimum(), y.Get_Minimum(),
+			x.Get_Maximum(), y.Get_Maximum()
+		);
+
+		m_ZMin = z.Get_Minimum(); m_ZMax = z.Get_Maximum();
+		m_MMin = m.Get_Minimum(); m_MMax = m.Get_Maximum();
+
+		m_bUpdate = false;
 	}
-
-	m_Extent.Assign(x.Get_Minimum(), y.Get_Minimum(), x.Get_Maximum(), y.Get_Maximum());
-
-	m_ZMin		= z.Get_Minimum();
-	m_ZMax		= z.Get_Maximum();
-
-	m_MMin		= m.Get_Minimum();
-	m_MMax		= m.Get_Maximum();
-
-	m_bUpdate	= false;
 }
 
 
