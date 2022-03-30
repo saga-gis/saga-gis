@@ -109,15 +109,16 @@ wxString CWKSP_Table::Get_Description(void)
 
 	if( SG_File_Exists(m_pObject->Get_File_Name(false)) )
 	{
-		DESC_ADD_STR(_TL("File"           ), m_pObject->Get_File_Name(false));
+		DESC_ADD_STR(_TL("Data Source"    ), SG_File_Get_Path(m_pObject->Get_File_Name(false)      ).c_str());
+		DESC_ADD_STR(_TL("File"           ), SG_File_Get_Name(m_pObject->Get_File_Name(false), true).c_str());
 	}
 	else if( m_pObject->Get_MetaData_DB().Get_Children_Count() )
 	{
-		DESC_ADD_STR(_TL("File"           ), m_pObject->Get_File_Name(false));
+		DESC_ADD_STR(_TL("Data Source"    ), m_pObject->Get_File_Name(false));
 	}
 	else
 	{
-		DESC_ADD_STR(_TL("File"           ), _TL("memory"));
+		DESC_ADD_STR(_TL("Data Source"    ), _TL("memory"));
 	}
 
 	DESC_ADD_STR  (_TL("Modified"         ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));

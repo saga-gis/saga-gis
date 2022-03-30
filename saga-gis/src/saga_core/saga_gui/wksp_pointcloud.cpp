@@ -116,19 +116,32 @@ wxString CWKSP_PointCloud::Get_Description(void)
 
 	s	+= "<table border=\"0\">";
 
-	DESC_ADD_STR(_TL("Name"            ), m_pObject->Get_Name());
-	DESC_ADD_STR(_TL("Description"     ), m_pObject->Get_Description());
-	DESC_ADD_STR(_TL("File"            ), SG_File_Exists(m_pObject->Get_File_Name()) ? m_pObject->Get_File_Name() : _TL("memory"));
-	DESC_ADD_STR(_TL("Modified"        ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
-	DESC_ADD_STR(_TL("Projection"      ), m_pObject->Get_Projection().Get_Description().c_str());
-	DESC_ADD_FLT(_TL("West"            ), Get_PointCloud()->Get_Extent().Get_XMin());
-	DESC_ADD_FLT(_TL("East"            ), Get_PointCloud()->Get_Extent().Get_XMax());
-	DESC_ADD_FLT(_TL("West-East"       ), Get_PointCloud()->Get_Extent().Get_XRange());
-	DESC_ADD_FLT(_TL("South"           ), Get_PointCloud()->Get_Extent().Get_YMin());
-	DESC_ADD_FLT(_TL("North"           ), Get_PointCloud()->Get_Extent().Get_YMax());
-	DESC_ADD_FLT(_TL("South-North"     ), Get_PointCloud()->Get_Extent().Get_YRange());
-	DESC_ADD_INT(_TL("Number of Points"), Get_PointCloud()->Get_Count());
-	DESC_ADD_SIZET(_TL("Selected"      ), Get_PointCloud()->Get_Selection_Count());
+	DESC_ADD_STR  (_TL("Name"            ), m_pObject->Get_Name());
+	DESC_ADD_STR  (_TL("Description"     ), m_pObject->Get_Description());
+
+	if( SG_File_Exists(m_pObject->Get_File_Name(false)) )
+	{
+		DESC_ADD_STR(_TL("Data Source"   ), SG_File_Get_Path(m_pObject->Get_File_Name(false)      ).c_str());
+		DESC_ADD_STR(_TL("File"          ), SG_File_Get_Name(m_pObject->Get_File_Name(false), true).c_str());
+	}
+	else
+	{
+		DESC_ADD_STR(_TL("Data Source"   ), _TL("memory"));
+	}
+
+	DESC_ADD_STR  (_TL("Modified"        ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
+	DESC_ADD_STR  (_TL("Projection"      ), m_pObject->Get_Projection().Get_Description().c_str());
+	DESC_ADD_FLT  (_TL("West"            ), Get_PointCloud()->Get_Extent().Get_XMin());
+	DESC_ADD_FLT  (_TL("East"            ), Get_PointCloud()->Get_Extent().Get_XMax());
+	DESC_ADD_FLT  (_TL("West-East"       ), Get_PointCloud()->Get_Extent().Get_XRange());
+	DESC_ADD_FLT  (_TL("South"           ), Get_PointCloud()->Get_Extent().Get_YMin());
+	DESC_ADD_FLT  (_TL("North"           ), Get_PointCloud()->Get_Extent().Get_YMax());
+	DESC_ADD_FLT  (_TL("South-North"     ), Get_PointCloud()->Get_Extent().Get_YRange());
+	DESC_ADD_FLT  (_TL("Z Minimum"       ), Get_PointCloud()->Get_ZMin());
+	DESC_ADD_FLT  (_TL("Z Maximum"       ), Get_PointCloud()->Get_ZMax());
+	DESC_ADD_FLT  (_TL("Z Range"         ), Get_PointCloud()->Get_ZMax() - Get_PointCloud()->Get_ZMin());
+	DESC_ADD_INT  (_TL("Number of Points"), Get_PointCloud()->Get_Count());
+	DESC_ADD_SIZET(_TL("Selected"        ), Get_PointCloud()->Get_Selection_Count());
 
 	s	+= "</table>";
 

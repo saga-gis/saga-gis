@@ -118,23 +118,26 @@ wxString CWKSP_Shapes::Get_Description(void)
 
 	s	+= "<table border=\"0\">";
 
-	DESC_ADD_STR(_TL("Name"            ), m_pObject->Get_Name());
-	DESC_ADD_STR(_TL("Description"     ), m_pObject->Get_Description());
+	DESC_ADD_STR(_TL("Name"              ), m_pObject->Get_Name());
+	DESC_ADD_STR(_TL("Description"       ), m_pObject->Get_Description());
 
 	if( SG_File_Exists(m_pObject->Get_File_Name(false)) )
 	{
-		DESC_ADD_STR(_TL("File"        ), m_pObject->Get_File_Name(false));
+		DESC_ADD_STR(_TL("Data Source"   ), SG_File_Get_Path(m_pObject->Get_File_Name(false)      ).c_str());
+		DESC_ADD_STR(_TL("File"          ), SG_File_Get_Name(m_pObject->Get_File_Name(false), true).c_str());
 
 		if( m_pObject->Get_MetaData()("GDAL_DRIVER") )
-			DESC_ADD_STR(_TL("Driver"  ), m_pObject->Get_MetaData()["GDAL_DRIVER"].Get_Content().c_str());
+		{
+			DESC_ADD_STR(_TL("Driver"    ), m_pObject->Get_MetaData()["GDAL_DRIVER"].Get_Content().c_str());
+		}
 	}
 	else if( m_pObject->Get_MetaData_DB().Get_Children_Count() )
 	{
-		DESC_ADD_STR(_TL("File"        ), m_pObject->Get_File_Name(false));
+		DESC_ADD_STR(_TL("Data Source"   ), m_pObject->Get_File_Name(false));
 	}
 	else
 	{
-		DESC_ADD_STR(_TL("File"        ), _TL("memory"));
+		DESC_ADD_STR(_TL("Data Source"   ), _TL("memory"));
 	}
 
 	DESC_ADD_STR  (_TL("Modified"        ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
@@ -146,7 +149,29 @@ wxString CWKSP_Shapes::Get_Description(void)
 	DESC_ADD_FLT  (_TL("North"           ), Get_Shapes()->Get_Extent().Get_YMax  ());
 	DESC_ADD_FLT  (_TL("South-North"     ), Get_Shapes()->Get_Extent().Get_YRange());
 	DESC_ADD_STR  (_TL("Type"            ), SG_Get_ShapeType_Name(Get_Shapes()->Get_Type()).c_str());
-	DESC_ADD_STR  (_TL("Vertex Type"     ), Get_Shapes()->Get_Vertex_Type() == 0 ? _TL("X, Y") : Get_Shapes()->Get_Vertex_Type() == 1 ? _TL("X, Y, Z") : _TL("X, Y, Z, M"));
+
+	switch( Get_Shapes()->Get_Vertex_Type() )
+	{
+	default:
+		DESC_ADD_STR  (_TL("Vertex Type" ), _TL("X, Y"      ));
+		break;
+	case  1:
+		DESC_ADD_STR  (_TL("Vertex Type" ), _TL("X, Y, Z"   ));
+		DESC_ADD_FLT  (_TL("Z Minimum"   ), Get_Shapes()->Get_ZMin());
+		DESC_ADD_FLT  (_TL("Z Maximum"   ), Get_Shapes()->Get_ZMax());
+		DESC_ADD_FLT  (_TL("Z Range"     ), Get_Shapes()->Get_ZMax() - Get_Shapes()->Get_ZMin());
+		break;
+	case  2:
+		DESC_ADD_STR  (_TL("Vertex Type"     ), _TL("X, Y, Z, M"));
+		DESC_ADD_FLT  (_TL("Z Minimum"   ), Get_Shapes()->Get_ZMin());
+		DESC_ADD_FLT  (_TL("Z Maximum"   ), Get_Shapes()->Get_ZMax());
+		DESC_ADD_FLT  (_TL("Z Range"     ), Get_Shapes()->Get_ZMax() - Get_Shapes()->Get_ZMin());
+		DESC_ADD_FLT  (_TL("M Minimum"   ), Get_Shapes()->Get_MMin());
+		DESC_ADD_FLT  (_TL("M Maximum"   ), Get_Shapes()->Get_MMax());
+		DESC_ADD_FLT  (_TL("M Range"     ), Get_Shapes()->Get_MMax() - Get_Shapes()->Get_MMin());
+		break;
+	}
+
 	DESC_ADD_INT  (_TL("Number of Shapes"), Get_Shapes()->Get_Count());
 	DESC_ADD_SIZET(_TL("Selected"        ), Get_Shapes()->Get_Selection_Count());
 	DESC_ADD_STR  (_TL("File Encoding"   ), Get_Shapes()->Get_File_Encoding() ? SG_T("UTF-8") : SG_T("ANSI"));

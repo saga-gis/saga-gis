@@ -107,7 +107,17 @@ wxString CWKSP_TIN::Get_Description(void)
 
 	DESC_ADD_STR(_TL("Name"            ), m_pObject->Get_Name());
 	DESC_ADD_STR(_TL("Description"     ), m_pObject->Get_Description());
-	DESC_ADD_STR(_TL("File"            ), SG_File_Exists(m_pObject->Get_File_Name()) ? m_pObject->Get_File_Name() : _TL("memory"));
+
+	if( SG_File_Exists(m_pObject->Get_File_Name(false)) )
+	{
+		DESC_ADD_STR(_TL("Data Source" ), SG_File_Get_Path(m_pObject->Get_File_Name(false)      ).c_str());
+		DESC_ADD_STR(_TL("File"        ), SG_File_Get_Name(m_pObject->Get_File_Name(false), true).c_str());
+	}
+	else
+	{
+		DESC_ADD_STR(_TL("Data Source" ), _TL("memory"));
+	}
+
 	DESC_ADD_STR(_TL("Modified"        ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
 	DESC_ADD_STR(_TL("Projection"      ), m_pObject->Get_Projection().Get_Description().c_str());
 	DESC_ADD_FLT(_TL("West"            ), asTIN()->Get_Extent().Get_XMin());

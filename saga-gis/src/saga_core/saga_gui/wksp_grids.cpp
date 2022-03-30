@@ -108,23 +108,27 @@ wxString CWKSP_Grids::Get_Description(void)
 
 	if( SG_File_Exists(m_pObject->Get_File_Name(false)) )
 	{
-		DESC_ADD_STR (_TL("File"           ), m_pObject->Get_File_Name(false));
+		DESC_ADD_STR(_TL("Data Source"     ), SG_File_Get_Path(m_pObject->Get_File_Name(false)      ).c_str());
+		DESC_ADD_STR(_TL("File"            ), SG_File_Get_Name(m_pObject->Get_File_Name(false), true).c_str());
 
 		if( m_pObject->Get_MetaData()("GDAL_DRIVER") )
-			DESC_ADD_STR (_TL("Driver"     ), m_pObject->Get_MetaData()["GDAL_DRIVER"].Get_Content().c_str());
+		{
+			DESC_ADD_STR(_TL("Driver"      ), m_pObject->Get_MetaData()["GDAL_DRIVER"].Get_Content().c_str());
+		}
 	}
 	else if( m_pObject->Get_MetaData_DB().Get_Children_Count() )
 	{
-		DESC_ADD_STR(_TL("File"            ), m_pObject->Get_File_Name(false));
-		//const CSG_MetaData	&DB	= m_pObject->Get_MetaData_DB();
-		//if( DB("DBMS") ) DESC_ADD_STR (_TL("DBMS"    ), DB["DBMS"].Get_Content().c_str());
-		//if( DB("HOST") ) DESC_ADD_STR (_TL("Host"    ), DB["DBMS"].Get_Content().c_str());
-		//if( DB("PORT") ) DESC_ADD_STR (_TL("Port"    ), DB["DBMS"].Get_Content().c_str());
-		//if( DB("NAME") ) DESC_ADD_STR (_TL("Database"), DB["NAME"].Get_Content().c_str());
+		DESC_ADD_STR(_TL("Data Source"     ), m_pObject->Get_File_Name(false));
+
+		//	const CSG_MetaData	&DB	= m_pObject->Get_MetaData_DB();
+	//	if( DB("DBMS") ) DESC_ADD_STR(_TL("DBMS"    ), DB["DBMS"].Get_Content().c_str());
+	//	if( DB("HOST") ) DESC_ADD_STR(_TL("Host"    ), DB["DBMS"].Get_Content().c_str());
+	//	if( DB("PORT") ) DESC_ADD_STR(_TL("Port"    ), DB["DBMS"].Get_Content().c_str());
+	//	if( DB("NAME") ) DESC_ADD_STR(_TL("Database"), DB["NAME"].Get_Content().c_str());
 	}
 	else
 	{
-		DESC_ADD_STR (_TL("File"          ), _TL("memory"));
+		DESC_ADD_STR(_TL("Data Source"    ), _TL("memory"));
 	}
 
 	DESC_ADD_STR (_TL("Modified"          ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
