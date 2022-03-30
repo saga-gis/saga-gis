@@ -1094,7 +1094,7 @@ bool CSG_OGR_DataSet::_Write_Geometry(CSG_Shape *pShape, OGRFeatureH pFeature, b
 				}
 			}
 
-			return( OGR_F_SetGeometryDirectly(pFeature, Lines) == OGRERR_NONE );
+			return( OGR_F_SetGeometryDirectly(pFeature, OGR_G_ForceToMultiLineString(Lines)) == OGRERR_NONE );
 		}
 
 	//-----------------------------------------------------
@@ -1112,7 +1112,7 @@ bool CSG_OGR_DataSet::_Write_Geometry(CSG_Shape *pShape, OGRFeatureH pFeature, b
 				}
 			}
 
-			return( OGR_F_SetGeometryDirectly(pFeature, Polygon) == OGRERR_NONE );
+			return( OGR_F_SetGeometryDirectly(pFeature, OGR_G_ForceToMultiPolygon(Polygon)) == OGRERR_NONE );
 		}
 
 	//-----------------------------------------------------
