@@ -501,7 +501,7 @@ public:
 	virtual int					Ins_Point			(const TSG_Point_ZM &p, int iPoint, int iPart = 0);
 
 	virtual int					Set_Point			(double x, double y,    int iPoint, int iPart = 0);
-	virtual int					Set_Point			(const TSG_Point    &p, int iPoint, int iPart = 0) { return( Set_Point(p.x, p.y        , iPart) ); }
+	virtual int					Set_Point			(const TSG_Point    &p, int iPoint, int iPart = 0) { return( Set_Point(p.x, p.y, iPoint, iPart) ); }
 	virtual int					Set_Point			(const TSG_Point_Z  &p, int iPoint, int iPart = 0);
 	virtual int					Set_Point			(const TSG_Point_ZM &p, int iPoint, int iPart = 0);
 
