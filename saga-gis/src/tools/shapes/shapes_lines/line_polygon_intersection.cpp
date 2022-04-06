@@ -63,7 +63,7 @@ CLine_Polygon_Intersection::CLine_Polygon_Intersection(void)
 	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
-		"Line-polygon intersection."
+		"Line-polygon intersection. Splits lines with polygon arcs. "
 	));
 
 	//-----------------------------------------------------

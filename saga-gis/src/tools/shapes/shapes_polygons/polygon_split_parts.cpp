@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: polygon_split_parts.cpp 915 2011-02-15 08:43:36Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "polygon_split_parts.h"
 
 
@@ -70,7 +58,6 @@
 //---------------------------------------------------------
 CPolygon_Split_Parts::CPolygon_Split_Parts(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Polygon Parts to Separate Polygons"));
 
 	Set_Author		("O.Conrad (c) 2011");
@@ -109,23 +96,23 @@ CPolygon_Split_Parts::CPolygon_Split_Parts(void)
 //---------------------------------------------------------
 bool CPolygon_Split_Parts::On_Execute(void)
 {
-	CSG_Shapes	*pPolygons	= Parameters("POLYGONS")->asShapes();
-	CSG_Shapes	*pParts		= Parameters("PARTS"   )->asShapes();
+	CSG_Shapes *pPolygons = Parameters("POLYGONS")->asShapes();
+	CSG_Shapes *pParts    = Parameters("PARTS"   )->asShapes();
 
 	pParts->Create(SHAPE_TYPE_Polygon, CSG_String::Format("%s [%s]", pPolygons->Get_Name(), _TL("Parts")), pPolygons);
 
-	bool	bLakes	= Parameters("LAKES")->asBool();
+	bool bLakes = Parameters("LAKES")->asBool();
 
 	//-----------------------------------------------------
-	for(int iShape=0; iShape<pPolygons->Get_Count() && Set_Progress(iShape, pPolygons->Get_Count()); iShape++)
+	for(int iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
 	{
-		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iShape);
+		CSG_Shape_Polygon *pPolygon = pPolygons->Get_Shape(iPolygon)->asPolygon();
 
 		for(int iPart=0; iPart<pPolygon->Get_Part_Count() && Process_Get_Okay(); iPart++)
 		{
 			if( bLakes || !pPolygon->is_Lake(iPart) )
 			{
-				CSG_Shape_Polygon	*pPart	= (CSG_Shape_Polygon *)pParts->Add_Shape(pPolygon, SHAPE_COPY_ATTR);
+				CSG_Shape_Polygon *pPart = pParts->Add_Shape(pPolygon, SHAPE_COPY_ATTR)->asPolygon();
 
 				for(int iPoint=0; iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
 				{
