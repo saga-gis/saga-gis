@@ -92,6 +92,8 @@ public:
 	bool							is_Interactive		(void);
 	bool							is_Executing		(void);
 
+	bool							Set_Projection		(const CSG_Projection &Projection);
+
 	bool							Execute				(bool bDialog);
 	bool							Execute				(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode, int Keys);
 
