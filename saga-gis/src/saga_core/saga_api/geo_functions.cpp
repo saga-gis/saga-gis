@@ -391,66 +391,67 @@ bool	SG_Get_Crossing_InRegion(TSG_Point &Crossing, const TSG_Point &a, const TSG
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		SG_Is_Point_On_Line(const TSG_Point &Point, const TSG_Point &Ln_A, const TSG_Point &Ln_B, bool bExactMatch, double Epsilon)
+bool		SG_Is_Point_On_Line(const TSG_Point &Point, const TSG_Point &Line_A, const TSG_Point &Line_B, bool bExactMatch, double Epsilon)
 {
-	if( SG_Is_Equal(Ln_B.x, Ln_A.x, Epsilon) )	// vertical line
+	if( SG_Is_Equal(Line_B.x, Line_A.x, Epsilon) )	// vertical line
 	{
-		return( SG_Is_Between(Point.y, Ln_A.y, Ln_B.y, Epsilon) && (!bExactMatch || SG_Is_Between(Point.x, Ln_A.x, Ln_B.x, Epsilon)) );
+		return( SG_Is_Between(Point.y, Line_A.y, Line_B.y, Epsilon) && (!bExactMatch || SG_Is_Between(Point.x, Line_A.x, Line_B.x, Epsilon)) );
 	}
 
-	if( bExactMatch && !SG_Is_Between(Point, Ln_A, Ln_B, Epsilon) )
+	if( bExactMatch && !SG_Is_Between(Point, Line_A, Line_B, Epsilon) )
 	{
 		return( false );
 	}
 
-	double	b	= (Ln_B.y - Ln_A.y) / (Ln_B.x - Ln_A.x);
-	double	a	= Ln_A.y - b * Ln_A.x;
+	double	b	= (Line_B.y - Line_A.y) / (Line_B.x - Line_A.x);
+	double	a	= Line_A.y - b * Line_A.x;
 
 	return( SG_Is_Equal(Point.y, a + b * Point.x, Epsilon) );
 }
 
 //---------------------------------------------------------
-double		SG_Get_Nearest_Point_On_Line(const TSG_Point &Point, const TSG_Point &Ln_A, const TSG_Point &Ln_B, TSG_Point &Ln_Point, bool bExactMatch)
+double		SG_Get_Distance_To_Line(const TSG_Point &Point, const TSG_Point &Line_A, const TSG_Point &Line_B, bool bExactMatch)
 {
-	double		dx, dy, Distance, d;
-	TSG_Point	Point_B;
+	TSG_Point Line_Point;
 
-	Point_B.x	= Point.x - (Ln_B.y - Ln_A.y);
-	Point_B.y	= Point.y + (Ln_B.x - Ln_A.x);
+	return( SG_Get_Nearest_Point_On_Line(Point, Line_A, Line_B, Line_Point, bExactMatch) );
+}
 
-	if( SG_Get_Crossing(Ln_Point, Ln_A, Ln_B, Point, Point_B, false) )
+//---------------------------------------------------------
+double		SG_Get_Nearest_Point_On_Line(const TSG_Point &Point, const TSG_Point &Line_A, const TSG_Point &Line_B, TSG_Point &Line_Point, bool bExactMatch)
+{
+	CSG_Point Point_Ortho(
+		Point.x - (Line_B.y - Line_A.y),
+		Point.y + (Line_B.x - Line_A.x)
+	);
+
+	if( !SG_Get_Crossing(Line_Point, Line_A, Line_B, Point, Point_Ortho, false) )
 	{
-		if( !bExactMatch || (bExactMatch && SG_IS_BETWEEN(Ln_A.x, Ln_Point.x, Ln_B.x) && SG_IS_BETWEEN(Ln_A.y, Ln_Point.y, Ln_B.y)) )
-		{
-			dx			= Point.x - Ln_Point.x;
-			dy			= Point.y - Ln_Point.y;
-			Distance	= sqrt(dx*dx + dy*dy);
-		}
-		else
-		{
-			dx			= Point.x - Ln_A.x;
-			dy			= Point.y - Ln_A.y;
-			d			= sqrt(dx*dx + dy*dy);
-
-			dx			= Point.x - Ln_B.x;
-			dy			= Point.y - Ln_B.y;
-			Distance	= sqrt(dx*dx + dy*dy);
-
-			if( d < Distance )
-			{
-				Distance	= d;
-				Ln_Point	= Ln_A;
-			}
-			else
-			{
-				Ln_Point	= Ln_B;
-			}
-		}
-
-		return( Distance );
+		return( -1. );
 	}
 
-	return( -1. );
+	if( !bExactMatch || (bExactMatch
+	&&  SG_IS_BETWEEN(Line_A.x, Line_Point.x, Line_B.x)
+	&&  SG_IS_BETWEEN(Line_A.y, Line_Point.y, Line_B.y)) )
+	{
+		return( SG_Get_Distance(Point, Line_Point) );
+	}
+
+	double Distance_A = SG_Get_Distance(Point, Line_A);
+	double Distance_B = SG_Get_Distance(Point, Line_B);
+
+	if( Distance_A < Distance_B )
+	{
+		Line_Point	= Line_A;
+
+		return( Distance_A );
+	}
+	else
+	{
+		Line_Point	= Line_B;
+
+		return( Distance_B );
+	}
 }
 
 

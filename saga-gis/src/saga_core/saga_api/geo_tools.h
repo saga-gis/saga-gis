@@ -945,8 +945,9 @@ SAGA_API_DLL_EXPORT bool		SG_is_Angle_Between				(double Angle, double Angle_Min
 SAGA_API_DLL_EXPORT bool		SG_Get_Crossing					(TSG_Point &Crossing, const TSG_Point &a1, const TSG_Point &a2, const TSG_Point &b1, const TSG_Point &b2, bool bExactMatch = true);
 SAGA_API_DLL_EXPORT bool		SG_Get_Crossing_InRegion		(TSG_Point &Crossing, const TSG_Point &a , const TSG_Point & b, const TSG_Rect &Region);
 
-SAGA_API_DLL_EXPORT bool		SG_Is_Point_On_Line				(const TSG_Point &Point, const TSG_Point &Ln_A, const TSG_Point &Ln_B, bool bExactMatch = false, double Epsilon = 0.);
-SAGA_API_DLL_EXPORT double		SG_Get_Nearest_Point_On_Line	(const TSG_Point &Point, const TSG_Point &Ln_A, const TSG_Point &Ln_B, TSG_Point &Ln_Point, bool bExactMatch = true);
+SAGA_API_DLL_EXPORT bool		SG_Is_Point_On_Line				(const TSG_Point &Point, const TSG_Point &Line_A, const TSG_Point &Line_B, bool bExactMatch = false, double Epsilon = 0.);
+SAGA_API_DLL_EXPORT double		SG_Get_Distance_To_Line			(const TSG_Point &Point, const TSG_Point &Line_A, const TSG_Point &Line_B, bool bExactMatch = true);
+SAGA_API_DLL_EXPORT double		SG_Get_Nearest_Point_On_Line	(const TSG_Point &Point, const TSG_Point &Line_A, const TSG_Point &Line_B, TSG_Point &Line_Point, bool bExactMatch = true);
 
 SAGA_API_DLL_EXPORT bool		SG_Get_Triangle_CircumCircle	(TSG_Point Triangle[3], TSG_Point &Point, double &Radius);
 

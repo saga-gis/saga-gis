@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,15 +47,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -489,12 +477,10 @@ void CSG_Shape_Polygon::_Invalidate(void)
 TSG_Intersection CSG_Shape_Polygon::On_Intersects(CSG_Shape *pShape)
 {
 	//-----------------------------------------------------
-	int		iPart;
+	bool bIn  = false;
+	bool bOut = false;
 
-	bool	bIn		= false;
-	bool	bOut	= false;
-
-	for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+	for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 	{
 		for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 		{
@@ -521,7 +507,7 @@ TSG_Intersection CSG_Shape_Polygon::On_Intersects(CSG_Shape *pShape)
 	}
 
 	//-----------------------------------------------------
-	for(iPart=0; iPart<Get_Part_Count(); iPart++)
+	for(int iPart=0; iPart<Get_Part_Count(); iPart++)
 	{
 		if( Get_Point_Count(iPart) < 3 )
 		{
