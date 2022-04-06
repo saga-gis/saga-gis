@@ -99,6 +99,12 @@ CSG_Tool_Interactive_Base::~CSG_Tool_Interactive_Base(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Tool_Interactive_Base::Set_Projection(const CSG_Projection &Projection)
+{
+	return( m_Projection.Create(Projection) );
+}
+
+//---------------------------------------------------------
 bool CSG_Tool_Interactive_Base::Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode, int Keys)
 {
 	if( !m_pTool || m_pTool->m_bExecutes )

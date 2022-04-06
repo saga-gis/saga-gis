@@ -641,9 +641,30 @@ void CVIEW_Map_Control::On_Key_Down(wxKeyEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CVIEW_Map_Control::_Check_Interactive(bool bProjection)
+{
+	if( g_pTool && g_pTool->is_Interactive() )
+	{
+		if( bProjection )
+		{
+			g_pTool->Set_Projection(m_pMap->Get_Projection()); // update interactive tool's projection
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 void CVIEW_Map_Control::On_Mouse_LDown(wxMouseEvent &event)
 {
-	m_Mouse_Down	= m_Mouse_Move	= event.GetPosition();
+	m_Mouse_Down = m_Mouse_Move = event.GetPosition();
 
 	//-----------------------------------------------------
 	if( m_Mode != MAP_MODE_SELECT )	// clipboard copy ?
@@ -670,10 +691,11 @@ void CVIEW_Map_Control::On_Mouse_LDown(wxMouseEvent &event)
 	{
 	//-----------------------------------------------------
 	case MAP_MODE_SELECT:
-		if( g_pTool && g_pTool->is_Interactive() )
+		if( _Check_Interactive() )
 		{
-			m_Drag_Mode		= ((CSG_Tool_Interactive *)g_pTool->Get_Tool())->Get_Drag_Mode();
-			bCaptureMouse	= !g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_LDOWN, GET_KEYS(event));
+			m_Drag_Mode   = ((CSG_Tool_Interactive *)g_pTool->Get_Tool())->Get_Drag_Mode();
+
+			bCaptureMouse = !g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_LDOWN, GET_KEYS(event));
 		}
 		else if( m_pMap->Get_Map_Layer_Active(false) )
 		{
@@ -749,7 +771,7 @@ void CVIEW_Map_Control::On_Mouse_LUp(wxMouseEvent &event)
 	{
 	//-----------------------------------------------------
 	case MAP_MODE_SELECT:
-		if( g_pTool )
+		if( _Check_Interactive() )
 		{
 			g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_LUP, GET_KEYS(event));
 		}
@@ -797,7 +819,7 @@ void CVIEW_Map_Control::On_Mouse_LDClick(wxMouseEvent &event)
 	{
 	//-----------------------------------------------------
 	case MAP_MODE_SELECT:
-		if( g_pTool )
+		if( _Check_Interactive() )
 		{
 			g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_LDCLICK, GET_KEYS(event));
 		}
@@ -828,7 +850,7 @@ void CVIEW_Map_Control::On_Mouse_RDown(wxMouseEvent &event)
 	{
 	//-----------------------------------------------------
 	case MAP_MODE_SELECT:
-		if( g_pTool )
+		if( _Check_Interactive() )
 		{
 			g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_RDOWN, GET_KEYS(event));
 		}
@@ -857,7 +879,7 @@ void CVIEW_Map_Control::On_Mouse_RUp(wxMouseEvent &event)
 	{
 	//-----------------------------------------------------
 	case MAP_MODE_SELECT:
-		if( g_pTool )
+		if( _Check_Interactive() )
 		{
 			g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_RUP, GET_KEYS(event));
 		}
@@ -924,7 +946,7 @@ void CVIEW_Map_Control::On_Mouse_RDClick(wxMouseEvent &event)
 	{
 	//-----------------------------------------------------
 	case MAP_MODE_SELECT:
-		if( g_pTool )
+		if( _Check_Interactive() )
 		{
 			g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_RDCLICK, GET_KEYS(event));
 		}
@@ -964,7 +986,7 @@ void CVIEW_Map_Control::On_Mouse_MDown(wxMouseEvent &event)
 	{
 	//-----------------------------------------------------
 	case MAP_MODE_SELECT:
-		if( g_pTool )
+		if( _Check_Interactive() )
 		{
 			g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_MDOWN, GET_KEYS(event));
 		}
@@ -1050,14 +1072,14 @@ void CVIEW_Map_Control::On_Mouse_Motion(wxMouseEvent &event)
 	{
 	//-----------------------------------------------------
 	case MAP_MODE_SELECT:
-		if( g_pTool )
+		if( _Check_Interactive(false) )
 		{
-			TSG_Tool_Interactive_Mode	iMode
-				= event.LeftIsDown  () ? TOOL_INTERACTIVE_MOVE_LDOWN
-				: event.MiddleIsDown() ? TOOL_INTERACTIVE_MOVE_MDOWN
-				: event.RightIsDown () ? TOOL_INTERACTIVE_MOVE_RDOWN : TOOL_INTERACTIVE_MOVE;
-
-			g_pTool->Execute(_Get_Client2World(Point), iMode, GET_KEYS(event));
+			g_pTool->Execute(_Get_Client2World(Point), 
+				event.LeftIsDown  () ? TOOL_INTERACTIVE_MOVE_LDOWN :
+				event.MiddleIsDown() ? TOOL_INTERACTIVE_MOVE_MDOWN :
+				event.RightIsDown () ? TOOL_INTERACTIVE_MOVE_RDOWN : TOOL_INTERACTIVE_MOVE,
+				GET_KEYS(event)
+			);
 		}
 		else if( m_pMap->Get_Map_Layer_Active(true) )
 		{

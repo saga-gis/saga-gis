@@ -268,6 +268,22 @@ bool CWKSP_Tool::is_Executing(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CWKSP_Tool::Set_Projection(const CSG_Projection &Projection)
+{
+	if( g_pTool == this && m_pTool->is_Interactive() ) // applies only to interactive tools
+	{
+		return( ((CSG_Tool_Interactive *)m_pTool)->Set_Projection(Projection) );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CWKSP_Tool::Execute(bool bDialog)
 {
 	bool	bResult	= false;

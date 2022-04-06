@@ -145,6 +145,8 @@ private:
 	CSG_Point					_Get_Client2World	(const   wxPoint &Point, bool bToActive = false);
 	double						_Get_Client2World	(double Length         , bool bToActive = false);
 
+	bool						_Check_Interactive	(bool bProjection = true);
+
 	bool						_Draw_CrossHair		(const wxPoint &Point);
 
 	void						_Draw_Inverse		(const wxPoint &A, const wxPoint &B);

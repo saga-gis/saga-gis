@@ -489,30 +489,34 @@ public:
 	CSG_Tool_Interactive_Base(void);
 	virtual ~CSG_Tool_Interactive_Base(void);
 
+	bool						Set_Projection			(const CSG_Projection &Projection);
+
 	bool						Execute_Position		(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode, int Keys);
 	bool						Execute_Keyboard		(int Character, int Keys);
 	bool						Execute_Finish			(void);
 
-	int							Get_Drag_Mode			(void)	{	return( m_Drag_Mode );	}
+	int							Get_Drag_Mode			(void)	const	{	return( m_Drag_Mode );	}
 
 
 protected:
+
+	const CSG_Projection &		Get_Projection			(void)	const	{	return( m_Projection );	}
 
 	virtual bool				On_Execute_Position		(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
 	virtual bool				On_Execute_Keyboard		(int Character);
 	virtual bool				On_Execute_Finish		(void);
 
-	CSG_Point &					Get_Position			(void)	{	return( m_Point );				}
-	double						Get_xPosition			(void)	{	return( m_Point.Get_X() );		}
-	double						Get_yPosition			(void)	{	return( m_Point.Get_Y() );		}
+	const CSG_Point &			Get_Position			(void)	const	{	return( m_Point              );	}
+	double						Get_xPosition			(void)	const	{	return( m_Point     .Get_X() );	}
+	double						Get_yPosition			(void)	const	{	return( m_Point     .Get_Y() );	}
 
-	CSG_Point &					Get_Position_Last		(void)	{	return( m_Point_Last );			}
-	double						Get_xPosition_Last		(void)	{	return( m_Point_Last.Get_X() );	}
-	double						Get_yPosition_Last		(void)	{	return( m_Point_Last.Get_Y() );	}
+	const CSG_Point &			Get_Position_Last		(void)	const	{	return( m_Point_Last         );	}
+	double						Get_xPosition_Last		(void)	const	{	return( m_Point_Last.Get_X() );	}
+	double						Get_yPosition_Last		(void)	const	{	return( m_Point_Last.Get_Y() );	}
 
-	bool						is_Shift				(void)	{	return( (m_Keys & TOOL_INTERACTIVE_KEY_SHIFT) != 0 );	}
-	bool						is_Alt					(void)	{	return( (m_Keys & TOOL_INTERACTIVE_KEY_ALT)   != 0 );	}
-	bool						is_Ctrl					(void)	{	return( (m_Keys & TOOL_INTERACTIVE_KEY_CTRL)  != 0 );	}
+	bool						is_Shift				(void)	const	{	return( (m_Keys & TOOL_INTERACTIVE_KEY_SHIFT) != 0 );	}
+	bool						is_Alt					(void)	const	{	return( (m_Keys & TOOL_INTERACTIVE_KEY_ALT  ) != 0 );	}
+	bool						is_Ctrl					(void)	const	{	return( (m_Keys & TOOL_INTERACTIVE_KEY_CTRL ) != 0 );	}
 
 	void						Set_Drag_Mode			(int Drag_Mode);
 
@@ -522,6 +526,8 @@ private:
 	int							m_Keys, m_Drag_Mode;
 
 	CSG_Point					m_Point, m_Point_Last;
+
+	CSG_Projection				m_Projection;
 
 	CSG_Tool					*m_pTool;
 
@@ -580,10 +586,10 @@ public:
 
 protected:
 
-	bool						Get_Grid_Pos			(int &x, int &y);
+	bool						Get_Grid_Pos			(int &x, int &y)	const;
 
-	int							Get_xGrid				(void);
-	int							Get_yGrid				(void);
+	int							Get_xGrid				(void)	const;
+	int							Get_yGrid				(void)	const;
 
 };
 
