@@ -142,6 +142,14 @@ wxString CWKSP_Grid::Get_Description(void)
 	}
 
 	DESC_ADD_STR (_TL("Modified"          ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
+	DESC_ADD_STR (_TL("Value Type"        ), SG_Data_Type_Get_Name(Get_Grid()->Get_Type()).c_str());
+	DESC_ADD_STR (_TL("Memory Size"       ), Get_nBytes_asString(Get_Grid()->Get_Memory_Size(), 2).c_str());
+
+	if( Get_Grid()->is_Cached() )
+	{
+		DESC_ADD_STR(_TL("File Cache"     ), _TL("activated"));
+	}
+
 	DESC_ADD_STR (_TL("Projection"        ), m_pObject->Get_Projection().Get_Description().c_str());
 	DESC_ADD_STR (_TL("West"              ), SG_Get_String(Get_Grid()->Get_XMin        (), -CSG_Grid_System::Get_Precision()).c_str());
 	DESC_ADD_STR (_TL("East"              ), SG_Get_String(Get_Grid()->Get_XMax        (), -CSG_Grid_System::Get_Precision()).c_str());
@@ -153,27 +161,33 @@ wxString CWKSP_Grid::Get_Description(void)
 	DESC_ADD_INT (_TL("Number of Columns" ), Get_Grid()->Get_NX          ());
 	DESC_ADD_INT (_TL("Number of Rows"    ), Get_Grid()->Get_NY          ());
 	DESC_ADD_LONG(_TL("Number of Cells"   ), Get_Grid()->Get_NCells      ());
-	DESC_ADD_LONG(_TL("No Data Cells"     ), Get_Grid()->Get_NoData_Count());
-	DESC_ADD_STR (_TL("Value Type"        ), SG_Data_Type_Get_Name(Get_Grid()->Get_Type()).c_str());
-	DESC_ADD_FLT (_TL("Value Minimum"     ), Get_Grid()->Get_Min         ());
-	DESC_ADD_FLT (_TL("Value Maximum"     ), Get_Grid()->Get_Max         ());
-	DESC_ADD_FLT (_TL("Value Range"       ), Get_Grid()->Get_Range       ());
 	DESC_ADD_STR (_TL("No Data Value"     ), Get_Grid()->Get_NoData_Value() < Get_Grid()->Get_NoData_Value(true) ? CSG_String::Format("%f - %f", Get_Grid()->Get_NoData_Value(), Get_Grid()->Get_NoData_Value(true)).c_str() : SG_Get_String(Get_Grid()->Get_NoData_Value(), -2).c_str());
-	DESC_ADD_FLT (_TL("Arithmetic Mean"   ), Get_Grid()->Get_Mean        ());
-	DESC_ADD_FLT (_TL("Standard Deviation"), Get_Grid()->Get_StdDev      ());
-	DESC_ADD_STR (_TL("Memory Size"       ), Get_nBytes_asString(Get_Grid()->Get_Memory_Size(), 2).c_str());
 
-	if( Get_Grid()->is_Cached() )
+	double Samples = 100. * (double)Get_Grid()->Get_Max_Samples() / (double)Get_Grid()->Get_NCells();
+
+	DESC_ADD_STR (_TL("No Data Cells"     ), wxString::Format("%lld%s", Get_Grid()->Get_NoData_Count(), Samples < 100. ? " (*)" : ""));
+	DESC_ADD_STR (_TL("Value Minimum"     ), wxString::Format("%s%s", SG_Get_String(Get_Grid()->Get_Min   (), -20).c_str(), Samples < 100. ? "*" : ""));
+	DESC_ADD_STR (_TL("Value Maximum"     ), wxString::Format("%s%s", SG_Get_String(Get_Grid()->Get_Max   (), -20).c_str(), Samples < 100. ? "*" : ""));
+	DESC_ADD_STR (_TL("Value Range"       ), wxString::Format("%s%s", SG_Get_String(Get_Grid()->Get_Range (), -20).c_str(), Samples < 100. ? "*" : ""));
+	DESC_ADD_STR (_TL("Arithmetic Mean"   ), wxString::Format("%s%s", SG_Get_String(Get_Grid()->Get_Mean  (), -20).c_str(), Samples < 100. ? "*" : ""));
+	DESC_ADD_STR (_TL("Standard Deviation"), wxString::Format("%s%s", SG_Get_String(Get_Grid()->Get_StdDev(), -20).c_str(), Samples < 100. ? "*" : ""));
+
+	if( Samples < 100. )
 	{
-		DESC_ADD_STR(_TL("File Cache"     ), _TL("activated"));
+		DESC_ADD_STR(_TL("Sample Size"    ), wxString::Format("%lld* (%.02f%%)", Get_Grid()->Get_Max_Samples(), Samples));
 	}
-
-	s	+= "</table>";
 
 	//-----------------------------------------------------
 //	s.Append(wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), _TL("Data History")));
 //	s.Append(Get_Grid()->Get_History().Get_HTML());
 //	s.Append(wxString::Format(wxT("</font")));
+
+	s	+= "</table>";
+
+	if( Samples < 100. )
+	{
+		s	+= wxString::Format("*) %s", _TL("Statistics are based on a subset of the data set. The sample size to be used can be changed in the settings."));
+	}
 
 	return( s );
 }
@@ -465,7 +479,7 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	// Memory...
 
 	m_Parameters.Add_Double("NODE_GENERAL",
-		"MAX_SAMPLES"	, _TL("Maximum Samples"),
+		"MAX_SAMPLES"	, _TL("Sample Size"),
 		_TL("Maximum number of samples used to build statistics and histograms expressed as percent of the total number of cells."),
 		100. * (double)Get_Grid()->Get_Max_Samples() / (double)Get_Grid()->Get_NCells(), 0., true, 100., true
 	);
