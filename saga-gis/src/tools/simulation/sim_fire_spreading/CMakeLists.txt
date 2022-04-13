@@ -1,4 +1,5 @@
-if(WITH_TOOLS)
+option(WITH_FIRE_SPREADING "Enable fire spreading tool (license requirements libfire)" ON)
+if(WITH_TOOLS AND WITH_FIRE_SPREADING)
 	project(sim_fire_spreading)
 
 	file(GLOB SAGA_TOOL_BLACKLIST	# blacklist some unused files
