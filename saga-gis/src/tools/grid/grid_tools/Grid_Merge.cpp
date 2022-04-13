@@ -75,7 +75,7 @@ CGrid_Merge::CGrid_Merge(void)
 		"example, would exceed the maximum command line length, the tools has "
 		"the option to provide a file list as input (instead of using the input "
 		"grid list). This is a text file with the full path to an input grid "
-		"on each line. Please note the limitiations: (i) the target grid system "
+		"on each line. Please note the limitations: (i) the target grid system "
 		"is set automatically in this case (the extent is calculated from all "
 		"inputs and the cell size is set to the smallest one detected) and (ii) "
 		"the input grids must still fit into memory, i.e. are all loaded at once.\n\n"

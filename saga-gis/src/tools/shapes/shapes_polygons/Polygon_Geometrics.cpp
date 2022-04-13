@@ -45,7 +45,7 @@ CPolygon_Geometrics::CPolygon_Geometrics(void)
 	Set_Author		("V.Olaya (c) 2004, O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
-		"Add general and geometric properties of polygons to its atttributes."
+		"Add general and geometric properties of polygons to its attributes."
 	));
 
 	Parameters.Add_Shapes("",

@@ -64,7 +64,7 @@ CTemperature_Lapse_Rates::CTemperature_Lapse_Rates(void)
 
 	Set_Description	(_TW(
 		"This tool selects daily temperature lapse rates for minimum and maximum temperatures "
-		"from hourly lapse rates by selecting the time at which minimum or maximum temperatures occured "
+		"from hourly lapse rates by selecting the time at which minimum or maximum temperatures occurred "
 		"and then returns the respective lapse rate."
 	));
 

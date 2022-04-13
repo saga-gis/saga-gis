@@ -219,7 +219,7 @@ CGrid_Statistics_Add::CGrid_Statistics_Add(void)
 	Set_Author		("O.Conrad (c) 2018");
 
 	Set_Description	(_TW(
-		"This tool allows to collect successively cell-wise statistical information "
+		"This tool allows collecting successively cell-wise statistical information "
 		"from grids by subsequent calls. "
 		"The targeted data sets, particularly the histogram, should have been created with "
 		"'Build Statistics for Grids' tool. The collected information can be used "

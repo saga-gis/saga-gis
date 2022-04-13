@@ -38,7 +38,7 @@
  *    the bitwise or.  This combining allows multiple error codes to be
  *    returned. The possible error codes are:
  *
- *  ELLIPSE_NO_ERROR             : No errors occured in function
+ *  ELLIPSE_NO_ERROR             : No errors occurred in function
  *  ELLIPSE_FILE_OPEN_ERROR      : Ellipsoid file opening error
  *  ELLIPSE_INITIALIZE_ERROR     : Ellipsoid database can not initialize
  *  ELLIPSE_TABLE_OVERFLOW_ERROR : Ellipsoid table overflow

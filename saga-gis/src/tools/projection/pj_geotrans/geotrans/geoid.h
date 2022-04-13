@@ -20,7 +20,7 @@
  *    the bitwise or.  This combining allows multiple error codes to be
  *    returned. The possible error codes are:
  *
- *  GEOID_NO_ERROR               : No errors occured in function
+ *  GEOID_NO_ERROR               : No errors occurred in function
  *  GEOID_FILE_OPEN_ERROR        : Geoid file opening error
  *  GEOID_INITIALIZE_ERROR       : Geoid seoaration database can not initialize
  *  GEOID_NOT_INITIALIZED_ERROR  : Geoid separation database not initialized properly

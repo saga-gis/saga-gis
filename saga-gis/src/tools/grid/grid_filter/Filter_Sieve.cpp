@@ -78,7 +78,7 @@ CFilter_Sieve::CFilter_Sieve(void)
 	Set_Description	(_TW(
 		"The 'Sieve Classes' tool counts the number of adjacent cells "
 		"sharing the same value (the class identifier). Areas that are formed "
-		"by less cells than specified by the treshold will be removed "
+		"by less cells than specified by the threshold will be removed "
 		"(sieved), i.e. they are set to no-data. "
 	));
 

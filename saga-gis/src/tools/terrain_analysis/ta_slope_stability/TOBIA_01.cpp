@@ -79,7 +79,7 @@ CTOBIA::CTOBIA(void)
 		"\n"
 		"This tool computes both a continuous and a categorical TOBIA (""Topography Bedding Intersection Angle"") Index according to Meentemeyer & Moody (2000) "
 		"For computation, a slope and a aspect raster (both in radians) determining slope face orientations are required. "
-		"The categorical TOBIA classifies the alignement of a geological structure to Topography into seven classes:\n"
+		"The categorical TOBIA classifies the alignment of a geological structure to Topography into seven classes:\n"
 		"0) Underdip slope\n"
 		"1) Dip slope\n"
 		"2) Overdip slope\n"

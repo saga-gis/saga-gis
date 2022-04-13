@@ -69,7 +69,7 @@ CSnow_Cover::CSnow_Cover(void)
 		"will diminish accumulated snow successively until it is gone completely. "
 		"Simulation is done on a daily basis. If you supply the tool with "
 		"monthly averages, temperatures will be interpolated using a spline "
-		"and precipitation will be splitted into separate events. The latter "
+		"and precipitation will be split into separate events. The latter "
 		"is done with respect to the monthly mean temperature, i.e. the higher "
 		"the temperature the more concentrated are precipitation events and vice "
 		"versa. "

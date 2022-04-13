@@ -198,8 +198,8 @@ bool CPoints_Thinning::On_Execute(void)
 
 	m_pThinned->Add_Field("Count"  , SG_DATATYPE_Int   );
 	m_pThinned->Add_Field("Mean"   , SG_DATATYPE_Double);
-	m_pThinned->Add_Field("Minimun", SG_DATATYPE_Double);
-	m_pThinned->Add_Field("Maximun", SG_DATATYPE_Double);
+	m_pThinned->Add_Field("Minimum", SG_DATATYPE_Double);
+	m_pThinned->Add_Field("Maximum", SG_DATATYPE_Double);
 	m_pThinned->Add_Field("StdDev" , SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
@@ -356,8 +356,8 @@ inline void CPoints_Thinning::QuadTree_Add_Point(CSG_PRQuadTree_Leaf *pLeaf)
 		Add_Point(pLeaf->Get_X(), pLeaf->Get_Y(),
 	   (int)pList->Get_Count  (), // Count
 			pList->Get_Mean   (), // Mean
-			pList->Get_Minimum(), // Minimun
-			pList->Get_Maximum(), // Maximun
+			pList->Get_Minimum(), // Minimum
+			pList->Get_Maximum(), // Maximum
 			pList->Get_StdDev ()  // StdDev
 		);
 	}
@@ -366,8 +366,8 @@ inline void CPoints_Thinning::QuadTree_Add_Point(CSG_PRQuadTree_Leaf *pLeaf)
 		Add_Point(pLeaf->Get_X(), pLeaf->Get_Y(),
 			1             , // Count
 			pLeaf->Get_Z(), // Mean
-			pLeaf->Get_Z(), // Minimun
-			pLeaf->Get_Z(), // Maximun
+			pLeaf->Get_Z(), // Minimum
+			pLeaf->Get_Z(), // Maximum
 			0.              // StdDev
 		);
 	}
@@ -379,8 +379,8 @@ inline void CPoints_Thinning::QuadTree_Add_Point(CSG_PRQuadTree_Node_Statistics 
 	Add_Point(pNode->Get_X()->Get_Mean(), pNode->Get_Y()->Get_Mean(),
    (int)pNode->Get_Z()->Get_Count  (), // Count
 		pNode->Get_Z()->Get_Mean   (), // Mean
-		pNode->Get_Z()->Get_Minimum(), // Minimun
-		pNode->Get_Z()->Get_Maximum(), // Maximun
+		pNode->Get_Z()->Get_Minimum(), // Minimum
+		pNode->Get_Z()->Get_Maximum(), // Maximum
 		pNode->Get_Z()->Get_StdDev ()  // StdDev
 	);
 }

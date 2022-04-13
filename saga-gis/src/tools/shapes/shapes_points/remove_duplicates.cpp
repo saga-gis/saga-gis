@@ -289,7 +289,7 @@ void CRemove_Duplicates::Set_Attributes(CSG_Shape *pPoint, CSG_PRQuadTree_Leaf_L
 
 				switch( m_Numeric )
 				{
-				case 1: pPoint->Set_Value(iField, s.Get_Minimum()); break;	// minimun value
+				case 1: pPoint->Set_Value(iField, s.Get_Minimum()); break;	// minimum value
 				case 2: pPoint->Set_Value(iField, s.Get_Maximum()); break;	// maximum value
 				case 3: pPoint->Set_Value(iField, s.Get_Mean   ()); break;	// mean value
 				}

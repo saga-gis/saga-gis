@@ -2047,7 +2047,7 @@ bool CSG_Cluster_Analysis::Set_Feature(int iElement, int iFeature, double Value)
 * climbing (= 1), or both methods in combination. If nMaxIterations
 * is set to zero, the analysis is iterated until it converges.
 * Initilization is done randomely (= default), periodically (= 1),
-* or skipped (= 2). The latter case allows to start the clustering
+* or skipped (= 2). The latter case allows starting the clustering
 * with user supplied start partitions.
 */
 //---------------------------------------------------------
