@@ -7,9 +7,9 @@ if(WITH_TOOLS)
 		# link dxflib library
 		# Ubuntu 16.04 package libdxflib-dev
 		find_package(dxflib REQUIRED)
-		target_include_directories(${PROJECT_NAME} PRIVATE ${dxflib_INCLUDE_DIRS})
-		target_link_libraries(${PROJECT_NAME} ${dxflib_LIBRARIES})
-	else()
+	endif()
+	
+	if(NOT dxflib_FOUND)
 		# add files in sudirectories
 		set(SAGA_TOOL_CUSTOM_SOURCE_LIST
 			dxflib/dl_dxf.cpp
@@ -31,4 +31,9 @@ if(WITH_TOOLS)
 
 	# load common tool template
 	include(../../CMakePluginTemplate.cmake)
+	
+	if(dxflib_FOUND)
+		target_include_directories(${PROJECT_NAME} PRIVATE ${dxflib_INCLUDE_DIRS})
+		target_link_libraries     (${PROJECT_NAME}         ${dxflib_LIBRARIES})
+	endif()
 endif()
