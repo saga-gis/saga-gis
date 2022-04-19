@@ -62,41 +62,58 @@ public:
 
 	CSG_Arcs(void);
 	CSG_Arcs(CSG_Shape_Polygon *pPolygon);
-	CSG_Arcs(CSG_Shape_Polygon *pPolygon, double Tolerance);
+
+	bool					Create					(CSG_Shape_Polygon *pPolygon);
 
 	bool					Destroy					(void);
 
-	bool					is_Valid				(void)	const	{ return( m_Arcs.Get_Count() > 0 );	}
+	bool					is_Valid				(void)	const	{ return( m_pPolygon && m_pPolygon->is_Valid() );	}
 
-	bool					Set_Tolerance			(double Tolerance);
-
-	bool					Set_Polygon				(CSG_Shape_Polygon *pPolygon);
-
-	bool					Add_Lines				(CSG_Shapes *pLines, CSG_Shape_Polygon *pPolygon);
+	bool					Set_Lines				(CSG_Shapes *pLines);
 
 	bool					Get_Intersection		(CSG_Shapes *pPolygons, CSG_Table_Record *pAttributes, bool bSplitParts);
 
 
 private:
 
-	double					m_Tolerance;
+	enum
+	{
+		NODE_ID = 0,
+		NODE_PART,
+		NODE_POINT,
+		NODE_DIST
+	};
 
-	CSG_Shapes				m_Arcs;
+	enum
+	{
+		ARC_ID = 0,
+		ARC_PASSES,
+		ARC_NODE_START,
+		ARC_NODE_END
+	};
+
+
+	int						m_nNodes;
+
+	CSG_Shapes				m_Nodes, m_Arcs, m_Polygon;
+
+	CSG_Shape_Polygon		*m_pPolygon;
 
 
 	void					_On_Construction		(void);
 
-	bool					_Add_Line				(CSG_Shape_Part *pLine, CSG_Shape_Polygon *pPolygon);
-	int						_Add_Line_Segment		(CSG_Shape_Polygon *pPolygon, const TSG_Point Segment[2], double Distance, CSG_Shapes &Vertices);
+	bool					_Add_Line				(CSG_Shape_Part *pLine);
+	int						_Add_Line_Segment		(const TSG_Point Segment[2], double Distance, CSG_Shapes &Vertices);
 	bool					_Add_Line_Intersection	(CSG_Shapes &Vertices, int &iStart);
 
-	bool					_Add_Node				(const CSG_Point &Point, int Polygon_Part);
+	int						_Add_Node				(const CSG_Point &Point, int Polygon_Part, int Polygon_Point);
 
-	bool					_Split_Arc				(CSG_Shape_Line *pArc, int iPoint, const CSG_Point &Point);
+	bool					_Split_Polygon			(void);
+	bool					_Split_Arc				(const CSG_Shape &Node, int Polygon_Offset);
 
 	bool					_Check_Arc				(CSG_Shape_Line *pArc);
 
-	bool					_Collect_Add_Next		(CSG_Shape_Part    &Polygon);
+	bool					_Collect_Add_Next		(CSG_Shape_Part    &Polygon, int &ID_Arc, int &ID_Node);
 	bool					_Collect_Get_Polygon	(CSG_Shape_Polygon &Polygon);
 
 };
@@ -116,25 +133,17 @@ CSG_Arcs::CSG_Arcs(CSG_Shape_Polygon *pPolygon)
 {
 	_On_Construction();
 
-	Set_Polygon(pPolygon);
-}
-
-CSG_Arcs::CSG_Arcs(CSG_Shape_Polygon *pPolygon, double Tolerance)
-{
-	_On_Construction();
-
-	Set_Polygon(pPolygon);
-
-	if( Tolerance >= 0. )
-	{
-		m_Tolerance = Tolerance;
-	}
+	Create(pPolygon);
 }
 
 //---------------------------------------------------------
 bool CSG_Arcs::Destroy(void)
 {
-	m_Arcs.Del_Shapes();
+	m_nNodes   = 0;
+	m_pPolygon = NULL; m_Polygon.Destroy();
+
+	m_Nodes.Del_Shapes();
+	m_Arcs .Del_Shapes();
 
 	return( true );
 }
@@ -142,14 +151,20 @@ bool CSG_Arcs::Destroy(void)
 //---------------------------------------------------------
 void CSG_Arcs::_On_Construction(void)
 {
-	m_Tolerance = 0.001;
+	m_nNodes   = 0;
+	m_pPolygon = NULL;
 
-	m_Arcs.Create(SHAPE_TYPE_Line);
+	m_Nodes.Create(SHAPE_TYPE_Point);
+	m_Nodes.Add_Field("ID"   , SG_DATATYPE_Int   );
+	m_Nodes.Add_Field("PART" , SG_DATATYPE_Int   );
+	m_Nodes.Add_Field("POINT", SG_DATATYPE_Int   );
+	m_Nodes.Add_Field("DIST" , SG_DATATYPE_Double);
 
-	m_Arcs.Add_Field("PART", SG_DATATYPE_Int   );
-	m_Arcs.Add_Field("PROC", SG_DATATYPE_Char  );
-	m_Arcs.Add_Field("DIR0", SG_DATATYPE_Double);
-	m_Arcs.Add_Field("DIR1", SG_DATATYPE_Double);
+	m_Arcs .Create(SHAPE_TYPE_Line);
+	m_Arcs .Add_Field("ID"    , SG_DATATYPE_Int  );
+	m_Arcs .Add_Field("PASSES", SG_DATATYPE_Char );
+	m_Arcs .Add_Field("NODE_A", SG_DATATYPE_Int  );
+	m_Arcs .Add_Field("NODE_B", SG_DATATYPE_Int  );
 }
 
 
@@ -158,70 +173,72 @@ void CSG_Arcs::_On_Construction(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Arcs::Set_Polygon(CSG_Shape_Polygon *pPolygon)
+bool CSG_Arcs::Create(CSG_Shape_Polygon *pPolygon)
 {
 	Destroy();
 
-	if( !pPolygon || !pPolygon->is_Valid() )
+	if( pPolygon && pPolygon->is_Valid() )
+	{
+		m_Polygon.Create(SHAPE_TYPE_Polygon); // create a clean polygon copy, no duplicates except first ring vertex has to be the same as last, direction...
+
+		m_pPolygon = m_Polygon.Add_Shape()->asPolygon();
+
+		for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
+		{
+			if( pPolygon->Get_Area(iPart) > 0. ) // just in case, skip invalid parts
+			{
+				bool bAscending = pPolygon->is_Lake(iPart) != pPolygon->is_Clockwise(iPart);
+
+				CSG_Point P, Pfirst = pPolygon->Get_Point(0, iPart, bAscending);
+
+				for(int iPoint=0; iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
+				{
+					CSG_Point Pnext = pPolygon->Get_Point(iPoint, iPart, bAscending);
+
+					if( P != Pnext ) // skip duplicates
+					{
+						m_pPolygon->Add_Point(P = Pnext, iPart);
+					}
+				}
+
+				if( P != Pfirst )
+				{
+					m_pPolygon->Add_Point(Pfirst, iPart); // make sure that last vertex equals first (close the polygon)
+				}
+			}
+		}
+
+		return( m_pPolygon->is_Valid() );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Arcs::Set_Lines(CSG_Shapes *pLines)
+{
+	if( !m_pPolygon || !m_pPolygon->is_Valid() )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
-	{
-		if( pPolygon->Get_Area(iPart) > 0. ) // just in case, skip invalid parts
-		{
-			bool bAscending = pPolygon->is_Lake(iPart) != pPolygon->is_Clockwise(iPart);
-
-			CSG_Shape &Arc = *m_Arcs.Add_Shape();
-
-			Arc.Set_Value(0, iPart); // PART
-			Arc.Set_Value(1, 1    ); // PROC
-
-			CSG_Point P, Pfirst = pPolygon->Get_Point(0, iPart, bAscending);
-
-			Arc.Add_Point(P = Pfirst);
-
-			for(int iPoint=1; iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
-			{
-				CSG_Point Pnext = pPolygon->Get_Point(iPoint, iPart, bAscending);
-
-				if( P != Pnext ) // skip duplicates
-				{
-					Arc.Add_Point(P = Pnext);
-				}
-			}
-
-			if( P != Pfirst )
-			{
-				Arc.Add_Point(Pfirst); // make sure that last vertex equals first (close the polygon)
-			}
-		}
-	}
-
-	return( m_Arcs.Get_Count() > 0 );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CSG_Arcs::Add_Lines(CSG_Shapes *pLines, CSG_Shape_Polygon *pPolygon)
-{
 	bool bIntersects = false;
 
 	for(int iLine=0; iLine<pLines->Get_Count(); iLine++)
 	{
 		CSG_Shape_Line *pLine = pLines->Get_Shape(iLine)->asLine();
 
-		if( pLine->Intersects(pPolygon) )
+		if( pLine->Intersects(m_pPolygon) )
 		{
 			for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
 			{
-				if( _Add_Line(pLine->Get_Part(iPart), pPolygon) )
+				if( _Add_Line(pLine->Get_Part(iPart)) )
 				{
 					bIntersects = true;
 				}
@@ -229,12 +246,16 @@ bool CSG_Arcs::Add_Lines(CSG_Shapes *pLines, CSG_Shape_Polygon *pPolygon)
 		}
 	}
 
-	//-----------------------------------------------------
+	if( bIntersects )
+	{
+		_Split_Polygon();
+	}
+
 	return( bIntersects );
 }
 
 //---------------------------------------------------------
-bool CSG_Arcs::_Add_Line(CSG_Shape_Part *pLine, CSG_Shape_Polygon *pPolygon)
+bool CSG_Arcs::_Add_Line(CSG_Shape_Part *pLine)
 {
 	if( pLine->Get_Count() < 2 )
 	{
@@ -246,7 +267,8 @@ bool CSG_Arcs::_Add_Line(CSG_Shape_Part *pLine, CSG_Shape_Polygon *pPolygon)
 
 	Vertices.Add_Field("DISTANCE", SG_DATATYPE_Double);
 	Vertices.Add_Field("CROSSING", SG_DATATYPE_Char  );
-	Vertices.Add_Field("POLYPART", SG_DATATYPE_Int   );
+	Vertices.Add_Field("PART"    , SG_DATATYPE_Int   );
+	Vertices.Add_Field("POINT"   , SG_DATATYPE_Int   );
 
 	TSG_Point Segment[2]; Segment[1] = pLine->Get_Point(0);
 
@@ -258,7 +280,7 @@ bool CSG_Arcs::_Add_Line(CSG_Shape_Part *pLine, CSG_Shape_Polygon *pPolygon)
 
 		if( Segment[0].x != Segment[1].x || Segment[0].y != Segment[1].y )
 		{
-			nCrossings += _Add_Line_Segment(pPolygon, Segment, Distance, Vertices);
+			nCrossings += _Add_Line_Segment(Segment, Distance, Vertices);
 
 			Distance   += SG_Get_Distance(Segment[0].x, Segment[0].y, Segment[1].x, Segment[1].y);
 		}
@@ -286,27 +308,27 @@ bool CSG_Arcs::_Add_Line(CSG_Shape_Part *pLine, CSG_Shape_Polygon *pPolygon)
 }
 
 //---------------------------------------------------------
-int CSG_Arcs::_Add_Line_Segment(CSG_Shape_Polygon *pPolygon, const TSG_Point S[2], double Distance, CSG_Shapes &Vertices)
+int CSG_Arcs::_Add_Line_Segment(const TSG_Point S[2], double Distance, CSG_Shapes &Vertices)
 {
-	#define Add_Vertex(p, d, c, i) { CSG_Shape &v = *Vertices.Add_Shape();\
-		v.Add_Point(p); v.Set_Value(0, d); v.Set_Value(1, c); v.Set_Value(2, i);\
+	#define Add_Vertex(p, d, c, part, point) { CSG_Shape &v = *Vertices.Add_Shape();\
+		v.Add_Point(p); v.Set_Value(0, d); v.Set_Value(1, c); v.Set_Value(2, part); v.Set_Value(3, point);\
 	}
 
 	int nCrossings = 0; bool bAddFirst = true;
 
-	for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
+	for(int iPart=0; iPart<m_pPolygon->Get_Part_Count(); iPart++)
 	{
-		TSG_Point A = pPolygon->Get_Point(pPolygon->Get_Point_Count(iPart) - 1, iPart);
+		TSG_Point A = m_pPolygon->Get_Point(m_pPolygon->Get_Point_Count(iPart) - 1, iPart);
 
-		for(int iPoint=0; iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
+		for(int iPoint=0; iPoint<m_pPolygon->Get_Point_Count(iPart); iPoint++)
 		{
-			TSG_Point C, B = A; A = pPolygon->Get_Point(iPoint, iPart);
+			TSG_Point C, B = A; A = m_pPolygon->Get_Point(iPoint, iPart);
 
 			if( SG_Get_Crossing(C, A, B, S[0], S[1]) )
 			{
 				nCrossings++;
 
-				Add_Vertex(C, Distance + SG_Get_Distance(C, S[0]), 1, iPart);
+				Add_Vertex(C, Distance + SG_Get_Distance(C, S[0]), 1, iPart, iPoint);
 
 				if( C.x == S[0].x && C.y == S[0].y )
 				{
@@ -316,9 +338,9 @@ int CSG_Arcs::_Add_Line_Segment(CSG_Shape_Polygon *pPolygon, const TSG_Point S[2
 		}
 	}
 
-	if( bAddFirst && pPolygon->Contains(S[0]) )
+	if( bAddFirst && m_pPolygon->Contains(S[0]) )
 	{
-		Add_Vertex(S[0], Distance, 0, -1);
+		Add_Vertex(S[0], Distance, 0, -1, -1);
 	}
 
 	return( nCrossings );
@@ -349,8 +371,8 @@ bool CSG_Arcs::_Add_Line_Intersection(CSG_Shapes &Vertices, int &i)
 
 	CSG_Shape *pArc = m_Arcs.Add_Shape();
 
-	pArc->Set_Value(0, -1); // TYPE => splitting line strings...
-	pArc->Set_Value(1,  2); // PROC => ...need to be processed twice!
+	pArc->Set_Value(0, m_Arcs.Get_Count()); // ID
+	pArc->Set_Value(1,                  2); // PASSES => ...needs to be processed twice!
 
 	for(; i<Vertices.Get_Count(); i++)
 	{
@@ -362,8 +384,8 @@ bool CSG_Arcs::_Add_Line_Intersection(CSG_Shapes &Vertices, int &i)
 		{
 			i++;
 
-			_Add_Node(First .Get_Point(0), First .asInt(2));
-			_Add_Node(Vertex.Get_Point(0), Vertex.asInt(2));
+			pArc->Set_Value(ARC_NODE_START, _Add_Node(First .Get_Point(0), First .asInt(2), First .asInt(3)));
+			pArc->Set_Value(ARC_NODE_END  , _Add_Node(Vertex.Get_Point(0), Vertex.asInt(2), Vertex.asInt(3)));
 
 			return( true );
 		}
@@ -374,55 +396,99 @@ bool CSG_Arcs::_Add_Line_Intersection(CSG_Shapes &Vertices, int &i)
 	return( false );
 }
 
+//---------------------------------------------------------
+int CSG_Arcs::_Add_Node(const CSG_Point &Point, int Polygon_Part, int Polygon_Point)
+{
+	if( Polygon_Part  < 0 || Polygon_Part  >= m_pPolygon->Get_Part_Count()
+	||  Polygon_Point < 0 || Polygon_Point >= m_pPolygon->Get_Point_Count(Polygon_Part) )
+	{
+		return( -1 ); // should never happen!
+	}
+
+	CSG_Shape &Node = *m_Nodes.Add_Shape();
+
+	Node.Add_Point(Point);
+
+	Node.Set_Value(NODE_ID   , ++m_nNodes);
+	Node.Set_Value(NODE_PART , Polygon_Part);
+	Node.Set_Value(NODE_POINT, Polygon_Point);
+	Node.Set_Value(NODE_DIST , SG_Get_Distance(Point, m_pPolygon->Get_Point(Polygon_Point, Polygon_Part)));
+
+	return( Node.asInt(0) );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Arcs::_Add_Node(const CSG_Point &Point, int Polygon_Part)
+bool CSG_Arcs::_Split_Polygon(void)
 {
-	for(int i=0; i<m_Arcs.Get_Count(); i++)
+	if( m_Nodes.Get_Count() < 2 )
 	{
-		CSG_Shape_Line *pArc = m_Arcs.Get_Shape(i)->asLine();
+		return( false );
+	}
 
-		if( pArc->asInt(0) == Polygon_Part )
+	//-----------------------------------------------------
+	int Polygon_Offset = m_Arcs.Get_Count();
+
+	for(int iPart=0; iPart<m_pPolygon->Get_Part_Count(); iPart++)
+	{
+		CSG_Shape &Arc = *m_Arcs.Add_Shape();
+
+		Arc.Set_Value(ARC_ID        , m_Arcs.Get_Count());
+		Arc.Set_Value(ARC_PASSES    ,                 -1); // needs to be processed only once!
+		Arc.Set_Value(ARC_NODE_START,         ++m_nNodes);
+		Arc.Set_Value(ARC_NODE_END  ,           m_nNodes); // start node == end node => polygon ring is 'self-connecting'
+
+		for(int iPoint=0; iPoint<m_pPolygon->Get_Point_Count(iPart); iPoint++)
 		{
-			CSG_Point Segment[2]; Segment[1] = pArc->Get_Point(0);
-
-			for(int iPoint=1; iPoint<pArc->Get_Point_Count(); iPoint++)
-			{
-				Segment[0] = Segment[1]; Segment[1] = pArc->Get_Point(iPoint);
-
-				if( SG_Is_Point_On_Line(Point, Segment[0], Segment[1], true, m_Tolerance) )
-				{
-					_Split_Arc(pArc, iPoint, Point);
-
-					return( true );
-				}
-			}
+			Arc.Add_Point(m_pPolygon->Get_Point(iPoint, iPart));
 		}
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	m_Nodes.Set_Index(
+		NODE_PART , TABLE_INDEX_Descending,
+		NODE_POINT, TABLE_INDEX_Descending,
+		NODE_DIST , TABLE_INDEX_Ascending
+	);
+
+	for(int iNode=0; iNode<m_Nodes.Get_Count(); iNode++)
+	{
+		_Split_Arc(*m_Nodes.Get_Shape_byIndex(iNode), Polygon_Offset);
+	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
-bool CSG_Arcs::_Split_Arc(CSG_Shape_Line *pArc, int iPoint, const CSG_Point &Point)
+bool CSG_Arcs::_Split_Arc(const CSG_Shape &Node, int Polygon_Offset)
 {
+	//	SG_UI_Msg_Add(CSG_String::Format("\n%d, %d, %f", Node.asInt(1), Node.asInt(2), Node.asDouble(3)), false);
+
+	CSG_Point Point = Node.Get_Point(0); int SplitBefore = Node.asInt(2);
+
+	CSG_Shape *pArc = m_Arcs.Get_Shape(Node.asInt(1) + Polygon_Offset);
 	CSG_Shape *pNew = m_Arcs.Add_Shape(pArc, SHAPE_COPY_ATTR);
 
-	if( Point != pArc->Get_Point(iPoint) )
+	pNew->Set_Value(ARC_ID, m_Arcs.Get_Count());
+
+	if( Point != pArc->Get_Point(SplitBefore) )
 	{
 		pNew->Add_Point(Point);
 	}
 
-	for(int i=iPoint; i<pArc->Get_Point_Count(); i++)
+	for(int i=SplitBefore; i<pArc->Get_Point_Count(); i++)
 	{
 		pNew->Add_Point(pArc->Get_Point(i));
 	}
 
-	for(int i=pArc->Get_Point_Count()-1; i>=iPoint; i--)
+	pNew->Set_Value(ARC_NODE_START, Node.asInt(0));
+
+	//-----------------------------------------------------
+	for(int i=pArc->Get_Point_Count()-1; i>=SplitBefore; i--)
 	{
 		pArc->Del_Point(i);
 	}
@@ -432,8 +498,15 @@ bool CSG_Arcs::_Split_Arc(CSG_Shape_Line *pArc, int iPoint, const CSG_Point &Poi
 		pArc->Add_Point(Point);
 	}
 
+	pArc->Set_Value(ARC_NODE_END, Node.asInt(0));
+
 	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSG_Arcs::_Check_Arc(CSG_Shape_Line *pArc)
@@ -449,15 +522,7 @@ bool CSG_Arcs::_Check_Arc(CSG_Shape_Line *pArc)
 		}
 	}
 
-	if( pArc->Get_Point_Count(0) > 1 ) // update end node directions
-	{
-		pArc->Set_Value(2, SG_Get_Angle_Of_Direction(pArc->Get_Point(0, 0,  true), pArc->Get_Point(1, 0,  true)));
-		pArc->Set_Value(3, SG_Get_Angle_Of_Direction(pArc->Get_Point(0, 0, false), pArc->Get_Point(1, 0, false)));
-
-		return( true );
-	}
-
-	return( false );
+	return( pArc->Get_Point_Count(0) > 1 );
 }
 
 
@@ -466,56 +531,61 @@ bool CSG_Arcs::_Check_Arc(CSG_Shape_Line *pArc)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Arcs::_Collect_Add_Next(CSG_Shape_Part &Polygon)
+bool CSG_Arcs::_Collect_Add_Next(CSG_Shape_Part &Polygon, int &ID_Arc, int &ID_Node)
 {
-	CSG_Shape *pNext = NULL; bool bAscending = true;
-
-	CSG_Point Node = Polygon.Get_Point(0, false); // get last point of current polygon ring
-
-	double minDiff = M_PI_360, Direction = SG_Get_Angle_Of_Direction(Node, Polygon.Get_Point(1, false));
-
-	for(int i=0; i<m_Arcs.Get_Count(); i++)
+	if( ID_Node >= 0 )
 	{
-		CSG_Shape *pArc = m_Arcs.Get_Shape(i); 
+		CSG_Shape *pNext = NULL; bool bAscending = true;
 
-		if     ( Node == pArc->Get_Point(0, 0,  true) )
+		double minDiff = M_PI_360, Direction = SG_Get_Angle_Of_Direction(Polygon.Get_Point(0, false), Polygon.Get_Point(1, false));
+
+		for(int i=0; i<m_Arcs.Get_Count(); i++)
 		{
-			double Diff = Direction - pArc->asDouble(2); if( Diff < 0. ) Diff += M_PI_360;
+			CSG_Shape *pArc = m_Arcs.Get_Shape(i); 
 
-			if( Diff > 0. && (!pNext || minDiff > Diff) )
+			if( ID_Arc != pArc->asInt(ARC_ID) )
 			{
-				pNext = pArc; minDiff = Diff; bAscending = true;
+				if     ( ID_Node == pArc->asInt(ARC_NODE_START) ) // starting node
+				{
+					double d = Direction - SG_Get_Angle_Of_Direction(pArc->Get_Point(0, 0,  true), pArc->Get_Point(1, 0,  true)); if( d < 0. ) d += M_PI_360;
+
+					if( d > 0. && (!pNext || minDiff > d) )
+					{
+						minDiff = d; pNext = pArc; bAscending =  true;
+					}
+				}
+				else if( ID_Node == pArc->asInt(ARC_NODE_END) ) // ending node
+				{
+					double d = Direction - SG_Get_Angle_Of_Direction(pArc->Get_Point(0, 0, false), pArc->Get_Point(1, 0, false)); if( d < 0. ) d += M_PI_360;
+
+					if( d > 0. && (!pNext || minDiff > d) )
+					{
+						minDiff = d; pNext = pArc; bAscending = false;
+					}
+				}
 			}
 		}
-		else if( Node == pArc->Get_Point(0, 0, false) )
-		{
-			double Diff = Direction - pArc->asDouble(3); if( Diff < 0. ) Diff += M_PI_360;
 
-			if( Diff > 0. && (!pNext || minDiff > Diff) )
+		if( pNext )
+		{
+			ID_Arc = pNext->asInt(ARC_ID); ID_Node = pNext->asInt(bAscending ? ARC_NODE_END : ARC_NODE_START);
+
+			for(int i=1; i<pNext->Get_Point_Count(0); i++)
 			{
-				pNext = pArc; minDiff = Diff; bAscending = false;
+				Polygon.Add_Point(pNext->Get_Point(i, 0, bAscending));
 			}
-		}
-	}
 
-	//-----------------------------------------------------
-	if( pNext )
-	{
-		for(int i=1; i<pNext->Get_Point_Count(0); i++)
-		{
-			Polygon.Add_Point(pNext->Get_Point(i, 0, bAscending));
-		}
+			if( pNext->asInt(ARC_PASSES) > 1 ) // PASSES
+			{
+				pNext->Add_Value(1, -1);
+			}
+			else
+			{
+				m_Arcs.Del_Shape(pNext);
+			}
 
-		if( pNext->asInt(1) > 1 ) // PROC
-		{
-			pNext->Add_Value(1, -1);
+			return( true );
 		}
-		else
-		{
-			m_Arcs.Del_Shape(pNext);
-		}
-
-		return( true );
 	}
 
 	return( false );
@@ -528,7 +598,7 @@ bool CSG_Arcs::_Collect_Get_Polygon(CSG_Shape_Polygon &Polygon)
 
 	for(int i=0; !pArc && i<m_Arcs.Get_Count(); i++)
 	{
-		if( m_Arcs.Get_Shape(i)->asInt(0) >= 0 ) // is it a polygon arc (lines would return '-1')
+		if( m_Arcs.Get_Shape(i)->asInt(ARC_PASSES) < 0 ) // is it a polygon arc (lines would return >= +1)
 		{
 			pArc = m_Arcs.Get_Shape(i);
 		}
@@ -538,9 +608,11 @@ bool CSG_Arcs::_Collect_Get_Polygon(CSG_Shape_Polygon &Polygon)
 	{
 		CSG_Shape_Part &Part = *Polygon.Get_Part(Polygon.Add_Part(pArc->Get_Part(0)) - 1);
 
+		int ID_Arc = pArc->asInt(ARC_ID), ID_Next = pArc->asInt(ARC_NODE_END), ID_Start = pArc->asInt(ARC_NODE_START);
+
 		m_Arcs.Del_Shape(pArc);
 
-		while( _Collect_Add_Next(Part) );
+		while( _Collect_Add_Next(Part, ID_Arc, ID_Next) && ID_Next != ID_Start );
 
 		return( true );
 	}
@@ -559,9 +631,10 @@ bool CSG_Arcs::Get_Intersection(CSG_Shapes *pPolygons, CSG_Table_Record *pAttrib
 		}
 	}
 
-	#ifdef _DEBUG
-		SG_UI_DataObject_Add(SG_Create_Shapes(m_Arcs), 0);
-	#endif
+#ifdef _DEBUG
+	SG_UI_DataObject_Add(SG_Create_Shapes(m_Nodes), 0);
+	SG_UI_DataObject_Add(SG_Create_Shapes(m_Arcs ), 0);
+#endif
 
 	//-----------------------------------------------------
 	CSG_Shape_Polygon &Polygon = *pPolygons->Add_Shape(pAttributes, SHAPE_COPY_ATTR)->asPolygon();
@@ -674,16 +747,15 @@ bool CPolygon_Line_Intersection::On_Execute(void)
 	pIntersection->Fmt_Name("%s [%s: %s]", pPolygons->Get_Name(), _TL("Intersection"), pLines->Get_Name());
 
 	bool bSplitParts = Parameters("SPLIT_PARTS")->asBool();
-	double Tolerance = sqrt(pPolygons->Get_Extent().Get_Area()) / 1000000.;
 
 	//--------------------------------------------------------
 	for(int iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
 	{
 		CSG_Shape_Polygon *pPolygon = pPolygons->Get_Shape(iPolygon)->asPolygon();
 
-		CSG_Arcs Arcs(pPolygon, Tolerance);
+		CSG_Arcs Arcs(pPolygon);
 
-		if( Arcs.is_Valid() && Arcs.Add_Lines(pLines, pPolygon) )
+		if( Arcs.Set_Lines(pLines) )
 		{
 			Arcs.Get_Intersection(pIntersection, pPolygon, bSplitParts);
 		}
