@@ -135,7 +135,7 @@ double	CT_Get_ETpot_Hargreave	(double T, double Tmin, double Tmax, int DayOfYear
 //---------------------------------------------------------
 double	CT_Get_ETpot_Turc	(double T, double Rg, double rH)
 {
-	if( (T + 15.) <= 0. )
+	if( T <= 0. )
 	{
 		return( 0. );
 	}
