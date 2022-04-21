@@ -37,6 +37,12 @@ SET SAGA_VER_TEXT=8.3.0
 SET SAGA_VER_NEXT=8.4.0
 SET SAGA_VERSION=saga-%SAGA_VER_TEXT%
 
+REM Don't forget to activate the flag
+REM - SWITCH_TO_BRANCH -
+REM for all bug-fix-releases!
+REM SET SWITCH_TO_BRANCH=true
+
+REM ___________________________________
 ECHO __________________________________
 ECHO ##################################
 ECHO #                                #
@@ -62,15 +68,6 @@ ECHO Create tag/branch %SAGA_VER_TEXT% [y/n]
 SET /P ANSWER1=
 IF /i '%ANSWER1%' == 'y' (
 	SET GIT_BRANCH=true
-) ELSE (
-	REM yes for bug-fix releases (it's the master otherwise!)
-	ECHO.
-	ECHO Switch to branch %SAGA_VER_TEXT% [y/n]
-	SET /P ANSWER2=
-	IF /i '%ANSWER2%' == 'y' (
-		SET SWITCH_TO_BRANCH=true
-		ECHO switch to branch
-	)
 )
 
 
@@ -107,6 +104,7 @@ IF /i "%GIT_BRANCH%" == "true" (
 )
 
 IF /i "%SWITCH_TO_BRANCH%" == "true" (
+	ECHO switch to branch release-%SAGA_VER_TEXT%
 	%GITEXE% checkout release-%SAGA_VER_TEXT%
 )
 
