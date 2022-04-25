@@ -10,6 +10,8 @@ if(WITH_TOOLS)
 	if(NOT SVM_FOUND)
 		set(SAGA_TOOL_CUSTOM_SOURCE_LIST ./svm/svm.cpp)
 		set(SAGA_TOOL_CUSTOM_HEADER_LIST ./svm/svm.h)
+	else()
+		add_compile_definitions(SYSTEM_SVM)
 	endif()
 
 	include(../../CMakePluginTemplate.cmake)	# load common tool template
