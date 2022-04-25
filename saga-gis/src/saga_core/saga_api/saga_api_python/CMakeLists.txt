@@ -25,13 +25,13 @@ set(SAGA_API_PUBLIC_HEADERS
 find_package(SWIG QUIET)
 if(SWIG_FOUND)
 	message(STATUS "SWIG for Python found")
-	find_package(PythonLibs QUIET)
-	if(PythonLibs_FOUND)
+    find_package(Python COMPONENTS Interpreter Development)
+	if(Python_FOUND)
 #		project(saga_api_python)
 
 		message(STATUS "project: ${PROJECT_NAME}")
 
-		message(STATUS "PythonLibs found")
+		message(STATUS "Python found")
 
 		if(POLICY CMP0078)	# SWIG: use standard target name.
 		  cmake_policy(SET CMP0078 NEW)
@@ -43,8 +43,8 @@ if(SWIG_FOUND)
 
 		include(UseSWIG)
 
-		include_directories("${PYTHON_INCLUDE_PATH}")
-		include_directories("${PYTHON_INCLUDE_PATH}/../PC")	# msvc builds
+        include_directories("${Python_INCLUDE_DIRS}")
+        include_directories("${Python_INCLUDE_DIRS}/../PC")	# msvc builds
 		include_directories("..")
 
 		set(CMAKE_SWIG_FLAGS "-D_SAGA_PYTHON -D_SWIG_WCHAR")
@@ -57,22 +57,14 @@ if(SWIG_FOUND)
 		set_property(TARGET saga_api_python PROPERTY OUTPUT_NAME saga_api)
 
 		swig_link_libraries(saga_api_python saga_api)
-		swig_link_libraries(saga_api_python ${PYTHON_LIBRARIES})
+		swig_link_libraries(saga_api_python ${Python_LIBRARIES})
 
-		if(MSVC)
-			set(PYTHON_SITE_PACKAGES "${PYTHON_INCLUDE_PATH}/../Lib/site-packages")
-		else() #if(NOT MSVC)
-			execute_process(
-				COMMAND python -c "import site; print(site.getsitepackages()[0])"
-				OUTPUT_VARIABLE PYTHON_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE
-			)
-		endif()
 
-		if(EXISTS ${PYTHON_SITE_PACKAGES})
-			message(STATUS "Python site-packages: ${PYTHON_SITE_PACKAGES}")
-			install(TARGETS saga_api_python DESTINATION ${PYTHON_SITE_PACKAGES})
-			install(FILES ${CMAKE_BINARY_DIR}/src/saga_core/saga_api/saga_api_python/saga_api.py DESTINATION ${PYTHON_SITE_PACKAGES})
-			install(FILES ${CMAKE_SOURCE_DIR}/src/accessories/python/examples/saga_helper.py DESTINATION ${PYTHON_SITE_PACKAGES})
+        if(EXISTS ${Python_SITELIB})
+            message(STATUS "Python site-packages: ${PYTHON_SITELIB}")
+            install(TARGETS saga_api_python DESTINATION ${Python_SITELIB})
+            install(FILES ${CMAKE_BINARY_DIR}/src/saga_core/saga_api/saga_api_python/saga_api.py DESTINATION ${Python_SITELIB})
+            install(FILES ${CMAKE_SOURCE_DIR}/src/accessories/python/examples/saga_helper.py DESTINATION ${Python_SITELIB})
 		endif()
 	endif()
 endif()
