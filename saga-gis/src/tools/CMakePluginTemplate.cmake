@@ -40,7 +40,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC -D_TYPEDEF_BYTE -D_TYPEDEF_WOR
 # link saga_api
 target_link_libraries(${PROJECT_NAME} saga_api)
 
-install(TARGETS ${PROJECT_NAME} DESTINATION lib/saga)
+install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_LIBDIR}/saga)
 
 # reset variables
 set(SAGA_TOOL_CUSTOM_SOURCE_LIST)

@@ -53,6 +53,9 @@ include(shared_cmake/scripts/require-cpp11.cmake)
 include(shared_cmake/scripts/enable_warnings.cmake)
 include(shared_cmake/scripts/windows_version_info.cmake)
 
+# Use GNU install dirs to support multiarch
+include(cmake/modules/GNUInstallDirs.cmake)
+
 # create windows resouce file
 set(windows_version_rc "${CMAKE_BINARY_DIR}/win_version_info.rc")
 gen_win_version_resource("${PROJECT_NAME}" "${windows_version_rc}"

@@ -64,7 +64,7 @@ set_target_properties(saga_gdi PROPERTIES
 	SOVERSION ${SAGA_VERSION_MAJOR})
 
 # where to install the binary
-install(TARGETS saga_gdi DESTINATION lib)
+install(TARGETS saga_gdi DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(FILES ${SAGA_GDI_PUBLIC_HEADERS} DESTINATION include/saga/saga_gdi)
 
 if(MSVC)

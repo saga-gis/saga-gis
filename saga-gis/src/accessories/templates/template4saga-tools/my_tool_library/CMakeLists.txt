@@ -72,4 +72,4 @@ else() # if(NOT MSVC) # expect g++ on Linux
 	set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS -fPIC)
 endif()
 
-install(TARGETS ${PROJECT_NAME} DESTINATION lib/saga)
+install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/saga)
