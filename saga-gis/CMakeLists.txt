@@ -86,8 +86,6 @@ file(GLOB CMAKE_FILES "cmake/*.cmake" "cmake/modules/*.cmake")
 file(GLOB SHARED_CMAKE_FILES "shared_cmake/scripts/*.cmake")
 add_custom_target(saga-other-files SOURCES
 	.gitignore
-	COPYING
-	README
 	src/gpl.txt
 	src/lgpl.txt
 	src/install.txt
