@@ -397,19 +397,31 @@ bool CSG_Table::Assign(CSG_Data_Object *pObject)
 }
 
 //---------------------------------------------------------
+bool CSG_Table::Assign_Values(const CSG_Table &Table)
+{
+	if( is_Compatible(Table) && Set_Count(Table.Get_Count()) )
+	{
+		for(int i=0; i<Table.Get_Count(); i++)
+		{
+			Get_Record(i)->Assign(Table.Get_Record(i));
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 bool CSG_Table::Assign_Values(CSG_Table *pTable)
 {
-	if( !is_Compatible(pTable) || !Set_Record_Count(pTable->Get_Count()) )
-	{
-		return( false );
-	}
+	return( pTable && Assign_Values(*pTable) );
+}
 
-	for(int i=0; i<pTable->Get_Record_Count(); i++)
-	{
-		Get_Record(i)->Assign(pTable->Get_Record(i));
-	}
-
-	return( true );
+//---------------------------------------------------------
+bool CSG_Table::Assign_Values(const SG_Char *FileName)
+{
+	CSG_Table Table; return( Table.Create(FileName) && Assign_Values(&Table) );
 }
 
 
@@ -420,15 +432,15 @@ bool CSG_Table::Assign_Values(CSG_Table *pTable)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Table::is_Compatible(CSG_Table *pTable, bool bExactMatch) const
+bool CSG_Table::is_Compatible(const CSG_Table &Table, bool bExactMatch) const
 {
-	if( pTable && Get_Field_Count() == pTable->Get_Field_Count() )
+	if( Get_Field_Count() == Table.Get_Field_Count() )
 	{
 		for(int i=0; i<Get_Field_Count(); i++)
 		{
 			if( bExactMatch )
 			{
-				if( Get_Field_Type(i) != pTable->Get_Field_Type(i) )
+				if( Get_Field_Type(i) != Table.Get_Field_Type(i) )
 				{
 					return( false );
 				}
@@ -436,14 +448,14 @@ bool CSG_Table::is_Compatible(CSG_Table *pTable, bool bExactMatch) const
 			else switch( Get_Field_Type(i) )
 			{
 			case SG_DATATYPE_String:
-//				if( pTable->Get_Field_Type(i) != SG_DATATYPE_String )
-//				{
-//					return( false );
-//				}
+			//	if( Table.Get_Field_Type(i) != SG_DATATYPE_String )
+			//	{
+			//		return( false );
+			//	}
 				break;
 
 			default:
-				if( pTable->Get_Field_Type(i) == SG_DATATYPE_String )
+				if( Table.Get_Field_Type(i) == SG_DATATYPE_String )
 				{
 					return( false );
 				}
@@ -455,6 +467,12 @@ bool CSG_Table::is_Compatible(CSG_Table *pTable, bool bExactMatch) const
 	}
 
 	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Table::is_Compatible(CSG_Table *pTable, bool bExactMatch) const
+{
+	return( pTable && is_Compatible(*pTable, bExactMatch) );
 }
 
 

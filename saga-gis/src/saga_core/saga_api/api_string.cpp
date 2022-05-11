@@ -82,12 +82,12 @@ CSG_String::CSG_String(const CSG_String &String)
 
 CSG_String::CSG_String(const char *String)
 {
-	m_pString	= new wxString(String);
+	m_pString	= String ? new wxString(String) : new wxString;
 }
 
 CSG_String::CSG_String(const wchar_t *String)
 {
-	m_pString	= new wxString(String);
+	m_pString	= String ? new wxString(String) : new wxString;
 }
 
 CSG_String::CSG_String(char Character, size_t nRepeat)
@@ -101,12 +101,9 @@ CSG_String::CSG_String(wchar_t Character, size_t nRepeat)
 }
 
 //---------------------------------------------------------
-CSG_String::CSG_String(const class wxString *pString)
+CSG_String::CSG_String(const class wxString *String)
 {
-	if( pString )
-		m_pString	= new wxString(*pString);
-	else
-		m_pString	= new wxString;
+	m_pString	= String ? new wxString(*String) : new wxString;
 }
 
 bool CSG_String::Create(const class wxString *pString)

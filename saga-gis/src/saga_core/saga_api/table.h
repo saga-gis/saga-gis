@@ -242,7 +242,10 @@ public:
 
 	CSG_Table &						operator =			(const CSG_Table &Table);
 	virtual bool					Assign				(CSG_Data_Object *pSource);
-	bool							Assign_Values		(CSG_Table *pTable);
+
+	bool							Assign_Values		(const CSG_Table  &Table);
+	bool							Assign_Values		(      CSG_Table *pTable);
+	bool							Assign_Values		(const SG_Char *FileName);
 
 	bool							Load				(const CSG_String &File, int Format, SG_Char Separator, int Encoding = SG_FILE_ENCODING_UNDEFINED);
 
@@ -261,7 +264,9 @@ public:
 
 	//-----------------------------------------------------
 	virtual bool					is_Valid			(void)	const			{	return( m_nFields > 0 );	}
-	bool							is_Compatible		(CSG_Table *pTable, bool bExactMatch = false)	const;
+
+	bool							is_Compatible		(const CSG_Table  &Table, bool bExactMatch = false)	const;
+	bool							is_Compatible		(      CSG_Table *pTable, bool bExactMatch = false)	const;
 
 	//-----------------------------------------------------
 	virtual const CSG_Rect &		Get_Extent			(void)					{	return( m_Extent );	}
