@@ -165,7 +165,7 @@ bool CGrid_Cell_Polygon_Coverage::On_Execute(void)
 	pArea->Set_NoData_Value(0.0);
 
 	DataObject_Add(pArea);
-	DataObject_Set_Colors(pArea, 11, SG_COLORS_RED_GREEN, true);
+	DataObject_Set_Colors(pArea, 11, SG_COLORS_GREEN_RED);
 
 	//-----------------------------------------------------
 	if( Parameters("METHOD")->asInt() == 0 )

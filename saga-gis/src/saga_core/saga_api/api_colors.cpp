@@ -430,6 +430,7 @@ const SG_Char * CSG_Colors::Get_Predefined_Name(int Index)
 	case SG_COLORS_YELLOW_RED     :	return( _TL("yellow > red"             ) );
 	case SG_COLORS_YELLOW_GREEN   :	return( _TL("yellow > green"           ) );
 	case SG_COLORS_YELLOW_BLUE    :	return( _TL("yellow > blue"            ) );
+	case SG_COLORS_GREEN_RED      :	return( _TL("green > red"              ) );
 	case SG_COLORS_RED_GREEN      :	return( _TL("red > green"              ) );
 	case SG_COLORS_RED_BLUE       :	return( _TL("red > blue"               ) );
 	case SG_COLORS_GREEN_BLUE     :	return( _TL("green > blue"             ) );
@@ -521,11 +522,18 @@ bool CSG_Colors::Set_Predefined(int Index, bool bRevert, int nColors)
 		Set_Color(2, SG_GET_RGB(  0,  64, 127));
 		break;
 
-	case SG_COLORS_RED_GREEN:
+	case SG_COLORS_GREEN_RED:
 		Set_Count(3);
 		Set_Color(0, SG_GET_RGB(  0, 127,   0));
 		Set_Color(1, SG_GET_RGB(255, 255,   0));
 		Set_Color(2, SG_GET_RGB(255,   0,   0));
+		break;
+
+	case SG_COLORS_RED_GREEN:
+		Set_Count(3);
+		Set_Color(0, SG_GET_RGB(200,   0,   0));
+		Set_Color(1, SG_GET_RGB(255, 255, 127));
+		Set_Color(2, SG_GET_RGB(  0,  63,   0));
 		break;
 
 	case SG_COLORS_RED_BLUE:

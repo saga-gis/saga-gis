@@ -82,7 +82,8 @@ CMorphometry::CMorphometry(void)
 
 	Add_Reference("Horn, B. K.", "1981",
 		"Hill shading and the relectance map",
-		"Proceedings of the IEEE, v. 69, no. 1, p.14-47."
+		"Proceedings of the IEEE, v. 69, no. 1, p.14-47.",
+		SG_T("https://doi.org/10.1109/PROC.1981.11918"), SG_T("doi:10.1109/PROC.1981.11918")
 	);
 
 	Add_Reference("Beasley, D.B., Huggins, L.F.", "1982",
@@ -92,7 +93,8 @@ CMorphometry::CMorphometry(void)
 
 	Add_Reference("Costa-Cabral, M., Burges, S.J.", "1994",
 		"Digital Elevation Model Networks (DEMON): a model of flow over hillslopes for computation of contributing and dispersal areas",
-		"Water Resources Research, v. 30, no. 6, p.1681-1692."
+		"Water Resources Research, v. 30, no. 6, p.1681-1692.",
+		SG_T("https://doi.org/10.1029/93WR03512"), SG_T("doi:10.1029/93WR03512")
 	);
 
 	Add_Reference("Evans, I.S.", "1979",
@@ -107,28 +109,32 @@ CMorphometry::CMorphometry(void)
 
 	Add_Reference("Heerdegen, R.G., Beran, M.A.", "1982",
 		"Quantifying source areas through land surface curvature",
-		"Journal of Hydrology, Vol.57."
+		"Journal of Hydrology, Vol.57.",
+		SG_T("https://doi.org/10.1016/0022-1694(82)90155-X"), SG_T("doi:10.1016/0022-1694(82)90155-X")
 	);
 
 	Add_Reference("Olaya, V.", "2006",
 		"Basic Land-Surface Parameters",
-		"In: Hengl, T., Reuter, H.I. [Eds.]: Geomorphometry: Concepts, Software, Applications. Developments in Soil Science, Elsevier, Vol.33, 141-169."
+		"In: Hengl, T., Reuter, H.I. [Eds.]: Geomorphometry: Concepts, Software, Applications. Developments in Soil Science, Elsevier, Vol.33, 141-169.",
+		SG_T("https://doi.org/10.1016/S0166-2481(08)00006-8"), SG_T("doi:10.1016/S0166-2481(08)00006-8")
 	);
 
 	Add_Reference("Zevenbergen, L.W., Thorne, C.R.", "1987",
 		"Quantitative analysis of land surface topography",
-		"Earth Surface Processes and Landforms, 12: 47-56."
+		"Earth Surface Processes and Landforms, 12: 47-56.",
+		SG_T("https://doi.org/10.1002/esp.3290120107"), SG_T("doi:10.1002/esp.3290120107")
 	);
 
 	Add_Reference("Haralick, R.M.", "1983",
 		"Ridge and valley detection on digital images",
 		"Computer Vision, Graphics and Image Processing, Vol.22, No.1, p.28-38."
+		SG_T("https://doi.org/10.1016/0734-189X(83)90094-4"), SG_T("doi:10.1016/0734-189X(83)90094-4")
 	);
 
 	Add_Reference("Florinsky, I.V.", "2009",
 		"Computation of the third?order partial derivatives from a digital elevation model",
 		"International Journal of Geographical Information Science, 23(2), p.213-231.",
-		SG_T("https://doi.org/10.1080/13658810802527499"), SG_T("doi: 10.1080/13658810802527499")
+		SG_T("https://doi.org/10.1080/13658810802527499"), SG_T("doi:10.1080/13658810802527499")
 	);
 
 	//-----------------------------------------------------
@@ -314,7 +320,7 @@ bool CMorphometry::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	DataObject_Set_Colors(m_pSlope , 11, SG_COLORS_RED_GREEN    ,  true);
+	DataObject_Set_Colors(m_pSlope , 11, SG_COLORS_GREEN_RED    , false);
 	DataObject_Set_Colors(m_pAspect, 11, SG_COLORS_ASPECT_3     , false);
 	DataObject_Set_Colors(m_pC_Gene, 11, SG_COLORS_RED_GREY_BLUE,  true);
 	DataObject_Set_Colors(m_pC_Prof, 11, SG_COLORS_RED_GREY_BLUE,  true);

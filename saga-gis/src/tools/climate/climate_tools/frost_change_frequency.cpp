@@ -190,7 +190,6 @@ bool CFrost_Change_Frequency_Calculator::Get_From_Monthly(int x, int y, CSG_Para
 //---------------------------------------------------------
 CFrost_Change_Frequency::CFrost_Change_Frequency(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Frost Change Frequency"));
 
 	Set_Author		("O.Conrad (c) 2016");
@@ -270,7 +269,7 @@ bool CFrost_Change_Frequency::On_Execute(void)
 	CSG_Grid	*pTmin_Mean	= Parameters("TMIN_MEAN")->asGrid();
 	CSG_Grid	*pTmin_Min	= Parameters("TMIN_MIN" )->asGrid();
 
-	DataObject_Set_Colors(pFrequency, 11, SG_COLORS_RED_GREEN, true);
+	DataObject_Set_Colors(pFrequency, 11, SG_COLORS_GREEN_RED);
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -329,7 +328,6 @@ bool CFrost_Change_Frequency::On_Execute(void)
 //---------------------------------------------------------
 CFrost_Change_Frequency_Interactive::CFrost_Change_Frequency_Interactive(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Frost Change Frequency"));
 
 	Set_Author		("O.Conrad (c) 2016");

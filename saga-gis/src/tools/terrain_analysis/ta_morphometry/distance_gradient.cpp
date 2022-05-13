@@ -69,8 +69,9 @@ CDistance_Gradient::CDistance_Gradient(void)
 	));
 
 	Add_Reference("Hjerdt, K.N., McDonnell, J.J., Seibert, J. Rodhe, A.", "2004",
-		"A new topographic index to quantify downslope controls on local drainage",
-		"Water Resources Research, 40."
+		"A new topographic index to quantify downslope controls on local drainage.",
+		"Water Resources Research, 40.",
+		SG_T("https://doi.org/10.1029/2004WR003130"), SG_T("doi:10.1029/2004WR003130")
 	);
 
 	//-----------------------------------------------------
@@ -144,7 +145,7 @@ bool CDistance_Gradient::On_Execute(void)
 			break;
 
 		case 2:	// gradient (degree)
-			DataObject_Set_Colors(pGradient, 11, SG_COLORS_RED_GREEN  ,  true);
+			DataObject_Set_Colors(pGradient, 11, SG_COLORS_GREEN_RED  , false);
 			pGradient->Set_Unit(_TL("radians"));
 			break;
 		}
