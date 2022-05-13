@@ -71,10 +71,11 @@ CLand_Surface_Temperature::CLand_Surface_Temperature(void)
 		"See Wilson & Gallant (2000) for more details. "
 	));
 
-	Add_Reference(
-		"Boehner, J., Antonic, O.", "2009",
+	Add_Reference("Boehner, J., & Antonic, O.", "2009",
 		"Land-surface parameters specific to topo-climatology",
-		"In: Hengl, T., Reuter, H. (Eds.): Geomorphometry - Concepts, Software, Applications. Developments in soil science, 33, 195-226."
+		"In: Hengl, T., & Reuter, H. (Eds.): Geomorphometry - Concepts, Software, Applications. "
+		"Developments in Soil Science, Volume 33, p.195-226, Elsevier.",
+		SG_T("https://doi.org/10.1016/S0166-2481(08)00008-1"), SG_T("doi:10.1016/S0166-2481(08)00008-1")
 	);
 
 	Add_Reference(

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: anisotropic_heating.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "anisotropic_heating.h"
 
 
@@ -89,7 +77,7 @@ CAnisotropic_Heating::CAnisotropic_Heating(void)
 		"Land-surface parameters specific to topo-climatology",
 		"In: Hengl, T., & Reuter, H. (Eds.): Geomorphometry - Concepts, Software, Applications. "
 		"Developments in Soil Science, Volume 33, p.195-226, Elsevier.",
-		SG_T("https://www.sciencedirect.com/bookseries/developments-in-soil-science/vol/33/suppl/C"), SG_T("ScienceDirect")
+		SG_T("https://doi.org/10.1016/S0166-2481(08)00008-1"), SG_T("doi:10.1016/S0166-2481(08)00008-1")
 	);
 
 	Parameters.Add_Grid(
@@ -119,7 +107,6 @@ CAnisotropic_Heating::CAnisotropic_Heating(void)
 //---------------------------------------------------------
 bool CAnisotropic_Heating::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_Grid	*pDEM	= Parameters("DEM")->asGrid();
 	CSG_Grid	*pDAH	= Parameters("DAH")->asGrid();
 

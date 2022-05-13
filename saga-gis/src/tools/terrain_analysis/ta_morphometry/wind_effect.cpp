@@ -48,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "wind_effect.h"
 
 
@@ -80,18 +71,18 @@ CWind_Effect::CWind_Effect(void)
 		"either constant or variying in space, if a wind direction grid is supplied."
 	));
 
-	Add_Reference(
-		"Boehner, J., Antonic, O.", "2009",
+	Add_Reference("Boehner, J., & Antonic, O.", "2009",
 		"Land-surface parameters specific to topo-climatology",
-		"In: Hengl, T., Reuter, H. [Eds.]: Geomorphometry - Concepts, Software, Applications. "
-		"Developments in Soil Science, Volume 33, p.195-226, Elsevier."
+		"In: Hengl, T., & Reuter, H. (Eds.): Geomorphometry - Concepts, Software, Applications. "
+		"Developments in Soil Science, Volume 33, p.195-226, Elsevier.",
+		SG_T("https://doi.org/10.1016/S0166-2481(08)00008-1"), SG_T("doi:10.1016/S0166-2481(08)00008-1")
 	);
 
 	Add_Reference(
 		"Gerlitz, L., Conrad, O., Böhner, J.", "2015",
 		"Large scale atmospheric forcing and topographic modification of precipitation rates over High Asia – a neural network based approach",
 		"Earth System Dynamics, 6, 1-21.",
-		SG_T("https://www.earth-syst-dynam.net/6/61/2015/"), SG_T("doi:10.5194/esd-6-61-2015.")
+		SG_T("https://doi.org/10.5194/esd-6-61-2015"), SG_T("doi:10.5194/esd-6-61-2015")
 	);
 
 	Parameters.Add_Grid("",

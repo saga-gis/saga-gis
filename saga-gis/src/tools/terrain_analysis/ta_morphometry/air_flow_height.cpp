@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: air_flow_height.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "air_flow_height.h"
 
 
@@ -80,11 +68,11 @@ CAir_Flow_Height::CAir_Flow_Height(void)
 		"Effective Air Flow Heights"
 	));
 
-	Add_Reference(
-		"Boehner, J., Antonic, O.", "2009",
+	Add_Reference("Boehner, J., & Antonic, O.", "2009",
 		"Land-surface parameters specific to topo-climatology",
-		"In: Hengl, T., Reuter, H. [Eds.]: Geomorphometry - Concepts, Software, Applications. "
-		"Developments in Soil Science, Volume 33, p.195-226, Elsevier."
+		"In: Hengl, T., & Reuter, H. (Eds.): Geomorphometry - Concepts, Software, Applications. "
+		"Developments in Soil Science, Volume 33, p.195-226, Elsevier.",
+		SG_T("https://doi.org/10.1016/S0166-2481(08)00008-1"), SG_T("doi:10.1016/S0166-2481(08)00008-1")
 	);
 
 	Parameters.Add_Grid("",
@@ -102,7 +90,7 @@ CAir_Flow_Height::CAir_Flow_Height(void)
 	Parameters.Add_Choice("DIR",
 		"DIR_UNITS"	, _TL("Wind Direction Units"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("radians"),
 			_TL("degree")
 		), 0
@@ -342,8 +330,6 @@ bool CAir_Flow_Height::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -421,8 +407,6 @@ inline bool CAir_Flow_Height::Get_Z(const TSG_Point &Position, double Distance, 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -490,8 +474,6 @@ void CAir_Flow_Height::Get_Lee(int x, int y, double &Sum_A, double &Sum_B)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

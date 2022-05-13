@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "view_shed.h"
 
 
@@ -72,7 +60,6 @@
 //---------------------------------------------------------
 CView_Shed::CView_Shed(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Sky View Factor"));
 
 	Set_Author		("O.Conrad (c) 2008");
@@ -81,15 +68,17 @@ CView_Shed::CView_Shed(void)
 		"Calculation of visible sky, sky view factor (SVF) and related parameters."
 	));
 
-	Add_Reference("Boehner, J., Antonic, O.", "2009",
+	Add_Reference("Boehner, J., & Antonic, O.", "2009",
 		"Land-surface parameters specific to topo-climatology",
-		"In: Hengl, T., Reuter, H. (Eds.): Geomorphometry - Concepts, Software, Applications. "
-		"Developments in Soil Science, Volume 33, p.195-226, Elsevier."
+		"In: Hengl, T., & Reuter, H. (Eds.): Geomorphometry - Concepts, Software, Applications. "
+		"Developments in Soil Science, Volume 33, p.195-226, Elsevier.",
+		SG_T("https://doi.org/10.1016/S0166-2481(08)00008-1"), SG_T("doi:10.1016/S0166-2481(08)00008-1")
 	);
 
 	Add_Reference("Hantzschel, J., Goldberg, V., Bernhofer, C.", "2005",
 		"GIS-based regionalisation of radiation, temperature and coupling measures in complex terrain for low mountain ranges",
-		"Meteorological Applications, V.12:01, p.33-42, doi:10.1017/S1350482705001489."
+		"Meteorological Applications, V.12:01, p.33-42.)",
+		SG_T("https://doi.org/10.1017/S1350482705001489"), SG_T("doi:10.1017/S1350482705001489")
 	);
 
 	Add_Reference("Oke, T.R.", "2000",
@@ -188,11 +177,11 @@ bool CView_Shed::On_Execute(void)
 {
 	m_pDEM		= Parameters("DEM")->asGrid();
 
-	CSG_Grid *pVisible	= Parameters("VISIBLE" )->asGrid(); DataObject_Set_Colors(pVisible ,  2, SG_COLORS_BLACK_WHITE);
-	CSG_Grid *pSVF		= Parameters("SVF"     )->asGrid(); DataObject_Set_Colors(pSVF     ,  2, SG_COLORS_BLACK_WHITE);
-	CSG_Grid *pSimple	= Parameters("SIMPLE"  )->asGrid(); DataObject_Set_Colors(pSimple  ,  2, SG_COLORS_BLACK_WHITE);
-	CSG_Grid *pTerrain	= Parameters("TERRAIN" )->asGrid(); DataObject_Set_Colors(pTerrain ,  2, SG_COLORS_BLACK_WHITE, true);
-	CSG_Grid *pDistance	= Parameters("DISTANCE")->asGrid(); DataObject_Set_Colors(pDistance, 11, SG_COLORS_RED_GREEN, true);
+	CSG_Grid *pVisible	= Parameters("VISIBLE" )->asGrid(); DataObject_Set_Colors(pVisible , 2, SG_COLORS_BLACK_WHITE      );
+	CSG_Grid *pSVF		= Parameters("SVF"     )->asGrid(); DataObject_Set_Colors(pSVF     , 2, SG_COLORS_BLACK_WHITE      );
+	CSG_Grid *pSimple	= Parameters("SIMPLE"  )->asGrid(); DataObject_Set_Colors(pSimple  , 2, SG_COLORS_BLACK_WHITE      );
+	CSG_Grid *pTerrain	= Parameters("TERRAIN" )->asGrid(); DataObject_Set_Colors(pTerrain , 2, SG_COLORS_BLACK_WHITE, true);
+	CSG_Grid *pDistance	= Parameters("DISTANCE")->asGrid(); DataObject_Set_Colors(pDistance, 2, SG_COLORS_BLACK_WHITE      );
 
 	//-----------------------------------------------------
 	m_Radius	= Parameters("RADIUS")->asDouble();
