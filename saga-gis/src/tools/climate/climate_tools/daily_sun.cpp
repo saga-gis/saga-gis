@@ -313,7 +313,7 @@ bool CSolarRadiation::On_Execute(void)
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			double SR = 100. * CT_Get_Radiation_Daily_TopOfAtmosphere(DayOfYear, pLat->asDouble(x, y), false); // top of atmosphere radiation: 100 * [MJ/m2] >> [J/cm2]
+			double SR = 100. * CT_Get_Radiation_Daily_TopOfAtmosphere(DayOfYear, pLat->asDouble(x, y)); // top of atmosphere radiation: 100 * [MJ/m2] >> [J/cm2]
 
 			SR *= 0.19 + 0.55 * Sunshine; // ToA radiation >> global radiation
 

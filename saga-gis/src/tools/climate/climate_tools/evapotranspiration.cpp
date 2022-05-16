@@ -605,7 +605,7 @@ bool CETpot_Grid::On_Execute(void)
 				#pragma omp parallel for
 				for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
 				{
-					double SR = 100. * CT_Get_Radiation_Daily_TopOfAtmosphere(Day, pLat->asDouble(x, y), false); // top of atmosphere radiation: 100 * [MJ/m2] >> [J/cm2]
+					double SR = 100. * CT_Get_Radiation_Daily_TopOfAtmosphere(Day, pLat->asDouble(x, y)); // top of atmosphere radiation: 100 * [MJ/m2] >> [J/cm2]
 
 					SR *= 0.19 + 0.55 * Sunshine; // ToA radiation >> global radiation
 
@@ -616,7 +616,7 @@ bool CETpot_Grid::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	double const_R0 = CT_Get_Radiation_Daily_TopOfAtmosphere(Day, const_Lat, false); // [MJ/m2/day]
+	double const_R0 = CT_Get_Radiation_Daily_TopOfAtmosphere(Day, const_Lat); // [MJ/m2/day]
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -639,7 +639,7 @@ bool CETpot_Grid::On_Execute(void)
 				#define GET_WS   (pWS   ? pWS  ->asDouble(x, y) : const_WS  )
 				#define GET_P    (pP    ? pP   ->asDouble(x, y) : const_P   )
 				#define GET_SR   (pSR   ? pSR  ->asDouble(x, y) : const_SR  )
-				#define GET_R0   (pLat  ? CT_Get_Radiation_Daily_TopOfAtmosphere(Day, pLat->asDouble(x, y), false) : const_R0) // [MJ/m^2/day]
+				#define GET_R0   (pLat  ? CT_Get_Radiation_Daily_TopOfAtmosphere(Day, pLat->asDouble(x, y)) : const_R0) // [MJ/m^2/day]
 
 				switch( Method )
 				{

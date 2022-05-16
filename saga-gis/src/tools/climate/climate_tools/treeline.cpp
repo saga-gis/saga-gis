@@ -60,7 +60,7 @@ CCT_Growing_Season::CCT_Growing_Season(void)
 	m_DT_min	= 0.9;
 	m_LGS_min	= 94;
 	m_SMT_min	= 6.4;
-	m_SW_min	= 0.2 / 100.0;
+	m_SW_min	= 0.2 / 100.;
 }
 
 //---------------------------------------------------------
@@ -105,7 +105,7 @@ bool CCT_Growing_Season::Set_SMT_min(double Value)
 //---------------------------------------------------------
 bool CCT_Growing_Season::Set_SW_min(double Value)
 {
-	if( Value >= 0.0 )
+	if( Value >= 0. )
 	{
 		m_SW_min	= Value;
 
@@ -141,9 +141,9 @@ bool CCT_Growing_Season::Calculate(double SWC, double Latitude, double &Height, 
 	//-----------------------------------------------------
 	double	dHi, dLo;
 
-	if( is_Growing(SWC, Latitude, 0.0) )
+	if( is_Growing(SWC, Latitude, 0.) )
 	{
-		dLo	= 0.0;	// below tree line
+		dLo	= 0.;	// below tree line
 
 		if( is_Growing(SWC, Latitude, dHi = maxDiff) == true )
 		{
@@ -154,7 +154,7 @@ bool CCT_Growing_Season::Calculate(double SWC, double Latitude, double &Height, 
 	}
 	else
 	{
-		dHi	= 0.0;	// above tree line
+		dHi	= 0.;	// above tree line
 
 		if( is_Growing(SWC, Latitude, dLo = -maxDiff) == false )
 		{
@@ -165,9 +165,9 @@ bool CCT_Growing_Season::Calculate(double SWC, double Latitude, double &Height, 
 	}
 
 	//-----------------------------------------------------
-	while( dHi - dLo > 10.0 )
+	while( dHi - dLo > 10. )
 	{
-		if( is_Growing(SWC, Latitude, Height = dLo + (dHi - dLo) / 2.0) )	// below tree line
+		if( is_Growing(SWC, Latitude, Height = dLo + (dHi - dLo) / 2.) )	// below tree line
 		{
 			dLo	= Height;
 		}
@@ -178,7 +178,7 @@ bool CCT_Growing_Season::Calculate(double SWC, double Latitude, double &Height, 
 	}
 
 	//-----------------------------------------------------
-	Height	= dLo + (dHi - dLo) / 2.0;
+	Height	= dLo + (dHi - dLo) / 2.;
 
 	return( true );
 }
@@ -246,7 +246,7 @@ bool CCT_Growing_Season::Get_T_Season(const CSG_Vector *Weather, const double *S
 
 	for(i=0; i<365; i++)	// 1. identify growing days
 	{
-		bGrowing[i]	= T[i] >= m_DT_min && (!Snow || Snow[i] <= 0.0) && (!(S0 && S1) || (S0[i] > 0.0 || (S1[i] > 0.0 && S1[i] >= m_SW_min * m_Soil.Get_Capacity(1))));
+		bGrowing[i]	= T[i] >= m_DT_min && (!Snow || Snow[i] <= 0.) && (!(S0 && S1) || (S0[i] > 0. || (S1[i] > 0. && S1[i] >= m_SW_min * m_Soil.Get_Capacity(1))));
 	}
 
 	for(i=0; i<365; i++)	// 2. evaluate growing days
@@ -318,19 +318,19 @@ CTree_Growth::CTree_Growth(void)
 	Parameters.Add_Grid_or_Const("",
 		"SWC"			, _TL("Soil Water Capacity of Profile"),
 		_TL("Total soil water capacity (mm H2O)."),
-		220.0, 0.0, true
+		220., 0., true
 	);
 
 	Parameters.Add_Double("SWC",
 		"SWC_SURFACE"	, _TL("Top Soil Water Capacity"),
 		_TL(""),
-		30.0, 0.0, true
+		10., 0., true
 	);
 
 	Parameters.Add_Double("SWC",
 		"SW1_RESIST"	, _TL("Transpiration Resistance"),
 		_TL(""),
-		0.5, 0.01, true
+		1., 0.01, true
 	);
 
 	Parameters.Add_Double("",
@@ -386,7 +386,7 @@ CTree_Growth::CTree_Growth(void)
 	Parameters.Add_Double("",
 		"SW_MIN"		, _TL("Minimum Soil Water Content (Percent)"),
 		_TL(""),
-		2.0, 0.0, true
+		2., 0., true
 	);
 
 	Parameters.Add_Int("",
@@ -404,7 +404,7 @@ CTree_Growth::CTree_Growth(void)
 	Parameters.Add_Double("",
 		"TLH_MAX_DIFF"	, _TL("Maximum Tree Line Height Difference"),
 		_TL(""),
-		3000.0, 0.0, true
+		3000., 0., true
 	);
 }
 
@@ -477,7 +477,7 @@ bool CTree_Growth::On_Execute(void)
 	m_Model.Set_DT_min (Parameters( "DT_MIN")->asDouble());
 	m_Model.Set_SMT_min(Parameters("SMT_MIN")->asDouble());
 	m_Model.Set_LGS_min(Parameters("LGS_MIN")->asInt   ());
-	m_Model.Set_SW_min (Parameters( "SW_MIN")->asDouble() / 100.0);
+	m_Model.Set_SW_min (Parameters( "SW_MIN")->asDouble() / 100.);
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -585,19 +585,19 @@ CWater_Balance::CWater_Balance(void)
 	Parameters.Add_Grid_or_Const("",
 		"SWC"			, _TL("Soil Water Capacity of Profile"),
 		_TL("Total soil water capacity (mm H2O)."),
-		220.0, 0.0, true
+		220., 0., true
 	);
 
 	Parameters.Add_Double("SWC",
 		"SWC_SURFACE"	, _TL("Top Soil Water Capacity"),
 		_TL(""),
-		30.0, 0.0, true
+		10., 0., true
 	);
 
 	Parameters.Add_Double("SWC",
 		"SW1_RESIST"	, _TL("Transpiration Resistance"),
 		_TL(""),
-		0.5, 0.01, true
+		1., 0.01, true
 	);
 
 	Parameters.Add_Double("",
@@ -764,19 +764,19 @@ CWater_Balance_Interactive::CWater_Balance_Interactive(void)
 	Parameters.Add_Grid_or_Const("",
 		"SWC"			, _TL("Soil Water Capacity of Profile"),
 		_TL("Total soil water capacity (mm H2O)."),
-		220.0, 0.0, true
+		220., 0., true
 	);
 
 	Parameters.Add_Double("SWC",
 		"SWC_SURFACE"	, _TL("Top Soil Water Capacity"),
 		_TL(""),
-		30.0, 0.0, true
+		10., 0., true
 	);
 
 	Parameters.Add_Double("SWC",
 		"SW1_RESIST"	, _TL("Transpiration Resistance"),
 		_TL(""),
-		0.5, 0.01, true
+		1., 0.01, true
 	);
 
 	Parameters.Add_Double("",

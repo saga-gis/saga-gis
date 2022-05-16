@@ -101,12 +101,14 @@ double	CT_Get_Radiation_Daily_TopOfAtmosphere	(int DayOfYear, double Latitude, b
 //---------------------------------------------------------
 double	CT_Get_ETpot_Hargreave	(double T, double Tmin, double Tmax, double R0)
 {
-	if( (T + 17.8) <= 0. || Tmin >= Tmax )
+	if( (T + 17.8) < 0. || Tmin >= Tmax )
 	{
 		return( 0. );
 	}
 
-	double	ETpot	= 0.0023 * R0 * (T + 17.8) * sqrt(Tmax - Tmin);	// reference crop evapotranspiration mm per day
+	// original formula wants R0 as water equivalent >> [mm/day] = [MJ/m2/day] / 2.45 !
+
+	double	ETpot	= 0.0023 * (R0 / 2.45) * (T + 17.8) * sqrt(Tmax - Tmin);	// reference crop evapotranspiration mm per day
 
 	return( ETpot < 0. ? 0. : ETpot );
 }
@@ -114,7 +116,7 @@ double	CT_Get_ETpot_Hargreave	(double T, double Tmin, double Tmax, double R0)
 //---------------------------------------------------------
 double	CT_Get_ETpot_Hargreave	(double T, double Tmin, double Tmax, int DayOfYear, double Latitude)
 {
-	double	R0	= CT_Get_Radiation_Daily_TopOfAtmosphere(DayOfYear, Latitude, false);
+	double	R0	= CT_Get_Radiation_Daily_TopOfAtmosphere(DayOfYear, Latitude);
 
 	return( CT_Get_ETpot_Hargreave(T, Tmin, Tmax, R0) );
 }
