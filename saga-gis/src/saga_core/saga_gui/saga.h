@@ -75,8 +75,8 @@ public:
 	CSAGA(void);
 	virtual ~CSAGA(void);
 
-	bool						OnInit					(void);
-	int							OnExit					(void);
+	virtual bool				OnInit					(void);
+	virtual int					OnExit					(void);
 
 	const wxString &			Get_App_Path			(void)	const		{	return( m_App_Path );	}
 

@@ -277,7 +277,7 @@ bool CSAGA::Process_Wait(bool bEnforce)
 		bYield	= true;
 
 	//	Yield();
-	//	wxSafeYield(g_pSAGA_Frame);
+		wxSafeYield(g_pSAGA_Frame);
 
 		while( Pending() && Dispatch() );
 
