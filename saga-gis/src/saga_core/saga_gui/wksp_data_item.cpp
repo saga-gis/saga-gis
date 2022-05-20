@@ -542,19 +542,23 @@ bool CWKSP_Data_Item::Copy_Settings(CSG_Parameters *pParameters)
 		{
 			CSG_Parameter *pSource = pParameters->Get_Parameter(i);
 
-			if(	SG_STR_CMP(pSource->Get_Identifier(), SG_T("OBJECT_NAME"  ))
-			&&	SG_STR_CMP(pSource->Get_Identifier(), SG_T("OBJECT_DESC"  ))
-			&&	SG_STR_CMP(pSource->Get_Identifier(), SG_T("OBJECT_NODATA")) )
-		//	&&	SG_STR_CMP(pSource->Get_Identifier(), SG_T("LUT_ATTRIB"))
-		//	&&	SG_STR_CMP(pSource->Get_Identifier(), SG_T("METRIC_ATTRIB"))
-		//	&&	SG_STR_CMP(pSource->Get_Identifier(), SG_T("LABEL_ATTRIB"))
-		//	&&	SG_STR_CMP(pSource->Get_Identifier(), SG_T("LABEL_ATTRIB_SIZE_BY"))	)
+			if( !pSource->Cmp_Identifier("OBJECT_NAME"  )
+			&&  !pSource->Cmp_Identifier("OBJECT_DESC"  )
+			&&  !pSource->Cmp_Identifier("OBJECT_NODATA")
+			&&  !pSource->Cmp_Identifier("MAX_SAMPLES"  ) )
 			{
 				CSG_Parameter *pTarget = Get_Parameter(pSource->Get_Identifier());
 
 				if( pTarget && pTarget->Get_Type() == pSource->Get_Type() )
 				{
-					pTarget->Set_Value(pSource);
+					if( pSource->Get_Type() == PARAMETER_TYPE_Choice )
+					{
+						pTarget->Set_Value(pSource->asString()); // only try to match feature attributes by name
+					}
+					else
+					{
+						pTarget->Set_Value(pSource);
+					}
 				}
 			}
 		}
