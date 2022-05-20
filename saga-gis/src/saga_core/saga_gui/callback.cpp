@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,14 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "res_dialogs.h"
 
 #include "helper.h"
@@ -79,23 +68,11 @@
 //---------------------------------------------------------
 int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter &Param_2)
 {
-	int		Result, *iArray;
+	int Result = 1;
 
-	Result	= 1;
-
-	//-----------------------------------------------------
 	switch( ID )
 	{
-	default:
-
-		Result	= 0;
-
-		break;
-
-
 	///////////////////////////////////////////////////////
-	//                                                   //
-	//                                                   //
 	//                                                   //
 	///////////////////////////////////////////////////////
 
@@ -111,6 +88,14 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	case CALLBACK_PROCESS_SET_OKAY:
 
 		Result	= PROCESS_Set_Okay(Param_1.Boolean);
+
+		break;
+
+
+	//-----------------------------------------------------
+	case CALLBACK_PROCESS_SET_BUSY:
+
+		Result	= PROCESS_Set_Busy(Param_1.Boolean);
 
 		break;
 
@@ -142,8 +127,6 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 	///////////////////////////////////////////////////////
 	//                                                   //
-	//                                                   //
-	//                                                   //
 	///////////////////////////////////////////////////////
 
 	//-----------------------------------------------------
@@ -163,18 +146,16 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 	///////////////////////////////////////////////////////
 	//                                                   //
-	//                                                   //
-	//                                                   //
 	///////////////////////////////////////////////////////
 
 	//-----------------------------------------------------
-	case CALLBACK_MESSAGE_ADD:
+	case CALLBACK_MESSAGE_ADD: {
 
-		iArray	= (int *)Param_2.Pointer;
+		int *iArray	= (int *)Param_2.Pointer;
 
 		MSG_General_Add		(Param_1.String.c_str(), iArray[0] != 0, iArray[0] != 0, (TSG_UI_MSG_STYLE)iArray[1]);
 
-		break;
+		break; }
 
 
 	//-----------------------------------------------------
@@ -186,18 +167,16 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 
 	//-----------------------------------------------------
-	case CALLBACK_MESSAGE_ADD_EXECUTION:
+	case CALLBACK_MESSAGE_ADD_EXECUTION: {
 
-		iArray	= (int *)Param_2.Pointer;
+		int *iArray	= (int *)Param_2.Pointer;
 
 		MSG_Execution_Add	(Param_1.String.c_str(), iArray[0] != 0, iArray[0] != 0, (TSG_UI_MSG_STYLE)iArray[1]);
 
-		break;
+		break; }
 
 
 	///////////////////////////////////////////////////////
-	//                                                   //
-	//                                                   //
 	//                                                   //
 	///////////////////////////////////////////////////////
 
@@ -227,8 +206,6 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 	///////////////////////////////////////////////////////
 	//                                                   //
-	//                                                   //
-	//                                                   //
 	///////////////////////////////////////////////////////
 
 	//-----------------------------------------------------
@@ -240,8 +217,6 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 
 	///////////////////////////////////////////////////////
-	//                                                   //
-	//                                                   //
 	//                                                   //
 	///////////////////////////////////////////////////////
 
@@ -324,8 +299,6 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 	///////////////////////////////////////////////////////
 	//                                                   //
-	//                                                   //
-	//                                                   //
 	///////////////////////////////////////////////////////
 
 	//-----------------------------------------------------
@@ -338,11 +311,14 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 	///////////////////////////////////////////////////////
 	//                                                   //
-	//                                                   //
-	//                                                   //
 	///////////////////////////////////////////////////////
 
 	//-----------------------------------------------------
+	default:
+
+		Result	= 0;
+
+		break;
 	}
 
 	return( Result );
@@ -350,8 +326,6 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

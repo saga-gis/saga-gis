@@ -86,14 +86,18 @@ public:
 	bool						Process_Get_Okay		(void);
 
 	int							Process_Get_Frequency	(void)	const		{	return( m_Process_Frequency );		}
-	void						Process_Set_Frequency	(int Milliseconds)	{	m_Process_Frequency	= Milliseconds;	}
+	void						Process_Set_Frequency	(size_t Milliseconds)	{	m_Process_Frequency	= Milliseconds;	}
+
+	bool						Set_Busy				(bool bOn);
 
 
 private:
 
 	bool						m_Process_bContinue;
 
-	int							m_Process_Frequency;
+	size_t						m_Process_Frequency;
+
+	wxWindowDisabler			*m_pDisabler;
 
 	wxString					m_App_Path;
 	

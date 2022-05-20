@@ -91,11 +91,20 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CSAGA::CSAGA(void)
-{}
+{
+	g_pSAGA     = this;
+
+	m_pDisabler = NULL;
+}
 
 //---------------------------------------------------------
 CSAGA::~CSAGA(void)
-{}
+{
+	if( m_pDisabler ) // should never happen!
+	{
+		delete(m_pDisabler);
+	}
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -105,8 +114,6 @@ CSAGA::~CSAGA(void)
 //---------------------------------------------------------
 bool CSAGA::OnInit(void)
 {
-	g_pSAGA	= this;
-
 	SetVendorName("www.saga-gis.org");
 	SetAppName   ("saga_gui");
 
@@ -132,10 +139,10 @@ bool CSAGA::OnInit(void)
 	_Init_Config();
 
 	//-----------------------------------------------------
-	long			lValue;
+	long	lValue;
 
 	m_Process_bContinue	= true;
-	m_Process_Frequency	= CONFIG_Read("/TOOLS", "PROCESS_UPDATE", lValue) ? lValue : 0;
+	m_Process_Frequency	= CONFIG_Read("/TOOLS", "PROCESS_UPDATE", lValue) && lValue > 0 ? lValue : 100;
 
 	//-----------------------------------------------------
 	bool	bLogo	= argc <= 1 && CONFIG_Read("/TOOLS", "START_LOGO", bLogo) ? bLogo : true;
@@ -266,18 +273,21 @@ void CSAGA::On_Key_Down(wxKeyEvent &event)
 	}
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 bool CSAGA::Process_Wait(bool bEnforce)
 {
-	static bool			bYield	= false;
-	static wxDateTime	tYield	= wxDateTime::UNow();
+	static bool bYield = false; static wxDateTime tYield = wxDateTime::UNow();
 
-	if( !bYield && (bEnforce || m_Process_Frequency <= 0 || m_Process_Frequency <= (wxDateTime::UNow() - tYield).GetMilliseconds()) )
+	if( !bYield && !m_pDisabler && (bEnforce || m_Process_Frequency == 0 || m_Process_Frequency <= (wxDateTime::UNow() - tYield).GetMilliseconds()) )
 	{
 		bYield	= true;
 
-	//	Yield();
-		wxSafeYield(g_pSAGA_Frame);
+		Yield(true); // wxSafeYield(g_pSAGA_Frame, true);
 
 		while( Pending() && Dispatch() );
 
@@ -306,6 +316,37 @@ bool CSAGA::Process_Get_Okay(void)
 	Process_Wait();
 
 	return( m_Process_bContinue );
+}
+
+//---------------------------------------------------------
+bool CSAGA::Set_Busy(bool bOn)
+{
+	static size_t Count = 0;
+
+	if( bOn )
+	{
+		if( Count == 0 )
+		{
+			wxBeginBusyCursor();
+
+			m_pDisabler = new wxWindowDisabler;
+		}
+
+		Count++;
+	}
+	else if( Count > 0 )
+	{
+		Count--;
+
+		if( Count == 0 )
+		{
+			delete(m_pDisabler); m_pDisabler = NULL;
+
+			wxEndBusyCursor();
+		}
+	}
+
+	return( Count > 0 );
 }
 
 

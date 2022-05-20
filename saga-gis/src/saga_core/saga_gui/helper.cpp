@@ -822,6 +822,17 @@ bool		PROCESS_Set_Okay(bool bOkay)
 }
 
 //---------------------------------------------------------
+bool		PROCESS_Set_Busy(bool bOn)
+{
+	if( g_pSAGA )
+	{
+		return( g_pSAGA->Set_Busy(bOn) );
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
 bool		PROGRESSBAR_Set_Position(int Position)
 {
 	if( g_pSAGA_Frame )
