@@ -1096,6 +1096,8 @@ bool CSG_GDAL_DataSet::Write(int i, CSG_Grid *pGrid, double noDataValue)
 
 	GDALSetRasterNoDataValue(pBand, noDataValue);
 	GDALSetRasterStatistics (pBand, pGrid->Get_Min(), pGrid->Get_Max(), pGrid->Get_Mean(), pGrid->Get_StdDev());
+	GDALSetRasterScale      (pBand, pGrid->Get_Scaling());
+	GDALSetRasterOffset     (pBand, pGrid->Get_Offset ());
 
 	return( true );	
 }
