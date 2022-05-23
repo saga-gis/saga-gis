@@ -345,28 +345,23 @@ bool CSAGA::Set_Busy(bool bOn, const CSG_String &Message)
 
 			pDisabler = new wxWindowDisabler;
 
-			wxBusyInfoFlags Flags;
-
-			Flags.Parent      (g_pSAGA_Frame);
-		//	Flags.Icon        (IMG_Get_Icon(ID_IMG_SAGA_ICON_32)); // #include "res_images.h"
-		//	Flags.Label       (wxString::Format("SAGA - %s", _TL("Processing")));
-		//	Flags.Title       (_TL("Please wait, working..."));
-		//	Flags.Background  (*wxWHITE);
-		//	Flags.Background  (*wxBLACK);
-			Flags.Transparency(4 * wxALPHA_OPAQUE / 5);
-
-			if( Message.is_Empty() )
+			if( !Message.is_Empty() )
 			{
-				Flags.Text(_TL("Please wait, working..."));
-			}
-			else
-			{
+				wxBusyInfoFlags Flags;
+
+				Flags.Parent      (g_pSAGA_Frame);
+			//	Flags.Icon        (IMG_Get_Icon(ID_IMG_SAGA_ICON_32)); // #include "res_images.h"
+			//	Flags.Label       (wxString::Format("SAGA - %s", _TL("Processing")));
+			//	Flags.Title       (_TL("Please wait, working..."));
+			//	Flags.Background  (*wxWHITE);
+			//	Flags.Background  (*wxBLACK);
+				Flags.Transparency(4 * wxALPHA_OPAQUE / 5);
 				Flags.Text(Message.c_str());
+
+				pInfo     = new wxBusyInfo(Flags);
+
+			//	pInfo     = new wxBusyInfo(_TL("Please wait, working..."), g_pSAGA_Frame);
 			}
-
-			pInfo     = new wxBusyInfo(Flags);
-
-		//	pInfo     = new wxBusyInfo(_TL("Please wait, working..."), g_pSAGA_Frame);
 		}
 
 		Count++;
@@ -377,7 +372,10 @@ bool CSAGA::Set_Busy(bool bOn, const CSG_String &Message)
 
 		if( Count == 0 )
 		{
-			delete(pInfo    ); pInfo     = NULL;
+			if( pInfo )
+			{
+				delete(pInfo); pInfo = NULL;
+			}
 
 			delete(pDisabler); pDisabler = NULL;
 

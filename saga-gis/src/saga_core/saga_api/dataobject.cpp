@@ -599,7 +599,7 @@ bool CSG_Data_Object::Update(bool bForce)
 	{
 		m_bUpdate	= false;
 
-		SG_UI_Process_Set_Busy(true, CSG_String::Format("%s: %s...", _TL("Updating"), Get_Name()));
+		SG_UI_Process_Set_Busy(true);//, CSG_String::Format("%s: %s...", _TL("Updating"), Get_Name()));
 		bool bResult = On_Update();
 		SG_UI_Process_Set_Busy(false);
 
