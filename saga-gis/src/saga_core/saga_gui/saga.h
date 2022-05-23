@@ -78,17 +78,17 @@ public:
 	virtual bool				OnInit					(void);
 	virtual int					OnExit					(void);
 
-	const wxString &			Get_App_Path			(void)	const		{	return( m_App_Path );	}
+	const wxString &			Get_App_Path			(void)	const	{	return( m_App_Path );	}
 
 	bool						Process_Wait			(bool bEnforce = false);
 
 	bool						Process_Set_Okay		(bool bOkay);
 	bool						Process_Get_Okay		(void);
 
-	int							Process_Get_Frequency	(void)	const		{	return( m_Process_Frequency );		}
-	void						Process_Set_Frequency	(size_t Milliseconds)	{	m_Process_Frequency	= Milliseconds;	}
+	bool						Process_Set_Frequency	(size_t Milliseconds);
+	int							Process_Get_Frequency	(void)	const	{	return( m_Process_Frequency );		}
 
-	bool						Set_Busy				(bool bOn);
+	bool						Set_Busy				(bool bOn, const CSG_String &Message = "");
 
 
 private:
@@ -96,8 +96,6 @@ private:
 	bool						m_Process_bContinue;
 
 	size_t						m_Process_Frequency;
-
-	wxWindowDisabler			*m_pDisabler;
 
 	wxString					m_App_Path;
 	

@@ -822,11 +822,11 @@ bool		PROCESS_Set_Okay(bool bOkay)
 }
 
 //---------------------------------------------------------
-bool		PROCESS_Set_Busy(bool bOn)
+bool		PROCESS_Set_Busy(bool bOn, const CSG_String &Message)
 {
 	if( g_pSAGA )
 	{
-		return( g_pSAGA->Set_Busy(bOn) );
+		return( g_pSAGA->Set_Busy(bOn, Message) );
 	}
 
 	return( true );

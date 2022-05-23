@@ -101,9 +101,9 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 	);
 
 	m_Parameters.Add_Int("NODE_GENERAL",
-		"PROCESS_UPDATE", _TL("Process Update Frequency [milliseconds]"),
-		_TL(""),
-		0, 0, true
+		"PROCESS_UPDATE", _TL("Process Update Frequency"),
+		_TL("[milliseconds]"),
+		g_pSAGA->Process_Get_Frequency(), 1, true
 	);
 
 	m_Parameters.Add_Bool("NODE_GENERAL",
@@ -117,8 +117,8 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 		"OMP_THREADS_MAX", _TL("Number of CPU Cores [# physical processors]"),
 		_TW("Number of processors to use for parallelization. Should be set to the number "
 		    "of physical processors, and not to the total number of physical and logical processors "
-			"on systems supporting hyper-threading."),
-		SG_OMP_Get_Max_Num_Threads(), 1, true, SG_OMP_Get_Max_Num_Procs(), true
+			"on systems supporting hyper-threading."
+		), SG_OMP_Get_Max_Num_Threads(), 1, true, SG_OMP_Get_Max_Num_Procs(), true
 	);
 #endif
 

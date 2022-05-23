@@ -1538,7 +1538,7 @@ SAGA_API_DLL_EXPORT int						SG_UI_Progress_Lock			(bool bOn);
 SAGA_API_DLL_EXPORT int						SG_UI_Progress_Reset		(void);
 SAGA_API_DLL_EXPORT bool					SG_UI_Process_Get_Okay		(bool bBlink = false);
 SAGA_API_DLL_EXPORT bool					SG_UI_Process_Set_Okay		(bool bOkay = true);
-SAGA_API_DLL_EXPORT bool					SG_UI_Process_Set_Busy		(bool bOn = true);
+SAGA_API_DLL_EXPORT bool					SG_UI_Process_Set_Busy		(bool bOn = true, const CSG_String &Message = "");
 SAGA_API_DLL_EXPORT bool					SG_UI_Process_Set_Progress	(double Position, double Range);
 SAGA_API_DLL_EXPORT bool					SG_UI_Process_Set_Ready		(void);
 SAGA_API_DLL_EXPORT void					SG_UI_Process_Set_Text		(const CSG_String &Text);

@@ -95,7 +95,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_PROCESS_SET_BUSY:
 
-		Result	= PROCESS_Set_Busy(Param_1.Boolean);
+		Result	= PROCESS_Set_Busy(Param_1.Boolean, Param_2.String);
 
 		break;
 

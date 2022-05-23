@@ -184,11 +184,11 @@ bool		SG_UI_Process_Set_Okay(bool bOkay)
 }
 
 //---------------------------------------------------------
-bool		SG_UI_Process_Set_Busy(bool bOn)
+bool		SG_UI_Process_Set_Busy(bool bOn, const CSG_String &Message)
 {
 	if( gSG_UI_Callback )
 	{
-		CSG_UI_Parameter	p1(bOn), p2;
+		CSG_UI_Parameter	p1(bOn), p2(Message);
 
 		return( gSG_UI_Callback(CALLBACK_PROCESS_SET_BUSY, p1, p2) != 0 );
 	}

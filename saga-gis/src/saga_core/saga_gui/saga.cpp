@@ -53,6 +53,7 @@
 #include <wx/filename.h>
 #include <wx/stdpaths.h>
 #include <wx/wfstream.h>
+#include <wx/busyinfo.h>
 
 #include <saga_api/saga_api.h>
 
@@ -92,19 +93,15 @@ END_EVENT_TABLE()
 //---------------------------------------------------------
 CSAGA::CSAGA(void)
 {
-	g_pSAGA     = this;
+	g_pSAGA = this;
 
-	m_pDisabler = NULL;
+	m_Process_bContinue = true;
+	m_Process_Frequency = 100;
 }
 
 //---------------------------------------------------------
 CSAGA::~CSAGA(void)
-{
-	if( m_pDisabler ) // should never happen!
-	{
-		delete(m_pDisabler);
-	}
-}
+{}
 
 
 ///////////////////////////////////////////////////////////
@@ -139,10 +136,12 @@ bool CSAGA::OnInit(void)
 	_Init_Config();
 
 	//-----------------------------------------------------
-	long	lValue;
+	long	Frequency;
 
-	m_Process_bContinue	= true;
-	m_Process_Frequency	= CONFIG_Read("/TOOLS", "PROCESS_UPDATE", lValue) && lValue > 0 ? lValue : 100;
+	if( CONFIG_Read("/TOOLS", "PROCESS_UPDATE", Frequency) && Frequency > 0 )
+	{
+		m_Process_Frequency	= Frequency;
+	}
 
 	//-----------------------------------------------------
 	bool	bLogo	= argc <= 1 && CONFIG_Read("/TOOLS", "START_LOGO", bLogo) ? bLogo : true;
@@ -204,6 +203,8 @@ bool CSAGA::OnInit(void)
 //---------------------------------------------------------
 int CSAGA::OnExit(void)
 {
+	while( Set_Busy(false) ); // should not be necessary!
+
 	delete(wxConfigBase::Set((wxConfigBase *)NULL));
 
 	return( 0 );
@@ -230,9 +231,9 @@ void CSAGA::_Init_Config(void)
 
 			if(	fLocal.FileExists() && fLocal.IsFileReadable() && !fUser.FileExists() )	// create a copy in user's home directory
 			{
-				wxFileInputStream	is(fLocal.GetFullPath());
-				wxFileOutputStream	os(fUser .GetFullPath());
-				wxFileConfig		ic(is);	ic.Save(os);
+				wxFileInputStream  is(fLocal.GetFullPath());
+				wxFileOutputStream os(fUser .GetFullPath());
+				wxFileConfig       ic(is); ic.Save(os);
 			}
 
 			fLocal	= fUser;
@@ -283,7 +284,7 @@ bool CSAGA::Process_Wait(bool bEnforce)
 {
 	static bool bYield = false; static wxDateTime tYield = wxDateTime::UNow();
 
-	if( !bYield && !m_pDisabler && (bEnforce || m_Process_Frequency == 0 || m_Process_Frequency <= (wxDateTime::UNow() - tYield).GetMilliseconds()) )
+	if( !bYield && (bEnforce || m_Process_Frequency <= (wxDateTime::UNow() - tYield).GetMilliseconds()) )
 	{
 		bYield	= true;
 
@@ -319,9 +320,22 @@ bool CSAGA::Process_Get_Okay(void)
 }
 
 //---------------------------------------------------------
-bool CSAGA::Set_Busy(bool bOn)
+bool CSAGA::Process_Set_Frequency(size_t Milliseconds)
 {
-	static size_t Count = 0;
+	if( Milliseconds > 0 && Milliseconds != m_Process_Frequency )
+	{
+		m_Process_Frequency	= Milliseconds;
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSAGA::Set_Busy(bool bOn, const CSG_String &Message)
+{
+	static size_t Count = 0; static wxWindowDisabler *pDisabler = NULL; static wxBusyInfo *pInfo = NULL;
 
 	if( bOn )
 	{
@@ -329,7 +343,30 @@ bool CSAGA::Set_Busy(bool bOn)
 		{
 			wxBeginBusyCursor();
 
-			m_pDisabler = new wxWindowDisabler;
+			pDisabler = new wxWindowDisabler;
+
+			wxBusyInfoFlags Flags;
+
+			Flags.Parent      (g_pSAGA_Frame);
+		//	Flags.Icon        (IMG_Get_Icon(ID_IMG_SAGA_ICON_32)); // #include "res_images.h"
+		//	Flags.Label       (wxString::Format("SAGA - %s", _TL("Processing")));
+		//	Flags.Title       (_TL("Please wait, working..."));
+		//	Flags.Background  (*wxWHITE);
+		//	Flags.Background  (*wxBLACK);
+			Flags.Transparency(4 * wxALPHA_OPAQUE / 5);
+
+			if( Message.is_Empty() )
+			{
+				Flags.Text(_TL("Please wait, working..."));
+			}
+			else
+			{
+				Flags.Text(Message.c_str());
+			}
+
+			pInfo     = new wxBusyInfo(Flags);
+
+		//	pInfo     = new wxBusyInfo(_TL("Please wait, working..."), g_pSAGA_Frame);
 		}
 
 		Count++;
@@ -340,7 +377,9 @@ bool CSAGA::Set_Busy(bool bOn)
 
 		if( Count == 0 )
 		{
-			delete(m_pDisabler); m_pDisabler = NULL;
+			delete(pInfo    ); pInfo     = NULL;
+
+			delete(pDisabler); pDisabler = NULL;
 
 			wxEndBusyCursor();
 		}
