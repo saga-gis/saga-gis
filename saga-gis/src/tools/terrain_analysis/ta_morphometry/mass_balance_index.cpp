@@ -71,7 +71,7 @@ CMass_Balance_Index::CMass_Balance_Index(void)
 	Add_Reference("Friedrich, K.", "1996",
 		"Digitale Reliefgliederungsverfahren zur Ableitung bodenkundlich relevanter Flaecheneinheiten",
 		"Frankfurter Geowissenschaftliche Arbeiten D 21, Frankfurt/M.",
-		SG_T("http://user.uni-frankfurt.de/~relief/fga21/"), SG_T("online")
+		SG_T("https://www.uni-frankfurt.de/81804377/Friedrich_1996_FGA21.pdf"), SG_T("online")
 	);
 
 	Add_Reference("Friedrich, K.", "1998",
@@ -79,12 +79,14 @@ CMass_Balance_Index::CMass_Balance_Index(void)
 		"In: Heinecke, H., Eckelmann, W., Thomasson, A., Jones, J., Montanarella, L., Buckley, B. (eds.): "
 		"Land Inforamtion Systems - Developments for planning the sustainable use of land resources. "
 		"European Soil Bureau - Research Report 4, EUR 17729 EN, Office for oficial publications of the European Communities, Ispra, pp. 259-266.",
-		SG_T("http://eusoils.jrc.it/ESDB_Archive/eusoils_docs/esb_rr/n04_land_information_systems/contents.html"), SG_T("online")
+		SG_T("https://esdac.jrc.ec.europa.eu/ESDB_Archive/eusoils_docs/esb_rr/n04_land_information_systems/contents.html"), SG_T("online")
+	//	SG_T("https://esdac.jrc.ec.europa.eu/ESDB_Archive/eusoils_docs/esb_rr/n04_land_information_systems/4_4.doc"), SG_T("online")
 	);
 
 	Add_Reference("Moeller, M., Volk, M., Friedrich, K., Lymburner, L.", "2008",
 		"Placing soil-genesis and transport processes into a landscape context: A multiscale terrain-analysis approach",
-		"Journal of Plant Nutrition and Soil Science, 171, pp. 419-430, DOI: 10.1002/jpln.200625039."
+		"Journal of Plant Nutrition and Soil Science, 171, pp. 419-430.",
+		SG_T("https://doi.org/10.1002/jpln.200625039"), SG_T("doi:10.1002/jpln.200625039")
 	);
 
 	//-----------------------------------------------------
