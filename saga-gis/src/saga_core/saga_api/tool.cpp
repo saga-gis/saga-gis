@@ -296,9 +296,11 @@ bool CSG_Tool::Execute(bool bAddHistory)
 #endif
 ///////////////////////////////////////////////////////////
 
+	//	SG_UI_Process_Set_Busy(true, CSG_String::Format("%s: %s...", _TL("Executing"), Get_Name().c_str()));
 		CSG_DateTime Started(CSG_DateTime::Now());
 		bResult = On_Execute();
 		CSG_TimeSpan Span = CSG_DateTime::Now() - Started;
+	//	SG_UI_Process_Set_Busy(false);
 
 ///////////////////////////////////////////////////////////
 #ifdef _TOOL_EXCEPTION
