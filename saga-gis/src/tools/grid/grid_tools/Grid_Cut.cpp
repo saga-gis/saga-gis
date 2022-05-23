@@ -203,8 +203,8 @@ bool CGrid_Clip_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Int
 	case TOOL_INTERACTIVE_LDOWN:
 		if( m_bDown == false )
 		{
-			m_bDown		= true;
-			m_ptDown	= ptWorld;
+			m_bDown  = true;
+			m_ptDown = ptWorld;
 		}
 
 		break;
@@ -213,14 +213,13 @@ bool CGrid_Clip_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Int
 	case TOOL_INTERACTIVE_LUP:
 		if( m_bDown == true )
 		{
-			m_bDown		= false;
-			ptWorld		= ptWorld;
+			m_bDown  = false;
 
-			CSG_Grid_System	System	= Fit_Extent(Get_System(), CSG_Rect(
+			CSG_Grid_System System = Fit_Extent(Get_System(), CSG_Rect(
 				m_ptDown.Get_X(), m_ptDown.Get_Y(), ptWorld.Get_X(), ptWorld.Get_Y()
 			));
 
-			CSG_Parameters	*pParameters	= Get_Parameters("EXTENT");
+			CSG_Parameters *pParameters = Get_Parameters("EXTENT");
 
 			pParameters->Set_Callback(false);
 			(*pParameters)("XMIN")->Set_Value(System.Get_XMin());
@@ -236,7 +235,7 @@ bool CGrid_Clip_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Int
 				return( false );
 			}
 
-			System	= Fit_Extent(Get_System(), CSG_Rect(
+			System = Fit_Extent(Get_System(), CSG_Rect(
 				(*pParameters)("XMIN")->asDouble(),
 				(*pParameters)("YMIN")->asDouble(),
 				(*pParameters)("XMAX")->asDouble(),
@@ -249,19 +248,19 @@ bool CGrid_Clip_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Int
 			}
 
 			//---------------------------------------------
-			CSG_Parameter_Grid_List	*pInput	= Parameters("GRIDS")->asGridList();
+			CSG_Parameter_Grid_List *pInput = Parameters("GRIDS")->asGridList();
 
 			for(int i=0; i<pInput->Get_Item_Count(); i++)
 			{
-				CSG_Data_Object	*pClip, *pObject	= pInput->Get_Item(i);
+				CSG_Data_Object *pClip, *pObject = pInput->Get_Item(i);
 
 				switch( pObject->Get_ObjectType() )
 				{
 				default:
 					{
-						CSG_Grid	*pGrid	= (CSG_Grid  *)pObject;
+						CSG_Grid *pGrid  = (CSG_Grid  *)pObject;
 
-						pClip	= SG_Create_Grid(System, pGrid->Get_Type());
+						pClip = SG_Create_Grid(System, pGrid->Get_Type());
 
 						((CSG_Grid  *)pClip)->Set_Unit   (pGrid ->Get_Unit());
 						((CSG_Grid  *)pClip)->Set_Scaling(pGrid ->Get_Scaling(), pGrid ->Get_Offset());
@@ -274,9 +273,9 @@ bool CGrid_Clip_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Int
 
 				case SG_DATAOBJECT_TYPE_Grids:
 					{
-						CSG_Grids	*pGrids	= (CSG_Grids *)pObject;
+						CSG_Grids *pGrids = (CSG_Grids *)pObject;
 
-						pClip	= SG_Create_Grids(System, pGrids->Get_Attributes(), pGrids->Get_Z_Attribute(), pGrids->Get_Type(), true);
+						pClip = SG_Create_Grids(System, pGrids->Get_Attributes(), pGrids->Get_Z_Attribute(), pGrids->Get_Type(), true);
 
 						((CSG_Grids *)pClip)->Set_Unit   (pGrids->Get_Unit());
 						((CSG_Grids *)pClip)->Set_Scaling(pGrids->Get_Scaling(), pGrids->Get_Offset());
@@ -303,6 +302,8 @@ bool CGrid_Clip_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Int
 			{
 				Stop_Execution(false);
 			}
+
+			return( true );
 		}
 
 		break;
@@ -310,7 +311,7 @@ bool CGrid_Clip_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Int
 	//-----------------------------------------------------
 	}
 
-	return( true );
+	return( false );
 }
 
 
