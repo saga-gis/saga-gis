@@ -1415,6 +1415,10 @@ void CSG_Tool::_Get_Script_CMD(CSG_String &Script, CSG_Parameters *pParameters, 
 				Script	+= Prefix + CSG_String::Format("%s=%s", GET_ID1(p), p->asString());
 			break;
 
+        case PARAMETER_TYPE_Color            :
+            Script	+= Prefix + CSG_String::Format("%s=\"%s\"", GET_ID1(p), SG_Color_To_Text(p->asColor()).c_str());
+            break;
+
 		case PARAMETER_TYPE_Double           :
 		case PARAMETER_TYPE_Degree           :
 			Script	+= Prefix + CSG_String::Format("%s=%g", GET_ID1(p), p->asDouble());
@@ -1676,6 +1680,10 @@ void CSG_Tool::_Get_Script_Python(CSG_String &Script, CSG_Parameters *pParameter
 		case PARAMETER_TYPE_Table_Fields   :
 			Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', '%s')\n", ID.c_str(), p->asString());
 			break;
+
+        case PARAMETER_TYPE_Color          :
+            Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', '%s')\n", ID.c_str(), SG_Color_To_Text(p->asColor()).c_str());
+            break;
 
 		case PARAMETER_TYPE_Double         :
 		case PARAMETER_TYPE_Degree         :
