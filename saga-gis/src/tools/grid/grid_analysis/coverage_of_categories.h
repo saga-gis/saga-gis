@@ -89,6 +89,8 @@ private:
 
 	CSG_Table					m_Classes;
 
+	double						m_ToUnit;
+
 
 	bool						Initialize				(const CSG_Grid_System &System);
 

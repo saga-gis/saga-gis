@@ -78,7 +78,7 @@ CCoverage_of_Categories::CCoverage_of_Categories(void)
 	Parameters.Add_Grid_List("",
 		"COVERAGES"	, _TL("Coverages"),
 		_TL(""),
-		PARAMETER_OUTPUT
+		PARAMETER_OUTPUT, false
 	);
 
 	Parameters.Add_Table("",
@@ -120,6 +120,15 @@ CCoverage_of_Categories::CCoverage_of_Categories(void)
 			_TL("4-byte"),
 			_TL("8-byte")
 		), 1
+	);
+
+	Parameters.Add_Choice("",
+		"UNIT"		, _TL("Unit"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("fraction"),
+			_TL("percent")
+		), 0
 	);
 
 	//-----------------------------------------------------
@@ -191,6 +200,8 @@ bool CCoverage_of_Categories::On_Execute(void)
 
 	double	dSize	= 0.5 * System.Get_Cellsize() / Get_Cellsize();
 
+	double	Scale	= Parameters("UNIT")->asInt() == 0 ? 1. : 100.;
+
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("processing"));
 
@@ -209,7 +220,7 @@ bool CCoverage_of_Categories::On_Execute(void)
 
 			for(int iClass=0; iClass<pCoverages->Get_Grid_Count(); iClass++)
 			{
-				pCoverages->Get_Grid(iClass)->Set_Value(x, y, Get_Coverage(Cell, iClass));
+				pCoverages->Get_Grid(iClass)->Set_Value(x, y, Scale * Get_Coverage(Cell, iClass));
 			}
 		}
 	}
@@ -272,26 +283,50 @@ bool CCoverage_of_Categories::Initialize(const CSG_Grid_System &System)
 	//-----------------------------------------------------
 	else
 	{
-		CSG_Unique_Number_Statistics	Classes;
+		CSG_Parameter *pLUT = DataObject_Get_Parameter(m_pClasses, "COLORS_TYPE");	// Color Classification Type: Lookup Table
 
-		for(sLong iCell=0; iCell<Get_NCells() && Set_Progress_NCells(iCell); iCell++)
+		pLUT = pLUT && pLUT->asInt() == 1 ? DataObject_Get_Parameter(m_pClasses, "LUT") : NULL;
+
+		if( pLUT && pLUT->asTable() )
 		{
-			if( !m_pClasses->is_NoData(iCell) )
+			CSG_Table	&Classes	= *pLUT->asTable();
+
+			m_Classes.Add_Field("MAX", m_pClasses->Get_Type());
+
+			m_Classes.Set_Count(Classes.Get_Count());
+
+			for(int iClass=0; iClass<Classes.Get_Count(); iClass++)
 			{
-				Classes	+= m_pClasses->asDouble(iCell);
+				m_Classes[iClass].Set_Value(0, Classes[iClass].asString(1)); // Name
+				m_Classes[iClass].Set_Value(1, Classes[iClass].asDouble(3)); // Minimum
+				m_Classes[iClass].Set_Value(2, Classes[iClass].asDouble(4)); // Maximum
 			}
 		}
 
 		//-------------------------------------------------
-		m_Classes.Set_Count(Classes.Get_Count());
-
-		for(int iClass=0; iClass<Classes.Get_Count(); iClass++)
+		else
 		{
-			m_Classes[iClass].Set_Value(0, SG_Get_String(Classes.Get_Value(iClass), -6));
-			m_Classes[iClass].Set_Value(1,               Classes.Get_Value(iClass)     );
-		}
+			CSG_Unique_Number_Statistics	Classes;
 
-		m_Classes.Set_Index(1, TABLE_INDEX_Ascending);
+			for(sLong iCell=0; iCell<Get_NCells() && Set_Progress_NCells(iCell); iCell++)
+			{
+				if( !m_pClasses->is_NoData(iCell) )
+				{
+					Classes	+= m_pClasses->asDouble(iCell);
+				}
+			}
+
+			//-------------------------------------------------
+			m_Classes.Set_Count(Classes.Get_Count());
+
+			for(int iClass=0; iClass<Classes.Get_Count(); iClass++)
+			{
+				m_Classes[iClass].Set_Value(0, SG_Get_String(Classes.Get_Value(iClass), -6));
+				m_Classes[iClass].Set_Value(1,               Classes.Get_Value(iClass)     );
+			}
+
+			m_Classes.Set_Index(1, TABLE_INDEX_Ascending);
+		}
 	}
 
 	//-----------------------------------------------------
@@ -310,14 +345,14 @@ bool CCoverage_of_Categories::Initialize(const CSG_Grid_System &System)
 	}
 
 	//-----------------------------------------------------
-	TSG_Data_Type	Type;	double	Scaling;
+	TSG_Data_Type Type; double Scaling, Scale = Parameters("UNIT")->asInt() == 0 ? 1. : 100.;
 
 	switch( Parameters("DATADEPTH")->asInt() )
 	{
-	case  0: Type = SG_DATATYPE_Byte  ; Scaling = 1. /   250.; break; // 0.004
-	default: Type = SG_DATATYPE_Word  ; Scaling = 1. / 62500.; break; // 0.000016
-	case  2: Type = SG_DATATYPE_Float ; Scaling = 1.         ; break;
-	case  3: Type = SG_DATATYPE_Double; Scaling = 1.         ; break;
+	case  0: Type = SG_DATATYPE_Byte  ; Scaling = Scale /   250.; break; // fraction => 0.004    or percent => 0.4
+	default: Type = SG_DATATYPE_Word  ; Scaling = Scale / 62500.; break; // fraction => 0.000016 or percent => 0.0016
+	case  2: Type = SG_DATATYPE_Float ; Scaling = 1.            ; break;
+	case  3: Type = SG_DATATYPE_Double; Scaling = 1.            ; break;
 	}
 
 	CSG_Parameter_Grid_List	*pCoverages	= Parameters("COVERAGES")->asGridList();
@@ -336,8 +371,19 @@ bool CCoverage_of_Categories::Initialize(const CSG_Grid_System &System)
 		}
 
 		pGrid->Fmt_Name("%s [%s]", m_pClasses->Get_Name(), m_Classes[iClass].asString(0));
-		pGrid->Set_NoData_Value(Parameters("NO_DATA")->asBool() ? 0. : -1.);
+
 		pGrid->Set_Scaling(Scaling);
+
+		pGrid->Set_Unit(Parameters("UNIT")->asInt() == 0 ? _TL("fraction") : _TL("percent"));
+
+		if( Parameters("NO_DATA")->asBool() )
+		{
+			pGrid->Set_NoData_Value(0.);
+		}
+		else if( Type == SG_DATATYPE_Byte )
+		{
+			pGrid->Set_NoData_Value(255.);
+		}
 
 		pCoverages->Add_Item(pGrid);
 	}
@@ -354,11 +400,11 @@ bool CCoverage_of_Categories::Initialize(const CSG_Grid_System &System)
 //---------------------------------------------------------
 inline bool CCoverage_of_Categories::Cmp_Class(int x, int y, int iClass)
 {
-	if( m_pClasses->is_InGrid(x, y) )
+	if( is_InGrid(x, y) )
 	{
 		double	Value	= m_pClasses->asDouble(x, y);
 		
-		if( m_Classes.Get_Field_Count() > 2 )
+		if( m_Classes.Get_Field_Count() > 2 && m_Classes[iClass].asDouble(1) < m_Classes[iClass].asDouble(2) )
 		{
 			return( Value >= m_Classes[iClass].asDouble(1)
 				&&  Value <  m_Classes[iClass].asDouble(2)
