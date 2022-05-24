@@ -77,8 +77,13 @@ long		SG_Color_Get_Random	(void)
 
 //---------------------------------------------------------
 bool		SG_Color_From_Text	(const CSG_String &Text, long &Color)
-{	// from wx/colourmng.cpp, hexadecimal prefixed with # ("HTML syntax") see https://drafts.csswg.org/css-color/#hex-notation
+{	// from wx/src/common/colourcmn.cpp, hexadecimal prefixed with # ("HTML syntax") see https://drafts.csswg.org/css-color/#hex-notation
 
+    if( Text.is_Empty() || Text.Get_Char(0) != L'#' )
+    {
+        return( false );
+    }
+    
 	const char	*s	= Text.b_str();	unsigned long	c;
 
 	if( sscanf(s + 1, "%lx", &c) == 1 )
@@ -86,11 +91,16 @@ bool		SG_Color_From_Text	(const CSG_String &Text, long &Color)
 		switch( Text.Length() - 1 )
 		{
 		case 6: // #rrggbb
-			Color	= (long)((c << 8) + 0xFF);
-			return( true );
+			c	    = (c << 8) + 0xFF;
+            Color   = SG_GET_RGB(
+                (unsigned char)((c >> 24) & 0xFF),
+                (unsigned char)((c >> 16) & 0xFF),
+                (unsigned char)((c >>  8) & 0xFF)
+            );
+            return( true );
 
 		case 8: // #rrggbbaa
-			Color	= SG_GET_RGBA(
+			Color	= SG_GET_RGB(
 				(unsigned char)((c >> 24) & 0xFF),
 				(unsigned char)((c >> 16) & 0xFF),
 				(unsigned char)((c >>  8) & 0xFF),
@@ -99,8 +109,13 @@ bool		SG_Color_From_Text	(const CSG_String &Text, long &Color)
 			return( true );
 
 		case 3: // #rgb
-			Color	= (long)((c << 4) + 0xF);
-			return( true );
+			c	    = (c << 4) + 0xF;
+            Color	= SG_GET_RGB(
+                (unsigned char)(((c >> 12) & 0xF) * 0x11),
+                (unsigned char)(((c >>  8) & 0xF) * 0x11),
+                (unsigned char)(((c >>  4) & 0xF) * 0x11)
+            );
+            return( true );
 
 		case 4: // #rgba
 			Color	= SG_GET_RGBA(
@@ -110,6 +125,9 @@ bool		SG_Color_From_Text	(const CSG_String &Text, long &Color)
 				(unsigned char)(((c      ) & 0xF) * 0x11)
 			);
 			return( true );
+
+        default:
+            return( false ); // unrecognized
 		}
 	}
 
