@@ -100,7 +100,7 @@ bool		SG_Color_From_Text	(const CSG_String &Text, long &Color)
             return( true );
 
 		case 8: // #rrggbbaa
-			Color	= SG_GET_RGB(
+			Color	= SG_GET_RGBA(
 				(unsigned char)((c >> 24) & 0xFF),
 				(unsigned char)((c >> 16) & 0xFF),
 				(unsigned char)((c >>  8) & 0xFF),
