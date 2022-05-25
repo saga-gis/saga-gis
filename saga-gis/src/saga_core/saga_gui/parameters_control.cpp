@@ -813,6 +813,13 @@ void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
 			}
 			break;
 
+        case PARAMETER_TYPE_Color:
+            if( ((wxColourProperty *)pProperty)->GetVal().m_colour != pParameter->asColor() )
+            {
+                m_pPG->SetPropertyValue(pProperty, wxColor(pParameter->asColor()));
+            }
+            break;
+
 		case PARAMETER_TYPE_Choice         :
 		case PARAMETER_TYPE_Table_Field    :
 		case PARAMETER_TYPE_Grid_System    :
