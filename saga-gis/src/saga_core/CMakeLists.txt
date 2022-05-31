@@ -2,7 +2,7 @@ message(STATUS "folder: saga_core")
 
 if(NOT MSVC) # unix like systems
 	# define lib and share path for saga_cmd and saga_gui
-	set(MTOOLSPATH "TOOLS_PATH=\"${CMAKE_INSTALL_PREFIX}/lib/saga\"")
+	set(MTOOLSPATH "TOOLS_PATH=\"${CMAKE_INSTALL_FULL_LIBDIR}/saga\"")
 	set(MSHAREPATH "SHARE_PATH=\"${CMAKE_INSTALL_PREFIX}/share/saga\"")
 endif()
 
