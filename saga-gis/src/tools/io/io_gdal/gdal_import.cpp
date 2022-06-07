@@ -136,8 +136,14 @@ CGDAL_Import::CGDAL_Import(void)
 	);
 
 	Parameters.Add_String("",
+		"SUBSETS"		, _TL("Subsets"),
+		_TL("Semicolon separated list of subset names or indexes (zero-based). If empty (default) all subsets will be imported (if there are any)."),
+		""
+	)->Set_UseInGUI(false);
+
+	Parameters.Add_String("",
 		"SELECTION"		, _TL("Select from Multiple Bands"),
-		_TL("Semicolon separated list of band indexes. If empty (default) all bands will be imported."),
+		_TL("Semicolon separated list of band indexes (zero-based). If empty (default) all bands will be imported."),
 		""
 	)->Set_UseInGUI(false);
 
@@ -273,31 +279,18 @@ bool CGDAL_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Parameters("GRIDS")->asGridList()->Del_Items();
+	TSG_Grid_Resampling	Resampling;
 
-	for(int i=0; i<Files.Get_Count(); i++)
+	switch( Parameters("RESAMPLING")->asInt() )
 	{
-		Message_Fmt("\n%s: %s", _TL("loading"), Files[i].c_str());
-
-		if( Load(Files[i]) == false )
-		{
-			Message_Add(_TL("failed: could not find a suitable import driver"));
-		}
+	default: Resampling = GRID_RESAMPLING_NearestNeighbour; break;
+	case  1: Resampling = GRID_RESAMPLING_Bilinear        ; break;
+	case  2: Resampling = GRID_RESAMPLING_BicubicSpline   ; break;
+	case  3: Resampling = GRID_RESAMPLING_BSpline         ; break;
 	}
 
 	//-----------------------------------------------------
-	return( Parameters("GRIDS")->asGridList()->Get_Grid_Count() > 0 );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CGDAL_Import::Load(const CSG_String &File)
-{
-	CSG_Rect	Extent;	CSG_Projection	Projection;
+	CSG_Rect Extent; CSG_Projection Projection;
 
 	switch( Parameters("EXTENT")->asInt() )
 	{
@@ -311,42 +304,60 @@ bool CGDAL_Import::Load(const CSG_String &File)
 		break;
 
 	case  2:
-		Extent = Parameters("EXTENT_GRID"  )->asGrid_System()->Get_Extent();
+		Extent       = Parameters("EXTENT_GRID"  )->asGrid_System()->Get_Extent();
 		Extent.Inflate(Parameters("EXTENT_BUFFER")->asDouble(), false);
 		break;
 
 	case  3:
-		Extent = Parameters("EXTENT_SHAPES")->asShapes     ()->Get_Extent();
+		Projection   = Parameters("EXTENT_SHAPES")->asShapes     ()->Get_Projection();
+		Extent       = Parameters("EXTENT_SHAPES")->asShapes     ()->Get_Extent();
 		Extent.Inflate(Parameters("EXTENT_BUFFER")->asDouble(), false);
-		Projection	= Parameters("EXTENT_SHAPES")->asShapes()->Get_Projection();
 		break;
 	}
 
 	//-----------------------------------------------------
-	CSG_GDAL_DataSet	DataSet;
+	Parameters("GRIDS")->asGridList()->Del_Items();
 
-	if( Extent.Get_Area() > 0. )
+	for(int i=0; i<Files.Get_Count(); i++)
 	{
-		if( DataSet.Open_Read(File, Extent) == false )
-		{
-			return( false );
-		}
+		Load(Files[i], Resampling, Extent, Projection);
 	}
-	else
+
+	//-----------------------------------------------------
+	return( Parameters("GRIDS")->asGridList()->Get_Grid_Count() > 0 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGDAL_Import::Load(const CSG_String &File, TSG_Grid_Resampling Resampling, const CSG_Rect &Extent, const CSG_Projection &Projection)
+{
+	CSG_GDAL_DataSet DataSet;
+
+	if( !DataSet.Open_Read(File) )
 	{
-		if( DataSet.Open_Read(File) == false )
-		{
-			return( false );
-		}
+		Message_Add(_TL("failed: could not find a suitable import driver"));
+
+		return( false );
 	}
 
 	if( DataSet.Get_Count() < 1 )
 	{
-		return( Load_Subset(DataSet) );
+		return( Load_Subsets(DataSet, Resampling, Extent, Projection) );
+	}
+
+	if( Extent.Get_Area() > 0. && !DataSet.Open_Read(File, Extent) )
+	{
+		Message_Add(_TL("failed: there is no intersection of dataset's extent and targeted extent."));
+
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	CSG_Table	Bands;	Bands.Add_Field("NAME", SG_DATATYPE_String);
+	CSG_Table Bands; Bands.Add_Field("NAME", SG_DATATYPE_String);
 
 	for(int i=0; i<DataSet.Get_Count(); i++)
 	{
@@ -407,38 +418,28 @@ bool CGDAL_Import::Load(const CSG_String &File)
 	}
 
 	//-----------------------------------------------------
-	TSG_Grid_Resampling	Resampling;
+	CSG_Vector A; CSG_Matrix B; DataSet.Get_Transformation(A, B);
 
-	switch( Parameters("RESAMPLING")->asInt() )
-	{
-	default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
-	case  1:	Resampling	= GRID_RESAMPLING_Bilinear        ;	break;
-	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline   ;	break;
-	case  3:	Resampling	= GRID_RESAMPLING_BSpline         ;	break;
-	}
+	bool bTransform = Parameters("TRANSFORM")->asBool() && DataSet.Needs_Transformation();
 
-	CSG_Vector	A;	CSG_Matrix	B;	DataSet.Get_Transformation(A, B);
-
-	bool	bTransform	= Parameters("TRANSFORM")->asBool() && DataSet.Needs_Transformation();
-
-	//-----------------------------------------------------
-	Message_Add("\n", false);
+	Message_Fmt("\n");
+	Message_Fmt("\n%s: %s", _TL("Dataset"), File.c_str());
 	Message_Fmt("\n%s: %s", _TL("Driver" ), DataSet.Get_DriverID().c_str());
 	Message_Fmt("\n%s: %d", _TL("Bands"  ), DataSet.Get_Count   ()        );
 	Message_Fmt("\n%s: %d", _TL("Rows"   ), DataSet.Get_NX      ()        );
 	Message_Fmt("\n%s: %d", _TL("Columns"), DataSet.Get_NY      ()        );
-	Message_Add("\n", false);
+	Message_Fmt("\n");
 
-	if( DataSet.Needs_Transformation() )
+	if( bTransform )
 	{
 		Message_Fmt("\n%s:", _TL("Transformation")                               );
 		Message_Fmt("\n  x' = %.6f + x * %.6f + y * %.6f", A[0], B[0][0], B[0][1]);
 		Message_Fmt("\n  y' = %.6f + x * %.6f + y * %.6f", A[1], B[1][0], B[1][1]);
-		Message_Add("\n", false);
+		Message_Fmt("\n");
 	}
 
 	//-----------------------------------------------------
-	CSG_Array_Pointer	pGrids;
+	CSG_Array_Pointer pGrids;
 
 	for(int i=0; i<DataSet.Get_Count() && Process_Get_Okay(); i++)
 	{
@@ -539,9 +540,9 @@ bool CGDAL_Import::Load(const CSG_String &File)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGDAL_Import::Load_Subset(CSG_GDAL_DataSet &DataSet)
+bool CGDAL_Import::Load_Subsets(CSG_GDAL_DataSet &DataSet, TSG_Grid_Resampling Resampling, const CSG_Rect &Extent, const CSG_Projection &Projection)
 {
-	CSG_MetaData	MetaData;
+	CSG_MetaData MetaData;
 
 	if( !DataSet.Get_MetaData(MetaData, "SUBDATASETS") )
 	{
@@ -549,42 +550,33 @@ bool CGDAL_Import::Load_Subset(CSG_GDAL_DataSet &DataSet)
 	}
 
 	//-----------------------------------------------------
-	int		i;
+	CSG_Parameters Subsets;
 
-	CSG_Parameters	Subsets;
-
-	for(i=0; ; i++)
+	for(int i=0; i == Subsets.Get_Count(); i++)
 	{
-		CSG_String	ID	= CSG_String::Format("SUBDATASET_%d_", i + 1);
+		CSG_String ID = CSG_String::Format("SUBDATASET_%d_", i + 1);
 
 		if( MetaData(ID + "NAME") )
 		{
 			Subsets.Add_Bool("",
 				MetaData.Get_Content(ID + "NAME"),
-				MetaData.Get_Content(ID + "DESC"),
-				"", has_GUI()
+				MetaData.Get_Content(ID + "DESC"), "", true
 			);
-		}
-		else
-		{
-			break;
 		}
 	}
 
-	//-----------------------------------------------------
 	if( has_GUI() && !Dlg_Parameters(&Subsets, _TL("Select from Subdatasets...")) )	// with gui
 	{
 		return( false );
 	}
 
-	//-----------------------------------------------------
-	for(i=0; i<Subsets.Get_Count() && Process_Get_Okay(false); i++)
+	for(int i=0; Process_Get_Okay(false) && i<Subsets.Get_Count(); i++)
 	{
-		if( Subsets(i)->asBool() )
+		if( Subsets[i].asBool() )
 		{
-			if( Load(Subsets(i)->Get_Identifier()) == false )
+			if( !Load(Subsets[i].Get_Identifier(), Resampling, Extent, Projection) )
 			{
-				Error_Fmt("%s: %s", _TL("failed to import subset"), Subsets(i)->Get_Name());
+				Error_Fmt("%s %d: %s", _TL("failed to import subset"), i + 1, Subsets[i].Get_Name());
 			}
 		}
 	}

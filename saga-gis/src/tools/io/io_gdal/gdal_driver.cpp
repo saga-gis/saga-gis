@@ -380,26 +380,31 @@ bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name, const CSG_Grid_Sys
 }
 
 //---------------------------------------------------------
-bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name, const TSG_Rect &Extent)
+bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name, const CSG_Rect &Extent)
 {
-	CSG_GDAL_DataSet	DataSet;
-
-	if( DataSet.Open_Read(File_Name) == false )
+	if( Extent.Get_Area() > 0. )
 	{
-		return( false );
+		CSG_GDAL_DataSet DataSet;
+
+		if( DataSet.Open_Read(File_Name) == false )
+		{
+			return( false );
+		}
+
+		double   c = DataSet.Get_System().Get_Cellsize();
+		TSG_Rect r = DataSet.Get_System().Get_Extent(true);
+
+		r.xMin	= r.xMin + (floor((Extent.Get_XMin() - r.xMin) / c) + 0.5) * c;
+		r.xMax	= r.xMax + (ceil ((Extent.Get_XMax() - r.xMax) / c) - 0.5) * c;
+		r.yMin	= r.yMin + (floor((Extent.Get_YMin() - r.yMin) / c) + 0.5) * c;
+		r.yMax	= r.yMax + (ceil ((Extent.Get_YMax() - r.yMax) / c) - 0.5) * c;
+
+		CSG_Grid_System	System(c, r);
+
+		return( System.is_Valid() && System.Get_Extent(true).Intersects(DataSet.Get_System().Get_Extent(true)) && Open_Read(File_Name, System) );
 	}
 
-	double		c	= DataSet.Get_System().Get_Cellsize();
-	TSG_Rect	r	= DataSet.Get_System().Get_Extent(true);
-
-	r.xMin	= r.xMin + (floor((Extent.xMin - r.xMin) / c) + 0.5) * c;
-	r.xMax	= r.xMax + (ceil ((Extent.xMax - r.xMax) / c) - 0.5) * c;
-	r.yMin	= r.yMin + (floor((Extent.yMin - r.yMin) / c) + 0.5) * c;
-	r.yMax	= r.yMax + (ceil ((Extent.yMax - r.yMax) / c) - 0.5) * c;
-
-	CSG_Grid_System	System(c, r);
-
-	return( System.is_Valid() && System.Get_Extent(true).Intersects(DataSet.Get_System().Get_Extent(true)) && Open_Read(File_Name, System) );
+	return( Open_Read(File_Name) );
 }
 
 //---------------------------------------------------------

@@ -88,8 +88,8 @@ private:
 
 	static int					On_Selection_Changed	(CSG_Parameter *pParameter, int Flags);
 
-	bool						Load					(const CSG_String &File);
-	bool						Load_Subset				(CSG_GDAL_DataSet &DataSet);
+	bool						Load					(const CSG_String &File   , TSG_Grid_Resampling Resampling, const CSG_Rect &Extent, const CSG_Projection &Projection);
+	bool						Load_Subsets			(CSG_GDAL_DataSet &DataSet, TSG_Grid_Resampling Resampling, const CSG_Rect &Extent, const CSG_Projection &Projection);
 
 };
 
