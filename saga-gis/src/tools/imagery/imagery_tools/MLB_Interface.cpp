@@ -98,6 +98,7 @@ CSG_String Get_Info(int i)
 #include "local_statistical_measures.h"
 #include "image_quality_index.h"
 #include "sentinel_2_scene_import.h"
+#include "sentinel_3_scene_import.h"
 
 
 //---------------------------------------------------------
@@ -127,9 +128,10 @@ CSG_Tool *		Create_Tool(int i)
 	case 13:	return( new CImage_Quality_Index );
 
 	case 15:	return( new CSentinel_2_Scene_Import );
+	case 16:	return( new CSentinel_3_Scene_Import );
 
 	//-----------------------------------------------------
-	case 16:	return( NULL );
+	case 17:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
