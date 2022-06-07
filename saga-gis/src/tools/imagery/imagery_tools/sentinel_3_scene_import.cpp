@@ -278,7 +278,7 @@ CSG_Grid * CSentinel_3_Scene_Import::Load_Band(const CSG_String &Directory, cons
 	{
 		Error_Fmt("%s [%s]", _TL("file does not exist"), Directory.c_str());
 
-		return( false );
+		return( NULL );
 	}
 
 	if( !Band.is_Empty() )
@@ -318,7 +318,7 @@ CSG_Grid * CSentinel_3_Scene_Import::Load_Band(const CSG_String &Directory, cons
 
 		SG_UI_Msg_Lock(false);
 
-		return( false );
+		return( NULL );
 	}
 
 	//-----------------------------------------------------
