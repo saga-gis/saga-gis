@@ -74,15 +74,15 @@ CSG_Table CSentinel_3_Scene_Import::Get_Info_Bands(void)
 {
 	CSG_Table Info_Bands;
 
-	Info_Bands.Add_Field("ID"      , SG_DATATYPE_Int   );
-	Info_Bands.Add_Field("BAND"    , SG_DATATYPE_String);
-	Info_Bands.Add_Field("CENTRE"  , SG_DATATYPE_Double);
-	Info_Bands.Add_Field("WIDTH"   , SG_DATATYPE_Double);
-	Info_Bands.Add_Field("LMIN"    , SG_DATATYPE_Double);
-	Info_Bands.Add_Field("LREF"    , SG_DATATYPE_Double);
-	Info_Bands.Add_Field("LSAT"    , SG_DATATYPE_Double);
-	Info_Bands.Add_Field("SNR"     , SG_DATATYPE_Double);
-	Info_Bands.Add_Field("FUNCTION", SG_DATATYPE_String);
+	Info_Bands.Add_Field("Band"       , SG_DATATYPE_Int   );
+	Info_Bands.Add_Field("Name"       , SG_DATATYPE_String);
+	Info_Bands.Add_Field("Wave Length", SG_DATATYPE_Double);
+	Info_Bands.Add_Field("Band Width" , SG_DATATYPE_Double);
+	Info_Bands.Add_Field("Lmin"       , SG_DATATYPE_Double);
+	Info_Bands.Add_Field("Lref"       , SG_DATATYPE_Double);
+	Info_Bands.Add_Field("Lsat"       , SG_DATATYPE_Double);
+	Info_Bands.Add_Field("SNR"        , SG_DATATYPE_Double);
+	Info_Bands.Add_Field("Function"   , SG_DATATYPE_String);
 
 	#define ADD_INFO_BAND(Centre, Width, Lmin, Lref, Lsat, SNR, Function) { CSG_Table_Record &Info = *Info_Bands.Add_Record();\
 		Info.Set_Value(INFO_FIELD_ID      ,                              1 + Info.Get_Index());\
@@ -149,15 +149,21 @@ CSentinel_3_Scene_Import::CSentinel_3_Scene_Import(void)
 	);
 
 	//-----------------------------------------------------
+	Parameters.Add_Grid_List("",
+		"BANDS"			, _TL("Bands"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
 	Parameters.Add_FilePath("",
 		"DIRECTORY"		, _TL("Directory"),
 		_TL(""), NULL, NULL, false, true
 	);
 
-	Parameters.Add_Grid_List("",
-		"BANDS"			, _TL("Bands"),
+	Parameters.Add_Double("",
+		"RESOLUTION"	, _TL("Target Resolution"),
 		_TL(""),
-		PARAMETER_OUTPUT
+		10. / 3600., 0.001, true, 1., true
 	);
 
 	Parameters.Add_Bool("",
@@ -196,8 +202,8 @@ bool CSentinel_3_Scene_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid *pLon = Load_Band(Directory, "geo_coordinates.nc", "longitude");
-	CSG_Grid *pLat = Load_Band(Directory, "geo_coordinates.nc",  "latitude");
+	CSG_Grid *pLon = Load_Band(Directory, "geo_coordinates", "longitude");
+	CSG_Grid *pLat = Load_Band(Directory, "geo_coordinates",  "latitude");
 
 	if( !pLon || !pLat )
 	{
@@ -210,15 +216,17 @@ bool CSentinel_3_Scene_Import::On_Execute(void)
 	pLat->Set_Scaling(0.000001);
 
 	//-----------------------------------------------------
+	CSG_Table Info_Bands(Get_Info_Bands());
+
 	CSG_Parameters P; CSG_Parameter_Grid_List *pBands = P.Add_Grid_List("", "BANDS", "", "", PARAMETER_OUTPUT, false)->asGridList();
 
-	for(int i=0; i<21; i++)
+	for(int i=0; i<21 && Process_Get_Okay(); i++)
 	{
-		pBands->Add_Item(Load_Band(Directory, CSG_String::Format("Oa%02d_radiance.nc", i + 1)));
+		pBands->Add_Item(Load_Band(Directory, CSG_String::Format("Oa%02d_radiance", i + 1)));
 	}
 
 	//-----------------------------------------------------
-	if( !Georeference(pLon, pLat, pBands) )
+	if( pBands->Get_Grid_Count() < 1 || !Georeference(pLon, pLat, pBands) )
 	{
 		return( false );
 	}
@@ -226,21 +234,29 @@ bool CSentinel_3_Scene_Import::On_Execute(void)
 	//-----------------------------------------------------
 	if( Parameters("COLLECTION")->asBool() )
 	{
-		CSG_Table Info_Bands(Get_Info_Bands());
+		pBands = Parameters("BANDS")->asGridList();
 
 		CSG_Grids *pCollection = SG_Create_Grids(pBands->Get_Grid(0)->Get_System(), Info_Bands);
 
-		pBands = Parameters("BANDS")->asGridList();
+		pCollection->Get_MetaData().Assign(pBands->Get_Grid(0)->Get_MetaData());
+		pCollection->Get_MetaData().Del_Child("Band");
 
 		for(int i=0; i<pBands->Get_Grid_Count(); i++)
 		{
-			pCollection->Add_Grid(Info_Bands[i], pBands->Get_Grid(i), true);
+			CSG_Grid *pBand = pBands->Get_Grid(i);
+
+			if( pBand->Get_MetaData()("Band") )
+			{
+				pCollection->Get_MetaData().Add_Child(pBand->Get_MetaData()["Band"])->Set_Name(CSG_String::Format("Band %02d", i + 1));
+			}
+
+			pCollection->Add_Grid(Info_Bands[i], pBand, true);
 		}
 
 		pBands->Del_Items();
 
 		pCollection->Set_Z_Attribute (INFO_FIELD_CENTRE);
-		pCollection->Set_Z_Name_Field(INFO_FIELD_BAND  );
+		pCollection->Set_Z_Name_Field(INFO_FIELD_CENTRE);
 
 		pBands->Add_Item(pCollection);
 
@@ -272,7 +288,7 @@ bool CSentinel_3_Scene_Import::On_Execute(void)
 //---------------------------------------------------------
 CSG_Grid * CSentinel_3_Scene_Import::Load_Band(const CSG_String &Directory, const CSG_String &Name, const CSG_String &Band)
 {
-	CSG_String File = SG_File_Make_Path(Directory, Name);
+	CSG_String File = SG_File_Make_Path(Directory, Name, "nc");
 
 	if( !SG_File_Exists(File) )
 	{
@@ -289,6 +305,8 @@ CSG_Grid * CSentinel_3_Scene_Import::Load_Band(const CSG_String &Directory, cons
 	}
 	else
 	{
+		File = "HDF5:\"" + File + "\"://" + Name;
+
 		Process_Set_Text("%s: %s"   , _TL("loading"), Name.c_str());
 	}
 
@@ -300,7 +318,7 @@ CSG_Grid * CSentinel_3_Scene_Import::Load_Band(const CSG_String &Directory, cons
 	if( !pTool || !pTool->Set_Manager(&m_Data) || !pTool->On_Before_Execution()
 	||  !pTool->Set_Parameter("FILES"     , File )
 	||  !pTool->Set_Parameter("MULTIPLE"  , 0    ) // single grids
-	||  !pTool->Set_Parameter("TRANSFORM" , true )
+	||  !pTool->Set_Parameter("TRANSFORM" , false)
 	||  !pTool->Set_Parameter("RESAMPLING", 0    ) // Nearest Neighbour
 	||  !pTool->Set_Parameter("EXTENT"    , 0    ) // original
 	||  !pTool->Execute() )
@@ -359,7 +377,7 @@ bool CSentinel_3_Scene_Import::Georeference(CSG_Grid *pLon, CSG_Grid *pLat, CSG_
 	||  !pTool->Set_Parameter("TARGET_USER_XMAX" , pLon->Get_Max())
 	||  !pTool->Set_Parameter("TARGET_USER_YMIN" , pLat->Get_Min())
 	||  !pTool->Set_Parameter("TARGET_USER_YMAX" , pLat->Get_Max())
-	||  !pTool->Set_Parameter("TARGET_USER_SIZE" , 0.0032)
+	||  !pTool->Set_Parameter("TARGET_USER_SIZE" , Parameters("RESOLUTION")->asDouble())
 	||  !pTool->Execute() )
 	{
 		Error_Fmt("%s", _TL("failed to apply georeferencing"));
