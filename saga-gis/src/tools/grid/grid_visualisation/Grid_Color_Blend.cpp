@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Grid_Color_Blend.h"
 
 
@@ -82,78 +70,78 @@ CGrid_Color_Blend::CGrid_Color_Blend(void)
 	));
 
 	Parameters.Add_Grid_List("",
-		"GRIDS"	, _TL("Grids"),
+		"GRIDS"			, _TL("Grids"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid("",
-		"GRID"	, _TL("Grid"),
+		"GRID"			, _TL("Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_FilePath("",
-		"FILE"	, _TL("Save Images"),
+		"FILE"			, _TL("Save Images"),
 		_TL(""),
 		CSG_String::Format("%s|*.png|%s|*.jpg;*.jif;*.jpeg|%s|*.tif;*.tiff|%s|*.bmp|%s|*.pcx",
-			_TL("Portable Network Graphics (*.png)"),
-			_TL("JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)"),
-			_TL("Tagged Image File Format (*.tif, *.tiff)"),
-			_TL("Windows or OS/2 Bitmap (*.bmp)"),
-			_TL("Zsoft Paintbrush (*.pcx)")
+			_TL("Portable Network Graphics"),
+			_TL("JPEG - JFIF Compliant"),
+			_TL("Tagged Image File Format"),
+			_TL("Windows or OS/2 Bitmap"),
+			_TL("Zsoft Paintbrush")
 		), NULL, true
 	);
 
 	Parameters.Add_Colors("",
-		"COLORS"	, _TL("Colours"),
+		"COLORS"		, _TL("Colours"),
 		_TL("")
 	);
 
 	Parameters.Add_Int("",
-		"NSTEPS"	, _TL("Interpolation Steps"),
+		"NSTEPS"		, _TL("Interpolation Steps"),
 		_TL(""),
 		0, 0, true
 	);
 
 	Parameters.Add_Bool("",
-		"PROGRESS"	, _TL("Progress Bar"),
+		"PROGRESS"		, _TL("Progress Bar"),
 		_TL(""),
 		false
 	);
 
 	Parameters.Add_Choice("",
-		"LOOP"	, _TL("Loop"),
+		"LOOP"			, _TL("Loop"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("do not loop"),
 			_TL("loop to first grid"),
 			_TL("loop")
-		), 1
+		), 0
 	);
 
 	Parameters.Add_Choice("",
-		"RANGE"		, _TL("Histogram Stretch"),
+		"RANGE"			, _TL("Histogram Stretch"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s",
 			_TL("each grid's range"),
 			_TL("each grid's standard deviation"),
 			_TL("overall range"),
 			_TL("overall standard deviation"),
 			_TL("user defined")
-		), 0
+		), 3
 	);
 
 	Parameters.Add_Double("RANGE",
 		"RANGE_PERCENT"	, _TL("Percent Stretch"),
 		_TL(""),
-		2.0, 0.0, true, 50.0, true
+		2., 0., true, 50., true
 	);
 
 	Parameters.Add_Double("RANGE",
 		"RANGE_STDDEV"	, _TL("Standard Deviation"),
 		_TL(""),
-		2.0, 0.0, true
+		2., 0., true
 	);
 
 	Parameters.Add_Bool("RANGE_STDDEV",
@@ -165,7 +153,7 @@ CGrid_Color_Blend::CGrid_Color_Blend(void)
 	Parameters.Add_Range("RANGE",
 		"RANGE_USER"	, _TL("Range"),
 		_TL(""),
-		2.0, 0.0, true
+		2., 0., true
 	);
 }
 
@@ -209,7 +197,6 @@ int CGrid_Color_Blend::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Par
 //---------------------------------------------------------
 bool CGrid_Color_Blend::On_Execute(void)
 {
-	//-----------------------------------------------------
 	m_pGrids	= Parameters("GRIDS")->asGridList();
 
 	if( m_pGrids->Get_Grid_Count() < 2 )
@@ -223,8 +210,8 @@ bool CGrid_Color_Blend::On_Execute(void)
 	case 0:	// each grid's range
 	case 1:	// each grid's standard deviation
 		{
-			m_Range_Min	= 0.0;
-			m_Range_Max	= 0.0;
+			m_Range_Min	= 0.;
+			m_Range_Max	= 0.;
 		}
 		break;
 
@@ -237,7 +224,7 @@ bool CGrid_Color_Blend::On_Execute(void)
 				s	+= m_pGrids->Get_Grid(i)->Get_Statistics();
 			}
 
-			double	d	= Parameters("RANGE_PERCENT")->asDouble() / 100.0;
+			double	d	= Parameters("RANGE_PERCENT")->asDouble() / 100.;
 
 			m_Range_Min	= s.Get_Minimum() + d * s.Get_Range();
 			m_Range_Max	= s.Get_Maximum() - d * s.Get_Range();
@@ -270,23 +257,25 @@ bool CGrid_Color_Blend::On_Execute(void)
 
 	//-----------------------------------------------------
 	m_pGrid	= Parameters("GRID")->asGrid();
-	m_pGrid	->Set_Name(_TL("Color Blending"));
+	m_pGrid	->Set_Name(_TL("Grid Animation"));
 	m_pGrid	->Assign(m_pGrids->Get_Grid(0));
 
 	DataObject_Set_Colors(m_pGrid, *Parameters("COLORS")->asColors());
 	DataObject_Update    (m_pGrid, SG_UI_DATAOBJECT_SHOW);
 
 	//-----------------------------------------------------
-	m_nFiles	= 0;
+	int nGrids = Parameters("LOOP")->asInt() ? m_pGrids->Get_Grid_Count() : m_pGrids->Get_Grid_Count() - 1;
 
-	int	n	= Parameters("LOOP")->asInt() ? m_pGrids->Get_Grid_Count() : m_pGrids->Get_Grid_Count() - 1;
-	
+	m_File = Parameters("FILE")->asString(); m_iFile = 0; m_nFiles = nGrids * (1 + Parameters("NSTEPS")->asInt());
+
 	do
 	{
-		for(int i=0; i<n && Process_Get_Okay(); i++)
+		for(int iGrid=0; iGrid<nGrids && Process_Get_Okay(); iGrid++)
 		{
-			Blend(i);
+			Blend(iGrid);
 		}
+
+		m_File.Clear();
 	}
 	while( Parameters("LOOP")->asInt() == 2 && Process_Get_Okay() );
 
@@ -351,7 +340,7 @@ bool CGrid_Color_Blend::Set_Progress(double Position, double Range)
 	{
 	case 0:	// each grid's range
 		{
-			double	d	= Parameters("RANGE_PERCENT")->asDouble() / 100.0;
+			double	d	= Parameters("RANGE_PERCENT")->asDouble() / 100.;
 
 			m_Range_Min	= m_pGrid->Get_Min() + d * m_pGrid->Get_Range();
 			m_Range_Max	= m_pGrid->Get_Max() - d * m_pGrid->Get_Range();
@@ -371,7 +360,7 @@ bool CGrid_Color_Blend::Set_Progress(double Position, double Range)
 	//-----------------------------------------------------
 	if( Parameters("PROGRESS")->asBool() )
 	{
-		double	Mid	= m_Range_Min + (m_Range_Max - m_Range_Min) / 2.0;
+		double	Mid	= m_Range_Min + (m_Range_Max - m_Range_Min) / 2.;
 
 		int		Value	= (int)(0.5 + (Get_NX() - 1) * Position / Range);
 
@@ -415,22 +404,23 @@ bool CGrid_Color_Blend::Set_Progress(double Position, double Range)
 //---------------------------------------------------------
 void CGrid_Color_Blend::Save(void)
 {
-	CSG_String	File	= Parameters("FILE")->asString();
-
-	if( !File.is_Empty() )
+	if( !m_File.is_Empty() )
 	{
-		File	= SG_File_Make_Path(
-			SG_File_Get_Path     (File), CSG_String::Format("%s%03d",
-			SG_File_Get_Name     (File, false).c_str(), m_nFiles++),
-			SG_File_Get_Extension(File)
+		int Width = 1 + int(log10(m_nFiles));
+
+		CSG_String File = SG_File_Make_Path(
+			SG_File_Get_Path     (m_File), CSG_String::Format("%s%0*d",
+			SG_File_Get_Name     (m_File, false).c_str(), Width, m_iFile++),
+			SG_File_Get_Extension(m_File)
 		);
 
-		bool	bResult;
+		bool bResult;
 
 		SG_RUN_TOOL(bResult, "io_grid_image", 0,
-				SG_TOOL_PARAMETER_SET("GRID"    , m_pGrid)
-			&&	SG_TOOL_PARAMETER_SET("FILE"    , File   )
-		//	&&	SG_TOOL_PARAMETER_SET("FILE_KML", false  )
+				SG_TOOL_PARAMETER_SET("GRID"      , m_pGrid)
+			&&	SG_TOOL_PARAMETER_SET("FILE"      , File   )
+			&&	SG_TOOL_PARAMETER_SET("FILE_WORLD", false  )
+			&&	SG_TOOL_PARAMETER_SET("FILE_KML"  , false  )
 		)
 	}
 }
