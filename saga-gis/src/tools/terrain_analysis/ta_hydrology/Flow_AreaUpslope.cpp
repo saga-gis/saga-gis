@@ -793,6 +793,12 @@ CFlow_AreaUpslope_Area::CFlow_AreaUpslope_Area(void)
 		_TL("Convergence factor for Multiple Flow Direction algorithm"),
 		1.1, 0.001, true
 	);
+
+	Parameters.Add_Bool("",
+		"MFD_CONTOUR"	, _TL("Contour Length"),
+		_TL("Include (pseudo) contour length as additional weighting factor in multiple flow direction routing, reduces flow to diagonal neighbour cells by a factor of 0.71 (s. Quinn et al. 1991 for details)."),
+		false
+	);
 }
 
 
@@ -803,6 +809,12 @@ CFlow_AreaUpslope_Area::CFlow_AreaUpslope_Area(void)
 //---------------------------------------------------------
 int CFlow_AreaUpslope_Area::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if( pParameter->Cmp_Identifier("TARGET") )
+	{
+		pParameters->Set_Enabled("TARGET_PT_X", pParameter->asPointer() == NULL);
+		pParameters->Set_Enabled("TARGET_PT_Y", pParameter->asPointer() == NULL);
+	}
+
 	if( pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Set_Enabled("CONVERGE", pParameter->asInt() == 2 || pParameter->asInt() == 3);
