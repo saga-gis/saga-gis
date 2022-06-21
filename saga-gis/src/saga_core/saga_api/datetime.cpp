@@ -248,6 +248,14 @@ CSG_DateTime & CSG_DateTime::Set_Year(int Value)
 }
 
 //---------------------------------------------------------
+CSG_DateTime & CSG_DateTime::Set_DayOfYear(unsigned short Value)
+{
+	m_pDateTime->SetToYearDay(Value);
+
+	return( *this );
+}
+
+//---------------------------------------------------------
 CSG_DateTime & CSG_DateTime::Set_To_Current(void)
 {
 	m_pDateTime->SetToCurrent();

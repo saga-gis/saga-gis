@@ -243,6 +243,7 @@ public:
 	CSG_DateTime &				Set_Month				(unsigned short Value);
 	CSG_DateTime &				Set_Year				(int            Value);
 
+	CSG_DateTime &				Set_DayOfYear			(unsigned short Value);
 	CSG_DateTime &				Set_To_Current			(void);
 
 	CSG_DateTime &				Set_Unix_Time			(sLong Seconds);
