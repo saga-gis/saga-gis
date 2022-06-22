@@ -96,13 +96,13 @@ CBioclimatic_Vars::CBioclimatic_Vars(void)
 	Set_Version		("1.1");
 
 	Set_Description	(_TW(
-		"This tool calculates biogically meaningful variables from "
+		"This tool calculates biologically meaningful variables from "
 		"monthly climate data (mean, minimum and maximum temperature "
-		"and precipitation), as provided e.g. by the <a href=\"http://worldclim.org\">"
-		"WorldClim - Global Climate Data</a> project.\n"
-		"<p>"
-		"The implementation follows the definitions given by Jeremy van der Wal at "
-		"<a href=\"https://rforge.net/doc/packages/climates/bioclim.html\">BioClim - Bioclimatic Variables</a>:<ol>"
+		"and precipitation sum), as provided by climate related projects, e.g.:<ul>"
+		"<li><a href=\"https://chelsa-climate.org/bioclim/\"> CHELSA - Climatologies at High resolution for the Earth’s Land Surface Area</a></li>"
+		"<li><a href=\"https://worldclim.org/data/bioclim.html\"> WorldClim - Global climate and weather data</a></li>"
+		"</ul><p>"
+		"It follows a short definition of the provided bioclimatic variables:<ol>"
 		"<li><b>Annual Mean Temperature:</b>"
 		" The mean of all the monthly mean temperatures."
 		" Each monthly mean temperature is the mean of that month's maximum and minimum temperature.</li>"
@@ -166,6 +166,22 @@ CBioclimatic_Vars::CBioclimatic_Vars(void)
 		"are drier than any other set of 3 consecutive months."
 		"</p>"
 	));
+
+	Add_Reference("Xu, T. & Hutchinson, M. F.", "2011",
+		"ANUCLIM Version 6.1",
+		"Fenner School of Environment and Society, Australian National University, Australia.",
+		SG_T("https://fennerschool.anu.edu.au/files/anuclim61.pdf"), SG_T("User Guide")
+	);
+
+	Add_Reference("Xu, T. & Hutchinson, M. F.", "2013",
+		"New Developments and Applications in the ANUCLIM Spatial Climatic and Bioclimatic Modelling Package",
+		"Environmental Modelling & Software Vol. 40, p.267–279.",
+		SG_T("https://doi.org/10.1016/j.envsoft.2012.10.003"), SG_T("doi:10.1016/j.envsoft.2012.10.003")
+	);
+
+	Add_Reference("https://rdrr.io/github/jjvanderwal/climates/man/bioclim.html",
+		SG_T("Jeremy van der Wal: BioClim - Bioclimatic Variables (R-Package)")
+	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List("",
