@@ -115,7 +115,7 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	m_Parameters.Add_Choice("NODE_GENERAL",
 		"CENTRAL"		, _TL("Projection"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("parallel"),
 			_TL("central")
 		), 1
@@ -124,7 +124,7 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	m_Parameters.Add_Double("CENTRAL",
 		"CENTRAL_DIST"	, _TL("Central Projection Distance"),
 		_TL(""),
-		m_Projector.Get_Central_Distance(), 1.0, true
+		m_Projector.Get_Central_Distance(), 1., true
 	);
 
 	m_Parameters.Add_Color("NODE_GENERAL",
@@ -148,7 +148,7 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	m_Parameters.Add_Double("STEREO",
 		"STEREO_DIST"	, _TL("Stereo Eye Distance [Degree]"),
 		_TL(""),
-		1.0, 0.0, true
+		1., 0., true
 	);
 
 	//-----------------------------------------------------
@@ -163,7 +163,7 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 		m_Parameters.Add_Choice("DO_DRAPE",
 			"DRAPE_MODE", _TL("Map Drape Resampling"),
 			_TL(""),
-			CSG_String::Format("%s|%s|%s|%s|",
+			CSG_String::Format("%s|%s|%s|%s",
 				_TL("Nearest Neighbour"),
 				_TL("Bilinear Interpolation"),
 				_TL("Bicubic Spline Interpolation"),
@@ -181,12 +181,12 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	m_Parameters.Add_FilePath("NODE_PLAYER",
 		"PLAY_FILE"		, _TL("Image File"),
 		_TL("file path, name and type used to save frames to image files"),
-		CSG_String::Format("%s|*.bmp|%s|*.jpg;*.jif;*.jpeg|%s|*.pcx|%s|*.png|%s|*.tif;*.tiff",
-			_TL("Windows or OS/2 Bitmap (*.bmp)"),
-			_TL("JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)"),
-			_TL("Zsoft Paintbrush (*.pcx)"),
-			_TL("Portable Network Graphics (*.png)"),
-			_TL("Tagged Image File Format (*.tif, *.tiff)")
+		CSG_String::Format("%s (*.bmp)|*.bmp|%s (*.jpg, *.jif, *.jpeg)|*.jpg;*.jif;*.jpeg|%s (*.pcx)|*.pcx|%s (*.png)|*.png|%s (*.tif, *.tiff)|*.tif;*.tiff",
+			_TL("Windows or OS/2 Bitmap"),
+			_TL("JPEG - JFIF Compliant"),
+			_TL("Zsoft Paintbrush"),
+			_TL("Portable Network Graphics"),
+			_TL("Tagged Image File Format")
 		), NULL, true
 	);
 
@@ -203,7 +203,7 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	m_pPlay->Add_Field(_TL("Shift Z"         ), SG_DATATYPE_Double);
 	m_pPlay->Add_Field(_TL("Exaggeration Z"  ), SG_DATATYPE_Double);
 	m_pPlay->Add_Field(_TL("Central Distance"), SG_DATATYPE_Double);
-	m_pPlay->Add_Field(_TL("Steps to Next"   ), SG_DATATYPE_Int);
+	m_pPlay->Add_Field(_TL("Steps to Next"   ), SG_DATATYPE_Int   );
 
 	m_Play_State	= SG_3DVIEW_PLAY_STOP;
 }
@@ -341,35 +341,35 @@ void CSG_3DView_Panel::On_Key_Down(wxKeyEvent &event)
 			break;
 
 		case WXK_DOWN: case WXK_NUMPAD_DOWN: case WXK_ADD: case WXK_NUMPAD_ADD:
-			m_Projector.Inc_xRotation(-4.0 * M_DEG_TO_RAD);
+			m_Projector.Inc_xRotation(-4. * M_DEG_TO_RAD);
 			break;
 
 		case WXK_UP: case WXK_NUMPAD_UP: case WXK_SUBTRACT: case WXK_NUMPAD_SUBTRACT:
-			m_Projector.Inc_xRotation( 4.0 * M_DEG_TO_RAD);
+			m_Projector.Inc_xRotation( 4. * M_DEG_TO_RAD);
 			break;
 
 		case WXK_F3:
-			m_Projector.Inc_yRotation(-4.0 * M_DEG_TO_RAD);
+			m_Projector.Inc_yRotation(-4. * M_DEG_TO_RAD);
 			break;
 
 		case WXK_F4:
-			m_Projector.Inc_yRotation( 4.0 * M_DEG_TO_RAD);
+			m_Projector.Inc_yRotation( 4. * M_DEG_TO_RAD);
 			break;
 
 		case WXK_RIGHT: case WXK_NUMPAD_RIGHT: case WXK_MULTIPLY: case WXK_NUMPAD_MULTIPLY:
-			m_Projector.Inc_zRotation(-4.0 * M_DEG_TO_RAD);
+			m_Projector.Inc_zRotation(-4. * M_DEG_TO_RAD);
 			break;
 
 		case WXK_LEFT: case WXK_NUMPAD_LEFT: case WXK_DIVIDE: case WXK_NUMPAD_DIVIDE:
-			m_Projector.Inc_zRotation( 4.0 * M_DEG_TO_RAD);
+			m_Projector.Inc_zRotation( 4. * M_DEG_TO_RAD);
 			break;
 
-		case WXK_INSERT  : m_Projector.Inc_xShift(-10.0); break;
-		case WXK_DELETE  : m_Projector.Inc_xShift( 10.0); break;
-		case WXK_HOME    : m_Projector.Inc_yShift(-10.0); break;
-		case WXK_END     : m_Projector.Inc_yShift( 10.0); break;
-		case WXK_PAGEUP  : m_Projector.Inc_zShift(-10.0); break;
-		case WXK_PAGEDOWN: m_Projector.Inc_zShift( 10.0); break;
+		case WXK_INSERT  : m_Projector.Inc_xShift(-10.); break;
+		case WXK_DELETE  : m_Projector.Inc_xShift( 10.); break;
+		case WXK_HOME    : m_Projector.Inc_yShift(-10.); break;
+		case WXK_END     : m_Projector.Inc_yShift( 10.); break;
+		case WXK_PAGEUP  : m_Projector.Inc_zShift(-10.); break;
+		case WXK_PAGEDOWN: m_Projector.Inc_zShift( 10.); break;
 
 		case 'B':
 			m_Parameters("DRAW_BOX")->Set_Value(m_Parameters("DRAW_BOX")->asBool() == false);
@@ -540,9 +540,7 @@ void CSG_3DView_Panel::On_Paint(wxPaintEvent &WXUNUSED(event))
 {
 	if( m_Image.IsOk() && m_Image.GetWidth() > 0 && m_Image.GetHeight() > 0 )
 	{
-		wxPaintDC	dc(this);
-
-		dc.DrawBitmap(wxBitmap(m_Image), 0, 0, false);
+		wxPaintDC dc(this); dc.DrawBitmap(wxBitmap(m_Image), 0, 0, false);
 	}
 }
 
@@ -557,22 +555,22 @@ bool CSG_3DView_Panel::Update_View(bool bStatistics)
 	//-----------------------------------------------------
 	if( m_Play_State == SG_3DVIEW_PLAY_STOP )
 	{
-		m_bgColor	= m_Parameters("BGCOLOR"    )->asColor ();
-		m_bBox		= m_Parameters("DRAW_BOX"   )->asBool  ();
-		m_bStereo	= m_Parameters("STEREO"     )->asBool  ();
-		m_dStereo	= m_Parameters("STEREO_DIST")->asDouble();
+		m_bgColor = m_Parameters("BGCOLOR"    )->asColor ();
+		m_bBox    = m_Parameters("DRAW_BOX"   )->asBool  ();
+		m_bStereo = m_Parameters("STEREO"     )->asBool  ();
+		m_dStereo = m_Parameters("STEREO_DIST")->asDouble();
 
 		switch( m_Parameters("DRAPE_MODE") ? m_Parameters("DRAPE_MODE")->asInt() : 0 )
 		{
-		default:	m_Drape_Mode	= GRID_RESAMPLING_NearestNeighbour;	break;
-		case  1:	m_Drape_Mode	= GRID_RESAMPLING_Bilinear;			break;
-		case  2:	m_Drape_Mode	= GRID_RESAMPLING_BicubicSpline;	break;
-		case  3:	m_Drape_Mode	= GRID_RESAMPLING_BSpline;			break;
+		default: m_Drape_Mode = GRID_RESAMPLING_NearestNeighbour; break;
+		case  1: m_Drape_Mode = GRID_RESAMPLING_Bilinear        ; break;
+		case  2: m_Drape_Mode = GRID_RESAMPLING_BicubicSpline   ; break;
+		case  3: m_Drape_Mode = GRID_RESAMPLING_BSpline         ; break;
 		}
 	}
 
 	//-----------------------------------------------------
-	wxSize	Size	= GetClientSize();
+	wxSize Size = GetClientSize();
 
 	if( Size.x < 1 || Size.y < 1 )
 	{
@@ -590,16 +588,14 @@ bool CSG_3DView_Panel::Update_View(bool bStatistics)
 	Set_Image(m_Image.GetData(), m_Image.GetWidth(), m_Image.GetHeight() );
 
 	//-----------------------------------------------------
-	CSG_Grid	*pDrape	= m_pDrape;	if( m_pDrape && !m_Parameters("DO_DRAPE")->asBool() )	m_pDrape	= NULL;
+	CSG_Grid *pDrape = m_pDrape; if( m_pDrape && !m_Parameters("DO_DRAPE")->asBool() ) m_pDrape = NULL;
 
 	if( Draw() )
 	{
-		wxClientDC	dc(this);
-
-		dc.DrawBitmap(wxBitmap(m_Image), 0, 0, false);
+		Refresh(false); Update();
 	}
 
-	m_pDrape	= pDrape;
+	m_pDrape = pDrape;
 
 	return( true );
 }
@@ -751,7 +747,7 @@ double	SG_Get_Short_Angle	(double Angle)
 
 	if( fabs(Angle) > M_PI_180 )
 	{
-		Angle	+= Angle < 0.0 ? M_PI_360 : -M_PI_360;
+		Angle	+= Angle < 0. ? M_PI_360 : -M_PI_360;
 	}
 
 	return( Angle );

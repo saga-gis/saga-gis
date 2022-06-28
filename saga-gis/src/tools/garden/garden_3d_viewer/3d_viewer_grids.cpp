@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: 3d_viewer_grids.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -46,15 +43,6 @@
 //                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -157,7 +145,7 @@ C3D_Viewer_Grids_Panel::C3D_Viewer_Grids_Panel(wxWindow *pParent, CSG_Grids *pGr
 	m_Parameters.Add_Double("NODE_GENERAL",
 		"Z_SCALE"		, _TL("Exaggeration"),
 		_TL(""),
-		1.0
+		1.
 	);
 
 	//-----------------------------------------------------
@@ -172,7 +160,7 @@ C3D_Viewer_Grids_Panel::C3D_Viewer_Grids_Panel(wxWindow *pParent, CSG_Grids *pGr
 	m_Parameters.Add_Choice("RESOLUTION_XY",
 		"RESAMPLING_XY"	, _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s",
 			_TL("Nearest Neigbhour"),
 			_TL("Bilinear Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
@@ -191,7 +179,7 @@ C3D_Viewer_Grids_Panel::C3D_Viewer_Grids_Panel(wxWindow *pParent, CSG_Grids *pGr
 	m_Parameters.Add_Choice("RESOLUTION_Z",
 		"RESAMPLING_Z"	, _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("Nearest Neigbhour"),
 			_TL("Linear Interpolation"),
 			_TL("Spline Interpolation")
@@ -231,7 +219,7 @@ C3D_Viewer_Grids_Panel::C3D_Viewer_Grids_Panel(wxWindow *pParent, CSG_Grids *pGr
 	m_Parameters.Add_Choice("NODE_VIEW",
 		"SHADING"		, _TL("Shading"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("none"),
 			_TL("shading")
 		), 1
@@ -240,13 +228,13 @@ C3D_Viewer_Grids_Panel::C3D_Viewer_Grids_Panel(wxWindow *pParent, CSG_Grids *pGr
 	m_Parameters.Add_Double("SHADING",
 		"SHADE_DEC"		, _TL("Light Source Height"),
 		_TL(""),
-		45.0, -90.0, true, 90.0, true
+		45., -90., true, 90., true
 	);
 
 	m_Parameters.Add_Double("SHADING",
 		"SHADE_AZI"		, _TL("Light Source Direction"),
 		_TL(""),
-		315.0, 0.0, true, 360.0, true
+		315., 0., true, 360., true
 	);
 
 	//-----------------------------------------------------
@@ -256,7 +244,7 @@ C3D_Viewer_Grids_Panel::C3D_Viewer_Grids_Panel(wxWindow *pParent, CSG_Grids *pGr
 	m_Position[PLANE_SIDE_Y]	= 0.5;
 	m_Position[PLANE_SIDE_Z]	= 0.5;
 
-	m_BoxBuffer	= 0.0;
+	m_BoxBuffer	= 0.;
 
 	m_Projector.Set_zShift(2000);
 	m_Projector.Set_yShift(-100);
@@ -386,14 +374,14 @@ void C3D_Viewer_Grids_Panel::On_Key_Down(wxKeyEvent &event)
 	case WXK_F1 : Set_ZScale(false); break;
 	case WXK_F2 : Set_ZScale( true); break;
 
-	case WXK_F7 : Set_Resolution(false, false);	break;
-	case WXK_F8 : Set_Resolution( true, false);	break;
+	case WXK_F7 : Set_Resolution(false, false); break;
+	case WXK_F8 : Set_Resolution( true, false); break;
 
-	case WXK_F9 : Set_Resolution(false,  true);	break;
-	case WXK_F10: Set_Resolution( true,  true);	break;
+	case WXK_F9 : Set_Resolution(false,  true); break;
+	case WXK_F10: Set_Resolution( true,  true); break;
 
-	case WXK_F11: Set_ZLevel(false);	break;
-	case WXK_F12: Set_ZLevel( true);	break;
+	case WXK_F11: Set_ZLevel(false); break;
+	case WXK_F12: Set_ZLevel( true); break;
 	}
 
 	Update_Parent();
@@ -423,7 +411,7 @@ bool C3D_Viewer_Grids_Panel::On_Before_Draw(void)
 //---------------------------------------------------------
 int C3D_Viewer_Grids_Panel::Get_Color(double Value)
 {
-	if( m_Color_Scale <= 0.0 )
+	if( m_Color_Scale <= 0. )
 	{
 		return( (int)Value );
 	}
@@ -447,7 +435,7 @@ bool C3D_Viewer_Grids_Panel::On_Draw(void)
 
 	m_Color_Min		= m_Parameters("COLOR_STRETCH")->asRange()->Get_Min();
 	double	Range	= m_Parameters("COLOR_STRETCH")->asRange()->Get_Max() - m_Color_Min;
-	m_Color_Scale	= Range > 0.0 ? (m_Colors.Get_Count() - 1) / Range : 0.0;
+	m_Color_Scale	= Range > 0. ? (m_Colors.Get_Count() - 1) / Range : 0.;
 
 	//-----------------------------------------------------
 	Draw_Plane(m_Plane[PLANE_SIDE_X], m_Position[PLANE_SIDE_X], PLANE_SIDE_X);
@@ -524,7 +512,7 @@ bool C3D_Viewer_Grids_Panel::Set_Plane(CSG_Grid &Plane, double Position, int Sid
 		{
 			if( Plane.Get_Cellsize() != Cellsize || Plane.Get_NX() != zLevels )
 			{
-				Plane.Create(CSG_Grid_System(Cellsize, 0.0, m_pGrids->Get_YMin(), Cellsize * zLevels, m_pGrids->Get_YMax()));
+				Plane.Create(CSG_Grid_System(Cellsize, 0., m_pGrids->Get_YMin(), Cellsize * zLevels, m_pGrids->Get_YMax()));
 			}
 
 			double	dz	= m_pGrids->Get_ZRange() / Plane.Get_NX();
@@ -562,7 +550,7 @@ bool C3D_Viewer_Grids_Panel::Set_Plane(CSG_Grid &Plane, double Position, int Sid
 		{
 			if( Plane.Get_Cellsize() != Cellsize || Plane.Get_NY() != zLevels )
 			{
-				Plane.Create(CSG_Grid_System(Cellsize, m_pGrids->Get_XMin(), 0.0, m_pGrids->Get_XMax(), Cellsize * zLevels));
+				Plane.Create(CSG_Grid_System(Cellsize, m_pGrids->Get_XMin(), 0., m_pGrids->Get_XMax(), Cellsize * zLevels));
 			}
 
 			double	dz	= m_pGrids->Get_ZRange() / Plane.Get_NY();
@@ -767,11 +755,9 @@ private:
 	//---------------------------------------------------------
 	void					On_Mouse_LDown	(wxMouseEvent &event)
 	{
-		m_Mouse_Down	= m_Mouse_Move	= event.GetPosition();
-
-		Draw_Inverse(m_Mouse_Down, m_Mouse_Move);
-
 		CaptureMouse();
+
+		m_Mouse_Down = m_Mouse_Move = event.GetPosition();
 	}
 
 	//---------------------------------------------------------
@@ -779,11 +765,13 @@ private:
 	{
 		if( HasCapture() && event.Dragging() && event.LeftIsDown() )
 		{
-			Draw_Inverse(m_Mouse_Down, m_Mouse_Move);
-			Draw_Inverse(m_Mouse_Down, event.GetPosition());
-		}
+			m_Mouse_Move = event.GetPosition();
 
-		m_Mouse_Move	= event.GetPosition();
+			if( m_Mouse_Down.x != m_Mouse_Move.x )
+			{
+				Refresh();
+			}
+		}
 	}
 
 	//---------------------------------------------------------
@@ -794,24 +782,26 @@ private:
 			ReleaseMouse();
 		}
 
-		if( m_Mouse_Down.x == event.GetX() )
+		m_Mouse_Move = event.GetPosition();
+
+		if( m_Mouse_Down.x == m_Mouse_Move.x )
 		{
 			Refresh();
-
-			return;
 		}
+		else
+		{
+			double Minimum = m_pPanel->m_Parameters("COLOR_STRETCH")->asRange()->Get_Min();
+			double Range   = m_pPanel->m_Parameters("COLOR_STRETCH")->asRange()->Get_Max() - Minimum;
 
-		wxRect	r(wxPoint(0, 0), GetClientSize());
+			m_pPanel->m_Parameters("COLOR_STRETCH")->asRange()->Set_Range(
+				Minimum + (m_Mouse_Down.x * Range / GetClientSize().GetWidth()),
+				Minimum + (m_Mouse_Move.x * Range / GetClientSize().GetWidth())
+			);
 
-		double	Minimum	= m_pPanel->m_Parameters("COLOR_STRETCH")->asRange()->Get_Min();
-		double	Range	= m_pPanel->m_Parameters("COLOR_STRETCH")->asRange()->Get_Max() - Minimum;
+			m_Mouse_Down = m_Mouse_Move = wxPoint(0, 0);
 
-		m_pPanel->m_Parameters("COLOR_STRETCH")->asRange()->Set_Range(
-			Minimum + (Range * (m_Mouse_Down.x - r.GetLeft()) / (double)r.GetWidth()),
-			Minimum + (Range * (event.GetX()   - r.GetLeft()) / (double)r.GetWidth())
-		);
-
-		Set_Histogram();
+			Set_Histogram();
+		}
 	}
 
 	//---------------------------------------------------------
@@ -868,15 +858,6 @@ private:
 	}
 
 	//---------------------------------------------------------
-	void					Draw_Inverse	(wxPoint A, wxPoint B)
-	{
-		wxRect	r(GetClientSize());
-		wxClientDC	dc(this);
-		dc.SetLogicalFunction(wxINVERT);
-		dc.DrawRectangle(A.x, 0, B.x - A.x, r.GetHeight());
-	}
-
-	//---------------------------------------------------------
 	void					Set_Size		(int Width, int Height, bool bRefresh)
 	{
 		if( Width < 100 || Height < 100 || Width > 1000 || Height > 1000 )
@@ -910,34 +891,53 @@ private:
 	{
 		if( m_Histogram.Get_Class_Count() > 0 && m_Histogram.Get_Element_Count() > 0 )
 		{
-			int		ax, ay, bx, by;
-			double	dx, Value;
+			int	Mouse_Min = m_Mouse_Down.x <  m_Mouse_Move.x ? m_Mouse_Down.x : m_Mouse_Move.x;
+			int Mouse_Max = m_Mouse_Down.x >= m_Mouse_Move.x ? m_Mouse_Down.x : m_Mouse_Move.x;
 
-			CSG_Colors	Colors(*m_pPanel->m_Parameters("COLORS")->asColors());
+			if( Mouse_Max > Mouse_Min )
+			{
+				dc.SetPen(*wxBLACK_PEN); dc.SetBrush(*wxWHITE_BRUSH);
+				dc.DrawRectangle(Mouse_Min, r.GetTop(), Mouse_Max - Mouse_Min, r.GetHeight());
+			}
 
-			double	dColor	= m_Histogram.Get_Class_Count() > 1 ? ((Colors.Get_Count() - 1.) / (m_Histogram.Get_Class_Count() - 1.)) : 0.;
+			CSG_Colors Colors(*m_pPanel->m_Parameters("COLORS")->asColors());
 
-			dx	= (double)r.GetWidth() / (double)m_Histogram.Get_Class_Count();
-			ay	= r.GetBottom() + 1;
-			bx	= r.GetLeft();
+			double dC = m_Histogram.Get_Class_Count() > 1 ? ((Colors.Get_Count() - 1.) / (m_Histogram.Get_Class_Count() - 1.)) : 0.;
+			double dx = (double)r.GetWidth() / (double)m_Histogram.Get_Class_Count();
+
+			int ay = r.GetBottom() + 1;
+			int ax = r.GetLeft  ();
 
 			for(size_t iClass=0; iClass<m_Histogram.Get_Class_Count(); iClass++)
 			{
-				Value	= m_bCumulative
+				double Value = m_bCumulative
 					? m_Histogram.Get_Cumulative(iClass) / (double)m_Histogram.Get_Element_Count  ()
 					: m_Histogram.Get_Elements  (iClass) / (double)m_Histogram.Get_Element_Maximum();
 
-				ax	= bx;
-				bx	= r.GetLeft() + (int)(dx * (iClass + 1.0));
-				by	= ay - (int)(r.GetHeight() * Value);
+				int bx = ax; ax	= r.GetLeft() + (int)(dx * (iClass + 1.));
+				int by = ay - (int)(r.GetHeight() * Value);
 
-				wxColour	c((unsigned long)Colors.Get_Interpolated(dColor * iClass));
+				wxColour c((unsigned long)Colors.Get_Interpolated(dC * iClass));
 
-				dc.SetPen  (wxPen  (c));
-				dc.SetBrush(wxBrush(c));
+				dc.SetPen(wxPen(c)); dc.SetBrush(wxBrush(c));
+				dc.DrawRectangle(bx, ay, ax - bx, by - ay); //	Draw_FillRect(dc, Color, ax, ay, bx, by);
+			}
 
-				dc.DrawRectangle(ax, ay, bx - ax, by - ay);
-			//	Draw_FillRect(dc, Color, ax, ay, bx, by);
+			if( Mouse_Max > Mouse_Min )
+			{
+				wxRect r(Mouse_Min, r.GetTop(), Mouse_Max - Mouse_Min, r.GetHeight());
+
+				dc.SetPen(wxPen(*wxBLACK));
+				dc.DrawLine(r.GetLeft (), r.GetTop   (), r.GetRight(), r.GetTop   ());
+				dc.DrawLine(r.GetLeft (), r.GetBottom(), r.GetRight(), r.GetBottom());
+				dc.DrawLine(r.GetLeft (), r.GetTop   (), r.GetLeft (), r.GetBottom());
+				dc.DrawLine(r.GetRight(), r.GetTop   (), r.GetRight(), r.GetBottom());
+
+				dc.SetPen(wxPen(*wxWHITE)); r.Deflate(1);
+				dc.DrawLine(r.GetLeft (), r.GetTop   (), r.GetRight(), r.GetTop   ());
+				dc.DrawLine(r.GetLeft (), r.GetBottom(), r.GetRight(), r.GetBottom());
+				dc.DrawLine(r.GetLeft (), r.GetTop   (), r.GetLeft (), r.GetBottom());
+				dc.DrawLine(r.GetRight(), r.GetTop   (), r.GetRight(), r.GetBottom());
 			}
 		}
 	}
@@ -1143,7 +1143,6 @@ protected:
 //---------------------------------------------------------
 C3D_Viewer_Grids::C3D_Viewer_Grids(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Grid Collection Viewer"));
 
 	Set_Author		("O.Conrad (c) 2017");

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: 3d_viewer_tin.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -46,15 +43,6 @@
 //                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -126,7 +114,7 @@ END_EVENT_TABLE()
 C3D_Viewer_TIN_Panel::C3D_Viewer_TIN_Panel(wxWindow *pParent, CSG_TIN *pTIN, int zField, int cField, CSG_Grid *pDrape)
 	: CSG_3DView_Panel(pParent, pDrape)
 {
-	m_pTIN		= pTIN;
+	m_pTIN	= pTIN;
 
 	//-----------------------------------------------------
 	CSG_String	Attributes;
@@ -138,121 +126,116 @@ C3D_Viewer_TIN_Panel::C3D_Viewer_TIN_Panel(wxWindow *pParent, CSG_TIN *pTIN, int
 	}
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode, *pNode_1, *pNode_2;
-
-	//-----------------------------------------------------
-	pNode	= m_Parameters("NODE_GENERAL");
-
-	pNode_1	= m_Parameters.Add_Choice(
-		pNode	, "Z_ATTR"			, _TL("Z Attribute"),
+	m_Parameters.Add_Choice("NODE_GENERAL",
+		"Z_ATTR"		, _TL("Z Attribute"),
 		_TL(""),
 		Attributes, zField
 	);
 
-	m_Parameters.Add_Value(
-		pNode_1	, "Z_SCALE"			, _TL("Exaggeration"),
+	m_Parameters.Add_Double("Z_ATTR",
+		"Z_SCALE"		, _TL("Exaggeration"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0
+		1.
 	);
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(
-		NULL	, "NODE_VIEW"		, _TL("TIN View Settings"),
+	m_Parameters.Add_Node("",
+		"NODE_VIEW"		, _TL("TIN View Settings"),
 		_TL("")
 	);
 
-	pNode_1	= m_Parameters.Add_Value(
-		pNode	, "DRAW_FACES"		, _TL("Draw Faces"),
+	m_Parameters.Add_Bool("NODE_VIEW",
+		"DRAW_FACES"	, _TL("Draw Faces"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	pNode_2	= m_Parameters.Add_Choice(
-		pNode_1	, "COLORS_ATTR"		, _TL("Colour Attribute"),
+	m_Parameters.Add_Choice("DRAW_FACES",
+		"COLORS_ATTR"	, _TL("Colour Attribute"),
 		_TL(""),
 		Attributes, cField
 	);
 
-	m_Parameters.Add_Colors(
-		pNode_2	, "COLORS"			, _TL("Colours"),
+	m_Parameters.Add_Colors("COLORS_ATTR",
+		"COLORS"		, _TL("Colours"),
 		_TL("")
 	);
 
-	m_Parameters.Add_Value(
-		pNode_2	, "COLORS_GRAD"		, _TL("Graduated"),
+	m_Parameters.Add_Bool("COLORS_ATTR",
+		"COLORS_GRAD"	, _TL("Graduated"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	m_Parameters.Add_Range(
-		pNode_2	, "COLORS_RANGE"	, _TL("Value Range"),
+	m_Parameters.Add_Range("COLORS_ATTR",
+		"COLORS_RANGE"	, _TL("Value Range"),
 		_TL("")
 	);
 
-	pNode_2	= m_Parameters.Add_Choice(
-		pNode_1	, "SHADING"			, _TL("Shading"),
+	m_Parameters.Add_Choice("DRAW_FACES",
+		"SHADING"		, _TL("Shading"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s",
 			_TL("none"),
 			_TL("shading"),
 			_TL("shading (fixed light source)")
 		), 1
 	);
 
-	m_Parameters.Add_Value(
-		pNode_2	, "SHADE_DEC"		, _TL("Light Source Height"),
+	m_Parameters.Add_Double("SHADING",
+		"SHADE_DEC"		, _TL("Light Source Height"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 45.0, -90.0, true, 90.0, true
+		45., -90., true, 90., true
 	);
 
-	m_Parameters.Add_Value(
-		pNode_2	, "SHADE_AZI"		, _TL("Light Source Direction"),
+	m_Parameters.Add_Double("SHADING",
+		"SHADE_AZI"		, _TL("Light Source Direction"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 90.0, 0.0, true, 360.0, true
-	);
-
-	//-----------------------------------------------------
-	pNode_1	= m_Parameters.Add_Value(
-		pNode	, "DRAW_EDGES"		, _TL("Draw Wire"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, false
-	);
-
-	pNode_2	= m_Parameters.Add_Value(
-		pNode_1	, "EDGE_COLOR_UNI"	, _TL("Single Colour"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, false
-	);
-
-	m_Parameters.Add_Value(
-		pNode_2	, "EDGE_COLOR"		, _TL("Colour"),
-		_TL(""),
-		PARAMETER_TYPE_Color, SG_GET_RGB(150, 150, 150)
+		90., 0., true, 360., true
 	);
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Value(
-		NULL	, "DRAW_NODES"		, _TL("Draw Nodes"),
+	m_Parameters.Add_Bool("NODE_VIEW",
+		"DRAW_EDGES"	, _TL("Draw Wire"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	m_Parameters.Add_Value(
-		pNode	, "NODE_COLOR"		, _TL("Colour"),
+	m_Parameters.Add_Bool("DRAW_EDGES",
+		"EDGE_COLOR_UNI", _TL("Single Colour"),
 		_TL(""),
-		PARAMETER_TYPE_Color, SG_COLOR_BLACK
+		false
 	);
 
-	m_Parameters.Add_Value(
-		pNode	, "NODE_SIZE"		, _TL("Size"),
+	m_Parameters.Add_Color("EDGE_COLOR_UNI",
+		"EDGE_COLOR"	, _TL("Colour"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 2, 1, true
+		SG_GET_RGB(150, 150, 150)
 	);
 
-	m_Parameters.Add_Value(
-		pNode	, "NODE_SCALE"		, _TL("Size Scaling"),
+	//-----------------------------------------------------
+	m_Parameters.Add_Bool("",
+		"DRAW_NODES"	, _TL("Draw Nodes"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 250.0, 1.0, true
+		false
+	);
+
+	m_Parameters.Add_Color("DRAW_NODES",
+		"NODE_COLOR"	, _TL("Colour"),
+		_TL(""),
+		SG_COLOR_BLACK
+	);
+
+	m_Parameters.Add_Int("DRAW_NODES",
+		"NODE_SIZE"		, _TL("Size"),
+		_TL(""),
+		2, 1, true
+	);
+
+	m_Parameters.Add_Double("DRAW_NODES",
+		"NODE_SCALE"	, _TL("Size Scaling"),
+		_TL(""),
+		250., 1., true
 	);
 
 	//-----------------------------------------------------
@@ -269,40 +252,40 @@ int C3D_Viewer_TIN_Panel::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_
 {
 	if( pParameter->Cmp_Identifier("DRAW_FACES") )
 	{
-		CSG_Parameter	*pDrape	= pParameters->Get_Parameter("DO_DRAPE");
+		CSG_Parameter *pDrape = pParameters->Get_Parameter("DO_DRAPE");
 
-		pParameters->Get_Parameter("COLORS_ATTR")->Set_Enabled(pParameter->asBool() && (!pDrape || !pDrape->asBool()));
-		pParameters->Get_Parameter("SHADING"    )->Set_Enabled(pParameter->asBool());
+		pParameters->Set_Enabled("COLORS_ATTR"   , pParameter->asBool() && (!pDrape || !pDrape->asBool()));
+		pParameters->Set_Enabled("SHADING"       , pParameter->asBool());
 	}
 
 	if( pParameter->Cmp_Identifier("DO_DRAPE") )
 	{
-		CSG_Parameter	*pFaces	= pParameters->Get_Parameter("DRAW_FACES");
+		CSG_Parameter *pFaces = pParameters->Get_Parameter("DRAW_FACES");
 
-		pParameters->Get_Parameter("COLORS_ATTR")->Set_Enabled(pParameter->asBool() == false && pFaces->asBool() == true);
+		pParameters->Set_Enabled("COLORS_ATTR"   , pParameter->asBool() == false && pFaces->asBool() == true);
 	}
 
 	if( pParameter->Cmp_Identifier("SHADING") )
 	{
-		pParameters->Get_Parameter("SHADE_DEC"  )->Set_Enabled(pParameter->asBool());
-		pParameters->Get_Parameter("SHADE_AZI"  )->Set_Enabled(pParameter->asBool());
+		pParameters->Set_Enabled("SHADE_DEC"     , pParameter->asBool());
+		pParameters->Set_Enabled("SHADE_AZI"     , pParameter->asBool());
 	}
 
 	if( pParameter->Cmp_Identifier("DRAW_EDGES") )
 	{
-		pParameters->Get_Parameter("EDGE_COLOR_UNI" )->Set_Enabled(pParameter->asBool());
+		pParameters->Set_Enabled("EDGE_COLOR_UNI", pParameter->asBool());
 	}
 
 	if( pParameter->Cmp_Identifier("EDGE_COLOR_UNI") )
 	{
-		pParameters->Get_Parameter("EDGE_COLOR" )->Set_Enabled(pParameter->asBool());
+		pParameters->Set_Enabled("EDGE_COLOR"   , pParameter->asBool());
 	}
 
 	if( pParameter->Cmp_Identifier("DRAW_NODES") )
 	{
-		pParameters->Get_Parameter("NODE_COLOR" )->Set_Enabled(pParameter->asBool());
-		pParameters->Get_Parameter("NODE_SIZE"  )->Set_Enabled(pParameter->asBool());
-		pParameters->Get_Parameter("NODE_SCALE" )->Set_Enabled(pParameter->asBool());
+		pParameters->Set_Enabled("NODE_COLOR"   , pParameter->asBool());
+		pParameters->Set_Enabled("NODE_SIZE"    , pParameter->asBool());
+		pParameters->Set_Enabled("NODE_SCALE"   , pParameter->asBool());
 	}
 
 	return( CSG_3DView_Panel::On_Parameters_Enable(pParameters, pParameter) );
@@ -352,16 +335,18 @@ void C3D_Viewer_TIN_Panel::On_Key_Down(wxKeyEvent &event)
 {
 	switch( event.GetKeyCode() )
 	{
-	default:	CSG_3DView_Panel::On_Key_Down(event);	return;
+	default:
+		CSG_3DView_Panel::On_Key_Down(event);
+		return;
 
-	case WXK_F1:	m_Parameters("Z_SCALE"   )->Set_Value(m_Parameters("Z_SCALE"   )->asDouble() -  0.5);	break;
-	case WXK_F2:	m_Parameters("Z_SCALE"   )->Set_Value(m_Parameters("Z_SCALE"   )->asDouble() +  0.5);	break;
+	case WXK_F1: m_Parameters("Z_SCALE"   )->Set_Value(m_Parameters("Z_SCALE"   )->asDouble() -  0.5); break;
+	case WXK_F2: m_Parameters("Z_SCALE"   )->Set_Value(m_Parameters("Z_SCALE"   )->asDouble() +  0.5); break;
 
-	case WXK_F5:	m_Parameters("SIZE"      )->Set_Value(m_Parameters("SIZE"      )->asDouble() -  1.0);	break;
-	case WXK_F6:	m_Parameters("SIZE"      )->Set_Value(m_Parameters("SIZE"      )->asDouble() +  1.0);	break;
+	case WXK_F5: m_Parameters("NODE_SIZE" )->Set_Value(m_Parameters("NODE_SIZE" )->asDouble() -  1.0); break;
+	case WXK_F6: m_Parameters("NODE_SIZE" )->Set_Value(m_Parameters("NODE_SIZE" )->asDouble() +  1.0); break;
 
-	case WXK_F7:	m_Parameters("SIZE_SCALE")->Set_Value(m_Parameters("SIZE_SCALE")->asDouble() - 10.0);	break;
-	case WXK_F8:	m_Parameters("SIZE_SCALE")->Set_Value(m_Parameters("SIZE_SCALE")->asDouble() + 10.0);	break;
+	case WXK_F7: m_Parameters("NODE_SCALE")->Set_Value(m_Parameters("NODE_SCALE")->asDouble() - 10.0); break;
+	case WXK_F8: m_Parameters("NODE_SCALE")->Set_Value(m_Parameters("NODE_SCALE")->asDouble() + 10.0); break;
 	}
 
 	//-----------------------------------------------------
@@ -393,7 +378,7 @@ bool C3D_Viewer_TIN_Panel::On_Before_Draw(void)
 //---------------------------------------------------------
 int C3D_Viewer_TIN_Panel::Get_Color(double Value)
 {
-	if( m_Color_Scale <= 0.0 )
+	if( m_Color_Scale <= 0. )
 	{
 		return( (int)Value );
 	}
@@ -469,17 +454,12 @@ bool C3D_Viewer_TIN_Panel::On_Draw(void)
 			switch( Shading )
 			{
 			default:
-			case 0:	Draw_Triangle(p, false);						break;
-			case 1:	Draw_Triangle(p, false, Shade_Dec, Shade_Azi);	break;
-			case 2:
-				{
-					double	s, a;
-
-					pTriangle->Get_Gradient(zField, s, a);
-
-					Draw_Triangle(p, false, acos(sin(M_PI_090 - s) * sin(Shade_Dec) + cos(M_PI_090 - s) * cos(Shade_Dec) * cos(a - Shade_Azi)) / M_PI_090);
-				}
-				break;
+			case  0: Draw_Triangle(p, false                      ); break;
+			case  1: Draw_Triangle(p, false, Shade_Dec, Shade_Azi); break;
+			case  2: { double s, a;
+				pTriangle->Get_Gradient(zField, s, a);
+				Draw_Triangle(p, false, acos(sin(M_PI_090 - s) * sin(Shade_Dec) + cos(M_PI_090 - s) * cos(Shade_Dec) * cos(a - Shade_Azi)) / M_PI_090);
+				break; }
 			}
 		}
 	}
@@ -527,9 +507,9 @@ bool C3D_Viewer_TIN_Panel::On_Draw(void)
 		int		Size	= m_Parameters("NODE_SIZE" )->asInt   ();
 	//	double	dSize	= m_Parameters("NODE_SCALE")->asDouble();
 
-	//	if( dSize > 1.0 )
+	//	if( dSize > 1. )
 	//	{
-	//		size	= (int)(20.0 * exp(-dSize * z));
+	//		size	= (int)(20. * exp(-dSize * z));
 	//	}
 
 		#pragma omp parallel for
@@ -593,6 +573,8 @@ private:
 BEGIN_EVENT_TABLE(C3D_Viewer_TIN_Dialog, CSG_3DView_Dialog)
 	EVT_CHOICE		(wxID_ANY, C3D_Viewer_TIN_Dialog::On_Update_Choices)
 //	EVT_CHECKBOX	(wxID_ANY, C3D_Viewer_TIN_Dialog::On_Update_Control)
+	EVT_MENU_RANGE		(MENU_USER_FIRST, MENU_USER_LAST, C3D_Viewer_TIN_Dialog::On_Menu)
+	EVT_UPDATE_UI_RANGE	(MENU_USER_FIRST, MENU_USER_LAST, C3D_Viewer_TIN_Dialog::On_Menu_UI)
 END_EVENT_TABLE()
 
 //---------------------------------------------------------
@@ -741,7 +723,6 @@ void C3D_Viewer_TIN_Dialog::On_Menu_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 C3D_Viewer_TIN::C3D_Viewer_TIN(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("TIN Viewer"));
 
 	Set_Author		("O. Conrad (c) 2014");
@@ -751,24 +732,24 @@ C3D_Viewer_TIN::C3D_Viewer_TIN(void)
 	));
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode	= Parameters.Add_TIN(
-		NULL	, "TIN"		, _TL("TIN"),
+	Parameters.Add_TIN("",
+		"TIN"		, _TL("TIN"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "HEIGHT"	, _TL("Elevation"),
+	Parameters.Add_Table_Field("TIN",
+		"HEIGHT"	, _TL("Elevation"),
 		_TL("")
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "COLOR"	, _TL("Color"),
+	Parameters.Add_Table_Field("TIN",
+		"COLOR"		, _TL("Color"),
 		_TL("")
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "DRAPE"	, _TL("Map"),
+	Parameters.Add_Grid("",
+		"DRAPE"		, _TL("Map"),
 		_TL("rgb coded raster map to be draped"),
 		PARAMETER_INPUT_OPTIONAL
 	);

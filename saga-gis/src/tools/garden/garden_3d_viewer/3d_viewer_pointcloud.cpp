@@ -252,7 +252,7 @@ int C3D_Viewer_PointCloud_Panel::On_Parameters_Enable(CSG_Parameters *pParameter
 //---------------------------------------------------------
 void C3D_Viewer_PointCloud_Panel::Set_Extent(CSG_Rect Extent)
 {
-	if( Extent.Get_XRange() == 0.0 || Extent.Get_YRange() == 0.0 )
+	if( Extent.Get_XRange() == 0. || Extent.Get_YRange() == 0. )
 	{
 		Extent	= m_pPoints->Get_Extent();
 	}
@@ -376,7 +376,7 @@ int C3D_Viewer_PointCloud_Panel::Get_Color(double Value, double z)
 {
 	int	Color;
 
-	if( m_Color_Scale <= 0.0 )
+	if( m_Color_Scale <= 0. )
 	{
 		Color	= (int)Value;
 	}
@@ -390,9 +390,9 @@ int C3D_Viewer_PointCloud_Panel::Get_Color(double Value, double z)
 	//-----------------------------------------------------
 	if( m_Color_Dim_Min < m_Color_Dim_Max )
 	{
-		double	dim	= 1.0 - (z - m_Color_Dim_Min) / (m_Color_Dim_Max - m_Color_Dim_Min);
+		double	dim	= 1. - (z - m_Color_Dim_Min) / (m_Color_Dim_Max - m_Color_Dim_Min);
 
-		if( dim < 1.0 )
+		if( dim < 1. )
 		{
 			Color	= Dim_Color(Color, dim < 0.1 ? 0.1 : dim);
 		}
@@ -409,7 +409,6 @@ int C3D_Viewer_PointCloud_Panel::Get_Color(double Value, double z)
 //---------------------------------------------------------
 bool C3D_Viewer_PointCloud_Panel::On_Draw(void)
 {
-	//-----------------------------------------------------
 	int		cField	= m_Parameters("COLORS_ATTR")->asInt();
 
 	if( m_Parameters("COLORS_RANGE")->asRange()->Get_Min()
@@ -425,7 +424,7 @@ bool C3D_Viewer_PointCloud_Panel::On_Draw(void)
 	m_Color_bGrad	= m_Parameters("COLORS_GRAD")->asBool();
 	m_Color_Min		= m_Parameters("COLORS_RANGE.MIN")->asDouble();
 	m_Color_Scale	= m_Parameters("COLORS_RANGE.MAX")->asDouble() - m_Color_Min;
-	m_Color_Scale	= m_Parameters("VAL_AS_RGB")->asBool() || m_Color_Scale <= 0.0 ? 0.0 : m_Colors.Get_Count() / m_Color_Scale;
+	m_Color_Scale	= m_Parameters("VAL_AS_RGB")->asBool() || m_Color_Scale <= 0. ? 0. : m_Colors.Get_Count() / m_Color_Scale;
 
 	if( m_Parameters("DIM")->asBool() )
 	{
@@ -434,17 +433,17 @@ bool C3D_Viewer_PointCloud_Panel::On_Draw(void)
 	}
 	else
 	{
-		m_Color_Dim_Min	= m_Color_Dim_Max	= 0.0;
+		m_Color_Dim_Min	= m_Color_Dim_Max	= 0.;
 	}
 
 	//-----------------------------------------------------
 	int		Size	= m_Parameters("SIZE"      )->asInt   ();
 	double	dSize	= m_Parameters("SIZE_SCALE")->asDouble();
 	
-	if( dSize > 0.0 )	dSize = 1.0 / dSize; else dSize = 0.0;
+	if( dSize > 0. ) dSize = 1. / dSize; else dSize = 0.;
 
 	//-----------------------------------------------------
-	int		nSkip	= 1 + (int)(0.001 * m_pPoints->Get_Count() * SG_Get_Square(1.0 - 0.01 * m_Parameters("DETAIL")->asDouble()));
+	int		nSkip	= 1 + (int)(0.001 * m_pPoints->Get_Count() * SG_Get_Square(1. - 0.01 * m_Parameters("DETAIL")->asDouble()));
 
 	//-----------------------------------------------------
 	int	nPoints	= m_Selection.Get_Size() > 0 ? (int)m_Selection.Get_Size() : m_pPoints->Get_Count();
@@ -460,7 +459,7 @@ bool C3D_Viewer_PointCloud_Panel::On_Draw(void)
 
 		Draw_Point(p.x, p.y, p.z,
 			Get_Color(m_pPoints->Get_Value(jPoint, cField), p.z),
-			Size + (dSize <= 0.0 ? 0 : (int)(20.0 * exp(-dSize * p.z)))
+			Size + (dSize <= 0. ? 0 : (int)(20. * exp(-dSize * p.z)))
 		);
 	}
 
@@ -492,9 +491,9 @@ public:
 		//-------------------------------------------------
 		m_Ratio	= pPoints->Get_Extent().Get_XRange() / pPoints->Get_Extent().Get_YRange();
 
-		CSG_Grid_System	System(m_Ratio > 1.0
-			? pPoints->Get_Extent().Get_XRange() / 100.0
-			: pPoints->Get_Extent().Get_YRange() / 100.0,
+		CSG_Grid_System	System(m_Ratio > 1.
+			? pPoints->Get_Extent().Get_XRange() / 100.
+			: pPoints->Get_Extent().Get_YRange() / 100.,
 			pPoints->Get_Extent()
 		);
 
@@ -514,7 +513,7 @@ public:
 
 		int	Size	= GetClientSize().GetWidth();
 
-		if( m_Ratio > 1.0 )
+		if( m_Ratio > 1. )
 			Set_Size(Size, (int)(Size / m_Ratio), false);
 		else
 			Set_Size((int)(Size * m_Ratio), Size, false);
@@ -527,7 +526,7 @@ private:
 
 	double						m_Ratio;
 
-	wxPoint						m_Mouse_Down, m_Mouse_Move;
+	wxPoint						m_Mouse_Down;
 
 	CSG_Rect					m_Selection;
 
@@ -541,11 +540,9 @@ private:
 	//---------------------------------------------------------
 	void						On_Mouse_LDown	(wxMouseEvent &event)
 	{
-		m_Mouse_Down	= m_Mouse_Move	= event.GetPosition();
-
-		Draw_Inverse(m_Mouse_Down, m_Mouse_Move);
-
 		CaptureMouse();
+
+		m_Mouse_Down = event.GetPosition();
 	}
 
 	//---------------------------------------------------------
@@ -553,11 +550,8 @@ private:
 	{
 		if( HasCapture() && event.Dragging() && event.LeftIsDown() )
 		{
-			Draw_Inverse(m_Mouse_Down, m_Mouse_Move);
 			Draw_Inverse(m_Mouse_Down, event.GetPosition());
 		}
-
-		m_Mouse_Move	= event.GetPosition();
 	}
 
 	//---------------------------------------------------------
@@ -570,15 +564,16 @@ private:
 
 		if( m_Mouse_Down.x != event.GetX() && m_Mouse_Down.y != event.GetY() )
 		{
-			double	dx	=  m_Count.Get_XRange() / GetClientSize().GetWidth ();
-			double	dy	= -m_Count.Get_YRange() / GetClientSize().GetHeight();
+			Draw_Inverse(m_Mouse_Down, event.GetPosition());
 
-			m_Selection.Assign(
-				m_Count.Get_XMin() + dx * m_Mouse_Down.x,
-				m_Count.Get_YMax() + dy * m_Mouse_Down.y,
-				m_Count.Get_XMin() + dx * event.GetX(),
-				m_Count.Get_YMax() + dy * event.GetY()
-			);
+			m_pPanel->Set_Extent(m_Selection);
+		}
+		else if( m_Selection.Get_XRange() > 0. && m_Selection.Get_YRange() > 0. )
+		{
+			double	dx	= (m_Count.Get_XMin() + event.GetX() * m_Count.Get_XRange() / GetClientSize().GetWidth ()) - m_Selection.Get_XCenter();
+			double	dy	= (m_Count.Get_YMax() - event.GetY() * m_Count.Get_YRange() / GetClientSize().GetHeight()) - m_Selection.Get_YCenter();
+
+			m_Selection.Move(dx, dy);
 
 			m_pPanel->Set_Extent(m_Selection);
 		}
@@ -589,7 +584,7 @@ private:
 	//---------------------------------------------------------
 	void						On_Mouse_RDown	(wxMouseEvent &event)
 	{
-		m_Selection.Assign(0.0, 0.0, 0.0, 0.0);
+		m_Selection.Assign(0., 0., 0., 0.);
 
 		m_pPanel->Set_Extent(m_Selection);
 
@@ -632,33 +627,39 @@ private:
 			dc.DrawBitmap(wxBitmap(m_Image), GetClientRect().GetTopLeft());
 		}
 
-		if( m_Selection.Get_XRange() > 0.0 && m_Selection.Get_YRange() > 0.0 )
+		if( m_Selection.Get_XRange() > 0. && m_Selection.Get_YRange() > 0. )
 		{
-			dc.SetPen(wxPen(*wxRED));
+			double d = GetClientSize().GetWidth () / m_Count.Get_XRange();
 
-			double	dx	=  GetClientSize().GetWidth () / m_Count.Get_XRange();
-			double	dy	= -GetClientSize().GetHeight() / m_Count.Get_YRange();
+			int ax = (int)(d * (m_Selection.Get_XMin() - m_Count.Get_XMin()));
+			int bx = (int)(d * (m_Selection.Get_XMax() - m_Count.Get_XMin()));
+			int ay = (int)(d * (m_Count.Get_YMax() - m_Selection.Get_YMax()));
+			int by = (int)(d * (m_Count.Get_YMax() - m_Selection.Get_YMin()));
 
-			int	ax	= dx * (m_Selection.Get_XMin() - m_Count.Get_XMin());
-			int	ay	= dy * (m_Selection.Get_YMin() - m_Count.Get_YMin()) + GetClientSize().GetHeight();
-			int	bx	= dx * (m_Selection.Get_XMax() - m_Count.Get_XMin());
-			int	by	= dy * (m_Selection.Get_YMax() - m_Count.Get_YMin()) + GetClientSize().GetHeight();
+			dc.SetPen(wxPen(*wxBLACK));
+			dc.DrawLine(ax, ay, ax, by); dc.DrawLine(ax, by, bx, by);
+			dc.DrawLine(bx, by, bx, ay); dc.DrawLine(bx, ay, ax, ay);
 
-			Draw_Inverse(wxPoint(ax, ay), wxPoint(bx, by));
-
-			dc.DrawLine(ax, ay, ax, by);
-			dc.DrawLine(ax, by, bx, by);
-			dc.DrawLine(bx, by, bx, ay);
-			dc.DrawLine(bx, ay, ax, ay);
+			dc.SetPen(wxPen(*wxWHITE)); ax--; bx++; ay--; by++;
+			dc.DrawLine(ax, ay, ax, by); dc.DrawLine(ax, by, bx, by);
+			dc.DrawLine(bx, by, bx, ay); dc.DrawLine(bx, ay, ax, ay);
 		}
 	}
 
 	//---------------------------------------------------------
 	void						Draw_Inverse	(wxPoint A, wxPoint B)
 	{
-		wxClientDC	dc(this);
-		dc.SetLogicalFunction(wxINVERT);
-		dc.DrawRectangle(A.x, A.y, B.x - A.x, B.y - A.y);
+		if( A != B )
+		{
+			double d = m_Count.Get_XRange() / GetClientSize().GetWidth();
+
+			m_Selection.Assign(
+				m_Count.Get_XMin() + d * A.x, m_Count.Get_YMax() - d * A.y,
+				m_Count.Get_XMin() + d * B.x, m_Count.Get_YMax() - d * B.y
+			);
+
+			Refresh(false);
+		}
 	}
 
 	//---------------------------------------------------------
@@ -690,7 +691,7 @@ private:
 
 			double	dx	= m_Count.Get_XRange() / (double)m_Image.GetWidth ();
 			double	dy	= m_Count.Get_YRange() / (double)m_Image.GetHeight();
-			double	dz	= (Colors.Get_Count() - 2.0) / (bCount ? log(1.0 + m_Count.Get_Max()) : 4.0 * m_Value.Get_StdDev());
+			double	dz	= (Colors.Get_Count() - 2.) / (bCount ? log(1. + m_Count.Get_Max()) : 4. * m_Value.Get_StdDev());
 
 			#pragma omp parallel for
 			for(int y=0; y<m_Image.GetHeight(); y++)
@@ -701,15 +702,15 @@ private:
 				{
 					if( bCount )
 					{
-						iz	= dz * (m_Count.Get_Value(ix, iy, iz) && iz > 0.0 ? log(1.0 + iz) : 0.0);
+						iz	= dz * (m_Count.Get_Value(ix, iy, iz) && iz > 0. ? log(1. + iz) : 0.);
 					}
 					else if( m_Value.Get_Value(ix, iy, iz) )
 					{
-						iz	= dz * (iz - (m_Value.Get_Mean() - 2.0 * m_Value.Get_StdDev()));
+						iz	= dz * (iz - (m_Value.Get_Mean() - 2. * m_Value.Get_StdDev()));
 					}
 					else
 					{
-						iz	= 0.0;
+						iz	= 0.;
 					}
 
 					int	ic	= Colors.Get_Interpolated(iz);
@@ -883,19 +884,21 @@ void C3D_Viewer_PointCloud_Dialog::On_Menu(wxCommandEvent &event)
 {
 	switch( event.GetId() )
 	{
-	default:	CSG_3DView_Dialog::On_Menu(event);	return;
+	default:
+		CSG_3DView_Dialog::On_Menu(event);
+		return;
 
-	case MENU_SCALE_Z_DEC   :	MENU_VALUE_ADD("Z_SCALE"   ,  -0.5);	return;
-	case MENU_SCALE_Z_INC   :	MENU_VALUE_ADD("Z_SCALE"   ,   0.5);	return;
+	case MENU_SCALE_Z_DEC   : MENU_VALUE_ADD("Z_SCALE"   ,  -0.5); return;
+	case MENU_SCALE_Z_INC   : MENU_VALUE_ADD("Z_SCALE"   ,   0.5); return;
 
-	case MENU_SIZE_DEC      :	MENU_VALUE_ADD("SIZE"      ,  -1.0);	return;
-	case MENU_SIZE_INC      :	MENU_VALUE_ADD("SIZE"      ,   1.0);	return;
+	case MENU_SIZE_DEC      : MENU_VALUE_ADD("SIZE"      ,  -1.0); return;
+	case MENU_SIZE_INC      : MENU_VALUE_ADD("SIZE"      ,   1.0); return;
 
-	case MENU_SIZE_SCALE_DEC:	MENU_VALUE_ADD("SIZE_SCALE", -10.0);	return;
-	case MENU_SIZE_SCALE_INC:	MENU_VALUE_ADD("SIZE_SCALE",  10.0);	return;
+	case MENU_SIZE_SCALE_DEC: MENU_VALUE_ADD("SIZE_SCALE", -10.0); return;
+	case MENU_SIZE_SCALE_INC: MENU_VALUE_ADD("SIZE_SCALE",  10.0); return;
 
-	case MENU_VAL_AS_RGB    :	MENU_TOGGLE("VAL_AS_RGB" );	return;
-	case MENU_COLORS_GRAD   :	MENU_TOGGLE("COLORS_GRAD");	return;
+	case MENU_VAL_AS_RGB    : MENU_TOGGLE   ("VAL_AS_RGB"       ); return;
+	case MENU_COLORS_GRAD   : MENU_TOGGLE   ("COLORS_GRAD"      ); return;
 	}
 }
 
@@ -904,12 +907,15 @@ void C3D_Viewer_PointCloud_Dialog::On_Menu_UI(wxUpdateUIEvent &event)
 {
 	switch( event.GetId() )
 	{
-	default:	CSG_3DView_Dialog::On_Menu_UI(event);	break;
+	default:
+		CSG_3DView_Dialog::On_Menu_UI(event);
+		break;
 
-	case MENU_VAL_AS_RGB :	event.Check(m_pPanel->m_Parameters("VAL_AS_RGB" )->asBool());	break;
-	case MENU_COLORS_GRAD:	event.Check(m_pPanel->m_Parameters("COLORS_GRAD")->asBool());	break;
+	case MENU_VAL_AS_RGB : event.Check(m_pPanel->m_Parameters("VAL_AS_RGB" )->asBool()); break;
+	case MENU_COLORS_GRAD: event.Check(m_pPanel->m_Parameters("COLORS_GRAD")->asBool()); break;
 	}
 }
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -920,7 +926,6 @@ void C3D_Viewer_PointCloud_Dialog::On_Menu_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 C3D_Viewer_PointCloud::C3D_Viewer_PointCloud(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Point Cloud Viewer"));
 
 	Set_Author		("O. Conrad (c) 2014");

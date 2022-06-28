@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: 3d_viewer_multiple_grids.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -46,15 +43,6 @@
 //                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -137,7 +125,7 @@ C3D_Viewer_Multiple_Grids_Panel::C3D_Viewer_Multiple_Grids_Panel(wxWindow *pPare
 	m_Parameters.Add_Double("NODE_GENERAL",
 		"Z_SCALE"		, _TL("Exaggeration"),
 		_TL(""),
-		1.0
+		1.
 	);
 
 	//-----------------------------------------------------
@@ -160,7 +148,7 @@ C3D_Viewer_Multiple_Grids_Panel::C3D_Viewer_Multiple_Grids_Panel(wxWindow *pPare
 	m_Parameters.Add_Choice("NODE_VIEW",
 		"SHADING"		, _TL("Shading"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("none"),
 			_TL("shading")
 		), 1
@@ -169,13 +157,13 @@ C3D_Viewer_Multiple_Grids_Panel::C3D_Viewer_Multiple_Grids_Panel(wxWindow *pPare
 	m_Parameters.Add_Double("SHADING",
 		"SHADE_DEC"		, _TL("Light Source Height"),
 		_TL(""),
-		0.0, -90.0, true, 90.0, true
+		0., -90., true, 90., true
 	);
 
 	m_Parameters.Add_Double("SHADING",
 		"SHADE_AZI"		, _TL("Light Source Direction"),
 		_TL(""),
-		315.0, 0.0, true, 360.0, true
+		315., 0., true, 360., true
 	);
 
 	//-----------------------------------------------------
@@ -255,10 +243,12 @@ void C3D_Viewer_Multiple_Grids_Panel::On_Key_Down(wxKeyEvent &event)
 {
 	switch( event.GetKeyCode() )
 	{
-	default:	CSG_3DView_Panel::On_Key_Down(event);	return;
+	default:
+		CSG_3DView_Panel::On_Key_Down(event);
+		return;
 
-	case WXK_F1:	m_Parameters("Z_SCALE")->Set_Value(m_Parameters("Z_SCALE")->asDouble() -  0.5);	break;
-	case WXK_F2:	m_Parameters("Z_SCALE")->Set_Value(m_Parameters("Z_SCALE")->asDouble() +  0.5);	break;
+	case WXK_F1: m_Parameters("Z_SCALE")->Set_Value(m_Parameters("Z_SCALE")->asDouble() -  0.5); break;
+	case WXK_F2: m_Parameters("Z_SCALE")->Set_Value(m_Parameters("Z_SCALE")->asDouble() +  0.5); break;
 	}
 
 	//-----------------------------------------------------
@@ -290,7 +280,7 @@ bool C3D_Viewer_Multiple_Grids_Panel::On_Before_Draw(void)
 //---------------------------------------------------------
 int C3D_Viewer_Multiple_Grids_Panel::Get_Color(double Value)
 {
-	if( m_Color_Scale <= 0.0 )
+	if( m_Color_Scale <= 0. )
 	{
 		return( (int)Value );
 	}
@@ -358,7 +348,7 @@ void C3D_Viewer_Multiple_Grids_Panel::Draw_Grid(CSG_Grid *pGrid)
 	m_Color_bGrad	= m_Parameters("COLORS_GRAD")->asBool();
 
 	m_Color_Min		= pGrid->Get_Min();
-	m_Color_Scale	= pGrid->Get_Range() > 0.0 ? m_Colors.Get_Count() / pGrid->Get_Range() : 0.0;
+	m_Color_Scale	= pGrid->Get_Range() > 0. ? m_Colors.Get_Count() / pGrid->Get_Range() : 0.;
 
 	//-----------------------------------------------------
 	int		Shading		= m_Parameters("SHADING"  )->asInt   ();

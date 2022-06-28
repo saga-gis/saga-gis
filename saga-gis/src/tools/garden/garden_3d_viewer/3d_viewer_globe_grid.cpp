@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: 3d_viewer_globe_grid.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -46,15 +43,6 @@
 //                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -149,13 +137,13 @@ C3D_Viewer_Globe_Grid_Panel::C3D_Viewer_Globe_Grid_Panel(wxWindow *pParent, CSG_
 	m_Parameters.Add_Value(
 		pNode	, "RADIUS"			, _TL("Radius"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 6371.0, 0.0, true
+		PARAMETER_TYPE_Double, 6371., 0., true
 	);
 
 	m_Parameters.Add_Value(
 		pNode	, "Z_SCALE"			, _TL("Exaggeration"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0
+		PARAMETER_TYPE_Double, 1.
 	);
 
 	//-----------------------------------------------------
@@ -204,13 +192,13 @@ C3D_Viewer_Globe_Grid_Panel::C3D_Viewer_Globe_Grid_Panel(wxWindow *pParent, CSG_
 	m_Parameters.Add_Value(
 		pNode_2	, "SHADE_DEC"		, _TL("Light Source Height"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 0.0, -90.0, true, 90.0, true
+		PARAMETER_TYPE_Double, 0., -90., true, 90., true
 	);
 
 	m_Parameters.Add_Value(
 		pNode_2	, "SHADE_AZI"		, _TL("Light Source Direction"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 315.0, 0.0, true, 360.0, true
+		PARAMETER_TYPE_Double, 315., 0., true, 360., true
 	);
 
 	//-----------------------------------------------------
@@ -301,11 +289,11 @@ bool C3D_Viewer_Globe_Grid_Panel::Create_Nodes(void)
 void C3D_Viewer_Globe_Grid_Panel::Update_Statistics(void)
 {
 	double	Radius	= m_Parameters("RADIUS")->asDouble();
-	double	zScale	= m_pZ ? m_Parameters("Z_SCALE")->asDouble() : 0.0;
+	double	zScale	= m_pZ ? m_Parameters("Z_SCALE")->asDouble() : 0.;
 
-	m_Data_Min.x = m_Data_Max.x = 0.0;
-	m_Data_Min.y = m_Data_Max.y = 0.0;
-	m_Data_Min.z = m_Data_Max.z = 0.0;
+	m_Data_Min.x = m_Data_Max.x = 0.;
+	m_Data_Min.y = m_Data_Max.y = 0.;
+	m_Data_Min.z = m_Data_Max.z = 0.;
 
 	for(int y=0; y<m_pGrid->Get_NY(); y++)
 	{
@@ -351,10 +339,12 @@ void C3D_Viewer_Globe_Grid_Panel::On_Key_Down(wxKeyEvent &event)
 {
 	switch( event.GetKeyCode() )
 	{
-	default:	CSG_3DView_Panel::On_Key_Down(event);	return;
+	default:
+		CSG_3DView_Panel::On_Key_Down(event);
+		return;
 
-	case WXK_F1:	m_Parameters("Z_SCALE")->Set_Value(m_Parameters("Z_SCALE")->asDouble() -  0.5);	break;
-	case WXK_F2:	m_Parameters("Z_SCALE")->Set_Value(m_Parameters("Z_SCALE")->asDouble() +  0.5);	break;
+	case WXK_F1: m_Parameters("Z_SCALE")->Set_Value(m_Parameters("Z_SCALE")->asDouble() -  0.5); break;
+	case WXK_F2: m_Parameters("Z_SCALE")->Set_Value(m_Parameters("Z_SCALE")->asDouble() +  0.5); break;
 	}
 
 	//-----------------------------------------------------
@@ -370,7 +360,7 @@ void C3D_Viewer_Globe_Grid_Panel::On_Key_Down(wxKeyEvent &event)
 //---------------------------------------------------------
 int C3D_Viewer_Globe_Grid_Panel::Get_Color(double Value)
 {
-	if( m_Color_Scale <= 0.0 )
+	if( m_Color_Scale <= 0. )
 	{
 		return( (int)Value );
 	}

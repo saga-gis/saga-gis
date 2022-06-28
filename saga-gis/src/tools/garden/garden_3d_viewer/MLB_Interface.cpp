@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,18 +46,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
@@ -109,15 +97,15 @@ CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
-	case 0:		return( new C3D_Viewer_TIN );
-	case 1:		return( new C3D_Viewer_PointCloud );
-	case 2:		return( new C3D_Viewer_Shapes );
-	case 3:		return( new C3D_Viewer_Globe_Grid );
-	case 4:		return( new C3D_Viewer_Multiple_Grids );
-	case 5:		return( new C3D_Viewer_Grids );
+	case  0: return( new C3D_Viewer_TIN );
+	case  1: return( new C3D_Viewer_PointCloud );
+	case  2: return( new C3D_Viewer_Shapes );
+	case  3: return( new C3D_Viewer_Globe_Grid );
+	case  4: return( new C3D_Viewer_Multiple_Grids );
+	case  5: return( new C3D_Viewer_Grids );
 
-	default:	return( NULL );
-//	default:	return( TLB_INTERFACE_SKIP_TOOL );
+	case  6: return( NULL );
+	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
 

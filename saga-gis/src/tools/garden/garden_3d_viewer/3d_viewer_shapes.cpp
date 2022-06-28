@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: 3d_viewer_shapes.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -46,15 +43,6 @@
 //                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -134,15 +122,14 @@ C3D_Viewer_Shapes_Panel::C3D_Viewer_Shapes_Panel(wxWindow *pParent, CSG_Shapes *
 
 	for(int i=0; i<m_pShapes->Get_Field_Count(); i++)
 	{
-		Attributes	+= m_pShapes->Get_Field_Name(i);
-		Attributes	+= "|";
+		Attributes += m_pShapes->Get_Field_Name(i); Attributes	+= "|";
 	}
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Double("NODE_GENERAL",
 		"Z_SCALE"		, _TL("Exaggeration"),
 		_TL(""),
-		1.0
+		1.
 	);
 
 	//-----------------------------------------------------
@@ -260,10 +247,12 @@ void C3D_Viewer_Shapes_Panel::On_Key_Down(wxKeyEvent &event)
 {
 	switch( event.GetKeyCode() )
 	{
-	default:	CSG_3DView_Panel::On_Key_Down(event);	return;
+	default:
+		CSG_3DView_Panel::On_Key_Down(event);
+		return;
 
-	case WXK_F1:	m_Parameters("Z_SCALE")->Set_Value(m_Parameters("Z_SCALE")->asDouble() -  0.5);	break;
-	case WXK_F2:	m_Parameters("Z_SCALE")->Set_Value(m_Parameters("Z_SCALE")->asDouble() +  0.5);	break;
+	case WXK_F1: m_Parameters("Z_SCALE")->Set_Value(m_Parameters("Z_SCALE")->asDouble() -  0.5); break;
+	case WXK_F2: m_Parameters("Z_SCALE")->Set_Value(m_Parameters("Z_SCALE")->asDouble() +  0.5); break;
 	}
 
 	//-----------------------------------------------------
@@ -295,7 +284,7 @@ bool C3D_Viewer_Shapes_Panel::On_Before_Draw(void)
 //---------------------------------------------------------
 int C3D_Viewer_Shapes_Panel::Get_Color(double Value)
 {
-	if( m_Color_Scale <= 0.0 )
+	if( m_Color_Scale <= 0. )
 	{
 		return( (int)Value );
 	}
@@ -320,7 +309,7 @@ bool C3D_Viewer_Shapes_Panel::On_Draw(void)
 	m_Color_bGrad	= m_Parameters("COLORS_GRAD")->asBool();
 	m_Color_Min		= m_Parameters("COLORS_RANGE")->asRange()->Get_Min();
 	double	Range	= m_Parameters("COLORS_RANGE")->asRange()->Get_Max() - m_Color_Min;
-	m_Color_Scale	= Range > 0.0 ? m_Colors.Get_Count() / Range : 1.0;
+	m_Color_Scale	= Range > 0. ? m_Colors.Get_Count() / Range : 1.;
 
 	//-----------------------------------------------------
 	if( m_pShapes->Get_Selection_Count() > 0 )
@@ -462,7 +451,6 @@ public:
 //---------------------------------------------------------
 C3D_Viewer_Shapes::C3D_Viewer_Shapes(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("3D Shapes Viewer"));
 
 	Set_Author		("O. Conrad (c) 2014");
