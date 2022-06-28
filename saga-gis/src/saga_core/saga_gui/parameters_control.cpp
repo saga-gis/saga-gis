@@ -816,7 +816,8 @@ void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
         case PARAMETER_TYPE_Color:
             if( ((wxColourProperty *)pProperty)->GetVal().m_colour != pParameter->asColor() )
             {
-                m_pPG->SetPropertyValue(pProperty, wxColor(pParameter->asColor()));
+                wxColor c = wxColor(pParameter->asColor());
+                m_pPG->SetPropertyValue(pProperty, c);
             }
             break;
 
