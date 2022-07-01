@@ -149,9 +149,9 @@ private:
 	CSG_Parameters				m_Field_Calc;
 
 
-	bool						_Update_Records		(void);
+	bool						_Update_Records		(bool bViews = false);
 
-	bool						_Update_Selection	(bool bViews);
+	bool						_Update_Selection	(bool bViews = false);
 
 	static int					_Parameter_Callback	(CSG_Parameter *pParameter, int Flags);
 

@@ -260,7 +260,7 @@ bool CVIEW_Table_Control::Update_Table(void)
 //---------------------------------------------------------
 bool CVIEW_Table_Control::Update_Selection(void)
 {
-	return( _Update_Selection(false) );
+	return( _Update_Selection() );
 }
 
 
@@ -269,7 +269,7 @@ bool CVIEW_Table_Control::Update_Selection(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CVIEW_Table_Control::_Update_Records(void)
+bool CVIEW_Table_Control::_Update_Records(bool bViews)
 {
 	Update_Float_Format();
 
@@ -317,7 +317,7 @@ bool CVIEW_Table_Control::_Update_Records(void)
 	}
 
 	//-----------------------------------------------------
-	_Update_Selection(false);
+	_Update_Selection(bViews);
 
 	return( true );
 }
@@ -401,13 +401,15 @@ void CVIEW_Table_Control::On_Selecting(wxGridRangeSelectEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_Selected(wxGridRangeSelectEvent &event)
 {
-	if( !m_pData->m_bSelection && event.Selecting() )
+	if( GetBatchCount() < 1 && !m_pData->m_bSelection && event.Selecting() )
 	{
 		int	iFirst	= event.GetBottomRow() <= event.GetTopRow() ? event.GetBottomRow() : event.GetTopRow();
 		int	iLast	= event.GetBottomRow() >  event.GetTopRow() ? event.GetBottomRow() : event.GetTopRow();
 
 		if( iFirst <= iLast )
 		{
+			m_pTable->Select();
+
 			for(int i=iFirst; i<=iLast; i++)
 			{
 				m_pTable->Select(m_pData->Get_Record(i), true);
@@ -415,10 +417,6 @@ void CVIEW_Table_Control::On_Selected(wxGridRangeSelectEvent &event)
 
 			_Update_Selection(true);
 		}
-	}
-	else
-	{
-		_Update_Selection(true);
 	}
 }
 
@@ -1247,7 +1245,7 @@ void CVIEW_Table_Control::On_Record_Del(wxCommandEvent &event)
 {
 	if( m_pTable->Del_Selection() )
 	{
-		_Update_Records();
+		_Update_Records(true);
 	}
 }
 
@@ -1261,7 +1259,7 @@ void CVIEW_Table_Control::On_Record_Clr(wxCommandEvent &event)
 {
 	if( DLG_Message_Confirm(CMD_Get_Name(ID_CMD_TABLE_RECORD_DEL_ALL), _TL("Table")) && m_pTable->Del_Records() )
 	{
-		_Update_Records();
+		_Update_Records(true);
 	}
 }
 
