@@ -345,7 +345,7 @@ int CSG_Data_Object::Get_File_Type(void)	const
 //---------------------------------------------------------
 bool CSG_Data_Object::Reload(void)
 {
-	return( m_File_bNative && SG_File_Exists(m_FileName) && On_Reload() );
+	return( SG_File_Exists(m_FileName) && On_Reload() );
 }
 
 //---------------------------------------------------------

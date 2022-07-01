@@ -243,7 +243,7 @@ bool CWKSP_Data_Item::On_Command_UI(wxUpdateUIEvent &event)
 		break;
 
 	case ID_CMD_DATA_RELOAD:
-		event.Enable(m_pObject->is_File_Native() && m_pObject->is_Modified());
+		event.Enable(m_pObject->is_Modified() && SG_File_Exists(m_pObject->Get_File_Name(false)));
 		break;
 
 	case ID_CMD_DATA_DEL_FILES:

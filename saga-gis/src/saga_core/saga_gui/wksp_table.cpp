@@ -153,7 +153,7 @@ wxMenu * CWKSP_Table::Get_Menu(void)
 		if( PGSQL_has_Connections() )
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVETODB);
 
-		if( m_pObject->is_File_Native() && m_pObject->is_Modified() )
+		if( m_pObject->is_Modified() && SG_File_Exists(m_pObject->Get_File_Name(false)) )
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_RELOAD);
 
 		if( m_pObject->is_File_Native() )
