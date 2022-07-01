@@ -615,36 +615,30 @@ bool CSG_Shapes::On_Update(void)
 //---------------------------------------------------------
 CSG_Shape * CSG_Shapes::Get_Shape(const TSG_Point &Point, double Epsilon)
 {
-	CSG_Rect	r(Point.x - Epsilon, Point.y - Epsilon, Point.x + Epsilon, Point.y + Epsilon);
+	CSG_Rect r(Point.x - Epsilon, Point.y - Epsilon, Point.x + Epsilon, Point.y + Epsilon);
 
-	CSG_Shape	*pNearest	= NULL;
+	CSG_Shape *pNearest = NULL;
 
 	if( r.Intersects(Get_Extent()) != INTERSECTION_None )
 	{
-		double	dNearest	= -1.;
+		double dNearest = -1.;
 
 		for(int iShape=0; iShape<Get_Count(); iShape++)
 		{
-			CSG_Shape	*pShape	= Get_Shape(iShape);
+			CSG_Shape *pShape = Get_Shape(iShape);
 
 			if( pShape->Intersects(r) )
 			{
-				for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
-				{
-					if( r.Intersects(pShape->Get_Extent(iPart)) )
-					{
-						double	d	= pShape->Get_Distance(Point, iPart);
+				double d = pShape->Get_Distance(Point);
 
-						if( d == 0. )
-						{
-							return( pShape );
-						}
-						else if( d > 0. && d <= Epsilon && (pNearest == NULL || d < dNearest) )
-						{
-							dNearest	= d;
-							pNearest	= pShape;
-						}
-					}
+				if( d == 0. )
+				{
+					return( pShape );
+				}
+				else if( d > 0. && d <= Epsilon && (pNearest == NULL || d < dNearest) )
+				{
+					dNearest = d;
+					pNearest = pShape;
 				}
 			}
 		}

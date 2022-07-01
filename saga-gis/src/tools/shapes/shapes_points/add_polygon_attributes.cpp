@@ -73,7 +73,7 @@ CAdd_Polygon_Attributes::CAdd_Polygon_Attributes(void)
 
 	Set_Description	(_TW(
 		"Spatial join for points. Retrieves for each point the selected "
-		"attributes from those polygon, which contain the point. "
+		"attributes of the polygon that contains the point. "
 	));
 
 	//-----------------------------------------------------
@@ -109,8 +109,7 @@ CAdd_Polygon_Attributes::CAdd_Polygon_Attributes(void)
 //---------------------------------------------------------
 bool CAdd_Polygon_Attributes::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Shapes	*pInput		= Parameters("INPUT")->asShapes();
+	CSG_Shapes *pInput = Parameters("INPUT")->asShapes();
 
 	if( !pInput->is_Valid() )
 	{
@@ -120,7 +119,7 @@ bool CAdd_Polygon_Attributes::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Shapes	*pPolygons	= Parameters("POLYGONS")->asShapes();
+	CSG_Shapes *pPolygons = Parameters("POLYGONS")->asShapes();
 
 	if( !pPolygons->is_Valid() )
 	{
@@ -130,11 +129,11 @@ bool CAdd_Polygon_Attributes::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Parameter_Table_Fields	*pFields	= Parameters("FIELDS")->asTableFields();
+	CSG_Parameter_Table_Fields *pFields = Parameters("FIELDS")->asTableFields();
 
-	if( pFields->Get_Count() == 0 )
+	if( pFields->Get_Count() == 0 ) // add all fields
 	{
-		CSG_String	sFields;
+		CSG_String sFields;
 
 		for(int iField=0; iField<pPolygons->Get_Field_Count(); iField++)
 		{
@@ -145,55 +144,51 @@ bool CAdd_Polygon_Attributes::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Shapes	*pOutput	= Parameters("OUTPUT")->asShapes();
+	CSG_Shapes *pPoints = Parameters("OUTPUT")->asShapes();
 
-	if( pOutput && pOutput != pInput )
+	if( pPoints && pPoints != pInput )
 	{
-		pOutput->Create(*pInput);
+		pPoints->Create(*pInput);
+
+		pPoints->Fmt_Name("%s [%s]", pInput->Get_Name(), pPolygons->Get_Name());
 	}
 	else
 	{
-		Parameters("OUTPUT")->Set_Value(pOutput	= pInput);
-	}
-
-	pOutput->Fmt_Name("%s [%s]", pInput->Get_Name(), pPolygons->Get_Name());
-
-	//-----------------------------------------------------
-	int	outField	= pOutput->Get_Field_Count();
-
-	{
-		for(int iField=0; iField<pFields->Get_Count(); iField++)
-		{
-			int	jField	= pFields->Get_Index(iField);
-
-			pOutput->Add_Field(pPolygons->Get_Field_Name(jField), pPolygons->Get_Field_Type(jField));
-		}
+		Parameters("OUTPUT")->Set_Value(pPoints	= pInput);
 	}
 
 	//-----------------------------------------------------
-	for(int iPoint=0; iPoint<pOutput->Get_Count() && Set_Progress(iPoint, pOutput->Get_Count()); iPoint++)
+	int offField = pPoints->Get_Field_Count();
+
+	for(int iField=0; iField<pFields->Get_Count(); iField++)
 	{
-		CSG_Shape	*pPoint		= pOutput  ->Get_Shape(iPoint);
-		CSG_Shape	*pPolygon	= pPolygons->Get_Shape(pPoint->Get_Point(0));
+		int jField	= pFields->Get_Index(iField);
 
-		for(int iField=0; iField<pFields->Get_Count(); iField++)
+		pPoints->Add_Field(pPolygons->Get_Field_Name(jField), pPolygons->Get_Field_Type(jField));
+	}
+
+	//-----------------------------------------------------
+	for(int iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
+	{
+		CSG_Shape *pPoint   = pPoints  ->Get_Shape(iPoint);
+		CSG_Shape *pPolygon = pPolygons->Get_Shape(pPoint->Get_Point(0));
+
+		if( !pPolygon )
 		{
-			int	jField	= pFields->Get_Index(iField);
-
-			if( !pPolygon )
+			for(int iField=0; iField<pFields->Get_Count(); iField++)
 			{
-				pPoint->Set_NoData(outField + iField);
+				pPoint->Set_NoData(offField + iField);
 			}
-			else switch( pPolygons->Get_Field_Type(jField) )
-			{
-			case SG_DATATYPE_String:
-			case SG_DATATYPE_Date:
-				pPoint->Set_Value(outField + iField, pPolygon->asString(jField));
-				break;
+		}
+		else for(int iField=0; iField<pFields->Get_Count(); iField++)
+		{
+			int jField = pFields->Get_Index(iField);
 
-			default:
-				pPoint->Set_Value(outField + iField, pPolygon->asDouble(jField));
-				break;
+			switch( pPolygons->Get_Field_Type(jField) )
+			{
+			default                : pPoint->Set_Value(offField + iField, pPolygon->asDouble(jField)); break;
+			case SG_DATATYPE_Date  :
+			case SG_DATATYPE_String: pPoint->Set_Value(offField + iField, pPolygon->asString(jField)); break;
 			}
 		}
 	}

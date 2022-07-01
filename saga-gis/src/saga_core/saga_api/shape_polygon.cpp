@@ -971,11 +971,11 @@ bool CSG_Shape_Polygon::is_Neighbour(CSG_Shape_Polygon *pPolygon, bool bSimpleCh
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CSG_Shape_Polygon::Get_Distance(TSG_Point Point, TSG_Point &Next, int iPart)
+double CSG_Shape_Polygon::Get_Distance(TSG_Point Point, TSG_Point &Next, int iPart)	const
 {
 	CSG_Shape_Polygon_Part	*pPart	= Get_Polygon_Part(iPart);
 
-	return(	pPart ? pPart->Get_Distance(Point, Next) : -1.0 );
+	return(	pPart ? pPart->Get_Distance(Point, Next) : -1. );
 }
 
 

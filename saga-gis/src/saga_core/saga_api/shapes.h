@@ -600,7 +600,7 @@ public:
 	double						Get_Length			(void);
 	double						Get_Length			(int iPart);
 
-	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next, int iPart);
+	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next, int iPart)	const;
 
 
 protected:
@@ -688,7 +688,7 @@ public:
 	virtual bool				is_Valid			(void)	const	{	return( m_nParts > 0 && m_pParts[0]->Get_Count() > 2 );	}
 
 
-	CSG_Shape_Polygon_Part *	Get_Polygon_Part	(int iPart)		{	return( (CSG_Shape_Polygon_Part *)Get_Part(iPart) );	}
+	CSG_Shape_Polygon_Part *	Get_Polygon_Part	(int iPart)	const	{	return( (CSG_Shape_Polygon_Part *)Get_Part(iPart) );	}
 
 	bool						is_Lake				(int iPart);
 
@@ -721,7 +721,7 @@ public:
 
 	bool						is_Neighbour		(CSG_Shape_Polygon *pPolygon, bool bSimpleCheck = true);
 
-	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next, int iPart);
+	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next, int iPart)	const;
 
 
 protected:

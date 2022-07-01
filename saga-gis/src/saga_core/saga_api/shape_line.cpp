@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -53,15 +50,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "shapes.h"
 
 
@@ -90,7 +78,6 @@ CSG_Shape_Line::~CSG_Shape_Line(void)
 //---------------------------------------------------------
 TSG_Intersection CSG_Shape_Line::On_Intersects(CSG_Shape *pShape)
 {
-	//-----------------------------------------------------
 	if( pShape->Get_Type() == SHAPE_TYPE_Point || pShape->Get_Type() == SHAPE_TYPE_Points )
 	{
 		bool	bIn		= false;
@@ -287,28 +274,25 @@ double CSG_Shape_Line::Get_Length(int iPart)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CSG_Shape_Line::Get_Distance(TSG_Point Point, TSG_Point &Next, int iPart)
+double CSG_Shape_Line::Get_Distance(TSG_Point Point, TSG_Point &Next, int iPart) const
 {
-	int			i;
-	double		d, Distance;
-	TSG_Point	*pA, *pB, pt;
-
-	Distance	= -1.0;
+	double Distance = -1.;
 
 	if( iPart >= 0 && iPart < m_nParts && m_pParts[iPart]->Get_Count() > 1 )
 	{
-		pB	= m_pParts[iPart]->m_Points;
-		pA	= pB + 1;
+		TSG_Point *pB = m_pParts[iPart]->m_Points;
+		TSG_Point *pA = pB + 1, C;
 
-		Distance	= SG_Get_Nearest_Point_On_Line(Point, *pA, *pB, Next);
+		Distance = SG_Get_Nearest_Point_On_Line(Point, *pA, *pB, Next);
 
-		for(i=1; i<m_pParts[iPart]->Get_Count() && Distance!=0.0; i++, pB=pA++)
+		for(int i=1; i<m_pParts[iPart]->Get_Count() && Distance!=0.; i++, pB=pA++)
 		{
-			if(	(d = SG_Get_Nearest_Point_On_Line(Point, *pA, *pB, pt)) >= 0.0
-			&&	(d < Distance || Distance < 0.0) )
+			double d = SG_Get_Nearest_Point_On_Line(Point, *pA, *pB, C);
+
+			if(	d >= 0. && (d < Distance || Distance < 0.) )
 			{
-				Distance	= d;
-				Next		= pt;
+				Distance = d;
+				Next     = C;
 			}
 		}
 	}
