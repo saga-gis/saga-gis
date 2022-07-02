@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: GSGrid_Zonal_Statistics.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -15,7 +12,7 @@
 //                                                       //
 //              GSGrid_Zonal_Statistics.cpp              //
 //                                                       //
-//                Copyright (C) 2005-9 by                //
+//              Copyright (C) 2005-2022 by               //
 //                    Volker Wichmann                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -39,7 +36,13 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     reklovw@web.de                         //
+//    e-mail:     wichmann@laserdata                     //
+//                                                       //
+//    contact:    Volker Wichmann                        //
+//                LASERDATA GmbH                         //
+//                Management and analysis of             //
+//                laserscanning data                     //
+//                Innsbruck, Austria                     //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -65,21 +68,21 @@
 //---------------------------------------------------------
 CGSGrid_Zonal_Statistics::CGSGrid_Zonal_Statistics(void)
 {
-	//-----------------------------------------------------
-	// Place information about your tool here...
+    Set_Name		(_TL("Zonal Grid Statistics"));
 
-	Set_Name		(_TL("{STATZONAL_NAME} Zonal Grid Statistics"));
+	Set_Author		(_TL("Volker Wichmann (c) 2005-2022"));
 
-	Set_Author		(_TL("Copyrights (c) 2005 by Volker Wichmann"));
-
-	Set_Description	(_TW("{STATZONAL_DESC} "
-		"The tool calculates zonal statistics and reports these in a table. "
-		"The tool can be used to create a contingency table of unique condition units (UCUs). These "
-		"units are delineated from a zonal grid (e.g. sub catchments) and optional categorical grids (e.g. "
-		"landcover, soil, ...). It is possible to calculate descriptive statistics (n, min, max, mean, standard "
-		"deviation and sum) for each UCU from optional grids with continious data (e.g. slope; aspect must be "
-		"handled specially, please use the \"Aspect\" input parameter for such a grid). The number "
-		"of input grids is only limited by available memory.\n\n"
+	Set_Description	(_TW(
+		"The tool allows one to calculate zonal statistics over a set of input grids and reports the "
+        "statistics in a table.\n"
+		"The tool first creates a contingency table of unique condition units (UCUs) on which the "
+        "statistics are calculated. These UCUs are delineated from a zonal grid (e.g. sub catchments) "
+        "and optional categorical grids (e.g. landcover, soil, ...). The derived UCUs can be output "
+        "as a grid dataset.\n"
+        "The tool then calculates descriptive statistics (n, min, max, mean, standard "
+		"deviation and sum) for each UCU from (optional) grids with continious data (e.g. slope). A grid "
+        "storing aspect must be treated specially (circular statistics), please use the \"Aspect\" "
+        "input parameter for such a grid.\n\n"
 		"The tool has four different modes of operation:\n"
 		"(1) only a zonal grid is used as input. This results in a simple contingency table with "
 		"the number of grid cells in each zone.\n"
@@ -87,8 +90,7 @@ CGSGrid_Zonal_Statistics::CGSGrid_Zonal_Statistics(void)
 		"input. This results in a contingency table with the number of cells in each UCU.\n"
 		"(3) a zonal grid "
 		"and additional grids with continuous data are used as input. This results in a contingency table "
-		"with the number of cells in each zone and some simple statistics for each zone. The statistics are "
-		"calculated for each continuous grid.\n"
+		"with the number of cells in each zone and the corresponding statistics for each continuous grid.\n"
 		"(4) a zonal grid, additional categorical grids and additional "
 		"grids with continuous data are used as input. This results in a contingency table with the number "
 		"of cells in each UCU and the corresponding statistics for each continuous grid.\n"
@@ -97,45 +99,57 @@ CGSGrid_Zonal_Statistics::CGSGrid_Zonal_Statistics(void)
 		"combination of each UCU, the number of cells in each UCU and the statistics for each UCU. A "
 		"typical output table may look like this:\n"
 		"<table border=\"1\">"
-		"<tr><td>ID Zone</td><td>ID 1stCat</td><td>ID 2ndCat</td><td>Count UCU</td><td>N 1stCont</td><td>MIN 1stCont</td><td>MAX 1stCont</td><td>MEAN 1stCont</td><td>STDDEV 1stCont</td><td>SUM 1stCont</td></tr>"
-		"<tr><td>0      </td><td>2        </td><td>6        </td><td>6        </td><td>6        </td><td>708.5      </td><td>862.0      </td><td>734.5       </td><td>62.5          </td><td>4406.8     </td></tr>"
-		"<tr><td>0      </td><td>3        </td><td>4        </td><td>106      </td><td>106      </td><td>829.1      </td><td>910.1      </td><td>848.8       </td><td>28.5          </td><td>89969.0    </td></tr>"
+		"<tr><td>ID UCU</td><td>ID Zone</td><td>ID 1stCat</td><td>ID 2ndCat</td><td>Count UCU</td><td>N 1stCont</td><td>MIN 1stCont</td><td>MAX 1stCont</td><td>MEAN 1stCont</td><td>STDDEV 1stCont</td><td>SUM 1stCont</td></tr>"
+		"<tr><td>1      </td><td>0      </td><td>2        </td><td>6        </td><td>6        </td><td>6        </td><td>708.5      </td><td>862.0      </td><td>734.5       </td><td>62.5          </td><td>4406.8     </td></tr>"
+		"<tr><td>2      </td><td>0      </td><td>3        </td><td>4        </td><td>106      </td><td>106      </td><td>829.1      </td><td>910.1      </td><td>848.8       </td><td>28.5          </td><td>89969.0    </td></tr>"
 		"</table>"
+        "\n\n"
+        "Note: in the case you like to convert some one of the statistics back to a grid dataset, you "
+        "can use the following procedure. Run the tool and output the UCU grid. Then edit the output "
+        "table to match your needs (delete all fields besides the UCU identifier and the fields you like "
+        "to create grids from). Then use both datasets in the \"Grids from Classified Grid and Table\" "
+        "tool.\n\n"
 	));
 
 	Parameters.Add_Grid(
-		"", "ZONES"		, _TL("Zone Grid"),
-		_TL("Grid defining the zones to analyse. This grid also acts as a mask. Coding: NoData / categorial values."),
+		"", "ZONES", _TL("Zone Grid"),
+		_TL("The grid defining the zones to analyze [NoData;categorical values]."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid_List(
-		"", "CATLIST"		, _TL("Categorical Grids"),
-		_TL("Grids used to delineate the UCUs. Coding: NoData / categorical values."),
+		"", "CATLIST", _TL("Categorical Grids"),
+		_TL("Additional grids used to delineate the UCUs [NoData;categorical values]."),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid_List(
-		"", "STATLIST"	, _TL("Grids to analyse"),
-		_TL("Grids with continuous data, statistics are calculated for each grid. Coding: NoData / continuous values."),
+		"", "STATLIST", _TL("Grids to Analyse"),
+		_TL("The grids with continuous data for which the statistics are calculated [NoData;continuous values]."),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		"", "ASPECT"		, _TL("Aspect"),
-		_TL("Aspect grid, in radians."),
+		"", "ASPECT", _TL("Aspect"),
+		_TL("A grid encoding the aspect of each cell [radians]."),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
+    Parameters.Add_Grid(
+        "", "UCU", _TL("UCUs"),
+        _TL("The derived unique condition areas (UCU)."),
+        PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Long
+    );
+
 	Parameters.Add_Table(
-		"", "OUTTAB"		, _TL("Zonal Statistics"),
-		_TL("Summary table."),
+		"", "OUTTAB", _TL("Zonal Statistics"),
+		_TL("The summary table with the statistics for each UCU."),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Bool(
-		"", "SHORTNAMES"	, _TL("Short Field Names"),
-		_TL(""),
+		"", "SHORTNAMES", _TL("Short Field Names"),
+		_TL("Shorten the field names to ten characters (as this is the limit for field names in shapefiles)."),
 		true
 	);
 }
@@ -148,424 +162,234 @@ CGSGrid_Zonal_Statistics::~CGSGrid_Zonal_Statistics(void)
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
-//														 //
+//							  							 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGSGrid_Zonal_Statistics::On_Execute(void)
 {
-	bool					bShortNames;
-	int						x, y, nCatGrids, nStatGrids, iGrid, zoneID, catID, NDcount, catLevel, NDcountStat;
-	double					statID;
-
-	CSG_Grid				*pZones, *pGrid, *pAspect;
-	CSG_Parameter_Grid_List	*pCatList;
-	CSG_Parameter_Grid_List	*pStatList;
-
-	CList_Conti				*newZone, *startList, *runList, *newSub, *parent, *runSub, *subList;
-	CList_Stat				*runStats;
-	CSG_Table				*pOutTab;
-	CSG_Table_Record		*pRecord;
-	CSG_String				fieldName, tmpName;
+    CSG_Grid                *pZones		= Parameters("ZONES")->asGrid();
+    CSG_Parameter_Grid_List *pCatList	= Parameters("CATLIST")->asGridList();
+    CSG_Parameter_Grid_List *pStatList	= Parameters("STATLIST")->asGridList();
+	CSG_Grid                *pAspect	= Parameters("ASPECT")->asGrid();
+    CSG_Grid                *pUCU       = Parameters("UCU")->asGrid();
+	CSG_Table               *pOutTab    = Parameters("OUTTAB")->asTable();
+	bool                    bShortNames	= Parameters("SHORTNAMES")->asBool();
 
 
-	pZones		= Parameters("ZONES")		->asGrid();
-	pCatList	= Parameters("CATLIST")		->asGridList();
-	pStatList	= Parameters("STATLIST")	->asGridList();
-	pAspect		= Parameters("ASPECT")		->asGrid();
-	pOutTab		= Parameters("OUTTAB")		->asTable();
-	bShortNames	= Parameters("SHORTNAMES")	->asBool();
+    //---------------------------------------------------------
+    int iStats = pStatList->Get_Grid_Count();
+    
+    if (pAspect != NULL)
+    {
+        iStats++;
+    }
+    
+    if (iStats == 0)
+    {
+        iStats++; // only UCUs, no stats (besides cell count)
+    }
 
-	nCatGrids	= pCatList	->Get_Grid_Count();
-	nStatGrids	= pStatList	->Get_Grid_Count();
+    if( pUCU != NULL )
+    {
+        pUCU->Assign_NoData();
+    }
 
-	NDcount		= 0;						// NoData Counter (ZoneGrid)
-	NDcountStat	= 0;						// NoData Counter (StatGrids)
 
-	CSG_String	sTabName = Parameters("OUTTAB")->asString();
-	if (pOutTab != NULL)
+    //---------------------------------------------------------
+    std::map<std::vector<int>, std::vector<STATS> > mapUCUs;  // key = vector of categories describing the UCU, value = vector of statistics for each grid
+    
+    sLong iNoDataCount = 0;
+
+    for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+    {
+        for(int x=0; x<Get_NX(); x++)
+        {
+            std::vector<int>    vCategories;
+
+            vCategories.push_back(pZones->asInt(x, y));
+
+            for(int i=0; i<pCatList->Get_Grid_Count(); i++)
+            {
+                vCategories.push_back(pCatList->Get_Grid(i)->asInt(x, y));
+            }
+
+            std::map<std::vector<int>, std::vector<STATS> >::iterator it = mapUCUs.find(vCategories);
+
+            if( it == mapUCUs.end() )
+            {
+                mapUCUs.insert(std::pair<std::vector<int>, std::vector<STATS> >(vCategories, std::vector<STATS>()));
+                mapUCUs[vCategories].resize(iStats);
+            }
+
+            mapUCUs[vCategories][0].cells.push_back(pZones->Get_System().Get_IndexFromRowCol(x, y));
+            
+            for(int i=0; i<pStatList->Get_Grid_Count(); i++)
+            {
+                if( pStatList->Get_Grid(i)->is_NoData(x, y) )
+                {
+                    iNoDataCount++;
+                }
+                else
+                {
+                    _Set_Stats(mapUCUs, vCategories, i, pStatList->Get_Grid(i)->asDouble(x, y), false);
+                }
+            }
+
+            if( pAspect != NULL )
+            {
+                if( pAspect->is_NoData(x, y) )
+                {
+                    iNoDataCount++;
+                }
+                else
+                {
+                    _Set_Stats(mapUCUs, vCategories, pStatList->Get_Grid_Count(), pAspect->asDouble(x, y), true);
+                }
+            }
+        }
+    }
+
+
+    //---------------------------------------------------------
+    pOutTab->Destroy();
+    pOutTab->Set_Name(CSG_String::Format("%s_zonal_stats", pZones->Get_Name()));
+
+    _Create_Field(pOutTab, SG_T("UCU")                              , SG_T("")      , SG_DATATYPE_Long  , bShortNames);
+    _Create_Field(pOutTab, pZones->Get_Name()                       , SG_T("")      , SG_DATATYPE_Long  , bShortNames);
+
+    for(int i=0; i<pCatList->Get_Grid_Count(); i++)
+    {
+        _Create_Field(pOutTab, pCatList->Get_Grid(i)->Get_Name()    , SG_T("")      , SG_DATATYPE_Long  , bShortNames);
+    }
+
+    _Create_Field(pOutTab, SG_T("Count_UCU")                        , SG_T("")      , SG_DATATYPE_Long  , bShortNames);
+
+    for(int i=0; i<pStatList->Get_Grid_Count(); i++)
+    {
+        _Create_Field(pOutTab, pStatList->Get_Grid(i)->Get_Name()   , SG_T("N")     , SG_DATATYPE_Long  , bShortNames);
+        _Create_Field(pOutTab, pStatList->Get_Grid(i)->Get_Name()   , SG_T("MIN")   , SG_DATATYPE_Double, bShortNames);
+        _Create_Field(pOutTab, pStatList->Get_Grid(i)->Get_Name()   , SG_T("MAX")   , SG_DATATYPE_Double, bShortNames);
+        _Create_Field(pOutTab, pStatList->Get_Grid(i)->Get_Name()   , SG_T("MEAN")  , SG_DATATYPE_Double, bShortNames);
+        _Create_Field(pOutTab, pStatList->Get_Grid(i)->Get_Name()   , SG_T("STD")   , SG_DATATYPE_Double, bShortNames);
+        _Create_Field(pOutTab, pStatList->Get_Grid(i)->Get_Name()   , SG_T("SUM")   , SG_DATATYPE_Double, bShortNames);
+    }
+
+    if( pAspect != NULL )
+    {
+        _Create_Field(pOutTab, pAspect->Get_Name()                  , SG_T("N")     , SG_DATATYPE_Long  , bShortNames);
+        _Create_Field(pOutTab, pAspect->Get_Name()                  , SG_T("MIN")   , SG_DATATYPE_Double, bShortNames);
+        _Create_Field(pOutTab, pAspect->Get_Name()                  , SG_T("MAX")   , SG_DATATYPE_Double, bShortNames);
+        _Create_Field(pOutTab, pAspect->Get_Name()                  , SG_T("MEAN")  , SG_DATATYPE_Double, bShortNames);
+    }
+
+
+    //---------------------------------------------------------
+    sLong iUCU = 1;
+
+    for(std::map<std::vector<int>, std::vector<STATS> >::iterator it=mapUCUs.begin(); it!=mapUCUs.end(); ++it)
+    {
+        CSG_Table_Record *pRecord = pOutTab->Add_Record();
+        int iField = 0;
+
+        pRecord->Set_Value(iField++     , iUCU);                    // UCU identifier
+
+        for(size_t i=0; i<it->first.size(); i++)
+        {
+            pRecord->Set_Value(iField++ , it->first.at(i));         // categories making up this UCU
+        }
+
+        pRecord->Set_Value(iField++     , it->second.at(0).cells.size());   // count UCU
+
+        for(int i=0; i<pStatList->Get_Grid_Count(); i++)
+        {
+            pRecord->Set_Value(iField++ , it->second.at(i).n);      // statistics
+            pRecord->Set_Value(iField++ , it->second.at(i).min);
+            pRecord->Set_Value(iField++ , it->second.at(i).max);
+            pRecord->Set_Value(iField++ , it->second.at(i).sum / it->second.at(i).n);
+            pRecord->Set_Value(iField++ , sqrt((it->second.at(i).sum_2 - it->second.at(i).n * pow(it->second.at(i).sum / it->second.at(i).n, 2)) / (it->second.at(i).n - 1)));
+            pRecord->Set_Value(iField++ , it->second.at(i).sum);
+        }
+
+        if( pAspect != NULL )
+        {
+            pRecord->Set_Value(iField++ , it->second.at(iStats - 1).n);
+            pRecord->Set_Value(iField++ , it->second.at(iStats - 1).min * M_RAD_TO_DEG);
+            pRecord->Set_Value(iField++ , it->second.at(iStats - 1).max * M_RAD_TO_DEG);
+
+            double dX       = it->second.at(iStats - 1).sum   / it->second.at(iStats - 1).n;
+            double dY       = it->second.at(iStats - 1).sum_2 / it->second.at(iStats - 1).n;
+            double dMean    = dX ? fmod(M_PI_270 + atan2(dY, dX), M_PI_360) : (dY > 0 ? M_PI_270 : (dY < 0 ? M_PI_090 : -1));
+            dMean           = fmod(M_PI_360 - dMean, M_PI_360);
+
+            pRecord->Set_Value(iField++ , dMean * M_RAD_TO_DEG);
+        }
+
+        if( pUCU != NULL )
+        {
+            for(size_t i=0; i<it->second.at(0).cells.size(); i++)
+            {
+                pUCU->Set_Value(it->second.at(0).cells.at(i), iUCU);
+            }
+        }
+
+        iUCU++;
+    }
+
+
+    //---------------------------------------------------------
+	if( iNoDataCount > 0 )
 	{
-		pOutTab->Destroy();
-		pOutTab->Set_Name(sTabName);
+		Message_Fmt("\n%s: %d %s", _TL("Warning"), iNoDataCount, _TL("NoData value(s) in statistic grid(s)!"));
 	}
-
-	newZone		= new CList_Conti();								// create first list entry (dummy)
-	startList	= newZone;
-
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
-	{
-		for(x=0; x<Get_NX(); x++)
-		{
-			runList		= startList;
-			zoneID		= pZones->asInt(x, y);								// get zone ID
-
-			while( runList->next != NULL && runList->cat < zoneID )			// search for last entry in list or insert point
-			{
-				runList = runList->next;
-			}
-
-			if( runList->dummy == true )
-			{
-				runList->cat = zoneID;										// first list entry, write and
-				runList->dummy = false;										// setup
-			}
-			else if( runList->cat == zoneID )
-				runList = runList;											// zoneID found
-			else if( runList->next == NULL && runList->cat < zoneID )		// append zoneID
-			{
-				newZone = new CList_Conti();
-				newZone->previous	= runList;
-				runList->next		= newZone;
-
-				newZone->cat	= zoneID;									// ... and write info
-				newZone->dummy	= false;
-				runList			= newZone;
-			}
-			else															// insert new entry
-			{
-				newZone = new CList_Conti();
-
-				newZone->next = runList;
-				if( runList->previous != NULL )
-				{
-					newZone->previous = runList->previous;
-					runList->previous->next = newZone;
-				}
-				runList->previous = newZone;
-
-				if( runList == startList )
-					startList = newZone;									// if new entry is first element, update startList pointer
-
-				newZone->cat	= zoneID;									// ... and write info
-				newZone->dummy	= false;
-				runList			= newZone;
-			}
-
-
-			for(iGrid=0; iGrid<nCatGrids; iGrid++)							// collect categories
-			{
-				parent  = runList;
-				if( runList->sub == NULL )									// no sub class found
-				{
-					newSub = new CList_Conti();
-					runList->sub = newSub;
-				}
-
-				runList = runList->sub;
-
-				pGrid	= pCatList->Get_Grid(iGrid);
-				if( !pGrid->is_NoData(x, y) )
-					catID	= pGrid->asInt(x, y);
-				else
-					catID	= (int)pGrid->Get_NoData_Value();
-
-
-				while( runList->next != NULL && runList->cat < catID )		// search for last entry in list or insert point
-				{
-					runList = runList->next;
-				}
-
-				if( runList->dummy == true )
-				{
-					runList->cat	= catID;								// first list entry, write and
-					runList->dummy	= false;								// setup
-					runList->parent	= parent;
-				}
-				else if( runList->cat == catID )
-					runList = runList;										// zoneID found, all infos already written
-				else if( runList->next == NULL && runList->cat < catID)		// append zoneID
-				{
-					newSub = new CList_Conti();
-					newSub->cat			= catID;							// ... and write info
-					newSub->previous	= runList;
-					newSub->parent		= parent;
-					newSub->dummy		= false;
-					runList->next		= newSub;
-					runList				= newSub;
-				}
-				else														// insert new entry
-				{
-					newSub = new CList_Conti();
-					newSub->cat		= catID;								// ... and write info
-					newSub->next	= runList;
-					newSub->parent	= parent;
-					newSub->dummy	= false;
-					if( runList->previous != NULL )
-					{
-						newSub->previous = runList->previous;
-						runList->previous->next = newSub;
-					}
-					else
-						parent->sub	 = newSub;
-
-					runList->previous = newSub;
-					runList	= newSub;
-				}
-			}
-
-
-			for(iGrid=0; iGrid<nStatGrids; iGrid++)							// collect statistics for StatGrids
-			{
-				if( iGrid == 0 )
-				{
-					if( runList->stats == NULL )
-						runList->stats = new CList_Stat();
-
-					runStats = runList->stats;
-				}
-				else
-				{
-					if( runStats->next == NULL )
-						runStats->next = new CList_Stat();
-
-					runStats = runStats->next;
-				}
-				if( !pStatList->Get_Grid(iGrid)->is_NoData(x, y) )
-				{
-					statID		= pStatList->Get_Grid(iGrid)->asDouble(x, y);
-
-					if( runStats->dummy == true )
-					{
-						runStats->min = statID;
-						runStats->max = statID;
-						runStats->dummy = false;
-					}
-					if( runStats->min > statID )
-						runStats->min = statID;
-					if( runStats->max < statID )
-						runStats->max = statID;
-
-					runStats->n	  += 1;
-					runStats->sum += statID;
-					runStats->dev += pow(statID, 2);
-				}
-				else
-					NDcountStat += 1;
-			}
-
-			if( pAspect != NULL )
-			{
-				for( int i=0; i<2; i++ )
-				{
-					if( nStatGrids == 0 && i == 0 )
-					{
-						if( runList->stats == NULL )
-							runList->stats = new CList_Stat();
-
-						runStats = runList->stats;
-					}
-					else
-					{
-						if( runStats->next == NULL )
-							runStats->next = new CList_Stat();
-
-						runStats = runStats->next;
-					}
-					if( !pAspect->is_NoData(x, y) )
-					{
-						statID	= pAspect->asDouble(x, y);
-
-						if( i == 0 )
-						{
-							if( runStats->dummy == true )
-							{
-								runStats->min = statID;
-								runStats->max = statID;
-								runStats->dummy = false;
-							}
-							if( runStats->min > statID )
-								runStats->min = statID;
-							if( runStats->max < statID )
-								runStats->max = statID;
-
-							statID	= sin(statID);
-						}
-						else
-							statID	= cos(statID);
-
-						runStats->n	  += 1;
-						runStats->sum += statID;
-					}
-					else
-						NDcountStat += 1;
-				}
-			}
-
-			runList->count += 1;											// sum up unique condition area
-		}
-	}
-
-
-	// Create fields in output table (1st = Zone, 2nd = Catgrid1, 3rd = Catgrid 2, ...)
-	fieldName = CSG_String::Format(SG_T("%s"),pZones->Get_Name()).BeforeFirst(SG_Char('.'));
-	if (bShortNames && fieldName.Length() > 10)
-		fieldName.Remove(10, fieldName.Length()-10);
-	pOutTab->Add_Field(fieldName, SG_DATATYPE_Int);
-
-	for(iGrid=0; iGrid<nCatGrids; iGrid++)
-	{
-		fieldName = CSG_String::Format(SG_T("%s"),pCatList->Get_Grid(iGrid)->Get_Name()).BeforeFirst(SG_Char('.'));
-		if (bShortNames && fieldName.Length() > 10)
-			fieldName.Remove(10, fieldName.Length()-10);
-		pOutTab->Add_Field(fieldName, SG_DATATYPE_Int);
-	}
-
-	pOutTab->Add_Field("Count UCU", SG_DATATYPE_Int);
-
-	for( iGrid=0; iGrid<nStatGrids; iGrid++ )
-	{
-		tmpName		= CSG_String::Format(SG_T("%s"),pStatList->Get_Grid(iGrid)->Get_Name()).BeforeFirst(SG_Char('.'));
-
-		fieldName	= tmpName;
-		if (bShortNames && fieldName.Length()+1 > 10)
-			fieldName.Remove(9, fieldName.Length()-9);
-		pOutTab->Add_Field(CSG_String::Format(SG_T("%sN")     , fieldName.c_str()), SG_DATATYPE_Int);
-		fieldName	= tmpName;
-		if (bShortNames && fieldName.Length()+3 > 10)
-			fieldName.Remove(7, fieldName.Length()-7);
-		pOutTab->Add_Field(CSG_String::Format(SG_T("%sMIN")   , fieldName.c_str()), SG_DATATYPE_Double);
-		pOutTab->Add_Field(CSG_String::Format(SG_T("%sMAX")   , fieldName.c_str()), SG_DATATYPE_Double);
-		fieldName	= tmpName;
-		if (bShortNames && fieldName.Length()+4 > 10)
-			fieldName.Remove(6, fieldName.Length()-6);
-		pOutTab->Add_Field(CSG_String::Format(SG_T("%sMEAN")  , fieldName.c_str()), SG_DATATYPE_Double);
-		fieldName	= tmpName;
-		if (bShortNames && fieldName.Length()+6 > 10)
-			fieldName.Remove(4, fieldName.Length()-4);
-		pOutTab->Add_Field(CSG_String::Format(SG_T("%sSTDDEV"), fieldName.c_str()), SG_DATATYPE_Double);
-		fieldName	= tmpName;
-		if (bShortNames && fieldName.Length()+3 > 10)
-			fieldName.Remove(7, fieldName.Length()-7);
-		pOutTab->Add_Field(CSG_String::Format(SG_T("%sSUM")   , fieldName.c_str()), SG_DATATYPE_Double);
-	}
-
-	if( pAspect != NULL )
-	{
-		tmpName		= CSG_String::Format(SG_T("%s"),pAspect->Get_Name()).BeforeFirst(SG_Char('.'));
-		fieldName	= tmpName;
-		if (bShortNames && fieldName.Length()+1 > 10)
-			fieldName.Remove(9, fieldName.Length()-9);
-		pOutTab->Add_Field(CSG_String::Format(SG_T("%sN")     , fieldName.c_str()), SG_DATATYPE_Int);
-		fieldName	= tmpName;
-		if (bShortNames && fieldName.Length()+3 > 10)
-			fieldName.Remove(7, fieldName.Length()-7);
-		pOutTab->Add_Field(CSG_String::Format(SG_T("%sMIN")   , fieldName.c_str()), SG_DATATYPE_Double);
-		pOutTab->Add_Field(CSG_String::Format(SG_T("%sMAX")   , fieldName.c_str()), SG_DATATYPE_Double);
-		fieldName	= tmpName;
-		if (bShortNames && fieldName.Length()+4 > 10)
-			fieldName.Remove(6, fieldName.Length()-6);
-		pOutTab->Add_Field(CSG_String::Format(SG_T("%sMEAN")  , fieldName.c_str()), SG_DATATYPE_Double);
-	}
-
-	int	iStatFields = 6;	// number of table fields: n, min, max, mean, stddev, sum
-
-	while( startList != NULL )												// scan zone layer list and write cat values in table
-	{
-		runList = startList;
-		while( runList->sub != NULL )										// fall down to lowest layer
-			runList = runList->sub;
-
-		subList = runList;													// use pointer to scan horizontal
-
-		while( subList != NULL )											// move forward and read all categories of this layer (including the parent layers)
-		{
-			runSub = subList;
-			catLevel = nCatGrids;
-			pRecord	= pOutTab->Add_Record();								// create new record in table
-			pRecord->Set_Value((catLevel+1), runSub->count);				// read/write field count
-
-			for(iGrid=0; iGrid<nStatGrids; iGrid++)							// read/write statistics
-			{
-				if( iGrid == 0 )
-					runStats = runSub->stats;
-				else
-					runStats = runStats->next;
-
-				pRecord->Set_Value(catLevel+2+iGrid*iStatFields, runStats->n);
-				pRecord->Set_Value(catLevel+3+iGrid*iStatFields, runStats->min);
-				pRecord->Set_Value(catLevel+4+iGrid*iStatFields, runStats->max);
-				pRecord->Set_Value(catLevel+5+iGrid*iStatFields, runStats->sum/runStats->n);
-				pRecord->Set_Value(catLevel+6+iGrid*iStatFields, sqrt((runStats->dev - runStats->n*pow(runStats->sum/runStats->n, 2)) / (runStats->n - 1))); // sample
-				//pRecord->Set_Value(catLevel+6+iGrid*iStatFields, sqrt((runStats->dev - pow(runStats->sum/runStats->n, 2)) / runStats->n)); // population
-				pRecord->Set_Value(catLevel+7+iGrid*iStatFields, runStats->sum);
-			}
-
-			if( pAspect != NULL )
-			{
-				iGrid		= nStatGrids * iStatFields;
-
-				int			n;
-				double		min, max, sumYcomp, sumXcomp, val, valYcomp, valXcomp;
-
-				if( nStatGrids == 0 )
-					runStats	= runSub->stats;
-				else
-					runStats	= runStats->next;
-				n			= runStats->n;
-				min			= runStats->min;
-				max			= runStats->max;
-				sumXcomp	= runStats->sum;
-
-				runStats	= runStats->next;
-				sumYcomp	= runStats->sum;
-
-				pRecord		->Set_Value(catLevel+2+iGrid, n);
-				pRecord		->Set_Value(catLevel+3+iGrid, min*M_RAD_TO_DEG);
-				pRecord		->Set_Value(catLevel+4+iGrid, max*M_RAD_TO_DEG);
-				valXcomp	= sumXcomp / n;
-				valYcomp	= sumYcomp / n;
-				val			= valXcomp ? fmod(M_PI_270 + atan2(valYcomp, valXcomp), M_PI_360) : (valYcomp > 0 ? M_PI_270 : (valYcomp < 0 ? M_PI_090 : -1));
-				val			= fmod(M_PI_360 - val, M_PI_360);
-				pRecord		->Set_Value(catLevel+5+iGrid, val*M_RAD_TO_DEG);
-			}
-
-			while( runSub != NULL )											// read/write categories
-			{
-				pRecord->Set_Value(catLevel, runSub->cat);
-				runSub = runSub->parent;
-				catLevel -= 1;
-			}
-			subList = subList->next;
-		}
-
-		while( runList->parent != NULL && runList->parent->next == NULL )	// move up to next 'Caterory with -> next'
-			runList = runList->parent;
-
-		if( runList->parent != NULL )										// if not upper layer (zones)
-		{
-			runList = runList->parent;										// move to parent of next 'Caterory with -> next'
-			if( runList->next != NULL && runList->parent != NULL )
-				runList->parent->sub = runList->next;						// redirect pointer to category which is next 'Categora with -> next' next
-			else if (runList->parent == NULL && runList->next != NULL )
-				startList = runList->next;									// when upper layer (zones) is reached, move to next zone
-			else
-				startList = NULL;											// reading finished
-
-			if( runList->parent == NULL )
-				startList = runList->next;									// ?? when upper layer is reached, move to next zone
-			else
-				runList->sub = runList->sub->next;							// on sub layers redirect pointer to ->next
-		}
-		else
-		{
-			if( nCatGrids == 0 )
-				startList = NULL;
-			else
-				startList = runList->next;									// ?? upper layer is reached, move to next zone
-		}
-
-
-		runList->next = NULL;
-		delete (runList);													// delete disconneted part of the list
-
-	}
-
-	if( NDcountStat > 0 )
-	{
-		Message_Fmt("\n%s: %d %s", _TL("Warning"), NDcountStat, _TL("NoData value(s) in statistic grid(s)!"));
-	}
-
+    
 	return (true);
+}
+
+
+//---------------------------------------------------------
+void CGSGrid_Zonal_Statistics::_Set_Stats(std::map<std::vector<int>, std::vector<STATS> > &mapUCUs, std::vector<int> &vCategories, int i, double val, bool bAspect)
+{
+    mapUCUs[vCategories][i].n   += 1;
+
+    if( !bAspect )
+    {
+        mapUCUs[vCategories][i].sum    += val;
+        mapUCUs[vCategories][i].sum_2  += pow(val, 2);
+    }
+    else
+    {
+        mapUCUs[vCategories][i].sum    += sin(val);
+        mapUCUs[vCategories][i].sum_2  += cos(val);
+    }
+
+    if( mapUCUs[vCategories][i].min > val )
+    {
+        mapUCUs[vCategories][i].min = val;
+    }
+    
+    if( mapUCUs[vCategories][i].max < val )
+    {
+        mapUCUs[vCategories][i].max = val;
+    }
+
+    return;
+}
+
+
+//---------------------------------------------------------
+void CGSGrid_Zonal_Statistics::_Create_Field(CSG_Table *pTable, CSG_String sFieldName, CSG_String sSuffix, TSG_Data_Type Type, bool bShortNames)
+{
+    if( bShortNames )
+    {
+        sFieldName = sFieldName.Left(10 - sSuffix.Length());    
+    }
+
+    sFieldName += sSuffix;
+
+    pTable->Add_Field(sFieldName, Type);
+
+    return;
 }
 
 

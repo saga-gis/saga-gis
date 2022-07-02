@@ -12,7 +12,7 @@
 //                                                       //
 //              GSGrid_Zonal_Statistics.h                //
 //                                                       //
-//                Copyright (C) 2005-9 by                //
+//              Copyright (C) 2005-2022 by               //
 //                    Volker Wichmann                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -36,15 +36,13 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     volkerwichmann@web.de                  //
+//    e-mail:     wichmann@laserdata                     //
 //                                                       //
 //    contact:    Volker Wichmann                        //
-//                Research Associate                     //
-//                Chair of Physical Geography		     //
-//				  KU Eichstaett-Ingolstadt				 //
-//                Ostenstr. 18                           //
-//                85072 Eichstaett                       //
-//                Germany                                //
+//                LASERDATA GmbH                         //
+//                Management and analysis of             //
+//                laserscanning data                     //
+//                Innsbruck, Austria                     //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -55,80 +53,15 @@
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
+#include <map>
+#include <vector>
+
 
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CList_Stat
-{
-public:
-	CList_Stat(void)
-	{
-		n		= 0;
-		min		= max	= 0.0;
-		sum		= dev	= 0.0;
-		next	= NULL;
-		dummy	= true;
-	};
-
-	~CList_Stat(void)
-	{
-		if( next != NULL )
-			delete(next);
-		next	= NULL;
-	};
-
-	int					n;
-	double				min, max, sum, dev;
-	bool				dummy;
-
-	CList_Stat			*next;
-
-};
-
-//---------------------------------------------------------
-class CList_Conti
-{
-public:
-	CList_Conti(void)
-	{
-		cat			= 0;
-		count		= 0;
-		next		= NULL;
-		previous	= NULL;
-		parent		= NULL;
-		sub			= NULL;
-		stats		= NULL;
-		dummy		= true;
-	};
-
-	~CList_Conti(void)
-	{
-		if( stats != NULL )
-			delete(stats);
-
-		if( sub != NULL )
-			delete(sub);
-		sub		= NULL;
-
-		if( next != NULL )
-			delete(next);
-		next	 = NULL;					
-	};
-
-
-	int					cat, count;
-	bool				dummy;
-
-	CList_Conti			*next, *previous, *parent, *sub;
-
-	CList_Stat			*stats;
-
-};
 
 //---------------------------------------------------------
 class CGSGrid_Zonal_Statistics : public CSG_Tool_Grid
@@ -145,6 +78,17 @@ protected:
 
 private:
 
+    typedef struct {
+        sLong   n       =  0;
+        double  min     =  std::numeric_limits<double>::max();
+        double  max     = -std::numeric_limits<double>::max();
+        double  sum     =  0.0;
+        double  sum_2   =  0.0;     // sum squared, with aspect it is used to store the y-component (x-component is stored in sum)
+        std::vector<sLong>  cells;  // cells belonging to UCU, only written for first entry
+    }STATS;
+
+    void    _Set_Stats(std::map<std::vector<int>, std::vector<STATS> > &mapUCUs, std::vector<int> &vCategories, int i, double val, bool bAspect);
+    void    _Create_Field(CSG_Table *pTable, CSG_String sFieldName, CSG_String sSuffix, TSG_Data_Type Type, bool bShortNames);
 };
 
 
