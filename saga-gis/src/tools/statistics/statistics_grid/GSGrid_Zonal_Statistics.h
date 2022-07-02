@@ -53,6 +53,7 @@
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
+#include <limits>
 #include <map>
 #include <vector>
 
