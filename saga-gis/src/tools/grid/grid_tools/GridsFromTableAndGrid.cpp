@@ -1,6 +1,4 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
+
 /*******************************************************************************
     GridsFromTableAndGrid.cpp
     Copyright (C) Victor Olaya
@@ -39,35 +37,37 @@
 //---------------------------------------------------------
 CGridsFromTableAndGrid::CGridsFromTableAndGrid(void)
 {
-	CSG_Parameter	*pNode;
-
-	Set_Name		(_TL("Grids from classified grid and table"));
+    Set_Name		(_TL("Grids from Classified Grid and Table"));
 
 	Set_Author		("Victor Olaya (c) 2004");
 
+    Set_Version     ("2.0");
+
 	Set_Description	(_TW(
-		"Creates several grids using a classified grid and a table with data values for each class."
+		"The tool allows one to create grids from a classified grid and a corresponding lookup table. The "
+        "table must provide an attribute with the class identifiers used in the grid, which is used to link "
+        "the table and the grid. A grid is created for each additional attribute field found in the table."
 	));
 
-	pNode	= Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Table"),
+	Parameters.Add_Table(
+		""	, "TABLE"		, _TL("Table"),
 		_TL("The table with the (numeric) data values for each class. The tool creates a grid for each table column (besides the ID)."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table_Field(
-		pNode	, "ID_FIELD"	, _TL("Attribute"),
+		"TABLE"	, "ID_FIELD"	, _TL("Attribute"),
 		_TL("The attribute with the class IDs, used to link the table and the grid.")
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "CLASSES"		, _TL("Classes"),
-		_TL("The grid coded with the class IDs."),
+		""	, "CLASSES"		, _TL("Classes"),
+		_TL("The grid encoded with the class IDs."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"		, _TL("Grids"),
+		""	, "GRIDS"		, _TL("Grids"),
 		_TL("The output grids, one grid for each table column."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
@@ -83,26 +83,11 @@ CGridsFromTableAndGrid::CGridsFromTableAndGrid(void)
 //---------------------------------------------------------
 bool CGridsFromTableAndGrid::On_Execute(void)
 {
-	int						iField, iRecord, iAttribute, nAttributes, *Attribute;
-	sLong					iCell, jCell;
-	CSG_Parameter_Grid_List	*pGrids;
-	CSG_Grid				*pClasses;
-	CSG_Table				*pTable;
-
 	//-----------------------------------------------------
-	pClasses	= Parameters("CLASSES" )->asGrid();
-	pGrids		= Parameters("GRIDS"   )->asGridList();
-	pTable		= Parameters("TABLE"   )->asTable();
-	iField		= Parameters("ID_FIELD")->asInt();
-
-	pGrids->Del_Items();
-
-	if( !pClasses->Set_Index() )
-	{
-		Error_Set(_TL("index creation failed"));
-
-		return( false );
-	}
+    CSG_Grid                *pClasses	= Parameters("CLASSES" )->asGrid();
+    CSG_Parameter_Grid_List *pGrids		= Parameters("GRIDS"   )->asGridList();
+    CSG_Table               *pTable		= Parameters("TABLE"   )->asTable();
+	int                     iField		= Parameters("ID_FIELD")->asInt();
 
 	//-----------------------------------------------------
 	if( pTable->Get_Field_Count() == 0 || pTable->Get_Count() == 0 )
@@ -112,26 +97,21 @@ bool CGridsFromTableAndGrid::On_Execute(void)
 		return( false );
 	}
 
-	//-----------------------------------------------------
-	if( !pTable->Set_Index(iField, TABLE_INDEX_Ascending) )
+  	//-----------------------------------------------------
+	int *Attribute	= new int[pTable->Get_Field_Count()];
+    int nAttributes = 0;
+
+    pGrids->Del_Items();
+
+	for(int i=0; i<pTable->Get_Field_Count(); i++)
 	{
-		Message_Add(_TL("failed to create index for table"));
-
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	Attribute	= new int[pTable->Get_Field_Count()];
-
-	for(iAttribute=0, nAttributes=0; iAttribute<pTable->Get_Field_Count(); iAttribute++)
-	{
-		if( iAttribute != iField && pTable->Get_Field_Type(iAttribute) != SG_DATATYPE_String )
+		if( i != iField && pTable->Get_Field_Type(i) != SG_DATATYPE_String )
 		{
-			Attribute[nAttributes++]	= iAttribute;
+			Attribute[nAttributes++]	= i;
 
 			CSG_Grid	*pGrid	= SG_Create_Grid(Get_System());
 
-			pGrid->Fmt_Name("%s [%s]", pClasses->Get_Name(), pTable->Get_Field_Name(iAttribute));
+			pGrid->Fmt_Name("%s [%s]", pClasses->Get_Name(), pTable->Get_Field_Name(i));
 
 			pGrids->Add_Item(pGrid);
 		}
@@ -146,41 +126,43 @@ bool CGridsFromTableAndGrid::On_Execute(void)
 		return( false );
 	}
 
+    //-----------------------------------------------------
+    std::map<double, int>   mapKeys;
+
+    for(int i=0; i<pTable->Get_Count(); i++)
+    {
+        mapKeys.insert(std::pair<double, int>(pTable->Get_Record(i)->asDouble(iField), i));
+    }
+
 	//-----------------------------------------------------
-	CSG_Table_Record	*pRecord	= pTable->Get_Record_byIndex(0);
+    for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+    {
+        #pragma omp parallel for
+        for(int x=0; x<Get_NX(); x++)
+        {
+            std::map<double, int>::iterator it = mapKeys.find(pClasses->asDouble(x, y));
 
-	for(iCell=0, iRecord=0; iCell<Get_NCells() && pRecord && Set_Progress_NCells(iCell); iCell++)
-	{
-		if( pClasses->Get_Sorted(iCell, jCell, false, true) )
-		{
-			double	valClass	= pClasses->asDouble(jCell);
-
-			while( pRecord && pRecord->asDouble(iField) < valClass )
-			{
-				pRecord	= pTable->Get_Record_byIndex(++iRecord);
-			}
-
-			if( !pRecord || pRecord->asDouble(iField) > valClass )
-			{
-				for(iAttribute=0; iAttribute<nAttributes; iAttribute++)
-				{
-					pGrids->Get_Grid(iAttribute)->Set_NoData(jCell);
-				}
-			}
-			else
-			{
-				for(iAttribute=0; iAttribute<nAttributes; iAttribute++)
-				{
-					pGrids->Get_Grid(iAttribute)->Set_Value(jCell, pRecord->asDouble(Attribute[iAttribute]));
-				}
-			}
-		}
-	}
+            if( it == mapKeys.end())
+            {
+                for(int i=0; i<nAttributes; i++)
+                {
+                    pGrids->Get_Grid(i)->Set_NoData(x, y);
+                }
+            }
+            else
+            {
+                for(int i=0; i<nAttributes; i++)
+                {
+                    pGrids->Get_Grid(i)->Set_Value(x, y, pTable->Get_Record(it->second)->asDouble(Attribute[i]));
+                }
+            }
+        }
+    }
 
 	//-----------------------------------------------------
 	delete[](Attribute);
 
-	return true;
+	return( true );
 }
 
 
