@@ -72,6 +72,8 @@ CGSGrid_Zonal_Statistics::CGSGrid_Zonal_Statistics(void)
 
 	Set_Author		(_TL("Volker Wichmann (c) 2005-2022"));
 
+    Set_Version     ("2.0");
+
 	Set_Description	(_TW(
 		"The tool allows one to calculate zonal statistics over a set of input grids and reports the "
         "statistics in a table.\n"
