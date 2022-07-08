@@ -699,7 +699,7 @@ void		Print_Help		(void)
 		"\n"
 		"Usage:\n"
 		"\n"
-		"saga_cmd [-h, --help]\n"
+		"saga_cmd [-h, --help][<LIBRARY> <TOOL>]\n"
 		"saga_cmd [-v, --version]\n"
 #ifdef _OPENMP
 		"saga_cmd [-C, --config][=#][-s, --story][=#][-c, --cores][=#][-f, --flags][=#]\n"
@@ -720,7 +720,7 @@ void		Print_Help		(void)
 #ifdef _OPENMP
 		"[-c], [--cores]  : number of physical processors to use for computation\n"
 #endif
-		"[-f], [--flags]  : various flags for general usage [qrsilxo]\n"
+		"[-f], [--flags]  : various flags for general usage [qrsilx]\n"
 		"  q              : no progress report\n"
 		"  r              : no messages report\n"
 		"  s              : silent mode (no progress and no messages report)\n"
@@ -747,7 +747,7 @@ void		Print_Help		(void)
 		"\n"
 		"Example:\n"
 		"\n"
-		"  saga_cmd ta_lighting 0 -ELEVATION=c:\\dem.sgrd -SHADE=c:\\shade.sgrd\n"
+		"  saga_cmd ta_lighting 0 -ELEVATION=dem.tif -SHADE=c:\\shade.tif\n"
 		"\n"
 		"_____________________________________________________________________________\n"
 		"\n"
