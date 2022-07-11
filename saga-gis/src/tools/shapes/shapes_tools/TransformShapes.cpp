@@ -1,24 +1,52 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
-/*******************************************************************************
-    TransformShapes.cpp
-    Copyright (C) Victor Olaya
-    
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+///////////////////////////////////////////////////////////
+//                                                       //
+//                         SAGA                          //
+//                                                       //
+//      System for Automated Geoscientific Analyses      //
+//                                                       //
+//                     Tool Library                      //
+//                     shapes_tools                      //
+//                                                       //
+//-------------------------------------------------------//
+//                                                       //
+//                 TransformShapes.cpp                   //
+//                                                       //
+//              Copyright (C) 2004-2022 by               //
+//            Victor Olaya, Volker Wichmann              //
+//                                                       //
+//-------------------------------------------------------//
+//                                                       //
+// This file is part of 'SAGA - System for Automated     //
+// Geoscientific Analyses'. SAGA is free software; you   //
+// can redistribute it and/or modify it under the terms  //
+// of the GNU General Public License as published by the //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
+//                                                       //
+// SAGA is distributed in the hope that it will be       //
+// useful, but WITHOUT ANY WARRANTY; without even the    //
+// implied warranty of MERCHANTABILITY or FITNESS FOR A  //
+// PARTICULAR PURPOSE. See the GNU General Public        //
+// License for more details.                             //
+//                                                       //
+// You should have received a copy of the GNU General    //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
+//                                                       //
+//-------------------------------------------------------//
+//                                                       //
+//    e-mail:     wichmann@laserdata                     //
+//                                                       //
+//    contact:    Volker Wichmann                        //
+//                LASERDATA GmbH                         //
+//                Management and analysis of             //
+//                laserscanning data                     //
+//                Innsbruck, Austria                     //
+//                                                       //
+///////////////////////////////////////////////////////////
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+//---------------------------------------------------------
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
-*******************************************************************************/ 
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -41,52 +69,75 @@ CTransformShapes::CTransformShapes(void)
 {
 	Set_Name		(_TL("Transform Shapes"));
 
-	Set_Author		("Victor Olaya (c) 2004");
+	Set_Author		("Victor Olaya, Volker Wichmann (c) 2004-2022");
 
 	Set_Description	(_TW(
-		"Use this tool to move, rotate and/or scale shapes."
+		"The tool allows one to transform the input shapes by the following "
+        "operations:\n\n"
+        "- translation\n"
+        "- rotation\n"
+        "- scaling\n"
+        "- reflection (mirroring)\n\n"
+        "The operations are applied in the same order as listed above.\n\n"
 	));
+
+    Set_Version     ("1.1");
+
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes("",
 		"SHAPES"	, _TL("Shapes"),
-		_TL(""),
+		_TL("The input shapes to transform."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes("",
 		"TRANSFORM"	, _TL("Transformed Shapes"), 
-		_TL(""),
+		_TL("The transformed output shapes."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Node("", "MOVE", _TL("Translation"), _TL("Amount in map units that vertices will be moved."));
+	Parameters.Add_Node("", "MOVE", _TL("Translation"), _TL("The amount in map units that vertices will be moved."));
 
-	Parameters.Add_Double("MOVE"  , "MOVEX"  , _TL("X"), _TL(""), 0.0);
-	Parameters.Add_Double("MOVE"  , "MOVEY"  , _TL("Y"), _TL(""), 0.0);
-	Parameters.Add_Double("MOVE"  , "MOVEZ"  , _TL("Z"), _TL(""), 0.0);
+	Parameters.Add_Double("MOVE"  , "MOVEX"  , _TL("dX"), _TL("The shift along the x-axis [map units]."), 0.0);
+	Parameters.Add_Double("MOVE"  , "MOVEY"  , _TL("dY"), _TL("The shift along the y-axis [map units]."), 0.0);
+	Parameters.Add_Double("MOVE"  , "MOVEZ"  , _TL("dZ"), _TL("The shift along the z-axis [map units]."), 0.0);
 
-	//-----------------------------------------------------
-	Parameters.Add_Node("", "ANCHOR", _TL("Anchor Point"), _TL("Anchor point for scaling and rotation."));
+    //-----------------------------------------------------
+	Parameters.Add_Node("", "ANCHOR", _TL("Anchor Point"), _TL("The anchor point for scaling and rotation."));
 
-	Parameters.Add_Double("ANCHOR", "ANCHORX", _TL("X"), _TL(""), 0.0);
-	Parameters.Add_Double("ANCHOR", "ANCHORY", _TL("Y"), _TL(""), 0.0);
-	Parameters.Add_Double("ANCHOR", "ANCHORZ", _TL("Z"), _TL(""), 0.0);
-
-	//-----------------------------------------------------
-	Parameters.Add_Node("", "SCALE", _TL("Scaling"), _TL(""));
-
-	Parameters.Add_Double("SCALE" , "SCALEX" , _TL("X"), _TL(""), 1.0);
-	Parameters.Add_Double("SCALE" , "SCALEY" , _TL("Y"), _TL(""), 1.0);
-	Parameters.Add_Double("SCALE" , "SCALEZ" , _TL("Z"), _TL(""), 1.0);
+	Parameters.Add_Double("ANCHOR", "ANCHORX", _TL("X"), _TL("The x-coordinate of the anchor point."), 0.0);
+	Parameters.Add_Double("ANCHOR", "ANCHORY", _TL("Y"), _TL("The y-coordinate of the anchor point."), 0.0);
+	Parameters.Add_Double("ANCHOR", "ANCHORZ", _TL("Z"), _TL("The z-coordinate of the anchor point."), 0.0);
 
 	//-----------------------------------------------------
-	Parameters.Add_Node("", "ROTATE", _TL("Rotation"), _TL("Rotation angles around coordinate axes in degree counting clockwise."));
+	Parameters.Add_Node("", "ROTATE", _TL("Rotation"), _TL("The rotation angles around coordinate axes in degree counting clockwise."));
 	
-	Parameters.Add_Double("ROTATE", "ROTATEX", _TL("X"), _TL(""), 0.0);
-	Parameters.Add_Double("ROTATE", "ROTATEY", _TL("Y"), _TL(""), 0.0);
-	Parameters.Add_Double("ROTATE", "ROTATEZ", _TL("Z"), _TL(""), 0.0);
+	Parameters.Add_Double("ROTATE", "ROTATEX", _TL("Angle X"), _TL("Angle in degrees, clockwise around x-axis."), 0.0);
+	Parameters.Add_Double("ROTATE", "ROTATEY", _TL("Angle Y"), _TL("Angle in degrees, clockwise around y-axis."), 0.0);
+	Parameters.Add_Double("ROTATE", "ROTATEZ", _TL("Angle Z"), _TL("Angle in degrees, clockwise around z-axis."), 0.0);
+
+    //-----------------------------------------------------
+    Parameters.Add_Node("", "SCALE", _TL("Scaling"), _TL("The scale factors to apply."));
+
+    Parameters.Add_Double("SCALE" , "SCALEX" , _TL("Scale Factor X"), _TL("The scale factor in x-direction."), 1.0);
+    Parameters.Add_Double("SCALE" , "SCALEY" , _TL("Scale Factor Y"), _TL("The scale factor in y-direction."), 1.0);
+    Parameters.Add_Double("SCALE" , "SCALEZ" , _TL("Scale Factor Z"), _TL("The scale factor in z-direction."), 1.0);
+
+    //-----------------------------------------------------
+    Parameters.Add_Node("", "REFLECTION", _TL("Reflection"), _TL("The mirroring to apply."));
+    
+    Parameters.Add_Choice("REFLECTION",
+        "REFLECTION_TYPE", _TL("Type of Reflection"),
+        _TL("The type of reflection (mirroring) to apply."),
+        CSG_String::Format("%s|%s|%s|%s",
+            _TL("no reflection"),
+            _TL("reflection relative to xz plane"),
+            _TL("reflection relative to yz plane"),
+            _TL("reflection relative to xy plane")
+        ), 0
+    );
 }
 
 
@@ -146,6 +197,16 @@ bool CTransformShapes::On_Execute(void)
 		pShapes	= Parameters("SHAPES")->asShapes();
 	}
 
+    //-----------------------------------------------------
+    int ReflectionType = Parameters("REFLECTION_TYPE")->asInt();
+
+    if( ReflectionType == 3 && pShapes->Get_Vertex_Type() < SG_VERTEX_TYPE_XYZ )
+    {
+        Error_Set(_TL("Reflection relative to the xy plane can only be applied to 3D shapes!"));
+
+        return( false );
+    }
+
 	//-----------------------------------------------------
 	TSG_Point_Z	Move, Scale, Anchor, Rotate;
 
@@ -184,6 +245,15 @@ bool CTransformShapes::On_Execute(void)
 					Q.x	= Anchor.x + Scale.x * (P.x * cos(Rotate.z) - P.y * sin(Rotate.z));
 					Q.y	= Anchor.y + Scale.y * (P.x * sin(Rotate.z) + P.y * cos(Rotate.z));
 
+                    switch( ReflectionType)
+                    {
+                        default:
+                        case 0:                     break;
+                        case 1:     Q.y *= -1.0;    break;
+                        case 2:     Q.x *= -1.0;    break;
+                        case 3:                     break;
+                    }
+
 					pShape->Set_Point(Q.x, Q.y, iPoint, iPart);
 				}
 				else
@@ -221,6 +291,15 @@ bool CTransformShapes::On_Execute(void)
 					Q.x	+= Anchor.x + Move.x;
 					Q.y	+= Anchor.y + Move.y;
 					Q.z += Anchor.z + Move.z;
+
+                    switch( ReflectionType)
+                    {
+                        default:
+                        case 0:                     break;
+                        case 1:     Q.y *= -1.0;    break;
+                        case 2:     Q.x *= -1.0;    break;
+                        case 3:     Q.z *= -1.0;    break;
+                    }
 
 					pShape->Set_Point(Q.x, Q.y, iPoint, iPart);
 					pShape->Set_Z    (     Q.z, iPoint, iPart);
