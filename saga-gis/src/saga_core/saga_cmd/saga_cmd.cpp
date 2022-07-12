@@ -747,7 +747,7 @@ void		Print_Help		(void)
 		"\n"
 		"Example:\n"
 		"\n"
-		"  saga_cmd ta_lighting 0 -ELEVATION=dem.tif -SHADE=c:\\shade.tif\n"
+		"  saga_cmd ta_lighting 0 -ELEVATION=dem.tif -SHADE=shade.tif\n"
 		"\n"
 		"_____________________________________________________________________________\n"
 		"\n"
