@@ -186,7 +186,7 @@ bool CLine_Polygon_Intersection::On_Execute(void)
 
 			if( Get_Intersection(pPolygon, pLine, Intersection) && pIntersection )
 			{
-				if( Attributes == 0 ) // inherit attributes from polygon, create one polyline from intersection segments
+				if( Attributes == 0 ) // inherit attributes from polygon only, create one polyline from intersection segments
 				{
 					CSG_Shape *pNew = pIntersection->Add_Shape(pPolygon, SHAPE_COPY_ATTR);
 
@@ -205,6 +205,11 @@ bool CLine_Polygon_Intersection::On_Execute(void)
 					for(int iSegment=0; iSegment<Intersection.Get_Count(); iSegment++)
 					{
 						CSG_Shape *pNew = pIntersection->Add_Shape(Intersection.Get_Shape(iSegment));
+
+						for(int iField=0; iField<pLines->Get_Field_Count(); iField++)
+						{
+							*pNew->Get_Value(iField) = *pLine->Get_Value(iField);
+						}
 
 						if( Attributes == 2 ) // ...and add polygon attributes
 						{
