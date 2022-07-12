@@ -149,16 +149,24 @@ CVIEW_Table_Control::CVIEW_Table_Control(wxWindow *pParent, CSG_Table *pTable, i
 	SetRowLabelAlignment(wxALIGN_RIGHT, wxALIGN_CENTRE);
 	SetCellHighlightColour(SYS_Get_Color(wxSYS_COLOUR_HIGHLIGHT));
 
-	wxGridCellRenderer *pRenderer;
+	{
+		wxGridCellEditor   *pEditor   = GetDefaultEditorForType  (wxGRID_VALUE_FLOAT);
+		pEditor  ->SetParameters("-1,-1,g"); // Use the shorter of e or f (g)
+		pEditor  ->DecRef();
+	}
 
-	pRenderer = GetDefaultRendererForType(wxGRID_VALUE_FLOAT);
-	pRenderer->DecRef();
-	pRenderer->SetParameters("-1,-1,g"); // Use the shorter of e or f (g)
+	{
+		wxGridCellRenderer *pRenderer = GetDefaultRendererForType(wxGRID_VALUE_FLOAT);
+		pRenderer->SetParameters("-1,-1,g"); // Use the shorter of e or f (g)
+		pRenderer->DecRef();
+	}
 
 #if !(wxMAJOR_VERSION == 3 && wxMINOR_VERSION <= 1)
-	pRenderer = GetDefaultRendererForType(wxGRID_VALUE_DATE );
-	pRenderer->DecRef();
-	pRenderer->SetParameters("%Y-%m-%d");
+	{
+		wxGridCellRenderer *pRenderer = GetDefaultRendererForType(wxGRID_VALUE_DATE );
+		pRenderer->SetParameters("%Y-%m-%d");
+		pRenderer->DecRef();
+	}
 #endif
 
 	SetTable(m_pData, true, wxGrid::wxGridSelectRows);
@@ -213,34 +221,33 @@ bool CVIEW_Table_Control::Save(const wxString &File, int Format)
 //---------------------------------------------------------
 bool CVIEW_Table_Control::Update_Float_Format(void)
 {
-	CWKSP_Base_Item	*pItem	= (CWKSP_Base_Item *)g_pData->Get(m_pTable);
+	CWKSP_Base_Item *pItem = (CWKSP_Base_Item *)g_pData->Get(m_pTable);
 
 	if( pItem && pItem->Get_Parameter("TABLE_FLT_STYLE") && pItem->Get_Parameter("TABLE_FLT_DECIMALS") )
 	{
-		wxGridCellFloatRenderer	*pRenderer = (wxGridCellFloatRenderer *)GetDefaultRendererForType(wxGRID_VALUE_FLOAT);
-
-		pRenderer->DecRef();
+		wxGridCellFloatRenderer *pRenderer = (wxGridCellFloatRenderer *)GetDefaultRendererForType(wxGRID_VALUE_FLOAT);
+		wxGridCellFloatEditor   *pEditor   = (wxGridCellFloatEditor   *)GetDefaultEditorForType  (wxGRID_VALUE_FLOAT);
 
 		switch( pItem->Get_Parameter("TABLE_FLT_STYLE")->asInt() )
 		{
 		default:	// system default
-			pRenderer->SetWidth    (-1);
-			pRenderer->SetPrecision(-1);
-			pRenderer->SetFormat   (wxGRID_FLOAT_FORMAT_DEFAULT); // := wxGRID_FLOAT_FORMAT_FIXED
+			pRenderer->SetParameters(wxString::Format("-1,-1,f"));
+			pEditor  ->SetParameters(wxString::Format("-1,-1,f"));
 			break;
 
-		case  1:	// maximum number of significant decimals
-			pRenderer->SetWidth    (-1);
-			pRenderer->SetPrecision(-1);
-			pRenderer->SetFormat   (wxGRID_FLOAT_FORMAT_COMPACT); // Use the shorter of e or f (g)
+		case  1:	// compact (use the shorter of e or f (g))
+			pRenderer->SetParameters(wxString::Format("-1,-1,g"));
+			pEditor  ->SetParameters(wxString::Format("-1,-1,g"));
 			break;
 
 		case  2:	// fix number of decimals
-			pRenderer->SetWidth    (-1);
-			pRenderer->SetPrecision(pItem->Get_Parameter("TABLE_FLT_DECIMALS")->asInt());
-			pRenderer->SetFormat   (wxGRID_FLOAT_FORMAT_FIXED  ); // Decimal floating point (f)
+			pRenderer->SetParameters(wxString::Format("-1,%d,f", pItem->Get_Parameter("TABLE_FLT_DECIMALS")->asInt()));
+			pEditor  ->SetParameters(wxString::Format("-1,%d,f", pItem->Get_Parameter("TABLE_FLT_DECIMALS")->asInt()));
 			break;
 		}
+
+		pRenderer->DecRef();
+		pEditor  ->DecRef();
 	}
 
 	return( true );

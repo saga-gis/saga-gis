@@ -213,6 +213,19 @@ public:
 	}
 
 	//-----------------------------------------------------
+	virtual bool		CanGetValueAs		(int iRecord, int iField, const wxString &typeName)
+	{
+		return( (typeName.Cmp(wxGRID_VALUE_FLOAT ) && SG_Data_Type_is_Numeric(m_pTable->Get_Field_Type(iField)))
+			||  (typeName.Cmp(wxGRID_VALUE_NUMBER) && SG_Data_Type_is_Numeric(m_pTable->Get_Field_Type(iField))) );
+	}
+
+	virtual bool		CanSetValueAs		(int iRecord, int iField, const wxString &typeName)
+	{
+		return( (typeName.Cmp(wxGRID_VALUE_FLOAT ) && SG_Data_Type_is_Numeric(m_pTable->Get_Field_Type(iField)))
+			||  (typeName.Cmp(wxGRID_VALUE_NUMBER) && SG_Data_Type_is_Numeric(m_pTable->Get_Field_Type(iField))) );
+	}
+
+	//-----------------------------------------------------
 	virtual wxString	GetValue			(int iRecord, int iField)
 	{
 		CSG_Table_Record *pRecord = Get_Field(iField) ? Get_Record(iRecord, iField) : NULL;
@@ -223,7 +236,7 @@ public:
 			{
 			default:
 				{
-					return( pRecord->asString(iField) );
+					return( pRecord->asString(iField, -32) );
 				}
 
 			case SG_DATATYPE_Color:

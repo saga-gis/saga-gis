@@ -202,6 +202,7 @@ void CVIEW_Table_Data::SetValueAsBool(int iRecord, int iField, bool Value)
 	if( pRecord ) { pRecord->Set_Value(iField, Value); }
 }
 
+
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
