@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
 #include "res_controls.h"
@@ -107,6 +95,8 @@ IMPLEMENT_CLASS(CDLG_List_Base, CDLG_Base)
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CDLG_List_Base, CDLG_Base)
+	EVT_KEY_DOWN		(CDLG_List_Base::On_Key)
+
 	EVT_BUTTON			(ID_BTN_ADD			, CDLG_List_Base::On_Add)
 	EVT_BUTTON			(ID_BTN_ADD_ALL		, CDLG_List_Base::On_Add_All)
 	EVT_BUTTON			(ID_BTN_DELETE		, CDLG_List_Base::On_Del)
@@ -114,8 +104,8 @@ BEGIN_EVENT_TABLE(CDLG_List_Base, CDLG_Base)
 	EVT_BUTTON			(ID_BTN_UP			, CDLG_List_Base::On_Up)
 	EVT_BUTTON			(ID_BTN_DOWN		, CDLG_List_Base::On_Down)
 
-	EVT_LISTBOX_DCLICK	(ID_LISTBOX_SELECT	, CDLG_List_Base::On_DClick_Add)
-	EVT_LISTBOX_DCLICK	(ID_LISTBOX_ADD		, CDLG_List_Base::On_DClick_Del)
+	EVT_LISTBOX_DCLICK	(ID_LISTBOX_SELECT	, CDLG_List_Base::On_Add_DClick)
+	EVT_LISTBOX_DCLICK	(ID_LISTBOX_ADD		, CDLG_List_Base::On_Del_DClick)
 END_EVENT_TABLE()
 
 
@@ -248,6 +238,83 @@ void CDLG_List_Base::Save_Changes(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CDLG_List_Base::On_Key(wxKeyEvent &event)
+{
+	if( event.GetKeyCode() == WXK_RIGHT )
+	{
+		if( event.ShiftDown() ) { _Add_All(); } else { _Add(); } return;
+	}
+
+	if( event.GetKeyCode() == WXK_LEFT )
+	{
+		if( event.ShiftDown() ) { _Del_All(); } else { _Del(); } return;
+	}
+
+	if( event.ControlDown() )
+	{
+		if( event.GetKeyCode() == WXK_UP )
+		{
+			_Up  (); return;
+		}
+
+		if( event.GetKeyCode() == WXK_DOWN )
+		{
+			_Down(); return;
+		}
+	}
+
+	CDLG_Base::On_Key(event);
+}
+
+//---------------------------------------------------------
+void CDLG_List_Base::On_Add_DClick(wxCommandEvent &event)
+{
+	_Add();
+}
+
+void CDLG_List_Base::On_Add(wxCommandEvent &event)
+{
+	_Add();
+}
+
+void CDLG_List_Base::On_Add_All(wxCommandEvent &event)
+{
+	_Add_All();
+}
+
+//---------------------------------------------------------
+void CDLG_List_Base::On_Del_DClick(wxCommandEvent &event)
+{
+	_Del();
+}
+
+void CDLG_List_Base::On_Del(wxCommandEvent &event)
+{
+	_Del();
+}
+
+void CDLG_List_Base::On_Del_All(wxCommandEvent &event)
+{
+	_Del_All();
+}
+
+//---------------------------------------------------------
+void CDLG_List_Base::On_Up(wxCommandEvent &event)
+{
+	_Up();
+}
+
+void CDLG_List_Base::On_Down(wxCommandEvent &event)
+{
+	_Down();
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 int CDLG_List_Base::_Compare_Up(int *first, int *second)
 {
 	return( *first - *second );
@@ -260,55 +327,6 @@ int CDLG_List_Base::_Compare_Down(int *first, int *second)
 }
 
 //---------------------------------------------------------
-void CDLG_List_Base::On_DClick_Del(wxCommandEvent &event)
-{
-	_Del();
-}
-
-void CDLG_List_Base::On_Del(wxCommandEvent &event)
-{
-	_Del();
-}
-
-void CDLG_List_Base::_Del(void)
-{
-	wxArrayInt	Selections;
-
-	if( m_pSelection->GetSelections(Selections) > 0 )
-	{
-		Selections.Sort(_Compare_Down);
-
-		for(size_t i=0; i<Selections.GetCount(); i++)
-		{
-			size_t	j	= Selections.Item(i);
-
-			m_pChoices->Append(m_pSelection->GetString(j), m_pSelection->GetClientData(j));
-			m_pSelection->Delete(j);
-		}
-	}
-}
-
-void CDLG_List_Base::On_Del_All(wxCommandEvent &event)
-{
-	for(unsigned int i=0; i<m_pSelection->GetCount(); i++)
-	{
-		m_pChoices->Append(m_pSelection->GetString(i), m_pSelection->GetClientData(i));
-	}
-
-	m_pSelection->Clear();
-}
-
-//---------------------------------------------------------
-void CDLG_List_Base::On_DClick_Add(wxCommandEvent &event)
-{
-	_Add();
-}
-
-void CDLG_List_Base::On_Add(wxCommandEvent &event)
-{
-	_Add();
-}
-
 void CDLG_List_Base::_Add(void)
 {
 	wxArrayInt	Selections;
@@ -327,7 +345,8 @@ void CDLG_List_Base::_Add(void)
 	}
 }
 
-void CDLG_List_Base::On_Add_All(wxCommandEvent &event)
+//---------------------------------------------------------
+void CDLG_List_Base::_Add_All(void)
 {
 	for(unsigned int i=0; i<m_pChoices->GetCount(); i++)
 	{
@@ -337,13 +356,38 @@ void CDLG_List_Base::On_Add_All(wxCommandEvent &event)
 	m_pChoices->Clear();
 }
 
+//---------------------------------------------------------
+void CDLG_List_Base::_Del(void)
+{
+	wxArrayInt	Selections;
 
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
+	if( m_pSelection->GetSelections(Selections) > 0 )
+	{
+		Selections.Sort(_Compare_Down);
+
+		for(size_t i=0; i<Selections.GetCount(); i++)
+		{
+			size_t	j	= Selections.Item(i);
+
+			m_pChoices->Append(m_pSelection->GetString(j), m_pSelection->GetClientData(j));
+			m_pSelection->Delete(j);
+		}
+	}
+}
 
 //---------------------------------------------------------
-void CDLG_List_Base::On_Up(wxCommandEvent &event)
+void CDLG_List_Base::_Del_All(void)
+{
+	for(unsigned int i=0; i<m_pSelection->GetCount(); i++)
+	{
+		m_pChoices->Append(m_pSelection->GetString(i), m_pSelection->GetClientData(i));
+	}
+
+	m_pSelection->Clear();
+}
+
+//---------------------------------------------------------
+void CDLG_List_Base::_Up(void)
 {
 	wxArrayInt	Selections;
 
@@ -373,7 +417,7 @@ void CDLG_List_Base::On_Up(wxCommandEvent &event)
 }
 
 //---------------------------------------------------------
-void CDLG_List_Base::On_Down(wxCommandEvent &event)
+void CDLG_List_Base::_Down(void)
 {
 	wxArrayInt	Selections;
 

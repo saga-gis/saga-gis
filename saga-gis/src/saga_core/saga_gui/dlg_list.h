@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef _HEADER_INCLUDED__SAGA_GUI__DLG_List_Base_H
 #define _HEADER_INCLUDED__SAGA_GUI__DLG_List_Base_H
 
@@ -92,12 +80,16 @@ class CDLG_List_Base : public CDLG_Base
 public:
 	CDLG_List_Base(class CSG_Parameter_List *pParameter, wxString Caption);
 
-	void						On_DClick_Add	(wxCommandEvent &event);
+	void						On_Key			(wxKeyEvent &event);
+
+	void						On_Add_DClick	(wxCommandEvent &event);
 	void						On_Add			(wxCommandEvent &event);
 	void						On_Add_All		(wxCommandEvent &event);
-	void						On_DClick_Del	(wxCommandEvent &event);
+
+	void						On_Del_DClick	(wxCommandEvent &event);
 	void						On_Del			(wxCommandEvent &event);
 	void						On_Del_All		(wxCommandEvent &event);
+
 	void						On_Up			(wxCommandEvent &event);
 	void						On_Down			(wxCommandEvent &event);
 
@@ -129,7 +121,13 @@ private:
 	static int					_Compare_Down	(int *first, int *second);
 
 	void						_Add			(void);
+	void						_Add_All		(void);
+
 	void						_Del			(void);
+	void						_Del_All		(void);
+
+	void						_Up				(void);
+	void						_Down			(void);
 
 };
 

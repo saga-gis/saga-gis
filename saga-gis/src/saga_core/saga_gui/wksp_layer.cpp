@@ -84,26 +84,18 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define DEF_LAYER_COLOUR_COUNT	15
+#define DEF_LAYER_COLOUR_COUNT	10
 
 //---------------------------------------------------------
 static int	s_Def_Layer_Colours[DEF_LAYER_COLOUR_COUNT]	=
 {
-	SG_COLOR_RED,
-	SG_COLOR_GREEN,
 	SG_COLOR_BLUE,
-	SG_COLOR_YELLOW,
-
-	SG_GET_RGB(255, 127,   0),
-	SG_COLOR_GREEN_LIGHT,
-	SG_COLOR_BLUE_LIGHT,
-	SG_GET_RGB(255, 255, 127),
-
-	SG_COLOR_RED_DARK,
-	SG_COLOR_GREEN_DARK,
-	SG_COLOR_BLUE_DARK,
+	SG_COLOR_GREEN,
+	SG_COLOR_RED,
 	SG_COLOR_YELLOW_DARK,
-
+	SG_COLOR_BLUE_DARK,
+	SG_COLOR_GREEN_DARK,
+	SG_COLOR_RED_DARK,
 	SG_COLOR_BLUE_GREEN,
 	SG_COLOR_PURPLE,
 	SG_COLOR_PINK
@@ -764,9 +756,9 @@ int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		{
 			int		Value	= pParameter->asInt();
 
-			pParameters->Set_Enabled("METRIC_COLORS" , Value == CLASSIFY_DISCRETE || Value == CLASSIFY_GRADUATED);
-			pParameters->Set_Enabled("NODE_SINGLE", Value == CLASSIFY_SINGLE);
-			pParameters->Set_Enabled("NODE_LUT"      , Value == CLASSIFY_LUT);
+			pParameters->Set_Enabled("METRIC_COLORS", Value == CLASSIFY_DISCRETE || Value == CLASSIFY_GRADUATED);
+			pParameters->Set_Enabled("NODE_SINGLE"  , Value == CLASSIFY_SINGLE);
+			pParameters->Set_Enabled("NODE_LUT"     , Value == CLASSIFY_LUT);
 		
 			if( m_pObject->Get_ObjectType() != SG_DATAOBJECT_TYPE_Grids )
 			{
