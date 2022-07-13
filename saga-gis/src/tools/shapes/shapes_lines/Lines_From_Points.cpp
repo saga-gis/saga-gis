@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Lines_From_Points.h"
 
 
@@ -72,122 +60,131 @@
 //---------------------------------------------------------
 CLines_From_Points::CLines_From_Points(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("Convert Points to Line(s)"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2008"));
+	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
 		"Converts points to line(s)."
 	));
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "LINES"		, _TL("Lines"),
-		_TL(""),
-		PARAMETER_OUTPUT, SHAPE_TYPE_Line
-	);
+	Parameters.Add_Shapes("", "POINTS", _TL("Points"), _TL(""), PARAMETER_INPUT , SHAPE_TYPE_Point);
+	Parameters.Add_Shapes("", "LINES" , _TL("Lines" ), _TL(""), PARAMETER_OUTPUT, SHAPE_TYPE_Line );
 
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "POINTS"		, _TL("Points"),
-		_TL(""),
-		PARAMETER_INPUT, SHAPE_TYPE_Point
-	);
+	Parameters.Add_Table_Field("POINTS", "ORDER"    , _TL("Order by..."   ), _TL(""), true);
+	Parameters.Add_Table_Field("POINTS", "SEPARATE" , _TL("Separate by..."), _TL(""), true);
+	Parameters.Add_Table_Field("POINTS", "ELEVATION", _TL("Elevation"     ), _TL(""), true);
 
-	Parameters.Add_Table_Field(
-		pNode	, "ORDER"		, _TL("Order by..."),
-		_TL(""),
-		true
-	);
-
-	Parameters.Add_Table_Field(
-		pNode	, "SEPARATE"	, _TL("Separate by..."),
-		_TL(""),
-		true
-	);
-
-	Parameters.Add_Table_Field(
-		pNode	, "ELEVATION"	, _TL("Elevation"),
-		_TL(""),
-		true
+	Parameters.Add_Double("",
+		"MAXDIST"	, _TL("Maximum Distance"),
+		_TL("Maximum distance allowed to connect two consecutive points. Ignored if set to zero (default)."),
+		0., 0., true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CLines_From_Points::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CLines_From_Points::On_Execute(void)
 {
-	int			Order, Separate, Elevation;
-	CSG_String	s;
-	CSG_Shape	*pLine , *pPoint;
-	CSG_Shapes	*pLines, *pPoints;
+	CSG_Shapes *pPoints = Parameters("POINTS")->asShapes();
 
-	pPoints		= Parameters("POINTS"   )->asShapes();
-	pLines		= Parameters("LINES"    )->asShapes();
-	Order		= Parameters("ORDER"    )->asInt();
-	Separate	= Parameters("SEPARATE" )->asInt();
-	Elevation	= Parameters("ELEVATION")->asInt();
-
-	//-------------------------------------------------
-	if(	pPoints->Get_Count() < 1 )
+	if(	pPoints->Get_Count() < 2 )
 	{
+		Error_Set(_TL("nothing to do, less than 2 input points"));
+
 		return( false );
 	}
 
-	//-------------------------------------------------
-	pLines->Create(SHAPE_TYPE_Line, pPoints->Get_Name(), NULL, Elevation >= 0 ? SG_VERTEX_TYPE_XYZ : SG_VERTEX_TYPE_XY);
+	int Order    = Parameters("ORDER"    )->asInt();
+	int Separate = Parameters("SEPARATE" )->asInt();
+	int Z        = Parameters("ELEVATION")->asInt();
 
-	pLines->Add_Field(SG_T("ID"), SG_DATATYPE_Int);
+	double maxDist = Parameters("MAXDIST")->asDouble();
+
+	//-------------------------------------------------
+	CSG_Shapes *pLines = Parameters("LINES")->asShapes();
+
+	pLines->Create(SHAPE_TYPE_Line, pPoints->Get_Name(), NULL, Z >= 0 ? SG_VERTEX_TYPE_XYZ : SG_VERTEX_TYPE_XY);
+
+	pLines->Add_Field("ID", SG_DATATYPE_Int);
+
+	//-------------------------------------------------
+	CSG_Index Index; int Fields[2], nFields = 0;
 
 	if( Separate >= 0 )
 	{
 		pLines->Add_Field(pPoints->Get_Field_Name(Separate), pPoints->Get_Field_Type(Separate));
 
-		pPoints->Set_Index(Separate, TABLE_INDEX_Ascending, Order, TABLE_INDEX_Ascending);
+		Fields[nFields++] = Separate;
 	}
-	else
+
+	if( Order >= 0 )
 	{
-		pPoints->Set_Index(Order, TABLE_INDEX_Ascending);
+		Fields[nFields++] = Order;
+	}
+
+	if( nFields > 0 )
+	{
+		pPoints->Set_Index(Index, Fields, nFields);
 	}
 
 	//-------------------------------------------------
-	int	iVertex = 0;
+	CSG_Shape *pLine = NULL; CSG_String SeparateID;
 
 	for(int iPoint=0; iPoint<pPoints->Get_Count(); iPoint++)
 	{
-		pPoint	= pPoints->Get_Shape_byIndex(iPoint);
+		CSG_Shape *pPoint = pPoints->Get_Shape(Index.is_Okay() ? Index[iPoint] : iPoint);
 
-		if( pLines->Get_Count() == 0 || (Separate >= 0 && s.Cmp(pPoint->asString(Separate))) )
+		if( pLine == NULL || (Separate >= 0 && SeparateID.Cmp(pPoint->asString(Separate)))
+		|| (maxDist > 0. && maxDist <= SG_Get_Distance(pPoint->Get_Point(0), pLine->Get_Point(pLine->Get_Point_Count() - 1))) )
 		{
-			pLine	= pLines->Add_Shape();
-			iVertex	= 0;
+			if( pLine && pLine->Get_Point_Count() < 2 )
+			{
+				pLine->Del_Parts();
+			}
+			else
+			{
+				pLine = pLines->Add_Shape();
 
-			pLine->Set_Value(0, pLines->Get_Count());
+				pLine->Set_Value(0, pLines->Get_Count());
+			}
 
 			if( Separate >= 0 )
 			{
-				pLine->Set_Value(1, s = pPoint->asString(Separate));
+				pLine->Set_Value(1, SeparateID = pPoint->asString(Separate));
 			}
 		}
 
 		pLine->Add_Point(pPoint->Get_Point(0));
 
-		if( Elevation >= 0 )
+		if( Z >= 0 )
 		{
-			pLine->Set_Z(pPoint->asDouble(Elevation), iVertex);
-			iVertex++;
+			pLine->Set_Z(pPoint->asDouble(Z), pLine->Get_Point_Count() - 1);
 		}
 	}
 
-	return( true );
+	if( pLine && pLine->Get_Point_Count() < 2 )
+	{
+		pLines->Del_Shape(pLine);
+	}
+
+	return( pLines->Get_Count() > 0 );
 }
 
 
