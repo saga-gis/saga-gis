@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Georef_Shapes.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Georef_Shapes.h"
 #include "Georef_Engine.h"
 
@@ -71,12 +59,9 @@
 //---------------------------------------------------------
 CGeoref_Shapes::CGeoref_Shapes(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("Warping Shapes"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2006"));
+	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
 		"Georeferencing of shapes layers. Either choose the attribute fields (x/y) "
@@ -85,49 +70,49 @@ CGeoref_Shapes::CGeoref_Shapes(void)
 	));
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "REF_SOURCE"	, _TL("Reference Points (Origin)"),
+	Parameters.Add_Shapes("",
+		"REF_SOURCE"	, _TL("Reference Points (Origin)"),
 		_TL(""),
-		PARAMETER_INPUT
+		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "REF_TARGET"	, _TL("Reference Points (Projection)"),
+	Parameters.Add_Shapes("",
+		"REF_TARGET"	, _TL("Reference Points (Projection)"),
 		_TL(""),
-		PARAMETER_INPUT_OPTIONAL
+		PARAMETER_INPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "XFIELD"		, _TL("x Position"),
+	Parameters.Add_Table_Field("REF_SOURCE",
+		"XFIELD"		, _TL("x Position"),
 		_TL("")
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "YFIELD"		, _TL("y Position"),
+	Parameters.Add_Table_Field("REF_SOURCE",
+		"YFIELD"		, _TL("y Position"),
 		_TL("")
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"		, _TL("Method"),
 		_TL(""),
 		GEOREF_METHODS_CHOICE, 0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "ORDER"		,_TL("Polynomial Order"),
+	Parameters.Add_Int("",
+		"ORDER"			,_TL("Polynomial Order"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 3, 1, true
+		3, 1, true
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		NULL	, "INPUT"		, _TL("Input"),
+	Parameters.Add_Shapes("",
+		"INPUT"			, _TL("Input"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "OUTPUT"		, _TL("Output"),
+	Parameters.Add_Shapes("",
+		"OUTPUT"		, _TL("Output"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -136,8 +121,6 @@ CGeoref_Shapes::CGeoref_Shapes(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -145,29 +128,26 @@ int CGeoref_Shapes::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 {
 	if( pParameter->Cmp_Identifier("REF_TARGET") )
 	{
-		pParameters->Get_Parameter("XFIELD")->Set_Enabled(pParameter->asShapes() == NULL);
-		pParameters->Get_Parameter("YFIELD")->Set_Enabled(pParameter->asShapes() == NULL);
+		pParameters->Set_Enabled("XFIELD", pParameter->asShapes() == NULL);
+		pParameters->Set_Enabled("YFIELD", pParameter->asShapes() == NULL);
 	}
 
 	if( pParameter->Cmp_Identifier("METHOD") )
 	{
-		pParameters->Get_Parameter("ORDER")->Set_Enabled(pParameter->asInt() == GEOREF_Polynomial);	// only show for polynomial, user defined order
+		pParameters->Set_Enabled("ORDER", pParameter->asInt() == GEOREF_Polynomial); // only show for polynomial, user defined order
 	}
 
-	return( 1 );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGeoref_Shapes::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_Shapes	*pShapes_A	= Parameters("REF_SOURCE")->asShapes();
 	CSG_Shapes	*pShapes_B	= Parameters("REF_TARGET")->asShapes();
 
@@ -213,7 +193,7 @@ bool CGeoref_Shapes::On_Execute(void)
 
 				if( Engine.Get_Converted(Point) )
 				{
-					pShape_B->Add_Point(Point);
+					pShape_B->Add_Point(Point, iPart);
 				}
 			}
 		}
