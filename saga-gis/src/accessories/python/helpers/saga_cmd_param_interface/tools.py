@@ -186,7 +186,7 @@ tools = [
 ['grid_tools', 19, 'Grid Orientation'],
 ['grid_tools', 20, 'Combine Grids'],
 ['grid_tools', 21, 'Grid Cell Index'],
-['grid_tools', 22, 'Grids from classified grid and table'],
+['grid_tools', 22, 'Grids from Classified Grid and Table'],
 ['grid_tools', 23, 'Create Grid System'],
 ['grid_tools', 24, 'Grid Masking'],
 ['grid_tools', 25, 'Close Gaps with Spline'],
@@ -815,5 +815,6 @@ tools = [
 ['io_pdal', 1, 'Export LAS/LAZ File'],
 ['shapes_lines', 11, 'Split Lines'],
 ['sim_hydrology', 12, 'Glugla Coefficient'],
-['statistics_grid', 21, 'Grid Histogram']
+['statistics_grid', 21, 'Grid Histogram'],
+['imagery_tools', 16, 'Import Sentinel-3 OLCI Scene']
 ]
