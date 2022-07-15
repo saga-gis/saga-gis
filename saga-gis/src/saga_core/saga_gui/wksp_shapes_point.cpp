@@ -348,7 +348,7 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 		if( !SG_File_Exists   (m_Parameters("DISPLAY_SYMBOL_IMAGE")->asString())
 		||	!m_Symbol.LoadFile(m_Parameters("DISPLAY_SYMBOL_IMAGE")->asString()) )
 		{
-			m_Symbol	= IMG_Get_Image(ID_IMG_DEFAULT);
+			m_Symbol	= IMG_Get_Bitmap(ID_IMG_DEFAULT).ConvertToImage();
 		}
 	}
 

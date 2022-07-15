@@ -147,7 +147,7 @@ void CWKSP_Data_Button::On_Paint(wxPaintEvent &event)
 
 			if( m_pItem->Get_Type() == WKSP_ITEM_Table )
 			{
-				dc.DrawBitmap(wxBitmap(IMG_Get_Bitmap(ID_IMG_WKSP_TABLE, r.GetWidth() - 1)),
+				dc.DrawBitmap(IMG_Get_Bitmap(ID_IMG_WKSP_TABLE, wxSize(r.GetWidth() - 1, r.GetWidth() - 1)),
 					r.GetLeft(), r.GetTop(), true
 				);
 			}

@@ -230,22 +230,32 @@ enum ID_IMAGES
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define IMG_SIZE_NOTEBOOK			16
-#define IMG_SIZE_TREECTRL			16
+#ifdef wxHAS_SVG
+	#define WITH_WXBMPBUNDLE // available since 3.1.6
+#endif
 
 //---------------------------------------------------------
-#define IMG_ADD_TO_NOTEBOOK(id)		GetImageList()->Add(IMG_Get_Bitmap(id, IMG_SIZE_NOTEBOOK));
-#define IMG_ADD_TO_TREECTRL(id)		GetImageList()->Add(IMG_Get_Bitmap(id, IMG_SIZE_TREECTRL));
+#define IMG_SIZE_NOTEBOOK	16
+#define IMG_SIZE_TREECTRL	16
 
 //---------------------------------------------------------
-wxImage			IMG_Get_Image	(int ID_IMG);
-wxImage			IMG_Get_Image	(int ID_IMG, int    size);
-wxImage			IMG_Get_Image	(int ID_IMG, wxSize size);
-wxBitmap		IMG_Get_Bitmap	(int ID_IMG);
-wxBitmap		IMG_Get_Bitmap	(int ID_IMG, int    size);
-wxBitmap		IMG_Get_Bitmap	(int ID_IMG, wxSize size);
-wxIcon			IMG_Get_Icon	(int ID_IMG);
-wxCursor		IMG_Get_Cursor	(int ID_IMG);
+#define IMG_ADD_TO_NOTEBOOK(id)			GetImageList()->Add(IMG_Get_Bitmap(id, wxSize(IMG_SIZE_NOTEBOOK, IMG_SIZE_NOTEBOOK)));
+#define IMG_ADD_TO_TREECTRL(id)			GetImageList()->Add(IMG_Get_Bitmap(id, wxSize(IMG_SIZE_TREECTRL, IMG_SIZE_TREECTRL)));
+
+//---------------------------------------------------------
+#ifndef WITH_WXBMPBUNDLE
+#define			IMG_Get_BitmapBundle	IMG_Get_Bitmap
+#else
+#include <wx/bmpbndl.h>
+wxBitmapBundle	IMG_Get_BitmapBundle	(int ID_IMG);
+wxBitmapBundle	IMG_Get_BitmapBundle	(int ID_IMG, const wxSize &Size);
+#endif
+
+wxBitmap		IMG_Get_Bitmap			(int ID_IMG);
+wxBitmap		IMG_Get_Bitmap			(int ID_IMG, const wxSize &Size);
+
+wxIcon			IMG_Get_Icon			(int ID_IMG);
+wxCursor		IMG_Get_Cursor			(int ID_IMG);
 
 
 ///////////////////////////////////////////////////////////
