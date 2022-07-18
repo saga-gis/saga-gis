@@ -349,11 +349,14 @@ int CWKSP_Tool_Manager::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 			if( pParameter->Cmp_Identifier("LNG_FILE_DIC")
 			||  pParameter->Cmp_Identifier("LOOK_TB_SIZE") )
 			{
-				if( DLG_Message_Confirm(_TL("Restart now ?"), _TL("Restart SAGA to apply the changes")) && g_pData->Close(true) )
+				if( DLG_Message_Confirm(_TL("Close now ?"), _TL("Restart SAGA to apply the changes")) )
 				{
 					m_Parameters.Assign_Values(pParameters);
 
-					g_pSAGA_Frame->Close(true);
+					if( g_pData->Close(true) )
+					{
+						g_pSAGA_Frame->Close();
+					}
 				}
 			}
 		}

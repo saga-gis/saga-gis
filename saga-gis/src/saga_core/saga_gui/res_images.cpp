@@ -65,6 +65,8 @@
 
 #include "./res/xpm/saga_icon_16.xpm"
 #include "./res/xpm/saga_icon_32.xpm"
+#include "./res/xpm/saga_icon_64.xpm"
+#include "./res/xpm/saga_icon_128.xpm"
 #include "./res/xpm/saga_splash.xpm"
 
 #include "./res/xpm/nb_active_attributes.xpm"
@@ -210,6 +212,9 @@ const char ** _Get_XPM(int ID_IMG)
 
 	case ID_IMG_SAGA_ICON_16             : return( saga_icon_16_xpm );
 	case ID_IMG_SAGA_ICON_32             : return( saga_icon_32_xpm );
+	case ID_IMG_SAGA_ICON_64             : return( saga_icon_64_xpm );
+	case ID_IMG_SAGA_ICON_128            : return( saga_icon_128_xpm );
+	case ID_IMG_SAGA_ICON                : return( saga_icon_128_xpm );
 	case ID_IMG_SAGA_SPLASH              : return( saga_splash_xpm );
 
 	case ID_IMG_NB_ACTIVE_PARAMETERS     : return( nb_active_parameters_xpm );
@@ -361,16 +366,6 @@ const char ** _Get_XPM(int ID_IMG)
 	}
 }
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#ifndef WITH_WXBMPBUNDLE
-
 //---------------------------------------------------------
 wxImage		IMG_Get_Image(int ID_IMG)
 {
@@ -383,6 +378,22 @@ wxImage		IMG_Get_Image(int ID_IMG, const wxSize &Size)
 }
 
 //---------------------------------------------------------
+wxIcon		IMG_Get_Icon(int ID_IMG)
+{
+	return( wxIcon(_Get_XPM(ID_IMG)) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifndef WITH_WXBMPBUNDLE
+
+//---------------------------------------------------------
 wxBitmap	IMG_Get_Bitmap(int ID_IMG)
 {
 	return( wxBitmap(_Get_XPM(ID_IMG)) );
@@ -391,12 +402,6 @@ wxBitmap	IMG_Get_Bitmap(int ID_IMG)
 wxBitmap	IMG_Get_Bitmap(int ID_IMG, const wxSize &Size)
 {
 	return( wxBitmap(IMG_Get_Image(ID_IMG, Size)) );
-}
-
-//---------------------------------------------------------
-wxIcon		IMG_Get_Icon(int ID_IMG)
-{
-	return( wxIcon(_Get_XPM(ID_IMG)) );
 }
 
 //---------------------------------------------------------
@@ -424,12 +429,145 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 #ifdef WITH_WXBMPBUNDLE
 
 //---------------------------------------------------------
+//#include "./res/svg/default.svg.h"
+
+//#include "./res/svg/saga_icon_16.svg.h"
+//#include "./res/svg/saga_icon_32.svg.h"
+//#include "./res/svg/saga_splash.svg.h"
+
+//#include "./res/svg/nb_active_attributes.svg.h"
+//#include "./res/svg/nb_active_description.svg.h"
+//#include "./res/svg/nb_active_legend.svg.h"
+//#include "./res/svg/nb_active_history.svg.h"
+//#include "./res/svg/nb_active_parameters.svg.h"
+//#include "./res/svg/nb_active_info.svg.h"
+//#include "./res/svg/nb_info_error.svg.h"
+//#include "./res/svg/nb_info_execution.svg.h"
+#include "./res/svg/nb_info_messages.svg.h"
+//#include "./res/svg/nb_wksp_data.svg.h"
+//#include "./res/svg/nb_wksp_maps.svg.h"
+#include "./res/svg/nb_wksp_modules.svg.h"
+#include "./res/svg/nb_wksp_thumbnails.svg.h"
+//#include "./res/svg/nb_wksp_treeview.svg.h"
+
+#include "./res/svg/wnd_diagram.svg.h"
+#include "./res/svg/wnd_histogram.svg.h"
+//#include "./res/svg/wnd_layout.svg.h"
+//#include "./res/svg/wnd_map.svg.h"
+//#include "./res/svg/wnd_map3d.svg.h"
+//#include "./res/svg/wnd_scatterplot.svg.h"
+//#include "./res/svg/wnd_table.svg.h"
+
+//#include "./res/svg/crs_edit_point_add.svg.h"
+//#include "./res/svg/crs_edit_point_move.svg.h"
+//#include "./res/svg/crs_hand.svg.h"
+//#include "./res/svg/crs_hand_grap.svg.h"
+//#include "./res/svg/crs_info.svg.h"
 #include "./res/svg/crs_magnifier.svg.h"
-#include "./res/svg/tb_map_mode_zoom.svg.h"
-#include "./res/svg/tb_open.svg.h"
+//#include "./res/svg/crs_select.svg.h"
+
+//#include "./res/svg/tb_active.svg.h"
+//#include "./res/svg/tb_datasource.svg.h"
+//#include "./res/svg/tb_delete.svg.h"
+#include "./res/svg/tb_diagram_parameters.svg.h"
+//#include "./res/svg/tb_edit_shape_add.svg.h"
+//#include "./res/svg/tb_edit_shape_add_part.svg.h"
+//#include "./res/svg/tb_edit_shape_del.svg.h"
+//#include "./res/svg/tb_edit_shape_del_part.svg.h"
+//#include "./res/svg/tb_edit_shape_del_point.svg.h"
+//#include "./res/svg/tb_edit_shape_select.svg.h"
+#include "./res/svg/tb_help.svg.h"
+//#include "./res/svg/tb_histogram_as_table.svg.h"
+//#include "./res/svg/tb_histogram_cumulative.svg.h"
+//#include "./res/svg/tb_histogram_gaussian.svg.h"
+#include "./res/svg/tb_info.svg.h"
+#include "./res/svg/tb_update.svg.h"
+//#include "./res/svg/tb_clipboard.svg.h"
+//#include "./res/svg/tb_layout_page_setup.svg.h"
+#include "./res/svg/tb_layout_print.svg.h"
+//#include "./res/svg/tb_layout_print_preview.svg.h"
+//#include "./res/svg/tb_layout_print_setup.svg.h"
 #include "./res/svg/tb_zoom_in.svg.h"
-#include "./res/svg/tb_zoom_original.svg.h"
 #include "./res/svg/tb_zoom_out.svg.h"
+#include "./res/svg/tb_zoom_full.svg.h"
+#include "./res/svg/tb_zoom_original.svg.h"
+//#include "./res/svg/tb_map3d_central_less.svg.h"
+#include "./res/svg/tb_map3d_central_more.svg.h"
+#include "./res/svg/tb_map3d_exaggerate_less.svg.h"
+#include "./res/svg/tb_map3d_exaggerate_more.svg.h"
+//#include "./res/svg/tb_map3d_interpolated.svg.h"
+//#include "./res/svg/tb_map3d_properties.svg.h"
+//#include "./res/svg/tb_map3d_rotate_x_less.svg.h"
+//#include "./res/svg/tb_map3d_rotate_x_more.svg.h"
+//#include "./res/svg/tb_map3d_rotate_z_less.svg.h"
+//#include "./res/svg/tb_map3d_rotate_z_more.svg.h"
+#include "./res/svg/tb_map3d_shift_x_less.svg.h"
+#include "./res/svg/tb_map3d_shift_x_more.svg.h"
+#include "./res/svg/tb_map3d_shift_y_less.svg.h"
+#include "./res/svg/tb_map3d_shift_y_more.svg.h"
+//#include "./res/svg/tb_map3d_shift_z_less.svg.h"
+//#include "./res/svg/tb_map3d_shift_z_more.svg.h"
+//#include "./res/svg/tb_map3d_stereo.svg.h"
+//#include "./res/svg/tb_map_3d_show.svg.h"
+//#include "./res/svg/tb_map_layout_show.svg.h"
+//#include "./res/svg/tb_map_legend_horizontal.svg.h"
+//#include "./res/svg/tb_map_legend_vertical.svg.h"
+//#include "./res/svg/tb_map_mode_distance.svg.h"
+//#include "./res/svg/tb_map_mode_pan.svg.h"
+//#include "./res/svg/tb_map_mode_select.svg.h"
+#include "./res/svg/tb_map_mode_zoom.svg.h"
+//#include "./res/svg/tb_map_scalebar.svg.h"
+//#include "./res/svg/tb_map_north_arrow.svg.h"
+//#include "./res/svg/tb_map_synchronize.svg.h"
+//#include "./res/svg/tb_map_zoom_active.svg.h"
+//#include "./res/svg/tb_map_pan_active.svg.h"
+#include "./res/svg/tb_map_zoom_full.svg.h"
+#include "./res/svg/tb_map_zoom_last.svg.h"
+#include "./res/svg/tb_map_zoom_next.svg.h"
+//#include "./res/svg/tb_map_zoom_selection.svg.h"
+//#include "./res/svg/tb_map_crosshair.svg.h"
+#include "./res/svg/tb_new_project.svg.h"
+#include "./res/svg/tb_open.svg.h"
+//#include "./res/svg/tb_open_grid.svg.h"
+//#include "./res/svg/tb_open_module.svg.h"
+//#include "./res/svg/tb_open_shapes.svg.h"
+//#include "./res/svg/tb_open_table.svg.h"
+//#include "./res/svg/tb_open_tin.svg.h"
+#include "./res/svg/tb_save.svg.h"
+//#include "./res/svg/tb_scatterplot_parameters.svg.h"
+#include "./res/svg/tb_show.svg.h"
+//#include "./res/svg/tb_table_col_add.svg.h"
+//#include "./res/svg/tb_table_col_del.svg.h"
+//#include "./res/svg/tb_table_row_add.svg.h"
+//#include "./res/svg/tb_table_row_del.svg.h"
+//#include "./res/svg/tb_table_row_del_all.svg.h"
+//#include "./res/svg/tb_table_row_ins.svg.h"
+//#include "./res/svg/tb_table_selection_only.svg.h"
+//#include "./res/svg/tb_wksp.svg.h"
+
+//#include "./res/svg/wksp_data_manager.svg.h"
+//#include "./res/svg/wksp_grid.svg.h"
+//#include "./res/svg/wksp_grid_manager.svg.h"
+//#include "./res/svg/wksp_grid_system.svg.h"
+//#include "./res/svg/wksp_map.svg.h"
+//#include "./res/svg/wksp_map_manager.svg.h"
+#include "./res/svg/wksp_map_graticule.svg.h"
+#include "./res/svg/wksp_module.svg.h"
+//#include "./res/svg/wksp_module_library.svg.h"
+//#include "./res/svg/wksp_module_manager.svg.h"
+//#include "./res/svg/wksp_noitems.svg.h"
+//#include "./res/svg/wksp_odbc_sources.svg.h"
+//#include "./res/svg/wksp_odbc_source_on.svg.h"
+//#include "./res/svg/wksp_odbc_source_off.svg.h"
+//#include "./res/svg/wksp_shapes_line.svg.h"
+//#include "./res/svg/wksp_shapes_manager.svg.h"
+//#include "./res/svg/wksp_shapes_point.svg.h"
+//#include "./res/svg/wksp_shapes_points.svg.h"
+//#include "./res/svg/wksp_shapes_polygon.svg.h"
+//#include "./res/svg/wksp_table.svg.h"
+//#include "./res/svg/wksp_table_manager.svg.h"
+//#include "./res/svg/wksp_tin.svg.h"
+//#include "./res/svg/wksp_tin_manager.svg.h"
 
 //---------------------------------------------------------
 const char * _Get_SVG(int ID_IMG)
@@ -437,40 +575,40 @@ const char * _Get_SVG(int ID_IMG)
 	switch( ID_IMG )
 	{
 //	default                              : return( svg_default );
-//
+
 //	case ID_IMG_SAGA_ICON_16             : return( svg_saga_icon_16 );
 //	case ID_IMG_SAGA_ICON_32             : return( svg_saga_icon_32 );
 //	case ID_IMG_SAGA_SPLASH              : return( svg_saga_splash );
-//
+
 //	case ID_IMG_NB_ACTIVE_PARAMETERS     : return( svg_nb_active_parameters );
 //	case ID_IMG_NB_ACTIVE_DESCRIPTION    : return( svg_nb_active_description );
 //	case ID_IMG_NB_ACTIVE_HISTORY        : return( svg_nb_active_history );
 //	case ID_IMG_NB_ACTIVE_LEGEND         : return( svg_nb_active_legend );
 //	case ID_IMG_NB_ACTIVE_ATTRIBUTES     : return( svg_nb_active_attributes );
 //	case ID_IMG_NB_ACTIVE_INFO           : return( svg_nb_active_info );
-//
+
 //	case ID_IMG_NB_DATA_SOURCE_FILES     : return( svg_tb_wksp );
 //	case ID_IMG_NB_DATA_SOURCE_DATABASE  : return( svg_wksp_odbc_sources );
 //	case ID_IMG_NB_DATA_SOURCE_WEBSERVICE: return( svg_tb_wksp );
-//
+
 //	case ID_IMG_NB_INFO_ERROR            : return( svg_nb_info_error );
 //	case ID_IMG_NB_INFO_EXECUTION        : return( svg_nb_info_execution );
-//	case ID_IMG_NB_INFO_MESSAGES         : return( svg_nb_info_messages );
-//
+	case ID_IMG_NB_INFO_MESSAGES         : return( svg_nb_info_messages );
+
 //	case ID_IMG_NB_WKSP_DATA             : return( svg_nb_wksp_data );
 //	case ID_IMG_NB_WKSP_MAPS             : return( svg_nb_wksp_maps );
-//	case ID_IMG_NB_WKSP_TOOLS            : return( svg_nb_wksp_modules );
-//	case ID_IMG_NB_WKSP_THUMBNAILS       : return( svg_nb_wksp_thumbnails );
+	case ID_IMG_NB_WKSP_TOOLS            : return( svg_nb_wksp_modules );
+	case ID_IMG_NB_WKSP_THUMBNAILS       : return( svg_nb_wksp_thumbnails );
 //	case ID_IMG_NB_WKSP_TREEVIEW         : return( svg_nb_wksp_treeview );
-//
-//	case ID_IMG_WND_DIAGRAM              : return( svg_wnd_diagram );
-//	case ID_IMG_WND_HISTOGRAM            : return( svg_wnd_histogram );
+
+	case ID_IMG_WND_DIAGRAM              : return( svg_wnd_diagram );
+	case ID_IMG_WND_HISTOGRAM            : return( svg_wnd_histogram );
 //	case ID_IMG_WND_LAYOUT               : return( svg_wnd_layout );
 //	case ID_IMG_WND_MAP                  : return( svg_wnd_map );
 //	case ID_IMG_WND_MAP3D                : return( svg_wnd_map3d );
 //	case ID_IMG_WND_SCATTERPLOT          : return( svg_wnd_scatterplot );
 //	case ID_IMG_WND_TABLE                : return( svg_wnd_table );
-//
+
 //	case ID_IMG_CRS_EDIT_POINT_ADD       : return( svg_crs_edit_point_add );
 //	case ID_IMG_CRS_EDIT_POINT_MOVE      : return( svg_crs_edit_point_move );
 //	case ID_IMG_CRS_HAND                 : return( svg_crs_hand );
@@ -478,46 +616,46 @@ const char * _Get_SVG(int ID_IMG)
 //	case ID_IMG_CRS_INFO                 : return( svg_crs_info );
 	case ID_IMG_CRS_MAGNIFIER            : return( svg_crs_magnifier );
 //	case ID_IMG_CRS_SELECT               : return( svg_crs_select );
-//
+
 //	case ID_IMG_TB_ACTIVE                : return( svg_tb_active );
 //	case ID_IMG_TB_DATASOURCE            : return( svg_tb_datasource );
 //	case ID_IMG_TB_DELETE                : return( svg_tb_delete );
-//	case ID_IMG_TB_DIAGRAM_PARAMETERS    : return( svg_tb_diagram_parameters );
+	case ID_IMG_TB_DIAGRAM_PARAMETERS    : return( svg_tb_diagram_parameters );
 //	case ID_IMG_TB_EDIT_SHAPE_ADD        : return( svg_tb_edit_shape_add );
 //	case ID_IMG_TB_EDIT_SHAPE_ADD_PART   : return( svg_tb_edit_shape_add_part );
 //	case ID_IMG_TB_EDIT_SHAPE_DEL        : return( svg_tb_edit_shape_del );
 //	case ID_IMG_TB_EDIT_SHAPE_DEL_PART   : return( svg_tb_edit_shape_del_part );
 //	case ID_IMG_TB_EDIT_SHAPE_DEL_POINT  : return( svg_tb_edit_shape_del_point );
 //	case ID_IMG_TB_EDIT_SHAPE_SELECT     : return( svg_tb_edit_shape_select );
-//	case ID_IMG_TB_HELP                  : return( svg_tb_help );
+	case ID_IMG_TB_HELP                  : return( svg_tb_help );
 //	case ID_IMG_TB_HISTOGRAM_AS_TABLE    : return( svg_tb_histogram_as_table );
 //	case ID_IMG_TB_HISTOGRAM_CUMULATIVE  : return( svg_tb_histogram_cumulative );
 //	case ID_IMG_TB_HISTOGRAM_GAUSSIAN    : return( svg_tb_histogram_gaussian );
-//	case ID_IMG_TB_INFO                  : return( svg_tb_info );
-//	case ID_IMG_TB_UPDATE                : return( svg_tb_update );
+	case ID_IMG_TB_INFO                  : return( svg_tb_info );
+	case ID_IMG_TB_UPDATE                : return( svg_tb_update );
 //	case ID_IMG_TB_CLIPBOARD             : return( svg_tb_clipboard );
 //	case ID_IMG_TB_LAYOUT_PAGE_SETUP     : return( svg_tb_layout_page_setup );
-//	case ID_IMG_TB_LAYOUT_PRINT          : return( svg_tb_layout_print );
+	case ID_IMG_TB_LAYOUT_PRINT          : return( svg_tb_layout_print );
 //	case ID_IMG_TB_LAYOUT_PRINT_PREVIEW  : return( svg_tb_layout_print_preview );
 //	case ID_IMG_TB_LAYOUT_PRINT_SETUP    : return( svg_tb_layout_print_setup );
 	case ID_IMG_TB_ZOOM_IN               : return( svg_tb_zoom_in );
 	case ID_IMG_TB_ZOOM_OUT              : return( svg_tb_zoom_out );
-//	case ID_IMG_TB_ZOOM_FULL             : return( svg_tb_zoom_full );
+	case ID_IMG_TB_ZOOM_FULL             : return( svg_tb_zoom_full );
 	case ID_IMG_TB_ZOOM_ORIGINAL         : return( svg_tb_zoom_original );
 //	case ID_IMG_TB_MAP3D_CENTRAL_LESS    : return( svg_tb_map3d_central_less );
-//	case ID_IMG_TB_MAP3D_CENTRAL_MORE    : return( svg_tb_map3d_central_more );
-//	case ID_IMG_TB_MAP3D_EXAGGERATE_LESS : return( svg_tb_map3d_exaggerate_less );
-//	case ID_IMG_TB_MAP3D_EXAGGERATE_MORE : return( svg_tb_map3d_exaggerate_more );
+	case ID_IMG_TB_MAP3D_CENTRAL_MORE    : return( svg_tb_map3d_central_more );
+	case ID_IMG_TB_MAP3D_EXAGGERATE_LESS : return( svg_tb_map3d_exaggerate_less );
+	case ID_IMG_TB_MAP3D_EXAGGERATE_MORE : return( svg_tb_map3d_exaggerate_more );
 //	case ID_IMG_TB_MAP3D_INTERPOLATED    : return( svg_tb_map3d_interpolated );
 //	case ID_IMG_TB_MAP3D_PROPERTIES      : return( svg_tb_map3d_properties );
 //	case ID_IMG_TB_MAP3D_ROTATE_X_LESS   : return( svg_tb_map3d_rotate_x_less );
 //	case ID_IMG_TB_MAP3D_ROTATE_X_MORE   : return( svg_tb_map3d_rotate_x_more );
 //	case ID_IMG_TB_MAP3D_ROTATE_Z_LESS   : return( svg_tb_map3d_rotate_z_less );
 //	case ID_IMG_TB_MAP3D_ROTATE_Z_MORE   : return( svg_tb_map3d_rotate_z_more );
-//	case ID_IMG_TB_MAP3D_SHIFT_X_LESS    : return( svg_tb_map3d_shift_x_less );
-//	case ID_IMG_TB_MAP3D_SHIFT_X_MORE    : return( svg_tb_map3d_shift_x_more );
-//	case ID_IMG_TB_MAP3D_SHIFT_Y_LESS    : return( svg_tb_map3d_shift_y_less );
-//	case ID_IMG_TB_MAP3D_SHIFT_Y_MORE    : return( svg_tb_map3d_shift_y_more );
+	case ID_IMG_TB_MAP3D_SHIFT_X_LESS    : return( svg_tb_map3d_shift_x_less );
+	case ID_IMG_TB_MAP3D_SHIFT_X_MORE    : return( svg_tb_map3d_shift_x_more );
+	case ID_IMG_TB_MAP3D_SHIFT_Y_LESS    : return( svg_tb_map3d_shift_y_less );
+	case ID_IMG_TB_MAP3D_SHIFT_Y_MORE    : return( svg_tb_map3d_shift_y_more );
 //	case ID_IMG_TB_MAP3D_SHIFT_Z_LESS    : return( svg_tb_map3d_shift_z_less );
 //	case ID_IMG_TB_MAP3D_SHIFT_Z_MORE    : return( svg_tb_map3d_shift_z_more );
 //	case ID_IMG_TB_MAP3D_STEREO          : return( svg_tb_map3d_stereo );
@@ -528,28 +666,27 @@ const char * _Get_SVG(int ID_IMG)
 //	case ID_IMG_TB_MAP_MODE_DISTANCE     : return( svg_tb_map_mode_distance );
 //	case ID_IMG_TB_MAP_MODE_PAN          : return( svg_tb_map_mode_pan );
 //	case ID_IMG_TB_MAP_MODE_SELECT       : return( svg_tb_map_mode_select );
-//	case ID_IMG_TB_MAP_MODE_ZOOM         : return( svg_tb_map_mode_zoom );
 	case ID_IMG_TB_MAP_MODE_ZOOM         : return( svg_tb_map_mode_zoom );
 //	case ID_IMG_TB_MAP_SCALEBAR          : return( svg_tb_map_scalebar );
 //	case ID_IMG_TB_MAP_NORTH_ARROW       : return( svg_tb_map_north_arrow );
 //	case ID_IMG_TB_MAP_SYNCHRONIZE       : return( svg_tb_map_synchronize );
 //	case ID_IMG_TB_MAP_ZOOM_ACTIVE       : return( svg_tb_map_zoom_active );
 //	case ID_IMG_TB_MAP_PAN_ACTIVE        : return( svg_tb_map_pan_active );
-//	case ID_IMG_TB_MAP_ZOOM_FULL         : return( svg_tb_map_zoom_full );
-//	case ID_IMG_TB_MAP_ZOOM_LAST         : return( svg_tb_map_zoom_last );
-//	case ID_IMG_TB_MAP_ZOOM_NEXT         : return( svg_tb_map_zoom_next );
+	case ID_IMG_TB_MAP_ZOOM_FULL         : return( svg_tb_map_zoom_full );
+	case ID_IMG_TB_MAP_ZOOM_LAST         : return( svg_tb_map_zoom_last );
+	case ID_IMG_TB_MAP_ZOOM_NEXT         : return( svg_tb_map_zoom_next );
 //	case ID_IMG_TB_MAP_ZOOM_SELECTION    : return( svg_tb_map_zoom_selection );
 //	case ID_IMG_TB_MAP_CROSSHAIR         : return( svg_tb_map_crosshair );
-//	case ID_IMG_TB_NEW_PROJECT           : return( svg_tb_new_project );
+	case ID_IMG_TB_NEW_PROJECT           : return( svg_tb_new_project );
 	case ID_IMG_TB_OPEN                  : return( svg_tb_open );
 //	case ID_IMG_TB_OPEN_GRID             : return( svg_tb_open_grid );
 //	case ID_IMG_TB_OPEN_TOOL             : return( svg_tb_open_module );
 //	case ID_IMG_TB_OPEN_SHAPES           : return( svg_tb_open_shapes );
 //	case ID_IMG_TB_OPEN_TABLE            : return( svg_tb_open_table );
 //	case ID_IMG_TB_OPEN_TIN              : return( svg_tb_open_tin );
-//	case ID_IMG_TB_SAVE                  : return( svg_tb_save );
+	case ID_IMG_TB_SAVE                  : return( svg_tb_save );
 //	case ID_IMG_TB_SCATTERPLOT_PARAMETERS: return( svg_tb_scatterplot_parameters );
-//	case ID_IMG_TB_SHOW                  : return( svg_tb_show );
+	case ID_IMG_TB_SHOW                  : return( svg_tb_show );
 //	case ID_IMG_TB_TABLE_COL_ADD         : return( svg_tb_table_col_add );
 //	case ID_IMG_TB_TABLE_COL_DEL         : return( svg_tb_table_col_del );
 //	case ID_IMG_TB_TABLE_ROW_ADD         : return( svg_tb_table_row_add );
@@ -558,14 +695,14 @@ const char * _Get_SVG(int ID_IMG)
 //	case ID_IMG_TB_TABLE_ROW_INS         : return( svg_tb_table_row_ins );
 //	case ID_IMG_TB_TABLE_SELECTION_ONLY  : return( svg_tb_table_selection_only );
 //	case ID_IMG_TB_WKSP                  : return( svg_tb_wksp );
-//
+
 //	case ID_IMG_WKSP_DATA_MANAGER        : return( svg_wksp_data_manager );
 //	case ID_IMG_WKSP_GRID_MANAGER        : return( svg_wksp_grid_manager );
 //	case ID_IMG_WKSP_GRID_SYSTEM         : return( svg_wksp_grid_system );
 //	case ID_IMG_WKSP_GRID                : return( svg_wksp_grid );
 //	case ID_IMG_WKSP_GRIDS               : return( svg_wksp_grid_manager );
 //	case ID_IMG_WKSP_MAP                 : return( svg_wksp_map );
-//	case ID_IMG_WKSP_MAP_GRATICULE       : return( svg_wksp_map_graticule );
+	case ID_IMG_WKSP_MAP_GRATICULE       : return( svg_wksp_map_graticule );
 //	case ID_IMG_WKSP_MAP_BASEMAP         : return( svg_wnd_map );
 //	case ID_IMG_WKSP_MAP_MANAGER         : return( svg_wksp_map_manager );
 //	case ID_IMG_WKSP_TOOL                : return( svg_wksp_module );
@@ -600,62 +737,60 @@ const char * _Get_SVG(int ID_IMG)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxImage		IMG_Get_Image(int ID_IMG)
+wxBitmapBundle	IMG_Get_Bitmaps(int ID_IMG)
 {
-	return( wxImage(_Get_XPM(ID_IMG)) );
+	return( IMG_Get_Bitmaps(ID_IMG, wxSize(64, 64)) );
 }
 
-wxImage		IMG_Get_Image(int ID_IMG, const wxSize &Size)
+wxBitmapBundle	IMG_Get_Bitmaps(int ID_IMG, const wxSize &Size)
 {
-	return( IMG_Get_Image(ID_IMG).Rescale(Size.GetWidth(), Size.GetHeight()) );
-}
+	const char *SVG = _Get_SVG(ID_IMG);
 
-//---------------------------------------------------------
-wxBitmapBundle	IMG_Get_BitmapBundle(int ID_IMG)
-{
-	const char *data = _Get_SVG(ID_IMG);
-
-	if( data )
+	if( SVG )
 	{
-		return( wxBitmapBundle::FromSVG(data, wxDefaultSize) );
-	}
-
-	return( wxBitmap(_Get_XPM(ID_IMG)) );
-}
-
-wxBitmapBundle	IMG_Get_BitmapBundle(int ID_IMG, const wxSize &Size)
-{
-	const char *data = _Get_SVG(ID_IMG);
-
-	if( data )
-	{
-		return( wxBitmapBundle::FromSVG(data, wxDefaultSize) );
+		return( wxBitmapBundle::FromSVG(SVG, Size) );
 	}
 
 	return( wxBitmap(IMG_Get_Image(ID_IMG, Size)) );
 }
 
 //---------------------------------------------------------
-wxBitmap	IMG_Get_Bitmap(int ID_IMG)
+wxBitmap		IMG_Get_Bitmap(int ID_IMG)
 {
-	return( wxBitmap(_Get_XPM(ID_IMG)) );
+	return( wxBitmap(IMG_Get_Image(ID_IMG)) );
 }
 
-wxBitmap	IMG_Get_Bitmap(int ID_IMG, const wxSize &Size)
+wxBitmap		IMG_Get_Bitmap(int ID_IMG, const wxSize &Size)
 {
-	return( wxBitmap(IMG_Get_Image(ID_IMG, Size)) );
+	return( IMG_Get_Bitmaps(ID_IMG).GetBitmap(Size) );
 }
 
 //---------------------------------------------------------
-wxIcon		IMG_Get_Icon(int ID_IMG)
+wxIconBundle	IMG_Get_Icons(int ID_IMG)
 {
+	const char *SVG = _Get_SVG(ID_IMG);
+
+	if( SVG )
+	{
+		static const int Sizes[10] = { 8, 16, 24, 32, 48, 64, 72, 80, 96, 128 }; // either 16x16 or 32x32 must be provided for MSW!
+
+		wxIconBundle Icons; wxBitmapBundle Bitmaps = wxBitmapBundle::FromSVG(SVG, wxSize(128, 128));
+
+		for(int i=0; i<10; i++)
+		{
+			Icons.AddIcon(Bitmaps.GetIcon(wxSize(Sizes[i], Sizes[i])));
+		}
+
+		return( Icons );
+	}
+
 	return( wxIcon(_Get_XPM(ID_IMG)) );
 }
 
 //---------------------------------------------------------
-wxCursor	IMG_Get_Cursor(int ID_IMG)
+wxCursor		IMG_Get_Cursor(int ID_IMG)
 {
-	wxImage	Image(_Get_XPM(ID_IMG));
+	wxImage	Image(IMG_Get_Image(ID_IMG));
 
 	Image.SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_X, 15);
 	Image.SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_Y, 15);

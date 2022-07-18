@@ -91,8 +91,11 @@ enum ID_IMAGES
 	ID_IMG_NB_WKSP_TOOLS,
 	ID_IMG_NB_WKSP_THUMBNAILS,
 	ID_IMG_NB_WKSP_TREEVIEW,
+	ID_IMG_SAGA_ICON,
 	ID_IMG_SAGA_ICON_16,
 	ID_IMG_SAGA_ICON_32,
+	ID_IMG_SAGA_ICON_64,
+	ID_IMG_SAGA_ICON_128,
 	ID_IMG_SAGA_SPLASH,
 	ID_IMG_WND_DIAGRAM,
 	ID_IMG_WND_HISTOGRAM,
@@ -239,23 +242,26 @@ enum ID_IMAGES
 #define IMG_SIZE_TREECTRL	16
 
 //---------------------------------------------------------
-#define IMG_ADD_TO_NOTEBOOK(id)			GetImageList()->Add(IMG_Get_Bitmap(id, wxSize(IMG_SIZE_NOTEBOOK, IMG_SIZE_NOTEBOOK)));
-#define IMG_ADD_TO_TREECTRL(id)			GetImageList()->Add(IMG_Get_Bitmap(id, wxSize(IMG_SIZE_TREECTRL, IMG_SIZE_TREECTRL)));
+#define IMG_ADD_TO_NOTEBOOK(id)		GetImageList()->Add(IMG_Get_Bitmap(id, wxSize(IMG_SIZE_NOTEBOOK, IMG_SIZE_NOTEBOOK)));
+#define IMG_ADD_TO_TREECTRL(id)		GetImageList()->Add(IMG_Get_Bitmap(id, wxSize(IMG_SIZE_TREECTRL, IMG_SIZE_TREECTRL)));
 
 //---------------------------------------------------------
 #ifndef WITH_WXBMPBUNDLE
-#define			IMG_Get_BitmapBundle	IMG_Get_Bitmap
+#define			IMG_Get_Bitmaps		IMG_Get_Bitmap
 #else
 #include <wx/bmpbndl.h>
-wxBitmapBundle	IMG_Get_BitmapBundle	(int ID_IMG);
-wxBitmapBundle	IMG_Get_BitmapBundle	(int ID_IMG, const wxSize &Size);
+wxBitmapBundle	IMG_Get_Bitmaps		(int ID_IMG);
+wxBitmapBundle	IMG_Get_Bitmaps		(int ID_IMG, const wxSize &Size);
+
+wxIconBundle	IMG_Get_Icons		(int ID_IMG);
 #endif
 
-wxBitmap		IMG_Get_Bitmap			(int ID_IMG);
-wxBitmap		IMG_Get_Bitmap			(int ID_IMG, const wxSize &Size);
+wxBitmap		IMG_Get_Bitmap		(int ID_IMG);
+wxBitmap		IMG_Get_Bitmap		(int ID_IMG, const wxSize &Size);
 
-wxIcon			IMG_Get_Icon			(int ID_IMG);
-wxCursor		IMG_Get_Cursor			(int ID_IMG);
+wxIcon			IMG_Get_Icon		(int ID_IMG);
+
+wxCursor		IMG_Get_Cursor		(int ID_IMG);
 
 
 ///////////////////////////////////////////////////////////
