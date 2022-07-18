@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//                    svg_converter.h                    //
 //                                                       //
-//                 Copyright (C) 2010 by                 //
+//                 Copyright (C) 2022 by                 //
 //                     Olaf Conrad                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -46,73 +46,47 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__svg_converter_H
+#define HEADER_INCLUDED__svg_converter_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
 
-//---------------------------------------------------------
-// 2. Place general tool library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-CSG_String Get_Info(int i)
+//---------------------------------------------------------
+class CSVG_Converter : public CSG_Tool
 {
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("Development Tools") );
-
-	case TLB_INFO_Category:
-		return( "SAGA Development" );
-
-	case TLB_INFO_Author:
-		return( "O. Conrad (c) 2010" );
-
-	case TLB_INFO_Description:
-		return( _TL("Tools and helpers for the SAGA development.") );
-
-	case TLB_INFO_Version:
-		return( "1.0" );
-
-	case TLB_INFO_Menu_Path:
-		return( "SAGA Development|Development Tools" );
-	}
-}
+public:
+	CSVG_Converter(void);
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your tools here...
+protected:
 
-#include "tl_extract.h"
-#include "tl_union.h"
-#include "tl_merge.h"
-#include "tool_counter.h"
-#include "arctoolbox.h"
-#include "tool_py_updater.h"
-#include "qgistoolbox.h"
-#include "svg_converter.h"
+	virtual int		On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool	On_Execute				(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your tools to be created here...
+private:
 
-CSG_Tool *		Create_Tool(int i)
-{
-	switch( i )
-	{
-	case  0: return( new CTL_Extract );
-	case  1: return( new CTL_Union );
-	case  2: return( new CTL_Merge );
-	case  3: return( new CTool_Counter );
-	case  4: return( new CTool_Menus );
-	case  5: return( new CArcToolBox );
-	case  6: return( new CTool_Py_Updater );
-	case  7: return( new CQGIS_ToolBox );
-	case  8: return( new CSVG_Converter );
+	int				Read_Directory	(const SG_Char *Directory, CSG_Table &Elements);
+	int				Read_File		(const SG_Char *File     , CSG_Table &Elements);
+	int				Read_Text		(const SG_Char *String   , CSG_String &Text);
 
-	case  9: return( NULL );
-	default: return( TLB_INTERFACE_SKIP_TOOL );
-	}
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -122,8 +96,4 @@ CSG_Tool *		Create_Tool(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	TLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__svg_converter_H
