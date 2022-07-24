@@ -435,17 +435,17 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 //#include "./res/svg/saga_icon_32.svg.h"
 //#include "./res/svg/saga_splash.svg.h"
 
-//#include "./res/svg/nb_active_attributes.svg.h"
-//#include "./res/svg/nb_active_description.svg.h"
-//#include "./res/svg/nb_active_legend.svg.h"
-//#include "./res/svg/nb_active_history.svg.h"
-//#include "./res/svg/nb_active_parameters.svg.h"
+#include "./res/svg/nb_active_attributes.svg.h"
+#include "./res/svg/nb_active_description.svg.h"
+#include "./res/svg/nb_active_legend.svg.h"
+#include "./res/svg/nb_active_history.svg.h"
+#include "./res/svg/nb_active_parameters.svg.h"
 //#include "./res/svg/nb_active_info.svg.h"
-//#include "./res/svg/nb_info_error.svg.h"
-//#include "./res/svg/nb_info_execution.svg.h"
+#include "./res/svg/nb_info_error.svg.h"
+#include "./res/svg/nb_info_execution.svg.h"
 #include "./res/svg/nb_info_messages.svg.h"
-//#include "./res/svg/nb_wksp_data.svg.h"
-//#include "./res/svg/nb_wksp_maps.svg.h"
+#include "./res/svg/nb_wksp_data.svg.h"
+#include "./res/svg/nb_wksp_maps.svg.h"
 #include "./res/svg/nb_wksp_modules.svg.h"
 #include "./res/svg/nb_wksp_thumbnails.svg.h"
 //#include "./res/svg/nb_wksp_treeview.svg.h"
@@ -529,7 +529,7 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 #include "./res/svg/tb_new_project.svg.h"
 #include "./res/svg/tb_open.svg.h"
 //#include "./res/svg/tb_open_grid.svg.h"
-//#include "./res/svg/tb_open_module.svg.h"
+#include "./res/svg/tb_open_module.svg.h"
 //#include "./res/svg/tb_open_shapes.svg.h"
 //#include "./res/svg/tb_open_table.svg.h"
 //#include "./res/svg/tb_open_tin.svg.h"
@@ -580,23 +580,23 @@ const char * _Get_SVG(int ID_IMG)
 //	case ID_IMG_SAGA_ICON_32             : return( svg_saga_icon_32 );
 //	case ID_IMG_SAGA_SPLASH              : return( svg_saga_splash );
 
-//	case ID_IMG_NB_ACTIVE_PARAMETERS     : return( svg_nb_active_parameters );
-//	case ID_IMG_NB_ACTIVE_DESCRIPTION    : return( svg_nb_active_description );
-//	case ID_IMG_NB_ACTIVE_HISTORY        : return( svg_nb_active_history );
-//	case ID_IMG_NB_ACTIVE_LEGEND         : return( svg_nb_active_legend );
-//	case ID_IMG_NB_ACTIVE_ATTRIBUTES     : return( svg_nb_active_attributes );
+	case ID_IMG_NB_ACTIVE_PARAMETERS     : return( svg_nb_active_parameters );
+	case ID_IMG_NB_ACTIVE_DESCRIPTION    : return( svg_nb_active_description );
+	case ID_IMG_NB_ACTIVE_HISTORY        : return( svg_nb_active_history );
+	case ID_IMG_NB_ACTIVE_LEGEND         : return( svg_nb_active_legend );
+	case ID_IMG_NB_ACTIVE_ATTRIBUTES     : return( svg_nb_active_attributes );
 //	case ID_IMG_NB_ACTIVE_INFO           : return( svg_nb_active_info );
 
 //	case ID_IMG_NB_DATA_SOURCE_FILES     : return( svg_tb_wksp );
 //	case ID_IMG_NB_DATA_SOURCE_DATABASE  : return( svg_wksp_odbc_sources );
 //	case ID_IMG_NB_DATA_SOURCE_WEBSERVICE: return( svg_tb_wksp );
 
-//	case ID_IMG_NB_INFO_ERROR            : return( svg_nb_info_error );
-//	case ID_IMG_NB_INFO_EXECUTION        : return( svg_nb_info_execution );
+	case ID_IMG_NB_INFO_ERROR            : return( svg_nb_info_error );
+	case ID_IMG_NB_INFO_EXECUTION        : return( svg_nb_info_execution );
 	case ID_IMG_NB_INFO_MESSAGES         : return( svg_nb_info_messages );
 
-//	case ID_IMG_NB_WKSP_DATA             : return( svg_nb_wksp_data );
-//	case ID_IMG_NB_WKSP_MAPS             : return( svg_nb_wksp_maps );
+	case ID_IMG_NB_WKSP_DATA             : return( svg_nb_wksp_data );
+	case ID_IMG_NB_WKSP_MAPS             : return( svg_nb_wksp_maps );
 	case ID_IMG_NB_WKSP_TOOLS            : return( svg_nb_wksp_modules );
 	case ID_IMG_NB_WKSP_THUMBNAILS       : return( svg_nb_wksp_thumbnails );
 //	case ID_IMG_NB_WKSP_TREEVIEW         : return( svg_nb_wksp_treeview );
@@ -680,7 +680,7 @@ const char * _Get_SVG(int ID_IMG)
 	case ID_IMG_TB_NEW_PROJECT           : return( svg_tb_new_project );
 	case ID_IMG_TB_OPEN                  : return( svg_tb_open );
 //	case ID_IMG_TB_OPEN_GRID             : return( svg_tb_open_grid );
-//	case ID_IMG_TB_OPEN_TOOL             : return( svg_tb_open_module );
+	case ID_IMG_TB_OPEN_TOOL             : return( svg_tb_open_module );
 //	case ID_IMG_TB_OPEN_SHAPES           : return( svg_tb_open_shapes );
 //	case ID_IMG_TB_OPEN_TABLE            : return( svg_tb_open_table );
 //	case ID_IMG_TB_OPEN_TIN              : return( svg_tb_open_tin );
