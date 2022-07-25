@@ -171,7 +171,7 @@ bool CPC_Merge::On_Execute(void)
 
 		int	nPoints	= pPoints->Get_Point_Count();
 
-		for(int iPoint=nPoints-1; iPoint>0 && Set_Progress(nPoints - iPoint, nPoints); iPoint--)
+		for(int iPoint=nPoints-1; iPoint>=0 && Set_Progress(nPoints - iPoint, nPoints); iPoint--)
 		{
 			pResult->Add_Record(pPoints->Get_Record(iPoint));
 
