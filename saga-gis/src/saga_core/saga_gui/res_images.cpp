@@ -429,7 +429,7 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 #ifdef WITH_WXBMPBUNDLE
 
 //---------------------------------------------------------
-//#include "./res/svg/default.svg.h"
+#include "./res/svg/default.svg.h"
 
 //#include "./res/svg/saga_icon_16.svg.h"
 //#include "./res/svg/saga_icon_32.svg.h"
@@ -466,8 +466,8 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 #include "./res/svg/crs_magnifier.svg.h"
 //#include "./res/svg/crs_select.svg.h"
 
-//#include "./res/svg/tb_active.svg.h"
-//#include "./res/svg/tb_datasource.svg.h"
+#include "./res/svg/tb_active.svg.h"
+#include "./res/svg/tb_datasource.svg.h"
 //#include "./res/svg/tb_delete.svg.h"
 #include "./res/svg/tb_diagram_parameters.svg.h"
 //#include "./res/svg/tb_edit_shape_add.svg.h"
@@ -543,7 +543,7 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 //#include "./res/svg/tb_table_row_del_all.svg.h"
 //#include "./res/svg/tb_table_row_ins.svg.h"
 //#include "./res/svg/tb_table_selection_only.svg.h"
-//#include "./res/svg/tb_wksp.svg.h"
+#include "./res/svg/tb_wksp.svg.h"
 
 //#include "./res/svg/wksp_data_manager.svg.h"
 //#include "./res/svg/wksp_grid.svg.h"
@@ -556,7 +556,7 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 //#include "./res/svg/wksp_module_library.svg.h"
 //#include "./res/svg/wksp_module_manager.svg.h"
 //#include "./res/svg/wksp_noitems.svg.h"
-//#include "./res/svg/wksp_odbc_sources.svg.h"
+#include "./res/svg/wksp_odbc_sources.svg.h"
 //#include "./res/svg/wksp_odbc_source_on.svg.h"
 //#include "./res/svg/wksp_odbc_source_off.svg.h"
 //#include "./res/svg/wksp_shapes_line.svg.h"
@@ -587,9 +587,9 @@ const char * _Get_SVG(int ID_IMG)
 	case ID_IMG_NB_ACTIVE_ATTRIBUTES     : return( svg_nb_active_attributes );
 //	case ID_IMG_NB_ACTIVE_INFO           : return( svg_nb_active_info );
 
-//	case ID_IMG_NB_DATA_SOURCE_FILES     : return( svg_tb_wksp );
-//	case ID_IMG_NB_DATA_SOURCE_DATABASE  : return( svg_wksp_odbc_sources );
-//	case ID_IMG_NB_DATA_SOURCE_WEBSERVICE: return( svg_tb_wksp );
+	case ID_IMG_NB_DATA_SOURCE_FILES     : return( svg_tb_wksp );
+	case ID_IMG_NB_DATA_SOURCE_DATABASE  : return( svg_wksp_odbc_sources );
+	case ID_IMG_NB_DATA_SOURCE_WEBSERVICE: return( svg_tb_wksp );
 
 	case ID_IMG_NB_INFO_ERROR            : return( svg_nb_info_error );
 	case ID_IMG_NB_INFO_EXECUTION        : return( svg_nb_info_execution );
@@ -617,8 +617,8 @@ const char * _Get_SVG(int ID_IMG)
 	case ID_IMG_CRS_MAGNIFIER            : return( svg_crs_magnifier );
 //	case ID_IMG_CRS_SELECT               : return( svg_crs_select );
 
-//	case ID_IMG_TB_ACTIVE                : return( svg_tb_active );
-//	case ID_IMG_TB_DATASOURCE            : return( svg_tb_datasource );
+	case ID_IMG_TB_ACTIVE                : return( svg_tb_active );
+	case ID_IMG_TB_DATASOURCE            : return( svg_tb_datasource );
 //	case ID_IMG_TB_DELETE                : return( svg_tb_delete );
 	case ID_IMG_TB_DIAGRAM_PARAMETERS    : return( svg_tb_diagram_parameters );
 //	case ID_IMG_TB_EDIT_SHAPE_ADD        : return( svg_tb_edit_shape_add );
@@ -694,7 +694,7 @@ const char * _Get_SVG(int ID_IMG)
 //	case ID_IMG_TB_TABLE_ROW_DEL_ALL     : return( svg_tb_table_row_del_all );
 //	case ID_IMG_TB_TABLE_ROW_INS         : return( svg_tb_table_row_ins );
 //	case ID_IMG_TB_TABLE_SELECTION_ONLY  : return( svg_tb_table_selection_only );
-//	case ID_IMG_TB_WKSP                  : return( svg_tb_wksp );
+	case ID_IMG_TB_WKSP                  : return( svg_tb_wksp );
 
 //	case ID_IMG_WKSP_DATA_MANAGER        : return( svg_wksp_data_manager );
 //	case ID_IMG_WKSP_GRID_MANAGER        : return( svg_wksp_grid_manager );
@@ -711,7 +711,7 @@ const char * _Get_SVG(int ID_IMG)
 //	case ID_IMG_WKSP_TOOL_GROUP          : return( svg_wksp_module_library );
 //	case ID_IMG_WKSP_TOOL_MANAGER        : return( svg_wksp_module_manager );
 //	case ID_IMG_WKSP_NOITEMS             : return( svg_wksp_noitems );
-//	case ID_IMG_WKSP_DB_SOURCES          : return( svg_wksp_odbc_sources );
+	case ID_IMG_WKSP_DB_SOURCES          : return( svg_wksp_odbc_sources );
 //	case ID_IMG_WKSP_DB_SOURCE_ON        : return( svg_wksp_odbc_source_on );
 //	case ID_IMG_WKSP_DB_SOURCE_OFF       : return( svg_wksp_odbc_source_off );
 //	case ID_IMG_WKSP_DB_TABLE            : return( svg_wksp_table );
