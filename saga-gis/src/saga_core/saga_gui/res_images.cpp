@@ -513,18 +513,18 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 //#include "./res/svg/tb_map_legend_horizontal.svg.h"
 //#include "./res/svg/tb_map_legend_vertical.svg.h"
 //#include "./res/svg/tb_map_mode_distance.svg.h"
-//#include "./res/svg/tb_map_mode_pan.svg.h"
+#include "./res/svg/tb_map_mode_pan.svg.h"
 //#include "./res/svg/tb_map_mode_select.svg.h"
 #include "./res/svg/tb_map_mode_zoom.svg.h"
 //#include "./res/svg/tb_map_scalebar.svg.h"
 //#include "./res/svg/tb_map_north_arrow.svg.h"
 //#include "./res/svg/tb_map_synchronize.svg.h"
-//#include "./res/svg/tb_map_zoom_active.svg.h"
-//#include "./res/svg/tb_map_pan_active.svg.h"
+#include "./res/svg/tb_map_zoom_active.svg.h"
+#include "./res/svg/tb_map_pan_active.svg.h"
 #include "./res/svg/tb_map_zoom_full.svg.h"
 #include "./res/svg/tb_map_zoom_last.svg.h"
 #include "./res/svg/tb_map_zoom_next.svg.h"
-//#include "./res/svg/tb_map_zoom_selection.svg.h"
+#include "./res/svg/tb_map_zoom_selection.svg.h"
 //#include "./res/svg/tb_map_crosshair.svg.h"
 #include "./res/svg/tb_new_project.svg.h"
 #include "./res/svg/tb_open.svg.h"
@@ -560,7 +560,7 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 //#include "./res/svg/wksp_odbc_source_on.svg.h"
 //#include "./res/svg/wksp_odbc_source_off.svg.h"
 //#include "./res/svg/wksp_shapes_line.svg.h"
-//#include "./res/svg/wksp_shapes_manager.svg.h"
+#include "./res/svg/wksp_shapes_manager.svg.h"
 //#include "./res/svg/wksp_shapes_point.svg.h"
 //#include "./res/svg/wksp_shapes_points.svg.h"
 //#include "./res/svg/wksp_shapes_polygon.svg.h"
@@ -664,18 +664,18 @@ const char * _Get_SVG(int ID_IMG)
 //	case ID_IMG_TB_MAP_LEGEND_HORIZONTAL : return( svg_tb_map_legend_horizontal );
 //	case ID_IMG_TB_MAP_LEGEND_VERTICAL   : return( svg_tb_map_legend_vertical );
 //	case ID_IMG_TB_MAP_MODE_DISTANCE     : return( svg_tb_map_mode_distance );
-//	case ID_IMG_TB_MAP_MODE_PAN          : return( svg_tb_map_mode_pan );
+	case ID_IMG_TB_MAP_MODE_PAN          : return( svg_tb_map_mode_pan );
 //	case ID_IMG_TB_MAP_MODE_SELECT       : return( svg_tb_map_mode_select );
 	case ID_IMG_TB_MAP_MODE_ZOOM         : return( svg_tb_map_mode_zoom );
 //	case ID_IMG_TB_MAP_SCALEBAR          : return( svg_tb_map_scalebar );
 //	case ID_IMG_TB_MAP_NORTH_ARROW       : return( svg_tb_map_north_arrow );
 //	case ID_IMG_TB_MAP_SYNCHRONIZE       : return( svg_tb_map_synchronize );
-//	case ID_IMG_TB_MAP_ZOOM_ACTIVE       : return( svg_tb_map_zoom_active );
-//	case ID_IMG_TB_MAP_PAN_ACTIVE        : return( svg_tb_map_pan_active );
+	case ID_IMG_TB_MAP_ZOOM_ACTIVE       : return( svg_tb_map_zoom_active );
+	case ID_IMG_TB_MAP_PAN_ACTIVE        : return( svg_tb_map_pan_active );
 	case ID_IMG_TB_MAP_ZOOM_FULL         : return( svg_tb_map_zoom_full );
 	case ID_IMG_TB_MAP_ZOOM_LAST         : return( svg_tb_map_zoom_last );
 	case ID_IMG_TB_MAP_ZOOM_NEXT         : return( svg_tb_map_zoom_next );
-//	case ID_IMG_TB_MAP_ZOOM_SELECTION    : return( svg_tb_map_zoom_selection );
+	case ID_IMG_TB_MAP_ZOOM_SELECTION    : return( svg_tb_map_zoom_selection );
 //	case ID_IMG_TB_MAP_CROSSHAIR         : return( svg_tb_map_crosshair );
 	case ID_IMG_TB_NEW_PROJECT           : return( svg_tb_new_project );
 	case ID_IMG_TB_OPEN                  : return( svg_tb_open );
@@ -716,7 +716,7 @@ const char * _Get_SVG(int ID_IMG)
 //	case ID_IMG_WKSP_DB_SOURCE_OFF       : return( svg_wksp_odbc_source_off );
 //	case ID_IMG_WKSP_DB_TABLE            : return( svg_wksp_table );
 //	case ID_IMG_WKSP_SHAPES_LINE         : return( svg_wksp_shapes_line );
-//	case ID_IMG_WKSP_SHAPES_MANAGER      : return( svg_wksp_shapes_manager );
+	case ID_IMG_WKSP_SHAPES_MANAGER      : return( svg_wksp_shapes_manager );
 //	case ID_IMG_WKSP_SHAPES_POINT        : return( svg_wksp_shapes_point );
 //	case ID_IMG_WKSP_SHAPES_POINTS       : return( svg_wksp_shapes_points );
 //	case ID_IMG_WKSP_SHAPES_POLYGON      : return( svg_wksp_shapes_polygon );
