@@ -138,6 +138,7 @@ bool CSVG_Converter::On_Execute(void)
 
 	//-----------------------------------------------------
 	int nConverted = 0;
+    const int MaxCharPerLine = 16000;
 
 	for(int i=0; i<Files.Get_Count(); i++)
 	{
@@ -155,18 +156,45 @@ bool CSVG_Converter::On_Execute(void)
 				Content.Replace("\"", "\\\"");
 				Content.Prepend(CSG_String::Format("static const char svg_%s[] = \"", Name.c_str()));
 				Content.Append ("\";");
+
+                if( Stream.Open(CSG_String::Format(OutputFile.c_str(), Name.c_str()), SG_FILE_W) )
+                {
+                    while( Content.Length() > 0 )
+                    {
+                        if( Content.Length() > MaxCharPerLine )
+                        {
+                            CSG_String Part = Content.Left(MaxCharPerLine) + "\"\n";
+
+                            Stream.Write(Part);
+                        }
+                        else
+                        {
+                            Stream.Write(Content);
+                        }
+
+                        Content = Content.Mid(MaxCharPerLine);
+
+                        if( Content.Length() > 0 )
+                        {
+                            Content = Content.Prepend("\"");
+                        }
+                    }
+
+                    nConverted++;
+                }
 			}
 			else
 			{
+                Content.Replace("\"\n\"", "");
 				Content = Content.AfterFirst('\"').BeforeLast('\"');
 				Content.Replace("\\\"", "\"");
-			}
 
-			if( Stream.Open(CSG_String::Format(OutputFile.c_str(), Name.c_str()), SG_FILE_W) )
-			{
-				Stream.Write(Content);
+                if( Stream.Open(CSG_String::Format(OutputFile.c_str(), Name.c_str()), SG_FILE_W) )
+                {
+                    Stream.Write(Content);
 
-				nConverted++;
+                    nConverted++;
+                }
 			}
 		}
 	}
