@@ -545,7 +545,7 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 //#include "./res/svg/tb_table_selection_only.svg.h"
 #include "./res/svg/tb_wksp.svg.h"
 
-//#include "./res/svg/wksp_data_manager.svg.h"
+#include "./res/svg/wksp_data_manager.svg.h"
 //#include "./res/svg/wksp_grid.svg.h"
 //#include "./res/svg/wksp_grid_manager.svg.h"
 //#include "./res/svg/wksp_grid_system.svg.h"
@@ -696,7 +696,7 @@ const char * _Get_SVG(int ID_IMG)
 //	case ID_IMG_TB_TABLE_SELECTION_ONLY  : return( svg_tb_table_selection_only );
 	case ID_IMG_TB_WKSP                  : return( svg_tb_wksp );
 
-//	case ID_IMG_WKSP_DATA_MANAGER        : return( svg_wksp_data_manager );
+	case ID_IMG_WKSP_DATA_MANAGER        : return( svg_wksp_data_manager );
 //	case ID_IMG_WKSP_GRID_MANAGER        : return( svg_wksp_grid_manager );
 //	case ID_IMG_WKSP_GRID_SYSTEM         : return( svg_wksp_grid_system );
 //	case ID_IMG_WKSP_GRID                : return( svg_wksp_grid );
