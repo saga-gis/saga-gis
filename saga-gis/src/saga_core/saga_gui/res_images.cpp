@@ -454,7 +454,7 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 #include "./res/svg/wnd_histogram.svg.h"
 //#include "./res/svg/wnd_layout.svg.h"
 //#include "./res/svg/wnd_map.svg.h"
-//#include "./res/svg/wnd_map3d.svg.h"
+#include "./res/svg/wnd_map3d.svg.h"
 //#include "./res/svg/wnd_scatterplot.svg.h"
 //#include "./res/svg/wnd_table.svg.h"
 
@@ -482,7 +482,7 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 //#include "./res/svg/tb_histogram_gaussian.svg.h"
 #include "./res/svg/tb_info.svg.h"
 #include "./res/svg/tb_update.svg.h"
-//#include "./res/svg/tb_clipboard.svg.h"
+#include "./res/svg/tb_clipboard.svg.h"
 //#include "./res/svg/tb_layout_page_setup.svg.h"
 #include "./res/svg/tb_layout_print.svg.h"
 //#include "./res/svg/tb_layout_print_preview.svg.h"
@@ -496,7 +496,7 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 #include "./res/svg/tb_map3d_exaggerate_less.svg.h"
 #include "./res/svg/tb_map3d_exaggerate_more.svg.h"
 //#include "./res/svg/tb_map3d_interpolated.svg.h"
-//#include "./res/svg/tb_map3d_properties.svg.h"
+#include "./res/svg/tb_map3d_properties.svg.h"
 //#include "./res/svg/tb_map3d_rotate_x_less.svg.h"
 //#include "./res/svg/tb_map3d_rotate_x_more.svg.h"
 //#include "./res/svg/tb_map3d_rotate_z_less.svg.h"
@@ -508,8 +508,8 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 //#include "./res/svg/tb_map3d_shift_z_less.svg.h"
 //#include "./res/svg/tb_map3d_shift_z_more.svg.h"
 //#include "./res/svg/tb_map3d_stereo.svg.h"
-//#include "./res/svg/tb_map_3d_show.svg.h"
-//#include "./res/svg/tb_map_layout_show.svg.h"
+#include "./res/svg/tb_map_3d_show.svg.h"
+#include "./res/svg/tb_map_layout_show.svg.h"
 //#include "./res/svg/tb_map_legend_horizontal.svg.h"
 //#include "./res/svg/tb_map_legend_vertical.svg.h"
 #include "./res/svg/tb_map_mode_distance.svg.h"
@@ -553,8 +553,8 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 //#include "./res/svg/wksp_map_manager.svg.h"
 #include "./res/svg/wksp_map_graticule.svg.h"
 #include "./res/svg/wksp_module.svg.h"
-//#include "./res/svg/wksp_module_library.svg.h"
-//#include "./res/svg/wksp_module_manager.svg.h"
+#include "./res/svg/wksp_module_library.svg.h"
+#include "./res/svg/wksp_module_manager.svg.h"
 //#include "./res/svg/wksp_noitems.svg.h"
 #include "./res/svg/wksp_odbc_sources.svg.h"
 //#include "./res/svg/wksp_odbc_source_on.svg.h"
@@ -605,7 +605,7 @@ const char * _Get_SVG(int ID_IMG)
 	case ID_IMG_WND_HISTOGRAM            : return( svg_wnd_histogram );
 //	case ID_IMG_WND_LAYOUT               : return( svg_wnd_layout );
 //	case ID_IMG_WND_MAP                  : return( svg_wnd_map );
-//	case ID_IMG_WND_MAP3D                : return( svg_wnd_map3d );
+	case ID_IMG_WND_MAP3D                : return( svg_wnd_map3d );
 //	case ID_IMG_WND_SCATTERPLOT          : return( svg_wnd_scatterplot );
 //	case ID_IMG_WND_TABLE                : return( svg_wnd_table );
 
@@ -633,7 +633,7 @@ const char * _Get_SVG(int ID_IMG)
 //	case ID_IMG_TB_HISTOGRAM_GAUSSIAN    : return( svg_tb_histogram_gaussian );
 	case ID_IMG_TB_INFO                  : return( svg_tb_info );
 	case ID_IMG_TB_UPDATE                : return( svg_tb_update );
-//	case ID_IMG_TB_CLIPBOARD             : return( svg_tb_clipboard );
+	case ID_IMG_TB_CLIPBOARD             : return( svg_tb_clipboard );
 //	case ID_IMG_TB_LAYOUT_PAGE_SETUP     : return( svg_tb_layout_page_setup );
 	case ID_IMG_TB_LAYOUT_PRINT          : return( svg_tb_layout_print );
 //	case ID_IMG_TB_LAYOUT_PRINT_PREVIEW  : return( svg_tb_layout_print_preview );
@@ -647,7 +647,7 @@ const char * _Get_SVG(int ID_IMG)
 	case ID_IMG_TB_MAP3D_EXAGGERATE_LESS : return( svg_tb_map3d_exaggerate_less );
 	case ID_IMG_TB_MAP3D_EXAGGERATE_MORE : return( svg_tb_map3d_exaggerate_more );
 //	case ID_IMG_TB_MAP3D_INTERPOLATED    : return( svg_tb_map3d_interpolated );
-//	case ID_IMG_TB_MAP3D_PROPERTIES      : return( svg_tb_map3d_properties );
+	case ID_IMG_TB_MAP3D_PROPERTIES      : return( svg_tb_map3d_properties );
 //	case ID_IMG_TB_MAP3D_ROTATE_X_LESS   : return( svg_tb_map3d_rotate_x_less );
 //	case ID_IMG_TB_MAP3D_ROTATE_X_MORE   : return( svg_tb_map3d_rotate_x_more );
 //	case ID_IMG_TB_MAP3D_ROTATE_Z_LESS   : return( svg_tb_map3d_rotate_z_less );
@@ -659,8 +659,8 @@ const char * _Get_SVG(int ID_IMG)
 //	case ID_IMG_TB_MAP3D_SHIFT_Z_LESS    : return( svg_tb_map3d_shift_z_less );
 //	case ID_IMG_TB_MAP3D_SHIFT_Z_MORE    : return( svg_tb_map3d_shift_z_more );
 //	case ID_IMG_TB_MAP3D_STEREO          : return( svg_tb_map3d_stereo );
-//	case ID_IMG_TB_MAP_3D_SHOW           : return( svg_tb_map_3d_show );
-//	case ID_IMG_TB_MAP_LAYOUT_SHOW       : return( svg_tb_map_layout_show );
+	case ID_IMG_TB_MAP_3D_SHOW           : return( svg_tb_map_3d_show );
+	case ID_IMG_TB_MAP_LAYOUT_SHOW       : return( svg_tb_map_layout_show );
 //	case ID_IMG_TB_MAP_LEGEND_HORIZONTAL : return( svg_tb_map_legend_horizontal );
 //	case ID_IMG_TB_MAP_LEGEND_VERTICAL   : return( svg_tb_map_legend_vertical );
 	case ID_IMG_TB_MAP_MODE_DISTANCE     : return( svg_tb_map_mode_distance );
@@ -705,11 +705,11 @@ const char * _Get_SVG(int ID_IMG)
 	case ID_IMG_WKSP_MAP_GRATICULE       : return( svg_wksp_map_graticule );
 //	case ID_IMG_WKSP_MAP_BASEMAP         : return( svg_wnd_map );
 //	case ID_IMG_WKSP_MAP_MANAGER         : return( svg_wksp_map_manager );
-//	case ID_IMG_WKSP_TOOL                : return( svg_wksp_module );
-//	case ID_IMG_WKSP_TOOL_CHAIN          : return( svg_wksp_module );
-//	case ID_IMG_WKSP_TOOL_LIBRARY        : return( svg_wksp_module_library );
-//	case ID_IMG_WKSP_TOOL_GROUP          : return( svg_wksp_module_library );
-//	case ID_IMG_WKSP_TOOL_MANAGER        : return( svg_wksp_module_manager );
+	case ID_IMG_WKSP_TOOL                : return( svg_wksp_module );
+	case ID_IMG_WKSP_TOOL_CHAIN          : return( svg_wksp_module );
+	case ID_IMG_WKSP_TOOL_LIBRARY        : return( svg_wksp_module_library );
+	case ID_IMG_WKSP_TOOL_GROUP          : return( svg_wksp_module_library );
+	case ID_IMG_WKSP_TOOL_MANAGER        : return( svg_wksp_module_manager );
 //	case ID_IMG_WKSP_NOITEMS             : return( svg_wksp_noitems );
 	case ID_IMG_WKSP_DB_SOURCES          : return( svg_wksp_odbc_sources );
 //	case ID_IMG_WKSP_DB_SOURCE_ON        : return( svg_wksp_odbc_source_on );
