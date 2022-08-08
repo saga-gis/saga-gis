@@ -214,7 +214,18 @@ if(MSVC)
 
 	target_compile_definitions(saga_gui PUBLIC -D_SAGA_MSW -DUNICODE)
 	target_link_options(saga_gui PRIVATE /SUBSYSTEM:WINDOWS)
-
+	
+	option(WITH_DPI_AWARENESS "GUI as DPI aware application" OFF)
+	if(WITH_DPI_AWARENESS)
+		message(STATUS "GUI as DPI aware application")
+		target_compile_definitions(saga_gui PRIVATE DPI_AWARE)
+		set(CMAKE_EXE_LINKER_FLAGS    "${CMAKE_EXE_LINKER_FLAGS} /MANIFEST:NO")
+		set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} /MANIFEST:NO")
+		set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /MANIFEST:NO")
+	else()
+		message(STATUS "GUI without DPI awareness")
+	endif()
+	
 else() # unix like systems
 	set_target_properties(saga_gui PROPERTIES COMPILE_FLAGS -fPIC)
 	target_compile_definitions(saga_gui PUBLIC -D_SAGA_LINUX)

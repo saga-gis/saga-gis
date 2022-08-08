@@ -1,4 +1,11 @@
+
 AAAA                    ICON    DISCARDABLE     "saga.ico"
 SAGA_ICON               ICON    DISCARDABLE     "saga.ico"
 
-WXBITMAP_STD_COLOURS    BITMAP  MOVEABLE PURE   "colours.bmp"
+#ifdef DPI_AWARE
+	#define wxUSE_RC_MANIFEST 1
+	#define wxUSE_DPI_AWARE_MANIFEST 2
+	#include "wx/msw/wx.rc"
+#else
+	WXBITMAP_STD_COLOURS    BITMAP  MOVEABLE PURE   "colours.bmp"
+#endif
