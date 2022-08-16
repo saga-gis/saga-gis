@@ -277,7 +277,7 @@ CSAGA_Frame::CSAGA_Frame(void)
 #ifndef WITH_WXBMPBUNDLE
 	SetIcon				(IMG_Get_Icon (ID_IMG_SAGA_ICON_32));
 #else
-	SetIcons			(IMG_Get_Icons(ID_IMG_SAGA_ICON_128));
+	SetIcons			(IMG_Get_Icons(ID_IMG_SAGA_ICON));
 #endif
 
 	SetDropTarget		(new CSAGA_Frame_DropTarget);
@@ -1264,9 +1264,9 @@ void CSAGA_Frame::_Bar_Show(wxWindow *pWindow, bool bShow)
 //---------------------------------------------------------
 wxToolBarBase * CSAGA_Frame::TB_Create(int ID)
 {
-	int	Size	= g_pTools->Get_Parameter("LOOK_TB_SIZE")->asInt();
+	wxToolBar *pToolBar = new wxToolBar(this, ID, wxDefaultPosition, wxDefaultSize, wxTB_HORIZONTAL|wxTB_FLAT|wxTB_NODIVIDER);
 
-	wxToolBar	*pToolBar	= new wxToolBar(this, ID, wxDefaultPosition, wxDefaultSize, wxTB_HORIZONTAL|wxTB_FLAT|wxTB_NODIVIDER);
+	int Size = FromDIP(g_pTools->Get_Parameter("LOOK_TB_SIZE")->asInt());
 
 	pToolBar->SetToolBitmapSize(wxSize(Size, Size));
 

@@ -54,6 +54,7 @@
 
 #include "res_controls.h"
 #include "res_dialogs.h"
+#include "res_images.h"
 
 #include "helper.h"
 
@@ -87,11 +88,17 @@ END_EVENT_TABLE()
 CDLG_Base::CDLG_Base(int id, wxString Caption, bool bCancelBtn)
 	: wxDialog(MDI_Get_Frame(), id, Caption, DLG_Get_Def_Position(), DLG_Get_Def_Size(), wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
 {
+#ifndef WITH_WXBMPBUNDLE
+	SetIcon (IMG_Get_Icon (ID_IMG_SAGA_ICON_32));
+#else
+	SetIcons(IMG_Get_Icons(ID_IMG_SAGA_ICON));
+#endif
+
 	MDI_Top_Window_Push(this);
 
-	m_pPanel_Controls	= new wxPanel(this);
+	m_pPanel_Controls = new wxPanel(this);
 
-	m_nControls	= 0;
+	m_nControls = 0;
 
 	Add_Button(wxID_OK);
 

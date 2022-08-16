@@ -169,7 +169,7 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 	m_Parameters.Add_Int("NODE_LOOK",
 		"LOOK_TB_SIZE"	, _TL("Tool Bar Button Size"),
 		_TL("Tool bar button sizes. You need to restart SAGA to apply the changes."),
-		16, 16, true
+		24, 16, true
 	);
 
 	m_Parameters.Add_Int("NODE_LOOK",

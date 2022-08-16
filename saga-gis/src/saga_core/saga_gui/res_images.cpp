@@ -63,9 +63,7 @@
 //---------------------------------------------------------
 #include "./res/xpm/default.xpm"
 
-#include "./res/xpm/saga_icon_16.xpm"
 #include "./res/xpm/saga_icon_32.xpm"
-#include "./res/xpm/saga_icon_64.xpm"
 #include "./res/xpm/saga_icon_128.xpm"
 #include "./res/xpm/saga_splash.xpm"
 
@@ -210,10 +208,7 @@ const char ** _Get_XPM(int ID_IMG)
 	{
 	default                              : return( default_xpm );
 
-	case ID_IMG_SAGA_ICON_16             : return( saga_icon_16_xpm );
 	case ID_IMG_SAGA_ICON_32             : return( saga_icon_32_xpm );
-	case ID_IMG_SAGA_ICON_64             : return( saga_icon_64_xpm );
-	case ID_IMG_SAGA_ICON_128            : return( saga_icon_128_xpm );
 	case ID_IMG_SAGA_ICON                : return( saga_icon_128_xpm );
 	case ID_IMG_SAGA_SPLASH              : return( saga_splash_xpm );
 
@@ -431,8 +426,7 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 //---------------------------------------------------------
 #include "./res/svg/default.svg.h"
 
-//#include "./res/svg/saga_icon_16.svg.h"
-//#include "./res/svg/saga_icon_32.svg.h"
+#include "./res/svg/saga_icon.svg.h"
 //#include "./res/svg/saga_splash.svg.h"
 
 #include "./res/svg/nb_active_attributes.svg.h"
@@ -576,8 +570,7 @@ const char * _Get_SVG(int ID_IMG)
 	{
 //	default                              : return( svg_default );
 
-//	case ID_IMG_SAGA_ICON_16             : return( svg_saga_icon_16 );
-//	case ID_IMG_SAGA_ICON_32             : return( svg_saga_icon_32 );
+	case ID_IMG_SAGA_ICON                : return( svg_saga_icon );
 //	case ID_IMG_SAGA_SPLASH              : return( svg_saga_splash );
 
 	case ID_IMG_NB_ACTIVE_PARAMETERS     : return( svg_nb_active_parameters );
@@ -772,14 +765,19 @@ wxIconBundle	IMG_Get_Icons(int ID_IMG)
 
 	if( SVG )
 	{
-		static const int Sizes[10] = { 8, 16, 24, 32, 48, 64, 72, 80, 96, 128 }; // either 16x16 or 32x32 must be provided for MSW!
+		static const int Sizes[10] = { 16, 24, 32, 48, 64, 72, 80, 96, 128, 256 }; // either 16x16 or 32x32 must be provided for MSW!
 
-		wxIconBundle Icons; wxBitmapBundle Bitmaps = wxBitmapBundle::FromSVG(SVG, wxSize(128, 128));
+		wxIconBundle Icons; wxBitmapBundle Bitmaps = wxBitmapBundle::FromSVG(SVG, wxSize(256, 256));
 
 		for(int i=0; i<10; i++)
 		{
 			Icons.AddIcon(Bitmaps.GetIcon(wxSize(Sizes[i], Sizes[i])));
 		}
+
+		Icons.AddIcon(Bitmaps.GetIcon(wxSize(
+			wxSystemSettings::GetMetric(wxSYS_ICON_X),
+			wxSystemSettings::GetMetric(wxSYS_ICON_Y)))
+		);
 
 		return( Icons );
 	}

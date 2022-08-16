@@ -7,7 +7,7 @@ install(FILES saga.desktop DESTINATION share/applications)
 install(FILES saga.png DESTINATION share/pixmaps)
 
 # sized icons
-set(ICON_SIZES 8 16 22 24 32 48 64 72 80 96 128 192)
+set(ICON_SIZES 8 16 22 24 32 48 64 72 80 96 128 192 256)
 
 foreach(size ${ICON_SIZES})
 	#message(STATUS "icon size: ${size}")

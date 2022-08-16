@@ -46,16 +46,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <wx/image.h>
-#include <wx/dcclient.h>
-
 #include "res_images.h"
 
 #include "helper.h"
 
 #include "dlg_about_logo.h"
-
-#include <saga_api/api_core.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -86,13 +81,7 @@ CDLG_About_Logo::CDLG_About_Logo(wxWindow *pParent)
 {
 	SYS_Set_Color_BG_Window(this);
 
-	m_logo	= IMG_Get_Bitmap(ID_IMG_SAGA_SPLASH);
-	m_icon	= IMG_Get_Bitmap(ID_IMG_SAGA_ICON_32);
-}
-
-//---------------------------------------------------------
-CDLG_About_Logo::~CDLG_About_Logo(void)
-{
+	m_Logo = IMG_Get_Bitmap(ID_IMG_SAGA_SPLASH);
 }
 
 
@@ -103,15 +92,14 @@ CDLG_About_Logo::~CDLG_About_Logo(void)
 //---------------------------------------------------------
 void CDLG_About_Logo::On_Paint(wxPaintEvent &event)
 {
-	if( m_logo.Ok() && m_icon.Ok() )
+	if( m_Logo.Ok() )
 	{
-		int			x, y;
-		wxString	s;
-		wxPaintDC	dc(this);
+		wxPaintDC dc(this);
 
-		x	= (GetClientSize().x - m_logo.GetWidth()) / 2;
-		y	= (GetClientSize().y - (m_logo.GetHeight() + 10 + m_icon.GetHeight())) / 2;
-		dc.DrawBitmap(m_logo, x, y, true);
+		int x = (GetClientSize().x - m_Logo.GetWidth ()) / 2;
+		int y = (GetClientSize().y - m_Logo.GetHeight()) / 2;
+
+		dc.DrawBitmap(m_Logo, x, y, true);
 	}
 }
 

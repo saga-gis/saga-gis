@@ -74,15 +74,14 @@ class CDLG_About_Logo : public wxPanel
 
 public:
 	CDLG_About_Logo(wxWindow *pParent);
-	virtual ~CDLG_About_Logo(void);
 
-	void						On_Size				(wxSizeEvent &event);
-	void						On_Paint			(wxPaintEvent &event);
+	void				On_Size			(wxSizeEvent  &event);
+	void				On_Paint		(wxPaintEvent &event);
 
 
-protected:
+private:
 
-	wxBitmap					m_logo, m_icon;
+	wxBitmap			m_Logo;
 
 
 	DECLARE_EVENT_TABLE()
