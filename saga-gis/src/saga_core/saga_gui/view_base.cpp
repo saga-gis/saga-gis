@@ -97,14 +97,22 @@ CVIEW_Base::CVIEW_Base(class CWKSP_Base_Item *pOwner, int View_ID, wxString Capt
 	m_Size_Min.x = 0;
 	m_Size_Min.y = 0;
 
-#ifndef MDI_TABBED
+#if !defined(MDI_TABBED)
 	SetStatusBarPane(-1);
 #endif
 
-#ifndef WITH_WXBMPBUNDLE
+#if !defined(WITH_WXBMPBUNDLE)
 	SetIcon (IMG_Get_Icon (Icon_ID));
-#else
+#elif !defined(MDI_TABBED)
 	SetIcons(IMG_Get_Icons(Icon_ID));
+#else // workaround: hopefully works in future too just using wxAuiMDIChildFrame::SetIcons(IMG_Get_Icons(Icon_ID));
+	wxAuiNotebook *pNotebook = GetMDIParentFrame()->GetNotebook();
+	int Page = pNotebook->FindPage(this);
+	if( Page != wxNOT_FOUND )
+	{
+		int Size(FromDIP(16));
+		pNotebook->SetPageBitmap(Page, IMG_Get_Bitmaps(Icon_ID, wxSize(Size, Size)));
+	}
 #endif
 
 	if( bShow )
