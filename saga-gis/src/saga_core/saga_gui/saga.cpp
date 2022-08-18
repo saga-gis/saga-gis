@@ -147,7 +147,7 @@ bool CSAGA::OnInit(void)
 	bool	bLogo	= argc <= 1 && CONFIG_Read("/TOOLS", "START_LOGO", bLogo) ? bLogo : true;
 
 	wxSplashScreen	*pLogo	= !bLogo ? NULL :
-		new wxSplashScreen(IMG_Get_Bitmap(ID_IMG_SAGA_SPLASH),
+		new wxSplashScreen(IMG_Get_Splash(),
 			wxSPLASH_CENTRE_ON_SCREEN|wxSPLASH_NO_TIMEOUT, 0, NULL, -1,
 			wxDefaultPosition, wxDefaultSize, wxBORDER_SIMPLE
 		);

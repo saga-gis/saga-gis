@@ -81,7 +81,7 @@ CDLG_About_Logo::CDLG_About_Logo(wxWindow *pParent)
 {
 	SYS_Set_Color_BG_Window(this);
 
-	m_Logo = IMG_Get_Bitmap(ID_IMG_SAGA_SPLASH);
+	m_Logo = IMG_Get_Splash();
 }
 
 

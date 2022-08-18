@@ -53,6 +53,8 @@
 
 #include "res_images.h"
 
+#include "saga_api/saga_api.h"
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -378,6 +380,24 @@ wxIcon		IMG_Get_Icon(int ID_IMG)
 	return( wxIcon(_Get_XPM(ID_IMG)) );
 }
 
+//---------------------------------------------------------
+wxBitmap		IMG_Get_Splash(void)
+{
+	const double s = 0.75; const int w = (int)(s * 700), h = (int)(s * 400);
+
+	wxBitmap Splash(w, h); wxMemoryDC dc(Splash);
+
+	dc.DrawBitmap(IMG_Get_Bitmap(ID_IMG_SAGA_SPLASH, wxSize(w, h)), 0, 0);
+
+	wxFont Font(dc.GetFont());
+	Font.SetPixelSize(wxSize(0, (int)(s * 28)));
+	Font.MakeBold().MakeItalic();
+	dc.SetFont(Font); dc.SetTextForeground(wxColour(43, 60, 110));
+	dc.DrawText(wxString::Format("- Release %s -", SAGA_VERSION), (int)(s * 380), (int)(s * 310));
+
+	return( Splash );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -427,7 +447,7 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 #include "./res/svg/default.svg.h"
 
 #include "./res/svg/saga_icon.svg.h"
-//#include "./res/svg/saga_splash.svg.h"
+#include "./res/svg/saga_splash.svg.h"
 
 #include "./res/svg/nb_active_attributes.svg.h"
 #include "./res/svg/nb_active_description.svg.h"
@@ -571,7 +591,7 @@ const char * _Get_SVG(int ID_IMG)
 //	default                              : return( svg_default );
 
 	case ID_IMG_SAGA_ICON                : return( svg_saga_icon );
-//	case ID_IMG_SAGA_SPLASH              : return( svg_saga_splash );
+	case ID_IMG_SAGA_SPLASH              : return( svg_saga_splash );
 
 	case ID_IMG_NB_ACTIVE_PARAMETERS     : return( svg_nb_active_parameters );
 	case ID_IMG_NB_ACTIVE_DESCRIPTION    : return( svg_nb_active_description );
@@ -755,7 +775,7 @@ wxBitmap		IMG_Get_Bitmap(int ID_IMG)
 
 wxBitmap		IMG_Get_Bitmap(int ID_IMG, const wxSize &Size)
 {
-	return( IMG_Get_Bitmaps(ID_IMG).GetBitmap(Size) );
+	return( IMG_Get_Bitmaps(ID_IMG, Size).GetBitmap(Size) );
 }
 
 //---------------------------------------------------------
