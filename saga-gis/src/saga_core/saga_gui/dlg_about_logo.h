@@ -81,8 +81,8 @@ public:
 
 private:
 
-	wxBitmap			m_Logo;
-
+	bool				Draw_Text		(wxDC &dc, int &Cursor, const wxString &Text);
+	bool				Draw_Bitmap		(wxDC &dc, int &Cursor, const char *const *XPM);
 
 	DECLARE_EVENT_TABLE()
 };

@@ -102,7 +102,7 @@ CDLG_About::CDLG_About(void)
 	pText->ShowPosition(0);
 
 	//-----------------------------------------------------
-	m_pControl->AddPage(new CDLG_About_Logo(m_pControl), _TL("Logo"), false, -1);
+	m_pControl->AddPage(new CDLG_About_Logo(m_pControl), _TL("Development"), false, -1);
 
 	//-----------------------------------------------------
 //	pText		= new wxTextCtrl(m_pControl, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE|wxTE_RICH|wxTE_AUTO_URL|wxBORDER_SUNKEN);
@@ -170,61 +170,61 @@ wxString CDLG_About::_Get_Version(void)
 
 	//-----------------------------------------------------
 	s	+= "\n";
-	s	+= "SAGA\n";
 	s	+= "System for Automated Geoscientific Analyses\n";
-	s	+= "http://www.saga-gis.org\n";
-	s	+= "\n";
-	s	+= "Version: " + wxString(SAGA_VERSION) + "\n";
-
+	s	+= "SAGA " + wxString(SAGA_VERSION) + "\n";
+#ifdef GIT_HASH
+	s	+= "GIT Hash: " + wxString(GIT_HASH) + "\n";
+#endif
 #ifdef _SAGA_MSW
 	#ifdef _WIN64
-		s	+= "\n64 bit\n";
+		s	+= "64 bit\n";
 	#else
-		s	+= "\n32 bit\n";
+		s	+= "32 bit\n";
 	#endif
 #endif
+	s	+= "https://saga-gis.org" "\n";
 
 	//-----------------------------------------------------
 
 	s	+= "_______________________\n\n";
 
-	s	+= "SAGA GUI\n";
-	s	+= "SAGA Graphical User Interface\n";
+	s	+= "SAGA API\n";
+	s	+= "(Application Programming Interface)\n";
 	s	+= "\n";
-	s	+= "Copyrights (c) 2005-2022 by Olaf Conrad\n";
-	s	+= "Portions (c) 2008-2022 by Volker Wichmann\n";
-	s	+= "\n";
-	s	+= "GNU General Public License (GPL)\n";
+	s	+= "under\n";
+	s	+= "GNU Lesser General Public License (LGPL)\n";
 
 	s	+= "_______________________\n\n";
 
-	s	+= "SAGA API\n";
-	s	+= "SAGA Application Programming Interface\n";
+	s	+= "SAGA GUI\n";
+	s	+= "(Graphical User Interface)\n";
+	s	+= "and\n";
+	s	+= "SAGA CMD\n";
+	s	+= "(Command Line Interpreter)\n";
 	s	+= "\n";
-	s	+= "Copyrights (c) 2002-2022 by Olaf Conrad\n";
-	s	+= "Portions (c) 2008-2022 by Volker Wichmann\n";
-	s	+= "Portions (c) 2005-2006 by Victor Olaya\n";
-	s	+= "Portions (c) 2002 by Andre Ringeler\n";	// " (mat_formula.cpp)\n";
-	s	+= "\n";
-	s	+= "GNU Lesser General Public License (LGPL)\n";
+	s	+= "under\n";
+	s	+= "GNU General Public License (GPL)\n";
 
 	s	+= "_______________________\n\n";
 
 	s	+= "SAGA uses the portable C++ GUI toolkit\n";
 	s	+= wxVERSION_STRING	+ wxString("\n");
-	s	+= "http://www.wxwidgets.org/\n";
-	s	+= "\n";
+	s	+= "https://wxwidgets.org" "\n";
+
+	s	+= "_______________________\n\n";
+
 	s	+= "SAGA API includes:\n";
+	s	+= "\n";
 	s	+= "The polygon clipping and offsetting library\n";
 	s	+= "Clipper " + wxString(CLIPPER_VERSION) + "\n";
-	s	+= "http://sourceforge.net/projects/polyclipping/\n";
+	s	+= "https://sourceforge.net/projects/polyclipping" "\n";
 	s	+= "\n";
 	s	+= "The Nearest Neighbor (NN) search with KD-trees library\n";
 	s	+= "nanoflann " + wxString::Format("%d.%d.%d",
 			(NANOFLANN_VERSION&0xf00)/0x100,
 			(NANOFLANN_VERSION&0x0f0)/0x010,
 			(NANOFLANN_VERSION&0x00f)/0x001) + "\n";
-	s	+= "http://github.com/jlblancoc/nanoflann/\n";
+	s	+= "https://github.com/jlblancoc/nanoflann" "\n";
 
 	s	+= "_______________________\n\n";
 
@@ -256,9 +256,13 @@ wxString CDLG_About::_Get_Version(void)
 		#elif	defined(__MINGW32__)
 			"MinGW"
 		#elif	defined(__GNUWIN32__)
-			"Gnu-Win32 compiler"
+			"GNU-Win32 compiler"
 		#elif	defined(__GNUG__)
-			"Gnu C++"
+			#ifdef __VERSION__
+				wxString("GNU C++" ) + __VERSION__
+			#else
+				"GNU C++"
+			#endif
 		#elif	defined(__VISUALC__)	// The value of this macro corresponds to the compiler version: 1020 for 4.2 (the first supported version), 1100 for 5.0, 1200 for 6.0 and so on
 			#if   __VISUALC__ == 1020
 				"Microsoft Visual C++ 4.2"
@@ -317,7 +321,7 @@ wxString CDLG_About::_Get_Citation(void)
 		"System for Automated Geoscientific Analyses (SAGA) v. 2.1.4.\n"
 		"Geosci. Model Dev., 8, 1991-2007, doi:10.5194/gmd-8-1991-2015.\n"
 		"\n_______________________\n\n"
-		"http://www.geosci-model-dev.net/8/1991/2015/gmd-8-1991-2015.html"
+		"https://gmd.copernicus.org/articles/8/1991/2015/gmd-8-1991-2015.html"
 	);
 }
 

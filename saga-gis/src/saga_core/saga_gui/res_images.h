@@ -263,7 +263,7 @@ wxIcon			IMG_Get_Icon		(int ID_IMG);
 
 wxCursor		IMG_Get_Cursor		(int ID_IMG);
 
-wxBitmap		IMG_Get_Splash		(void);
+wxBitmap		IMG_Get_Splash		(double Scale = 0.75);
 
 
 ///////////////////////////////////////////////////////////

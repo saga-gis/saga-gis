@@ -381,19 +381,19 @@ wxIcon		IMG_Get_Icon(int ID_IMG)
 }
 
 //---------------------------------------------------------
-wxBitmap		IMG_Get_Splash(void)
+wxBitmap		IMG_Get_Splash(double Scale)
 {
-	const double s = 0.75; const int w = (int)(s * 700), h = (int)(s * 400);
+	const int w = (int)(Scale * 700), h = (int)(Scale * 400);
 
 	wxBitmap Splash(w, h); wxMemoryDC dc(Splash);
 
 	dc.DrawBitmap(IMG_Get_Bitmap(ID_IMG_SAGA_SPLASH, wxSize(w, h)), 0, 0);
 
 	wxFont Font(dc.GetFont());
-	Font.SetPixelSize(wxSize(0, (int)(s * 28)));
+	Font.SetPixelSize(wxSize(0, (int)(Scale * 28)));
 	Font.MakeBold().MakeItalic();
 	dc.SetFont(Font); dc.SetTextForeground(wxColour(43, 60, 110));
-	dc.DrawText(wxString::Format("- Release %s -", SAGA_VERSION), (int)(s * 380), (int)(s * 310));
+	dc.DrawText(wxString::Format("- Release %s -", SAGA_VERSION), (int)(Scale * 380), (int)(Scale * 310));
 
 	return( Splash );
 }

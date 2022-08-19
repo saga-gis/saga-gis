@@ -46,9 +46,15 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <wx/dcclient.h>
+
 #include "res_images.h"
 
-#include "helper.h"
+#include "res/xpm/logo_uhh.xpm"
+#include "res/xpm/logo_scilands.xpm"
+#include "res/xpm/logo_laserdata.xpm"
+
+#include "saga_gdi/sgdi_helper.h"
 
 #include "dlg_about_logo.h"
 
@@ -79,9 +85,7 @@ END_EVENT_TABLE()
 CDLG_About_Logo::CDLG_About_Logo(wxWindow *pParent)
 	: wxPanel(pParent, -1, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER)
 {
-	SYS_Set_Color_BG_Window(this);
-
-	m_Logo = IMG_Get_Splash();
+	SetBackgroundColour(*wxWHITE);
 }
 
 
@@ -90,23 +94,59 @@ CDLG_About_Logo::CDLG_About_Logo(wxWindow *pParent)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CDLG_About_Logo::On_Paint(wxPaintEvent &event)
-{
-	if( m_Logo.Ok() )
-	{
-		wxPaintDC dc(this);
-
-		int x = (GetClientSize().x - m_Logo.GetWidth ()) / 2;
-		int y = (GetClientSize().y - m_Logo.GetHeight()) / 2;
-
-		dc.DrawBitmap(m_Logo, x, y, true);
-	}
-}
-
-//---------------------------------------------------------
 void CDLG_About_Logo::On_Size(wxSizeEvent &event)
 {
 	Refresh();
+}
+
+//---------------------------------------------------------
+void CDLG_About_Logo::On_Paint(wxPaintEvent &event)
+{
+	wxPaintDC dc(this);
+
+	int Cursor = 0, Space = dc.GetTextExtent("Ag").y;
+
+	Draw_Text  (dc, Cursor += 1 * Space, "Created and developed by");
+	Draw_Text  (dc, Cursor += 0 * Space, "Olaf Conrad");
+
+	Draw_Text  (dc, Cursor += 1 * Space, "Core development by");
+	Draw_Text  (dc, Cursor += 0 * Space, "Olaf Conrad and Volker Wichmann");
+
+	Draw_Bitmap(dc, Cursor += 1 * Space, logo_uhh_xpm);
+	Draw_Text  (dc, Cursor += 0 * Space, "Dr. O. Conrad, Prof. Dr. J. Boehner");
+
+	Draw_Bitmap(dc, Cursor += 3 * Space, logo_scilands_xpm);
+	Draw_Text  (dc, Cursor += 0 * Space, "M. Bock, R. Koethe, J. Spitzmueller");
+
+	Draw_Bitmap(dc, Cursor += 3 * Space, logo_laserdata_xpm);
+	Draw_Text  (dc, Cursor += 0 * Space, "Dr. V. Wichmann");
+
+	wxBitmap Splash(IMG_Get_Splash(0.25));
+	dc.DrawBitmap(Splash, (GetClientSize().x - Splash.GetWidth()) / 2, Cursor += 3 * Space);
+}
+
+//---------------------------------------------------------
+bool CDLG_About_Logo::Draw_Text(wxDC &dc, int &Cursor, const wxString &Text)
+{
+	::Draw_Text(dc, TEXTALIGN_TOPCENTER, GetClientSize().x / 2, Cursor, Text);
+
+	Cursor += dc.GetTextExtent(Text).GetHeight();
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CDLG_About_Logo::Draw_Bitmap(wxDC &dc, int &Cursor, const char *const *XPM)
+{
+	wxBitmap Bitmap(XPM);
+
+	int x = (GetClientSize().x - Bitmap.GetWidth()) / 2;
+
+	dc.DrawBitmap(Bitmap, x, Cursor, true);
+
+	Cursor += Bitmap.GetHeight();
+
+	return( true );
 }
 
 
