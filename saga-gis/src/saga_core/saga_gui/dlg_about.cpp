@@ -259,7 +259,7 @@ wxString CDLG_About::_Get_Version(void)
 			"GNU-Win32 compiler"
 		#elif	defined(__GNUG__)
 			#ifdef __VERSION__
-				wxString("GNU C++" ) + __VERSION__
+				"GNU C++ " __VERSION__
 			#else
 				"GNU C++"
 			#endif
