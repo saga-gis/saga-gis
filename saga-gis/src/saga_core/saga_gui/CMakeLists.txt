@@ -232,6 +232,19 @@ else() # unix like systems
 	target_compile_definitions(saga_gui PRIVATE -D${MTOOLSPATH} -D${MSHAREPATH})
 endif()
 
+find_package(Git)
+if(GIT_FOUND)
+	message("git found: ${GIT_EXECUTABLE} in version ${GIT_VERSION_STRING}")
+ # Get the latest abbreviated commit hash of the working branch
+	execute_process(
+		COMMAND git log -1 --format=%h
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+		OUTPUT_VARIABLE GIT_HASH
+		OUTPUT_STRIP_TRAILING_WHITESPACE
+	)
+	target_compile_definitions(saga_gui PRIVATE -DGIT_HASH="${GIT_HASH}")
+endif(GIT_FOUND)
+
 # add man page
 add_subdirectory(man)
 # add res directory
