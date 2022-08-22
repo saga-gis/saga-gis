@@ -91,8 +91,10 @@
 
 //---------------------------------------------------------
 // libHaru version compatibility (fixed typos in hpdf_types.h)!
+#if HPDF_MAJOR_VERSION == 2 && HPDF_MINOR_VERSION < 4
 #define HPDF_PROJECTING_SQUARE_END HPDF_PROJECTING_SCUARE_END // SCUARE -> SQUARE
 #define HPDF_BYTE_TYPE_TRAIL       HPDF_BYTE_TYPE_TRIAL       // TRIAL  -> TRAIL
+#endif
 
 
 ///////////////////////////////////////////////////////////
@@ -699,7 +701,7 @@ bool CSG_Doc_PDF::_Set_Style_FillStroke(int Style, int Fill_Color, int Line_Colo
 			}
 			else if( Style & PDF_STYLE_LINE_END_SQUARE )
 			{
-				HPDF_Page_SetLineCap(m_pPage, HPDF_PROJECTING_SCUARE_END);
+				HPDF_Page_SetLineCap(m_pPage, HPDF_PROJECTING_SQUARE_END);
 			}
 			else // if( Style & PDF_STYLE_LINE_END_BUTT )
 			{
