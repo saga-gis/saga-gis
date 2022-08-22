@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,16 +46,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <saga_api/saga_api.h>
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <hpdf_version.h>
 
 
 //---------------------------------------------------------
@@ -66,23 +56,25 @@ CSG_String Get_Info(int i)
 {
 	switch( i )
 	{
-	case TLB_INFO_Name:	default:
+	case TLB_INFO_Name: default:
 		return( _TL("PDF") );
 
 	case TLB_INFO_Category:
 		return( _TL("Reports") );
 
 	case TLB_INFO_Author:
-		return( SG_T("SAGA User Group (c) 2010") );
+		return( "SAGA User Group (c) 2010" );
 
 	case TLB_INFO_Description:
 		return( _TW(
-			"Reports in Portable Document Format (PDF). PDF export is based on "
-			"<a target=\"_blank\" href=\"libharu.org\">libharu</a>."
-		));
+			"Create reports in the Portable Document Format (PDF). "
+			"The export tools are using the free open source library "
+			"<a target=\"_blank\" href=\"libharu.org\">libHaru</a> "
+			"version ") + CSG_String(HPDF_VERSION_TEXT)
+		);
 
 	case TLB_INFO_Version:
-		return( SG_T("1.0") );
+		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
 		return( _TL("File|Reports") );
@@ -101,9 +93,12 @@ CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
-	case  0:	return( new CShapes_Report );
-	case  1:	return( new CShapes_Summary );
-	case  2:	return( new CProfile_Cross_Sections );
+	case  0: return( new CShapes_Report );
+	case  1: return( new CShapes_Summary );
+	case  2: return( new CProfile_Cross_Sections );
+
+	case  3: return( NULL );
+	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 
 	return( NULL );
