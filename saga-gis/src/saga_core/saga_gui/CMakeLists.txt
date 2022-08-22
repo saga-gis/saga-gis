@@ -234,16 +234,21 @@ endif()
 
 find_package(Git)
 if(GIT_FOUND)
-	message("git found: ${GIT_EXECUTABLE} in version ${GIT_VERSION_STRING}")
- # Get the latest abbreviated commit hash of the working branch
-	execute_process(
-		COMMAND git log -1 --format=%h
-		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-		OUTPUT_VARIABLE GIT_HASH
-		OUTPUT_STRIP_TRAILING_WHITESPACE
-	)
-	target_compile_definitions(saga_gui PRIVATE -DGIT_HASH="${GIT_HASH}")
+	IF(EXISTS "${CMAKE_SOURCE_DIR}/../.git")
+		execute_process(
+			COMMAND git log -1 --format=%h
+			WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+			OUTPUT_VARIABLE GIT_HASH
+			OUTPUT_STRIP_TRAILING_WHITESPACE
+		)
+		message("git hash: ${GIT_HASH} to ${PROJECT_SOURCE_DIR}/git_hash.h")
+	else()
+		message("not a git repository, git hash not found")
+	endif()
+else()
+	message("git executable not found")
 endif(GIT_FOUND)
+configure_file("${PROJECT_SOURCE_DIR}/git_hash.h.in" "${PROJECT_SOURCE_DIR}/git_hash.h" @ONLY)
 
 # add man page
 add_subdirectory(man)

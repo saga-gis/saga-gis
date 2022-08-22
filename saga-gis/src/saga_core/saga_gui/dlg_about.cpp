@@ -61,6 +61,8 @@
 #include "dlg_about.h"
 #include "dlg_about_logo.h"
 
+#include "git_hash.h"
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -171,16 +173,16 @@ wxString CDLG_About::_Get_Version(void)
 	//-----------------------------------------------------
 	s	+= "\n";
 	s	+= "System for Automated Geoscientific Analyses\n";
+#if !defined(_SAGA_MSW)
 	s	+= "SAGA " + wxString(SAGA_VERSION) + "\n";
-#ifdef GIT_HASH
-	s	+= "GIT Hash: " + wxString(GIT_HASH) + "\n";
-#endif
-#ifdef _SAGA_MSW
-	#ifdef _WIN64
-		s	+= "64 bit\n";
-	#else
-		s	+= "32 bit\n";
+#elif defined(_WIN64)
+	s	+= "SAGA " + wxString(SAGA_VERSION) + " (64 bit)\n";
+#else
+	s	+= "SAGA " + wxString(SAGA_VERSION) + " (32 bit)\n";
 	#endif
+#ifdef GIT_HASH
+	if( *GIT_HASH )
+		s	+= "[ #" + wxString(GIT_HASH) + " ]\n";
 #endif
 	s	+= "https://saga-gis.org" "\n";
 
