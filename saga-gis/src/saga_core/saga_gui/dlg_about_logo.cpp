@@ -66,10 +66,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-IMPLEMENT_CLASS(CDLG_About_Logo, wxPanel)
+IMPLEMENT_CLASS(CDLG_About_Logo, wxScrolledCanvas)
 
 //---------------------------------------------------------
-BEGIN_EVENT_TABLE(CDLG_About_Logo, wxPanel)
+BEGIN_EVENT_TABLE(CDLG_About_Logo, wxScrolledCanvas)
 	EVT_SIZE			(CDLG_About_Logo::On_Size)
 	EVT_PAINT			(CDLG_About_Logo::On_Paint)
 END_EVENT_TABLE()
@@ -83,7 +83,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CDLG_About_Logo::CDLG_About_Logo(wxWindow *pParent)
-	: wxPanel(pParent, -1, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER)
+	: wxScrolledCanvas(pParent, -1, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER)
 {
 	SetBackgroundColour(*wxWHITE);
 }
@@ -102,27 +102,32 @@ void CDLG_About_Logo::On_Size(wxSizeEvent &event)
 //---------------------------------------------------------
 void CDLG_About_Logo::On_Paint(wxPaintEvent &event)
 {
-	wxPaintDC dc(this);
+	wxPaintDC dc(this); DoPrepareDC(dc);
 
-	int Cursor = 0, Space = dc.GetTextExtent("Ag").y;
+	int Cursor = 0, Space = dc.GetTextExtent("|").y;
 
 	Draw_Text  (dc, Cursor += 1 * Space, "Created and developed by");
-	Draw_Text  (dc, Cursor += 0 * Space, "Olaf Conrad");
+	Draw_Text  (dc, Cursor += 0 * Space, "Dr. O. Conrad");
 
 	Draw_Text  (dc, Cursor += 1 * Space, "Core development by");
-	Draw_Text  (dc, Cursor += 0 * Space, "Olaf Conrad and Volker Wichmann");
+	Draw_Text  (dc, Cursor += 0 * Space, "Dr. O. Conrad, Dr. V. Wichmann");
 
-	Draw_Bitmap(dc, Cursor += 1 * Space, logo_uhh_xpm);
+	Draw_Text  (dc, Cursor += 0 * Space, "_______________________");
+
+	Draw_Bitmap(dc, Cursor += 0 * Space, logo_uhh_xpm);
 	Draw_Text  (dc, Cursor += 0 * Space, "Dr. O. Conrad, Prof. Dr. J. Boehner");
 
 	Draw_Bitmap(dc, Cursor += 3 * Space, logo_scilands_xpm);
-	Draw_Text  (dc, Cursor += 0 * Space, "M. Bock, R. Koethe, J. Spitzmueller");
+	Draw_Text  (dc, Cursor += 1 * Space, "M. Bock, R. Koethe, J. Spitzmueller");
 
 	Draw_Bitmap(dc, Cursor += 3 * Space, logo_laserdata_xpm);
-	Draw_Text  (dc, Cursor += 0 * Space, "Dr. V. Wichmann");
+	Draw_Text  (dc, Cursor += 1 * Space, "Dr. V. Wichmann");
 
-	wxBitmap Splash(IMG_Get_Splash(0.25));
-	dc.DrawBitmap(Splash, (GetClientSize().x - Splash.GetWidth()) / 2, Cursor += 3 * Space);
+	wxBitmap Splash(IMG_Get_Splash(0.3));
+	dc.DrawBitmap(Splash, (GetClientSize().x - Splash.GetWidth()) / 2, Cursor += 2 * Space);
+
+	SetVirtualSize(Splash.GetWidth(), Cursor += Splash.GetHeight());
+	SetScrollRate(10, 10);
 }
 
 //---------------------------------------------------------

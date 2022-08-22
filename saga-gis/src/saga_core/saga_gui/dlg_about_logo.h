@@ -57,7 +57,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <wx/panel.h>
+#include <wx/scrolwin.h>
 #include <wx/bitmap.h>
 
 
@@ -68,7 +68,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CDLG_About_Logo : public wxPanel
+class CDLG_About_Logo : public wxScrolledCanvas
 {
 	DECLARE_CLASS(CDLG_About_Logo)
 
