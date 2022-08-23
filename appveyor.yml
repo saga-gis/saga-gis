@@ -1,11 +1,12 @@
 clone_folder: C:\project\saga
 platform: x64
 configuration: Release
-image: Visual Studio 2017
+image: Visual Studio 2019
 
 environment:
   SAGA: C:\project\saga
-  WXWIN: C:\deps\wxWidgets-3.2.0
+  WXWIN: C:\deps\wxWidgets
+  WXVER: 3.1.7
   LIBS4SAGA: C:\deps\libs4saga_x64
   GDAL: C:\deps\libs4saga_x64\gdal-3.5.0
   HARU: C:\deps\libs4saga_x64\libharu-2.2.0
@@ -17,12 +18,12 @@ environment:
 before_build:
   - cmd: mkdir C:\deps
   # get wxwidgets libs + inludes
-  - ps: Start-FileDownload https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.0/wxMSW-3.2.0_vc14x_x64_Dev.7z
-  - ps: Start-FileDownload https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.0/wxWidgets-3.2.0-headers.7z
-  - ps: Start-FileDownload https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.0/wxMSW-3.2.0_vc14x_x64_ReleaseDLL.7z
-  - cmd: 7z x wxMSW-3.2.0_vc14x_x64_Dev.7z -o%WXWIN% -bb2
-  - cmd: 7z x wxWidgets-3.2.0-headers.7z -o%WXWIN% -bb2 -aoa
-  - cmd: 7z x wxMSW-3.2.0_vc14x_x64_ReleaseDLL.7z -o%WXWIN% -bb2 -aoa
+  - ps: Start-FileDownload https://github.com/wxWidgets/wxWidgets/releases/download/v%WXVER%/wxWidgets-%WXVER%-headers.7z
+  - ps: Start-FileDownload https://github.com/wxWidgets/wxWidgets/releases/download/v%WXVER%/wxMSW-%WXVER%_vc14x_x64_Dev.7z
+  - ps: Start-FileDownload https://github.com/wxWidgets/wxWidgets/releases/download/v%WXVER%/wxMSW-%WXVER%_vc14x_x64_ReleaseDLL.7z
+  - cmd: 7z x wxWidgets-%WXVER%-headers.7z -o%WXWIN% -bb2 -aoa
+  - cmd: 7z x wxMSW-%WXVER%_vc14x_x64_Dev.7z -o%WXWIN% -bb2
+  - cmd: 7z x wxMSW-%WXVER%_vc14x_x64_ReleaseDLL.7z -o%WXWIN% -bb2 -aoa
   # small fix because wxwindows paths are different when downloading than when compiling yourself
   - cmd: move %WXWIN%\lib\vc14x_x64_dll %WXWIN%\lib\vc_x64_dll
   # get libs4saga
