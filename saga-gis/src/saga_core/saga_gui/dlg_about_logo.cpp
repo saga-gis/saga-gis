@@ -102,29 +102,40 @@ void CDLG_About_Logo::On_Size(wxSizeEvent &event)
 //---------------------------------------------------------
 void CDLG_About_Logo::On_Paint(wxPaintEvent &event)
 {
-	wxPaintDC dc(this); DoPrepareDC(dc);
+	#define FONT_ITALIC dc.SetFont(Font.Italic());
+	#define FONT_NORMAL dc.SetFont(Font);
+
+	wxPaintDC dc(this); DoPrepareDC(dc); wxFont Font(dc.GetFont());
 
 	int Cursor = 0, Space = dc.GetTextExtent("|").y;
 
-	Draw_Text  (dc, Cursor += 1 * Space, "Created and developed by");
-	Draw_Text  (dc, Cursor += 0 * Space, "Dr. O. Conrad");
+	FONT_NORMAL; Draw_Text(dc, Cursor += 1 * Space, "Created and developed by");
+	FONT_ITALIC; Draw_Text(dc, Cursor += 0 * Space, "Dr. O. Conrad");
 
-	Draw_Text  (dc, Cursor += 1 * Space, "Core development by");
-	Draw_Text  (dc, Cursor += 0 * Space, "Dr. O. Conrad, Dr. V. Wichmann");
+	FONT_NORMAL; Draw_Text(dc, Cursor += 1 * Space, "Core Team and Administration");
+	FONT_ITALIC; Draw_Text(dc, Cursor += 0 * Space, "Dr. O. Conrad, Dr. V. Wichmann");
 
-	Draw_Text  (dc, Cursor += 0 * Space, "_______________________");
+	FONT_NORMAL; Draw_Text(dc, Cursor += 0 * Space, "_______________________");
 
-	Draw_Bitmap(dc, Cursor += 0 * Space, logo_uhh_xpm);
-	Draw_Text  (dc, Cursor += 0 * Space, "Dr. O. Conrad, Prof. Dr. J. Boehner");
+	Draw_Bitmap           (dc, Cursor += 0 * Space, logo_uhh_xpm);
+	FONT_NORMAL; Draw_Text(dc, Cursor += 0 * Space, "Department of Physical Geography");
+	FONT_ITALIC; Draw_Text(dc, Cursor += 0 * Space, "Prof. Dr. J. Boehner, Dr. O. Conrad");
 
-	Draw_Bitmap(dc, Cursor += 3 * Space, logo_scilands_xpm);
-	Draw_Text  (dc, Cursor += 1 * Space, "M. Bock, R. Koethe, J. Spitzmueller");
+	Draw_Bitmap           (dc, Cursor += 3 * Space, logo_scilands_xpm);
+	FONT_ITALIC; Draw_Text(dc, Cursor += 1 * Space, "M. Bock, R. Koethe, J. Spitzmueller");
 
-	Draw_Bitmap(dc, Cursor += 3 * Space, logo_laserdata_xpm);
-	Draw_Text  (dc, Cursor += 1 * Space, "Dr. V. Wichmann");
+	Draw_Bitmap           (dc, Cursor += 3 * Space, logo_laserdata_xpm);
+	FONT_ITALIC; Draw_Text(dc, Cursor += 1 * Space, "Dr. V. Wichmann");
+
+	FONT_NORMAL; Draw_Text(dc, Cursor += 2 * Space, "_______________________"); Cursor += Space;
+	Draw_Text(dc, Cursor, "We also like to thank you for all kind of contributions");
+	Draw_Text(dc, Cursor, "like package maintainment, bug fix reports, feature");
+	Draw_Text(dc, Cursor, "suggestions, forum questions and answers, documentation");
+	Draw_Text(dc, Cursor, "and tutorials, citations and recommendations,");
+	Draw_Text(dc, Cursor, "...or just for choosing SAGA!");
 
 	wxBitmap Splash(IMG_Get_Splash(0.3));
-	dc.DrawBitmap(Splash, (GetClientSize().x - Splash.GetWidth()) / 2, Cursor += 2 * Space);
+	dc.DrawBitmap(Splash, (GetClientSize().x - Splash.GetWidth()) / 2, Cursor += Space);
 
 	SetVirtualSize(Splash.GetWidth(), Cursor += Splash.GetHeight());
 	SetScrollRate(10, 10);
