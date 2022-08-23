@@ -31,7 +31,7 @@ before_build:
   # disable riegl import as it requires an SDK
   # cmd: sed -i '/{A89FB596-3D86-4BF0-A57B-DAC3A7D2E740}.*Build\.0.*/d' saga-gis/src/saga.vc14.sln
   - cmd: cd %SAGA%\saga-gis
-  - cmd: cmake . -G "Visual Studio 15 2019" -A x64
+  - cmd: cmake . -G "Visual Studio 16 2019" -A x64
 
 build:
   project: saga-gis\saga.sln
