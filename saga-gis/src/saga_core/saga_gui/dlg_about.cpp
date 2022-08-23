@@ -184,7 +184,7 @@ wxString CDLG_About::_Get_Version(void)
 	if( *GIT_HASH )
 		s	+= "[ #" + wxString(GIT_HASH) + " ]\n";
 #endif
-	s	+= "https://saga-gis.org" "\n";
+	s	+= "http://saga-gis.org" "\n";
 
 	//-----------------------------------------------------
 
