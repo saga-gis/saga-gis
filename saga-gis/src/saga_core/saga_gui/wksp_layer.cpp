@@ -1124,7 +1124,7 @@ bool CWKSP_Layer::View_Closes(MDI_ChildFrame *pView)
 {
 	if( pView == m_pHistogram )
 	{
-		m_pHistogram	= NULL;
+		m_pHistogram = NULL;
 	}
 
 	return( CWKSP_Data_Item::View_Closes(pView) );
@@ -1140,12 +1140,11 @@ void CWKSP_Layer::Histogram_Show(bool bShow)
 {
 	if( bShow && !m_pHistogram )
 	{
-		m_pHistogram	= new CVIEW_Histogram(this);
+		m_pHistogram = new CVIEW_Histogram(this);
 	}
 	else if( !bShow && m_pHistogram )
 	{
 		m_pHistogram->Destroy();
-		delete(m_pHistogram);
 	}
 }
 
