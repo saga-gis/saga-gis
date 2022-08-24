@@ -122,20 +122,20 @@ CVIEW_Map::CVIEW_Map(CWKSP_Map *pMap, int Frame_Width)
 {
 	SYS_Set_Color_BG_Window(this);
 
-	m_pMap			= pMap;
+	m_pMap       = pMap;
 
-	m_pControl		= new CVIEW_Map_Control(this, m_pMap);
+	m_pControl   = new CVIEW_Map_Control(this, m_pMap);
 
-	m_pRuler_X1		= new CVIEW_Ruler(this, RULER_HORIZONTAL|RULER_MODE_NORMAL|RULER_TICKATBOTTOM);
-	m_pRuler_X2		= new CVIEW_Ruler(this, RULER_HORIZONTAL|RULER_MODE_SCALE );
-	m_pRuler_Y1		= new CVIEW_Ruler(this, RULER_VERTICAL  |RULER_MODE_NORMAL|RULER_DESCENDING|RULER_TICKATBOTTOM);
-	m_pRuler_Y2		= new CVIEW_Ruler(this, RULER_VERTICAL  |RULER_MODE_SCALE |RULER_DESCENDING);
+	m_pRuler_X1  = new CVIEW_Ruler(this, RULER_HORIZONTAL|RULER_MODE_NORMAL|RULER_TICKATBOTTOM);
+	m_pRuler_X2  = new CVIEW_Ruler(this, RULER_HORIZONTAL|RULER_MODE_SCALE );
+	m_pRuler_Y1  = new CVIEW_Ruler(this, RULER_VERTICAL  |RULER_MODE_NORMAL|RULER_DESCENDING|RULER_TICKATBOTTOM);
+	m_pRuler_Y2  = new CVIEW_Ruler(this, RULER_VERTICAL  |RULER_MODE_SCALE |RULER_DESCENDING);
 
-	m_Ruler_Size	= 20;
-
-	Ruler_Set_Width(Frame_Width);
+	m_Ruler_Size = -1;
 
 	Do_Show();
+
+	Ruler_Set_Width(Frame_Width);
 }
 
 
@@ -271,22 +271,22 @@ void CVIEW_Map::On_Size(wxSizeEvent &event)
 //---------------------------------------------------------
 void CVIEW_Map::_Set_Positions(void)
 {
-	wxRect	r(wxPoint(0, 0), GetClientSize());
+	wxRect r(wxPoint(0, 0), GetClientSize());
 
 	if( m_Ruler_Size > 0 )
 	{
 		r.Deflate(m_Ruler_Size);
 
-		m_pRuler_X1	->SetSize(wxRect(r.GetLeft()     , 0                , r.GetWidth(), m_Ruler_Size - 1));
-		m_pRuler_X2	->SetSize(wxRect(r.GetLeft()     , 2 + r.GetBottom(), r.GetWidth(), m_Ruler_Size - 1));
+		m_pRuler_X1->SetSize(wxRect(r.GetLeft()     , 0                , r.GetWidth(), m_Ruler_Size - 1));
+		m_pRuler_X2->SetSize(wxRect(r.GetLeft()     , 2 + r.GetBottom(), r.GetWidth(), m_Ruler_Size - 1));
 
-		m_pRuler_Y1	->SetSize(wxRect(0               , r.GetTop()       , m_Ruler_Size - 1, r.GetHeight()));
-		m_pRuler_Y2	->SetSize(wxRect(2 + r.GetRight(), r.GetTop()       , m_Ruler_Size - 1, r.GetHeight()));
+		m_pRuler_Y1->SetSize(wxRect(0               , r.GetTop()       , m_Ruler_Size - 1, r.GetHeight()));
+		m_pRuler_Y2->SetSize(wxRect(2 + r.GetRight(), r.GetTop()       , m_Ruler_Size - 1, r.GetHeight()));
 
 		Refresh();
 	}
 
-	m_pControl	->SetSize(r);
+	m_pControl->SetSize(r);
 }
 
 //---------------------------------------------------------

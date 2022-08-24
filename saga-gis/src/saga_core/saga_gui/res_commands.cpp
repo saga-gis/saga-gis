@@ -50,6 +50,7 @@
 //---------------------------------------------------------
 #include <wx/event.h>
 #include <wx/menu.h>
+#include <wx/toolbar.h>
 
 #include <saga_api/saga_api.h>
 
@@ -57,6 +58,8 @@
 #include "res_images.h"
 
 #include "saga_frame.h"
+
+#include "wksp_tool_manager.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -547,7 +550,18 @@ void CMD_Menu_Ins_Item(wxMenu *pMenu, bool bCheck, int Cmd_ID, int Position)
 //---------------------------------------------------------
 wxToolBarBase * CMD_ToolBar_Create(int ID)
 {
-	return( g_pSAGA_Frame ? g_pSAGA_Frame->TB_Create(ID) : NULL );
+	if( g_pSAGA_Frame )
+	{
+		wxToolBar *pToolBar = new wxToolBar(g_pSAGA_Frame, ID, wxDefaultPosition, wxDefaultSize, wxTB_HORIZONTAL|wxTB_FLAT|wxTB_NODIVIDER);
+
+		int Size = g_pSAGA_Frame->FromDIP(g_pTools->Get_Parameter("LOOK_TB_SIZE")->asInt());
+
+		pToolBar->SetToolBitmapSize(wxSize(Size, Size));
+
+		return( pToolBar );
+	}
+
+	return( NULL );
 }
 
 //---------------------------------------------------------
@@ -555,26 +569,27 @@ void CMD_ToolBar_Add(wxToolBarBase *pToolBar, const wxString &Name)
 {
 	if( g_pSAGA_Frame )
 	{
-		g_pSAGA_Frame->TB_Add(pToolBar, Name);
+		g_pSAGA_Frame->Add_Toolbar(pToolBar, Name);
 	}
 }
 
 //---------------------------------------------------------
 void CMD_ToolBar_Add_Item(wxToolBarBase *pToolBar, bool bCheck, int Cmd_ID)
 {
-	if( g_pSAGA_Frame )
+	if( bCheck )
 	{
-		g_pSAGA_Frame->TB_Add_Item(pToolBar, bCheck, Cmd_ID);
+		pToolBar->AddTool(Cmd_ID, CMD_Get_Name(Cmd_ID), IMG_Get_Bitmaps(CMD_Get_ImageID(Cmd_ID), pToolBar->GetToolBitmapSize()), CMD_Get_Help(Cmd_ID), wxITEM_CHECK);
+	}
+	else
+	{
+		pToolBar->AddTool(Cmd_ID, CMD_Get_Name(Cmd_ID), IMG_Get_Bitmaps(CMD_Get_ImageID(Cmd_ID), pToolBar->GetToolBitmapSize()), CMD_Get_Help(Cmd_ID));
 	}
 }
 
 //---------------------------------------------------------
 void CMD_ToolBar_Add_Separator(wxToolBarBase *pToolBar)
 {
-	if( g_pSAGA_Frame )
-	{
-		g_pSAGA_Frame->TB_Add_Separator(pToolBar);
-	}
+	pToolBar->AddSeparator();
 }
 
 

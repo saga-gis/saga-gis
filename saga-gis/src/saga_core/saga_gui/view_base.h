@@ -93,10 +93,14 @@ public:
 
 	virtual void				On_Command_UI		(wxUpdateUIEvent &event);
 
+	static bool					Do_Updates			(void)	{ return( m_bUpdates ); }
+
 
 protected:
 
 	class CWKSP_Base_Item		*m_pOwner;
+
+	static bool					m_bUpdates;
 
 
 	void						Do_Show				(void);

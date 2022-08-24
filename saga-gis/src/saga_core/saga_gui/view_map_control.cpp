@@ -542,13 +542,16 @@ void CVIEW_Map_Control::On_Paint(wxPaintEvent &event)
 //---------------------------------------------------------
 void CVIEW_Map_Control::On_Size(wxSizeEvent &event)
 {
-	wxRect	r(GetClientSize());
-
-	if( !m_Bitmap.Ok() || m_Bitmap.GetWidth() != r.GetWidth() || m_Bitmap.GetHeight() != r.GetHeight() )
+	if( m_pParent->Do_Updates() )
 	{
-		m_Bitmap.Create(r.GetWidth(), r.GetHeight());
+		wxRect	r(GetClientSize());
 
-		Refresh_Map();
+		if( !m_Bitmap.Ok() || m_Bitmap.GetWidth() != r.GetWidth() || m_Bitmap.GetHeight() != r.GetHeight() )
+		{
+			m_Bitmap.Create(r.GetWidth(), r.GetHeight());
+
+			Refresh_Map();
+		}
 	}
 }
 

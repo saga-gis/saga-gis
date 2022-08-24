@@ -262,15 +262,17 @@ CSAGA_Frame::CSAGA_Frame(void)
 	: MDI_ParentFrame(NULL, ID_WND_MAIN, SAGA_CAPTION, wxDefaultPosition, wxDefaultSize, MDI_PARENT_FRAME_STYLE)
 {
 	//-----------------------------------------------------
-	g_pSAGA_Frame		= this;
+	g_pSAGA_Frame  = this;
 
-	m_nTopWindows		= 0;
-	m_pTopWindows		= NULL;
+	m_nChildren    = 0;
 
-	m_pINFO				= NULL;
-	m_pData_Source		= NULL;
-	m_pActive			= NULL;
-	m_pWKSP				= NULL;
+	m_nTopWindows  = 0;
+	m_pTopWindows  = NULL;
+
+	m_pINFO        = NULL;
+	m_pData_Source = NULL;
+	m_pActive      = NULL;
+	m_pWKSP        = NULL;
 
 	SG_Set_UI_Callback	(Get_Callback());
 
@@ -633,9 +635,7 @@ void CSAGA_Frame::On_Frame_Split_UI(wxUpdateUIEvent &event)
 void CSAGA_Frame::Tile(wxOrientation orient)
 {
 #ifndef MDI_TABBED
-	int		n	= _Get_MDI_Children_Count();
-
-	if( n == 1 && GetActiveChild() )
+	if( m_nChildren == 1 && GetActiveChild() )
 	{
 		GetActiveChild()->Maximize();
 	}
@@ -1036,33 +1036,9 @@ void CSAGA_Frame::Close_Children(void)
 }
 
 //---------------------------------------------------------
-int CSAGA_Frame::_Get_MDI_Children_Count(void)
-{
-#ifdef MDI_TABBED
-	return( GetNotebook()->GetPageCount() );
-#else
-	int		n	= 0;
-
-	for(wxWindowList::const_iterator Child=GetChildren().begin(); Child!=GetChildren().end(); Child++)
-	{
-		if( wxDynamicCast(*Child, wxMDIChildFrame) )
-		{
-			n++;
-		}
-	}
-
-	return( n );
-#endif
-}
-
-//---------------------------------------------------------
 void CSAGA_Frame::On_Child_Activates(int View_ID)
 {
-#ifdef MDI_TABBED
-	if( View_ID < 0 && _Get_MDI_Children_Count() > 0 )	// child view closes, but it's not the last one
-#else
-	if( View_ID < 0 && _Get_MDI_Children_Count() > 1 )	// child view closes, but it's not the last one
-#endif
+	if( View_ID < 0 && m_nChildren > 0 )	// child view closes, but it's not the last one
 	{
 		return;	// nothing to do, another child will be activated next!
 	}
@@ -1118,7 +1094,6 @@ void CSAGA_Frame::On_Child_Activates(int View_ID)
 //---------------------------------------------------------
 wxMenuBar * CSAGA_Frame::_Create_MenuBar(void)
 {
-	//-----------------------------------------------------
 	m_pMN_Table			= CVIEW_Table        ::_Create_Menu();
 	m_pMN_Diagram		= CVIEW_Table_Diagram::_Create_Menu();
 	m_pMN_Map			= CVIEW_Map          ::_Create_Menu();
@@ -1180,6 +1155,53 @@ wxMenuBar * CSAGA_Frame::_Create_MenuBar(void)
 	SetMenuBar(pMenuBar);
 
 	return( pMenuBar );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//						ToolBar							 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+wxToolBarBase * CSAGA_Frame::_Create_ToolBar(void)
+{
+	wxToolBarBase *pToolBar = CMD_ToolBar_Create(ID_TB_MAIN);
+
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DATA_OPEN);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DATA_PROJECT_NEW);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DATA_PROJECT_SAVE);
+	CMD_ToolBar_Add_Separator(pToolBar);
+	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_FRAME_WKSP_SHOW);
+	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_FRAME_ACTIVE_SHOW);
+	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_FRAME_DATA_SOURCE_SHOW);
+	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_FRAME_INFO_SHOW);
+	CMD_ToolBar_Add_Separator(pToolBar);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_TOOL_SEARCH);
+	CMD_ToolBar_Add_Separator(pToolBar);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_FRAME_HELP);
+
+	CMD_ToolBar_Add(pToolBar, _TL("Main"));
+
+	return( pToolBar );
+}
+
+//---------------------------------------------------------
+void CSAGA_Frame::Add_Toolbar(wxToolBarBase *pToolBar, const wxString &Name)
+{
+	pToolBar->Realize();
+
+	m_pLayout->AddPane(pToolBar, wxAuiPaneInfo()
+		.Name         (wxString::Format("PANE_%d", pToolBar->GetId()))
+		.Caption      (Name)
+		.ToolbarPane  ()
+		.Top          ()
+		.LeftDockable (false)
+		.RightDockable(false)
+		.Hide         ()
+		.BestSize     (pToolBar->GetBestSize())
+	);
 }
 
 
@@ -1252,80 +1274,6 @@ void CSAGA_Frame::_Bar_Show(wxWindow *pWindow, bool bShow)
 
 		m_pLayout->Update();
 	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//						ToolBar							 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-wxToolBarBase * CSAGA_Frame::TB_Create(int ID)
-{
-	wxToolBar *pToolBar = new wxToolBar(this, ID, wxDefaultPosition, wxDefaultSize, wxTB_HORIZONTAL|wxTB_FLAT|wxTB_NODIVIDER);
-
-	int Size = FromDIP(g_pTools->Get_Parameter("LOOK_TB_SIZE")->asInt());
-
-	pToolBar->SetToolBitmapSize(wxSize(Size, Size));
-
-	return( pToolBar );
-}
-
-//---------------------------------------------------------
-void CSAGA_Frame::TB_Add(wxToolBarBase *pToolBar, const wxString &Name)
-{
-	pToolBar->Realize();
-
-	m_pLayout->AddPane(pToolBar, wxAuiPaneInfo()
-		.Name         (wxString::Format("PANE_%d", pToolBar->GetId()))
-		.Caption      (Name)
-		.ToolbarPane  ()
-		.Top          ()
-		.LeftDockable (false)
-		.RightDockable(false)
-		.Hide         ()
-		.BestSize     (pToolBar->GetBestSize())
-	);
-}
-
-//---------------------------------------------------------
-void CSAGA_Frame::TB_Add_Item(wxToolBarBase *pToolBar, bool bCheck, int Cmd_ID)
-{
-	if( bCheck )
-		((wxToolBar *)pToolBar)->AddTool(Cmd_ID, CMD_Get_Name(Cmd_ID), IMG_Get_Bitmaps(CMD_Get_ImageID(Cmd_ID), pToolBar->GetToolBitmapSize()), CMD_Get_Help(Cmd_ID), wxITEM_CHECK);
-	else
-		((wxToolBar *)pToolBar)->AddTool(Cmd_ID, CMD_Get_Name(Cmd_ID), IMG_Get_Bitmaps(CMD_Get_ImageID(Cmd_ID), pToolBar->GetToolBitmapSize()), CMD_Get_Help(Cmd_ID));
-}
-
-//---------------------------------------------------------
-void CSAGA_Frame::TB_Add_Separator(wxToolBarBase *pToolBar)
-{
-	((wxToolBar *)pToolBar)->AddSeparator();
-}
-
-//---------------------------------------------------------
-wxToolBarBase * CSAGA_Frame::_Create_ToolBar(void)
-{
-	wxToolBarBase	*pToolBar	= TB_Create(ID_TB_MAIN);
-
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DATA_OPEN);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DATA_PROJECT_NEW);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DATA_PROJECT_SAVE);
-	CMD_ToolBar_Add_Separator(pToolBar);
-	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_FRAME_WKSP_SHOW);
-	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_FRAME_ACTIVE_SHOW);
-	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_FRAME_DATA_SOURCE_SHOW);
-	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_FRAME_INFO_SHOW);
-	CMD_ToolBar_Add_Separator(pToolBar);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_TOOL_SEARCH);
-	CMD_ToolBar_Add_Separator(pToolBar);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_FRAME_HELP);
-
-	TB_Add(pToolBar, _TL("Main"));
-
-	return( pToolBar );
 }
 
 

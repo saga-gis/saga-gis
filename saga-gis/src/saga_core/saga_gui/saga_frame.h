@@ -85,15 +85,74 @@ class CSAGA_Frame_Layout;
 class CSAGA_Frame : public MDI_ParentFrame
 {
 public:
-
 	CSAGA_Frame(void);
 	virtual ~CSAGA_Frame(void);
+
+	void						Show_Tips					(bool bShow);
+
+	bool						Process_Get_Okay			(bool bBlink);
+	bool						Process_Set_Okay			(bool bOkay = true);
+
+	bool						ProgressBar_Set_Position	(int Position);
+	bool						ProgressBar_Set_Position	(double Position, double Range);
+
+	void						Set_Project_Name			(wxString Project_Name = wxEmptyString);
+
+	void						Top_Window_Push				(wxWindow *pWindow);
+	void						Top_Window_Pop				(wxWindow *pWindow);
+	wxWindow *					Top_Window_Get				(void);
+
+	void						StatusBar_Set_Text			(const wxString &Text, int iPane = 0);
+
+	virtual wxStatusBar *		OnCreateStatusBar			(int number, long style, wxWindowID id, const wxString& name);
+
+	virtual void				Tile						(wxOrientation orient = wxHORIZONTAL);
+
+	void						Close_Children				(void);
+	void						On_Child_Activates			(int View_ID);
+	void						On_Child_Created			(void) { m_nChildren++; }
+	void						On_Child_Deleted			(void) { m_nChildren--; }
+
+	void						Set_Pane_Caption			(wxWindow *pWindow, const wxString &Caption);
+
+	void						Add_Toolbar					(class wxToolBarBase *pToolBar, const wxString &Name);
+
+
+private: //------------------------------------------------
+
+	int							m_nTopWindows, m_nChildren;
+
+	wxWindow					**m_pTopWindows;
+
+	class wxGauge				*m_pProgressBar;
+
+	class wxMenu				*m_pMN_Table, *m_pMN_Diagram, *m_pMN_Map, *m_pMN_Map_3D, *m_pMN_Histogram, *m_pMN_ScatterPlot, *m_pMN_Layout;
+
+	class wxToolBarBase			*m_pTB_Table, *m_pTB_Diagram, *m_pTB_Map, *m_pTB_Map_3D, *m_pTB_Histogram, *m_pTB_ScatterPlot, *m_pTB_Layout, *m_pTB_Main;
+
+	class CINFO					*m_pINFO;
+
+	class CData_Source			*m_pData_Source;
+
+	class CActive				*m_pActive;
+
+	class CWKSP					*m_pWKSP;
+
+	class wxAuiManager			*m_pLayout;
+
+
+	//-----------------------------------------------------
+	class wxMenuBar *			_Create_MenuBar				(void);
+	class wxToolBarBase *		_Create_ToolBar				(void);
+
+	void						_Bar_Add					(wxWindow *pWindow, int Position, int Row);
+	void						_Bar_Toggle					(wxWindow *pWindow);
+	void						_Bar_Show					(wxWindow *pWindow, bool bShow);
 
 	//-----------------------------------------------------
 	void						On_Close					(wxCloseEvent    &event);
 	void						On_Size						(wxSizeEvent     &event);
 
-	//-----------------------------------------------------
 	void						On_Quit						(wxCommandEvent  &event);
 	void						On_Help						(wxCommandEvent  &event);
 	void						On_About					(wxCommandEvent  &event);
@@ -129,85 +188,17 @@ public:
 	void						On_INFO_Show				(wxCommandEvent  &event);
 	void						On_INFO_Show_UI				(wxUpdateUIEvent &event);
 
-	//-----------------------------------------------------
 	void						On_Command_Workspace		(wxCommandEvent  &event);
 	void						On_Command_Workspace_UI		(wxUpdateUIEvent &event);
-	void						On_Command_Tool			(wxCommandEvent  &event);
-	void						On_Command_Tool_UI		(wxUpdateUIEvent &event);
+	void						On_Command_Tool				(wxCommandEvent  &event);
+	void						On_Command_Tool_UI			(wxUpdateUIEvent &event);
 
 	void						On_Command_Child			(wxCommandEvent  &event);
 	void						On_Command_Child_UI			(wxUpdateUIEvent &event);
 
-	//-----------------------------------------------------
-	void						Show_Tips					(bool bShow);
 
 	//-----------------------------------------------------
-	bool						Process_Get_Okay			(bool bBlink);
-	bool						Process_Set_Okay			(bool bOkay = true);
-
-	bool						ProgressBar_Set_Position	(int Position);
-	bool						ProgressBar_Set_Position	(double Position, double Range);
-
-	virtual wxStatusBar *		OnCreateStatusBar			(int number, long style, wxWindowID id, const wxString& name);
-
-	void						StatusBar_Set_Text			(const wxString &Text, int iPane = 0);
-
-	void						Set_Project_Name			(wxString Project_Name = wxEmptyString);
-
-	void						Top_Window_Push				(wxWindow *pWindow);
-	void						Top_Window_Pop				(wxWindow *pWindow);
-	wxWindow *					Top_Window_Get				(void);
-
-	//-----------------------------------------------------
-    virtual void				Tile						(wxOrientation orient = wxHORIZONTAL);
-
-	void						Close_Children				(void);
-	void						On_Child_Activates			(int View_ID);
-
-	void						Set_Pane_Caption			(wxWindow *pWindow, const wxString &Caption);
-
-	class wxToolBarBase *		TB_Create					(int ID);
-	void						TB_Add						(class wxToolBarBase *pToolBar, const wxString &Name);
-	void						TB_Add_Item					(class wxToolBarBase *pToolBar, bool bCheck, int Cmd_ID);
-	void						TB_Add_Separator			(class wxToolBarBase *pToolBar);
-
-
-private:
-
-	int							m_nTopWindows;
-
-	wxWindow					**m_pTopWindows;
-
-	class wxGauge				*m_pProgressBar;
-
-	class wxMenu				*m_pMN_Table, *m_pMN_Diagram, *m_pMN_Map, *m_pMN_Map_3D, *m_pMN_Histogram, *m_pMN_ScatterPlot, *m_pMN_Layout;
-
-	class wxToolBarBase			*m_pTB_Table, *m_pTB_Diagram, *m_pTB_Map, *m_pTB_Map_3D, *m_pTB_Histogram, *m_pTB_ScatterPlot, *m_pTB_Layout, *m_pTB_Main;
-
-	class CINFO					*m_pINFO;
-
-	class CData_Source			*m_pData_Source;
-
-	class CActive				*m_pActive;
-
-	class CWKSP					*m_pWKSP;
-
-	class wxAuiManager			*m_pLayout;
-
-
-	int							_Get_MDI_Children_Count		(void);
-
-	class wxMenuBar *			_Create_MenuBar				(void);
-
-	void						_Bar_Add					(wxWindow *pWindow, int Position, int Row);
-	void						_Bar_Toggle					(wxWindow *pWindow);
-	void						_Bar_Show					(wxWindow *pWindow, bool bShow);
-
-	class wxToolBarBase *		_Create_ToolBar				(void);
-
-
-//---------------------------------------------------------
-DECLARE_EVENT_TABLE()
+	DECLARE_EVENT_TABLE()
 };
 
 

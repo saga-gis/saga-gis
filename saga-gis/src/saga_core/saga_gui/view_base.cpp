@@ -80,6 +80,9 @@ BEGIN_EVENT_TABLE(CVIEW_Base, MDI_ChildFrame)
 	EVT_ACTIVATE		(CVIEW_Base::On_Activate)
 END_EVENT_TABLE()
 
+//---------------------------------------------------------
+bool CVIEW_Base::m_bUpdates = true;
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -115,6 +118,8 @@ CVIEW_Base::CVIEW_Base(class CWKSP_Base_Item *pOwner, int View_ID, wxString Capt
 	}
 #endif
 
+	g_pSAGA_Frame->On_Child_Created();
+
 	if( bShow )
 	{
 		Do_Show();
@@ -138,10 +143,8 @@ CVIEW_Base::~CVIEW_Base(void)
 		}
 	}
 
-	if( g_pSAGA_Frame )
-	{
-		g_pSAGA_Frame->On_Child_Activates(-1);
-	}
+	g_pSAGA_Frame->On_Child_Deleted();
+	g_pSAGA_Frame->On_Child_Activates(-1);
 }
 
 
@@ -171,7 +174,9 @@ void CVIEW_Base::Do_Show(void)
 		Maximize();
 	}
 
+	m_bUpdates = false;
 	Show();
+	m_bUpdates = true;
 #endif
 
 	g_pSAGA_Frame->On_Child_Activates(m_View_ID);
