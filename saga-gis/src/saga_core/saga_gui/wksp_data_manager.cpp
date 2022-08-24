@@ -409,7 +409,7 @@ wxFileName Get_SAGA_GUI_CFG(void)
 	}
 #endif
 
-	fProject.Normalize();
+	fProject.Normalize(wxPATH_NORM_ENV_VARS|wxPATH_NORM_DOTS|wxPATH_NORM_TILDE|wxPATH_NORM_ABSOLUTE|wxPATH_NORM_LONG|wxPATH_NORM_SHORTCUT);
 
 	return( fProject );
 }
