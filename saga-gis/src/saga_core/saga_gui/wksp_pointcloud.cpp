@@ -339,6 +339,10 @@ bool CWKSP_PointCloud::On_Command_UI(wxUpdateUIEvent &event)
 	case ID_CMD_TABLE_DIAGRAM:
 		event.Check(m_pTable->Get_Diagram() != NULL);
 		break;
+
+	case ID_CMD_SHAPES_HISTOGRAM:
+		event.Check(m_pHistogram != NULL);
+		break;
 	}
 
 	return( true );
