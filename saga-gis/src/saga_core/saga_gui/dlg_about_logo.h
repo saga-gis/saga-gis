@@ -82,7 +82,8 @@ public:
 private:
 
 	bool				Draw_Text		(wxDC &dc, int &Cursor, const wxString &Text);
-	bool				Draw_Bitmap		(wxDC &dc, int &Cursor, const char *const *XPM);
+	bool				Draw_XPM		(wxDC &dc, int &Cursor, const char *const *XPM);
+	bool				Draw_SVG		(wxDC &dc, int &Cursor, const char *SVG, const wxSize &Size);
 
 	DECLARE_EVENT_TABLE()
 };

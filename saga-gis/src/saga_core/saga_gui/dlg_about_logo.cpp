@@ -52,7 +52,7 @@
 
 #include "res/xpm/logo_uhh.xpm"
 #include "res/xpm/logo_scilands.xpm"
-#include "res/xpm/logo_laserdata.xpm"
+#include "res/svg/logo_laserdata.svg.h"
 
 #include "saga_gdi/sgdi_helper.h"
 
@@ -109,30 +109,30 @@ void CDLG_About_Logo::On_Paint(wxPaintEvent &event)
 
 	int Cursor = 0, Space = dc.GetTextExtent("|").y;
 
-	FONT_NORMAL; Draw_Text(dc, Cursor += 1 * Space, "Created and developed by");
-	FONT_ITALIC; Draw_Text(dc, Cursor += 0 * Space, "Dr. O. Conrad");
+	FONT_NORMAL; Draw_Text(dc, Cursor += Space * 1, "Created and developed by");
+	FONT_ITALIC; Draw_Text(dc, Cursor += Space * 0, "Dr. O. Conrad");
 
-	FONT_NORMAL; Draw_Text(dc, Cursor += 1 * Space, "Core Team and Administration");
-	FONT_ITALIC; Draw_Text(dc, Cursor += 0 * Space, "Dr. O. Conrad, Dr. V. Wichmann");
+	FONT_NORMAL; Draw_Text(dc, Cursor += Space * 1, "Core Team and Administration");
+	FONT_ITALIC; Draw_Text(dc, Cursor += Space * 0, "Dr. O. Conrad, Dr. V. Wichmann");
 
-	FONT_NORMAL; Draw_Text(dc, Cursor += 0 * Space, "_______________________");
+	FONT_NORMAL; Draw_Text(dc, Cursor += Space * 0, "_______________________");
 
-	Draw_Bitmap           (dc, Cursor += 0 * Space, logo_uhh_xpm);
-	FONT_NORMAL; Draw_Text(dc, Cursor += 0 * Space, "Department of Physical Geography");
-	FONT_ITALIC; Draw_Text(dc, Cursor += 0 * Space, "Prof. Dr. J. Boehner, Dr. O. Conrad");
+	Draw_XPM              (dc, Cursor += Space * 0, xpm_logo_uhh);
+	FONT_NORMAL; Draw_Text(dc, Cursor += Space * 0, "Department of Physical Geography");
+	FONT_ITALIC; Draw_Text(dc, Cursor += Space * 0, "Prof. Dr. J. Boehner, Dr. O. Conrad");
 
-	Draw_Bitmap           (dc, Cursor += 3 * Space, logo_scilands_xpm);
-	FONT_ITALIC; Draw_Text(dc, Cursor += 1 * Space, "M. Bock, R. Koethe, J. Spitzmueller");
+	Draw_XPM              (dc, Cursor += Space * 3, xpm_logo_scilands);
+	FONT_ITALIC; Draw_Text(dc, Cursor += Space / 2, "M. Bock, R. Koethe, J. Spitzmueller");
 
-	Draw_Bitmap           (dc, Cursor += 3 * Space, logo_laserdata_xpm);
-	FONT_ITALIC; Draw_Text(dc, Cursor += 1 * Space, "Dr. V. Wichmann");
+	Draw_SVG              (dc, Cursor += Space * 3, svg_logo_laserdata, wxSize(213, 47)); // size corresponds to the uhh-logo width
+	FONT_ITALIC; Draw_Text(dc, Cursor += Space / 2, "Dr. V. Wichmann");
 
-	FONT_NORMAL; Draw_Text(dc, Cursor += 2 * Space, "_______________________"); Cursor += Space;
-	Draw_Text(dc, Cursor, "We also like to thank you for all kind of contributions");
-	Draw_Text(dc, Cursor, "like package maintainment, bug fix reports, feature");
+	FONT_NORMAL; Draw_Text(dc, Cursor += Space / 2, "_______________________"); Cursor += Space;
+	Draw_Text(dc, Cursor, "We also like to thank you for all kind of your contributions");
+	Draw_Text(dc, Cursor, "like package management, bug fix reports, feature");
 	Draw_Text(dc, Cursor, "suggestions, forum questions and answers, documentation");
 	Draw_Text(dc, Cursor, "and tutorials, citations and recommendations,");
-	Draw_Text(dc, Cursor, "...or just for choosing SAGA!");
+	Draw_Text(dc, Cursor, "...and for choosing SAGA!");
 
 	wxBitmap Splash(IMG_Get_Splash(0.3));
 	dc.DrawBitmap(Splash, (GetClientSize().x - Splash.GetWidth()) / 2, Cursor += Space);
@@ -152,9 +152,23 @@ bool CDLG_About_Logo::Draw_Text(wxDC &dc, int &Cursor, const wxString &Text)
 }
 
 //---------------------------------------------------------
-bool CDLG_About_Logo::Draw_Bitmap(wxDC &dc, int &Cursor, const char *const *XPM)
+bool CDLG_About_Logo::Draw_XPM(wxDC &dc, int &Cursor, const char *const *XPM)
 {
 	wxBitmap Bitmap(XPM);
+
+	int x = (GetClientSize().x - Bitmap.GetWidth()) / 2;
+
+	dc.DrawBitmap(Bitmap, x, Cursor, true);
+
+	Cursor += Bitmap.GetHeight();
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CDLG_About_Logo::Draw_SVG(wxDC &dc, int &Cursor, const char *SVG, const wxSize &Size)
+{
+	wxBitmap Bitmap(wxBitmapBundle::FromSVG(SVG, Size).GetBitmap(Size));
 
 	int x = (GetClientSize().x - Bitmap.GetWidth()) / 2;
 

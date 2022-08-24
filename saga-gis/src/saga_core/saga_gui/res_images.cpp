@@ -395,7 +395,7 @@ wxBitmap		IMG_Get_Splash(double Scale)
 	dc.SetTextForeground(wxColour(43, 60, 110));
 
 	Font.SetPixelSize(wxSize(0, (int)(Scale * 28))); dc.SetFont(Font);
-	Draw_Text(dc, TEXTALIGN_TOPCENTER, (int)(Scale * 495), (int)(Scale * 300), wxString::Format("- Release %s -", SAGA_VERSION));
+	Draw_Text(dc, TEXTALIGN_TOPCENTER, (int)(Scale * 495), (int)(Scale * 310), wxString::Format("- Release %s -", SAGA_VERSION));
 
 	return( Splash );
 }

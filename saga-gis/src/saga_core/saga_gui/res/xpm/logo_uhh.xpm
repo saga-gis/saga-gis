@@ -1,5 +1,5 @@
 /* XPM */
-static const char *logo_uhh_xpm[] = {
+static const char *xpm_logo_uhh[] = {
 "253 114 256 2",
 "  	c #FFFFFF",
 ". 	c #E2001A",

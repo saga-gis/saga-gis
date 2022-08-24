@@ -1,5 +1,5 @@
 /* XPM */
-static char *logo_scilands_xpm[] = {
+static char *xpm_logo_scilands[] = {
 "213 64 937 2",
 "  	c #FFFFFF",
 ". 	c #FAFAFA",
