@@ -179,7 +179,7 @@ wxString CDLG_About::_Get_Version(void)
 	s	+= "SAGA " + wxString(SAGA_VERSION) + " (64 bit)\n";
 #else
 	s	+= "SAGA " + wxString(SAGA_VERSION) + " (32 bit)\n";
-	#endif
+#endif
 #ifdef GIT_HASH
 	if( *GIT_HASH )
 		s	+= "[ #" + wxString(GIT_HASH) + " ]\n";
