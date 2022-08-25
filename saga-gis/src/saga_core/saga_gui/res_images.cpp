@@ -253,7 +253,7 @@ const char ** _Get_XPM(int ID_IMG)
 
 	case ID_IMG_TB_ACTIVE                : return( tb_active_xpm );
 	case ID_IMG_TB_DATASOURCE            : return( tb_datasource_xpm );
-	case ID_IMG_TB_DELETE                : return( tb_delete_xpm );
+//	case ID_IMG_TB_DELETE                : return( tb_delete_xpm ); // unused!
 	case ID_IMG_TB_DIAGRAM_PARAMETERS    : return( tb_diagram_parameters_xpm );
 	case ID_IMG_TB_EDIT_SHAPE_ADD        : return( tb_edit_shape_add_xpm );
 	case ID_IMG_TB_EDIT_SHAPE_ADD_PART   : return( tb_edit_shape_add_part_xpm );
@@ -464,15 +464,15 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 #include "./res/svg/nb_wksp_maps.svg.h"
 #include "./res/svg/nb_wksp_modules.svg.h"
 #include "./res/svg/nb_wksp_thumbnails.svg.h"
-//#include "./res/svg/nb_wksp_treeview.svg.h"
+#include "./res/svg/nb_wksp_treeview.svg.h"
 
 #include "./res/svg/wnd_diagram.svg.h"
 #include "./res/svg/wnd_histogram.svg.h"
-//#include "./res/svg/wnd_layout.svg.h"
+#include "./res/svg/wnd_layout.svg.h"
 //#include "./res/svg/wnd_map.svg.h"
 #include "./res/svg/wnd_map3d.svg.h"
-//#include "./res/svg/wnd_scatterplot.svg.h"
-//#include "./res/svg/wnd_table.svg.h"
+#include "./res/svg/wnd_scatterplot.svg.h"
+#include "./res/svg/wnd_table.svg.h"
 
 //#include "./res/svg/crs_edit_point_add.svg.h"
 //#include "./res/svg/crs_edit_point_move.svg.h"
@@ -550,15 +550,14 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 //#include "./res/svg/tb_open_table.svg.h"
 //#include "./res/svg/tb_open_tin.svg.h"
 #include "./res/svg/tb_save.svg.h"
-//#include "./res/svg/tb_scatterplot_parameters.svg.h"
 #include "./res/svg/tb_show.svg.h"
-//#include "./res/svg/tb_table_col_add.svg.h"
-//#include "./res/svg/tb_table_col_del.svg.h"
-//#include "./res/svg/tb_table_row_add.svg.h"
-//#include "./res/svg/tb_table_row_del.svg.h"
-//#include "./res/svg/tb_table_row_del_all.svg.h"
-//#include "./res/svg/tb_table_row_ins.svg.h"
-//#include "./res/svg/tb_table_selection_only.svg.h"
+#include "./res/svg/tb_table_col_add.svg.h"
+#include "./res/svg/tb_table_col_del.svg.h"
+#include "./res/svg/tb_table_row_add.svg.h"
+#include "./res/svg/tb_table_row_del.svg.h"
+#include "./res/svg/tb_table_row_del_all.svg.h"
+#include "./res/svg/tb_table_row_ins.svg.h"
+#include "./res/svg/tb_table_selection_only.svg.h"
 #include "./res/svg/tb_wksp.svg.h"
 
 #include "./res/svg/wksp_data_manager.svg.h"
@@ -614,15 +613,15 @@ const char * _Get_SVG(int ID_IMG)
 	case ID_IMG_NB_WKSP_MAPS             : return( svg_nb_wksp_maps );
 	case ID_IMG_NB_WKSP_TOOLS            : return( svg_nb_wksp_modules );
 	case ID_IMG_NB_WKSP_THUMBNAILS       : return( svg_nb_wksp_thumbnails );
-//	case ID_IMG_NB_WKSP_TREEVIEW         : return( svg_nb_wksp_treeview );
+	case ID_IMG_NB_WKSP_TREEVIEW         : return( svg_nb_wksp_treeview );
 
 	case ID_IMG_WND_DIAGRAM              : return( svg_wnd_diagram );
 	case ID_IMG_WND_HISTOGRAM            : return( svg_wnd_histogram );
-//	case ID_IMG_WND_LAYOUT               : return( svg_wnd_layout );
+	case ID_IMG_WND_LAYOUT               : return( svg_wnd_layout );
 //	case ID_IMG_WND_MAP                  : return( svg_wnd_map );
 	case ID_IMG_WND_MAP3D                : return( svg_wnd_map3d );
-//	case ID_IMG_WND_SCATTERPLOT          : return( svg_wnd_scatterplot );
-//	case ID_IMG_WND_TABLE                : return( svg_wnd_table );
+	case ID_IMG_WND_SCATTERPLOT          : return( svg_wnd_scatterplot );
+	case ID_IMG_WND_TABLE                : return( svg_wnd_table );
 
 //	case ID_IMG_CRS_EDIT_POINT_ADD       : return( svg_crs_edit_point_add );
 //	case ID_IMG_CRS_EDIT_POINT_MOVE      : return( svg_crs_edit_point_move );
@@ -634,7 +633,6 @@ const char * _Get_SVG(int ID_IMG)
 
 	case ID_IMG_TB_ACTIVE                : return( svg_tb_active );
 	case ID_IMG_TB_DATASOURCE            : return( svg_tb_datasource );
-//	case ID_IMG_TB_DELETE                : return( svg_tb_delete );
 	case ID_IMG_TB_DIAGRAM_PARAMETERS    : return( svg_tb_diagram_parameters );
 //	case ID_IMG_TB_EDIT_SHAPE_ADD        : return( svg_tb_edit_shape_add );
 //	case ID_IMG_TB_EDIT_SHAPE_ADD_PART   : return( svg_tb_edit_shape_add_part );
@@ -643,7 +641,7 @@ const char * _Get_SVG(int ID_IMG)
 //	case ID_IMG_TB_EDIT_SHAPE_DEL_POINT  : return( svg_tb_edit_shape_del_point );
 //	case ID_IMG_TB_EDIT_SHAPE_SELECT     : return( svg_tb_edit_shape_select );
 	case ID_IMG_TB_HELP                  : return( svg_tb_help );
-//	case ID_IMG_TB_HISTOGRAM_AS_TABLE    : return( svg_tb_histogram_as_table );
+	case ID_IMG_TB_HISTOGRAM_AS_TABLE    : return( svg_wnd_table );
 //	case ID_IMG_TB_HISTOGRAM_CUMULATIVE  : return( svg_tb_histogram_cumulative );
 //	case ID_IMG_TB_HISTOGRAM_GAUSSIAN    : return( svg_tb_histogram_gaussian );
 	case ID_IMG_TB_INFO                  : return( svg_tb_info );
@@ -700,15 +698,15 @@ const char * _Get_SVG(int ID_IMG)
 //	case ID_IMG_TB_OPEN_TABLE            : return( svg_tb_open_table );
 //	case ID_IMG_TB_OPEN_TIN              : return( svg_tb_open_tin );
 	case ID_IMG_TB_SAVE                  : return( svg_tb_save );
-//	case ID_IMG_TB_SCATTERPLOT_PARAMETERS: return( svg_tb_scatterplot_parameters );
+	case ID_IMG_TB_SCATTERPLOT_PARAMETERS: return( svg_wnd_scatterplot );
 	case ID_IMG_TB_SHOW                  : return( svg_tb_show );
-//	case ID_IMG_TB_TABLE_COL_ADD         : return( svg_tb_table_col_add );
-//	case ID_IMG_TB_TABLE_COL_DEL         : return( svg_tb_table_col_del );
-//	case ID_IMG_TB_TABLE_ROW_ADD         : return( svg_tb_table_row_add );
-//	case ID_IMG_TB_TABLE_ROW_DEL         : return( svg_tb_table_row_del );
-//	case ID_IMG_TB_TABLE_ROW_DEL_ALL     : return( svg_tb_table_row_del_all );
-//	case ID_IMG_TB_TABLE_ROW_INS         : return( svg_tb_table_row_ins );
-//	case ID_IMG_TB_TABLE_SELECTION_ONLY  : return( svg_tb_table_selection_only );
+	case ID_IMG_TB_TABLE_COL_ADD         : return( svg_tb_table_col_add );
+	case ID_IMG_TB_TABLE_COL_DEL         : return( svg_tb_table_col_del );
+	case ID_IMG_TB_TABLE_ROW_ADD         : return( svg_tb_table_row_add );
+	case ID_IMG_TB_TABLE_ROW_DEL         : return( svg_tb_table_row_del );
+	case ID_IMG_TB_TABLE_ROW_DEL_ALL     : return( svg_tb_table_row_del_all );
+	case ID_IMG_TB_TABLE_ROW_INS         : return( svg_tb_table_row_ins );
+	case ID_IMG_TB_TABLE_SELECTION_ONLY  : return( svg_tb_table_selection_only );
 	case ID_IMG_TB_WKSP                  : return( svg_tb_wksp );
 
 	case ID_IMG_WKSP_DATA_MANAGER        : return( svg_wksp_data_manager );
@@ -735,7 +733,7 @@ const char * _Get_SVG(int ID_IMG)
 //	case ID_IMG_WKSP_SHAPES_POINT        : return( svg_wksp_shapes_point );
 //	case ID_IMG_WKSP_SHAPES_POINTS       : return( svg_wksp_shapes_points );
 //	case ID_IMG_WKSP_SHAPES_POLYGON      : return( svg_wksp_shapes_polygon );
-//	case ID_IMG_WKSP_TABLE               : return( svg_wksp_table );
+	case ID_IMG_WKSP_TABLE               : return( svg_wnd_table );
 //	case ID_IMG_WKSP_TABLE_MANAGER       : return( svg_wksp_table_manager );
 //	case ID_IMG_WKSP_TIN                 : return( svg_wksp_tin );
 //	case ID_IMG_WKSP_TIN_MANAGER         : return( svg_wksp_tin_manager );
