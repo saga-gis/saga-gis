@@ -83,7 +83,9 @@ private:
 
 	bool				Draw_Text		(wxDC &dc, int &Cursor, const wxString &Text);
 	bool				Draw_XPM		(wxDC &dc, int &Cursor, const char *const *XPM);
+#ifdef wxHAS_SVG
 	bool				Draw_SVG		(wxDC &dc, int &Cursor, const char *SVG, const wxSize &Size);
+#endif
 
 	DECLARE_EVENT_TABLE()
 };

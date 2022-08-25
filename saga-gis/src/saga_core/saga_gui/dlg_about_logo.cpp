@@ -52,7 +52,11 @@
 
 #include "res/xpm/logo_uhh.xpm"
 #include "res/xpm/logo_scilands.xpm"
+#ifdef wxHAS_SVG
 #include "res/svg/logo_laserdata.svg.h"
+#else
+#include "res/xpm/logo_laserdata.xpm"
+#endif
 
 #include "saga_gdi/sgdi_helper.h"
 
@@ -124,7 +128,11 @@ void CDLG_About_Logo::On_Paint(wxPaintEvent &event)
 	Draw_XPM              (dc, Cursor += Space * 3, xpm_logo_scilands);
 	FONT_ITALIC; Draw_Text(dc, Cursor += Space / 2, "M. Bock, R. Koethe, J. Spitzmueller");
 
+#ifdef wxHAS_SVG
 	Draw_SVG              (dc, Cursor += Space * 3, svg_logo_laserdata, wxSize(213, 47)); // size corresponds to the uhh-logo width
+#else
+	Draw_XPM              (dc, Cursor += Space * 3, xpm_logo_laserdata);
+#endif
 	FONT_ITALIC; Draw_Text(dc, Cursor += Space / 2, "Dr. V. Wichmann");
 
 	FONT_NORMAL; Draw_Text(dc, Cursor += Space / 2, "_______________________"); Cursor += Space;
@@ -166,6 +174,7 @@ bool CDLG_About_Logo::Draw_XPM(wxDC &dc, int &Cursor, const char *const *XPM)
 }
 
 //---------------------------------------------------------
+#ifdef wxHAS_SVG
 bool CDLG_About_Logo::Draw_SVG(wxDC &dc, int &Cursor, const char *SVG, const wxSize &Size)
 {
 	wxBitmap Bitmap(wxBitmapBundle::FromSVG(SVG, Size).GetBitmap(Size));
@@ -178,6 +187,7 @@ bool CDLG_About_Logo::Draw_SVG(wxDC &dc, int &Cursor, const char *SVG, const wxS
 
 	return( true );
 }
+#endif
 
 
 ///////////////////////////////////////////////////////////
