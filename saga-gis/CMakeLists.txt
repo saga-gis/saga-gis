@@ -49,9 +49,9 @@ option(OpenMP_SUPPORT "Compile with OpenMP optimizations" ON)
 include(version.cmake)
 
 # include shared definitions and scripts
-include(shared_cmake/scripts/require-cpp11.cmake)
-include(shared_cmake/scripts/enable_warnings.cmake)
-include(shared_cmake/scripts/windows_version_info.cmake)
+include(cmake/shared/require-cpp11.cmake)
+include(cmake/shared/enable_warnings.cmake)
+include(cmake/shared/windows_version_info.cmake)
 
 # Use GNU install dirs to support multiarch
 include(cmake/modules/GNUInstallDirs.cmake)
@@ -83,7 +83,7 @@ endif()
 
 # add files to dummy target to show in IDE
 file(GLOB CMAKE_FILES "cmake/*.cmake" "cmake/modules/*.cmake")
-file(GLOB SHARED_CMAKE_FILES "shared_cmake/scripts/*.cmake")
+file(GLOB SHARED_CMAKE_FILES "cmake/shared/*.cmake")
 add_custom_target(saga-other-files SOURCES
 	.gitignore
 	src/gpl.txt

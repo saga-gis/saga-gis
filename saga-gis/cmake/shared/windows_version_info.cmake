@@ -42,7 +42,7 @@ function(gen_win_version_resource_ex	PROJECT_NAME RESOURCE_FILE_PATH
 	set(RC_COPYRIGHT ${RC_COMPANY_NAME})
 
 	# configure a resource file to pass some of the CMake settings to msvc
-	configure_file("${CMAKE_SOURCE_DIR}/shared_cmake/scripts/windows_version_info.rc.in" "${RESOURCE_FILE_PATH}" @ONLY)
+	configure_file("${CMAKE_SOURCE_DIR}/cmake/shared/windows_version_info.rc.in" "${RESOURCE_FILE_PATH}" @ONLY)
 endfunction()
 
 # Convenience function that copies all file information to product information

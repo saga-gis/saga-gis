@@ -6,8 +6,8 @@ set (SAGA_VERSION_PATCH 0)
 # get git commit hash (or dirty if git is not installed)
 
 # load helper scripts
-include(shared_cmake/scripts/load_git_variables.cmake)
-include(shared_cmake/scripts/gen_version_string.cmake)
+include(cmake/shared/load_git_variables.cmake)
+include(cmake/shared/gen_version_string.cmake)
 
 # load git variables
 load_git_variables(GIT_BRANCH GIT_COUNT GIT_COMMIT)
