@@ -1508,6 +1508,10 @@ void CSG_Tool::_Get_Script_CMD(CSG_String &Script, CSG_Parameters *pParameters, 
 					}
 				}
 			}
+			else
+			{
+				Script	+= Prefix + CSG_String::Format("%s=\"%s\"", GET_ID1(p), p->Get_Name());
+			}
 			break;
 		}
 	}
