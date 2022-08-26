@@ -93,7 +93,7 @@ CDLG_About::CDLG_About(void)
 	wxHtmlWindow *pContent;
 
 	//-----------------------------------------------------
-	pContent = new wxHtmlWindow(m_pControl, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHW_SCROLLBAR_AUTO|wxHW_NO_SELECTION);
+	pContent = new wxHtmlWindow(m_pControl, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SIMPLE|wxHW_SCROLLBAR_AUTO|wxHW_NO_SELECTION);
 	pContent->SetPage(_Get_Version());
 	m_pControl->AddPage(pContent, _TL("Version"));
 
@@ -101,17 +101,17 @@ CDLG_About::CDLG_About(void)
 	m_pControl->AddPage(new CDLG_About_Logo(m_pControl), _TL("Development"));
 
 	//-----------------------------------------------------
-	pContent = new wxHtmlWindow(m_pControl, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHW_SCROLLBAR_AUTO|wxHW_NO_SELECTION);
+	pContent = new wxHtmlWindow(m_pControl, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SIMPLE|wxHW_SCROLLBAR_AUTO|wxHW_NO_SELECTION);
 	pContent->SetPage(_Get_Citation());
 	m_pControl->AddPage(pContent, _TL("Citation"));
 
 	//-----------------------------------------------------
-	pContent = new wxHtmlWindow(m_pControl, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHW_SCROLLBAR_AUTO|wxHW_NO_SELECTION);
+	pContent = new wxHtmlWindow(m_pControl, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SIMPLE|wxHW_SCROLLBAR_AUTO|wxHW_NO_SELECTION);
 	pContent->SetPage(_Get_GPL());
 	m_pControl->AddPage(pContent, "GPL");
 
 	//-----------------------------------------------------
-	pContent = new wxHtmlWindow(m_pControl, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHW_SCROLLBAR_AUTO|wxHW_NO_SELECTION);
+	pContent = new wxHtmlWindow(m_pControl, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SIMPLE|wxHW_SCROLLBAR_AUTO|wxHW_NO_SELECTION);
 	pContent->SetPage(_Get_LGPL());
 	m_pControl->AddPage(pContent, "LGPL");
 

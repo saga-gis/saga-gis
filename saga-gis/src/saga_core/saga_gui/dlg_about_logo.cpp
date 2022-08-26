@@ -87,7 +87,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CDLG_About_Logo::CDLG_About_Logo(wxWindow *pParent)
-	: wxScrolledCanvas(pParent, -1, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER)
+	: wxScrolledCanvas(pParent, -1, wxDefaultPosition, wxDefaultSize, wxBORDER_SIMPLE)
 {
 	SetBackgroundColour(*wxWHITE);
 }
