@@ -74,8 +74,6 @@ class CDLG_About : public CDLG_Base
 public:
 	CDLG_About(void);
 
-	void						On_URL_Version			(wxTextUrlEvent &event);
-
 
 protected:
 
@@ -87,10 +85,11 @@ private:
 	class wxNotebook			*m_pControl;
 
 
-	wxString					_Get_Version			(void);
-	wxString					_Get_Citation			(void);
-	wxString					_Get_Acknowledgements	(void);
+	void						_On_Link_Clicked		(class wxHtmlLinkEvent &event);
 
+	wxString					_Get_Version			(void);
+	wxString					_Get_Compiler			(void);
+	wxString					_Get_Citation			(void);
 	wxString					_Get_GPL				(void);
 	wxString					_Get_LGPL				(void);
 
