@@ -474,28 +474,28 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 #include "./res/svg/wnd_scatterplot.svg.h"
 #include "./res/svg/wnd_table.svg.h"
 
-//#include "./res/svg/crs_edit_point_add.svg.h"
-//#include "./res/svg/crs_edit_point_move.svg.h"
-//#include "./res/svg/crs_hand.svg.h"
-//#include "./res/svg/crs_hand_grap.svg.h"
-//#include "./res/svg/crs_info.svg.h"
+#include "./res/svg/crs_edit_point_add.svg.h"
+#include "./res/svg/crs_edit_point_move.svg.h"
+#include "./res/svg/crs_hand.svg.h"
+#include "./res/svg/crs_hand_grap.svg.h"
+#include "./res/svg/crs_info.svg.h"
 #include "./res/svg/crs_magnifier.svg.h"
-//#include "./res/svg/crs_select.svg.h"
+#include "./res/svg/crs_select.svg.h"
 
 #include "./res/svg/tb_active.svg.h"
 #include "./res/svg/tb_datasource.svg.h"
-//#include "./res/svg/tb_delete.svg.h"
+#include "./res/svg/tb_delete.svg.h"    // unused
 #include "./res/svg/tb_diagram_parameters.svg.h"
-//#include "./res/svg/tb_edit_shape_add.svg.h"
-//#include "./res/svg/tb_edit_shape_add_part.svg.h"
-//#include "./res/svg/tb_edit_shape_del.svg.h"
-//#include "./res/svg/tb_edit_shape_del_part.svg.h"
-//#include "./res/svg/tb_edit_shape_del_point.svg.h"
-//#include "./res/svg/tb_edit_shape_select.svg.h"
+#include "./res/svg/tb_edit_shape_add.svg.h"
+#include "./res/svg/tb_edit_shape_add_part.svg.h"
+#include "./res/svg/tb_edit_shape_del.svg.h"
+#include "./res/svg/tb_edit_shape_del_part.svg.h"
+#include "./res/svg/tb_edit_shape_del_point.svg.h"
+#include "./res/svg/tb_edit_shape_select.svg.h"
 #include "./res/svg/tb_help.svg.h"
-//#include "./res/svg/tb_histogram_as_table.svg.h"
-//#include "./res/svg/tb_histogram_cumulative.svg.h"
-//#include "./res/svg/tb_histogram_gaussian.svg.h"
+#include "./res/svg/tb_histogram_as_table.svg.h"
+#include "./res/svg/tb_histogram_cumulative.svg.h"
+#include "./res/svg/tb_histogram_gaussian.svg.h"
 #include "./res/svg/tb_info.svg.h"
 #include "./res/svg/tb_update.svg.h"
 #include "./res/svg/tb_clipboard.svg.h"
@@ -623,27 +623,27 @@ const char * _Get_SVG(int ID_IMG)
 	case ID_IMG_WND_SCATTERPLOT          : return( svg_wnd_scatterplot );
 	case ID_IMG_WND_TABLE                : return( svg_wnd_table );
 
-//	case ID_IMG_CRS_EDIT_POINT_ADD       : return( svg_crs_edit_point_add );
-//	case ID_IMG_CRS_EDIT_POINT_MOVE      : return( svg_crs_edit_point_move );
-//	case ID_IMG_CRS_HAND                 : return( svg_crs_hand );
-//	case ID_IMG_CRS_HAND_GRAP            : return( svg_crs_hand_grap );
-//	case ID_IMG_CRS_INFO                 : return( svg_crs_info );
+	case ID_IMG_CRS_EDIT_POINT_ADD       : return( svg_crs_edit_point_add );
+	case ID_IMG_CRS_EDIT_POINT_MOVE      : return( svg_crs_edit_point_move );
+	case ID_IMG_CRS_HAND                 : return( svg_crs_hand );
+	case ID_IMG_CRS_HAND_GRAP            : return( svg_crs_hand_grap );
+	case ID_IMG_CRS_INFO                 : return( svg_crs_info );
 	case ID_IMG_CRS_MAGNIFIER            : return( svg_crs_magnifier );
-//	case ID_IMG_CRS_SELECT               : return( svg_crs_select );
+	case ID_IMG_CRS_SELECT               : return( svg_crs_select );
 
 	case ID_IMG_TB_ACTIVE                : return( svg_tb_active );
 	case ID_IMG_TB_DATASOURCE            : return( svg_tb_datasource );
 	case ID_IMG_TB_DIAGRAM_PARAMETERS    : return( svg_tb_diagram_parameters );
-//	case ID_IMG_TB_EDIT_SHAPE_ADD        : return( svg_tb_edit_shape_add );
-//	case ID_IMG_TB_EDIT_SHAPE_ADD_PART   : return( svg_tb_edit_shape_add_part );
-//	case ID_IMG_TB_EDIT_SHAPE_DEL        : return( svg_tb_edit_shape_del );
-//	case ID_IMG_TB_EDIT_SHAPE_DEL_PART   : return( svg_tb_edit_shape_del_part );
-//	case ID_IMG_TB_EDIT_SHAPE_DEL_POINT  : return( svg_tb_edit_shape_del_point );
-//	case ID_IMG_TB_EDIT_SHAPE_SELECT     : return( svg_tb_edit_shape_select );
+	case ID_IMG_TB_EDIT_SHAPE_ADD        : return( svg_tb_edit_shape_add );
+	case ID_IMG_TB_EDIT_SHAPE_ADD_PART   : return( svg_tb_edit_shape_add_part );
+	case ID_IMG_TB_EDIT_SHAPE_DEL        : return( svg_tb_edit_shape_del );
+	case ID_IMG_TB_EDIT_SHAPE_DEL_PART   : return( svg_tb_edit_shape_del_part );
+	case ID_IMG_TB_EDIT_SHAPE_DEL_POINT  : return( svg_tb_edit_shape_del_point );
+	case ID_IMG_TB_EDIT_SHAPE_SELECT     : return( svg_tb_edit_shape_select );
 	case ID_IMG_TB_HELP                  : return( svg_tb_help );
-	case ID_IMG_TB_HISTOGRAM_AS_TABLE    : return( svg_wnd_table );
-//	case ID_IMG_TB_HISTOGRAM_CUMULATIVE  : return( svg_tb_histogram_cumulative );
-//	case ID_IMG_TB_HISTOGRAM_GAUSSIAN    : return( svg_tb_histogram_gaussian );
+	case ID_IMG_TB_HISTOGRAM_AS_TABLE    : return( svg_tb_histogram_as_table );
+	case ID_IMG_TB_HISTOGRAM_CUMULATIVE  : return( svg_tb_histogram_cumulative );
+	case ID_IMG_TB_HISTOGRAM_GAUSSIAN    : return( svg_tb_histogram_gaussian );
 	case ID_IMG_TB_INFO                  : return( svg_tb_info );
 	case ID_IMG_TB_UPDATE                : return( svg_tb_update );
 	case ID_IMG_TB_CLIPBOARD             : return( svg_tb_clipboard );
@@ -808,11 +808,27 @@ wxIconBundle	IMG_Get_Icons(int ID_IMG)
 //---------------------------------------------------------
 wxCursor		IMG_Get_Cursor(int ID_IMG)
 {
-	wxImage	Image(IMG_Get_Image(ID_IMG));
+    wxImage	Image;
 
-	Image.SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_X, 15);
-	Image.SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_Y, 15);
+    const char *SVG = _Get_SVG(ID_IMG);
 
+    if( SVG )
+    {
+        wxBitmapBundle Bitmaps = wxBitmapBundle::FromSVG(SVG, wxSize(256, 256));
+        
+        Image = Bitmaps.GetBitmap(wxSize(32, 32)).ConvertToImage();
+
+        Image.SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_X, Image.GetWidth() / 2 - 1);
+        Image.SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_Y, Image.GetWidth() / 2 - 1);
+    }
+    else
+    {
+	    Image = IMG_Get_Image(ID_IMG);
+
+        Image.SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_X, 15);
+        Image.SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_Y, 15);
+    }
+    
 	return( wxCursor(Image) );
 }
 
