@@ -121,6 +121,7 @@
 #include "./res/xpm/tb_layout_print.xpm"
 #include "./res/xpm/tb_layout_print_preview.xpm"
 #include "./res/xpm/tb_layout_print_setup.xpm"
+#include "./res/xpm/tb_layout_print_export.xpm"
 #include "./res/xpm/tb_zoom_in.xpm"
 #include "./res/xpm/tb_zoom_out.xpm"
 #include "./res/xpm/tb_zoom_full.xpm"
@@ -272,6 +273,7 @@ const char ** _Get_XPM(int ID_IMG)
 	case ID_IMG_TB_LAYOUT_PRINT          : return( tb_layout_print_xpm );
 	case ID_IMG_TB_LAYOUT_PRINT_PREVIEW  : return( tb_layout_print_preview_xpm );
 	case ID_IMG_TB_LAYOUT_PRINT_SETUP    : return( tb_layout_print_setup_xpm );
+	case ID_IMG_TB_LAYOUT_EXPORT         : return( tb_layout_print_export_xpm );
 	case ID_IMG_TB_ZOOM_IN               : return( tb_zoom_in_xpm );
 	case ID_IMG_TB_ZOOM_OUT              : return( tb_zoom_out_xpm );
 	case ID_IMG_TB_ZOOM_FULL             : return( tb_zoom_full_xpm );
@@ -499,31 +501,32 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 #include "./res/svg/tb_info.svg.h"
 #include "./res/svg/tb_update.svg.h"
 #include "./res/svg/tb_clipboard.svg.h"
-//#include "./res/svg/tb_layout_page_setup.svg.h"
+#include "./res/svg/tb_layout_page_setup.svg.h"
 #include "./res/svg/tb_layout_print.svg.h"
-//#include "./res/svg/tb_layout_print_preview.svg.h"
-//#include "./res/svg/tb_layout_print_setup.svg.h"
+#include "./res/svg/tb_layout_print_preview.svg.h"
+#include "./res/svg/tb_layout_print_setup.svg.h"
+#include "./res/svg/tb_layout_print_export.svg.h"
 #include "./res/svg/tb_zoom_in.svg.h"
 #include "./res/svg/tb_zoom_out.svg.h"
 #include "./res/svg/tb_zoom_full.svg.h"
 #include "./res/svg/tb_zoom_original.svg.h"
-//#include "./res/svg/tb_map3d_central_less.svg.h"
+#include "./res/svg/tb_map3d_central_less.svg.h"
 #include "./res/svg/tb_map3d_central_more.svg.h"
 #include "./res/svg/tb_map3d_exaggerate_less.svg.h"
 #include "./res/svg/tb_map3d_exaggerate_more.svg.h"
-//#include "./res/svg/tb_map3d_interpolated.svg.h"
+#include "./res/svg/tb_map3d_interpolated.svg.h"
 #include "./res/svg/tb_map3d_properties.svg.h"
-//#include "./res/svg/tb_map3d_rotate_x_less.svg.h"
-//#include "./res/svg/tb_map3d_rotate_x_more.svg.h"
-//#include "./res/svg/tb_map3d_rotate_z_less.svg.h"
-//#include "./res/svg/tb_map3d_rotate_z_more.svg.h"
+#include "./res/svg/tb_map3d_rotate_x_less.svg.h"
+#include "./res/svg/tb_map3d_rotate_x_more.svg.h"
+#include "./res/svg/tb_map3d_rotate_z_less.svg.h"
+#include "./res/svg/tb_map3d_rotate_z_more.svg.h"
 #include "./res/svg/tb_map3d_shift_x_less.svg.h"
 #include "./res/svg/tb_map3d_shift_x_more.svg.h"
 #include "./res/svg/tb_map3d_shift_y_less.svg.h"
 #include "./res/svg/tb_map3d_shift_y_more.svg.h"
-//#include "./res/svg/tb_map3d_shift_z_less.svg.h"
-//#include "./res/svg/tb_map3d_shift_z_more.svg.h"
-//#include "./res/svg/tb_map3d_stereo.svg.h"
+#include "./res/svg/tb_map3d_shift_z_less.svg.h"
+#include "./res/svg/tb_map3d_shift_z_more.svg.h"
+#include "./res/svg/tb_map3d_stereo.svg.h"
 #include "./res/svg/tb_map_3d_show.svg.h"
 #include "./res/svg/tb_map_layout_show.svg.h"
 //#include "./res/svg/tb_map_legend_horizontal.svg.h"
@@ -647,31 +650,32 @@ const char * _Get_SVG(int ID_IMG)
 	case ID_IMG_TB_INFO                  : return( svg_tb_info );
 	case ID_IMG_TB_UPDATE                : return( svg_tb_update );
 	case ID_IMG_TB_CLIPBOARD             : return( svg_tb_clipboard );
-//	case ID_IMG_TB_LAYOUT_PAGE_SETUP     : return( svg_tb_layout_page_setup );
+	case ID_IMG_TB_LAYOUT_PAGE_SETUP     : return( svg_tb_layout_page_setup );
 	case ID_IMG_TB_LAYOUT_PRINT          : return( svg_tb_layout_print );
-//	case ID_IMG_TB_LAYOUT_PRINT_PREVIEW  : return( svg_tb_layout_print_preview );
-//	case ID_IMG_TB_LAYOUT_PRINT_SETUP    : return( svg_tb_layout_print_setup );
+	case ID_IMG_TB_LAYOUT_PRINT_PREVIEW  : return( svg_tb_layout_print_preview );
+	case ID_IMG_TB_LAYOUT_PRINT_SETUP    : return( svg_tb_layout_print_setup );
+	case ID_IMG_TB_LAYOUT_EXPORT         : return( svg_tb_layout_print_export );
 	case ID_IMG_TB_ZOOM_IN               : return( svg_tb_zoom_in );
 	case ID_IMG_TB_ZOOM_OUT              : return( svg_tb_zoom_out );
 	case ID_IMG_TB_ZOOM_FULL             : return( svg_tb_zoom_full );
 	case ID_IMG_TB_ZOOM_ORIGINAL         : return( svg_tb_zoom_original );
-//	case ID_IMG_TB_MAP3D_CENTRAL_LESS    : return( svg_tb_map3d_central_less );
+	case ID_IMG_TB_MAP3D_CENTRAL_LESS    : return( svg_tb_map3d_central_less );
 	case ID_IMG_TB_MAP3D_CENTRAL_MORE    : return( svg_tb_map3d_central_more );
 	case ID_IMG_TB_MAP3D_EXAGGERATE_LESS : return( svg_tb_map3d_exaggerate_less );
 	case ID_IMG_TB_MAP3D_EXAGGERATE_MORE : return( svg_tb_map3d_exaggerate_more );
-//	case ID_IMG_TB_MAP3D_INTERPOLATED    : return( svg_tb_map3d_interpolated );
+	case ID_IMG_TB_MAP3D_INTERPOLATED    : return( svg_tb_map3d_interpolated );
 	case ID_IMG_TB_MAP3D_PROPERTIES      : return( svg_tb_map3d_properties );
-//	case ID_IMG_TB_MAP3D_ROTATE_X_LESS   : return( svg_tb_map3d_rotate_x_less );
-//	case ID_IMG_TB_MAP3D_ROTATE_X_MORE   : return( svg_tb_map3d_rotate_x_more );
-//	case ID_IMG_TB_MAP3D_ROTATE_Z_LESS   : return( svg_tb_map3d_rotate_z_less );
-//	case ID_IMG_TB_MAP3D_ROTATE_Z_MORE   : return( svg_tb_map3d_rotate_z_more );
+	case ID_IMG_TB_MAP3D_ROTATE_X_LESS   : return( svg_tb_map3d_rotate_x_less );
+	case ID_IMG_TB_MAP3D_ROTATE_X_MORE   : return( svg_tb_map3d_rotate_x_more );
+	case ID_IMG_TB_MAP3D_ROTATE_Z_LESS   : return( svg_tb_map3d_rotate_z_less );
+	case ID_IMG_TB_MAP3D_ROTATE_Z_MORE   : return( svg_tb_map3d_rotate_z_more );
 	case ID_IMG_TB_MAP3D_SHIFT_X_LESS    : return( svg_tb_map3d_shift_x_less );
 	case ID_IMG_TB_MAP3D_SHIFT_X_MORE    : return( svg_tb_map3d_shift_x_more );
 	case ID_IMG_TB_MAP3D_SHIFT_Y_LESS    : return( svg_tb_map3d_shift_y_less );
 	case ID_IMG_TB_MAP3D_SHIFT_Y_MORE    : return( svg_tb_map3d_shift_y_more );
-//	case ID_IMG_TB_MAP3D_SHIFT_Z_LESS    : return( svg_tb_map3d_shift_z_less );
-//	case ID_IMG_TB_MAP3D_SHIFT_Z_MORE    : return( svg_tb_map3d_shift_z_more );
-//	case ID_IMG_TB_MAP3D_STEREO          : return( svg_tb_map3d_stereo );
+	case ID_IMG_TB_MAP3D_SHIFT_Z_LESS    : return( svg_tb_map3d_shift_z_less );
+	case ID_IMG_TB_MAP3D_SHIFT_Z_MORE    : return( svg_tb_map3d_shift_z_more );
+	case ID_IMG_TB_MAP3D_STEREO          : return( svg_tb_map3d_stereo );
 	case ID_IMG_TB_MAP_3D_SHOW           : return( svg_tb_map_3d_show );
 	case ID_IMG_TB_MAP_LAYOUT_SHOW       : return( svg_tb_map_layout_show );
 //	case ID_IMG_TB_MAP_LEGEND_HORIZONTAL : return( svg_tb_map_legend_horizontal );
