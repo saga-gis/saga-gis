@@ -163,24 +163,25 @@ wxString CDLG_About::_Get_Version(void)
 	s	+= "<h3>System for Automated Geoscientific Analyses</h3><br>";
 	s	+= "<b>SAGA " + wxString(SAGA_VERSION);
 	#if !defined(_SAGA_MSW)
-		s	+=          "</b><br><br>";
+		s	+=          "</b><br>";
 	#elif defined(_WIN64)
-		s	+= " (64 bit)</b><br><br>";
+		s	+= " (64 bit)</b><br>";
 	#else
-		s	+= " (32 bit)</b><br><br>";
+		s	+= " (32 bit)</b><br>";
 	#endif
+	#ifdef GIT_HASH
+		if( *GIT_HASH )
+		{
+			s       += "<br>[ <a href=\"https://sourceforge.net/p/saga-gis/code/ci/" + wxString(GIT_HASH) + "\">#" + wxString(GIT_HASH) + "</a> ]<br>";
+		}
+	#endif
+	s	+= "<br>";
 	s	+= "<a href=\"https://saga-gis.sourceforge.io/\">saga-gis.org</a>";
 
 	//-----------------------------------------------------
 	s	+= "<hr>";
 	s	+= "Compiled with<br>";
 	s	+= _Get_Compiler() + "<br>";
-	#ifdef GIT_HASH
-		if( *GIT_HASH )
-		{
-			s	+= "<br>[ <a href=\"https://sourceforge.net/p/saga-gis/code/ci/" + wxString(GIT_HASH) + "\">#" + wxString(GIT_HASH) + "</a> ]<br>";
-		}
-	#endif
 
 	//-----------------------------------------------------
 	s	+= "<hr>";
