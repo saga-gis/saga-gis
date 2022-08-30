@@ -326,7 +326,7 @@ bool CGCS_Graticule::Get_Graticule(const CSG_Rect &Extent)
 		Get_Coordinate(Extent, pCoordinates, pLine, AXIS_LEFT);
 		Get_Coordinate(Extent, pCoordinates, pLine, AXIS_RIGHT);
 
-		if( !SG_Polygon_Intersection(pLine, pClip) )
+		if( !SG_Shapes_Clipper_Intersection(pLine, pClip) )
 		{
 			pGraticule->Del_Shape(pLine);
 		}
@@ -357,7 +357,7 @@ bool CGCS_Graticule::Get_Graticule(const CSG_Rect &Extent)
 		Get_Coordinate(Extent, pCoordinates, pLine, AXIS_BOTTOM);
 		Get_Coordinate(Extent, pCoordinates, pLine, AXIS_TOP);
 
-		if( !SG_Polygon_Intersection(pLine, pClip) )
+		if( !SG_Shapes_Clipper_Intersection(pLine, pClip) )
 		{
 			pGraticule->Del_Shape(pLine);
 		}

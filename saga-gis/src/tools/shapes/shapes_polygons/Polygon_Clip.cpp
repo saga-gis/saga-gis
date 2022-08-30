@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Polygon_Clip.cpp 1230 2011-11-22 11:12:10Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Polygon_Clip.h"
 
 
@@ -70,7 +58,6 @@
 //---------------------------------------------------------
 CPolygon_Clip::CPolygon_Clip(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Polygon Clipping"));
 
 	Set_Author		("O.Conrad (c) 2012");
@@ -356,7 +343,7 @@ void CPolygon_Clip::Clip_Polygons(CSG_Shapes *pClips, CSG_Shapes *pInputs, CSG_S
 		{
 			CSG_Shape	*pOutput	= pOutputs->Add_Shape(pInputs->Get_Shape(iInput));
 
-			if( !SG_Polygon_Intersection(pOutput, pClip) )
+			if( !SG_Shapes_Clipper_Intersection(pOutput, pClip) )
 			{
 				pOutputs->Del_Shape(pOutputs->Get_Count() - 1);
 			}
@@ -392,7 +379,7 @@ bool CPolygon_Clip::Dissolve(CSG_Shapes *pPolygons, CSG_Shapes *pOutput)
 		}
 	}
 
-	return( SG_Polygon_Dissolve(pDissolved) );
+	return( SG_Shapes_Clipper_Dissolve(pDissolved) );
 }
 
 

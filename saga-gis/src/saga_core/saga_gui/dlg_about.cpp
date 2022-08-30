@@ -47,7 +47,6 @@
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
-#include <saga_api/clipper.hpp>
 #include <saga_api/nanoflann.hpp>
 
 #include <wx/notebook.h>
@@ -207,8 +206,12 @@ wxString CDLG_About::_Get_Version(void)
 	s	+= "SAGA API includes<br>";
 	s	+= "<br>";
 	s	+= "The polygon clipping and offsetting library<br>";
-	s	+= "Clipper " + wxString(CLIPPER_VERSION) + "<br>";
-	s	+= "<a href=\"https://sourceforge.net/projects/polyclipping/\">sourceforge.net/projects/polyclipping</a><br>";
+	s	+= wxString(SG_Shapes_Clipper_Get_Version()) + "<br>";
+	#ifdef WITH_CLIPPER_ONE
+	s	+= "<a href=\"https://sourceforge.net/projects/polyclipping/\">Clipper1</a><br>";
+	#else
+	s	+= "<a href=\"https://github.com/AngusJohnson/Clipper2/\">Clipper2</a><br>";
+	#endif
 	s	+= "<br>";
 	s	+= "The Nearest Neighbor (NN) search with KD-trees library<br>";
 	s	+= "nanoflann " + wxString::Format("%d.%d.%d",

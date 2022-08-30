@@ -530,7 +530,7 @@ bool CWKSP_Shapes::_Edit_Merge(void)
 
 	if( Get_Shapes()->Get_Type() == SHAPE_TYPE_Polygon )
 	{
-		SG_Polygon_Dissolve(pMerged);
+		SG_Shapes_Clipper_Dissolve(pMerged);
 	}
 
 	Get_Shapes()->Select(pMerged, true);

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Polygon_SelfIntersection.cpp 1230 2011-11-22 11:12:10Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Polygon_SelfIntersection.h"
 
 
@@ -70,12 +58,9 @@
 //---------------------------------------------------------
 CPolygon_SelfIntersection::CPolygon_SelfIntersection(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("Polygon Self-Intersection"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2012"));
+	Set_Author		("O.Conrad (c) 2012");
 
 	Set_Description	(_TW(
 		"Self-intersection of one layer's polygons.\n"
@@ -85,20 +70,20 @@ CPolygon_SelfIntersection::CPolygon_SelfIntersection(void)
 	));
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "POLYGONS"	, _TL("Polygons"),
+	Parameters.Add_Shapes("",
+		"POLYGONS"	, _TL("Polygons"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "ID"			, _TL("Identifier"),
+	Parameters.Add_Table_Field("POLYGONS",
+		"ID"		, _TL("Identifier"),
 		_TL(""),
 		true
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "INTERSECT"	, _TL("Intersection"),
+	Parameters.Add_Shapes("",
+		"INTERSECT"	, _TL("Intersection"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
@@ -106,8 +91,6 @@ CPolygon_SelfIntersection::CPolygon_SelfIntersection(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -156,8 +139,6 @@ bool CPolygon_SelfIntersection::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -196,13 +177,13 @@ void CPolygon_SelfIntersection::Add_Polygon(CSG_Shape *pPolygon, int ID)
 			CSG_Shape	*pOriginal	= Intersect.Add_Shape(m_pIntersect->Get_Shape(i));
 			CSG_Shape	*pIntersect	= Intersect.Add_Shape();
 
-			if( SG_Polygon_Intersection(pOriginal, pPolygon, pIntersect) )
+			if( SG_Shapes_Clipper_Intersection(pOriginal, pPolygon, pIntersect) )
 			{
 				pIntersect	= m_pIntersect->Add_Shape(pIntersect);
 				pIntersect	->Set_Value(ID, CSG_String::Format(SG_T("%s|%s"), pPolygon->asString(ID), pOriginal->asString(ID)));
 
-				SG_Polygon_Difference(m_pIntersect->Get_Shape(i), pPolygon);
-				SG_Polygon_Difference(pPolygon, pOriginal);
+				SG_Shapes_Clipper_Difference(m_pIntersect->Get_Shape(i), pPolygon);
+				SG_Shapes_Clipper_Difference(pPolygon, pOriginal);
 			}
 
 			Intersect.Del_Shapes();

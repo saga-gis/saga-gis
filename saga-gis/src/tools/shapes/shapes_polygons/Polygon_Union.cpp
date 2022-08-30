@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Polygon_Union.h"
 
 
@@ -72,7 +60,6 @@
 //---------------------------------------------------------
 CPolygon_Dissolve::CPolygon_Dissolve(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Polygon Dissolve"));
 
 	Set_Author		("O.Conrad (c) 2008");
@@ -123,7 +110,7 @@ CPolygon_Dissolve::CPolygon_Dissolve(void)
 	Parameters.Add_Choice("STATISTICS",
 		"STAT_NAMING", _TL("Field Naming"),
 		_TL(""), 
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("variable type + original name"),
 			_TL("original name + variable type"),
 			_TL("original name"),
@@ -140,7 +127,7 @@ CPolygon_Dissolve::CPolygon_Dissolve(void)
 	Parameters.Add_Double("",
 		"MIN_AREA"	, _TL("Minimum Area"),
 		_TL(""),
-		0.0, 0.0, true
+		0., 0., true
 	);
 }
 
@@ -328,7 +315,7 @@ bool CPolygon_Dissolve::Get_Dissolved(CSG_Shape *pDissolve, bool bDissolve, doub
 
 	if( bDissolve )
 	{
-		SG_Polygon_Dissolve(pDissolve);
+		SG_Shapes_Clipper_Dissolve(pDissolve);
 
 		if( minArea > 0.0 )
 		{

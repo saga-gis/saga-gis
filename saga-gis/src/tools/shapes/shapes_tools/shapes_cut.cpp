@@ -96,7 +96,7 @@ bool Cut_Shapes(CSG_Shapes *pPolygons, int Method, CSG_Shapes *pShapes, CSG_Shap
 
 				if( bAdd && pIntersect )
 				{
-					bAdd	= SG_Polygon_Intersection(pPolygon, pShape, pIntersect)
+					bAdd	= SG_Shapes_Clipper_Intersection(pPolygon, pShape, pIntersect)
 						&& Overlap <= pIntersect->Get_Area() / ((CSG_Shape_Polygon *)pShape)->Get_Area();
 				}
 				break;

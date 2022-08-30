@@ -35,7 +35,6 @@ set(SAGA_API_SOURCES
 	api_memory.cpp
 	api_string.cpp
 	api_translator.cpp
-	clipper.cpp
 	data_manager.cpp
 	dataobject.cpp
 	datetime.cpp
@@ -76,7 +75,6 @@ set(SAGA_API_SOURCES
 	shapes.cpp
 	shapes_io.cpp
 	shapes_ogis.cpp
-	shapes_polygons.cpp
 	shapes_search.cpp
 	shapes_selection.cpp
 	table.cpp
@@ -97,7 +95,6 @@ set(SAGA_API_SOURCES
 	tool_library_interface.cpp
 	tool_summary.cpp
 	api_core.h
-	clipper.hpp
 	data_manager.h
 	dataobject.h
 	datetime.h
@@ -119,6 +116,30 @@ set(SAGA_API_SOURCES
 	tool_chain.h
 	tool_library.h
 )
+
+#________________________________________
+option(WITH_CLIPPER_ONE "Check to make SAGA API use older Clipper1 instead of newer Clipper2 (expects at least C++ 17)" ON)
+
+if(WITH_CLIPPER_ONE)
+	set(SAGA_API_SOURCES
+		${SAGA_API_SOURCES}
+		clipper.cpp
+		clipper.hpp
+		shapes_polygons.cpp
+	)
+else()
+	set(SAGA_API_SOURCES
+		${SAGA_API_SOURCES}
+		clipper.engine.cpp
+		clipper.offset.cpp
+		clipper.h
+		clipper.core.h
+		clipper.engine.h
+		clipper.minkowski.h
+		clipper.offset.h
+		shapes_clipper.cpp
+	)
+endif()
 
 #________________________________________
 option(WITH_MRMR "Check to include mRMR code (Minimum Redundancy Feature Selection, incompatible with Debian licensing)" OFF)

@@ -1059,7 +1059,7 @@ void CPolygons2Grid::Set_Polygon(CSG_Shape_Polygon *pPolygon, double Value)
 			pCell->Add_Point(r.xMax, r.yMax);
 			pCell->Add_Point(r.xMax, r.yMin);
 
-			if( SG_Polygon_Intersection(pCell, pPolygon) )
+			if( SG_Shapes_Clipper_Intersection(pCell, pPolygon) )
 			{
 				Set_Value(x, y, Value, pCell->Get_Area());
 			}

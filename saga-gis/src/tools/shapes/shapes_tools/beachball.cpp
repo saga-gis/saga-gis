@@ -266,14 +266,14 @@ bool CBeachball::Set_Plot(CSG_Shape *pPlot, const TSG_Point &Center, double Scal
 	Get_Plane(Plot.Add_Shape(), N);
 
 	//-----------------------------------------------------
-	SG_Polygon_Intersection(m_pCircle, Plot.Get_Shape(0), Plot.Add_Shape());
-	SG_Polygon_Difference  (m_pCircle, Plot.Get_Shape(0), Plot.Add_Shape());
+	SG_Shapes_Clipper_Intersection(m_pCircle, Plot.Get_Shape(0), Plot.Add_Shape());
+	SG_Shapes_Clipper_Difference  (m_pCircle, Plot.Get_Shape(0), Plot.Add_Shape());
 
-	SG_Polygon_Intersection(Plot.Get_Shape(2), Plot.Get_Shape(1), Plot.Add_Shape());
-	SG_Polygon_Difference  (Plot.Get_Shape(2), Plot.Get_Shape(1), Plot.Add_Shape());
+	SG_Shapes_Clipper_Intersection(Plot.Get_Shape(2), Plot.Get_Shape(1), Plot.Add_Shape());
+	SG_Shapes_Clipper_Difference  (Plot.Get_Shape(2), Plot.Get_Shape(1), Plot.Add_Shape());
 
-	SG_Polygon_Intersection(Plot.Get_Shape(3), Plot.Get_Shape(1), Plot.Add_Shape());
-	SG_Polygon_Difference  (Plot.Get_Shape(3), Plot.Get_Shape(1), Plot.Add_Shape());
+	SG_Shapes_Clipper_Intersection(Plot.Get_Shape(3), Plot.Get_Shape(1), Plot.Add_Shape());
+	SG_Shapes_Clipper_Difference  (Plot.Get_Shape(3), Plot.Get_Shape(1), Plot.Add_Shape());
 
 	//-----------------------------------------------------
 	int	p1	= Rake < 0.0 ? 5 : 4;
@@ -284,8 +284,8 @@ bool CBeachball::Set_Plot(CSG_Shape *pPlot, const TSG_Point &Center, double Scal
 	default:
 		pPlot->Add_Part(m_pCircle->Get_Part(0));
 
-		SG_Polygon_Offset(Plot.Get_Shape(p1), -0.01, m_dArc); pPlot->Add_Part(((CSG_Shape_Polygon *)Plot.Get_Shape(p1))->Get_Part(0));
-		SG_Polygon_Offset(Plot.Get_Shape(p2), -0.01, m_dArc); pPlot->Add_Part(((CSG_Shape_Polygon *)Plot.Get_Shape(p2))->Get_Part(0));
+		SG_Shapes_Clipper_Offset(Plot.Get_Shape(p1), -0.01, m_dArc); pPlot->Add_Part(((CSG_Shape_Polygon *)Plot.Get_Shape(p1))->Get_Part(0));
+		SG_Shapes_Clipper_Offset(Plot.Get_Shape(p2), -0.01, m_dArc); pPlot->Add_Part(((CSG_Shape_Polygon *)Plot.Get_Shape(p2))->Get_Part(0));
 		break;
 
 	case  1:
@@ -294,8 +294,8 @@ bool CBeachball::Set_Plot(CSG_Shape *pPlot, const TSG_Point &Center, double Scal
 		pPlot->Add_Part(((CSG_Shape_Polygon *)Plot.Get_Shape(6))->Get_Part(0));
 		pPlot->Add_Part(((CSG_Shape_Polygon *)Plot.Get_Shape(7))->Get_Part(0));
 
-		SG_Polygon_Offset(Plot.Get_Shape(p1), -0.01, m_dArc); pPlot->Add_Part(((CSG_Shape_Polygon *)Plot.Get_Shape(p1))->Get_Part(0));
-		SG_Polygon_Offset(Plot.Get_Shape(p2), -0.01, m_dArc); pPlot->Add_Part(((CSG_Shape_Polygon *)Plot.Get_Shape(p2))->Get_Part(0));
+		SG_Shapes_Clipper_Offset(Plot.Get_Shape(p1), -0.01, m_dArc); pPlot->Add_Part(((CSG_Shape_Polygon *)Plot.Get_Shape(p1))->Get_Part(0));
+		SG_Shapes_Clipper_Offset(Plot.Get_Shape(p2), -0.01, m_dArc); pPlot->Add_Part(((CSG_Shape_Polygon *)Plot.Get_Shape(p2))->Get_Part(0));
 		break;
 	}
 

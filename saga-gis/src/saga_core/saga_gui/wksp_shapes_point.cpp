@@ -880,20 +880,20 @@ void CWKSP_Shapes_Point::_Beachball_Draw(wxDC &dc, int x, int y, int size, doubl
 	_Beachball_Get_Plane(Plot.Add_Shape(), Plot.Get_Shape(0), N);	// 2, auxiliary plane
 
 	//-----------------------------------------------------
-	SG_Polygon_Intersection(Plot.Get_Shape(0), Plot.Get_Shape(1), Plot.Add_Shape());	// 3
-	SG_Polygon_Difference  (Plot.Get_Shape(0), Plot.Get_Shape(1), Plot.Add_Shape());	// 4
+	SG_Shapes_Clipper_Intersection(Plot.Get_Shape(0), Plot.Get_Shape(1), Plot.Add_Shape());	// 3
+	SG_Shapes_Clipper_Difference  (Plot.Get_Shape(0), Plot.Get_Shape(1), Plot.Add_Shape());	// 4
 
 	CSG_Shape_Polygon	*pPlot[2];
 
 	if( rake < 0.0 )
 	{
-		SG_Polygon_Difference  (Plot.Get_Shape(3), Plot.Get_Shape(2), pPlot[0] = (CSG_Shape_Polygon *)Plot.Add_Shape());
-		SG_Polygon_Intersection(Plot.Get_Shape(4), Plot.Get_Shape(2), pPlot[1] = (CSG_Shape_Polygon *)Plot.Add_Shape());
+		SG_Shapes_Clipper_Difference  (Plot.Get_Shape(3), Plot.Get_Shape(2), pPlot[0] = (CSG_Shape_Polygon *)Plot.Add_Shape());
+		SG_Shapes_Clipper_Intersection(Plot.Get_Shape(4), Plot.Get_Shape(2), pPlot[1] = (CSG_Shape_Polygon *)Plot.Add_Shape());
 	}
 	else
 	{
-		SG_Polygon_Intersection(Plot.Get_Shape(3), Plot.Get_Shape(2), pPlot[0] = (CSG_Shape_Polygon *)Plot.Add_Shape());
-		SG_Polygon_Difference  (Plot.Get_Shape(4), Plot.Get_Shape(2), pPlot[1] = (CSG_Shape_Polygon *)Plot.Add_Shape());
+		SG_Shapes_Clipper_Intersection(Plot.Get_Shape(3), Plot.Get_Shape(2), pPlot[0] = (CSG_Shape_Polygon *)Plot.Add_Shape());
+		SG_Shapes_Clipper_Difference  (Plot.Get_Shape(4), Plot.Get_Shape(2), pPlot[1] = (CSG_Shape_Polygon *)Plot.Add_Shape());
 	}
 
 	//-----------------------------------------------------
@@ -903,7 +903,7 @@ void CWKSP_Shapes_Point::_Beachball_Draw(wxDC &dc, int x, int y, int size, doubl
 
 	for(int i=0; i<2; i++)
 	{
-		// SG_Polygon_Offset(pPlot[i], -0.01, dArc);
+		// SG_Shapes_Clipper_Offset(pPlot[i], -0.01, dArc);
 		_Beachball_Get_Scaled(pPlot[i], x,  y, size);
 
 		if( pPlot[i]->Get_Area() > 1 )

@@ -334,7 +334,7 @@ inline double CGrid_Class_Statistics_For_Polygons::Get_Intersection(CSG_Shape_Po
 	pCell->Add_Point(x + c, y + c);
 	pCell->Add_Point(x + c, y - c);
 
-	if( SG_Polygon_Intersection(pPolygon, pCell, pArea) )
+	if( SG_Shapes_Clipper_Intersection(pPolygon, pCell, pArea) )
 	{
 		return( ((CSG_Shape_Polygon *)pArea)->Get_Area() );
 	}

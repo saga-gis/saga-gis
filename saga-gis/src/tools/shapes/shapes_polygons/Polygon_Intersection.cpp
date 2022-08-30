@@ -165,7 +165,7 @@ bool CPolygon_Overlay::Get_Intersection(CSG_Shapes *pA, CSG_Shapes *pB)
 	{
 		for(int id_B=0; id_B<m_pB->Get_Count(); id_B++)
 		{
-			if( SG_Polygon_Intersection(m_pA->Get_Shape(id_A), m_pB->Get_Shape(id_B), pResult) )
+			if( SG_Shapes_Clipper_Intersection(m_pA->Get_Shape(id_A), m_pB->Get_Shape(id_B), pResult) )
 			{
 				_Add_Polygon(pResult, id_A, id_B);
 			}
@@ -211,7 +211,7 @@ bool CPolygon_Overlay::Get_Difference(CSG_Shapes *pA, CSG_Shapes *pB, bool bInve
 
 			case INTERSECTION_Contains:
 			case INTERSECTION_Overlaps:
-				SG_Polygon_Difference(pResult, m_pB->Get_Shape(id_B));
+				SG_Shapes_Clipper_Difference(pResult, m_pB->Get_Shape(id_B));
 				break;
 			}
 		}

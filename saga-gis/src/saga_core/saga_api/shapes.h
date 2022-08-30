@@ -1475,13 +1475,14 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT bool		SG_Polygon_Intersection	(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult = NULL);
-SAGA_API_DLL_EXPORT bool		SG_Polygon_Difference	(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult = NULL);
-SAGA_API_DLL_EXPORT bool		SG_Polygon_ExclusiveOr	(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult = NULL);
-SAGA_API_DLL_EXPORT bool		SG_Polygon_Union		(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult = NULL);
-SAGA_API_DLL_EXPORT bool		SG_Polygon_Dissolve		(CSG_Shape *pPolygon, CSG_Shape *pResult = NULL);
-SAGA_API_DLL_EXPORT bool		SG_Polygon_Simplify		(CSG_Shape *pPolygon, CSG_Shape *pResult = NULL);
-SAGA_API_DLL_EXPORT bool		SG_Polygon_Offset		(CSG_Shape *pPolygon, double dSize, double dArc, CSG_Shape *pResult = NULL);
+SAGA_API_DLL_EXPORT bool			SG_Shapes_Clipper_Intersection	(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult = NULL);
+SAGA_API_DLL_EXPORT bool			SG_Shapes_Clipper_Difference	(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult = NULL);
+SAGA_API_DLL_EXPORT bool			SG_Shapes_Clipper_ExclusiveOr	(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult = NULL);
+SAGA_API_DLL_EXPORT bool			SG_Shapes_Clipper_Union			(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult = NULL);
+SAGA_API_DLL_EXPORT bool			SG_Shapes_Clipper_Dissolve		(CSG_Shape *pPolygon                  , CSG_Shape *pResult = NULL);
+SAGA_API_DLL_EXPORT bool			SG_Shapes_Clipper_Offset		(CSG_Shape *pPolygon, double dSize, double dArc, CSG_Shape *pResult = NULL);
+
+SAGA_API_DLL_EXPORT const char *	SG_Shapes_Clipper_Get_Version	(void);
 
 
 ///////////////////////////////////////////////////////////

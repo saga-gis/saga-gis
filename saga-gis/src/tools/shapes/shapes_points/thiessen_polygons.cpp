@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: thiessen_polygons.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "thiessen_polygons.h"
 
 
@@ -70,46 +58,42 @@
 //---------------------------------------------------------
 CThiessen_Polygons::CThiessen_Polygons(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Thiessen Polygons"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2011"));
+	Set_Author		("O.Conrad (c) 2011");
 
 	Set_Description(_TW(
 		"Creates Thiessen or Voronoi polygons for given point data set."
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		NULL	, "POINTS"		, _TL("Points"),
+	Parameters.Add_Shapes("",
+		"POINTS"	, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "POLYGONS"	, _TL("Polygons"),
+	Parameters.Add_Shapes("",
+		"POLYGONS"	, _TL("Polygons"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Value(
-		NULL	, "FRAME"		, _TL("Frame Size"),
+	Parameters.Add_Double("",
+		"FRAME"		, _TL("Frame Size"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 10.0, 0.0, true
+		10., 0., true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CThiessen_Polygons::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_TIN	TIN;
 
 	if( !TIN.Create(Parameters("POINTS")->asShapes()) )
@@ -164,7 +148,7 @@ bool CThiessen_Polygons::On_Execute(void)
 				pPolygon->Add_Point(Points[iPoint]);
 			}
 
-			SG_Polygon_Intersection(pPolygon, pFrame);
+			SG_Shapes_Clipper_Intersection(pPolygon, pFrame);
 		}
 	}
 

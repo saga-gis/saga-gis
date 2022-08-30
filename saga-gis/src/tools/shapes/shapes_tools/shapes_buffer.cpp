@@ -204,7 +204,7 @@ bool CShapes_Buffer::On_Execute(void)
 
 			if( iZone > 0 )
 			{
-				SG_Polygon_Difference(pBuffer, Buffers.Get_Shape(0));
+				SG_Shapes_Clipper_Difference(pBuffer, Buffers.Get_Shape(0));
 			}
 
 			pBuffer	= pBuffers->Add_Shape(Buffers.Get_Shape(0));
@@ -265,7 +265,7 @@ bool CShapes_Buffer::Get_Buffers(CSG_Shapes *pShapes, int Field, CSG_Shapes *pBu
 			{
 				Get_Buffer(pShape, pPart  , Distance);
 
-				SG_Polygon_Union(pBuffer, pPart);
+				SG_Shapes_Clipper_Union(pBuffer, pPart);
 
 				pPart->Del_Parts();
 			}
@@ -322,7 +322,7 @@ bool CShapes_Buffer::Get_Buffer_Points(CSG_Shape *pPoints, CSG_Shape *pBuffer, d
 			{
 				Add_Arc(pPart  , pPoints->Get_Point(iPoint), Distance, 0.0, M_PI_360);
 
-				SG_Polygon_Union(pBuffer, pPart);
+				SG_Shapes_Clipper_Union(pBuffer, pPart);
 
 				pPart->Del_Parts();
 			}
@@ -335,7 +335,7 @@ bool CShapes_Buffer::Get_Buffer_Points(CSG_Shape *pPoints, CSG_Shape *pBuffer, d
 //---------------------------------------------------------
 bool CShapes_Buffer::Get_Buffer_Line(CSG_Shape *pLine, CSG_Shape *pBuffer, double Distance)
 {
-	return( SG_Polygon_Offset(pLine, Distance, m_dArc, pBuffer) );
+	return( SG_Shapes_Clipper_Offset(pLine, Distance, m_dArc, pBuffer) );
 }
 
 //---------------------------------------------------------
@@ -343,15 +343,15 @@ bool CShapes_Buffer::Get_Buffer_Polygon(CSG_Shape *pPolygon, CSG_Shape *pBuffer,
 {
 	if( m_bPolyInner )
 	{
-		if(	SG_Polygon_Offset(pPolygon, -Distance, m_dArc, pBuffer) )
-			SG_Polygon_Difference(pPolygon, pBuffer, pBuffer);
+		if(	SG_Shapes_Clipper_Offset(pPolygon, -Distance, m_dArc, pBuffer) )
+			SG_Shapes_Clipper_Difference(pPolygon, pBuffer, pBuffer);
 		else
 			pBuffer->Assign(pPolygon, false);
 
 		return( true );
 	}
 
-	return( SG_Polygon_Offset(pPolygon, Distance, m_dArc, pBuffer) );
+	return( SG_Shapes_Clipper_Offset(pPolygon, Distance, m_dArc, pBuffer) );
 }
 
 

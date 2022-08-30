@@ -196,7 +196,7 @@ bool CGrid_Cell_Polygon_Coverage::On_Execute(void)
 				{
 					for(size_t i=0; pCell->Get_Area() > 0.0 && i<GET_NPOLYGONS; i++)
 					{
-						if( !SG_Polygon_Difference(pCell, GET_POLYGON(i)) )	// completely contained or identical > difference is empty !
+						if( !SG_Shapes_Clipper_Difference(pCell, GET_POLYGON(i)) )	// completely contained or identical > difference is empty !
 						{
 							pCell->Del_Parts();
 						}
@@ -262,7 +262,7 @@ bool CGrid_Cell_Polygon_Coverage::Get_Area(CSG_Shape_Polygon *pPolygon, CSG_Grid
 			pCell->Add_Point(p.x + d, p.y + d);
 			pCell->Add_Point(p.x + d, p.y - d);
 
-			if( SG_Polygon_Intersection(pCell, pPolygon) && pCell->Get_Area() > 0.0 )
+			if( SG_Shapes_Clipper_Intersection(pCell, pPolygon) && pCell->Get_Area() > 0.0 )
 			{
 				pArea->Add_Value(x, y, pCell->Get_Area());
 			}
