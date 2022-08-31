@@ -11,9 +11,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  shapes_polygons.cpp                  //
+//                  shapes_clipper.cpp                   //
 //                                                       //
-//                 Copyright (C) 2011 by                 //
+//                 Copyright (C) 2022 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@ public:
 			{
 				bool bAscending = pPolygon->Get_Type() != SHAPE_TYPE_Polygon
 					|| (pPolygon->asPolygon()->is_Lake     (iPart)
-						==  pPolygon->asPolygon()->is_Clockwise(iPart));
+					==  pPolygon->asPolygon()->is_Clockwise(iPart));
 
 				Polygons.resize(1 + jPolygon);
 				Polygons[jPolygon].resize(pPolygon->Get_Point_Count(iPart));
@@ -119,7 +119,7 @@ public:
 			{
 				bool bAscending = pPolygon->Get_Type() != SHAPE_TYPE_Polygon
 					|| (pPolygon->asPolygon()->is_Lake     (iPart)
-						==  pPolygon->asPolygon()->is_Clockwise(iPart));
+					==  pPolygon->asPolygon()->is_Clockwise(iPart));
 
 				Polygons.resize(1 + iPolygon);
 
@@ -150,26 +150,16 @@ public:
 	{
 		pPolygon->Del_Parts();
 
-		for(size_t iPolygon=0, iPart=0; iPolygon<Polygons.size(); iPolygon++)
+		for(size_t iPolygon=0; iPolygon<Polygons.size(); iPolygon++)
 		{
 			for(size_t iPoint=0; iPoint<Polygons[iPolygon].size(); iPoint++)
 			{
-				pPolygon->Add_Point(Polygons[iPolygon][iPoint].x, Polygons[iPolygon][iPoint].y, (int)iPart);
-			}
-
-			if( pPolygon->Get_Type() != SHAPE_TYPE_Polygon || pPolygon->asPolygon()->Get_Area((int)iPart) > (1.e-12) )
-			{
-				iPart++;
-			}
-			else
-			{
-				pPolygon->Del_Part((int)iPart);
+				pPolygon->Add_Point(Polygons[iPolygon][iPoint].x, Polygons[iPolygon][iPoint].y, (int)iPolygon);
 			}
 		}
 
 		return( pPolygon->Get_Part_Count() > 0 );
 	}
-
 };
 
 
@@ -183,7 +173,7 @@ bool _SG_Shapes_Clip(Clipper2Lib::ClipType ClipType, CSG_Shape *pPolygon, CSG_Sh
 	Clipper2Lib::PathsD	Subject, Clip, Solution;
 
 	if(	CSG_Converter::Convert(pPolygon, Subject)
-		&&	CSG_Converter::Convert(pClip   , Clip   ) )
+	&&	CSG_Converter::Convert(pClip   , Clip   ) )
 	{
 		Clipper2Lib::ClipperD Clipper;
 
@@ -291,13 +281,12 @@ bool	SG_Shapes_Clipper_ExclusiveOr	(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_S
 			pResult = pPolygon;
 		}
 
-		{	for(int iPart=0, jPart=pResult->Get_Part_Count(); iPart<pClip->Get_Part_Count(); iPart++, jPart++)
+		for(int iPart=0, jPart=pResult->Get_Part_Count(); iPart<pClip->Get_Part_Count(); iPart++, jPart++)
 		{
 			for(int iPoint=0; iPoint<pClip->Get_Point_Count(iPart); iPoint++)
 			{
 				pResult->Add_Point(pClip->Get_Point(iPoint, iPart), jPart);
 			}
-		}
 		}
 
 		return( true );	
@@ -343,13 +332,12 @@ bool	SG_Shapes_Clipper_Union			(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape
 			pResult	= pPolygon;
 		}
 
-		{	for(int iPart=0, jPart=pResult->Get_Part_Count(); iPart<pClip->Get_Part_Count(); iPart++, jPart++)
+		for(int iPart=0, jPart=pResult->Get_Part_Count(); iPart<pClip->Get_Part_Count(); iPart++, jPart++)
 		{
 			for(int iPoint=0; iPoint<pClip->Get_Point_Count(iPart); iPoint++)
 			{
 				pResult->Add_Point(pClip->Get_Point(iPoint, iPart), jPart);
 			}
-		}
 		}
 
 		return( true );	
@@ -411,7 +399,7 @@ bool	SG_Shapes_Clipper_Offset		(CSG_Shape *pPolygon, double dSize, double dArc, 
 //---------------------------------------------------------
 const char *	SG_Shapes_Clipper_Get_Version	(void)
 {
-	return( "Clipper2 - v1.0.0" );
+	return( "Clipper2 1.0.0" );
 }
 
 

@@ -184,41 +184,38 @@ wxString CDLG_About::_Get_Version(void)
 
 	//-----------------------------------------------------
 	s	+= "<hr>";
+	s	+= "<i>Application Programming Interface</i><br>";
 	s	+= "<b>SAGA API</b><br>";
-	s	+= "(Application Programming Interface)<br>";
 	s	+= "under<br>";
 	s	+= "GNU Lesser General Public License (LGPL)<br>";
 	s	+= "<br>";
+	s	+= "<i>Graphical User Interface</i><br>";
 	s	+= "<b>SAGA GUI</b><br>";
-	s	+= "(Graphical User Interface)<br>";
 	s	+= "and<br>";
+	s	+= "<i>Command Line Interpreter</i><br>";
 	s	+= "<b>SAGA CMD</b><br>";
-	s	+= "(Command Line Interpreter)<br>";
 	s	+= "under<br>";
 	s	+= "GNU General Public License (GPL)<br>";
 
 	//-----------------------------------------------------
 	s	+= "<hr>";
-	s	+= "SAGA uses the portable C++ GUI toolkit<br>";
-	s	+= wxVERSION_STRING	+ wxString("<br>");
-	s	+= "<a href=\"https://wxwidgets.org/\">wxwidgets.org</a><br>";
-	s	+= "<br>";
-	s	+= "SAGA API includes<br>";
-	s	+= "<br>";
+	s	+= "SAGA uses<br><br>";
+	s	+= "The portable C++ GUI toolkit<br>";
+	s	+= "<a href=\"https://wxwidgets.org/\">";
+	s	+= wxVERSION_STRING;
+	s	+= "</a><br><br>";
+	s	+= "SAGA API includes<br><br>";
 	s	+= "The polygon clipping and offsetting library<br>";
-	s	+= wxString(SG_Shapes_Clipper_Get_Version()) + "<br>";
-	#ifdef WITH_CLIPPER_ONE
-	s	+= "<a href=\"https://sourceforge.net/projects/polyclipping/\">Clipper1</a><br>";
-	#else
-	s	+= "<a href=\"https://github.com/AngusJohnson/Clipper2/\">Clipper2</a><br>";
-	#endif
-	s	+= "<br>";
+	s	+= "<a href=\"https://github.com/AngusJohnson/Clipper2/\">";
+	s	+= SG_Shapes_Clipper_Get_Version();
+	s	+= "</a><br><br>";
 	s	+= "The Nearest Neighbor (NN) search with KD-trees library<br>";
-	s	+= "nanoflann " + wxString::Format("%d.%d.%d",
-		(NANOFLANN_VERSION&0xf00)/0x100,
-		(NANOFLANN_VERSION&0x0f0)/0x010,
-		(NANOFLANN_VERSION&0x00f)/0x001) + "<br>";
-	s	+= "<a href=\"https://github.com/jlblancoc/nanoflann/\">github.com/jlblancoc/nanoflann</a><br>";
+	s	+= "<a href=\"https://github.com/jlblancoc/nanoflann/\">";
+	s	+= wxString::Format("nanoflann %d.%d.%d",
+			(NANOFLANN_VERSION&0xf00)/0x100,
+			(NANOFLANN_VERSION&0x0f0)/0x010,
+			(NANOFLANN_VERSION&0x00f)/0x001);
+	s	+= "</a><br>";
 
 	//-----------------------------------------------------
 	s	+= "</center>";

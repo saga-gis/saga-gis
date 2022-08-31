@@ -17,6 +17,7 @@
 #include <string>
 #include <iostream>
 #include <algorithm>
+#include <limits> // SAGA (gcc)
 
 namespace Clipper2Lib 
 {
@@ -41,9 +42,12 @@ struct Point {
 	template <typename T2>
 	inline void Init(const T2 x_ = 0, const T2 y_ = 0)
 	{
-		#pragma warning(suppress:4984)
-		if constexpr (std::numeric_limits<T>::is_integer &&
-			!std::numeric_limits<T2>::is_integer)
+		#if defined(_MSC_VER)
+		#pragma warning(suppress:4984) // SAGA (MSVC 2017, C++ 17)
+		if constexpr (std::numeric_limits<T>::is_integer && !std::numeric_limits<T2>::is_integer)
+		#else
+		if constexpr (std::numeric_limits<T>::is_integer && !std::numeric_limits<T2>::is_integer)
+		#endif
 		{
 			x = static_cast<T>(std::round(x_));
 			y = static_cast<T>(std::round(y_));

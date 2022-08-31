@@ -233,24 +233,15 @@ bool CSG_Converter_WorldToInt::Convert(const ClipperLib::Paths &Polygons, CSG_Sh
 {
 	pPolygon->Del_Parts();
 
-	for(size_t iPolygon=0, iPart=0; iPolygon<Polygons.size(); iPolygon++)
+	for(size_t iPolygon=0; iPolygon<Polygons.size(); iPolygon++)
 	{
 		for(size_t iPoint=0; iPoint<Polygons[iPolygon].size(); iPoint++)
 		{
 			pPolygon->Add_Point(
 				Get_X_asWorld(Polygons[iPolygon][iPoint].X),
 				Get_Y_asWorld(Polygons[iPolygon][iPoint].Y),
-				(int)iPart
+				(int)iPolygon
 			);
-		}
-
-		if( pPolygon->Get_Type() != SHAPE_TYPE_Polygon || ((CSG_Shape_Polygon *)pPolygon)->Get_Area((int)iPart) > (1.0e-12) )
-		{
-			iPart++;
-		}
-		else
-		{
-			pPolygon->Del_Part((int)iPart);
 		}
 	}
 
@@ -478,7 +469,7 @@ bool	SG_Shapes_Clipper_Offset		(CSG_Shape *pPolygon, double dSize, double dArc, 
 //---------------------------------------------------------
 const char *	SG_Shapes_Clipper_Get_Version	(void)
 {
-	return( "Clipper1 - v" CLIPPER_VERSION );
+	return( "Clipper " CLIPPER_VERSION );
 }
 
 
