@@ -250,6 +250,9 @@ else()
 endif(GIT_FOUND)
 configure_file("${PROJECT_SOURCE_DIR}/git_hash.h.in" "${PROJECT_SOURCE_DIR}/git_hash.h" @ONLY)
 
+set(COMPILER "${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
+add_definitions(-DCOMPILER="${COMPILER}")
+
 # add man page
 add_subdirectory(man)
 # add res directory

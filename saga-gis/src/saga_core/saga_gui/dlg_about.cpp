@@ -180,7 +180,12 @@ wxString CDLG_About::_Get_Version(void)
 	//-----------------------------------------------------
 	s	+= "<hr>";
 	s	+= "Compiled with<br>";
-	s	+= _Get_Compiler() + "<br>";
+	#ifdef COMPILER;
+		if( *COMPILER)
+		{
+			s	+= wxString(COMPILER) + "<br>";
+		}
+	#endif
 
 	//-----------------------------------------------------
 	s	+= "<hr>";
@@ -221,84 +226,6 @@ wxString CDLG_About::_Get_Version(void)
 	s	+= "</center>";
 
 	return( s );
-}
-
-//---------------------------------------------------------
-wxString CDLG_About::_Get_Compiler(void)
-{
-	return(
-		#if   defined(__BORLANDC__)
-			"Borland C++"
-		#elif defined(__DJGPP__)
-			"DJGPP"
-		#elif defined(__DIGITALMARS__)
-			"Digital Mars"
-		#elif defined(__MWERKS__)
-			"CodeWarrior MetroWerks compiler"
-		#elif defined(__SUNCC__)
-			"Sun CC"
-		#elif defined(__SUNPRO_CC)
-			"Oracle Solaris Studio"
-		#elif defined(__SYMANTECC__)
-			"Symantec C++"
-		#elif defined(__VISAGECPP__)
-			"IBM Visual Age (OS/2)"
-		#elif defined(__IBMCPP__)
-			"IBM XL C/C++"
-		#elif defined(__INTEL_COMPILER) || defined(__ICC)
-			"Intel ICC/ICPC"
-		#elif defined(__PGI)
-			"Portland PGCC/PGCPP"
-		#elif defined(__XLC__)
-			"AIX compiler"
-		#elif defined(__WATCOMC__)
-			"Watcom C++"
-		#elif defined(_WIN32_WCE)
-			"Windows CE version"
-		#elif defined(__MINGW32__)
-			"MinGW"
-		#elif defined(__GNUWIN32__)
-			"GNU-Win32 compiler"
-		#elif defined(__clang__)
-			"Clang/LLVM"
-		#elif defined(__GNUG__)
-			#if defined(__VERSION__)
-				"GNU C++ " __VERSION__
-			#else
-				"GNU C++"
-			#endif
-		#elif defined(__VISUALC__)	// The value of this macro corresponds to the compiler version: 1020 for 4.2 (the first supported version), 1100 for 5.0, 1200 for 6.0 and so on
-			#if   __VISUALC__ == 1020
-				"Microsoft Visual C++ 4.2"
-			#elif __VISUALC__ >= 1100 && __VISUALC__ < 1200
-				"Microsoft Visual C++ 5"
-			#elif __VISUALC__ >= 1200 && __VISUALC__ < 1300
-				"Microsoft Visual C++ 6"
-			#elif __VISUALC__ >= 1300 && __VISUALC__ < 1400
-				"Microsoft Visual C++ 7"
-			#elif __VISUALC__ >= 1400 && __VISUALC__ < 1500
-				"Microsoft Visual C++ 8"
-			#elif __VISUALC__ >= 1500 && __VISUALC__ < 1600
-				"Microsoft Visual C++ 9"
-			#elif __VISUALC__ >= 1600 && __VISUALC__ < 1700
-				"Microsoft Visual C++ 2010"
-			#elif __VISUALC__ >= 1700 && __VISUALC__ < 1800
-				"Microsoft Visual C++ 2012"
-			#elif __VISUALC__ >= 1800 && __VISUALC__ < 1900
-				"Microsoft Visual C++ 2013"
-			#elif __VISUALC__ >= 1900 && __VISUALC__ < 1910
-				"Microsoft Visual C++ 2015"
-			#elif __VISUALC__ >= 1910 && __VISUALC__ < 1920
-				"Microsoft Visual C++ 2017"
-			#elif __VISUALC__ >= 1920 && __VISUALC__ < 2000
-				"Microsoft Visual C++ 2019"
-			#else
-				"Microsoft Visual C++"
-			#endif
-		#else
-			"unknown compiler"
-		#endif
-	);
 }
 
 
