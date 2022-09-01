@@ -157,10 +157,8 @@ wxString CDLG_About::_Get_Version(void)
 	wxString s;
 
 	s	+= "<center>";
-
-	//-----------------------------------------------------
 	s	+= "<h3>System for Automated Geoscientific Analyses</h3><br>";
-	s	+= "<b>SAGA " + wxString(SAGA_VERSION);
+	s	+= "<b>SAGA " SAGA_VERSION;
 	#if !defined(_SAGA_MSW)
 		s	+=          "</b><br>";
 	#elif defined(_WIN64)
@@ -171,19 +169,32 @@ wxString CDLG_About::_Get_Version(void)
 	#ifdef GIT_HASH
 		if( *GIT_HASH )
 		{
-			s       += "<br>[ <a href=\"https://sourceforge.net/p/saga-gis/code/ci/" + wxString(GIT_HASH) + "\">#" + wxString(GIT_HASH) + "</a> ]<br>";
+			s	+= "<br>[ <a href=\"https://sourceforge.net/p/saga-gis/code/ci/" GIT_HASH "\">#" GIT_HASH "</a> ]<br>";
 		}
 	#endif
 	s	+= "<br>";
 	s	+= "<a href=\"https://saga-gis.sourceforge.io/\">saga-gis.org</a>";
 
 	//-----------------------------------------------------
-	s	+= "<hr>";
-	s	+= "Compiled with<br>";
-	#ifdef COMPILER;
-		if( *COMPILER)
+	#if defined(COMPILER)
+		if( *COMPILER )
 		{
-			s	+= wxString(COMPILER) + "<br>";
+			s	+= "<hr>Compiled with<br>" COMPILER "<br>";
+
+			#if defined(_SAGA_MSW) && defined(_MSC_VER) && _MSC_VER >= 1900
+				s	+= "Microsoft Visual Studio "
+				#if   _MSC_VER == 1900
+					"2015 (14)<br>";
+				#elif _MSC_VER <= 1920
+					"2017 (15)<br>";
+				#elif _MSC_VER <= 1930
+					"2019 (16)<br>";
+				#elif _MSC_VER <= 1940
+					"2022 (17)<br>";
+				#else
+					"(unknown version)<br>";
+				#endif
+			#endif
 		}
 	#endif
 
@@ -212,7 +223,7 @@ wxString CDLG_About::_Get_Version(void)
 	s	+= "SAGA API includes<br><br>";
 	s	+= "The polygon clipping and offsetting library<br>";
 	s	+= "<a href=\"https://github.com/AngusJohnson/Clipper2/\">";
-	s	+= SG_Shapes_Clipper_Get_Version();
+	s	+= SG_Clipper_Get_Version();
 	s	+= "</a><br><br>";
 	s	+= "The Nearest Neighbor (NN) search with KD-trees library<br>";
 	s	+= "<a href=\"https://github.com/jlblancoc/nanoflann/\">";

@@ -88,7 +88,6 @@ private:
 	void						_On_Link_Clicked		(class wxHtmlLinkEvent &event);
 
 	wxString					_Get_Version			(void);
-	wxString					_Get_Compiler			(void);
 	wxString					_Get_Citation			(void);
 	wxString					_Get_GPL				(void);
 	wxString					_Get_LGPL				(void);
