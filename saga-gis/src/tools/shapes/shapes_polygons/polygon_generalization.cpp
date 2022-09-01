@@ -187,7 +187,7 @@ bool CPolygon_Generalization::Set_JoinTos(CSG_Shapes *pPolygons)
 				pJoinTo->Add_Part(pRemove->Get_Part(iPart));
 			}
 
-			SG_Shapes_Clipper_Dissolve(pJoinTo);
+			SG_Shape_Get_Dissolve(pJoinTo);
 		}
 	}
 

@@ -148,7 +148,7 @@ bool CThiessen_Polygons::On_Execute(void)
 				pPolygon->Add_Point(Points[iPoint]);
 			}
 
-			SG_Shapes_Clipper_Intersection(pPolygon, pFrame);
+			SG_Shape_Get_Intersection(pPolygon, pFrame->asPolygon());
 		}
 	}
 

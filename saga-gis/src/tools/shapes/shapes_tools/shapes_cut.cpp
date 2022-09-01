@@ -69,19 +69,19 @@ bool Cut_Shapes(CSG_Shapes *pPolygons, int Method, CSG_Shapes *pShapes, CSG_Shap
 
 	//-----------------------------------------------------
 	CSG_Shapes	Intersect(SHAPE_TYPE_Polygon);
-	CSG_Shape_Polygon	*pIntersect = Overlap > 0.0 && pShapes->Get_Type() == SHAPE_TYPE_Polygon
-		? (CSG_Shape_Polygon *)Intersect.Add_Shape() : NULL;
+	CSG_Shape_Polygon	*pIntersect = Overlap > 0. && pShapes->Get_Type() == SHAPE_TYPE_Polygon
+		? Intersect.Add_Shape()->asPolygon() : NULL;
 
 	//-----------------------------------------------------
 	for(int iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 	{
-		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+		CSG_Shape *pShape = pShapes->Get_Shape(iShape);
 
-		bool	bAdd	= false;
+		bool bAdd = false;
 
 		for(int iPolygon=0; !bAdd && iPolygon<pPolygons->Get_Count(); iPolygon++)
 		{
-			CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
+			CSG_Shape_Polygon *pPolygon = pPolygons->Get_Shape(iPolygon)->asPolygon();
 
 			switch( Method )
 			{
@@ -96,7 +96,7 @@ bool Cut_Shapes(CSG_Shapes *pPolygons, int Method, CSG_Shapes *pShapes, CSG_Shap
 
 				if( bAdd && pIntersect )
 				{
-					bAdd	= SG_Shapes_Clipper_Intersection(pPolygon, pShape, pIntersect)
+					bAdd	= SG_Shape_Get_Intersection(pPolygon, pShape->asPolygon(), pIntersect)
 						&& Overlap <= pIntersect->Get_Area() / ((CSG_Shape_Polygon *)pShape)->Get_Area();
 				}
 				break;

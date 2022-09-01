@@ -144,10 +144,10 @@ public:
 	TSG_Shape_Type				Get_Type			(void)	const;
 	TSG_Vertex_Type				Get_Vertex_Type		(void)	const;
 
-	class CSG_Shape_Point   *	asPoint				(void)	{	return( Get_Type() == SHAPE_TYPE_Point   ? (CSG_Shape_Point   *)this : NULL );	}
-	class CSG_Shape_Points  *	asPoints			(void)	{	return( Get_Type() == SHAPE_TYPE_Points  ? (CSG_Shape_Points  *)this : NULL );	}
-	class CSG_Shape_Line    *	asLine				(void)	{	return( Get_Type() == SHAPE_TYPE_Line    ? (CSG_Shape_Line    *)this : NULL );	}
-	class CSG_Shape_Polygon *	asPolygon			(void)	{	return( Get_Type() == SHAPE_TYPE_Polygon ? (CSG_Shape_Polygon *)this : NULL );	}
+	class CSG_Shape_Point   *	asPoint				(void)	const	{	return( Get_Type() == SHAPE_TYPE_Point   ? (CSG_Shape_Point   *)this : NULL );	}
+	class CSG_Shape_Points  *	asPoints			(void)	const	{	return( Get_Type() == SHAPE_TYPE_Points  ? (CSG_Shape_Points  *)this : NULL );	}
+	class CSG_Shape_Line    *	asLine				(void)	const	{	return( Get_Type() == SHAPE_TYPE_Line    ? (CSG_Shape_Line    *)this : NULL );	}
+	class CSG_Shape_Polygon *	asPolygon			(void)	const	{	return( Get_Type() == SHAPE_TYPE_Polygon ? (CSG_Shape_Polygon *)this : NULL );	}
 
 	//-----------------------------------------------------
 	virtual int					Get_Point_Count		(void)      const = 0;
@@ -1475,14 +1475,14 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT bool			SG_Shapes_Clipper_Intersection	(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult = NULL);
-SAGA_API_DLL_EXPORT bool			SG_Shapes_Clipper_Difference	(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult = NULL);
-SAGA_API_DLL_EXPORT bool			SG_Shapes_Clipper_ExclusiveOr	(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult = NULL);
-SAGA_API_DLL_EXPORT bool			SG_Shapes_Clipper_Union			(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult = NULL);
-SAGA_API_DLL_EXPORT bool			SG_Shapes_Clipper_Dissolve		(CSG_Shape *pPolygon                  , CSG_Shape *pResult = NULL);
-SAGA_API_DLL_EXPORT bool			SG_Shapes_Clipper_Offset		(CSG_Shape *pPolygon, double dSize, double dArc, CSG_Shape *pResult = NULL);
+SAGA_API_DLL_EXPORT bool			SG_Shape_Get_Intersection	(CSG_Shape *pSubject, CSG_Shape_Polygon *pClip, CSG_Shape *pSolution = NULL);
+SAGA_API_DLL_EXPORT bool			SG_Shape_Get_Difference		(CSG_Shape *pSubject, CSG_Shape_Polygon *pClip, CSG_Shape *pSolution = NULL);
+SAGA_API_DLL_EXPORT bool			SG_Shape_Get_ExclusiveOr	(CSG_Shape *pSubject, CSG_Shape_Polygon *pClip, CSG_Shape *pSolution = NULL);
+SAGA_API_DLL_EXPORT bool			SG_Shape_Get_Union			(CSG_Shape *pSubject, CSG_Shape_Polygon *pClip, CSG_Shape *pSolution = NULL);
+SAGA_API_DLL_EXPORT bool			SG_Shape_Get_Dissolve		(CSG_Shape *pSubject                          , CSG_Shape *pSolution = NULL);
+SAGA_API_DLL_EXPORT bool			SG_Shape_Get_Offset			(CSG_Shape *pSubject, double Size, double dArc, CSG_Shape *pSolution = NULL);
 
-SAGA_API_DLL_EXPORT const char *	SG_Shapes_Clipper_Get_Version	(void);
+SAGA_API_DLL_EXPORT const char *	SG_Clipper_Get_Version		(void);
 
 
 ///////////////////////////////////////////////////////////

@@ -801,7 +801,7 @@ void CProfile_Cross_Sections_PDF::CalculateAreas(TSG_Point * pCrossSection,
 	pCrossSectionShape->Add_Point(pCrossSection[0].x - LONG_SEGMENT / SLOPE_RATIO,
 						pCrossSection[0].y - LONG_SEGMENT);		
 
-	if (SG_Shapes_Clipper_Intersection(pCrossSectionShape, pRoadShape, pResultShape)){
+	if (SG_Shape_Get_Intersection(pCrossSectionShape, pRoadShape->asPolygon(), pResultShape)){
 		fNegativeArea = ((CSG_Shape_Polygon*)pResultShape)->Get_Area();
 	}//if
 	else{
@@ -830,7 +830,7 @@ void CProfile_Cross_Sections_PDF::CalculateAreas(TSG_Point * pCrossSection,
 	pCrossSectionShape->Add_Point(pCrossSection[0].x - LONG_SEGMENT / SLOPE_RATIO,
 						pCrossSection[0].y + LONG_SEGMENT);		
 	
-	if (SG_Shapes_Clipper_Intersection(pCrossSectionShape, pRoadShape, pResultShape)){
+	if (SG_Shape_Get_Intersection(pCrossSectionShape, pRoadShape->asPolygon(), pResultShape)){
 		fPositiveArea = ((CSG_Shape_Polygon*)pResultShape)->Get_Area();
 	}//if
 	else{

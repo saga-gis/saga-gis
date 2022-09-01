@@ -204,7 +204,7 @@ bool CShapes_Buffer::On_Execute(void)
 
 			if( iZone > 0 )
 			{
-				SG_Shapes_Clipper_Difference(pBuffer, Buffers.Get_Shape(0));
+				SG_Shape_Get_Difference(pBuffer, Buffers.Get_Shape(0)->asPolygon());
 			}
 
 			pBuffer	= pBuffers->Add_Shape(Buffers.Get_Shape(0));
@@ -225,14 +225,12 @@ bool CShapes_Buffer::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CShapes_Buffer::Get_Buffers(CSG_Shapes *pShapes, int Field, CSG_Shapes *pBuffers, double Scale, bool bDissolve)
+bool CShapes_Buffer::Get_Buffers(CSG_Shapes *pShapes, int Field, CSG_Shapes *pBuffers, double _Scale, bool bDissolve)
 {
-	double		Distance;
-	CSG_Shapes	Part(SHAPE_TYPE_Polygon);
-	CSG_Shape	*pPart	= Part.Add_Shape(), *pBuffer;
+	CSG_Shapes Part(SHAPE_TYPE_Polygon); CSG_Shape_Polygon *pPart = Part.Add_Shape()->asPolygon(), *pBuffer;
 
-	Distance	= Parameters("DIST_FIELD")->asDouble() * Scale;
-	Scale		= Parameters("DIST_SCALE")->asDouble() * Scale;
+	double Distance = Parameters("DIST_FIELD")->asDouble() * _Scale;
+	double Scale    = Parameters("DIST_SCALE")->asDouble() * _Scale;
 
 	if( !bDissolve )
 	{
@@ -242,7 +240,7 @@ bool CShapes_Buffer::Get_Buffers(CSG_Shapes *pShapes, int Field, CSG_Shapes *pBu
 	{
 		pBuffers->Create(SHAPE_TYPE_Polygon);
 		pBuffers->Add_Field(_TL("ID"), SG_DATATYPE_Int);
-		pBuffer	= pBuffers->Add_Shape();
+		pBuffer	= pBuffers->Add_Shape()->asPolygon();
 	}
 
 	//-----------------------------------------------------
@@ -254,7 +252,7 @@ bool CShapes_Buffer::Get_Buffers(CSG_Shapes *pShapes, int Field, CSG_Shapes *pBu
 		{
 			if( !bDissolve )
 			{
-				pBuffer	= pBuffers->Add_Shape(pShape, SHAPE_COPY_ATTR);
+				pBuffer	= pBuffers->Add_Shape(pShape, SHAPE_COPY_ATTR)->asPolygon();
 			}
 
 			if( pBuffer->Get_Part_Count() == 0 )
@@ -265,7 +263,7 @@ bool CShapes_Buffer::Get_Buffers(CSG_Shapes *pShapes, int Field, CSG_Shapes *pBu
 			{
 				Get_Buffer(pShape, pPart  , Distance);
 
-				SG_Shapes_Clipper_Union(pBuffer, pPart);
+				SG_Shape_Get_Union(pBuffer, pPart);
 
 				pPart->Del_Parts();
 			}
@@ -307,8 +305,7 @@ bool CShapes_Buffer::Get_Buffer_Point(CSG_Shape *pPoint, CSG_Shape *pBuffer, dou
 //---------------------------------------------------------
 bool CShapes_Buffer::Get_Buffer_Points(CSG_Shape *pPoints, CSG_Shape *pBuffer, double Distance)
 {
-	CSG_Shapes	Part(SHAPE_TYPE_Polygon);
-	CSG_Shape	*pPart	= Part.Add_Shape();
+	CSG_Shapes Part(SHAPE_TYPE_Polygon); CSG_Shape_Polygon *pPart = Part.Add_Shape()->asPolygon();
 
 	for(int iPart=0; iPart<pPoints->Get_Part_Count(); iPart++)
 	{
@@ -322,7 +319,7 @@ bool CShapes_Buffer::Get_Buffer_Points(CSG_Shape *pPoints, CSG_Shape *pBuffer, d
 			{
 				Add_Arc(pPart  , pPoints->Get_Point(iPoint), Distance, 0.0, M_PI_360);
 
-				SG_Shapes_Clipper_Union(pBuffer, pPart);
+				SG_Shape_Get_Union(pBuffer, pPart);
 
 				pPart->Del_Parts();
 			}
@@ -335,7 +332,7 @@ bool CShapes_Buffer::Get_Buffer_Points(CSG_Shape *pPoints, CSG_Shape *pBuffer, d
 //---------------------------------------------------------
 bool CShapes_Buffer::Get_Buffer_Line(CSG_Shape *pLine, CSG_Shape *pBuffer, double Distance)
 {
-	return( SG_Shapes_Clipper_Offset(pLine, Distance, m_dArc, pBuffer) );
+	return( SG_Shape_Get_Offset(pLine, Distance, m_dArc, pBuffer) );
 }
 
 //---------------------------------------------------------
@@ -343,15 +340,19 @@ bool CShapes_Buffer::Get_Buffer_Polygon(CSG_Shape *pPolygon, CSG_Shape *pBuffer,
 {
 	if( m_bPolyInner )
 	{
-		if(	SG_Shapes_Clipper_Offset(pPolygon, -Distance, m_dArc, pBuffer) )
-			SG_Shapes_Clipper_Difference(pPolygon, pBuffer, pBuffer);
+		if(	SG_Shape_Get_Offset(pPolygon, -Distance, m_dArc, pBuffer) )
+		{
+			SG_Shape_Get_Difference(pPolygon, pBuffer->asPolygon(), pBuffer);
+		}
 		else
+		{
 			pBuffer->Assign(pPolygon, false);
+		}
 
 		return( true );
 	}
 
-	return( SG_Shapes_Clipper_Offset(pPolygon, Distance, m_dArc, pBuffer) );
+	return( SG_Shape_Get_Offset(pPolygon, Distance, m_dArc, pBuffer) );
 }
 
 
@@ -374,21 +375,22 @@ inline double CShapes_Buffer::Get_Direction(const TSG_Point &From, const TSG_Poi
 //---------------------------------------------------------
 inline bool CShapes_Buffer::Get_Parallel(const TSG_Point &A, const TSG_Point &B, TSG_Point AB[2], double Distance)
 {
-	double		d;
-	TSG_Point	C;
+	double d = SG_Get_Distance(A, B);
 
-	if( (d = SG_Get_Distance(A, B)) > 0.0 )
+	if( d > 0. )
 	{
-		d		= Distance / d;
+		d = Distance / d;
 
-		C.x		= d * (A.y - B.y);
-		C.y		= d * (B.x - A.x);
+		CSG_Point C(
+			d * (A.y - B.y),
+			d * (B.x - A.x)
+		);
 
-		AB[0].x	= A.x + C.x;
-		AB[0].y	= A.y + C.y;
+		AB[0].x = A.x + C.x;
+		AB[0].y = A.y + C.y;
 
-		AB[1].x	= B.x + C.x;
-		AB[1].y	= B.y + C.y;
+		AB[1].x = B.x + C.x;
+		AB[1].y = B.y + C.y;
 
 		return( true );
 	}

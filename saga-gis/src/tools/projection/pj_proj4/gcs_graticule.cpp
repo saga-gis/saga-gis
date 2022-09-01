@@ -240,8 +240,7 @@ bool CGCS_Graticule::On_Execute(void)
 //---------------------------------------------------------
 bool CGCS_Graticule::Get_Graticule(const CSG_Rect &Extent)
 {
-	double		x, y, Interval;
-	CSG_Rect	r;
+	CSG_Rect r; double Interval;
 
 	if( !Get_Extent(Extent, r) || (Interval = Get_Interval(r)) <= 0. )
 	{
@@ -249,28 +248,28 @@ bool CGCS_Graticule::Get_Graticule(const CSG_Rect &Extent)
 	}
 
 	//-----------------------------------------------------
-	r.m_rect.xMin	= Interval * floor(r.Get_XMin() / Interval);
-	r.m_rect.xMax	= Interval * ceil (r.Get_XMax() / Interval);
-	r.m_rect.yMin	= Interval * floor(r.Get_YMin() / Interval);
-	r.m_rect.yMax	= Interval * ceil (r.Get_YMax() / Interval);
+	r.m_rect.xMin = Interval * floor(r.Get_XMin() / Interval);
+	r.m_rect.xMax = Interval * ceil (r.Get_XMax() / Interval);
+	r.m_rect.yMin = Interval * floor(r.Get_YMin() / Interval);
+	r.m_rect.yMax = Interval * ceil (r.Get_YMax() / Interval);
 
 	r.Inflate(Interval, false);
 
-	if( r.Get_XMin() < -180. )	r.m_rect.xMin	= -180.;
-	if( r.Get_XMax() >  180. )	r.m_rect.xMax	=  180.;
-	if( r.Get_YMin() <  -90. )	r.m_rect.yMin	=  -90.;
-	if( r.Get_YMax() >   90. )	r.m_rect.yMax	=   90.;
+	if( r.Get_XMin() < -180. ) r.m_rect.xMin = -180.;
+	if( r.Get_XMax() >  180. ) r.m_rect.xMax =  180.;
+	if( r.Get_YMin() <  -90. ) r.m_rect.yMin =  -90.;
+	if( r.Get_YMax() >   90. ) r.m_rect.yMax =   90.;
 
 	//-----------------------------------------------------
-	double	Resolution	= Parameters("RESOLUTION")->asDouble();	if( Resolution <= 0. )	Resolution	= Interval;
+	double Resolution = Parameters("RESOLUTION")->asDouble(); if( Resolution <= 0. ) Resolution = Interval;
 
 	if( Interval > Resolution )
 	{
-		Resolution	= Interval / ceil(Interval / Resolution);
+		Resolution = Interval / ceil(Interval / Resolution);
 	}
 
 	//-----------------------------------------------------
-	CSG_Shapes	*pGraticule	= Parameters("GRATICULE")->asShapes();
+	CSG_Shapes *pGraticule = Parameters("GRATICULE")->asShapes();
 
 	pGraticule->Create(SHAPE_TYPE_Line);
 	pGraticule->Set_Name(_TL("Graticule"));
@@ -280,7 +279,7 @@ bool CGCS_Graticule::Get_Graticule(const CSG_Rect &Extent)
 	pGraticule->Add_Field("DEGREE", SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
-	CSG_Shapes	*pCoordinates	= Parameters("COORDS")->asShapes();
+	CSG_Shapes *pCoordinates = Parameters("COORDS")->asShapes();
 
 	if( pCoordinates )
 	{
@@ -302,23 +301,23 @@ bool CGCS_Graticule::Get_Graticule(const CSG_Rect &Extent)
 	pClip->Add_Point(Extent.Get_XMin(), Extent.Get_YMin());
 
 	//-----------------------------------------------------
-	for(y=r.Get_YMin(); y<=r.Get_YMax(); y+=Interval)
+	for(double y=r.Get_YMin(); y<=r.Get_YMax(); y+=Interval)
 	{
-		CSG_Shape	*pLine	= pGraticule->Add_Shape();
+		CSG_Shape *pLine = pGraticule->Add_Shape();
 
 		pLine->Set_Value(0, "LAT");
 		pLine->Set_Value(1, Get_Degree(y, DEG_PREC_DEG));
 		pLine->Set_Value(2, y);
 
-		for(x=r.Get_XMin(); x<=r.Get_XMax(); x+=Interval)
+		for(double x=r.Get_XMin(); x<=r.Get_XMax(); x+=Interval)
 		{
-			CSG_Point	p(x, y);	m_Projector.Get_Projection(p);	pLine->Add_Point(p);
+			CSG_Point p(x, y); m_Projector.Get_Projection(p); pLine->Add_Point(p);
 
 			if( Resolution < Interval && x < r.Get_XMax() )
 			{
 				for(double i=x+Resolution; i<x+Interval; i+=Resolution)
 				{
-					CSG_Point	p(i, y);	m_Projector.Get_Projection(p);	pLine->Add_Point(p);
+					CSG_Point p(i, y); m_Projector.Get_Projection(p); pLine->Add_Point(p);
 				}
 			}
 		}
@@ -326,30 +325,30 @@ bool CGCS_Graticule::Get_Graticule(const CSG_Rect &Extent)
 		Get_Coordinate(Extent, pCoordinates, pLine, AXIS_LEFT);
 		Get_Coordinate(Extent, pCoordinates, pLine, AXIS_RIGHT);
 
-		if( !SG_Shapes_Clipper_Intersection(pLine, pClip) )
+		if( !SG_Shape_Get_Intersection(pLine, pClip->asPolygon()) )
 		{
 			pGraticule->Del_Shape(pLine);
 		}
 	}
 
 	//-----------------------------------------------------
-	for(x=r.Get_XMin(); x<=r.Get_XMax(); x+=Interval)
+	for(double x=r.Get_XMin(); x<=r.Get_XMax(); x+=Interval)
 	{
-		CSG_Shape	*pLine	= pGraticule->Add_Shape();
+		CSG_Shape *pLine = pGraticule->Add_Shape();
 
 		pLine->Set_Value(0, "LON");
 		pLine->Set_Value(1, Get_Degree(x, DEG_PREC_DEG));
 		pLine->Set_Value(2, x);
 
-		for(y=r.Get_YMin(); y<=r.Get_YMax(); y+=Interval)
+		for(double y=r.Get_YMin(); y<=r.Get_YMax(); y+=Interval)
 		{
-			CSG_Point	p(x, y);	m_Projector.Get_Projection(p);	pLine->Add_Point(p);
+			CSG_Point p(x, y); m_Projector.Get_Projection(p); pLine->Add_Point(p);
 
 			if( Resolution < Interval && y < r.Get_YMax() )
 			{
 				for(double i=y+Resolution; i<y+Interval; i+=Resolution)
 				{
-					CSG_Point	p(x, i);	m_Projector.Get_Projection(p);	pLine->Add_Point(p);
+					CSG_Point p(x, i); m_Projector.Get_Projection(p); pLine->Add_Point(p);
 				}
 			}
 		}
@@ -357,7 +356,7 @@ bool CGCS_Graticule::Get_Graticule(const CSG_Rect &Extent)
 		Get_Coordinate(Extent, pCoordinates, pLine, AXIS_BOTTOM);
 		Get_Coordinate(Extent, pCoordinates, pLine, AXIS_TOP);
 
-		if( !SG_Shapes_Clipper_Intersection(pLine, pClip) )
+		if( !SG_Shape_Get_Intersection(pLine, pClip->asPolygon()) )
 		{
 			pGraticule->Del_Shape(pLine);
 		}

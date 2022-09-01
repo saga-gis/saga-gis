@@ -315,7 +315,7 @@ bool CPolygon_Dissolve::Get_Dissolved(CSG_Shape *pDissolve, bool bDissolve, doub
 
 	if( bDissolve )
 	{
-		SG_Shapes_Clipper_Dissolve(pDissolve);
+		SG_Shape_Get_Dissolve(pDissolve);
 
 		if( minArea > 0.0 )
 		{

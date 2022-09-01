@@ -337,13 +337,13 @@ void CPolygon_Clip::Clip_Polygons(CSG_Shapes *pClips, CSG_Shapes *pInputs, CSG_S
 	{
 		Process_Set_Text("%s: %d/%d", _TL("clip features"), iClip + 1, pClips->Get_Count());
 
-		CSG_Shape	*pClip	= pClips->Get_Shape(iClip);
+		CSG_Shape_Polygon *pClip = pClips->Get_Shape(iClip)->asPolygon();
 
 		for(int iInput=0; iInput<pInputs->Get_Count() && Set_Progress(iInput, pInputs->Get_Count()); iInput++)
 		{
-			CSG_Shape	*pOutput	= pOutputs->Add_Shape(pInputs->Get_Shape(iInput));
+			CSG_Shape *pOutput = pOutputs->Add_Shape(pInputs->Get_Shape(iInput));
 
-			if( !SG_Shapes_Clipper_Intersection(pOutput, pClip) )
+			if( !SG_Shape_Get_Intersection(pOutput, pClip) )
 			{
 				pOutputs->Del_Shape(pOutputs->Get_Count() - 1);
 			}
@@ -379,7 +379,7 @@ bool CPolygon_Clip::Dissolve(CSG_Shapes *pPolygons, CSG_Shapes *pOutput)
 		}
 	}
 
-	return( SG_Shapes_Clipper_Dissolve(pDissolved) );
+	return( SG_Shape_Get_Dissolve(pDissolved) );
 }
 
 

@@ -97,20 +97,18 @@ CPolygon_SelfIntersection::CPolygon_SelfIntersection(void)
 //---------------------------------------------------------
 bool CPolygon_SelfIntersection::On_Execute(void)
 {
-	int			ID;
-	CSG_Shapes	*pPolygons, Intersect;
+	CSG_Shapes Intersect, *pPolygons = Parameters("POLYGONS" )->asShapes();
 
-	pPolygons		= Parameters("POLYGONS" )->asShapes();
-	m_pIntersect	= Parameters("INTERSECT")->asShapes() ? Parameters("INTERSECT")->asShapes() : &Intersect;
-	ID				= Parameters("ID")->asInt();	if( ID >= pPolygons->Get_Field_Count() )	{	ID	= -1;	}
-
+	m_pIntersect = Parameters("INTERSECT")->asShapes() ? Parameters("INTERSECT")->asShapes() : &Intersect;
 	m_pIntersect->Create(SHAPE_TYPE_Polygon, pPolygons->Get_Name(), pPolygons);
 	m_pIntersect->Add_Field("ID", SG_DATATYPE_String);
 
 	//-----------------------------------------------------
+	int ID = Parameters("ID")->asInt(); if( ID >= pPolygons->Get_Field_Count() ) { ID = -1; }
+
 	for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 	{
-		Add_Polygon(pPolygons->Get_Shape(i), ID);
+		Add_Polygon(pPolygons->Get_Shape(i)->asPolygon(), ID);
 	}
 
 	//-----------------------------------------------------
@@ -142,7 +140,7 @@ bool CPolygon_SelfIntersection::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CPolygon_SelfIntersection::Add_Polygon(CSG_Shape *pPolygon, int ID)
+void CPolygon_SelfIntersection::Add_Polygon(CSG_Shape_Polygon *pPolygon, int ID)
 {
 	CSG_String	sID;
 
@@ -156,7 +154,7 @@ void CPolygon_SelfIntersection::Add_Polygon(CSG_Shape *pPolygon, int ID)
 	//-----------------------------------------------------
 	if( !m_pIntersect->Select(pPolygon->Get_Extent()) )
 	{
-		pPolygon	= m_pIntersect->Add_Shape(pPolygon);
+		pPolygon	= m_pIntersect->Add_Shape(pPolygon)->asPolygon();
 		pPolygon	->Set_Value(ID, sID);
 
 		return;
@@ -167,23 +165,23 @@ void CPolygon_SelfIntersection::Add_Polygon(CSG_Shape *pPolygon, int ID)
 
 	int	nIntersects	= m_pIntersect->Get_Count();
 
-	pPolygon	= m_pIntersect->Add_Shape(pPolygon);
+	pPolygon	= m_pIntersect->Add_Shape(pPolygon)->asPolygon();
 	pPolygon	->Set_Value(ID, sID);
 
 	for(int i=0; i<nIntersects && pPolygon->is_Valid(); i++)
 	{
 		if( pPolygon != m_pIntersect->Get_Shape(i) && pPolygon->Intersects(m_pIntersect->Get_Shape(i)) )
 		{
-			CSG_Shape	*pOriginal	= Intersect.Add_Shape(m_pIntersect->Get_Shape(i));
-			CSG_Shape	*pIntersect	= Intersect.Add_Shape();
+			CSG_Shape_Polygon *pOriginal  = Intersect.Add_Shape(m_pIntersect->Get_Shape(i))->asPolygon();
+			CSG_Shape_Polygon *pIntersect = Intersect.Add_Shape()->asPolygon();
 
-			if( SG_Shapes_Clipper_Intersection(pOriginal, pPolygon, pIntersect) )
+			if( SG_Shape_Get_Intersection(pOriginal, pPolygon, pIntersect) )
 			{
-				pIntersect	= m_pIntersect->Add_Shape(pIntersect);
-				pIntersect	->Set_Value(ID, CSG_String::Format(SG_T("%s|%s"), pPolygon->asString(ID), pOriginal->asString(ID)));
+				pIntersect = m_pIntersect->Add_Shape(pIntersect)->asPolygon();
+				pIntersect->Set_Value(ID, CSG_String::Format("%s|%s", pPolygon->asString(ID), pOriginal->asString(ID)));
 
-				SG_Shapes_Clipper_Difference(m_pIntersect->Get_Shape(i), pPolygon);
-				SG_Shapes_Clipper_Difference(pPolygon, pOriginal);
+				SG_Shape_Get_Difference(m_pIntersect->Get_Shape(i), pPolygon);
+				SG_Shape_Get_Difference(pPolygon, pOriginal);
 			}
 
 			Intersect.Del_Shapes();

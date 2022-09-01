@@ -447,7 +447,7 @@ bool COpenCV_ML::_Get_Training(CSG_Matrix &Data)
 
 			*pBuffer->Get_Value(0)	= *pShape->Get_Value(Field);
 
-			SG_Shapes_Clipper_Offset(pShape, Buffer, 5 * M_DEG_TO_RAD, pBuffer);
+			SG_Shape_Get_Offset(pShape, Buffer, 5 * M_DEG_TO_RAD, pBuffer);
 		}
 
 		pPolygons = &Polygons; Field = 0;

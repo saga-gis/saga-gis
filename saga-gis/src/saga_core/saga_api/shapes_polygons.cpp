@@ -304,7 +304,7 @@ bool _SG_Polygon_Clip(ClipperLib::ClipType ClipType, CSG_Shape *pPolygon, CSG_Sh
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool	SG_Shapes_Clipper_Intersection	(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult)
+bool	SG_Shape_Get_Intersection	(CSG_Shape *pPolygon, CSG_Shape_Polygon *pClip, CSG_Shape *pResult)
 {
 	switch( pClip->Intersects(pPolygon) )
 	{
@@ -327,7 +327,7 @@ bool	SG_Shapes_Clipper_Intersection	(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_
 }
 
 //---------------------------------------------------------
-bool	SG_Shapes_Clipper_Difference	(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult)
+bool	SG_Shape_Get_Difference	(CSG_Shape *pPolygon, CSG_Shape_Polygon *pClip, CSG_Shape *pResult)
 {
 	switch( pClip->Intersects(pPolygon) )
 	{
@@ -346,7 +346,7 @@ bool	SG_Shapes_Clipper_Difference	(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Sh
 }
 
 //---------------------------------------------------------
-bool	SG_Shapes_Clipper_ExclusiveOr	(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult)
+bool	SG_Shape_Get_ExclusiveOr	(CSG_Shape *pPolygon, CSG_Shape_Polygon *pClip, CSG_Shape *pResult)
 {
 	switch( pClip->Intersects(pPolygon) )
 	{
@@ -376,7 +376,7 @@ bool	SG_Shapes_Clipper_ExclusiveOr	(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_S
 }
 
 //---------------------------------------------------------
-bool	SG_Shapes_Clipper_Union		(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult)
+bool	SG_Shape_Get_Union		(CSG_Shape *pPolygon, CSG_Shape_Polygon *pClip, CSG_Shape *pResult)
 {
 	switch( pClip->Intersects(pPolygon) )
 	{
@@ -411,7 +411,7 @@ bool	SG_Shapes_Clipper_Union		(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape 
 }
 
 //---------------------------------------------------------
-bool	SG_Shapes_Clipper_Dissolve		(CSG_Shape *pPolygon, CSG_Shape *pResult)
+bool	SG_Shape_Get_Dissolve		(CSG_Shape *pPolygon, CSG_Shape *pResult)
 {
 	CSG_Converter_WorldToInt	Converter(pPolygon->Get_Extent());
 
@@ -432,7 +432,7 @@ bool	SG_Shapes_Clipper_Dissolve		(CSG_Shape *pPolygon, CSG_Shape *pResult)
 }
 
 //---------------------------------------------------------
-bool	SG_Shapes_Clipper_Offset		(CSG_Shape *pPolygon, double dSize, double dArc, CSG_Shape *pResult)
+bool	SG_Shape_Get_Offset		(CSG_Shape *pPolygon, double dSize, double dArc, CSG_Shape *pResult)
 {
 	CSG_Rect					r(pPolygon->Get_Extent());	if( dSize > 0.0 )	r.Inflate(5.0 * dSize, false);
 
@@ -467,9 +467,9 @@ bool	SG_Shapes_Clipper_Offset		(CSG_Shape *pPolygon, double dSize, double dArc, 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char *	SG_Shapes_Clipper_Get_Version	(void)
+const char *	SG_Clipper_Get_Version	(void)
 {
-	return( "Clipper " CLIPPER_VERSION );
+	return( "Clipper1 " CLIPPER_VERSION );
 }
 
 

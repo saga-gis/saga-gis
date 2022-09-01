@@ -61,147 +61,297 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSG_Converter
+class CSG_Clipper
 {
 public:
 
-	CSG_Converter(void)	{}
+	CSG_Clipper(void)	{}
 
 	//-----------------------------------------------------
-	static bool	Convert	(CSG_Shapes *pPolygons, Clipper2Lib::PathsD &Polygons)
+	static bool	to_Paths	(const CSG_Shapes *pShapes, Clipper2Lib::PathsD &Paths)
 	{
-		Polygons.clear();
-
-		for(int iPolygon=0, jPolygon=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
+		if( !pShapes )
 		{
-			CSG_Shape *pPolygon = pPolygons->Get_Shape(iPolygon);
+			return( false );
+		}
 
-			for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++, jPolygon++)
+		Paths.clear();
+
+		for(int iShape=0, iPath=0; iShape<pShapes->Get_Count(); iShape++)
+		{
+			CSG_Shape &Shape = *pShapes->Get_Shape(iShape);
+
+			for(int iPart=0; iPart<Shape.Get_Part_Count(); iPart++, iPath++)
 			{
-				bool bAscending = pPolygon->Get_Type() != SHAPE_TYPE_Polygon
-					|| (pPolygon->asPolygon()->is_Lake     (iPart)
-					==  pPolygon->asPolygon()->is_Clockwise(iPart));
+				bool bAscending = Shape.Get_Type() != SHAPE_TYPE_Polygon
+					|| (Shape.asPolygon()->is_Lake     (iPart)
+					==  Shape.asPolygon()->is_Clockwise(iPart));
 
-				Polygons.resize(1 + jPolygon);
-				Polygons[jPolygon].resize(pPolygon->Get_Point_Count(iPart));
+				Paths.resize(1 + iPath);
+				Paths[iPath].resize(Shape.Get_Point_Count(iPart));
 
-				for(int iPoint=0; iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
+				for(int iPoint=0; iPoint<Shape.Get_Point_Count(iPart); iPoint++)
 				{
-					TSG_Point p = pPolygon->Get_Point(iPoint, iPart, bAscending);
+					TSG_Point p = Shape.Get_Point(iPoint, iPart, bAscending);
 
-					Polygons[jPolygon][iPoint].x = p.x;
-					Polygons[jPolygon][iPoint].y = p.y;
+					Paths[iPath][iPoint].x = p.x;
+					Paths[iPath][iPoint].y = p.y;
 				}
 			}
 		}
 
-		return( Polygons.size() > 0 );
+		return( Paths.size() > 0 );
 	}
 
 	//-----------------------------------------------------
-	static bool	Convert	(const Clipper2Lib::PathsD &Polygons, CSG_Shapes *pPolygons)
+	static bool	to_Shape	(const Clipper2Lib::PathsD &Paths, CSG_Shapes *pShapes)
 	{
-		pPolygons->Del_Shapes();
-
-		CSG_Shape *pPolygon = pPolygons->Add_Shape();
-
-		return( Convert(Polygons, pPolygon) );
+		return( pShapes && pShapes->Del_Shapes() && to_Shape(Paths, pShapes->Add_Shape()) );
 	}
 
 	//-----------------------------------------------------
-	static bool	Convert	(CSG_Shape *pPolygon, Clipper2Lib::PathsD &Polygons)
+	static bool	to_Paths	(const CSG_Shape *pShape, Clipper2Lib::PathsD &Paths)
 	{
-		Polygons.clear();
-
-		for(int iPart=0, iPolygon=0; iPart<pPolygon->Get_Part_Count(); iPart++, iPolygon++)
+		if( !pShape )
 		{
-			if( pPolygon->Get_Point_Count(iPart) > 0 )
+			return( false );
+		}
+
+		Paths.clear();
+
+		for(int iPart=0, iPath=0; iPart<pShape->Get_Part_Count(); iPart++, iPath++)
+		{
+			if( pShape->Get_Point_Count(iPart) > 0 )
 			{
-				bool bAscending = pPolygon->Get_Type() != SHAPE_TYPE_Polygon
-					|| (pPolygon->asPolygon()->is_Lake     (iPart)
-					==  pPolygon->asPolygon()->is_Clockwise(iPart));
+				bool bAscending = pShape->Get_Type() != SHAPE_TYPE_Polygon
+					|| (pShape->asPolygon()->is_Lake     (iPart)
+					==  pShape->asPolygon()->is_Clockwise(iPart));
 
-				Polygons.resize(1 + iPolygon);
+				Paths.resize(1 + iPath);
 
-				for(int iPoint=0; iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
+				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
-					TSG_Point p = pPolygon->Get_Point(iPoint, iPart, bAscending);
+					TSG_Point p = pShape->Get_Point(iPoint, iPart, bAscending);
 
 					Clipper2Lib::PointD Point(p.x, p.y);
 
-					if( iPoint == 0 || Polygons[iPolygon].back() != Point )	// don't add duplicates !!!
+					if( iPoint == 0 || Paths[iPath].back() != Point )	// don't add duplicates !!!
 					{
-						Polygons[iPolygon].push_back(Point);
+						Paths[iPath].push_back(Point);
 					}
 				}
 
-				if( pPolygon->Get_Type() == SHAPE_TYPE_Polygon && Polygons[iPolygon].size() > 1 && Polygons[iPolygon][0] == Polygons[iPolygon].back() )
+				if( pShape->Get_Type() == SHAPE_TYPE_Polygon && Paths[iPath].size() > 1 && Paths[iPath][0] == Paths[iPath].back() )
 				{
-					Polygons[iPolygon].pop_back();
+					Paths[iPath].pop_back();
 				}
 			}
 		}
 
-		return( Polygons.size() > 0 );
+		return( Paths.size() > 0 );
 	}
 
 	//-----------------------------------------------------
-	static bool	Convert	(const Clipper2Lib::PathsD &Polygons, CSG_Shape *pPolygon)
+	static bool	to_Shape	(const Clipper2Lib::PathsD &Paths, CSG_Shape *pShape)
 	{
-		pPolygon->Del_Parts();
-
-		for(size_t iPolygon=0; iPolygon<Polygons.size(); iPolygon++)
+		if( !pShape )
 		{
-			for(size_t iPoint=0; iPoint<Polygons[iPolygon].size(); iPoint++)
+			return( false );
+		}
+
+		pShape->Del_Parts();
+
+		for(size_t iPath=0; iPath<Paths.size(); iPath++)
+		{
+			for(size_t iPoint=0; iPoint<Paths[iPath].size(); iPoint++)
 			{
-				pPolygon->Add_Point(Polygons[iPolygon][iPoint].x, Polygons[iPolygon][iPoint].y, (int)iPolygon);
+				pShape->Add_Point(Paths[iPath][iPoint].x, Paths[iPath][iPoint].y, (int)iPath);
 			}
 		}
 
-		return( pPolygon->Get_Part_Count() > 0 );
+		return( pShape->is_Valid() );
+	}
+
+	//-----------------------------------------------------
+	static bool	Clip		(Clipper2Lib::ClipType ClipType, CSG_Shape *pSubject, CSG_Shape_Polygon *pClip, CSG_Shape *pSolution)
+	{
+		Clipper2Lib::PathsD	Subject, Clip, Solution;
+
+		if(	to_Paths(pSubject, Subject)
+		&&	to_Paths(pClip   , Clip   ) )
+		{
+			Clipper2Lib::ClipperD Clipper;
+
+			Clipper.AddClip(Clip);
+
+			if( pSubject->Get_Type() == SHAPE_TYPE_Polygon )
+			{
+				Clipper.AddSubject(Subject);
+
+				if( !Clipper.Execute(ClipType, Clipper2Lib::FillRule::NonZero, Solution) )
+				{
+					return( false );
+				}
+			}
+			else
+			{
+				Clipper.AddOpenSubject(Subject);
+
+				if( !Clipper.Execute(ClipType, Clipper2Lib::FillRule::NonZero, Solution) )
+				{
+					return( false );
+				}
+			}
+
+			return( to_Shape(Solution, pSolution ? pSolution : pSubject) );
+		}
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	static bool	Dissolve	(CSG_Shape *pShape, CSG_Shape *pSolution)
+	{
+		Clipper2Lib::PathsD Subject, Solution;
+
+		if(	to_Paths(pShape, Subject) )
+		{
+			Clipper2Lib::ClipperD Clipper;
+
+			Clipper.AddSubject(Subject);
+
+			if( Clipper.Execute(Clipper2Lib::ClipType::Union, Clipper2Lib::FillRule::NonZero, Solution) )
+			{
+				return( to_Shape(Solution, pSolution ? pSolution : pShape) );
+			}
+		}
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	static bool	Offset		(CSG_Shape *pShape, double dSize, double dArc, CSG_Shape *pSolution)
+	{
+		Clipper2Lib::PathsD Paths, Solution;
+
+		if(	to_Paths(pShape, Paths) )
+		{
+			Clipper2Lib::EndType EndType = pShape->Get_Type() == SHAPE_TYPE_Polygon ? Clipper2Lib::EndType::Polygon : Clipper2Lib::EndType::Round;
+
+			Solution = Clipper2Lib::InflatePaths(Paths, dSize, Clipper2Lib::JoinType::Round, EndType, 2., dArc);
+
+			return( to_Shape(Solution, pSolution ? pSolution : pShape) );
+		}
+
+		return( false );
 	}
 };
 
 
 ///////////////////////////////////////////////////////////
 //														 //
+//														 //
+//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool _SG_Shapes_Clip(Clipper2Lib::ClipType ClipType, CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult)
+bool	SG_Shape_Get_Intersection	(CSG_Shape *pShape, CSG_Shape_Polygon *pClip, CSG_Shape *pSolution)
 {
-	Clipper2Lib::PathsD	Subject, Clip, Solution;
-
-	if(	CSG_Converter::Convert(pPolygon, Subject)
-	&&	CSG_Converter::Convert(pClip   , Clip   ) )
+	switch( pClip->Intersects(pShape) )
 	{
-		Clipper2Lib::ClipperD Clipper;
+	case INTERSECTION_None     :
+		return( false );
 
-		Clipper.AddClip(Clip);
+	case INTERSECTION_Identical:
+	case INTERSECTION_Contains :
+		return( !pSolution || pSolution->Assign(pShape, false) );
 
-		if( pPolygon->Get_Type() != SHAPE_TYPE_Line )
-		{
-			Clipper.AddSubject(Subject);
+	case INTERSECTION_Contained:
+		return( !pSolution ? pShape->Assign(pClip, false) : pSolution->Assign(pClip, false) );
 
-			if( !Clipper.Execute(ClipType, Clipper2Lib::FillRule::NonZero, Solution) )
-			{
-				return( false );
-			}
-		}
-		else
-		{
-			Clipper.AddOpenSubject(Subject);
-
-			if( !Clipper.Execute(ClipType, Clipper2Lib::FillRule::NonZero, Subject) )
-			{
-				return( false );
-			}
-		}
-
-		return( CSG_Converter::Convert(Solution, pResult ? pResult : pPolygon) );
+	case INTERSECTION_Overlaps : default:
+		return( CSG_Clipper::Clip(Clipper2Lib::ClipType::Intersection, pShape, pClip, pSolution) );
 	}
+}
 
-	return( false );
+//---------------------------------------------------------
+bool	SG_Shape_Get_Difference	(CSG_Shape *pShape, CSG_Shape_Polygon *pClip, CSG_Shape *pSolution)
+{
+	switch( pClip->Intersects(pShape) )
+	{
+	case INTERSECTION_None     :
+		return( !pSolution || pSolution->Assign(pShape, false) );
+
+	case INTERSECTION_Identical:
+	case INTERSECTION_Contains :
+		return( false );
+
+	case INTERSECTION_Contained:
+	case INTERSECTION_Overlaps : default:
+		return( CSG_Clipper::Clip(Clipper2Lib::ClipType::Difference, pShape, pClip, pSolution) );
+	}
+}
+
+//---------------------------------------------------------
+bool	SG_Shape_Get_ExclusiveOr	(CSG_Shape *pShape, CSG_Shape_Polygon *pClip, CSG_Shape *pSolution)
+{
+	switch( pClip->Intersects(pShape) )
+	{
+	case INTERSECTION_None     :
+		if( pSolution ) { pSolution->Assign(pShape, false); } else { pSolution = pShape; }
+
+		for(int iPart=0; iPart<pClip->Get_Part_Count(); iPart++)
+		{
+			pSolution->Add_Part(pClip->Get_Part(iPart));
+		}
+		return( true );	
+
+	case INTERSECTION_Identical:
+		return( false );
+
+	case INTERSECTION_Contains :
+	case INTERSECTION_Contained:
+	case INTERSECTION_Overlaps : default:
+		return( CSG_Clipper::Clip(Clipper2Lib::ClipType::Xor, pShape, pClip, pSolution) );
+	}
+}
+
+//---------------------------------------------------------
+bool	SG_Shape_Get_Union			(CSG_Shape *pShape, CSG_Shape_Polygon *pClip, CSG_Shape *pSolution)
+{
+	switch( pClip->Intersects(pShape) )
+	{
+	case INTERSECTION_None     :
+		if( pSolution ) { pSolution->Assign(pShape, false); } else { pSolution = pShape; }
+
+		for(int iPart=0; iPart<pClip->Get_Part_Count(); iPart++)
+		{
+			pSolution->Add_Part(pClip->Get_Part(iPart));
+		}
+		return( true );	
+
+	case INTERSECTION_Identical:
+	case INTERSECTION_Contained:
+		return( !pSolution || pSolution->Assign(pShape, false) );
+
+	case INTERSECTION_Contains :
+		return( !pSolution ? pShape->Assign(pClip, false) : pSolution->Assign(pClip, false) );
+
+	case INTERSECTION_Overlaps: default:
+		return( CSG_Clipper::Clip(Clipper2Lib::ClipType::Union, pShape, pClip, pSolution) );
+	}
+}
+
+//---------------------------------------------------------
+bool	SG_Shape_Get_Dissolve		(CSG_Shape *pShape, CSG_Shape *pSolution)
+{
+	return( CSG_Clipper::Dissolve(pShape, pSolution) );
+}
+
+//---------------------------------------------------------
+bool	SG_Shape_Get_Offset		(CSG_Shape *pShape, double Size, double dArc, CSG_Shape *pSolution)
+{
+	return( CSG_Clipper::Offset(pShape, Size, dArc, pSolution) );
 }
 
 
@@ -210,194 +360,7 @@ bool _SG_Shapes_Clip(Clipper2Lib::ClipType ClipType, CSG_Shape *pPolygon, CSG_Sh
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool	SG_Shapes_Clipper_Intersection	(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult)
-{
-	switch( pClip->Intersects(pPolygon) )
-	{
-	case INTERSECTION_None:
-		return( false );
-
-	case INTERSECTION_Identical:
-	case INTERSECTION_Contains:
-		if( pResult )
-		{
-			pResult ->Assign(pPolygon, false);
-		}
-		return( true );
-
-	case INTERSECTION_Contained:
-		if( pResult )
-		{
-			pResult ->Assign(pClip   , false);
-		}
-		else
-		{
-			pPolygon->Assign(pClip   , false);
-		}
-		return( true );
-
-	case INTERSECTION_Overlaps: default:
-		return( _SG_Shapes_Clip(Clipper2Lib::ClipType::Intersection, pPolygon, pClip, pResult) );
-	}
-}
-
-//---------------------------------------------------------
-bool	SG_Shapes_Clipper_Difference	(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult)
-{
-	switch( pClip->Intersects(pPolygon) )
-	{
-	case INTERSECTION_Contains:
-	case INTERSECTION_Identical:
-		return( false );
-
-	case INTERSECTION_None:
-		if( pResult )
-		{
-			pResult->Assign(pPolygon, false);
-		}
-		return( true );
-
-	case INTERSECTION_Contained:
-	case INTERSECTION_Overlaps: default:
-		return( _SG_Shapes_Clip(Clipper2Lib::ClipType::Difference, pPolygon, pClip, pResult) );
-	}
-}
-
-//---------------------------------------------------------
-bool	SG_Shapes_Clipper_ExclusiveOr	(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult)
-{
-	switch( pClip->Intersects(pPolygon) )
-	{
-	case INTERSECTION_Identical:
-		return( false );
-
-	case INTERSECTION_None:
-		if( pResult )
-		{
-			pResult->Assign(pPolygon, false);
-		}
-		else
-		{
-			pResult = pPolygon;
-		}
-
-		for(int iPart=0, jPart=pResult->Get_Part_Count(); iPart<pClip->Get_Part_Count(); iPart++, jPart++)
-		{
-			for(int iPoint=0; iPoint<pClip->Get_Point_Count(iPart); iPoint++)
-			{
-				pResult->Add_Point(pClip->Get_Point(iPoint, iPart), jPart);
-			}
-		}
-
-		return( true );	
-
-	case INTERSECTION_Contained:
-	case INTERSECTION_Contains:
-	case INTERSECTION_Overlaps: default:
-		return( _SG_Shapes_Clip(Clipper2Lib::ClipType::Xor, pPolygon, pClip, pResult) );
-	}
-}
-
-//---------------------------------------------------------
-bool	SG_Shapes_Clipper_Union			(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult)
-{
-	switch( pClip->Intersects(pPolygon) )
-	{
-	case INTERSECTION_Contained:
-	case INTERSECTION_Identical:
-		if( pResult )
-		{
-			pResult->Assign(pPolygon, false);
-		}
-		return( true );
-
-	case INTERSECTION_Contains:
-		if( pResult )
-		{
-			pResult ->Assign(pClip  , false);
-		}
-		else
-		{
-			pPolygon->Assign(pClip  , false);
-		}
-		return( true );
-
-	case INTERSECTION_None:
-		if( pResult )
-		{
-			pResult->Assign(pPolygon, false);
-		}
-		else
-		{
-			pResult	= pPolygon;
-		}
-
-		for(int iPart=0, jPart=pResult->Get_Part_Count(); iPart<pClip->Get_Part_Count(); iPart++, jPart++)
-		{
-			for(int iPoint=0; iPoint<pClip->Get_Point_Count(iPart); iPoint++)
-			{
-				pResult->Add_Point(pClip->Get_Point(iPoint, iPart), jPart);
-			}
-		}
-
-		return( true );	
-
-	case INTERSECTION_Overlaps: default:
-		return( _SG_Shapes_Clip(Clipper2Lib::ClipType::Union, pPolygon, pClip, pResult) );
-	}
-}
-
-//---------------------------------------------------------
-bool	SG_Shapes_Clipper_Dissolve		(CSG_Shape *pPolygon, CSG_Shape *pResult)
-{
-	Clipper2Lib::PathsD Subject, Solution;
-
-	if(	CSG_Converter::Convert(pPolygon, Subject) )
-	{
-		Clipper2Lib::ClipperD Clipper;
-
-		Clipper.AddSubject(Subject);
-
-		if( Clipper.Execute(Clipper2Lib::ClipType::Union, Clipper2Lib::FillRule::NonZero, Solution) )
-		{
-			return( CSG_Converter::Convert(Solution, pResult ? pResult : pPolygon) );
-		}
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool	SG_Shapes_Clipper_Offset		(CSG_Shape *pPolygon, double dSize, double dArc, CSG_Shape *pResult)
-{
-	Clipper2Lib::PathsD Paths, Result;
-
-	if(	CSG_Converter::Convert(pPolygon, Paths) )
-	{
-		Clipper2Lib::ClipperOffset Offset(2., dArc);
-
-		if( pPolygon->Get_Type() == SHAPE_TYPE_Polygon )
-		{
-			Result = Clipper2Lib::InflatePaths(Paths, dSize, Clipper2Lib::JoinType::Round, Clipper2Lib::EndType::Polygon, 2., dArc);
-		}
-		else
-		{
-			Result = Clipper2Lib::InflatePaths(Paths, dSize, Clipper2Lib::JoinType::Round, Clipper2Lib::EndType::Round  , 2., dArc);
-		}
-
-		return( CSG_Converter::Convert(Result, pResult ? pResult : pPolygon) );
-	}
-
-	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-const char *	SG_Shapes_Clipper_Get_Version	(void)
+const char *	SG_Clipper_Get_Version	(void)
 {
 	return( "Clipper2 1.0.0" );
 }

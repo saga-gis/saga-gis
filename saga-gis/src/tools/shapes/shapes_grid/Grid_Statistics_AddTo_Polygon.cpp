@@ -439,7 +439,7 @@ bool CGrid_Statistics_AddTo_Polygon::Get_Precise(CSG_Grid *pGrid, CSG_Shape_Poly
 						pCell->Add_Point(Cell.xMin, Cell.yMin);	pCell->Add_Point(Cell.xMin, Cell.yMax);
 						pCell->Add_Point(Cell.xMax, Cell.yMax);	pCell->Add_Point(Cell.xMax, Cell.yMin);
 
-						if( SG_Shapes_Clipper_Intersection(pPolygon, pCell, pArea) )
+						if( SG_Shape_Get_Intersection(pPolygon, pCell, pArea) )
 						{
 							Statistics.Add_Value(pGrid->asDouble(x, y), pArea->Get_Area());
 						}
