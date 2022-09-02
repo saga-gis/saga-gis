@@ -705,7 +705,11 @@ bool CWKSP_Layer::ColorsParms_Adjust(CSG_Parameters &Parameters, CSG_Data_Object
 //---------------------------------------------------------
 void CWKSP_Layer::On_DataObject_Changed(void)
 {
+    SG_UI_Process_Set_Busy(true);
+
 	ColorsParms_Adjust(m_Parameters);
+
+    SG_UI_Process_Set_Busy(false);
 }
 
 

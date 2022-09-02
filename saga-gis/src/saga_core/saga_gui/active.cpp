@@ -481,7 +481,11 @@ bool CActive::Update_Description(void)
 	}
 	else
 	{
+        SG_UI_Process_Set_Busy(true);//, CSG_String::Format("%s: %s...", _TL("Updating"), Get_Name()));
+
 		Description	= m_pItem->Get_Description();
+
+        SG_UI_Process_Set_Busy(false);
 	}
 
 	//-----------------------------------------------------

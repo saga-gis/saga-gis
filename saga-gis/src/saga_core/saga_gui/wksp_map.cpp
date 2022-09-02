@@ -696,6 +696,8 @@ bool CWKSP_Map::Serialize(CSG_MetaData &Root, const wxString &ProjectDir, bool b
 		}
 
 		//-------------------------------------------------
+        SG_UI_Process_Set_Busy(true);
+
 		CSG_MetaData	&Layers	= *Root.Get_Child("LAYERS");	int	nLayers	= 0;
 
 		m_Parameters["CRS_CHECK"].Set_Value(false);
@@ -747,6 +749,8 @@ bool CWKSP_Map::Serialize(CSG_MetaData &Root, const wxString &ProjectDir, bool b
 		}
 
 		m_Parameters["CRS_CHECK"].Set_Value(true);
+
+        SG_UI_Process_Set_Busy(false);
 
 		if( nLayers < 1 )
 		{

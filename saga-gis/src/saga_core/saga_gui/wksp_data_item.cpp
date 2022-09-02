@@ -507,8 +507,13 @@ bool CWKSP_Data_Item::Update_Views(bool bAll)
 //---------------------------------------------------------
 bool CWKSP_Data_Item::Force_Update(void)
 {
+    SG_UI_Process_Set_Busy(true);//, CSG_String::Format("%s: %s...", _TL("Updating"), Get_Name()));
+
 	m_pObject->Update(true);
-	DataObject_Changed();
+	
+    SG_UI_Process_Set_Busy(false);
+    
+    DataObject_Changed();
 
 	return( true );
 }

@@ -192,9 +192,13 @@ CVIEW_ScatterPlot::CVIEW_ScatterPlot(CWKSP_Data_Item *pItem)
 
 	if( DLG_Parameters(&m_Parameters) )
 	{
+        SG_UI_Process_Set_Busy(true);
+
 		_Update_Data();
 
 		Do_Show();
+
+        SG_UI_Process_Set_Busy(false);
 	}
 	else
 	{
