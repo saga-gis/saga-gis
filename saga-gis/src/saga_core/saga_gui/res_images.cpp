@@ -163,11 +163,7 @@
 #include "./res/xpm/tb_map_crosshair.xpm"
 #include "./res/xpm/tb_new_project.xpm"
 #include "./res/xpm/tb_open.xpm"
-#include "./res/xpm/tb_open_grid.xpm"
 #include "./res/xpm/tb_open_module.xpm"
-#include "./res/xpm/tb_open_shapes.xpm"
-#include "./res/xpm/tb_open_table.xpm"
-#include "./res/xpm/tb_open_tin.xpm"
 #include "./res/xpm/tb_save.xpm"
 #include "./res/xpm/tb_scatterplot_parameters.xpm"
 #include "./res/xpm/tb_show.xpm"
@@ -315,11 +311,7 @@ const char ** _Get_XPM(int ID_IMG)
 	case ID_IMG_TB_MAP_CROSSHAIR         : return( tb_map_crosshair_xpm );
 	case ID_IMG_TB_NEW_PROJECT           : return( tb_new_project_xpm );
 	case ID_IMG_TB_OPEN                  : return( tb_open_xpm );
-	case ID_IMG_TB_OPEN_GRID             : return( tb_open_grid_xpm );
 	case ID_IMG_TB_OPEN_TOOL             : return( tb_open_module_xpm );
-	case ID_IMG_TB_OPEN_SHAPES           : return( tb_open_shapes_xpm );
-	case ID_IMG_TB_OPEN_TABLE            : return( tb_open_table_xpm );
-	case ID_IMG_TB_OPEN_TIN              : return( tb_open_tin_xpm );
 	case ID_IMG_TB_SAVE                  : return( tb_save_xpm );
 	case ID_IMG_TB_SCATTERPLOT_PARAMETERS: return( tb_scatterplot_parameters_xpm );
 	case ID_IMG_TB_SHOW                  : return( tb_show_xpm );
@@ -458,7 +450,7 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 #include "./res/svg/nb_active_legend.svg.h"
 #include "./res/svg/nb_active_history.svg.h"
 #include "./res/svg/nb_active_parameters.svg.h"
-//#include "./res/svg/nb_active_info.svg.h"
+#include "./res/svg/nb_active_info.svg.h"
 #include "./res/svg/nb_info_error.svg.h"
 #include "./res/svg/nb_info_execution.svg.h"
 #include "./res/svg/nb_info_messages.svg.h"
@@ -471,10 +463,8 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 #include "./res/svg/wnd_diagram.svg.h"
 #include "./res/svg/wnd_histogram.svg.h"
 #include "./res/svg/wnd_layout.svg.h"
-//#include "./res/svg/wnd_map.svg.h"
 #include "./res/svg/wnd_map3d.svg.h"
 #include "./res/svg/wnd_scatterplot.svg.h"
-#include "./res/svg/wnd_table.svg.h"
 
 #include "./res/svg/crs_edit_point_add.svg.h"
 #include "./res/svg/crs_edit_point_move.svg.h"
@@ -483,6 +473,9 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 #include "./res/svg/crs_info.svg.h"
 #include "./res/svg/crs_magnifier.svg.h"
 #include "./res/svg/crs_select.svg.h"
+
+#include "./res/svg/map.svg.h"
+#include "./res/svg/table.svg.h"
 
 #include "./res/svg/tb_active.svg.h"
 #include "./res/svg/tb_datasource.svg.h"
@@ -495,7 +488,6 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 #include "./res/svg/tb_edit_shape_del_point.svg.h"
 #include "./res/svg/tb_edit_shape_select.svg.h"
 #include "./res/svg/tb_help.svg.h"
-#include "./res/svg/tb_histogram_as_table.svg.h"
 #include "./res/svg/tb_histogram_cumulative.svg.h"
 #include "./res/svg/tb_histogram_gaussian.svg.h"
 #include "./res/svg/tb_info.svg.h"
@@ -547,12 +539,9 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 #include "./res/svg/tb_map_crosshair.svg.h"
 #include "./res/svg/tb_new_project.svg.h"
 #include "./res/svg/tb_open.svg.h"
-//#include "./res/svg/tb_open_grid.svg.h"
 #include "./res/svg/tb_open_module.svg.h"
-//#include "./res/svg/tb_open_shapes.svg.h"
-//#include "./res/svg/tb_open_table.svg.h"
-//#include "./res/svg/tb_open_tin.svg.h"
 #include "./res/svg/tb_save.svg.h"
+#include "./res/svg/tb_scatterplot_parameters.svg.h"
 #include "./res/svg/tb_show.svg.h"
 #include "./res/svg/tb_table_col_add.svg.h"
 #include "./res/svg/tb_table_col_del.svg.h"
@@ -564,28 +553,26 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 #include "./res/svg/tb_wksp.svg.h"
 
 #include "./res/svg/wksp_data_manager.svg.h"
-//#include "./res/svg/wksp_grid.svg.h"
-//#include "./res/svg/wksp_grid_manager.svg.h"
-//#include "./res/svg/wksp_grid_system.svg.h"
-//#include "./res/svg/wksp_map.svg.h"
-//#include "./res/svg/wksp_map_manager.svg.h"
+#include "./res/svg/wksp_grid.svg.h"
+#include "./res/svg/wksp_grid_manager.svg.h"
+#include "./res/svg/wksp_grid_system.svg.h"
+#include "./res/svg/wksp_map_manager.svg.h"
 #include "./res/svg/wksp_map_graticule.svg.h"
 #include "./res/svg/wksp_module.svg.h"
 #include "./res/svg/wksp_module_library.svg.h"
 #include "./res/svg/wksp_module_manager.svg.h"
-//#include "./res/svg/wksp_noitems.svg.h"
+#include "./res/svg/wksp_noitems.svg.h"
 #include "./res/svg/wksp_odbc_sources.svg.h"
-//#include "./res/svg/wksp_odbc_source_on.svg.h"
-//#include "./res/svg/wksp_odbc_source_off.svg.h"
-//#include "./res/svg/wksp_shapes_line.svg.h"
+#include "./res/svg/wksp_odbc_source_on.svg.h"
+#include "./res/svg/wksp_odbc_source_off.svg.h"
+#include "./res/svg/wksp_shapes_line.svg.h"
 #include "./res/svg/wksp_shapes_manager.svg.h"
-//#include "./res/svg/wksp_shapes_point.svg.h"
-//#include "./res/svg/wksp_shapes_points.svg.h"
-//#include "./res/svg/wksp_shapes_polygon.svg.h"
-//#include "./res/svg/wksp_table.svg.h"
-//#include "./res/svg/wksp_table_manager.svg.h"
-//#include "./res/svg/wksp_tin.svg.h"
-//#include "./res/svg/wksp_tin_manager.svg.h"
+#include "./res/svg/wksp_shapes_point.svg.h"
+#include "./res/svg/wksp_shapes_points.svg.h"
+#include "./res/svg/wksp_shapes_polygon.svg.h"
+#include "./res/svg/wksp_table_manager.svg.h"
+#include "./res/svg/wksp_tin.svg.h"
+#include "./res/svg/wksp_tin_manager.svg.h"
 
 //---------------------------------------------------------
 const char * _Get_SVG(int ID_IMG)
@@ -602,7 +589,7 @@ const char * _Get_SVG(int ID_IMG)
 	case ID_IMG_NB_ACTIVE_HISTORY        : return( svg_nb_active_history );
 	case ID_IMG_NB_ACTIVE_LEGEND         : return( svg_nb_active_legend );
 	case ID_IMG_NB_ACTIVE_ATTRIBUTES     : return( svg_nb_active_attributes );
-//	case ID_IMG_NB_ACTIVE_INFO           : return( svg_nb_active_info );
+	case ID_IMG_NB_ACTIVE_INFO           : return( svg_nb_active_info );
 
 	case ID_IMG_NB_DATA_SOURCE_FILES     : return( svg_tb_wksp );
 	case ID_IMG_NB_DATA_SOURCE_DATABASE  : return( svg_wksp_odbc_sources );
@@ -621,10 +608,10 @@ const char * _Get_SVG(int ID_IMG)
 	case ID_IMG_WND_DIAGRAM              : return( svg_wnd_diagram );
 	case ID_IMG_WND_HISTOGRAM            : return( svg_wnd_histogram );
 	case ID_IMG_WND_LAYOUT               : return( svg_wnd_layout );
-//	case ID_IMG_WND_MAP                  : return( svg_wnd_map );
+	case ID_IMG_WND_MAP                  : return( svg_map );
 	case ID_IMG_WND_MAP3D                : return( svg_wnd_map3d );
 	case ID_IMG_WND_SCATTERPLOT          : return( svg_wnd_scatterplot );
-	case ID_IMG_WND_TABLE                : return( svg_wnd_table );
+	case ID_IMG_WND_TABLE                : return( svg_table );
 
 	case ID_IMG_CRS_EDIT_POINT_ADD       : return( svg_crs_edit_point_add );
 	case ID_IMG_CRS_EDIT_POINT_MOVE      : return( svg_crs_edit_point_move );
@@ -644,7 +631,7 @@ const char * _Get_SVG(int ID_IMG)
 	case ID_IMG_TB_EDIT_SHAPE_DEL_POINT  : return( svg_tb_edit_shape_del_point );
 	case ID_IMG_TB_EDIT_SHAPE_SELECT     : return( svg_tb_edit_shape_select );
 	case ID_IMG_TB_HELP                  : return( svg_tb_help );
-	case ID_IMG_TB_HISTOGRAM_AS_TABLE    : return( svg_tb_histogram_as_table );
+	case ID_IMG_TB_HISTOGRAM_AS_TABLE    : return( svg_table );
 	case ID_IMG_TB_HISTOGRAM_CUMULATIVE  : return( svg_tb_histogram_cumulative );
 	case ID_IMG_TB_HISTOGRAM_GAUSSIAN    : return( svg_tb_histogram_gaussian );
 	case ID_IMG_TB_INFO                  : return( svg_tb_info );
@@ -696,13 +683,9 @@ const char * _Get_SVG(int ID_IMG)
 	case ID_IMG_TB_MAP_CROSSHAIR         : return( svg_tb_map_crosshair );
 	case ID_IMG_TB_NEW_PROJECT           : return( svg_tb_new_project );
 	case ID_IMG_TB_OPEN                  : return( svg_tb_open );
-//	case ID_IMG_TB_OPEN_GRID             : return( svg_tb_open_grid );
 	case ID_IMG_TB_OPEN_TOOL             : return( svg_tb_open_module );
-//	case ID_IMG_TB_OPEN_SHAPES           : return( svg_tb_open_shapes );
-//	case ID_IMG_TB_OPEN_TABLE            : return( svg_tb_open_table );
-//	case ID_IMG_TB_OPEN_TIN              : return( svg_tb_open_tin );
 	case ID_IMG_TB_SAVE                  : return( svg_tb_save );
-	case ID_IMG_TB_SCATTERPLOT_PARAMETERS: return( svg_wnd_scatterplot );
+	case ID_IMG_TB_SCATTERPLOT_PARAMETERS: return( svg_tb_scatterplot_parameters );
 	case ID_IMG_TB_SHOW                  : return( svg_tb_show );
 	case ID_IMG_TB_TABLE_COL_ADD         : return( svg_tb_table_col_add );
 	case ID_IMG_TB_TABLE_COL_DEL         : return( svg_tb_table_col_del );
@@ -714,35 +697,35 @@ const char * _Get_SVG(int ID_IMG)
 	case ID_IMG_TB_WKSP                  : return( svg_tb_wksp );
 
 	case ID_IMG_WKSP_DATA_MANAGER        : return( svg_wksp_data_manager );
-//	case ID_IMG_WKSP_GRID_MANAGER        : return( svg_wksp_grid_manager );
-//	case ID_IMG_WKSP_GRID_SYSTEM         : return( svg_wksp_grid_system );
-//	case ID_IMG_WKSP_GRID                : return( svg_wksp_grid );
-//	case ID_IMG_WKSP_GRIDS               : return( svg_wksp_grid_manager );
-//	case ID_IMG_WKSP_MAP                 : return( svg_wksp_map );
+	case ID_IMG_WKSP_GRID_MANAGER        : return( svg_wksp_grid_manager );
+	case ID_IMG_WKSP_GRID_SYSTEM         : return( svg_wksp_grid_system );
+	case ID_IMG_WKSP_GRID                : return( svg_wksp_grid );
+	case ID_IMG_WKSP_GRIDS               : return( svg_wksp_grid_manager );
+	case ID_IMG_WKSP_MAP                 : return( svg_map );
 	case ID_IMG_WKSP_MAP_GRATICULE       : return( svg_wksp_map_graticule );
-//	case ID_IMG_WKSP_MAP_BASEMAP         : return( svg_wnd_map );
-//	case ID_IMG_WKSP_MAP_MANAGER         : return( svg_wksp_map_manager );
+	case ID_IMG_WKSP_MAP_BASEMAP         : return( svg_map );
+	case ID_IMG_WKSP_MAP_MANAGER         : return( svg_wksp_map_manager );
 	case ID_IMG_WKSP_TOOL                : return( svg_wksp_module );
 	case ID_IMG_WKSP_TOOL_CHAIN          : return( svg_wksp_module );
 	case ID_IMG_WKSP_TOOL_LIBRARY        : return( svg_wksp_module_library );
 	case ID_IMG_WKSP_TOOL_GROUP          : return( svg_wksp_module_library );
 	case ID_IMG_WKSP_TOOL_MANAGER        : return( svg_wksp_module_manager );
-//	case ID_IMG_WKSP_NOITEMS             : return( svg_wksp_noitems );
+	case ID_IMG_WKSP_NOITEMS             : return( svg_wksp_noitems );
 	case ID_IMG_WKSP_DB_SOURCES          : return( svg_wksp_odbc_sources );
-//	case ID_IMG_WKSP_DB_SOURCE_ON        : return( svg_wksp_odbc_source_on );
-//	case ID_IMG_WKSP_DB_SOURCE_OFF       : return( svg_wksp_odbc_source_off );
-//	case ID_IMG_WKSP_DB_TABLE            : return( svg_wksp_table );
-//	case ID_IMG_WKSP_SHAPES_LINE         : return( svg_wksp_shapes_line );
+	case ID_IMG_WKSP_DB_SOURCE_ON        : return( svg_wksp_odbc_source_on );
+	case ID_IMG_WKSP_DB_SOURCE_OFF       : return( svg_wksp_odbc_source_off );
+	case ID_IMG_WKSP_DB_TABLE            : return( svg_table );
+	case ID_IMG_WKSP_SHAPES_LINE         : return( svg_wksp_shapes_line );
 	case ID_IMG_WKSP_SHAPES_MANAGER      : return( svg_wksp_shapes_manager );
-//	case ID_IMG_WKSP_SHAPES_POINT        : return( svg_wksp_shapes_point );
-//	case ID_IMG_WKSP_SHAPES_POINTS       : return( svg_wksp_shapes_points );
-//	case ID_IMG_WKSP_SHAPES_POLYGON      : return( svg_wksp_shapes_polygon );
-	case ID_IMG_WKSP_TABLE               : return( svg_wnd_table );
-//	case ID_IMG_WKSP_TABLE_MANAGER       : return( svg_wksp_table_manager );
-//	case ID_IMG_WKSP_TIN                 : return( svg_wksp_tin );
-//	case ID_IMG_WKSP_TIN_MANAGER         : return( svg_wksp_tin_manager );
-//	case ID_IMG_WKSP_POINTCLOUD          : return( svg_wksp_shapes_points );
-//	case ID_IMG_WKSP_POINTCLOUD_MANAGER  : return( svg_wksp_shapes_points );
+	case ID_IMG_WKSP_SHAPES_POINT        : return( svg_wksp_shapes_point );
+	case ID_IMG_WKSP_SHAPES_POINTS       : return( svg_wksp_shapes_points );
+	case ID_IMG_WKSP_SHAPES_POLYGON      : return( svg_wksp_shapes_polygon );
+	case ID_IMG_WKSP_TABLE               : return( svg_table );
+	case ID_IMG_WKSP_TABLE_MANAGER       : return( svg_wksp_table_manager );
+	case ID_IMG_WKSP_TIN                 : return( svg_wksp_tin );
+	case ID_IMG_WKSP_TIN_MANAGER         : return( svg_wksp_tin_manager );
+	case ID_IMG_WKSP_POINTCLOUD          : return( svg_wksp_shapes_points );
+	case ID_IMG_WKSP_POINTCLOUD_MANAGER  : return( svg_wksp_shapes_points );
 	}
 
 	return( NULL );
