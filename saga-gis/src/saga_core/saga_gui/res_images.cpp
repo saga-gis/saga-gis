@@ -114,6 +114,7 @@
 #include "./res/xpm/tb_histogram_as_table.xpm"
 #include "./res/xpm/tb_histogram_cumulative.xpm"
 #include "./res/xpm/tb_histogram_gaussian.xpm"
+#include "./res/xpm/tb_histogram_parameters.xpm"
 #include "./res/xpm/tb_info.xpm"
 #include "./res/xpm/tb_update.xpm"
 #include "./res/xpm/tb_clipboard.xpm"
@@ -194,6 +195,7 @@
 #include "./res/xpm/wksp_shapes_manager.xpm"
 #include "./res/xpm/wksp_shapes_point.xpm"
 #include "./res/xpm/wksp_shapes_points.xpm"
+#include "./res/xpm/wksp_shapes_pointcloud.xpm"
 #include "./res/xpm/wksp_shapes_polygon.xpm"
 #include "./res/xpm/wksp_table.xpm"
 #include "./res/xpm/wksp_table_manager.xpm"
@@ -262,6 +264,7 @@ const char ** _Get_XPM(int ID_IMG)
 	case ID_IMG_TB_HISTOGRAM_AS_TABLE    : return( tb_histogram_as_table_xpm );
 	case ID_IMG_TB_HISTOGRAM_CUMULATIVE  : return( tb_histogram_cumulative_xpm );
 	case ID_IMG_TB_HISTOGRAM_GAUSSIAN    : return( tb_histogram_gaussian_xpm );
+    case ID_IMG_TB_HISTOGRAM_PARAMETERS  : return( tb_histogram_parameters_xpm );
 	case ID_IMG_TB_INFO                  : return( tb_info_xpm );
 	case ID_IMG_TB_UPDATE                : return( tb_update_xpm );
 	case ID_IMG_TB_CLIPBOARD             : return( tb_clipboard_xpm );
@@ -352,8 +355,8 @@ const char ** _Get_XPM(int ID_IMG)
 	case ID_IMG_WKSP_TABLE_MANAGER       : return( wksp_table_manager_xpm );
 	case ID_IMG_WKSP_TIN                 : return( wksp_tin_xpm );
 	case ID_IMG_WKSP_TIN_MANAGER         : return( wksp_tin_manager_xpm );
-	case ID_IMG_WKSP_POINTCLOUD          : return( wksp_shapes_points_xpm );
-	case ID_IMG_WKSP_POINTCLOUD_MANAGER  : return( wksp_shapes_points_xpm );
+	case ID_IMG_WKSP_POINTCLOUD          : return( wksp_shapes_pointcloud_xpm );
+	case ID_IMG_WKSP_POINTCLOUD_MANAGER  : return( wksp_shapes_pointcloud_xpm );
 	}
 }
 
@@ -490,6 +493,7 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 #include "./res/svg/tb_help.svg.h"
 #include "./res/svg/tb_histogram_cumulative.svg.h"
 #include "./res/svg/tb_histogram_gaussian.svg.h"
+#include "./res/svg/tb_histogram_parameters.svg.h"
 #include "./res/svg/tb_info.svg.h"
 #include "./res/svg/tb_update.svg.h"
 #include "./res/svg/tb_clipboard.svg.h"
@@ -569,6 +573,7 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 #include "./res/svg/wksp_shapes_manager.svg.h"
 #include "./res/svg/wksp_shapes_point.svg.h"
 #include "./res/svg/wksp_shapes_points.svg.h"
+#include "./res/svg/wksp_shapes_pointcloud.svg.h"
 #include "./res/svg/wksp_shapes_polygon.svg.h"
 #include "./res/svg/wksp_table_manager.svg.h"
 #include "./res/svg/wksp_tin.svg.h"
@@ -634,6 +639,7 @@ const char * _Get_SVG(int ID_IMG)
 	case ID_IMG_TB_HISTOGRAM_AS_TABLE    : return( svg_table );
 	case ID_IMG_TB_HISTOGRAM_CUMULATIVE  : return( svg_tb_histogram_cumulative );
 	case ID_IMG_TB_HISTOGRAM_GAUSSIAN    : return( svg_tb_histogram_gaussian );
+    case ID_IMG_TB_HISTOGRAM_PARAMETERS  : return( svg_tb_histogram_parameters );
 	case ID_IMG_TB_INFO                  : return( svg_tb_info );
 	case ID_IMG_TB_UPDATE                : return( svg_tb_update );
 	case ID_IMG_TB_CLIPBOARD             : return( svg_tb_clipboard );
@@ -724,8 +730,8 @@ const char * _Get_SVG(int ID_IMG)
 	case ID_IMG_WKSP_TABLE_MANAGER       : return( svg_wksp_table_manager );
 	case ID_IMG_WKSP_TIN                 : return( svg_wksp_tin );
 	case ID_IMG_WKSP_TIN_MANAGER         : return( svg_wksp_tin_manager );
-	case ID_IMG_WKSP_POINTCLOUD          : return( svg_wksp_shapes_points );
-	case ID_IMG_WKSP_POINTCLOUD_MANAGER  : return( svg_wksp_shapes_points );
+	case ID_IMG_WKSP_POINTCLOUD          : return( svg_wksp_shapes_pointcloud );
+	case ID_IMG_WKSP_POINTCLOUD_MANAGER  : return( svg_wksp_shapes_pointcloud );
 	}
 
 	return( NULL );
