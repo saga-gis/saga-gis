@@ -169,7 +169,7 @@ wxString CDLG_About::_Get_Version(void)
 	#ifdef GIT_HASH
 		if( *GIT_HASH )
 		{
-			s	+= "<br>[ <a href=\"https://sourceforge.net/p/saga-gis/code/ci/" GIT_HASH "\">#" GIT_HASH "</a> ]<br>";
+			s	+= "<br>Git commit hash<br>[ <a href=\"https://sourceforge.net/p/saga-gis/code/ci/" GIT_HASH "\">#" GIT_HASH "</a> ]<br>";
 		}
 	#endif
 	s	+= "<br>";
@@ -179,21 +179,22 @@ wxString CDLG_About::_Get_Version(void)
 	#if defined(COMPILER)
 		if( *COMPILER )
 		{
-			s	+= "<hr>Compiled with<br>" COMPILER "<br>";
+			s	+= "<hr><i>Compiled with</i><br>[ " COMPILER " ]<br>";
 
 			#if defined(_SAGA_MSW) && defined(_MSC_VER) && _MSC_VER >= 1900
-				s	+= "Microsoft Visual Studio "
+				s	+= "[ Microsoft Visual Studio "
 				#if   _MSC_VER == 1900
-					"2015 (14)<br>";
+					"2015 (14)"
 				#elif _MSC_VER <= 1920
-					"2017 (15)<br>";
+					"2017 (15)"
 				#elif _MSC_VER <= 1930
-					"2019 (16)<br>";
+					"2019 (16)"
 				#elif _MSC_VER <= 1940
-					"2022 (17)<br>";
+					"2022 (17)"
 				#else
-					"(unknown version)<br>";
+					"(unknown version)"
 				#endif
+				" ]<br>";
 			#endif
 		}
 	#endif
@@ -215,23 +216,24 @@ wxString CDLG_About::_Get_Version(void)
 
 	//-----------------------------------------------------
 	s	+= "<hr>";
-	s	+= "SAGA uses<br><br>";
+	s	+= "<i>SAGA uses</i><br>";
 	s	+= "The portable C++ GUI toolkit<br>";
 	s	+= "<a href=\"https://wxwidgets.org/\">";
 	s	+= wxVERSION_STRING;
 	s	+= "</a><br><br>";
-	s	+= "SAGA API includes<br><br>";
+	s	+= "<i>SAGA API includes</i><br>";
 	s	+= "The polygon clipping and offsetting library<br>";
 	s	+= "<a href=\"https://github.com/AngusJohnson/Clipper2/\">";
 	s	+= SG_Clipper_Get_Version();
-	s	+= "</a><br><br>";
+	s	+= "</a><br>";
+	s	+= "<i>and</i><br>";
 	s	+= "The Nearest Neighbor (NN) search with KD-trees library<br>";
 	s	+= "<a href=\"https://github.com/jlblancoc/nanoflann/\">";
 	s	+= wxString::Format("nanoflann %d.%d.%d",
 			(NANOFLANN_VERSION&0xf00)/0x100,
 			(NANOFLANN_VERSION&0x0f0)/0x010,
 			(NANOFLANN_VERSION&0x00f)/0x001);
-	s	+= "</a><br>";
+	s	+= "</a>";
 
 	//-----------------------------------------------------
 	s	+= "</center>";
