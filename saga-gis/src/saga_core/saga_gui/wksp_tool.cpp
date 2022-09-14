@@ -325,7 +325,9 @@ bool CWKSP_Tool::Execute(bool bDialog)
 
 		if( m_pTool->On_Before_Execution() && (!bDialog || DLG_Parameters(m_pTool->Get_Parameters(), "", m_pTool->Get_Summary(false).c_str())) )
 		{
-			g_pTools->Set_Recently_Used(this);
+			#ifndef __WXMAC__
+				g_pTools->Set_Recently_Used(this);
+			#endif
 
 			MSG_General_Add_Line(); MSG_Execution_Add_Line();
 

@@ -502,11 +502,11 @@ bool CWKSP_Tool_Manager::On_Command_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CWKSP_Tool_Manager::On_Execute(wxCommandEvent &event)
 {
-	CWKSP_Tool	*pTool;
+	CWKSP_Tool *pTool = Get_Tool_byID(m_pMenu_Tools->Get_ID_Translated(event.GetId()));
 
-	if( (pTool = Get_Tool_byID(m_pMenu_Tools->Get_ID_Translated(event.GetId()))) != NULL )
+	if( pTool )
 	{
-		pTool->On_Command(ID_CMD_WKSP_ITEM_RETURN);
+		pTool->Execute(true);
 	}
 }
 
