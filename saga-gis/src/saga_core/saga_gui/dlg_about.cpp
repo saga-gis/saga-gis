@@ -169,7 +169,7 @@ wxString CDLG_About::_Get_Version(void)
 	#ifdef GIT_HASH
 		if( *GIT_HASH )
 		{
-			s	+= "<br>Git commit hash<br>[ <a href=\"https://sourceforge.net/p/saga-gis/code/ci/" GIT_HASH "\">#" GIT_HASH "</a> ]<br>";
+			s	+= "<br><i>Git commit hash</i><br>[ <a href=\"https://sourceforge.net/p/saga-gis/code/ci/" GIT_HASH "\">#" GIT_HASH "</a> ]<br>";
 		}
 	#endif
 	s	+= "<br>";
