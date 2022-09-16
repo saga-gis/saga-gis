@@ -2,3 +2,5 @@
 # macOS tmp file
 .DS_Store*
 
+# Git hash file
+git_hash.h
