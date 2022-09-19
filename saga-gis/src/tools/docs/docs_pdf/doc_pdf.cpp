@@ -62,6 +62,7 @@
 
 //---------------------------------------------------------
 #include <hpdf.h>
+#include <hpdf_version.h> // not included from <hpdf.h> since version 2.4.2(?)!
 
 #include "doc_pdf.h"
 
@@ -139,7 +140,7 @@ CSG_Doc_PDF::~CSG_Doc_PDF(void)
 //---------------------------------------------------------
 const SG_Char * CSG_Doc_PDF::Get_Version(void)
 {
-	static CSG_String	s	= CSG_String::Format(SG_T("Haru Free PDF Library, Version %s"), HPDF_VERSION_TEXT);
+	static CSG_String	s	= CSG_String::Format("Haru Free PDF Library, Version %s", HPDF_VERSION_TEXT);
 
 	return( s );
 }
@@ -1010,37 +1011,43 @@ bool CSG_Doc_PDF::_Draw_Text(double x, double y, const SG_Char *Text, int Size, 
 //---------------------------------------------------------
 bool CSG_Doc_PDF::Draw_Image(double x, double y, double dx, double dy, const SG_Char *FileName)
 {
-	bool		bKeepRatio	= true;
-	double		nx, ny;
-	HPDF_Image	pImage		= NULL;
-
-	//-----------------------------------------------------
-	if( m_pPage && SG_File_Exists(FileName) && dx > 0.0 && dy > 0.0 )
+	if( !m_pPage || !SG_File_Exists(FileName) || dx <= 0. || dy <= 0. )
 	{
-		if( SG_File_Cmp_Extension(FileName, SG_T("png")) )
-		{
-	try	{	pImage	= HPDF_LoadPngImageFromFile (m_pPDF, CSG_String(FileName));	}	catch(...)	{}
-		}
-		else if( SG_File_Cmp_Extension(FileName, SG_T("jpg")) )
-		{
-	try	{	pImage	= HPDF_LoadJpegImageFromFile(m_pPDF, CSG_String(FileName));	}	catch(...)	{}
-		}
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	if( pImage && (nx = HPDF_Image_GetWidth(pImage)) > 0 && (ny = HPDF_Image_GetHeight(pImage)) > 0 )
+	HPDF_Image pImage = NULL;
+
+	#ifdef LIBHPDF_HAVE_LIBPNG
+	if( SG_File_Cmp_Extension(FileName, "png") )
 	{
-		if( bKeepRatio )
-		{
-			_Fit_Rectangle(x, y, dx, dy, nx / ny, true);
-		}
+		try { pImage = HPDF_LoadPngImageFromFile (m_pPDF, CSG_String(FileName)); } catch(...) {}
+	}
+	#endif
 
-		HPDF_Page_DrawImage(m_pPage, pImage, (float)x, (float)y, (float)dx, (float)dy);
-
-		return( true );
+	if( SG_File_Cmp_Extension(FileName, "jpg") )
+	{
+		try { pImage = HPDF_LoadJpegImageFromFile(m_pPDF, CSG_String(FileName)); } catch(...) {}
 	}
 
-	return( false );
+	if( !pImage )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	HPDF_UINT nx = HPDF_Image_GetWidth (pImage); if( nx < 1 ) { return( false ); }
+	HPDF_UINT ny = HPDF_Image_GetHeight(pImage); if( ny < 1 ) { return( false ); }
+
+//	if( bKeepRatio )
+	{
+		_Fit_Rectangle(x, y, dx, dy, (double)nx / (double)ny, true);
+	}
+
+	HPDF_Page_DrawImage(m_pPage, pImage, (HPDF_REAL)x, (HPDF_REAL)y, (HPDF_REAL)dx, (HPDF_REAL)dy);
+
+	return( true );
 }
 
 //---------------------------------------------------------

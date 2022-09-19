@@ -69,7 +69,7 @@ CSG_String Get_Info(int i)
 		return( _TW(
 			"Create reports in the Portable Document Format (PDF). "
 			"The export tools are using the free open source library "
-			"<a target=\"_blank\" href=\"libharu.org\">libHaru</a> "
+			"<a target=\"_blank\" href=\"https://github.com/libharu/libharu\">libHaru</a> "
 			"version ") + CSG_String(HPDF_VERSION_TEXT)
 		);
 
