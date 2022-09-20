@@ -329,7 +329,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_LAYOUT_ZOOM_ORIGINAL:	return( _TL("Zoom to 100%") );
 	case ID_CMD_LAYOUT_ITEM_MAP:		return( _TL("Map") );
 	case ID_CMD_LAYOUT_ITEM_LEGEND:		return( _TL("Legend") );
-	case ID_CMD_LAYOUT_ITEM_SCALEBAR:	return( _TL("Scalebar") );
+	case ID_CMD_LAYOUT_ITEM_SCALEBAR:	return( _TL("Scale Bar") );
 	case ID_CMD_LAYOUT_ITEM_SCALE:		return( _TL("Scale") );
 	case ID_CMD_LAYOUT_ITEM_LABEL:		return( _TL("Label") );
 	case ID_CMD_LAYOUT_ITEM_TEXT:		return( _TL("Text") );

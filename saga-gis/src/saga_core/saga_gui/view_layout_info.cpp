@@ -183,7 +183,21 @@ public:
 	{
 		Update_Position(true);
 
-		if( m_Parameters.Get_Count() > 0 && DLG_Parameters(&m_Parameters) )
+		wxString Name;
+
+		switch( Get_Type() )
+		{
+		case CVIEW_Layout_Info::Item_Type_Map     : Name = _TL("Map"      ); break;
+		case CVIEW_Layout_Info::Item_Type_Scalebar: Name = _TL("Scale Bar"); break;
+		case CVIEW_Layout_Info::Item_Type_Scale   : Name = _TL("Scale"    ); break;
+		case CVIEW_Layout_Info::Item_Type_Legend  : Name = _TL("Legend"   ); break;
+		case CVIEW_Layout_Info::Item_Type_Label   : Name = _TL("Label"    ); break;
+		case CVIEW_Layout_Info::Item_Type_Text    : Name = _TL("Text"     ); break;
+		case CVIEW_Layout_Info::Item_Type_Image   : Name = _TL("Image"    ); break;
+		default                                   : Name = _TL("Item"     ); break;
+		}
+
+		if( m_Parameters.Get_Count() > 0 && DLG_Parameters(&m_Parameters, wxString::Format("%s %s", Name.c_str(), _TL("Properties"))) )
 		{
 			Update_Position(false);
 
