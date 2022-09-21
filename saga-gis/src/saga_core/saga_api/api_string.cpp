@@ -721,41 +721,45 @@ bool CSG_String::is_Number(void) const
 //---------------------------------------------------------
 int CSG_String::asInt(void) const
 {
-	int		Value	= 0;
-
-	asInt(Value);
-
-	return( Value );
+	int Value; return( asInt(Value) ? Value : 0 );
 }
 
 bool CSG_String::asInt(int &Value) const
 {
-	const wxChar	*start = m_pString->c_str();
-	wxChar			*end;
+	const wxChar *start = m_pString->c_str(); wxChar *end;
 
-	Value	= wxStrtol(start, &end, 10);
+	int value = wxStrtol(start, &end, 10);
 
-	return( end > start );
+	if( end > start )
+	{
+		Value = value;
+
+		return( true );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
 double CSG_String::asDouble(void) const
 {
-	double	Value	= 0.0;
-
-	asDouble(Value);
-
-	return( Value );
+	double Value; return( asDouble(Value) ? Value : 0. );
 }
 
 bool CSG_String::asDouble(double &Value) const
 {
-	const wxChar	*start = m_pString->c_str();
-	wxChar			*end;
+	const wxChar *start = m_pString->c_str(); wxChar *end;
 
-	Value	= wxStrtod(start, &end);
+	double value = wxStrtod(start, &end);
 
-	return( end > start );
+	if( end > start )
+	{
+		Value = value;
+
+		return( true );
+	}
+
+	return( false );
 }
 
 

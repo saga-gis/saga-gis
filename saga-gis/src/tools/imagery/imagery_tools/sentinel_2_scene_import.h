@@ -85,7 +85,9 @@ private:
 
 	static CSG_Table		Get_Info_Bands			(void);
 
-	bool					Load_Metadata			(const CSG_String &File, CSG_MetaData &General, CSG_MetaData &Granule);
+	bool					Load_Metadata			(const CSG_String &File, CSG_MetaData &General, CSG_MetaData &Granule, CSG_MetaData &Image);
+
+	bool					Get_Scaling				(CSG_MetaData &Image, int Band_ID, double &Scaling, double &Offset);
 
 	CSG_String				Find_Band				(const CSG_Table_Record &Band, const CSG_MetaData &Granule);
 

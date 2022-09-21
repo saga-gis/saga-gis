@@ -300,9 +300,9 @@ int CSentinel_2_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, 
 //---------------------------------------------------------
 bool CSentinel_2_Scene_Import::On_Execute(void)
 {
-	CSG_MetaData	Info_General, Info_Granule;
+	CSG_MetaData	Info_General, Info_Image, Info_Granule;
 
-	if( !Load_Metadata(Parameters("METAFILE")->asString(), Info_General, Info_Granule) )
+	if( !Load_Metadata(Parameters("METAFILE")->asString(), Info_General, Info_Granule, Info_Image) )
 	{
 		Error_Fmt("%s [%s]", _TL("failed to load metadata"), Parameters("METAFILE")->asString());
 
@@ -321,7 +321,6 @@ bool CSentinel_2_Scene_Import::On_Execute(void)
 	bool	bLoad60m	= Parameters("LOAD_60M") && Parameters("LOAD_60M")->asBool();
 
 	bool	bMultiGrids	= Parameters("MULTI2GRIDS")->asBool();
-	double	Scaling		= Parameters("REFLECTANCE")->asInt () == 0 ? 1. : 1. / 10000.;
 
 	CSG_Table	Info_Bands(Get_Info_Bands());
 
@@ -375,7 +374,9 @@ bool CSentinel_2_Scene_Import::On_Execute(void)
 
 			if( BAND_IS_10m(Band) || BAND_IS_20m(Band) || BAND_IS_60m(Band) )
 			{
-				pBand->Set_Scaling(Scaling);
+				double Scaling, Offset; Get_Scaling(Info_Image, Band, Scaling, Offset);
+
+				pBand->Set_Scaling(Scaling, Offset);
 			}
 
 			if( BAND_IS_SCL(Band) )
@@ -390,6 +391,8 @@ bool CSentinel_2_Scene_Import::On_Execute(void)
 	//-----------------------------------------------------
 	for(int i=0; i<2; i++)
 	{
+		double Scaling, Offset; Get_Scaling(Info_Image, 0, Scaling, Offset);
+
 		if( pBands[i] )
 		{
 			pBands[i]->Fmt_Name("S2_%s_%dm", Date.c_str(), i == 0 ? 10 : 20);
@@ -397,7 +400,7 @@ bool CSentinel_2_Scene_Import::On_Execute(void)
 			pBands[i]->Set_Description(Info_General.asText());
 			pBands[i]->Set_Z_Attribute (INFO_FIELD_WAVE);
 			pBands[i]->Set_Z_Name_Field(INFO_FIELD_NAME);
-			pBands[i]->Set_Scaling(Scaling);
+			pBands[i]->Set_Scaling(Scaling, Offset);
 
 			DataObject_Add(pBands[i], true);
 		}
@@ -417,7 +420,7 @@ bool CSentinel_2_Scene_Import::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSentinel_2_Scene_Import::Load_Metadata(const CSG_String &File, CSG_MetaData &General, CSG_MetaData &Granule)
+bool CSentinel_2_Scene_Import::Load_Metadata(const CSG_String &File, CSG_MetaData &General, CSG_MetaData &Granule, CSG_MetaData &Image)
 {
 	CSG_MetaData	Metadata;
 
@@ -435,6 +438,37 @@ bool CSentinel_2_Scene_Import::Load_Metadata(const CSG_String &File, CSG_MetaDat
 	General	= Metadata["n1:General_Info"]["Product_Info"];
 
 	General.Del_Child("Product_Organisation");
+
+	if( Metadata["n1:General_Info"]("Product_Image_Characteristics") )
+	{
+		Image = Metadata["n1:General_Info"]["Product_Image_Characteristics"];
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSentinel_2_Scene_Import::Get_Scaling(CSG_MetaData &Image, int Band, double &Scaling, double &Offset)
+{
+	Scaling = 1.; Offset = 0.;
+
+	if( Parameters("REFLECTANCE")->asInt() == 1 )
+	{
+		if( Image.Get_Content("QUANTIFICATION_VALUE", Scaling) && Scaling != 0. )
+		{
+			Scaling = 1. / Scaling;
+		}
+		else
+		{
+			Scaling = 1. / 10000.;
+		}
+	}
+
+	if( Image("Radiometric_Offset_List") && Image["Radiometric_Offset_List"].Get_Children_Count() == 13
+	&&  Image["Radiometric_Offset_List"][Band].Get_Content().asDouble(Offset) )
+	{
+		Offset *= Scaling;
+	}
 
 	return( true );
 }
