@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -43,20 +40,9 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -71,8 +57,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
-#include "Visibility_BASE.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -82,28 +67,75 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CVisibility_Point : public CSG_Tool_Grid_Interactive, CVisibility_BASE
+class CVisibility
 {
-public:
-	CVisibility_Point(void);
-	virtual ~CVisibility_Point(void);
-
-
 protected:
 
-	virtual bool			On_Execute			(void);
-	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
+	bool					Create					(CSG_Parameters &Parameters);
+
+	bool					Initialize				(const CSG_Parameters &Parameters);
+	bool					Finalize				(void);
+
+	bool					Reset					(void);
+
+	bool					Set_Visibility			(int x, int y, double Height = 0., bool bReset = true);
 
 
 private:
 
+	bool					m_bIgnoreNoData;
+
 	int						m_Method;
+
+	CSG_Grid				*m_pDEM, *m_pVisibility;
+
+
+	bool					_Trace_Point			(int x, int y, double dx, double dy, double dz);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CVisibility_Point : public CSG_Tool_Grid_Interactive, CVisibility
+{
+public:
+	CVisibility_Point(void);
+
+
+protected:
+
+	virtual bool			On_Execute				(void);
+
+	virtual bool			On_Execute_Position		(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
+
+
+private:
 
 	double					m_Height;
 
 	bool					m_bMultiple, m_bNoDataOpaque;
 
-	CSG_Grid				*m_pDTM, *m_pVisibility;
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CVisibility_Points : public CSG_Tool_Grid, CVisibility
+{
+public:
+	CVisibility_Points(void);
+
+
+protected:
+
+	virtual bool			On_Execute				(void);
 
 };
 

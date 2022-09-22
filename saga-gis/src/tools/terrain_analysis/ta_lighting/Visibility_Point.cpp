@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -15,8 +12,8 @@
 //                                                       //
 //                  Visibility_Point.cpp                 //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                      Olaf Conrad                      //
+//            Copyright (C) 2003, 2013, 2022 by          //
+//               Olaf Conrad, Volker Wichmann            //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -43,24 +40,267 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include "Visibility_Point.h"
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "Visibility_Point.h"
+bool CVisibility::Create(CSG_Parameters &Parameters)
+{
+	Parameters.Add_Grid("", "ELEVATION" , _TL("Elevation" ), _TL(""), PARAMETER_INPUT );
+	Parameters.Add_Grid("", "VISIBILITY", _TL("Visibility"), _TL(""), PARAMETER_OUTPUT);
+
+	Parameters.Add_Choice("",
+		"METHOD", _TL("Unit"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|%s",
+			_TL("Visibility"),
+			_TL("Shade"),
+			_TL("Distance"),
+			_TL("Size")
+		), 1
+	);
+
+	Parameters.Add_Bool("",
+		"NODATA", _TL("Ignore No-Data"),
+		_TL("Ignore elevations that have been marked as no-data."),
+		false
+	);
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CVisibility::Initialize(const CSG_Parameters &Parameters)
+{
+	m_pDEM          = Parameters("ELEVATION" )->asGrid();
+	m_pVisibility   = Parameters("VISIBILITY")->asGrid();
+	m_Method        = Parameters("METHOD"    )->asInt ();
+	m_bIgnoreNoData = Parameters("NODATA"    )->asBool();
+
+	Reset();
+
+	CSG_Colors Colors; CSG_String Unit;
+
+	switch( m_Method )
+	{
+	default: // Visibility
+		Colors.Create(2, SG_COLORS_BLACK_WHITE, false);
+		break;
+
+	case  1: // Shade
+		Colors.Create(2, SG_COLORS_BLACK_WHITE, true);
+		Unit = _TL("radians");
+		break;
+
+	case  2: // Distance
+		Colors.Set_Ramp(SG_GET_RGB(255, 255, 191), SG_GET_RGB(  0,  95,   0));
+		break;
+
+	case  3: // Size
+		Colors.Set_Ramp(SG_GET_RGB(  0,  95,   0), SG_GET_RGB(255, 255, 191));
+		Unit = _TL("radians");
+		break;
+	}
+
+	SG_UI_DataObject_Colors_Set(m_pVisibility, &Colors);
+
+	m_pVisibility->Set_Unit(Unit);
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CVisibility::Finalize(void)
+{
+	CSG_Parameters Parameters;
+
+	switch( m_Method )
+	{
+	case  0: // Visibility
+		Parameters.Add_Range("", "METRIC_ZRANGE", "", "", 0., 1.);
+		SG_UI_DataObject_Update(m_pVisibility, true, &Parameters);
+		break;
+
+	case  1: // Shade
+		Parameters.Add_Range("", "METRIC_ZRANGE", "", "", 0., M_PI_090);
+		SG_UI_DataObject_Update(m_pVisibility, true, &Parameters);
+		break;
+
+	default: // Distance, Size
+		SG_UI_DataObject_Show  (m_pVisibility, true);
+		break;
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CVisibility::Reset(void)
+{
+	switch( m_Method )
+	{
+	case  0: m_pVisibility->Assign(      0.); break; // Visibility
+	case  1: m_pVisibility->Assign(M_PI_090); break; // Shade
+	default: m_pVisibility->Assign_NoData( ); break; // Distance, Size
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CVisibility::Set_Visibility(int xOrigin, int yOrigin, double Height, bool bReset)
+{
+	if( !m_pDEM->is_InGrid(xOrigin, yOrigin) )
+	{
+		return( false );
+	}
+
+	if( bReset )
+	{
+		Reset();
+	}
+
+	double zOrigin = m_pDEM->asDouble(xOrigin, yOrigin) + Height;
+
+	//-----------------------------------------------------
+	for(int y=0; y<m_pDEM->Get_NY() && SG_UI_Process_Set_Progress(y, m_pDEM->Get_NY()); y++)
+	{
+		#ifndef _DEBUG
+		#pragma omp parallel for
+		#endif
+		for(int x=0; x<m_pDEM->Get_NX(); x++)
+		{
+			if( m_pDEM->is_NoData(x, y) )
+			{
+				m_pVisibility->Set_NoData(x, y);
+			}
+			else
+			{
+				double dx = xOrigin - x;
+				double dy = yOrigin - y;
+				double dz = zOrigin - m_pDEM->asDouble(x, y);
+
+				//-----------------------------------------
+				if( _Trace_Point(x, y, dx, dy, dz) )
+				{
+					switch( m_Method )
+					{
+					default: { // Visibility
+						m_pVisibility->Set_Value(x, y, 1.);
+						break; }
+
+					case  1: { // Shade
+						double dec, azi; const double Exaggeration = 1.;
+
+						if( m_pDEM->Get_Gradient(x, y, dec, azi) )
+						{
+							dec	= M_PI_090 - atan(Exaggeration * tan(dec));
+
+							double decSrc = atan2(dz, sqrt(dx*dx + dy*dy));
+							double aziSrc = atan2(dx, dy);
+
+							double d = acos(sin(dec) * sin(decSrc) + cos(dec) * cos(decSrc) * cos(azi - aziSrc)); if( d > M_PI_090 ) { d = M_PI_090; }
+
+							if( m_pVisibility->asDouble(x, y) > d )
+							{
+								m_pVisibility->Set_Value(x, y, d);
+							}
+						}
+						break; }
+
+					case  2: { // Distance
+						double d = m_pDEM->Get_Cellsize() * sqrt(dx*dx + dy*dy);
+
+						if( m_pVisibility->is_NoData(x, y) || m_pVisibility->asDouble(x, y) > d )
+						{
+							m_pVisibility->Set_Value(x, y, d);
+						}
+						break; }
+
+					case  3: { // Size
+						double d = m_pDEM->Get_Cellsize() * sqrt(dx*dx + dy*dy);
+
+						if( d > 0. )
+						{
+							d = atan2(fabs(Height), d);
+
+							if( m_pVisibility->is_NoData(x, y) || m_pVisibility->asDouble(x, y) < d )
+							{
+								m_pVisibility->Set_Value(x, y, d);
+							}
+						}
+						break; }
+					}
+				}
+			}
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CVisibility::_Trace_Point(int x, int y, double dx, double dy, double dz)
+{
+	double d = fabs(dx) > fabs(dy) ? fabs(dx) : fabs(dy);
+
+	if( d > 0. )
+	{
+		double dist = sqrt(dx*dx + dy*dy);
+
+		dx /= d; dy /= d; dz /= d; d = dist / d;
+
+		double id = 0.;
+		double ix = 0.5 + x;
+		double iy = 0.5 + y;
+		double iz = m_pDEM->asDouble(x, y);
+
+		while( id < dist )
+		{
+			id += d;
+			ix += dx;
+			iy += dy;
+			iz += dz;
+
+			x   = (int)ix;
+			y   = (int)iy;
+
+			if( !m_pDEM->is_InGrid(x, y) )
+			{
+				if( !m_bIgnoreNoData || !m_pDEM->Get_System().is_InGrid(x, y) )
+				{
+					return( false );
+				}
+			}
+			else
+			{
+				if( iz < m_pDEM->asDouble(x, y) )
+				{
+					return( false );
+				}
+
+				if( iz > m_pDEM->Get_Max() )
+				{
+					return( true );
+				}
+			}
+		}
+	}
+
+	return( true );
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -72,114 +312,124 @@
 //---------------------------------------------------------
 CVisibility_Point::CVisibility_Point(void)
 {
-	Set_Name(_TL("Visibility (single point)"));
+	Set_Name		(_TL("Visibility Analysis"));
 
-	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2022");
 
-	Set_Description(
-		_TL("")
+	Set_Description(_TW(
+		"Visibility or viewshed analysis."
+	));
+
+	Create(Parameters);
+
+	Parameters.Add_Double("",
+		"HEIGHT"	, _TL("Height"),
+		_TL("Height of the light source or observer above ground."),
+		10., 0., true
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "ELEVATION"	, _TL("Elevation"),
-		_TL(""),
-		PARAMETER_INPUT
+	Parameters.Add_Bool("",
+		"MULTIPLE"	, _TL("Add Multiple Locations"),
+		_TL("Add multiple light source or observer positions."),
+		false
 	);
-
-	Parameters.Add_Grid(
-		NULL	, "VISIBILITY"	, _TL("Visibility"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Value(
-		NULL	, "HEIGHT"		, _TL("Height"),
-		_TL("Height of the light source above ground."),
-		PARAMETER_TYPE_Double, 100.0
-	);
-
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Unit"),
-		_TL(""),
-
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
-			_TL("Visibility"),
-			_TL("Shade"),
-			_TL("Distance"),
-			_TL("Size")
-		), 1
-	);
-
-	Parameters.Add_Value(
-		NULL	, "MULTIPLE_OBS"	, _TL("Multiple Observer"),
-		_TL("Allow multiple observer positions."),
-		PARAMETER_TYPE_Bool, false
-	);
-
-    Parameters.Add_Bool(
-        NULL    , "NODATA_OPAQUE"   , _TL("No-Data is Opaque"),
-        _TL("Treat No-Data cells as opaque."),
-        false
-    );
 }
-
-//---------------------------------------------------------
-CVisibility_Point::~CVisibility_Point(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CVisibility_Point::On_Execute(void)
 {
-	m_pDTM			= Parameters("ELEVATION")	 ->asGrid();
-	m_pVisibility	= Parameters("VISIBILITY")	 ->asGrid();
-	m_Height		= Parameters("HEIGHT")		 ->asDouble();
-	m_Method		= Parameters("METHOD")		 ->asInt();
-	m_bMultiple		= Parameters("MULTIPLE_OBS") ->asBool();
-    m_bNoDataOpaque = Parameters("NODATA_OPAQUE")->asBool();
-	
-	if( m_bMultiple )
-		Initialize(m_pVisibility, m_Method);
+	Initialize(Parameters);
+
+	m_Height    = Parameters("HEIGHT"  )->asDouble();
+	m_bMultiple = Parameters("MULTIPLE")->asBool  ();
 
 	return( true );
 }
 
-
 //---------------------------------------------------------
 bool CVisibility_Point::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
-	int		x_Pos, y_Pos;
+	if(	Mode == TOOL_INTERACTIVE_LDOWN )
+	{
+		if( Set_Visibility(Get_xGrid(), Get_yGrid(), m_Height, !m_bMultiple) )
+		{
+			Finalize();
 
-	double	z_Pos;
+			return( true );
+		}
+	}
 
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CVisibility_Points::CVisibility_Points(void)
+{
+	Set_Name		(_TL("Visibility Analysis"));
+
+	Set_Author		("V.Wichmann (c) 2013");
+
+	Set_Description(_TW(
+		"This tool performs a visibility analysis using "
+		"light source or observer points from a points layer."
+	));
+
+	Create(Parameters);
+
+	Parameters.Add_Shapes("",
+		"POINTS"	, _TL("Points"),
+		_TL("Observer points."),
+		PARAMETER_INPUT, SHAPE_TYPE_Point
+	);
+
+	Parameters.Add_Table_Field_or_Const("POINTS",
+		"HEIGHT"	, _TL("Height"),
+		_TL("Height of the light source or observer above ground."),
+		10., 0., true
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CVisibility_Points::On_Execute(void)
+{
+	Initialize(Parameters);
+
+	CSG_Shapes *pPoints = Parameters("POINTS")->asShapes();
+
+	int    Field  = Parameters("HEIGHT")->asInt   ();
+	double Height = Parameters("HEIGHT")->asDouble();
 
 	//-----------------------------------------------------
-	if(	Mode != TOOL_INTERACTIVE_LDOWN
-	||	!m_pDTM->is_InGrid_byPos(Get_xPosition(), Get_yPosition()) )
+	for(int iPoint=0; iPoint<pPoints->Get_Count() && Process_Get_Okay(); iPoint++)
 	{
-		return( false );
+		Process_Set_Text("%s %d...", _TL("processing observer"), 1 + iPoint);
+
+		CSG_Shape &Point = *pPoints->Get_Shape(iPoint);
+
+		int x, y; Get_System().Get_World_to_Grid(x, y, Point.Get_Point(0));
+
+		Set_Visibility(x, y, Field < 0 ? Height : Point.asDouble(Field), false);
 	}
 
 	//-----------------------------------------------------
-	x_Pos	= Get_xGrid();
-	y_Pos	= Get_yGrid();;
-	z_Pos	= m_pDTM->asDouble(x_Pos, y_Pos) + m_Height;
-
-	if( !m_bMultiple )
-		Initialize(m_pVisibility, m_Method);
-
-
-	Set_Visibility(m_pDTM, m_pVisibility, x_Pos, y_Pos, z_Pos, m_Height, m_Method, m_bNoDataOpaque);
-
-
-	//-----------------------------------------------------
-	Finalize(m_pVisibility, m_Method);
+	Finalize();
 
 	return( true );
 }
