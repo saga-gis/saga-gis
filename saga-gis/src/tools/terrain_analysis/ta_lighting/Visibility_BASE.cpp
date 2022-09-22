@@ -220,7 +220,7 @@ bool CVisibility_BASE::Trace_Point(CSG_Grid *pDTM, int x, int y, double dx, doub
                 }
                 else
                 {
-				    return( true );
+				    continue;
                 }
 			}
 			else if( iz < pDTM->asDouble(x, y) )
