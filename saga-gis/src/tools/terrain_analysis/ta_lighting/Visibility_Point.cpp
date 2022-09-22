@@ -115,6 +115,12 @@ CVisibility_Point::CVisibility_Point(void)
 		_TL("Allow multiple observer positions."),
 		PARAMETER_TYPE_Bool, false
 	);
+
+    Parameters.Add_Bool(
+        NULL    , "NODATA_OPAQUE"   , _TL("No-Data is Opaque"),
+        _TL("Treat No-Data cells as opaque."),
+        false
+    );
 }
 
 //---------------------------------------------------------
@@ -131,11 +137,12 @@ CVisibility_Point::~CVisibility_Point(void)
 //---------------------------------------------------------
 bool CVisibility_Point::On_Execute(void)
 {
-	m_pDTM			= Parameters("ELEVATION")	->asGrid();
-	m_pVisibility	= Parameters("VISIBILITY")	->asGrid();
-	m_Height		= Parameters("HEIGHT")		->asDouble();
-	m_Method		= Parameters("METHOD")		->asInt();
-	m_bMultiple		= Parameters("MULTIPLE_OBS")->asBool();
+	m_pDTM			= Parameters("ELEVATION")	 ->asGrid();
+	m_pVisibility	= Parameters("VISIBILITY")	 ->asGrid();
+	m_Height		= Parameters("HEIGHT")		 ->asDouble();
+	m_Method		= Parameters("METHOD")		 ->asInt();
+	m_bMultiple		= Parameters("MULTIPLE_OBS") ->asBool();
+    m_bNoDataOpaque = Parameters("NODATA_OPAQUE")->asBool();
 	
 	if( m_bMultiple )
 		Initialize(m_pVisibility, m_Method);
@@ -168,7 +175,7 @@ bool CVisibility_Point::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interact
 		Initialize(m_pVisibility, m_Method);
 
 
-	Set_Visibility(m_pDTM, m_pVisibility, x_Pos, y_Pos, z_Pos, m_Height, m_Method);
+	Set_Visibility(m_pDTM, m_pVisibility, x_Pos, y_Pos, z_Pos, m_Height, m_Method, m_bNoDataOpaque);
 
 
 	//-----------------------------------------------------

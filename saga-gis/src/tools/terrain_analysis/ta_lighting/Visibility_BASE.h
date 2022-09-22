@@ -91,8 +91,8 @@ public:
 protected:
 
 	void		Initialize		(CSG_Grid *pVisibility, int iMethod);
-	void		Set_Visibility	(CSG_Grid *pDTM, CSG_Grid *pVisibility, int x_Pos, int y_Pos, double z_Pos, double dHeight, int iMethod);
-	bool		Trace_Point		(CSG_Grid *pDTM, int x, int y, double dx, double dy, double dz);
+	void		Set_Visibility	(CSG_Grid *pDTM, CSG_Grid *pVisibility, int x_Pos, int y_Pos, double z_Pos, double dHeight, int iMethod, bool bNoDataOpaque);
+	bool		Trace_Point		(CSG_Grid *pDTM, int x, int y, double dx, double dy, double dz, bool bNoDataOpaque);
 	void		Finalize		(CSG_Grid *pVisibility, int iMethod);
 
 private:

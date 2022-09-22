@@ -107,7 +107,7 @@ void CVisibility_BASE::Initialize(CSG_Grid *pVisibility, int iMethod)
 }
 
 //---------------------------------------------------------
-void CVisibility_BASE::Set_Visibility(CSG_Grid *pDTM, CSG_Grid *pVisibility, int x_Pos, int y_Pos, double z_Pos, double dHeight, int iMethod)
+void CVisibility_BASE::Set_Visibility(CSG_Grid *pDTM, CSG_Grid *pVisibility, int x_Pos, int y_Pos, double z_Pos, double dHeight, int iMethod, bool bNoDataOpaque)
 {
 	double		Exaggeration	= 1.0;
 
@@ -130,7 +130,7 @@ void CVisibility_BASE::Set_Visibility(CSG_Grid *pDTM, CSG_Grid *pVisibility, int
 				dz		= z_Pos - pDTM->asDouble(x, y);
 
 				//-----------------------------------------
-				if( Trace_Point(pDTM, x, y, dx, dy, dz) )
+				if( Trace_Point(pDTM, x, y, dx, dy, dz, bNoDataOpaque) )
 				{
 					switch( iMethod )
 					{
@@ -180,7 +180,7 @@ void CVisibility_BASE::Set_Visibility(CSG_Grid *pDTM, CSG_Grid *pVisibility, int
 
 
 //---------------------------------------------------------
-bool CVisibility_BASE::Trace_Point(CSG_Grid *pDTM, int x, int y, double dx, double dy, double dz)
+bool CVisibility_BASE::Trace_Point(CSG_Grid *pDTM, int x, int y, double dx, double dy, double dz, bool bNoDataOpaque)
 {
 	double	ix, iy, iz, id, d, dist;
 
@@ -214,7 +214,14 @@ bool CVisibility_BASE::Trace_Point(CSG_Grid *pDTM, int x, int y, double dx, doub
 
 			if( !pDTM->is_InGrid(x, y) )
 			{
-				return( true );
+                if( bNoDataOpaque )
+                {
+                    return( false );
+                }
+                else
+                {
+				    return( true );
+                }
 			}
 			else if( iz < pDTM->asDouble(x, y) )
 			{

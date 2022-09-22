@@ -101,7 +101,7 @@ private:
 
 	double					m_Height;
 
-	bool					m_bMultiple;
+	bool					m_bMultiple, m_bNoDataOpaque;
 
 	CSG_Grid				*m_pDTM, *m_pVisibility;
 

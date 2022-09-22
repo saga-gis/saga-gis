@@ -115,6 +115,12 @@ CVisibility_Points::CVisibility_Points(void)
 			_TL("Size")
 		), 1
 	);
+
+    Parameters.Add_Bool(
+        NULL    , "NODATA_OPAQUE"   , _TL("No-Data is Opaque"),
+        _TL("Treat No-Data cells as opaque."),
+        false
+    );
 }
 
 //---------------------------------------------------------
@@ -134,12 +140,14 @@ bool CVisibility_Points::On_Execute(void)
 	CSG_Grid		*pDTM, *pVisibility;
 	CSG_Shapes		*pShapes;
 	int				iMethod, iField;
+    bool            bNoDataOpaque;
 
-	pDTM			= Parameters("ELEVATION")	->asGrid();
-	pVisibility		= Parameters("VISIBILITY")	->asGrid();
-	pShapes			= Parameters("POINTS")		->asShapes();
-	iField			= Parameters("FIELD_HEIGHT")->asInt();
-	iMethod			= Parameters("METHOD")		->asInt();
+	pDTM			= Parameters("ELEVATION")	 ->asGrid();
+	pVisibility		= Parameters("VISIBILITY")	 ->asGrid();
+	pShapes			= Parameters("POINTS")		 ->asShapes();
+	iField			= Parameters("FIELD_HEIGHT") ->asInt();
+	iMethod			= Parameters("METHOD")		 ->asInt();
+    bNoDataOpaque   = Parameters("NODATA_OPAQUE")->asBool();
 
 	Initialize(pVisibility, iMethod);
 
@@ -155,7 +163,7 @@ bool CVisibility_Points::On_Execute(void)
 			double	dHeight = pShapes->Get_Record(iShape)->asDouble(iField);
 			double	z		= pDTM->asDouble(x, y) + dHeight;
 
-			Set_Visibility(pDTM, pVisibility, x, y, z, dHeight, iMethod);
+			Set_Visibility(pDTM, pVisibility, x, y, z, dHeight, iMethod, bNoDataOpaque);
 		}
 	}
 
