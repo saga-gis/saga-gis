@@ -2,7 +2,7 @@
 
 REM ___________________________________
 REM This batch script expects 4 arguments
-REM 1. Python version suffix ('27', '35', ...)
+REM 1. Python version suffix ('2.7', '3.5', ...)
 REM 2. architecture (win32/x64)
 REM 3. output to zip (true/false)
 REM 4. clean swig wrapper (true/false)
@@ -31,8 +31,10 @@ IF "%SWIG%" == "" (
 )
 
 IF "%PYTHONDIR%" == "" (
-	SET PYTHONDIR=F:\develop\libs\Python\Python-3.9.7
+	SET PYTHONDIR=F:\develop\libs\Python\Python-3.10
 )
+
+SET PYTHONPKG=%PYTHONDIR%\Lib\site-packages
 
 IF "%SAGA_ROOT%" == "" (
 	SET SAGA_ROOT=%CD%\..\..\..
@@ -57,12 +59,14 @@ REM Initialization of the MSVC environment
 IF /i "%ARCHITECTURE%" == "win32" (
 	REM VS2015 x86 x64 Cross Tools Command Prompt
 	CALL %EXE_VARSALL% x86
+	SET PYTHONEGG=%PYTHONPKG%\SAGA_Python_API-1.0-py%PYTHON_VERSION%-win-win32.egg
 
 ) ELSE (
 	REM VS2015 x86 x64 Cross Tools Command Prompt
 	CALL %EXE_VARSALL% x86_amd64
 	SET DISTUTILS_USE_SDK=1
 	SET MSSDK=1
+	SET PYTHONEGG=%PYTHONPKG%\SAGA_Python_API-1.0-py%PYTHON_VERSION%-win-amd64.egg
 )
 
 
@@ -87,11 +91,12 @@ ECHO __________________
 ECHO Python%PYTHON_VERSION% Compilation (%ARCHITECTURE%)...
 ECHO.
 
-SET PYTHONPKG=%PYTHONDIR%\Lib\site-packages
-
 REM Remove previous instances of saga-python-api
 DEL "%PYTHONPKG%\*saga_*.py*"
 DEL "%PYTHONPKG%\*saga_*.egg-info"
+IF EXIST "%PYTHONEGG%" (
+	RMDIR /S/Q "%PYTHONEGG%"
+)
 
 REM Compilation
 "%PYTHONDIR%\python.exe" saga_api_to_python.py install
@@ -104,6 +109,12 @@ COPY saga_api.py "%PYTHONPKG%\saga_api.py"
 IF /i "%MAKE_CLEAN%" == "true" (
 	DEL /F saga_api_wrap.cxx
 	DEL /F saga_api.py
+	IF EXIST "SAGA_Python_API.egg-info" (
+		RMDIR /S/Q "SAGA_Python_API.egg-info"
+	)
+	IF EXIST "dist" (
+		RMDIR /S/Q "dist"
+	)
 )
 
 POPD
@@ -130,6 +141,12 @@ COPY "%SAGA_ROOT%\src\accessories\python\examples\saga_helper.py" "%PYTHONPKG%\"
 
 COPY "%PYTHONPKG%\*saga_*.py*" "%PYTHONOUT%\Lib\site-packages\"
 
+IF EXIST "%PYTHONEGG%" (
+	COPY "%PYTHONEGG%\*saga_*.py*" "%PYTHONOUT%\Lib\site-packages\"
+)
+
+REM ___________________________________
+REM zipping files...
 IF /i "%MAKE_ZIP%" == "true" (
 	SETLOCAL EnableDelayedExpansion
 
