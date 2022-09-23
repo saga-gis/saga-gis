@@ -99,22 +99,25 @@ IF EXIST "%PYTHONEGG%" (
 )
 
 REM Compilation
-"%PYTHONDIR%\python.exe" saga_api_to_python.py install
+rem "%PYTHONDIR%\python.exe" saga_api_to_python.py install
+"%PYTHONDIR%\python.exe" saga_api_to_python.py build_ext --inplace
+
+COPY saga_api.py "%PYTHONPKG%\saga_api.py"
+MOVE _saga_api*.pyd "%PYTHONPKG%\"
+
 
 REM Postprocessing jobs
 RMDIR /S/Q build
-
-COPY saga_api.py "%PYTHONPKG%\saga_api.py"
+IF EXIST "SAGA_Python_API.egg-info" (
+	RMDIR /S/Q "SAGA_Python_API.egg-info"
+)
+IF EXIST "dist" (
+	RMDIR /S/Q "dist"
+)
 
 IF /i "%MAKE_CLEAN%" == "true" (
 	DEL /F saga_api_wrap.cxx
 	DEL /F saga_api.py
-	IF EXIST "SAGA_Python_API.egg-info" (
-		RMDIR /S/Q "SAGA_Python_API.egg-info"
-	)
-	IF EXIST "dist" (
-		RMDIR /S/Q "dist"
-	)
 )
 
 POPD
