@@ -288,29 +288,35 @@ bool CSG_Tool::Execute(bool bAddHistory)
 	{
 		Parameters.Msg_String(false);
 
-///////////////////////////////////////////////////////////
-#if !defined(_DEBUG) && !defined(_OPENMP) && defined(_SAGA_MSW)
-#define _TOOL_EXCEPTION
-	__try
-	{
-#endif
-///////////////////////////////////////////////////////////
-
 	//	SG_UI_Process_Set_Busy(true, CSG_String::Format("%s: %s...", _TL("Executing"), Get_Name().c_str()));
 		CSG_DateTime Started(CSG_DateTime::Now());
+
+///////////////////////////////////////////////////////////
+//#if !defined(_DEBUG)
+#define _TOOL_EXCEPTION
+	try
+	{
+//#endif
+///////////////////////////////////////////////////////////
+
 		bResult = On_Execute();
-		CSG_TimeSpan Span = CSG_DateTime::Now() - Started;
-	//	SG_UI_Process_Set_Busy(false);
 
 ///////////////////////////////////////////////////////////
 #ifdef _TOOL_EXCEPTION
 	}	// try
-	__except(1)
+	catch(const std::exception &Exception)
 	{
-		Message_Dlg("Tool caused access violation!");
-	}	// except(1)
-#endif
+		Message_Dlg(Exception.what()            , CSG_String::Format("%s | %s", Get_Name().c_str(), _TL("Access violation!")));
+	}
+	catch(...)
+	{
+		Message_Dlg(_TL("unspecified exception"), CSG_String::Format("%s | %s", Get_Name().c_str(), _TL("Access violation!")));
+	}
+	#endif
 ///////////////////////////////////////////////////////////
+
+		CSG_TimeSpan Span = CSG_DateTime::Now() - Started;
+	//	SG_UI_Process_Set_Busy(false);
 
 		_Synchronize_DataObjects();
 
