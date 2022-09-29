@@ -1599,22 +1599,24 @@ public:
 		return( false );
 	}
 
-	double						Get_xMin			(void)		const	{	return( m_xMin );	}
-	double						Get_xMax			(void)		const	{	return( m_xMax );	}
-	double						Get_xMean			(void)		const	{	return( m_xMean );	}
-	double						Get_xVariance		(void)		const	{	return( m_xVar );	}
+	double						Get_xMin			(void)		const	{	return( m_xMin   );	}
+	double						Get_xMax			(void)		const	{	return( m_xMax   );	}
+	double						Get_xMean			(void)		const	{	return( m_xMean  );	}
+	double						Get_xVariance		(void)		const	{	return( m_xVar   );	}
 	double						Get_x				(double y)	const;	// returns INF on error, this can be checked using the _finite() function (libc, include <float.h>)...
 
-	double						Get_yMin			(void)		const	{	return( m_yMin );	}
-	double						Get_yMax			(void)		const	{	return( m_yMax );	}
-	double						Get_yMean			(void)		const	{	return( m_yMean );	}
-	double						Get_yVariance		(void)		const	{	return( m_yVar );	}
+	double						Get_yMin			(void)		const	{	return( m_yMin   );	}
+	double						Get_yMax			(void)		const	{	return( m_yMax   );	}
+	double						Get_yMean			(void)		const	{	return( m_yMean  );	}
+	double						Get_yVariance		(void)		const	{	return( m_yVar   );	}
 	double						Get_y				(double x)	const;	// returns INF on error, this can be checked using the _finite() function (libc, include <float.h>)...
 
 	double						Get_Constant		(void)		const	{	return( m_RConst );	}
 	double						Get_Coefficient		(void)		const	{	return( m_RCoeff );	}
-	double						Get_R				(void)		const	{	return( m_R );		}
-	double						Get_R2				(void)		const	{	return( m_R*m_R );	}
+	double						Get_R				(void)		const	{	return( m_R      );	}
+	double						Get_R2				(void)		const	{	return( m_R*m_R  );	}
+	double						Get_R2_Adj			(void)		const	{	return( m_R_Adj  );	}
+	double						Get_P				(void)		const	{	return( m_P      );	}
 
 	const SG_Char *				asString			(void);
 
@@ -1628,7 +1630,7 @@ protected:
 
 	int							m_nValues, m_nBuffer;
 
-	double						m_RConst, m_RCoeff, m_R,
+	double						m_RConst, m_RCoeff, m_R, m_R_Adj, m_P,
 								m_xMin, m_xMax, m_xMean, m_xVar, *m_x,
 								m_yMin, m_yMax, m_yMean, m_yVar, *m_y;
 
