@@ -230,15 +230,40 @@ public:
 	}
 
 	//-----------------------------------------------------
-	static bool	Offset		(CSG_Shape *pShape, double dSize, double dArc, CSG_Shape *pSolution)
+	static bool	Offset		(CSG_Shape *pShape, double Delta, double dArc, CSG_Shape *pSolution)
 	{
 		Clipper2Lib::PathsD Paths, Solution;
 
 		if(	to_Paths(pShape, Paths) )
 		{
-			Clipper2Lib::EndType EndType = pShape->Get_Type() == SHAPE_TYPE_Polygon ? Clipper2Lib::EndType::Polygon : Clipper2Lib::EndType::Round;
+			Clipper2Lib::EndType EndType;
 
-			Solution = Clipper2Lib::InflatePaths(Paths, dSize, Clipper2Lib::JoinType::Round, EndType, 2., dArc);
+			if( pShape->Get_Type() == SHAPE_TYPE_Line )
+			{
+				Delta *= 2.;
+
+				EndType = Clipper2Lib::EndType::Round;
+			}
+			else
+			{
+				EndType = Clipper2Lib::EndType::Polygon;
+			}
+
+			if( 1 )
+			{
+				// Workaround: ClipperOffset::ArcTolerance not accessible through InflatePaths(),
+				// but ClipperOffset::Execute() currently only returns Paths64 type objects!!!
+				Clipper2Lib::ClipperOffset Offset;
+				const double Scale = std::pow(10., 8.);
+				Offset.AddPaths(Clipper2Lib::ScalePaths<int64_t, double>(Paths, Scale), Clipper2Lib::JoinType::Round, EndType);
+				Offset.ArcTolerance(Scale * Delta * (1. - cos(dArc / 2.)));
+				Clipper2Lib::Paths64 Solution64 = Offset.Execute(Scale * Delta);
+				Solution = Clipper2Lib::ScalePaths<double, int64_t>(Solution64, 1. / Scale);
+			}
+			else
+			{
+				Solution = Clipper2Lib::InflatePaths(Paths, Delta, Clipper2Lib::JoinType::Round, EndType, 2., 2.);
+			}
 
 			return( to_Shape(Solution, pSolution ? pSolution : pShape) );
 		}
