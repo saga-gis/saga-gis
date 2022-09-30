@@ -1579,19 +1579,19 @@ public:
 
 	void						Destroy				(void);
 
-	void						Set_Values			(int nValues, double *x, double *y);
-	void						Add_Values			(double x, double y);
+	bool						Set_Values			(int nValues, double *x, double *y);
+	bool						Add_Values			(double x, double y);
 
-	int							Get_Count			(void)			const	{	return( m_nValues );	}
+	int							Get_Count			(void)		const	{	return( (int)m_x.Get_Size() );	}
 
-	double						Get_xValue			(int iValue)	const	{	return( iValue >= 0 && iValue < m_nValues ? m_x[iValue] : 0. );	}
-	double						Get_yValue			(int iValue)	const	{	return( iValue >= 0 && iValue < m_nValues ? m_y[iValue] : 0. );	}
-	bool						Get_Values			(int iValue, double &x, double &y)	const
+	double						Get_xValue			(int i)		const	{	return( i >= 0 && i < Get_Count() ? m_x[i] : 0. );	}
+	double						Get_yValue			(int i)		const	{	return( i >= 0 && i < Get_Count() ? m_y[i] : 0. );	}
+	bool						Get_Values			(int i, double &x, double &y)	const
 	{
-		if( iValue >= 0 && iValue < m_nValues )
+		if( i >= 0 && i < Get_Count() )
 		{
-			x	= m_x[iValue];
-			y	= m_y[iValue];
+			x = m_x[i];
+			y = m_y[i];
 
 			return( true );
 		}
@@ -1614,35 +1614,32 @@ public:
 	double						Get_Constant		(void)		const	{	return( m_RConst );	}
 	double						Get_Coefficient		(void)		const	{	return( m_RCoeff );	}
 	double						Get_R				(void)		const	{	return( m_R      );	}
-	double						Get_R2				(void)		const	{	return( m_R*m_R  );	}
-	double						Get_R2_Adj			(void)		const	{	return( m_R_Adj  );	}
+	double						Get_R2				(void)		const	{	return( m_R2     );	}
+	double						Get_R2_Adj			(void)		const	{	return( m_R2_Adj );	}
 	double						Get_P				(void)		const	{	return( m_P      );	}
+	double						Get_StdError		(void)		const	{	return( m_SE     );	}
 
 	const SG_Char *				asString			(void);
 
 	TSG_Regression_Type			Get_Type			(void)		const	{	return( m_Type );	}
 
-	bool						Calculate			(TSG_Regression_Type Type = REGRESSION_Linear);
-	bool						Calculate			(int nValues, double *x, double *y, TSG_Regression_Type Type = REGRESSION_Linear);
+	bool						Calculate			(                                   TSG_Regression_Type Type = REGRESSION_Linear, bool bStdError = false);
+	bool						Calculate			(int nValues, double *x, double *y, TSG_Regression_Type Type = REGRESSION_Linear, bool bStdError = false);
 
 
 protected:
 
-	int							m_nValues, m_nBuffer;
+	double						m_RConst, m_RCoeff, m_R, m_R2, m_R2_Adj, m_P, m_SE,
+								m_xMin, m_xMax, m_xMean, m_xVar,
+								m_yMin, m_yMax, m_yMean, m_yVar;
 
-	double						m_RConst, m_RCoeff, m_R, m_R_Adj, m_P,
-								m_xMin, m_xMax, m_xMean, m_xVar, *m_x,
-								m_yMin, m_yMax, m_yMean, m_yVar, *m_y;
+	CSG_Vector					m_x, m_y;
 
 	TSG_Regression_Type			m_Type;
 
 
-	bool						_Get_MinMeanMax		(double &xMin, double &xMean, double &xMax, double &yMin, double &yMean, double &yMax);
-
 	double						_Y_Transform		(double x);
 	double						_X_Transform		(double y);
-
-	bool						_Linear				(void);
 
 };
 

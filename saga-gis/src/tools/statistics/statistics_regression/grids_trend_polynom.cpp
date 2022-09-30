@@ -85,7 +85,7 @@ CGrids_Trend::CGrids_Trend(void)
 	Parameters.Add_Grid("", "R2"    , _TL("Determination Coefficient"         ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	Parameters.Add_Grid("", "R2ADJ" , _TL("Adjusted Determination Coefficient"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	Parameters.Add_Grid("", "P"     , _TL("Significance Level"                ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-//	Parameters.Add_Grid("", "STDERR", _TL("Standard Error"                    ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid("", "STDERR", _TL("Standard Error"                    ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 
 	Parameters.Add_Bool("",
 		"LINEAR"	, _TL("Linear Trend"),
@@ -246,12 +246,11 @@ bool CGrids_Trend::On_Execute(void)
 		pCoeffs->Add_Item(pCoeff);
 	}
 
-	CSG_Grid *pR      = Parameters("R"     )->asGrid();
-	CSG_Grid *pR2     = Parameters("R2"    )->asGrid();
-	CSG_Grid *pR2adj  = Parameters("R2ADJ" )->asGrid();
-	CSG_Grid *pP      = Parameters("P"     )->asGrid();
-//	CSG_Grid *pStdErr = Parameters("STDERR")->asGrid();
-	CSG_Grid *pStdErr = NULL;
+	CSG_Grid *pR      = Parameters("R"     )->is_Enabled() ? Parameters("R"     )->asGrid() : NULL;
+	CSG_Grid *pR2     = Parameters("R2"    )->is_Enabled() ? Parameters("R2"    )->asGrid() : NULL;
+	CSG_Grid *pR2adj  = Parameters("R2ADJ" )->is_Enabled() ? Parameters("R2ADJ" )->asGrid() : NULL;
+	CSG_Grid *pP      = Parameters("P"     )->is_Enabled() ? Parameters("P"     )->asGrid() : NULL;
+	CSG_Grid *pStdErr = Parameters("STDERR")->is_Enabled() ? Parameters("STDERR")->asGrid() : NULL;
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -259,7 +258,7 @@ bool CGrids_Trend::On_Execute(void)
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			CSG_Matrix	Samples;
+			CSG_Vector	Samples[2];
 
 			for(int i=0; i<nGrids; i++)
 			{
@@ -284,7 +283,8 @@ bool CGrids_Trend::On_Execute(void)
 
 					if( Sample.Get_Size() == 2 )
 					{
-						Samples.Add_Row(Sample);
+						Samples[0].Add_Row(Sample[1]); // X
+						Samples[1].Add_Row(Sample[0]); // Y
 					}
 				}
 			}
@@ -292,18 +292,15 @@ bool CGrids_Trend::On_Execute(void)
 			//---------------------------------------------
 			bool bOkay = false;
 
-			if( Samples.Get_NRows() > Order )
+			if( Samples[0].Get_N() > Order )
 			{
 				if( bLinear )
 				{
 					CSG_Regression Trend;
 
-					for(int i=0; i<Samples.Get_NRows(); i++)
-					{
-						Trend.Add_Values(Samples[i][1], Samples[i][0]);
-					}
+					Trend.Set_Values(Samples[0].Get_N(), Samples[0].Get_Data(), Samples[1].Get_Data());
 
-					if( (bOkay = Trend.Calculate()) )
+					if( (bOkay = Trend.Calculate(REGRESSION_Linear, pStdErr != NULL)) )
 					{
 						pCoeffs->Get_Grid(0) ->Set_Value(x, y, Trend.Get_Constant   ());
 						pCoeffs->Get_Grid(1) ->Set_Value(x, y, Trend.Get_Coefficient());
@@ -311,17 +308,14 @@ bool CGrids_Trend::On_Execute(void)
 						if( pR2     ) pR2    ->Set_Value(x, y, Trend.Get_R2         ());
 						if( pR2adj  ) pR2adj ->Set_Value(x, y, Trend.Get_R2_Adj     ());
 						if( pP      ) pP     ->Set_Value(x, y, Trend.Get_P          ());
-					//	if( pStdErr ) pStdErr->Set_Value(x, y, Trend.Get_StdError   ());
+						if( pStdErr ) pStdErr->Set_Value(x, y, Trend.Get_StdError   ());
 					}
 				}
 				else // if( !bLinear )
 				{
 					CSG_Trend_Polynom Trend; Trend.Set_Order(Order);
-
-					for(int i=0; i<Samples.Get_NRows(); i++)
-					{
-						Trend.Add_Data(Samples[i][1], Samples[i][0]);
-					}
+				
+					Trend.Set_Data(Samples[0].Get_Data(), Samples[1].Get_Data(), Samples[0].Get_N());
 
 					if( (bOkay = Trend.Get_Trend()) )
 					{
@@ -343,6 +337,7 @@ bool CGrids_Trend::On_Execute(void)
 					pCoeffs->Get_Grid(i)->Set_NoData(x, y);
 				}
 
+				if( pR      ) pR     ->Set_NoData(x, y);
 				if( pR2     ) pR2    ->Set_NoData(x, y);
 				if( pR2adj  ) pR2adj ->Set_NoData(x, y);
 				if( pStdErr ) pStdErr->Set_NoData(x, y);

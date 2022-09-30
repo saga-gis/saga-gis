@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: point_grid_regression.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,20 +48,18 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__point_grid_regression_H
 #define HEADER_INCLUDED__point_grid_regression_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -82,19 +77,14 @@ public:
 
 protected:
 
-	virtual bool			On_Execute			(void);
+	virtual bool		On_Execute			(void);
 
 
 private:
 
-	TSG_Grid_Resampling		m_Resampling;
-
-	CSG_Regression			m_Regression;
-
-
-	bool					Get_Regression		(CSG_Grid *pGrid, CSG_Shapes *pShapes, CSG_Shapes *pResiduals, int iAttribute, TSG_Regression_Type Type);
-	bool					Set_Regression		(CSG_Grid *pGrid, CSG_Grid *pRegression);
-	bool					Set_Residuals		(CSG_Shapes *pResiduals);
+	bool				Get_Regression		(      CSG_Regression &Regression);
+	bool				Set_Regression		(const CSG_Regression &Regression);
+	bool				Set_Residuals		(const CSG_Regression &Regression);
 
 };
 

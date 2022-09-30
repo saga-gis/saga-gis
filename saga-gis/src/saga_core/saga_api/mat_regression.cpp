@@ -108,12 +108,7 @@ double SG_Regression_Get_Adjusted_R2(double r2, int n, int p, TSG_Regression_Cor
 //---------------------------------------------------------
 CSG_Regression::CSG_Regression(void)
 {
-	m_nBuffer	= 0;
-	m_nValues	= 0;
-	m_x			= NULL;
-	m_y			= NULL;
-
-	m_Type		= REGRESSION_Linear;
+	Destroy();
 }
 
 //---------------------------------------------------------
@@ -130,17 +125,12 @@ CSG_Regression::~CSG_Regression(void)
 //---------------------------------------------------------
 void CSG_Regression::Destroy(void)
 {
-	if( m_nBuffer > 0 )
-	{
-		SG_Free(m_x);
-		SG_Free(m_y);
+	m_R2   = -1.; // mark as invalid (or unprocessed)
 
-		m_nBuffer	= 0;
-	}
+	m_Type = REGRESSION_Linear;
 
-	m_nValues	= 0;
-	m_x			= NULL;
-	m_y			= NULL;
+	m_x.Destroy();
+	m_y.Destroy();
 }
 
 
@@ -149,30 +139,17 @@ void CSG_Regression::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Regression::Add_Values(double x, double y)
+bool CSG_Regression::Add_Values(double x, double y)
 {
-	if( m_nValues >= m_nBuffer )
-	{
-		m_nBuffer	+= 64;
-		m_x	= (double *)SG_Realloc(m_x, m_nBuffer * sizeof(double));
-		m_y	= (double *)SG_Realloc(m_y, m_nBuffer * sizeof(double));
-	}
-
-	m_x[m_nValues]	= x;
-	m_y[m_nValues]	= y;
-
-	m_nValues++;
+	return( m_y.Add_Row(y) && m_x.Add_Row(x) );
 }
 
 //---------------------------------------------------------
-void CSG_Regression::Set_Values(int nValues, double *x, double *y)
+bool CSG_Regression::Set_Values(int nValues, double *x, double *y)
 {
 	Destroy();
 
-	for(int i=0; i<nValues; i++)
-	{
-		Add_Values(x[i], y[i]);
-	}
+	return( m_y.Create(nValues, y) && m_x.Create(nValues, x) );
 }
 
 
@@ -190,10 +167,10 @@ const SG_Char * CSG_Regression::asString(void)
 		"  Min. = %.6f  Max. = %.6f\n  Arithmetic Mean = %.6f\n  Variance = %.6f\n  Standard Deviation = %.6f\n"
 		"  Min. = %.6f  Max. = %.6f\n  Arithmetic Mean = %.6f\n  Variance = %.6f\n  Standard Deviation = %.6f\n"
 		"Linear Regression:\n  Y = %.6f * X %+.6f\n  (r=%.4f, r\xc2\xb2=%.4f)",
-		m_nValues,
+		Get_Count(),
 		m_xMin, m_xMax, m_xMean, m_xVar, sqrt(m_xVar),
 		m_yMin, m_yMax, m_yMean, m_yVar, sqrt(m_yVar),
-		m_RCoeff, m_RConst, m_R, m_R*m_R
+		m_RCoeff, m_RConst, m_R, m_R2
 	);
 
 	return( s );
@@ -207,7 +184,7 @@ const SG_Char * CSG_Regression::asString(void)
 //---------------------------------------------------------
 double CSG_Regression::Get_x(double y)	const
 {
-	if( m_nValues > 0. )
+	if( m_R2 >= 0. )
 	{
 		switch( m_Type )
 		{
@@ -243,7 +220,7 @@ double CSG_Regression::Get_x(double y)	const
 //---------------------------------------------------------
 double CSG_Regression::Get_y(double x)	const
 {
-	if( m_nValues > 0. )
+	if( m_R2 >= 0. )
 	{
 		switch( m_Type )
 		{
@@ -271,34 +248,6 @@ double CSG_Regression::Get_y(double x)	const
 	}
 
 	return( sqrt(-1.) );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CSG_Regression::_Get_MinMeanMax(double &xMin, double &xMean, double &xMax, double &yMin, double &yMean, double &yMax)
-{
-	if( m_nValues > 0 )
-	{
-		xMin = xMean = xMax = m_x[0];
-		yMin = yMean = yMax = m_y[0];
-
-		for(int i=1; i<m_nValues; i++)
-		{
-			xMean += m_x[i]; M_SET_MINMAX(xMin, xMax, m_x[i]);
-			yMean += m_y[i]; M_SET_MINMAX(yMin, yMax, m_y[i]);
-		}
-
-		xMean /= m_nValues;
-		yMean /= m_nValues;
-
-		return( true );
-	}
-
-	return( false );
 }
 
 
@@ -350,126 +299,125 @@ inline double CSG_Regression::_X_Transform(double x)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Regression::_Linear(void)
+bool CSG_Regression::Calculate(TSG_Regression_Type Type, bool bStdError)
 {
-	if( m_nValues > 1 )
+	m_R2   = -1.; // mark as invalid (unprocessed)
+	m_Type = Type;
+
+	if( Get_Count() < 2 )
 	{
-		m_xMean = m_xMin = m_xMax = _X_Transform(m_x[0]);
-		m_yMean = m_yMin = m_yMax = _Y_Transform(m_y[0]);
-
-		for(int i=1; i<m_nValues; i++)
-		{
-			double x = _X_Transform(m_x[i]); m_xMean += x; M_SET_MINMAX(m_xMin, m_xMax, x);
-			double y = _Y_Transform(m_y[i]); m_yMean += y; M_SET_MINMAX(m_yMin, m_yMax, y);
-		}
-
-		m_xMean	/= m_nValues;
-		m_yMean	/= m_nValues;
-
-		//-------------------------------------------------
-		if( m_xMin < m_xMax && m_yMin < m_yMax )
-		{
-			double s_x = 0., s_y = 0., s_xx = 0., s_xy = 0., s_dx2 = 0., s_dy2 = 0., s_dxdy = 0.;
-
-			for(int i=0; i<m_nValues; i++)
-			{
-				double x = _X_Transform(m_x[i]);
-				double y = _Y_Transform(m_y[i]);
-
-				s_x     += x;
-				s_y     += y;
-				s_xx    += x * x;
-				s_xy    += x * y;
-
-				x       -= m_xMean;
-				y       -= m_yMean;
-
-				s_dx2   += x * x;
-				s_dy2   += y * y;
-				s_dxdy  += x * y;
-			}
-
-			//---------------------------------------------
-			m_xVar   = s_dx2 / m_nValues;
-			m_yVar   = s_dy2 / m_nValues;
-
-			m_RCoeff = s_dxdy / s_dx2;
-			m_RConst = (s_xx * s_y - s_x * s_xy) / (m_nValues * s_xx - s_x * s_x);
-			m_R      = s_dxdy / sqrt(s_dx2 * s_dy2);
-			m_R_Adj  = SG_Regression_Get_Adjusted_R2(m_R*m_R, m_nValues, 1);
-			m_P      = CSG_Test_Distribution::Get_F_Tail_from_R2(m_R*m_R, 1, m_nValues);
-
-			return( m_R != 0. );
-		}
+		return( false );
 	}
 
-	return( false );
-}
+	CSG_Simple_Statistics sx, sy;
 
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CSG_Regression::Calculate(TSG_Regression_Type Type)
-{
-	m_Type	= Type;
-
-	if( _Linear() )
+	for(int i=0; i<Get_Count(); i++)
 	{
-		switch( m_Type )
+		sx += _X_Transform(m_x[i]);
+		sy += _Y_Transform(m_y[i]);
+	}
+
+	m_xMin = sx.Get_Minimum(); m_xMax = sx.Get_Maximum(); m_xMean = sx.Get_Mean(); m_xVar = sx.Get_Variance();
+	m_yMin = sy.Get_Minimum(); m_yMax = sy.Get_Maximum(); m_yMean = sy.Get_Mean(); m_yVar = sy.Get_Variance();
+
+	if( m_xMin >= m_xMax || m_yMin >= m_yMax )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	double s_x = 0., s_y = 0., s_xx = 0., s_xy = 0., s_dx2 = 0., s_dy2 = 0., s_dxdy = 0.;
+
+	for(int i=0; i<Get_Count(); i++)
+	{
+		double x = _X_Transform(m_x[i]);
+		double y = _Y_Transform(m_y[i]);
+
+		s_x     += x;
+		s_y     += y;
+		s_xx    += x * x;
+		s_xy    += x * y;
+
+		x       -= m_xMean;
+		y       -= m_yMean;
+
+		s_dx2   += x * x;
+		s_dy2   += y * y;
+		s_dxdy  += x * y;
+	}
+
+	//-----------------------------------------------------
+	m_RCoeff = s_dxdy / s_dx2;
+	m_RConst = (s_xx * s_y - s_x * s_xy) / (Get_Count() * s_xx - s_x * s_x);
+	m_R      = s_dxdy / sqrt(s_dx2 * s_dy2);
+	m_R2     = m_R*m_R;
+	m_R2_Adj = SG_Regression_Get_Adjusted_R2(m_R2, Get_Count(), 1);
+	m_P      = CSG_Test_Distribution::Get_F_Tail_from_R2(m_R2, 1, Get_Count());
+
+	//-----------------------------------------------------
+	if( !bStdError )
+	{
+		m_SE = -1.;
+	}
+	else
+	{
+		m_SE = 0.;
+
+		for(int i=0; i<Get_Count(); i++)
 		{
-		case REGRESSION_Linear:	default: {
-			break; }
+			double d = fabs(m_y[i] - Get_y(m_x[i]));
 
-		case REGRESSION_Rez_X: {
-			m_xVar   = 1. / m_xVar;
-			break; }
-
-		case REGRESSION_Rez_Y: {
-			double d = m_RConst;
-			m_RConst = 1. / m_RCoeff;
-			m_RCoeff = d  * m_RCoeff;
-			m_yVar   = 1. / m_yVar;
-			break; }
-
-		case REGRESSION_Pow: {
-			m_RConst = exp(m_RConst);
-			m_xVar   = exp(m_xVar);
-			m_yVar   = exp(m_yVar);
-			break; }
-
-		case REGRESSION_Exp: {
-			m_RConst = exp(m_RConst);
-			m_yVar   = exp(m_yVar);
-			break; }
-
-		case REGRESSION_Log: {
-			m_xVar  = exp(m_xVar);
-			break; }
+			m_SE += d;
 		}
 
-		if( m_Type != REGRESSION_Linear )
-		{
-			_Get_MinMeanMax(
-				m_xMin, m_xMean, m_xMax,
-				m_yMin, m_yMean, m_yMax
-			);
-		}
+		m_SE /= Get_Count();
+	}
 
+	//-----------------------------------------------------
+	switch( m_Type )
+	{
+	default: // case REGRESSION_Linear:
 		return( true );
+
+	case REGRESSION_Rez_X: {
+		m_xVar   = 1. / m_xVar;
+		break; }
+
+	case REGRESSION_Rez_Y: {
+		double d = m_RConst;
+		m_RConst = 1. / m_RCoeff;
+		m_RCoeff = d  * m_RCoeff;
+		m_yVar   = 1. / m_yVar;
+		break; }
+
+	case REGRESSION_Pow: {
+		m_RConst = exp(m_RConst);
+		m_xVar   = exp(m_xVar);
+		m_yVar   = exp(m_yVar);
+		break; }
+
+	case REGRESSION_Exp: {
+		m_RConst = exp(m_RConst);
+		m_yVar   = exp(m_yVar);
+		break; }
+
+	case REGRESSION_Log: {
+		m_xVar  = exp(m_xVar);
+		break; }
 	}
 
-	return( false );
+	CSG_Simple_Statistics s;
+
+	if( !s.Create(m_x) ) { return( false ); } m_xMin = s.Get_Minimum(); m_xMean = s.Get_Mean(); m_xMax = s.Get_Maximum(); m_xVar = s.Get_Variance();
+	if( !s.Create(m_y) ) { return( false ); } m_yMin = s.Get_Minimum(); m_yMean = s.Get_Mean(); m_yMax = s.Get_Maximum(); m_xVar = s.Get_Variance();
+
+	return( true );
 }
 
 //---------------------------------------------------------
-bool CSG_Regression::Calculate(int nValues, double *x, double *y, TSG_Regression_Type Type)
+bool CSG_Regression::Calculate(int nValues, double *x, double *y, TSG_Regression_Type Type, bool bStdError)
 {
-	Destroy(); m_nValues = nValues; m_x = x; m_y = y;
-
-	return( Calculate(Type) );
+	return( Set_Values(nValues, x, y) && Calculate(Type, bStdError) );
 }
 
 

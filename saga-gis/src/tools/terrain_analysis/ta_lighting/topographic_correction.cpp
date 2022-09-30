@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,12 +47,6 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 #include "topographic_correction.h"
 
@@ -69,77 +60,85 @@
 //---------------------------------------------------------
 CTopographic_Correction::CTopographic_Correction(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("Topographic Correction"));
 
-	Set_Author		(_TL("Copyrights (c) 2008 by Olaf Conrad"));
+	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
-		"\n"
-		"References:\n"
-		"Civco, D. L. (1989): "
-		"'Topographic Normalization of Landsat Thematic Mapper Digital Imagery', "
-		"Photogrammetric Engineering and Remote Sensing, 55(9), pp.1303-1309.\n"
-		"\n"
-		"Law, K.H., Nichol, J. (2004): "
-		"'Topographic Correction for Differential Illumination Effects on Ikonos Satellite Imagery', "
-		"ISPRS 2004 International Society for Photogrammetry and Remote Sensing, "
-		"<a href=\"http://www.cartesia.org/geodoc/isprs2004/comm3/papers/347.pdf\">pdf</a>.\n"
-		"\n"
-		"Phua, M.-H., Saito, H. (2003): "
-		"'Estimation of biomass of a mountainous tropical forest using Landsat TM data', "
-		"Canadian Journal of Remote Sensing, 29(4), pp.429-440.\n"
-		"\n"
-		"Riano, D., Chuvieco, E. Salas, J., Aguado, I. (2003): "
-		"'Assessment of Different Topographic Corrections in Landsat-TM Data for Mapping Vegetation Types', "
-		"IEEE Transactions on Geoscience and Remote Sensing, 41(5), pp.1056-1061, "
-		"<a href=\"http://www.geogra.uah.es/~emilio/pdf/Riano2003b.pdf\">pdf</a>.\n"
-		"\n"
-		"Teillet, P.M., Guindon, B., Goodenough, D.G. (1982): "
-		"'On the slope-aspect correction of multispectral scanner data', "
-		"Canadian Journal of Remote Sensing, 8(2), pp.1537-1540.\n"
-		"\n"
+		"Topographic correction for satellite imagery's bands using "
+		"a Digital Elevation Model to estimate and remove the shading "
+		"effect for the given position of the Sun at acquisition time. "
 	));
 
+	Add_Reference(
+		"Civco, D. L.", "1989",
+		"Topographic Normalization of Landsat Thematic Mapper Digital Imagery",
+		"Photogrammetric Engineering and Remote Sensing, 55(9), pp.1303-1309."
+	);
+
+	Add_Reference(
+		"Law, K.H., Nichol, J.", "2004",
+		"Topographic Correction for Differential Illumination Effects on Ikonos Satellite Imagery",
+		"ISPRS 2004 International Society for Photogrammetry and Remote Sensing.",
+		SG_T("http://www.cartesia.org/geodoc/isprs2004/comm3/papers/347.pdf")
+	);
+
+	Add_Reference(
+		"Phua, M.-H., Saito, H.", "2003",
+		"Estimation of biomass of a mountainous tropical forest using Landsat TM data",
+		"Canadian Journal of Remote Sensing, 29(4), pp.429-440."
+	);
+
+	Add_Reference(
+		"Riano, D., Chuvieco, E. Salas, J., Aguado, I.", "2003",
+		"Assessment of Different Topographic Corrections in Landsat-TM Data for Mapping Vegetation Types",
+		"IEEE Transactions on Geoscience and Remote Sensing, 41(5), pp.1056-1061.",
+		SG_T("http://www.geogra.uah.es/~emilio/pdf/Riano2003b.pdf")
+	);
+
+	Add_Reference(
+		"Teillet, P.M., Guindon, B., Goodenough, D.G.", "1982",
+		"On the slope-aspect correction of multispectral scanner data",
+		"Canadian Journal of Remote Sensing, 8(2), pp.1537-1540."
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("Elevation"),
+	Parameters.Add_Grid("",
+		"DEM"		, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT, false
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "ORIGINAL"	, _TL("Original Image"),
+	Parameters.Add_Grid("",
+		"ORIGINAL"	, _TL("Original Image"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "CORRECTED"	, _TL("Corrected Image"),
+	Parameters.Add_Grid("",
+		"CORRECTED"	, _TL("Corrected Image"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	pNode	= Parameters.Add_Node(NULL, "NODE_SOLAR", _TL("Solar Position"), _TL(""));
+	Parameters.Add_Node("", "NODE_SOLAR", _TL("Solar Position"), _TL(""));
 
-	Parameters.Add_Value(
-		pNode	, "AZI"			, _TL("Azimuth"),
+	Parameters.Add_Double("NODE_SOLAR",
+		"AZI"		, _TL("Azimuth"),
 		_TL("direction of sun (degree, clockwise from North)"),
-		PARAMETER_TYPE_Double	, 180.0, 0.0, true, 360.0, true
+		180., 0., true, 360., true
 	);
 
-	Parameters.Add_Value(
-		pNode	, "HGT"			, _TL("Height"),
+	Parameters.Add_Double("NODE_SOLAR",
+		"HGT"		, _TL("Height"),
 		_TL("height of sun above horizon (degree)"),
-		PARAMETER_TYPE_Double	,  45.0, 0.0, true,  90.0, true
+		 45., 0., true,  90., true
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s",
 			_TL("Cosine Correction (Teillet et al. 1982)"),
 			_TL("Cosine Correction (Civco 1989)"),
 			_TL("Minnaert Correction"),
@@ -150,22 +149,22 @@ CTopographic_Correction::CTopographic_Correction(void)
 		), 4
 	);
 
-	Parameters.Add_Value(
-		NULL	, "MINNAERT"	, _TL("Minnaert Correction"),
+	Parameters.Add_Double("",
+		"MINNAERT"	, _TL("Minnaert Correction"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 0.5, 0.0, true, 1.0, true
+		0.5, 0., true, 1., true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "MAXCELLS"	, _TL("Maximum Cells (C Correction Analysis)"),
+	Parameters.Add_Int("",
+		"MAXCELLS"	, _TL("Maximum Cells (C Correction Analysis)"),
 		_TL("Maximum number of grid cells used for trend analysis as required by C correction."),
-		PARAMETER_TYPE_Int		, 1000.0, 10.0, true
+		1000, 10, true
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "MAXVALUE"	, _TL("Value Range"),
+	Parameters.Add_Choice("",
+		"MAXVALUE"	, _TL("Value Range"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("1 byte (0-255)"),
 			_TL("2 byte (0-65535)")
 		), 0
@@ -175,14 +174,11 @@ CTopographic_Correction::CTopographic_Correction(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CTopographic_Correction::On_Execute(void)
 {
-	//-----------------------------------------------------
 	if( !Get_Illumination() )
 	{
 		m_Slope			.Destroy();
@@ -230,8 +226,6 @@ bool CTopographic_Correction::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -294,9 +288,8 @@ double CTopographic_Correction::Get_Correction(double Slope, double Illumination
 //---------------------------------------------------------
 bool CTopographic_Correction::Get_Model(void)
 {
-	//-----------------------------------------------------
-	m_pOriginal		= Parameters("ORIGINAL")	->asGrid();
-	m_pCorrected	= Parameters("CORRECTED")	->asGrid();
+	m_pOriginal		= Parameters("ORIGINAL" )->asGrid();
+	m_pCorrected	= Parameters("CORRECTED")->asGrid();
 
 	m_pCorrected	->Fmt_Name("%s [%s]", m_pOriginal->Get_Name(), _TL("Topographic Correction"));
 
@@ -352,8 +345,6 @@ bool CTopographic_Correction::Get_Model(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
