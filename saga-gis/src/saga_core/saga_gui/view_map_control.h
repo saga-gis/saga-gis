@@ -124,15 +124,53 @@ public:
 
 private:
 
+	class CMeasure
+	{
+	public:
+		CMeasure(void) {}
+
+		void			Reset			(void)			{ Points.Clear(); }
+
+		int				Count			(void)	const	{ return( Points.Get_Count() ); }
+		TSG_Point &		operator []		(int i)			{ return( Points[i] ); }
+
+		double			Get				(const CSG_Point &Point)
+		{
+			return( Count() < 1 ? 0. : Length + SG_Get_Distance(Point, Points[Count() - 1]) );
+		}
+
+		void			Add				(const CSG_Point &Point)
+		{
+			Points.Add(Point);
+
+			if( Points.Get_Count() < 2 )
+			{
+				Length  = 0.;
+			}
+			else
+			{
+				Length += SG_Get_Distance(Points[Count() - 2], Points[Count() - 1]);
+			}
+		}
+
+	private:
+
+		double					Length;
+
+		CSG_Points				Points;
+
+	};
+	
+
+private:
+
 	int							m_Mode, m_Drag_Mode;
-
-	double						m_Distance, m_Distance_Move;
-
-	CSG_Points					m_Distance_Pts;
 
 	wxPoint						m_Mouse_Down, m_Mouse_Move, m_CrossHair;
 	
 	wxBitmap					m_Bitmap;
+
+	CMeasure					m_Measure;
 
 	class CVIEW_Map				*m_pParent;
 
@@ -147,24 +185,21 @@ private:
 
 	bool						_Check_Interactive	(bool bProjection = true);
 
-	bool						_Draw_CrossHair		(const wxPoint &Point);
+	void						_Draw_CrossHair		(wxDC &dc);
+	void						_Draw_Measure		(wxDC &dc);
+	void						_Draw_Drag			(wxDC &dc);
+	bool						_Draw_Pan			(wxDC &dc);
 
-	void						_Draw_Inverse		(const wxPoint &A, const wxPoint &B);
-	void						_Draw_Inverse		(const wxPoint &A, const wxPoint &B_Old, const wxPoint &B_New);
+	bool						_Zoom				(const wxPoint &A, const wxPoint &B, bool bZoomIn);
+	bool						_Zoom				(const wxPoint &A                  , bool bZoomIn);
+	bool						_Zoom				(                                    bool bZoomIn);
 
-	bool						_Zoom				(const wxPoint &A, const wxPoint &B);
-	bool						_Zoom				(const CSG_Point &Center, bool bZoomIn);
-	bool						_Pan				(const wxPoint &A, const wxPoint &B);
 	bool						_Move				(      wxPoint &A, const wxPoint &B);
-	bool						_Move				(const wxPoint &Move);
-
-	void						_Distance_Reset		(void);
-	void						_Distance_Add		(const wxPoint & Point);
-	void						_Distance_Draw		(wxDC &dc);
+	bool						_Move				(const wxPoint &A);
 
 
-//---------------------------------------------------------
-DECLARE_EVENT_TABLE()
+	//-----------------------------------------------------
+	DECLARE_EVENT_TABLE()
 };
 
 

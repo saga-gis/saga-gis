@@ -356,7 +356,7 @@ void CVIEW_Map::Ruler_Refresh(void)
 {
 	if( m_Ruler_Size > 0 )
 	{
-		CSG_Rect	rWorld(m_pMap->Get_World(m_pControl->GetRect()));
+		CSG_Rect rWorld(m_pMap->Get_World(m_pControl->GetRect()));
 
 		m_pRuler_X2->Set_Mode(m_pMap->is_ScaleBar(true) ? RULER_MODE_SCALE : RULER_MODE_NORMAL);
 		m_pRuler_Y2->Set_Mode(m_pMap->is_ScaleBar(true) ? RULER_MODE_SCALE : RULER_MODE_NORMAL);
