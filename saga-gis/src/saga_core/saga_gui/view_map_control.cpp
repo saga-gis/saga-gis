@@ -387,16 +387,18 @@ void CVIEW_Map_Control::_Draw_CrossHair(wxDC &dc)
 
 	if( r.Contains(m_CrossHair) )
 	{
-		wxRasterOperationMode oldMode = dc.GetLogicalFunction();
-
-		dc.SetLogicalFunction(wxINVERT);
+		#ifdef _SAGA_MSW
+		wxRasterOperationMode oldMode = dc.GetLogicalFunction(); dc.SetLogicalFunction(wxINVERT);
+		#endif
 
 	//	dc.CrossHair(Point);
 
 		dc.DrawLine(m_CrossHair.x, r.GetTop(), m_CrossHair.x, r.GetBottom());
 		dc.DrawLine(r.GetLeft(), m_CrossHair.y, r.GetRight(), m_CrossHair.y);
 
+		#ifdef _SAGA_MSW
 		dc.SetLogicalFunction(oldMode);
+		#endif
 	}
 }
 
@@ -421,10 +423,17 @@ void CVIEW_Map_Control::_Draw_Measure(wxDC &dc)
 			dc.DrawLine(A.x, A.y, B.x, B.y);
 		}
 
+		#ifdef _SAGA_MSW
+		wxRasterOperationMode oldMode = dc.GetLogicalFunction(); dc.SetLogicalFunction(wxINVERT);
+		#endif
+
 		dc.SetPen(wxNullPen);
-		dc.SetLogicalFunction(wxINVERT);
 		wxPoint A(_Get_World2Client(m_Measure[m_Measure.Count() - 1]));
 		dc.DrawLine(A.x, A.y, m_Mouse_Move.x, m_Mouse_Move.y);
+
+		#ifdef _SAGA_MSW
+		dc.SetLogicalFunction(oldMode);
+		#endif
 	}
 }
 
@@ -433,9 +442,9 @@ void CVIEW_Map_Control::_Draw_Drag(wxDC &dc)
 {
 	if( m_Drag_Mode != TOOL_INTERACTIVE_DRAG_NONE && m_Mouse_Down.x >= 0 && m_Mouse_Down != m_Mouse_Move )
 	{
-		wxRasterOperationMode oldMode = dc.GetLogicalFunction();
-
-		dc.SetLogicalFunction(wxINVERT);
+		#ifdef _SAGA_MSW
+		wxRasterOperationMode oldMode = dc.GetLogicalFunction(); dc.SetLogicalFunction(wxINVERT);
+		#endif
 
 		switch( m_Drag_Mode )
 		{
@@ -452,7 +461,9 @@ void CVIEW_Map_Control::_Draw_Drag(wxDC &dc)
 			break;
 		}
 
+		#ifdef _SAGA_MSW
 		dc.SetLogicalFunction(oldMode);
+		#endif
 	}
 }
 
