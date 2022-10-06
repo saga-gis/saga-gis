@@ -100,19 +100,19 @@ protected:
 
 
 	void						Draw_Box			(wxDC &dc, int BoxID);
-	void						Draw_Line			(wxPoint pA, wxPoint pB);
 
-	wxPoint						Get_ColorPosition	(wxPoint p, int BoxID);
-	void						Set_Colors			(wxPoint pA, wxPoint pB, int BoxID) ;
+	wxPoint						Get_ColorPosition	(wxPoint Point       , int BoxID);
+	void						Set_Colors			(wxPoint A, wxPoint B, int BoxID);
 
-	int							Get_SelBox			(wxPoint  p);
-	bool						IsInBoxRect			(wxPoint  p, int BoxID);
-	void						KeepInBoxRect		(wxPoint &p, int BoxID);
-	bool						Get_BoxRect			(wxRect  &r, int BoxID);
+	int							Get_SelBox			(const wxPoint &Point);
+	bool						IsInBoxRect			(const wxPoint &Point, int BoxID);
+	void						KeepInBoxRect		(      wxPoint &Point, int BoxID);
+	void						KeepInBoxRect		(      wxPoint &Point, const wxRect &r);
+	wxRect						Get_BoxRect			(                      int BoxID);
 
 
-//---------------------------------------------------------
-DECLARE_EVENT_TABLE()
+	//-----------------------------------------------------
+	DECLARE_EVENT_TABLE()
 };
 
 

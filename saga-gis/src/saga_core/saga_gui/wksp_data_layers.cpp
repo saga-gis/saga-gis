@@ -96,11 +96,11 @@ END_EVENT_TABLE()
 CWKSP_Data_Button::CWKSP_Data_Button(wxWindow *pParent, CWKSP_Base_Item *pItem)
 	: wxPanel(pParent, -1, wxDefaultPosition, wxDefaultSize, wxBORDER_RAISED)
 {
-	m_pItem		= pItem;
+	m_pItem = pItem;
 
 	if( is_Manager() )
 	{
-		wxClientDC	dc(this);
+		wxClientDC dc(this);
 
 		SetSize(wxDefaultSize.GetWidth(), dc.GetTextExtent(m_pItem->Get_Name()).GetHeight() + 10);
 	}
