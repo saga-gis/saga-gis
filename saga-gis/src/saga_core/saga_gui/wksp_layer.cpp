@@ -1177,7 +1177,7 @@ bool CWKSP_Layer::Edit_On_Key_Down(int KeyCode)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Layer::Edit_On_Mouse_Down(CSG_Point Point, double ClientToWorld, int Key)
+bool CWKSP_Layer::Edit_On_Mouse_Down(const CSG_Point &Point, double ClientToWorld, int Key)
 {
 	m_Edit_Mouse_Down	= Point;
 
@@ -1185,13 +1185,25 @@ bool CWKSP_Layer::Edit_On_Mouse_Down(CSG_Point Point, double ClientToWorld, int 
 }
 
 //---------------------------------------------------------
-bool CWKSP_Layer::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key)
+bool CWKSP_Layer::Edit_On_Mouse_Up(const CSG_Point &Point, double ClientToWorld, int Key)
 {
 	return( false );
 }
 
 //---------------------------------------------------------
-bool CWKSP_Layer::Edit_On_Mouse_Move(wxWindow *pMap, CSG_Rect rWorld, wxPoint pt, wxPoint ptLast, int Key)
+bool CWKSP_Layer::Edit_On_Mouse_Move(wxWindow *pMap, const CSG_Rect &rWorld, const wxPoint &Point, const wxPoint &Last, int Key)
+{
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Layer::Edit_On_Mouse_Move_Draw(wxDC &dc, const CSG_Rect &rWorld, const wxPoint &Point)
+{
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Layer::Edit_Do_Mouse_Move_Draw(bool bMouseDown)
 {
 	return( false );
 }

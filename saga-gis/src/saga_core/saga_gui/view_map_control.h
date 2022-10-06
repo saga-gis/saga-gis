@@ -189,6 +189,7 @@ private:
 	void						_Draw_Measure		(wxDC &dc);
 	void						_Draw_Drag			(wxDC &dc);
 	void						_Draw_Pan			(wxDC &dc);
+	void						_Draw_Edit_Moves	(wxDC &dc);
 
 	bool						_Zoom				(const wxPoint &A, const wxPoint &B, bool bZoomIn);
 	bool						_Zoom				(const wxPoint &A                  , bool bZoomIn);

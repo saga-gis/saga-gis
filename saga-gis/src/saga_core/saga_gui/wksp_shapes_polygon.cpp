@@ -261,6 +261,12 @@ void CWKSP_Shapes_Polygon::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, c
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CWKSP_Shapes_Polygon::Edit_Do_Mouse_Move_Draw(bool bMouseDown)
+{
+	return( CWKSP_Shapes::Edit_Do_Mouse_Move_Draw(bMouseDown) || (m_Edit_pShape && m_Edit_iPart >= 0 && (m_Edit_iPoint < 0 || bMouseDown)) );
+}
+
+//---------------------------------------------------------
 void CWKSP_Shapes_Polygon::Edit_Shape_Draw_Move(wxDC &dc, const CSG_Rect &rWorld, const wxPoint &Point)
 {
 	if( m_Edit_pShape && m_Edit_iPart >= 0 )

@@ -89,6 +89,8 @@ public:
 	wxPen						Get_Def_Pen				(void)	{	return( m_Pen      );	}
 	bool						Get_Style_Size			(int &min_Size, int &max_Size, double &min_Value, double &dValue, wxString *pName);
 
+	virtual bool				Edit_Do_Mouse_Move_Draw	(bool bMouseDown);
+
 
 protected:
 

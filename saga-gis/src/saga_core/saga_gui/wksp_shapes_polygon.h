@@ -90,6 +90,8 @@ public:
 	wxPen						Get_Def_Pen				(void)	{	return( m_Pen      );	}
 	wxBrush						Get_Def_Brush			(void)	{	return( m_Brush    );	}
 
+	virtual bool				Edit_Do_Mouse_Move_Draw	(bool bMouseDown);
+
 
 protected:
 

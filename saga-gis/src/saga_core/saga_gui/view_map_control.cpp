@@ -490,6 +490,15 @@ void CVIEW_Map_Control::_Draw_Pan(wxDC &dc)
 	}
 }
 
+//---------------------------------------------------------
+void CVIEW_Map_Control::_Draw_Edit_Moves(wxDC &dc)
+{
+	if( m_Mode == MAP_MODE_SELECT && !_Check_Interactive(false) && m_pMap->Get_Map_Layer_Active(true) && Get_Active_Layer()->Edit_Do_Mouse_Move_Draw(m_Mouse_Down.x >= 0) )
+	{
+		Get_Active_Layer()->Edit_On_Mouse_Move_Draw(dc, m_pMap->Get_World(GetClientSize()), m_Mouse_Move);
+	}
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -504,10 +513,11 @@ void CVIEW_Map_Control::On_Paint(wxPaintEvent &event)
 
 		dc.DrawBitmap(m_Bitmap, 0, 0, false);
 
-		_Draw_Drag     (dc);
-		_Draw_Pan      (dc);
-		_Draw_Measure  (dc);
-		_Draw_CrossHair(dc);
+		_Draw_Drag      (dc);
+		_Draw_Pan       (dc);
+		_Draw_Measure   (dc);
+		_Draw_Edit_Moves(dc);
+		_Draw_CrossHair (dc);
 	}
 }
 
