@@ -387,18 +387,23 @@ void CVIEW_Map_Control::_Draw_CrossHair(wxDC &dc)
 
 	if( r.Contains(m_CrossHair) )
 	{
+		wxPen oldPen(dc.GetPen()); wxRasterOperationMode oldMode = dc.GetLogicalFunction();
+
 		#ifdef _SAGA_MSW
-		wxRasterOperationMode oldMode = dc.GetLogicalFunction(); dc.SetLogicalFunction(wxINVERT);
+		dc.SetLogicalFunction(wxINVERT);
 		#endif
 
-	//	dc.CrossHair(Point);
-
+		//-------------------------------------------------
+		dc.SetPen(wxPen(*wxWHITE, 3)); // dc.CrossHair(m_CrossHair);
 		dc.DrawLine(m_CrossHair.x, r.GetTop(), m_CrossHair.x, r.GetBottom());
 		dc.DrawLine(r.GetLeft(), m_CrossHair.y, r.GetRight(), m_CrossHair.y);
 
-		#ifdef _SAGA_MSW
-		dc.SetLogicalFunction(oldMode);
-		#endif
+		dc.SetPen(wxPen(*wxBLACK, 1)); // dc.CrossHair(m_CrossHair);
+		dc.DrawLine(m_CrossHair.x, r.GetTop(), m_CrossHair.x, r.GetBottom());
+		dc.DrawLine(r.GetLeft(), m_CrossHair.y, r.GetRight(), m_CrossHair.y);
+
+		//-------------------------------------------------
+		dc.SetPen(oldPen); dc.SetLogicalFunction(oldMode);
 	}
 }
 
@@ -407,33 +412,30 @@ void CVIEW_Map_Control::_Draw_Measure(wxDC &dc)
 {
 	if( m_Measure.Count() > 0 )
 	{
+		wxPen oldPen(dc.GetPen());
+
+		//-------------------------------------------------
 		dc.SetPen(wxPen(*wxWHITE, 4));
+
 		for(int i=0, j=1; j<m_Measure.Count(); i++, j++)
 		{
-			wxPoint A(_Get_World2Client(m_Measure[i]));
-			wxPoint B(_Get_World2Client(m_Measure[j]));
-			dc.DrawLine(A.x, A.y, B.x, B.y);
+			dc.DrawLine(_Get_World2Client(m_Measure[i]), _Get_World2Client(m_Measure[j]));
 		}
 
+		dc.DrawLine(_Get_World2Client(m_Measure[m_Measure.Count() - 1]), m_Mouse_Move);
+
+		//-------------------------------------------------
 		dc.SetPen(wxPen(*wxBLACK, 2));
+
 		for(int i=0, j=1; j<m_Measure.Count(); i++, j++)
 		{
-			wxPoint A(_Get_World2Client(m_Measure[i]));
-			wxPoint B(_Get_World2Client(m_Measure[j]));
-			dc.DrawLine(A.x, A.y, B.x, B.y);
+			dc.DrawLine(_Get_World2Client(m_Measure[i]), _Get_World2Client(m_Measure[j]));
 		}
 
-		#ifdef _SAGA_MSW
-		wxRasterOperationMode oldMode = dc.GetLogicalFunction(); dc.SetLogicalFunction(wxINVERT);
-		#endif
+		dc.DrawLine(_Get_World2Client(m_Measure[m_Measure.Count() - 1]), m_Mouse_Move);
 
-		dc.SetPen(wxNullPen);
-		wxPoint A(_Get_World2Client(m_Measure[m_Measure.Count() - 1]));
-		dc.DrawLine(A.x, A.y, m_Mouse_Move.x, m_Mouse_Move.y);
-
-		#ifdef _SAGA_MSW
-		dc.SetLogicalFunction(oldMode);
-		#endif
+		//-------------------------------------------------
+		dc.SetPen(oldPen);
 	}
 }
 
@@ -442,44 +444,50 @@ void CVIEW_Map_Control::_Draw_Drag(wxDC &dc)
 {
 	if( m_Drag_Mode != TOOL_INTERACTIVE_DRAG_NONE && m_Mouse_Down.x >= 0 && m_Mouse_Down != m_Mouse_Move )
 	{
-		#ifdef _SAGA_MSW
-		wxRasterOperationMode oldMode = dc.GetLogicalFunction(); dc.SetLogicalFunction(wxINVERT);
-		#endif
+		wxPen oldPen(dc.GetPen()); wxBrush oldBrush(dc.GetBrush()); wxRasterOperationMode oldMode = dc.GetLogicalFunction();
 
 		switch( m_Drag_Mode )
 		{
-		case TOOL_INTERACTIVE_DRAG_LINE:
-			dc.DrawLine     (m_Mouse_Down, m_Mouse_Move);
-			break;
+		case TOOL_INTERACTIVE_DRAG_LINE : {
+			dc.SetPen(wxPen(*wxWHITE, 4)); dc.DrawLine(m_Mouse_Down, m_Mouse_Move);
+			dc.SetPen(wxPen(*wxBLACK, 2)); dc.DrawLine(m_Mouse_Down, m_Mouse_Move);
+			break; }
 
-		case TOOL_INTERACTIVE_DRAG_BOX:
-			dc.DrawRectangle(m_Mouse_Down, wxSize(m_Mouse_Move.x - m_Mouse_Down.x, m_Mouse_Move.y - m_Mouse_Down.y));
-			break;
+		case TOOL_INTERACTIVE_DRAG_BOX  : {
+			wxSize Size(m_Mouse_Move.x - m_Mouse_Down.x, m_Mouse_Move.y - m_Mouse_Down.y);
+			#ifdef _SAGA_MSW
+			dc.SetLogicalFunction(wxINVERT);
+			dc.DrawRectangle(m_Mouse_Down, Size);
+			#else
+			dc.SetBrush(*wxTRANSPARENT_BRUSH);
+			dc.SetPen(wxPen(*wxWHITE, 4)); dc.DrawRectangle(m_Mouse_Down, Size);
+			dc.SetPen(wxPen(*wxBLACK, 2)); dc.DrawRectangle(m_Mouse_Down, Size);
+			#endif
+			break; }
 
-		case TOOL_INTERACTIVE_DRAG_CIRCLE:
-			dc.DrawCircle   (m_Mouse_Down, (int)SG_Get_Distance(m_Mouse_Down.x, m_Mouse_Down.y, m_Mouse_Move.x, m_Mouse_Move.y));
-			break;
+		case TOOL_INTERACTIVE_DRAG_CIRCLE: {
+			int Radius = (int)SG_Get_Distance(m_Mouse_Down.x, m_Mouse_Down.y, m_Mouse_Move.x, m_Mouse_Move.y);
+			dc.SetBrush(*wxTRANSPARENT_BRUSH);
+			dc.SetPen(wxPen(*wxWHITE, 4)); dc.DrawCircle(m_Mouse_Down, Radius); dc.DrawCircle(m_Mouse_Down, 2);
+			dc.SetPen(wxPen(*wxBLACK, 2)); dc.DrawCircle(m_Mouse_Down, Radius); dc.DrawCircle(m_Mouse_Down, 2);
+			break; }
 		}
 
-		#ifdef _SAGA_MSW
-		dc.SetLogicalFunction(oldMode);
-		#endif
+		dc.SetPen(oldPen); dc.SetBrush(oldBrush); dc.SetLogicalFunction(oldMode);
 	}
 }
 
 //---------------------------------------------------------
-bool CVIEW_Map_Control::_Draw_Pan(wxDC &dc)
+void CVIEW_Map_Control::_Draw_Pan(wxDC &dc)
 {
 	if( m_Mode == MAP_MODE_PAN_DOWN && m_Mouse_Down != m_Mouse_Move )
 	{
-		dc.SetBackground(*wxWHITE_BRUSH);
-		dc.Clear();
-		dc.DrawBitmap(m_Bitmap, m_Mouse_Move.x - m_Mouse_Down.x, m_Mouse_Move.y - m_Mouse_Down.y, false);
-
-		return( true );
+		dc.SetBackground(*wxWHITE_BRUSH); dc.Clear();
+		dc.DrawBitmap(m_Bitmap,
+			m_Mouse_Move.x - m_Mouse_Down.x,
+			m_Mouse_Move.y - m_Mouse_Down.y, false
+		);
 	}
-
-	return( false );
 }
 
 
