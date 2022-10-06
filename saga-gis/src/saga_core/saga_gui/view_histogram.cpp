@@ -195,7 +195,7 @@ void CVIEW_Histogram::Draw(wxDC &dc, wxRect r)
 {
 	wxFont Font; Font.SetFamily(wxFONTFAMILY_SWISS); dc.SetFont(Font);
 
-	r	= Draw_Get_rDiagram(r);
+	r = Draw_Get_rDiagram(r);
 
 	Draw_Histogram(dc, r);
 	Draw_Frame    (dc, r);
@@ -418,12 +418,20 @@ wxRect CVIEW_Histogram::Draw_Get_rDiagram(wxRect r)
 //---------------------------------------------------------
 void CVIEW_Histogram::On_Paint(wxPaintEvent &event)
 {
-	wxPaintDC	dc(this);
-	wxRect		r(wxPoint(0, 0), GetClientSize());
+	wxPaintDC dc(this); wxRect r(wxPoint(0, 0), GetClientSize());
 
 	Draw_Edge(dc, EDGE_STYLE_SUNKEN, r);
 
 	Draw(dc, r);
+
+	if( m_bMouse_Down && m_Mouse_Down != m_Mouse_Move )
+	{
+		dc.SetLogicalFunction(wxINVERT);
+
+		r = Draw_Get_rDiagram(r);
+
+		dc.DrawRectangle(m_Mouse_Down.x, r.GetTop(), m_Mouse_Move.x - m_Mouse_Down.x, r.GetHeight());
+	}
 }
 
 //---------------------------------------------------------
@@ -442,13 +450,9 @@ void CVIEW_Histogram::On_Mouse_Motion(wxMouseEvent &event)
 {
 	if( m_bMouse_Down )
 	{
-		wxClientDC	dc(this);
-		wxRect		r(Draw_Get_rDiagram(wxRect(wxPoint(0, 0), GetClientSize())));
-		dc.SetLogicalFunction(wxINVERT);
+		m_Mouse_Move = event.GetPosition();
 
-		dc.DrawRectangle(m_Mouse_Down.x, r.GetTop(), m_Mouse_Move.x - m_Mouse_Down.x, r.GetHeight());
-		m_Mouse_Move	= event.GetPosition();
-		dc.DrawRectangle(m_Mouse_Down.x, r.GetTop(), m_Mouse_Move.x - m_Mouse_Down.x, r.GetHeight());
+		Refresh();
 	}
 }
 
@@ -463,11 +467,11 @@ void CVIEW_Histogram::On_Mouse_LDown(wxMouseEvent &event)
 	switch( m_pLayer->Get_Classifier()->Get_Mode() )
 	{
 	case CLASSIFY_GRADUATED:
-	case CLASSIFY_DISCRETE   :
+	case CLASSIFY_DISCRETE :
 	case CLASSIFY_SHADE    :
 	case CLASSIFY_OVERLAY  :
-		m_bMouse_Down	= true;
-		m_Mouse_Move	= m_Mouse_Down	= event.GetPosition();
+		m_bMouse_Down = true;
+		m_Mouse_Move = m_Mouse_Down = event.GetPosition();
 
 		CaptureMouse();
 
@@ -482,10 +486,10 @@ void CVIEW_Histogram::On_Mouse_LUp(wxMouseEvent &event)
 	{
 		ReleaseMouse();
 
-		m_bMouse_Down	= false;
-		m_Mouse_Move	= event.GetPosition();
+		m_bMouse_Down = false;
+		m_Mouse_Move  = event.GetPosition();
 
-		wxRect	r(Draw_Get_rDiagram(wxRect(wxPoint(0, 0), GetClientSize())));
+		wxRect r(Draw_Get_rDiagram(wxRect(wxPoint(0, 0), GetClientSize())));
 
 		m_pLayer->Set_Color_Range(
 			m_pLayer->Get_Classifier()->Get_RelativeToMetric((double)(m_Mouse_Down.x - r.GetLeft()) / (double)r.GetWidth()),
@@ -687,12 +691,11 @@ void CVIEW_Histogram::On_AsTable(wxCommandEvent &event)
 //---------------------------------------------------------
 void CVIEW_Histogram::On_ToClipboard(wxCommandEvent &event)
 {
-	wxBitmap	BMP(GetSize());
-	wxMemoryDC	dc;
-	
-	dc.SelectObject(BMP);
-	dc.SetBackground(*wxWHITE_BRUSH);
-	dc.Clear();
+	wxBitmap BMP(GetSize());
+
+	wxMemoryDC dc(BMP);
+
+	dc.SetBackground(*wxWHITE_BRUSH); dc.Clear();
 
 	Draw(dc, wxRect(BMP.GetSize()));
 
@@ -700,7 +703,7 @@ void CVIEW_Histogram::On_ToClipboard(wxCommandEvent &event)
 
 	if( wxTheClipboard->Open() )
 	{
-		wxBitmapDataObject	*pBMP	= new wxBitmapDataObject;
+		wxBitmapDataObject *pBMP = new wxBitmapDataObject;
 		pBMP->SetBitmap(BMP);
 		wxTheClipboard->SetData(pBMP);
 		wxTheClipboard->Close();
