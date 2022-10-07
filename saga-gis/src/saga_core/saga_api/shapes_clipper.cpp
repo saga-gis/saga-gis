@@ -180,7 +180,7 @@ public:
 		if(	to_Paths(pSubject, Subject)
 		&&	to_Paths(pClip   , Clip   ) )
 		{
-			Clipper2Lib::ClipperD Clipper;
+			Clipper2Lib::ClipperD Clipper(m_Precision);
 
 			Clipper.AddClip(Clip);
 
@@ -216,7 +216,7 @@ public:
 
 		if(	to_Paths(pShape, Subject) )
 		{
-			Clipper2Lib::ClipperD Clipper;
+			Clipper2Lib::ClipperD Clipper(m_Precision);
 
 			Clipper.AddSubject(Subject);
 
@@ -249,12 +249,12 @@ public:
 				EndType = Clipper2Lib::EndType::Polygon;
 			}
 
-			if( 1 )
+			if( true )
 			{
 				// Workaround: ClipperOffset::ArcTolerance not accessible through InflatePaths(),
 				// but ClipperOffset::Execute() currently only returns Paths64 type objects!!!
 				Clipper2Lib::ClipperOffset Offset;
-				const double Scale = std::pow(10., 8.);
+				const double Scale = std::pow(10., m_Precision);
 				Offset.AddPaths(Clipper2Lib::ScalePaths<int64_t, double>(Paths, Scale), Clipper2Lib::JoinType::Round, EndType);
 				Offset.ArcTolerance(Scale * Delta * (1. - cos(dArc / 2.)));
 				Clipper2Lib::Paths64 Solution64 = Offset.Execute(Scale * Delta);
@@ -262,7 +262,7 @@ public:
 			}
 			else
 			{
-				Solution = Clipper2Lib::InflatePaths(Paths, Delta, Clipper2Lib::JoinType::Round, EndType, 2., 2.);
+				Solution = Clipper2Lib::InflatePaths(Paths, Delta, Clipper2Lib::JoinType::Round, EndType, 2., m_Precision);
 			}
 
 			return( to_Shape(Solution, pSolution ? pSolution : pShape) );
@@ -270,7 +270,29 @@ public:
 
 		return( false );
 	}
+
+	//-----------------------------------------------------
+	static int			Get_Precision	(void)	{ return( m_Precision ); }
+
+	static bool			Set_Precision	(int Precision)
+	{
+		if( Precision < -8 || Precision > 8 )
+		{
+			return( false );
+		}
+
+		m_Precision = Precision;
+
+		return( true );
+	}
+
+	private:
+
+		static int	m_Precision;
 };
+
+//---------------------------------------------------------
+int CSG_Clipper::m_Precision = 4;
 
 
 ///////////////////////////////////////////////////////////
