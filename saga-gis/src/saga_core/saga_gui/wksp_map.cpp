@@ -1443,9 +1443,9 @@ void CWKSP_Map::View_Show(bool bShow)
 		}
 		else
 		{
-			View_Refresh(false);
-
 			m_pView->Activate();
+
+			View_Refresh(false);
 		}
 	}
 	else if( m_pView )
