@@ -65,6 +65,7 @@ enum
 	MENU_PROPERTIES	= MENU_USER_LAST,
 	MENU_CLOSE,
 	MENU_BOX,
+	MENU_LABELS,
 	MENU_STEREO,
 	MENU_CENTRAL,
 	MENU_TO_CLIPBOARD,
@@ -116,8 +117,9 @@ bool CSG_3DView_Dialog::Create(CSG_3DView_Panel *pPanel)
 	m_pCommands		= Add_Button  (_TL("Commands"    ), wxID_ANY);
 
 //	Add_Spacer();
-//	m_pBox			= Add_CheckBox(_TL("Bounding Box"), m_pPanel->m_Parameters("DRAW_BOX"  )->asBool());
-//	m_pStereo		= Add_CheckBox(_TL("Anaglyph"    ), m_pPanel->m_Parameters("STEREO"    )->asBool());
+//	m_pBox			= Add_CheckBox(_TL("Bounding Box"), m_pPanel->m_Parameters("BOX"   )->asBool());
+//	m_pLabels		= Add_CheckBox(_TL("Labels"      ), m_pPanel->m_Parameters("LABELS")->asBool());
+//	m_pStereo		= Add_CheckBox(_TL("Anaglyph"    ), m_pPanel->m_Parameters("STEREO")->asBool());
 
 	Add_Spacer();
 	m_pRotate_X		= Add_Slider  (_TL("X-Rotation"  ), m_pPanel->Get_Projector().Get_xRotation() * M_RAD_TO_DEG, -180.0, 180.0);
@@ -132,8 +134,9 @@ bool CSG_3DView_Dialog::Create(CSG_3DView_Panel *pPanel)
 //---------------------------------------------------------
 void CSG_3DView_Dialog::On_Update_Control(wxCommandEvent &event)
 {
-//	CHECKBOX_UPDATE(m_pBox   , "DRAW_BOX");
-//	CHECKBOX_UPDATE(m_pStereo, "STEREO"  );
+//	CHECKBOX_UPDATE(m_pBox   , "BOX"   );
+//	CHECKBOX_UPDATE(m_pLabels, "LABELS");
+//	CHECKBOX_UPDATE(m_pStereo, "STEREO");
 
 	if( event.GetEventObject() == m_pRotate_X )
 	{
@@ -180,6 +183,7 @@ void CSG_3DView_Dialog::On_Button(wxCommandEvent &event)
 		Menu.AppendSubMenu(pMenu = new wxMenu, _TL("Display"));
 
 		pMenu->AppendCheckItem(MENU_BOX          , _TL("Bounding Box [B]"));
+	//	pMenu->AppendCheckItem(MENU_LABELS       , _TL("Labels [L]"));
 		pMenu->AppendCheckItem(MENU_STEREO       , _TL("Anaglyph [S]"));
 		pMenu->AppendCheckItem(MENU_CENTRAL      , _TL("Central"));
 
@@ -257,8 +261,9 @@ void CSG_3DView_Dialog::On_Menu(wxCommandEvent &event)
 		}
 		return;
 
-	case MENU_BOX          :	MENU_TOGGLE("DRAW_BOX");	break;
-	case MENU_STEREO       :	MENU_TOGGLE("STEREO"  );	break;
+	case MENU_BOX          :	MENU_TOGGLE("BOX"   );	break;
+	case MENU_LABELS       :	MENU_TOGGLE("LABELS");	break;
+	case MENU_STEREO       :	MENU_TOGGLE("STEREO");	break;
 
 	case MENU_TO_CLIPBOARD :	m_pPanel->Save_toClipboard();	break;
 
@@ -294,8 +299,9 @@ void CSG_3DView_Dialog::On_Menu_UI(wxUpdateUIEvent &event)
 {
 	switch( event.GetId() )
 	{
-	case MENU_BOX          :	event.Check(m_pPanel->m_Parameters("DRAW_BOX")->asBool());	break;
-	case MENU_STEREO       :	event.Check(m_pPanel->m_Parameters("STEREO"  )->asBool());	break;
+	case MENU_BOX          :	event.Check(m_pPanel->m_Parameters("BOX"   )->asBool());	break;
+	case MENU_LABELS       :	event.Check(m_pPanel->m_Parameters("LABELS")->asBool());	break;
+	case MENU_STEREO       :	event.Check(m_pPanel->m_Parameters("STEREO")->asBool());	break;
 
 	case MENU_CENTRAL      :	event.Check(m_pPanel->Get_Projector().is_Central());	break;
 
@@ -316,8 +322,9 @@ void CSG_3DView_Dialog::Update_Controls(void)
 	if( d < -180.0 ) d += 360.0; else if( d > 180.0 ) d -= 360.0;
 	m_pRotate_Z->Set_Value(d);
 
-//	m_pBox   ->SetValue(m_pPanel->m_Parameters("DRAW_BOX")->asBool());
-//	m_pStereo->SetValue(m_pPanel->m_Parameters("STEREO"  )->asBool());
+//	m_pBox   ->SetValue(m_pPanel->m_Parameters("BOX"   )->asBool());
+//	m_pLabels->SetValue(m_pPanel->m_Parameters("LABELS")->asBool());
+//	m_pStereo->SetValue(m_pPanel->m_Parameters("STEREO")->asBool());
 }
 
 

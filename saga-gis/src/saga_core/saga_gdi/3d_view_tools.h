@@ -154,7 +154,7 @@ public:
 
 protected:
 
-	bool						m_bBox, m_bStereo;
+	bool						m_bBox, m_bLabels, m_bStereo;
 
 	int							m_bgColor;
 	
@@ -204,6 +204,7 @@ private:
 
 	void						_Draw_Background		(void);
 	void						_Draw_Box				(void);
+	void						_Draw_Labels			(void);
 
 	void						_Draw_Pixel				(int x, int y, double z, int color);
 	void						_Draw_Triangle_Line		(int y, double a[], double b[], double dim, int mode);

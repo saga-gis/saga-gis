@@ -81,6 +81,7 @@ CSG_3DView_Canvas::CSG_3DView_Canvas(void)
 
 	m_bgColor		= SG_COLOR_WHITE;
 	m_bBox			= true;
+	m_bLabels		= false;
 	m_BoxBuffer		= 0.01;
 	m_bStereo		= false;
 	m_dStereo		= 2.0;
@@ -160,6 +161,7 @@ bool CSG_3DView_Canvas::Draw(void)
 		On_Draw();
 
 		_Draw_Box();
+		_Draw_Labels();
 	}
 
 	//-----------------------------------------------------
@@ -181,6 +183,7 @@ bool CSG_3DView_Canvas::Draw(void)
 		On_Draw();
 
 		_Draw_Box();
+		_Draw_Labels();
 
 		//-------------------------------------------------
 		m_Image_zMax.Assign(999999.0);
@@ -193,6 +196,7 @@ bool CSG_3DView_Canvas::Draw(void)
 		On_Draw();
 
 		_Draw_Box();
+		_Draw_Labels();
 
 		//-------------------------------------------------
 		m_Projector.Set_xShift   (xShift );
@@ -285,6 +289,18 @@ void CSG_3DView_Canvas::_Draw_Box(void)
 	Draw_Line(p[0][1], p[1][1], color);
 	Draw_Line(p[0][2], p[1][2], color);
 	Draw_Line(p[0][3], p[1][3], color);
+}
+
+//---------------------------------------------------------
+void CSG_3DView_Canvas::_Draw_Labels(void)
+{
+	if( !m_bLabels )
+	{
+		return;
+	}
+
+	Draw_Line(1., 1., 1., m_Image_NX - 1., m_Image_NY - 1., 1., 0);
+	Draw_Line(1., m_Image_NY - 1., 1., m_Image_NX - 1., 1., 1., 0);
 }
 
 

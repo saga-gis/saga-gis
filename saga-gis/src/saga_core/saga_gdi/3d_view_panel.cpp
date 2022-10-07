@@ -134,10 +134,16 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	);
 
 	m_Parameters.Add_Bool("NODE_GENERAL",
-		"DRAW_BOX"		, _TL("Draw Box"),
+		"BOX"			, _TL("Box"),
 		_TL(""),
 		true
 	);
+
+	m_Parameters.Add_Bool("NODE_GENERAL",
+		"LABELS"		, _TL("Labels"),
+		_TL(""),
+		false
+	)->Set_Enabled(false);
 
 	m_Parameters.Add_Bool("NODE_GENERAL",
 		"STEREO"		, _TL("Stereo Anaglyph"),
@@ -372,11 +378,15 @@ void CSG_3DView_Panel::On_Key_Down(wxKeyEvent &event)
 		case WXK_PAGEDOWN: m_Projector.Inc_zShift( 10.); break;
 
 		case 'B':
-			m_Parameters("DRAW_BOX")->Set_Value(m_Parameters("DRAW_BOX")->asBool() == false);
+			m_Parameters("BOX"   )->Set_Value(m_Parameters("BOX"   )->asBool() == false);
+			break;
+
+		case 'L':
+			m_Parameters("LABELS")->Set_Value(m_Parameters("LABELS")->asBool() == false);
 			break;
 
 		case 'S':
-			m_Parameters("STEREO"  )->Set_Value(m_Parameters("STEREO"  )->asBool() == false);
+			m_Parameters("STEREO")->Set_Value(m_Parameters("STEREO")->asBool() == false);
 			break;
 		}
 
@@ -556,7 +566,8 @@ bool CSG_3DView_Panel::Update_View(bool bStatistics)
 	if( m_Play_State == SG_3DVIEW_PLAY_STOP )
 	{
 		m_bgColor = m_Parameters("BGCOLOR"    )->asColor ();
-		m_bBox    = m_Parameters("DRAW_BOX"   )->asBool  ();
+		m_bBox    = m_Parameters("BOX"        )->asBool  ();
+		m_bLabels = m_Parameters("LABELS"     )->asBool  ();
 		m_bStereo = m_Parameters("STEREO"     )->asBool  ();
 		m_dStereo = m_Parameters("STEREO_DIST")->asDouble();
 
