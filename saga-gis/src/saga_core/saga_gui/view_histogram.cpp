@@ -69,6 +69,11 @@
 
 #include "view_histogram.h"
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #define IS_BAND_WISE_FIT(pLayer)	(m_pLayer->Get_Type() == WKSP_ITEM_Grids && m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_OVERLAY && m_pLayer->Get_Parameter("OVERLAY_FIT")->asInt() != 0)
 
@@ -191,19 +196,91 @@ void CVIEW_Histogram::Do_Update(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CVIEW_Histogram::Draw(wxDC &dc, wxRect r)
+void CVIEW_Histogram::On_Size(wxSizeEvent &WXUNUSED(event))
 {
-	wxFont Font; Font.SetFamily(wxFONTFAMILY_SWISS); dc.SetFont(Font);
-
-	r = Draw_Get_rDiagram(r);
-
-	Draw_Histogram(dc, r);
-	Draw_Frame    (dc, r);
+	Refresh();
 }
 
 //---------------------------------------------------------
-void CVIEW_Histogram::Draw_Histogram(wxDC &dc, wxRect r)
+void CVIEW_Histogram::On_Paint(wxPaintEvent &event)
 {
+	wxPaintDC dc(this);
+	
+	Draw_Edge(dc, EDGE_STYLE_SUNKEN, wxRect(GetClientSize()));
+	Draw     (dc);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Histogram::Draw(wxDC &dc)
+{
+	wxFont Font; Font.SetFamily(wxFONTFAMILY_SWISS); dc.SetFont(Font);
+
+	Draw_Histogram(dc);
+	Draw_Frame    (dc);
+}
+
+//---------------------------------------------------------
+void CVIEW_Histogram::Draw_Bar(wxDC &dc, wxColour Color, int x[2], int y[3], int Invert[2], int StdDev[2])
+{
+	wxPen oldPen(dc.GetPen());
+
+	wxColour Current(Color); dc.SetPen(Current);
+
+	if( y[0] >= y[1] )
+	{
+		for(int ix=x[0]; ix<x[1]; ix++)
+		{
+			wxColour Next(Color);
+
+			if( Invert[0] <= ix && ix <= Invert[1] )
+			{
+				Next = wxColour(255 - Next.Red(), 255 - Next.Green(), 255 - Next.Blue());
+			}
+
+			if( Current != Next )
+			{
+				dc.SetPen(Current = Next);
+			}
+
+			dc.DrawLine(ix, y[0], ix, y[1]);
+		}
+	}
+
+	if( y[1] >= y[2] )
+	{
+		Color = SYS_Get_Color(wxSYS_COLOUR_WINDOW);
+
+		for(int ix=x[0]; ix<x[1]; ix++)
+		{
+			wxColour Next(StdDev[0] <= ix && ix <= StdDev[1] ? wxColour(222, 222, 222) : Color);
+
+			if( Invert[0] <= ix && ix <= Invert[1] )
+			{
+				Next = wxColour(255 - Next.Red(), 255 - Next.Green(), 255 - Next.Blue());
+			}
+
+			if( Current != Next )
+			{
+				dc.SetPen(Current = Next);
+			}
+
+			dc.DrawLine(ix, y[1], ix, y[2]);
+		}
+	}
+
+	dc.SetPen(oldPen);
+}
+
+//---------------------------------------------------------
+void CVIEW_Histogram::Draw_Histogram(wxDC &dc)
+{
+	wxRect r(Get_Histogram_Box(dc.GetSize()));
+
 	const CSG_Histogram	&Histogram	= m_pLayer->Get_Classifier()->Histogram_Get();
 
 	if( Histogram.Get_Class_Count() < 1 || Histogram.Get_Element_Count() < 1 )
@@ -214,35 +291,38 @@ void CVIEW_Histogram::Draw_Histogram(wxDC &dc, wxRect r)
 	}
 
 	//-----------------------------------------------------
-	CSG_Simple_Statistics s;
+	int StdDev[2]; StdDev[0] = StdDev[1] = -1; CSG_Simple_Statistics s;
 
 	if( m_bGaussian && m_pLayer->Get_Classifier()->Get_Mode() != CLASSIFY_LUT )
 	{
 		s.Create(m_pLayer->Get_Classifier()->Statistics_Get());
-	}
 
-	if( s.Get_Count() > 0 )
-	{
-		double	Minimum = m_pLayer->Get_Classifier()->Get_RelativeToMetric(0.);
-		double	Maximum = m_pLayer->Get_Classifier()->Get_RelativeToMetric(1.);
-
-		double dx = (Maximum - Minimum) / (double)r.GetWidth();
-
-		int	ax = (int)(((s.Get_Mean() - s.Get_StdDev()) - Minimum) / dx); if( ax < 0            ) { ax = 0.          ; }
-		int bx = (int)(((s.Get_Mean() + s.Get_StdDev()) - Minimum) / dx); if( bx > r.GetWidth() ) { bx = r.GetWidth(); }
-
-		if( ax <= bx )
+		if( s.Get_Count() > 0 )
 		{
-			Draw_FillRect(dc, wxColour(222, 222, 222), r.GetLeft() + ax, r.GetBottom(), r.GetLeft() + bx, r.GetTop());
+			double	Minimum = m_pLayer->Get_Classifier()->Get_RelativeToMetric(0.);
+			double	Maximum = m_pLayer->Get_Classifier()->Get_RelativeToMetric(1.);
+
+			double dx = (Maximum - Minimum) / (double)r.GetWidth();
+
+			StdDev[0] = r.GetLeft() + (int)(((s.Get_Mean() - s.Get_StdDev()) - Minimum) / dx); if( StdDev[0] < 0            ) { StdDev[0] = 0.          ; }
+			StdDev[1] = r.GetLeft() + (int)(((s.Get_Mean() + s.Get_StdDev()) - Minimum) / dx); if( StdDev[1] > r.GetWidth() ) { StdDev[1] = r.GetWidth(); }
 		}
 	}
 
+	int Invert[2]; Invert[0] = Invert[1] = -1;
+
+	if( m_bMouse_Down && m_Mouse_Down.x != m_Mouse_Move.x )
+	{
+		Invert[0] = m_Mouse_Down.x <  m_Mouse_Move.x ? m_Mouse_Down.x : m_Mouse_Move.x;
+		Invert[1] = m_Mouse_Down.x >= m_Mouse_Move.x ? m_Mouse_Down.x : m_Mouse_Move.x;
+	}
+
 	//-----------------------------------------------------
-	wxColor	Color	= SYS_Get_Color(wxSYS_COLOUR_ACTIVECAPTION); // wxSYS_COLOUR_BTNSHADOW);
+	wxColor Color = SYS_Get_Color(wxSYS_COLOUR_ACTIVECAPTION); // wxSYS_COLOUR_BTNSHADOW);
 
 	double dx = (double)r.GetWidth() / (double)Histogram.Get_Class_Count();
 
-	int ax = r.GetLeft(), ay = r.GetBottom();
+	int x[2], y[3]; x[1] = r.GetLeft(); y[0] = r.GetBottom(); y[2] = r.GetTop();
 
 	for(size_t iClass=0; iClass<Histogram.Get_Class_Count(); iClass++)
 	{
@@ -250,15 +330,15 @@ void CVIEW_Histogram::Draw_Histogram(wxDC &dc, wxRect r)
 			? Histogram.Get_Cumulative(iClass) / (double)Histogram.Get_Element_Count  ()
 			: Histogram.Get_Elements  (iClass) / (double)Histogram.Get_Element_Maximum();
 
-		int bx = ax; ax = r.GetLeft() + (int)(dx * (iClass + 1.));
-		int by = ay - (int)((r.GetHeight() - 1) * Value);
+		x[0] = x[1]; x[1] = r.GetLeft() + (int)(dx * (iClass + 1.));
+		y[1] = y[0] - (int)((r.GetHeight() - 1) * Value);
 
 		if( m_bColored && m_pLayer->Get_Classifier()->Get_Mode() != CLASSIFY_OVERLAY && m_pLayer->Get_Classifier()->Get_Mode() != CLASSIFY_SHADE )
 		{
 			Color	= m_pLayer->Get_Classifier()->Get_Class_Color(iClass);
 		}
 
-		Draw_FillRect(dc, Color, bx, ay, ax, by);
+		Draw_Bar(dc, Color, x, y, Invert, StdDev);
 	}
 
 	//-----------------------------------------------------
@@ -314,10 +394,12 @@ void CVIEW_Histogram::Draw_Histogram(wxDC &dc, wxRect r)
 }
 
 //---------------------------------------------------------
-void CVIEW_Histogram::Draw_Frame(wxDC &dc, wxRect r)
+void CVIEW_Histogram::Draw_Frame(wxDC &dc)
 {
-	const int	FontSize	= 12;
-	const int	Precision	= 3;
+	wxRect r(Get_Histogram_Box(dc.GetSize()));
+
+	const int FontSize  = 12;
+	const int Precision = 3;
 
 	dc.SetPen(*wxBLACK_PEN);
 
@@ -394,12 +476,14 @@ void CVIEW_Histogram::Draw_Frame(wxDC &dc, wxRect r)
 }
 
 //---------------------------------------------------------
-wxRect CVIEW_Histogram::Draw_Get_rDiagram(wxRect r)
+wxRect CVIEW_Histogram::Get_Histogram_Box(const wxSize &Size)
 {
+	wxRect r(Size);
+
 	if( m_XLabeling != 0 || m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_LUT )
 	{
 		return(	wxRect(
-			wxPoint(r.GetLeft () + m_Margin_Left, r.GetTop   () +  10),
+			wxPoint(r.GetLeft () + m_Margin_Left, r.GetTop   () + 10),
 			wxPoint(r.GetRight() - 10           , r.GetBottom() - m_Margin_Bottom)
 		));
 	}
@@ -410,34 +494,10 @@ wxRect CVIEW_Histogram::Draw_Get_rDiagram(wxRect r)
 	));
 }
 
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-void CVIEW_Histogram::On_Paint(wxPaintEvent &event)
+wxRect CVIEW_Histogram::Get_Histogram_Box(void)
 {
-	wxPaintDC dc(this); wxRect r(wxPoint(0, 0), GetClientSize());
-
-	Draw_Edge(dc, EDGE_STYLE_SUNKEN, r);
-
-	Draw(dc, r);
-
-	if( m_bMouse_Down && m_Mouse_Down != m_Mouse_Move )
-	{
-		dc.SetLogicalFunction(wxINVERT);
-
-		r = Draw_Get_rDiagram(r);
-
-		dc.DrawRectangle(m_Mouse_Down.x, r.GetTop(), m_Mouse_Move.x - m_Mouse_Down.x, r.GetHeight());
-	}
-}
-
-//---------------------------------------------------------
-void CVIEW_Histogram::On_Size(wxSizeEvent &WXUNUSED(event))
-{
-	Refresh();
+	return( Get_Histogram_Box(GetClientSize()) );
 }
 
 
@@ -452,7 +512,7 @@ void CVIEW_Histogram::On_Mouse_Motion(wxMouseEvent &event)
 	{
 		m_Mouse_Move = event.GetPosition();
 
-		Refresh();
+		RefreshRect(Get_Histogram_Box().Deflate(1), false);
 	}
 }
 
@@ -489,7 +549,7 @@ void CVIEW_Histogram::On_Mouse_LUp(wxMouseEvent &event)
 		m_bMouse_Down = false;
 		m_Mouse_Move  = event.GetPosition();
 
-		wxRect r(Draw_Get_rDiagram(wxRect(wxPoint(0, 0), GetClientSize())));
+		wxRect r(Get_Histogram_Box());
 
 		m_pLayer->Set_Color_Range(
 			m_pLayer->Get_Classifier()->Get_RelativeToMetric((double)(m_Mouse_Down.x - r.GetLeft()) / (double)r.GetWidth()),
@@ -691,21 +751,21 @@ void CVIEW_Histogram::On_AsTable(wxCommandEvent &event)
 //---------------------------------------------------------
 void CVIEW_Histogram::On_ToClipboard(wxCommandEvent &event)
 {
-	wxBitmap BMP(GetSize());
+	wxBitmap Bitmap(GetClientSize());
 
-	wxMemoryDC dc(BMP);
+	wxMemoryDC dc(Bitmap);
 
 	dc.SetBackground(*wxWHITE_BRUSH); dc.Clear();
 
-	Draw(dc, wxRect(BMP.GetSize()));
+	Draw(dc);
 
 	dc.SelectObject(wxNullBitmap);
 
 	if( wxTheClipboard->Open() )
 	{
-		wxBitmapDataObject *pBMP = new wxBitmapDataObject;
-		pBMP->SetBitmap(BMP);
-		wxTheClipboard->SetData(pBMP);
+		wxBitmapDataObject *pBitmap = new wxBitmapDataObject;
+		pBitmap->SetBitmap(Bitmap);
+		wxTheClipboard->SetData(pBitmap);
 		wxTheClipboard->Close();
 	}
 }

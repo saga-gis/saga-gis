@@ -93,10 +93,12 @@ private:
 	class CWKSP_Layer				*m_pLayer;
 
 
-	void							Draw				(wxDC &dc, wxRect r);
-	void							Draw_Histogram		(wxDC &dc, wxRect r);
-	void							Draw_Frame			(wxDC &dc, wxRect r);
-	wxRect							Draw_Get_rDiagram	(wxRect r);
+	void							Draw				(wxDC &dc);
+	void							Draw_Bar			(wxDC &dc, wxColour Color, int x[2], int y[3], int Invert[2], int StdDev[2]);
+	void							Draw_Histogram		(wxDC &dc);
+	void							Draw_Frame			(wxDC &dc);
+	wxRect							Get_Histogram_Box	(const wxSize &Size);
+	wxRect							Get_Histogram_Box	(void);
 
 	void							On_Paint			(wxPaintEvent    &event);
 	void							On_Size				(wxSizeEvent     &event);
