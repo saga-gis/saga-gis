@@ -63,7 +63,11 @@ CPolygon_SelfIntersection::CPolygon_SelfIntersection(void)
 	Set_Author		("O.Conrad (c) 2012");
 
 	Set_Description	(_TW(
-		"Self-intersection of one layer's polygons.\n"
+		"This tool identifies self-intersection in polygons. "
+		"The Intersecting areas are added as new polygons to the dataset, "
+		"leaving the input areas with the geometric difference. "
+		"The new polygons are labeled with the identifier of the intersecting polygons separated by a \'|\' character. " 
+		"The identifier can be set with the \"Identifier\"-field option, otherwise the identifier is just the polygon index.\n"
 		"Uses the free and open source software library <b>Clipper</b> created by Angus Johnson.\n"
 		"<a target=\"_blank\" href=\"http://www.angusj.com/delphi/clipper.php\">Clipper Homepage</a>\n"
 		"<a target=\"_blank\" href=\"http://sourceforge.net/projects/polyclipping/\">Clipper at SourceForge</a>\n"
@@ -105,10 +109,16 @@ bool CPolygon_SelfIntersection::On_Execute(void)
 
 	//-----------------------------------------------------
 	int ID = Parameters("ID")->asInt(); if( ID >= pPolygons->Get_Field_Count() ) { ID = -1; }
+	int ID_Field = m_pIntersect->Get_Field_Count()-1;
+
+	if( ID >= 0 )
+	{
+		m_pIntersect->Set_Field_Name( ID_Field, CSG_String::Format("%s Intersection" , m_pIntersect->Get_Field_Name(ID)));
+	}
 
 	for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 	{
-		Add_Polygon(pPolygons->Get_Shape(i)->asPolygon(), ID);
+		Add_Polygon(pPolygons->Get_Shape(i)->asPolygon(), ID, ID_Field );
 	}
 
 	//-----------------------------------------------------
@@ -140,7 +150,7 @@ bool CPolygon_SelfIntersection::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CPolygon_SelfIntersection::Add_Polygon(CSG_Shape_Polygon *pPolygon, int ID)
+void CPolygon_SelfIntersection::Add_Polygon(CSG_Shape_Polygon *pPolygon, int ID, int ID_Field)
 {
 	CSG_String	sID;
 
@@ -149,13 +159,12 @@ void CPolygon_SelfIntersection::Add_Polygon(CSG_Shape_Polygon *pPolygon, int ID)
 	else
 	{	sID	= SG_Get_String(pPolygon->Get_Index() + 1);	}
 
-	ID	= m_pIntersect->Get_Field_Count() - 1;
 
 	//-----------------------------------------------------
 	if( !m_pIntersect->Select(pPolygon->Get_Extent()) )
 	{
 		pPolygon	= m_pIntersect->Add_Shape(pPolygon)->asPolygon();
-		pPolygon	->Set_Value(ID, sID);
+		pPolygon	->Set_Value(ID_Field, sID);
 
 		return;
 	}
@@ -166,7 +175,7 @@ void CPolygon_SelfIntersection::Add_Polygon(CSG_Shape_Polygon *pPolygon, int ID)
 	int	nIntersects	= m_pIntersect->Get_Count();
 
 	pPolygon	= m_pIntersect->Add_Shape(pPolygon)->asPolygon();
-	pPolygon	->Set_Value(ID, sID);
+	pPolygon	->Set_Value(ID_Field, sID);
 
 	for(int i=0; i<nIntersects && pPolygon->is_Valid(); i++)
 	{
@@ -178,7 +187,7 @@ void CPolygon_SelfIntersection::Add_Polygon(CSG_Shape_Polygon *pPolygon, int ID)
 			if( SG_Shape_Get_Intersection(pOriginal, pPolygon, pIntersect) )
 			{
 				pIntersect = m_pIntersect->Add_Shape(pIntersect)->asPolygon();
-				pIntersect->Set_Value(ID, CSG_String::Format("%s|%s", pPolygon->asString(ID), pOriginal->asString(ID)));
+				pIntersect->Set_Value(ID_Field, CSG_String::Format("%s|%s", pPolygon->asString(ID_Field), pOriginal->asString(ID_Field)));
 
 				SG_Shape_Get_Difference(m_pIntersect->Get_Shape(i), pPolygon);
 				SG_Shape_Get_Difference(pPolygon, pOriginal);

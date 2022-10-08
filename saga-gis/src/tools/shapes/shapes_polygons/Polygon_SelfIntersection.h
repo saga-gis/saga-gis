@@ -83,7 +83,7 @@ private:
 	CSG_Shapes				*m_pIntersect;
 
 
-	void					Add_Polygon			(CSG_Shape_Polygon *pPolygon, int ID);
+	void					Add_Polygon			(CSG_Shape_Polygon *pPolygon, int ID, int ID_Field);
 
 };
 
