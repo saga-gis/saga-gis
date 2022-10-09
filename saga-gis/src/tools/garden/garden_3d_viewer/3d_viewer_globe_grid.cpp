@@ -128,8 +128,8 @@ C3D_Viewer_Globe_Grid_Panel::C3D_Viewer_Globe_Grid_Panel(wxWindow *pParent, CSG_
 	//-----------------------------------------------------
 	CSG_Parameter	*pNode, *pNode_1, *pNode_2;
 
-	m_Parameters("BGCOLOR" )->Set_Value((int)SG_COLOR_BLACK);
-	m_Parameters("DRAW_BOX")->Set_Value(false);
+	m_Parameters("BGCOLOR")->Set_Value((int)SG_COLOR_BLACK);
+	m_Parameters("BOX"    )->Set_Value(false);
 
 	//-----------------------------------------------------
 	pNode	= m_Parameters("NODE_GENERAL");

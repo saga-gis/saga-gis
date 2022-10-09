@@ -91,7 +91,7 @@ CVIEW_Map_3DPanel::CVIEW_Map_3DPanel(wxWindow *pParent, class CWKSP_Map *pMap)
 	m_DEM_Res	= 100;
 	m_Map_Res	= 400;
 
-	m_Parameters("DRAW_BOX")->Set_Value(false);
+	m_Parameters("BOX")->Set_Value(false);
 }
 
 
