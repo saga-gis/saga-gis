@@ -176,6 +176,8 @@ private:
 
 	class CWKSP_Map				*m_pMap;
 
+	int 						m_Mouse_Wheel_Accumulator = 0;
+
 
 	void						_Set_StatusBar		(const TSG_Point &Point);
 
