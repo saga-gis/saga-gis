@@ -389,7 +389,7 @@ void CVIEW_Map_3D::On_Command(wxCommandEvent &event)
 	case ID_CMD_MAP3D_CENTRAL_LESS   :	m_pPanel->Get_Projector().Inc_Central_Distance( 50);	break;
 	case ID_CMD_MAP3D_CENTRAL_MORE   :	m_pPanel->Get_Projector().Inc_Central_Distance(-50);	break;
 
-//	case ID_CMD_MAP3D_DRAW_BOX       :	m_pPanel->m_Parameters("DRAW_BOX"    )->Set_Value(m_pPanel->m_Parameters("DRAW_BOX"    )->asBool() ==  true    );	break;
+//	case ID_CMD_MAP3D_DRAW_BOX       :	m_pPanel->m_Parameters("BOX"         )->Set_Value(m_pPanel->m_Parameters("BOX"         )->asBool() ==  true    );	break;
 	case ID_CMD_MAP3D_STEREO         :	m_pPanel->m_Parameters("STEREO"      )->Set_Value(m_pPanel->m_Parameters("STEREO"      )->asBool() == false    );	break;
 	case ID_CMD_MAP3D_STEREO_LESS    :	m_pPanel->m_Parameters("STEREO_DIST" )->Set_Value(m_pPanel->m_Parameters("STEREO_DIST" )->asDouble() - 2       );	break;
 	case ID_CMD_MAP3D_STEREO_MORE    :	m_pPanel->m_Parameters("STEREO_DIST" )->Set_Value(m_pPanel->m_Parameters("STEREO_DIST" )->asDouble() + 2       );	break;
@@ -470,7 +470,7 @@ void CVIEW_Map_3D::Parameters_Update(bool bFromPanel)
 		m_Parameters("BGCOLOR"     )->Set_Value(m_pPanel->m_Parameters("BGCOLOR"    ));
 		m_Parameters("STEREO"      )->Set_Value(m_pPanel->m_Parameters("STEREO"     ));
 		m_Parameters("STEREO_DIST" )->Set_Value(m_pPanel->m_Parameters("STEREO_DIST"));
-		m_Parameters("DRAW_BOX"    )->Set_Value(m_pPanel->m_Parameters("DRAW_BOX"   ));
+		m_Parameters("BOX"         )->Set_Value(m_pPanel->m_Parameters("BOX"        ));
 
 		m_Parameters("Z_SCALE"     )->Set_Value(m_pPanel->m_zScale);
 		m_Parameters("DEM_RES"     )->Set_Value(m_pPanel->Get_DEM_Res());
@@ -499,7 +499,7 @@ void CVIEW_Map_3D::Parameters_Update(bool bFromPanel)
 		m_pPanel->m_Parameters("STEREO"     )->Set_Value(m_Parameters("STEREO"     ));
 		m_pPanel->m_Parameters("STEREO_DIST")->Set_Value(m_Parameters("STEREO_DIST"));
 		m_pPanel->m_Parameters("DRAPE_MODE" )->Set_Value(m_Parameters("DRAPE_MODE" ));
-		m_pPanel->m_Parameters("DRAW_BOX"   )->Set_Value(m_Parameters("DRAW_BOX"   ));
+		m_pPanel->m_Parameters("BOX"        )->Set_Value(m_Parameters("BOX"        ));
 
 		m_pPanel->m_zScale	= m_Parameters("Z_SCALE")->asDouble();
 
@@ -526,7 +526,7 @@ void CVIEW_Map_3D::Parameters_Create(void)
 	m_Parameters.Add_Grid  (""   , "DEM"     , _TL("Elevation"   ), _TL(""), PARAMETER_INPUT);
 	m_Parameters.Add_Int   ("DEM", "DEM_RES" , _TL("Resolution"  ), _TL(""), 100, 2, true);
 	m_Parameters.Add_Double("DEM", "Z_SCALE" , _TL("Exaggeration"), _TL(""), 1.0);
-	m_Parameters.Add_Bool  ("DEM", "DRAW_BOX", _TL("Bounding Box"), _TL(""), false);
+	m_Parameters.Add_Bool  ("DEM", "BOX"     , _TL("Bounding Box"), _TL(""), false);
 
 	m_Parameters.Add_Node  (""   , "MAP"       , _TL("Map"                      ), _TL(""));
 	m_Parameters.Add_Int   ("MAP", "MAP_RES"   , _TL("Resolution"               ), _TL(""), 1000, 2, true);
