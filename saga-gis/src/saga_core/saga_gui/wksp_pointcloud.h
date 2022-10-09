@@ -112,7 +112,7 @@ public:
 
 	virtual wxMenu *			Edit_Get_Menu			(void);
 	virtual TSG_Rect			Edit_Get_Extent			(void);
-	virtual bool				Edit_On_Mouse_Up		(CSG_Point Point, double ClientToWorld, int Key);
+	virtual bool				Edit_On_Mouse_Up		(const CSG_Point &Point, double ClientToWorld, int Key);
 	virtual bool				Edit_Set_Index			(int Index);
 	virtual bool				Edit_Set_Attributes		(void);
 
