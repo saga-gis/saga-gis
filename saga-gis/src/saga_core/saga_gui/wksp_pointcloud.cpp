@@ -849,7 +849,7 @@ TSG_Rect CWKSP_PointCloud::Edit_Get_Extent(void)
 }
 
 //---------------------------------------------------------
-bool CWKSP_PointCloud::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key)
+bool CWKSP_PointCloud::Edit_On_Mouse_Up(const CSG_Point &Point, double ClientToWorld, int Key)
 {
 	if( Key & TOOL_INTERACTIVE_KEY_RIGHT )
 	{

@@ -343,7 +343,7 @@ TSG_Rect CWKSP_TIN::Edit_Get_Extent(void)
 }
 
 //---------------------------------------------------------
-bool CWKSP_TIN::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key)
+bool CWKSP_TIN::Edit_On_Mouse_Up(const CSG_Point &Point, double ClientToWorld, int Key)
 {
 	CSG_Rect	rWorld(m_Edit_Mouse_Down, Point);
 
