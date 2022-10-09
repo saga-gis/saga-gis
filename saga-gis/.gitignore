@@ -52,6 +52,10 @@ Makefile
 /bin
 /build
 
+# clangd language server protocol cache 
+
+.cache/
+
 # Prerequisites
 *.d
 
