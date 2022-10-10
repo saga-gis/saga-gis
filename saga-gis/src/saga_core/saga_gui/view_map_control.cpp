@@ -1115,13 +1115,18 @@ void CVIEW_Map_Control::On_Mouse_Motion(wxMouseEvent &event)
 //---------------------------------------------------------
 void CVIEW_Map_Control::On_Mouse_Wheel(wxMouseEvent &event)
 {
-	if( event.GetWheelRotation() > 0 )
+	m_Mouse_Wheel_Accumulator += event.GetWheelRotation();
+
+	if( m_Mouse_Wheel_Accumulator >= event.GetWheelDelta() )
 	{
 		_Zoom(event.GetPosition(),  true);
+
+		m_Mouse_Wheel_Accumulator -= event.GetWheelDelta();
 	}
-	else if( event.GetWheelRotation() < 0 )
+	if( m_Mouse_Wheel_Accumulator <= -event.GetWheelDelta() )
 	{
 		_Zoom(event.GetPosition(), false);
+		m_Mouse_Wheel_Accumulator += event.GetWheelDelta();
 	}
 }
 

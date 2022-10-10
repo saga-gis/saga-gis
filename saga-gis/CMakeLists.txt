@@ -56,6 +56,9 @@ include(cmake/shared/windows_version_info.cmake)
 # Use GNU install dirs to support multiarch
 include(cmake/modules/GNUInstallDirs.cmake)
 
+# clang uses this compile commands for the language server protocol
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON) 
+
 # create windows resouce file
 set(windows_version_rc "${CMAKE_BINARY_DIR}/win_version_info.rc")
 gen_win_version_resource("${PROJECT_NAME}" "${windows_version_rc}"
