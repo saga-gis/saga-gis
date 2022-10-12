@@ -350,7 +350,7 @@ void CSG_3DView_Canvas::_Draw_Label(double Scale, double valMin, double valMax, 
 	CSG_Vector P(3); P[0] = Point.x; P[1] = Point.y; P[2] = Point.z;
 	CSG_Matrix R = SG_Matrix_Get_Rotation(Rx, Ry, Rz, true); R *= Scale;
 
-	_Draw_Image(Bitmap.ConvertToImage(), P, R, m_bgColor);
+	wxImage Image(Bitmap.ConvertToImage()); _Draw_Image(Image, P, R, m_bgColor);
 }
 
 //---------------------------------------------------------
