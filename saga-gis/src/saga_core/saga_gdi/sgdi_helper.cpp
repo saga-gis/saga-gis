@@ -536,8 +536,9 @@ bool		Draw_Ruler(wxDC &dc, const wxRect &r, bool bHorizontal, double zMin, doubl
 {
 	if( zMin < zMax && r.GetWidth() > 0 && r.GetHeight() > 0 )
 	{
-		dc.SetPen(wxPen(Colour));
-		dc.SetFont(wxFont(7, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+		dc.SetPen(Colour);
+		dc.SetFont(wxFont(FontSize, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+		dc.SetTextForeground(Colour);
 
 		double	Width	= bHorizontal ? r.GetWidth() : r.GetHeight();
 

@@ -154,7 +154,7 @@ public:
 
 protected:
 
-	bool						m_bBox, m_bLabels, m_bStereo;
+	bool						m_bBox, m_bLabels, m_bNorth, m_bStereo;
 
 	int							m_bgColor;
 	
@@ -173,11 +173,11 @@ protected:
 	virtual bool				On_Draw					(void)	= 0;
 
 	virtual int					Get_Color				(double Value);
-	virtual int					Dim_Color				(int Color, double dim);
+	virtual int					Dim_Color				(int Color, double Dim);
 
 	void						Set_Image				(BYTE *pRGB, int NX, int NY);
 
-	void						Draw_Point				(int x, int y, double z, int color, int Size);
+	void						Draw_Point				(int x, int y, double z, int Color, int Size);
 	void						Draw_Line				(double ax, double ay, double az, double bx, double by, double bz, int Color);
 	void						Draw_Line				(double ax, double ay, double az, double bx, double by, double bz, int aColor, int bColor);
 	void						Draw_Line				(const TSG_Point_Z &a, const TSG_Point_Z &b, int Color);
@@ -190,7 +190,7 @@ protected:
 	TSG_Triangle_Node;
 
 	void						Draw_Triangle			(TSG_Triangle_Node p[3], bool bValueAsColor, double Light_Dec, double Light_Azi);
-	void						Draw_Triangle			(TSG_Triangle_Node p[3], bool bValueAsColor, double dim = 1.0);
+	void						Draw_Triangle			(TSG_Triangle_Node p[3], bool bValueAsColor, double Dim = 1.);
 
 
 private:
@@ -203,8 +203,11 @@ private:
 
 
 	void						_Draw_Background		(void);
+	void						_Draw_Get_Box			(TSG_Point_Z Box[8], bool bProjected);
 	void						_Draw_Box				(void);
 	void						_Draw_Labels			(void);
+	void						_Draw_Label				(double Scale, double valMin, double valMax, const TSG_Point_Z &Point, double Rx, double Ry, double Rz);
+	void						_Draw_Image				(class wxImage &Image, const CSG_Vector &Move, const CSG_Matrix &Rotate, int BGColor = -1);
 
 	void						_Draw_Pixel				(int x, int y, double z, int color);
 	void						_Draw_Triangle_Line		(int y, double a[], double b[], double dim, int mode);
