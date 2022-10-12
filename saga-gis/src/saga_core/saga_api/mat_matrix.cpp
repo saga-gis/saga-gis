@@ -1848,6 +1848,54 @@ CSG_Matrix CSG_Matrix::Get_Inverse(bool bSilent, int nSubSquare) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+/**
+* Returns a rotation matrix applicable to 2d vectors for 
+* given rotation angle (R).
+*/
+CSG_Matrix SG_Matrix_Get_Rotation(double R, bool bDegree)
+{
+	if( bDegree ) { R *= M_DEG_TO_RAD; }
+
+	double sin_a = sin(R), cos_a = cos(R);
+
+	CSG_Matrix M(2, 2);
+
+	M[0][0] = cos_a; M[0][1] = -sin_a;
+	M[1][0] = sin_a; M[1][1] =  cos_a;
+
+	return( M );
+}
+
+//---------------------------------------------------------
+/**
+* Returns a rotation matrix applicable to 3d vectors for rotations
+* about the x-, y-, and z-axis (Rx, Ry, Rz).
+*/
+CSG_Matrix SG_Matrix_Get_Rotation(double Rx, double Ry, double Rz, bool bDegree)
+{
+	if( bDegree ) { Rx *= M_DEG_TO_RAD; Ry *= M_DEG_TO_RAD; Rz *= M_DEG_TO_RAD; }
+
+	double sin_a = sin(Rx), cos_a = cos(Rx);
+	double sin_b = sin(Ry), cos_b = cos(Ry);
+	double sin_c = sin(Rz), cos_c = cos(Rz);
+
+	CSG_Matrix M(3, 3);
+
+	M[0][0] = cos_a * cos_b; M[0][1] = cos_a * sin_b * sin_c - sin_a * cos_c; M[0][2] = cos_a * sin_b * cos_c + sin_a * sin_c;
+	M[1][0] = sin_a * cos_b; M[1][1] = sin_a * sin_b * sin_c + cos_a * cos_c; M[1][2] = sin_a * sin_b * cos_c - cos_a * sin_c;
+	M[2][0] =        -sin_b; M[2][1] =         cos_b * sin_c                ; M[2][2] =         cos_b * cos_c                ;
+
+	return( M );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool		SG_Matrix_Solve(CSG_Matrix &Matrix, CSG_Vector &Vector, bool bSilent)
 {
 	int	n	= Vector.Get_N();
