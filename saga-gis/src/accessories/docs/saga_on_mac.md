@@ -1,66 +1,92 @@
-# SAGA on Mac
-![](https://saga-gis.sourceforge.io/_images/head_saga_title.png)
 
-## The Homebrew Approach
+![](https://saga-gis.sourceforge.io/_images/logo_saga.png)![](https://saga-gis.sourceforge.io/_images/head_saga_title.png)
+#
+# __SAGA on macOS__
 
-SAGA installs and works quite well on various Linux and FreeBSD. So it should not be problem to make it run on the Unix-like Darwin, the base of macOS. In this document we show how to install SAGA with help of the free and open-source software package management system Homebrew, that is dedicated to simplify the installation of software on Apple's macOS operating system. Don’t be afraid that this also includes the compilation of SAGA from its source code, ...following the steps it is really easy. For further information on Homebrew have a look at the [Homebrew homepage](https://brew.sh).
+![](https://licensebuttons.net/l/by-nc-sa/3.0/88x31.png)
+#
+__SAGA__ installs and works quite well on various Unix-like operating systems, such as _Linux_ and _FreeBSD_. Therefore it should not be problem to make it run on _Darwin_, the base of __macOS__, too. In this document we show how to install SAGA on macOS with help of Apple's development environment __Xcode__, the package management system __Homebrew__, and the __CMake__ application for configuring the SAGA build. Don’t be afraid that this obviously includes the compilation of SAGA from its source codes, ...following the steps in this document it is really easy!
 
-To get started you only need to open a terminal or console window. And during installation of Homebrew (if you have not installed it yet) you might need to confirm the process with your administrator’s password. The first command:
+## ___Xcode and CMake___
 
+As prerequisites you need to have XCode and CMake being installed on your system. __Xcode__ is the tool developers use to build apps for the Apple ecosystem. It is most easily installed from the [Mac App Store](https://www.apple.com/app-store/), but you might find more options at [Apple's Developer Homepage](https://developer.apple.com/xcode/).
+
+__CMake__ is an open-source, cross-platform family of tools designed to build, test and package software. Find out more at the [CMake Homepage](https://cmake.org/). Starting with _SAGA 8.4.0_ the SAGA build configuration completely relies on CMake, which makes it pretty much easy to build SAGA on different platforms. You find pre-compiled CMake binaries for macOS available on the [CMake Download](https://cmake.org/download/) page. After downloading and copying the CMake.app into _/Applications_ (or a custom location, but in the following we assume you've installed here, because it seems to be the default!).
+
+## ___Homebrew___
+
+Homebrew is a free and open-source software package management system dedicated to simplify the installation of software on Apple's macOS operating system. To find further information on Homebrew have a look at the [Homebrew Homepage](https://brew.sh).
+
+Beginning with the Homebrew installation we will exclusively proceed using a terminal or console window, in which we can type the necessary commands. Alternatively you can also type all single commands down into a shell script, which you execute instead. During installation of Homebrew (if you have not installed it yet), you might need to confirm the process with your administrator’s password. The command for the Homebrew installation simply is:
 ```
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 ```
+The installation might take a while (and no problem, it is almost as easy to deinstall it again, just in case you don’t want to have it anymore).
 
-This will install Homebrew and might take a while (and no problem, it is almost as easy to deinstall it again, just in case you don’t want to have it anymore). Once Homebrew has been installed, you can proceed using the brew command to install some tools and libraries that need to be present before the SAGA compilation can start:
+## ___Library Dependencies___
 
+Once Homebrew has been installed, you can continue using the __brew__ command with the installation of libraries that need to be present before the SAGA compilation itself can be started:
 ```
-brew install automake
-brew install pkg-config
-brew install libomp
-brew install gdal
-brew install postgis
-brew install wxmac
+brew install wxmac llvm libomp gdal postgis
 ```
+This will install the packages _wxmac_, _llvm_, _libomp_, _gdal_, and _postgis_. The _wxMac_ package ([The portable C++ GUI toolkit wxWidgets](https://wxwidgets.org/)) is absolutely necessary for a successful SAGA compilation. The other packages are optional but highly recommended. With _llvm_ and _libomp_ parallelization of SAGA routines will be enabled. The _gdal_ package ([Geospatial Data Abstraction Library](https://gdal.org/))  is a translator library for various raster and vector geospatial data formats and will also install the [proj](https://proj.org/) library, which is used by SAGA for all kind of coordinate transformations. With _postgis_ a [PostgreSQL](https://www.postgresql.org/) based geospatial database will also be added.
 
-Now you can continue with the SAGA compilation itself. First I recommend to create a directory, in which the SAGA compilation will be done, and to move to it:
 
+## ___Building SAGA___
+We continue with the SAGA compilation itself. First I recommend to create a directory, in which the SAGA compilation will be done, and to move to it (after successful compilation you might want to remove this directory again). Here we create a _'saga'_ directory within your home (_'~'_) directory:
 ```
-mkdir develop
-cd develop
+mkdir ~/saga
+cd ~/saga
 ```
-
-Now go and get the latest SAGA source codes directly from the SAGA GIT repository:
+Go and get the latest SAGA source codes directly from the [SAGA Git repository](https://sourceforge.net/p/saga-gis/code/ci/master/tree/):
 ```
 git clone https://git.code.sf.net/p/saga-gis/code saga-code
 ```
-
 or adjust the following command line, if you want to install a specific version:
 ```
-git clone --branch release-7.7.0 https://git.code.sf.net/p/saga-gis/code saga-code 
+git clone --branch release-8.4.1 https://git.code.sf.net/p/saga-gis/code saga-code 
 ```
-
-Enter the downloaded folder ‘saga-code’ and then 'saga-gis':
+After the checkout you will find all source codes in the _'saga-code'_ subdirectory. Now let's create a further subdirectory beside it, in which we will run the building process itself and enter it
 ```
-cd saga-code/saga-gis 
+mkdir _build
+cd _build 
 ```
-
-Execute the following commands one after the other:
+Now running CMake will create the build configuration and later on all intermediate object and program files within this directory
 ```
-autoreconf -fi
-./configure
-make
-sudo make install
+/Applications/CMake.app/Contents/bin/cmake ../saga-code/saga-gis 
 ```
-
-For convenience, with the ‘&&‘ operator it is also possible to write the commands in one line:
+CMake creates so called _'Makefiles'_ which will be recognized by the _'make'_ command for the source code compilation and the _'make install'_ command for the system-wide installation:
 ```
-autoreconf -fi && ./configure && make && sudo make install 
+make && sudo make install
 ```
-The make command will take a bit longer to finish, but after the sudo make install command you should already be able to run SAGA from the command line:
+The make command will take a bit longer to finish, but after the sudo make install command you should already be able to run SAGA from the command line, just typing:
 ```
 saga_gui
 ```
+That’s it so far! And now enjoy SAGA on macOS...
 
-That’s it so far!
+![](https://saga-gis.sourceforge.io/_screenshots/macos/macos_saga_twi.jpg)
 
-And now enjoy SAGA...
+## ___Shell Script___
+This chapter is kind of a condensed version of the previous content. As mentioned above you can collect all commands within one shell script file and execute this instead of running one command after the other. Running the script only expects that _Xcode_ and _CMake_ has been installed beforehand. To create the script copy the following commands to a new text file and change its file extension to _'sh'_, e.g. _'build.sh'_.
+```
+#!/bin/bash
+
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+
+brew install wxmac llvm libomp gdal postgis
+
+mkdir ~/saga && cd ~/saga
+
+git clone https://git.code.sf.net/p/saga-gis/code saga-code
+
+mkdir _build && cd _build
+
+/Applications/CMake.app/Contents/bin/cmake ../saga-code/saga-gis
+
+make -j4 && sudo make install
+```
+Before you can run the script you also need to flag it as executable. In a terminal you can do this with the _chmod_ command
+```
+chmod +x build.sh
+```
