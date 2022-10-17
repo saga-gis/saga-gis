@@ -532,7 +532,7 @@ tools = [
 ['ta_lighting', 3, 'Sky View Factor'],
 ['ta_lighting', 4, 'Topographic Correction'],
 ['ta_lighting', 5, 'Topographic Openness'],
-['ta_lighting', 6, 'Visibility (points)'],
+['ta_lighting', 6, 'Visibility Analysis'],
 ['ta_morphometry', 0, 'Slope, Aspect, Curvature'],
 ['ta_morphometry', 1, 'Convergence Index'],
 ['ta_morphometry', 2, 'Convergence Index (Search Radius)'],

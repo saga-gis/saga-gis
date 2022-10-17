@@ -143,6 +143,12 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 		"LABELS"		, _TL("Labels"),
 		_TL(""),
 		false
+	);
+
+	m_Parameters.Add_Bool("NODE_GENERAL",
+		"NORTH"			, _TL("North Arrow"),
+		_TL(""),
+		false
 	)->Set_Enabled(false);
 
 	m_Parameters.Add_Bool("NODE_GENERAL",
@@ -385,6 +391,10 @@ void CSG_3DView_Panel::On_Key_Down(wxKeyEvent &event)
 			m_Parameters("LABELS")->Set_Value(m_Parameters("LABELS")->asBool() == false);
 			break;
 
+		case 'N':
+			m_Parameters("NORTH" )->Set_Value(m_Parameters("NORTH" )->asBool() == false);
+			break;
+
 		case 'S':
 			m_Parameters("STEREO")->Set_Value(m_Parameters("STEREO")->asBool() == false);
 			break;
@@ -568,6 +578,7 @@ bool CSG_3DView_Panel::Update_View(bool bStatistics)
 		m_bgColor = m_Parameters("BGCOLOR"    )->asColor ();
 		m_bBox    = m_Parameters("BOX"        )->asBool  ();
 		m_bLabels = m_Parameters("LABELS"     )->asBool  ();
+		m_bNorth  = m_Parameters("NORTH"      )->asBool  ();
 		m_bStereo = m_Parameters("STEREO"     )->asBool  ();
 		m_dStereo = m_Parameters("STEREO_DIST")->asDouble();
 

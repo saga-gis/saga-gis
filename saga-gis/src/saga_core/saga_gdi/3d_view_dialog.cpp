@@ -66,6 +66,7 @@ enum
 	MENU_CLOSE,
 	MENU_BOX,
 	MENU_LABELS,
+	MENU_NORTH,
 	MENU_STEREO,
 	MENU_CENTRAL,
 	MENU_TO_CLIPBOARD,
@@ -183,7 +184,8 @@ void CSG_3DView_Dialog::On_Button(wxCommandEvent &event)
 		Menu.AppendSubMenu(pMenu = new wxMenu, _TL("Display"));
 
 		pMenu->AppendCheckItem(MENU_BOX          , _TL("Bounding Box [B]"));
-	//	pMenu->AppendCheckItem(MENU_LABELS       , _TL("Labels [L]"));
+		pMenu->AppendCheckItem(MENU_LABELS       , _TL("Labels [L]"));
+	//	pMenu->AppendCheckItem(MENU_NORTH        , _TL("North Arrow [N]"));
 		pMenu->AppendCheckItem(MENU_STEREO       , _TL("Anaglyph [S]"));
 		pMenu->AppendCheckItem(MENU_CENTRAL      , _TL("Central"));
 
@@ -263,6 +265,7 @@ void CSG_3DView_Dialog::On_Menu(wxCommandEvent &event)
 
 	case MENU_BOX          :	MENU_TOGGLE("BOX"   );	break;
 	case MENU_LABELS       :	MENU_TOGGLE("LABELS");	break;
+	case MENU_NORTH        :	MENU_TOGGLE("NORTH" );	break;
 	case MENU_STEREO       :	MENU_TOGGLE("STEREO");	break;
 
 	case MENU_TO_CLIPBOARD :	m_pPanel->Save_toClipboard();	break;
@@ -299,13 +302,14 @@ void CSG_3DView_Dialog::On_Menu_UI(wxUpdateUIEvent &event)
 {
 	switch( event.GetId() )
 	{
-	case MENU_BOX          :	event.Check(m_pPanel->m_Parameters("BOX"   )->asBool());	break;
-	case MENU_LABELS       :	event.Check(m_pPanel->m_Parameters("LABELS")->asBool());	break;
-	case MENU_STEREO       :	event.Check(m_pPanel->m_Parameters("STEREO")->asBool());	break;
+	case MENU_BOX          : event.Check(m_pPanel->m_Parameters("BOX"   )->asBool()); break;
+	case MENU_LABELS       : event.Check(m_pPanel->m_Parameters("LABELS")->asBool()); break;
+	case MENU_NORTH        : event.Check(m_pPanel->m_Parameters("NORTH" )->asBool()); break;
+	case MENU_STEREO       : event.Check(m_pPanel->m_Parameters("STEREO")->asBool()); break;
 
-	case MENU_CENTRAL      :	event.Check(m_pPanel->Get_Projector().is_Central());	break;
+	case MENU_CENTRAL      : event.Check(m_pPanel->Get_Projector().is_Central()); break;
 
-	case MENU_PLAY_RUN_LOOP:	event.Check(m_pPanel->Play_Get_State() == SG_3DVIEW_PLAY_RUN_LOOP);	break;
+	case MENU_PLAY_RUN_LOOP: event.Check(m_pPanel->Play_Get_State() == SG_3DVIEW_PLAY_RUN_LOOP); break;
 	}
 }
 
