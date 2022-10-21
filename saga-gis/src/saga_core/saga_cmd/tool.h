@@ -92,12 +92,24 @@ private:
 
 	CSG_Tool					*m_pTool;
 
-	wxCmdLineParser				m_CMD;
+	CSG_String					m_Usage;
+
+	CSG_Table					m_Arguments;
 
 
-	wxString					_Get_ID					(CSG_Parameter  *pParameter, const wxString &Modifier = "");
+	CSG_String					_Get_ID					(CSG_Parameter  *pParameter);
 
-	bool						_Set_Parameters			(CSG_Parameters *pParameters);
+	bool						_Parse					(int argc, char *argv[]);
+
+	bool						_Check					(void);
+
+	CSG_Table_Record *			_Found					(const CSG_String &Name);
+	bool						_Found					(const CSG_String &Name, CSG_String   &Value);
+	bool						_Found					(const CSG_String &Name, int          &Value);
+	bool						_Found					(const CSG_String &Name, double       &Value);
+	bool						_Found					(const CSG_String &Name, CSG_DateTime &Value);
+
+	bool						_Set_Parser				(CSG_Parameters *pParameters, wxCmdLineParser &Parser);
 
 	bool						_Get_Parameters			(CSG_Parameters *pParameters, bool bInitialize);
 	bool						_Get_Options			(CSG_Parameters *pParameters, bool bInitialize);
