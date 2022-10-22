@@ -577,8 +577,13 @@ bool CWKSP_Tool_Manager::_Reload(void)
 	#ifdef _SAGA_MSW
 		SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(&g_pSAGA->Get_App_Path(), "tools"));
 	#else // #ifdef _SAGA_LINUX
-		SG_Get_Tool_Library_Manager().Add_Directory(TOOLS_PATH);
-		SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(SHARE_PATH, "toolchains"));	// look for tool chains
+		#if defined(__WXMAC__)
+		if( SG_Get_Tool_Library_Manager().Add_Directory(SG_UI_Get_Application_Path(true) + "/../Tools", false) < 1 )
+		#endif
+		{
+			SG_Get_Tool_Library_Manager().Add_Directory(TOOLS_PATH);
+			SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(SHARE_PATH, "toolchains"));	// look for tool chains
+		}
 	#endif
 
 	wxString Path;

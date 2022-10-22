@@ -145,7 +145,7 @@ bool CLine_Split_with_Lines::On_Execute(void)
 
 		if( Parameters("OUTPUT")->asInt() == 1 )
 		{
-			for(int iPart=pLine->Get_Part_Count()-1; iPart>1; iPart--)
+			for(int iPart=pLine->Get_Part_Count()-1; iPart>=1; iPart--)
 			{
 				CSG_Shape_Line	*pAdd	= (CSG_Shape_Line *)pIntersect->Add_Shape(pLine, SHAPE_COPY_ATTR);	// only attributes
 

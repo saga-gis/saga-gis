@@ -407,8 +407,13 @@ bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char
 	{
 		if( bLibraries )
 		{
-			SG_Get_Tool_Library_Manager().Add_Directory(TOOLS_PATH);
-			SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(SHARE_PATH, "toolchains"));	// look for tool chains
+			#if defined(__WXMAC__)
+			if( SG_Get_Tool_Library_Manager().Add_Directory(SG_UI_Get_Application_Path(true) + "/../Tools", false) < 1 )
+			#endif
+			{
+				SG_Get_Tool_Library_Manager().Add_Directory(TOOLS_PATH);
+				SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(SHARE_PATH, "toolchains"));	// look for tool chains
+			}
 		}
 
 		if( bProjections )
