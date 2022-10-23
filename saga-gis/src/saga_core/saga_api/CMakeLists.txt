@@ -216,4 +216,7 @@ if(MSVC)
 endif()
 
 #-#-#-#-#-# SWIG / Python #-#-#-#-#-#
-add_subdirectory(saga_api_python)
+option(WITH_PYTHON "Uncheck to not try to Build the SAGA API for Python." ON)
+if(WITH_PYTHON)
+	add_subdirectory(saga_api_python)
+endif()
