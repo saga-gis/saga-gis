@@ -403,6 +403,39 @@ bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char
 			SG_Get_Projections().Load_DB        (SG_File_Make_Path(&App_Path, "saga_prj", "srs"));
 		}
 	}
+	#elif defined(__WXMAC__)
+	{
+		if( bLibraries )
+		{
+			if( SG_Get_Tool_Library_Manager().Add_Directory(SG_UI_Get_Application_Path(true) + "/../Tools", false) < 1 )
+			{
+				#ifdef TOOLS_PATH
+				SG_Get_Tool_Library_Manager().Add_Directory(TOOLS_PATH);
+				#endif
+
+				#ifdef SHARE_PATH
+				SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(SHARE_PATH, "toolchains"));	// look for tool chains
+				#endif
+			}
+		}
+
+		if( bProjections )
+		{
+			if( SG_Get_Projections().Load_Dictionary(SG_File_Make_Path(SG_UI_Get_Application_Path(true), "saga_prj", "dic")) )
+			{
+				#ifdef SHARE_PATH
+				SG_Get_Projections().Load_Dictionary(SG_File_Make_Path(SHARE_PATH, "saga_prj", "dic"));
+				#endif
+			}
+
+			if( SG_Get_Projections().Load_DB        (SG_File_Make_Path(SG_UI_Get_Application_Path(true), "saga_prj", "srs")) )
+			{
+				#ifdef SHARE_PATH
+				SG_Get_Projections().Load_DB        (SG_File_Make_Path(SHARE_PATH, "saga_prj", "srs"));
+				#endif
+			}
+		}
+	}
 	#else // #ifdef _SAGA_LINUX
 	{
 		if( bLibraries )
@@ -418,8 +451,13 @@ bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char
 
 		if( bProjections )
 		{
-			SG_Get_Projections().Load_Dictionary(SG_File_Make_Path(SHARE_PATH, "saga_prj", "dic"));
-			SG_Get_Projections().Load_DB        (SG_File_Make_Path(SHARE_PATH, "saga_prj", "srs"));
+			#if defined(__WXMAC__)
+			if( SG_Get_Tool_Library_Manager().Add_Directory(SG_UI_Get_Application_Path(true) + "/../Tools", false) < 1 )
+			#endif
+			{
+				SG_Get_Projections().Load_Dictionary(SG_File_Make_Path(SHARE_PATH, "saga_prj", "dic"));
+				SG_Get_Projections().Load_DB        (SG_File_Make_Path(SHARE_PATH, "saga_prj", "srs"));
+			}
 		}
 	}
 	#endif

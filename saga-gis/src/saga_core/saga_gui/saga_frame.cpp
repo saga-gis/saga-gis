@@ -850,31 +850,30 @@ void CSAGA_Frame::On_Command_Child_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CSAGA_Frame::Show_Tips(bool bShow)
 {
-	bool			bTip;
-	long			iTip;
+	wxFileName FileName(g_pSAGA->Get_App_Path(), "saga_gui", "tip");
 
 #ifdef SHARE_PATH
-        wxFileName      fTip(wxT(SHARE_PATH), wxT("saga_tip.txt"));
-#else
-        wxFileName      fTip(g_pSAGA->Get_App_Path(), wxT("saga_gui"), wxT("tip"));
+	if( !FileName.FileExists() )
+	{
+		FileName.Assign(SHARE_PATH, "saga_tip", "txt");
+	}
 #endif
 
-	wxTipProvider	*pTip;
-
-	bTip	= CONFIG_Read(wxT("/TIPS"), wxT("ATSTART"), bTip) ? bTip : true;
-
-	if( bShow || (bTip && fTip.FileExists()) )
+	if( FileName.FileExists() )
 	{
-		iTip	= CONFIG_Read(wxT("/TIPS"), wxT("CURRENT"), iTip) ? iTip : 0;
-		pTip	= wxCreateFileTipProvider(fTip.GetFullPath(), iTip);
+		bool bAtStart; bAtStart = CONFIG_Read("/TIPS", "ATSTART", bAtStart) ? bAtStart : true;
 
-		bTip	= wxShowTip(this, pTip, bTip);
-		iTip	= pTip->GetCurrentTip();
+		if( bShow || bAtStart )
+		{
+			long Tip = CONFIG_Read("/TIPS", "CURRENT", Tip) ? Tip : 0;
 
-		CONFIG_Write(wxT("/TIPS"), wxT("ATSTART"), bTip);
-		CONFIG_Write(wxT("/TIPS"), wxT("CURRENT"), iTip);
+			wxTipProvider *pTips = wxCreateFileTipProvider(FileName.GetFullPath(), Tip);
 
-		delete(pTip);
+			CONFIG_Write("/TIPS", "ATSTART", wxShowTip(this, pTips, bAtStart));
+			CONFIG_Write("/TIPS", "CURRENT", (long)pTips->GetCurrentTip());
+
+			delete(pTips);
+		}
 	}
 }
 

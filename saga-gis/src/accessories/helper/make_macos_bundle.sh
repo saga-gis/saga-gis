@@ -3,7 +3,7 @@
 # brew install dylibbundler
 
 SRCDIR=./saga-code
-APPDIR=./saga-gis.app
+APPDIR=./SAGA.app
 
 rm -rf "${APPDIR}"
 mkdir "${APPDIR}"
