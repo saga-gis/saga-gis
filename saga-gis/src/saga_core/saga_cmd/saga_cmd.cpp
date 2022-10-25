@@ -302,7 +302,16 @@ bool		Execute_Script_Command(CSG_String Command)
 	}
 
 	//-----------------------------------------------------
-	int argc = 1; char **argv = NULL; CSG_String Argument;
+	#define ADD_ARGUMENT(arg) if( !arg.is_Empty() ) {\
+		argv       = (char **)SG_Realloc(argv, (argc + 1) * sizeof(char *));\
+		argv[argc] = (char  *)SG_Calloc(1 + arg.Length(), sizeof(char));\
+		memcpy(argv[argc++], arg.b_str(), arg.Length() * sizeof(char));\
+		arg.Clear();\
+	}
+
+	int argc = 0; char **argv = NULL; CSG_String Argument("saga_cmd");
+
+	ADD_ARGUMENT(Argument);
 
 	for(int i=0, bQuota=0; i<Command.Length(); i++)
 	{
@@ -321,24 +330,15 @@ bool		Execute_Script_Command(CSG_String Command)
 			{
 				Argument += ' ';
 			}
-			else if( !Argument.is_Empty() )
+			else
 			{
-				argv       = (char **)SG_Realloc(argv, (argc + 1) * sizeof(char *));
-				argv[argc] = (char  *)SG_Calloc(1 + Argument.Length(), sizeof(char));
-				memcpy(argv[argc++], Argument.b_str(), Argument.Length() * sizeof(char));
-
-				Argument.Clear();
+				ADD_ARGUMENT(Argument);
 			}
 			break;
 		}
 	}
 
-	if( !Argument.is_Empty() )
-	{
-		argv       = (char **)SG_Realloc(argv, (argc + 1) * sizeof(char *));
-		argv[argc] = (char  *)SG_Calloc(1 + Argument.Length(), sizeof(char));
-		memcpy(argv[argc++], Argument.b_str(), Argument.Length() * sizeof(char));
-	}
+	ADD_ARGUMENT(Argument);
 
 	//-----------------------------------------------------
 	bool bResult = Execute(argc, argv);
