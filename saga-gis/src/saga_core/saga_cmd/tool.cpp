@@ -155,7 +155,7 @@ bool CCMD_Tool::Execute(int argc, char *argv[])
 		bResult = _Get_Parameters(m_pTool->Get_Parameters(i), true);
 	}
 
-	if( !bResult || !_Check() )
+	if( !bResult )
 	{
 		Usage();
 
@@ -193,6 +193,8 @@ bool CCMD_Tool::Execute(int argc, char *argv[])
 
 	SG_UI_ProgressAndMsg_Reset(); SG_UI_Process_Set_Okay();
 
+	_Report_Unused();
+
 	return( bResult );
 }
 
@@ -228,78 +230,40 @@ bool CCMD_Tool::_Parse(int argc, char *argv[])
 {
 	m_Arguments.Destroy();
 
-	if( argc <= 1 )
-	{
-		return( false );
-	}
-
 	m_Arguments.Add_Field("KEY", SG_DATATYPE_String);
 	m_Arguments.Add_Field("VAL", SG_DATATYPE_String);
 	m_Arguments.Add_Field("USE", SG_DATATYPE_Int   );
 
 	//-----------------------------------------------------
-	CSG_Strings Arguments; CSG_String Argument;
-
-	for(int i=1; i<argc; i++)
+	for(int i=0; i<argc; i++)
 	{
 		if( argv[i][0] == '-' )
 		{
-			if( !Argument.is_Empty() )
+			CSG_String Value, Key = argv[i] + 1;
+
+			if( Key.Find('=') > 0 )
 			{
-				Arguments += Argument;
+				Value = Key.AfterFirst ('=');
+				Key   = Key.BeforeFirst('=');
+			}
+			else if( ++i < argc )
+			{
+				Value = argv[i];
 			}
 
-			Argument = argv[i] + 1;
-		}
-		else if( !Argument.is_Empty() )
-		{
-			Argument += CSG_String(" ") + argv[i];
-		}
-	}
-
-	if( !Argument.is_Empty() )
-	{
-		Arguments += Argument;
-	}
-
-	//-----------------------------------------------------
-	CSG_Table_Record *pArgument = NULL;
-
-	for(int i=0; i<Arguments.Get_Count(); i++)
-	{
-		Argument = Arguments[i];
-
-		if( Argument.is_Empty() )
-		{
-			continue;
-		}
-
-		char Separator = Argument.Find('=') >= 0 && (Argument.Find(' ') < 0 || (Argument.Find('=') < Argument.Find(' '))) ? '=' : ' ';
-
-		CSG_String Key = Argument.BeforeFirst(Separator);
-
-		if( Key.is_Empty() )
-		{
-			return( false );
-		}
-
-		CSG_String Value = Argument.AfterFirst(Separator);
-
-		if( Value[0] == '\"' )
-		{
-			Value = Value.AfterFirst('\"');
-
-			if( Value.is_Empty() || Value[Value.Length() - 1] != '\"' )
+			if( !Key.is_Empty() )
 			{
-				return( false );
+				if( !Value.is_Empty() && Value[0] == '\"' )
+				{
+					Value = Value.AfterFirst('\"').BeforeLast('\"');
+				}
+		
+				CSG_Table_Record *pArgument = m_Arguments.Add_Record();
+
+				pArgument->Set_Value(0, Key  );
+				pArgument->Set_Value(1, Value);
 			}
-
-			Value = Value.BeforeLast('\"');
 		}
-
-		pArgument = m_Arguments.Add_Record();
-		pArgument->Set_Value(0, Key  );
-		pArgument->Set_Value(1, Value);
 	}
 
 	return( true );
@@ -311,7 +275,7 @@ bool CCMD_Tool::_Parse(int argc, char *argv[])
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CCMD_Tool::_Check(void)
+bool CCMD_Tool::_Report_Unused(void)
 {
 	CSG_String Unused;
 
@@ -332,10 +296,10 @@ bool CCMD_Tool::_Check(void)
 	{
 		SG_Printf("%s: %s!\n[%s]\n\n", _TL("Warning"), _TL("Some arguments have been ignored"), Unused.c_str());
 
-	//	return( false );
+		return( true );
 	}
 
-	return( true );
+	return( false );
 }
 
 
@@ -931,7 +895,7 @@ bool CCMD_Tool::_Save_Output(CSG_Parameters *pParameters)
 		}
 
 		//-------------------------------------------------
-		else if( pParameter->is_Output() &&  _Found(_Get_ID(pParameter), FileName) && FileName.Length() > 0 )
+		else if( pParameter->is_Output() && _Found(_Get_ID(pParameter), FileName) && FileName.Length() > 0 )
 		{
 			if( pParameter->is_DataObject() )
 			{

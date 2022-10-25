@@ -211,7 +211,7 @@ bool		Run(int argc, char *argv[])
 bool		Execute(int argc, char *argv[])
 {
 	//-----------------------------------------------------
-	CSG_String	Library	= argc <= 1 ? "" : argv[1];
+	CSG_String Library = argc < 2 ? "" : argv[1];
 
 	if( SG_Get_Tool_Library_Manager().Get_Library(Library, true) == NULL )
 	{
@@ -221,7 +221,7 @@ bool		Execute(int argc, char *argv[])
 	}
 
 	//-----------------------------------------------------
-	CSG_Tool	*pTool	= argc <= 2 ? NULL : SG_Get_Tool_Library_Manager().Get_Tool(Library, CSG_String(argv[2]));
+	CSG_Tool *pTool = argc < 3 ? NULL : SG_Get_Tool_Library_Manager().Get_Tool(Library, CSG_String(argv[2]));
 
 	if( pTool == NULL )
 	{
@@ -249,9 +249,9 @@ bool		Execute(int argc, char *argv[])
 	//-----------------------------------------------------
 	Print_Execution(pTool);
 
-	CCMD_Tool	CMD_Tool(pTool);
+	CCMD_Tool CMD_Tool(pTool);
 
-	return( CMD_Tool.Execute(argc - 2, argv + 2) );
+	return( CMD_Tool.Execute(argc - 3, argv + 3) );
 }
 
 
@@ -264,7 +264,7 @@ bool		Execute(int argc, char *argv[])
 //---------------------------------------------------------
 bool		Set_Environment(CSG_String &Command)
 {
-	wxString	Value, Key	= Command.AfterFirst('%').BeforeFirst('%').c_str();
+	wxString Value, Key = Command.AfterFirst('%').BeforeFirst('%').c_str();
 
 	if( Key.IsEmpty() )
 	{
@@ -280,7 +280,7 @@ bool		Set_Environment(CSG_String &Command)
 }
 
 //---------------------------------------------------------
-bool		Execute(CSG_String Command)
+bool		Execute_Script_Command(CSG_String Command)
 {
 	Command.Trim();
 
@@ -302,23 +302,46 @@ bool		Execute(CSG_String Command)
 	}
 
 	//-----------------------------------------------------
-	int		argc	= 1;
-	char	**argv	= NULL;
+	int argc = 1; char **argv = NULL; CSG_String Argument;
 
-	while( Command.Length() > 0 )
+	for(int i=0, bQuota=0; i<Command.Length(); i++)
 	{
-		CSG_String	s	= Command[0] == '\"' ? Command.AfterFirst('\"').BeforeFirst('\"') : Command.BeforeFirst(' ');
+		switch( Command[i] )
+		{
+		default:
+			Argument += Command[i];
+			break;
 
-		argv		= (char **)SG_Realloc(argv, (argc + 1) * sizeof(char *));
-		argv[argc]	= (char  *)SG_Calloc(1 + s.Length(), sizeof(char));
+		case '\"':
+			bQuota = bQuota ? 0 : 1;
+			break;
 
-		memcpy(argv[argc++], s.b_str(), s.Length() * sizeof(char));
+		case ' ': case '\t':
+			if( bQuota )
+			{
+				Argument += ' ';
+			}
+			else if( !Argument.is_Empty() )
+			{
+				argv       = (char **)SG_Realloc(argv, (argc + 1) * sizeof(char *));
+				argv[argc] = (char  *)SG_Calloc(1 + Argument.Length(), sizeof(char));
+				memcpy(argv[argc++], Argument.b_str(), Argument.Length() * sizeof(char));
 
-		Command	= Command.AfterFirst(' ');	Command.Trim();
+				Argument.Clear();
+			}
+			break;
+		}
+	}
+
+	if( !Argument.is_Empty() )
+	{
+		argv       = (char **)SG_Realloc(argv, (argc + 1) * sizeof(char *));
+		argv[argc] = (char  *)SG_Calloc(1 + Argument.Length(), sizeof(char));
+		memcpy(argv[argc++], Argument.b_str(), Argument.Length() * sizeof(char));
 	}
 
 	//-----------------------------------------------------
-	bool	bResult	= Execute(argc, argv);
+	bool bResult = Execute(argc, argv);
 
 	for(int i=1; i<argc; i++)
 	{
@@ -344,7 +367,7 @@ bool		Execute_Script(const CSG_String &Script)
 		CMD_Print(CSG_String::Format("%s: %s", _TL("Running Script"), Script.c_str()));
 	}
 
-	CSG_File	Stream;
+	CSG_File Stream;
 
 	if( !Stream.Open(Script, SG_FILE_R, false) )
 	{
@@ -353,7 +376,7 @@ bool		Execute_Script(const CSG_String &Script)
 		return( false );
 	}
 
-	CSG_String	Command;
+	CSG_String Command;
 
 	while( Stream.Read_Line(Command) )
 	{
@@ -361,13 +384,13 @@ bool		Execute_Script(const CSG_String &Script)
 
 		if( Command.Length() > 0 && Command[Command.Length() - 1] == CONTINUE_LINE )
 		{
-			CSG_String	c;
+			CSG_String Line;
 
-			while( Stream.Read_Line(c) )
+			while( Stream.Read_Line(Line) )
 			{
-				Command += c;
+				Command += Line;
 
-				if( c.Length() < 1 || c[c.Length() - 1] != CONTINUE_LINE )
+				if( Line.Length() < 1 || Line[Line.Length() - 1] != CONTINUE_LINE )
 				{
 					break;
 				}
@@ -378,7 +401,7 @@ bool		Execute_Script(const CSG_String &Script)
 
 		Set_Environment(Command);
 
-		if( !Execute(Command) )
+		if( !Execute_Script_Command(Command) )
 		{
 			CMD_Print_Error(_TL("invalid command"), Command);
 
