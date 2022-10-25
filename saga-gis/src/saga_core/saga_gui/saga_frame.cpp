@@ -850,7 +850,7 @@ void CSAGA_Frame::On_Command_Child_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CSAGA_Frame::Show_Tips(bool bShow)
 {
-	wxFileName FileName(g_pSAGA->Get_App_Path(), "saga_gui", "tip");
+	wxFileName FileName(SG_UI_Get_Application_Path(true).c_str(), "saga_gui", "tip");
 
 #ifdef SHARE_PATH
 	if( !FileName.FileExists() )

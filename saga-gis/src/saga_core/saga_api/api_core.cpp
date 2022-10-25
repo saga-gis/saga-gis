@@ -421,14 +421,14 @@ bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char
 
 		if( bProjections )
 		{
-			if( SG_Get_Projections().Load_Dictionary(SG_File_Make_Path(SG_UI_Get_Application_Path(true), "saga_prj", "dic")) )
+			if( SG_Get_Projections().Load_Dictionary(SG_File_Make_Path(SG_UI_Get_Application_Path(true), "saga_prj", "dic")) == false )
 			{
 				#ifdef SHARE_PATH
 				SG_Get_Projections().Load_Dictionary(SG_File_Make_Path(SHARE_PATH, "saga_prj", "dic"));
 				#endif
 			}
 
-			if( SG_Get_Projections().Load_DB        (SG_File_Make_Path(SG_UI_Get_Application_Path(true), "saga_prj", "srs")) )
+			if( SG_Get_Projections().Load_DB        (SG_File_Make_Path(SG_UI_Get_Application_Path(true), "saga_prj", "srs")) == false )
 			{
 				#ifdef SHARE_PATH
 				SG_Get_Projections().Load_DB        (SG_File_Make_Path(SHARE_PATH, "saga_prj", "srs"));
@@ -440,24 +440,20 @@ bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char
 	{
 		if( bLibraries )
 		{
-			#if defined(__WXMAC__)
-			if( SG_Get_Tool_Library_Manager().Add_Directory(SG_UI_Get_Application_Path(true) + "/../Tools", false) < 1 )
+			#ifdef TOOLS_PATH
+			SG_Get_Tool_Library_Manager().Add_Directory(TOOLS_PATH);
 			#endif
-			{
-				SG_Get_Tool_Library_Manager().Add_Directory(TOOLS_PATH);
-				SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(SHARE_PATH, "toolchains"));	// look for tool chains
-			}
+			#ifdef SHARE_PATH
+			SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(SHARE_PATH, "toolchains"));	// look for tool chains
+			#endif
 		}
 
 		if( bProjections )
 		{
-			#if defined(__WXMAC__)
-			if( SG_Get_Tool_Library_Manager().Add_Directory(SG_UI_Get_Application_Path(true) + "/../Tools", false) < 1 )
+			#ifdef SHARE_PATH
+			SG_Get_Projections().Load_Dictionary(SG_File_Make_Path(SHARE_PATH, "saga_prj", "dic"));
+			SG_Get_Projections().Load_DB        (SG_File_Make_Path(SHARE_PATH, "saga_prj", "srs"));
 			#endif
-			{
-				SG_Get_Projections().Load_Dictionary(SG_File_Make_Path(SHARE_PATH, "saga_prj", "dic"));
-				SG_Get_Projections().Load_DB        (SG_File_Make_Path(SHARE_PATH, "saga_prj", "srs"));
-			}
 		}
 	}
 	#endif
