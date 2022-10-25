@@ -313,7 +313,7 @@ bool		Execute_Script_Command(CSG_String Command)
 
 	ADD_ARGUMENT(Argument);
 
-	for(int i=0, bQuota=0; i<Command.Length(); i++)
+	for(size_t i=0, bQuota=0; i<Command.Length(); i++)
 	{
 		switch( Command[i] )
 		{
