@@ -758,22 +758,22 @@ bool		DLG_Colors(CSG_Colors *pColors)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		DLG_Colors(int &Palette)
+bool		DLG_Colors(int &Index)
 {
-	wxString	Palettes[SG_COLORS_COUNT];
+	wxArrayString Colors;
 
-	for(int i=0; i<SG_COLORS_COUNT; i++)
+	for(int i=0; i<CSG_Colors::Get_Predefined_Count(); i++)
 	{
-		Palettes[i]	= SG_Colors_Get_Name(i).c_str();
+		Colors.Add(CSG_Colors::Get_Predefined_Name(i).c_str());
 	}
 
-	wxSingleChoiceDialog	dlg(MDI_Get_Top_Window(), "",
-		_TL("Preset Selection"), SG_COLORS_COUNT, Palettes
+	wxSingleChoiceDialog dlg(MDI_Get_Top_Window(), "",
+		_TL("Preset Selection"), Colors
 	);
 
 	if( dlg.ShowModal() == wxID_OK )
 	{
-		Palette	= dlg.GetSelection();
+		Index = dlg.GetSelection();
 
 		return( true );
 	}
@@ -782,22 +782,22 @@ bool		DLG_Colors(int &Palette)
 }
 
 //---------------------------------------------------------
-bool		DLG_Color(long &_Colour)
+bool		DLG_Color(long &Color)
 {
-	static wxColourData	Colours;
+	static wxColourData Colors;
 
-	Colours.SetChooseFull(true);
+	Colors.SetChooseFull(true);
 
-	wxColour		Colour(SG_GET_R(_Colour), SG_GET_G(_Colour), SG_GET_B(_Colour));
-	wxColourDialog	dlg(MDI_Get_Top_Window(), &Colours);
+	wxColour _Color(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
+	wxColourDialog dlg(MDI_Get_Top_Window(), &Colors);
 
-	dlg.GetColourData().SetColour(Colour);
+	dlg.GetColourData().SetColour(_Color);
 
 	if( dlg.ShowModal() == wxID_OK )
 	{
-		Colours	= dlg.GetColourData();
-		Colour	= dlg.GetColourData().GetColour();
-		_Colour	= Get_Color_asInt(Colour);
+		Colors = dlg.GetColourData();
+		_Color = dlg.GetColourData().GetColour();
+		Color  = Get_Color_asInt(_Color);
 
 		return( true );
 	}

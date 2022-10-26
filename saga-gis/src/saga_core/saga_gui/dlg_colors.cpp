@@ -74,26 +74,26 @@ class CColorPresets : public wxOwnerDrawnComboBox
 public:
 	CColorPresets(wxWindow *pParent)
 	{
-		wxArrayString	Items;	CSG_Colors	Colors;
+		wxArrayString Colors; CSG_Colors Dummy;
 
-		for(int i=0; Colors.Set_Predefined(i); i++)
+		for(int i=0; Dummy.Set_Predefined(i); i++)
 		{
-			Items.Add(CSG_Colors::Get_Predefined_Name(i));
+			Colors.Add(CSG_Colors::Get_Predefined_Name(i).c_str());
 		}
 
-		Create(pParent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, Items, wxCB_READONLY); //wxNO_BORDER|wxCB_READONLY);
+		Create(pParent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, Colors, wxCB_READONLY); //wxNO_BORDER|wxCB_READONLY);
 
 		SetSelection(0);
 	}
 
 	//-----------------------------------------------------
-	void	Draw_Colors		(wxDC &dc, const wxRect &r, int Palette) const
+	void	Draw_Colors(wxDC &dc, const wxRect &r, int Palette) const
 	{
-		CSG_Colors	Colors(r.GetWidth(), Palette);
+		CSG_Colors Colors(r.GetWidth(), Palette);
 
 		for(int i=0, x=r.GetLeft(); i<Colors.Get_Count(); i++)
 		{
-			int	xx = x; x = r.GetLeft() + (int)((i + 1.) * r.GetWidth() / (double)Colors.Get_Count());
+			int xx = x; x = r.GetLeft() + (int)((i + 1.) * r.GetWidth() / (double)Colors.Get_Count());
 
 			Draw_FillRect(dc, Get_Color_asWX(Colors.Get_Color(i)), xx, r.GetTop(), x, r.GetBottom());
 		}
@@ -104,38 +104,37 @@ public:
 	{
 		if( item != wxNOT_FOUND )
 		{
-			wxRect	r = rect; r.Deflate(1);
+			wxRect r(rect);
 
-			Draw_Colors(dc, r, item);
+			Draw_Colors(dc, r.Deflate(1), item);
 		}
 	}
 
 	//-----------------------------------------------------
-	virtual void OnDrawBackground( wxDC& dc, const wxRect &rect, int item, int flags ) const
+	virtual void OnDrawBackground(wxDC& dc, const wxRect &rect, int item, int flags) const
 	{
 		if( (flags & (wxODCB_PAINTING_CONTROL|wxODCB_PAINTING_SELECTED)) )
 		{
 			wxOwnerDrawnComboBox::OnDrawBackground(dc, rect, item, flags);
-
-			return;
 		}
+		else
+		{
+			wxColour Color(SYS_Get_Color(wxSYS_COLOUR_WINDOW));
 
-		wxColour	Color	= SYS_Get_Color(wxSYS_COLOUR_WINDOW);
+			dc.SetBrush(Color); dc.SetPen(Color);
 
-		dc.SetBrush(wxBrush(Color));
-		dc.SetPen  (wxPen  (Color));
-
-		dc.DrawRectangle(rect);
+			dc.DrawRectangle(rect);
+		}
 	}
 
 	virtual wxCoord OnMeasureItem(size_t WXUNUSED(item)) const
 	{
-		return( (wxCoord)( 0.8 * GetSize().GetHeight()) );
+		return( (wxCoord)(0.8 * GetSize().GetHeight()) );
 	}
 
 	virtual wxCoord OnMeasureItemWidth(size_t WXUNUSED(item)) const
 	{
-		return( (wxCoord)(10.0 * GetSize().GetWidth ()) ); // return( -1 ); // will be measured from text width
+		return( (wxCoord)(10. * GetSize().GetWidth ()) ); // return( -1 ); // will be measured from text width
 	}
 };
 

@@ -1327,7 +1327,7 @@ public:
 	}
 
 	static int						Get_Predefined_Count(void);
-	static const SG_Char *			Get_Predefined_Name	(int Identifier);
+	static CSG_String				Get_Predefined_Name	(int Identifier);
 	bool							Set_Predefined		(int Index, bool bRevert = false, int nColors = 11);
 	bool							Set_Palette			(int Index, bool bRevert = false, int nColors = 11)	{	return( Set_Predefined(Index, bRevert, nColors) );	}
 	bool							Set_Default			(int nColors = 11);
