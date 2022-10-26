@@ -432,7 +432,7 @@ int CSG_Colors::Get_Predefined_Count(void)
 }
 
 //---------------------------------------------------------
-const SG_Char * CSG_Colors::Get_Predefined_Name(int Index)
+CSG_String CSG_Colors::Get_Predefined_Name(int Index)
 {
 	switch( Index )
 	{
