@@ -859,23 +859,26 @@ bool CSG_Projections::Save_Dictionary(const CSG_String &File)
 //---------------------------------------------------------
 bool CSG_Projections::Load_DB(const CSG_String &FileName, bool bAppend)
 {
-	CSG_Table	Table;
-
-	if( SG_File_Exists(FileName) && Table.Create(FileName) )
+	if( m_pProjections && SG_File_Exists(FileName) )
 	{
-		if( !bAppend )
+		CSG_Table Table;
+
+		if( Table.Create(FileName) )
 		{
-			Destroy();
+			Table.Set_Index(PRJ_FIELD_SRTEXT, TABLE_INDEX_Ascending);
+
+			if( !bAppend )
+			{
+				m_pProjections->Del_Records();
+			}
+
+			for(int i=0; i<Table.Get_Count() && SG_UI_Process_Set_Progress(i, Table.Get_Count()); i++)
+			{
+				m_pProjections->Add_Record(Table.Get_Record_byIndex(i));
+			}
+
+			return( true );
 		}
-
-		Table.Set_Index(PRJ_FIELD_SRTEXT, TABLE_INDEX_Ascending);
-
-		for(int i=0; i<Table.Get_Count() && SG_UI_Process_Set_Progress(i, Table.Get_Count()); i++)
-		{
-			m_pProjections->Add_Record(Table.Get_Record_byIndex(i));
-		}
-
-		return( true );
 	}
 
 	return( false );
@@ -1090,23 +1093,23 @@ bool CSG_Projections::_WKT_to_MetaData(CSG_MetaData &MetaData, const CSG_String 
 		{
 			switch( WKT[i] )
 			{
-			default :           Key += WKT[i]; break;
-			case ' ':	                       break;
-			case '[': case '(':	l    = 1;      break;
-			case ')': case ']':	               return( false );
+			default           : Key += WKT[i]; break;
+			case ' '          :                break;
+			case '[': case '(': l    = 1     ; break;
+			case ')': case ']':      return( false );
 			}
 		}
 		else		// read content
 		{
-			bool	bAdd;
+			bool bAdd;
 
 			switch( WKT[i] )
 			{
-			default:				bAdd	= true;		break;
-			case '\"': case ' ':	bAdd	= false;	break;
-			case '[' : case '(':	bAdd	= ++l > 1;	break;
-			case ']' : case ')':	bAdd	= l-- > 1;	break;
-			case ',' : if( !(bAdd = l > 1) )	Content.Add("");	break;
+			default            : bAdd =  true;                      break;
+			case '\"': case ' ': bAdd = false;                      break;
+			case '[' : case '(': bAdd = ++l > 1;                    break;
+			case ']' : case ')': bAdd = l-- > 1;                    break;
+			case ',' :     if( !(bAdd = l   > 1) ) Content.Add(""); break;
 			}
 
 			if( bAdd )
@@ -1783,7 +1786,7 @@ bool CSG_Projections::WKT_from_Proj4(CSG_String &WKT, const CSG_String &Proj4) c
 	{
 		SG_UI_Msg_Add_Error(CSG_String::Format("Proj4 >> WKT: %s [%s]", _TL("no translation available"), ProjCS.c_str()));
 
-		return( false );
+	//	return( false );
 	}
 
 	//-----------------------------------------------------
@@ -1862,251 +1865,251 @@ bool CSG_Projections::WKT_from_Proj4(CSG_String &WKT, const CSG_String &Proj4) c
 //---------------------------------------------------------
 bool CSG_Projections::_Set_Dictionary(CSG_Table &Dictionary, int Direction)
 {
-	const int	n	= 209;
-	const char	Translation[n][4][128]	= {
-		//	 PROJ4		  DIR	WKT										   DESCRIPTION
+	const int n = 214; const char Translation[n][4][128] = {
+//	{ PROJ4			, DIR	, WELL-KNOWN-TEXT							, DESCRIPTION, *) projection type not verified
 
-		// Projection Types, *) = not verified
-		{	"aea"		, " ", "Albers_Conic_Equal_Area"				, "Albers Equal Area"	},
-		{	"aea"		, "<", "Albers"									, "[ESRI] Albers Equal Area"	},
-		{	"aeqd"		, " ", "Azimuthal_Equidistant"					, "Azimuthal Equidistant"	},
-		{	"airy"		, " ", "Airy"									, "*) Airy"	},
-		{	"aitoff"	, " ", "Aitoff"									, "[ESRI] Aitoff"	},
-		{	"alsk"		, " ", "Mod_Stererographics_of_Alaska"			, "*) Mod. Stererographics of Alaska"	},
-		{	"apian"		, " ", "Apian_Globular_I"						, "*) Apian Globular I"	},
-		{	"august"	, " ", "August_Epicycloidal"					, "*) August Epicycloidal"	},
-		{	"bacon"		, " ", "Bacon_Globular"							, "*) Bacon Globular"	},
-		{	"bipc"		, " ", "Bipolar_conic_of_western_hemisphere"	, "*) Bipolar conic of western hemisphere"	},
-		{	"boggs"		, " ", "Boggs_Eumorphic"						, "*) Boggs Eumorphic"	},
-		{	"bonne"		, " ", "Bonne"									, "Bonne (Werner lat_1=90)"	},
-		{	"cass"		, " ", "Cassini_Soldner"						, "Cassini"	},
-		{	"cass"		, "<", "Cassini"								, "[ESRI] Cassini"	},
-		{	"cc"		, " ", "Central_Cylindrical"					, "*) Central Cylindrical"	},
-		{	"cea"		, " ", "Cylindrical_Equal_Area"					, "Equal Area Cylindrical, alias: Lambert Cyl.Eq.A., Normal Authalic Cyl. (FME), Behrmann (SP=30), Gall Orthogr. (SP=45)"	},
-		{	"cea"		, "<", "Behrmann"								, "[ESRI] Behrmann (standard parallel = 30)"	},
-		{	"chamb"		, " ", "Chamberlin_Trimetric"					, "*) Chamberlin Trimetric"	},
-		{	"collg"		, " ", "Collignon"								, "*) Collignon"	},
-		{	"crast"		, " ", "Craster_Parabolic"						, "[ESRI] Craster Parabolic (Putnins P4)"	},
-		{	"denoy"		, " ", "Denoyer_Semi_Elliptical"				, "*) Denoyer Semi-Elliptical"	},
-		{	"eck1"		, " ", "Eckert_I"								, "*) Eckert I"	},
-		{	"eck2"		, " ", "Eckert_II"								, "*) Eckert II"	},
-		{	"eck3"		, " ", "Eckert_III"								, "*) Eckert III"	},
-		{	"eck4"		, " ", "Eckert_IV"								, "Eckert IV"	},
-		{	"eck5"		, " ", "Eckert_V"								, "*) Eckert V"	},
-		{	"eck6"		, " ", "Eckert_VI"								, "Eckert VI"	},
-		{	"eqc"		, " ", "Equirectangular"						, "Equidistant Cylindrical (Plate Caree)"	},
-		{	"eqc"		, "<", "Equidistant_Cylindrical"				, "[ESRI] Equidistant Cylindrical (Plate Caree)"	},
-		{	"eqc"		, "<", "Plate_Carree"							, "[ESRI] Equidistant Cylindrical (Plate Caree)"	},
-		{	"eqdc"		, " ", "Equidistant_Conic"						, "*) Equidistant Conic"	},
-		{	"euler"		, " ", "Euler"									, "*) Euler"	},
-		{	"etmerc"	, " ", "Extended_Transverse_Mercator"			, "*) Extended Transverse Mercator"	},
-		{	"fahey"		, " ", "Fahey"									, "*) Fahey"	},
-		{	"fouc"		, " ", "Foucault"								, "*) Foucaut"	},
-		{	"fouc_s"	, " ", "Foucault_Sinusoidal"					, "*) Foucaut Sinusoidal"	},
-		{	"gall"		, " ", "Gall_Stereographic"						, "Gall (Gall Stereographic)"	},
-		{	"geocent"	, " ", "Geocentric"								, "*) Geocentric"	},
-		{	"geos"		, " ", "GEOS"									, "Geostationary Satellite View"	},
-		{	"gins8"		, " ", "Ginsburg_VIII"							, "*) Ginsburg VIII (TsNIIGAiK)"	},
-		{	"gn_sinu"	, " ", "General_Sinusoidal_Series"				, "*) General Sinusoidal Series"	},
-		{	"gnom"		, " ", "Gnomonic"								, "Gnomonic"	},
-		{	"goode"		, " ", "Goode_Homolosine"						, "*) Goode Homolosine"	},
-		{	"gs48"		, " ", "Mod_Stererographics_48"					, "*) Mod. Stererographics of 48 U.S."	},
-		{	"gs50"		, " ", "Mod_Stererographics_50"					, "*) Mod. Stererographics of 50 U.S."	},
-		{	"hammer"	, " ", "Hammer_Eckert_Greifendorff"				, "*) Hammer & Eckert-Greifendorff"	},
-		{	"hatano"	, " ", "Hatano_Asymmetrical_Equal_Area"			, "*) Hatano Asymmetrical Equal Area"	},
-		{	"igh"		, " ", "World_Goode_Homolosine_Land"			, "*) Interrupted Goode Homolosine"	},
-		{	"imw_p"		, " ", "International_Map_of_the_World_Polyconic", "*) International Map of the World Polyconic"	},
-		{	"kav5"		, " ", "Kavraisky_V"							, "*) Kavraisky V"	},
-		{	"kav7"		, " ", "Kavraisky_VII"							, "*) Kavraisky VII"	},
-		{	"krovak"	, " ", "Krovak"									, "Krovak"	},
-		{	"labrd"		, " ", "Laborde_Oblique_Mercator"				, "*) Laborde"	},
-		{	"laea"		, " ", "Lambert_Azimuthal_Equal_Area"			, "Lambert Azimuthal Equal Area"	},
-		{	"lagrng"	, " ", "Lagrange"								, "*) Lagrange"	},
-		{	"larr"		, " ", "Larrivee"								, "*) Larrivee"	},
-		{	"lask"		, " ", "Laskowski"								, "*) Laskowski"	},
-		{	"lcc"		, "<", "Lambert_Conformal_Conic_1SP"			, "Lambert Conformal Conic (1 standard parallel)"	},
-		{	"lcc"		, "<", "Lambert_Conformal_Conic_2SP"			, "Lambert Conformal Conic (2 standard parallels)"	},
-		{	"lcc"		, " ", "Lambert_Conformal_Conic"				, "Lambert Conformal Conic"	},
-		{	"lcca"		, " ", "Lambert_Conformal_Conic_Alternative"	, "*) Lambert Conformal Conic Alternative"	},
-		{	"leac"		, " ", "Lambert_Equal_Area_Conic"				, "*) Lambert Equal Area Conic"	},
-		{	"lee_os"	, " ", "Lee_Oblated_Stereographic"				, "*) Lee Oblated Stereographic"	},
-		{	"loxim"		, " ", "Loximuthal"								, "[ESRI] Loximuthal"	},
-		{	"lsat"		, " ", "Space_oblique_for_LANDSAT"				, "*) Space oblique for LANDSAT"	},
-		{	"mbt_s"		, " ", "McBryde_Thomas_Flat_Polar_Sine"			, "*) McBryde-Thomas Flat-Polar Sine"	},
-		{	"mbt_fps"	, " ", "McBryde_Thomas_Flat_Polar_Sine_2"		, "*) McBryde-Thomas Flat-Pole Sine (No. 2)"	},
-		{	"mbtfpp"	, " ", "McBryde_Thomas_Flat_Polar_Parabolic"	, "*) McBride-Thomas Flat-Polar Parabolic"	},
-		{	"mbtfpq"	, " ", "Flat_Polar_Quartic"						, "[ESRI] McBryde-Thomas Flat-Polar Quartic"	},
-		{	"mbtfps"	, " ", "McBryde_Thomas_Flat_Polar_Sinusoidal"	, "*) McBryde-Thomas Flat-Polar Sinusoidal"	},
-		{	"merc"		, " ", "Mercator"								, "[ESRI] Mercator"	},
-		{	"merc"		, "<", "Mercator_1SP"							, "Mercator (1 standard parallel)"	},
-		{	"merc"		, "<", "Mercator_2SP"							, "Mercator (2 standard parallels)"	},
-		{	"mil_os"	, " ", "Miller_Oblated_Stereographic"			, "*) Miller Oblated Stereographic"	},
-		{	"mill"		, " ", "Miller_Cylindrical"						, "Miller Cylindrical"	},
-		{	"moll"		, " ", "Mollweide"								, "Mollweide"	},
-		{	"murd1"		, " ", "Murdoch_I"								, "*) Murdoch I"	},
-		{	"murd2"		, " ", "Murdoch_II"								, "*) Murdoch II"	},
-		{	"murd3"		, " ", "Murdoch_III"							, "*) Murdoch III"	},
-		{	"nell"		, " ", "Nell"									, "*) Nell"	},
-		{	"nell_h"	, " ", "Nell_Hammer"							, "*) Nell-Hammer"	},
-		{	"nicol"		, " ", "Nicolosi_Globular"						, "*) Nicolosi Globular"	},
-		{	"nsper"		, " ", "Near_sided_perspective"					, "*) Near-sided perspective"	},
-		{	"nzmg"		, " ", "New_Zealand_Map_Grid"					, "New Zealand Map Grid"	},
-		{	"ob_tran"	, " ", "General_Oblique_Transformation"			, "*) General Oblique Transformation"	},
-		{	"ocea"		, " ", "Oblique_Cylindrical_Equal_Area"			, "*) Oblique Cylindrical Equal Area"	},
-		{	"oea"		, " ", "Oblated_Equal_Area"						, "*) Oblated Equal Area"	},
-		{	"omerc"		, " ", "Hotine_Oblique_Mercator"				, "Oblique Mercator"	},
-		{	"omerc"		, "<", "Oblique_Mercator"						, "Oblique Mercator"	},
-		{	"ortel"		, " ", "Ortelius_Oval"							, "*) Ortelius Oval"	},
-		{	"ortho"		, " ", "Orthographic"							, "Orthographic (ESRI: World from Space)"	},
-		{	"pconic"	, " ", "Perspective_Conic"						, "*) Perspective Conic"	},
-		{	"poly"		, " ", "Polyconic"								, "*) Polyconic (American)"	},
-		{	"putp1"		, " ", "Putnins_P1"								, "*) Putnins P1"	},
-		{	"putp2"		, " ", "Putnins_P2"								, "*) Putnins P2"	},
-		{	"putp3"		, " ", "Putnins_P3"								, "*) Putnins P3"	},
-		{	"putp3p"	, " ", "Putnins_P3'"							, "*) Putnins P3'"	},
-		{	"putp4p"	, " ", "Putnins_P4'"							, "*) Putnins P4'"	},
-		{	"putp5"		, " ", "Putnins_P5"								, "*) Putnins P5"	},
-		{	"putp5p"	, " ", "Putnins_P5'"							, "*) Putnins P5'"	},
-		{	"putp6"		, " ", "Putnins_P6"								, "*) Putnins P6"	},
-		{	"putp6p"	, " ", "Putnins_P6'"							, "*) Putnins P6'"	},
-		{	"qua_aut"	, " ", "Quartic_Authalic"						, "[ESRI] Quartic Authalic"	},
-		{	"robin"		, " ", "Robinson"								, "Robinson"	},
-		{	"rouss"		, " ", "Roussilhe_Stereographic"				, "*) Roussilhe Stereographic"	},
-		{	"rpoly"		, " ", "Rectangular_Polyconic"					, "*) Rectangular Polyconic"	},
-		{	"sinu"		, " ", "Sinusoidal"								, "Sinusoidal (Sanson-Flamsteed)"	},
-		{	"somerc"	, " ", "Hotine_Oblique_Mercator"				, "Swiss Oblique Mercator"	},
-		{	"somerc"	, "<", "Swiss_Oblique_Cylindrical"				, "Swiss Oblique Cylindrical"	},
-		{	"somerc"	, "<", "Hotine_Oblique_Mercator_Azimuth_Center"	, "[ESRI] Swiss Oblique Mercator/Cylindrical"	},
-		{	"stere"		, "<", "Polar_Stereographic"					, "Stereographic"	},
-		{	"stere"		, " ", "Stereographic"							, "[ESRI] Stereographic"	},
-		{	"sterea"	, " ", "Oblique_Stereographic"					, "Oblique Stereographic Alternative"	},
-		{	"gstmerc"	, " ", "Gauss_Schreiber_Transverse_Mercator"	, "*) Gauss-Schreiber Transverse Mercator (aka Gauss-Laborde Reunion)"	},
-		{	"tcc"		, " ", "Transverse_Central_Cylindrical"			, "*) Transverse Central Cylindrical"	},
-		{	"tcea"		, " ", "Transverse_Cylindrical_Equal_Area"		, "*) Transverse Cylindrical Equal Area"	},
-		{	"tissot"	, " ", "Tissot_Conic"							, "*) Tissot Conic"	},
-		{	"tmerc"		, " ", "Transverse_Mercator"					, "*) Transverse Mercator"	},
-		{	"tmerc"		, "<", "Gauss_Kruger"							, "[ESRI] DHDN"	},
-		{	"tpeqd"		, " ", "Two_Point_Equidistant"					, "*) Two Point Equidistant"	},
-		{	"tpers"		, " ", "Tilted_perspective"						, "*) Tilted perspective"	},
-		{	"ups"		, " ", "Universal_Polar_Stereographic"			, "*) Universal Polar Stereographic"	},
-		{	"urm5"		, " ", "Urmaev_V"								, "*) Urmaev V"	},
-		{	"urmfps"	, " ", "Urmaev_Flat_Polar_Sinusoidal"			, "*) Urmaev Flat-Polar Sinusoidal"	},
-		{	"utm"		, ">", "Transverse_Mercator"					, "*) Universal Transverse Mercator (UTM)"	},
-		{	"vandg"		, "<", "Van_Der_Grinten_I"						, "[ESRI] van der Grinten (I)"	},
-		{	"vandg"		, " ", "VanDerGrinten"							, "van der Grinten (I)"	},
-		{	"vandg2"	, " ", "VanDerGrinten_II"						, "*) van der Grinten II"	},
-		{	"vandg3"	, " ", "VanDerGrinten_III"						, "*) van der Grinten III"	},
-		{	"vandg4"	, " ", "VanDerGrinten_IV"						, "*) van der Grinten IV"	},
-		{	"vitk1"		, " ", "Vitkovsky_I"							, "*) Vitkovsky I"	},
-		{	"wag1"		, " ", "Wagner_I"								, "*) Wagner I (Kavraisky VI)"	},
-		{	"wag2"		, " ", "Wagner_II"								, "*) Wagner II"	},
-		{	"wag3"		, " ", "Wagner_III"								, "*) Wagner III"	},
-		{	"wag4"		, " ", "Wagner_IV"								, "*) Wagner IV"	},
-		{	"wag5"		, " ", "Wagner_V"								, "*) Wagner V"	},
-		{	"wag6"		, " ", "Wagner_VI"								, "*) Wagner VI"	},
-		{	"wag7"		, " ", "Wagner_VII"								, "*) Wagner VII"	},
-		{	"weren"		, " ", "Werenskiold_I"							, "*) Werenskiold I"	},
-		{	"wink1"		, " ", "Winkel_I"								, "[ESRI] Winkel I"	},
-		{	"wink2"		, " ", "Winkel_II"								, "[ESRI] Winkel II"	},
-		{	"wintri"	, " ", "Winkel_Tripel"							, "[ESRI] Winkel Tripel"	},
+//	--- projection types ---
+	{ "aea"			, " ", "Albers_Conic_Equal_Area"					, "Albers Equal Area" },
+	{ "aea"			, "<", "Albers"										, "[ESRI] Albers Equal Area" },
+	{ "aeqd"		, " ", "Azimuthal_Equidistant"						, "Azimuthal Equidistant" },
+	{ "airy"		, " ", "Airy 1830"									, "Airy 1830" },
+	{ "aitoff"		, " ", "Sphere_Aitoff"								, "Aitoff" },
+	{ "alsk"		, " ", "Mod_Stererographics_of_Alaska"				, "*) Mod. Stererographics of Alaska" },
+	{ "apian"		, " ", "Apian_Globular_I"							, "*) Apian Globular I" },
+	{ "august"		, " ", "August_Epicycloidal"						, "*) August Epicycloidal" },
+	{ "bacon"		, " ", "Bacon_Globular"								, "*) Bacon Globular" },
+	{ "bipc"		, " ", "Bipolar_conic_of_western_hemisphere"		, "*) Bipolar conic of western hemisphere" },
+	{ "boggs"		, " ", "Boggs_Eumorphic"							, "*) Boggs Eumorphic" },
+	{ "bonne"		, " ", "Bonne"										, "Bonne (Werner lat_1=90)" },
+	{ "cass"		, " ", "Cassini_Soldner"							, "Cassini" },
+	{ "cass"		, "<", "Cassini"									, "[ESRI] Cassini" },
+	{ "cc"			, " ", "Central_Cylindrical"						, "*) Central Cylindrical" },
+	{ "cea"			, " ", "Cylindrical_Equal_Area"						, "Equal Area Cylindrical, alias: Lambert Cyl.Eq.A., Normal Authalic Cyl. (FME), Behrmann (SP=30), Gall Orthogr. (SP=45)" },
+	{ "cea"			, "<", "Behrmann"									, "[ESRI] Behrmann (standard parallel = 30)" },
+	{ "chamb"		, " ", "Chamberlin_Trimetric"						, "*) Chamberlin Trimetric" },
+	{ "collg"		, " ", "Collignon"									, "*) Collignon" },
+	{ "crast"		, " ", "Craster_Parabolic"							, "[ESRI] Craster Parabolic (Putnins P4)" },
+	{ "denoy"		, " ", "Denoyer_Semi_Elliptical"					, "*) Denoyer Semi-Elliptical" },
+	{ "eck1"		, " ", "Eckert_I"									, "*) Eckert I" },
+	{ "eck2"		, " ", "Eckert_II"									, "*) Eckert II" },
+	{ "eck3"		, " ", "Eckert_III"									, "*) Eckert III" },
+	{ "eck4"		, " ", "Eckert_IV"									, "Eckert IV" },
+	{ "eck5"		, " ", "Eckert_V"									, "*) Eckert V" },
+	{ "eck6"		, " ", "Eckert_VI"									, "Eckert VI" },
+	{ "eqearth"		, " ", "Equal_Earth"								, "*) Equal Earth" },
+	{ "eqc"			, " ", "Equirectangular"							, "Equidistant Cylindrical (Plate Caree)" },
+	{ "eqc"			, "<", "Equidistant_Cylindrical"					, "[ESRI] Equidistant Cylindrical (Plate Caree)" },
+	{ "eqc"			, "<", "Plate_Carree"								, "[ESRI] Equidistant Cylindrical (Plate Caree)" },
+	{ "eqdc"		, " ", "Equidistant_Conic"							, "*) Equidistant Conic" },
+	{ "euler"		, " ", "Euler"										, "*) Euler" },
+	{ "etmerc"		, " ", "Extended_Transverse_Mercator"				, "*) Extended Transverse Mercator" },
+	{ "fahey"		, " ", "Fahey"										, "*) Fahey" },
+	{ "fouc"		, " ", "Foucault"									, "*) Foucaut" },
+	{ "fouc_s"		, " ", "Foucault_Sinusoidal"						, "*) Foucaut Sinusoidal" },
+	{ "gall"		, " ", "Gall_Stereographic"							, "Gall (Gall Stereographic)" },
+	{ "geocent"		, " ", "Geocentric"									, "*) Geocentric" },
+	{ "geos"		, " ", "GEOS"										, "Geostationary Satellite View" },
+	{ "gins8"		, " ", "Ginsburg_VIII"								, "*) Ginsburg VIII (TsNIIGAiK)" },
+	{ "gn_sinu"		, " ", "General_Sinusoidal_Series"					, "*) General Sinusoidal Series" },
+	{ "gnom"		, " ", "Gnomonic"									, "Gnomonic" },
+	{ "goode"		, " ", "Goode_Homolosine"							, "*) Goode Homolosine" },
+	{ "gs48"		, " ", "Mod_Stererographics_48"						, "*) Mod. Stererographics of 48 U.S." },
+	{ "gs50"		, " ", "Mod_Stererographics_50"						, "*) Mod. Stererographics of 50 U.S." },
+	{ "hammer"		, " ", "Hammer_Eckert_Greifendorff"					, "*) Hammer & Eckert-Greifendorff" },
+	{ "hatano"		, " ", "Hatano_Asymmetrical_Equal_Area"				, "*) Hatano Asymmetrical Equal Area" },
+	{ "igh"			, " ", "Interrupted_Goodes_Homolosine"				, "*) Interrupted Goode's Homolosine" },
+	{ "igh_o"		, " ", "Interrupted_Goodes_Homolosine_Ocean"		, "*) Interrupted Goode's Homolosine (Ocean)" },
+	{ "imw_p"		, " ", "International_Map_of_the_World_Polyconic"	, "*) International Map of the World Polyconic" },
+	{ "kav5"		, " ", "Kavraisky_V"								, "*) Kavraisky V" },
+	{ "kav7"		, " ", "Kavraisky_VII"								, "*) Kavraisky VII" },
+	{ "krovak"		, " ", "Krovak"										, "Krovak" },
+	{ "labrd"		, " ", "Laborde_Oblique_Mercator"					, "*) Laborde" },
+	{ "laea"		, " ", "Lambert_Azimuthal_Equal_Area"				, "Lambert Azimuthal Equal Area" },
+	{ "lagrng"		, " ", "Lagrange"									, "*) Lagrange" },
+	{ "larr"		, " ", "Larrivee"									, "*) Larrivee" },
+	{ "lask"		, " ", "Laskowski"									, "*) Laskowski" },
+	{ "lcc"			, "<", "Lambert_Conformal_Conic_1SP"				, "Lambert Conformal Conic (1 standard parallel)" },
+	{ "lcc"			, "<", "Lambert_Conformal_Conic_2SP"				, "Lambert Conformal Conic (2 standard parallels)" },
+	{ "lcc"			, " ", "Lambert_Conformal_Conic"					, "Lambert Conformal Conic" },
+	{ "lcca"		, " ", "Lambert_Conformal_Conic_Alternative"		, "*) Lambert Conformal Conic Alternative" },
+	{ "leac"		, " ", "Lambert_Equal_Area_Conic"					, "*) Lambert Equal Area Conic" },
+	{ "lee_os"		, " ", "Lee_Oblated_Stereographic"					, "*) Lee Oblated Stereographic" },
+	{ "loxim"		, " ", "Loximuthal"									, "[ESRI] Loximuthal" },
+	{ "lsat"		, " ", "Space_oblique_for_LANDSAT"					, "*) Space oblique for LANDSAT" },
+	{ "mbt_s"		, " ", "McBryde_Thomas_Flat_Polar_Sine"				, "*) McBryde-Thomas Flat-Polar Sine" },
+	{ "mbt_fps"		, " ", "McBryde_Thomas_Flat_Polar_Sine_2"			, "*) McBryde-Thomas Flat-Pole Sine (No. 2)" },
+	{ "mbtfpp"		, " ", "McBryde_Thomas_Flat_Polar_Parabolic"		, "*) McBride-Thomas Flat-Polar Parabolic" },
+	{ "mbtfpq"		, " ", "Flat_Polar_Quartic"							, "[ESRI] McBryde-Thomas Flat-Polar Quartic" },
+	{ "mbtfps"		, " ", "McBryde_Thomas_Flat_Polar_Sinusoidal"		, "*) McBryde-Thomas Flat-Polar Sinusoidal" },
+	{ "merc"		, " ", "Mercator"									, "[ESRI] Mercator" },
+	{ "merc"		, "<", "Mercator_1SP"								, "Mercator (1 standard parallel)" },
+	{ "merc"		, "<", "Mercator_2SP"								, "Mercator (2 standard parallels)" },
+	{ "mil_os"		, " ", "Miller_Oblated_Stereographic"				, "*) Miller Oblated Stereographic" },
+	{ "mill"		, " ", "Miller_Cylindrical"							, "Miller Cylindrical" },
+	{ "moll"		, " ", "Mollweide"									, "Mollweide" },
+	{ "murd1"		, " ", "Murdoch_I"									, "*) Murdoch I" },
+	{ "murd2"		, " ", "Murdoch_II"									, "*) Murdoch II" },
+	{ "murd3"		, " ", "Murdoch_III"								, "*) Murdoch III" },
+	{ "nell"		, " ", "Nell"										, "*) Nell" },
+	{ "nell_h"		, " ", "Nell_Hammer"								, "*) Nell-Hammer" },
+	{ "nicol"		, " ", "Nicolosi_Globular"							, "*) Nicolosi Globular" },
+	{ "nsper"		, " ", "Near_sided_perspective"						, "*) Near-sided perspective" },
+	{ "nzmg"		, " ", "New_Zealand_Map_Grid"						, "New Zealand Map Grid" },
+	{ "ob_tran"		, " ", "General_Oblique_Transformation"				, "*) General Oblique Transformation" },
+	{ "ocea"		, " ", "Oblique_Cylindrical_Equal_Area"				, "*) Oblique Cylindrical Equal Area" },
+	{ "oea"			, " ", "Oblated_Equal_Area"							, "*) Oblated Equal Area" },
+	{ "omerc"		, " ", "Hotine_Oblique_Mercator"					, "Oblique Mercator" },
+	{ "omerc"		, "<", "Oblique_Mercator"							, "Oblique Mercator" },
+	{ "ortel"		, " ", "Ortelius_Oval"								, "*) Ortelius Oval" },
+	{ "ortho"		, " ", "Orthographic"								, "Orthographic (ESRI: World from Space)" },
+	{ "pconic"		, " ", "Perspective_Conic"							, "*) Perspective Conic" },
+	{ "poly"		, " ", "Polyconic"									, "*) Polyconic (American)" },
+	{ "putp1"		, " ", "Putnins_P1"									, "*) Putnins P1" },
+	{ "putp2"		, " ", "Putnins_P2"									, "*) Putnins P2" },
+	{ "putp3"		, " ", "Putnins_P3"									, "*) Putnins P3" },
+	{ "putp3p"		, " ", "Putnins_P3'"								, "*) Putnins P3'" },
+	{ "putp4p"		, " ", "Putnins_P4'"								, "*) Putnins P4'" },
+	{ "putp5"		, " ", "Putnins_P5"									, "*) Putnins P5" },
+	{ "putp5p"		, " ", "Putnins_P5'"								, "*) Putnins P5'" },
+	{ "putp6"		, " ", "Putnins_P6"									, "*) Putnins P6" },
+	{ "putp6p"		, " ", "Putnins_P6'"								, "*) Putnins P6'" },
+	{ "qua_aut"		, " ", "Quartic_Authalic"							, "[ESRI] Quart	c Authalic" },
+	{ "robin"		, " ", "Robinson"									, "Robinson" },
+	{ "rouss"		, " ", "Roussilhe_Stereographic"					, "*) Roussilhe Stereographic" },
+	{ "rpoly"		, " ", "Rectangular_Polyconic"						, "*) Rectangular Polyconic" },
+	{ "sinu"		, " ", "Sinusoidal"									, "Sinusoidal (Sanson-Flamsteed)" },
+	{ "somerc"		, " ", "Hotine_Oblique_Mercator"					, "Swiss Oblique Mercator" },
+	{ "somerc"		, "<", "Swiss_Oblique_Cylindrical"					, "Swiss Oblique Cylindrical" },
+	{ "somerc"		, "<", "Hotine_Oblique_Mercator_Azimuth_Center"		, "[ESRI] Swiss Oblique Mercator/Cylindrical" },
+	{ "stere"		, "<", "Polar_Stereographic"						, "Stereographic" },
+	{ "stere"		, " ", "Stereographic"								, "[ESRI] Stereographic" },
+	{ "sterea"		, " ", "Oblique_Stereographic"						, "Oblique Stereographic Alternative" },
+	{ "sterea"		, "<", "Double_Stereographic"						, "[ESRI]" },
+	{ "gstmerc"		, " ", "Gauss_Schreiber_Transverse_Mercator"		, "*) Gauss-Schreiber Transverse Mercator (aka Gauss-Laborde Reunion)" },
+	{ "tcc"			, " ", "Transverse_Central_Cylindrical"				, "*) Transverse Central Cylindrical" },
+	{ "tcea"		, " ", "Transverse_Cylindrical_Equal_Area"			, "*) Transverse Cylindrical Equal Area" },
+	{ "tissot"		, " ", "Tissot_Conic"								, "*) Tissot Conic" },
+	{ "tmerc"		, " ", "Transverse_Mercator"						, "*) Transverse Mercator" },
+	{ "tmerc"		, "<", "Gauss_Kruger"								, "[ESRI] DHDN" },
+	{ "tpeqd"		, " ", "Two_Point_Equidistant"						, "*) Two Point Equidistant" },
+	{ "tpers"		, " ", "Tilted_perspective"							, "*) Tilted perspective" },
+	{ "ups"			, " ", "Universal_Polar_Stereographic"				, "*) Universal Polar Stereographic" },
+	{ "urm5"		, " ", "Urmaev_V"									, "*) Urmaev V" },
+	{ "urmfps"		, " ", "Urmaev_Flat_Polar_Sinusoidal"				, "*) Urmaev Flat-Polar Sinusoidal" },
+	{ "utm"			, ">", "Transverse_Mercator"						, "*) Universal Transverse Mercator (UTM)" },
+	{ "vandg"		, "<", "Van_Der_Grinten_I"							, "[ESRI] van der Grinten (I)" },
+	{ "vandg"		, " ", "VanDerGrinten"								, "van der Grinten (I)" },
+	{ "vandg2"		, " ", "VanDerGrinten_II"							, "*) van der Grinten II" },
+	{ "vandg3"		, " ", "VanDerGrinten_III"							, "*) van der Grinten III" },
+	{ "vandg4"		, " ", "VanDerGrinten_IV"							, "*) van der Grinten IV" },
+	{ "vitk1"		, " ", "Vitkovsky_I"								, "*) Vitkovsky I" },
+	{ "wag1"		, " ", "Wagner_I"									, "*) Wagner I (Kavraisky VI)" },
+	{ "wag2"		, " ", "Wagner_II"									, "*) Wagner II" },
+	{ "wag3"		, " ", "Wagner_III"									, "*) Wagner III" },
+	{ "wag4"		, " ", "Wagner_IV"									, "*) Wagner IV" },
+	{ "wag5"		, " ", "Wagner_V"									, "*) Wagner V" },
+	{ "wag6"		, " ", "Wagner_VI"									, "*) Wagner VI" },
+	{ "wag7"		, " ", "Wagner_VII"									, "*) Wagner VII" },
+	{ "webmerc"		, " ", "Mercator_1SP"								, "Web Mercator" },
+	{ "webmerc"		, "<", "Mercator_Auxiliary_Sphere"					, "[ESRI] Web Mercator" },
+	{ "weren"		, " ", "Werenskiold_I"								, "*) Werenskiold I" },
+	{ "wink1"		, " ", "Winkel_I"									, "[ESRI] Winkel I" },
+	{ "wink2"		, " ", "Winkel_II"									, "[ESRI] Winkel II" },
+	{ "wintri"		, " ", "Winkel_Tripel"								, "[ESRI] Winkel Tripel" },
 
-		// Core Projection Types and Parameters that don't require explicit translation"	},
-	//	{	"lonlat"	, " ", "GEOGCS"									, "Lat/long (Geodetic)"	},
-	//	{	"latlon"	, ">", "GEOGCS"									, "Lat/long (Geodetic alias)"	},
-	//	{	"latlong"	, ">", "GEOGCS"									, "Lat/long (Geodetic alias)"	},
-	//	{	"longlat"	, ">", "GEOGCS"									, "Lat/long (Geodetic alias)"	},
+//	--- general projection parameters ---
+	{ "alpha"		, " ", "azimuth"				, "? Used with Oblique Mercator and possibly a few others" },
+	{ "k"			, ">", "scale_factor"			, "Scaling factor (old name)" },
+	{ "K"			, ">", "scale_factor"			, "? Scaling factor (old name)" },
+	{ "k_0"			, " ", "scale_factor"			, "Scaling factor (new name)" },
+	{ "lat_0"		, " ", "latitude_of_origin"		, "Latitude of origin" },
+	{ "lat_0"		, "<", "latitude_of_center"		, "Latitude of center" },
+	{ "lat_0"		, "<", "central_parallel"		, "[ESRI] Latitude of center" },
+	{ "lat_1"		, " ", "standard_parallel_1"	, "Latitude of first standard parallel" },
+	{ "lat_2"		, " ", "standard_parallel_2"	, "Latitude of second standard parallel" },
+	{ "lat_ts"		, ">", "latitude_of_origin"		, "Latitude of true scale" },
+	{ "lon_0"		, " ", "central_meridian"		, "Central meridian" },
+	{ "lon_0"		, "<", "longitude_of_center"	, "Longitude of center" },
+	{ "lonc"		, ">", "longitude_of_center"	, "? Longitude used with Oblique Mercator and possibly a few others" },
+	{ "x_0"			, " ", "false_easting"			, "False easting" },
+	{ "y_0"			, " ", "false_northing"			, "False northing" },
 
-	//	{	"a"			, " ", ""										, "Semimajor radius of the ellipsoid axis"	},
-	//	{	"axis"		, " ", ""										, "Axis orientation (new in 4.8.0)"	},
-	//	{	"b			, " ", ""										, "Semiminor radius of the ellipsoid axis"	},
-	//	{	"datum		, " ", ""										, "Datum name (see `proj -ld`)"	},
-	//	{	"ellps		, " ", ""										, "Ellipsoid name (see `proj -le`)"	},
-	//	{	"nadgrids	, " ", ""										, "Filename of NTv2 grid file to use for datum transforms (see below)"	},
-	//	{	"no_defs	, " ", ""										, "Don't use the /usr/share/proj/proj_def.dat defaults file"	},
-	//	{	"pm			, " ", ""										, "Alternate prime meridian (typically a city name, see below)"	},
-	//	{	"proj		, " ", ""										, "Projection name (see `proj -l`)"	},
-	//	{	"to_meter	, " ", ""										, "Multiplier to convert map units to 1.0m"	},
-	//	{	"towgs84	, " ", ""										, "3 or 7 term datum transform parameters (see below)"	},
-	//	{	"units		, " ", ""										, "meters, US survey feet, etc."	},
+//	--- special projection parameters ---
+	{ "azi"			, " ", "", "" },
+	{ "belgium"		, " ", "", "" },
+	{ "beta"		, " ", "", "" },
+	{ "czech"		, " ", "", "" },
+	{ "gamma"		, " ", "", "" },
+	{ "geoc"		, " ", "", "" },
+	{ "guam"		, " ", "", "" },
+	{ "h"			, " ", "satellite_height", "Satellite height (geos - Geostationary Satellite View)" },
+	{ "lat_b"		, " ", "", "" },
+	{ "lat_t"		, " ", "", "" },
+	{ "lon_1"		, " ", "", "" },
+	{ "lon_2"		, " ", "", "" },
+	{ "lsat"		, " ", "", "" },
+	{ "m"			, " ", "", "" },
+	{ "M"			, " ", "", "" },
+	{ "n"			, " ", "", "" },
+	{ "no_cut"		, " ", "", "" },
+	{ "no_off"		, " ", "", "" },
+	{ "no_rot"		, " ", "", "" },
+	{ "ns"			, " ", "", "" },
+	{ "o_alpha"		, " ", "", "" },
+	{ "o_lat_1"		, " ", "", "" },
+	{ "o_lat_2"		, " ", "", "" },
+	{ "o_lat_c"		, " ", "", "" },
+	{ "o_lat_p"		, " ", "", "" },
+	{ "o_lon_1"		, " ", "", "" },
+	{ "o_lon_2"		, " ", "", "" },
+	{ "o_lon_c"		, " ", "", "" },
+	{ "o_lon_p"		, " ", "", "" },
+	{ "o_proj"		, " ", "", "" },
+	{ "over"		, " ", "", "" },
+	{ "p"			, " ", "", "" },
+	{ "path"		, " ", "", "" },
+	{ "q"			, " ", "", "" },
+	{ "R"			, " ", "", "" },
+	{ "R_a"			, " ", "", "" },
+	{ "R_A"			, " ", "", "" },
+	{ "R_g"			, " ", "", "" },
+	{ "R_h"			, " ", "", "" },
+	{ "R_lat_a"		, " ", "", "" },
+	{ "R_lat_g"		, " ", "", "" },
+	{ "rot"			, " ", "", "" },
+	{ "R_V"			, " ", "", "" },
+	{ "s"			, " ", "", "" },
+	{ "sym"			, " ", "", "" },
+	{ "t"			, " ", "", "" },
+	{ "theta"		, " ", "", "" },
+	{ "tilt"		, " ", "", "" },
+	{ "vopt"		, " ", "", "" },
+	{ "W"			, " ", "", "" },
+	{ "westo"		, " ", "", "" },
 
-	//	{	"south		, " ", ""										, "Denotes southern hemisphere UTM zone"	},
-	//	{	"zone		, " ", ""										, "UTM zone"	},
+//	--- core projection types and parameters that don't require explicit translation ---
+//	{ "lonlat"		, " ", "GEOGCS", "Lat/long (Geodetic)"	},
+//	{ "latlon"		, ">", "GEOGCS", "Lat/long (Geodetic alias)"	},
+//	{ "latlong"		, ">", "GEOGCS", "Lat/long (Geodetic alias)"	},
+//	{ "longlat"		, ">", "GEOGCS", "Lat/long (Geodetic alias)"	},
 
-	//	{	"lon_wrap"	, " ", ""										, "Center longitude to use for wrapping (see below)"	},
-	//	{	"over"		, " ", ""										, "Allow longitude output outside -180 to 180 range, disables wrapping (see below)"	},
-
-		// General Projection Parameters"	},
-		{	"alpha"		, " ", "azimuth"								, "? Used with Oblique Mercator and possibly a few others"	},
-		{	"k"			, ">", "scale_factor"							, "Scaling factor (old name)"	},
-		{	"K"			, ">", "scale_factor"							, "? Scaling factor (old name)"	},
-		{	"k_0"		, " ", "scale_factor"							, "Scaling factor (new name)"	},
-		{	"lat_0"		, " ", "latitude_of_origin"						, "Latitude of origin"	},
-		{	"lat_0"		, "<", "latitude_of_center"						, "Latitude of center"	},
-		{	"lat_0"		, "<", "central_parallel"						, "[ESRI] Latitude of center"	},
-		{	"lat_1"		, " ", "standard_parallel_1"					, "Latitude of first standard parallel"	},
-		{	"lat_2"		, " ", "standard_parallel_2"					, "Latitude of second standard parallel"	},
-		{	"lat_ts"	, ">", "latitude_of_origin"						, "Latitude of true scale"	},
-		{	"lon_0"		, " ", "central_meridian"						, "Central meridian"	},
-		{	"lon_0"		, "<", "longitude_of_center"					, "Longitude of center"	},
-		{	"lonc"		, " ", "longitude_of_center"					, "? Longitude used with Oblique Mercator and possibly a few others"	},
-		{	"x_0"		, " ", "false_easting"							, "False easting"	},
-		{	"y_0"		, " ", "false_northing"							, "False northing"	},
-
-		// Additional Projection Parameters"	},
-		{	"azi"		, " ", ""										, ""	},
-		{	"belgium"	, " ", ""										, ""	},
-		{	"beta"		, " ", ""										, ""	},
-		{	"czech"		, " ", ""										, ""	},
-		{	"gamma"		, " ", ""										, ""	},
-		{	"geoc"		, " ", ""										, ""	},
-		{	"guam"		, " ", ""										, ""	},
-		{	"h"			, " ", "satellite_height"						, "Satellite height (geos - Geostationary Satellite View)"	},
-		{	"lat_b"		, " ", ""										, ""	},
-		{	"lat_t"		, " ", ""										, ""	},
-		{	"lon_1"		, " ", ""										, ""	},
-		{	"lon_2"		, " ", ""										, ""	},
-		{	"lsat"		, " ", ""										, ""	},
-		{	"m"			, " ", ""										, ""	},
-		{	"M"			, " ", ""										, ""	},
-		{	"n"			, " ", ""										, ""	},
-		{	"no_cut"	, " ", ""										, ""	},
-		{	"no_off"	, " ", ""										, ""	},
-		{	"no_rot"	, " ", ""										, ""	},
-		{	"ns"		, " ", ""										, ""	},
-		{	"o_alpha"	, " ", ""										, ""	},
-		{	"o_lat_1"	, " ", ""										, ""	},
-		{	"o_lat_2"	, " ", ""										, ""	},
-		{	"o_lat_c"	, " ", ""										, ""	},
-		{	"o_lat_p"	, " ", ""										, ""	},
-		{	"o_lon_1"	, " ", ""										, ""	},
-		{	"o_lon_2"	, " ", ""										, ""	},
-		{	"o_lon_c"	, " ", ""										, ""	},
-		{	"o_lon_p"	, " ", ""										, ""	},
-		{	"o_proj"	, " ", ""										, ""	},
-		{	"over"		, " ", ""										, ""	},
-		{	"p"			, " ", ""										, ""	},
-		{	"path"		, " ", ""										, ""	},
-		{	"q"			, " ", ""										, ""	},
-		{	"R"			, " ", ""										, ""	},
-		{	"R_a"		, " ", ""										, ""	},
-		{	"R_A"		, " ", ""										, ""	},
-		{	"R_g"		, " ", ""										, ""	},
-		{	"R_h"		, " ", ""										, ""	},
-		{	"R_lat_a"	, " ", ""										, ""	},
-		{	"R_lat_g"	, " ", ""										, ""	},
-		{	"rot"		, " ", ""										, ""	},
-		{	"R_V"		, " ", ""										, ""	},
-		{	"s"			, " ", ""										, ""	},
-		{	"sym"		, " ", ""										, ""	},
-		{	"t"			, " ", ""										, ""	},
-		{	"theta"		, " ", ""										, ""	},
-		{	"tilt"		, " ", ""										, ""	},
-		{	"vopt"		, " ", ""										, ""	},
-		{	"W"			, " ", ""										, ""	},
-		{	"westo"		, " ", ""										, ""	},
-
-		{	""			, " ", ""										, ""	}	// dummy
-	};
+//	{ "a"			, " ", "", "Semimajor radius of the ellipsoid axis"	},
+//	{ "axis"		, " ", "", "Axis orientation (new in 4.8.0)"	},
+//	{ "b			, " ", "", "Semiminor radius of the ellipsoid axis"	},
+//	{ "datum		, " ", "", "Datum name (see `proj -ld`)"	},
+//	{ "ellps		, " ", "", "Ellipsoid name (see `proj -le`)"	},
+//	{ "nadgrids		, " ", "", "Filename of NTv2 grid file to use for datum transforms (see below)"	},
+//	{ "no_defs		, " ", "", "Don't use the /usr/share/proj/proj_def.dat defaults file"	},
+//	{ "pm			, " ", "", "Alternate prime meridian (typically a city name, see below)"	},
+//	{ "proj			, " ", "", "Projection name (see `proj -l`)"	},
+//	{ "to_meter		, " ", "", "Multiplier to convert map units to 1.0m"	},
+//	{ "towgs84		, " ", "", "3 or 7 term datum transform parameters (see below)"	},
+//	{ "units		, " ", "", "meters, US survey feet, etc."	},
+//	{ "south		, " ", "", "Denotes southern hemisphere UTM zone"	},
+//	{ "zone			, " ", "", "UTM zone"	},
+//	{ "lon_wrap"	, " ", "", "Center longitude to use for wrapping (see below)"	},
+//	{ "over"		, " ", "", "Allow longitude output outside -180 to 180 range, disables wrapping (see below)"	},
+	{ ""			, " ", "", "" }	};	// dummy
 
 	//-----------------------------------------------------
 	Dictionary.Destroy();
@@ -2121,12 +2124,12 @@ bool CSG_Projections::_Set_Dictionary(CSG_Table &Dictionary, int Direction)
 
 		for(int i=0; i<n; i++)
 		{
-			CSG_Table_Record	*pRecord	= Dictionary.Add_Record();
+			CSG_Table_Record &Entry = *Dictionary.Add_Record();
 
-			pRecord->Set_Value(0, Translation[i][0]);
-			pRecord->Set_Value(1, Translation[i][1]);
-			pRecord->Set_Value(2, Translation[i][2]);
-			pRecord->Set_Value(3, Translation[i][3]);
+			Entry.Set_Value(0, Translation[i][0]);
+			Entry.Set_Value(1, Translation[i][1]);
+			Entry.Set_Value(2, Translation[i][2]);
+			Entry.Set_Value(3, Translation[i][3]);
 		}
 	}
 	else if( Direction > 0 )	// Proj4 to WKT
@@ -2138,10 +2141,10 @@ bool CSG_Projections::_Set_Dictionary(CSG_Table &Dictionary, int Direction)
 		{
 			if( Translation[i][1][0] != '<' )	// only WKT to Proj4
 			{
-				CSG_Table_Record	*pRecord	= Dictionary.Add_Record();
+				CSG_Table_Record &Entry = *Dictionary.Add_Record();
 
-				pRecord->Set_Value(0, Translation[i][0]);
-				pRecord->Set_Value(1, Translation[i][2]);
+				Entry.Set_Value(0, Translation[i][0]);
+				Entry.Set_Value(1, Translation[i][2]);
 			}
 		}
 	}
@@ -2154,10 +2157,10 @@ bool CSG_Projections::_Set_Dictionary(CSG_Table &Dictionary, int Direction)
 		{
 			if( Translation[i][1][0] != '>' )	// only Proj4 to WKT
 			{
-				CSG_Table_Record	*pRecord	= Dictionary.Add_Record();
+				CSG_Table_Record &Entry = *Dictionary.Add_Record();
 
-				pRecord->Set_Value(0, Translation[i][2]);
-				pRecord->Set_Value(1, Translation[i][0]);
+				Entry.Set_Value(0, Translation[i][2]);
+				Entry.Set_Value(1, Translation[i][0]);
 			}
 		}
 	}
