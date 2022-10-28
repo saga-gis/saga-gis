@@ -193,9 +193,7 @@ bool CCMD_Tool::Execute(int argc, char *argv[])
 
 	SG_UI_ProgressAndMsg_Reset(); SG_UI_Process_Set_Okay();
 
-	_Report_Unused();
-
-	return( bResult );
+	return( bResult && _has_Unused() == false );
 }
 
 
@@ -275,7 +273,7 @@ bool CCMD_Tool::_Parse(int argc, char *argv[])
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CCMD_Tool::_Report_Unused(void)
+bool CCMD_Tool::_has_Unused(void)
 {
 	CSG_String Unused;
 
@@ -294,7 +292,7 @@ bool CCMD_Tool::_Report_Unused(void)
 
 	if( !Unused.is_Empty() )
 	{
-		SG_Printf("%s: %s!\n[%s]\n\n", _TL("Warning"), _TL("Some arguments have been ignored"), Unused.c_str());
+		SG_Printf("%s: %s!\n[%s]\n\n", _TL("Error"), _TL("The tool does not know some of the provided arguments!"), Unused.c_str());
 
 		return( true );
 	}

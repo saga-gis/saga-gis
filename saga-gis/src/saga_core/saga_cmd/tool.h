@@ -101,7 +101,7 @@ private:
 
 	bool						_Parse					(int argc, char *argv[]);
 
-	bool						_Report_Unused			(void);
+	bool						_has_Unused				(void);
 
 	CSG_Table_Record *			_Found					(const CSG_String &Name);
 	bool						_Found					(const CSG_String &Name, CSG_String   &Value);
