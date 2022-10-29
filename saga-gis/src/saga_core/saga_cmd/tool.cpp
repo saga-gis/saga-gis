@@ -226,6 +226,11 @@ CSG_String CCMD_Tool::_Get_ID(CSG_Parameter *pParameter)
 //---------------------------------------------------------
 bool CCMD_Tool::_Parse(int argc, char *argv[])
 {
+	if( argc < 1 )
+	{
+		return( false );
+	}
+	
 	m_Arguments.Destroy();
 
 	m_Arguments.Add_Field("KEY", SG_DATATYPE_String);
