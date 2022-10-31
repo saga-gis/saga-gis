@@ -89,6 +89,8 @@ bool CVisibility::Initialize(const CSG_Parameters &Parameters)
 	m_Method        = Parameters("METHOD"    )->asInt ();
 	m_bIgnoreNoData = Parameters("NODATA"    )->asBool();
 
+	m_pDEM->Set_Max_Samples(m_pDEM->Get_NCells());	// we use max z (queried by Get_Max()) as a breaking condition in ray tracing
+
 	Reset();
 
 	CSG_Colors Colors; CSG_String Unit;
