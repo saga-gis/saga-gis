@@ -1127,7 +1127,7 @@ void CData_Source_PgSQL::Source_Open(const wxTreeItemId &Item)
 		{
 			if( pData->Get_Type() == TYPE_SERVER )
 			{
-				pTool->Set_Parameter("CONNECTION", pData->Get_Server());
+				pTool->Set_Parameter("PG_HOST", pData->Get_Host());
 			}
 
 			if( DLG_Parameters(pTool->Get_Parameters()) )
