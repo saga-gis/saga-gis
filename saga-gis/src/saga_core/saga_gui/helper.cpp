@@ -235,13 +235,16 @@ bool	Set_Font(CSG_Parameter *pFont, wxFont &Font, wxColour &Colour)
 		return( false );
 	}
 
-	Colour.Set(
-		SG_GET_R(pFont->asColor()),
-		SG_GET_G(pFont->asColor()),
-		SG_GET_B(pFont->asColor())
-	);
+	long c = pFont->asColor(); Colour.Set(SG_GET_R(c), SG_GET_G(c), SG_GET_B(c));
 
-	Font.SetNativeFontInfo(pFont->asFont());
+#ifdef __WXMAC__
+	if( !Font.SetNativeFontInfoUserDesc(pFont->asFont()) )
+#else
+	if( !Font.SetNativeFontInfo(pFont->asFont()) )
+#endif
+	{
+		Font = wxSystemSettings::GetFont(wxSYS_SYSTEM_FONT);
+	}
 
 	return( true );
 }
@@ -255,7 +258,11 @@ bool	Set_Font(const wxFont &Font, wxColour Colour, CSG_Parameter *pFont)
 	}
 
 	pFont->Set_Value((int)SG_GET_RGB(Colour.Red(), Colour.Green(), Colour.Blue()));
-	pFont->Set_Value(Font.GetNativeFontInfoDesc().wx_str());
+#ifdef __WXMAC__
+	pFont->Set_Value(Font.GetNativeFontInfoUserDesc().wc_str());
+#else
+	pFont->Set_Value(Font.GetNativeFontInfoDesc().wc_str());
+#endif
 
 	return( true );
 }
@@ -263,8 +270,7 @@ bool	Set_Font(const wxFont &Font, wxColour Colour, CSG_Parameter *pFont)
 //---------------------------------------------------------
 wxFont	Get_Font(CSG_Parameter *pFont)
 {
-	wxColour	Colour;
-	wxFont		Font;
+	wxFont Font; wxColour Colour;
 
 	Set_Font(pFont, Font, Colour);
 

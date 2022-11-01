@@ -854,8 +854,6 @@ protected:
 
 	int							m_Color;
 
-	CSG_String					m_Font;
-
 
 	virtual int					_Set_Value				(int   Value);
 	virtual int					_Set_Value				(const CSG_String &Value);
