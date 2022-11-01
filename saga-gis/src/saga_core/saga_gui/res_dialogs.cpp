@@ -842,20 +842,19 @@ bool		DLG_Color_From_Text(long &Colour)
 //---------------------------------------------------------
 bool		DLG_Font(CSG_Parameter *pFont)
 {
-	wxFont		Font;
-	wxColour	Colour;
+	wxFont Font; wxColour Colour;
 
 	if( Set_Font(pFont, Font, Colour) )
 	{
-		wxFontDialog	dlg(MDI_Get_Top_Window());
+		wxFontDialog dlg(MDI_Get_Top_Window());
 
 		dlg.GetFontData().SetInitialFont(Font);
-		dlg.GetFontData().SetColour     (Colour);
+		dlg.GetFontData().SetColour(Colour);
 
 		if( dlg.ShowModal() == wxID_OK )
 		{
-			Font	= dlg.GetFontData().GetChosenFont();
-			Colour	= dlg.GetFontData().GetColour();
+			Font   = dlg.GetFontData().GetChosenFont();
+			Colour = dlg.GetFontData().GetColour();
 
 			return( Set_Font(Font, Colour, pFont) );
 		}

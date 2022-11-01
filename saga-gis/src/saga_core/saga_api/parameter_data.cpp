@@ -1436,9 +1436,12 @@ CSG_Parameter_Font::CSG_Parameter_Font(CSG_Parameters *pOwner, CSG_Parameter *pP
 //---------------------------------------------------------
 bool CSG_Parameter_Font::Restore_Default(void)
 {
-	m_Color		= SG_GET_RGB(0, 0, 0);
-	m_Font		= "0;-13;0;0;0;400;0;0;0;0;3;2;1;34;Arial";
-	m_String	= "Arial";
+	m_Color  = SG_GET_RGB(0, 0, 0);
+#ifdef __WXMAC__
+	m_String = ".applesystemuifont 11 utf-8";
+#else
+	m_String = "0;-12;0;0;0;400;0;0;0;0;3;2;1;34;Arial";
+#endif
 
 	return( true );
 }
@@ -1448,7 +1451,7 @@ int CSG_Parameter_Font::_Set_Value(int Value)
 {
 	if( m_Color != Value )
 	{
-		m_Color	= Value;
+		m_Color = Value;
 
 		return( SG_PARAMETER_DATA_SET_CHANGED );
 	}
@@ -1466,8 +1469,7 @@ int CSG_Parameter_Font::_Set_Value(const CSG_String &Value)
 		return( SG_PARAMETER_DATA_SET_CHANGED );
 	}
 
-	m_Font		= Value;
-	m_String	= m_Font.AfterLast(';');
+	m_String = Value;
 
 	return( SG_PARAMETER_DATA_SET_CHANGED );
 }
@@ -1481,15 +1483,14 @@ int CSG_Parameter_Font::_asInt(void)	const
 //---------------------------------------------------------
 void * CSG_Parameter_Font::_asPointer(void)	const
 {
-	return( (void *)m_Font.c_str() );
+	return( (void *)m_String.c_str() );
 }
 
 //---------------------------------------------------------
 bool CSG_Parameter_Font::_Assign(CSG_Parameter *pSource)
 {
-	m_Color		= ((CSG_Parameter_Font *)pSource)->m_Color;
-	m_Font		= ((CSG_Parameter_Font *)pSource)->m_Font;
-	m_String	= ((CSG_Parameter_Font *)pSource)->m_String;
+	m_Color  = ((CSG_Parameter_Font *)pSource)->m_Color;
+	m_String = ((CSG_Parameter_Font *)pSource)->m_String;
 
 	return( true );
 }
@@ -1500,12 +1501,10 @@ bool CSG_Parameter_Font::_Serialize(CSG_MetaData &Entry, bool bSave)
 	if( bSave )
 	{
 		Entry.Add_Child("COLOR", CSG_String::Format("R%03d G%03d B%03d",
-			SG_GET_R(m_Color),
-			SG_GET_G(m_Color),
-			SG_GET_B(m_Color)
+			SG_GET_R(m_Color), SG_GET_G(m_Color), SG_GET_B(m_Color)
 		));
 
-		Entry.Add_Child("FONT", m_Font);
+		Entry.Add_Child("FONT", m_String);
 	}
 	else
 	{

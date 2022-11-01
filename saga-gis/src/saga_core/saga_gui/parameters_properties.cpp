@@ -623,11 +623,16 @@ bool CPG_Parameter_Value::from_String(const wxString &String)
 //---------------------------------------------------------
 wxString CPG_Parameter_Value::to_String(void) const
 {
-	wxString	s;
+	wxString s;
 
 	if( m_pParameter && Check() )
 	{
-		s	= m_pParameter->asString();
+		s = m_pParameter->asString();
+
+		if( m_pParameter->Get_Type() == PARAMETER_TYPE_Font )
+		{
+			wxFont Font; Font.SetNativeFontInfo(s); s = Font.GetNativeFontInfoUserDesc();
+		}
 	}
 
 	return( s );
