@@ -128,7 +128,7 @@ COverland_Flow::COverland_Flow(void)
 	Parameters.Add_Grid("",
 		"FLOW"		, _TL("Flow [mm]"),
 		_TL(""),
-		PARAMETER_OUTPUT
+		has_GUI() ? PARAMETER_OUTPUT : PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid("",
@@ -348,6 +348,11 @@ bool COverland_Flow::Initialize(void)
 	                 ? Parameters("INFILTRAT")->asGrid  () : NULL;
 
 	m_pFlow          = Parameters("FLOW"     )->asGrid  ();
+	if( !m_pFlow ) // only possible if has_GUI() == false - optional input
+	{
+		Parameters("FLOW")->Set_Value(m_pFlow = SG_Create_Grid(Get_System()));
+	}
+
 	m_pVelocity      = Parameters("VELOCITY" )->asGrid  ();
 
 	m_bStrickler     = Parameters("STRICKLER")->asInt() == 0;
