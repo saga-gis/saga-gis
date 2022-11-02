@@ -629,10 +629,12 @@ wxString CPG_Parameter_Value::to_String(void) const
 	{
 		s = m_pParameter->asString();
 
+		#ifndef __WXMAC__ // macOS => already uses the 'user friendly' font description!
 		if( m_pParameter->Get_Type() == PARAMETER_TYPE_Font )
 		{
 			wxFont Font; Font.SetNativeFontInfo(s); s = Font.GetNativeFontInfoUserDesc();
 		}
+		#endif
 	}
 
 	return( s );
