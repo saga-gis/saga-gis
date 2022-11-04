@@ -195,7 +195,7 @@ bool CVisibility::Set_Visibility(int xOrigin, int yOrigin, double Height, bool b
 				double dz = zOrigin - m_pDEM->asDouble(x, y);
 
 				//-----------------------------------------
-				if( _Trace_Point(x, y, dx, dy, dz) )
+				if( _Trace_Point(x, y, dx, dy, dz, xOrigin, yOrigin) )
 				{
 					switch( m_Method )
 					{
@@ -254,7 +254,7 @@ bool CVisibility::Set_Visibility(int xOrigin, int yOrigin, double Height, bool b
 }
 
 //---------------------------------------------------------
-bool CVisibility::_Trace_Point(int x, int y, double dx, double dy, double dz)
+bool CVisibility::_Trace_Point(int x, int y, double dx, double dy, double dz, int xOrigin, int yOrigin)
 {
 	double d = fabs(dx) > fabs(dy) ? fabs(dx) : fabs(dy);
 
@@ -297,6 +297,14 @@ bool CVisibility::_Trace_Point(int x, int y, double dx, double dy, double dz)
 				{
 					return( true );
 				}
+			}
+
+			if (x == xOrigin && y == yOrigin)
+			{
+				// because of floating point precision issues the check "id < dist" can fail on
+				// the observer cell and we move on into another cell, so check this explictly
+
+				break;
 			}
 		}
 	}
