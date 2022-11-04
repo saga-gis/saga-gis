@@ -77,14 +77,14 @@ public:
 
 protected:
 
-	virtual bool		On_Execute	(void);
+	virtual bool		On_Execute		(void);
 
 
 private:
 
-	bool				Init_Slopes	(CSG_Grid *pDEM, CSG_Grid S[8]);
+	bool				Init_Slopes		(CSG_Grid *pDEM, CSG_Grid Slopes[8]);
 
-	bool				Step		(CSG_Grid S[8], CSG_Grid *pN, CSG_Grid *pN_1, double N_Rain, double dTime);
+	bool				Set_Nitrogen	(CSG_Grid &N, double Nrain, CSG_Grid Slopes[8], double dTime);
 
 };
 

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,18 +48,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
@@ -79,7 +67,7 @@ CSG_String Get_Info(int i)
 		return( _TL("Simulation") );
 
 	case TLB_INFO_Author:
-		return( SG_T("Olaf Conrad (c) 2003") );
+		return( "O.Conrad (c) 2003" );
 
 	case TLB_INFO_Description:
 		return( _TW(
@@ -89,7 +77,7 @@ CSG_String Get_Info(int i)
 		));
 
 	case TLB_INFO_Version:
-		return( SG_T("1.0") );
+		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
 		return( _TL("Simulation|Ecology|Modelling the Human Impact on Nature") );
@@ -110,28 +98,15 @@ CSG_String Get_Info(int i)
 
 CSG_Tool *		Create_Tool(int i)
 {
-	CSG_Tool	*pTool;
-
 	switch( i )
 	{
-	case 0:
-		pTool	= new CHugget_01;
-		break;
+	case  0: return( new CHugget_01 );
+	case  1: return( new CHugget_02 );
+	case  2: return( new CHugget_03 );
 
-	case 1:
-		pTool	= new CHugget_02;
-		break;
-
-	case 2:
-		pTool	= new CHugget_03;
-		break;
-
-	default:
-		pTool	= NULL;
-		break;
+	case  3: return( NULL );
+	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
-
-	return( pTool );
 }
 
 

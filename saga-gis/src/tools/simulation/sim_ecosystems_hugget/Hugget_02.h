@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Hugget_02.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Hugget_02_H
 #define HEADER_INCLUDED__Hugget_02_H
 
@@ -71,7 +59,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -85,12 +73,14 @@ class CHugget_02 : public CSG_Tool
 {
 public:
 	CHugget_02(void);
-	virtual ~CHugget_02(void);
 
 
 protected:
 
-	virtual bool		On_Execute	(void);
+	virtual int		On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int		On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool	On_Execute				(void);
 
 };
 
