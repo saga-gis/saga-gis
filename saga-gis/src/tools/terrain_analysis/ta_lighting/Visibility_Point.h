@@ -74,7 +74,7 @@ protected:
 	bool					Create					(CSG_Parameters &Parameters);
 
 	bool					Initialize				(const CSG_Parameters &Parameters);
-	bool					Finalize				(void);
+	bool					Finalize				(bool bShow);
 
 	bool					Reset					(void);
 

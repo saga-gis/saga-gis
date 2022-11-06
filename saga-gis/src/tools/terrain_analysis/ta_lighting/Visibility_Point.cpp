@@ -124,24 +124,26 @@ bool CVisibility::Initialize(const CSG_Parameters &Parameters)
 }
 
 //---------------------------------------------------------
-bool CVisibility::Finalize(void)
+bool CVisibility::Finalize(bool bShow)
 {
 	CSG_Parameters Parameters;
+
+	int Update = bShow ? SG_UI_DATAOBJECT_SHOW_LAST_MAP : SG_UI_DATAOBJECT_UPDATE_ONLY;
 
 	switch( m_Method )
 	{
 	case  0: // Visibility
 		Parameters.Add_Range("", "METRIC_ZRANGE", "", "", 0., 1.);
-		SG_UI_DataObject_Update(m_pVisibility, true, &Parameters);
+		SG_UI_DataObject_Update(m_pVisibility, Update, &Parameters);
 		break;
 
 	case  1: // Shade
 		Parameters.Add_Range("", "METRIC_ZRANGE", "", "", 0., M_PI_090);
-		SG_UI_DataObject_Update(m_pVisibility, true, &Parameters);
+		SG_UI_DataObject_Update(m_pVisibility, Update, &Parameters);
 		break;
 
 	default: // Distance, Size
-		SG_UI_DataObject_Show  (m_pVisibility, true);
+		SG_UI_DataObject_Show  (m_pVisibility, Update);
 		break;
 	}
 
@@ -369,7 +371,7 @@ bool CVisibility_Point::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interact
 	{
 		if( Set_Visibility(Get_xGrid(), Get_yGrid(), m_Height, !m_bMultiple) )
 		{
-			Finalize();
+			Finalize(true);
 
 			return( true );
 		}
@@ -440,7 +442,7 @@ bool CVisibility_Points::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Finalize();
+	Finalize(false);
 
 	return( true );
 }
