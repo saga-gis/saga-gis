@@ -90,7 +90,7 @@ private:
 	CSG_Grid				*m_pDEM, *m_pVisibility;
 
 
-	bool					_Trace_Point			(int x, int y, double dx, double dy, double dz, int xOrigin, int yOrigin);
+	bool					_Trace_Point			(int x, int y, double dx, double dy, double dz, int xOrigin, int yOrigin, double zMax);
 
 };
 

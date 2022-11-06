@@ -175,6 +175,7 @@ bool CVisibility::Set_Visibility(int xOrigin, int yOrigin, double Height, bool b
 	}
 
 	double zOrigin = m_pDEM->asDouble(xOrigin, yOrigin) + Height;
+	double zMax    = m_pDEM->Get_Max();
 
 	//-----------------------------------------------------
 	for(int y=0; y<m_pDEM->Get_NY() && SG_UI_Process_Set_Progress(y, m_pDEM->Get_NY()); y++)
@@ -195,7 +196,7 @@ bool CVisibility::Set_Visibility(int xOrigin, int yOrigin, double Height, bool b
 				double dz = zOrigin - m_pDEM->asDouble(x, y);
 
 				//-----------------------------------------
-				if( _Trace_Point(x, y, dx, dy, dz, xOrigin, yOrigin) )
+				if( _Trace_Point(x, y, dx, dy, dz, xOrigin, yOrigin, zMax) )
 				{
 					switch( m_Method )
 					{
@@ -254,7 +255,7 @@ bool CVisibility::Set_Visibility(int xOrigin, int yOrigin, double Height, bool b
 }
 
 //---------------------------------------------------------
-bool CVisibility::_Trace_Point(int x, int y, double dx, double dy, double dz, int xOrigin, int yOrigin)
+bool CVisibility::_Trace_Point(int x, int y, double dx, double dy, double dz, int xOrigin, int yOrigin, double zMax)
 {
 	double d = fabs(dx) > fabs(dy) ? fabs(dx) : fabs(dy);
 
@@ -293,7 +294,7 @@ bool CVisibility::_Trace_Point(int x, int y, double dx, double dy, double dz, in
 					return( false );
 				}
 
-				if( iz > m_pDEM->Get_Max() )
+				if( iz > zMax )
 				{
 					return( true );
 				}
