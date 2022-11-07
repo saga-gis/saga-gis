@@ -61,17 +61,13 @@
 		#include <projects.h>
 	}
 
-	#define PROJ4_FREE(p)	if( p )	{	pj_free((PJ *)p);	p	= NULL;	}
+	#define PROJ4_FREE(p) if( p ) { pj_free     ((PJ *)p); p = NULL; }
 
 //---------------------------------------------------------
 #else
 	#include <proj.h>
 
-	#if PROJ_VERSION_MINOR < 2
-		#define PROJ4_FREE(p)	if( p )	{	proj_destroy((PJ *)p);	p	= NULL;	}
-	#else
-		#define PROJ4_FREE(p)	if( p )	{	proj_destroy((PJ *)p);	p	= NULL; proj_cleanup();	}
-	#endif
+	#define PROJ4_FREE(p) if( p ) { proj_destroy((PJ *)p); p = NULL; }
 #endif
 
 
@@ -100,10 +96,6 @@ CSG_CRSProjector::~CSG_CRSProjector(void)
 
 	#if PROJ_VERSION_MAJOR >= 6
 		proj_context_destroy((PJ_CONTEXT *)m_pContext);
-
-		#if PROJ_VERSION_MINOR >= 2
-			proj_cleanup();
-		#endif
 	#endif
 }
 
