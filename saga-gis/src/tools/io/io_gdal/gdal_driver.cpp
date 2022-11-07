@@ -91,7 +91,7 @@ CSG_GDAL_Drivers::CSG_GDAL_Drivers(void)
 //---------------------------------------------------------
 CSG_GDAL_Drivers::~CSG_GDAL_Drivers(void)
 {
-	GDALDestroyDriverManager();	
+//	GDALDestroyDriverManager();	// unnecessary and potentially causing memory conflicts (e.g. 'malloc(): unsorted double linked list corrupted')
 }
 
 
