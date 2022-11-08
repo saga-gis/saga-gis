@@ -72,7 +72,7 @@ class C3D_Viewer_Shapes : public CSG_Tool
 public:
 	C3D_Viewer_Shapes(void);
 
-	virtual bool			needs_GUI			(void)	{	return( true );	}
+	virtual bool			needs_GUI			(void)	const	{	return( true );	}
 
 
 protected:

@@ -65,13 +65,13 @@ CSG_String Get_Info(int i)
 		return( _TL("Visualization") );
 
 	case TLB_INFO_Author:
-		return( SG_T("O.Conrad (c) 2014") );
+		return( "O.Conrad (c) 2014" );
 
 	case TLB_INFO_Description:
 		return( _TL("3D Viewer." ));
 
 	case TLB_INFO_Version:
-		return( SG_T("1.0") );
+		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
 		return( _TL("Visualization|3D Viewer" ));

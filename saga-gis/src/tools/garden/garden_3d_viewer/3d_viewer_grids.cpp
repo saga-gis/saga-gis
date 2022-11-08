@@ -925,26 +925,24 @@ private:
 
 			if( Mouse_Max > Mouse_Min )
 			{
-				wxRect r(Mouse_Min, r.GetTop(), Mouse_Max - Mouse_Min, r.GetHeight());
+				wxRect rBox(Mouse_Min, r.GetTop(), Mouse_Max - Mouse_Min, r.GetHeight());
 
 				dc.SetPen(wxPen(*wxBLACK));
-				dc.DrawLine(r.GetLeft (), r.GetTop   (), r.GetRight(), r.GetTop   ());
-				dc.DrawLine(r.GetLeft (), r.GetBottom(), r.GetRight(), r.GetBottom());
-				dc.DrawLine(r.GetLeft (), r.GetTop   (), r.GetLeft (), r.GetBottom());
-				dc.DrawLine(r.GetRight(), r.GetTop   (), r.GetRight(), r.GetBottom());
+				dc.DrawLine(rBox.GetLeft (), rBox.GetTop   (), rBox.GetRight(), rBox.GetTop   ());
+				dc.DrawLine(rBox.GetLeft (), rBox.GetBottom(), rBox.GetRight(), rBox.GetBottom());
+				dc.DrawLine(rBox.GetLeft (), rBox.GetTop   (), rBox.GetLeft (), rBox.GetBottom());
+				dc.DrawLine(rBox.GetRight(), rBox.GetTop   (), rBox.GetRight(), rBox.GetBottom());
 
-				dc.SetPen(wxPen(*wxWHITE)); r.Deflate(1);
-				dc.DrawLine(r.GetLeft (), r.GetTop   (), r.GetRight(), r.GetTop   ());
-				dc.DrawLine(r.GetLeft (), r.GetBottom(), r.GetRight(), r.GetBottom());
-				dc.DrawLine(r.GetLeft (), r.GetTop   (), r.GetLeft (), r.GetBottom());
-				dc.DrawLine(r.GetRight(), r.GetTop   (), r.GetRight(), r.GetBottom());
+				dc.SetPen(wxPen(*wxWHITE)); rBox.Deflate(1);
+				dc.DrawLine(rBox.GetLeft (), rBox.GetTop   (), rBox.GetRight(), rBox.GetTop   ());
+				dc.DrawLine(rBox.GetLeft (), rBox.GetBottom(), rBox.GetRight(), rBox.GetBottom());
+				dc.DrawLine(rBox.GetLeft (), rBox.GetTop   (), rBox.GetLeft (), rBox.GetBottom());
+				dc.DrawLine(rBox.GetRight(), rBox.GetTop   (), rBox.GetRight(), rBox.GetBottom());
 			}
 		}
 	}
 
-
 	DECLARE_EVENT_TABLE()
-
 };
 
 //---------------------------------------------------------

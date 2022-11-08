@@ -72,7 +72,7 @@ class C3D_Viewer_Multiple_Grids : public CSG_Tool
 public:
 	C3D_Viewer_Multiple_Grids(void);
 
-	virtual bool			needs_GUI			(void)	{	return( true );	}
+	virtual bool			needs_GUI			(void)	const	{	return( true );	}
 
 
 protected:
