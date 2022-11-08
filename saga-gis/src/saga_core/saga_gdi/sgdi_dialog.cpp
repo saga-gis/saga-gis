@@ -124,12 +124,16 @@ CSGDI_Dialog::~CSGDI_Dialog(void)
 //---------------------------------------------------------
 int CSGDI_Dialog::ShowModal(void)
 {
+#ifdef __WXMAC__
+	Maximize();
+#else
 	if( GetParent()->IsShownOnScreen() )
 	{
-		wxRect	r(GetParent()->GetScreenRect());
+		wxRect r(GetParent()->GetScreenRect());
 		r.Deflate((int)(0.1 * r.GetWidth()), (int)(0.1 * r.GetHeight()));
 		SetSize(r);
 	}
+	#endif
 
 	return( wxDialog::ShowModal() );
 }
@@ -158,8 +162,6 @@ bool CSGDI_Dialog::Add_Output(wxWindow *pOutput_A, wxWindow *pOutput_B, int Prop
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
