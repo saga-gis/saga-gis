@@ -25,9 +25,9 @@ The installation might take a while (and no problem, it is almost as easy to dei
 
 Once Homebrew has been installed, you can continue using the __brew__ command with the installation of libraries that need to be present before the SAGA compilation itself can be started:
 ```
-brew install wxmac llvm libomp gdal postgis
+brew install wxmac llvm libomp gdal postgis pdal opencv libharu
 ```
-This will install the packages _wxmac_, _llvm_, _libomp_, _gdal_, and _postgis_. The _wxMac_ package ([The portable C++ GUI toolkit wxWidgets](https://wxwidgets.org/)) is absolutely necessary for a successful SAGA compilation. The other packages are optional but highly recommended. With _llvm_ and _libomp_ parallelization of SAGA routines will be enabled. The _gdal_ package ([Geospatial Data Abstraction Library](https://gdal.org/))  is a translator library for various raster and vector geospatial data formats and will also install the [proj](https://proj.org/) library, which is used by SAGA for all kind of coordinate transformations. With _postgis_ a [PostgreSQL](https://www.postgresql.org/) based geospatial database will also be added.
+This will install the packages _wxmac_, _llvm_, _libomp_, _gdal_, _postgis_, _pdal_, _opencv_, and _libharu_. The _wxMac_ package ([The portable C++ GUI toolkit wxWidgets](https://wxwidgets.org/)) is absolutely necessary for a successful SAGA compilation. The other packages are optional but highly recommended. With _llvm_ and _libomp_ parallelization of SAGA routines will be enabled. The _gdal_ package ([Geospatial Data Abstraction Library](https://gdal.org/))  is a translator library for various raster and vector geospatial data formats and will also install the [proj](https://proj.org/) library, which is used by SAGA for all kind of coordinate transformations. With _postgis_ a [PostgreSQL](https://www.postgresql.org/) based geospatial database will also be added. The [PDAL - Point Data Abstraction Library](https://pdal.io/) supports point cloud formats typically used for laser scan data. [OpenCV](https://opencv.org/) installs the _Open Source Computer Vision Library_ for image analysis and classification. The [Haru free PDF Library](http://libharu.org/) is used for generating PDF files.
 
 
 ## ___The CMake Build Configuration Tool___

@@ -4,7 +4,7 @@
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 
 # Installation of library dependencies and CMake through Homebrew
-brew install wxmac llvm libomp gdal postgis cmake
+brew install wxmac llvm libomp gdal postgis pdal opencv libharu cmake
 
 # Create a 'saga' folder in your home directory, in
 # which we want to build SAGA, and move to it
