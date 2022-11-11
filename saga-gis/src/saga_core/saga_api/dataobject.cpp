@@ -445,7 +445,7 @@ bool CSG_Data_Object::Set_Max_Samples(sLong Max_Samples)
 	{
 		m_Max_Samples	= Max_Samples;
 
-        On_Update();
+        Update(true);
 	}
 
 	return( true );
