@@ -103,7 +103,7 @@ IF /i "%GIT_BRANCH%" == "true" (
 	%GITEXE% push release-%SAGA_VER_TEXT%
 )
 
-IF /i "%SWITCH_TO_BRANCH%" == "true" (
+IF /i NOT "%SWITCH_TO_BRANCH%" == "" (
 	ECHO switch to branch %SWITCH_TO_BRANCH%
 	%GITEXE% checkout %SWITCH_TO_BRANCH%
 )
