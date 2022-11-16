@@ -93,7 +93,8 @@ private:
 
 	CSG_String					Get_Request				(void);
 
-	bool						Get_System				(CSG_Grid_System &System, CSG_Grid *pTarget);
+	CSG_Projection				Get_WMS_Projection		(void);
+	bool						Get_WMS_System			(CSG_Grid_System &System, CSG_Grid *pTarget);
 
 };
 

@@ -90,16 +90,17 @@ CWKSP_Map_BaseMap::CWKSP_Map_BaseMap(CSG_MetaData *pEntry)
 	m_Parameters.Add_Choice("NODE_GENERAL",
 		"SERVER"	, _TL("Server"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s",
-			_TL("Open Street Map"),
-			_TL("Google Map"),
-			_TL("Google Satellite"),
-			_TL("Google Hybrid"),
-			_TL("Google Terrain"),
-			_TL("Google Terrain, Streets and Water"),
-			_TL("ArcGIS MapServer Tiles"),
-			_TL("TopPlusOpen"),
-			_TL("user defined")
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
+			SG_T("Open Street Map"),
+			SG_T("Google Map"),
+			SG_T("Google Satellite"),
+			SG_T("Google Hybrid"),
+			SG_T("Google Terrain"),
+			SG_T("Google Terrain, Streets and Water"),
+			SG_T("ArcGIS MapServer Tiles"),
+			SG_T("TopPlusOpen"),
+			SG_T("EMODnet Bathymetry WMTS service"),
+			SG_T("user defined")
 		), 0
 	);
 
@@ -107,6 +108,12 @@ CWKSP_Map_BaseMap::CWKSP_Map_BaseMap(CSG_MetaData *pEntry)
 		"SERVER_USER", _TL("Server"),
 		_TL(""),
 		"tile.openstreetmap.org/${z}/${x}/${y}.png"
+	);
+
+	m_Parameters.Add_Int("SERVER",
+		"SERVER_EPSG", _TL("EPSG"),
+		_TL(""),
+		3857
 	);
 
 	m_Parameters.Add_Bool("NODE_GENERAL",
@@ -345,7 +352,10 @@ int CWKSP_Map_BaseMap::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 
 		if(	pParameter->Cmp_Identifier("SERVER") )
 		{
-			pParameters->Set_Enabled("SERVER_USER", pParameter->asInt() >= pParameter->asChoice()->Get_Count() - 1);	// user defined
+			bool bUser = pParameter->asInt() >= pParameter->asChoice()->Get_Count() - 1;
+
+			pParameters->Set_Enabled("SERVER_USER", bUser);
+			pParameters->Set_Enabled("SERVER_EPSG", bUser);
 		}
 
 		if( pParameter->Cmp_Identifier("CACHE") )
@@ -425,6 +435,7 @@ bool CWKSP_Map_BaseMap::Set_BaseMap(const CSG_Grid_System &System)
 	&&  pTool->Set_Parameter("TARGET_MAP" , &BaseMap)
 	&&  pTool->Set_Parameter("SERVER"     , m_Parameters("SERVER"     ))
 	&&  pTool->Set_Parameter("SERVER_USER", m_Parameters("SERVER_USER"))
+	&&  pTool->Set_Parameter("SERVER_EPSG", m_Parameters("SERVER_EPSG"))
 	&&  pTool->Set_Parameter("CACHE"      , m_Parameters("CACHE"      ))
 	&&  pTool->Set_Parameter("CACHE_DIR"  , m_Parameters("CACHE_DIR"  ))
 	&&  pTool->Set_Parameter("GRAYSCALE"  , m_Parameters("GRAYSCALE"  ))
