@@ -120,6 +120,7 @@ void CDLG_About_Logo::On_Paint(wxPaintEvent &event)
 	FONT_ITALIC; Draw_Text(dc, Cursor += Space * 0, "Dr. O. Conrad, Dr. V. Wichmann");
 
 	FONT_NORMAL; Draw_Text(dc, Cursor += Space * 0, "_______________________");
+	FONT_NORMAL; Draw_Text(dc, Cursor += Space * 1, "Brought to you by");
 
 	Draw_XPM              (dc, Cursor += Space * 0, xpm_logo_uhh);
 	FONT_NORMAL; Draw_Text(dc, Cursor += Space * 0, "Department of Physical Geography");
