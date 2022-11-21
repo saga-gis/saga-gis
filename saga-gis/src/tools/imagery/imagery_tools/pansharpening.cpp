@@ -723,7 +723,7 @@ bool CPanSharp_PCA::On_Execute(void)
 
 	delete(pPCA->Get_Grid(0));
 
-	pPCA->Del_Items();
+	pPCA->Del_Items(); Tool_Parms.Set_Callback(false); pPCA->Get_Parent()->asGrid_System()->Destroy(); // reset grid system before adding hi-res-grids
 
 	for(i=0; i<n; i++)
 	{
