@@ -114,7 +114,7 @@ public:
 	void				do_Central				(bool bOn = true);
 	bool				is_Central				(void)	const	{	return( m_bCentral );	}
 	void				Set_Central_Distance	(double Distance);
-	void				Inc_Central_Distance	(double Distance, bool bAdjustShift = true);
+	void				Inc_Central_Distance	(double Distance);
 	double				Get_Central_Distance	(void)	const	{	return( m_dCentral );	}
 
 	void				Get_Projection			(TSG_Point_Z &p);
@@ -189,7 +189,7 @@ protected:
 	}
 	TSG_Triangle_Node;
 
-	void						Draw_Triangle			(TSG_Triangle_Node p[3], bool bValueAsColor, double Light_Dec, double Light_Azi);
+	void						Draw_Triangle			(TSG_Triangle_Node p[3], bool bValueAsColor, const CSG_Vector &LightSource, int Shading = 0);
 	void						Draw_Triangle			(TSG_Triangle_Node p[3], bool bValueAsColor, double Dim = 1.);
 
 

@@ -201,7 +201,7 @@ C3D_Viewer_PointCloud_Panel::C3D_Viewer_PointCloud_Panel(wxWindow *pParent, CSG_
 	m_Parameters.Add_Double("NODE_VIEW",
 		"SIZE_SCALE"	, _TL("Size Scaling"),
 		_TL(""),
-		250., 0., true
+		0., 0., true
 	);
 
 	//-----------------------------------------------------
@@ -268,31 +268,31 @@ void C3D_Viewer_PointCloud_Panel::Set_Extent(CSG_Rect Extent)
 //---------------------------------------------------------
 void C3D_Viewer_PointCloud_Panel::Update_Statistics(void)
 {
-	m_Data_Min.x	= m_Extent.Get_XMin();
-	m_Data_Max.x	= m_Extent.Get_XMax();
+	m_Data_Min.x = m_Extent.Get_XMin();
+	m_Data_Max.x = m_Extent.Get_XMax();
 
-	m_Data_Min.y	= m_Extent.Get_YMin();
-	m_Data_Max.y	= m_Extent.Get_YMax();
+	m_Data_Min.y = m_Extent.Get_YMin();
+	m_Data_Max.y = m_Extent.Get_YMax();
 
 	m_Selection.Set_Array(0);
 
 	if( m_Extent.is_Equal(m_pPoints->Get_Extent()) )
 	{
-		int	cField	= m_Parameters("COLORS_ATTR")->asInt();
+		int	cField = m_Parameters("COLORS_ATTR")->asInt();
 
 		m_Parameters("COLORS_RANGE")->asRange()->Set_Range(
 			m_pPoints->Get_Mean(cField) - 1.5 * m_pPoints->Get_StdDev(cField),
 			m_pPoints->Get_Mean(cField) + 1.5 * m_pPoints->Get_StdDev(cField)
 		);
 
-		m_Data_Min.z	= m_pPoints->Get_Minimum(2);	// Get_ZMin();	ToDo in CSG_PointCloud class!!!
-		m_Data_Max.z	= m_pPoints->Get_Maximum(2);	// Get_ZMax();	ToDo in CSG_PointCloud class!!!
+		m_Data_Min.z = m_pPoints->Get_Minimum(2);	// Get_ZMin();	ToDo in CSG_PointCloud class!!!
+		m_Data_Max.z = m_pPoints->Get_Maximum(2);	// Get_ZMax();	ToDo in CSG_PointCloud class!!!
 	}
 	else
 	{
 		CSG_Simple_Statistics	cStats, zStats;
 
-		int	cField	= m_Parameters("COLORS_ATTR")->asInt();
+		int	cField = m_Parameters("COLORS_ATTR")->asInt();
 
 		for(int i=0; i<m_pPoints->Get_Count(); i++)
 		{
@@ -302,8 +302,8 @@ void C3D_Viewer_PointCloud_Panel::Update_Statistics(void)
 			{
 				*((int *)m_Selection.Get_Entry(m_Selection.Get_Size() - 1))	= i;
 
-				cStats	+= m_pPoints->Get_Value(cField);
-				zStats	+= m_pPoints->Get_Z();
+				cStats += m_pPoints->Get_Value(cField);
+				zStats += m_pPoints->Get_Z();
 			}
 		}
 
@@ -312,8 +312,8 @@ void C3D_Viewer_PointCloud_Panel::Update_Statistics(void)
 			cStats.Get_Mean() + 1.5 * cStats.Get_StdDev()
 		);
 
-		m_Data_Min.z	= zStats.Get_Minimum();
-		m_Data_Max.z	= zStats.Get_Maximum();
+		m_Data_Min.z = zStats.Get_Minimum();
+		m_Data_Max.z = zStats.Get_Maximum();
 	}
 }
 
@@ -333,16 +333,16 @@ void C3D_Viewer_PointCloud_Panel::On_Key_Down(wxKeyEvent &event)
 {
 	switch( event.GetKeyCode() )
 	{
-	default:	CSG_3DView_Panel::On_Key_Down(event);	return;
+	default    : CSG_3DView_Panel::On_Key_Down(event); return;
 
-	case WXK_F1:	m_Parameters("Z_SCALE"   )->Set_Value(m_Parameters("Z_SCALE"   )->asDouble() -  0.5);	break;
-	case WXK_F2:	m_Parameters("Z_SCALE"   )->Set_Value(m_Parameters("Z_SCALE"   )->asDouble() +  0.5);	break;
+	case WXK_F1: m_Parameters("Z_SCALE"   )->Set_Value(m_Parameters("Z_SCALE"   )->asDouble() - 0.5); break;
+	case WXK_F2: m_Parameters("Z_SCALE"   )->Set_Value(m_Parameters("Z_SCALE"   )->asDouble() + 0.5); break;
 
-	case WXK_F5:	m_Parameters("SIZE"      )->Set_Value(m_Parameters("SIZE"      )->asDouble() -  1.0);	break;
-	case WXK_F6:	m_Parameters("SIZE"      )->Set_Value(m_Parameters("SIZE"      )->asDouble() +  1.0);	break;
+	case WXK_F5: m_Parameters("SIZE"      )->Set_Value(m_Parameters("SIZE"      )->asDouble() - 1.0); break;
+	case WXK_F6: m_Parameters("SIZE"      )->Set_Value(m_Parameters("SIZE"      )->asDouble() + 1.0); break;
 
-	case WXK_F7:	m_Parameters("SIZE_SCALE")->Set_Value(m_Parameters("SIZE_SCALE")->asDouble() - 10.0);	break;
-	case WXK_F8:	m_Parameters("SIZE_SCALE")->Set_Value(m_Parameters("SIZE_SCALE")->asDouble() + 10.0);	break;
+	case WXK_F7: m_Parameters("SIZE_SCALE")->Set_Value(m_Parameters("SIZE_SCALE")->asDouble() - 1.0); break;
+	case WXK_F8: m_Parameters("SIZE_SCALE")->Set_Value(m_Parameters("SIZE_SCALE")->asDouble() + 1.0); break;
 	}
 
 	//-----------------------------------------------------
@@ -378,23 +378,23 @@ int C3D_Viewer_PointCloud_Panel::Get_Color(double Value, double z)
 
 	if( m_Color_Scale <= 0. )
 	{
-		Color	= (int)Value;
+		Color = (int)Value;
 	}
 	else
 	{
-		double	c	= m_Color_Scale * (Value - m_Color_Min);
+		double c = m_Color_Scale * (Value - m_Color_Min);
 
-		Color	= m_Color_bGrad ? m_Colors.Get_Interpolated(c) : m_Colors[(int)c];
+		Color = m_Color_bGrad ? m_Colors.Get_Interpolated(c) : m_Colors[(int)c];
 	}
 
 	//-----------------------------------------------------
 	if( m_Color_Dim_Min < m_Color_Dim_Max )
 	{
-		double	dim	= 1. - (z - m_Color_Dim_Min) / (m_Color_Dim_Max - m_Color_Dim_Min);
+		double dim = 1. - (z - m_Color_Dim_Min) / (m_Color_Dim_Max - m_Color_Dim_Min);
 
 		if( dim < 1. )
 		{
-			Color	= Dim_Color(Color, dim < 0.1 ? 0.1 : dim);
+			Color = Dim_Color(Color, dim < 0.1 ? 0.1 : dim);
 		}
 	}
 
@@ -409,7 +409,7 @@ int C3D_Viewer_PointCloud_Panel::Get_Color(double Value, double z)
 //---------------------------------------------------------
 bool C3D_Viewer_PointCloud_Panel::On_Draw(void)
 {
-	int		cField	= m_Parameters("COLORS_ATTR")->asInt();
+	int cField = m_Parameters("COLORS_ATTR")->asInt();
 
 	if( m_Parameters("COLORS_RANGE")->asRange()->Get_Min()
 	>=  m_Parameters("COLORS_RANGE")->asRange()->Get_Max() )
@@ -420,47 +420,39 @@ bool C3D_Viewer_PointCloud_Panel::On_Draw(void)
 		);
 	}
 
-	m_Colors		= *m_Parameters("COLORS")->asColors();
-	m_Color_bGrad	= m_Parameters("COLORS_GRAD")->asBool();
-	m_Color_Min		= m_Parameters("COLORS_RANGE.MIN")->asDouble();
-	m_Color_Scale	= m_Parameters("COLORS_RANGE.MAX")->asDouble() - m_Color_Min;
-	m_Color_Scale	= m_Parameters("VAL_AS_RGB")->asBool() || m_Color_Scale <= 0. ? 0. : m_Colors.Get_Count() / m_Color_Scale;
+	m_Colors      = *m_Parameters("COLORS")->asColors();
+	m_Color_bGrad = m_Parameters("COLORS_GRAD")->asBool();
+	m_Color_Min   = m_Parameters("COLORS_RANGE.MIN")->asDouble();
+	m_Color_Scale = m_Parameters("COLORS_RANGE.MAX")->asDouble() - m_Color_Min;
+	m_Color_Scale = m_Parameters("VAL_AS_RGB")->asBool() || m_Color_Scale <= 0. ? 0. : m_Colors.Get_Count() / m_Color_Scale;
 
 	if( m_Parameters("DIM")->asBool() )
 	{
-		m_Color_Dim_Min	= m_Parameters("DIM_RANGE")->asRange()->Get_Min() * (m_Data_Max.z - m_Data_Min.z);
-		m_Color_Dim_Max	= m_Parameters("DIM_RANGE")->asRange()->Get_Max() * (m_Data_Max.z - m_Data_Min.z);
+		m_Color_Dim_Min = m_Parameters("DIM_RANGE")->asRange()->Get_Min() * (m_Data_Max.z - m_Data_Min.z);
+		m_Color_Dim_Max = m_Parameters("DIM_RANGE")->asRange()->Get_Max() * (m_Data_Max.z - m_Data_Min.z);
 	}
 	else
 	{
-		m_Color_Dim_Min	= m_Color_Dim_Max	= 0.;
+		m_Color_Dim_Min = m_Color_Dim_Max = 0.;
 	}
 
 	//-----------------------------------------------------
-	int		Size	= m_Parameters("SIZE"      )->asInt   ();
-	double	dSize	= m_Parameters("SIZE_SCALE")->asDouble();
+	int minSize = m_Parameters("SIZE")->asInt(); double dSize = m_Parameters("SIZE_SCALE")->asDouble() / 100.;
 	
-	if( dSize > 0. ) dSize = 1. / dSize; else dSize = 0.;
+	int nSkip   = 1 + (int)(0.001 * m_pPoints->Get_Count() * SG_Get_Square(1. - 0.01 * m_Parameters("DETAIL")->asDouble()));
 
-	//-----------------------------------------------------
-	int		nSkip	= 1 + (int)(0.001 * m_pPoints->Get_Count() * SG_Get_Square(1. - 0.01 * m_Parameters("DETAIL")->asDouble()));
-
-	//-----------------------------------------------------
 	int	nPoints	= m_Selection.Get_Size() > 0 ? (int)m_Selection.Get_Size() : m_pPoints->Get_Count();
 
 	#pragma omp parallel for
 	for(int iPoint=0; iPoint<nPoints; iPoint+=nSkip)
 	{
-		int	jPoint	= m_Selection.Get_Size() > 0 ? *((int *)m_Selection.Get_Entry(iPoint)) : iPoint;
+		int jPoint = m_Selection.Get_Size() > 0 ? *((int *)m_Selection.Get_Entry(iPoint)) : iPoint;
 
-		TSG_Point_Z	p	= m_pPoints->Get_Point(jPoint);
+		TSG_Point_Z p = m_pPoints->Get_Point(jPoint); m_Projector.Get_Projection(p);
 
-		m_Projector.Get_Projection(p);
+		double Size = minSize; if( dSize > 0. ) { Size += (int)(50. * exp(-p.z / dSize)); }
 
-		Draw_Point(p.x, p.y, p.z,
-			Get_Color(m_pPoints->Get_Value(jPoint, cField), p.z),
-			Size + (dSize <= 0. ? 0 : (int)(20. * exp(-dSize * p.z)))
-		);
+		Draw_Point(p.x, p.y, p.z, Get_Color(m_pPoints->Get_Value(jPoint, cField), p.z), Size);
 	}
 
 	//-----------------------------------------------------
@@ -888,17 +880,17 @@ void C3D_Viewer_PointCloud_Dialog::On_Menu(wxCommandEvent &event)
 		CSG_3DView_Dialog::On_Menu(event);
 		return;
 
-	case MENU_SCALE_Z_DEC   : MENU_VALUE_ADD("Z_SCALE"   ,  -0.5); return;
-	case MENU_SCALE_Z_INC   : MENU_VALUE_ADD("Z_SCALE"   ,   0.5); return;
+	case MENU_SCALE_Z_DEC   : MENU_VALUE_ADD("Z_SCALE"   , -0.5); return;
+	case MENU_SCALE_Z_INC   : MENU_VALUE_ADD("Z_SCALE"   ,  0.5); return;
 
-	case MENU_SIZE_DEC      : MENU_VALUE_ADD("SIZE"      ,  -1.0); return;
-	case MENU_SIZE_INC      : MENU_VALUE_ADD("SIZE"      ,   1.0); return;
+	case MENU_SIZE_DEC      : MENU_VALUE_ADD("SIZE"      , -1.0); return;
+	case MENU_SIZE_INC      : MENU_VALUE_ADD("SIZE"      ,  1.0); return;
 
-	case MENU_SIZE_SCALE_DEC: MENU_VALUE_ADD("SIZE_SCALE", -10.0); return;
-	case MENU_SIZE_SCALE_INC: MENU_VALUE_ADD("SIZE_SCALE",  10.0); return;
+	case MENU_SIZE_SCALE_DEC: MENU_VALUE_ADD("SIZE_SCALE", -1.0); return;
+	case MENU_SIZE_SCALE_INC: MENU_VALUE_ADD("SIZE_SCALE",  1.0); return;
 
-	case MENU_VAL_AS_RGB    : MENU_TOGGLE   ("VAL_AS_RGB"       ); return;
-	case MENU_COLORS_GRAD   : MENU_TOGGLE   ("COLORS_GRAD"      ); return;
+	case MENU_VAL_AS_RGB    : MENU_TOGGLE   ("VAL_AS_RGB"      ); return;
+	case MENU_COLORS_GRAD   : MENU_TOGGLE   ("COLORS_GRAD"     ); return;
 	}
 }
 

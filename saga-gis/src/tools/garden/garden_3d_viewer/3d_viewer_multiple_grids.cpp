@@ -195,18 +195,18 @@ int C3D_Viewer_Multiple_Grids_Panel::On_Parameters_Enable(CSG_Parameters *pParam
 //---------------------------------------------------------
 void C3D_Viewer_Multiple_Grids_Panel::Update_Statistics(void)
 {
-	m_Data_Min.x	= m_pGrids->Get_Grid(0)->Get_XMin();
-	m_Data_Max.x	= m_pGrids->Get_Grid(0)->Get_XMax();
+	m_Data_Min.x = m_pGrids->Get_Grid(0)->Get_XMin();
+	m_Data_Max.x = m_pGrids->Get_Grid(0)->Get_XMax();
 
-	m_Data_Min.y	= m_pGrids->Get_Grid(0)->Get_YMin();
-	m_Data_Max.y	= m_pGrids->Get_Grid(0)->Get_YMax();
+	m_Data_Min.y = m_pGrids->Get_Grid(0)->Get_YMin();
+	m_Data_Max.y = m_pGrids->Get_Grid(0)->Get_YMax();
 
-	m_Data_Min.z	= m_pGrids->Get_Grid(0)->Get_Min();
-	m_Data_Max.z	= m_pGrids->Get_Grid(0)->Get_Max();
+	m_Data_Min.z = m_pGrids->Get_Grid(0)->Get_Min();
+	m_Data_Max.z = m_pGrids->Get_Grid(0)->Get_Max();
 
 	for(int i=1; i<m_pGrids->Get_Grid_Count(); i++)
 	{
-		CSG_Grid	*pGrid	= m_pGrids->Get_Grid(i);
+		CSG_Grid *pGrid = m_pGrids->Get_Grid(i);
 
 		if( m_Data_Min.x > pGrid->Get_XMin() )
 			m_Data_Min.x = pGrid->Get_XMin();	else
@@ -285,7 +285,7 @@ int C3D_Viewer_Multiple_Grids_Panel::Get_Color(double Value)
 		return( (int)Value );
 	}
 
-	double	c	= m_Color_Scale * (Value - m_Color_Min);
+	double c = m_Color_Scale * (Value - m_Color_Min);
 
 	return( m_Color_bGrad ? m_Colors.Get_Interpolated(c) : m_Colors[(int)c] );
 }
@@ -298,13 +298,11 @@ int C3D_Viewer_Multiple_Grids_Panel::Get_Color(double Value)
 //---------------------------------------------------------
 bool C3D_Viewer_Multiple_Grids_Panel::On_Draw(void)
 {
-	//-------------------------------------------------
 	for(int i=0; i<m_pGrids->Get_Grid_Count(); i++)
 	{
 		Draw_Grid(m_pGrids->Get_Grid(i));
 	}
 
-	//-----------------------------------------------------
 	return( true );
 }
 
@@ -320,15 +318,15 @@ inline bool C3D_Viewer_Multiple_Grids_Panel::Get_Node(CSG_Grid *pGrid, int x, in
 	{
 		TSG_Point_Z	p;
 
-		p.x	= pGrid->Get_System().Get_xGrid_to_World(x);
-		p.y	= pGrid->Get_System().Get_yGrid_to_World(y);
-		p.z	= Node.c = pGrid->asDouble(x, y);
+		p.x = pGrid->Get_System().Get_xGrid_to_World(x);
+		p.y = pGrid->Get_System().Get_yGrid_to_World(y);
+		p.z = Node.c = pGrid->asDouble(x, y);
 
 		m_Projector.Get_Projection(p);
 
-		Node.x	= p.x;
-		Node.y	= p.y;
-		Node.z	= p.z;
+		Node.x = p.x;
+		Node.y = p.y;
+		Node.z = p.z;
 
 		return( true );
 	}
@@ -342,39 +340,50 @@ void C3D_Viewer_Multiple_Grids_Panel::Draw_Grid(CSG_Grid *pGrid)
 	//-----------------------------------------------------
 	if( !SG_UI_DataObject_Colors_Get(pGrid, &m_Colors) )
 	{
-		m_Colors	= *m_Parameters("COLORS")->asColors();
+		m_Colors  = *m_Parameters("COLORS")->asColors();
 	}
 
-	m_Color_bGrad	= m_Parameters("COLORS_GRAD")->asBool();
+	m_Color_bGrad = m_Parameters("COLORS_GRAD")->asBool();
 
-	m_Color_Min		= pGrid->Get_Min();
-	m_Color_Scale	= pGrid->Get_Range() > 0. ? m_Colors.Get_Count() / pGrid->Get_Range() : 0.;
+	m_Color_Min   = pGrid->Get_Min();
+	m_Color_Scale = pGrid->Get_Range() > 0. ? m_Colors.Get_Count() / pGrid->Get_Range() : 0.;
 
 	//-----------------------------------------------------
-	int		Shading		= m_Parameters("SHADING"  )->asInt   ();
-	double	Shade_Dec	= m_Parameters("SHADE_DEC")->asDouble() * -M_DEG_TO_RAD;
-	double	Shade_Azi	= m_Parameters("SHADE_AZI")->asDouble() *  M_DEG_TO_RAD;
+	CSG_Vector LightSource;
+
+	if( m_Parameters("SHADING")->asInt() && LightSource.Create(3) )
+	{
+		double decline = m_Parameters("SHADE_DEC")->asDouble() * -M_DEG_TO_RAD;
+		double azimuth = m_Parameters("SHADE_AZI")->asDouble() *  M_DEG_TO_RAD;
+
+		LightSource[0] = sin(decline) * cos(azimuth);
+		LightSource[1] = sin(decline) * sin(azimuth);
+		LightSource[2] = cos(decline);
+	}
 
 	//-----------------------------------------------------
 	#pragma omp parallel for
-	for(int y=1; y<pGrid->Get_NY(); y++)
+	for(int y=1; y<pGrid->Get_NY(); y++) for(int x=1; x<pGrid->Get_NX(); x++)
 	{
-		for(int x=1; x<pGrid->Get_NX(); x++)
+		TSG_Triangle_Node	p[3];
+
+		if( Get_Node(pGrid, x - 1, y - 1, p[0])
+		&&  Get_Node(pGrid, x    , y    , p[1]) )
 		{
-			TSG_Triangle_Node	p[3];
-
-			if( Get_Node(pGrid, x - 1, y - 1, p[0])
-			&&  Get_Node(pGrid, x    , y    , p[1]) )
+			if( Get_Node(pGrid, x    , y - 1, p[2]) )
 			{
-				if( Get_Node(pGrid, x    , y - 1, p[2]) )
-				{
-					if( Shading ) Draw_Triangle(p, false, Shade_Dec, Shade_Azi); else Draw_Triangle(p, false);
-				}
+				if( LightSource.Get_Size() )
+					Draw_Triangle(p, false, LightSource);
+				else
+					Draw_Triangle(p, false);
+			}
 
-				if( Get_Node(pGrid, x - 1, y    , p[2]) )
-				{
-					if( Shading ) Draw_Triangle(p, false, Shade_Dec, Shade_Azi); else Draw_Triangle(p, false);
-				}
+			if( Get_Node(pGrid, x - 1, y    , p[2]) )
+			{
+				if( LightSource.Get_Size() )
+					Draw_Triangle(p, false, LightSource);
+				else
+					Draw_Triangle(p, false);
 			}
 		}
 	}

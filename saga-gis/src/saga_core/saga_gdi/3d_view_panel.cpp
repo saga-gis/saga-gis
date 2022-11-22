@@ -124,7 +124,7 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	m_Parameters.Add_Double("CENTRAL",
 		"CENTRAL_DIST"	, _TL("Central Projection Distance"),
 		_TL(""),
-		m_Projector.Get_Central_Distance(), 1., true
+		m_Projector.Get_Central_Distance(), 0.1, true
 	);
 
 	m_Parameters.Add_Color("NODE_GENERAL",
@@ -217,7 +217,7 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	m_pPlay->Add_Field(_TL("Central Distance"), SG_DATATYPE_Double);
 	m_pPlay->Add_Field(_TL("Steps to Next"   ), SG_DATATYPE_Int   );
 
-	m_Play_State	= SG_3DVIEW_PLAY_STOP;
+	m_Play_State = SG_3DVIEW_PLAY_STOP;
 }
 
 
@@ -245,7 +245,7 @@ bool CSG_3DView_Panel::Update_Parameters(bool bSave)
 //---------------------------------------------------------
 int CSG_3DView_Panel::_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
 {
-	CSG_Parameters	*pParameters	= pParameter ? pParameter->Get_Parameters() : NULL;
+	CSG_Parameters *pParameters = pParameter ? pParameter->Get_Parameters() : NULL;
 
 	if( pParameters )
 	{
@@ -320,15 +320,15 @@ void CSG_3DView_Panel::On_Key_Down(wxKeyEvent &event)
 	{
 		switch( event.GetKeyCode() )
 		{
-		case 'A': Play_Pos_Add();	return;
-		case 'D': Play_Pos_Del();	return;
-		case 'X': Play_Pos_Clr();	return;
+		case 'A': Play_Pos_Add    (); return;
+		case 'D': Play_Pos_Del    (); return;
+		case 'X': Play_Pos_Clr    (); return;
 
-		case 'P': Play_Once   ();	return;
-		case 'L': Play_Loop   ();	return;
-		case 'S': Play_Save   ();	return;
+		case 'P': Play_Once       (); return;
+		case 'L': Play_Loop       (); return;
+		case 'S': Play_Save       (); return;
 
-		case 'C': Save_toClipboard();	return;
+		case 'C': Save_toClipboard(); return;
 		}
 
 		event.Skip();
@@ -376,28 +376,23 @@ void CSG_3DView_Panel::On_Key_Down(wxKeyEvent &event)
 			m_Projector.Inc_zRotation( 4. * M_DEG_TO_RAD);
 			break;
 
-		case WXK_INSERT  : m_Projector.Inc_xShift(-10.); break;
-		case WXK_DELETE  : m_Projector.Inc_xShift( 10.); break;
-		case WXK_HOME    : m_Projector.Inc_yShift(-10.); break;
-		case WXK_END     : m_Projector.Inc_yShift( 10.); break;
-		case WXK_PAGEUP  : m_Projector.Inc_zShift(-10.); break;
-		case WXK_PAGEDOWN: m_Projector.Inc_zShift( 10.); break;
+		case WXK_INSERT  : m_Projector.Inc_xShift(-0.1); break;
+		case WXK_DELETE  : m_Projector.Inc_xShift( 0.1); break;
+		case WXK_HOME    : m_Projector.Inc_yShift(-0.1); break;
+		case WXK_END     : m_Projector.Inc_yShift( 0.1); break;
+		case WXK_PAGEUP  : m_Projector.Inc_zShift(-0.1); break;
+		case WXK_PAGEDOWN: m_Projector.Inc_zShift( 0.1); break;
 
-		case 'B':
-			m_Parameters("BOX"   )->Set_Value(m_Parameters("BOX"   )->asBool() == false);
-			break;
+		case 'O': m_Projector.Inc_Central_Distance( 0.1); break;
+		case 'P': m_Projector.Inc_Central_Distance(-0.1); break;
 
-		case 'L':
-			m_Parameters("LABELS")->Set_Value(m_Parameters("LABELS")->asBool() == false);
-			break;
+		case 'B': m_Parameters("BOX"   )->Set_Value(m_Parameters("BOX"   )->asBool() == false); break;
+		case 'L': m_Parameters("LABELS")->Set_Value(m_Parameters("LABELS")->asBool() == false); break;
+		case 'N': m_Parameters("NORTH" )->Set_Value(m_Parameters("NORTH" )->asBool() == false); break;
+		case 'S': m_Parameters("STEREO")->Set_Value(m_Parameters("STEREO")->asBool() == false); break;
 
-		case 'N':
-			m_Parameters("NORTH" )->Set_Value(m_Parameters("NORTH" )->asBool() == false);
-			break;
-
-		case 'S':
-			m_Parameters("STEREO")->Set_Value(m_Parameters("STEREO")->asBool() == false);
-			break;
+		case 'A': m_Parameters("STEREO_DIST")->Set_Value(m_Parameters("STEREO_DIST")->asDouble() - 0.5); break;
+		case 'D': m_Parameters("STEREO_DIST")->Set_Value(m_Parameters("STEREO_DIST")->asDouble() + 0.5); break;
 		}
 
 		Update_Parent();
@@ -464,8 +459,8 @@ void CSG_3DView_Panel::On_Mouse_RUp(wxMouseEvent &event)
 
 	if( m_Down_Screen.x != event.GetX() || m_Down_Screen.y != event.GetY() )
 	{
-		m_Projector.Set_xShift(m_Down_Value.x - (m_Down_Screen.x - event.GetX()));
-		m_Projector.Set_yShift(m_Down_Value.y - (m_Down_Screen.y - event.GetY()));
+		m_Projector.Set_xShift(m_Down_Value.x - GET_MOUSE_X_RELDIFF);
+		m_Projector.Set_yShift(m_Down_Value.y - GET_MOUSE_Y_RELDIFF);
 
 		Update_View();
 		Update_Parent();
@@ -494,7 +489,7 @@ void CSG_3DView_Panel::On_Mouse_MUp(wxMouseEvent &event)
 	if( m_Down_Screen.x != event.GetX() || m_Down_Screen.y != event.GetY() )
 	{
 		m_Projector.Set_yRotation(m_Down_Value.x + GET_MOUSE_X_RELDIFF * M_PI_180);
-		m_Projector.Set_zShift   (m_Down_Value.y + (m_Down_Screen.y - event.GetY()));
+		m_Projector.Set_zShift   (m_Down_Value.y + GET_MOUSE_Y_RELDIFF);
 
 		Update_View();
 		Update_Parent();
@@ -513,13 +508,13 @@ void CSG_3DView_Panel::On_Mouse_Motion(wxMouseEvent &event)
 		}
 		else if( event.RightIsDown() )
 		{
-			m_Projector.Set_xShift   (m_Down_Value.x - (m_Down_Screen.x - event.GetX()));
-			m_Projector.Set_yShift   (m_Down_Value.y - (m_Down_Screen.y - event.GetY()));
+			m_Projector.Set_xShift   (m_Down_Value.x - GET_MOUSE_X_RELDIFF);
+			m_Projector.Set_yShift   (m_Down_Value.y - GET_MOUSE_Y_RELDIFF);
 		}
 		else if( event.MiddleIsDown() )
 		{
 			m_Projector.Set_yRotation(m_Down_Value.x + GET_MOUSE_X_RELDIFF * M_PI_180);
-			m_Projector.Set_zShift   (m_Down_Value.y + (m_Down_Screen.y - event.GetY()));
+			m_Projector.Set_zShift   (m_Down_Value.y + GET_MOUSE_Y_RELDIFF);
 		}
 		else
 		{
@@ -536,7 +531,7 @@ void CSG_3DView_Panel::On_Mouse_Wheel(wxMouseEvent &event)
 {
 	if( event.GetWheelRotation() )
 	{
-		m_Projector.Set_zShift(m_Projector.Get_zShift()	+ event.GetWheelRotation());
+		m_Projector.Set_zShift(m_Projector.Get_zShift()	+ event.GetWheelRotation() * 0.001);
 
 		Update_View();
 	}

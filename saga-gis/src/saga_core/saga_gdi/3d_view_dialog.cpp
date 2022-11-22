@@ -93,14 +93,14 @@ enum
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CSG_3DView_Dialog, CSGDI_Dialog)
-	EVT_BUTTON		(wxID_ANY	, CSG_3DView_Dialog::On_Button)
-	EVT_CHECKBOX	(wxID_ANY	, CSG_3DView_Dialog::On_Update_Control)
-	EVT_TEXT_ENTER	(wxID_ANY	, CSG_3DView_Dialog::On_Update_Control)
-	EVT_SLIDER		(wxID_ANY	, CSG_3DView_Dialog::On_Update_Control)
-	EVT_CHOICE		(wxID_ANY	, CSG_3DView_Dialog::On_Update_Choices)
+	EVT_BUTTON    (wxID_ANY	, CSG_3DView_Dialog::On_Button)
+	EVT_CHECKBOX  (wxID_ANY	, CSG_3DView_Dialog::On_Update_Control)
+	EVT_TEXT_ENTER(wxID_ANY	, CSG_3DView_Dialog::On_Update_Control)
+	EVT_SLIDER    (wxID_ANY	, CSG_3DView_Dialog::On_Update_Control)
+	EVT_CHOICE    (wxID_ANY	, CSG_3DView_Dialog::On_Update_Choices)
 
-	EVT_MENU_RANGE		(MENU_FIRST, MENU_LAST, CSG_3DView_Dialog::On_Menu)
-	EVT_UPDATE_UI_RANGE	(MENU_FIRST, MENU_LAST, CSG_3DView_Dialog::On_Menu_UI)
+	EVT_MENU_RANGE     (MENU_FIRST, MENU_LAST, CSG_3DView_Dialog::On_Menu)
+	EVT_UPDATE_UI_RANGE(MENU_FIRST, MENU_LAST, CSG_3DView_Dialog::On_Menu_UI)
 END_EVENT_TABLE()
 
 //---------------------------------------------------------
@@ -113,19 +113,19 @@ CSG_3DView_Dialog::CSG_3DView_Dialog(const CSG_String &Caption, int Style)
 //---------------------------------------------------------
 bool CSG_3DView_Dialog::Create(CSG_3DView_Panel *pPanel)
 {
-	m_pPanel		= pPanel;
+	m_pPanel    = pPanel;
 
-	m_pCommands		= Add_Button  (_TL("Commands"    ), wxID_ANY);
+	m_pCommands = Add_Button  (_TL("Commands"    ), wxID_ANY);
 
 //	Add_Spacer();
-//	m_pBox			= Add_CheckBox(_TL("Bounding Box"), m_pPanel->m_Parameters("BOX"   )->asBool());
-//	m_pLabels		= Add_CheckBox(_TL("Labels"      ), m_pPanel->m_Parameters("LABELS")->asBool());
-//	m_pStereo		= Add_CheckBox(_TL("Anaglyph"    ), m_pPanel->m_Parameters("STEREO")->asBool());
+//	m_pBox      = Add_CheckBox(_TL("Bounding Box"), m_pPanel->m_Parameters("BOX"   )->asBool());
+//	m_pLabels   = Add_CheckBox(_TL("Labels"      ), m_pPanel->m_Parameters("LABELS")->asBool());
+//	m_pStereo   = Add_CheckBox(_TL("Anaglyph"    ), m_pPanel->m_Parameters("STEREO")->asBool());
 
 	Add_Spacer();
-	m_pRotate_X		= Add_Slider  (_TL("X-Rotation"  ), m_pPanel->Get_Projector().Get_xRotation() * M_RAD_TO_DEG, -180.0, 180.0);
-	m_pRotate_Z		= Add_Slider  (_TL("Z-Rotation"  ), m_pPanel->Get_Projector().Get_zRotation() * M_RAD_TO_DEG, -180.0, 180.0);
-	m_pCentral		= Add_Slider  (_TL("Eye Distance"), m_pPanel->Get_Projector().Get_Central_Distance(), 1.0, 2000.0);
+	m_pRotate_X = Add_Slider  (_TL("X-Rotation"  ), m_pPanel->Get_Projector().Get_xRotation() * M_RAD_TO_DEG, -180.0, 180.0);
+	m_pRotate_Z = Add_Slider  (_TL("Z-Rotation"  ), m_pPanel->Get_Projector().Get_zRotation() * M_RAD_TO_DEG, -180.0, 180.0);
+	m_pCentral  = Add_Slider  (_TL("Eye Distance"), m_pPanel->Get_Projector().Get_Central_Distance(), 1.0, 2000.0);
 
 	Add_Output(m_pPanel);
 
@@ -173,7 +173,7 @@ void CSG_3DView_Dialog::On_Button(wxCommandEvent &event)
 {
 	if( event.GetEventObject() == m_pCommands )
 	{
-		wxMenu	Menu, *pMenu;
+		wxMenu Menu, *pMenu;
 
 		//-------------------------------------------------
 		Menu.Append(MENU_PROPERTIES, _TL("Properties"));

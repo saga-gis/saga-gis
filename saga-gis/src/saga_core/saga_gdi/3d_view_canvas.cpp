@@ -118,14 +118,14 @@ bool CSG_3DView_Canvas::Draw(void)
 		return( false );
 	}
 
-	static bool	bDrawing	= false;
+	static bool bDrawing = false;
 
 	if( bDrawing )
 	{
 		return( false );
 	}
 
-	bDrawing	= true;
+	bDrawing = true;
 
 	_Draw_Background();
 
@@ -134,7 +134,7 @@ bool CSG_3DView_Canvas::Draw(void)
 	||  m_Data_Min.y >= m_Data_Max.y
 	||  m_Data_Min.z >  m_Data_Max.z )
 	{
-		bDrawing	= false;
+		bDrawing = false;
 
 		return( false );
 	}
@@ -142,73 +142,57 @@ bool CSG_3DView_Canvas::Draw(void)
 	//-------------------------------------------------
 	if( !On_Before_Draw() )
 	{
-		bDrawing	= false;
+		bDrawing = false;
 
 		return( false );
 	}
 
 	//-------------------------------------------------
-	m_Projector.Set_Center(
-		m_Data_Min.x + 0.5 * (m_Data_Max.x - m_Data_Min.x),
-		m_Data_Min.y + 0.5 * (m_Data_Max.y - m_Data_Min.y),
-		m_Data_Min.z + 0.5 * (m_Data_Max.z - m_Data_Min.z)
+	m_Projector.Set_Center( // rotation center set to data's center
+		m_Data_Min.x + (m_Data_Max.x - m_Data_Min.x) / 2.,
+		m_Data_Min.y + (m_Data_Max.y - m_Data_Min.y) / 2.,
+		m_Data_Min.z + (m_Data_Max.z - m_Data_Min.z) / 2.
 	);
 
-	m_Projector.Set_Scale(SG_Get_Length(m_Image_NX, m_Image_NY) / SG_Get_Length(m_Data_Max.x - m_Data_Min.x, m_Data_Max.y - m_Data_Min.y));
+	m_Projector.Set_Scale(SG_Get_Length(m_Data_Max.x - m_Data_Min.x, m_Data_Max.y - m_Data_Min.y));
 
 	//-------------------------------------------------
 	if( m_bStereo == false )
 	{
-		m_Image_zMax.Assign(999999.);
+		m_Color_Mode = COLOR_MODE_RGB;
 
-		m_Color_Mode	= COLOR_MODE_RGB;
-
-		On_Draw();
-
-		_Draw_Box();
-		_Draw_Labels();
+		m_Image_zMax.Assign(999999.); On_Draw(); _Draw_Box(); _Draw_Labels();
 	}
 
 	//-----------------------------------------------------
 	else
 	{
-		double	dRotate	= M_DEG_TO_RAD * 0.5 * m_dStereo;
-		double	yRotate	= m_Projector.Get_yRotation();
-		double	dShift	= -0.01 * m_Image_NX;
-		double	xShift	= m_Projector.Get_xShift();
+		double rx = m_Projector.Get_xRotation();
+		double ry = m_Projector.Get_yRotation(), dy = cos(rx) * m_dStereo * M_DEG_TO_RAD / 2.;
+		double rz = m_Projector.Get_zRotation(), dz = sin(rx) * m_dStereo * M_DEG_TO_RAD / 2.;
 
 		//-------------------------------------------------
-		m_Image_zMax.Assign(999999.);
+		m_Projector.Set_yRotation(ry - dy);
+		m_Projector.Set_zRotation(rz - dz);
 
-		m_Projector.Set_xShift   (xShift  - dShift );
-		m_Projector.Set_yRotation(yRotate - dRotate);
+		m_Color_Mode = COLOR_MODE_RED;
 
-		m_Color_Mode	= COLOR_MODE_RED;
-
-		On_Draw();
-
-		_Draw_Box();
-		_Draw_Labels();
+		m_Image_zMax.Assign(999999.); On_Draw(); _Draw_Box(); _Draw_Labels();
 
 		//-------------------------------------------------
-		m_Image_zMax.Assign(999999.);
+		m_Projector.Set_yRotation(ry + dy);
+		m_Projector.Set_zRotation(rz + dz);
 
-		m_Projector.Set_xShift   (xShift  + dShift );
-		m_Projector.Set_yRotation(yRotate + dRotate);
+		m_Color_Mode = COLOR_MODE_CYAN;
 
-		m_Color_Mode	= COLOR_MODE_CYAN;
-
-		On_Draw();
-
-		_Draw_Box();
-		_Draw_Labels();
+		m_Image_zMax.Assign(999999.); On_Draw(); _Draw_Box(); _Draw_Labels();
 
 		//-------------------------------------------------
-		m_Projector.Set_xShift   (xShift );
-		m_Projector.Set_yRotation(yRotate);
+		m_Projector.Set_yRotation(ry);
+		m_Projector.Set_zRotation(rz);
 	}
 
-	bDrawing	= false;
+	bDrawing = false;
 
 	return( true );
 }
@@ -517,8 +501,10 @@ void CSG_3DView_Canvas::Draw_Point(int x, int y, double z, int Color, int Size)
 	{
 		_Draw_Pixel(x, y, z, Color);
 
-		if( Size > 0 && Size < 50 )
+		if( Size > 0 )
 		{
+			if( Size > 50 ) Size = 50;
+
 			for(int iy=1; iy<=Size; iy++) for(int ix=0; ix<=Size; ix++)
 			{
 				if( ix*ix + iy*iy <= Size*Size )
@@ -633,28 +619,25 @@ void CSG_3DView_Canvas::Draw_Line(const TSG_Point_Z &a, const TSG_Point_Z &b, in
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_3DView_Canvas::Draw_Triangle(TSG_Triangle_Node p[3], bool bValueAsColor, double Light_Dec, double Light_Azi)
+void CSG_3DView_Canvas::Draw_Triangle(TSG_Triangle_Node p[3], bool bValueAsColor, const CSG_Vector &LightSource, int Shading)
 {
-	double s, a, C = p[0].x * (p[1].y - p[2].y) + p[1].x * (p[2].y - p[0].y) + p[2].x * (p[0].y - p[1].y);
+	CSG_Vector n(3), v(3);
 
-	if( C != 0. )
+	n[0] = p[2].x - p[0].x; n[1] = p[2].y - p[0].y; n[2] = (p[2].z - p[0].z) * 1000;
+	v[0] = p[1].x - p[0].x; v[1] = p[1].y - p[0].y; v[2] = (p[1].z - p[0].z) * 1000;
+
+	n.Multiply(v); // cross product n x v => normal vector
+
+	double a = n.Get_Angle(LightSource) / M_PI_090; if( a > 1. ) a = fabs(2. - a);
+
+	switch( Shading )
 	{
-		double A = p[0].z * (p[1].x - p[2].x) + p[1].z * (p[2].x - p[0].x) + p[2].z * (p[0].x - p[1].x);
-		double B = p[0].y * (p[1].z - p[2].z) + p[1].y * (p[2].z - p[0].z) + p[2].y * (p[0].z - p[1].z);
-
-		A = -A / C;
-		B = -B / C;
-
-		s = M_PI_090 - atan(sqrt(A*A + B*B));
-		a = A != 0. ? M_PI_180 + atan2(B, A) : B > 0. ? M_PI_270 : (B < 0. ? M_PI_090 : -1.);
-	}
-	else
-	{
-		s = 0.;
-		a = 0.;
+	case  1: a = 0.5 + 0.5 * a; break;
+	case  2: a = 1.  - 0.8 * a; break;
+	default:                    break;
 	}
 
-	Draw_Triangle(p, bValueAsColor, (acos(sin(s) * sin(Light_Dec) + cos(s) * cos(Light_Dec) * cos(a - Light_Azi))) / M_PI_090);
+	Draw_Triangle(p, bValueAsColor, a);
 }
 
 //---------------------------------------------------------

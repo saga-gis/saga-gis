@@ -240,16 +240,16 @@ C3D_Viewer_Grids_Panel::C3D_Viewer_Grids_Panel(wxWindow *pParent, CSG_Grids *pGr
 	//-----------------------------------------------------
 	m_Parameters("Z_SCALE")->Set_Value(0.2 * (m_pGrids->Get_XRange() + m_pGrids->Get_YRange()) / m_pGrids->Get_ZRange());
 
-	m_Position[PLANE_SIDE_X]	= 0.5;
-	m_Position[PLANE_SIDE_Y]	= 0.5;
-	m_Position[PLANE_SIDE_Z]	= 0.5;
+	m_Position[PLANE_SIDE_X] = 0.5;
+	m_Position[PLANE_SIDE_Y] = 0.5;
+	m_Position[PLANE_SIDE_Z] = 0.5;
 
-	m_BoxBuffer	= 0.;
+	m_BoxBuffer = 0.;
 
-	m_Projector.Set_zShift(2000);
-	m_Projector.Set_yShift(-100);
-	m_Projector.Set_xRotation(M_DEG_TO_RAD * 60);
-	m_Projector.Set_zRotation(M_DEG_TO_RAD * 45);
+	m_Projector.Set_zShift(-0.4);
+	m_Projector.Set_yShift(-0.1);
+	m_Projector.Set_xRotation(60. * M_DEG_TO_RAD);
+	m_Projector.Set_zRotation(45. * M_DEG_TO_RAD);
 
 	Update_Statistics();
 }
@@ -633,35 +633,35 @@ inline bool C3D_Viewer_Grids_Panel::Get_Node(CSG_Grid &Plane, double Position, i
 {
 	if( Plane.is_InGrid(x, y) )
 	{
-		TSG_Point_Z	p;
+		TSG_Point_Z p;
 
 		switch( Side )
 		{
 		case PLANE_SIDE_X:
-			p.x	= Position;
-			p.y	= m_pGrids->Get_YMin() + y * m_pGrids->Get_YRange() / (Plane.Get_NY() - 1);
-			p.z	= m_pGrids->Get_ZMin() + x * m_pGrids->Get_ZRange() / (Plane.Get_NX() - 1);
+			p.x = Position;
+			p.y = m_pGrids->Get_YMin() + y * m_pGrids->Get_YRange() / (Plane.Get_NY() - 1);
+			p.z = m_pGrids->Get_ZMin() + x * m_pGrids->Get_ZRange() / (Plane.Get_NX() - 1);
 			break;
 
 		case PLANE_SIDE_Y:
-			p.x	= m_pGrids->Get_XMin() + x * m_pGrids->Get_XRange() / (Plane.Get_NX() - 1);
-			p.y	= Position;
-			p.z	= m_pGrids->Get_ZMin() + y * m_pGrids->Get_ZRange() / (Plane.Get_NY() - 1);
+			p.x = m_pGrids->Get_XMin() + x * m_pGrids->Get_XRange() / (Plane.Get_NX() - 1);
+			p.y = Position;
+			p.z = m_pGrids->Get_ZMin() + y * m_pGrids->Get_ZRange() / (Plane.Get_NY() - 1);
 			break;
 
 		case PLANE_SIDE_Z:
-			p.x	= m_pGrids->Get_XMin() + x * m_pGrids->Get_XRange() / (Plane.Get_NX() - 1);
-			p.y	= m_pGrids->Get_YMin() + y * m_pGrids->Get_YRange() / (Plane.Get_NY() - 1);
-			p.z	= Position;
+			p.x = m_pGrids->Get_XMin() + x * m_pGrids->Get_XRange() / (Plane.Get_NX() - 1);
+			p.y = m_pGrids->Get_YMin() + y * m_pGrids->Get_YRange() / (Plane.Get_NY() - 1);
+			p.z = Position;
 			break;
 		}
 
 		m_Projector.Get_Projection(p);
 
-		Node.x	= p.x;
-		Node.y	= p.y;
-		Node.z	= p.z;
-		Node.c	= Plane.asDouble(x, y);
+		Node.x = p.x;
+		Node.y = p.y;
+		Node.z = p.z;
+		Node.c = Plane.asDouble(x, y);
 
 		return( true );
 	}
@@ -680,30 +680,41 @@ void C3D_Viewer_Grids_Panel::Draw_Plane(CSG_Grid &Plane, double Position, int Si
 	}
 
 	//-----------------------------------------------------
-	int		Shading		= m_Parameters("SHADING")->asInt();
-	double	Shade_Dec	= m_Parameters("SHADE_DEC")->asDouble() * -M_DEG_TO_RAD;
-	double	Shade_Azi	= m_Parameters("SHADE_AZI")->asDouble() *  M_DEG_TO_RAD;
+	CSG_Vector LightSource;
+
+	if( m_Parameters("SHADING")->asInt() && LightSource.Create(3) )
+	{
+		double decline = m_Parameters("SHADE_DEC")->asDouble() * -M_DEG_TO_RAD;
+		double azimuth = m_Parameters("SHADE_AZI")->asDouble() *  M_DEG_TO_RAD;
+
+		LightSource[0] = sin(decline) * cos(azimuth);
+		LightSource[1] = sin(decline) * sin(azimuth);
+		LightSource[2] = cos(decline);
+	}
 
 	//-----------------------------------------------------
 	#pragma omp parallel for
-	for(int y=1; y<Plane.Get_NY(); y++)
+	for(int y=1; y<Plane.Get_NY(); y++) for(int x=1; x<Plane.Get_NX(); x++)
 	{
-		for(int x=1; x<Plane.Get_NX(); x++)
+		TSG_Triangle_Node p[3];
+
+		if( Get_Node(Plane, Position, Side, x - 1, y - 1, p[0])
+		&&  Get_Node(Plane, Position, Side, x    , y    , p[1]) )
 		{
-			TSG_Triangle_Node	p[3];
-
-			if( Get_Node(Plane, Position, Side, x - 1, y - 1, p[0])
-			&&  Get_Node(Plane, Position, Side, x    , y    , p[1]) )
+			if( Get_Node(Plane, Position, Side, x    , y - 1, p[2]) )
 			{
-				if( Get_Node(Plane, Position, Side, x    , y - 1, p[2]) )
-				{
-					if( Shading ) Draw_Triangle(p, false, Shade_Dec, Shade_Azi); else Draw_Triangle(p, false);
-				}
+				if( LightSource.Get_Size() )
+					Draw_Triangle(p, false, LightSource, 1);
+				else
+					Draw_Triangle(p, false);
+			}
 
-				if( Get_Node(Plane, Position, Side, x - 1, y    , p[2]) )
-				{
-					if( Shading ) Draw_Triangle(p, false, Shade_Dec, Shade_Azi); else Draw_Triangle(p, false);
-				}
+			if( Get_Node(Plane, Position, Side, x - 1, y    , p[2]) )
+			{
+				if( LightSource.Get_Size() )
+					Draw_Triangle(p, false, LightSource, 1);
+				else
+					Draw_Triangle(p, false);
 			}
 		}
 	}

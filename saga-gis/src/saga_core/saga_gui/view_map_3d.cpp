@@ -142,14 +142,12 @@ CVIEW_Map_3D::~CVIEW_Map_3D(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 wxMenu * CVIEW_Map_3D::_Create_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu, *pMenu_Sub;
+	wxMenu *pMenu = new wxMenu, *pMenu_Sub;
 
 	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_PARAMETERS);
 
@@ -203,7 +201,7 @@ wxMenu * CVIEW_Map_3D::_Create_Menu(void)
 //---------------------------------------------------------
 wxToolBarBase * CVIEW_Map_3D::_Create_ToolBar(void)
 {
-	wxToolBarBase	*pToolBar	= CMD_ToolBar_Create(ID_TB_VIEW_MAP_3D);
+	wxToolBarBase *pToolBar = CMD_ToolBar_Create(ID_TB_VIEW_MAP_3D);
 
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_PARAMETERS);
 	CMD_ToolBar_Add_Separator(pToolBar);
@@ -238,8 +236,6 @@ wxToolBarBase * CVIEW_Map_3D::_Create_ToolBar(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -253,22 +249,20 @@ void CVIEW_Map_3D::Update_StatusBar(void)
 {
 	if( m_pPanel )
 	{
-		SetStatusText(wxString::Format("X %+.1f", m_pPanel->Get_Projector().Get_xRotation() * M_RAD_TO_DEG), MAP3D_STATUSBAR_ROTATE_X);
-		SetStatusText(wxString::Format("Y %+.1f", m_pPanel->Get_Projector().Get_yRotation() * M_RAD_TO_DEG), MAP3D_STATUSBAR_ROTATE_Y);
-		SetStatusText(wxString::Format("Z %+.1f", m_pPanel->Get_Projector().Get_zRotation() * M_RAD_TO_DEG), MAP3D_STATUSBAR_ROTATE_Z);
+		SetStatusText(wxString::Format("RX %+.1f", m_pPanel->Get_Projector().Get_xRotation() * M_RAD_TO_DEG), MAP3D_STATUSBAR_ROTATE_X);
+		SetStatusText(wxString::Format("RY %+.1f", m_pPanel->Get_Projector().Get_yRotation() * M_RAD_TO_DEG), MAP3D_STATUSBAR_ROTATE_Y);
+		SetStatusText(wxString::Format("RZ %+.1f", m_pPanel->Get_Projector().Get_zRotation() * M_RAD_TO_DEG), MAP3D_STATUSBAR_ROTATE_Z);
 
-		SetStatusText(wxString::Format("X %+.1f"    , m_pPanel->Get_Projector().Get_xShift()), MAP3D_STATUSBAR_SHIFT_X);
-		SetStatusText(wxString::Format("Y %+.1f"    , m_pPanel->Get_Projector().Get_yShift()), MAP3D_STATUSBAR_SHIFT_Y);
-		SetStatusText(wxString::Format("Z %+.1f"    , m_pPanel->Get_Projector().Get_zShift()), MAP3D_STATUSBAR_SHIFT_Z);
+		SetStatusText(wxString::Format("DX %+.1f", m_pPanel->Get_Projector().Get_xShift()), MAP3D_STATUSBAR_SHIFT_X);
+		SetStatusText(wxString::Format("DY %+.1f", m_pPanel->Get_Projector().Get_yShift()), MAP3D_STATUSBAR_SHIFT_Y);
+		SetStatusText(wxString::Format("DZ %+.1f", m_pPanel->Get_Projector().Get_zShift()), MAP3D_STATUSBAR_SHIFT_Z);
 
-		SetStatusText(wxString::Format("E %.1f"     , m_pPanel->m_zScale), MAP3D_STATUSBAR_EXAGGERATION);
+		SetStatusText(wxString::Format("EX %.1f" , m_pPanel->m_zScale), MAP3D_STATUSBAR_EXAGGERATION);
 	}
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -282,8 +276,6 @@ void CVIEW_Map_3D::On_Size(wxSizeEvent &event)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -368,26 +360,26 @@ void CVIEW_Map_3D::On_Command(wxCommandEvent &event)
 		return;
 
 	//-----------------------------------------------------
-	case ID_CMD_MAP3D_ROTATE_X_LESS  :	m_pPanel->Get_Projector().Inc_xRotation( 4.0 * M_DEG_TO_RAD);	break;
-	case ID_CMD_MAP3D_ROTATE_X_MORE  :	m_pPanel->Get_Projector().Inc_xRotation(-4.0 * M_DEG_TO_RAD);	break;
-	case ID_CMD_MAP3D_ROTATE_Y_LESS  :	m_pPanel->Get_Projector().Inc_yRotation( 4.0 * M_DEG_TO_RAD);	break;
-	case ID_CMD_MAP3D_ROTATE_Y_MORE  :	m_pPanel->Get_Projector().Inc_yRotation(-4.0 * M_DEG_TO_RAD);	break;
-	case ID_CMD_MAP3D_ROTATE_Z_LESS  :	m_pPanel->Get_Projector().Inc_zRotation( 4.0 * M_DEG_TO_RAD);	break;
-	case ID_CMD_MAP3D_ROTATE_Z_MORE  :	m_pPanel->Get_Projector().Inc_zRotation(-4.0 * M_DEG_TO_RAD);	break;
+	case ID_CMD_MAP3D_ROTATE_X_LESS  :	m_pPanel->Get_Projector().Inc_xRotation( 4. * M_DEG_TO_RAD);	break;
+	case ID_CMD_MAP3D_ROTATE_X_MORE  :	m_pPanel->Get_Projector().Inc_xRotation(-4. * M_DEG_TO_RAD);	break;
+	case ID_CMD_MAP3D_ROTATE_Y_LESS  :	m_pPanel->Get_Projector().Inc_yRotation( 4. * M_DEG_TO_RAD);	break;
+	case ID_CMD_MAP3D_ROTATE_Y_MORE  :	m_pPanel->Get_Projector().Inc_yRotation(-4. * M_DEG_TO_RAD);	break;
+	case ID_CMD_MAP3D_ROTATE_Z_LESS  :	m_pPanel->Get_Projector().Inc_zRotation( 4. * M_DEG_TO_RAD);	break;
+	case ID_CMD_MAP3D_ROTATE_Z_MORE  :	m_pPanel->Get_Projector().Inc_zRotation(-4. * M_DEG_TO_RAD);	break;
 
-	case ID_CMD_MAP3D_SHIFT_X_LESS   :	m_pPanel->Get_Projector().Inc_xShift(-10.0);	break;
-	case ID_CMD_MAP3D_SHIFT_X_MORE   :	m_pPanel->Get_Projector().Inc_xShift( 10.0);	break;
-	case ID_CMD_MAP3D_SHIFT_Y_LESS   :	m_pPanel->Get_Projector().Inc_yShift( 10.0);	break;
-	case ID_CMD_MAP3D_SHIFT_Y_MORE   :	m_pPanel->Get_Projector().Inc_yShift(-10.0);	break;
-	case ID_CMD_MAP3D_SHIFT_Z_LESS   :	m_pPanel->Get_Projector().Inc_zShift(-10.0);	break;
-	case ID_CMD_MAP3D_SHIFT_Z_MORE   :	m_pPanel->Get_Projector().Inc_zShift( 10.0);	break;
+	case ID_CMD_MAP3D_SHIFT_X_LESS   :	m_pPanel->Get_Projector().Inc_xShift(-0.1);	break;
+	case ID_CMD_MAP3D_SHIFT_X_MORE   :	m_pPanel->Get_Projector().Inc_xShift( 0.1);	break;
+	case ID_CMD_MAP3D_SHIFT_Y_LESS   :	m_pPanel->Get_Projector().Inc_yShift( 0.1);	break;
+	case ID_CMD_MAP3D_SHIFT_Y_MORE   :	m_pPanel->Get_Projector().Inc_yShift(-0.1);	break;
+	case ID_CMD_MAP3D_SHIFT_Z_LESS   :	m_pPanel->Get_Projector().Inc_zShift(-0.1);	break;
+	case ID_CMD_MAP3D_SHIFT_Z_MORE   :	m_pPanel->Get_Projector().Inc_zShift( 0.1);	break;
 
 	case ID_CMD_MAP3D_EXAGGERATE_LESS:	m_pPanel->m_zScale	-= 0.5;	break;
 	case ID_CMD_MAP3D_EXAGGERATE_MORE:	m_pPanel->m_zScale	+= 0.5;	break;
 
 	case ID_CMD_MAP3D_CENTRAL        :	m_pPanel->Get_Projector().do_Central(m_pPanel->Get_Projector().is_Central() == false);	break;
-	case ID_CMD_MAP3D_CENTRAL_LESS   :	m_pPanel->Get_Projector().Inc_Central_Distance( 50);	break;
-	case ID_CMD_MAP3D_CENTRAL_MORE   :	m_pPanel->Get_Projector().Inc_Central_Distance(-50);	break;
+	case ID_CMD_MAP3D_CENTRAL_LESS   :	m_pPanel->Get_Projector().Inc_Central_Distance( 0.1);	break;
+	case ID_CMD_MAP3D_CENTRAL_MORE   :	m_pPanel->Get_Projector().Inc_Central_Distance(-0.1);	break;
 
 //	case ID_CMD_MAP3D_DRAW_BOX       :	m_pPanel->m_Parameters("BOX"         )->Set_Value(m_pPanel->m_Parameters("BOX"         )->asBool() ==  true    );	break;
 	case ID_CMD_MAP3D_STEREO         :	m_pPanel->m_Parameters("STEREO"      )->Set_Value(m_pPanel->m_Parameters("STEREO"      )->asBool() == false    );	break;
@@ -442,13 +434,6 @@ void CVIEW_Map_3D::On_Command_UI(wxUpdateUIEvent &event)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-
-///////////////////////////////////////////////////////////
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -487,9 +472,9 @@ void CVIEW_Map_3D::Parameters_Update(bool bFromPanel)
 		);
 
 		m_pPanel->Get_Projector().Set_Shift(
-			m_Parameters("SHIFT_X"   )->asDouble(),
-			m_Parameters("SHIFT_Y"   )->asDouble(),
-			m_Parameters("SHIFT_Z"   )->asDouble()
+			m_Parameters("SHIFT_X")->asDouble(),
+			m_Parameters("SHIFT_Y")->asDouble(),
+			m_Parameters("SHIFT_Z")->asDouble()
 		);
 
 		m_pPanel->Get_Projector().do_Central          (m_Parameters("CENTRAL"     )->asBool  ());
@@ -501,10 +486,10 @@ void CVIEW_Map_3D::Parameters_Update(bool bFromPanel)
 		m_pPanel->m_Parameters("DRAPE_MODE" )->Set_Value(m_Parameters("DRAPE_MODE" ));
 		m_pPanel->m_Parameters("BOX"        )->Set_Value(m_Parameters("BOX"        ));
 
-		m_pPanel->m_zScale	= m_Parameters("Z_SCALE")->asDouble();
+		m_pPanel->m_zScale = m_Parameters("Z_SCALE")->asDouble();
 
 		//-------------------------------------------------
-		CSG_Grid	*pDEM	= m_Parameters("DEM")->asGrid();
+		CSG_Grid *pDEM = m_Parameters("DEM")->asGrid();
 
 		if( !m_pPanel->Set_Options(
 			SG_Get_Data_Manager().Exists(pDEM) ? pDEM : NULL,
@@ -525,7 +510,7 @@ void CVIEW_Map_3D::Parameters_Create(void)
 
 	m_Parameters.Add_Grid  (""   , "DEM"     , _TL("Elevation"   ), _TL(""), PARAMETER_INPUT);
 	m_Parameters.Add_Int   ("DEM", "DEM_RES" , _TL("Resolution"  ), _TL(""), 100, 2, true);
-	m_Parameters.Add_Double("DEM", "Z_SCALE" , _TL("Exaggeration"), _TL(""), 1.0);
+	m_Parameters.Add_Double("DEM", "Z_SCALE" , _TL("Exaggeration"), _TL(""), 3.);
 	m_Parameters.Add_Bool  ("DEM", "BOX"     , _TL("Bounding Box"), _TL(""), false);
 
 	m_Parameters.Add_Node  (""   , "MAP"       , _TL("Map"                      ), _TL(""));
@@ -541,20 +526,20 @@ void CVIEW_Map_3D::Parameters_Create(void)
 	);
 
 	m_Parameters.Add_Node  (""        , "ROTATION"  , _TL("Rotation"  ), _TL(""));
-	m_Parameters.Add_Double("ROTATION", "ROTATION_X", _TL("X"         ), _TL(""),  55.0, -360.0, true, 360.0, true);
-	m_Parameters.Add_Double("ROTATION", "ROTATION_Y", _TL("Y"         ), _TL(""),   0.0, -360.0, true, 360.0, true);
-	m_Parameters.Add_Double("ROTATION", "ROTATION_Z", _TL("Z"         ), _TL(""), -45.0, -360.0, true, 360.0, true);
+	m_Parameters.Add_Double("ROTATION", "ROTATION_X", _TL("X"         ), _TL(""),  55., -360., true, 360., true);
+	m_Parameters.Add_Double("ROTATION", "ROTATION_Y", _TL("Y"         ), _TL(""),   0., -360., true, 360., true);
+	m_Parameters.Add_Double("ROTATION", "ROTATION_Z", _TL("Z"         ), _TL(""), -45., -360., true, 360., true);
 
 	m_Parameters.Add_Node  (""        , "SHIFT"     , _TL("Shift"     ), _TL(""));
-	m_Parameters.Add_Double("SHIFT"   , "SHIFT_X"   , _TL("Left/Right"), _TL(""),    0.0);
-	m_Parameters.Add_Double("SHIFT"   , "SHIFT_Y"   , _TL("Up/Down"   ), _TL(""),    0.0);
-	m_Parameters.Add_Double("SHIFT"   , "SHIFT_Z"   , _TL("In/Out"    ), _TL(""), 1500.0);
+	m_Parameters.Add_Double("SHIFT"   , "SHIFT_X"   , _TL("Left/Right"), _TL(""),  0.0);
+	m_Parameters.Add_Double("SHIFT"   , "SHIFT_Y"   , _TL("Up/Down"   ), _TL(""), -0.1);
+	m_Parameters.Add_Double("SHIFT"   , "SHIFT_Z"   , _TL("In/Out"    ), _TL(""), -0.4);
 
-	m_Parameters.Add_Choice(""        , "CENTRAL"     , _TL("Projection"           ), _TL(""), CSG_String::Format("%s|%s|", _TL("parallel"), _TL("central")), 1);
-	m_Parameters.Add_Double("CENTRAL" , "CENTRAL_DIST", _TL("Perspectivic Distance"), _TL(""), 1500, 1, true);
+	m_Parameters.Add_Choice(""        , "CENTRAL"     , _TL("Projection"           ), _TL(""), CSG_String::Format("%s|%s", _TL("parallel"), _TL("central")), 1);
+	m_Parameters.Add_Double("CENTRAL" , "CENTRAL_DIST", _TL("Perspectivic Distance"), _TL(""), 1.5, 1, true);
 
 	m_Parameters.Add_Bool  (""        , "STEREO"     , _TL("Anaglyph"             ), _TL(""), false);
-	m_Parameters.Add_Double("STEREO"  , "STEREO_DIST", _TL("Eye Distance [Degree]"), _TL(""), 2.0, 0, true, 180, true);
+	m_Parameters.Add_Double("STEREO"  , "STEREO_DIST", _TL("Eye Distance [Degree]"), _TL(""), 2., 0, true, 180., true);
 
 	m_Parameters.Add_Color("", "BGCOLOR", _TL("Background Color"), _TL(""), SG_GET_RGB(255, 255, 255));
 }

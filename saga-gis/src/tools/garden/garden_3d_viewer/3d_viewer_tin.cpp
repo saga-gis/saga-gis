@@ -175,10 +175,9 @@ C3D_Viewer_TIN_Panel::C3D_Viewer_TIN_Panel(wxWindow *pParent, CSG_TIN *pTIN, int
 	m_Parameters.Add_Choice("DRAW_FACES",
 		"SHADING"		, _TL("Shading"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s",
+		CSG_String::Format("%s|%s",
 			_TL("none"),
-			_TL("shading"),
-			_TL("shading (fixed light source)")
+			_TL("shading")
 		), 1
 	);
 
@@ -396,10 +395,8 @@ int C3D_Viewer_TIN_Panel::Get_Color(double Value)
 //---------------------------------------------------------
 bool C3D_Viewer_TIN_Panel::On_Draw(void)
 {
-	int		zField	= m_Parameters("Z_ATTR"     )->asInt();
-
-	//-----------------------------------------------------
-	int		cField	= m_Parameters("COLORS_ATTR")->asInt();
+	int zField = m_Parameters("Z_ATTR"     )->asInt();
+	int cField = m_Parameters("COLORS_ATTR")->asInt();
 
 	if( m_Parameters("COLORS_RANGE")->asRange()->Get_Min()
 	>=  m_Parameters("COLORS_RANGE")->asRange()->Get_Max() )
@@ -410,80 +407,81 @@ bool C3D_Viewer_TIN_Panel::On_Draw(void)
 		);
 	}
 
-	m_Colors		= *m_Parameters("COLORS")->asColors();
-	m_Color_bGrad	= m_Parameters("COLORS_GRAD")->asBool();
-	m_Color_Min		= m_Parameters("COLORS_RANGE")->asRange()->Get_Min();
-	m_Color_Scale	= m_Colors.Get_Count() / (m_Parameters("COLORS_RANGE")->asRange()->Get_Max() - m_Color_Min);
+	m_Colors      = *m_Parameters("COLORS")->asColors();
+	m_Color_bGrad = m_Parameters("COLORS_GRAD")->asBool();
+	m_Color_Min   = m_Parameters("COLORS_RANGE")->asRange()->Get_Min();
+	m_Color_Scale = m_Colors.Get_Count() / (m_Parameters("COLORS_RANGE")->asRange()->Get_Max() - m_Color_Min);
 
 	//-----------------------------------------------------
 	if( m_Parameters("DRAW_FACES")->asBool() )	// Face
 	{
-		bool	bDrape		= m_Parameters("DO_DRAPE") && m_Parameters("DO_DRAPE")->asBool();
-		int		Shading		= m_Parameters("SHADING")->asInt();
-		double	Shade_Dec	= m_Parameters("SHADE_DEC")->asDouble() * -M_DEG_TO_RAD;
-		double	Shade_Azi	= m_Parameters("SHADE_AZI")->asDouble() *  M_DEG_TO_RAD;
+		bool bDrape = m_Parameters("DO_DRAPE") && m_Parameters("DO_DRAPE")->asBool();
+
+		CSG_Vector LightSource;
+
+		if( m_Parameters("SHADING")->asInt() && LightSource.Create(3) )
+		{
+			double decline = m_Parameters("SHADE_DEC")->asDouble() * -M_DEG_TO_RAD;
+			double azimuth = m_Parameters("SHADE_AZI")->asDouble() *  M_DEG_TO_RAD;
+
+			LightSource[0] = sin(decline) * cos(azimuth);
+			LightSource[1] = sin(decline) * sin(azimuth);
+			LightSource[2] = cos(decline);
+		}
 
 		#pragma omp parallel for
 		for(int iTriangle=0; iTriangle<m_pTIN->Get_Triangle_Count(); iTriangle++)
 		{
-			CSG_TIN_Triangle	*pTriangle	= m_pTIN->Get_Triangle(iTriangle);
-			TSG_Triangle_Node	p[3];
+			CSG_TIN_Triangle *pTriangle = m_pTIN->Get_Triangle(iTriangle); TSG_Triangle_Node p[3];
 
 			for(int i=0; i<3; i++)
 			{
-				CSG_TIN_Node	*pNode	= pTriangle->Get_Node(i);
+				CSG_TIN_Node *pNode = pTriangle->Get_Node(i);
 
-				p[i].x	= pNode->Get_Point().x;
-				p[i].y	= pNode->Get_Point().y;
-				p[i].z	= pNode->asDouble(zField);
+				p[i].x = pNode->Get_Point().x;
+				p[i].y = pNode->Get_Point().y;
+				p[i].z = pNode->asDouble(zField);
 
 				if( bDrape )
 				{
-					p[i].c	= pNode->Get_Point().x;
-					p[i].d	= pNode->Get_Point().y;
+					p[i].c = pNode->Get_Point().x;
+					p[i].d = pNode->Get_Point().y;
 				}
 				else
 				{
-					p[i].c	= pNode->asDouble(cField);
+					p[i].c = pNode->asDouble(cField);
 				}
 
 				m_Projector.Get_Projection(p[i].x, p[i].y, p[i].z);
 			}
 
 			//---------------------------------------------
-			switch( Shading )
-			{
-			default:
-			case  0: Draw_Triangle(p, false                      ); break;
-			case  1: Draw_Triangle(p, false, Shade_Dec, Shade_Azi); break;
-			case  2: { double s, a;
-				pTriangle->Get_Gradient(zField, s, a);
-				Draw_Triangle(p, false, acos(sin(M_PI_090 - s) * sin(Shade_Dec) + cos(M_PI_090 - s) * cos(Shade_Dec) * cos(a - Shade_Azi)) / M_PI_090);
-				break; }
-			}
+			if( LightSource.Get_Size() )
+				Draw_Triangle(p, false, LightSource);
+			else
+				Draw_Triangle(p, false);
 		}
 	}
 
 	//-----------------------------------------------------
 	if( m_Parameters("DRAW_EDGES")->asBool() )	// Edges
 	{
-		bool	bColor	= m_Parameters("EDGE_COLOR_UNI")->asBool();
-		int		Color	= m_Parameters("EDGE_COLOR"    )->asColor();
+		bool bColor = m_Parameters("EDGE_COLOR_UNI")->asBool();
+		int  Color  = m_Parameters("EDGE_COLOR"    )->asColor();
 
 		#pragma omp parallel for
 		for(int iEdge=0; iEdge<m_pTIN->Get_Edge_Count(); iEdge++)
 		{
-			CSG_TIN_Edge		*pEdge	= m_pTIN->Get_Edge(iEdge);
-			TSG_Triangle_Node	p[2];
+			CSG_TIN_Edge *pEdge = m_pTIN->Get_Edge(iEdge); TSG_Triangle_Node p[2];
 
 			for(int i=0; i<2; i++)
 			{
-				CSG_TIN_Node	*pNode	= pEdge->Get_Node(i);
+				CSG_TIN_Node *pNode = pEdge->Get_Node(i);
 
-				p[i].x	= pNode->Get_Point().x;
-				p[i].y	= pNode->Get_Point().y;
-				p[i].z	= pNode->asDouble(zField);
-				p[i].c	= Get_Color(pNode->asDouble(cField));
+				p[i].x = pNode->Get_Point().x;
+				p[i].y = pNode->Get_Point().y;
+				p[i].z = pNode->asDouble(zField);
+				p[i].c = Get_Color(pNode->asDouble(cField));
 
 				m_Projector.Get_Projection(p[i].x, p[i].y, p[i].z);
 			}
@@ -503,24 +501,17 @@ bool C3D_Viewer_TIN_Panel::On_Draw(void)
 	//-------------------------------------------------
 	if( m_Parameters("DRAW_NODES")->asBool() )	// Nodes
 	{
-		int		Color	= m_Parameters("NODE_COLOR")->asColor ();
-		int		Size	= m_Parameters("NODE_SIZE" )->asInt   ();
-	//	double	dSize	= m_Parameters("NODE_SCALE")->asDouble();
-
-	//	if( dSize > 1. )
-	//	{
-	//		size	= (int)(20. * exp(-dSize * z));
-	//	}
+		int Color = m_Parameters("NODE_COLOR")->asColor ();
+		int Size  = m_Parameters("NODE_SIZE" )->asInt   ();
 
 		#pragma omp parallel for
 		for(int iNode=0; iNode<m_pTIN->Get_Node_Count(); iNode++)
 		{
-			CSG_TIN_Node	*pNode	= m_pTIN->Get_Node(iNode);
-			TSG_Point_Z		p;
+			CSG_TIN_Node *pNode = m_pTIN->Get_Node(iNode); TSG_Point_Z p;
 
-			p.x	= pNode->Get_Point().x;
-			p.y	= pNode->Get_Point().y;
-			p.z	= pNode->asDouble(zField);
+			p.x = pNode->Get_Point().x;
+			p.y = pNode->Get_Point().y;
+			p.z = pNode->asDouble(zField);
 
 			m_Projector.Get_Projection(p.x, p.y, p.z);
 
@@ -646,7 +637,7 @@ void C3D_Viewer_TIN_Dialog::Update_Controls(void)
 //---------------------------------------------------------
 enum
 {
-	MENU_SCALE_Z_DEC	= MENU_USER_FIRST,
+	MENU_SCALE_Z_DEC = MENU_USER_FIRST,
 	MENU_SCALE_Z_INC,
 	MENU_COLORS_GRAD,
 	MENU_SHADING,
@@ -681,16 +672,16 @@ void C3D_Viewer_TIN_Dialog::On_Menu(wxCommandEvent &event)
 {
 	switch( event.GetId() )
 	{
-	case MENU_SCALE_Z_DEC:	m_pPanel->m_Parameters("Z_SCALE")->Set_Value(m_pPanel->m_Parameters("Z_SCALE")->asDouble() - 0.5); m_pPanel->Update_View();	return;
-	case MENU_SCALE_Z_INC:	m_pPanel->m_Parameters("Z_SCALE")->Set_Value(m_pPanel->m_Parameters("Z_SCALE")->asDouble() + 0.5); m_pPanel->Update_View();	return;
+	case MENU_SCALE_Z_DEC: m_pPanel->m_Parameters("Z_SCALE")->Set_Value(m_pPanel->m_Parameters("Z_SCALE")->asDouble() - 0.5); m_pPanel->Update_View();	return;
+	case MENU_SCALE_Z_INC: m_pPanel->m_Parameters("Z_SCALE")->Set_Value(m_pPanel->m_Parameters("Z_SCALE")->asDouble() + 0.5); m_pPanel->Update_View();	return;
 
-	case MENU_COLORS_GRAD:	MENU_TOGGLE("COLORS_GRAD");	return;
+	case MENU_COLORS_GRAD: MENU_TOGGLE("COLORS_GRAD");	return;
 
-	case MENU_SHADING    :	MENU_TOGGLE("SHADING"    );	return;
+	case MENU_SHADING    : MENU_TOGGLE("SHADING"    );	return;
 
-	case MENU_FACES      :	MENU_TOGGLE("DRAW_FACES" );	return;
-	case MENU_EDGES      :	MENU_TOGGLE("DRAW_EDGES" );	return;
-	case MENU_NODES      :	MENU_TOGGLE("DRAW_NODES" );	return;
+	case MENU_FACES      : MENU_TOGGLE("DRAW_FACES" );	return;
+	case MENU_EDGES      : MENU_TOGGLE("DRAW_EDGES" );	return;
+	case MENU_NODES      : MENU_TOGGLE("DRAW_NODES" );	return;
 	}
 
 	CSG_3DView_Dialog::On_Menu(event);
@@ -701,13 +692,13 @@ void C3D_Viewer_TIN_Dialog::On_Menu_UI(wxUpdateUIEvent &event)
 {
 	switch( event.GetId() )
 	{
-	case MENU_COLORS_GRAD:	event.Check(m_pPanel->m_Parameters("COLORS_GRAD")->asBool());	return;
+	case MENU_COLORS_GRAD: event.Check(m_pPanel->m_Parameters("COLORS_GRAD")->asBool());	return;
 
-	case MENU_SHADING    :	event.Check(m_pPanel->m_Parameters("SHADING"    )->asBool());	return;
+	case MENU_SHADING    : event.Check(m_pPanel->m_Parameters("SHADING"    )->asBool());	return;
 
-	case MENU_FACES      :	event.Check(m_pPanel->m_Parameters("DRAW_FACES" )->asBool());	return;
-	case MENU_EDGES      :	event.Check(m_pPanel->m_Parameters("DRAW_EDGES" )->asBool());	return;
-	case MENU_NODES      :	event.Check(m_pPanel->m_Parameters("DRAW_NODES" )->asBool());	return;
+	case MENU_FACES      : event.Check(m_pPanel->m_Parameters("DRAW_FACES" )->asBool());	return;
+	case MENU_EDGES      : event.Check(m_pPanel->m_Parameters("DRAW_EDGES" )->asBool());	return;
+	case MENU_NODES      : event.Check(m_pPanel->m_Parameters("DRAW_NODES" )->asBool());	return;
 	}
 
 	CSG_3DView_Dialog::On_Menu_UI(event);
@@ -725,7 +716,7 @@ C3D_Viewer_TIN::C3D_Viewer_TIN(void)
 {
 	Set_Name		(_TL("TIN Viewer"));
 
-	Set_Author		("O. Conrad (c) 2014");
+	Set_Author		("O.Conrad (c) 2014");
 
 	Set_Description	(_TW(
 		"3D viewer for TIN."
@@ -763,7 +754,7 @@ C3D_Viewer_TIN::C3D_Viewer_TIN(void)
 //---------------------------------------------------------
 bool C3D_Viewer_TIN::On_Execute(void)
 {
-	CSG_TIN	*pTIN	= Parameters("TIN")->asTIN();
+	CSG_TIN *pTIN = Parameters("TIN")->asTIN();
 
 	if( !pTIN->is_Valid() )
 	{
@@ -772,7 +763,11 @@ bool C3D_Viewer_TIN::On_Execute(void)
 		return( false );
 	}
 
-	C3D_Viewer_TIN_Dialog	dlg(pTIN, Parameters("HEIGHT")->asInt(), Parameters("COLOR")->asInt(), Parameters("DRAPE")->asGrid());
+	C3D_Viewer_TIN_Dialog dlg(pTIN,
+		Parameters("HEIGHT")->asInt(),
+		Parameters("COLOR" )->asInt(),
+		Parameters("DRAPE" )->asGrid()
+	);
 
 	dlg.ShowModal();
 
