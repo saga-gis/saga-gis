@@ -107,7 +107,9 @@ private:
 
 	wxColour				m_Ctrl_Color;
 
-	wxSizer					*m_pSizer_Ctrl, *m_pSizer_Output;
+	wxSizer					*m_pCtrl_Sizer, *m_pOutput_Sizer;
+
+	wxScrolledWindow		*m_pCtrl;
 
 
 	DECLARE_EVENT_TABLE()
