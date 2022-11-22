@@ -57,6 +57,7 @@
 #include <wx/dc.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
+#include <wx/scrolwin.h>
 
 #include <saga_api/saga_api.h>
 

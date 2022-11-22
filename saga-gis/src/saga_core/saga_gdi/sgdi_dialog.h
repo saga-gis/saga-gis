@@ -109,7 +109,7 @@ private:
 
 	wxSizer					*m_pCtrl_Sizer, *m_pOutput_Sizer;
 
-	wxScrolledWindow		*m_pCtrl;
+	class wxScrolledWindow	*m_pCtrl;
 
 
 	DECLARE_EVENT_TABLE()
