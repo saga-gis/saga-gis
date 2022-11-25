@@ -257,8 +257,7 @@ void CVIEW_Map::On_Paint(wxPaintEvent &event)
 //---------------------------------------------------------
 void CVIEW_Map::On_Size(wxSizeEvent &event)
 {
-	int		minSize	= 2 * m_Ruler_Size + 10;
-	wxSize	Size(GetClientSize()), fSize(GetSize().x - Size.x, GetSize().y - Size.y);
+	wxSize Size(GetClientSize()); int minSize = 10 + 2 * m_Ruler_Size;
 
 	if( Size.x >= minSize && Size.y >= minSize )
 	{

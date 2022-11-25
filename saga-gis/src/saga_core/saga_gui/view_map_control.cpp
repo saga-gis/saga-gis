@@ -544,7 +544,7 @@ void CVIEW_Map_Control::Refresh_Map(void)
 	{
 		wxMemoryDC dc(m_Bitmap);
 
-		m_pMap->Draw_Map(dc, 1., GetClientSize());
+		m_pMap->Draw_Map(dc, 1., m_Bitmap.GetSize());
 
 		m_pParent->Ruler_Refresh();
 
@@ -1043,7 +1043,7 @@ void CVIEW_Map_Control::On_Mouse_MUp(wxMouseEvent &event)
 //---------------------------------------------------------
 void CVIEW_Map_Control::On_Mouse_Motion(wxMouseEvent &event)
 {
-	wxPoint	Point	= event.GetPosition();
+	wxPoint Point = event.GetPosition();
 
 	switch( m_Mode )
 	{
@@ -1065,6 +1065,11 @@ void CVIEW_Map_Control::On_Mouse_Motion(wxMouseEvent &event)
 				Point, m_Mouse_Move,
 				GET_KEYS(event)
 			);
+		}
+
+		if( event.LeftIsDown() )
+		{
+			Refresh(false);
 		}
 		break;
 
