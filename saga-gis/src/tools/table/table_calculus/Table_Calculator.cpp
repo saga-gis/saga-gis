@@ -128,6 +128,12 @@ CTable_Calculator_Base::CTable_Calculator_Base(bool bShapes)
 		"f1 + f2"
 	);
 
+	Parameters.Add_Choice("",
+		"FIELD_SELECTOR", _TL("Append Field Number to Formula"),
+		_TL(""),
+		""
+	);
+
 	Parameters.Add_Bool("",
 		"SELECTION"	, _TL("Selection"),
 		_TL(""),
@@ -166,6 +172,62 @@ int CTable_Calculator_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CS
 	}
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+int CTable_Calculator_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	CSG_Table	*pTable	= (CSG_Table *)pParameters->Get_Parameter("TABLE")->asDataObject();
+
+	if( pTable != nullptr )
+	{
+		if( pParameter->Cmp_Identifier("TABLE") )
+		{
+			CSG_String Choice = "";
+			m_Field_Choice_Index.Destroy();
+			for( int i=0; i<pTable->Get_Field_Count(); i++ )
+			{
+				bool 		Is_Number = false;
+				CSG_String 	Literal = "";
+				switch( pTable->Get_Field_Type(i) )
+				{
+					case SG_DATATYPE_Short: 	Is_Number = true; Literal = "Short"; break;
+					case SG_DATATYPE_Int: 		Is_Number = true; Literal = "Int"; break;
+					case SG_DATATYPE_Long: 		Is_Number = true; Literal = "Long"; break;
+					case SG_DATATYPE_Float: 	Is_Number = true; Literal = "Float"; break;
+					case SG_DATATYPE_Double: 	Is_Number = true; Literal = "Double"; break;
+					default: break;
+
+				}
+
+				if( Is_Number )
+				{
+					Choice += CSG_String::Format("f%d %s [%s]|",i+1, pTable->Get_Field_Name(i), Literal.c_str());
+					// Field Count starts at 1
+					m_Field_Choice_Index += i+1;
+				}
+
+			}
+
+			pParameters->Get_Parameter("FIELD_SELECTOR")->asChoice()->Set_Items(Choice);
+
+		}
+
+		if( pParameter->Cmp_Identifier("FIELD_SELECTOR") )
+		{
+			if( !pParameter->asChoice()->Get_Items().is_Empty() 
+			&&	m_Field_Choice_Index.Get_Size() > 0 			)
+			{
+				CSG_String Formula = pParameters->Get_Parameter("FORMULA")->asString();
+				Formula += CSG_String::Format( "f%d", m_Field_Choice_Index[pParameter->asInt()] );
+				pParameters->Get_Parameter("Formula")->Set_Value( Formula );
+			}
+
+		}
+
+	}
+
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 

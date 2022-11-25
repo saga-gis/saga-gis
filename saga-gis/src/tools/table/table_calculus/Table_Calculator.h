@@ -45,6 +45,8 @@ protected:
 
 	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
+	virtual int 			On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
 	virtual bool			On_Execute				(void);
 
 
@@ -55,6 +57,8 @@ private:
 	int						m_Result;
 
 	CSG_Array_Int			m_Values;
+
+	CSG_Array_Int 			m_Field_Choice_Index;
 
 	CSG_Formula				m_Formula;
 
