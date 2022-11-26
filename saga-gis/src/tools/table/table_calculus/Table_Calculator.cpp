@@ -129,7 +129,7 @@ CTable_Calculator_Base::CTable_Calculator_Base(bool bShapes)
 	);
 
 	Parameters.Add_Choice("",
-		"FIELD_SELECTOR", _TL("Append Field Number to Formula"),
+		"FIELD_SELECTOR", _TL("Add Field to Formula"),
 		_TL(""),
 		""
 	);
@@ -178,11 +178,14 @@ int CTable_Calculator_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CS
 {
 	CSG_Table	*pTable	= (CSG_Table *)pParameters->Get_Parameter("TABLE")->asDataObject();
 
-	if( pTable != nullptr )
+	//if( pTable != nullptr )
+	//{
+	if( pParameter->Cmp_Identifier("TABLE") )
 	{
-		if( pParameter->Cmp_Identifier("TABLE") )
+		// Create the Field Selection
+		if( pTable != nullptr )
 		{
-			CSG_String Choice = "";
+			CSG_String Choice = "<Select Field Number>|";
 			m_Field_Choice_Index.Destroy();
 			for( int i=0; i<pTable->Get_Field_Count(); i++ )
 			{
@@ -209,19 +212,25 @@ int CTable_Calculator_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CS
 			}
 
 			pParameters->Get_Parameter("FIELD_SELECTOR")->asChoice()->Set_Items(Choice);
-
+		}
+		// The Table is unselected 
+		else
+		{
+			m_Field_Choice_Index.Destroy();
+			pParameters->Get_Parameter("FIELD_SELECTOR")->asChoice()->Set_Items(CSG_String(""));
 		}
 
-		if( pParameter->Cmp_Identifier("FIELD_SELECTOR") )
-		{
-			if( !pParameter->asChoice()->Get_Items().is_Empty() 
-			&&	m_Field_Choice_Index.Get_Size() > 0 			)
-			{
-				CSG_String Formula = pParameters->Get_Parameter("FORMULA")->asString();
-				Formula += CSG_String::Format( "f%d", m_Field_Choice_Index[pParameter->asInt()] );
-				pParameters->Get_Parameter("Formula")->Set_Value( Formula );
-			}
+	}
 
+	if( pParameter->Cmp_Identifier("FIELD_SELECTOR") )
+	{
+		if( !pParameter->asChoice()->Get_Items().is_Empty() 
+		&&	m_Field_Choice_Index.Get_Size() > 0 			)
+		{
+			CSG_String Formula = pParameters->Get_Parameter("FORMULA")->asString();
+			Formula += CSG_String::Format( "f%d", m_Field_Choice_Index[pParameter->asInt()-1] );
+			pParameters->Get_Parameter("FORMULA")->Set_Value( Formula );
+			pParameter->Set_Value(0);
 		}
 
 	}
