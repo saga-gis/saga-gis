@@ -71,7 +71,7 @@ CSG_String Get_Info(int i)
 		return( _TL("Terrain Analysis") );
 
 	case TLB_INFO_Author:
-		return( "O. Conrad, V. Olaya, V. Wichmann (c) 2001-2021" );
+		return( "O. Conrad, V. Olaya, V. Wichmann (c) 2001-2022" );
 
 	case TLB_INFO_Description:
 		return( _TL("Tools for digital terrain analysis.") );
@@ -109,6 +109,7 @@ CSG_String Get_Info(int i)
 #include "flow_by_slope.h"
 #include "Flow_Fields.h"
 #include "flow_accumulation_mp.h"
+#include "TerrainFlooding.h"
 
 //---------------------------------------------------------
 CSG_Tool *		Create_Tool(int i)
@@ -146,9 +147,11 @@ CSG_Tool *		Create_Tool(int i)
 	case 29:	return( new CFlow_Accumulation_MP );
     case 30:	return( new CIsochronesVar_Tool );
     case 31:    return( new CCIT );
+	case 32:	return( new CTerrainFlooding );
+	case 33:	return( new CTerrainFloodingInteractive );
 
 	//-----------------------------------------------------
-	case 32:	return( NULL );
+	case 34:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
