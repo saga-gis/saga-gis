@@ -61,9 +61,11 @@
 
 CLakeFloodInteractive::CLakeFloodInteractive(void)
 {
-	Set_Name		(_TL("Lake Flood"));
+	Set_Name		(_TL("[deprecated] Lake Flood"));
 	Set_Author		(SG_T("Volker Wichmann (c) 2005-2010"));
 	Parameters.Set_Description(_TW(
+		"Note: this tool is deprecated and will be removed in one of the next SAGA versions. "
+		"It has been replaced by the more robust and powerful 'Terrain Flooding' tool.\n\n"
 		"This tool works interactively and can be used to flood a digital elevation model for a given water depth or water level. "
 		"Execute the tool and use the action tool on a cell to flood the digital elevation model from this "
 		"location. Execute the tool again to terminate tool operation.\r\n")
