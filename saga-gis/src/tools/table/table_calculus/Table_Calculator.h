@@ -58,8 +58,6 @@ private:
 
 	CSG_Array_Int			m_Values;
 
-	CSG_Array_Int 			m_Field_Choice_Index;
-
 	CSG_Formula				m_Formula;
 
 
