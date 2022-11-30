@@ -254,9 +254,9 @@ SAGA_API_DLL_EXPORT CSG_Tool_Library_Manager &	SG_Get_Tool_Library_Manager	(void
 //---------------------------------------------------------
 #define SG_RUN_TOOL(bRetVal, LIBRARY, TOOL, CONDITION)	{\
 	\
-	bRetVal	= false;\
+	bRetVal = false;\
 	\
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool(SG_T(LIBRARY), TOOL);\
+	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool(SG_T(LIBRARY), TOOL);\
 	\
 	if(	pTool == NULL )\
 	{\
@@ -278,7 +278,7 @@ SAGA_API_DLL_EXPORT CSG_Tool_Library_Manager &	SG_Get_Tool_Library_Manager	(void
 		}\
 		else\
 		{\
-			bRetVal	= true;\
+			bRetVal = true;\
 		}\
 		\
 		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);\
@@ -287,7 +287,7 @@ SAGA_API_DLL_EXPORT CSG_Tool_Library_Manager &	SG_Get_Tool_Library_Manager	(void
 
 #define SG_RUN_TOOL_ExitOnError(LIBRARY, TOOL, CONDITION)	{\
 	\
-	bool	bResult;\
+	bool bResult;\
 	\
 	SG_RUN_TOOL(bResult, LIBRARY, TOOL, CONDITION)\
 	\
@@ -300,9 +300,9 @@ SAGA_API_DLL_EXPORT CSG_Tool_Library_Manager &	SG_Get_Tool_Library_Manager	(void
 //---------------------------------------------------------
 #define SG_RUN_TOOL_KEEP_PARMS(bRetVal, LIBRARY, TOOL, PARMS, CONDITION)	{\
 	\
-	bRetVal	= false;\
+	bRetVal = false;\
 	\
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool(SG_T(LIBRARY), TOOL);\
+	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool(SG_T(LIBRARY), TOOL);\
 	\
 	if(	pTool == NULL )\
 	{\
@@ -325,9 +325,9 @@ SAGA_API_DLL_EXPORT CSG_Tool_Library_Manager &	SG_Get_Tool_Library_Manager	(void
 		else\
 		{\
 			bRetVal	= true;\
+			\
+			PARMS.Set_Manager(NULL); PARMS.Assign_Parameters(pTool->Get_Parameters());\
 		}\
-		\
-		PARMS.Assign(pTool->Get_Parameters());\
 		\
 		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);\
 	}\
@@ -335,7 +335,7 @@ SAGA_API_DLL_EXPORT CSG_Tool_Library_Manager &	SG_Get_Tool_Library_Manager	(void
 
 #define SG_RUN_TOOL_KEEP_PARMS_ExitOnError(LIBRARY, TOOL, PARMS, CONDITION)	{\
 	\
-	bool	bResult;\
+	bool bResult;\
 	\
 	SG_RUN_TOOL_KEEP_PARMS(bResult, LIBRARY, TOOL, PARMS, CONDITION)\
 	\
