@@ -1025,7 +1025,7 @@ inline size_t	SG_Data_Type_Get_Size	(TSG_Data_Type Type)
 }
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT CSG_String		SG_Data_Type_Get_Name		(TSG_Data_Type Type);
+SAGA_API_DLL_EXPORT CSG_String		SG_Data_Type_Get_Name		(TSG_Data_Type Type, bool bShort = false);
 SAGA_API_DLL_EXPORT CSG_String		SG_Data_Type_Get_Identifier	(TSG_Data_Type Type);
 SAGA_API_DLL_EXPORT TSG_Data_Type	SG_Data_Type_Get_Type		(const CSG_String &Identifier);
 SAGA_API_DLL_EXPORT bool			SG_Data_Type_is_Numeric		(TSG_Data_Type Type);

@@ -119,26 +119,26 @@ int		SG_OMP_Get_Thread_Num		(void)	{	return( 0 );	}
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String	SG_Data_Type_Get_Name	(TSG_Data_Type Type)
+CSG_String	SG_Data_Type_Get_Name	(TSG_Data_Type Type, bool bShort)
 {
 	switch( Type )
 	{
-	default                : return( _TL("undefined"                   ) );
-	case SG_DATATYPE_Bit   : return( _TL("bit"                         ) );
-	case SG_DATATYPE_Byte  : return( _TL("unsigned 1 byte integer"     ) );
-	case SG_DATATYPE_Char  : return( _TL("signed 1 byte integer"       ) );
-	case SG_DATATYPE_Word  : return( _TL("unsigned 2 byte integer"     ) );
-	case SG_DATATYPE_Short : return( _TL("signed 2 byte integer"       ) );
-	case SG_DATATYPE_DWord : return( _TL("unsigned 4 byte integer"     ) );
-	case SG_DATATYPE_Int   : return( _TL("signed 4 byte integer"       ) );
-	case SG_DATATYPE_ULong : return( _TL("unsigned 8 byte integer"     ) );
-	case SG_DATATYPE_Long  : return( _TL("signed 8 byte integer"       ) );
-	case SG_DATATYPE_Float : return( _TL("4 byte floating point number") );
-	case SG_DATATYPE_Double: return( _TL("8 byte floating point number") );
-	case SG_DATATYPE_String: return( _TL("string"                      ) );
-	case SG_DATATYPE_Date  : return( _TL("date"                        ) );
-	case SG_DATATYPE_Color : return( _TL("color"                       ) );
-	case SG_DATATYPE_Binary: return( _TL("binary"                      ) );
+	default                : return( bShort ? _TL("none"  ) : _TL("undefined"                   ) );
+	case SG_DATATYPE_Bit   : return(          _TL("bit"   ) );
+	case SG_DATATYPE_Byte  : return( bShort ? _TL("byte"  ) : _TL("unsigned 1 byte integer"     ) );
+	case SG_DATATYPE_Char  : return( bShort ? _TL("char"  ) : _TL("signed 1 byte integer"       ) );
+	case SG_DATATYPE_Word  : return( bShort ? _TL("word"  ) : _TL("unsigned 2 byte integer"     ) );
+	case SG_DATATYPE_Short : return( bShort ? _TL("short" ) : _TL("signed 2 byte integer"       ) );
+	case SG_DATATYPE_DWord : return( bShort ? _TL("uint"  ) : _TL("unsigned 4 byte integer"     ) );
+	case SG_DATATYPE_Int   : return( bShort ? _TL("int"   ) : _TL("signed 4 byte integer"       ) );
+	case SG_DATATYPE_ULong : return( bShort ? _TL("ulong" ) : _TL("unsigned 8 byte integer"     ) );
+	case SG_DATATYPE_Long  : return( bShort ? _TL("long"  ) : _TL("signed 8 byte integer"       ) );
+	case SG_DATATYPE_Float : return( bShort ? _TL("float" ) : _TL("4 byte floating point number") );
+	case SG_DATATYPE_Double: return( bShort ? _TL("double") : _TL("8 byte floating point number") );
+	case SG_DATATYPE_String: return(          _TL("string") );
+	case SG_DATATYPE_Date  : return(          _TL("date"  ) );
+	case SG_DATATYPE_Color : return(          _TL("color" ) );
+	case SG_DATATYPE_Binary: return(          _TL("binary") );
 	}
 };
 
