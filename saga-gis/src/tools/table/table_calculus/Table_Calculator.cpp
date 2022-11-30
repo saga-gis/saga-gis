@@ -60,17 +60,18 @@ double	fnc_is_NoData_Value(double Value)
 //---------------------------------------------------------
 CTable_Calculator_Base::CTable_Calculator_Base(bool bShapes)
 {
-	Set_Author	("V.Olaya (c) 2004, O.Conrad (c) 2011");
+	Set_Author	("V.Olaya (c) 2004, O.Conrad (c) 2011, J.Spitzmueller (c) 2022, scilands GmbH");
 
 	CSG_String	s(_TW(
 		"The table calculator calculates a new attribute from existing "
 		"attributes based on a mathematical formula. Attributes are addressed "
 		"by the character 'f' (for 'field') followed by the field number "
-		"(i.e.: f1, f2, ..., fn) or by the field name in square brackets "
+		"(i.e.: f1, f2, ..., fn)or  by the field name in square brackets "
 		"(e.g.: [Field Name]).\n"
 		"Examples:\n"
 		"- sin(f1) * f2 + f3\n"
 		"- [Population] / [Area]\n"
+		"One can also use the drop-down-menu to append fields numbers to the formula.\n"
 		"\n"
 		"If the use no-data flag is unchecked and a no-data value appears in "
 		"a record's input, no calculation is performed for it and the result "
@@ -128,6 +129,12 @@ CTable_Calculator_Base::CTable_Calculator_Base(bool bShapes)
 		"f1 + f2"
 	);
 
+	Parameters.Add_Choice("",
+		"FIELD_SELECTOR", _TL("Add Field to Formula"),
+		_TL("Convenient way to append a field number to the formula. Shows one all numeric fields with number, name and datatype overview."),
+		""
+	);
+
 	Parameters.Add_Bool("",
 		"SELECTION"	, _TL("Selection"),
 		_TL(""),
@@ -158,14 +165,82 @@ int CTable_Calculator_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CS
 		pParameters->Set_Enabled("FIELD"    , true);
 		pParameters->Set_Enabled("NAME"     , pField->asInt() < 0);	// not set
 		pParameters->Set_Enabled("SELECTION", pTable->Get_Selection_Count() > 0);
+		pParameters->Set_Enabled("FIELD_SELECTOR", true);
 	}
 	else
 	{
-		pParameters->Set_Enabled("FIELD"    , false);
-		pParameters->Set_Enabled("NAME"     , false);
+		pParameters->Set_Enabled("FIELD"    	, false);
+		pParameters->Set_Enabled("NAME"     	, false);
+		pParameters->Set_Enabled("FIELD_SELECTOR", false);
+
 	}
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+int CTable_Calculator_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	CSG_Table	*pTable	= (CSG_Table *)pParameters->Get_Parameter("TABLE")->asDataObject();
+
+	//if( pTable != nullptr )
+	//{
+	if( pParameter->Cmp_Identifier("TABLE") )
+	{
+		// Create the Field Selection
+		if( pTable != nullptr )
+		{
+			CSG_String Choice = "<Select Field Number>|";
+			m_Field_Choice_Index.Destroy();
+			for( int i=0; i<pTable->Get_Field_Count(); i++ )
+			{
+				bool 		Is_Number = false;
+				CSG_String 	Literal = "";
+				switch( pTable->Get_Field_Type(i) )
+				{
+					case SG_DATATYPE_Short: 	Is_Number = true; Literal = "Short"; break;
+					case SG_DATATYPE_Int: 		Is_Number = true; Literal = "Int"; break;
+					case SG_DATATYPE_Long: 		Is_Number = true; Literal = "Long"; break;
+					case SG_DATATYPE_Float: 	Is_Number = true; Literal = "Float"; break;
+					case SG_DATATYPE_Double: 	Is_Number = true; Literal = "Double"; break;
+					default: break;
+
+				}
+
+				if( Is_Number )
+				{
+					Choice += CSG_String::Format("f%d \"%s\" [%s]|",i+1, pTable->Get_Field_Name(i), Literal.c_str());
+					// Field Count starts at 1
+					m_Field_Choice_Index += i+1;
+				}
+
+			}
+
+			pParameters->Get_Parameter("FIELD_SELECTOR")->asChoice()->Set_Items(Choice);
+		}
+		// The Table is unselected 
+		else
+		{
+			m_Field_Choice_Index.Destroy();
+			pParameters->Get_Parameter("FIELD_SELECTOR")->asChoice()->Set_Items(CSG_String(""));
+		}
+
+	}
+
+	if( pParameter->Cmp_Identifier("FIELD_SELECTOR") )
+	{
+		if( !pParameter->asChoice()->Get_Items().is_Empty() 
+		&&	m_Field_Choice_Index.Get_Size() > 0 			)
+		{
+			CSG_String Formula = pParameters->Get_Parameter("FORMULA")->asString();
+			Formula += CSG_String::Format( " f%d", m_Field_Choice_Index[pParameter->asInt()-1] );
+			pParameters->Get_Parameter("FORMULA")->Set_Value( Formula );
+			pParameter->Set_Value(0);
+		}
+
+	}
+
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 
