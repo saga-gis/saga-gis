@@ -380,7 +380,7 @@ wxIcon		IMG_Get_Icon(int ID_IMG)
 //---------------------------------------------------------
 #include <saga_gdi/sgdi_helper.h>
 
-wxBitmap		IMG_Get_Splash(double Scale)
+wxBitmap	IMG_Get_Splash(double Scale)
 {
 	const int w = (int)(Scale * 700), h = (int)(Scale * 400);
 
@@ -391,8 +391,8 @@ wxBitmap		IMG_Get_Splash(double Scale)
 	wxFont Font(dc.GetFont()); Font.MakeBold().MakeItalic();
 	dc.SetTextForeground(wxColour(43, 60, 110));
 
-	Font.SetPixelSize(wxSize(0, (int)(Scale * 28))); dc.SetFont(Font);
-	Draw_Text(dc, TEXTALIGN_TOPCENTER, (int)(Scale * 495), (int)(Scale * 310), wxString::Format("- Release %s -", SAGA_VERSION));
+	Font.SetPixelSize(wxSize(0, (int)(Scale * 42))); dc.SetFont(Font);
+	Draw_Text(dc, TEXTALIGN_TOPCENTER, (int)(Scale * 495), (int)(Scale * 295), wxString::Format("%s", SAGA_VERSION));
 
 	return( Splash );
 }
