@@ -2953,7 +2953,7 @@ bool CSG_Parameter_Grid_List::Add_Item(CSG_Data_Object *pObject)
 
 	if( pSystem )	// check grid system compatibility
 	{
-		CSG_Grid_System	System	= pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid
+		CSG_Grid_System System = pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid
 			? ((CSG_Grid  *)pObject)->Get_System()
 			: ((CSG_Grids *)pObject)->Get_System();
 
@@ -3026,7 +3026,7 @@ bool CSG_Parameter_Grid_List::Update_Data(void)
 			break; }
 
 		case SG_DATAOBJECT_TYPE_Grids: {
-			CSG_Grids	*pGrids	= (CSG_Grids *)Get_Item(i);
+			CSG_Grids *pGrids = (CSG_Grids *)Get_Item(i);
 
 			for(int j=0; j<pGrids->Get_Grid_Count(); j++)
 			{
@@ -3037,7 +3037,14 @@ bool CSG_Parameter_Grid_List::Update_Data(void)
 		default: {
 			break; }
 		}
+	}
 
+	if( !m_Grids.Get_Size() && !Get_Parameters()->has_GUI() )
+	{
+		if( Get_Parent() && Get_Parent()->Get_Type() == PARAMETER_TYPE_Grid_System && Get_Parent()->Get_Children_Count() == 1 )
+		{
+			Get_Parent()->asGrid_System()->Destroy();
+		}
 	}
 
 	return( true );
