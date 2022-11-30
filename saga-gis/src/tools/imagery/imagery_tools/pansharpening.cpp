@@ -640,10 +640,7 @@ CPanSharp_PCA::CPanSharp_PCA(void)
 //---------------------------------------------------------
 bool CPanSharp_PCA::On_Execute(void)
 {
-	//-----------------------------------------------------
-	bool			bResult;
-	CSG_Parameters	Tool_Parms;
-	CSG_Table		Eigen;
+	bool bResult; CSG_Table Eigen; CSG_Parameters Tool_Parms;
 
 	//-----------------------------------------------------
 	// get the principal components for the low resolution bands
@@ -661,31 +658,31 @@ bool CPanSharp_PCA::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Parameter_Grid_List	*pPCA	= Tool_Parms.Get_Parameter("PCA")->asGridList();
+	CSG_Parameter_Grid_List *pPCA = Tool_Parms.Get_Parameter("PCA")->asGridList();
 
-	int			i, n	= pPCA->Get_Grid_Count();
+	int n = pPCA->Get_Grid_Count();
 
-	CSG_Grid	*PCA	= new CSG_Grid[n];
-	CSG_Grid	*pPan	= Parameters("PAN")->asGrid();
+	CSG_Grid *PCA  = new CSG_Grid[n];
+	CSG_Grid *pPan = Parameters("PAN")->asGrid();
 
 	//-----------------------------------------------------
 	// replace first principal component with the high resolution panchromatic band
 
 	Process_Set_Text(_TL("Replace first PC with PAN"));
 
-	double	Offset_Pan, Offset, Scale;
+	double Offset_Pan, Offset, Scale;
 
 	if( Parameters("PAN_MATCH")->asInt() == 0 )	// scale PAN band to fit first PC histogram
 	{
-		Offset_Pan	= pPan->Get_Min();
-		Offset		= pPCA->Get_Grid(0)->Get_Min();
-		Scale		= pPCA->Get_Grid(0)->Get_Range() / pPan->Get_Range();
+		Offset_Pan = pPan->Get_Min();
+		Offset     = pPCA->Get_Grid(0)->Get_Min();
+		Scale      = pPCA->Get_Grid(0)->Get_Range() / pPan->Get_Range();
 	}
 	else
 	{
-		Offset_Pan	= pPan->Get_Mean();
-		Offset		= pPCA->Get_Grid(0)->Get_Mean();
-		Scale		= pPCA->Get_Grid(0)->Get_StdDev() / pPan->Get_StdDev();
+		Offset_Pan = pPan->Get_Mean();
+		Offset     = pPCA->Get_Grid(0)->Get_Mean();
+		Scale      = pPCA->Get_Grid(0)->Get_StdDev() / pPan->Get_StdDev();
 	}
 
 	PCA[0].Create(Get_System());
@@ -709,11 +706,11 @@ bool CPanSharp_PCA::On_Execute(void)
 	//-----------------------------------------------------
 	// resample all other PCs to match the high resolution of the PAN band
 
-	TSG_Grid_Resampling	Resampling	= Get_Resampling(Parameters("RESAMPLING")->asInt());
+	TSG_Grid_Resampling Resampling = Get_Resampling(Parameters("RESAMPLING")->asInt());
 
-	for(i=1; i<n; i++)
+	for(int i=1; i<n; i++)
 	{
-		Process_Set_Text("%s: %s ...", _TL("Resampling"), pPCA->Get_Grid(i)->Get_Name());
+		Process_Set_Text("%s: %s...", _TL("Resampling"), pPCA->Get_Grid(i)->Get_Name());
 
 		PCA[i].Create(Get_System());
 		PCA[i].Assign(pPCA->Get_Grid(i), Resampling);
@@ -723,9 +720,9 @@ bool CPanSharp_PCA::On_Execute(void)
 
 	delete(pPCA->Get_Grid(0));
 
-	pPCA->Del_Items(); Tool_Parms.Set_Callback(false); pPCA->Get_Parent()->asGrid_System()->Destroy(); // reset grid system before adding hi-res-grids
+	Tool_Parms.Del_Parameters(); pPCA = Tool_Parms.Add_Grid_List("", "PCA", "", "", PARAMETER_INPUT)->asGridList();
 
-	for(i=0; i<n; i++)
+	for(int i=0; i<n; i++)
 	{
 		pPCA->Add_Item(&PCA[i]);
 	}
@@ -734,7 +731,7 @@ bool CPanSharp_PCA::On_Execute(void)
 	// inverse principal component rotation for the high resolution bands
 
 	SG_RUN_TOOL_KEEP_PARMS(bResult, "statistics_grid", 10, Tool_Parms,
-			SG_TOOL_PARAMETER_SET("PCA"  , Tool_Parms("PCA"))
+			SG_TOOL_PARAMETER_SET("PCA"  , pPCA)
 		&&	SG_TOOL_PARAMETER_SET("GRIDS", Parameters("SHARPEN"))
 		&&	SG_TOOL_PARAMETER_SET("EIGEN", &Eigen)
 	);
@@ -755,7 +752,7 @@ bool CPanSharp_PCA::On_Execute(void)
 		pHiRes->Del_Items();
 	}
 
-	for(i=0; i<pLoRes->Get_Grid_Count() && i<pGrids->Get_Grid_Count(); i++)
+	for(int i=0; i<pLoRes->Get_Grid_Count() && i<pGrids->Get_Grid_Count(); i++)
 	{
 		if( pHiRes->Get_Grid(i) )
 		{
