@@ -168,9 +168,8 @@ int CTable_Calculator_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CS
 			{
 				if( SG_Data_Type_is_Numeric(pTable->Get_Field_Type(i)) )
 				{
-					Fields += CSG_String::Format("|{%d}[%s] %s", i + 1,
-						SG_Data_Type_Get_Name(pTable->Get_Field_Type(i), true).c_str(),
-						pTable->Get_Field_Name(i)
+					Fields += CSG_String::Format("|{%d}f%d [%s]", i + 1, // put choice data in first place in curly brackets {data}
+						i + 1, pTable->Get_Field_Name(i)
 					);
 				}
 			}
