@@ -116,6 +116,8 @@ END_EVENT_TABLE()
 CPoints_View_Extent::CPoints_View_Extent(wxWindow *pParent, CSG_PointCloud *pPoints, CSG_Parameters &Settings, wxSize Size)
 	: wxPanel(pParent, wxID_ANY, wxDefaultPosition, Size, wxTAB_TRAVERSAL|wxSUNKEN_BORDER|wxNO_FULL_REPAINT_ON_RESIZE)
 {
+	m_pDialog	= (CPoints_View_Dialog *)pParent;
+
 	m_pPoints	= pPoints;
 
 	m_pSettings	= &Settings;
@@ -231,7 +233,7 @@ void CPoints_View_Extent::On_Mouse_LUp(wxMouseEvent &event)
 
 	Refresh(false);
 
-	((CPoints_View_Dialog *)GetParent())->Update_Extent();
+	m_pDialog->Update_Extent();
 }
 
 //---------------------------------------------------------
@@ -254,7 +256,7 @@ void CPoints_View_Extent::On_Mouse_RUp(wxMouseEvent &event)
 
 	Refresh(false);
 
-	((CPoints_View_Dialog *)GetParent())->Update_Extent();
+	m_pDialog->Update_Extent();
 }
 
 //---------------------------------------------------------

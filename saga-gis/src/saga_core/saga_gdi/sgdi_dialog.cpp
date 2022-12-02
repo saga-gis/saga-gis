@@ -299,6 +299,11 @@ CSGDI_SpinCtrl * CSGDI_Dialog::Add_SpinCtrl(const wxString &Name, double Value, 
 //---------------------------------------------------------
 void CSGDI_Dialog::Add_CustomCtrl(const wxString &Name, wxWindow *pControl)
 {
+	if( pControl->GetParent() != m_pCtrl )
+	{
+		pControl->Reparent(m_pCtrl);
+	}
+
 	wxStaticText *pLabel = new wxStaticText(m_pCtrl, wxID_ANY, Name, wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE);
 
 	pLabel->SetForegroundColour(m_Ctrl_Color);

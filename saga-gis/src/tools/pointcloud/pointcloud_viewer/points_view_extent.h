@@ -118,6 +118,8 @@ private:
 
 	wxImage						m_Image;
 
+	class CPoints_View_Dialog	*m_pDialog;
+
 
 	bool						_Draw_Image				(void);
 	void						_Draw_Pixel				(int x, int y, int color);
