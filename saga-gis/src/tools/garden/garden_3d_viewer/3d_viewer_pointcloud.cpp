@@ -750,7 +750,7 @@ public:
 	{
 		Create(new C3D_Viewer_PointCloud_Panel(this, pPoints, Field_Color));
 
-		wxArrayString	Attributes;
+		wxArrayString Attributes;
 
 		for(int i=0; i<pPoints->Get_Field_Count(); i++)
 		{
@@ -758,10 +758,11 @@ public:
 		}
 
 		Add_Spacer();
-		m_pField_C	= Add_Choice  (_TL("Colour"  ), Attributes, Field_Color);
-
+		m_pField_C  = Add_Choice  (_TL("Colour"), Attributes, Field_Color);
 		Add_Spacer();
-		m_pOverview	= Add_CheckBox(_TL("Overview"), false);
+		m_pDetail   = Add_Slider  (_TL("Level of Detail"), m_pPanel->m_Parameters("DETAIL")->asDouble(), 0., 100.);
+		Add_Spacer();
+		m_pOverview = Add_CheckBox(_TL("Overview"), false);
 
 		m_Overview.Create(this, pPoints, (C3D_Viewer_PointCloud_Panel *)m_pPanel);
 	}
@@ -774,6 +775,9 @@ protected:
 	wxChoice					*m_pField_C;
 
 	wxCheckBox					*m_pOverview;
+
+	CSGDI_Slider				*m_pDetail;
+
 
 	CPointCloud_Overview		m_Overview;
 
@@ -803,9 +807,8 @@ void C3D_Viewer_PointCloud_Dialog::On_Update_Choices(wxCommandEvent &event)
 {
 	if( event.GetEventObject() == m_pField_C )
 	{
-		m_pPanel->m_Parameters("COLORS_ATTR")->Set_Value(m_pField_C->GetSelection());
+		m_pPanel->m_Parameters.Set_Parameter("COLORS_ATTR", m_pField_C->GetSelection());
 		m_pPanel->Update_View(true);
-		return;
 	}
 
 	CSG_3DView_Dialog::On_Update_Choices(event);
@@ -814,6 +817,12 @@ void C3D_Viewer_PointCloud_Dialog::On_Update_Choices(wxCommandEvent &event)
 //---------------------------------------------------------
 void C3D_Viewer_PointCloud_Dialog::On_Update_Control(wxCommandEvent &event)
 {
+	if( event.GetEventObject() == m_pDetail )
+	{
+		m_pPanel->m_Parameters.Set_Parameter("DETAIL", m_pDetail->Get_Value());
+		m_pPanel->Update_View();
+	}
+
 	if( event.GetEventObject() == m_pOverview )
 	{
 #ifdef _SAGA_MSW
@@ -945,9 +954,28 @@ C3D_Viewer_PointCloud::C3D_Viewer_PointCloud(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int C3D_Viewer_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("POINTS") )
+	{
+		if( pParameter->asPointCloud() )
+		{
+			pParameters->Set_Parameter("COLOR", 2); // let's default to 'Z'
+		}
+	}
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool C3D_Viewer_PointCloud::On_Execute(void)
 {
-	CSG_PointCloud	*pPoints	= Parameters("POINTS")->asPointCloud();
+	CSG_PointCloud *pPoints = Parameters("POINTS")->asPointCloud();
 
 	if( pPoints->Get_Count() <= 0 )
 	{
@@ -956,7 +984,7 @@ bool C3D_Viewer_PointCloud::On_Execute(void)
 		return( false );
 	}
 
-	C3D_Viewer_PointCloud_Dialog	dlg(pPoints, Parameters("COLOR")->asInt());
+	C3D_Viewer_PointCloud_Dialog dlg(pPoints, Parameters("COLOR")->asInt());
 
 	dlg.ShowModal();
 

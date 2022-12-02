@@ -120,13 +120,13 @@ C3D_Viewer_Globe_Grid_Panel::C3D_Viewer_Globe_Grid_Panel(wxWindow *pParent, CSG_
 	: CSG_3DView_Panel(pParent)
 {
 	m_pGrid  = pGrid;
-	m_pZ     = pZ;
+	m_pZ     = pZ ? pZ : pGrid;
 	m_pNodes = NULL;
 
 	Create_Nodes();
 
 	//-----------------------------------------------------
-	m_Parameters("BGCOLOR")->Set_Value((int)SG_COLOR_BLACK);
+	m_Parameters("BGCOLOR")->Set_Value((int)SG_GET_RGB(192, 192, 192));
 	m_Parameters("BOX"    )->Set_Value(false);
 
 	//-----------------------------------------------------
@@ -593,7 +593,8 @@ C3D_Viewer_Globe_Grid::C3D_Viewer_Globe_Grid(void)
 	Set_Author		("O.Conrad (c) 2014");
 
 	Set_Description	(_TW(
-		""
+		"This is a simple 3D globe viewer for raster data. "
+		"Supplied grids have to use geographic coordinates. "
 	));
 
 	//-----------------------------------------------------

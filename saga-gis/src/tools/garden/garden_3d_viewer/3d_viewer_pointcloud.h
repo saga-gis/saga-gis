@@ -72,12 +72,14 @@ class C3D_Viewer_PointCloud : public CSG_Tool
 public:
 	C3D_Viewer_PointCloud(void);
 
-	virtual bool			needs_GUI			(void)	const	{	return( true );	}
+	virtual bool			needs_GUI				(void)	const	{	return( true );	}
 
 
 protected:
 
-	virtual bool			On_Execute			(void);
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 };
 

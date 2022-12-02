@@ -140,7 +140,7 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	);
 
 	m_Parameters.Add_Bool("NODE_GENERAL",
-		"LABELS"		, _TL("Labels"),
+		"LABELS"		, _TL("Label X/Y Axes"),
 		_TL(""),
 		false
 	);

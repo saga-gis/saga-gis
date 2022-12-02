@@ -119,13 +119,7 @@ bool CSG_3DView_Dialog::Create(CSG_3DView_Panel *pPanel)
 
 //	Add_Spacer();
 //	m_pBox      = Add_CheckBox(_TL("Bounding Box"), m_pPanel->m_Parameters("BOX"   )->asBool());
-//	m_pLabels   = Add_CheckBox(_TL("Labels"      ), m_pPanel->m_Parameters("LABELS")->asBool());
-//	m_pStereo   = Add_CheckBox(_TL("Anaglyph"    ), m_pPanel->m_Parameters("STEREO")->asBool());
-
-	Add_Spacer();
-	m_pRotate_X = Add_Slider  (_TL("X-Rotation"  ), m_pPanel->Get_Projector().Get_xRotation() * M_RAD_TO_DEG, -180.0, 180.0);
-	m_pRotate_Z = Add_Slider  (_TL("Z-Rotation"  ), m_pPanel->Get_Projector().Get_zRotation() * M_RAD_TO_DEG, -180.0, 180.0);
-	m_pCentral  = Add_Slider  (_TL("Eye Distance"), m_pPanel->Get_Projector().Get_Central_Distance(), 1.0, 2000.0);
+//	m_pRotate   = Add_Slider  (_TL("Rotation"    ), m_pPanel->Get_Projector().Get_xRotation() * M_RAD_TO_DEG, -180., 180.);
 
 	Add_Output(m_pPanel);
 
@@ -135,27 +129,12 @@ bool CSG_3DView_Dialog::Create(CSG_3DView_Panel *pPanel)
 //---------------------------------------------------------
 void CSG_3DView_Dialog::On_Update_Control(wxCommandEvent &event)
 {
-//	CHECKBOX_UPDATE(m_pBox   , "BOX"   );
-//	CHECKBOX_UPDATE(m_pLabels, "LABELS");
-//	CHECKBOX_UPDATE(m_pStereo, "STEREO");
+//	CHECKBOX_UPDATE(m_pBox, "BOX");
 
-	if( event.GetEventObject() == m_pRotate_X )
-	{
-		m_pPanel->Get_Projector().Set_xRotation(m_pRotate_X->Get_Value() * M_DEG_TO_RAD);
-		m_pPanel->Update_View();
-	}
-
-	if( event.GetEventObject() == m_pRotate_Z )
-	{	
-		m_pPanel->Get_Projector().Set_zRotation(m_pRotate_Z->Get_Value() * M_DEG_TO_RAD);
-		m_pPanel->Update_View();
-	}
-
-	if( event.GetEventObject() == m_pCentral )
-	{	
-		m_pPanel->Get_Projector().Set_Central_Distance(m_pCentral->Get_Value());
-		m_pPanel->Update_View();
-	}
+//	if( event.GetEventObject() == m_pRotate )
+//	{
+//		m_pPanel->Get_Projector().Set_xRotation(m_pRotate_X->Get_Value() * M_DEG_TO_RAD); m_pPanel->Update_View();
+//	}
 }
 
 //---------------------------------------------------------
@@ -184,7 +163,7 @@ void CSG_3DView_Dialog::On_Button(wxCommandEvent &event)
 		Menu.AppendSubMenu(pMenu = new wxMenu, _TL("Display"));
 
 		pMenu->AppendCheckItem(MENU_BOX          , _TL("Bounding Box [B]"));
-		pMenu->AppendCheckItem(MENU_LABELS       , _TL("Labels [L]"));
+		pMenu->AppendCheckItem(MENU_LABELS       , _TL("Label X/Y Axes [L]"));
 	//	pMenu->AppendCheckItem(MENU_NORTH        , _TL("North Arrow [N]"));
 		pMenu->AppendCheckItem(MENU_STEREO       , _TL("Anaglyph [S]"));
 		pMenu->AppendCheckItem(MENU_CENTRAL      , _TL("Central"));
@@ -246,9 +225,9 @@ void CSG_3DView_Dialog::On_Menu(wxCommandEvent &event)
 {
 	switch( event.GetId() )
 	{
-	default:	return;
+	default: return;
 
-	case MENU_CLOSE        :	Close();	return;
+	case MENU_CLOSE        : Close(); return;
 
 	case MENU_PROPERTIES   :
 		m_pPanel->Update_Parameters(true);
@@ -261,37 +240,38 @@ void CSG_3DView_Dialog::On_Menu(wxCommandEvent &event)
 
 			m_pPanel->Update_View(true);
 		}
+
 		return;
 
-	case MENU_BOX          :	MENU_TOGGLE("BOX"   );	break;
-	case MENU_LABELS       :	MENU_TOGGLE("LABELS");	break;
-	case MENU_NORTH        :	MENU_TOGGLE("NORTH" );	break;
-	case MENU_STEREO       :	MENU_TOGGLE("STEREO");	break;
+	case MENU_BOX          : MENU_TOGGLE("BOX"   ); break;
+	case MENU_LABELS       : MENU_TOGGLE("LABELS"); break;
+	case MENU_NORTH        : MENU_TOGGLE("NORTH" ); break;
+	case MENU_STEREO       : MENU_TOGGLE("STEREO"); break;
 
-	case MENU_TO_CLIPBOARD :	m_pPanel->Save_toClipboard();	break;
+	case MENU_TO_CLIPBOARD : m_pPanel->Save_toClipboard(); break;
 
-	case MENU_ROTATE_X_DEC :	m_pPanel->Get_Projector().Set_xRotation(m_pPanel->Get_Projector().Get_xRotation() - 4.0 * M_DEG_TO_RAD);	break;
-	case MENU_ROTATE_X_INC :	m_pPanel->Get_Projector().Set_xRotation(m_pPanel->Get_Projector().Get_xRotation() + 4.0 * M_DEG_TO_RAD);	break;
-	case MENU_ROTATE_Y_DEC :	m_pPanel->Get_Projector().Set_yRotation(m_pPanel->Get_Projector().Get_yRotation() - 4.0 * M_DEG_TO_RAD);	break;
-	case MENU_ROTATE_Y_INC :	m_pPanel->Get_Projector().Set_yRotation(m_pPanel->Get_Projector().Get_yRotation() + 4.0 * M_DEG_TO_RAD);	break;
-	case MENU_ROTATE_Z_DEC :	m_pPanel->Get_Projector().Set_zRotation(m_pPanel->Get_Projector().Get_zRotation() - 4.0 * M_DEG_TO_RAD);	break;
-	case MENU_ROTATE_Z_INC :	m_pPanel->Get_Projector().Set_zRotation(m_pPanel->Get_Projector().Get_zRotation() + 4.0 * M_DEG_TO_RAD);	break;
+	case MENU_ROTATE_X_DEC : m_pPanel->Get_Projector().Set_xRotation(m_pPanel->Get_Projector().Get_xRotation() - 4. * M_DEG_TO_RAD); break;
+	case MENU_ROTATE_X_INC : m_pPanel->Get_Projector().Set_xRotation(m_pPanel->Get_Projector().Get_xRotation() + 4. * M_DEG_TO_RAD); break;
+	case MENU_ROTATE_Y_DEC : m_pPanel->Get_Projector().Set_yRotation(m_pPanel->Get_Projector().Get_yRotation() - 4. * M_DEG_TO_RAD); break;
+	case MENU_ROTATE_Y_INC : m_pPanel->Get_Projector().Set_yRotation(m_pPanel->Get_Projector().Get_yRotation() + 4. * M_DEG_TO_RAD); break;
+	case MENU_ROTATE_Z_DEC : m_pPanel->Get_Projector().Set_zRotation(m_pPanel->Get_Projector().Get_zRotation() - 4. * M_DEG_TO_RAD); break;
+	case MENU_ROTATE_Z_INC : m_pPanel->Get_Projector().Set_zRotation(m_pPanel->Get_Projector().Get_zRotation() + 4. * M_DEG_TO_RAD); break;
 
-	case MENU_SHIFT_X_DEC  :	m_pPanel->Get_Projector().Set_xShift(m_pPanel->Get_Projector().Get_xShift() - 10.0);	break;
-	case MENU_SHIFT_X_INC  :	m_pPanel->Get_Projector().Set_xShift(m_pPanel->Get_Projector().Get_xShift() + 10.0);	break;
-	case MENU_SHIFT_Y_DEC  :	m_pPanel->Get_Projector().Set_yShift(m_pPanel->Get_Projector().Get_yShift() - 10.0);	break;
-	case MENU_SHIFT_Y_INC  :	m_pPanel->Get_Projector().Set_yShift(m_pPanel->Get_Projector().Get_yShift() + 10.0);	break;
-	case MENU_SHIFT_Z_DEC  :	m_pPanel->Get_Projector().Set_zShift(m_pPanel->Get_Projector().Get_zShift() - 10.0);	break;
-	case MENU_SHIFT_Z_INC  :	m_pPanel->Get_Projector().Set_zShift(m_pPanel->Get_Projector().Get_zShift() + 10.0);	break;
+	case MENU_SHIFT_X_DEC  : m_pPanel->Get_Projector().Set_xShift(m_pPanel->Get_Projector().Get_xShift() - 10.); break;
+	case MENU_SHIFT_X_INC  : m_pPanel->Get_Projector().Set_xShift(m_pPanel->Get_Projector().Get_xShift() + 10.); break;
+	case MENU_SHIFT_Y_DEC  : m_pPanel->Get_Projector().Set_yShift(m_pPanel->Get_Projector().Get_yShift() - 10.); break;
+	case MENU_SHIFT_Y_INC  : m_pPanel->Get_Projector().Set_yShift(m_pPanel->Get_Projector().Get_yShift() + 10.); break;
+	case MENU_SHIFT_Z_DEC  : m_pPanel->Get_Projector().Set_zShift(m_pPanel->Get_Projector().Get_zShift() - 10.); break;
+	case MENU_SHIFT_Z_INC  : m_pPanel->Get_Projector().Set_zShift(m_pPanel->Get_Projector().Get_zShift() + 10.); break;
 
-	case MENU_CENTRAL      :	m_pPanel->Get_Projector().do_Central(m_pPanel->Get_Projector().is_Central() == false);	break;
+	case MENU_CENTRAL      : m_pPanel->Get_Projector().do_Central(m_pPanel->Get_Projector().is_Central() == false); break;
 
-	case MENU_PLAY_POS_ADD :	m_pPanel->Play_Pos_Add();	return;
-	case MENU_PLAY_POS_DEL :	m_pPanel->Play_Pos_Del();	return;
-	case MENU_PLAY_POS_CLR :	m_pPanel->Play_Pos_Clr();	return;
-	case MENU_PLAY_RUN_ONCE:	m_pPanel->Play_Once   ();	return;
-	case MENU_PLAY_RUN_LOOP:	m_pPanel->Play_Loop   ();	return;
-	case MENU_PLAY_RUN_SAVE:	m_pPanel->Play_Save   ();	return;
+	case MENU_PLAY_POS_ADD : m_pPanel->Play_Pos_Add(); return;
+	case MENU_PLAY_POS_DEL : m_pPanel->Play_Pos_Del(); return;
+	case MENU_PLAY_POS_CLR : m_pPanel->Play_Pos_Clr(); return;
+	case MENU_PLAY_RUN_ONCE: m_pPanel->Play_Once   (); return;
+	case MENU_PLAY_RUN_LOOP: m_pPanel->Play_Loop   (); return;
+	case MENU_PLAY_RUN_SAVE: m_pPanel->Play_Save   (); return;
 	}
 
 	m_pPanel->Update_View();
@@ -316,19 +296,11 @@ void CSG_3DView_Dialog::On_Menu_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CSG_3DView_Dialog::Update_Controls(void)
 {
-	double	d;
+//	m_pBox->SetValue(m_pPanel->m_Parameters("BOX")->asBool());
 
-	d	= fmod(M_RAD_TO_DEG * m_pPanel->Get_Projector().Get_xRotation(), 360.0);
-	if( d < -180.0 ) d += 360.0; else if( d > 180.0 ) d -= 360.0;
-	m_pRotate_X->Set_Value(d);
-
-	d	= fmod(M_RAD_TO_DEG * m_pPanel->Get_Projector().Get_zRotation(), 360.0);
-	if( d < -180.0 ) d += 360.0; else if( d > 180.0 ) d -= 360.0;
-	m_pRotate_Z->Set_Value(d);
-
-//	m_pBox   ->SetValue(m_pPanel->m_Parameters("BOX"   )->asBool());
-//	m_pLabels->SetValue(m_pPanel->m_Parameters("LABELS")->asBool());
-//	m_pStereo->SetValue(m_pPanel->m_Parameters("STEREO")->asBool());
+//	double d = fmod(M_RAD_TO_DEG * m_pPanel->Get_Projector().Get_xRotation(), 360.);
+//	if( d < -180. ) d += 360.; else if( d > 180. ) d -= 360.;
+//	m_pRotate->Set_Value(d);
 }
 
 

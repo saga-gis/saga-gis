@@ -208,7 +208,7 @@ protected:
 
 	wxButton					*m_pCommands;
 
-	CSGDI_Slider				*m_pRotate_X, *m_pRotate_Z, *m_pCentral;
+//	CSGDI_Slider				*m_pRotate;
 
 	CSG_3DView_Panel			*m_pPanel;
 
