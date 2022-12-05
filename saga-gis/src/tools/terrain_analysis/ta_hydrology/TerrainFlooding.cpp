@@ -185,12 +185,10 @@ bool CTerrainFloodingBase::Set_Flooding(double xWorld, double yWorld, double dWa
 			m_pFlooded->Set_Value(x, y, dWaterHeight);
 
 			std::queue<sLong>	qFIFO;
-			std::set<sLong>		setProcessedCells;
 
 			sLong n = m_pDEM->Get_System().Get_IndexFromRowCol(x, y);
 
 			qFIFO.push(n);
-			setProcessedCells.insert(n);
 
 			while( qFIFO.size() > 0 && SG_UI_Process_Get_Okay() )
 			{
@@ -202,7 +200,7 @@ bool CTerrainFloodingBase::Set_Flooding(double xWorld, double yWorld, double dWa
 				{
 					dWaterHeight = m_pDEM->asDouble(x, y) + dWaterLevel;
 
-					m_pWaterBody->Set_Value(x, y, dWaterHeight - m_pDEM->asDouble(x, y));
+					m_pWaterBody->Set_Value(x, y, dWaterLevel);
 					m_pFlooded->Set_Value(x, y, dWaterHeight);
 				}
 
@@ -210,9 +208,7 @@ bool CTerrainFloodingBase::Set_Flooding(double xWorld, double yWorld, double dWa
 				{
 					if( m_pDEM->Get_System().Get_Neighbor_Pos(i, x, y, ix, iy) && !m_pFlooded->is_NoData(ix, iy) )
 					{
-						n = m_pDEM->Get_System().Get_IndexFromRowCol(ix, iy);
-
-						if( setProcessedCells.find(n) != setProcessedCells.end() )
+						if( m_iLevelReference == 0 && !m_bConstantLevel && !m_pWaterBody->is_NoData(ix, iy) )
 						{
 							continue;
 						}
@@ -222,8 +218,9 @@ bool CTerrainFloodingBase::Set_Flooding(double xWorld, double yWorld, double dWa
 							m_pWaterBody->Set_Value(ix, iy, dWaterHeight - m_pDEM->asDouble(ix, iy));
 							m_pFlooded->Set_Value(ix, iy, dWaterHeight);
 
+							n = m_pDEM->Get_System().Get_IndexFromRowCol(ix, iy);
+
 							qFIFO.push(n);
-							setProcessedCells.insert(n);
 						}
 					}
 				}
