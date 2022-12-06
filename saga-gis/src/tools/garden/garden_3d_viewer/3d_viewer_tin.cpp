@@ -184,13 +184,13 @@ C3D_Viewer_TIN_Panel::C3D_Viewer_TIN_Panel(wxWindow *pParent, CSG_TIN *pTIN, int
 	m_Parameters.Add_Double("SHADING",
 		"SHADE_DEC"		, _TL("Light Source Height"),
 		_TL(""),
-		45., -90., true, 90., true
+		45., -180., true, 180., true
 	);
 
 	m_Parameters.Add_Double("SHADING",
 		"SHADE_AZI"		, _TL("Light Source Direction"),
 		_TL(""),
-		90., 0., true, 360., true
+		90., -180., true, 180., true
 	);
 
 	//-----------------------------------------------------
@@ -541,31 +541,31 @@ public:
 
 protected:
 
+//	wxCheckBox					*m_pFaces, *m_pEdges, *m_pNodes;
+
 	wxChoice					*m_pField_Z, *m_pField_C;
 
-//	wxCheckBox					*m_pFaces, *m_pEdges, *m_pNodes;
+	CSGDI_Slider				*m_pShade[2];
 
 
 	virtual void				On_Update_Choices		(wxCommandEvent &event);
-//	virtual void				On_Update_Control		(wxCommandEvent &event);
+	virtual void				On_Update_Control		(wxCommandEvent &event);
 
 	virtual void				Set_Menu				(wxMenu &Menu);
 	virtual void				On_Menu					(wxCommandEvent &event);
 	virtual void				On_Menu_UI				(wxUpdateUIEvent &event);
 
 
-private:
-
+	//-----------------------------------------------------
 	DECLARE_EVENT_TABLE()
-
 };
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(C3D_Viewer_TIN_Dialog, CSG_3DView_Dialog)
-	EVT_CHOICE		(wxID_ANY, C3D_Viewer_TIN_Dialog::On_Update_Choices)
-//	EVT_CHECKBOX	(wxID_ANY, C3D_Viewer_TIN_Dialog::On_Update_Control)
-	EVT_MENU_RANGE		(MENU_USER_FIRST, MENU_USER_LAST, C3D_Viewer_TIN_Dialog::On_Menu)
-	EVT_UPDATE_UI_RANGE	(MENU_USER_FIRST, MENU_USER_LAST, C3D_Viewer_TIN_Dialog::On_Menu_UI)
+	EVT_CHOICE         (wxID_ANY, C3D_Viewer_TIN_Dialog::On_Update_Choices)
+//	EVT_CHECKBOX       (wxID_ANY, C3D_Viewer_TIN_Dialog::On_Update_Control)
+	EVT_MENU_RANGE     (MENU_USER_FIRST, MENU_USER_LAST, C3D_Viewer_TIN_Dialog::On_Menu)
+	EVT_UPDATE_UI_RANGE(MENU_USER_FIRST, MENU_USER_LAST, C3D_Viewer_TIN_Dialog::On_Menu_UI)
 END_EVENT_TABLE()
 
 //---------------------------------------------------------
@@ -574,7 +574,7 @@ C3D_Viewer_TIN_Dialog::C3D_Viewer_TIN_Dialog(CSG_TIN *pTIN, int Field_Z, int Fie
 {
 	Create(new C3D_Viewer_TIN_Panel(this, pTIN, Field_Z, Field_Color, pDrape));
 
-	wxArrayString	Attributes;
+	wxArrayString Attributes;
 
 	for(int i=0; i<pTIN->Get_Field_Count(); i++)
 	{
@@ -582,13 +582,17 @@ C3D_Viewer_TIN_Dialog::C3D_Viewer_TIN_Dialog(CSG_TIN *pTIN, int Field_Z, int Fie
 	}
 
 	Add_Spacer();
-	m_pField_Z	= Add_Choice  (_TL("Elevation"), Attributes, Field_Z);
-	m_pField_C	= Add_Choice  (_TL("Colour"   ), Attributes, Field_Color);
+	m_pField_Z  = Add_Choice  (_TL("Elevation"), Attributes, Field_Z    );
+	m_pField_C  = Add_Choice  (_TL("Colour"   ), Attributes, Field_Color);
+
+	Add_Spacer();
+	m_pShade[0] = Add_Slider  (_TL("Light Source Height"   ), m_pPanel->m_Parameters("SHADE_DEC")->asDouble(), -180., 180.);
+	m_pShade[1] = Add_Slider  (_TL("Light Source Direction"), m_pPanel->m_Parameters("SHADE_AZI")->asDouble(), -180., 180.);
 
 //	Add_Spacer();
-//	m_pFaces	= Add_CheckBox(_TL("Faces"), m_pPanel->m_Parameters("DRAW_FACES")->asBool());
-//	m_pEdges	= Add_CheckBox(_TL("Edges"), m_pPanel->m_Parameters("DRAW_EDGES")->asBool());
-//	m_pNodes	= Add_CheckBox(_TL("Nodes"), m_pPanel->m_Parameters("DRAW_NODES")->asBool());
+//	m_pFaces    = Add_CheckBox(_TL("Faces"), m_pPanel->m_Parameters("DRAW_FACES")->asBool());
+//	m_pEdges    = Add_CheckBox(_TL("Edges"), m_pPanel->m_Parameters("DRAW_EDGES")->asBool());
+//	m_pNodes    = Add_CheckBox(_TL("Nodes"), m_pPanel->m_Parameters("DRAW_NODES")->asBool());
 }
 
 //---------------------------------------------------------
@@ -596,36 +600,38 @@ void C3D_Viewer_TIN_Dialog::On_Update_Choices(wxCommandEvent &event)
 {
 	if( event.GetEventObject() == m_pField_Z )
 	{
-		m_pPanel->m_Parameters("Z_ATTR")->Set_Value(m_pField_Z->GetSelection());
-		m_pPanel->Update_View(true);
-		return;
+		m_pPanel->m_Parameters("Z_ATTR")->Set_Value(m_pField_Z->GetSelection()); m_pPanel->Update_View(true);
 	}
 
 	if( event.GetEventObject() == m_pField_C )
 	{
-		m_pPanel->m_Parameters("COLORS_ATTR")->Set_Value(m_pField_C->GetSelection());
-		m_pPanel->Update_View(true);
-		return;
+		m_pPanel->m_Parameters("COLORS_ATTR")->Set_Value(m_pField_C->GetSelection()); m_pPanel->Update_View(true);
 	}
 
 	CSG_3DView_Dialog::On_Update_Choices(event);
 }
 
 //---------------------------------------------------------
-//void C3D_Viewer_TIN_Dialog::On_Update_Control(wxCommandEvent &event)
-//{
+void C3D_Viewer_TIN_Dialog::On_Update_Control(wxCommandEvent &event)
+{
+	if( event.GetEventObject() == m_pShade[0] ) { m_pPanel->m_Parameters.Set_Parameter("SHADE_DEC", m_pShade[0]->Get_Value()); m_pPanel->Update_View(); }
+	if( event.GetEventObject() == m_pShade[1] ) { m_pPanel->m_Parameters.Set_Parameter("SHADE_AZI", m_pShade[1]->Get_Value()); m_pPanel->Update_View(); }
+
 //	CHECKBOX_UPDATE(m_pFaces, "DRAW_FACES");
 //	CHECKBOX_UPDATE(m_pEdges, "DRAW_EDGES");
 //	CHECKBOX_UPDATE(m_pNodes, "DRAW_NODES");
 
-//	CSG_3DView_Dialog::On_Update_Control(event);
-//}
+	CSG_3DView_Dialog::On_Update_Control(event);
+}
 
 //---------------------------------------------------------
 void C3D_Viewer_TIN_Dialog::Update_Controls(void)
 {
-	m_pField_Z->SetSelection(m_pPanel->m_Parameters("Z_ATTR"     )->asInt());
-	m_pField_C->SetSelection(m_pPanel->m_Parameters("COLORS_ATTR")->asInt());
+	m_pField_Z->SetSelection(m_pPanel->m_Parameters("Z_ATTR"     )->asInt   ());
+	m_pField_C->SetSelection(m_pPanel->m_Parameters("COLORS_ATTR")->asInt   ());
+
+	m_pShade[0]->Set_Value  (m_pPanel->m_Parameters("SHADE_DEC"  )->asDouble());
+	m_pShade[1]->Set_Value  (m_pPanel->m_Parameters("SHADE_AZI"  )->asDouble());
 
 //	m_pFaces->SetValue(m_pPanel->m_Parameters("DRAW_FACES")->asBool());
 //	m_pEdges->SetValue(m_pPanel->m_Parameters("DRAW_EDGES")->asBool());

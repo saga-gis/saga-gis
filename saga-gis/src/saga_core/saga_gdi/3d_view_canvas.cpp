@@ -89,7 +89,7 @@ CSG_3DView_Canvas::CSG_3DView_Canvas(void)
 	m_bNorth     = false;
 	m_BoxBuffer  = 0.01;
 	m_bStereo    = false;
-	m_dStereo    = 2.;
+	m_dStereo    = 1.;
 }
 
 
@@ -619,22 +619,29 @@ void CSG_3DView_Canvas::Draw_Line(const TSG_Point_Z &a, const TSG_Point_Z &b, in
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_3DView_Canvas::Draw_Triangle(TSG_Triangle_Node p[3], bool bValueAsColor, const CSG_Vector &LightSource, int Shading)
+void CSG_3DView_Canvas::Draw_Triangle(TSG_Triangle_Node p[3], bool bValueAsColor, const CSG_Vector &LightSource, int Shading, double zScale)
 {
 	CSG_Vector n(3), v(3);
 
-	n[0] = p[2].x - p[0].x; n[1] = p[2].y - p[0].y; n[2] = (p[2].z - p[0].z) * 1000;
-	v[0] = p[1].x - p[0].x; v[1] = p[1].y - p[0].y; v[2] = (p[1].z - p[0].z) * 1000;
+	n[0] = p[2].x - p[0].x; n[1] = p[2].y - p[0].y; n[2] = (p[2].z - p[0].z) * zScale;
+	v[0] = p[1].x - p[0].x; v[1] = p[1].y - p[0].y; v[2] = (p[1].z - p[0].z) * zScale;
 
 	n.Multiply(v); // cross product n x v => normal vector
 
-	double a = n.Get_Angle(LightSource) / M_PI_090; if( a > 1. ) a = fabs(2. - a);
+	double a = n.Get_Angle(LightSource) / M_PI_090;
 
 	switch( Shading )
 	{
-	case  1: a = 0.5 + 0.5 * a; break;
-	case  2: a = 1.  - 0.8 * a; break;
-	default:                    break;
+	case  1: if( a > 1. ) { a = 2. - a; }
+		a = 0.5 + 0.5 * a;
+		break;
+
+	case  2:
+		a = 1.  - 0.8 * a;
+		break;
+
+	default:
+		break;
 	}
 
 	Draw_Triangle(p, bValueAsColor, a);

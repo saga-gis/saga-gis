@@ -228,13 +228,13 @@ C3D_Viewer_Grids_Panel::C3D_Viewer_Grids_Panel(wxWindow *pParent, CSG_Grids *pGr
 	m_Parameters.Add_Double("SHADING",
 		"SHADE_DEC"		, _TL("Light Source Height"),
 		_TL(""),
-		45., -90., true, 90., true
+		 45., -90., true, 90., true
 	);
 
 	m_Parameters.Add_Double("SHADING",
 		"SHADE_AZI"		, _TL("Light Source Direction"),
 		_TL(""),
-		315., 0., true, 360., true
+		-45., -90., true, 90., true
 	);
 
 	//-----------------------------------------------------
@@ -698,10 +698,10 @@ void C3D_Viewer_Grids_Panel::Draw_Plane(CSG_Grid &Plane, double Position, int Si
 	{
 		TSG_Triangle_Node p[3];
 
-		if( Get_Node(Plane, Position, Side, x - 1, y - 1, p[0])
-		&&  Get_Node(Plane, Position, Side, x    , y    , p[1]) )
+		if( Get_Node(Plane, Position, Side, x    , y    , p[1])
+		&&  Get_Node(Plane, Position, Side, x - 1, y - 1, p[0]) )
 		{
-			if( Get_Node(Plane, Position, Side, x    , y - 1, p[2]) )
+			if( Get_Node(Plane, Position, Side, x, y - 1, p[2]) )
 			{
 				if( LightSource.Get_Size() )
 					Draw_Triangle(p, false, LightSource, 1);
@@ -709,7 +709,9 @@ void C3D_Viewer_Grids_Panel::Draw_Plane(CSG_Grid &Plane, double Position, int Si
 					Draw_Triangle(p, false);
 			}
 
-			if( Get_Node(Plane, Position, Side, x - 1, y    , p[2]) )
+			p[2] = p[0]; p[0] = p[1]; p[1] = p[2]; // for shading, let's keep the triangle's normal vector orientation
+
+			if( Get_Node(Plane, Position, Side, x - 1, y, p[2]) )
 			{
 				if( LightSource.Get_Size() )
 					Draw_Triangle(p, false, LightSource, 1);
@@ -986,36 +988,45 @@ public:
 		Create(pPanel);
 
 		//-------------------------------------------------
-		Add_Spacer();
-
-		wxArrayString	Choices;
+		wxArrayString Choices;
 
 		Choices.Add(_TL("Nearest Neigbhour"   ));
 		Choices.Add(_TL("Linear Interpolation"));
 		Choices.Add(_TL("Spline Interpolation"));
 
-		m_pResampling	= Add_Choice(_TL("Resampling"), Choices, 1); // Linear
+		Add_Spacer();
+		m_pResampling = Add_Choice(_TL("Resampling"), Choices, 1); // Linear
 
 		//-------------------------------------------------
 		Add_Spacer();
-
-		m_pSlide[PLANE_SIDE_X]	= Add_Slider(_TL("X"), pPanel->m_Position[PLANE_SIDE_X], 0, 1);
-		m_pSlide[PLANE_SIDE_Y]	= Add_Slider(_TL("Y"), pPanel->m_Position[PLANE_SIDE_Y], 0, 1);
-		m_pSlide[PLANE_SIDE_Z]	= Add_Slider(_TL("Z"), pPanel->m_Position[PLANE_SIDE_Z], 0, 1);
+		m_pSlide[PLANE_SIDE_X] = Add_Slider(_TL("X"), pPanel->m_Position[PLANE_SIDE_X], 0, 1);
+		m_pSlide[PLANE_SIDE_Y] = Add_Slider(_TL("Y"), pPanel->m_Position[PLANE_SIDE_Y], 0, 1);
+		m_pSlide[PLANE_SIDE_Z] = Add_Slider(_TL("Z"), pPanel->m_Position[PLANE_SIDE_Z], 0, 1);
 
 		//-------------------------------------------------
 		Add_Spacer();
-
-		m_pHistogram	= Add_CheckBox(_TL("Histogram"), false);
+		m_pHistogram = Add_CheckBox(_TL("Histogram"), false);
 
 		m_Histogram.Create(this, pGrids, pPanel);
+
+		//-------------------------------------------------
+		Add_Spacer();
+		m_pLabel[0] = Add_Label (_TL("Light Source Height"   ), true);
+		m_pShade[0] = Add_Slider("", m_pPanel->m_Parameters("SHADE_DEC")->asDouble(), -90., 90.);
+		m_pLabel[1] = Add_Label (_TL("Light Source Direction"), true);
+		m_pShade[1] = Add_Slider("", m_pPanel->m_Parameters("SHADE_AZI")->asDouble(), -90., 90.);
+
+		m_pLabel[0]->Hide(); m_pLabel[1]->Hide();
+		m_pShade[0]->Hide(); m_pShade[1]->Hide();
 	}
 
 
 protected:
 
-	CSGDI_Slider				*m_pSlide[3];
-	
+	CSGDI_Slider				*m_pSlide[3], *m_pShade[2];
+
+	wxStaticText				*m_pLabel[2];
+
 	wxCheckBox					*m_pHistogram;
 
 	wxChoice					*m_pResampling;
@@ -1033,7 +1044,8 @@ protected:
 		MENU_RESLT_Z_DEC,
 		MENU_RESLT_Z_INC,
 		MENU_RESLT_XY_DEC,
-		MENU_RESLT_XY_INC
+		MENU_RESLT_XY_INC,
+		MENU_SHOW_SHADER
 	};
 
 	//-----------------------------------------------------
@@ -1055,6 +1067,9 @@ protected:
 
 		pMenu->Append(MENU_RESLT_Z_DEC , _TL("Decrease Vertical Resolution [F9]"));
 		pMenu->Append(MENU_RESLT_Z_INC , _TL("Increase Vertical Resolution [F10]"));
+
+		pMenu->AppendSeparator();
+		pMenu->AppendCheckItem(MENU_SHOW_SHADER, _TL("Toggle Light Source Controls"));
 	}
 
 	//-----------------------------------------------------
@@ -1064,20 +1079,44 @@ protected:
 
 		switch( event.GetId() )
 		{
-		default:	CSG_3DView_Dialog::On_Menu(event);
-			return;
+		default: CSG_3DView_Dialog::On_Menu(event); return;
 
-		case MENU_SCALE_Z_DEC :	pPanel->Set_ZScale(false);	break;
-		case MENU_SCALE_Z_INC :	pPanel->Set_ZScale( true);	break;
+		case MENU_SCALE_Z_DEC : pPanel->Set_ZScale(false); break;
+		case MENU_SCALE_Z_INC : pPanel->Set_ZScale( true); break;
 
-		case MENU_LEVEL_Z_DEC :	pPanel->Set_ZLevel(false);	break;
-		case MENU_LEVEL_Z_INC :	pPanel->Set_ZLevel( true);	break;
+		case MENU_LEVEL_Z_DEC : pPanel->Set_ZLevel(false); break;
+		case MENU_LEVEL_Z_INC : pPanel->Set_ZLevel( true); break;
 
-		case MENU_RESLT_XY_DEC:	pPanel->Set_Resolution(false, false);	break;
-		case MENU_RESLT_XY_INC:	pPanel->Set_Resolution( true, false);	break;
+		case MENU_RESLT_XY_DEC: pPanel->Set_Resolution(false, false); break;
+		case MENU_RESLT_XY_INC: pPanel->Set_Resolution( true, false); break;
 
-		case MENU_RESLT_Z_DEC :	pPanel->Set_Resolution(false,  true);	break;
-		case MENU_RESLT_Z_INC :	pPanel->Set_Resolution( true,  true);	break;
+		case MENU_RESLT_Z_DEC : pPanel->Set_Resolution(false,  true); break;
+		case MENU_RESLT_Z_INC : pPanel->Set_Resolution( true,  true); break;
+
+		case MENU_SHOW_SHADER :
+			if( m_pShade[0]->IsShown() )
+			{
+				m_pLabel[0]->Hide(); m_pLabel[1]->Hide();
+				m_pShade[0]->Hide(); m_pShade[1]->Hide();
+			}
+			else
+			{
+				m_pLabel[0]->Show(); m_pLabel[1]->Show();
+				m_pShade[0]->Show(); m_pShade[1]->Show();
+				m_pShade[0]->GetParent()->Layout();
+			}
+			break;
+		}
+	}
+
+	//-----------------------------------------------------
+	virtual void				On_Menu_UI			(wxUpdateUIEvent &event)
+	{
+		switch( event.GetId() )
+		{
+		default: CSG_3DView_Dialog::On_Menu_UI(event); return;
+
+		case MENU_SHOW_SHADER : event.Check(m_pShade[0]->IsShown()); break;
 		}
 	}
 
@@ -1114,6 +1153,16 @@ protected:
 			pPanel->Set_Plane(m_pSlide[PLANE_SIDE_Z]->Get_Value(), PLANE_SIDE_Z);
 		}
 
+		if( event.GetEventObject() == m_pShade[0] )
+		{
+			m_pPanel->m_Parameters.Set_Parameter("SHADE_DEC", m_pShade[0]->Get_Value()); m_pPanel->Update_View();
+		}
+
+		if( event.GetEventObject() == m_pShade[1] )
+		{
+			m_pPanel->m_Parameters.Set_Parameter("SHADE_AZI", m_pShade[1]->Get_Value()); m_pPanel->Update_View();
+		}
+
 		if( event.GetEventObject() == m_pHistogram )
 		{
 #ifdef _SAGA_MSW
@@ -1134,6 +1183,9 @@ protected:
 		m_pSlide[PLANE_SIDE_X]->Set_Value(pPanel->m_Position[PLANE_SIDE_X]);
 		m_pSlide[PLANE_SIDE_Y]->Set_Value(pPanel->m_Position[PLANE_SIDE_Y]);
 		m_pSlide[PLANE_SIDE_Z]->Set_Value(pPanel->m_Position[PLANE_SIDE_Z]);
+
+		m_pShade[0]->Set_Value(m_pPanel->m_Parameters("SHADE_DEC")->asDouble());
+		m_pShade[1]->Set_Value(m_pPanel->m_Parameters("SHADE_AZI")->asDouble());
 
 		m_pHistogram->SetValue(m_Histogram.IsShown());
 

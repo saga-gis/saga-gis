@@ -189,7 +189,7 @@ protected:
 	}
 	TSG_Triangle_Node;
 
-	void						Draw_Triangle			(TSG_Triangle_Node p[3], bool bValueAsColor, const CSG_Vector &LightSource, int Shading = 0);
+	void						Draw_Triangle			(TSG_Triangle_Node p[3], bool bValueAsColor, const CSG_Vector &LightSource, int Shading = 0, double zScale = 1000.);
 	void						Draw_Triangle			(TSG_Triangle_Node p[3], bool bValueAsColor, double Dim = 1.);
 
 

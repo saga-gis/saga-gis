@@ -160,7 +160,7 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	m_Parameters.Add_Double("STEREO",
 		"STEREO_DIST"	, _TL("Stereo Eye Distance [Degree]"),
 		_TL(""),
-		1., 0., true
+		1.
 	);
 
 	//-----------------------------------------------------

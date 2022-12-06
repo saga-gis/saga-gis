@@ -149,19 +149,18 @@ C3D_Viewer_Globe_Grid_Panel::C3D_Viewer_Globe_Grid_Panel(wxWindow *pParent, CSG_
 	);
 
 	m_Parameters.Add_Bool("NODE_VIEW",
-		"DRAW_FACES"	, _TL("Draw Faces"),
-		_TL(""),
-		true
-	);
-
-	m_Parameters.Add_Bool("DRAW_FACES",
 		"COLOR_ASRGB"	, _TL("RGB Values"),
 		_TL(""),
 		false
 	);
 
 	m_Parameters.Add_Colors("COLOR_ASRGB",
-		"COLORS"		, _TL("Colours"),
+		"COLORS"		, _TL("Colors"),
+		_TL("")
+	);
+
+	m_Parameters.Add_Range("COLOR_ASRGB",
+		"COLORS_RANGE"	, _TL("Value Range"),
 		_TL("")
 	);
 
@@ -171,12 +170,17 @@ C3D_Viewer_Globe_Grid_Panel::C3D_Viewer_Globe_Grid_Panel(wxWindow *pParent, CSG_
 		true
 	);
 
-	m_Parameters.Add_Range("COLOR_ASRGB",
-		"COLORS_RANGE"	, _TL("Value Range"),
-		_TL("")
+	m_Parameters.Add_Choice("NODE_VIEW",
+		"DRAW_MODE"		, _TL("Draw"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s",
+			_TL("Faces"),
+			_TL("Edges"),
+			_TL("Nodes")
+		)
 	);
 
-	m_Parameters.Add_Choice("DRAW_FACES",
+	m_Parameters.Add_Choice("NODE_VIEW",
 		"SHADING"		, _TL("Shading"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
@@ -188,26 +192,13 @@ C3D_Viewer_Globe_Grid_Panel::C3D_Viewer_Globe_Grid_Panel(wxWindow *pParent, CSG_
 	m_Parameters.Add_Double("SHADING",
 		"SHADE_DEC"		, _TL("Light Source Height"),
 		_TL(""),
-		0., -90., true, 90., true
+		0., -180., true, 180., true
 	);
 
 	m_Parameters.Add_Double("SHADING",
 		"SHADE_AZI"		, _TL("Light Source Direction"),
 		_TL(""),
-		315., 0., true, 360., true
-	);
-
-	//-----------------------------------------------------
-	m_Parameters.Add_Bool("NODE_VIEW",
-		"DRAW_EDGES"	, _TL("Draw Wire"),
-		_TL(""),
-		false
-	);
-
-	m_Parameters.Add_Color("DRAW_EDGES",
-		"EDGE_COLOR"	, _TL("Colour"),
-		_TL(""),
-		SG_GET_RGB(150, 150, 150)
+		0., -180., true, 180., true
 	);
 
 	//-----------------------------------------------------
@@ -243,15 +234,15 @@ int C3D_Viewer_Globe_Grid_Panel::On_Parameters_Enable(CSG_Parameters *pParameter
 		pParameters->Set_Enabled("COLORS_RANGE", !pParameter->asBool());
 	}
 
+	if( pParameter->Cmp_Identifier("DRAW_MODE") )
+	{
+		pParameters->Set_Enabled("SHADING"     ,  pParameter->asInt() == 0); // faces...
+	}
+
 	if( pParameter->Cmp_Identifier("SHADING") )
 	{
 		pParameters->Set_Enabled("SHADE_DEC"   ,  pParameter->asBool());
 		pParameters->Set_Enabled("SHADE_AZI"   ,  pParameter->asBool());
-	}
-
-	if( pParameter->Cmp_Identifier("DRAW_EDGES") )
-	{
-		pParameters->Set_Enabled("EDGE_COLOR"  ,  pParameter->asBool());
 	}
 
 	return( CSG_3DView_Panel::On_Parameters_Enable(pParameters, pParameter) );
@@ -409,8 +400,9 @@ bool C3D_Viewer_Globe_Grid_Panel::On_Draw(void)
 	m_Color_Scale = m_Colors.Get_Count() / (m_Parameters("COLORS_RANGE")->asRange()->Get_Max() - m_Color_Min);
 
 	//-----------------------------------------------------
-	if( m_Parameters("DRAW_FACES")->asBool() )	// Faces
+	switch( m_Parameters("DRAW_MODE")->asInt() )
 	{
+	case 0: { // Faces
 		CSG_Vector LightSource;
 
 		if( m_Parameters("SHADING")->asInt() && LightSource.Create(3) )
@@ -428,8 +420,8 @@ bool C3D_Viewer_Globe_Grid_Panel::On_Draw(void)
 		{
 			TSG_Triangle_Node p[3];
 
-			if( Get_Node(x - 1, y - 1, p[0])
-			&&  Get_Node(x    , y    , p[1]) )
+			if( Get_Node(x    , y    , p[0])
+			&&  Get_Node(x - 1, y - 1, p[1]) )
 			{
 				if( Get_Node(x, y - 1, p[2]) )
 				{
@@ -438,6 +430,8 @@ bool C3D_Viewer_Globe_Grid_Panel::On_Draw(void)
 					else
 						Draw_Triangle(p, bValueAsColor);
 				}
+
+				p[2] = p[0]; p[0] = p[1]; p[1] = p[2]; // for shading, let's keep the triangle's normal vector orientation
 
 				if( Get_Node(x - 1, y, p[2]) )
 				{
@@ -448,13 +442,10 @@ bool C3D_Viewer_Globe_Grid_Panel::On_Draw(void)
 				}
 			}
 		}
-	}
+		break; }
 
 	//-----------------------------------------------------
-	if( m_Parameters("DRAW_EDGES")->asBool() )	// Edges
-	{
-		int Color = m_Parameters("EDGE_COLOR")->asColor();
-
+	case 1: { // Edges
 		#pragma omp parallel for
 		for(int y=1; y<m_pGrid->Get_NY(); y++) for(int x=1; x<m_pGrid->Get_NX(); x++)
 		{
@@ -494,13 +485,10 @@ bool C3D_Viewer_Globe_Grid_Panel::On_Draw(void)
 				}
 			}
 		}
-	}
+		break; }
 
 	//-----------------------------------------------------
-	if( !m_Parameters("DRAW_FACES")->asBool() && !m_Parameters("DRAW_EDGES")->asBool() )	// Nodes
-	{
-		int Color = m_Parameters("EDGE_COLOR")->asColor();
-
+	default: { // Nodes
 		#pragma omp parallel for
 		for(int y=0; y<m_pGrid->Get_NY(); y++) for(int x=0; x<m_pGrid->Get_NX(); x++)
 		{
@@ -508,6 +496,7 @@ bool C3D_Viewer_Globe_Grid_Panel::On_Draw(void)
 
 			Draw_Point(p.x, p.y, p.z, bValueAsColor ? p.c : Get_Color(p.c), 2);
 		}
+		break; }
 	}
 
 	//-----------------------------------------------------
@@ -532,9 +521,12 @@ public:
 
 protected:
 
-	wxCheckBox					*m_pFaces, *m_pEdges;
+	wxChoice					*m_pDrawMode;
+
+	CSGDI_Slider				*m_pShade[2];
 
 
+	virtual void				On_Update_Choices		(wxCommandEvent &event);
 	virtual void				On_Update_Control		(wxCommandEvent &event);
 
 
@@ -546,7 +538,7 @@ private:
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(C3D_Viewer_Globe_Grid_Dialog, CSG_3DView_Dialog)
-	EVT_CHECKBOX	(wxID_ANY	, C3D_Viewer_Globe_Grid_Dialog::On_Update_Control)
+	EVT_CHECKBOX(wxID_ANY, C3D_Viewer_Globe_Grid_Dialog::On_Update_Control)
 END_EVENT_TABLE()
 
 //---------------------------------------------------------
@@ -555,16 +547,30 @@ C3D_Viewer_Globe_Grid_Dialog::C3D_Viewer_Globe_Grid_Dialog(CSG_Grid *pGrid, CSG_
 {
 	Create(new C3D_Viewer_Globe_Grid_Panel(this, pGrid, pZ));
 
+	Add_Spacer(); wxString Modes[] = { _TL("Faces"), _TL("Edges"), _TL("Nodes") };
+	m_pDrawMode = Add_Choice(_TL("Draw"), wxArrayString(3, Modes));
+
 	Add_Spacer();
-	m_pFaces		= Add_CheckBox(_TL("Faces"), m_pPanel->m_Parameters("DRAW_FACES")->asBool());
-	m_pEdges		= Add_CheckBox(_TL("Edges"), m_pPanel->m_Parameters("DRAW_EDGES")->asBool());
+	m_pShade[0] = Add_Slider  (_TL("Light Source Height"   ), m_pPanel->m_Parameters("SHADE_DEC")->asDouble(), -180., 180.);
+	m_pShade[1] = Add_Slider  (_TL("Light Source Direction"), m_pPanel->m_Parameters("SHADE_AZI")->asDouble(), -180., 180.);
+}
+
+//---------------------------------------------------------
+void C3D_Viewer_Globe_Grid_Dialog::On_Update_Choices(wxCommandEvent &event)
+{
+	if( event.GetEventObject() == m_pDrawMode )
+	{
+		m_pPanel->m_Parameters("DRAW_MODE")->Set_Value(m_pDrawMode->GetSelection()); m_pPanel->Update_View(true);
+	}
+
+	CSG_3DView_Dialog::On_Update_Choices(event);
 }
 
 //---------------------------------------------------------
 void C3D_Viewer_Globe_Grid_Dialog::On_Update_Control(wxCommandEvent &event)
 {
-	CHECKBOX_UPDATE(m_pFaces, "DRAW_FACES");
-	CHECKBOX_UPDATE(m_pEdges, "DRAW_EDGES");
+	if( event.GetEventObject() == m_pShade[0] ) { m_pPanel->m_Parameters.Set_Parameter("SHADE_DEC", m_pShade[0]->Get_Value()); m_pPanel->Update_View(); }
+	if( event.GetEventObject() == m_pShade[1] ) { m_pPanel->m_Parameters.Set_Parameter("SHADE_AZI", m_pShade[1]->Get_Value()); m_pPanel->Update_View(); }
 
 	CSG_3DView_Dialog::On_Update_Control(event);
 }
@@ -572,8 +578,10 @@ void C3D_Viewer_Globe_Grid_Dialog::On_Update_Control(wxCommandEvent &event)
 //---------------------------------------------------------
 void C3D_Viewer_Globe_Grid_Dialog::Update_Controls(void)
 {
-	m_pFaces->SetValue(m_pPanel->m_Parameters("DRAW_FACES")->asBool());
-	m_pEdges->SetValue(m_pPanel->m_Parameters("DRAW_EDGES")->asBool());
+	m_pDrawMode->SetSelection(m_pPanel->m_Parameters("DRAW_MODE")->asInt());
+
+	m_pShade[0]->Set_Value(m_pPanel->m_Parameters("SHADE_DEC")->asDouble());
+	m_pShade[1]->Set_Value(m_pPanel->m_Parameters("SHADE_AZI")->asDouble());
 
 	CSG_3DView_Dialog::Update_Controls();
 }
