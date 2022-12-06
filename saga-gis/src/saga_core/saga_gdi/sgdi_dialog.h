@@ -91,6 +91,7 @@ public:
 protected:
 
 	void					Add_Spacer			(int Space = SGDI_CTRL_SPACE);
+	wxStaticText *			Add_Label			(const wxString &Name, bool bCenter, int ID = wxID_ANY);
 	wxButton *				Add_Button			(const wxString &Name, int ID, const wxSize &Size = SGDI_BTN_SIZE);
 	wxChoice *				Add_Choice			(const wxString &Name, const wxArrayString &Choices, int iSelect = 0, int ID = wxID_ANY);
 	wxCheckBox *			Add_CheckBox		(const wxString &Name, bool bCheck, int ID = wxID_ANY);

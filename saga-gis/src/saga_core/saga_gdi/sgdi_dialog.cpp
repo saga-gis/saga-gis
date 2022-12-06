@@ -181,6 +181,25 @@ void CSGDI_Dialog::Add_Spacer(int Space)
 }
 
 //---------------------------------------------------------
+wxStaticText * CSGDI_Dialog::Add_Label(const wxString &Name, bool bCenter, int ID)
+{
+	if( Name.IsEmpty() )
+	{
+		return( NULL );
+	}
+
+	wxStaticText *pLabel = new wxStaticText(m_pCtrl, ID, Name, wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE);
+
+	pLabel->SetForegroundColour(m_Ctrl_Color);
+
+	m_pCtrl_Sizer->Add(pLabel, 0, wxLEFT|wxRIGHT|wxTOP|(bCenter ? wxALIGN_CENTER : wxEXPAND), SGDI_CTRL_SMALLSPACE);
+
+	m_pCtrl->SetVirtualSize(m_pCtrl_Sizer->GetSize());
+
+	return( pLabel );
+}
+
+//---------------------------------------------------------
 wxButton * CSGDI_Dialog::Add_Button(const wxString &Name, int ID, const wxSize &Size)
 {
 	wxButton *pButton = new wxButton(m_pCtrl, ID, Name, wxDefaultPosition, Size);
@@ -195,13 +214,12 @@ wxButton * CSGDI_Dialog::Add_Button(const wxString &Name, int ID, const wxSize &
 //---------------------------------------------------------
 wxChoice * CSGDI_Dialog::Add_Choice(const wxString &Name, const wxArrayString &Choices, int iSelect, int ID)
 {
-	wxStaticText *pLabel  = new wxStaticText(m_pCtrl, wxID_ANY, Name, wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE);
-	wxChoice     *pChoice = new wxChoice    (m_pCtrl, ID, wxDefaultPosition, wxDefaultSize, Choices);
+	Add_Label(Name, false);
 
-	pLabel ->SetForegroundColour(m_Ctrl_Color);
+	wxChoice *pChoice = new wxChoice(m_pCtrl, ID, wxDefaultPosition, wxDefaultSize, Choices);
+
 	pChoice->SetSelection(iSelect);
 
-	m_pCtrl_Sizer->Add(pLabel , 0, wxLEFT|wxRIGHT|wxTOP   |wxEXPAND, SGDI_CTRL_SMALLSPACE);
 	m_pCtrl_Sizer->Add(pChoice, 0, wxLEFT|wxRIGHT|wxBOTTOM|wxEXPAND, SGDI_CTRL_SMALLSPACE);
 
 	m_pCtrl->SetVirtualSize(m_pCtrl_Sizer->GetSize());
@@ -227,15 +245,13 @@ wxCheckBox * CSGDI_Dialog::Add_CheckBox(const wxString &Name, bool bCheck, int I
 //---------------------------------------------------------
 wxTextCtrl * CSGDI_Dialog::Add_TextCtrl(const wxString &Name, int Style, const wxString &Text, int ID)
 {
+	Add_Label(Name, true);
+
 	int Stretch = Style & wxTE_MULTILINE;
 
-	wxStaticText *pLabel    = new wxStaticText(m_pCtrl, wxID_ANY, Name, wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE);
-	wxTextCtrl   *pTextCtrl = new wxTextCtrl  (m_pCtrl, ID, Text, wxDefaultPosition, SGDI_BTN_SIZE, Style);
+	wxTextCtrl *pTextCtrl = new wxTextCtrl(m_pCtrl, ID, Text, wxDefaultPosition, SGDI_BTN_SIZE, Style);
 
-	pLabel	->SetForegroundColour(m_Ctrl_Color);
-
-	m_pCtrl_Sizer->Add(pLabel   ,       0, wxALIGN_CENTER|wxLEFT|wxRIGHT|wxTOP            , SGDI_CTRL_SMALLSPACE);
-	m_pCtrl_Sizer->Add(pTextCtrl, Stretch,                wxLEFT|wxRIGHT|wxBOTTOM|wxEXPAND, SGDI_CTRL_SMALLSPACE);
+	m_pCtrl_Sizer->Add(pTextCtrl, Stretch, wxLEFT|wxRIGHT|wxBOTTOM|wxEXPAND, SGDI_CTRL_SMALLSPACE);
 
 	if( Style & wxTE_READONLY )
 	{
@@ -250,24 +266,16 @@ wxTextCtrl * CSGDI_Dialog::Add_TextCtrl(const wxString &Name, int Style, const w
 //-----------------------------------------------------------------------------
 CSGDI_Slider * CSGDI_Dialog::Add_Slider(const wxString &Name, double Value, double minValue, double maxValue, bool bValueAsPercent, int ID, int Width)
 {
+	Add_Label(Name, true);
+
 	if( bValueAsPercent && maxValue > minValue )
 	{
 		Value = minValue + Value * (maxValue - minValue) / 100.0;
 	}
 
-//	wxSizer      *pSizer_ = new wxBoxSizer(wxHORIZONTAL);
-	wxStaticText *pLabel  = new wxStaticText(m_pCtrl, wxID_ANY, Name, wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE);
 	CSGDI_Slider *pSlider = new CSGDI_Slider(m_pCtrl, ID, Value, minValue, maxValue, wxDefaultPosition, wxSize(Width, wxDefaultCoord), wxSL_AUTOTICKS|wxSL_LABELS|wxSL_TOP);
 
-	pLabel->SetForegroundColour(m_Ctrl_Color);
-
-//	pSizer_->Add(new wxStaticText(m_pCtrl, wxID_ANY,  "0", wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER), 0, wxALIGN_BOTTOM);
-//	pSizer_->Add(pSlider, 0);
-//	pSizer_->Add(new wxStaticText(m_pCtrl, wxID_ANY, "10", wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER), 0, wxALIGN_BOTTOM);
-
-	m_pCtrl_Sizer->Add(pLabel , 0, wxALIGN_CENTER|wxLEFT|wxRIGHT|wxTOP            , SGDI_CTRL_SMALLSPACE);
-//	m_pCtrl_Sizer->Add(pSizer_, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT|wxBOTTOM|wxEXPAND, SGDI_CTRL_SMALLSPACE);
-	m_pCtrl_Sizer->Add(pSlider, 0,                wxLEFT|wxRIGHT|wxBOTTOM|wxEXPAND, SGDI_CTRL_SMALLSPACE);
+	m_pCtrl_Sizer->Add(pSlider, 0, wxLEFT|wxRIGHT|wxBOTTOM|wxEXPAND, SGDI_CTRL_SMALLSPACE);
 
 	m_pCtrl->SetVirtualSize(m_pCtrl_Sizer->GetSize());
 
@@ -277,18 +285,10 @@ CSGDI_Slider * CSGDI_Dialog::Add_Slider(const wxString &Name, double Value, doub
 //-----------------------------------------------------------------------------
 CSGDI_SpinCtrl * CSGDI_Dialog::Add_SpinCtrl(const wxString &Name, double Value, double minValue, double maxValue, bool bValueAsPercent, int ID, int Width)
 {
-//	wxSizer        *pSizer_   = new wxBoxSizer(wxHORIZONTAL);
-	wxStaticText   *pLabel    = new wxStaticText  (m_pCtrl, wxID_ANY, Name, wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE);
+	Add_Label(Name, true);
+
 	CSGDI_SpinCtrl *pSpinCtrl = new CSGDI_SpinCtrl(m_pCtrl, ID, Value, minValue, maxValue, bValueAsPercent, wxDefaultPosition, wxSize(Width, wxDefaultCoord), wxSP_ARROW_KEYS|wxTE_PROCESS_ENTER);
 
-	pLabel->SetForegroundColour(m_Ctrl_Color);
-
-//	pSizer_->Add(new wxStaticText(m_pCtrl, wxID_ANY,  "0", wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER), 0, wxALIGN_BOTTOM);
-//	pSizer_->Add(pSpinCtrl, 0);
-//	pSizer_->Add(new wxStaticText(m_pCtrl, wxID_ANY, "10", wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER), 0, wxALIGN_BOTTOM);
-
-	m_pCtrl_Sizer->Add(pLabel   , 0, wxALIGN_CENTER|wxLEFT|wxRIGHT|wxTOP   , SGDI_CTRL_SMALLSPACE);
-//	m_pCtrl_Sizer->Add(pSizer_  , 0, wxALIGN_CENTER|wxLEFT|wxRIGHT|wxBOTTOM, SGDI_CTRL_SMALLSPACE);
 	m_pCtrl_Sizer->Add(pSpinCtrl, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT|wxBOTTOM|wxEXPAND, SGDI_CTRL_SMALLSPACE);
 
 	m_pCtrl->SetVirtualSize(m_pCtrl_Sizer->GetSize());
@@ -299,16 +299,13 @@ CSGDI_SpinCtrl * CSGDI_Dialog::Add_SpinCtrl(const wxString &Name, double Value, 
 //---------------------------------------------------------
 void CSGDI_Dialog::Add_CustomCtrl(const wxString &Name, wxWindow *pControl)
 {
+	Add_Label(Name, true);
+
 	if( pControl->GetParent() != m_pCtrl )
 	{
 		pControl->Reparent(m_pCtrl);
 	}
 
-	wxStaticText *pLabel = new wxStaticText(m_pCtrl, wxID_ANY, Name, wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE);
-
-	pLabel->SetForegroundColour(m_Ctrl_Color);
-
-	m_pCtrl_Sizer->Add(pLabel  , 0, wxALIGN_CENTER|wxLEFT|wxRIGHT|wxTOP   , SGDI_CTRL_SMALLSPACE);
 	m_pCtrl_Sizer->Add(pControl, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT|wxBOTTOM, SGDI_CTRL_SMALLSPACE);
 
 	m_pCtrl->SetVirtualSize(m_pCtrl_Sizer->GetSize());
