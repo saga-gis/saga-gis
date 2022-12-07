@@ -192,7 +192,7 @@ wxStaticText * CSGDI_Dialog::Add_Label(const wxString &Name, bool bCenter, int I
 
 	pLabel->SetForegroundColour(m_Ctrl_Color);
 
-	m_pCtrl_Sizer->Add(pLabel, 0, wxLEFT|wxRIGHT|wxTOP|(bCenter ? wxALIGN_CENTER : wxEXPAND), SGDI_CTRL_SMALLSPACE);
+	m_pCtrl_Sizer->Add(pLabel, 0, wxLEFT|wxRIGHT|wxTOP|(bCenter ? (int)wxALIGN_CENTER : (int)wxEXPAND), SGDI_CTRL_SMALLSPACE);
 
 	m_pCtrl->SetVirtualSize(m_pCtrl_Sizer->GetSize());
 
