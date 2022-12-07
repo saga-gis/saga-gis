@@ -165,7 +165,7 @@ protected:
 	int							m_Shape_Type;
 
 
-	void						_Set_Data		(void);
+	bool						_Set_Data		(void);
 
 };
 
@@ -225,7 +225,7 @@ protected:
 
 	virtual void				Set_Position		(wxRect r);
 
-	virtual void				_Set_Data			(void);
+	virtual bool				_Set_Data			(void);
 
 };
 
@@ -238,9 +238,20 @@ protected:
 class CDLG_List_Grid : public CDLG_List_Grid_Base
 {
 	DECLARE_CLASS(CDLG_List_Grid)
+	DECLARE_EVENT_TABLE()
 
 public:
 	CDLG_List_Grid(CSG_Parameter_Grid_List *pList, wxString Caption);
+
+
+protected:
+
+	static bool					m_bExpand;
+
+
+	bool						Expand_Grids		(bool bExpand);
+
+	void						On_CheckBox			(wxCommandEvent &event);
 
 };
 

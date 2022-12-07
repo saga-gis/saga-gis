@@ -135,11 +135,26 @@ CDLG_List_Base::CDLG_List_Base(CSG_Parameter_List *pParameter, wxString Caption)
 	//-----------------------------------------------------
 	for(int i=m_pParameter->Get_Item_Count()-1; i>=0; i--)
 	{
-		CWKSP_Data_Item	*pItem	= g_pData->Get(m_pParameter->Get_Item(i));
+		CSG_Data_Object *pObject = m_pParameter->Get_Item(i);
 
-		if( pItem && SG_Get_Data_Manager().Exists(m_pParameter->Get_Item(i)) )
+		if( SG_Get_Data_Manager().Exists(pObject) )
 		{
-			m_pSelection->Insert(pItem->Get_Name(), 0, (void *)m_pParameter->Get_Item(i));
+			CWKSP_Data_Item *pItem = g_pData->Get(pObject); wxString Name;
+
+			if( pItem )
+			{
+				m_pSelection->Insert(pItem->Get_Name(), 0, (void *)pObject);
+			}
+			else if( (pItem = g_pData->Get(pObject->Get_Owner())) && pObject->Get_Owner()->asGrids() )
+			{
+				Name = pItem->Get_Name().BeforeFirst('.') + ". " + pObject->asGrid()->Get_Name();
+
+				m_pSelection->Insert(Name, 0, (void *)pObject);
+			}
+			else
+			{
+				m_pParameter->Del_Item(i);
+			}
 		}
 		else
 		{
@@ -200,21 +215,47 @@ void CDLG_List_Base::Set_Data(CWKSP_Base_Manager *pManager)
 	{
 		for(int iItem=0; iItem<pManager->Get_Count(); iItem++)
 		{
-			CWKSP_Data_Item	*pItem	= (CWKSP_Data_Item *)pManager->Get_Item(iItem);
+			CWKSP_Data_Item *pItem = (CWKSP_Data_Item *)pManager->Get_Item(iItem);
 
 			if( m_Type == SG_DATAOBJECT_TYPE_Undefined || m_Type == pItem->Get_Object()->Get_ObjectType() )
 			{
-				for(size_t j=0; j<m_pSelection->GetCount() && pItem; j++)
+				for(size_t i=0; pItem && i<m_pSelection->GetCount(); i++)
 				{
-					if( pItem->Get_Object() == m_pSelection->GetClientData(j) )
+					if( pItem->Get_Object() == m_pSelection->GetClientData(i) )
 					{
-						pItem	= NULL;
+						pItem = NULL;
 					}
 				}
 
 				if( pItem )
 				{
 					m_pChoices->Append(pItem->Get_Name(), (void *)pItem->Get_Object());
+				}
+			}
+
+			//---------------------------------------------
+			else if( m_Type == SG_DATAOBJECT_TYPE_Grid && pItem->Get_Object()->asGrids() )
+			{
+				CSG_Grids *pGrids = pItem->Get_Object()->asGrids();
+
+				for(int iGrid=0; iGrid<pGrids->Get_Grid_Count(); iGrid++)
+				{
+					CSG_Grid *pGrid = pGrids->Get_Grid_Ptr(iGrid);
+
+					for(size_t i=0; pGrid && i<m_pSelection->GetCount(); i++)
+					{
+						if( pGrid == m_pSelection->GetClientData(i) )
+						{
+							pGrid = NULL;
+						}
+					}
+
+					if( pGrid )
+					{
+						wxString Name(pItem->Get_Name() + '.' + pGrids->Get_Grid_Name(iGrid, SG_GRIDS_NAME_GRID).c_str());
+
+						m_pChoices->Append(Name, (void *)pGrid);
+					}
 				}
 			}
 		}
@@ -483,9 +524,9 @@ CDLG_List_Shapes::CDLG_List_Shapes(CSG_Parameter_Shapes_List *pList, wxString Ca
 }
 
 //---------------------------------------------------------
-void CDLG_List_Shapes::_Set_Data(void)
+bool CDLG_List_Shapes::_Set_Data(void)
 {
-	CWKSP_Shapes_Manager	*pManager	= g_pData->Get_Shapes();
+	CWKSP_Shapes_Manager *pManager = g_pData->Get_Shapes();
 
 	if( m_Shape_Type == SHAPE_TYPE_Undefined )
 	{
@@ -511,6 +552,8 @@ void CDLG_List_Shapes::_Set_Data(void)
 			Set_Data(g_pData->Get_PointClouds());
 		}
 	}
+
+	return( true );
 }
 
 
@@ -591,7 +634,7 @@ void CDLG_List_Grid_Base::On_Select_System(wxCommandEvent &event)
 }
 
 //---------------------------------------------------------
-void CDLG_List_Grid_Base::_Set_Data(void)
+bool CDLG_List_Grid_Base::_Set_Data(void)
 {
 	m_pChoices->Clear();
 
@@ -601,11 +644,11 @@ void CDLG_List_Grid_Base::_Set_Data(void)
 	}
 	else if( m_pSystems )
 	{
-		CWKSP_Grid_Manager	*pManager	= g_pData->Get_Grids();
+		CWKSP_Grid_Manager *pManager = g_pData->Get_Grids();
 
 		if( pManager )
 		{
-			int	iSystem	= m_pSystems->GetSelection();
+			int iSystem = m_pSystems->GetSelection();
 
 			if( 0 <= iSystem && iSystem < pManager->Get_Count() )
 			{
@@ -620,6 +663,8 @@ void CDLG_List_Grid_Base::_Set_Data(void)
 			}
 		}
 	}
+
+	return( true );
 }
 
 
@@ -633,10 +678,18 @@ void CDLG_List_Grid_Base::_Set_Data(void)
 IMPLEMENT_CLASS(CDLG_List_Grid, CDLG_List_Grid_Base)
 
 //---------------------------------------------------------
+BEGIN_EVENT_TABLE(CDLG_List_Grid, CDLG_List_Grid_Base)
+	EVT_CHECKBOX(wxID_ANY, CDLG_List_Grid::On_CheckBox)
+END_EVENT_TABLE()
+
+//---------------------------------------------------------
+bool CDLG_List_Grid::m_bExpand = false;
+
+//---------------------------------------------------------
 CDLG_List_Grid::CDLG_List_Grid(CSG_Parameter_Grid_List *pList, wxString Caption)
 	: CDLG_List_Grid_Base(pList, Caption)
 {
-	CWKSP_Grid_Manager	*pManager	= g_pData->Get_Grids();
+	CWKSP_Grid_Manager *pManager = g_pData->Get_Grids();
 
 	if( pManager == NULL )
 	{
@@ -662,7 +715,58 @@ CDLG_List_Grid::CDLG_List_Grid(CSG_Parameter_Grid_List *pList, wxString Caption)
 		m_pSystems->SetSelection(m_pSystems->GetCount() - 1);
 	}
 
-	_Set_Data();
+	if( pList->is_Input() )
+	{
+		m_Type = m_bExpand ? SG_DATAOBJECT_TYPE_Grid : SG_DATAOBJECT_TYPE_Undefined;
+
+		wxCheckBox *pBox = new wxCheckBox(Get_Controls(), wxID_ANY, _TL("Expand"));
+		pBox->SetValue(m_Type == SG_DATAOBJECT_TYPE_Grid);
+		Add_Control(pBox);
+
+		Expand_Grids(m_bExpand);
+	}
+	else
+	{
+		_Set_Data();
+	}
+}
+
+//---------------------------------------------------------
+bool CDLG_List_Grid::Expand_Grids(bool bExpand)
+{
+	#define REMOVE_GRIDS(pList) for(int i=pList->GetCount()-1; i>=0; i--) {\
+		CSG_Data_Object *pObject = (CSG_Data_Object *)pList->GetClientData((size_t)i);\
+		if( bExpand )\
+		{ if( pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grids                        ) { pList->Delete((size_t)i); } }\
+		else\
+		{ if( pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid && pObject->Get_Owner() ) { pList->Delete((size_t)i); } }\
+	}
+
+	if( bExpand == true  )
+	{
+		m_bExpand =  true; m_Type = SG_DATAOBJECT_TYPE_Grid;
+
+		REMOVE_GRIDS(m_pChoices); REMOVE_GRIDS(m_pSelection);
+
+		return( _Set_Data() );
+	}
+
+	if( bExpand == false )
+	{
+		m_bExpand = false; m_Type = SG_DATAOBJECT_TYPE_Undefined;
+
+		REMOVE_GRIDS(m_pChoices); REMOVE_GRIDS(m_pSelection);
+
+		return( _Set_Data() );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+void CDLG_List_Grid::On_CheckBox(wxCommandEvent &event)
+{
+	Expand_Grids(event.IsChecked());
 }
 
 
