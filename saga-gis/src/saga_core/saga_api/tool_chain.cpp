@@ -713,7 +713,7 @@ bool CSG_Tool_Chain::Data_Finalize(void)
 		{
 			CSG_Parameter	*pParameter	= Parameters(Parameter.Get_Property("varname"));
 
-			if( pParameter && pParameter->is_DataObject() && pParameter->asDataObject() )
+			if( pParameter && pParameter->is_DataObject() && pParameter->asDataObject() && pParameter->asDataObject() != DATAOBJECT_CREATE )
 			{
 				if( Parameter("colours") )
 				{
