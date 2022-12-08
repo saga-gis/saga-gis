@@ -117,48 +117,47 @@ END_EVENT_TABLE()
 CDLG_List_Base::CDLG_List_Base(CSG_Parameter_List *pParameter, wxString Caption)
 	: CDLG_Base(-1, Caption)
 {
-	m_pParameter	= pParameter;
-	m_Type			= SG_DATAOBJECT_TYPE_Undefined;
+	m_pParameter   = pParameter;
+	m_Type         = SG_DATAOBJECT_TYPE_Undefined;
 
-	m_pChoices		= new wxListBox(this, ID_LISTBOX_SELECT, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_EXTENDED|wxLB_NEEDED_SB);
-	m_pSelection	= new wxListBox(this, ID_LISTBOX_ADD   , wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_EXTENDED|wxLB_NEEDED_SB);
+	m_pChoices     = new wxListBox(this, ID_LISTBOX_SELECT, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_EXTENDED|wxLB_NEEDED_SB);
+	m_pSelection   = new wxListBox(this, ID_LISTBOX_ADD   , wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_EXTENDED|wxLB_NEEDED_SB);
 
-	m_pBtn_Add_All	= new wxButton (this, ID_BTN_ADD_ALL   , ">>");
-	m_pBtn_Add		= new wxButton (this, ID_BTN_ADD       , ">" );
-	m_pBtn_Del		= new wxButton (this, ID_BTN_DELETE    , "<" );
-	m_pBtn_Del_All	= new wxButton (this, ID_BTN_DELETE_ALL, "<<");
-	m_pBtn_Up		= new wxButton (this, ID_BTN_UP        , CTRL_Get_Name(ID_BTN_UP));
-	m_pBtn_Down		= new wxButton (this, ID_BTN_DOWN      , CTRL_Get_Name(ID_BTN_DOWN));
+	m_pBtn_Add_All = new wxButton (this, ID_BTN_ADD_ALL   , ">>");
+	m_pBtn_Add     = new wxButton (this, ID_BTN_ADD       , ">" );
+	m_pBtn_Del     = new wxButton (this, ID_BTN_DELETE    , "<" );
+	m_pBtn_Del_All = new wxButton (this, ID_BTN_DELETE_ALL, "<<");
+	m_pBtn_Up      = new wxButton (this, ID_BTN_UP        , CTRL_Get_Name(ID_BTN_UP));
+	m_pBtn_Down    = new wxButton (this, ID_BTN_DOWN      , CTRL_Get_Name(ID_BTN_DOWN));
 
-	m_Btn_Height	= m_pBtn_Add->GetDefaultSize().y;
+	m_Btn_Height   = m_pBtn_Add->GetDefaultSize().y;
 
 	//-----------------------------------------------------
 	for(int i=m_pParameter->Get_Item_Count()-1; i>=0; i--)
 	{
-		CSG_Data_Object *pObject = m_pParameter->Get_Item(i);
+		wxString Name; CSG_Data_Object *pObject = m_pParameter->Get_Item(i);
 
 		if( SG_Get_Data_Manager().Exists(pObject) )
 		{
-			CWKSP_Data_Item *pItem = g_pData->Get(pObject); wxString Name;
+			CWKSP_Data_Item *pItem = g_pData->Get(pObject);
 
 			if( pItem )
 			{
-				m_pSelection->Insert(pItem->Get_Name(), 0, (void *)pObject);
+				Name = pItem->Get_Name();
 			}
 			else if( (pItem = g_pData->Get(pObject->Get_Owner())) && pObject->Get_Owner()->asGrids() )
 			{
-				Name = pItem->Get_Name().BeforeFirst('.') + ". " + pObject->asGrid()->Get_Name();
+				Name = pItem->Get_Name().BeforeFirst('.') + ". " + pObject->Get_Name();
+			}
+		}
 
-				m_pSelection->Insert(Name, 0, (void *)pObject);
-			}
-			else
-			{
-				m_pParameter->Del_Item(i);
-			}
+		if( Name.IsEmpty() )
+		{
+			m_pParameter->Del_Item(i);
 		}
 		else
 		{
-			m_pParameter->Del_Item(i);
+			m_pSelection->Insert(Name, 0, (void *)pObject);
 		}
 	}
 
@@ -174,33 +173,18 @@ CDLG_List_Base::CDLG_List_Base(CSG_Parameter_List *pParameter, wxString Caption)
 //---------------------------------------------------------
 void CDLG_List_Base::Set_Position(wxRect r)
 {
-	r.Deflate(5);
+	r.Deflate(5); int Center = r.GetLeft() + r.GetWidth() / 2;
 
-	int	Center	= r.GetLeft() + r.GetWidth() / 2;
+	r.SetWidth(r.GetWidth() / 2 - (DLG_LIST_BTN_WIDTH / 2 + DLG_LIST_BTN_DIST)); m_pChoices  ->SetSize(r);
+	r.SetLeft (Center           + (DLG_LIST_BTN_WIDTH / 2 + DLG_LIST_BTN_DIST)); m_pSelection->SetSize(r);
 
-	r.SetWidth(r.GetWidth() / 2 - (DLG_LIST_BTN_WIDTH / 2 + DLG_LIST_BTN_DIST));
-	m_pChoices->SetSize(r);
-
-	r.SetLeft(Center            + (DLG_LIST_BTN_WIDTH / 2 + DLG_LIST_BTN_DIST));
-	m_pSelection->SetSize(r);
-
-	r		= wxRect(Center - DLG_LIST_BTN_WIDTH / 2, r.GetTop(), DLG_LIST_BTN_WIDTH, m_Btn_Height);
-	m_pBtn_Add_All->SetSize(r);
-
-	r.SetTop(r.GetBottom() + DLG_LIST_BTN_DIST);
-	m_pBtn_Add->SetSize(r);
-
-	r.SetTop(r.GetBottom() + DLG_LIST_BTN_DIST * 2);
-	m_pBtn_Del->SetSize(r);
-
-	r.SetTop(r.GetBottom() + DLG_LIST_BTN_DIST);
-	m_pBtn_Del_All->SetSize(r);
-
-	r.SetTop(r.GetBottom() + DLG_LIST_BTN_DIST * 2);
-	m_pBtn_Up->SetSize(r);
-
-	r.SetTop(r.GetBottom() + DLG_LIST_BTN_DIST);
-	m_pBtn_Down->SetSize(r);
+	r = wxRect(Center - DLG_LIST_BTN_WIDTH / 2, r.GetTop(), DLG_LIST_BTN_WIDTH, m_Btn_Height);
+	                                                 m_pBtn_Add_All->SetSize(r);
+	r.SetTop(r.GetBottom() + DLG_LIST_BTN_DIST    ); m_pBtn_Add    ->SetSize(r);
+	r.SetTop(r.GetBottom() + DLG_LIST_BTN_DIST * 2); m_pBtn_Del    ->SetSize(r);
+	r.SetTop(r.GetBottom() + DLG_LIST_BTN_DIST    ); m_pBtn_Del_All->SetSize(r);
+	r.SetTop(r.GetBottom() + DLG_LIST_BTN_DIST * 2); m_pBtn_Up     ->SetSize(r);
+	r.SetTop(r.GetBottom() + DLG_LIST_BTN_DIST    ); m_pBtn_Down   ->SetSize(r);
 }
 
 
@@ -252,9 +236,9 @@ void CDLG_List_Base::Set_Data(CWKSP_Base_Manager *pManager)
 
 					if( pGrid )
 					{
-						wxString Name(pItem->Get_Name() + '.' + pGrids->Get_Grid_Name(iGrid, SG_GRIDS_NAME_GRID).c_str());
+						wxString Name(pItem->Get_Name().BeforeFirst('.'));
 
-						m_pChoices->Append(Name, (void *)pGrid);
+						m_pChoices->Append(Name +  + ". " + pGrid->Get_Name(), (void *)pGrid);
 					}
 				}
 			}
@@ -698,20 +682,20 @@ CDLG_List_Grid::CDLG_List_Grid(CSG_Parameter_Grid_List *pList, wxString Caption)
 	}
 	else if( pList->Get_System() )
 	{
-		m_pSystem	= pManager->Get_System(*pList->Get_System());
-		m_pSystems	= NULL;
+		m_pSystem  = pManager->Get_System(*pList->Get_System());
+		m_pSystems = NULL;
 	}
 	else
 	{
-		m_pSystem	= NULL;
-		m_pSystems	= new wxChoice(this, ID_COMBOBOX_SELECT, wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
+		m_pSystem  = NULL;
+		m_pSystems = new wxChoice(this, ID_COMBOBOX_SELECT, wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
 
 		for(int i=0; i<pManager->Get_Count(); i++)
 		{
 			m_pSystems->Append(pManager->Get_System(i)->Get_Name());
 		}
 
-		m_pSystems->Append( _TL("<all grid systems>") );
+		m_pSystems->Append(_TL("<all grid systems>"));
 		m_pSystems->SetSelection(m_pSystems->GetCount() - 1);
 	}
 
@@ -720,6 +704,7 @@ CDLG_List_Grid::CDLG_List_Grid(CSG_Parameter_Grid_List *pList, wxString Caption)
 		m_Type = m_bExpand ? SG_DATAOBJECT_TYPE_Grid : SG_DATAOBJECT_TYPE_Undefined;
 
 		wxCheckBox *pBox = new wxCheckBox(Get_Controls(), wxID_ANY, _TL("Expand"));
+		pBox->SetToolTip(_TL("Check this to list the single grids of a grid collection"));
 		pBox->SetValue(m_Type == SG_DATAOBJECT_TYPE_Grid);
 		Add_Control(pBox);
 
@@ -734,19 +719,24 @@ CDLG_List_Grid::CDLG_List_Grid(CSG_Parameter_Grid_List *pList, wxString Caption)
 //---------------------------------------------------------
 bool CDLG_List_Grid::Expand_Grids(bool bExpand)
 {
-	#define REMOVE_GRIDS(pList) for(int i=pList->GetCount()-1; i>=0; i--) {\
-		CSG_Data_Object *pObject = (CSG_Data_Object *)pList->GetClientData((size_t)i);\
-		if( bExpand )\
-		{ if( pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grids                        ) { pList->Delete((size_t)i); } }\
-		else\
-		{ if( pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid && pObject->Get_Owner() ) { pList->Delete((size_t)i); } }\
-	}
-
 	if( bExpand == true  )
 	{
 		m_bExpand =  true; m_Type = SG_DATAOBJECT_TYPE_Grid;
 
-		REMOVE_GRIDS(m_pChoices); REMOVE_GRIDS(m_pSelection);
+		#define EXPAND_GRIDS(pList) for(int i=pList->GetCount()-1; i>=0; i--) {\
+			CSG_Grids *pGrids = ((CSG_Data_Object *)pList->GetClientData((size_t)i))->asGrids();\
+			if( pGrids ) { wxString Name(pList->GetString(i).BeforeFirst('.')); pList->Delete((size_t)i);\
+				for(int iGrid=pGrids->Get_Grid_Count()-1; iGrid>=0; iGrid--)\
+				{	CSG_Grid *pGrid = pGrids->Get_Grid_Ptr(iGrid);\
+					if( (size_t)i >= pList->GetCount() )\
+					pList->Append(Name + '.' + ". " + pGrid->Get_Name()   , (void *)pGrid);\
+					else\
+					pList->Insert(Name + '.' + ". " + pGrid->Get_Name(), i, (void *)pGrid);\
+				}\
+			}\
+		}
+
+		EXPAND_GRIDS(m_pChoices); EXPAND_GRIDS(m_pSelection);
 
 		return( _Set_Data() );
 	}
@@ -754,6 +744,14 @@ bool CDLG_List_Grid::Expand_Grids(bool bExpand)
 	if( bExpand == false )
 	{
 		m_bExpand = false; m_Type = SG_DATAOBJECT_TYPE_Undefined;
+
+		#define REMOVE_GRIDS(pList) for(int i=pList->GetCount()-1; i>=0; i--) {\
+			CSG_Data_Object *pObject = (CSG_Data_Object *)pList->GetClientData((size_t)i);\
+			if( pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid && pObject->Get_Owner() )\
+			{\
+				pList->Delete((size_t)i);\
+			}\
+		}
 
 		REMOVE_GRIDS(m_pChoices); REMOVE_GRIDS(m_pSelection);
 
