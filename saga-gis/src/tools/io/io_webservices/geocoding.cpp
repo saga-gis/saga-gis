@@ -125,7 +125,8 @@ CGeoCoding::CGeoCoding(void)
 	Parameters.Add_String("PROVIDER",
 		"API_KEY"	, _TL("API Key"),
 		_TL(""),
-		""
+		"",
+		false, true
 	);
 
 	Parameters.Add_Bool("",
