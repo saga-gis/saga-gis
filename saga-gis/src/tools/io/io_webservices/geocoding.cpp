@@ -195,10 +195,10 @@ bool CGeoCoding::On_Execute(void)
 	switch( Provider )
 	{
 	default: Connection.Create("https://nominatim.openstreetmap.org"); break;	// Nominatim
-	case  1: Connection.Create("http://www.datasciencetoolkit.org"  ); break;	// The Data Science Toolkit
-	case  2: Connection.Create("http://maps.googleapis.com"         ); break;	// Google
-	case  3: Connection.Create("http://dev.virtualearth.net"        ); break;	// Bing
-	case  4: Connection.Create("http://www.mapquestapi.com"         ); break;	// MapQuest
+	case  1: Connection.Create("https://www.datasciencetoolkit.org" ); break;	// The Data Science Toolkit
+	case  2: Connection.Create("https://maps.googleapis.com"        ); break;	// Google
+	case  3: Connection.Create("https://dev.virtualearth.net"       ); break;	// Bing
+	case  4: Connection.Create("https://www.mapquestapi.com"        ); break;	// MapQuest
 	}
 
 	if( !Connection.is_Connected() )
