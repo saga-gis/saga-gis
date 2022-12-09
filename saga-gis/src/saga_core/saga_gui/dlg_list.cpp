@@ -704,7 +704,7 @@ CDLG_List_Grid::CDLG_List_Grid(CSG_Parameter_Grid_List *pList, wxString Caption)
 		m_Type = m_bExpand ? SG_DATAOBJECT_TYPE_Grid : SG_DATAOBJECT_TYPE_Undefined;
 
 		wxCheckBox *pBox = new wxCheckBox(Get_Controls(), wxID_ANY, _TL("Expand"));
-		pBox->SetToolTip(_TL("Check this to list the single grids of a grid collection"));
+		pBox->SetToolTip(_TL("Check this to list the single grids of grid collections"));
 		pBox->SetValue(m_Type == SG_DATAOBJECT_TYPE_Grid);
 		Add_Control(pBox);
 
@@ -729,9 +729,9 @@ bool CDLG_List_Grid::Expand_Grids(bool bExpand)
 				for(int iGrid=pGrids->Get_Grid_Count()-1; iGrid>=0; iGrid--)\
 				{	CSG_Grid *pGrid = pGrids->Get_Grid_Ptr(iGrid);\
 					if( (size_t)i >= pList->GetCount() )\
-					pList->Append(Name + '.' + ". " + pGrid->Get_Name()   , (void *)pGrid);\
+					pList->Append(Name + ". " + pGrid->Get_Name()   , (void *)pGrid);\
 					else\
-					pList->Insert(Name + '.' + ". " + pGrid->Get_Name(), i, (void *)pGrid);\
+					pList->Insert(Name + ". " + pGrid->Get_Name(), i, (void *)pGrid);\
 				}\
 			}\
 		}
