@@ -520,7 +520,7 @@ bool CQGIS_ToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_String &Paramet
 	//	pParameter->asFilePath()->is_Multiple ();
 		break;
 
-	case PARAMETER_TYPE_Table_Field:
+	case PARAMETER_TYPE_Table_Field    :
 		PARAMETER_SET("Field");
 		PARAMETER_STR("None");
 		PARAMETER_STR(pParameter->Get_Parent()->Get_Identifier());
@@ -530,13 +530,15 @@ bool CQGIS_ToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_String &Paramet
 		break;
 
 	//-----------------------------------------------------
-	case PARAMETER_TYPE_Table_Fields:
-		return( false );
+	case PARAMETER_TYPE_Table_Fields   :
+		PARAMETER_SET("String");
+		PARAMETER_STR(pParameter->asString());
+		break;
 
 	case PARAMETER_TYPE_FixedTable     :
 		return( false );
 
-	case PARAMETER_TYPE_Grid_System:
+	case PARAMETER_TYPE_Grid_System    :
 		break;
 		return( pParameter->Get_Children_Count() > 0 );
 
