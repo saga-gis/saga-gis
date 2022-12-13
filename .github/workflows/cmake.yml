@@ -1,4 +1,4 @@
-name: CMake
+name: CMake Ubuntu
 
 on:
   push:
@@ -21,7 +21,7 @@ jobs:
     - uses: actions/checkout@v3
     
     - name: install build-deps
-      run: apt update && apt build-dep saga -y
+      run: sudo apt-get update && sudo apt-get build-dep saga -y
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
