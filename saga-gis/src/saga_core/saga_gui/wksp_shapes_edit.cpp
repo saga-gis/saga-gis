@@ -1054,6 +1054,8 @@ void CWKSP_Shapes::Edit_Shape_Draw_Move(wxDC &dc, const CSG_Rect &rWorld, const 
 {
 	double ClientToWorld = rWorld.Get_XRange() / (double)dc.GetSize().x;
 
+	int c = m_Parameters("EDIT_COLOR")->asColor(); dc.SetPen(wxColour(SG_GET_R(c), SG_GET_G(c), SG_GET_B(c)));
+
 	dc.DrawLine(Point.x, Point.y,
 		(int)((ptWorld.x - rWorld.Get_XMin()) / ClientToWorld),
 		(int)((rWorld.Get_YMax() - ptWorld.y) / ClientToWorld)
