@@ -151,7 +151,7 @@ C3D_Viewer_PointCloud_Panel::C3D_Viewer_PointCloud_Panel(wxWindow *pParent, CSG_
 	);
 
 	m_Parameters.Add_Choice("NODE_VIEW",
-		"COLORS_ATTR"	, _TL("Colour Attribute"),
+		"COLORS_ATTR"	, _TL("Color Attribute"),
 		_TL(""),
 		Attributes, Field_Color
 	);
@@ -163,7 +163,7 @@ C3D_Viewer_PointCloud_Panel::C3D_Viewer_PointCloud_Panel(wxWindow *pParent, CSG_
 	);
 
 	m_Parameters.Add_Colors("COLORS_ATTR",
-		"COLORS"		, _TL("Colours"),
+		"COLORS"		, _TL("Colors"),
 		_TL("")
 	);
 
@@ -254,12 +254,16 @@ void C3D_Viewer_PointCloud_Panel::Set_Extent(CSG_Rect Extent)
 {
 	if( Extent.Get_XRange() == 0. || Extent.Get_YRange() == 0. )
 	{
-		Extent	= m_pPoints->Get_Extent();
+		Extent = m_pPoints->Get_Extent();
+	}
+	else
+	{
+		Extent.Intersect(m_pPoints->Get_Extent());
 	}
 
 	if( Extent.is_Equal(m_Extent) == false )
 	{
-		m_Extent	= Extent;
+		m_Extent = Extent;
 			
 		Update_View(true);
 	}
@@ -467,29 +471,49 @@ bool C3D_Viewer_PointCloud_Panel::On_Draw(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define OVERVIEW_AS_PANEL
+
+//---------------------------------------------------------
+#ifdef OVERVIEW_AS_PANEL
+class CPointCloud_Overview : public wxPanel
+#else
 class CPointCloud_Overview : public wxDialog
+#endif
 {
 public:
-	CPointCloud_Overview(void)	{}
-
-	void						Create			(wxWindow *pParent, CSG_PointCloud *pPoints, C3D_Viewer_PointCloud_Panel *pPanel)
+	CPointCloud_Overview(wxWindow *pParent, CSG_PointCloud *pPoints, C3D_Viewer_PointCloud_Panel *pPanel)
+	#ifdef OVERVIEW_AS_PANEL
+		: wxPanel (pParent, wxID_ANY, wxDefaultPosition, wxSize(200, 200), wxTAB_TRAVERSAL|wxSTATIC_BORDER|wxNO_FULL_REPAINT_ON_RESIZE)
+	#else
+		: wxDialog(pParent, wxID_ANY, _TL("Overview"), wxDefaultPosition, wxDefaultSize, wxCAPTION|wxCLOSE_BOX|wxSTAY_ON_TOP)
+	#endif
 	{
-		m_pPanel	= pPanel;
+		m_pPanel = pPanel;
 
-		wxDialog::Create(pParent, wxID_ANY, _TL("Overview"), wxDefaultPosition, wxDefaultSize,
-			wxCAPTION|wxCLOSE_BOX|wxSTAY_ON_TOP
-		);
+		double Ratio = pPoints->Get_Extent().Get_XRange() / pPoints->Get_Extent().Get_YRange();
 
-		//-------------------------------------------------
-		m_Ratio	= pPoints->Get_Extent().Get_XRange() / pPoints->Get_Extent().Get_YRange();
+		int Size = GetClientSize().GetWidth(); CSG_Rect r(pPoints->Get_Extent()); CSG_Grid_System System;
 
-		CSG_Grid_System	System(m_Ratio > 1.
-			? pPoints->Get_Extent().Get_XRange() / 100.
-			: pPoints->Get_Extent().Get_YRange() / 100.,
-			pPoints->Get_Extent()
-		);
+	#ifdef OVERVIEW_AS_PANEL
+		if( Ratio > 1. )
+		{
+			System.Create(r.Get_XRange() / 100.,
+				r.Get_XMin(), r.Get_YCenter() - r.Get_XRange() / 2.,
+				r.Get_XMax(), r.Get_YCenter() + r.Get_XRange() / 2.
+			);
+		}
+		else
+		{
+			System.Create(r.Get_YRange() / 100.,
+				r.Get_XCenter() - r.Get_YRange() / 2., r.Get_YMin(),
+				r.Get_XCenter() + r.Get_YRange() / 2., r.Get_YMax()
+			);
+		}
+	#else
+		System.Create((Ratio > 1. ? r.Get_XRange() : r.Get_YRange()) / 100., pPoints->Get_Extent());
+	#endif
 
-		m_Count.Create(System, SG_DATATYPE_Int);
+		m_Count.Create(System, SG_DATATYPE_Int   );
 		m_Value.Create(System, SG_DATATYPE_Double);
 
 		for(int i=0, x, y; i<pPoints->Get_Count(); i++)
@@ -503,20 +527,25 @@ public:
 
 		m_Value.Divide(m_Count);
 
-		int	Size	= GetClientSize().GetWidth();
-
-		if( m_Ratio > 1. )
-			Set_Size(Size, (int)(Size / m_Ratio), false);
+		//-------------------------------------------------
+	#ifdef OVERVIEW_AS_PANEL
+		Set_Size(Size, Size, false);
+	#else
+		if( Ratio > 1. )
+		{
+			Set_Size(Size, (int)(Size / Ratio), false);
+		}
 		else
-			Set_Size((int)(Size * m_Ratio), Size, false);
+		{
+			Set_Size((int)(Size * Ratio), Size, false);
+		}
+	#endif
 	}
 
 
 private:
 
 	bool						m_bCount;
-
-	double						m_Ratio;
 
 	wxPoint						m_Mouse_Down;
 
@@ -562,8 +591,8 @@ private:
 		}
 		else if( m_Selection.Get_XRange() > 0. && m_Selection.Get_YRange() > 0. )
 		{
-			double	dx	= (m_Count.Get_XMin() + event.GetX() * m_Count.Get_XRange() / GetClientSize().GetWidth ()) - m_Selection.Get_XCenter();
-			double	dy	= (m_Count.Get_YMax() - event.GetY() * m_Count.Get_YRange() / GetClientSize().GetHeight()) - m_Selection.Get_YCenter();
+			double dx = (m_Count.Get_XMin() + event.GetX() * m_Count.Get_XRange() / GetClientSize().GetWidth ()) - m_Selection.Get_XCenter();
+			double dy = (m_Count.Get_YMax() - event.GetY() * m_Count.Get_YRange() / GetClientSize().GetHeight()) - m_Selection.Get_YCenter();
 
 			m_Selection.Move(dx, dy);
 
@@ -571,6 +600,13 @@ private:
 		}
 
 		Refresh(false);
+	}
+
+	//---------------------------------------------------------
+	void						On_Mouse_MDown	(wxMouseEvent &event)
+	{
+		m_pPanel->m_Parameters("OVERVIEW_ATTR")->Set_Value(m_pPanel->m_Parameters("OVERVIEW_ATTR")->asInt() ? 0 : 1);
+		Set_Image(true);
 	}
 
 	//---------------------------------------------------------
@@ -588,13 +624,8 @@ private:
 	{
 		switch( event.GetKeyCode() )
 		{
-		case WXK_PAGEUP:
-			Set_Size(GetClientSize().GetWidth() * 1.25, GetClientSize().GetHeight() * 1.25, true);
-			break;
-
-		case WXK_PAGEDOWN:
-			Set_Size(GetClientSize().GetWidth() / 1.25, GetClientSize().GetHeight() / 1.25, true);
-			break;
+		case WXK_PAGEUP  : Set_Size(GetClientSize().GetWidth() * 1.25, GetClientSize().GetHeight() * 1.25, true); break;
+		case WXK_PAGEDOWN: Set_Size(GetClientSize().GetWidth() / 1.25, GetClientSize().GetHeight() / 1.25, true); break;
 
 		case WXK_SPACE:
 			m_pPanel->m_Parameters("OVERVIEW_ATTR")->Set_Value(m_pPanel->m_Parameters("OVERVIEW_ATTR")->asInt() ? 0 : 1);
@@ -610,9 +641,25 @@ private:
 	}
 
 	//---------------------------------------------------------
+	void						Set_Size		(int Width, int Height, bool bRefresh)
+	{
+		if( Width >= 100 && Height >= 100 && Width <= 1000 && Height <= 1000 )
+		{
+			SetClientSize(Width, Height);
+
+			if( !m_Image.IsOk() || m_Image.GetWidth() != Width || m_Image.GetWidth() != Width )
+			{
+				m_Image.Create(Width, Height, false);
+
+				Set_Image(bRefresh);
+			}
+		}
+	}
+
+	//---------------------------------------------------------
 	void						On_Paint		(wxPaintEvent &WXUNUSED(event))
 	{
-		wxPaintDC	dc(this);
+		wxPaintDC dc(this);
 
 		if( m_Image.IsOk() )
 		{
@@ -655,57 +702,39 @@ private:
 	}
 
 	//---------------------------------------------------------
-	void						Set_Size		(int Width, int Height, bool bRefresh)
-	{
-		if( Width < 100 || Height < 100 || Width > 1000 || Height > 1000 )
-		{
-			return;
-		}
-
-		SetClientSize(Width, Height);
-
-		if( !m_Image.IsOk() || m_Image.GetWidth() != Width )
-		{
-			m_Image.Create(Width, Height, false);
-
-			Set_Image(bRefresh);
-		}
-	}
-
-	//---------------------------------------------------------
 	void						Set_Image		(bool bRefresh)
 	{
 		if( m_Image.IsOk() && m_Count.is_Valid() )
 		{
-			bool	bCount	= m_pPanel->m_Parameters("OVERVIEW_ATTR")->asInt() == 1;
+			bool bCount = m_pPanel->m_Parameters("OVERVIEW_ATTR")->asInt() == 1;
 
-			CSG_Colors	Colors(11, SG_COLORS_RAINBOW);	Colors.Set_Color(0, m_pPanel->m_Parameters("BGCOLOR")->asColor());
+			CSG_Colors Colors(11, SG_COLORS_RAINBOW); Colors.Set_Color(0, m_pPanel->m_Parameters("BGCOLOR")->asColor());
 
-			double	dx	= m_Count.Get_XRange() / (double)m_Image.GetWidth ();
-			double	dy	= m_Count.Get_YRange() / (double)m_Image.GetHeight();
-			double	dz	= (Colors.Get_Count() - 2.) / (bCount ? log(1. + m_Count.Get_Max()) : 4. * m_Value.Get_StdDev());
+			double dx = m_Count.Get_XRange() / (double)m_Image.GetWidth ();
+			double dy = m_Count.Get_YRange() / (double)m_Image.GetHeight();
+			double dz = (Colors.Get_Count() - 2.) / (bCount ? log(1. + m_Count.Get_Max()) : 4. * m_Value.Get_StdDev());
 
 			#pragma omp parallel for
 			for(int y=0; y<m_Image.GetHeight(); y++)
 			{
-				double	iz, ix = m_Count.Get_XMin(), iy = m_Count.Get_YMax() - y * dy;
+				double iz, ix = m_Count.Get_XMin(), iy = m_Count.Get_YMax() - y * dy;
 
 				for(int x=0; x<m_Image.GetWidth(); x++, ix+=dx)
 				{
 					if( bCount )
 					{
-						iz	= dz * (m_Count.Get_Value(ix, iy, iz) && iz > 0. ? log(1. + iz) : 0.);
+						iz = dz * (m_Count.Get_Value(ix, iy, iz) && iz > 0. ? log(1. + iz) : 0.);
 					}
 					else if( m_Value.Get_Value(ix, iy, iz) )
 					{
-						iz	= dz * (iz - (m_Value.Get_Mean() - 2. * m_Value.Get_StdDev()));
+						iz = dz * (iz - (m_Value.Get_Mean() - 2. * m_Value.Get_StdDev()));
 					}
 					else
 					{
-						iz	= 0.;
+						iz = 0.;
 					}
 
-					int	ic	= Colors.Get_Interpolated(iz);
+					int ic = Colors.Get_Interpolated(iz);
 
 					m_Image.SetRGB(x, y, SG_GET_R(ic), SG_GET_G(ic), SG_GET_B(ic));
 				}
@@ -718,20 +747,24 @@ private:
 		}
 	}
 
-
+	//-----------------------------------------------------
 	DECLARE_EVENT_TABLE()
-
 };
 
 //---------------------------------------------------------
+#ifdef OVERVIEW_AS_PANEL
+BEGIN_EVENT_TABLE(CPointCloud_Overview, wxPanel)
+#else
 BEGIN_EVENT_TABLE(CPointCloud_Overview, wxDialog)
-	EVT_LEFT_DOWN	(CPointCloud_Overview::On_Mouse_LDown)
-	EVT_LEFT_UP		(CPointCloud_Overview::On_Mouse_LUp)
-	EVT_RIGHT_DOWN	(CPointCloud_Overview::On_Mouse_RDown)
-	EVT_MOTION		(CPointCloud_Overview::On_Mouse_Motion)
-	EVT_KEY_DOWN	(CPointCloud_Overview::On_Key_Down)
-	EVT_CLOSE		(CPointCloud_Overview::On_Close)
-	EVT_PAINT		(CPointCloud_Overview::On_Paint)
+	EVT_CLOSE     (CPointCloud_Overview::On_Close)
+#endif
+	EVT_LEFT_DOWN  (CPointCloud_Overview::On_Mouse_LDown)
+	EVT_LEFT_UP    (CPointCloud_Overview::On_Mouse_LUp)
+	EVT_MIDDLE_DOWN(CPointCloud_Overview::On_Mouse_MDown)
+	EVT_RIGHT_DOWN (CPointCloud_Overview::On_Mouse_RDown)
+	EVT_MOTION     (CPointCloud_Overview::On_Mouse_Motion)
+	EVT_KEY_DOWN   (CPointCloud_Overview::On_Key_Down)
+	EVT_PAINT      (CPointCloud_Overview::On_Paint)
 END_EVENT_TABLE()
 
 
@@ -750,22 +783,36 @@ public:
 	{
 		Create(new C3D_Viewer_PointCloud_Panel(this, pPoints, Field_Color));
 
-		wxArrayString Attributes;
-
-		for(int i=0; i<pPoints->Get_Field_Count(); i++)
-		{
-			Attributes.Add(pPoints->Get_Field_Name(i));
-		}
-
+		//-------------------------------------------------
 		Add_Spacer();
-		m_pField_C  = Add_Choice  (_TL("Colour"), Attributes, Field_Color);
+
+		wxArrayString Fields; for(int i=0; i<pPoints->Get_Field_Count(); i++) { Fields.Add(pPoints->Get_Field_Name(i)); }
+
+		m_pField_C  = Add_Choice  (_TL("Color"), Fields, Field_Color);
+
+		//-------------------------------------------------
 		Add_Spacer();
+
 		m_pDetail   = Add_Slider  (_TL("Level of Detail"), m_pPanel->m_Parameters("DETAIL")->asDouble(), 0., 100.);
-		Add_Spacer();
-		m_pOverview = Add_CheckBox(_TL("Overview"), false);
 
-		m_Overview.Create(this, pPoints, (C3D_Viewer_PointCloud_Panel *)m_pPanel);
+		//-------------------------------------------------
+		Add_Spacer();
+
+		m_pOverview = new CPointCloud_Overview(this, pPoints, (C3D_Viewer_PointCloud_Panel *)m_pPanel);
+
+	#ifdef OVERVIEW_AS_PANEL
+		Add_CustomCtrl("", m_pOverview);
+	#else
+		m_pOverview_Check = Add_CheckBox(_TL("Overview"), false);
+	#endif
 	}
+
+#ifndef OVERVIEW_AS_PANEL
+	virtual ~C3D_Viewer_PointCloud_Dialog(void)
+	{
+		m_pOverview->Destroy();
+	}
+#endif
 
 	virtual void				Update_Controls			(void);
 
@@ -774,32 +821,45 @@ protected:
 
 	wxChoice					*m_pField_C;
 
-	wxCheckBox					*m_pOverview;
-
 	CSGDI_Slider				*m_pDetail;
 
+	CPointCloud_Overview		*m_pOverview;
 
-	CPointCloud_Overview		m_Overview;
+#ifndef OVERVIEW_AS_PANEL
+	wxCheckBox					*m_pOverview_Check;
+#endif
 
 
-	virtual void				On_Update_Choices		(wxCommandEvent &event);
-	virtual void				On_Update_Control		(wxCommandEvent &event);
+	//-----------------------------------------------------
+	enum
+	{
+		MENU_SCALE_Z_DEC = MENU_USER_FIRST,
+		MENU_SCALE_Z_INC,
+		MENU_VAL_AS_RGB,
+		MENU_COLORS_GRAD,
+		MENU_SIZE_DEC,
+		MENU_SIZE_INC,
+		MENU_SIZE_SCALE_DEC,
+		MENU_SIZE_SCALE_INC
+	};
+
+	//-----------------------------------------------------
+	virtual void				On_Update_Choices		(wxCommandEvent  &event);
+	virtual void				On_Update_Control		(wxCommandEvent  &event);
 
 	virtual void				Set_Menu				(wxMenu &Menu);
-	virtual void				On_Menu					(wxCommandEvent &event);
+	virtual void				On_Menu					(wxCommandEvent  &event);
 	virtual void				On_Menu_UI				(wxUpdateUIEvent &event);
 
 
-private:
-
+	//-----------------------------------------------------
 	DECLARE_EVENT_TABLE()
-
 };
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(C3D_Viewer_PointCloud_Dialog, CSG_3DView_Dialog)
-	EVT_CHECKBOX	(wxID_ANY, C3D_Viewer_PointCloud_Dialog::On_Update_Control)
-	EVT_CHOICE		(wxID_ANY, C3D_Viewer_PointCloud_Dialog::On_Update_Choices)
+	EVT_CHECKBOX(wxID_ANY, C3D_Viewer_PointCloud_Dialog::On_Update_Control)
+	EVT_CHOICE  (wxID_ANY, C3D_Viewer_PointCloud_Dialog::On_Update_Choices)
 END_EVENT_TABLE()
 
 //---------------------------------------------------------
@@ -823,14 +883,16 @@ void C3D_Viewer_PointCloud_Dialog::On_Update_Control(wxCommandEvent &event)
 		m_pPanel->Update_View();
 	}
 
-	if( event.GetEventObject() == m_pOverview )
+#ifndef OVERVIEW_AS_PANEL
+	if( event.GetEventObject() == m_pOverview_Check )
 	{
-#ifdef _SAGA_MSW
-		m_Overview.Show(m_pOverview->GetValue() == 1 ? true : false);	// unluckily this does not work with linux (broken event handler chain, non-modal dialog as subprocess of a modal one!!)
-#else
-		m_Overview.ShowModal();
-#endif
+	#ifdef _SAGA_MSW
+		m_pOverview->Show(m_pOverview_Check->GetValue() == 1 ? true : false);	// unluckily this does not work with linux (broken event handler chain, non-modal dialog as subprocess of a modal one!!)
+	#else
+		m_pOverview->ShowModal();
+	#endif
 	}
+#endif
 
 	CSG_3DView_Dialog::On_Update_Control(event);
 }
@@ -840,28 +902,17 @@ void C3D_Viewer_PointCloud_Dialog::Update_Controls(void)
 {
 	m_pField_C->SetSelection(m_pPanel->m_Parameters("COLORS_ATTR")->asInt());
 
-	m_pOverview->SetValue(m_Overview.IsShown());
+#ifndef OVERVIEW_AS_PANEL
+	m_pOverview_Check->SetValue(m_pOverview->IsShown());
+#endif
 
 	CSG_3DView_Dialog::Update_Controls();
 }
 
 //---------------------------------------------------------
-enum
-{
-	MENU_SCALE_Z_DEC	= MENU_USER_FIRST,
-	MENU_SCALE_Z_INC,
-	MENU_VAL_AS_RGB,
-	MENU_COLORS_GRAD,
-	MENU_SIZE_DEC,
-	MENU_SIZE_INC,
-	MENU_SIZE_SCALE_DEC,
-	MENU_SIZE_SCALE_INC
-};
-
-//---------------------------------------------------------
 void C3D_Viewer_PointCloud_Dialog::Set_Menu(wxMenu &Menu)
 {
-	wxMenu	*pMenu	= Menu.FindChildItem(Menu.FindItem(_TL("Display")))->GetSubMenu();
+	wxMenu *pMenu = Menu.FindChildItem(Menu.FindItem(_TL("Display")))->GetSubMenu();
 
 	pMenu->AppendSeparator();
 	pMenu->Append         (MENU_SCALE_Z_DEC   , _TL("Decrease Exaggeration [F1]"));
@@ -877,7 +928,7 @@ void C3D_Viewer_PointCloud_Dialog::Set_Menu(wxMenu &Menu)
 
 	pMenu->AppendSeparator();
 	pMenu->AppendCheckItem(MENU_VAL_AS_RGB    , _TL("Value as RGB"));
-	pMenu->AppendCheckItem(MENU_COLORS_GRAD   , _TL("Graduated Colours"));
+	pMenu->AppendCheckItem(MENU_COLORS_GRAD   , _TL("Graduated Colors"));
 }
 
 //---------------------------------------------------------
