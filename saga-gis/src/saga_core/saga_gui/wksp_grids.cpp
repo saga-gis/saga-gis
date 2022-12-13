@@ -336,9 +336,9 @@ bool CWKSP_Grids::Set_Grid_Choices(CSG_Parameters *pParameters)
 
 	if( (*pParameters)("BAND"  ) ) { (*pParameters)("BAND"  )->asChoice()->Set_Items(List); }
 
-	if( (*pParameters)("BAND_R") ) { (*pParameters)("BAND_R")->asChoice()->Set_Items(List); if( bReset ) (*pParameters)("BAND_R")->Set_Value(0); }
+	if( (*pParameters)("BAND_R") ) { (*pParameters)("BAND_R")->asChoice()->Set_Items(List); if( bReset ) (*pParameters)("BAND_R")->Set_Value(2); }
 	if( (*pParameters)("BAND_G") ) { (*pParameters)("BAND_G")->asChoice()->Set_Items(List); if( bReset ) (*pParameters)("BAND_G")->Set_Value(1); }
-	if( (*pParameters)("BAND_B") ) { (*pParameters)("BAND_B")->asChoice()->Set_Items(List); if( bReset ) (*pParameters)("BAND_B")->Set_Value(2); }
+	if( (*pParameters)("BAND_B") ) { (*pParameters)("BAND_B")->asChoice()->Set_Items(List); if( bReset ) (*pParameters)("BAND_B")->Set_Value(0); }
 
 	if( (*pParameters)("BAND_A") )
 	{
