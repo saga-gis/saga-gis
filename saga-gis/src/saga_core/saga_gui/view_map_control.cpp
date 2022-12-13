@@ -756,6 +756,8 @@ void CVIEW_Map_Control::On_Mouse_LUp(wxMouseEvent &event)
 		if( _Check_Interactive() )
 		{
 			g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_LUP, GET_KEYS(event));
+
+			Refresh(false);
 		}
 		else if( m_pMap->Get_Map_Layer_Active(true) )
 		{
