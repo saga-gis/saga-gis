@@ -414,9 +414,9 @@ void CSG_3DView_Panel::On_Mouse_LDown(wxMouseEvent &event)
 {
 	SetFocus();
 
-	m_Down_Screen	= event.GetPosition();
-	m_Down_Value.x	= m_Projector.Get_zRotation();
-	m_Down_Value.y	= m_Projector.Get_xRotation();
+	m_Down_Screen  = event.GetPosition();
+	m_Down_Value.x = m_Projector.Get_zRotation();
+	m_Down_Value.y = m_Projector.Get_xRotation();
 
 	CaptureMouse();
 }
@@ -443,9 +443,9 @@ void CSG_3DView_Panel::On_Mouse_RDown(wxMouseEvent &event)
 {
 	SetFocus();
 
-	m_Down_Screen	= event.GetPosition();
-	m_Down_Value.x	= m_Projector.Get_xShift();
-	m_Down_Value.y	= m_Projector.Get_yShift();
+	m_Down_Screen  = event.GetPosition();
+	m_Down_Value.x = m_Projector.Get_xShift();
+	m_Down_Value.y = m_Projector.Get_yShift();
 
 	CaptureMouse();
 }
@@ -472,9 +472,9 @@ void CSG_3DView_Panel::On_Mouse_MDown(wxMouseEvent &event)
 {
 	SetFocus();
 
-	m_Down_Screen	= event.GetPosition();
-	m_Down_Value.x	= m_Projector.Get_yRotation();
-	m_Down_Value.y	= m_Projector.Get_zShift();
+	m_Down_Screen  = event.GetPosition();
+	m_Down_Value.x = m_Projector.Get_yRotation();
+	m_Down_Value.y = m_Projector.Get_zShift();
 
 	CaptureMouse();
 }
