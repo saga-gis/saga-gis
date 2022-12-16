@@ -1,2 +1,1 @@
 add_subdirectory(pointcloud_tools)
-add_subdirectory(pointcloud_viewer)
