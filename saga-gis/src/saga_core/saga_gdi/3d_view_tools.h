@@ -73,8 +73,14 @@ class SGDI_API_DLL_EXPORT CSG_3DView_Projector
 public:
 	CSG_3DView_Projector(void);
 
-	void				Set_Center				(double x, double y, double z);
 	void				Set_Scale				(double Scale);
+	double				Get_Scale				(void)	const	{	return( m_Scale     );	}
+
+	void				Set_Center				(double x, double y, double z);
+	const TSG_Point_Z &	Get_Center				(void)	const	{	return( m_Center    );	}
+	double				Get_xCenter				(void)	const	{	return( m_Center.x  );	}
+	double				Get_yCenter				(void)	const	{	return( m_Center.y  );	}
+	double				Get_zCenter				(void)	const	{	return( m_Center.z  );	}
 
 	void				Set_Scaling				(double x, double y, double z);
 	void				Set_xScaling			(double x);
@@ -117,8 +123,10 @@ public:
 	void				Inc_Central_Distance	(double Distance);
 	double				Get_Central_Distance	(void)	const	{	return( m_dCentral );	}
 
-	void				Get_Projection			(TSG_Point_Z &p);
-	void				Get_Projection			(double &x, double &y, double &z);
+	void				Get_Projection			(double &x, double &y, double &z)	const;
+	void				Get_Projection			(      TSG_Point_Z &p)	const	{	return( Get_Projection(p.x, p.y, p.z) );	}
+	void				Get_Projection			(      CSG_Point_Z &p)	const	{	return( Get_Projection(p.x, p.y, p.z) );	}
+	TSG_Point_Z			Get_Projection			(const TSG_Point_Z &p)	const	{	CSG_Point_Z _p(p); Get_Projection(_p.x, _p.y, _p.z); return( _p );	}
 
 
 private:
@@ -156,9 +164,9 @@ protected:
 
 	bool						m_bBox, m_bLabels, m_bNorth, m_bStereo;
 
-	int							m_bgColor;
-	
-	double						m_dStereo, m_BoxBuffer;
+	int							m_bgColor, m_Label_Style, m_Label_Res;
+
+	double						m_dStereo, m_BoxBuffer, m_Label_Scale;
 
 	TSG_Grid_Resampling			m_Drape_Mode;
 
@@ -195,6 +203,11 @@ protected:
 
 private:
 
+	enum
+	{
+		LABEL_ALIGN_TOP, LABEL_ALIGN_LEFT, LABEL_ALIGN_BOTTOM, LABEL_ALIGN_RIGHT
+	};
+
 	int							m_Image_NX, m_Image_NY, m_Color_Mode;
 
 	BYTE						*m_Image_pRGB;
@@ -203,11 +216,16 @@ private:
 
 
 	void						_Draw_Background		(void);
+
 	void						_Draw_Get_Box			(TSG_Point_Z Box[8], bool bProjected);
 	void						_Draw_Box				(void);
+
 	void						_Draw_Labels			(void);
-	void						_Draw_Label				(double Scale, double valMin, double valMax, const TSG_Point_Z &Point, double Rx, double Ry, double Rz);
-	void						_Draw_Image				(class wxImage &Image, const CSG_Vector &Move, const CSG_Matrix &Rotate, int BGColor = -1);
+	void						_Draw_Labels			(double Min, double Max,         const TSG_Point_Z &P, double Rx, double Ry, double Rz                             , int Resolution = 100, double Scale = 1.);
+	void						_Draw_Labels			(int Axis, const TSG_Point_Z &A, const TSG_Point_Z &B, double Rx, double Ry, double Rz, int Align = LABEL_ALIGN_TOP, int Resolution = 100, double Scale = 1.);
+	void						_Draw_Label				(const CSG_String &Text,         const TSG_Point_Z &P, double Rx, double Ry, double Rz, int Align = LABEL_ALIGN_TOP, int Resolution = 100, double Scale = 1.);
+
+	void						_Draw_Image				(class wxImage &Image, const CSG_Vector &Move, const CSG_Matrix &Rotate, int BGColor = -1, int xOffset = 0, int yOffset = 0);
 
 	void						_Draw_Pixel				(int x, int y, double z, int color);
 	void						_Draw_Triangle_Line		(int y, double a[], double b[], double dim, int mode);

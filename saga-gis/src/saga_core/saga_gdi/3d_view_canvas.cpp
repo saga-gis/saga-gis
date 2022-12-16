@@ -80,16 +80,20 @@ enum
 //---------------------------------------------------------
 CSG_3DView_Canvas::CSG_3DView_Canvas(void)
 {
-	m_pDrape     = NULL;
-	m_Image_pRGB = NULL;
+	m_pDrape      = NULL;
+	m_Image_pRGB  = NULL;
 
-	m_bgColor    = SG_COLOR_WHITE;
-	m_bBox       = true;
-	m_bLabels    = false;
-	m_bNorth     = false;
-	m_BoxBuffer  = 0.01;
-	m_bStereo    = false;
-	m_dStereo    = 1.;
+	m_bgColor     = SG_COLOR_WHITE;
+	m_bBox        = true;
+	m_BoxBuffer   = 0.01;
+	m_bStereo     = false;
+	m_dStereo     = 1.;
+	m_bNorth      = false;
+
+	m_bLabels     = false;
+	m_Label_Res   = 50;
+	m_Label_Scale = 1.;
+	m_Label_Style = 0;
 }
 
 
@@ -205,29 +209,29 @@ bool CSG_3DView_Canvas::Draw(void)
 //---------------------------------------------------------
 void CSG_3DView_Canvas::_Draw_Background(void)
 {
-	BYTE	r, g, b;
+	BYTE r, g, b;
 
 	if( m_bStereo )	// greyscale
 	{
-		r	= g	= b	= (int)((SG_GET_R(m_bgColor) + SG_GET_G(m_bgColor) + SG_GET_B(m_bgColor)) / 3.);
+		r = g = b = (int)((SG_GET_R(m_bgColor) + SG_GET_G(m_bgColor) + SG_GET_B(m_bgColor)) / 3.);
 	}
 	else
 	{
-		r	= SG_GET_R(m_bgColor);
-		g	= SG_GET_G(m_bgColor);
-		b	= SG_GET_B(m_bgColor);
+		r = SG_GET_R(m_bgColor);
+		g = SG_GET_G(m_bgColor);
+		b = SG_GET_B(m_bgColor);
 	}
 
 	#pragma omp parallel for
 	for(int y=0; y<m_Image_NY; y++)
 	{
-		BYTE	*pRGB	= m_Image_pRGB + y * 3 * m_Image_NX;
+		BYTE *pRGB = m_Image_pRGB + y * 3 * m_Image_NX;
 
 		for(int x=0; x<m_Image_NX; x++)
 		{
-			*pRGB	= r;	pRGB++;
-			*pRGB	= g;	pRGB++;
-			*pRGB	= b;	pRGB++;
+			*pRGB = r; pRGB++;
+			*pRGB = g; pRGB++;
+			*pRGB = b; pRGB++;
 		}
 	}
 }
@@ -288,6 +292,14 @@ void CSG_3DView_Canvas::_Draw_Box(void)
 	Draw_Line(Box[3], Box[7], Color);
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define LABEL_SCALE 50.
+
 //---------------------------------------------------------
 void CSG_3DView_Canvas::_Draw_Labels(void)
 {
@@ -296,25 +308,58 @@ void CSG_3DView_Canvas::_Draw_Labels(void)
 		return;
 	}
 
-	TSG_Point_Z	Box[8]; _Draw_Get_Box(Box, false);
+	TSG_Point_Z Box[8]; _Draw_Get_Box(Box, false);
 
-	double Scale = (Box[1].x - Box[0].x) / 1000.;
+	int Front = 0; { TSG_Point_Z b[8]; _Draw_Get_Box(b, true); for(int j=1; j<4; j++) { if( b[j].z < b[Front].z ) Front = j; } }
 
-	_Draw_Label(Scale, Box[0].x, Box[1].x, Box[0],   0,   0,   0);
-	_Draw_Label(Scale, Box[1].y, Box[2].y, Box[1],  90,   0,   0);
-	_Draw_Label(Scale, Box[2].x, Box[3].x, Box[2], 180,   0,   0);
-	_Draw_Label(Scale, Box[3].y, Box[0].y, Box[3], 270,   0,   0);
+	switch( m_Label_Style )
+	{
+	default:
+		switch( Front )
+		{
+		default:
+			_Draw_Labels(0, Box[0], Box[1],   0,   0,   0, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
+			_Draw_Labels(1, Box[3], Box[0], 270,   0,   0, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
+			_Draw_Labels(2, Box[3], Box[7], 180,  90, 270, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
+			break;
 
-//	Scale = (Box[4].z - Box[0].z) / 1000.;
-//	_Draw_Label(Scale, Box[0].z, Box[4].z, Box[0],   0, -90,   0);
+		case  1:
+			_Draw_Labels(0, Box[0], Box[1],   0,   0,   0, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
+			_Draw_Labels(1, Box[1], Box[2],  90,   0,   0, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
+			_Draw_Labels(2, Box[0], Box[4], 180,  90, 180, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
+			break;
+
+		case  2:
+			_Draw_Labels(0, Box[2], Box[3], 180,   0,   0, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
+			_Draw_Labels(1, Box[1], Box[2],  90,   0,   0, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
+			_Draw_Labels(2, Box[1], Box[5], 180,  90,  90, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
+			break;
+
+		case  3:
+			_Draw_Labels(0, Box[2], Box[3], 180,   0,   0, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
+			_Draw_Labels(1, Box[3], Box[0], 270,   0,   0, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
+			_Draw_Labels(2, Box[2], Box[6], 180,  90,   0, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
+			break;
+		}
+		break;
+
+	case  1:
+		_Draw_Labels(Box[0].x, Box[1].x, Box[0],   0, 0, 0, m_Label_Res, m_Label_Scale);
+		_Draw_Labels(Box[1].y, Box[2].y, Box[1],  90, 0, 0, m_Label_Res, m_Label_Scale);
+		_Draw_Labels(Box[2].x, Box[3].x, Box[2], 180, 0, 0, m_Label_Res, m_Label_Scale);
+		_Draw_Labels(Box[3].y, Box[0].y, Box[3], 270, 0, 0, m_Label_Res, m_Label_Scale);
+		break;
+	}
 }
 
 //---------------------------------------------------------
-void CSG_3DView_Canvas::_Draw_Label(double Scale, double valMin, double valMax, const TSG_Point_Z &Point, double Rx, double Ry, double Rz)
+void CSG_3DView_Canvas::_Draw_Labels(double Min, double Max, const TSG_Point_Z &Point, double Rx, double Ry, double Rz, int Resolution, double Scale)
 {
-	bool bAscending = valMax > valMin; if( !bAscending ) { double val = valMin; valMin = valMax; valMax = val; }
+	bool bAscending = Max > Min; if( !bAscending ) { double val = Min; Min = Max; Max = val; }
 
-	wxSize Size((valMax - valMin) / Scale, 50);//400 / Scale);
+	Scale *= m_Projector.Get_Scale() / 1000.; Resolution /= 2;
+
+	wxSize Size((int)((Max - Min) / Scale), Resolution);
 
 	if( Size.GetWidth() < 1 || Size.GetHeight() < 1 )
 	{
@@ -329,7 +374,7 @@ void CSG_3DView_Canvas::_Draw_Label(double Scale, double valMin, double valMax, 
 	dc.SetBackground(BGColor); dc.Clear(); dc.SetPen(FGColor); dc.SetTextForeground(FGColor);
 	if( !m_bBox ) { dc.DrawLine(0, 0, Size.GetWidth(), 0); }
 
-	Draw_Scale(dc, Size, valMin, valMax, true, bAscending, true);
+	Draw_Scale(dc, Size, Min, Max, true, bAscending, true);
 
 	CSG_Vector P(3); P[0] = Point.x; P[1] = Point.y; P[2] = Point.z;
 	CSG_Matrix R = SG_Matrix_Get_Rotation(Rx, Ry, Rz, true); R *= Scale;
@@ -338,10 +383,115 @@ void CSG_3DView_Canvas::_Draw_Label(double Scale, double valMin, double valMax, 
 }
 
 //---------------------------------------------------------
-void CSG_3DView_Canvas::_Draw_Image(wxImage &Image, const CSG_Vector &Move, const CSG_Matrix &Rotate, int BGColor)
+void CSG_3DView_Canvas::_Draw_Labels(int Axis, const TSG_Point_Z &A, const TSG_Point_Z &B, double Rx, double Ry, double Rz, int Align, int Resolution, double Scale)
+{
+	double Min = Axis == 0 ? A.x : Axis == 1 ? A.y : A.z;
+	double Max = Axis == 0 ? B.x : Axis == 1 ? B.y : B.z;
+
+	if( Max <= Min ) { if( Max < Min ) { _Draw_Labels(Axis, B, A, Rx, Ry, Rz, Align, Resolution, Scale); } return; }
+
+	//-----------------------------------------------------
+	if( !m_bBox )
+	{
+		Draw_Line(m_Projector.Get_Projection(A), m_Projector.Get_Projection(B),
+			SG_GET_RGB(SG_GET_R(m_bgColor) + 128, SG_GET_G(m_bgColor) + 128, SG_GET_B(m_bgColor) + 128)
+		);
+	}
+
+	//-----------------------------------------------------
+	double Step = pow(10., floor(log10(Max - Min)) - 1.); int Decimals = Step >= 1. ? 0 : (int)floor(-log10(Step));
+	{
+		double Width = Scale * m_Projector.Get_Scale() / LABEL_SCALE;
+		
+		if( Align == LABEL_ALIGN_TOP || Align == LABEL_ALIGN_BOTTOM )
+		{
+			wxString Text(wxString::Format("%.*f", Decimals, fabs(Min) > fabs(Max) ? Min : Max));
+
+			Width *= 0.5 * Text.Length();
+		}
+
+		if( Axis != 2 && (Align == LABEL_ALIGN_LEFT || Align == LABEL_ALIGN_RIGHT) )
+		{
+			Width *= 2.;
+		}
+
+		if( Axis == 2 && m_Projector.Get_zScaling() )
+		{
+			Width /= fabs(m_Projector.Get_zScaling());
+		}
+
+		while( Step <= Width ) { Step *= 2.; }
+	}
+
+	//-----------------------------------------------------
+	CSG_Point_Z D(B.x - A.x, B.y - A.y, B.z - A.z);
+
+	for(double Value=Step*floor(Min/Step); !std::isinf(Value) && Value<=Max; Value+=Step)
+	{
+		if( Value < Min )
+		{
+			continue;
+		}
+
+		double i = (Value - Min) / (Max - Min); CSG_Point_Z p(A.x + i * D.x, A.y + i * D.y, A.z + i * D.z);
+
+		_Draw_Label(SG_Get_String(Value, -Decimals), p, Rx, Ry, Rz, Align, Resolution, Scale);
+	}
+}
+
+//---------------------------------------------------------
+void CSG_3DView_Canvas::_Draw_Label(const CSG_String &Text, const TSG_Point_Z &Point, double Rx, double Ry, double Rz, int Align, int Resolution, double Scale)
+{
+	if( Text.is_Empty() || Resolution < 20 )
+	{
+		return;
+	}
+
+	Scale *= m_Projector.Get_Scale() / (Resolution * LABEL_SCALE); // normalizing the targeted label size
+
+	wxSize Size; switch( Align )
+	{
+	case LABEL_ALIGN_TOP : case LABEL_ALIGN_BOTTOM: Size.y = Resolution; Size.x = (int)(Text.Length() * 0.5 * Resolution); break;
+	case LABEL_ALIGN_LEFT: case LABEL_ALIGN_RIGHT : Size.x = Resolution; Size.y = (int)(Text.Length() * 0.5 * Resolution); break;
+	}
+
+	wxBitmap Bitmap(Size, 32); wxMemoryDC dc(Bitmap);
+	wxColour FGColor(SG_GET_R(m_bgColor) + 128, SG_GET_G(m_bgColor) + 128, SG_GET_B(m_bgColor) + 128);
+	wxColour BGColor(SG_GET_R(m_bgColor)      , SG_GET_G(m_bgColor)      , SG_GET_B(m_bgColor)      );
+	dc.SetBackground(BGColor); dc.Clear(); dc.SetPen(FGColor); dc.SetTextForeground(FGColor);
+	wxFont Font(dc.GetFont()); Font.SetPixelSize(wxSize(0, (int)(0.7 * Resolution))); dc.SetFont(Font);
+//	dc.SetBrush(*wxTRANSPARENT_BRUSH); dc.DrawRectangle(0, 0, Size.x, Size.y);
+
+	int Tick = (int)(0.2 * Resolution);
+	dc.DrawLine(Size.x/2, 0, Size.x/2, Tick); // draw tick!
+
+	switch( Align )
+	{
+	case LABEL_ALIGN_TOP   : Draw_Text(dc, TEXTALIGN_TOPCENTER   , Size.x/2, Tick      , Text.c_str()); break;
+	case LABEL_ALIGN_BOTTOM: Draw_Text(dc, TEXTALIGN_BOTTOMCENTER, Size.x/2, Tick, 180., Text.c_str()); break;
+	case LABEL_ALIGN_LEFT  : Draw_Text(dc, TEXTALIGN_CENTERLEFT  , Size.x/2, Tick, 270., Text.c_str()); break;
+	case LABEL_ALIGN_RIGHT : Draw_Text(dc, TEXTALIGN_CENTERRIGHT , Size.x/2, Tick,  90., Text.c_str()); break;
+	}
+
+	double zScaling = m_Projector.Get_zScaling(); m_Projector.Set_zScaling(1.);
+	CSG_Vector P(3); P[0] = Point.x; P[1] = Point.y; P[2] = m_Projector.Get_zCenter() + (Point.z - m_Projector.Get_zCenter()) * zScaling;
+	CSG_Matrix R = SG_Matrix_Get_Rotation(Rx, Ry, Rz, true); R *= Scale;
+
+	wxImage Image(Bitmap.ConvertToImage()); _Draw_Image(Image, P, R, m_bgColor, Size.x/2, 0);
+
+	m_Projector.Set_zScaling(zScaling);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CSG_3DView_Canvas::_Draw_Image(wxImage &Image, const CSG_Vector &Move, const CSG_Matrix &Rotate, int BGColor, int xOffset, int yOffset)
 {
 	#define GET_NODE(xImage, yImage, i) {\
-		CSG_Vector v(3); v[0] = xImage; v[1] = -yImage; v[2] = 0; v = Move + Rotate * v;\
+		CSG_Vector v(3); v[0] = xImage - xOffset; v[1] = -(yImage - yOffset); v[2] = 0; v = Move + Rotate * v;\
 		m_Projector.Get_Projection(v[0], v[1], v[2]);\
 		p[i].x = v[0]; p[i].y = v[1]; p[i].z = v[2]; p[i].c = c[i];\
 	}
@@ -350,9 +500,7 @@ void CSG_3DView_Canvas::_Draw_Image(wxImage &Image, const CSG_Vector &Move, cons
 	CSG_Grid *pDrape = m_pDrape; m_pDrape = NULL;
 
 	//-----------------------------------------------------
-	#ifndef _DEBUG
 	#pragma omp parallel for
-	#endif
 	for(int y1=1; y1<Image.GetHeight(); y1++)
 	{
 		int y0 = y1 - 1;

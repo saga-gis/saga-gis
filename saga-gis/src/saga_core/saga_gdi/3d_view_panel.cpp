@@ -140,9 +140,30 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	);
 
 	m_Parameters.Add_Bool("NODE_GENERAL",
-		"LABELS"		, _TL("Label X/Y Axes"),
+		"LABELS"		, _TL("Axis Labeling"),
 		_TL(""),
-		false
+		m_bLabels
+	);
+
+	m_Parameters.Add_Int("LABELS",
+		"LABEL_RES"		, _TL("Resolution"),
+		_TL(""),
+		m_Label_Res, 20, true, 1000, true
+	);
+
+	m_Parameters.Add_Double("LABELS",
+		"LABEL_SCALE"	, _TL("Size"),
+		_TL(""),
+		m_Label_Scale, 0.1, true, 10., true
+	);
+
+	m_Parameters.Add_Choice("LABELS",
+		"LABEL_STYLE"	, _TL("Style"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("three axes"),
+			_TL("horizontal")
+		), m_Label_Style
 	);
 
 	m_Parameters.Add_Bool("NODE_GENERAL",
@@ -249,7 +270,7 @@ int CSG_3DView_Panel::_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags
 
 	if( pParameters )
 	{
-		CSG_3DView_Panel	*pPanel	= (CSG_3DView_Panel *)pParameters->Get_Owner();
+		CSG_3DView_Panel *pPanel = (CSG_3DView_Panel *)pParameters->Get_Owner();
 
 		if( Flags & PARAMETER_CHECK_VALUES )
 		{
@@ -289,6 +310,11 @@ int CSG_3DView_Panel::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 	if( pParameter->Cmp_Identifier("STEREO") )
 	{
 		pParameters->Set_Enabled("STEREO_DIST" , pParameter->asBool());
+	}
+
+	if( pParameter->Cmp_Identifier("LABELS") )
+	{
+		pParameter->Set_Children_Enabled(pParameter->asBool());
 	}
 
 	return( 1 );
@@ -570,12 +596,15 @@ bool CSG_3DView_Panel::Update_View(bool bStatistics)
 	//-----------------------------------------------------
 	if( m_Play_State == SG_3DVIEW_PLAY_STOP )
 	{
-		m_bgColor = m_Parameters("BGCOLOR"    )->asColor ();
-		m_bBox    = m_Parameters("BOX"        )->asBool  ();
-		m_bLabels = m_Parameters("LABELS"     )->asBool  ();
-		m_bNorth  = m_Parameters("NORTH"      )->asBool  ();
-		m_bStereo = m_Parameters("STEREO"     )->asBool  ();
-		m_dStereo = m_Parameters("STEREO_DIST")->asDouble();
+		m_bgColor     = m_Parameters("BGCOLOR"    )->asColor ();
+		m_bBox        = m_Parameters("BOX"        )->asBool  ();
+		m_bStereo     = m_Parameters("STEREO"     )->asBool  ();
+		m_dStereo     = m_Parameters("STEREO_DIST")->asDouble();
+		m_bNorth      = m_Parameters("NORTH"      )->asBool  ();
+		m_bLabels     = m_Parameters("LABELS"     )->asBool  ();
+		m_Label_Res   = m_Parameters("LABEL_RES"  )->asInt   ();
+		m_Label_Scale = m_Parameters("LABEL_SCALE")->asDouble();
+		m_Label_Style = m_Parameters("LABEL_STYLE")->asInt   ();
 
 		switch( m_Parameters("DRAPE_MODE") ? m_Parameters("DRAPE_MODE")->asInt() : 0 )
 		{

@@ -76,20 +76,20 @@ CSG_3DView_Projector::CSG_3DView_Projector(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_3DView_Projector::Set_Center(double x, double y, double z)
-{
-	m_Center.x	= x;
-	m_Center.y	= y;
-	m_Center.z	= z;
-}
-
-//---------------------------------------------------------
 void CSG_3DView_Projector::Set_Scale(double Scale)
 {
 	if( Scale > 0. )
 	{
 		m_Scale	= Scale;
 	}
+}
+
+//---------------------------------------------------------
+void CSG_3DView_Projector::Set_Center(double x, double y, double z)
+{
+	m_Center.x	= x;
+	m_Center.y	= y;
+	m_Center.z	= z;
 }
 
 //---------------------------------------------------------
@@ -175,7 +175,7 @@ void CSG_3DView_Projector::Inc_Central_Distance(double Distance)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_3DView_Projector::Get_Projection(double &x, double &y, double &z)
+void CSG_3DView_Projector::Get_Projection(double &x, double &y, double &z) const
 {
 	double px = (x - m_Center.x) * m_Scaling.x / m_Scale;
 	double py = (y - m_Center.y) * m_Scaling.y / m_Scale;
@@ -203,11 +203,6 @@ void CSG_3DView_Projector::Get_Projection(double &x, double &y, double &z)
 
 	x = Scale * x + (m_Screen_NX / 2);
 	y = Scale * y + (m_Screen_NY / 2);
-}
-
-void CSG_3DView_Projector::Get_Projection(TSG_Point_Z &p)
-{
-	Get_Projection(p.x, p.y, p.z);
 }
 
 

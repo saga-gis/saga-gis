@@ -163,7 +163,7 @@ void CSG_3DView_Dialog::On_Button(wxCommandEvent &event)
 		Menu.AppendSubMenu(pMenu = new wxMenu, _TL("Display"));
 
 		pMenu->AppendCheckItem(MENU_BOX          , _TL("Bounding Box [B]"));
-		pMenu->AppendCheckItem(MENU_LABELS       , _TL("Label X/Y Axes [L]"));
+		pMenu->AppendCheckItem(MENU_LABELS       , _TL("Axis Labeling [L]"));
 	//	pMenu->AppendCheckItem(MENU_NORTH        , _TL("North Arrow [N]"));
 		pMenu->AppendCheckItem(MENU_STEREO       , _TL("Anaglyph [S]"));
 		pMenu->AppendCheckItem(MENU_CENTRAL      , _TL("Central"));
@@ -212,7 +212,7 @@ void CSG_3DView_Dialog::On_Button(wxCommandEvent &event)
 		Menu.AppendSeparator();
 		Menu.Append(MENU_CLOSE, _TL("Close"));
 
-		PopupMenu(&Menu, m_pCommands->GetRect().GetBottomLeft());
+		m_pCommands->PopupMenu(&Menu, m_pCommands->GetRect().GetBottomLeft());
 
 		return;
 	}
