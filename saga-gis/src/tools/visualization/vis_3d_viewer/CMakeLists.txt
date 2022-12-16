@@ -1,5 +1,5 @@
 if(WITH_TOOLS AND WITH_GUI)
-	project(garden_3d_viewer)
+	project(vis_3d_viewer)
 	include(../../CMakePluginTemplate.cmake)	# load common tool template
 	find_package(wxWidgets REQUIRED QUIET)
 	include(${wxWidgets_USE_FILE})
