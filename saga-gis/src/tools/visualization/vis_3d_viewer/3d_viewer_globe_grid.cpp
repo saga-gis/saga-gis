@@ -128,6 +128,7 @@ C3D_Viewer_Globe_Grid_Panel::C3D_Viewer_Globe_Grid_Panel(wxWindow *pParent, CSG_
 	//-----------------------------------------------------
 	m_Parameters("BGCOLOR")->Set_Value((int)SG_GET_RGB(192, 192, 192));
 	m_Parameters("BOX"    )->Set_Value(false);
+	m_Parameters("LABELS" )->Set_Value(2);
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Double("NODE_GENERAL",
@@ -608,6 +609,37 @@ C3D_Viewer_Globe_Grid::C3D_Viewer_Globe_Grid(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid("", "GRID", _TL("Grid"     ), _TL(""), PARAMETER_INPUT);
 	Parameters.Add_Grid("", "Z"   , _TL("Elevation"), _TL(""), PARAMETER_INPUT_OPTIONAL);
+
+	Parameters.Add_Choice("",
+		"RESAMPLING", _TL("Resampling"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("no"),
+			_TL("yes")
+		), 1
+	);
+
+	Parameters.Add_Double("RESAMPLING",
+		"RESOLUTION", _TL("Resolution"),
+		CSG_String::Format("[%s]", _TL("Degree")),
+		0.25, 0.001, true
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int C3D_Viewer_Globe_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("RESAMPLING") )
+	{
+		pParameter->Set_Children_Enabled(pParameter->asInt() == 1);
+	}
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -618,10 +650,41 @@ C3D_Viewer_Globe_Grid::C3D_Viewer_Globe_Grid(void)
 //---------------------------------------------------------
 bool C3D_Viewer_Globe_Grid::On_Execute(void)
 {
-	C3D_Viewer_Globe_Grid_Dialog dlg(
-		Parameters("GRID")->asGrid(),
-		Parameters("Z"   )->asGrid()
-	);
+	CSG_Grid *pGrid = Parameters("GRID")->asGrid(), *pZ = Parameters("Z")->asGrid(), Grid, Z;
+
+	if( pGrid->Get_Projection().is_Okay() && !pGrid->Get_Projection().is_Geographic() )
+	{
+		Error_Fmt(_TL("Supplied grid needs to use geographic coordinates!"));
+
+		return( false );
+	}
+
+	if( pGrid->Get_XMin() < -360. || pGrid->Get_XMax() > 360.
+	||  pGrid->Get_YMin() <  -90. || pGrid->Get_YMax() >  90. )
+	{
+		Error_Fmt(_TL("Geographic coordinates are out of range!"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( Parameters("RESAMPLING")->asInt() == 1 )
+	{
+		CSG_Grid_System System(Parameters("RESOLUTION")->asDouble(), Get_System().Get_Extent());
+
+		if( pGrid->Get_Cellsize() != System.Get_Cellsize() )
+		{
+			Grid.Create(System); Grid.Assign(pGrid); pGrid = &Grid;
+
+			if( pZ )
+			{
+				Z.Create(System); Z.Assign(pZ); pZ = &Z;
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	C3D_Viewer_Globe_Grid_Dialog dlg(pGrid, pZ);
 
 	dlg.ShowModal();
 

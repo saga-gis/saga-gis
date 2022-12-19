@@ -72,12 +72,14 @@ class C3D_Viewer_Globe_Grid : public CSG_Tool_Grid
 public:
 	C3D_Viewer_Globe_Grid(void);
 
-	virtual bool			needs_GUI			(void)	const	{	return( true );	}
+	virtual bool			needs_GUI				(void)	const	{	return( true );	}
 
 
 protected:
 
-	virtual bool			On_Execute			(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 };
 
