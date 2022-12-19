@@ -646,7 +646,10 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Choice );	}
 
-	void						Set_Items				(const SG_Char *String);
+	bool						Del_Items				(void);
+	bool						Add_Item				(const CSG_String &Item, const CSG_String &Data = "");
+
+	bool						Set_Items				(const SG_Char *String);
 	CSG_String					Get_Items				(void)		const;
 
 	const SG_Char *				Get_Item				(int Index)	const;
