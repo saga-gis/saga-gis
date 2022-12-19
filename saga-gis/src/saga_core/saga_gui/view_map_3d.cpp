@@ -113,7 +113,7 @@ CVIEW_Map_3D::CVIEW_Map_3D(CWKSP_Map *pMap)
 
 	CreateStatusBar(MAP3D_STATUSBAR_COUNT);
 
-	m_pPanel	= new CVIEW_Map_3DPanel(this, pMap);
+	m_pPanel = new CVIEW_Map_3DPanel(this, pMap);
 	m_pPanel->SetSize(GetClientSize());
 
 	//-----------------------------------------------------
@@ -457,6 +457,10 @@ void CVIEW_Map_3D::Parameters_Update(bool bFromPanel)
 		m_Parameters("STEREO_DIST" )->Set_Value(m_pPanel->m_Parameters("STEREO_DIST"));
 		m_Parameters("BOX"         )->Set_Value(m_pPanel->m_Parameters("BOX"        ));
 
+		m_Parameters("LABELS"      )->Set_Value(m_pPanel->m_Parameters("LABELS"     ));
+		m_Parameters("LABEL_RES"   )->Set_Value(m_pPanel->m_Parameters("LABEL_RES"  ));
+		m_Parameters("LABEL_SCALE" )->Set_Value(m_pPanel->m_Parameters("LABEL_SCALE"));
+
 		m_Parameters("Z_SCALE"     )->Set_Value(m_pPanel->m_zScale);
 		m_Parameters("DEM_RES"     )->Set_Value(m_pPanel->Get_DEM_Res());
 		m_Parameters("MAP_RES"     )->Set_Value(m_pPanel->Get_Map_Res());
@@ -486,6 +490,10 @@ void CVIEW_Map_3D::Parameters_Update(bool bFromPanel)
 		m_pPanel->m_Parameters("DRAPE_MODE" )->Set_Value(m_Parameters("DRAPE_MODE" ));
 		m_pPanel->m_Parameters("BOX"        )->Set_Value(m_Parameters("BOX"        ));
 
+		m_pPanel->m_Parameters("LABELS"     )->Set_Value(m_Parameters("LABELS"     ));
+		m_pPanel->m_Parameters("LABEL_RES"  )->Set_Value(m_Parameters("LABEL_RES"  ));
+		m_pPanel->m_Parameters("LABEL_SCALE")->Set_Value(m_Parameters("LABEL_SCALE"));
+
 		m_pPanel->m_zScale = m_Parameters("Z_SCALE")->asDouble();
 
 		//-------------------------------------------------
@@ -508,10 +516,20 @@ void CVIEW_Map_3D::Parameters_Create(void)
 {
 	m_Parameters.Create(_TL("3D-View"));
 
-	m_Parameters.Add_Grid  (""   , "DEM"     , _TL("Elevation"   ), _TL(""), PARAMETER_INPUT);
-	m_Parameters.Add_Int   ("DEM", "DEM_RES" , _TL("Resolution"  ), _TL(""), 100, 2, true);
-	m_Parameters.Add_Double("DEM", "Z_SCALE" , _TL("Exaggeration"), _TL(""), 3.);
-	m_Parameters.Add_Bool  ("DEM", "BOX"     , _TL("Bounding Box"), _TL(""), false);
+	m_Parameters.Add_Grid  (""   , "DEM"     , _TL("Elevation"    ), _TL(""), PARAMETER_INPUT);
+	m_Parameters.Add_Int   ("DEM", "DEM_RES" , _TL("Resolution"   ), _TL(""), 100, 2, true);
+	m_Parameters.Add_Double("DEM", "Z_SCALE" , _TL("Exaggeration" ), _TL(""), 3.);
+	m_Parameters.Add_Bool  ("DEM", "BOX"     , _TL("Bounding Box" ), _TL(""), false);
+
+	m_Parameters.Add_Choice(""      , "LABELS"     , _TL("Axis Labeling"), _TL(""), CSG_String::Format("%s|%s|%s", _TL("all"), _TL("horizontal"), _TL("none")), 0);
+	m_Parameters.Add_Int   ("LABELS", "LABEL_RES"  , _TL("Resolution"   ), _TL(""), 50, 20, true, 1000, true);
+	m_Parameters.Add_Double("LABELS", "LABEL_SCALE", _TL("Size"         ), _TL(""), 1., 0.1, true, 10., true);
+
+	m_Parameters.Add_Bool("NODE_GENERAL",
+		"NORTH"			, _TL("North Arrow"),
+		_TL(""),
+		false
+	)->Set_Enabled(false);
 
 	m_Parameters.Add_Node  (""   , "MAP"       , _TL("Map"                      ), _TL(""));
 	m_Parameters.Add_Int   ("MAP", "MAP_RES"   , _TL("Resolution"               ), _TL(""), 1000, 2, true);

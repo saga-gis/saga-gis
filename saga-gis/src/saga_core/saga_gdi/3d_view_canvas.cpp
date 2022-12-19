@@ -90,10 +90,9 @@ CSG_3DView_Canvas::CSG_3DView_Canvas(void)
 	m_dStereo     = 1.;
 	m_bNorth      = false;
 
-	m_bLabels     = false;
+	m_Labels      = 0;
 	m_Label_Res   = 50;
 	m_Label_Scale = 1.;
-	m_Label_Style = 0;
 }
 
 
@@ -303,7 +302,7 @@ void CSG_3DView_Canvas::_Draw_Box(void)
 //---------------------------------------------------------
 void CSG_3DView_Canvas::_Draw_Labels(void)
 {
-	if( !m_bLabels )
+	if( m_Labels == 2 ) // none
 	{
 		return;
 	}
@@ -312,7 +311,7 @@ void CSG_3DView_Canvas::_Draw_Labels(void)
 
 	int Front = 0; { TSG_Point_Z b[8]; _Draw_Get_Box(b, true); for(int j=1; j<4; j++) { if( b[j].z < b[Front].z ) Front = j; } }
 
-	switch( m_Label_Style )
+	switch( m_Labels )
 	{
 	default:
 		switch( Front )

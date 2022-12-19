@@ -938,19 +938,19 @@ void C3D_Viewer_PointCloud_Dialog::On_Menu(wxCommandEvent &event)
 	{
 	default:
 		CSG_3DView_Dialog::On_Menu(event);
-		return;
+		break;
 
-	case MENU_SCALE_Z_DEC   : MENU_VALUE_ADD("Z_SCALE"   , -0.5); return;
-	case MENU_SCALE_Z_INC   : MENU_VALUE_ADD("Z_SCALE"   ,  0.5); return;
+	case MENU_SCALE_Z_DEC   : MENU_VALUE_ADD("Z_SCALE"   , -0.5); break;
+	case MENU_SCALE_Z_INC   : MENU_VALUE_ADD("Z_SCALE"   ,  0.5); break;
 
-	case MENU_SIZE_DEC      : MENU_VALUE_ADD("SIZE"      , -1.0); return;
-	case MENU_SIZE_INC      : MENU_VALUE_ADD("SIZE"      ,  1.0); return;
+	case MENU_SIZE_DEC      : MENU_VALUE_ADD("SIZE"      , -1.0); break;
+	case MENU_SIZE_INC      : MENU_VALUE_ADD("SIZE"      ,  1.0); break;
 
-	case MENU_SIZE_SCALE_DEC: MENU_VALUE_ADD("SIZE_SCALE", -1.0); return;
-	case MENU_SIZE_SCALE_INC: MENU_VALUE_ADD("SIZE_SCALE",  1.0); return;
+	case MENU_SIZE_SCALE_DEC: MENU_VALUE_ADD("SIZE_SCALE", -1.0); break;
+	case MENU_SIZE_SCALE_INC: MENU_VALUE_ADD("SIZE_SCALE",  1.0); break;
 
-	case MENU_VAL_AS_RGB    : MENU_TOGGLE   ("VAL_AS_RGB"      ); return;
-	case MENU_COLORS_GRAD   : MENU_TOGGLE   ("COLORS_GRAD"     ); return;
+	case MENU_VAL_AS_RGB    : if( m_pPanel->Toggle_Parameter("VAL_AS_RGB" ) ) { Update_Controls(); } break;
+	case MENU_COLORS_GRAD   : if( m_pPanel->Toggle_Parameter("COLORS_GRAD") ) { Update_Controls(); } break;
 	}
 }
 

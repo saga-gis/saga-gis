@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: view_map_3d_panel.cpp 2064 2014-03-21 13:20:57Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,15 +45,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "wksp_map.h"
 
 #include "view_map_3d.h"
@@ -71,7 +59,7 @@
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CVIEW_Map_3DPanel, CSG_3DView_Panel)
-	EVT_KEY_DOWN	(CVIEW_Map_3DPanel::On_Key_Down)
+	EVT_KEY_DOWN(CVIEW_Map_3DPanel::On_Key_Down)
 END_EVENT_TABLE()
 
 
@@ -85,11 +73,11 @@ END_EVENT_TABLE()
 CVIEW_Map_3DPanel::CVIEW_Map_3DPanel(wxWindow *pParent, class CWKSP_Map *pMap)
 	: CSG_3DView_Panel(pParent, &m_Map)
 {
-	m_pDEM		= NULL;
-	m_pMap		= pMap;
+	m_pDEM    = NULL;
+	m_pMap    = pMap;
 
-	m_DEM_Res	= 100;
-	m_Map_Res	= 400;
+	m_DEM_Res = 100;
+	m_Map_Res = 400;
 
 	m_Parameters("BOX")->Set_Value(false);
 }
@@ -102,8 +90,7 @@ CVIEW_Map_3DPanel::CVIEW_Map_3DPanel(wxWindow *pParent, class CWKSP_Map *pMap)
 //---------------------------------------------------------
 void CVIEW_Map_3DPanel::Update_Statistics(void)
 {
-	//-----------------------------------------------------
-	CSG_Rect	r(m_pDEM->Get_Extent());
+	CSG_Rect r(m_pDEM->Get_Extent());
 
 	if( !m_pMap || !r.Intersect(m_pMap->Get_Extent()) )
 	{
@@ -113,21 +100,23 @@ void CVIEW_Map_3DPanel::Update_Statistics(void)
 	}
 
 	//-----------------------------------------------------
-	double	Cellsize	= (r.Get_XRange() > r.Get_YRange() ? r.Get_XRange() : r.Get_YRange()) / m_DEM_Res;
+	double Cellsize = (r.Get_XRange() > r.Get_YRange() ? r.Get_XRange() : r.Get_YRange()) / m_DEM_Res;
 	
 	if( Cellsize < m_pDEM->Get_Cellsize() )
+	{
 		Cellsize = m_pDEM->Get_Cellsize();
+	}
 
 	m_DEM.Create(CSG_Grid_System(Cellsize, r), SG_DATATYPE_Float);
 	m_DEM.Set_NoData_Value(m_pDEM->Get_NoData_Value());
 
 	for(int y=0; y<m_DEM.Get_NY(); y++)
 	{
-		double	wy	= m_DEM.Get_YMin() + y * m_DEM.Get_Cellsize();
+		double wy = m_DEM.Get_YMin() + y * m_DEM.Get_Cellsize();
 
 		for(int x=0; x<m_DEM.Get_NX(); x++)
 		{
-			double	z, wx	= m_DEM.Get_XMin() + x * m_DEM.Get_Cellsize();
+			double z, wx = m_DEM.Get_XMin() + x * m_DEM.Get_Cellsize();
 
 			if( m_pDEM->Get_Value(wx, wy, z) )
 			{
@@ -140,9 +129,9 @@ void CVIEW_Map_3DPanel::Update_Statistics(void)
 		}
 	}
 
-	m_Data_Min.x	= m_DEM.Get_XMin();	m_Data_Max.x	= m_DEM.Get_XMax();
-	m_Data_Min.y	= m_DEM.Get_YMin();	m_Data_Max.y	= m_DEM.Get_YMax();
-	m_Data_Min.z	= m_DEM.Get_Min ();	m_Data_Max.z	= m_DEM.Get_Max ();
+	m_Data_Min.x = m_DEM.Get_XMin(); m_Data_Max.x = m_DEM.Get_XMax();
+	m_Data_Min.y = m_DEM.Get_YMin(); m_Data_Max.y = m_DEM.Get_YMax();
+	m_Data_Min.z = m_DEM.Get_Min (); m_Data_Max.z = m_DEM.Get_Max ();
 
 	m_pMap->SaveAs_Image_To_Grid(m_Map, m_Map_Res);
 
@@ -165,14 +154,14 @@ bool CVIEW_Map_3DPanel::Set_Options(CSG_Grid *pDEM, int DEM_Res, int Map_Res)
 {
 	if( m_pDEM == pDEM && m_DEM_Res == DEM_Res && m_Map_Res == Map_Res )
 	{
-		return( false );	// nothing to do
+		return( false ); // nothing to do
 	}
 
 	//-----------------------------------------------------
-	m_pDEM	= pDEM;
+	m_pDEM = pDEM;
 
-	if( DEM_Res >= 2 )	m_DEM_Res	= DEM_Res;
-	if( Map_Res >= 2 )	m_Map_Res	= Map_Res;
+	if( DEM_Res >= 2 ) m_DEM_Res = DEM_Res;
+	if( Map_Res >= 2 ) m_Map_Res = Map_Res;
 
 	Update_Statistics();
 
@@ -201,24 +190,23 @@ void CVIEW_Map_3DPanel::On_Key_Down(wxKeyEvent &event)
 {
 	switch( event.GetKeyCode() )
 	{
-	default     :	CSG_3DView_Panel::On_Key_Down(event);	return;
+	default     : CSG_3DView_Panel::On_Key_Down(event);	return;
 
-	case WXK_F1 :	m_zScale -= 0.5;	break;
-	case WXK_F2 :	m_zScale += 0.5;	break;
+	case WXK_F1 : m_zScale -= 0.5;  break;
+	case WXK_F2 : m_zScale += 0.5;  break;
 
-	case WXK_F5 :	Inc_DEM_Res(-25);	break;
-	case WXK_F6 :	Inc_DEM_Res( 25);	break;
+	case WXK_F5 : Inc_DEM_Res(-25); break;
+	case WXK_F6 : Inc_DEM_Res( 25); break;
 
-	case WXK_F7 :	Inc_Map_Res(-25);	break;
-	case WXK_F8 :	Inc_Map_Res( 25);	break;
+	case WXK_F7 : Inc_Map_Res(-25); break;
+	case WXK_F8 : Inc_Map_Res( 25); break;
 
-	case WXK_F9 :	m_Projector.Inc_Central_Distance( 50);	break;
-	case WXK_F10:	m_Projector.Inc_Central_Distance(-50);	break;
+	case WXK_F9 : m_Projector.Inc_Central_Distance( 50); break;
+	case WXK_F10: m_Projector.Inc_Central_Distance(-50); break;
 	}
 
 	//-----------------------------------------------------
-	Update_View();
-	Update_Parent();
+	Update_View(); Update_Parent();
 }
 
 
@@ -247,9 +235,9 @@ inline bool CVIEW_Map_3DPanel::Get_Node(int x, int y, TSG_Triangle_Node &Node)
 {
 	if( m_DEM.is_InGrid(x, y) )
 	{
-		Node.x	= Node.c = m_DEM.Get_System().Get_xGrid_to_World(x);
-		Node.y	= Node.d = m_DEM.Get_System().Get_yGrid_to_World(y);
-		Node.z	= m_DEM.asDouble(x, y);
+		Node.x = Node.c = m_DEM.Get_System().Get_xGrid_to_World(x);
+		Node.y = Node.d = m_DEM.Get_System().Get_yGrid_to_World(y);
+		Node.z = m_DEM.asDouble(x, y);
 
 		m_Projector.Get_Projection(Node.x, Node.y, Node.z);
 
@@ -267,37 +255,25 @@ inline bool CVIEW_Map_3DPanel::Get_Node(int x, int y, TSG_Triangle_Node &Node)
 //---------------------------------------------------------
 bool CVIEW_Map_3DPanel::On_Draw(void)
 {
-	if( !m_DEM.is_Valid() )
+	if( m_DEM.is_Valid() )
 	{
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	#pragma omp parallel for
-	for(int y=1; y<m_DEM.Get_NY(); y++)
-	{
-		for(int x=1; x<m_DEM.Get_NX(); x++)
+		#pragma omp parallel for
+		for(int y=1; y<m_DEM.Get_NY(); y++) for(int x=1; x<m_DEM.Get_NX(); x++)
 		{
-			TSG_Triangle_Node	p[3];
+			TSG_Triangle_Node p[3];
 
 			if( Get_Node(x - 1, y - 1, p[0])
 			&&  Get_Node(x    , y    , p[1]) )
 			{
-				if( Get_Node(x, y - 1, p[2]) )
-				{
-					Draw_Triangle(p, true);
-				}
-
-				if( Get_Node(x - 1, y, p[2]) )
-				{
-					Draw_Triangle(p, true);
-				}
+				if( Get_Node(x, y - 1, p[2]) ) { Draw_Triangle(p, true); }
+				if( Get_Node(x - 1, y, p[2]) ) { Draw_Triangle(p, true); }
 			}
 		}
+
+		return( true );
 	}
 
-	//-----------------------------------------------------
-	return( true );
+	return( false );
 }
 
 

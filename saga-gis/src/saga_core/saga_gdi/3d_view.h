@@ -97,6 +97,7 @@ public:
 
 	virtual bool				Update_Parameters		(bool bSave);
 	virtual bool				Update_View				(bool bStatistics = false);
+	bool						Toggle_Parameter		(const CSG_String &ID, bool bUpdateView = true);
 
 	bool						Save_asImage			(const CSG_String &FileName);
 	bool						Save_toClipboard		(void);
@@ -179,7 +180,6 @@ enum
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define MENU_TOGGLE(id)			m_pPanel->m_Parameters(id)->Set_Value(m_pPanel->m_Parameters(id)->asBool() ? 0 : 1); Update_Controls(); m_pPanel->Update_View(true);
 #define MENU_VALUE_ADD(id, add)	m_pPanel->m_Parameters(id)->Set_Value(m_pPanel->m_Parameters(id)->asDouble() + add); Update_Controls(); m_pPanel->Update_View();
 
 //---------------------------------------------------------

@@ -243,10 +243,10 @@ void CSG_3DView_Dialog::On_Menu(wxCommandEvent &event)
 
 		return;
 
-	case MENU_BOX          : MENU_TOGGLE("BOX"   ); break;
-	case MENU_LABELS       : MENU_TOGGLE("LABELS"); break;
-	case MENU_NORTH        : MENU_TOGGLE("NORTH" ); break;
-	case MENU_STEREO       : MENU_TOGGLE("STEREO"); break;
+	case MENU_BOX          : if( m_pPanel->Toggle_Parameter("BOX"   ) ) { Update_Controls(); } break;
+	case MENU_LABELS       : if( m_pPanel->Toggle_Parameter("LABELS") ) { Update_Controls(); } break;
+	case MENU_NORTH        : if( m_pPanel->Toggle_Parameter("NORTH" ) ) { Update_Controls(); } break;
+	case MENU_STEREO       : if( m_pPanel->Toggle_Parameter("STEREO") ) { Update_Controls(); } break;
 
 	case MENU_TO_CLIPBOARD : m_pPanel->Save_toClipboard(); break;
 
@@ -283,9 +283,9 @@ void CSG_3DView_Dialog::On_Menu_UI(wxUpdateUIEvent &event)
 	switch( event.GetId() )
 	{
 	case MENU_BOX          : event.Check(m_pPanel->m_Parameters("BOX"   )->asBool()); break;
-	case MENU_LABELS       : event.Check(m_pPanel->m_Parameters("LABELS")->asBool()); break;
 	case MENU_NORTH        : event.Check(m_pPanel->m_Parameters("NORTH" )->asBool()); break;
 	case MENU_STEREO       : event.Check(m_pPanel->m_Parameters("STEREO")->asBool()); break;
+	case MENU_LABELS       : event.Check(m_pPanel->m_Parameters("LABELS")->asInt() != 2); break;
 
 	case MENU_CENTRAL      : event.Check(m_pPanel->Get_Projector().is_Central()); break;
 

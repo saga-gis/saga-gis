@@ -681,13 +681,13 @@ void C3D_Viewer_TIN_Dialog::On_Menu(wxCommandEvent &event)
 	case MENU_SCALE_Z_DEC: m_pPanel->m_Parameters("Z_SCALE")->Set_Value(m_pPanel->m_Parameters("Z_SCALE")->asDouble() - 0.5); m_pPanel->Update_View();	return;
 	case MENU_SCALE_Z_INC: m_pPanel->m_Parameters("Z_SCALE")->Set_Value(m_pPanel->m_Parameters("Z_SCALE")->asDouble() + 0.5); m_pPanel->Update_View();	return;
 
-	case MENU_COLORS_GRAD: MENU_TOGGLE("COLORS_GRAD");	return;
+	case MENU_COLORS_GRAD: if( m_pPanel->Toggle_Parameter("COLORS_GRAD") ) { Update_Controls(); } return;
 
-	case MENU_SHADING    : MENU_TOGGLE("SHADING"    );	return;
+	case MENU_SHADING    : if( m_pPanel->Toggle_Parameter("SHADING"    ) ) { Update_Controls(); } return;
 
-	case MENU_FACES      : MENU_TOGGLE("DRAW_FACES" );	return;
-	case MENU_EDGES      : MENU_TOGGLE("DRAW_EDGES" );	return;
-	case MENU_NODES      : MENU_TOGGLE("DRAW_NODES" );	return;
+	case MENU_FACES      : if( m_pPanel->Toggle_Parameter("DRAW_FACES" ) ) { Update_Controls(); } return;
+	case MENU_EDGES      : if( m_pPanel->Toggle_Parameter("DRAW_EDGES" ) ) { Update_Controls(); } return;
+	case MENU_NODES      : if( m_pPanel->Toggle_Parameter("DRAW_NODES" ) ) { Update_Controls(); } return;
 	}
 
 	CSG_3DView_Dialog::On_Menu(event);

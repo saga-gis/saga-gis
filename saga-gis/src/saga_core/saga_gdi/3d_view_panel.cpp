@@ -139,10 +139,14 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 		true
 	);
 
-	m_Parameters.Add_Bool("NODE_GENERAL",
+	m_Parameters.Add_Choice("NODE_GENERAL",
 		"LABELS"		, _TL("Axis Labeling"),
 		_TL(""),
-		m_bLabels
+		CSG_String::Format("%s|%s|%s",
+			_TL("all"),
+			_TL("horizontal"),
+			_TL("none")
+		), m_Labels
 	);
 
 	m_Parameters.Add_Int("LABELS",
@@ -155,15 +159,6 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 		"LABEL_SCALE"	, _TL("Size"),
 		_TL(""),
 		m_Label_Scale, 0.1, true, 10., true
-	);
-
-	m_Parameters.Add_Choice("LABELS",
-		"LABEL_STYLE"	, _TL("Style"),
-		_TL(""),
-		CSG_String::Format("%s|%s",
-			_TL("three axes"),
-			_TL("horizontal")
-		), m_Label_Style
 	);
 
 	m_Parameters.Add_Bool("NODE_GENERAL",
@@ -314,10 +309,42 @@ int CSG_3DView_Panel::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 
 	if( pParameter->Cmp_Identifier("LABELS") )
 	{
-		pParameter->Set_Children_Enabled(pParameter->asBool());
+		pParameter->Set_Children_Enabled(pParameter->asInt() != 2);
 	}
 
 	return( 1 );
+}
+
+//---------------------------------------------------------
+bool CSG_3DView_Panel::Toggle_Parameter(const CSG_String &ID, bool bUpdateView)
+{
+	CSG_Parameter *pParameter = m_Parameters(ID);
+
+	if( !pParameter )
+	{
+		return( false );
+	}
+
+	switch( pParameter->Get_Type() )
+	{
+	default:
+		return( false );
+
+	case PARAMETER_TYPE_Bool  :
+		pParameter->Set_Value(pParameter->asBool() ? 0 : 1);
+		break;
+
+	case PARAMETER_TYPE_Choice:
+		pParameter->Set_Value((pParameter->asInt() + 1) % pParameter->asChoice()->Get_Count());
+		break;
+	}
+
+	if( bUpdateView )
+	{
+		Update_View();
+	}
+
+	return( false );
 }
 
 
@@ -412,17 +439,16 @@ void CSG_3DView_Panel::On_Key_Down(wxKeyEvent &event)
 		case 'O': m_Projector.Inc_Central_Distance( 0.1); break;
 		case 'P': m_Projector.Inc_Central_Distance(-0.1); break;
 
-		case 'B': m_Parameters("BOX"   )->Set_Value(m_Parameters("BOX"   )->asBool() == false); break;
-		case 'L': m_Parameters("LABELS")->Set_Value(m_Parameters("LABELS")->asBool() == false); break;
-		case 'N': m_Parameters("NORTH" )->Set_Value(m_Parameters("NORTH" )->asBool() == false); break;
-		case 'S': m_Parameters("STEREO")->Set_Value(m_Parameters("STEREO")->asBool() == false); break;
+		case 'B': Toggle_Parameter("BOX"   , false); break;
+		case 'L': Toggle_Parameter("LABELS", false); break;
+		case 'N': Toggle_Parameter("NORTH" , false); break;
+		case 'S': Toggle_Parameter("STEREO", false); break;
 
 		case 'A': m_Parameters("STEREO_DIST")->Set_Value(m_Parameters("STEREO_DIST")->asDouble() - 0.5); break;
 		case 'D': m_Parameters("STEREO_DIST")->Set_Value(m_Parameters("STEREO_DIST")->asDouble() + 0.5); break;
 		}
 
-		Update_Parent();
-		Update_View();
+		Update_Parent(); Update_View();
 	}
 }
 
@@ -601,10 +627,9 @@ bool CSG_3DView_Panel::Update_View(bool bStatistics)
 		m_bStereo     = m_Parameters("STEREO"     )->asBool  ();
 		m_dStereo     = m_Parameters("STEREO_DIST")->asDouble();
 		m_bNorth      = m_Parameters("NORTH"      )->asBool  ();
-		m_bLabels     = m_Parameters("LABELS"     )->asBool  ();
+		m_Labels      = m_Parameters("LABELS"     )->asInt   ();
 		m_Label_Res   = m_Parameters("LABEL_RES"  )->asInt   ();
 		m_Label_Scale = m_Parameters("LABEL_SCALE")->asDouble();
-		m_Label_Style = m_Parameters("LABEL_STYLE")->asInt   ();
 
 		switch( m_Parameters("DRAPE_MODE") ? m_Parameters("DRAPE_MODE")->asInt() : 0 )
 		{
