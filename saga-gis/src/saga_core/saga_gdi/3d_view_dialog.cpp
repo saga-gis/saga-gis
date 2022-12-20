@@ -240,15 +240,14 @@ void CSG_3DView_Dialog::On_Menu(wxCommandEvent &event)
 
 			m_pPanel->Update_View(true);
 		}
-
 		return;
 
-	case MENU_BOX          : if( m_pPanel->Toggle_Parameter("BOX"   ) ) { Update_Controls(); } break;
-	case MENU_LABELS       : if( m_pPanel->Toggle_Parameter("LABELS") ) { Update_Controls(); } break;
-	case MENU_NORTH        : if( m_pPanel->Toggle_Parameter("NORTH" ) ) { Update_Controls(); } break;
-	case MENU_STEREO       : if( m_pPanel->Toggle_Parameter("STEREO") ) { Update_Controls(); } break;
+	case MENU_BOX          : m_pPanel->Parameter_Value_Toggle("BOX"   ); return;
+	case MENU_LABELS       : m_pPanel->Parameter_Value_Toggle("LABELS"); return;
+	case MENU_NORTH        : m_pPanel->Parameter_Value_Toggle("NORTH" ); return;
+	case MENU_STEREO       : m_pPanel->Parameter_Value_Toggle("STEREO"); return;
 
-	case MENU_TO_CLIPBOARD : m_pPanel->Save_toClipboard(); break;
+	case MENU_TO_CLIPBOARD : m_pPanel->Save_toClipboard(); return;
 
 	case MENU_ROTATE_X_DEC : m_pPanel->Get_Projector().Set_xRotation(m_pPanel->Get_Projector().Get_xRotation() - 4. * M_DEG_TO_RAD); break;
 	case MENU_ROTATE_X_INC : m_pPanel->Get_Projector().Set_xRotation(m_pPanel->Get_Projector().Get_xRotation() + 4. * M_DEG_TO_RAD); break;

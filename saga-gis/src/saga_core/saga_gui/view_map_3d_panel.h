@@ -72,8 +72,6 @@ class CVIEW_Map_3DPanel : public ::CSG_3DView_Panel
 public:
 	CVIEW_Map_3DPanel(wxWindow *pParent, class CWKSP_Map *pMap);
 
-	double						m_zScale;
-
 	bool						Set_Options				(CSG_Grid *pDEM, int DEM_Res, int Map_Res);
 
 	int							Get_DEM_Res				(void)	{	return( m_DEM_Res );	}
@@ -90,7 +88,6 @@ protected:
 
 	virtual void				On_Key_Down				(wxKeyEvent   &event);
 
-	virtual bool				On_Before_Draw			(void);
 	virtual bool				On_Draw					(void);
 
 

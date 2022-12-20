@@ -69,11 +69,9 @@ protected:
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual void				Update_Statistics		(void);
-	virtual void				Update_Parent			(void);
 
 	virtual void				On_Key_Down				(wxKeyEvent   &event);
 
-	virtual bool				On_Before_Draw			(void);
 	virtual bool				On_Draw					(void);
 
 	virtual int					Get_Color				(double Value);
@@ -114,15 +112,14 @@ END_EVENT_TABLE()
 C3D_Viewer_TIN_Panel::C3D_Viewer_TIN_Panel(wxWindow *pParent, CSG_TIN *pTIN, int zField, int cField, CSG_Grid *pDrape)
 	: CSG_3DView_Panel(pParent, pDrape)
 {
-	m_pTIN	= pTIN;
+	m_pTIN = pTIN;
 
 	//-----------------------------------------------------
-	CSG_String	Attributes;
+	CSG_String Attributes;
 
 	for(int i=0; i<pTIN->Get_Field_Count(); i++)
 	{
-		Attributes	+= pTIN->Get_Field_Name(i);
-		Attributes	+= "|";
+		Attributes += pTIN->Get_Field_Name(i); Attributes += "|";
 	}
 
 	//-----------------------------------------------------
@@ -130,12 +127,6 @@ C3D_Viewer_TIN_Panel::C3D_Viewer_TIN_Panel(wxWindow *pParent, CSG_TIN *pTIN, int
 		"Z_ATTR"		, _TL("Z Attribute"),
 		_TL(""),
 		Attributes, zField
-	);
-
-	m_Parameters.Add_Double("Z_ATTR",
-		"Z_SCALE"		, _TL("Exaggeration"),
-		_TL(""),
-		1.
 	);
 
 	//-----------------------------------------------------
@@ -318,12 +309,6 @@ void C3D_Viewer_TIN_Panel::Update_Statistics(void)
 	Update_View();
 }
 
-//---------------------------------------------------------
-void C3D_Viewer_TIN_Panel::Update_Parent(void)
-{
-	((CSG_3DView_Dialog *)GetParent())->Update_Controls();
-}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -338,9 +323,6 @@ void C3D_Viewer_TIN_Panel::On_Key_Down(wxKeyEvent &event)
 		CSG_3DView_Panel::On_Key_Down(event);
 		return;
 
-	case WXK_F1: m_Parameters("Z_SCALE"   )->Set_Value(m_Parameters("Z_SCALE"   )->asDouble() -  0.5); break;
-	case WXK_F2: m_Parameters("Z_SCALE"   )->Set_Value(m_Parameters("Z_SCALE"   )->asDouble() +  0.5); break;
-
 	case WXK_F5: m_Parameters("NODE_SIZE" )->Set_Value(m_Parameters("NODE_SIZE" )->asDouble() -  1.0); break;
 	case WXK_F6: m_Parameters("NODE_SIZE" )->Set_Value(m_Parameters("NODE_SIZE" )->asDouble() +  1.0); break;
 
@@ -349,24 +331,7 @@ void C3D_Viewer_TIN_Panel::On_Key_Down(wxKeyEvent &event)
 	}
 
 	//-----------------------------------------------------
-	Update_View();
-	Update_Parent();
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool C3D_Viewer_TIN_Panel::On_Before_Draw(void)
-{
-	if( m_Play_State == SG_3DVIEW_PLAY_STOP )
-	{
-		m_Projector.Set_zScaling(m_Projector.Get_xScaling() * m_Parameters("Z_SCALE")->asDouble());
-	}
-
-	return( true );
+	Update_View(); Update_Parent();
 }
 
 
@@ -382,7 +347,7 @@ int C3D_Viewer_TIN_Panel::Get_Color(double Value)
 		return( (int)Value );
 	}
 
-	double	c	= m_Color_Scale * (Value - m_Color_Min);
+	double c = m_Color_Scale * (Value - m_Color_Min);
 
 	return( m_Color_bGrad ? m_Colors.Get_Interpolated(c) : m_Colors[(int)c] );
 }
@@ -678,19 +643,21 @@ void C3D_Viewer_TIN_Dialog::On_Menu(wxCommandEvent &event)
 {
 	switch( event.GetId() )
 	{
-	case MENU_SCALE_Z_DEC: m_pPanel->m_Parameters("Z_SCALE")->Set_Value(m_pPanel->m_Parameters("Z_SCALE")->asDouble() - 0.5); m_pPanel->Update_View();	return;
-	case MENU_SCALE_Z_INC: m_pPanel->m_Parameters("Z_SCALE")->Set_Value(m_pPanel->m_Parameters("Z_SCALE")->asDouble() + 0.5); m_pPanel->Update_View();	return;
+	default: 
+		CSG_3DView_Dialog::On_Menu(event);
+		break;
 
-	case MENU_COLORS_GRAD: if( m_pPanel->Toggle_Parameter("COLORS_GRAD") ) { Update_Controls(); } return;
+	case MENU_SCALE_Z_DEC: m_pPanel->Parameter_Value_Add("Z_SCALE", -0.5); break;
+	case MENU_SCALE_Z_INC: m_pPanel->Parameter_Value_Add("Z_SCALE",  0.5); break;
 
-	case MENU_SHADING    : if( m_pPanel->Toggle_Parameter("SHADING"    ) ) { Update_Controls(); } return;
+	case MENU_COLORS_GRAD: m_pPanel->Parameter_Value_Toggle("COLORS_GRAD"); break;
 
-	case MENU_FACES      : if( m_pPanel->Toggle_Parameter("DRAW_FACES" ) ) { Update_Controls(); } return;
-	case MENU_EDGES      : if( m_pPanel->Toggle_Parameter("DRAW_EDGES" ) ) { Update_Controls(); } return;
-	case MENU_NODES      : if( m_pPanel->Toggle_Parameter("DRAW_NODES" ) ) { Update_Controls(); } return;
+	case MENU_SHADING    : m_pPanel->Parameter_Value_Toggle("SHADING"    ); break;
+
+	case MENU_FACES      : m_pPanel->Parameter_Value_Toggle("DRAW_FACES" ); break;
+	case MENU_EDGES      : m_pPanel->Parameter_Value_Toggle("DRAW_EDGES" ); break;
+	case MENU_NODES      : m_pPanel->Parameter_Value_Toggle("DRAW_NODES" ); break;
 	}
-
-	CSG_3DView_Dialog::On_Menu(event);
 }
 
 //---------------------------------------------------------
@@ -698,16 +665,18 @@ void C3D_Viewer_TIN_Dialog::On_Menu_UI(wxUpdateUIEvent &event)
 {
 	switch( event.GetId() )
 	{
-	case MENU_COLORS_GRAD: event.Check(m_pPanel->m_Parameters("COLORS_GRAD")->asBool());	return;
+	default: 
+		CSG_3DView_Dialog::On_Menu_UI(event);
+		break;
 
-	case MENU_SHADING    : event.Check(m_pPanel->m_Parameters("SHADING"    )->asBool());	return;
+	case MENU_COLORS_GRAD: event.Check(m_pPanel->m_Parameters("COLORS_GRAD")->asBool()); break;
 
-	case MENU_FACES      : event.Check(m_pPanel->m_Parameters("DRAW_FACES" )->asBool());	return;
-	case MENU_EDGES      : event.Check(m_pPanel->m_Parameters("DRAW_EDGES" )->asBool());	return;
-	case MENU_NODES      : event.Check(m_pPanel->m_Parameters("DRAW_NODES" )->asBool());	return;
+	case MENU_SHADING    : event.Check(m_pPanel->m_Parameters("SHADING"    )->asBool()); break;
+
+	case MENU_FACES      : event.Check(m_pPanel->m_Parameters("DRAW_FACES" )->asBool()); break;
+	case MENU_EDGES      : event.Check(m_pPanel->m_Parameters("DRAW_EDGES" )->asBool()); break;
+	case MENU_NODES      : event.Check(m_pPanel->m_Parameters("DRAW_NODES" )->asBool()); break;
 	}
-
-	CSG_3DView_Dialog::On_Menu_UI(event);
 }
 
 

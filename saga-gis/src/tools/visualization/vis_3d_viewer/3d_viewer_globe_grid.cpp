@@ -71,7 +71,9 @@ protected:
 	virtual void				Update_Parent			(void);
 
 	virtual void				On_Key_Down				(wxKeyEvent   &event);
+	virtual void				On_Mouse_Motion			(wxMouseEvent &event);
 
+	virtual bool				On_Before_Draw			(void);
 	virtual bool				On_Draw					(void);
 
 	virtual int					Get_Color				(double Value);
@@ -107,7 +109,8 @@ private:
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(C3D_Viewer_Globe_Grid_Panel, CSG_3DView_Panel)
-	EVT_KEY_DOWN	(C3D_Viewer_Globe_Grid_Panel::On_Key_Down)
+	EVT_KEY_DOWN(C3D_Viewer_Globe_Grid_Panel::On_Key_Down)
+	EVT_MOTION  (C3D_Viewer_Globe_Grid_Panel::On_Mouse_Motion)
 END_EVENT_TABLE()
 
 
@@ -135,12 +138,6 @@ C3D_Viewer_Globe_Grid_Panel::C3D_Viewer_Globe_Grid_Panel(wxWindow *pParent, CSG_
 		"RADIUS"		, _TL("Radius"),
 		_TL(""),
 		6371., 0., true
-	);
-
-	m_Parameters.Add_Double("NODE_GENERAL",
-		"Z_SCALE"		, _TL("Exaggeration"),
-		_TL(""),
-		1.
 	);
 
 	//-----------------------------------------------------
@@ -335,9 +332,27 @@ void C3D_Viewer_Globe_Grid_Panel::On_Key_Down(wxKeyEvent &event)
 	case WXK_F2: m_Parameters("Z_SCALE")->Set_Value(m_Parameters("Z_SCALE")->asDouble() +  0.5); break;
 	}
 
-	//-----------------------------------------------------
 	Update_View(true);
-	Update_Parent();
+}
+
+//---------------------------------------------------------
+void C3D_Viewer_Globe_Grid_Panel::On_Mouse_Motion(wxMouseEvent &event)
+{
+	if( HasCapture() && event.Dragging() && event.MiddleIsDown() )
+	{
+		#define GET_MOUSE_X_RELDIFF	((double)(m_Down_Screen.x - event.GetX()) / (double)GetClientSize().x)
+		#define GET_MOUSE_Y_RELDIFF	((double)(m_Down_Screen.y - event.GetY()) / (double)GetClientSize().y)
+
+		m_Parameters("Z_SCALE")->Set_Value(m_Down_Value.x + GET_MOUSE_X_RELDIFF * 100.);
+		m_Projector.Set_zShift            (m_Down_Value.y + GET_MOUSE_Y_RELDIFF);
+
+		Update_View(true);
+
+		return;
+	}
+
+	//-----------------------------------------------------
+	CSG_3DView_Panel::On_Mouse_Motion(event);
 }
 
 
@@ -356,6 +371,19 @@ int C3D_Viewer_Globe_Grid_Panel::Get_Color(double Value)
 	double c = m_Color_Scale * (Value - m_Color_Min);
 
 	return( m_Color_bGrad ? m_Colors.Get_Interpolated(c) : m_Colors[(int)c] );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool C3D_Viewer_Globe_Grid_Panel::On_Before_Draw(void)
+{
+	m_Projector.Set_zScaling(1.);
+
+	return( true );
 }
 
 

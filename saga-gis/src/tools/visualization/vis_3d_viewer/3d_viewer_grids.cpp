@@ -79,9 +79,8 @@ protected:
 	virtual void				Update_Statistics		(void);
 	virtual void				Update_Parent			(void);
 
-	virtual void				On_Key_Down				(wxKeyEvent   &event);
+	virtual void				On_Key_Down				(wxKeyEvent &event);
 
-	virtual bool				On_Before_Draw			(void);
 	virtual bool				On_Draw					(void);
 
 	virtual int					Get_Color				(double Value);
@@ -139,14 +138,7 @@ END_EVENT_TABLE()
 C3D_Viewer_Grids_Panel::C3D_Viewer_Grids_Panel(wxWindow *pParent, CSG_Grids *pGrids)
 	: CSG_3DView_Panel(pParent)
 {
-	m_pGrids	= pGrids;
-
-	//-----------------------------------------------------
-	m_Parameters.Add_Double("NODE_GENERAL",
-		"Z_SCALE"		, _TL("Exaggeration"),
-		_TL(""),
-		1.
-	);
+	m_pGrids = pGrids;
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Double("NODE_GENERAL",
@@ -305,7 +297,7 @@ void C3D_Viewer_Grids_Panel::Update_Parent(void)
 //---------------------------------------------------------
 bool C3D_Viewer_Grids_Panel::Set_ZScale(bool bIncrease)
 {
-	double	d	= 0.1 * 0.25 * (m_pGrids->Get_XRange() + m_pGrids->Get_YRange()) / m_pGrids->Get_ZRange();
+	double d = 0.1 * 0.25 * (m_pGrids->Get_XRange() + m_pGrids->Get_YRange()) / m_pGrids->Get_ZRange();
 	m_Parameters("Z_SCALE")->Set_Value(m_Parameters("Z_SCALE")->asDouble() + (bIncrease ? d : -d));
 	Update_View();
 
@@ -385,22 +377,6 @@ void C3D_Viewer_Grids_Panel::On_Key_Down(wxKeyEvent &event)
 	}
 
 	Update_Parent();
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool C3D_Viewer_Grids_Panel::On_Before_Draw(void)
-{
-	if( m_Play_State == SG_3DVIEW_PLAY_STOP )
-	{
-		m_Projector.Set_zScaling(m_Projector.Get_xScaling() * m_Parameters("Z_SCALE")->asDouble());
-	}
-
-	return( true );
 }
 
 

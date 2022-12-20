@@ -80,17 +80,17 @@ enum
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CSG_3DView_Panel, wxPanel)
-	EVT_SIZE		(CSG_3DView_Panel::On_Size)
-	EVT_PAINT		(CSG_3DView_Panel::On_Paint)
-	EVT_KEY_DOWN	(CSG_3DView_Panel::On_Key_Down)
-	EVT_LEFT_DOWN	(CSG_3DView_Panel::On_Mouse_LDown)
-	EVT_LEFT_UP		(CSG_3DView_Panel::On_Mouse_LUp)
-	EVT_RIGHT_DOWN	(CSG_3DView_Panel::On_Mouse_RDown)
-	EVT_RIGHT_UP	(CSG_3DView_Panel::On_Mouse_RUp)
-	EVT_MIDDLE_DOWN	(CSG_3DView_Panel::On_Mouse_MDown)
-	EVT_MIDDLE_UP	(CSG_3DView_Panel::On_Mouse_MUp)
-	EVT_MOTION		(CSG_3DView_Panel::On_Mouse_Motion)
-	EVT_MOUSEWHEEL	(CSG_3DView_Panel::On_Mouse_Wheel)
+	EVT_SIZE       (CSG_3DView_Panel::On_Size)
+	EVT_PAINT      (CSG_3DView_Panel::On_Paint)
+	EVT_KEY_DOWN   (CSG_3DView_Panel::On_Key_Down)
+	EVT_LEFT_DOWN  (CSG_3DView_Panel::On_Mouse_LDown)
+	EVT_LEFT_UP    (CSG_3DView_Panel::On_Mouse_LUp)
+	EVT_RIGHT_DOWN (CSG_3DView_Panel::On_Mouse_RDown)
+	EVT_RIGHT_UP   (CSG_3DView_Panel::On_Mouse_RUp)
+	EVT_MIDDLE_DOWN(CSG_3DView_Panel::On_Mouse_MDown)
+	EVT_MIDDLE_UP  (CSG_3DView_Panel::On_Mouse_MUp)
+	EVT_MOTION     (CSG_3DView_Panel::On_Mouse_Motion)
+	EVT_MOUSEWHEEL (CSG_3DView_Panel::On_Mouse_Wheel)
 END_EVENT_TABLE()
 
 
@@ -110,6 +110,12 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	m_Parameters.Add_Node("",
 		"NODE_GENERAL"	, _TL("General"),
 		_TL("")
+	);
+
+	m_Parameters.Add_Double("NODE_GENERAL",
+		"Z_SCALE"		, _TL("Exaggeration"),
+		_TL(""),
+		1.
 	);
 
 	m_Parameters.Add_Choice("NODE_GENERAL",
@@ -316,7 +322,7 @@ int CSG_3DView_Panel::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 }
 
 //---------------------------------------------------------
-bool CSG_3DView_Panel::Toggle_Parameter(const CSG_String &ID, bool bUpdateView)
+bool CSG_3DView_Panel::Parameter_Value_Toggle(const CSG_String &ID, bool bUpdate)
 {
 	CSG_Parameter *pParameter = m_Parameters(ID);
 
@@ -339,9 +345,37 @@ bool CSG_3DView_Panel::Toggle_Parameter(const CSG_String &ID, bool bUpdateView)
 		break;
 	}
 
-	if( bUpdateView )
+	if( bUpdate )
 	{
-		Update_View();
+		Update_View(); Update_Parent();
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_3DView_Panel::Parameter_Value_Add(const CSG_String &ID, double Value, bool bUpdate)
+{
+	CSG_Parameter *pParameter = m_Parameters(ID);
+
+	if( !pParameter )
+	{
+		return( false );
+	}
+
+	switch( pParameter->Get_Type() )
+	{
+	default:
+		return( false );
+
+	case PARAMETER_TYPE_Int: case PARAMETER_TYPE_Double:
+		pParameter->Set_Value(pParameter->asDouble() + Value);
+		break;
+	}
+
+	if( bUpdate )
+	{
+		Update_View(); Update_Parent();
 	}
 
 	return( false );
@@ -358,7 +392,9 @@ void CSG_3DView_Panel::Update_Statistics(void)
 
 //---------------------------------------------------------
 void CSG_3DView_Panel::Update_Parent(void)
-{}
+{
+	((CSG_3DView_Dialog *)GetParent())->Update_Controls();
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -413,13 +449,11 @@ void CSG_3DView_Panel::On_Key_Down(wxKeyEvent &event)
 			m_Projector.Inc_xRotation( 4. * M_DEG_TO_RAD);
 			break;
 
-		case WXK_F3:
-			m_Projector.Inc_yRotation(-4. * M_DEG_TO_RAD);
-			break;
+		case WXK_F1: m_Parameters("Z_SCALE")->Set_Value(m_Parameters("Z_SCALE")->asDouble() -  0.5); break;
+		case WXK_F2: m_Parameters("Z_SCALE")->Set_Value(m_Parameters("Z_SCALE")->asDouble() +  0.5); break;
 
-		case WXK_F4:
-			m_Projector.Inc_yRotation( 4. * M_DEG_TO_RAD);
-			break;
+		case WXK_F3: m_Projector.Inc_yRotation(-4. * M_DEG_TO_RAD); break;
+		case WXK_F4: m_Projector.Inc_yRotation( 4. * M_DEG_TO_RAD); break;
 
 		case WXK_RIGHT: case WXK_NUMPAD_RIGHT: case WXK_MULTIPLY: case WXK_NUMPAD_MULTIPLY:
 			m_Projector.Inc_zRotation(-4. * M_DEG_TO_RAD);
@@ -439,13 +473,13 @@ void CSG_3DView_Panel::On_Key_Down(wxKeyEvent &event)
 		case 'O': m_Projector.Inc_Central_Distance( 0.1); break;
 		case 'P': m_Projector.Inc_Central_Distance(-0.1); break;
 
-		case 'B': Toggle_Parameter("BOX"   , false); break;
-		case 'L': Toggle_Parameter("LABELS", false); break;
-		case 'N': Toggle_Parameter("NORTH" , false); break;
-		case 'S': Toggle_Parameter("STEREO", false); break;
+		case 'B': Parameter_Value_Toggle("BOX"   ); return;
+		case 'L': Parameter_Value_Toggle("LABELS"); return;
+		case 'N': Parameter_Value_Toggle("NORTH" ); return;
+		case 'S': Parameter_Value_Toggle("STEREO"); return;
 
-		case 'A': m_Parameters("STEREO_DIST")->Set_Value(m_Parameters("STEREO_DIST")->asDouble() - 0.5); break;
-		case 'D': m_Parameters("STEREO_DIST")->Set_Value(m_Parameters("STEREO_DIST")->asDouble() + 0.5); break;
+		case 'A': Parameter_Value_Add("STEREO_DIST", -0.5); return;
+		case 'D': Parameter_Value_Add("STEREO_DIST",  0.5); return;
 		}
 
 		Update_Parent(); Update_View();
@@ -485,8 +519,7 @@ void CSG_3DView_Panel::On_Mouse_LUp(wxMouseEvent &event)
 		m_Projector.Set_zRotation(m_Down_Value.x + GET_MOUSE_X_RELDIFF * M_PI_180);
 		m_Projector.Set_xRotation(m_Down_Value.y + GET_MOUSE_Y_RELDIFF * M_PI_180);
 
-		Update_View();
-		Update_Parent();
+		Update_View(); Update_Parent();
 	}
 }
 
@@ -514,8 +547,7 @@ void CSG_3DView_Panel::On_Mouse_RUp(wxMouseEvent &event)
 		m_Projector.Set_xShift(m_Down_Value.x - GET_MOUSE_X_RELDIFF);
 		m_Projector.Set_yShift(m_Down_Value.y - GET_MOUSE_Y_RELDIFF);
 
-		Update_View();
-		Update_Parent();
+		Update_View(); Update_Parent();
 	}
 }
 
@@ -525,7 +557,8 @@ void CSG_3DView_Panel::On_Mouse_MDown(wxMouseEvent &event)
 	SetFocus();
 
 	m_Down_Screen  = event.GetPosition();
-	m_Down_Value.x = m_Projector.Get_yRotation();
+//	m_Down_Value.x = m_Projector.Get_yRotation();
+	m_Down_Value.x = m_Parameters("Z_SCALE")->asDouble();
 	m_Down_Value.y = m_Projector.Get_zShift();
 
 	CaptureMouse();
@@ -540,11 +573,10 @@ void CSG_3DView_Panel::On_Mouse_MUp(wxMouseEvent &event)
 
 	if( m_Down_Screen.x != event.GetX() || m_Down_Screen.y != event.GetY() )
 	{
-		m_Projector.Set_yRotation(m_Down_Value.x + GET_MOUSE_X_RELDIFF * M_PI_180);
+	//	m_Projector.Set_yRotation(m_Down_Value.x + GET_MOUSE_X_RELDIFF * M_PI_180);
 		m_Projector.Set_zShift   (m_Down_Value.y + GET_MOUSE_Y_RELDIFF);
 
-		Update_View();
-		Update_Parent();
+		Update_View(); Update_Parent();
 	}
 }
 
@@ -560,21 +592,21 @@ void CSG_3DView_Panel::On_Mouse_Motion(wxMouseEvent &event)
 		}
 		else if( event.RightIsDown() )
 		{
-			m_Projector.Set_xShift   (m_Down_Value.x - GET_MOUSE_X_RELDIFF);
-			m_Projector.Set_yShift   (m_Down_Value.y - GET_MOUSE_Y_RELDIFF);
+			m_Projector.Set_xShift(m_Down_Value.x - GET_MOUSE_X_RELDIFF);
+			m_Projector.Set_yShift(m_Down_Value.y - GET_MOUSE_Y_RELDIFF);
 		}
 		else if( event.MiddleIsDown() )
 		{
-			m_Projector.Set_yRotation(m_Down_Value.x + GET_MOUSE_X_RELDIFF * M_PI_180);
-			m_Projector.Set_zShift   (m_Down_Value.y + GET_MOUSE_Y_RELDIFF);
+		//	m_Projector.Set_yRotation         (m_Down_Value.x + GET_MOUSE_X_RELDIFF * M_PI_180);
+			m_Parameters("Z_SCALE")->Set_Value(m_Down_Value.x + GET_MOUSE_X_RELDIFF * 100.);
+			m_Projector.Set_zShift            (m_Down_Value.y + GET_MOUSE_Y_RELDIFF);
 		}
 		else
 		{
 			return;
 		}
 
-		Update_View();
-		Update_Parent();
+		Update_View(); Update_Parent();
 	}
 }
 
@@ -587,6 +619,22 @@ void CSG_3DView_Panel::On_Mouse_Wheel(wxMouseEvent &event)
 
 		Update_View();
 	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_3DView_Panel::On_Before_Draw(void)
+{
+	if( m_Play_State == SG_3DVIEW_PLAY_STOP )
+	{
+		m_Projector.Set_zScaling(m_Projector.Get_xScaling() * m_Parameters("Z_SCALE")->asDouble());
+	}
+
+	return( true );
 }
 
 

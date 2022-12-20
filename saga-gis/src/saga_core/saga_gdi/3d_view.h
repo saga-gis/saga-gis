@@ -97,7 +97,9 @@ public:
 
 	virtual bool				Update_Parameters		(bool bSave);
 	virtual bool				Update_View				(bool bStatistics = false);
-	bool						Toggle_Parameter		(const CSG_String &ID, bool bUpdateView = true);
+
+	bool						Parameter_Value_Toggle	(const CSG_String &ID              , bool bUpdate = true);
+	bool						Parameter_Value_Add		(const CSG_String &ID, double Value, bool bUpdate = true);
 
 	bool						Save_asImage			(const CSG_String &FileName);
 	bool						Save_toClipboard		(void);
@@ -145,7 +147,7 @@ protected:
 	virtual void				On_Mouse_Motion			(wxMouseEvent &event);
 	virtual void				On_Mouse_Wheel			(wxMouseEvent &event);
 
-	virtual bool				On_Before_Draw			(void)	{	return( true );	}
+	virtual bool				On_Before_Draw			(void);
 	virtual bool				On_Draw					(void)	= 0;
 
 
@@ -170,8 +172,8 @@ private:
 //---------------------------------------------------------
 enum
 {
-	MENU_USER_FIRST	= 0,
-	MENU_USER_LAST	= 100
+	MENU_USER_FIRST = 0,
+	MENU_USER_LAST  = 100
 };
 
 
@@ -180,15 +182,10 @@ enum
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define MENU_VALUE_ADD(id, add)	m_pPanel->m_Parameters(id)->Set_Value(m_pPanel->m_Parameters(id)->asDouble() + add); Update_Controls(); m_pPanel->Update_View();
-
-//---------------------------------------------------------
-#define CHECKBOX_UPDATE(pControl, id)		if( event.GetEventObject() == pControl )\
-	{\
-		m_pPanel->m_Parameters(id)->Set_Value(pControl->GetValue() == 1 ? true : false);\
-		m_pPanel->Update_View();\
-		return;\
-	}\
+#define CHECKBOX_UPDATE(pControl, id) if( event.GetEventObject() == pControl ) {\
+	m_pPanel->m_Parameters(id)->Set_Value(pControl->GetValue() == 1 ? true : false);\
+	m_pPanel->Update_View(); return;\
+}\
 
 
 ///////////////////////////////////////////////////////////

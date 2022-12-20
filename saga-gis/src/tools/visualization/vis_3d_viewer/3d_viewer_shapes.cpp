@@ -71,7 +71,6 @@ protected:
 
 	virtual void				On_Key_Down				(wxKeyEvent   &event);
 
-	virtual bool				On_Before_Draw			(void);
 	virtual bool				On_Draw					(void);
 
 	virtual int					Get_Color				(double Value);
@@ -115,7 +114,7 @@ END_EVENT_TABLE()
 C3D_Viewer_Shapes_Panel::C3D_Viewer_Shapes_Panel(wxWindow *pParent, CSG_Shapes *pShapes, int cField)
 	: CSG_3DView_Panel(pParent)
 {
-	m_pShapes	= pShapes;
+	m_pShapes = pShapes;
 
 	//-----------------------------------------------------
 	CSG_String	Attributes;
@@ -124,13 +123,6 @@ C3D_Viewer_Shapes_Panel::C3D_Viewer_Shapes_Panel(wxWindow *pParent, CSG_Shapes *
 	{
 		Attributes += m_pShapes->Get_Field_Name(i); Attributes	+= "|";
 	}
-
-	//-----------------------------------------------------
-	m_Parameters.Add_Double("NODE_GENERAL",
-		"Z_SCALE"		, _TL("Exaggeration"),
-		_TL(""),
-		1.
-	);
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Node("",
@@ -245,35 +237,7 @@ void C3D_Viewer_Shapes_Panel::Update_Parent(void)
 //---------------------------------------------------------
 void C3D_Viewer_Shapes_Panel::On_Key_Down(wxKeyEvent &event)
 {
-	switch( event.GetKeyCode() )
-	{
-	default:
-		CSG_3DView_Panel::On_Key_Down(event);
-		return;
-
-	case WXK_F1: m_Parameters("Z_SCALE")->Set_Value(m_Parameters("Z_SCALE")->asDouble() -  0.5); break;
-	case WXK_F2: m_Parameters("Z_SCALE")->Set_Value(m_Parameters("Z_SCALE")->asDouble() +  0.5); break;
-	}
-
-	//-----------------------------------------------------
-	Update_View();
-	Update_Parent();
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool C3D_Viewer_Shapes_Panel::On_Before_Draw(void)
-{
-	if( m_Play_State == SG_3DVIEW_PLAY_STOP )
-	{
-		m_Projector.Set_zScaling(m_Projector.Get_xScaling() * m_Parameters("Z_SCALE")->asDouble());
-	}
-
-	return( true );
+	CSG_3DView_Panel::On_Key_Down(event);
 }
 
 
@@ -289,7 +253,7 @@ int C3D_Viewer_Shapes_Panel::Get_Color(double Value)
 		return( (int)Value );
 	}
 
-	double	c	= m_Color_Scale * (Value - m_Color_Min);
+	double c = m_Color_Scale * (Value - m_Color_Min);
 
 	return( m_Color_bGrad ? m_Colors.Get_Interpolated(c) : m_Colors[(int)c] );
 }

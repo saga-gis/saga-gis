@@ -192,9 +192,6 @@ void CVIEW_Map_3DPanel::On_Key_Down(wxKeyEvent &event)
 	{
 	default     : CSG_3DView_Panel::On_Key_Down(event);	return;
 
-	case WXK_F1 : m_zScale -= 0.5;  break;
-	case WXK_F2 : m_zScale += 0.5;  break;
-
 	case WXK_F5 : Inc_DEM_Res(-25); break;
 	case WXK_F6 : Inc_DEM_Res( 25); break;
 
@@ -207,22 +204,6 @@ void CVIEW_Map_3DPanel::On_Key_Down(wxKeyEvent &event)
 
 	//-----------------------------------------------------
 	Update_View(); Update_Parent();
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CVIEW_Map_3DPanel::On_Before_Draw(void)
-{
-	if( m_Play_State == SG_3DVIEW_PLAY_STOP )
-	{
-		m_Projector.Set_zScaling(m_Projector.Get_xScaling() * m_zScale);
-	}
-
-	return( true );
 }
 
 

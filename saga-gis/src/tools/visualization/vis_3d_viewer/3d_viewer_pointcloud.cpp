@@ -350,8 +350,7 @@ void C3D_Viewer_PointCloud_Panel::On_Key_Down(wxKeyEvent &event)
 	}
 
 	//-----------------------------------------------------
-	Update_View();
-	Update_Parent();
+	Update_View(); Update_Parent();
 }
 
 
@@ -940,17 +939,17 @@ void C3D_Viewer_PointCloud_Dialog::On_Menu(wxCommandEvent &event)
 		CSG_3DView_Dialog::On_Menu(event);
 		break;
 
-	case MENU_SCALE_Z_DEC   : MENU_VALUE_ADD("Z_SCALE"   , -0.5); break;
-	case MENU_SCALE_Z_INC   : MENU_VALUE_ADD("Z_SCALE"   ,  0.5); break;
+	case MENU_SCALE_Z_DEC   : m_pPanel->Parameter_Value_Add("Z_SCALE"   , -0.5); break;
+	case MENU_SCALE_Z_INC   : m_pPanel->Parameter_Value_Add("Z_SCALE"   ,  0.5); break;
 
-	case MENU_SIZE_DEC      : MENU_VALUE_ADD("SIZE"      , -1.0); break;
-	case MENU_SIZE_INC      : MENU_VALUE_ADD("SIZE"      ,  1.0); break;
+	case MENU_SIZE_DEC      : m_pPanel->Parameter_Value_Add("SIZE"      , -1.0); break;
+	case MENU_SIZE_INC      : m_pPanel->Parameter_Value_Add("SIZE"      ,  1.0); break;
 
-	case MENU_SIZE_SCALE_DEC: MENU_VALUE_ADD("SIZE_SCALE", -1.0); break;
-	case MENU_SIZE_SCALE_INC: MENU_VALUE_ADD("SIZE_SCALE",  1.0); break;
+	case MENU_SIZE_SCALE_DEC: m_pPanel->Parameter_Value_Add("SIZE_SCALE", -1.0); break;
+	case MENU_SIZE_SCALE_INC: m_pPanel->Parameter_Value_Add("SIZE_SCALE",  1.0); break;
 
-	case MENU_VAL_AS_RGB    : if( m_pPanel->Toggle_Parameter("VAL_AS_RGB" ) ) { Update_Controls(); } break;
-	case MENU_COLORS_GRAD   : if( m_pPanel->Toggle_Parameter("COLORS_GRAD") ) { Update_Controls(); } break;
+	case MENU_VAL_AS_RGB    : m_pPanel->Parameter_Value_Toggle("VAL_AS_RGB" ); break;
+	case MENU_COLORS_GRAD   : m_pPanel->Parameter_Value_Toggle("COLORS_GRAD"); break;
 	}
 }
 

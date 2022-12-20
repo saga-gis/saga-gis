@@ -69,9 +69,8 @@ protected:
 	virtual void				Update_Statistics		(void);
 	virtual void				Update_Parent			(void);
 
-	virtual void				On_Key_Down				(wxKeyEvent   &event);
+	virtual void				On_Key_Down				(wxKeyEvent &event);
 
-	virtual bool				On_Before_Draw			(void);
 	virtual bool				On_Draw					(void);
 
 	virtual int					Get_Color				(double Value);
@@ -117,16 +116,7 @@ END_EVENT_TABLE()
 C3D_Viewer_Multiple_Grids_Panel::C3D_Viewer_Multiple_Grids_Panel(wxWindow *pParent, CSG_Parameter_Grid_List *pGrids)
 	: CSG_3DView_Panel(pParent)
 {
-	m_pGrids	= pGrids;
-
-	//-----------------------------------------------------
-	m_Parameters("NODE_GENERAL");
-
-	m_Parameters.Add_Double("NODE_GENERAL",
-		"Z_SCALE"		, _TL("Exaggeration"),
-		_TL(""),
-		1.
-	);
+	m_pGrids = pGrids;
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Node("",
@@ -241,35 +231,7 @@ void C3D_Viewer_Multiple_Grids_Panel::Update_Parent(void)
 //---------------------------------------------------------
 void C3D_Viewer_Multiple_Grids_Panel::On_Key_Down(wxKeyEvent &event)
 {
-	switch( event.GetKeyCode() )
-	{
-	default:
-		CSG_3DView_Panel::On_Key_Down(event);
-		return;
-
-	case WXK_F1: m_Parameters("Z_SCALE")->Set_Value(m_Parameters("Z_SCALE")->asDouble() -  0.5); break;
-	case WXK_F2: m_Parameters("Z_SCALE")->Set_Value(m_Parameters("Z_SCALE")->asDouble() +  0.5); break;
-	}
-
-	//-----------------------------------------------------
-	Update_View();
-	Update_Parent();
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool C3D_Viewer_Multiple_Grids_Panel::On_Before_Draw(void)
-{
-	if( m_Play_State == SG_3DVIEW_PLAY_STOP )
-	{
-		m_Projector.Set_zScaling(m_Projector.Get_xScaling() * m_Parameters("Z_SCALE")->asDouble());
-	}
-
-	return( true );
+	CSG_3DView_Panel::On_Key_Down(event);
 }
 
 
@@ -456,11 +418,13 @@ protected:
 	{
 		switch( event.GetId() )
 		{
-		case MENU_SCALE_Z_DEC: m_pPanel->m_Parameters("Z_SCALE")->Set_Value(m_pPanel->m_Parameters("Z_SCALE")->asDouble() - 0.5); m_pPanel->Update_View();	return;
-		case MENU_SCALE_Z_INC: m_pPanel->m_Parameters("Z_SCALE")->Set_Value(m_pPanel->m_Parameters("Z_SCALE")->asDouble() + 0.5); m_pPanel->Update_View();	return;
-		}
+		default:
+			CSG_3DView_Dialog::On_Menu(event);
+			return;
 
-		CSG_3DView_Dialog::On_Menu(event);
+		case MENU_SCALE_Z_DEC: m_pPanel->Parameter_Value_Add("Z_SCALE", -0.5); break;
+		case MENU_SCALE_Z_INC: m_pPanel->Parameter_Value_Add("Z_SCALE",  0.5); break;
+		}
 	}
 
 };
@@ -483,18 +447,13 @@ C3D_Viewer_Multiple_Grids::C3D_Viewer_Multiple_Grids(void)
 		""
 	));
 
-	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"	, _TL("Grids"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
+	Parameters.Add_Grid_List("", "GRIDS", _TL("Grids"), _TL(""), PARAMETER_INPUT);
 }
 
 //---------------------------------------------------------
 bool C3D_Viewer_Multiple_Grids::On_Execute(void)
 {
-	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
+	CSG_Parameter_Grid_List *pGrids = Parameters("GRIDS")->asGridList();
 
 	if( pGrids->Get_Grid_Count() <= 0 )
 	{
@@ -503,7 +462,7 @@ bool C3D_Viewer_Multiple_Grids::On_Execute(void)
 		return( false );
 	}
 
-	C3D_Viewer_Multiple_Grids_Dialog	dlg(pGrids);
+	C3D_Viewer_Multiple_Grids_Dialog dlg(pGrids);
 
 	dlg.ShowModal();
 
