@@ -864,7 +864,7 @@ CSG_Parameter_Choice::CSG_Parameter_Choice(CSG_Parameters *pOwner, CSG_Parameter
 //---------------------------------------------------------
 bool CSG_Parameter_Choice::Del_Items(void)
 {
-	m_Items.Clear();
+	m_Items.Clear(); m_Data.Clear();
 
 	return( true );
 }
@@ -874,14 +874,8 @@ bool CSG_Parameter_Choice::Add_Item(const CSG_String &Item, const CSG_String &Da
 {
 	if( !Item.is_Empty() )
 	{
-		if( !Data.is_Empty() )
-		{
-			m_Items.Add(CSG_String::Format("{%s}%s", Data.c_str(), Item.c_str()));
-		}
-		else
-		{
-			m_Items.Add(Item);
-		}
+		m_Items.Add(Item);
+		m_Data .Add(Data);
 
 		_Set_String();	// items have changed
 
@@ -894,11 +888,26 @@ bool CSG_Parameter_Choice::Add_Item(const CSG_String &Item, const CSG_String &Da
 //---------------------------------------------------------
 bool CSG_Parameter_Choice::Set_Items(const SG_Char *String)
 {
-	m_Items.Clear();
+	m_Items.Clear(); m_Data.Clear();
 
 	if( String && *String != '\0' )
 	{
-		m_Items	= SG_String_Tokenize(String, "|");
+		CSG_Strings Items(SG_String_Tokenize(String, "|"));
+
+		for(int i=0; i<Items.Get_Count(); i++)
+		{
+			if( Items[i].Find('{') == 0 && Items[i].Find('}') > 0 )	// data entry within leading curly brackets: '{data} item text'
+			{
+				CSG_String Data(Items[i].AfterFirst('{').BeforeFirst('}'));
+				CSG_String Item(Items[i].AfterFirst('}')); Item.Trim();
+
+				Add_Item(Item, Data);
+			}
+			else
+			{
+				Add_Item(Items[i]);
+			}
+		}
 	}
 
 	if( m_Value < 0 && m_Items.Get_Count() > 0 )
@@ -911,7 +920,7 @@ bool CSG_Parameter_Choice::Set_Items(const SG_Char *String)
 		m_Value	= m_Items.Get_Count() - 1;
 	}
 
-	_Set_String();	// items have changed
+	_Set_String(); // items have changed
 
 	return( Get_Count() > 0 );
 }
@@ -921,11 +930,16 @@ CSG_String CSG_Parameter_Choice::Get_Items(void) const
 {
 	CSG_String Items;
 
-	for(int i=0; i<m_Items.Get_Count(); i++)
+	for(int i=0; i<Get_Count(); i++)
 	{
 		if( i > 0 )
 		{
 			Items += "|";
+		}
+
+		if( !m_Data[i].is_Empty() )
+		{
+			Items += "{" + m_Data[i] + "}";
 		}
 
 		Items += m_Items[i];
@@ -937,23 +951,9 @@ CSG_String CSG_Parameter_Choice::Get_Items(void) const
 //---------------------------------------------------------
 const SG_Char * CSG_Parameter_Choice::Get_Item(int Index)	const
 {
-	if( Index >= 0 && Index < m_Items.Get_Count() )
+	if( Index >= 0 && Index < Get_Count() )
 	{
-		const SG_Char *Item = m_Items[Index].c_str();
-
-		if( *Item == '{' )
-		{
-			do { Item++; } while( *Item != '\0' && *Item != '}' );
-
-			if( *Item == '\0' )
-			{
-				return( m_Items[Index].c_str() );
-			}
-
-			Item++;
-		}
-
-		return( Item );
+		return( m_Items[Index] );
 	}
 
 	return( NULL );
@@ -962,33 +962,17 @@ const SG_Char * CSG_Parameter_Choice::Get_Item(int Index)	const
 //---------------------------------------------------------
 CSG_String CSG_Parameter_Choice::Get_Item_Data(int Index)	const
 {
-	CSG_String	Data;
-
-	if( Index >= 0 && Index < m_Items.Get_Count() )
+	if( Index >= 0 && Index < Get_Count() )
 	{
-		Data = m_Items[Index]; Data.Trim();
-
-		if( Data.Find('{') == 0 )	// data entry within leading curly brackets: '{data} item text'
-		{
-			Data = Data.AfterFirst('{').BeforeFirst('}');
-		}
+		return( m_Data[Index] );
 	}
 
-	return( Data );
+	return( "" );
 }
 
-bool CSG_Parameter_Choice::Get_Data(int        &Value)	const
+CSG_String CSG_Parameter_Choice::Get_Data(void)	const
 {
-	CSG_String String;
-
-	return( Get_Data(String) && String.asInt   (Value) );
-}
-
-bool CSG_Parameter_Choice::Get_Data(double     &Value)	const
-{
-	CSG_String String;
-
-	return( Get_Data(String) && String.asDouble(Value) );
+	return( Get_Item_Data(m_Value) );
 }
 
 bool CSG_Parameter_Choice::Get_Data(CSG_String &Value)	const
@@ -998,13 +982,22 @@ bool CSG_Parameter_Choice::Get_Data(CSG_String &Value)	const
 	return( !Value.is_Empty() );
 }
 
-CSG_String CSG_Parameter_Choice::Get_Data(void)	const
+bool CSG_Parameter_Choice::Get_Data(int &Value)	const
 {
-	return( Get_Item_Data(m_Value) );
+	CSG_String String;
+
+	return( Get_Data(String) && String.asInt(Value) );
+}
+
+bool CSG_Parameter_Choice::Get_Data(double &Value)	const
+{
+	CSG_String String;
+
+	return( Get_Data(String) && String.asDouble(Value) );
 }
 
 //---------------------------------------------------------
-int CSG_Parameter_Choice::_Set_Value(int               Value)
+int CSG_Parameter_Choice::_Set_Value(int Value)
 {
 	if( Value >= 0 && Value < m_Items.Get_Count() )
 	{
@@ -1022,7 +1015,7 @@ int CSG_Parameter_Choice::_Set_Value(int               Value)
 }
 
 //---------------------------------------------------------
-int CSG_Parameter_Choice::_Set_Value(double            Value)
+int CSG_Parameter_Choice::_Set_Value(double Value)
 {
 	return( _Set_Value((int)Value) );
 }
@@ -1032,14 +1025,14 @@ int CSG_Parameter_Choice::_Set_Value(const CSG_String &Value)
 {
 	if( !Value.is_Empty() )
 	{
-		int	Index;	// first test, if value string is an integer specifying the index position
+		int Index; // first test, if value string is an integer specifying the index position
 
 		if( Value.asInt(Index) && Index >= 0 && Index < m_Items.Get_Count() )
 		{
 			return( _Set_Value(Index) );
 		}
 
-		CSG_String	_Value(Value[0] == '\"' ? Value.AfterFirst('\"').BeforeFirst('\"') : Value);	// quotations can be used to enforce comparison with item's data/name (overpassing index based selection)
+		CSG_String _Value(Value[0] == '\"' ? Value.AfterFirst('\"').BeforeFirst('\"') : Value); // quotations can be used to enforce comparison with item's data/name (overpassing index based selection)
 
 		for(int i=0; i<m_Items.Get_Count(); i++)
 		{
@@ -1056,16 +1049,17 @@ int CSG_Parameter_Choice::_Set_Value(const CSG_String &Value)
 //---------------------------------------------------------
 void CSG_Parameter_Choice::_Set_String(void)
 {
-	m_String = m_Value >= 0 && m_Value < m_Items.Get_Count() ? Get_Item(m_Value) : _TL("<no choice available>");
+	m_String = m_Value >= 0 && m_Value < Get_Count() ? Get_Item(m_Value) : _TL("<no choice available>");
 }
 
 //---------------------------------------------------------
 bool CSG_Parameter_Choice::_Assign(CSG_Parameter *pSource)
 {
 	m_Items = pSource->asChoice()->m_Items;
+	m_Data  = pSource->asChoice()->m_Data ;
 	m_Value = pSource->asChoice()->m_Value;
 
-	_Set_String();	// m_Items have changed
+	_Set_String(); // items have changed
 
 	return( true );
 }

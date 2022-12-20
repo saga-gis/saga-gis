@@ -655,10 +655,10 @@ public:
 	const SG_Char *				Get_Item				(int Index)	const;
 	CSG_String					Get_Item_Data			(int Index)	const;
 
+	CSG_String					Get_Data				(void)				const;
+	bool						Get_Data				(CSG_String &Value)	const;
 	bool						Get_Data				(int        &Value)	const;
 	bool						Get_Data				(double     &Value)	const;
-	bool						Get_Data				(CSG_String &Value)	const;
-	CSG_String					Get_Data				(void)				const;
 
 	int							Get_Count				(void)	const	{	return( m_Items.Get_Count() );	}
 
@@ -669,7 +669,7 @@ protected:
 
 	int							m_Value;
 
-	CSG_Strings					m_Items;
+	CSG_Strings					m_Items, m_Data;
 
 
 	virtual int					_Set_Value				(int               Value);
