@@ -879,8 +879,16 @@ RECURSIVE              = NO
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = ../../../saga_core/saga_api/clipper.cpp \
+EXCLUDE                = ../../../saga_core/saga_api/clipper.h \
                          ../../../saga_core/saga_api/clipper.hpp \
+                         ../../../saga_core/saga_api/clipper.cpp \
+                         ../../../saga_core/saga_api/clipper.core.h \
+                         ../../../saga_core/saga_api/clipper.engine.h \
+                         ../../../saga_core/saga_api/clipper.engine.cpp \
+                         ../../../saga_core/saga_api/clipper.minkowski.h \
+                         ../../../saga_core/saga_api/clipper.offset.h \
+                         ../../../saga_core/saga_api/clipper.offset.cpp \
+                         ../../../saga_core/saga_api/nanoflann.hpp \
                          ../../../saga_core/saga_api/compatibility.h
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
