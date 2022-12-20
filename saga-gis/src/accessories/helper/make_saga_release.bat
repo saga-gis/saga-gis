@@ -36,9 +36,9 @@ REM Version
 REM For all bug-fix-releases!
 REM Don't forget to activate the variable
 REM - SWITCH_TO_BRANCH -
-REM SET SWITCH_TO_BRANCH=saga-8.4.0
-SET SAGA_VER_TEXT=8.5.0
-SET SAGA_VER_NEXT=8.6.0
+SET SWITCH_TO_BRANCH=saga-8.5
+SET SAGA_VER_TEXT=8.5.1
+SET SAGA_VER_NEXT=8.5.2
 SET SAGA_VERSION=saga-%SAGA_VER_TEXT%
 
 
@@ -60,15 +60,8 @@ ECHO.  - Translation Files
 ECHO.  - Tools Interface (Python)
 ECHO.
 ECHO Enter 'y' to continue!
-SET /P ANSWER0=
-IF /i NOT '%ANSWER0%' == 'y' EXIT
-
-ECHO __________________________________
-ECHO Create tag/branch %SAGA_VER_TEXT% [y/n]
-SET /P ANSWER1=
-IF /i '%ANSWER1%' == 'y' (
-	SET GIT_BRANCH=true
-)
+SET /P ANSWER=
+IF /i NOT '%ANSWER%' == 'y' EXIT
 
 
 REM ___________________________________
@@ -92,16 +85,6 @@ REM GIT Source Code Repository
 %GITEXE% clone git://git.code.sf.net/p/saga-gis/code %SAGA_VERSION%
 
 PUSHD %SAGA_VERSION%
-
-IF /i "%GIT_BRANCH%" == "true" (
-	REM Create a tag
-	%GITEXE% tag v%SAGA_VER_TEXT%
-	%GITEXE% push v%SAGA_VER_TEXT%
-
-	REM Create a branch (better do manually?!)
-	%GITEXE% branch saga-%SAGA_VER_TEXT%
-	%GITEXE% push saga-%SAGA_VER_TEXT%
-)
 
 IF /i NOT "%SWITCH_TO_BRANCH%" == "" (
 	ECHO switch to branch %SWITCH_TO_BRANCH%
@@ -249,9 +232,13 @@ ECHO.    including an up-to-date 'readme.txt'
 ECHO.
 ECHO - Upload API Documentation to saga-gis.org
 ECHO.
-ECHO - Create new branch: saga-%SAGA_VER_TEXT%
-ECHO.    and don't forget to activate the SWITCH_TO_BRANCH flag
-ECHO.    for all bug-fix-releases!
+IF /i NOT "%SWITCH_TO_BRANCH%" == "" (
+ECHO - Create a new bug-fix-branch: saga-%SAGA_VER_TEXT%
+ECHO   and don't forget to activate the SWITCH_TO_BRANCH flag
+ECHO   for all bug-fix-releases!
+) ELSE (
+ECHO - Create a version tag: saga-%SAGA_VER_TEXT%
+)
 ECHO.
 ECHO - Update version numbers accordingly:
 ECHO.    ./saga_setup_x64.iss
