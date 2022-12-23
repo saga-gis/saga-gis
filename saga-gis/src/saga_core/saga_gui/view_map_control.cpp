@@ -507,7 +507,7 @@ void CVIEW_Map_Control::_Draw_Edit_Moves(wxDC &dc)
 //---------------------------------------------------------
 void CVIEW_Map_Control::On_Paint(wxPaintEvent &event)
 {
-	if( m_Bitmap.Ok() )
+	if( _Update_Bitmap_Size() )
 	{
 		wxPaintDC dc(this);
 
@@ -526,15 +526,28 @@ void CVIEW_Map_Control::On_Size(wxSizeEvent &event)
 {
 	if( m_pParent->Do_Updates() )
 	{
-		wxRect	r(GetClientSize());
+		_Update_Bitmap_Size();
+	}
+}
 
+//---------------------------------------------------------
+bool CVIEW_Map_Control::_Update_Bitmap_Size(void)
+{
+	wxRect r(GetClientSize());
+
+	if( r.GetWidth() > 0 && r.GetHeight() > 0 )
+	{
 		if( !m_Bitmap.Ok() || m_Bitmap.GetWidth() != r.GetWidth() || m_Bitmap.GetHeight() != r.GetHeight() )
 		{
 			m_Bitmap.Create(r.GetWidth(), r.GetHeight());
 
 			Refresh_Map();
 		}
+
+		return( m_Bitmap.Ok() );
 	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
