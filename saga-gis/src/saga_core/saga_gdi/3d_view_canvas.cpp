@@ -320,24 +320,28 @@ void CSG_3DView_Canvas::_Draw_Labels(void)
 			_Draw_Labels(0, Box[0], Box[1],   0,   0,   0, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
 			_Draw_Labels(1, Box[3], Box[0], 270,   0,   0, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
 			_Draw_Labels(2, Box[3], Box[7], 180,  90, 270, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
+			_Draw_Labels(2, Box[1], Box[5], 180, 270, 180, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
 			break;
 
 		case  1:
 			_Draw_Labels(0, Box[0], Box[1],   0,   0,   0, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
 			_Draw_Labels(1, Box[1], Box[2],  90,   0,   0, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
 			_Draw_Labels(2, Box[0], Box[4], 180,  90, 180, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
+			_Draw_Labels(2, Box[2], Box[6], 180, 270, 270, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
 			break;
 
 		case  2:
 			_Draw_Labels(0, Box[2], Box[3], 180,   0,   0, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
 			_Draw_Labels(1, Box[1], Box[2],  90,   0,   0, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
 			_Draw_Labels(2, Box[1], Box[5], 180,  90,  90, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
+			_Draw_Labels(2, Box[3], Box[7], 180, 270,   0, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
 			break;
 
 		case  3:
 			_Draw_Labels(0, Box[2], Box[3], 180,   0,   0, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
 			_Draw_Labels(1, Box[3], Box[0], 270,   0,   0, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
 			_Draw_Labels(2, Box[2], Box[6], 180,  90,   0, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
+			_Draw_Labels(2, Box[0], Box[4], 180, 270,  90, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
 			break;
 		}
 		break;
