@@ -179,6 +179,8 @@ private:
 	int 						m_Mouse_Wheel_Accumulator = 0;
 
 
+	bool						_Update_Bitmap_Size	(void);
+
 	void						_Set_StatusBar		(const TSG_Point &Point);
 
 	wxPoint						_Get_World2Client	(const TSG_Point &Point);
