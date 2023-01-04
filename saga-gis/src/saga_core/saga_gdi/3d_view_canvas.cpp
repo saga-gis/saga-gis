@@ -132,7 +132,7 @@ bool CSG_3DView_Canvas::Draw(void)
 
 	_Draw_Background();
 
-	//-------------------------------------------------
+	//-----------------------------------------------------
 	if( m_Data_Min.x >= m_Data_Max.x
 	||  m_Data_Min.y >= m_Data_Max.y
 	||  m_Data_Min.z >  m_Data_Max.z )
@@ -142,7 +142,7 @@ bool CSG_3DView_Canvas::Draw(void)
 		return( false );
 	}
 
-	//-------------------------------------------------
+	//-----------------------------------------------------
 	if( !On_Before_Draw() )
 	{
 		bDrawing = false;
@@ -150,7 +150,7 @@ bool CSG_3DView_Canvas::Draw(void)
 		return( false );
 	}
 
-	//-------------------------------------------------
+	//-----------------------------------------------------
 	m_Projector.Set_Center( // rotation center set to data's center
 		m_Data_Min.x + (m_Data_Max.x - m_Data_Min.x) / 2.,
 		m_Data_Min.y + (m_Data_Max.y - m_Data_Min.y) / 2.,
@@ -159,12 +159,14 @@ bool CSG_3DView_Canvas::Draw(void)
 
 	m_Projector.Set_Scale(SG_Get_Length(m_Data_Max.x - m_Data_Min.x, m_Data_Max.y - m_Data_Min.y));
 
-	//-------------------------------------------------
+	int Front = _Draw_Get_Box_Front();
+
+	//-----------------------------------------------------
 	if( m_bStereo == false )
 	{
 		m_Color_Mode = COLOR_MODE_RGB;
 
-		m_Image_zMax.Assign(999999.); On_Draw(); _Draw_Box(); _Draw_Labels();
+		m_Image_zMax.Assign(999999.); On_Draw(); _Draw_Box(); _Draw_Labels(Front);
 	}
 
 	//-----------------------------------------------------
@@ -180,7 +182,7 @@ bool CSG_3DView_Canvas::Draw(void)
 
 		m_Color_Mode = COLOR_MODE_RED;
 
-		m_Image_zMax.Assign(999999.); On_Draw(); _Draw_Box(); _Draw_Labels();
+		m_Image_zMax.Assign(999999.); On_Draw(); _Draw_Box(); _Draw_Labels(Front);
 
 		//-------------------------------------------------
 		m_Projector.Set_yRotation(ry + dy);
@@ -188,7 +190,7 @@ bool CSG_3DView_Canvas::Draw(void)
 
 		m_Color_Mode = COLOR_MODE_CYAN;
 
-		m_Image_zMax.Assign(999999.); On_Draw(); _Draw_Box(); _Draw_Labels();
+		m_Image_zMax.Assign(999999.); On_Draw(); _Draw_Box(); _Draw_Labels(Front);
 
 		//-------------------------------------------------
 		m_Projector.Set_yRotation(ry);
@@ -266,6 +268,22 @@ void CSG_3DView_Canvas::_Draw_Get_Box(TSG_Point_Z Box[8], bool bProjected)
 }
 
 //---------------------------------------------------------
+int CSG_3DView_Canvas::_Draw_Get_Box_Front(void)
+{
+	int Front = 0; TSG_Point_Z b[8]; _Draw_Get_Box(b, true);
+
+	for(int i=1; i<4; i++)
+	{
+		if( b[i].z < b[Front].z )
+		{
+			Front = i;
+		}
+	}
+
+	return( Front );
+}
+
+//---------------------------------------------------------
 void CSG_3DView_Canvas::_Draw_Box(void)
 {
 	if( !m_bBox )
@@ -300,7 +318,7 @@ void CSG_3DView_Canvas::_Draw_Box(void)
 #define LABEL_SCALE 50.
 
 //---------------------------------------------------------
-void CSG_3DView_Canvas::_Draw_Labels(void)
+void CSG_3DView_Canvas::_Draw_Labels(int Front)
 {
 	if( m_Labels == 2 ) // none
 	{
@@ -308,8 +326,6 @@ void CSG_3DView_Canvas::_Draw_Labels(void)
 	}
 
 	TSG_Point_Z Box[8]; _Draw_Get_Box(Box, false);
-
-	int Front = 0; { TSG_Point_Z b[8]; _Draw_Get_Box(b, true); for(int j=1; j<4; j++) { if( b[j].z < b[Front].z ) Front = j; } }
 
 	switch( m_Labels )
 	{
