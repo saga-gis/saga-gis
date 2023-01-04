@@ -218,9 +218,10 @@ private:
 	void						_Draw_Background		(void);
 
 	void						_Draw_Get_Box			(TSG_Point_Z Box[8], bool bProjected);
+	int							_Draw_Get_Box_Front		(void);
 	void						_Draw_Box				(void);
 
-	void						_Draw_Labels			(void);
+	void						_Draw_Labels			(int Front);
 	void						_Draw_Labels			(double Min, double Max,         const TSG_Point_Z &P, double Rx, double Ry, double Rz                             , int Resolution = 100, double Scale = 1.);
 	void						_Draw_Labels			(int Axis, const TSG_Point_Z &A, const TSG_Point_Z &B, double Rx, double Ry, double Rz, int Align = LABEL_ALIGN_TOP, int Resolution = 100, double Scale = 1.);
 	void						_Draw_Label				(const CSG_String &Text,         const TSG_Point_Z &P, double Rx, double Ry, double Rz, int Align = LABEL_ALIGN_TOP, int Resolution = 100, double Scale = 1.);
