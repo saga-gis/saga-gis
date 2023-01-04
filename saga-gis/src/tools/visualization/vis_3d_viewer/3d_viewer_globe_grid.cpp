@@ -639,7 +639,7 @@ C3D_Viewer_Globe_Grid::C3D_Viewer_Globe_Grid(void)
 	Parameters.Add_Grid("", "Z"   , _TL("Elevation"), _TL(""), PARAMETER_INPUT_OPTIONAL);
 
 	Parameters.Add_Choice("",
-		"RESAMPLING", _TL("Resampling"),
+		"RESAMPLING"   , _TL("Resampling"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
 			_TL("no"),
@@ -648,9 +648,20 @@ C3D_Viewer_Globe_Grid::C3D_Viewer_Globe_Grid(void)
 	);
 
 	Parameters.Add_Double("RESAMPLING",
-		"RESOLUTION", _TL("Resolution"),
+		"RESOLUTION"   , _TL("Resolution"),
 		CSG_String::Format("[%s]", _TL("Degree")),
 		0.25, 0.001, true
+	);
+
+	Parameters.Add_Choice("RESAMPLING",
+		"INTERPOLATION", _TL("Interpolation"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|%s",
+			_TL("Nearest Neighbour"           ),
+			_TL("Bilinear Interpolation"      ),
+			_TL("Bicubic Spline Interpolation"),
+			_TL("B-Spline Interpolation"      )
+		), 3
 	);
 }
 
@@ -698,15 +709,25 @@ bool C3D_Viewer_Globe_Grid::On_Execute(void)
 	//-----------------------------------------------------
 	if( Parameters("RESAMPLING")->asInt() == 1 )
 	{
+		TSG_Grid_Resampling Resampling;
+
+		switch( Parameters("INTERPOLATION")->asInt() )
+		{
+		default: Resampling = GRID_RESAMPLING_NearestNeighbour; break;
+		case  1: Resampling = GRID_RESAMPLING_Bilinear        ; break;
+		case  2: Resampling = GRID_RESAMPLING_BicubicSpline   ; break;
+		case  3: Resampling = GRID_RESAMPLING_BSpline         ; break;
+		}
+
 		CSG_Grid_System System(Parameters("RESOLUTION")->asDouble(), Get_System().Get_Extent());
 
 		if( pGrid->Get_Cellsize() != System.Get_Cellsize() )
 		{
-			Grid.Create(System); Grid.Assign(pGrid); pGrid = &Grid;
+			Grid.Create(System); Grid.Assign(pGrid, Resampling); pGrid = &Grid;
 
 			if( pZ )
 			{
-				Z.Create(System); Z.Assign(pZ); pZ = &Z;
+				Z.Create(System); Z.Assign(pZ, Resampling); pZ = &Z;
 			}
 		}
 	}
