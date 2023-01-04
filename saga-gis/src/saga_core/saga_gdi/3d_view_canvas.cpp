@@ -88,8 +88,8 @@ CSG_3DView_Canvas::CSG_3DView_Canvas(void)
 	m_BoxBuffer   = 0.01;
 	m_bStereo     = false;
 	m_dStereo     = 1.;
-	m_bNorth      = false;
-
+	m_North       = 0;
+	m_North_Size  = 15.;
 	m_Labels      = 0;
 	m_Label_Res   = 50;
 	m_Label_Scale = 1.;
@@ -166,7 +166,7 @@ bool CSG_3DView_Canvas::Draw(void)
 	{
 		m_Color_Mode = COLOR_MODE_RGB;
 
-		m_Image_zMax.Assign(999999.); On_Draw(); _Draw_Box(); _Draw_Labels(Front);
+		m_Image_zMax.Assign(999999.); On_Draw(); _Draw_Box(); _Draw_Labels(Front); _Draw_North();
 	}
 
 	//-----------------------------------------------------
@@ -182,7 +182,7 @@ bool CSG_3DView_Canvas::Draw(void)
 
 		m_Color_Mode = COLOR_MODE_RED;
 
-		m_Image_zMax.Assign(999999.); On_Draw(); _Draw_Box(); _Draw_Labels(Front);
+		m_Image_zMax.Assign(999999.); On_Draw(); _Draw_Box(); _Draw_Labels(Front); _Draw_North();
 
 		//-------------------------------------------------
 		m_Projector.Set_yRotation(ry + dy);
@@ -190,7 +190,7 @@ bool CSG_3DView_Canvas::Draw(void)
 
 		m_Color_Mode = COLOR_MODE_CYAN;
 
-		m_Image_zMax.Assign(999999.); On_Draw(); _Draw_Box(); _Draw_Labels(Front);
+		m_Image_zMax.Assign(999999.); On_Draw(); _Draw_Box(); _Draw_Labels(Front); _Draw_North();
 
 		//-------------------------------------------------
 		m_Projector.Set_yRotation(ry);
@@ -307,6 +307,87 @@ void CSG_3DView_Canvas::_Draw_Box(void)
 	Draw_Line(Box[1], Box[5], Color);
 	Draw_Line(Box[2], Box[6], Color);
 	Draw_Line(Box[3], Box[7], Color);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CSG_3DView_Canvas::_Draw_North(void)
+{
+	if( !m_North )
+	{
+		return;
+	}
+
+	TSG_Point_Z Box[8]; _Draw_Get_Box(Box, false);
+
+	const double Arrow[9][2] = { { 0., 0. }, { 0., 1. }, { 0., -0.5 }, { -0.5, -1. }, { 0.5, -1. }, { -1, -1. }, { 1, -1. }, { 1, 1. }, { -1, 1. } };
+
+	TSG_Point_Z A[9]; CSG_Rect r; double Scale = M_GET_MIN(m_Data_Max.x - m_Data_Min.x, m_Data_Max.y - m_Data_Min.y) / 2.;
+
+	for(int i=0; i<9; i++)
+	{
+		A[i].x = m_Projector.Get_xCenter() + Arrow[i][0] * Scale;
+		A[i].y = m_Projector.Get_yCenter() + Arrow[i][1] * Scale;
+		A[i].z = m_Data_Min.z;
+
+		m_Projector.Get_Projection(A[i]);
+
+		if( i == 2 )
+		{
+			r.Assign(A[1].x, A[1].y, A[2].x, A[2].y);
+		}
+		else if( i > 2 )
+		{
+			r.Union(CSG_Point(A[i].x, A[i].y));
+		}
+	}
+
+	double Size = m_North_Size * M_GET_MIN(m_Image_NX, m_Image_NY) / 100.;
+
+	A[0].z = Size / r.Get_Diameter();
+
+	for(int i=1; i<9; i++)
+	{
+		A[i].x = (A[i].x - A[0].x) * A[0].z +              0.6 * Size;
+		A[i].y = (A[i].y - A[0].y) * A[0].z + m_Image_NY - 0.6 * Size;
+		A[i].z = 0.;
+	}
+
+	Draw_Line(A[1], A[2], SG_COLOR_BLACK);
+	Draw_Line(A[1], A[3], SG_COLOR_BLACK);
+	Draw_Line(A[1], A[4], SG_COLOR_BLACK);
+	Draw_Line(A[2], A[3], SG_COLOR_BLACK);
+	Draw_Line(A[2], A[4], SG_COLOR_BLACK);
+
+	if( m_North == 2 )
+	{
+		int Color = SG_GET_RGB(SG_GET_R(m_bgColor) + 128, SG_GET_G(m_bgColor) + 128, SG_GET_B(m_bgColor) + 128);
+
+		Draw_Line(A[5], A[6], Color);
+		Draw_Line(A[6], A[7], Color);
+		Draw_Line(A[7], A[8], Color);
+		Draw_Line(A[8], A[5], Color);
+	}
+
+	TSG_Triangle_Node p[3]; CSG_Grid *pDrape = m_pDrape; m_pDrape = NULL;
+
+	#define SET_NODE(n, i, color) { p[n].x = A[i].x; p[n].y = A[i].y; p[n].z = A[i].z; p[n].c = color; }
+
+	SET_NODE(0, 1, SG_COLOR_BLACK);
+	SET_NODE(1, 2, SG_COLOR_BLACK);
+	SET_NODE(2, 3, SG_COLOR_BLACK);
+	Draw_Triangle(p, true);
+
+	SET_NODE(0, 1, SG_COLOR_WHITE);
+	SET_NODE(1, 2, SG_COLOR_WHITE);
+	SET_NODE(2, 4, SG_COLOR_WHITE);
+	Draw_Triangle(p, true);
+
+	m_pDrape = pDrape;
 }
 
 

@@ -146,6 +146,22 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	);
 
 	m_Parameters.Add_Choice("NODE_GENERAL",
+		"NORTH"			, _TL("North Arrow"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s",
+			_TL("no"),
+			_TL("yes"),
+			_TL("with bounding box")
+		), m_North
+	);
+
+	m_Parameters.Add_Double("NORTH",
+		"NORTH_SIZE"	, _TL("Size"),
+		_TL(""),
+		m_North_Size, 1., true
+	);
+
+	m_Parameters.Add_Choice("NODE_GENERAL",
 		"LABELS"		, _TL("Axis Labeling"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s",
@@ -166,12 +182,6 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 		_TL(""),
 		m_Label_Scale, 0.1, true, 10., true
 	);
-
-	m_Parameters.Add_Bool("NODE_GENERAL",
-		"NORTH"			, _TL("North Arrow"),
-		_TL(""),
-		false
-	)->Set_Enabled(false);
 
 	m_Parameters.Add_Bool("NODE_GENERAL",
 		"STEREO"		, _TL("Stereo Anaglyph"),
@@ -311,6 +321,11 @@ int CSG_3DView_Panel::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 	if( pParameter->Cmp_Identifier("STEREO") )
 	{
 		pParameters->Set_Enabled("STEREO_DIST" , pParameter->asBool());
+	}
+
+	if( pParameter->Cmp_Identifier("NORTH") )
+	{
+		pParameter->Set_Children_Enabled(pParameter->asBool());
 	}
 
 	if( pParameter->Cmp_Identifier("LABELS") )
@@ -674,7 +689,8 @@ bool CSG_3DView_Panel::Update_View(bool bStatistics)
 		m_bBox        = m_Parameters("BOX"        )->asBool  ();
 		m_bStereo     = m_Parameters("STEREO"     )->asBool  ();
 		m_dStereo     = m_Parameters("STEREO_DIST")->asDouble();
-		m_bNorth      = m_Parameters("NORTH"      )->asBool  ();
+		m_North       = m_Parameters("NORTH"      )->asInt   ();
+		m_North_Size  = m_Parameters("NORTH_SIZE" )->asDouble();
 		m_Labels      = m_Parameters("LABELS"     )->asInt   ();
 		m_Label_Res   = m_Parameters("LABEL_RES"  )->asInt   ();
 		m_Label_Scale = m_Parameters("LABEL_SCALE")->asDouble();

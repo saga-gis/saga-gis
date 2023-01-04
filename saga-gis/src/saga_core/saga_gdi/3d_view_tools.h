@@ -162,11 +162,11 @@ public:
 
 protected:
 
-	bool						m_bBox, m_bNorth, m_bStereo;
+	bool						m_bBox, m_bStereo;
 
-	int							m_bgColor, m_Labels, m_Label_Res;
+	int							m_bgColor, m_North, m_Labels, m_Label_Res;
 
-	double						m_dStereo, m_BoxBuffer, m_Label_Scale;
+	double						m_dStereo, m_BoxBuffer, m_North_Size, m_Label_Scale;
 
 	TSG_Grid_Resampling			m_Drape_Mode;
 
@@ -220,6 +220,8 @@ private:
 	void						_Draw_Get_Box			(TSG_Point_Z Box[8], bool bProjected);
 	int							_Draw_Get_Box_Front		(void);
 	void						_Draw_Box				(void);
+
+	void						_Draw_North				(void);
 
 	void						_Draw_Labels			(int Front);
 	void						_Draw_Labels			(double Min, double Max,         const TSG_Point_Z &P, double Rx, double Ry, double Rz                             , int Resolution = 100, double Scale = 1.);
