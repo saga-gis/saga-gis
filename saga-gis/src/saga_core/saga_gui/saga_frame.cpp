@@ -1085,8 +1085,6 @@ void CSAGA_Frame::On_Child_Activates(int View_ID)
 		_Bar_Show(m_pTB_Histogram  , View_ID == ID_VIEW_HISTOGRAM    );
 		_Bar_Show(m_pTB_ScatterPlot, View_ID == ID_VIEW_SCATTERPLOT  );
 		_Bar_Show(m_pTB_Layout     , View_ID == ID_VIEW_LAYOUT       );
-
-		m_pLayout->Update();
 	}
 }
 
@@ -1278,7 +1276,7 @@ void CSAGA_Frame::_Bar_Show(wxWindow *pWindow, bool bShow)
 
 		m_pLayout->GetPane(pWindow)	= Pane;
 
-	//	m_pLayout->GetManager(pWindow)->Update();
+		m_pLayout->GetManager(pWindow)->Update();
 	}
 }
 
