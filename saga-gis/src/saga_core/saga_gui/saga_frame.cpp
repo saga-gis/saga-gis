@@ -129,15 +129,15 @@
 class CSAGA_Frame_StatusBar : public wxStatusBar
 {
 public:
-	CSAGA_Frame_StatusBar(wxWindow *parent, wxWindowID id, long style = wxST_SIZEGRIP, const wxString& name = wxT("statusBar"))
+	CSAGA_Frame_StatusBar(wxWindow *parent, wxWindowID id, long style = wxST_SIZEGRIP, const wxString &name = "StatusBar")
 		: wxStatusBar(parent, id, style, name)
 	{
-		m_pProgressBar	= new wxGauge(this, ID_WND_PROGRESSBAR, 100, wxDefaultPosition, wxDefaultSize, wxGA_HORIZONTAL|wxGA_SMOOTH);
+		m_pProgressBar = new wxGauge(this, ID_WND_PROGRESSBAR, 100, wxDefaultPosition, wxDefaultSize, wxGA_HORIZONTAL|wxGA_SMOOTH);
 	}
 
 	void		On_Size		(wxSizeEvent &event)
 	{
-		wxRect	r;
+		wxRect r;
 
 		if( m_pProgressBar && GetFieldRect(STATUSBAR_PROGRESS, r) )
 		{
@@ -145,24 +145,24 @@ public:
 		}
 	}
 
-	wxGauge		*m_pProgressBar;
+	wxGauge *m_pProgressBar;
 
 	DECLARE_EVENT_TABLE()
 };
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CSAGA_Frame_StatusBar, wxStatusBar)
-	EVT_SIZE			(CSAGA_Frame_StatusBar::On_Size)
+	EVT_SIZE(CSAGA_Frame_StatusBar::On_Size)
 END_EVENT_TABLE()
 
 //---------------------------------------------------------
 wxStatusBar * CSAGA_Frame::OnCreateStatusBar(int number, long style, wxWindowID id, const wxString& name)
 {
-	CSAGA_Frame_StatusBar	*sb	= new CSAGA_Frame_StatusBar(this, id, style, name);
+	CSAGA_Frame_StatusBar *StatusBar = new CSAGA_Frame_StatusBar(this, id, style, name);
 
-	sb->SetFieldsCount(number);
+	StatusBar->SetFieldsCount(number);
 
-	return( sb );
+	return( StatusBar );
 }
 
 
@@ -173,7 +173,7 @@ wxStatusBar * CSAGA_Frame::OnCreateStatusBar(int number, long style, wxWindowID 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSAGA_Frame	*g_pSAGA_Frame	= NULL;
+CSAGA_Frame *g_pSAGA_Frame = NULL;
 
 
 ///////////////////////////////////////////////////////////
@@ -184,63 +184,63 @@ CSAGA_Frame	*g_pSAGA_Frame	= NULL;
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CSAGA_Frame, MDI_ParentFrame)
-	EVT_CLOSE			(CSAGA_Frame::On_Close)
-	EVT_SIZE			(CSAGA_Frame::On_Size)
+	EVT_CLOSE(CSAGA_Frame::On_Close)
+	EVT_SIZE (CSAGA_Frame::On_Size)
 
-	EVT_MENU			(ID_CMD_FRAME_QUIT				, CSAGA_Frame::On_Quit)
-	EVT_MENU			(ID_CMD_FRAME_HELP				, CSAGA_Frame::On_Help)
-	EVT_MENU			(ID_CMD_FRAME_ABOUT				, CSAGA_Frame::On_About)
-	EVT_MENU			(ID_CMD_FRAME_TIPS				, CSAGA_Frame::On_Tips)
+	EVT_MENU     (ID_CMD_FRAME_QUIT            , CSAGA_Frame::On_Quit)
+	EVT_MENU     (ID_CMD_FRAME_HELP            , CSAGA_Frame::On_Help)
+	EVT_MENU     (ID_CMD_FRAME_ABOUT           , CSAGA_Frame::On_About)
+	EVT_MENU     (ID_CMD_FRAME_TIPS            , CSAGA_Frame::On_Tips)
 
-	EVT_MENU			(ID_CMD_FRAME_CASCADE			, CSAGA_Frame::On_Frame_Cascade)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_CASCADE			, CSAGA_Frame::On_Frame_Cascade_UI)
-	EVT_MENU			(ID_CMD_FRAME_TILE_HORZ			, CSAGA_Frame::On_Frame_hTile)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_TILE_HORZ			, CSAGA_Frame::On_Frame_hTile_UI)
-	EVT_MENU			(ID_CMD_FRAME_TILE_VERT			, CSAGA_Frame::On_Frame_vTile)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_TILE_VERT			, CSAGA_Frame::On_Frame_vTile_UI)
-	EVT_MENU			(ID_CMD_FRAME_ARRANGEICONS		, CSAGA_Frame::On_Frame_ArrangeIcons)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_ARRANGEICONS		, CSAGA_Frame::On_Frame_ArrangeIcons_UI)
-	EVT_MENU			(ID_CMD_FRAME_UNSPLIT			, CSAGA_Frame::On_Frame_Unsplit)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_UNSPLIT			, CSAGA_Frame::On_Frame_Unsplit_UI)
-	EVT_MENU			(ID_CMD_FRAME_SPLIT_LEFT		, CSAGA_Frame::On_Frame_Split)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_SPLIT_LEFT		, CSAGA_Frame::On_Frame_Split_UI)
-	EVT_MENU			(ID_CMD_FRAME_SPLIT_RIGHT		, CSAGA_Frame::On_Frame_Split)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_SPLIT_RIGHT		, CSAGA_Frame::On_Frame_Split_UI)
-	EVT_MENU			(ID_CMD_FRAME_SPLIT_TOP			, CSAGA_Frame::On_Frame_Split)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_SPLIT_TOP			, CSAGA_Frame::On_Frame_Split_UI)
-	EVT_MENU			(ID_CMD_FRAME_SPLIT_BOTTOM		, CSAGA_Frame::On_Frame_Split)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_SPLIT_BOTTOM		, CSAGA_Frame::On_Frame_Split_UI)
-	EVT_MENU			(ID_CMD_FRAME_SPLIT_ALL_HORZ	, CSAGA_Frame::On_Frame_Split)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_SPLIT_ALL_HORZ	, CSAGA_Frame::On_Frame_Split_UI)
-	EVT_MENU			(ID_CMD_FRAME_SPLIT_ALL_VERT	, CSAGA_Frame::On_Frame_Split)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_SPLIT_ALL_VERT	, CSAGA_Frame::On_Frame_Split_UI)
-	EVT_MENU			(ID_CMD_FRAME_NEXT				, CSAGA_Frame::On_Frame_Next)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_NEXT				, CSAGA_Frame::On_Frame_Next_UI)
-	EVT_MENU			(ID_CMD_FRAME_PREVIOUS			, CSAGA_Frame::On_Frame_Previous)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_PREVIOUS			, CSAGA_Frame::On_Frame_Previous_UI)
-	EVT_MENU			(ID_CMD_FRAME_CLOSE				, CSAGA_Frame::On_Frame_Close)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_CLOSE				, CSAGA_Frame::On_Frame_Close_UI)
-	EVT_MENU			(ID_CMD_FRAME_CLOSE_ALL			, CSAGA_Frame::On_Frame_Close_All)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_CLOSE_ALL			, CSAGA_Frame::On_Frame_Close_All_UI)
+	EVT_MENU     (ID_CMD_FRAME_CASCADE         , CSAGA_Frame::On_Frame_Cascade)
+	EVT_UPDATE_UI(ID_CMD_FRAME_CASCADE         , CSAGA_Frame::On_Frame_Cascade_UI)
+	EVT_MENU     (ID_CMD_FRAME_TILE_HORZ       , CSAGA_Frame::On_Frame_hTile)
+	EVT_UPDATE_UI(ID_CMD_FRAME_TILE_HORZ       , CSAGA_Frame::On_Frame_hTile_UI)
+	EVT_MENU     (ID_CMD_FRAME_TILE_VERT       , CSAGA_Frame::On_Frame_vTile)
+	EVT_UPDATE_UI(ID_CMD_FRAME_TILE_VERT       , CSAGA_Frame::On_Frame_vTile_UI)
+	EVT_MENU     (ID_CMD_FRAME_ARRANGEICONS    , CSAGA_Frame::On_Frame_ArrangeIcons)
+	EVT_UPDATE_UI(ID_CMD_FRAME_ARRANGEICONS    , CSAGA_Frame::On_Frame_ArrangeIcons_UI)
+	EVT_MENU     (ID_CMD_FRAME_UNSPLIT         , CSAGA_Frame::On_Frame_Unsplit)
+	EVT_UPDATE_UI(ID_CMD_FRAME_UNSPLIT         , CSAGA_Frame::On_Frame_Unsplit_UI)
+	EVT_MENU     (ID_CMD_FRAME_SPLIT_LEFT      , CSAGA_Frame::On_Frame_Split)
+	EVT_UPDATE_UI(ID_CMD_FRAME_SPLIT_LEFT      , CSAGA_Frame::On_Frame_Split_UI)
+	EVT_MENU     (ID_CMD_FRAME_SPLIT_RIGHT     , CSAGA_Frame::On_Frame_Split)
+	EVT_UPDATE_UI(ID_CMD_FRAME_SPLIT_RIGHT     , CSAGA_Frame::On_Frame_Split_UI)
+	EVT_MENU     (ID_CMD_FRAME_SPLIT_TOP       , CSAGA_Frame::On_Frame_Split)
+	EVT_UPDATE_UI(ID_CMD_FRAME_SPLIT_TOP       , CSAGA_Frame::On_Frame_Split_UI)
+	EVT_MENU     (ID_CMD_FRAME_SPLIT_BOTTOM    , CSAGA_Frame::On_Frame_Split)
+	EVT_UPDATE_UI(ID_CMD_FRAME_SPLIT_BOTTOM    , CSAGA_Frame::On_Frame_Split_UI)
+	EVT_MENU     (ID_CMD_FRAME_SPLIT_ALL_HORZ  , CSAGA_Frame::On_Frame_Split)
+	EVT_UPDATE_UI(ID_CMD_FRAME_SPLIT_ALL_HORZ  , CSAGA_Frame::On_Frame_Split_UI)
+	EVT_MENU     (ID_CMD_FRAME_SPLIT_ALL_VERT  , CSAGA_Frame::On_Frame_Split)
+	EVT_UPDATE_UI(ID_CMD_FRAME_SPLIT_ALL_VERT  , CSAGA_Frame::On_Frame_Split_UI)
+	EVT_MENU     (ID_CMD_FRAME_NEXT            , CSAGA_Frame::On_Frame_Next)
+	EVT_UPDATE_UI(ID_CMD_FRAME_NEXT            , CSAGA_Frame::On_Frame_Next_UI)
+	EVT_MENU     (ID_CMD_FRAME_PREVIOUS        , CSAGA_Frame::On_Frame_Previous)
+	EVT_UPDATE_UI(ID_CMD_FRAME_PREVIOUS        , CSAGA_Frame::On_Frame_Previous_UI)
+	EVT_MENU     (ID_CMD_FRAME_CLOSE           , CSAGA_Frame::On_Frame_Close)
+	EVT_UPDATE_UI(ID_CMD_FRAME_CLOSE           , CSAGA_Frame::On_Frame_Close_UI)
+	EVT_MENU     (ID_CMD_FRAME_CLOSE_ALL       , CSAGA_Frame::On_Frame_Close_All)
+	EVT_UPDATE_UI(ID_CMD_FRAME_CLOSE_ALL       , CSAGA_Frame::On_Frame_Close_All_UI)
 
-	EVT_MENU			(ID_CMD_FRAME_WKSP_SHOW			, CSAGA_Frame::On_WKSP_Show)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_WKSP_SHOW			, CSAGA_Frame::On_WKSP_Show_UI)
-	EVT_MENU			(ID_CMD_FRAME_ACTIVE_SHOW		, CSAGA_Frame::On_Active_Show)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_ACTIVE_SHOW		, CSAGA_Frame::On_Active_Show_UI)
-	EVT_MENU			(ID_CMD_FRAME_DATA_SOURCE_SHOW	, CSAGA_Frame::On_Data_Source_Show)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_DATA_SOURCE_SHOW	, CSAGA_Frame::On_Data_Source_Show_UI)
-	EVT_MENU			(ID_CMD_FRAME_INFO_SHOW			, CSAGA_Frame::On_INFO_Show)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_INFO_SHOW			, CSAGA_Frame::On_INFO_Show_UI)
+	EVT_MENU     (ID_CMD_FRAME_WKSP_SHOW       , CSAGA_Frame::On_WKSP_Show)
+	EVT_UPDATE_UI(ID_CMD_FRAME_WKSP_SHOW       , CSAGA_Frame::On_WKSP_Show_UI)
+	EVT_MENU     (ID_CMD_FRAME_ACTIVE_SHOW     , CSAGA_Frame::On_Active_Show)
+	EVT_UPDATE_UI(ID_CMD_FRAME_ACTIVE_SHOW     , CSAGA_Frame::On_Active_Show_UI)
+	EVT_MENU     (ID_CMD_FRAME_DATA_SOURCE_SHOW, CSAGA_Frame::On_Data_Source_Show)
+	EVT_UPDATE_UI(ID_CMD_FRAME_DATA_SOURCE_SHOW, CSAGA_Frame::On_Data_Source_Show_UI)
+	EVT_MENU     (ID_CMD_FRAME_INFO_SHOW       , CSAGA_Frame::On_INFO_Show)
+	EVT_UPDATE_UI(ID_CMD_FRAME_INFO_SHOW       , CSAGA_Frame::On_INFO_Show_UI)
 
-	EVT_MENU_RANGE		(ID_CMD_WKSP_FIRST				, ID_CMD_WKSP_LAST		, CSAGA_Frame::On_Command_Workspace)
-	EVT_UPDATE_UI_RANGE	(ID_CMD_WKSP_FIRST				, ID_CMD_WKSP_LAST		, CSAGA_Frame::On_Command_Workspace_UI)
-	EVT_MENU_RANGE		(ID_CMD_TOOL_MENU_FIRST			, ID_CMD_TOOL_MENU_LAST	, CSAGA_Frame::On_Command_Tool)
-	EVT_UPDATE_UI_RANGE	(ID_CMD_TOOL_MENU_FIRST			, ID_CMD_TOOL_MENU_LAST	, CSAGA_Frame::On_Command_Tool_UI)
+	EVT_MENU_RANGE		(ID_CMD_WKSP_FIRST     , ID_CMD_WKSP_LAST     , CSAGA_Frame::On_Command_Workspace)
+	EVT_UPDATE_UI_RANGE	(ID_CMD_WKSP_FIRST     , ID_CMD_WKSP_LAST     , CSAGA_Frame::On_Command_Workspace_UI)
+	EVT_MENU_RANGE		(ID_CMD_TOOL_MENU_FIRST, ID_CMD_TOOL_MENU_LAST, CSAGA_Frame::On_Command_Tool)
+	EVT_UPDATE_UI_RANGE	(ID_CMD_TOOL_MENU_FIRST, ID_CMD_TOOL_MENU_LAST, CSAGA_Frame::On_Command_Tool_UI)
 
-	EVT_MENU_RANGE		(ID_CMD_CHILD_FIRST				, ID_CMD_CHILD_LAST		, CSAGA_Frame::On_Command_Child)
-	EVT_UPDATE_UI_RANGE	(ID_CMD_MAP_FIRST				, ID_CMD_MAP_LAST		, CSAGA_Frame::On_Command_Child_UI)
-	EVT_UPDATE_UI_RANGE	(ID_CMD_HISTOGRAM_FIRST			, ID_CMD_HISTOGRAM_LAST	, CSAGA_Frame::On_Command_Child_UI)
-	EVT_UPDATE_UI_RANGE	(ID_CMD_DIAGRAM_FIRST			, ID_CMD_DIAGRAM_LAST	, CSAGA_Frame::On_Command_Child_UI)
+	EVT_MENU_RANGE		(ID_CMD_CHILD_FIRST    , ID_CMD_CHILD_LAST    , CSAGA_Frame::On_Command_Child)
+	EVT_UPDATE_UI_RANGE	(ID_CMD_MAP_FIRST      , ID_CMD_MAP_LAST      , CSAGA_Frame::On_Command_Child_UI)
+	EVT_UPDATE_UI_RANGE	(ID_CMD_HISTOGRAM_FIRST, ID_CMD_HISTOGRAM_LAST, CSAGA_Frame::On_Command_Child_UI)
+	EVT_UPDATE_UI_RANGE	(ID_CMD_DIAGRAM_FIRST  , ID_CMD_DIAGRAM_LAST  , CSAGA_Frame::On_Command_Child_UI)
 END_EVENT_TABLE()
 
 
@@ -261,7 +261,6 @@ END_EVENT_TABLE()
 CSAGA_Frame::CSAGA_Frame(void)
 	: MDI_ParentFrame(NULL, ID_WND_MAIN, SAGA_CAPTION, wxDefaultPosition, wxDefaultSize, MDI_PARENT_FRAME_STYLE)
 {
-	//-----------------------------------------------------
 	g_pSAGA_Frame  = this;
 
 	m_nChildren    = 0;
@@ -274,28 +273,28 @@ CSAGA_Frame::CSAGA_Frame(void)
 	m_pActive      = NULL;
 	m_pWKSP        = NULL;
 
-	SG_Set_UI_Callback	(Get_Callback());
+	SG_Set_UI_Callback(Get_Callback());
 
 #ifndef WITH_WXBMPBUNDLE
-	SetIcon				(IMG_Get_Icon (ID_IMG_SAGA_ICON_32));
+	SetIcon (IMG_Get_Icon (ID_IMG_SAGA_ICON_32));
 #else
-	SetIcons			(IMG_Get_Icons(ID_IMG_SAGA_ICON));
+	SetIcons(IMG_Get_Icons(ID_IMG_SAGA_ICON));
 #endif
 
-	SetDropTarget		(new CSAGA_Frame_DropTarget);
+	SetDropTarget(new CSAGA_Frame_DropTarget);
 
 	//-----------------------------------------------------
-	int		STATUSBAR_Sizes[STATUSBAR_COUNT]	= {	-1, 125, 125, 125, -1	};
+	int STATUSBAR_Sizes[STATUSBAR_COUNT] = { -1, 125, 125, 125, -1 };
 
-	CreateStatusBar		(STATUSBAR_COUNT);
-	SetStatusWidths		(STATUSBAR_COUNT, STATUSBAR_Sizes);
-	SetStatusBarPane	(STATUSBAR_DEFAULT);
-	StatusBar_Set_Text	(_TL("ready"));
+	CreateStatusBar   (STATUSBAR_COUNT);
+	SetStatusWidths   (STATUSBAR_COUNT, STATUSBAR_Sizes);
+	SetStatusBarPane  (STATUSBAR_DEFAULT);
+	StatusBar_Set_Text(_TL("ready"));
 
-	m_pProgressBar		= ((CSAGA_Frame_StatusBar *)GetStatusBar())->m_pProgressBar;
+	m_pProgressBar = ((CSAGA_Frame_StatusBar *)GetStatusBar())->m_pProgressBar;
 
 	//-----------------------------------------------------
-	m_pLayout			= new wxAuiManager(this);
+	m_pLayout = new wxAuiManager(this);
 
 	m_pLayout->GetArtProvider()->SetColor	(wxAUI_DOCKART_ACTIVE_CAPTION_COLOUR,
 		wxSystemSettings::GetColour(wxSYS_COLOUR_ACTIVECAPTION)
@@ -323,7 +322,7 @@ CSAGA_Frame::CSAGA_Frame(void)
 	_Create_MenuBar();
 
 	//-----------------------------------------------------
-	wxString	s;
+	wxString s;
 
 	if( CONFIG_Read("/FL", "MANAGER", s) )
 	{
@@ -336,22 +335,21 @@ CSAGA_Frame::CSAGA_Frame(void)
 	Set_Pane_Caption(m_pActive     , m_pActive     ->GetName());
 
 	//-----------------------------------------------------
-	m_pTB_Main			=                      _Create_ToolBar();
-	m_pTB_Map			= CVIEW_Map          ::_Create_ToolBar();
-	m_pTB_Map_3D		= CVIEW_Map_3D       ::_Create_ToolBar();
-	m_pTB_Layout		= CVIEW_Layout       ::_Create_ToolBar();
-	m_pTB_Table			= CVIEW_Table        ::_Create_ToolBar();
-	m_pTB_Diagram		= CVIEW_Table_Diagram::_Create_ToolBar();
-	m_pTB_Histogram		= CVIEW_Histogram    ::_Create_ToolBar();
-	m_pTB_ScatterPlot	= CVIEW_ScatterPlot  ::_Create_ToolBar();
+	m_pTB_Main        =                      _Create_ToolBar();
+	m_pTB_Map         = CVIEW_Map          ::_Create_ToolBar();
+	m_pTB_Map_3D      = CVIEW_Map_3D       ::_Create_ToolBar();
+	m_pTB_Layout      = CVIEW_Layout       ::_Create_ToolBar();
+	m_pTB_Table       = CVIEW_Table        ::_Create_ToolBar();
+	m_pTB_Diagram     = CVIEW_Table_Diagram::_Create_ToolBar();
+	m_pTB_Histogram   = CVIEW_Histogram    ::_Create_ToolBar();
+	m_pTB_ScatterPlot = CVIEW_ScatterPlot  ::_Create_ToolBar();
 
 	_Bar_Show(m_pTB_Main, true);
 
 	m_pLayout->Update();
 
 	//-----------------------------------------------------
-	long	l;
-	wxRect	r, rDefault	= wxGetClientDisplayRect();
+	long l; wxRect r, rDefault = wxGetClientDisplayRect();
 
 	rDefault.Deflate((int)(0.1 * rDefault.GetWidth()), (int)(0.1 * rDefault.GetHeight()));
 
@@ -365,7 +363,7 @@ CSAGA_Frame::CSAGA_Frame(void)
 	&&  wxDisplay::GetFromPoint(r.GetBottomLeft ()) == wxNOT_FOUND
 	&&  wxDisplay::GetFromPoint(r.GetBottomRight()) == wxNOT_FOUND	)
 	{
-		r	= rDefault;
+		r = rDefault;
 	}
 
 	SetSize(r);
@@ -520,9 +518,7 @@ void CSAGA_Frame::On_Help(wxCommandEvent &WXUNUSED(event))
 //---------------------------------------------------------
 void CSAGA_Frame::On_About(wxCommandEvent &WXUNUSED(event))
 {
-	CDLG_About	dlg;
-
-	dlg.ShowModal();
+	CDLG_About dlg; dlg.ShowModal();
 }
 
 //---------------------------------------------------------
@@ -822,9 +818,9 @@ void CSAGA_Frame::On_Command_Tool_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CSAGA_Frame::On_Command_Child(wxCommandEvent &event)
 {
-	MDI_ChildFrame	*pChild;
+	MDI_ChildFrame *pChild = GetActiveChild();
 
-	if( (pChild = GetActiveChild()) != NULL )
+	if( pChild )
 	{
 		pChild->GetEventHandler()->AddPendingEvent(event);
 	}
@@ -832,9 +828,9 @@ void CSAGA_Frame::On_Command_Child(wxCommandEvent &event)
 
 void CSAGA_Frame::On_Command_Child_UI(wxUpdateUIEvent &event)
 {
-	CVIEW_Base	*pChild;
+	CVIEW_Base *pChild = wxDynamicCast(GetActiveChild(), CVIEW_Base);
 
-	if( (pChild = wxDynamicCast(GetActiveChild(), CVIEW_Base)) != NULL )
+	if( pChild )
 	{
 		pChild->On_Command_UI(event);
 	}
@@ -978,8 +974,8 @@ void CSAGA_Frame::Top_Window_Push(wxWindow *pWindow)
 			}
 		}
 
-		m_pTopWindows	= (wxWindow **)SG_Realloc(m_pTopWindows, (m_nTopWindows + 1) * sizeof(wxWindow *));
-		m_pTopWindows[m_nTopWindows++]	= pWindow;
+		m_pTopWindows = (wxWindow **)SG_Realloc(m_pTopWindows, (m_nTopWindows + 1) * sizeof(wxWindow *));
+		m_pTopWindows[m_nTopWindows++] = pWindow;
 	}
 }
 
@@ -988,21 +984,25 @@ void CSAGA_Frame::Top_Window_Pop(wxWindow *pWindow)
 {
 	if( pWindow )
 	{
-		int		i, j;
+		int i, j;
 
 		for(i=j=0; j<m_nTopWindows; i++, j++)
 		{
 			if( m_pTopWindows[i] == pWindow )
+			{
 				j++;
+			}
 
 			if( i < j && j < m_nTopWindows )
-				m_pTopWindows[i]	= m_pTopWindows[j];
+			{
+				m_pTopWindows[i] = m_pTopWindows[j];
+			}
 		}
 
 		if( i < j )
 		{
 			m_nTopWindows--;
-			m_pTopWindows	= (wxWindow **)SG_Realloc(m_pTopWindows, m_nTopWindows * sizeof(wxWindow *));
+			m_pTopWindows = (wxWindow **)SG_Realloc(m_pTopWindows, m_nTopWindows * sizeof(wxWindow *));
 		}
 	}
 }
@@ -1037,23 +1037,13 @@ void CSAGA_Frame::Close_Children(void)
 //---------------------------------------------------------
 void CSAGA_Frame::On_Child_Activates(int View_ID)
 {
-	if( View_ID < 0 && m_nChildren > 0 )	// child view closes, but it's not the last one
+	if( View_ID < 0 && m_nChildren > 0 ) // child view closes, but it's not the last one
 	{
-		return;	// nothing to do, another child will be activated next!
+		return; // nothing to do, another child will be activated next!
 	}
 
 	//-----------------------------------------------------
-	_Bar_Show(m_pTB_Main       , true                            );
-	_Bar_Show(m_pTB_Table      , View_ID == ID_VIEW_TABLE        );
-	_Bar_Show(m_pTB_Diagram    , View_ID == ID_VIEW_TABLE_DIAGRAM);
-	_Bar_Show(m_pTB_Map        , View_ID == ID_VIEW_MAP          );
-	_Bar_Show(m_pTB_Map_3D     , View_ID == ID_VIEW_MAP_3D       );
-	_Bar_Show(m_pTB_Histogram  , View_ID == ID_VIEW_HISTOGRAM    );
-	_Bar_Show(m_pTB_ScatterPlot, View_ID == ID_VIEW_SCATTERPLOT  );
-	_Bar_Show(m_pTB_Layout     , View_ID == ID_VIEW_LAYOUT       );
-
-	//-----------------------------------------------------
-	wxMenu	*pMenu = NULL; wxString Title;
+	wxMenu *pMenu = NULL; wxString Title;
 
 	switch( View_ID )
 	{
@@ -1066,20 +1056,37 @@ void CSAGA_Frame::On_Child_Activates(int View_ID)
 	case ID_VIEW_LAYOUT       : pMenu = m_pMN_Layout     ; Title = _TL("Layout"     ); break;
 	}
 
+	bool bChanged = false;
+
 	if( pMenu )
 	{
 		if( GetMenuBar()->GetMenuCount() < 5 )
 		{
-			GetMenuBar()->Insert (2, pMenu, Title);
+			bChanged = true; GetMenuBar()->Insert (2, pMenu, Title);
 		}
 		else if( GetMenuBar()->GetMenu(2) != pMenu )
 		{
-			GetMenuBar()->Replace(2, pMenu, Title);
+			bChanged = true; GetMenuBar()->Replace(2, pMenu, Title);
 		}
 	}
 	else if( GetMenuBar()->GetMenuCount() == 5 )
 	{
-		GetMenuBar()->Remove(2);
+		bChanged = true; GetMenuBar()->Remove(2);
+	}
+
+	//-----------------------------------------------------
+	if( bChanged )
+	{
+		_Bar_Show(m_pTB_Main       , true                            );
+		_Bar_Show(m_pTB_Table      , View_ID == ID_VIEW_TABLE        );
+		_Bar_Show(m_pTB_Diagram    , View_ID == ID_VIEW_TABLE_DIAGRAM);
+		_Bar_Show(m_pTB_Map        , View_ID == ID_VIEW_MAP          );
+		_Bar_Show(m_pTB_Map_3D     , View_ID == ID_VIEW_MAP_3D       );
+		_Bar_Show(m_pTB_Histogram  , View_ID == ID_VIEW_HISTOGRAM    );
+		_Bar_Show(m_pTB_ScatterPlot, View_ID == ID_VIEW_SCATTERPLOT  );
+		_Bar_Show(m_pTB_Layout     , View_ID == ID_VIEW_LAYOUT       );
+
+		m_pLayout->Update();
 	}
 }
 
@@ -1093,16 +1100,16 @@ void CSAGA_Frame::On_Child_Activates(int View_ID)
 //---------------------------------------------------------
 wxMenuBar * CSAGA_Frame::_Create_MenuBar(void)
 {
-	m_pMN_Table			= CVIEW_Table        ::_Create_Menu();
-	m_pMN_Diagram		= CVIEW_Table_Diagram::_Create_Menu();
-	m_pMN_Map			= CVIEW_Map          ::_Create_Menu();
-	m_pMN_Map_3D		= CVIEW_Map_3D       ::_Create_Menu();
-	m_pMN_Histogram		= CVIEW_Histogram    ::_Create_Menu();
-	m_pMN_ScatterPlot	= CVIEW_ScatterPlot  ::_Create_Menu();
-	m_pMN_Layout		= CVIEW_Layout       ::_Create_Menu();
+	m_pMN_Table       = CVIEW_Table        ::_Create_Menu();
+	m_pMN_Diagram     = CVIEW_Table_Diagram::_Create_Menu();
+	m_pMN_Map         = CVIEW_Map          ::_Create_Menu();
+	m_pMN_Map_3D      = CVIEW_Map_3D       ::_Create_Menu();
+	m_pMN_Histogram	  = CVIEW_Histogram    ::_Create_Menu();
+	m_pMN_ScatterPlot = CVIEW_ScatterPlot  ::_Create_Menu();
+	m_pMN_Layout      = CVIEW_Layout       ::_Create_Menu();
 
 	//-----------------------------------------------------
-	wxMenu	*pMenu_Window	= new wxMenu;	// Window...
+	wxMenu *pMenu_Window = new wxMenu; // Window...
 
 	CMD_Menu_Add_Item(pMenu_Window,  true, ID_CMD_FRAME_WKSP_SHOW);
 	CMD_Menu_Add_Item(pMenu_Window,  true, ID_CMD_FRAME_ACTIVE_SHOW);
@@ -1110,7 +1117,7 @@ wxMenuBar * CSAGA_Frame::_Create_MenuBar(void)
 	CMD_Menu_Add_Item(pMenu_Window,  true, ID_CMD_FRAME_INFO_SHOW);
 
 #if defined(MDI_TABBED)
-	wxMenu	*pMenu_Split	= new wxMenu;
+	wxMenu *pMenu_Split = new wxMenu;
 	CMD_Menu_Add_Item(pMenu_Split, false, ID_CMD_FRAME_SPLIT_LEFT);
 	CMD_Menu_Add_Item(pMenu_Split, false, ID_CMD_FRAME_SPLIT_RIGHT);
 	CMD_Menu_Add_Item(pMenu_Split, false, ID_CMD_FRAME_SPLIT_TOP);
@@ -1137,14 +1144,14 @@ wxMenuBar * CSAGA_Frame::_Create_MenuBar(void)
 	CMD_Menu_Add_Item(pMenu_Window, false, ID_CMD_FRAME_CLOSE_ALL);
 
 	//-----------------------------------------------------
-	wxMenu	*pMenu_Help		= new wxMenu;	// Help...
+	wxMenu *pMenu_Help = new wxMenu; // Help...
 
 	CMD_Menu_Add_Item(pMenu_Help, false, ID_CMD_FRAME_HELP);
 	CMD_Menu_Add_Item(pMenu_Help, false, ID_CMD_FRAME_TIPS);
 	CMD_Menu_Add_Item(pMenu_Help, false, ID_CMD_FRAME_ABOUT);
 
 	//-----------------------------------------------------
-	wxMenuBar	*pMenuBar	= new wxMenuBar;
+	wxMenuBar *pMenuBar = new wxMenuBar;
 
 	pMenuBar->Append(g_pData ->Get_Menu_Files()->Get_Menu(), _TL("File"         ));	// 0
 	pMenuBar->Append(g_pTools->Get_Menu_Tools()            , _TL("Geoprocessing"));	// 1
@@ -1223,7 +1230,7 @@ void CSAGA_Frame::Set_Pane_Caption(wxWindow *pWindow, const wxString &Caption)
 //---------------------------------------------------------
 void CSAGA_Frame::_Bar_Add(wxWindow *pWindow, int Position, int Row)
 {
-	wxAuiPaneInfo	Pane;
+	wxAuiPaneInfo Pane;
 
 	Pane.Name        (wxString::Format("PANE_%d", pWindow->GetId()));
 	Pane.Caption     (pWindow->GetName());
@@ -1236,11 +1243,11 @@ void CSAGA_Frame::_Bar_Add(wxWindow *pWindow, int Position, int Row)
 
 	switch( Position )
 	{
-	default:	Pane.Bottom();	break;
-	case  1:	Pane.Right ();	break;
-	case  2:	Pane.Left  ();	break;
-	case  3:	Pane.Top   ();	break;
-	case  4:	Pane.Center();	break;
+	default: Pane.Bottom(); break;
+	case  1: Pane.Right (); break;
+	case  2: Pane.Left  (); break;
+	case  3: Pane.Top   (); break;
+	case  4: Pane.Center(); break;
 	}
 
 	m_pLayout->AddPane(pWindow, Pane);
@@ -1258,7 +1265,7 @@ void CSAGA_Frame::_Bar_Toggle(wxWindow *pWindow)
 //---------------------------------------------------------
 void CSAGA_Frame::_Bar_Show(wxWindow *pWindow, bool bShow)
 {
-	wxAuiPaneInfo	Pane(m_pLayout->GetPane(pWindow));
+	wxAuiPaneInfo Pane(m_pLayout->GetPane(pWindow));
 
 	if( Pane.IsOk() && Pane.IsShown() != bShow )
 	{
@@ -1271,7 +1278,7 @@ void CSAGA_Frame::_Bar_Show(wxWindow *pWindow, bool bShow)
 
 		m_pLayout->GetPane(pWindow)	= Pane;
 
-		m_pLayout->Update();
+	//	m_pLayout->GetManager(pWindow)->Update();
 	}
 }
 
