@@ -173,14 +173,15 @@ public:
 	CSG_Rect					Get_World				(wxRect rClient);
 	CSG_Point					Get_World				(wxRect rClient, wxPoint ptClient);
 
+	bool						Get_Image				(wxImage &Image, const CSG_Grid_System &System);
 	bool						Get_Image				(wxImage &Image, CSG_Rect &rWorld);
-	void						SaveAs_Image			(void);
-	void						SaveAs_Image_Clipboard	(int nx, int ny, int frame);
-	void						SaveAs_Image_Clipboard	(bool bLegend = false);
-	void						SaveAs_Image_To_KMZ		(int nx, int ny);
-	void						SaveAs_Image_To_Memory	(int nx, int ny);
-	void						SaveAs_Image_On_Change	(void);
-	void						SaveAs_Image_To_Grid	(CSG_Grid &Grid, int Size);
+	bool						SaveAs_Image			(void);
+	bool						SaveAs_Image_Clipboard	(int nx, int ny, int frame);
+	bool						SaveAs_Image_Clipboard	(bool bLegend = false);
+	bool						SaveAs_Image_To_KMZ		(int nx, int ny);
+	bool						SaveAs_Image_To_Memory	(int nx, int ny);
+	bool						SaveAs_Image_To_Grid	(CSG_Grid &Grid, int Size);
+	bool						SaveAs_Image_On_Change	(void);
 
 	void						Draw_Map				(wxDC &dc                        , double Zoom, const wxRect &rClient, int Flags = 0, int Background = -1);
 	void						Draw_Map				(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wxRect &rClient, int Flags = 0, int Background = -1);

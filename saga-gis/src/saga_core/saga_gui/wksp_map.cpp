@@ -1533,9 +1533,7 @@ CSG_Rect CWKSP_Map::Get_World(wxRect rClient)
 //---------------------------------------------------------
 CSG_Point CWKSP_Map::Get_World(wxRect rClient, wxPoint Point)
 {
-	CSG_Rect	rWorld(Get_World(rClient));
-
-	double	d	= rWorld.Get_XRange() / (double)rClient.GetWidth();
+	CSG_Rect rWorld(Get_World(rClient)); double d = rWorld.Get_XRange() / (double)rClient.GetWidth();
 
 	return( CSG_Point(
 		rWorld.Get_XMin() + d *                        Point.x,
@@ -1554,19 +1552,14 @@ CSG_Point CWKSP_Map::Get_World(wxRect rClient, wxPoint Point)
 #define MASK_B	255
 
 //---------------------------------------------------------
-bool CWKSP_Map::Get_Image(wxImage &Image, CSG_Rect &rWorld)
+bool CWKSP_Map::Get_Image(wxImage &Image, const CSG_Grid_System &System)
 {
-	if( Image.GetWidth() > 0 && Image.GetHeight() > 0 )
+	if( System.is_Valid() && Image.Create(System.Get_NX(), System.Get_NY()) )
 	{
-		wxBitmap	BMP(Image);
-		wxMemoryDC	dc;
-
-		dc.SelectObject(BMP);
-		Draw_Map(dc, 1., wxRect(0, 0, Image.GetWidth(), Image.GetHeight()), LAYER_DRAW_FLAG_NOEDITS, SG_GET_RGB(MASK_R, MASK_G, MASK_B));
+		wxBitmap BMP(Image); wxMemoryDC dc(BMP);
+		Draw_Map(dc, 1., Image.GetSize(), LAYER_DRAW_FLAG_NOEDITS, SG_GET_RGB(MASK_R, MASK_G, MASK_B));
 		dc.SelectObject(wxNullBitmap);
-
-		rWorld	= Get_World(wxRect(0, 0, Image.GetWidth(), Image.GetHeight()));
-		Image	= BMP.ConvertToImage();
+		Image = BMP.ConvertToImage();
 		Image.SetMaskColour(MASK_R, MASK_G, MASK_B);
 
 		return( true );
@@ -1576,12 +1569,30 @@ bool CWKSP_Map::Get_Image(wxImage &Image, CSG_Rect &rWorld)
 }
 
 //---------------------------------------------------------
-void CWKSP_Map::SaveAs_Image(void)
+bool CWKSP_Map::Get_Image(wxImage &Image, CSG_Rect &rWorld)
 {
-	//-----------------------------------------------------
+	if( Image.GetWidth() > 0 && Image.GetHeight() > 0 )
+	{
+		wxBitmap BMP(Image); wxMemoryDC dc(BMP);
+		Draw_Map(dc, 1., Image.GetSize(), LAYER_DRAW_FLAG_NOEDITS, SG_GET_RGB(MASK_R, MASK_G, MASK_B));
+		dc.SelectObject(wxNullBitmap);
+		Image = BMP.ConvertToImage();
+		Image.SetMaskColour(MASK_R, MASK_G, MASK_B);
+
+		rWorld = Get_World(Image.GetSize());
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Map::SaveAs_Image(void)
+{
 	if( View_Get() && View_Get()->Get_Map_Control() )
 	{
-		wxSize	s(View_Get()->Get_Map_Control()->GetClientSize());
+		wxSize s(View_Get()->Get_Map_Control()->GetClientSize());
 
 		m_Img_Parms("WIDTH" )->Set_Value(s.x);
 		m_Img_Parms("HEIGHT")->Set_Value(s.y);
@@ -1590,22 +1601,24 @@ void CWKSP_Map::SaveAs_Image(void)
 	if( DLG_Image_Save(m_Img_File, m_Img_Type) && DLG_Parameters(&m_Img_Parms) )
 	{
 		_Img_Save(m_Img_File, m_Img_Type);
+
+		return( true );
 	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
-void CWKSP_Map::SaveAs_Image_Clipboard(bool bLegend)
+bool CWKSP_Map::SaveAs_Image_Clipboard(bool bLegend)
 {
 	if( bLegend == false )
 	{
-		SaveAs_Image_Clipboard(
+		return( SaveAs_Image_Clipboard(
 			Get_Manager()->Get_Parameter("CLIP_NX"         )->asInt (),
 			Get_Manager()->Get_Parameter("CLIP_NY"         )->asInt (),
 			Get_Manager()->Get_Parameter("CLIP_FRAME_SHOW" )->asBool() ?
-			Get_Manager()->Get_Parameter("CLIP_FRAME_WIDTH")->asInt () : 0
+			Get_Manager()->Get_Parameter("CLIP_FRAME_WIDTH")->asInt () : 0)
 		);
-
-		return;
 	}
 
 	//-----------------------------------------------------
@@ -1613,21 +1626,18 @@ void CWKSP_Map::SaveAs_Image_Clipboard(bool bLegend)
 
 	Set_Buisy_Cursor(true);
 
-	int			Frame	= Get_Manager()->Get_Parameter("CLIP_LEGEND_FRAME")->asInt();
-	double		Scale	= Get_Manager()->Get_Parameter("CLIP_LEGEND_SCALE")->asDouble();
-	wxSize		s;
-	wxBitmap	BMP;
-	wxMemoryDC	dc;
+	int    Frame = Get_Manager()->Get_Parameter("CLIP_LEGEND_FRAME")->asInt   ();
+	double Scale = Get_Manager()->Get_Parameter("CLIP_LEGEND_SCALE")->asDouble();
+
+	wxSize s;
 
 	if( Get_Legend_Size(s, 1., Scale) )
 	{
-		s.x	+= 2 * Frame;
-		s.y	+= 2 * Frame;
+		s.x += 2 * Frame; s.y += 2 * Frame;
 
-		BMP.Create(s.GetWidth(), s.GetHeight());
-		dc.SelectObject(BMP);
-		dc.SetBackground(*wxWHITE_BRUSH);
-		dc.Clear();
+		wxBitmap BMP(s.GetWidth(), s.GetHeight());
+
+		wxMemoryDC dc(BMP); dc.SetBackground(*wxWHITE_BRUSH); dc.Clear();
 
 		if( Frame > 0 )
 		{
@@ -1641,7 +1651,7 @@ void CWKSP_Map::SaveAs_Image_Clipboard(bool bLegend)
 
 		if( wxTheClipboard->Open() )
 		{
-			wxBitmapDataObject	*pBMP	= new wxBitmapDataObject;
+			wxBitmapDataObject *pBMP = new wxBitmapDataObject;
 			pBMP->SetBitmap(BMP);
 			wxTheClipboard->SetData(pBMP);
 			wxTheClipboard->Close();
@@ -1649,28 +1659,24 @@ void CWKSP_Map::SaveAs_Image_Clipboard(bool bLegend)
 	}
 
 	Set_Buisy_Cursor(false);
+
+	return( true );
 }
 
 //---------------------------------------------------------
-void CWKSP_Map::SaveAs_Image_Clipboard(int nx, int ny, int frame)
+bool CWKSP_Map::SaveAs_Image_Clipboard(int nx, int ny, int frame)
 {
 	Set_Buisy_Cursor(true);
 
-	wxSize		s;
-	wxRect		r;
-	wxBitmap	BMP;
-	wxMemoryDC	dc;
+	if( frame < 10 ) frame = 0; // if( frame <  0 ) frame = Get_Frame_Width();
 
-//	if( frame <  0 ) frame = Get_Frame_Width();
-	if( frame < 10 ) frame = 0;
+	wxRect r = wxRect(0, 0, nx + 2 * frame, ny + 2 * frame);
 
-	r		= wxRect(0, 0, nx + 2 * frame, ny + 2 * frame);
+	wxBitmap BMP(r.GetWidth(), r.GetHeight());
 
-	BMP.Create(r.GetWidth(), r.GetHeight());
 	r.Deflate(frame);
-	dc.SelectObject(BMP);
-	dc.SetBackground(*wxWHITE_BRUSH);
-	dc.Clear();
+
+	wxMemoryDC dc(BMP); dc.SetBackground(*wxWHITE_BRUSH); dc.Clear();
 
 	Draw_Map(dc, 1., r, LAYER_DRAW_FLAG_NOEDITS);
 
@@ -1683,38 +1689,63 @@ void CWKSP_Map::SaveAs_Image_Clipboard(int nx, int ny, int frame)
 
 	if( wxTheClipboard->Open() )
 	{
-		wxBitmapDataObject	*pBMP	= new wxBitmapDataObject;
+		wxBitmapDataObject *pBMP = new wxBitmapDataObject;
 		pBMP->SetBitmap(BMP);
 		wxTheClipboard->SetData(pBMP);
 		wxTheClipboard->Close();
 	}
 
 	Set_Buisy_Cursor(false);
+
+	return( true );
 }
 
 //---------------------------------------------------------
-void CWKSP_Map::SaveAs_Image_To_KMZ(int nx, int ny)
+int _On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
+{
+	CSG_Parameters *pParameters = pParameter ? pParameter->Get_Parameters() : NULL; if( !pParameters ) { return( 0 ); }
+
+	if( Flags & PARAMETER_CHECK_VALUES )
+	{
+		CSG_Parameters_Grid_Target::On_Parameter_Changed(pParameters, pParameter, "TARGET_");
+	}
+
+	if( Flags & PARAMETER_CHECK_ENABLE )
+	{
+		CSG_Parameters_Grid_Target::On_Parameters_Enable(pParameters, pParameter, "TARGET_");
+	}
+
+	return( 1 );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Map::SaveAs_Image_To_KMZ(int nx, int ny)
 {
 	if( nx < 1 || ny < 1 )
 	{
-		return;
+		return( false );
 	}
 
-	//-----------------------------------------------------
-	CSG_Rect		Extent(Get_Extent());
+	CSG_Grid_System System(Get_Extent().Get_XRange() / nx, Get_Extent());
 
-	CSG_Parameters	P(_TL("Export Map to Google Earth"));
+	CSG_Parameters P(_TL("Export Map to Google Earth"), SG_T(""), SG_T("SAVE_IMAGE"));
+	P.Set_Callback_On_Parameter_Changed(_On_Parameter_Changed);
 
 	P.Add_FilePath("", "FILE"    , _TL("File"    ), _TL(""), CSG_String::Format("%s|*.kmz|%s|*.*", _TL("KMZ Files"), _TL("All Files")), NULL, true);
-	P.Add_Double  ("", "CELLSIZE", _TL("Cellsize"), _TL(""), SG_Get_Rounded_To_SignificantFigures(Extent.Get_XRange() / (double)nx, 2), 0., true);
 	P.Add_Bool    ("", "LOAD"    , _TL("Load"    ), _TL(""), true);
 
-	if( !DLG_Parameters(&P) || P("CELLSIZE")->asDouble() <= 0. )
+	CSG_Parameters_Grid_Target Target;
+	Target.Create(&P, true, "", "TARGET_");
+	Target.Set_User_Defined(&P, System);
+
+	if( !DLG_Parameters(&P) )
 	{
-		return;
+		return( false );
 	}
 
-	wxFileName	FileName(P("FILE")->asString());
+	System = Target.Get_System();
+
+	wxFileName FileName(P["FILE"].asString());
 
 	if( !FileName.IsOk() )
 	{
@@ -1725,23 +1756,20 @@ void CWKSP_Map::SaveAs_Image_To_KMZ(int nx, int ny)
 		{
 			DLG_Message_Show_Error(_TL("invalid file name"), _TL("Export Map to Google Earth"));
 
-			return;
+			return( false );
 		}
 	}
 
 	//-----------------------------------------------------
-	nx	= Extent.Get_XRange() / P("CELLSIZE")->asDouble();
-	ny	= Extent.Get_YRange() / P("CELLSIZE")->asDouble();
+	wxImage Image;
 
-	wxImage		Image(nx, ny);
-
-	if( !Get_Image(Image, Extent) )
+	if( !Get_Image(Image, System) )
 	{
-		return;
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid	Map(SG_DATATYPE_Int, Image.GetWidth(), Image.GetHeight(), Extent.Get_XRange() / (double)Image.GetWidth(), Extent.Get_XMin(), Extent.Get_YMin());
+	CSG_Grid Map(System, SG_DATATYPE_Int);
 
 	Map.Set_Name(Get_Name().wx_str());
 	Map.Set_NoData_Value(SG_GET_RGB(MASK_R, MASK_G, MASK_B));
@@ -1756,77 +1784,101 @@ void CWKSP_Map::SaveAs_Image_To_KMZ(int nx, int ny)
 	}
 
 	//-----------------------------------------------------
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("io_grid_image", 2, true);
+	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("io_grid_image", 2, true);
 
 	if(	pTool && pTool->Settings_Push()
 	&&  pTool->Set_Parameter("GRID"     , &Map)
 	&&  pTool->Set_Parameter("FILE"     , FileName.GetFullPath().wc_str())
 	&&  pTool->Set_Parameter("COLOURING", 4)	// rgb coded values
 	&&  pTool->Set_Parameter("OUTPUT"   , 2)	// kmz file
-	&&  pTool->Execute() && P("LOAD")->asBool() )
+	&&  pTool->Execute() )
 	{
-		Open_Application(FileName.GetFullPath());
+		if( P["LOAD"].asBool() )
+		{
+			Open_Application(FileName.GetFullPath());
+		}
+
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+		return( true );
 	}
 
-	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);\
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+	return( false );
 }
 
 //---------------------------------------------------------
-void CWKSP_Map::SaveAs_Image_To_Memory(int nx, int ny)
+bool CWKSP_Map::SaveAs_Image_To_Memory(int nx, int ny)
 {
 	if( nx < 1 || ny < 1 )
-		return;
-
-	CSG_Rect		Extent(Get_Extent());
-
-	CSG_Parameters	P(_TL("Save To Memory Grid"));
-
-	P.Add_Double("", "CELLSIZE", _TL("Cellsize"), _TL(""), Extent.Get_XRange() / (double)nx, 0., true);
-
-	if( !DLG_Parameters(&P) || P("CELLSIZE")->asDouble() <= 0. )
-		return;
-
-	nx	= Extent.Get_XRange() / P("CELLSIZE")->asDouble();
-	ny	= Extent.Get_YRange() / P("CELLSIZE")->asDouble();
-
-	wxImage		Image(nx, ny);
-
-	if( Get_Image(Image, Extent) )
 	{
-		CSG_Grid	*pGrid	= SG_Create_Grid(SG_DATATYPE_Int, Image.GetWidth(), Image.GetHeight(), Extent.Get_XRange() / (double)Image.GetWidth(), Extent.Get_XMin(), Extent.Get_YMin());
+		return( false );
+	}
 
-		pGrid->Set_Name(Get_Name().wx_str());
-		pGrid->Set_NoData_Value(16711935);
-		pGrid->Get_Projection().Create(m_Projection);
+	CSG_Grid_System System(Get_Extent().Get_XRange() / nx, Get_Extent());
 
-		for(int y=0, yy=pGrid->Get_NY()-1; y<pGrid->Get_NY(); y++, yy--)
+	CSG_Parameters P(_TL("Save To Memory Grid"), SG_T(""), SG_T("SAVE_IMAGE"));
+	P.Set_Callback_On_Parameter_Changed(_On_Parameter_Changed);
+
+	CSG_Parameters_Grid_Target Target;
+	Target.Create(&P, true, "", "TARGET_");
+	Target.Set_User_Defined(&P, System);
+
+	if( !DLG_Parameters(&P) )
+	{
+		return( false );
+	}
+
+	System = Target.Get_System();
+
+	//-----------------------------------------------------
+	wxImage Image;
+
+	if( !Get_Image(Image, System) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Grid *pMap = SG_Create_Grid(System, SG_DATATYPE_Int);
+
+	pMap->Set_Name(Get_Name().wx_str());
+	pMap->Set_NoData_Value(16711935);
+	pMap->Get_Projection().Create(m_Projection);
+
+	for(int y=0, yy=pMap->Get_NY()-1; y<pMap->Get_NY(); y++, yy--)
+	{
+		for(int x=0; x<pMap->Get_NX(); x++)
 		{
-			for(int x=0; x<pGrid->Get_NX(); x++)
-			{
-				pGrid->Set_Value(x, y, SG_GET_RGB(Image.GetRed(x, yy), Image.GetGreen(x, yy), Image.GetBlue(x, yy)));
-			}
-		}
-
-		g_pData->Add(pGrid);
-		g_pData->Get_Parameters(pGrid, &P);
-
-		if( P("COLORS_TYPE") )
-		{
-			P("COLORS_TYPE")->Set_Value(5);	// Color Classification Type: RGB Coded Values
-
-			g_pData->Set_Parameters(pGrid, &P);
+			pMap->Set_Value(x, y, SG_GET_RGB(Image.GetRed(x, yy), Image.GetGreen(x, yy), Image.GetBlue(x, yy)));
 		}
 	}
+
+	//-----------------------------------------------------
+	g_pData->Add(pMap);
+
+	g_pData->Get_Parameters(pMap, &P);
+
+	if( P("COLORS_TYPE") )
+	{
+		P("COLORS_TYPE")->Set_Value(5);	// Color Classification Type: RGB Coded Values
+
+		g_pData->Set_Parameters(pMap, &P);
+	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
-void CWKSP_Map::SaveAs_Image_To_Grid(CSG_Grid &Grid, int Size)
+bool CWKSP_Map::SaveAs_Image_To_Grid(CSG_Grid &Grid, int Size)
 {
 	if( Size < 1 )
-		return;
+	{
+		return( false );
+	}
 
-	CSG_Rect	Extent(Get_Extent());
-	wxImage		Image;
+	CSG_Rect Extent(Get_Extent()); wxImage Image;
 
 	if( Extent.Get_XRange() > Extent.Get_YRange() )
 	{
@@ -1850,10 +1902,12 @@ void CWKSP_Map::SaveAs_Image_To_Grid(CSG_Grid &Grid, int Size)
 			}
 		}
 	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
-void CWKSP_Map::SaveAs_Image_On_Change(void)
+bool CWKSP_Map::SaveAs_Image_On_Change(void)
 {
 	if( m_Img_bSave )
 	{
@@ -1864,6 +1918,8 @@ void CWKSP_Map::SaveAs_Image_On_Change(void)
 		m_Img_bSave	= true;
 		m_Img_Count	= 0;
 	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
