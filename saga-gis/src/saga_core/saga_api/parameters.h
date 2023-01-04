@@ -1562,7 +1562,9 @@ public:
 	bool						Add_Grids					(const CSG_String &ID, const CSG_String &Name, bool bOptional, bool bZLevels = false);
 
 	bool						On_Parameter_Changed		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	static bool					On_Parameter_Changed		(CSG_Parameters *pParameters, CSG_Parameter *pParameter, const CSG_String Prefix);
 	bool						On_Parameters_Enable		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	static bool					On_Parameters_Enable		(CSG_Parameters *pParameters, CSG_Parameter *pParameter, const CSG_String Prefix);
 
 	bool						Set_User_Defined			(CSG_Parameters *pParameters, const TSG_Rect &Extent, int Rows = 0, int Rounding = 2);
 	bool						Set_User_Defined			(CSG_Parameters *pParameters, CSG_Shapes *pPoints, int Scale = 4  , int Rounding = 2);

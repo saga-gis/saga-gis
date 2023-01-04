@@ -1198,27 +1198,35 @@ bool CSG_Parameters_Grid_Target::Create(CSG_Parameters *pParameters, bool bAddDe
 //---------------------------------------------------------
 bool CSG_Parameters_Grid_Target::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !m_pParameters || !pParameters || m_pParameters->Get_Identifier().Cmp(pParameters->Get_Identifier()) || !pParameter )
+	return( pParameter && pParameters && m_pParameters && m_pParameters->Get_Identifier().Cmp(pParameters->Get_Identifier()) == 0
+		&& On_Parameter_Changed(pParameters, pParameter, m_Prefix)
+	);
+}
+
+//---------------------------------------------------------
+bool CSG_Parameters_Grid_Target::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, const CSG_String Prefix)
+{
+	if( !pParameter || !pParameters )
 	{
 		return( false );
 	}
 
-	CSG_Parameter *pSize = (*pParameters)(m_Prefix + "USER_SIZE");
-	CSG_Parameter *pXMin = (*pParameters)(m_Prefix + "USER_XMIN");
-	CSG_Parameter *pXMax = (*pParameters)(m_Prefix + "USER_XMAX");
-	CSG_Parameter *pYMin = (*pParameters)(m_Prefix + "USER_YMIN");
-	CSG_Parameter *pYMax = (*pParameters)(m_Prefix + "USER_YMAX");
-	CSG_Parameter *pRows = (*pParameters)(m_Prefix + "USER_ROWS");
-	CSG_Parameter *pCols = (*pParameters)(m_Prefix + "USER_COLS");
-	CSG_Parameter *pFits = (*pParameters)(m_Prefix + "USER_FITS");
+	CSG_Parameter *pSize = (*pParameters)(Prefix + "USER_SIZE");
+	CSG_Parameter *pXMin = (*pParameters)(Prefix + "USER_XMIN");
+	CSG_Parameter *pXMax = (*pParameters)(Prefix + "USER_XMAX");
+	CSG_Parameter *pYMin = (*pParameters)(Prefix + "USER_YMIN");
+	CSG_Parameter *pYMax = (*pParameters)(Prefix + "USER_YMAX");
+	CSG_Parameter *pRows = (*pParameters)(Prefix + "USER_ROWS");
+	CSG_Parameter *pCols = (*pParameters)(Prefix + "USER_COLS");
+	CSG_Parameter *pFits = (*pParameters)(Prefix + "USER_FITS");
 
-	double	Size = pSize->asDouble();
+	double Size = pSize->asDouble();
 
-	double	xMin = pXMin->asDouble(), xMax = pXMax->asDouble();
-	double	yMin = pYMin->asDouble(), yMax = pYMax->asDouble();
+	double xMin = pXMin->asDouble(), xMax = pXMax->asDouble();
+	double yMin = pYMin->asDouble(), yMax = pYMax->asDouble();
 
 	//-----------------------------------------------------
-	bool	bChanged	= true;
+	bool bChanged = true;
 
 	if(      pParameter->Cmp_Identifier(pFits->Get_Identifier()) )
 	{
@@ -1238,36 +1246,36 @@ bool CSG_Parameters_Grid_Target::On_Parameter_Changed(CSG_Parameters *pParameter
 
 		if( pParameter->Cmp_Identifier(pSize->Get_Identifier()) && Size > 0. )
 		{
-			xMax	= xMin + Size * (int)(0.5 + (xMax - xMin) / Size);
-			yMax	= yMin + Size * (int)(0.5 + (yMax - yMin) / Size);
+			xMax  = xMin + Size * (int)(0.5 + (xMax - xMin) / Size);
+			yMax  = yMin + Size * (int)(0.5 + (yMax - yMin) / Size);
 		}
 		else if( pParameter->Cmp_Identifier(pCols->Get_Identifier()) && pCols->asInt() > 0 )
 		{
-			xMax	= xMin + Size * (pCols->asInt() - 1);
+			xMax  = xMin + Size * (pCols->asInt() - 1);
 		}
 		else if( pParameter->Cmp_Identifier(pXMin->Get_Identifier()) )
 		{
-			xMax	= xMin + Size * (xMin > xMax ? (pCols->asInt() - 1) : (int)(0.5 + (xMax - xMin) / Size));
+			xMax  = xMin + Size * (xMin > xMax ? (pCols->asInt() - 1) : (int)(0.5 + (xMax - xMin) / Size));
 		}
 		else if( pParameter->Cmp_Identifier(pXMax->Get_Identifier()) )
 		{
-			xMin	= xMax - Size * (xMin > xMax ? (pCols->asInt() - 1) : (int)(0.5 + (xMax - xMin) / Size));
+			xMin  = xMax - Size * (xMin > xMax ? (pCols->asInt() - 1) : (int)(0.5 + (xMax - xMin) / Size));
 		}
 		else if( pParameter->Cmp_Identifier(pRows->Get_Identifier()) && pRows->asInt() > 0 )
 		{
-			yMax	= yMin + Size * (pRows->asInt() - 1);
+			yMax  = yMin + Size * (pRows->asInt() - 1);
 		}
 		else if( pParameter->Cmp_Identifier(pYMin->Get_Identifier()) )
 		{
-			yMax	= yMin + Size * (yMin > yMax ? (pRows->asInt() - 1) : (int)(0.5 + (yMax - yMin) / Size));
+			yMax  = yMin + Size * (yMin > yMax ? (pRows->asInt() - 1) : (int)(0.5 + (yMax - yMin) / Size));
 		}
 		else if( pParameter->Cmp_Identifier(pYMax->Get_Identifier()) )
 		{
-			yMin	= yMax - Size * (yMin > yMax ? (pRows->asInt() - 1) : (int)(0.5 + (yMax - yMin) / Size));
+			yMin  = yMax - Size * (yMin > yMax ? (pRows->asInt() - 1) : (int)(0.5 + (yMax - yMin) / Size));
 		}
 		else
 		{
-			bChanged	= false;	// none of the relevant parameters did change so far
+			bChanged = false; // none of the relevant parameters did change so far
 		}
 	}
 
@@ -1292,36 +1300,36 @@ bool CSG_Parameters_Grid_Target::On_Parameter_Changed(CSG_Parameters *pParameter
 	}
 
 	//-----------------------------------------------------
-	CSG_Parameter *pZSize = (*pParameters)(m_Prefix + "USER_ZSIZE");
-	CSG_Parameter *pZMin  = (*pParameters)(m_Prefix + "USER_ZMIN");
-	CSG_Parameter *pZMax  = (*pParameters)(m_Prefix + "USER_ZMAX");
-	CSG_Parameter *pZNum  = (*pParameters)(m_Prefix + "USER_ZNUM");
+	CSG_Parameter *pZSize = (*pParameters)(Prefix + "USER_ZSIZE");
+	CSG_Parameter *pZMin  = (*pParameters)(Prefix + "USER_ZMIN" );
+	CSG_Parameter *pZMax  = (*pParameters)(Prefix + "USER_ZMAX" );
+	CSG_Parameter *pZNum  = (*pParameters)(Prefix + "USER_ZNUM" );
 
 	if( pZSize && pZMin && pZMax && pZNum )
 	{
-		double	zSize = pZSize->asDouble(), zMin = pZMin ->asDouble(), zMax = pZMax ->asDouble();
+		double zSize = pZSize->asDouble(), zMin = pZMin ->asDouble(), zMax = pZMax ->asDouble();
 
-		bChanged	= true;
+		bChanged = true;
 
 		if(      pParameter->Cmp_Identifier(pZSize->Get_Identifier()) && zSize > 0. )
 		{
-			zMax	= zMin + zSize * (int)(0.5 + (zMax - zMin) / zSize);
+			zMax = zMin + zSize * (int)(0.5 + (zMax - zMin) / zSize);
 		}
 		else if( pParameter->Cmp_Identifier(pZNum->Get_Identifier()) && pZNum->asInt() > 0 )
 		{
-			zMax	= zMin + zSize * pZNum->asInt();
+			zMax = zMin + zSize * pZNum->asInt();
 		}
 		else if( pParameter->Cmp_Identifier(pZMin->Get_Identifier()) )
 		{
-			zMax	= zMin + zSize * (zMin > zMax ? pZNum->asInt() : (int)(0.5 + (zMax - zMin) / zSize));
+			zMax = zMin + zSize * (zMin > zMax ? pZNum->asInt() : (int)(0.5 + (zMax - zMin) / zSize));
 		}
 		else if( pParameter->Cmp_Identifier(pZMax->Get_Identifier()) )
 		{
-			zMin	= zMax - zSize * (zMin > zMax ? pZNum->asInt() : (int)(0.5 + (zMax - zMin) / zSize));
+			zMin = zMax - zSize * (zMin > zMax ? pZNum->asInt() : (int)(0.5 + (zMax - zMin) / zSize));
 		}
 		else
 		{
-			bChanged	= false;
+			bChanged = false;
 		}
 
 		if( bChanged )
@@ -1339,32 +1347,40 @@ bool CSG_Parameters_Grid_Target::On_Parameter_Changed(CSG_Parameters *pParameter
 //---------------------------------------------------------
 bool CSG_Parameters_Grid_Target::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !m_pParameters || !pParameters || m_pParameters->Get_Identifier().Cmp(pParameters->Get_Identifier()) || !pParameter )
+	return( pParameter && pParameters && m_pParameters && m_pParameters->Get_Identifier().Cmp(pParameters->Get_Identifier()) == 0
+		&& On_Parameters_Enable(pParameters, pParameter, m_Prefix)
+	);
+}
+
+//---------------------------------------------------------
+bool CSG_Parameters_Grid_Target::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter, const CSG_String Prefix)
+{
+	if( !pParameter || !pParameters || !(pParameter = (*pParameters)(Prefix + "DEFINITION")) )
 	{
 		return( false );
 	}
 
-	if( (pParameter = (*pParameters)(m_Prefix + "DEFINITION")) == NULL )
-	{
-		return( false );
-	}
+	pParameters->Set_Enabled(Prefix + "SYSTEM"   , pParameter->asInt() == 1);
+	pParameters->Set_Enabled(Prefix + "TEMPLATE" , pParameter->asInt() == 1);
 
-	pParameters->Set_Enabled(m_Prefix + "SYSTEM"   , pParameter->asInt() == 1);
-	pParameters->Set_Enabled(m_Prefix + "TEMPLATE" , pParameter->asInt() == 1);
-
-	pParameters->Set_Enabled(m_Prefix + "USER_SIZE", pParameter->asInt() == 0);
-	pParameters->Set_Enabled(m_Prefix + "USER_XMIN", pParameter->asInt() == 0);
-	pParameters->Set_Enabled(m_Prefix + "USER_XMAX", pParameter->asInt() == 0);
-	pParameters->Set_Enabled(m_Prefix + "USER_YMIN", pParameter->asInt() == 0);
-	pParameters->Set_Enabled(m_Prefix + "USER_YMAX", pParameter->asInt() == 0);
-	pParameters->Set_Enabled(m_Prefix + "USER_ROWS", pParameter->asInt() == 0);
-	pParameters->Set_Enabled(m_Prefix + "USER_COLS", pParameter->asInt() == 0);
-	pParameters->Set_Enabled(m_Prefix + "USER_FITS", pParameter->asInt() == 0);
-	pParameters->Set_Enabled(m_Prefix + "USER_OPTS", pParameter->asInt() == 0);
-	pParameters->Set_Enabled(m_Prefix + "USER_Z"   , pParameter->asInt() == 0);
+	pParameters->Set_Enabled(Prefix + "USER_SIZE", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(Prefix + "USER_XMIN", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(Prefix + "USER_XMAX", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(Prefix + "USER_YMIN", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(Prefix + "USER_YMAX", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(Prefix + "USER_ROWS", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(Prefix + "USER_COLS", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(Prefix + "USER_FITS", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(Prefix + "USER_OPTS", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(Prefix + "USER_Z"   , pParameter->asInt() == 0);
 
 	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 /**
@@ -1377,9 +1393,9 @@ bool CSG_Parameters_Grid_Target::On_Parameters_Enable(CSG_Parameters *pParameter
 */
 bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, const TSG_Rect &Extent, int Rows, int Rounding)
 {
-	if( !m_pParameters->Get_Tool()->has_GUI() )	// no cancel button, so set parameters directly
+	if( !m_pParameters->Get_Tool() || !m_pParameters->Get_Tool()->has_GUI() ) // no cancel button, so set parameters directly
 	{
-		pParameters	= m_pParameters;
+		pParameters = m_pParameters;
 	}
 
 	if( !m_pParameters || !pParameters || m_pParameters->Get_Identifier().Cmp(pParameters->Get_Identifier()) )
@@ -1389,15 +1405,15 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, c
 
 	if( Rows < 1 && (Rows = (*m_pParameters)(m_Prefix + "USER_ROWS")->asInt()) < 1 )
 	{
-		Rows	= 100;
+		Rows = 100;
 	}
 
 	//-----------------------------------------------------
-	CSG_Rect	r(Extent);
+	CSG_Rect r(Extent);
 
 	if( r.Get_XRange() == 0. && r.Get_YRange() == 0. )
 	{
-		r.Inflate(0.5 * Rows, false);	// assume cellsize = 1.
+		r.Inflate(0.5 * Rows, false); // assume cellsize = 1.
 	}
 	else if( r.Get_XRange() == 0. )
 	{
@@ -1409,20 +1425,20 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, c
 	}
 
 	//-----------------------------------------------------
-	double	Size	= r.Get_YRange() / (Rows - 1);
+	double Size = r.Get_YRange() / (Rows - 1);
 
-	int		Cols	= 1 + (int)(0.5 + r.Get_XRange() / Size);
+	int    Cols = 1 + (int)(0.5 + r.Get_XRange() / Size);
 
 	if( Rounding > 0 )
 	{
-		Size	= SG_Get_Rounded_To_SignificantFigures(Size, Rounding);
+		Size = SG_Get_Rounded_To_SignificantFigures(Size, Rounding);
 
-		r.m_rect.xMin	= r.Get_XCenter() - Size * Cols / 2.;
-		r.m_rect.yMin	= r.Get_YCenter() - Size * Rows / 2.;
-		r.m_rect.yMax	= r.Get_YMin   () + Size * (Rows - 1);
+		r.m_rect.xMin = r.Get_XCenter() - Size * Cols / 2.;
+		r.m_rect.yMin = r.Get_YCenter() - Size * Rows / 2.;
+		r.m_rect.yMax = r.Get_YMin   () + Size * (Rows - 1);
 	}
 
-	r.m_rect.xMax	= r.Get_XMin() + Size * (Cols - 1);
+	r.m_rect.xMax = r.Get_XMin() + Size * (Cols - 1);
 
 	//-----------------------------------------------------
 	if( (*pParameters)(m_Prefix + "USER_FITS")->asInt() == 1 ) // fit to cells
@@ -1430,7 +1446,7 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, c
 		r.Inflate(0.5 * Size, false);
 	}
 
-	bool	bCallback	= pParameters->Set_Callback(false);
+	bool bCallback = pParameters->Set_Callback(false);
 
 	pParameters->Set_Parameter(m_Prefix + "USER_SIZE", Size        );
 	pParameters->Set_Parameter(m_Prefix + "USER_XMIN", r.Get_XMin());
