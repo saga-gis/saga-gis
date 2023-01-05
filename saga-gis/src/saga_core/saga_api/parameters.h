@@ -263,6 +263,8 @@ public:	///////////////////////////////////////////////////
 	virtual bool					Set_Value				(void             *Value);
 	virtual bool					Set_Value				(CSG_Parameter    *Value);
 
+	virtual bool					Toggle_Value			(void);
+
 	bool							Set_Default				(int               Value);
 	bool							Set_Default				(double            Value);
 	bool							Set_Default				(const CSG_String &Value);
@@ -391,6 +393,8 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_Bool : public CSG_Parameter
 public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Bool );	}
+
+	virtual bool				Toggle_Value			(void);
 
 
 protected:
@@ -645,6 +649,8 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_Choice : public CSG_Parameter
 public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Choice );	}
+
+	virtual bool				Toggle_Value			(void);
 
 	bool						Del_Items				(void);
 	bool						Add_Item				(const CSG_String &Item, const CSG_String &Data = "");
