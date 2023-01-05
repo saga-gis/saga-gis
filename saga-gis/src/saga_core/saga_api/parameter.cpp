@@ -821,6 +821,12 @@ bool CSG_Parameter::Set_Value(CSG_Parameter *Value)
 }
 
 //---------------------------------------------------------
+bool CSG_Parameter::Toggle_Value(void)
+{
+	return( false );
+}
+
+//---------------------------------------------------------
 bool CSG_Parameter::has_Changed(int Check_Flags)
 {
 	_Set_String();

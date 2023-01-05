@@ -232,6 +232,12 @@ CSG_Parameter_Bool::CSG_Parameter_Bool(CSG_Parameters *pOwner, CSG_Parameter *pP
 }
 
 //---------------------------------------------------------
+bool CSG_Parameter_Bool::Toggle_Value(void)
+{
+	return( Set_Value(asBool() ? 0 : 1) );
+}
+
+//---------------------------------------------------------
 int CSG_Parameter_Bool::_Set_Value(int Value)
 {
 	bool	bValue = Value != 0;
@@ -859,6 +865,12 @@ CSG_Parameter_Choice::CSG_Parameter_Choice(CSG_Parameters *pOwner, CSG_Parameter
 	: CSG_Parameter(pOwner, pParent, ID, Name, Description, Constraint)
 {
 	m_Value	= -1;
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter_Choice::Toggle_Value(void)
+{
+	return( Get_Count() > 1 && Set_Value((asInt() + 1) % Get_Count()) );
 }
 
 //---------------------------------------------------------
