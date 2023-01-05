@@ -110,21 +110,30 @@ void CSG_3DView_Projector::Set_zScaling(double z)
 {	m_Scaling.z = z;	}
 
 //---------------------------------------------------------
-void CSG_3DView_Projector::Set_Rotation(double x, double y, double z)
+void CSG_3DView_Projector::Set_Rotation(double x, double y, double z, bool bDegree)
 {
-	Set_xRotation(x);
-	Set_yRotation(y);
-	Set_zRotation(z);
+	Set_xRotation(x, bDegree);
+	Set_yRotation(y, bDegree);
+	Set_zRotation(z, bDegree);
 }
 
-void CSG_3DView_Projector::Set_xRotation(double x)
-{	m_Rotate.x = x; m_Sin.x = sin(x - M_PI_180); m_Cos.x = cos(x - M_PI_180);	}
+void CSG_3DView_Projector::Set_xRotation(double x, bool bDegree)
+{	if( bDegree ) { x *= M_DEG_TO_RAD; } m_Rotate.x = x; m_Sin.x = sin(x - M_PI_180); m_Cos.x = cos(x - M_PI_180);	}
 
-void CSG_3DView_Projector::Set_yRotation(double y)
-{	m_Rotate.y = y; m_Sin.y = sin(y); m_Cos.y = cos(y);	}
+void CSG_3DView_Projector::Set_yRotation(double y, bool bDegree)
+{	if( bDegree ) { y *= M_DEG_TO_RAD; } m_Rotate.y = y; m_Sin.y = sin(y); m_Cos.y = cos(y);	}
 
-void CSG_3DView_Projector::Set_zRotation(double z)
-{	m_Rotate.z = z; m_Sin.z = sin(z); m_Cos.z = cos(z);	}
+void CSG_3DView_Projector::Set_zRotation(double z, bool bDegree)
+{	if( bDegree ) { z *= M_DEG_TO_RAD; } m_Rotate.z = z; m_Sin.z = sin(z); m_Cos.z = cos(z);	}
+
+void CSG_3DView_Projector::Inc_xRotation(double x, bool bDegree)
+{	if( bDegree ) { x *= M_DEG_TO_RAD; } Set_xRotation(m_Rotate.x + x, false);	}
+
+void CSG_3DView_Projector::Inc_yRotation(double y, bool bDegree)
+{	if( bDegree ) { y *= M_DEG_TO_RAD; } Set_yRotation(m_Rotate.y + y, false);	}
+
+void CSG_3DView_Projector::Inc_zRotation(double z, bool bDegree)
+{	if( bDegree ) { z *= M_DEG_TO_RAD; } Set_zRotation(m_Rotate.z + z, false);	}
 
 //---------------------------------------------------------
 void CSG_3DView_Projector::Set_Shift(double x, double y, double z)

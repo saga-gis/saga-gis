@@ -129,75 +129,25 @@ C3D_Viewer_Globe_Grid_Panel::C3D_Viewer_Globe_Grid_Panel(wxWindow *pParent, CSG_
 	Create_Nodes();
 
 	//-----------------------------------------------------
-	m_Parameters("BGCOLOR")->Set_Value((int)SG_GET_RGB(192, 192, 192));
-	m_Parameters("BOX"    )->Set_Value(false);
-	m_Parameters("LABELS" )->Set_Value(2);
+	m_Parameters("BGCOLOR")->Set_Value(m_bgColor = (int)SG_GET_RGB(192, 192, 192));
+	m_Parameters("BOX"    )->Set_Value(m_bBox    = false);
+	m_Parameters("LABELS" )->Set_Value(m_Labels  = 2);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Double("NODE_GENERAL",
-		"RADIUS"		, _TL("Radius"),
-		_TL(""),
-		6371., 0., true
+	m_Parameters.Add_Double("GENERAL"    , "RADIUS"      , _TL("Radius"      ), _TL(""), 6371., 0., true);
+
+	m_Parameters.Add_Bool  ("GENERAL"    , "COLOR_ASRGB" , _TL("RGB Values"  ), _TL(""), false);
+	m_Parameters.Add_Colors("COLOR_ASRGB", "COLORS"      , _TL("Colors"      ), _TL(""));
+	m_Parameters.Add_Range ("COLOR_ASRGB", "COLORS_RANGE", _TL("Value Range" ), _TL(""));
+	m_Parameters.Add_Bool  ("COLOR_ASRGB", "COLORS_GRAD" , _TL("Graduated"   ), _TL(""), true);
+
+	m_Parameters.Add_Choice("GENERAL"    , "DRAW_MODE"   , _TL("Draw"        ), _TL(""),
+		CSG_String::Format("%s|%s|%s", _TL("Faces"), _TL("Edges"), _TL("Nodes")), 0
 	);
 
-	//-----------------------------------------------------
-	m_Parameters.Add_Node("",
-		"NODE_VIEW"		, _TL("Grid View Settings"),
-		_TL("")
-	);
-
-	m_Parameters.Add_Bool("NODE_VIEW",
-		"COLOR_ASRGB"	, _TL("RGB Values"),
-		_TL(""),
-		false
-	);
-
-	m_Parameters.Add_Colors("COLOR_ASRGB",
-		"COLORS"		, _TL("Colors"),
-		_TL("")
-	);
-
-	m_Parameters.Add_Range("COLOR_ASRGB",
-		"COLORS_RANGE"	, _TL("Value Range"),
-		_TL("")
-	);
-
-	m_Parameters.Add_Bool("COLOR_ASRGB",
-		"COLORS_GRAD"	, _TL("Graduated"),
-		_TL(""),
-		true
-	);
-
-	m_Parameters.Add_Choice("NODE_VIEW",
-		"DRAW_MODE"		, _TL("Draw"),
-		_TL(""),
-		CSG_String::Format("%s|%s|%s",
-			_TL("Faces"),
-			_TL("Edges"),
-			_TL("Nodes")
-		)
-	);
-
-	m_Parameters.Add_Choice("NODE_VIEW",
-		"SHADING"		, _TL("Shading"),
-		_TL(""),
-		CSG_String::Format("%s|%s",
-			_TL("none"),
-			_TL("shading")
-		), 1
-	);
-
-	m_Parameters.Add_Double("SHADING",
-		"SHADE_DEC"		, _TL("Light Source Height"),
-		_TL(""),
-		0., -180., true, 180., true
-	);
-
-	m_Parameters.Add_Double("SHADING",
-		"SHADE_AZI"		, _TL("Light Source Direction"),
-		_TL(""),
-		0., -180., true, 180., true
-	);
+	m_Parameters.Add_Choice("GENERAL"    , "SHADING"     , _TL("Light Source"), _TL(""), CSG_String::Format("%s|%s", _TL("no"), _TL("yes")), 1);
+	m_Parameters.Add_Double("SHADING"    , "SHADE_DEC"   , _TL("Height"      ), _TL(""), 0., -180., true, 180., true);
+	m_Parameters.Add_Double("SHADING"    , "SHADE_AZI"   , _TL("Direction"   ), _TL(""), 0., -180., true, 180., true);
 
 	//-----------------------------------------------------
 	m_Parameters("COLORS_RANGE")->asRange()->Set_Range(
@@ -239,8 +189,7 @@ int C3D_Viewer_Globe_Grid_Panel::On_Parameters_Enable(CSG_Parameters *pParameter
 
 	if( pParameter->Cmp_Identifier("SHADING") )
 	{
-		pParameters->Set_Enabled("SHADE_DEC"   ,  pParameter->asBool());
-		pParameters->Set_Enabled("SHADE_AZI"   ,  pParameter->asBool());
+		pParameter->Set_Children_Enabled(pParameter->asInt() > 0);
 	}
 
 	return( CSG_3DView_Panel::On_Parameters_Enable(pParameters, pParameter) );
@@ -322,17 +271,7 @@ void C3D_Viewer_Globe_Grid_Panel::Update_Parent(void)
 //---------------------------------------------------------
 void C3D_Viewer_Globe_Grid_Panel::On_Key_Down(wxKeyEvent &event)
 {
-	switch( event.GetKeyCode() )
-	{
-	default:
-		CSG_3DView_Panel::On_Key_Down(event);
-		return;
-
-	case WXK_F1: m_Parameters("Z_SCALE")->Set_Value(m_Parameters("Z_SCALE")->asDouble() -  0.5); break;
-	case WXK_F2: m_Parameters("Z_SCALE")->Set_Value(m_Parameters("Z_SCALE")->asDouble() +  0.5); break;
-	}
-
-	Update_View(true);
+	CSG_3DView_Panel::On_Key_Down(event);
 }
 
 //---------------------------------------------------------
@@ -343,8 +282,9 @@ void C3D_Viewer_Globe_Grid_Panel::On_Mouse_Motion(wxMouseEvent &event)
 		#define GET_MOUSE_X_RELDIFF	((double)(m_Down_Screen.x - event.GetX()) / (double)GetClientSize().x)
 		#define GET_MOUSE_Y_RELDIFF	((double)(m_Down_Screen.y - event.GetY()) / (double)GetClientSize().y)
 
-		m_Parameters("Z_SCALE")->Set_Value(m_Down_Value.x + GET_MOUSE_X_RELDIFF * 100.);
-		m_Projector.Set_zShift            (m_Down_Value.y + GET_MOUSE_Y_RELDIFF);
+		m_Projector.Set_zShift    (           m_Down_Value.y + GET_MOUSE_Y_RELDIFF);
+		m_Projector.Set_zScaling  (           m_Down_Value.x + GET_MOUSE_X_RELDIFF * 100.);
+		m_Parameters.Set_Parameter("Z_SCALE", m_Down_Value.x + GET_MOUSE_X_RELDIFF * 100.);
 
 		Update_View(true);
 

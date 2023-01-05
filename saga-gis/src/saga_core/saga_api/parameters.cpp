@@ -1026,63 +1026,69 @@ CSG_Parameter * CSG_Parameters::_Add_String(const CSG_String &ParentID, const CS
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifdef _DEBUG
 #include <wx/debug.h>
+#include <wx/string.h>
+#endif
 
 //---------------------------------------------------------
 CSG_Parameter * CSG_Parameters::_Add(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, TSG_Parameter_Type Type, int Constraint)
 {
-	wxASSERT_MSG(!ID.is_Empty(), "CSG_Parameter::Add: ID is empty");
+#ifdef _DEBUG
+	wxASSERT_MSG(!ID.is_Empty()    , wxString::Format("CSG_Parameter::_Add(): Parameter ID is empty!"));
+	wxASSERT_MSG(!Get_Parameter(ID), wxString::Format("CSG_Parameter::_Add(): Parameter ID \"%s\" is already in use!", ID.c_str()));
+#endif
 
-	CSG_Parameter	*pParameter;
+	CSG_Parameter *pParameter;
 
 	switch( Type )
 	{
 	default:
 		return( NULL );
 
-	case PARAMETER_TYPE_Node             : pParameter	= new CSG_Parameter_Node              (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
+	case PARAMETER_TYPE_Node             : pParameter = new CSG_Parameter_Node              (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
 
-	case PARAMETER_TYPE_Bool             : pParameter	= new CSG_Parameter_Bool              (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
-	case PARAMETER_TYPE_Int              : pParameter	= new CSG_Parameter_Int               (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
-	case PARAMETER_TYPE_Double           : pParameter	= new CSG_Parameter_Double            (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
-	case PARAMETER_TYPE_Degree           : pParameter	= new CSG_Parameter_Degree            (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
-	case PARAMETER_TYPE_Date             : pParameter	= new CSG_Parameter_Date              (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
-	case PARAMETER_TYPE_Range            : pParameter	= new CSG_Parameter_Range             (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
-	case PARAMETER_TYPE_Choice           : pParameter	= new CSG_Parameter_Choice            (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
-	case PARAMETER_TYPE_Choices          : pParameter	= new CSG_Parameter_Choices           (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
+	case PARAMETER_TYPE_Bool             : pParameter = new CSG_Parameter_Bool              (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
+	case PARAMETER_TYPE_Int              : pParameter = new CSG_Parameter_Int               (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
+	case PARAMETER_TYPE_Double           : pParameter = new CSG_Parameter_Double            (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
+	case PARAMETER_TYPE_Degree           : pParameter = new CSG_Parameter_Degree            (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
+	case PARAMETER_TYPE_Date             : pParameter = new CSG_Parameter_Date              (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
+	case PARAMETER_TYPE_Range            : pParameter = new CSG_Parameter_Range             (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
+	case PARAMETER_TYPE_Choice           : pParameter = new CSG_Parameter_Choice            (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
+	case PARAMETER_TYPE_Choices          : pParameter = new CSG_Parameter_Choices           (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
 
-	case PARAMETER_TYPE_String           : pParameter	= new CSG_Parameter_String            (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
-	case PARAMETER_TYPE_Text             : pParameter	= new CSG_Parameter_Text              (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
-	case PARAMETER_TYPE_FilePath         : pParameter	= new CSG_Parameter_File_Name         (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
+	case PARAMETER_TYPE_String           : pParameter = new CSG_Parameter_String            (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
+	case PARAMETER_TYPE_Text             : pParameter = new CSG_Parameter_Text              (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
+	case PARAMETER_TYPE_FilePath         : pParameter = new CSG_Parameter_File_Name         (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
 
-	case PARAMETER_TYPE_Font             : pParameter	= new CSG_Parameter_Font              (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
-	case PARAMETER_TYPE_Color            : pParameter	= new CSG_Parameter_Color             (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
-	case PARAMETER_TYPE_Colors           : pParameter	= new CSG_Parameter_Colors            (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
-	case PARAMETER_TYPE_FixedTable       : pParameter	= new CSG_Parameter_Fixed_Table       (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
-	case PARAMETER_TYPE_Grid_System      : pParameter	= new CSG_Parameter_Grid_System       (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
-	case PARAMETER_TYPE_Table_Field      : pParameter	= new CSG_Parameter_Table_Field       (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
-	case PARAMETER_TYPE_Table_Fields     : pParameter	= new CSG_Parameter_Table_Fields      (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
+	case PARAMETER_TYPE_Font             : pParameter = new CSG_Parameter_Font              (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
+	case PARAMETER_TYPE_Color            : pParameter = new CSG_Parameter_Color             (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
+	case PARAMETER_TYPE_Colors           : pParameter = new CSG_Parameter_Colors            (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
+	case PARAMETER_TYPE_FixedTable       : pParameter = new CSG_Parameter_Fixed_Table       (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
+	case PARAMETER_TYPE_Grid_System      : pParameter = new CSG_Parameter_Grid_System       (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
+	case PARAMETER_TYPE_Table_Field      : pParameter = new CSG_Parameter_Table_Field       (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
+	case PARAMETER_TYPE_Table_Fields     : pParameter = new CSG_Parameter_Table_Fields      (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
 
-	case PARAMETER_TYPE_DataObject_Output: pParameter	= new CSG_Parameter_Data_Object_Output(this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
-	case PARAMETER_TYPE_Grid             : pParameter	= new CSG_Parameter_Grid              (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
-	case PARAMETER_TYPE_Grids            : pParameter	= new CSG_Parameter_Grids             (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
-	case PARAMETER_TYPE_Table            : pParameter	= new CSG_Parameter_Table             (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
-	case PARAMETER_TYPE_Shapes           : pParameter	= new CSG_Parameter_Shapes            (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
-	case PARAMETER_TYPE_TIN              : pParameter	= new CSG_Parameter_TIN               (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
-	case PARAMETER_TYPE_PointCloud       : pParameter	= new CSG_Parameter_PointCloud        (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
+	case PARAMETER_TYPE_DataObject_Output: pParameter = new CSG_Parameter_Data_Object_Output(this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
+	case PARAMETER_TYPE_Grid             : pParameter = new CSG_Parameter_Grid              (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
+	case PARAMETER_TYPE_Grids            : pParameter = new CSG_Parameter_Grids             (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
+	case PARAMETER_TYPE_Table            : pParameter = new CSG_Parameter_Table             (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
+	case PARAMETER_TYPE_Shapes           : pParameter = new CSG_Parameter_Shapes            (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
+	case PARAMETER_TYPE_TIN              : pParameter = new CSG_Parameter_TIN               (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
+	case PARAMETER_TYPE_PointCloud       : pParameter = new CSG_Parameter_PointCloud        (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
 
-	case PARAMETER_TYPE_Grid_List        : pParameter	= new CSG_Parameter_Grid_List         (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
-	case PARAMETER_TYPE_Grids_List       : pParameter	= new CSG_Parameter_Grids_List        (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
-	case PARAMETER_TYPE_Table_List       : pParameter	= new CSG_Parameter_Table_List        (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
-	case PARAMETER_TYPE_Shapes_List      : pParameter	= new CSG_Parameter_Shapes_List       (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
-	case PARAMETER_TYPE_TIN_List         : pParameter	= new CSG_Parameter_TIN_List          (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
-	case PARAMETER_TYPE_PointCloud_List  : pParameter	= new CSG_Parameter_PointCloud_List   (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
+	case PARAMETER_TYPE_Grid_List        : pParameter = new CSG_Parameter_Grid_List         (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
+	case PARAMETER_TYPE_Grids_List       : pParameter = new CSG_Parameter_Grids_List        (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
+	case PARAMETER_TYPE_Table_List       : pParameter = new CSG_Parameter_Table_List        (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
+	case PARAMETER_TYPE_Shapes_List      : pParameter = new CSG_Parameter_Shapes_List       (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
+	case PARAMETER_TYPE_TIN_List         : pParameter = new CSG_Parameter_TIN_List          (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
+	case PARAMETER_TYPE_PointCloud_List  : pParameter = new CSG_Parameter_PointCloud_List   (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
 
-	case PARAMETER_TYPE_Parameters       : pParameter	= new CSG_Parameter_Parameters        (this, Get_Parameter(ParentID), ID, Name, Description, Constraint);	break;
+	case PARAMETER_TYPE_Parameters       : pParameter = new CSG_Parameter_Parameters        (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
 	}
 
-	m_Parameters	= (CSG_Parameter **)SG_Realloc(m_Parameters, (m_nParameters + 1) * sizeof(CSG_Parameter *));
-	m_Parameters[m_nParameters++]	= pParameter;
+	m_Parameters = (CSG_Parameter **)SG_Realloc(m_Parameters, (m_nParameters + 1) * sizeof(CSG_Parameter *));
+	m_Parameters[m_nParameters++] = pParameter;
 
 	pParameter->_Set_String();
 
@@ -1092,7 +1098,7 @@ CSG_Parameter * CSG_Parameters::_Add(const CSG_String &ParentID, const CSG_Strin
 //---------------------------------------------------------
 CSG_Parameter * CSG_Parameters::_Add(CSG_Parameter *pSource)
 {
-	CSG_Parameter	*pParameter	= !pSource ? NULL : _Add(
+	CSG_Parameter *pParameter = !pSource ? NULL : _Add(
 		pSource->Get_Parent() ? pSource->Get_Parent()->Get_Identifier() : SG_T(""),
 		pSource->Get_Identifier (),
 		pSource->Get_Name       (),
@@ -1558,20 +1564,20 @@ bool CSG_Parameters::DataObjects_Create(void)
 
 		else if( p->is_DataObject() )
 		{
-			CSG_Data_Object	*pDataObject	= p->asDataObject();
+			CSG_Data_Object *pDataObject = p->asDataObject();
 
 			if(	(pDataObject == DATAOBJECT_CREATE)
 			||	(pDataObject == DATAOBJECT_NOTSET && !p->is_Optional())
 			||	(pDataObject != DATAOBJECT_NOTSET && m_pManager && !m_pManager->Exists(pDataObject)) )
 			{
-				pDataObject	= NULL;
+				pDataObject = NULL;
 
 				switch( p->Get_Type() )
 				{
-				case PARAMETER_TYPE_Table     :	pDataObject	= SG_Create_Table     ();	break;
-				case PARAMETER_TYPE_TIN       :	pDataObject	= SG_Create_TIN       ();	break;
-				case PARAMETER_TYPE_PointCloud:	pDataObject	= SG_Create_PointCloud();	break;
-				case PARAMETER_TYPE_Shapes    :	pDataObject	= SG_Create_Shapes(
+				case PARAMETER_TYPE_Table     : pDataObject = SG_Create_Table     (); break;
+				case PARAMETER_TYPE_TIN       : pDataObject = SG_Create_TIN       (); break;
+				case PARAMETER_TYPE_PointCloud: pDataObject = SG_Create_PointCloud(); break;
+				case PARAMETER_TYPE_Shapes    : pDataObject = SG_Create_Shapes(
 						((CSG_Parameter_Shapes *)p)->Get_Shape_Type()
 					);
 					break;

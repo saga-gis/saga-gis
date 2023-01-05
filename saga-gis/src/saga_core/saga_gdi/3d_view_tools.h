@@ -86,22 +86,25 @@ public:
 	void				Set_xScaling			(double x);
 	void				Set_yScaling			(double y);
 	void				Set_zScaling			(double z);
+	void				Inc_xScaling			(double x)		{	Set_xScaling(m_Scaling.x + x);	}
+	void				Inc_yScaling			(double y)		{	Set_yScaling(m_Scaling.y + y);	}
+	void				Inc_zScaling			(double z)		{	Set_zScaling(m_Scaling.z + z);	}
 	const TSG_Point_Z &	Get_Scaling				(void)	const	{	return( m_Scaling   );	}
 	double				Get_xScaling			(void)	const	{	return( m_Scaling.x );	}
 	double				Get_yScaling			(void)	const	{	return( m_Scaling.y );	}
 	double				Get_zScaling			(void)	const	{	return( m_Scaling.z );	}
 
-	void				Set_Rotation			(double x, double y, double z);
-	void				Set_xRotation			(double x);
-	void				Set_yRotation			(double y);
-	void				Set_zRotation			(double z);
-	void				Inc_xRotation			(double x)		{	Set_xRotation(m_Rotate.x + x);	}
-	void				Inc_yRotation			(double y)		{	Set_yRotation(m_Rotate.y + y);	}
-	void				Inc_zRotation			(double z)		{	Set_zRotation(m_Rotate.z + z);	}
-	const TSG_Point_Z &	Get_Rotation			(void)	const	{	return( m_Rotate   );	}
-	double				Get_xRotation			(void)	const	{	return( m_Rotate.x );	}
-	double				Get_yRotation			(void)	const	{	return( m_Rotate.y );	}
-	double				Get_zRotation			(void)	const	{	return( m_Rotate.z );	}
+	void				Set_Rotation			(double x, double y, double z, bool bDegree = false);
+	void				Set_xRotation			(double x, bool bDegree = false);
+	void				Set_yRotation			(double y, bool bDegree = false);
+	void				Set_zRotation			(double z, bool bDegree = false);
+	void				Inc_xRotation			(double x, bool bDegree = false);
+	void				Inc_yRotation			(double y, bool bDegree = false);
+	void				Inc_zRotation			(double z, bool bDegree = false);
+	const TSG_Point_Z &	Get_Rotation			(void)					const	{	return( m_Rotate );	}
+	double				Get_xRotation			(bool bDegree = false)	const	{	return( bDegree ? M_RAD_TO_DEG * m_Rotate.x : m_Rotate.x );	}
+	double				Get_yRotation			(bool bDegree = false)	const	{	return( bDegree ? M_RAD_TO_DEG * m_Rotate.y : m_Rotate.y );	}
+	double				Get_zRotation			(bool bDegree = false)	const	{	return( bDegree ? M_RAD_TO_DEG * m_Rotate.z : m_Rotate.z );	}
 
 	void				Set_Shift				(double x, double y, double z);
 	void				Set_xShift				(double x);

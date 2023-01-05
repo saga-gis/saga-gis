@@ -87,8 +87,6 @@ public:
 
 private:
 
-	CSG_Parameters					m_Parameters;
-
 	CSG_Grid						m_Map;
 
 	class CVIEW_Map_3DPanel			*m_pPanel;
@@ -99,14 +97,10 @@ private:
 	void							On_Command				(wxCommandEvent  &event);
 	void							On_Command_UI			(wxUpdateUIEvent &event);
 
-	void							Parameters_Create		(void);
-	void							Parameters_Update		(bool bToPanel);
-
 
 	//-----------------------------------------------------
 	DECLARE_CLASS(CVIEW_Map_3D)
 	DECLARE_EVENT_TABLE()
-
 };
 
 

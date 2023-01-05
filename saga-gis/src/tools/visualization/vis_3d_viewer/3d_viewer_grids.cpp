@@ -60,7 +60,7 @@
 //---------------------------------------------------------
 enum
 {
-	PLANE_SIDE_X	= 0,
+	PLANE_SIDE_X = 0,
 	PLANE_SIDE_Y,
 	PLANE_SIDE_Z
 };
@@ -141,7 +141,7 @@ C3D_Viewer_Grids_Panel::C3D_Viewer_Grids_Panel(wxWindow *pParent, CSG_Grids *pGr
 	m_pGrids = pGrids;
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Double("NODE_GENERAL",
+	m_Parameters.Add_Double("GENERAL",
 		"RESOLUTION_XY"	, _TL("Horizontal Resolution"),
 		_TL("Horizontal resolution (x/y) in map units. Use [F7]/[F8] keys to de-/increase."),
 		m_pGrids->Get_Extent().Get_Diameter() / 200,
@@ -162,7 +162,7 @@ C3D_Viewer_Grids_Panel::C3D_Viewer_Grids_Panel(wxWindow *pParent, CSG_Grids *pGr
 		), 0
 	);
 
-	m_Parameters.Add_Int("NODE_GENERAL",
+	m_Parameters.Add_Int("GENERAL",
 		"RESOLUTION_Z"	, _TL("Vertical Resolution"),
 		_TL("Vertical resolution (z) in number of levels. Use [F9]/[F10] keys to de-/increase."),
 		M_GET_MIN(m_pGrids->Get_NZ() * 4, 200), 10, true
@@ -179,55 +179,21 @@ C3D_Viewer_Grids_Panel::C3D_Viewer_Grids_Panel(wxWindow *pParent, CSG_Grids *pGr
 	);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Node("",
-		"NODE_VIEW"		, _TL("Grid View Settings"),
-		_TL("")
-	);
-
 	if( !SG_UI_DataObject_Colors_Get(m_pGrids, &m_Colors) )
 	{
 		m_Colors.Set_Palette(SG_COLORS_RAINBOW);
 	}
 
-	m_Parameters.Add_Colors("NODE_VIEW",
-		"COLORS"		, _TL("Colors"),
-		_TL(""),
-		&m_Colors
-	);
-
-	m_Parameters.Add_Range("COLORS",
-		"COLOR_STRETCH"	, _TL("Histogram Stretch"),
-		_TL(""),
+	m_Parameters.Add_Colors("GENERAL", "COLORS"       , _TL("Colors"           ), _TL(""), &m_Colors);
+	m_Parameters.Add_Bool  ("COLORS" , "COLORS_GRAD"  , _TL("Graduated"        ), _TL(""), true);
+	m_Parameters.Add_Range ("COLORS" , "COLOR_STRETCH", _TL("Histogram Stretch"), _TL(""),
 		m_pGrids->Get_Mean() - 2. * m_pGrids->Get_StdDev(),
 		m_pGrids->Get_Mean() + 2. * m_pGrids->Get_StdDev()
 	);
 
-	m_Parameters.Add_Bool("COLORS",
-		"COLORS_GRAD"	, _TL("Graduated"),
-		_TL(""),
-		true
-	);
-
-	m_Parameters.Add_Choice("NODE_VIEW",
-		"SHADING"		, _TL("Shading"),
-		_TL(""),
-		CSG_String::Format("%s|%s",
-			_TL("none"),
-			_TL("shading")
-		), 1
-	);
-
-	m_Parameters.Add_Double("SHADING",
-		"SHADE_DEC"		, _TL("Light Source Height"),
-		_TL(""),
-		 45., -90., true, 90., true
-	);
-
-	m_Parameters.Add_Double("SHADING",
-		"SHADE_AZI"		, _TL("Light Source Direction"),
-		_TL(""),
-		45., -90., true, 90., true
-	);
+	m_Parameters.Add_Choice("GENERAL", "SHADING"      , _TL("Light Source"     ), _TL(""), CSG_String::Format("%s|%s", _TL("no"), _TL("yes")), 1);
+	m_Parameters.Add_Double("SHADING", "SHADE_DEC"    , _TL("Height"           ), _TL(""), 45., -90., true, 90., true);
+	m_Parameters.Add_Double("SHADING", "SHADE_AZI"    , _TL("Direction"        ), _TL(""), 45., -90., true, 90., true);
 
 	//-----------------------------------------------------
 	m_Parameters("Z_SCALE")->Set_Value(0.2 * (m_pGrids->Get_XRange() + m_pGrids->Get_YRange()) / m_pGrids->Get_ZRange());
@@ -256,8 +222,7 @@ int C3D_Viewer_Grids_Panel::On_Parameters_Enable(CSG_Parameters *pParameters, CS
 {
 	if( pParameter->Cmp_Identifier("SHADING") )
 	{
-		pParameters->Set_Enabled("SHADE_DEC", pParameter->asBool());
-		pParameters->Set_Enabled("SHADE_AZI", pParameter->asBool());
+		pParameter->Set_Children_Enabled(pParameter->asInt() > 0);
 	}
 
 	return( CSG_3DView_Panel::On_Parameters_Enable(pParameters, pParameter) );
@@ -271,16 +236,16 @@ int C3D_Viewer_Grids_Panel::On_Parameters_Enable(CSG_Parameters *pParameters, CS
 //---------------------------------------------------------
 void C3D_Viewer_Grids_Panel::Update_Statistics(void)
 {
-	m_Data_Min.x	= m_pGrids->Get_XMin();
-	m_Data_Max.x	= m_pGrids->Get_XMax();
+	m_Data_Min.x = m_pGrids->Get_XMin();
+	m_Data_Max.x = m_pGrids->Get_XMax();
 
-	m_Data_Min.y	= m_pGrids->Get_YMin();
-	m_Data_Max.y	= m_pGrids->Get_YMax();
+	m_Data_Min.y = m_pGrids->Get_YMin();
+	m_Data_Max.y = m_pGrids->Get_YMax();
 
-	m_Data_Min.z	= m_pGrids->Get_ZMin();
-	m_Data_Max.z	= m_pGrids->Get_ZMax();
+	m_Data_Min.z = m_pGrids->Get_ZMin();
+	m_Data_Max.z = m_pGrids->Get_ZMax();
 
-	Set_Planes();	// Update_View();
+	Set_Planes(); // Update_View();
 }
 
 //---------------------------------------------------------
@@ -331,7 +296,7 @@ bool C3D_Viewer_Grids_Panel::Set_Resolution(bool bIncrease, bool bVertical)
 {
 	if( bVertical )
 	{
-		double	d	= m_Parameters("RESOLUTION_Z")->asDouble();
+		double d = m_Parameters("RESOLUTION_Z")->asDouble();
 
 		m_Parameters("RESOLUTION_Z")->Set_Value(bIncrease
 			? d + 5
@@ -340,7 +305,7 @@ bool C3D_Viewer_Grids_Panel::Set_Resolution(bool bIncrease, bool bVertical)
 	}
 	else
 	{
-		double	d	= m_Parameters("RESOLUTION_XY")->asDouble();
+		double d = m_Parameters("RESOLUTION_XY")->asDouble();
 
 		m_Parameters("RESOLUTION_XY")->Set_Value(bIncrease
 			? d - m_pGrids->Get_Cellsize()
@@ -358,22 +323,19 @@ void C3D_Viewer_Grids_Panel::On_Key_Down(wxKeyEvent &event)
 {
 	switch( event.GetKeyCode() )
 	{
-	default:
-		CSG_3DView_Panel::On_Key_Down(event);
-		return;
+	default: CSG_3DView_Panel::On_Key_Down(event); return;
 
-	//-----------------------------------------------------
-	case WXK_F1 : Set_ZScale(false); break;
-	case WXK_F2 : Set_ZScale( true); break;
+	case WXK_F1: Set_ZScale(false); break;
+	case WXK_F2: Set_ZScale( true); break;
 
-	case WXK_F7 : Set_Resolution(false, false); break;
-	case WXK_F8 : Set_Resolution( true, false); break;
+	case WXK_F3: Set_Resolution(false, false); break;
+	case WXK_F4: Set_Resolution( true, false); break;
 
-	case WXK_F9 : Set_Resolution(false,  true); break;
-	case WXK_F10: Set_Resolution( true,  true); break;
+	case WXK_F5: Set_Resolution(false,  true); break;
+	case WXK_F6: Set_Resolution( true,  true); break;
 
-	case WXK_F11: Set_ZLevel(false); break;
-	case WXK_F12: Set_ZLevel( true); break;
+	case WXK_F7: Set_ZLevel(false); break;
+	case WXK_F8: Set_ZLevel( true); break;
 	}
 
 	Update_Parent();
@@ -392,7 +354,7 @@ int C3D_Viewer_Grids_Panel::Get_Color(double Value)
 		return( (int)Value );
 	}
 
-	double	c	= m_Color_Scale * (Value - m_Color_Min);
+	double c = m_Color_Scale * (Value - m_Color_Min);
 
 	return( m_Color_bGrad ? m_Colors.Get_Interpolated(c) : m_Colors[(int)c] );
 }
@@ -405,12 +367,12 @@ int C3D_Viewer_Grids_Panel::Get_Color(double Value)
 //---------------------------------------------------------
 bool C3D_Viewer_Grids_Panel::On_Draw(void)
 {
-	m_Colors		=*m_Parameters("COLORS")->asColors();
-	m_Color_bGrad	= m_Parameters("COLORS_GRAD")->asBool();
+	m_Colors      =*m_Parameters("COLORS")->asColors();
+	m_Color_bGrad = m_Parameters("COLORS_GRAD")->asBool();
 
-	m_Color_Min		= m_Parameters("COLOR_STRETCH")->asRange()->Get_Min();
-	double	Range	= m_Parameters("COLOR_STRETCH")->asRange()->Get_Max() - m_Color_Min;
-	m_Color_Scale	= Range > 0. ? (m_Colors.Get_Count() - 1) / Range : 0.;
+	m_Color_Min   = m_Parameters("COLOR_STRETCH")->asRange()->Get_Min();
+	double  Range = m_Parameters("COLOR_STRETCH")->asRange()->Get_Max() - m_Color_Min;
+	m_Color_Scale = Range > 0. ? (m_Colors.Get_Count() - 1) / Range : 0.;
 
 	//-----------------------------------------------------
 	Draw_Plane(m_Plane[PLANE_SIDE_X], m_Position[PLANE_SIDE_X], PLANE_SIDE_X);
@@ -1054,15 +1016,15 @@ protected:
 		pMenu->Append(MENU_SCALE_Z_INC , _TL("Increase Exaggeration [F2]"));
 
 		pMenu->AppendSeparator();
-		pMenu->Append(MENU_LEVEL_Z_DEC , _TL("Previous Level [F11]"));
-		pMenu->Append(MENU_LEVEL_Z_INC , _TL("Next Level [F12]"));
+		pMenu->Append(MENU_LEVEL_Z_DEC , _TL("Previous Level [F7]"));
+		pMenu->Append(MENU_LEVEL_Z_INC , _TL("Next Level [F8]"));
 
 		pMenu->AppendSeparator();
-		pMenu->Append(MENU_RESLT_XY_DEC, _TL("Decrease Horizontal Resolution [F7]"));
-		pMenu->Append(MENU_RESLT_XY_INC, _TL("Increase Horizontal Resolution [F8]"));
+		pMenu->Append(MENU_RESLT_XY_DEC, _TL("Decrease Horizontal Resolution [F3]"));
+		pMenu->Append(MENU_RESLT_XY_INC, _TL("Increase Horizontal Resolution [F4]"));
 
-		pMenu->Append(MENU_RESLT_Z_DEC , _TL("Decrease Vertical Resolution [F9]"));
-		pMenu->Append(MENU_RESLT_Z_INC , _TL("Increase Vertical Resolution [F10]"));
+		pMenu->Append(MENU_RESLT_Z_DEC , _TL("Decrease Vertical Resolution [F5]"));
+		pMenu->Append(MENU_RESLT_Z_INC , _TL("Increase Vertical Resolution [F6]"));
 
 		pMenu->AppendSeparator();
 		pMenu->AppendCheckItem(MENU_SHOW_SHADER, _TL("Toggle Light Source Controls"));
@@ -1232,7 +1194,7 @@ C3D_Viewer_Grids::C3D_Viewer_Grids(void)
 //---------------------------------------------------------
 bool C3D_Viewer_Grids::On_Execute(void)
 {
-	CSG_Grids	*pGrids	= Parameters("GRIDS")->asGrids();
+	CSG_Grids *pGrids = Parameters("GRIDS")->asGrids();
 
 	if( pGrids->Get_Grid_Count() <= 0 )
 	{
@@ -1241,7 +1203,7 @@ bool C3D_Viewer_Grids::On_Execute(void)
 		return( false );
 	}
 
-	C3D_Viewer_Grids_Dialog	dlg(pGrids);
+	C3D_Viewer_Grids_Dialog dlg(pGrids);
 
 	dlg.ShowModal();
 

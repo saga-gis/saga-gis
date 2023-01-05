@@ -76,16 +76,57 @@ CVIEW_Map_3DPanel::CVIEW_Map_3DPanel(wxWindow *pParent, class CWKSP_Map *pMap)
 	m_pDEM    = NULL;
 	m_pMap    = pMap;
 
-	m_DEM_Res = 100;
-	m_Map_Res = 400;
+	m_DEM_Res =  100;
+	m_Map_Res = 1000;
 
-	m_Parameters("BOX")->Set_Value(false);
+	m_Parameters.Add_Grid("GENERAL", "DEM"    , _TL("Elevation" ), _TL(""), PARAMETER_INPUT);
+	m_Parameters.Add_Int ("DEM"    , "DEM_RES", _TL("Resolution"), _TL(""), m_DEM_Res, 2, true);
+
+	m_Parameters.Add_Int ("MAP"    , "MAP_RES", _TL("Resolution"), _TL(""), m_Map_Res, 2, true);
+
+	m_Parameters.Set_Enabled("MAP_DRAPE", false);
+
+	m_Parameters["Z_SCALE"   ].Set_Value( 3.  );
+
+	m_Parameters["ROTATION_X"].Set_Value( 55. );
+	m_Parameters["ROTATION_Y"].Set_Value(  0. );
+	m_Parameters["ROTATION_Z"].Set_Value(-45. );
+
+	m_Parameters["SHIFT_X"   ].Set_Value(  0. );
+	m_Parameters["SHIFT_Y"   ].Set_Value( -0.1);
+	m_Parameters["SHIFT_Z"   ].Set_Value( -0.4);
+
+	m_Parameters["BOX"       ].Set_Value(false);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CVIEW_Map_3DPanel::Update_Parameters(bool bSave)
+{
+	CSG_3DView_Panel::Update_Parameters(bSave);
+
+	if( bSave )
+	{
+		m_Parameters["DEM_RES"].Set_Value(m_DEM_Res);
+		m_Parameters["MAP_RES"].Set_Value(m_Map_Res);
+	}
+	else
+	{
+		Set_Options(
+			m_Parameters["DEM"    ].asGrid(),
+			m_Parameters["DEM_RES"].asInt (),
+			m_Parameters["MAP_RES"].asInt ()
+		);
+	}
+
+	Update_Parent();
+
+	return( true );
+}
 
 //---------------------------------------------------------
 void CVIEW_Map_3DPanel::Update_Statistics(void)
@@ -152,20 +193,21 @@ void CVIEW_Map_3DPanel::Update_Parent(void)
 //---------------------------------------------------------
 bool CVIEW_Map_3DPanel::Set_Options(CSG_Grid *pDEM, int DEM_Res, int Map_Res)
 {
-	if( m_pDEM == pDEM && m_DEM_Res == DEM_Res && m_Map_Res == Map_Res )
+	if( !SG_Get_Data_Manager().Exists(pDEM) ) { pDEM = NULL; }
+
+	if( DEM_Res < 2 ) { DEM_Res = 2; }
+	if( Map_Res < 2 ) { Map_Res = 2; }
+
+	if( m_pDEM != pDEM || m_DEM_Res != DEM_Res || m_Map_Res != Map_Res )
 	{
-		return( false ); // nothing to do
+		m_pDEM = pDEM; m_DEM_Res = DEM_Res; m_Map_Res = Map_Res;
+
+		Update_Statistics();
+
+		return( true );
 	}
 
-	//-----------------------------------------------------
-	m_pDEM = pDEM;
-
-	if( DEM_Res >= 2 ) m_DEM_Res = DEM_Res;
-	if( Map_Res >= 2 ) m_Map_Res = Map_Res;
-
-	Update_Statistics();
-
-	return( true );
+	return( false ); // nothing to do
 }
 
 //---------------------------------------------------------
@@ -197,9 +239,6 @@ void CVIEW_Map_3DPanel::On_Key_Down(wxKeyEvent &event)
 
 	case WXK_F7 : Inc_Map_Res(-25); break;
 	case WXK_F8 : Inc_Map_Res( 25); break;
-
-	case WXK_F9 : m_Projector.Inc_Central_Distance( 50); break;
-	case WXK_F10: m_Projector.Inc_Central_Distance(-50); break;
 	}
 
 	//-----------------------------------------------------

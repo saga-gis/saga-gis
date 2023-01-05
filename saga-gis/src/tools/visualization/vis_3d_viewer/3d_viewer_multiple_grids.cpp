@@ -118,45 +118,13 @@ C3D_Viewer_Multiple_Grids_Panel::C3D_Viewer_Multiple_Grids_Panel(wxWindow *pPare
 {
 	m_pGrids = pGrids;
 
-	//-----------------------------------------------------
-	m_Parameters.Add_Node("",
-		"NODE_VIEW"		, _TL("Grid View Settings"),
-		_TL("")
-	);
+	m_Parameters.Add_Colors("GENERAL", "COLORS"     , _TL("Colours"     ), _TL(""));
+	m_Parameters.Add_Bool  ("COLORS" , "COLORS_GRAD", _TL("Graduated"   ), _TL(""), true);
 
-	m_Parameters.Add_Colors("NODE_VIEW",
-		"COLORS"		, _TL("Colours"),
-		_TL("")
-	);
+	m_Parameters.Add_Choice("GENERAL", "SHADING"    , _TL("Light Source"), _TL(""), CSG_String::Format("%s|%s", _TL("no"), _TL("yes")), 1);
+	m_Parameters.Add_Double("SHADING", "SHADE_DEC"  , _TL("Height"      ), _TL(""), 45., -180., true, 180., true);
+	m_Parameters.Add_Double("SHADING", "SHADE_AZI"  , _TL("Direction"   ), _TL(""), 90., -180., true, 180., true);
 
-	m_Parameters.Add_Bool("COLORS",
-		"COLORS_GRAD"	, _TL("Graduated"),
-		_TL(""),
-		true
-	);
-
-	m_Parameters.Add_Choice("NODE_VIEW",
-		"SHADING"		, _TL("Shading"),
-		_TL(""),
-		CSG_String::Format("%s|%s",
-			_TL("none"),
-			_TL("shading")
-		), 1
-	);
-
-	m_Parameters.Add_Double("SHADING",
-		"SHADE_DEC"		, _TL("Light Source Height"),
-		_TL(""),
-		45., -180., true, 180., true
-	);
-
-	m_Parameters.Add_Double("SHADING",
-		"SHADE_AZI"		, _TL("Light Source Direction"),
-		_TL(""),
-		90., -180., true, 180., true
-	);
-
-	//-----------------------------------------------------
 	Update_Statistics();
 }
 
@@ -170,8 +138,7 @@ int C3D_Viewer_Multiple_Grids_Panel::On_Parameters_Enable(CSG_Parameters *pParam
 {
 	if( pParameter->Cmp_Identifier("SHADING") )
 	{
-		pParameters->Set_Enabled("SHADE_DEC", pParameter->asBool());
-		pParameters->Set_Enabled("SHADE_AZI", pParameter->asBool());
+		pParameter->Set_Children_Enabled(pParameter->asInt() > 0);
 	}
 
 	return( CSG_3DView_Panel::On_Parameters_Enable(pParameters, pParameter) );

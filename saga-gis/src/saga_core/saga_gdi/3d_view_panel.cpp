@@ -107,106 +107,44 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	m_Parameters.Set_Callback_On_Parameter_Changed(_On_Parameter_Changed);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Node("",
-		"NODE_GENERAL"	, _TL("General"),
-		_TL("")
-	);
+	m_Parameters.Add_Node("", "GENERAL", _TL("General Setings" ), _TL(""));
+	m_Parameters.Add_Node("", "3D_VIEW", _TL("3D View Settings"), _TL(""));
 
-	m_Parameters.Add_Double("NODE_GENERAL",
-		"Z_SCALE"		, _TL("Exaggeration"),
-		_TL(""),
-		1.
-	);
+	m_Parameters.Add_Double("3D_VIEW" , "Z_SCALE"     , _TL("Exaggeration"         ), _TL(""), m_Projector.Get_zScaling());
 
-	m_Parameters.Add_Choice("NODE_GENERAL",
-		"CENTRAL"		, _TL("Projection"),
-		_TL(""),
-		CSG_String::Format("%s|%s",
-			_TL("parallel"),
-			_TL("central")
-		), 1
-	);
+	m_Parameters.Add_Node  ("3D_VIEW" , "ROTATION"    , _TL("Rotation"             ), _TL(""));
+	m_Parameters.Add_Double("ROTATION", "ROTATION_X"  , _TL("X"                    ), _TL(""), m_Projector.Get_xRotation(true), -360., true, 360., true);
+	m_Parameters.Add_Double("ROTATION", "ROTATION_Y"  , _TL("Y"                    ), _TL(""), m_Projector.Get_yRotation(true), -360., true, 360., true);
+	m_Parameters.Add_Double("ROTATION", "ROTATION_Z"  , _TL("Z"                    ), _TL(""), m_Projector.Get_zRotation(true), -360., true, 360., true);
 
-	m_Parameters.Add_Double("CENTRAL",
-		"CENTRAL_DIST"	, _TL("Central Projection Distance"),
-		_TL(""),
-		m_Projector.Get_Central_Distance(), 0.1, true
-	);
+	m_Parameters.Add_Node  ("3D_VIEW" , "SHIFT"       , _TL("Shift"                ), _TL(""));
+	m_Parameters.Add_Double("SHIFT"   , "SHIFT_X"     , _TL("Left/Right"           ), _TL(""), m_Projector.Get_xShift());
+	m_Parameters.Add_Double("SHIFT"   , "SHIFT_Y"     , _TL("Up/Down"              ), _TL(""), m_Projector.Get_yShift());
+	m_Parameters.Add_Double("SHIFT"   , "SHIFT_Z"     , _TL("In/Out"               ), _TL(""), m_Projector.Get_zShift());
 
-	m_Parameters.Add_Color("NODE_GENERAL",
-		"BGCOLOR"		, _TL("Background Color"),
-		_TL(""),
-		SG_COLOR_WHITE
-	);
+	m_Parameters.Add_Choice("3D_VIEW" , "CENTRAL"     , _TL("Projection"           ), _TL(""), CSG_String::Format("%s|%s", _TL("parallel"), _TL("central")), 1);
+	m_Parameters.Add_Double("CENTRAL" , "CENTRAL_DIST", _TL("Perspectivic Distance"), _TL(""), m_Projector.Get_Central_Distance(), 0.1, true);
 
-	m_Parameters.Add_Bool("NODE_GENERAL",
-		"BOX"			, _TL("Box"),
-		_TL(""),
-		true
-	);
+	m_Parameters.Add_Bool  ("3D_VIEW" , "BOX"         , _TL("Bounding Box"          ), _TL(""), true);
 
-	m_Parameters.Add_Choice("NODE_GENERAL",
-		"NORTH"			, _TL("North Arrow"),
-		_TL(""),
-		CSG_String::Format("%s|%s|%s",
-			_TL("no"),
-			_TL("yes"),
-			_TL("with bounding box")
-		), m_North
-	);
+	m_Parameters.Add_Choice("3D_VIEW" , "NORTH"       , _TL("North Arrow"           ), _TL(""), CSG_String::Format("%s|%s|%s", _TL("no"), _TL("yes"), _TL("with bounding box")), m_North);
+	m_Parameters.Add_Double("NORTH"   , "NORTH_SIZE"  , _TL("Size"                  ), _TL(""), m_North_Size, 1., true);
 
-	m_Parameters.Add_Double("NORTH",
-		"NORTH_SIZE"	, _TL("Size"),
-		_TL(""),
-		m_North_Size, 1., true
-	);
+	m_Parameters.Add_Choice("3D_VIEW" , "LABELS"      , _TL("Axis Labeling"         ), _TL(""), CSG_String::Format("%s|%s|%s", _TL("all"), _TL("horizontal"), _TL("none")), m_Labels);
+	m_Parameters.Add_Int   ("LABELS"  , "LABEL_RES"   , _TL("Resolution"            ), _TL(""), m_Label_Res, 20, true, 1000, true);
+	m_Parameters.Add_Double("LABELS"  , "LABEL_SCALE" , _TL("Size"                  ), _TL(""), m_Label_Scale, 0.1, true, 10., true);
 
-	m_Parameters.Add_Choice("NODE_GENERAL",
-		"LABELS"		, _TL("Axis Labeling"),
-		_TL(""),
-		CSG_String::Format("%s|%s|%s",
-			_TL("all"),
-			_TL("horizontal"),
-			_TL("none")
-		), m_Labels
-	);
+	m_Parameters.Add_Color ("3D_VIEW" , "BGCOLOR"     , _TL("Background Color"      ), _TL(""), SG_COLOR_WHITE);
 
-	m_Parameters.Add_Int("LABELS",
-		"LABEL_RES"		, _TL("Resolution"),
-		_TL(""),
-		m_Label_Res, 20, true, 1000, true
-	);
-
-	m_Parameters.Add_Double("LABELS",
-		"LABEL_SCALE"	, _TL("Size"),
-		_TL(""),
-		m_Label_Scale, 0.1, true, 10., true
-	);
-
-	m_Parameters.Add_Bool("NODE_GENERAL",
-		"STEREO"		, _TL("Stereo Anaglyph"),
-		_TL(""),
-		false
-	);
-
-	m_Parameters.Add_Double("STEREO",
-		"STEREO_DIST"	, _TL("Stereo Eye Distance [Degree]"),
-		_TL(""),
-		1.
-	);
+	m_Parameters.Add_Bool  ("3D_VIEW" , "STEREO"      , _TL("Anaglyph"              ), _TL(""), m_bStereo);
+	m_Parameters.Add_Double("STEREO"  , "STEREO_DIST" , _TL("Eye Distance [Degree]" ), _TL(""), m_dStereo, 0., true, 180., true);
 
 	//-----------------------------------------------------
 	if( (m_pDrape = pDrape) != NULL )
 	{
-		m_Parameters.Add_Bool("NODE_GENERAL",
-			"DO_DRAPE"	, _TL("Map Draping"),
-			_TL(""),
-			true
-		);
-
-		m_Parameters.Add_Choice("DO_DRAPE",
-			"DRAPE_MODE", _TL("Map Drape Resampling"),
-			_TL(""),
+		m_Parameters.Add_Node("", "MAP", _TL("Map Draping"), _TL(""));
+		m_Parameters.Add_Bool("MAP", "MAP_DRAPE", _TL("Map Draping"), _TL(""), true);
+		m_Parameters.Add_Choice("MAP", "MAP_DRAPE_MODE", _TL("Map Drape Resampling"), _TL(""),
 			CSG_String::Format("%s|%s|%s|%s",
 				_TL("Nearest Neighbour"),
 				_TL("Bilinear Interpolation"),
@@ -218,12 +156,12 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Node("",
-		"NODE_PLAYER"	, _TL("Sequencer"),
+		"PLAYER"	, _TL("Sequencer"),
 		_TL("")
 	);
 
-	m_Parameters.Add_FilePath("NODE_PLAYER",
-		"PLAY_FILE"		, _TL("Image File"),
+	m_Parameters.Add_FilePath("PLAYER",
+		"PLAY_FILE"	, _TL("Image File"),
 		_TL("file path, name and type used to save frames to image files"),
 		CSG_String::Format("%s (*.bmp)|*.bmp|%s (*.jpg, *.jif, *.jpeg)|*.jpg;*.jif;*.jpeg|%s (*.pcx)|*.pcx|%s (*.png)|*.png|%s (*.tif, *.tiff)|*.tif;*.tiff",
 			_TL("Windows or OS/2 Bitmap"),
@@ -234,8 +172,8 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 		), NULL, true
 	);
 
-	m_pPlay	= m_Parameters.Add_FixedTable("NODE_PLAYER",
-		"PLAY"			, _TL("Sequencer Positions"),
+	m_pPlay	= m_Parameters.Add_FixedTable("PLAYER",
+		"PLAY"		, _TL("Sequencer Positions"),
 		_TL("")
 	)->asTable();
 
@@ -262,13 +200,80 @@ bool CSG_3DView_Panel::Update_Parameters(bool bSave)
 {
 	if( bSave )
 	{
-		m_Parameters("CENTRAL"     )->Set_Value(m_Projector.is_Central());
-		m_Parameters("CENTRAL_DIST")->Set_Value(m_Projector.Get_Central_Distance());
+		m_Parameters["ROTATION_X"  ].Set_Value(m_Projector.Get_xRotation() * M_RAD_TO_DEG);
+		m_Parameters["ROTATION_Y"  ].Set_Value(m_Projector.Get_yRotation() * M_RAD_TO_DEG);
+		m_Parameters["ROTATION_Z"  ].Set_Value(m_Projector.Get_zRotation() * M_RAD_TO_DEG);
+
+		m_Parameters["SHIFT_X"     ].Set_Value(m_Projector.Get_xShift());
+		m_Parameters["SHIFT_Y"     ].Set_Value(m_Projector.Get_yShift());
+		m_Parameters["SHIFT_Z"     ].Set_Value(m_Projector.Get_zShift());
+
+		m_Parameters["Z_SCALE"     ].Set_Value(m_Projector.Get_zScaling());
+
+		m_Parameters["CENTRAL"     ].Set_Value(m_Projector.is_Central() ? 1 : 0);
+		m_Parameters["CENTRAL_DIST"].Set_Value(m_Projector.Get_Central_Distance());
+
+		//-------------------------------------------------
+		m_Parameters["STEREO"      ].Set_Value(m_bStereo    );
+		m_Parameters["STEREO_DIST" ].Set_Value(m_dStereo    );
+
+		m_Parameters["BGCOLOR"     ].Set_Value(m_bgColor    );
+		m_Parameters["BOX"         ].Set_Value(m_bBox       );
+
+		m_Parameters["NORTH"       ].Set_Value(m_North      );
+		m_Parameters["NORTH_SIZE"  ].Set_Value(m_North_Size );
+
+		m_Parameters["LABELS"      ].Set_Value(m_Labels     );
+		m_Parameters["LABEL_RES"   ].Set_Value(m_Label_Res  );
+		m_Parameters["LABEL_SCALE" ].Set_Value(m_Label_Scale);
+
+		if( m_Parameters("MAP_DRAPE_MODE") )
+		{
+			m_Parameters["MAP_DRAPE_MODE"].Set_Value((int)m_Drape_Mode);
+		}
 	}
+
+	//-----------------------------------------------------
 	else
 	{
-		m_Projector.do_Central          (m_Parameters("CENTRAL"     )->asBool());
-		m_Projector.Set_Central_Distance(m_Parameters("CENTRAL_DIST")->asDouble());
+		m_Projector.Set_Rotation(
+			m_Parameters["ROTATION_X"].asDouble() * M_DEG_TO_RAD,
+			m_Parameters["ROTATION_Y"].asDouble() * M_DEG_TO_RAD,
+			m_Parameters["ROTATION_Z"].asDouble() * M_DEG_TO_RAD
+		);
+
+		m_Projector.Set_Shift(
+			m_Parameters["SHIFT_X"].asDouble(),
+			m_Parameters["SHIFT_Y"].asDouble(),
+			m_Parameters["SHIFT_Z"].asDouble()
+		);
+
+		m_Projector.Set_zScaling        (m_Parameters["Z_SCALE"     ].asDouble());
+
+		m_Projector.do_Central          (m_Parameters["CENTRAL"     ].asBool  ());
+		m_Projector.Set_Central_Distance(m_Parameters["CENTRAL_DIST"].asDouble());
+
+		//-------------------------------------------------
+		m_bStereo     = m_Parameters["STEREO"     ].asBool  ();
+		m_dStereo     = m_Parameters["STEREO_DIST"].asDouble();
+
+		m_bgColor     = m_Parameters["BGCOLOR"    ].asColor ();
+		m_bBox        = m_Parameters["BOX"        ].asBool  ();
+
+		m_North       = m_Parameters["NORTH"      ].asInt   ();
+		m_North_Size  = m_Parameters["NORTH_SIZE" ].asDouble();
+
+		m_Labels      = m_Parameters["LABELS"     ].asInt   ();
+		m_Label_Res   = m_Parameters["LABEL_RES"  ].asInt   ();
+		m_Label_Scale = m_Parameters["LABEL_SCALE"].asDouble();
+
+		switch( m_Parameters("MAP_DRAPE_MODE") ? m_Parameters["MAP_DRAPE_MODE"].asInt() : 0 )
+		{
+		default: m_Drape_Mode = GRID_RESAMPLING_NearestNeighbour; break;
+		case  1: m_Drape_Mode = GRID_RESAMPLING_Bilinear        ; break;
+		case  2: m_Drape_Mode = GRID_RESAMPLING_BicubicSpline   ; break;
+		case  3: m_Drape_Mode = GRID_RESAMPLING_BSpline         ; break;
+		}
 	}
 
 	return( true );
@@ -313,14 +318,14 @@ int CSG_3DView_Panel::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 		pParameters->Set_Enabled("CENTRAL_DIST", pParameter->asInt() == 1);
 	}
 
-	if( pParameter->Cmp_Identifier("DO_DRAPE") )
+	if( pParameter->Cmp_Identifier("MAP_DRAPE") )
 	{
-		pParameters->Set_Enabled("DRAPE_MODE"  , pParameter->asBool());
+		pParameters->Set_Enabled("MAP_DRAPE_MODE", pParameter->asBool());
 	}
 
 	if( pParameter->Cmp_Identifier("STEREO") )
 	{
-		pParameters->Set_Enabled("STEREO_DIST" , pParameter->asBool());
+		pParameters->Set_Enabled("STEREO_DIST", pParameter->asBool());
 	}
 
 	if( pParameter->Cmp_Identifier("NORTH") )
@@ -346,6 +351,8 @@ bool CSG_3DView_Panel::Parameter_Value_Toggle(const CSG_String &ID, bool bUpdate
 		return( false );
 	}
 
+	Update_Parameters(true);
+
 	switch( pParameter->Get_Type() )
 	{
 	default:
@@ -359,6 +366,8 @@ bool CSG_3DView_Panel::Parameter_Value_Toggle(const CSG_String &ID, bool bUpdate
 		pParameter->Set_Value((pParameter->asInt() + 1) % pParameter->asChoice()->Get_Count());
 		break;
 	}
+
+	Update_Parameters(false);
 
 	if( bUpdate )
 	{
@@ -378,6 +387,8 @@ bool CSG_3DView_Panel::Parameter_Value_Add(const CSG_String &ID, double Value, b
 		return( false );
 	}
 
+	Update_Parameters(true);
+
 	switch( pParameter->Get_Type() )
 	{
 	default:
@@ -387,6 +398,8 @@ bool CSG_3DView_Panel::Parameter_Value_Add(const CSG_String &ID, double Value, b
 		pParameter->Set_Value(pParameter->asDouble() + Value);
 		break;
 	}
+
+	Update_Parameters(false);
 
 	if( bUpdate )
 	{
@@ -424,6 +437,8 @@ void CSG_3DView_Panel::On_Key_Down(wxKeyEvent &event)
 	{
 		switch( event.GetKeyCode() )
 		{
+		default : event.Skip      (); return;
+
 		case 'A': Play_Pos_Add    (); return;
 		case 'D': Play_Pos_Del    (); return;
 		case 'X': Play_Pos_Clr    (); return;
@@ -443,40 +458,21 @@ void CSG_3DView_Panel::On_Key_Down(wxKeyEvent &event)
 	{
 		switch( event.GetKeyCode() )
 		{
-		default:
-			event.Skip();
-			return;
+		default: event.Skip(); return;
 
 		case WXK_ESCAPE:
-			if( !m_Play_State )
+			if( m_Play_State )
 			{
-				return;
+				Play_Stop();
 			}
+			return;
 
-			Play_Stop();
-			break;
-
-		case WXK_DOWN: case WXK_NUMPAD_DOWN: case WXK_ADD: case WXK_NUMPAD_ADD:
-			m_Projector.Inc_xRotation(-4. * M_DEG_TO_RAD);
-			break;
-
-		case WXK_UP: case WXK_NUMPAD_UP: case WXK_SUBTRACT: case WXK_NUMPAD_SUBTRACT:
-			m_Projector.Inc_xRotation( 4. * M_DEG_TO_RAD);
-			break;
-
-		case WXK_F1: m_Parameters("Z_SCALE")->Set_Value(m_Parameters("Z_SCALE")->asDouble() -  0.5); break;
-		case WXK_F2: m_Parameters("Z_SCALE")->Set_Value(m_Parameters("Z_SCALE")->asDouble() +  0.5); break;
-
-		case WXK_F3: m_Projector.Inc_yRotation(-4. * M_DEG_TO_RAD); break;
-		case WXK_F4: m_Projector.Inc_yRotation( 4. * M_DEG_TO_RAD); break;
-
-		case WXK_RIGHT: case WXK_NUMPAD_RIGHT: case WXK_MULTIPLY: case WXK_NUMPAD_MULTIPLY:
-			m_Projector.Inc_zRotation(-4. * M_DEG_TO_RAD);
-			break;
-
-		case WXK_LEFT: case WXK_NUMPAD_LEFT: case WXK_DIVIDE: case WXK_NUMPAD_DIVIDE:
-			m_Projector.Inc_zRotation( 4. * M_DEG_TO_RAD);
-			break;
+		case '1'         : m_Projector.Inc_zRotation(-4., true); break;
+		case '2'         : m_Projector.Inc_zRotation( 4., true); break;
+		case '3'         : m_Projector.Inc_xRotation(-4., true); break;
+		case '4'         : m_Projector.Inc_xRotation( 4., true); break;
+		case '5'         : m_Projector.Inc_yRotation(-4., true); break;
+		case '6'         : m_Projector.Inc_yRotation( 4., true); break;
 
 		case WXK_INSERT  : m_Projector.Inc_xShift(-0.1); break;
 		case WXK_DELETE  : m_Projector.Inc_xShift( 0.1); break;
@@ -485,19 +481,24 @@ void CSG_3DView_Panel::On_Key_Down(wxKeyEvent &event)
 		case WXK_PAGEUP  : m_Projector.Inc_zShift(-0.1); break;
 		case WXK_PAGEDOWN: m_Projector.Inc_zShift( 0.1); break;
 
-		case 'O': m_Projector.Inc_Central_Distance( 0.1); break;
-		case 'P': m_Projector.Inc_Central_Distance(-0.1); break;
+		case WXK_F1      : m_Projector.Inc_zScaling(-0.5); break;
+		case WXK_F2      : m_Projector.Inc_zScaling( 0.5); break;
 
-		case 'B': Parameter_Value_Toggle("BOX"   ); return;
-		case 'L': Parameter_Value_Toggle("LABELS"); return;
-		case 'N': Parameter_Value_Toggle("NORTH" ); return;
-		case 'S': Parameter_Value_Toggle("STEREO"); return;
+		case 'C'         : m_Projector.do_Central(!m_Projector.is_Central()); break;
+		case '7'         : m_Projector.Inc_Central_Distance( 0.1); break;
+		case '8'         : m_Projector.Inc_Central_Distance(-0.1); break;
 
-		case 'A': Parameter_Value_Add("STEREO_DIST", -0.5); return;
-		case 'D': Parameter_Value_Add("STEREO_DIST",  0.5); return;
+		case 'S'         : m_bStereo  = !m_bStereo; break;
+		case '9'         : m_dStereo -= 0.5       ; break;
+		case '0'         : m_dStereo += 0.5       ; break;
+
+		case 'B'         : m_bBox     = !m_bBox   ; break;
+
+		case 'N'         : m_North    = (m_North  + 1) % 3; break;
+		case 'L'         : m_Labels   = (m_Labels + 1) % 3; break;
 		}
 
-		Update_Parent(); Update_View();
+		Update_Parameters(true); Update_Parent(); Update_View();
 	}
 }
 
@@ -685,23 +686,6 @@ bool CSG_3DView_Panel::Update_View(bool bStatistics)
 	//-----------------------------------------------------
 	if( m_Play_State == SG_3DVIEW_PLAY_STOP )
 	{
-		m_bgColor     = m_Parameters("BGCOLOR"    )->asColor ();
-		m_bBox        = m_Parameters("BOX"        )->asBool  ();
-		m_bStereo     = m_Parameters("STEREO"     )->asBool  ();
-		m_dStereo     = m_Parameters("STEREO_DIST")->asDouble();
-		m_North       = m_Parameters("NORTH"      )->asInt   ();
-		m_North_Size  = m_Parameters("NORTH_SIZE" )->asDouble();
-		m_Labels      = m_Parameters("LABELS"     )->asInt   ();
-		m_Label_Res   = m_Parameters("LABEL_RES"  )->asInt   ();
-		m_Label_Scale = m_Parameters("LABEL_SCALE")->asDouble();
-
-		switch( m_Parameters("DRAPE_MODE") ? m_Parameters("DRAPE_MODE")->asInt() : 0 )
-		{
-		default: m_Drape_Mode = GRID_RESAMPLING_NearestNeighbour; break;
-		case  1: m_Drape_Mode = GRID_RESAMPLING_Bilinear        ; break;
-		case  2: m_Drape_Mode = GRID_RESAMPLING_BicubicSpline   ; break;
-		case  3: m_Drape_Mode = GRID_RESAMPLING_BSpline         ; break;
-		}
 	}
 
 	//-----------------------------------------------------
@@ -723,7 +707,7 @@ bool CSG_3DView_Panel::Update_View(bool bStatistics)
 	Set_Image(m_Image.GetData(), m_Image.GetWidth(), m_Image.GetHeight() );
 
 	//-----------------------------------------------------
-	CSG_Grid *pDrape = m_pDrape; if( m_pDrape && !m_Parameters("DO_DRAPE")->asBool() ) m_pDrape = NULL;
+	CSG_Grid *pDrape = m_pDrape; if( m_pDrape && !m_Parameters("MAP_DRAPE")->asBool() ) m_pDrape = NULL;
 
 	if( Draw() )
 	{
@@ -753,7 +737,7 @@ bool CSG_3DView_Panel::Save_toClipboard(void)
 {
 	if( m_Image.IsOk() && m_Image.GetWidth() > 0 && m_Image.GetHeight() > 0 && wxTheClipboard->Open() )
 	{
-		wxBitmapDataObject	*pBMP	= new wxBitmapDataObject;
+		wxBitmapDataObject *pBMP = new wxBitmapDataObject;
 		pBMP->SetBitmap(m_Image);
 		wxTheClipboard->SetData(pBMP);
 		wxTheClipboard->Close();
@@ -776,7 +760,7 @@ void CSG_3DView_Panel::Play_Pos_Add(void)
 {
 	if( m_Play_State == SG_3DVIEW_PLAY_STOP )	
 	{
-		CSG_Table_Record	*pRecord	= m_pPlay->Add_Record();
+		CSG_Table_Record *pRecord = m_pPlay->Add_Record();
 
 		pRecord->Set_Value(PLAY_REC_ROTATE_X, m_Projector.Get_xRotation       ());
 		pRecord->Set_Value(PLAY_REC_ROTATE_Y, m_Projector.Get_yRotation       ());
@@ -813,11 +797,11 @@ void CSG_3DView_Panel::Play_Once(void)
 {
 	if( m_Play_State == SG_3DVIEW_PLAY_STOP )
 	{
-		m_Play_State	= SG_3DVIEW_PLAY_RUN_ONCE;
+		m_Play_State = SG_3DVIEW_PLAY_RUN_ONCE;
 
 		_Play();
 
-		m_Play_State	= SG_3DVIEW_PLAY_STOP;
+		m_Play_State = SG_3DVIEW_PLAY_STOP;
 	}
 	else if( m_Play_State == SG_3DVIEW_PLAY_RUN_ONCE )
 	{
@@ -830,7 +814,7 @@ void CSG_3DView_Panel::Play_Loop(void)
 {
 	if( m_Play_State == SG_3DVIEW_PLAY_STOP )
 	{
-		m_Play_State	= SG_3DVIEW_PLAY_RUN_LOOP;
+		m_Play_State = SG_3DVIEW_PLAY_RUN_LOOP;
 
 		while( _Play() );
 	}
@@ -845,11 +829,11 @@ void CSG_3DView_Panel::Play_Save(void)
 {
 	if( m_Play_State == SG_3DVIEW_PLAY_STOP )
 	{
-		m_Play_State	= SG_3DVIEW_PLAY_RUN_SAVE;
+		m_Play_State = SG_3DVIEW_PLAY_RUN_SAVE;
 
 		_Play();
 
-		m_Play_State	= SG_3DVIEW_PLAY_STOP;
+		m_Play_State = SG_3DVIEW_PLAY_STOP;
 	}
 	else if( m_Play_State == SG_3DVIEW_PLAY_RUN_SAVE )
 	{
@@ -862,27 +846,27 @@ void CSG_3DView_Panel::Play_Stop(void)
 {
 	if( m_Play_State != SG_3DVIEW_PLAY_STOP )
 	{
-		m_Play_State	= SG_3DVIEW_PLAY_STOP;
+		m_Play_State = SG_3DVIEW_PLAY_STOP;
 	}
 }
 
 //---------------------------------------------------------
-#define PLAYER_READ(iRecord)	{	CSG_Table_Record *pRecord = m_pPlay->Get_Record(iRecord); if( pRecord ) {\
+#define PLAYER_READ(iRecord)	{ CSG_Table_Record *pRecord = m_pPlay->Get_Record(iRecord); if( pRecord ) {\
 	for(int i=0; i<=PLAY_REC_STEPS; i++)\
 	{\
-		Position[i][0]	= Position[i][1];\
-		Position[i][1]	= pRecord->asDouble(i);\
+		Position[i][0] = Position[i][1];\
+		Position[i][1] = pRecord->asDouble(i);\
 	}\
 }}
 
 //---------------------------------------------------------
 double	SG_Get_Short_Angle	(double Angle)
 {
-	Angle	= fmod(Angle, M_PI_360);
+	Angle = fmod(Angle, M_PI_360);
 
 	if( fabs(Angle) > M_PI_180 )
 	{
-		Angle	+= Angle < 0. ? M_PI_360 : -M_PI_360;
+		Angle += Angle < 0. ? M_PI_360 : -M_PI_360;
 	}
 
 	return( Angle );
@@ -896,7 +880,6 @@ double	SG_Get_Short_Angle	(double Angle)
 //---------------------------------------------------------
 bool CSG_3DView_Panel::_Play(void)
 {
-	//-----------------------------------------------------
 	if( m_Play_State == SG_3DVIEW_PLAY_STOP )
 	{
 		return( false );
@@ -904,7 +887,7 @@ bool CSG_3DView_Panel::_Play(void)
 
 	if( m_pPlay->Get_Count() < 2 )
 	{
-		m_Play_State	= SG_3DVIEW_PLAY_STOP;
+		m_Play_State = SG_3DVIEW_PLAY_STOP;
 
 		return( false );
 	}
@@ -914,7 +897,7 @@ bool CSG_3DView_Panel::_Play(void)
 	{
 		SG_UI_Dlg_Error(_TL("invalid image file path"), _TL("3D View Sequencer"));
 
-		m_Play_State	= SG_3DVIEW_PLAY_STOP;
+		m_Play_State = SG_3DVIEW_PLAY_STOP;
 
 		return( false );
 	}
@@ -924,7 +907,7 @@ bool CSG_3DView_Panel::_Play(void)
 
 	PLAYER_READ(0);
 
-	int	nPositions	= (int)m_pPlay->Get_Count() + (m_Play_State == SG_3DVIEW_PLAY_RUN_LOOP ? 1 : 0);
+	int nPositions = (int)m_pPlay->Get_Count() + (m_Play_State == SG_3DVIEW_PLAY_RUN_LOOP ? 1 : 0);
 
 	for(int iRecord=1, iFrame=0; iRecord<nPositions && m_Play_State!=SG_3DVIEW_PLAY_STOP; iRecord++)
 	{
@@ -932,7 +915,7 @@ bool CSG_3DView_Panel::_Play(void)
 
 		for(int iStep=0; iStep<(int)Position[PLAY_REC_STEPS][0] && m_Play_State!=SG_3DVIEW_PLAY_STOP; iStep++, iFrame++)
 		{
-			double	d	= iStep / Position[PLAY_REC_STEPS][0];
+			double d = iStep / Position[PLAY_REC_STEPS][0];
 
 			m_Projector.Set_xRotation       (PLAYER_GET_ROT(Position[PLAY_REC_ROTATE_X]));
 			m_Projector.Set_yRotation       (PLAYER_GET_ROT(Position[PLAY_REC_ROTATE_Y]));
@@ -960,10 +943,9 @@ bool CSG_3DView_Panel::_Play(void)
 
 	if( m_Play_State != SG_3DVIEW_PLAY_RUN_LOOP )
 	{
-		m_Play_State	= SG_3DVIEW_PLAY_STOP;
+		m_Play_State = SG_3DVIEW_PLAY_STOP;
 
-		Update_Parent();
-		Update_View();
+		Update_Parent(); Update_View();
 	}
 
 	return( true );

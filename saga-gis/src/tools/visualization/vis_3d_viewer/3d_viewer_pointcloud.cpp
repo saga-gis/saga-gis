@@ -120,94 +120,32 @@ END_EVENT_TABLE()
 C3D_Viewer_PointCloud_Panel::C3D_Viewer_PointCloud_Panel(wxWindow *pParent, CSG_PointCloud *pPoints, int Field_Color)
 	: CSG_3DView_Panel(pParent)
 {
-	m_pPoints	= pPoints;
+	m_pPoints = pPoints;
 
 	//-----------------------------------------------------
-	CSG_String	Attributes;
+	CSG_String Attributes;
 
 	for(int i=0; i<m_pPoints->Get_Field_Count(); i++)
 	{
-		Attributes	+= m_pPoints->Get_Field_Name(i);
-		Attributes	+= "|";
+		Attributes += m_pPoints->Get_Field_Name(i); Attributes += "|";
 	}
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Double("NODE_GENERAL",
-		"Z_SCALE"		, _TL("Exaggeration"),
-		_TL(""),
-		1.
-	);
+	m_Parameters.Add_Double("GENERAL"    , "DETAIL"       , _TL("Level of Detail" ), _TL(""), 100., 0., true, 100., true);
 
-	//-----------------------------------------------------
-	m_Parameters.Add_Node("",
-		"NODE_VIEW"		, _TL("Point View Settings"),
-		_TL("")
-	);
+	m_Parameters.Add_Choice("GENERAL"    , "COLORS_ATTR"  , _TL("Color Attribute" ), _TL(""), Attributes, Field_Color);
+	m_Parameters.Add_Bool  ("COLORS_ATTR", "VAL_AS_RGB"   , _TL("RGB Values"      ), _TL(""), false);
+	m_Parameters.Add_Colors("COLORS_ATTR", "COLORS"       , _TL("Colors"          ), _TL(""));
+	m_Parameters.Add_Bool  ("COLORS_ATTR", "COLORS_GRAD"  , _TL("Graduated"       ), _TL(""), true);
+	m_Parameters.Add_Range ("COLORS_ATTR", "COLORS_RANGE" , _TL("Value Range"     ), _TL(""));
 
-	m_Parameters.Add_Double("NODE_VIEW",
-		"DETAIL"		, _TL("Level of Detail"),
-		_TL(""),
-		100., 0., true, 100., true
-	);
+	m_Parameters.Add_Bool  ("GENERAL"    , "DIM"          , _TL("Dim"             ), _TL(""), false);
+	m_Parameters.Add_Range ("DIM"        , "DIM_RANGE"    , _TL("Distance Range"  ), _TL(""), 0., 1., 0., true);
 
-	m_Parameters.Add_Choice("NODE_VIEW",
-		"COLORS_ATTR"	, _TL("Color Attribute"),
-		_TL(""),
-		Attributes, Field_Color
-	);
+	m_Parameters.Add_Int   ("GENERAL"    , "SIZE"         , _TL("Size"            ), _TL(""), 1, 1, true);
+	m_Parameters.Add_Double("GENERAL"    , "SIZE_SCALE"   , _TL("Size Scaling"    ), _TL(""), 0., 0., true);
 
-	m_Parameters.Add_Bool("COLORS_ATTR",
-		"VAL_AS_RGB"	, _TL("RGB Values"),
-		_TL(""),
-		false
-	);
-
-	m_Parameters.Add_Colors("COLORS_ATTR",
-		"COLORS"		, _TL("Colors"),
-		_TL("")
-	);
-
-	m_Parameters.Add_Bool("COLORS_ATTR",
-		"COLORS_GRAD"	, _TL("Graduated"),
-		_TL(""),
-		true
-	);
-
-	m_Parameters.Add_Range("COLORS_ATTR",
-		"COLORS_RANGE"	, _TL("Value Range"),
-		_TL("")
-	);
-
-	//-----------------------------------------------------
-	m_Parameters.Add_Bool("NODE_VIEW",
-		"DIM"			, _TL("Dim"),
-		_TL(""),
-		false
-	);
-
-	m_Parameters.Add_Range("DIM",
-		"DIM_RANGE"		, _TL("Distance Range"),
-		_TL(""),
-		0., 1., 0., true
-	);
-
-	//-----------------------------------------------------
-	m_Parameters.Add_Int("NODE_VIEW",
-		"SIZE"			, _TL("Size"),
-		_TL(""),
-		2, 1, true
-	);
-
-	m_Parameters.Add_Double("NODE_VIEW",
-		"SIZE_SCALE"	, _TL("Size Scaling"),
-		_TL(""),
-		0., 0., true
-	);
-
-	//-----------------------------------------------------
-	m_Parameters.Add_Choice("NODE_VIEW",
-		"OVERVIEW_ATTR"	, _TL("Overview Content"),
-		_TL(""),
+	m_Parameters.Add_Choice("GENERAL"    , "OVERVIEW_ATTR", _TL("Overview Content"), _TL(""),
 		CSG_String::Format("%s|%s",
 			_TL("average value"),
 			_TL("number of points")
@@ -215,7 +153,7 @@ C3D_Viewer_PointCloud_Panel::C3D_Viewer_PointCloud_Panel(wxWindow *pParent, CSG_
 	);
 
 	//-----------------------------------------------------
-	m_Extent	= pPoints->Get_Extent();
+	m_Extent = pPoints->Get_Extent();
 
 	m_Selection.Create(sizeof(int), 0, SG_ARRAY_GROWTH_2);
 
@@ -282,7 +220,7 @@ void C3D_Viewer_PointCloud_Panel::Update_Statistics(void)
 
 	if( m_Extent.is_Equal(m_pPoints->Get_Extent()) )
 	{
-		int	cField = m_Parameters("COLORS_ATTR")->asInt();
+		int cField = m_Parameters("COLORS_ATTR")->asInt();
 
 		m_Parameters("COLORS_RANGE")->asRange()->Set_Range(
 			m_pPoints->Get_Mean(cField) - 1.5 * m_pPoints->Get_StdDev(cField),
@@ -294,9 +232,9 @@ void C3D_Viewer_PointCloud_Panel::Update_Statistics(void)
 	}
 	else
 	{
-		CSG_Simple_Statistics	cStats, zStats;
+		CSG_Simple_Statistics cStats, zStats;
 
-		int	cField = m_Parameters("COLORS_ATTR")->asInt();
+		int cField = m_Parameters("COLORS_ATTR")->asInt();
 
 		for(int i=0; i<m_pPoints->Get_Count(); i++)
 		{
@@ -339,17 +277,13 @@ void C3D_Viewer_PointCloud_Panel::On_Key_Down(wxKeyEvent &event)
 	{
 	default    : CSG_3DView_Panel::On_Key_Down(event); return;
 
-	case WXK_F1: m_Parameters("Z_SCALE"   )->Set_Value(m_Parameters("Z_SCALE"   )->asDouble() - 0.5); break;
-	case WXK_F2: m_Parameters("Z_SCALE"   )->Set_Value(m_Parameters("Z_SCALE"   )->asDouble() + 0.5); break;
+	case WXK_F3: Parameter_Value_Add("SIZE"      , -1.); break;
+	case WXK_F4: Parameter_Value_Add("SIZE"      ,  1.); break;
 
-	case WXK_F5: m_Parameters("SIZE"      )->Set_Value(m_Parameters("SIZE"      )->asDouble() - 1.0); break;
-	case WXK_F6: m_Parameters("SIZE"      )->Set_Value(m_Parameters("SIZE"      )->asDouble() + 1.0); break;
-
-	case WXK_F7: m_Parameters("SIZE_SCALE")->Set_Value(m_Parameters("SIZE_SCALE")->asDouble() - 1.0); break;
-	case WXK_F8: m_Parameters("SIZE_SCALE")->Set_Value(m_Parameters("SIZE_SCALE")->asDouble() + 1.0); break;
+	case WXK_F5: Parameter_Value_Add("SIZE_SCALE", -1.); break;
+	case WXK_F6: Parameter_Value_Add("SIZE_SCALE",  1.); break;
 	}
 
-	//-----------------------------------------------------
 	Update_View(); Update_Parent();
 }
 
@@ -489,6 +423,8 @@ public:
 	{
 		m_pPanel = pPanel;
 
+		m_bCount = m_pPanel->m_Parameters("OVERVIEW_ATTR")->asInt() == 1;
+
 		double Ratio = pPoints->Get_Extent().Get_XRange() / pPoints->Get_Extent().Get_YRange();
 
 		int Size = GetClientSize().GetWidth(); CSG_Rect r(pPoints->Get_Extent()); CSG_Grid_System System;
@@ -539,6 +475,18 @@ public:
 			Set_Size((int)(Size * Ratio), Size, false);
 		}
 	#endif
+	}
+
+	void						Set_Mode		(void)
+	{
+		bool bCount = m_pPanel->m_Parameters("OVERVIEW_ATTR")->asInt() == 1;
+
+		if( m_bCount != bCount )
+		{
+			m_bCount  = bCount;
+
+			Set_Image(true);
+		}
 	}
 
 
@@ -604,8 +552,8 @@ private:
 	//---------------------------------------------------------
 	void						On_Mouse_MDown	(wxMouseEvent &event)
 	{
-		m_pPanel->m_Parameters("OVERVIEW_ATTR")->Set_Value(m_pPanel->m_Parameters("OVERVIEW_ATTR")->asInt() ? 0 : 1);
-		Set_Image(true);
+		m_pPanel->Parameter_Value_Toggle("OVERVIEW_ATTR");
+		Set_Mode();
 	}
 
 	//---------------------------------------------------------
@@ -627,7 +575,7 @@ private:
 		case WXK_PAGEDOWN: Set_Size(GetClientSize().GetWidth() / 1.25, GetClientSize().GetHeight() / 1.25, true); break;
 
 		case WXK_SPACE:
-			m_pPanel->m_Parameters("OVERVIEW_ATTR")->Set_Value(m_pPanel->m_Parameters("OVERVIEW_ATTR")->asInt() ? 0 : 1);
+			m_pPanel->Parameter_Value_Toggle("OVERVIEW_ATTR");
 			Set_Image(true);
 			break;
 		}
@@ -905,6 +853,8 @@ void C3D_Viewer_PointCloud_Dialog::Update_Controls(void)
 	m_pOverview_Check->SetValue(m_pOverview->IsShown());
 #endif
 
+	m_pOverview->Set_Mode();
+
 	CSG_3DView_Dialog::Update_Controls();
 }
 
@@ -948,8 +898,8 @@ void C3D_Viewer_PointCloud_Dialog::On_Menu(wxCommandEvent &event)
 	case MENU_SIZE_SCALE_DEC: m_pPanel->Parameter_Value_Add("SIZE_SCALE", -1.0); break;
 	case MENU_SIZE_SCALE_INC: m_pPanel->Parameter_Value_Add("SIZE_SCALE",  1.0); break;
 
-	case MENU_VAL_AS_RGB    : m_pPanel->Parameter_Value_Toggle("VAL_AS_RGB" ); break;
-	case MENU_COLORS_GRAD   : m_pPanel->Parameter_Value_Toggle("COLORS_GRAD"); break;
+	case MENU_VAL_AS_RGB    : m_pPanel->Parameter_Value_Toggle("VAL_AS_RGB"   ); break;
+	case MENU_COLORS_GRAD   : m_pPanel->Parameter_Value_Toggle("COLORS_GRAD"  ); break;
 	}
 }
 

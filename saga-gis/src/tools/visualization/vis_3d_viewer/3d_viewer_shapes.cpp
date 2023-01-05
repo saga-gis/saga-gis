@@ -116,43 +116,18 @@ C3D_Viewer_Shapes_Panel::C3D_Viewer_Shapes_Panel(wxWindow *pParent, CSG_Shapes *
 {
 	m_pShapes = pShapes;
 
-	//-----------------------------------------------------
-	CSG_String	Attributes;
+	CSG_String Attributes;
 
 	for(int i=0; i<m_pShapes->Get_Field_Count(); i++)
 	{
 		Attributes += m_pShapes->Get_Field_Name(i); Attributes	+= "|";
 	}
 
-	//-----------------------------------------------------
-	m_Parameters.Add_Node("",
-		"NODE_VIEW"		, _TL("Shapes View Settings"),
-		_TL("")
-	);
+	m_Parameters.Add_Choice("GENERAL"    , "COLORS_ATTR" , _TL("Color Attribute"), _TL(""), Attributes, cField);
+	m_Parameters.Add_Colors("COLORS_ATTR", "COLORS"      , _TL("Colors"         ), _TL(""));
+	m_Parameters.Add_Bool  ("COLORS_ATTR", "COLORS_GRAD" , _TL("Graduated"      ), _TL(""), true);
+	m_Parameters.Add_Range ("COLORS_ATTR", "COLORS_RANGE", _TL("Value Range"    ), _TL(""));
 
-	m_Parameters.Add_Choice("NODE_VIEW",
-		"COLORS_ATTR"	, _TL("Colour Attribute"),
-		_TL(""),
-		Attributes, cField
-	);
-
-	m_Parameters.Add_Colors("COLORS_ATTR",
-		"COLORS"		, _TL("Colours"),
-		_TL("")
-	);
-
-	m_Parameters.Add_Bool("COLORS_ATTR",
-		"COLORS_GRAD"	, _TL("Graduated"),
-		_TL(""),
-		true
-	);
-
-	m_Parameters.Add_Range("COLORS_ATTR",
-		"COLORS_RANGE"	, _TL("Value Range"),
-		_TL("")
-	);
-
-	//-----------------------------------------------------
 	Update_Statistics();
 }
 
@@ -175,7 +150,7 @@ int C3D_Viewer_Shapes_Panel::On_Parameters_Enable(CSG_Parameters *pParameters, C
 //---------------------------------------------------------
 void C3D_Viewer_Shapes_Panel::Update_Statistics(void)
 {
-	int	Field	= m_Parameters("COLORS_ATTR")->asInt();
+	int Field = m_Parameters("COLORS_ATTR")->asInt();
 
 	m_Parameters("COLORS_RANGE")->asRange()->Set_Range(
 		m_pShapes->Get_Mean(Field) - 1.5 * m_pShapes->Get_StdDev(Field),
@@ -185,38 +160,38 @@ void C3D_Viewer_Shapes_Panel::Update_Statistics(void)
 	//-----------------------------------------------------
 	if( m_pShapes->Get_Selection_Count() > 0 )
 	{
-		CSG_Simple_Statistics	z;
+		CSG_Simple_Statistics z;
 
 		for(int i=0; i<m_pShapes->Get_Selection_Count(); i++)
 		{
-			CSG_Shape	*pShape	= m_pShapes->Get_Selection(i);
+			CSG_Shape *pShape = m_pShapes->Get_Selection(i);
 
 			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
 				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
-					z	+= pShape->Get_Z(iPoint, iPart);
+					z += pShape->Get_Z(iPoint, iPart);
 				}
 			}
 		}
 
-		CSG_Rect	r	= m_pShapes->Get_Selection_Extent();
-		m_Data_Min.x	= r.Get_XMin();
-		m_Data_Max.x	= r.Get_XMax();
-		m_Data_Min.y	= r.Get_YMin();
-		m_Data_Max.y	= r.Get_YMax();
-		m_Data_Min.z	= z.Get_Minimum();
-		m_Data_Max.z	= z.Get_Maximum();
+		CSG_Rect r   = m_pShapes->Get_Selection_Extent();
+		m_Data_Min.x = r.Get_XMin();
+		m_Data_Max.x = r.Get_XMax();
+		m_Data_Min.y = r.Get_YMin();
+		m_Data_Max.y = r.Get_YMax();
+		m_Data_Min.z = z.Get_Minimum();
+		m_Data_Max.z = z.Get_Maximum();
 	}
 	else
 	{
-		CSG_Rect	r	= m_pShapes->Get_Extent();
-		m_Data_Min.x	= r.Get_XMin();
-		m_Data_Max.x	= r.Get_XMax();
-		m_Data_Min.y	= r.Get_YMin();
-		m_Data_Max.y	= r.Get_YMax();
-		m_Data_Min.z	= m_pShapes->Get_ZMin();
-		m_Data_Max.z	= m_pShapes->Get_ZMax();
+		CSG_Rect r   = m_pShapes->Get_Extent();
+		m_Data_Min.x = r.Get_XMin();
+		m_Data_Max.x = r.Get_XMax();
+		m_Data_Min.y = r.Get_YMin();
+		m_Data_Max.y = r.Get_YMax();
+		m_Data_Min.z = m_pShapes->Get_ZMin();
+		m_Data_Max.z = m_pShapes->Get_ZMax();
 	}
 
 	//-----------------------------------------------------
@@ -267,13 +242,13 @@ int C3D_Viewer_Shapes_Panel::Get_Color(double Value)
 bool C3D_Viewer_Shapes_Panel::On_Draw(void)
 {
 	//-----------------------------------------------------
-	int		Field	= m_Parameters("COLORS_ATTR")->asInt();
+	int Field     = m_Parameters("COLORS_ATTR")->asInt();
 
-	m_Colors		= *m_Parameters("COLORS")->asColors();
-	m_Color_bGrad	= m_Parameters("COLORS_GRAD")->asBool();
-	m_Color_Min		= m_Parameters("COLORS_RANGE")->asRange()->Get_Min();
-	double	Range	= m_Parameters("COLORS_RANGE")->asRange()->Get_Max() - m_Color_Min;
-	m_Color_Scale	= Range > 0. ? m_Colors.Get_Count() / Range : 1.;
+	m_Colors      = *m_Parameters("COLORS")->asColors();
+	m_Color_bGrad = m_Parameters("COLORS_GRAD")->asBool();
+	m_Color_Min   = m_Parameters("COLORS_RANGE")->asRange()->Get_Min();
+	double  Range = m_Parameters("COLORS_RANGE")->asRange()->Get_Max() - m_Color_Min;
+	m_Color_Scale = Range > 0. ? m_Colors.Get_Count() / Range : 1.;
 
 	//-----------------------------------------------------
 	if( m_pShapes->Get_Selection_Count() > 0 )
@@ -444,7 +419,7 @@ C3D_Viewer_Shapes::C3D_Viewer_Shapes(void)
 //---------------------------------------------------------
 bool C3D_Viewer_Shapes::On_Execute(void)
 {
-	CSG_Shapes	*pShapes	= Parameters("SHAPES")->asShapes();
+	CSG_Shapes *pShapes = Parameters("SHAPES")->asShapes();
 
 	if( !pShapes->is_Valid() )
 	{
@@ -453,7 +428,7 @@ bool C3D_Viewer_Shapes::On_Execute(void)
 		return( false );
 	}
 
-	C3D_Viewer_Shapes_Dialog	dlg(pShapes, Parameters("COLOR")->asInt());
+	C3D_Viewer_Shapes_Dialog dlg(pShapes, Parameters("COLOR")->asInt());
 
 	dlg.ShowModal();
 
