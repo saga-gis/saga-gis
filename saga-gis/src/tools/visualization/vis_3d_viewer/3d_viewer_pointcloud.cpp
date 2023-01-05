@@ -653,13 +653,11 @@ private:
 	{
 		if( m_Image.IsOk() && m_Count.is_Valid() )
 		{
-			bool bCount = m_pPanel->m_Parameters("OVERVIEW_ATTR")->asInt() == 1;
-
 			CSG_Colors Colors(11, SG_COLORS_RAINBOW); Colors.Set_Color(0, m_pPanel->m_Parameters("BGCOLOR")->asColor());
 
 			double dx = m_Count.Get_XRange() / (double)m_Image.GetWidth ();
 			double dy = m_Count.Get_YRange() / (double)m_Image.GetHeight();
-			double dz = (Colors.Get_Count() - 2.) / (bCount ? log(1. + m_Count.Get_Max()) : 4. * m_Value.Get_StdDev());
+			double dz = (Colors.Get_Count() - 2.) / (m_bCount ? log(1. + m_Count.Get_Max()) : 4. * m_Value.Get_StdDev());
 
 			#pragma omp parallel for
 			for(int y=0; y<m_Image.GetHeight(); y++)
@@ -668,7 +666,7 @@ private:
 
 				for(int x=0; x<m_Image.GetWidth(); x++, ix+=dx)
 				{
-					if( bCount )
+					if( m_bCount )
 					{
 						iz = dz * (m_Count.Get_Value(ix, iy, iz) && iz > 0. ? log(1. + iz) : 0.);
 					}
