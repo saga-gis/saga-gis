@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,17 +48,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <wx/panel.h>
 #include <wx/textctrl.h>
+#include <wx/html/htmlwin.h>
 
 #include "res_controls.h"
 #include "res_dialogs.h"
@@ -82,24 +71,22 @@ IMPLEMENT_CLASS(CDLG_Text, CDLG_Base)
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CDLG_Text, CDLG_Base)
-	EVT_BUTTON			(ID_BTN_LOAD	, CDLG_Text::On_Load)
-	EVT_BUTTON			(ID_BTN_SAVE	, CDLG_Text::On_Save)
+	EVT_BUTTON(ID_BTN_LOAD, CDLG_Text::On_Load)
+	EVT_BUTTON(ID_BTN_SAVE, CDLG_Text::On_Save)
 END_EVENT_TABLE()
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CDLG_Text::CDLG_Text(wxString *_pText, wxString Caption)
+CDLG_Text::CDLG_Text(const wxString &Caption, wxString *_pText)
 	: CDLG_Base(-1, Caption)
 {
-	m_pText		= _pText;
+	m_pText    = _pText;
 
-	m_pControl	= new wxTextCtrl(this, -1, *m_pText, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxSUNKEN_BORDER);
+	m_pControl = new wxTextCtrl(this, -1, *m_pText, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxSUNKEN_BORDER);
 
 	Add_Button(ID_BTN_LOAD);
 	Add_Button(ID_BTN_SAVE);
@@ -107,15 +94,8 @@ CDLG_Text::CDLG_Text(wxString *_pText, wxString Caption)
 	Set_Positions();
 }
 
-//---------------------------------------------------------
-CDLG_Text::~CDLG_Text(void)
-{
-}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -124,14 +104,12 @@ void CDLG_Text::Save_Changes(void)
 {
 	if( m_pText )
 	{
-		*m_pText	= m_pControl->GetValue();
+		*m_pText = m_pControl->GetValue();
 	}
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -144,14 +122,12 @@ void CDLG_Text::Set_Position(wxRect r)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CDLG_Text::On_Load(wxCommandEvent &event)
 {
-	wxString	File_Path;
+	wxString File_Path;
 
 	if( DLG_Open(File_Path, ID_DLG_TEXT_OPEN) )
 	{
@@ -162,12 +138,53 @@ void CDLG_Text::On_Load(wxCommandEvent &event)
 //---------------------------------------------------------
 void CDLG_Text::On_Save(wxCommandEvent &event)
 {
-	wxString	File_Path;
+	wxString File_Path;
 
 	if( DLG_Save(File_Path, ID_DLG_TEXT_SAVE) )
 	{
 		m_pControl->SaveFile(File_Path);
 	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+IMPLEMENT_CLASS(CDLG_Info, CDLG_Base)
+
+//---------------------------------------------------------
+BEGIN_EVENT_TABLE(CDLG_Info, CDLG_Base)
+END_EVENT_TABLE()
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CDLG_Info::CDLG_Info(const wxString &Caption, const wxString &Text)
+	: CDLG_Base(-1, Caption)
+{
+	m_pControl = new wxHtmlWindow(this, -1, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxSUNKEN_BORDER);
+
+	m_pControl->SetPage(Text);
+
+	Set_Positions();
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CDLG_Info::Set_Position(wxRect r)
+{
+	m_pControl->SetSize(r);
 }
 
 

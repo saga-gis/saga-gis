@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef _HEADER_INCLUDED__SAGA_GUI__DLG_Text_H
 #define _HEADER_INCLUDED__SAGA_GUI__DLG_Text_H
 
@@ -86,8 +74,7 @@ class CDLG_Text : public CDLG_Base
 	DECLARE_CLASS(CDLG_Text)
 
 public:
-	CDLG_Text(wxString *pText, wxString Caption);
-	virtual ~CDLG_Text(void);
+	CDLG_Text(const wxString &Caption, wxString *pText);
 
 	void						On_Load			(wxCommandEvent &event);
 	void						On_Save			(wxCommandEvent &event);
@@ -105,8 +92,32 @@ protected:
 	virtual void				Set_Position	(wxRect r);
 
 
+	DECLARE_EVENT_TABLE()
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-DECLARE_EVENT_TABLE()
+class CDLG_Info : public CDLG_Base
+{
+	DECLARE_CLASS(CDLG_Info)
+
+public:
+	CDLG_Info(const wxString &Caption, const wxString &Text);
+
+
+protected:
+
+	class wxHtmlWindow			*m_pControl;
+
+
+	virtual void				Set_Position	(wxRect r);
+
+
+	DECLARE_EVENT_TABLE()
 };
 
 

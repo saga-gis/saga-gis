@@ -623,7 +623,15 @@ bool		DLG_Parameters(CSG_Parameters *pParameters, const wxString &Caption, const
 //---------------------------------------------------------
 bool		DLG_Text(const wxString &Caption, wxString &Text)
 {
-	CDLG_Text		dlg(&Text, Caption);
+	CDLG_Text		dlg(Caption, &Text);
+
+	return( dlg.ShowModal() == wxID_OK );
+}
+
+//---------------------------------------------------------
+bool		DLG_Info(const wxString &Caption, const wxString &Text)
+{
+	CDLG_Info		dlg(Caption, Text);
 
 	return( dlg.ShowModal() == wxID_OK );
 }
