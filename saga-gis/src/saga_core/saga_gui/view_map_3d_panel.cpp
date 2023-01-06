@@ -228,17 +228,33 @@ bool CVIEW_Map_3DPanel::Inc_Map_Res(int Step)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_String CVIEW_Map_3DPanel::Get_Usage(void)
+{
+	CSG_Table Shortcuts(CSG_3DView_Panel::Get_Shortcuts());
+
+	#define ADD_SHORTCUT(KEY, CMD) { CSG_Table_Record &r = *Shortcuts.Add_Record(); r.Set_Value(0, KEY); r.Set_Value(1, CMD); }
+
+	ADD_SHORTCUT("F3", _TL("Decrease Elevation Model Resolution"));
+	ADD_SHORTCUT("F4", _TL("Increase Elevation Model Resolution"));
+
+	ADD_SHORTCUT("F5", _TL("Decrease Map Resolution"  ));
+	ADD_SHORTCUT("F6", _TL("Increase Map Resolution"  ));
+
+	return( CSG_3DView_Panel::Get_Usage(Shortcuts) );
+}
+
+//---------------------------------------------------------
 void CVIEW_Map_3DPanel::On_Key_Down(wxKeyEvent &event)
 {
 	switch( event.GetKeyCode() )
 	{
 	default     : CSG_3DView_Panel::On_Key_Down(event);	return;
 
-	case WXK_F5 : Inc_DEM_Res(-25); break;
-	case WXK_F6 : Inc_DEM_Res( 25); break;
+	case WXK_F3 : Inc_DEM_Res(-25); break;
+	case WXK_F4 : Inc_DEM_Res( 25); break;
 
-	case WXK_F7 : Inc_Map_Res(-25); break;
-	case WXK_F8 : Inc_Map_Res( 25); break;
+	case WXK_F5 : Inc_Map_Res(-25); break;
+	case WXK_F6 : Inc_Map_Res( 25); break;
 	}
 
 	//-----------------------------------------------------

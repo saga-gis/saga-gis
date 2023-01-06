@@ -101,6 +101,8 @@ public:
 	bool						Parameter_Value_Toggle	(const CSG_String &ID              , bool bUpdate = true);
 	bool						Parameter_Value_Add		(const CSG_String &ID, double Value, bool bUpdate = true);
 
+	static CSG_String			Get_Usage				(void);
+
 	bool						Save_asImage			(const CSG_String &FileName);
 	bool						Save_toClipboard		(void);
 
@@ -134,6 +136,9 @@ protected:
 
 	virtual void				Update_Statistics		(void);
 	virtual void				Update_Parent			(void);
+
+	static CSG_Table			Get_Shortcuts			(void);
+	static CSG_String			Get_Usage				(const CSG_Table &Shortcuts);
 
 	virtual void				On_Size					(wxSizeEvent  &event);
 	virtual void				On_Paint				(wxPaintEvent &event);

@@ -63,6 +63,8 @@ class C3D_Viewer_TIN_Panel : public CSG_3DView_Panel
 public:
 	C3D_Viewer_TIN_Panel(wxWindow *pParent, CSG_TIN *pTIN, int Field_Z, int Field_Color, CSG_Grid *pDrape);
 
+	static CSG_String			Get_Usage				(void);
+
 
 protected:
 
@@ -204,23 +206,22 @@ int C3D_Viewer_TIN_Panel::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_
 //---------------------------------------------------------
 void C3D_Viewer_TIN_Panel::Update_Statistics(void)
 {
-	int	Field	= m_Parameters("COLORS_ATTR")->asInt();
+	int Field = m_Parameters("COLORS_ATTR")->asInt();
 
 	m_Parameters("COLORS_RANGE")->asRange()->Set_Range(
 		m_pTIN->Get_Mean(Field) - 1.5 * m_pTIN->Get_StdDev(Field),
 		m_pTIN->Get_Mean(Field) + 1.5 * m_pTIN->Get_StdDev(Field)
 	);
 
-	m_Data_Min.x	= m_pTIN->Get_Extent().Get_XMin();
-	m_Data_Max.x	= m_pTIN->Get_Extent().Get_XMax();
+	m_Data_Min.x = m_pTIN->Get_Extent().Get_XMin();
+	m_Data_Max.x = m_pTIN->Get_Extent().Get_XMax();
 
-	m_Data_Min.y	= m_pTIN->Get_Extent().Get_YMin();
-	m_Data_Max.y	= m_pTIN->Get_Extent().Get_YMax();
+	m_Data_Min.y = m_pTIN->Get_Extent().Get_YMin();
+	m_Data_Max.y = m_pTIN->Get_Extent().Get_YMax();
 
-	m_Data_Min.z	= m_pTIN->Get_Minimum(m_Parameters("Z_ATTR")->asInt());
-	m_Data_Max.z	= m_pTIN->Get_Maximum(m_Parameters("Z_ATTR")->asInt());
+	m_Data_Min.z = m_pTIN->Get_Minimum(m_Parameters("Z_ATTR")->asInt());
+	m_Data_Max.z = m_pTIN->Get_Maximum(m_Parameters("Z_ATTR")->asInt());
 
-	//-----------------------------------------------------
 	Update_View();
 }
 
@@ -228,6 +229,22 @@ void C3D_Viewer_TIN_Panel::Update_Statistics(void)
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_String C3D_Viewer_TIN_Panel::Get_Usage(void)
+{
+	CSG_Table Shortcuts(CSG_3DView_Panel::Get_Shortcuts());
+
+	#define ADD_SHORTCUT(KEY, CMD) { CSG_Table_Record &r = *Shortcuts.Add_Record(); r.Set_Value(0, KEY); r.Set_Value(1, CMD); }
+
+	ADD_SHORTCUT("F3", _TL("Decrease Size"        ));
+	ADD_SHORTCUT("F4", _TL("Increase Size"        ));
+
+	ADD_SHORTCUT("F5", _TL("Decrease Size Scaling"));
+	ADD_SHORTCUT("F6", _TL("Increase Size Scaling"));
+
+	return( CSG_3DView_Panel::Get_Usage(Shortcuts) );
+}
 
 //---------------------------------------------------------
 void C3D_Viewer_TIN_Panel::On_Key_Down(wxKeyEvent &event)
@@ -606,6 +623,8 @@ C3D_Viewer_TIN::C3D_Viewer_TIN(void)
 	Set_Description	(_TW(
 		"3D viewer for TIN."
 	));
+
+	Set_Description(Get_Description() + C3D_Viewer_TIN_Panel::Get_Usage());
 
 	//-----------------------------------------------------
 	Parameters.Add_TIN("",

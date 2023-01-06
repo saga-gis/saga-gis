@@ -414,6 +414,8 @@ C3D_Viewer_Multiple_Grids::C3D_Viewer_Multiple_Grids(void)
 		""
 	));
 
+	Set_Description(Get_Description() + C3D_Viewer_Multiple_Grids_Panel::Get_Usage());
+
 	Parameters.Add_Grid_List("", "GRIDS", _TL("Grids"), _TL(""), PARAMETER_INPUT);
 }
 

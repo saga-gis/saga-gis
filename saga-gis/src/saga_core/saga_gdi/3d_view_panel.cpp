@@ -102,13 +102,13 @@ END_EVENT_TABLE()
 CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	: wxPanel(pParent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL|wxSUNKEN_BORDER|wxNO_FULL_REPAINT_ON_RESIZE)
 {
-	m_Parameters.Create(this, _TL("Properties"));
+	m_Parameters.Create(this, _TL("3D View"));
 
 	m_Parameters.Set_Callback_On_Parameter_Changed(_On_Parameter_Changed);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Node("", "GENERAL", _TL("General Setings" ), _TL(""));
-	m_Parameters.Add_Node("", "3D_VIEW", _TL("3D View Settings"), _TL(""));
+	m_Parameters.Add_Node("", "GENERAL", _TL("General"), _TL(""));
+	m_Parameters.Add_Node("", "3D_VIEW", _TL("3D View"), _TL(""));
 
 	m_Parameters.Add_Double("3D_VIEW" , "Z_SCALE"     , _TL("Exaggeration"         ), _TL(""), m_Projector.Get_zScaling());
 
@@ -125,19 +125,19 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	m_Parameters.Add_Choice("3D_VIEW" , "CENTRAL"     , _TL("Projection"           ), _TL(""), CSG_String::Format("%s|%s", _TL("parallel"), _TL("central")), 1);
 	m_Parameters.Add_Double("CENTRAL" , "CENTRAL_DIST", _TL("Perspectivic Distance"), _TL(""), m_Projector.Get_Central_Distance(), 0.1, true);
 
-	m_Parameters.Add_Bool  ("3D_VIEW" , "BOX"         , _TL("Bounding Box"          ), _TL(""), true);
+	m_Parameters.Add_Bool  ("3D_VIEW" , "BOX"         , _TL("Bounding Box"         ), _TL(""), true);
 
-	m_Parameters.Add_Choice("3D_VIEW" , "NORTH"       , _TL("North Arrow"           ), _TL(""), CSG_String::Format("%s|%s|%s", _TL("no"), _TL("yes"), _TL("with bounding box")), m_North);
-	m_Parameters.Add_Double("NORTH"   , "NORTH_SIZE"  , _TL("Size"                  ), _TL(""), m_North_Size, 1., true);
+	m_Parameters.Add_Choice("3D_VIEW" , "NORTH"       , _TL("North Arrow"          ), _TL(""), CSG_String::Format("%s|%s|%s", _TL("no"), _TL("yes"), _TL("with bounding box")), m_North);
+	m_Parameters.Add_Double("NORTH"   , "NORTH_SIZE"  , _TL("Size"                 ), _TL(""), m_North_Size, 1., true);
 
-	m_Parameters.Add_Choice("3D_VIEW" , "LABELS"      , _TL("Axis Labeling"         ), _TL(""), CSG_String::Format("%s|%s|%s", _TL("all"), _TL("horizontal"), _TL("none")), m_Labels);
-	m_Parameters.Add_Int   ("LABELS"  , "LABEL_RES"   , _TL("Resolution"            ), _TL(""), m_Label_Res, 20, true, 1000, true);
-	m_Parameters.Add_Double("LABELS"  , "LABEL_SCALE" , _TL("Size"                  ), _TL(""), m_Label_Scale, 0.1, true, 10., true);
+	m_Parameters.Add_Choice("3D_VIEW" , "LABELS"      , _TL("Axis Labeling"        ), _TL(""), CSG_String::Format("%s|%s|%s", _TL("all"), _TL("horizontal"), _TL("none")), m_Labels);
+	m_Parameters.Add_Int   ("LABELS"  , "LABEL_RES"   , _TL("Resolution"           ), _TL(""), m_Label_Res, 20, true, 1000, true);
+	m_Parameters.Add_Double("LABELS"  , "LABEL_SCALE" , _TL("Size"                 ), _TL(""), m_Label_Scale, 0.1, true, 10., true);
 
-	m_Parameters.Add_Color ("3D_VIEW" , "BGCOLOR"     , _TL("Background Color"      ), _TL(""), SG_COLOR_WHITE);
+	m_Parameters.Add_Color ("3D_VIEW" , "BGCOLOR"     , _TL("Background Color"     ), _TL(""), SG_COLOR_WHITE);
 
-	m_Parameters.Add_Bool  ("3D_VIEW" , "STEREO"      , _TL("Anaglyph"              ), _TL(""), m_bStereo);
-	m_Parameters.Add_Double("STEREO"  , "STEREO_DIST" , _TL("Eye Distance [Degree]" ), _TL(""), m_dStereo, 0., true, 180., true);
+	m_Parameters.Add_Bool  ("3D_VIEW" , "STEREO"      , _TL("Anaglyph"             ), _TL(""), m_bStereo);
+	m_Parameters.Add_Double("STEREO"  , "STEREO_DIST" , _TL("Eye Distance [Degree]"), _TL(""), m_dStereo, 0., true, 180., true);
 
 	//-----------------------------------------------------
 	if( (m_pDrape = pDrape) != NULL )
@@ -160,18 +160,6 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 		_TL("")
 	);
 
-	m_Parameters.Add_FilePath("PLAYER",
-		"PLAY_FILE"	, _TL("Image File"),
-		_TL("file path, name and type used to save frames to image files"),
-		CSG_String::Format("%s (*.bmp)|*.bmp|%s (*.jpg, *.jif, *.jpeg)|*.jpg;*.jif;*.jpeg|%s (*.pcx)|*.pcx|%s (*.png)|*.png|%s (*.tif, *.tiff)|*.tif;*.tiff",
-			_TL("Windows or OS/2 Bitmap"),
-			_TL("JPEG - JFIF Compliant"),
-			_TL("Zsoft Paintbrush"),
-			_TL("Portable Network Graphics"),
-			_TL("Tagged Image File Format")
-		), NULL, true
-	);
-
 	m_pPlay	= m_Parameters.Add_FixedTable("PLAYER",
 		"PLAY"		, _TL("Sequencer Positions"),
 		_TL("")
@@ -186,6 +174,18 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	m_pPlay->Add_Field(_TL("Exaggeration Z"  ), SG_DATATYPE_Double);
 	m_pPlay->Add_Field(_TL("Central Distance"), SG_DATATYPE_Double);
 	m_pPlay->Add_Field(_TL("Steps to Next"   ), SG_DATATYPE_Int   );
+
+	m_Parameters.Add_FilePath("PLAYER",
+		"PLAY_FILE"	, _TL("Image File"),
+		_TL("file path, name and type used to save frames to image files"),
+		CSG_String::Format("%s (*.bmp)|*.bmp|%s (*.jpg, *.jif, *.jpeg)|*.jpg;*.jif;*.jpeg|%s (*.pcx)|*.pcx|%s (*.png)|*.png|%s (*.tif, *.tiff)|*.tif;*.tiff",
+			_TL("Windows or OS/2 Bitmap"),
+			_TL("JPEG - JFIF Compliant"),
+			_TL("Zsoft Paintbrush"),
+			_TL("Portable Network Graphics"),
+			_TL("Tagged Image File Format")
+		), NULL, true
+	);
 
 	m_Play_State = SG_3DVIEW_PLAY_STOP;
 }
@@ -430,6 +430,97 @@ void CSG_3DView_Panel::Update_Parent(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_Table CSG_3DView_Panel::Get_Shortcuts(void)
+{
+	CSG_Table Shortcuts;
+
+	Shortcuts.Add_Field("KEY", SG_DATATYPE_String);
+	Shortcuts.Add_Field("CMD", SG_DATATYPE_String);
+
+	#define ADD_SHORTCUT(KEY, CMD) { CSG_Table_Record &r = *Shortcuts.Add_Record(); r.Set_Value(0, KEY); r.Set_Value(1, CMD); }
+
+	ADD_SHORTCUT("F1"       , _TL("Decrease Exaggeration"));
+	ADD_SHORTCUT("F2"       , _TL("Increase Exaggeration"));
+
+	ADD_SHORTCUT("1"        , _TL("Rotate Left"   ));
+	ADD_SHORTCUT("2"        , _TL("Rotate Right"  ));
+	ADD_SHORTCUT("3"        , _TL("Rotate Up"     ));
+	ADD_SHORTCUT("4"        , _TL("Rotate Down"   ));
+	ADD_SHORTCUT("5"        , _TL("Roll Left"     ));
+	ADD_SHORTCUT("6"        , _TL("Roll Right"    ));
+
+	ADD_SHORTCUT("Insert"   , _TL("Shift Left"    ));
+	ADD_SHORTCUT("Delete"   , _TL("Shift Right"   ));
+	ADD_SHORTCUT("Home"     , _TL("Shift Up"      ));
+	ADD_SHORTCUT("End"      , _TL("Shift Down"    ));
+	ADD_SHORTCUT("Page Up"  , _TL("Shift Forward" ));
+	ADD_SHORTCUT("Page Down", _TL("Shift Backward"));
+
+	ADD_SHORTCUT("B"        , _TL("Bounding Box"  ));
+	ADD_SHORTCUT("N"        , _TL("North Arrow"   ));
+	ADD_SHORTCUT("L"        , _TL("Axis Labeling" ));
+
+	ADD_SHORTCUT("C"        , _TL("Parallel/Central Projection"));
+	ADD_SHORTCUT("7"        , _TL("Increase Perspective Distance for Central Projection"));
+	ADD_SHORTCUT("8"        , _TL("Decrease Perspective Distance for Central Projection"));
+
+	ADD_SHORTCUT("S"        , _TL("Stereo Anaglyph"));
+	ADD_SHORTCUT("9"        , _TL("Decrease Stereo Anaglyph Viewing Angle"));
+	ADD_SHORTCUT("0"        , _TL("Increase Stereo Anaglyph Viewing Angle"));
+
+	ADD_SHORTCUT("Ctrl+C"   , _TL("Copy to Clipboard"));
+
+	ADD_SHORTCUT("Ctrl+A"   , CSG_String::Format("%s, %s", _TL("Sequencer"), _TL("Add Position"          )));
+	ADD_SHORTCUT("Ctrl+D"   , CSG_String::Format("%s, %s", _TL("Sequencer"), _TL("Delete Last Position"  )));
+	ADD_SHORTCUT("Ctrl+X"   , CSG_String::Format("%s, %s", _TL("Sequencer"), _TL("Delete All Positions"  )));
+	ADD_SHORTCUT("Ctrl+P"   , CSG_String::Format("%s, %s", _TL("Sequencer"), _TL("Play Once"             )));
+	ADD_SHORTCUT("Ctrl+L"   , CSG_String::Format("%s, %s", _TL("Sequencer"), _TL("Play Loop"             )));
+	ADD_SHORTCUT("Ctrl+S"   , CSG_String::Format("%s, %s", _TL("Sequencer"), _TL("Play and Save to Image")));
+	ADD_SHORTCUT("Escape"   , CSG_String::Format("%s, %s", _TL("Sequencer"), _TL("Stop Playing"          )));
+
+	return( Shortcuts );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_3DView_Panel::Get_Usage(void)
+{
+	return( Get_Usage(Get_Shortcuts()) );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_3DView_Panel::Get_Usage(const CSG_Table &Shortcuts)
+{
+	CSG_String s;
+
+	s += CSG_String::Format("<hr><h4>%s</h4><table>", _TL("Mouse"));
+
+	s += CSG_String::Format("<tr><td>%s</td><td>%s</td></tr>", _TL("Left Button"  ), _TL("Rotate Left/Right and Up/Down"));
+	s += CSG_String::Format("<tr><td>%s</td><td>%s</td></tr>", _TL("Right Button" ), _TL("Shift Left/Right and Up/Down"));
+	s += CSG_String::Format("<tr><td>%s</td><td>%s</td></tr>", _TL("Middle Button"), _TL("Shift Forward/Backward and Increase/Decrease Exaggeration"));
+	s += CSG_String::Format("<tr><td>%s</td><td>%s</td></tr>", _TL("Wheel"        ), _TL("Shift Forward/Backward"));
+
+	s += "</table>";
+
+	s += CSG_String::Format("<hr><h4>%s</h4><table>", _TL("Keyboard"));
+
+	CSG_Index Index; Shortcuts.Set_Index(Index, 0);
+
+	for(int i=0; i<Shortcuts.Get_Count(); i++)
+	{
+		s += CSG_String::Format("<tr><td>%s</td><td>%s</td></tr>", Shortcuts[Index[i]].asString(0), Shortcuts[Index[i]].asString(1));
+	}
+
+	s += "</table>";
+
+	return( s );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 void CSG_3DView_Panel::On_Key_Down(wxKeyEvent &event)
 {
 	//-----------------------------------------------------
@@ -467,12 +558,12 @@ void CSG_3DView_Panel::On_Key_Down(wxKeyEvent &event)
 			}
 			return;
 
-		case '1'         : m_Projector.Inc_zRotation(-4., true); break;
-		case '2'         : m_Projector.Inc_zRotation( 4., true); break;
-		case '3'         : m_Projector.Inc_xRotation(-4., true); break;
-		case '4'         : m_Projector.Inc_xRotation( 4., true); break;
-		case '5'         : m_Projector.Inc_yRotation(-4., true); break;
-		case '6'         : m_Projector.Inc_yRotation( 4., true); break;
+		case '1'         : m_Projector.Inc_zRotation( 4., true); break;
+		case '2'         : m_Projector.Inc_zRotation(-4., true); break;
+		case '3'         : m_Projector.Inc_xRotation( 4., true); break;
+		case '4'         : m_Projector.Inc_xRotation(-4., true); break;
+		case '5'         : m_Projector.Inc_yRotation( 4., true); break;
+		case '6'         : m_Projector.Inc_yRotation(-4., true); break;
 
 		case WXK_INSERT  : m_Projector.Inc_xShift(-0.1); break;
 		case WXK_DELETE  : m_Projector.Inc_xShift( 0.1); break;

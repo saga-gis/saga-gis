@@ -63,6 +63,8 @@ class C3D_Viewer_PointCloud_Panel : public CSG_3DView_Panel
 public:
 	C3D_Viewer_PointCloud_Panel(wxWindow *pParent, CSG_PointCloud *pPoints, int Field_Color);
 
+	static CSG_String			Get_Usage				(void);
+
 	void						Set_Extent				(CSG_Rect Extent);
 
 
@@ -271,20 +273,34 @@ void C3D_Viewer_PointCloud_Panel::Update_Parent(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_String C3D_Viewer_PointCloud_Panel::Get_Usage(void)
+{
+	CSG_Table Shortcuts(CSG_3DView_Panel::Get_Shortcuts());
+
+	#define ADD_SHORTCUT(KEY, CMD) { CSG_Table_Record &r = *Shortcuts.Add_Record(); r.Set_Value(0, KEY); r.Set_Value(1, CMD); }
+
+	ADD_SHORTCUT("F3", _TL("Decrease Size"        ));
+	ADD_SHORTCUT("F4", _TL("Increase Size"        ));
+
+	ADD_SHORTCUT("F5", _TL("Decrease Size Scaling"));
+	ADD_SHORTCUT("F6", _TL("Increase Size Scaling"));
+
+	return( CSG_3DView_Panel::Get_Usage(Shortcuts) );
+}
+
+//---------------------------------------------------------
 void C3D_Viewer_PointCloud_Panel::On_Key_Down(wxKeyEvent &event)
 {
 	switch( event.GetKeyCode() )
 	{
 	default    : CSG_3DView_Panel::On_Key_Down(event); return;
 
-	case WXK_F3: Parameter_Value_Add("SIZE"      , -1.); break;
-	case WXK_F4: Parameter_Value_Add("SIZE"      ,  1.); break;
+	case WXK_F3: Parameter_Value_Add("SIZE"      ,  -1.); break;
+	case WXK_F4: Parameter_Value_Add("SIZE"      ,   1.); break;
 
-	case WXK_F5: Parameter_Value_Add("SIZE_SCALE", -1.); break;
-	case WXK_F6: Parameter_Value_Add("SIZE_SCALE",  1.); break;
+	case WXK_F5: Parameter_Value_Add("SIZE_SCALE", -10.); break;
+	case WXK_F6: Parameter_Value_Add("SIZE_SCALE",  10.); break;
 	}
-
-	Update_View(); Update_Parent();
 }
 
 
@@ -932,6 +948,8 @@ C3D_Viewer_PointCloud::C3D_Viewer_PointCloud(void)
 	Set_Description	(_TW(
 		"3D viewer for point clouds."
 	));
+
+	Set_Description(Get_Description() + C3D_Viewer_PointCloud_Panel::Get_Usage());
 
 	//-----------------------------------------------------
 	Parameters.Add_PointCloud("",

@@ -162,46 +162,46 @@ void CSG_3DView_Dialog::On_Button(wxCommandEvent &event)
 		//-------------------------------------------------
 		Menu.AppendSubMenu(pMenu = new wxMenu, _TL("Display"));
 
-		pMenu->AppendCheckItem(MENU_BOX          , _TL("Bounding Box [B]"));
-		pMenu->AppendCheckItem(MENU_LABELS       , _TL("Axis Labeling [L]"));
-		pMenu->AppendCheckItem(MENU_NORTH        , _TL("North Arrow [N]"));
-		pMenu->AppendCheckItem(MENU_STEREO       , _TL("Anaglyph [S]"));
-		pMenu->AppendCheckItem(MENU_CENTRAL      , _TL("Central [C]"));
+		pMenu->AppendCheckItem(MENU_BOX          , wxString::Format("%s [B]"        , _TL("Bounding Box"      )));
+		pMenu->AppendCheckItem(MENU_LABELS       , wxString::Format("%s [L]"        , _TL("Axis Labeling"     )));
+		pMenu->AppendCheckItem(MENU_NORTH        , wxString::Format("%s [N]"        , _TL("North Arrow"       )));
+		pMenu->AppendCheckItem(MENU_STEREO       , wxString::Format("%s [S]"        , _TL("Stereo Anaglyph"   )));
+		pMenu->AppendCheckItem(MENU_CENTRAL      , wxString::Format("%s [C]"        , _TL("Central Projection")));
 
 		pMenu->AppendSeparator();
-		pMenu->Append         (MENU_TO_CLIPBOARD , _TL("Copy to Clipboard [Ctrl+C]"));
+		pMenu->Append         (MENU_TO_CLIPBOARD , wxString::Format("%s [Ctrl+C]"   , _TL("Copy to Clipboard" )));
 
 		//-------------------------------------------------
 		Menu.AppendSubMenu(pMenu = new wxMenu, _TL("Rotation"));
 
-		pMenu->Append         (MENU_ROTATE_Z_DEC , _TL("Left [1]"));
-		pMenu->Append         (MENU_ROTATE_Z_INC , _TL("Right [2]"));
+		pMenu->Append         (MENU_ROTATE_Z_DEC , wxString::Format("%s [1]"        , _TL("Left"    )));
+		pMenu->Append         (MENU_ROTATE_Z_INC , wxString::Format("%s [2]"        , _TL("Right"   )));
 		pMenu->AppendSeparator();
-		pMenu->Append         (MENU_ROTATE_X_DEC , _TL("Up [3]"));
-		pMenu->Append         (MENU_ROTATE_X_INC , _TL("Down [4]"));
+		pMenu->Append         (MENU_ROTATE_X_DEC , wxString::Format("%s [3]"        , _TL("Up"      )));
+		pMenu->Append         (MENU_ROTATE_X_INC , wxString::Format("%s [4]"        , _TL("Down"    )));
 
 		//-------------------------------------------------
 		Menu.AppendSubMenu(pMenu = new wxMenu, _TL("Shift"));
 
-		pMenu->Append         (MENU_SHIFT_X_DEC  , _TL("Left [Ins]"));
-		pMenu->Append         (MENU_SHIFT_X_INC  , _TL("Right [Del]"));
+		pMenu->Append         (MENU_SHIFT_X_DEC  , wxString::Format("%s [Ins]"      , _TL("Left"    )));
+		pMenu->Append         (MENU_SHIFT_X_INC  , wxString::Format("%s [Del]"      , _TL("Right"   )));
 		pMenu->AppendSeparator();
-		pMenu->Append         (MENU_SHIFT_Y_DEC  , _TL("Up [Home]"));
-		pMenu->Append         (MENU_SHIFT_Y_INC  , _TL("Down [End]"));
+		pMenu->Append         (MENU_SHIFT_Y_DEC  , wxString::Format("%s [Home]"     , _TL("Up"      )));
+		pMenu->Append         (MENU_SHIFT_Y_INC  , wxString::Format("%s [End]"      , _TL("Down"    )));
 		pMenu->AppendSeparator();
-		pMenu->Append         (MENU_SHIFT_Z_DEC  , _TL("Forward [Page Up]"));
-		pMenu->Append         (MENU_SHIFT_Z_INC  , _TL("Backward [Page Down]"));
+		pMenu->Append         (MENU_SHIFT_Z_DEC  , wxString::Format("%s [Page Up]"  , _TL("Forward" )));
+		pMenu->Append         (MENU_SHIFT_Z_INC  , wxString::Format("%s [Page Down]", _TL("Backward")));
 
 		//-------------------------------------------------
 		Menu.AppendSubMenu(pMenu = new wxMenu, _TL("Sequencer"));
 
-		pMenu->Append         (MENU_PLAY_POS_ADD , _TL("Add Position [Ctrl + A]"));
-		pMenu->Append         (MENU_PLAY_POS_DEL , _TL("Delete Last Position [Ctrl + D]"));
-		pMenu->Append         (MENU_PLAY_POS_CLR , _TL("Delete All Positions [Ctrl + X]"));
+		pMenu->Append         (MENU_PLAY_POS_ADD , wxString::Format("%s [Ctrl+A]", _TL("Add Position"          )));
+		pMenu->Append         (MENU_PLAY_POS_DEL , wxString::Format("%s [Ctrl+D]", _TL("Delete Last Position"  )));
+		pMenu->Append         (MENU_PLAY_POS_CLR , wxString::Format("%s [Ctrl+X]", _TL("Delete All Positions"  )));
 		pMenu->AppendSeparator();
-		pMenu->Append         (MENU_PLAY_RUN_ONCE, _TL("Play Once [Ctrl + P]"));
-		pMenu->AppendCheckItem(MENU_PLAY_RUN_LOOP, _TL("Play Loop [Ctrl + L]"));
-		pMenu->Append         (MENU_PLAY_RUN_SAVE, _TL("Play and Save to Image"));
+		pMenu->Append         (MENU_PLAY_RUN_ONCE, wxString::Format("%s [Ctrl+P]", _TL("Play Once"             )));
+		pMenu->AppendCheckItem(MENU_PLAY_RUN_LOOP, wxString::Format("%s [Ctrl+L]", _TL("Play Loop"             )));
+		pMenu->Append         (MENU_PLAY_RUN_SAVE, wxString::Format("%s [Ctrl+S]", _TL("Play and Save to Image")));
 
 		//-------------------------------------------------
 		Set_Menu(Menu);

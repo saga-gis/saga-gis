@@ -144,96 +144,6 @@ CVIEW_Map_3D::~CVIEW_Map_3D(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxMenu * CVIEW_Map_3D::_Create_Menu(void)
-{
-	wxMenu *pMenu = new wxMenu, *pMenu_Sub;
-
-	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_PARAMETERS);
-
-	pMenu->Append(ID_CMD_MAP3D_FIRST, _TL("Rotation"), pMenu_Sub = new wxMenu());
-	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_ROTATE_X_LESS);
-	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_ROTATE_X_MORE);
-//	pMenu_Sub->AppendSeparator();
-//	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_ROTATE_Y_LESS);
-//	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_ROTATE_Y_MORE);
-	pMenu_Sub->AppendSeparator();
-	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_ROTATE_Z_LESS);
-	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_ROTATE_Z_MORE);
-
-	pMenu->Append(ID_CMD_MAP3D_FIRST, _TL("Shift"), pMenu_Sub = new wxMenu());
-	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SHIFT_X_LESS);
-	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SHIFT_X_MORE);
-	pMenu_Sub->AppendSeparator();
-	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SHIFT_Y_LESS);
-	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SHIFT_Y_MORE);
-	pMenu_Sub->AppendSeparator();
-	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SHIFT_Z_LESS);
-	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SHIFT_Z_MORE);
-
-	pMenu->Append(ID_CMD_MAP3D_FIRST, _TL("Sequencer"), pMenu_Sub = new wxMenu());
-	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SEQ_POS_ADD);
-	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SEQ_POS_DEL);
-	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SEQ_POS_DEL_ALL);
-	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SEQ_POS_EDIT);
-	pMenu_Sub->AppendSeparator();
-	CMD_Menu_Add_Item(pMenu_Sub,  true, ID_CMD_MAP3D_SEQ_PLAY);
-	CMD_Menu_Add_Item(pMenu_Sub,  true, ID_CMD_MAP3D_SEQ_PLAY_LOOP);
-	CMD_Menu_Add_Item(pMenu_Sub,  true, ID_CMD_MAP3D_SEQ_SAVE);
-
-	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_EXAGGERATE_LESS);
-	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_EXAGGERATE_MORE);
-	pMenu->AppendSeparator();
-	CMD_Menu_Add_Item(pMenu    ,  true, ID_CMD_MAP3D_CENTRAL);
-	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_CENTRAL_LESS);
-	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_CENTRAL_MORE);
-	pMenu->AppendSeparator();
-	CMD_Menu_Add_Item(pMenu    ,  true, ID_CMD_MAP3D_STEREO);
-	pMenu->AppendSeparator();
-	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_SAVE);
-
-	return( pMenu );
-}
-
-//---------------------------------------------------------
-wxToolBarBase * CVIEW_Map_3D::_Create_ToolBar(void)
-{
-	wxToolBarBase *pToolBar = CMD_ToolBar_Create(ID_TB_VIEW_MAP_3D);
-
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_PARAMETERS);
-	CMD_ToolBar_Add_Separator(pToolBar);
-	CMD_ToolBar_Add_Item(pToolBar,  true, ID_CMD_MAP3D_STEREO);
-	CMD_ToolBar_Add_Separator(pToolBar);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_ROTATE_X_LESS);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_ROTATE_X_MORE);
-//	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_ROTATE_Y_LESS);
-//	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_ROTATE_Y_MORE);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_ROTATE_Z_LESS);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_ROTATE_Z_MORE);
-	CMD_ToolBar_Add_Separator(pToolBar);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_SHIFT_X_LESS);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_SHIFT_X_MORE);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_SHIFT_Y_LESS);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_SHIFT_Y_MORE);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_SHIFT_Z_LESS);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_SHIFT_Z_MORE);
-	CMD_ToolBar_Add_Separator(pToolBar);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_EXAGGERATE_LESS);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_EXAGGERATE_MORE);
-	CMD_ToolBar_Add_Separator(pToolBar);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_CENTRAL_LESS);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_CENTRAL_MORE);
-
-	CMD_ToolBar_Add(pToolBar, _TL("3D-View"));
-
-	return( pToolBar );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 void CVIEW_Map_3D::Do_Update(void)
 {
 	m_pPanel->Update_View(true);
@@ -243,7 +153,7 @@ void CVIEW_Map_3D::Do_Update(void)
 void CVIEW_Map_3D::Update_StatusBar(void)
 {
 	SetStatusText(wxString::Format("RX %+.1f", m_pPanel->Get_Projector().Get_xRotation() * M_RAD_TO_DEG), MAP3D_STATUSBAR_ROTATE_X    );
-//	SetStatusText(wxString::Format("RY %+.1f", m_pPanel->Get_Projector().Get_yRotation() * M_RAD_TO_DEG), MAP3D_STATUSBAR_ROTATE_Y    );
+	//	SetStatusText(wxString::Format("RY %+.1f", m_pPanel->Get_Projector().Get_yRotation() * M_RAD_TO_DEG), MAP3D_STATUSBAR_ROTATE_Y    );
 	SetStatusText(wxString::Format("RZ %+.1f", m_pPanel->Get_Projector().Get_zRotation() * M_RAD_TO_DEG), MAP3D_STATUSBAR_ROTATE_Z    );
 
 	SetStatusText(wxString::Format("DX %+.1f", m_pPanel->Get_Projector().Get_xShift   ()               ), MAP3D_STATUSBAR_SHIFT_X     );
@@ -272,6 +182,90 @@ void CVIEW_Map_3D::On_Size(wxSizeEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+wxMenu * CVIEW_Map_3D::_Create_Menu(void)
+{
+	wxMenu *pMenu = new wxMenu, *pMenu_Sub;
+
+	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_PARAMETERS);
+	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_USAGE);
+	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_SAVE);
+
+	pMenu->AppendSeparator();
+	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_EXAGGERATE_LESS);
+	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_EXAGGERATE_MORE);
+
+	pMenu->Append(ID_CMD_MAP3D_FIRST, _TL("Rotation"), pMenu_Sub = new wxMenu());
+	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_ROTATE_X_LESS);
+	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_ROTATE_X_MORE);
+	pMenu_Sub->AppendSeparator();
+	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_ROTATE_Z_LESS);
+	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_ROTATE_Z_MORE);
+
+	pMenu->Append(ID_CMD_MAP3D_FIRST, _TL("Shift"), pMenu_Sub = new wxMenu());
+	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SHIFT_X_LESS);
+	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SHIFT_X_MORE);
+	pMenu_Sub->AppendSeparator();
+	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SHIFT_Y_LESS);
+	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SHIFT_Y_MORE);
+	pMenu_Sub->AppendSeparator();
+	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SHIFT_Z_LESS);
+	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SHIFT_Z_MORE);
+
+	pMenu->Append(ID_CMD_MAP3D_FIRST, _TL("Sequencer"), pMenu_Sub = new wxMenu());
+	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SEQ_POS_ADD);
+	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SEQ_POS_DEL);
+	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SEQ_POS_DEL_ALL);
+	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SEQ_POS_EDIT);
+	pMenu_Sub->AppendSeparator();
+	CMD_Menu_Add_Item(pMenu_Sub,  true, ID_CMD_MAP3D_SEQ_PLAY);
+	CMD_Menu_Add_Item(pMenu_Sub,  true, ID_CMD_MAP3D_SEQ_PLAY_LOOP);
+	CMD_Menu_Add_Item(pMenu_Sub,  true, ID_CMD_MAP3D_SEQ_SAVE);
+
+	pMenu->AppendSeparator();
+	CMD_Menu_Add_Item(pMenu    ,  true, ID_CMD_MAP3D_CENTRAL);
+	CMD_Menu_Add_Item(pMenu    ,  true, ID_CMD_MAP3D_STEREO);
+
+	return( pMenu );
+}
+
+//---------------------------------------------------------
+wxToolBarBase * CVIEW_Map_3D::_Create_ToolBar(void)
+{
+	wxToolBarBase *pToolBar = CMD_ToolBar_Create(ID_TB_VIEW_MAP_3D);
+
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_PARAMETERS);
+	CMD_ToolBar_Add_Separator(pToolBar);
+	CMD_ToolBar_Add_Item(pToolBar,  true, ID_CMD_MAP3D_STEREO);
+	CMD_ToolBar_Add_Separator(pToolBar);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_ROTATE_X_LESS);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_ROTATE_X_MORE);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_ROTATE_Z_LESS);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_ROTATE_Z_MORE);
+	CMD_ToolBar_Add_Separator(pToolBar);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_SHIFT_X_LESS);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_SHIFT_X_MORE);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_SHIFT_Y_LESS);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_SHIFT_Y_MORE);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_SHIFT_Z_LESS);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_SHIFT_Z_MORE);
+	CMD_ToolBar_Add_Separator(pToolBar);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_EXAGGERATE_LESS);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_EXAGGERATE_MORE);
+	CMD_ToolBar_Add_Separator(pToolBar);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_CENTRAL_LESS);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_CENTRAL_MORE);
+
+	CMD_ToolBar_Add(pToolBar, _TL("3D-View"));
+
+	return( pToolBar );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 void CVIEW_Map_3D::On_Command(wxCommandEvent &event)
 {
 	switch( event.GetId() )
@@ -287,6 +281,11 @@ void CVIEW_Map_3D::On_Command(wxCommandEvent &event)
 		{
 			m_pPanel->Update_Parameters(false); m_pPanel->Update_View();
 		}
+		return; }
+
+	//-----------------------------------------------------
+	case ID_CMD_MAP3D_USAGE          : {
+		DLG_Info(_TL("3D View Usage"), m_pPanel->Get_Usage().c_str());
 		return; }
 
 	//-----------------------------------------------------
@@ -369,30 +368,14 @@ void CVIEW_Map_3D::On_Command_UI(wxUpdateUIEvent &event)
 {
 	switch( event.GetId() )
 	{
-	case ID_CMD_MAP3D_CENTRAL:
-		event.Check(m_pPanel->Get_Projector().is_Central());
-		break;
+	case ID_CMD_MAP3D_CENTRAL_LESS :
+	case ID_CMD_MAP3D_CENTRAL_MORE : event.Enable(m_pPanel->Get_Projector().is_Central()); break;
+	case ID_CMD_MAP3D_CENTRAL      : event.Check (m_pPanel->Get_Projector().is_Central()); break;
 
-	case ID_CMD_MAP3D_CENTRAL_LESS:
-	case ID_CMD_MAP3D_CENTRAL_MORE:
-		event.Enable(m_pPanel->Get_Projector().is_Central());
-		break;
-
-	case ID_CMD_MAP3D_STEREO:
-		event.Check(m_pPanel->m_Parameters("STEREO")->asBool());
-		break;
-
-	case ID_CMD_MAP3D_SEQ_PLAY:
-		event.Check(m_pPanel->Play_Get_State() == SG_3DVIEW_PLAY_RUN_ONCE);
-		break;
-
-	case ID_CMD_MAP3D_SEQ_PLAY_LOOP:
-		event.Check(m_pPanel->Play_Get_State() == SG_3DVIEW_PLAY_RUN_LOOP);
-		break;
-
-	case ID_CMD_MAP3D_SEQ_SAVE:
-		event.Check(m_pPanel->Play_Get_State() == SG_3DVIEW_PLAY_RUN_SAVE);
-		break;
+	case ID_CMD_MAP3D_STEREO       : event.Check (m_pPanel->m_Parameters("STEREO")->asBool()           ); break;
+	case ID_CMD_MAP3D_SEQ_PLAY     : event.Check (m_pPanel->Play_Get_State() == SG_3DVIEW_PLAY_RUN_ONCE); break;
+	case ID_CMD_MAP3D_SEQ_PLAY_LOOP: event.Check (m_pPanel->Play_Get_State() == SG_3DVIEW_PLAY_RUN_LOOP); break;
+	case ID_CMD_MAP3D_SEQ_SAVE     : event.Check (m_pPanel->Play_Get_State() == SG_3DVIEW_PLAY_RUN_SAVE); break;
 	}
 }
 

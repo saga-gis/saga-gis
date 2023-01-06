@@ -284,10 +284,11 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAP_CROSSHAIR:					return( _TL("Cross Hair") );
 
 	case ID_CMD_MAP3D_PARAMETERS:		return( _TL("Properties") );
+	case ID_CMD_MAP3D_USAGE:			return( _TL("Usage") );
 	case ID_CMD_MAP3D_ROTATE_X_LESS:	return( _TL("Up") );
 	case ID_CMD_MAP3D_ROTATE_X_MORE:	return( _TL("Down") );
-	case ID_CMD_MAP3D_ROTATE_Y_LESS:	return( _TL("Left [F3]") );
-	case ID_CMD_MAP3D_ROTATE_Y_MORE:	return( _TL("Right [F4]") );
+	case ID_CMD_MAP3D_ROTATE_Y_LESS:	return( _TL("Left") );
+	case ID_CMD_MAP3D_ROTATE_Y_MORE:	return( _TL("Right") );
 	case ID_CMD_MAP3D_ROTATE_Z_LESS:	return( _TL("Left") );
 	case ID_CMD_MAP3D_ROTATE_Z_MORE:	return( _TL("Right") );
 	case ID_CMD_MAP3D_SHIFT_X_LESS:		return( _TL("Left") );
@@ -296,22 +297,22 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAP3D_SHIFT_Y_MORE:		return( _TL("Up") );
 	case ID_CMD_MAP3D_SHIFT_Z_LESS:		return( _TL("Forward") );
 	case ID_CMD_MAP3D_SHIFT_Z_MORE:		return( _TL("Backward") );
-	case ID_CMD_MAP3D_EXAGGERATE_LESS:	return( _TL("Decrease Exaggeration [F1]") );
-	case ID_CMD_MAP3D_EXAGGERATE_MORE:	return( _TL("Increase Exaggeration [F2]") );
-	case ID_CMD_MAP3D_CENTRAL_LESS:		return( _TL("Decrease Perspectivic Distance [F9]") );
-	case ID_CMD_MAP3D_CENTRAL_MORE:		return( _TL("Increase Perspectivic Distance [F10]") );
+	case ID_CMD_MAP3D_EXAGGERATE_LESS:	return( _TL("Decrease Exaggeration") );
+	case ID_CMD_MAP3D_EXAGGERATE_MORE:	return( _TL("Increase Exaggeration") );
+	case ID_CMD_MAP3D_CENTRAL_LESS:		return( _TL("Decrease Perspectivic Distance") );
+	case ID_CMD_MAP3D_CENTRAL_MORE:		return( _TL("Increase Perspectivic Distance") );
 	case ID_CMD_MAP3D_CENTRAL:			return( _TL("Central Projection") );
 	case ID_CMD_MAP3D_STEREO_LESS:		return( _TL("Decrease Eye Distance") );
 	case ID_CMD_MAP3D_STEREO_MORE:		return( _TL("Increase Eye Distance") );
-	case ID_CMD_MAP3D_STEREO:			return( _TL("Anaglyph [S]") );
+	case ID_CMD_MAP3D_STEREO:			return( _TL("Stereo Anaglyph") );
 	case ID_CMD_MAP3D_INTERPOLATED:		return( _TL("Interpolated Colors") );
 	case ID_CMD_MAP3D_SAVE:				return( _TL("Save as Image...") );
-	case ID_CMD_MAP3D_SEQ_POS_ADD:		return( _TL("Add Position [Ctrl + A]") );
-	case ID_CMD_MAP3D_SEQ_POS_DEL:		return( _TL("Delete Last Position [Ctrl + D]") );
+	case ID_CMD_MAP3D_SEQ_POS_ADD:		return( _TL("Add Position") );
+	case ID_CMD_MAP3D_SEQ_POS_DEL:		return( _TL("Delete Last Position") );
 	case ID_CMD_MAP3D_SEQ_POS_DEL_ALL:	return( _TL("Delete All Positions") );
 	case ID_CMD_MAP3D_SEQ_POS_EDIT:		return( _TL("Edit Positions") );
-	case ID_CMD_MAP3D_SEQ_PLAY:			return( _TL("Play Once [Ctrl + P]") );
-	case ID_CMD_MAP3D_SEQ_PLAY_LOOP:	return( _TL("Play Loop [Ctrl + L]") );
+	case ID_CMD_MAP3D_SEQ_PLAY:			return( _TL("Play Once") );
+	case ID_CMD_MAP3D_SEQ_PLAY_LOOP:	return( _TL("Play Loop") );
 	case ID_CMD_MAP3D_SEQ_SAVE:			return( _TL("Play And Save as Images...") );
 
 	case ID_CMD_LAYOUT_LOAD:			return( _TL("Load") );

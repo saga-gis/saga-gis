@@ -398,6 +398,8 @@ C3D_Viewer_Shapes::C3D_Viewer_Shapes(void)
 		"3D viewer for 3D Shapes."
 	));
 
+	Set_Description(Get_Description() + C3D_Viewer_Shapes_Panel::Get_Usage());
+
 	//-----------------------------------------------------
 	Parameters.Add_Shapes("",
 		"SHAPES"	, _TL("Shapes"),

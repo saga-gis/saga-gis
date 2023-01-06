@@ -574,6 +574,8 @@ C3D_Viewer_Globe_Grid::C3D_Viewer_Globe_Grid(void)
 		"Supplied grids have to use geographic coordinates. "
 	));
 
+	Set_Description(Get_Description() + C3D_Viewer_Globe_Grid_Panel::Get_Usage());
+
 	//-----------------------------------------------------
 	Parameters.Add_Grid("", "GRID", _TL("Grid"     ), _TL(""), PARAMETER_INPUT);
 	Parameters.Add_Grid("", "Z"   , _TL("Elevation"), _TL(""), PARAMETER_INPUT_OPTIONAL);

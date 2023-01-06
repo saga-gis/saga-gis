@@ -71,6 +71,8 @@ class C3D_Viewer_Grids_Panel : public CSG_3DView_Panel
 public:
 	C3D_Viewer_Grids_Panel(wxWindow *pParent, CSG_Grids *pGrids);
 
+	static CSG_String			Get_Usage				(void);
+
 
 protected:
 
@@ -316,6 +318,30 @@ bool C3D_Viewer_Grids_Panel::Set_Resolution(bool bIncrease, bool bVertical)
 	Set_Planes();
 
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_String C3D_Viewer_Grids_Panel::Get_Usage(void)
+{
+	CSG_Table Shortcuts(CSG_3DView_Panel::Get_Shortcuts());
+
+	#define ADD_SHORTCUT(KEY, CMD) { CSG_Table_Record &r = *Shortcuts.Add_Record(); r.Set_Value(0, KEY); r.Set_Value(1, CMD); }
+
+	ADD_SHORTCUT("F3", _TL("Decrease Horizontal Resolution"));
+	ADD_SHORTCUT("F4", _TL("Increase Horizontal Resolution"));
+
+	ADD_SHORTCUT("F5", _TL("Decrease Vertical Resolution"  ));
+	ADD_SHORTCUT("F6", _TL("Increase Vertical Resolution"  ));
+
+	ADD_SHORTCUT("F7", _TL("Previous Level"                ));
+	ADD_SHORTCUT("F8", _TL("Next Level"                    ));
+
+	return( CSG_3DView_Panel::Get_Usage(Shortcuts) );
 }
 
 //---------------------------------------------------------
@@ -1012,19 +1038,19 @@ protected:
 		wxMenu *pMenu = Menu.FindChildItem(Menu.FindItem(_TL("Display")))->GetSubMenu();
 
 		pMenu->AppendSeparator();
-		pMenu->Append(MENU_SCALE_Z_DEC , _TL("Decrease Exaggeration [F1]"));
-		pMenu->Append(MENU_SCALE_Z_INC , _TL("Increase Exaggeration [F2]"));
+		pMenu->Append(MENU_SCALE_Z_DEC , wxString::Format("%s [F1]", _TL("Decrease Exaggeration"         )));
+		pMenu->Append(MENU_SCALE_Z_INC , wxString::Format("%s [F2]", _TL("Increase Exaggeration"         )));
 
 		pMenu->AppendSeparator();
-		pMenu->Append(MENU_LEVEL_Z_DEC , _TL("Previous Level [F7]"));
-		pMenu->Append(MENU_LEVEL_Z_INC , _TL("Next Level [F8]"));
+		pMenu->Append(MENU_RESLT_XY_DEC, wxString::Format("%s [F3]", _TL("Decrease Horizontal Resolution")));
+		pMenu->Append(MENU_RESLT_XY_INC, wxString::Format("%s [F4]", _TL("Increase Horizontal Resolution")));
+
+		pMenu->Append(MENU_RESLT_Z_DEC , wxString::Format("%s [F5]", _TL("Decrease Vertical Resolution"  )));
+		pMenu->Append(MENU_RESLT_Z_INC , wxString::Format("%s [F6]", _TL("Increase Vertical Resolution"  )));
 
 		pMenu->AppendSeparator();
-		pMenu->Append(MENU_RESLT_XY_DEC, _TL("Decrease Horizontal Resolution [F3]"));
-		pMenu->Append(MENU_RESLT_XY_INC, _TL("Increase Horizontal Resolution [F4]"));
-
-		pMenu->Append(MENU_RESLT_Z_DEC , _TL("Decrease Vertical Resolution [F5]"));
-		pMenu->Append(MENU_RESLT_Z_INC , _TL("Increase Vertical Resolution [F6]"));
+		pMenu->Append(MENU_LEVEL_Z_DEC , wxString::Format("%s [F7]", _TL("Previous Level"                )));
+		pMenu->Append(MENU_LEVEL_Z_INC , wxString::Format("%s [F8]", _TL("Next Level"                    )));
 
 		pMenu->AppendSeparator();
 		pMenu->AppendCheckItem(MENU_SHOW_SHADER, _TL("Toggle Light Source Controls"));
@@ -1182,6 +1208,8 @@ C3D_Viewer_Grids::C3D_Viewer_Grids(void)
 		"The viewer can be used to visualize volumes, multi- or hyperspectral data, "
 		"or grids representing a time series, if these are managed in a grid collection. "
 	));
+
+	Set_Description(Get_Description() + C3D_Viewer_Grids_Panel::Get_Usage());
 
 	//-----------------------------------------------------
 	Parameters.Add_Grids(
