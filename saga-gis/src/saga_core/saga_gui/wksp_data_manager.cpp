@@ -170,77 +170,67 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 		true
 	);
 
-	m_Parameters.Add_Int("NODE_GENERAL",
+	//-----------------------------------------------------
+	m_Parameters.Add_Node ("NODE_GENERAL"   , "NODE_THUMBNAILS"   , _TL("Thumbnails"     ), _TL(""));
+	m_Parameters.Add_Int  ("NODE_THUMBNAILS", "THUMBNAIL_SIZE"    , _TL("Thumbnail Size" ), _TL(""), 50, 10, true);
+	m_Parameters.Add_Bool ("NODE_THUMBNAILS", "THUMBNAIL_CATEGORY", _TL("Show Categories"), _TL(""), true);
+	m_Parameters.Add_Color("NODE_THUMBNAILS", "THUMBNAIL_SELCOLOR", _TL("Selection Color"), _TL(""), Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW)));
+
+	//-----------------------------------------------------
+	m_Parameters.Add_Node("", "NODE_DATA", _TL("Data"),
+		_TL("")
+	);
+
+	m_Parameters.Add_Int("NODE_DATA",
 		"NUMBERING"				, _TL("Numbering of Data Sets"),
 		_TL("Leading zeros for data set numbering. Set to -1 for not using numbers at all."),
 		m_Numbering = 2, -1, true
 	);
 
-	m_Parameters.Add_Bool("NODE_GENERAL",
+	m_Parameters.Add_Bool("NODE_DATA",
 		"NAME_BY_FILE"			, _TL("Use File Name for Naming"),
 		_TL("Use file name to name a data set, when it has been loaded from file."),
 		false
 	);
 
-	m_Parameters.Add_Colors("NODE_GENERAL",
-		"COLORS_DEFAULT"		, _TL("Default Colors"),
-		_TL("")
-	);
-
-	m_Parameters.Add_Bool("NODE_GENERAL",
+	m_Parameters.Add_Bool("NODE_DATA",
 		"COLORS_FROM_TOOL"		, _TL("Tool Set Colors"),
 		_TL("Allow tools to change data set colors programmatically."),
 		true
 	);
 
+	m_Parameters.Add_Colors("NODE_DATA",
+		"COLORS_DEFAULT"		, _TL("Default Colors"),
+		_TL("")
+	);
+
+	m_Parameters.Add_Choice("NODE_DATA"      , "STRETCH_DEFAULT", _TL("Histogram Stretch Defaults"), _TL("Histogram stretch applied by default to new data."), CSG_String::Format("%s|%s|%s",
+		_TL("Linear"), _TL("Standard Deviation"), _TL("Percent Clip")), 1
+	);
+
+	m_Parameters.Add_Range ("STRETCH_DEFAULT", "STRETCH_LINEAR" , _TL("Linear"                    ), _TL("Linear percent stretch allows you to trim extreme values from both ends of the histogram using the percentage specified here."), 5., 95., 0., true, 100., true);
+	m_Parameters.Add_Double("STRETCH_DEFAULT", "STRETCH_STDDEV" , _TL("Standard Deviation"        ), _TL(""), 2., 0., true);
+	m_Parameters.Add_Range ("STRETCH_DEFAULT", "STRETCH_PCTL"   , _TL("Percent Clip"              ), _TL(""), 2., 98., 0., true, 100., true);
+
 	SG_DataObject_Set_Max_Samples(1000000);	// default to one million
 
-	m_Parameters.Add_Int("NODE_GENERAL",
+	m_Parameters.Add_Int("NODE_DATA",
 		"DATA_SAMPLE_MAX"		, _TL("Maximum Samples"),
 		_TL("Default maximum number of samples used to build statistics and histograms. Set to zero to use all data records."),
 		(int)SG_DataObject_Get_Max_Samples(), 0, true
 	);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Node("",
-		"NODE_HISTORY"			, _TL("History"),
-		_TL("")
-	);
-
-	m_Parameters.Add_Int("NODE_HISTORY",
+	m_Parameters.Add_Int("NODE_DATA",
 		"HISTORY_DEPTH"			, _TL("History Depth"),
 		_TL("Depth to which data history is stored. Set -1 keeps all history entries (default), 0 switches history option off."),
 		SG_Get_History_Depth(), -1, true
 	);
 
-	m_Parameters.Add_Bool("NODE_HISTORY",
+	m_Parameters.Add_Bool("HISTORY_DEPTH",
 		"HISTORY_LISTS"			, _TL("Ignore Input Lists"),
 		_TL(""),
 		SG_Get_History_Ignore_Lists() != 0
-	);
-
-	//-----------------------------------------------------
-	m_Parameters.Add_Node("",
-		"NODE_THUMBNAILS"		, _TL("Thumbnails"),
-		_TL("")
-	);
-
-	m_Parameters.Add_Int("NODE_THUMBNAILS",
-		"THUMBNAIL_SIZE"		, _TL("Thumbnail Size"),
-		_TL(""),
-		50, 10, true
-	);
-
-	m_Parameters.Add_Bool("NODE_THUMBNAILS",
-		"THUMBNAIL_CATEGORY"	, _TL("Show Categories"),
-		_TL(""),
-		true
-	);
-
-	m_Parameters.Add_Color("NODE_THUMBNAILS",
-		"THUMBNAIL_SELCOLOR"	, _TL("Selection Color"),
-		_TL(""),
-		Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW))
 	);
 
 	//-----------------------------------------------------
@@ -266,16 +256,6 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 		10, 0, true
 	);
 
-	m_Parameters.Add_Choice("NODE_GRID",
-		"GRID_STRETCH_DEFAULT"	, _TL("Histogram Stretch"),
-		_TL("Histogram stretch appolied by default to new grids."),
-		CSG_String::Format("%s|%s|%s",
-			_TL("Minimum/Maximum"),
-			_TL("Standard Deviation"),
-			_TL("Percentile")
-		), 1
-	);
-
 	//-----------------------------------------------------
 	m_Parameters.Add_Int("NODE_GRID",
 		"GRID_SELECT_MAX"		, _TL("Maximum Selection"),
@@ -297,7 +277,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_Parameters.Add_Double("GRID_CACHE_MODE",
 		"GRID_CACHE_THRSHLD"	, _TL("Threshold for automatic mode [MB]"),
 		_TL(""),
-		SG_Grid_Cache_Get_Threshold_MB(), 0.0, true
+		SG_Grid_Cache_Get_Threshold_MB(), 0., true
 	);
 
 	m_Parameters.Add_FilePath("GRID_CACHE_MODE",

@@ -425,19 +425,20 @@ void CWKSP_Layer::ColorsParms_Add(void)
 				_TL("Standard Deviation"),
 				_TL("Percent Clip"),
 				_TL("Manual")
-			), g_pData->Get_Parameter("GRID_STRETCH_DEFAULT")->asInt()
+			), g_pData->Get_Parameter("STRETCH_DEFAULT")->asInt()
 		);
 
 		m_Parameters.Add_Range("STRETCH_DEFAULT",
 			"STRETCH_LINEAR"	, _TL("Linear Percent Stretch"),
 			_TL("Linear percent stretch allows you to trim extreme values from both ends of the histogram using the percentage specified here."),
-			5., 95., 0., true, 100., true
+			g_pData->Get_Parameter("STRETCH_LINEAR.MIN")->asDouble(),
+			g_pData->Get_Parameter("STRETCH_LINEAR.MAX")->asDouble(), 0., true, 100., true
 		);
 
 		m_Parameters.Add_Double("STRETCH_DEFAULT",
 			"STRETCH_STDDEV"	, _TL("Standard Deviation"),
 			_TL(""),
-			2., 0., true
+			g_pData->Get_Parameter("STRETCH_STDDEV")->asDouble(), 0., true
 		);
 
 		m_Parameters.Add_Bool("STRETCH_STDDEV",
@@ -449,7 +450,8 @@ void CWKSP_Layer::ColorsParms_Add(void)
 		m_Parameters.Add_Range("STRETCH_DEFAULT",
 			"STRETCH_PCTL"		, _TL("Percent Clip"),
 			_TL(""),
-			2., 98., 0., true, 100., true
+			g_pData->Get_Parameter("STRETCH_PCTL.MIN")->asDouble(),
+			g_pData->Get_Parameter("STRETCH_PCTL.MAX")->asDouble(), 0., true, 100., true
 		);
 	}
 

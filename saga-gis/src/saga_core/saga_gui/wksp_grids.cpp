@@ -319,7 +319,7 @@ void CWKSP_Grids::On_Create_Parameters(void)
 	Set_Grid_Choices(&m_Parameters);
 
 	//-----------------------------------------------------
-	m_Fit_Colors	= g_pData->Get_Parameter("GRID_STRETCH_DEFAULT")->asInt();
+	m_Fit_Colors = g_pData->Get_Parameter("STRETCH_DEFAULT")->asInt();
 }
 
 
@@ -523,7 +523,7 @@ void CWKSP_Grids::On_Parameters_Changed(void)
 	//-----------------------------------------------------
 	if( m_Parameters("STRETCH_DEFAULT")->asInt() < 3 )	// not manual, remember last state...
 	{
-		m_Fit_Colors	= m_Parameters("STRETCH_DEFAULT")->asInt();
+		m_Fit_Colors = m_Parameters("STRETCH_DEFAULT")->asInt();
 	}
 }
 
