@@ -356,15 +356,14 @@ public:
 	virtual int						Inv_Selection		(void);
 
 	//-----------------------------------------------------
-	bool							Set_Index			(CSG_Index &Index, int Field                  , bool bAscending = true);
-	bool							Set_Index			(CSG_Index &Index, int Fields[], int   nFields, bool bAscending = true);
-	bool							Set_Index			(CSG_Index &Index, const CSG_Array_Int &Fields, bool bAscending = true);
-	bool							Del_Index			(void);
-	bool							Toggle_Index		(int iField);
+	bool							Set_Index			(CSG_Index &Index, int Field                  , bool bAscending = true)	const;
+	bool							Set_Index			(CSG_Index &Index, int Fields[], int   nFields, bool bAscending = true)	const;
+	bool							Set_Index			(CSG_Index &Index, const CSG_Array_Int &Fields, bool bAscending = true)	const;
 
 	bool							is_Indexed			(void)	const		{	return( m_nRecords > 0 && m_Index.Get_Count() == m_nRecords );	}
-
-	bool							Set_Index			(int Field_1, TSG_Table_Index_Order Order_1, int Field_2 = -1, TSG_Table_Index_Order Order_2 = TABLE_INDEX_None, int Field_3 = -1, TSG_Table_Index_Order Order_3 = TABLE_INDEX_None);
+	bool							Set_Index			(int Field_1, TSG_Table_Index_Order Order_1 = TABLE_INDEX_Ascending, int Field_2 = -1, TSG_Table_Index_Order Order_2 = TABLE_INDEX_None, int Field_3 = -1, TSG_Table_Index_Order Order_3 = TABLE_INDEX_None);
+	bool							Del_Index			(void);
+	bool							Toggle_Index		(int iField);
 	int								Get_Index_Field		(size_t i)	const	{	return( i >= m_Index_Fields.Get_Size() ? -1 : abs(m_Index_Fields[i]) - 1 );	}
 	TSG_Table_Index_Order			Get_Index_Order		(size_t i)	const	{	return( i >= m_Index_Fields.Get_Size() ? TABLE_INDEX_None : m_Index_Fields[i] > 0 ? TABLE_INDEX_Ascending : TABLE_INDEX_Descending );	}
 

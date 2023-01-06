@@ -1388,7 +1388,7 @@ void CSG_Table::_Index_Update(void)
 class CSG_Table_Record_Compare_Field : public CSG_Index::CSG_Index_Compare
 {
 public:
-	CSG_Table_Record_Compare_Field(CSG_Table *pTable, int Field, bool Ascending)
+	CSG_Table_Record_Compare_Field(const CSG_Table *pTable, int Field, bool Ascending)
 	{
 		m_pTable	= pTable;
 		m_Field		= Field;
@@ -1433,12 +1433,12 @@ private:
 
 	int					m_Field;
 
-	CSG_Table			*m_pTable;
+	const CSG_Table		*m_pTable;
 
 };
 
 //---------------------------------------------------------
-bool CSG_Table::Set_Index(CSG_Index &Index, int Field, bool bAscending)
+bool CSG_Table::Set_Index(CSG_Index &Index, int Field, bool bAscending) const
 {
 	CSG_Table_Record_Compare_Field	Compare(this, Field, bAscending);
 
@@ -1454,7 +1454,7 @@ bool CSG_Table::Set_Index(CSG_Index &Index, int Field, bool bAscending)
 class CSG_Table_Record_Compare_Fields : public CSG_Index::CSG_Index_Compare
 {
 public:
-	CSG_Table_Record_Compare_Fields(CSG_Table *pTable, int Fields[], int nFields, bool Ascending)
+	CSG_Table_Record_Compare_Fields(const CSG_Table *pTable, int Fields[], int nFields, bool Ascending)
 	{
 		m_pTable	= pTable;
 		m_Fields	= Fields;
@@ -1517,12 +1517,12 @@ private:
 
 	int					*m_Fields, m_nFields;
 
-	CSG_Table			*m_pTable;
+	const CSG_Table		*m_pTable;
 
 };
 
 //---------------------------------------------------------
-bool CSG_Table::Set_Index(CSG_Index &Index, int Fields[], int nFields, bool bAscending)
+bool CSG_Table::Set_Index(CSG_Index &Index, int Fields[], int nFields, bool bAscending) const
 {
 	CSG_Table_Record_Compare_Fields	Compare(this, Fields, nFields, bAscending);
 
@@ -1530,7 +1530,7 @@ bool CSG_Table::Set_Index(CSG_Index &Index, int Fields[], int nFields, bool bAsc
 }
 
 //---------------------------------------------------------
-bool CSG_Table::Set_Index(CSG_Index &Index, const CSG_Array_Int &Fields, bool bAscending)
+bool CSG_Table::Set_Index(CSG_Index &Index, const CSG_Array_Int &Fields, bool bAscending) const
 {
 	return( Set_Index(Index, Fields.Get_Array(), (int)Fields.Get_Size(), bAscending) );
 }
