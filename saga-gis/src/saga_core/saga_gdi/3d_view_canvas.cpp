@@ -322,8 +322,6 @@ void CSG_3DView_Canvas::_Draw_North(void)
 		return;
 	}
 
-	TSG_Point_Z Box[8]; _Draw_Get_Box(Box, false);
-
 	const double Arrow[9][2] = { { 0., 0. }, { 0., 1. }, { 0., -0.5 }, { -0.5, -1. }, { 0.5, -1. }, { -1, -1. }, { 1, -1. }, { 1, 1. }, { -1, 1. } };
 
 	TSG_Point_Z A[9]; CSG_Rect r; double Scale = M_GET_MIN(m_Data_Max.x - m_Data_Min.x, m_Data_Max.y - m_Data_Min.y) / 2.;
@@ -363,7 +361,7 @@ void CSG_3DView_Canvas::_Draw_North(void)
 	Draw_Line(A[2], A[3], SG_COLOR_BLACK);
 	Draw_Line(A[2], A[4], SG_COLOR_BLACK);
 
-	if( m_North == 2 )
+	if( m_North == 1 )
 	{
 		int Color = SG_GET_RGB(SG_GET_R(m_bgColor) + 128, SG_GET_G(m_bgColor) + 128, SG_GET_B(m_bgColor) + 128);
 

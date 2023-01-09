@@ -63,6 +63,7 @@ enum
 {
 	MENU_FIRST		= MENU_USER_FIRST,
 	MENU_PROPERTIES	= MENU_USER_LAST,
+	MENU_USAGE,
 	MENU_CLOSE,
 	MENU_BOX,
 	MENU_LABELS,
@@ -155,7 +156,9 @@ void CSG_3DView_Dialog::On_Button(wxCommandEvent &event)
 		wxMenu Menu, *pMenu;
 
 		//-------------------------------------------------
-		Menu.Append(MENU_PROPERTIES, _TL("Properties"));
+		Menu.Append(MENU_PROPERTIES  , _TL("Properties"));
+		Menu.Append(MENU_USAGE       , _TL("Usage"));
+		Menu.Append(MENU_TO_CLIPBOARD, wxString::Format("%s [Ctrl+C]", _TL("Copy to Clipboard" )));
 
 		Menu.AppendSeparator();
 
@@ -165,11 +168,10 @@ void CSG_3DView_Dialog::On_Button(wxCommandEvent &event)
 		pMenu->AppendCheckItem(MENU_BOX          , wxString::Format("%s [B]"        , _TL("Bounding Box"      )));
 		pMenu->AppendCheckItem(MENU_LABELS       , wxString::Format("%s [L]"        , _TL("Axis Labeling"     )));
 		pMenu->AppendCheckItem(MENU_NORTH        , wxString::Format("%s [N]"        , _TL("North Arrow"       )));
-		pMenu->AppendCheckItem(MENU_STEREO       , wxString::Format("%s [S]"        , _TL("Stereo Anaglyph"   )));
+		pMenu->AppendCheckItem(MENU_STEREO       , wxString::Format("%s [A]"        , _TL("Anaglyph"          )));
 		pMenu->AppendCheckItem(MENU_CENTRAL      , wxString::Format("%s [C]"        , _TL("Central Projection")));
 
 		pMenu->AppendSeparator();
-		pMenu->Append         (MENU_TO_CLIPBOARD , wxString::Format("%s [Ctrl+C]"   , _TL("Copy to Clipboard" )));
 
 		//-------------------------------------------------
 		Menu.AppendSubMenu(pMenu = new wxMenu, _TL("Rotation"));
@@ -239,12 +241,14 @@ void CSG_3DView_Dialog::On_Menu(wxCommandEvent &event)
 		}
 		return;
 
+	case MENU_USAGE        : SG_UI_Dlg_Info(m_pPanel->Get_Usage(), _TL("Usage")); return;
+
+	case MENU_TO_CLIPBOARD : m_pPanel->Save_toClipboard(); return;
+
 	case MENU_BOX          : m_pPanel->Parameter_Value_Toggle("BOX"   ); return;
 	case MENU_LABELS       : m_pPanel->Parameter_Value_Toggle("LABELS"); return;
 	case MENU_NORTH        : m_pPanel->Parameter_Value_Toggle("NORTH" ); return;
 	case MENU_STEREO       : m_pPanel->Parameter_Value_Toggle("STEREO"); return;
-
-	case MENU_TO_CLIPBOARD : m_pPanel->Save_toClipboard(); return;
 
 	case MENU_ROTATE_X_DEC : m_pPanel->Get_Projector().Inc_xRotation(-4., true); break;
 	case MENU_ROTATE_X_INC : m_pPanel->Get_Projector().Inc_xRotation( 4., true); break;
