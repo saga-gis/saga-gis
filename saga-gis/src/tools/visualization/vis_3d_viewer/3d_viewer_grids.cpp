@@ -81,7 +81,8 @@ protected:
 	virtual void				Update_Statistics		(void);
 	virtual void				Update_Parent			(void);
 
-	virtual void				On_Key_Down				(wxKeyEvent &event);
+	virtual void				On_Key_Down				(wxKeyEvent   &event);
+	virtual void				On_Mouse_Motion			(wxMouseEvent &event);
 
 	virtual bool				On_Draw					(void);
 
@@ -101,7 +102,7 @@ private:
 	CSG_Grids					*m_pGrids;
 	
 
-	bool						Set_ZScale				(bool bIncrease);
+	bool						Inc_ZScale				(double Scale);
 	bool						Set_ZLevel				(bool bIncrease);
 	bool						Set_Resolution			(bool bIncrease, bool bVertical);
 
@@ -128,7 +129,8 @@ private:
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(C3D_Viewer_Grids_Panel, CSG_3DView_Panel)
-	EVT_KEY_DOWN	(C3D_Viewer_Grids_Panel::On_Key_Down)
+	EVT_KEY_DOWN(C3D_Viewer_Grids_Panel::On_Key_Down)
+	EVT_MOTION  (C3D_Viewer_Grids_Panel::On_Mouse_Motion)
 END_EVENT_TABLE()
 
 
@@ -262,10 +264,12 @@ void C3D_Viewer_Grids_Panel::Update_Parent(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool C3D_Viewer_Grids_Panel::Set_ZScale(bool bIncrease)
+bool C3D_Viewer_Grids_Panel::Inc_ZScale(double Increase)
 {
-	double d = 0.1 * 0.25 * (m_pGrids->Get_XRange() + m_pGrids->Get_YRange()) / m_pGrids->Get_ZRange();
-	m_Parameters("Z_SCALE")->Set_Value(m_Parameters("Z_SCALE")->asDouble() + (bIncrease ? d : -d));
+	double d = (m_pGrids->Get_XRange() + m_pGrids->Get_YRange()) / m_pGrids->Get_ZRange();
+
+	m_Parameters("Z_SCALE")->Set_Value(m_Parameters("Z_SCALE")->asDouble() + d * Increase / 10.);
+
 	Update_View();
 
 	return( true );
@@ -276,10 +280,10 @@ bool C3D_Viewer_Grids_Panel::Set_ZLevel(bool bIncrease)
 {
 	for(int i=1; i<m_pGrids->Get_NZ(); i++)
 	{
-		double	z	= m_pGrids->Get_Z(bIncrease ? i : m_pGrids->Get_NZ() - 1 - i);
+		double z = m_pGrids->Get_Z(bIncrease ? i : m_pGrids->Get_NZ() - 1 - i);
 
-		z	= (z - m_pGrids->Get_ZMin()) / m_pGrids->Get_ZRange();
-		z	= (int)(z * 100.) / 100.;	// rounding
+		z = (z - m_pGrids->Get_ZMin()) / m_pGrids->Get_ZRange();
+		z = (int)(z * 100.) / 100.;	// rounding
 
 		if( (bIncrease ==  true && z > m_Position[PLANE_SIDE_Z])
 		||  (bIncrease == false && z < m_Position[PLANE_SIDE_Z]) )
@@ -351,8 +355,8 @@ void C3D_Viewer_Grids_Panel::On_Key_Down(wxKeyEvent &event)
 	{
 	default: CSG_3DView_Panel::On_Key_Down(event); return;
 
-	case WXK_F1: Set_ZScale(false); break;
-	case WXK_F2: Set_ZScale( true); break;
+	case WXK_F1: Inc_ZScale(-0.5); break;
+	case WXK_F2: Inc_ZScale( 0.5); break;
 
 	case WXK_F3: Set_Resolution(false, false); break;
 	case WXK_F4: Set_Resolution( true, false); break;
@@ -365,6 +369,29 @@ void C3D_Viewer_Grids_Panel::On_Key_Down(wxKeyEvent &event)
 	}
 
 	Update_Parent();
+}
+
+//---------------------------------------------------------
+#define GET_MOUSE_X_RELDIFF	((double)(m_Down_Screen.x - event.GetX()) / (double)GetClientSize().x)
+#define GET_MOUSE_Y_RELDIFF	((double)(m_Down_Screen.y - event.GetY()) / (double)GetClientSize().y)
+
+//---------------------------------------------------------
+void C3D_Viewer_Grids_Panel::On_Mouse_Motion(wxMouseEvent &event)
+{
+	if( HasCapture() && event.Dragging() && event.MiddleIsDown() )
+	{
+		m_Projector.Set_Central_Distance(m_Down_Value.x + GET_MOUSE_X_RELDIFF);
+
+		double d = (m_pGrids->Get_XRange() + m_pGrids->Get_YRange()) / m_pGrids->Get_ZRange();
+
+		m_Parameters("Z_SCALE")->Set_Value(m_Down_Value.y + d * GET_MOUSE_Y_RELDIFF);
+
+		Update_View(); Update_Parent();
+
+		return;
+	}
+
+	CSG_3DView_Panel::On_Mouse_Motion(event);
 }
 
 
@@ -439,17 +466,17 @@ bool C3D_Viewer_Grids_Panel::Set_Plane(double Position, int Side)
 //---------------------------------------------------------
 bool C3D_Viewer_Grids_Panel::Set_Plane(CSG_Grid &Plane, double Position, int Side)
 {
-	double	Cellsize	= m_Parameters("RESOLUTION_XY")->asDouble();
+	double Cellsize = m_Parameters("RESOLUTION_XY")->asDouble();
 
 	if( Cellsize < m_pGrids->Get_Cellsize() )
 	{
 		Cellsize = m_pGrids->Get_Cellsize();
 	}
 
-	int	zLevels	= m_Parameters("RESOLUTION_Z")->asInt();
+	int zLevels = m_Parameters("RESOLUTION_Z")->asInt();
 
 	//-----------------------------------------------------
-	TSG_Grid_Resampling	zResampling, Resampling;
+	TSG_Grid_Resampling zResampling, Resampling;
 
 	switch( m_Parameters("RESAMPLING_Z")->asInt() )
 	{
@@ -478,22 +505,20 @@ bool C3D_Viewer_Grids_Panel::Set_Plane(CSG_Grid &Plane, double Position, int Sid
 				Plane.Create(CSG_Grid_System(Cellsize, 0., m_pGrids->Get_YMin(), Cellsize * zLevels, m_pGrids->Get_YMax()));
 			}
 
-			double	dz	= m_pGrids->Get_ZRange() / Plane.Get_NX();
+			double dz = m_pGrids->Get_ZRange() / Plane.Get_NX();
 
-			#ifndef _DEBUG
 			#pragma omp parallel for
-			#endif
 			for(int y=0; y<Plane.Get_NY(); y++)
 			{
-				TSG_Point_Z	p;
+				TSG_Point_Z p;
 
-				p.z	= m_pGrids->Get_ZMin();
-				p.y	= Plane.Get_YMin() + Plane.Get_Cellsize() * y;
-				p.x	= m_pGrids->Get_XMin() + Position * m_pGrids->Get_XRange();
+				p.z = m_pGrids->Get_ZMin();
+				p.y = Plane.Get_YMin() + Plane.Get_Cellsize() * y;
+				p.x = m_pGrids->Get_XMin() + Position * m_pGrids->Get_XRange();
 
 				for(int x=0; x<Plane.Get_NX(); x++, p.z+=dz)
 				{
-					double	Value;
+					double Value;
 
 					if( m_pGrids->Get_Value(p, Value, Resampling, zResampling) )
 					{
@@ -516,22 +541,20 @@ bool C3D_Viewer_Grids_Panel::Set_Plane(CSG_Grid &Plane, double Position, int Sid
 				Plane.Create(CSG_Grid_System(Cellsize, m_pGrids->Get_XMin(), 0., m_pGrids->Get_XMax(), Cellsize * zLevels));
 			}
 
-			double	dz	= m_pGrids->Get_ZRange() / Plane.Get_NY();
+			double dz = m_pGrids->Get_ZRange() / Plane.Get_NY();
 
-			#ifndef _DEBUG
 			#pragma omp parallel for
-			#endif
 			for(int x=0; x<Plane.Get_NX(); x++)
 			{
-				TSG_Point_Z	p;
+				TSG_Point_Z p;
 
-				p.z	= m_pGrids->Get_ZMin();
-				p.y	= m_pGrids->Get_YMin() + Position * m_pGrids->Get_YRange();
-				p.x	= Plane.Get_XMin() + Plane.Get_Cellsize() * x;
+				p.z = m_pGrids->Get_ZMin();
+				p.y = m_pGrids->Get_YMin() + Position * m_pGrids->Get_YRange();
+				p.x = Plane.Get_XMin() + Plane.Get_Cellsize() * x;
 
 				for(int y=0; y<Plane.Get_NY(); y++, p.z+=dz)
 				{
-					double	Value;
+					double Value;
 
 					if( m_pGrids->Get_Value(p, Value, Resampling, zResampling) )
 					{
@@ -554,20 +577,18 @@ bool C3D_Viewer_Grids_Panel::Set_Plane(CSG_Grid &Plane, double Position, int Sid
 				Plane.Create(CSG_Grid_System(Cellsize, m_pGrids->Get_System().Get_Extent()));
 			}
 
-			#ifndef _DEBUG
 			#pragma omp parallel for
-			#endif
 			for(int y=0; y<Plane.Get_NY(); y++)
 			{
-				TSG_Point_Z	p;
+				TSG_Point_Z p;
 
-				p.z	= m_pGrids->Get_ZMin() + Position * m_pGrids->Get_ZRange();
-				p.y	= Plane.Get_YMin() + Plane.Get_Cellsize() * y;
-				p.x	= Plane.Get_XMin();
+				p.z = m_pGrids->Get_ZMin() + Position * m_pGrids->Get_ZRange();
+				p.y = Plane.Get_YMin() + Plane.Get_Cellsize() * y;
+				p.x = Plane.Get_XMin();
 
 				for(int x=0; x<Plane.Get_NX(); x++, p.x+=Plane.Get_Cellsize())
 				{
-					double	Value;
+					double Value;
 
 					if( m_pGrids->Get_Value(p, Value, Resampling, zResampling) )
 					{
@@ -710,10 +731,10 @@ public:
 		: wxDialog(pParent, wxID_ANY, _TL("Histogram"), wxDefaultPosition, wxDefaultSize, wxCAPTION|wxCLOSE_BOX|wxSTAY_ON_TOP)
 	#endif
 	{
-		m_pPanel		= pPanel;
-		m_pGrids		= pGrids;
-		m_nClasses		= 100;
-		m_bCumulative	= false;
+		m_pPanel      = pPanel;
+		m_pGrids      = pGrids;
+		m_nClasses    = 100;
+		m_bCumulative = false;
 
 		Set_Histogram(false);
 	}
@@ -739,7 +760,7 @@ private:
 	{
 		if( event.ControlDown() )
 		{
-			if( m_nClasses >   10 ) { m_nClasses -= 10; Set_Histogram(false); }
+			if( m_nClasses > 10 ) { m_nClasses -= 10; Set_Histogram(false); }
 		}
 		else
 		{
@@ -845,8 +866,8 @@ private:
 	//---------------------------------------------------------
 	void					Set_Histogram	(bool bRefresh = true)
 	{
-		double	Minimum	= m_pPanel->m_Parameters("COLOR_STRETCH")->asRange()->Get_Min();
-		double	Maximum	= m_pPanel->m_Parameters("COLOR_STRETCH")->asRange()->Get_Max();
+		double Minimum = m_pPanel->m_Parameters("COLOR_STRETCH")->asRange()->Get_Min();
+		double Maximum = m_pPanel->m_Parameters("COLOR_STRETCH")->asRange()->Get_Max();
 
 		m_Histogram.Create(m_nClasses, Minimum, Maximum, m_pGrids, m_pGrids->Get_Max_Samples());
 
@@ -1065,8 +1086,8 @@ protected:
 		{
 		default: CSG_3DView_Dialog::On_Menu(event); return;
 
-		case MENU_SCALE_Z_DEC : pPanel->Set_ZScale(false); break;
-		case MENU_SCALE_Z_INC : pPanel->Set_ZScale( true); break;
+		case MENU_SCALE_Z_DEC : pPanel->Inc_ZScale(-0.5); break;
+		case MENU_SCALE_Z_INC : pPanel->Inc_ZScale( 0.5); break;
 
 		case MENU_LEVEL_Z_DEC : pPanel->Set_ZLevel(false); break;
 		case MENU_LEVEL_Z_INC : pPanel->Set_ZLevel( true); break;
