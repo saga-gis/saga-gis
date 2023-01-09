@@ -352,6 +352,24 @@ int			SG_UI_Dlg_Error(const CSG_String &Message, const CSG_String &Caption)
 	return( 0 );
 }
 
+//---------------------------------------------------------
+void		SG_UI_Dlg_Info(const CSG_String &Message, const CSG_String &Caption)
+{
+	if( gSG_UI_Progress_Lock == 0 )
+	{
+		if( gSG_UI_Callback )
+		{
+			CSG_UI_Parameter	p1(Message), p2(Caption);
+
+			gSG_UI_Callback(CALLBACK_DLG_INFO, p1, p2);
+		}
+		else
+		{
+			CONSOLE_STDIO("%s: %s\n", Caption.c_str(), Message.c_str()));
+		}
+	}
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

@@ -1480,6 +1480,7 @@ typedef enum ESG_UI_Callback_ID
 	CALLBACK_DLG_MESSAGE,
 	CALLBACK_DLG_CONTINUE,
 	CALLBACK_DLG_ERROR,
+	CALLBACK_DLG_INFO,
 
 	CALLBACK_DLG_PARAMETERS,
 
@@ -1548,6 +1549,7 @@ SAGA_API_DLL_EXPORT bool					SG_UI_Stop_Execution		(bool bDialog);
 SAGA_API_DLL_EXPORT void					SG_UI_Dlg_Message			(const CSG_String &Message, const CSG_String &Caption);
 SAGA_API_DLL_EXPORT bool					SG_UI_Dlg_Continue			(const CSG_String &Message, const CSG_String &Caption);
 SAGA_API_DLL_EXPORT int						SG_UI_Dlg_Error				(const CSG_String &Message, const CSG_String &Caption);
+SAGA_API_DLL_EXPORT void					SG_UI_Dlg_Info				(const CSG_String &Message, const CSG_String &Caption);
 SAGA_API_DLL_EXPORT bool					SG_UI_Dlg_Parameters		(class CSG_Parameters *pParameters, const CSG_String &Caption);
 
 SAGA_API_DLL_EXPORT int						SG_UI_Msg_Lock				(bool bOn);

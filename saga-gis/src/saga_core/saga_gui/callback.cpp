@@ -204,6 +204,14 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 		break;
 
 
+	//-----------------------------------------------------
+	case CALLBACK_DLG_INFO:
+
+		Result	= DLG_Info(Param_2.String.c_str(), Param_1.String.c_str());
+
+		break;
+
+
 	///////////////////////////////////////////////////////
 	//                                                   //
 	///////////////////////////////////////////////////////
