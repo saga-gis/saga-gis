@@ -153,7 +153,7 @@ void CVIEW_Map_3D::Do_Update(void)
 void CVIEW_Map_3D::Update_StatusBar(void)
 {
 	SetStatusText(wxString::Format("RX %+.1f", m_pPanel->Get_Projector().Get_xRotation() * M_RAD_TO_DEG), MAP3D_STATUSBAR_ROTATE_X    );
-	//	SetStatusText(wxString::Format("RY %+.1f", m_pPanel->Get_Projector().Get_yRotation() * M_RAD_TO_DEG), MAP3D_STATUSBAR_ROTATE_Y    );
+//	SetStatusText(wxString::Format("RY %+.1f", m_pPanel->Get_Projector().Get_yRotation() * M_RAD_TO_DEG), MAP3D_STATUSBAR_ROTATE_Y    );
 	SetStatusText(wxString::Format("RZ %+.1f", m_pPanel->Get_Projector().Get_zRotation() * M_RAD_TO_DEG), MAP3D_STATUSBAR_ROTATE_Z    );
 
 	SetStatusText(wxString::Format("DX %+.1f", m_pPanel->Get_Projector().Get_xShift   ()               ), MAP3D_STATUSBAR_SHIFT_X     );
@@ -357,7 +357,7 @@ void CVIEW_Map_3D::On_Command(wxCommandEvent &event)
 	case ID_CMD_MAP3D_CENTRAL_LESS   : m_pPanel->Get_Projector().Inc_Central_Distance( 0.1); break;
 	case ID_CMD_MAP3D_CENTRAL_MORE   : m_pPanel->Get_Projector().Inc_Central_Distance(-0.1); break;
 
-	case ID_CMD_MAP3D_STEREO         : m_pPanel->m_Parameters("STEREO")->Set_Value(m_pPanel->m_Parameters("STEREO")->asBool() == false); break;
+	case ID_CMD_MAP3D_STEREO         : m_pPanel->Parameter_Value_Toggle("STEREO"); return;
 	}
 
 	m_pPanel->Update_Parameters(true); m_pPanel->Update_View();

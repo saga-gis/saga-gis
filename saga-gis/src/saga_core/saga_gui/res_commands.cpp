@@ -302,9 +302,9 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAP3D_CENTRAL_LESS:		return( _TL("Decrease Perspectivic Distance") );
 	case ID_CMD_MAP3D_CENTRAL_MORE:		return( _TL("Increase Perspectivic Distance") );
 	case ID_CMD_MAP3D_CENTRAL:			return( _TL("Central Projection") );
-	case ID_CMD_MAP3D_STEREO_LESS:		return( _TL("Decrease Eye Distance") );
-	case ID_CMD_MAP3D_STEREO_MORE:		return( _TL("Increase Eye Distance") );
-	case ID_CMD_MAP3D_STEREO:			return( _TL("Stereo Anaglyph") );
+	case ID_CMD_MAP3D_STEREO:			return( _TL("Anaglyph") );
+	case ID_CMD_MAP3D_STEREO_LESS:		return( _TL("Decrease Eye Distance Angle for Anaglyph View") );
+	case ID_CMD_MAP3D_STEREO_MORE:		return( _TL("Increase Eye Distance Angle for Anaglyph View") );
 	case ID_CMD_MAP3D_INTERPOLATED:		return( _TL("Interpolated Colors") );
 	case ID_CMD_MAP3D_SAVE:				return( _TL("Save as Image...") );
 	case ID_CMD_MAP3D_SEQ_POS_ADD:		return( _TL("Add Position") );
