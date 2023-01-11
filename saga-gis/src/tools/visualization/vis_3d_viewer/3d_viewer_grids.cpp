@@ -1086,6 +1086,8 @@ protected:
 		{
 		default: CSG_3DView_Dialog::On_Menu(event); return;
 
+		case MENU_USAGE       : SG_UI_Dlg_Info(C3D_Viewer_Grids_Panel::Get_Usage(), _TL("Usage")); return;
+
 		case MENU_SCALE_Z_DEC : pPanel->Inc_ZScale(-0.5); break;
 		case MENU_SCALE_Z_INC : pPanel->Inc_ZScale( 0.5); break;
 

@@ -570,9 +570,9 @@ void C3D_Viewer_TIN_Dialog::On_Menu(wxCommandEvent &event)
 {
 	switch( event.GetId() )
 	{
-	default: 
-		CSG_3DView_Dialog::On_Menu(event);
-		break;
+	default: CSG_3DView_Dialog::On_Menu(event); break;
+
+	case MENU_USAGE      : SG_UI_Dlg_Info(C3D_Viewer_TIN_Panel::Get_Usage(), _TL("Usage")); return;
 
 	case MENU_SCALE_Z_DEC: m_pPanel->Parameter_Value_Add("Z_SCALE",  -0.5); break;
 	case MENU_SCALE_Z_INC: m_pPanel->Parameter_Value_Add("Z_SCALE",   0.5); break;
