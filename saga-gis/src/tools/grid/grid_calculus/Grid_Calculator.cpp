@@ -12,8 +12,7 @@
 //                                                       //
 //                  Grid_Calculator.cpp                  //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                    Andre Ringeler                     //
+//                 Olaf Conrad (C) 2023                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -36,13 +35,11 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     aringel@gwdg.de                        //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    Andre Ringeler                         //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -73,38 +70,8 @@ bool _finite(double val)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CGrid_Calculator_Base::m_NoData_Value	= -99999;
-
-//---------------------------------------------------------
 CGrid_Calculator_Base::CGrid_Calculator_Base(void)
 {
-	CSG_String	s(_TW(
-		"The Grid Calculator calculates a new grid based on existing grids and a mathematical formula. "
-		"The grid variables in the formula begin with the letter 'g' followed by a position index, "
-		"which corresponds to the order of the grids in the input grid list "
-		"(i.e.: g1, g2, g3, ... correspond to the first, second, third, ... grid in list). "
-		"Grids from other systems than the default one can be addressed likewise using the letter 'h' "
-		"(h1, h2, h3, ...), which correspond to the \'Grids from different Systems\' list.\n"
-		"\n"
-		"Example:\t sin(g1) * g2 + 2 * h1\n"
-		"\n"
-		"The following operators are available for the formula definition:\n"
-	));
-
-	const CSG_String	Operators[5][2]	=
-	{
-		{	"xpos(), ypos()"  , _TL("Get the x/y coordinates for the current cell"         )	},
-		{	"col(), row()"    , _TL("Get the current cell's column/row index (zero based)" )	},
-		{	"ncols(), nrows()", _TL("Get the number of columns/rows"                       )	},
-		{	"nodata()"        , _TL("Returns resulting grid's no-data value"               )	},
-		{	"", ""	}
-	};
-
-	s	+= CSG_Formula::Get_Help_Operators(true, Operators);
-
-	Set_Description(s);
-
-	//-----------------------------------------------------
 	Parameters.Add_Choice("",
 		"RESAMPLING", _TL("Resampling"),
 		_TL(""),
@@ -155,9 +122,6 @@ CGrid_Calculator_Base::CGrid_Calculator_Base(void)
 			SG_Data_Type_Get_Name(SG_DATATYPE_Double).c_str()
 		), 7
 	);
-
-	//-----------------------------------------------------
-	m_Formula.Add_Function("nodata", (TSG_Formula_Function_1)CGrid_Calculator_Base::Get_NoData_Value, 0, false);
 }
 
 
@@ -197,30 +161,143 @@ int CGrid_Calculator_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Calculator_Base::Initialize(int nGrids, int nXGrids)
+CSG_String CGrid_Calculator_Base::Get_Help_Operators(void)
 {
-	//-----------------------------------------------------
-	const int		nVars		= 27;
+	static const CSG_String Operators[][2] =
+	{
+		{	"xpos(), ypos()"         , _TL("The coordinate (x/y) for the center of the currently processed cell"            ) },
+		{	"col(), row()"           , _TL("The currently processed cell's column/row index"                                ) },
+		{	"ncols(), nrows()"       , _TL("Number of the grid system's columns/rows"                                       ) },
+		{	"nodata(), nodata(g)"    , _TL("No-data value of the resulting (empty) or requested grid (g = g1...gn, h1...hn)") },
+		{	"cellsize(), cellsize(g)", _TL("Cell size of the resulting (empty) or requested grid (g = h1...hn)"             ) },
+		{	"cellarea(), cellarea(g)", _TL("Cell area of the resulting (empty) or requested grid (g = h1...hn)"             ) },
+		{	"xmin(), xmin(g)"        , _TL("Left bound of the resulting (empty) or requested grid (g = h1...hn)"            ) },
+		{	"xmax(), xmax(g)"        , _TL("Right bound of the resulting (empty) or requested grid (g = h1...hn)"           ) },
+		{	"xrange(), xrange(g)"    , _TL("Left to right range of the resulting (empty) or requested grid (g = h1...hn)"   ) },
+		{	"ymin(), ymin(g)"        , _TL("Lower bound of the resulting (empty) or requested grid (g = h1...hn)"           ) },
+		{	"ymax(), ymax(g)"        , _TL("Upper bound of the resulting (empty) or requested grid (g = h1...hn)"           ) },
+		{	"yrange(), yrange(g)"    , _TL("Lower to upper range of the resulting (empty) or requested grid (g = h1...hn)"  ) },
+		{	"zmin(g)"                , _TL("Minimum value of the requested grid (g = g1...gn, h1...hn)"                     ) },
+		{	"zmax(g)"                , _TL("Maximum value of the requested grid (g = g1...gn, h1...hn)"                     ) },
+		{	"zrange(g)"              , _TL("Value range of the requested grid (g = g1...gn, h1...hn)"                       ) },
+		{	"zmean(g)"               , _TL("Mean value of the requested grid (g = g1...gn, h1...hn)"                        ) },
+		{	"zstddev(g)"             , _TL("Standard deviation of the requested grid (g = g1...gn, h1...hn)"                ) },
+		{	"", ""	}
+	};
 
-	const SG_Char	Vars[nVars]	= SG_T("abcdefghijklmnopqrstuvwxyz");
+	return( CSG_Formula::Get_Help_Operators(true, Operators) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Calculator_Base::Preprocess_Find(const CSG_String &Formula, const CSG_String &Function, CSG_String &Head, CSG_String &Argument, CSG_String &Tail)
+{
+	int pos  = Formula.Find(Function); if( pos < 0 ) { return( false ); }
+
+	Head     = Formula.Left((size_t)pos); Tail = Formula.c_str() + pos + Function.Length();
+	Argument = Tail.AfterFirst('(').BeforeFirst(')'); Argument.Trim_Both();
+	Tail     = Tail.AfterFirst(')');
+
+	return( true );
+}
+
+//---------------------------------------------------------
+CSG_Data_Object * CGrid_Calculator_Base::Preprocess_Get_Object(const CSG_String &Argument)
+{
+	if( Argument.is_Empty() )
+	{
+		return( Parameters("RESULT")->asDataObject() );
+	}
+
+	CSG_Parameter_List *pList =
+		Argument[0] == 'g' ? Parameters("GRIDS" )->asList() :
+		Argument[0] == 'h' ? Parameters("XGRIDS")->asList() : NULL;
+
+	if( pList )
+	{
+		CSG_String Index(Argument.c_str() + 1); int i;
+
+		if( Index.asInt(i) && --i >= 0 && i < pList->Get_Data_Count() )
+		{
+			return( pList->Get_Data(i) );
+		}
+	}
+
+	return( NULL );
+}
+
+//---------------------------------------------------------
+bool CGrid_Calculator_Base::Preprocess_Formula(CSG_String &Formula)
+{
+	#define EXIT_ON_ERROR(func) { Error_Fmt("%s\n\n...%s(%s)", _TL("Invalid argument for function!"), SG_T(func), Argument.c_str()); return( false ); }
+
+	#define PROCESS_SYSTEM_FUNCTION(name, func) { CSG_String Head, Argument, Tail; while( Preprocess_Find(Formula, name, Head, Argument, Tail) ) {\
+		if( !Argument.is_Empty() ) { EXIT_ON_ERROR(name); }\
+		Formula.Printf("%s(%f)%s", Head.c_str(), (double)func, Tail.c_str()); }\
+	}
+
+	#define PROCESS_OBJECT_FUNCTION(name, func) { CSG_String Head, Argument, Tail; while( Preprocess_Find(Formula, name, Head, Argument, Tail) ) {\
+		CSG_Data_Object *pObject = Preprocess_Get_Object(Argument); if( !pObject ) { EXIT_ON_ERROR(name); }\
+		double d = pObject->asGrid() ? pObject->asGrid()->func : pObject->asGrids()->func;\
+		Formula.Printf("%s(%f)%s", Head.c_str(), d, Tail.c_str()); }\
+	}
+
+	PROCESS_SYSTEM_FUNCTION("ncols"   , Get_NX          ());
+	PROCESS_SYSTEM_FUNCTION("nrows"   , Get_NY          ());
+	PROCESS_OBJECT_FUNCTION("nodata"  , Get_NoData_Value());
+	PROCESS_OBJECT_FUNCTION("cellsize", Get_Cellsize    ());
+	PROCESS_OBJECT_FUNCTION("cellarea", Get_Cellarea    ());
+	PROCESS_OBJECT_FUNCTION("xmin"    , Get_XMin        ());
+	PROCESS_OBJECT_FUNCTION("xmax"    , Get_XMax        ());
+	PROCESS_OBJECT_FUNCTION("xrange"  , Get_XRange      ());
+	PROCESS_OBJECT_FUNCTION("ymin"    , Get_YMin        ());
+	PROCESS_OBJECT_FUNCTION("ymax"    , Get_YMax        ());
+	PROCESS_OBJECT_FUNCTION("yrange"  , Get_YRange      ());
+	PROCESS_OBJECT_FUNCTION("zmin"    , Get_Min         ());
+	PROCESS_OBJECT_FUNCTION("zmax"    , Get_Max         ());
+	PROCESS_OBJECT_FUNCTION("zrange"  , Get_Range       ());
+	PROCESS_OBJECT_FUNCTION("zmean"   , Get_Mean        ());
+	PROCESS_OBJECT_FUNCTION("zstddev" , Get_StdDev      ());
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Calculator_Base::Initialize(int nGrids, int nGrids_X)
+{
+	const int nVars = 27;
+
+	const SG_Char Vars[nVars] = SG_T("abcdefghijklmnopqrstuvwxyz");
 
 	//-----------------------------------------------------
-	CSG_String	Formula(Parameters("FORMULA")->asString());
+	CSG_String Formula(Parameters("FORMULA")->asString());
 
 	Formula.Replace("\n", "");
 	Formula.Replace("\t", "");
 
-	int	nFuncs	= 0;
+	if( !Preprocess_Formula(Formula) )
+	{
+		return( false );
+	}
+
+	int nFuncs = 0;
 
 	if( (m_bPosition[0] = Formula.Find("col()"  ) >= 0) ) { nFuncs++; }
 	if( (m_bPosition[1] = Formula.Find("row()"  ) >= 0) ) { nFuncs++; }
 	if( (m_bPosition[2] = Formula.Find("xpos()" ) >= 0) ) { nFuncs++; }
 	if( (m_bPosition[3] = Formula.Find("ypos()" ) >= 0) ) { nFuncs++; }
-	if( (m_bPosition[4] = Formula.Find("ncols()") >= 0) ) { nFuncs++; }
-	if( (m_bPosition[5] = Formula.Find("nrows()") >= 0) ) { nFuncs++; }
 
 	//-----------------------------------------------------
-	m_nValues	= nGrids + nXGrids + nFuncs;
+	m_nValues = nGrids + nGrids_X + nFuncs;
 
 	if( m_nValues > nVars )
 	{
@@ -230,16 +307,14 @@ bool CGrid_Calculator_Base::Initialize(int nGrids, int nXGrids)
 	}
 
 	//-----------------------------------------------------
-	int		i, n	= m_nValues;
+	int i, n = m_nValues;
 
-	if( m_bPosition[5] ) Formula.Replace("nrows()", Vars[--n]);
-	if( m_bPosition[4] ) Formula.Replace("ncols()", Vars[--n]);
 	if( m_bPosition[3] ) Formula.Replace("ypos()" , Vars[--n]);
 	if( m_bPosition[2] ) Formula.Replace("xpos()" , Vars[--n]);
 	if( m_bPosition[1] ) Formula.Replace("row()"  , Vars[--n]);
 	if( m_bPosition[0] ) Formula.Replace("col()"  , Vars[--n]);
 
-	for(i=nXGrids; i>0 && n>0; i--)
+	for(i=nGrids_X; i>0 && n>0; i--)
 	{
 		Formula.Replace(CSG_String::Format("h%d", i), Vars[--n]);
 	}
@@ -252,7 +327,7 @@ bool CGrid_Calculator_Base::Initialize(int nGrids, int nXGrids)
 	//-----------------------------------------------------
 	if( !m_Formula.Set_Formula(Formula) )
 	{
-		CSG_String	Message;
+		CSG_String Message;
 
 		if( !m_Formula.Get_Error(Message) )
 		{
@@ -267,26 +342,26 @@ bool CGrid_Calculator_Base::Initialize(int nGrids, int nXGrids)
 	//-----------------------------------------------------
 	CSG_String	Used(m_Formula.Get_Used_Variables());
 
-	int	nUsed	= (int)Used.Length() - nFuncs;
+	int nUsed = (int)Used.Length() - nFuncs;
 
-	if( nGrids + nXGrids < nUsed )
+	if( nGrids + nGrids_X < nUsed )
 	{
 		Error_Fmt("%s (%d < %d)", _TL("The number of supplied grids is less than the number of variables in formula."),
-			nGrids + nXGrids, nUsed
+			nGrids + nGrids_X, nUsed
 		);
 
 		return( false );
 	}
 
-	if( nGrids + nXGrids > nUsed )
+	if( nGrids + nGrids_X > nUsed )
 	{
 		Message_Fmt("\n%s: %s (%d > %d)", _TL("Warning"), _TL("The number of supplied grids exceeds the number of variables in formula."),
-			nGrids + nXGrids, nUsed
+			nGrids + nGrids_X, nUsed
 		);
 	}
 
 	//-----------------------------------------------------
-	m_bUseNoData	= Parameters("USE_NODATA")->asBool();
+	m_bUseNoData = Parameters("USE_NODATA")->asBool();
 
 	switch( Parameters("RESAMPLING")->asInt() )
 	{
@@ -334,11 +409,11 @@ inline bool CGrid_Calculator_Base::Get_Result(const CSG_Vector &Values, double &
 //---------------------------------------------------------
 CGrid_Calculator::CGrid_Calculator(void)
 {
-	Set_Name	(_TL("Grid Calculator"));
+	Set_Name		(_TL("Grid Calculator"));
 
-	Set_Author	("O.Conrad (c) 2017, A.Ringeler (c) 2003");
+	Set_Author		("O.Conrad (c) 2023");
 
-	CSG_String	s(_TW(
+	Set_Description	(_TW(
 		"The Grid Calculator calculates a new grid based on existing grids and a mathematical formula. "
 		"The grid variables in the formula begin with the letter 'g' followed by a position index, "
 		"which corresponds to the order of the grids in the input grid list "
@@ -351,18 +426,7 @@ CGrid_Calculator::CGrid_Calculator(void)
 		"The following operators are available for the formula definition:\n"
 	));
 
-	const CSG_String	Operators[5][2]	=
-	{
-		{	"xpos(), ypos()"  , _TL("Get the x/y coordinates for the current cell")	},
-		{	"col(), row()"    , _TL("Get the current cell's column/row index"     )	},
-		{	"ncols(), nrows()", _TL("Get the number of columns/rows"              )	},
-		{	"nodata()"        , _TL("Returns resulting grid's no-data value"      )	},
-		{	"", ""	}
-	};
-
-	s	+= CSG_Formula::Get_Help_Operators(true, Operators);
-
-	Set_Description(s);
+	Set_Description(Get_Description() + Get_Help_Operators());
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List("",
@@ -392,17 +456,11 @@ CGrid_Calculator::CGrid_Calculator(void)
 //---------------------------------------------------------
 bool CGrid_Calculator::On_Execute(void)
 {
-	//-----------------------------------------------------
-	m_pGrids	= Parameters("GRIDS" )->asGridList();
-	m_pXGrids	= Parameters("XGRIDS")->asGridList();
-
-	if( !Initialize(m_pGrids->Get_Grid_Count(), m_pXGrids->Get_Grid_Count()) )
-	{
-		return( false );
-	}
+	m_pGrids   = Parameters("GRIDS" )->asGridList();
+	m_pGrids_X = Parameters("XGRIDS")->asGridList();
 
 	//-----------------------------------------------------
-	CSG_Grid	*pResult	= Parameters("RESULT")->asGrid();
+	CSG_Grid *pResult = Parameters("RESULT")->asGrid();
 
 	if( pResult->Get_Type() != Get_Result_Type() )
 	{
@@ -411,7 +469,11 @@ bool CGrid_Calculator::On_Execute(void)
 
 	pResult->Set_Name(Parameters("NAME")->asString());
 
-	m_NoData_Value	= pResult->Get_NoData_Value();
+	//-----------------------------------------------------
+	if( !Initialize(m_pGrids->Get_Grid_Count(), m_pGrids_X->Get_Grid_Count()) )
+	{
+		return( false );
+	}
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -419,7 +481,7 @@ bool CGrid_Calculator::On_Execute(void)
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			double	Result;	CSG_Vector	Values(m_nValues);
+			double Result; CSG_Vector Values(m_nValues);
 
 			if( Get_Values(x, y, Values) && Get_Result(Values, Result) )
 			{
@@ -444,13 +506,13 @@ bool CGrid_Calculator::On_Execute(void)
 //---------------------------------------------------------
 bool CGrid_Calculator::Get_Values(int x, int y, CSG_Vector &Values)
 {
-	TSG_Point	p	= Get_System().Get_Grid_to_World(x, y);
+	TSG_Point p = Get_System().Get_Grid_to_World(x, y);
 
-	if( m_pXGrids->Get_Grid_Count() > 0 )
+	if( m_pGrids_X->Get_Grid_Count() > 0 )
 	{
-		for(int i=0, j=m_pGrids->Get_Grid_Count(); i<m_pXGrids->Get_Grid_Count(); i++, j++)
+		for(int i=0, j=m_pGrids->Get_Grid_Count(); i<m_pGrids_X->Get_Grid_Count(); i++, j++)
 		{
-			if( !m_pXGrids->Get_Grid(i)->Get_Value(p, Values[j], m_Resampling, m_bUseNoData) )
+			if( !m_pGrids_X->Get_Grid(i)->Get_Value(p, Values[j], m_Resampling, m_bUseNoData) )
 			{
 				return( false );
 			}
@@ -464,17 +526,15 @@ bool CGrid_Calculator::Get_Values(int x, int y, CSG_Vector &Values)
 			return( false );
 		}
 
-		Values[i]	= m_pGrids->Get_Grid(i)->asDouble(x, y);
+		Values[i] = m_pGrids->Get_Grid(i)->asDouble(x, y);
 	}
 
-	int	n	= m_pGrids->Get_Grid_Count() + m_pXGrids->Get_Grid_Count();
+	int n = m_pGrids->Get_Grid_Count() + m_pGrids_X->Get_Grid_Count();
 
-	if( m_bPosition[0] ) Values[n++] =      x  ;	// col()
-	if( m_bPosition[1] ) Values[n++] =      y  ;	// row()
-	if( m_bPosition[2] ) Values[n++] =    p.x  ;	// xpos()
-	if( m_bPosition[3] ) Values[n++] =    p.y  ;	// ypos()
-	if( m_bPosition[4] ) Values[n++] = Get_NX();	// ncols()
-	if( m_bPosition[5] ) Values[n++] = Get_NY();	// nrows()
+	if( m_bPosition[0] ) Values[n++] =   x; // col()
+	if( m_bPosition[1] ) Values[n++] =   y; // row()
+	if( m_bPosition[2] ) Values[n++] = p.x; // xpos()
+	if( m_bPosition[3] ) Values[n++] = p.y; // ypos()
 
 	return( true );
 }
@@ -489,11 +549,11 @@ bool CGrid_Calculator::Get_Values(int x, int y, CSG_Vector &Values)
 //---------------------------------------------------------
 CGrids_Calculator::CGrids_Calculator(void)
 {
-	Set_Name	(_TL("Grid Collection Calculator"));
+	Set_Name		(_TL("Grid Collection Calculator"));
 
-	Set_Author	("O.Conrad (c) 2018");
+	Set_Author		("O.Conrad (c) 2018");
 
-	CSG_String	s(_TW(
+	Set_Description	(_TW(
 		"The Grid Collection Calculator creates a new grid collection combining existing ones using the given formula. "
 		"It is assumed that all input grid collections have the same number of grid layers. "
 		"The variables in the formula begin with the letter 'g' followed by a position index, "
@@ -507,18 +567,7 @@ CGrids_Calculator::CGrids_Calculator(void)
 		"The following operators are available for the formula definition:\n"
 	));
 
-	const CSG_String	Operators[5][2]	=
-	{
-		{	"xpos(), ypos()"  , _TL("Get the x/y coordinates for the current cell")	},
-		{	"col(), row()"    , _TL("Get the current cell's column/row index"     )	},
-		{	"ncols(), nrows()", _TL("Get the number of columns/rows"              )	},
-		{	"nodata()"        , _TL("Returns resulting grid's no-data value"      )	},
-		{	"", ""	}
-	};
-
-	s	+= CSG_Formula::Get_Help_Operators(true, Operators);
-
-	Set_Description(s);
+	Set_Description(Get_Description() + Get_Help_Operators());
 
 	//-----------------------------------------------------
 	Parameters.Add_Grids_List("",
@@ -546,17 +595,22 @@ CGrids_Calculator::CGrids_Calculator(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CGrids_Calculator::Preprocess_Formula(CSG_String &Formula)
+{
+	return( true );
+}
+
+//---------------------------------------------------------
 bool CGrids_Calculator::On_Execute(void)
 {
-	//-----------------------------------------------------
-	m_pGrids	= Parameters("GRIDS" )->asGridsList();
-	m_pXGrids	= Parameters("XGRIDS")->asGridsList();
+	m_pGrids   = Parameters("GRIDS" )->asGridsList();
+	m_pGrids_X = Parameters("XGRIDS")->asGridsList();
 
-	int	i, nz	= m_pGrids->Get_Grids(0)->Get_NZ();
+	int i, nz = m_pGrids->Get_Grids(0)->Get_NZ();
 
 	for(i=1; i<m_pGrids->Get_Item_Count(); i++)
 	{
-		CSG_Grids	*pGrids	= m_pGrids->Get_Grids(i);
+		CSG_Grids *pGrids = m_pGrids->Get_Grids(i);
 
 		if( pGrids->Get_NZ() != nz )
 		{
@@ -566,24 +620,23 @@ bool CGrids_Calculator::On_Execute(void)
 		}
 	}
 
-	if( !Initialize(m_pGrids->Get_Item_Count(), m_pXGrids->Get_Item_Count()) )
-	{
-		return( false );
-	}
-
 	//-----------------------------------------------------
-	CSG_Grids	*pResult	= Parameters("RESULT")->asGrids();
+	CSG_Grids *pResult = Parameters("RESULT")->asGrids();
 
 	if( pResult->Get_Type() != Get_Result_Type() || pResult->Get_NZ() != nz )
 	{
-		CSG_Grids	*pGrids	= m_pGrids->Get_Grids(0);
+		CSG_Grids *pGrids = m_pGrids->Get_Grids(0);
 
 		pResult->Create(Get_System(), pGrids->Get_Attributes(), pGrids->Get_Z_Attribute(), Get_Result_Type(), true);
 	}
 
 	pResult->Set_Name(Parameters("NAME")->asString());
 
-	m_NoData_Value	= pResult->Get_NoData_Value();
+	//-----------------------------------------------------
+	if( !Initialize(m_pGrids->Get_Item_Count(), m_pGrids_X->Get_Item_Count()) )
+	{
+		return( false );
+	}
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -591,7 +644,7 @@ bool CGrids_Calculator::On_Execute(void)
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			double	Result;	CSG_Vector	Values(m_nValues);
+			double Result; CSG_Vector Values(m_nValues);
 
 			for(int z=0; z<pResult->Get_NZ(); z++)
 			{
@@ -619,17 +672,17 @@ bool CGrids_Calculator::On_Execute(void)
 //---------------------------------------------------------
 bool CGrids_Calculator::Get_Values(int x, int y, int z, CSG_Vector &Values)
 {
-	TSG_Point	p	= Get_System().Get_Grid_to_World(x, y);
+	TSG_Point p = Get_System().Get_Grid_to_World(x, y);
 
-	if( m_pXGrids->Get_Item_Count() > 0 )
+	if( m_pGrids_X->Get_Item_Count() > 0 )
 	{
-		CSG_Grids	*pGrids	= m_pGrids->Get_Grids(0);
+		CSG_Grids *pGrids = m_pGrids->Get_Grids(0);
 
-		double	pz	= pGrids->Get_Z(z);
+		double pz = pGrids->Get_Z(z);
 
-		for(int i=0, j=m_pGrids->Get_Item_Count(); i<m_pXGrids->Get_Item_Count(); i++, j++)
+		for(int i=0, j=m_pGrids->Get_Item_Count(); i<m_pGrids_X->Get_Item_Count(); i++, j++)
 		{
-			if( !m_pXGrids->Get_Grids(i)->Get_Value(p.x, p.y, pz, Values[j], m_Resampling) )
+			if( !m_pGrids_X->Get_Grids(i)->Get_Value(p.x, p.y, pz, Values[j], m_Resampling) )
 			{
 				return( false );
 			}
@@ -643,17 +696,15 @@ bool CGrids_Calculator::Get_Values(int x, int y, int z, CSG_Vector &Values)
 			return( false );
 		}
 
-		Values[i]	= m_pGrids->Get_Grids(i)->asDouble(x, y, z);
+		Values[i] = m_pGrids->Get_Grids(i)->asDouble(x, y, z);
 	}
 
-	int	n	= m_pGrids->Get_Item_Count() + m_pXGrids->Get_Item_Count();
+	int n = m_pGrids->Get_Item_Count() + m_pGrids_X->Get_Item_Count();
 
-	if( m_bPosition[0] ) Values[n++] =      x  ;	// col()
-	if( m_bPosition[1] ) Values[n++] =      y  ;	// row()
-	if( m_bPosition[2] ) Values[n++] =    p.x  ;	// xpos()
-	if( m_bPosition[3] ) Values[n++] =    p.y  ;	// ypos()
-	if( m_bPosition[4] ) Values[n++] = Get_NX();	// ncols()
-	if( m_bPosition[5] ) Values[n++] = Get_NY();	// nrows()
+	if( m_bPosition[0] ) Values[n++] =   x; // col()
+	if( m_bPosition[1] ) Values[n++] =   y; // row()
+	if( m_bPosition[2] ) Values[n++] = p.x; // xpos()
+	if( m_bPosition[3] ) Values[n++] = p.y; // ypos()
 
 	return( true );
 }

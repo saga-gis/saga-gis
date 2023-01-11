@@ -12,8 +12,7 @@
 //                                                       //
 //                   Grid_Calculator.h                   //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                    Andre Ringeler                     //
+//                 Olaf Conrad (C) 2023                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -36,13 +35,11 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     aringel@gwdg.de                        //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    Andre Ringeler                         //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -77,11 +74,9 @@ public:
 
 protected:
 
-	bool						m_bUseNoData, m_bPosition[6];
+	bool						m_bUseNoData, m_bPosition[4];
 
 	int							m_nValues;
-
-	static double				m_NoData_Value;
 
 	CSG_Formula					m_Formula;
 
@@ -91,16 +86,17 @@ protected:
 	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	bool						Initialize				(int nGrids, int nXGrids);
+	static CSG_String			Get_Help_Operators		(void);
+
+	bool						Preprocess_Formula		(CSG_String &Formula);
+	bool						Preprocess_Find			(const CSG_String &Formula, const CSG_String &Function, CSG_String &Head, CSG_String &Argument, CSG_String &Tail);
+	CSG_Data_Object *			Preprocess_Get_Object	(const CSG_String &Argument);
+
+	bool						Initialize				(int nGrids, int nGrids_X);
 
 	TSG_Data_Type				Get_Result_Type			(void);
 
 	bool						Get_Result				(const CSG_Vector &Values, double &Result);
-
-	static double				Get_NoData_Value		(void)	{	return( m_NoData_Value );	}
-
-
-private:
 
 };
 
@@ -123,7 +119,7 @@ protected:
 
 private:
 
-	CSG_Parameter_Grid_List		*m_pGrids, *m_pXGrids;
+	CSG_Parameter_Grid_List		*m_pGrids, *m_pGrids_X;
 
 
 	bool						Get_Values				(int x, int y, CSG_Vector &Values);
@@ -151,8 +147,10 @@ protected:
 
 private:
 
-	CSG_Parameter_Grids_List	*m_pGrids, *m_pXGrids;
+	CSG_Parameter_Grids_List	*m_pGrids, *m_pGrids_X;
 
+
+	virtual bool				Preprocess_Formula		(CSG_String &Formula);
 
 	bool						Get_Values				(int x, int y, int z, CSG_Vector &Values);
 
