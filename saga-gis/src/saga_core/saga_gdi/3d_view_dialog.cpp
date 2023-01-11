@@ -59,40 +59,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-enum
-{
-	MENU_FIRST		= MENU_USER_FIRST,
-	MENU_PROPERTIES	= MENU_USER_LAST,
-	MENU_USAGE,
-	MENU_CLOSE,
-	MENU_BOX,
-	MENU_LABELS,
-	MENU_NORTH,
-	MENU_STEREO,
-	MENU_CENTRAL,
-	MENU_TO_CLIPBOARD,
-	MENU_ROTATE_X_INC,
-	MENU_ROTATE_X_DEC,
-	MENU_ROTATE_Y_INC,
-	MENU_ROTATE_Y_DEC,
-	MENU_ROTATE_Z_INC,
-	MENU_ROTATE_Z_DEC,
-	MENU_SHIFT_X_INC,
-	MENU_SHIFT_X_DEC,
-	MENU_SHIFT_Y_INC,
-	MENU_SHIFT_Y_DEC,
-	MENU_SHIFT_Z_INC,
-	MENU_SHIFT_Z_DEC,
-	MENU_PLAY_POS_ADD,
-	MENU_PLAY_POS_DEL,
-	MENU_PLAY_POS_CLR,
-	MENU_PLAY_RUN_ONCE,
-	MENU_PLAY_RUN_LOOP,
-	MENU_PLAY_RUN_SAVE,
-	MENU_LAST
-};
-
-//---------------------------------------------------------
 BEGIN_EVENT_TABLE(CSG_3DView_Dialog, CSGDI_Dialog)
 	EVT_BUTTON    (wxID_ANY	, CSG_3DView_Dialog::On_Button)
 	EVT_CHECKBOX  (wxID_ANY	, CSG_3DView_Dialog::On_Update_Control)
