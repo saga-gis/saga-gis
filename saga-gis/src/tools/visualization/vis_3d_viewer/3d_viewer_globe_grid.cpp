@@ -282,9 +282,10 @@ void C3D_Viewer_Globe_Grid_Panel::On_Mouse_Motion(wxMouseEvent &event)
 		#define GET_MOUSE_X_RELDIFF	((double)(m_Down_Screen.x - event.GetX()) / (double)GetClientSize().x)
 		#define GET_MOUSE_Y_RELDIFF	((double)(m_Down_Screen.y - event.GetY()) / (double)GetClientSize().y)
 
-		m_Projector.Set_zShift    (           m_Down_Value.y + GET_MOUSE_Y_RELDIFF);
-		m_Projector.Set_zScaling  (           m_Down_Value.x + GET_MOUSE_X_RELDIFF * 100.);
-		m_Parameters.Set_Parameter("Z_SCALE", m_Down_Value.x + GET_MOUSE_X_RELDIFF * 100.);
+		m_Projector.Set_Central_Distance(m_Down_Value.x + GET_MOUSE_X_RELDIFF);
+
+		m_Projector.Set_zScaling  (           m_Down_Value.y + GET_MOUSE_Y_RELDIFF * 100.);
+		m_Parameters.Set_Parameter("Z_SCALE", m_Down_Value.y + GET_MOUSE_Y_RELDIFF * 100.);
 
 		Update_View(true);
 
