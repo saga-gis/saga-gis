@@ -394,7 +394,7 @@ bool CSentinel_3_Scene_Import::Georeference(CSG_Grid *pLon, CSG_Grid *pLat, CSG_
 	//-----------------------------------------------------
 	CSG_Parameter_Grid_List *pOutput = pTool->Get_Parameter("OUTPUT")->asGridList();
 
-	pBands = Parameters("BANDS")->asGridList();
+	pBands = Parameters("BANDS")->asGridList(); pBands->Del_Items();
 
 	for(int i=0; i<pOutput->Get_Grid_Count(); i++)
 	{

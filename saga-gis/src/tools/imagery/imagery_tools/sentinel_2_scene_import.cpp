@@ -70,7 +70,7 @@ enum EBand_Head
 //---------------------------------------------------------
 CSG_Table CSentinel_2_Scene_Import::Get_Info_Bands(void)
 {
-	CSG_Table	Info_Bands;
+	CSG_Table Info_Bands;
 
 	Info_Bands.Add_Field("ID"        , SG_DATATYPE_Int   );
 	Info_Bands.Add_Field("BAND"      , SG_DATATYPE_String);
@@ -85,9 +85,9 @@ CSG_Table CSentinel_2_Scene_Import::Get_Info_Bands(void)
 		Info.Set_Value(INFO_FIELD_BAND, band);\
 		Info.Set_Value(INFO_FIELD_NAME, CSG_String::Format("[%s] %s", SG_T(band), name));\
 		Info.Set_Value(INFO_FIELD_RES , res);\
-		Info.Set_Value(INFO_FIELD_WAVE_MIN, wave);\
+		Info.Set_Value(INFO_FIELD_WAVE_MIN, wmin);\
 		Info.Set_Value(INFO_FIELD_WAVE    , wave);\
-		Info.Set_Value(INFO_FIELD_WAVE_MAX, wave);\
+		Info.Set_Value(INFO_FIELD_WAVE_MAX, wmax);\
 	}
 
 	ADD_INFO_BAND("B01", _TL("Aerosols"                 ), 60,  412,  442.7,  456);	//  1, 60m
@@ -185,6 +185,14 @@ CSentinel_2_Scene_Import::CSentinel_2_Scene_Import(void)
 	);
 
 	Parameters.Add_Choice("",
+		"RESOLUTION"	, _TL("Resolution"),
+		_TL("Allows to resample all spectral bands to the same target resolution, either 10 or 20m."),
+		CSG_String::Format("%s|%s|%s",
+			_TL("original"), SG_T("10m"), SG_T("20m")
+		), 0
+	);
+
+	Parameters.Add_Choice("",
 		"PROJECTION"	, _TL("Coordinate System"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s",
@@ -276,6 +284,7 @@ int CSentinel_2_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, 
 		pParameters->Set_Enabled("RESAMPLING", pParameter->asInt() >= 2);
 		pParameters->Set_Enabled("UTM_ZONE"  , pParameter->asInt() == 3);
 		pParameters->Set_Enabled("UTM_SOUTH" , pParameter->asInt() == 3);
+		pParameters->Set_Enabled("RESOLUTION", pParameter->asInt() <= 1);
 	}
 
 	if(	pParameter->Cmp_Identifier("EXTENT") )
@@ -300,7 +309,7 @@ int CSentinel_2_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, 
 //---------------------------------------------------------
 bool CSentinel_2_Scene_Import::On_Execute(void)
 {
-	CSG_MetaData	Info_General, Info_Image, Info_Granule;
+	CSG_MetaData Info_General, Info_Image, Info_Granule;
 
 	if( !Load_Metadata(Parameters("METAFILE")->asString(), Info_General, Info_Granule, Info_Image) )
 	{
@@ -309,20 +318,22 @@ bool CSentinel_2_Scene_Import::On_Execute(void)
 		return( false );
 	}
 
-	CSG_String	Date	= Info_General["PRODUCT_START_TIME"].Get_Content().BeforeFirst('T');
+	CSG_String Date = Info_General["PRODUCT_START_TIME"].Get_Content().BeforeFirst('T');
 
 	//-----------------------------------------------------
-	CSG_String	Path	= SG_File_Get_Path(Parameters("METAFILE")->asString());
+	CSG_String Path = SG_File_Get_Path(Parameters("METAFILE")->asString());
 
-	bool	bLoadTCI	= Parameters("LOAD_TCI") && Parameters("LOAD_TCI")->asBool();
-	bool	bLoadAOT	= Parameters("LOAD_AOT") && Parameters("LOAD_AOT")->asBool();
-	bool	bLoadWVP	= Parameters("LOAD_WVP") && Parameters("LOAD_WVP")->asBool();
-	bool	bLoadSCL	= Parameters("LOAD_SCL") && Parameters("LOAD_SCL")->asBool();
-	bool	bLoad60m	= Parameters("LOAD_60M") && Parameters("LOAD_60M")->asBool();
+	bool bLoadTCI = Parameters("LOAD_TCI") && Parameters("LOAD_TCI")->asBool();
+	bool bLoadAOT = Parameters("LOAD_AOT") && Parameters("LOAD_AOT")->asBool();
+	bool bLoadWVP = Parameters("LOAD_WVP") && Parameters("LOAD_WVP")->asBool();
+	bool bLoadSCL = Parameters("LOAD_SCL") && Parameters("LOAD_SCL")->asBool();
+	bool bLoad60m = Parameters("LOAD_60M") && Parameters("LOAD_60M")->asBool();
 
-	bool	bMultiGrids	= Parameters("MULTI2GRIDS")->asBool();
+	int Resolution = Parameters("PROJECTION")->asInt() <= 1 ? Parameters("RESOLUTION")->asInt() : 0;
 
-	CSG_Table	Info_Bands(Get_Info_Bands());
+	bool bMultiGrids = Parameters("MULTI2GRIDS")->asBool();
+
+	CSG_Table Info_Bands(Get_Info_Bands());
 
 	//-----------------------------------------------------
 	Parameters("BANDS")->asGridList()->Del_Items();
@@ -340,11 +351,25 @@ bool CSentinel_2_Scene_Import::On_Execute(void)
 			continue;
 		}
 
-		CSG_Grid	*pBand	= Load_Band(Path, Find_Band(Info_Bands[Band], Info_Granule));
+		CSG_Grid *pBand = Load_Band(Path, Find_Band(Info_Bands[Band], Info_Granule));
 
 		if( !pBand )
 		{
 			continue;
+		}
+
+		if( Resolution && (BAND_IS_10m(Band) || BAND_IS_20m(Band)) )
+		{
+			Parameters("BANDS")->asGridList()->Update_Data(); CSG_Grid *pGrid = Parameters("BANDS")->asGridList()->Get_Grid(0);
+
+			CSG_Grid_System System; if( pGrid ) System = pGrid->Get_System(); else System.Create(Resolution == 1 ? 10. : 20., pBand->Get_Extent());
+
+			if( !System.is_Equal(pBand->Get_System()) )
+			{
+				SG_UI_Msg_Lock(true);
+				pGrid = pBand; pBand = SG_Create_Grid(System, pBand->Get_Type()); pBand->Assign(pGrid); delete(pGrid);
+				SG_UI_Msg_Lock(false);
+			}
 		}
 
 		pBand->Get_MetaData().Add_Child(Info_General)->Set_Name("SENTINEL-2");
@@ -352,7 +377,7 @@ bool CSentinel_2_Scene_Import::On_Execute(void)
 
 		if( bMultiGrids && (BAND_IS_10m(Band) || BAND_IS_20m(Band)) )
 		{
-			int	b	= BAND_IS_10m(Band) ? 0 : 1;
+			int b = pBand->Get_Cellsize() == 10. ? 0 : 1;
 
 			if( pBands[b] == NULL )
 			{
@@ -422,7 +447,7 @@ bool CSentinel_2_Scene_Import::On_Execute(void)
 //---------------------------------------------------------
 bool CSentinel_2_Scene_Import::Load_Metadata(const CSG_String &File, CSG_MetaData &General, CSG_MetaData &Granule, CSG_MetaData &Image)
 {
-	CSG_MetaData	Metadata;
+	CSG_MetaData Metadata;
 
 	if( !Metadata.Load(File)
 	||  !Metadata("n1:General_Info")
@@ -434,8 +459,8 @@ bool CSentinel_2_Scene_Import::Load_Metadata(const CSG_String &File, CSG_MetaDat
 		return( false );
 	}
 
-	Granule	= Metadata["n1:General_Info"]["Product_Info"]["Product_Organisation"]["Granule_List"]["Granule"];
-	General	= Metadata["n1:General_Info"]["Product_Info"];
+	Granule = Metadata["n1:General_Info"]["Product_Info"]["Product_Organisation"]["Granule_List"]["Granule"];
+	General = Metadata["n1:General_Info"]["Product_Info"];
 
 	General.Del_Child("Product_Organisation");
 
@@ -502,14 +527,14 @@ CSG_Grid * CSentinel_2_Scene_Import::Load_Band(const CSG_String &Path, const CSG
 	Process_Set_Text("%s: %s", _TL("loading"), File.AfterLast('/').c_str());
 
 	//-----------------------------------------------------
-	CSG_String	_File(Path + "/" + File + ".jp2");
+	CSG_String _File(Path + "/" + File + ".jp2");
 
 	#ifdef _SAGA_MSW
 	_File.Replace("/", "\\");
 	#endif
 
 	SG_UI_Msg_Lock(true);
-	CSG_Grid	*pBand	= Load_Grid(_File);
+	CSG_Grid *pBand = Load_Grid(_File);
 	SG_UI_Msg_Lock(false);
 
 	if( !pBand )
@@ -529,9 +554,7 @@ CSG_Grid * CSentinel_2_Scene_Import::Load_Band(const CSG_String &Path, const CSG
 	//-----------------------------------------------------
 	else if( Parameters("PROJECTION")->asInt() <= 1 ) // UTM North or South
 	{
-		CSG_Grid	*pTmp	= pBand;
-
-		CSG_String	Projection	= pTmp->Get_Projection().Get_Proj4();
+		CSG_Grid *pTmp = pBand; CSG_String Projection = pTmp->Get_Projection().Get_Proj4();
 
 		if( Projection.Find("+proj=utm") >= 0
 		&&  (  (Projection.Find("+south") >= 0 && Parameters("PROJECTION")->asInt() == 0)
@@ -553,12 +576,9 @@ CSG_Grid * CSentinel_2_Scene_Import::Load_Band(const CSG_String &Path, const CSG
 			pBand->Set_Scaling           (pTmp->Get_Scaling(), pTmp->Get_Offset());
 
 			#pragma omp parallel for
-			for(int y=0; y<pBand->Get_NY(); y++)
+			for(int y=0; y<pBand->Get_NY(); y++) for(int x=0; x<pBand->Get_NX(); x++)
 			{
-				for(int x=0; x<pBand->Get_NX(); x++)
-				{
-					pBand->Set_Value(x, y, pTmp->asDouble(x, y));
-				}
+				pBand->Set_Value(x, y, pTmp->asDouble(x, y));
 			}
 
 			delete(pTmp);
@@ -568,7 +588,7 @@ CSG_Grid * CSentinel_2_Scene_Import::Load_Band(const CSG_String &Path, const CSG
 	//-----------------------------------------------------
 	else if( Parameters("PROJECTION")->asInt() == 2 )	// Geographic Coordinates
 	{
-		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4);	// Coordinate Transformation (Grid)
+		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4);	// Coordinate Transformation (Grid)
 
 		if(	pTool )
 		{
@@ -584,7 +604,7 @@ CSG_Grid * CSentinel_2_Scene_Import::Load_Band(const CSG_String &Path, const CSG
 			{
 				delete(pBand);
 
-				pBand	= pTool->Get_Parameters()->Get_Parameter("GRID")->asGrid();
+				pBand = pTool->Get_Parameters()->Get_Parameter("GRID")->asGrid();
 			}
 
 			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
@@ -601,7 +621,7 @@ CSG_Grid * CSentinel_2_Scene_Import::Load_Band(const CSG_String &Path, const CSG
 
 		if( !Projection.is_Equal(pBand->Get_Projection()) )
 		{
-			CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4);	// Coordinate Transformation (Grid)
+			CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4);	// Coordinate Transformation (Grid)
 
 			if(	pTool )
 			{
@@ -618,7 +638,7 @@ CSG_Grid * CSentinel_2_Scene_Import::Load_Band(const CSG_String &Path, const CSG
 				{
 					delete(pBand);
 
-					pBand	= pTool->Get_Parameters()->Get_Parameter("GRID")->asGrid();
+					pBand = pTool->Get_Parameters()->Get_Parameter("GRID")->asGrid();
 				}
 
 				SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
@@ -661,19 +681,19 @@ CSG_Grid * CSentinel_2_Scene_Import::Load_Grid(const CSG_String &File)
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid	*pGrid	= NULL;
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("io_gdal", 0);	// Import Raster
+	CSG_Grid *pGrid = NULL;
+	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("io_gdal", 0);	// Import Raster
 
 	if( pTool && pTool->Set_Manager(NULL)
-		&&  pTool->Set_Parameter("FILES"      , File)
-		&&	pTool->Set_Parameter("EXTENT"     , 1)
-		&&	pTool->Set_Parameter("EXTENT_XMIN", Extent.Get_XMin())
-		&&	pTool->Set_Parameter("EXTENT_XMAX", Extent.Get_XMax())
-		&&	pTool->Set_Parameter("EXTENT_YMIN", Extent.Get_YMin())
-		&&	pTool->Set_Parameter("EXTENT_YMAX", Extent.Get_YMax())
-		&&  pTool->Execute() )
+	&&  pTool->Set_Parameter("FILES"      , File)
+	&&	pTool->Set_Parameter("EXTENT"     , 1)
+	&&	pTool->Set_Parameter("EXTENT_XMIN", Extent.Get_XMin())
+	&&	pTool->Set_Parameter("EXTENT_XMAX", Extent.Get_XMax())
+	&&	pTool->Set_Parameter("EXTENT_YMIN", Extent.Get_YMin())
+	&&	pTool->Set_Parameter("EXTENT_YMAX", Extent.Get_YMax())
+	&&  pTool->Execute() )
 	{
-		pGrid	= pTool->Get_Parameter("GRIDS")->asGridList()->Get_Grid(0);
+		pGrid = pTool->Get_Parameter("GRIDS")->asGridList()->Get_Grid(0);
 	}
 
 	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
@@ -689,7 +709,7 @@ CSG_Grid * CSentinel_2_Scene_Import::Load_Grid(const CSG_String &File)
 //---------------------------------------------------------
 bool CSentinel_2_Scene_Import::Load_Classification(CSG_Grid *pGrid, const CSG_String &File)
 {
-	CSG_MetaData	Metadata;
+	CSG_MetaData Metadata;
 
 	if( !Metadata.Load(File)
 	||  !Metadata("n1:General_Info")
