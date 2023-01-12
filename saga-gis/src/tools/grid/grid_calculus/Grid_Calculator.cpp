@@ -233,6 +233,11 @@ CSG_Data_Object * CGrid_Calculator_Base::Preprocess_Get_Object(const CSG_String 
 //---------------------------------------------------------
 bool CGrid_Calculator_Base::Preprocess_Formula(CSG_String &Formula)
 {
+	Formula.Replace("\\n", "");
+	Formula.Replace( "\n", "");
+	Formula.Replace( "\t", "");
+
+	//-----------------------------------------------------
 	#define EXIT_ON_ERROR(func) { Error_Fmt("%s\n\n...%s(%s)", _TL("Invalid argument for function!"), SG_T(func), Argument.c_str()); return( false ); }
 
 	#define PROCESS_SYSTEM_FUNCTION(name, func) { CSG_String Head, Argument, Tail; while( Preprocess_Find(Formula, name, Head, Argument, Tail) ) {\
@@ -263,6 +268,24 @@ bool CGrid_Calculator_Base::Preprocess_Formula(CSG_String &Formula)
 	PROCESS_OBJECT_FUNCTION("zmean"   , Get_Mean        ());
 	PROCESS_OBJECT_FUNCTION("zstddev" , Get_StdDev      ());
 
+	//-----------------------------------------------------
+	if( Formula.Find(';') > 0 )
+	{
+		CSG_Strings Tokens = SG_String_Tokenize(Formula, ";"); Formula = Tokens[0];
+
+		for(int i=1; i<Tokens.Get_Count(); i++)
+		{
+			CSG_String Key = Tokens[i].BeforeFirst('='); Key.Trim_Both();
+
+			if( !Key.is_Empty() )
+			{
+				CSG_String Expression = Tokens[i].AfterFirst('='); Expression.Trim_Both();
+
+				Formula.Replace(Key, "(" + Expression + ")");
+			}
+		}
+	}
+
 	return( true );
 }
 
@@ -280,9 +303,6 @@ bool CGrid_Calculator_Base::Initialize(int nGrids, int nGrids_X)
 
 	//-----------------------------------------------------
 	CSG_String Formula(Parameters("FORMULA")->asString());
-
-	Formula.Replace("\n", "");
-	Formula.Replace("\t", "");
 
 	if( !Preprocess_Formula(Formula) )
 	{
