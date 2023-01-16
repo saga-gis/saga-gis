@@ -86,8 +86,6 @@ protected:
 	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	static CSG_String			Get_Help_Operators		(void);
-
 	bool						Preprocess_Formula		(CSG_String &Formula);
 	bool						Preprocess_Find			(const CSG_String &Formula, const CSG_String &Function, CSG_String &Head, CSG_String &Argument, CSG_String &Tail);
 	CSG_Data_Object *			Preprocess_Get_Object	(const CSG_String &Argument);

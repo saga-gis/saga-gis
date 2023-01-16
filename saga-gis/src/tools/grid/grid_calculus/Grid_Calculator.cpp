@@ -161,39 +161,6 @@ int CGrid_Calculator_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CGrid_Calculator_Base::Get_Help_Operators(void)
-{
-	static const CSG_String Operators[][2] =
-	{
-		{	"xpos(), ypos()"         , _TL("The coordinate (x/y) for the center of the currently processed cell"            ) },
-		{	"col(), row()"           , _TL("The currently processed cell's column/row index"                                ) },
-		{	"ncols(), nrows()"       , _TL("Number of the grid system's columns/rows"                                       ) },
-		{	"nodata(), nodata(g)"    , _TL("No-data value of the resulting (empty) or requested grid (g = g1...gn, h1...hn)") },
-		{	"cellsize(), cellsize(g)", _TL("Cell size of the resulting (empty) or requested grid (g = h1...hn)"             ) },
-		{	"cellarea(), cellarea(g)", _TL("Cell area of the resulting (empty) or requested grid (g = h1...hn)"             ) },
-		{	"xmin(), xmin(g)"        , _TL("Left bound of the resulting (empty) or requested grid (g = h1...hn)"            ) },
-		{	"xmax(), xmax(g)"        , _TL("Right bound of the resulting (empty) or requested grid (g = h1...hn)"           ) },
-		{	"xrange(), xrange(g)"    , _TL("Left to right range of the resulting (empty) or requested grid (g = h1...hn)"   ) },
-		{	"ymin(), ymin(g)"        , _TL("Lower bound of the resulting (empty) or requested grid (g = h1...hn)"           ) },
-		{	"ymax(), ymax(g)"        , _TL("Upper bound of the resulting (empty) or requested grid (g = h1...hn)"           ) },
-		{	"yrange(), yrange(g)"    , _TL("Lower to upper range of the resulting (empty) or requested grid (g = h1...hn)"  ) },
-		{	"zmin(g)"                , _TL("Minimum value of the requested grid (g = g1...gn, h1...hn)"                     ) },
-		{	"zmax(g)"                , _TL("Maximum value of the requested grid (g = g1...gn, h1...hn)"                     ) },
-		{	"zrange(g)"              , _TL("Value range of the requested grid (g = g1...gn, h1...hn)"                       ) },
-		{	"zmean(g)"               , _TL("Mean value of the requested grid (g = g1...gn, h1...hn)"                        ) },
-		{	"zstddev(g)"             , _TL("Standard deviation of the requested grid (g = g1...gn, h1...hn)"                ) },
-		{	"", ""	}
-	};
-
-	return( CSG_Formula::Get_Help_Operators(true, Operators) );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 bool CGrid_Calculator_Base::Preprocess_Find(const CSG_String &Formula, const CSG_String &Function, CSG_String &Head, CSG_String &Argument, CSG_String &Tail)
 {
 	int pos  = Formula.Find(Function); if( pos < 0 ) { return( false ); }
@@ -443,10 +410,37 @@ CGrid_Calculator::CGrid_Calculator(void)
 		"\n"
 		"Example:\t sin(g1) * g2 + 2 * h1\n"
 		"\n"
+		"To make complex formulas look more intuitive you have the option to use shortcuts. Shortcuts are "
+		"defined following the formula separated by semicolons as 'shortcut = expression'.\n"
+		"\n"
+		"Example:\t ifelse(lt(NDVI, 0.4), nodata(), NDVI); NDVI = (g1 - g2) / (g1 + g2)\n"
+		"\n"
 		"The following operators are available for the formula definition:\n"
 	));
 
-	Set_Description(Get_Description() + Get_Help_Operators());
+	static const CSG_String Operators[][2] =
+	{
+		{	"xpos(), ypos()"         , _TL("The coordinate (x/y) for the center of the currently processed cell"            ) },
+		{	"col(), row()"           , _TL("The currently processed cell's column/row index"                                ) },
+		{	"ncols(), nrows()"       , _TL("Number of the grid system's columns/rows"                                       ) },
+		{	"nodata(), nodata(g)"    , _TL("No-data value of the resulting (empty) or requested grid (g = g1...gn, h1...hn)") },
+		{	"cellsize(), cellsize(g)", _TL("Cell size of the resulting (empty) or requested grid (g = h1...hn)"             ) },
+		{	"cellarea(), cellarea(g)", _TL("Cell area of the resulting (empty) or requested grid (g = h1...hn)"             ) },
+		{	"xmin(), xmin(g)"        , _TL("Left bound of the resulting (empty) or requested grid (g = h1...hn)"            ) },
+		{	"xmax(), xmax(g)"        , _TL("Right bound of the resulting (empty) or requested grid (g = h1...hn)"           ) },
+		{	"xrange(), xrange(g)"    , _TL("Left to right range of the resulting (empty) or requested grid (g = h1...hn)"   ) },
+		{	"ymin(), ymin(g)"        , _TL("Lower bound of the resulting (empty) or requested grid (g = h1...hn)"           ) },
+		{	"ymax(), ymax(g)"        , _TL("Upper bound of the resulting (empty) or requested grid (g = h1...hn)"           ) },
+		{	"yrange(), yrange(g)"    , _TL("Lower to upper range of the resulting (empty) or requested grid (g = h1...hn)"  ) },
+		{	"zmin(g)"                , _TL("Minimum value of the requested grid (g = g1...gn, h1...hn)"                     ) },
+		{	"zmax(g)"                , _TL("Maximum value of the requested grid (g = g1...gn, h1...hn)"                     ) },
+		{	"zrange(g)"              , _TL("Value range of the requested grid (g = g1...gn, h1...hn)"                       ) },
+		{	"zmean(g)"               , _TL("Mean value of the requested grid (g = g1...gn, h1...hn)"                        ) },
+		{	"zstddev(g)"             , _TL("Standard deviation of the requested grid (g = g1...gn, h1...hn)"                ) },
+		{	"", ""	}
+	};
+
+	Set_Description(Get_Description() + CSG_Formula::Get_Help_Operators(true, Operators));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List("",
@@ -584,10 +578,37 @@ CGrids_Calculator::CGrids_Calculator(void)
 		"\n"
 		"Example:\t sin(g1) * g2 + 2 * h1\n"
 		"\n"
+		"To make complex formulas look more intuitive you have the option to use shortcuts. Shortcuts are "
+		"defined following the formula separated by semicolons as 'shortcut = expression'.\n"
+		"\n"
+		"Example:\t ifelse(lt(NDVI, 0.4), nodata(), NDVI); NDVI = (g1 - g2) / (g1 + g2)\n"
+		"\n"
 		"The following operators are available for the formula definition:\n"
 	));
 
-	Set_Description(Get_Description() + Get_Help_Operators());
+	static const CSG_String Operators[][2] =
+	{
+		{	"xpos(), ypos()"         , _TL("The coordinate (x/y) for the center of the currently processed cell"                       ) },
+		{	"col(), row()"           , _TL("The currently processed cell's column/row index"                                           ) },
+		{	"ncols(), nrows()"       , _TL("Number of the grid system's columns/rows"                                                  ) },
+		{	"nodata(), nodata(g)"    , _TL("No-data value of the resulting (empty) or requested grid collection (g = g1...gn, h1...hn)") },
+		{	"cellsize(), cellsize(g)", _TL("Cell size of the resulting (empty) or requested grid collection (g = h1...hn)"             ) },
+		{	"cellarea(), cellarea(g)", _TL("Cell area of the resulting (empty) or requested grid collection (g = h1...hn)"             ) },
+		{	"xmin(), xmin(g)"        , _TL("Left bound of the resulting (empty) or requested grid collection (g = h1...hn)"            ) },
+		{	"xmax(), xmax(g)"        , _TL("Right bound of the resulting (empty) or requested grid collection (g = h1...hn)"           ) },
+		{	"xrange(), xrange(g)"    , _TL("Left to right range of the resulting (empty) or requested grid collection (g = h1...hn)"   ) },
+		{	"ymin(), ymin(g)"        , _TL("Lower bound of the resulting (empty) or requested grid collection (g = h1...hn)"           ) },
+		{	"ymax(), ymax(g)"        , _TL("Upper bound of the resulting (empty) or requested grid collection (g = h1...hn)"           ) },
+		{	"yrange(), yrange(g)"    , _TL("Lower to upper range of the resulting (empty) or requested grid collection (g = h1...hn)"  ) },
+		{	"zmin(g)"                , _TL("Minimum value of the requested grid collection (g = g1...gn, h1...hn)"                     ) },
+		{	"zmax(g)"                , _TL("Maximum value of the requested grid collection (g = g1...gn, h1...hn)"                     ) },
+		{	"zrange(g)"              , _TL("Value range of the requested grid collection (g = g1...gn, h1...hn)"                       ) },
+		{	"zmean(g)"               , _TL("Mean value of the requested grid collection (g = g1...gn, h1...hn)"                        ) },
+		{	"zstddev(g)"             , _TL("Standard deviation of the requested grid collection (g = g1...gn, h1...hn)"                ) },
+		{	"", ""	}
+	};
+
+	Set_Description(Get_Description() + CSG_Formula::Get_Help_Operators(true, Operators));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grids_List("",
