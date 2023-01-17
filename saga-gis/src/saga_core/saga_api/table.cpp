@@ -708,6 +708,34 @@ int CSG_Table::Get_Field(const CSG_String &Name) const
 	return( -1 );
 }
 
+//---------------------------------------------------------
+/**
+* Returns the index of the field with the requested name or
+* -1 if it does not exists.
+*/
+int CSG_Table::Find_Field(const CSG_String &Name) const
+{
+	for(int i=0; i<Get_Field_Count(); i++)
+	{
+		if( !Name.Cmp(Get_Field_Name(i)) )
+		{
+			return( i );
+		}
+	}
+
+	return( -1 );
+}
+
+//---------------------------------------------------------
+/**
+* Returns true if a field with the requested name exists and
+* sets the Index parameter to its position.
+*/
+bool CSG_Table::Find_Field(const CSG_String &Name, int &Index) const
+{
+	return( (Index = Find_Field(Name)) >= 0 );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -927,8 +955,6 @@ bool CSG_Table::Set_Record_Count(int nRecords)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
