@@ -1242,12 +1242,12 @@ bool CSG_PG_Connection::Table_Load(CSG_Table &Table, const CSG_String &Tables, c
 //---------------------------------------------------------
 bool CSG_PG_Connection::Shapes_Geometry_Info(const CSG_String &geoTable, CSG_String *geoField, int *geoSRID)
 {
-	CSG_Table	Table_Info;
+	CSG_Table Table_Info;
 
 	if( Table_Load(Table_Info, "geometry_columns", "*", "f_table_name='" + geoTable + "'") && Table_Info.Get_Count() == 1 )
 	{
-		if( geoField ) *geoField	= Table_Info[0].asString("f_geometry_column");
-		if( geoSRID  ) *geoSRID 	= Table_Info[0].asInt   ("srid"             );
+		if( geoField ) *geoField = Table_Info[0].asString("f_geometry_column");
+		if( geoSRID  ) *geoSRID  = Table_Info[0].asInt   ("srid"             );
 
 		return( true );
 	}
@@ -1255,76 +1255,57 @@ bool CSG_PG_Connection::Shapes_Geometry_Info(const CSG_String &geoTable, CSG_Str
 	return( false );
 }
 
-//---------------------------------------------------------
-bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &geoTable)
-{
-	CSG_Table	Field_Info	= Get_Field_Desc(geoTable);
 
-	if( Field_Info.Get_Count() > 0 )
-	{
-		CSG_String	Fields, geoField;
-		
-		Shapes_Geometry_Info(geoTable, &geoField, NULL);
-
-		for(int i=0; i<Field_Info.Get_Count(); i++)
-		{
-			if( geoField.Cmp(Field_Info[i].asString(0)) )
-			{
-				if( !Fields.is_Empty() )
-				{
-					Fields	+= ",";
-				}
-
-				Fields	+= CSG_String::Format("\"%s\"", Field_Info[i].asString(0));
-			}
-		}
-
-		return( Shapes_Load(pShapes, geoTable, geoTable, "", Fields, "") );
-	}
-
-	return( false );
-}
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #define GEOMETRY_FIELD	SG_T("__geometry__")
 
 //---------------------------------------------------------
-bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where)
+bool CSG_PG_Connection::_Shapes_Load(const CSG_String &geoTable, CSG_String &Fields)
 {
-	int			geoSRID;
-	CSG_String	geoField;
+	CSG_Table Field_Info = Get_Field_Desc(geoTable);
 
-	if( !Shapes_Geometry_Info(geoTable, &geoField, &geoSRID) )
+	if( Field_Info.Get_Count() > 0 )
 	{
-		return( false );
+		CSG_String geoField;
+
+		if( Shapes_Geometry_Info(geoTable, &geoField, NULL) )
+		{
+			for(int i=0; i<Field_Info.Get_Count(); i++)
+			{
+				if( geoField.Cmp(Field_Info[i].asString(0)) )
+				{
+					Fields += CSG_String::Format("%s\"%s\"", Fields.is_Empty() ? SG_T("") : SG_T(","), Field_Info[i].asString(0));
+				}
+			}
+
+			return( true );
+		}
 	}
 
-	bool	bBinary	= has_Version(9);	// previous versions did not support hex strings
+	return( false );
+}
 
-	//-----------------------------------------------------
-	CSG_String	Select;
+//---------------------------------------------------------
+bool CSG_PG_Connection::_Shapes_Load(const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where, const CSG_String &Geometry, bool bBinary, int &SRID, CSG_String &Select)
+{
+	CSG_String geoField;
 
-	Select.Printf("SELECT %s, ST_As%s(%s) AS %s FROM \"%s\" ",
-		Fields.c_str(),
-		bBinary ? SG_T("Binary") : SG_T("Text"),
-		geoField.c_str(),
-		GEOMETRY_FIELD,
-		geoTable.c_str()
-	);
-
-	if( !Tables.is_Empty() )
+	if( Shapes_Geometry_Info(geoTable, &geoField, &SRID) )
 	{
-		Select	+= "," + Tables;
-	}
+		Select.Printf("SELECT %s, ST_As%s(%s) AS %s FROM \"%s\" ",
+			Fields.c_str(),
+			bBinary ? SG_T("Binary") : SG_T("Text"),
+			geoField.c_str(),
+			Geometry.c_str(),
+			geoTable.c_str()
+		);
 
-	if( !Where.is_Empty() )
-	{
-		Select	+= " WHERE " + Where;
-	}
-
-	if( Shapes_Load(pShapes, Name, Select, GEOMETRY_FIELD, bBinary, geoSRID) )
-	{
-		Add_MetaData(*pShapes, Name);
+		if( !Tables.is_Empty() ) { Select +=       "," + Tables; }
+		if( !Where .is_Empty() ) { Select += " WHERE " + Where ; }
 
 		return( true );
 	}
@@ -1333,150 +1314,272 @@ bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name,
 }
 
 //---------------------------------------------------------
-bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &Select, const CSG_String &Geometry_Field, bool bBinary, int SRID)
+void * CSG_PG_Connection::_Shapes_Load(const CSG_String &Select, const CSG_String &geoFieldName, int &nFields, int &nRecords, int &geoField)
 {
-	if( !is_Connected() )	{	_Error_Message(_TL("no database connection"));	return( false );	}
-	if( !has_PostGIS () )	{	_Error_Message(_TL("not a PostGIS database"));	return( false );	}
+	if( !is_Connected() ) { _Error_Message(_TL("no database connection")); return( false ); }
+	if( !has_PostGIS () ) { _Error_Message(_TL("not a PostGIS database")); return( false ); }
 
 	//-----------------------------------------------------
-	PGresult	*pResult	= PQexec(m_pgConnection, Select);
+	PGresult *pResult = PQexec(m_pgConnection, Select);
 
 	if( PQresultStatus(pResult) != PGRES_TUPLES_OK )
 	{
 		_Error_Message(_TL("SQL execution failed"), m_pgConnection);
 
-		PQclear(pResult);
-
-		return( false );
+		PQclear(pResult); return( false );
 	}
 
 	//-----------------------------------------------------
-	int		iField, jField, gField, nFields, iRecord, nRecords;
-
 	if( (nFields = PQnfields(pResult)) <= 0 )
 	{
 		_Error_Message(_TL("no fields in selection"));
 
-		PQclear(pResult);
-
-		return( false );
+		PQclear(pResult); return( false );
 	}
 
+	//-----------------------------------------------------
 	if( (nRecords = PQntuples(pResult)) <= 0 )
 	{
 		_Error_Message(_TL("no records in selection"));
 
-		PQclear(pResult);
-
-		return( false );
+		PQclear(pResult); return( false );
 	}
 
 	//-----------------------------------------------------
-	for(iField=0, gField=-1; gField<0 && iField<nFields; iField++)
+	geoField = -1;
+
+	for(int iField=0; geoField<0 && iField<nFields; iField++)
 	{
-		if( !Geometry_Field.CmpNoCase(PQfname(pResult, iField)) )
+		if( !geoFieldName.CmpNoCase(PQfname(pResult, iField)) )
 		{
-			gField	= iField;
+			geoField = iField;
 		}
 	}
 
-	if( gField < 0 )
+	if( geoField < 0 )
 	{
 		_Error_Message(_TL("no geometry in selection"));
 
-		PQclear(pResult);
-
-		return( false );
+		PQclear(pResult); return( false );
 	}
 
 	//-----------------------------------------------------
-	TSG_Shape_Type	Type;
+	return( pResult );
+}
+
+//---------------------------------------------------------
+inline TSG_Shape_Type CSG_PG_Connection::_Shape_Get_Type(const char *WKBytes, bool bBinary)
+{
+	if( bBinary )
+	{
+		CSG_Bytes Binary; Binary.fromHexString(WKBytes + 2);
+
+		return( CSG_Shapes_OGIS_Converter::to_ShapeType(Binary.asDWord(1, false)) );
+	}
+
+	return( CSG_Shapes_OGIS_Converter::to_ShapeType(CSG_String(WKBytes).BeforeFirst('(')) );
+}
+
+//---------------------------------------------------------
+inline bool CSG_PG_Connection::_Shape_Load_Record(void *_pResult, int iRecord, int geoField, bool bBinary, CSG_Shapes *pShapes)
+{
+	PGresult *pResult = (PGresult *)_pResult; CSG_Shape *pRecord = pShapes->Add_Shape();
 
 	if( bBinary )
 	{
-		CSG_Bytes	Binary;	Binary.fromHexString(PQgetvalue(pResult, 0, gField) + 2);
+		CSG_Bytes Binary; Binary.fromHexString(PQgetvalue(pResult, iRecord, geoField) + 2);
 
-		Type	= CSG_Shapes_OGIS_Converter::to_ShapeType(Binary.asDWord(1, false));
+		CSG_Shapes_OGIS_Converter::from_WKBinary(Binary, pRecord);
 	}
 	else
 	{
-		Type	= CSG_Shapes_OGIS_Converter::to_ShapeType(CSG_String(PQgetvalue(pResult, 0, gField)).BeforeFirst('('));
+		CSG_Shapes_OGIS_Converter::from_WKText(PQgetvalue(pResult, iRecord, geoField), pRecord);
 	}
 
-	if( Type == SHAPE_TYPE_Undefined )
+	for(int iField=0, jField=0; iField<=pShapes->Get_Field_Count(); iField++)
 	{
-		_Error_Message(_TL("unsupported vector type"));
-
-		PQclear(pResult);
-
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	pShapes->Create(Type, Name);
-
-	pShapes->Get_Projection().Create(SRID);
-
-	for(iField=0; iField<nFields; iField++)
-	{
-		if( iField != gField )
+		if( iField != geoField )
 		{
-			pShapes->Add_Field(PQfname(pResult, iField), Get_Type_From_SQL(PQftype(pResult, iField)));
-		}
-	}
-
-	//-----------------------------------------------------
-	for(iRecord=0; iRecord<nRecords && SG_UI_Process_Set_Progress(iRecord, nRecords); iRecord++)
-	{
-		CSG_Shape	*pRecord	= pShapes->Add_Shape();
-
-		if( bBinary )
-		{
-			CSG_Bytes	Binary;	Binary.fromHexString(PQgetvalue(pResult, iRecord, gField) + 2);
-
-			CSG_Shapes_OGIS_Converter::from_WKBinary(Binary, pRecord);
-		}
-		else
-		{
-			CSG_Shapes_OGIS_Converter::from_WKText(PQgetvalue(pResult, iRecord, gField), pRecord);
-		}
-
-		for(iField=0, jField=0; iField<nFields; iField++)
-		{
-			if( iField != gField )
+			if( PQgetisnull(pResult, iRecord, iField) )
 			{
-				if( PQgetisnull(pResult, iRecord, iField) )
-				{
-					pRecord->Set_NoData(jField++);
-				}
-				else switch( pShapes->Get_Field_Type(jField) )
-				{
-				default:
-					pRecord->Set_Value(jField++, PQgetvalue(pResult, iRecord, iField));
-					break;
+				pRecord->Set_NoData(jField++);
+			}
+			else switch( pShapes->Get_Field_Type(jField) )
+			{
+			default: {
+				pRecord->Set_Value(jField++, PQgetvalue(pResult, iRecord, iField));
+				break; }
 
-				case SG_DATATYPE_String:
-					pRecord->Set_Value(jField++, CSG_String::from_UTF8(PQgetvalue(pResult, iRecord, iField)));
-					break;
+			case SG_DATATYPE_String: {
+				pRecord->Set_Value(jField++, CSG_String::from_UTF8(PQgetvalue(pResult, iRecord, iField)));
+				break; }
 
-				case SG_DATATYPE_Binary: {
-					CSG_Bytes	Binary;	Binary.fromHexString(PQgetvalue(pResult, iRecord, iField) + 2);
+			case SG_DATATYPE_Binary: {
+				CSG_Bytes Binary; Binary.fromHexString(PQgetvalue(pResult, iRecord, iField) + 2);
 
-					pRecord->Set_Value(jField++, Binary);
-					break; }
-				}
+				pRecord->Set_Value(jField++, Binary);
+				break; }
 			}
 		}
 	}
 
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &geoTable)
+{
+	CSG_String Fields;
+
+	return( _Shapes_Load(geoTable, Fields) && Shapes_Load(pShapes, geoTable, geoTable, "", Fields, "") );
+}
+
+//---------------------------------------------------------
+bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where)
+{
+	CSG_String Select; int SRID;
+
+	return( _Shapes_Load(geoTable, Tables, Fields, Where, GEOMETRY_FIELD, has_Version(9), SRID, Select)
+		&&   Shapes_Load(pShapes, Name, Select          , GEOMETRY_FIELD, has_Version(9), SRID) );
+}
+
+//---------------------------------------------------------
+bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &Select, const CSG_String &geoFieldName, bool bBinary, int SRID)
+{
+	int nFields, nRecords, geoField; PGresult *pResult = (PGresult *)_Shapes_Load(Select, geoFieldName, nFields, nRecords, geoField);
+
+	if( !pResult )
+	{
+		return( false );
+	}
+
 	//-----------------------------------------------------
+	for(int iRecord=0; iRecord<nRecords && SG_UI_Process_Set_Progress(iRecord, nRecords); iRecord++)
+	{
+		TSG_Shape_Type Type = _Shape_Get_Type(PQgetvalue(pResult, iRecord, geoField), bBinary);
+
+		if( Type == SHAPE_TYPE_Undefined || (Type != pShapes->Get_Type() && pShapes->Get_Type() != SHAPE_TYPE_Undefined) )
+		{
+			continue;
+		}
+
+		if( pShapes->Get_Type() == SHAPE_TYPE_Undefined )
+		{
+			pShapes->Create(Type, Name); pShapes->Get_Projection().Create(SRID);
+
+			for(int iField=0; iField<nFields; iField++)
+			{
+				if( iField != geoField )
+				{
+					pShapes->Add_Field(PQfname(pResult, iField), Get_Type_From_SQL(PQftype(pResult, iField)));
+				}
+			}
+		}
+
+		_Shape_Load_Record(pResult, iRecord, geoField, bBinary, pShapes);
+	}
+
+	SG_UI_Process_Set_Progress(0., 0.);
+
 	PQclear(pResult);
 
-	Add_MetaData(*pShapes, Name, Select);
+	//-----------------------------------------------------
+	if( pShapes->is_Valid() )
+	{
+		Add_MetaData(*pShapes, Name, Select);
 
-	SG_UI_Process_Set_Progress(0.0, 0.0);
+		return( true );
+	}
 
-	return( true );
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes[4], const CSG_String &geoTable)
+{
+	CSG_String Fields;
+
+	return( _Shapes_Load(geoTable, Fields) ? Shapes_Load(pShapes, geoTable, geoTable, "", Fields, "") : 0 );
+}
+
+//---------------------------------------------------------
+int CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes[4], const CSG_String &Name, const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where)
+{
+	CSG_String Select; int SRID;
+
+	return( _Shapes_Load(geoTable, Tables, Fields, Where, GEOMETRY_FIELD, has_Version(9), SRID, Select)
+		?    Shapes_Load(pShapes, Name, Select          , GEOMETRY_FIELD, has_Version(9), SRID) : 0 );
+}
+
+//---------------------------------------------------------
+int CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes[4], const CSG_String &Name, const CSG_String &Select, const CSG_String &geoFieldName, bool bBinary, int SRID)
+{
+	int nFields, nRecords, geoField; PGresult *pResult = (PGresult *)_Shapes_Load(Select, geoFieldName, nFields, nRecords, geoField);
+
+	if( !pResult )
+	{
+		return( false );
+	}
+
+	for(int i=0; i<4; i++) { pShapes[i] = NULL; }
+
+	//-----------------------------------------------------
+	for(int iRecord=0; iRecord<nRecords && SG_UI_Process_Set_Progress(iRecord, nRecords); iRecord++)
+	{
+		TSG_Shape_Type Type = _Shape_Get_Type(PQgetvalue(pResult, iRecord, geoField), bBinary);
+
+		if( Type == SHAPE_TYPE_Undefined )
+		{
+			continue;
+		}
+
+		int i = Type == SHAPE_TYPE_Point   ? 0
+			  : Type == SHAPE_TYPE_Points  ? 1
+			  : Type == SHAPE_TYPE_Line    ? 2
+			  : Type == SHAPE_TYPE_Polygon ? 3 : -1;
+
+		if( pShapes[i] == NULL )
+		{
+			pShapes[i] = SG_Create_Shapes(Type, Name); pShapes[i]->Get_Projection().Create(SRID);
+
+			for(int iField=0; iField<nFields; iField++)
+			{
+				if( iField != geoField )
+				{
+					pShapes[i]->Add_Field(PQfname(pResult, iField), Get_Type_From_SQL(PQftype(pResult, iField)));
+				}
+			}
+		}
+
+		_Shape_Load_Record(pResult, iRecord, geoField, bBinary, pShapes[i]);
+	}
+
+	SG_UI_Process_Set_Progress(0., 0.);
+
+	PQclear(pResult);
+
+	//-----------------------------------------------------
+	int nValid = 0;
+
+	for(int i=0; i<4; i++)
+	{
+		if( pShapes[i] )
+		{
+			nValid++; Add_MetaData(*pShapes[i], Name, Select);
+		}
+	}
+
+	return( nValid );
 }
 
 

@@ -72,6 +72,12 @@ CShapes_Load::CShapes_Load(void)
 		PARAMETER_OUTPUT
 	);
 
+	Parameters.Add_Shapes_List("",
+		"COLLECTION", _TL("Shapes"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
 	Parameters.Add_Choice("",
 		"TABLES"	, _TL("Tables"),
 		_TL(""),
@@ -82,14 +88,13 @@ CShapes_Load::CShapes_Load(void)
 //---------------------------------------------------------
 void CShapes_Load::On_Connection_Changed(CSG_Parameters *pParameters)
 {
-	CSG_String	s;
-	CSG_Table	t;
+	CSG_String s; CSG_Table t;
 
 	if( Get_Connection()->Table_Load(t, "geometry_columns") )
 	{
 		for(int i=0; i<t.Get_Count(); i++)
 		{
-			s	+= t[i].asString("f_table_name") + CSG_String("|");
+			s += t[i].asString("f_table_name") + CSG_String("|");
 		}
 	}
 
@@ -99,12 +104,45 @@ void CShapes_Load::On_Connection_Changed(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 bool CShapes_Load::On_Execute(void)
 {
-	CSG_Shapes	*pShapes	= Parameters("SHAPES")->asShapes();
-	CSG_String	Name		= Parameters("TABLES")->asString();
+	CSG_Table Geometries; TSG_Shape_Type Geometry = SHAPE_TYPE_Undefined;
 
-	if( !Get_Connection()->Shapes_Load(pShapes, Name) )
+	if( Get_Connection()->Table_Load(Geometries, "geometry_columns") )
 	{
-		Error_Set(_TL("unable to load vector data from PostGIS database") + CSG_String(":\n") + Name);
+		CSG_Table_Record *pInfo = Geometries.Find_Record(Geometries.Find_Field("f_table_name"), Parameters("TABLES")->asString());
+
+		if( pInfo )
+		{
+			Geometry = CSG_Shapes_OGIS_Converter::to_ShapeType(pInfo->asString("type"));
+		}
+
+		if( Geometry == SHAPE_TYPE_Undefined ) // Geometry Collection ?!
+		{
+			CSG_Shapes *pShapes[4];
+
+			if( !Get_Connection()->Shapes_Load(pShapes, Parameters("TABLES")->asString()) )
+			{
+				Error_Set(_TL("unable to load vector data from PostGIS database") + CSG_String(":\n") + Parameters("TABLES")->asString());
+
+				return( false );
+			}
+
+			CSG_Parameter_Shapes_List *pCollection = Parameters("COLLECTION")->asShapesList(); pCollection->Del_Items();
+
+			for(int i=0; i<4; i++)
+			{
+				pCollection->Add_Item(pShapes[i]);
+			}
+
+			return( true );
+		}
+	}
+
+	//-----------------------------------------------------
+	CSG_Shapes *pShapes = Parameters("SHAPES")->asShapes();
+
+	if( !Get_Connection()->Shapes_Load(pShapes, Parameters("TABLES")->asString()) )
+	{
+		Error_Set(_TL("unable to load vector data from PostGIS database") + CSG_String(":\n") + Parameters("TABLES")->asString());
 
 		return( false );
 	}
@@ -122,7 +160,6 @@ bool CShapes_Load::On_Execute(void)
 //---------------------------------------------------------
 CShapes_Save::CShapes_Save(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Export Shapes to PostGIS"));
 
 	Set_Author		("O.Conrad (c) 2013");

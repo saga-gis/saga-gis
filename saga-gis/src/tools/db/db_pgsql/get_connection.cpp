@@ -545,7 +545,7 @@ CExecute_SQL::CExecute_SQL(void)
 //---------------------------------------------------------
 bool CExecute_SQL::On_Execute(void)
 {
-	CSG_String	SQL	= Parameters("SQL")->asString();
+	CSG_String SQL = Parameters("SQL")->asString();
 
 	if( SQL.is_Empty() )
 	{
@@ -555,23 +555,22 @@ bool CExecute_SQL::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int		nErrors = 0;
+	int  nErrors = 0;
+	int  Output  = Parameters("OUTPUT")->asInt();
+	bool bStop   = Parameters("STOP"  )->asBool();
 
-	int		Output	= Parameters("OUTPUT")->asInt();
-	bool	bStop	= Parameters("STOP"  )->asBool();
-
-	CSG_Parameter_Table_List	*pTables	= Parameters("TABLES")->asTableList();
+	CSG_Parameter_Table_List *pTables = Parameters("TABLES")->asTableList();
 
 	//-----------------------------------------------------
-	CSG_String_Tokenizer	Commands(SQL, ";");
+	CSG_String_Tokenizer Commands(SQL, ";");
 
 	while( Commands.Has_More_Tokens() && (!nErrors || !bStop) )
 	{
-		CSG_String	Command	= Commands.Get_Next_Token(); Command.Trim(true); Command.Trim(false);
+		CSG_String Command = Commands.Get_Next_Token(); Command.Trim(true); Command.Trim(false);
 
 		if( !Command.is_Empty() )
 		{
-			CSG_Table	*pTable	= Output ? SG_Create_Table() : NULL;
+			CSG_Table *pTable = Output ? SG_Create_Table() : NULL;
 
 			if( !Get_Connection()->Execute(Command, pTable) )
 			{
@@ -593,28 +592,27 @@ bool CExecute_SQL::On_Execute(void)
 					}
 					else	// message window
 					{
-						int			iField, iRecord;
-						CSG_String	s	= "\n";
+						CSG_String s = "\n";
 
-						for(iField=0; iField<pTable->Get_Field_Count(); iField++)
+						for(int iField=0; iField<pTable->Get_Field_Count(); iField++)
 						{
-							s	+= iField > 0 ? "\t" : "\n";
-							s	+= pTable->Get_Field_Name(iField);
+							s += iField > 0 ? "\t" : "\n";
+							s += pTable->Get_Field_Name(iField);
 						}
 
-						s	= "\n___";
+						s = "\n___";
 
-						for(iRecord=0; iRecord<pTable->Get_Count(); iRecord++)
+						for(int iRecord=0; iRecord<pTable->Get_Count(); iRecord++)
 						{
-							CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
+							CSG_Table_Record *pRecord = pTable->Get_Record(iRecord);
 
-							for(iField=0; iField<pTable->Get_Field_Count(); iField++)
+							for(int iField=0; iField<pTable->Get_Field_Count(); iField++)
 							{
-								s	+= iField > 0 ? "\t" : "\n";
-								s	+= pRecord->asString(iField);
+								s += iField > 0 ? "\t" : "\n";
+								s += pRecord->asString(iField);
 							}
 
-							Message_Add(s, false);	s.Clear();
+							Message_Add(s, false); s.Clear();
 						}
 
 						Message_Add("\n", false);
@@ -688,13 +686,11 @@ CDatabase_Create::CDatabase_Create(void)
 //---------------------------------------------------------
 bool CDatabase_Create::On_Execute(void)
 {
-	const SG_Char	*Host, *Name, *User, *Password;
-
-	Host		= Parameters("PG_HOST")->asString();
-	int	Port	= Parameters("PG_PORT")->asInt();
-	Name		= Parameters("PG_NAME")->asString(),
-	User		= Parameters("PG_USER")->asString();
-	Password	= Parameters("PG_PWD" )->asString();
+	const SG_Char *Host     = Parameters("PG_HOST")->asString();
+	int            Port     = Parameters("PG_PORT")->asInt   ();
+	const SG_Char *Name     = Parameters("PG_NAME")->asString();
+	const SG_Char *User     = Parameters("PG_USER")->asString();
+	const SG_Char *Password = Parameters("PG_PWD" )->asString();
 
 	if( SG_PG_Get_Connection_Manager().Get_Connection(CSG_String::Format("%s [%s:%d]", Name, Host, Port)) )
 	{
@@ -703,11 +699,11 @@ bool CDatabase_Create::On_Execute(void)
 		return( false );
 	}
 
-	CSG_PG_Connection	Connection;
+	CSG_PG_Connection Connection;
 
 	if( Connection.Create(Host, Port, "", User, Password) && Connection.Execute(CSG_String::Format("CREATE DATABASE %s", Name)) )
 	{
-		CSG_PG_Connection	*pConnection	= SG_PG_Get_Connection_Manager().Add_Connection(Name, User, Password, Host, Port);
+		CSG_PG_Connection *pConnection = SG_PG_Get_Connection_Manager().Add_Connection(Name, User, Password, Host, Port);
 
 		if( pConnection )
 		{
@@ -715,7 +711,7 @@ bool CDatabase_Create::On_Execute(void)
 			{
 				Message_Fmt("\n%s [%s:%d]: %s", Name, Host, Port, _TL("PostGIS extension added"));
 
-				CSG_String	Major(pConnection->Get_PostGIS().BeforeFirst('.'));
+				CSG_String Major(pConnection->Get_PostGIS().BeforeFirst('.'));
 
 				if( Major.asInt() >= 3 && pConnection->Execute("CREATE EXTENSION postgis_raster") )
 				{
@@ -786,13 +782,11 @@ CDatabase_Destroy::CDatabase_Destroy(void)
 //---------------------------------------------------------
 bool CDatabase_Destroy::On_Execute(void)
 {
-	const SG_Char	*Host, *Name, *User, *Password;
-
-	Host		= Parameters("PG_HOST")->asString();
-	int	Port	= Parameters("PG_PORT")->asInt   ();
-	Name		= Parameters("PG_NAME")->asString();
-	User		= Parameters("PG_USER")->asString();
-	Password	= Parameters("PG_PWD" )->asString();
+	const SG_Char *Host     = Parameters("PG_HOST")->asString();
+	int            Port     = Parameters("PG_PORT")->asInt   ();
+	const SG_Char *Name     = Parameters("PG_NAME")->asString();
+	const SG_Char *User     = Parameters("PG_USER")->asString();
+	const SG_Char *Password = Parameters("PG_PWD" )->asString();
 
 	if( SG_PG_Get_Connection_Manager().Get_Connection(CSG_String::Format("%s [%s:%d]", Name, Host, Port)) )
 	{
@@ -804,7 +798,7 @@ bool CDatabase_Destroy::On_Execute(void)
 		}
 	}
 
-	CSG_PG_Connection	Connection;
+	CSG_PG_Connection Connection;
 
 	if( Connection.Create(Host, Port, "", User, Password) && Connection.Execute(CSG_String::Format("DROP DATABASE IF EXISTS %s", Name)) )
 	{

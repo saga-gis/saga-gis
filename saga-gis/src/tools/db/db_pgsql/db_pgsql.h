@@ -138,10 +138,13 @@ public:
 	bool						Table_Load				(CSG_Table &Data, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where = "", const CSG_String &Group = "", const CSG_String &Having = "", const CSG_String &Order = "", bool bDistinct = false, bool bVerbose = false);
 
 	bool						Shapes_Geometry_Info	(const CSG_String &geoTable, CSG_String *geoField, int *SRID);
-	bool						Shapes_Load				(CSG_Shapes *pShapes, const CSG_String &geoTable);
-	bool						Shapes_Load				(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where);
-	bool						Shapes_Load				(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &Select, const CSG_String &Geometry_Field, bool bBinary, int SRID = -1);
-	bool						Shapes_Insert			(CSG_Shapes *pShapes, const CSG_String &geoTable);
+	bool						Shapes_Load				(CSG_Shapes *pShapes   , const CSG_String &geoTable);
+	bool						Shapes_Load				(CSG_Shapes *pShapes   , const CSG_String &Name, const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where);
+	bool						Shapes_Load				(CSG_Shapes *pShapes   , const CSG_String &Name, const CSG_String &Select, const CSG_String &geoFieldName, bool bBinary, int SRID = -1);
+	int							Shapes_Load				(CSG_Shapes *pShapes[4], const CSG_String &geoTable);
+	int							Shapes_Load				(CSG_Shapes *pShapes[4], const CSG_String &Name, const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where);
+	int							Shapes_Load				(CSG_Shapes *pShapes[4], const CSG_String &Name, const CSG_String &Select, const CSG_String &geoFieldName, bool bBinary, int SRID = -1);
+	bool						Shapes_Insert			(CSG_Shapes *pShapes   , const CSG_String &geoTable);
 
 	bool						Raster_Load				(CSG_Data_Manager         &Grids, const CSG_String &Table, const CSG_String &Where = "", const CSG_String &Order = "", CSG_Table *pInfo = NULL);
 	bool						Raster_Load				(CSG_Parameter_Grid_List *pGrids, const CSG_String &Table, const CSG_String &Where = "", const CSG_String &Order = "", int OutputType = 0);
@@ -160,6 +163,12 @@ private:
 
 	bool						_Table_Load				(CSG_Table &Data, const CSG_String &Select, const CSG_String &Name = "")	const;
 	bool						_Table_Load				(CSG_Table &Data, void *pResult)	const;
+
+	bool						_Shapes_Load			(const CSG_String &geoTable, CSG_String &Fields);
+	bool						_Shapes_Load			(const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where, const CSG_String &Geometry, bool bBinary, int &SRID, CSG_String &Select);
+	void *						_Shapes_Load			(const CSG_String &Select, const CSG_String &geoFieldName, int &nFields, int &nRecords, int &geoField);
+	TSG_Shape_Type				_Shape_Get_Type			(const char *WKBytes, bool bBinary);
+	bool						_Shape_Load_Record		(void *_pResult, int iRecord, int geoField, bool bBinary, CSG_Shapes *pShapes);
 
 	bool						_Raster_Open			(CSG_Table &Info, const CSG_String &Table, const CSG_String &Where = "", const CSG_String &Order = "", bool bBinary = true);
 	bool						_Raster_Load			(CSG_Grid *pGrid, bool bFirst, bool bBinary = true);

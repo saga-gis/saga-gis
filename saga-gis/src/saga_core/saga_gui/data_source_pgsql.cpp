@@ -92,6 +92,7 @@ enum
 	IMG_POINTS,
 	IMG_LINE,
 	IMG_POLYGON,
+	IMG_GEOMETRY,
 	IMG_GRIDS,
 	IMG_GRID
 };
@@ -444,17 +445,18 @@ CData_Source_PgSQL::CData_Source_PgSQL(wxWindow *pParent)
 	: wxTreeCtrl(pParent, ID_WND_DATA_SOURCE_DATABASE)
 {
 	AssignImageList(new wxImageList(IMG_SIZE_TREECTRL, IMG_SIZE_TREECTRL, true, 0));
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DB_SOURCES    );	// IMG_ROOT
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DB_SOURCES    );	// IMG_SERVER
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DB_SOURCE_OFF );	// IMG_SRC_CLOSED
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DB_SOURCE_ON  );	// IMG_SRC_OPENED
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DB_TABLE      );	// IMG_TABLE
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_SHAPES_POINT  );	// IMG_POINT
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_SHAPES_POINTS );	// IMG_POINTS
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_SHAPES_LINE   );	// IMG_LINE
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_SHAPES_POLYGON);	// IMG_POLYGON
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_GRIDS         );	// IMG_GRIDS
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_GRID          );	// IMG_GRID
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DB_SOURCES     ); // IMG_ROOT
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DB_SOURCES     ); // IMG_SERVER
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DB_SOURCE_OFF  ); // IMG_SRC_CLOSED
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DB_SOURCE_ON   ); // IMG_SRC_OPENED
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DB_TABLE       ); // IMG_TABLE
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_SHAPES_POINT   ); // IMG_POINT
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_SHAPES_POINTS  ); // IMG_POINTS
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_SHAPES_LINE    ); // IMG_LINE
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_SHAPES_POLYGON ); // IMG_POLYGON
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_SHAPES_GEOMETRY); // IMG_GEOMETRY
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_GRIDS          ); // IMG_GRIDS
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_GRID           ); // IMG_GRID
 
 	AddRoot(_TL("PostgreSQL Sources"), IMG_ROOT, IMG_ROOT, new CData_Source_PgSQL_Data(TYPE_ROOT));
 
@@ -947,15 +949,15 @@ void CData_Source_PgSQL::Update_Source(const wxTreeItemId &Item)
 				{
 					switch( Shape )
 					{
-					case SHAPE_TYPE_Point      : Append_Table(Item, Name, TYPE_SHAPES, IMG_POINT  ); break;
-					case SHAPE_TYPE_Points     : Append_Table(Item, Name, TYPE_SHAPES, IMG_POINTS ); break;
-					case SHAPE_TYPE_Line       : Append_Table(Item, Name, TYPE_SHAPES, IMG_LINE   ); break;
-					case SHAPE_TYPE_Polygon    : Append_Table(Item, Name, TYPE_SHAPES, IMG_POLYGON); break;
+					case SHAPE_TYPE_Point      : Append_Table(Item, Name, TYPE_SHAPES, IMG_POINT   ); break;
+					case SHAPE_TYPE_Points     : Append_Table(Item, Name, TYPE_SHAPES, IMG_POINTS  ); break;
+					case SHAPE_TYPE_Line       : Append_Table(Item, Name, TYPE_SHAPES, IMG_LINE    ); break;
+					case SHAPE_TYPE_Polygon    : Append_Table(Item, Name, TYPE_SHAPES, IMG_POLYGON ); break;
 					}
 				}
-				else if( !Type.Cmp("RASTER"  ) ) Append_Table(Item, Name, TYPE_GRIDS , IMG_GRIDS  );
-				else if( !Type.Cmp("TABLE"   ) ) Append_Table(Item, Name, TYPE_TABLE , IMG_TABLE  );
-				else if( !Type.Cmp("GEOMETRY") ) Append_Table(Item, Name, TYPE_TABLE , IMG_TABLE  ); // mixed geometry types!(?)
+				else if( !Type.Cmp("GEOMETRY") ) Append_Table(Item, Name, TYPE_SHAPES, IMG_GEOMETRY); // geometry collection!(?)
+				else if( !Type.Cmp("RASTER"  ) ) Append_Table(Item, Name, TYPE_GRIDS , IMG_GRIDS   );
+				else if( !Type.Cmp("TABLE"   ) ) Append_Table(Item, Name, TYPE_TABLE , IMG_TABLE   );
 			}
 		}
 

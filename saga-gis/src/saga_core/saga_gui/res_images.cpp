@@ -726,6 +726,7 @@ const char * _Get_SVG(int ID_IMG)
 	case ID_IMG_WKSP_SHAPES_POINT        : return( svg_wksp_shapes_point );
 	case ID_IMG_WKSP_SHAPES_POINTS       : return( svg_wksp_shapes_points );
 	case ID_IMG_WKSP_SHAPES_POLYGON      : return( svg_wksp_shapes_polygon );
+	case ID_IMG_WKSP_SHAPES_GEOMETRY     : return( svg_wksp_shapes_manager );
 	case ID_IMG_WKSP_TABLE               : return( svg_table );
 	case ID_IMG_WKSP_TABLE_MANAGER       : return( svg_wksp_table_manager );
 	case ID_IMG_WKSP_TIN                 : return( svg_wksp_tin );
