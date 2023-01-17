@@ -1316,8 +1316,8 @@ bool CSG_PG_Connection::_Shapes_Load(const CSG_String &geoTable, const CSG_Strin
 //---------------------------------------------------------
 void * CSG_PG_Connection::_Shapes_Load(const CSG_String &Select, const CSG_String &geoFieldName, int &nFields, int &nRecords, int &geoField)
 {
-	if( !is_Connected() ) { _Error_Message(_TL("no database connection")); return( false ); }
-	if( !has_PostGIS () ) { _Error_Message(_TL("not a PostGIS database")); return( false ); }
+	if( !is_Connected() ) { _Error_Message(_TL("no database connection")); return( NULL ); }
+	if( !has_PostGIS () ) { _Error_Message(_TL("not a PostGIS database")); return( NULL ); }
 
 	//-----------------------------------------------------
 	PGresult *pResult = PQexec(m_pgConnection, Select);
@@ -1326,7 +1326,7 @@ void * CSG_PG_Connection::_Shapes_Load(const CSG_String &Select, const CSG_Strin
 	{
 		_Error_Message(_TL("SQL execution failed"), m_pgConnection);
 
-		PQclear(pResult); return( false );
+		PQclear(pResult); return( NULL );
 	}
 
 	//-----------------------------------------------------
@@ -1334,7 +1334,7 @@ void * CSG_PG_Connection::_Shapes_Load(const CSG_String &Select, const CSG_Strin
 	{
 		_Error_Message(_TL("no fields in selection"));
 
-		PQclear(pResult); return( false );
+		PQclear(pResult); return( NULL );
 	}
 
 	//-----------------------------------------------------
@@ -1342,7 +1342,7 @@ void * CSG_PG_Connection::_Shapes_Load(const CSG_String &Select, const CSG_Strin
 	{
 		_Error_Message(_TL("no records in selection"));
 
-		PQclear(pResult); return( false );
+		PQclear(pResult); return( NULL );
 	}
 
 	//-----------------------------------------------------
@@ -1360,7 +1360,7 @@ void * CSG_PG_Connection::_Shapes_Load(const CSG_String &Select, const CSG_Strin
 	{
 		_Error_Message(_TL("no geometry in selection"));
 
-		PQclear(pResult); return( false );
+		PQclear(pResult); return( NULL );
 	}
 
 	//-----------------------------------------------------
