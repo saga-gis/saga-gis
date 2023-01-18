@@ -220,7 +220,7 @@ wxString CWKSP_Map::Get_Name(void)
 //---------------------------------------------------------
 wxString CWKSP_Map::Get_Description(void)
 {
-	wxString	s;
+	wxString s;
 
 	//-----------------------------------------------------
 	s	+= wxString::Format("<h4>%s</h4>", _TL("Map"));
@@ -230,6 +230,15 @@ wxString CWKSP_Map::Get_Description(void)
 	DESC_ADD_STR(_TL("Name"             ), m_Name.c_str());
 	DESC_ADD_INT(_TL("Layers"           ), Get_Count());
 	DESC_ADD_STR(_TL("Coordinate System"), m_Projection.Get_Description().c_str());
+
+	int n = Get_Extent().Get_Diameter() > 1 ? 0 : -99;
+
+	DESC_ADD_STR(_TL("West"             ), SG_Get_String(Get_Extent().Get_XMin  (), n).c_str());
+	DESC_ADD_STR(_TL("East"             ), SG_Get_String(Get_Extent().Get_XMax  (), n).c_str());
+	DESC_ADD_STR(_TL("West-East"        ), SG_Get_String(Get_Extent().Get_XRange(), n).c_str());
+	DESC_ADD_STR(_TL("South"            ), SG_Get_String(Get_Extent().Get_YMin  (), n).c_str());
+	DESC_ADD_STR(_TL("North"            ), SG_Get_String(Get_Extent().Get_YMax  (), n).c_str());
+	DESC_ADD_STR(_TL("South-North"      ), SG_Get_String(Get_Extent().Get_YRange(), n).c_str());
 
 	s	+= "</table>";
 
@@ -1034,6 +1043,8 @@ bool CWKSP_Map::_Set_Extent(const CSG_Rect &Extent)
 	if( Extent.Get_XRange() > 0. && Extent.Get_YRange() > 0. )
 	{
 		View_Refresh(true);
+
+		g_pActive->Update_Description();
 
 		for(int i=0; i<Get_Count(); i++)
 		{
