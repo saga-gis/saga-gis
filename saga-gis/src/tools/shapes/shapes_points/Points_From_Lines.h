@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 /*******************************************************************************
     Points_From_Lines.h
@@ -39,7 +36,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -54,19 +51,22 @@ class CPoints_From_Lines : public CSG_Tool
 public:
 	CPoints_From_Lines(void);
 
-	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Shapes|Conversion") );	}
+	virtual CSG_String	Get_MenuPath				(void)	{	return( _TL("A:Shapes|Conversion") );	}
 
 
 protected:
 
-	virtual bool				On_Execute		(void);
+	virtual int			On_Parameters_Enable		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual int					On_Parameters_Enable		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual bool		On_Execute					(void);
 
-	void						Convert_Add_Points_Segment	(CSG_Shapes *pLines, CSG_Shapes *pPoints, double dDist, bool bAddPtOrder);
-	void						Convert_Add_Points_Line		(CSG_Shapes *pLines, CSG_Shapes *pPoints, double dDist, bool bAddPtOrder);
-	void						Convert_Add_Points_Center	(CSG_Shapes *pLines, CSG_Shapes *pPoints, double dDist, bool bAddPtOrder);
-	void						Convert						(CSG_Shapes *pLines, CSG_Shapes *pPoints, bool bAddPtOrder);
+
+private:
+
+	void				Convert						(CSG_Shapes *pLines, CSG_Shapes *pPoints, bool bOrder);
+	void				Convert_Add_Points_Segment	(CSG_Shapes *pLines, CSG_Shapes *pPoints, bool bOrder, double Distance);
+	void				Convert_Add_Points_Line		(CSG_Shapes *pLines, CSG_Shapes *pPoints, bool bOrder, double Distance);
+	void				Convert_Add_Points_Center	(CSG_Shapes *pLines, CSG_Shapes *pPoints, bool bOrder, double Distance);
 
 };
 
@@ -81,12 +81,12 @@ class CPoints_From_MultiPoints : public CSG_Tool
 public:
 	CPoints_From_MultiPoints(void);
 
-	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Shapes|Conversion") );	}
+	virtual CSG_String	Get_MenuPath	(void)	{	return( _TL("A:Shapes|Conversion") );	}
 
 
 protected:
 
-	virtual bool				On_Execute		(void);
+	virtual bool		On_Execute		(void);
 
 };
 
