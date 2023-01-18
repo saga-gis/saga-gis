@@ -336,6 +336,10 @@ bool CQGIS_ToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_String &Paramet
 			"|TARGET_USER_SIZE"
 			"|Cellsize|QgsProcessingParameterNumber.Double|100.0|False|None|None";
 
+		Parameter	+= "\nQgsProcessingParameterEnum"
+			"|TARGET_USER_FITS"
+			"|Fit|[0] nodes;[1] cells|False|0";
+
 		return( true );
 	}
 
