@@ -1594,12 +1594,14 @@ private:
 	static bool				_WKB_Read_Point			(CSG_Bytes &Bytes, bool bSwapBytes, CSG_Shape *pShape, int iPart);
 	static bool				_WKB_Read_Points		(CSG_Bytes &Bytes, bool bSwapBytes, CSG_Shape *pShape);
 	static bool				_WKB_Read_Parts			(CSG_Bytes &Bytes, bool bSwapBytes, CSG_Shape *pShape);
+	static bool				_WKB_Read_MultiPoint	(CSG_Bytes &Bytes, bool bSwapBytes, CSG_Shape *pShape);
 	static bool				_WKB_Read_MultiLine		(CSG_Bytes &Bytes, bool bSwapBytes, CSG_Shape *pShape);
 	static bool				_WKB_Read_MultiPolygon	(CSG_Bytes &Bytes, bool bSwapBytes, CSG_Shape *pShape);
 
 	static bool				_WKB_Write_Point		(CSG_Bytes &Bytes, CSG_Shape *pShape, int iPoint, int iPart);
 	static bool				_WKB_Write_Points		(CSG_Bytes &Bytes, CSG_Shape *pShape, int iPart);
 	static bool				_WKB_Write_Parts		(CSG_Bytes &Bytes, CSG_Shape *pShape);
+	static bool				_WKB_Write_MultiPoint	(CSG_Bytes &Bytes, CSG_Shape *pShape);
 	static bool				_WKB_Write_MultiLine	(CSG_Bytes &Bytes, CSG_Shape *pShape);
 	static bool				_WKB_Write_MultiPolygon	(CSG_Bytes &Bytes, CSG_Shape *pShape);
 
