@@ -341,7 +341,7 @@ private:
 	bool						_Synchronize_DataObjects	(void);
 
 	CSG_String					_Get_Script_CMD				(bool bHeader, bool bAllParameters, TSG_Tool_Script_Type Type);
-	void						_Get_Script_CMD				(CSG_String &Script, CSG_Parameters *pParameters, bool bAllParameters);
+	void						_Get_Script_CMD				(CSG_String &Script, CSG_Parameters *pParameters, bool bAllParameters, TSG_Tool_Script_Type Type);
 
 	CSG_String					_Get_Script_Python			(bool bHeader, bool bAllParameters);
 	void						_Get_Script_Python			(CSG_String &Script, CSG_Parameters *pParameters, bool bAllParameters, const CSG_String &Prefix = "");

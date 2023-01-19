@@ -1359,11 +1359,11 @@ CSG_String CSG_Tool::_Get_Script_CMD(bool bHeader, bool bAllParameters, TSG_Tool
 		? " \"" + Get_ID     () + "\""
 		: " "   + Get_ID     ();
 
-	_Get_Script_CMD(Script, Get_Parameters(), bAllParameters);
+	_Get_Script_CMD(Script, Get_Parameters(), bAllParameters, Type);
 
 	for(int i=0; i<Get_Parameters_Count(); i++)
 	{
-		_Get_Script_CMD(Script, Get_Parameters(i), bAllParameters);
+		_Get_Script_CMD(Script, Get_Parameters(i), bAllParameters, Type);
 	}
 
 	//-----------------------------------------------------
@@ -1376,7 +1376,7 @@ CSG_String CSG_Tool::_Get_Script_CMD(bool bHeader, bool bAllParameters, TSG_Tool
 }
 
 //---------------------------------------------------------
-void CSG_Tool::_Get_Script_CMD(CSG_String &Script, CSG_Parameters *pParameters, bool bAllParameters)
+void CSG_Tool::_Get_Script_CMD(CSG_String &Script, CSG_Parameters *pParameters, bool bAllParameters, TSG_Tool_Script_Type Type)
 {
 	#define GET_ID1(p)		(p->Get_Parameters()->Get_Identifier().Length() > 0 \
 		? CSG_String::Format("%s_%s", p->Get_Parameters()->Get_Identifier().c_str(), p->Get_Identifier()) \
@@ -1384,16 +1384,18 @@ void CSG_Tool::_Get_Script_CMD(CSG_String &Script, CSG_Parameters *pParameters, 
 
 	#define GET_ID2(p, s)	CSG_String::Format("%s_%s", GET_ID1(p), s).c_str()
 
-#ifdef _SAGA_MSW
-	CSG_String Prefix = " ^\n -";
-#else
-	CSG_String Prefix = " \\\n -";
-#endif
+	CSG_String Prefix;
+
+	switch( Type )
+	{
+	case TOOL_SCRIPT_CMD_BATCH:	Prefix = " ^\n -" ; break;
+	default                   :	Prefix = " \\\n -"; break;
+	}
 
 	//-----------------------------------------------------
 	for(int iParameter=0; iParameter<pParameters->Get_Count(); iParameter++)
 	{
-		CSG_Parameter	*p	= pParameters->Get_Parameter(iParameter);
+		CSG_Parameter *p = pParameters->Get_Parameter(iParameter);
 
 		if( !bAllParameters && (!p->is_Enabled(false) || p->is_Information() || !p->do_UseInCMD()) )
 		{
@@ -1435,8 +1437,14 @@ void CSG_Tool::_Get_Script_CMD(CSG_String &Script, CSG_Parameters *pParameters, 
 			Script	+= Prefix + CSG_String::Format("%s=%g", GET_ID2(p, SG_T("MAX")), p->asRange()->Get_Max());
 			break;
 
-		case PARAMETER_TYPE_Date             :
 		case PARAMETER_TYPE_String           :
+			if( ((CSG_Parameter_String *)p)->is_Password() )
+			{
+				Script	+= Prefix + CSG_String::Format("%s=\"***\"", GET_ID1(p));
+				break;
+			}
+
+		case PARAMETER_TYPE_Date             :
 		case PARAMETER_TYPE_Text             :
 		case PARAMETER_TYPE_FilePath         :
 			Script	+= Prefix + CSG_String::Format("%s=\"%s\"", GET_ID1(p), p->asString());
@@ -1705,8 +1713,14 @@ void CSG_Tool::_Get_Script_Python(CSG_String &Script, CSG_Parameters *pParameter
 			Script	+= CSG_String::Format("    Tool.Set_Parameter('%s.MAX', %g)\n", ID.c_str(), p->asRange()->Get_Max());
 			break;
 
-		case PARAMETER_TYPE_Date           :
 		case PARAMETER_TYPE_String         :
+			if( ((CSG_Parameter_String *)p)->is_Password() )
+			{
+				Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', '***')\n", ID.c_str());
+				break;
+			}
+
+		case PARAMETER_TYPE_Date           :
 		case PARAMETER_TYPE_Text           :
 		case PARAMETER_TYPE_FilePath       :
 			Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', '%s')\n", ID.c_str(), p->asString());
