@@ -2401,43 +2401,15 @@ int CSG_PG_Connections::Get_Connections(CSG_String &Connections)
 //---------------------------------------------------------
 CSG_PG_Tool::CSG_PG_Tool(void)
 {
-	Parameters.Add_String(
-		"", "PG_HOST"		, _TL("Host"),
-		_TL("Password"),
-		""
-	)->Set_UseInGUI(false);
+	Parameters.Add_String("", "PG_HOST"   , _TL("Host"       ), _TL(""), "127.0.0.1"    )->Set_UseInGUI(false);
+	Parameters.Add_Int   ("", "PG_PORT"   , _TL("Port"       ), _TL(""), 5432, 0, true  )->Set_UseInGUI(false);
+	Parameters.Add_String("", "PG_NAME"   , _TL("Database"   ), _TL(""), ""             )->Set_UseInGUI(false);
+	Parameters.Add_String("", "PG_USER"   , _TL("User"       ), _TL(""), ""             )->Set_UseInGUI(false);
+	Parameters.Add_String("", "PG_PWD"    , _TL("Password"   ), _TL(""), "", false, true)->Set_UseInGUI(false);
 
-	Parameters.Add_Value(
-		"", "PG_PORT"		, _TL("Port"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 5432, 0, true
-	)->Set_UseInGUI(false);
+	Parameters.Add_Choice("", "CONNECTION", _TL("Connections"), _TL(""), ""             )->Set_UseInCMD(false);
 
-	Parameters.Add_String(
-		"", "PG_NAME"		, _TL("Database"),
-		_TL("Database Name"),
-		""
-	)->Set_UseInGUI(false);
-
-	Parameters.Add_String(
-		"", "PG_USER"		, _TL("User"),
-		_TL("User Name"),
-		""
-	)->Set_UseInGUI(false);
-
-	Parameters.Add_String(
-		"", "PG_PWD"		, _TL("Password"),
-		_TL("Password"),
-		""
-	)->Set_UseInGUI(false);
-
-	Parameters.Add_Choice(
-		"", "CONNECTION"	, _TL("Available Connections"),
-		_TL(""),
-		""
-	)->Set_UseInCMD(false);
-
-	m_pConnection	= NULL;
+	m_pConnection = NULL;
 }
 
 //---------------------------------------------------------
@@ -2445,19 +2417,19 @@ bool CSG_PG_Tool::On_Before_Execution(void)
 {
 	if( !has_GUI() )
 	{
-		m_pConnection	= SG_PG_Get_Connection_Manager().Add_Connection(
+		m_pConnection = SG_PG_Get_Connection_Manager().Add_Connection(
 			Parameters("PG_NAME")->asString(),
 			Parameters("PG_USER")->asString(),
 			Parameters("PG_PWD" )->asString(),
 			Parameters("PG_HOST")->asString(),
-			Parameters("PG_PORT")->asInt()
+			Parameters("PG_PORT")->asInt   ()
 		);
 	}
 	else
 	{
-		CSG_String	Connections;
+		CSG_String Connections;
 
-		int	nConnections	= SG_PG_Get_Connection_Manager().Get_Connections(Connections);
+		int nConnections = SG_PG_Get_Connection_Manager().Get_Connections(Connections);
 
 		if( nConnections <= 0 )
 		{
@@ -2469,16 +2441,16 @@ bool CSG_PG_Tool::On_Before_Execution(void)
 			return( false );
 		}
 
-		CSG_PG_Connection	*pConnection	= NULL;
+		CSG_PG_Connection *pConnection = NULL;
 
 		if( nConnections == 1 || !(pConnection = SG_PG_Get_Connection_Manager().Get_Connection(Parameters("CONNECTION")->asString())) )
 		{
-			pConnection	= SG_PG_Get_Connection_Manager().Get_Connection(0);
+			pConnection = SG_PG_Get_Connection_Manager().Get_Connection(0);
 		}
 
 		if( m_pConnection != pConnection )
 		{
-			m_pConnection	= pConnection;
+			m_pConnection = pConnection;
 
 			On_Connection_Changed(&Parameters);
 		}
@@ -2507,11 +2479,10 @@ int CSG_PG_Tool::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 {
 	if( has_GUI() )
 	{
-		//-------------------------------------------------
 		if(	pParameter->Cmp_Identifier("CRS_EPSG_GEOGCS")
-		||	pParameter->Cmp_Identifier("CRS_EPSG_PROJCS") )
+		||  pParameter->Cmp_Identifier("CRS_EPSG_PROJCS") )
 		{
-			int		EPSG;
+			int EPSG;
 
 			if( pParameter->asChoice()->Get_Data(EPSG) )
 			{
@@ -2522,11 +2493,11 @@ int CSG_PG_Tool::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		//-------------------------------------------------
 		if( pParameter->Cmp_Identifier("CONNECTION") )
 		{
-			CSG_PG_Connection	*pConnection	= SG_PG_Get_Connection_Manager().Get_Connection(pParameter->asString());
+			CSG_PG_Connection *pConnection = SG_PG_Get_Connection_Manager().Get_Connection(pParameter->asString());
 
 			if( m_pConnection != pConnection )
 			{
-				m_pConnection	= pConnection;
+				m_pConnection = pConnection;
 
 				On_Connection_Changed(pParameters);
 			}
@@ -2534,7 +2505,7 @@ int CSG_PG_Tool::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 	}
 
 	//-----------------------------------------------------
-	return( 1 );
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 
@@ -2547,31 +2518,25 @@ bool CSG_PG_Tool::Add_SRID_Picker(CSG_Parameters *pParameters)
 {
 	if( !pParameters )
 	{
-		pParameters	= &Parameters;
+		pParameters = &Parameters;
 	}
 
 	if( pParameters->Get_Parameter("CRS_EPSG") )
 	{
-		return( false );	// don't add twice ...
+		return( false ); // don't add twice ...
 	}
 
-	pParameters->Add_Int(
-		"", "CRS_EPSG", _TL("EPSG Code"),
-		_TL(""),
-		-1, -1, true
-	);
+	pParameters->Add_Int("", "CRS_EPSG", _TL("EPSG Code"), _TL(""), -1, -1, true);
 
 	if( has_GUI() )
 	{
 		pParameters->Add_Choice(
-			"CRS_EPSG", "CRS_EPSG_GEOGCS", _TL("Geographic Coordinate Systems"),
-			_TL(""),
+			"CRS_EPSG", "CRS_EPSG_GEOGCS", _TL("Geographic Coordinate Systems"), _TL(""),
 			SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Geographic)
 		);
 
 		pParameters->Add_Choice(
-			"CRS_EPSG", "CRS_EPSG_PROJCS", _TL("Projected Coordinate Systems"),
-			_TL(""),
+			"CRS_EPSG", "CRS_EPSG_PROJCS", _TL("Projected Coordinate Systems" ), _TL(""),
 			SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Projected)
 		);
 	}
@@ -2582,7 +2547,7 @@ bool CSG_PG_Tool::Add_SRID_Picker(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 bool CSG_PG_Tool::Set_SRID_Picker_Enabled(CSG_Parameters *pParameters, bool bEnable)
 {
-	CSG_Parameter	*pParameter	= pParameters ? pParameters->Get_Parameter("CRS_EPSG") : NULL;
+	CSG_Parameter *pParameter = pParameters ? pParameters->Get_Parameter("CRS_EPSG") : NULL;
 
 	if( pParameter )
 	{
@@ -2597,15 +2562,18 @@ bool CSG_PG_Tool::Set_SRID_Picker_Enabled(CSG_Parameters *pParameters, bool bEna
 //---------------------------------------------------------
 bool CSG_PG_Tool::Set_SRID(CSG_Parameters *pParameters, int SRID)
 {
-	CSG_Parameter	*pParameter	= pParameters ? pParameters->Get_Parameter("CRS_EPSG") : NULL;
+	CSG_Parameter *pParameter = pParameters ? pParameters->Get_Parameter("CRS_EPSG") : NULL;
 
-	CSG_Projection	Projection;
-
-	if( pParameter && SG_Get_Projections().Get_Projection(Projection, SRID) )
+	if( pParameter )
 	{
-		pParameter->Set_Value(SRID);
+		CSG_Projection Projection;
 
-		return( true );
+		if( SG_Get_Projections().Get_Projection(Projection, SRID) )
+		{
+			pParameter->Set_Value(SRID);
+
+			return( true );
+		}
 	}
 
 	return( false );
@@ -2616,10 +2584,10 @@ int CSG_PG_Tool::Get_SRID(CSG_Parameters *pParameters)
 {
 	if( !pParameters )
 	{
-		pParameters	= &Parameters;
+		pParameters = &Parameters;
 	}
 
-	CSG_Parameter	*pParameter	= pParameters->Get_Parameter("CRS_EPSG");
+	CSG_Parameter *pParameter = pParameters->Get_Parameter("CRS_EPSG");
 
 	return( pParameter ? pParameter->asInt() : -1 );
 }
@@ -2632,7 +2600,7 @@ int CSG_PG_Tool::Get_SRID(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 bool CSG_PG_Tool::Set_Constraints(CSG_Parameters *pParameters, const CSG_String &Identifier)
 {
-	CSG_Parameter	*pParent	= pParameters ? pParameters->Get_Parameter(Identifier) : NULL;
+	CSG_Parameter *pParent = pParameters ? pParameters->Get_Parameter(Identifier) : NULL;
 
 	if( !pParent || (pParent->Get_Type() != PARAMETER_TYPE_Table && pParent->Get_Type() != PARAMETER_TYPE_Shapes) )
 	{
@@ -2649,16 +2617,16 @@ bool CSG_PG_Tool::Set_Constraints(CSG_Parameters *pParameters, const CSG_String 
 //---------------------------------------------------------
 CSG_Buffer CSG_PG_Tool::Get_Constraints(CSG_Parameters *pParameters, const CSG_String &Identifier)
 {
-	CSG_Buffer		Flags;
+	CSG_Buffer Flags;
 
-	CSG_Parameter	*pParent	= pParameters ? pParameters->Get_Parameter(Identifier) : NULL;
+	CSG_Parameter *pParent = pParameters ? pParameters->Get_Parameter(Identifier) : NULL;
 
 	if( !pParent || (pParent->Get_Type() != PARAMETER_TYPE_Table && pParent->Get_Type() != PARAMETER_TYPE_Shapes) )
 	{
 		return( Flags );
 	}
 
-	CSG_Parameter	*pFields;
+	CSG_Parameter *pFields;
 
 	Flags.Set_Size(((CSG_Table *)pParent->asDataObject())->Get_Field_Count());
 
