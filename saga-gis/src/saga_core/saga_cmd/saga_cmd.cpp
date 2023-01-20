@@ -382,6 +382,11 @@ bool		Execute_Script(const CSG_String &Script)
 	{
 		Command.Trim(true);
 
+		if( !Command.CmpNoCase("exit") )
+		{
+			return( true );
+		}
+
 		if( Command.Length() > 0 && Command[Command.Length() - 1] == CONTINUE_LINE )
 		{
 			CSG_String Line;
