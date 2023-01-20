@@ -66,49 +66,48 @@ CShapes_Load::CShapes_Load(void)
 		"Imports shapes from a PostGIS database."
 	));
 
-	Parameters.Add_Shapes("",
-		"SHAPES"	, _TL("Shapes"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
+	Parameters.Add_Shapes     ("", "SHAPES"    , _TL("Shapes"), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Shapes_List("", "COLLECTION", _TL("Shapes"), _TL(""), PARAMETER_OUTPUT);
 
-	Parameters.Add_Shapes_List("",
-		"COLLECTION", _TL("Shapes"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Choice("",
-		"TABLES"	, _TL("Tables"),
-		_TL(""),
-		""
-	);
+	Parameters.Add_Choice("", "DB_TABLES", _TL("Tables"      ), _TL(""), "")->Set_UseInCMD(false); // GUI => select from available tables
+	Parameters.Add_String("", "DB_TABLE" , _TL("Import Table"), _TL(""), "")->Set_UseInGUI(false); // CMD => table's db name
 }
 
 //---------------------------------------------------------
 void CShapes_Load::On_Connection_Changed(CSG_Parameters *pParameters)
 {
-	CSG_String s; CSG_Table t;
-
-	if( Get_Connection()->Table_Load(t, "geometry_columns") )
+	if( has_GUI() )
 	{
-		for(int i=0; i<t.Get_Count(); i++)
-		{
-			s += t[i].asString("f_table_name") + CSG_String("|");
-		}
-	}
+		CSG_String s; CSG_Table t;
 
-	pParameters->Get_Parameter("TABLES")->asChoice()->Set_Items(s);
+		SG_UI_ProgressAndMsg_Lock(true);
+
+		if( Get_Connection()->Table_Load(t, "geometry_columns") )
+		{
+			for(int i=0; i<t.Get_Count(); i++)
+			{
+				s += t[i].asString("f_table_name") + CSG_String("|");
+			}
+		}
+
+		SG_UI_ProgressAndMsg_Lock(false);
+
+		CSG_Parameter *pParameter = pParameters->Get_Parameter("DB_TABLES");
+		pParameter->asChoice()->Set_Items(s);
+		pParameter->Set_Value(pParameter->asString());
+	}
 }
 
 //---------------------------------------------------------
 bool CShapes_Load::On_Execute(void)
 {
+	CSG_String DB_Table(Parameters(has_GUI() ? "DB_TABLES" : "DB_TABLE")->asString());
+
 	CSG_Table Geometries; TSG_Shape_Type Geometry = SHAPE_TYPE_Undefined;
 
 	if( Get_Connection()->Table_Load(Geometries, "geometry_columns") )
 	{
-		CSG_Table_Record *pInfo = Geometries.Find_Record(Geometries.Find_Field("f_table_name"), Parameters("TABLES")->asString());
+		CSG_Table_Record *pInfo = Geometries.Find_Record(Geometries.Find_Field("f_table_name"), DB_Table);
 
 		if( pInfo )
 		{
@@ -119,9 +118,9 @@ bool CShapes_Load::On_Execute(void)
 		{
 			CSG_Shapes *pShapes[4];
 
-			if( !Get_Connection()->Shapes_Load(pShapes, Parameters("TABLES")->asString()) )
+			if( !Get_Connection()->Shapes_Load(pShapes, DB_Table) )
 			{
-				Error_Set(_TL("unable to load vector data from PostGIS database") + CSG_String(":\n") + Parameters("TABLES")->asString());
+				Error_Set(_TL("unable to load vector data from PostGIS database") + CSG_String(":\n") + DB_Table);
 
 				return( false );
 			}
@@ -140,9 +139,9 @@ bool CShapes_Load::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Shapes *pShapes = Parameters("SHAPES")->asShapes();
 
-	if( !Get_Connection()->Shapes_Load(pShapes, Parameters("TABLES")->asString()) )
+	if( !Get_Connection()->Shapes_Load(pShapes, DB_Table) )
 	{
-		Error_Set(_TL("unable to load vector data from PostGIS database") + CSG_String(":\n") + Parameters("TABLES")->asString());
+		Error_Set(_TL("unable to load vector data from PostGIS database") + CSG_String(":\n") + DB_Table);
 
 		return( false );
 	}
@@ -414,11 +413,8 @@ CShapes_SRID_Update::CShapes_SRID_Update(void)
 		" Change the SRID of all geometries in the user-specified column and table."
 	));
 
-	Parameters.Add_Choice("",
-		"TABLES"	, _TL("Tables"),
-		_TL(""),
-		""
-	);
+	Parameters.Add_Choice("", "DB_TABLES", _TL("Tables"), _TL(""), "")->Set_UseInCMD(false); // GUI => select from available tables
+	Parameters.Add_String("", "DB_TABLE" , _TL("Table" ), _TL(""), "")->Set_UseInGUI(false); // CMD => table's db name
 
 	Add_SRID_Picker();
 }
@@ -426,18 +422,26 @@ CShapes_SRID_Update::CShapes_SRID_Update(void)
 //---------------------------------------------------------
 void CShapes_SRID_Update::On_Connection_Changed(CSG_Parameters *pParameters)
 {
-	CSG_String	s;
-	CSG_Table	t;
-
-	if( Get_Connection()->Table_Load(t, "geometry_columns") )
+	if( has_GUI() )
 	{
-		for(int i=0; i<t.Get_Count(); i++)
-		{
-			s	+= t[i].asString("f_table_name") + CSG_String("|");
-		}
-	}
+		CSG_String s; CSG_Table t;
 
-	pParameters->Get_Parameter("TABLES")->asChoice()->Set_Items(s);
+		SG_UI_ProgressAndMsg_Lock(true);
+
+		if( Get_Connection()->Table_Load(t, "geometry_columns") )
+		{
+			for(int i=0; i<t.Get_Count(); i++)
+			{
+				s += t[i].asString("f_table_name") + CSG_String("|");
+			}
+		}
+
+		SG_UI_ProgressAndMsg_Lock(false);
+
+		CSG_Parameter *pParameter = pParameters->Get_Parameter("DB_TABLES");
+		pParameter->asChoice()->Set_Items(s);
+		pParameter->Set_Value(pParameter->asString());
+	}
 }
 
 //---------------------------------------------------------
@@ -446,10 +450,9 @@ bool CShapes_SRID_Update::On_Execute(void)
 	if( !Get_Connection()->has_PostGIS() )	{	Error_Set(_TL("no PostGIS layer"));	return( false );	}
 
 	//-----------------------------------------------------
-	CSG_String	Select;
-	CSG_Table	Table;
+	CSG_Table Table; CSG_String Select, DB_Table(Parameters(has_GUI() ? "DB_TABLES" : "DB_TABLE")->asString());
 
-	Select.Printf("f_table_name='%s'", Parameters("TABLES")->asString());
+	Select.Printf("f_table_name='%s'", DB_Table);
 
 	if( !Get_Connection()->Table_Load(Table, "geometry_columns", "*", Select) || Table.Get_Count() != 1 )
 	{
@@ -457,9 +460,7 @@ bool CShapes_SRID_Update::On_Execute(void)
 	}
 
 	Select.Printf("SELECT UpdateGeometrySRID('%s', '%s', %d)",
-		Parameters("TABLES")->asString(),
-		Table[0].asString("f_geometry_column"),
-		Get_SRID()
+		DB_Table, Table[0].asString("f_geometry_column"), Get_SRID()
 	);
 
 	//-----------------------------------------------------
@@ -489,51 +490,36 @@ CShapes_Join::CShapes_Join(void)
 		"Imports shapes with joined data from a PostGIS database."
 	));
 
-	Parameters.Add_Shapes("",
-		"SHAPES"	, _TL("Shapes"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
+	Parameters.Add_Shapes    (""          , "SHAPES"    , _TL("Shapes"        ), _TL(""), PARAMETER_OUTPUT);
 
-	Parameters.Add_Choice(NULL                    ,  "GEO_TABLE", _TL("Geometry Table"), _TL(""), "");
-	Parameters.Add_Choice(Parameters( "GEO_TABLE"),  "GEO_KEY"  , _TL("Key"           ), _TL(""), "");
+	Parameters.Add_Choice    (""          ,  "GEO_TABLE", _TL("Geometry Table"), _TL(""), "");
+	Parameters.Add_Choice    ("GEO_TABLE" ,  "GEO_KEY"  , _TL("Key"           ), _TL(""), "");
 
-	Parameters.Add_Choice(NULL                    , "JOIN_TABLE", _TL("Join Table"    ), _TL(""), "");
-	Parameters.Add_Choice(Parameters("JOIN_TABLE"), "JOIN_KEY"  , _TL("Key"           ), _TL(""), "");
+	Parameters.Add_Choice    (""          , "JOIN_TABLE", _TL("Join Table"    ), _TL(""), "");
+	Parameters.Add_Choice    ("JOIN_TABLE", "JOIN_KEY"  , _TL("Key"           ), _TL(""), "");
 
-	Parameters.Add_Parameters("",
-		"FIELDS"	, _TL("Fields"),
-		_TL("")
-	);
-
-	Parameters.Add_String("",
-		"WHERE"		, _TL("Where"),
-		_TL(""),
-		""
-	);
+	Parameters.Add_Parameters(""          , "FIELDS"    , _TL("Fields"        ), _TL(""));
+	Parameters.Add_String    (""          , "WHERE"     , _TL("Where"         ), _TL(""), "");
 }
 
 //---------------------------------------------------------
 void CShapes_Join::On_Connection_Changed(CSG_Parameters *pParameters)
 {
-	CSG_String	s;
-	CSG_Table	t;
+	CSG_String s; CSG_Table t;
 
 	if( Get_Connection()->Table_Load(t, "geometry_columns") )
 	{
 		for(int i=0; i<t.Get_Count(); i++)
 		{
-			s	+= t[i].asString("f_table_name") + CSG_String("|");
+			s += t[i].asString("f_table_name") + CSG_String("|");
 		}
 	}
 
 	pParameters->Get_Parameter("GEO_TABLE")->asChoice()->Set_Items(s);
 
-	CSG_Parameter	*pParameter	= pParameters->Get_Parameter("JOIN_TABLE");
-
+	CSG_Parameter *pParameter = pParameters->Get_Parameter("JOIN_TABLE");
 	pParameter->asChoice()->Set_Items(Get_Connection()->Get_Tables());
 	pParameter->Set_Value(pParameter->asString());
-
 	On_Parameter_Changed(pParameters, pParameter);
 }
 
@@ -613,9 +599,9 @@ bool CShapes_Join::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_String	Fields;
+	CSG_String Fields;
 
-	CSG_Parameters	&P	= *Parameters("FIELDS")->asParameters();
+	CSG_Parameters &P = *Parameters("FIELDS")->asParameters();
 
 	for(int i=0; i<P.Get_Count(); i++)
 	{

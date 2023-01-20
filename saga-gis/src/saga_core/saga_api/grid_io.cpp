@@ -337,7 +337,7 @@ bool CSG_Grid::_Load_PGSQL(const CSG_String &FileName, bool bCached, bool bLoadD
 				pTool->On_Before_Execution();
 
 				bResult	=  SG_TOOL_PARAMETER_SET("CONNECTION", Connection)
-						&& SG_TOOL_PARAMETER_SET("TABLES"    , Table)
+						&& SG_TOOL_PARAMETER_SET("DB_TABLES" , Table)
 						&& SG_TOOL_PARAMETER_SET("RID"       , rid)
 						&& SG_TOOL_PARAMETER_SET("GRID"      , this)
 						&& pTool->Execute();

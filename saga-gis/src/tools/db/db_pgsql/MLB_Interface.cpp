@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.cpp 911 2011-11-11 11:11:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -77,13 +74,13 @@ CSG_String Get_Info(int i)
 		return( _TL("Import/Export") );
 
 	case TLB_INFO_Author:
-		return( SG_T("O. Conrad (c) 2013") );
+		return( "O.Conrad (c) 2013" );
 
 	case TLB_INFO_Description:
 		return( _TL("Accessing PostgreSQL databases.") );
 
 	case TLB_INFO_Version:
-		return( SG_T("1.0") );
+		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
 		return( _TL("Database|PostgreSQL") );

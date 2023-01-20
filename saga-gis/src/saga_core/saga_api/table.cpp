@@ -211,7 +211,7 @@ bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format, 
 				pTool->On_Before_Execution();
 
 				bResult	=  SG_TOOL_PARAMETER_SET("CONNECTION", Connection)
-						&& SG_TOOL_PARAMETER_SET("TABLES"    , Table)
+						&& SG_TOOL_PARAMETER_SET("DB_TABLES" , Table)
 						&& SG_TOOL_PARAMETER_SET("TABLE"     , this)
 						&& pTool->Execute();
 

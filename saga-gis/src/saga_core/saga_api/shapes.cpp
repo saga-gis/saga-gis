@@ -269,7 +269,7 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 				pTool->On_Before_Execution();
 
 				bResult	=  SG_TOOL_PARAMETER_SET("CONNECTION", Connection)
-						&& SG_TOOL_PARAMETER_SET("TABLES"    , Table)
+						&& SG_TOOL_PARAMETER_SET("DB_TABLES" , Table)
 						&& SG_TOOL_PARAMETER_SET("SHAPES"    , this)
 						&& pTool->Execute();
 
