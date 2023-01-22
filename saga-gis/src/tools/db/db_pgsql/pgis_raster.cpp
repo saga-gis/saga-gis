@@ -119,7 +119,7 @@ bool CRaster_Load::On_Execute(void)
 		Parameters("WHERE")->asString(), "", Parameters("MULTIPLE")->asInt()) )
 	{
 		Error_Fmt("%s:\n%s\n%s", _TL("unable to load raster data from PostGIS database"),
-			Get_Connection()->Get_Connection().c_str(), DB_Table
+			Get_Connection()->Get_Connection().c_str(), DB_Table.c_str()
 		);
 
 		return( false );
