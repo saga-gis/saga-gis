@@ -452,7 +452,7 @@ bool CShapes_SRID_Update::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Table Table; CSG_String Select, DB_Table(Parameters(has_GUI() ? "DB_TABLES" : "DB_TABLE")->asString());
 
-	Select.Printf("f_table_name='%s'", DB_Table);
+	Select.Printf("f_table_name='%s'", DB_Table.c_str());
 
 	if( !Get_Connection()->Table_Load(Table, "geometry_columns", "*", Select) || Table.Get_Count() != 1 )
 	{
@@ -460,7 +460,7 @@ bool CShapes_SRID_Update::On_Execute(void)
 	}
 
 	Select.Printf("SELECT UpdateGeometrySRID('%s', '%s', %d)",
-		DB_Table, Table[0].asString("f_geometry_column"), Get_SRID()
+		DB_Table.c_str(), Table[0].asString("f_geometry_column"), Get_SRID()
 	);
 
 	//-----------------------------------------------------
