@@ -69,8 +69,14 @@ CShapes_Load::CShapes_Load(void)
 	Parameters.Add_Shapes     ("", "SHAPES"    , _TL("Shapes"), _TL(""), PARAMETER_OUTPUT);
 	Parameters.Add_Shapes_List("", "COLLECTION", _TL("Shapes"), _TL(""), PARAMETER_OUTPUT);
 
-	Parameters.Add_Choice("", "DB_TABLES", _TL("Tables"      ), _TL(""), "")->Set_UseInCMD(false); // GUI => select from available tables
-	Parameters.Add_String("", "DB_TABLE" , _TL("Import Table"), _TL(""), "")->Set_UseInGUI(false); // CMD => table's db name
+	if( has_GUI() )
+	{
+		Parameters.Add_Choice("", "DB_TABLE", _TL("Table"), _TL(""), ""); // GUI => select from available tables
+	}
+	else
+	{
+		Parameters.Add_String("", "DB_TABLE", _TL("Table"), _TL(""), ""); // CMD => table's db name
+	}
 }
 
 //---------------------------------------------------------
@@ -92,7 +98,7 @@ void CShapes_Load::On_Connection_Changed(CSG_Parameters *pParameters)
 
 		SG_UI_ProgressAndMsg_Lock(false);
 
-		CSG_Parameter *pParameter = pParameters->Get_Parameter("DB_TABLES");
+		CSG_Parameter *pParameter = pParameters->Get_Parameter("DB_TABLE");
 		pParameter->asChoice()->Set_Items(s);
 		pParameter->Set_Value(pParameter->asString());
 	}
@@ -101,7 +107,7 @@ void CShapes_Load::On_Connection_Changed(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 bool CShapes_Load::On_Execute(void)
 {
-	CSG_String DB_Table(Parameters(has_GUI() ? "DB_TABLES" : "DB_TABLE")->asString());
+	CSG_String DB_Table(Parameters("DB_TABLE")->asString());
 
 	CSG_Table Geometries; TSG_Shape_Type Geometry = SHAPE_TYPE_Undefined;
 
@@ -413,8 +419,14 @@ CShapes_SRID_Update::CShapes_SRID_Update(void)
 		" Change the SRID of all geometries in the user-specified column and table."
 	));
 
-	Parameters.Add_Choice("", "DB_TABLES", _TL("Tables"), _TL(""), "")->Set_UseInCMD(false); // GUI => select from available tables
-	Parameters.Add_String("", "DB_TABLE" , _TL("Table" ), _TL(""), "")->Set_UseInGUI(false); // CMD => table's db name
+	if( has_GUI() )
+	{
+		Parameters.Add_Choice("", "DB_TABLE", _TL("Table"), _TL(""), ""); // GUI => select from available tables
+	}
+	else
+	{
+		Parameters.Add_String("", "DB_TABLE", _TL("Table"), _TL(""), ""); // CMD => table's db name
+	}
 
 	Add_SRID_Picker();
 }
@@ -438,7 +450,7 @@ void CShapes_SRID_Update::On_Connection_Changed(CSG_Parameters *pParameters)
 
 		SG_UI_ProgressAndMsg_Lock(false);
 
-		CSG_Parameter *pParameter = pParameters->Get_Parameter("DB_TABLES");
+		CSG_Parameter *pParameter = pParameters->Get_Parameter("DB_TABLE");
 		pParameter->asChoice()->Set_Items(s);
 		pParameter->Set_Value(pParameter->asString());
 	}
@@ -450,7 +462,7 @@ bool CShapes_SRID_Update::On_Execute(void)
 	if( !Get_Connection()->has_PostGIS() )	{	Error_Set(_TL("no PostGIS layer"));	return( false );	}
 
 	//-----------------------------------------------------
-	CSG_Table Table; CSG_String Select, DB_Table(Parameters(has_GUI() ? "DB_TABLES" : "DB_TABLE")->asString());
+	CSG_Table Table; CSG_String Select, DB_Table(Parameters("DB_TABLE")->asString());
 
 	Select.Printf("f_table_name='%s'", DB_Table.c_str());
 

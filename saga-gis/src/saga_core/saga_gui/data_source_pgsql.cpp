@@ -1202,7 +1202,7 @@ void CData_Source_PgSQL::Table_Open(const wxTreeItemId &Item)
 
 		RUN_TOOL(DB_PGSQL_Table_Load, false, false,	// CTable_Load
 			   SET_PARAMETER("CONNECTION", pData->Get_Server())
-			&& SET_PARAMETER("DB_TABLES" , pData->Get_Value ())
+			&& SET_PARAMETER("DB_TABLE"  , pData->Get_Value ())
 			&& SET_PARAMETER("TABLE"     , pTable)
 		);
 
@@ -1222,7 +1222,7 @@ void CData_Source_PgSQL::Table_Open(const wxTreeItemId &Item)
 	{
 		RUN_TOOL(DB_PGSQL_Shapes_Load, true, false,	// CPGIS_Shapes_Load
 			   SET_PARAMETER("CONNECTION", pData->Get_Server())
-			&& SET_PARAMETER("DB_TABLES" , pData->Get_Value ())
+			&& SET_PARAMETER("DB_TABLE"  , pData->Get_Value ())
 		);
 	}
 
@@ -1231,7 +1231,7 @@ void CData_Source_PgSQL::Table_Open(const wxTreeItemId &Item)
 	{
 		RUN_TOOL(DB_PGSQL_Raster_Load, true, false,
 			   SET_PARAMETER("CONNECTION", pData->Get_Server())
-			&& SET_PARAMETER("DB_TABLES" , pData->Get_Value ())
+			&& SET_PARAMETER("DB_TABLE"  , pData->Get_Value ())
 		);
 	}
 
@@ -1240,7 +1240,7 @@ void CData_Source_PgSQL::Table_Open(const wxTreeItemId &Item)
 	{
 		RUN_TOOL(DB_PGSQL_Raster_Load, true, false,
 			   SET_PARAMETER("CONNECTION", pData->Get_Server())
-			&& SET_PARAMETER("DB_TABLES" , pData->Get_Value ().BeforeFirst(':'))
+			&& SET_PARAMETER("DB_TABLE"  , pData->Get_Value ().BeforeFirst(':'))
 			&& SET_PARAMETER("WHERE"     , pData->Get_Value ().AfterFirst (':'))
 		);
 	}
@@ -1326,7 +1326,7 @@ void CData_Source_PgSQL::Table_Info(const wxTreeItemId &Item)
 
 	RUN_TOOL(DB_PGSQL_Table_Info, false, false,	// CTable_Info
 		   SET_PARAMETER("CONNECTION", pData->Get_Server())
-		&& SET_PARAMETER("DB_TABLES" , pData->Get_Value ())
+		&& SET_PARAMETER("DB_TABLE"  , pData->Get_Value ())
 		&& SET_PARAMETER("TABLE"     , pTable)
 		&& SET_PARAMETER("VERBOSE"   , false)
 	);
@@ -1388,7 +1388,7 @@ void CData_Source_PgSQL::Table_Drop(const wxTreeItemId &Item)
 
 			RUN_TOOL(DB_PGSQL_Table_Drop, false, false,	// CTable_Drop
 				   SET_PARAMETER("CONNECTION", pData->Get_Server())
-				&& SET_PARAMETER("DB_TABLES" , pData->Get_Value ())
+				&& SET_PARAMETER("DB_TABLE"  , pData->Get_Value ())
 			);
 
 			if( bResult )

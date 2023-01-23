@@ -135,10 +135,18 @@ CTable_Info::CTable_Info(void)
 		"Loads table information from PostgreSQL data source."
 	));
 
-	Parameters.Add_Table ("", "TABLE"    , _TL("Field Description"), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Choice("", "DB_TABLES", _TL("Tables"           ), _TL(""), "")->Set_UseInCMD(false); // GUI => select from available tables
-	Parameters.Add_String("", "DB_TABLE" , _TL("Table"            ), _TL(""), "")->Set_UseInGUI(false); // CMD => table's db name
-	Parameters.Add_Bool  ("", "VERBOSE"  , _TL("Verbose"          ), _TL(""), false);
+	Parameters.Add_Table ("", "TABLE", _TL("Field Description"), _TL(""), PARAMETER_OUTPUT);
+
+	if( has_GUI() )
+	{
+		Parameters.Add_Choice("", "DB_TABLE", _TL("Table"), _TL(""), "");
+	}
+	else
+	{
+		Parameters.Add_String("", "DB_TABLE", _TL("Table"), _TL(""), "");
+	}
+
+	Parameters.Add_Bool  ("", "VERBOSE", _TL("Verbose"), _TL(""), false);
 }
 
 //---------------------------------------------------------
@@ -146,7 +154,7 @@ void CTable_Info::On_Connection_Changed(CSG_Parameters *pParameters)
 {
 	if( has_GUI() )
 	{
-		CSG_Parameter *pParameter = pParameters->Get_Parameter("DB_TABLES");
+		CSG_Parameter *pParameter = pParameters->Get_Parameter("DB_TABLE");
 		pParameter->asChoice()->Set_Items(Get_Connection()->Get_Tables());
 		pParameter->Set_Value(pParameter->asString());
 	}
@@ -155,7 +163,7 @@ void CTable_Info::On_Connection_Changed(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 bool CTable_Info::On_Execute(void)
 {
-	CSG_String DB_Table(Parameters(has_GUI() ? "DB_TABLES" : "DB_TABLE")->asString());
+	CSG_String DB_Table(Parameters("DB_TABLE")->asString());
 
 	CSG_Table *pTable = Parameters("TABLE" )->asTable();
 
@@ -183,12 +191,16 @@ CTable_Load::CTable_Load(void)
 		"Imports a table from a PostgreSQL database."
 	));
 
-	Parameters.Add_Table ("", "TABLE", _TL("Table"), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Table("", "TABLE", _TL("Table"), _TL(""), PARAMETER_OUTPUT);
 
-	Parameters.Add_Choice("", "DB_TABLES", _TL("Tables"      ), _TL(""), "")->Set_UseInCMD(false); // GUI => select from available tables
-	Parameters.Add_String("", "DB_TABLE" , _TL("Import Table"), _TL(""), "")->Set_UseInGUI(false); // CMD => table's db name
-
-//	Parameters.Add_Bool("", "GEOMETRY", _TL("Autodect Geometries"), _TL(""), true);
+	if( has_GUI() )
+	{
+		Parameters.Add_Choice("", "DB_TABLE", _TL("Table"), _TL(""), "");
+	}
+	else
+	{
+		Parameters.Add_String("", "DB_TABLE", _TL("Table"), _TL(""), "");
+	}
 }
 
 //---------------------------------------------------------
@@ -196,7 +208,7 @@ void CTable_Load::On_Connection_Changed(CSG_Parameters *pParameters)
 {
 	if( has_GUI() )
 	{
-		CSG_Parameter *pParameter = pParameters->Get_Parameter("DB_TABLES");
+		CSG_Parameter *pParameter = pParameters->Get_Parameter("DB_TABLE");
 		pParameter->asChoice()->Set_Items(Get_Connection()->Get_Tables());
 		pParameter->Set_Value(pParameter->asString());
 	}
@@ -205,32 +217,8 @@ void CTable_Load::On_Connection_Changed(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 bool CTable_Load::On_Execute(void)
 {
-	CSG_String DB_Table(Parameters(has_GUI() ? "DB_TABLES" : "DB_TABLE")->asString());
+	CSG_String DB_Table(Parameters("DB_TABLE")->asString());
 
-//	if( Parameters("GEOMETRY")->asBool() )
-//	{
-//		int Geometry = -1;
-//
-//		CSG_Table Fields(Get_Connection()->Get_Field_Desc(DB_Table, false));
-//
-//		for(int i=0; Geometry<0 && i<Fields.Get_Count(); i++)
-//		{
-//			CSG_String Type(Fields[i].asString(1));
-//
-//			if( Type.CmpNoCase("geometry") )
-//			{
-//				Geometry = i;
-//			}
-//		}
-//
-//		//-------------------------------------------------
-//		if( Geometry >= 0 )
-//		{
-//			return( true );
-//		}
-//	}
-
-	//-----------------------------------------------------
 	CSG_Table *pTable = Parameters("TABLE")->asTable();
 
 	return( Get_Connection()->Table_Load(*pTable, DB_Table) );
@@ -380,8 +368,14 @@ CTable_Drop::CTable_Drop(void)
 		"Deletes a table from a PostgreSQL database."
 	));
 
-	Parameters.Add_Choice("", "DB_TABLES", _TL("Tables"), _TL(""), "")->Set_UseInCMD(false); // GUI => select from available tables
-	Parameters.Add_String("", "DB_TABLE" , _TL("Table" ), _TL(""), "")->Set_UseInGUI(false); // CMD => table's db name
+	if( has_GUI() )
+	{
+		Parameters.Add_Choice("", "DB_TABLE", _TL("Table"), _TL(""), "");
+	}
+	else
+	{
+		Parameters.Add_String("", "DB_TABLE", _TL("Table"), _TL(""), "");
+	}
 }
 
 //---------------------------------------------------------
@@ -389,7 +383,7 @@ void CTable_Drop::On_Connection_Changed(CSG_Parameters *pParameters)
 {
 	if( has_GUI() )
 	{
-		CSG_Parameter *pParameter = pParameters->Get_Parameter("DB_TABLES");
+		CSG_Parameter *pParameter = pParameters->Get_Parameter("DB_TABLE");
 		pParameter->asChoice()->Set_Items(Get_Connection()->Get_Tables());
 		pParameter->Set_Value(pParameter->asString());
 	}
@@ -398,7 +392,7 @@ void CTable_Drop::On_Connection_Changed(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 bool CTable_Drop::On_Execute(void)
 {
-	CSG_String DB_Table(Parameters(has_GUI() ? "DB_TABLES" : "DB_TABLE")->asString());
+	CSG_String DB_Table(Parameters("DB_TABLE")->asString());
 
 	if( Get_Connection()->Table_Drop(DB_Table) )
 	{

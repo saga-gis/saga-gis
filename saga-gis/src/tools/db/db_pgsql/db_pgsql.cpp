@@ -2424,6 +2424,11 @@ bool CSG_PG_Tool::On_Before_Execution(void)
 			Parameters("PG_HOST")->asString(),
 			Parameters("PG_PORT")->asInt   ()
 		);
+
+		if( m_pConnection )
+		{
+			On_Connection_Changed(&Parameters);
+		}
 	}
 	else
 	{
