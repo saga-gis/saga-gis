@@ -53,7 +53,6 @@ option(OpenMP_SUPPORT "Compile with OpenMP optimizations" ON)
 include(version.cmake)
 
 # include shared definitions and scripts
-include(cmake/shared/require-cpp11.cmake)
 include(cmake/shared/enable_warnings.cmake)
 include(cmake/shared/windows_version_info.cmake)
 
