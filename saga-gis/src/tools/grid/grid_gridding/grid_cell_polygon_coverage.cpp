@@ -142,7 +142,7 @@ int CGrid_Cell_Polygon_Coverage::On_Parameters_Enable(CSG_Parameters *pParameter
 
 //---------------------------------------------------------
 #define GET_NPOLYGONS	(bSelection ? pPolygons->Get_Selection_Count() : pPolygons->Get_Count())
-#define GET_POLYGON(i)	((CSG_Shape_Polygon *)(bSelection ? pPolygons->Get_Selection(i) : pPolygons->Get_Shape(i)))
+#define GET_POLYGON(i)	((CSG_Shape_Polygon *)(bSelection ? pPolygons->Get_Selection((int)i) : pPolygons->Get_Shape(i)))
 
 //---------------------------------------------------------
 bool CGrid_Cell_Polygon_Coverage::On_Execute(void)
@@ -213,7 +213,7 @@ bool CGrid_Cell_Polygon_Coverage::On_Execute(void)
 	{
 		pArea->Assign(0.0);
 
-		for(size_t i=0; i<GET_NPOLYGONS && Set_Progress(i, GET_NPOLYGONS); i++)
+		for(size_t i=0; i<GET_NPOLYGONS && Set_Progress((double)i, (double)GET_NPOLYGONS); i++)
 		{
 			Get_Area(GET_POLYGON(i), pArea);
 		}
