@@ -99,9 +99,7 @@ CSG_String Get_Info(int i)
 #include "Interpolation_NearestNeighbour.h"
 #include "Interpolation_Shepard.h"
 #include "Interpolation_Triangulation.h"
-#if defined(HAVE_LIBQHULL_R_QHULL_RA_H) || defined(HAVE_LIBQHULL_QHULL_A_H) || defined(HAVE_QHULL_QHULL_A_H)
 #include "Interpolation_NaturalNeighbour.h"
-#endif
 #include "kernel_density.h"
 
 #include "grid_cell_polygon_coverage.h"
@@ -123,9 +121,7 @@ CSG_Tool *		Create_Tool(int i)
 	case  2: return( new CInterpolation_NearestNeighbour );
 	case  4: return( new CInterpolation_Shepard );
 	case  5: return( new CInterpolation_Triangulation );
-#if defined(HAVE_LIBQHULL_R_QHULL_RA_H) || defined(HAVE_LIBQHULL_QHULL_A_H) || defined(HAVE_QHULL_QHULL_A_H)
 	case  3: return( new CInterpolation_NaturalNeighbour );
-#endif
 
 	case  6: return( new CKernel_Density );
 
