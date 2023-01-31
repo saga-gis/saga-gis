@@ -100,9 +100,9 @@ CSolarRadiation::CSolarRadiation(void)
 	);
 
 	Add_Reference(
-		"Hofierka, J., Suri, M.", "2002", "The solar radiation model for Open source GIS: implementation and applications",
-		"International GRASS users conference in Trento, Italy, September 2002",
-		SG_T("http://skagit.meas.ncsu.edu/~jaroslav/trento/Hofierka_Jaroslav.pdf")
+		"Hofierka, J., Šúri, M.", "2002", "The solar radiation model for Open source GIS: implementation and applications",
+		"International GRASS users conference in Trento, Italy, September 2002.",
+		SG_T("https://www.researchgate.net/publication/2539232_The_solar_radiation_model_for_Open_source_GIS_Implementation_and_applications"), SG_T("ResearchGate")
 	);
 
 	Add_Reference(
@@ -228,7 +228,7 @@ CSolarRadiation::CSolarRadiation(void)
 			_TL("Height of Atmosphere and Vapour Pressure"),
 			_TL("Air Pressure, Water and Dust Content"),
 			_TL("Lumped Atmospheric Transmittance"),
-			_TL("Hofierka and Suri")
+			_TL("Hofierka and Šúri")
 		), 2
 	);
 
@@ -726,7 +726,7 @@ bool CSolarRadiation::Get_Insolation(CSG_DateTime Date, double Hour)
 	double	JDN	= floor(Date.Get_JDN()) - 0.5 + Hour / 24.0;	// relate to UTC, avoid problems with daylight saving time
 
 	//-----------------------------------------------------
-	m_Solar_Const	= Parameters("SOLARCONST")->asDouble() / 1000.0;	// >> [kW / m�]
+	m_Solar_Const	= Parameters("SOLARCONST")->asDouble() / 1000.0;	// >> [kW / m²]
 
 	m_Solar_Const	*= 1.0 + 0.03344 * cos(Date.Get_DayOfYear() * 2.0 * M_PI / 365.25 - 0.048869);	// corrected for Earth's orbit eccentricity
 
@@ -885,7 +885,7 @@ inline bool CSolarRadiation::Get_Irradiance(int x, int y, double Sun_Height, dou
 		: cos(Slope) * cos(Sun_Height - M_PI_090) + sin(Slope) * sin(M_PI_090 - Sun_Height) * cos(Sun_Azimuth - Get_Aspect(x, y));
 
 	//-----------------------------------------------------
-	if( m_Method == 3 )	// Hofierka & Suri 2002
+	if( m_Method == 3 )	// Hofierka & Šúri 2002
 	{
 		double	h_0		= Sun_Height;	// * M_RAD_TO_DEG;	// ???!!
 		double	sin_h_0	= sin(Sun_Height);
@@ -918,7 +918,7 @@ inline bool CSolarRadiation::Get_Irradiance(int x, int y, double Sun_Height, dou
 		{
 			Diffus	= D_hc * F * 0.25227;
 		}
-		else if( Sun_Height >= 0.1 )		// sunlit surface, height of Sun above 5.7�
+		else if( Sun_Height >= 0.1 )		// sunlit surface, height of Sun above 5.7°
 		{
 			F	*= 0.00263 - 0.712 * K_b - 0.6883 * K_b*K_b;	// * N
 
