@@ -158,27 +158,23 @@ CSG_Shapes::CSG_Shapes(void)
 CSG_Shapes::CSG_Shapes(const CSG_Shapes &Shapes)
 	: CSG_Table()
 {
-	_On_Construction();
-
-	Create(Shapes);
+	_On_Construction(); Create(Shapes);
 }
 
 //---------------------------------------------------------
+CSG_Shapes::CSG_Shapes(const char       *File) : CSG_Shapes(CSG_String(File)) {}
+CSG_Shapes::CSG_Shapes(const wchar_t    *File) : CSG_Shapes(CSG_String(File)) {}
 CSG_Shapes::CSG_Shapes(const CSG_String &File)
 	: CSG_Table()
 {
-	_On_Construction();
-
-	Create(File);
+	_On_Construction(); Create(File);
 }
 
 //---------------------------------------------------------
 CSG_Shapes::CSG_Shapes(TSG_Shape_Type Type, const SG_Char *Name, CSG_Table *pStructure, TSG_Vertex_Type Vertex_Type)
 	: CSG_Table()
 {
-	_On_Construction();
-
-	Create(Type, Name, pStructure, Vertex_Type);
+	_On_Construction(); Create(Type, Name, pStructure, Vertex_Type);
 }
 
 
