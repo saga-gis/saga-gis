@@ -50,15 +50,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "shapes.h"
 #include "pointcloud.h"
 #include "tool_library.h"
@@ -198,16 +189,14 @@ void CSG_Shapes::_On_Construction(void)
 {
 	CSG_Table::_On_Construction();
 
-	m_Type			= SHAPE_TYPE_Undefined;
-	m_Vertex_Type	= SG_VERTEX_TYPE_XY;
+	m_Type        = SHAPE_TYPE_Undefined;
+	m_Vertex_Type = SG_VERTEX_TYPE_XY;
 
-	m_Encoding		= SG_FILE_ENCODING_UTF8;
+	m_Encoding    = SG_FILE_ENCODING_UTF8;
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -224,30 +213,28 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 
 	SG_UI_Msg_Add(CSG_String::Format("%s %s: %s...", _TL("Loading"), _TL("shapes"), File_Name.c_str()), true);
 
-	bool	bResult	= false;
+	bool bResult = false;
 
 	//-----------------------------------------------------
 	if( File_Name.BeforeFirst(':').Cmp("PGSQL") == 0 )	// database source
 	{
-		CSG_String	s(File_Name);
+		CSG_String s(File_Name);
 
-		s	= s.AfterFirst(':');	CSG_String	Host  (s.BeforeFirst(':'));
-		s	= s.AfterFirst(':');	CSG_String	Port  (s.BeforeFirst(':'));
-		s	= s.AfterFirst(':');	CSG_String	DBName(s.BeforeFirst(':'));
-		s	= s.AfterFirst(':');	CSG_String	Table (s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String Host  (s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String Port  (s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String DBName(s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String Table (s.BeforeFirst(':'));
 
-		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 0, true);	// CGet_Connections
+		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 0, true); // CGet_Connections
 
 		if(	pTool != NULL )
 		{
 			SG_UI_ProgressAndMsg_Lock(true);
 
 			//---------------------------------------------
-			CSG_Table	Connections;
-			CSG_String	Connection	= DBName + " [" + Host + ":" + Port + "]";
+			CSG_Table Connections; CSG_String Connection(DBName + " [" + Host + ":" + Port + "]");
 
-			pTool->Set_Manager(NULL);
-			pTool->On_Before_Execution();
+			pTool->Set_Manager(NULL); pTool->On_Before_Execution();
 
 			if( SG_TOOL_PARAMETER_SET("CONNECTIONS", &Connections) && pTool->Execute() )	// CGet_Connections
 			{
@@ -255,7 +242,7 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 				{
 					if( !Connection.Cmp(Connections[i].asString(0)) )
 					{
-						bResult	= true;
+						bResult = true;
 					}
 				}
 			}
@@ -263,14 +250,13 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 			//---------------------------------------------
-			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 20, true)) != NULL) == true )	// CPGIS_Shapes_Load
+			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 20, true)) != NULL) == true ) // CPGIS_Shapes_Load
 			{
-				pTool->Set_Manager(NULL);
-				pTool->On_Before_Execution();
+				pTool->Set_Manager(NULL); pTool->On_Before_Execution();
 
-				bResult	=  SG_TOOL_PARAMETER_SET("CONNECTION", Connection)
-						&& SG_TOOL_PARAMETER_SET("DB_TABLES" , Table)
-						&& SG_TOOL_PARAMETER_SET("SHAPES"    , this)
+				bResult =  SG_TOOL_PARAMETER_SET("CONNECTION", Connection)
+						&& SG_TOOL_PARAMETER_SET("DB_TABLE"  , Table     )
+						&& SG_TOOL_PARAMETER_SET("SHAPES"    , this      )
 						&& pTool->Execute();
 
 				SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
@@ -283,12 +269,12 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 	{
 		if( SG_File_Cmp_Extension(File_Name, "shp") )
 		{
-			bResult	= _Load_ESRI(File_Name);
+			bResult = _Load_ESRI(File_Name);
 		}
 
 		if( !bResult )
 		{
-			bResult	= _Load_GDAL(File_Name);
+			bResult = _Load_GDAL(File_Name);
 		}
 	}
 

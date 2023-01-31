@@ -161,7 +161,7 @@ bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format, 
 	SG_UI_Msg_Add(CSG_String::Format("%s %s: %s...", _TL("Loading"), _TL("table"), File_Name.c_str()), true);
 
 	//-----------------------------------------------------
-	bool	bResult	= File_Name.BeforeFirst(':').Cmp("PGSQL") && SG_File_Exists(File_Name) && Load(File_Name, (int)Format, '\0', Encoding);
+	bool bResult = File_Name.BeforeFirst(':').Cmp("PGSQL") && SG_File_Exists(File_Name) && Load(File_Name, (int)Format, '\0', Encoding);
 
 	if( bResult )
 	{
@@ -171,33 +171,31 @@ bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format, 
 	//-----------------------------------------------------
 	else if( File_Name.BeforeFirst(':').Cmp("PGSQL") == 0 )	// database source
 	{
-		CSG_String	s(File_Name);
+		CSG_String s(File_Name);
 
-		s	= s.AfterFirst(':');	CSG_String	Host  (s.BeforeFirst(':'));
-		s	= s.AfterFirst(':');	CSG_String	Port  (s.BeforeFirst(':'));
-		s	= s.AfterFirst(':');	CSG_String	DBName(s.BeforeFirst(':'));
-		s	= s.AfterFirst(':');	CSG_String	Table (s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String Host  (s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String Port  (s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String DBName(s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String Table (s.BeforeFirst(':'));
 
-		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 0, true);	// CGet_Connections
+		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 0, true); // CGet_Connections
 
 		if(	pTool != NULL )
 		{
 			SG_UI_ProgressAndMsg_Lock(true);
 
 			//---------------------------------------------
-			CSG_Table	Connections;
-			CSG_String	Connection	= DBName + " [" + Host + ":" + Port + "]";
+			CSG_Table Connections; CSG_String Connection(DBName + " [" + Host + ":" + Port + "]");
 
-			pTool->Set_Manager(NULL);
-			pTool->On_Before_Execution();
+			pTool->Set_Manager(NULL); pTool->On_Before_Execution();
 
-			if( SG_TOOL_PARAMETER_SET("CONNECTIONS", &Connections) && pTool->Execute() )	// CGet_Connections
+			if( SG_TOOL_PARAMETER_SET("CONNECTIONS", &Connections) && pTool->Execute() ) // CGet_Connections
 			{
 				for(int i=0; !bResult && i<Connections.Get_Count(); i++)
 				{
 					if( !Connection.Cmp(Connections[i].asString(0)) )
 					{
-						bResult	= true;
+						bResult = true;
 					}
 				}
 			}
@@ -205,14 +203,13 @@ bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format, 
 			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 			//---------------------------------------------
-			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 12, true)) != NULL) == true )	// CPGIS_Table_Load
+			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 12, true)) != NULL) == true ) // CPGIS_Table_Load
 			{
-				pTool->Set_Manager(NULL);
-				pTool->On_Before_Execution();
+				pTool->Set_Manager(NULL); pTool->On_Before_Execution();
 
-				bResult	=  SG_TOOL_PARAMETER_SET("CONNECTION", Connection)
-						&& SG_TOOL_PARAMETER_SET("DB_TABLES" , Table)
-						&& SG_TOOL_PARAMETER_SET("TABLE"     , this)
+				bResult =  SG_TOOL_PARAMETER_SET("CONNECTION", Connection)
+						&& SG_TOOL_PARAMETER_SET("DB_TABLE"  , Table     )
+						&& SG_TOOL_PARAMETER_SET("TABLE"     , this      )
 						&& pTool->Execute();
 
 				SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
