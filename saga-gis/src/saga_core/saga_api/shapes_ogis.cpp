@@ -506,7 +506,7 @@ bool CSG_Shapes_OGIS_Converter::_WKB_Read_Points(CSG_Bytes &Bytes, bool bSwapByt
 //---------------------------------------------------------
 bool CSG_Shapes_OGIS_Converter::_WKB_Read_Parts(CSG_Bytes &Bytes, bool bSwapBytes, CSG_Shape *pShape)
 {
-	DWORD nParts = Bytes.Read_DWord(bSwapBytes);
+	int nParts = (int)Bytes.Read_DWord(bSwapBytes);
 
 	for(int iPart=0; iPart<nParts; iPart++)
 	{

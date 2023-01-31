@@ -128,8 +128,7 @@ TSG_Table_Index_Order;
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Table_Record
 {
-	friend class CSG_Table;
-	friend class CSG_PointCloud;
+	friend class CSG_Table; friend class CSG_PointCloud;
 
 public:
 
@@ -138,43 +137,72 @@ public:
 
 	bool						Set_Value		(int              iField, const CSG_Bytes  &Value);
 	bool						Set_Value		(const CSG_String &Field, const CSG_Bytes  &Value);
+	bool						Set_Value		(const char       *Field, const CSG_Bytes  &Value) { return( Set_Value(CSG_String(Field), Value) ); }
+	bool						Set_Value		(const wchar_t    *Field, const CSG_Bytes  &Value) { return( Set_Value(CSG_String(Field), Value) ); }
 	bool						Set_Value		(int              iField, const CSG_String &Value);
 	bool						Set_Value		(const CSG_String &Field, const CSG_String &Value);
+	bool						Set_Value		(const char       *Field, const CSG_String &Value) { return( Set_Value(CSG_String(Field), Value) ); }
+	bool						Set_Value		(const wchar_t    *Field, const CSG_String &Value) { return( Set_Value(CSG_String(Field), Value) ); }
 	bool						Set_Value		(int              iField, double            Value);
 	bool						Set_Value		(const CSG_String &Field, double            Value);
+	bool						Set_Value		(const char       *Field, double            Value) { return( Set_Value(CSG_String(Field), Value) ); }
+	bool						Set_Value		(const wchar_t    *Field, double            Value) { return( Set_Value(CSG_String(Field), Value) ); }
 	bool						Add_Value		(int              iField, double            Value);
 	bool						Add_Value		(const CSG_String &Field, double            Value);
+	bool						Add_Value		(const char       *Field, double            Value) { return( Add_Value(CSG_String(Field), Value) ); }
+	bool						Add_Value		(const wchar_t    *Field, double            Value) { return( Add_Value(CSG_String(Field), Value) ); }
 	bool						Mul_Value		(int              iField, double            Value);
 	bool						Mul_Value		(const CSG_String &Field, double            Value);
+	bool						Mul_Value		(const char       *Field, double            Value) { return( Mul_Value(CSG_String(Field), Value) ); }
+	bool						Mul_Value		(const wchar_t    *Field, double            Value) { return( Mul_Value(CSG_String(Field), Value) ); }
 
 	bool						Set_NoData		(int              iField);
 	bool						Set_NoData		(const CSG_String &Field);
-	bool						is_NoData		(int              iField)	const;
-	bool						is_NoData		(const CSG_String &Field)	const;
+	bool						Set_NoData		(const char       *Field)       { return( Set_NoData(CSG_String(Field)) ); }
+	bool						Set_NoData		(const wchar_t    *Field)       { return( Set_NoData(CSG_String(Field)) ); }
 
-	const SG_Char *				asString		(int              iField, int Decimals = -99)	const;
-	const SG_Char *				asString		(const CSG_String &Field, int Decimals = -99)	const;
+	bool						is_NoData		(int              iField) const;
+	bool						is_NoData		(const CSG_String &Field) const;
+	bool						is_NoData		(const char       *Field) const { return( is_NoData(CSG_String(Field)) ); }
+	bool						is_NoData		(const wchar_t    *Field) const { return( is_NoData(CSG_String(Field)) ); }
 
-	SG_Char						asChar			(int              iField)	const	{	return( (SG_Char)asInt   (iField) );	}
-	SG_Char						asChar			(const CSG_String &Field)	const	{	return( (SG_Char)asInt   ( Field) );	}
-	short						asShort			(int              iField)	const	{	return( (short  )asInt   (iField) );	}
-	short						asShort			(const CSG_String &Field)	const	{	return( (short  )asInt   ( Field) );	}
-	int							asInt			(int              iField)	const;
-	int							asInt			(const CSG_String &Field)	const;
-	sLong						asLong			(int              iField)	const;
-	sLong						asLong			(const CSG_String &Field)	const;
-	float						asFloat			(int              iField)	const	{	return( (float  )asDouble(iField) );	}
-	float						asFloat			(const CSG_String &Field)	const	{	return( (float  )asDouble( Field) );	}
-	double						asDouble		(int              iField)	const;
-	double						asDouble		(const CSG_String &Field)	const;
+	const SG_Char *				asString		(int              iField, int Decimals = -99) const;
+	const SG_Char *				asString		(const CSG_String &Field, int Decimals = -99) const;
+	const SG_Char *				asString		(const char       *Field, int Decimals = -99) const { return( asString(CSG_String(Field), Decimals) ); }
+	const SG_Char *				asString		(const wchar_t    *Field, int Decimals = -99) const { return( asString(CSG_String(Field), Decimals) ); }
 
-	CSG_Table_Value *			Get_Value		(int              iField)			{	return(  m_Values[iField] );	}
-	CSG_Table_Value &			operator []		(int              iField)	const	{	return( *m_Values[iField] );	}
+	SG_Char						asChar			(int              iField) const { return( (SG_Char)asInt   (          iField ) ); }
+	SG_Char						asChar			(const CSG_String &Field) const { return( (SG_Char)asInt   (           Field ) ); }
+	SG_Char						asChar			(const char       *Field) const { return( (SG_Char)asInt   (CSG_String(Field)) ); }
+	SG_Char						asChar			(const wchar_t    *Field) const { return( (SG_Char)asInt   (CSG_String(Field)) ); }
+	short						asShort			(int              iField) const { return( (short  )asInt   (          iField ) ); }
+	short						asShort			(const CSG_String &Field) const { return( (short  )asInt   (           Field ) ); }
+	short						asShort			(const char       *Field) const { return( (short  )asInt   (CSG_String(Field)) ); }
+	short						asShort			(const wchar_t    *Field) const { return( (short  )asInt   (CSG_String(Field)) ); }
+	int							asInt			(int              iField) const;
+	int							asInt			(const CSG_String &Field) const;
+	int							asInt			(const char       *Field) const { return(          asInt   (CSG_String(Field)) ); }
+	int							asInt			(const wchar_t    *Field) const { return(          asInt   (CSG_String(Field)) ); }
+	sLong						asLong			(int              iField) const;
+	sLong						asLong			(const CSG_String &Field) const;
+	sLong						asLong			(const char       *Field) const { return(          asLong  (CSG_String(Field)) ); }
+	sLong						asLong			(const wchar_t    *Field) const { return(          asLong  (CSG_String(Field)) ); }
+	float						asFloat			(int              iField) const { return( (float  )asDouble(          iField ) ); }
+	float						asFloat			(const CSG_String &Field) const { return( (float  )asDouble(           Field ) ); }
+	float						asFloat			(const char       *Field) const { return( (float  )asDouble(CSG_String(Field)) ); }
+	float						asFloat			(const wchar_t    *Field) const { return( (float  )asDouble(CSG_String(Field)) ); }
+	double						asDouble		(int              iField) const;
+	double						asDouble		(const CSG_String &Field) const;
+	double						asDouble		(const char       *Field) const { return(          asDouble(CSG_String(Field)) ); }
+	double						asDouble		(const wchar_t    *Field) const { return(          asDouble(CSG_String(Field)) ); }
+
+	CSG_Table_Value *			Get_Value		(int              iField)       { return(  m_Values[iField] ); }
+	CSG_Table_Value &			operator []		(int              iField) const { return( *m_Values[iField] ); }
 
 	virtual bool				Assign			(CSG_Table_Record *pRecord);
 
-	bool						is_Selected		(void)						const	{	return( (m_Flags & SG_TABLE_REC_FLAG_Selected) != 0 );	}
-	bool						is_Modified		(void)						const	{	return( (m_Flags & SG_TABLE_REC_FLAG_Modified) != 0 );	}
+	bool						is_Selected		(void)                    const { return( (m_Flags & SG_TABLE_REC_FLAG_Selected) != 0 ); }
+	bool						is_Modified		(void)                    const { return( (m_Flags & SG_TABLE_REC_FLAG_Modified) != 0 ); }
 
 
 protected:
@@ -228,11 +256,19 @@ public:
 									CSG_Table			(const CSG_Table *pTemplate);
 	bool							Create				(const CSG_Table *pTemplate);
 
-									CSG_Table			(const CSG_String &FileName, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined, int Encoding = SG_FILE_ENCODING_UNDEFINED);
-	bool							Create				(const CSG_String &FileName, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined, int Encoding = SG_FILE_ENCODING_UNDEFINED);
+									CSG_Table			(const CSG_String &File, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined, int Encoding = SG_FILE_ENCODING_UNDEFINED);
+	bool							Create				(const CSG_String &File, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined, int Encoding = SG_FILE_ENCODING_UNDEFINED);
+									CSG_Table			(const char       *File, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined, int Encoding = SG_FILE_ENCODING_UNDEFINED);
+	bool							Create				(const char       *File, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined, int Encoding = SG_FILE_ENCODING_UNDEFINED);
+									CSG_Table			(const wchar_t    *File, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined, int Encoding = SG_FILE_ENCODING_UNDEFINED);
+	bool							Create				(const wchar_t    *File, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined, int Encoding = SG_FILE_ENCODING_UNDEFINED);
 
-									CSG_Table			(const CSG_String &FileName, TSG_Table_File_Type Format, const SG_Char Separator  , int Encoding = SG_FILE_ENCODING_UNDEFINED);
-	bool							Create				(const CSG_String &FileName, TSG_Table_File_Type Format, const SG_Char Separator  , int Encoding = SG_FILE_ENCODING_UNDEFINED);
+									CSG_Table			(const CSG_String &File, TSG_Table_File_Type Format, const SG_Char Separator  , int Encoding = SG_FILE_ENCODING_UNDEFINED);
+	bool							Create				(const CSG_String &File, TSG_Table_File_Type Format, const SG_Char Separator  , int Encoding = SG_FILE_ENCODING_UNDEFINED);
+									CSG_Table			(const char       *File, TSG_Table_File_Type Format, const SG_Char Separator  , int Encoding = SG_FILE_ENCODING_UNDEFINED);
+	bool							Create				(const char       *File, TSG_Table_File_Type Format, const SG_Char Separator  , int Encoding = SG_FILE_ENCODING_UNDEFINED);
+									CSG_Table			(const wchar_t    *File, TSG_Table_File_Type Format, const SG_Char Separator  , int Encoding = SG_FILE_ENCODING_UNDEFINED);
+	bool							Create				(const wchar_t    *File, TSG_Table_File_Type Format, const SG_Char Separator  , int Encoding = SG_FILE_ENCODING_UNDEFINED);
 
 	virtual ~CSG_Table(void);
 
@@ -245,7 +281,7 @@ public:
 
 	bool							Assign_Values		(const CSG_Table  &Table);
 	bool							Assign_Values		(      CSG_Table *pTable);
-	bool							Assign_Values		(const SG_Char *FileName);
+	bool							Assign_Values		(const SG_Char *File);
 
 	bool							Load				(const CSG_String &File, int Format, SG_Char Separator, int Encoding = SG_FILE_ENCODING_UNDEFINED);
 
@@ -273,6 +309,8 @@ public:
 
 	//-----------------------------------------------------
 	virtual bool					Add_Field			(const CSG_String &Name, TSG_Data_Type Type, int Position = -1);
+	virtual bool					Add_Field			(const char       *Name, TSG_Data_Type Type, int Position = -1) { return( Add_Field(CSG_String(Name), Type, Position) ); }
+	virtual bool					Add_Field			(const wchar_t    *Name, TSG_Data_Type Type, int Position = -1) { return( Add_Field(CSG_String(Name), Type, Position) ); }
 	virtual bool					Del_Field			(int iField);
 	virtual bool					Mov_Field			(int iField, int Position);
 
@@ -288,14 +326,14 @@ public:
 	int								Find_Field			(const CSG_String &Name            )	const;
 	bool							Find_Field			(const CSG_String &Name, int &Index)	const;
 
-	sLong							Get_N				(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_Count   () : 0   );	}
-	double							Get_Minimum			(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_Minimum () : 0.0 );	}
-	double							Get_Maximum			(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_Maximum () : 0.0 );	}
-	double							Get_Range			(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_Range   () : 0.0 );	}
-	double							Get_Sum				(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_Sum     () : 0.0 );	}
-	double							Get_Mean			(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_Mean    () : 0.0 );	}
-	double							Get_StdDev			(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_StdDev  () : 0.0 );	}
-	double							Get_Variance		(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_Variance() : 0.0 );	}
+	sLong							Get_N				(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_Count   () : 0  );	}
+	double							Get_Minimum			(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_Minimum () : 0. );	}
+	double							Get_Maximum			(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_Maximum () : 0. );	}
+	double							Get_Range			(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_Range   () : 0. );	}
+	double							Get_Sum				(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_Sum     () : 0. );	}
+	double							Get_Mean			(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_Mean    () : 0. );	}
+	double							Get_StdDev			(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_StdDev  () : 0. );	}
+	double							Get_Variance		(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_Variance() : 0. );	}
 	const CSG_Simple_Statistics &	Get_Statistics		(int iField)	const	{	_Stats_Update(iField); return( *m_Field_Stats[iField] );	}
 
 	//-----------------------------------------------------
@@ -422,11 +460,11 @@ private:
 	size_t							_Load_Text_Trim		(      CSG_String &Text, const SG_Char Separator);
 	size_t							_Load_Text_EndQuote	(const CSG_String &Text, const SG_Char Separator);
 
-	bool							_Load_Text			(const CSG_String &FileName, bool bHeadline, const SG_Char Separator);
-	bool							_Save_Text			(const CSG_String &FileName, bool bHeadline, const SG_Char Separator);
+	bool							_Load_Text			(const CSG_String &File, bool bHeadline, const SG_Char Separator);
+	bool							_Save_Text			(const CSG_String &File, bool bHeadline, const SG_Char Separator);
 
-	bool							_Load_DBase			(const CSG_String &FileName);
-	bool							_Save_DBase			(const CSG_String &FileName);
+	bool							_Load_DBase			(const CSG_String &File);
+	bool							_Save_DBase			(const CSG_String &File);
 
 	void							_Index_Update		(void);
 
@@ -450,10 +488,18 @@ SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(const CSG_Table &Table);
 SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(CSG_Table *pTemplate);
 
 /** Safe table construction */
-SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(const CSG_String &FileName, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined, int Encoding = SG_FILE_ENCODING_UNDEFINED);
+SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(const char       *File, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined, int Encoding = SG_FILE_ENCODING_UNDEFINED);
+/** Safe table construction */
+SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(const wchar_t    *File, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined, int Encoding = SG_FILE_ENCODING_UNDEFINED);
+/** Safe table construction */
+SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(const CSG_String &File, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined, int Encoding = SG_FILE_ENCODING_UNDEFINED);
 
 /** Safe table construction */
-SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(const CSG_String &FileName, TSG_Table_File_Type Format, const SG_Char Separator  , int Encoding = SG_FILE_ENCODING_UNDEFINED);
+SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(const char       *File, TSG_Table_File_Type Format, const SG_Char Separator  , int Encoding = SG_FILE_ENCODING_UNDEFINED);
+/** Safe table construction */
+SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(const wchar_t    *File, TSG_Table_File_Type Format, const SG_Char Separator  , int Encoding = SG_FILE_ENCODING_UNDEFINED);
+/** Safe table construction */
+SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(const CSG_String &File, TSG_Table_File_Type Format, const SG_Char Separator  , int Encoding = SG_FILE_ENCODING_UNDEFINED);
 
 
 ///////////////////////////////////////////////////////////

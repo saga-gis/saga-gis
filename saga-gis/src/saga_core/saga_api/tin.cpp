@@ -72,9 +72,13 @@ CSG_TIN * SG_Create_TIN(const CSG_TIN &TIN)
 }
 
 //---------------------------------------------------------
-CSG_TIN * SG_Create_TIN(const CSG_String &File_Name)
+CSG_TIN * SG_Create_TIN(const char       *File) { return( SG_Create_TIN(CSG_String(File)) ); }
+CSG_TIN * SG_Create_TIN(const wchar_t    *File) { return( SG_Create_TIN(CSG_String(File)) ); }
+CSG_TIN * SG_Create_TIN(const CSG_String &File)
 {
-	return( new CSG_TIN(File_Name) );
+	CSG_TIN *pTIN = new CSG_TIN(File);
+
+	if( !pTIN->is_Valid() ) { delete(pTIN); return( NULL ); } return( pTIN );
 }
 
 //---------------------------------------------------------
@@ -101,27 +105,23 @@ CSG_TIN::CSG_TIN(void)
 CSG_TIN::CSG_TIN(const CSG_TIN &TIN)
 	: CSG_Table()
 {
-	_On_Construction();
-
-	Create(TIN);
+	_On_Construction(); Create(TIN);
 }
 
 //---------------------------------------------------------
-CSG_TIN::CSG_TIN(const CSG_String &File_Name)
+CSG_TIN::CSG_TIN(const char       *File) : CSG_TIN(CSG_String(File)) {}
+CSG_TIN::CSG_TIN(const wchar_t    *File) : CSG_TIN(CSG_String(File)) {}
+CSG_TIN::CSG_TIN(const CSG_String &File)
 	: CSG_Table()
 {
-	_On_Construction();
-
-	Create(File_Name);
+	_On_Construction(); Create(File);
 }
 
 //---------------------------------------------------------
 CSG_TIN::CSG_TIN(CSG_Shapes *pShapes)
 	: CSG_Table()
 {
-	_On_Construction();
-
-	Create(pShapes);
+	_On_Construction(); Create(pShapes);
 }
 
 
@@ -153,16 +153,18 @@ bool CSG_TIN::Create(const CSG_TIN &TIN)
 }
 
 //---------------------------------------------------------
-bool CSG_TIN::Create(const CSG_String &File_Name)
+bool CSG_TIN::Create(const char       *File) { return( Create(CSG_String(File)) ); }
+bool CSG_TIN::Create(const wchar_t    *File) { return( Create(CSG_String(File)) ); }
+bool CSG_TIN::Create(const CSG_String &File)
 {
-	CSG_Shapes	Shapes(File_Name);
+	CSG_Shapes Shapes(File);
 
 	if( Create(&Shapes) )
 	{
-		Get_History().Add_Child(_TL("Created from file"), File_Name);
+		Get_History().Add_Child(_TL("Created from file"), File);
 		Get_History().Add_Children(Shapes.Get_History());
 
-		Set_File_Name(File_Name, true);
+		Set_File_Name(File, true);
 		Set_Modified(false);
 		Set_Update_Flag();
 

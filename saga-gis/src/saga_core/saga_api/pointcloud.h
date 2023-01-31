@@ -111,8 +111,12 @@ public:
 									CSG_PointCloud		(const CSG_PointCloud &PointCloud);
 	bool							Create				(const CSG_PointCloud &PointCloud);
 
-									CSG_PointCloud		(const CSG_String &File_Name);
-	bool							Create				(const CSG_String &File_Name);
+									CSG_PointCloud		(const CSG_String &File);
+	bool							Create				(const CSG_String &File);
+									CSG_PointCloud		(const char       *File);
+	bool							Create				(const char       *File);
+									CSG_PointCloud		(const wchar_t    *File);
+	bool							Create				(const wchar_t    *File);
 
 									CSG_PointCloud		(CSG_PointCloud *pStructure);
 	bool							Create				(CSG_PointCloud *pStructure);
@@ -249,7 +253,7 @@ private:
 	CSG_Shapes						m_Shapes;
 
 
-	bool							_Load				(const CSG_String &File_Name);
+	bool							_Load				(const CSG_String &File);
 	bool							_Load				(CSG_File &Stream);
 	bool							_Save				(CSG_File &Stream);
 	CSG_MetaData					_Create_Header		(void)	const;
@@ -259,7 +263,6 @@ private:
 	double							_Get_Field_Value	(char *pPoint, int iField                      )	const;
 	bool							_Set_Field_Value	(char *pPoint, int iField, const SG_Char *Value);
 	bool							_Get_Field_Value	(char *pPoint, int iField, CSG_String    &Value)	const;
-	int								_Get_Field_Bytes	(TSG_Data_Type Type);
 
 	bool							_Inc_Array			(void);
 	bool							_Dec_Array			(void);
@@ -283,7 +286,11 @@ SAGA_API_DLL_EXPORT CSG_PointCloud *	SG_Create_PointCloud	(void);
 SAGA_API_DLL_EXPORT CSG_PointCloud *	SG_Create_PointCloud	(const CSG_PointCloud &PointCloud);
 
 /** Safe Point Cloud construction */
-SAGA_API_DLL_EXPORT CSG_PointCloud *	SG_Create_PointCloud	(const CSG_String &File_Name);
+SAGA_API_DLL_EXPORT CSG_PointCloud *	SG_Create_PointCloud	(const char       *File);
+/** Safe Point Cloud construction */
+SAGA_API_DLL_EXPORT CSG_PointCloud *	SG_Create_PointCloud	(const wchar_t    *File);
+/** Safe Point Cloud construction */
+SAGA_API_DLL_EXPORT CSG_PointCloud *	SG_Create_PointCloud	(const CSG_String &File);
 
 /** Safe Point Cloud construction */
 SAGA_API_DLL_EXPORT CSG_PointCloud *	SG_Create_PointCloud	(CSG_PointCloud *pStructure);

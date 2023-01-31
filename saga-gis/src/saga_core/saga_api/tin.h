@@ -230,8 +230,12 @@ public:
 									CSG_TIN		(CSG_Shapes *pShapes);
 	bool							Create		(CSG_Shapes *pShapes);
 
-									CSG_TIN		(const CSG_String &File_Name);
-	bool							Create		(const CSG_String &File_Name);
+									CSG_TIN		(const CSG_String &File);
+	bool							Create		(const CSG_String &File);
+									CSG_TIN		(const char       *File);
+	bool							Create		(const char       *File);
+									CSG_TIN		(const wchar_t    *File);
+	bool							Create		(const wchar_t    *File);
 
 	virtual ~CSG_TIN(void);
 
@@ -329,7 +333,11 @@ SAGA_API_DLL_EXPORT CSG_TIN *	SG_Create_TIN			(const CSG_TIN &TIN);
 SAGA_API_DLL_EXPORT CSG_TIN *	SG_Create_TIN			(CSG_Shapes *pShapes);
 
 /** Safe TIN construction */
-SAGA_API_DLL_EXPORT CSG_TIN *	SG_Create_TIN			(const CSG_String &File_Name);
+SAGA_API_DLL_EXPORT CSG_TIN *	SG_Create_TIN			(const char       *File);
+/** Safe TIN construction */
+SAGA_API_DLL_EXPORT CSG_TIN *	SG_Create_TIN			(const wchar_t    *File);
+/** Safe TIN construction */
+SAGA_API_DLL_EXPORT CSG_TIN *	SG_Create_TIN			(const CSG_String &File);
 
 
 ///////////////////////////////////////////////////////////
