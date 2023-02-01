@@ -64,12 +64,12 @@
 //---------------------------------------------------------
 void CSG_Grid::Assign_NoData(void)
 {
-	double	Value	= Get_NoData_Value();
+	double Value = Get_NoData_Value();
 
 	#pragma omp parallel for
-	for(sLong i=0; i<Get_NCells(); i++)
+	for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
 	{
-		Set_Value(i, Value, false);
+		Set_Value(x, y, Value, false);
 	}
 }
 

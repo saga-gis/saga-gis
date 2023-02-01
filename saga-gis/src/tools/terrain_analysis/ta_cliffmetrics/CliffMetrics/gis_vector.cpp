@@ -685,8 +685,8 @@ bool CDelineation::bWriteVectorGIS(int const nDataItem, CSG_Shapes *pShapes)
 					}                  
 					else if (nDataItem == PLOT_COAST_POINT)  
 					{
-						pShape->Set_Value(2, 1);	// to do, sanity check for coastline points
-						pShape->Set_Value(4, 0);
+						pShape->Set_Value(2, 1.);	// to do, sanity check for coastline points
+						pShape->Set_Value(4, 0.);
 					}
 
 					int	nX	= pProfile->pPtiVGetCellsInProfile()->at(CliffPointIndex).nGetX();

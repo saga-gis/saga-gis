@@ -90,23 +90,23 @@ CSG_Table CSentinel_2_Scene_Import::Get_Info_Bands(void)
 		Info.Set_Value(INFO_FIELD_WAVE_MAX, wmax);\
 	}
 
-	ADD_INFO_BAND("B01", _TL("Aerosols"                 ), 60,  412,  442.7,  456);	//  1, 60m
-	ADD_INFO_BAND("B02", _TL("Blue"                     ), 10,  456,  492.7,  533);	//  2, 10m
-	ADD_INFO_BAND("B03", _TL("Green"                    ), 10,  538,  559.8,  583);	//  3, 10m
-	ADD_INFO_BAND("B04", _TL("Red"                      ), 10,  646,  664.6,  684);	//  4, 10m
-	ADD_INFO_BAND("B05", _TL("Red Edge"                 ), 20,  695,  704.1,  714);	//  5, 20m
-	ADD_INFO_BAND("B06", _TL("Red Edge"                 ), 20,  731,  740.5,  749);	//  6, 20m
-	ADD_INFO_BAND("B07", _TL("Red Edge"                 ), 20,  769,  782.8,  797);	//  7, 20m
-	ADD_INFO_BAND("B08", _TL("NIR"                      ), 10,  760,  832.8,  907);	//  8, 10m
-	ADD_INFO_BAND("B8A", _TL("NIR"                      ), 20,  837,  864.7,  881);	//  9, 20m
-	ADD_INFO_BAND("B09", _TL("Water Vapour"             ), 60,  932,  945.1,  958);	// 10, 60m
-	ADD_INFO_BAND("B10", _TL("Cirrus"                   ), 60, 1337, 1373.5, 1412);	// 11, 60m
-	ADD_INFO_BAND("B11", _TL("SWIR"                     ), 20, 1539, 1613.7, 1682);	// 12, 20m
-	ADD_INFO_BAND("B12", _TL("SWIR"                     ), 20, 2078, 2202.4, 2320);	// 13, 20m
-	ADD_INFO_BAND("TCI", _TL("True Color Image"         ), 10,    0,    0.0,    0);	// 14, 10m
-	ADD_INFO_BAND("AOT", _TL("Aerosol Optical Thickness"), 10,    0,    0.0,    0);	// 15, 10m
-	ADD_INFO_BAND("WVP", _TL("Water Vapour"             ), 10,    0,    0.0,    0);	// 16, 10m
-	ADD_INFO_BAND("SCL", _TL("Scene Classification"     ), 20,    0,    0.0,    0);	// 17, 20m
+	ADD_INFO_BAND("B01", _TL("Aerosols"                 ), 60,  412.0,  442.7,  456.0);	//  1, 60m
+	ADD_INFO_BAND("B02", _TL("Blue"                     ), 10,  456.0,  492.7,  533.0);	//  2, 10m
+	ADD_INFO_BAND("B03", _TL("Green"                    ), 10,  538.0,  559.8,  583.0);	//  3, 10m
+	ADD_INFO_BAND("B04", _TL("Red"                      ), 10,  646.0,  664.6,  684.0);	//  4, 10m
+	ADD_INFO_BAND("B05", _TL("Red Edge"                 ), 20,  695.0,  704.1,  714.0);	//  5, 20m
+	ADD_INFO_BAND("B06", _TL("Red Edge"                 ), 20,  731.0,  740.5,  749.0);	//  6, 20m
+	ADD_INFO_BAND("B07", _TL("Red Edge"                 ), 20,  769.0,  782.8,  797.0);	//  7, 20m
+	ADD_INFO_BAND("B08", _TL("NIR"                      ), 10,  760.0,  832.8,  907.0);	//  8, 10m
+	ADD_INFO_BAND("B8A", _TL("NIR"                      ), 20,  837.0,  864.7,  881.0);	//  9, 20m
+	ADD_INFO_BAND("B09", _TL("Water Vapour"             ), 60,  932.0,  945.1,  958.0);	// 10, 60m
+	ADD_INFO_BAND("B10", _TL("Cirrus"                   ), 60, 1337.0, 1373.5, 1412.0);	// 11, 60m
+	ADD_INFO_BAND("B11", _TL("SWIR"                     ), 20, 1539.0, 1613.7, 1682.0);	// 12, 20m
+	ADD_INFO_BAND("B12", _TL("SWIR"                     ), 20, 2078.0, 2202.4, 2320.0);	// 13, 20m
+	ADD_INFO_BAND("TCI", _TL("True Color Image"         ), 10,    0.0,    0.0,    0.0);	// 14, 10m
+	ADD_INFO_BAND("AOT", _TL("Aerosol Optical Thickness"), 10,    0.0,    0.0,    0.0);	// 15, 10m
+	ADD_INFO_BAND("WVP", _TL("Water Vapour"             ), 10,    0.0,    0.0,    0.0);	// 16, 10m
+	ADD_INFO_BAND("SCL", _TL("Scene Classification"     ), 20,    0.0,    0.0,    0.0);	// 17, 20m
 
 	return( Info_Bands );
 }

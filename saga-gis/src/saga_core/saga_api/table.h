@@ -132,72 +132,85 @@ class SAGA_API_DLL_EXPORT CSG_Table_Record
 
 public:
 
-	class CSG_Table *			Get_Table		(void)				{	return( m_pTable );	}
-	int							Get_Index		(void)	const		{	return( m_Index );	}
+	class CSG_Table *			Get_Table		(void)			{	return( m_pTable );	}
+	int							Get_Index		(void)	const	{	return( m_Index  );	}
 
-	bool						Set_Value		(int              iField, const CSG_Bytes  &Value);
+	bool						Set_Value		(int               Field, const CSG_String &Value);
+	bool						Set_Value		(int               Field, const char       *Value) { return( Set_Value(           Field , CSG_String(Value)) ); }
+	bool						Set_Value		(int               Field, const wchar_t    *Value) { return( Set_Value(           Field , CSG_String(Value)) ); }
+	bool						Set_Value		(const CSG_String &Field, const CSG_String &Value);
+	bool						Set_Value		(const char       *Field, const CSG_String &Value) { return( Set_Value(CSG_String(Field),            Value ) ); }
+	bool						Set_Value		(const wchar_t    *Field, const CSG_String &Value) { return( Set_Value(CSG_String(Field),            Value ) ); }
+	bool						Set_Value		(const char       *Field, const char       *Value) { return( Set_Value(CSG_String(Field), CSG_String(Value)) ); }
+	bool						Set_Value		(const wchar_t    *Field, const wchar_t    *Value) { return( Set_Value(CSG_String(Field), CSG_String(Value)) ); }
+
+	bool						Set_Value		(int               Field, const CSG_Bytes  &Value);
 	bool						Set_Value		(const CSG_String &Field, const CSG_Bytes  &Value);
 	bool						Set_Value		(const char       *Field, const CSG_Bytes  &Value) { return( Set_Value(CSG_String(Field), Value) ); }
 	bool						Set_Value		(const wchar_t    *Field, const CSG_Bytes  &Value) { return( Set_Value(CSG_String(Field), Value) ); }
-	bool						Set_Value		(int              iField, const CSG_String &Value);
-	bool						Set_Value		(const CSG_String &Field, const CSG_String &Value);
-	bool						Set_Value		(const char       *Field, const CSG_String &Value) { return( Set_Value(CSG_String(Field), Value) ); }
-	bool						Set_Value		(const wchar_t    *Field, const CSG_String &Value) { return( Set_Value(CSG_String(Field), Value) ); }
-	bool						Set_Value		(int              iField, double            Value);
+
+	bool						Set_Value		(int               Field, double            Value);
 	bool						Set_Value		(const CSG_String &Field, double            Value);
 	bool						Set_Value		(const char       *Field, double            Value) { return( Set_Value(CSG_String(Field), Value) ); }
 	bool						Set_Value		(const wchar_t    *Field, double            Value) { return( Set_Value(CSG_String(Field), Value) ); }
-	bool						Add_Value		(int              iField, double            Value);
+
+	bool						Add_Value		(int               Field, double            Value);
 	bool						Add_Value		(const CSG_String &Field, double            Value);
 	bool						Add_Value		(const char       *Field, double            Value) { return( Add_Value(CSG_String(Field), Value) ); }
 	bool						Add_Value		(const wchar_t    *Field, double            Value) { return( Add_Value(CSG_String(Field), Value) ); }
-	bool						Mul_Value		(int              iField, double            Value);
+
+	bool						Mul_Value		(int               Field, double            Value);
 	bool						Mul_Value		(const CSG_String &Field, double            Value);
 	bool						Mul_Value		(const char       *Field, double            Value) { return( Mul_Value(CSG_String(Field), Value) ); }
 	bool						Mul_Value		(const wchar_t    *Field, double            Value) { return( Mul_Value(CSG_String(Field), Value) ); }
 
-	bool						Set_NoData		(int              iField);
+	bool						Set_NoData		(int               Field);
 	bool						Set_NoData		(const CSG_String &Field);
 	bool						Set_NoData		(const char       *Field)       { return( Set_NoData(CSG_String(Field)) ); }
 	bool						Set_NoData		(const wchar_t    *Field)       { return( Set_NoData(CSG_String(Field)) ); }
 
-	bool						is_NoData		(int              iField) const;
+	bool						is_NoData		(int               Field) const;
 	bool						is_NoData		(const CSG_String &Field) const;
 	bool						is_NoData		(const char       *Field) const { return( is_NoData(CSG_String(Field)) ); }
 	bool						is_NoData		(const wchar_t    *Field) const { return( is_NoData(CSG_String(Field)) ); }
 
-	const SG_Char *				asString		(int              iField, int Decimals = -99) const;
+	const SG_Char *				asString		(int               Field, int Decimals = -99) const;
 	const SG_Char *				asString		(const CSG_String &Field, int Decimals = -99) const;
 	const SG_Char *				asString		(const char       *Field, int Decimals = -99) const { return( asString(CSG_String(Field), Decimals) ); }
 	const SG_Char *				asString		(const wchar_t    *Field, int Decimals = -99) const { return( asString(CSG_String(Field), Decimals) ); }
 
-	SG_Char						asChar			(int              iField) const { return( (SG_Char)asInt   (          iField ) ); }
-	SG_Char						asChar			(const CSG_String &Field) const { return( (SG_Char)asInt   (           Field ) ); }
-	SG_Char						asChar			(const char       *Field) const { return( (SG_Char)asInt   (CSG_String(Field)) ); }
-	SG_Char						asChar			(const wchar_t    *Field) const { return( (SG_Char)asInt   (CSG_String(Field)) ); }
-	short						asShort			(int              iField) const { return( (short  )asInt   (          iField ) ); }
-	short						asShort			(const CSG_String &Field) const { return( (short  )asInt   (           Field ) ); }
-	short						asShort			(const char       *Field) const { return( (short  )asInt   (CSG_String(Field)) ); }
-	short						asShort			(const wchar_t    *Field) const { return( (short  )asInt   (CSG_String(Field)) ); }
-	int							asInt			(int              iField) const;
-	int							asInt			(const CSG_String &Field) const;
-	int							asInt			(const char       *Field) const { return(          asInt   (CSG_String(Field)) ); }
-	int							asInt			(const wchar_t    *Field) const { return(          asInt   (CSG_String(Field)) ); }
-	sLong						asLong			(int              iField) const;
-	sLong						asLong			(const CSG_String &Field) const;
-	sLong						asLong			(const char       *Field) const { return(          asLong  (CSG_String(Field)) ); }
-	sLong						asLong			(const wchar_t    *Field) const { return(          asLong  (CSG_String(Field)) ); }
-	float						asFloat			(int              iField) const { return( (float  )asDouble(          iField ) ); }
-	float						asFloat			(const CSG_String &Field) const { return( (float  )asDouble(           Field ) ); }
-	float						asFloat			(const char       *Field) const { return( (float  )asDouble(CSG_String(Field)) ); }
-	float						asFloat			(const wchar_t    *Field) const { return( (float  )asDouble(CSG_String(Field)) ); }
-	double						asDouble		(int              iField) const;
-	double						asDouble		(const CSG_String &Field) const;
-	double						asDouble		(const char       *Field) const { return(          asDouble(CSG_String(Field)) ); }
-	double						asDouble		(const wchar_t    *Field) const { return(          asDouble(CSG_String(Field)) ); }
+	SG_Char						asChar			(int               Field) const;
+	SG_Char						asChar			(const CSG_String &Field) const;
+	SG_Char						asChar			(const char       *Field) const { return( asChar  (CSG_String(Field)) ); }
+	SG_Char						asChar			(const wchar_t    *Field) const { return( asChar  (CSG_String(Field)) ); }
 
-	CSG_Table_Value *			Get_Value		(int              iField)       { return(  m_Values[iField] ); }
-	CSG_Table_Value &			operator []		(int              iField) const { return( *m_Values[iField] ); }
+	short						asShort			(int               Field) const;
+	short						asShort			(const CSG_String &Field) const;
+	short						asShort			(const char       *Field) const { return( asShort (CSG_String(Field)) ); }
+	short						asShort			(const wchar_t    *Field) const { return( asShort (CSG_String(Field)) ); }
+
+	int							asInt			(int               Field) const;
+	int							asInt			(const CSG_String &Field) const;
+	int							asInt			(const char       *Field) const { return( asInt   (CSG_String(Field)) ); }
+	int							asInt			(const wchar_t    *Field) const { return( asInt   (CSG_String(Field)) ); }
+
+	sLong						asLong			(int               Field) const;
+	sLong						asLong			(const CSG_String &Field) const;
+	sLong						asLong			(const char       *Field) const { return( asLong  (CSG_String(Field)) ); }
+	sLong						asLong			(const wchar_t    *Field) const { return( asLong  (CSG_String(Field)) ); }
+
+	float						asFloat			(int              iField) const;
+	float						asFloat			(const CSG_String &Field) const;
+	float						asFloat			(const char       *Field) const { return( asFloat (CSG_String(Field)) ); }
+	float						asFloat			(const wchar_t    *Field) const { return( asFloat (CSG_String(Field)) ); }
+
+	double						asDouble		(int               Field) const;
+	double						asDouble		(const CSG_String &Field) const;
+	double						asDouble		(const char       *Field) const { return( asDouble(CSG_String(Field)) ); }
+	double						asDouble		(const wchar_t    *Field) const { return( asDouble(CSG_String(Field)) ); }
+
+	CSG_Table_Value *			Get_Value		(int               Field)       { return(  m_Values[Field] ); }
+	CSG_Table_Value &			operator []		(int               Field) const { return( *m_Values[Field] ); }
 
 	virtual bool				Assign			(CSG_Table_Record *pRecord);
 

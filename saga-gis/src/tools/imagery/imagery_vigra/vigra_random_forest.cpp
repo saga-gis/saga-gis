@@ -656,7 +656,7 @@ bool CViGrA_Random_Forest::Get_Training(CSG_Matrix &Data, CSG_Table &Classes)
 
 			pClass->Set_Value(CLASS_ID   , ID   );
 			pClass->Set_Value(CLASS_NAME , Label);
-			pClass->Set_Value(CLASS_COUNT, 0    );
+			pClass->Set_Value(CLASS_COUNT, 0.   );
 		}
 
 		pClass->Add_Value(CLASS_COUNT, Get_Training(Data, ID, (CSG_Shape_Polygon *)pArea));

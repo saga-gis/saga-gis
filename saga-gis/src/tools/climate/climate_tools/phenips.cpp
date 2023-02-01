@@ -766,7 +766,7 @@ bool CPhenIps_Grids::Initialize(bool bReset)
 
 		CSG_Colors	Colors(2 * MAX_GENERATIONS, SG_COLORS_YELLOW_RED);
 
-		ADD_LUT_CLASS(0, SG_GET_RGB(000, 127, 000), _TL("no generation"));
+		ADD_LUT_CLASS((double)0, SG_GET_RGB(000, 127, 000), _TL("no generation"));
 
 		for(int i=1, j=1; i<=MAX_GENERATIONS; i++, j+=2)
 		{

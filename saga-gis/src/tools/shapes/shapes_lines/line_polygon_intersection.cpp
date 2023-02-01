@@ -275,7 +275,7 @@ bool CLine_Polygon_Intersection::Get_Intersection(CSG_Shape_Polygon *pPolygon, C
 		
 		double Distance = 0.; bool bCrossings = false;
 
-		Add_Vertex(Segment[1], Distance, 0);
+		Add_Vertex(Segment[1], Distance, 0.);
 
 		for(int iPoint=1; iPoint<pPart->Get_Count(); iPoint++)
 		{
@@ -290,7 +290,7 @@ bool CLine_Polygon_Intersection::Get_Intersection(CSG_Shape_Polygon *pPolygon, C
 
 				Distance += SG_Get_Distance(Segment[0].x, Segment[0].y, Segment[1].x, Segment[1].y);
 
-				Add_Vertex(Segment[1], Distance, 0);
+				Add_Vertex(Segment[1], Distance, 0.);
 			}
 		}
 
