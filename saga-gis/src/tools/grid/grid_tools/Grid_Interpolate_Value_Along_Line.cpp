@@ -69,7 +69,7 @@
 //---------------------------------------------------------
 CGrid_Interpolate_Value_Along_Line::CGrid_Interpolate_Value_Along_Line(void)
 {
-	Set_Name		(_TL("Interpolate Values Along Line "));
+	Set_Name		(_TL("Interpolate Values Along Line"));
 
 	Set_Author		(SG_T("V. Wichmann (c) 2019"));
 
@@ -323,7 +323,7 @@ void CGrid_Interpolate_Value_Along_Line::Set_Line(TSG_Point A, TSG_Point B)
 //---------------------------------------------------------
 void CGrid_Interpolate_Value_Along_Line::Add_Point(CSG_Point Point)
 {
-	int			x, y, i;
+	int			x, y;
 	double		z, Length;
 	CSG_Shape	*pPoint, *pLast;
 
