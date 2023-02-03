@@ -31,6 +31,8 @@ if(MSVC)
 		add_definitions(/MP)
 	endif()
 
+	add_definitions(/utf-8)
+
 	# default debug configuration to use: 'Program Database for Edit And Continue (/ZI)'
 	set(CMAKE_C_FLAGS_DEBUG             "/MDd /ZI /Ob0 /Od /RTC1"       CACHE STRING "" FORCE)
 	set(CMAKE_CXX_FLAGS_DEBUG           "/MDd /ZI /Ob0 /Od /RTC1"       CACHE STRING "" FORCE)
