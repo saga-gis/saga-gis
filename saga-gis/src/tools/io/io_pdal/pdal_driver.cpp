@@ -94,13 +94,19 @@ CSG_PDAL_Drivers::~CSG_PDAL_Drivers(void)
 //---------------------------------------------------------
 CSG_String CSG_PDAL_Drivers::Get_Version(void) const
 {
-    return( pdal::Config::fullVersionString().c_str() );
+	#if defined(_DEBUG) && defined(_SAGA_MSW)
+	return( "" );
+	#endif
+	return( pdal::Config::fullVersionString().c_str() );
 }
 
 //---------------------------------------------------------
 int CSG_PDAL_Drivers::Get_Count(void) const
 {
-    return( (int)pdal::PluginManager<pdal::Stage>::names().size() );
+	#if defined(_DEBUG) && defined(_SAGA_MSW)
+	return( 0 );
+	#endif
+	return( (int)pdal::PluginManager<pdal::Stage>::names().size() );
 }
 
 //---------------------------------------------------------
