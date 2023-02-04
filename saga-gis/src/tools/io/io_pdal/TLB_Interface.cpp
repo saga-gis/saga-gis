@@ -48,9 +48,7 @@
 //---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include <saga_api/saga_api.h>
-
-#include <pdal/pdal_config.hpp>
+#include "pdal_driver.h"
 
 
 //---------------------------------------------------------
@@ -71,7 +69,7 @@ CSG_String Get_Info(int i)
 
 	case TLB_INFO_Description:
 		return( CSG_String::Format(_TL("Tools that use the Point Data Abstraction Library (PDAL)."))
-			+ CSG_String::Format("\n\nPDAL %s: ", _TL("Version")) + CSG_String(pdal::Config::fullVersionString().c_str())
+			+ CSG_String::Format("\n\nPDAL %s: ", _TL("Version")) + SG_Get_PDAL_Drivers().Get_Version()
 		);
 
 	case TLB_INFO_Version:

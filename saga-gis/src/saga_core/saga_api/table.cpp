@@ -107,15 +107,19 @@ CSG_Table * SG_Create_Table(CSG_Table *pTemplate)
 }
 
 //---------------------------------------------------------
-CSG_Table * SG_Create_Table(const CSG_String &File_Name, TSG_Table_File_Type Format, int Encoding)
+CSG_Table * SG_Create_Table(const char       *File, TSG_Table_File_Type Format, int Encoding) { return( SG_Create_Table(CSG_String(File), Format, Encoding) ); }
+CSG_Table * SG_Create_Table(const wchar_t    *File, TSG_Table_File_Type Format, int Encoding) { return( SG_Create_Table(CSG_String(File), Format, Encoding) ); }
+CSG_Table * SG_Create_Table(const CSG_String &File, TSG_Table_File_Type Format, int Encoding)
 {
-	return( new CSG_Table(File_Name, Format, Encoding) );
+	return( new CSG_Table(File, Format, Encoding) );
 }
 
 //---------------------------------------------------------
-CSG_Table * SG_Create_Table(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char Separator, int Encoding)
+CSG_Table * SG_Create_Table(const char       *File, TSG_Table_File_Type Format, const SG_Char Separator, int Encoding) { return( SG_Create_Table(CSG_String(File), Format, Separator, Encoding) ); }
+CSG_Table * SG_Create_Table(const wchar_t    *File, TSG_Table_File_Type Format, const SG_Char Separator, int Encoding) { return( SG_Create_Table(CSG_String(File), Format, Separator, Encoding) ); }
+CSG_Table * SG_Create_Table(const CSG_String &File, TSG_Table_File_Type Format, const SG_Char Separator, int Encoding)
 {
-	return( new CSG_Table(File_Name, Format, Encoding) );
+	return( new CSG_Table(File, Format, Encoding) );
 }
 
 
@@ -136,9 +140,7 @@ CSG_Table::CSG_Table(void)
 CSG_Table::CSG_Table(const CSG_Table &Table)
 	: CSG_Data_Object()
 {
-	_On_Construction();
-
-	Create(Table);
+	_On_Construction(); Create(Table);
 }
 
 bool CSG_Table::Create(const CSG_Table &Table)
@@ -147,57 +149,58 @@ bool CSG_Table::Create(const CSG_Table &Table)
 }
 
 //---------------------------------------------------------
-CSG_Table::CSG_Table(const CSG_String &File_Name, TSG_Table_File_Type Format, int Encoding)
+CSG_Table::CSG_Table(const char       *File, TSG_Table_File_Type Format, int Encoding) : CSG_Table(CSG_String(File), Format, Encoding) {}
+CSG_Table::CSG_Table(const wchar_t    *File, TSG_Table_File_Type Format, int Encoding) : CSG_Table(CSG_String(File), Format, Encoding) {}
+CSG_Table::CSG_Table(const CSG_String &File, TSG_Table_File_Type Format, int Encoding)
+	: CSG_Data_Object()
 {
-	_On_Construction();
-
-	Create(File_Name, Format, Encoding);
+	_On_Construction(); Create(File, Format, Encoding);
 }
 
-bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format, int Encoding)
+bool CSG_Table::Create(const char       *File, TSG_Table_File_Type Format, int Encoding) { return( Create(CSG_String(File), Format, Encoding) ); }
+bool CSG_Table::Create(const wchar_t    *File, TSG_Table_File_Type Format, int Encoding) { return( Create(CSG_String(File), Format, Encoding) ); }
+bool CSG_Table::Create(const CSG_String &File, TSG_Table_File_Type Format, int Encoding)
 {
 	Destroy();
 
-	SG_UI_Msg_Add(CSG_String::Format("%s %s: %s...", _TL("Loading"), _TL("table"), File_Name.c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s %s: %s...", _TL("Loading"), _TL("table"), File.c_str()), true);
 
 	//-----------------------------------------------------
-	bool	bResult	= File_Name.BeforeFirst(':').Cmp("PGSQL") && SG_File_Exists(File_Name) && Load(File_Name, (int)Format, '\0', Encoding);
+	bool bResult = File.BeforeFirst(':').Cmp("PGSQL") && SG_File_Exists(File) && Load(File, (int)Format, '\0', Encoding);
 
 	if( bResult )
 	{
-		Set_File_Name(File_Name, true);
+		Set_File_Name(File, true);
 	}
 
 	//-----------------------------------------------------
-	else if( File_Name.BeforeFirst(':').Cmp("PGSQL") == 0 )	// database source
+	else if( File.BeforeFirst(':').Cmp("PGSQL") == 0 )	// database source
 	{
-		CSG_String	s(File_Name);
+		CSG_String s(File);
 
-		s	= s.AfterFirst(':');	CSG_String	Host  (s.BeforeFirst(':'));
-		s	= s.AfterFirst(':');	CSG_String	Port  (s.BeforeFirst(':'));
-		s	= s.AfterFirst(':');	CSG_String	DBName(s.BeforeFirst(':'));
-		s	= s.AfterFirst(':');	CSG_String	Table (s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String Host  (s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String Port  (s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String DBName(s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String Table (s.BeforeFirst(':'));
 
-		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 0, true);	// CGet_Connections
+		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 0, true); // CGet_Connections
 
 		if(	pTool != NULL )
 		{
 			SG_UI_ProgressAndMsg_Lock(true);
 
 			//---------------------------------------------
-			CSG_Table	Connections;
-			CSG_String	Connection	= DBName + " [" + Host + ":" + Port + "]";
+			CSG_Table Connections; CSG_String Connection(DBName + " [" + Host + ":" + Port + "]");
 
-			pTool->Set_Manager(NULL);
-			pTool->On_Before_Execution();
+			pTool->Set_Manager(NULL); pTool->On_Before_Execution();
 
-			if( SG_TOOL_PARAMETER_SET("CONNECTIONS", &Connections) && pTool->Execute() )	// CGet_Connections
+			if( SG_TOOL_PARAMETER_SET("CONNECTIONS", &Connections) && pTool->Execute() ) // CGet_Connections
 			{
 				for(int i=0; !bResult && i<Connections.Get_Count(); i++)
 				{
 					if( !Connection.Cmp(Connections[i].asString(0)) )
 					{
-						bResult	= true;
+						bResult = true;
 					}
 				}
 			}
@@ -205,14 +208,13 @@ bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format, 
 			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 			//---------------------------------------------
-			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 12, true)) != NULL) == true )	// CPGIS_Table_Load
+			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 12, true)) != NULL) == true ) // CPGIS_Table_Load
 			{
-				pTool->Set_Manager(NULL);
-				pTool->On_Before_Execution();
+				pTool->Set_Manager(NULL); pTool->On_Before_Execution();
 
-				bResult	=  SG_TOOL_PARAMETER_SET("CONNECTION", Connection)
-						&& SG_TOOL_PARAMETER_SET("DB_TABLES" , Table)
-						&& SG_TOOL_PARAMETER_SET("TABLE"     , this)
+				bResult =  SG_TOOL_PARAMETER_SET("CONNECTION", Connection)
+						&& SG_TOOL_PARAMETER_SET("DB_TABLE"  , Table     )
+						&& SG_TOOL_PARAMETER_SET("TABLE"     , this      )
 						&& pTool->Execute();
 
 				SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
@@ -241,26 +243,26 @@ bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format, 
 }
 
 //---------------------------------------------------------
-CSG_Table::CSG_Table(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char Separator, int Encoding)
+CSG_Table::CSG_Table(const char       *File, TSG_Table_File_Type Format, const SG_Char Separator, int Encoding) : CSG_Table(CSG_String(File), Format, Separator, Encoding) {}
+CSG_Table::CSG_Table(const wchar_t    *File, TSG_Table_File_Type Format, const SG_Char Separator, int Encoding) : CSG_Table(CSG_String(File), Format, Separator, Encoding) {}
+CSG_Table::CSG_Table(const CSG_String &File, TSG_Table_File_Type Format, const SG_Char Separator, int Encoding)
 	: CSG_Data_Object()
 {
-	_On_Construction();
-
-	Create(File_Name, Format, Separator, Encoding);
+	_On_Construction(); Create(File, Format, Separator, Encoding);
 }
 
-bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char Separator, int Encoding)
+bool CSG_Table::Create(const char       *File, TSG_Table_File_Type Format, const SG_Char Separator, int Encoding) { return( Create(CSG_String(File), Format, Separator, Encoding) ); }
+bool CSG_Table::Create(const wchar_t    *File, TSG_Table_File_Type Format, const SG_Char Separator, int Encoding) { return( Create(CSG_String(File), Format, Separator, Encoding) ); }
+bool CSG_Table::Create(const CSG_String &File, TSG_Table_File_Type Format, const SG_Char Separator, int Encoding)
 {
-	return( Load(File_Name, (int)Format, Separator, Encoding) );
+	return( Load(File, (int)Format, Separator, Encoding) );
 }
 
 //---------------------------------------------------------
 CSG_Table::CSG_Table(const CSG_Table *pTemplate)
 	: CSG_Data_Object()
 {
-	_On_Construction();
-
-	Create(pTemplate);
+	_On_Construction(); Create(pTemplate);
 }
 
 bool CSG_Table::Create(const CSG_Table *pTemplate)
@@ -276,7 +278,7 @@ bool CSG_Table::Create(const CSG_Table *pTemplate)
 	Set_Description       (pTemplate->Get_Description());
 	Set_NoData_Value_Range(pTemplate->Get_NoData_Value(), pTemplate->Get_NoData_Value(true));
 
-	m_Encoding	= pTemplate->m_Encoding;
+	m_Encoding = pTemplate->m_Encoding;
 
 	for(int i=0; i<pTemplate->Get_Field_Count(); i++)
 	{
@@ -294,16 +296,16 @@ bool CSG_Table::Create(const CSG_Table *pTemplate)
 //---------------------------------------------------------
 void CSG_Table::_On_Construction(void)
 {
-	m_nFields		= 0;
-	m_Field_Name	= NULL;
-	m_Field_Type	= NULL;
-	m_Field_Stats	= NULL;
+	m_nFields     = 0;
+	m_Field_Name  = NULL;
+	m_Field_Type  = NULL;
+	m_Field_Stats = NULL;
 
-	m_Records		= NULL;
-	m_nRecords		= 0;
-	m_nBuffer		= 0;
+	m_Records     = NULL;
+	m_nRecords    = 0;
+	m_nBuffer     = 0;
 
-	m_Encoding		= SG_FILE_ENCODING_UTF8;
+	m_Encoding    = SG_FILE_ENCODING_UTF8;
 
 	m_Selection.Create(sizeof(size_t), 0, SG_ARRAY_GROWTH_3);
 
@@ -336,15 +338,14 @@ bool CSG_Table::Destroy(void)
 			delete(m_Field_Stats[i]);
 		}
 
-		m_nFields		= 0;
-
-		SG_Free(m_Field_Name);
-		SG_Free(m_Field_Type);
+		SG_Free(m_Field_Name );
 		SG_Free(m_Field_Stats);
+		SG_Free(m_Field_Type );
 
-		m_Field_Name	= NULL;
-		m_Field_Type	= NULL;
-		m_Field_Stats	= NULL;
+		m_nFields     = 0;
+		m_Field_Name  = NULL;
+		m_Field_Type  = NULL;
+		m_Field_Stats = NULL;
 	}
 
 	CSG_Data_Object::Destroy();
@@ -371,14 +372,14 @@ CSG_Table & CSG_Table::operator = (const CSG_Table &Table)
 bool CSG_Table::Assign(CSG_Data_Object *pObject)
 {
 	if( !pObject || !pObject->is_Valid()
-	||	(	pObject->Get_ObjectType() != SG_DATAOBJECT_TYPE_Table
-		&&	pObject->Get_ObjectType() != SG_DATAOBJECT_TYPE_Shapes
-		&&	pObject->Get_ObjectType() != SG_DATAOBJECT_TYPE_PointCloud	) )
+	|| ( pObject->Get_ObjectType() != SG_DATAOBJECT_TYPE_Table
+	  && pObject->Get_ObjectType() != SG_DATAOBJECT_TYPE_Shapes
+	  && pObject->Get_ObjectType() != SG_DATAOBJECT_TYPE_PointCloud	) )
 	{
 		return( false );
 	}
 
-	CSG_Table	*pTable	= (CSG_Table *)pObject;
+	CSG_Table *pTable = (CSG_Table *)pObject;
 
 	if( !Create(pTable) )
 	{
@@ -390,8 +391,8 @@ bool CSG_Table::Assign(CSG_Data_Object *pObject)
 		Add_Record(pTable->Get_Record(i));
 	}
 
-	Get_MetaData()	= pTable->Get_MetaData();
-//	Get_History ()	= pTable->Get_History ();
+	Get_MetaData() = pTable->Get_MetaData();
+//	Get_History () = pTable->Get_History ();
 
 	return( true );
 }

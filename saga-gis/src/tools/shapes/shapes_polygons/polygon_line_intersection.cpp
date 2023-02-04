@@ -362,7 +362,7 @@ int CSG_Arcs::_Add_Line_Segment(const CSG_Point S[2], double Distance, CSG_Shape
 
 	if( bAddFirst && m_pPolygon->Contains(S[0]) )
 	{
-		Add_Vertex(S[0], Distance, 0, -1, -1);
+		Add_Vertex(S[0], Distance, 0., -1, -1);
 	}
 
 	return( nCrossings );

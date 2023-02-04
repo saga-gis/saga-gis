@@ -77,15 +77,17 @@ CSG_Grid * SG_Create_Grid(void)
 //---------------------------------------------------------
 CSG_Grid * SG_Create_Grid(const CSG_Grid &Grid)
 {
-	CSG_Grid	*pGrid	= new CSG_Grid(Grid);
+	CSG_Grid *pGrid = new CSG_Grid(Grid);
 
 	if( !pGrid->is_Valid() ) { delete(pGrid); return( NULL ); } return( pGrid );
 }
 
 //---------------------------------------------------------
-CSG_Grid * SG_Create_Grid(const CSG_String &FileName, TSG_Data_Type Type, bool bCached, bool bLoadData)
+CSG_Grid * SG_Create_Grid(const char       *File, TSG_Data_Type Type, bool bCached, bool bLoadData) { return( SG_Create_Grid(CSG_String(File), Type, bCached, bLoadData) ); }
+CSG_Grid * SG_Create_Grid(const wchar_t    *File, TSG_Data_Type Type, bool bCached, bool bLoadData) { return( SG_Create_Grid(CSG_String(File), Type, bCached, bLoadData) ); }
+CSG_Grid * SG_Create_Grid(const CSG_String &File, TSG_Data_Type Type, bool bCached, bool bLoadData)
 {
-	CSG_Grid	*pGrid	= new CSG_Grid(FileName, Type, bCached, bLoadData);
+	CSG_Grid *pGrid = new CSG_Grid(File, Type, bCached, bLoadData);
 
 	if( !pGrid->is_Valid() ) { delete(pGrid); return( NULL ); } return( pGrid );
 }
@@ -93,7 +95,7 @@ CSG_Grid * SG_Create_Grid(const CSG_String &FileName, TSG_Data_Type Type, bool b
 //---------------------------------------------------------
 CSG_Grid * SG_Create_Grid(CSG_Grid *pGrid, TSG_Data_Type Type, bool bCached)
 {
-	pGrid	= new CSG_Grid(pGrid, Type, bCached);
+	pGrid = new CSG_Grid(pGrid, Type, bCached);
 
 	if( !pGrid->is_Valid() ) { delete(pGrid); return( NULL ); } return( pGrid );
 }
@@ -101,7 +103,7 @@ CSG_Grid * SG_Create_Grid(CSG_Grid *pGrid, TSG_Data_Type Type, bool bCached)
 //---------------------------------------------------------
 CSG_Grid * SG_Create_Grid(const CSG_Grid_System &System, TSG_Data_Type Type, bool bCached)
 {
-	CSG_Grid	*pGrid	= new CSG_Grid(System, Type, bCached);
+	CSG_Grid *pGrid = new CSG_Grid(System, Type, bCached);
 
 	if( !pGrid->is_Valid() ) { delete(pGrid); return( NULL ); } return( pGrid );
 }
@@ -109,7 +111,7 @@ CSG_Grid * SG_Create_Grid(const CSG_Grid_System &System, TSG_Data_Type Type, boo
 //---------------------------------------------------------
 CSG_Grid * SG_Create_Grid(TSG_Data_Type Type, int NX, int NY, double Cellsize, double xMin, double yMin, bool bCached)
 {
-	CSG_Grid	*pGrid	= new CSG_Grid(Type, NX, NY, Cellsize, xMin, yMin, bCached);
+	CSG_Grid *pGrid = new CSG_Grid(Type, NX, NY, Cellsize, xMin, yMin, bCached);
 
 	if( !pGrid->is_Valid() ) { delete(pGrid); return( NULL ); } return( pGrid );
 }
@@ -127,6 +129,7 @@ CSG_Grid * SG_Create_Grid(TSG_Data_Type Type, int NX, int NY, double Cellsize, d
 */
 //---------------------------------------------------------
 CSG_Grid::CSG_Grid(void)
+	: CSG_Data_Object()
 {
 	_On_Construction();
 }
@@ -137,22 +140,22 @@ CSG_Grid::CSG_Grid(void)
 */
 //---------------------------------------------------------
 CSG_Grid::CSG_Grid(const CSG_Grid &Grid)
+	: CSG_Data_Object()
 {
-	_On_Construction();
-
-	Create(Grid);
+	_On_Construction(); Create(Grid);
 }
 
 //---------------------------------------------------------
 /**
-  * Create a grid from file.
+* Create a grid from file.
 */
 //---------------------------------------------------------
-CSG_Grid::CSG_Grid(const CSG_String &FileName, TSG_Data_Type Type, bool bCached, bool bLoadData)
+CSG_Grid::CSG_Grid(const char       *File, TSG_Data_Type Type, bool bCached, bool bLoadData) : CSG_Grid(CSG_String(File), Type, bCached, bLoadData) {}
+CSG_Grid::CSG_Grid(const wchar_t    *File, TSG_Data_Type Type, bool bCached, bool bLoadData) : CSG_Grid(CSG_String(File), Type, bCached, bLoadData) {}
+CSG_Grid::CSG_Grid(const CSG_String &File, TSG_Data_Type Type, bool bCached, bool bLoadData)
+	: CSG_Data_Object()
 {
-	_On_Construction();
-
-	Create(FileName, Type, bCached, bLoadData);
+	_On_Construction(); Create(File, Type, bCached, bLoadData);
 }
 
 //---------------------------------------------------------
@@ -161,10 +164,9 @@ CSG_Grid::CSG_Grid(const CSG_String &FileName, TSG_Data_Type Type, bool bCached,
 */
 //---------------------------------------------------------
 CSG_Grid::CSG_Grid(CSG_Grid *pGrid, TSG_Data_Type Type, bool bCached)
+	: CSG_Data_Object()
 {
-	_On_Construction();
-
-	Create(pGrid, Type, bCached);
+	_On_Construction(); Create(pGrid, Type, bCached);
 }
 
 //---------------------------------------------------------
@@ -173,10 +175,9 @@ CSG_Grid::CSG_Grid(CSG_Grid *pGrid, TSG_Data_Type Type, bool bCached)
 */
 //---------------------------------------------------------
 CSG_Grid::CSG_Grid(const CSG_Grid_System &System, TSG_Data_Type Type, bool bCached)
+	: CSG_Data_Object()
 {
-	_On_Construction();
-
-	Create(System, Type, bCached);
+	_On_Construction(); Create(System, Type, bCached);
 }
 
 //---------------------------------------------------------
@@ -188,10 +189,9 @@ CSG_Grid::CSG_Grid(const CSG_Grid_System &System, TSG_Data_Type Type, bool bCach
 */
 //---------------------------------------------------------
 CSG_Grid::CSG_Grid(TSG_Data_Type Type, int NX, int NY, double Cellsize, double xMin, double yMin, bool bCached)
+	: CSG_Data_Object()
 {
-	_On_Construction();
-
-	Create(Type, NX, NY, Cellsize, xMin, yMin, bCached);
+	_On_Construction(); Create(Type, NX, NY, Cellsize, xMin, yMin, bCached);
 }
 
 
@@ -283,19 +283,21 @@ bool CSG_Grid::Create(const CSG_Grid_System &System, TSG_Data_Type Type, bool bC
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::Create(const CSG_String &FileName, TSG_Data_Type Type, bool bCached, bool bLoadData)
+bool CSG_Grid::Create(const char       *File, TSG_Data_Type Type, bool bCached, bool bLoadData) { return( Create(CSG_String(File), Type, bCached, bLoadData) ); }
+bool CSG_Grid::Create(const wchar_t    *File, TSG_Data_Type Type, bool bCached, bool bLoadData) { return( Create(CSG_String(File), Type, bCached, bLoadData) ); }
+bool CSG_Grid::Create(const CSG_String &File, TSG_Data_Type Type, bool bCached, bool bLoadData)
 {
 	Destroy();
 
-	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Loading grid"), FileName.c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Loading grid"), File.c_str()), true);
 
 	m_Type	= Type;
 
-	if( _Load_PGSQL     (FileName, bCached, bLoadData)
-	||  _Load_Native    (FileName, bCached, bLoadData)
-	||  _Load_Compressed(FileName, bCached, bLoadData)
-	||  _Load_Surfer    (FileName, bCached, bLoadData)
-	||  _Load_External  (FileName, bCached, bLoadData) )
+	if( _Load_PGSQL     (File, bCached, bLoadData)
+	||  _Load_Native    (File, bCached, bLoadData)
+	||  _Load_Compressed(File, bCached, bLoadData)
+	||  _Load_Surfer    (File, bCached, bLoadData)
+	||  _Load_External  (File, bCached, bLoadData) )
 	{
 		Set_Max_Samples(SG_DataObject_Get_Max_Samples() > 0 ? SG_DataObject_Get_Max_Samples() : Get_NCells());
 

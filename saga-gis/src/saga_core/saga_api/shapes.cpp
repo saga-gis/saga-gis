@@ -50,15 +50,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "shapes.h"
 #include "pointcloud.h"
 #include "tool_library.h"
@@ -113,9 +104,13 @@ CSG_Shapes *		SG_Create_Shapes(const CSG_Shapes &Shapes)
 }
 
 //---------------------------------------------------------
-CSG_Shapes *		SG_Create_Shapes(const CSG_String &File_Name)
+CSG_Shapes *		SG_Create_Shapes(const char       *File) { return( SG_Create_Shapes(CSG_String(File)) ); }
+CSG_Shapes *		SG_Create_Shapes(const wchar_t    *File) { return( SG_Create_Shapes(CSG_String(File)) ); }
+CSG_Shapes *		SG_Create_Shapes(const CSG_String &File)
 {
-	return( new CSG_Shapes(File_Name) );
+	CSG_Shapes *pShapes = new CSG_Shapes(File);
+
+	if( !pShapes->is_Valid() ) { delete(pShapes); return( NULL ); } return( pShapes );
 }
 
 //---------------------------------------------------------
@@ -163,27 +158,23 @@ CSG_Shapes::CSG_Shapes(void)
 CSG_Shapes::CSG_Shapes(const CSG_Shapes &Shapes)
 	: CSG_Table()
 {
-	_On_Construction();
-
-	Create(Shapes);
+	_On_Construction(); Create(Shapes);
 }
 
 //---------------------------------------------------------
-CSG_Shapes::CSG_Shapes(const CSG_String &File_Name)
+CSG_Shapes::CSG_Shapes(const char       *File) : CSG_Shapes(CSG_String(File)) {}
+CSG_Shapes::CSG_Shapes(const wchar_t    *File) : CSG_Shapes(CSG_String(File)) {}
+CSG_Shapes::CSG_Shapes(const CSG_String &File)
 	: CSG_Table()
 {
-	_On_Construction();
-
-	Create(File_Name);
+	_On_Construction(); Create(File);
 }
 
 //---------------------------------------------------------
 CSG_Shapes::CSG_Shapes(TSG_Shape_Type Type, const SG_Char *Name, CSG_Table *pStructure, TSG_Vertex_Type Vertex_Type)
 	: CSG_Table()
 {
-	_On_Construction();
-
-	Create(Type, Name, pStructure, Vertex_Type);
+	_On_Construction(); Create(Type, Name, pStructure, Vertex_Type);
 }
 
 
@@ -198,16 +189,14 @@ void CSG_Shapes::_On_Construction(void)
 {
 	CSG_Table::_On_Construction();
 
-	m_Type			= SHAPE_TYPE_Undefined;
-	m_Vertex_Type	= SG_VERTEX_TYPE_XY;
+	m_Type        = SHAPE_TYPE_Undefined;
+	m_Vertex_Type = SG_VERTEX_TYPE_XY;
 
-	m_Encoding		= SG_FILE_ENCODING_UTF8;
+	m_Encoding    = SG_FILE_ENCODING_UTF8;
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -218,36 +207,36 @@ bool CSG_Shapes::Create(const CSG_Shapes &Shapes)
 }
 
 //---------------------------------------------------------
-bool CSG_Shapes::Create(const CSG_String &File_Name)
+bool CSG_Shapes::Create(const char       *File) { return( Create(CSG_String(File)) ); }
+bool CSG_Shapes::Create(const wchar_t    *File) { return( Create(CSG_String(File)) ); }
+bool CSG_Shapes::Create(const CSG_String &File)
 {
 	Destroy();
 
-	SG_UI_Msg_Add(CSG_String::Format("%s %s: %s...", _TL("Loading"), _TL("shapes"), File_Name.c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s %s: %s...", _TL("Loading"), _TL("shapes"), File.c_str()), true);
 
-	bool	bResult	= false;
+	bool bResult = false;
 
 	//-----------------------------------------------------
-	if( File_Name.BeforeFirst(':').Cmp("PGSQL") == 0 )	// database source
+	if( File.BeforeFirst(':').Cmp("PGSQL") == 0 )	// database source
 	{
-		CSG_String	s(File_Name);
+		CSG_String s(File);
 
-		s	= s.AfterFirst(':');	CSG_String	Host  (s.BeforeFirst(':'));
-		s	= s.AfterFirst(':');	CSG_String	Port  (s.BeforeFirst(':'));
-		s	= s.AfterFirst(':');	CSG_String	DBName(s.BeforeFirst(':'));
-		s	= s.AfterFirst(':');	CSG_String	Table (s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String Host  (s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String Port  (s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String DBName(s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String Table (s.BeforeFirst(':'));
 
-		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 0, true);	// CGet_Connections
+		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 0, true); // CGet_Connections
 
 		if(	pTool != NULL )
 		{
 			SG_UI_ProgressAndMsg_Lock(true);
 
 			//---------------------------------------------
-			CSG_Table	Connections;
-			CSG_String	Connection	= DBName + " [" + Host + ":" + Port + "]";
+			CSG_Table Connections; CSG_String Connection(DBName + " [" + Host + ":" + Port + "]");
 
-			pTool->Set_Manager(NULL);
-			pTool->On_Before_Execution();
+			pTool->Set_Manager(NULL); pTool->On_Before_Execution();
 
 			if( SG_TOOL_PARAMETER_SET("CONNECTIONS", &Connections) && pTool->Execute() )	// CGet_Connections
 			{
@@ -255,7 +244,7 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 				{
 					if( !Connection.Cmp(Connections[i].asString(0)) )
 					{
-						bResult	= true;
+						bResult = true;
 					}
 				}
 			}
@@ -263,14 +252,13 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 			//---------------------------------------------
-			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 20, true)) != NULL) == true )	// CPGIS_Shapes_Load
+			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 20, true)) != NULL) == true ) // CPGIS_Shapes_Load
 			{
-				pTool->Set_Manager(NULL);
-				pTool->On_Before_Execution();
+				pTool->Set_Manager(NULL); pTool->On_Before_Execution();
 
-				bResult	=  SG_TOOL_PARAMETER_SET("CONNECTION", Connection)
-						&& SG_TOOL_PARAMETER_SET("DB_TABLES" , Table)
-						&& SG_TOOL_PARAMETER_SET("SHAPES"    , this)
+				bResult =  SG_TOOL_PARAMETER_SET("CONNECTION", Connection)
+						&& SG_TOOL_PARAMETER_SET("DB_TABLE"  , Table     )
+						&& SG_TOOL_PARAMETER_SET("SHAPES"    , this      )
 						&& pTool->Execute();
 
 				SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
@@ -281,14 +269,14 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 	}
 	else
 	{
-		if( SG_File_Cmp_Extension(File_Name, "shp") )
+		if( SG_File_Cmp_Extension(File, "shp") )
 		{
-			bResult	= _Load_ESRI(File_Name);
+			bResult = _Load_ESRI(File);
 		}
 
 		if( !bResult )
 		{
-			bResult	= _Load_GDAL(File_Name);
+			bResult = _Load_GDAL(File);
 		}
 	}
 
@@ -442,18 +430,18 @@ CSG_String				SG_Shapes_Get_File_Extension_Default	(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Shapes::Save(const CSG_String &File_Name, int Format)
+bool CSG_Shapes::Save(const CSG_String &File, int Format)
 {
-	SG_UI_Msg_Add(CSG_String::Format("%s %s: %s...", _TL("Saving"), _TL("shapes"), File_Name.c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s %s: %s...", _TL("Saving"), _TL("shapes"), File.c_str()), true);
 
 	//-----------------------------------------------------
 	if( Format == SHAPE_FILE_FORMAT_Undefined )
 	{
 		Format	= gSG_Shape_File_Format_Default;
 
-		if( SG_File_Cmp_Extension(File_Name, "shp"    ) )	Format	= SHAPE_FILE_FORMAT_ESRI      ;
-		if( SG_File_Cmp_Extension(File_Name, "gpkg"   ) )	Format	= SHAPE_FILE_FORMAT_GeoPackage;
-		if( SG_File_Cmp_Extension(File_Name, "geojson") )	Format	= SHAPE_FILE_FORMAT_GeoJSON   ;
+		if( SG_File_Cmp_Extension(File, "shp"    ) )	Format	= SHAPE_FILE_FORMAT_ESRI      ;
+		if( SG_File_Cmp_Extension(File, "gpkg"   ) )	Format	= SHAPE_FILE_FORMAT_GeoPackage;
+		if( SG_File_Cmp_Extension(File, "geojson") )	Format	= SHAPE_FILE_FORMAT_GeoJSON   ;
 	}
 
 	//-----------------------------------------------------
@@ -461,9 +449,9 @@ bool CSG_Shapes::Save(const CSG_String &File_Name, int Format)
 
 	switch( Format )
 	{
-	case SHAPE_FILE_FORMAT_ESRI      : bResult = _Save_ESRI(File_Name           ); break;
-	case SHAPE_FILE_FORMAT_GeoPackage: bResult = _Save_GDAL(File_Name, "GPKG"   ); break;
-	case SHAPE_FILE_FORMAT_GeoJSON   : bResult = _Save_GDAL(File_Name, "GeoJSON"); break;
+	case SHAPE_FILE_FORMAT_ESRI      : bResult = _Save_ESRI(File           ); break;
+	case SHAPE_FILE_FORMAT_GeoPackage: bResult = _Save_GDAL(File, "GPKG"   ); break;
+	case SHAPE_FILE_FORMAT_GeoJSON   : bResult = _Save_GDAL(File, "GeoJSON"); break;
 	}
 
 	//-----------------------------------------------------
@@ -471,7 +459,7 @@ bool CSG_Shapes::Save(const CSG_String &File_Name, int Format)
 	{
 		Set_Modified(false);
 
-		Set_File_Name(File_Name, true);
+		Set_File_Name(File, true);
 
 		SG_UI_Process_Set_Ready();
 		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);

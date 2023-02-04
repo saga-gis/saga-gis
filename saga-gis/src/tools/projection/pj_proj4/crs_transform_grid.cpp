@@ -336,11 +336,17 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid, CSG_Grid *pTarget)
 	bool	bGeogCS_Adjust	= m_Projector.Get_Source().Get_Type() == SG_PROJ_TYPE_CS_Geographic && pGrid->Get_XMax() > 180.;
 
 	//-------------------------------------------------
-	pTarget->Set_NoData_Value_Range (pGrid->Get_NoData_Value(), pGrid->Get_NoData_Value(true));
-	pTarget->Set_Scaling            (pGrid->Get_Scaling(), pGrid->Get_Offset());
-	pTarget->Set_Name               (pGrid->Get_Name());
-	pTarget->Set_Unit               (pGrid->Get_Unit());
 	pTarget->Get_Projection().Create(m_Projector.Get_Target());
+
+	pTarget->Set_Scaling(pGrid->Get_Scaling(), pGrid->Get_Offset());
+	pTarget->Set_Name   (pGrid->Get_Name());
+	pTarget->Set_Unit   (pGrid->Get_Unit());
+
+	if( pTarget->Get_Type() == pGrid->Get_Type() )
+	{
+		pTarget->Set_NoData_Value_Range(pGrid->Get_NoData_Value(), pGrid->Get_NoData_Value(true));
+	}
+
 	pTarget->Assign_NoData();
 
 	//-----------------------------------------------------

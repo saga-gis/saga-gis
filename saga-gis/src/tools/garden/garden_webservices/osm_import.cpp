@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: table.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,16 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <wx/protocol/http.h>
 #include <wx/xml/xml.h>
 
@@ -76,7 +63,7 @@ COSM_Import::COSM_Import(void)
 {
 	Set_Name		(_TL("Import from Open Street Map"));
 
-	Set_Author		("O. Conrad (c) 2010");
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
 		"This tool works as Web Map Service (WMS) client. "
@@ -90,24 +77,9 @@ COSM_Import::COSM_Import(void)
 
 //	https://api.openstreetmap.org/api/0.6/map?bbox=10.0,53.0,10.1,53.1
 
-	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		"", "POINTS"	, _TL("OSM Locations"),
-		_TL(""),
-		PARAMETER_OUTPUT, SHAPE_TYPE_Point
-	);
-
-	Parameters.Add_Shapes(
-		"", "WAYS"		, _TL("OSM Ways"),
-		_TL(""),
-		PARAMETER_OUTPUT, SHAPE_TYPE_Line
-	);
-
-	Parameters.Add_Shapes(
-		"", "AREAS"		, _TL("OSM Areas"),
-		_TL(""),
-		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
-	);
+	Parameters.Add_Shapes("", "POINTS", _TL("Locations"), _TL(""), PARAMETER_OUTPUT, SHAPE_TYPE_Point  );
+	Parameters.Add_Shapes("", "WAYS"  , _TL("Ways"     ), _TL(""), PARAMETER_OUTPUT, SHAPE_TYPE_Line   );
+	Parameters.Add_Shapes("", "AREAS" , _TL("Areas"    ), _TL(""), PARAMETER_OUTPUT, SHAPE_TYPE_Polygon);
 }
 
 
@@ -118,7 +90,6 @@ COSM_Import::COSM_Import(void)
 //---------------------------------------------------------
 bool COSM_Import::On_Execute(void)
 {
-	//-----------------------------------------------------
 	if( !m_Connection.Create("https://api.openstreetmap.org") )
 	{
 		Message_Add(_TL("Unable to connect to server."));
@@ -127,16 +98,16 @@ bool COSM_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_Nodes.Create(NULL);
+	m_Nodes.Destroy();
 
 	m_Nodes.Add_Field("ID" , SG_DATATYPE_DWord );
 	m_Nodes.Add_Field("LON", SG_DATATYPE_Double);
 	m_Nodes.Add_Field("LAT", SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
-	m_pPoints	= Parameters("POINTS")->asShapes();
-	m_pWays		= Parameters("WAYS"  )->asShapes();
-	m_pAreas	= Parameters("AREAS" )->asShapes();
+	m_pPoints = Parameters("POINTS")->asShapes();
+	m_pWays   = Parameters("WAYS"  )->asShapes();
+	m_pAreas  = Parameters("AREAS" )->asShapes();
 
 	m_pPoints->Create(SHAPE_TYPE_Point  , _TL("Locations"));
 	m_pWays  ->Create(SHAPE_TYPE_Line   , _TL("Ways"     ));
@@ -147,7 +118,7 @@ bool COSM_Import::On_Execute(void)
 	m_pAreas ->Add_Field("ID", SG_DATATYPE_DWord);
 
 	//-----------------------------------------------------
-	m_bDown		= false;
+	m_bDown = false;
 
 	return( true );
 }

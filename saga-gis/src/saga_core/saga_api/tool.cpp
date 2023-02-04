@@ -1552,30 +1552,33 @@ CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 		Script += "\n";
 #ifdef _SAGA_MSW
 		CSG_String AppPath = SG_UI_Get_Application_Path(true); AppPath.Replace("\\", "/");
-		Script += "# Windows: set/adjust the 'SAGA_PATH' environment variable before importing saga_helper\n";
-		Script += "import os\n";
-		Script += "if os.name == 'nt' and os.getenv('SAGA_PATH') is None:\n";
-		Script += "    os.environ['SAGA_PATH'] = '" + AppPath + "'\n";
-		Script += "import saga_helper, saga_api\n";
-#else
-		Script += "import os, saga_helper, saga_api\n";
-#endif // _SAGA_MSW
+		Script += "# Windows: Let the 'SAGA_PATH' environment variable point to\n";
+		Script += "# the SAGA installation folder before importing 'saga_helper'\n";
+		Script += "# or alternatively set it in 'saga_helper.py' itself.\n";
+		Script += "import os; os.environ['SAGA_PATH'] = '" + AppPath + "'\n";
 		Script += "\n";
+#endif // _SAGA_MSW
+		Script += "# Import 'saga_helper' before importing 'saga_api' for the first time!\n";
+		Script += "import saga_helper, saga_api\n";
+		Script += "\n";
+		Script += "# Call 'Initialize()' to load SAGA's standard tool libraries!\n";
 		Script += "saga_helper.Initialize(True)\n";
 		Script += "\n";
 		Script += "\n";
 		Script += "#_________________________________________\n";
 		Script += "##########################################\n";
-		Script += "def Run_" + Name + "(File):\n";
+		Script += "def Run_" + Name + "(Results):\n";
 	}
 
 	//-----------------------------------------------------
+	if( bHeader ) Script += "    # Get the tool:\n";
 	Script += "    Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('" + Get_Library() + "', '" + Get_ID() + "')\n";
-	Script += "    if Tool == None:\n";
+	Script += "    if not Tool:\n";
     Script += "        print('Failed to request tool: " + Get_Name() + "')\n";
 	Script += "        return False\n";
-	Script += "    Tool.Reset()\n";
 	Script += "\n";
+	if( bHeader ) Script += "    # Set the parameter interface:\n";
+	Script += "    Tool.Reset()\n";
 
 	//-------------------------------------------------
 	_Get_Script_Python(Script, Get_Parameters(), bAllParameters);
@@ -1587,46 +1590,54 @@ CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 
 	//-------------------------------------------------
 	Script += "\n";
-	Script += "    if Tool.Execute() == False:\n";
-    Script += "        print('failed to execute tool: ' + Tool.Get_Name().c_str())\n";
+	if( bHeader ) Script += "    # Execute the tool:\n";
+	Script += "    if not Tool.Execute():\n";
+	Script += "        print('failed to execute tool: ' + Tool.Get_Name().c_str())\n";
 	Script += "        return False\n";
 	Script += "\n";
-	Script += "    #_____________________________________\n";
-	Script += "    # Save results to file:\n";
-	Script += "    Path = os.path.split(File)[0] + os.sep\n";
+	if( bHeader ) Script += "    # Request the results:\n";
 
 	for(int iParameter=0; iParameter<Get_Parameters()->Get_Count(); iParameter++)
 	{
-		CSG_Parameter	*p	= Get_Parameters()->Get_Parameter(iParameter);
+		CSG_Parameter *p = Get_Parameters()->Get_Parameter(iParameter);
 
 		if( p->is_Output() )
 		{
-			CSG_String	id(p->Get_Identifier()), ext;
+			CSG_String id(p->Get_Identifier()), type, ext;
 
 			switch( p->Get_DataObject_Type() )
 			{
-			case SG_DATAOBJECT_TYPE_Grid      : ext = " + '.sg-grd-z'"; break;
-			case SG_DATAOBJECT_TYPE_Grids     : ext = " + '.sg-gds-z'"; break;
-			case SG_DATAOBJECT_TYPE_Table     : ext = " + '.txt'"     ; break;
-			case SG_DATAOBJECT_TYPE_Shapes    : ext = " + '.geojson'" ; break;
-			case SG_DATAOBJECT_TYPE_PointCloud: ext = " + '.sg-pts-z'"; break;
-			case SG_DATAOBJECT_TYPE_TIN       : ext = " + '.geojson'" ; break;
-			default                           : ext = ""              ; break;
+			case SG_DATAOBJECT_TYPE_Grid      : type = "Grid"      ; ext = "sg-grd-z"; break;
+			case SG_DATAOBJECT_TYPE_Grids     : type = "Grids"     ; ext = "sg-gds-z"; break;
+			case SG_DATAOBJECT_TYPE_Table     : type = "Table"     ; ext = "txt"     ; break;
+			case SG_DATAOBJECT_TYPE_Shapes    : type = "Shapes"    ; ext = "geojson" ; break;
+			case SG_DATAOBJECT_TYPE_PointCloud: type = "PointCloud"; ext = "sg-pts-z"; break;
+			case SG_DATAOBJECT_TYPE_TIN       : type = "TIN"       ; ext = "geojson" ; break;
+			default                           : type = ""          ; ext = ""        ; break;
 			}
-
-			Script += "\n";
 
 			if( p->is_DataObject() )
 			{
-				Script += "    Data = Tool.Get_Parameter('" +  id + "').asDataObject()\n";
-				Script += "    Data.Save(Path + Data.Get_Name()" + ext + ")\n";
+				Script += "    Data = Tool.Get_Parameter('" +  id + "').as" + type + "()\n";
+
+				if( bHeader )
+				{
+					Script += "    Data.Save('{:s}/{:s}.{:s}'.format(Results, Data.Get_Name(), '" + ext + "'))\n\n";
+				}
 			}
 			else if( p->is_DataObject_List() )
 			{
-				Script += "    List = Tool.Get_Parameter('" +  id + "').asList()\n";
-				Script += "    Name = Path + List.Get_Name()\n";
+				Script += "    List = Tool.Get_Parameter('" +  id + "').as" + type + "_List()\n";
 				Script += "    for i in range(0, List.Get_Data_Count()):\n";
-				Script += "        List.Get_Data(i).Save(Name + str(i)" + ext + ")\n";
+
+				if( bHeader )
+				{
+					Script += "        List.Get_Data(i).Save('{:s}/{:s}_{:d}.{:s}'.format(Results, List.Get_Name(), i, '" + ext + "'))\n\n";
+				}
+				else
+				{
+					Script += "        Data = List.Get_Data(i)\n";
+				}
 			}
 		}
 	}
@@ -1634,24 +1645,18 @@ CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 	//-----------------------------------------------------
 	if( bHeader )
 	{
-		Script += "\n";
-		Script += "    #_____________________________________\n";
-		Script += "    saga_api.SG_Get_Data_Manager().Delete_All() # job is done, free memory resources\n";
+		Script += "    # job is done, free memory resources:\n";
+		Script += "    saga_api.SG_Get_Data_Manager().Delete_All()\n";
 		Script += "\n";
 		Script += "    return True\n";
 		Script += "\n";
 		Script += "\n";
 		Script += "#_________________________________________\n";
 		Script += "##########################################\n";
-		Script += "if __name__ == '__main__':\n";
-        Script += "    print('This is a simple template for using a SAGA tool through Python.')\n";
-        Script += "    print('Please edit the script to make it work properly before using it!')\n";
-		Script += "    import sys\n";
-		Script += "    sys.exit()\n";
+        Script += "print('This is a simple template for using a SAGA tool through Python.')\n";
+        Script += "print('Please edit the script to make it work properly before using it!')\n";
 		Script += "\n";
-		Script += "    # For a single file based input it might look like following:\n";
-		Script += "    File = sys.argv[1]\n";
-		Script += "    Run_" + Name + "(File)\n";
+		Script += "# Run_" + Name + "('.')\n";
 	}
 
 	return( Script );

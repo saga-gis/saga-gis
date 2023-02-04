@@ -75,7 +75,7 @@
 #define PEAK	6
 
 //---------------------------------------------------------
-#define LUT_SET_CLASS(id, name, color)	{ CSG_Table_Record *pR = pLUT->asTable()->Add_Record(); pR->Set_Value(0, color); pR->Set_Value(1, name); pR->Set_Value(3, id); pR->Set_Value(3, id); }
+#define LUT_SET_CLASS(id, name, color)	{ CSG_Table_Record *pR = pLUT->asTable()->Add_Record(); pR->Set_Value(0, (double)color); pR->Set_Value(1, name); pR->Set_Value(3, id); pR->Set_Value(3, id); }
 
 
 ///////////////////////////////////////////////////////////

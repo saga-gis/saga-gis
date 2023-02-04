@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Interpolation_NaturalNeighbour.h"
 
 //---------------------------------------------------------
@@ -87,24 +75,26 @@ CInterpolation_NaturalNeighbour::CInterpolation_NaturalNeighbour(void)
 		"Natural Neighbour method for grid interpolation from irregular distributed points. "
 		"This tool makes use of the 'nn - Natural Neighbours interpolation library' created "
 		"and maintained by Pavel Sakov, CSIRO Marine Research. "
-		"Find more information about this library at:\n"
-		"<a href=\"http://github.com/sakov/nn-c\">github.com/sakov/nn-c</a>."
 	));
 
-	Parameters.Add_Choice(NULL,
+	Add_Reference("https://github.com/sakov/nn-c",
+		SG_T("github.com/sakov/nn-c</a>")
+	);
+
+	Parameters.Add_Choice("",
 		"METHOD"	, _TL("Method"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("Linear"),
 			_TL("Sibson"),
 			_TL("Non-Sibsonian")
 		), 1
 	);
 
-	Parameters.Add_Double(NULL,
+	Parameters.Add_Double("",
 		"WEIGHT"	, _TL("Minimum Weight"),
 		_TL("restricts extrapolation by assigning minimal allowed weight for a vertex (normally \"-1\" or so; lower values correspond to lower reliability; \"0\" means no extrapolation)"),
-		0.0, 0.0, false, 0.0, true
+		0., 0., false, 0., true
 	);
 }
 
@@ -119,21 +109,19 @@ bool CInterpolation_NaturalNeighbour::Interpolate(void)
 	//-----------------------------------------------------
 	// initialize points
 
-	CSG_Shapes	*pPoints	= Get_Points();
+	CSG_Shapes *pPoints = Get_Points();
 
-	int		 nn_nPoints	= 0;
-	point	*nn_pPoints	= (point *)SG_Malloc(pPoints->Get_Count() * sizeof(point));
+	int nn_nPoints = 0; point *nn_pPoints = (point *)SG_Malloc(pPoints->Get_Count() * sizeof(point));
 
 	for(int iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 	{
-		CSG_Shape	*pShape	= pPoints->Get_Shape(iPoint);
+		CSG_Shape *pShape = pPoints->Get_Shape(iPoint);
 
 		if( !pShape->is_NoData(Get_Field()) )
 		{
-			nn_pPoints[nn_nPoints].x	= pShape->Get_Point(0).x;
-			nn_pPoints[nn_nPoints].y	= pShape->Get_Point(0).y;
-			nn_pPoints[nn_nPoints].z	= pShape->asDouble(Get_Field());
-
+			nn_pPoints[nn_nPoints].x = pShape->Get_Point(0).x;
+			nn_pPoints[nn_nPoints].y = pShape->Get_Point(0).y;
+			nn_pPoints[nn_nPoints].z = pShape->asDouble(Get_Field());
 			nn_nPoints++;
 		}
 	}
@@ -150,10 +138,9 @@ bool CInterpolation_NaturalNeighbour::Interpolate(void)
 	//-----------------------------------------------------
 	// initialize grid
 
-	CSG_Grid	*pGrid	= Get_Grid();
+	CSG_Grid *pGrid = Get_Grid();
 
-	int		 nn_nCells;
-	point	*nn_pCells	= NULL;
+	int nn_nCells; point *nn_pCells = NULL;
 
 	points_generate(
 		pGrid->Get_XMin(), pGrid->Get_XMax(),
@@ -175,30 +162,20 @@ bool CInterpolation_NaturalNeighbour::Interpolate(void)
 	//-----------------------------------------------------
     Process_Set_Text(_TL("interpolating"));
 
-	double	Weight	= Parameters("WEIGHT")->asDouble();
+	double Weight = Parameters("WEIGHT")->asDouble();
 
 	switch( Parameters("METHOD")->asInt() )
 	{
-	case  0:
-        lpi_interpolate_points (nn_nPoints, nn_pPoints        , nn_nCells, nn_pCells);
-		break;
-
-	default:
-		nn_rule	= SIBSON;
-        nnpi_interpolate_points(nn_nPoints, nn_pPoints, Weight, nn_nCells, nn_pCells);
-		break;
-
-	case  2:
-		nn_rule	= NON_SIBSONIAN;
-        nnpi_interpolate_points(nn_nPoints, nn_pPoints, Weight, nn_nCells, nn_pCells);
-		break;
+	case  0:                           lpi_interpolate_points(nn_nPoints, nn_pPoints        , nn_nCells, nn_pCells); break;
+	default: nn_rule = SIBSON       ; nnpi_interpolate_points(nn_nPoints, nn_pPoints, Weight, nn_nCells, nn_pCells); break;
+	case  2: nn_rule = NON_SIBSONIAN; nnpi_interpolate_points(nn_nPoints, nn_pPoints, Weight, nn_nCells, nn_pCells); break;
 	}
 
 	//-----------------------------------------------------
 	#pragma omp parallel for
 	for(int iCell=0; iCell<pGrid->Get_NCells(); iCell++)
 	{
-		double	z	= nn_pCells[iCell].z;
+		double z = nn_pCells[iCell].z;
 
 		if( SG_is_NaN(z) )
 		{

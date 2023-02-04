@@ -771,8 +771,12 @@ public:
 									CSG_Shapes	(const CSG_Shapes &Shapes);
 	bool							Create		(const CSG_Shapes &Shapes);
 
-									CSG_Shapes	(const CSG_String &File_Name);
-	bool							Create		(const CSG_String &File_Name);
+									CSG_Shapes	(const char       *File);
+	bool							Create		(const char       *File);
+									CSG_Shapes	(const wchar_t    *File);
+	bool							Create		(const wchar_t    *File);
+									CSG_Shapes	(const CSG_String &File);
+	bool							Create		(const CSG_String &File);
 
 									CSG_Shapes	(TSG_Shape_Type Type, const SG_Char *Name = NULL, CSG_Table *pStructure = NULL, TSG_Vertex_Type Vertex_Type = SG_VERTEX_TYPE_XY);
 	bool							Create		(TSG_Shape_Type Type, const SG_Char *Name = NULL, CSG_Table *pStructure = NULL, TSG_Vertex_Type Vertex_Type = SG_VERTEX_TYPE_XY);
@@ -851,11 +855,11 @@ protected:
 
 private:
 
-	bool							_Load_GDAL				(const CSG_String &File_Name);
-	bool							_Save_GDAL				(const CSG_String &File_Name, const CSG_String &Driver);
+	bool							_Load_GDAL				(const CSG_String &File);
+	bool							_Save_GDAL				(const CSG_String &File, const CSG_String &Driver);
 
-	bool							_Load_ESRI				(const CSG_String &File_Name);
-	bool							_Save_ESRI				(const CSG_String &File_Name);
+	bool							_Load_ESRI				(const CSG_String &File);
+	bool							_Save_ESRI				(const CSG_String &File);
 
 };
 
@@ -874,7 +878,11 @@ SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(void);
 SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(const CSG_Shapes &Shapes);
 
 /** Safe shapes construction */
-SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(const CSG_String &File_Name);
+SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(const char       *File);
+/** Safe shapes construction */
+SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(const wchar_t    *File);
+/** Safe shapes construction */
+SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(const CSG_String &File);
 
 /** Safe shapes construction */
 SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(TSG_Shape_Type Type, const SG_Char *Name = NULL, CSG_Table *pStructure = NULL, TSG_Vertex_Type Vertex_Type = SG_VERTEX_TYPE_XY);

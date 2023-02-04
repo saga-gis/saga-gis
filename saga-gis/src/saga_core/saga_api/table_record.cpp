@@ -458,6 +458,28 @@ const SG_Char * CSG_Table_Record::asString(const CSG_String &Field, int Decimals
 }
 
 //---------------------------------------------------------
+SG_Char CSG_Table_Record::asChar(int iField) const
+{
+	return( (SG_Char)asInt(iField) );
+}
+
+SG_Char CSG_Table_Record::asChar(const CSG_String &Field) const
+{
+	return( asChar(_Get_Field(Field)) );
+}
+
+//---------------------------------------------------------
+short CSG_Table_Record::asShort(int iField) const
+{
+	return( (short)asInt(iField) );
+}
+
+short CSG_Table_Record::asShort(const CSG_String &Field) const
+{
+	return( asShort(_Get_Field(Field)) );
+}
+
+//---------------------------------------------------------
 int CSG_Table_Record::asInt(int iField) const
 {
 	return( iField >= 0 && iField < m_pTable->Get_Field_Count() ? m_Values[iField]->asInt() : 0 );
@@ -480,9 +502,20 @@ sLong CSG_Table_Record::asLong(const CSG_String &Field) const
 }
 
 //---------------------------------------------------------
+float CSG_Table_Record::asFloat(int iField) const
+{
+	return( (float)asDouble(iField) );
+}
+
+float CSG_Table_Record::asFloat(const CSG_String &Field) const
+{
+	return( asFloat(_Get_Field(Field)) );
+}
+
+//---------------------------------------------------------
 double CSG_Table_Record::asDouble(int iField) const
 {
-	return( iField >= 0 && iField < m_pTable->Get_Field_Count() ? m_Values[iField]->asDouble() : 0.0 );
+	return( iField >= 0 && iField < m_pTable->Get_Field_Count() ? m_Values[iField]->asDouble() : 0. );
 }
 
 double CSG_Table_Record::asDouble(const CSG_String &Field) const

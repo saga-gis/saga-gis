@@ -1,6 +1,4 @@
-/**********************************************************
- * Version $Id: fireLib.c 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
+
 /*
  *******************************************************************************
  *
@@ -1538,7 +1536,7 @@ Fire_FuelModelCreate (FuelCatalogPtr catalog, size_t model, char *name, char *de
     if ( depth < Smidgen )
     {
         sprintf(FuelCat_Error(catalog),
-            "Fire_FuelModelCreate(): el modelo de combustible \"%s\" número %d de ancho %5.4f es demasiado pequeño.",
+            "Fire_FuelModelCreate(): el modelo de combustible \"%s\" numero %d de ancho %5.4f es demasiado pequeno.",
             name, model, depth);
         return (FuelCat_Status(catalog) = FIRE_STATUS_ERROR);
     }
@@ -1546,7 +1544,7 @@ Fire_FuelModelCreate (FuelCatalogPtr catalog, size_t model, char *name, char *de
     if ( mext < Smidgen )
     {
         sprintf(FuelCat_Error(catalog),
-            "Fire_FuelModelCreate(): el modelo de combustible \"%s\" número %d de humedad de extinción %5.4f es demasiado pequeño.",
+            "Fire_FuelModelCreate(): el modelo de combustible \"%s\" numero %d de humedad de extincion %5.4f es demasiado pequeno.",
             name, model, mext);
         return (FuelCat_Status(catalog) = FIRE_STATUS_ERROR);
     }

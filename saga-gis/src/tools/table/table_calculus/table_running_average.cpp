@@ -40,9 +40,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -60,12 +58,13 @@
 //---------------------------------------------------------
 CTable_Running_Average::CTable_Running_Average(void)
 {
-	Set_Name		(_TL("Running Average"));
+	Set_Name		(_TL("Moving Statistics"));
 
-	Set_Author		("O. Conrad (c) 2009");
+	Set_Author		("O.Conrad (c) 2009");
 
 	Set_Description	(_TW(
-		""
+		"For each record the statistics over the selected attribute and "
+		"the specified number of records is calculated. "
 	));
 
 	//-----------------------------------------------------
@@ -86,14 +85,36 @@ CTable_Running_Average::CTable_Running_Average(void)
 		_TL("")
 	);
 
+	Parameters.Add_Table_Field("INPUT",
+		"INDEX"		, _TL("Order by..."),
+		_TL(""),
+		true
+	);
+
+	Parameters.Add_Choice("",
+		"MISSING"	, _TL("Missing Records"),
+		_TL("Create output option. If \'complete\' specified number of records must be found, \'in range\' ignores no-data in found records."),
+		CSG_String::Format("%s|%s|%s",
+			_TL("complete records"),
+			_TL("all records in range"),
+			_TL("all records")
+		)
+	);
+
 	Parameters.Add_Int("",
-		"RANGE"		, _TL("Range of Records"),
-		_TL("The number of preceding and following records to be taken into account for statistics. The total number is one plus two times the range."),
-		10, 1, true
+		"OFFSET"	, _TL("Offset"),
+		_TL("The number of preceding records to be taken into account for statistics."),
+		5
+	);
+
+	Parameters.Add_Int("",
+		"LENGTH"	, _TL("Number of Records"),
+		_TL("The total number of records to be taken into account for statistics."),
+		11, 1, true
 	);
 
 	//-----------------------------------------------------
-	#define ADD_OUTPUT(id, name, yes)	Parameters.Add_Bool("", id, name, "", yes); Parameters.Add_Table_Field("INPUT", CSG_String("FIELD_") + id, name, "", true);
+	#define ADD_OUTPUT(id, name, yes) Parameters.Add_Bool("", id, name, "", yes); Parameters.Add_Table_Field("INPUT", CSG_String("FIELD_") + id, name, "", true);
 
 	ADD_OUTPUT("MEAN"   , _TL("Mean"                     ),  true);
 	ADD_OUTPUT("MEDIAN" , _TL("Median"                   ), false);
@@ -112,7 +133,7 @@ CTable_Running_Average::CTable_Running_Average(void)
 //---------------------------------------------------------
 int CTable_Running_Average::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	#define SET_ENABLED(id)	if( pParameter->Cmp_Identifier(id) ) { pParameters->Set_Enabled(CSG_String("FIELD_") + id, pParameter->asBool()); }
+	#define SET_ENABLED(id) if( pParameter->Cmp_Identifier(id) ) { pParameters->Set_Enabled(CSG_String("FIELD_") + id, pParameter->asBool()); }
 
 	SET_ENABLED("MEAN"   );
 	SET_ENABLED("MEDIAN" );
@@ -133,8 +154,7 @@ int CTable_Running_Average::On_Parameters_Enable(CSG_Parameters *pParameters, CS
 //---------------------------------------------------------
 bool CTable_Running_Average::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Table	*pTable	= Parameters("INPUT")->asTable();
+	CSG_Table *pTable = Parameters("INPUT")->asTable();
 
 	if( !pTable->is_Valid() )
 	{
@@ -143,44 +163,60 @@ bool CTable_Running_Average::On_Execute(void)
 
 	if( Parameters("OUTPUT")->asTable() && Parameters("OUTPUT")->asTable() != pTable )
 	{
-		pTable	= Parameters("OUTPUT")->asTable();
+		pTable = Parameters("OUTPUT")->asTable();
 
 		pTable->Create(*Parameters("INPUT")->asTable());
 	}
 
 	//-----------------------------------------------------
-	int	fValue	= Parameters("FIELD")->asInt();
-	int	Range	= Parameters("RANGE")->asInt();
+	CSG_Index Index;
+
+	if( Parameters("INDEX")->asInt() >= 0 )
+	{
+		pTable->Set_Index(Index, Parameters("INDEX")->asInt());
+	}
+
+	//-----------------------------------------------------
+	int fValue  = Parameters("FIELD"  )->asInt();
+	int Offset  = Parameters("OFFSET" )->asInt();
+	int Length  = Parameters("LENGTH" )->asInt();
+	int Missing = Parameters("MISSING")->asInt();
 
 	//-----------------------------------------------------
 	#define GET_FIELD(id, name)	(!Parameters(id)->asBool() ? -1 : Parameters(CSG_String("FIELD_") + id)->asInt() < 0 && pTable->Add_Field(CSG_String::Format("%s (%s)", pTable->Get_Field_Name(fValue), name), SG_DATATYPE_Double) ? pTable->Get_Field_Count() - 1 : Parameters(CSG_String("FIELD_") + id)->asInt())
 
-	int	fMean	= GET_FIELD("MEAN"   , SG_T("MEAN"     )); if( fMean   >= 0 ) Parameters("FIELD_MEAN"   )->Set_Value(fMean  );
-	int	fMedian	= GET_FIELD("MEDIAN" , SG_T("MEDIAN"   )); if( fMedian >= 0 ) Parameters("FIELD_MEDIAN" )->Set_Value(fMedian);
-	int	fMin	= GET_FIELD("MIN"    , SG_T("MINIMUM"  )); if( fMin    >= 0 ) Parameters("FIELD_MIN"    )->Set_Value(fMin   );
-	int	fMax	= GET_FIELD("MAX"    , SG_T("MAXIMUM"  )); if( fMax    >= 0 ) Parameters("FIELD_MAX"    )->Set_Value(fMax   );
-	int	fStDv	= GET_FIELD("STDV"   , SG_T("STDV"     )); if( fStDv   >= 0 ) Parameters("FIELD_STDV"   )->Set_Value(fStDv  );
-	int	fStDvLo	= GET_FIELD("STDV_LO", SG_T("STDV_LOW" )); if( fStDvLo >= 0 ) Parameters("FIELD_STDV_LO")->Set_Value(fStDvLo);
-	int	fStDvHi	= GET_FIELD("STDV_HI", SG_T("STDV_HIGH")); if( fStDvHi >= 0 ) Parameters("FIELD_STDV_HI")->Set_Value(fStDvHi);
+	int fMean   = GET_FIELD("MEAN"   , SG_T("MEAN"     )); if( fMean   >= 0 ) Parameters("FIELD_MEAN"   )->Set_Value(fMean  );
+	int fMedian = GET_FIELD("MEDIAN" , SG_T("MEDIAN"   )); if( fMedian >= 0 ) Parameters("FIELD_MEDIAN" )->Set_Value(fMedian);
+	int fMin    = GET_FIELD("MIN"    , SG_T("MINIMUM"  )); if( fMin    >= 0 ) Parameters("FIELD_MIN"    )->Set_Value(fMin   );
+	int fMax    = GET_FIELD("MAX"    , SG_T("MAXIMUM"  )); if( fMax    >= 0 ) Parameters("FIELD_MAX"    )->Set_Value(fMax   );
+	int fStDv   = GET_FIELD("STDV"   , SG_T("STDV"     )); if( fStDv   >= 0 ) Parameters("FIELD_STDV"   )->Set_Value(fStDv  );
+	int fStDvLo = GET_FIELD("STDV_LO", SG_T("STDV_LOW" )); if( fStDvLo >= 0 ) Parameters("FIELD_STDV_LO")->Set_Value(fStDvLo);
+	int fStDvHi = GET_FIELD("STDV_HI", SG_T("STDV_HIGH")); if( fStDvHi >= 0 ) Parameters("FIELD_STDV_HI")->Set_Value(fStDvHi);
 
 	//-----------------------------------------------------
 	for(int i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
 	{
-		CSG_Simple_Statistics	s(fMedian >= 0);
+		CSG_Simple_Statistics s(fMedian >= 0); int a = i - Offset, b = i - Offset + Length;
 
-		for(int j=i-Range; j<=i+Range; j++)
+		if( Missing == 2 || (a >= 0 && b < pTable->Get_Count()) )
 		{
-			CSG_Table_Record	*pRecord	= pTable->Get_Record_byIndex(j);
-
-			if( pRecord && !pRecord->is_NoData(fValue) )
+			for(int j=a; j<b; j++)
 			{
-				s	+= pRecord->asDouble(fValue);
+				if( j >= 0 && j < pTable->Get_Count() )
+				{
+					CSG_Table_Record *pRecord = pTable->Get_Record(Index.is_Okay() ? Index[j] : j);
+
+					if( pRecord && !pRecord->is_NoData(fValue) )
+					{
+						s += pRecord->asDouble(fValue);
+					}
+				}
 			}
 		}
 
-		CSG_Table_Record	*pRecord	= pTable->Get_Record_byIndex(i);
+		CSG_Table_Record *pRecord = pTable->Get_Record(Index.is_Okay() ? Index[i] : i);
 
-		if( s.Get_Count() > 0 )
+		if( s.Get_Count() == Length || (Missing != 0 && s.Get_Count() > 0) )
 		{
 			if( fMean   >= 0 ) pRecord->Set_Value(fMean  , s.Get_Mean   ());
 			if( fMedian >= 0 ) pRecord->Set_Value(fMedian, s.Get_Median ());

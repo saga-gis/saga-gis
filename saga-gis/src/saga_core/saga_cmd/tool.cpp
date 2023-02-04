@@ -359,7 +359,7 @@ bool CCMD_Tool::_Found(const CSG_String &Name, CSG_DateTime &Value)
 {
 	CSG_String Argument;
 	
-	return( _Found(Name, Argument) && Value.Parse_DateTime(Argument) );
+	return( _Found(Name, Argument) && Value.Parse_Date(Argument) );
 }
 
 

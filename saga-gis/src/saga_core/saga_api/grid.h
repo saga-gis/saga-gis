@@ -415,8 +415,8 @@ public:		///////////////////////////////////////////////
 								CSG_Grid_File_Info		(const CSG_Grid_File_Info &Info);
 	bool						Create					(const CSG_Grid_File_Info &Info);
 
-								CSG_Grid_File_Info		(const CSG_String &FileName);
-	bool						Create					(const CSG_String &FileName);
+								CSG_Grid_File_Info		(const CSG_String &File);
+	bool						Create					(const CSG_String &File);
 
 								CSG_Grid_File_Info		(CSG_File &Stream);
 	bool						Create					(CSG_File &Stream);
@@ -424,13 +424,13 @@ public:		///////////////////////////////////////////////
 								CSG_Grid_File_Info		(const CSG_Grid &Grid);
 	bool						Create					(const CSG_Grid &Grid);
 
-	bool						Save					(const CSG_String &FileName, bool bBinary = true);
-	bool						Save					(const CSG_File   &Stream  , bool bBinary = true);
+	bool						Save					(const CSG_String &File  , bool bBinary = true);
+	bool						Save					(const CSG_File   &Stream, bool bBinary = true);
 
-	static bool					Save					(const CSG_String &FileName, const CSG_Grid &Grid, bool bBinary = true);
-	static bool					Save					(const CSG_File   &Stream  , const CSG_Grid &Grid, bool bBinary = true);
+	static bool					Save					(const CSG_String &File  , const CSG_Grid &Grid, bool bBinary = true);
+	static bool					Save					(const CSG_File   &Stream, const CSG_Grid &Grid, bool bBinary = true);
 
-	bool						Save_AUX_XML			(const CSG_String &FileName);
+	bool						Save_AUX_XML			(const CSG_String &File);
 	bool						Save_AUX_XML			(CSG_File &Stream);
 
 	//-----------------------------------------------------
@@ -480,8 +480,12 @@ public:		///////////////////////////////////////////////
 									CSG_Grid		(const CSG_Grid &Grid);
 	bool							Create			(const CSG_Grid &Grid);
 
-									CSG_Grid		(const CSG_String &FileName   , TSG_Data_Type Type = SG_DATATYPE_Undefined, bool bCached = false, bool bLoadData = true);
-	bool							Create			(const CSG_String &FileName   , TSG_Data_Type Type = SG_DATATYPE_Undefined, bool bCached = false, bool bLoadData = true);
+									CSG_Grid		(const CSG_String &File       , TSG_Data_Type Type = SG_DATATYPE_Undefined, bool bCached = false, bool bLoadData = true);
+	bool							Create			(const CSG_String &File       , TSG_Data_Type Type = SG_DATATYPE_Undefined, bool bCached = false, bool bLoadData = true);
+									CSG_Grid		(const char       *File       , TSG_Data_Type Type = SG_DATATYPE_Undefined, bool bCached = false, bool bLoadData = true);
+	bool							Create			(const char       *File       , TSG_Data_Type Type = SG_DATATYPE_Undefined, bool bCached = false, bool bLoadData = true);
+									CSG_Grid		(const wchar_t    *File       , TSG_Data_Type Type = SG_DATATYPE_Undefined, bool bCached = false, bool bLoadData = true);
+	bool							Create			(const wchar_t    *File       , TSG_Data_Type Type = SG_DATATYPE_Undefined, bool bCached = false, bool bLoadData = true);
 
 									CSG_Grid		(CSG_Grid *pGrid              , TSG_Data_Type Type = SG_DATATYPE_Undefined, bool bCached = false);
 	bool							Create			(CSG_Grid *pGrid              , TSG_Data_Type Type = SG_DATATYPE_Undefined, bool bCached = false);
@@ -500,9 +504,9 @@ public:		///////////////////////////////////////////////
 
 
 	//-----------------------------------------------------
-	virtual bool					Save			(const CSG_String &File, int Format = 0);
 	virtual bool					Save			(const char       *File, int Format = 0)	{	return( Save(CSG_String(File), Format) );	}
 	virtual bool					Save			(const wchar_t    *File, int Format = 0)	{	return( Save(CSG_String(File), Format) );	}
+	virtual bool					Save			(const CSG_String &File, int Format = 0);
 
 	//-----------------------------------------------------
 	/** Data object type information.
@@ -930,21 +934,21 @@ private:	///////////////////////////////////////////////
 
 	void						_Swap_Bytes				(char *Bytes, int nBytes)	const;
 
-	bool						_Load_External			(const CSG_String &FileName, bool bCached, bool bLoadData);
-	bool						_Load_PGSQL				(const CSG_String &FileName, bool bCached, bool bLoadData);
+	bool						_Load_External			(const CSG_String &File, bool bCached, bool bLoadData);
+	bool						_Load_PGSQL				(const CSG_String &File, bool bCached, bool bLoadData);
 
-	bool						_Load_Native			(const CSG_String &FileName, bool bCached, bool bLoadData);
-	bool						_Save_Native			(const CSG_String &FileName, TSG_Grid_File_Format Format);
+	bool						_Load_Native			(const CSG_String &File, bool bCached, bool bLoadData);
+	bool						_Save_Native			(const CSG_String &File, TSG_Grid_File_Format Format);
 
-	bool						_Load_Compressed		(const CSG_String &FileName, bool bCached, bool bLoadData);
-	bool						_Save_Compressed		(const CSG_String &FileName);
+	bool						_Load_Compressed		(const CSG_String &File, bool bCached, bool bLoadData);
+	bool						_Save_Compressed		(const CSG_String &File);
 
 	bool						_Load_Binary			(CSG_File &Stream, TSG_Data_Type File_Type, bool bFlip, bool bSwapBytes);
 	bool						_Save_Binary			(CSG_File &Stream, TSG_Data_Type File_Type, bool bFlip, bool bSwapBytes);
 	bool						_Load_ASCII				(CSG_File &Stream, bool bCached, bool bFlip = false);
 	bool						_Save_ASCII				(CSG_File &Stream, bool bFlip = false);
 
-	bool						_Load_Surfer			(const CSG_String &FileName, bool bCached, bool bLoadData);
+	bool						_Load_Surfer			(const CSG_String &File, bool bCached, bool bLoadData);
 
 
 	//-----------------------------------------------------
@@ -992,10 +996,14 @@ SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(void);
 SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(const CSG_Grid &Grid);
 
 /** Safe grid construction */
-SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(const CSG_String &FileName,    TSG_Data_Type Type = SG_DATATYPE_Undefined, bool bCached = false, bool bLoadData = true);
+SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(const char       *File       , TSG_Data_Type Type = SG_DATATYPE_Undefined, bool bCached = false, bool bLoadData = true);
+/** Safe grid construction */
+SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(const wchar_t    *File       , TSG_Data_Type Type = SG_DATATYPE_Undefined, bool bCached = false, bool bLoadData = true);
+/** Safe grid construction */
+SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(const CSG_String &File       , TSG_Data_Type Type = SG_DATATYPE_Undefined, bool bCached = false, bool bLoadData = true);
 
 /** Safe grid construction */
-SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(CSG_Grid *pGrid,               TSG_Data_Type Type = SG_DATATYPE_Undefined, bool bCached = false);
+SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(CSG_Grid *pGrid              , TSG_Data_Type Type = SG_DATATYPE_Undefined, bool bCached = false);
 
 /** Safe grid construction */
 SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(const CSG_Grid_System &System, TSG_Data_Type Type = SG_DATATYPE_Undefined, bool bCached = false);

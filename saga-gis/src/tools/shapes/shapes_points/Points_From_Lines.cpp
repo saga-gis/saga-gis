@@ -37,16 +37,16 @@
 //---------------------------------------------------------
 CPoints_From_Lines::CPoints_From_Lines(void)
 {
-	Set_Name		(_TL("Convert Lines to Points"));
+	Set_Name		(_TL("Convert Line/Polygon Vertices to Points"));
 
 	Set_Author		("V. Olaya, V. Wichmann (c) 2004-2015");
 
 	Set_Description	(_TW(
-		"Converts lines to points. "
+		"Converts the vertices of lines or polygons data to points. "
 		"Optionally inserts additional points in user-defined distances. "
 	));
 
-	Parameters.Add_Shapes("", "LINES"          , _TL("Lines"                   ), _TL(""), PARAMETER_INPUT , SHAPE_TYPE_Line );
+	Parameters.Add_Shapes("", "LINES"          , _TL("Lines"                   ), _TL(""), PARAMETER_INPUT                   );
 	Parameters.Add_Shapes("", "POINTS"         , _TL("Points"                  ), _TL(""), PARAMETER_OUTPUT, SHAPE_TYPE_Point);
 	Parameters.Add_Bool  ("", "ADD_POINT_ORDER", _TL("Add Point Order"         ), _TL("Add point order as additional attribute."), false);
 	Parameters.Add_Bool  ("", "ADD"            , _TL("Insert Additional Points"), _TL(""), false);

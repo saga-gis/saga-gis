@@ -76,7 +76,7 @@ CSG_String Get_Info(int i)
 		return( _TL("Grid") );
 
 	case TLB_INFO_Author:
-		return( "O. Conrad (c) 2002-10" );
+		return( "O.Conrad (c) 2002-23" );
 
 	case TLB_INFO_Description:
 		return( _TL("Tools for the gridding of points and other vector data.") );
@@ -93,14 +93,15 @@ CSG_String Get_Info(int i)
 //---------------------------------------------------------
 // 3. Include the headers of your tools here...
 
+#include "Shapes2Grid.h"
 #include "Interpolation_InverseDistance.h"
 #include "Interpolation_AngularDistance.h"
 #include "Interpolation_NearestNeighbour.h"
-#include "Interpolation_NaturalNeighbour.h"
 #include "Interpolation_Shepard.h"
 #include "Interpolation_Triangulation.h"
-#include "Shapes2Grid.h"
+#include "Interpolation_NaturalNeighbour.h"
 #include "kernel_density.h"
+
 #include "grid_cell_polygon_coverage.h"
 
 
@@ -111,24 +112,24 @@ CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
-	case  0:	return( new CShapes2Grid );
-	case  9:	return( new CPolygons2Grid );
-	case 10:	return( new CPolygonCategories2Grid );
+	case  0: return( new CShapes2Grid );
+	case  9: return( new CPolygons2Grid );
+	case 10: return( new CPolygonCategories2Grid );
 
-	case  1:	return( new CInterpolation_InverseDistance );
-	case  7:	return( new CInterpolation_AngularDistance );
-	case  2:	return( new CInterpolation_NearestNeighbour );
-	case  3:	return( new CInterpolation_NaturalNeighbour );
-	case  4:	return( new CInterpolation_Shepard );
-	case  5:	return( new CInterpolation_Triangulation );
+	case  1: return( new CInterpolation_InverseDistance );
+	case  7: return( new CInterpolation_AngularDistance );
+	case  2: return( new CInterpolation_NearestNeighbour );
+	case  4: return( new CInterpolation_Shepard );
+	case  5: return( new CInterpolation_Triangulation );
+	case  3: return( new CInterpolation_NaturalNeighbour );
 
-	case  6:	return( new CKernel_Density );
+	case  6: return( new CKernel_Density );
 
-	case  8:	return( new CGrid_Cell_Polygon_Coverage );
+	case  8: return( new CGrid_Cell_Polygon_Coverage );
 
 	//-----------------------------------------------------
-	case 11:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
+	case 11: return( NULL );
+	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
 
