@@ -253,7 +253,7 @@ wxString CDLG_About::_Get_Citation(void)
 		"<center>"
 		"Please provide this reference in your work when using SAGA"
 		"<hr>"
-		"<b>Conrad, O., Bechtel, B., Bock, M., Dietrich, H., Fischer, E., Gerlitz, L., Wehberg, J., Wichmann, V., and Boehner, J. (2015)</b>:<br>"
+		"<b>Conrad, O., Bechtel, B., Bock, M., Dietrich, H., Fischer, E., Gerlitz, L., Wehberg, J., Wichmann, V., and B&ouml;hner, J. (2015)</b>:<br>"
 		"System for Automated Geoscientific Analyses (SAGA) v. 2.1.4.<br>"
 		"Geosci. Model Dev., 8, 1991-2007, <a href=\"https://gmd.copernicus.org/articles/8/1991/2015/gmd-8-1991-2015.html\">doi:10.5194/gmd-8-1991-2015</a>."
 		"<hr></center>"

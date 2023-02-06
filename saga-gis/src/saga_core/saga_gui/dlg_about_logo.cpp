@@ -1,4 +1,4 @@
-
+﻿
 ///////////////////////////////////////////////////////////
 //                                                       //
 //                         SAGA                          //
@@ -113,6 +113,9 @@ void CDLG_About_Logo::On_Paint(wxPaintEvent &event)
 
 	int Cursor = 0, Space = dc.GetTextExtent("|").y;
 
+	wxBitmap Splash(IMG_Get_Splash(0.3));
+	dc.DrawBitmap(Splash, (GetClientSize().x - Splash.GetWidth()) / 2, Cursor += Space); Cursor += Splash.GetHeight();
+
 	FONT_NORMAL; Draw_Text(dc, Cursor += Space * 1, "Created and developed by");
 	FONT_ITALIC; Draw_Text(dc, Cursor += Space * 0, "Dr. O. Conrad");
 
@@ -124,10 +127,10 @@ void CDLG_About_Logo::On_Paint(wxPaintEvent &event)
 
 	Draw_XPM              (dc, Cursor += Space * 0, xpm_logo_uhh);
 	FONT_NORMAL; Draw_Text(dc, Cursor += Space * 0, "Department of Physical Geography");
-	FONT_ITALIC; Draw_Text(dc, Cursor += Space * 0, "Prof. Dr. J. Boehner, Dr. O. Conrad");
+	FONT_ITALIC; Draw_Text(dc, Cursor += Space * 0, L"Prof. Dr. J. Böhner, Dr. O. Conrad");
 
 	Draw_XPM              (dc, Cursor += Space * 3, xpm_logo_scilands);
-	FONT_ITALIC; Draw_Text(dc, Cursor += Space / 2, "M. Bock, R. Koethe, J. Spitzmueller");
+	FONT_ITALIC; Draw_Text(dc, Cursor += Space / 2, L"M. Bock, R. Köthe, J. Spitzmüller");
 
 #ifdef wxHAS_SVG
 	Draw_SVG              (dc, Cursor += Space * 3, svg_logo_laserdata, wxSize(213, 47)); // size corresponds to the uhh-logo width
@@ -143,10 +146,7 @@ void CDLG_About_Logo::On_Paint(wxPaintEvent &event)
 	Draw_Text(dc, Cursor, "and tutorials, citations and recommendations,");
 	Draw_Text(dc, Cursor, "...and for choosing SAGA!");
 
-	wxBitmap Splash(IMG_Get_Splash(0.3));
-	dc.DrawBitmap(Splash, (GetClientSize().x - Splash.GetWidth()) / 2, Cursor += Space);
-
-	SetVirtualSize(Splash.GetWidth(), Cursor += Splash.GetHeight());
+	SetVirtualSize(Splash.GetWidth(), Cursor);
 	SetScrollRate(10, 10);
 }
 
