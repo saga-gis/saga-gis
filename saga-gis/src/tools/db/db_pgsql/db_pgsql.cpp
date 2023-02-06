@@ -1,4 +1,4 @@
-
+ï»¿
 ///////////////////////////////////////////////////////////
 //                                                       //
 //                         SAGA                          //
@@ -782,10 +782,10 @@ CSG_String CSG_PG_Connection::Make_Table_Name(const CSG_String &Table_Name)
 
 	SG_String_Replace_Characters(Name, ".,;:({[]})#+-", '_');
 
-	Name.Replace("ä", "ae"); Name.Replace("Ä", "AE");
-	Name.Replace("ö", "oe"); Name.Replace("Ö", "OE");
-	Name.Replace("ü", "ue"); Name.Replace("Ü", "UE");
-	Name.Replace("ß", "sz");
+	Name.Replace("Ã¤", "ae"); Name.Replace("Ã„", "AE");
+	Name.Replace("Ã¶", "oe"); Name.Replace("Ã–", "OE");
+	Name.Replace("Ã¼", "ue"); Name.Replace("Ãœ", "UE");
+	Name.Replace("ÃŸ", "sz");
 
 	if( !Name.is_Empty() && isdigit(Name[0]) )
 	{
@@ -802,10 +802,10 @@ CSG_String CSG_PG_Connection::Make_Table_Field_Name(const CSG_Table &Table, int 
 
 	SG_String_Replace_Characters(Name, ".,;:({[]})#+-", '_');
 
-	Name.Replace("ä", "ae"); Name.Replace("Ä", "Ae");
-	Name.Replace("ö", "oe"); Name.Replace("Ö", "Oe");
-	Name.Replace("ü", "ue"); Name.Replace("Ü", "Ue");
-	Name.Replace("ß", "sz");
+	Name.Replace("Ã¤", "ae"); Name.Replace("Ã„", "Ae");
+	Name.Replace("Ã¶", "oe"); Name.Replace("Ã–", "Oe");
+	Name.Replace("Ã¼", "ue"); Name.Replace("Ãœ", "Ue");
+	Name.Replace("ÃŸ", "sz");
 
 	return( Name );
 }
