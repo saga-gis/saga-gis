@@ -100,30 +100,41 @@ void			CMD_Set_Tool		(CCMD_Tool *pCMD_Tool)
 //---------------------------------------------------------
 static bool		g_bShow_Messages	= true;
 
-void			CMD_Set_Show_Messages	(bool bOn)	{	g_bShow_Messages	= bOn;		}
+void			CMD_Set_Show_Messages	(bool bOn)	{	g_bShow_Messages	= bOn;	}
 
-bool			CMD_Get_Show_Messages	(void)		{	return( g_bShow_Messages );		}
+bool			CMD_Get_Show_Messages	(void)		{	return( g_bShow_Messages );	}
 
 //---------------------------------------------------------
 static bool		g_bShow_Progress	= true;
 
-void			CMD_Set_Show_Progress	(bool bOn)	{	g_bShow_Progress	= bOn;		}
+void			CMD_Set_Show_Progress	(bool bOn)	{	g_bShow_Progress	= bOn;	}
 
-bool			CMD_Get_Show_Progress	(void)		{	return( g_bShow_Progress );		}
+bool			CMD_Get_Show_Progress	(void)		{	return( g_bShow_Progress );	}
 
 //---------------------------------------------------------
 static bool		g_bInteractive		= false;
 
-void			CMD_Set_Interactive	(bool bOn)		{	g_bInteractive		= bOn;		}
+void			CMD_Set_Interactive	(bool bOn)		{	g_bInteractive		= bOn;	}
 
-bool			CMD_Get_Interactive	(void)			{	return( g_bInteractive );		}
+bool			CMD_Get_Interactive	(void)			{	return( g_bInteractive );	}
 
 //---------------------------------------------------------
 static bool		g_bXML				= false;
 
-void			CMD_Set_XML			(bool bOn)		{	g_bXML				= bOn;		}
+void			CMD_Set_XML			(bool bOn)		{	g_bXML				= bOn;	}
 
-bool			CMD_Get_XML			(void)			{	return( g_bXML );				}
+bool			CMD_Get_XML			(void)			{	return( g_bXML );			}
+
+//---------------------------------------------------------
+#ifdef _SAGA_MSW
+static bool		g_bUTF8 = false;
+#else
+static bool		g_bUTF8 = true;
+#endif
+
+void			CMD_Set_UTF8		(bool bOn)		{	g_bUTF8				= bOn;	}
+
+bool			CMD_Get_UTF8		(void)			{	return( g_bUTF8 );			}
 
 
 ///////////////////////////////////////////////////////////
@@ -144,7 +155,14 @@ void			CMD_Print			(const CSG_String &Text, const CSG_String &XML_Tag)
 	}
 	else
 	{
-		SG_Printf("%s\n", Text.c_str());
+		if( g_bUTF8 )
+		{
+			printf("%s\n", Text.to_UTF8().Get_Data());
+		}
+		else
+		{
+			printf("%s\n", Text.to_ASCII().Get_Data());
+		}
 	}
 
 	std::cout << std::flush;

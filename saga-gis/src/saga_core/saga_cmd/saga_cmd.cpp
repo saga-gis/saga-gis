@@ -457,11 +457,16 @@ bool		Check_First		(const CSG_String &Argument, int argc, char *argv[])
 {
 	if( !Argument.Cmp("-h") || !Argument.Cmp("--help") )
 	{
+		while( argc > 0 && Check_Flags(argv[0]) )
+		{
+			argc--;	argv++;
+		}
+
 		switch( argc )
 		{
-		default:	Print_Help(                );	break;
-		case  1:	Print_Help(argv[0]         );	break;
-		case  2:	Print_Help(argv[0], argv[1]);	break;
+		default: Print_Help(                ); break;
+		case  1: Print_Help(argv[0]         ); break;
+		case  2: Print_Help(argv[0], argv[1]); break;
 		}
 
 		return( true );
@@ -561,6 +566,16 @@ bool		Check_Flags		(const CSG_String &Argument)
 	else if( !s.Cmp("-C") || !s.Cmp("--config") )
 	{
 		Config_Load(CSG_String(Argument).AfterFirst('='));
+
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	else if( !s.Cmp("-u") || !s.Cmp("--utf8") )
+	{
+		int	On; if( !CSG_String(Argument).AfterFirst('=').asInt(On) ) { On = 1; } // let's switch it on by default!
+
+		CMD_Set_UTF8(On);
 
 		return( true );
 	}
@@ -745,6 +760,11 @@ void		Print_Help		(void)
 		"[-v], [--version]: version information\n"
 		"[-s], [--story]  : maximum data history depth (default is unlimited)\n"
 		"[-C], [--config] : configuration file (default is 'saga_cmd.ini')\n"
+#ifdef _SAGA_MSW
+		"[-u], [--utf8]   : print UTF-8 (=1) or ANSI (=0) (default is 0)\n"
+#else
+		"[-u], [--utf8]   : print UTF-8 (=1) or ANSI (=0) (default is 1)\n"
+#endif
 #ifdef _OPENMP
 		"[-c], [--cores]  : number of physical processors to use for computation\n"
 #endif
