@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-from distutils.core import setup, Extension, os
+import os
+from setuptools import setup, Extension
 
 if os.name == 'nt': # Windows
     saga_module = Extension('_saga_api', sources = ['saga_api_wrap.cxx'], include_dirs = ['./'],
