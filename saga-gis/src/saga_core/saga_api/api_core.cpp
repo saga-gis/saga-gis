@@ -338,6 +338,11 @@ bool SG_Add_Dll_Paths(const wxString &Directory, wxString &Paths)
 			wxSetEnv("GDAL_DRIVER_PATH", Directory);
 		}
 
+		if (Dir.GetFirst(&Path, "pdalcpp.dll", wxDIR_HIDDEN | wxDIR_FILES))
+		{
+			wxSetEnv("PDAL_DRIVER_PATH", Directory);
+		}
+
 		if( Dir.GetFirst(&Path, wxEmptyString, wxDIR_HIDDEN|wxDIR_DIRS) )
 		{
 			do
