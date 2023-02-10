@@ -79,7 +79,7 @@ CSG_String Get_Info(int i)
 		return( _TL("Shapes") );
 
 	case TLB_INFO_Author:
-		return( SG_T("O. Conrad, V. Wichmann (c) 2005-2021") );
+		return( SG_T("O. Conrad, V. Wichmann (c) 2005-2023") );
 
 	case TLB_INFO_Description:
 		return( _TL("Tools for lines.") );
@@ -107,6 +107,7 @@ CSG_String Get_Info(int i)
 #include "line_crossings.h"
 #include "extract_closed_lines.h"
 #include "line_split.h"
+#include "line_parts_to_separate_lines.h"
 
 
 //---------------------------------------------------------
@@ -128,8 +129,9 @@ CSG_Tool *		Create_Tool(int i)
 	case  9:	return( new CLine_Crossings );
     case 10:    return( new CExtract_Closed_Lines );
 	case 11:	return( new CCut_Lines );
+	case 12:	return( new CLine_Parts_to_Separate_Lines );
 
-	case 12:	return( NULL );
+	case 13:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

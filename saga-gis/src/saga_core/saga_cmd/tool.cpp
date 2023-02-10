@@ -128,7 +128,7 @@ void CCMD_Tool::Usage(void)
 {
 	if( !m_Usage.is_Empty() )
 	{
-		SG_Printf(m_Usage);
+		CMD_Print(m_Usage);
 	}
 }
 
@@ -297,7 +297,7 @@ bool CCMD_Tool::_has_Unused(void)
 
 	if( !Unused.is_Empty() )
 	{
-		SG_Printf("%s: %s!\n[%s]\n\n", _TL("Error"), _TL("The tool does not know some of the provided arguments!"), Unused.c_str());
+		CMD_Print(CSG_String::Format("%s: %s!\n[%s]\n\n", _TL("Error"), _TL("The tool does not know some of the provided arguments!"), Unused.c_str()));
 
 		return( true );
 	}

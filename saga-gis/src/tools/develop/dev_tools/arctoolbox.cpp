@@ -1,4 +1,4 @@
-
+ï»¿
 ///////////////////////////////////////////////////////////
 //                                                       //
 //                         SAGA                          //
@@ -178,20 +178,20 @@ CSG_String CArcToolBox::Get_Formatted(CSG_String String, int Type)
 
 	if( Type == FORMAT_ASCII )
 	{
-		String.Replace("ä", "ae");
-		String.Replace("ö", "oe");
-		String.Replace("ü", "ue");
-		String.Replace("Ä", "Ae");
-		String.Replace("Ö", "Oe");
-		String.Replace("Ü", "Ue");
-		String.Replace("ß", "sz");
+		String.Replace("Ã¤", "ae");
+		String.Replace("Ã¶", "oe");
+		String.Replace("Ã¼", "ue");
+		String.Replace("Ã„", "Ae");
+		String.Replace("Ã–", "Oe");
+		String.Replace("Ãœ", "Ue");
+		String.Replace("ÃŸ", "sz");
 	}
 
 	String.Replace("\xb", "");
 	String.Replace("\xB", "");
 
-	String.Replace("²", "2");
-	String.Replace("³", "3");
+	String.Replace("Â²", "2");
+	String.Replace("Â³", "3");
 
 	String.Replace("\r",  "");
 	String.Replace("\t", " ");
@@ -233,13 +233,13 @@ CSG_String CArcToolBox::Get_Description(CSG_Tool *pTool, int Type)
 		s	+= "<span STYLE=\"font-style:italic;font-size:8pt\">";
 		s	+= "www.saga-gis.org<br></span>";
 		s	+= "<span STYLE=\"font-style:italic;font-size:6pt\">_____<br>Reference:<br>";
-		s	+= "Conrad, O., Bechtel, B., Bock, M., Dietrich, H., Fischer, E., Gerlitz, L., Wehberg, J., Wichmann, V., and Böhner, J. (2015): ";
+		s	+= "Conrad, O., Bechtel, B., Bock, M., Dietrich, H., Fischer, E., Gerlitz, L., Wehberg, J., Wichmann, V., and BÃ¶hner, J. (2015): ";
 		s	+= "System for Automated Geoscientific Analyses (SAGA) v. 2.1.4, Geosci. Model Dev., 8, 1991-2007, doi:10.5194/gmd-8-1991-2015.";
 		s	+= "</span></p>";
 	}
 	else
 	{
-		s	+= "Conrad, O., Bechtel, B., Bock, M., Dietrich, H., Fischer, E., Gerlitz, L., Wehberg, J., Wichmann, V., and Böhner, J. (2015): ";
+		s	+= "Conrad, O., Bechtel, B., Bock, M., Dietrich, H., Fischer, E., Gerlitz, L., Wehberg, J., Wichmann, V., and BÃ¶hner, J. (2015): ";
 		s	+= "System for Automated Geoscientific Analyses (SAGA) v. 2.1.4, Geosci. Model Dev., 8, 1991-2007, doi:10.5194/gmd-8-1991-2015. ";
 		s	+= "[SAGA - System for Automated Geoscientific Analyses - saga-gis.org] ";
 	}

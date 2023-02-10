@@ -1,4 +1,4 @@
-
+ï»¿
 ///////////////////////////////////////////////////////////
 //                                                       //
 //                         SAGA                          //
@@ -56,19 +56,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define ADD_REPLACEMENT(FROM, TO)	{	CSG_Table_Record *pR = pTable->Add_Record(); pR->Set_Value(0, FROM); pR->Set_Value(1, TO);	}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 CTable_Text_Replacer::CTable_Text_Replacer(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Replace Text"));
 
 	Set_Author		("O.Conrad (c) 2013");
@@ -113,13 +102,15 @@ CTable_Text_Replacer::CTable_Text_Replacer(void)
 	pTable->Add_Field(_TL("Original"   ), SG_DATATYPE_String);
 	pTable->Add_Field(_TL("Replacement"), SG_DATATYPE_String);
 
-	ADD_REPLACEMENT("ä", "ae");
-	ADD_REPLACEMENT("ö", "oe");
-	ADD_REPLACEMENT("ü", "ue");
-	ADD_REPLACEMENT("Ä", "Ae");
-	ADD_REPLACEMENT("Ö", "Oe");
-	ADD_REPLACEMENT("Ü", "Ue");
-	ADD_REPLACEMENT("ß", "sz");
+	#define ADD_REPLACEMENT(FROM, TO) { CSG_Table_Record *pR = pTable->Add_Record(); pR->Set_Value(0, FROM); pR->Set_Value(1, TO); }
+
+	ADD_REPLACEMENT("Ã¤", "ae");
+	ADD_REPLACEMENT("Ã¶", "oe");
+	ADD_REPLACEMENT("Ã¼", "ue");
+	ADD_REPLACEMENT("Ã„", "Ae");
+	ADD_REPLACEMENT("Ã–", "Oe");
+	ADD_REPLACEMENT("Ãœ", "Ue");
+	ADD_REPLACEMENT("ÃŸ", "sz");
 }
 
 
@@ -132,7 +123,7 @@ int CTable_Text_Replacer::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_
 {
 	if( pParameter->Cmp_Identifier("TABLE") )
 	{
-		CSG_Data_Object	*pObject	= pParameter->asDataObject();
+		CSG_Data_Object *pObject = pParameter->asDataObject();
 
 		pParameters->Set_Enabled("OUT_TABLE" , pObject && pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table );
 		pParameters->Set_Enabled("OUT_SHAPES", pObject && pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes);
@@ -149,29 +140,28 @@ int CTable_Text_Replacer::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_
 //---------------------------------------------------------
 bool CTable_Text_Replacer::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
+	CSG_Table *pTable = Parameters("TABLE")->asTable();
 
 	if( pTable->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
 	{
-		CSG_Shapes	*pOutput	= Parameters("OUT_SHAPES")->asShapes();
+		CSG_Shapes *pOutput = Parameters("OUT_SHAPES")->asShapes();
 
 		if( pOutput )
 		{
 			pOutput->Create(*((CSG_Shapes *)pTable));
 
-			pTable	= pOutput;
+			pTable = pOutput;
 		}
 	}
 	else // if( pTable->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table )
 	{
-		CSG_Table	*pOutput	= Parameters("OUT_TABLE" )->asTable();
+		CSG_Table *pOutput = Parameters("OUT_TABLE" )->asTable();
 
 		if( pOutput )
 		{
 			pOutput->Create(*pTable);
 
-			pTable	= pOutput;
+			pTable = pOutput;
 		}
 	}
 
@@ -181,24 +171,24 @@ bool CTable_Text_Replacer::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_pReplacer	= Parameters("REPLACE")->asTable();
-	int	iField	= Parameters("FIELD"  )->asInt  ();
+	m_pReplacer = Parameters("REPLACE")->asTable();
+	int iField  = Parameters("FIELD"  )->asInt  ();
 
-	size_t	nChanges	= 0;
+	size_t nChanges = 0;
 
 	for(int iRecord=0; iRecord<pTable->Get_Count(); iRecord++)
 	{
-		CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
+		CSG_Table_Record *pRecord = pTable->Get_Record(iRecord);
 
 		if( iField >= 0 )
 		{
-			nChanges	+= Replace(pRecord, iField);
+			nChanges += Replace(pRecord, iField);
 		}
 		else for(int i=0; i<pTable->Get_Field_Count(); i++)
 		{
 			if( pTable->Get_Field_Type(i) == SG_DATATYPE_String )
 			{
-				nChanges	+= Replace(pRecord, i);
+				nChanges += Replace(pRecord, i);
 			}
 		}
 	}
@@ -222,15 +212,15 @@ bool CTable_Text_Replacer::On_Execute(void)
 //---------------------------------------------------------
 inline size_t CTable_Text_Replacer::Replace(CSG_Table_Record *pRecord, int iField)
 {
-	CSG_String	Text(pRecord->asString(iField));
+	CSG_String Text(pRecord->asString(iField));
 
-	size_t	nChanges	= 0;
+	size_t nChanges = 0;
 
 	for(int i=0; i<m_pReplacer->Get_Count(); i++)
 	{
-		CSG_Table_Record	*pReplace	= m_pReplacer->Get_Record(i);
+		CSG_Table_Record *pReplace = m_pReplacer->Get_Record(i);
 
-		nChanges	+= Text.Replace(pReplace->asString(0), pReplace->asString(1));
+		nChanges += Text.Replace(pReplace->asString(0), pReplace->asString(1));
 	}
 
 	if( nChanges > 0 )
