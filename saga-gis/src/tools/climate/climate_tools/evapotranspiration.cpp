@@ -1,4 +1,4 @@
-
+﻿
 ///////////////////////////////////////////////////////////
 //                                                       //
 //                         SAGA                          //
@@ -118,9 +118,8 @@ CETpot_Day_To_Hour::CETpot_Day_To_Hour(void)
 //---------------------------------------------------------
 bool CETpot_Day_To_Hour::On_Execute(void)
 {
-	CSG_Table	*pDays	= Parameters("DAYS" )->asTable();
-
-	CSG_Table	*pHours	= Parameters("HOURS")->asTable();
+	CSG_Table *pDays  = Parameters("DAYS" )->asTable();
+	CSG_Table *pHours = Parameters("HOURS")->asTable();
 
 	pHours->Destroy();
 	pHours->Fmt_Name("%s [%s]", pDays->Get_Name(), _TL("h"));
@@ -128,40 +127,40 @@ bool CETpot_Day_To_Hour::On_Execute(void)
 	pHours->Add_Field("HOUR"      , SG_DATATYPE_Int);
 	pHours->Add_Field("ET"        , SG_DATATYPE_Double);
 
-	int	fJD	= Parameters("JD")->asInt();
-	int	fET	= Parameters("ET")->asInt();
-	int	fP	= Parameters("P" )->asInt();
+	int fJD = Parameters("JD")->asInt();
+	int fET = Parameters("ET")->asInt();
+	int fP  = Parameters("P" )->asInt();
 
 	if( fP >= 0 )
 	{
 		pHours->Add_Field("P", SG_DATATYPE_Double);
 	}
 
-	double	sinLat	= sin(Parameters("LAT")->asDouble() * M_DEG_TO_RAD);
-	double	cosLat	= cos(Parameters("LAT")->asDouble() * M_DEG_TO_RAD);
-	double	sinHgt	= 0.;	// -0.0145;	// >> -50'' desired height of horizon
+	double sinLat = sin(Parameters("LAT")->asDouble() * M_DEG_TO_RAD);
+	double cosLat = cos(Parameters("LAT")->asDouble() * M_DEG_TO_RAD);
+	double sinHgt = 0.; // -0.0145; // >> -50'' desired height of horizon
 
 	//-----------------------------------------------------
 	for(int iDay=0; iDay<pDays->Get_Count() && Set_Progress(iDay, pDays->Get_Count()); iDay++)
 	{
-		CSG_Table_Record	*pDay	= pDays->Get_Record(iDay);
+		CSG_Table_Record *pDay = pDays->Get_Record(iDay);
 
-		double	ET, D, dT, fT, sRise, sSet;
+		double ET, D, dT, fT, sRise, sSet;
 
-		int	JD	= pDay->asInt(fJD);
+		int JD = pDay->asInt(fJD);
 
-		ET		= pDay->asDouble(fET);
+		ET     = pDay->asDouble(fET);
 
-		D		= 0.40954 * sin(0.0172 * (JD - 79.349740));	// sun's declination
-		dT		= 12. * acos((sinHgt - sinLat * sin(D)) / (cosLat * cos(D))) / M_PI;
+		D      = 0.40954 * sin(0.0172 * (JD - 79.349740));	// sun's declination
+		dT     = 12. * acos((sinHgt - sinLat * sin(D)) / (cosLat * cos(D))) / M_PI;
 
-		fT		= -0.1752 * sin(0.033430 * JD + 0.5474) - 0.1340 * sin(0.018234 * JD - 0.1939);
-		sRise	= 12. - dT - fT;
-		sSet	= 12. + dT - fT;
+		fT     = -0.1752 * sin(0.033430 * JD + 0.5474) - 0.1340 * sin(0.018234 * JD - 0.1939);
+		sRise  = 12. - dT - fT;
+		sSet   = 12. + dT - fT;
 
 		for(int iHour=0; iHour<24; iHour++)
 		{
-			CSG_Table_Record	*pHour	= pHours->Add_Record();
+			CSG_Table_Record *pHour = pHours->Add_Record();
 
 			pHour->Set_Value(0, JD);
 			pHour->Set_Value(1, iHour);
@@ -234,16 +233,16 @@ CETpot_Table::CETpot_Table(void)
 	);
 
 	Parameters.Add_Table("",
-		"RESULT", _TL("Evapotranspiration"),
+		"RESULT", _TL("Results"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Table_Field("TABLE", "T"	   , _TL("Mean Temperature"   ), _TL("[Celsius]"));
-	Parameters.Add_Table_Field("TABLE", "T_MIN", _TL("Minimum Temperature"), _TL("[Celsius]"));
-	Parameters.Add_Table_Field("TABLE", "T_MAX", _TL("Maximum Temperature"), _TL("[Celsius]"));
-	Parameters.Add_Table_Field("TABLE", "RH"   , _TL("Relative Humidity"  ), _TL("[Percent]"));
-	Parameters.Add_Table_Field("TABLE", "SR"   , _TL("Solar Radiation"    ), _TL("daily sum of global radiation [J/cm^2]"));
+	Parameters.Add_Table_Field("TABLE", "T"	   , _TL("Mean Temperature"   ), _TL("[°C]"));
+	Parameters.Add_Table_Field("TABLE", "T_MIN", _TL("Minimum Temperature"), _TL("[°C]"));
+	Parameters.Add_Table_Field("TABLE", "T_MAX", _TL("Maximum Temperature"), _TL("[°C]"));
+	Parameters.Add_Table_Field("TABLE", "RH"   , _TL("Relative Humidity"  ), _TL("[%]"));
+	Parameters.Add_Table_Field("TABLE", "SR"   , _TL("Solar Radiation"    ), _TL("daily sum of global horizontal irradiance [J/cm²]"));
 	Parameters.Add_Table_Field("TABLE", "WS"   , _TL("Wind Speed"         ), _TL("daily mean of wind speed at 2m above ground [m/s]"));
 	Parameters.Add_Table_Field("TABLE", "P"    , _TL("Air Pressure"       ), _TL("[kPa]"));
 	Parameters.Add_Table_Field("TABLE", "DATE" , _TL("Date"               ), _TL(""));
@@ -278,14 +277,14 @@ int CETpot_Table::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 {
 	if( pParameter->Cmp_Identifier("METHOD") )
 	{
-		int	M	= pParameter->asInt();
+		int M = pParameter->asInt();
 
 		pParameters->Set_Enabled("T_MIN", M == 1 || M == 3);
 		pParameters->Set_Enabled("T_MAX", M == 1 || M == 3);
-		pParameters->Set_Enabled("RH"   , M != 1);
-		pParameters->Set_Enabled("SR"   , M != 1);
+		pParameters->Set_Enabled("RH"   , M != 1          );
+		pParameters->Set_Enabled("SR"   , M != 1          );
 		pParameters->Set_Enabled("WS"   , M == 2 || M == 3);
-		pParameters->Set_Enabled("P"    , M == 3);
+		pParameters->Set_Enabled("P"    ,           M == 3);
 		pParameters->Set_Enabled("DATE" , M != 0 && M != 3);
 		pParameters->Set_Enabled("LAT"  , M != 0 && M != 3);
 	}
@@ -301,39 +300,47 @@ int CETpot_Table::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 //---------------------------------------------------------
 bool CETpot_Table::On_Execute(void)
 {
-	CSG_Table	*pTable  = Parameters("TABLE")->asTable();
+	CSG_Table *pTable = Parameters("TABLE")->asTable();
 
 	if( Parameters("RESULT")->asTable() && Parameters("RESULT")->asTable() != pTable )
 	{
 		Parameters("RESULT")->asTable()->Create(*pTable);
 
-		pTable	= Parameters("RESULT")->asTable();
+		pTable = Parameters("RESULT")->asTable();
 
 		pTable->Fmt_Name("%s [%s]", pTable->Get_Name(), _TL("Evapotranspiration"));
 	}
 
 	//-----------------------------------------------------
-	int	fET     = pTable->Get_Field_Count();
+	int fET = Parameters("ET")->asInt();
 
-	pTable->Add_Field("ET", SG_DATATYPE_Double);
+	if( fET < 0 || fET > pTable->Get_Field_Count() )
+	{
+		fET = pTable->Get_Field_Count();
 
-	int	Method  = Parameters("METHOD")->asInt();
-	int	fT      = Parameters("T"     )->asInt();
-	int	fTmin   = Parameters("T_MIN" )->asInt();
-	int	fTmax   = Parameters("T_MAX" )->asInt();
-	int	fRH     = Parameters("RH"    )->asInt();
-	int	fSR     = Parameters("SR"    )->asInt();
-	int	fWS     = Parameters("WS"    )->asInt();
-	int	fP      = Parameters("P"     )->asInt();
-	int	fDate   = Parameters("DATE"  )->asInt();
-	double	Lat	= Parameters("LAT")->asDouble();
+		pTable->Add_Field("ET", SG_DATATYPE_Double);
+	}
+
+	//-----------------------------------------------------
+	int Method = Parameters("METHOD")->asInt();
+
+	int fT     = Parameters("T"     )->asInt();
+	int fTmin  = Parameters("T_MIN" )->asInt();
+	int fTmax  = Parameters("T_MAX" )->asInt();
+	int fRH    = Parameters("RH"    )->asInt();
+	int fSR    = Parameters("SR"    )->asInt();
+	int fWS    = Parameters("WS"    )->asInt();
+	int fP     = Parameters("P"     )->asInt();
+	int fDate  = Parameters("DATE"  )->asInt();
+
+	double Lat = Parameters("LAT")->asDouble();
 
 	//-----------------------------------------------------
 	for(int iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
 	{
-		CSG_Table_Record	&V	= *pTable->Get_Record(iRecord);
+		CSG_Table_Record &V	= *pTable->Get_Record(iRecord);
 
-		double	ET	= -1.;
+		double ET = -1.;
 
 		if( !V.is_NoData(fT) )
 		{
@@ -406,7 +413,7 @@ bool CETpot_Table::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( pTable != Parameters("TABLE")->asTable() )
+	if( pTable == Parameters("TABLE")->asTable() )
 	{
 		DataObject_Update(pTable);
 	}
@@ -454,13 +461,13 @@ CETpot_Grid::CETpot_Grid(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_or_Const("", "T"    , _TL("Mean Temperature"   ), _TL("[Celsius]"),  10. , -273.15, true);
-	Parameters.Add_Grid_or_Const("", "T_MIN", _TL("Minimum Temperature"), _TL("[Celsius]"),   0. , -273.15, true);
-	Parameters.Add_Grid_or_Const("", "T_MAX", _TL("Maximum Temperature"), _TL("[Celsius]"),  20. , -273.15, true);
-	Parameters.Add_Grid_or_Const("", "RH"   , _TL("Relative Humidity"  ), _TL("[Percent]"),  50. ,    0.  , true, 100., true);
-	Parameters.Add_Grid_or_Const("", "SR"   , _TL("Solar Radiation"    ), _TL("[J/cm^2]" ),   2. ,    0.  , true);
-	Parameters.Add_Grid_or_Const("", "WS"   , _TL("Wind Speed"         ), _TL("[m/s]"    ),   5. ,    0.  , true);
-	Parameters.Add_Grid_or_Const("", "P"    , _TL("Air Pressure"       ), _TL("[kPa]"    ), 101.3,    0.  , true);
+	Parameters.Add_Grid_or_Const("", "T"    , _TL("Mean Temperature"   ), _TL("[°C]"   ),  10. , -273.15, true);
+	Parameters.Add_Grid_or_Const("", "T_MIN", _TL("Minimum Temperature"), _TL("[°C]"   ),   0. , -273.15, true);
+	Parameters.Add_Grid_or_Const("", "T_MAX", _TL("Maximum Temperature"), _TL("[°C]"   ),  20. , -273.15, true);
+	Parameters.Add_Grid_or_Const("", "RH"   , _TL("Relative Humidity"  ), _TL("[%]"    ),  50. ,    0.  , true, 100., true);
+	Parameters.Add_Grid_or_Const("", "SR"   , _TL("Solar Radiation"    ), _TL("[J/cm²]"),   2. ,    0.  , true);
+	Parameters.Add_Grid_or_Const("", "WS"   , _TL("Wind Speed"         ), _TL("[m/s]"  ),   5. ,    0.  , true);
+	Parameters.Add_Grid_or_Const("", "P"    , _TL("Air Pressure"       ), _TL("[kPa]"  ), 101.3,    0.  , true);
 
 	Parameters.Add_Grid("",
 		"ET"		, _TL("Potential Evapotranspiration"),
@@ -538,7 +545,7 @@ int CETpot_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter
 	pParameters->Set_Enabled("SR_EST"  , Method != 1);
 	pParameters->Set_Enabled("SUNSHINE", bCalcSR ==  true);
 	pParameters->Set_Enabled("WS"      , Method == 2 || Method == 3);
-	pParameters->Set_Enabled("P"       , Method == 3);
+	pParameters->Set_Enabled("P"       ,                Method == 3);
 	pParameters->Set_Enabled("TIME"    , Method == 1 || Method == 2 || bCalcSR);
 	pParameters->Set_Enabled("DAY"     , (*pParameters)["TIME"].asInt() == 0);
 	pParameters->Set_Enabled("LAT"     , (Method == 1 || Method == 2 || bCalcSR) && !(pT && pT->Get_Projection().is_Okay()));
@@ -564,14 +571,14 @@ bool CETpot_Grid::On_Execute(void)
 	CSG_Grid *pET   = Parameters("ET"   )->asGrid();
 
 	//-----------------------------------------------------
-	int	Method	= Parameters("METHOD")->asInt();
+	int Method = Parameters("METHOD")->asInt();
 
 	pET->Fmt_Name("%s [%s]", _TL("Potential Evapotranspiration"), Parameters("METHOD")->asString());
 
 	//-----------------------------------------------------
-	int		bDaily	= Parameters("TIME")->asInt() == 0;
+	int bDaily = Parameters("TIME")->asInt() == 0;
 
-	CSG_DateTime	Date(
+	CSG_DateTime Date(
 		(CSG_DateTime::TSG_DateTime)(bDaily ? Parameters("DAY")->asInt() : 15),
 		(CSG_DateTime::Month)Parameters("MONTH")->asInt()
 	);
@@ -594,13 +601,13 @@ bool CETpot_Grid::On_Execute(void)
 
 		if( bResult )
 		{
-			pLat	= &Lat;
+			pLat = &Lat;
 
 			if( Parameters("SR_EST")->asBool() )
 			{
-				double	Sunshine	= Parameters("SUNSHINE")->asDouble() / 100.;
+				double Sunshine = Parameters("SUNSHINE")->asDouble() / 100.;
 
-				pSR	= &SR; pSR->Create(Get_System());
+				pSR = &SR; pSR->Create(Get_System());
 
 				#pragma omp parallel for
 				for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
@@ -626,7 +633,7 @@ bool CETpot_Grid::On_Execute(void)
 		#endif
 		for(int x=0; x<Get_NX(); x++)
 		{
-			double	ET	= -1.;
+			double ET = -1.;
 
 			#define HAVE(pGrid) (!pGrid || !pGrid->is_NoData(x, y))
 
