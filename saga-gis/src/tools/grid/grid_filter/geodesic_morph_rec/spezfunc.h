@@ -95,7 +95,7 @@ int read_coefficients (const char *filename,
 /* Nicht normierte Legendre-Polynome bis zum angegebenen           */
 /* Entwicklungsgrad maxdeg rechnen                                 */
 /* t = sin (phi) muss mitgegeben werden                            */
-/* Der Vektor lp muss im aufrufenden Programm genügend groß        */
+/* Der Vektor lp muss im aufrufenden Programm genÃ¼gend groÃŸ        */
 /* allokiert sein (z.B. durch Funktion dvector_alloc in speiorg.c) */
 /*******************************************************************/
 
@@ -105,10 +105,10 @@ int leg_pol_berechnen (double t,
 
 
 /*******************************************************************/
-/* Vollständig normierte Legendre-Funktionen bis zum angegebenen   */
+/* VollstÃ¤ndig normierte Legendre-Funktionen bis zum angegebenen   */
 /* Entwicklungsgrad maxdeg rechnen                                 */
 /* t = sin (phi) muss mitgegeben werden                            */
-/* Die Matrix lf muss im aufrufenden Programm genügend groß        */
+/* Die Matrix lf muss im aufrufenden Programm genÃ¼gend groÃŸ        */
 /* allokiert sein (z.B. durch Funktion legendre_dreieck_alloc      */
 /* in speiorg.c)                                                   */
 /*******************************************************************/
@@ -119,12 +119,12 @@ int leg_func_berechnen (double t,
 
 
 /*******************************************************************/
-/* Ableitungen der vollständig normierten Legendre-Funktionen nach */
+/* Ableitungen der vollstÃ¤ndig normierten Legendre-Funktionen nach */
 /* dem Argument t = sin (phi) bis zum angegebenen Entwicklungsgrad */
 /* maxdeg rechnen                                                  */
 /* t = sin (phi) sowie die Matrix lf der Legendre-Funktionen       */
-/* selbst müssen mitgegeben werden                                 */
-/* Die Matrix lf_der muss im aufrufenden Programm genügend groß    */
+/* selbst mÃ¼ssen mitgegeben werden                                 */
+/* Die Matrix lf_der muss im aufrufenden Programm genÃ¼gend groÃŸ    */
 /* allokiert sein (z.B. durch Funktion legendre_dreieck_alloc      */
 /* in speiorg.c)                                                   */
 /*******************************************************************/
@@ -146,7 +146,7 @@ int leg_func_deriv (double t,
 /*                                                                 */
 /*                                                                 */
 /* Winkelmass = 'A': lambda muss in Altgrad eingegeben werden      */
-/* Winkelmass = 'R': lambda muss im Bogenmaß eingegeben werden     */
+/* Winkelmass = 'R': lambda muss im BogenmaÃŸ eingegeben werden     */
 /*                                                                 */
 /* mindeg muss >= 0 sein, andernfalls wird es gewaltsam auf 0      */
 /* gesetzt                                                         */
@@ -168,12 +168,12 @@ int kff_synthese_einzelpunkt (double lambda,
 /* Harmonische Synthese in einem Einzelpunkt rechnen               */
 /*                                                                 */
 /* wie kff_synthese_einzelpunkt_S, aber es wird das Ergebnis nicht */
-/* für die Breite phi gewünscht, mit der die Legendre-Funktionen   */
-/* berechnet wurden, sondern für die Breite -phi                   */
-/* ("Wert im symmetrisch zur Äquatorebene liegenden Punkt")        */
+/* fÃ¼r die Breite phi gewÃ¼nscht, mit der die Legendre-Funktionen   */
+/* berechnet wurden, sondern fÃ¼r die Breite -phi                   */
+/* ("Wert im symmetrisch zur Ã„quatorebene liegenden Punkt")        */
 /*                                                                 */
 /* Winkelmass = 'A': lambda muss in Altgrad eingegeben werden      */
-/* Winkelmass = 'R': lambda muss im Bogenmaß eingegeben werden     */
+/* Winkelmass = 'R': lambda muss im BogenmaÃŸ eingegeben werden     */
 /*                                                                 */
 /* mindeg muss >= 0 sein, andernfalls wird es gewaltsam auf 0      */
 /* gesetzt                                                         */
@@ -201,15 +201,15 @@ int kff_synthese_einzelpunkt_s (double lambda,
 /*           sum_{m=0}^l leg_func_{l,m} (c_lm * cos (m*lambdar) +  */
 /*                                       s_lm * sin (m*lambdar))   */
 /*                                                                 */
-/* Winkelmass = 'A': lambda_inc, lambda_anf und lambda_end müssen  */
+/* Winkelmass = 'A': lambda_inc, lambda_anf und lambda_end mÃ¼ssen  */
 /*                   in Altgrad eingegeben werden                  */
-/* Winkelmass = 'R': lambda_inc, lambda_anf und lambda_end müssen  */
-/*                   im Bogenmaß eingegeben werden                 */
+/* Winkelmass = 'R': lambda_inc, lambda_anf und lambda_end mÃ¼ssen  */
+/*                   im BogenmaÃŸ eingegeben werden                 */
 /*                                                                 */
 /* Es wird ab lambda_anf bis lambda_end mit lambda_inc als         */
 /* Inkrement gerechnet.                                            */
-/* Der Vektor f muss im aufrufenden Modul genügend groß allokiert  */
-/* sein: Mindestgröße ist                                          */
+/* Der Vektor f muss im aufrufenden Modul genÃ¼gend groÃŸ allokiert  */
+/* sein: MindestgrÃ¶ÃŸe ist                                          */
 /*        (lambda_end - lambda_anf) / lambda_inc + 1               */
 /*                                                                 */
 /* mindeg muss >= 0 sein, andernfalls wird es gewaltsam auf 0      */
@@ -234,7 +234,7 @@ int kff_synthese_breitenkreis (double lambda_inc,
 /* Harmonische Synthese auf einem Breitenkreis rechnen             */
 /*                                                                 */
 /* Im Gegensatz zu kff_synthese_breitenkreis wird hier voraus-     */
-/* gesetzt, dass die Länge lambda aller Gitterpunkte jeweils ein   */
+/* gesetzt, dass die LÃ¤nge lambda aller Gitterpunkte jeweils ein   */
 /* ganzzahliges Vielfaches des Inkrementes lambda_inc              */
 /* 2 * pi / anz_mer und dass lambda = 360 Grad ein ganzzahliges    */
 /* Vielfaches von lambda_inc ist.                                  */
@@ -245,22 +245,22 @@ int kff_synthese_breitenkreis (double lambda_inc,
 /*                                       s_lm * sin (m*lambdar))   */
 /*                                                                 */
 /* Es wird von 0 <= lambda < 360 Grad gerechnet                    */
-/* Der Vektor f muss im aufrufenden Modul genügend groß allokiert  */
-/* sein: Mindestgröße ist anz_mer                                  */
+/* Der Vektor f muss im aufrufenden Modul genÃ¼gend groÃŸ allokiert  */
+/* sein: MindestgrÃ¶ÃŸe ist anz_mer                                  */
 /*                                                                 */
-/* Die Vektoren cos_la und sin_la müssen bereits die               */
+/* Die Vektoren cos_la und sin_la mÃ¼ssen bereits die               */
 /* Werte                                                           */
 /*          cos_la [k] = cos (k * lambda_inc)                      */
 /*          sin_la [k] = sin (k * lambda_inc)                      */
 /*                                                                 */
-/* für 0 <= k < anz_mer enthalten.                                 */
+/* fÃ¼r 0 <= k < anz_mer enthalten.                                 */
 /*                                                                 */
 /* mindeg muss >= 0 sein.                                          */
 /*                                                                 */
-/* Ist spiegel = 'S', so wird das Ergebnis nicht für die Breite    */
+/* Ist spiegel = 'S', so wird das Ergebnis nicht fÃ¼r die Breite    */
 /* phi berechnet, mit der die Legendre-Funktionen                  */
-/* berechnet wurden, sondern für die Breite -phi                   */
-/* ("Wert im symmetrisch zur Äquatorebene liegenden Punkt")        */
+/* berechnet wurden, sondern fÃ¼r die Breite -phi                   */
+/* ("Wert im symmetrisch zur Ã„quatorebene liegenden Punkt")        */
 /*                                                                 */
 /*******************************************************************/
 
@@ -279,22 +279,22 @@ int kff_synthese_bk_ng (int anz_mer,
 
 
 /*******************************************************************/
-/* Harmonische Synthese auf einem regelmäßigen Gitter rechnen      */
+/* Harmonische Synthese auf einem regelmÃ¤ÃŸigen Gitter rechnen      */
 /*                                                                 */
 /* f = sum_{l=mindeg}^maxdeg  *                                    */
 /*           sum_{m=0}^l leg_func_{l,m} (c_lm * cos (m*lambdar) +  */
 /*                                       s_lm * sin (m*lambdar))   */
 /*                                                                 */
 /* Winkelmass = 'A':                                               */
-/* winkel_inc, lambda_anf, lambda_end, phi_anf und phi_end müssen  */
+/* winkel_inc, lambda_anf, lambda_end, phi_anf und phi_end mÃ¼ssen  */
 /* in Altgrad mitgegeben werden                                    */
 /*                                                                 */
 /* Winkelmass = 'R':                                               */
-/* winkel_inc, lambda_anf, lambda_end, phi_anf und phi_end müssen  */
-/* im Bogenmaß mitgegeben werden                                   */
+/* winkel_inc, lambda_anf, lambda_end, phi_anf und phi_end mÃ¼ssen  */
+/* im BogenmaÃŸ mitgegeben werden                                   */
 /*                                                                 */
-/* Die Matrix f muss im aufrufenden Modul genügend groß allokiert  */
-/* sein: Mindestgröße ist                                          */
+/* Die Matrix f muss im aufrufenden Modul genÃ¼gend groÃŸ allokiert  */
+/* sein: MindestgrÃ¶ÃŸe ist                                          */
 /*       [(phi_end - phi_anf) / winkel_inc + 1] *                  */
 /*       [(lambda_end - lambda_anf) / winkel_inc + 1]              */
 /*                                                                 */

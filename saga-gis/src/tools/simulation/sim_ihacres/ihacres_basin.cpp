@@ -148,7 +148,7 @@ bool Cihacres_basin::On_Execute()
 		m_pTable->Set_Name(_TL("IHACRES_Basin_output"));
 		Parameters("TABLEout")->Set_Value(m_pTable);
 
-		delete[] m_pSubbasin; // sämtliche Unter-Pointer noch löschen
+		delete[] m_pSubbasin; // sÃ¤mtliche Unter-Pointer noch lÃ¶schen
 		delete[] m_p_pcpField;
 		delete[] m_p_tmpField;
 		delete m_p_linparms;

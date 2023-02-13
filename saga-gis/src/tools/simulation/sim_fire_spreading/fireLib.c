@@ -147,7 +147,7 @@ Fire_FuelCombustion (FuelCatalogPtr catalog, size_t model )
     if ( ! Fire_FuelModelExists(catalog,model) )
     {
         sprintf(FuelCat_Error(catalog),
-            "Fire_FuelCombustion(): el modelo de combustible %d no existe en el cat·logo de combuestibles \"%s\".",
+            "Fire_FuelCombustion(): el modelo de combustible %d no existe en el cat√°logo de combuestibles \"%s\".",
             model, FuelCat_Name(catalog));
         return (FuelCat_Status(catalog) = FIRE_STATUS_ERROR);
     }
@@ -422,7 +422,7 @@ Fire_SpreadNoWindNoSlope ( FuelCatalogPtr catalog, size_t model, double moisture
     if ( ! Fire_FuelModelExists(catalog,model) )
     {
         sprintf(FuelCat_Error(catalog),
-            "Fire_SpreadNoWindNoSlope(): el modelo de combustible %d no existe en el cat·logo de combustibles \"%s\".",
+            "Fire_SpreadNoWindNoSlope(): el modelo de combustible %d no existe en el cat√°logo de combustibles \"%s\".",
             model, FuelCat_Name(catalog));
         return (FuelCat_Status(catalog) = FIRE_STATUS_ERROR);
     }
@@ -647,7 +647,7 @@ Fire_SpreadWindSlopeMax ( FuelCatalogPtr catalog, size_t model, double windFpm, 
     if ( ! Fire_FuelModelExists(catalog,model) )
     {
         sprintf(FuelCat_Error(catalog),
-            "Fire_SpreadMax(): el modelo de combustible %d no existe en el cat·logo de combustibles \"%s\".",
+            "Fire_SpreadMax(): el modelo de combustible %d no existe en el cat√°logo de combustibles \"%s\".",
             model, FuelCat_Name(catalog));
         return (FuelCat_Status(catalog) = FIRE_STATUS_ERROR);
     }
@@ -853,7 +853,7 @@ Fire_SpreadAtAzimuth ( FuelCatalogPtr catalog, size_t model, double azimuth, siz
     if ( ! Fire_FuelModelExists(catalog,model) )
     {
         sprintf(FuelCat_Error(catalog),
-            "Fire_SpreadAtAzimuth(): el modelo de combustible %d no existe en el cat·logo de combustibles \"%s\".",
+            "Fire_SpreadAtAzimuth(): el modelo de combustible %d no existe en el cat√°logo de combustibles \"%s\".",
             model, FuelCat_Name(catalog));
         return (FuelCat_Status(catalog) = FIRE_STATUS_ERROR);
     }
@@ -995,7 +995,7 @@ Fire_FlameScorch ( FuelCatalogPtr catalog, size_t model, size_t which )
     if ( ! Fire_FuelModelExists(catalog,model) )
     {
         sprintf(FuelCat_Error(catalog),
-            "Fire_FlameScorch(): el modelo de combustible %d no existe en el cat·logo de combustibles \"%s\".",
+            "Fire_FlameScorch(): el modelo de combustible %d no existe en el cat√°logo de combustibles \"%s\".",
             model, FuelCat_Name(catalog));
         return (FuelCat_Status(catalog) = FIRE_STATUS_ERROR);
     }
@@ -1214,7 +1214,7 @@ Fire_FuelCatalogCreate ( char *name, size_t maxModels )
     if ( (catalog = (FuelCatalogPtr) malloc(sizeof(FuelCatalogData))) == NULL )
     {
         fprintf(stderr,
-            "Fire_FuelCatalogCreate(): imposible asignar el objeto \"%s\" del cat·logo de combustibles.\n",
+            "Fire_FuelCatalogCreate(): imposible asignar el objeto \"%s\" del cat√°logo de combustibles.\n",
             name);
         return (NULL);
     }
@@ -1226,7 +1226,7 @@ Fire_FuelCatalogCreate ( char *name, size_t maxModels )
     if ( (FuelCat_Name(catalog) = strdup(name)) == NULL )
     {
         fprintf(stderr,
-            "Fire_FuelCatalogCreate(): imposible duplicar el nombre \"%s\" del cat·logo de combustibles.\n",
+            "Fire_FuelCatalogCreate(): imposible duplicar el nombre \"%s\" del cat√°logo de combustibles.\n",
             name);
         free(catalog);
         return (NULL);
@@ -1237,7 +1237,7 @@ Fire_FuelCatalogCreate ( char *name, size_t maxModels )
         (char *) calloc(FIRE_ERROR_BUFFER_SIZE, sizeof(char))) == NULL )
     {
         fprintf(stderr,
-            "Fire_FuelCatalogCreate(): imposible asignar el bufer de error  \"%s\" del cat·logo de combustibles.\n",
+            "Fire_FuelCatalogCreate(): imposible asignar el bufer de error  \"%s\" del cat√°logo de combustibles.\n",
             name);
         free(FuelCat_Name(catalog));
         free(catalog);
@@ -1252,7 +1252,7 @@ Fire_FuelCatalogCreate ( char *name, size_t maxModels )
         calloc(FuelCat_MaxModels(catalog), sizeof(FuelModelPtr))) == NULL )
     {
         fprintf(stderr,
-            "Fire_FuelCatalogCreate(): imposible asignar \"%s\" con %d modelos de combustible del cat·logo de combustibles.\n",
+            "Fire_FuelCatalogCreate(): imposible asignar \"%s\" con %d modelos de combustible del cat√°logo de combustibles.\n",
             name, maxModels);
         free(FuelCat_Error(catalog));
         free(FuelCat_Name(catalog));
@@ -1563,7 +1563,7 @@ Fire_FuelModelCreate (FuelCatalogPtr catalog, size_t model, char *name, char *de
     {
         Fire_FuelModelDestroy(catalog, model);
         sprintf(FuelCat_Error(catalog),
-            "Fire_FuelModelCreate(): imposible asignar el modelos de combustible \"%s\" n˙mero %d para el cat·logo de combustibles \"%s\".",
+            "Fire_FuelModelCreate(): imposible asignar el modelos de combustible \"%s\" n√∫mero %d para el cat√°logo de combustibles \"%s\".",
             name, model, FuelCat_Name(catalog));
         return (FuelCat_Status(catalog) = FIRE_STATUS_ERROR);
     }
@@ -1629,7 +1629,7 @@ Fire_FuelModelDestroy ( FuelCatalogPtr catalog, size_t model )
     if ( ! Fire_FuelModelExists(catalog,model) )
     {
         sprintf(FuelCat_Error(catalog),
-            "Fire_FuelModelDestroy(): el modelo de combustible %d no existe en el cat·logo de combustibles \"%s\".",
+            "Fire_FuelModelDestroy(): el modelo de combustible %d no existe en el cat√°logo de combustibles \"%s\".",
             model, FuelCat_Name(catalog));
         return (FuelCat_Status(catalog) = FIRE_STATUS_ERROR);
     }
@@ -1743,7 +1743,7 @@ Fire_FuelParticleAdd ( FuelCatalogPtr catalog, size_t model, size_t type, double
     if ( ! Fire_FuelModelExists(catalog,model) )
     {
         sprintf(FuelCat_Error(catalog),
-            "Fire_FuelParticleAdd(): el modelo de combustible %d no existe en el cat·logo de combustibles \"%s\".",
+            "Fire_FuelParticleAdd(): el modelo de combustible %d no existe en el cat√°logo de combustibles \"%s\".",
             model, FuelCat_Name(catalog));
         return (FuelCat_Status(catalog) = FIRE_STATUS_ERROR);
     }
@@ -1765,7 +1765,7 @@ Fire_FuelParticleAdd ( FuelCatalogPtr catalog, size_t model, size_t type, double
         (PartPtr) calloc(1, sizeof(FuelParticleData))) == NULL )
     {
         sprintf(FuelCat_Error(catalog),
-            "Fire_FuelParticleAdd(): imposible asignar la partÌcula de combustible al modelo de combustible \"%s\" n˙mero %d en el cat·logo de combustibles \"%s\".",
+            "Fire_FuelParticleAdd(): imposible asignar la part√≠cula de combustible al modelo de combustible \"%s\" n√∫mero %d en el cat√°logo de combustibles \"%s\".",
             Fuel_Name(catalog,model), model, FuelCat_Name(catalog));
         return (FuelCat_Status(catalog) = FIRE_STATUS_ERROR);
     }

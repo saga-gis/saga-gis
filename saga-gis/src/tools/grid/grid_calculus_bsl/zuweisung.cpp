@@ -57,7 +57,7 @@ bool isZuweisung(const string& statement, BBZuweisung *&Z)
 	if (pos <= 0)
 		return false;
 
-	// erster Substring muß Variablen-Name sein
+	// erster Substring muÃŸ Variablen-Name sein
 	BBZuweisung::BBZuweisungTyp t;
 	BBMatrix *bbm;
 	BBBaumMatrixPoint *bbp;
@@ -66,7 +66,7 @@ bool isZuweisung(const string& statement, BBZuweisung *&Z)
 	BBTyp *b = isVar(sub1);
 	if (b == NULL)
 	{
-		// überprüfen, ob erster Token ein MatrixIndex (M[p]) ist
+		// Ã¼berprÃ¼fen, ob erster Token ein MatrixIndex (M[p]) ist
 		if (!isMatrixIndex(sub1, bbm, bbp))
 			return false;
 		else

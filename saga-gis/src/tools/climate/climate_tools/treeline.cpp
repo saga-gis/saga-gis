@@ -186,7 +186,7 @@ bool CCT_Growing_Season::Calculate(double SWC, double Latitude, double &Height, 
 //---------------------------------------------------------
 bool CCT_Growing_Season::is_Growing(double SWC, double Latitude, double Height)
 {
-	const double	lapsrate	= -0.0055;	// adiabatic air temperature decline coefficient [°K / m]
+	const double	lapsrate	= -0.0055;	// adiabatic air temperature decline coefficient [Â°K / m]
 
 	//-----------------------------------------------------
 	// 1. Temperature
@@ -296,15 +296,15 @@ CTree_Growth::CTree_Growth(void)
 		"Using the given thresholds a relative tree line height can optionally be estimated."
 	));
 
-	Add_Reference("Karger, D.N., Kessler, M., Conrad, O., Weigelt, P., Kreft, H., König, C., Zimmermann, N.E.", "2019",
+	Add_Reference("Karger, D.N., Kessler, M., Conrad, O., Weigelt, P., Kreft, H., KÃ¶nig, C., Zimmermann, N.E.", "2019",
 		"Why tree lines are lower on islands - Climatic and biogeographic effects hold the answer",
-		"Global Ecol. Biogeogr., 00:1–12.",
+		"Global Ecol. Biogeogr., 00:1â€“12.",
 		SG_T("https://doi.org/10.1111/geb.12897"), _TL("doi:10.1111/geb.12897")
 	);
 
-	Add_Reference("Paulsen, J. / Körner, C.", "2014",
+	Add_Reference("Paulsen, J. / KÃ¶rner, C.", "2014",
 		"A climate-based model to predict potential treeline position around the globe",
-		"Alpine Botany, 124:1, 1–12.",
+		"Alpine Botany, 124:1, 1â€“12.",
 		SG_T("https://doi.org/10.1007/s00035-014-0124-0"), _TL("doi:10.1007/s00035-014-0124-0")
 	);
 
@@ -574,9 +574,9 @@ CWater_Balance::CWater_Balance(void)
 		"Needed input is monthly data of mean, minimum, and maximum temperature as well as precipitation."
 	));
 
-	Add_Reference("Paulsen, J. / Körner, C.", "2014",
+	Add_Reference("Paulsen, J. / KÃ¶rner, C.", "2014",
 		"A climate-based model to predict potential treeline position around the globe",
-		"Alpine Botany, 124:1, 1–12.",
+		"Alpine Botany, 124:1, 1â€“12.",
 		SG_T("https://doi.org/10.1007/s00035-014-0124-0"), _TL("doi:10.1007/s00035-014-0124-0")
 	);
 
@@ -753,9 +753,9 @@ CWater_Balance_Interactive::CWater_Balance_Interactive(void)
 		"Needed input is monthly data of mean, minimum, and maximum temperature as well as precipitation."
 	));
 
-	Add_Reference("Paulsen, J. / Körner, C.", "2014",
+	Add_Reference("Paulsen, J. / KÃ¶rner, C.", "2014",
 		"A climate-based model to predict potential treeline position around the globe",
-		"Alpine Botany, 124:1, 1–12.",
+		"Alpine Botany, 124:1, 1â€“12.",
 		SG_T("https://doi.org/10.1007/s00035-014-0124-0"), _TL("doi:10.1007/s00035-014-0124-0")
 	);
 

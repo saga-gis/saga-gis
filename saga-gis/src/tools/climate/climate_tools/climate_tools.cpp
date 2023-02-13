@@ -95,7 +95,7 @@ double	CT_Get_Radiation_Daily_TopOfAtmosphere	(int DayOfYear, double Latitude, b
 * Crop evapotranspiration: guidelines for computing crop water requirements.
 * FAO Irrigation and Drainage Paper 56. FAO, Rome
 * http://www.fao.org/docrep/X0490E/x0490e07.htm#an%20alternative%20equation%20for%20eto%20when%20weather%20data%20are%20missing
-* T, Tmin, Tmax = temperatures [캜]
+* T, Tmin, Tmax = temperatures [째C]
 * R0 = extraterrestrial radiation [MJ/m2/day]
 */
 //---------------------------------------------------------
@@ -129,7 +129,7 @@ double	CT_Get_ETpot_Hargreave	(double T, double Tmin, double Tmax, int DayOfYear
 //---------------------------------------------------------
 /**
 * Daily potential evapotranspiration (ETpot) after Turc:
-* T  = daily mean of temperature [캜]
+* T  = daily mean of temperature [째C]
 * Rg = daily sum of global radiation [J/cm^2]
 * rH = daily mean relative humidity [%]
 * DVWK (1996): Ermittlung der Verdunstung von Land- u. Wasserflaechen. Merkblaetter 238/1996.
@@ -160,7 +160,7 @@ double	CT_Get_ETpot_Turc	(double T, double Rg, double rH)
 //---------------------------------------------------------
 /**
 * Daily potential evapotranspiration (ETpot) after Penman (simplified):
-* T  = daily mean of temperature [캜]
+* T  = daily mean of temperature [째C]
 * Rg = daily sum of global radiation [J/cm^2]
 * rH = daily mean relative humidity [%]
 * V  = daily mean of wind speed at 2m above ground [m/s]
@@ -181,7 +181,7 @@ double	CT_Get_ETpot_Penman	(double T, double Rg, double rH, double V, double S0)
 
 	// Latent heat of vaporization. As L varies only slightly over normal
 	// temperature ranges a single value of 2.45 MJ/kg is taken in the
-	// simplification of the FAO Penman-Monteith equation (T of about 20캜).
+	// simplification of the FAO Penman-Monteith equation (T of about 20째C).
 	const double	L	= 245.;	// Latent heat of vaporization [J/cm^2]
 
 	double	gT	= 2.3 * (T + 22.) / (T + 123.);
@@ -205,9 +205,9 @@ double	CT_Get_ETpot_Penman	(double T, double Rg, double rH, double V, int DayOfY
 //---------------------------------------------------------
 /**
 * Daily potential FAO grass reference evapotranspiration (ETpot) after Penman & Monteith:
-* T    = daily mean of temperature [캜]
-* Tmin = daily minimum of temperature [캜]
-* Tmax = daily maximum of temperature [캜]
+* T    = daily mean of temperature [째C]
+* Tmin = daily minimum of temperature [째C]
+* Tmax = daily maximum of temperature [째C]
 * Rg   = daily sum of global radiation [J/cm^2]
 * rH   = daily mean relative humidity [%]
 * V    = daily mean of wind speed at 2m above ground [m/s]
@@ -231,10 +231,10 @@ double	CT_Get_ETpot_FAORef	(double T, double Tmin, double Tmax, double Rg, doubl
 		P	*= pow(1. - (0.0065 * dZ / (273.15 + T)), 5.255);
 	}
 
-	// (3. 2) psychrometric constant [kPa/캜]
+	// (3. 2) psychrometric constant [kPa/째C]
 	double	y	= 0.000664742 * P;
 
-	// (3. 6) slope of saturation vapour pressure curve at air temperature T [kPa/캜]
+	// (3. 6) slope of saturation vapour pressure curve at air temperature T [kPa/째C]
 	double	A	= 4098. * (0.6108 * exp((17.27 * T) / (T + 237.3))) / SG_Get_Square(T + 237.3);
 
 	// (3. 4) saturation vapour pressure at the air temperature T [kPa]

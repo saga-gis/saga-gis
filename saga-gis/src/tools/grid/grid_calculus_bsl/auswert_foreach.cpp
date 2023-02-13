@@ -27,7 +27,7 @@ void ausfuehren_foreach(BBForEach& f)
 				//f.P->v.x = j;
 				//f.P->v.y = i;
 
-				// Anweisungen ausführen
+				// Anweisungen ausfÃ¼hren
 				ausfuehren_anweisung(f.z);
 			}
 		}
@@ -52,7 +52,7 @@ void ausfuehren_foreach(BBForEach& f)
 					f.N->v.x = vx;
 					f.N->v.y = vy;
 
-					// Anweisungen ausführen
+					// Anweisungen ausfÃ¼hren
 					ausfuehren_anweisung(f.z);
 				}
 			}

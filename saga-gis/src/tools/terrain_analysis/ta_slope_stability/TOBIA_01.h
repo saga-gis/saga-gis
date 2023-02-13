@@ -16,7 +16,7 @@
 //                      TOBIA_01.h                       //
 //                                                       //
 //                 Copyright (C) 2012 by                 //
-//                     Andreas Günther                   //
+//                     Andreas GÃ¼nther                   //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -41,7 +41,7 @@
 //                                                       //
 //    e-mail:     a.guenther@bgr.de                      //
 //                                                       //
-//    contact:    Andreas Günther                        //
+//    contact:    Andreas GÃ¼nther                        //
 //                B2.2								     //
 //                BGR				                     //
 //                Germany								 //

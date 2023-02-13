@@ -16,7 +16,7 @@
 //                    ANGMAP_01.cpp                      //
 //                                                       //
 //                 Copyright (C) 2013 by                 //
-//                     Andreas Günther                   //
+//                     Andreas GÃ¼nther                   //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -41,7 +41,7 @@
 //                                                       //
 //    e-mail:     a.guenther@bgr.de                      //
 //                                                       //
-//    contact:    Andreas Günther                        //
+//    contact:    Andreas GÃ¼nther                        //
 //                B2.2								     //
 //                BGR				                     //
 //                Germany                                //
@@ -97,11 +97,11 @@ CANGMAP::CANGMAP(void)
 		);	
 	
 	Parameters.Add_Value(
-		NULL, "fB", "Global structure dip (degrees)", "Constant value if no raster set", PARAMETER_TYPE_Double, 45.0			//Initialisierung eines fixen wertes vs Grid für dip
+		NULL, "fB", "Global structure dip (degrees)", "Constant value if no raster set", PARAMETER_TYPE_Double, 45.0			//Initialisierung eines fixen wertes vs Grid fÃ¼r dip
 		);
 
 	Parameters.Add_Value(
-		NULL, "fC", "Global structure dip direction (degrees)", "Constant value if no raster set", PARAMETER_TYPE_Double, 90.0			//Initialisierung eines fixen wertes vs Grid für dipdir
+		NULL, "fC", "Global structure dip direction (degrees)", "Constant value if no raster set", PARAMETER_TYPE_Double, 90.0			//Initialisierung eines fixen wertes vs Grid fÃ¼r dipdir
 		);
 
 	Parameters.Add_Grid(

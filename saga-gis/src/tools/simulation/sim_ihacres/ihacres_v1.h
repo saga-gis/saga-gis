@@ -29,7 +29,7 @@
 //*******************************************************//
 //                        ToDo                           //
 //-------------------------------------------------------//
-// - stürzt ab, wenn im zweiten Dialog auf Cancel gedrückt wird
+// - stÃ¼rzt ab, wenn im zweiten Dialog auf Cancel gedrÃ¼ckt wird
 //
 // - add NSE_highflow to output table
 // - wenn SingleStore, dann wird IHACRES_Sim output table nicht korrekt geschrieben
@@ -37,7 +37,7 @@
 // - implement 2 or n storages in series
 // - number of simulations for linear module
 // - choosing the number of Top simulations from non-linear module calibration
-// - Gültigkeitsbereiche auf Sinn prüfen
+// - GÃ¼ltigkeitsbereiche auf Sinn prÃ¼fen
 // - WriteTable1Storage
 // - Streamflow simulation function using n, m values
 // - if (bTMP) = false ???

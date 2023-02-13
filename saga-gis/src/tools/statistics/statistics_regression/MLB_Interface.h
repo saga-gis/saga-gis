@@ -74,7 +74,7 @@
 		SG_T("http://onlinelibrary.wiley.com/doi/10.1111/j.1538-4632.2003.tb01114.x/abstract"), SG_T("online"));\
 	Add_Reference("Fotheringham, S.A., Charlton, M., Brunsdon, C.", "1998",\
 		"Geographically weighted regression: a natural evolution of the expansion method for spatial data analysis",\
-		"Environment and Planning A 30(11), 1905–1927.",\
+		"Environment and Planning A 30(11), 1905â€“1927.",\
 		SG_T("http://www.envplan.com/abstract.cgi?id=a301905"), SG_T("online"));\
 	Add_Reference("Lloyd, C.", "2010",\
 		"Spatial Data Analysis - An Introduction for GIS Users",\

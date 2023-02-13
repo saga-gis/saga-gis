@@ -17,8 +17,8 @@
 /*****************************************************
  * Landsat Structures
  *
- * Lmax and Lmin in  W / (m^2 * sr * µm) -> Radiance
- * Esun in  W / (m^2 * µm)               -> Irradiance
+ * Lmax and Lmin in  W / (m^2 * sr * Âµm) -> Radiance
+ * Esun in  W / (m^2 * Âµm)               -> Irradiance
  ****************************************************/
 
 #define MAX_BANDS   11

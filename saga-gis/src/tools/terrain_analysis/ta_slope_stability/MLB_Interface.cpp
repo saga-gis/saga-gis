@@ -77,7 +77,7 @@ CSG_String Get_Info(int i)
 		return( _TL("Terrain Analysis") );
 
 	case TLB_INFO_Author:
-		return("A. Günther (c) 2012");
+		return("A. GÃ¼nther (c) 2012");
 
 	case TLB_INFO_Description:
 		return(_TW(

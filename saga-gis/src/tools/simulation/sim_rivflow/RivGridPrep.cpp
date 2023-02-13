@@ -75,14 +75,14 @@ CRivGridPrep::CRivGridPrep(void)
 	// Define your parameters list...
 
 	Parameters.Add_Grid(
-		NULL, "INPUT"	, "Gel‰ndemodell (DTM)",
-		"Digitales Gel‰ndemodell des Flusseinzugsgebietes",
+		NULL, "INPUT"	, "Gel√§ndemodell (DTM)",
+		"Digitales Gel√§ndemodell des Flusseinzugsgebietes",
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL, "OUTPUT"	, "HG Raster",
-		"Schrittweise Ausgabe der gew¸nschten Abflusspfade des Hauprgerinnerasters",
+		"Schrittweise Ausgabe der gew√ºnschten Abflusspfade des Hauprgerinnerasters",
 		PARAMETER_OUTPUT
 	); // Flussgrids [!=0] , keine Flussgrid [0]
 
@@ -100,20 +100,20 @@ CRivGridPrep::CRivGridPrep(void)
 	);
 
 	Parameters.Add_Value(
-		NULL, "MX"	, "Abflusspfad-M¸ndung, x-Wert",
-		"X-Wert des M¸ndungs-Rasterzelle",
+		NULL, "MX"	, "Abflusspfad-M√ºndung, x-Wert",
+		"X-Wert des M√ºndungs-Rasterzelle",
 		PARAMETER_TYPE_Int, 0, 0, true
 	);
 
 	Parameters.Add_Value(
-		NULL, "MY"	, "Abflusspfad-M¸ndung, y-Wert",
-		"Y-Wert des M¸ndungsRasterzelle",
+		NULL, "MY"	, "Abflusspfad-M√ºndung, y-Wert",
+		"Y-Wert des M√ºndungsRasterzelle",
 		PARAMETER_TYPE_Int, 0, 0, true
 	);
 
 	Parameters.Add_Value(
 		NULL, "Owrite", "Overwrite RiverGridCells",
-		"Bereits existierende RiverGridCells werden ¸berschrieben (Wenn nicht gesetzt: Abflusspfadende, wenn eine existierende RiverGridCell erreicht wird -> zB bei Fluss mit zwei Quellen sinnvoll).",
+		"Bereits existierende RiverGridCells werden √ºberschrieben (Wenn nicht gesetzt: Abflusspfadende, wenn eine existierende RiverGridCell erreicht wird -> zB bei Fluss mit zwei Quellen sinnvoll).",
 		PARAMETER_TYPE_Bool, false
 	);
 }
@@ -185,12 +185,12 @@ bool CRivGridPrep::Set_RivGridCells(int sx, int sy, int mx, int my )
 
 		if(i >= 0)
 		{
-			dist = dist + Get_Length(i);				//bisheriger FlusskilometerWert + Weg zur n‰chsten Gitterboxmitte (abh‰ngig ob Wasser diagonal oder rechtwinklig in n‰chste Gitterbox flieﬂt) am Ende der Gridbox wird in FlussGitterbox geschrieben (!=0) 
+			dist = dist + Get_Length(i);				//bisheriger FlusskilometerWert + Weg zur n√§chsten Gitterboxmitte (abh√§ngig ob Wasser diagonal oder rechtwinklig in n√§chste Gitterbox flie√üt) am Ende der Gridbox wird in FlussGitterbox geschrieben (!=0) 
 
 			x = Get_xTo(i, x);
 			y = Get_yTo(i, y);
 			
-			if(!Parameters("Owrite")->asBool() && m_pRivGridCells->asDouble(x,y) != 0) //falls "¸berschreiben" nicht gesetzt, bricht Funktion ab sobald ein Grid != 0 erreicht wird.
+			if(!Parameters("Owrite")->asBool() && m_pRivGridCells->asDouble(x,y) != 0) //falls "√ºberschreiben" nicht gesetzt, bricht Funktion ab sobald ein Grid != 0 erreicht wird.
 				return(true);
 			
 			if(x == mx && y == my)
@@ -201,7 +201,7 @@ bool CRivGridPrep::Set_RivGridCells(int sx, int sy, int mx, int my )
 				return (true);
 			}
 			else
-				m_pRivGridCells->Set_Value(x, y, dist);	//FlusskilometerWert der n‰chsten Gridbox(mitte) wird in n‰chste FlussGitterbox i (ix,iy) geschrieben (!=0)
+				m_pRivGridCells->Set_Value(x, y, dist);	//FlusskilometerWert der n√§chsten Gridbox(mitte) wird in n√§chste FlussGitterbox i (ix,iy) geschrieben (!=0)
 
 			DataObject_Update(m_pRivGridCells);
 		

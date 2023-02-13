@@ -69,7 +69,7 @@ CExercise_08::CExercise_08(void)
 	));
 
 	Add_Reference("Conrad, O.", "2007",
-		"SAGA - Entwurf, Funktionsumfang und Anwendung eines Systems f�r Automatisierte Geowissenschaftliche Analysen",
+		"SAGA - Entwurf, Funktionsumfang und Anwendung eines Systems für Automatisierte Geowissenschaftliche Analysen",
 		"ediss.uni-goettingen.de.", SG_T("http://hdl.handle.net/11858/00-1735-0000-0006-B26C-6"), SG_T("Online")
 	);
 
@@ -113,7 +113,7 @@ bool CExercise_08::On_Execute(void)
 	m_pArea	= Parameters("AREA")->asGrid();
 
 	m_pArea->Assign(0.);
-	m_pArea->Set_Unit("m^2");
+	m_pArea->Set_Unit("m²");
 
 	DataObject_Set_Colors(m_pArea, 100, SG_COLORS_WHITE_BLUE);
 

@@ -621,7 +621,7 @@ int CPit_Router::Find_Route(TPit_Outlet *pOutlet)
 
 
 			//---------------------------------------------
-			// 3.a) nach außen entwaessern...
+			// 3.a) nach auÃŸen entwaessern...
 
 			if( !m_pRoute->asChar(x,y) )
 			{

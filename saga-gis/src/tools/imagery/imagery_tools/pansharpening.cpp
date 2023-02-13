@@ -88,7 +88,7 @@ CPanSharp_IHS::CPanSharp_IHS(void)
 	Add_Reference("Haydn, R., Dalke, G. W., Henkel, J., Bare, J. E.", "1982",
 		"Application of the IHS color transform to the processing of multisensor data and image enhancement",
 		"Proceedings of the International Symposium on Remote Sensing of Arid and Semi-Arid Lands, "
-		"Cairo, Egypt (Environmental Research Institute, Ann Arbor, Mich., 1982), pp. 599–616."
+		"Cairo, Egypt (Environmental Research Institute, Ann Arbor, Mich., 1982), pp. 599â€“616."
 	);
 
 	//-----------------------------------------------------

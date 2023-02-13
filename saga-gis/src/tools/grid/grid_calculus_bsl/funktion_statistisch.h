@@ -39,7 +39,7 @@ public:
 
 class BBFunktion_resetStatistikDaten : public BBFunktion
 //
-// löscht den Vektor, von dem die Statistik berechnet wird
+// lÃ¶scht den Vektor, von dem die Statistik berechnet wird
 // 
 {
 public:

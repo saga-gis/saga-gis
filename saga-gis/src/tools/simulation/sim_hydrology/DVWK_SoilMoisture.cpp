@@ -395,7 +395,7 @@ double CDVWK_SoilMoisture::Get_Pi(int Day)
 	//		Pi	= N * kn
 	//
 	//		N		: Niederschlag gemessen [mm/d]
-	//		kn		: Korrekturfaktor ergibt sich aus den prozentualen Meﬂfehlern...
+	//		kn		: Korrekturfaktor ergibt sich aus den prozentualen Me√üfehlern...
 	//		Month	: 1=Jan, 2=Feb... 0=NA;
 	//
 

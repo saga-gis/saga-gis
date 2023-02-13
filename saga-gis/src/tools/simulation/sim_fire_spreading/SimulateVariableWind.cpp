@@ -44,10 +44,10 @@
 
 CSimulateVariableWind::CSimulateVariableWind(void){
 	
-	Set_Name		(_TL("Simulaci髇 (Viento variable)"));
+	Set_Name		(_TL("Simulaci贸n (Viento variable)"));
 
 	Set_Description	(_TW(
-		"(c) 2004 by Victor Olaya. Simulaci髇 con viento variable."
+		"(c) 2004 by Victor Olaya. Simulaci贸n con viento variable."
 	));
 
 	Parameters.Add_Grid(NULL, 
@@ -70,8 +70,8 @@ CSimulateVariableWind::CSimulateVariableWind(void){
 	
 	Parameters.Add_Grid_List(NULL, 
 							"WINDDIR", 
-							_TL("Direcci髇 del viento"), 
-							_TL("Direcci髇 del viento (grados desde el norte en sentido antihorario)"),
+							_TL("Direcci贸n del viento"), 
+							_TL("Direcci贸n del viento (grados desde el norte en sentido antihorario)"),
 							PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
@@ -94,13 +94,13 @@ CSimulateVariableWind::CSimulateVariableWind(void){
 
 	Parameters.Add_Grid(NULL, 
 						"MHERB", 
-						_TL("Humedad del combustible herb醕eo vivo"), 
+						_TL("Humedad del combustible herb谩ceo vivo"), 
 						_TL("Fraction (weight of water in sample / dry weight of sample)"), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"MWOOD", 
-						_TL("Humedad del combustible le駉so vivo"), 
+						_TL("Humedad del combustible le帽oso vivo"), 
 						_TL("Fraction (weight of water in sample / dry weight of sample)"), 
 						PARAMETER_INPUT);
 	
@@ -151,8 +151,8 @@ CSimulateVariableWind::CSimulateVariableWind(void){
 
 	Parameters.Add_Value(NULL, 
 						"DEFAULTWINDDIR", 
-						_TL("Direcci髇 del viento"), 
-						_TL("Direcci髇 del viento (grados desde el norte)"),
+						_TL("Direcci贸n del viento"), 
+						_TL("Direcci贸n del viento (grados desde el norte)"),
 						PARAMETER_TYPE_Double, 
 						0);
 
@@ -166,14 +166,14 @@ CSimulateVariableWind::CSimulateVariableWind(void){
 	Parameters.Add_Value(NULL, 
 						"COORDX", 
 						_TL("Coordenada X"), 
-						_TL("Coordenada X del punto de ignici髇 (s髄o si no se usa grid de puntos de ignici髇)"), 
+						_TL("Coordenada X del punto de ignici贸n (s贸lo si no se usa grid de puntos de ignici贸n)"), 
 						PARAMETER_TYPE_Double, 
 						0);
 
 	Parameters.Add_Value(NULL, 
 						"COORDY", 
 						_TL("Coordenada Y"), 
-						_TL("Coordenada Y del punto de ignici髇 (s髄o si no se usa grid de puntos de ignici髇)"), 
+						_TL("Coordenada Y del punto de ignici贸n (s贸lo si no se usa grid de puntos de ignici贸n)"), 
 						PARAMETER_TYPE_Double, 
 						0);
 
@@ -540,10 +540,10 @@ void CSimulateVariableWind::CreateReport(){
 	//	std::locale::global(spanish);
 		strftime(cDate, 80, "%#x", timeinfo);
 
-		sFile += "\t\t\t SIMULACI覰 realizada el ";
+		sFile += "\t\t\t SIMULACI脫N realizada el ";
 		sFile += cDate;
 		sFile += "\n\t\t ==============================================================================";
-		sFile += "\n\n\t Par醡etros de entrada\n";
+		sFile += "\n\n\t Par谩metros de entrada\n";
 		sFile += "\t --------------------------------\n\n";
 		sFile += "\t\t Modelos de combustible (por area) \n:  ";
 		for (i = 0; i < 12; i++){
@@ -560,33 +560,33 @@ void CSimulateVariableWind::CreateReport(){
 			sFile	+= SG_Get_String(i * m_fInterval, -1) + " min: " 
 					 + SG_Get_String(m_pMeanWindSpd[i]) + "Km/h\n";
 		}//for
-		sFile += "\t\t Direcci髇 del vector viento, desde el norte geogr醘ico: \n";
+		sFile += "\t\t Direcci贸n del vector viento, desde el norte geogr谩fico: \n";
 		for(i = 0; i < m_iWindDirGrids; i++){
 			sFile += "\t\t\t * ";
 			sFile += SG_Get_String(i * m_fInterval, -1) + " min: " 
-					+ SG_Get_String(m_pMeanWindDir[i]) + "篭n";
+					+ SG_Get_String(m_pMeanWindDir[i]) + "潞\n";
 		}//for
 
 		sFile += "\t\t Pendiente del terreno media: ";	sFile += SG_Get_String(m_fSlope) + " %\n";       
-		sFile += "\t\t Orientaci髇 del terreno: ";	sFile += SG_Get_String(m_fAspect) + "篭n";
+		sFile += "\t\t Orientaci贸n del terreno: ";	sFile += SG_Get_String(m_fAspect) + "潞\n";
 		sFile += "\t\t Foco de partida: X = ";	sFile += SG_Get_String(Parameters("COORDX")->asDouble()) + " / Y = "
 				+ SG_Get_String(Parameters("COORDY")->asDouble()) + "\n";
-		sFile += "\t\t Tiempo de simulaci髇: 3.0 h";
+		sFile += "\t\t Tiempo de simulaci贸n: 3.0 h";
 
-		sFile += "\n\n\t Resultado de la simulaci髇\n";
+		sFile += "\n\n\t Resultado de la simulaci贸n\n";
 		sFile += "\t --------------------------------\n\n";	
-		sFile += "\t\t Velocidad de propagaci髇: ";					sFile += SG_Get_String(m_fMeanSpeed) + " m/min\n";
+		sFile += "\t\t Velocidad de propagaci贸n: ";					sFile += SG_Get_String(m_fMeanSpeed) + " m/min\n";
 		sFile += "\t\t Calor por unidad de area: ";					sFile += SG_Get_String(m_fHeatPerUnitArea) + " kJ/m^2\n"; //revisar unidades!!
-		sFile += "\t\t Intensidad de la l韓ea de fuego: ";			sFile += SG_Get_String(m_fIntensity) + " kCal/m\n";
+		sFile += "\t\t Intensidad de la l铆nea de fuego: ";			sFile += SG_Get_String(m_fIntensity) + " kCal/m\n";
 		sFile += "\t\t Longitud de la llama: ";						sFile += SG_Get_String(m_fFlameHeight) + " m\n";
-		sFile += "\t\t Intensidad de reacci髇: ";					sFile += SG_Get_String(m_fReactionIntensity) + " kCal/m2\n";
+		sFile += "\t\t Intensidad de reacci贸n: ";					sFile += SG_Get_String(m_fReactionIntensity) + " kCal/m2\n";
 		sFile += "\t\t Velocidad efectiva del viento: ";			sFile += SG_Get_String(m_fEffectiveWind / KMH2FTMIN) + " Km/h\n";
-		sFile += "\t\t Direcci髇 de m醲ima propagaci髇, desde el norte geogr醘ico: ";	sFile += SG_Get_String(m_fMaxSpreadDir) + "篭n";
+		sFile += "\t\t Direcci贸n de m谩xima propagaci贸n, desde el norte geogr谩fico: ";	sFile += SG_Get_String(m_fMaxSpreadDir) + "潞\n";
 		sFile += "\t\t Area: ";										sFile += SG_Get_String(m_fArea / 10000) + " ha\n";
-		sFile += "\t\t Per韒etro: ";								sFile += SG_Get_String(m_fPerimeter) + "m\n";
-		//Raz髇 Longitud/Ancho:                   1.9
-		sFile += "\t\t Distancia de propagaci髇 hacia delante: ";	sFile += SG_Get_String(m_fFrontDistance) + " m\n";
-		sFile += "\t\t Distancia de propagaci髇 hacia atr醩: ";		sFile +=  SG_Get_String(m_fRearDistance) + " m\n";
+		sFile += "\t\t Per铆metro: ";								sFile += SG_Get_String(m_fPerimeter) + "m\n";
+		//Raz贸n Longitud/Ancho:                   1.9
+		sFile += "\t\t Distancia de propagaci贸n hacia delante: ";	sFile += SG_Get_String(m_fFrontDistance) + " m\n";
+		sFile += "\t\t Distancia de propagaci贸n hacia atr谩s: ";		sFile +=  SG_Get_String(m_fRearDistance) + " m\n";
 
 		CSG_File	file;
 

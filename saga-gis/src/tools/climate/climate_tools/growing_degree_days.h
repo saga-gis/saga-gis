@@ -38,7 +38,7 @@
 //                                                       //
 //    contact:    D.N. Karger                            //
 //                Swiss Federal Research Institute WSL   //
-//                Zürcherstrasse 111                     //
+//                ZÃ¼rcherstrasse 111                     //
 //                8930 Birmensdorf                       //
 //                Switzerland                            //
 //                                                       //

@@ -74,7 +74,7 @@
 //                                                       //
 //    e-mail:     sagamysql@ferhatbingol.com             //
 //                                                       //
-//    contact:    Ferhat Bingöl                          //
+//    contact:    Ferhat BingÃ¶l                          //
 //                                                       //
 ///////////////////////////////////////////////////////////
 

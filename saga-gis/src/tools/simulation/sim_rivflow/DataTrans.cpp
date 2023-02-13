@@ -131,7 +131,7 @@ bool CDataTrans::On_Execute(void)
 	
 		}
 		else 
-			Message_Dlg("Achtung, Anzahl der Einträge stimmt nicht überein");
+			Message_Dlg("Achtung, Anzahl der EintrÃ¤ge stimmt nicht Ã¼berein");
 	}
 
 

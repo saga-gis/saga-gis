@@ -173,7 +173,7 @@ bool isForEach(const string& ins, int& pos, BBForEach *& f, string& anweisungen)
 		else
 			return false;
 
-		if (!getNextToken(ins, pos, s)) // n‰chstes "of" holen
+		if (!getNextToken(ins, pos, s)) // n√§chstes "of" holen
 			return false;
 		trim(s);
 	} 

@@ -74,7 +74,7 @@
 //                                                       //
 //    e-mail:     sagamysql@ferhatbingol.com             //
 //                                                       //
-//    contact:    Ferhat Bingöl                          //
+//    contact:    Ferhat BingÃ¶l                          //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -107,7 +107,7 @@ const SG_Char *	Get_Info(int i)
 		return( _TL("Import/Export") );
 
 	case TLB_INFO_Author:
-		return( _TL("Ferhat Bingöl (c) 2009") );
+		return( _TL("Ferhat BingÃ¶l (c) 2009") );
 
 	case TLB_INFO_Description:
 		return( _TL("Database access through the libmysql.lib interface.") );

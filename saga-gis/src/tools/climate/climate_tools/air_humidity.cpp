@@ -59,8 +59,8 @@
 /**
 * Saturation pressure is calculated using the formulas according
 * to Lowe & Ficke (Method == 1) or Magnus after Sonntag (1990)
-* (default). Temperature has to be [°C] and should not be less
-* than -50°C.
+* (default). Temperature has to be [Â°C] and should not be less
+* than -50Â°C.
 */
 double	CT_Get_Vapor_Pressure_at_Saturation	(double T, int Method = 0)
 {
@@ -84,7 +84,7 @@ double	CT_Get_Vapor_Pressure_at_Saturation	(double T, int Method = 0)
 
 //---------------------------------------------------------
 /**
-* Estimates dew point temperature from actual temperature [°C]
+* Estimates dew point temperature from actual temperature [Â°C]
 * and water vapor pressure [hPa]. Method for saturation pressure
 * calculation is either Lowe & Ficke (Method == 1) or Magnus
 * (default).

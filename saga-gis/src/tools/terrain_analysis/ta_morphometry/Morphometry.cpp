@@ -765,7 +765,7 @@ void CMorphometry::Set_Tarboton(int x, int y)
 //      Proceedings of the IEEE, v. 69, no. 1, p 14-47.
 //
 // Beasley, D.B. and Huggins, L.F. 1982:
-//		ANSWERS: User’s manual.
+//		ANSWERS: Userâ€™s manual.
 //		U.S. EPA-905/9-82-001, Chicago, IL. 54pp.
 //
 // Costa-Cabral, M., and Burges, S.J., 1994:

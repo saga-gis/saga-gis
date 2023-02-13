@@ -68,7 +68,7 @@ using namespace std;
 
 //ACHTUNG
 //////////////////////////////////////////////////////////////////////
-//ACHTUNG: Bisher keine Fehlerroutine, die auf unterschiedlich große InputGrids im DateiOrdner hinweist -> moegliche Fehlerursache!!!
+//ACHTUNG: Bisher keine Fehlerroutine, die auf unterschiedlich groÃŸe InputGrids im DateiOrdner hinweist -> moegliche Fehlerursache!!!
 //////////////////////////////////////////////////////////////////////
 
 

@@ -515,12 +515,12 @@ inline double CErosion_LS_Fields::Get_LS(int x, int y, bool bFeet)
 
 	//-----------------------------------------------------
 	case  2: {	// Wischmeier and Smith
-		if( Slope > 0.0505 )	// >  ca. 3°
+		if( Slope > 0.0505 )	// >  ca. 3Â°
 		{
 			LS	= sqrt(SCA / 22.13)
 				* (65.41 * sin_Slope * sin_Slope + 4.56 * sin_Slope + 0.065);
 		}
-		else					// <= ca. 3°
+		else					// <= ca. 3Â°
 		{
 			LS	= pow (SCA / 22.13, 3. * pow(Slope, 0.6))
 				* (65.41 * sin_Slope * sin_Slope + 4.56 * sin_Slope + 0.065);

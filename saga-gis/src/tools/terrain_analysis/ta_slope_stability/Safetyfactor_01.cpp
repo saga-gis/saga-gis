@@ -16,7 +16,7 @@
 //                  Safetyfactor_01.cpp                  //
 //                                                       //
 //                 Copyright (C) 2012 by                 //
-//                     Andreas Günther                   //
+//                     Andreas GÃ¼nther                   //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,7 +40,7 @@
 //-------------------------------------------------------//
 //    e-mail:     a.guenther@bgr.de                      //
 //                                                       //
-//    contact:    Andreas Günther                        //
+//    contact:    Andreas GÃ¼nther                        //
 //                B2.2								     //
 //                BGR				                     //
 //                Germany                                //
@@ -80,7 +80,7 @@ CSafetyfactor::CSafetyfactor(void)
 	));
 
 	Parameters.Add_Grid(
-		NULL, "A", "Slope grid (rad)", "A slope angle grid (in radíans)", PARAMETER_INPUT
+		NULL, "A", "Slope grid (rad)", "A slope angle grid (in radÃ­ans)", PARAMETER_INPUT
 		);
 
 	Parameters.Add_Grid(
@@ -124,43 +124,43 @@ CSafetyfactor::CSafetyfactor(void)
 		);	
 	
 	Parameters.Add_Value(
-		NULL, "fBmin", "Min global thickness (m)", "Constant value if no raster set", PARAMETER_TYPE_Double, 1.0			//Initialisierung eines fixen wertes vs Grid für Mächtigkeit
+		NULL, "fBmin", "Min global thickness (m)", "Constant value if no raster set", PARAMETER_TYPE_Double, 1.0			//Initialisierung eines fixen wertes vs Grid fÃ¼r MÃ¤chtigkeit
 		);
 
 	Parameters.Add_Value(
-		NULL, "fBmax", "Max global thickness (m)", "Constant value if no raster set", PARAMETER_TYPE_Double, 1.0			//Initialisierung eines fixen wertes vs Grid für Mächtigkeit
+		NULL, "fBmax", "Max global thickness (m)", "Constant value if no raster set", PARAMETER_TYPE_Double, 1.0			//Initialisierung eines fixen wertes vs Grid fÃ¼r MÃ¤chtigkeit
 		);
 
 	Parameters.Add_Value(
-		NULL, "fCmin", "Min global saturation (-)", "Constant value if no raster set", PARAMETER_TYPE_Double, 0.0			//Initialisierung eines fixen wertes vs Grid für wetness
+		NULL, "fCmin", "Min global saturation (-)", "Constant value if no raster set", PARAMETER_TYPE_Double, 0.0			//Initialisierung eines fixen wertes vs Grid fÃ¼r wetness
 		);
 
 	Parameters.Add_Value(
-		NULL, "fCmax", "Max global saturation (-)", "Constant value if no raster set", PARAMETER_TYPE_Double, 0.0			//Initialisierung eines fixen wertes vs Grid für wetness
+		NULL, "fCmax", "Max global saturation (-)", "Constant value if no raster set", PARAMETER_TYPE_Double, 0.0			//Initialisierung eines fixen wertes vs Grid fÃ¼r wetness
 		);
 
 	Parameters.Add_Value(
-		NULL, "fDmin", "Min global friction (degree)", "Constant value if no raster set", PARAMETER_TYPE_Double, 33.0			//Initialisierung eines fixen wertes vs Grid für friction
+		NULL, "fDmin", "Min global friction (degree)", "Constant value if no raster set", PARAMETER_TYPE_Double, 33.0			//Initialisierung eines fixen wertes vs Grid fÃ¼r friction
 		);
 
 	Parameters.Add_Value(
-		NULL, "fDmax", "Max global friction (degree)", "Constant value if no raster set", PARAMETER_TYPE_Double, 33.0			//Initialisierung eines fixen wertes vs Grid für friction
+		NULL, "fDmax", "Max global friction (degree)", "Constant value if no raster set", PARAMETER_TYPE_Double, 33.0			//Initialisierung eines fixen wertes vs Grid fÃ¼r friction
 		);
 
 	Parameters.Add_Value(
-		NULL, "fEmin", "Min global density (g/cm3)", "Constant value if no raster set", PARAMETER_TYPE_Double, 1.6			//Initialisierung eines fixen wertes vs Grid für density
+		NULL, "fEmin", "Min global density (g/cm3)", "Constant value if no raster set", PARAMETER_TYPE_Double, 1.6			//Initialisierung eines fixen wertes vs Grid fÃ¼r density
 		);
 
 	Parameters.Add_Value(
-		NULL, "fEmax", "Max global density (g/cm3)", "Constant value if no raster set", PARAMETER_TYPE_Double, 1.6			//Initialisierung eines fixen wertes vs Grid für density
+		NULL, "fEmax", "Max global density (g/cm3)", "Constant value if no raster set", PARAMETER_TYPE_Double, 1.6			//Initialisierung eines fixen wertes vs Grid fÃ¼r density
 		);
 
 	Parameters.Add_Value(
-		NULL, "fFmin", "Min global cohesion (MPa)", "Constant value if no raster set", PARAMETER_TYPE_Double, 0.0			//Initialisierung eines fixen wertes vs Grid für Cohesion
+		NULL, "fFmin", "Min global cohesion (MPa)", "Constant value if no raster set", PARAMETER_TYPE_Double, 0.0			//Initialisierung eines fixen wertes vs Grid fÃ¼r Cohesion
 		);
 
 	Parameters.Add_Value(
-		NULL, "fFmax", "Max global cohesion (MPa)", "Constant value if no raster set", PARAMETER_TYPE_Double, 0.0			//Initialisierung eines fixen wertes vs Grid für Cohesion
+		NULL, "fFmax", "Max global cohesion (MPa)", "Constant value if no raster set", PARAMETER_TYPE_Double, 0.0			//Initialisierung eines fixen wertes vs Grid fÃ¼r Cohesion
 		);
 
 	Parameters.Add_Value(

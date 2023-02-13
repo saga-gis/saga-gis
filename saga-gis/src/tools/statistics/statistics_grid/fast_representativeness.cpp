@@ -83,7 +83,7 @@ CFast_Representativeness::CFast_Representativeness(void)
 		"\n"
 		"References:\n"
 		"Boehner, J., Selige, T., Ringeler, A. (2006): Image segmentation using representativeness analysis and region growing. "
-		"In: Boehner, J., McCloy, K.R., Strobl, J. [Eds.]:  SAGA – Analysis and Modelling Applications. "
+		"In: Boehner, J., McCloy, K.R., Strobl, J. [Eds.]:  SAGA â€“ Analysis and Modelling Applications. "
 		"Goettinger Geographische Abhandlungen, Vol.115, "
 		"<a href=\"http://downloads.sourceforge.net/saga-gis/gga115_03.pdf\">pdf</a>\n"
 	));

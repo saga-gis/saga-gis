@@ -214,7 +214,7 @@ CTC_Texture::CTC_Texture(void)
 	Add_Reference(
 		"Iwahashi, J. & Pike, R.J.", "2007",
 		"Automated classifications of topography from DEMs by an unsupervised nested-means algorithm and a three-part geometric signature",
-		"Geomorphology, Vol. 86, pp. 409–440."
+		"Geomorphology, Vol. 86, pp. 409â€“440."
 	);
 
 	//-----------------------------------------------------
@@ -326,7 +326,7 @@ CTC_Convexity::CTC_Convexity(void)
 	Add_Reference(
 		"Iwahashi, J. & Pike, R.J.", "2007",
 		"Automated classifications of topography from DEMs by an unsupervised nested-means algorithm and a three-part geometric signature",
-		"Geomorphology, Vol. 86, pp. 409–440."
+		"Geomorphology, Vol. 86, pp. 409â€“440."
 	);
 
 	//-----------------------------------------------------
@@ -473,7 +473,7 @@ CTC_Classification::CTC_Classification(void)
 	Add_Reference(
 		"Iwahashi, J. & Pike, R.J.", "2007",
 		"Automated classifications of topography from DEMs by an unsupervised nested-means algorithm and a three-part geometric signature",
-		"Geomorphology, Vol. 86, pp. 409–440."
+		"Geomorphology, Vol. 86, pp. 409â€“440."
 	);
 
 	//-----------------------------------------------------

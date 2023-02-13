@@ -36,7 +36,7 @@ namespace model_tools
 	// Calculate Nash-Sutcliff efficiency adapted to high flow
 	// Reference:
 	//	Liu and De Smedt, 2004. WetSpa Extension, 
-	//		A GIS-based Hydrologic Model for Flood Prediction and Watershed Management – 
+	//		A GIS-based Hydrologic Model for Flood Prediction and Watershed Management â€“ 
 	//		Documentation and User Manual. Brussels. Vrije Universiteit Brussel.
 	double			Calc_NSE_HighFlow(double *obs, double *sim, int nvals);
 	double			Calc_NSE_LowFlow (double *obs, double *sim, int nvals);

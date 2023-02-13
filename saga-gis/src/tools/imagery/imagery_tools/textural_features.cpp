@@ -112,7 +112,7 @@ CTextural_Features::CTextural_Features(void)
 
 	Add_Reference("Haralick, R.M.; Shanmugam, K.; Dinstein, I.", "1973",
 		"Textural Features for Image Classification",
-		"IEEE Transactions on Systems, Man, and Cybernetics. SMC-3 (6): 610–621.",
+		"IEEE Transactions on Systems, Man, and Cybernetics. SMC-3 (6): 610â€“621.",
 		SG_T("http://haralick.org/journals/TexturalFeatures.pdf"), SG_T("online")
 	);
 

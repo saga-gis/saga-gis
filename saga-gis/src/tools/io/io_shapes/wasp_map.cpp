@@ -168,7 +168,7 @@ bool CWASP_MAP_Export::On_Execute(void)
 				//				z0l z0r Z n
 
 
-				// 6–)	Cartesian coordinates (X, Y) of line described in 5a, 5b or 5c:
+				// 6â€“)	Cartesian coordinates (X, Y) of line described in 5a, 5b or 5c:
 				//			X1 Y1 [... Xn Yn]
 				//			Xn+1 Yn+1
 				//			... where [] embrace optional numbers and n is > 0
@@ -370,7 +370,7 @@ bool CWASP_MAP_Import::On_Execute(void)
 			}
 
 
-			// 6–)	Cartesian coordinates (X, Y) of line described in 5a, 5b or 5c:
+			// 6â€“)	Cartesian coordinates (X, Y) of line described in 5a, 5b or 5c:
 			//			X1 Y1 [... Xn Yn]
 			//			Xn+1 Yn+1
 			//			... where [] embrace optional numbers and n is > 0

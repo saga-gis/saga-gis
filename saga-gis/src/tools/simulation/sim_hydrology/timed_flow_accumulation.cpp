@@ -80,7 +80,7 @@ CTimed_Flow_Accumulation::CTimed_Flow_Accumulation(void)
 	);
 
 	Add_Reference("Freeman, G. E., Copeland, R. R., Rahmeyer, W., & Derrick, D. L.", "1998",
-		"Field Determination of Manning’s n Value for Shrubs and Woody Vegetation",
+		"Field Determination of Manningâ€™s n Value for Shrubs and Woody Vegetation",
 		"Engineering Approaches to Ecosystem Restoration.",
 		SG_T("https://doi.org/10.1061%2F40382%281998%297"), SG_T("doi:10.1061/40382(1998)7.")
 	);
@@ -93,7 +93,7 @@ CTimed_Flow_Accumulation::CTimed_Flow_Accumulation(void)
 
 	Add_Reference("Manning, R.", "1891",
 		"On the flow of water in open channels and pipes",
-		"Transactions of the Institution of Civil Engineers of Ireland. 20: 161–207."
+		"Transactions of the Institution of Civil Engineers of Ireland. 20: 161â€“207."
 	);
 
 	Add_Reference("O'Callaghan, J.F. & Mark, D.M.", "1984",
@@ -367,7 +367,7 @@ inline double CTimed_Flow_Accumulation::Get_R(int x, int y)
 
 //---------------------------------------------------------
 /**
-* k: the inverse Gauckler–Manning coefficient (k = 1 / n) [m^1/3 / sec]
+* k: the inverse Gaucklerâ€“Manning coefficient (k = 1 / n) [m^1/3 / sec]
 * R: hydraulic radius (here: flow depth) [m]
 * I: tangens of slope [m / m]
 */

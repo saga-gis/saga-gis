@@ -330,11 +330,11 @@ bool CSAGA_Wetness_Index::Get_Area(void)
 
 //---------------------------------------------------------
 // in den folgenden drei Schritten wird die gesaugte
-// Einzugsgebietsgroeﬂe CS ermittelt, wobei der t-Parameter
+// Einzugsgebietsgroe√üe CS ermittelt, wobei der t-Parameter
 // die Staerke der Saugung steuert. Werte unter 10 (z.B.  5)
 // fuehren zu einer starken Saugung, Werte ueber 10 (z.B. 15)
 // zu einer schwachen Saugung. Die gesaugte
-// Einzugsgebietsgroeﬂe selbst stellt bereits einen Parameter
+// Einzugsgebietsgroe√üe selbst stellt bereits einen Parameter
 // dar, der die raeumliche Relief-bedingte Feuchteverteilung
 // in guter Weise annaehert
 //---------------------------------------------------------
@@ -899,7 +899,7 @@ foreach p in UU do
 		{UU[p] = 0;}
 		}
 }
-// in den folgenden drei Schritten wird nach der "multiple flow methode" die Einzugsgebietsgroeﬂe C ermittelt //
+// in den folgenden drei Schritten wird nach der "multiple flow methode" die Einzugsgebietsgroe√üe C ermittelt //
 foreach p in Z do
 {Z[p] = 1;}
 foreach ploop in Loop do
@@ -916,7 +916,7 @@ foreach ploop in Loop do
 setRandN(Z);
 foreach p in C do
 {C[p] = Z[p] * O.dxy^2;}
-// in den folgenden drei Schritten wird die gesaugte Einzugsgebietsgroeﬂe CS ermittelt, wobei der t-Parameter die Staerke der Saugung steuert. Werte unter 10 (z.B.: 5) fuehren zu einer starken Saugung, Werte ueber 10 (z.B. 15) zu einer schwachen Saugung. Die gesaugte Einzugsgebietsgroeﬂe selbst stellt bereits einen Parameter Dar, der die raeumliche Relief-bedingte Feuchteverteilung in guter Weise annaehert //
+// in den folgenden drei Schritten wird die gesaugte Einzugsgebietsgroe√üe CS ermittelt, wobei der t-Parameter die Staerke der Saugung steuert. Werte unter 10 (z.B.: 5) fuehren zu einer starken Saugung, Werte ueber 10 (z.B. 15) zu einer schwachen Saugung. Die gesaugte Einzugsgebietsgroe√üe selbst stellt bereits einen Parameter Dar, der die raeumliche Relief-bedingte Feuchteverteilung in guter Weise annaehert //
 foreach p in X do
 {X[p] = C[p];}
 foreach ploop in Loop do

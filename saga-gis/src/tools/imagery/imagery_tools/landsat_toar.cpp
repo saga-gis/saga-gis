@@ -770,7 +770,7 @@ bool CLandsat_TOAR::On_Execute(void)
 			pOutput->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Temperature"));
 			pOutput->Set_Unit(_TL("Kelvin"));
 			pOutput->asGrid()->Set_NoData_Value(MaxVal);
-			pOutput->asGrid()->Set_Scaling(150.0 / (MaxVal - 1.0), 183.16);	// -90°C to 60°C
+			pOutput->asGrid()->Set_Scaling(150.0 / (MaxVal - 1.0), 183.16);	// -90Â°C to 60Â°C
 		}
 		else
 		{

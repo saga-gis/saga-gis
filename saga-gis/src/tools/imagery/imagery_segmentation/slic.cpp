@@ -75,13 +75,13 @@ CSLIC::CSLIC(void)
 		"Vedaldi and Fulkerson as part of the VLFeat library. "
 	));
 
-	Add_Reference("Achanta, R., Shaji, A., Smith, K., Lucchi, A., Fua, P., & Süsstrunk, S.", "2010",
+	Add_Reference("Achanta, R., Shaji, A., Smith, K., Lucchi, A., Fua, P., & SÃ¼sstrunk, S.", "2010",
 		"Slic Superpixels",
 		"EPFL Technical Report no. 149300, June 2010.",
 		SG_T("https://infoscience.epfl.ch/record/149300/files/SLIC_Superpixels_TR_2.pdf"), SG_T("epfl.ch")
 	);
 
-	Add_Reference("Achanta, R., Shaji, A., Smith, K., Lucchi, A., Fua, P., & Süsstrunk, S.", "2012",
+	Add_Reference("Achanta, R., Shaji, A., Smith, K., Lucchi, A., Fua, P., & SÃ¼sstrunk, S.", "2012",
 		"SLIC Superpixels compared to state-of-the-art superpixel methods",
 		"IEEE transactions on pattern analysis and machine intelligence, 34(11), 2274-2282.",
 		SG_T("https://ieeexplore.ieee.org/iel5/34/4359286/06205760.pdf"), SG_T("ieee.org")

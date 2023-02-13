@@ -80,7 +80,7 @@ private: ///// private members and functions: /////////////
 
 int sY, eY;
 int NX, NY;
-int m_pFvA; //Auswahlplatzhalter ob Wasserentnahme oder Wassernutzung berücksichtigt werden soll
+int m_pFvA; //Auswahlplatzhalter ob Wasserentnahme oder Wassernutzung berÃ¼cksichtigt werden soll
 
 CSG_String m_pDataFolder;
 CSG_String SPath;

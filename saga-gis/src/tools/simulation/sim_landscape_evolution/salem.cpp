@@ -1022,7 +1022,7 @@ CSaLEM::CSaLEM(void)
 	Parameters.Add_Node("", "DIFFUSIVE", _TL("Diffusive Hillslope Processes"), _TL(""));
 
 	Parameters.Add_Double("DIFFUSIVE",
-		"DIFFUSIVE_KD", _TL("Diffusivity Coefficient Kd [m^2/a]"),
+		"DIFFUSIVE_KD", _TL("Diffusivity Coefficient Kd [m²/a]"),
 		_TL(""),
 		0.01, 0.0, true
 	);

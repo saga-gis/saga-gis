@@ -71,7 +71,7 @@ CCliffMetrics_Tool::CCliffMetrics_Tool(void)
 
 	Add_Reference("Payo, A., Jigena Antelo, B., Hurst, M., Palaseanu-Lovejoy, M., Williams, C., Jenkins, G., Lee, K., Favis-Mortlock, D., Barkwith, A., Ellis, M.A.", "2018",
 		"Development of an automatic delineation of cliff top and toe on very irregular planform coastlines (CliffMetrics v1.0)",
-		"Geoscientific Model Development 11, 4317–4337.",
+		"Geoscientific Model Development 11, 4317â€“4337.",
 		SG_T("https://doi.org/10.5194/gmd-11-4317-2018"), SG_T("doi: 10.5194/gmd-11-4317-2018.")
 	);
 

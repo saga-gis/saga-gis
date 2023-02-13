@@ -108,7 +108,7 @@ private: ///// private members and functions: /////////////
 	CSG_Grid *m_pNumInFlow;
 	CSG_Grid *m_pSumCon;				//eigentliche Entnahme
 	CSG_Grid *m_pSumResCon;				//resultierende Entnahme 
-	CSG_Grid *m_pSumRemCon;				//nicht ber¸cksichtigte Entnahmen 
+	CSG_Grid *m_pSumRemCon;				//nicht ber√ºcksichtigte Entnahmen 
 	CSG_Grid *m_pTestR1Share;			//gesammtes Einzugsgebiet zu HG-Rasterzelle (x,y) der TestR1 Routine
 	CSG_Grid pWConsData;
 
@@ -138,12 +138,12 @@ private: ///// private members and functions: /////////////
 	int nG;
 	int NX;
 	int NY;
-	int dC;							//dayCounter - Tagesz‰hler [d]
-	int dDC;						//dayDataCounter - Datentag-Z‰hler [d] (1-365/366)
-	int mYC;						//MonthOfYear Monatsz‰hler (1-12)
-	int dMC;						//DayOfMonth Tagesz‰hler [d]			(1-28/29/30/31)
+	int dC;							//dayCounter - Tagesz√§hler [d]
+	int dDC;						//dayDataCounter - Datentag-Z√§hler [d] (1-365/366)
+	int mYC;						//MonthOfYear Monatsz√§hler (1-12)
+	int dMC;						//DayOfMonth Tagesz√§hler [d]			(1-28/29/30/31)
 	int m_pDDays;
-	int m_pTStep;					//Zeitschrittl‰nge dt
+	int m_pTStep;					//Zeitschrittl√§nge dt
 	int errC;
 	int errC2;
 	int errC3;
@@ -179,21 +179,21 @@ private: ///// private members and functions: /////////////
 	double vMaxCr;
 	double vMaxG;
 	double vMax;
-	double dT;						//daytimeCounter - Tageszeitz‰hler [s]
+	double dT;						//daytimeCounter - Tageszeitz√§hler [s]
 	double G0;
 	double C0;
-	double C0r;						//Parameter f¸r ChannelFlow im River [optional]
+	double C0r;						//Parameter f√ºr ChannelFlow im River [optional]
 	double pB;
-	double m_pCon;					//Fl‰chenbasierte Entnahmen (absoluter Wert)
+	double m_pCon;					//Fl√§chenbasierte Entnahmen (absoluter Wert)
 	double m_pConsFacAll;			//Entnahmefaktor aus Gitterboxen [%]/[dt]
 	double m_pConsFacRiv;			//Entnahmefaktor aus Fluss-Gitterboxen [%]/[dt]
 	double m_pRedFacR;				//Reduzierungsfaktor RunOff [%]/[dt]
 	double m_pRedFacD;				//Reduzierungsfaktor Drainage [%]/[dt]
-	double m_pHFlowFac;				//Weiterleitungsfaktor des Abfluss aus Gitterboxen in % des tats‰chlichen Abflusses
-	double m_pRFlowFac;				//Weiterleitungsfaktor des Fluss-Gitterboxen in % des tats‰chlichen Abflusses
-	double m_pVRFlowFac;			//reduzierter vertikaler Zufluss (Runnoff) in % des tats‰chlichen RunOff-Zuflusses
-	double m_pVDFlowFac;			//reduzierter vertikaler Zufluss (Drainage) in % des tats‰chlichen Drainage-Zuflusses
-	double m_pFlowFac;				//Abfrageplatzhalter f¸r m_pHFlowFac oder m_pRFlowFac
+	double m_pHFlowFac;				//Weiterleitungsfaktor des Abfluss aus Gitterboxen in % des tats√§chlichen Abflusses
+	double m_pRFlowFac;				//Weiterleitungsfaktor des Fluss-Gitterboxen in % des tats√§chlichen Abflusses
+	double m_pVRFlowFac;			//reduzierter vertikaler Zufluss (Runnoff) in % des tats√§chlichen RunOff-Zuflusses
+	double m_pVDFlowFac;			//reduzierter vertikaler Zufluss (Drainage) in % des tats√§chlichen Drainage-Zuflusses
+	double m_pFlowFac;				//Abfrageplatzhalter f√ºr m_pHFlowFac oder m_pRFlowFac
 	double m_pTest;
 	double stCons;
 	double varCons;
@@ -202,40 +202,40 @@ private: ///// private members and functions: /////////////
 	double SumDMonth;				//NUR Summe der Drainage-Werte des Einzugsgebietes eines Monats
 	double SumRD_SubBasin;			//Summe der Runoff und Drainage Werte eines SubBasin [TestRoutine 1]
 	double SumCon_SubBasin;			//Summe der beabsichtigten Entnahmen eines SubBasin [TestRoutine 1]
-	double SumResCon_SubBasin;		//Summe der tats‰chlichen Entnahmen eines SubBasin [TestRoutine 1]
-	double SumRemCon_SubBasin;		//Summe der nicht ber¸cksichtigten Entnahmen eines SubBasin [TestRoutine 1]
+	double SumResCon_SubBasin;		//Summe der tats√§chlichen Entnahmen eines SubBasin [TestRoutine 1]
+	double SumRemCon_SubBasin;		//Summe der nicht ber√ºcksichtigten Entnahmen eines SubBasin [TestRoutine 1]
 	double m_pTestR1;				//SpeicherVariable TestRoutine 1
 	double m_pTestR1m;				//SpeicherVariable TestRoutine 1
 	double m_pTestR1RDm;			//SpeicherVariable TestRoutine 1
 	double m_pTestR1Cm;				//SpeicherVariable TestRoutine 1
 	double m_pTestR1resCm;			//SpeicherVariable TestRoutine 1
 	double m_pTestR1remCm;			//SpeicherVariable TestRoutine 1
-	double m_pWConThres;			//Schwellenwert f¸r HG-Abfluss der auch bei Entnahmen nicht unterschritten werden soll
-	double m_pOffsetR;				//Offsetwert auf den vertikalen Zufluss 'RunOff' pro Rasterzelle in m≥/s
-	double m_pOffsetD;				//Offsetwert auf den vertikalen Zufluss 'Drainage' pro Rasterzelle in m≥/s
+	double m_pWConThres;			//Schwellenwert f√ºr HG-Abfluss der auch bei Entnahmen nicht unterschritten werden soll
+	double m_pOffsetR;				//Offsetwert auf den vertikalen Zufluss 'RunOff' pro Rasterzelle in m¬≥/s
+	double m_pOffsetD;				//Offsetwert auf den vertikalen Zufluss 'Drainage' pro Rasterzelle in m¬≥/s
 	
-	double WSystemDayWithd;			//Summe allen Wassers, dass dem WSystem pro Tag entnommen wird oder ¸ber Entnahmefaktor verloren geht
+	double WSystemDayWithd;			//Summe allen Wassers, dass dem WSystem pro Tag entnommen wird oder √ºber Entnahmefaktor verloren geht
 	double WSystem;					// Im System befindliches Wasser
-	double WSystemInit;				// Anf‰nglicher Speicherinhalt WSystem nach Speicherinitilisierung
+	double WSystemInit;				// Anf√§nglicher Speicherinhalt WSystem nach Speicherinitilisierung
 	double WSystemIn;				// Summe des Wassers was ins System gelangt (Drainage, RunOff)
-	double WSystemOut;				// Summe des Wassers welches das System verl‰ﬂt (Systemabfluss)
+	double WSystemOut;				// Summe des Wassers welches das System verl√§√üt (Systemabfluss)
 	double WSystemDayIn;			// Summe des Wassers was am jeweiligen Tag ins System gelangt (Drainage, RunOff)
-	double WSystemDayOut;			// Summe des Wassers welches am je weiligenTag das System verl‰ﬂt (Systemabfluss)
+	double WSystemDayOut;			// Summe des Wassers welches am je weiligenTag das System verl√§√üt (Systemabfluss)
 	
 	double RivBas;					// Im RivBasin befindliches Wasser
-	double RivBasInit;				// Anf‰nglicher Speicherinhalt RivBasin nach Speicherinitilisierung
+	double RivBasInit;				// Anf√§nglicher Speicherinhalt RivBasin nach Speicherinitilisierung
 	double RivBasIn;				// Summe des Wassers was ins RiverBasin gelangt (Drainage, RunOff)
-	double RivOut;					// Summe des Wassers welches das RiverBasin ¸ber den Fluss verl‰ﬂt (Flussabfluss)
+	double RivOut;					// Summe des Wassers welches das RiverBasin √ºber den Fluss verl√§√üt (Flussabfluss)
 	double RivBasDayIn;				// Summe des Wassers was am jeweiligen Tag ins RiverBasin gelangt (Drainage, RunOff)
-	double RivDayOut;				// Summe des Wassers welches am jeweiligen Tag das RiverBasin ¸ber den Fluss verl‰ﬂt (Flussabfluss)
-	double RivMonthOut;				// Summe des Wassers welches im jeweiligen Monat das RiverBasin ¸ber den Fluss verl‰ﬂt (Flussabfluss)
+	double RivDayOut;				// Summe des Wassers welches am jeweiligen Tag das RiverBasin √ºber den Fluss verl√§√üt (Flussabfluss)
+	double RivMonthOut;				// Summe des Wassers welches im jeweiligen Monat das RiverBasin √ºber den Fluss verl√§√üt (Flussabfluss)
 	double WCCache;					// Speicherabbild des Wassers in den Kaskaden Speichern
-	double RivBasSink;				// Summe allen Wasser das ¸ber dem Rechenzeitraum im RivBas in Senken verschwindet (gelˆscht wird)
-	double RivBasDayWithd;			// Summe allen Wassers, dass dem RivBasin pro Tag entnommen wird oder ¸ber Entnahmefaktor verloren geht
-	double RivBasConMonth;			// Summe der auftretenden Fl‰chenentnahmen innerhalb des gesamten Flusseinzugsgebietes pro Monat
-	double resRivBasConMonth;		// Summe der tats‰chlichen durchgef¸hrten Fl‰chenentnahmen innerhalb des gesamten Flusseinzugsgebietes pro Monat
+	double RivBasSink;				// Summe allen Wasser das √ºber dem Rechenzeitraum im RivBas in Senken verschwindet (gel√∂scht wird)
+	double RivBasDayWithd;			// Summe allen Wassers, dass dem RivBasin pro Tag entnommen wird oder √ºber Entnahmefaktor verloren geht
+	double RivBasConMonth;			// Summe der auftretenden Fl√§chenentnahmen innerhalb des gesamten Flusseinzugsgebietes pro Monat
+	double resRivBasConMonth;		// Summe der tats√§chlichen durchgef√ºhrten Fl√§chenentnahmen innerhalb des gesamten Flusseinzugsgebietes pro Monat
 	double remRivBasConMonth;		// Summe der Entnahmen die dem RivBasin nicht entnommen werden konnten (weil resFlow kleiner als m_pCon) pro Monat
-	double manWithd;				// Wasser das durch Rasterzellen Manipulation aus dem RivBasinSystem entfernt oder hinzugef¸gt wurde
+	double manWithd;				// Wasser das durch Rasterzellen Manipulation aus dem RivBasinSystem entfernt oder hinzugef√ºgt wurde
 
 	double ***kArray;				
 	double ***nCArray;				//Array von n-ChannelFlow-Speichern je (x,y) Koordinate

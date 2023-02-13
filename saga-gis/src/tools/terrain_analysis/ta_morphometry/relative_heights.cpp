@@ -242,8 +242,8 @@ bool CRelative_Heights::Get_Heights_Catchment(CSG_Grid *pDEM, CSG_Grid *pH, doub
 
 //---------------------------------------------------------
 // in den folgenden drei Schritten werden Maxima der
-// relativen Höhe H in Abhängigkeit der Neigung gesaugt.
-// Der e-Parameter steuert die stärke der Maximum-Streckung
+// relativen HÃ¶he H in AbhÃ¤ngigkeit der Neigung gesaugt.
+// Der e-Parameter steuert die stÃ¤rke der Maximum-Streckung
 
 //---------------------------------------------------------
 bool CRelative_Heights::Get_Heights_Modified(CSG_Grid *pDEM, CSG_Grid *pH, double t, double e)
@@ -416,17 +416,17 @@ double CRelative_Heights::Get_Local_Maximum(CSG_Grid *pGrid, int x, int y)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// auf Grundlage von HO und HU wird die Normierte Höhe
-// (NH) mit Höhenwerten zwischen minimal 0 (=unten) und
+// auf Grundlage von HO und HU wird die Normierte HÃ¶he
+// (NH) mit HÃ¶henwerten zwischen minimal 0 (=unten) und
 // maximal 1 (= oben) wie beim NDVI bestimmt. Die
-// Standardisierte Höhe SH streckt das Relief auf ein
-// Höhenspektrum zwischen theoretisch 0 (=unten) und
+// Standardisierte HÃ¶he SH streckt das Relief auf ein
+// HÃ¶henspektrum zwischen theoretisch 0 (=unten) und
 // dem Maximum der jeweiligen Scheitelbereiche, so dass
-// die ursprüngliche Reliefenergie erhalten bleibt.
-// Selbstverständlich muss für Anwendungen überprüft
-// werden, ob und welche relativen Höhen (HU, HO, SH)
+// die ursprÃ¼ngliche Reliefenergie erhalten bleibt.
+// SelbstverstÃ¤ndlich muss fÃ¼r Anwendungen Ã¼berprÃ¼ft
+// werden, ob und welche relativen HÃ¶hen (HU, HO, SH)
 // logarithmiert dargestellt werden. Als Beispiel ist
-// die Standardisierte Höhe logarithmiert berechnet (SHL)
+// die Standardisierte HÃ¶he logarithmiert berechnet (SHL)
 
 //---------------------------------------------------------
 bool CRelative_Heights::Get_Results(CSG_Grid *pDEM, CSG_Grid *pHO, CSG_Grid *pHU)
@@ -479,7 +479,7 @@ bool CRelative_Heights::Get_Results(CSG_Grid *pDEM, CSG_Grid *pHO, CSG_Grid *pHU
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//        The original BSL script by J.Böhner
+//        The original BSL script by J.BÃ¶hner
 //---------------------------------------------------------
 
 /*
@@ -533,10 +533,10 @@ m = 0;
 n = 0;
 o = 0;
 
-// Das gesamte Verfahren besteht aus zwei identischen Schritten zur Bestimmung von Höhe über Kulmination (HO) und Höhe unter Kulmination (HU). Für HO wird das DGM zunächst umgedreht //
+// Das gesamte Verfahren besteht aus zwei identischen Schritten zur Bestimmung von HÃ¶he Ã¼ber Kulmination (HO) und HÃ¶he unter Kulmination (HU). FÃ¼r HO wird das DGM zunÃ¤chst umgedreht //
 foreach p in M do
 {M[p] = -1 * O[p];}
-// hier wird eine Hilfsmatrix X erzeugt, die in der folgenden Schleife fafür sorgt, dass noch nicht attributisierte Rasterzellen in Ihrer Position identifiziert werden können //
+// hier wird eine Hilfsmatrix X erzeugt, die in der folgenden Schleife fafÃ¼r sorgt, dass noch nicht attributisierte Rasterzellen in Ihrer Position identifiziert werden kÃ¶nnen //
 foreach p in X do
 {	if (p.x == 0 || p.x == M.xanz - 1 || p.y == 0 || p.y == M.yanz - 1)
 	{X[p] = -10000;}
@@ -805,7 +805,7 @@ else
 	{Z[p] = wul + wll + wol + woo + wor + wrr + wur + wuu;}
 	}
 }}}}}}}}
-// hier werden Grids UL bis UU (im Uhrzeigersinn) erzeugt, die angeben, welchen Anteil des Inhalts einer benachbarten Rasterzelle in die Zielrasterzelle (zentrale Rasterzelle im 9er Feld) übergen wird //
+// hier werden Grids UL bis UU (im Uhrzeigersinn) erzeugt, die angeben, welchen Anteil des Inhalts einer benachbarten Rasterzelle in die Zielrasterzelle (zentrale Rasterzelle im 9er Feld) Ã¼bergen wird //
 foreach p in UL do
 {	if (p.x == 0 || p.y == 0)
 	{UL[p] = 0;}
@@ -886,7 +886,7 @@ foreach p in UU do
 		{UU[p] = 0;}
 		}
 }
-// in den folgenden drei Schritten wird nach der "multiple flow methode" die Einzugsgebietsgröße C ermittelt //
+// in den folgenden drei Schritten wird nach der "multiple flow methode" die EinzugsgebietsgrÃ¶ÃŸe C ermittelt //
 foreach p in Z do
 {Z[p] = 1;}
 foreach ploop in Loop do
@@ -903,7 +903,7 @@ foreach ploop in Loop do
 setRandN(Z);
 foreach p in C do
 {C[p] = Z[p] * M.dxy^2;}
-// in den folgenden zwei Schritten werden Gewichte umgekehrt-proportional zur Einzugsgebietsgröße nach der multiple flow methode aufsummiert. Der w-parameter steuert die stärke der Gewichtung //
+// in den folgenden zwei Schritten werden Gewichte umgekehrt-proportional zur EinzugsgebietsgrÃ¶ÃŸe nach der multiple flow methode aufsummiert. Der w-parameter steuert die stÃ¤rke der Gewichtung //
 foreach p in W do
 {W[p] = (1/C[p])^w;}
 foreach ploop in Loop do
@@ -918,7 +918,7 @@ foreach ploop in Loop do
 	{ploop.x = 100000;}
 }
 setRandN(W);
-// in den folgenden zwei Schritten werden Höhenwerte und Gewichte nach der multiple flow methode in der Matrix H aufsummiert, wobei lokale Maxima im Einzugsgebiet am stärksten in H eingehen. Der w-Parameter steuert die Stärke der Maximumgewichtung //
+// in den folgenden zwei Schritten werden HÃ¶henwerte und Gewichte nach der multiple flow methode in der Matrix H aufsummiert, wobei lokale Maxima im Einzugsgebiet am stÃ¤rksten in H eingehen. Der w-Parameter steuert die StÃ¤rke der Maximumgewichtung //
 foreach p in H do
 {H[p] = M[p] * (1/C[p])^w;}
 foreach ploop in Loop do
@@ -933,13 +933,13 @@ foreach ploop in Loop do
 	{ploop.x = 100000;}
 }
 setRandN(H);
-// im folgenden Schritt wird eine relative Höhe H über dem gewichteten arithmetischen Mittel der Einzugsgebietsgröße bestimmt //
+// im folgenden Schritt wird eine relative HÃ¶he H Ã¼ber dem gewichteten arithmetischen Mittel der EinzugsgebietsgrÃ¶ÃŸe bestimmt //
 foreach p in H do
 {	if (isRand(p, M) == 0)
 	{H[p] = -1 * (M[p] - H[p]/W[p]);}
 }
 setRandN(H);
-// in den folgenden drei Schritten werden Maxima der relativen Höhe H in Abhängigkeit der Neigung gesaugt. Der e-Parameter steuert die stärke der Maximum-Streckung //
+// in den folgenden drei Schritten werden Maxima der relativen HÃ¶he H in AbhÃ¤ngigkeit der Neigung gesaugt. Der e-Parameter steuert die stÃ¤rke der Maximum-Streckung //
 foreach p in X do
 {X[p] = H[p]^e;}
 foreach ploop in Loop do
@@ -976,7 +976,7 @@ m = 0;
 // hier wird das DGM nicht umgedreht //
 foreach p in M do
 {M[p] = O[p];}
-// hier wird eine Hilfsmatrix X erzeugt, die in der folgenden Schleife fafür sorgt, dass noch nicht attributisierte Rasterzellen in Ihrer Position identifiziert werden können //
+// hier wird eine Hilfsmatrix X erzeugt, die in der folgenden Schleife fafÃ¼r sorgt, dass noch nicht attributisierte Rasterzellen in Ihrer Position identifiziert werden kÃ¶nnen //
 foreach p in X do
 {	if (p.x == 0 || p.x == M.xanz - 1 || p.y == 0 || p.y == M.yanz - 1)
 	{X[p] = -10000;}
@@ -1245,7 +1245,7 @@ else
 	{Z[p] = wul + wll + wol + woo + wor + wrr + wur + wuu;}
 	}
 }}}}}}}}
-// hier werden Grids UL bis UU (im Uhrzeigersinn) erzeugt, die angeben, welchen Anteil des Inhalts einer benachbarten Rasterzelle in die Zielrasterzelle (zentrale Rasterzelle im 9er Feld) übergen wird //
+// hier werden Grids UL bis UU (im Uhrzeigersinn) erzeugt, die angeben, welchen Anteil des Inhalts einer benachbarten Rasterzelle in die Zielrasterzelle (zentrale Rasterzelle im 9er Feld) Ã¼bergen wird //
 foreach p in UL do
 {	if (p.x == 0 || p.y == 0)
 	{UL[p] = 0;}
@@ -1326,7 +1326,7 @@ foreach p in UU do
 		{UU[p] = 0;}
 		}
 }
-// in den folgenden drei Schritten wird nach der "multiple flow methode" die Einzugsgebietsgröße C ermittelt //
+// in den folgenden drei Schritten wird nach der "multiple flow methode" die EinzugsgebietsgrÃ¶ÃŸe C ermittelt //
 foreach p in Z do
 {Z[p] = 1;}
 foreach ploop in Loop do
@@ -1343,7 +1343,7 @@ foreach ploop in Loop do
 setRandN(Z);
 foreach p in C do
 {C[p] = Z[p] * M.dxy^2;}
-// in den folgenden zwei Schritten werden Gewichte umgekehrt-proportional zur Einzugsgebietsgröße nach der multiple flow methode aufsummiert. Der w-parameter steuert die stärke der Gewichtung //
+// in den folgenden zwei Schritten werden Gewichte umgekehrt-proportional zur EinzugsgebietsgrÃ¶ÃŸe nach der multiple flow methode aufsummiert. Der w-parameter steuert die stÃ¤rke der Gewichtung //
 foreach p in W do
 {W[p] = (1/C[p])^w;}
 foreach ploop in Loop do
@@ -1358,7 +1358,7 @@ foreach ploop in Loop do
 	{ploop.x = 100000;}
 }
 setRandN(W);
-// in den folgenden zwei Schritten werden Höhenwerte und Gewichte nach der multiple flow methode in der Matrix H aufsummiert, wobei lokale Maxima im Einzugsgebiet am stärksten in H eingehen. Der w-Parameter steuert die Stärke der Maximumgewichtung //
+// in den folgenden zwei Schritten werden HÃ¶henwerte und Gewichte nach der multiple flow methode in der Matrix H aufsummiert, wobei lokale Maxima im Einzugsgebiet am stÃ¤rksten in H eingehen. Der w-Parameter steuert die StÃ¤rke der Maximumgewichtung //
 foreach p in H do
 {H[p] = M[p] * (1/C[p])^w;}
 foreach ploop in Loop do
@@ -1373,13 +1373,13 @@ foreach ploop in Loop do
 	{ploop.x = 100000;}
 }
 setRandN(H);
-// im folgenden Schritt wird eine relative Höhe H über dem gewichteten arithmetischen Mittel der Einzugsgebietsgröße bestimmt //
+// im folgenden Schritt wird eine relative HÃ¶he H Ã¼ber dem gewichteten arithmetischen Mittel der EinzugsgebietsgrÃ¶ÃŸe bestimmt //
 foreach p in H do
 {	if (isRand(p, M) == 0)
 	{H[p] = -1 * (M[p] - H[p]/W[p]);}
 }
 setRandN(H);
-// in den folgenden drei Schritten werden Maxima der relativen Höhe H in Abhängigkeit der Neigung gesaugt. Der e-Parameter steuert die stärke der Maximum-Streckung //
+// in den folgenden drei Schritten werden Maxima der relativen HÃ¶he H in AbhÃ¤ngigkeit der Neigung gesaugt. Der e-Parameter steuert die stÃ¤rke der Maximum-Streckung //
 foreach p in X do
 {X[p] = H[p]^e;}
 foreach ploop in Loop do
@@ -1406,7 +1406,7 @@ foreach p in HU do
 setRandN (HU);
 showMatrix(HO);
 showMatrix(HU);
-// auf Grundlage von HO und HU wird die Normierte Höhe (NH) mit Höhenwerten zwischen minimal 0 (=unten) und maximal 1 (= oben) wie beim NDVI bestimmt. Die Standardisierte Höhe SH streckt das Relief auf ein Höhenspektrum zwischen theoretisch 0 (=unten) und dem Maximum der jeweiligen Scheitelbereiche, so dass die ursprüngliche Reliefenergie erhalten bleibt. Selbstverständlich muss für Anwendungen überprüft werden, ob und welche relativen Höhen (HU, HO, SH) logarithmiert dargestellt werden. Als Beispiel ist die Standardisierte Höhe logarithmiert berechnet (SHL) //
+// auf Grundlage von HO und HU wird die Normierte HÃ¶he (NH) mit HÃ¶henwerten zwischen minimal 0 (=unten) und maximal 1 (= oben) wie beim NDVI bestimmt. Die Standardisierte HÃ¶he SH streckt das Relief auf ein HÃ¶henspektrum zwischen theoretisch 0 (=unten) und dem Maximum der jeweiligen Scheitelbereiche, so dass die ursprÃ¼ngliche Reliefenergie erhalten bleibt. SelbstverstÃ¤ndlich muss fÃ¼r Anwendungen Ã¼berprÃ¼ft werden, ob und welche relativen HÃ¶hen (HU, HO, SH) logarithmiert dargestellt werden. Als Beispiel ist die Standardisierte HÃ¶he logarithmiert berechnet (SHL) //
 foreach p in NH do
 {NH[p] = 0.5 * (1 + ((HO[p] - HU[p])/(HO[p] + HU[p])));}
 showMatrix(NH);

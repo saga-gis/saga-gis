@@ -547,7 +547,7 @@ public:
 
 class BBFunktion_setRandN : public BBFunktion
 //
-// setRandN : setzt alle Randpunkte auf den nächsten Nachbarn
+// setRandN : setzt alle Randpunkte auf den nÃ¤chsten Nachbarn
 // 
 {
 public:
@@ -704,7 +704,7 @@ public:
 		if (args[2].ArgTyp.MP->typ != BBBaumMatrixPoint::MVar)
 			throw BBFehlerAusfuehren("Funktion >spline<");
 
-		// Übergabe-Parameter extrahieren
+		// Ãœbergabe-Parameter extrahieren
 		GridWerte *sourceGrid = args[0].ArgTyp.MP->k.M->M;
 		GridWerte *destGrid   = args[2].ArgTyp.MP->k.M->M;
 		double factor = auswert_float(*(args[1].ArgTyp.IF));
@@ -728,7 +728,7 @@ public:
 
 		Interpolation *I;
 		I = new QSpline(*sourceGrid);
-		I->setParams(0, 0, factor, x, y); // von 0,0 in factor-Schritten über x,y Punkte
+		I->setParams(0, 0, factor, x, y); // von 0,0 in factor-Schritten Ã¼ber x,y Punkte
 		I->interpol(*destGrid);
 		delete I;
 		destGrid->calcMinMax();

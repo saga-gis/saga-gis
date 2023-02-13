@@ -167,7 +167,7 @@ bool getLastCharKlammer(const string& statement, const string& cmp, char& c, int
 
 bool isKlammer(const string& statement)
 {
-	// klammer-Level z‰hlen
+	// klammer-Level z√§hlen
 	if (statement.empty())
 		return false;
 
@@ -190,11 +190,11 @@ bool isKlammer(const string& statement)
 
 bool isBiOperator(const string& statement, char& c, int& pos)
 {
-	// Klammern z‰hlen, da nur zwischen Klammer-Level NULL
+	// Klammern z√§hlen, da nur zwischen Klammer-Level NULL
 	// ein Operator stehen darf
 
-	// den Operator mit der niedrigsten Priorit‰t zuerst ausf¸hren, da er
-	// in der Baum-Struktur "oben" stehen muﬂ !
+	// den Operator mit der niedrigsten Priorit√§t zuerst ausf√ºhren, da er
+	// in der Baum-Struktur "oben" stehen mu√ü !
 	if (getFirstCharKlammer(statement, "+", c, pos))
 		return true;
 	if (getLastCharKlammer(statement, "-", c, pos))
@@ -220,7 +220,7 @@ bool isUniOperator(const string& statement, char& c)
 
 bool isMatrixIndex(const string& statement, BBMatrix *& bm, BBBaumMatrixPoint *& bp, bool getMem /* = true */)
 {
-	// wenn X[p] enth‰lt und X = Matrix und p = Point
+	// wenn X[p] enth√§lt und X = Matrix und p = Point
 	if (statement.empty())
 		return false;
 	string s(statement);
@@ -426,7 +426,7 @@ bool isFunktion (const string& statement, BBFktExe * & fktexe, bool getMem /* = 
 	}
 	else
 	{
-		// Argumente z‰hlen
+		// Argumente z√§hlen
 		// 1. Float/Integer lassen sich konvertieren
 		// 2. Matrix
 		// 3. Point
