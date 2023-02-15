@@ -73,12 +73,12 @@
 //---------------------------------------------------------
 CWKSP_Map_Layer::CWKSP_Map_Layer(CWKSP_Layer *pLayer)
 {
-	m_pLayer		= pLayer;
+	m_pLayer        = pLayer;
 
-	m_bShow			= true;
-	m_bProject		= false;
-	m_bProject_Area	= false;
-	m_bFitColors	= false;
+	m_bShow         = true;
+	m_bProject      = false;
+	m_bProject_Area = false;
+	m_bFitColors    = false;
 }
 
 
@@ -89,7 +89,7 @@ CWKSP_Map_Layer::CWKSP_Map_Layer(CWKSP_Layer *pLayer)
 //---------------------------------------------------------
 wxString CWKSP_Map_Layer::Get_Name(void)
 {
-	wxString	Name(m_pLayer->Get_Name());
+	wxString Name(m_pLayer->Get_Name().Trim(false));
 
 	return( !m_bShow ? "* " + Name : Name );
 }
