@@ -50,7 +50,7 @@ IF "%SAGA_LIBDIR%" == "" (
 
 IF "%VARSALL%" == "" (
 REM	SET "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat"
-	SET EXE_VARSALL="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat"
+	SET EXE_VARSALL="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat"
 )
 
 

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Base_Manager_H
 #define _HEADER_INCLUDED__SAGA_GUI__WKSP_Base_Manager_H
 
@@ -98,17 +86,17 @@ public:
 	virtual bool				On_Data_Deletion	(CSG_Data_Object *pObject);
 
 	bool						Move_Top			(CWKSP_Base_Item *pItem);
-	bool						Move_Bottom		(CWKSP_Base_Item *pItem);
-	bool						Move_Up			(CWKSP_Base_Item *pItem);
-	bool						Move_Down		(CWKSP_Base_Item *pItem);
-	bool						Move_To			(CWKSP_Base_Item *pItem, CWKSP_Base_Item *pItem_Dst);
+	bool						Move_Bottom			(CWKSP_Base_Item *pItem);
+	bool						Move_Up				(CWKSP_Base_Item *pItem);
+	bool						Move_Down			(CWKSP_Base_Item *pItem);
+	bool						Move_To				(CWKSP_Base_Item *pItem, CWKSP_Base_Item *pItem_Dst);
 
 
 protected:
 
-	bool						Add_Item		(CWKSP_Base_Item *pItem);
-	bool						Del_Item		(CWKSP_Base_Item *pItem);
-	bool						Del_Item		(int iItem);
+	bool						Add_Item			(CWKSP_Base_Item *pItem);
+	bool						Del_Item			(CWKSP_Base_Item *pItem);
+	bool						Del_Item			(int iItem);
 
 
 private:

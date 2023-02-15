@@ -70,6 +70,7 @@
 #include "wksp_data_control.h"
 #include "wksp_data_manager.h"
 #include "wksp_map_control.h"
+#include "wksp_map_manager.h"
 
 #include "wksp_base_manager.h"
 
@@ -156,7 +157,7 @@ bool CWKSP_Base_Manager::Del_Item(int iItem)
 
 bool CWKSP_Base_Manager::Del_Item(CWKSP_Base_Item *pItem)
 {
-	int	iItem	= pItem ? pItem->Get_Index() : -1;
+	int iItem = pItem ? pItem->Get_Index() : -1;
 
 	if( iItem >= 0 && iItem < m_nItems )
 	{
@@ -164,10 +165,10 @@ bool CWKSP_Base_Manager::Del_Item(CWKSP_Base_Item *pItem)
 
 		for( ; iItem<m_nItems; iItem++)
 		{
-			m_Items[iItem]	= m_Items[iItem + 1];
+			m_Items[iItem] = m_Items[iItem + 1];
 		}
 
-		m_Items	= (CWKSP_Base_Item **)realloc(m_Items, m_nItems * sizeof(CWKSP_Base_Item *));
+		m_Items = (CWKSP_Base_Item **)realloc(m_Items, m_nItems * sizeof(CWKSP_Base_Item *));
 
 		//-------------------------------------------------
 		switch( Get_Type() )
@@ -175,16 +176,20 @@ bool CWKSP_Base_Manager::Del_Item(CWKSP_Base_Item *pItem)
 		default:
 			break;
 
-		case WKSP_ITEM_Data_Manager:
+		case WKSP_ITEM_Map_Manager       :
+			g_pMaps->Reset_Numbering();
+			break;
+
+		case WKSP_ITEM_Data_Manager      :
 			g_pData->Del_Manager(pItem);
 			break;
 
-		case WKSP_ITEM_Table_Manager:
-		case WKSP_ITEM_Shapes_Type:
-		case WKSP_ITEM_TIN_Manager:
+		case WKSP_ITEM_Table_Manager     :
+		case WKSP_ITEM_Shapes_Type       :
+		case WKSP_ITEM_TIN_Manager       :
 		case WKSP_ITEM_PointCloud_Manager:
-		case WKSP_ITEM_Grid_Manager:
-		case WKSP_ITEM_Grid_System:
+		case WKSP_ITEM_Grid_Manager      :
+		case WKSP_ITEM_Grid_System       :
 			if( g_pActive )
 			{
 				g_pActive->Update_DataObjects();

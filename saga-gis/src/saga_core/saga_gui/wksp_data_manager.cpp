@@ -119,12 +119,21 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_pMenu_Files	= new CWKSP_Data_Menu_Files;
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Node("",
-		"NODE_GENERAL"			, _TL("General"),
-		_TL("")
+	m_Parameters.Add_Bool (""          , "THUMBNAILS"        , _TL("Thumbnails"     ), _TL(""), true);
+	m_Parameters.Add_Int  ("THUMBNAILS", "THUMBNAIL_SIZE"    , _TL("Size"           ), _TL(""), 50, 10, true);
+	m_Parameters.Add_Color("THUMBNAILS", "THUMBNAIL_SELCOLOR", _TL("Selection Color"), _TL(""), Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW)));
+	m_Parameters.Add_Bool ("THUMBNAILS", "THUMBNAIL_CATEGORY", _TL("Show Categories"), _TL(""), true);
+
+	m_Parameters.Add_Bool("",
+		"SHOW_FILE_SOURCES"		, _TL("Show Data File Source Browser"),
+		_TL("Show data sources tab for file system. Disabling might speed up start-up. Changes take effect after restart."),
+		true
 	);
 
-	m_Parameters.Add_Choice("NODE_GENERAL",
+	//-----------------------------------------------------
+	m_Parameters.Add_Node("", "NODE_PROJECT", _TL("Projects"), _TL(""));
+
+	m_Parameters.Add_Choice("NODE_PROJECT",
 		"PROJECT_START"			, _TL("Startup Project"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s",
@@ -134,22 +143,29 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 		), 2
 	);
 
-	m_Parameters.Add_Choice("NODE_GENERAL",
-		"PROJECT_MAP_ARRANGE"	, _TL("Map Window Arrangement"),
-		_TL("initial map window arrangement after a project is loaded"),
-		CSG_String::Format("%s|%s|%s|%s",
+	m_Parameters.Add_Choice("NODE_PROJECT",
+		"PROJECT_MAP_ARRANGE", _TL("Map Window Arrangement"),
+		_TL("Initial map window arrangement after a project has been loaded."),
+		#ifdef _SAGA_MSW
+		CSG_String::Format("%s|%s|%s|%s|%s",
 			_TL("Cascade"),
 			_TL("Tile Horizontally"),
 			_TL("Tile Vertically"),
-			_TL("Maximized")
+			_TL("Maximized"),
+			_TL("Don't Restore")
 		), 2
+		#else
+		CSG_String::Format("%s|%s",
+			_TL("Open Map Windows"),
+			_TL("Don't Open Map Windows")
+		), 0
+		#endif
 	);
 
-#ifndef _SAGA_MSW
-	m_Parameters.Set_Enabled("PROJECT_MAP_ARRANGE", false);
-#endif
+	//-----------------------------------------------------
+	m_Parameters.Add_Node("", "NODE_DB", _TL("Databases"), _TL(""));
 
-	m_Parameters.Add_Choice("NODE_GENERAL",
+	m_Parameters.Add_Choice("NODE_DB",
 		"PROJECT_DB_REOPEN"		, _TL("Reopen Database Connections"),
 		_TL("Reopen PostgreSQL database connections. Warning: if set to true account information including unencrypted passwords for automatic connection will be stored."),
 		CSG_String::Format("%s|%s",
@@ -164,27 +180,13 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 		2, 0, true
 	);
 
-	m_Parameters.Add_Bool("NODE_GENERAL",
-		"SHOW_FILE_SOURCES"		, _TL("Show Data File Sources"),
-		_TL("Show data sources tab for file system. Disabling might speed up start-up. Changes take effect after restart."),
-		true
-	);
-
 	//-----------------------------------------------------
-	m_Parameters.Add_Node ("NODE_GENERAL"   , "NODE_THUMBNAILS"   , _TL("Thumbnails"     ), _TL(""));
-	m_Parameters.Add_Int  ("NODE_THUMBNAILS", "THUMBNAIL_SIZE"    , _TL("Thumbnail Size" ), _TL(""), 50, 10, true);
-	m_Parameters.Add_Bool ("NODE_THUMBNAILS", "THUMBNAIL_CATEGORY", _TL("Show Categories"), _TL(""), true);
-	m_Parameters.Add_Color("NODE_THUMBNAILS", "THUMBNAIL_SELCOLOR", _TL("Selection Color"), _TL(""), Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW)));
-
-	//-----------------------------------------------------
-	m_Parameters.Add_Node("", "NODE_DATA", _TL("Data"),
-		_TL("")
-	);
+	m_Parameters.Add_Node("", "NODE_DATA", _TL("Data"), _TL(""));
 
 	m_Parameters.Add_Int("NODE_DATA",
-		"NUMBERING"				, _TL("Numbering of Data Sets"),
-		_TL("Leading zeros for data set numbering. Set to -1 for not using numbers at all."),
-		m_Numbering = 2, -1, true
+		"NUMBERING"				, _TL("Data Set Numeration"),
+		_TL("Minimum width of data set numbering. If set to 0 no numbering is applied at all. Negative values will prepend zeros. Numbering helps in data set sorting and selection."),
+		3
 	);
 
 	m_Parameters.Add_Bool("NODE_DATA",
@@ -234,20 +236,16 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Node("",
-		"NODE_GRID"				, _TL("Grids"),
-		_TL("")
-	);
+	m_Parameters.Add_Node("", "NODE_GRID", _TL("Grids"), _TL(""));
 
 	m_Parameters.Add_Choice("NODE_GRID",
 		"GRID_FMT_DEFAULT"		, _TL("Default Output Format"),
 		_TL(""),
-		CSG_String::Format("%s (*.sg-grd-z)|%s (*.sg-grd)|%s (*.sgrd)|%s (*.tif)",
+		CSG_String::Format("%s (*.sg-grd-z)|%s (*.sg-grd)|%s (*.tif)",
 			_TL("SAGA Compressed Grid Files"),
 			_TL("SAGA Grid Files"),
-			_TL("SAGA Grid Files (old extension)"),
 			_TL("GeoTIFF")
-		), 2
+		), 0
 	);
 
 	m_Parameters.Add_Int("NODE_GRID",
@@ -256,14 +254,12 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 		10, 0, true
 	);
 
-	//-----------------------------------------------------
 	m_Parameters.Add_Int("NODE_GRID",
 		"GRID_SELECT_MAX"		, _TL("Maximum Selection"),
 		_TL("Maximum number of rows/columns in selection of grid cells."),
 		100, 1, true
 	);
 
-	//-----------------------------------------------------
 	m_Parameters.Add_Choice("NODE_GRID",
 		"GRID_CACHE_MODE"		, _TL("File Cache"),
 		_TL("Activate file caching automatically, if memory size exceeds the threshold value."),
@@ -287,10 +283,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Node("",
-		"NODE_TABLE"			, _TL("Tables"),
-		_TL("")
-	);
+	m_Parameters.Add_Node("", "NODE_TABLE", _TL("Tables"), _TL(""));
 
 	m_Parameters.Add_Choice("NODE_TABLE",
 		"TABLE_FLT_STYLE"		, _TL("Floating Point Numbers"),
@@ -309,10 +302,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Node("",
-		"NODE_SHAPES"			, _TL("Shapes"),
-		_TL("")
-	);
+	m_Parameters.Add_Node("", "NODE_SHAPES", _TL("Shapes"), _TL(""));
 
 	m_Parameters.Add_Choice("NODE_SHAPES",
 		"SHAPES_FMT_DEFAULT"	, _TL("Default Output Format"),
@@ -342,8 +332,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	{
 	default: SG_Grid_Set_File_Format_Default(GRID_FILE_FORMAT_Compressed); break;
 	case  1: SG_Grid_Set_File_Format_Default(GRID_FILE_FORMAT_Binary    ); break;
-	case  2: SG_Grid_Set_File_Format_Default(GRID_FILE_FORMAT_Binary_old); break;
-	case  3: SG_Grid_Set_File_Format_Default(GRID_FILE_FORMAT_GeoTIFF   ); break;
+	case  2: SG_Grid_Set_File_Format_Default(GRID_FILE_FORMAT_GeoTIFF   ); break;
 	}
 
 	switch( m_Parameters("SHAPES_FMT_DEFAULT")->asInt() )
@@ -352,8 +341,6 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	case  1: SG_Shapes_Set_File_Format_Default(SHAPE_FILE_FORMAT_GeoPackage); break;
 	case  2: SG_Shapes_Set_File_Format_Default(SHAPE_FILE_FORMAT_GeoJSON   ); break;
 	}
-
-	m_Numbering	= m_Parameters("NUMBERING")->asInt();
 }
 
 //---------------------------------------------------------
@@ -741,8 +728,7 @@ void CWKSP_Data_Manager::Parameters_Changed(void)
 	{
 	default: SG_Grid_Set_File_Format_Default(GRID_FILE_FORMAT_Compressed); break;
 	case  1: SG_Grid_Set_File_Format_Default(GRID_FILE_FORMAT_Binary    ); break;
-	case  2: SG_Grid_Set_File_Format_Default(GRID_FILE_FORMAT_Binary_old); break;
-	case  3: SG_Grid_Set_File_Format_Default(GRID_FILE_FORMAT_GeoTIFF   ); break;
+	case  2: SG_Grid_Set_File_Format_Default(GRID_FILE_FORMAT_GeoTIFF   ); break;
 	}
 
 	switch( m_Parameters("SHAPES_FMT_DEFAULT")->asInt() )
@@ -752,9 +738,7 @@ void CWKSP_Data_Manager::Parameters_Changed(void)
 	case  2: SG_Shapes_Set_File_Format_Default(SHAPE_FILE_FORMAT_GeoJSON   ); break;
 	}
 
-	m_Numbering	= m_Parameters("NUMBERING")->asInt();
-
-	g_pData_Buttons->Update_Buttons();
+	if( g_pData_Buttons ) { g_pData_Buttons->Update_Buttons(); }
 
 	CWKSP_Base_Manager::Parameters_Changed();
 }
@@ -770,11 +754,31 @@ int CWKSP_Data_Manager::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_VALUES )
 	{
+		if( g_pSAGA_Frame && g_pData )
+		{
+			if( pParameter->Cmp_Identifier("THUMBNAILS") )
+			{
+				if( DLG_Message_Confirm(_TL("Close now ?"), _TL("Restart SAGA to apply the changes")) )
+				{
+					m_Parameters.Assign_Values(pParameters);
+
+					if( g_pData->Close(true) )
+					{
+						g_pSAGA_Frame->Close();
+					}
+				}
+			}
+		}
 	}
 
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
+		if(	pParameter->Cmp_Identifier("THUMBNAILS") )
+		{
+			pParameter->Set_Children_Enabled(pParameter->asBool());
+		}
+
 		if(	pParameter->Cmp_Identifier("GRID_CACHE_MODE") )
 		{
 			pParameters->Set_Enabled("GRID_CACHE_THRSHLD", pParameter->asInt() != 0);

@@ -396,10 +396,12 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 			}
 		}
 
+		#ifdef _SAGA_MSW
 		if( g_pMaps->Get_Count() > 1 )
 		{
 			switch( g_pData->Get_Parameter("PROJECT_MAP_ARRANGE")->asInt() )
 			{
+		//	case 0:	g_pSAGA_Frame->Cascade();          break;
 			case 1:	g_pSAGA_Frame->Tile(wxHORIZONTAL); break;
 			case 2:	g_pSAGA_Frame->Tile(wxVERTICAL  ); break;
 			case 3:
@@ -414,6 +416,7 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 		{
 			g_pSAGA_Frame->GetActiveChild()->Maximize();
 		}
+		#endif
 
 		g_pSAGA_Frame->Thaw();
 	}
@@ -814,10 +817,19 @@ bool CWKSP_Project::_Save_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 //---------------------------------------------------------
 bool CWKSP_Project::_Load_Map(CSG_MetaData &Entry, const wxString &ProjectDir)
 {
-	CWKSP_Map	*pMap	= new CWKSP_Map;
+	CWKSP_Map *pMap = new CWKSP_Map;
 
 	if( g_pMaps->Add(pMap) && pMap->Serialize(Entry, ProjectDir, false) )
 	{
+		#ifdef _SAGA_MSW
+		if( g_pData->Get_Parameter("PROJECT_MAP_ARRANGE")->asInt() != 4 )
+		#else
+		if( g_pData->Get_Parameter("PROJECT_MAP_ARRANGE")->asInt() != 1 )
+		#endif
+		{
+			pMap->View_Show(true);
+		}
+
 		return( true );
 	}
 
@@ -936,11 +948,13 @@ bool CWKSP_Project::_Compatibility_Load_Data(const wxString &FileName)
 		while( _Compatibility_Load_Map(Stream, SG_File_Get_Path(&FileName).w_str()) );
 	}
 
+	#ifdef _SAGA_MSW
 	switch( g_pData->Get_Parameter("PROJECT_MAP_ARRANGE")->asInt() )
 	{
 	case 1:	g_pSAGA_Frame->Tile(wxHORIZONTAL);	break;
 	case 2:	g_pSAGA_Frame->Tile(wxVERTICAL  );	break;
 	}
+	#endif
 
 	g_pSAGA_Frame->Thaw();
 

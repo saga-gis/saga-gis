@@ -844,10 +844,7 @@ bool CWKSP_Layer::_Set_Thumbnail(bool bRefresh)
 
 		dc.SelectObject(wxNullBitmap);
 
-		if( bRefresh )
-		{
-			g_pData_Buttons->Refresh(false);
-		}
+		if( bRefresh && g_pData_Buttons ) { g_pData_Buttons->Refresh(false); }
 
 		return( true );
 	}

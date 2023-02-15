@@ -87,6 +87,7 @@ public:
 	virtual bool				On_Command			(int Cmd_ID);
 
 	virtual void				Parameters_Changed	(void);
+	virtual int					On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
 
 	class CWKSP_Map *			Get_Map				(int i)		{	return( (class CWKSP_Map *)Get_Item(i) );	}
 
@@ -100,6 +101,9 @@ public:
 	bool						Del					(class CWKSP_Layer *pLayer);
 	bool						Update				(class CWKSP_Layer *pLayer, bool bMapsOnly);
 
+	bool						Reset_Numbering		(void);
+	wxString					Get_Numbering		(void);
+
 	void						Set_Extents			(const TSG_Rect &Extent, const CSG_Projection &Projection);
 	void						Set_Mouse_Position	(const TSG_Point &Point, const CSG_Projection &Projection);
 
@@ -109,7 +113,7 @@ public:
 
 private:
 
-	int							m_CrossHair;
+	int							m_Numbering, m_CrossHair;
 
 };
 
