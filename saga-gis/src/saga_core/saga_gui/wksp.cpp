@@ -86,7 +86,7 @@
 //---------------------------------------------------------
 enum
 {
-	IMG_TOOLS	= 0,
+	IMG_TOOLS = 0,
 	IMG_DATA,
 	IMG_MAPS
 };
@@ -99,8 +99,8 @@ enum
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SUBNB_CAPTION_TREE		_TL("Tree")
-#define SUBNB_CAPTION_BUTTONS	_TL("Thumbnails")
+#define SUBNB_CAPTION_TREE    _TL("Tree")
+#define SUBNB_CAPTION_BUTTONS _TL("Thumbnails")
 
 //---------------------------------------------------------
 #define SUBNB_CREATE(ID, Name)	wxNotebook *pNotebook = new wxNotebook(this, ID, wxDefaultPosition, wxDefaultSize, wxNB_TOP|wxNB_MULTILINE, Name);\
@@ -116,7 +116,7 @@ enum
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP	*g_pWKSP	= NULL;
+CWKSP *g_pWKSP = NULL;
 
 
 ///////////////////////////////////////////////////////////
@@ -127,8 +127,8 @@ CWKSP	*g_pWKSP	= NULL;
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CWKSP, wxNotebook)
-	EVT_NOTEBOOK_PAGE_CHANGING	(ID_WND_WKSP, CWKSP::On_Page_Changing)
-	EVT_NOTEBOOK_PAGE_CHANGED	(ID_WND_WKSP, CWKSP::On_Page_Changed)
+	EVT_NOTEBOOK_PAGE_CHANGING(ID_WND_WKSP, CWKSP::On_Page_Changing)
+	EVT_NOTEBOOK_PAGE_CHANGED (ID_WND_WKSP, CWKSP::On_Page_Changed)
 END_EVENT_TABLE()
 
 
@@ -179,18 +179,6 @@ CWKSP::CWKSP(wxWindow *pParent)
 		m_pMaps         = new CWKSP_Map_Control (this);
 		m_pMaps_Buttons = NULL;
 	}
-
-	//SUBNB_CREATE(ID_WND_WKSP_DATA, _TL("Data"));
-	//m_pData  = new CWKSP_Data_Control(pNotebook);
-	//{	bool bValue; m_pData_Buttons = !CONFIG_Read("/DATA", "THUMBNAILS", bValue) || bValue
-	//		?  new CWKSP_Data_Buttons(pNotebook) : NULL;
-	//}
-
-	//SUBNB_CREATE(ID_WND_WKSP_MAPS, _TL("Maps"));
-	//m_pMaps  = new CWKSP_Map_Control (pNotebook);
-	//{	bool bValue; m_pMaps_Buttons = !CONFIG_Read("/MAPS", "THUMBNAILS", bValue) || bValue
-	//		?  new CWKSP_Map_Buttons (pNotebook) : NULL;
-	//}
 }
 
 //---------------------------------------------------------
@@ -201,7 +189,7 @@ void CWKSP::Add_Pages(void)
 	//-----------------------------------------------------
 	if( m_pData_Buttons )
 	{
-		AddPage(m_pData->GetParent(), _TL("Data" ), false, IMG_DATA );
+		AddPage(m_pData->GetParent(), _TL("Data" ), false, IMG_DATA);
 
 		((wxNotebook *)m_pData->GetParent())->AddPage(m_pData        , SUBNB_CAPTION_TREE   , false, 0);
 		((wxNotebook *)m_pData->GetParent())->AddPage(m_pData_Buttons, SUBNB_CAPTION_BUTTONS, false, 1);
@@ -213,13 +201,13 @@ void CWKSP::Add_Pages(void)
 	}
 	else
 	{
-		AddPage(m_pData, _TL("Data" ), false, IMG_DATA );
+		AddPage(m_pData, _TL("Data" ), false, IMG_DATA);
 	}
 
 	//-----------------------------------------------------
 	if( m_pMaps_Buttons )
 	{
-		AddPage(m_pMaps->GetParent(), _TL("Maps" ), false, IMG_MAPS );
+		AddPage(m_pMaps->GetParent(), _TL("Maps" ), false, IMG_MAPS);
 
 		((wxNotebook *)m_pMaps->GetParent())->AddPage(m_pMaps        , SUBNB_CAPTION_TREE   , false, 0);
 		((wxNotebook *)m_pMaps->GetParent())->AddPage(m_pMaps_Buttons, SUBNB_CAPTION_BUTTONS, false, 1);
@@ -231,7 +219,7 @@ void CWKSP::Add_Pages(void)
 	}
 	else
 	{
-		AddPage(m_pMaps, _TL("Maps" ), false, IMG_MAPS );
+		AddPage(m_pMaps, _TL("Maps" ), false, IMG_MAPS);
 	}
 
 	//-----------------------------------------------------

@@ -821,10 +821,12 @@ bool CWKSP_Project::_Load_Map(CSG_MetaData &Entry, const wxString &ProjectDir)
 
 	if( g_pMaps->Add(pMap) && pMap->Serialize(Entry, ProjectDir, false) )
 	{
+		int Restore; Restore = Entry.Get_Property("SHOWN", Restore) ? Restore : 1;
+
 		#ifdef _SAGA_MSW
-		if( g_pData->Get_Parameter("PROJECT_MAP_ARRANGE")->asInt() != 4 )
+		if( Restore && g_pData->Get_Parameter("PROJECT_MAP_ARRANGE")->asInt() != 4 )
 		#else
-		if( g_pData->Get_Parameter("PROJECT_MAP_ARRANGE")->asInt() != 1 )
+		if( Restore && g_pData->Get_Parameter("PROJECT_MAP_ARRANGE")->asInt() != 1 )
 		#endif
 		{
 			pMap->View_Show(true);

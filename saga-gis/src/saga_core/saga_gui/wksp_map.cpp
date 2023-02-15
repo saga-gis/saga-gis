@@ -631,6 +631,8 @@ bool CWKSP_Map::Serialize(CSG_MetaData &Root, const wxString &ProjectDir, bool b
 	{
 		CSG_MetaData &Map = *Root.Add_Child("MAP");
 
+		Map.Add_Property("SHOWN", View_Get() != NULL ? 1 : 0);
+
 		if( Get_Projection().is_Okay() )
 		{
 			Get_Projection().Save(*Map.Add_Child("PROJECTION"));
