@@ -1951,7 +1951,7 @@ void fmatrix_all_free (float **m)
    /***********************************************************/
    /* den Vektor mit Zeigern auf die Zeilen der Matrix        */
    /* sowie den Vektor der Matrixelemente freigeben           */
-   /* (Gegenstück zufdmatrix_all_allc))                       */
+   /* (GegenstÃ¼ck zufdmatrix_all_allc))                       */
    /***********************************************************/
 
    float *a;
@@ -1972,7 +1972,7 @@ void smatrix_all_free (short **m)
    /***********************************************************/
    /* den Vektor mit Zeigern auf die Zeilen der Matrix        */
    /* sowie den Vektor der Matrixelemente freigeben           */
-   /* (Gegenstück zufdmatrix_all_allc))                       */
+   /* (GegenstÃ¼ck zufdmatrix_all_allc))                       */
    /***********************************************************/
 
    short *a;
@@ -2114,7 +2114,7 @@ int legendre_dreieck_free (double ***lf_anker)
    /***********************************************************/
    /* den Vektor mit Zeigern auf die Zeilen der Legendre-     */
    /* Matrix sowie den Vektor der Matrixelemente freigeben    */
-   /* (Gegenstück zu legendre_dreieck_alloc)                  */
+   /* (GegenstÃ¼ck zu legendre_dreieck_alloc)                  */
    /***********************************************************/
 
 

@@ -77,13 +77,13 @@ CDiversity_Shannon::CDiversity_Shannon(void)
 
 	Add_Reference("Shannon, C.", "1948",
 		"A mathematical theory of communication",
-		"Bell Syst. Tech. J. 27,379–423.",
+		"Bell Syst. Tech. J. 27,379â€“423.",
 		SG_T("https://doi.org/10.1002%2Fj.1538-7305.1948.tb01338.x"), SG_T("doi:10.1002/j.1538-7305.1948.tb01338.x")
 	);
 
 	Add_Reference("Spellerberg, I.F. & Fedor, P.J.", "2003",
-		"A tribute to Claude Shannon (1916–2001) and a plea for more rigorous use of species richness, species diversity and the 'Shannon-Wiener' Index",
-		"Global Ecology and Biogeography 12 (3), p. 177–179.",
+		"A tribute to Claude Shannon (1916â€“2001) and a plea for more rigorous use of species richness, species diversity and the 'Shannon-Wiener' Index",
+		"Global Ecology and Biogeography 12 (3), p. 177â€“179.",
 		SG_T("https://doi.org/10.1046/j.1466-822X.2003.00015.x"), SG_T("doi:10.1046/j.1466-822X.2003.00015.x.")
 	);
 

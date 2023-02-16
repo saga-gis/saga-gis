@@ -294,16 +294,16 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 
 			if( m_pManager == g_pData || m_pManager == g_pMaps )
 			{
-				if( g_pData_Buttons )	{	g_pData_Buttons->Freeze();	}
-				if( g_pMap_Buttons  )	{	g_pMap_Buttons ->Freeze();	}
+				if( g_pData_Buttons ) { g_pData_Buttons->Freeze(); }
+				if( g_pMap_Buttons  ) { g_pMap_Buttons ->Freeze(); }
 
 				g_pSAGA_Frame->Close_Children();
 			}
 
 			//---------------------------------------------
-			DeleteChildren	(m_pManager->GetId());
-			AppendItem		(m_pManager->GetId(), _TL("<no items>"), 0, 0, NULL);
-			Expand			(m_pManager->GetId());
+			DeleteChildren(m_pManager->GetId());
+			AppendItem    (m_pManager->GetId(), _TL("<no items>"), 0, 0, NULL);
+			Expand        (m_pManager->GetId());
 
 			if( g_pTools == m_pManager )
 			{
@@ -315,13 +315,18 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 				g_pData->MultiSelect_Check();
 			}
 
+			if( g_pMaps == m_pManager )
+			{
+				g_pMaps->Reset_Numbering();
+			}
+
 			//---------------------------------------------
 			Thaw();
 
 			if( m_pManager == g_pData || m_pManager == g_pMaps )
 			{
-				if( g_pData_Buttons )	{	g_pData_Buttons->Thaw();	g_pData_Buttons->Update_Buttons();	}
-				if( g_pMap_Buttons  )	{	g_pMap_Buttons ->Thaw();	g_pMap_Buttons ->Update_Buttons();	}
+				if( g_pData_Buttons ) { g_pData_Buttons->Thaw(); g_pData_Buttons->Update_Buttons(); }
+				if( g_pMap_Buttons  ) { g_pMap_Buttons ->Thaw(); g_pMap_Buttons ->Update_Buttons(); }
 			}
 		}
 	}
@@ -341,12 +346,12 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 
 			if( m_pManager->Get_Type() == WKSP_ITEM_Data_Manager )
 			{
-				g_pData_Buttons->Update_Buttons();
+				if( g_pData_Buttons ) { g_pData_Buttons->Update_Buttons(); }
 			}
 
 			if( m_pManager->Get_Type() == WKSP_ITEM_Map_Manager )
 			{
-				g_pMap_Buttons->Update_Buttons();
+				if( g_pMap_Buttons  ) { g_pMap_Buttons ->Update_Buttons(); }
 			}
 
 			return( _Del_Item(pItem_Manager, true) );
@@ -366,12 +371,12 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 
 		Refresh();
 
-		if( m_pManager->Get_Type() == WKSP_ITEM_Data_Manager )
+		if( m_pManager->Get_Type() == WKSP_ITEM_Data_Manager && g_pData_Buttons )
 		{
 			g_pData_Buttons->Update_Buttons();
 		}
 
-		if( m_pManager->Get_Type() == WKSP_ITEM_Map_Manager )
+		if( m_pManager->Get_Type() == WKSP_ITEM_Map_Manager  && g_pMap_Buttons  )
 		{
 			g_pMap_Buttons->Update_Buttons();
 		}

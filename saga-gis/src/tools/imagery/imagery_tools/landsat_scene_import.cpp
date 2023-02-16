@@ -360,7 +360,7 @@ bool CLandsat_Scene_Import::On_Execute(void)
 	//-----------------------------------------------------
 	Parameters("BANDS")->asGridList()->Del_Items();
 
-	CSG_Grids	*pBands	= NULL;
+	CSG_Grids *pBands = NULL;
 
 	for(int i=0; i<File_Bands.Get_Count() && Process_Get_Okay(); i++)
 	{
@@ -373,7 +373,7 @@ bool CLandsat_Scene_Import::On_Execute(void)
 
 		Process_Set_Text("%s: %s", _TL("loading"), File_Bands[i].c_str());
 
-		CSG_Grid	*pBand	= Load_Band(SG_File_Make_Path(Path, File_Bands[i], ""));
+		CSG_Grid *pBand = Load_Band(SG_File_Make_Path(Path, File_Bands[i], ""));
 
 		if( pBand )
 		{
@@ -437,7 +437,7 @@ bool CLandsat_Scene_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	return( true );
+	return( Parameters("BANDS")->asGridList()->Get_Data_Count() > 0 );
 }
 
 
@@ -960,12 +960,14 @@ CSG_Grid * CLandsat_Scene_Import::Load_Grid(const CSG_String &File)
 CSG_Grid * CLandsat_Scene_Import::Load_Band(const CSG_String &File)
 {
 	SG_UI_Msg_Lock(true);
-	CSG_Grid	*pBand	= Load_Grid(File);
+	CSG_Grid *pBand = Load_Grid(File);
 	SG_UI_Msg_Lock(false);
 
 	if( !pBand )
 	{
-		Message_Fmt("\n%s [%s]", _TL("loading failed"), File.c_str());
+		CSG_String Message(CSG_String::Format("%s: \"%s\"", _TL("failed to load band"), File.c_str()));
+
+		Message_Add("\n" + Message, false); SG_UI_Msg_Add_Error(Message);
 
 		return( NULL );
 	}

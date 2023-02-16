@@ -203,13 +203,13 @@ bool isNotEnd(int& zeile, int& pos, std::string& s);
 // wandelt Strings in Variablen um (aus InputText wird VarList)
 void ParseVars(int& zeile, int& pos);
 
-// überprüft, ob string eine gültige Variable ist
+// Ã¼berprÃ¼ft, ob string eine gÃ¼ltige Variable ist
 BBTyp *isVar(const std::string& s);
 
 // ermittelt den Variablen-Typ einer Variablen
 BBTyp::T_type getVarType(BBTyp *s);
 
-// liefert die jeweilige Variable zurück
+// liefert die jeweilige Variable zurÃ¼ck
 BBInteger *getVarI(BBTyp *s);
 BBFloat *getVarF(BBTyp *s);
 BBMatrix *getVarM(BBTyp *s);

@@ -181,17 +181,15 @@ bool CWKSP_Map_Extents::Add_Extent(const CSG_Rect &Extent, bool bReset)
 //---------------------------------------------------------
 CWKSP_Map::CWKSP_Map(void)
 {
-	static int	iMap	= 0;
+	m_Name         = _TL("Map");
 
-	m_Name.Printf("%02d. %s", ++iMap, _TL("Map"));
+	m_pView        = NULL;
+	m_pView_3D     = NULL;
+	m_pLayout      = NULL;
+	m_pLayout_Info = new CVIEW_Layout_Info(this);
 
-	m_pView			= NULL;
-	m_pView_3D		= NULL;
-	m_pLayout		= NULL;
-	m_pLayout_Info	= new CVIEW_Layout_Info(this);
-
-	m_Img_bSave		= false;
-	m_Sync_bLock	= 0;
+	m_Img_bSave    = false;
+	m_Sync_bLock   = 0;
 
 	On_Create_Parameters();
 }
@@ -631,7 +629,9 @@ bool CWKSP_Map::Serialize(CSG_MetaData &Root, const wxString &ProjectDir, bool b
 {
 	if( bSave )
 	{
-		CSG_MetaData	&Map	= *Root.Add_Child("MAP");
+		CSG_MetaData &Map = *Root.Add_Child("MAP");
+
+		Map.Add_Property("SHOWN", View_Get() != NULL ? 1 : 0);
 
 		if( Get_Projection().is_Okay() )
 		{
@@ -647,7 +647,7 @@ bool CWKSP_Map::Serialize(CSG_MetaData &Root, const wxString &ProjectDir, bool b
 
 		m_pLayout_Info->Save(*Map.Add_Child("LAYOUT"));
 
-		CSG_MetaData	&Layers	= *Map.Add_Child("LAYERS");
+		CSG_MetaData &Layers = *Map.Add_Child("LAYERS");
 
 		for(int i=Get_Count()-1; i>=0; i--)
 		{
@@ -657,12 +657,12 @@ bool CWKSP_Map::Serialize(CSG_MetaData &Root, const wxString &ProjectDir, bool b
 			case WKSP_ITEM_Map_BaseMap  : ((CWKSP_Map_BaseMap   *)Get_Item(i))->Save(Layers); break;
 			case WKSP_ITEM_Map_Layer    :
 			{
-				CWKSP_Map_Layer	*pLayer  = (CWKSP_Map_Layer     *)Get_Item(i);
-				CSG_Data_Object	*pObject = pLayer->Get_Layer()->Get_Object();
+				CWKSP_Map_Layer *pLayer  = (CWKSP_Map_Layer     *)Get_Item(i);
+				CSG_Data_Object *pObject = pLayer->Get_Layer()->Get_Object();
 
 				if( pObject && pObject->Get_File_Name(false) && *pObject->Get_File_Name(false) )
 				{
-					wxString	FileName(pObject->Get_File_Name(false));
+					wxString FileName(pObject->Get_File_Name(false));
 
 					if( FileName.Find("PGSQL") == 0 )
 					{
@@ -688,7 +688,7 @@ bool CWKSP_Map::Serialize(CSG_MetaData &Root, const wxString &ProjectDir, bool b
 	//-----------------------------------------------------
 	else // if( bSave == false )
 	{
-		TSG_Rect	Extent;
+		TSG_Rect Extent;
 
 		if( !Root.Cmp_Name("MAP") || !Root("LAYERS") || Root["LAYERS"].Get_Children_Count() < 1
 		||	!Root("XMIN") || !Root("XMIN")->Get_Content().asDouble(Extent.xMin)
@@ -707,24 +707,24 @@ bool CWKSP_Map::Serialize(CSG_MetaData &Root, const wxString &ProjectDir, bool b
 		//-------------------------------------------------
         SG_UI_Process_Set_Busy(true);
 
-		CSG_MetaData	&Layers	= *Root.Get_Child("LAYERS");	int	nLayers	= 0;
+		CSG_MetaData &Layers = *Root.Get_Child("LAYERS"); int nLayers = 0;
 
 		m_Parameters["CRS_CHECK"].Set_Value(false);
 
 		for(int i=0; i<Layers.Get_Children_Count(); i++)
 		{
-			CSG_MetaData	&Layer	= *Layers(i);
+			CSG_MetaData &Layer = *Layers(i);
 
 			if( Layer.Cmp_Name("FILE") )
 			{
-				wxString	FileName(Layer.Get_Content().w_str());
+				wxString FileName(Layer.Get_Content().w_str());
 
 				if( FileName.Find("PGSQL") != 0 )
 				{
-					FileName	= Get_FilePath_Absolute(ProjectDir, FileName);
+					FileName = Get_FilePath_Absolute(ProjectDir, FileName);
 				}
 
-				CWKSP_Base_Item	*pItem	= g_pData->Get(SG_Get_Data_Manager().Find(&FileName, false));
+				CWKSP_Base_Item *pItem = g_pData->Get(SG_Get_Data_Manager().Find(&FileName, false));
 
 				if(	pItem &&
 				(   pItem->Get_Type() == WKSP_ITEM_Grid
@@ -733,7 +733,7 @@ bool CWKSP_Map::Serialize(CSG_MetaData &Root, const wxString &ProjectDir, bool b
 				||  pItem->Get_Type() == WKSP_ITEM_PointCloud
 				||  pItem->Get_Type() == WKSP_ITEM_Shapes) )
 				{
-					CWKSP_Map_Layer	*pLayer	= Add_Layer((CWKSP_Layer *)pItem);
+					CWKSP_Map_Layer *pLayer = Add_Layer((CWKSP_Layer *)pItem);
 
 					if( pLayer )
 					{
@@ -778,8 +778,6 @@ bool CWKSP_Map::Serialize(CSG_MetaData &Root, const wxString &ProjectDir, bool b
 		}
 
 		Set_Extent(Extent, true);
-
-		View_Show(true);
 	}
 
 	//-----------------------------------------------------
@@ -916,7 +914,14 @@ CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 
 	if( Get_Count() == 1 )
 	{
-		m_Parameters("NAME")->Set_Value(pLayer->Get_Name().wx_str());
+		if( pLayer->Get_Object() )
+		{
+			m_Name = pLayer->Get_Object()->Get_Name();
+		}
+
+		m_Name.Prepend(g_pMaps->Get_Numbering());
+
+		m_Parameters("NAME")->Set_Value(m_Name.wx_str());
 
 		Parameters_Changed();
 	}
@@ -1437,10 +1442,7 @@ void CWKSP_Map::View_Refresh(bool bMapOnly)
 
 	_Set_Thumbnail();
 
-	if( g_pMap_Buttons )
-	{
-		g_pMap_Buttons->Refresh();
-	}
+	if( g_pMap_Buttons ) { g_pMap_Buttons->Refresh(); }
 }
 
 //---------------------------------------------------------

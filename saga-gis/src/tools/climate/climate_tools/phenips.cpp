@@ -335,7 +335,7 @@ const CSG_String & CPhenIps::Get_Description(void)
 //---------------------------------------------------------
 #define ADD_REFERENCES	{\
 	Add_Reference("Baier P., Pennerstorfer J. and Schopf A.", "2007",\
-		"PHENIPS � A comprehensive phenology model of Ips typographus (L.) (Col., Scolytinae) as a tool for hazard rating of bark beetle infestation",\
+		"PHENIPS — A comprehensive phenology model of Ips typographus (L.) (Col., Scolytinae) as a tool for hazard rating of bark beetle infestation",\
 		"Forest Ecology and Management, 249(3): 171-186.",\
 		SG_T("https://www.sciencedirect.com/science/article/pii/S0378112707004057"), SG_T("ScienceDirect")\
 	);\
@@ -535,9 +535,9 @@ CPhenIps_Table::CPhenIps_Table(void)
 	//-----------------------------------------------------
 	Parameters.Add_Table("",   "WEATHER", _TL("Weather Data"), _TL(""), PARAMETER_INPUT);
 
-	Parameters.Add_Table_Field("WEATHER", "ATmean", _TL("Mean Temperature"   ), _TL("Degree Celsius"));
-	Parameters.Add_Table_Field("WEATHER", "ATmax" , _TL("Maximum Temperature"), _TL("Degree Celsius"));
-	Parameters.Add_Table_Field("WEATHER", "SIrel" , _TL("Solar Irradiation"  ), _TL("Wh/m^2"        ));
+	Parameters.Add_Table_Field("WEATHER", "ATmean", _TL("Mean Temperature"   ), "°C"   );
+	Parameters.Add_Table_Field("WEATHER", "ATmax" , _TL("Maximum Temperature"), "°C"   );
+	Parameters.Add_Table_Field("WEATHER", "SIrel" , _TL("Solar Irradiation"  ), "Wh/m²");
 
 	Parameters.Add_Table("", "PHENOLOGY", _TL("Phenology"), _TL(""), PARAMETER_OUTPUT);
 	Parameters.Add_Table("", "SUMMARY"  , _TL("Summary"  ), _TL(""), PARAMETER_OUTPUT);
@@ -673,9 +673,9 @@ CPhenIps_Grids::CPhenIps_Grids(void)
 	ADD_REFERENCES;
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List("", "ATmean", _TL("Mean Temperature"   ), _TL("Degree Celsius"), PARAMETER_INPUT);
-	Parameters.Add_Grid_List("", "ATmax" , _TL("Maximum Temperature"), _TL("Degree Celsius"), PARAMETER_INPUT);
-	Parameters.Add_Grid_List("", "SIrel" , _TL("Solar Irradiation"  ), _TL("Wh/m^2"        ), PARAMETER_INPUT);
+	Parameters.Add_Grid_List("", "ATmean", _TL("Mean Temperature"   ), "°C"   , PARAMETER_INPUT);
+	Parameters.Add_Grid_List("", "ATmax" , _TL("Maximum Temperature"), "°C"   , PARAMETER_INPUT);
+	Parameters.Add_Grid_List("", "SIrel" , _TL("Solar Irradiation"  ), "Wh/m²", PARAMETER_INPUT);
 
 	Parameters.Add_Grid("", "GENERATIONS", _TL("Potential Number of Generations"), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Short);
 	Parameters.Add_Grid("", "ONSET"      , _TL("Onset Day of Infestation"       ), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Short);

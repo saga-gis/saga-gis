@@ -262,19 +262,20 @@ bool CWKSP_Data_Item::On_Command_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 wxString CWKSP_Data_Item::Get_Name(void)
 {
-	wxString	Name("###");
+	wxString Name("###");
 
 	if( m_pObject && *m_pObject->Get_Name() )
 	{
-		Name	= m_pObject->Get_Name();
+		Name = m_pObject->Get_Name();
 	}
 
-	if( g_pData->Get_Numbering() < 0 )
-	{
-		return( Name );
-	}
+	int Numbering = g_pData->Get_Parameter("NUMBERING")->asInt();
 
-	return( wxString::Format("%0*d. %s", g_pData->Get_Numbering(), 1 + Get_ID(), Name.c_str()) );
+	if( Numbering ==  0 ) { return( Name ); }
+	if( Numbering  >  1 ) { return( wxString::Format( "%*d. %s",  Numbering, 1 + Get_ID(), Name.c_str()) ); }
+	if( Numbering  < -1 ) { return( wxString::Format("%0*d. %s", -Numbering, 1 + Get_ID(), Name.c_str()) ); }
+
+	return( wxString::Format("%d. %s", 1 + Get_ID(), Name.c_str()) );
 }
 
 

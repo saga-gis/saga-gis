@@ -251,7 +251,7 @@ CSolarRadiation::CSolarRadiation(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid("", "LATITUDE", _TL("Latitude"       ), _TL("[Degree]"), PARAMETER_INPUT );
-	Parameters.Add_Grid("", "SOLARRAD", _TL("Solar Radiation"), _TL("[J/cm^2]"), PARAMETER_OUTPUT);
+	Parameters.Add_Grid("", "SOLARRAD", _TL("Solar Radiation"), _TL("[J/cm²]" ), PARAMETER_OUTPUT);
 
 	//-----------------------------------------------------
 	Parameters.Add_Choice("",
@@ -296,7 +296,7 @@ bool CSolarRadiation::On_Execute(void)
 	CSG_Grid *pSR  = Parameters("SOLARRAD")->asGrid();
 
 	pSR->Fmt_Name("%s [%s, %d]", _TL("Solar Radiation"), Parameters("MONTH")->asString(), Parameters("DAY")->asInt());
-	pSR->Set_Unit("J/cm^2");
+	pSR->Set_Unit("J/cm²");
 
 	CSG_DateTime	Date(
 		(CSG_DateTime::TSG_DateTime)Parameters("DAY"  )->asInt(),

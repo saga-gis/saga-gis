@@ -73,7 +73,7 @@ CHodgepodge::CHodgepodge(void)
 	);
 
 	Add_Reference("Gerhardt, M., Schuster, H.", "1995",
-		"Das Digitale Universum, Zellul‰re Automaten als Modelle der Natur",
+		"Das Digitale Universum, Zellul√§re Automaten als Modelle der Natur",
 		"Vieweg Verlag, Braunschweig."
 	);
 

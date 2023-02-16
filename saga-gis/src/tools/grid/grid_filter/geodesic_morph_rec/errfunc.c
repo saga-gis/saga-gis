@@ -541,7 +541,7 @@ void fehler2 (int zeile,
       switch (*cp3)
       {
          /*****************************************************/
-         /* shorts und chars darf es hier aus Syntaxgründen   */
+         /* shorts und chars darf es hier aus SyntaxgrÃ¼nden   */
          /* nicht geben (!?!)                                 */
          /*****************************************************/
 

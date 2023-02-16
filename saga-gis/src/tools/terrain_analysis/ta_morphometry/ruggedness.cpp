@@ -213,7 +213,7 @@ CRuggedness_VRM::CRuggedness_VRM(void)
 
 	Add_Reference("Sappington, J.M., Longshore, K.M., Thompson, D.B.", "2007",
 		"Quantifying Landscape Ruggedness for Animal Habitat Analysis: A Case Study Using Bighorn Sheep in the Mojave Desert",
-		"Journal of Wildlife Management 71(5):1419–1426.",
+		"Journal of Wildlife Management 71(5):1419â€“1426.",
 		SG_T("https://wildlife.onlinelibrary.wiley.com/doi/abs/10.2193/2005-723"), SG_T("online")
 	);
 

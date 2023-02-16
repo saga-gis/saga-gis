@@ -95,7 +95,7 @@ CClimate_Classification::CClimate_Classification(void)
 
 	Add_Reference("Koeppen, W., Geiger, R.", "1936",
 		"Handbuch der Klimatologie",
-		"Gebrüder Borntraeger, Berlin.",
+		"GebrÃ¼der Borntraeger, Berlin.",
 		SG_T("https://upload.wikimedia.org/wikipedia/commons/3/3c/Das_geographische_System_der_Klimate_%281936%29.pdf"), SG_T("Wikimedia")
 	);
 
@@ -914,7 +914,7 @@ int CClimate_Classification::Get_TrollPaffen(int Method, CSG_Simple_Statistics &
 		return( TP_I_3 );
 	}
 
-	if( T.Get_Maximum() < 12 && T.Get_Minimum() >= -8 && T.Get_Range() < 13 )	// annual fluctuation often < 10°C
+	if( T.Get_Maximum() < 12 && T.Get_Minimum() >= -8 && T.Get_Range() < 13 )	// annual fluctuation often < 10Â°C
 	{
 		return( TP_I_4 );
 	}

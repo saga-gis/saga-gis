@@ -252,10 +252,10 @@ inline bool CGPX_Import::Add_Fields(CSG_MetaData *pNode, CSG_Shapes *pPoints)
 {
 	if( pPoints->Get_Field_Count() == 0 )
 	{
-		ADD_FIELD("ele"				, SG_DATATYPE_Double);	// <ele>			xsd:decimal				(Höhe)
+		ADD_FIELD("ele"				, SG_DATATYPE_Double);	// <ele>			xsd:decimal				(HÃ¶he)
 		ADD_FIELD("time"			, SG_DATATYPE_String);	// <time>			xsd:dateTime			(Datum und Zeit)
 		ADD_FIELD("magvar"			, SG_DATATYPE_Double);	// <magvar>			degreesType				(lokale magn. Missweisung)
-		ADD_FIELD("geoidheight"		, SG_DATATYPE_Double);	// <geoidheight>	xsd:decimal				(Höhe bezogen auf Geoid)
+		ADD_FIELD("geoidheight"		, SG_DATATYPE_Double);	// <geoidheight>	xsd:decimal				(HÃ¶he bezogen auf Geoid)
 		ADD_FIELD("name"			, SG_DATATYPE_String);	// <name>			xsd:string				(Beschreibung)
 		ADD_FIELD("cmt"				, SG_DATATYPE_String);	// <cmt>			xsd:string				(Kommentar)
 		ADD_FIELD("desc"			, SG_DATATYPE_String);	// <desc>			xsd:string				(Elementbeschreibung)

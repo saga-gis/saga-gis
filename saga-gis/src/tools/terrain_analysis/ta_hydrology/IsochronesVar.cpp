@@ -53,9 +53,9 @@
 		SG_T("online")\
 	);\
 \
-	Add_Reference("MartÌnez ¡lvarez, V.; Dal-RÈ Tenreiro, R.; GarcÌa GarcÌa, A. I.; Ayuga TÈllez, F.", "",\
-		"ModelaciÛn distribuida de la escorrentÌa superficial en pequeÒas cuencas mediante SIG",\
-		"EvaluaciÛn experimental."\
+	Add_Reference("Mart√≠nez √Ålvarez, V.; Dal-R√© Tenreiro, R.; Garc√≠a Garc√≠a, A. I.; Ayuga T√©llez, F.", "",\
+		"Modelaci√≥n distribuida de la escorrent√≠a superficial en peque√±as cuencas mediante SIG",\
+		"Evaluaci√≥n experimental."\
 	);\
 \
 	Add_Reference("Olaya, V.", "2004",\
@@ -560,7 +560,7 @@ double CIsochronesVar::Runoff(double dRainfall, double dCN)
     dS = (25400.0 / dCN) - 254;
 
     if (dRainfall < (0.2 * dS)) {
-        return 0.1; //can¥t be 0, because that would mean speed = 0
+        return 0.1; //can¬¥t be 0, because that would mean speed = 0
     }// if
 
     dRunoff = pow(dRainfall - 0.2 * dS, 2)

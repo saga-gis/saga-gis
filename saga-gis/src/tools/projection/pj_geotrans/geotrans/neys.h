@@ -32,7 +32,7 @@
  *                                     (depends on ellipsoid and projection
  *                                     parameters)
  *       NEYS_FIRST_STDP_ERROR   : First standard parallel outside of valid
- *                                     range (±71 or ±74 degrees)
+ *                                     range (Â±71 or Â±74 degrees)
  *       NEYS_ORIGIN_LAT_ERROR   : Origin latitude outside of valid range
  *                                     (-89 59 59.0 to 89 59 59.0 degrees)
  *       NEYS_CENT_MER_ERROR     : Central meridian outside of valid range

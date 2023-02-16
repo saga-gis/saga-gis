@@ -383,7 +383,7 @@ CCIT::CCIT(void)
 
     Parameters.Add_Grid("",
         "AREA"	, _TL("Catchment Area"),
-        _TL("The catchment area grid [map units^2]."),
+        _TL("The catchment area grid [map unitsz^2]."),
         PARAMETER_INPUT
     );
 

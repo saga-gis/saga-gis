@@ -131,8 +131,6 @@ public:
 	bool							Get_Parameters		(class CSG_Data_Object *pObject, class CSG_Parameters *pParameters);
 	bool							Set_Parameters		(class CSG_Data_Object *pObject, class CSG_Parameters *pParameters);
 
-	int								Get_Numbering		(void)	const	{	return( m_Numbering );	}
-
 	size_t							MultiSelect_Count	(void);
 	bool							MultiSelect_Check	(void);
 	bool							MultiSelect_Update	(void);
@@ -141,8 +139,6 @@ public:
 
 
 private:
-
-	int								m_Numbering;
 
 	wxArrayTreeItemIds				m_Sel_Items;
 

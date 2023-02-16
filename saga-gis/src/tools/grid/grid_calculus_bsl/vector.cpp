@@ -28,7 +28,7 @@
 /****************** Include-Dateien **************/
 
 #include "MLB_Interface.h"
-//#include ".\..\INCLUDE\MAT_Tools.h"	// für M_PI etc...
+//#include ".\..\INCLUDE\MAT_Tools.h"	// fÃ¼r M_PI etc...
 
 #include "vector.h"
 
@@ -319,7 +319,7 @@ double C_Vec3::Angle_Phi(void)const
 }
 
 double C_Vec3::Angle_Psi(void)const
-{	// Angabe es Höhenwinkels in rad
+{	// Angabe es HÃ¶henwinkels in rad
    return double(asin(z/(sqrt(x*x+y*y))));
 }
 

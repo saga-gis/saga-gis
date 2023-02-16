@@ -253,10 +253,7 @@ void CWKSP_Map_Control::Add_Item(CWKSP_Base_Manager *pManager, CWKSP_Base_Item *
 		SortChildren(pManager->GetId());
 		Expand		(pManager->GetId());
 
-		if( g_pMap_Buttons )
-		{
-			g_pMap_Buttons->Update_Buttons();
-		}
+		if( g_pMap_Buttons ) { g_pMap_Buttons->Update_Buttons(); }
 	}
 }
 

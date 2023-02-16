@@ -71,7 +71,7 @@ CMultiBand_Variation::CMultiBand_Variation(void)
 	Add_Reference(
 		"Palmer, M.W., Earls, P., Hoagland, B.W., White, P.S., Wohlgemuth, T.", "2002",
 		"Quantitative tools for perfecting species lists",
-		"Environmetrics 13, 121–137."
+		"Environmetrics 13, 121â€“137."
 	);
 
 	Parameters.Add_Grid_List(

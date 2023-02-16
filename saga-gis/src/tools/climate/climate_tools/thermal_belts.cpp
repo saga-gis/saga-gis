@@ -72,9 +72,9 @@ CThermal_Belts::CThermal_Belts(void)
 		"Calculates the thermal belts based on mean temperature and length of the growing season."
 	));
 
-	Add_Reference("Körner, C. / Paulsen, J. / Spehn, E.M.", "2011",
+	Add_Reference("KÃ¶rner, C. / Paulsen, J. / Spehn, E.M.", "2011",
 		"A definition of mountains and their bioclimatic belts for global comparisons of biodiversity data",
-		"Alpine Botany, 121, 73–78. doi:10.1007/s00035-011-0094-4",
+		"Alpine Botany, 121, 73â€“78. doi:10.1007/s00035-011-0094-4",
 		SG_T("http://link.springer.com/article/10.1007/s00035-011-0094-4"), _TL("online")
 	);
 

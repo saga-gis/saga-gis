@@ -7,7 +7,7 @@
 
 #include "basistypen.h"
 
-// Baum-Struktur für Integer
+// Baum-Struktur fÃ¼r Integer
 class BBFunktion;
 struct BBFktExe;
 class BBBaumMatrixPoint;
@@ -57,8 +57,8 @@ public:
 	// Integer-Variable
 	// Float-Variable
 
-	// kommt später:
-	// Funktion (später) mit Rückgabewerte Int oder Float
+	// kommt spÃ¤ter:
+	// Funktion (spÃ¤ter) mit RÃ¼ckgabewerte Int oder Float
 
 };
 
@@ -82,11 +82,11 @@ void pars_integer_float(const std::string& statement, BBBaumInteger * &Knoten, i
 //***************** Punkt und Matrix *****************
 // Operator p/p -> + -
 // Operator p/i i/p p/f f/p -> * /
-// uni - Operator nur für p/f/i
+// uni - Operator nur fÃ¼r p/f/i
 //++++++++++++++ Matrix ++++++++++++++++++++++++++
 // Operator M/M + -
 // Operator M/i i/M M/f f/M * /
-// uni - Operator nur für f/i
+// uni - Operator nur fÃ¼r f/i
 
 
 

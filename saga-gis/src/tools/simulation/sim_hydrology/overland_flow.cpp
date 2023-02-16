@@ -543,7 +543,7 @@ bool COverland_Flow::Do_Time_Step(void)
 	//-----------------------------------------------------
 	if( m_vMax > 0. )
 	{
-		m_dTime	= Parameters("TIME_STEP")->asDouble() * Get_Cellsize() / m_vMax;	// Courant–Friedrichs–Lewy (CFL) condition
+		m_dTime	= Parameters("TIME_STEP")->asDouble() * Get_Cellsize() / m_vMax;	// Courantâ€“Friedrichsâ€“Lewy (CFL) condition
 
 		#pragma omp parallel for
 		for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)

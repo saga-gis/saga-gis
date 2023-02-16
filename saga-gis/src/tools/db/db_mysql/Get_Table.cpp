@@ -74,7 +74,7 @@
 //                                                       //
 //    e-mail:     sagamysql@ferhatbingol.com             //
 //                                                       //
-//    contact:    Ferhat Bingöl                          //
+//    contact:    Ferhat BingÃ¶l                          //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -98,7 +98,7 @@ CGet_Table::CGet_Table(void)
 {
 	Set_Name	(_TL("Import DB Table from MySQL"));
 
-	Set_Author		(SG_T("(c) 2009 by Ferhat Bingöl"));
+	Set_Author		(SG_T("(c) 2009 by Ferhat BingÃ¶l"));
 
 	Set_Description(
 		_TL("Get table from MySQL server.\n")

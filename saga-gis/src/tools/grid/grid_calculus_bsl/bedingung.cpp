@@ -349,7 +349,7 @@ bool isBedingung(const std::string& statement, BBBedingung * &bed)
 	BBBedingung::T_BedingungType t;
 	BBBool *b;
 	
-	// zuerst uni-, dann bidirektionale Operatoren prüfen
+	// zuerst uni-, dann bidirektionale Operatoren prÃ¼fen
 	trim(s);
 	if (isKlammer(s))
 	{

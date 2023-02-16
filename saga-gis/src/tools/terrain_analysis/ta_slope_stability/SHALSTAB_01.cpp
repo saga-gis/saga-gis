@@ -16,7 +16,7 @@
 //                    SHALSTAB_01.cpp                    //
 //                                                       //
 //                 Copyright (C) 2012 by                 //
-//                     Andreas Günther                   //
+//                     Andreas GÃ¼nther                   //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -41,7 +41,7 @@
 //                                                       //
 //    e-mail:     a.guenther@bgr.de                      //
 //                                                       //
-//    contact:    Andreas Günther                        //
+//    contact:    Andreas GÃ¼nther                        //
 //                B2.2								     //
 //                BGR				                     //
 //                Germany                                //
@@ -96,7 +96,7 @@ CSHALSTAB::CSHALSTAB(void)
 	));
 
 	Parameters.Add_Grid(
-		NULL, "A", "Slope grid (rad)", "A slope angle grid (in radíans)", PARAMETER_INPUT
+		NULL, "A", "Slope grid (rad)", "A slope angle grid (in radÃ­ans)", PARAMETER_INPUT
 		);
 	
 	Parameters.Add_Grid(
@@ -144,47 +144,47 @@ CSHALSTAB::CSHALSTAB(void)
 		);
 
 	Parameters.Add_Value(
-		NULL, "fCmin", "Global minimum density (g/cm3)", "Constant value if no raster set", PARAMETER_TYPE_Double, 1.6					//Initialisierung eines fixen wertes vs Grid für density
+		NULL, "fCmin", "Global minimum density (g/cm3)", "Constant value if no raster set", PARAMETER_TYPE_Double, 1.6					//Initialisierung eines fixen wertes vs Grid fÃ¼r density
 		);
 
 	Parameters.Add_Value(
-		NULL, "fCmax", "Global maximum density (g/cm3)", "Constant value if no raster set", PARAMETER_TYPE_Double, 1.6					//Initialisierung eines fixen wertes vs Grid für density
+		NULL, "fCmax", "Global maximum density (g/cm3)", "Constant value if no raster set", PARAMETER_TYPE_Double, 1.6					//Initialisierung eines fixen wertes vs Grid fÃ¼r density
 		);
 
 	Parameters.Add_Value(
-		NULL, "fDmin", "Global minimum conductivity (m/hr)", "Constant value if no raster set", PARAMETER_TYPE_Double, 2.7				//Initialisierung eines fixen wertes vs Grid für conductivity
+		NULL, "fDmin", "Global minimum conductivity (m/hr)", "Constant value if no raster set", PARAMETER_TYPE_Double, 2.7				//Initialisierung eines fixen wertes vs Grid fÃ¼r conductivity
 		);
 
 	Parameters.Add_Value(
-		NULL, "fDmax", "Global maximum conductivity (m/hr)", "Constant value if no raster set", PARAMETER_TYPE_Double, 2.7				//Initialisierung eines fixen wertes vs Grid für conductivity
+		NULL, "fDmax", "Global maximum conductivity (m/hr)", "Constant value if no raster set", PARAMETER_TYPE_Double, 2.7				//Initialisierung eines fixen wertes vs Grid fÃ¼r conductivity
 		);
 
 	Parameters.Add_Value(
-		NULL, "fEmin", "Global minimum thickness (m)", "Constant value if no raster set", PARAMETER_TYPE_Double, 1.0							//Initialisierung eines fixen wertes vs Grid für depth
+		NULL, "fEmin", "Global minimum thickness (m)", "Constant value if no raster set", PARAMETER_TYPE_Double, 1.0							//Initialisierung eines fixen wertes vs Grid fÃ¼r depth
 		);
 
 	Parameters.Add_Value(
-		NULL, "fEmax", "Global maximum thickness (m)", "Constant value if no raster set", PARAMETER_TYPE_Double, 1.0							//Initialisierung eines fixen wertes vs Grid für depth
+		NULL, "fEmax", "Global maximum thickness (m)", "Constant value if no raster set", PARAMETER_TYPE_Double, 1.0							//Initialisierung eines fixen wertes vs Grid fÃ¼r depth
 		);
 	
 	Parameters.Add_Value(
-		NULL, "fFmin", "Global minimum friction angle (degree)", "Constant value if no raster set", PARAMETER_TYPE_Double, 33.0				//Initialisierung eines fixen wertes vs Grid für friction
+		NULL, "fFmin", "Global minimum friction angle (degree)", "Constant value if no raster set", PARAMETER_TYPE_Double, 33.0				//Initialisierung eines fixen wertes vs Grid fÃ¼r friction
 		);
 
 	Parameters.Add_Value(
-		NULL, "fFmax", "Global maximum friction angle (degree)", "Constant value if no raster set", PARAMETER_TYPE_Double, 33.0				//Initialisierung eines fixen wertes vs Grid für friction
+		NULL, "fFmax", "Global maximum friction angle (degree)", "Constant value if no raster set", PARAMETER_TYPE_Double, 33.0				//Initialisierung eines fixen wertes vs Grid fÃ¼r friction
 		);
 
 	Parameters.Add_Value(
-		NULL, "fJmin", "Global minimum bulk cohesion (MPa)", "Constant value if no raster set", PARAMETER_TYPE_Double, 0							//Initialisierung eines fixen wertes vs Grid für cohesion
+		NULL, "fJmin", "Global minimum bulk cohesion (MPa)", "Constant value if no raster set", PARAMETER_TYPE_Double, 0							//Initialisierung eines fixen wertes vs Grid fÃ¼r cohesion
 		);
 
 	Parameters.Add_Value(
-		NULL, "fJmax", "Global maximum bulk cohesion (MPa)", "Constant value if no raster set", PARAMETER_TYPE_Double, 0							//Initialisierung eines fixen wertes vs Grid für cohesion
+		NULL, "fJmax", "Global maximum bulk cohesion (MPa)", "Constant value if no raster set", PARAMETER_TYPE_Double, 0							//Initialisierung eines fixen wertes vs Grid fÃ¼r cohesion
 		);
 	
 	Parameters.Add_Value(
-		NULL, "fK", "Parameter sampling runs", "Number of sampling cycles",PARAMETER_TYPE_Int, 1						//Initialisierung eines fixen wertes vs Grid für cohesion
+		NULL, "fK", "Parameter sampling runs", "Number of sampling cycles",PARAMETER_TYPE_Int, 1						//Initialisierung eines fixen wertes vs Grid fÃ¼r cohesion
 		);
 	
 	Parameters.Add_Grid(

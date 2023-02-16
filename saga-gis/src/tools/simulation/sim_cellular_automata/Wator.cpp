@@ -76,7 +76,7 @@ CWator::CWator(void)
 
 	Add_Reference("Dewdney, A.K.", "1984",
 		"Sharks and fish Wage an ecological War on the toroidal planet Wa-Tor",
-		"Scientific American. pp. I4—22."
+		"Scientific American. pp. I4â€”22."
 	);
 
 	//-----------------------------------------------------

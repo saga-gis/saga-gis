@@ -99,7 +99,7 @@ CBioclimatic_Vars::CBioclimatic_Vars(void)
 		"This tool calculates biologically meaningful variables from "
 		"monthly climate data (mean, minimum and maximum temperature "
 		"and precipitation sum), as provided by climate related projects, e.g.:<ul>"
-		"<li><a href=\"https://chelsa-climate.org/bioclim/\"> CHELSA - Climatologies at High resolution for the Earth’s Land Surface Area</a></li>"
+		"<li><a href=\"https://chelsa-climate.org/bioclim/\"> CHELSA - Climatologies at High resolution for the Earthâ€™s Land Surface Area</a></li>"
 		"<li><a href=\"https://worldclim.org/data/bioclim.html\"> WorldClim - Global climate and weather data</a></li>"
 		"</ul><p>"
 		"It follows a short definition of the provided bioclimatic variables:<ol>"
@@ -175,7 +175,7 @@ CBioclimatic_Vars::CBioclimatic_Vars(void)
 
 	Add_Reference("Xu, T. & Hutchinson, M. F.", "2013",
 		"New Developments and Applications in the ANUCLIM Spatial Climatic and Bioclimatic Modelling Package",
-		"Environmental Modelling & Software Vol. 40, p.267–279.",
+		"Environmental Modelling & Software Vol. 40, p.267â€“279.",
 		SG_T("https://doi.org/10.1016/j.envsoft.2012.10.003"), SG_T("doi:10.1016/j.envsoft.2012.10.003")
 	);
 

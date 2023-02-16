@@ -86,7 +86,7 @@
 //---------------------------------------------------------
 enum
 {
-	IMG_TOOLS	= 0,
+	IMG_TOOLS = 0,
 	IMG_DATA,
 	IMG_MAPS
 };
@@ -99,14 +99,14 @@ enum
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SUBNB_CAPTION_TREE		_TL("Tree")
-#define SUBNB_CAPTION_BUTTONS	_TL("Thumbnails")
+#define SUBNB_CAPTION_TREE    _TL("Tree")
+#define SUBNB_CAPTION_BUTTONS _TL("Thumbnails")
 
 //---------------------------------------------------------
-#define SUBNB_CREATE(ID, Name)	pNotebook	= new wxNotebook(this, ID, wxDefaultPosition, wxDefaultSize, wxNB_TOP|wxNB_MULTILINE, Name);\
-								pNotebook	->AssignImageList(new wxImageList(IMG_SIZE_NOTEBOOK, IMG_SIZE_NOTEBOOK, true, 0));\
-								pNotebook	->IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_TREEVIEW);\
-								pNotebook	->IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_THUMBNAILS);
+#define SUBNB_CREATE(ID, Name)	wxNotebook *pNotebook = new wxNotebook(this, ID, wxDefaultPosition, wxDefaultSize, wxNB_TOP|wxNB_MULTILINE, Name);\
+	pNotebook->AssignImageList(new wxImageList(IMG_SIZE_NOTEBOOK, IMG_SIZE_NOTEBOOK, true, 0));\
+	pNotebook->IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_TREEVIEW);\
+	pNotebook->IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_THUMBNAILS);
 
 
 ///////////////////////////////////////////////////////////
@@ -116,7 +116,7 @@ enum
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP	*g_pWKSP	= NULL;
+CWKSP *g_pWKSP = NULL;
 
 
 ///////////////////////////////////////////////////////////
@@ -127,8 +127,8 @@ CWKSP	*g_pWKSP	= NULL;
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CWKSP, wxNotebook)
-	EVT_NOTEBOOK_PAGE_CHANGING	(ID_WND_WKSP, CWKSP::On_Page_Changing)
-	EVT_NOTEBOOK_PAGE_CHANGED	(ID_WND_WKSP, CWKSP::On_Page_Changed)
+	EVT_NOTEBOOK_PAGE_CHANGING(ID_WND_WKSP, CWKSP::On_Page_Changing)
+	EVT_NOTEBOOK_PAGE_CHANGED (ID_WND_WKSP, CWKSP::On_Page_Changed)
 END_EVENT_TABLE()
 
 
@@ -142,61 +142,90 @@ END_EVENT_TABLE()
 CWKSP::CWKSP(wxWindow *pParent)
 	: wxNotebook(pParent, ID_WND_WKSP, wxDefaultPosition, wxDefaultSize, wxNB_TOP|wxNB_MULTILINE, _TL("Manager"))
 {
-	wxNotebook	*pNotebook;
-
-	//-----------------------------------------------------
-	g_pWKSP		= this;
+	g_pWKSP = this;
 
 	//-----------------------------------------------------
 	AssignImageList(new wxImageList(IMG_SIZE_NOTEBOOK, IMG_SIZE_NOTEBOOK, true, 0));
 
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_TOOLS);
-	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_DATA);
-	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_MAPS);
+	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_DATA );
+	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_MAPS );
 
 	//-----------------------------------------------------
-	m_pTools		= new CWKSP_Tool_Control(this);
+	bool bValue;
 
-	SUBNB_CREATE(ID_WND_WKSP_DATA, _TL("Data"));
-	m_pData			= new CWKSP_Data_Control(pNotebook);
-	m_pData_Buttons	= new CWKSP_Data_Buttons(pNotebook);
+	m_pTools = new CWKSP_Tool_Control(this);
 
-	SUBNB_CREATE(ID_WND_WKSP_MAPS, _TL("Maps"));
-	m_pMaps			= new CWKSP_Map_Control (pNotebook);
-	m_pMaps_Buttons	= new CWKSP_Map_Buttons (pNotebook);
+	if( !CONFIG_Read("/DATA", "THUMBNAILS", bValue) || bValue )
+	{
+		SUBNB_CREATE(ID_WND_WKSP_DATA, _TL("Data"));
+		m_pData         = new CWKSP_Data_Control(pNotebook);
+		m_pData_Buttons = new CWKSP_Data_Buttons(pNotebook);
+	}
+	else
+	{
+		m_pData         = new CWKSP_Data_Control(this);
+		m_pData_Buttons = NULL;
+	}
+
+	if( !CONFIG_Read("/MAPS", "THUMBNAILS", bValue) || bValue )
+	{
+		SUBNB_CREATE(ID_WND_WKSP_MAPS, _TL("Maps"));
+		m_pMaps         = new CWKSP_Map_Control (pNotebook);
+		m_pMaps_Buttons = new CWKSP_Map_Buttons (pNotebook);
+	}
+	else
+	{
+		m_pMaps         = new CWKSP_Map_Control (this);
+		m_pMaps_Buttons = NULL;
+	}
 }
 
 //---------------------------------------------------------
 void CWKSP::Add_Pages(void)
 {
-	long	lValue;
+	AddPage(m_pTools, _TL("Tools"), false, IMG_TOOLS);
 
 	//-----------------------------------------------------
-	AddPage(m_pTools            , _TL("Tools"), false, IMG_TOOLS);
-	AddPage(m_pData->GetParent(), _TL("Data" ), false, IMG_DATA );
-	AddPage(m_pMaps->GetParent(), _TL("Maps" ), false, IMG_MAPS );
+	if( m_pData_Buttons )
+	{
+		AddPage(m_pData->GetParent(), _TL("Data" ), false, IMG_DATA);
 
-	if( CONFIG_Read("/DATA", "TAB", lValue) )
+		((wxNotebook *)m_pData->GetParent())->AddPage(m_pData        , SUBNB_CAPTION_TREE   , false, 0);
+		((wxNotebook *)m_pData->GetParent())->AddPage(m_pData_Buttons, SUBNB_CAPTION_BUTTONS, false, 1);
+
+		long lValue; if( CONFIG_Read("/DATA/BUTTONS", "TAB", lValue) )
+		{
+			((wxNotebook *)m_pData->GetParent())->SetSelection((size_t)lValue);
+		}
+	}
+	else
+	{
+		AddPage(m_pData, _TL("Data" ), false, IMG_DATA);
+	}
+
+	//-----------------------------------------------------
+	if( m_pMaps_Buttons )
+	{
+		AddPage(m_pMaps->GetParent(), _TL("Maps" ), false, IMG_MAPS);
+
+		((wxNotebook *)m_pMaps->GetParent())->AddPage(m_pMaps        , SUBNB_CAPTION_TREE   , false, 0);
+		((wxNotebook *)m_pMaps->GetParent())->AddPage(m_pMaps_Buttons, SUBNB_CAPTION_BUTTONS, false, 1);
+
+		long lValue; if( CONFIG_Read("/MAPS/BUTTONS", "TAB", lValue) )
+		{
+			((wxNotebook *)m_pMaps->GetParent())->SetSelection((size_t)lValue);
+		}
+	}
+	else
+	{
+		AddPage(m_pMaps, _TL("Maps" ), false, IMG_MAPS);
+	}
+
+	//-----------------------------------------------------
+	long lValue; if( CONFIG_Read("/DATA", "TAB", lValue) )
 	{
 		SetSelection((size_t)lValue);
-	}
-
-	//-----------------------------------------------------
-	((wxNotebook *)m_pData->GetParent())->AddPage(m_pData			, SUBNB_CAPTION_TREE	, false, 0);
-	((wxNotebook *)m_pData->GetParent())->AddPage(m_pData_Buttons	, SUBNB_CAPTION_BUTTONS	, false, 1);
-
-	if( CONFIG_Read("/DATA/BUTTONS", "TAB", lValue) )
-	{
-		((wxNotebook *)m_pData->GetParent())->SetSelection((size_t)lValue);
-	}
-
-	//-----------------------------------------------------
-	((wxNotebook *)m_pMaps->GetParent())->AddPage(m_pMaps			, SUBNB_CAPTION_TREE	, false, 0);
-	((wxNotebook *)m_pMaps->GetParent())->AddPage(m_pMaps_Buttons	, SUBNB_CAPTION_BUTTONS	, false, 1);
-
-	if( CONFIG_Read("/MAPS/BUTTONS", "TAB", lValue) )
-	{
-		((wxNotebook *)m_pMaps->GetParent())->SetSelection((size_t)lValue);
 	}
 }
 
@@ -205,8 +234,15 @@ CWKSP::~CWKSP(void)
 {
 	CONFIG_Write("/DATA", "TAB", (long)GetSelection());
 
-	CONFIG_Write("/DATA/BUTTONS", "TAB", (long)((wxNotebook *)m_pData->GetParent())->GetSelection());
-	CONFIG_Write("/MAPS/BUTTONS", "TAB", (long)((wxNotebook *)m_pMaps->GetParent())->GetSelection());
+	if( m_pData_Buttons )
+	{
+		CONFIG_Write("/DATA/BUTTONS", "TAB", (long)((wxNotebook *)m_pData->GetParent())->GetSelection());
+	}
+
+	if( m_pMaps_Buttons )
+	{
+		CONFIG_Write("/MAPS/BUTTONS", "TAB", (long)((wxNotebook *)m_pMaps->GetParent())->GetSelection());
+	}
 
 	g_pWKSP	= NULL;
 }

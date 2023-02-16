@@ -399,7 +399,7 @@ bool CLandUse_Scenario::Get_Scenario(int nYears, CSG_Table &Scenario, const CSG_
 				{
 					pArea	+= Area_Crop[iType];
 
-					if( pCrop - pArea < 0.000001 )	// if( pCrop < pArea ) pech mit fließkommagenauigkeit...
+					if( pCrop - pArea < 0.000001 )	// if( pCrop < pArea ) pech mit flieÃŸkommagenauigkeit...
 					{
 						Type	= iType;
 					}

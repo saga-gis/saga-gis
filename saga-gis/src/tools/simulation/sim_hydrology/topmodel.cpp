@@ -182,7 +182,7 @@ CTOPMODEL::CTOPMODEL(void)
 	);
 
 	Parameters.Add_Double("",
-		"P_LNTE"		, _TL("Areal average of ln(T0) = ln(Te) [ln(m^2/h)]"),
+		"P_LNTE"		, _TL("Areal average of ln(T0) = ln(Te) [ln(m²/h)]"),
 		_TL(""),
 		5.0
 	);
@@ -293,7 +293,7 @@ bool CTOPMODEL::On_Execute(void)
 	pTable->Set_Name(_TL("TOPMODEL - Simulation Output"));
 
 	pTable->Add_Field(_TL("Time")										, SG_DATATYPE_String);
-	pTable->Add_Field(_TL("Total flow (in watershed) (m^3/dt)")			, SG_DATATYPE_Double);
+	pTable->Add_Field(_TL("Total flow (in watershed) (m³/dt)")			, SG_DATATYPE_Double);
 	pTable->Add_Field(_TL("Total flow (m/dt)")							, SG_DATATYPE_Double);
 	pTable->Add_Field(_TL("Saturation overland flow (m/dt)")			, SG_DATATYPE_Double);
 	pTable->Add_Field(_TL("Subsurface flow (m/dt)")						, SG_DATATYPE_Double);

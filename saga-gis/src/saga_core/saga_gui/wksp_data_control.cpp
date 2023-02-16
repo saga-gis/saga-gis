@@ -141,7 +141,7 @@ CWKSP_Data_Control	*g_pData_Ctrl	= NULL;
 CWKSP_Data_Control::CWKSP_Data_Control(wxWindow *pParent)
 	: CWKSP_Base_Control(pParent, ID_WND_WKSP_DATA)
 {
-	g_pData_Ctrl		= this;
+	g_pData_Ctrl = this;
 
 	SetWindowStyle(wxTR_HAS_BUTTONS|wxTR_MULTIPLE);
 
@@ -235,10 +235,7 @@ void CWKSP_Data_Control::Add_Item(CWKSP_Base_Manager *pManager, CWKSP_Base_Item 
 		Expand		(pManager->GetId());
 
 		//-------------------------------------------------
-		if( g_pData_Buttons )
-		{
-			g_pData_Buttons->Update_Buttons();
-		}
+		if( g_pData_Buttons ) { g_pData_Buttons->Update_Buttons(); }
 	}
 }
 

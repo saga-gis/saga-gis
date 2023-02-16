@@ -400,11 +400,11 @@ double **doberes_dreieck_all_alloc_1 (long n);
 /* eine Matrix mit Indexbereich 0, ... zn - 1 (Zeilen)     */
 /*                              0, ... sn - 1 (Spalten)    */
 /* allokieren                                              */
-/* Hier werden der double-Vektor a für die Matrixelemente  */
-/* (gesamte Größe der Matrix) und ein Vektor m von Zeigern */
+/* Hier werden der double-Vektor a fÃ¼r die Matrixelemente  */
+/* (gesamte GrÃ¶ÃŸe der Matrix) und ein Vektor m von Zeigern */
 /* allokiert. Der double Vektor a wird initialisiert, die  */
 /* Elemente des Zeiger-vektors m werden auf die "Zeilen-   */
-/* anfänge" (entsprechende Elemente von a) gesetzt,        */
+/* anfÃ¤nge" (entsprechende Elemente von a) gesetzt,        */
 /* so dass m [0][0] = a [0].                               */
 /***********************************************************/
 

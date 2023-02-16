@@ -54,6 +54,7 @@
 #include "res_dialogs.h"
 
 #include "helper.h"
+#include "saga_frame.h"
 
 #include "wksp_data_manager.h"
 #include "wksp_map_buttons.h"
@@ -73,7 +74,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Map_Manager	*g_pMaps	= NULL;
+CWKSP_Map_Manager *g_pMaps = NULL;
 
 
 ///////////////////////////////////////////////////////////
@@ -85,19 +86,27 @@ CWKSP_Map_Manager	*g_pMaps	= NULL;
 //---------------------------------------------------------
 CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 {
-	g_pMaps		= this;
+	g_pMaps = this; m_Numbering = 0;
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Int("",
-		"THUMBNAIL_SIZE"		, _TL("Thumbnail Size"),
-		_TL(""),
-		75, 10, true
+	m_Parameters.Add_Bool (""          , "THUMBNAILS"        , _TL("Thumbnails"     ), _TL(""), true);
+	m_Parameters.Add_Int  ("THUMBNAILS", "THUMBNAIL_SIZE"    , _TL("Size"           ), _TL(""), 75, 10, true);
+	m_Parameters.Add_Color("THUMBNAILS", "THUMBNAIL_SELCOLOR", _TL("Selection Color"), _TL(""), Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW)));
+
+	m_Parameters.Add_Int  (""          , "NUMBERING"         , _TL("Map Numeration" ),
+		_TL("Minimum width of map numbering. If set to 0 no numbering is applied at all. Negative values will prepend zeros. Having many maps numbering helps in unambiguos map identification."),
+		2
 	);
 
-	m_Parameters.Add_Color("THUMBNAIL_SIZE",
-		"THUMBNAIL_SELCOLOR"	, _TL("Selection Color"),
-		_TL(""),
-		Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW))
+	//-----------------------------------------------------
+	m_Parameters.Add_Choice("",
+		"CROSSHAIR"	, _TL("Cross Hair"),
+		_TL("Display a cross hair of a map's current mouse position in all maps."),
+		CSG_String::Format("%s|%s|%s",
+			_TL("no"),
+			_TL("yes"),
+			_TL("projected")
+		), 0
 	);
 
 	m_Parameters.Add_Bool("",
@@ -112,96 +121,29 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 		NULL, NULL, false, true
 	);
 
-	m_Parameters.Add_Choice("",
-		"CROSSHAIR"	, _TL("Cross Hair"),
-		_TL("Display a cross hair of a map's current mouse position in all maps."),
-		CSG_String::Format("%s|%s|%s",
-			_TL("no"),
-			_TL("yes"),
-			_TL("projected")
-		), 0
-	);
+	//-----------------------------------------------------
+	m_Parameters.Add_Node  ("", "NODE_DEFAULTS", _TL("Defaults for New Maps"), _TL(""));
+
+	m_Parameters.Add_Bool  ("NODE_DEFAULTS", "GOTO_NEWLAYER", _TL("Zoom to added layer"), _TL(""), false);
+	m_Parameters.Add_Bool  ("NODE_DEFAULTS", "CRS_CHECK"    , _TL("CRS Check"          ), _TL("Perform a coordinate system compatibility check before a layer is added."), true);
+	m_Parameters.Add_Bool  ("NODE_DEFAULTS", "SCALE_BAR"    , _TL("Scale Bar"          ), _TL(""), false);
+	m_Parameters.Add_Bool  ("NODE_DEFAULTS", "FRAME_SHOW"   , _TL("Frame"              ), _TL(""), true );
+	m_Parameters.Add_Int   ("FRAME_SHOW"   , "FRAME_WIDTH"  , _TL("Width"              ), _TL(""), 17, 10, true);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Node("", "NODE_DEFAULTS", _TL("Defaults for New Maps"), _TL(""));
+	m_Parameters.Add_Node  ("", "NODE_CLIPBOARD", _TL("Clipboard"), _TL(""));
 
-	m_Parameters.Add_Bool("NODE_DEFAULTS",
-		"GOTO_NEWLAYER"	, _TL("Zoom to added layer"),
-		_TL(""),
-		false
-	);
-
-	m_Parameters.Add_Bool("NODE_DEFAULTS",
-		"CRS_CHECK"		, _TL("CRS Check"),
-		_TL("Perform a coordinate system compatibility check before a layer is added."),
-		true
-	);
-
-	m_Parameters.Add_Bool("NODE_DEFAULTS",
-		"SCALE_BAR"		, _TL("Scale Bar"),
-		_TL(""),
-		false
-	);
-
-	m_Parameters.Add_Bool("NODE_DEFAULTS",
-		"FRAME_SHOW"	, _TL("Frame"),
-		_TL(""),
-		true
-	);
-
-	m_Parameters.Add_Int("FRAME_SHOW",
-		"FRAME_WIDTH"	, _TL("Width"),
-		_TL(""),
-		17, 10, true
-	);
+	m_Parameters.Add_Int   ("NODE_CLIPBOARD" , "CLIP_NX"         , _TL("Width" ), _TL(""), 400, 10, true);
+	m_Parameters.Add_Int   ("NODE_CLIPBOARD" , "CLIP_NY"         , _TL("Height"), _TL(""), 400, 10, true);
+	m_Parameters.Add_Bool  ("NODE_CLIPBOARD" , "CLIP_FRAME_SHOW" , _TL("Frame" ), _TL(""), true);
+	m_Parameters.Add_Int   ("CLIP_FRAME_SHOW", "CLIP_FRAME_WIDTH", _TL("Width" ), _TL(""),  17,  0, true);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Node("", "NODE_CLIPBOARD", _TL("Clipboard"), _TL(""));
+	m_Parameters.Add_Node  ("NODE_CLIPBOARD", "NODE_CLIP_LEGEND", _TL("Legend"), _TL(""));
 
-	m_Parameters.Add_Int("NODE_CLIPBOARD",
-		"CLIP_NX"			, _TL("Width"),
-		_TL(""),
-		400, 10, true
-	);
-
-	m_Parameters.Add_Int("NODE_CLIPBOARD",
-		"CLIP_NY"			, _TL("Height"),
-		_TL(""),
-		400, 10, true
-	);
-
-	m_Parameters.Add_Bool("NODE_CLIPBOARD",
-		"CLIP_FRAME_SHOW"	, _TL("Frame"),
-		_TL(""),
-		true
-	);
-
-	m_Parameters.Add_Int("CLIP_FRAME_SHOW",
-		"CLIP_FRAME_WIDTH"	, _TL("Width"),
-		_TL(""),
-		17, 0, true
-	);
-
-	//-----------------------------------------------------
-	m_Parameters.Add_Node("NODE_CLIPBOARD", "NODE_CLIP_LEGEND", _TL("Legend"), _TL(""));
-
-	m_Parameters.Add_Double("NODE_CLIP_LEGEND",
-		"CLIP_LEGEND_SCALE", _TL("Scale"),
-		_TL(""),
-		2.0, 1.0, true
-	);
-
-	m_Parameters.Add_Int("NODE_CLIP_LEGEND",
-		"CLIP_LEGEND_FRAME", _TL("Frame Width"),
-		_TL(""),
-		10, 0, true
-	);
-
-	m_Parameters.Add_Color("NODE_CLIP_LEGEND",
-		"CLIP_LEGEND_COLOR", _TL("Border Color"),
-		_TL(""),
-		SG_GET_RGB(0, 0, 0)
-	);
+	m_Parameters.Add_Double("NODE_CLIP_LEGEND", "CLIP_LEGEND_SCALE", _TL("Scale"       ), _TL(""),  2., 1., true);
+	m_Parameters.Add_Int   ("NODE_CLIP_LEGEND", "CLIP_LEGEND_FRAME", _TL("Frame Width" ), _TL(""), 10 , 0 , true);
+	m_Parameters.Add_Color ("NODE_CLIP_LEGEND", "CLIP_LEGEND_COLOR", _TL("Border Color"), _TL(""), SG_GET_RGB(0, 0, 0));
 
 	//-----------------------------------------------------
 	CONFIG_Read("/MAPS", &m_Parameters);
@@ -214,7 +156,7 @@ CWKSP_Map_Manager::~CWKSP_Map_Manager(void)
 {
 	CONFIG_Write("/MAPS", &m_Parameters);
 
-	g_pMaps		= NULL;
+	g_pMaps = NULL;
 }
 
 
@@ -231,16 +173,16 @@ wxString CWKSP_Map_Manager::Get_Name(void)
 //---------------------------------------------------------
 wxString CWKSP_Map_Manager::Get_Description(void)
 {
-	wxString	s;
+	wxString s;
 
 	//-----------------------------------------------------
-	s	+= wxString::Format("<h4>%s</h4>", _TL("Maps"));
+	s += wxString::Format("<h4>%s</h4>", _TL("Maps"));
 
-	s	+= "<table border=\"0\">";
+	s += "<table border=\"0\">";
 
 	DESC_ADD_INT(_TL("Number of Maps"), Get_Count());
 
-	s	+= "</table>";
+	s += "</table>";
 
 	//-----------------------------------------------------
 	return( s );
@@ -254,7 +196,7 @@ wxMenu * CWKSP_Map_Manager::Get_Menu(void)
 		return( NULL );
 	}
 
-	wxMenu	*pMenu	= new wxMenu(Get_Name());
+	wxMenu *pMenu = new wxMenu(Get_Name());
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 	pMenu->AppendSeparator();
@@ -291,7 +233,7 @@ bool CWKSP_Map_Manager::On_Command(int Cmd_ID)
 //---------------------------------------------------------
 void CWKSP_Map_Manager::Parameters_Changed(void)
 {
-	g_pMap_Buttons->Update_Buttons();
+	if( g_pMap_Buttons ) { g_pMap_Buttons->Update_Buttons(); }
 
 	CWKSP_Base_Manager::Parameters_Changed();
 
@@ -307,6 +249,47 @@ void CWKSP_Map_Manager::Parameters_Changed(void)
 			}
 		}
 	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CWKSP_Map_Manager::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
+{
+	//-----------------------------------------------------
+	if( Flags & PARAMETER_CHECK_VALUES )
+	{
+		if( g_pSAGA_Frame && g_pData )
+		{
+			if( pParameter->Cmp_Identifier("THUMBNAILS") )
+			{
+				if( DLG_Message_Confirm(_TL("Close now ?"), _TL("Restart SAGA to apply the changes")) )
+				{
+					m_Parameters.Assign_Values(pParameters);
+
+					if( g_pData->Close(true) )
+					{
+						g_pSAGA_Frame->Close();
+					}
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	if( Flags & PARAMETER_CHECK_ENABLE )
+	{
+		if(	pParameter->Cmp_Identifier("THUMBNAILS") )
+		{
+			pParameter->Set_Children_Enabled(pParameter->asBool());
+		}
+	}
+
+	//-----------------------------------------------------
+	return( CWKSP_Base_Manager::On_Parameter_Changed(pParameters, pParameter, Flags) );
 }
 
 
@@ -389,9 +372,9 @@ bool CWKSP_Map_Manager::Add(CWKSP_Layer *pLayer, CWKSP_Map *pMap)
 //---------------------------------------------------------
 bool CWKSP_Map_Manager::Del(CWKSP_Layer *pLayer)
 {
-	int		i, n;
+	int n = 0;
 
-	for(i=Get_Count()-1, n=0; i>=0; i--)
+	for(int i=Get_Count()-1; i>=0; i--)
 	{
 		if( g_pMap_Ctrl->Del_Item(Get_Map(i), pLayer) )
 		{
@@ -405,9 +388,9 @@ bool CWKSP_Map_Manager::Del(CWKSP_Layer *pLayer)
 //---------------------------------------------------------
 bool CWKSP_Map_Manager::Update(CWKSP_Layer *pLayer, bool bMapsOnly)
 {
-	int		i, n;
+	int n = 0;
 
-	for(i=0, n=0; i<Get_Count(); i++)
+	for(int i=0; i<Get_Count(); i++)
 	{
 		if( Get_Map(i)->Update(pLayer, bMapsOnly) )
 		{
@@ -416,6 +399,36 @@ bool CWKSP_Map_Manager::Update(CWKSP_Layer *pLayer, bool bMapsOnly)
 	}
 
 	return( n > 0 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Map_Manager::Reset_Numbering(void)
+{
+	if( Get_Count() == 0 )
+	{
+		m_Numbering = 0;
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+wxString CWKSP_Map_Manager::Get_Numbering(void)
+{
+	m_Numbering++; int Numbering = g_pMaps->Get_Parameter("NUMBERING")->asInt();
+
+	if( Numbering  >  1 ) { return( wxString::Format( "%*d. ",  Numbering, m_Numbering) ); }
+	if( Numbering  < -1 ) { return( wxString::Format("%0*d. ", -Numbering, m_Numbering) ); }
+	if( Numbering !=  0 ) { return( wxString::Format(  "%d. "            , m_Numbering) ); }
+
+	return( "" );
 }
 
 
@@ -439,16 +452,16 @@ void CWKSP_Map_Manager::Set_Mouse_Position(const TSG_Point &Point, const CSG_Pro
 {
 	if( m_CrossHair > 0 )
 	{
-		m_CrossHair	*= -1;
+		m_CrossHair *= -1;
 
-		CSG_Projection	Invalid;
+		CSG_Projection Invalid;
 
 		for(int i=0; i<Get_Count(); i++)
 		{
 			Get_Map(i)->Set_CrossHair(Point, m_CrossHair == -2 ? Projection : Invalid);
 		}
 
-		m_CrossHair	*= -1;
+		m_CrossHair *= -1;
 	}
 }
 

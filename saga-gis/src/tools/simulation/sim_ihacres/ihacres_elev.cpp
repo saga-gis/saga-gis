@@ -132,7 +132,7 @@ bool Cihacres_elev::On_Execute()
 		m_pTable->Set_Name(SG_T("IHACRES_ElevBands_output"));
 		Parameters("TABLEout")->Set_Value(m_pTable);
 
-		delete[] m_p_elevbands; // sämtliche Unter-Pointer noch löschen
+		delete[] m_p_elevbands; // sÃ¤mtliche Unter-Pointer noch lÃ¶schen
 		delete[] m_p_pcpField;
 		delete[] m_p_tmpField;
 		delete m_p_linparms;

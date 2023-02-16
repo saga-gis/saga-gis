@@ -25,7 +25,7 @@ T_AnweisungList AnweisungList;
 
 bool getNextZuweisung(const string& s, int& pos, string& erg)
 {
-	// Erstellt string von (zeile, pos) bis zum nächsten Komma
+	// Erstellt string von (zeile, pos) bis zum nÃ¤chsten Komma
 	string sub = s.substr(pos);
 	erg = "";
 	int p;
@@ -163,7 +163,7 @@ void pars_ausdruck_string(const string& s, T_AnweisungList & al)
 				if (getFunktion(s, p, anweisungen))
 				{
 					BBFktExe *fkt;				
-					if (!isFunktion(anweisungen, fkt, true, true)) // alle Funktionen erwünscht
+					if (!isFunktion(anweisungen, fkt, true, true)) // alle Funktionen erwÃ¼nscht
 						throw BBFehlerException(pos);
 					BBAnweisung *a;
 					a = new BBAnweisung;
@@ -276,7 +276,7 @@ void pars_ausdruck(int& zeile, int& pos)
 	}
 	catch (BBFehlerException)
 	{
-		// Übersetzen in Zeilen-Nummer
+		// Ãœbersetzen in Zeilen-Nummer
 		for (i=0; i<InputZeilenNummer.size(); i++)
 		{
 			int znr = InputZeilenNummer[i];

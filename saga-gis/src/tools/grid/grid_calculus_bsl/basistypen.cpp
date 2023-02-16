@@ -177,7 +177,7 @@ bool getNextToken(int &zeile, int& pos, string& erg)
 
 bool getNextZeile(int &zeile, int& pos, string& erg)
 {
-	// Erstellt string von (zeile, pos) bis zum n‰chsten Komma
+	// Erstellt string von (zeile, pos) bis zum n√§chsten Komma
 	if (zeile >= (int)InputText.size())
 		return false;
 	string sub = InputText[zeile].substr(pos);
@@ -235,7 +235,7 @@ bool isNotEnd(int& zeile, int& pos, string& s)
 	}
 	else
 	{
-		// ¸berpr¸fen, ob s nur aus Whitespaces besteht
+		// √ºberpr√ºfen, ob s nur aus Whitespaces besteht
 
 	}
 	return true;
@@ -286,7 +286,7 @@ void ParseVars(int& zeile, int& pos)
 		while (getNextToken(zeile, pos, subz))
 		{
 			FehlerZeile = zeile;
-			// einf¸gen in VarList
+			// einf√ºgen in VarList
 			BBTyp *bt;
 			switch(t)
 			{
@@ -371,14 +371,14 @@ void ParseVars(int& zeile, int& pos)
 			}
 			VarList.push_back(bt);
 
-			// ¸berpr¸fen auf Komma
+			// √ºberpr√ºfen auf Komma
 			if (!isNextChar(zeile, pos, ','))
 				break;
 			// wenn Komma, nochmal
 			if (!getNextChar(zeile, pos, c))
 				throw BBFehlerException(zeile);
 		}
-		// ¸berpr¸fen auf Semikolon;
+		// √ºberpr√ºfen auf Semikolon;
 		if (!getNextChar(zeile, pos, c) || c != ';')
 			throw BBFehlerException(zeile);
 		zeile_old = zeile;
@@ -386,7 +386,7 @@ void ParseVars(int& zeile, int& pos)
 	}
 }
 
-// ¸berpr¸ft, ob string eine g¸ltige Variable ist
+// √ºberpr√ºft, ob string eine g√ºltige Variable ist
 BBTyp *isVar(const string& s)
 {
 	if (VarList.empty())
@@ -423,7 +423,7 @@ BBTyp::T_type getVarType(BBTyp *s)
 	return s->type;
 }
 
-// liefert die jeweilige Variable zur¸ck
+// liefert die jeweilige Variable zur√ºck
 BBInteger *getVarI(BBTyp *s)
 {
 	return ((BBInteger *) s);
@@ -494,7 +494,7 @@ bool GetMemoryGrids(CSG_Parameters *BSLParameters)
 		{	
 			BBMatrix *M = getVarM(*it);
 
-			if (!M->isMem) // falls noch erzeugt werden muﬂ
+			if (!M->isMem) // falls noch erzeugt werden mu√ü
 			{
 				CSG_Grid	*pInput	= (*BSLParameters)(M->name.c_str())->asGrid();
 				GridWerte	*pGrid	= new GridWerte();
@@ -626,7 +626,7 @@ void AddMatrixPointVariables(bool pointer2matrix)
   
 */
 		
-	// kommt sp‰ter
+	// kommt sp√§ter
 	//if (!pointer2matrix)
 		VarList.sort(compare_BB_greater());
 }

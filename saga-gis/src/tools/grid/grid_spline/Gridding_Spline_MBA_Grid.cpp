@@ -389,7 +389,7 @@ bool CGridding_Spline_MBA_Grid::BA_Set_Phi(CSG_Grid &Phi, double Cellsize)
 		{
 			int	iy;	double	W[4][4], SW2	= 0.;
 
-			for(iy=0; iy<4; iy++)	// compute W[k,l] and Sum[a=0-3, b=0-3](W²[a,b])
+			for(iy=0; iy<4; iy++)	// compute W[k,l] and Sum[a=0-3, b=0-3](WÂ²[a,b])
 			{
 				double	wy	= BA_Get_B(iy, p_y - y);
 

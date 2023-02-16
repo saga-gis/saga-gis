@@ -499,7 +499,7 @@ bool CWatersheds_ext::Get_Basin(CSG_Grid *pBasins, CSG_Shapes *pPolygons, int xM
 		pPolygon->Set_Value(FIELD_EQVRECT_A		, Side_A);
 		pPolygon->Set_Value(FIELD_EQVRECT_B		, Side_B);
 
-		pPolygon->Set_Value(FIELD_OROG_IDX		, SG_Get_Square(s_Height.Get_Mean()) / (0.0001 * Area));	// Orographic index, defined as the mean catchment altitude times the ratio of the mean catchment altitude to the orthogonal projection of drainage area (Alcázar, Palau (2010): Establishing environmental flow regimes in a Mediterranean watershed based on a regional classification. Journal of Hydrology, V. 388
+		pPolygon->Set_Value(FIELD_OROG_IDX		, SG_Get_Square(s_Height.Get_Mean()) / (0.0001 * Area));	// Orographic index, defined as the mean catchment altitude times the ratio of the mean catchment altitude to the orthogonal projection of drainage area (AlcÃ¡zar, Palau (2010): Establishing environmental flow regimes in a Mediterranean watershed based on a regional classification. Journal of Hydrology, V. 388
 		pPolygon->Set_Value(FIELD_MASS_IDX		, Perimeter / (0.0001 * Area));								// Perimeter / (0.0001 * Area) ??!!
 
 		pPolygon->Set_Value(FIELD_BASINS_UP		, 0.0);	// Upslope Basins

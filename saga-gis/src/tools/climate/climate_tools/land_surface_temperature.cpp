@@ -10,7 +10,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//              land_surface_temperature.cpp              //
+//              land_surface_temperature.cpp             //
 //                                                       //
 //                 Copyright (C) 2020 by                 //
 //                      Olaf Conrad                      //
@@ -78,7 +78,7 @@ CLand_Surface_Temperature::CLand_Surface_Temperature(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_or_Const("", "IRRADIANCE", _TL("Global Irradiance"),
-		_TL("[W/m2]"),
+		_TL("[W/m²]"),
 		5. , 0., true
 	);
 
@@ -93,7 +93,7 @@ CLand_Surface_Temperature::CLand_Surface_Temperature(void)
 	);
 
 	Parameters.Add_Grid_or_Const("", "CONVECTION", _TL("Convection Coefficient"),
-		_TL("Convection heat transfer coefficient [W/m2/K]."),
+		_TL("Convection heat transfer coefficient [W/m²/K]."),
 		10., 0., true
 	);
 
@@ -182,7 +182,10 @@ bool CLand_Surface_Temperature::On_Execute(void)
 			if( (pIrradiance && pIrradiance->is_NoData(x, y))
 			||  (pAlbedo     && pAlbedo    ->is_NoData(x, y))
 			||  (pEmissivity && pEmissivity->is_NoData(x, y))
-			||  (pConvection && pConvection->is_NoData(x, y)) )
+			||  (pConvection && pConvection->is_NoData(x, y))
+			||  (pT_air      && pT_air     ->is_NoData(x, y))
+			||  (pT_sky      && pT_sky     ->is_NoData(x, y))
+			||  (pT_initial  && pT_initial ->is_NoData(x, y)) )
 			{
 				pLST->Set_NoData(x, y);
 
@@ -221,8 +224,11 @@ bool CLand_Surface_Temperature::On_Execute(void)
 	//-----------------------------------------------------
 	if( Parameters("UNIT")->asInt() == 1 )
 	{
-		pLST->Set_Unit("Celsius");
-		pLST->Set_Scaling(1., -273.15);
+		pLST->Set_Unit("°C"); pLST->Set_Scaling(1., -273.15);
+	}
+	else
+	{
+		pLST->Set_Unit("Kelvin");
 	}
 
 	return( true );

@@ -1014,7 +1014,7 @@ void CProfile_Cross_Sections_PDF::DrawGuitar(TSG_Point *pProfile,
 	double fMinX, fMaxX;
 	double fDif;
 	CSG_String sValue;
-	CSG_String sField [] = {"Distancia","Dist. Parcial.", "Elevacion del terreno", "Elevación de la calzada", " ", " "};
+	CSG_String sField [] = {"Distancia","Dist. Parcial.", "Elevacion del terreno", "ElevaciÃ³n de la calzada", " ", " "};
 	double fHeight;
 
 	fMinX = pProfile[0].x;

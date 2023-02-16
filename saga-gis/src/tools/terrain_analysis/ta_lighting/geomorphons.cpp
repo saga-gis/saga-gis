@@ -119,13 +119,13 @@ CGeomorphons::CGeomorphons(void)
 	));
 
 	Add_Reference("Jasiewicz, J. / Stepinski, T.F.", "2013",
-		"Geomorphons — a pattern recognition approach to classification and mapping of landforms",
+		"Geomorphons â€” a pattern recognition approach to classification and mapping of landforms",
 		"Geomorphology, 182, 147-156.",
 		SG_T("https://www.sciencedirect.com/science/article/pii/S0169555X12005028"), SG_T("ScienceDirect")
 	);
 
 	Add_Reference("Stepinski, T.F. / Jasiewicz, J.", "2011",
-		"Geomorphons — a pattern recognition approach to classification and mapping of landforms",
+		"Geomorphons â€” a pattern recognition approach to classification and mapping of landforms",
 		"In: Hengl, T. / Evans, I.S. / Wilson, J.P. / Gould, M. [Eds.]: Proceedings of Geomorphometry 2011, Redlands, 109-112.",
 		SG_T("http://geomorphometry.org/system/files/StepinskiJasiewicz2011geomorphometry.pdf"), SG_T("pdf at geomorphometry.org")
 	);

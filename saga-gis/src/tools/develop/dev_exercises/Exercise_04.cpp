@@ -69,7 +69,7 @@ CExercise_04::CExercise_04(void)
 	));
 
 	Add_Reference("Conrad, O.", "2007",
-		"SAGA - Entwurf, Funktionsumfang und Anwendung eines Systems für Automatisierte Geowissenschaftliche Analysen",
+		"SAGA - Entwurf, Funktionsumfang und Anwendung eines Systems fÃ¼r Automatisierte Geowissenschaftliche Analysen",
 		"ediss.uni-goettingen.de.", SG_T("http://hdl.handle.net/11858/00-1735-0000-0006-B26C-6"), SG_T("Online")
 	);
 

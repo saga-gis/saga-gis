@@ -342,7 +342,7 @@ void Resample::interpol(GridWerte& Erg)
 * Autor            : Dipl. Geogr. Ruediger Koethe 
 *                    Geographisches Institut der Universitaet Goettingen
 *                    Goldschmidtstr. 5, 3400 Goettingen
-* verändert von    : Corinna Walther
+* verÃ¤ndert von    : Corinna Walther
 * Erstellt am      : 21-OCT-1993 15:04
 * Letzte Aenderung : 29-JAN-1996 19:13
 ************************************************************************
@@ -350,7 +350,7 @@ C
 C Kurzbeschreibung:
 C -----------------
 C
-C Testprogramm für SARA zum Einbinden der Subroutine DGM_RESAMPLE
+C Testprogramm fÃ¼r SARA zum Einbinden der Subroutine DGM_RESAMPLE
 C
 C Aufbau von binaeren DGM-Dateien:
 C - unformatierte sequentielle Datei
@@ -406,12 +406,12 @@ C=======================================================================
 
       WRITE (*,*) ' '
       WRITE (*,*) 'Programm DGMGLATT zur Aufbereitung von DGM mit ',
-     &            'gerundeten Höhenwerten'
+     &            'gerundeten HÃ¶henwerten'
       WRITE (*,*) ' '
 
 C Name der DGM-Datei mit gerundeten Hoehenwerten erfragen
 C und Datei oeffnen
-10    WRITE (*,*) 'Name der DGM-Datei mit gerundeten Höhenwerten ',
+10    WRITE (*,*) 'Name der DGM-Datei mit gerundeten HÃ¶henwerten ',
      &            '(ohne Extension):'
       READ  (*,'(A)') NAME1
       L1 = LAENGE(NAME1)
@@ -425,18 +425,18 @@ C und Datei oeffnen
 
 C Name fuer DGM-Datei mit aufbereiteten Hoehenwerten erfragen
 C und Datei oeffnen
-20    WRITE (*,*) 'Name für die aufbereitete DGM-Datei ',
+20    WRITE (*,*) 'Name fÃ¼r die aufbereitete DGM-Datei ',
      &            '(ohne Extension):'
       READ  (*,'(A)') NAME2
       IF (NAME1.EQ.NAME2) THEN
-        WRITE (*,*) '-W- Für aufbereitete DGM-Datei bitte anderen ',
+        WRITE (*,*) '-W- FÃ¼r aufbereitete DGM-Datei bitte anderen ',
      &              'Namen verwenden'
         GOTO 20
       END IF
       L2 = LAENGE(NAME2)
       OPEN(UNIT=U2,FILE=NAME2(1:L2)//'.BIN',STATUS='NEW',ERR=920,
      &     FORM='UNFORMATTED')
-      WRITE (*,*) 'Titelzeile für aufbereitete DGM-Datei:'
+      WRITE (*,*) 'Titelzeile fÃ¼r aufbereitete DGM-Datei:'
       WRITE (*,*) '(Bei Eingabe von <RETURN> wird alte Titelzeile ',
      &            'genommen)'
       READ (*,'(A)') TITEL2
@@ -462,7 +462,7 @@ C      CALL SET_XYNB
 
 C DGM-Datei mit gerundeten Hoehenwerten lesen
       WRITE (*,*) '-I- Die DGM-Datei mit den gerundeten ',
-     &            'Höhenwerten wird gelesen...'
+     &            'HÃ¶henwerten wird gelesen...'
       CALL READ_DGMBIN(0,U1,TITEL,HKNFT,DXY,XMIN,YMIN,XOGR,YOGR,DATTYP)
       WRITE (*,*) HOEHE(1,1)
       write (*,*) hoehe(2,2)
@@ -479,7 +479,7 @@ C Programm zum Generalisieren wird gerufen
         
 C DGM-Datei mit generalisierten Hoehenwerten erzeugen
       WRITE (*,*) '-I- Die DGM-Datei mit den generalisierten ',
-     &            'Höhenwerten wird erzeugt...'
+     &            'HÃ¶henwerten wird erzeugt...'
 C     ...Header schreiben
       WRITE (U2) TITEL2
       WRITE (U2) HKNFT
@@ -496,12 +496,12 @@ C Dateien schliessen
       STOP
 
 C Fehlerbehandlung
-910   WRITE (*,*) '-F- Fehler beim Öffnen der DGM-Datei mit ',
-     &            'gerundeteten Höhenwerten'
+910   WRITE (*,*) '-F- Fehler beim Ã–ffnen der DGM-Datei mit ',
+     &            'gerundeteten HÃ¶henwerten'
       STOP
 
-920   WRITE (*,*) '-F- Fehler beim Öffnen der DGM-Datei für ',
-     &            'die aufbereiteten Höhenwerte'
+920   WRITE (*,*) '-F- Fehler beim Ã–ffnen der DGM-Datei fÃ¼r ',
+     &            'die aufbereiteten HÃ¶henwerte'
       STOP
       END
 
@@ -635,7 +635,7 @@ C          write (*,*) 'ns=', ns, 'ms=', ms
           DM = MHILF - M
 C          write (*,*) 'dn=', dn, 'dm=', dm
           SUM = 0.0
-C 16 Werte einlesen und auf Missing Values überprüfen....
+C 16 Werte einlesen und auf Missing Values Ã¼berprÃ¼fen....
           Y = 0
           WERTSUM = 0.0
           WERT = 0.0
@@ -650,9 +650,9 @@ C 16 Werte einlesen und auf Missing Values überprüfen....
                 FELD16(V,U) = WERT
 99          CONTINUE
 90        CONTINUE
-C wenn mehr als 8 Werte MV sind, ist der neue Höhenwert auch ein
+C wenn mehr als 8 Werte MV sind, ist der neue HÃ¶henwert auch ein
 C MV, wenn weniger vorhanden sind, wird an ihrer Stelle der arithm.
-C Mittelwert der übrigen Höhenwerte eingesetzt...
+C Mittelwert der Ã¼brigen HÃ¶henwerte eingesetzt...
           IF (Y .GE. 8) THEN
             HOEHE3(NS,MS) = -999.0
             GOTO 20

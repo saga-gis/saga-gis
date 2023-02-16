@@ -43,9 +43,9 @@
 //    contact:    Volker Wichmann                        //
 //                Research Associate                     //
 //                Chair of Physical Geography		     //
-//				  KU Eichst‰tt-Ingolstadt				 //
+//				  KU Eichst√§tt-Ingolstadt				 //
 //                Ostenstr. 18                           //
-//                85072 Eichst‰tt                        //
+//                85072 Eichst√§tt                        //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////

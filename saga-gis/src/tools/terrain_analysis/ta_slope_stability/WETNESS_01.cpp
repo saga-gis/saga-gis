@@ -16,7 +16,7 @@
 //                    WETNESS_01.cpp                     //
 //                                                       //
 //                 Copyright (C) 2012 by                 //
-//                     Andreas Günther                   //
+//                     Andreas GÃ¼nther                   //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -41,7 +41,7 @@
 //                                                       //
 //    e-mail:     a.guenther@bgr.de                      //
 //                                                       //
-//    contact:    Andreas Günther                        //
+//    contact:    Andreas GÃ¼nther                        //
 //                B2.2								     //
 //                BGR				                     //
 //                Germany                                //
@@ -144,27 +144,27 @@ CWETNESS::CWETNESS(void)
 		);
 
 	Parameters.Add_Value(
-		NULL, "fCmin", "Min global material conductivity (m/hr)", "Constant value if no raster set", PARAMETER_TYPE_Double, 2.7					//Initialisierung eines fixen wertes vs Grid für density
+		NULL, "fCmin", "Min global material conductivity (m/hr)", "Constant value if no raster set", PARAMETER_TYPE_Double, 2.7					//Initialisierung eines fixen wertes vs Grid fÃ¼r density
 		);
 
 	Parameters.Add_Value(
-		NULL, "fCmax", "Max global material conductivity (m/hr)", "Constant value if no raster set", PARAMETER_TYPE_Double, 2.7					//Initialisierung eines fixen wertes vs Grid für density
+		NULL, "fCmax", "Max global material conductivity (m/hr)", "Constant value if no raster set", PARAMETER_TYPE_Double, 2.7					//Initialisierung eines fixen wertes vs Grid fÃ¼r density
 		);	
 	
 	Parameters.Add_Value(
-		NULL, "fDmin", "Min global groundwater recharge (m/hr)", "Constant value if no raster set", PARAMETER_TYPE_Double, 0.001						//Initialisierung eines fixen wertes vs Grid für conductivity
+		NULL, "fDmin", "Min global groundwater recharge (m/hr)", "Constant value if no raster set", PARAMETER_TYPE_Double, 0.001						//Initialisierung eines fixen wertes vs Grid fÃ¼r conductivity
 		);
 
 	Parameters.Add_Value(
-		NULL, "fDmax", "Max global groundwater recharge (m/hr)", "Constant value if no raster set", PARAMETER_TYPE_Double, 0.001						//Initialisierung eines fixen wertes vs Grid für conductivity
+		NULL, "fDmax", "Max global groundwater recharge (m/hr)", "Constant value if no raster set", PARAMETER_TYPE_Double, 0.001						//Initialisierung eines fixen wertes vs Grid fÃ¼r conductivity
 		);
 
 	Parameters.Add_Value(
-		NULL, "fEmin", "Min global material depth (m)", "Constant value if no raster set", PARAMETER_TYPE_Double, 1.0							//Initialisierung eines fixen wertes vs Grid für depth
+		NULL, "fEmin", "Min global material depth (m)", "Constant value if no raster set", PARAMETER_TYPE_Double, 1.0							//Initialisierung eines fixen wertes vs Grid fÃ¼r depth
 		);
 
 	Parameters.Add_Value(
-		NULL, "fEmax", "Max global material depth (m)", "Constant value if no raster set", PARAMETER_TYPE_Double, 1.0							//Initialisierung eines fixen wertes vs Grid für depth
+		NULL, "fEmax", "Max global material depth (m)", "Constant value if no raster set", PARAMETER_TYPE_Double, 1.0							//Initialisierung eines fixen wertes vs Grid fÃ¼r depth
 		);
 
 	Parameters.Add_Value(

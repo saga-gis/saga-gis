@@ -255,7 +255,7 @@ bool CWKSP_Data_Button::_Set_Active(bool bKeepOthers)
 			}
 		}
 
-		g_pData_Buttons->Refresh(false);
+		if( g_pData_Buttons ) { g_pData_Buttons->Refresh(false); }
 
 		return( true );
 	}
@@ -266,7 +266,7 @@ bool CWKSP_Data_Button::_Set_Active(bool bKeepOthers)
 
 		if( g_pData_Ctrl->Set_Item_Selected(m_pItem, bKeepOthers) )
 		{
-			g_pData_Buttons->Refresh(false);
+			if( g_pData_Buttons ) { g_pData_Buttons->Refresh(false); }
 		}
 
 		return( true );

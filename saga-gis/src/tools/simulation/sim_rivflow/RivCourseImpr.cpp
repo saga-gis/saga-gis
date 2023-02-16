@@ -76,20 +76,20 @@ CRivCourseImpr::CRivCourseImpr(void)
 	// Define your parameters list...
 
 	Parameters.Add_Grid(
-		NULL, "Input1"	, "Geländemodell (DTM)",
-		"Digitales Geländemodell des Flusseinzugsgebietes",
+		NULL, "Input1"	, "GelÃ¤ndemodell (DTM)",
+		"Digitales GelÃ¤ndemodell des Flusseinzugsgebietes",
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Value(
-		NULL, "diffH"	, "Höhendifferenz",
-		"Höhe in [m] um die der Wert der Zelle erniedrigt (positiver Wert) oder erhöht (negativer Wert) wird. ",
+		NULL, "diffH"	, "HÃ¶hendifferenz",
+		"HÃ¶he in [m] um die der Wert der Zelle erniedrigt (positiver Wert) oder erhÃ¶ht (negativer Wert) wird. ",
 		PARAMETER_TYPE_Double, 1	
 	);
 
 	Parameters.Add_Value(
 		NULL, "true", "Zufluss aus Nachbarzellen erzwingen",
-		"Der Zufluss aus allen Nachbarzellen - ausgenommen die Zelle in die Wasser abfließt - wird erzwungen. Hierbei wird die gewählte Zelle um obigen Höhendifferenzwert kleiner, als alle Nachbarzellen gesetzt.",
+		"Der Zufluss aus allen Nachbarzellen - ausgenommen die Zelle in die Wasser abflieÃŸt - wird erzwungen. Hierbei wird die gewÃ¤hlte Zelle um obigen HÃ¶hendifferenzwert kleiner, als alle Nachbarzellen gesetzt.",
 		PARAMETER_TYPE_Bool, false
 	);
 	
@@ -117,15 +117,15 @@ bool CRivCourseImpr::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive
 		return( false );
 	}
 
-	double dValue = m_pDTM->asDouble(iX,iY); //Wert der ausgewählten Zelle
+	double dValue = m_pDTM->asDouble(iX,iY); //Wert der ausgewÃ¤hlten Zelle
 
 	if( Parameters("true")->asBool() )
 	{
-		minVal = m_pDTM->asDouble(iX, iY); //minVal zunächst auf Wert der ausgwählten Zelle gesetzt
+		minVal = m_pDTM->asDouble(iX, iY); //minVal zunÃ¤chst auf Wert der ausgwÃ¤hlten Zelle gesetzt
 		int iN = m_pDTM->Get_Gradient_NeighborDir(iX, iY);//falls iN = -1 liegt Senke vor!!
-		nX = Get_xTo(iN, iX);//Koordinaten der niedrigsten Nachbarzelle (ist niedriger als ausgewählte Zelle)
+		nX = Get_xTo(iN, iX);//Koordinaten der niedrigsten Nachbarzelle (ist niedriger als ausgewÃ¤hlte Zelle)
 		nY = Get_yTo(iN, iY);
-		double vN = m_pDTM->asDouble(nX, nY); //Wert der niedrigsten Nachbarzelle (ist niedriger als ausgewählte Zelle)
+		double vN = m_pDTM->asDouble(nX, nY); //Wert der niedrigsten Nachbarzelle (ist niedriger als ausgewÃ¤hlte Zelle)
 		double setVal;
 
 		if(iN >= 0)

@@ -103,13 +103,13 @@ CSoil_Water_Capacity::CSoil_Water_Capacity(bool bGrids)
 
 	Add_Reference("Toth, B., Weynants, M., Nemes, A., Mako, A., Bilas, G., Toth, G.", "2015",
 		"New generation of hydraulic pedotransfer functions for Europe",
-		"European Journal of Soil Science, 66, 226�238.",
+		"European Journal of Soil Science, 66, 226–238.",
 		SG_T("https://doi.org/10.1111/ejss.12192"), SG_T("doi:10.1111/ejss.12192")
 	);
 
 	Add_Reference("Toth, B., Weynants, M., Pasztor, L, Hengl, T.", "2017",
 		"3D soil hydraulic database of Europe at 250 m resolution",
-		"Hydrological Processes, 31:2662�2666.",
+		"Hydrological Processes, 31:2662–2666.",
 		SG_T("https://doi.org/10.1002/hyp.11203"), SG_T("doi:10.1002/hyp.11203")
 	);
 
@@ -131,7 +131,7 @@ CSoil_Water_Capacity::CSoil_Water_Capacity(bool bGrids)
 		Parameters.Add_Grids        ("", "SILT"   , _TL("Silt"                        ), _TL("[%]"       ), PARAMETER_INPUT                );
 		Parameters.Add_Grids        ("", "CLAY"   , _TL("Clay"                        ), _TL("[%]"       ), PARAMETER_INPUT                );
 		Parameters.Add_Grids        ("", "CORG"   , _TL("Soil Organic Carbon"         ), _TL("[permille]"), PARAMETER_INPUT                );
-		Parameters.Add_Grids        ("", "BULK"   , _TL("Bulk Density"                ), _TL("[kg/m^3]"  ), PARAMETER_INPUT                );
+		Parameters.Add_Grids        ("", "BULK"   , _TL("Bulk Density"                ), _TL("[kg/m³]"   ), PARAMETER_INPUT                );
 		Parameters.Add_Grids        ("", "CEC"    , _TL("Cation Exchange Capacity"    ), _TL("[cmol/kg]" ), PARAMETER_INPUT                );
 		Parameters.Add_Grids        ("", "PH"     , _TL("pH"                          ), _TL(""          ), PARAMETER_INPUT                );
 
@@ -145,7 +145,7 @@ CSoil_Water_Capacity::CSoil_Water_Capacity(bool bGrids)
 		Parameters.Add_Grid_or_Const("", "SILT"   , _TL("Silt"                        ), _TL("[%]"       ),   37.0,   0., true,  100., true);
 		Parameters.Add_Grid_or_Const("", "CLAY"   , _TL("Clay"                        ), _TL("[%]"       ),   48.0,   0., true,  100., true);
 		Parameters.Add_Grid_or_Const("", "CORG"   , _TL("Soil Organic Carbon"         ), _TL("[permille]"),   15.0,   0., true, 1000., true);
-		Parameters.Add_Grid_or_Const("", "BULK"   , _TL("Bulk Density"                ), _TL("[kg/m^3]"  ), 1350.0, 100., true, 2650., true);
+		Parameters.Add_Grid_or_Const("", "BULK"   , _TL("Bulk Density"                ), _TL("[kg/m³]"   ), 1350.0, 100., true, 2650., true);
 		Parameters.Add_Grid_or_Const("", "CEC"    , _TL("Cation Exchange Capacity"    ), _TL("[cmol/kg]" ),   45.0,   0., true             );
 		Parameters.Add_Grid_or_Const("", "PH"     , _TL("pH"                          ), _TL(""          ),    6.4,   0., true,   14., true);
 

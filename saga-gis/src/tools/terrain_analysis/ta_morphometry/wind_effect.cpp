@@ -79,8 +79,8 @@ CWind_Effect::CWind_Effect(void)
 	);
 
 	Add_Reference(
-		"Gerlitz, L., Conrad, O., Böhner, J.", "2015",
-		"Large scale atmospheric forcing and topographic modification of precipitation rates over High Asia – a neural network based approach",
+		"Gerlitz, L., Conrad, O., BÃ¶hner, J.", "2015",
+		"Large scale atmospheric forcing and topographic modification of precipitation rates over High Asia â€“ a neural network based approach",
 		"Earth System Dynamics, 6, 1-21.",
 		SG_T("https://doi.org/10.5194/esd-6-61-2015"), SG_T("doi:10.5194/esd-6-61-2015")
 	);
@@ -584,8 +584,8 @@ CWind_Exposition::CWind_Exposition(void)
 	);
 
 	Add_Reference(
-		"Gerlitz, L., Conrad, O., Böhner, J.", "2015",
-		"Large scale atmospheric forcing and topographic modification of precipitation rates over High Asia – a neural network based approach",
+		"Gerlitz, L., Conrad, O., BÃ¶hner, J.", "2015",
+		"Large scale atmospheric forcing and topographic modification of precipitation rates over High Asia â€“ a neural network based approach",
 		"Earth System Dynamics, 6, 1-21.",
 		SG_T("https://www.earth-syst-dynam.net/6/61/2015/"), SG_T("doi:10.5194/esd-6-61-2015.")
 	);

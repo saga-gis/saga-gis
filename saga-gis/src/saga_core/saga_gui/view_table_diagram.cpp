@@ -535,7 +535,7 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 {
 	_Destroy();
 
-	if( !m_pTable || m_pTable->Get_Field_Count() < 1 || m_pTable->Get_Count() < 1 )
+	if( !m_pTable )//|| m_pTable->Get_Field_Count() < 1 || m_pTable->Get_Count() < 1 )
 	{
 		return( false );
 	}

@@ -50,7 +50,7 @@ CWaterRetentionCapacity::CWaterRetentionCapacity(void)
 	));
 
 	Add_Reference(
-		"Gandullo, J. M.", "1994", "Climatología y ciencia del suelo", "No. 551.55 G3."
+		"Gandullo, J. M.", "1994", "ClimatologÃ­a y ciencia del suelo", "No. 551.55 G3."
 	);
 
 	Parameters.Add_Shapes("",

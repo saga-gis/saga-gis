@@ -68,8 +68,8 @@ CBSL_Interpreter::CBSL_Interpreter(bool bFile)
 		"\n"
 		"References:\n"
 		"Boehner, J., Koethe, R., Trachinow, C. (1997): "
-		"Weiterentwicklung der automatischen Reliefanalyse auf der Basis von digitalen Gelaendemodellen. – "
-		"Göttinger Geogr. Abh. 100: 3-21."
+		"Weiterentwicklung der automatischen Reliefanalyse auf der Basis von digitalen Gelaendemodellen. â€“ "
+		"GÃ¶ttinger Geogr. Abh. 100: 3-21."
 	));
 
 	//-----------------------------------------------------
