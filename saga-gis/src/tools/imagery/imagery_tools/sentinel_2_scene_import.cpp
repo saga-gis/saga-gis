@@ -171,9 +171,9 @@ CSentinel_2_Scene_Import::CSentinel_2_Scene_Import(void)
 
 	Parameters.Add_Bool("", "LOAD_60M", _TL("Aerosol, Vapour, Cirrus"  ), _TL(""), false);
 //	Parameters.Add_Bool("", "LOAD_TCI", _TL("True Color Image"         ), _TL(""), false);
-//	Parameters.Add_Bool("", "LOAD_AOT", _TL("Aerosol Optical Thickness"), _TL(""), false);
-//	Parameters.Add_Bool("", "LOAD_WVP", _TL("Water Vapour"             ), _TL(""), false);
-	Parameters.Add_Bool("", "LOAD_SCL", _TL("Scene Classification"     ), _TL(""),  true);
+	Parameters.Add_Bool("", "LOAD_AOT", _TL("Aerosol Optical Thickness"), _TL(""), false);
+	Parameters.Add_Bool("", "LOAD_WVP", _TL("Water Vapour"             ), _TL(""), false);
+	Parameters.Add_Bool("", "LOAD_SCL", _TL("Scene Classification"     ), _TL(""), false);
 
 	Parameters.Add_Choice("",
 		"REFLECTANCE"	, _TL("Reflectance Values"),
@@ -323,10 +323,12 @@ bool CSentinel_2_Scene_Import::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_String Path = SG_File_Get_Path(Parameters("METAFILE")->asString());
 
+	bool bLevel2  = SG_File_Get_Name(Path, false).Find("MTD_MSIL2") == 0;
+
 	bool bLoadTCI = Parameters("LOAD_TCI") && Parameters("LOAD_TCI")->asBool();
-	bool bLoadAOT = Parameters("LOAD_AOT") && Parameters("LOAD_AOT")->asBool();
-	bool bLoadWVP = Parameters("LOAD_WVP") && Parameters("LOAD_WVP")->asBool();
-	bool bLoadSCL = Parameters("LOAD_SCL") && Parameters("LOAD_SCL")->asBool();
+	bool bLoadAOT = Parameters("LOAD_AOT") && Parameters("LOAD_AOT")->asBool() && bLevel2;
+	bool bLoadWVP = Parameters("LOAD_WVP") && Parameters("LOAD_WVP")->asBool() && bLevel2;
+	bool bLoadSCL = Parameters("LOAD_SCL") && Parameters("LOAD_SCL")->asBool() && bLevel2;
 	bool bLoad60m = Parameters("LOAD_60M") && Parameters("LOAD_60M")->asBool();
 
 	int Resolution = Parameters("PROJECTION")->asInt() <= 1 ? Parameters("RESOLUTION")->asInt() : 0;
@@ -436,7 +438,7 @@ bool CSentinel_2_Scene_Import::On_Execute(void)
 		Load_Classification(pSCL, Parameters("METAFILE")->asString());
 	}
 
-	return( true );
+	return( Parameters("BANDS")->asGridList()->Get_Data_Count() > 0 );
 }
 
 
@@ -524,6 +526,11 @@ CSG_String CSentinel_2_Scene_Import::Find_Band(const CSG_Table_Record &Band, con
 //---------------------------------------------------------
 CSG_Grid * CSentinel_2_Scene_Import::Load_Band(const CSG_String &Path, const CSG_String &File)
 {
+	if( File.is_Empty() )
+	{
+		return( false ); // metadata provides no file name for requested band!
+	}
+
 	Process_Set_Text("%s: %s", _TL("loading"), File.AfterLast('/').c_str());
 
 	//-----------------------------------------------------
@@ -539,7 +546,9 @@ CSG_Grid * CSentinel_2_Scene_Import::Load_Band(const CSG_String &Path, const CSG
 
 	if( !pBand )
 	{
-		Message_Fmt("\n%s [%s]", _TL("loading failed"), File.c_str());
+		CSG_String Message(CSG_String::Format("%s: \"%s\"", _TL("failed to load band"), File.c_str()));
+
+		Message_Add("\n" + Message, false); SG_UI_Msg_Add_Error(Message);
 
 		return( NULL );
 	}
