@@ -1627,7 +1627,7 @@ CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 			}
 			else if( p->is_DataObject_List() )
 			{
-				Script += "    List = Tool.Get_Parameter('" +  id + "').as" + type + "_List()\n";
+				Script += "    List = Tool.Get_Parameter('" +  id + "').as" + type + "List()\n";
 				Script += "    for i in range(0, List.Get_Data_Count()):\n";
 
 				if( bHeader )
