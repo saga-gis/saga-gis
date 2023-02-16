@@ -528,7 +528,7 @@ CSG_Grid * CSentinel_2_Scene_Import::Load_Band(const CSG_String &Path, const CSG
 {
 	if( File.is_Empty() )
 	{
-		return( false ); // metadata provides no file name for requested band!
+		return( NULL ); // metadata provides no file name for requested band!
 	}
 
 	Process_Set_Text("%s: %s", _TL("loading"), File.AfterLast('/').c_str());
