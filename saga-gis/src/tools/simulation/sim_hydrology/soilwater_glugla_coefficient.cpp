@@ -68,9 +68,9 @@ CSoilWater_Glugla_Coefficient::CSoilWater_Glugla_Coefficient(void)
 		"estimated from the contents of the other two fractions. "
 	));
 
-	Add_Reference("Braeunig, A.", "2000",
-		"Entwicklung forstlich rekultivierter sowie renaturierter Boeden und Simulation ihres Wasserhaushaltes in der Mitteldeutschen Braunkohlen-Bergbaufolgelandschaft",
-		"Freiberger Forschungshefte, C 489, Geooekologie.",
+	Add_Reference(SG_T("Bräunig, A."), "2000",
+		SG_T("Entwicklung forstlich rekultivierter sowie renaturierter Boeden und Simulation ihres Wasserhaushaltes in der Mitteldeutschen Braunkohlen-Bergbaufolgelandschaft"),
+		SG_T("Freiberger Forschungshefte, C 489, Geoökologie."),
 		SG_T("https://tu-freiberg.de/sites/default/files/media/professur-boden--und-gewaesserschutz-15982/PDF/Dissertationen/diss_braeunig.pdf"), SG_T("Dissertation.")
 	);
 

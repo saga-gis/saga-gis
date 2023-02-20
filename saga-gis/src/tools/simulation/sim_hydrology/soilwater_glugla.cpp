@@ -320,15 +320,15 @@ protected:
 
 //---------------------------------------------------------
 #define ADD_REFERENCES	\
-	Add_Reference("Glugla, G.", "1969",\
-		"Berechnungsverfahren zur Ermittlung des aktuellen Wassergehalts und Gravitationswasserabflusses im Boden",\
-		"Archives of Agronomy and Soil Science, 13(4):371-376.",\
+	Add_Reference(SG_T("Glugla, G."), "1969",\
+		SG_T("Berechnungsverfahren zur Ermittlung des aktuellen Wassergehalts und Gravitationswasserabflusses im Boden"),\
+		SG_T("Archives of Agronomy and Soil Science, 13(4):371-376."),\
 		SG_T("https://doi.org/10.1080/03650346909413005"), SG_T("doi:10.1080/03650346909413005")\
 	);\
 	\
-	Add_Reference("Hoermann, G.", "1997",\
-		"SIMPEL - ein einfaches, benutzerfreundliches Bodenwassermodell zum Einsatz in der Ausbildung",\
-		"Deutsche Gew�sserkundliche Mitteilungen 41(2):67-72.",\
+	Add_Reference(SG_T("Hörmann, G."), "1997",\
+		SG_T("SIMPEL - ein einfaches, benutzerfreundliches Bodenwassermodell zum Einsatz in der Ausbildung"),\
+		SG_T("Deutsche Gewässerkundliche Mitteilungen 41(2):67-72."),\
 		SG_T("https://www.hydrology.uni-kiel.de/download/projekte/simpel/englisch/low_end_hydrology.pdf"), SG_T("PDF (unpublished english translation)")\
 	);\
 	\
@@ -336,12 +336,12 @@ protected:
 		"https://www.hydrology.uni-kiel.de/en/research/projects/simpel-en/simpel-models-en",\
 		SG_T("Simpel Homepage")\
 	);\
-
-//	Add_Reference("Bonta, J.V., Mueller, M.", "1999",
-//		"Evaluation of the Glugla method for estimating evapotranspiration and groundwater recharge",
-//		"Hydrological Sciences Journal, 44(5):743-761.",
-//		SG_T("https://doi.org/10.1080/02626669909492271"), SG_T("doi:10.1080/02626669909492271")
-//	);
+	\
+	Add_Reference(SG_T("Bonta, J.V., Müller, M."), "1999",\
+		SG_T("Evaluation of the Glugla method for estimating evapotranspiration and groundwater recharge"),\
+		SG_T("Hydrological Sciences Journal, 44(5):743-761."),\
+		SG_T("https://doi.org/10.1080/02626669909492271"), SG_T("doi:10.1080/02626669909492271")\
+	);\
 
 
 ///////////////////////////////////////////////////////////
@@ -361,7 +361,7 @@ CSoilWater_Glugla_Table::CSoilWater_Glugla_Table(void)
 		"A simple model for daily soil water simulation based on the approach of Glugla (1969).\n"
 		"\n"
 		"This is a re-implementation of the formulas used in the 'Simpel' model developed by "
-		"Hoermann (1998), \"...covering the lowest, serious end of hydrologic computing\". "
+		"Hörmann (1998), \"...covering the lowest, serious end of hydrologic computing\". "
 	));
 
 	ADD_REFERENCES;
@@ -920,7 +920,7 @@ CSoilWater_Glugla_Grid::CSoilWater_Glugla_Grid(void)
 		"A simple model for daily soil water simulation based on the approach of Glugla (1969).\n"
 		"\n"
 		"This is a re-implementation of the formulas used in the 'Simpel' model developed by "
-		"Hoermann (1998), \"...covering the lowest, serious end of hydrologic computing\". "
+		"Hörmann (1998), \"...covering the lowest, serious end of hydrologic computing\". "
 	));
 
 	ADD_REFERENCES;
