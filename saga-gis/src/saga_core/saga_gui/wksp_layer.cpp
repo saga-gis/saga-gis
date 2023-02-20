@@ -332,7 +332,7 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	// Classification: Classified...
 
 	m_Parameters.Add_Node("NODE_COLORS",
-		"NODE_LUT"			, _TL("Classified"),
+		"NODE_LUT"		, _TL("Classified"),
 		_TL("")
 	);
 
@@ -343,8 +343,8 @@ void CWKSP_Layer::On_Create_Parameters(void)
 		m_Parameters.Add_Choice("NODE_LUT", "LUT_ATTRIB", _TL("Attribute"), _TL(""), _TL("<default>"));
 	}
 
-	CSG_Table	*pLUT	= m_Parameters.Add_FixedTable("NODE_LUT",
-		"LUT"				, _TL("Table"),
+	CSG_Table *pLUT = m_Parameters.Add_FixedTable("NODE_LUT",
+		"LUT"			, _TL("Table"),
 		_TL("")
 	)->asTable();
 
@@ -357,6 +357,19 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	pLUT->Add_Field(_TL("Maximum"    ), SG_DATATYPE_Double);
 
 	m_pClassify->Initialise(this, pLUT, g_pData->Get_Parameter("COLORS_DEFAULT")->asColors());
+
+	if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid
+	||  m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grids )
+	{
+		m_Parameters.Add_Choice("NODE_LUT", "LUT_RESAMPLING", _TL("Resampling"), _TL(""),
+			CSG_String::Format("%s|%s|%s|%s",
+				_TL("Nearest Neighbour"),
+				_TL("Bilinear Interpolation"),
+				_TL("Bicubic Spline Interpolation"),
+				_TL("B-Spline Interpolation")
+			), 0
+		);
+	}
 
 	//-----------------------------------------------------
 	// Classification: Colors...
