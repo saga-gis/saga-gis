@@ -197,13 +197,21 @@ CWKSP_Map_BaseMap::~CWKSP_Map_BaseMap(void)
 //---------------------------------------------------------
 bool CWKSP_Map_BaseMap::Load(CSG_MetaData &Entry)
 {
+	m_bShow = !Entry.Cmp_Property("SHOW", "false", true);
+
 	return( m_Parameters.Serialize(Entry, false) );
 }
 
 //---------------------------------------------------------
 bool CWKSP_Map_BaseMap::Save(CSG_MetaData &Entry)
 {
-	return( m_Parameters.Serialize(*Entry.Add_Child("BASEMAP"), true) );
+	CSG_MetaData &Child = *Entry.Add_Child("BASEMAP");
+
+	m_Parameters.Serialize(Child, true);
+
+	Child.Add_Property("SHOW", m_bShow ? "true" : "false");
+
+	return( true );
 }
 
 

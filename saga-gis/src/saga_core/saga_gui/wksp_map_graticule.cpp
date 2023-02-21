@@ -242,13 +242,21 @@ CWKSP_Map_Graticule::~CWKSP_Map_Graticule(void)
 //---------------------------------------------------------
 bool CWKSP_Map_Graticule::Load(CSG_MetaData &Entry)
 {
+	m_bShow = !Entry.Cmp_Property("SHOW", "false", true);
+
 	return( m_Parameters.Serialize(Entry, false) );
 }
 
 //---------------------------------------------------------
 bool CWKSP_Map_Graticule::Save(CSG_MetaData &Entry)
 {
-	return( m_Parameters.Serialize(*Entry.Add_Child("GRATICULE"), true) );
+	CSG_MetaData &Child = *Entry.Add_Child("GRATICULE");
+
+	m_Parameters.Serialize(Child, true);
+
+	Child.Add_Property("SHOW", m_bShow ? "true" : "false");
+
+	return( true );
 }
 
 
