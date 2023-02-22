@@ -135,7 +135,7 @@ class CGrids_Calculator : public CGrid_Calculator_Base
 public:
 	CGrids_Calculator(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid|Grid Collection|Calculus") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid Collection|Calculus") );	}
 
 
 protected:

@@ -72,7 +72,7 @@ class CGrids_Masking : public CSG_Tool_Grid
 public:
 	CGrids_Masking(void);
 
-//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Values") );	}
 
 
 protected:
@@ -80,9 +80,6 @@ protected:
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool				On_Execute				(void);
-
-
-private:
 
 };
 

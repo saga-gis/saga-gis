@@ -72,7 +72,7 @@ class CGrids_Create : public CSG_Tool_Grid
 public:
 	CGrids_Create(void);
 
-//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
@@ -103,7 +103,7 @@ class CGrids_Add_Grid : public CSG_Tool_Grid
 public:
 	CGrids_Add_Grid(void);
 
-//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
@@ -129,7 +129,7 @@ class CGrids_Extract : public CSG_Tool_Grid
 public:
 	CGrids_Extract(void);
 
-//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
@@ -155,7 +155,7 @@ class CGrids_Extract_Grid : public CSG_Tool_Grid
 public:
 	CGrids_Extract_Grid(void);
 
-//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
@@ -181,7 +181,7 @@ class CGrids_Delete : public CSG_Tool_Grid
 public:
 	CGrids_Delete(void);
 
-//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:

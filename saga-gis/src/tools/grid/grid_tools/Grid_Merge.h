@@ -133,7 +133,7 @@ class CGrids_Merge : public CSG_Tool
 public:
 	CGrids_Merge(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid|Grid System") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid Collection|Grid System") );	}
 
 
 protected:
