@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -43,20 +40,9 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -79,7 +65,7 @@ CSG_String Get_Info(int i)
 		return( _TL("Grid") );
 
 	case TLB_INFO_Author:
-		return( SG_T("O. Conrad, V. Olaya, V. Wichmann (c) 2002-19") );
+		return( SG_T("O. Conrad, V. Olaya, V. Wichmann (c) 2002-23") );
 
 	case TLB_INFO_Description:
 		return( _TL("Tools for the manipulation of gridded data.") );
@@ -164,6 +150,8 @@ CSG_Tool *		Create_Tool(int i)
 	case  7:	return( new CGrid_Gaps );
 	case 25: 	return( new CGrid_Gaps_Spline_Fill );
 	case 29: 	return( new CGrid_Gaps_Resampling );
+	case 28: 	return( new CGrid_Shrink_Expand );
+	case 41: 	return( new CGrids_Shrink_Expand );
 
 	case  8:	return( new CGrid_Buffer );
 	case  9: 	return( new CThresholdBuffer );
@@ -191,7 +179,6 @@ CSG_Tool *		Create_Tool(int i)
 
 	case 26: 	return( new CGrid_Proximity );
 	case 27: 	return( new CGrid_Tiling );
-	case 28: 	return( new CGrid_Shrink_Expand );
 	case 30: 	return( new CGrid_Transpose );
 	case 32: 	return( new CSelect_Grid_From_List );
 
@@ -203,7 +190,7 @@ CSG_Tool *		Create_Tool(int i)
 
 	case 40:	return( new CGrid_Interpolate_Value_Along_Line );
 
-	case 41:	return( NULL );
+	case 42:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
