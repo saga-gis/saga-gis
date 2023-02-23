@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,31 +47,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "bin_erosion_reconst.h"
 
-extern "C" {
+//---------------------------------------------------------
+extern "C"
+{
 	#include "geodesic_morph_rec/storeorg.h"
 	#include "geodesic_morph_rec/bin_geovinc.h"
 }
-
-#define RUN_TOOL(LIBRARY, TOOL, CONDITION)	{\
-	bool	bResult;\
-	SG_RUN_TOOL(bResult, LIBRARY, TOOL, CONDITION)\
-	if( !bResult ) return( false );\
-}
-
-#define SET_PARAMETER(IDENTIFIER, VALUE) \
-	pTool->Get_Parameters()->Set_Parameter(SG_T(IDENTIFIER), VALUE)
-
 
 
 ///////////////////////////////////////////////////////////
@@ -88,10 +68,10 @@ Cbin_erosion_reconst::Cbin_erosion_reconst(void)
 {
 	Set_Name		(_TL("Binary Erosion-Reconstruction"));
 
-	Set_Author		(SG_T("HfT Stuttgart (c) 2013"));
+	Set_Author		("HfT Stuttgart (c) 2013");
 
 	Set_Description	(_TW(
-		"Common binary Opening does not guarantee, that foreground regions which "
+		"Common binary opening does not guarantee, that foreground regions which "
 		"outlast the erosion step are reconstructed to their original shape in the "
 		"dilation step. Depending on the application, that might be considered as a "
 		"deficiency. Therefore this tool provides a combination of erosion with "
@@ -99,134 +79,123 @@ Cbin_erosion_reconst::Cbin_erosion_reconst(void)
 		"Here we use the algorithm on p. 194: Breadth-first Scanning.\n\n"
 		"The marker is defined as the eroded input grid, whereas the mask is just "
 		"the input grid itself. The output grid is the reconstruction of the marker under "
-		"the mask.\n\n"
+		"the mask. "
 	));
 
 	Add_Reference(
-		SG_T("Vincent, L."), "1993", "Morphological Grayscale Reconstruction in Image Analysis: Applications and Efficient Algorithms",
-		"IEEE Transactions on Image Processing, Vol. 2, No 2"
-	);
-
-	Add_Reference(
-		SG_T("Arefi, H., Hahn, M."), "2005", "A Morphological Reconstruction Algorithm for Separating Off-Terrain Points from Terrain Points in Laser Scanning Data",
+		"Arefi, H., Hahn, M.", "2005",
+		"A Morphological Reconstruction Algorithm for Separating Off-Terrain Points from Terrain Points in Laser Scanning Data",
 		"Proceedings of the ISPRS Workshop Laser Scanning 2005, Enschede, the Netherlands, September 12-14, 2005",
 		SG_T("https://www.isprs.org/proceedings/xxxvi/3-W19/papers/120.pdf"), SG_T("PDF")
 	);
 
-	Parameters.Add_Grid (NULL, 
-		                 "INPUT_GRID", 
-						 _TL ("Input Grid"), 
-						 _TL ("The grid to be filtered."), 
-						 PARAMETER_INPUT);
+	Add_Reference("Vincent, L.", "1993",
+		"Morphological Grayscale Reconstruction in Image Analysis: Applications and Efficient Algorithms",
+		"IEEE Transactions on Image Processing, Vol. 2, No 2.",
+		SG_T("https://doi.org/10.1109/83.217222"), SG_T("doi: 10.1109/83.217222")
+	);
+
+	Parameters.Add_Grid("", "INPUT_GRID", _TL("Input Grid"), _TL("Grid to be filtered"), 
+		PARAMETER_INPUT
+	);
 
     // Data type of the output values is signed Byte. We wish to retain NoData values 
 	// unaltered. With the types Bit or unsigned Byte, however, we are not able 
 	// to distinguish 0 from NoData.
+	Parameters.Add_Grid("", "OUTPUT_GRID", _TL("Output Grid"), 
+		_TL("Reconstruction result"), 
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Char
+	);
 
-	Parameters.Add_Grid (NULL, 
-		                 "OUTPUT_GRID", 
-						 _TL("Output Grid"), 
-						 _TL("The reconstruction result."), 
-						 PARAMETER_OUTPUT, 
-						 true, 
-						 SG_DATATYPE_Char);
-
-	Parameters.Add_Value (NULL,
-		                  "RADIUS",
-						  _TL ("Filter Size (Radius)"),
-						  _TL ("The filter size (radius) in grid cells."),
-						  PARAMETER_TYPE_Int,
-						  3);
-
+	Parameters.Add_Int("", "RADIUS", _TL("Filter Size (Radius)"),
+		_TL ("Filter size (radius in grid cells)"),
+		3
+	);
 }
 
+
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
+//---------------------------------------------------------
 bool Cbin_erosion_reconst::On_Execute(void)
 {
-	CSG_Grid *pinpgrid, *bingrid, *poutgrid;
+	CSG_Grid *pInput = Parameters("INPUT_GRID")->asGrid();
 
-	unsigned short numrows;
-	unsigned short numcols;
-	char **mask;
-	char **marker;
+	CSG_Grid Eroded(Get_System(), pInput->Get_Type()); // bingrid is not an output grid here, so it must be created ad hoc
 
-	pinpgrid = Parameters ("INPUT_GRID")->asGrid ();
-	poutgrid = Parameters ("OUTPUT_GRID")->asGrid ();
-
-	numrows=pinpgrid->Get_NY();
-	numcols=pinpgrid->Get_NX();
-
-	// bingrid is not an output grid here, so it must be created ad hoc
-
-	bingrid = SG_Create_Grid(SG_DATATYPE_Char,
-	                         pinpgrid->Get_NX(),
-							 pinpgrid->Get_NY(),
-							 pinpgrid->Get_Cellsize(),
-							 pinpgrid->Get_XMin(),
-							 pinpgrid->Get_YMin());
-
-	if (bingrid == NULL)
+	if( !Eroded.is_Valid() )
 	{
 	    SG_UI_Msg_Add_Error(_TL("Unable to create grid for the eroded image!"));
 
-		return (false);
+		return( false );
 	}
 
-	RUN_TOOL("grid_filter"			, 8,
-	       SET_PARAMETER("INPUT"		, pinpgrid)
-	    && SET_PARAMETER("RESULT"		, bingrid)
-	    && SET_PARAMETER("MODE"		, 1)
-		&& SET_PARAMETER("RADIUS"		, Parameters ("RADIUS")->asInt())
-		&& SET_PARAMETER("METHOD"		, 1)
-    )
+	SG_RUN_TOOL_ExitOnError("grid_filter", 8, // Morphological Filter
+		   SG_TOOL_PARAMETER_SET("INPUT"        , pInput)
+		&& SG_TOOL_PARAMETER_SET("RESULT"       , &Eroded)
+		&& SG_TOOL_PARAMETER_SET("METHOD"       , 1) // Erosion
+		&& SG_TOOL_PARAMETER_SET("KERNEL_TYPE"  , 1) // Circle
+		&& SG_TOOL_PARAMETER_SET("KERNEL_RADIUS", Parameters("RADIUS")->asInt())
+    );
 
-	mask = (char **) matrix_all_alloc (numrows, numcols, 'C', 0);
-	marker = (char **) matrix_all_alloc (numrows, numcols, 'C', 0);
+	//----------------------------------------------------
+	double Offset = pInput->Get_Min(), Scale = pInput->Get_Range(); Scale = Scale ? 127. / Scale : 1.;
 
-	for (int y = 0; y < numrows; y++)
+	unsigned short numrows = Get_NY();
+	unsigned short numcols = Get_NX();
+
+	char **mask   = (char **) matrix_all_alloc (numrows, numcols, 'C', 0);
+	char **marker = (char **) matrix_all_alloc (numrows, numcols, 'C', 0);
+
+	#pragma omp parallel for
+	for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
 	{
-       #pragma omp parallel for
-       for (int x = 0; x < numcols; x++)
-       {
-		  if (pinpgrid->is_NoData(x,y)) // check if there are no_data in input datasets
-		  {
-		 	 mask [y][x] = 0;
-		 	 marker [y][x] = 0;
-		  }
-		  else
-		  {
-			 mask [y][x] = pinpgrid->asChar(x,y);
-			 marker [y][x] = bingrid->asChar(x,y);
-		  }
-       }
+		if( pInput->is_NoData(x, y) ) // check if there are no_data in input datasets
+		{
+			mask  [y][x] = 0;
+			marker[y][x] = 0;
+		}
+		else
+		{
+			mask  [y][x] = (char)((pInput->asDouble(x, y) - Offset) * Scale);
+			marker[y][x] = (char)((Eroded .asDouble(x, y) - Offset) * Scale);
+		}
 	}
 
-	bingrid->Destroy();
+	//----------------------------------------------------
+	binary_geodesic_morphological_reconstruction(numrows, numcols, mask, marker);
 
-    binary_geodesic_morphological_reconstruction (numrows, numcols, mask, marker);
+	//----------------------------------------------------
+	CSG_Grid *pOutput = Parameters("OUTPUT_GRID")->asGrid();
 
-    for (int y = 0; y < Get_NY () && Set_Progress(y, Get_NY()); y++)
-    {
-	    #pragma omp parallel for
-	    for (int x = 0; x < Get_NX (); x++)
-	    {
-		    if (pinpgrid->is_NoData(x,y))
-		        poutgrid->Set_NoData(x,y);
-		    else
-		        poutgrid->Set_Value(x,y, marker[y][x]);
-	    }
-    }
+	if( pOutput->Get_Type() != pInput->Get_Type() )
+	{
+		pOutput->Create(Get_System(), pInput->Get_Type());
+	}
 
+	pOutput->Fmt_Name("%s [%s]", pInput->Get_Name(), Get_Name().c_str());
+	pOutput->Set_NoData_Value(pInput->Get_NoData_Value());
 
+	#pragma omp parallel for
+	for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
+	{
+		if( pInput->is_NoData(x, y) )
+		{
+			pOutput->Set_NoData(x, y);
+		}
+		else
+		{
+			pOutput->Set_Value(x, y, Offset + marker[y][x] / Scale);
+		}
+	}
+
+	//----------------------------------------------------
 	matrix_all_free ((void **) mask);
-    matrix_all_free ((void **) marker);
+	matrix_all_free ((void **) marker);
 
-    return( true );
+	return( true );
 }
 
 
