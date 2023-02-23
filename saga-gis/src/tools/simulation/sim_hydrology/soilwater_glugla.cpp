@@ -358,10 +358,9 @@ CSoilWater_Glugla_Table::CSoilWater_Glugla_Table(void)
 	Set_Author	("O.Conrad (c) 2020");
 
 	Set_Description	(_TW(
-		"A simple model for daily soil water simulation based on the approach of Glugla (1969).\n"
-		"\n"
-		"This is a re-implementation of the formulas used in the 'Simpel' model developed by "
-		"Hörmann (1998), \"...covering the lowest, serious end of hydrologic computing\". "
+		SG_T("A simple model for daily soil water simulation based on the approach of Glugla (1969).\n\n")
+		SG_T("This is a re-implementation of the formulas used in the 'Simpel' model developed by ")
+		SG_T("Hörmann (1998), \"...covering the lowest, serious end of hydrologic computing\". ")
 	));
 
 	ADD_REFERENCES;

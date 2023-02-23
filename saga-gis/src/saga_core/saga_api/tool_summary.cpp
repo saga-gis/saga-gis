@@ -515,7 +515,9 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 
 				for(int i=0; i<Get_References().Get_Count(); i++)
 				{
-					s	+= " - " + Get_References()[i] + "\n";
+					CSG_String Reference(Get_References()[i]); Reference.Replace("<b>", ""); Reference.Replace("</b>", "");
+
+					s	+= " - " + Reference + "\n";
 				}
 			}
 
