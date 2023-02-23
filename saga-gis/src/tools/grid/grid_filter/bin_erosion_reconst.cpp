@@ -95,20 +95,28 @@ Cbin_erosion_reconst::Cbin_erosion_reconst(void)
 		"outlast the erosion step are reconstructed to their original shape in the "
 		"dilation step. Depending on the application, that might be considered as a "
 		"deficiency. Therefore this tool provides a combination of erosion with "
-		"the binary Geodesic Morphological Reconstruction, see \n"
-		"L. Vincent (1993): Morphological Grayscale Reconstruction in Image Analysis: "
-		"Applications and Efficient Algorithms. "
-		"IEEE Transactions on Image Processing, Vol. 2, No 2\n"
+		"the binary Geodesic Morphological Reconstruction, see Vincent (1993). "
 		"Here we use the algorithm on p. 194: Breadth-first Scanning.\n\n"
-		"The marker is defined as the eroded INPUT_GRID, whereas the mask is just "
-		"the INPUT_GRID itself. OUTPUT_GRID is the reconstruction of the marker under "
-		"the mask.\n"
+		"The marker is defined as the eroded input grid, whereas the mask is just "
+		"the input grid itself. The output grid is the reconstruction of the marker under "
+		"the mask.\n\n"
 	));
+
+	Add_Reference(
+		SG_T("Vincent, L."), "1993", "Morphological Grayscale Reconstruction in Image Analysis: Applications and Efficient Algorithms",
+		"IEEE Transactions on Image Processing, Vol. 2, No 2"
+	);
+
+	Add_Reference(
+		SG_T("Arefi, H., Hahn, M."), "2005", "A Morphological Reconstruction Algorithm for Separating Off-Terrain Points from Terrain Points in Laser Scanning Data",
+		"Proceedings of the ISPRS Workshop Laser Scanning 2005, Enschede, the Netherlands, September 12-14, 2005",
+		SG_T("https://www.isprs.org/proceedings/xxxvi/3-W19/papers/120.pdf"), SG_T("PDF")
+	);
 
 	Parameters.Add_Grid (NULL, 
 		                 "INPUT_GRID", 
 						 _TL ("Input Grid"), 
-						 _TL ("Grid to be filtered"), 
+						 _TL ("The grid to be filtered."), 
 						 PARAMETER_INPUT);
 
     // Data type of the output values is signed Byte. We wish to retain NoData values 
@@ -118,7 +126,7 @@ Cbin_erosion_reconst::Cbin_erosion_reconst(void)
 	Parameters.Add_Grid (NULL, 
 		                 "OUTPUT_GRID", 
 						 _TL("Output Grid"), 
-						 _TL("Reconstruction result"), 
+						 _TL("The reconstruction result."), 
 						 PARAMETER_OUTPUT, 
 						 true, 
 						 SG_DATATYPE_Char);
@@ -126,7 +134,7 @@ Cbin_erosion_reconst::Cbin_erosion_reconst(void)
 	Parameters.Add_Value (NULL,
 		                  "RADIUS",
 						  _TL ("Filter Size (Radius)"),
-						  _TL ("Filter size (radius in grid cells)"),
+						  _TL ("The filter size (radius) in grid cells."),
 						  PARAMETER_TYPE_Int,
 						  3);
 

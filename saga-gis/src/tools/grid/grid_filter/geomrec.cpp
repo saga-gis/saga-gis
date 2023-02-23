@@ -80,27 +80,35 @@ CGeomrec::CGeomrec(void)
 	Set_Author		(SG_T("HfT Stuttgart (c) 2013"));
 
 	Set_Description	(_TW(
-		"Geodesic morphological reconstruction according to \n"
-		"L. Vincent (1993): Morphological Grayscale Reconstruction in Image Analysis: "
-		"Applications and Efficient Algorithms. "
-		"IEEE Transactions on Image Processing, Vol. 2, No 2\n"
+		"Geodesic morphological reconstruction according to Vincent (1993). "
 		"Here we use the algorithm on p. 194: Computing of Regional Maxima and Breadth-first Scanning.\n\n"
-		"A marker is derived from the input image INPUT_GRID by subtracting a constant SHIFT_VALUE. Optionally "
-		"the SHIFT_VALUE can be set to zero at the border of the grid (\"Preserve 1px border Yes/No\"). "
-		"OUTPUT_GRID is the difference between the input image and the morphological reconstruction of "
-		"the marker under the input image as mask. If the Option \"Create a binary mask\" is selected, "
-		"the OUTPUT_GRID is thresholded with THRESHOLD, creating a binary image of maxima regions.\n"
+		"A marker is derived from the input grid by subtracting a constant shift value. Optionally, "
+		"the shift value can be set to zero at the border of the grid (\"Preserve 1px border Yes/No\" parameter). "
+		"The final result is a grid showing the difference between the input image and the morphological reconstruction of "
+		"the marker under the input image. If the Option \"Create a binary mask\" is selected, "
+		"the difference grid is thresholded with provided threshold value to create a binary image of maxima regions.\n\n"
 	));
+
+	Add_Reference(
+		SG_T("Vincent, L."), "1993", "Morphological Grayscale Reconstruction in Image Analysis: Applications and Efficient Algorithms",
+		"IEEE Transactions on Image Processing, Vol. 2, No 2"
+	);
+
+	Add_Reference(
+		SG_T("Arefi, H., Hahn, M."), "2005", "A Morphological Reconstruction Algorithm for Separating Off-Terrain Points from Terrain Points in Laser Scanning Data",
+		"Proceedings of the ISPRS Workshop Laser Scanning 2005, Enschede, the Netherlands, September 12-14, 2005",
+		SG_T("https://www.isprs.org/proceedings/xxxvi/3-W19/papers/120.pdf"), SG_T("PDF")
+	);
 
 	CSG_Parameter	*pNode;
 
-	Parameters.Add_Grid (NULL, "INPUT_GRID", _TL ("Input Grid"), _TL ("Input for the morphological reconstruction"), PARAMETER_INPUT);
-	Parameters.Add_Grid (NULL, "OBJECT_GRID", _TL("Object Grid"), _TL("Binary object mask"), PARAMETER_OUTPUT, true, SG_DATATYPE_Char);
-	Parameters.Add_Grid (NULL, "DIFFERENCE_GRID", _TL ("Difference Input - Reconstruction"), _TL ("Difference Input - Reconstruction"), PARAMETER_OUTPUT);
-	Parameters.Add_Value (Parameters ("SHIFT"), "SHIFT_VALUE", _TL ("Shift value"), _TL ("Shift value"), PARAMETER_TYPE_Double, 5);
-	Parameters.Add_Value (NULL, "BORDER_YES_NO", _TL ("Preserve 1px border Yes/No"), _TL ("Preserve 1px border Yes/No"), PARAMETER_TYPE_Bool, true);
-	pNode = Parameters.Add_Value (NULL, "BIN_YES_NO", _TL ("Create a binary mask Yes/No"), _TL ("Create a binary mask Yes/No"), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value (pNode, "THRESHOLD", _TL ("Threshold"), _TL ("Threshold"), PARAMETER_TYPE_Double, 1);
+	Parameters.Add_Grid (NULL, "INPUT_GRID", _TL ("Input Grid"), _TL ("Input for the morphological reconstruction."), PARAMETER_INPUT);
+	Parameters.Add_Grid (NULL, "OBJECT_GRID", _TL("Object Grid"), _TL("Binary object mask."), PARAMETER_OUTPUT, true, SG_DATATYPE_Char);
+	Parameters.Add_Grid (NULL, "DIFFERENCE_GRID", _TL ("Difference Input - Reconstruction"), _TL ("The difference \"input - reconstruction\". For elevation models, this is the normalized DSM."), PARAMETER_OUTPUT);
+	Parameters.Add_Value (Parameters ("SHIFT"), "SHIFT_VALUE", _TL ("Shift value"), _TL ("The shift value which is subtracted from the input grid."), PARAMETER_TYPE_Double, 5);
+	Parameters.Add_Value (NULL, "BORDER_YES_NO", _TL ("Preserve 1px border"), _TL ("Preserve 1px border."), PARAMETER_TYPE_Bool, true);
+	pNode = Parameters.Add_Value (NULL, "BIN_YES_NO", _TL ("Create a binary mask"), _TL ("Create a binary mask from the difference grid."), PARAMETER_TYPE_Bool, true);
+	Parameters.Add_Value (pNode, "THRESHOLD", _TL ("Threshold"), _TL ("Difference threshold used to create the binary mask."), PARAMETER_TYPE_Double, 1);
 }
 
 ///////////////////////////////////////////////////////////
