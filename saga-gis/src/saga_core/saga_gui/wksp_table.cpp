@@ -310,16 +310,18 @@ void CWKSP_Table::Toggle_View(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Table::Set_Diagram(bool bShow)
+bool CWKSP_Table::Set_Diagram(bool bShow, CSG_Parameters *pParameters)
 {
 	if( bShow && !m_pDiagram )
 	{
-		m_pDiagram	= new CVIEW_Table_Diagram(this);
+		m_pDiagram	= new CVIEW_Table_Diagram(this, pParameters);
 	}
 	else if( !bShow && m_pDiagram )
 	{
 		m_pDiagram->Destroy();
 	}
+
+	return( true );
 }
 
 //---------------------------------------------------------

@@ -304,8 +304,8 @@ public:	// static functions...
 	static void					Process_Set_Text			(const char    *Format, ...);
 	static void					Process_Set_Text			(const wchar_t *Format, ...);
 
-	static bool					DataObject_Update			(CSG_Data_Object *pDataObject                                , int Show = SG_UI_DATAOBJECT_UPDATE_ONLY);
-	static bool					DataObject_Update			(CSG_Data_Object *pDataObject, double Minimum, double Maximum, int Show = SG_UI_DATAOBJECT_UPDATE_ONLY);
+	static bool					DataObject_Update			(CSG_Data_Object *pDataObject                                , int Show = SG_UI_DATAOBJECT_UPDATE);
+	static bool					DataObject_Update			(CSG_Data_Object *pDataObject, double Minimum, double Maximum, int Show = SG_UI_DATAOBJECT_UPDATE);
 
 	static bool					DataObject_Get_Colors		(CSG_Data_Object *pDataObject, CSG_Colors &Colors);
 	static bool					DataObject_Set_Colors		(CSG_Data_Object *pDataObject, const CSG_Colors &Colors);

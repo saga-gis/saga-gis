@@ -181,7 +181,7 @@ bool CIsochronesConst::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interacti
 
 	m_pTime->Set_NoData_Value(0.0);
 
-	DataObject_Update(m_pTime, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
+	DataObject_Update(m_pTime, SG_UI_DATAOBJECT_SHOW_MAP_ACTIVE);
 
 	return (true);
 

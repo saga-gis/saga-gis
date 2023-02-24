@@ -140,8 +140,7 @@ bool CGrid_Profile::On_Execute(void)
 
 	m_bAdd		= false;
 
-	DataObject_Update(m_pDEM , SG_UI_DATAOBJECT_SHOW_NEW_MAP);
-	DataObject_Update(m_pLine, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
+	DataObject_Update(m_pLine, SG_UI_DATAOBJECT_SHOW_MAP_ACTIVE);
 
 	return( true );
 }

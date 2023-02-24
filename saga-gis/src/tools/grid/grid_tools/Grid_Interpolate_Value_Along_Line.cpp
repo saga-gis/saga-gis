@@ -127,8 +127,8 @@ bool CGrid_Interpolate_Value_Along_Line::On_Execute(void)
 
 	m_bAdd			= false;
 
-	DataObject_Update(m_pGrid, SG_UI_DATAOBJECT_SHOW_NEW_MAP);
-	DataObject_Update(m_pLine, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
+	DataObject_Update(m_pGrid, SG_UI_DATAOBJECT_SHOW_MAP);
+	DataObject_Update(m_pLine, SG_UI_DATAOBJECT_SHOW_MAP_ACTIVE);
 
 	return( true );
 }

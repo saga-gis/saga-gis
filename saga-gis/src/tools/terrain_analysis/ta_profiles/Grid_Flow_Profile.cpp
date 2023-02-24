@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Grid_Flow_Profile.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,26 +48,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Grid_Flow_Profile.h"
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#define VALUE_OFFSET	6
 
 
 ///////////////////////////////////////////////////////////
@@ -82,64 +60,67 @@
 //---------------------------------------------------------
 CGrid_Flow_Profile::CGrid_Flow_Profile(void)
 {
-	Set_Name(_TL("Flow Path Profile"));
+	Set_Name		(_TL("Flow Path Profile"));
 
-	Set_Author		(SG_T("(c) 2004 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2004");
 
 	Set_Description	(_TW(
 		"Create interactively flow path profiles from a grid based DEM\n"
 		"Use a left mouse button click to create a flow profile starting from the clicked point.")
 	);
 
-	Parameters.Add_Grid(
-		NULL, "DEM"		, _TL("DEM"),
+	Parameters.Add_Grid("",
+		 "DEM"		, _TL("DEM"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_List(
-		NULL, "VALUES"	, _TL("Values"),
+	Parameters.Add_Grid_List("",
+		"VALUES"	, _TL("Values"),
 		_TL("Additional values that shall be saved to the output table."),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Shapes(
-		NULL, "POINTS"	, _TL("Profile Points"),
+	Parameters.Add_Shapes("",
+		"POINTS"	, _TL("Profile Points"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Shapes(
-		NULL, "LINE"	, _TL("Profile Line"),
+	Parameters.Add_Shapes("",
+		"LINE"	, _TL("Profile Line"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Line
+	);
+
+	Parameters.Add_Bool("",
+		"DIAGRAM", _TL("Show Diagram"),
+		_TL(""),
+		false
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGrid_Flow_Profile::On_Execute(void)
 {
-	m_pDEM		= Parameters("DEM"   )->asGrid();
-	m_pValues	= Parameters("VALUES")->asGridList();
-	m_pPoints	= Parameters("POINTS")->asShapes();
-	m_pLines	= Parameters("LINE"  )->asShapes();
+	m_pDEM    = Parameters("DEM"   )->asGrid    ();
+	m_pValues = Parameters("VALUES")->asGridList();
 
 	//-----------------------------------------------------
+	m_pPoints = Parameters("POINTS")->asShapes();
 	m_pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format("%s [%s]", m_pDEM->Get_Name(), _TL("Profile")));
 
-	m_pPoints->Add_Field("ID"           , SG_DATATYPE_Int);
-	m_pPoints->Add_Field(_TL("Distance"), SG_DATATYPE_Double);
-	m_pPoints->Add_Field(_TL("Overland"), SG_DATATYPE_Double);
-	m_pPoints->Add_Field("X"            , SG_DATATYPE_Double);
-	m_pPoints->Add_Field("Y"            , SG_DATATYPE_Double);
-	m_pPoints->Add_Field("Z"            , SG_DATATYPE_Double);
+	m_pPoints->Add_Field("ID"      , SG_DATATYPE_Int   );
+	m_pPoints->Add_Field("Distance", SG_DATATYPE_Double);
+	m_pPoints->Add_Field("Overland", SG_DATATYPE_Double);
+	m_pPoints->Add_Field("X"       , SG_DATATYPE_Double);
+	m_pPoints->Add_Field("Y"       , SG_DATATYPE_Double);
+	m_pPoints->Add_Field("Z"       , SG_DATATYPE_Double);
 
 	for(int i=0; i<m_pValues->Get_Grid_Count(); i++)
 	{
@@ -147,14 +128,19 @@ bool CGrid_Flow_Profile::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_pLines->Create(SHAPE_TYPE_Line, CSG_String::Format("%s [%s]", m_pDEM->Get_Name(), _TL("Profile")));
-	m_pLines->Add_Field("ID"	, SG_DATATYPE_Int);
-	m_pLine	= m_pLines->Add_Shape();
+	CSG_Shapes *pLines = Parameters("LINE")->asShapes();
+	pLines->Create(SHAPE_TYPE_Line, CSG_String::Format("%s [%s]", m_pDEM->Get_Name(), _TL("Profile")));
+	pLines->Add_Field("ID", SG_DATATYPE_Int);
+	m_pLine	= pLines->Add_Shape();
 	m_pLine->Set_Value(0, 1);
 
 	//-----------------------------------------------------
-	DataObject_Update(m_pDEM  , SG_UI_DATAOBJECT_SHOW_NEW_MAP );
-	DataObject_Update(m_pLines, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
+	DataObject_Update(pLines, SG_UI_DATAOBJECT_SHOW_MAP_ACTIVE);
+
+	if( Parameters("DIAGRAM")->asBool() )
+	{
+		SG_UI_Diagram_Show(m_pPoints, NULL);
+	}
 
 	Set_Drag_Mode(TOOL_INTERACTIVE_DRAG_NONE);
 
@@ -164,8 +150,6 @@ bool CGrid_Flow_Profile::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -173,7 +157,7 @@ bool CGrid_Flow_Profile::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interac
 {
 	switch( Mode )
 	{
-	case TOOL_INTERACTIVE_LDOWN:
+	case TOOL_INTERACTIVE_LDOWN     :
 	case TOOL_INTERACTIVE_MOVE_LDOWN:
 		return( Set_Profile(Get_System().Fit_to_Grid_System(ptWorld)) );
 
@@ -185,14 +169,12 @@ bool CGrid_Flow_Profile::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interac
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGrid_Flow_Profile::Set_Profile(TSG_Point ptWorld)
 {
-	int		x, y;
+	int x, y;
 
 	if( !Get_System().Get_World_to_Grid(x, y, ptWorld) || !m_pDEM->is_InGrid(x, y) )
 	{
@@ -203,12 +185,12 @@ bool CGrid_Flow_Profile::Set_Profile(TSG_Point ptWorld)
 	m_pLine  ->Del_Parts ();
 
 	//-----------------------------------------------------
-	int		Direction;
+	int Direction;
 
 	while( Add_Point(x, y) && (Direction = m_pDEM->Get_Gradient_NeighborDir(x, y)) >= 0 )
 	{
-		x	+= Get_xTo(Direction);
-		y	+= Get_yTo(Direction);
+		x += Get_xTo(Direction);
+		y += Get_yTo(Direction);
 	}
 
 	//-----------------------------------------------------
@@ -223,28 +205,31 @@ bool CGrid_Flow_Profile::Add_Point(int x, int y)
 		return( false );
 	}
 
-	TSG_Point	Point	= Get_System().Get_Grid_to_World(x, y);
+	TSG_Point Point = Get_System().Get_Grid_to_World(x, y);
 
-	double	d, dSurface;
+	double d, dSurface;
 
 	if( m_pPoints->Get_Count() == 0 )
 	{
-		d	= dSurface	= 0.0;
+		d = dSurface = 0.;
 	}
 	else
 	{
-		CSG_Shape	*pLast	= m_pPoints->Get_Shape(m_pPoints->Get_Count() - 1);
+		CSG_Shape *pLast = m_pPoints->Get_Shape(m_pPoints->Get_Count() - 1);
 
-		d			= SG_Get_Distance(Point, pLast->Get_Point(0));
+		d         = SG_Get_Distance(Point, pLast->Get_Point(0));
 
-		dSurface	= pLast->asDouble(5) - m_pDEM->asDouble(x, y);
-		dSurface	= sqrt(d*d + dSurface*dSurface);
+		dSurface  = pLast->asDouble(5) - m_pDEM->asDouble(x, y);
+		dSurface  = sqrt(d*d + dSurface*dSurface);
 
-		d			+= pLast->asDouble(1);
-		dSurface	+= pLast->asDouble(2);
+		d        += pLast->asDouble(1);
+		dSurface += pLast->asDouble(2);
 	}
 
-	CSG_Shape	*pPoint	= m_pPoints->Add_Shape();
+	//-----------------------------------------------------
+	#define VALUE_OFFSET 6
+
+	CSG_Shape *pPoint = m_pPoints->Add_Shape();
 
 	pPoint->Add_Point(Point);
 

@@ -686,7 +686,7 @@ bool CFlow_AreaUpslope_Interactive::On_Execute(void)
 		Parameters("MFD_CONTOUR")->asBool  ()) )
 	{
 		DataObject_Set_Colors(Parameters("AREA")->asGrid(), 11, SG_COLORS_WHITE_BLUE);
-		DataObject_Update    (Parameters("AREA")->asGrid(), SG_UI_DATAOBJECT_SHOW);
+		DataObject_Update    (Parameters("AREA")->asGrid(), SG_UI_DATAOBJECT_SHOW_MAP);
 
 		return( true );
 	}

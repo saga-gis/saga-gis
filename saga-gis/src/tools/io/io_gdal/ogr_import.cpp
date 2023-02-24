@@ -219,7 +219,7 @@ bool	SG_OGR_Import	(const CSG_String &File_Name)
 
 	for(int i=0; i<pShapes->Get_Item_Count(); i++)
 	{
-		SG_UI_DataObject_Add(pShapes->Get_Shapes(i), SG_UI_DATAOBJECT_UPDATE_ONLY);
+		SG_UI_DataObject_Add(pShapes->Get_Shapes(i), SG_UI_DATAOBJECT_UPDATE);
 	}
 
 	return( true );

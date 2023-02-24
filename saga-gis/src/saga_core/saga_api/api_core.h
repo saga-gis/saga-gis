@@ -1458,12 +1458,22 @@ TSG_UI_MSG_STYLE;
 //---------------------------------------------------------
 typedef enum ESG_UI_DataObject_Update
 {
-	SG_UI_DATAOBJECT_UPDATE_ONLY	= 0,
-	SG_UI_DATAOBJECT_SHOW,
-	SG_UI_DATAOBJECT_SHOW_NEW_MAP,
-	SG_UI_DATAOBJECT_SHOW_LAST_MAP
+	SG_UI_DATAOBJECT_UPDATE = 0,
+	SG_UI_DATAOBJECT_SHOW_MAP,
+	SG_UI_DATAOBJECT_SHOW_MAP_ACTIVE,
+	SG_UI_DATAOBJECT_SHOW_MAP_NEW,
+	SG_UI_DATAOBJECT_SHOW_MAP_LAST
 }
 TSG_UI_DataObject_Update;
+
+//---------------------------------------------------------
+typedef enum ESG_UI_Map
+{
+	SG_UI_MAP_ACTIVE = 0,
+	SG_UI_MAP_LAST,
+	SG_UI_MAP_ALL
+}
+TSG_UI_Maps;
 
 //---------------------------------------------------------
 typedef enum ESG_UI_Callback_ID
@@ -1497,6 +1507,10 @@ typedef enum ESG_UI_Callback_ID
 	CALLBACK_DATAOBJECT_COLORS_SET,
 	CALLBACK_DATAOBJECT_PARAMS_GET,
 	CALLBACK_DATAOBJECT_PARAMS_SET,
+
+	CALLBACK_MAP_EXTENT,
+
+	CALLBACK_DIAGRAM_SHOW,
 
 	CALLBACK_DATABASE_UPDATE,
 
@@ -1570,6 +1584,10 @@ SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Colors_Get	(class CSG_Data_Object 
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Colors_Set	(class CSG_Data_Object *pDataObject, class CSG_Colors *pColors);
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Params_Get	(class CSG_Data_Object *pDataObject, class CSG_Parameters *pParameters);
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Params_Set	(class CSG_Data_Object *pDataObject, class CSG_Parameters *pParameters);
+
+SAGA_API_DLL_EXPORT bool					SG_UI_Set_Map_Extent		(double xMin, double yMin, double xMax, double yMax, int Maps = SG_UI_MAP_ACTIVE);
+
+SAGA_API_DLL_EXPORT bool					SG_UI_Diagram_Show			(class CSG_Table *pTable, class CSG_Parameters *pParameters);
 
 SAGA_API_DLL_EXPORT bool					SG_UI_ODBC_Update			(const CSG_String &Server);
 

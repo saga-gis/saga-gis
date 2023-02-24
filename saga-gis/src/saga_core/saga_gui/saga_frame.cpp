@@ -1088,6 +1088,19 @@ void CSAGA_Frame::On_Child_Activates(int View_ID)
 	}
 }
 
+//---------------------------------------------------------
+CVIEW_Base * CSAGA_Frame::Get_Active_Child(int View_ID)
+{
+	CVIEW_Base *pChild = (CVIEW_Base *)GetActiveChild();
+
+	if( View_ID == -1 )
+	{
+		return( pChild );
+	}
+
+	return( pChild && pChild->Get_ID() == View_ID ? pChild : NULL );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

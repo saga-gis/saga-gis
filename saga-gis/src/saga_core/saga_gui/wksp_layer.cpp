@@ -47,6 +47,7 @@
 
 //---------------------------------------------------------
 #include "res_commands.h"
+#include "res_controls.h"
 #include "res_dialogs.h"
 
 #include "saga_frame.h"
@@ -74,6 +75,7 @@
 
 #include "wksp_shapes.h"
 
+#include "view_map.h"
 #include "view_histogram.h"
 
 
@@ -1074,28 +1076,22 @@ bool CWKSP_Layer::Show(CWKSP_Map *pMap)
 
 			return( true );
 		}
+
+		return( false );
 	}
-	else
+
+	//-----------------------------------------------------
+	for(int i=0; i<g_pMaps->Get_Count(); i++) // find first map that includes this layer
 	{
-		for(int i=0; i<g_pMaps->Get_Count(); i++)
+		if( g_pMaps->Get_Map(i)->Get_Map_Layer(this) != NULL )
 		{
-			if( g_pMaps->Get_Map(i)->Get_Map_Layer(this) != NULL )
-			{
-				pMap	= g_pMaps->Get_Map(i);
+			g_pMaps->Get_Map(i)->View_Show(true);
 
-				pMap->View_Show(true);
-
-				return( true );
-			}
-		}
-
-		if( g_pMaps->Add(this, NULL) )
-		{
-			return( Show((CWKSP_Map *)NULL) );
+			return( true );
 		}
 	}
 
-	return( false );
+	return( g_pMaps->Add(this, NULL) && Show((CWKSP_Map *)NULL) ); // not found? add to new map and show
 }
 
 //---------------------------------------------------------
@@ -1103,17 +1099,21 @@ bool CWKSP_Layer::Show(int Flags)
 {
 	switch( Flags )
 	{
-	case SG_UI_DATAOBJECT_SHOW:
+	case SG_UI_DATAOBJECT_SHOW_MAP:
 		return( Show((CWKSP_Map *)NULL) );
 
-	case SG_UI_DATAOBJECT_SHOW_NEW_MAP:
+	case SG_UI_DATAOBJECT_SHOW_MAP_NEW:
 		g_pMaps->Add(this, NULL);
 
-	case SG_UI_DATAOBJECT_SHOW_LAST_MAP:
+	case SG_UI_DATAOBJECT_SHOW_MAP_LAST:
 		return( Show(g_pMaps->Get_Map(g_pMaps->Get_Count() - 1)) );
+
+	case SG_UI_DATAOBJECT_SHOW_MAP_ACTIVE: {
+		CVIEW_Map *pView = (CVIEW_Map *)g_pSAGA_Frame->Get_Active_Child(ID_VIEW_MAP);
+		return( Show(pView ? pView->Get_Map() : NULL) ); }
 	}
 
-	return( true );
+	return( false );
 }
 
 //---------------------------------------------------------

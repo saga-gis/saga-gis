@@ -881,7 +881,7 @@ bool CPointCloud_Get_Grid_SPCVF_Interactive::On_Execute_Position(CSG_Point ptWor
 		{
 			CSG_Grid *pGrid = Parameters("GRID_OUT")->asGridList()->Get_Grid(Parameters("GRID_OUT")->asGridList()->Get_Grid_Count()-1);
 
-			DataObject_Update(pGrid, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
+			DataObject_Update(pGrid, SG_UI_DATAOBJECT_SHOW_MAP_ACTIVE);
 		}
 
 		m_Get_Grid_SPCVF.Finalise();

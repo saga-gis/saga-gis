@@ -1679,7 +1679,7 @@ bool CSG_Parameters::DataObjects_Synchronize(void)
 							m_pManager->Add(pObject);
 						}
 
-						SG_UI_DataObject_Update(pObject, SG_UI_DATAOBJECT_UPDATE_ONLY, NULL);
+						SG_UI_DataObject_Update(pObject, SG_UI_DATAOBJECT_UPDATE, NULL);
 					}
 				}
 			}
@@ -1696,7 +1696,7 @@ bool CSG_Parameters::DataObjects_Synchronize(void)
 						m_pManager->Add(pObject);
 					}
 
-					SG_UI_DataObject_Update(pObject, SG_UI_DATAOBJECT_UPDATE_ONLY, NULL);
+					SG_UI_DataObject_Update(pObject, SG_UI_DATAOBJECT_UPDATE, NULL);
 				}
 			}
 		}

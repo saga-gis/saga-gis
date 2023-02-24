@@ -229,7 +229,7 @@ bool CTerrainFloodingBase::Set_Flooding(double xWorld, double yWorld, double dWa
 			}
 		}
 
-		int iUpdate = bShow ? SG_UI_DATAOBJECT_SHOW_LAST_MAP : SG_UI_DATAOBJECT_UPDATE_ONLY;
+		int iUpdate = bShow ? SG_UI_DATAOBJECT_SHOW_MAP_ACTIVE : SG_UI_DATAOBJECT_UPDATE;
 		
 		CSG_Parameters Parameters;
 		Parameters.Add_Range("", "METRIC_ZRANGE", "", "", m_pWaterBody->Get_Min(), m_pWaterBody->Get_Max());

@@ -273,7 +273,7 @@ bool CFlow_AreaDownslope::On_Execute(void)
 
 		DataObject_Set_Colors(Parameters("AREA")->asGrid(), 11, SG_COLORS_WHITE_BLUE);
 		Parameters("AREA")->asGrid()->Set_NoData_Value(0.);
-		DataObject_Update    (Parameters("AREA")->asGrid(), SG_UI_DATAOBJECT_SHOW);
+		DataObject_Update    (Parameters("AREA")->asGrid(), SG_UI_DATAOBJECT_SHOW_MAP);
 	}
 
 	return( m_pTool != NULL );

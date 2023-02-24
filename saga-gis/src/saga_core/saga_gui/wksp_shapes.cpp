@@ -811,10 +811,21 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 	return( CWKSP_Layer::On_Parameter_Changed(pParameters, pParameter, Flags) );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 void CWKSP_Shapes::On_Update_Views(void)
 {
 	m_pTable->Update_Views();
+}
+
+//---------------------------------------------------------
+bool CWKSP_Shapes::Set_Diagram(bool bShow, CSG_Parameters *pParameters)
+{
+	return( m_pTable->Set_Diagram(bShow, pParameters) );
 }
 
 

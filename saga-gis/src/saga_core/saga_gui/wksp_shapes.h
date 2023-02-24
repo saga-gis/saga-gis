@@ -117,6 +117,8 @@ public:
 
 	wxString					Get_Name_Attribute		(void);
 
+	bool						Set_Diagram				(bool bShow, CSG_Parameters *pParameters = NULL);
+
 	bool						Set_Metrics				(int zField, int nField, int nType);
 
 	bool						is_Editing				(void)	{	return( m_Edit_pShape != NULL );	}

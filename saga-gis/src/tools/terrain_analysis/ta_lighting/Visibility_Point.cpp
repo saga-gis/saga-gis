@@ -128,7 +128,7 @@ bool CVisibility::Finalize(bool bShow)
 {
 	CSG_Parameters Parameters;
 
-	int Update = bShow ? SG_UI_DATAOBJECT_SHOW_LAST_MAP : SG_UI_DATAOBJECT_UPDATE_ONLY;
+	int Update = bShow ? SG_UI_DATAOBJECT_SHOW_MAP_ACTIVE : SG_UI_DATAOBJECT_UPDATE;
 
 	switch( m_Method )
 	{

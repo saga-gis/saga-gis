@@ -300,7 +300,7 @@ void CHillslope_Evolution_ADI::Set_Difference(void)
 
 		if( Parameters("UPDATE")->asBool() )
 		{
-			DataObject_Update(pDiff, SG_UI_DATAOBJECT_SHOW);
+			DataObject_Update(pDiff, SG_UI_DATAOBJECT_SHOW_MAP);
 		}
 	}
 }

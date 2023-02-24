@@ -131,7 +131,7 @@ bool CSG_Data_Collection::Add(CSG_Data_Object *pObject)
 
 			if( m_pManager == &g_Data_Manager )
 			{
-				SG_UI_DataObject_Add(pObject, SG_UI_DATAOBJECT_UPDATE_ONLY);
+				SG_UI_DataObject_Add(pObject, SG_UI_DATAOBJECT_UPDATE);
 			}
 
 			return( true );

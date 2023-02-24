@@ -91,6 +91,7 @@ public:
 
 	virtual void					Do_Update					(void);
 
+	class CWKSP_Map *				Get_Map						(void)	{	return(	m_pMap     );	}
 	class CVIEW_Map_Control *		Get_Map_Control				(void)	{	return( m_pControl );	}
 
 	void							Ruler_Set_Width				(int Width);

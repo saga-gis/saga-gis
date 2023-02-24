@@ -53,6 +53,7 @@
 #include "helper.h"
 
 #include "wksp_data_manager.h"
+#include "wksp_map_manager.h"
 #include "wksp_tool.h"
 #include "data_source.h"
 
@@ -293,6 +294,22 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	case CALLBACK_DATAOBJECT_PARAMS_SET:
 
 		Result	= g_pData->Set_Parameters((CSG_Data_Object *)Param_1.Pointer, (CSG_Parameters *)Param_2.Pointer) ? 1 : 0;
+
+		break;
+
+
+	//-----------------------------------------------------
+	case CALLBACK_MAP_EXTENT:
+
+		Result	= g_pMaps->Set_Extent(*((CSG_Rect *)Param_1.Pointer), (int)Param_2.Number) ? 1 : 0;
+
+		break;
+
+
+	//-----------------------------------------------------
+	case CALLBACK_DIAGRAM_SHOW:
+
+		Result	= g_pData->Show_Diagram((CSG_Table *)Param_1.Pointer, (CSG_Parameters *)Param_2.Pointer) ? 1 : 0;
 
 		break;
 

@@ -1476,6 +1476,23 @@ bool CWKSP_Data_Manager::Set_Parameters(CSG_Data_Object *pObject, CSG_Parameters
 	return( false );
 }
 
+//---------------------------------------------------------
+bool CWKSP_Data_Manager::Show_Diagram(CSG_Table *pTable, CSG_Parameters *pParameters)
+{
+	CWKSP_Data_Item *pItem = Get(pTable);
+
+	switch( pItem->Get_Type() )
+	{
+	case WKSP_ITEM_Table     : ((CWKSP_Table      *)pItem)->Set_Diagram(true, pParameters); return( true );
+	case WKSP_ITEM_Shapes    : ((CWKSP_Shapes     *)pItem)->Set_Diagram(true, pParameters); return( true );
+//	case WKSP_ITEM_PointCloud: ((CWKSP_PointCloud *)pItem)->Set_Diagram(true, pParameters); return( true );
+
+	default: break;
+	}
+
+	return( false );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

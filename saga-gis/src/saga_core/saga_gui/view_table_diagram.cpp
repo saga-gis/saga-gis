@@ -88,7 +88,7 @@ public:
 	bool							Set_Zoom			(double Zoom);
 	bool							Set_Zoom			(double Zoom, wxPoint Center);
 
-	bool							Set_Parameters		(void);
+	bool							Set_Parameters		(CSG_Parameters *pParameters = NULL);
 
 	void							SaveToClipboard		(void);
 
@@ -189,9 +189,14 @@ CVIEW_Table_Diagram_Control::~CVIEW_Table_Diagram_Control(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CVIEW_Table_Diagram_Control::Set_Parameters(void)
+bool CVIEW_Table_Diagram_Control::Set_Parameters(CSG_Parameters *pParameters)
 {
-	double	Ratio	= m_Parameters("FIX_RATIO")->asBool() ? m_Parameters("RATIO")->asDouble() : 0.;
+	if( pParameters )
+	{
+		m_Parameters.Assign_Values(pParameters);
+	}
+
+	double Ratio = m_Parameters("FIX_RATIO")->asBool() ? m_Parameters("RATIO")->asDouble() : 0.;
 
 	if( DLG_Parameters(&m_Parameters) && _Create() )
 	{
@@ -1170,14 +1175,14 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CVIEW_Table_Diagram::CVIEW_Table_Diagram(CWKSP_Table *pTable)
+CVIEW_Table_Diagram::CVIEW_Table_Diagram(CWKSP_Table *pTable, CSG_Parameters *pParameters)
 	: CVIEW_Base(pTable, ID_VIEW_TABLE_DIAGRAM, wxString::Format("%s [%s]", _TL("Diagram"), pTable->Get_Name().c_str()), ID_IMG_WND_DIAGRAM, false)
 {
 	SYS_Set_Color_BG_Window(this);
 
 	m_pControl	= new CVIEW_Table_Diagram_Control(this, pTable);
 
-	if( m_pControl->Set_Parameters() )
+	if( m_pControl->Set_Parameters(pParameters) )
 	{
 		Do_Show();
 	}

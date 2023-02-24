@@ -466,7 +466,7 @@ bool CPC_Cut_Interactive::On_Execute(void)
 			sParms("OUTLINE_COLOR")	->Set_Value((int)SG_GET_RGB(180, 0, 0));	// outline color
 			sParms("DISPLAY_BRUSH")	->Set_Value(1);								// fillstyle transparent
 			DataObject_Set_Parameters(m_pAOI, sParms);
-			DataObject_Update(m_pAOI, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
+			DataObject_Update(m_pAOI, SG_UI_DATAOBJECT_SHOW_MAP_ACTIVE);
 		}
 	}
 	else
@@ -511,7 +511,7 @@ bool CPC_Cut_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Intera
 			}												// i.e. we add the first point clicked two times
 
 			m_pAOI->Get_Shape(0)->Add_Point(ptWorld);
-			DataObject_Update(m_pAOI, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
+			DataObject_Update(m_pAOI, SG_UI_DATAOBJECT_SHOW_MAP_ACTIVE);
 		}
 
 		return( true );

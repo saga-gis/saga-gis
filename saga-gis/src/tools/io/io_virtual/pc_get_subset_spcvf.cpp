@@ -1024,7 +1024,7 @@ bool CPointCloud_Get_Subset_SPCVF_Interactive::On_Execute_Position(CSG_Point ptW
 
 			DataObject_Set_Parameters(pPC, sParms);
 
-			DataObject_Update(pPC, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
+			DataObject_Update(pPC, SG_UI_DATAOBJECT_SHOW_MAP_ACTIVE);
 		}
 
 		m_Get_Subset_SPCVF.Finalise();
