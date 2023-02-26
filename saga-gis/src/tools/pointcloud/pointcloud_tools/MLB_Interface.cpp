@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -73,7 +70,7 @@ CSG_String Get_Info(int i)
 		return( _TL("Shapes") );
 
 	case TLB_INFO_Author:
-		return( SG_T("O.Conrad, V.Wichmann, M.Bremer (c) 2009-2021") );
+		return( SG_T("O.Conrad, V.Wichmann, M.Bremer (c) 2009-2023") );
 
 	case TLB_INFO_Description:
 		return( _TL("Tools for point clouds.") );
@@ -96,6 +93,7 @@ CSG_String Get_Info(int i)
 #include "pc_from_shapes.h"
 #include "pc_from_table.h"
 #include "pc_ground_filter.h"
+#include "pc_isolated_points_filter.h"
 #include "pc_merge.h"
 #include "pc_reclass_extract.h"
 #include "pc_support_tool_chains.h"
@@ -126,6 +124,7 @@ CSG_Tool *		Create_Tool(int i)
 	case 13:	return( new CPC_From_Table );
 	case 14:	return( new CSelect_PointCloud_From_List );
 	case 15:	return( new CGround_Filter );
+	case 16:	return( new CIsolated_Points_Filter );
 	}
 
 	return( NULL );

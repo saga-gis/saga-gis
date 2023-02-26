@@ -10,10 +10,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    TLB_Interface.h                    //
+//               pc_isolated_points_filter.h             //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
-//                      Olaf Conrad                      //
+//                 Copyright (C) 2023 by                 //
+//                    Volker Wichmann                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -36,12 +36,11 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     wichmann@laserdata                     //
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Hamburg                  //
-//                Germany                                //
+//    contact:    Volker Wichmann                        //
+//                LASERDATA GmbH                         //
+//                Innsbruck, Austria                     //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -50,30 +49,54 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//				Include the SAGA-API here				 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__pointcloud_tools_H
-#define HEADER_INCLUDED__pointcloud_tools_H
-
-//---------------------------------------------------------
-#include <saga_api/saga_api.h>
-
-//---------------------------------------------------------
-#ifdef pointcloud_tools_EXPORTS
-	#define	pointcloud_tools_EXPORT	_SAGA_DLL_EXPORT
-#else
-	#define	pointcloud_tools_EXPORT	_SAGA_DLL_IMPORT
-#endif
+#ifndef HEADER_INCLUDED__pc_isolated_points_filter_H
+#define HEADER_INCLUDED__pc_isolated_points_filter_H
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__pointcloud_tools_H
+#include "MLB_Interface.h"
+
+#include <vector>
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CIsolated_Points_Filter : public CSG_Tool
+{
+public:
+	CIsolated_Points_Filter(void);
+
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Classification") );	}
+
+
+protected:
+
+	virtual bool			On_Execute			(void);
+	virtual bool			On_After_Execution	(void);
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__pc_isolated_points_filter_H
