@@ -101,6 +101,28 @@ CXYZ_Export::CXYZ_Export(void)
 		_TL("Write No-Data cells to the .xyz file."),
 		false
 	);
+
+	Parameters.Add_Int("",
+		"PREC"		, _TL("Floating Point Precision"),
+		_TL("Number of decimals of exported floating point values. A value of -1 writes the significant decimals."),
+		2, -1, true
+	);
+
+	Parameters.Add_Choice("",
+		"SEPARATOR"	, _TL("Field Separator"),
+		_TL(""),
+		CSG_String::Format("%s|;|,|%s|%s",
+			_TL("tabulator"),
+			_TL("space"),
+			_TL("other")
+		), 0
+	);
+
+	Parameters.Add_String("SEPARATOR",
+		"SEP_OTHER"	, _TL("other"),
+		_TL(""),
+		"*"
+	);
 }
 
 
@@ -129,13 +151,27 @@ bool CXYZ_Export::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	int		Precision	= Parameters("PREC"  )->asInt();
+
+	CSG_String	Separator;
+
+	switch( Parameters("SEPARATOR")->asInt() )
+	{
+	case  0: Separator	= "\t"; break;
+	case  1: Separator	=  ";"; break;
+	case  2: Separator	=  ","; break;
+	case  3: Separator	=  " "; break;
+	default: Separator	= *Parameters("SEP_OTHER")->asString(); break;
+	}
+
+	//-----------------------------------------------------
 	if( Parameters("HEADER")->asBool() )
 	{
-		Stream.Printf("\"X\"\t\"Y\"");
+		Stream.Printf("\"X\"%s\"Y\"", Separator.c_str());
 
 		for(int i=0; i<pGrids->Get_Grid_Count(); i++)
 		{
-			Stream.Printf("\t\"%s\"", pGrids->Get_Grid(i)->Get_Name());
+			Stream.Printf("%s\"%s\"", Separator.c_str(), pGrids->Get_Grid(i)->Get_Name());
 		}
 
 		Stream.Printf("\n");
@@ -145,6 +181,7 @@ bool CXYZ_Export::On_Execute(void)
 	bool	bNoData	= Parameters("NODATA")->asBool();
 
 	TSG_Point	p;	p.y	= Get_YMin();
+	CSG_String	GridValue;
 
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++, p.y+=Get_Cellsize())
 	{
@@ -154,11 +191,20 @@ bool CXYZ_Export::On_Execute(void)
 		{
 			if( bNoData || !pGrids->Get_Grid(0)->is_NoData(x, y) )
 			{
-				Stream.Printf("%f\t%f", p.x, p.y);
+				Stream.Printf("%s%s%s", SG_Get_String(p.x, Precision).c_str(), Separator.c_str(), SG_Get_String(p.y, Precision).c_str());
 
 				for(int i=0; i<pGrids->Get_Grid_Count(); i++)
 				{
-					Stream.Printf("\t%f", pGrids->Get_Grid(i)->asDouble(x, y));
+					if( pGrids->Get_Grid(i)->Get_Type() < SG_DATATYPE_Float )
+					{
+						GridValue = SG_Get_String(pGrids->Get_Grid(i)->asDouble(x, y), 0);
+					}
+					else
+					{
+						GridValue = SG_Get_String(pGrids->Get_Grid(i)->asDouble(x, y), Precision);
+					}
+					
+					Stream.Printf("%s%s", Separator.c_str(), GridValue.c_str());
 				}
 
 				Stream.Printf("\n");
@@ -168,6 +214,17 @@ bool CXYZ_Export::On_Execute(void)
 
 	//-----------------------------------------------------
 	return( true );
+}
+
+//---------------------------------------------------------
+int CXYZ_Export::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("SEPARATOR") )
+	{
+		pParameters->Set_Enabled("SEP_OTHER", pParameter->asInt() >= 4);
+	}
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
