@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Grid_Profile_From_Lines.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,20 +48,18 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Grid_Profile_From_Lines_H
 #define HEADER_INCLUDED__Grid_Profile_From_Lines_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -78,28 +73,31 @@ class CGrid_Profile_From_Lines : public CSG_Tool_Grid
 {
 public:
 	CGrid_Profile_From_Lines(void);
-	virtual ~CGrid_Profile_From_Lines(void);
 
 
 protected:
 
-	virtual bool				On_Execute(void);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
 
 
 private:
-
-	CSG_Shapes					*m_pProfile, *m_pLines;
 
 	CSG_Grid					*m_pDEM;
 
 	CSG_Parameter_Grid_List		*m_pValues;
 
+	CSG_Shapes					*m_pPoints, *m_pLines;
 
-	bool						Init_Profile	(CSG_Shapes *pPoints, const SG_Char *Name);
 
-	bool						Set_Profile		(int Line_ID, CSG_Shape *pLine);
-	bool						Set_Profile		(int Line_ID, bool bStart, const TSG_Point &A, const TSG_Point &B, bool bLastPoint);
-	bool						Add_Point		(int Line_ID, bool bStart, const TSG_Point &Point);
+	bool						Init_Profile			(CSG_Shapes *pPoints, const CSG_String &Name);
+
+	bool						Show_Profile			(CSG_Shapes *pPoints);
+
+	bool						Set_Profile				(int ID_Line, CSG_Shape *pLine);
+	bool						Set_Profile				(int ID_Line, bool bStart, const TSG_Point &A, const TSG_Point &B, bool bLastPoint);
+	bool						Add_Point				(int ID_Line, bool bStart, const TSG_Point &Point);
 
 };
 

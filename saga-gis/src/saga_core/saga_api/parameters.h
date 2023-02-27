@@ -1017,6 +1017,8 @@ public:
 
 	CSG_Table *					Get_Table				(void)	const;
 
+	static CSG_String			Get_Choices				(const class CSG_Table &Table, bool bAllowNone = false);
+
 
 protected:
 

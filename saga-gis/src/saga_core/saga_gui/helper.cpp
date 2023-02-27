@@ -381,6 +381,12 @@ wxWindow *	MDI_Get_Top_Window(void)
 	return( g_pSAGA_Frame ? g_pSAGA_Frame->Top_Window_Get() : NULL );
 }
 
+//---------------------------------------------------------
+bool		MDI_Window_Arrange(int Arrange)
+{
+	return( g_pSAGA_Frame ? g_pSAGA_Frame->Arrange_Children(Arrange) : false );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

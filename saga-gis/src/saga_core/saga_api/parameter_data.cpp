@@ -2118,6 +2118,28 @@ bool CSG_Parameter_Table_Field::_Serialize(CSG_MetaData &Entry, bool bSave)
 	}
 }
 
+//---------------------------------------------------------
+CSG_String CSG_Parameter_Table_Field::Get_Choices(const CSG_Table &Table, bool bAllowNone)
+{
+	CSG_String Choices;
+
+	for(int i=0; i<Table.Get_Field_Count(); i++)
+	{
+		if( i > 0 ) { Choices += "|"; }
+
+		Choices += Table.Get_Field_Name(i);
+	}
+
+	if( bAllowNone )
+	{
+		if( Table.Get_Field_Count() ) { Choices += "|"; }
+
+		Choices += _TL("<not set>");
+	}
+
+	return( Choices );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

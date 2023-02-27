@@ -299,7 +299,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 
 	//-----------------------------------------------------
-	case CALLBACK_MAP_EXTENT:
+	case CALLBACK_SET_MAP_EXTENT:
 
 		Result	= g_pMaps->Set_Extent(*((CSG_Rect *)Param_1.Pointer), (int)Param_2.Number) ? 1 : 0;
 
@@ -327,7 +327,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	///////////////////////////////////////////////////////
 
 	//-----------------------------------------------------
-	case CALLBACK_GUI_GET_WINDOW:
+	case CALLBACK_GET_APP_WINDOW:
 
 		Param_1.Pointer	= MDI_Get_Frame();
 

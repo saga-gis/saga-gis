@@ -636,7 +636,7 @@ bool		SG_UI_Set_Map_Extent		(double xMin, double yMin, double xMax, double yMax,
 	{
 		CSG_Rect r(xMin, yMin, xMax, yMax); CSG_UI_Parameter p1(&r), p2(Maps);
 
-		return( gSG_UI_Callback(CALLBACK_MAP_EXTENT, p1, p2) != 0 );
+		return( gSG_UI_Callback(CALLBACK_SET_MAP_EXTENT, p1, p2) != 0 );
 	}
 
 	return( false );
@@ -676,13 +676,28 @@ bool		SG_UI_ODBC_Update		(const CSG_String &Server)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int			SG_UI_Window_Arrange		(int Arrange)
+{
+	if( gSG_UI_Callback )
+	{
+		CSG_UI_Parameter p1, p2;
+
+		gSG_UI_Callback(CALLBACK_WINDOW_ARRANGE, p1, p2);
+
+		return( 1 );
+	}
+
+	return( 0 );
+}
+
+//---------------------------------------------------------
 void *		SG_UI_Get_Window_Main(void)
 {
 	if( gSG_UI_Callback )
 	{
 		CSG_UI_Parameter p1, p2;
 
-		gSG_UI_Callback(CALLBACK_GUI_GET_WINDOW, p1, p2);
+		gSG_UI_Callback(CALLBACK_GET_APP_WINDOW, p1, p2);
 
 		return( p1.Pointer );
 	}

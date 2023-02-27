@@ -198,7 +198,7 @@ bool CVIEW_Table_Diagram_Control::Set_Parameters(CSG_Parameters *pParameters)
 
 	double Ratio = m_Parameters("FIX_RATIO")->asBool() ? m_Parameters("RATIO")->asDouble() : 0.;
 
-	if( DLG_Parameters(&m_Parameters) && _Create() )
+	if( (pParameters || DLG_Parameters(&m_Parameters)) && _Create() )
 	{
 		if( ((Ratio == 0.) == m_Parameters("FIX_RATIO")->asBool()) || ((Ratio != 0.) && Ratio != m_Parameters("RATIO")->asDouble()) )
 		{
@@ -1185,6 +1185,11 @@ CVIEW_Table_Diagram::CVIEW_Table_Diagram(CWKSP_Table *pTable, CSG_Parameters *pP
 	if( m_pControl->Set_Parameters(pParameters) )
 	{
 		Do_Show();
+
+		if( pParameters && (*pParameters)("WINDOW_ARRANGE") )
+		{
+			MDI_Window_Arrange((*pParameters)("WINDOW_ARRANGE")->asInt() );
+		}
 	}
 	else
 	{

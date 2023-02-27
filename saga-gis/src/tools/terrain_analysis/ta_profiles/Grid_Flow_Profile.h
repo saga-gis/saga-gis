@@ -84,13 +84,13 @@ protected:
 
 private:
 
-	CSG_Shapes					*m_pPoints;
+	CSG_Shapes					*m_pPoints{NULL};
 	
-	CSG_Shape					*m_pLine;
+	CSG_Shape					*m_pLine{NULL};
 
-	CSG_Grid					*m_pDEM;
+	CSG_Grid					*m_pDEM{NULL};
 
-	CSG_Parameter_Grid_List		*m_pValues;
+	CSG_Parameter_Grid_List		*m_pValues{NULL};
 
 
 	bool						Set_Profile			(TSG_Point ptWorld);

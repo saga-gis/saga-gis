@@ -1476,6 +1476,21 @@ typedef enum ESG_UI_Map
 TSG_UI_Maps;
 
 //---------------------------------------------------------
+typedef enum ESG_UI_Window_Arrange
+{
+	SG_UI_WINDOW_ARRANGE_MDI_CASCADE      = 0x0001,
+	SG_UI_WINDOW_ARRANGE_MDI_TILE_VER     = 0x0002,
+	SG_UI_WINDOW_ARRANGE_MDI_TILE_HOR     = 0x0004,
+	SG_UI_WINDOW_ARRANGE_TDI_TILE_VER     = 0x0008,
+	SG_UI_WINDOW_ARRANGE_TDI_TILE_HOR     = 0x0010,
+	SG_UI_WINDOW_ARRANGE_TDI_SPLIT_LEFT   = 0x0020,
+	SG_UI_WINDOW_ARRANGE_TDI_SPLIT_RIGHT  = 0x0040,
+	SG_UI_WINDOW_ARRANGE_TDI_SPLIT_TOP    = 0x0080,
+	SG_UI_WINDOW_ARRANGE_TDI_SPLIT_BOTTOM = 0x0100
+}
+TSG_UI_Window_Arrange;
+
+//---------------------------------------------------------
 typedef enum ESG_UI_Callback_ID
 {
 	CALLBACK_PROCESS_GET_OKAY,
@@ -1508,13 +1523,15 @@ typedef enum ESG_UI_Callback_ID
 	CALLBACK_DATAOBJECT_PARAMS_GET,
 	CALLBACK_DATAOBJECT_PARAMS_SET,
 
-	CALLBACK_MAP_EXTENT,
+	CALLBACK_SET_MAP_EXTENT,
 
 	CALLBACK_DIAGRAM_SHOW,
 
 	CALLBACK_DATABASE_UPDATE,
 
-	CALLBACK_GUI_GET_WINDOW,
+	CALLBACK_WINDOW_ARRANGE,
+
+	CALLBACK_GET_APP_WINDOW,
 	CALLBACK_GET_APP_PATH
 }
 TSG_UI_Callback_ID;
@@ -1590,6 +1607,8 @@ SAGA_API_DLL_EXPORT bool					SG_UI_Set_Map_Extent		(double xMin, double yMin, do
 SAGA_API_DLL_EXPORT bool					SG_UI_Diagram_Show			(class CSG_Table *pTable, class CSG_Parameters *pParameters);
 
 SAGA_API_DLL_EXPORT bool					SG_UI_ODBC_Update			(const CSG_String &Server);
+
+SAGA_API_DLL_EXPORT int						SG_UI_Window_Arrange		(int Arrange);
 
 SAGA_API_DLL_EXPORT void *					SG_UI_Get_Window_Main		(void);
 SAGA_API_DLL_EXPORT CSG_String				SG_UI_Get_Application_Path	(bool bPathOnly = false);

@@ -58,6 +58,23 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+enum
+{
+	FIELD_ID = 0,
+	FIELD_DISTANCE,
+	FIELD_OVERLAND,
+	FIELD_X,
+	FIELD_Y,
+	FIELD_Z,
+	FIELD_VALUES
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CGrid_Flow_Profile::CGrid_Flow_Profile(void)
 {
 	Set_Name		(_TL("Flow Path Profile"));
@@ -66,38 +83,35 @@ CGrid_Flow_Profile::CGrid_Flow_Profile(void)
 
 	Set_Description	(_TW(
 		"Create interactively flow path profiles from a grid based DEM\n"
-		"Use a left mouse button click to create a flow profile starting from the clicked point.")
-	);
+		"Use a left mouse button click to create a flow profile starting from the clicked point."
+	));
 
-	Parameters.Add_Grid("",
-		 "DEM"		, _TL("DEM"),
+	Parameters.Add_Grid     ("", "DEM"    , _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_List("",
-		"VALUES"	, _TL("Values"),
-		_TL("Additional values that shall be saved to the output table."),
+	Parameters.Add_Grid_List("", "VALUES" , _TL("Values"),
+		_TL("Additional values to be collected along profile."),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Shapes("",
-		"POINTS"	, _TL("Profile Points"),
+	Parameters.Add_Shapes   ("", "POINTS" , _TL("Profile Points"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Shapes("",
-		"LINE"	, _TL("Profile Line"),
+	Parameters.Add_Shapes   ("", "LINE"   , _TL("Profile Line"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Line
 	);
 
-	Parameters.Add_Bool("",
-		"DIAGRAM", _TL("Show Diagram"),
+	Parameters.Add_Bool     ("", "DIAGRAM", _TL("Show Diagram"),
 		_TL(""),
-		false
+		true
 	);
+
+	Set_Drag_Mode(TOOL_INTERACTIVE_DRAG_NONE);
 }
 
 
@@ -115,12 +129,12 @@ bool CGrid_Flow_Profile::On_Execute(void)
 	m_pPoints = Parameters("POINTS")->asShapes();
 	m_pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format("%s [%s]", m_pDEM->Get_Name(), _TL("Profile")));
 
-	m_pPoints->Add_Field("ID"      , SG_DATATYPE_Int   );
-	m_pPoints->Add_Field("Distance", SG_DATATYPE_Double);
-	m_pPoints->Add_Field("Overland", SG_DATATYPE_Double);
-	m_pPoints->Add_Field("X"       , SG_DATATYPE_Double);
-	m_pPoints->Add_Field("Y"       , SG_DATATYPE_Double);
-	m_pPoints->Add_Field("Z"       , SG_DATATYPE_Double);
+	m_pPoints->Add_Field("ID"      , SG_DATATYPE_Int   ); // FIELD_ID
+	m_pPoints->Add_Field("Distance", SG_DATATYPE_Double); // FIELD_DISTANCE
+	m_pPoints->Add_Field("Overland", SG_DATATYPE_Double); // FIELD_OVERLAND
+	m_pPoints->Add_Field("X"       , SG_DATATYPE_Double); // FIELD_X
+	m_pPoints->Add_Field("Y"       , SG_DATATYPE_Double); // FIELD_Y
+	m_pPoints->Add_Field("Z"       , SG_DATATYPE_Double); // FIELD_Z
 
 	for(int i=0; i<m_pValues->Get_Grid_Count(); i++)
 	{
@@ -139,10 +153,19 @@ bool CGrid_Flow_Profile::On_Execute(void)
 
 	if( Parameters("DIAGRAM")->asBool() )
 	{
-		SG_UI_Diagram_Show(m_pPoints, NULL);
-	}
+		CSG_Parameters P; CSG_String Fields(CSG_Parameter_Table_Field::Get_Choices(*m_pPoints, true));
 
-	Set_Drag_Mode(TOOL_INTERACTIVE_DRAG_NONE);
+		P.Add_Bool  ("", "LEGEND"       , "", "", false);
+		P.Add_Bool  ("", "Y_SCALE_TO_X" , "", "", true);
+		P.Add_Double("", "Y_SCALE_RATIO", "", "", 1.);
+		P.Add_Choice("", "X_FIELD"      , "", "", Fields, FIELD_DISTANCE); // Distance
+
+		P.Add_Bool  ("", CSG_String::Format("FIELD_%d", FIELD_Z), "", "", true); // Z
+
+		P.Add_Int("", "WINDOW_ARRANGE", "", "", SG_UI_WINDOW_ARRANGE_MDI_TILE_HOR|SG_UI_WINDOW_ARRANGE_TDI_SPLIT_BOTTOM);
+
+		SG_UI_Diagram_Show(m_pPoints, &P);
+	}
 
 	return( true );
 }
@@ -174,9 +197,9 @@ bool CGrid_Flow_Profile::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interac
 //---------------------------------------------------------
 bool CGrid_Flow_Profile::Set_Profile(TSG_Point ptWorld)
 {
-	int x, y;
+	int x, y; Get_System().Get_World_to_Grid(x, y, ptWorld);
 
-	if( !Get_System().Get_World_to_Grid(x, y, ptWorld) || !m_pDEM->is_InGrid(x, y) )
+	if( !m_pDEM->is_InGrid(x, y) )
 	{
 		return( false );
 	}
@@ -207,42 +230,45 @@ bool CGrid_Flow_Profile::Add_Point(int x, int y)
 
 	TSG_Point Point = Get_System().Get_Grid_to_World(x, y);
 
-	double d, dSurface;
+	double Distance, Overland;
 
 	if( m_pPoints->Get_Count() == 0 )
 	{
-		d = dSurface = 0.;
+		Distance = Overland = 0.;
 	}
 	else
 	{
 		CSG_Shape *pLast = m_pPoints->Get_Shape(m_pPoints->Get_Count() - 1);
 
-		d         = SG_Get_Distance(Point, pLast->Get_Point(0));
+		Distance  = SG_Get_Distance(Point, pLast->Get_Point(0));
 
-		dSurface  = pLast->asDouble(5) - m_pDEM->asDouble(x, y);
-		dSurface  = sqrt(d*d + dSurface*dSurface);
+		if( Distance == 0. )
+		{
+			return( false );
+		}
 
-		d        += pLast->asDouble(1);
-		dSurface += pLast->asDouble(2);
+		Overland  = pLast->asDouble(5) - m_pDEM->asDouble(x, y);
+		Overland  = sqrt(Distance*Distance + Overland*Overland);
+
+		Distance += pLast->asDouble(FIELD_DISTANCE);
+		Overland += pLast->asDouble(FIELD_OVERLAND);
 	}
 
 	//-----------------------------------------------------
-	#define VALUE_OFFSET 6
-
 	CSG_Shape *pPoint = m_pPoints->Add_Shape();
 
 	pPoint->Add_Point(Point);
 
-	pPoint->Set_Value(0, m_pPoints->Get_Count());
-	pPoint->Set_Value(1, d);
-	pPoint->Set_Value(2, dSurface);
-	pPoint->Set_Value(3, Point.x);
-	pPoint->Set_Value(4, Point.y);
-	pPoint->Set_Value(5, m_pDEM->asDouble(x, y));
+	pPoint->Set_Value(FIELD_ID      , m_pPoints->Get_Count());
+	pPoint->Set_Value(FIELD_DISTANCE, Distance);
+	pPoint->Set_Value(FIELD_OVERLAND, Overland);
+	pPoint->Set_Value(FIELD_X       , Point.x);
+	pPoint->Set_Value(FIELD_Y       , Point.y);
+	pPoint->Set_Value(FIELD_Z       , m_pDEM->asDouble(x, y));
 
 	for(int i=0; i<m_pValues->Get_Grid_Count(); i++)
 	{
-		pPoint->Set_Value(VALUE_OFFSET + i, m_pValues->Get_Grid(i)->asDouble(x, y));
+		pPoint->Set_Value(FIELD_VALUES + i, m_pValues->Get_Grid(i)->asDouble(x, y));
 	}
 
 	m_pLine->Add_Point(Point);
