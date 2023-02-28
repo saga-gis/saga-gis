@@ -482,10 +482,21 @@ CSoilWater_Glugla_Table::CSoilWater_Glugla_Table(void)
 		r.Set_Value("Water_0", Water_0);\
 	}
 
-	ADD_LAYER(25, 12, 20, 30, 50, 20);
+	ADD_LAYER(25, 12, 20, 20, 50, 20);
 	ADD_LAYER(25, 12, 20, 20, 30, 20);
 	ADD_LAYER(25, 12, 20, 20, 15, 20);
-	ADD_LAYER(25, 12, 20, 10,  5, 20);
+	ADD_LAYER(25, 12, 20, 20,  5, 20);
+
+	//-----------------------------------------------------
+	Parameters.Add_Choice("",
+		"DIAGRAM", _TL("Show Diagram"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s",
+			_TL("no"),
+			_TL("yes"),
+			_TL("yes, force update")
+		), 2
+	)->Set_UseInCMD(false);
 }
 
 
@@ -521,12 +532,12 @@ bool CSoilWater_Glugla_Table::On_Execute(void)
 {
 	CSG_Table &Input = *Parameters("INPUT")->asTable();
 
-	int	field_Day = Parameters("INPUT_DAY")->asInt();
-	int	field_P   = Parameters("INPUT_P"  )->asInt();
-	int	field_ETp = Parameters("INPUT_ETP")->asInt();
-	int	field_LAI = Parameters("INPUT_LAI")->asInt();
+	int field_Day = Parameters("INPUT_DAY")->asInt();
+	int field_P   = Parameters("INPUT_P"  )->asInt();
+	int field_ETp = Parameters("INPUT_ETP")->asInt();
+	int field_LAI = Parameters("INPUT_LAI")->asInt();
 
-	double	LAI	= Parameters("INPUT_LAI")->asDouble();
+	double LAI = Parameters("INPUT_LAI")->asDouble();
 
 	//-----------------------------------------------------
 	CSG_Table &Simulation = *Parameters("SIMULATION")->asTable();
@@ -574,12 +585,12 @@ bool CSoilWater_Glugla_Table::On_Execute(void)
 	);
 
 	{
-		CSG_Table	&Layers	= *Parameters("SOIL_LAYERS")->asTable();
+		CSG_Table &Layers = *Parameters("SOIL_LAYERS")->asTable();
 
 		for(int i=0; i<Layers.Get_Count(); i++)
 		{
 			Model.Add_Layer(
-				Layers[i].asDouble("Size"   ) * 10.,	// [cm] -> [mm]
+				Layers[i].asDouble("Size"   ) * 10., // [cm] -> [mm]
 				Layers[i].asDouble("Water_0"),
 				Layers[i].asDouble("FC"     ),
 				Layers[i].asDouble("PWP"    ),
@@ -591,12 +602,12 @@ bool CSoilWater_Glugla_Table::On_Execute(void)
 		}
 	}
 
-	int	Unit	= Parameters("OUTPUT_UNIT")->asInt();
+	int Unit = Parameters("OUTPUT_UNIT")->asInt();
 
 	//-----------------------------------------------------
 	for(int i=0; i<Input.Get_Count() && Set_Progress(i, Input.Get_Count()); i++)
 	{
-		CSG_Table_Record	&Record	= *Simulation.Add_Record();
+		CSG_Table_Record &Record = *Simulation.Add_Record();
 
 		if( field_Day >= 0 )
 		{
@@ -604,15 +615,15 @@ bool CSoilWater_Glugla_Table::On_Execute(void)
 		}
 		else
 		{
-			Record.Set_Value(0, i + 1);
+			Record.Set_Value(0, i + 1.);
 		}
 
-		double	P   = Input[i].asDouble(field_P  );
-		double	ETp = Input[i].asDouble(field_ETp);
+		double P   = Input[i].asDouble(field_P  );
+		double ETp = Input[i].asDouble(field_ETp);
 
 		if( field_LAI >= 0 )
 		{
-			LAI     = Input[i].asDouble(field_LAI);
+			LAI    = Input[i].asDouble(field_LAI);
 		}
 
 		Record.Set_Value("P"       , P  );
@@ -629,6 +640,50 @@ bool CSoilWater_Glugla_Table::On_Execute(void)
 		{
 			Record.Set_Value(CSG_String::Format("SWC%d", iLayer + 1), Model.Get_Water(iLayer, Unit));
 		}
+	}
+
+	//-----------------------------------------------------
+	if( Parameters("DIAGRAM")->asInt() > 0 )
+	{
+		CSG_Parameters P; CSG_String Fields(CSG_Parameter_Table_Field::Get_Choices(Simulation, true)), Types("bars|lines|points|points connected with lines");
+
+		if( Parameters("DIAGRAM")->asInt() == 2 )
+		{
+			P.Add_Bool("", "UPDATE", "", "", true); // force parameters update if diagram is already open
+		}
+
+		P.Add_Choice("", "X_FIELD"     , "", "", Fields, 0); // date/day
+		P.Add_Bool  ("", "Y_SCALING"   , "", "", true     ); // edit offset and scaling for each attribute...
+		P.Add_Int   ("", "LINES_SIZE"  , "", "", 2        );
+		P.Add_Bool  ("", "AXES_ORIGINS", "", "", true     );
+		P.Add_Bool  ("", "Y_MIN_FIX"   , "", "", true     );
+		P.Add_Double("", "Y_MIN_VAL"   , "", "", -10.     );
+
+		P.Add_Bool  ("", CSG_String::Format("FIELD_%d" , Simulation.Get_Field("P"       )), "", "", true);
+		P.Add_Color ("", CSG_String::Format("COLOR_%d" , Simulation.Get_Field("P"       )), "", "", SG_COLOR_BLUE);
+		P.Add_Choice("", CSG_String::Format("TYPE_%d"  , Simulation.Get_Field("P"       )), "", "", Types, 0);
+		P.Add_Double("", CSG_String::Format("OFFSET_%d", Simulation.Get_Field("P"       )), "", "", 50.);
+		P.Add_Double("", CSG_String::Format("SCALE_%d" , Simulation.Get_Field("P"       )), "", "", -1.);
+
+		P.Add_Bool  ("", CSG_String::Format("FIELD_%d" , Simulation.Get_Field("ETpot"   )), "", "", true);
+		P.Add_Color ("", CSG_String::Format("COLOR_%d" , Simulation.Get_Field("ETpot"   )), "", "", SG_COLOR_RED);
+
+		P.Add_Bool  ("", CSG_String::Format("FIELD_%d" , Simulation.Get_Field("Recharge")), "", "", true);
+		P.Add_Color ("", CSG_String::Format("COLOR_%d" , Simulation.Get_Field("Recharge")), "", "", SG_COLOR_BLUE_DARK);
+		P.Add_Choice("", CSG_String::Format("TYPE_%d"  , Simulation.Get_Field("Recharge")), "", "", Types, 0);
+		P.Add_Double("", CSG_String::Format("OFFSET_%d", Simulation.Get_Field("Recharge")), "", "",  0.);
+		P.Add_Double("", CSG_String::Format("SCALE_%d" , Simulation.Get_Field("Recharge")), "", "", -1.);
+
+		CSG_Colors Colors((int)Model.Get_nLayers()); Colors.Set_Ramp(SG_GET_RGB(0, 127, 0), SG_GET_RGB(63, 255, 127));
+		for(size_t iLayer=0; iLayer<Model.Get_nLayers(); iLayer++)
+		{
+			int iField = Simulation.Get_Field(CSG_String::Format("SWC%d", iLayer + 1));
+
+			P.Add_Bool ("", CSG_String::Format("FIELD_%d", iField), "", "", true);
+			P.Add_Color("", CSG_String::Format("COLOR_%d", iField), "", "", Colors[(int)iLayer]);
+		}
+
+		SG_UI_Diagram_Show(&Simulation, &P);
 	}
 
 	//-----------------------------------------------------
