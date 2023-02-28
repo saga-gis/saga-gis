@@ -114,7 +114,7 @@ CProfileFromPoints::CProfileFromPoints(void)
 	Parameters.Add_Bool       (""     , "DIAGRAM", _TL("Show Diagram"),
 		_TL(""),
 		true
-	);
+	)->Set_UseInCMD(false);
 }
 
 

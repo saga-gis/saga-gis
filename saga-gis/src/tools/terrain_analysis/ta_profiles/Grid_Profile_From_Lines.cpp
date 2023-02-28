@@ -124,7 +124,7 @@ CGrid_Profile_From_Lines::CGrid_Profile_From_Lines(void)
 	Parameters.Add_Bool       (""     , "DIAGRAM", _TL("Show Diagram"),
 		_TL(""),
 		false
-	);
+	)->Set_UseInCMD(false);
 }
 
 

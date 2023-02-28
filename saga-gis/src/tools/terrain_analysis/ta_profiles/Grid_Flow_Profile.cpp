@@ -109,7 +109,7 @@ CGrid_Flow_Profile::CGrid_Flow_Profile(void)
 	Parameters.Add_Bool     ("", "DIAGRAM", _TL("Show Diagram"),
 		_TL(""),
 		true
-	);
+	)->Set_UseInCMD(false);
 
 	Set_Drag_Mode(TOOL_INTERACTIVE_DRAG_NONE);
 }
@@ -155,14 +155,14 @@ bool CGrid_Flow_Profile::On_Execute(void)
 	{
 		CSG_Parameters P; CSG_String Fields(CSG_Parameter_Table_Field::Get_Choices(*m_pPoints, true));
 
-		P.Add_Bool  ("", "LEGEND"       , "", "", false);
-		P.Add_Bool  ("", "Y_SCALE_TO_X" , "", "", true);
-		P.Add_Double("", "Y_SCALE_RATIO", "", "", 1.);
-		P.Add_Choice("", "X_FIELD"      , "", "", Fields, FIELD_DISTANCE); // Distance
+		P.Add_Int   ("", "WINDOW_ARRANGE", "", "", SG_UI_WINDOW_ARRANGE_MDI_TILE_HOR|SG_UI_WINDOW_ARRANGE_TDI_SPLIT_BOTTOM);
+
+		P.Add_Bool  ("", "LEGEND"        , "", "", false);
+		P.Add_Bool  ("", "Y_SCALE_TO_X"  , "", "", true);
+		P.Add_Double("", "Y_SCALE_RATIO" , "", "", 1.);
+		P.Add_Choice("", "X_FIELD"       , "", "", Fields, FIELD_DISTANCE); // Distance
 
 		P.Add_Bool  ("", CSG_String::Format("FIELD_%d", FIELD_Z), "", "", true); // Z
-
-		P.Add_Int("", "WINDOW_ARRANGE", "", "", SG_UI_WINDOW_ARRANGE_MDI_TILE_HOR|SG_UI_WINDOW_ARRANGE_TDI_SPLIT_BOTTOM);
 
 		SG_UI_Diagram_Show(m_pPoints, &P);
 	}
