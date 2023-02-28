@@ -100,6 +100,8 @@ CSG_String Get_Info(int i)
 #include "sentinel_2_scene_import.h"
 #include "sentinel_3_scene_import.h"
 
+#include "Spectral_Profile.h"
+
 
 //---------------------------------------------------------
 // 4. Allow your tools to be created here...
@@ -108,31 +110,34 @@ CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
-	case  0:	return( new CImage_VI_Distance );
-	case  1:	return( new CImage_VI_Slope );
-	case  2:	return( new CEnhanced_VI );
-	case  3:	return( new CTasseled_Cap );
+	case  0: return( new CImage_VI_Distance );
+	case  1: return( new CImage_VI_Slope );
+	case  2: return( new CEnhanced_VI );
+	case  3: return( new CTasseled_Cap );
 
-	case  4:	return( new CPanSharp_IHS );
-	case  5:	return( new CPanSharp_Brovey );
-	case  6:	return( new CPanSharp_CN );
-	case  7:	return( new CPanSharp_PCA );
+	case  4: return( new CPanSharp_IHS );
+	case  5: return( new CPanSharp_Brovey );
+	case  6: return( new CPanSharp_CN );
+	case  7: return( new CPanSharp_PCA );
 
-	case  8:	return( new CLandsat_TOAR );
-	case  9:	return( new CLandsat_ACCA );
-	case 10:	return( new CLandsat_Import );
-	case 14:	return( new CLandsat_Scene_Import );
+	case  8: return( new CLandsat_TOAR );
+	case  9: return( new CLandsat_ACCA );
+	case 10: return( new CLandsat_Import );
+	case 14: return( new CLandsat_Scene_Import );
 
-	case 11:	return( new CTextural_Features );
-	case 12:	return( new CLocal_Statistical_Measures );
-	case 13:	return( new CImage_Quality_Index );
+	case 11: return( new CTextural_Features );
+	case 12: return( new CLocal_Statistical_Measures );
+	case 13: return( new CImage_Quality_Index );
 
-	case 15:	return( new CSentinel_2_Scene_Import );
-	case 16:	return( new CSentinel_3_Scene_Import );
+	case 15: return( new CSentinel_2_Scene_Import );
+	case 16: return( new CSentinel_3_Scene_Import );
+
+	case 17: return( new CSpectral_Profile );
+	case 18: return( new CSpectral_Profile_Interactive );
 
 	//-----------------------------------------------------
-	case 17:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
+	case 19: return( NULL );
+	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
 
