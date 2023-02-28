@@ -312,11 +312,18 @@ void CWKSP_Table::Toggle_View(void)
 //---------------------------------------------------------
 bool CWKSP_Table::Set_Diagram(bool bShow, CSG_Parameters *pParameters)
 {
-	if( bShow && !m_pDiagram )
+	if( bShow )
 	{
-		m_pDiagram	= new CVIEW_Table_Diagram(this, pParameters);
+		if( m_pDiagram == NULL )
+		{
+			m_pDiagram = new CVIEW_Table_Diagram(this, pParameters);
+		}
+		else if( pParameters )
+		{
+			m_pDiagram->Update_Parameters(pParameters);
+		}
 	}
-	else if( !bShow && m_pDiagram )
+	else if( m_pDiagram )
 	{
 		m_pDiagram->Destroy();
 	}

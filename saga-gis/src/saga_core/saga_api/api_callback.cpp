@@ -645,7 +645,7 @@ bool		SG_UI_Set_Map_Extent		(double xMin, double yMin, double xMax, double yMax,
 //---------------------------------------------------------
 bool		SG_UI_Diagram_Show			(class CSG_Table *pTable, class CSG_Parameters *pParameters)
 {
-	if( gSG_UI_Callback )
+	if( gSG_UI_Callback && SG_UI_DataObject_Update(pTable, SG_UI_DATAOBJECT_UPDATE, NULL) )
 	{
 		CSG_UI_Parameter p1(pTable), p2(pParameters);
 
@@ -656,7 +656,7 @@ bool		SG_UI_Diagram_Show			(class CSG_Table *pTable, class CSG_Parameters *pPara
 }
 
 //---------------------------------------------------------
-bool		SG_UI_ODBC_Update		(const CSG_String &Server)
+bool		SG_UI_ODBC_Update			(const CSG_String &Server)
 {
 	if( gSG_UI_Callback )
 	{
@@ -691,7 +691,7 @@ int			SG_UI_Window_Arrange		(int Arrange)
 }
 
 //---------------------------------------------------------
-void *		SG_UI_Get_Window_Main(void)
+void *		SG_UI_Get_Window_Main		(void)
 {
 	if( gSG_UI_Callback )
 	{
@@ -706,7 +706,7 @@ void *		SG_UI_Get_Window_Main(void)
 }
 
 //---------------------------------------------------------
-CSG_String	SG_UI_Get_Application_Path(bool bPathOnly)
+CSG_String	SG_UI_Get_Application_Path	(bool bPathOnly)
 {
 	CSG_String	App_Path(wxStandardPaths::Get().GetExecutablePath().wc_str());
 

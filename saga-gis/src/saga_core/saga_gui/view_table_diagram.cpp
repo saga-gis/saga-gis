@@ -1205,7 +1205,7 @@ CVIEW_Table_Diagram::CVIEW_Table_Diagram(CWKSP_Table *pTable, CSG_Parameters *pP
 //---------------------------------------------------------
 wxMenu * CVIEW_Table_Diagram::_Create_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu;
+	wxMenu *pMenu = new wxMenu;
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DIAGRAM_PARAMETERS);
 	pMenu->AppendSeparator();
@@ -1222,7 +1222,7 @@ wxMenu * CVIEW_Table_Diagram::_Create_Menu(void)
 //---------------------------------------------------------
 wxToolBarBase * CVIEW_Table_Diagram::_Create_ToolBar(void)
 {
-	wxToolBarBase	*pToolBar	= CMD_ToolBar_Create(ID_TB_VIEW_TABLE_DIAGRAM);
+	wxToolBarBase *pToolBar = CMD_ToolBar_Create(ID_TB_VIEW_TABLE_DIAGRAM);
 
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DIAGRAM_PARAMETERS);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DIAGRAM_SIZE_FIT);
@@ -1238,6 +1238,12 @@ wxToolBarBase * CVIEW_Table_Diagram::_Create_ToolBar(void)
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CVIEW_Table_Diagram::Update_Parameters(CSG_Parameters *pParameters)
+{
+	return( pParameters && (*pParameters)("UPDATE") && (*pParameters)("UPDATE")->asBool() && m_pControl->Set_Parameters(pParameters) );
+}
 
 //---------------------------------------------------------
 void CVIEW_Table_Diagram::Do_Update(void)
