@@ -67,8 +67,7 @@ CSG_Tool_Interactive::CSG_Tool_Interactive(void)
 
 //---------------------------------------------------------
 CSG_Tool_Interactive::~CSG_Tool_Interactive(void)
-{
-}
+{}
 
 
 ///////////////////////////////////////////////////////////
