@@ -152,7 +152,7 @@ bool CTable_Enumerate::On_Execute(void)
 {
 	CSG_Table	*pTable	= Parameters("INPUT")->asTable();
 
-	if( pTable->Get_Record_Count() <= 0 )
+	if( pTable->Get_Count() <= 0 )
 	{
 		Error_Set(_TL("no records in data set"));
 

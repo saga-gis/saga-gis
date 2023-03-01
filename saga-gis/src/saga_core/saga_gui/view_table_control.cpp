@@ -1136,7 +1136,7 @@ void CVIEW_Table_Control::On_Field_Sort(wxCommandEvent &event)
 
 void CVIEW_Table_Control::On_Field_Sort_UI(wxUpdateUIEvent &event)
 {
-	event.Enable(m_pTable->Get_Field_Count() > 0 && m_pTable->Get_Record_Count() > 1);
+	event.Enable(m_pTable->Get_Field_Count() > 0 && m_pTable->Get_Count() > 1);
 }
 
 

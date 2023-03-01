@@ -156,14 +156,14 @@ bool CProfileFromPoints::On_Execute(void)
 		pTable->Get_Record(0)->asDouble(yField)
 	);
 
-	for(int i=1; i<pTable->Get_Record_Count(); i++)
+	for(int i=1; i<pTable->Get_Count(); i++)
 	{
 		CSG_Point A = B;
 
 		B.x = pTable->Get_Record(i)->asDouble(xField);
 		B.y = pTable->Get_Record(i)->asDouble(yField);
 
-		Set_Profile(A, B, i == (pTable->Get_Record_Count() - 1));
+		Set_Profile(A, B, i == (pTable->Get_Count() - 1));
 	}
 
 	//---------------------------------------------------------

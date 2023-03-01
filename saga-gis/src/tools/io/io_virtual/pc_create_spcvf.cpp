@@ -196,7 +196,7 @@ bool CPointCloud_Create_SPCVF::On_Execute(void)
 
 		sFiles.Clear();
 
-		for (int i=0; i<pTable->Get_Record_Count(); i++)
+		for (int i=0; i<pTable->Get_Count(); i++)
 		{
 			sFiles.Add(pTable->Get_Record(i)->asString(0));
 		}
@@ -516,7 +516,7 @@ bool CPointCloud_Create_SPCVF::On_Execute(void)
 
 			pDataset->Add_Property("File", sFilePath);
 
-			pDataset->Add_Property("Points", pPC->Get_Point_Count());
+			pDataset->Add_Property("Points", (int)pPC->Get_Count());
 
 			pDataset->Add_Property("ZMin", pPC->Get_ZMin());
 			pDataset->Add_Property("ZMax", pPC->Get_ZMax());

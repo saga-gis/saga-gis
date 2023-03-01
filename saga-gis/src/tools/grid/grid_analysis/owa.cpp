@@ -91,7 +91,7 @@ int COWA::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pPara
 			Table.Add_Record()->Set_Value(0, 1.);
 		}
 
-		Table.Set_Record_Count(pParameter->asGridList()->Get_Grid_Count());
+		Table.Set_Count(pParameter->asGridList()->Get_Grid_Count());
 	}
 
 	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );

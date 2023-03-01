@@ -587,7 +587,7 @@ bool CPC_Reclass_Extract::Reclass_Table(bool bUser)
 		return( false );
 	}
 
-	if( pReTab->Get_Record_Count() == 0 )
+	if( pReTab->Get_Count() == 0 )
 	{
 		Error_Set(_TL("You must specify a reclass table with a minimium of one record!\n"));
 		return( false );
@@ -599,7 +599,7 @@ bool CPC_Reclass_Extract::Reclass_Table(bool bUser)
 		value	= m_pInput->Get_Value(i, m_AttrField);
 		set		= false;
 
-		for(int iRecord=0; iRecord<pReTab->Get_Record_Count(); iRecord++)									// reclass
+		for(int iRecord=0; iRecord<pReTab->Get_Count(); iRecord++)									// reclass
 		{
 			pRecord		= pReTab->Get_Record(iRecord);
 

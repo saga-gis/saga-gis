@@ -197,6 +197,18 @@ bool		SG_UI_Process_Set_Busy(bool bOn, const CSG_String &Message)
 }
 
 //---------------------------------------------------------
+bool		SG_UI_Process_Set_Progress(int Position, int Range)
+{
+	return( SG_UI_Process_Set_Progress((double)Position, (double)Range) );
+}
+
+//---------------------------------------------------------
+bool		SG_UI_Process_Set_Progress(sLong Position, sLong Range)
+{
+	return( SG_UI_Process_Set_Progress((double)Position, (double)Range) );
+}
+
+//---------------------------------------------------------
 bool		SG_UI_Process_Set_Progress(double Position, double Range)
 {
 	if( gSG_UI_Progress_Lock > 0 )

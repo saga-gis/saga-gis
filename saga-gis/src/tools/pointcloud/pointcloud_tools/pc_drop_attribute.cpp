@@ -121,25 +121,24 @@ bool CPC_Drop_Attribute::On_Execute(void)
 	pOutput->Create(pInput);
 
 	//-----------------------------------------------------
-	int	i;
-
 	std::set<int>			setCols;
 	std::set<int>::iterator it;
 
 	setCols.clear();
 
-	for(i=0; i<nFeatures; i++)
+	for(int i=0; i<nFeatures; i++)
 	{
 		setCols.insert(Features[i]);
 	}
 
-	for(i=0, it=setCols.begin(); it!=setCols.end(); i++, it++)
+	it=setCols.begin();
+	for(int i=0; it!=setCols.end(); i++, it++)
 	{
 		pOutput->Del_Field(*it - i);
 	}
 
 	//-----------------------------------------------------
-	for(i=0; i<pInput->Get_Point_Count() && SG_UI_Process_Set_Progress(i, pInput->Get_Count()); i++)
+	for(sLong i=0; i<pInput->Get_Point_Count() && SG_UI_Process_Set_Progress(i, pInput->Get_Count()); i++)
 	{
 		pOutput->Add_Point(pInput->Get_X(i), pInput->Get_Y(i), pInput->Get_Z(i));
 

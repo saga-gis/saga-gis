@@ -714,7 +714,7 @@ sLong CSG_Simple_Statistics::Get_IndexOfMinimum(void)
 	size_t	Index	= 0;
 	double	Value	= Get_Values()[Index];
 
-	for(size_t i=1; i<m_Values.Get_Size(); i++)
+	for(size_t i=1; i<(size_t)m_Values.Get_Size(); i++)
 	{
 		if( Value > Get_Values()[i] )
 		{
@@ -738,7 +738,7 @@ sLong CSG_Simple_Statistics::Get_IndexOfMaximum(void)
 	size_t	Index	= 0;
 	double	Value	= Get_Values()[Index];
 
-	for(size_t i=1; i<m_Values.Get_Size(); i++)
+	for(size_t i=1; i<(size_t)m_Values.Get_Size(); i++)
 	{
 		if( Value < Get_Values()[i] )
 		{
@@ -1017,25 +1017,25 @@ TSG_Data_Type CSG_Category_Statistics::Get_Category_Type(void)	const
 //---------------------------------------------------------
 int CSG_Category_Statistics::Get_Category(int Value)	const
 {
-	CSG_Table_Record	*pRecord	= m_pTable->Find_Record(0, Value, m_pTable->Get_Count() > 10);
+	CSG_Table_Record *pRecord = m_pTable->Find_Record(0, Value, m_pTable->Get_Count() > 10);
 
-	return( pRecord ? pRecord->Get_Index() : -1);
+	return( pRecord ? (int)pRecord->Get_Index() : -1);
 }
 
 //---------------------------------------------------------
 int CSG_Category_Statistics::Get_Category(double Value)	const
 {
-	CSG_Table_Record	*pRecord	= m_pTable->Find_Record(0, Value, m_pTable->Get_Count() > 10);
+	CSG_Table_Record *pRecord = m_pTable->Find_Record(0, Value, m_pTable->Get_Count() > 10);
 
-	return( pRecord ? pRecord->Get_Index() : -1);
+	return( pRecord ? (int)pRecord->Get_Index() : -1);
 }
 
 //---------------------------------------------------------
 int CSG_Category_Statistics::Get_Category(const CSG_String &Value)	const
 {
-	CSG_Table_Record	*pRecord	= m_pTable->Find_Record(0, Value, m_pTable->Get_Count() > 10);
+	CSG_Table_Record *pRecord = m_pTable->Find_Record(0, Value, m_pTable->Get_Count() > 10);
 
-	return( pRecord ? pRecord->Get_Index() : -1);
+	return( pRecord ? (int)pRecord->Get_Index() : -1);
 }
 
 
@@ -1046,13 +1046,13 @@ int CSG_Category_Statistics::Get_Category(const CSG_String &Value)	const
 //---------------------------------------------------------
 int CSG_Category_Statistics::Add_Value(int Value)
 {
-	int		i	= Get_Category(Value);
+	int i = Get_Category(Value);
 
-	CSG_Table_Record	*pRecord	= m_pTable->Get_Record_byIndex(i);
+	CSG_Table_Record *pRecord = m_pTable->Get_Record_byIndex(i);
 
 	if( !pRecord )
 	{
-		i	= m_pTable->Get_Count();
+		i = (int)m_pTable->Get_Count();
 
 		(pRecord = m_pTable->Add_Record())->Set_Value(0, Value);
 	}
@@ -1065,13 +1065,13 @@ int CSG_Category_Statistics::Add_Value(int Value)
 //---------------------------------------------------------
 int CSG_Category_Statistics::Add_Value(double Value)
 {
-	int		i	= Get_Category(Value);
+	int i = Get_Category(Value);
 
-	CSG_Table_Record	*pRecord	= m_pTable->Get_Record_byIndex(i);
+	CSG_Table_Record *pRecord = m_pTable->Get_Record_byIndex(i);
 
 	if( !pRecord )
 	{
-		i	= m_pTable->Get_Count();
+		i = (int)m_pTable->Get_Count();
 
 		(pRecord = m_pTable->Add_Record())->Set_Value(0, Value);
 	}
@@ -1084,13 +1084,13 @@ int CSG_Category_Statistics::Add_Value(double Value)
 //---------------------------------------------------------
 int CSG_Category_Statistics::Add_Value(const CSG_String &Value)
 {
-	int		i	= Get_Category(Value);
+	int i = Get_Category(Value);
 
-	CSG_Table_Record	*pRecord	= m_pTable->Get_Record_byIndex(i);
+	CSG_Table_Record *pRecord = m_pTable->Get_Record_byIndex(i);
 
 	if( !pRecord )
 	{
-		i	= m_pTable->Get_Count();
+		i = (int)m_pTable->Get_Count();
 
 		(pRecord = m_pTable->Add_Record())->Set_Value(0, Value);
 	}
@@ -1116,7 +1116,7 @@ bool CSG_Category_Statistics::Sort(void)
 // returns the number of categories.
 int CSG_Category_Statistics::Get_Count(void)	const
 {
-	return( m_pTable->Get_Count() );
+	return( (int)m_pTable->Get_Count() );
 }
 
 //---------------------------------------------------------

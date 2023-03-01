@@ -335,7 +335,7 @@ bool CSG_KDTree_2D::Create(CSG_Shapes *pPoints, int Field)
 	//-----------------------------------------------------
 	if( Field >= 0 && Field < pPoints->Get_Field_Count() )
 	{
-		m_Points.Create(3, pPoints->Get_Count());
+		m_Points.Create(3, (int)pPoints->Get_Count());
 
 		int	n	= 0;
 
@@ -666,7 +666,7 @@ bool CSG_KDTree_3D::Create(CSG_Shapes *pPoints, int Field, int zField, double zS
 	//-----------------------------------------------------
 	if( Field >= 0 && Field < pPoints->Get_Field_Count() )
 	{
-		m_Points.Create(4, pPoints->Get_Count());
+		m_Points.Create(4, (int)pPoints->Get_Count());
 
 		int	n	= 0;
 

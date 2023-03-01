@@ -326,7 +326,7 @@ void CRaster_Save::On_Connection_Changed(CSG_Parameters *pParameters)
 	s	+= _TL("<not set>") + CSG_String("|");
 
 	pParameters->Get_Parameter("TABLE")->asChoice()->Set_Items(s);
-	pParameters->Get_Parameter("TABLE")->Set_Value(t.Get_Count());
+	pParameters->Get_Parameter("TABLE")->Set_Value((int)t.Get_Count());
 
 	On_Parameter_Changed(pParameters, pParameters->Get_Parameter("TABLE"));
 	On_Parameter_Changed(pParameters, pParameters->Get_Parameter("GRIDS"));

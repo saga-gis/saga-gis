@@ -1380,7 +1380,7 @@ bool Cihacres_elev_cal::_CreateDialog3()
 
 	s.Printf(SG_T("LDAY") , 1-2);
 	P.Add_String(pNode,s,_TL("Last Day"),_TL(""),
-				 m_p_InputTable->Get_Record(m_p_InputTable->Get_Record_Count()-1)->asString(m_dateField));
+				 m_p_InputTable->Get_Record(m_p_InputTable->Get_Count()-1)->asString(m_dateField));
 
 	if( SG_UI_Dlg_Parameters(&P, _TL("Choose Time Range")) )
 	{

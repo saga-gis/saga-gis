@@ -1141,7 +1141,7 @@ bool CSG_Tool_Chain::ForEach_File(const CSG_MetaData &Commands, const CSG_String
 
 				bResult	= Tool_Run(Tool, bIgnoreErrors);
 
-				for(size_t i=0; i<Input.Get_Size(); i++)
+				for(size_t i=0; i<Input.Get_uSize(); i++)
 				{
 					Tool(Input[i])->Set_Content(ListVarName);
 					Tool(Input[i])->Set_Property("varname", "true");
@@ -1962,7 +1962,7 @@ CSG_Tool_Chains::~CSG_Tool_Chains(void)
 {
 	Delete_Tools();
 
-	for(size_t i=0; i<m_Tools.Get_Size(); i++)
+	for(size_t i=0; i<m_Tools.Get_uSize(); i++)
 	{
 		delete((CSG_Tool_Chain *)m_Tools[i]);
 	}
@@ -2041,7 +2041,7 @@ bool CSG_Tool_Chains::Delete_Tool(CSG_Tool *pTool)
 //---------------------------------------------------------
 bool CSG_Tool_Chains::Delete_Tools(void)
 {
-	for(size_t i=0; i<m_xTools.Get_Size(); i++)
+	for(size_t i=0; i<m_xTools.Get_uSize(); i++)
 	{
 		delete((CSG_Tool_Chain *)m_xTools[i]);
 	}

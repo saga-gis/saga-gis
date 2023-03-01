@@ -400,7 +400,7 @@ bool CFrost_Change_Frequency_Interactive::On_Execute(void)
 	m_pDaily->Add_Field("Tmax"  , SG_DATATYPE_Double);
 	m_pDaily->Add_Field("Tspan" , SG_DATATYPE_Double);
 	m_pDaily->Add_Field("Change", SG_DATATYPE_Int   );
-	m_pDaily->Set_Record_Count(365);
+	m_pDaily->Set_Count(365);
 
 	//-----------------------------------------------------
 	return( true );
@@ -445,7 +445,7 @@ bool CFrost_Change_Frequency_Interactive::On_Execute_Position(CSG_Point ptWorld,
 			m_pStatistics->Get_Record(i)->Set_NoData(1);
 		}
 
-		m_pDaily->Set_Record_Count(365);
+		m_pDaily->Set_Count(365);
 
 		for(int i=0; i<365; i++)
 		{

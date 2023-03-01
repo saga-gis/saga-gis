@@ -97,7 +97,7 @@ CSG_Tool::~CSG_Tool(void)
 {
 	if( m_Settings_Stack.Get_Size() > 0 )
 	{
-		for(size_t i=0; i<m_Settings_Stack.Get_Size(); i++)
+		for(size_t i=0; i<m_Settings_Stack.Get_uSize(); i++)
 		{
 			delete(((CSG_Parameters **)m_Settings_Stack.Get_Array())[i]);
 		}

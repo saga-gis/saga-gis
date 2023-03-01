@@ -278,7 +278,7 @@ bool CWKSP_PointCloud::On_Command(int Cmd_ID)
 
             pCopy->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Get_PointCloud()->Get_Name(), _TL("Selection")));
 
-            for(int i=0; i<Get_PointCloud()->Get_Selection_Count() && SG_UI_Process_Set_Progress(i, Get_PointCloud()->Get_Selection_Count()); i++)
+            for(sLong i=0; i<Get_PointCloud()->Get_Selection_Count() && SG_UI_Process_Set_Progress(i, Get_PointCloud()->Get_Selection_Count()); i++)
             {
                 pCopy->Add_Shape(Get_PointCloud()->Get_Selection(i), SHAPE_COPY);
             }
@@ -937,7 +937,7 @@ bool CWKSP_PointCloud::Edit_Set_Attributes(void)
 
 	if( pSelection )
 	{
-		for(int i=0; i<m_Edit_Attributes.Get_Record_Count(); i++)
+		for(int i=0; i<m_Edit_Attributes.Get_Count(); i++)
 		{
 			pSelection->Set_Value(i, m_Edit_Attributes.Get_Record(i)->asString(1));
 		}

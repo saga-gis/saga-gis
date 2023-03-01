@@ -595,7 +595,7 @@ void CSG_Doc_HTML::AddTable(CSG_Table *pTable)
 	}
 	m_sHTMLCode.Append(SG_T("\n</tr>\n"));
 
-	for (i=0; i<pTable->Get_Record_Count(); i++)
+	for (i=0; i<pTable->Get_Count(); i++)
 	{
 		m_sHTMLCode.Append(SG_T("<tr>\n"));
 		for (j=0; j<pTable->Get_Field_Count(); j++){

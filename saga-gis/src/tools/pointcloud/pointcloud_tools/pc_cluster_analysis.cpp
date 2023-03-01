@@ -181,7 +181,7 @@ bool CPC_Cluster_Analysis::On_Execute(void)
 	for( int i=0; i<m_nFeatures; i++ )
 		vValues.push_back( std::vector<double>() );
 
-	for( int i=0; i<pPC_in->Get_Record_Count() && SG_UI_Process_Set_Progress(i, pPC_in->Get_Record_Count()); i++ )
+	for(sLong i=0; i<pPC_in->Get_Count() && SG_UI_Process_Set_Progress(i, pPC_in->Get_Count()); i++ )
 	{
 		pPC_out->Add_Point(pPC_in->Get_X(i), pPC_in->Get_Y(i), pPC_in->Get_Z(i));
 
@@ -728,9 +728,9 @@ bool CPC_Cluster_Analysis::On_After_Execution(void)
 			pClass->Set_Value(4, i);
 		}
 
-		while( pLUT->Get_Record_Count() > (pPC_out->Get_Maximum(pPC_out->Get_Field_Count()-1) + 1) )
+		while( pLUT->Get_Count() > (pPC_out->Get_Maximum(pPC_out->Get_Field_Count()-1) + 1) )
 		{
-			pLUT->Del_Record(pLUT->Get_Record_Count() - 1);
+			pLUT->Del_Record(pLUT->Get_Count() - 1);
 		}
 
 		Parms("COLORS_TYPE")	->Set_Value(1);	// Color Classification Type: Lookup Table

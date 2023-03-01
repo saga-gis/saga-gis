@@ -72,7 +72,7 @@ bool CAHP::On_Execute(void){
 	if( (pGridsList = Parameters("GRIDS")->asGridList()) != 
 			NULL && pGridsList->Get_Grid_Count() > 0 ){
 		if (pTable->Get_Field_Count() != pGridsList->Get_Grid_Count() ||
-				pTable->Get_Record_Count() < pGridsList->Get_Grid_Count()){
+				pTable->Get_Count() < pGridsList->Get_Grid_Count()){
 			Message_Add(_TL("Error : Wrong table. Check table dimensions"));
 			return false;
 		}//if

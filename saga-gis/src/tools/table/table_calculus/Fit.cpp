@@ -252,7 +252,7 @@ bool CFit::On_Execute(void)
 	}
 	
 	CSG_Table	*pTable	= Parameters("SOURCE")->asTable();
-	int Record_Count = pTable->Get_Record_Count();
+	int Record_Count = pTable->Get_Count();
 	
 	int	yField		= Parameters("YFIELD")->asInt();
 	int	xField		= Parameters("XFIELD")->asInt();

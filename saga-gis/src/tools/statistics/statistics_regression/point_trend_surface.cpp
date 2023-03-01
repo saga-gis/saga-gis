@@ -269,7 +269,7 @@ bool CPoint_Trend_Surface::Get_Regression(CSG_Shapes *pPoints, int iAttribute)
 	CSG_Vector	Y, xPow, yPow;
 	CSG_Matrix	X;
 
-	Y.Create(pPoints->Get_Count());
+	Y.Create((int)pPoints->Get_Count());
 	X.Create(m_Names.Get_Count(), pPoints->Get_Count());
 	
 	xPow.Create(m_xOrder + 1);
@@ -281,15 +281,15 @@ bool CPoint_Trend_Surface::Get_Regression(CSG_Shapes *pPoints, int iAttribute)
 	//-----------------------------------------------------
 	for(int iShape=0; iShape<pPoints->Get_Count() && Set_Progress(iShape, pPoints->Get_Count()); iShape++)
 	{
-		CSG_Shape	*pShape	= pPoints->Get_Shape(iShape);
+		CSG_Shape *pShape = pPoints->Get_Shape(iShape);
 
 		if( !pShape->is_NoData(iAttribute) )
 		{
-			double		zShape	= pShape->asDouble(iAttribute);
-			TSG_Point	Point	= pShape->Get_Point(0);
+			double    zShape = pShape->asDouble(iAttribute);
+			TSG_Point Point  = pShape->Get_Point(0);
 
-			Y[iShape]		= zShape;
-			X[iShape][0]	= 1.0;
+			Y[iShape]    = zShape;
+			X[iShape][0] = 1.;
 
 			for(i=1, Field=1; i<=m_xOrder; i++)
 			{

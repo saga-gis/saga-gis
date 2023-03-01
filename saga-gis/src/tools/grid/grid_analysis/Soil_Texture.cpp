@@ -347,7 +347,7 @@ public:
 	//-----------------------------------------------------
 	bool					Set_LUT			(CSG_Table *pClasses, bool bID)	const
 	{
-		pClasses->Set_Record_Count(Get_Count());
+		pClasses->Set_Count(Get_Count());
 
 		for(int i=0; i<Get_Count(); i++)
 		{

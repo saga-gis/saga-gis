@@ -424,7 +424,7 @@ bool CSG_Table::_Load_Text(const CSG_String &FileName, bool bHeadline, const SG_
 			Add_Field(Table.Get_Field_Name(iField), Type[iField]);
 		}
 
-		for(int iRecord=0; iRecord<Table.Get_Count() && SG_UI_Process_Set_Progress(iRecord, Table.Get_Count()); iRecord++)
+		for(sLong iRecord=0; iRecord<Table.Get_Count() && SG_UI_Process_Set_Progress(iRecord, Table.Get_Count()); iRecord++)
 		{
 			CSG_Table_Record *pRecord = Add_Record();
 
@@ -466,9 +466,9 @@ bool CSG_Table::_Save_Text(const CSG_String &FileName, bool bHeadline, const SG_
 	}
 
 	//-----------------------------------------------------
-	for(int iRecord=0; iRecord<Get_Record_Count() && SG_UI_Process_Set_Progress(iRecord, Get_Record_Count()); iRecord++)
+	for(sLong iRecord=0; iRecord<Get_Count() && SG_UI_Process_Set_Progress(iRecord, Get_Count()); iRecord++)
 	{
-		CSG_Table_Record	*pRecord	= Get_Record_byIndex(iRecord);
+		CSG_Table_Record *pRecord = Get_Record_byIndex(iRecord);
 
 		for(int iField=0; iField<Get_Field_Count(); iField++)
 		{

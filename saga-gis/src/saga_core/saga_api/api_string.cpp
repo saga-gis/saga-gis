@@ -1108,10 +1108,10 @@ public:
 
 	CSG_Index_Compare_Strings(CSG_String **Values, bool Ascending) : m_Values(Values), m_Ascending(Ascending) {}
 
-	virtual int			Compare		(const int _a, const int _b)
+	virtual int			Compare		(const sLong _a, const sLong _b)
 	{
-		int	a	= m_Ascending ? _a : _b;
-		int	b	= m_Ascending ? _b : _a;
+		sLong a	= m_Ascending ? _a : _b;
+		sLong b	= m_Ascending ? _b : _a;
 
 		return( m_Values[a]->Cmp(*m_Values[b]) );
 	}
@@ -1125,15 +1125,15 @@ bool CSG_Strings::Sort(bool Ascending)
 		return( true );
 	}
 
-	CSG_Index_Compare_Strings	Compare((CSG_String **)m_Strings.Get_Array(), Ascending);
+	CSG_Index_Compare_Strings Compare((CSG_String **)m_Strings.Get_Array(), Ascending);
 
-	CSG_Index	Index(Get_Count(), Compare);
+	CSG_Index Index(Get_Count(), Compare);
 
-	CSG_Array_Pointer	Strings(m_Strings);
+	CSG_Array_Pointer Strings(m_Strings);
 
 	for(size_t i=0; i<Get_Size(); i++)
 	{
-		m_Strings[i]	= Strings[Index[i]];
+		m_Strings[i] = Strings[Index[i]];
 	}
 
 	return( true );

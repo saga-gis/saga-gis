@@ -198,7 +198,7 @@ bool CField_Formatted_String_Base::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
 
-	if( !pTable->is_Valid() || pTable->Get_Field_Count() <= 0 || pTable->Get_Record_Count() <= 0 )
+	if( !pTable->is_Valid() || pTable->Get_Field_Count() <= 0 || pTable->Get_Count() <= 0 )
 	{
 		Error_Set(_TL("invalid table"));
 

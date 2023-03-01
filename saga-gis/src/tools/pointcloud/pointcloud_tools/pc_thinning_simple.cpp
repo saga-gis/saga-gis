@@ -132,7 +132,7 @@ int CPC_Thinning_Simple::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_P
 		else
 		{
 			pParameters->Set_Parameter("PERCENT", 100.0);
-			pParameters->Set_Parameter("NUMBER" , pPoints->Get_Point_Count());
+			pParameters->Set_Parameter("NUMBER" , (int)pPoints->Get_Point_Count());
 		}
 	}
 

@@ -248,7 +248,7 @@ bool CGrid_Interpolate_Value_Along_Line::Set_Line(void)
 
 	Az			= m_pGrid->asDouble(Ax, Ay);
 	Bz			= m_pGrid->asDouble(Bx, By);
-	Length		= m_pPoints->Get_Record(m_pPoints->Get_Record_Count() - 1)->asDouble(0);
+	Length		= m_pPoints->Get_Record(m_pPoints->Get_Count() - 1)->asDouble(0);
 	tanAlpha	= (Bz - Az) / Length;
 
 	for(int i=1; i<m_pPoints->Get_Count() - 1; i++)

@@ -254,7 +254,7 @@ bool CSG_mRMR::Get_Selection(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 int CSG_mRMR::Get_Count	(void) const
 {
-	return( m_pSelection->Get_Count() );
+	return( (int)m_pSelection->Get_Count() );
 }
 
 int CSG_mRMR::Get_Index(int i) const
@@ -335,7 +335,7 @@ bool CSG_mRMR::Get_Memory(int nVars, int nSamples)
 //---------------------------------------------------------
 bool CSG_mRMR::Set_Data(CSG_Table &Data, int ClassField, double Threshold)
 {
-	if( !Get_Memory(Data.Get_Field_Count(), Data.Get_Count()) )
+	if( !Get_Memory(Data.Get_Field_Count(), (int)Data.Get_Count()) )
 	{
 		return( false );
 	}

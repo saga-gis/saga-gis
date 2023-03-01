@@ -596,7 +596,7 @@ bool Cihacres_v1::CreateDialog2(bool bTMP, int storconf, int IHAC_version,
 
 	s.Printf(SG_T("LDAY") , 1-2);
 	P.Add_String(pNode,s,_TL("Last Day"),_TL(""),
-				 pTable->Get_Record(pTable->Get_Record_Count()-1)->asString(dateField));
+				 pTable->Get_Record(pTable->Get_Count()-1)->asString(dateField));
 
 
 	if (bTMP) // if observed temperature data are used

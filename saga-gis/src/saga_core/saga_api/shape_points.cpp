@@ -60,7 +60,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Shape_Points::CSG_Shape_Points(CSG_Shapes *pOwner, int Index)
+CSG_Shape_Points::CSG_Shape_Points(CSG_Shapes *pOwner, sLong Index)
 	: CSG_Shape(pOwner, Index)
 {
 	m_pParts  = NULL;

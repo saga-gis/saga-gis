@@ -186,9 +186,9 @@ bool CSG_Table_DBase::Open_Read(const SG_Char *FileName, CSG_Table *pTable, bool
 		}
 
 		//-------------------------------------------------
-		if( bRecords_Load && Get_Record_Count() > 0 && Move_First() )
+		if( bRecords_Load && Get_Count() > 0 && Move_First() )
 		{
-			for(int iRecord=0; iRecord<Get_Record_Count() && SG_UI_Process_Set_Progress(iRecord, Get_Record_Count()); iRecord++)
+			for(int iRecord=0; iRecord<Get_Count() && SG_UI_Process_Set_Progress(iRecord, Get_Count()); iRecord++)
 			{
 				CSG_Table_Record	*pRecord	= pTable->Add_Record();
 
@@ -402,9 +402,9 @@ bool CSG_Table_DBase::Open_Write(const SG_Char *FileName, CSG_Table *pTable, boo
 	//-----------------------------------------------------
 	if( bRecords_Save )
 	{
-		for(int iRecord=0; iRecord<pTable->Get_Record_Count() && SG_UI_Process_Set_Progress(iRecord, pTable->Get_Record_Count()); iRecord++)
+		for(sLong iRecord=0; iRecord<pTable->Get_Count() && SG_UI_Process_Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
 		{
-			CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
+			CSG_Table_Record *pRecord = pTable->Get_Record(iRecord);
 
 			Add_Record();
 

@@ -60,7 +60,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Shape_Line::CSG_Shape_Line(CSG_Shapes *pOwner, int Index)
+CSG_Shape_Line::CSG_Shape_Line(CSG_Shapes *pOwner, sLong Index)
 	: CSG_Shape_Points(pOwner, Index)
 {}
 

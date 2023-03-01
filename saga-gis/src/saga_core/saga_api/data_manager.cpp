@@ -146,7 +146,7 @@ bool CSG_Data_Collection::Delete(CSG_Data_Object *pObject, bool bDetachOnly)
 {
 	CSG_Data_Object	**pObjects	= (CSG_Data_Object **)m_Objects.Get_Array();
 
-	size_t	i, n;
+	size_t i, n;
 
 	for(i=0, n=0; i<Count(); i++)
 	{
@@ -156,16 +156,16 @@ bool CSG_Data_Collection::Delete(CSG_Data_Object *pObject, bool bDetachOnly)
 			{
 				delete(Get(i));
 
-				bDetachOnly	= true;	// just in case the same object has been added more than once
+				bDetachOnly = true;	// just in case the same object has been added more than once
 			}
 		}
 		else
 		{
-			pObjects[n++]	= pObjects[i];
+			pObjects[n++] = pObjects[i];
 		}
 	}
 
-	if( n < m_Objects.Get_Size() )
+	if( n < m_Objects.Get_uSize() )
 	{
 		m_Objects.Set_Array(n);
 
@@ -684,7 +684,7 @@ bool CSG_Data_Manager::Delete(CSG_Data_Collection *pCollection, bool bDetachOnly
 
 		size_t	i, n;
 
-		for(i=0, n=0; i<m_Grid_Systems.Get_Size(); i++)
+		for(i=0, n=0; i<m_Grid_Systems.Get_uSize(); i++)
 		{
 			if( pCollection == pSystems[i] )
 			{
@@ -701,7 +701,7 @@ bool CSG_Data_Manager::Delete(CSG_Data_Collection *pCollection, bool bDetachOnly
 			}
 		}
 
-		if( n < m_Grid_Systems.Get_Size() )
+		if( n < m_Grid_Systems.Get_uSize() )
 		{
 			m_Grid_Systems.Set_Array(n);
 

@@ -61,24 +61,24 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Table_Record::CSG_Table_Record(CSG_Table *pTable, int Index)
+CSG_Table_Record::CSG_Table_Record(CSG_Table *pTable, sLong Index)
 {
-	m_pTable	= pTable;
-	m_Index		= Index;
-	m_Flags		= 0;
+	m_pTable = pTable;
+	m_Index  = Index;
+	m_Flags  = 0;
 
 	if( m_pTable && m_pTable->Get_Field_Count() > 0 )
 	{
-		m_Values	= (CSG_Table_Value **)SG_Malloc(m_pTable->Get_Field_Count() * sizeof(CSG_Table_Value *));
+		m_Values = (CSG_Table_Value **)SG_Malloc(m_pTable->Get_Field_Count() * sizeof(CSG_Table_Value *));
 
 		for(int iField=0; iField<m_pTable->Get_Field_Count(); iField++)
 		{
-			m_Values[iField]	= _Create_Value(m_pTable->Get_Field_Type(iField));
+			m_Values[iField] = _Create_Value(m_pTable->Get_Field_Type(iField));
 		}
 	}
 	else
 	{
-		m_Values	= NULL;
+		m_Values = NULL;
 	}
 }
 

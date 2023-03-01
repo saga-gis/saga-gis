@@ -151,7 +151,7 @@ bool CGrid_Table_Import::On_Execute(void)
 	//-----------------------------------------------------
 	int	nx, ny, nHeadLines	= Parameters("HEADLINES")->asInt();
 
-	if( (nx = Table.Get_Field_Count()) < 1 || (ny = Table.Get_Record_Count()) < 1 )
+	if( (nx = Table.Get_Field_Count()) < 1 || (ny = Table.Get_Count()) < 1 )
 	{
 		Error_Fmt("%s [%s]", _TL("no data in table file"), Parameters("FILE")->asString());
 

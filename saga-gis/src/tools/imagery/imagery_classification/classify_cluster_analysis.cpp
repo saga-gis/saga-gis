@@ -385,7 +385,7 @@ void CGrid_Cluster_Analysis::Save_LUT(CSG_Grid *pCluster)
 			}
 		}
 
-		pLUT->asTable()->Set_Record_Count(Statistics.Get_Count());
+		pLUT->asTable()->Set_Count(Statistics.Get_Count());
 
 		DataObject_Set_Parameter(pCluster, pLUT);
 		DataObject_Set_Parameter(pCluster, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table

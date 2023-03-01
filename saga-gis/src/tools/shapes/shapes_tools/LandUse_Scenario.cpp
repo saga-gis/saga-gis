@@ -188,7 +188,7 @@ bool CLandUse_Scenario::On_Execute(void)
 	Types.Add_Field("NAME"  , SG_DATATYPE_String);
 	Types.Add_Field("RETURN", SG_DATATYPE_Int);
 
-	Types.Set_Record_Count(pStatistics->Get_Count());
+	Types.Set_Count(pStatistics->Get_Count());
 
 	nYears		= pStatistics->Get_Field_Count() - STATISTICS_HEADCOLS;
 
@@ -219,7 +219,7 @@ bool CLandUse_Scenario::On_Execute(void)
 	Scenario.Add_Field("ID"  , SG_DATATYPE_Int);
 	Scenario.Add_Field("AREA", SG_DATATYPE_Double);
 
-	Scenario.Set_Record_Count(pFields->Get_Count());
+	Scenario.Set_Count(pFields->Get_Count());
 
 	for(iField=0; iField<pFields->Get_Count(); iField++)
 	{

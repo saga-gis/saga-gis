@@ -806,9 +806,9 @@ void CViGrA_Random_Forest::Set_Classification(CSG_Table &Classes)
 				pRecord->Set_Value(4, Classes[i].asInt(0));
 			}
 
-			while( pTable->Get_Record_Count() > Classes.Get_Count() )
+			while( pTable->Get_Count() > Classes.Get_Count() )
 			{
-				pTable->Del_Record(pTable->Get_Record_Count() - 1);
+				pTable->Del_Record(pTable->Get_Count() - 1);
 			}
 
 			P("COLORS_TYPE")->Set_Value(1);	// Color Classification Type: Lookup Table

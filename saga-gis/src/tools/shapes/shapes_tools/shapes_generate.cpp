@@ -280,7 +280,7 @@ bool CShapes_Generate::Generate_Line_Shapes(CSG_Table *pInput, CSG_Shapes *pOutp
 		{
 			if (iVertices < 2)
 			{
-				pOutput->Del_Record(pOutput->Get_Record_Count() - 1);
+				pOutput->Del_Record(pOutput->Get_Count() - 1);
 				SG_UI_Msg_Add_Error(_TL("Line with less than 2 vertices encountered!"));
 				return (false);
 			}
@@ -305,7 +305,7 @@ bool CShapes_Generate::Generate_Line_Shapes(CSG_Table *pInput, CSG_Shapes *pOutp
 
 	if (iVertices < 2)
 	{
-		pOutput->Del_Record(pOutput->Get_Record_Count() - 1);
+		pOutput->Del_Record(pOutput->Get_Count() - 1);
 		SG_UI_Msg_Add_Error(_TL("Line with less than 2 vertices encountered!"));
 		return (false);
 	}
@@ -342,7 +342,7 @@ bool CShapes_Generate::Generate_Polygon_Shapes(CSG_Table *pInput, CSG_Shapes *pO
 		{
 			if (iVertices < 3)
 			{
-				pOutput->Del_Record(pOutput->Get_Record_Count() - 1);
+				pOutput->Del_Record(pOutput->Get_Count() - 1);
 				SG_UI_Msg_Add_Error(_TL("Polygon with less than 3 vertices encountered!"));
 				return (false);
 			}
@@ -392,7 +392,7 @@ bool CShapes_Generate::Generate_Polygon_Shapes(CSG_Table *pInput, CSG_Shapes *pO
 
 	if (iVertices < 3)
 	{
-		pOutput->Del_Record(pOutput->Get_Record_Count() - 1);
+		pOutput->Del_Record(pOutput->Get_Count() - 1);
 		SG_UI_Msg_Add_Error(_TL("Polygon with less than 3 vertices encountered!"));
 		return (false);
 	}

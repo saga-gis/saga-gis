@@ -630,7 +630,7 @@ void CDLG_Table_Control::On_Field_Sort(wxCommandEvent &event)
 
 void CDLG_Table_Control::On_Field_Sort_UI(wxUpdateUIEvent &event)
 {
-	event.Enable(m_Table.Get_Field_Count() > 0 && m_Table.Get_Record_Count() > 1);
+	event.Enable(m_Table.Get_Field_Count() > 0 && m_Table.Get_Count() > 1);
 }
 
 

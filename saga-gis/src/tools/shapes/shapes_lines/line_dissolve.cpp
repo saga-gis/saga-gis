@@ -192,7 +192,7 @@ bool CLine_Dissolve::On_Execute(void)
 		Dissolve.Add_Field("INDEX", SG_DATATYPE_Int   );
 		Dissolve.Add_Field("VALUE", SG_DATATYPE_String);
 
-		Dissolve.Set_Record_Count(pLines->Get_Count());
+		Dissolve.Set_Count(pLines->Get_Count());
 
 		for(int i=0; i<pLines->Get_Count() && Set_Progress(i, pLines->Get_Count()); i++)
 		{

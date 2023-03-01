@@ -1131,7 +1131,7 @@ public:
 	double						Get_Direction		(void)						const	{	return( m_Direction );	}
 	double						Get_Tolerance		(void)						const	{	return( m_Tolerance );	}
 
-	int							Get_Count			(void)						const	{	return( m_Kernel.Get_Count() );	}
+	int							Get_Count			(void)						const	{	return( (int)m_Kernel.Get_Count() );	}
 	int							Get_X				(int Index, int Offset = 0)	const	{	return( Index >= 0 && Index < m_Kernel.Get_Count() ? m_Kernel[Index].asInt   (0) + Offset : Offset );	}
 	int							Get_Y				(int Index, int Offset = 0)	const	{	return( Index >= 0 && Index < m_Kernel.Get_Count() ? m_Kernel[Index].asInt   (1) + Offset : Offset );	}
 	double						Get_Distance		(int Index                )	const	{	return( Index >= 0 && Index < m_Kernel.Get_Count() ? m_Kernel[Index].asDouble(2)          : -1.    );	}

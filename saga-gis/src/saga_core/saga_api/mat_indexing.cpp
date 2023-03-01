@@ -68,9 +68,9 @@ CSG_Index::CSG_Index(void)
 //---------------------------------------------------------
 void CSG_Index::_On_Construction(void)
 {
-	m_nValues	= 0;
-	m_Index		= NULL;
-	m_bProgress	= false;
+	m_nValues   = 0;
+	m_Index     = NULL;
+	m_bProgress = false;
 }
 
 //---------------------------------------------------------
@@ -87,8 +87,8 @@ bool CSG_Index::Destroy(void)
 		SG_Free(m_Index);
 	}
 
-	m_nValues	= 0;
-	m_Index		= NULL;
+	m_nValues = 0;
+	m_Index   = NULL;
 
 	return( true );
 }
@@ -99,7 +99,7 @@ bool CSG_Index::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Index::CSG_Index(int nValues, CSG_Index_Compare &Compare)
+CSG_Index::CSG_Index(sLong nValues, CSG_Index_Compare &Compare)
 {
 	_On_Construction();
 
@@ -107,7 +107,7 @@ CSG_Index::CSG_Index(int nValues, CSG_Index_Compare &Compare)
 }
 
 //---------------------------------------------------------
-bool CSG_Index::Create(int nValues, CSG_Index_Compare &Compare)
+bool CSG_Index::Create(sLong nValues, CSG_Index_Compare &Compare)
 {
 	if( _Set_Array(nValues) && _Set_Index(&Compare) )
 	{
@@ -120,7 +120,7 @@ bool CSG_Index::Create(int nValues, CSG_Index_Compare &Compare)
 }
 
 //---------------------------------------------------------
-CSG_Index::CSG_Index(int nValues, CSG_Index_Compare *pCompare)
+CSG_Index::CSG_Index(sLong nValues, CSG_Index_Compare *pCompare)
 {
 	_On_Construction();
 
@@ -128,7 +128,7 @@ CSG_Index::CSG_Index(int nValues, CSG_Index_Compare *pCompare)
 }
 
 //---------------------------------------------------------
-bool CSG_Index::Create(int nValues, CSG_Index_Compare *pCompare)
+bool CSG_Index::Create(sLong nValues, CSG_Index_Compare *pCompare)
 {
 	if( pCompare && _Set_Array(nValues) && _Set_Index(pCompare) )
 	{
@@ -149,21 +149,21 @@ bool CSG_Index::Create(int nValues, CSG_Index_Compare *pCompare)
 class CSG_Index_Compare_Int : public CSG_Index::CSG_Index_Compare
 {
 public:
-	int	*m_Values;	bool	m_Ascending;
+	int *m_Values; bool m_Ascending;
 
 	CSG_Index_Compare_Int(int *Values, bool Ascending) : m_Values(Values), m_Ascending(Ascending) {}
 
-	virtual int			Compare		(const int _a, const int _b)
+	virtual int			Compare		(const sLong _a, const sLong _b)
 	{
-		int	a	= m_Ascending ? _a : _b;
-		int	b	= m_Ascending ? _b : _a;
+		sLong a = m_Ascending ? _a : _b;
+		sLong b = m_Ascending ? _b : _a;
 
 		return( m_Values[a] - m_Values[b] );
 	}
 };
 
 //---------------------------------------------------------
-CSG_Index::CSG_Index(int nValues, int *Values, bool bAscending)
+CSG_Index::CSG_Index(sLong nValues, int *Values, bool bAscending)
 {
 	_On_Construction();
 
@@ -171,9 +171,9 @@ CSG_Index::CSG_Index(int nValues, int *Values, bool bAscending)
 }
 
 //---------------------------------------------------------
-bool CSG_Index::Create(int nValues, int *Values, bool bAscending)
+bool CSG_Index::Create(sLong nValues, int *Values, bool bAscending)
 {
-	CSG_Index_Compare_Int	Compare(Values, bAscending);
+	CSG_Index_Compare_Int Compare(Values, bAscending);
 
 	return( Create(nValues, &Compare) );
 }
@@ -187,23 +187,23 @@ bool CSG_Index::Create(int nValues, int *Values, bool bAscending)
 class CSG_Index_Compare_Double : public CSG_Index::CSG_Index_Compare
 {
 public:
-	double	*m_Values;	bool	m_Ascending;
+	double *m_Values; bool m_Ascending;
 
 	CSG_Index_Compare_Double(double *Values, bool Ascending) : m_Values(Values), m_Ascending(Ascending) {}
 
-	virtual int			Compare		(const int _a, const int _b)
+	virtual int			Compare		(const sLong _a, const sLong _b)
 	{
-		int	a	= m_Ascending ? _a : _b;
-		int	b	= m_Ascending ? _b : _a;
+		sLong a = m_Ascending ? _a : _b;
+		sLong b = m_Ascending ? _b : _a;
 
-		double	d	= m_Values[a] - m_Values[b];
+		double d = m_Values[a] - m_Values[b];
 
 		return( d < 0. ? -1 : d > 0. ? 1 : 0 );
 	}
 };
 
 //---------------------------------------------------------
-CSG_Index::CSG_Index(int nValues, double *Values, bool bAscending)
+CSG_Index::CSG_Index(sLong nValues, double *Values, bool bAscending)
 {
 	_On_Construction();
 
@@ -211,9 +211,9 @@ CSG_Index::CSG_Index(int nValues, double *Values, bool bAscending)
 }
 
 //---------------------------------------------------------
-bool CSG_Index::Create(int nValues, double *Values, bool bAscending)
+bool CSG_Index::Create(sLong nValues, double *Values, bool bAscending)
 {
-	CSG_Index_Compare_Double	Compare(Values, bAscending);
+	CSG_Index_Compare_Double Compare(Values, bAscending);
 
 	return( Create(nValues, &Compare) );
 }
@@ -231,14 +231,14 @@ public:
 
 	CSG_Index_Compare_Function(TSG_PFNC_Compare Function) : m_Function(Function) {}
 
-	virtual int			Compare		(const int _a, const int _b)
+	virtual int			Compare		(const sLong _a, const sLong _b)
 	{
 		return( m_Function(_a, _b) );
 	}
 };
 
 //---------------------------------------------------------
-CSG_Index::CSG_Index(int nValues, TSG_PFNC_Compare fCompare)
+CSG_Index::CSG_Index(sLong nValues, TSG_PFNC_Compare fCompare)
 {
 	_On_Construction();
 
@@ -246,7 +246,7 @@ CSG_Index::CSG_Index(int nValues, TSG_PFNC_Compare fCompare)
 }
 
 //---------------------------------------------------------
-bool CSG_Index::Create(int nValues, TSG_PFNC_Compare fCompare)
+bool CSG_Index::Create(sLong nValues, TSG_PFNC_Compare fCompare)
 {
 	CSG_Index_Compare_Function	Compare(fCompare);
 
@@ -265,7 +265,7 @@ void CSG_Index::Show_Progress(bool bProgress)
 }
 
 //---------------------------------------------------------
-bool CSG_Index::Add_Entry(int Position)
+bool CSG_Index::Add_Entry(sLong Position)
 {
 	if( Position < 0 || Position >= m_nValues - 1 )
 	{
@@ -274,9 +274,9 @@ bool CSG_Index::Add_Entry(int Position)
 
 	if( _Set_Array(m_nValues + 1) )
 	{
-		for(int i=Position, Value=m_nValues-1; i<m_nValues; i++)
+		for(sLong i=Position, Value=m_nValues-1; i<m_nValues; i++)
 		{
-			int	v = m_Index[i]; m_Index[i] = Value; Value = v;
+			sLong v = m_Index[i]; m_Index[i] = Value; Value = v;
 		}
 
 		return( true );
@@ -286,27 +286,27 @@ bool CSG_Index::Add_Entry(int Position)
 }
 
 //---------------------------------------------------------
-bool CSG_Index::Del_Entry(int Position)
+bool CSG_Index::Del_Entry(sLong Position)
 {
 	if( Position < 0 || Position >= m_nValues - 1 )
 	{
 		return( _Set_Array(m_nValues - 1) );
 	}
 
-	int	Value	= m_Index[Position];
+	sLong Value = m_Index[Position];
 
-	for(int i=Position; i<m_nValues-1; i++)
+	for(sLong i=Position; i<m_nValues-1; i++)
 	{
-		m_Index[i]	= m_Index[i + 1];
+		m_Index[i] = m_Index[i + 1];
 	}
 
-	m_Index[m_nValues - 1]	= Value;
+	m_Index[m_nValues - 1] = Value;
 
 	return( _Set_Array(m_nValues - 1) );
 }
 
 //---------------------------------------------------------
-bool CSG_Index::_Set_Array(int nValues)
+bool CSG_Index::_Set_Array(sLong nValues)
 {
 	if( nValues < 1 )
 	{
@@ -320,7 +320,7 @@ bool CSG_Index::_Set_Array(int nValues)
 
 	if( m_nValues > nValues )	// keep current sorting as far as possible...
 	{
-		for(int i=0, j=nValues; i<nValues && j<m_nValues; i++)
+		for(sLong i=0, j=nValues; i<nValues && j<m_nValues; i++)
 		{
 			if( m_Index[i] >= nValues )
 			{
@@ -334,29 +334,29 @@ bool CSG_Index::_Set_Array(int nValues)
 					}
 				}
 
-				int	c = m_Index[i]; m_Index[i] = m_Index[j]; m_Index[j] = c;
+				sLong c = m_Index[i]; m_Index[i] = m_Index[j]; m_Index[j] = c;
 			}
 		}
 	}
 
-	int	*Index	= (int *)SG_Realloc(m_Index, nValues * sizeof(int));
+	sLong *Index = (sLong *)SG_Realloc(m_Index, nValues * sizeof(sLong));
 
 	if( !Index )
 	{
 		return( false );
 	}
 
-	m_Index	= Index;
+	m_Index = Index;
 
 	if( m_nValues < nValues )	// keep current sorting as far as possible...
 	{
-		for(int i=m_nValues; i<nValues; i++)
+		for(sLong i=m_nValues; i<nValues; i++)
 		{
-			m_Index[i]	= i;
+			m_Index[i] = i;
 		}
 	}
 
-	m_nValues	= nValues;
+	m_nValues = nValues;
 
 	return( true );
 }
@@ -372,26 +372,26 @@ bool CSG_Index::_Set_Array(int nValues)
 //---------------------------------------------------------
 bool CSG_Index::_Set_Index(CSG_Index_Compare *pCompare)
 {
-	const int	M	= 7;
+	const int M = 7;
 
-	int		indxt, itemp,
+	sLong	indxt, itemp,
 			i, j, k, a,
-			l		= 0,
-			ir		= m_nValues - 1,
-			nstack	= 64,
-			jstack	= 0;
+			l      = 0,
+			ir     = m_nValues - 1,
+			nstack = 64,
+			jstack = 0;
 
 	//-----------------------------------------------------
-	CSG_Array_Int	istack(nstack);
+	CSG_Array_sLong istack(nstack);
 
-	int	nProcessed	= 0;
+	sLong nProcessed = 0;
 
 	//-----------------------------------------------------
 	for(;;)
 	{
 		if( ir - l < M )
 		{
-			if( m_bProgress && !SG_UI_Process_Set_Progress((double)(nProcessed += M - 1), (double)m_nValues) )
+			if( m_bProgress && !SG_UI_Process_Set_Progress(nProcessed += M - 1, m_nValues) )
 			{
 				SG_UI_Msg_Add_Error(_TL("index creation stopped by user"));
 
@@ -462,7 +462,7 @@ bool CSG_Index::_Set_Index(CSG_Index_Compare *pCompare)
 
 			if( jstack >= nstack )
 			{
-				istack.Set_Array(nstack += 64);
+				istack.Set_Array(nstack += 64l);
 			}
 
 			if( ir - i + 1 >= j - l )

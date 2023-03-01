@@ -1336,7 +1336,7 @@ void CProfile_Cross_Sections::AddLongitudinalProfiles(){
 	CSG_Shapes* pLines = Parameters("LINES")->asShapes();
 
 	pTable = m_pSections;
-	iSections = pTable->Get_Record_Count();
+	iSections = pTable->Get_Count();
 
 	m_pProfile = new TSG_Point[iSections];
 
@@ -1431,9 +1431,9 @@ void CProfile_Cross_Sections::AddCrossSections(){
 	pRoadSection[1].y = 0;
 
 	pTable = m_pSections;
-	pCrossSections = new TSG_Point *[pTable->Get_Record_Count()];
+	pCrossSections = new TSG_Point *[pTable->Get_Count()];
 
-	for (i = 0; i < pTable->Get_Record_Count(); i++){
+	for (i = 0; i < pTable->Get_Count(); i++){
 		pCrossSections[i] = new TSG_Point [pTable->Get_Field_Count()];
 		for (j = 0; j < pTable->Get_Field_Count(); j++){
 			pCrossSections[i][j].x = -fInterval * iNumPoints + fInterval * j;
@@ -1443,10 +1443,10 @@ void CProfile_Cross_Sections::AddCrossSections(){
 
 	iRoadPoints = 2;
 
-	m_DocEngine.AddCrossSections(pCrossSections, m_pHeight, pRoadSection, pTable->Get_Record_Count(),
+	m_DocEngine.AddCrossSections(pCrossSections, m_pHeight, pRoadSection, pTable->Get_Count(),
 								pTable->Get_Field_Count(), iRoadPoints);
 	m_DocEngine.AddVolumesTable(m_pProfile, pCrossSections, m_pHeight, pRoadSection,
-								pTable->Get_Record_Count(),	pTable->Get_Field_Count(), iRoadPoints);
+								pTable->Get_Count(),	pTable->Get_Field_Count(), iRoadPoints);
 
 }//method
 

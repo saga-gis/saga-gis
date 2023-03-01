@@ -292,7 +292,7 @@ bool COpenCV_ML::_Finalize(void)
 				}
 			}
 
-			pLUT->asTable()->Set_Record_Count(m_Classes.Get_Count());
+			pLUT->asTable()->Set_Count(m_Classes.Get_Count());
 
 			DataObject_Set_Parameter(m_pClasses, pLUT);
 			DataObject_Set_Parameter(m_pClasses, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table

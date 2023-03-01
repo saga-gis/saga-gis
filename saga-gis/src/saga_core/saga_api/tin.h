@@ -256,16 +256,16 @@ public:
 
 	//-----------------------------------------------------
 	CSG_TIN_Node *					Add_Node				(TSG_Point Point, CSG_Table_Record *pRecord, bool bUpdateNow);
-	bool							Del_Node				(int iNode, bool bUpdateNow);
+	bool							Del_Node				(sLong Index, bool bUpdateNow);
 
-	int								Get_Node_Count			(void)		const	{	return( Get_Count() );	}
-	CSG_TIN_Node *					Get_Node				(int Index)	const	{	return( (CSG_TIN_Node *)Get_Record(Index) );	}
+	int								Get_Node_Count			(void)          const	{	return( (int)Get_Count() );	}
+	CSG_TIN_Node *					Get_Node				(sLong Index)   const	{	return( (CSG_TIN_Node *)Get_Record(Index) );	}
 
-	int								Get_Edge_Count			(void)		const	{	return( m_nEdges );		}
-	CSG_TIN_Edge *					Get_Edge				(int Index)	const	{	return( Index >= 0 && Index < m_nEdges     ? m_Edges[Index]     : NULL );	}
+	int								Get_Edge_Count			(void)          const	{	return( m_nEdges );		}
+	CSG_TIN_Edge *					Get_Edge				(int Index)     const	{	return( Index >= 0 && Index < m_nEdges     ? m_Edges[Index]     : NULL );	}
 
-	int								Get_Triangle_Count		(void)		const	{	return( m_nTriangles );	}
-	CSG_TIN_Triangle *				Get_Triangle			(int Index)	const	{	return( Index >= 0 && Index < m_nTriangles ? m_Triangles[Index] : NULL );	}
+	int								Get_Triangle_Count		(void)          const	{	return( m_nTriangles );	}
+	CSG_TIN_Triangle *				Get_Triangle			(int Index)     const	{	return( Index >= 0 && Index < m_nTriangles ? m_Triangles[Index] : NULL );	}
 
 
 protected:

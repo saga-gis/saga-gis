@@ -1205,7 +1205,7 @@ int CESRI_E00_Import::info_Get_Tables(void)
 					pShapes->Add_Field("X" , SG_DATATYPE_Double);
 					pShapes->Add_Field("Y" , SG_DATATYPE_Double);
 
-					for(i=0; i<pTable->Get_Record_Count(); i++)
+					for(i=0; i<pTable->Get_Count(); i++)
 					{
 						CSG_Table_Record	*pRecord	= pTable->Get_Record(i);
 						CSG_Shape			*pShape		= pShapes->Add_Shape();
@@ -1449,7 +1449,7 @@ bool CESRI_E00_Import::Assign_Attributes(CSG_Shapes *pShapes)
 		CSG_Shape	*pShape	= pShapes->Get_Shape_byIndex(iShape);
 		int			id		= pShape->asInt(0);
 
-		for(int iRecord=off_Record; iRecord<m_pPAT->Get_Record_Count(); iRecord++)
+		for(int iRecord=off_Record; iRecord<m_pPAT->Get_Count(); iRecord++)
 		{
 			CSG_Table_Record	*pRecord	= m_pPAT->Get_Record_byIndex(iRecord);
 

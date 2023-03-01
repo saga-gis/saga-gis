@@ -157,7 +157,7 @@ void CPolygon_SelfIntersection::Add_Polygon(CSG_Shape_Polygon *pPolygon, int ID,
 	if( ID >= 0 )
 	{	sID	= pPolygon->asString(ID);	}
 	else
-	{	sID	= SG_Get_String(pPolygon->Get_Index() + 1);	}
+	{	sID	= SG_Get_String((int)pPolygon->Get_Index() + 1);	}
 
 
 	//-----------------------------------------------------

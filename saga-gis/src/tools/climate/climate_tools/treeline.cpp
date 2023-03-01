@@ -876,7 +876,7 @@ bool CWater_Balance_Interactive::On_Execute(void)
 	m_pDaily->Add_Field("ETP" , SG_DATATYPE_Double);
 	m_pDaily->Add_Field("SW_0", SG_DATATYPE_Double);
 	m_pDaily->Add_Field("SW_1", SG_DATATYPE_Double);
-	m_pDaily->Set_Record_Count(365);
+	m_pDaily->Set_Count(365);
 
 	//-----------------------------------------------------
 	return( true );

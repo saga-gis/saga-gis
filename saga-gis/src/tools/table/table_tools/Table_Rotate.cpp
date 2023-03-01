@@ -116,7 +116,7 @@ bool CTable_Rotate::On_Execute(void)
 	pOutput	= Parameters("OUTPUT")	->asTable();
 
 	//-----------------------------------------------------
-	if( pInput->Get_Field_Count() > 0 && pInput->Get_Record_Count() > 0 )
+	if( pInput->Get_Field_Count() > 0 && pInput->Get_Count() > 0 )
 	{
 		if( pInput != pOutput )
 		{
@@ -136,7 +136,7 @@ bool CTable_Rotate::On_Execute(void)
 		//-------------------------------------------------
 		pOutput->Add_Field(pInput->Get_Field_Name(0), SG_DATATYPE_String);
 
-		for(y=0; y<pInput->Get_Record_Count(); y++)
+		for(y=0; y<pInput->Get_Count(); y++)
 		{
 			pOutput->Add_Field(pInput->Get_Record(y)->asString(0), FieldType);
 		}
@@ -146,7 +146,7 @@ bool CTable_Rotate::On_Execute(void)
 			pRec_Out	= pOutput->Add_Record();
 			pRec_Out->Set_Value(0, pInput->Get_Field_Name(y));
 
-			for(x=0; x<pInput->Get_Record_Count(); x++)
+			for(x=0; x<pInput->Get_Count(); x++)
 			{
 				pRec_In		= pInput->Get_Record(x);
 

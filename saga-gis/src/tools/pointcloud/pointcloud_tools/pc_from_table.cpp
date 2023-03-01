@@ -174,7 +174,7 @@ bool CPC_From_Table::On_Execute(void)
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("Converting ..."));
 
-	for( int iRecord=0; iRecord<pTable->Get_Record_Count() && Set_Progress(iRecord, pTable->Get_Record_Count()); iRecord++ )
+	for( int iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++ )
 	{
 		pPoints->Add_Point(pTable->Get_Record(iRecord)->asDouble(iFieldX), pTable->Get_Record(iRecord)->asDouble(iFieldY), pTable->Get_Record(iRecord)->asDouble(iFieldZ));
 

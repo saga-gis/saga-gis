@@ -833,7 +833,7 @@ bool CSG_Regression_Multiple::_Set_Step_Info(const CSG_Matrix &X, double R2_prev
 
 	CSG_Table_Record	*pRecord	= m_pSteps->Add_Record();
 
-	pRecord->Set_Value(MLR_STEP_NR		, m_pSteps->Get_Count());
+	pRecord->Set_Value(MLR_STEP_NR		, (int)m_pSteps->Get_Count());
 	pRecord->Set_Value(MLR_STEP_R		, sqrt(R.Get_R2()));
 	pRecord->Set_Value(MLR_STEP_R2		, R.Get_R2());
 	pRecord->Set_Value(MLR_STEP_R2_ADJ	, R.Get_R2_Adj());

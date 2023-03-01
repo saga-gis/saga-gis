@@ -188,7 +188,7 @@ CDVWK_SoilMoisture::CDVWK_SoilMoisture(void)
 //---------------------------------------------------------
 bool CDVWK_SoilMoisture::On_Execute(void)
 {
-	if( m_pClimate->Get_Record_Count() < 1 )
+	if( m_pClimate->Get_Count() < 1 )
 	{
 		return( false );
 	}
@@ -204,7 +204,7 @@ bool CDVWK_SoilMoisture::On_Execute(void)
 	DataObject_Set_Colors(m_pWi, 11, SG_COLORS_YELLOW_BLUE);
 
 	//-----------------------------------------------------
-	m_LandUse.Create(m_pWi, m_pCropCoeff->Get_Record_Count() < 127 ? SG_DATATYPE_Char : SG_DATATYPE_Int);
+	m_LandUse.Create(m_pWi, m_pCropCoeff->Get_Count() < 127 ? SG_DATATYPE_Char : SG_DATATYPE_Int);
 	m_LandUse.Assign(Parameters("LANDUSE_DEF")->asDouble());
 
 	CSG_Grid	*pLandUse	= Parameters("LANDUSE")->asGrid();
@@ -216,7 +216,7 @@ bool CDVWK_SoilMoisture::On_Execute(void)
 		{
 			int	LandUseID	= pLandUse->asInt(x, y);
 
-			for(int i=0; i<m_pCropCoeff->Get_Record_Count(); i++)
+			for(int i=0; i<m_pCropCoeff->Get_Count(); i++)
 			{
 				if( LandUseID == m_pCropCoeff->Get_Record(i)->asInt(0) )
 				{
@@ -284,7 +284,7 @@ int CDVWK_SoilMoisture::Get_Month(int Day)
 //
 double CDVWK_SoilMoisture::Get_kc(int Bestand, int Day)
 {
-	if( Bestand >= 0 && Bestand < m_pCropCoeff->Get_Record_Count() )
+	if( Bestand >= 0 && Bestand < m_pCropCoeff->Get_Count() )
 	{
 		return( m_pCropCoeff->Get_Record(Bestand)->asDouble(1 + Get_Month(Day)) );
 	}

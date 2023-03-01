@@ -771,7 +771,7 @@ bool CDelineation::bWriteRasterGISInt(int const nDataItem, class CSG_Grid *pGrid
 
 		if( SG_UI_DataObject_Params_Get(pGrid, &P) && P("LUT") && P("LUT")->asTable() )
 		{
-			CSG_Table	&LUT = *P("LUT")->asTable(); LUT.Set_Record_Count(2);
+			CSG_Table	&LUT = *P("LUT")->asTable(); LUT.Set_Count(2);
 
 			LUT[0][0] = SG_COLOR_GREY_LIGHT; LUT[0][2] = SG_T(""); LUT[0][3] = 0.;  LUT[0][4] = 0.;
 			LUT[1][0] = SG_COLOR_RED       ; LUT[1][2] = SG_T(""); LUT[1][3] = 0.;  LUT[1][4] = 1.;

@@ -239,7 +239,7 @@ bool CPC_Cut::Get_Cut(CSG_Parameter_PointCloud_List *pPointsList, CSG_Parameter_
 
 			if( Extent.Intersects(pPoints->Get_Extent()) )
 			{
-				for(int i=0; i<pPoints->Get_Point_Count() && SG_UI_Process_Set_Progress(i, pPoints->Get_Point_Count()); i++)
+				for(sLong i=0; i<pPoints->Get_Count() && SG_UI_Process_Set_Progress(i, pPoints->Get_Count()); i++)
 				{
 					pPoints->Set_Cursor(i);
 
@@ -270,7 +270,7 @@ bool CPC_Cut::Get_Cut(CSG_Parameter_PointCloud_List *pPointsList, CSG_Parameter_
 			{
 				pCutList->Add_Item(pCut);
 
-				SG_UI_Msg_Add(CSG_String::Format(_TL("%d points from %s written to output %s."), pCut->Get_Point_Count(), pPoints->Get_Name(), pCut->Get_Name()), true);
+				SG_UI_Msg_Add(CSG_String::Format(_TL("%d points from %s written to output %s."), pCut->Get_Count(), pPoints->Get_Name(), pCut->Get_Name()), true);
 			}
 		}
 	}
@@ -297,7 +297,7 @@ bool CPC_Cut::Get_Cut(CSG_Parameter_PointCloud_List *pPointsList, CSG_Parameter_
 
 			if( pPolygons && pPolygons->Get_Type() == SHAPE_TYPE_Polygon && pPolygons->Get_Extent().Intersects(pPoints->Get_Extent()) )
 			{
-				for(int i=0; i<pPoints->Get_Point_Count() && SG_UI_Process_Set_Progress(i, pPoints->Get_Point_Count() * 2); i++)
+				for(sLong i=0; i<pPoints->Get_Count() && SG_UI_Process_Set_Progress(i, pPoints->Get_Count() * 2); i++)
 				{
 					if( Contains(pPolygons, pPoints->Get_X(i), pPoints->Get_Y(i)) )
 					{
@@ -306,7 +306,7 @@ bool CPC_Cut::Get_Cut(CSG_Parameter_PointCloud_List *pPointsList, CSG_Parameter_
 				}
 			}
 
-            for(int i=0; i<pPoints->Get_Point_Count() && SG_UI_Process_Set_Progress(pPoints->Get_Point_Count() + i, pPoints->Get_Point_Count() * 2); i++)
+            for(sLong i=0; i<pPoints->Get_Count() && SG_UI_Process_Set_Progress(pPoints->Get_Count() + i, pPoints->Get_Count() * 2); i++)
             {
                 if( (IdxInPoly.find(i) != IdxInPoly.end() && !bInverse) || (IdxInPoly.find(i) == IdxInPoly.end() && bInverse) )
                 {
@@ -334,7 +334,7 @@ bool CPC_Cut::Get_Cut(CSG_Parameter_PointCloud_List *pPointsList, CSG_Parameter_
 			{
 				pCutList->Add_Item(pCut);
 
-				SG_UI_Msg_Add(CSG_String::Format(_TL("%d points from %s written to output %s."), pCut->Get_Point_Count(), pPoints->Get_Name(), pCut->Get_Name()), true);
+				SG_UI_Msg_Add(CSG_String::Format(_TL("%d points from %s written to output %s."), pCut->Get_Count(), pPoints->Get_Name(), pCut->Get_Name()), true);
 			}
 		}
 	}

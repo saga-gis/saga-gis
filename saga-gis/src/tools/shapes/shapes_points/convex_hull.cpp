@@ -319,7 +319,7 @@ public:
 
 	CIndex_Compare_Points(CSG_Shapes *pPoints) : m_pPoints(pPoints) {}
 
-	virtual int			Compare		(const int _a, const int _b)
+	virtual int			Compare		(const sLong _a, const sLong _b)
 	{
 		TSG_Point	a	= m_pPoints->Get_Shape(_a)->Get_Point(0);
 		TSG_Point	b	= m_pPoints->Get_Shape(_b)->Get_Point(0);
@@ -348,7 +348,7 @@ bool CConvex_Hull::Get_Chain_Hull(CSG_Shapes *pPoints, CSG_Shapes *pHulls, CSG_S
 	//-----------------------------------------------------
 	CSG_Points	Points;
 
-	CIndex_Compare_Points	Compare(pPoints);
+	CIndex_Compare_Points Compare(pPoints);
 
 	CSG_Index	Index(pPoints->Get_Count(), &Compare);
 

@@ -509,7 +509,7 @@ bool CWKSP_Shapes::Edit_Set_Attributes(void)
 	{
 		int	Decimals;	GET_TABLE_NUM_PREC(Decimals);
 
-		for(int i=0; i<m_Edit_Attributes.Get_Record_Count(); i++)
+		for(int i=0; i<m_Edit_Attributes.Get_Count(); i++)
 		{
 			if( !pSelection->Set_Value(i, m_Edit_Attributes.Get_Record(i)->asString(1)) )
 			{

@@ -872,7 +872,7 @@ bool CSG_Projections::Load_DB(const CSG_String &FileName, bool bAppend)
 				m_pProjections->Del_Records();
 			}
 
-			for(int i=0; i<Table.Get_Count() && SG_UI_Process_Set_Progress(i, Table.Get_Count()); i++)
+			for(sLong i=0; i<Table.Get_Count() && SG_UI_Process_Set_Progress(i, Table.Get_Count()); i++)
 			{
 				m_pProjections->Add_Record(Table.Get_Record_byIndex(i));
 			}
@@ -921,7 +921,7 @@ CSG_Projection CSG_Projections::Get_UTM_WGS84(int Zone, bool bSouth)
 //---------------------------------------------------------
 int CSG_Projections::Get_Count(void) const
 {
-	return( m_pProjections->Get_Count() );
+	return( (int)m_pProjections->Get_Count() );
 }
 
 //---------------------------------------------------------
@@ -935,7 +935,7 @@ bool CSG_Projections::Add(const SG_Char *WKT, const SG_Char *Proj4, const SG_Cha
 {
 	CSG_Table_Record	*pProjection	= m_pProjections->Add_Record();
 
-	pProjection->Set_Value(PRJ_FIELD_SRID     , m_pProjections->Get_Count());
+	pProjection->Set_Value(PRJ_FIELD_SRID     , (int)m_pProjections->Get_Count());
 	pProjection->Set_Value(PRJ_FIELD_AUTH_NAME, Authority);
 	pProjection->Set_Value(PRJ_FIELD_AUTH_SRID, Authority_ID);
 	pProjection->Set_Value(PRJ_FIELD_SRTEXT   , WKT);

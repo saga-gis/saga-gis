@@ -188,9 +188,9 @@ bool CSG_TIN::Create(CSG_Shapes *pShapes)
 		Set_Name(pShapes->Get_Name());
 
 		//-------------------------------------------------
-		for(int iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		for(sLong iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
-			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+			CSG_Shape *pShape = pShapes->Get_Shape(iShape);
 
 			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
@@ -405,9 +405,9 @@ CSG_TIN_Node * CSG_TIN::Add_Node(TSG_Point Point, CSG_Table_Record *pRecord, boo
 }
 
 //---------------------------------------------------------
-bool CSG_TIN::Del_Node(int iNode, bool bUpdateNow)
+bool CSG_TIN::Del_Node(sLong Index, bool bUpdateNow)
 {
-	if( Del_Record(iNode) )
+	if( Del_Record(Index) )
 	{
 		if( bUpdateNow )
 		{

@@ -156,8 +156,8 @@ void CShapes_Summary_PDF::AddSummaryStatisticsPage(CSG_Table* pTable){
 
 	fPaperHeight = Get_Size_Page().Get_YRange();
 
-	pNames = new CSG_String [pTable->Get_Record_Count()];
-	for (i = 0; i < pTable->Get_Record_Count(); i++){
+	pNames = new CSG_String [pTable->Get_Count()];
+	for (i = 0; i < pTable->Get_Count(); i++){
 		pNames[i] = pTable->Get_Record(i)->asString(0);
 	}//for
 
@@ -166,7 +166,7 @@ void CShapes_Summary_PDF::AddSummaryStatisticsPage(CSG_Table* pTable){
 			Add_Page();
 		}//if
 		Data.Clear();
-		for (j = 0; j < pTable->Get_Record_Count(); j++){
+		for (j = 0; j < pTable->Get_Count(); j++){
 			Data.Add(0.0, pTable->Get_Record(j)->asDouble(i)); 
 		}//for		
 		fY = OFFSET_Y + ((i-1)%3) * (SUMMARY_STATISTICS_GRAPH_HEIGHT + SUMMARY_STATISTICS_GRAPH_SEPARATION);
@@ -433,7 +433,7 @@ void CShapes_Summary::CreatePDFDocs(){
 		m_DocEngine.AddClassSummaryPage(pShapes, m_pTable, i, m_ClassesID[i]);
 	}//for
 	
-	if (m_pTable->Get_Record_Count() > 1){
+	if (m_pTable->Get_Count() > 1){
 		m_DocEngine.Add_Page_Title (_TL("Statistics"), PDF_TITLE_01, PDF_PAGE_SIZE_A4, PDF_PAGE_ORIENTATION_PORTRAIT);
 		m_DocEngine.AddSummaryStatisticsPage(m_pTable);
 	}//if
@@ -463,9 +463,9 @@ void CShapes_Summary::Summarize(){
 	m_ClassesID.clear();
 
 	pShapesTable = m_pShapes;
-	m_pClasses = new int[pShapesTable->Get_Record_Count()];
+	m_pClasses = new int[pShapesTable->Get_Count()];
 
-	for (i = 0; i < pShapesTable->Get_Record_Count(); i++){
+	for (i = 0; i < pShapesTable->Get_Count(); i++){
 		pRecord = pShapesTable->Get_Record(i);
 		sName = pRecord->asString(m_iField);
 		for (j = 0; j < (int)m_ClassesID.size(); j++){
@@ -495,7 +495,7 @@ void CShapes_Summary::Summarize(){
 		m_pCount[i] = 0;
 	}//for
 
-	for (i = 0; i < pShapesTable->Get_Record_Count(); i++){
+	for (i = 0; i < pShapesTable->Get_Count(); i++){
 		m_pCount[m_pClasses[i]]++;
 	}//for
 
@@ -520,7 +520,7 @@ void CShapes_Summary::Summarize(){
 					pMin[j] =  (float)VERY_LARGE_NUMBER;
 					pVar[j] = 0;
 				}//for
-				for (j = 0; j < pShapesTable->Get_Record_Count(); j++){
+				for (j = 0; j < pShapesTable->Get_Count(); j++){
 					pRecord = pShapesTable->Get_Record(j);
 					fValue = pRecord->asFloat(iField);
 					pSum[m_pClasses[j]] += fValue;

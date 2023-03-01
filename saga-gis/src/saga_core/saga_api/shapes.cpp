@@ -114,9 +114,9 @@ CSG_Shapes *		SG_Create_Shapes(const CSG_String &File)
 }
 
 //---------------------------------------------------------
-CSG_Shapes *		SG_Create_Shapes(TSG_Shape_Type Type, const SG_Char *Name, CSG_Table *pStructure, TSG_Vertex_Type Vertex_Type)
+CSG_Shapes *		SG_Create_Shapes(TSG_Shape_Type Type, const SG_Char *Name, CSG_Table *pTemplate, TSG_Vertex_Type Vertex_Type)
 {
-	return( new CSG_Shapes(Type, Name, pStructure, Vertex_Type) );
+	return( new CSG_Shapes(Type, Name, pTemplate, Vertex_Type) );
 }
 
 //---------------------------------------------------------
@@ -171,10 +171,10 @@ CSG_Shapes::CSG_Shapes(const CSG_String &File)
 }
 
 //---------------------------------------------------------
-CSG_Shapes::CSG_Shapes(TSG_Shape_Type Type, const SG_Char *Name, CSG_Table *pStructure, TSG_Vertex_Type Vertex_Type)
+CSG_Shapes::CSG_Shapes(TSG_Shape_Type Type, const SG_Char *Name, CSG_Table *pTemplate, TSG_Vertex_Type Vertex_Type)
 	: CSG_Table()
 {
-	_On_Construction(); Create(Type, Name, pStructure, Vertex_Type);
+	_On_Construction(); Create(Type, Name, pTemplate, Vertex_Type);
 }
 
 
@@ -293,7 +293,7 @@ bool CSG_Shapes::Create(const CSG_String &File)
 	}
 
 	//-----------------------------------------------------
-	for(int iShape=Get_Count()-1; iShape>=0; iShape--)	// be kind, keep at least those shapes that have been loaded successfully
+	for(sLong iShape=Get_Count()-1; iShape>=0; iShape--)	// be kind, keep at least those shapes that have been loaded successfully
 	{
 		if( !Get_Shape(iShape)->is_Valid() )
 		{
@@ -314,19 +314,18 @@ bool CSG_Shapes::Create(const CSG_String &File)
 }
 
 //---------------------------------------------------------
-bool CSG_Shapes::Create(TSG_Shape_Type Type, const SG_Char *Name, CSG_Table *pStructure, TSG_Vertex_Type Vertex_Type)
+bool CSG_Shapes::Create(TSG_Shape_Type Type, const SG_Char *Name, CSG_Table *pTemplate, TSG_Vertex_Type Vertex_Type)
 {
 	Destroy();
 
-	CSG_Table::Create(pStructure);
+	CSG_Table::Create(pTemplate);
 
 	if( Name )
 	{
 		Set_Name(CSG_String(Name));
 	}
 
-	m_Type			= Type;
-	m_Vertex_Type	= Vertex_Type;
+	m_Type = Type; m_Vertex_Type = Vertex_Type;
 
 	return( true );
 }
@@ -370,7 +369,7 @@ bool CSG_Shapes::Assign(CSG_Data_Object *pObject)
 
 		Get_Projection().Create(pShapes->Get_Projection());
 
-		for(int iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Get_Okay(); iShape++)
+		for(sLong iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Get_Okay(); iShape++)
 		{
 			Add_Shape(pShapes->Get_Shape(iShape));
 		}
@@ -481,32 +480,22 @@ bool CSG_Shapes::Save(const CSG_String &File, int Format)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Table_Record * CSG_Shapes::_Get_New_Record(int Index)
+CSG_Table_Record * CSG_Shapes::_Get_New_Record(sLong Index)
 {
 	switch( m_Type )
 	{
-	case SHAPE_TYPE_Point:
+	case SHAPE_TYPE_Polygon     : return( new CSG_Shape_Polygon (this, Index) );
+	case SHAPE_TYPE_Line        : return( new CSG_Shape_Line    (this, Index) );
+	case SHAPE_TYPE_Points      : return( new CSG_Shape_Points  (this, Index) );
+	case SHAPE_TYPE_Point       :
 		switch( m_Vertex_Type )
 		{
-		case SG_VERTEX_TYPE_XY:	default:
-			return( new CSG_Shape_Point		(this, Index) );
-
-		case SG_VERTEX_TYPE_XYZ:
-			return( new CSG_Shape_Point_Z	(this, Index) );
-
-		case SG_VERTEX_TYPE_XYZM:
-			return( new CSG_Shape_Point_ZM	(this, Index) );
+		case SG_VERTEX_TYPE_XY  : return( new CSG_Shape_Point   (this, Index) );
+		case SG_VERTEX_TYPE_XYZ : return( new CSG_Shape_Point_Z (this, Index) );
+		case SG_VERTEX_TYPE_XYZM: return( new CSG_Shape_Point_ZM(this, Index) );
+		default:
+			return( NULL );
 		}
-
-	case SHAPE_TYPE_Points:
-		return( new CSG_Shape_Points	(this, Index) );
-
-	case SHAPE_TYPE_Line:
-		return( new CSG_Shape_Line		(this, Index) );
-
-	case SHAPE_TYPE_Polygon:
-		return( new CSG_Shape_Polygon	(this, Index) );
-
 	default:
 		return( NULL );
 	}
@@ -515,7 +504,7 @@ CSG_Table_Record * CSG_Shapes::_Get_New_Record(int Index)
 //---------------------------------------------------------
 CSG_Shape * CSG_Shapes::Add_Shape(CSG_Table_Record *pCopy, TSG_ADD_Shape_Copy_Mode mCopy)
 {
-	CSG_Shape	*pShape	= (CSG_Shape *)Add_Record();
+	CSG_Shape *pShape = (CSG_Shape *)Add_Record();
 
 	if( pShape && pCopy )
 	{
@@ -539,9 +528,9 @@ bool CSG_Shapes::Del_Shape(CSG_Shape *pShape)
 	return( Del_Record(pShape->Get_Index()) );
 }
 
-bool CSG_Shapes::Del_Shape(int iShape)
+bool CSG_Shapes::Del_Shape(sLong Index)
 {
-	return( Del_Record(iShape) );
+	return( Del_Record(Index) );
 }
 
 
@@ -556,30 +545,31 @@ bool CSG_Shapes::On_Update(void)
 {
 	if( Get_Count() > 0 )
 	{
-		CSG_Shape	*pShape	= Get_Shape(0);
+		CSG_Shape *pShape = Get_Shape(0);
 
-		m_Extent	= pShape->Get_Extent();
-		m_ZMin		= pShape->Get_ZMin();
-		m_ZMax		= pShape->Get_ZMax();
-		m_MMin		= pShape->Get_MMin();
-		m_MMax		= pShape->Get_MMax();
+		m_Extent = pShape->Get_Extent();
+		m_ZMin   = pShape->Get_ZMin();
+		m_ZMax   = pShape->Get_ZMax();
+		m_MMin   = pShape->Get_MMin();
+		m_MMax   = pShape->Get_MMax();
 
-		for(int i=1; i<Get_Count(); i++)
+		for(sLong i=1; i<Get_Count(); i++)
 		{
-			pShape	= Get_Shape(i);
+			pShape = Get_Shape(i);
 
 			m_Extent.Union(pShape->Get_Extent());
 
 			switch( m_Vertex_Type )
 			{
 			case SG_VERTEX_TYPE_XYZM:
-				if( m_MMin > pShape->Get_MMin() )	m_MMin	= pShape->Get_MMin();
-				if( m_MMax < pShape->Get_MMax() )	m_MMax	= pShape->Get_MMax();
+				if( m_MMin > pShape->Get_MMin() ) m_MMin = pShape->Get_MMin();
+				if( m_MMax < pShape->Get_MMax() ) m_MMax = pShape->Get_MMax();
 
 			case SG_VERTEX_TYPE_XYZ:
-				if( m_ZMin > pShape->Get_ZMin() )	m_ZMin	= pShape->Get_ZMin();
-				if( m_ZMax < pShape->Get_ZMax() )	m_ZMax	= pShape->Get_ZMax();
+				if( m_ZMin > pShape->Get_ZMin() ) m_ZMin = pShape->Get_ZMin();
+				if( m_ZMax < pShape->Get_ZMax() ) m_ZMax = pShape->Get_ZMax();
 				break;
+
 			default:
 				break;
 			}
@@ -611,7 +601,7 @@ CSG_Shape * CSG_Shapes::Get_Shape(const TSG_Point &Point, double Epsilon)
 	{
 		double dNearest = -1.;
 
-		for(int iShape=0; iShape<Get_Count(); iShape++)
+		for(sLong iShape=0; iShape<Get_Count(); iShape++)
 		{
 			CSG_Shape *pShape = Get_Shape(iShape);
 
@@ -650,29 +640,25 @@ bool CSG_Shapes::Make_Clean(void)
 		return( true );
 	}
 
-	for(int iShape=0; iShape<Get_Count() && SG_UI_Process_Set_Progress(iShape, Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<Get_Count() && SG_UI_Process_Set_Progress(iShape, Get_Count()); iShape++)
 	{
-		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)Get_Shape(iShape);
+		CSG_Shape_Polygon *pPolygon = (CSG_Shape_Polygon *)Get_Shape(iShape);
 
 		for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
 		{
-			if( m_Vertex_Type == SG_VERTEX_TYPE_XY )	// currently we have to disable this check for 3D shapefiles since the
-														// _Update_Area() method can not handle polygons with no horizontal extent
+			// currently we have to disable this check for 3D shapefiles since the
+			// _Update_Area() method can not handle polygons with no horizontal extent
+			if( m_Vertex_Type == SG_VERTEX_TYPE_XY )
 			{
-				//--------------------------------------------
-				// ring direction: outer rings > clockwise, inner rings (lakes) > counterclockwise !
-
-				if( (pPolygon->is_Lake(iPart) == pPolygon->is_Clockwise(iPart)) )
-				{
+				if( pPolygon->is_Lake(iPart) == pPolygon->is_Clockwise(iPart) )
+				{// ring direction: outer rings > clockwise, inner rings (lakes) > counterclockwise !
 					pPolygon->Revert_Points(iPart);
 				}
 			}
 
-			//--------------------------------------------
-			// last point == first point !
-
+			//---------------------------------------------
 			if( !CSG_Point(pPolygon->Get_Point(0, iPart)).is_Equal(pPolygon->Get_Point(pPolygon->Get_Point_Count(iPart) - 1, iPart)) )
-			{
+			{ // last point == first point !
 				((CSG_Shape *)pPolygon)->Add_Point(pPolygon->Get_Point(0, iPart), iPart);
 
 				if( m_Vertex_Type != SG_VERTEX_TYPE_XY )
@@ -687,8 +673,7 @@ bool CSG_Shapes::Make_Clean(void)
 			}
 
 			//--------------------------------------------
-			// no self intersection !
-
+			// to do: ensure there is no self intersection !
 		}
 	}
 

@@ -245,7 +245,7 @@ void CSG_Grids::_On_Construction(void)
 */
 bool CSG_Grids::Destroy(void)
 {
-	for(size_t i=1; i<m_Grids.Get_Size(); i++)
+	for(size_t i=1; i<m_Grids.Get_uSize(); i++)
 	{
 		delete(m_pGrids[i]);	// do not delete the dummy before deconstruction
 	}
@@ -543,25 +543,23 @@ bool CSG_Grids::Set_Z(int i, double Value)
 //---------------------------------------------------------
 bool CSG_Grids::Update_Z_Order(void)
 {
-	bool	bChanged	= false; 
+	bool bChanged = false; 
 
-	CSG_Table	Attributes(m_Attributes);
+	CSG_Table Attributes(m_Attributes);
 
 	if( Attributes.Set_Index(m_Z_Attribute, TABLE_INDEX_Ascending) )
 	{
-		CSG_Array_Pointer	Grids;
-		
-		CSG_Grid	**pGrids	= (CSG_Grid **)Grids.Create(m_Grids);
+		CSG_Array_Pointer Grids; CSG_Grid **pGrids = (CSG_Grid **)Grids.Create(m_Grids);
 
 		for(int i=0; i<Get_Grid_Count(); i++)
 		{
-			int	Index	= Attributes[i].Get_Index();
+			int Index = (int)Attributes[i].Get_Index();
 
 			if( Index != i )
 			{
-				bChanged	= true;
+				bChanged    = true;
 
-				m_pGrids[i]	= pGrids[Index];
+				m_pGrids[i] = pGrids[Index];
 
 				m_Attributes[i].Assign(&Attributes[i]);
 			}
@@ -613,7 +611,7 @@ bool CSG_Grids::Set_Grid_Count(int Count)
 
 		m_pGrids	= (CSG_Grid **)m_Grids.Get_Array(Count);
 
-		m_Attributes.Set_Record_Count(Count);
+		m_Attributes.Set_Count(Count);
 	}
 
 	//-----------------------------------------------------
@@ -810,7 +808,7 @@ bool CSG_Grids::Del_Grids(bool bDetach)
 
 	if( bDetach )
 	{
-		for(size_t i=0; i<m_Grids.Get_Size(); i++)
+		for(size_t i=0; i<m_Grids.Get_uSize(); i++)
 		{
 			if( m_pGrids[i]->Get_Owner() == this )
 			{
@@ -823,7 +821,7 @@ bool CSG_Grids::Del_Grids(bool bDetach)
 	}
 	else
 	{
-		for(size_t i=1; i<m_Grids.Get_Size(); i++)
+		for(size_t i=1; i<m_Grids.Get_uSize(); i++)
 		{
 			delete(m_pGrids[i]);	// do not delete the dummy before deconstruction
 		}

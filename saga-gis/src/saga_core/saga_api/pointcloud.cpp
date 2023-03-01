@@ -152,21 +152,21 @@ bool CSG_PointCloud::Create(const CSG_String &File)
 }
 
 //---------------------------------------------------------
-CSG_PointCloud::CSG_PointCloud(CSG_PointCloud *pStructure)
+CSG_PointCloud::CSG_PointCloud(CSG_PointCloud *pTemplate)
 	: CSG_Shapes()
 {
-	_On_Construction(); Create(pStructure);
+	_On_Construction(); Create(pTemplate);
 }
 
-bool CSG_PointCloud::Create(CSG_PointCloud *pStructure)
+bool CSG_PointCloud::Create(CSG_PointCloud *pTemplate)
 {
 	Destroy();
 
-	if( pStructure && pStructure->Get_Field_Count() > 0 )
+	if( pTemplate && pTemplate->m_nFields > 0 )
 	{
-		for(int i=0; i<pStructure->Get_Field_Count(); i++)
+		for(int iField=0; iField<pTemplate->m_nFields; iField++)
 		{
-			_Add_Field(pStructure->Get_Field_Name(i), pStructure->Get_Field_Type(i));
+			_Add_Field(pTemplate->Get_Field_Name(iField), pTemplate->Get_Field_Type(iField));
 		}
 
 		return( true );
@@ -178,21 +178,21 @@ bool CSG_PointCloud::Create(CSG_PointCloud *pStructure)
 //---------------------------------------------------------
 void CSG_PointCloud::_On_Construction(void)
 {
-	m_Type			= SHAPE_TYPE_Point;
-	m_Vertex_Type	= SG_VERTEX_TYPE_XYZ;
+	m_Type         = SHAPE_TYPE_Point;
+	m_Vertex_Type  = SG_VERTEX_TYPE_XYZ;
 
-	m_nFields		= 0;
-	m_Field_Name	= NULL;
-	m_Field_Type	= NULL;
-	m_Field_Stats	= NULL;
-	m_Field_Offset	= NULL;
+	m_nFields      = 0;
+	m_Field_Name   = NULL;
+	m_Field_Type   = NULL;
+	m_Field_Stats  = NULL;
+	m_Field_Offset = NULL;
 
-	m_Points		= NULL;
-	m_nRecords		= 0;
-	m_nPointBytes	= 0;
+	m_Points       = NULL;
+	m_nRecords     = 0;
+	m_nPointBytes  = 0;
 
-	m_Cursor		= NULL;
-	m_bXYZPrecDbl	= true;
+	m_Cursor       = NULL;
+	m_bXYZPrecDbl  = true;
 
 	Set_NoData_Value(-999999);
 
@@ -200,7 +200,7 @@ void CSG_PointCloud::_On_Construction(void)
 
 	m_Shapes.Create(SHAPE_TYPE_Point, NULL, NULL, SG_VERTEX_TYPE_XYZ);
 	m_Shapes.Add_Shape();
-	m_Shapes_Index	= -1;
+	m_Shapes_Index = -1;
 
 	m_Array_Points.Create(sizeof(char *), 0, SG_ARRAY_GROWTH_3);
 }
@@ -217,10 +217,10 @@ bool CSG_PointCloud::Destroy(void)
 
 	if( m_nFields > 0 )
 	{
-		for(int i=0; i<m_nFields; i++)
+		for(int iField=0; iField<m_nFields; iField++)
 		{
-			delete(m_Field_Name [i]);
-			delete(m_Field_Stats[i]);
+			delete(m_Field_Name [iField]);
+			delete(m_Field_Stats[iField]);
 		}
 
 		SG_Free(m_Field_Name  );
@@ -446,21 +446,21 @@ bool CSG_PointCloud::_Load(CSG_File &Stream)
 	}
 
 	//-----------------------------------------------------
-	char	ID[6];
+	char ID[6];
 
 	if( !Stream.Read(ID, 6) || strncmp(ID, PC_FILE_VERSION, 5) != 0 )
 	{
 		return( false );
 	}
 
-	int		nPointBytes;
+	int nPointBytes;
 
 	if( !Stream.Read(&nPointBytes, sizeof(int)) || nPointBytes < (int)(3 * sizeof(float)) )
 	{
 		return( false );
 	}
 
-	int		nFields;
+	int nFields;
 
 	if( !Stream.Read(&nFields, sizeof(int)) || nFields < 3 )
 	{
@@ -470,7 +470,7 @@ bool CSG_PointCloud::_Load(CSG_File &Stream)
 	//-----------------------------------------------------
 	Destroy();
 
-	for(int i=0; i<nFields; i++)
+	for(int iField=0; iField<nFields; iField++)
 	{
 		TSG_Data_Type Type; int iBuffer; char Name[1024];
 
@@ -504,7 +504,7 @@ bool CSG_PointCloud::_Load(CSG_File &Stream)
 	}
 
 	//-----------------------------------------------------
-	sLong	fLength	= Stream.Length();
+	sLong fLength = Stream.Length();
 
 	while( _Inc_Array() && Stream.Read(m_Cursor + 1, nPointBytes) && SG_UI_Process_Set_Progress((double)Stream.Tell(), (double)fLength) )
 	{
@@ -525,24 +525,24 @@ bool CSG_PointCloud::_Save(CSG_File &Stream)
 	}
 
 	//-----------------------------------------------------
-	int		i, iBuffer, nPointBytes	= m_nPointBytes - 1;
+	int iBuffer, nPointBytes = m_nPointBytes - 1;
 
 	Stream.Write((void *)PC_FILE_VERSION, 6);
 	Stream.Write(&nPointBytes, sizeof(int));
 	Stream.Write(&m_nFields  , sizeof(int));
 
-	for(i=0; i<m_nFields; i++)
+	for(int iField=0; iField<m_nFields; iField++)
 	{
-		Stream.Write(&m_Field_Type[i], sizeof(TSG_Data_Type));
+		Stream.Write(&m_Field_Type[iField], sizeof(TSG_Data_Type));
 
-		iBuffer	= (int)m_Field_Name[i]->Length();	if( iBuffer >= 1024 - 1 )	iBuffer	= 1024 - 1;
+		iBuffer = (int)m_Field_Name[iField]->Length(); if( iBuffer >= 1024 - 1 ) iBuffer	= 1024 - 1;
 		Stream.Write(&iBuffer, sizeof(int));
-		Stream.Write((void *)m_Field_Name[i]->b_str(), sizeof(char), iBuffer);
+		Stream.Write((void *)m_Field_Name[iField]->b_str(), sizeof(char), iBuffer);
 	}
 
 	_Set_Shape(m_Shapes_Index);
 
-	for(i=0; i<Get_Count() && SG_UI_Process_Set_Progress(i, Get_Count()); i++)
+	for(sLong i=0; i<m_nRecords && SG_UI_Process_Set_Progress(i, m_nRecords); i++)
 	{
 		Stream.Write(m_Points[i] + 1, nPointBytes);
 	}
@@ -553,35 +553,35 @@ bool CSG_PointCloud::_Save(CSG_File &Stream)
 //---------------------------------------------------------
 CSG_MetaData CSG_PointCloud::_Create_Header(void) const
 {
-	CSG_MetaData	Header;
+	CSG_MetaData Header;
 
 	Header.Set_Name("PointCloudHeaderFile");
 	Header.Add_Property("Version", "1.0");
 
-	CSG_MetaData	*pPoints	= Header.Add_Child("Points");
-	CSG_MetaData	*pBBox		= Header.Add_Child("BBox");
-	CSG_MetaData	*pNoData	= Header.Add_Child("NoData");
-	CSG_MetaData	*pAttr		= Header.Add_Child("Attributes");
+	CSG_MetaData *pPoints = Header.Add_Child("Points"    );
+	CSG_MetaData *pBBox   = Header.Add_Child("BBox"      );
+	CSG_MetaData *pNoData = Header.Add_Child("NoData"    );
+	CSG_MetaData *pAttr   = Header.Add_Child("Attributes");
 
-	pPoints	->Add_Property("Value"	, CSG_String::Format("%d", Get_Point_Count()));
-	pBBox	->Add_Property("XMin"	, Get_Minimum(0));
-	pBBox	->Add_Property("YMin"	, Get_Minimum(1));
-	pBBox	->Add_Property("ZMin"	, Get_Minimum(2));
-	pBBox	->Add_Property("XMax"	, Get_Maximum(0));
-	pBBox	->Add_Property("YMax"	, Get_Maximum(1));
-	pBBox	->Add_Property("ZMax"	, Get_Maximum(2));
-	pNoData	->Add_Property("Value"	, Get_NoData_Value());
-	pAttr	->Add_Property("Count"	, Get_Field_Count());
+	pPoints->Add_Property("Value", CSG_String::Format("%d", Get_Point_Count()));
+	pBBox  ->Add_Property("XMin" , Get_Minimum(0));
+	pBBox  ->Add_Property("YMin" , Get_Minimum(1));
+	pBBox  ->Add_Property("ZMin" , Get_Minimum(2));
+	pBBox  ->Add_Property("XMax" , Get_Maximum(0));
+	pBBox  ->Add_Property("YMax" , Get_Maximum(1));
+	pBBox  ->Add_Property("ZMax" , Get_Maximum(2));
+	pNoData->Add_Property("Value", Get_NoData_Value());
+	pAttr  ->Add_Property("Count", m_nFields);
 
-	for(int iField=0; iField<Get_Field_Count(); iField++)
+	for(int iField=0; iField<m_nFields; iField++)
 	{
-		CSG_MetaData	*pField = pAttr->Add_Child(CSG_String::Format("Field_%d", iField + 1));
+		CSG_MetaData *pField = pAttr->Add_Child(CSG_String::Format("Field_%d", iField + 1));
 
 		pField->Add_Property("Name", Get_Field_Name(iField));
 		pField->Add_Property("Type", gSG_Data_Type_Identifier[Get_Field_Type(iField)]);
 	}
 
-	return (Header);
+	return( Header );
 }
 
 
@@ -598,24 +598,24 @@ bool CSG_PointCloud::Assign(CSG_Data_Object *pObject)
 	{
 		Destroy();
 
-		CSG_PointCloud	*pPointCloud	= (CSG_PointCloud *)pObject;
+		CSG_PointCloud *pPoints = (CSG_PointCloud *)pObject;
 
-		Set_Name(pPointCloud->Get_Name());
+		Set_Name(pPoints->Get_Name());
 
-		Get_History()	= pPointCloud->Get_History();
+		Get_History() = pPoints->Get_History();
 
-		Get_Projection().Create(pPointCloud->Get_Projection());
+		Get_Projection().Create(pPoints->Get_Projection());
 
-		for(int iField=0; iField<pPointCloud->m_nFields; iField++)
+		for(int iField=0; iField<pPoints->m_nFields; iField++)
 		{
-			_Add_Field(pPointCloud->m_Field_Name[iField]->c_str(), pPointCloud->m_Field_Type[iField]);
+			_Add_Field(pPoints->m_Field_Name[iField]->c_str(), pPoints->m_Field_Type[iField]);
 		}
 
-		for(int iPoint=0; iPoint<pPointCloud->Get_Count(); iPoint++)
+		for(sLong i=0; i<pPoints->m_nRecords; i++)
 		{
 			if( _Inc_Array() )
 			{
-				memcpy(m_Points[iPoint] + 1, pPointCloud->m_Points[iPoint] + 1, m_nPointBytes - 1);
+				memcpy(m_Points[i] + 1, pPoints->m_Points[i] + 1, m_nPointBytes - 1l);
 			}
 		}
 
@@ -635,11 +635,11 @@ bool CSG_PointCloud::Assign(CSG_Data_Object *pObject)
 //---------------------------------------------------------
 bool CSG_PointCloud::is_Compatible(CSG_PointCloud *pPointCloud) const
 {
-	if( Get_Field_Count() == pPointCloud->Get_Field_Count() )
+	if( m_nFields == pPointCloud->m_nFields )
 	{
-		for(int i=0; i<Get_Field_Count(); i++)
+		for(int iField=0; iField<m_nFields; iField++)
 		{
-			if( Get_Field_Type(i) != pPointCloud->Get_Field_Type(i) )
+			if( Get_Field_Type(iField) != pPointCloud->Get_Field_Type(iField) )
 			{
 				return( false );
 			}
@@ -669,7 +669,7 @@ bool CSG_PointCloud::Add_Field(const CSG_String &Name, TSG_Data_Type Type, int i
 }
 
 //---------------------------------------------------------
-bool CSG_PointCloud::_Add_Field(const SG_Char *Name, TSG_Data_Type Type, int iField)
+bool CSG_PointCloud::_Add_Field(const SG_Char *Name, TSG_Data_Type Type, int Field)
 {
 	#define m_Field_Size(FIELD)	PC_GET_NBYTES(m_Field_Type[FIELD])
 
@@ -679,56 +679,55 @@ bool CSG_PointCloud::_Add_Field(const SG_Char *Name, TSG_Data_Type Type, int iFi
 		return( false );
 	}
 
-	if( iField < 0 || iField > m_nFields )
+	if( Field < 0 || Field > m_nFields )
 	{
-		iField	= m_nFields;
+		Field = m_nFields;
 	}
 
-	if( iField < 3 && m_nFields >= 3 )
+	if( Field < 3 && m_nFields >= 3 )
 	{
-		iField	= 3;	// (x, y, z) always have to stay in the first place
+		Field = 3; // (x, y, z) always have to stay in the first place
 	}
 
 	//-----------------------------------------------------
-	int	nFieldBytes	= PC_GET_NBYTES(Type);
+	int nFieldBytes = PC_GET_NBYTES(Type);
 
 	if( m_nFields < 1 )
 	{
-		m_nPointBytes	= 1;
+		m_nPointBytes = 1;
 	}
 
-	m_nPointBytes	+= nFieldBytes;
-	m_nFields		++;
+	m_nFields++; m_nPointBytes += nFieldBytes;
 
 	//-----------------------------------------------------
-	m_Field_Name	= (CSG_String            **)SG_Realloc(m_Field_Name  , m_nFields * sizeof(CSG_String            *));
-	m_Field_Type	= (TSG_Data_Type          *)SG_Realloc(m_Field_Type  , m_nFields * sizeof(TSG_Data_Type          ));
-	m_Field_Stats	= (CSG_Simple_Statistics **)SG_Realloc(m_Field_Stats , m_nFields * sizeof(CSG_Simple_Statistics *));
-	m_Field_Offset	= (int                    *)SG_Realloc(m_Field_Offset, m_nFields * sizeof(int                    ));
+	m_Field_Name   = (CSG_String            **)SG_Realloc(m_Field_Name  , m_nFields * sizeof(CSG_String            *));
+	m_Field_Type   = (TSG_Data_Type          *)SG_Realloc(m_Field_Type  , m_nFields * sizeof(TSG_Data_Type          ));
+	m_Field_Stats  = (CSG_Simple_Statistics **)SG_Realloc(m_Field_Stats , m_nFields * sizeof(CSG_Simple_Statistics *));
+	m_Field_Offset = (int                    *)SG_Realloc(m_Field_Offset, m_nFields * sizeof(int                    ));
 
-	for(int i=m_nFields-1; i>iField; i--)
+	for(int iField=m_nFields-1; iField>Field; iField--)
 	{
-		m_Field_Name  [i]	= m_Field_Name [i - 1];
-		m_Field_Type  [i]	= m_Field_Type [i - 1];
-		m_Field_Stats [i]	= m_Field_Stats[i - 1];
+		m_Field_Name [iField] = m_Field_Name [iField - 1];
+		m_Field_Type [iField] = m_Field_Type [iField - 1];
+		m_Field_Stats[iField] = m_Field_Stats[iField - 1];
 	}
 
-	m_Field_Name  [iField]	= new CSG_String(Name);
-	m_Field_Type  [iField]	= Type;
-	m_Field_Stats [iField]	= new CSG_Simple_Statistics();
+	m_Field_Name [Field] = new CSG_String(Name);
+	m_Field_Type [Field] = Type;
+	m_Field_Stats[Field] = new CSG_Simple_Statistics();
 
-	for(int i=0, Offset=1; i<m_nFields; i++)
+	for(int iField=0, Offset=1; iField<m_nFields; iField++)
 	{
-		m_Field_Offset[i]	= Offset; Offset+=m_Field_Size(i);
+		m_Field_Offset[iField] = Offset; Offset+=m_Field_Size(iField);
 	}
 
 	//-----------------------------------------------------
-	int	Offset = m_Field_Offset[iField], nMoveBytes = iField < m_nFields - 1 ? m_nPointBytes - m_Field_Offset[iField + 1] : 0;
+	int Offset = m_Field_Offset[Field], nMoveBytes = Field < m_nFields - 1 ? m_nPointBytes - m_Field_Offset[Field + 1] : 0;
 
 	#pragma omp parallel for
-	for(int i=0; i<Get_Count(); i++)
+	for(sLong i=0; i<m_nRecords; i++)
 	{
-		m_Points[i]	= (char *)SG_Realloc(m_Points[i], m_nPointBytes * sizeof(char));
+		m_Points[i] = (char *)SG_Realloc(m_Points[i], m_nPointBytes * sizeof(char));
 
 		if( nMoveBytes > 0 )
 		{
@@ -739,7 +738,7 @@ bool CSG_PointCloud::_Add_Field(const SG_Char *Name, TSG_Data_Type Type, int iFi
 	}
 
 	//-----------------------------------------------------
-	m_Shapes.Add_Field(Name, Type, iField);
+	m_Shapes.Add_Field(Name, Type, Field);
 
 	Set_Modified();
 
@@ -747,55 +746,54 @@ bool CSG_PointCloud::_Add_Field(const SG_Char *Name, TSG_Data_Type Type, int iFi
 }
 
 //---------------------------------------------------------
-bool CSG_PointCloud::Del_Field(int iField)
+bool CSG_PointCloud::Del_Field(int Index)
 {
 	#define m_Field_Size(FIELD)	PC_GET_NBYTES(m_Field_Type[FIELD])
 
 	//-----------------------------------------------------
-	if( iField < 3 || iField >= m_nFields )
+	if( Index < 3 || Index >= m_nFields )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	int	nFieldBytes	= PC_GET_NBYTES(m_Field_Type[iField]);
+	int nFieldBytes = PC_GET_NBYTES(m_Field_Type[Index]);
 
-	m_nFields		--;
-	m_nPointBytes	-= nFieldBytes;
+	m_nFields--; m_nPointBytes -= nFieldBytes;
 
 	//-----------------------------------------------------
-	int	Offset = m_Field_Offset[iField], nMoveBytes = iField < m_nFields ? (m_nPointBytes + nFieldBytes) - m_Field_Offset[iField + 1] : 0;
+	int Offset = m_Field_Offset[Index], nMoveBytes = Index < m_nFields ? (m_nPointBytes + nFieldBytes) - m_Field_Offset[Index + 1] : 0;
 
 	#pragma omp parallel for
-	for(int i=0; i<m_nRecords; i++)
+	for(sLong i=0; i<m_nRecords; i++)
 	{
 		if( nMoveBytes > 0 )
 		{
 			memmove(m_Points[i] + Offset, m_Points[i] + Offset + nFieldBytes, nMoveBytes);
 		}
 
-		m_Points[i]	= (char *)SG_Realloc(m_Points[i], m_nPointBytes * sizeof(char));
+		m_Points[i] = (char *)SG_Realloc(m_Points[i], m_nPointBytes * sizeof(char));
 	}
 
 	//-----------------------------------------------------
-	delete(m_Field_Name [iField]);
-	delete(m_Field_Stats[iField]);
+	delete(m_Field_Name [Index]);
+	delete(m_Field_Stats[Index]);
 
-	for(int i=iField, Offset=m_Field_Offset[iField]; i<m_nFields; i++)
+	for(int iField=Index, Offset=m_Field_Offset[Index]; iField<m_nFields; iField++)
 	{
-		m_Field_Name  [i]	= m_Field_Name [i + 1];
-		m_Field_Type  [i]	= m_Field_Type [i + 1];
-		m_Field_Stats [i]	= m_Field_Stats[i + 1];
-		m_Field_Offset[i]	= Offset; Offset += m_Field_Size(i);
+		m_Field_Name  [iField] = m_Field_Name [iField + 1];
+		m_Field_Type  [iField] = m_Field_Type [iField + 1];
+		m_Field_Stats [iField] = m_Field_Stats[iField + 1];
+		m_Field_Offset[iField] = Offset; Offset += m_Field_Size(iField);
 	}
 
-	m_Field_Name	= (CSG_String            **)SG_Realloc(m_Field_Name  , m_nFields * sizeof(CSG_String            *));
-	m_Field_Type	= (TSG_Data_Type          *)SG_Realloc(m_Field_Type  , m_nFields * sizeof(TSG_Data_Type          ));
-	m_Field_Stats	= (CSG_Simple_Statistics **)SG_Realloc(m_Field_Stats , m_nFields * sizeof(CSG_Simple_Statistics *));
-	m_Field_Offset	= (int                    *)SG_Realloc(m_Field_Offset, m_nFields * sizeof(int                    ));
+	m_Field_Name   = (CSG_String            **)SG_Realloc(m_Field_Name  , m_nFields * sizeof(CSG_String            *));
+	m_Field_Type   = (TSG_Data_Type          *)SG_Realloc(m_Field_Type  , m_nFields * sizeof(TSG_Data_Type          ));
+	m_Field_Stats  = (CSG_Simple_Statistics **)SG_Realloc(m_Field_Stats , m_nFields * sizeof(CSG_Simple_Statistics *));
+	m_Field_Offset = (int                    *)SG_Realloc(m_Field_Offset, m_nFields * sizeof(int                    ));
 
 	//-----------------------------------------------------
-	m_Shapes.Del_Field(iField);
+	m_Shapes.Del_Field(Index);
 
 	Set_Modified();
 
@@ -803,47 +801,47 @@ bool CSG_PointCloud::Del_Field(int iField)
 }
 
 //---------------------------------------------------------
-bool CSG_PointCloud::Mov_Field(int iField, int Position)
+bool CSG_PointCloud::Mov_Field(int Index, int Position)
 {
 	if( Position < 0 )
 	{
-		Position	= 0;
+		Position = 0;
 	}
 	else if( Position >= m_nFields - 1 )
 	{
-		Position	= m_nFields - 1;
+		Position = m_nFields - 1;
 	}
 
-	if( iField < 3 || iField >= m_nFields || iField == Position )
+	if( Index < 3 || Index >= m_nFields || Index == Position )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	if( Position > iField )
+	if( Position > Index )
 	{
 		Position++;
 	}
 
-	if( !Add_Field(Get_Field_Name(iField), Get_Field_Type(iField), Position) )
+	if( !Add_Field(Get_Field_Name(Index), Get_Field_Type(Index), Position) )
 	{
 		return( false );
 	}
 
-	if( Position < iField )
+	if( Position < Index )
 	{
-		iField++;
+		Index++;
 	}
 
-	size_t	Size	= PC_GET_NBYTES(m_Field_Type[iField]);
+	size_t Size = PC_GET_NBYTES(m_Field_Type[Index]);
 
 	#pragma omp parallel for
-	for(int i=0; i<m_nRecords; i++)
+	for(sLong i=0; i<m_nRecords; i++)
 	{
-		memcpy(m_Points[i] + m_Field_Offset[Position], m_Points[i] + m_Field_Offset[iField], Size);
+		memcpy(m_Points[i] + m_Field_Offset[Position], m_Points[i] + m_Field_Offset[Index], Size);
 	}
 
-	if( !Del_Field(iField) )
+	if( !Del_Field(Index) )
 	{
 		return( false );
 	}
@@ -874,7 +872,7 @@ bool CSG_PointCloud::Set_Field_Type(int iField, TSG_Data_Type Type)
 	Add_Field(Get_Field_Name(iField), Type, iField);
 
 	#pragma omp parallel for
-	for(int i=0; i<m_nRecords; i++)
+	for(sLong i=0; i<m_nRecords; i++)
 	{
 		Set_Value(i, iField, Get_Value(i, iField + 1));
 	}
@@ -1043,17 +1041,17 @@ TSG_Point_Z CSG_PointCloud::Get_Point(void)	const
 }
 
 //---------------------------------------------------------
-TSG_Point_Z CSG_PointCloud::Get_Point(int iPoint)	const
+TSG_Point_Z CSG_PointCloud::Get_Point(sLong Index)	const
 {
-	TSG_Point_Z	p;
+	TSG_Point_Z p;
 
-	if( iPoint >= 0 && iPoint < Get_Count() )
+	if( Index >= 0 && Index < m_nRecords )
 	{
-		char	*pPoint	= m_Points[iPoint];
+		char *pPoint = m_Points[Index];
 
-		p.x	= _Get_Field_Value(pPoint, 0);
-		p.y	= _Get_Field_Value(pPoint, 1);
-		p.z	= _Get_Field_Value(pPoint, 2);
+		p.x = _Get_Field_Value(pPoint, 0);
+		p.y = _Get_Field_Value(pPoint, 1);
+		p.z = _Get_Field_Value(pPoint, 2);
 	}
 	else
 	{
@@ -1073,13 +1071,13 @@ bool CSG_PointCloud::Set_Point(const TSG_Point_Z &Point)
 }
 
 //---------------------------------------------------------
-bool CSG_PointCloud::Set_Point(int iPoint, const TSG_Point_Z &Point)
+bool CSG_PointCloud::Set_Point(sLong Index, const TSG_Point_Z &Point)
 {
-	if( iPoint >= 0 && iPoint < m_nRecords )
+	if( Index >= 0 && Index < m_nRecords )
 	{
-		return( _Set_Field_Value(m_Points[iPoint], 0, Point.x)
-			&&  _Set_Field_Value(m_Points[iPoint], 1, Point.y)
-			&&  _Set_Field_Value(m_Points[iPoint], 2, Point.z)
+		return( _Set_Field_Value(m_Points[Index], 0, Point.x)
+			&&  _Set_Field_Value(m_Points[Index], 1, Point.y)
+			&&  _Set_Field_Value(m_Points[Index], 2, Point.z)
 		);
 	}
 
@@ -1113,25 +1111,25 @@ bool CSG_PointCloud::Add_Point(double x, double y, double z)
 }
 
 //---------------------------------------------------------
-bool CSG_PointCloud::Del_Point(int iPoint)
+bool CSG_PointCloud::Del_Point(sLong Index)
 {
-	if( iPoint >= 0 && iPoint < Get_Count() )
+	if( Index >= 0 && Index < m_nRecords )
 	{
-		if( is_Selected(iPoint) )
+		if( is_Selected(Index) )
 		{
-			Select(iPoint, true);
+			Select(Index, true);
 		}
 
-		m_Cursor	= m_Points[iPoint];
+		m_Cursor = m_Points[Index];
 
-		for(int i=iPoint, j=iPoint+1; j<Get_Count(); i++, j++)
+		for(sLong i=Index, j=Index+1; j<m_nRecords; i++, j++)
 		{
 			m_Points[i]	= m_Points[j];
 		}
 
-		m_Points[Get_Count() - 1]	= m_Cursor;
+		m_Points[m_nRecords - 1] = m_Cursor;
 
-		m_Cursor	= NULL;
+		m_Cursor = NULL;
 
 		_Dec_Array();
 
@@ -1148,16 +1146,16 @@ bool CSG_PointCloud::Del_Point(int iPoint)
 //---------------------------------------------------------
 bool CSG_PointCloud::Del_Points(void)
 {
-	for(int iPoint=0; iPoint<m_nRecords; iPoint++)
+	for(sLong i=0; i<m_nRecords; i++)
 	{
-		SG_Free(m_Points[iPoint]);
+		SG_Free(m_Points[i]);
 	}
 
 	m_Array_Points.Destroy();
 
-	m_nRecords	= 0;
-	m_Points	= NULL;
-	m_Cursor	= NULL;
+	m_nRecords = 0;
+	m_Points   = NULL;
+	m_Cursor   = NULL;
 
 	m_Selection.Set_Array(0);
 
@@ -1241,49 +1239,49 @@ bool CSG_PointCloud::On_Update(void)
 }
 
 //---------------------------------------------------------
-bool CSG_PointCloud::_Stats_Update(int iField) const
+bool CSG_PointCloud::_Stats_Update(int Field) const
 {
-	if( iField < 0 || iField >= m_nFields || Get_Count() < 1 )
+	if( Field < 0 || Field >= m_nFields || m_nRecords < 1 )
 	{
 		return( false );
 	}
 
-	CSG_Simple_Statistics	&Statistics	= *m_Field_Stats[iField];
+	CSG_Simple_Statistics &Statistics = *m_Field_Stats[Field];
 
 	if( Statistics.is_Evaluated() )
 	{
 		return( true );
 	}
 
-	if( iField > 2 && Get_Max_Samples() > 0 && Get_Max_Samples() < Get_Count() )
+	if( Field > 2 && Get_Max_Samples() > 0 && Get_Max_Samples() < m_nRecords )
 	{
-		double	d	= (double)Get_Count() / (double)Get_Max_Samples();
+		double d = (double)m_nRecords / (double)Get_Max_Samples();
 
-		for(double i=0; i<(double)Get_Count(); i+=d)
+		for(double i=0; i<(double)m_nRecords; i+=d)
 		{
-			double	Value	= Get_Value((int)i, iField);
+			double Value = Get_Value((sLong)i, Field);
 
-			if( iField < 3 || is_NoData_Value(Value) == false )
+			if( Field < 3 || is_NoData_Value(Value) == false )
 			{
-				Statistics	+= Value;
+				Statistics += Value;
 			}
 		}
 
-		Statistics.Set_Count(Statistics.Get_Count() >= Get_Max_Samples() ? Get_Count()	// any no-data cells ?
-			: (sLong)(Get_Count() * (double)Statistics.Get_Count() / (double)Get_Max_Samples())
+		Statistics.Set_Count(Statistics.Get_Count() >= Get_Max_Samples() ? m_nRecords	// any no-data cells ?
+			: (sLong)(m_nRecords * (double)Statistics.Get_Count() / (double)Get_Max_Samples())
 		);
 	}
 	else
 	{
-		char	**pPoint	= m_Points;
+		char **pPoint = m_Points;
 
-		for(int i=0; i<Get_Count(); i++, pPoint++)
+		for(sLong i=0; i<m_nRecords; i++, pPoint++)
 		{
-			double	Value	= _Get_Field_Value(*pPoint, iField);
+			double Value = _Get_Field_Value(*pPoint, Field);
 
-			if( iField < 3 || is_NoData_Value(Value) == false )
+			if( Field < 3 || is_NoData_Value(Value) == false )
 			{
-				Statistics	+= Value;
+				Statistics += Value;
 			}
 		}
 	}
@@ -1318,23 +1316,23 @@ bool CSG_PointCloud::On_Delete(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Shape * CSG_PointCloud::_Set_Shape(int iPoint)
+CSG_Shape * CSG_PointCloud::_Set_Shape(sLong Index)
 {
 	SG_UI_Progress_Lock(true);
 
-	CSG_Shape	*pShape	= m_Shapes.Get_Shape(0);
+	CSG_Shape *pShape = m_Shapes.Get_Shape(0);
 
-	if( pShape->is_Modified() && m_Shapes_Index >= 0 && m_Shapes_Index < Get_Count() )
+	if( pShape->is_Modified() && m_Shapes_Index >= 0 && m_Shapes_Index < m_nRecords )
 	{
-		m_Cursor	= m_Points[m_Shapes_Index];
+		m_Cursor = m_Points[m_Shapes_Index];
 
-		for(int i=0; i<Get_Field_Count(); i++)
+		for(int iField=0; iField<m_nFields; iField++)
 		{
-			switch( Get_Field_Type(i) )
+			switch( Get_Field_Type(iField) )
 			{
-			default                : _Set_Field_Value(m_Cursor, i, pShape->asDouble(i)); break;
+			default                : _Set_Field_Value(m_Cursor, iField, pShape->asDouble(iField)); break;
 			case SG_DATATYPE_Date  :
-			case SG_DATATYPE_String: _Set_Field_Value(m_Cursor, i, pShape->asString(i)); break;
+			case SG_DATATYPE_String: _Set_Field_Value(m_Cursor, iField, pShape->asString(iField)); break;
 			}
 		}
 
@@ -1343,33 +1341,31 @@ CSG_Shape * CSG_PointCloud::_Set_Shape(int iPoint)
 		Set_Value(2, pShape->Get_Z    (0)  );
 	}
 
-	if( iPoint >= 0 && iPoint < Get_Count() )
+	if( Index >= 0 && Index < m_nRecords )
 	{
-		if(1|| iPoint != m_Shapes_Index )
+		if(1|| Index != m_Shapes_Index )
 		{
-			m_Cursor	= m_Points[iPoint];
+			m_Cursor = m_Points[Index];
 
 			pShape->Set_Point(Get_X(), Get_Y(), 0, 0);
 			pShape->Set_Z    (Get_Z()         , 0, 0);
 
-			for(int i=0; i<Get_Field_Count(); i++)
+			for(int iField=0; iField<m_nFields; iField++)
 			{
-				switch( Get_Field_Type(i) )
+				switch( Get_Field_Type(iField) )
 				{
-				default: pShape->Set_Value(i, _Get_Field_Value(m_Cursor, i)); break;
+				default: pShape->Set_Value(iField, _Get_Field_Value(m_Cursor, iField)); break;
 
 				case SG_DATATYPE_Date  :
-				case SG_DATATYPE_String:
-					{
-						CSG_String	s; _Get_Field_Value(m_Cursor, i, s); pShape->Set_Value(i, s);
-					}
-					break;
+				case SG_DATATYPE_String: {
+					CSG_String s; _Get_Field_Value(m_Cursor, iField, s); pShape->Set_Value(iField, s);
+					break; }
 				}
 			}
 
-			m_Shapes_Index	= iPoint;
-			pShape->m_Index	= iPoint;
-			pShape->Set_Selected(is_Selected(iPoint));
+			m_Shapes_Index  = Index;
+			pShape->m_Index = Index;
+			pShape->Set_Selected(is_Selected(Index));
 		}
 
 		m_Shapes.Set_Modified(false);
@@ -1379,7 +1375,7 @@ CSG_Shape * CSG_PointCloud::_Set_Shape(int iPoint)
 		return( pShape );
 	}
 
-	m_Shapes_Index	= -1;
+	m_Shapes_Index = -1;
 
 	SG_UI_Progress_Lock(false);
 
@@ -1387,9 +1383,9 @@ CSG_Shape * CSG_PointCloud::_Set_Shape(int iPoint)
 }
 
 //---------------------------------------------------------
-CSG_Table_Record * CSG_PointCloud::Get_Record(int iRecord)	const
+CSG_Table_Record * CSG_PointCloud::Get_Record(sLong Index)	const
 {
-	return( ((CSG_PointCloud *)this)->_Set_Shape(iRecord) );
+	return( ((CSG_PointCloud *)this)->_Set_Shape(Index) );
 }
 
 
@@ -1402,30 +1398,28 @@ CSG_Table_Record * CSG_PointCloud::Get_Record(int iRecord)	const
 //---------------------------------------------------------
 CSG_Shape * CSG_PointCloud::Get_Shape(TSG_Point Point, double Epsilon)
 {
-	CSG_Rect	r(Point.x - Epsilon, Point.y - Epsilon, Point.x + Epsilon, Point.y + Epsilon);
+	CSG_Rect r(Point.x - Epsilon, Point.y - Epsilon, Point.x + Epsilon, Point.y + Epsilon);
 
 	if( r.Intersects(Get_Extent()) != INTERSECTION_None )
 	{
-		int		iPoint		= -1;
-		double	iDistance	= -1.;
+		sLong Index = -1; double Distance = -1.;
 
-		for(int iRecord=0; iRecord<Get_Count(); iRecord++)
+		for(sLong i=0; i<m_nRecords; i++)
 		{
-			Set_Cursor(iRecord);
+			Set_Cursor(i);
 
 			if( r.Contains(Get_X(), Get_Y()) )
 			{
-				if( iPoint < 0 || iDistance > SG_Get_Distance(Point.x, Point.y, Get_X(), Get_Y()) )
+				if( Index < 0 || Distance > SG_Get_Distance(Point.x, Point.y, Get_X(), Get_Y()) )
 				{
-					iPoint		= iRecord;
-					iDistance	= SG_Get_Distance(Point.x, Point.y, Get_X(), Get_Y());
+					Index = i; Distance = SG_Get_Distance(Point.x, Point.y, Get_X(), Get_Y());
 				}
 			}
 		}
 
-		if( iPoint >= 0 )
+		if( Index >= 0 )
 		{
-			return( CSG_Shapes::Get_Shape(iPoint) );
+			return( CSG_Shapes::Get_Shape(Index) );
 		}
 	}
 
@@ -1433,7 +1427,7 @@ CSG_Shape * CSG_PointCloud::Get_Shape(TSG_Point Point, double Epsilon)
 }
 
 //---------------------------------------------------------
-CSG_Table_Record * CSG_PointCloud::Ins_Record(int iRecord, CSG_Table_Record *pCopy)
+CSG_Table_Record * CSG_PointCloud::Ins_Record(sLong Index, CSG_Table_Record *pCopy)
 {
 	return( NULL );
 }
@@ -1451,7 +1445,7 @@ CSG_Shape * CSG_PointCloud::Add_Shape(CSG_Table_Record *pCopy, TSG_ADD_Shape_Cop
 
 	if( pCopy && (mCopy == SHAPE_COPY_ATTR || mCopy == SHAPE_COPY) )
 	{
-		for(int iField=0; iField<Get_Field_Count() && iField<pCopy->Get_Table()->Get_Field_Count(); iField++)
+		for(int iField=0; iField<m_nFields && iField<pCopy->Get_Table()->Get_Field_Count(); iField++)
 		{
 			if( Get_Field_Type(iField) == pCopy->Get_Table()->Get_Field_Type(iField) )
 			{
@@ -1467,7 +1461,7 @@ CSG_Shape * CSG_PointCloud::Add_Shape(CSG_Table_Record *pCopy, TSG_ADD_Shape_Cop
 		}
 	}
 
-	return( _Set_Shape(Get_Count() - 1) );
+	return( _Set_Shape(m_nRecords - 1) );
 }
 
 
@@ -1478,11 +1472,11 @@ CSG_Shape * CSG_PointCloud::Add_Shape(CSG_Table_Record *pCopy, TSG_ADD_Shape_Cop
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_PointCloud::Select(int iRecord, bool bInvert)
+bool CSG_PointCloud::Select(sLong Index, bool bInvert)
 {
 	if( !bInvert && Get_Selection_Count() > 0 )
 	{
-		for(size_t i=0; i<Get_Selection_Count(); i++)
+		for(sLong i=0; i<Get_Selection_Count(); i++)
 		{
 			m_Points[Get_Selection_Index(i)][0]	&= ~SG_TABLE_REC_FLAG_Selected;
 		}
@@ -1490,11 +1484,11 @@ bool CSG_PointCloud::Select(int iRecord, bool bInvert)
 		m_Selection.Destroy();
 	}
 
-	if( Set_Cursor(iRecord) )
+	if( Set_Cursor(Index) )
 	{
 		if( (m_Cursor[0] & SG_TABLE_REC_FLAG_Selected) == 0 )	// select
 		{
-			if( _Add_Selection(iRecord) )
+			if( _Add_Selection(Index) )
 			{
 				m_Cursor[0]	|= SG_TABLE_REC_FLAG_Selected;
 
@@ -1503,7 +1497,7 @@ bool CSG_PointCloud::Select(int iRecord, bool bInvert)
 		}
 		else													// deselect
 		{
-			if( _Del_Selection(iRecord) )
+			if( _Del_Selection(Index) )
 			{
 				m_Cursor[0]	&= ~SG_TABLE_REC_FLAG_Selected;
 
@@ -1531,7 +1525,7 @@ bool CSG_PointCloud::Select(TSG_Rect Extent, bool bInvert)
 
 	if( Get_Extent().Intersects(Extent) != INTERSECTION_None )
 	{
-		for(int i=0; i<Get_Count(); i++)
+		for(sLong i=0; i<m_nRecords; i++)
 		{
 			Set_Cursor(i);
 
@@ -1560,9 +1554,9 @@ bool CSG_PointCloud::Select(TSG_Point Point, bool bInvert)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_PointCloud::is_Selected(int iRecord)	const
+bool CSG_PointCloud::is_Selected(sLong Index)	const
 {
-	return( iRecord >= 0 && iRecord < Get_Count() && (m_Points[iRecord][0] & SG_TABLE_REC_FLAG_Selected) != 0 );
+	return( Index >= 0 && Index < m_nRecords && (m_Points[Index][0] & SG_TABLE_REC_FLAG_Selected) != 0 );
 }
 
 
@@ -1571,9 +1565,9 @@ bool CSG_PointCloud::is_Selected(int iRecord)	const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Shape * CSG_PointCloud::Get_Selection(size_t Index)
+CSG_Shape * CSG_PointCloud::Get_Selection(sLong Index)
 {
-	return( Index < Get_Selection_Count() ? _Set_Shape((int)Get_Selection_Index(Index)) : NULL );
+	return( Index < Get_Selection_Count() ? _Set_Shape(Get_Selection_Index(Index)) : NULL );
 }
 
 //---------------------------------------------------------
@@ -1581,17 +1575,17 @@ const CSG_Rect & CSG_PointCloud::Get_Selection_Extent(void)
 {
 	if( Get_Selection_Count() > 0 && Set_Cursor((int)Get_Selection_Index(0)) )
 	{
-		TSG_Rect	r;
+		TSG_Rect r;
 
-		r.xMin	= r.xMax	= Get_X();
-		r.yMin	= r.yMax	= Get_Y();
+		r.xMin = r.xMax = Get_X();
+		r.yMin = r.yMax = Get_Y();
 
-		for(size_t i=1; i<Get_Selection_Count(); i++)
+		for(sLong i=1; i<Get_Selection_Count(); i++)
 		{
-			if( Set_Cursor((int)Get_Selection_Index(i)) )
+			if( Set_Cursor(Get_Selection_Index(i)) )
 			{
-				if( Get_X() < r.xMin )	r.xMin	= Get_X();	else if( Get_X() > r.xMax )	r.xMax	= Get_X();
-				if( Get_Y() < r.yMin )	r.yMin	= Get_Y();	else if( Get_Y() > r.yMax )	r.yMax	= Get_Y();
+				if( Get_X() < r.xMin ) { r.xMin = Get_X(); } else if( Get_X() > r.xMax ) { r.xMax = Get_X(); }
+				if( Get_Y() < r.yMin ) { r.yMin = Get_Y(); } else if( Get_Y() > r.yMax ) { r.yMax = Get_Y(); }
 			}
 		}
 
@@ -1611,17 +1605,17 @@ const CSG_Rect & CSG_PointCloud::Get_Selection_Extent(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSG_PointCloud::Del_Selection(void)
+sLong CSG_PointCloud::Del_Selection(void)
 {
-	int	n	= 0;
+	sLong n = 0;
 
 	if( Get_Selection_Count() > 0 )
 	{
 		m_Selection.Set_Array(0);
 
-		m_Cursor	= NULL;
+		m_Cursor = NULL;
 
-		for(int i=0; i<m_nRecords; i++)
+		for(sLong i=0; i<m_nRecords; i++)
 		{
 			if( (m_Points[i][0] & SG_TABLE_REC_FLAG_Selected) != 0 )
 			{
@@ -1631,7 +1625,7 @@ int CSG_PointCloud::Del_Selection(void)
 			{
 				if( n < i )
 				{
-					m_Points[n]	= m_Points[i];
+					m_Points[n] = m_Points[i];
 				}
 
 				n++;
@@ -1649,28 +1643,28 @@ int CSG_PointCloud::Del_Selection(void)
 }
 
 //---------------------------------------------------------
-int CSG_PointCloud::Inv_Selection(void)
+sLong CSG_PointCloud::Inv_Selection(void)
 {
-	if( m_Selection.Set_Array((size_t)m_nRecords - Get_Selection_Count()) )
+	if( m_Selection.Set_Array(m_nRecords - Get_Selection_Count()) )
 	{
-		char	**pPoint	= m_Points;
+		char **pPoint = m_Points;
 
-		for(size_t i=0, n=0; i<(size_t)m_nRecords && n<Get_Selection_Count(); i++, pPoint++)
+		for(sLong i=0, n=0; i<m_nRecords && n<Get_Selection_Count(); i++, pPoint++)
 		{
 			if( ((*pPoint)[0] & SG_TABLE_REC_FLAG_Selected) != 0 )
 			{
-				(*pPoint)[0]	&= ~SG_TABLE_REC_FLAG_Selected;
+				(*pPoint)[0] &= ~SG_TABLE_REC_FLAG_Selected;
 			}
 			else
 			{
-				(*pPoint)[0]	|= SG_TABLE_REC_FLAG_Selected;
+				(*pPoint)[0] |= SG_TABLE_REC_FLAG_Selected;
 
 				_Set_Selection(i, n++);
 			}
 		}
 	}
 
-	return( (int)Get_Selection_Count() );
+	return( Get_Selection_Count() );
 }
 
 

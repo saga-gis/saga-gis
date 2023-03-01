@@ -159,10 +159,6 @@ void CSG_Shapes_Search::Destroy(void)
 //---------------------------------------------------------
 bool CSG_Shapes_Search::Create(CSG_Shapes *pShapes)
 {
-	int		iShape, iPart, iPoint;
-	CSG_Shape	*pShape, *pPoint;
-	double	*Value;
-
 	Destroy();
 
 	//-----------------------------------------------------
@@ -170,23 +166,23 @@ bool CSG_Shapes_Search::Create(CSG_Shapes *pShapes)
 	{
 		if( pShapes->Get_Type() == SHAPE_TYPE_Point )
 		{
-			m_bDestroy	= false;
-			m_pPoints	= pShapes;
+			m_bDestroy = false;
+			m_pPoints  = pShapes;
 		}
 		else
 		{
-			m_bDestroy	= true;
-			m_pPoints	= SG_Create_Shapes(SHAPE_TYPE_Point, NULL, pShapes);
+			m_bDestroy = true;
+			m_pPoints  = SG_Create_Shapes(SHAPE_TYPE_Point, NULL, pShapes);
 
-			for(iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+			for(sLong iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 			{
-				pShape	= pShapes->Get_Shape(iShape);
+				CSG_Shape *pShape = pShapes->Get_Shape(iShape);
 
-				for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+				for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 				{
-					for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+					for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 					{
-						pPoint	= m_pPoints->Add_Shape(pShape);
+						CSG_Shape *pPoint = m_pPoints->Add_Shape(pShape);
 						pPoint->Add_Point(pShape->Get_Point(iPoint, iPart));
 					}
 				}
@@ -196,21 +192,21 @@ bool CSG_Shapes_Search::Create(CSG_Shapes *pShapes)
 		//-------------------------------------------------
 		if( m_pPoints->Get_Count() > 1 )
 		{
-			m_nPoints	= m_pPoints->Get_Count();
+			m_nPoints = (int)m_pPoints->Get_Count();
 
-			Value		= (double    *)SG_Malloc(m_nPoints * sizeof(double));
-			m_Pos		= (TSG_Point *)SG_Malloc(m_nPoints * sizeof(TSG_Point));
+			double *Value = (double    *)SG_Malloc(m_nPoints * sizeof(double   ));
+			m_Pos         = (TSG_Point *)SG_Malloc(m_nPoints * sizeof(TSG_Point));
 
-			for(iPoint=0; iPoint<m_nPoints; iPoint++)
+			for(int iPoint=0; iPoint<m_nPoints; iPoint++)
 			{
-				Value[iPoint]	= m_pPoints->Get_Shape(iPoint)->Get_Point(0).x;
+				Value[iPoint] = m_pPoints->Get_Shape(iPoint)->Get_Point(0).x;
 			}
 
 			m_Idx.Create(m_nPoints, Value, true);
 
-			for(iPoint=0; iPoint<m_nPoints; iPoint++)
+			for(int iPoint=0; iPoint<m_nPoints; iPoint++)
 			{
-				m_Pos[iPoint]	= m_pPoints->Get_Shape(m_Idx[iPoint])->Get_Point(0);
+				m_Pos[iPoint] = m_pPoints->Get_Shape(m_Idx[iPoint])->Get_Point(0);
 			}
 
 			SG_Free(Value);
@@ -292,12 +288,12 @@ CSG_Shape * CSG_Shapes_Search::Get_Point_Nearest(double x, double y)
 		}
 		else
 		{
-			Dist	= sqrt(dx*dx + dy*dy);
+			Dist 	= sqrt(dx*dx + dy*dy);
 
 			if( iPoint_Min < 0 || Dist < Dist_Min )
 			{
-				iPoint_Min	= m_Idx[ix];
-				Dist_Min	= Dist;
+				iPoint_Min = (int)m_Idx[ix];
+				Dist_Min   = Dist;
 			}
 		}
 	}
@@ -318,7 +314,7 @@ CSG_Shape * CSG_Shapes_Search::Get_Point_Nearest(double x, double y)
 
 			if( iPoint_Min < 0 || Dist < Dist_Min )
 			{
-				iPoint_Min	= m_Idx[ix];
+				iPoint_Min	= (int)m_Idx[ix];
 				Dist_Min	= Dist;
 			}
 		}
@@ -379,7 +375,7 @@ int CSG_Shapes_Search::_Get_Point_Nearest(double x, double y, int Quadrant)
 
 				if( iPoint_Min < 0 || Dist < Dist_Min )
 				{
-					iPoint_Min	= m_Idx[ix];
+					iPoint_Min	= (int)m_Idx[ix];
 					Dist_Min	= Dist;
 				}
 			}
@@ -408,7 +404,7 @@ int CSG_Shapes_Search::_Get_Point_Nearest(double x, double y, int Quadrant)
 
 				if( iPoint_Min < 0 || Dist < Dist_Min )
 				{
-					iPoint_Min	= m_Idx[ix];
+					iPoint_Min	= (int)m_Idx[ix];
 					Dist_Min	= Dist;
 				}
 			}
@@ -437,7 +433,7 @@ int CSG_Shapes_Search::_Get_Point_Nearest(double x, double y, int Quadrant)
 
 				if( iPoint_Min < 0 || Dist < Dist_Min )
 				{
-					iPoint_Min	= m_Idx[ix];
+					iPoint_Min	= (int)m_Idx[ix];
 					Dist_Min	= Dist;
 				}
 			}
@@ -466,7 +462,7 @@ int CSG_Shapes_Search::_Get_Point_Nearest(double x, double y, int Quadrant)
 
 				if( iPoint_Min < 0 || Dist < Dist_Min )
 				{
-					iPoint_Min	= m_Idx[ix];
+					iPoint_Min	= (int)m_Idx[ix];
 					Dist_Min	= Dist;
 				}
 			}

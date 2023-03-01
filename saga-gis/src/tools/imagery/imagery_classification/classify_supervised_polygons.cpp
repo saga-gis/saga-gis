@@ -427,7 +427,7 @@ bool CPolygon_Classify_Supervised::Set_Classification(CSG_Classifier_Supervised 
 			pClass->Set_Value(4, iClass + 1);
 		}
 
-		pLUT->asTable()->Set_Record_Count(Classifier.Get_Class_Count());
+		pLUT->asTable()->Set_Count(Classifier.Get_Class_Count());
 
 		DataObject_Set_Parameter(pClasses, pLUT);
 		DataObject_Set_Parameter(pClasses, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table

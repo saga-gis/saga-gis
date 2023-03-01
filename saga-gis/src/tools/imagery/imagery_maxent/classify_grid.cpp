@@ -515,7 +515,7 @@ bool CClassify_Grid::Get_Training(void)
 			pClass->Set_Value(4,         i );
 		}
 
-		pLUT->asTable()->Set_Record_Count(Classes.Get_Count());
+		pLUT->asTable()->Set_Count(Classes.Get_Count());
 
 		DataObject_Set_Parameter(pClasses, pLUT            );
 		DataObject_Set_Parameter(pClasses, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
@@ -756,7 +756,7 @@ bool CClassify_Grid::Get_File(const CSG_String &File)
 			pClass->Set_Value(4, m_YT_Model.get_class_id(Label));
 		}
 
-		pLUT->asTable()->Set_Record_Count(m_YT_Model.num_classes());
+		pLUT->asTable()->Set_Count(m_YT_Model.num_classes());
 
 		DataObject_Set_Parameter(pClasses, pLUT            );
 		DataObject_Set_Parameter(pClasses, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table

@@ -178,7 +178,7 @@ SAGA_API_DLL_EXPORT	void		SG_Decimal_To_Degree	(double Value, double &Deg, doubl
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef int (* TSG_PFNC_Compare) (const int a, const int b);
+typedef int (* TSG_PFNC_Compare) (const sLong a, const sLong b);
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Index
@@ -190,7 +190,7 @@ public:
 		CSG_Index_Compare(void) {}
 		virtual ~CSG_Index_Compare(void) {}
 
-		virtual int				Compare				(const int a, const int b)	= 0;
+		virtual int				Compare				(const sLong a, const sLong b) = 0;
 	};
 
 
@@ -198,37 +198,37 @@ public:
 	CSG_Index(void);
 	virtual ~CSG_Index(void);
 
-								CSG_Index			(int nValues, CSG_Index_Compare &Compare);
-	bool						Create				(int nValues, CSG_Index_Compare &Compare);
+								CSG_Index			(sLong nValues, CSG_Index_Compare &Compare);
+	bool						Create				(sLong nValues, CSG_Index_Compare &Compare);
 
-								CSG_Index			(int nValues, CSG_Index_Compare *pCompare);
-	bool						Create				(int nValues, CSG_Index_Compare *pCompare);
+								CSG_Index			(sLong nValues, CSG_Index_Compare *pCompare);
+	bool						Create				(sLong nValues, CSG_Index_Compare *pCompare);
 
-								CSG_Index			(int nValues, int    *Values, bool bAscending = true);
-	bool						Create				(int nValues, int    *Values, bool bAscending = true);
+								CSG_Index			(sLong nValues, int    *Values, bool bAscending = true);
+	bool						Create				(sLong nValues, int    *Values, bool bAscending = true);
 
-								CSG_Index			(int nValues, double *Values, bool bAscending = true);
-	bool						Create				(int nValues, double *Values, bool bAscending = true);
+								CSG_Index			(sLong nValues, double *Values, bool bAscending = true);
+	bool						Create				(sLong nValues, double *Values, bool bAscending = true);
 
-								CSG_Index			(int nValues, TSG_PFNC_Compare fCompare);
-	bool						Create				(int nValues, TSG_PFNC_Compare fCompare);
+								CSG_Index			(sLong nValues, TSG_PFNC_Compare fCompare);
+	bool						Create				(sLong nValues, TSG_PFNC_Compare fCompare);
 
 	bool						Destroy				(void);
 
 	void						Show_Progress		(bool bProgress = true);
 
-	bool						Add_Entry			(int Position = -1);
-	bool						Del_Entry			(int Position = -1);
+	bool						Add_Entry			(sLong Position = -1);
+	bool						Del_Entry			(sLong Position = -1);
 
 	bool						is_Okay				(void)	const	{	return( m_nValues > 0 );	}
-	int							Get_Count			(void)	const	{	return( m_nValues     );	}
+	sLong						Get_Count			(void)	const	{	return( m_nValues     );	}
 
-	int							Get_Index			(int Position, bool Ascending = true)	const
+	sLong						Get_Index			(sLong Position, bool Ascending = true)	const
 	{
 		return( Position < 0 || Position >= m_nValues ? -1 : m_Index[Ascending ? Position : m_nValues - 1 - Position] );
 	}
 
-	int							operator []			(int Position)	const
+	sLong						operator []			(sLong Position)	const
 	{
 		return( Position < 0 || Position >= m_nValues ? -1 : m_Index[Position] );
 	}
@@ -238,12 +238,12 @@ private:
 
 	bool						m_bProgress;
 
-	int							m_nValues, *m_Index;
+	sLong						m_nValues, *m_Index;
 
 
 	void						_On_Construction	(void);
 
-	bool						_Set_Array			(int nValues);
+	bool						_Set_Array			(sLong nValues);
 	bool						_Set_Index			(CSG_Index_Compare *pCompare);
 
 };
@@ -375,6 +375,7 @@ public:
 	double						operator ()			(int    x)	const	{	return( Get_Data()[x] );	}
 	double &					operator []			(int    x)			{	return( Get_Data()[x] );	}
 	double &					operator []			(size_t x)			{	return( Get_Data()[x] );	}
+	double &					operator []			(sLong  x)			{	return( Get_Data()[x] );	}
 	operator const double *							(void)		const	{	return( Get_Data() );		}
 
 	CSG_String					to_String			(int Width = -1, int Precision = -1, bool bScientific = false, const SG_Char *Separator = NULL)	const;

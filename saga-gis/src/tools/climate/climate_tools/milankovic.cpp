@@ -1067,7 +1067,7 @@ bool CMilankovic_SR_Monthly_Global::On_Execute(void)
 	CSG_Table	*pAlbedo	= Parameters("ALBEDO")->asTable();
 	int			fAlbedo		= Parameters("FIELD") ->asInt();
 
-	if( pAlbedo && pAlbedo->Get_Record_Count() != 181 )
+	if( pAlbedo && pAlbedo->Get_Count() != 181 )
 	{
 		Message_Add(_TL("warning: albedo is ignored"));
 

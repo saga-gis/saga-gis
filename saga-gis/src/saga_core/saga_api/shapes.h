@@ -231,7 +231,7 @@ public:
 
 protected:
 
-	CSG_Shape(class CSG_Shapes *pOwner, int Index);
+	CSG_Shape(class CSG_Shapes *pOwner, sLong Index);
 	virtual ~CSG_Shape(void);
 
 	virtual bool				On_Assign			(CSG_Shape *pShape)								= 0;
@@ -295,7 +295,7 @@ public:
 
 protected:
 
-	CSG_Shape_Point(class CSG_Shapes *pOwner, int Index);
+	CSG_Shape_Point(class CSG_Shapes *pOwner, sLong Index);
 	virtual ~CSG_Shape_Point(void);
 
 
@@ -315,7 +315,7 @@ class SAGA_API_DLL_EXPORT CSG_Shape_Point_Z : public CSG_Shape_Point
 
 public:
 
-	CSG_Shape_Point_Z(class CSG_Shapes *pOwner, int Index) : CSG_Shape_Point(pOwner, Index)                   { m_Z = 0.; }
+	CSG_Shape_Point_Z(class CSG_Shapes *pOwner, sLong Index) : CSG_Shape_Point(pOwner, Index)                 { m_Z = 0.; }
 
 	virtual void				Set_Z				(double z, int iPoint, int iPart = 0)                     { m_Z = z; _Invalidate(); }
 	virtual double				Get_Z				(int iPoint, int iPart = 0, bool bAscending = true) const { return( m_Z ); }
@@ -336,7 +336,7 @@ class SAGA_API_DLL_EXPORT CSG_Shape_Point_ZM : public CSG_Shape_Point_Z
 
 public:
 
-	CSG_Shape_Point_ZM(class CSG_Shapes *pOwner, int Index) : CSG_Shape_Point_Z(pOwner, Index)                { m_M = 0.; }
+	CSG_Shape_Point_ZM(class CSG_Shapes *pOwner, sLong Index) : CSG_Shape_Point_Z(pOwner, Index)              { m_M = 0.; }
 
 	virtual void				Set_M				(double m, int iPoint, int iPart = 0)                     { m_M = m; _Invalidate(); }
 	virtual double				Get_M				(int iPoint, int iPart = 0, bool bAscending = true) const {	return( m_M ); }
@@ -542,7 +542,7 @@ public:
 
 protected:
 
-	CSG_Shape_Points(class CSG_Shapes *pOwner, int Index);
+	CSG_Shape_Points(class CSG_Shapes *pOwner, sLong Index);
 	virtual ~CSG_Shape_Points(void);
 
 
@@ -605,7 +605,7 @@ public:
 
 protected:
 
-	CSG_Shape_Line(class CSG_Shapes *pOwner, int Index);
+	CSG_Shape_Line(class CSG_Shapes *pOwner, sLong Index);
 	virtual ~CSG_Shape_Line(void);
 
 	virtual TSG_Intersection	On_Intersects		(CSG_Shape *pShape);
@@ -726,7 +726,7 @@ public:
 
 protected:
 
-	CSG_Shape_Polygon(class CSG_Shapes *pOwner, int Index);
+	CSG_Shape_Polygon(class CSG_Shapes *pOwner, sLong Index);
 	virtual ~CSG_Shape_Polygon(void);
 
 
@@ -778,8 +778,8 @@ public:
 									CSG_Shapes	(const CSG_String &File);
 	bool							Create		(const CSG_String &File);
 
-									CSG_Shapes	(TSG_Shape_Type Type, const SG_Char *Name = NULL, CSG_Table *pStructure = NULL, TSG_Vertex_Type Vertex_Type = SG_VERTEX_TYPE_XY);
-	bool							Create		(TSG_Shape_Type Type, const SG_Char *Name = NULL, CSG_Table *pStructure = NULL, TSG_Vertex_Type Vertex_Type = SG_VERTEX_TYPE_XY);
+									CSG_Shapes	(TSG_Shape_Type Type, const SG_Char *Name = NULL, CSG_Table *pTemplate = NULL, TSG_Vertex_Type Vertex_Type = SG_VERTEX_TYPE_XY);
+	bool							Create		(TSG_Shape_Type Type, const SG_Char *Name = NULL, CSG_Table *pTemplate = NULL, TSG_Vertex_Type Vertex_Type = SG_VERTEX_TYPE_XY);
 
 	virtual ~CSG_Shapes(void);
 
@@ -808,7 +808,7 @@ public:
 
 	//-----------------------------------------------------
 	virtual CSG_Shape *				Add_Shape				(CSG_Table_Record *pCopy = NULL, TSG_ADD_Shape_Copy_Mode mCopy = SHAPE_COPY);
-	virtual bool					Del_Shape				(int iShape);
+	virtual bool					Del_Shape				(sLong Index);
 	virtual bool					Del_Shape				(CSG_Shape *pShape);
 	virtual bool					Del_Shapes				(void)					{	return( Del_Records() );	}
 
@@ -824,13 +824,13 @@ public:
 	bool							Make_Clean				(void);
 
 	//-----------------------------------------------------
-	virtual CSG_Shape *				Get_Selection			(int Index = 0)			{	return( (CSG_Shape *)CSG_Table::Get_Selection(Index) );	};
+	virtual CSG_Shape *				Get_Selection			(sLong Index = 0)		{	return( (CSG_Shape *)CSG_Table::Get_Selection(Index) );	};
 	virtual const CSG_Rect &		Get_Selection_Extent	(void);
 
-	virtual bool					Select					(int Index					, bool bInvert = false);
-	virtual bool					Select					(CSG_Shape *pShape = NULL	, bool bInvert = false);
-	virtual bool					Select					(TSG_Rect Extent			, bool bInvert = false);
-	virtual bool					Select					(TSG_Point Point			, bool bInvert = false);
+	virtual bool					Select					(sLong Index             , bool bInvert = false);
+	virtual bool					Select					(CSG_Shape *pShape = NULL, bool bInvert = false);
+	virtual bool					Select					(TSG_Rect Extent         , bool bInvert = false);
+	virtual bool					Select					(TSG_Point Point         , bool bInvert = false);
 
 
 protected:
@@ -850,7 +850,7 @@ protected:
 
 	virtual void					_On_Construction		(void);
 
-	virtual CSG_Table_Record *		_Get_New_Record			(int Index);
+	virtual CSG_Table_Record *		_Get_New_Record			(sLong Index);
 
 
 private:
@@ -885,7 +885,7 @@ SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(const wchar_t    *File);
 SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(const CSG_String &File);
 
 /** Safe shapes construction */
-SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(TSG_Shape_Type Type, const SG_Char *Name = NULL, CSG_Table *pStructure = NULL, TSG_Vertex_Type Vertex_Type = SG_VERTEX_TYPE_XY);
+SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(TSG_Shape_Type Type, const SG_Char *Name = NULL, CSG_Table *pTemplate = NULL, TSG_Vertex_Type Vertex_Type = SG_VERTEX_TYPE_XY);
 
 /** Safe shapes construction */
 SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(CSG_Shapes *pTemplate);
@@ -1137,9 +1137,9 @@ public:
 	size_t						Select_Nearest_Points	(double x, double y, size_t maxPoints, double Radius = 0., int iQuadrant = -1);
 
 	size_t						Get_Selected_Count		(void)     const	{	return( m_Selection.Get_Size() );	}
-	CSG_PRQuadTree_Leaf *		Get_Selected_Leaf		(size_t i) const	{	return( i >= m_Selection.Get_Size() ? NULL : (((TLeaf *)m_Selection.Get_Array()) + i)->pLeaf          );	}
-	double						Get_Selected_Z			(size_t i) const	{	return( i >= m_Selection.Get_Size() ?  0.  : (((TLeaf *)m_Selection.Get_Array()) + i)->pLeaf->Get_Z() );	}
-	double						Get_Selected_Distance	(size_t i) const	{	return( i >= m_Selection.Get_Size() ? -1.  : (((TLeaf *)m_Selection.Get_Array()) + i)->Distance       );	}
+	CSG_PRQuadTree_Leaf *		Get_Selected_Leaf		(size_t i) const	{	return( i >= (size_t)m_Selection.Get_Size() ? NULL : (((TLeaf *)m_Selection.Get_Array()) + i)->pLeaf          );	}
+	double						Get_Selected_Z			(size_t i) const	{	return( i >= (size_t)m_Selection.Get_Size() ?  0.  : (((TLeaf *)m_Selection.Get_Array()) + i)->pLeaf->Get_Z() );	}
+	double						Get_Selected_Distance	(size_t i) const	{	return( i >= (size_t)m_Selection.Get_Size() ? -1.  : (((TLeaf *)m_Selection.Get_Array()) + i)->Distance       );	}
 	bool						Get_Selected_Point		(size_t i, double &x, double &y, double &z) const
 	{
 		CSG_PRQuadTree_Leaf	*pLeaf	= Get_Selected_Leaf(i);

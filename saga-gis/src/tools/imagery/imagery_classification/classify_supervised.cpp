@@ -447,7 +447,7 @@ bool CGrid_Classify_Supervised::Set_Classification(CSG_Classifier_Supervised &Cl
 		}
 
 		//-------------------------------------------------
-		pLUT->asTable()->Set_Record_Count(Classifier.Get_Class_Count());
+		pLUT->asTable()->Set_Count(Classifier.Get_Class_Count());
 
 		for(int i=0; i<Classifier.Get_Class_Count(); i++)
 		{

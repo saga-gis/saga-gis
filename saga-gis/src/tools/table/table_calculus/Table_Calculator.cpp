@@ -227,7 +227,7 @@ bool CTable_Calculator_Base::On_Execute(void)
 {
 	CSG_Table *pTable = Parameters("TABLE")->asTable();
 
-	if( !pTable->is_Valid() || pTable->Get_Field_Count() <= 0 || pTable->Get_Record_Count() <= 0 )
+	if( !pTable->is_Valid() || pTable->Get_Field_Count() <= 0 || pTable->Get_Count() <= 0 )
 	{
 		Error_Set(_TL("invalid table"));
 
@@ -307,7 +307,7 @@ bool CTable_Calculator_Base::On_Execute(void)
 //---------------------------------------------------------
 bool CTable_Calculator_Base::Get_Value(CSG_Table_Record *pRecord)
 {
-	CSG_Vector Values(m_Values.Get_Size());
+	CSG_Vector Values(m_Values.Get_uSize());
 
 	bool bNoData = false;
 

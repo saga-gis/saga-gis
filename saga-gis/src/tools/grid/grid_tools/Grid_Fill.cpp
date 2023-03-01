@@ -206,7 +206,7 @@ int CGrid_Filler::Fill(const TSG_Point &Point)
 	}
 
 	//-----------------------------------------------------
-	int	nReplaced	= 1;
+	sLong	nReplaced	= 1;
 	m_pGrid->Set_Value(x, y, m_zFill);
 	m_Stack.Push(x, y);
 
