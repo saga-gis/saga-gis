@@ -60,7 +60,9 @@ enum
 {
 	FIELD_ID = 0,
 	FIELD_NAME,
-	FIELD_LENGTH,
+	FIELD_WAVE,
+	FIELD_MIN,
+	FIELD_MAX,
 	FIELD_VALUES
 };
 
@@ -112,7 +114,7 @@ CSpectral_Profile::CSpectral_Profile(void)
 
 	Parameters.Add_String("",
 		"LENGTHS"   , _TL("Wave Lengths"),
-		_TL(""),
+		_TL("Space separated wave lengths ordered corresponding to the bands in input list. If empty a simple enumeration will be used instead."),
 		"0.485 0.56 0.66 0.83 1.65 2.215 11.45"
 	);
 
@@ -208,20 +210,24 @@ bool CSpectral_Profile::Initialize(void)
 
 	//-----------------------------------------------------
 	CSG_Vector Length(m_pBands->Get_Grid_Count());
-
 	{
-		CSG_Strings Values = SG_String_Tokenize(Parameters("LENGTHS")->asString(), " ;");
+		CSG_Strings Values = SG_String_Tokenize(Parameters("LENGTHS")->asString(), " ;,");
 
-		if( Length.Get_Size() < Values.Get_Size() )
+		if( Values.Get_Size() < Length.Get_Size() )
 		{
-			SG_UI_Msg_Add_Error(CSG_String::Format("[%s] %s", _TL("Warning"), _TL("There are more bands provided than wave lengths!")));
+			SG_UI_Msg_Add(CSG_String::Format("[%s] %s", _TL("Warning"), _TL("There are more bands provided than wave lengths ...using enumeration instead!")), true, SG_UI_MSG_STYLE_FAILURE);
+
+			for(size_t i=0; i<Length.Get_Size(); i++)
+			{
+				Length[i] = 1. + i;
+			}
 		}
-
-		for(size_t i=0; i<Length.Get_Size(); i++)
+		else
 		{
-			double Value;
-
-			Length[i] = Values[i].asDouble(Value) ? Value : i > 0 ? Length[i - 1] + 1. : 0.;
+			for(size_t i=0; i<Length.Get_Size(); i++)
+			{
+				double Value; Length[i] = Values[i].asDouble(Value) ? Value : i > 0 ? Length[i - 1] + 1. : 0.;
+			}
 		}
 	}
 
@@ -229,17 +235,23 @@ bool CSpectral_Profile::Initialize(void)
 	m_pProfile = Parameters("PROFILE")->asTable();
 	m_pProfile->Destroy();
 	m_pProfile->Set_Name(_TL("Spectral Profile"));
-	m_pProfile->Add_Field("ID"    , SG_DATATYPE_Int   ); // FIELD_ID
-	m_pProfile->Add_Field("NAME"  , SG_DATATYPE_String); // FIELD_NAME
-	m_pProfile->Add_Field("LENGTH", SG_DATATYPE_Double); // FIELD_LENGTH
+	m_pProfile->Add_Field("ID"          , SG_DATATYPE_Int   ); // FIELD_ID
+	m_pProfile->Add_Field("Band Name"   , SG_DATATYPE_String); // FIELD_NAME
+	m_pProfile->Add_Field("Wave Length" , SG_DATATYPE_Double); // FIELD_WAVE
+	m_pProfile->Add_Field("Band Minimum", SG_DATATYPE_Double); // FIELD_MIN
+	m_pProfile->Add_Field("Band Maximum", SG_DATATYPE_Double); // FIELD_MAX
 
 	for(int i=0; i<m_pBands->Get_Grid_Count(); i++)
 	{
-		CSG_Table_Record &Band = *m_pProfile->Add_Record();
+		CSG_Grid *pBand = m_pBands->Get_Grid(i); CSG_Table_Record &Band = *m_pProfile->Add_Record();
 
-		Band.Set_Value(FIELD_ID    , i + 1);
-		Band.Set_Value(FIELD_NAME  , m_pBands->Get_Grid(i)->Get_Name());
-		Band.Set_Value(FIELD_LENGTH, Length[i]);
+		Band.Set_Value(FIELD_ID  , i + 1.);
+		Band.Set_Value(FIELD_NAME, pBand->Get_Name());
+		Band.Set_Value(FIELD_WAVE, Length[i]);
+		Band.Set_Value(FIELD_MIN , pBand->Get_Min());
+		Band.Set_Value(FIELD_MAX , pBand->Get_Max());
+
+		if( i == 0 ) { m_Extent = pBand->Get_Extent(); } else { m_Extent.Union(pBand->Get_Extent()); }
 	}
 
 	//-----------------------------------------------------
@@ -254,17 +266,22 @@ bool CSpectral_Profile::Initialize(void)
 //---------------------------------------------------------
 bool CSpectral_Profile::Add_Profile(const CSG_Point &Point, bool bMultiple)
 {
+	if( !m_Extent.Contains(Point) )
+	{
+		return( false );
+	}
+
 	int Field = bMultiple ? m_pProfile->Get_Field_Count() : FIELD_VALUES;
 
 	if( bMultiple )
 	{
-		CSG_String Name(CSG_String::Format("PROFILE_%02d", 1 + m_pProfile->Get_Field_Count() - FIELD_VALUES));
+		CSG_String Name(CSG_String::Format("Profile-%02d", 1 + m_pProfile->Get_Field_Count() - FIELD_VALUES));
 
 		m_pProfile->Add_Field(Name     , SG_DATATYPE_Double);
 	}
 	else if( Field >= m_pProfile->Get_Field_Count() )
 	{
-		m_pProfile->Add_Field("PROFILE", SG_DATATYPE_Double);
+		m_pProfile->Add_Field("Profile", SG_DATATYPE_Double);
 	}
 
 	for(int i=0; i<m_pBands->Get_Grid_Count(); i++)
@@ -292,28 +309,29 @@ bool CSpectral_Profile::Add_Profile(const CSG_Point &Point, bool bMultiple)
 //---------------------------------------------------------
 bool CSpectral_Profile::Update_Profile(bool bUpdate)
 {
-	CSG_Parameters P; CSG_String Fields(CSG_Parameter_Table_Field::Get_Choices(*m_pProfile, true));
+	CSG_Parameters P; CSG_String Fields(CSG_Parameter_Table_Field::Get_Choices(*m_pProfile, true)), Types("bars|lines|points|points connected with lines");
 
 	P.Add_Int   ("", "WINDOW_ARRANGE", "", "", SG_UI_WINDOW_ARRANGE_MDI_TILE_HOR|SG_UI_WINDOW_ARRANGE_TDI_SPLIT_BOTTOM);
 	P.Add_Bool  ("", "UPDATE"        , "", "", bUpdate); // force parameters update if diagram is already open
 
 	P.Add_Bool  ("", "LEGEND"        , "", "", false);
-	P.Add_Choice("", "X_FIELD"       , "", "", Fields, FIELD_LENGTH); // wave length
+	P.Add_Choice("", "X_FIELD"       , "", "", Fields, FIELD_WAVE); // wave length
 	P.Add_Int   ("", "LINES_SIZE"    , "", "", 2);
 	P.Add_Bool  ("", "AXES_ORIGINS"  , "", "", true);
 	P.Add_Bool  ("", "Y_MIN_FIX"     , "", "", true);
 	P.Add_Double("", "Y_MIN_VAL"     , "", "", 0.);
+	P.Add_Bool  ("", "Y_MAX_FIX"     , "", "", true);
+	P.Add_Double("", "Y_MAX_VAL"     , "", "", m_pProfile->Get_Maximum(FIELD_MAX));
 
-	double max = m_pBands->Get_Grid(0)->Get_Max();
-	if( max <= 255. )
-	{
-		P.Add_Bool  ("", "Y_MAX_FIX" , "", "", true);
-		P.Add_Double("", "Y_MAX_VAL" , "", "", max <= 1. ? 1. : 255.);
-	}
+	P.Add_Bool  ("", CSG_String::Format("FIELD_%d", FIELD_MAX), "", "", true);
+	P.Add_Color ("", CSG_String::Format("COLOR_%d", FIELD_MAX), "", "", SG_COLOR_GREY_LIGHT);
+	P.Add_Choice("", CSG_String::Format("TYPE_%d" , FIELD_MAX), "", "", Types, 0); // bar
 
-	for(int i=FIELD_VALUES; i<m_pProfile->Get_Field_Count(); i++)
+	CSG_Colors Colors(8, SG_COLORS_RAINBOW); Colors.Set_Ramp_Brighness(127, 127);
+	for(int i=FIELD_VALUES, j=1; i<m_pProfile->Get_Field_Count(); i++, j++)
 	{
-		P.Add_Bool("", CSG_String::Format("FIELD_%d", i), "", "", true);
+		P.Add_Bool ("", CSG_String::Format("FIELD_%d", i), "", "", true);
+		P.Add_Color("", CSG_String::Format("COLOR_%d", i), "", "", Colors[j % Colors.Get_Count()]);
 	}
 
 	SG_UI_Diagram_Show(m_pProfile, &P);
@@ -333,24 +351,25 @@ CSpectral_Profile_Interactive::CSpectral_Profile_Interactive(void)
 {
 	m_Profile.Set_Manager(NULL);
 
-	Parameters.Assign_Parameters(&m_Profile.Parameters);
-
 	//-----------------------------------------------------
 	Set_Name		(m_Profile.Get_Name());
 
 	Set_Author		("O.Conrad (c) 2023");
 
 	Set_Description	(_TW(
-		""
-	));
+		"This is the interactive version of the 'Spectral Profile' tool.\n\n"
+		) + m_Profile.Get_Description()
+	);
 
 	//-----------------------------------------------------
+	Parameters.Assign_Parameters(&m_Profile.Parameters);
+
 	Parameters.Del_Parameter("LOCATION");
 
-	Parameters.Add_Table("",
+	Parameters.Add_Shapes("",
 		"LOCATION"  , _TL("Profile Location"),
 		_TL(""),
-		PARAMETER_OUTPUT
+		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Choice("",
@@ -397,26 +416,25 @@ bool CSpectral_Profile_Interactive::On_Execute(void)
 	m_bMultiple = Parameters("COLLECT")->asInt() == 1;
 
 	//-----------------------------------------------------
-	m_pLocation = Parameters("LOCATION")->asTable();
-	m_pLocation->Destroy();
-	m_pLocation->Set_Name(_TL("Profile Location"));
-	m_pLocation->Add_Field("ID"  , SG_DATATYPE_Int   );
-	m_pLocation->Add_Field("NAME", SG_DATATYPE_String);
-	m_pLocation->Add_Field("X"   , SG_DATATYPE_Double);
-	m_pLocation->Add_Field("Y"   , SG_DATATYPE_Double);
+	m_pLocation = Parameters("LOCATION")->asShapes();
+	m_pLocation->Create(SHAPE_TYPE_Point, _TL("Profile Location"));
+	m_pLocation->Add_Field("ID"     , SG_DATATYPE_Int   );
+	m_pLocation->Add_Field("Profile", SG_DATATYPE_String);
 
-	//-----------------------------------------------------
 	if( m_bMultiple == false )
 	{
-		m_pLocation->Add_Record();
-		m_pLocation->Get_Record(0)->Set_Value(0, 1);
-		m_pLocation->Get_Record(0)->Set_Value(1, "PROFILE");
+		CSG_Shape &Location = *m_pLocation->Add_Shape();
 
-		m_Profile.Add_Profile(CSG_Point(0., 0.), false);
+		Location.Set_Value(0, 1);
+		Location.Set_Value(1, "Profile");
+
+		Location.Set_Point(m_Profile.Get_Extent().Get_Center(), 0);
+
+		m_Profile.Add_Profile(Location.Get_Point(0), false);
 	}
 
 	//-----------------------------------------------------
-	m_Profile.Update_Profile();
+	m_Profile.Update_Profile(true);
 
 	return( true );
 }
@@ -429,32 +447,29 @@ bool CSpectral_Profile_Interactive::On_Execute(void)
 //---------------------------------------------------------
 bool CSpectral_Profile_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
-	if( m_bMultiple )
+	if( Mode == TOOL_INTERACTIVE_LDOWN || (!m_bMultiple && Mode == TOOL_INTERACTIVE_MOVE_LDOWN) )
 	{
-		if( Mode != TOOL_INTERACTIVE_LDOWN )
+		if( m_Profile.Add_Profile(ptWorld, m_bMultiple) )
 		{
-			return( true );
+			if( m_bMultiple )
+			{
+				CSG_Shape &Location = *m_pLocation->Add_Shape();
+
+				Location.Set_Value(0, m_pLocation->Get_Count());
+				Location.Set_Value(1, CSG_String::Format("Profile-%02d", 1 + m_pLocation->Get_Count()));
+
+				Location.Set_Point(ptWorld, 0);
+			}
+			else
+			{
+				m_pLocation->Get_Shape(0)->Set_Point(ptWorld, 0);
+			}
+
+			return( m_Profile.Update_Profile(m_bMultiple) );
 		}
-
-		CSG_Table_Record &Location = *m_pLocation->Add_Record();
-
-		Location.Set_Value("ID"  , m_pLocation->Get_Count());
-		Location.Set_Value("NAME", CSG_String::Format("PROFILE_%02d", 1 + m_pLocation->Get_Count()));
-		Location.Set_Value("X"   , ptWorld.x);
-		Location.Set_Value("Y"   , ptWorld.y);
-	}
-	else
-	{
-		if( Mode != TOOL_INTERACTIVE_LDOWN && Mode != TOOL_INTERACTIVE_MOVE_LDOWN )
-		{
-			return( true );
-		}
-
-		m_pLocation->Get_Record(0)->Set_Value("X", ptWorld.x);
-		m_pLocation->Get_Record(0)->Set_Value("Y", ptWorld.y);
 	}
 
-	return( m_Profile.Add_Profile(ptWorld, m_bMultiple) && m_Profile.Update_Profile(m_bMultiple) );
+	return( false );
 }
 
 

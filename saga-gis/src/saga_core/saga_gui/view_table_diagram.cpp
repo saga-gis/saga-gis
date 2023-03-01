@@ -589,6 +589,7 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 	//-----------------------------------------------------
 	m_Parameters.Add_Node  (""            , "NODE_X"            , _TL("X Axis"            ), _TL(""));
 	m_Parameters.Add_Choice("NODE_X"      , "X_FIELD"           , _TL("Values"            ), _TL(""), sFields_Num, nFields_Num);
+	m_Parameters.Add_Choice("X_FIELD"     , "X_DATE_STYLE"      , _TL("Date Style"        ), _TL(""), CSG_String::Format("%s|%s", _TL("horizontal"), _TL("diagonal")), 0);
 	m_Parameters.Add_Choice("NODE_X"      , "X_LABEL"           , _TL("Label"             ), _TL(""), sFields_All, m_pTable->Get_Field_Count());
 
 	//-----------------------------------------------------
@@ -716,10 +717,12 @@ int CVIEW_Table_Diagram_Control::_On_Parameter_Changed(CSG_Parameter *pParameter
 
 		if( pParameter->Cmp_Identifier("X_FIELD") )
 		{
-			bool	bNone	= pParameter->asInt() >= pParameter->asChoice()->Get_Count() - 1;
+			bool bNone = pParameter->asInt() >= pParameter->asChoice()->Get_Count() - 1;
 
-			pParameters->Set_Enabled("Y_SCALE_TO_X", bNone == false);
-			pParameters->Set_Enabled("Y_MAX_FIX"   , bNone || (*pParameters)("Y_SCALE_TO_X")->asBool() == false);
+			pParameters->Set_Enabled("X_DATE_STYLE", !bNone);// && m_pTable->Get_Field_Type(pParameter->asInt()) == SG_DATATYPE_Date);
+
+			pParameters->Set_Enabled("Y_SCALE_TO_X", !bNone);
+			pParameters->Set_Enabled("Y_MAX_FIX"   ,  bNone || (*pParameters)("Y_SCALE_TO_X")->asBool() == false);
 		}
 
 		if( pParameter->Cmp_Identifier("Y_SCALE_TO_X") )
@@ -937,22 +940,38 @@ void CVIEW_Table_Diagram_Control::_Draw_Frame(wxDC &dc, wxRect r, double dx, dou
 			Draw_Scale(dc, wxRect(r.GetLeft(), r.GetBottom(), r.GetWidth(), 20), m_xMin, m_xMax,
 				SCALE_HORIZONTAL , SCALE_TICK_TOP , SCALE_STYLE_DEFAULT, "", true
 			);
+
+			Draw_Text(dc, TEXTALIGN_TOPCENTER, r.GetLeft() + r.GetWidth() / 2, r.GetBottom() + 27, m_pTable->Get_Field_Name(m_xField));
 		}
 		else // if( m_pTable->Get_Field_Type(m_xField) == SG_DATATYPE_Date )
 		{
-			double dStep  = 10 + dyFont;
-			int    nSteps = r.GetWidth() / dStep;
-			double dDay   = (m_xMax - m_xMin) / nSteps;
-
-			for(int iStep=0; iStep<=nSteps; iStep++)
+			if( m_Parameters("X_DATE_STYLE")->asInt() == 0 ) // horizontal
 			{
-				int ix = r.GetLeft() + (int)(dStep * iStep);
+				wxSize Size(dc.GetTextExtent("00.00.0000")); int d = 10 + Size.x;
 
-				dc.DrawLine(ix, r.GetBottom(), ix, r.GetBottom() + 5);	// tic
+				for(int i=d/2; i<r.GetWidth(); i+=d)
+				{
+					int ix = r.GetLeft() + i; dc.DrawLine(ix, r.GetBottom(), ix, r.GetBottom() + 5); // tic
 
-				wxDateTime	Date(m_xMin + dDay * iStep);	// Julian Day Number
+					wxDateTime Date(m_xMin + (m_xMax - m_xMin) * i / (double)r.GetWidth());	// Julian Day Number
 
-				Draw_Text(dc, TEXTALIGN_CENTERRIGHT, ix, r.GetBottom() + 7, 45., Date.Format("%Y-%m-%d"));
+					Draw_Text(dc, TEXTALIGN_TOPCENTER, ix, r.GetBottom() + 7, Date.Format("%d.%m.%Y"));
+				}
+
+				Draw_Text(dc, TEXTALIGN_TOPCENTER, r.GetLeft() + r.GetWidth() / 2, r.GetBottom() + 27, m_pTable->Get_Field_Name(m_xField));
+			}
+			else
+			{
+				double d = 10 + dyFont;
+
+				for(int i=d/2; i<r.GetWidth(); i+=d)
+				{
+					int ix = r.GetLeft() + i; dc.DrawLine(ix, r.GetBottom(), ix, r.GetBottom() + 5); // tic
+
+					wxDateTime Date(m_xMin + (m_xMax - m_xMin) * i / (double)r.GetWidth());	// Julian Day Number
+
+					Draw_Text(dc, TEXTALIGN_CENTERRIGHT, ix, r.GetBottom() + 7, 45., Date.Format("%d.%m.%Y"));
+				}
 			}
 		}
 	}

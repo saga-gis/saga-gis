@@ -89,14 +89,18 @@ protected:
 
 	bool					Update_Profile			(bool bUpdate = false);
 
+	const CSG_Rect &		Get_Extent				(void) const { return( m_Extent ); }
+
 
 private:
 
-	TSG_Grid_Resampling		m_Resampling;
+	TSG_Grid_Resampling		m_Resampling{GRID_RESAMPLING_BSpline};
 
-	CSG_Parameter_Grid_List	*m_pBands;
+	CSG_Rect				m_Extent;
 
-	CSG_Table				*m_pProfile;
+	CSG_Parameter_Grid_List	*m_pBands{NULL};
+
+	CSG_Table				*m_pProfile{NULL};
 
 };
 
@@ -127,7 +131,7 @@ private:
 
 	bool					m_bMultiple{false};
 
-	CSG_Table				*m_pLocation{NULL};
+	CSG_Shapes				*m_pLocation{NULL};
 
 	CSpectral_Profile		m_Profile;
 
