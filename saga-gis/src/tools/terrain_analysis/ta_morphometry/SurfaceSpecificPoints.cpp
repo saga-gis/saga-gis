@@ -177,7 +177,7 @@ void CSurfaceSpecificPoints::Do_MarkHighestNB(CSG_Grid *pGrid, CSG_Grid *pResult
 	chi		= SG_Create_Grid(pGrid, SG_DATATYPE_Char);
 
 	// Pass 1: Auszaehlen...
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
         {
@@ -215,7 +215,7 @@ void CSurfaceSpecificPoints::Do_MarkHighestNB(CSG_Grid *pGrid, CSG_Grid *pResult
 	}
 
 	// Pass 2: Setzen...
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
@@ -257,7 +257,7 @@ void CSurfaceSpecificPoints::Do_OppositeNB(CSG_Grid *pGrid, CSG_Grid *pResult)
 	chi		= SG_Create_Grid(pGrid, SG_DATATYPE_Char);
 
 	// Pass 1: Auszaehlen...
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
         {
@@ -290,7 +290,7 @@ void CSurfaceSpecificPoints::Do_OppositeNB(CSG_Grid *pGrid, CSG_Grid *pResult)
 	}
 
 	// Pass 2: Setzen...
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
@@ -330,7 +330,7 @@ void CSurfaceSpecificPoints::Do_FlowDirection(CSG_Grid *pGrid, CSG_Grid *pResult
 
 	pResult->Assign();
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
         {
@@ -413,7 +413,7 @@ void CSurfaceSpecificPoints::Do_PeuckerDouglas(CSG_Grid *pGrid, CSG_Grid *pResul
 
 	double	d, dPlus, dMinus, z, alt[8];
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{

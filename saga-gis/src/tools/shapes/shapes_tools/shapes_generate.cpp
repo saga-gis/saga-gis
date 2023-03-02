@@ -244,7 +244,7 @@ bool CShapes_Generate::On_Execute(void)
 //---------------------------------------------------------
 bool CShapes_Generate::Generate_Point_Shapes(CSG_Table *pInput, CSG_Shapes *pOutput, int iFieldId, int iFieldX, int iFieldY, int iFieldZ)
 {
-	for (int i=0; i<pInput->Get_Count() && Set_Progress(i, pInput->Get_Count()); i++)
+	for (sLong i=0; i<pInput->Get_Count() && Set_Progress(i, pInput->Get_Count()); i++)
 	{
 		CSG_Table_Record	*pRecord = pInput->Get_Record(i);
 		CSG_Shape			*pShape  = pOutput->Add_Shape();
@@ -272,7 +272,7 @@ bool CShapes_Generate::Generate_Line_Shapes(CSG_Table *pInput, CSG_Shapes *pOutp
 	
 	pShape->Set_Value(0, iID);
 
-	for (int i=0; i<pInput->Get_Count() && Set_Progress(i, pInput->Get_Count()); i++)
+	for (sLong i=0; i<pInput->Get_Count() && Set_Progress(i, pInput->Get_Count()); i++)
 	{
 		CSG_Table_Record	*pRecord = pInput->Get_Record(i);
 
@@ -334,7 +334,7 @@ bool CShapes_Generate::Generate_Polygon_Shapes(CSG_Table *pInput, CSG_Shapes *pO
 		pointAz	= pInput->Get_Record(0)->asDouble(iFieldZ);
 	}
 
-	for (int i=0; i<pInput->Get_Count() && Set_Progress(i, pInput->Get_Count()); i++)
+	for (sLong i=0; i<pInput->Get_Count() && Set_Progress(i, pInput->Get_Count()); i++)
 	{
 		CSG_Table_Record	*pRecord = pInput->Get_Record(i);
 

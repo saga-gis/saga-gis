@@ -814,7 +814,7 @@ bool CKinWav_D8::Gauges_Initialise(void)
 
 		m_pGauges->Add_Field(_TL("ID"), SG_DATATYPE_Int);
 
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			for(int x=0; x<Get_NX(); x++)
 			{

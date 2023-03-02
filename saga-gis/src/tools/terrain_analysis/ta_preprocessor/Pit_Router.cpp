@@ -1023,7 +1023,7 @@ int CPit_Router::Process_Threshold(void)
 	m_Route.Create(Get_System(), SG_DATATYPE_Char);
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
@@ -1045,7 +1045,7 @@ int CPit_Router::Process_Threshold(void)
 	//-----------------------------------------------------
 	Lock_Create();
 
-	for(i=0, n=0; i<Get_NCells() && Set_Progress_NCells(i); i++)
+	for(i=0, n=0; i<Get_NCells() && Set_Progress_Cells(i); i++)
 	{
 		if( m_pDEM->Get_Sorted(i, x, y, false) && m_pPits->asInt(x, y) )
 		{
@@ -1062,7 +1062,7 @@ int CPit_Router::Process_Threshold(void)
 	Lock_Destroy();
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{

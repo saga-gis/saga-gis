@@ -138,7 +138,7 @@ bool CPC_Drop_Attribute::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(sLong i=0; i<pInput->Get_Point_Count() && SG_UI_Process_Set_Progress(i, pInput->Get_Count()); i++)
+	for(sLong i=0; i<pInput->Get_Count() && SG_UI_Process_Set_Progress(i, pInput->Get_Count()); i++)
 	{
 		pOutput->Add_Point(pInput->Get_X(i), pInput->Get_Y(i), pInput->Get_Z(i));
 

@@ -251,7 +251,7 @@ bool CSHALSTAB::On_Execute(void)
 	pJmax	= Parameters("Jmax"	)->asGrid();		//bulk cohesion
 
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)

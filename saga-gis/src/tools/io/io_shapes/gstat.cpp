@@ -107,8 +107,6 @@ bool CGStat_Export::On_Execute(void)
 		return( false );
 	}
 
-	int	iShape, iPart, iPoint, iField;
-
 	CSG_Shapes	*pShapes	= Parameters("SHAPES")->asShapes();
 
 	switch( pShapes->Get_Type() )
@@ -120,7 +118,7 @@ bool CGStat_Export::On_Execute(void)
 			pShapes->Get_Field_Count() + 2
 		);
 
-		for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
+		for(int iField=0; iField<pShapes->Get_Field_Count(); iField++)
 		{
 			if( pShapes->Get_Field_Type(iField) == SG_DATATYPE_String )
 			{
@@ -132,19 +130,19 @@ bool CGStat_Export::On_Execute(void)
 			}
 		}
 
-		for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		for(sLong iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
 			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
 
-			for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
-				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
 					TSG_Point	Point	= pShape->Get_Point(iPoint, iPart);
 
 					Stream.Printf("\n%f\t%f", Point.x, Point.y);
 
-					for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
+					for(int iField=0; iField<pShapes->Get_Field_Count(); iField++)
 					{
 						if( pShapes->Get_Field_Type(iField) == SG_DATATYPE_String )
 						{
@@ -164,11 +162,11 @@ bool CGStat_Export::On_Execute(void)
 	case SHAPE_TYPE_Line:
 		Stream.Printf("EXP %s\nARC ", pShapes->Get_Name());
 
-		for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape,pShapes->Get_Count()); iShape++)
+		for(sLong iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape,pShapes->Get_Count()); iShape++)
 		{
 			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
 
-			for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
 				//I_ok...
 				Stream.Printf("%d ", iShape + 1);
@@ -177,7 +175,7 @@ bool CGStat_Export::On_Execute(void)
 				// I_np...
 				Stream.Printf("%d ", pShape->Get_Point_Count(iPart));
 
-				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
 					TSG_Point	Point	= pShape->Get_Point(iPoint, iPart);
 
@@ -191,11 +189,11 @@ bool CGStat_Export::On_Execute(void)
 	case SHAPE_TYPE_Polygon:
 		Stream.Printf("EXP %s\nARC ", pShapes->Get_Name());
 
-		for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		for(sLong iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
 			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
 
-			for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
 				//I_ok...
 				Stream.Printf("%d ", iShape + 1);
@@ -204,7 +202,7 @@ bool CGStat_Export::On_Execute(void)
 				// I_np...
 				Stream.Printf("%d ", pShape->Get_Point_Count(iPart));
 
-				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
 					TSG_Point	Point	= pShape->Get_Point(iPoint, iPart);
 
@@ -308,7 +306,7 @@ bool CGStat_Import::On_Execute(void)
 		}
 
 		//-------------------------------------------------
-		while( !Stream.is_EOF() && Set_Progress((int)Stream.Tell(), fLength) )
+		while( !Stream.is_EOF() && Set_Progress(Stream.Tell(), fLength) )
 		{
 			double	x	= Stream.Scan_Double();
 			double	y	= Stream.Scan_Double();
@@ -358,7 +356,7 @@ bool CGStat_Import::On_Execute(void)
 			pShapes->Add_Field("VALUE", SG_DATATYPE_Double);
 
 			//-----------------------------------------
-			while( !Stream.is_EOF() && Set_Progress((int)Stream.Tell(), fLength) )
+			while( !Stream.is_EOF() && Set_Progress(Stream.Tell(), fLength) )
 			{
 				double	Value	= Stream.Scan_Double();	// i_ok...
 				Stream.Scan_Int();	// dummy 1..5

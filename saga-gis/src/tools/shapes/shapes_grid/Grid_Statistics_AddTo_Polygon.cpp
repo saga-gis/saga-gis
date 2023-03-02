@@ -284,7 +284,7 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 			}
 
 			//---------------------------------------------
-			for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
+			for(sLong i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 			{
 				CSG_Shape	*pPolygon	= pPolygons->Get_Shape(i);
 
@@ -351,14 +351,14 @@ bool CGrid_Statistics_AddTo_Polygon::Get_Precise(CSG_Grid *pGrid, CSG_Shapes *pP
 	if( bParallelized )
 	{
 		#pragma omp parallel for
-		for(int i=0; i<pPolygons->Get_Count(); i++)
+		for(sLong i=0; i<pPolygons->Get_Count(); i++)
 		{
 			Get_Precise(pGrid, (CSG_Shape_Polygon *)pPolygons->Get_Shape(i), Statistics[i], bHoldValues, Method);
 		}
 	}
 	else
 	{
-		for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
+		for(sLong i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 		{
 			Get_Precise(pGrid, (CSG_Shape_Polygon *)pPolygons->Get_Shape(i), Statistics[i], bHoldValues, Method);
 		}
@@ -462,20 +462,18 @@ bool CGrid_Statistics_AddTo_Polygon::Get_Precise(CSG_Grid *pGrid, CSG_Shape_Poly
 //---------------------------------------------------------
 bool CGrid_Statistics_AddTo_Polygon::Get_Simple(CSG_Grid *pGrid, CSG_Shapes *pPolygons, CSG_Simple_Statistics *Statistics, bool bHoldValues, CSG_Grid &Index)
 {
-	int		i;
-
-	for(i=0; i<pPolygons->Get_Count(); i++)
+	for(sLong i=0; i<pPolygons->Get_Count(); i++)
 	{
 		Statistics[i].Create(bHoldValues);
 	}
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		for(int x=0; x<Get_NX(); x++)
+		for(int x=0, i; x<Get_NX(); x++)
 		{
 			if( !pGrid->is_NoData(x, y) && (i = Index.asInt(x, y)) >= 0 && i < pPolygons->Get_Count() )
 			{
-				Statistics[i]	+= pGrid->asDouble(x, y);
+				Statistics[i] += pGrid->asDouble(x, y);
 			}
 		}
 	}
@@ -486,77 +484,69 @@ bool CGrid_Statistics_AddTo_Polygon::Get_Simple(CSG_Grid *pGrid, CSG_Shapes *pPo
 //---------------------------------------------------------
 bool CGrid_Statistics_AddTo_Polygon::Get_Simple_Index(CSG_Shapes *pPolygons, CSG_Grid &Index)
 {
-	bool		bFill, *bCrossing;
-	int			x, y, ix, xStart, xStop, iShape, iPart, iPoint;
-	double		yPos;
-	TSG_Point	pLeft, pRight, pa, pb, p;
-	TSG_Rect	Extent;
-	CSG_Shape	*pPolygon;
-
-	//-----------------------------------------------------
 	Index.Create(Get_System(), pPolygons->Get_Count() < 32767 ? SG_DATATYPE_Short : SG_DATATYPE_Int);
-	Index.Assign(-1.0);
+	Index.Assign(-1.);
 
-	bCrossing	= (bool *)SG_Malloc(Get_NX() * sizeof(bool));
+	bool *bCrossing = (bool *)SG_Malloc(Get_NX() * sizeof(bool));
 
 	//-----------------------------------------------------
-	for(iShape=0; iShape<pPolygons->Get_Count() && Set_Progress(iShape, pPolygons->Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<pPolygons->Get_Count() && Set_Progress(iShape, pPolygons->Get_Count()); iShape++)
 	{
-		pPolygon	= pPolygons->Get_Shape(iShape);
-		Extent		= pPolygon->Get_Extent().m_rect;
+		CSG_Shape *pPolygon = pPolygons->Get_Shape(iShape); TSG_Rect Extent = pPolygon->Get_Extent().m_rect;
 
-		xStart		= Get_System().Get_xWorld_to_Grid(Extent.xMin) - 1;	if( xStart < 0 )		xStart	= 0;
-		xStop		= Get_System().Get_xWorld_to_Grid(Extent.xMax) + 1;	if( xStop >= Get_NX() )	xStop	= Get_NX() - 1;
+		int xStart = Get_System().Get_xWorld_to_Grid(Extent.xMin) - 1;	if( xStart < 0 )		xStart	= 0;
+		int xStop  = Get_System().Get_xWorld_to_Grid(Extent.xMax) + 1;	if( xStop >= Get_NX() )	xStop	= Get_NX() - 1;
 
-		pLeft.x		= Get_XMin() - 1.0;
-		pRight.x	= Get_XMax() + 1.0;
+		CSG_Point Left (Get_XMin() - 1., 0.);
+		CSG_Point Right(Get_XMax() + 1., 0.);
 
 		//-------------------------------------------------
-		for(y=0, yPos=Get_YMin(); y<Get_NY(); y++, yPos+=Get_Cellsize())
+		for(int y=0; y<Get_NY(); y++)
 		{
+			double yPos = Get_YMin() + y * Get_Cellsize();
+
 			if( yPos >= Extent.yMin && yPos <= Extent.yMax )
 			{
 				memset(bCrossing, 0, Get_NX() * sizeof(bool));
 
-				pLeft.y	= pRight.y	= yPos;
+				Left.y = Right.y = yPos;
 
 				//-----------------------------------------
-				for(iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
+				for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
 				{
-					pb		= pPolygon->Get_Point(pPolygon->Get_Point_Count(iPart) - 1, iPart);
+					CSG_Point B = pPolygon->Get_Point(pPolygon->Get_Point_Count(iPart) - 1, iPart);
 
-					for(iPoint=0; iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
+					for(int iPoint=0; iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
 					{
-						pa	= pb;
-						pb	= pPolygon->Get_Point(iPoint, iPart);
+						CSG_Point A = B; B = pPolygon->Get_Point(iPoint, iPart);
 
-						if(	(	(pa.y <= yPos && yPos < pb.y)
-							||	(pa.y > yPos && yPos >= pb.y)	)	)
+						if( ((A.y <= yPos && yPos <  B.y)
+						||   (A.y >  yPos && yPos >= B.y)) )
 						{
-							SG_Get_Crossing(p, pa, pb, pLeft, pRight, false);
+							TSG_Point C; SG_Get_Crossing(C, A, B, Left, Right, false);
 
-							ix	= (int)((p.x - Get_XMin()) / Get_Cellsize() + 1.0);
+							int ix = (int)((C.x - Get_XMin()) / Get_Cellsize() + 1.);
 
-							if( ix < 0)
+							if( ix < 0 )
 							{
-								ix	= 0;
+								ix = 0;
 							}
 							else if( ix >= Get_NX() )
 							{
 								continue;
 							}
 
-							bCrossing[ix]	= !bCrossing[ix];
+							bCrossing[ix] = !bCrossing[ix];
 						}
 					}
 				}
 
 				//-----------------------------------------
-				for(x=xStart, bFill=false; x<=xStop; x++)
+				for(int x=xStart, bFill=0; x<=xStop; x++)
 				{
 					if( bCrossing[x] )
 					{
-						bFill	= !bFill;
+						bFill = bFill ? 0 : 1;
 					}
 
 					if( bFill )

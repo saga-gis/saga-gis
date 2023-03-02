@@ -493,7 +493,7 @@ bool CPointCloud_Create_SPCVF::On_Execute(void)
 			}
 
 			//-----------------------------------------------------
-			if( pPC->Get_Point_Count() <= 0 )
+			if( pPC->Get_Count() <= 0 )
 			{
 				delete( pPC );
 				iEmpty++;
@@ -539,7 +539,7 @@ bool CPointCloud_Create_SPCVF::On_Execute(void)
 				dBBoxYMax = pPC->Get_Extent().Get_YMax();
 		
 			iDatasetCount	+= 1;
-			dPointCount		+= pPC->Get_Point_Count();
+			dPointCount		+= pPC->Get_Count();
 
 			if( dZMin > pPC->Get_ZMin() )
 				dZMin = pPC->Get_ZMin();

@@ -83,7 +83,7 @@ bool CFlowDepth::On_Execute(void){
 	Process_Set_Text(_TL("Calculating Catchment Area..."));
 	CalculateFlowAccGrid(m_pCatchArea, m_pDEM);
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{		
 		for(int x=0; x<Get_NX(); x++)
 		{
@@ -159,7 +159,7 @@ bool CFlowDepth::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mod
 
 	m_fMaxFlowAcc = m_pCatchArea->asFloat(iOutletX, iOutletY);		
     
-    for(y=0; y<Get_NY() && Set_Progress(y); y++){		
+    for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++){		
 		for(x=0; x<Get_NX(); x++){
 			if (m_pCatchArea->asFloat(x,y) > m_dThreshold){
 				if (isHeader(x,y)){					

@@ -186,7 +186,7 @@ bool CGrid_Values_AddTo_Shapes::On_Execute(void)
 
 		pShapes->Add_Field(pGrid->Get_Name(), SG_DATATYPE_Double);
 
-		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		for(sLong iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
 			CSG_Simple_Statistics	Statistics;
 

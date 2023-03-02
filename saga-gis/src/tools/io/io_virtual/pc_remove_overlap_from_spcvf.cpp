@@ -213,7 +213,7 @@ bool CPointCloud_Remove_Overlap_From_SPCVF::On_Execute(void)
 			}
 		}
 
-		if( pPC_out->Get_Point_Count() > 0 )
+		if( pPC_out->Get_Count() > 0 )
 		{
 			CSG_String	sPath;
 

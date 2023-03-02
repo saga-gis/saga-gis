@@ -173,7 +173,7 @@ bool CPolygonStatisticsFromPoints::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Simple_Statistics	*Statistics	= new CSG_Simple_Statistics[pFields->Get_Count()];
 
-	for(int iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
+	for(sLong iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
 	{
 		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
 

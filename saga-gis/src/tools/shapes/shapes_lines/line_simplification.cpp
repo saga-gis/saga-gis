@@ -188,7 +188,7 @@ bool CLine_Simplification::On_Execute(void)
 	int	nTotal		= 0;
 	int	nRemoved	= 0;
 
-	for(int iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
+	for(sLong iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
 	{
 		CSG_Shape	*pLine	= pLines->Get_Shape(iLine);
 

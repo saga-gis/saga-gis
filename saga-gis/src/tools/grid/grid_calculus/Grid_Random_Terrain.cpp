@@ -125,8 +125,8 @@ bool CGrid_Random_Terrain::On_Execute(void)
 //---------------------------------------------------------
 void CGrid_Random_Terrain::Add_Bump(void)
 {
-	int	x	= CSG_Random::Get_Uniform(-m_Radius, m_Radius + m_pGrid->Get_NX());
-	int	y	= CSG_Random::Get_Uniform(-m_Radius, m_Radius + m_pGrid->Get_NY());
+	int	x	= (int)CSG_Random::Get_Uniform(-m_Radius, m_Radius + m_pGrid->Get_NX());
+	int	y	= (int)CSG_Random::Get_Uniform(-m_Radius, m_Radius + m_pGrid->Get_NY());
 
 	for(int i=0; i<m_Kernel.Get_Count(); i++)
 	{

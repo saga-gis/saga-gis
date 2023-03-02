@@ -161,7 +161,7 @@ bool CPolygon_Overlay::Get_Intersection(CSG_Shapes *pA, CSG_Shapes *pB)
 	CSG_Shape_Polygon	*pResult	= (CSG_Shape_Polygon *)Result.Add_Shape();
 
 	//-----------------------------------------------------
-	for(int id_A=0; id_A<m_pA->Get_Count() && Set_Progress(id_A, m_pA->Get_Count()); id_A++)
+	for(sLong id_A=0; id_A<m_pA->Get_Count() && Set_Progress(id_A, m_pA->Get_Count()); id_A++)
 	{
 		for(int id_B=0; id_B<m_pB->Get_Count(); id_B++)
 		{
@@ -193,7 +193,7 @@ bool CPolygon_Overlay::Get_Difference(CSG_Shapes *pA, CSG_Shapes *pB, bool bInve
 	CSG_Shape_Polygon	*pResult	= (CSG_Shape_Polygon *)Result.Add_Shape();
 
 	//-----------------------------------------------------
-	for(int id_A=0; id_A<m_pA->Get_Count() && Set_Progress(id_A, m_pA->Get_Count()); id_A++)
+	for(sLong id_A=0; id_A<m_pA->Get_Count() && Set_Progress(id_A, m_pA->Get_Count()); id_A++)
 	{
 		pResult->Assign(m_pA->Get_Shape(id_A), false);
 

@@ -132,13 +132,13 @@ CGrid_Gaps_Spline_Fill::CGrid_Gaps_Spline_Fill(void)
 	Parameters.Add_Int(
 		"", "RADIUS"		, _TL("Radius (Cells)"),
 		_TL(""),
-		0.0, 0.0, true
+		0, 0, true
 	);
 
 	Parameters.Add_Double(
 		"", "RELAXATION"	, _TL("Relaxation"),
 		_TL(""),
-		0.0, 0.0, true
+		0., 0., true
 	);
 }
 
@@ -186,10 +186,10 @@ bool CGrid_Gaps_Spline_Fill::On_Execute(void)
 
 	//-----------------------------------------------------
 	m_Gaps.Create(Get_System(), SG_DATATYPE_Int);
-	m_Gaps.Assign(0.0);
+	m_Gaps.Assign(0.);
 	m_nGaps	= 0;
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{

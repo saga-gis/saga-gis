@@ -250,7 +250,7 @@ void CFlow_Parallel::On_Initialize(void)
 //---------------------------------------------------------
 bool CFlow_Parallel::Calculate(void)
 {
-	for(int y=0; y<Get_NY() && Set_Progress(y); y+=m_Step)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y+=m_Step)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x+=m_Step)
@@ -309,7 +309,7 @@ bool CFlow_Parallel::Set_Flow(void)
 	}
 
 	//-----------------------------------------------------
-	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(sLong n=0; n<Get_NCells() && Set_Progress_Cells(n); n++)
 	{
 		int		x, y;
 
@@ -349,7 +349,7 @@ bool CFlow_Parallel::Set_Flow(void)
 	//-----------------------------------------------------
 	if( m_pRoute )
 	{
-		for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+		for(sLong n=0; n<Get_NCells() && Set_Progress_Cells(n); n++)
 		{
 			int		x, y;
 

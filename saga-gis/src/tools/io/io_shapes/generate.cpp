@@ -131,7 +131,7 @@ bool CGenerate_Export::On_Execute(void)
 	Stream.Printf(SG_T("EXP %s\nARC "), pShapes->Get_Name());
 
 	//-----------------------------------------------------
-	for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 	{
 		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
 

@@ -134,7 +134,7 @@ bool CSelect_Location::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int i=0; i<m_pShapes->Get_Count() && Set_Progress(i, m_pShapes->Get_Count()); i++)
+	for(sLong i=0; i<m_pShapes->Get_Count() && Set_Progress(i, m_pShapes->Get_Count()); i++)
 	{
 		CSG_Shape	*pShape	= m_pShapes->Get_Shape(i);
 
@@ -187,7 +187,7 @@ bool CSelect_Location::On_Execute(void)
 //---------------------------------------------------------
 bool CSelect_Location::Do_Select(CSG_Shape *pShape, int Condition)
 {
-	for(int i=0; i<m_pLocations->Get_Count() && Process_Get_Okay(); i++)
+	for(sLong i=0; i<m_pLocations->Get_Count() && Process_Get_Okay(); i++)
 	{
 		CSG_Shape	*pLocation	= m_pLocations->Get_Shape(i);
 

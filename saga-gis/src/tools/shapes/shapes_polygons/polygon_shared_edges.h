@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: polygon_shared_edges.h 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//                                                       //												
-//                                                       //												
-//                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__polygon_shared_edges_H
 #define HEADER_INCLUDED__polygon_shared_edges_H
 
@@ -69,7 +57,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -81,19 +69,18 @@
 //---------------------------------------------------------
 class CPolygon_Shared_Edges : public CSG_Tool
 {
-public: ////// public members and functions: //////////////
-
+public:
 	CPolygon_Shared_Edges(void);
 
 //	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Landsat") );	}
 
 
-protected: /// protected members and functions: ///////////
+protected:
 
 	virtual bool		On_Execute				(void);
 
 
-private: ///// private members and functions: /////////////
+private:
 
 	bool				m_bDouble;
 
@@ -118,19 +105,18 @@ private: ///// private members and functions: /////////////
 //---------------------------------------------------------
 class CPolygon_Vertex_Check : public CSG_Tool
 {
-public: ////// public members and functions: //////////////
-
+public:
 	CPolygon_Vertex_Check(void);
 
 //	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Landsat") );	}
 
 
-protected: /// protected members and functions: ///////////
+protected:
 
 	virtual bool		On_Execute				(void);
 
 
-private: ///// private members and functions: /////////////
+private:
 
 	CSG_Shapes			*m_pAdded;
 

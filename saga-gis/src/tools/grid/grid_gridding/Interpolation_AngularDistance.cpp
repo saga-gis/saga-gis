@@ -134,17 +134,17 @@ bool CInterpolation_AngularDistance::On_Initialize(void)
 
 	m_Points.Create(3, pPoints->Get_Count());
 
-	int	n	= 0;
+	int n = 0;
 
-	for(int i=0; i<pPoints->Get_Count(); i++)
+	for(sLong i=0; i<pPoints->Get_Count(); i++)
 	{
-		CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
+		CSG_Shape *pPoint = pPoints->Get_Shape(i);
 
 		if( !pPoint->is_NoData(Field) )
 		{
-			m_Points[n][0]	= pPoint->Get_Point(0).x;
-			m_Points[n][1]	= pPoint->Get_Point(0).y;
-			m_Points[n][2]	= pPoint->asDouble(Field);
+			m_Points[n][0] = pPoint->Get_Point(0).x;
+			m_Points[n][1] = pPoint->Get_Point(0).y;
+			m_Points[n][2] = pPoint->asDouble(Field);
 
 			n++;
 		}
@@ -185,11 +185,11 @@ bool CInterpolation_AngularDistance::On_Finalize(void)
 //---------------------------------------------------------
 bool CInterpolation_AngularDistance::Get_Value(double x, double y, double &z)
 {
-	int	nPoints;	const double	**Points;	CSG_Array_Pointer	__Points;
+	int nPoints; const double **Points; CSG_Array_Pointer __Points;
 
 	if( m_Search.is_Okay() )	// local
 	{
-		CSG_Array_Int	Index;	CSG_Vector	Distance;
+		CSG_Array_Int Index; CSG_Vector Distance;
 
 		if( m_Search.Get_Nearest_Points(x, y,
 			m_Search_Options.Get_Max_Points(),
@@ -199,38 +199,38 @@ bool CInterpolation_AngularDistance::Get_Value(double x, double y, double &z)
 			return( false );
 		}
 
-		nPoints	= (int)Index.Get_Size();
-		Points	= (const double **)__Points.Create(Index.Get_Size());
+		nPoints = (int)Index.Get_Size();
+		Points  = (const double **)__Points.Create(Index.Get_Size());
 
-		for(size_t i=0; i<Index.Get_Size(); i++)
+		for(int i=0; i<(int)Index.Get_Size(); i++)
 		{
-			Points[i]	= m_Points[Index[i]];
+			Points[i] = m_Points[Index[i]];
 		}
 	}
 	else	// global
 	{
-		nPoints	= m_Points.Get_NRows();
-		Points	= m_Points;
+		nPoints = m_Points.Get_NRows();
+		Points  = m_Points;
 	}
 
 	//-----------------------------------------------------
-	CSG_Vector	D(nPoints), W(nPoints);
+	CSG_Vector D(nPoints), W(nPoints);
 
 	for(int i=0; i<nPoints; i++)
 	{
-		D[i]	= SG_Get_Distance(x, y, Points[i][0], Points[i][1]);
-		W[i]	= m_Weighting.Get_Weight(D[i]);
+		D[i] = SG_Get_Distance(x, y, Points[i][0], Points[i][1]);
+		W[i] = m_Weighting.Get_Weight(D[i]);
 
 		if( D[i] <= 0. )
 		{
-			z	= Points[i][2];
+			z = Points[i][2];
 
 			return( true );
 		}
 	}
 
 	//-----------------------------------------------------
-	CSG_Simple_Statistics	s;
+	CSG_Simple_Statistics s;
 
 	for(int i=0; i<nPoints; i++)
 	{

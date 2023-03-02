@@ -178,7 +178,7 @@ bool CTable_Aggregate_by_Field::On_Execute(void)
 
 	Aggregate.Set_Count(pTable->Get_Count());
 
-	for(int i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
+	for(sLong i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
 	{
 		CSG_Table_Record	*pRecord	= pTable->Get_Record(i);
 
@@ -224,7 +224,7 @@ bool CTable_Aggregate_by_Field::On_Execute(void)
 	CSG_Table_Record	*pAggregate	= NULL;
 
 	//-----------------------------------------------------
-	for(int i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
+	for(sLong i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
 	{
 		CSG_Table_Record	*pRecord	= pTable->Get_Record(!Aggregate.Get_Count() ? i : Aggregate[i].asInt(0));
 

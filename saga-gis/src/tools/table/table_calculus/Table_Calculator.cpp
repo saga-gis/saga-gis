@@ -277,14 +277,14 @@ bool CTable_Calculator_Base::On_Execute(void)
 
 	if( pTable->Get_Selection_Count() > 0 && Parameters("SELECTION")->asBool() )
 	{
-		for(size_t i=0; i<pTable->Get_Selection_Count() && Set_Progress((int)i, (int)pTable->Get_Selection_Count()); i++)
+		for(sLong i=0; i<pTable->Get_Selection_Count() && Set_Progress(i, pTable->Get_Selection_Count()); i++)
 		{
 			Get_Value(pTable->Get_Selection(i));
 		}
 	}
 	else
 	{
-		for(int i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
+		for(sLong i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
 		{
 			Get_Value(pTable->Get_Record(i));
 		}

@@ -248,7 +248,7 @@ bool CGrid_Classify_Supervised::On_Execute(void)
 
 	int	Method	= Parameters("METHOD")->asInt();
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -370,7 +370,7 @@ bool CGrid_Classify_Supervised::Set_Classifier(CSG_Classifier_Supervised &Classi
 	//-----------------------------------------------------
 	TSG_Point	p;	p.y	= Get_YMin();
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++, p.y+=Get_Cellsize())
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++, p.y+=Get_Cellsize())
 	{
 		p.x	= Get_XMin();
 

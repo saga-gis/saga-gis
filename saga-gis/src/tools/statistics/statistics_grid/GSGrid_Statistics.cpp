@@ -213,7 +213,7 @@ bool CGSGrid_Statistics::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -353,7 +353,7 @@ bool CGSGrid_Unique_Value_Statistics::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -742,7 +742,7 @@ bool CGSGrid_Histogram::On_Execute(void)
 	//-----------------------------------------------------
 	if( Parameters("PARALLEL")->asBool() == false )
 	{
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			for(int x=0; x<Get_NX(); x+=Step)
 			{
@@ -761,7 +761,7 @@ bool CGSGrid_Histogram::On_Execute(void)
 			Histograms[iThread].Create(Histogram);
 		}
 
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			#pragma omp parallel for
 			for(int x=0; x<Get_NX(); x+=Step)

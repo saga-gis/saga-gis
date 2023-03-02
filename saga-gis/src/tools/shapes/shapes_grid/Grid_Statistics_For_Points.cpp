@@ -233,7 +233,7 @@ bool CGrid_Statistics_For_Points::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
+	for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 	{
 		CSG_Shape	*pPoint	= pPoints->Get_Shape(iPoint);
 

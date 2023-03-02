@@ -173,7 +173,7 @@ bool CDiversity_Analysis::On_Execute(void)
 	m_Normalize	= Parameters("NORMALIZE")->asInt();
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#ifndef _DEBUG
 		#pragma omp parallel for

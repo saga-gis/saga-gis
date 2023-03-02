@@ -336,7 +336,7 @@ bool CGW_Multi_Regression_Grid::Initialize(CSG_Shapes *pPoints, int iDependent, 
 	}
 
 	//-----------------------------------------------------
-	for(int iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
+	for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 	{
 		CSG_Shape	*pPoint	= pPoints->Get_Shape(iPoint);
 
@@ -481,7 +481,7 @@ bool CGW_Multi_Regression_Grid::Set_Model(void)
 	}
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		double	p_y	= Get_YMin() + y * Get_Cellsize();
 
@@ -555,7 +555,7 @@ bool CGW_Multi_Regression_Grid::Set_Residuals(void)
 	pResiduals->Add_Field("RESIDUAL", SG_DATATYPE_Double);
 
 	//-------------------------------------------------
-	for(int iShape=0; iShape<m_Points.Get_Count() && Set_Progress(iShape, m_Points.Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<m_Points.Get_Count() && Set_Progress(iShape, m_Points.Get_Count()); iShape++)
 	{
 		CSG_Shape	*pShape	= m_Points.Get_Shape(iShape);
 		double		 zShape	= pShape->asDouble(0);

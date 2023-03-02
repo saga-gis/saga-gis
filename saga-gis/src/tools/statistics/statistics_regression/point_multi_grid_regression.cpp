@@ -374,7 +374,7 @@ bool CPoint_Multi_Grid_Regression::Get_Samples(CSG_Parameter_Grid_List *pGrids, 
 	Sample.Create(1 + pGrids->Get_Grid_Count() + (bCoord_X ? 1 : 0) + (bCoord_Y ? 1 : 0));
 
 	//-----------------------------------------------------
-	for(int iShape=0; iShape<pPoints->Get_Count() && Set_Progress(iShape, pPoints->Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<pPoints->Get_Count() && Set_Progress(iShape, pPoints->Get_Count()); iShape++)
 	{
 		CSG_Shape	*pShape	= pPoints->Get_Shape(iShape);
 
@@ -468,7 +468,7 @@ bool CPoint_Multi_Grid_Regression::Set_Regression(CSG_Parameter_Grid_List *pGrid
 	pRegression->Set_Name(Name);
 
 	//-----------------------------------------------------
-	for(y=0, p.y=Get_YMin(); y<Get_NY() && Set_Progress(y); y++, p.y+=Get_Cellsize())
+	for(y=0, p.y=Get_YMin(); y<Get_NY() && Set_Progress_Rows(y); y++, p.y+=Get_Cellsize())
 	{
 		for(x=0, p.x=Get_XMin(); x<Get_NX(); x++, p.x+=Get_Cellsize())
 		{
@@ -552,7 +552,7 @@ bool CPoint_Multi_Grid_Regression::Set_Residuals(CSG_Shapes *pResiduals)
 	pResiduals->Add_Field("RESIDUAL", SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
-	for(int iShape=0; iShape<pPoints->Get_Count() && Set_Progress(iShape, pPoints->Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<pPoints->Get_Count() && Set_Progress(iShape, pPoints->Get_Count()); iShape++)
 	{
 		CSG_Shape	*pShape	= pPoints->Get_Shape(iShape);
 

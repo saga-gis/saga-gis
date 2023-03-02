@@ -113,7 +113,7 @@ bool CInterpolation_NaturalNeighbour::Interpolate(void)
 
 	int nn_nPoints = 0; point *nn_pPoints = (point *)SG_Malloc(pPoints->Get_Count() * sizeof(point));
 
-	for(int iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
+	for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 	{
 		CSG_Shape *pShape = pPoints->Get_Shape(iPoint);
 

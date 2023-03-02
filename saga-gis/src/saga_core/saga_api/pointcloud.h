@@ -158,8 +158,6 @@ public:
 	bool							Del_Point			(sLong Index);
 	bool							Del_Points			(void);
 
-	sLong							Get_Point_Count		(void)			const	{	return( m_nRecords );	}
-
 	//-----------------------------------------------------
 	bool							Set_Cursor			(sLong Index)							{	return( (m_Cursor = Index >= 0 && Index < m_nRecords ? m_Points[Index] : NULL) != NULL );	}
 	virtual bool					Set_Value			(             int Field, double Value)	{	return( _Set_Field_Value(m_Cursor, Field, Value) );	}

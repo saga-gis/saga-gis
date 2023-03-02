@@ -184,7 +184,7 @@ bool CRemove_Duplicates::On_Execute(void)
 
 	m_pPoints->Select();
 
-	for(int i=0; i<m_pPoints->Get_Count() && Set_Progress(i, m_pPoints->Get_Count()); i++)
+	for(sLong i=0; i<m_pPoints->Get_Count() && Set_Progress(i, m_pPoints->Get_Count()); i++)
 	{
 		CSG_Shape	*pPoint	= m_pPoints->Get_Shape(i);
 

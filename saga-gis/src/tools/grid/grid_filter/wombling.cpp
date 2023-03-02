@@ -359,7 +359,7 @@ bool CWombling_Base::Get_Edge_Lines(CSG_Grid Gradient[2], CSG_Grid *pEdge)
 	pLines->Add_Field("ID"   , SG_DATATYPE_Int);
 	pLines->Add_Field("ANGLE", SG_DATATYPE_Double);
 
-	for(int y=0; y<Gradient[0].Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Gradient[0].Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Gradient[0].Get_NX(); x++)
 		{

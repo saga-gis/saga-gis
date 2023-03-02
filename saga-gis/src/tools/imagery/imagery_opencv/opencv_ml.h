@@ -117,7 +117,7 @@ protected:
 	virtual bool				On_Execute				(void);
 
 	int							Get_Feature_Count		(void)	{	return( m_pFeatures->Get_Grid_Count() );	}
-	int							Get_Class_Count			(void)	{	return( m_Classes   .Get_Count     () );	}
+	int							Get_Class_Count			(void)	{	return( (int)m_Classes   .Get_Count() );	}
 
 	bool						Check_Model_File		(const CSG_String &File);
 

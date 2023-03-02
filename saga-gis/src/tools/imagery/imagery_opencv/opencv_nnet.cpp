@@ -523,7 +523,7 @@ bool COpenCV_NNet::On_Execute(void)
 		i_evalOut = 0;
 
 		// Fill the output grid
-		for(y=0, p.y=Get_YMin(); y<Get_NY() && Set_Progress(y); y++, p.y+=Get_Cellsize())
+		for(y=0, p.y=Get_YMin(); y<Get_NY() && Set_Progress_Rows(y); y++, p.y+=Get_Cellsize())
 		{
 			for(x=0, p.x=Get_XMin(); x<Get_NX(); x++, p.x+=Get_Cellsize())
 			{
@@ -721,7 +721,7 @@ CvMat* COpenCV_NNet::GetEvalMatrix(CSG_Parameter_Grid_List *gl_grids, int type)
 	}
 
 	// Traverse all grids, every point
-	for(y=0, p.y=Get_YMin(); y<Get_NY() && Set_Progress(y); y++, p.y+=Get_Cellsize())
+	for(y=0, p.y=Get_YMin(); y<Get_NY() && Set_Progress_Rows(y); y++, p.y+=Get_Cellsize())
 	{
 		for(x=0, p.x=Get_XMin(); x<Get_NX(); x++, p.x+=Get_Cellsize())
 		{
@@ -859,7 +859,7 @@ CvMat** COpenCV_NNet::GetTrainAndOutputMatrix(CSG_Parameter_Grid_List *gl_grids,
 
 
 	// Traverse all grids, every point
-	for(y=0, p.y=Get_YMin(); y<Get_NY() && Set_Progress(y); y++, p.y+=Get_Cellsize())
+	for(y=0, p.y=Get_YMin(); y<Get_NY() && Set_Progress_Rows(y); y++, p.y+=Get_Cellsize())
 	{
 		for(x=0, p.x=Get_XMin(); x<Get_NX(); x++, p.x+=Get_Cellsize())
 		{

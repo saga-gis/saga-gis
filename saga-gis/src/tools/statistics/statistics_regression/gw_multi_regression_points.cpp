@@ -311,7 +311,7 @@ bool CGW_Multi_Regression_Points::On_Execute(void)
 	CSG_Simple_Statistics	Residuals;
 
 	//-----------------------------------------------------
-	for(int iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
 	{
 		CSG_Regression_Weighted	Model;
 
@@ -348,7 +348,7 @@ bool CGW_Multi_Regression_Points::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
 	{
 		CSG_Shape	*pShape = m_pShapes->Get_Shape(iShape);
 

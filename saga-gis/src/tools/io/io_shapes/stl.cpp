@@ -173,7 +173,6 @@ CSTL_Import::CSTL_Import(void)
 bool CSTL_Import::On_Execute(void)
 {
 	int			Method;
-	DWORD		iFacette, nFacettes;
 	TSTL_Point	p[3];
 	CSG_String	sFile, sHeader;
 	CSG_File	Stream;
@@ -202,12 +201,16 @@ bool CSTL_Import::On_Execute(void)
 
 	Message_Add(sHeader);
 
-	if( !Stream.Read(&nFacettes, sizeof(nFacettes)) )
+	DWORD _nFacettes;
+
+	if( !Stream.Read(&_nFacettes, sizeof(_nFacettes)) )
 	{
 		return( false );
 	}
 
-	Message_Fmt("\n%s: %d", _TL("Number of Facettes"), nFacettes);
+	sLong nFacettes = (sLong)_nFacettes;
+
+	Message_Fmt("\n%s: %ld", _TL("Number of Facettes"), nFacettes);
 
 	//-----------------------------------------------------
 	switch( Method )
@@ -225,7 +228,7 @@ bool CSTL_Import::On_Execute(void)
 			pPoints->Set_Name(SG_File_Get_Name(sFile, false));
 			pPoints->Add_Field((const char *)NULL, SG_DATATYPE_Undefined);
 
-			for(iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
+			for(sLong iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
 			{
 				if( Read_Facette(Stream, p) )
 				{
@@ -249,7 +252,7 @@ bool CSTL_Import::On_Execute(void)
 		pPoints->Set_Name(SG_File_Get_Name(sFile, false));
 		pPoints->Add_Field((const char *)NULL, SG_DATATYPE_Undefined);
 
-		for(iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
+		for(sLong iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
 		{
 			if( Read_Facette(Stream, p) )
 			{
@@ -269,7 +272,7 @@ bool CSTL_Import::On_Execute(void)
 		pPoints->Add_Field(SG_T("Z"), SG_DATATYPE_Float);
 		Parameters("SHAPES")->Set_Value(pPoints);
 
-		for(iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
+		for(sLong iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
 		{
 			if( Read_Facette(Stream, p) )
 			{
@@ -324,7 +327,7 @@ bool CSTL_Import::On_Execute(void)
 			Parameters("GRID")->Set_Value(m_pGrid);
 
 			//---------------------------------------------
-			for(iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
+			for(sLong iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
 			{
 				if( Read_Facette(Stream, p) )
 				{

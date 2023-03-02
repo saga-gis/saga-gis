@@ -278,7 +278,7 @@ bool CCRS_Distance_Lines::On_Execute(void)
 	pLoxodromes ->Add_Field("LENGTH"     , SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
-	for(int iShape=0; iShape<pPlanars->Get_Count() && Set_Progress(iShape, pPlanars->Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<pPlanars->Get_Count() && Set_Progress(iShape, pPlanars->Get_Count()); iShape++)
 	{
 		CSG_Shape_Line	*pProj	= (CSG_Shape_Line *)pPlanars->Get_Shape(iShape);
 

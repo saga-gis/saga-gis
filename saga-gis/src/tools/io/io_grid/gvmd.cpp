@@ -363,9 +363,9 @@ bool CGVMD_Import::Set_Grids(const CSG_Table &Table, const CSG_Unique_String_Sta
 		pGrids->Get_Attributes()[0].Set_Value(1, "min");
 		pGrids->Get_Attributes()[1].Set_Value(1, "max");
 
-		for(int i=0; i<Table.Get_Count() && Set_Progress(i, Table.Get_Count()); i++)
+		for(sLong i=0; i<Table.Get_Count() && Set_Progress(i, Table.Get_Count()); i++)
 		{
-			CSG_Table_Record	&r	= *Table.Get_Record(i);
+			CSG_Table_Record &r = *Table.Get_Record(i);
 
 			if( !Layer.Cmp(r.asString(id)) )
 			{
@@ -440,9 +440,9 @@ bool CGVMD_Import::Set_Layers(const CSG_Table &Table, const CSG_Unique_String_St
 	pGrids->Assign_NoData();
 
 	//-----------------------------------------------------
-	for(int i=0; i<Table.Get_Count() && Set_Progress(i, Table.Get_Count()); i++)
+	for(sLong i=0; i<Table.Get_Count() && Set_Progress(i, Table.Get_Count()); i++)
 	{
-		CSG_Table_Record	&r	= *Table.Get_Record(i);
+		CSG_Table_Record &r = *Table.Get_Record(i);
 
 		int	Layer	= Layers.Get_Class_Index(r.asString(id));
 
@@ -489,9 +489,9 @@ bool CGVMD_Import::Set_Points(const CSG_Table &Table)
 
 	pPoints->Create(SHAPE_TYPE_Point, _TL("Points"), (CSG_Table *)&Table, SG_VERTEX_TYPE_XYZ);
 
-	for(int i=0; i<Table.Get_Count() && Set_Progress(i, Table.Get_Count()); i++)
+	for(sLong i=0; i<Table.Get_Count() && Set_Progress(i, Table.Get_Count()); i++)
 	{
-		CSG_Table_Record	*pRecord	= Table.Get_Record(i);
+		CSG_Table_Record *pRecord = Table.Get_Record(i);
 
 		TSG_Point_Z	P[2];
 

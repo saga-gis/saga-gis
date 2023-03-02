@@ -163,7 +163,7 @@ bool CColorisation::On_Execute(void)
 	angles[1]				= Parameters("kappa")		->asDouble();
 	angles[2]				= Parameters("alpha")		->asDouble();
 
-	int pointCount = pPoints->Get_Point_Count();
+	int pointCount = pPoints->Get_Count();
 	int attrCount = pPoints->Get_Attribute_Count();
 	
 	bool applyDistortions = false;

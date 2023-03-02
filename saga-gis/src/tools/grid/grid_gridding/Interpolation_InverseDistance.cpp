@@ -146,12 +146,12 @@ bool CInterpolation_InverseDistance::On_Finalize(void)
 //---------------------------------------------------------
 bool CInterpolation_InverseDistance::Get_Value(double x, double y, double &Value)
 {
-	CSG_Simple_Statistics	s;
+	CSG_Simple_Statistics s;
 
 	//-----------------------------------------------------
 	if( m_Search.is_Okay() )	// local
 	{
-		CSG_Array_Int	Index;	CSG_Vector	Distance;
+		CSG_Array_Int Index; CSG_Vector Distance;
 
 		if( m_Search.Get_Nearest_Points(x, y,
 			m_Search_Options.Get_Max_Points(),
@@ -161,7 +161,7 @@ bool CInterpolation_InverseDistance::Get_Value(double x, double y, double &Value
 			return( false );
 		}
 
-		for(size_t i=0; i<Index.Get_Size(); i++)
+		for(sLong i=0; i<Index.Get_Size(); i++)
 		{
 			if( Distance[i] > 0. )
 			{
@@ -169,13 +169,13 @@ bool CInterpolation_InverseDistance::Get_Value(double x, double y, double &Value
 			}
 			else
 			{
-				s.Create();	s	+= m_Search.Get_Point_Value(Index[i]);
+				s.Create(); s += m_Search.Get_Point_Value(Index[i]);
 
 				for(++i; i<Index.Get_Size(); i++)
 				{
 					if( Distance[i] <= 0. )
 					{
-						s	+= m_Search.Get_Point_Value(Index[i]);
+						s += m_Search.Get_Point_Value(Index[i]);
 					}
 				}
 			}
@@ -185,15 +185,15 @@ bool CInterpolation_InverseDistance::Get_Value(double x, double y, double &Value
 	//-----------------------------------------------------
 	else						// global
 	{
-		CSG_Shapes	*pPoints	= Get_Points();	int	Field	= Get_Field();
+		CSG_Shapes *pPoints = Get_Points(); int Field = Get_Field();
 
-		for(int i=0; i<pPoints->Get_Count(); i++)
+		for(sLong i=0; i<pPoints->Get_Count(); i++)
 		{
-			CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
+			CSG_Shape *pPoint = pPoints->Get_Shape(i);
 
 			if( !pPoint->is_NoData(Field) )
 			{
-				double	d	= Get_Distance(x, y, pPoint->Get_Point(0));
+				double d = Get_Distance(x, y, pPoint->Get_Point(0));
 
 				if( d > 0. )
 				{
@@ -201,15 +201,15 @@ bool CInterpolation_InverseDistance::Get_Value(double x, double y, double &Value
 				}
 				else
 				{
-					s.Create();	s	+= pPoint->asDouble(Field);
+					s.Create(); s += pPoint->asDouble(Field);
 
 					for(++i; i<pPoints->Get_Count(); i++)
 					{
-						pPoint	= pPoints->Get_Shape(i);
+						pPoint = pPoints->Get_Shape(i);
 
 						if( !pPoint->is_NoData(Field) && is_Identical(x, y, pPoint->Get_Point(0)) )
 						{
-							s	+= pPoint->asDouble(Field);
+							s += pPoint->asDouble(Field);
 						}
 					}
 				}
@@ -218,7 +218,7 @@ bool CInterpolation_InverseDistance::Get_Value(double x, double y, double &Value
 	}
 
 	//-----------------------------------------------------
-	Value	= s.Get_Mean();
+	Value = s.Get_Mean();
 
 	return( true );
 }
@@ -226,8 +226,8 @@ bool CInterpolation_InverseDistance::Get_Value(double x, double y, double &Value
 //---------------------------------------------------------
 inline double CInterpolation_InverseDistance::Get_Distance(double x, double y, const TSG_Point &Point)
 {
-	double	dx	= x - Point.x;
-	double	dy	= y - Point.y;
+	double dx = x - Point.x;
+	double dy = y - Point.y;
 
 	return( sqrt(dx*dx + dy*dy) );
 }

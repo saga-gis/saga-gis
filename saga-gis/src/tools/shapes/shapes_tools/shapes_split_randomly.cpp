@@ -151,7 +151,7 @@ bool CShapes_Split_Randomly::On_Execute(void)
 
 		pShapes->Set_Index(Field, TABLE_INDEX_Ascending);
 
-		for(int i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
+		for(sLong i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
 		{
 			CSG_Shape	*pShape	= pShapes->Get_Shape_byIndex(i);
 
@@ -188,7 +188,7 @@ void CShapes_Split_Randomly::Split(CSG_Shapes *pShapes, CSG_Shapes *pSplit[2], d
 {
 	if( !Parameters("EXACT")->asBool() )
 	{
-		for(int i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
+		for(sLong i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
 		{
 			pSplit[Percent >= CSG_Random::Get_Uniform(0, 100) ? 1 : 0]->Add_Shape(pShapes->Get_Shape(i));
 		}
@@ -197,16 +197,16 @@ void CShapes_Split_Randomly::Split(CSG_Shapes *pShapes, CSG_Shapes *pSplit[2], d
 	//-----------------------------------------------------
 	else
 	{
-		int		i, n	= (int)(0.5 + pShapes->Get_Count() * Percent / 100.0);
+		sLong n = (sLong)(0.5 + pShapes->Get_Count() * Percent / 100.);
 
-		CSG_Table	Random;
+		CSG_Table Random;
 
 		Random.Add_Field("INDEX"  , SG_DATATYPE_Int);
 		Random.Add_Field("PERCENT", SG_DATATYPE_Double);
 
-		for(i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
+		for(sLong i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
 		{
-			CSG_Table_Record	*pRecord	= Random.Add_Record();
+			CSG_Table_Record *pRecord = Random.Add_Record();
 
 			pRecord->Set_Value(0, i);
 			pRecord->Set_Value(1, CSG_Random::Get_Uniform(0, 100));
@@ -215,7 +215,7 @@ void CShapes_Split_Randomly::Split(CSG_Shapes *pShapes, CSG_Shapes *pSplit[2], d
 		Random.Set_Index(1, TABLE_INDEX_Ascending);
 
 		//-------------------------------------------------
-		for(i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
+		for(sLong i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
 		{
 			pSplit[i < n ? 1 : 0]->Add_Shape(pShapes->Get_Shape(Random[i].asInt(0)));
 		}

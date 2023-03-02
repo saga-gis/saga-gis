@@ -181,7 +181,7 @@ bool CImage_Quality_Index::On_Execute(void)
 	CSG_Grid	*pC	= Parameters("CONTRAST"   )->asGrid();
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#ifndef _DEBUG
 		#pragma omp parallel for

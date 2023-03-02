@@ -340,9 +340,9 @@ bool CPC_Reclass_Extract::On_Execute(void)
 	}
 
 	if( m_bExtract)
-		SG_UI_Msg_Add(CSG_String::Format(_TL("%d points out of %d extracted."), m_pInput->Get_Point_Count()-m_iOrig, m_pInput->Get_Point_Count()), true);
+		SG_UI_Msg_Add(CSG_String::Format(_TL("%ld points out of %d extracted."   ), m_pInput->Get_Count()-m_iOrig, m_pInput->Get_Count()), true);
 	else
-		SG_UI_Msg_Add(CSG_String::Format(_TL("%d points out of %d reclassified."), m_pInput->Get_Point_Count()-m_iOrig, m_pInput->Get_Point_Count()), true);
+		SG_UI_Msg_Add(CSG_String::Format(_TL("%ld points out of %d reclassified."), m_pInput->Get_Count()-m_iOrig, m_pInput->Get_Count()), true);
 
 
 	return( true );
@@ -379,7 +379,7 @@ void CPC_Reclass_Extract::Reclass_Range(void)
 	else
 		floating = false;
 
-	for (int i=0; i<m_pInput->Get_Point_Count() && Set_Progress(i, m_pInput->Get_Point_Count()); i++)
+	for (sLong i=0; i<m_pInput->Get_Count() && Set_Progress(i, m_pInput->Get_Count()); i++)
 	{
 		if( floating == true )
 			value = m_pInput->Get_Value(i, m_AttrField);
@@ -448,7 +448,7 @@ void CPC_Reclass_Extract::Reclass_Single(void)
 		floating = false;
 
 
-	for (int i=0; i<m_pInput->Get_Point_Count() && Set_Progress(i, m_pInput->Get_Point_Count()); i++)
+	for (sLong i=0; i<m_pInput->Get_Count() && Set_Progress(i, m_pInput->Get_Count()); i++)
 	{
 		if( floating == true )
 			value = m_pInput->Get_Value(i, m_AttrField);
@@ -594,7 +594,7 @@ bool CPC_Reclass_Extract::Reclass_Table(bool bUser)
 	}
 
 
-	for (int i=0; i<m_pInput->Get_Point_Count() && Set_Progress(i, m_pInput->Get_Point_Count()); i++)
+	for (sLong i=0; i<m_pInput->Get_Count() && Set_Progress(i, m_pInput->Get_Count()); i++)
 	{
 		value	= m_pInput->Get_Value(i, m_AttrField);
 		set		= false;

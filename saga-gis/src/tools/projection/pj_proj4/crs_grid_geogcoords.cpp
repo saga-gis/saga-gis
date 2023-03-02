@@ -113,7 +113,7 @@ bool CCRS_Grid_GeogCoords::On_Execute(void)
 	CSG_Grid	*pLon	= Parameters("LON")->asGrid();
 	CSG_Grid	*pLat	= Parameters("LAT")->asGrid();
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		double	yWorld	= Get_YMin() + y * Get_Cellsize();
 

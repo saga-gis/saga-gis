@@ -199,7 +199,7 @@ bool CTable_Field_Deletion::On_Execute(void)
 			}
 		}
 
-		for(int iRecord=0; iRecord<pInput->Get_Count() && Set_Progress(iRecord, pInput->Get_Count()); iRecord++)
+		for(sLong iRecord=0; iRecord<pInput->Get_Count() && Set_Progress(iRecord, pInput->Get_Count()); iRecord++)
 		{
 			CSG_Table_Record	*pOut, *pIn	= pInput->Get_Record(iRecord);
 

@@ -253,7 +253,7 @@ bool CGrid_Cluster_ISODATA::On_Execute(void)
 //	Cluster.Set_Max_StdDev    (Parameters("STDV_MAX"   )->asDouble());
 
 	//-----------------------------------------------------
-	for(iCell=0; iCell<Get_NCells() && Set_Progress_NCells(iCell); iCell++)
+	for(iCell=0; iCell<Get_NCells() && Set_Progress_Cells(iCell); iCell++)
 	{
 		CSG_Vector	Features(pFeatures->Get_Grid_Count());
 
@@ -293,7 +293,7 @@ bool CGrid_Cluster_ISODATA::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(iCell=0, iSample=0; iCell<Get_NCells() && Set_Progress_NCells(iCell); iCell++)
+	for(iCell=0, iSample=0; iCell<Get_NCells() && Set_Progress_Cells(iCell); iCell++)
 	{
 		if( pCluster->asInt(iCell) )
 		{

@@ -281,7 +281,7 @@ bool COSM_Import::Load_Ways(const CSG_MetaData &Root)
 
 				pWay->Set_Value(0, WayID);
 
-				for(size_t iNode=0; iNode<NodeIDs.Get_Size(); iNode++)
+				for(sLong iNode=0; iNode<NodeIDs.Get_Size(); iNode++)
 				{
 					CSG_Table_Record	*pNode	= m_Nodes.Find_Record(0, NodeIDs[iNode], true);
 

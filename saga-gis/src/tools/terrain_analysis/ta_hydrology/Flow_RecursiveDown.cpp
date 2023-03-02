@@ -167,7 +167,7 @@ void CFlow_RecursiveDown::On_Initialize(void)
 	m_Dir.Create(Get_System(), SG_DATATYPE_Char );
 	m_Dif.Create(Get_System(), SG_DATATYPE_Float);
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
@@ -203,7 +203,7 @@ void CFlow_RecursiveDown::On_Finalize(void)
 	//-----------------------------------------------------
 	if( m_Linear.is_Valid() && m_pDTM->Set_Index() )
 	{
-		for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+		for(sLong n=0; n<Get_NCells() && Set_Progress_Cells(n); n++)
 		{
 			int	x, y, i;	double	Flow;
 
@@ -236,7 +236,7 @@ void CFlow_RecursiveDown::On_Finalize(void)
 //---------------------------------------------------------
 bool CFlow_RecursiveDown::Calculate(void)
 {
-	for(int y=0; y<Get_NY() && Set_Progress(y); y+=m_Step)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y+=m_Step)
 	{
 		for(int x=0; x<Get_NX(); x+=m_Step)
 		{

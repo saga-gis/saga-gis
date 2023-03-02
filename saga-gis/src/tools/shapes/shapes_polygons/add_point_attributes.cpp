@@ -203,7 +203,7 @@ bool CAdd_Point_Attributes::On_Execute(void)
 
 
 	//-----------------------------------------------------
-	for(int iPolygon=0; iPolygon<pOutput->Get_Count() && Set_Progress(iPolygon, pOutput->Get_Count()); iPolygon++)
+	for(sLong iPolygon=0; iPolygon<pOutput->Get_Count() && Set_Progress(iPolygon, pOutput->Get_Count()); iPolygon++)
 	{
 		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pOutput->Get_Shape(iPolygon);
 

@@ -212,14 +212,14 @@ bool CChange_Detection::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Table	*pConfusion		= Parameters("CONFUSION")->asTable();
+	CSG_Table *pConfusion = Parameters("CONFUSION")->asTable();
 
-	bool	bUnclassified	= Parameters("NODATA")->asBool();
+	bool bUnclassified = Parameters("NODATA")->asBool();
 
-	int	nOne	= One.Get_Count(); if( bUnclassified ) nOne++;
-	int	nTwo	= Two.Get_Count(); if( bUnclassified ) nTwo++;
+	int nOne = (int)One.Get_Count(); if( bUnclassified ) nOne++;
+	int nTwo = (int)Two.Get_Count(); if( bUnclassified ) nTwo++;
 
-	CSG_Matrix	Identity;
+	CSG_Matrix Identity;
 
 	if( !Get_Changes(One, Two, pConfusion, Identity, bUnclassified) )
 	{
@@ -231,7 +231,7 @@ bool CChange_Detection::On_Execute(void)
 
 	bool	bNoChange	= Parameters("NOCHANGE")->asBool();
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
@@ -344,7 +344,7 @@ bool CChange_Detection::Get_Quality(CSG_Table &Confusion, CSG_Table &Classes, CS
 		return( false );
 	}
 
-	int	nClasses	= Confusion.Get_Count();
+	int nClasses = (int)Confusion.Get_Count();
 
 	//-----------------------------------------------------
 	Classes.Destroy();
@@ -393,7 +393,7 @@ bool CChange_Detection::Get_Quality(CSG_Table &Confusion, CSG_Table &Classes, CS
 		Classes[i].Set_Value(3, nTwo); if( AccTwo < 0 ) Classes[i].Set_NoData(3); else
 		Classes[i].Set_Value(4, AccTwo);
 
-		n	= Confusion.Get_Count() - 2;
+		n	= (int)Confusion.Get_Count() - 2;
 		Confusion[n + 0].Set_Value (1 + i, nOne); if( AccOne < 0. )
 		Confusion[n + 1].Set_NoData(1 + i); else
 		Confusion[n + 1].Set_Value (1 + i, AccOne * 100.);
@@ -505,7 +505,7 @@ bool CChange_Detection::Get_Classes(CSG_Table &Classes, CSG_Grid *pGrid, bool bI
 
 		double	z;
 
-		for(sLong i=0; i<Get_NCells() && Set_Progress_NCells(i); i++)
+		for(sLong i=0; i<Get_NCells() && Set_Progress_Cells(i); i++)
 		{
 			double iz	= pGrid->asDouble(pGrid->Get_Sorted(i, false, false));
 

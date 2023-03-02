@@ -164,7 +164,7 @@ bool CTWI::On_Execute(void)
 		Mean_Kf		= 0.;
 		Area		= 0.;
 
-		for(y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			for(x=0; x<Get_NX(); x++)
 			{
@@ -212,7 +212,7 @@ bool CTWI::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
@@ -322,7 +322,7 @@ bool CStream_Power::On_Execute(void)
 	DataObject_Set_Colors(pSPI, 11, SG_COLORS_RED_GREY_GREEN, true);
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -420,7 +420,7 @@ bool CCIT::On_Execute(void)
     DataObject_Set_Colors(pCIT, 11, SG_COLORS_RED_GREY_GREEN, true);
 
     //-----------------------------------------------------
-    for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+    for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
     {
         #pragma omp parallel for
         for(int x=0; x<Get_NX(); x++)
@@ -580,7 +580,7 @@ bool CLS_Factor::On_Execute(void)
 	DataObject_Set_Colors(pLS, 11, SG_COLORS_RED_GREY_GREEN, true);
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -748,7 +748,7 @@ bool CTCI_Low::On_Execute(void)
 	double	wRange	= log(1. + pTWI->Get_Range());
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)

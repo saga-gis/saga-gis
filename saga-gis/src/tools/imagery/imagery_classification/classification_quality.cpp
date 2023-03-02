@@ -231,7 +231,7 @@ bool CClassification_Quality::On_Execute(void)
 	//-----------------------------------------------------
 	TSG_Point	p;	p.y	= Get_YMin();
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++, p.y+=Get_Cellsize())
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++, p.y+=Get_Cellsize())
 	{
 		p.x	= Get_XMin();
 
@@ -352,7 +352,7 @@ bool CClassification_Quality::Get_Classes(CSG_Shapes *pPolygons, int Field, CSG_
 {
 	CSG_Category_Statistics	Classes;
 
-	for(int iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
+	for(sLong iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
 	{
 		Classes	+= pPolygons->Get_Shape(iPolygon)->asString(Field);
 	}
@@ -519,7 +519,7 @@ int CClassification_Quality::Get_Class(double Value)
 		}
 	}
 
-	return( m_Classes.Get_Count() );
+	return( (int)m_Classes.Get_Count() );
 }
 
 

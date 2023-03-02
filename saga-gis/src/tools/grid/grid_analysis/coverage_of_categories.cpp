@@ -308,7 +308,7 @@ bool CCoverage_of_Categories::Initialize(const CSG_Grid_System &System)
 		{
 			CSG_Unique_Number_Statistics	Classes;
 
-			for(sLong iCell=0; iCell<Get_NCells() && Set_Progress_NCells(iCell); iCell++)
+			for(sLong iCell=0; iCell<Get_NCells() && Set_Progress_Cells(iCell); iCell++)
 			{
 				if( !m_pClasses->is_NoData(iCell) )
 				{

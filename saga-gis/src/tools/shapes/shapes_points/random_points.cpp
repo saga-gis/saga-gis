@@ -265,7 +265,7 @@ bool CRandom_Points::On_Execute(void)
 	}
 
 	//--------------------------------------------------------
-	else for(int iPolygon=0; iPolygon<m_pPolygons->Get_Count() && Set_Progress(iPolygon, m_pPolygons->Get_Count()); iPolygon++)
+	else for(sLong iPolygon=0; iPolygon<m_pPolygons->Get_Count() && Set_Progress(iPolygon, m_pPolygons->Get_Count()); iPolygon++)
 	{
 		m_pPolygon	= (CSG_Shape_Polygon *)m_pPolygons->Get_Shape(iPolygon);
 

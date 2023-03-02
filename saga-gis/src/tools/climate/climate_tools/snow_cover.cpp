@@ -216,7 +216,7 @@ bool CSnow_Cover::On_Execute(void)
 	Days[1] = Month[Days[1]    ];
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 #ifndef _DEBUG
 		#pragma omp parallel for

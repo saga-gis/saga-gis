@@ -347,7 +347,7 @@ bool CFuzzy_Landform_Elements::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for private(i)
 		for(int x=0; x<Get_NX(); x++)

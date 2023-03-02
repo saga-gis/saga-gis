@@ -98,7 +98,7 @@ bool CCellBalance::On_Execute(void)
 
 	m_pBalance->Assign(0.0);
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -232,7 +232,7 @@ bool CCellBalance::On_Execute(void)
 	m_pBalance = Parameters("BALANCE")->asGrid();
 	m_pBalance->Assign((double)0);
 
-    for(int y=0; y<Get_NY() && Set_Progress(y); y++){		
+    for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++){		
 		for(int x=0; x<Get_NX(); x++){			
             m_pBalance->Set_Value(x,y,getCellBalance(x,y));
         }// for

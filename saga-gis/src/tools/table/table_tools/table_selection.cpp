@@ -351,7 +351,7 @@ bool CSelect_Numeric::On_Execute(void)
 	CSG_Vector	Values((int)Fields.Get_Size());
 
 	//-----------------------------------------------------
-	for(int i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
+	for(sLong i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
 	{
 		CSG_Table_Record	*pRecord	= pTable->Get_Record(i);
 
@@ -556,7 +556,7 @@ bool CSelect_String::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
+	for(sLong i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
 	{
 		CSG_Table_Record	*pRecord	= pTable->Get_Record(i);
 

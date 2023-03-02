@@ -641,13 +641,19 @@ bool CSG_Tool::Settings_Pop(void)
 //---------------------------------------------------------
 void CSG_Tool::Set_Show_Progress(bool bOn)
 {
-	m_bShow_Progress	= bOn;
+	m_bShow_Progress = bOn;
 }
 
 //---------------------------------------------------------
-bool CSG_Tool::Set_Progress(double Percent)	const
+bool CSG_Tool::Set_Progress(int Position, int Range)	const
 {
-	return( Set_Progress(Percent, 100.0) );
+	return( Set_Progress((double)Position / (double)Range) );
+}
+
+//---------------------------------------------------------
+bool CSG_Tool::Set_Progress(sLong Position, sLong Range)	const
+{
+	return( Set_Progress((double)Position / (double)Range) );
 }
 
 //---------------------------------------------------------
@@ -659,7 +665,7 @@ bool CSG_Tool::Set_Progress(double Position, double Range)	const
 //---------------------------------------------------------
 bool CSG_Tool::Stop_Execution(bool bDialog)
 {
-	m_bExecutes	= false;
+	m_bExecutes = false;
 
 	return( SG_UI_Stop_Execution(bDialog) );
 }

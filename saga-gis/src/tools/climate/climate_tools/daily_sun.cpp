@@ -173,7 +173,7 @@ bool CDaily_Sun::On_Execute(void)
 	T	= 1.0027379 * (RAm - RA);
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -308,7 +308,7 @@ bool CSolarRadiation::On_Execute(void)
 	double Sunshine  = Parameters("SUNSHINE")->asDouble() / 100.;
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)

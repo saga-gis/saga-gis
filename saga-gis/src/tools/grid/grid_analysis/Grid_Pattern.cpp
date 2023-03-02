@@ -124,7 +124,7 @@ bool CGrid_Pattern::On_Execute(void)
 	int	maxClasses	= Parameters("MAXNUMCLASS")->asInt();
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#ifndef _DEBUG
 		#pragma omp parallel for

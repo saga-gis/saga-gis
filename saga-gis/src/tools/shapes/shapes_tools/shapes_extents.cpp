@@ -162,7 +162,7 @@ bool CShapes_Extents::On_Execute(void)
 	//-----------------------------------------------------
 	pExtents->Create(SHAPE_TYPE_Polygon, pShapes->Get_Name(), pShapes);
 
-	for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 	{
 		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
 

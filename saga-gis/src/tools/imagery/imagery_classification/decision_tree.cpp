@@ -247,7 +247,7 @@ bool CDecision_Tree::On_Execute(void)
 	pClasses	->Set_NoData_Value(-1);
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
@@ -338,7 +338,7 @@ int CDecision_Tree::Get_Class(CSG_Parameters *pDecision, CSG_Table *pTable)
 		}
 		else
 		{
-			CSG_Table_Record	*pRecord	= pTable->Add_Record();
+			CSG_Table_Record *pRecord = pTable->Add_Record();
 
 			pRecord->Set_Value(0, SG_GET_RGB(rand() * 255.0 / RAND_MAX, rand() * 255.0 / RAND_MAX, rand() * 255.0 / RAND_MAX));
 			pRecord->Set_Value(1, pDecision->Get_Parameter(ID + SG_T("|NAME"))->asString());
@@ -348,7 +348,7 @@ int CDecision_Tree::Get_Class(CSG_Parameters *pDecision, CSG_Table *pTable)
 		}
 	}
 
-	return( pTable->Get_Count() );
+	return( (int)pTable->Get_Count() );
 }
 
 

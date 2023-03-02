@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,15 +47,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__table_change_color_format_H
 #define HEADER_INCLUDED__table_change_color_format_H
 
@@ -70,7 +58,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -84,14 +72,13 @@ class CTable_Change_Color_Format : public CSG_Tool
 {
 public:
 	CTable_Change_Color_Format(void);
-	virtual ~CTable_Change_Color_Format(void);
 
 
 protected:
 
-	virtual bool		On_Execute		(void);
+	virtual int		On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual int			On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual bool	On_Execute				(void);
 
 };
 

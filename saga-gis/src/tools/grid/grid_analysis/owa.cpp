@@ -84,9 +84,9 @@ int COWA::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pPara
 {
 	if( pParameter->Cmp_Identifier("GRIDS") && pParameter->asGridList()->Get_Grid_Count() > 1 )
 	{
-		CSG_Table	&Table	= *(*pParameters)("WEIGHTS")->asTable();
+		CSG_Table &Table = *(*pParameters)("WEIGHTS")->asTable();
 
-		for(int i=Table.Get_Count(); i<pParameter->asGridList()->Get_Grid_Count(); i++)
+		for(sLong i=Table.Get_Count(); i<pParameter->asGridList()->Get_Grid_Count(); i++)
 		{
 			Table.Add_Record()->Set_Value(0, 1.);
 		}
@@ -157,7 +157,7 @@ bool COWA::On_Execute(void)
 	bool	bOrdered	= Parameters("ORDERED")->asBool();
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for private(i)
 		for(int x=0; x<Get_NX(); x++)

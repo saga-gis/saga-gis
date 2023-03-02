@@ -309,7 +309,7 @@ bool CPoints_Thinning::QuadTree_Execute(const CSG_Rect &Extent)
 		return( false );
 	}
 
-	for(int i=0; i<m_pPoints->Get_Count() && Set_Progress(i, m_pPoints->Get_Count()); i++)
+	for(sLong i=0; i<m_pPoints->Get_Count() && Set_Progress(i, m_pPoints->Get_Count()); i++)
 	{
 		CSG_Shape	*pPoint	= m_pPoints->Get_Shape(i);
 
@@ -413,7 +413,7 @@ bool CPoints_Thinning::Raster_Execute(const CSG_Rect &Extent)
 	}
 
 	//---------------------------------------------------------
-	for(int i=0; i<m_pPoints->Get_Count() && Set_Progress(i, m_pPoints->Get_Count()); i++)
+	for(sLong i=0; i<m_pPoints->Get_Count() && Set_Progress(i, m_pPoints->Get_Count()); i++)
 	{
 		int	x, y;	CSG_Shape	*pPoint	= m_pPoints->Get_Shape(i);
 

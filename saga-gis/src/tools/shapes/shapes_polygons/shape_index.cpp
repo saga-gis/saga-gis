@@ -192,7 +192,7 @@ bool CShape_Index::On_Execute(void)
 
 		pTarget->Add_Field("ID", SG_DATATYPE_Int);
 
-		for(int iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
+		for(sLong iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
 		{
 			pTarget->Add_Shape(pPolygons->Get_Shape(iPolygon), SHAPE_COPY)->Set_Value(0, iPolygon);
 		}
@@ -252,7 +252,7 @@ bool CShape_Index::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
+	for(sLong iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
 	{
 		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
 

@@ -256,7 +256,7 @@ bool CCRS_Transform_Shapes::Transform(CSG_Shapes *pShapes)
 	//-----------------------------------------------------
 	if( !Parameters("PARALLEL") || !Parameters("PARALLEL")->asBool() || SG_OMP_Get_Max_Num_Threads() < 2 )
 	{
-		for(int i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
+		for(sLong i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
 		{
 			if( pShapes->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud )
 			{
@@ -306,7 +306,7 @@ bool CCRS_Transform_Shapes::Transform(CSG_Shapes *pShapes)
 		m_Projector.Set_Copies(SG_OMP_Get_Max_Num_Threads());
 
 		#pragma omp parallel for
-		for(int i=0; i<pShapes->Get_Count(); i++)
+		for(sLong i=0; i<pShapes->Get_Count(); i++)
 		{
 			int	Thread	= SG_OMP_Get_Thread_Num();
 

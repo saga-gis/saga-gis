@@ -287,7 +287,7 @@ bool CShapes_Report::Add_Shapes(void)
 		//-------------------------------------------------
 		bAddAll	= m_pShapes->Get_Selection_Count() == 0;
 
-		for(int iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
+		for(sLong iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
 		{
 			if( bAddAll || m_pShapes->Get_Record(iShape)->is_Selected() )
 			{

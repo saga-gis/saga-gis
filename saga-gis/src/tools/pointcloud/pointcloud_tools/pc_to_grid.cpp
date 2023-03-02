@@ -174,7 +174,7 @@ bool CPC_To_Grid::On_Execute(void)
 	m_pCount	->Set_NoData_Value(0.0);
 
 	//-----------------------------------------------------
-	for(int iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
+	for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 	{
 		pPoints->Set_Cursor(iPoint);
 

@@ -72,7 +72,7 @@ bool CSortRaster::On_Execute(void)
 
 	bool	bDown	= Parameters("ORDER")->asInt() == 1;
 
-	for(sLong i=0, Index=0; i<Get_NCells() && Set_Progress_NCells(i); i++)
+	for(sLong i=0, Index=0; i<Get_NCells() && Set_Progress_Cells(i); i++)
 	{
 		int	ix, iy;
 

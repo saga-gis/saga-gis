@@ -200,7 +200,7 @@ bool CGW_Regression_Grid::On_Execute(void)
 	bool	bLogistic	= Parameters("LOGISTIC")->asBool();
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -295,7 +295,7 @@ bool CGW_Regression_Grid::Set_Residuals(void)
 	pResiduals->Add_Field("RESIDUAL", SG_DATATYPE_Double);
 
 	//-------------------------------------------------
-	for(int iShape=0; iShape<m_pPoints->Get_Count() && Set_Progress(iShape, m_pPoints->Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<m_pPoints->Get_Count() && Set_Progress(iShape, m_pPoints->Get_Count()); iShape++)
 	{
 		CSG_Shape	*pShape	= m_pPoints->Get_Shape(iShape);
 		double		 zShape	= pShape->asDouble(m_iDependent);

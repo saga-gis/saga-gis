@@ -136,7 +136,7 @@ bool CExercise_08::On_Execute(void)
 //---------------------------------------------------------
 bool CExercise_08::Method_01(void)
 {
-	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(sLong n=0; n<Get_NCells() && Set_Progress_Cells(n); n++)
 	{
 		int	x, y; m_pDTM->Get_Sorted(n, x, y, true, false);
 
@@ -186,7 +186,7 @@ bool CExercise_08::Method_02(void)
 {
 	const double	MFD_Converge	= 1.1;
 
-	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(sLong n=0; n<Get_NCells() && Set_Progress_Cells(n); n++)
 	{
 		int x, y; m_pDTM->Get_Sorted(n, x, y, true, false);
 

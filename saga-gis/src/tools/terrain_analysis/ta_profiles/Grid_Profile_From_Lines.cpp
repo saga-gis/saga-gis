@@ -167,7 +167,7 @@ bool CGrid_Profile_From_Lines::On_Execute(void)
 
 		Init_Profile(m_pPoints, CSG_String::Format("%s [%s]", m_pDEM->Get_Name(), _TL("Profile")));
 
-		for(int i=0; i<m_pLines->Get_Count() && Set_Progress(i, m_pLines->Get_Count()); i++)
+		for(sLong i=0; i<m_pLines->Get_Count() && Set_Progress(i, m_pLines->Get_Count()); i++)
 		{
 			Set_Profile(i, m_pLines->Get_Shape(i));
 		}
@@ -184,7 +184,7 @@ bool CGrid_Profile_From_Lines::On_Execute(void)
 
 		Parameters("PROFILES")->asShapesList()->Del_Items();
 
-		for(int i=0; i<m_pLines->Get_Count() && Set_Progress(i, m_pLines->Get_Count()); i++)
+		for(sLong i=0; i<m_pLines->Get_Count() && Set_Progress(i, m_pLines->Get_Count()); i++)
 		{
 			Init_Profile(m_pPoints = SG_Create_Shapes(), Name < 0
 				? CSG_String::Format("%s [%s %d]", m_pDEM->Get_Name(), _TL("Profile"), i + 1)

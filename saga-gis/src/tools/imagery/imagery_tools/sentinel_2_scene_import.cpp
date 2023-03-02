@@ -81,7 +81,7 @@ CSG_Table CSentinel_2_Scene_Import::Get_Info_Bands(void)
 	Info_Bands.Add_Field("WAVE_MAX"  , SG_DATATYPE_Double);
 
 	#define ADD_INFO_BAND(band, name, res, wmin, wave, wmax) { CSG_Table_Record &Info = *Info_Bands.Add_Record();\
-		Info.Set_Value(INFO_FIELD_ID  , 1 + Info.Get_Index());\
+		Info.Set_Value(INFO_FIELD_ID  , 1 + (int)Info.Get_Index());\
 		Info.Set_Value(INFO_FIELD_BAND, band);\
 		Info.Set_Value(INFO_FIELD_NAME, CSG_String::Format("[%s] %s", SG_T(band), name));\
 		Info.Set_Value(INFO_FIELD_RES , res);\

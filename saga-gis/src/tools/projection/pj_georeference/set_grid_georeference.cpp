@@ -244,7 +244,7 @@ bool CSet_Grid_Georeference::On_Execute(void)
 		pReferenced->Get_MetaData  ()	= pGrid->Get_MetaData  ();
 		pReferenced->Get_Projection()	= pGrid->Get_Projection();
 
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			#pragma omp parallel for
 			for(int x=0; x<Get_NX(); x++)

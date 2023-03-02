@@ -175,7 +175,7 @@ bool CBMP_Export::On_Execute(void)
 		//-------------------------------------------------
 		Line	= (char *)SG_Calloc(nBytes_Line, sizeof(char));
 
-		for(y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			for(x=0, pLine=Line; x<Get_NX(); x++, pLine+=3)
 			{

@@ -374,7 +374,7 @@ bool CViGrA_FFT_Real::On_Execute(void)
 	return( true );
 
 	/*/ multiply with a first derivative of Gaussian in x-direction
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=1; x<Get_NX(); x++)
 		{

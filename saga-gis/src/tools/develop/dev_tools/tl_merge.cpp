@@ -106,8 +106,7 @@ CTL_Merge::CTL_Merge(void)
 //---------------------------------------------------------
 bool CTL_Merge::On_Execute(void)
 {
-	CSG_String	Target	= Parameters("TARGET")->asString();
-	CSG_Strings	Files;
+	CSG_String  Target = Parameters("TARGET")->asString(); CSG_Strings Files;
 
 	if( !Parameters("FILES")->asFilePath()->Get_FilePaths(Files) || Files.Get_Count() <= 1 )
 	{
@@ -117,13 +116,11 @@ bool CTL_Merge::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int			i, j;
-	CSG_Table	Merge;
+	CSG_Table Merge;
 
 	if( !Merge.Create(Files[0], TABLE_FILETYPE_Text, '\t', SG_FILE_ENCODING_UTF8) )
 	{
 		Merge.Destroy();
-
 		Merge.Add_Field("ORIGINAL"   , SG_DATATYPE_String);
 		Merge.Add_Field("TRANSLATION", SG_DATATYPE_String);
 
@@ -132,14 +129,14 @@ bool CTL_Merge::On_Execute(void)
 	Merge.Save(Target, TABLE_FILETYPE_Text, '\t', SG_FILE_ENCODING_UTF8);
 
 	//-----------------------------------------------------
-	for(i=1; i<Files.Get_Count() && Process_Get_Okay(); i++)
+	for(int i=1; i<Files.Get_Count() && Process_Get_Okay(); i++)
 	{
-		CSG_Translator	Translator(Target, false);
-		CSG_Table		Add(Target, TABLE_FILETYPE_Text, '\t', SG_FILE_ENCODING_UTF8);
+		CSG_Translator Translator(Target, false);
+		CSG_Table Add(Target, TABLE_FILETYPE_Text, '\t', SG_FILE_ENCODING_UTF8);
 
 		if( Merge.Create(Files[i], TABLE_FILETYPE_Text, '\t', SG_FILE_ENCODING_UTF8) )
 		{
-			for(j=0; j<Merge.Get_Count() && Set_Progress(j, Merge.Get_Count()); j++)
+			for(sLong j=0; j<Merge.Get_Count() && Set_Progress(j, Merge.Get_Count()); j++)
 			{
 				if( !Translator.Get_Translation(Merge[j].asString(0), true) )
 				{
@@ -155,7 +152,7 @@ bool CTL_Merge::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(i=Merge.Get_Count()-1; i>0 && Process_Get_Okay(); i--)
+	for(sLong i=Merge.Get_Count()-1; i>0 && Process_Get_Okay(); i--)
 	{
 		if( !SG_STR_CMP(Merge[i].asString(0), Merge[i - 1].asString(0)) )
 		{

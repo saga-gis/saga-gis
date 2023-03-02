@@ -338,7 +338,7 @@ bool CSoil_Water_Capacity::Get_HodnettTomasella(void)
 		{
 			Process_Set_Text("%s [%d/%d]", _TL("processing"), z + 1, Layers.Get_Count());
 
-			for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+			for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 			{
 				#pragma omp parallel for
 				for(int x=0; x<Get_NX(); x++)
@@ -404,7 +404,7 @@ bool CSoil_Water_Capacity::Get_HodnettTomasella(void)
 		CSG_Grid *pT_s	= Parameters("THETA_S")->asGrid();
 
 		//-------------------------------------------------
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			#pragma omp parallel for
 			for(int x=0; x<Get_NX(); x++)
@@ -553,7 +553,7 @@ bool CSoil_Water_Capacity::Get_Toth(void)
 		{
 			Process_Set_Text("%s [%d/%d]", _TL("processing"), z + 1, Layers.Get_Count());
 
-			for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+			for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 			{
 				#pragma omp parallel for
 				for(int x=0; x<Get_NX(); x++)
@@ -602,7 +602,7 @@ bool CSoil_Water_Capacity::Get_Toth(void)
 		CSG_Grid *pPWP	= Parameters("PWP")->asGrid();
 
 		//-------------------------------------------------
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			#pragma omp parallel for
 			for(int x=0; x<Get_NX(); x++)

@@ -152,7 +152,7 @@ bool CMelton_Ruggedness::On_Execute(void)
 	pMRN ->Assign_NoData();
 
 	//-------------------------------------------------
-	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(sLong n=0; n<Get_NCells() && Set_Progress_Cells(n); n++)
 	{
 		int		x, y, i, ix, iy;
 

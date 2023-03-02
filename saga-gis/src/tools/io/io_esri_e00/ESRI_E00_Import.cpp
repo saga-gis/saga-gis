@@ -775,7 +775,7 @@ CSG_Shapes * CESRI_E00_Import::Arcs2Polygons(CSG_Shapes *pArcs)
 	pPolygons->Add_Field("ID", SG_DATATYPE_Int);
 
 	//-----------------------------------------------------
-	for(int iArc=0; iArc<pArcs->Get_Count() && Set_Progress(iArc, pArcs->Get_Count()); iArc++)
+	for(sLong iArc=0; iArc<pArcs->Get_Count() && Set_Progress(iArc, pArcs->Get_Count()); iArc++)
 	{
 		Arcs2Polygon(pArcs, pPolygons, pArcs->Get_Shape(iArc)->asInt(ARC_LPOL));
 		Arcs2Polygon(pArcs, pPolygons, pArcs->Get_Shape(iArc)->asInt(ARC_RPOL));
@@ -1414,7 +1414,7 @@ bool CESRI_E00_Import::Assign_Attributes(CSG_Shapes *pShapes)
 		pShapes->Add_Field(m_pPAT->Get_Field_Name(iField), m_pPAT->Get_Field_Type(iField));
 	}
 
-	for(int i=0; i<m_pPAT->Get_Count() && Set_Progress(i, m_pPAT->Get_Count()); i++)
+	for(sLong i=0; i<m_pPAT->Get_Count() && Set_Progress(i, m_pPAT->Get_Count()); i++)
 	{
 		CSG_Shape	*pShape	= pShapes->Get_Shape(i);
 
@@ -1481,9 +1481,9 @@ bool CESRI_E00_Import::Assign_Attributes(CSG_Shapes *pShapes)
 //---------------------------------------------------------
 void CESRI_E00_Import::skip(char *end)
 {
-	const char	*line;
+	const char *line;
 
-	int		l	= strlen(end);
+	size_t l = strlen(end);
 
 	while( (line = E00_Read_Line()) != NULL && strncmp(line, end, l) );
 }

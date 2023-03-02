@@ -90,7 +90,7 @@ private:
 
 
 	bool						Get_Features			(void);
-	bool						Get_Features			(int iRecord, CSG_Vector &Features);
+	bool						Get_Features			(sLong iRecord, CSG_Vector &Features);
 
 	bool						Set_Classifier			(CSG_Classifier_Supervised &Classifier);
 	bool						Set_Classifier			(CSG_Classifier_Supervised &Classifier, int Training);

@@ -200,9 +200,9 @@ bool CKernel_Density::On_Execute(void)
 	}
 	else
 	{
-		for(int iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
+		for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 		{
-			CSG_Shape	*pPoint	= pPoints->Get_Shape(iPoint);
+			CSG_Shape *pPoint = pPoints->Get_Shape(iPoint);
 
 			Set_Kernel(pPoint->Get_Point(0), Population < 0 ? 1. : pPoint->asDouble(Population));
 		}

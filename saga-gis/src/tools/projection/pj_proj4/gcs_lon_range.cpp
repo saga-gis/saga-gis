@@ -224,7 +224,7 @@ bool CGCS_Grid_Longitude_Range::On_Execute(void)
 
 		pOutput->Add_Item(pOut);
 
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			for(int x=0, xx=xZero; x<Target.Get_NX(); x++, xx++)
 			{

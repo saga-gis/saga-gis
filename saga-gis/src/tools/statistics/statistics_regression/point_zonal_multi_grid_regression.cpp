@@ -331,7 +331,7 @@ bool CPoint_Zonal_Multi_Grid_Regression::Set_Residuals(CSG_Shapes *pPoints, CSG_
 	}
 
 	//-----------------------------------------------------
-	for(int iShape=0; iShape<pPoints->Get_Count() && Set_Progress(iShape, pPoints->Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<pPoints->Get_Count() && Set_Progress(iShape, pPoints->Get_Count()); iShape++)
 	{
 		CSG_Shape	*pShape	= pPoints->Get_Shape(iShape);
 

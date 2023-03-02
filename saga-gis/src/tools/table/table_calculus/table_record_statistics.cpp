@@ -205,7 +205,7 @@ bool CTable_Record_Statistics_Base::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
+	for(sLong iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
 	{
 		CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
 

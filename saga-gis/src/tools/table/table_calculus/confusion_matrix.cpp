@@ -143,7 +143,7 @@ bool CConfusion_Matrix::On_Execute(void)
 
 	CSG_Category_Statistics	Categories;
 
-	for(int i=0; i<Table.Get_Count() && Set_Progress(i, Table.Get_Count()); i++)
+	for(sLong i=0; i<Table.Get_Count() && Set_Progress(i, Table.Get_Count()); i++)
 	{
 		if( bNoData || !Table[i].is_NoData(Field[0]) )
 		{
@@ -181,7 +181,7 @@ bool CConfusion_Matrix::On_Execute(void)
 	//-----------------------------------------------------
 	// count associations..
 
-	for(int i=0; i<Table.Get_Count() && Set_Progress(i, Table.Get_Count()); i++)
+	for(sLong i=0; i<Table.Get_Count() && Set_Progress(i, Table.Get_Count()); i++)
 	{
 		int	c0	= Categories.Get_Category(Table[i].asString(Field[0]));
 		int	c1	= Categories.Get_Category(Table[i].asString(Field[1]));

@@ -139,7 +139,7 @@ CTable_Cluster_Analysis::CTable_Cluster_Analysis(bool bShapes)
 bool CTable_Cluster_Analysis::On_Execute(void)
 {
 	bool					bNormalize;
-	int						iFeature, nFeatures, *Features, iElement, nElements, Cluster;
+	int						iFeature, nFeatures, *Features, Cluster;
 	CSG_Cluster_Analysis	Analysis;
 	CSG_Table				*pTable;
 
@@ -189,7 +189,9 @@ bool CTable_Cluster_Analysis::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(iElement=0, nElements=0; iElement<pTable->Get_Count() && Set_Progress(iElement, pTable->Get_Count()); iElement++)
+	sLong nElements = 0;
+
+	for(sLong iElement=0; iElement<pTable->Get_Count() && Set_Progress(iElement, pTable->Get_Count()); iElement++)
 	{
 		CSG_Table_Record	*pRecord	= pTable->Get_Record(iElement);
 
@@ -235,7 +237,9 @@ bool CTable_Cluster_Analysis::On_Execute(void)
 	//-----------------------------------------------------
 	bool	bResult	= Analysis.Execute(Parameters("METHOD")->asInt(), Parameters("NCLUSTER")->asInt());
 
-	for(iElement=0, nElements=0; iElement<pTable->Get_Count(); iElement++)
+	nElements = 0;
+
+	for(sLong iElement=0; iElement<pTable->Get_Count(); iElement++)
 	{
 		Set_Progress(iElement, pTable->Get_Count());
 

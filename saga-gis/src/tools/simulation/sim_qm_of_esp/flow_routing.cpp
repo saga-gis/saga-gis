@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: flow_routing.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "flow_routing.h"
 
 
@@ -70,7 +58,6 @@
 //---------------------------------------------------------
 CFlow_Routing::CFlow_Routing(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Flow Accumulation (QM of ESP)"));
 
 	Set_Author		("O.Conrad (c) 2013");
@@ -162,8 +149,8 @@ bool CFlow_Routing::Set_Flow(CSG_Grid *pDEM, CSG_Grid *pFlow, int Preprocess, do
 		return( false );
 	}
 
-	m_pDEM	= pDEM;
-	m_pFlow	= pFlow;
+	m_pDEM  = pDEM;
+	m_pFlow = pFlow;
 
 	return( Set_Flow(Preprocess, dzFill) );
 }
@@ -176,12 +163,12 @@ bool CFlow_Routing::Set_Flow(CSG_Grid *pDEM, CSG_Grid *pFlow, int Preprocess, do
 //---------------------------------------------------------
 bool CFlow_Routing::Set_Flow(int Preprocess, double dzFill)
 {
-	CSG_Grid	DEM;
+	CSG_Grid DEM;
 
 	switch( Preprocess )
 	{
 	case 1:
-		DEM.Create(*m_pDEM);	m_pDEM	= &DEM;
+		DEM.Create(*m_pDEM); m_pDEM = &DEM;
 
 	case 2:
 		{
@@ -193,15 +180,13 @@ bool CFlow_Routing::Set_Flow(int Preprocess, double dzFill)
 	}
 
 	//-----------------------------------------------------
-	int	i, x, y;
+	m_pFlow->Assign(0.);
 
-	m_pFlow->Assign(0.0);
-
-	m_pDEM->Get_Sorted(0, x, y);
+	int	x, y; m_pDEM->Get_Sorted(0, x, y);
 
 	Process_Set_Text(_TL("Calculating Contributing Area"));
 
-	for(i=0; i<Get_NCells() && Set_Progress(i, Get_NCells()); i++)
+	for(sLong i=0; i<Get_NCells() && Set_Progress(i, Get_NCells()); i++)
 	{
 		if( m_pDEM->Get_Sorted(i, x, y) )
 		{
@@ -225,29 +210,30 @@ void CFlow_Routing::Set_Flow(int x, int y)
 	{
 		m_pFlow->Add_Value(x, y, Get_Cellarea());
 
-		int		i;
-		double	z, dz[8], dzSum;
+		double dz[8], dzSum = 0., z = m_pDEM->asDouble(x, y);
 
-		for(i=0, dzSum=0.0, z=m_pDEM->asDouble(x, y); i<8; i++)
+		for(int i=0; i<8; i++)
 		{
-			int	ix	= Get_xTo(i, x);
-			int	iy	= Get_yTo(i, y);
+			int ix = Get_xTo(i, x);
+			int iy = Get_yTo(i, y);
 
 			if( m_pDEM->is_InGrid(ix, iy) && (dz[i] = z - m_pDEM->asDouble(ix, iy)) > 0.0 )
 			{
-				dzSum	+= (dz[i] = pow(dz[i] / Get_Length(i), 1.1));
+				dzSum += (dz[i] = pow(dz[i] / Get_Length(i), 1.1));
 			}
 			else
 			{
-				dz[i]	= 0.0;
+				dz[i] = 0.;
 			}
 		}
 
-		if( dzSum > 0.0 )
+		if( dzSum > 0. )
 		{
-			for(i=0, z=m_pFlow->asDouble(x, y)/dzSum; i<8; i++)
+			z = m_pFlow->asDouble(x, y) / dzSum;
+
+			for(int i=0; i<8; i++)
 			{
-				if( dz[i] > 0.0 )
+				if( dz[i] > 0. )
 				{
 					m_pFlow->Add_Value(Get_xTo(i, x), Get_yTo(i, y), z * dz[i]);
 				}

@@ -408,7 +408,7 @@ CGrid_Clip::CGrid_Clip(void)
 //---------------------------------------------------------
 int CGrid_Clip::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	CSG_Grid_System	*pSystem	= pParameters->Get_Grid_System();
+	CSG_Grid_System *pSystem = pParameters->Get_Grid_System();
 
 	if( pParameter->asGrid_System() == pSystem && pSystem && pSystem->is_Valid() )
 	{
@@ -418,7 +418,10 @@ int CGrid_Clip::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 		pParameters->Set_Parameter("YMAX", pSystem->Get_YMax());
 	}
 
-	Fit_Extent(pParameters, pParameter, *pSystem);
+	if( pSystem )
+	{
+		Fit_Extent(pParameters, pParameter, *pSystem);
+	}
 
 	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
 }
@@ -628,7 +631,7 @@ bool CGrid_Clip::Get_Mask(CSG_Grid &Mask, CSG_Grid_System &System, CSG_Shapes *p
 	}
 
 	//-----------------------------------------------------
-	for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
+	for(sLong i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 	{
 		CSG_Shape *pPolygon = pPolygons->Get_Shape(i);
 

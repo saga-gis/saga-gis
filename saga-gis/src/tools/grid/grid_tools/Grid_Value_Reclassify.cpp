@@ -409,7 +409,7 @@ bool CGrid_Value_Reclassify::ReclassRange(void)
 	else
 		floating = false;
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -473,7 +473,7 @@ bool CGrid_Value_Reclassify::ReclassSingle(void)
 	else
 		floating = false;
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -597,7 +597,7 @@ bool CGrid_Value_Reclassify::ReclassTable(bool bUser)
 	}
 
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)

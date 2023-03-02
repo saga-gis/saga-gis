@@ -39,7 +39,7 @@ bool CRealArea::On_Execute(void)
 	CSG_Grid	*pDEM	= Parameters("DEM" )->asGrid(); 
 	CSG_Grid	*pArea	= Parameters("AREA")->asGrid();
 
-    for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+    for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{

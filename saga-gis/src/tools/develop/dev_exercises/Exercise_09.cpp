@@ -118,7 +118,7 @@ bool CExercise_09::On_Execute(void)
 
 	m_Dir.Create(Get_System(), SG_DATATYPE_Char);
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
@@ -130,7 +130,7 @@ bool CExercise_09::On_Execute(void)
 	//-------------------------------------------------
 	// Execute calculation...
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{

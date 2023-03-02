@@ -206,7 +206,7 @@ bool CTextural_Features::On_Execute(void)
 	int	Direction	= Parameters("DIRECTION")->asInt();
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -292,22 +292,18 @@ bool CTextural_Features::Get_Matrices(int x, int y, int d, CSG_Matrix P[4])
 		return( false );
 	}
 
-	size_t	iTone, nTones;
-
-	int		ix, iy;
-
 	//-----------------------------------------------------
 	CSG_Array_Int	Tones(m_MaxCats);
 
-	for(iTone=0; iTone<Tones.Get_Size(); iTone++)
+	for(sLong iTone=0; iTone<Tones.Get_Size(); iTone++)
 	{
 		Tones[iTone] = -1;
 	}
 
 	// Determine the number of different gray scales (not maxval)
-	for(iy=y-m_Radius; iy<=y+m_Radius; iy++)
+	for(int iy=y-m_Radius; iy<=y+m_Radius; iy++)
 	{
-		for(ix=x-m_Radius; ix<=x+m_Radius; ix++)
+		for(int ix=x-m_Radius; ix<=x+m_Radius; ix++)
 		{
 			int	Value	= Get_Value(ix, iy);
 
@@ -321,7 +317,9 @@ bool CTextural_Features::Get_Matrices(int x, int y, int d, CSG_Matrix P[4])
 	}
 
 	// Collapse array, taking out all zero values
-	for(iTone=0, nTones=0; iTone<Tones.Get_Size(); iTone++)
+	int nTones = 0;
+
+	for(sLong iTone=0; iTone<Tones.Get_Size(); iTone++)
 	{
 		if( Tones[iTone] >= 0 )
 		{
@@ -332,16 +330,16 @@ bool CTextural_Features::Get_Matrices(int x, int y, int d, CSG_Matrix P[4])
 	Tones.Set_Array(nTones);
 
 	//-----------------------------------------------------
-	P[0].Create((int)nTones, (int)nTones);
-	P[1].Create((int)nTones, (int)nTones);
-	P[2].Create((int)nTones, (int)nTones);
-	P[3].Create((int)nTones, (int)nTones);
+	P[0].Create(nTones, nTones);
+	P[1].Create(nTones, nTones);
+	P[2].Create(nTones, nTones);
+	P[3].Create(nTones, nTones);
 
 	//-----------------------------------------------------
 	// Find gray-Tones spatial dependence matrix
-	for(iy=y-m_Radius; iy<=y+m_Radius; iy++)
+	for(int iy=y-m_Radius; iy<=y+m_Radius; iy++)
 	{
-		for(ix=x-m_Radius; ix<=x+m_Radius; ix++)
+		for(int ix=x-m_Radius; ix<=x+m_Radius; ix++)
 		{
 			int j = 0; while(Tones[j] != Get_Value(ix, iy)) j++;
 

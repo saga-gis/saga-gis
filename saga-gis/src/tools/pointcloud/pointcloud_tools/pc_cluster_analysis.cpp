@@ -141,7 +141,7 @@ CPC_Cluster_Analysis::CPC_Cluster_Analysis(void)
 bool CPC_Cluster_Analysis::On_Execute(void)
 {
 	int				nCluster;
-	long			nElements;
+	sLong			nElements;
 	double			SP;
 
 	//-----------------------------------------------------
@@ -238,7 +238,7 @@ bool CPC_Cluster_Analysis::On_Execute(void)
 	}
 
 	//-------------------------------------------------
-	nElements	= pPC_in->Get_Point_Count();
+	nElements	= pPC_in->Get_Count();
 
 	switch( Parameters("METHOD")->asInt() )
 	{
@@ -253,7 +253,7 @@ bool CPC_Cluster_Analysis::On_Execute(void)
 	case 2:
 		SP	= MinimumDistance	(nElements, nCluster);
 
-		nElements	= pPC_in->Get_Point_Count();	// may have been diminished because of no data values...
+		nElements	= pPC_in->Get_Count();	// may have been diminished because of no data values...
 
 		SP	= HillClimbing		(nElements, nCluster);
 		break;
@@ -317,7 +317,7 @@ bool CPC_Cluster_Analysis::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CPC_Cluster_Analysis::Write_Result(CSG_Table *pTable, long nElements, int nCluster, double SP)
+void CPC_Cluster_Analysis::Write_Result(CSG_Table *pTable, sLong nElements, int nCluster, double SP)
 {
 	CSG_String			s;
 	CSG_Table_Record	*pRecord;
@@ -376,20 +376,20 @@ void CPC_Cluster_Analysis::Write_Result(CSG_Table *pTable, long nElements, int n
 // (nElements)-Array -> Bei Eingabe Startgruppierung oder 0.
 // Bei Ausgabe Gruppierung: >Das ite Element ist im Cluster Cluster(i).
 
-double CPC_Cluster_Analysis::MinimumDistance(long &nElements, int nCluster)
+double CPC_Cluster_Analysis::MinimumDistance(sLong &nElements, int nCluster)
 {
 	//-----------------------------------------------------
 	// Variablen...
 
 	bool	bContinue;
-	int		iElement, iField, iCluster, nClusterElements, nShifts, minCluster, nPasses;
+	int		iField, iCluster, nClusterElements = 0, nShifts, minCluster, nPasses;
 	double	d, Variance, minVariance, SP, SP_Last	= -1;
 
 
 	//-----------------------------------------------------
 	// Anfangspartition (Standard falls nicht vorgegeben
 
-	for( iElement=0, nClusterElements=0; iElement<nElements; iElement++ )
+	for(sLong iElement=0; iElement<nElements; iElement++ )
 	{
 		if( pPC_out->Get_Value(iElement, clustField) < 0 || pPC_out->Get_Value(iElement, clustField) >= nCluster )
 		{
@@ -418,7 +418,7 @@ double CPC_Cluster_Analysis::MinimumDistance(long &nElements, int nCluster)
 		}
 
 		//-------------------------------------------------
-		for( iElement=0; iElement<nElements; iElement++ )
+		for(sLong iElement=0; iElement<nElements; iElement++ )
 		{
 			if( pPC_out->Get_Value(iElement, clustField) >= 0 )
 			{
@@ -450,7 +450,7 @@ double CPC_Cluster_Analysis::MinimumDistance(long &nElements, int nCluster)
 		SP		= 0;
 		nShifts	= 0;
 
-		for( iElement=0; iElement<nElements && bContinue; iElement++ )
+		for(sLong iElement=0; iElement<nElements && bContinue; iElement++ )
 		{
 			if( !(iElement % (nElements / 100)) && !Set_Progress(iElement, nElements) )
 			{
@@ -515,13 +515,13 @@ double CPC_Cluster_Analysis::MinimumDistance(long &nElements, int nCluster)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CPC_Cluster_Analysis::HillClimbing(long &nElements, int nCluster)
+double CPC_Cluster_Analysis::HillClimbing(sLong &nElements, int nCluster)
 {
 	//-----------------------------------------------------
 	// Variablen...
 
 	bool	bContinue;
-	int		iElement, iField, iCluster, jCluster, kCluster, nClusterElements, noShift, nPasses;
+	int		iField, iCluster, jCluster, kCluster, nClusterElements = 0, noShift, nPasses;
 	double	d, e, n_iK, n_jK, V, VMin, V1, V2, SP, SP_Last	= -1;
 
 
@@ -542,7 +542,7 @@ double CPC_Cluster_Analysis::HillClimbing(long &nElements, int nCluster)
 	//-----------------------------------------------------
 	// Anfangspartition (Standard falls nicht vorgegeben)
 
-	for( iElement=0, nClusterElements=0; iElement<nElements; iElement++ )
+	for(sLong iElement=0; iElement<nElements; iElement++ )
 	{
 		if( pPC_out->Get_Value(iElement, clustField) < 0 || pPC_out->Get_Value(iElement, clustField) >= nCluster )
 		{
@@ -597,7 +597,7 @@ double CPC_Cluster_Analysis::HillClimbing(long &nElements, int nCluster)
 	for( nPasses=1, bContinue=true; bContinue && Process_Get_Okay(false); nPasses++ )
 	{
 		//-------------------------------------------------
-		for( iElement=0; iElement<nElements && bContinue; iElement++ )
+		for(sLong iElement=0; iElement<nElements && bContinue; iElement++ )
 		{
 			if( !(iElement % (nElements / 100)) && !Set_Progress(iElement, nElements) )
 			{

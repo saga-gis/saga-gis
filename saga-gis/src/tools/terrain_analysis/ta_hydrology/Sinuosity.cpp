@@ -85,7 +85,7 @@ void CSinuosity::writeDistOut(
 
 void CSinuosity::ZeroToNoData(void){
 		
-    for(int y=0; y<Get_NY() && Set_Progress(y); y++){		
+    for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++){		
 		for(int x=0; x<Get_NX(); x++){			
             if (m_pSinuosity->asDouble(x,y) == 0){
 				m_pSinuosity->Set_Value(x,y,m_pSinuosity->Get_NoData_Value());
@@ -100,7 +100,7 @@ void CSinuosity::calculateSinuosity(void){
 	
 	double dDist;
     
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++){		
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++){		
 		for(int x=0; x<Get_NX(); x++){
             if (m_pSinuosity->asDouble(x,y) != m_pSinuosity->Get_NoData_Value()){				
 				dDist = sqrt(pow((double)x-m_iX,2)+pow((double)y-m_iY,2))*m_pSinuosity->Get_Cellsize();

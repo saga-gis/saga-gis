@@ -347,22 +347,23 @@ bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(int iFieldToGrid)
 						}
 					}
 
-					if( System.Get_World_to_Grid(x, y, pPC->Get_X(iPoint), pPC->Get_Y(iPoint)) )
+					if( pGrid && System.Get_World_to_Grid(x, y, pPC->Get_X(iPoint), pPC->Get_Y(iPoint)) )
 					{
 						switch( m_iMethod )
 						{
 						default:
-						case 0:		if( pGrid->is_NoData(x, y) || pGrid->asDouble(x, y) > pPC->Get_Value(iPoint, iFieldToGrid) )
-									{
-										pGrid->Set_Value(x, y, pPC->Get_Value(iPoint, iFieldToGrid));
-									}
-									break;
+							if( pGrid->is_NoData(x, y) || pGrid->asDouble(x, y) > pPC->Get_Value(iPoint, iFieldToGrid) )
+							{
+								pGrid->Set_Value(x, y, pPC->Get_Value(iPoint, iFieldToGrid));
+							}
+							break;
 
-						case 1:		if( pGrid->is_NoData(x, y) || pGrid->asDouble(x, y) < pPC->Get_Value(iPoint, iFieldToGrid) )
-									{
-										pGrid->Set_Value(x, y, pPC->Get_Value(iPoint, iFieldToGrid));
-									}
-									break;
+						case 1:
+							if( pGrid->is_NoData(x, y) || pGrid->asDouble(x, y) < pPC->Get_Value(iPoint, iFieldToGrid) )
+							{
+								pGrid->Set_Value(x, y, pPC->Get_Value(iPoint, iFieldToGrid));
+							}
+							break;
 						}
 
 						bFound = true;

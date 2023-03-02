@@ -95,7 +95,9 @@ private:
 
 	bool					m_bExtended;
 
-	int						m_nGaps, m_nGapCells, m_iStack, m_nPoints_Max, m_nPoints_Local, m_nGapCells_Max, m_Neighbours;
+	int						m_nGaps, m_iStack, m_nPoints_Max, m_nPoints_Local, m_Neighbours;
+
+	sLong					m_nGapCells, m_nGapCells_Max;
 
 	double					m_Relaxation, m_Radius;
 

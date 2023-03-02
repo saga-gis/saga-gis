@@ -163,12 +163,12 @@ bool CDistanceMatrix::On_Execute(void)
 	case  0: { // complete input times near points matrix
 		pDistances->Add_Field("ID_POINT", SG_DATATYPE_String);
 
-		for(int iNear=0; iNear<pNear->Get_Count(); iNear++)
+		for(sLong iNear=0; iNear<pNear->Get_Count(); iNear++)
 		{
 			pDistances->Add_Field(GET_ID(pNear, id_Near, iNear), SG_DATATYPE_Double);
 		}
 
-		for(int iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
+		for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 		{
 			TSG_Point	Point	= pPoints->Get_Shape(iPoint)->Get_Point(0);
 
@@ -194,11 +194,11 @@ bool CDistanceMatrix::On_Execute(void)
 			pLines->Create(SHAPE_TYPE_Line, pDistances->Get_Name(), pDistances);
 		}
 
-		for(int iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
+		for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 		{
 			TSG_Point	Point	= pPoints->Get_Shape(iPoint)->Get_Point(0);
 
-			for(int iNear=0; iNear<pNear->Get_Count(); iNear++)
+			for(sLong iNear=0; iNear<pNear->Get_Count(); iNear++)
 			{
 				if( pPoints != pNear || iPoint != iNear )
 				{
@@ -236,13 +236,13 @@ bool CDistanceMatrix::On_Execute(void)
 			pLines->Create(SHAPE_TYPE_Line, pDistances->Get_Name(), pDistances);
 		}
 
-		for(int iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
+		for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 		{
 			TSG_Point	Point	= pPoints->Get_Shape(iPoint)->Get_Point(0), Point_Near;
 
 			CSG_Table_Record	*pRecord	= NULL;
 
-			for(int iNear=0; iNear<pNear->Get_Count(); iNear++)
+			for(sLong iNear=0; iNear<pNear->Get_Count(); iNear++)
 			{
 				if( pPoints != pNear || iPoint != iNear )
 				{

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Mandelbrot.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Mandelbrot.h"
 
 
@@ -72,92 +60,49 @@
 //---------------------------------------------------------
 CMandelbrot::CMandelbrot(void)
 {
-	//-----------------------------------------------------
-	// 1. Info...
+	Set_Name		(_TL("Mandelbrot Set"));
 
-	Set_Name(_TL("Mandelbrot Set"));
-
-	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2001");
 
 	Set_Description	(_TW(
-		"Calculates Mandelbrot and Julia sets.\n\n"
-		"References:\n"
-		"- Mandelbrot, B.B. (1983): 'The Fractal Geometry of Nature', New York, 490p.\n")
-	);
+		"Calculates Mandelbrot and Julia sets."
+	));
 
+	Add_Reference("Mandelbrot, B.B.", "1983",
+		"The Fractal Geometry of Nature",
+		"New York, 490p."
+	);
 
 	//-----------------------------------------------------
-	// 2. Grids...
+	Parameters.Add_Grid_Output("", "GRID"   , _TL("Mandelbrot Set"    ), _TL(""));
 
-	Parameters.Add_Grid_Output(
-		NULL	, "GRID"	, _TL("Grid"),
-		_TL("")
-	);
+	Parameters.Add_Int        ("", "NX"     , _TL("Width"             ), _TL("Cells"), 100, 1, true);
+	Parameters.Add_Int        ("", "NY"     , _TL("Height"            ), _TL("Cells"), 100, 1, true);
 
-	Parameters.Add_Value(
-		NULL	, "NX"		, _TL("Width (Cells)"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 100, 1, true
-	);
+	Parameters.Add_Range      ("", "XRANGE" , _TL("X-Range"           ), _TL(""), -2.0, 1.0);
+	Parameters.Add_Range      ("", "YRANGE" , _TL("Y-Range"           ), _TL(""), -1.5, 1.5);
 
-	Parameters.Add_Value(
-		NULL	, "NY"		, _TL("Height (Cells)"),
-		_TL(""), PARAMETER_TYPE_Int, 100, 1, true
-	);
+	Parameters.Add_Double     ("", "JULIA_X", _TL("Julia - X"         ), _TL(""), -0.7);
+	Parameters.Add_Double     ("", "JULIA_Y", _TL("Julia - Y"         ), _TL(""),  0.3);
 
-	Parameters.Add_Range(
-		NULL	, "XRANGE"	, _TL("X-Range"),
-		_TL(""), -2.0, 1.0
-	);
+	Parameters.Add_Int        ("", "MAXITER", _TL("Maximum Iterations"), _TL(""), 300, 1, true);
 
-	Parameters.Add_Range(
-		NULL	, "YRANGE"	, _TL("Y-Range"),
-		_TL(""),
-		-1.5, 1.5
-	);
-
-	Parameters.Add_Value(
-		NULL	, "JULIA_X"	, _TL("Julia - X"),
-		_TL(""), PARAMETER_TYPE_Double, -0.7
-	);
-
-	Parameters.Add_Value(
-		NULL	, "JULIA_Y"	, _TL("Julia - Y"),
-		_TL(""), PARAMETER_TYPE_Double,  0.3
-	);
-
-	Parameters.Add_Value(
-		NULL	, "MAXITER"	, _TL("Maximum Iterations"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 300, 1, true
-	);
-
-	Parameters.Add_Choice(
-		NULL	, "METHOD"	, _TL("Fractal Type"),
-		_TL(""),
-
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("Mandelbrot"),
-			_TL("Julia")
+	Parameters.Add_Choice     ("", "METHOD" , _TL("Type"), _TL(""),
+		CSG_String::Format("%s|%s",
+			SG_T("Mandelbrot"),
+			SG_T("Julia")
 		), 0
 	);
 }
 
-//---------------------------------------------------------
-CMandelbrot::~CMandelbrot(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CMandelbrot::On_Execute(void)
 {
-	//-----------------------------------------------------
 	m_Extent.Assign(
 		Parameters("XRANGE")->asRange()->Get_Min(),
 		Parameters("YRANGE")->asRange()->Get_Min(),
@@ -165,15 +110,15 @@ bool CMandelbrot::On_Execute(void)
 		Parameters("YRANGE")->asRange()->Get_Max()
 	);
 
-	m_maxIterations	= Parameters("MAXITER")	->asInt();
-	m_maxDistance	= 4.0;
+	m_maxIterations = Parameters("MAXITER")->asInt();
+	m_maxDistance   = 4.;
 
-	m_Method		= Parameters("METHOD")	->asInt();
+	m_Method        = Parameters("METHOD" )->asInt();
 
-	m_xJulia		= Parameters("JULIA_X")	->asDouble();
-	m_yJulia		= Parameters("JULIA_Y")	->asDouble();
+	m_xJulia        = Parameters("JULIA_X")->asDouble();
+	m_yJulia        = Parameters("JULIA_Y")->asDouble();
 
-	m_pGrid			= SG_Create_Grid(SG_DATATYPE_Int, Parameters("NX")->asInt(), Parameters("NY")->asInt());
+	m_pGrid         = SG_Create_Grid(SG_DATATYPE_Int, Parameters("NX")->asInt(), Parameters("NY")->asInt());
 	m_pGrid->Set_Name(m_Method == 0 ? _TL("Mandelbrot Set") : _TL("Julia Set"));
 	Parameters("GRID")->Set_Value(m_pGrid);
 
@@ -183,6 +128,11 @@ bool CMandelbrot::On_Execute(void)
 	//-----------------------------------------------------
 	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #define GET_POS(p)		p.Assign(\
@@ -252,28 +202,27 @@ bool CMandelbrot::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mo
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CMandelbrot::Calculate(void)
 {
-	int		x, y, i;
-	double	xPos, yPos, dx, dy;
+	double dx = m_Extent.Get_XRange() / (m_pGrid->Get_NX() - 1.);
+	double dy = m_Extent.Get_YRange() / (m_pGrid->Get_NY() - 1.);
 
-	dx	= m_Extent.Get_XRange() / (m_pGrid->Get_NX() - 1.0);
-	dy	= m_Extent.Get_YRange() / (m_pGrid->Get_NY() - 1.0);
-
-	for(y=0, yPos=m_Extent.Get_YMin(); y<m_pGrid->Get_NY() && Set_Progress(y, m_pGrid->Get_NY()); y++, yPos+=dy)
+	for(int y=0; y<m_pGrid->Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		for(x=0, xPos=m_Extent.Get_XMin(); x<m_pGrid->Get_NX(); x++, xPos+=dx)
+		double yPos = m_Extent.Get_YMin() + y * dy;
+
+		#pragma omp parallel for
+		for(int x=0; x<m_pGrid->Get_NX(); x++)
 		{
+			double xPos = m_Extent.Get_XMin() + x * dx; int i;
+
 			switch( m_Method )
 			{
-			default:
-			case 0:	i	= Get_Mandelbrot	(xPos, yPos);	break;
-			case 1:	i	= Get_Julia			(xPos, yPos);	break;
+			default: i = Get_Mandelbrot(xPos, yPos); break;
+			case  1: i = Get_Julia     (xPos, yPos); break;
 			}
 
 			if( i >= m_maxIterations )
@@ -293,21 +242,17 @@ void CMandelbrot::Calculate(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 int CMandelbrot::Get_Mandelbrot(double xPos, double yPos)
 {
-	int		i;
-	double	x, y, k;
+	double xx, x = 0., y = 0.;
 
-	for(i=0, x=0.0, y=0.0; i<m_maxIterations; i++)
+	for(int i=0; i<m_maxIterations; i++)
 	{
-		k	= xPos + x*x - y*y;
-		y	= yPos + 2.0 * x * y;
-		x	= k;
+		xx = xPos + x*x - y*y;
+		y  = yPos + 2.0 * x*y; x = xx;
 
 		if( m_maxDistance < x*x + y*y )
 		{
@@ -315,20 +260,18 @@ int CMandelbrot::Get_Mandelbrot(double xPos, double yPos)
 		}
 	}
 
-	return( i );
+	return( m_maxIterations );
 }
 
 //---------------------------------------------------------
 int CMandelbrot::Get_Julia(double xPos, double yPos)
 {
-	int		i;
-	double	x, y, k;
+	double	xx, x = xPos, y = yPos;
 
-	for(i=0, x=xPos, y=yPos; i<m_maxIterations; i++)
+	for(int i=0; i<m_maxIterations; i++)
 	{
-		k	= m_xJulia + x*x - y*y;
-		y	= m_yJulia + 2.0 * x * y;
-		x	= k;
+		xx = m_xJulia + x*x - y*y;
+		y  = m_yJulia + 2.0 * x*y; x = xx;
 
 		if( m_maxDistance < x*x + y*y )
 		{
@@ -336,7 +279,7 @@ int CMandelbrot::Get_Julia(double xPos, double yPos)
 		}
 	}
 
-	return( i );
+	return( m_maxIterations );
 }
 
 

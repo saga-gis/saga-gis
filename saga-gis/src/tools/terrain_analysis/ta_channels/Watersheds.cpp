@@ -149,7 +149,7 @@ bool CWatersheds::On_Execute(void)
 
 	m_Direction.Create(m_pBasins, SG_DATATYPE_Char);
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
@@ -170,7 +170,7 @@ bool CWatersheds::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(n=0, m_nBasins=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(n=0, m_nBasins=0; n<Get_NCells() && Set_Progress_Cells(n); n++)
 	{
 		pDTM->Get_Sorted(n, x, y, true, false);
 

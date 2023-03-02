@@ -224,7 +224,7 @@ bool CCloud_Overlap::On_Execute(void)
 	double	Interval = Parameters("INTERVAL")->asDouble();
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		double	yWorld	= Get_YMin() + y * Get_Cellsize();
 

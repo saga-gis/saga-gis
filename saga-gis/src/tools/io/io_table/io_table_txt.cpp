@@ -159,7 +159,7 @@ bool CTable_Text_Export::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
+	for(sLong iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
 	{
 		CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
 
@@ -834,7 +834,7 @@ bool CTable_Text_Import_Fixed_Cols::On_Execute(void)
 		{
 			CSG_Table	*pList	= Parameters("LIST")->asTable();
 
-			nFields	= pList->Get_Count();
+			nFields	= (int)pList->Get_Count();
 
 			if( nFields < 1 )
 			{

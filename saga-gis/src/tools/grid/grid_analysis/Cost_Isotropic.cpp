@@ -264,7 +264,7 @@ bool CCost_Accumulated::Get_Cost(CSG_Points_Int &Destinations)
 	sLong	nProcessed	= Destinations.Get_Count();
 
 	//-----------------------------------------------------
-	while( Destinations.Get_Count() > 0 && Set_Progress_NCells(nProcessed) )
+	while( Destinations.Get_Count() > 0 && Set_Progress_Cells(nProcessed) )
 	{
 		Process_Set_Text("%s: %d", _TL("cells in process"), Destinations.Get_Count());
 
@@ -373,7 +373,7 @@ int CCost_Accumulated::Get_Allocation(int x, int y)
 //---------------------------------------------------------
 bool CCost_Accumulated::Get_Allocation(void)
 {
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{

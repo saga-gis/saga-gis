@@ -168,7 +168,7 @@ bool CGrid_To_Points::On_Execute(void)
 		}
 
 		//-------------------------------------------------
-		for(y=0, yPos=Get_YMin() - (Type ? 0.5 * Get_Cellsize() : 0.0), iPoint=0; y<Get_NY() && Set_Progress(y); y++, yPos+=Get_Cellsize())
+		for(y=0, yPos=Get_YMin() - (Type ? 0.5 * Get_Cellsize() : 0.0), iPoint=0; y<Get_NY() && Set_Progress_Rows(y); y++, yPos+=Get_Cellsize())
 		{
 			for(x=0, xPos=Get_XMin() - (Type ? 0.5 * Get_Cellsize() : 0.0); x<Get_NX(); x++, xPos+=Get_Cellsize())
 			{

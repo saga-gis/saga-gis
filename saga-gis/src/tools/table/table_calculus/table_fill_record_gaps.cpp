@@ -167,7 +167,7 @@ bool CTable_Fill_Record_Gaps::On_Execute(void)
 	int	Method	= Parameters("METHOD")->asInt();
 
 	//-----------------------------------------------------
-	for(int iRecord=0; iRecord<m_pTable->Get_Count() && Set_Progress(iRecord, m_pTable->Get_Count()-1); iRecord++)
+	for(sLong iRecord=0; iRecord<m_pTable->Get_Count() && Set_Progress(iRecord, m_pTable->Get_Count()-1); iRecord++)
 	{
 		CSG_Table_Record	*pRecord	= m_pTable->Get_Record_byIndex(iRecord);
 
@@ -213,13 +213,13 @@ bool CTable_Fill_Record_Gaps::On_Execute(void)
 #define GET_X(i)	(                m_pTable->Get_Record_byIndex(i)->asDouble(Order)))
 
 //---------------------------------------------------------
-bool CTable_Fill_Record_Gaps::Get_Neighbours(int iRecord, int Order, int Field, CSG_Vector &Y, CSG_Vector &X, int Number)
+bool CTable_Fill_Record_Gaps::Get_Neighbours(sLong iRecord, int Order, int Field, CSG_Vector &Y, CSG_Vector &X, int Number)
 {
-	int		i, n;
+	sLong n = 0;
 
-	for(i=iRecord-1, n=0; n<Number && i>=0; i--)
+	for(sLong i=iRecord-1; n<Number && i>=0; i--)
 	{
-		CSG_Table_Record	*pRecord	= m_pTable->Get_Record_byIndex(i);
+		CSG_Table_Record *pRecord = m_pTable->Get_Record_byIndex(i);
 
 		if( !pRecord->is_NoData(Field) )
 		{
@@ -235,9 +235,11 @@ bool CTable_Fill_Record_Gaps::Get_Neighbours(int iRecord, int Order, int Field, 
 		return( false );
 	}
 
-	for(i=iRecord+1, n=0; n<Number && i<m_pTable->Get_Count(); i++)
+	n = 0;
+
+	for(sLong i=iRecord+1; n<Number && i<m_pTable->Get_Count(); i++)
 	{
-		CSG_Table_Record	*pRecord	= m_pTable->Get_Record_byIndex(i);
+		CSG_Table_Record *pRecord = m_pTable->Get_Record_byIndex(i);
 
 		if( !pRecord->is_NoData(Field) )
 		{
@@ -305,7 +307,6 @@ double CTable_Fill_Record_Gaps::Get_Spline(const double Y[4], const double X[4],
 //---------------------------------------------------------
 CTable_Insert_Records::CTable_Insert_Records(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Fill Gaps in Ordered Records"));
 
 	Set_Author		("O.Conrad (c) 2011");
@@ -353,8 +354,7 @@ CTable_Insert_Records::CTable_Insert_Records(void)
 //---------------------------------------------------------
 bool CTable_Insert_Records::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
+	CSG_Table *pTable = Parameters("TABLE")->asTable();
 
 	if( !pTable->is_Valid() || pTable->Get_Count() < 2 )
 	{
@@ -371,27 +371,26 @@ bool CTable_Insert_Records::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Table_Record	*pA, *pB;
+	CSG_Table_Record *pA, *pB;
 
-	m_pNoGaps	= Parameters("NOGAPS")->asTable();
+	m_pNoGaps = Parameters("NOGAPS")->asTable();
 	m_pNoGaps->Create(pTable);
 	m_pNoGaps->Fmt_Name("%s [%s]", pTable->Get_Name(), _TL("no gaps"));
 	m_pNoGaps->Add_Record(pB = pTable->Get_Record(0));
 
-	int	Method	= Parameters("METHOD")->asInt();
+	int Method = Parameters("METHOD")->asInt();
 
 	//-----------------------------------------------------
-	for(int iRecord=1; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()-1); iRecord++)
+	for(sLong iRecord=1; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()-1); iRecord++)
 	{
-		pA		= pB;
-		pB		= pTable->Get_Record(iRecord);
+		pA = pB; pB = pTable->Get_Record(iRecord);
 
 		int	iA	= pA->asInt(m_fOrder);
 		int	iB	= pB->asInt(m_fOrder);
 
 		if( iB - iA > 1 )
 		{
-			int	iStart	= m_pNoGaps->Get_Count();
+			sLong iStart = m_pNoGaps->Get_Count();
 
 			for(int i=iA+1; i<iB; i++)
 			{
@@ -425,11 +424,11 @@ bool CTable_Insert_Records::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTable_Insert_Records::Set_Nearest(int iOffset, int iField, CSG_Table_Record *p1, CSG_Table_Record *p2)
+bool CTable_Insert_Records::Set_Nearest(sLong iOffset, int iField, CSG_Table_Record *p1, CSG_Table_Record *p2)
 {
-	int	n	= iOffset + (m_pNoGaps->Get_Count() - iOffset) / 2;
+	sLong n = iOffset + (m_pNoGaps->Get_Count() - iOffset) / 2;
 
-	for(int iRecord=iOffset; iRecord<m_pNoGaps->Get_Count(); iRecord++)
+	for(sLong iRecord=iOffset; iRecord<m_pNoGaps->Get_Count(); iRecord++)
 	{
 		m_pNoGaps->Get_Record(iRecord)->Set_Value(iField, iRecord < n ? p1->asString(iField) : p2->asString(iField));
 	}
@@ -438,28 +437,28 @@ bool CTable_Insert_Records::Set_Nearest(int iOffset, int iField, CSG_Table_Recor
 }
 
 //---------------------------------------------------------
-bool CTable_Insert_Records::Set_Linear(int iOffset, int iField, CSG_Table_Record *p1, CSG_Table_Record *p2)
+bool CTable_Insert_Records::Set_Linear(sLong iOffset, int iField, CSG_Table_Record *p1, CSG_Table_Record *p2)
 {
-	double	z1	=  p1->asDouble(iField);
-	double	dz	= (p2->asDouble(iField) - z1) / abs(p2->asInt(m_fOrder) - p1->asInt(m_fOrder));
+	double z1 =  p1->asDouble(iField);
+	double dz = (p2->asDouble(iField) - z1) / abs(p2->asInt(m_fOrder) - p1->asInt(m_fOrder));
 
-	for(int iRecord=iOffset, iX=1; iRecord<m_pNoGaps->Get_Count(); iRecord++, iX++)
+	for(sLong iRecord=iOffset, iX=1; iRecord<m_pNoGaps->Get_Count(); iRecord++, iX++)
 	{
-		m_pNoGaps->Get_Record(iRecord)->Set_Value(iField, z1 + iX * dz);
+		m_pNoGaps->Get_Record(iRecord)->Set_Value(iField, z1 + (double)iX * dz);
 	}
 
 	return( true );
 }
 
 //---------------------------------------------------------
-bool CTable_Insert_Records::Set_Spline(int iOffset, int iField, CSG_Table_Record *p1, CSG_Table_Record *p2, CSG_Table_Record *p0, CSG_Table_Record *p3)
+bool CTable_Insert_Records::Set_Spline(sLong iOffset, int iField, CSG_Table_Record *p1, CSG_Table_Record *p2, CSG_Table_Record *p0, CSG_Table_Record *p3)
 {
-	CSG_Spline	Spline;
+	CSG_Spline Spline;
 
-	int		i0	= p0 ? p0->asInt(m_fOrder) : p1->asInt(m_fOrder) - 1;
-	int		i1	= p1->asInt(m_fOrder);
-	int		i2	= p2->asInt(m_fOrder);
-	int		i3	= p3 ? p3->asInt(m_fOrder) : p2->asInt(m_fOrder) + 1;
+	int i0 = p0 ? p0->asInt(m_fOrder) : p1->asInt(m_fOrder) - 1;
+	int i1 = p1->asInt(m_fOrder);
+	int i2 = p2->asInt(m_fOrder);
+	int i3 = p3 ? p3->asInt(m_fOrder) : p2->asInt(m_fOrder) + 1;
 
 	Spline.Add(i0 - i1, p0 ? p0->asDouble(iField) : p1->asDouble(iField));
 	Spline.Add(0      , p1->asDouble(iField));
@@ -471,9 +470,9 @@ bool CTable_Insert_Records::Set_Spline(int iOffset, int iField, CSG_Table_Record
 		return( Set_Linear(iOffset, iField, p1, p2) );
 	}
 
-	for(int iRecord=iOffset, i=1; iRecord<m_pNoGaps->Get_Count(); iRecord++, i++)
+	for(sLong iRecord=iOffset, i=1; iRecord<m_pNoGaps->Get_Count(); iRecord++, i++)
 	{
-		m_pNoGaps->Get_Record(iRecord)->Set_Value(iField, Spline.Get_Value(i));
+		m_pNoGaps->Get_Record(iRecord)->Set_Value(iField, Spline.Get_Value((double)i));
 	}
 
 	return( true );

@@ -86,7 +86,7 @@ bool CAggregationIndex::On_Execute(void){
 	pTable->Add_Field(_TL("Area(%)"), SG_DATATYPE_Double);
 	pTable->Add_Field(_TL("Aggregation Index"), SG_DATATYPE_Double);
 
-	for(int y=1; y<Get_NY()-1 && Set_Progress(y); y++){
+	for(int y=1; y<Get_NY()-1 && Set_Progress_Rows(y); y++){
 		for(int x=1; x<Get_NX()-1; x++){
 			if (!pInput->is_NoData(x,y)){
 				iClass = pInput->asInt(x,y);

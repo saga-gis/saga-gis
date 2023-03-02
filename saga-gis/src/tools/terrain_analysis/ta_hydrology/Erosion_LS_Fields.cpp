@@ -316,7 +316,7 @@ bool CErosion_LS_Fields::Get_Flow(void)
 	int	Method_Area	= Parameters("METHOD_AREA")->asInt();
 
 	//-----------------------------------------------------
-	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(sLong n=0; n<Get_NCells() && Set_Progress_Cells(n); n++)
 	{
 		int	x, y;	double	dzSum, dz[8], Slope, Aspect;
 
@@ -419,7 +419,7 @@ bool CErosion_LS_Fields::Get_LS(void)
 
 	Process_Set_Text(_TL("LS Factor"));
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -553,7 +553,7 @@ bool CErosion_LS_Fields::Get_Balance(void)
 	//-----------------------------------------------------
 	Process_Set_Text("%s: %s 1", _TL("Sediment Balance"), _TL("Pass"));
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -584,7 +584,7 @@ bool CErosion_LS_Fields::Get_Balance(void)
 	//-----------------------------------------------------
 	Process_Set_Text("%s: %s 2", _TL("Sediment Balance"), _TL("Pass"));
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -654,7 +654,7 @@ bool CErosion_LS_Fields::Get_Statistics(void)
 	CSG_Simple_Statistics	*Statistics	= new CSG_Simple_Statistics[m_nFields];
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
@@ -676,7 +676,7 @@ bool CErosion_LS_Fields::Get_Statistics(void)
 	pStatistics->Add_Field("MAX"   , SG_DATATYPE_Double);
 	pStatistics->Add_Field("STDDEV", SG_DATATYPE_Double);
 
-	for(int i=0; i<pFields->Get_Count() && Set_Progress(i, pFields->Get_Count()); i++)
+	for(sLong i=0; i<pFields->Get_Count() && Set_Progress(i, pFields->Get_Count()); i++)
 	{
 		CSG_Shape	*pField	= pStatistics->Add_Shape(pFields->Get_Shape(i));
 
@@ -742,7 +742,7 @@ bool CErosion_LS_Fields::Set_Fields(void)
 	m_Fields.Assign_NoData();
 
 	//-----------------------------------------------------
-	for(int iField=0; iField<pFields->Get_Count() && Set_Progress(iField, pFields->Get_Count()); iField++)
+	for(sLong iField=0; iField<pFields->Get_Count() && Set_Progress(iField, pFields->Get_Count()); iField++)
 	{
 		CSG_Shape_Polygon	*pField	= (CSG_Shape_Polygon *)pFields->Get_Shape(iField);
 

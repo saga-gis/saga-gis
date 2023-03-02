@@ -605,7 +605,7 @@ bool CSoilWater_Glugla_Table::On_Execute(void)
 	int Unit = Parameters("OUTPUT_UNIT")->asInt();
 
 	//-----------------------------------------------------
-	for(int i=0; i<Input.Get_Count() && Set_Progress(i, Input.Get_Count()); i++)
+	for(sLong i=0; i<Input.Get_Count() && Set_Progress(i, Input.Get_Count()); i++)
 	{
 		CSG_Table_Record &Record = *Simulation.Add_Record();
 

@@ -314,7 +314,7 @@ bool CFilter_Multi_Dir_Lee::Get_Filter(bool bAbsolute)
 	}
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -442,7 +442,7 @@ bool CFilter_Multi_Dir_Lee::Get_Filter_Ringeler(void)
 	Noise2	= Noise*Noise;
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{

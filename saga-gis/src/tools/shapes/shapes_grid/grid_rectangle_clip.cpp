@@ -141,7 +141,7 @@ bool CGrid_Rectangle_Clip::On_Execute(void)
 	{
 		bool	bFirst = true;
 
-		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		for(sLong iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
 			if( pShapes->Get_Shape(iShape)->is_Selected() )
 			{

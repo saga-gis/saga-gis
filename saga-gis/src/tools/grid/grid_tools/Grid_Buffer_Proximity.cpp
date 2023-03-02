@@ -167,7 +167,7 @@ bool CGrid_Proximity_Buffer::On_Execute(void){
 	pAlloc->Assign_NoData();
 	pBuffer->Assign_NoData();
 
-    for(y=0; y<Get_NY() && Set_Progress(y); y++)
+    for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{		
 		for(x=0; x<Get_NX(); x++)
 		{			
@@ -204,7 +204,7 @@ bool CGrid_Proximity_Buffer::On_Execute(void){
 	}//for						
 
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{		
 		for(x=0; x<Get_NX(); x++)
 		{

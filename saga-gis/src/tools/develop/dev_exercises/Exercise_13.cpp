@@ -276,16 +276,16 @@ void CExercise_13::Transformation(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B, 
 	//-----------------------------------------------------
 	// Copy shapes layer A to B and reproject each point's position using matrix m...
 
-	for(int iShape=0; iShape<pShapes_A->Get_Count() && Set_Progress(iShape, pShapes_A->Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<pShapes_A->Get_Count() && Set_Progress(iShape, pShapes_A->Get_Count()); iShape++)
 	{
-		CSG_Shape *pShape_A	= pShapes_A->Get_Shape(iShape);
-		CSG_Shape *pShape_B	= pShapes_B->Add_Shape(pShape_A, SHAPE_COPY_ATTR);
+		CSG_Shape *pShape_A = pShapes_A->Get_Shape(iShape);
+		CSG_Shape *pShape_B = pShapes_B->Add_Shape(pShape_A, SHAPE_COPY_ATTR);
 
 		for(int iPart=0; iPart<pShape_A->Get_Part_Count(); iPart++)
 		{
 			for(int iPoint=0; iPoint<pShape_A->Get_Point_Count(iPart); iPoint++)
 			{
-				TSG_Point	b, a	= pShape_A->Get_Point(iPoint, iPart);
+				TSG_Point b, a = pShape_A->Get_Point(iPoint, iPart);
 
 				b.x = m[0][0] * a.x + m[0][1] * a.y + m[0][2];
 				b.y = m[1][0] * a.x + m[1][1] * a.y + m[1][2];

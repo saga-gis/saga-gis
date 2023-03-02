@@ -556,7 +556,7 @@ bool CViGrA_Random_Forest::On_Execute(void)
 
 	Process_Set_Text(_TL("prediction"));
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -1030,7 +1030,7 @@ bool CViGrA_RF_Presence::On_Execute(void)
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("prediction"));
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -1074,17 +1074,16 @@ bool CViGrA_RF_Presence::On_Execute(void)
 //---------------------------------------------------------
 bool CViGrA_RF_Presence::Get_Training(CSG_Matrix &Data)
 {
-	//-----------------------------------------------------
 	Process_Set_Text(_TL("collecting presence data"));
 
-	CSG_Shapes	*pPresence	= Parameters("PRESENCE")->asShapes();
+	CSG_Shapes *pPresence = Parameters("PRESENCE")->asShapes();
 
-	for(int iPoint=0; iPoint<pPresence->Get_Count() && Set_Progress(iPoint, pPresence->Get_Count()); iPoint++)
+	for(sLong iPoint=0; iPoint<pPresence->Get_Count() && Set_Progress(iPoint, pPresence->Get_Count()); iPoint++)
 	{
-		TSG_Point	p	= pPresence->Get_Shape(iPoint)->Get_Point(0);
+		TSG_Point p = pPresence->Get_Shape(iPoint)->Get_Point(0);
 
-		int	x	= Get_System().Get_xWorld_to_Grid(p.x);
-		int	y	= Get_System().Get_yWorld_to_Grid(p.y);
+		int x = Get_System().Get_xWorld_to_Grid(p.x);
+		int y = Get_System().Get_yWorld_to_Grid(p.y);
 
 		Get_Training(Data, x, y, 1);
 	}
@@ -1094,7 +1093,7 @@ bool CViGrA_RF_Presence::Get_Training(CSG_Matrix &Data)
 
 	double	Background	= Parameters("BACKGROUND")->asDouble() / 100.0;
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
@@ -1401,18 +1400,18 @@ bool CViGrA_RF_Table::On_Execute(void)
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("Prediction"));
 
-	for(int iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
+	for(sLong iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
 	{
-		CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
+		CSG_Table_Record *pRecord = pTable->Get_Record(iRecord);
 
-		vigra::Matrix<double>	features(1, nFeatures);
+		vigra::Matrix<double> features(1, nFeatures);
 
 		for(int iFeature=0; iFeature<nFeatures; iFeature++)
 		{
-			features(0, iFeature)	= pRecord->asDouble(Features[iFeature]);
+			features(0, iFeature) = pRecord->asDouble(Features[iFeature]);
 		}
 
-		int	Prediction	= Model.Get_Prediction(features);
+		int	Prediction = Model.Get_Prediction(features);
 
 		if( bCategories )
 		{

@@ -250,7 +250,7 @@ bool CSoil_Water_Balance::On_Execute(void)
 	{
 		Process_Set_Text(Date.Format(CSG_String::Format("%s: %%Y-%%m-%%d [%d/%d]", _TL("Date"), Day + 1, nDays)));
 
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			#ifndef _DEBUG
 			#pragma omp parallel for

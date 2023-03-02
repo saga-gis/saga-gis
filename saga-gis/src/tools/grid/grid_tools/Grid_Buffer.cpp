@@ -124,7 +124,7 @@ bool CGrid_Buffer::On_Execute(void)
 	int	Distance	= (int)(0.5 + Parameters("DISTANCE")->asDouble() / Get_Cellsize());
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{

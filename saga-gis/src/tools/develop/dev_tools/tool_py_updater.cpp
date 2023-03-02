@@ -204,19 +204,19 @@ bool CTool_Py_Updater::On_Execute(void)
 
 			for(int iTool=0; iTool<pLibrary->Get_Count(); iTool++)
 			{
-				CSG_Tool	*pTool	= pLibrary->Get_Tool(iTool);
+				CSG_Tool *pTool = pLibrary->Get_Tool(iTool);
 
 				if( !pTool->is_Interactive() )
 				{
-					bool	bAdd	= true;
+					bool bAdd = true;
 
-					for(size_t i=0; bAdd && i<Tools.Get_Selection_Count(); i++)
+					for(sLong i=0; bAdd && i<Tools.Get_Selection_Count(); i++)
 					{
-						CSG_Table_Record	*pRecord	= Tools.Get_Selection(i);
+						CSG_Table_Record *pRecord = Tools.Get_Selection(i);
 
 						if( !pTool->Get_ID().Cmp(pRecord->asString(1)) )
 						{
-							bAdd	= false;
+							bAdd = false;
 
 							pRecord->Set_Value(3, "");
 
@@ -232,7 +232,7 @@ bool CTool_Py_Updater::On_Execute(void)
 
 					if( bAdd )
 					{
-						CSG_Table_Record	*pRecord	= Tools.Add_Record();
+						CSG_Table_Record *pRecord = Tools.Add_Record();
 
 						pRecord->Set_Value(0, pLibrary->Get_Library_Name());
 						pRecord->Set_Value(1, pTool->Get_ID());

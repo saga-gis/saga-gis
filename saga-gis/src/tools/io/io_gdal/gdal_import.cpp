@@ -449,7 +449,7 @@ bool CGDAL_Import::Load(const CSG_String &File, TSG_Grid_Resampling Resampling, 
 
 			Process_Set_Text(Message.c_str(), _TL("loading"));
 
-			CSG_Grid	*pGrid	= DataSet.Read(Bands[i].Get_Index());
+			CSG_Grid	*pGrid	= DataSet.Read((int)Bands[i].Get_Index());
 
 			if( pGrid != NULL )
 			{
@@ -482,7 +482,7 @@ bool CGDAL_Import::Load(const CSG_String &File, TSG_Grid_Resampling Resampling, 
 
 	if( Parameters("MULTIPLE")->asInt() == 0 || (Parameters("MULTIPLE")->asInt() == 2 && pGrids.Get_Size() == 1) )
 	{
-		for(size_t i=0; i<pGrids.Get_Size(); i++)
+		for(sLong i=0; i<pGrids.Get_Size(); i++)
 		{
 			pList->Add_Item((CSG_Grid *)pGrids[i]);
 		}
@@ -505,7 +505,7 @@ bool CGDAL_Import::Load(const CSG_String &File, TSG_Grid_Resampling Resampling, 
 
 		int fDesc = 0;
 
-		for(size_t i=0; !fDesc && i<pGrids.Get_Size(); i++)
+		for(sLong i=0; !fDesc && i<pGrids.Get_Size(); i++)
 		{
 			if( *((CSG_Grid *)pGrids.Get(i))->Get_Description() )
 			{
@@ -515,7 +515,7 @@ bool CGDAL_Import::Load(const CSG_String &File, TSG_Grid_Resampling Resampling, 
 			}
 		}
 
-		for(size_t i=0; i<pGrids.Get_Size(); i++)
+		for(sLong i=0; i<pGrids.Get_Size(); i++)
 		{
 			CSG_Grid *pGrid = (CSG_Grid *)pGrids.Get(i); const SG_Char *Description = pGrid->Get_Description();
 

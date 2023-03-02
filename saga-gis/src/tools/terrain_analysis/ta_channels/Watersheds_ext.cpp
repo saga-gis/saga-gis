@@ -217,7 +217,7 @@ bool CWatersheds_ext::On_Execute(void)
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("flow directions..."));
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
@@ -270,7 +270,7 @@ bool CWatersheds_ext::On_Execute(void)
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("main basins..."));
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
@@ -299,7 +299,7 @@ bool CWatersheds_ext::On_Execute(void)
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("heads and mouths..."));
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
@@ -336,7 +336,7 @@ bool CWatersheds_ext::On_Execute(void)
 
 	pMouths->Set_Index(1, TABLE_INDEX_Ascending, 2, TABLE_INDEX_Descending);
 
-	for(int iMouth=0; iMouth<pMouths->Get_Count() && Set_Progress(iMouth, pMouths->Get_Count()); iMouth++)
+	for(sLong iMouth=0; iMouth<pMouths->Get_Count() && Set_Progress(iMouth, pMouths->Get_Count()); iMouth++)
 	{
 		CSG_Shape	*pMouth	= pMouths->Get_Shape_byIndex(iMouth);
 

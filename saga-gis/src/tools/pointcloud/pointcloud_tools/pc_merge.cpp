@@ -169,9 +169,9 @@ bool CPC_Merge::On_Execute(void)
 
 		Process_Set_Text("%s: %s", _TL("processing"), pPoints->Get_Name());
 
-		int	nPoints	= pPoints->Get_Point_Count();
+		sLong nPoints = pPoints->Get_Count();
 
-		for(int iPoint=nPoints-1; iPoint>=0 && Set_Progress(nPoints - iPoint, nPoints); iPoint--)
+		for(sLong iPoint=nPoints-1; iPoint>=0 && Set_Progress(nPoints - iPoint, nPoints); iPoint--)
 		{
 			pResult->Add_Record(pPoints->Get_Record(iPoint));
 
@@ -182,7 +182,7 @@ bool CPC_Merge::On_Execute(void)
 
 			if( fID >= 0 )
 			{
-				pResult->Set_Value(pResult->Get_Point_Count() - 1, fID, ID);
+				pResult->Set_Value(pResult->Get_Count() - 1, fID, ID);
 			}
 		}
 

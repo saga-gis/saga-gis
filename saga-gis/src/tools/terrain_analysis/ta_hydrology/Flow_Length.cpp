@@ -132,7 +132,7 @@ bool CFlow_Length::On_Execute(void)
 
 		DataObject_Set_Colors(pDistance, 11, SG_COLORS_RAINBOW);
 
-		for(sLong iCell=0; iCell<Get_NCells() && Set_Progress_NCells(iCell); iCell++)
+		for(sLong iCell=0; iCell<Get_NCells() && Set_Progress_Cells(iCell); iCell++)
 		{
 			int x, y;
 
@@ -163,7 +163,7 @@ bool CFlow_Length::On_Execute(void)
 
 		DataObject_Set_Colors(pDistance, 11, SG_COLORS_WHITE_BLUE);
 
-		for(sLong iCell=0; iCell<Get_NCells() && Set_Progress_NCells(iCell); iCell++)
+		for(sLong iCell=0; iCell<Get_NCells() && Set_Progress_Cells(iCell); iCell++)
 		{
 			int x, y;
 

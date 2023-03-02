@@ -115,7 +115,7 @@ bool CAirPressure_Scaling::On_Execute(void)
 	CSG_Grid *pPadj	= Parameters("P_ADJ")->asGrid();
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		double	py	= Get_YMin() + y * Get_Cellsize();
 

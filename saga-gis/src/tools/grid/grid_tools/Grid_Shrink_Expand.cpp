@@ -289,7 +289,7 @@ bool CGrid_Shrink_Expand::Do_Operation(CSG_Grid *pInput, CSG_Grid *pResult)
 //---------------------------------------------------------
 bool CGrid_Shrink_Expand::Do_Shrink(CSG_Grid *pInput, CSG_Grid *pResult)
 {
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -344,7 +344,7 @@ bool CGrid_Shrink_Expand::Do_Expand(CSG_Grid *pInput, CSG_Grid *pResult)
 	{
 		CSG_Grid Input(*pResult); bool bChanged = false;
 
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			#pragma omp parallel for
 			for(int x=0; x<Get_NX(); x++)
@@ -377,7 +377,7 @@ bool CGrid_Shrink_Expand::Do_Expand(CSG_Grid *pInput, CSG_Grid *pResult, const C
 {
 	int Method = Parameters("EXPAND")->asInt();
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)

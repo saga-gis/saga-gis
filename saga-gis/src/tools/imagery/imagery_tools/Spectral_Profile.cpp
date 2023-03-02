@@ -173,7 +173,7 @@ bool CSpectral_Profile::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Shapes *pLocations = Parameters("LOCATION")->asShapes();
 
-	for(int i=0; i<pLocations->Get_Count() && Set_Progress(i, pLocations->Get_Count()); i++)
+	for(sLong i=0; i<pLocations->Get_Count() && Set_Progress(i, pLocations->Get_Count()); i++)
 	{
 		Add_Profile(pLocations->Get_Shape(i)->Get_Point(0), true);
 	}

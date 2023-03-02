@@ -84,7 +84,7 @@ bool CGSPoints_Distances::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_PRQuadTree QT(pPoints, 0); CSG_Simple_Statistics s;
 
-	for(int iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
+	for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 	{
 		TSG_Point p = pPoints->Get_Shape(iPoint)->Get_Point(0); double x, y, z;
 

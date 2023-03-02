@@ -154,6 +154,26 @@ public:
 	bool						Set_Value		(const char       *Field, double            Value) { return( Set_Value(CSG_String(Field), Value) ); }
 	bool						Set_Value		(const wchar_t    *Field, double            Value) { return( Set_Value(CSG_String(Field), Value) ); }
 
+	bool						Set_Value		(int               Field, sLong             Value);
+	bool						Set_Value		(const CSG_String &Field, sLong             Value);
+	bool						Set_Value		(const char       *Field, sLong             Value) { return( Set_Value(CSG_String(Field), Value) ); }
+	bool						Set_Value		(const wchar_t    *Field, sLong             Value) { return( Set_Value(CSG_String(Field), Value) ); }
+
+	bool						Set_Value		(int               Field, size_t            Value) { return( Set_Value(Field, (double)Value) ); }
+	bool						Set_Value		(const CSG_String &Field, size_t            Value) { return( Set_Value(Field, (double)Value) ); }
+	bool						Set_Value		(const char       *Field, size_t            Value) { return( Set_Value(Field, (double)Value) ); }
+	bool						Set_Value		(const wchar_t    *Field, size_t            Value) { return( Set_Value(Field, (double)Value) ); }
+
+	bool						Set_Value		(int               Field, DWORD             Value) { return( Set_Value(Field, (double)Value) ); }
+	bool						Set_Value		(const CSG_String &Field, DWORD             Value) { return( Set_Value(Field, (double)Value) ); }
+	bool						Set_Value		(const char       *Field, DWORD             Value) { return( Set_Value(Field, (double)Value) ); }
+	bool						Set_Value		(const wchar_t    *Field, DWORD             Value) { return( Set_Value(Field, (double)Value) ); }
+
+	bool						Set_Value		(int               Field, int               Value) { return( Set_Value(Field, (double)Value) ); }
+	bool						Set_Value		(const CSG_String &Field, int               Value) { return( Set_Value(Field, (double)Value) ); }
+	bool						Set_Value		(const char       *Field, int               Value) { return( Set_Value(Field, (double)Value) ); }
+	bool						Set_Value		(const wchar_t    *Field, int               Value) { return( Set_Value(Field, (double)Value) ); }
+
 	bool						Add_Value		(int               Field, double            Value);
 	bool						Add_Value		(const CSG_String &Field, double            Value);
 	bool						Add_Value		(const char       *Field, double            Value) { return( Add_Value(CSG_String(Field), Value) ); }

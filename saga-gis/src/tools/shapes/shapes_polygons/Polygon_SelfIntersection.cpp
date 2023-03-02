@@ -116,7 +116,7 @@ bool CPolygon_SelfIntersection::On_Execute(void)
 		m_pIntersect->Set_Field_Name( ID_Field, CSG_String::Format("%s Intersection" , m_pIntersect->Get_Field_Name(ID)));
 	}
 
-	for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
+	for(sLong i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 	{
 		Add_Polygon(pPolygons->Get_Shape(i)->asPolygon(), ID, ID_Field );
 	}

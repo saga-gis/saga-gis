@@ -205,7 +205,7 @@ bool CTable_Change_Date_Format::On_Execute(void)
 	pTable->Set_Field_Type(Field, SG_DATATYPE_String);
 
 	//-----------------------------------------------------
-	for(int iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
+	for(sLong iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
 	{
 		CSG_DateTime	Date;
 
@@ -442,7 +442,7 @@ bool CTable_Change_Time_Format::On_Execute(void)
 	SG_Char	sep_In	= fmt_In  == 0 ? SG_T('.') : SG_T(':');
 
 	//-----------------------------------------------------
-	for(int iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
+	for(sLong iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
 	{
 		CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
 

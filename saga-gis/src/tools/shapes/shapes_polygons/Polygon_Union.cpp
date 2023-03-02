@@ -207,7 +207,7 @@ bool CPolygon_Dissolve::On_Execute(void)
 
 		Dissolve.Set_Count(pPolygons->Get_Count());
 
-		for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
+		for(sLong i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 		{
 			CSG_Shape	*pPolygon	= pPolygons->Get_Shape(i);
 
@@ -254,7 +254,7 @@ bool CPolygon_Dissolve::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_String	Value;	CSG_Shape	*pDissolve	= NULL;
 
-	for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
+	for(sLong i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 	{
 		CSG_Shape	*pPolygon	= pPolygons->Get_Shape(!Dissolve.Get_Count() ? i : Dissolve[i].asInt(0));
 

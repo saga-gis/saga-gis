@@ -282,7 +282,7 @@ bool CPresence_Prediction::On_Execute(void)
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("prediction"));
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -428,7 +428,7 @@ bool CPresence_Prediction::Get_Training(void)
 		return( false );
 	}
 
-	for(int iPoint=0; iPoint<pPresence->Get_Count() && Set_Progress(iPoint, pPresence->Get_Count()); iPoint++)
+	for(sLong iPoint=0; iPoint<pPresence->Get_Count() && Set_Progress(iPoint, pPresence->Get_Count()); iPoint++)
 	{
 		TSG_Point	p	= pPresence->Get_Shape(iPoint)->Get_Point(0);
 
@@ -443,7 +443,7 @@ bool CPresence_Prediction::Get_Training(void)
 
 	double	Background	= Parameters("BACKGROUND")->asDouble() / 100.0;
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{

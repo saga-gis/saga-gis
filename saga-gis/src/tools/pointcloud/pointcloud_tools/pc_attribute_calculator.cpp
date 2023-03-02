@@ -232,7 +232,7 @@ bool CPC_Attribute_Calculator::On_Execute(void)
 	//---------------------------------------------------------
 	CSG_Vector	Values(nFields);
 
-	for( int i=0; i<pPC_in->Get_Point_Count() && Set_Progress(i, pPC_in->Get_Point_Count()); i++ )
+	for(sLong i=0; i<pPC_in->Get_Count() && Set_Progress(i, pPC_in->Get_Count()); i++ )
 	{
 		bool	bOkay	= true;
 

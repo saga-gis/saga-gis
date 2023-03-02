@@ -229,7 +229,7 @@ bool CGridding_Spline_Base::_Get_Points(CSG_Points_Z &Points, bool bInGridOnly, 
 
 		double	Mean	= bDetrend ? pPoints->Get_Mean(Field) : 0.;
 
-		for(int i=0; i<pPoints->Get_Count() && Set_Progress(i, pPoints->Get_Count()); i++)
+		for(sLong i=0; i<pPoints->Get_Count() && Set_Progress(i, pPoints->Get_Count()); i++)
 		{
 			CSG_Shape	*pShape	= pPoints->Get_Shape(i);
 

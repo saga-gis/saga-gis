@@ -145,20 +145,20 @@ bool CIsolated_Points_Filter::On_Execute(void)
 
 	//-----------------------------------------------------
 	CSG_KDTree_2D		Search(pPC_in);
-	std::vector<bool>	Isolated(pPC_in->Get_Point_Count(), false);
+	std::vector<bool>	Isolated(pPC_in->Get_Count(), false);
 
-	Set_Progress(20.0);
+	Set_Progress(20., 100.);
 
 
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("Processing ..."));
 		
 	#pragma omp parallel for
-	for(int iPoint=0; iPoint<pPC_in->Get_Point_Count(); iPoint++)
+	for(sLong iPoint=0; iPoint<pPC_in->Get_Count(); iPoint++)
 	{
 		if( SG_OMP_Get_Thread_Num() == 0 )
 		{
-			Set_Progress(20.0 + 55.0 / pPC_in->Get_Point_Count() * iPoint * SG_OMP_Get_Max_Num_Threads(), 100.0);
+			Set_Progress(20. + 55. / pPC_in->Get_Count() * iPoint * SG_OMP_Get_Max_Num_Threads(), 100.);
 		}
 
 		CSG_Array_Int	Indices;
@@ -172,7 +172,7 @@ bool CIsolated_Points_Filter::On_Execute(void)
 		}
 	}
 	
-	Set_Progress(75.0);
+	Set_Progress(75., 100.);
 
 
 	//-----------------------------------------------------
@@ -180,7 +180,7 @@ bool CIsolated_Points_Filter::On_Execute(void)
 
 	int iCntIsolated = 0;
 
-	for(int iPoint=0; iPoint<pPC_in->Get_Point_Count() && Set_Progress(75.0 + 25.0 / pPC_in->Get_Point_Count() * iPoint, 100.0); iPoint++)
+	for(sLong iPoint=0; iPoint<pPC_in->Get_Count() && Set_Progress(75. + 25. / pPC_in->Get_Count() * iPoint, 100.); iPoint++)
 	{
 		if( iMethod == METHOD_REMOVE_PTS && Isolated[iPoint] )
 		{
@@ -208,7 +208,7 @@ bool CIsolated_Points_Filter::On_Execute(void)
 		}
 	}
 
-	SG_UI_Msg_Add(_TL("Number of isolated points:") + CSG_String::Format(" %d (%.2f%%)", iCntIsolated, iCntIsolated / (double)pPC_in->Get_Point_Count() * 100.0), true);
+	SG_UI_Msg_Add(_TL("Number of isolated points:") + CSG_String::Format(" %d (%.2f%%)", iCntIsolated, iCntIsolated / (double)pPC_in->Get_Count() * 100.0), true);
 
 
 	//-----------------------------------------------------

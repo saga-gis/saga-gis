@@ -1236,8 +1236,8 @@ bool CProfile_Cross_Sections::On_Execute(void){
 	for (i = 1; i < iNumPoints +1; i++){
 		m_pSections->Add_Field(SG_Get_String(fInterval * i).c_str(), SG_DATATYPE_Double);
 	}//for
-	for(i=0; i<pLines->Get_Count() && Set_Progress(i, pLines->Get_Count()); i++){
-		pShape = pLines->Get_Shape(i);
+	for(sLong iShape=0; iShape<pLines->Get_Count() && Set_Progress(iShape, pLines->Get_Count()); iShape++){
+		pShape = pLines->Get_Shape(iShape);
 		for(j=0; j<pShape->Get_Part_Count(); j++){
 			for(k=0; k<pShape->Get_Point_Count(j)-1; k+=iStep){
 				Point = pShape->Get_Point(k,j);
@@ -1340,8 +1340,8 @@ void CProfile_Cross_Sections::AddLongitudinalProfiles(){
 
 	m_pProfile = new TSG_Point[iSections];
 
-	for(i=0; i<pLines->Get_Count() && Set_Progress(i, pLines->Get_Count()); i++){
-		pShape = pLines->Get_Shape(i);
+	for(sLong iShape=0; iShape<pLines->Get_Count() && Set_Progress(iShape, pLines->Get_Count()); iShape++){
+		pShape = pLines->Get_Shape(iShape);
 		for(j=0; j<pShape->Get_Part_Count(); j++){
 			Point = pShape->Get_Point(0,j);
 			for(k=0; k<pShape->Get_Point_Count(j)-1; k+=iStep){

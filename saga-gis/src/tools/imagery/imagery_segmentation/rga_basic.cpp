@@ -273,7 +273,7 @@ bool CRGA_Basic::On_Execute(void)
 	m_Candidates.Create(Parameters("LEAFSIZE")->asInt());
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
@@ -304,7 +304,7 @@ bool CRGA_Basic::On_Execute(void)
 
 		sLong	n	= 0;	int	x, y, Segment;
 
-		while( n++ < Get_NCells() && Set_Progress_NCells(n) && Get_Next_Candidate(x, y, Segment) )
+		while( n++ < Get_NCells() && Set_Progress_Cells(n) && Get_Next_Candidate(x, y, Segment) )
 		{
 			Add_To_Segment(x, y, Segment);
 

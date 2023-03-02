@@ -174,7 +174,7 @@ bool CPoint_to_Line_Distance::On_Execute(void)
 
 	//-----------------------------------------------------
 	#pragma omp parallel for
-	for(int i=0; i<pPoints->Get_Count(); i++)
+	for(sLong i=0; i<pPoints->Get_Count(); i++)
 	{
 		if( SG_OMP_Get_Thread_Num() == 0 )
 		{

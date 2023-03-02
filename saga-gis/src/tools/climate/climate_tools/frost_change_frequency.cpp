@@ -272,7 +272,7 @@ bool CFrost_Change_Frequency::On_Execute(void)
 	DataObject_Set_Colors(pFrequency, 11, SG_COLORS_GREEN_RED);
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#ifndef _DEBUG
 		#pragma omp parallel for

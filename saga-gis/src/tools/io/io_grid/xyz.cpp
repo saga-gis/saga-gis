@@ -183,7 +183,7 @@ bool CXYZ_Export::On_Execute(void)
 	TSG_Point	p;	p.y	= Get_YMin();
 	CSG_String	GridValue;
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++, p.y+=Get_Cellsize())
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++, p.y+=Get_Cellsize())
 	{
 		p.x	= Get_XMin();
 
@@ -482,7 +482,7 @@ bool CXYZ_Import::On_Execute(void)
 	//-----------------------------------------------------
 	Process_Set_Text(CSG_String::Format("%s...", _TL("Gridding")));
 
-	for(int i=0; i<Points.Get_Count() && Set_Progress(i, Points.Get_Count()); i++)
+	for(sLong i=0; i<Points.Get_Count() && Set_Progress(i, Points.Get_Count()); i++)
 	{
 		int	x, y;	CSG_Point_Z	p(Points.Get_Point(i));
 

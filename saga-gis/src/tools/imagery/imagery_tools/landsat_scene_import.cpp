@@ -830,7 +830,7 @@ bool CLandsat_Scene_Import::Get_Info_Band(const CSG_MetaData &Metadata, int Vers
 bool CLandsat_Scene_Import::Set_Info_Band(int Sensor, int Band, CSG_Table_Record &Info)
 {
 	#define SET_INFO_BAND(band, name, wmin, wmax)	{\
-		Info.Set_Value(BAND_HEAD_ID      , 1 + Info.Get_Index());\
+		Info.Set_Value(BAND_HEAD_ID      , 1 + (int)Info.Get_Index());\
 		Info.Set_Value(BAND_HEAD_NR      , band);\
 		Info.Set_Value(BAND_HEAD_NAME    , name);\
 		Info.Set_Value(BAND_HEAD_WAVE_MIN, wmin);\

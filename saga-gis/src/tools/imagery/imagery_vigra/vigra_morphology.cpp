@@ -138,7 +138,7 @@ bool CViGrA_Morphology::On_Execute(void)
 	{
 		Rescaled.Create(Get_System(), SG_DATATYPE_Byte);
 
-		for(sLong i=0; i<Get_NCells() && Set_Progress_NCells(i); i++)
+		for(sLong i=0; i<Get_NCells() && Set_Progress_Cells(i); i++)
 		{
 			Rescaled.Set_Value(i, 0.5 + (pInput->asDouble(i) - pInput->Get_Min()) * 255.0 / pInput->Get_Range());
 		}

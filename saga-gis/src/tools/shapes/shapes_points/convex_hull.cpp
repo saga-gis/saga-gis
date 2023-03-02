@@ -184,7 +184,7 @@ bool CConvex_Hull::On_Execute(void)
 			}
 		}
 
-		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		for(sLong iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
 			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
 
@@ -226,7 +226,7 @@ bool CConvex_Hull::On_Execute(void)
 		pBoxes->Add_Field(_TL("AREA"     ), SG_DATATYPE_Double);
 		pBoxes->Add_Field(_TL("PERIMETER"), SG_DATATYPE_Double);
 
-		for(int iHull=0; iHull<pHulls->Get_Count() && Set_Progress(iHull, pHulls->Get_Count()); iHull++)
+		for(sLong iHull=0; iHull<pHulls->Get_Count() && Set_Progress(iHull, pHulls->Get_Count()); iHull++)
 		{
 			Get_Bounding_Box(pHulls->Get_Shape(iHull), pBoxes->Add_Shape());
 		}

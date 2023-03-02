@@ -117,7 +117,7 @@ bool CTasseled_Cap::On_Execute(void)
 	DataObject_Set_Colors(pGreen , 11, SG_COLORS_RED_GREY_GREEN, false);
 	DataObject_Set_Colors(pWet   , 11, SG_COLORS_RED_GREY_BLUE , false);
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)

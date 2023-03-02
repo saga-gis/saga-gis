@@ -103,58 +103,58 @@ CGSPoints_Variogram_Surface::CGSPoints_Variogram_Surface(void)
 //---------------------------------------------------------
 bool CGSPoints_Variogram_Surface::On_Execute(void)
 {
-	CSG_Shapes	*pPoints	= Parameters("POINTS")->asShapes();
+	CSG_Shapes *pPoints = Parameters("POINTS")->asShapes();
 
-	int	Field		= Parameters("FIELD"    )->asInt();
-	int	nSkip		= Parameters("NSKIP"    )->asInt();
-	int	nDistances	= Parameters("DISTCOUNT")->asInt();
+	int	Field      = Parameters("FIELD"    )->asInt();
+	int	nSkip      = Parameters("NSKIP"    )->asInt();
+	int	nDistances = Parameters("DISTCOUNT")->asInt();
 
-	double	Lag	= pPoints->Get_Extent().Get_XRange() < pPoints->Get_Extent().Get_YRange()
-				? pPoints->Get_Extent().Get_XRange() / nDistances
-				: pPoints->Get_Extent().Get_YRange() / nDistances;
+	double Lag = pPoints->Get_Extent().Get_XRange() < pPoints->Get_Extent().Get_YRange()
+			   ? pPoints->Get_Extent().Get_XRange() / nDistances
+			   : pPoints->Get_Extent().Get_YRange() / nDistances;
 
 	int	nx	= 1 + (int)(pPoints->Get_Extent().Get_XRange() / Lag);
 	int	ny	= 1 + (int)(pPoints->Get_Extent().Get_YRange() / Lag);
 
-	CSG_Grid	*pCount      = SG_Create_Grid(SG_DATATYPE_Int  , 1 + 2 * nx, 1 + 2 * ny, Lag, -nx * Lag, -ny * Lag);
-	CSG_Grid	*pVariance   = SG_Create_Grid(SG_DATATYPE_Float, 1 + 2 * nx, 1 + 2 * ny, Lag, -nx * Lag, -ny * Lag);
-	CSG_Grid	*pCovariance = SG_Create_Grid(SG_DATATYPE_Float, 1 + 2 * nx, 1 + 2 * ny, Lag, -nx * Lag, -ny * Lag);
+	CSG_Grid *pCount      = SG_Create_Grid(SG_DATATYPE_Int  , 1 + 2 * nx, 1 + 2 * ny, Lag, -nx * Lag, -ny * Lag);
+	CSG_Grid *pVariance   = SG_Create_Grid(SG_DATATYPE_Float, 1 + 2 * nx, 1 + 2 * ny, Lag, -nx * Lag, -ny * Lag);
+	CSG_Grid *pCovariance = SG_Create_Grid(SG_DATATYPE_Float, 1 + 2 * nx, 1 + 2 * ny, Lag, -nx * Lag, -ny * Lag);
 
-	pCount		->Fmt_Name("%s [%s]"    , pPoints->Get_Name(), _TL("Count"             ));
-	pVariance	->Fmt_Name("%s [%s: %s]", pPoints->Get_Name(), _TL("Variogram Surface" ), pPoints->Get_Field_Name(Field));
-	pCovariance	->Fmt_Name("%s [%s: %s]", pPoints->Get_Name(), _TL("Covariance Surface"), pPoints->Get_Field_Name(Field));
+	pCount     ->Fmt_Name("%s [%s]"    , pPoints->Get_Name(), _TL("Count"             ));
+	pVariance  ->Fmt_Name("%s [%s: %s]", pPoints->Get_Name(), _TL("Variogram Surface" ), pPoints->Get_Field_Name(Field));
+	pCovariance->Fmt_Name("%s [%s: %s]", pPoints->Get_Name(), _TL("Covariance Surface"), pPoints->Get_Field_Name(Field));
 
 	Parameters("COUNT"     )->Set_Value(pCount     );
 	Parameters("VARIANCE"  )->Set_Value(pVariance  );
 	Parameters("COVARIANCE")->Set_Value(pCovariance);
 
 	//-----------------------------------------------------
-	for(int i=0, n=0; i<pPoints->Get_Count() && Set_Progress(n, 0.5 * SG_Get_Square(pPoints->Get_Count() / nSkip)); i+=nSkip)
+	for(sLong i=0, n=0; i<pPoints->Get_Count() && Set_Progress((double)n, 0.5 * SG_Get_Square(pPoints->Get_Count() / nSkip)); i+=nSkip)
 	{
-		CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
+		CSG_Shape *pPoint = pPoints->Get_Shape(i);
 
 		if( !pPoint->is_NoData(Field) )
 		{
-			TSG_Point	pi	= pPoint->Get_Point(0);
-			double		zi	= pPoint->asDouble(Field);
+			TSG_Point pi = pPoint->Get_Point(0);
+			double    zi = pPoint->asDouble(Field);
 
-			for(int j=i+nSkip; j<pPoints->Get_Count(); j+=nSkip, n++)
+			for(sLong j=i+nSkip; j<pPoints->Get_Count(); j+=nSkip, n++)
 			{
-				pPoint	= pPoints->Get_Shape(j);
+				pPoint = pPoints->Get_Shape(j);
 
 				if( !pPoint->is_NoData(Field) )
 				{
-					TSG_Point	pj	= pPoint->Get_Point(0);
-					double		zj	= pPoint->asDouble(Field);
+					TSG_Point pj = pPoint->Get_Point(0);
+					double    zj = pPoint->asDouble(Field);
 
-					double	v	= SG_Get_Square(zi - zj);
-					double	c	= (zi - pPoints->Get_Mean(Field)) * (zj - pPoints->Get_Mean(Field));
+					double v = SG_Get_Square(zi - zj);
+					double c = (zi - pPoints->Get_Mean(Field)) * (zj - pPoints->Get_Mean(Field));
 
-					pj.x	= (pi.x - pj.x) / Lag;
-					pj.y	= (pi.y - pj.y) / Lag;
+					pj.x     = (pi.x - pj.x) / Lag;
+					pj.y     = (pi.y - pj.y) / Lag;
 
-					int	x	= (int)(pj.x + (pj.x > 0. ? 0.5 : -0.5));
-					int	y	= (int)(pj.y + (pj.y > 0. ? 0.5 : -0.5));
+					int x    = (int)(pj.x + (pj.x > 0. ? 0.5 : -0.5));
+					int y    = (int)(pj.y + (pj.y > 0. ? 0.5 : -0.5));
 
 					pCount     ->Add_Value(nx + x, ny + y, 1);
 					pCount     ->Add_Value(nx - x, ny - y, 1);

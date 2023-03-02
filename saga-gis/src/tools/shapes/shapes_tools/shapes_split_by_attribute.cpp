@@ -123,7 +123,7 @@ bool CShapes_Split_by_Attribute::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Table	*pSplit	= NULL;	CSG_String	Value;
 
-	for(int i=0; i<Table.Get_Count() && Set_Progress(i, Table.Get_Count()); i++)
+	for(sLong i=0; i<Table.Get_Count() && Set_Progress(i, Table.Get_Count()); i++)
 	{
 		CSG_Table_Record	*pRecord	= Table.Get_Record(Index[i]);
 

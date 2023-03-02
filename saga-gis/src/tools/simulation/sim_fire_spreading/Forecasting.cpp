@@ -201,7 +201,7 @@ bool CForecasting::AssignParameters(){
 	}//if
 
 	//substitute no-data values
-	for(y=0; y<Get_NY() && Set_Progress(y); y++){		
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++){		
 		for(x=0; x<Get_NX(); x++){
 
 			if (m_pWindSpdGrid->is_NoData(x, y)){
@@ -240,7 +240,7 @@ bool CForecasting::AssignParameters(){
 	m_pSlopeGrid	= SG_Create_Grid(m_pDEM, SG_DATATYPE_Double);
 	m_pAspectGrid	= SG_Create_Grid(m_pDEM, SG_DATATYPE_Double);
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{		
 		for(x=0; x<Get_NX(); x++)
 		{

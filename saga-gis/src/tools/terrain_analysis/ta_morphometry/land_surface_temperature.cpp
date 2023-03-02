@@ -181,7 +181,7 @@ bool CLand_Surface_Temperature::On_Execute(void)
 	double	LAI_max		= Parameters("LAI_MAX"    )->asDouble();
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)

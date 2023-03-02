@@ -132,7 +132,7 @@ bool CFitNPointsToShape::On_Execute(void)
 	int	maxIter	= Parameters("MAXITER"  )->asInt();
 
 	//-----------------------------------------------------
-	for(int iPolygon=0; iPolygon<nPolygons && Set_Progress(iPolygon, nPolygons); iPolygon++)
+	for(sLong iPolygon=0; iPolygon<nPolygons && Set_Progress(iPolygon, nPolygons); iPolygon++)
 	{
 		CSG_Shape_Polygon	*pPolygon	= Get_Polygon(iPolygon);
 

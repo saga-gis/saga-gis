@@ -108,7 +108,7 @@ bool CSeparateShapes::On_Execute(void)
 	int	Naming	= Parameters("NAMING")->asInt();
 	int	Field	= Parameters("FIELD" )->asInt();
 
-	for(int i=0; i<Shapes.Get_Count() && Set_Progress(i, Shapes.Get_Count()); i++)
+	for(sLong i=0; i<Shapes.Get_Count() && Set_Progress(i, Shapes.Get_Count()); i++)
 	{
 		CSG_Shapes	*pShapes	= SG_Create_Shapes(Shapes.Get_Type(), NULL, &Shapes);
 

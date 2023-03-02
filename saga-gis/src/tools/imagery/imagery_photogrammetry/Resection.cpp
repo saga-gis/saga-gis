@@ -174,7 +174,7 @@ bool CResection::On_Execute(void)
 	target[1]			= Parameters("Yt")			->asDouble();
 	target[2]			= Parameters("Zt")			->asDouble();
 
-	int pointCount = pPoints->Get_Point_Count();
+	int pointCount = pPoints->Get_Count();
 
 	bool estPPOffsets = false;
 

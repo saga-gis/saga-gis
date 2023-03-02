@@ -171,7 +171,7 @@ bool CExercise_05::Method_01(void)
 			dx[2]	= { Get_Cellsize(), sqrt(2.0) * Get_Cellsize()	};
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
@@ -227,7 +227,7 @@ bool CExercise_05::Method_02(void)
 	double	z, dz, dzMax;
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
@@ -289,7 +289,7 @@ bool CExercise_05::Method_03(void)
 	dx2		= 2.0 * Get_Cellsize();
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{

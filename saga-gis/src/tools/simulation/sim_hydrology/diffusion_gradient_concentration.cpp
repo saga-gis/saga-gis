@@ -181,7 +181,7 @@ bool CSim_Diffusion_Gradient::Surface_Initialise(CSG_Grid *pSurface)
 {
 	int		nIn = 0, nOut = 0;
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
@@ -473,7 +473,7 @@ bool CSim_Diffusion_Concentration::Concentration_Interpolate(CSG_Grid *pConcentr
 
 			_Concentration_Interpolate	(pConcentration, pGradient, true);
 
-			for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+			for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 			{
 				for(int x=0; x<Get_NX(); x++)
 				{

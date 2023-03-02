@@ -467,7 +467,7 @@ bool CMRVBF::Get_Flatness(CSG_Grid *pSlopes, CSG_Grid *pPercentiles, CSG_Grid *p
 		int		x, y;
 		double	xp, yp, Slope, Percentile, cf, vf, rf;
 
-		for(y=0, yp=Get_YMin(); y<Get_NY() && Set_Progress(y); y++, yp+=Get_Cellsize())
+		for(y=0, yp=Get_YMin(); y<Get_NY() && Set_Progress_Rows(y); y++, yp+=Get_Cellsize())
 		{
 			for(x=0, xp=Get_XMin(); x<Get_NX(); x++, xp+=Get_Cellsize())
 			{
@@ -506,7 +506,7 @@ bool CMRVBF::Get_MRVBF(int Level, CSG_Grid *pMRVBF, CSG_Grid *pVF, CSG_Grid *pMR
 		t	= 0.4;
 		p	= log((Level - 0.5) / 0.1) / log(1.5);
 
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			for(int x=0; x<Get_NX(); x++)
 			{
@@ -544,7 +544,7 @@ bool CMRVBF::Get_Classified(CSG_Grid *pMRF)
 {
 	if( pMRF && pMRF->is_Valid() )
 	{
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			for(int x=0; x<Get_NX(); x++)
 			{

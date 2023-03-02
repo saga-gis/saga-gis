@@ -251,7 +251,7 @@ bool CSGDI_Layout_Items::Destroy(bool bDetachItems)
 
 	if( bDetachItems == false )
 	{
-		for(size_t i=0; i<m_Items.Get_Size(); i++)
+		for(size_t i=0; i<m_Items.Get_uSize(); i++)
 		{
 			delete(Get_Item(i));
 		}
@@ -351,7 +351,7 @@ bool CSGDI_Layout_Items::Add(CSGDI_Layout_Item *pItem, bool bActivate)
 //---------------------------------------------------------
 bool CSGDI_Layout_Items::Del(CSGDI_Layout_Item *pItem, bool bDetachOnly)
 {
-	for(size_t i=0; i<m_Items.Get_Size(); i++)
+	for(size_t i=0; i<m_Items.Get_uSize(); i++)
 	{
 		if( pItem == m_Items[i] )
 		{
@@ -365,7 +365,7 @@ bool CSGDI_Layout_Items::Del(CSGDI_Layout_Item *pItem, bool bDetachOnly)
 //---------------------------------------------------------
 bool CSGDI_Layout_Items::Del(size_t Index, bool bDetachOnly)
 {
-	if( Index < m_Items.Get_Size() )
+	if( Index < m_Items.Get_uSize() )
 	{
 		CSGDI_Layout_Item	*pItem	= Get_Item(Index);
 
@@ -419,7 +419,7 @@ size_t CSGDI_Layout_Items::Get_Position(CSGDI_Layout_Item *pItem)	const
 {
 	if( pItem )
 	{
-		for(size_t i=0; i<m_Items.Get_Size(); i++)
+		for(size_t i=0; i<m_Items.Get_uSize(); i++)
 		{
 			if( pItem == m_Items[i] )
 			{
@@ -448,14 +448,14 @@ bool CSGDI_Layout_Items::Move_Top(CSGDI_Layout_Item *pItem)
 {
 	size_t	Position	= Get_Position(pItem);
 
-	if( Position < m_Items.Get_Size() - 1 )
+	if( Position < m_Items.Get_uSize() - 1 )
 	{
-		for(size_t i=Position; i<m_Items.Get_Size() - 1; i++)
+		for(size_t i=Position; i<m_Items.Get_uSize() - 1; i++)
 		{
 			m_Items[i]	= m_Items[i + 1];
 		}
 
-		m_Items[m_Items.Get_Size() - 1]	= pItem;
+		m_Items[m_Items.Get_uSize() - 1]	= pItem;
 
 		pItem->Refresh();
 
@@ -492,7 +492,7 @@ bool CSGDI_Layout_Items::Move_Up(CSGDI_Layout_Item *pItem)
 {
 	size_t	Position	= Get_Position(pItem);
 
-	if( Position < m_Items.Get_Size() - 1 )
+	if( Position < m_Items.Get_uSize() - 1 )
 	{
 		m_Items[Position    ]	= m_Items[Position + 1];
 		m_Items[Position + 1]	= pItem;
@@ -630,7 +630,7 @@ bool CSGDI_Layout_Items::Show(CSGDI_Layout_Item *pItem)
 //---------------------------------------------------------
 bool CSGDI_Layout_Items::Draw(wxDC &dc, bool bTracker)
 {
-	for(size_t i=0; i<m_Items.Get_Size(); i++)
+	for(size_t i=0; i<m_Items.Get_uSize(); i++)
 	{
 		if( Get_Item(i)->is_Shown() )
 		{
@@ -777,7 +777,7 @@ bool CSGDI_Layout_Items::Select(const wxPoint &Point)
 	//-----------------------------------------------------
 	CSGDI_Layout_Item	*pActivate	= NULL;
 
-	for(size_t i=0, j=m_Items.Get_Size()-1; !pActivate && i<m_Items.Get_Size(); i++, j--)
+	for(size_t i=0, j=m_Items.Get_uSize()-1; !pActivate && i<m_Items.Get_Size(); i++, j--)
 	{
 		if( Get_Item(j)->is_Shown() && Get_Item(j)->_Tracker_Contains(Point) )
 		{

@@ -117,7 +117,7 @@ bool CTC_Parameter_Base::Get_Parameter(CSG_Grid *pValues, CSG_Grid *pParameter)
 		m_Kernel.Get_Weighting().Set_BandWidth(Parameters("SCALE")->asDouble() * m_Kernel.Get_Weighting().Get_BandWidth());
 		m_Kernel.Set_Radius(Parameters("SCALE")->asDouble());
 
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			#pragma omp parallel for
 			for(int x=0; x<Get_NX(); x++)
@@ -167,7 +167,7 @@ bool CTC_Parameter_Base::Get_Parameter(CSG_Grid *pValues, CSG_Grid *pParameter)
 
 		Values.Assign(pValues, GRID_RESAMPLING_Mean_Cells);
 
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			double	py	= Get_YMin() + y * Get_Cellsize();
 
@@ -256,7 +256,7 @@ bool CTC_Texture::On_Execute(void)
 	m_pDEM	= Parameters("DEM")->asGrid();
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -393,7 +393,7 @@ bool CTC_Convexity::On_Execute(void)
 	m_pDEM	= Parameters("DEM")->asGrid();
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -645,7 +645,7 @@ bool CTC_Classification::On_Execute(void)
 
 		CSG_Grid	*pDEM	= Parameters("DEM")->asGrid();
 
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			#pragma omp parallel for
 			for(int x=0; x<Get_NX(); x++)
@@ -737,7 +737,7 @@ bool CTC_Classification::Get_Classes(void)
 		m_Stat_Convexity.Invalidate();
 		m_Stat_Texture  .Invalidate();
 
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			for(int x=0; x<Get_NX(); x++)
 			{

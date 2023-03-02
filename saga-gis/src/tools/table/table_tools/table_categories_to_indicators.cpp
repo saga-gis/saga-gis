@@ -184,7 +184,7 @@ bool CTable_Categories_to_Indicators::On_Execute(void)
 
 	CSG_String Value;
 
-	for(int iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
+	for(sLong iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
 	{
 		CSG_Table_Record *pRecord = pTable->Get_Record(Index[iRecord]);
 

@@ -170,7 +170,7 @@ bool CExercise_14::Initialise(int Threshold)
 	DataObject_Set_Colors(m_pChnl, Colors);
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
@@ -210,7 +210,7 @@ bool CExercise_14::Initialise(int Threshold)
 	}
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
@@ -231,7 +231,7 @@ void CExercise_14::Find_Channels(void)
 {
 	int		x, y;
 
-	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(sLong n=0; n<Get_NCells() && Set_Progress_Cells(n); n++)
 	{
 		if( m_pDTM->Get_Sorted(n, x, y, true) && m_pChnl->asInt(x, y) == SPRING )
 		{
@@ -284,7 +284,7 @@ void CExercise_14::Vectorise(void)
 	m_pShapes->Add_Field("LENGTH"		, SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
-	for(y=0, Segment_ID=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0, Segment_ID=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{

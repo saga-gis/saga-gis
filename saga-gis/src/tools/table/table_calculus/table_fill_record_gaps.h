@@ -86,7 +86,7 @@ private:
 
 	CSG_Table				*m_pTable;
 
-	bool					Get_Neighbours	(int iRecord, int Order, int Field, CSG_Vector &Y, CSG_Vector &X, int Number);
+	bool					Get_Neighbours	(sLong iRecord, int Order, int Field, CSG_Vector &Y, CSG_Vector &X, int Number);
 
 	double					Get_Nearest		(const double Y[2], const double X[2], double y);
 	double					Get_Linear		(const double Y[2], const double X[2], double y);
@@ -120,9 +120,9 @@ private:
 	CSG_Table				*m_pNoGaps;
 
 
-	bool					Set_Nearest		(int iOffset, int iField, CSG_Table_Record *pA, CSG_Table_Record *pB);
-	bool					Set_Linear		(int iOffset, int iField, CSG_Table_Record *pA, CSG_Table_Record *pB);
-	bool					Set_Spline		(int iOffset, int iField, CSG_Table_Record *pA, CSG_Table_Record *pB, CSG_Table_Record *pC, CSG_Table_Record *pD);
+	bool					Set_Nearest		(sLong iOffset, int iField, CSG_Table_Record *pA, CSG_Table_Record *pB);
+	bool					Set_Linear		(sLong iOffset, int iField, CSG_Table_Record *pA, CSG_Table_Record *pB);
+	bool					Set_Spline		(sLong iOffset, int iField, CSG_Table_Record *pA, CSG_Table_Record *pB, CSG_Table_Record *pC, CSG_Table_Record *pD);
 
 };
 

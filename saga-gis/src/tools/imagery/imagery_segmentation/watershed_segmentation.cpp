@@ -200,7 +200,7 @@ bool CWatershed_Segmentation::On_Execute(void)
 	//-----------------------------------------------------
 	if( Parameters("OUTPUT")->asInt() == 0 )
 	{
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			for(int x=0; x<Get_NX(); x++)
 			{
@@ -244,7 +244,7 @@ bool CWatershed_Segmentation::Get_Seeds(void)
 	bEdge_Seeds	= Parameters("EDGE")	->asBool();
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
@@ -273,7 +273,7 @@ bool CWatershed_Segmentation::Get_Seeds(void)
 
 				if( iMax < 0 && (bEdge_Seeds || !bEdge) )
 				{
-					int			ID	= m_pSeeds->Get_Count();
+					int			ID	= (int)m_pSeeds->Get_Count();
 
 					CSG_Shape	*pSeed	= m_pSeeds->Add_Shape();
 
@@ -319,7 +319,7 @@ bool CWatershed_Segmentation::Get_Segments(void)
 	}
 
 	//-----------------------------------------------------
-	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)	
+	for(sLong n=0; n<Get_NCells() && Set_Progress_Cells(n); n++)	
 	{
 		int		x, y, i, ID, iID;
 
@@ -459,7 +459,7 @@ bool CWatershed_Segmentation::Get_Borders(void)
 
 	Parameters("BORDERS")->Set_Value(pBorders);
 
-	for(int y=0, yy=1; yy<Get_NY() && Set_Progress(yy); y++, yy++)
+	for(int y=0, yy=1; yy<Get_NY() && Set_Progress_Rows(y); y++, yy++)
 	{
 		for(int x=0, xx=1; xx<Get_NX(); x++, xx++)
 		{

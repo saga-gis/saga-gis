@@ -137,7 +137,7 @@ bool CGrid_Proximity::On_Execute(void)
 
 	Search.Create(CSG_Rect(-1, -1, Get_NX(), Get_NY()));
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
@@ -191,7 +191,7 @@ bool CGrid_Proximity::On_Execute(void)
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("performing distance calculation..."));
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{

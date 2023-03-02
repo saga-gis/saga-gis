@@ -113,7 +113,7 @@ bool CAnisotropic_Heating::On_Execute(void)
 	double	alpha_max	= Parameters("ALPHA_MAX")->asDouble() * M_DEG_TO_RAD;
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)

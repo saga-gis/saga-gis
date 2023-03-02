@@ -1013,7 +1013,7 @@ bool CSolarRadiation::Get_Slope_Gradient(void)
 	m_Slope .Create(Get_System());
 	m_Aspect.Create(Get_System());
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)

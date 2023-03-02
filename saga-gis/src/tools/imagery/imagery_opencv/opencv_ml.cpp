@@ -226,7 +226,7 @@ bool COpenCV_ML::_Initialize(void)
 	//-----------------------------------------------------
 	m_pClasses->Set_NoData_Value(-1.);
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -377,7 +377,7 @@ inline double COpenCV_ML::_Get_Feature(int x, int y, int iFeature)
 //---------------------------------------------------------
 bool COpenCV_ML::_Get_Prediction(const Ptr<StatModel> &Model)
 {
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -476,7 +476,7 @@ bool COpenCV_ML::_Get_Training(CSG_Matrix &Data)
 	}
 
 	//-----------------------------------------------------
-	for(int iClass=m_Classes.Get_Count()-1; iClass>=0; iClass--)
+	for(sLong iClass=m_Classes.Get_Count()-1; iClass>=0; iClass--)
 	{
 		if( m_Classes[iClass].asInt(CLASS_COUNT) < 1 )
 		{
