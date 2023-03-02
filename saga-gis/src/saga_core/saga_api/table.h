@@ -169,6 +169,11 @@ public:
 	bool						Set_Value		(const char       *Field, DWORD             Value) { return( Set_Value(Field, (double)Value) ); }
 	bool						Set_Value		(const wchar_t    *Field, DWORD             Value) { return( Set_Value(Field, (double)Value) ); }
 
+	bool						Set_Value		(int               Field, long              Value) { return( Set_Value(Field, (double)Value) ); }
+	bool						Set_Value		(const CSG_String &Field, long              Value) { return( Set_Value(Field, (double)Value) ); }
+	bool						Set_Value		(const char       *Field, long              Value) { return( Set_Value(Field, (double)Value) ); }
+	bool						Set_Value		(const wchar_t    *Field, long              Value) { return( Set_Value(Field, (double)Value) ); }
+
 	bool						Set_Value		(int               Field, int               Value) { return( Set_Value(Field, (double)Value) ); }
 	bool						Set_Value		(const CSG_String &Field, int               Value) { return( Set_Value(Field, (double)Value) ); }
 	bool						Set_Value		(const char       *Field, int               Value) { return( Set_Value(Field, (double)Value) ); }
