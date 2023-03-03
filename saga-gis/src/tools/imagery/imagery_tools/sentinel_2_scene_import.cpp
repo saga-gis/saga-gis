@@ -438,7 +438,7 @@ bool CSentinel_2_Scene_Import::On_Execute(void)
 		Load_Classification(pSCL, Parameters("METAFILE")->asString());
 	}
 
-	return( Parameters("BANDS")->asGridList()->Get_Data_Count() > 0 );
+	return( Parameters("BANDS")->asGridList()->Get_Grid_Count() > 0 );
 }
 
 

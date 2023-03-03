@@ -804,7 +804,7 @@ public:
 
 protected:
 
-	bool					m_bWeights;
+	bool					m_bWeights{false};
 
 	CSG_Array_Int			m_Count;
 

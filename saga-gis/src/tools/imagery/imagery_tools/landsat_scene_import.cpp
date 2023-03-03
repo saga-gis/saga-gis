@@ -437,7 +437,7 @@ bool CLandsat_Scene_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	return( Parameters("BANDS")->asGridList()->Get_Data_Count() > 0 );
+	return( Parameters("BANDS")->asGridList()->Get_Grid_Count() > 0 );
 }
 
 

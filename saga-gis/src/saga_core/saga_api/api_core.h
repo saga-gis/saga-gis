@@ -1399,16 +1399,16 @@ public:
 
 	long							Get_Interpolated	(double Index)	const
 	{
-		if( m_nColors <= 0             )	return( 0 );
-		if( Index     <= 0             )	return( m_Colors[0] );
-		if( Index     >= m_nColors - 1 )	return( m_Colors[m_nColors - 1] );
+		if( m_nColors <= 0              ) return( 0 );
+		if( Index     <= 0.             ) return( m_Colors[0] );
+		if( Index     >= m_nColors - 1. ) return( m_Colors[m_nColors - 1] );
 
-		int	i	= (int)Index;	Index	-= i;
+		int i = (int)Index; Index -= i;
 
 		return( SG_GET_RGB(
-			SG_GET_R(m_Colors[i]) + Index * (SG_GET_R(m_Colors[i + 1]) - SG_GET_R(m_Colors[i])),
-			SG_GET_G(m_Colors[i]) + Index * (SG_GET_G(m_Colors[i + 1]) - SG_GET_G(m_Colors[i])),
-			SG_GET_B(m_Colors[i]) + Index * (SG_GET_B(m_Colors[i + 1]) - SG_GET_B(m_Colors[i])))
+			Get_Red  (i) + Index * (Get_Red  (i + 1) - Get_Red  (i)),
+			Get_Green(i) + Index * (Get_Green(i + 1) - Get_Green(i)),
+			Get_Blue (i) + Index * (Get_Blue (i + 1) - Get_Blue (i)))
 		);
 	}
 

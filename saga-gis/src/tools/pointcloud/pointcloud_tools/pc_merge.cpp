@@ -129,7 +129,7 @@ bool CPC_Merge::On_Execute(void)
 {
 	CSG_Parameter_PointCloud_List	*pList	= Parameters("PC_LAYERS")->asPointCloudList();
 
-	if( pList->Get_Data_Count() < 2 )
+	if( pList->Get_Item_Count() < 2 )
 	{
 		Error_Set(_TL("Nothing to do. Less than two input layers."));
 
@@ -156,7 +156,7 @@ bool CPC_Merge::On_Execute(void)
 	bool	bDelete	= Parameters("DEL_LAYERS")->asBool();
 
 	//-----------------------------------------------------
-	for(int i=0; i<pList->Get_Data_Count() && Process_Get_Okay(); i++, ID++)
+	for(int i=0; i<pList->Get_Item_Count() && Process_Get_Okay(); i++, ID++)
 	{
 		pPoints	= pList->Get_PointCloud(i);
 

@@ -96,7 +96,7 @@ public:
 	CSG_TimeSpan(void)						{	m_span	= 0l       ;	}
 	CSG_TimeSpan(const CSG_TimeSpan &ts)	{	m_span	= ts.m_span;	}
 	CSG_TimeSpan(const sLong &diff)			{	m_span	= diff     ;	}
-	CSG_TimeSpan(double hours)				{	m_span	= (sLong)(1000*60*60 * hours);	}
+	CSG_TimeSpan(double hours)				{	m_span	= (sLong)(1000.*60.*60. * hours);	}
 	CSG_TimeSpan(long hours, long min = 0, sLong sec = 0, sLong msec = 0)
 	{
 		m_span	= msec + 1000 * (sec + 60 * (min + 60 * hours));
