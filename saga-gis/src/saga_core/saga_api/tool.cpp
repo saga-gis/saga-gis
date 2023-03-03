@@ -1545,7 +1545,7 @@ void CSG_Tool::_Get_Script_CMD(CSG_String &Script, CSG_Parameters *pParameters, 
 //---------------------------------------------------------
 CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 {
-	CSG_String	Script, Name(Get_Name()); Name.Replace(" ", "_"); Name.Replace("(", ""); Name.Replace(")", ""); Name.Replace("[", ""); Name.Replace("]", ""); Name.Replace(".", "");
+	CSG_String	Script, Name(Get_Name()); Name.Replace(" ", "_"); Name.Replace("(", ""); Name.Replace(")", ""); Name.Replace("[", ""); Name.Replace("]", ""); Name.Replace(".", ""); Name.Replace(",", "");
 
 	//-----------------------------------------------------
 	if( bHeader )
@@ -1559,16 +1559,16 @@ CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 #ifdef _SAGA_MSW
 		CSG_String AppPath = SG_UI_Get_Application_Path(true); AppPath.Replace("\\", "/");
 		Script += "# Windows: Let the 'SAGA_PATH' environment variable point to\n";
-		Script += "# the SAGA installation folder before importing 'saga_helper'\n";
-		Script += "# or alternatively set it in 'saga_helper.py' itself.\n";
+		Script += "# the SAGA installation folder before importing 'saga'\n";
+		Script += "# or alternatively set it in 'saga.py' itself.\n";
 		Script += "import os; os.environ['SAGA_PATH'] = '" + AppPath + "'\n";
 		Script += "\n";
 #endif // _SAGA_MSW
-		Script += "# Import 'saga_helper' before importing 'saga_api' for the first time!\n";
-		Script += "import saga_helper, saga_api\n";
+		Script += "# Import 'saga' before importing 'saga_api' for the first time!\n";
+		Script += "import saga, saga_api\n";
 		Script += "\n";
 		Script += "# Call 'Initialize()' to load SAGA's standard tool libraries!\n";
-		Script += "saga_helper.Initialize(True)\n";
+		Script += "saga.Initialize(True)\n";
 		Script += "\n";
 		Script += "\n";
 		Script += "#_________________________________________\n";
