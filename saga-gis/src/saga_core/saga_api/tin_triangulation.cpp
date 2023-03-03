@@ -181,7 +181,7 @@ bool CSG_TIN::_Triangulate(CSG_TIN_Node **Points, int nPoints, TTIN_Triangle *Tr
 
 	if( complete == NULL )
 	{
-		status = 1; goto skip;
+		return( false );
 	}
 
 	//-----------------------------------------------------
@@ -189,7 +189,7 @@ bool CSG_TIN::_Triangulate(CSG_TIN_Node **Points, int nPoints, TTIN_Triangle *Tr
 
 	if( edges == NULL )
 	{
-		status = 2; goto skip;
+		SG_Free(complete); return( false );
 	}
 
 	//-----------------------------------------------------
@@ -258,12 +258,14 @@ bool CSG_TIN::_Triangulate(CSG_TIN_Node **Points, int nPoints, TTIN_Triangle *Tr
 			{
 				if( nedge + 3 >= emax ) // Check that we haven't exceeded the edge list size
 				{
-					emax += 100;
+					emax += 100; TTIN_Edge *_edges = (TTIN_Edge *)SG_Realloc(edges, emax * sizeof(TTIN_Edge));
 
-					if( (edges = (TTIN_Edge *)SG_Realloc(edges, emax * sizeof(TTIN_Edge))) == NULL )
+					if( _edges == NULL )
 					{
-						status	= 3; goto skip;
+						SG_Free(edges); SG_Free(complete); return( false );
 					}
+
+					edges = _edges;
 				}
 
 				edges[nedge + 0].p1 = Triangles[j].p1;
@@ -322,7 +324,7 @@ bool CSG_TIN::_Triangulate(CSG_TIN_Node **Points, int nPoints, TTIN_Triangle *Tr
 
 			if( nTriangles >= trimax )
 			{
-				status = 4; goto skip;
+				SG_Free(edges); SG_Free(complete); return( false );
 			}
 
 			Triangles[nTriangles].p1 = edges[j].p1;
@@ -349,12 +351,7 @@ bool CSG_TIN::_Triangulate(CSG_TIN_Node **Points, int nPoints, TTIN_Triangle *Tr
 	}
 
 	//-----------------------------------------------------
-	skip:
-
-	if( edges    ) { SG_Free(edges   ); }
-	if( complete ) { SG_Free(complete); }
-
-	return( status == 0 );
+	return( true );
 }
 
 
