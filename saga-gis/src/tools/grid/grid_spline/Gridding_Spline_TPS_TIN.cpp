@@ -159,7 +159,7 @@ bool CGridding_Spline_TPS_TIN::On_Execute(void)
 
 	if( Initialize() && _Initialise() && _Get_TIN(TIN) )
 	{
-		for(int i=0; i<TIN.Get_Triangle_Count() && Set_Progress(i, TIN.Get_Triangle_Count()); i++)
+		for(sLong i=0; i<TIN.Get_Triangle_Count() && Set_Progress(i, TIN.Get_Triangle_Count()); i++)
 		{
 			_Set_Triangle(TIN.Get_Triangle(i));
 		}

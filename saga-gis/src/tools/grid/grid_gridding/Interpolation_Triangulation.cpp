@@ -99,7 +99,7 @@ bool CInterpolation_Triangulation::Interpolate(void)
 	m_pGrid->Assign_NoData();
 
 	//-----------------------------------------------------
-	for(int iTriangle=0; iTriangle<TIN.Get_Triangle_Count() && Set_Progress(iTriangle, TIN.Get_Triangle_Count()); iTriangle++)
+	for(sLong iTriangle=0; iTriangle<TIN.Get_Triangle_Count() && Set_Progress(iTriangle, TIN.Get_Triangle_Count()); iTriangle++)
 	{
 		CSG_TIN_Triangle	*pTriangle	= TIN.Get_Triangle(iTriangle);
 

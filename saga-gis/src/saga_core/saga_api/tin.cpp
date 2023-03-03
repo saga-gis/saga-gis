@@ -381,7 +381,7 @@ bool CSG_TIN::Save(const CSG_String &File, int Format)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Table_Record * CSG_TIN::_Get_New_Record(int Index)
+CSG_Table_Record * CSG_TIN::_Get_New_Record(sLong Index)
 {
 	return( new CSG_TIN_Node(this, Index) );
 }

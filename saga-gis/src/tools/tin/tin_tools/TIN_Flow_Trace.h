@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,20 +48,18 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__TIN_Flow_Trace_H
 #define HEADER_INCLUDED__TIN_Flow_Trace_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -78,27 +73,34 @@ class CTIN_Flow_Trace : public CSG_Tool
 {
 public:
 	CTIN_Flow_Trace(void);
-	virtual ~CTIN_Flow_Trace(void);
 
-	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("Terrain Analysis") );	}
+	virtual CSG_String	Get_MenuPath		(void)	{	return( _TL("Terrain Analysis") );	}
 
 
 protected:
 
-	virtual bool				On_Execute		(void);
+	virtual bool		On_Execute			(void);
 
 
 private:
 
-	int							m_iHeight, m_iDir, m_iArea, m_iFlow, m_iSpecific;
+	int					m_iHeight, m_iDir, m_iArea, m_iFlow, m_iSpecific;
 
-	CSG_TIN						*m_pFlow;
+	CSG_TIN				*m_pFlow;
 
 
-	int							Get_Lowest_Neighbor(CSG_TIN_Node *pPoint);
+	int					Get_Lowest_Neighbor	(CSG_TIN_Node *pPoint);
 
-	void						Trace(CSG_TIN_Node *pPoint, double Area);
+	void				Trace				(CSG_TIN_Node *pPoint, double Area);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__TIN_Flow_Trace_H

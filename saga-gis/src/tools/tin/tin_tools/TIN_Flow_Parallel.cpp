@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "TIN_Flow_Parallel.h"
 
 
@@ -72,93 +60,70 @@
 //---------------------------------------------------------
 CTIN_Flow_Parallel::CTIN_Flow_Parallel(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("Flow Accumulation (Parallel)"));
 
-	Set_Author		(SG_T("(c) 2004 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2004");
 
 	Set_Description	(_TW(
 		"Calculates the catchment area based on the selected elevation values.\n\n"
 	));
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_TIN(
-		NULL	, "DEM"			, _TL("TIN"),
+	Parameters.Add_TIN("",
+		"DEM"		, _TL("TIN"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "ZFIELD"		, _TL("Z Values"),
+	Parameters.Add_Table_Field("DEM",
+		"ZFIELD"	, _TL("Z Values"),
 		_TL("")
 	);
 
-	Parameters.Add_TIN(
-		NULL	, "FLOW"		, _TL("Flow Accumulation"),
+	Parameters.Add_TIN("",
+		"FLOW"		, _TL("Flow Accumulation"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Method"),
 		_TL(""),
-
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("Single Flow Direction"),
 			_TL("Multiple Flow Direction")
 		)
 	);
 }
 
-//---------------------------------------------------------
-CTIN_Flow_Parallel::~CTIN_Flow_Parallel(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CTIN_Flow_Parallel::On_Execute(void)
 {
-	int			iPoint;
-	CSG_TIN		*pDEM;
+	CSG_TIN *pDEM = Parameters("DEM")->asTIN();
 
-	//-----------------------------------------------------
-	pDEM		= Parameters("DEM")		->asTIN();
-	m_iHeight	= Parameters("ZFIELD")	->asInt();
-	m_pFlow		= Parameters("FLOW")	->asTIN();
+	m_iHeight = Parameters("ZFIELD")->asInt();
 
+	m_pFlow = Parameters("FLOW")->asTIN();
 	m_pFlow->Create(*pDEM);
 
-	m_iArea		= m_pFlow->Get_Field_Count();
-	m_pFlow->Add_Field(_TL("AREA")		, SG_DATATYPE_Double);
+	m_iArea     = m_pFlow->Get_Field_Count(); m_pFlow->Add_Field("AREA"    , SG_DATATYPE_Double);
+	m_iFlow     = m_pFlow->Get_Field_Count(); m_pFlow->Add_Field("FLOW"    , SG_DATATYPE_Double);
+	m_iSpecific = m_pFlow->Get_Field_Count(); m_pFlow->Add_Field("SPECIFIC", SG_DATATYPE_Double);
 
-	m_iFlow		= m_pFlow->Get_Field_Count();
-	m_pFlow->Add_Field(_TL("FLOW")		, SG_DATATYPE_Double);
-
-	m_iSpecific	= m_pFlow->Get_Field_Count();
-	m_pFlow->Add_Field(_TL("SPECIFIC")	, SG_DATATYPE_Double);
-
-	//-----------------------------------------------------
 	m_pFlow->Set_Index(m_iHeight, TABLE_INDEX_Descending);
 
-	for(iPoint=0; iPoint<m_pFlow->Get_Node_Count() && Set_Progress(iPoint, m_pFlow->Get_Node_Count()); iPoint++)
+	//-----------------------------------------------------
+	for(sLong iPoint=0; iPoint<m_pFlow->Get_Node_Count() && Set_Progress(iPoint, m_pFlow->Get_Node_Count()); iPoint++)
 	{
 		switch( Parameters("METHOD")->asInt() )
 		{
-		case 0: default:
-			Let_it_flow_single		(m_pFlow->Get_Node(m_pFlow->Get_Record_byIndex(iPoint)->Get_Index()));
-			break;
-
-		case 1:
-			Let_it_flow_multiple	(m_pFlow->Get_Node(m_pFlow->Get_Record_byIndex(iPoint)->Get_Index()));
-			break;
+		default: Let_it_flow_single  (m_pFlow->Get_Node(m_pFlow->Get_Record_byIndex(iPoint)->Get_Index())); break;
+		case  1: Let_it_flow_multiple(m_pFlow->Get_Node(m_pFlow->Get_Record_byIndex(iPoint)->Get_Index())); break;
 		}
 	}
 
@@ -168,27 +133,23 @@ bool CTIN_Flow_Parallel::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CTIN_Flow_Parallel::Let_it_flow_single(CSG_TIN_Node *pPoint)
 {
-	int		i, iMin;
-	double	dz, dzMin, Area;
-
-	Area	= pPoint->Get_Polygon_Area();
+	int iMin = -1; double dzMin = 0., Area = pPoint->Get_Polygon_Area();
 
 	pPoint->Set_Value(m_iArea, Area);
 	pPoint->Add_Value(m_iFlow, Area);
 
-	for(i=0, iMin=-1, dzMin=0.0; i<pPoint->Get_Neighbor_Count(); i++)
+	for(int i=0; i<pPoint->Get_Neighbor_Count(); i++)
 	{
-		if( (dz = pPoint->Get_Gradient(i, m_iHeight)) > dzMin )
+		double dz = pPoint->Get_Gradient(i, m_iHeight);
+
+		if( dz > dzMin )
 		{
-			dzMin	= dz;
-			iMin	= i;
+			iMin = i; dzMin = dz;
 		}
 	}
 
@@ -197,60 +158,49 @@ void CTIN_Flow_Parallel::Let_it_flow_single(CSG_TIN_Node *pPoint)
 		pPoint->Get_Neighbor(iMin)->Add_Value(m_iFlow, pPoint->asDouble(m_iFlow));
 	}
 
-	pPoint->Set_Value(m_iSpecific, Area > 0.0 ? 1.0 / Area : -1.0);
+	pPoint->Set_Value(m_iSpecific, Area > 0. ? 1. / Area : -1.);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CTIN_Flow_Parallel::Let_it_flow_multiple(CSG_TIN_Node *pPoint)
 {
-	int		i;
-	double	d, dzSum, *dz, Area;
-
-	Area	= pPoint->Get_Polygon_Area();
+	double Area = pPoint->Get_Polygon_Area();
 
 	pPoint->Set_Value(m_iArea, Area);
 	pPoint->Add_Value(m_iFlow, Area);
 
 	if( pPoint->Get_Neighbor_Count() > 0 )
 	{
-		dz	= (double *)SG_Malloc(pPoint->Get_Neighbor_Count() * sizeof(double));
+		double dzSum = 0.; CSG_Vector dz(pPoint->Get_Neighbor_Count());
 
-		for(i=0, dzSum=0.0; i<pPoint->Get_Neighbor_Count(); i++)
+		for(int i=0; i<pPoint->Get_Neighbor_Count(); i++)
 		{
-			if( (d = pPoint->Get_Gradient(i, m_iHeight)) > 0.0 )
+			if( (dz[i] = pPoint->Get_Gradient(i, m_iHeight)) > 0. )
 			{
-				dzSum	+= (dz[i]	= d);
-			}
-			else
-			{
-				dz[i]	= 0.0;
+				dzSum += dz[i];
 			}
 		}
 
-		if( dzSum > 0.0 )
+		if( dzSum > 0. )
 		{
-			d	= pPoint->asDouble(m_iFlow);
+			double Flow = pPoint->asDouble(m_iFlow);
 
-			for(i=0; i<pPoint->Get_Neighbor_Count(); i++)
+			for(int i=0; i<pPoint->Get_Neighbor_Count(); i++)
 			{
-				if( dz[i] > 0.0 )
+				if( dz[i] > 0. )
 				{
-					pPoint->Get_Neighbor(i)->Add_Value(	m_iFlow, d * dz[i] / dzSum);
+					pPoint->Get_Neighbor(i)->Add_Value(	m_iFlow, Flow * dz[i] / dzSum);
 				}
 			}
 		}
-
-		SG_Free(dz);
 	}
 
-	pPoint->Set_Value(m_iSpecific, Area > 0.0 ? 1.0 / Area : -1.0);
+	pPoint->Set_Value(m_iSpecific, Area > 0. ? 1. / Area : -1.);
 }
 
 
