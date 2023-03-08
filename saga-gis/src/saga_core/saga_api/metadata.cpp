@@ -196,6 +196,11 @@ CSG_MetaData * CSG_MetaData::Add_Child(const CSG_String &Name, int Content)
 	return( Ins_Child(Name, CSG_String::Format(SG_T("%d"), Content), -1) );
 }
 
+CSG_MetaData * CSG_MetaData::Add_Child(const CSG_String &Name, sLong Content)
+{
+	return( Ins_Child(Name, CSG_String::Format(SG_T("%lld"), Content), -1) );
+}
+
 CSG_MetaData * CSG_MetaData::Add_Child(const CSG_MetaData &MetaData, bool bAddChildren)
 {
 	return( Ins_Child(MetaData, -1, bAddChildren) );
@@ -256,6 +261,11 @@ CSG_MetaData * CSG_MetaData::Ins_Child(const CSG_String &Name, double Content, i
 CSG_MetaData * CSG_MetaData::Ins_Child(const CSG_String &Name, int Content, int Position)
 {
 	return( Ins_Child(Name, CSG_String::Format(SG_T("%d"), Content), Position) );
+}
+
+CSG_MetaData * CSG_MetaData::Ins_Child(const CSG_String &Name, sLong Content, int Position)
+{
+	return( Ins_Child(Name, CSG_String::Format(SG_T("%lld"), Content), Position) );
 }
 
 CSG_MetaData * CSG_MetaData::Ins_Child(const CSG_MetaData &MetaData, int Position, bool bAddChildren)
@@ -465,6 +475,13 @@ bool CSG_MetaData::Get_Content(const CSG_String &Name, int        &Value)	const
 	return( Get_Content(Name, s) && s.asInt(Value) );
 }
 
+//---------------------------------------------------------
+bool CSG_MetaData::Get_Content(const CSG_String &Name, sLong      &Value)	const
+{
+	CSG_String	s;
+
+	return( Get_Content(Name, s) && s.asLongLong(Value) );
+}
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -547,6 +564,11 @@ bool CSG_MetaData::Add_Property(const CSG_String &Name, int Value)
 	return( Add_Property(Name, CSG_String::Format(SG_T("%d"), Value)) );
 }
 
+bool CSG_MetaData::Add_Property(const CSG_String &Name, sLong Value)
+{
+	return( Add_Property(Name, CSG_String::Format(SG_T("%lld"), Value)) );
+}
+
 //---------------------------------------------------------
 bool CSG_MetaData::Del_Property(const CSG_String &Name)
 {
@@ -606,6 +628,11 @@ bool CSG_MetaData::Set_Property(const CSG_String &Name, int Value, bool bAddIfNo
 	return( Set_Property(Name, CSG_String::Format(SG_T("%d"), Value, bAddIfNotExists)) );
 }
 
+bool CSG_MetaData::Set_Property(const CSG_String &Name, sLong Value, bool bAddIfNotExists)
+{
+	return( Set_Property(Name, CSG_String::Format(SG_T("%lld"), Value, bAddIfNotExists)) );
+}
+
 //---------------------------------------------------------
 bool CSG_MetaData::Get_Property(const CSG_String &Name, CSG_String &Value)	const
 {
@@ -633,6 +660,13 @@ bool CSG_MetaData::Get_Property(const CSG_String &Name, int &Value)	const
 	CSG_String	s;
 
 	return( Get_Property(Name, s) && s.asInt(Value) );
+}
+
+bool CSG_MetaData::Get_Property(const CSG_String &Name, sLong &Value)	const
+{
+	CSG_String	s;
+
+	return( Get_Property(Name, s) && s.asLongLong(Value) );
 }
 
 //---------------------------------------------------------

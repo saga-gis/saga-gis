@@ -696,6 +696,8 @@ public:
 
 	int								asInt				(void)									const;
 	bool							asInt				(int    &Value)							const;
+	sLong							asLongLong			(void)									const;
+	bool							asLongLong			(sLong  &Value)							const;
 
 	double							asDouble			(void)									const;
 	bool							asDouble			(double &Value)							const;

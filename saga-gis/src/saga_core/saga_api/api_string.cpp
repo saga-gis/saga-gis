@@ -741,6 +741,22 @@ bool CSG_String::asInt(int &Value) const
 }
 
 //---------------------------------------------------------
+sLong CSG_String::asLongLong(void) const
+{
+	sLong Value; return( asLongLong(Value) ? Value : 0 );
+}
+
+bool CSG_String::asLongLong(sLong &Value) const
+{
+	if( m_pString->ToLongLong(&Value) )
+	{
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 double CSG_String::asDouble(void) const
 {
 	double Value; return( asDouble(Value) ? Value : 0. );
