@@ -174,7 +174,7 @@ bool CResection::On_Execute(void)
 	target[1]			= Parameters("Yt")			->asDouble();
 	target[2]			= Parameters("Zt")			->asDouble();
 
-	int pointCount = pPoints->Get_Count();
+	sLong pointCount = pPoints->Get_Count();
 
 	bool estPPOffsets = false;
 
@@ -295,7 +295,7 @@ bool CResection::On_Execute(void)
 		double SS = 0;
 		double sigma_naught = 0;
 		
-		for (int i = 0; i < pointCount; i++) {
+		for (sLong i=0; i<pointCount; i++) {
 			
 			CSG_Vector pqs(3);										// Approx. pi, qi, si
 
@@ -405,7 +405,7 @@ bool CResection::On_Execute(void)
 		// if (std::any_of(eigenVals.cbegin(), eigenVals.cend(), [] (double i) { return i == 0; }))
 		bool	bValid = true;
 
-		for (int i=0; i < eigenVals.Get_Size(); i++)
+		for (size_t i=0; i<eigenVals.Get_Size(); i++)
 		{
 			if (eigenVals.Get_Data(i) == 0.0)
 			{

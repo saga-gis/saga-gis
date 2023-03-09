@@ -599,7 +599,7 @@ bool CPC_Reclass_Extract::Reclass_Table(bool bUser)
 		value	= m_pInput->Get_Value(i, m_AttrField);
 		set		= false;
 
-		for(int iRecord=0; iRecord<pReTab->Get_Count(); iRecord++)									// reclass
+		for(sLong iRecord=0; iRecord<pReTab->Get_Count(); iRecord++)	// reclass
 		{
 			pRecord		= pReTab->Get_Record(iRecord);
 

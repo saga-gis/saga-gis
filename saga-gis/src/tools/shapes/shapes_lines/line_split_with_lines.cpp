@@ -127,7 +127,7 @@ bool CLine_Split_with_Lines::On_Execute(void)
 	{
 		CSG_Shape_Line	*pLine	= (CSG_Shape_Line *)pIntersect->Add_Shape(pLines->Get_Shape(iLine), SHAPE_COPY);
 
-		for(int iSplit=0; iSplit<pSplit->Get_Count(); iSplit++)
+		for(sLong iSplit=0; iSplit<pSplit->Get_Count(); iSplit++)
 		{
 			CSG_Shape_Line	*pSplit_Line	= (CSG_Shape_Line *)pSplit->Get_Shape(iSplit);
 

@@ -456,7 +456,7 @@ bool CWKSP_Map_BaseMap::Set_BaseMap(const CSG_Grid_System &System)
 		if( System == BaseMap.Get_System() )
 		{
 			#pragma omp parallel for
-			for(int i=0; i<m_BaseMap.Get_NCells(); i++)
+			for(sLong i=0; i<m_BaseMap.Get_NCells(); i++)
 			{
 				m_BaseMap.Set_Value(i, BaseMap.asInt(i));
 			}
@@ -475,7 +475,7 @@ bool CWKSP_Map_BaseMap::Set_BaseMap(const CSG_Grid_System &System)
 			int	Threshold	= (int)(0.5 + 3 * 255 * m_Parameters("BRIGHTNESS")->asDouble() / 100.);
 
 			#pragma omp parallel for
-			for(int i=0; i<m_BaseMap.Get_NCells(); i++)
+			for(sLong i=0; i<m_BaseMap.Get_NCells(); i++)
 			{
 				int	c	= m_BaseMap.asInt(i);
 

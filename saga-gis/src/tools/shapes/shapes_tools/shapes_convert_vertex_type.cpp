@@ -186,7 +186,7 @@ bool CShapes_Convert_Vertex_Type::On_Execute(void)
 
 
 	//-----------------------------------------------------
-	for(int iShape=0; iShape<pInput->Get_Count(); iShape++)
+	for(sLong iShape=0; iShape<pInput->Get_Count(); iShape++)
 	{
 		CSG_Shape	*pShapeIn	= pInput	->Get_Shape(iShape);
 		CSG_Shape	*pShapeOut	= pOutput	->Add_Shape(pShapeIn, SHAPE_COPY_ATTR);

@@ -295,7 +295,7 @@ bool CData_Source_ODBC::is_Connected(const CSG_String &Server)
 
 	RUN_TOOL(9, bResult, SET_PARAMETER("SERVERS", &Tables) && SET_PARAMETER("CONNECTED", true));
 
-	for(int i=0; bResult && i<Tables.Get_Count(); i++)
+	for(sLong i=0; bResult && i<Tables.Get_Count(); i++)
 	{
 		if( !Server.Cmp(Tables[i].asString(0)) )
 		{
@@ -338,7 +338,7 @@ void CData_Source_ODBC::Update_Sources(void)
 	RUN_TOOL(9, bResult, SET_PARAMETER("SERVERS", &Servers));
 
 	//-----------------------------------------------------
-	for(int i=0; i<Servers.Get_Count(); i++)
+	for(sLong i=0; i<Servers.Get_Count(); i++)
 	{
 		CSG_String	Server	= Servers[i].asString(0);
 		int			Image	= Servers[i].asInt(1) == 1 ? IMG_SRC_OPENED : IMG_SRC_CLOSED;
@@ -403,7 +403,7 @@ void CData_Source_ODBC::Update_Source(const wxTreeItemId &Item)
 		SetItemImage(Item, IMG_SRC_OPENED, wxTreeItemIcon_Normal);
 		SetItemImage(Item, IMG_SRC_OPENED, wxTreeItemIcon_Selected);
 
-		for(int i=0; i<Tables.Get_Count(); i++)
+		for(sLong i=0; i<Tables.Get_Count(); i++)
 		{
 			AppendItem(Item, Tables[i].asString(0), IMG_TABLE, IMG_TABLE,
 				new CData_Source_ODBC_Data(ODBC_ITEM_TYPE_TABLE, Tables[i].asString(0), pData->Get_Server())

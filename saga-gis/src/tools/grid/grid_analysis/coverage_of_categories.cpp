@@ -260,7 +260,7 @@ bool CCoverage_of_Categories::Initialize(const CSG_Grid_System &System)
 
 		m_Classes.Set_Count(Classes.Get_Count());
 
-		for(int iClass=0; iClass<Classes.Get_Count(); iClass++)
+		for(sLong iClass=0; iClass<Classes.Get_Count(); iClass++)
 		{
 			m_Classes[iClass].Set_Value(1, Classes[iClass].asDouble(fVal));
 
@@ -295,7 +295,7 @@ bool CCoverage_of_Categories::Initialize(const CSG_Grid_System &System)
 
 			m_Classes.Set_Count(Classes.Get_Count());
 
-			for(int iClass=0; iClass<Classes.Get_Count(); iClass++)
+			for(sLong iClass=0; iClass<Classes.Get_Count(); iClass++)
 			{
 				m_Classes[iClass].Set_Value(0, Classes[iClass].asString(1)); // Name
 				m_Classes[iClass].Set_Value(1, Classes[iClass].asDouble(3)); // Minimum
@@ -359,7 +359,7 @@ bool CCoverage_of_Categories::Initialize(const CSG_Grid_System &System)
 
 	pCoverages->Del_Items();
 
-	for(int iClass=0; iClass<m_Classes.Get_Count(); iClass++)
+	for(sLong iClass=0; iClass<m_Classes.Get_Count(); iClass++)
 	{
 		CSG_Grid	*pGrid	= SG_Create_Grid(System, Type);
 

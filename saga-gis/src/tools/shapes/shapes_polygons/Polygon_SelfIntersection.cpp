@@ -172,12 +172,12 @@ void CPolygon_SelfIntersection::Add_Polygon(CSG_Shape_Polygon *pPolygon, int ID,
 	//-----------------------------------------------------
 	CSG_Shapes	Intersect(m_pIntersect->Get_Type(), SG_T(""), m_pIntersect);
 
-	int	nIntersects	= m_pIntersect->Get_Count();
+	sLong	nIntersects	= m_pIntersect->Get_Count();
 
 	pPolygon	= m_pIntersect->Add_Shape(pPolygon)->asPolygon();
 	pPolygon	->Set_Value(ID_Field, sID);
 
-	for(int i=0; i<nIntersects && pPolygon->is_Valid(); i++)
+	for(sLong i=0; i<nIntersects && pPolygon->is_Valid(); i++)
 	{
 		if( pPolygon != m_pIntersect->Get_Shape(i) && pPolygon->Intersects(m_pIntersect->Get_Shape(i)) )
 		{

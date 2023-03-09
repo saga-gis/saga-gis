@@ -210,7 +210,7 @@ bool CGeoCoding::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int i=0; i<pTable->Get_Count() && Process_Get_Okay(); i++)
+	for(sLong i=0; i<pTable->Get_Count() && Process_Get_Okay(); i++)
 	{
 		TSG_Point	Location;
 

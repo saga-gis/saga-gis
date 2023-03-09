@@ -234,7 +234,7 @@ bool CPolygon_Generalization::Get_JoinTos(CSG_Shapes *pPolygons, CSG_Array_Int &
 
 			double maxArea = Threshold;
 
-			for(int j=0; j<pPolygons->Get_Count(); j++)
+			for(sLong j=0; j<pPolygons->Get_Count(); j++)
 			{
 				if( j != i )
 				{

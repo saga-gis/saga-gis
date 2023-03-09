@@ -172,11 +172,11 @@ bool CGrid_Value_Replace::On_Execute(void)
 			LUTs[0].Create(*DataObject_Get_Parameter(Parameters("GRID" )->asGrid(), "LUT")->asTable());
 			LUTs[1].Create(*DataObject_Get_Parameter(Parameters("INPUT")->asGrid(), "LUT")->asTable());
 
-			for(int i=0; i<LUTs[0].Get_Count(); i++)
+			for(sLong i=0; i<LUTs[0].Get_Count(); i++)
 			{
 				CSG_String	Name	= LUTs[0][i].asString(1);
 
-				for(int j=(int)LUTs[1].Get_Count()-1; j>=0; j--)
+				for(sLong j=LUTs[1].Get_Count()-1; j>=0; j--)
 				{
 					if( !Name.Cmp(LUTs[1][j].asString(1)) )
 					{
@@ -193,7 +193,7 @@ bool CGrid_Value_Replace::On_Execute(void)
 				}
 			}
 
-			for(int j=0; j<LUTs[1].Get_Count(); j++)
+			for(sLong j=0; j<LUTs[1].Get_Count(); j++)
 			{
 				LUTs[0].Add_Record(LUTs[1].Get_Record(j));
 			}
@@ -222,7 +222,7 @@ bool CGrid_Value_Replace::On_Execute(void)
 		{
 			double	Value	= pGrid->asDouble(x, y);
 
-			for(int i=0; i<LUT.Get_Count(); i++)
+			for(sLong i=0; i<LUT.Get_Count(); i++)
 			{
 				if( Method == 0 )
 				{

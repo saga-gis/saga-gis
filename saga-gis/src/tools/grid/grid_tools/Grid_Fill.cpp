@@ -179,7 +179,7 @@ bool CGrid_Filler::Parameters_Set(CSG_Parameters &Parameters)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CGrid_Filler::Fill(const TSG_Point &Point)
+sLong CGrid_Filler::Fill(const TSG_Point &Point)
 {
 	int	x	= m_pGrid->Get_System().Get_xWorld_to_Grid(Point.x);
 	int	y	= m_pGrid->Get_System().Get_yWorld_to_Grid(Point.y);
@@ -289,19 +289,19 @@ bool CGrid_Fill::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int	nReplaced	= 0;
+	sLong	nReplaced	= 0;
 
 	#define GET_NPOINTS  (bSelection ? pPoints->Get_Selection_Count() : pPoints->Get_Count())
 	#define GET_POINT(i) (bSelection ? pPoints->Get_Selection(i)->Get_Point(0) : pPoints->Get_Shape(i)->Get_Point(0))
 
 	bool	bSelection	= pPoints->Get_Selection_Count() > 0;
 
-	for(int i=0; i<GET_NPOINTS && Process_Get_Okay(); i++)
+	for(sLong i=0; i<GET_NPOINTS && Process_Get_Okay(); i++)
 	{
 		nReplaced	+= Fill(GET_POINT(i));
 	}
 
-	Message_Fmt("\n%d %s\n", nReplaced, _TL("replacements"));
+	Message_Fmt("\n%lld %s\n", nReplaced, _TL("replacements"));
 
 	return( true );	
 }
@@ -351,10 +351,10 @@ bool CGrid_Fill_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Int
 	{
 		Message_Add(_TL("Starting flood fill..."));
 
-		int	nReplaced	= Fill(ptWorld);
+		sLong	nReplaced	= Fill(ptWorld);
 
 		Message_Add(_TL("ready"), false);
-		Message_Fmt("\n%d %s", nReplaced, _TL("replacements"));
+		Message_Fmt("\n%lld %s", nReplaced, _TL("replacements"));
 
 		DataObject_Update(m_pGrid, m_pGrid->Get_Min(), m_pGrid->Get_Max());
 

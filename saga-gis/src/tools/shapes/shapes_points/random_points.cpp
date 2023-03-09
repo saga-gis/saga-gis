@@ -330,7 +330,7 @@ bool CRandom_Points::Check_Polygons(const TSG_Point &Point)
 
 	if( m_pPolygons )
 	{
-		for(int i=0; i<m_pPolygons->Get_Count(); i++)
+		for(sLong i=0; i<m_pPolygons->Get_Count(); i++)
 		{
 			if( ((CSG_Shape_Polygon *)m_pPolygons->Get_Shape(i))->Contains(Point) )
 			{

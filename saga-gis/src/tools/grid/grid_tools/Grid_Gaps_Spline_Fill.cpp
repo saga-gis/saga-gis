@@ -320,7 +320,7 @@ void CGrid_Gaps_Spline_Fill::Close_Gap(int x, int y)
 		{
 			if( m_Spline.Create(m_Relaxation, true) )
 			{
-				for(int i=0; i<m_nGapCells; i++)
+				for(sLong i=0; i<m_nGapCells; i++)
 				{
 					TSG_Point_Int	p	= m_GapCells[i];
 
@@ -343,27 +343,26 @@ void CGrid_Gaps_Spline_Fill::Close_Gap(int x, int y)
 //---------------------------------------------------------
 void CGrid_Gaps_Spline_Fill::Close_Gap(void)
 {
-	int				i, j;
 	CSG_PRQuadTree	Search(CSG_Rect(0, 0, Get_NX(), Get_NY()));
 
-	for(i=0; i<m_Spline.Get_Point_Count(); i++)
+	for(int i=0; i<m_Spline.Get_Point_Count(); i++)
 	{
 		TSG_Point_Z	p	= m_Spline.Get_Points().Get_Point(i);
 
 		Search.Add_Point(p.x, p.y, p.z);
 	}
 
-	for(i=0; i<m_nGapCells && Process_Get_Okay(); i++)
+	for(sLong i=0; i<m_nGapCells && Process_Get_Okay(); i++)
 	{
 		TSG_Point_Int	p	= m_GapCells[i];
 
 		m_Spline.Destroy();
 
-		for(j=0; j<4; j++)
+		for(int j=0; j<4; j++)
 		{
 			Search.Select_Nearest_Points(p.x, p.y, m_nPoints_Local, m_Radius, j);
 
-			for(int k=0; k<Search.Get_Selected_Count(); k++)
+			for(size_t k=0; k<Search.Get_Selected_Count(); k++)
 			{
 				double	x, y, z;
 

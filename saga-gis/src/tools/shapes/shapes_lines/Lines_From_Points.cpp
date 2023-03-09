@@ -147,7 +147,7 @@ bool CLines_From_Points::On_Execute(void)
 	//-------------------------------------------------
 	CSG_Shape *pLine = NULL; CSG_String SeparateID;
 
-	for(int iPoint=0; iPoint<pPoints->Get_Count(); iPoint++)
+	for(sLong iPoint=0; iPoint<pPoints->Get_Count(); iPoint++)
 	{
 		CSG_Shape *pPoint = pPoints->Get_Shape(Index.is_Okay() ? Index[iPoint] : iPoint);
 

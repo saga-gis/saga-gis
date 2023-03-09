@@ -248,7 +248,7 @@ bool CGridding3D_IDW::Initialize(void)
 
 	int	n	= 0;
 
-	for(int i=0; i<pPoints->Get_Count(); i++)
+	for(sLong i=0; i<pPoints->Get_Count(); i++)
 	{
 		CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
 

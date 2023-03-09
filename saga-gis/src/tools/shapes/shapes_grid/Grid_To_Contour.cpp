@@ -721,7 +721,7 @@ bool CGrid_To_Contour::Add_Edge(CSG_Shapes &Segments, int x, int y)
 //---------------------------------------------------------
 CSG_Shape * CGrid_To_Contour::Get_Segment(const CSG_Shapes &Segments, int &x, int &y, bool &bAscending)
 {
-	for(int i=0; i<Segments.Get_Count(); i++)
+	for(sLong i=0; i<Segments.Get_Count(); i++)
 	{
 		if( Segments[i].asInt(0) == x && Segments[i].asInt(1) == y )
 		{

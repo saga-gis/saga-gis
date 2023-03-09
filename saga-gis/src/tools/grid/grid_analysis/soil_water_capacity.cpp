@@ -334,7 +334,7 @@ bool CSoil_Water_Capacity::Get_HodnettTomasella(void)
 		#undef CREATE_LAYERS
 
 		//-------------------------------------------------
-		for(int z=0; z<Layers.Get_Count() && Process_Get_Okay(); z++)
+		for(sLong z=0; z<Layers.Get_Count() && Process_Get_Okay(); z++)
 		{
 			Process_Set_Text("%s [%lld/%lld]", _TL("processing"), z + 1, Layers.Get_Count());
 
@@ -549,7 +549,7 @@ bool CSoil_Water_Capacity::Get_Toth(void)
 		#undef CREATE_LAYERS
 
 		//-------------------------------------------------
-		for(int z=0; z<Layers.Get_Count() && Process_Get_Okay(); z++)
+		for(sLong z=0; z<Layers.Get_Count() && Process_Get_Okay(); z++)
 		{
 			Process_Set_Text("%s [%lld/%lld]", _TL("processing"), z + 1, Layers.Get_Count());
 

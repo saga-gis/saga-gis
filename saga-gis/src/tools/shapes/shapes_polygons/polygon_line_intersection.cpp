@@ -235,7 +235,7 @@ bool CSG_Arcs::Set_Lines(CSG_Shapes *pLines)
 	{
 		bool bIntersects = false;
 
-		for(int iLine=0; iLine<pLines->Get_Count(); iLine++)
+		for(sLong iLine=0; iLine<pLines->Get_Count(); iLine++)
 		{
 			CSG_Shape_Line *pLine = pLines->Get_Shape(iLine)->asLine();
 

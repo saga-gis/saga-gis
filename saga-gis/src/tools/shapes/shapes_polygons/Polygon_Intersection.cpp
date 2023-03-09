@@ -163,7 +163,7 @@ bool CPolygon_Overlay::Get_Intersection(CSG_Shapes *pA, CSG_Shapes *pB)
 	//-----------------------------------------------------
 	for(sLong id_A=0; id_A<m_pA->Get_Count() && Set_Progress(id_A, m_pA->Get_Count()); id_A++)
 	{
-		for(int id_B=0; id_B<m_pB->Get_Count(); id_B++)
+		for(sLong id_B=0; id_B<m_pB->Get_Count(); id_B++)
 		{
 			if( SG_Shape_Get_Intersection(m_pA->Get_Shape(id_A), m_pB->Get_Shape(id_B)->asPolygon(), pResult) )
 			{
@@ -197,7 +197,7 @@ bool CPolygon_Overlay::Get_Difference(CSG_Shapes *pA, CSG_Shapes *pB, bool bInve
 	{
 		pResult->Assign(m_pA->Get_Shape(id_A), false);
 
-		for(int id_B=0; id_B<m_pB->Get_Count() && pResult->is_Valid(); id_B++)
+		for(sLong id_B=0; id_B<m_pB->Get_Count() && pResult->is_Valid(); id_B++)
 		{
 			switch( pResult->Intersects(m_pB->Get_Shape(id_B)) )
 			{
@@ -231,7 +231,7 @@ bool CPolygon_Overlay::Get_Difference(CSG_Shapes *pA, CSG_Shapes *pB, bool bInve
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPolygon_Overlay::_Add_Polygon(CSG_Shape_Polygon *pPolygon, int id_A, int id_B)
+bool CPolygon_Overlay::_Add_Polygon(CSG_Shape_Polygon *pPolygon, sLong id_A, sLong id_B)
 {
 	if( !_Fit_Polygon(pPolygon) )
 	{
@@ -274,7 +274,7 @@ bool CPolygon_Overlay::_Add_Polygon(CSG_Shape_Polygon *pPolygon, int id_A, int i
 }
 
 //---------------------------------------------------------
-CSG_Shape_Polygon * CPolygon_Overlay::_Add_Polygon(int id_A, int id_B)
+CSG_Shape_Polygon * CPolygon_Overlay::_Add_Polygon(sLong id_A, sLong id_B)
 {
 	CSG_Shape	*pOriginal, *pNew	= m_pAB->Add_Shape();
 
@@ -512,7 +512,7 @@ bool CPolygon_Update::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Shapes	*pAB	= Parameters("RESULT")->asShapes();
 
-	for(int i=0; i<pB->Get_Count(); i++)
+	for(sLong i=0; i<pB->Get_Count(); i++)
 	{
 		pAB->Add_Shape(pB->Get_Shape(i));
 	}

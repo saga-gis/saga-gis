@@ -157,7 +157,7 @@ C3D_Viewer_PointCloud_Panel::C3D_Viewer_PointCloud_Panel(wxWindow *pParent, CSG_
 	//-----------------------------------------------------
 	m_Extent = pPoints->Get_Extent();
 
-	m_Selection.Create(sizeof(int), 0, SG_ARRAY_GROWTH_2);
+	m_Selection.Create(sizeof(sLong), 0, SG_ARRAY_GROWTH_2);
 
 	Update_Statistics();
 }
@@ -238,13 +238,13 @@ void C3D_Viewer_PointCloud_Panel::Update_Statistics(void)
 
 		int cField = m_Parameters("COLORS_ATTR")->asInt();
 
-		for(int i=0; i<m_pPoints->Get_Count(); i++)
+		for(sLong i=0; i<m_pPoints->Get_Count(); i++)
 		{
 			m_pPoints->Set_Cursor(i);
 
 			if( m_Extent.Contains(m_pPoints->Get_X(), m_pPoints->Get_Y()) && m_Selection.Inc_Array() )
 			{
-				*((int *)m_Selection.Get_Entry(m_Selection.Get_Size() - 1))	= i;
+				*((sLong *)m_Selection.Get_Entry(m_Selection.Get_Size() - 1))	= i;
 
 				cStats += m_pPoints->Get_Value(cField);
 				zStats += m_pPoints->Get_Z();
@@ -394,12 +394,12 @@ bool C3D_Viewer_PointCloud_Panel::On_Draw(void)
 	
 	int nSkip   = 1 + (int)(0.001 * m_pPoints->Get_Count() * SG_Get_Square(1. - 0.01 * m_Parameters("DETAIL")->asDouble()));
 
-	int	nPoints	= m_Selection.Get_Size() > 0 ? (int)m_Selection.Get_Size() : m_pPoints->Get_Count();
+	sLong	nPoints	= m_Selection.Get_Size() > 0 ? m_Selection.Get_Size() : m_pPoints->Get_Count();
 
 	#pragma omp parallel for
-	for(int iPoint=0; iPoint<nPoints; iPoint+=nSkip)
+	for(sLong iPoint=0; iPoint<nPoints; iPoint+=nSkip)
 	{
-		int jPoint = m_Selection.Get_Size() > 0 ? *((int *)m_Selection.Get_Entry(iPoint)) : iPoint;
+		sLong jPoint = m_Selection.Get_Size() > 0 ? *((sLong *)m_Selection.Get_Entry(iPoint)) : iPoint;
 
 		TSG_Point_Z p = m_pPoints->Get_Point(jPoint); m_Projector.Get_Projection(p);
 
@@ -467,8 +467,10 @@ public:
 		m_Count.Create(System, SG_DATATYPE_Int   );
 		m_Value.Create(System, SG_DATATYPE_Double);
 
-		for(int i=0, x, y; i<pPoints->Get_Count(); i++)
+		for(sLong i=0; i<pPoints->Get_Count(); i++)
 		{
+			int x, y;
+
 			if( m_Count.Get_System().Get_World_to_Grid(x, y, pPoints->Get_X(i), pPoints->Get_Y(i)) ) // && m_Count.is_InGrid(x, y, false) )
 			{
 				m_Count.Add_Value(x, y, 1);

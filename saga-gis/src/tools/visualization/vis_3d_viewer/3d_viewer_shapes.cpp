@@ -162,7 +162,7 @@ void C3D_Viewer_Shapes_Panel::Update_Statistics(void)
 	{
 		CSG_Simple_Statistics z;
 
-		for(int i=0; i<m_pShapes->Get_Selection_Count(); i++)
+		for(sLong i=0; i<m_pShapes->Get_Selection_Count(); i++)
 		{
 			CSG_Shape *pShape = m_pShapes->Get_Selection(i);
 
@@ -253,14 +253,14 @@ bool C3D_Viewer_Shapes_Panel::On_Draw(void)
 	//-----------------------------------------------------
 	if( m_pShapes->Get_Selection_Count() > 0 )
 	{
-		for(int iShape=0; iShape<m_pShapes->Get_Selection_Count(); iShape++)
+		for(sLong iShape=0; iShape<m_pShapes->Get_Selection_Count(); iShape++)
 		{
 			Draw_Shape(m_pShapes->Get_Selection(iShape), Field);
 		}
 	}
 	else
 	{
-		for(int iShape=0; iShape<m_pShapes->Get_Count(); iShape++)
+		for(sLong iShape=0; iShape<m_pShapes->Get_Count(); iShape++)
 		{
 			Draw_Shape(m_pShapes->Get_Shape(iShape), Field);
 		}

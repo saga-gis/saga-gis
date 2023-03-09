@@ -533,7 +533,7 @@ void CD8_Flow_Analysis::Get_Basins(void)
 				pBasins->Add_Field("ORDER", SG_DATATYPE_Int);
 			}
 
-			for(int i=0; i<pBasins->Get_Count(); i++)
+			for(sLong i=0; i<pBasins->Get_Count(); i++)
 			{
 				CSG_Shape_Polygon *pBasin = pBasins->Get_Shape(i)->asPolygon();
 

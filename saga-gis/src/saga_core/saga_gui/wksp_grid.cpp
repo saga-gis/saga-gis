@@ -1047,7 +1047,7 @@ bool CWKSP_Grid::Edit_Set_Attributes(void)
 {
 	if( m_Edit_Attributes.Get_Count() > 0 )
 	{
-		for(int y=0; y<m_Edit_Attributes.Get_Count(); y++)
+		for(sLong y=0; y<m_Edit_Attributes.Get_Count(); y++)
 		{
 			CSG_Table_Record	*pRecord	= m_Edit_Attributes.Get_Record(m_Edit_Attributes.Get_Count() - 1 - y);
 
@@ -1099,7 +1099,7 @@ bool CWKSP_Grid::_Edit_Del_Selection(void)
 {
 	if( m_Edit_Attributes.Get_Count() > 0 && DLG_Message_Confirm(_TL("Set selected values to no data."), _TL("Delete")) )
 	{
-		for(int y=0; y<m_Edit_Attributes.Get_Count(); y++)
+		for(sLong y=0; y<m_Edit_Attributes.Get_Count(); y++)
 		{
 			for(int x=0, xx=1; xx<m_Edit_Attributes.Get_Field_Count(); x++, xx++)
 			{

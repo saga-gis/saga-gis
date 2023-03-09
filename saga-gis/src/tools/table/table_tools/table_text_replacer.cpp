@@ -176,7 +176,7 @@ bool CTable_Text_Replacer::On_Execute(void)
 
 	size_t nChanges = 0;
 
-	for(int iRecord=0; iRecord<pTable->Get_Count(); iRecord++)
+	for(sLong iRecord=0; iRecord<pTable->Get_Count(); iRecord++)
 	{
 		CSG_Table_Record *pRecord = pTable->Get_Record(iRecord);
 
@@ -216,7 +216,7 @@ inline size_t CTable_Text_Replacer::Replace(CSG_Table_Record *pRecord, int iFiel
 
 	size_t nChanges = 0;
 
-	for(int i=0; i<m_pReplacer->Get_Count(); i++)
+	for(sLong i=0; i<m_pReplacer->Get_Count(); i++)
 	{
 		CSG_Table_Record *pReplace = m_pReplacer->Get_Record(i);
 

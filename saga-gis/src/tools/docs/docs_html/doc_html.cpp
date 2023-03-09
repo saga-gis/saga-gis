@@ -702,7 +702,7 @@ bool CSG_Doc_HTML::Draw_Shapes(CSG_Shapes *pShapes, const SG_Char *Filename, int
 		r = pShapes->Get_Extent();
 		SVG.Open((int)MAP_WIDTH, (int)MAP_HEIGHT);
 
-		for(int iShape=0; iShape<pShapes->Get_Count(); iShape++)
+		for(sLong iShape=0; iShape<pShapes->Get_Count(); iShape++)
 		{
 			_Draw_Shape(SVG, pShapes->Get_Shape(iShape), r, Fill_Color, Line_Color, 1, 3);
 		}

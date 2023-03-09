@@ -247,7 +247,7 @@ bool CGDAL_BuildVRT::On_Execute(void)
 			return( false );
 		}
 		
-		for(int i=0; i<Table.Get_Count(); i++)	// build our own list, as the -input_file_list option is not available in the library call, only in the gdal binary
+		for(sLong i=0; i<Table.Get_Count(); i++)	// build our own list, as the -input_file_list option is not available in the library call, only in the gdal binary
 		{
 			CSG_String File(Table.Get_Record(i)->asString(0));
 

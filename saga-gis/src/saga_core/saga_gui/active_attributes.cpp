@@ -199,9 +199,9 @@ void CActive_Attributes::Set_Attributes(void)
 
 		if( _Get_Table() && _Get_Table()->Get_Selection_Count() > 1 )
 		{
-			for(int i=0; i<_Get_Table()->Get_Selection_Count(); i++)
+			for(sLong i=0; i<_Get_Table()->Get_Selection_Count(); i++)
 			{
-				m_pSelections->Append(wxString::Format("%d", i + 1));
+				m_pSelections->Append(wxString::Format("%lld", i + 1));
 			}
 
 			m_pSelections->Select(m_pItem->Edit_Get_Index());

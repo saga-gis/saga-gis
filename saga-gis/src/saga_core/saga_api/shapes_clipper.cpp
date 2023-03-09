@@ -77,7 +77,7 @@ public:
 
 		Paths.clear();
 
-		for(int iShape=0, iPath=0; iShape<pShapes->Get_Count(); iShape++)
+		for(sLong iShape=0, iPath=0; iShape<pShapes->Get_Count(); iShape++)
 		{
 			CSG_Shape &Shape = *pShapes->Get_Shape(iShape);
 

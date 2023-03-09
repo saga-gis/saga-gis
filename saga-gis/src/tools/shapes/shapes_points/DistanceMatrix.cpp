@@ -176,7 +176,7 @@ bool CDistanceMatrix::On_Execute(void)
 
 			pRecord->Set_Value(0, GET_ID(pPoints, id_Points, iPoint));
 
-			for(int iNear=0; iNear<pNear->Get_Count(); iNear++)
+			for(sLong iNear=0; iNear<pNear->Get_Count(); iNear++)
 			{
 				pRecord->Set_Value(1 + iNear, SG_Get_Distance(Point, pNear->Get_Shape(iNear)->Get_Point(0)));
 			}

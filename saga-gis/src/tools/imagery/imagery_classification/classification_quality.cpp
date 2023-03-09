@@ -241,7 +241,7 @@ bool CClassification_Quality::On_Execute(void)
 
 			if( bUnclassified || iGrid < m_Classes.Get_Count() )
 			{
-				for(int iPolygon=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
+				for(sLong iPolygon=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
 				{
 					CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
 

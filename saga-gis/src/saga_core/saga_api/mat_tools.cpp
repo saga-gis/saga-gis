@@ -581,7 +581,7 @@ void CSG_Simple_Statistics::_Evaluate(int Level)
 
 		if( Get_StdDev() > 0. && m_Values.Get_Size() > 0 )
 		{
-			for(int i=0; i<Get_Count(); i++)
+			for(sLong i=0; i<Get_Count(); i++)
 			{
 				double	d	= (Get_Value(i) - Get_Mean()) / Get_StdDev();
 
@@ -691,7 +691,7 @@ double CSG_Simple_Statistics::Get_Gini(void)
 
 		m_Gini	= 0.;
 
-		for(int i=0; i<Get_Count(); i++)
+		for(sLong i=0; i<Get_Count(); i++)
 		{
 			m_Gini	+= (i + 1.) * Get_Value(i);
 		}
@@ -1589,7 +1589,7 @@ bool CSG_Histogram::Create(size_t nClasses, double Minimum, double Maximum, CSG_
 	}
 
 	//-----------------------------------------------------
-	for(int i=0; i<pTable->Get_Count(); i++)
+	for(sLong i=0; i<pTable->Get_Count(); i++)
 	{
 		double	Value	= pTable->Get_Record(i)->asDouble(Field);
 
@@ -1754,7 +1754,7 @@ bool CSG_Natural_Breaks::Create(CSG_Table *pTable, int Field, int nClasses, int 
 	}
 	else if( Field >= 0 && Field < pTable->Get_Field_Count() )
 	{
-		for(int i=0; i<pTable->Get_Count(); i++)
+		for(sLong i=0; i<pTable->Get_Count(); i++)
 		{
 			CSG_Table_Record	*pRecord	= pTable->Get_Record(i);
 

@@ -1755,7 +1755,7 @@ bool CSG_Parameter_Fixed_Table::_Serialize(CSG_MetaData &Entry, bool bSave)
 
 		pNode	= Entry.Add_Child("RECORDS");
 
-		for(int iRecord=0; iRecord<m_Table.Get_Count(); iRecord++)
+		for(sLong iRecord=0; iRecord<m_Table.Get_Count(); iRecord++)
 		{
 			CSG_MetaData	*pEntry	= pNode->Add_Child("RECORD");
 

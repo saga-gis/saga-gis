@@ -605,7 +605,7 @@ bool CGrid_Value_Reclassify::ReclassTable(bool bUser)
 			double	value	= pInput->asDouble(x, y);
 			bool	set		= false;
 
-			for(int iRecord=0; iRecord<pReTab->Get_Count(); iRecord++)									// reclass
+			for(sLong iRecord=0; iRecord<pReTab->Get_Count(); iRecord++)	// reclass
 			{
 				CSG_Table_Record	*pRecord = pReTab->Get_Record(iRecord);
 

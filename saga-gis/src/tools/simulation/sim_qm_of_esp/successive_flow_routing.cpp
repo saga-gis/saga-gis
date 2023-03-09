@@ -181,7 +181,7 @@ bool CSuccessive_Flow_Routing::On_Execute(void)
 			}
 		}
 
-		for(int i=0; i<Get_NCells() && Process_Get_Okay(); i++)
+		for(sLong i=0; i<Get_NCells() && Process_Get_Okay(); i++)
 		{
 			if( m_pDEM->Get_Sorted(i, x, y) )
 			{

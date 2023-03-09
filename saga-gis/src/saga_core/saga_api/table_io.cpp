@@ -549,7 +549,7 @@ bool CSG_Table::Serialize(CSG_File &Stream, bool bSave)
 			Stream.Printf("%d \"%s\"\n", Get_Field_Type(iField), Get_Field_Name(iField));
 		}
 
-		for(int iRecord=0; iRecord<m_nRecords; iRecord++)
+		for(sLong iRecord=0; iRecord<m_nRecords; iRecord++)
 		{
 			for(int iField=0; iField<m_nFields; iField++)
 			{
@@ -561,9 +561,9 @@ bool CSG_Table::Serialize(CSG_File &Stream, bool bSave)
 	}
 
 	//-----------------------------------------------------
-	CSG_String sLine; int nFields, nRecords, FieldType;
+	CSG_String sLine; int nFields, FieldType; sLong nRecords;
 
-	if( Stream.Read_Line(sLine) && SG_SSCANF(sLine, SG_T("%d %d"), &nFields, &nRecords) == 2 && nFields > 0 )
+	if( Stream.Read_Line(sLine) && SG_SSCANF(sLine, SG_T("%d %lld"), &nFields, &nRecords) == 2 && nFields > 0 )
 	{
 		Destroy();
 
@@ -575,7 +575,7 @@ bool CSG_Table::Serialize(CSG_File &Stream, bool bSave)
 			}
 		}
 
-		for(int iRecord=0; iRecord<nRecords; iRecord++)
+		for(sLong iRecord=0; iRecord<nRecords; iRecord++)
 		{
 			if( Stream.Read_Line(sLine) )
 			{

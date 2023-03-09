@@ -198,13 +198,13 @@ bool CTable_Enumerate::On_Execute(void)
 			Name += CSG_String("_") + pTable->Get_Field_Name(Field);
 		}
 
-		pTable->Add_Field(Name, SG_DATATYPE_Int);
+		pTable->Add_Field(Name, SG_DATATYPE_Long);
 	}
 
 	//-----------------------------------------------------
 	if( Field < 0 )
 	{
-		for(int i=0; i<pTable->Get_Count(); i++)
+		for(sLong i=0; i<pTable->Get_Count(); i++)
 		{
 			pTable->Get_Record_byIndex(i)->Set_Value(Enum, bAscending ? 1 + i : pTable->Get_Count() - i);
 		}

@@ -827,7 +827,7 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Shapes *pShapes, int Attribute,
 		return( true );
 	}
 
-	for(int i=0; i<pShapes->Get_Count() && PROGRESSBAR_Set_Position(i, pShapes->Get_Count()); i++)
+	for(sLong i=0; i<pShapes->Get_Count() && PROGRESSBAR_Set_Position(i, pShapes->Get_Count()); i++)
 	{
 		CSG_Shape	*pShape	= pShapes->Get_Shape(i);
 

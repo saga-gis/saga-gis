@@ -380,7 +380,7 @@ bool CGrid_Classify_Supervised::Set_Classifier(CSG_Classifier_Supervised &Classi
 
 			if( Get_Features(x, y, Features) )
 			{
-				for(int iPolygon=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
+				for(sLong iPolygon=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
 				{
 					CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
 

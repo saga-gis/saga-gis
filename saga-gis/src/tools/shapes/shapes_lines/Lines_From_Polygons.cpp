@@ -121,7 +121,7 @@ bool CLines_From_Polygons::On_Execute(void)
 	//-----------------------------------------------------
 	pLines->Create(SHAPE_TYPE_Line, pPolygons->Get_Name(), pPolygons, pPolygons->Get_Vertex_Type());
 
-	for(int iPolygon=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
+	for(sLong iPolygon=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
 	{
 		CSG_Shape	*pPolygon	= pPolygons	->Get_Shape(iPolygon);
 		CSG_Shape	*pLine		= pLines	->Add_Shape(pPolygon, SHAPE_COPY_ATTR);

@@ -535,7 +535,7 @@ bool CWKSP_Map_Layer::_Projected_Shapes_Clipped(const CSG_Rect &rMap, CSG_Shapes
 	{
 		CSG_Shapes	Clip(SHAPE_TYPE_Polygon);	CSG_Shape	*pClip	= Clip.Add_Shape();
 
-		for(int i=0; i<Extent.Get_Count(); i++)
+		for(sLong i=0; i<Extent.Get_Count(); i++)
 		{
 			TSG_Point	p	= Extent.Get_Shape(i)->Get_Point(0);
 
@@ -553,7 +553,7 @@ bool CWKSP_Map_Layer::_Projected_Shapes_Clipped(const CSG_Rect &rMap, CSG_Shapes
 		{
 			Shapes.Create(pShapes->Get_Type(), SG_T(""), pShapes);	Shapes.Get_Projection().Create(prj_Layer);
 
-			for(int i=0; i<pShapes->Get_Count(); i++)
+			for(sLong i=0; i<pShapes->Get_Count(); i++)
 			{
 				if( pClip->Intersects(pShapes->Get_Shape(i)) )
 				{
@@ -659,7 +659,7 @@ bool CWKSP_Map_Layer::Draw(CWKSP_Map_DC &dc_Map, int Flags)
 		{
 			CSG_Shapes	Selection(pShapes->Get_Type(), pShapes->Get_Name(), pShapes);
 
-			for(int i=0; i<pShapes->Get_Selection_Count(); i++)
+			for(sLong i=0; i<pShapes->Get_Selection_Count(); i++)
 			{
 				Selection.Add_Shape(pShapes->Get_Selection(i));
 			}
@@ -676,7 +676,7 @@ bool CWKSP_Map_Layer::Draw(CWKSP_Map_DC &dc_Map, int Flags)
 		Points.Create(pPoints);
 		Points.Get_Projection().Create(pPoints->Get_Projection());
 
-		for(int i=0; i<pPoints->Get_Count(); i++)
+		for(sLong i=0; i<pPoints->Get_Count(); i++)
 		{
 			if( rLayer.Contains(pPoints->Get_X(i), pPoints->Get_Y(i)) )
 			{

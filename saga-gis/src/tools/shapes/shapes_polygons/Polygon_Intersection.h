@@ -95,8 +95,8 @@ private:
 	CSG_Shapes				*m_pA, *m_pB, *m_pAB;
 
 
-	CSG_Shape_Polygon *		_Add_Polygon		(int id_A, int id_B);
-	bool					_Add_Polygon		(CSG_Shape_Polygon *pPolygon, int id_A, int id_B = -1);
+	CSG_Shape_Polygon *		_Add_Polygon		(sLong id_A, sLong id_B);
+	bool					_Add_Polygon		(CSG_Shape_Polygon *pPolygon, sLong id_A, sLong id_B = -1);
 	bool					_Fit_Polygon		(CSG_Shape_Polygon *pPolygon);
 
 };

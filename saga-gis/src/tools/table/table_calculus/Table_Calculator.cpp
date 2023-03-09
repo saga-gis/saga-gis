@@ -311,7 +311,7 @@ bool CTable_Calculator_Base::Get_Value(CSG_Table_Record *pRecord)
 
 	bool bNoData = false;
 
-	for(int i=0; i<m_Values.Get_Size(); i++)
+	for(sLong i=0; i<m_Values.Get_Size(); i++)
 	{
 		Values[i] = pRecord->asDouble(m_Values[i]);
 

@@ -194,7 +194,7 @@ bool CPointCloud_Remove_Overlap_From_SPCVF::On_Execute(void)
 
 		CSG_PointCloud	*pPC_out = SG_Create_PointCloud(pPC);
 
-		for(int iPoint=0; iPoint<pPC->Get_Count(); iPoint++)
+		for(sLong iPoint=0; iPoint<pPC->Get_Count(); iPoint++)
 		{
 			if( dBBoxXMin <= pPC->Get_X(iPoint) && pPC->Get_X(iPoint) < dBBoxXMax &&
 				dBBoxYMin <= pPC->Get_Y(iPoint) && pPC->Get_Y(iPoint) < dBBoxYMax )

@@ -196,7 +196,7 @@ bool CPointCloud_Create_SPCVF::On_Execute(void)
 
 		sFiles.Clear();
 
-		for (int i=0; i<pTable->Get_Count(); i++)
+		for (sLong i=0; i<pTable->Get_Count(); i++)
 		{
 			sFiles.Add(pTable->Get_Record(i)->asString(0));
 		}

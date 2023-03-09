@@ -2263,7 +2263,7 @@ void CLandFlow::TestR1Share(int HGx, int HGy)
 	
 	if(m_pTestR1Share)
 	{
-		for(int l=0; l < m_pDTM->Get_NCells() && Set_Progress_Cells(l); l++) //ueber alle Zellen des m_pDEM-Grids
+		for(sLong l=0; l < m_pDTM->Get_NCells() && Set_Progress_Cells(l); l++) //ueber alle Zellen des m_pDEM-Grids
 		{
 			if( m_pDTM->Get_Sorted(l, x, y) ) //sortieren der Zellen von hoechster (l=0) nach niedrigster - 1.Durchlauf um zu gucken, ob Abflusspfad in (HGx, HGy) endet
 			{

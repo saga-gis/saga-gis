@@ -90,7 +90,7 @@ public:
 	void					Parameters_Enable		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 	bool					Parameters_Set			(CSG_Parameters &Parameters);
 
-	int						Fill					(const TSG_Point &Point);
+	sLong					Fill					(const TSG_Point &Point);
 
 
 protected:

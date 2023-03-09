@@ -1403,7 +1403,7 @@ bool CSG_Doc_PDF::Draw_Shapes(const CSG_Rect &r, CSG_Shapes *pShapes, int Style,
 
 			World2PDF	= rFit.Get_XRange() / rWorld.Get_XRange();
 
-			for(int iShape=0; iShape<pShapes->Get_Count(); iShape++)
+			for(sLong iShape=0; iShape<pShapes->Get_Count(); iShape++)
 			{
 				_Draw_Shape(rFit, pShapes->Get_Shape(iShape), rWorld.Get_XMin(), rWorld.Get_YMin(), World2PDF, Style, Fill_Color, Line_Color, Line_Width, Line_Width);
 			}

@@ -212,7 +212,7 @@ bool CPolygon_Transect::On_Execute(void)
             CSG_Shape_Part *pLinePart =pLine->Get_Part(iLinePart);
             CSG_Rect LinePartExtent = pLinePart->Get_Extent();
             map<int,list<double> > LineBorders;
-            for (int iShape=0; iShape<pTheme->Get_Count();iShape++)
+            for (sLong iShape=0; iShape<pTheme->Get_Count();iShape++)
             {
                 pTheme_Shape = (CSG_Shape_Polygon *) pTheme->Get_Shape(iShape);
                 if (pLinePart->Get_Extent().Intersects(pTheme_Shape->Get_Extent())>0)

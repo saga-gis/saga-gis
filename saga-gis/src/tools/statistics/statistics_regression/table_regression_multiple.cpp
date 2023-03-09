@@ -241,7 +241,7 @@ bool CTable_Regression_Multiple_Base::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Matrix	Samples;	CSG_Vector	Sample(1 + nPredictors);
 
-	for(int iSample=0; iSample<pTable->Get_Count(); iSample++)
+	for(sLong iSample=0; iSample<pTable->Get_Count(); iSample++)
 	{
 		CSG_Table_Record	*pRecord	= pTable->Get_Record(iSample);
 
@@ -339,7 +339,7 @@ bool CTable_Regression_Multiple_Base::On_Execute(void)
 
 	CSG_Simple_Statistics	Residuals;
 
-	for(int iSample=0; iSample<pTable->Get_Count(); iSample++)
+	for(sLong iSample=0; iSample<pTable->Get_Count(); iSample++)
 	{
 		CSG_Table_Record	*pRecord	= pTable->Get_Record(iSample);
 
@@ -370,7 +370,7 @@ bool CTable_Regression_Multiple_Base::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int iSample=0; iSample<pTable->Get_Count(); iSample++)	// standardized residuals...
+	for(sLong iSample=0; iSample<pTable->Get_Count(); iSample++)	// standardized residuals...
 	{
 		CSG_Table_Record	*pRecord	= pTable->Get_Record(iSample);
 

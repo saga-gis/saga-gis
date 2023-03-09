@@ -424,7 +424,7 @@ void CWKSP_TIN::_Draw_Triangles(CWKSP_Map_DC &dc_Map)
 {
 	if(	m_Parameters("DISPLAY_TRIANGES")->asBool() && dc_Map.IMG_Draw_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.) )
 	{
-		for(int iTriangle=0; iTriangle<asTIN()->Get_Triangle_Count(); iTriangle++)
+		for(sLong iTriangle=0; iTriangle<asTIN()->Get_Triangle_Count(); iTriangle++)
 		{
 			CSG_TIN_Triangle	*pTriangle	= asTIN()->Get_Triangle(iTriangle);
 

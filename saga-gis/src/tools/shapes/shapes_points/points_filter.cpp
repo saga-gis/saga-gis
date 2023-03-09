@@ -260,7 +260,7 @@ bool CPoints_Filter::Do_Filter(TSG_Point Point, double zPoint, int Quadrant)
 	case 2:	// remove maxima
 	case 3:	// remove minima
 		{
-			for(int i=0; i<m_Search.Get_Selected_Count(); i++)
+			for(size_t i=0; i<m_Search.Get_Selected_Count(); i++)
 			{
 				CSG_PRQuadTree_Leaf	*pLeaf	= m_Search.Get_Selected_Leaf(i);
 
@@ -302,7 +302,7 @@ bool CPoints_Filter::Do_Filter(TSG_Point Point, double zPoint, int Quadrant)
 		{
 			double	n	= 0.0;
 
-			for(int i=0; i<m_Search.Get_Selected_Count(); i++)
+			for(size_t i=0; i<m_Search.Get_Selected_Count(); i++)
 			{
 				CSG_PRQuadTree_Leaf	*pLeaf	= m_Search.Get_Selected_Leaf(i);
 

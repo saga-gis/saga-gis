@@ -267,7 +267,7 @@ void CDLG_Table_Control::On_Selected(wxGridRangeSelectEvent &event)
 	{
 		m_Table.Select();	// clear current selection
 
-		for(int i=0; i<m_Table.Get_Count(); i++)
+		for(sLong i=0; i<m_Table.Get_Count(); i++)
 		{
 			if( IsInSelection(i, 0) )
 			{

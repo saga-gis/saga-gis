@@ -128,9 +128,9 @@ bool CPoint_to_Line_Distance::On_Execute(void)
 
 		pResult->Fmt_Name("%s [%s, %s]", pPoints->Get_Name(), _TL("Distances"), pLines->Get_Name());
 
-		pResult->Add_Field("FID", SG_DATATYPE_Int);
+		pResult->Add_Field("FID", SG_DATATYPE_Long);
 
-		for(int i=0; i<pPoints->Get_Count(); i++)
+		for(sLong i=0; i<pPoints->Get_Count(); i++)
 		{
 			CSG_Shape	*pPoint	= pResult->Add_Shape();
 
@@ -151,7 +151,7 @@ bool CPoint_to_Line_Distance::On_Execute(void)
 	//-----------------------------------------------------
 	int	offField	= pPoints->Get_Field_Count();
 
-	pPoints->Add_Field("LINE_ID" , LineID < 0 ? SG_DATATYPE_Int : pLines->Get_Field_Type(LineID));
+	pPoints->Add_Field("LINE_ID" , LineID < 0 ? SG_DATATYPE_Long : pLines->Get_Field_Type(LineID));
 	pPoints->Add_Field("DISTANCE", SG_DATATYPE_Double);
 	pPoints->Add_Field("X"       , SG_DATATYPE_Double);
 	pPoints->Add_Field("Y"       , SG_DATATYPE_Double);
@@ -165,8 +165,8 @@ bool CPoint_to_Line_Distance::On_Execute(void)
 
 		pDistances->Fmt_Name("%s [%s, %s]", pPoints->Get_Name(), _TL("Distances"), pLines->Get_Name());
 
-		pDistances->Add_Field("POINT_ID", SG_DATATYPE_Int);
-		pDistances->Add_Field("LINE_ID" , LineID < 0 ? SG_DATATYPE_Int : pLines->Get_Field_Type(LineID));
+		pDistances->Add_Field("POINT_ID", SG_DATATYPE_Long);
+		pDistances->Add_Field("LINE_ID" , LineID < 0 ? SG_DATATYPE_Long : pLines->Get_Field_Type(LineID));
 		pDistances->Add_Field("DISTANCE", SG_DATATYPE_Double);
 
 		pDistances->Set_Count(pPoints->Get_Count());
@@ -183,7 +183,7 @@ bool CPoint_to_Line_Distance::On_Execute(void)
 
 		CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
 
-		CSG_Point Point[2]; int Line = Get_Distance(pLines, Point[0] = pPoint->Get_Point(0), Point[1]);
+		CSG_Point Point[2]; sLong Line = Get_Distance(pLines, Point[0] = pPoint->Get_Point(0), Point[1]);
 
 		if( Line < 0 )	// this should actually never happen!
 		{
@@ -240,11 +240,11 @@ bool CPoint_to_Line_Distance::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CPoint_to_Line_Distance::Get_Distance(const CSG_Shapes *pLines, const CSG_Point &Point, CSG_Point &PointOnLine)
+sLong CPoint_to_Line_Distance::Get_Distance(const CSG_Shapes *pLines, const CSG_Point &Point, CSG_Point &PointOnLine)
 {
-	int	Line	= -1;	double	Distance	= -1.;
+	sLong	Line	= -1;	double	Distance	= -1.;
 
-	for(int iLine=0; iLine<pLines->Get_Count(); iLine++)
+	for(sLong iLine=0; iLine<pLines->Get_Count(); iLine++)
 	{
 		CSG_Shape_Line	*pLine	= (CSG_Shape_Line *)pLines->Get_Shape(iLine);
 

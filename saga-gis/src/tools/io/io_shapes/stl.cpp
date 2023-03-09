@@ -625,7 +625,7 @@ bool CSTL_Export::On_Execute(void)
 		SG_Free(sHeader);
 
 		//-------------------------------------------------
-		for(int iTriangle=0; iTriangle<pTIN->Get_Triangle_Count(); iTriangle++)
+		for(sLong iTriangle=0; iTriangle<pTIN->Get_Triangle_Count(); iTriangle++)
 		{
 			CSG_TIN_Triangle	*pTriangle	= pTIN->Get_Triangle(iTriangle);
 
@@ -653,7 +653,7 @@ bool CSTL_Export::On_Execute(void)
 	{
 		Stream.Printf(SG_T("solid %s\n"), SG_File_Get_Name(File, false).c_str());
 
-		for(int iTriangle=0; iTriangle<pTIN->Get_Triangle_Count(); iTriangle++)
+		for(sLong iTriangle=0; iTriangle<pTIN->Get_Triangle_Count(); iTriangle++)
 		{
 			CSG_TIN_Triangle	*pTriangle	= pTIN->Get_Triangle(iTriangle);
 

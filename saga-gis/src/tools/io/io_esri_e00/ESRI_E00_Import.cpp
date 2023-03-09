@@ -805,7 +805,7 @@ void CESRI_E00_Import::Arcs2Polygon(CSG_Shapes *pArcs, CSG_Shapes *pPolygons, in
 	Segments.Add_Field("TNODE", SG_DATATYPE_Int);
 
 	//-----------------------------------------------------
-	for(int iArc=0; iArc<pArcs->Get_Count(); iArc++)
+	for(sLong iArc=0; iArc<pArcs->Get_Count(); iArc++)
 	{
 		CSG_Shape	*pArc	= pArcs->Get_Shape(iArc);
 
@@ -869,7 +869,7 @@ void CESRI_E00_Import::Arcs2Polygon(CSG_Shapes *pArcs, CSG_Shapes *pPolygons, in
 
 			if( fNode != tNode )
 			{
-				for(int iSegment=0; iSegment<Segments.Get_Count() && !pSegment; iSegment++)
+				for(sLong iSegment=0; iSegment<Segments.Get_Count() && !pSegment; iSegment++)
 				{
 					if( fNode == Segments.Get_Shape(iSegment)->asInt(1) )
 					{

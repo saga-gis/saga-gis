@@ -79,7 +79,7 @@ bool Cut_Shapes(CSG_Shapes *pPolygons, int Method, CSG_Shapes *pShapes, CSG_Shap
 
 		bool bAdd = false;
 
-		for(int iPolygon=0; !bAdd && iPolygon<pPolygons->Get_Count(); iPolygon++)
+		for(sLong iPolygon=0; !bAdd && iPolygon<pPolygons->Get_Count(); iPolygon++)
 		{
 			CSG_Shape_Polygon *pPolygon = pPolygons->Get_Shape(iPolygon)->asPolygon();
 

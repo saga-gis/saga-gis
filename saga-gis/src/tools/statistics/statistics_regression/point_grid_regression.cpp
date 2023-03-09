@@ -289,7 +289,7 @@ bool CPoint_Grid_Regression::Set_Residuals(const CSG_Regression &Regression)
 	}
 
 	#pragma omp parallel for
-	for(int iPoint=0; iPoint<pResiduals->Get_Count(); iPoint++)
+	for(sLong iPoint=0; iPoint<pResiduals->Get_Count(); iPoint++)
 	{
 		CSG_Shape *pPoint = pResiduals->Get_Shape(iPoint);
 			

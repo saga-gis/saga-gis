@@ -137,7 +137,7 @@ double CCloud_Overlap::Get_Value(const CSG_Table &Values, double z)
 
 	if( z > z1 )
 	{
-		for(int i=1; i<Values.Get_Count(); i++)
+		for(sLong i=1; i<Values.Get_Count(); i++)
 		{
 			double	z0 = z1; z1 = Values[i].asDouble(0);
 			double	c0 = c1; c1 = Values[i].asDouble(1);

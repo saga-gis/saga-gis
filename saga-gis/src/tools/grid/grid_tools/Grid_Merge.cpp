@@ -359,7 +359,7 @@ bool CGrid_Merge::Initialize(void)
 			return( false );
 		}
 
-		for(int i=0; i<Table.Get_Count(); i++)
+		for(sLong i=0; i<Table.Get_Count(); i++)
 		{
 			m_pGrids->Add_Item(SG_Create_Grid(Table[i].asString(0)));
 		}

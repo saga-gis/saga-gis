@@ -143,7 +143,7 @@ bool CInterpolation_Triangulation::Get_TIN(CSG_TIN &TIN)
 
 	TIN.Add_Field("Z", Get_Points()->Get_Field_Type(Get_Field()));
 
-	for(int iShape=0; iShape<Get_Points()->Get_Count(); iShape++)
+	for(sLong iShape=0; iShape<Get_Points()->Get_Count(); iShape++)
 	{
 		CSG_Shape	*pShape	= Get_Points()->Get_Shape(iShape);
 

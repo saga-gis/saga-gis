@@ -486,7 +486,7 @@ void CWKSP_Map::SaveAs_PDF_Indexed(void)
 
 			if( pShapes )
 			{
-				for(int i=0; i<pShapes->Get_Count() && SG_UI_Process_Set_Progress(i, pShapes->Get_Count()); i++)
+				for(sLong i=0; i<pShapes->Get_Count() && SG_UI_Process_Set_Progress(i, pShapes->Get_Count()); i++)
 				{
 					Draw_PDF(&PDF, FilePath_Maps, i, FileName_Icon, Name, pShapes->Get_Shape(i)->Get_Extent(), bRoundScale, iField, pShapes);
 				}

@@ -168,7 +168,7 @@ bool CGrid_Classes_To_Shapes::Get_Classes(void)
 
 	m_pPolygons->Create(SHAPE_TYPE_Polygon);
 
-	m_pPolygons->Add_Field("ID"   , SG_DATATYPE_Int   );
+	m_pPolygons->Add_Field("ID"   , SG_DATATYPE_Long  );
 	m_pPolygons->Add_Field("VALUE", pGrid->Get_Type ());
 	m_pPolygons->Add_Field("NAME" , SG_DATATYPE_String);
 
@@ -262,7 +262,7 @@ CSG_String CGrid_Classes_To_Shapes::Get_Class_Name(double Value, CSG_Table *pLUT
 {
 	if( pLUT )	// using LUT ?
 	{
-		for(int i=0; i<pLUT->Get_Count(); i++)
+		for(sLong i=0; i<pLUT->Get_Count(); i++)
 		{
 			CSG_Table_Record	*pClass	= pLUT->Get_Record(i);
 

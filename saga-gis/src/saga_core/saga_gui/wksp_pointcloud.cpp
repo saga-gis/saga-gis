@@ -625,7 +625,7 @@ void CWKSP_PointCloud::_LUT_Create(void)
 
 			#define MAX_CLASSES	1024
 
-			for(int iShape=0; iShape<Get_PointCloud()->Get_Count() && s.Get_Count()<MAX_CLASSES; iShape++)
+			for(sLong iShape=0; iShape<Get_PointCloud()->Get_Count() && s.Get_Count()<MAX_CLASSES; iShape++)
 			{
 				s	+= Get_PointCloud()->Get_Record(iShape)->asString(Field);
 			}
@@ -937,7 +937,7 @@ bool CWKSP_PointCloud::Edit_Set_Attributes(void)
 
 	if( pSelection )
 	{
-		for(int i=0; i<m_Edit_Attributes.Get_Count(); i++)
+		for(sLong i=0; i<m_Edit_Attributes.Get_Count(); i++)
 		{
 			pSelection->Set_Value(i, m_Edit_Attributes.Get_Record(i)->asString(1));
 		}
@@ -1051,9 +1051,9 @@ void CWKSP_PointCloud::_Draw_Points(CWKSP_Map_DC &dc_Map)
 	//-----------------------------------------------------
 	CSG_PointCloud	*pPoints	= Get_PointCloud();
 
-	int	Selection	= pPoints->Get_Selection_Count() > 0 ? (int)pPoints->Get_Selection_Index(m_Edit_Index) : -1;
+	sLong	Selection	= pPoints->Get_Selection_Count() > 0 ? pPoints->Get_Selection_Index(m_Edit_Index) : -1;
 
-	for(int i=0; i<pPoints->Get_Count(); i++)
+	for(sLong i=0; i<pPoints->Get_Count(); i++)
 	{
 		pPoints->Set_Cursor(i);
 
@@ -1091,9 +1091,9 @@ void CWKSP_PointCloud::_Draw_Thumbnail(CWKSP_Map_DC &dc_Map)
 {
 	CSG_PointCloud	*pPoints	= Get_PointCloud();
 
-	int	n	= 1 + (int)(pPoints->Get_Count() / (2 * dc_Map.m_rDC.GetWidth() * dc_Map.m_rDC.GetHeight()));
+	sLong	n	= 1 + (sLong)(pPoints->Get_Count() / (2 * dc_Map.m_rDC.GetWidth() * dc_Map.m_rDC.GetHeight()));
 
-	for(int i=0; i<pPoints->Get_Count(); i+=n)
+	for(sLong i=0; i<pPoints->Get_Count(); i+=n)
 	{
 		pPoints->Set_Cursor(i);
 

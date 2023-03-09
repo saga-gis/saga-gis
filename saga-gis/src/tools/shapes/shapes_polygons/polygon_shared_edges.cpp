@@ -174,7 +174,7 @@ bool CPolygon_Shared_Edges::On_Execute(void)
 	{
 		CSG_Shape_Polygon *pA = (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
 
-		for(int jPolygon=iPolygon+1; jPolygon<pPolygons->Get_Count() && Process_Get_Okay(); jPolygon++)
+		for(sLong jPolygon=iPolygon+1; jPolygon<pPolygons->Get_Count() && Process_Get_Okay(); jPolygon++)
 		{
 			CSG_Shape_Polygon *pB = (CSG_Shape_Polygon *)pPolygons->Get_Shape(jPolygon);
 

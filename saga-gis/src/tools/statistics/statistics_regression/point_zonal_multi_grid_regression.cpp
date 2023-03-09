@@ -212,7 +212,7 @@ bool CPoint_Zonal_Multi_Grid_Regression::On_Execute(void)
 
 	SG_UI_Progress_Lock(true);	// suppress dialogs from popping up
 
-	for(int i=0; i<pZones->Get_Count() && Process_Get_Okay(); i++)
+	for(sLong i=0; i<pZones->Get_Count() && Process_Get_Okay(); i++)
 	{
 		CSG_Shape_Polygon	*pZone	= (CSG_Shape_Polygon *)pZones->Get_Shape(i);
 

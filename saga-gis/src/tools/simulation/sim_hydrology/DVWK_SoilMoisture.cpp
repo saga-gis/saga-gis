@@ -216,7 +216,7 @@ bool CDVWK_SoilMoisture::On_Execute(void)
 		{
 			int	LandUseID	= pLandUse->asInt(x, y);
 
-			for(int i=0; i<m_pCropCoeff->Get_Count(); i++)
+			for(sLong i=0; i<m_pCropCoeff->Get_Count(); i++)
 			{
 				if( LandUseID == m_pCropCoeff->Get_Record(i)->asInt(0) )
 				{

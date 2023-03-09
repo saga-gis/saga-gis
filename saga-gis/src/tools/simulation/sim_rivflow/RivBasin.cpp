@@ -373,7 +373,7 @@ bool CRivBasin::Set_BasinShare(void) //Fuer alle Werte innerhalb des RiverBasin 
 		//Gesamt-Flusseinzugsgebiet und einzelne Flussrasterzelleneinzuggebiete bestimmen und jeweilige Koordinate der Ziel-Flussrasterzelle setzten
 		//---------------------------------------------------------
 
-		for(int l=0; l < m_pDTM->Get_NCells() && Set_Progress_Cells(l); l++) //ueber alle Zellen des m_pDEM-Grids
+		for(sLong l=0; l < m_pDTM->Get_NCells() && Set_Progress_Cells(l); l++) //ueber alle Zellen des m_pDEM-Grids
 		{
 			if( m_pDTM->Get_Sorted(l, x, y) ) //sortieren der Zellen von hoechster (l=0) nach niedrigster...
 			{

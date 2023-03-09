@@ -248,9 +248,9 @@ bool CHTML_ImageMap::Get_Polygon(CSG_String &Coords, CSG_Shape_Part *pPolygon)
 
 	TSG_Point	p	= pPolygon->Get_Point(0, false);	// get last point
 
-	int			n	= 0;
+	sLong		n	= 0;
 
-	for(int iPoint=0; iPoint<pPolygon->Get_Count(); iPoint++)
+	for(sLong iPoint=0; iPoint<pPolygon->Get_Count(); iPoint++)
 	{
 		CSG_Point	q	= pPolygon->Get_Point(iPoint);
 

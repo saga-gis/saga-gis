@@ -211,7 +211,7 @@ void CPolygon_Clip::Clip_Points(CSG_Shapes *pClips, CSG_Shapes *pInputs, CSG_Sha
 	{
 		CSG_Shape_Polygon	*pClip	= (CSG_Shape_Polygon *)pClips->Get_Shape(iClip);
 
-		for(int iInput=0; iInput<pInputs->Get_Count(); iInput++)
+		for(sLong iInput=0; iInput<pInputs->Get_Count(); iInput++)
 		{
 			CSG_Shape	*pInput		= pInputs->Get_Shape(iInput);
 			CSG_Shape	*pOutput	= NULL;
@@ -246,7 +246,7 @@ void CPolygon_Clip::Clip_Lines(CSG_Shapes *pClips, CSG_Shapes *pInputs, CSG_Shap
 
 		if( pInputs->Select(pClip->Get_Extent()) )
 		{
-			for(int iInput=0; iInput<pInputs->Get_Selection_Count(); iInput++)
+			for(sLong iInput=0; iInput<pInputs->Get_Selection_Count(); iInput++)
 			{
 				CSG_Shape	*pNew_Line, *pLine	= pInputs->Get_Selection(iInput);
 

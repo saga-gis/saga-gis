@@ -310,7 +310,7 @@ bool CWKT_Export::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Shapes	*pShapes	= Parameters("SHAPES")->asShapes();
 
-	for(int iShape=0; iShape<pShapes->Get_Count(); iShape++)
+	for(sLong iShape=0; iShape<pShapes->Get_Count(); iShape++)
 	{
 		CSG_String	WKT;
 

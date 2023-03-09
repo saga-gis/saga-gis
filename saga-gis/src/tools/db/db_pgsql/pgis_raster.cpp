@@ -98,7 +98,7 @@ void CRaster_Load::On_Connection_Changed(CSG_Parameters *pParameters)
 
 		if( Get_Connection()->Table_Load(t, "raster_columns") )
 		{
-			for(int i=0; i<t.Get_Count(); i++)
+			for(sLong i=0; i<t.Get_Count(); i++)
 			{
 				s += t[i].asString("r_table_name") + CSG_String("|");
 			}
@@ -178,7 +178,7 @@ void CRaster_Load_Band::On_Connection_Changed(CSG_Parameters *pParameters)
 
 		if( Get_Connection()->Table_Load(t, "raster_columns") )
 		{
-			for(int i=0; i<t.Get_Count(); i++)
+			for(sLong i=0; i<t.Get_Count(); i++)
 			{
 				s += t[i].asString("r_table_name") + CSG_String("|");
 			}
@@ -205,7 +205,7 @@ int CRaster_Load_Band::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 
 		if( Get_Connection()->Table_Load(t, pParameter->asString(), "rid, name") )
 		{
-			for(int i=0; i<t.Get_Count(); i++)
+			for(sLong i=0; i<t.Get_Count(); i++)
 			{
 				s += CSG_String::Format("{%d}%s|", t[i].asInt(0), t[i].asString(1));
 			}
@@ -317,7 +317,7 @@ void CRaster_Save::On_Connection_Changed(CSG_Parameters *pParameters)
 
 	if( Get_Connection()->Table_Load(t, "raster_columns") )
 	{
-		for(int i=0; i<t.Get_Count(); i++)
+		for(sLong i=0; i<t.Get_Count(); i++)
 		{
 			s	+= t[i].asString("r_table_name") + CSG_String("|");
 		}
@@ -618,7 +618,7 @@ void CRaster_SRID_Update::On_Connection_Changed(CSG_Parameters *pParameters)
 
 	if( Get_Connection()->Table_Load(t, "raster_columns") )
 	{
-		for(int i=0; i<t.Get_Count(); i++)
+		for(sLong i=0; i<t.Get_Count(); i++)
 		{
 			s	+= t[i].asString("r_table_name") + CSG_String("|");
 		}

@@ -440,7 +440,7 @@ bool COpenCV_ML::_Get_Training(CSG_Matrix &Data)
 		Polygons.Create(SHAPE_TYPE_Polygon);
 		Polygons.Add_Field(pPolygons->Get_Field_Name(Field), pPolygons->Get_Field_Type(Field));
 
-		for(int iShape=0; iShape<pPolygons->Get_Count(); iShape++)
+		for(sLong iShape=0; iShape<pPolygons->Get_Count(); iShape++)
 		{
 			CSG_Shape	*pShape		= pPolygons->Get_Shape(iShape);
 			CSG_Shape	*pBuffer	= Polygons.Add_Shape();
@@ -460,7 +460,7 @@ bool COpenCV_ML::_Get_Training(CSG_Matrix &Data)
 	CSG_Table_Record	*pClass	= NULL;
 
 	//-----------------------------------------------------
-	for(int iPolygon=0, ID=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
+	for(sLong iPolygon=0, ID=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
 	{
 		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape_byIndex(iPolygon);
 

@@ -440,7 +440,7 @@ bool CFrost_Change_Frequency_Interactive::On_Execute_Position(CSG_Point ptWorld,
 			m_pStatistics->Set_Value(6, 1, Min.Get_Mean   ());
 			m_pStatistics->Set_Value(7, 1, Min.Get_Minimum());
 		}
-		else for(int i=3; i<m_pStatistics->Get_Count(); i++)
+		else for(sLong i=3; i<m_pStatistics->Get_Count(); i++)
 		{
 			m_pStatistics->Get_Record(i)->Set_NoData(1);
 		}
@@ -466,7 +466,7 @@ bool CFrost_Change_Frequency_Interactive::On_Execute_Position(CSG_Point ptWorld,
 			}
 		}
 	}
-	else for(int i=2; i<m_pStatistics->Get_Count(); i++)
+	else for(sLong i=2; i<m_pStatistics->Get_Count(); i++)
 	{
 		m_pStatistics->Get_Record(i)->Set_NoData(1);
 	}

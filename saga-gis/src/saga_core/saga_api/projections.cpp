@@ -816,7 +816,7 @@ bool CSG_Projections::Load_Dictionary(const CSG_String &FileName)
 	{
 		CSG_Table	Proj4_to_WKT(&Table), WKT_to_Proj4(&Table);
 
-		for(int i=0; i<Table.Get_Count(); i++)
+		for(sLong i=0; i<Table.Get_Count(); i++)
 		{
 			switch( Table[i].asString(1)[0] )
 			{
@@ -980,7 +980,7 @@ bool CSG_Projections::Get_Projection(CSG_Projection &Projection, int EPSG_ID)	co
 
 bool CSG_Projections::Get_Projection(CSG_Projection &Projection, const CSG_String &Authority, int Authority_ID)	const
 {
-	for(int i=0; i<m_pProjections->Get_Count(); i++)
+	for(sLong i=0; i<m_pProjections->Get_Count(); i++)
 	{
 		CSG_Table_Record	*pProjection	= m_pProjections->Get_Record(i);
 
@@ -1004,7 +1004,7 @@ bool CSG_Projections::Get_Projection(CSG_Projection &Projection, const CSG_Strin
 //---------------------------------------------------------
 bool CSG_Projections::EPSG_to_Proj4(CSG_String &Proj4, int EPSG_Code) const
 {
-	for(int i=0; i<m_pProjections->Get_Count(); i++)
+	for(sLong i=0; i<m_pProjections->Get_Count(); i++)
 	{
 		if( m_pProjections->Get_Record(i)->asInt(PRJ_FIELD_AUTH_SRID) == EPSG_Code )
 		{
@@ -1022,7 +1022,7 @@ bool CSG_Projections::EPSG_to_Proj4(CSG_String &Proj4, int EPSG_Code) const
 //---------------------------------------------------------
 bool CSG_Projections::EPSG_to_WKT(CSG_String &WKT, int EPSG_Code) const
 {
-	for(int i=0; i<m_pProjections->Get_Count(); i++)
+	for(sLong i=0; i<m_pProjections->Get_Count(); i++)
 	{
 		if( m_pProjections->Get_Record(i)->asInt(PRJ_FIELD_AUTH_SRID) == EPSG_Code )
 		{

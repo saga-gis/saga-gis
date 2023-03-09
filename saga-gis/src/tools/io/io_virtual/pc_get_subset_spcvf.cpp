@@ -151,7 +151,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Initialise(int iOutputs, CSG_Rect AOI, C
 
 		m_vAttrMapper.clear();
 
-		for(int i=3; i<(int)vValues.size(); i++)
+		for(size_t i=3; i<vValues.size(); i++)
 		{
 			m_vAttrMapper.push_back(vValues.at(i) - 3);
 		}
@@ -388,7 +388,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(bool bCopyAttr)
 				{
 					pPC_out = SG_Create_PointCloud();
 
-					for(int iField=0; iField<(int)m_vAttrMapper.size(); iField++)
+					for(size_t iField=0; iField<m_vAttrMapper.size(); iField++)
 					{
 						if( iField >= pPC->Get_Attribute_Count() )
 							continue;
@@ -400,7 +400,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(bool bCopyAttr)
 
 			bool bFound = false;
 
-			for(int iPoint=0; iPoint<pPC->Get_Count(); iPoint++)
+			for(sLong iPoint=0; iPoint<pPC->Get_Count(); iPoint++)
 			{
 				if( m_AOI.Get_XMin() <= pPC->Get_X(iPoint) && pPC->Get_X(iPoint) < m_AOI.Get_XMax() &&
 					m_AOI.Get_YMin() <= pPC->Get_Y(iPoint) && pPC->Get_Y(iPoint) < m_AOI.Get_YMax() )
