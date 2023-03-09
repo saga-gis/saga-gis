@@ -365,7 +365,7 @@ bool CSG_Tool::Execute(bool bAddHistory)
 			}
 			else
 			{
-				SG_UI_Msg_Add_Execution(CSG_String::Format("\n__________\n%s %s: %ld %s (%s)\n", _TL("total"),
+				SG_UI_Msg_Add_Execution(CSG_String::Format("\n__________\n%s %s: %lld %s (%s)\n", _TL("total"),
 					_TL("execution time"), Span.Get_Milliseconds(), _TL("milliseconds"), Time.c_str()),
 					false, SG_UI_MSG_STYLE_BOLD
 				);

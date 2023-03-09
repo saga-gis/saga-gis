@@ -270,7 +270,7 @@ bool CPC_Cut::Get_Cut(CSG_Parameter_PointCloud_List *pPointsList, CSG_Parameter_
 			{
 				pCutList->Add_Item(pCut);
 
-				SG_UI_Msg_Add(CSG_String::Format(_TL("%d points from %s written to output %s."), pCut->Get_Count(), pPoints->Get_Name(), pCut->Get_Name()), true);
+				SG_UI_Msg_Add(CSG_String::Format(_TL("%lld points from %s written to output %s."), pCut->Get_Count(), pPoints->Get_Name(), pCut->Get_Name()), true);
 			}
 		}
 	}
@@ -334,7 +334,7 @@ bool CPC_Cut::Get_Cut(CSG_Parameter_PointCloud_List *pPointsList, CSG_Parameter_
 			{
 				pCutList->Add_Item(pCut);
 
-				SG_UI_Msg_Add(CSG_String::Format(_TL("%d points from %s written to output %s."), pCut->Get_Count(), pPoints->Get_Name(), pCut->Get_Name()), true);
+				SG_UI_Msg_Add(CSG_String::Format(_TL("%lld points from %s written to output %s."), pCut->Get_Count(), pPoints->Get_Name(), pCut->Get_Name()), true);
 			}
 		}
 	}

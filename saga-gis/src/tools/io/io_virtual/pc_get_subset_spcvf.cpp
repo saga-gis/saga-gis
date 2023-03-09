@@ -567,7 +567,7 @@ void CPointCloud_Get_Subset_SPCVF_Base::Write_Subset(CSG_PointCloud *pPC_out, in
 
 
 	//-----------------------------------------------------
-	SG_UI_Msg_Add(CSG_String::Format(_TL("%d points from %d dataset(s) written to output point cloud %s."), pPC_out->Get_Count(), iDatasets, pPC_out->Get_Name()), true);
+	SG_UI_Msg_Add(CSG_String::Format(_TL("%lld points from %d dataset(s) written to output point cloud %s."), pPC_out->Get_Count(), iDatasets, pPC_out->Get_Name()), true);
 
 	if( m_pFilePath == NULL )
 	{

@@ -213,7 +213,7 @@ bool CPolygon_Shared_Edges::On_Execute(void)
 	//-----------------------------------------------------
 	if( nAdded > 0 || nRemoved > 0 )
 	{
-		Message_Fmt("\n%s: %ld %s, %ld %s\n", _TL("Vertices"), nAdded, _TL("added"), nRemoved, _TL("removed"));
+		Message_Fmt("\n%s: %lld %s, %lld %s\n", _TL("Vertices"), nAdded, _TL("added"), nRemoved, _TL("removed"));
 
 		DataObject_Update(pPolygons);
 	}

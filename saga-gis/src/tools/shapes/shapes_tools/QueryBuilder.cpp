@@ -189,7 +189,7 @@ bool CSelect_Numeric::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Message_Fmt("\n%s: %d", _TL("selected shapes"), pTable->Get_Selection_Count());
+	Message_Fmt("\n%s: %lld", _TL("selected shapes"), pTable->Get_Selection_Count());
 
 	DataObject_Update(pTable);
 

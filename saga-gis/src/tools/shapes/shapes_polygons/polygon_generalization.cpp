@@ -130,11 +130,11 @@ bool CPolygon_Generalization::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int	i = 0, n = pPolygons->Get_Count();
+	sLong	i = 0, n = pPolygons->Get_Count();
 
 	do
 	{
-		Process_Set_Text(CSG_String::Format("%s %d", _TL("pass"), ++i));
+		Process_Set_Text(CSG_String::Format("%s %lld", _TL("pass"), ++i));
 	}
 	while( Set_JoinTos(pPolygons) && Process_Get_Okay() );
 
@@ -146,7 +146,7 @@ bool CPolygon_Generalization::On_Execute(void)
 
 	n	-= pPolygons->Get_Count();
 
-	Message_Fmt("\n%s: %d", _TL("total number of removed polygons"), n);
+	Message_Fmt("\n%s: %lld", _TL("total number of removed polygons"), n);
 
 	return( n > 0 );
 }
@@ -198,7 +198,7 @@ bool CPolygon_Generalization::Set_JoinTos(CSG_Shapes *pPolygons)
 		}
 	}
 
-	Message_Fmt("\n%s: %d; %s: %d", _TL("candidates"), nRemoved + nDropped, _TL("eliminated"), nRemoved);
+	Message_Fmt("\n%s: %lld; %s: %lld", _TL("candidates"), nRemoved + nDropped, _TL("eliminated"), nRemoved);
 
 	return( nDropped > 0 && nRemoved > 0 );
 }

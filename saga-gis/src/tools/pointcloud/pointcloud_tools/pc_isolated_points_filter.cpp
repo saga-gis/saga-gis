@@ -178,7 +178,7 @@ bool CIsolated_Points_Filter::On_Execute(void)
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("Writing ..."));
 
-	int iCntIsolated = 0;
+	sLong iCntIsolated = 0;
 
 	for(sLong iPoint=0; iPoint<pPC_in->Get_Count() && Set_Progress(75. + 25. / pPC_in->Get_Count() * iPoint, 100.); iPoint++)
 	{
@@ -208,7 +208,7 @@ bool CIsolated_Points_Filter::On_Execute(void)
 		}
 	}
 
-	SG_UI_Msg_Add(_TL("Number of isolated points:") + CSG_String::Format(" %d (%.2f%%)", iCntIsolated, iCntIsolated / (double)pPC_in->Get_Count() * 100.0), true);
+	SG_UI_Msg_Add(_TL("Number of isolated points:") + CSG_String::Format(" %lld (%.2f%%)", iCntIsolated, iCntIsolated / (double)pPC_in->Get_Count() * 100.0), true);
 
 
 	//-----------------------------------------------------

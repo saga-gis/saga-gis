@@ -108,7 +108,7 @@ bool CShapes_Clean::On_Execute(void)
 {
 	CSG_Shapes	*pShapes	= Parameters("SHAPES")->asShapes();
 
-	int	n	= pShapes->Get_Count();
+	sLong	n	= pShapes->Get_Count();
 
 	//-----------------------------------------------------
 	for(int i=n-1; i>=0 && Set_Progress(n-1-i, n); i--)
@@ -134,7 +134,7 @@ bool CShapes_Clean::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Message_Fmt("\n%s: %d", _TL("Number of removed shapes"), n - pShapes->Get_Count());
+	Message_Fmt("\n%s: %lld", _TL("Number of removed shapes"), n - pShapes->Get_Count());
 
 	if( n - pShapes->Get_Count() > 0 )
 	{

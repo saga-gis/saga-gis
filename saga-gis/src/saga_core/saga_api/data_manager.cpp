@@ -795,7 +795,7 @@ CSG_String CSG_Data_Manager::Get_Summary(void)	const
 	//-----------------------------------------------------
 	if( Get_Table()->Count() > 0 )
 	{
-		s	+= CSG_String::Format("___\n%s [%d %s]\n", _TL("Table"), Get_Table()->Count(), _TL("objects"));
+		s	+= CSG_String::Format("___\n%s [%zu %s]\n", _TL("Table"), Get_Table()->Count(), _TL("objects"));
 
 		for(size_t i=0; i<Get_Table()->Count(); i++)
 		{
@@ -811,7 +811,7 @@ CSG_String CSG_Data_Manager::Get_Summary(void)	const
 	//-----------------------------------------------------
 	if( Get_Shapes()->Count() > 0 )
 	{
-		s	+= CSG_String::Format("___\n%s [%d %s]\n", _TL("Shapes"), Get_Shapes()->Count(), _TL("objects"));
+		s	+= CSG_String::Format("___\n%s [%zu %s]\n", _TL("Shapes"), Get_Shapes()->Count(), _TL("objects"));
 
 		for(size_t i=0; i<Get_Shapes()->Count(); i++)
 		{
@@ -831,7 +831,7 @@ CSG_String CSG_Data_Manager::Get_Summary(void)	const
 	//-----------------------------------------------------
 	if( Get_Point_Cloud()->Count() > 0 )
 	{
-		s	+= CSG_String::Format("___\n%s [%d %s]\n", _TL("Point Cloud"), Get_Point_Cloud()->Count(), _TL("objects"));
+		s	+= CSG_String::Format("___\n%s [%zu %s]\n", _TL("Point Cloud"), Get_Point_Cloud()->Count(), _TL("objects"));
 
 		for(size_t i=0; i<Get_Point_Cloud()->Count(); i++)
 		{
@@ -847,7 +847,7 @@ CSG_String CSG_Data_Manager::Get_Summary(void)	const
 	//-----------------------------------------------------
 //	if( Get_TIN()->Count() > 0 )
 //	{
-//		s	+= CSG_String::Format("___\n%s [%d %s]\n", _TL("TIN"), Get_TIN()->Count(), _TL("objects"));
+//		s	+= CSG_String::Format("___\n%s [%zu %s]\n", _TL("TIN"), Get_TIN()->Count(), _TL("objects"));
 //
 //		for(size_t i=0; i<Get_TIN()->Count(); i++)
 //		{
@@ -869,7 +869,7 @@ CSG_String CSG_Data_Manager::Get_Summary(void)	const
 		{
 			CSG_Grid_Collection	*pSystem	= Get_Grid_System(i);
 
-			s	+= CSG_String::Format("___\n%s [%s; %d %s]\n", _TL("Grid System"), pSystem->m_System.Get_Name(), pSystem->Count(), _TL("objects"));
+			s	+= CSG_String::Format("___\n%s [%s; %zu %s]\n", _TL("Grid System"), pSystem->m_System.Get_Name(), pSystem->Count(), _TL("objects"));
 
 			for(size_t j=0; j<pSystem->Count(); j++)
 			{

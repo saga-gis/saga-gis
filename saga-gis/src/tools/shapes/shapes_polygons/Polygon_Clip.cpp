@@ -335,7 +335,7 @@ void CPolygon_Clip::Clip_Polygons(CSG_Shapes *pClips, CSG_Shapes *pInputs, CSG_S
 {
 	for(sLong iClip=0; iClip<pClips->Get_Count() && Process_Get_Okay(); iClip++)
 	{
-		Process_Set_Text("%s: %d/%d", _TL("clip features"), iClip + 1, pClips->Get_Count());
+		Process_Set_Text("%s: %lld/%lld", _TL("clip features"), iClip + 1, pClips->Get_Count());
 
 		CSG_Shape_Polygon *pClip = pClips->Get_Shape(iClip)->asPolygon();
 

@@ -1722,7 +1722,7 @@ CSG_Parameter_Fixed_Table::CSG_Parameter_Fixed_Table(CSG_Parameters *pOwner, CSG
 //---------------------------------------------------------
 void CSG_Parameter_Fixed_Table::_Set_String(void)
 {
-	m_String.Printf("%s (%s: %d, %s: %d)", m_Table.Get_Name(), _TL("columns"), m_Table.Get_Field_Count(), _TL("rows"), m_Table.Get_Count());
+	m_String.Printf("%s (%s: %d, %s: %lld)", m_Table.Get_Name(), _TL("columns"), m_Table.Get_Field_Count(), _TL("rows"), m_Table.Get_Count());
 }
 
 //---------------------------------------------------------

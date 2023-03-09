@@ -297,7 +297,7 @@ bool CField_Formatted_String_Base::Set_String(CSG_Table_Record *pRecord)
 			break;
 
 		case Key_Index:
-			s	.Printf("%d", m_Formats[i].option + pRecord->Get_Index());
+			s	.Printf("%lld", m_Formats[i].option + pRecord->Get_Index());
 			break;
 
 		case Key_String:

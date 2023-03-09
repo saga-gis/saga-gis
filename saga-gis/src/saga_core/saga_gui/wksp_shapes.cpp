@@ -1089,7 +1089,7 @@ wxString CWKSP_Shapes::Get_Value(CSG_Point ptWorld, double Epsilon)
 
 	if( m_fValue < 0 )
 	{
-		return( wxString::Format("%s: %d", _TL("Index"), pShape->Get_Index() + 1) );
+		return( wxString::Format("%s: %lld", _TL("Index"), pShape->Get_Index() + 1) );
 	}
 
 	if( m_pClassify->Get_Mode() == CLASSIFY_LUT )

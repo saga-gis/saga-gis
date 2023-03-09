@@ -789,7 +789,7 @@ wxString CWKSP_PointCloud::Get_Value(CSG_Point ptWorld, double Epsilon)
 		}
 		else
 		{
-			return( wxString::Format("%s: %d", _TL("Index"), pShape->Get_Index() + 1) );
+			return( wxString::Format("%s: %lld", _TL("Index"), pShape->Get_Index() + 1) );
 		}
 	}
 

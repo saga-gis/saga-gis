@@ -185,8 +185,8 @@ bool CLine_Simplification::On_Execute(void)
 
 	m_Tolerance		= Parameters("TOLERANCE")->asDouble();
 
-	int	nTotal		= 0;
-	int	nRemoved	= 0;
+	sLong nTotal	= 0;
+	sLong nRemoved	= 0;
 
 	for(sLong iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
 	{
@@ -206,14 +206,14 @@ bool CLine_Simplification::On_Execute(void)
 					{
 						pLine->Del_Point(iPoint, iPart);
 
-						nRemoved	++;
+						nRemoved++;
 					}
 				}
 			}
 		}
 	}
 
-	Message_Fmt("\n%s: %0.2f%% (%d / %d)", _TL("Reduction"), 100.0 * nRemoved / (double)nTotal, nRemoved, nTotal);
+	Message_Fmt("\n%s: %0.2f%% (%lld / %lld)", _TL("Reduction"), 100.0 * nRemoved / (double)nTotal, nRemoved, nTotal);
 
 	return( true );
 }

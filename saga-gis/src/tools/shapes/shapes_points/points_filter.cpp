@@ -229,7 +229,7 @@ bool CPoints_Filter::On_Execute(void)
 		DataObject_Update(pPoints);
 	}
 
-	Message_Fmt("\n%d %s", nFiltered, _TL("points have been filtered"));
+	Message_Fmt("\n%lld %s", nFiltered, _TL("points have been filtered"));
 
 	return( true );
 }

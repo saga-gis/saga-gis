@@ -212,7 +212,7 @@ bool CHTML_ImageMap::On_Execute(void)
 
 				if( Title < 0 )
 				{
-					s	= CSG_String::Format("%d. %s, %d. %s", 1 + iPolygon, _TL("Polygon"), 1 + iPart, _TL("Part"));
+					s	= CSG_String::Format("%lld. %s, %d. %s", 1 + iPolygon, _TL("Polygon"), 1 + iPart, _TL("Part"));
 				}
 				else
 				{

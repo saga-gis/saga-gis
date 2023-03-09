@@ -281,7 +281,7 @@ void CTable_Cluster_Analysis::Save_Statistics(CSG_Table *pTable, int *Features, 
 	pStatistics->Add_Field(_TL("Elements")	, SG_DATATYPE_Int);
 	pStatistics->Add_Field(_TL("Std.Dev.")	, SG_DATATYPE_Double);
 
-	s.Printf("\n%s:\t%ld \n%s:\t%d \n%s:\t%d \n%s:\t%f\n\n%s\t%s\t%s",
+	s.Printf("\n%s:\t%d \n%s:\t%d \n%s:\t%d \n%s:\t%f\n\n%s\t%s\t%s",
 		_TL("Number of Elements")		, Analysis.Get_nElements(),
 		_TL("Number of Variables")		, Analysis.Get_nFeatures(),
 		_TL("Number of Clusters")		, Analysis.Get_nClusters(),

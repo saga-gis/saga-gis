@@ -430,9 +430,9 @@ bool CVisibility_Points::On_Execute(void)
 	double Height = Parameters("HEIGHT")->asDouble();
 
 	//-----------------------------------------------------
-	for(int iPoint=0; iPoint<pPoints->Get_Count() && Process_Get_Okay(); iPoint++)
+	for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Process_Get_Okay(); iPoint++)
 	{
-		Process_Set_Text("%s %d...", _TL("processing observer"), 1 + iPoint);
+		Process_Set_Text("%s %lld...", _TL("processing observer"), 1 + iPoint);
 
 		CSG_Shape &Point = *pPoints->Get_Shape(iPoint);
 

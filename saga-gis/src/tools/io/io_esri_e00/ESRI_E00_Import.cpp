@@ -686,7 +686,7 @@ CSG_Shapes * CESRI_E00_Import::getarcs(int prec, double scale, TSG_Shape_Type &s
 	//-----------------------------------------------------
 	do
 	{
-		Process_Set_Text("%s: %d", _TL("loaded arcs"), pShapes->Get_Count());
+		Process_Set_Text("%s: %lld", _TL("loaded arcs"), pShapes->Get_Count());
 
 		if( (line = E00_Read_Line()) == NULL )
 		{

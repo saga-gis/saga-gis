@@ -133,7 +133,7 @@ bool CPolygon_Flatten::On_Execute(void)
 		}
 	}
 
-	Message_Fmt("\n%s: %ld", _TL("number of inner rings"), n);
+	Message_Fmt("\n%s: %lld", _TL("number of inner rings"), n);
 
 	if( n == 0 )
 	{

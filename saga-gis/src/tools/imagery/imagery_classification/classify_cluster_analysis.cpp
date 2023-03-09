@@ -300,7 +300,7 @@ void CGrid_Cluster_Analysis::Save_Statistics(CSG_Parameter_Grid_List *pGrids, bo
 	pTable->Add_Field(_TL("Elements" ), SG_DATATYPE_Int   );
 	pTable->Add_Field(_TL("Std.Dev." ), SG_DATATYPE_Double);
 
-	s.Printf("\n%s:\t%d \n%s:\t%ld \n%s:\t%d \n%s:\t%d \n%s:\t%f\n\n%s\t%s\t%s",
+	s.Printf("\n%s:\t%d \n%s:\t%d \n%s:\t%d \n%s:\t%d \n%s:\t%f\n\n%s\t%s\t%s",
 		_TL("Number of Iterations"), Analysis.Get_Iteration(),
 		_TL("Number of Elements"  ), Analysis.Get_nElements(),
 		_TL("Number of Variables" ), Analysis.Get_nFeatures(),
@@ -503,7 +503,7 @@ bool CGrid_Cluster_Analysis::_On_Execute(void)
 	pTable->Add_Field(_TL("Elements" ), SG_DATATYPE_Int   );
 	pTable->Add_Field(_TL("Std.Dev." ), SG_DATATYPE_Double);
 
-	s.Printf("\n%s:\t%ld \n%s:\t%d \n%s:\t%d \n%s:\t%f\n\n%s\t%s\t%s",
+	s.Printf("\n%s:\t%d \n%s:\t%d \n%s:\t%d \n%s:\t%f\n\n%s\t%s\t%s",
 		_TL("Number of Elements" ), nElements,
 		_TL("Number of Variables"), pGrids->Get_Grid_Count(),
 		_TL("Number of Clusters" ), nCluster,

@@ -303,9 +303,9 @@ bool CTerrainFlooding::On_Execute(void)
 	
 
 	//-----------------------------------------------------
-	for(int iPoint=0; iPoint<pPoints->Get_Count() && Process_Get_Okay(); iPoint++)
+	for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Process_Get_Okay(); iPoint++)
 	{
-		Process_Set_Text("%s %d ...", _TL("Processing seed"), 1 + iPoint);
+		Process_Set_Text("%s %lld ...", _TL("Processing seed"), 1 + iPoint);
 
 		CSG_Shape &Point = *pPoints->Get_Shape(iPoint);
 

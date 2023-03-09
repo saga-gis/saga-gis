@@ -210,7 +210,7 @@ bool CSTL_Import::On_Execute(void)
 
 	sLong nFacettes = (sLong)_nFacettes;
 
-	Message_Fmt("\n%s: %ld", _TL("Number of Facettes"), nFacettes);
+	Message_Fmt("\n%s: %lld", _TL("Number of Facettes"), nFacettes);
 
 	//-----------------------------------------------------
 	switch( Method )

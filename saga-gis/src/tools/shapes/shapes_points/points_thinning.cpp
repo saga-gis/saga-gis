@@ -216,7 +216,7 @@ bool CPoints_Thinning::On_Execute(void)
 	}
 	else
 	{
-		Message_Fmt("\n%d %s", m_pPoints->Get_Count() - m_pThinned->Get_Count(), _TL("points removed"));
+		Message_Fmt("\n%lld %s", m_pPoints->Get_Count() - m_pThinned->Get_Count(), _TL("points removed"));
 	}
 
 	return( true );

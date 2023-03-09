@@ -340,9 +340,9 @@ bool CPC_Reclass_Extract::On_Execute(void)
 	}
 
 	if( m_bExtract)
-		SG_UI_Msg_Add(CSG_String::Format(_TL("%ld points out of %d extracted."   ), m_pInput->Get_Count()-m_iOrig, m_pInput->Get_Count()), true);
+		SG_UI_Msg_Add(CSG_String::Format(_TL("%lld points out of %lld extracted."   ), m_pInput->Get_Count()-m_iOrig, m_pInput->Get_Count()), true);
 	else
-		SG_UI_Msg_Add(CSG_String::Format(_TL("%ld points out of %d reclassified."), m_pInput->Get_Count()-m_iOrig, m_pInput->Get_Count()), true);
+		SG_UI_Msg_Add(CSG_String::Format(_TL("%lld points out of %lld reclassified."), m_pInput->Get_Count()-m_iOrig, m_pInput->Get_Count()), true);
 
 
 	return( true );

@@ -563,7 +563,7 @@ CSG_MetaData CSG_PointCloud::_Create_Header(void) const
 	CSG_MetaData *pNoData = Header.Add_Child("NoData"    );
 	CSG_MetaData *pAttr   = Header.Add_Child("Attributes");
 
-	pPoints->Add_Property("Value", CSG_String::Format("%dl", Get_Count()));
+	pPoints->Add_Property("Value", Get_Count());
 	pBBox  ->Add_Property("XMin" , Get_Minimum(0));
 	pBBox  ->Add_Property("YMin" , Get_Minimum(1));
 	pBBox  ->Add_Property("ZMin" , Get_Minimum(2));

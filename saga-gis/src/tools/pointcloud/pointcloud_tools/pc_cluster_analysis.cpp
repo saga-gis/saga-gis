@@ -329,7 +329,7 @@ void CPC_Cluster_Analysis::Write_Result(CSG_Table *pTable, sLong nElements, int 
 	pTable->Add_Field(_TL("Elements" ), SG_DATATYPE_Int);
 	pTable->Add_Field(_TL("Variance" ), SG_DATATYPE_Double);
 
-	Message_Fmt("\n%s:\t%ld \n%s:\t%d \n%s:\t%d \n%s:\t%f",
+	Message_Fmt("\n%s:\t%lld \n%s:\t%d \n%s:\t%d \n%s:\t%f",
 		_TL("Number of Elements"      ), nElements,
 		_TL("Number of Variables"     ), m_nFeatures,
 		_TL("Number of Clusters"      ), nCluster,

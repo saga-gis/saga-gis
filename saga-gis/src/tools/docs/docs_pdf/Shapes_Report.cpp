@@ -279,7 +279,7 @@ bool CShapes_Report::Add_Shapes(void)
 		sLeft	.Add(CSG_String::Format(SG_T("%s:")	, _TL("Name")));
 		sRight	.Add(CSG_String::Format(SG_T("%s")	, m_pShapes->Get_Name()));
 		sLeft	.Add(CSG_String::Format(SG_T("%s:")	, _TL("Count")));
-		sRight	.Add(CSG_String::Format(SG_T("%d")	, m_pShapes->Get_Count()));
+		sRight	.Add(CSG_String::Format(SG_T("%lld")	, m_pShapes->Get_Count()));
 
 		m_pPDF->Draw_Text(m_rTable.Get_XMin()   , m_rTable.Get_YMax(), sLeft , 8, PDF_STYLE_TEXT_ALIGN_H_LEFT|PDF_STYLE_TEXT_ALIGN_V_TOP);
 		m_pPDF->Draw_Text(m_rTable.Get_XCenter(), m_rTable.Get_YMax(), sRight, 8, PDF_STYLE_TEXT_ALIGN_H_LEFT|PDF_STYLE_TEXT_ALIGN_V_TOP);

@@ -342,7 +342,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
     //---------------------------------------------------------
 	if( iNoDataCount > 0 )
 	{
-		Message_Fmt("\n%s: %d %s", _TL("Warning"), iNoDataCount, _TL("NoData value(s) in statistic grid(s)!"));
+		Message_Fmt("\n%s: %lld %s", _TL("Warning"), iNoDataCount, _TL("NoData value(s) in statistic grid(s)!"));
 	}
     
 	return (true);

@@ -194,7 +194,7 @@ bool CTable_Text_Replacer::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Message_Fmt("\n%s: %d", _TL("number of replacements"), nChanges);
+	Message_Fmt("\n%s: %zu", _TL("number of replacements"), nChanges);
 
 	if( pTable == Parameters("TABLE")->asTable() )
 	{
