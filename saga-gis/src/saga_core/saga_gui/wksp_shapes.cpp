@@ -172,9 +172,9 @@ wxString CWKSP_Shapes::Get_Description(void)
 		break;
 	}
 
-	DESC_ADD_INT  (_TL("Number of Shapes"), Get_Shapes()->Get_Count());
-	DESC_ADD_SIZET(_TL("Selected"        ), Get_Shapes()->Get_Selection_Count());
-	DESC_ADD_STR  (_TL("File Encoding"   ), Get_Shapes()->Get_File_Encoding() ? SG_T("UTF-8") : SG_T("ANSI"));
+	DESC_ADD_LONG(_TL("Number of Shapes"), Get_Shapes()->Get_Count());
+	DESC_ADD_LONG(_TL("Selected"        ), Get_Shapes()->Get_Selection_Count());
+	DESC_ADD_STR (_TL("File Encoding"   ), Get_Shapes()->Get_File_Encoding() ? SG_T("UTF-8") : SG_T("ANSI"));
 
 	s	+= "</table>";
 
