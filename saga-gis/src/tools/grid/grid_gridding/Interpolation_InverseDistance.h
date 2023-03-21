@@ -90,7 +90,7 @@ private:
 
 	CSG_KDTree_2D					m_Search;
 
-	CSG_Parameters_PointSearch		m_Search_Options;
+	CSG_Parameters_Point_Search		m_Search_Options;
 
 	CSG_Distance_Weighting			m_Weighting;
 

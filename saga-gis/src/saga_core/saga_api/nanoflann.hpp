@@ -433,7 +433,7 @@ namespace nanoflann {
 			size_t size) const {
 			DistanceType result = DistanceType();
 			for (size_t i = 0; i < size; ++i) {
-				const DistanceType diff = a[i] - data_source.kdtree_get_pt(b_idx, i);
+				const DistanceType diff = a[i] - data_source.kdtree_get_pt(b_idx, (int)i);
 				result += diff * diff;
 			}
 			return result;

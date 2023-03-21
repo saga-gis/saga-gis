@@ -105,7 +105,7 @@ CGW_Multi_Regression_Points::CGW_Multi_Regression_Points(void)
 	m_Weighting.Create_Parameters(Parameters);
 
 	//-----------------------------------------------------
-	m_Search.Create(&Parameters, Parameters.Add_Node("", "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
+	m_Search.Create(&Parameters, "NODE_SEARCH", 16);
 
 	Parameters("SEARCH_RANGE"     )->Set_Value(1);
 	Parameters("SEARCH_POINTS_ALL")->Set_Value(1);

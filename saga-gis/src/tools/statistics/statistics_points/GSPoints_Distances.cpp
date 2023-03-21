@@ -82,15 +82,15 @@ bool CGSPoints_Distances::On_Execute(void)
 	CSG_Table  *pTable  = Parameters("TABLE" )->asTable ();
 
 	//-----------------------------------------------------
-	CSG_PRQuadTree QT(pPoints, 0); CSG_Simple_Statistics s;
+	CSG_KDTree_2D Search(pPoints, 0); CSG_Simple_Statistics s;
 
 	for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 	{
-		TSG_Point p = pPoints->Get_Shape(iPoint)->Get_Point(0); double x, y, z;
+		TSG_Point p = pPoints->Get_Shape(iPoint)->Get_Point(0); size_t Index[2]; double Distance[2];
 
-		if( QT.Select_Nearest_Points(p.x, p.y, 2) && QT.Get_Selected_Point(1, x, y, z) && (x != p.x || y != p.y) )
+		if( Search.Get_Nearest_Points(p.x, p.y, 2, Index, Distance) && Distance[1] > 0. )
 		{
-			s += SG_Get_Distance(x, y, p.x, p.y);
+			s += Distance[1];
 		}
 	}
 

@@ -137,18 +137,15 @@ int CRemove_Duplicates::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Pa
 //---------------------------------------------------------
 bool CRemove_Duplicates::On_Execute(void)
 {
-	CSG_PRQuadTree	Search;
-
-	//-----------------------------------------------------
-	m_pPoints	= Parameters("RESULT" )->asShapes();
-	m_Field		= Parameters("FIELD"  )->asInt();
-	m_Method	= Parameters("METHOD" )->asInt();
-	m_Numeric	= Parameters("NUMERIC")->asInt();
+	m_pPoints = Parameters("RESULT" )->asShapes();
+	m_Field   = Parameters("FIELD"  )->asInt();
+	m_Method  = Parameters("METHOD" )->asInt();
+	m_Numeric = Parameters("NUMERIC")->asInt();
 
 	//-----------------------------------------------------
 	if( m_pPoints == NULL )
 	{
-		m_pPoints	= Parameters("POINTS")->asShapes();
+		m_pPoints = Parameters("POINTS")->asShapes();
 	}
 	else if( m_pPoints != Parameters("POINTS")->asShapes() )
 	{
@@ -172,6 +169,8 @@ bool CRemove_Duplicates::On_Execute(void)
 		return( false );
 	}
 
+	CSG_PRQuadTree	Search;
+
 	if( !Search.Create(m_pPoints, -1) )
 	{
 		Error_Set(_TL("failed to initialise search engine"));
@@ -186,15 +185,15 @@ bool CRemove_Duplicates::On_Execute(void)
 
 	for(sLong i=0; i<m_pPoints->Get_Count() && Set_Progress(i, m_pPoints->Get_Count()); i++)
 	{
-		CSG_Shape	*pPoint	= m_pPoints->Get_Shape(i);
+		CSG_Shape *pPoint = m_pPoints->Get_Shape(i);
 
 		if( !pPoint->is_Selected() )
 		{
-			double	Distance;
+			double Distance;
 
-			CSG_PRQuadTree_Leaf	*pLeaf	= Search.Get_Nearest_Leaf(pPoint->Get_Point(0), Distance);
+			CSG_PRQuadTree_Leaf	*pLeaf = Search.Get_Nearest_Leaf(pPoint->Get_Point(0), Distance);
 
-			if( Distance == 0.0 && pLeaf && pLeaf->has_Statistics() )
+			if( Distance == 0. && pLeaf && pLeaf->has_Statistics() )
 			{
 				Set_Attributes(pPoint, (CSG_PRQuadTree_Leaf_List *)pLeaf);
 			}
@@ -224,11 +223,11 @@ bool CRemove_Duplicates::On_Execute(void)
 //---------------------------------------------------------
 void CRemove_Duplicates::Set_Attributes(CSG_Shape *pPoint, CSG_PRQuadTree_Leaf_List *pList)
 {
-	CSG_Shape	*pKeep	= NULL;	double	dKeep;
+	CSG_Shape *pKeep = NULL; double dKeep;
 
 	for(int iDuplicate=0; iDuplicate<pList->Get_Count(); iDuplicate++)
 	{
-		CSG_Shape	*pDuplicate	= m_pPoints->Get_Shape((int)pList->Get_Value(iDuplicate));
+		CSG_Shape *pDuplicate = m_pPoints->Get_Shape((int)pList->Get_Value(iDuplicate));
 
 		if( pDuplicate != pPoint )
 		{

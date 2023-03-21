@@ -409,7 +409,7 @@ bool CSG_Simple_Statistics::Create(const CSG_Vector &Values, bool bHoldValues)
 {
 	if( Create(bHoldValues) )
 	{
-		for(size_t i=0; i<Values.Get_Size(); i++)
+		for(sLong i=0; i<Values.Get_Size(); i++)
 		{
 			Add_Value(Values[i]);
 		}

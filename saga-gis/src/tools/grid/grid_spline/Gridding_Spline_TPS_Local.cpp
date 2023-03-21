@@ -91,7 +91,7 @@ CGridding_Spline_TPS_Local::CGridding_Spline_TPS_Local(void)
 	);
 
 	//-----------------------------------------------------
-	m_Search.Create(&Parameters, Parameters.Add_Node("", "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
+	m_Search.Create(&Parameters, "NODE_SEARCH", 16);
 }
 
 

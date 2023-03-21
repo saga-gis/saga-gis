@@ -205,7 +205,7 @@ int CSG_Shape_Points::Ins_Point(double x, double y, int iPoint, int iPart)
 }
 
 //---------------------------------------------------------
-int CSG_Shape_Points::Ins_Point(const TSG_Point_Z &p, int iPoint, int iPart)
+int CSG_Shape_Points::Ins_Point(const CSG_Point_Z &p, int iPoint, int iPart)
 {
 	if( Ins_Point(p.x, p.y, iPoint, iPart) )
 	{
@@ -218,7 +218,7 @@ int CSG_Shape_Points::Ins_Point(const TSG_Point_Z &p, int iPoint, int iPart)
 }
 
 //---------------------------------------------------------
-int CSG_Shape_Points::Ins_Point(const TSG_Point_ZM &p, int iPoint, int iPart)
+int CSG_Shape_Points::Ins_Point(const CSG_Point_ZM &p, int iPoint, int iPart)
 {
 	if( Ins_Point(p.x, p.y, iPoint, iPart) )
 	{
@@ -243,7 +243,7 @@ int CSG_Shape_Points::Set_Point(double x, double y, int iPoint, int iPart)
 }
 
 //---------------------------------------------------------
-int CSG_Shape_Points::Set_Point(const TSG_Point_Z &p, int iPoint, int iPart)
+int CSG_Shape_Points::Set_Point(const CSG_Point_Z &p, int iPoint, int iPart)
 {
 	if( Set_Point(p.x, p.y, iPoint, iPart) )
 	{
@@ -256,7 +256,7 @@ int CSG_Shape_Points::Set_Point(const TSG_Point_Z &p, int iPoint, int iPart)
 }
 
 //---------------------------------------------------------
-int CSG_Shape_Points::Set_Point(const TSG_Point_ZM &p, int iPoint, int iPart)
+int CSG_Shape_Points::Set_Point(const CSG_Point_ZM &p, int iPoint, int iPart)
 {
 	if( Set_Point(p.x, p.y, iPoint, iPart) )
 	{

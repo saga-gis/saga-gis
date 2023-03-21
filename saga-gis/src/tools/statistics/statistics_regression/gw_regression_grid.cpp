@@ -58,7 +58,6 @@
 //---------------------------------------------------------
 CGW_Regression_Grid::CGW_Regression_Grid(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("GWR for Single Predictor Grid"));
 
 	Set_Author		("O.Conrad (c) 2010");
@@ -130,7 +129,7 @@ CGW_Regression_Grid::CGW_Regression_Grid(void)
 	m_Weighting.Create_Parameters(Parameters);
 
 	//-----------------------------------------------------
-	m_Search.Create(&Parameters, Parameters.Add_Node("", "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
+	m_Search.Create(&Parameters, "NODE_SEARCH", 16);
 
 	Parameters("SEARCH_RANGE"     )->Set_Value(1);
 	Parameters("SEARCH_POINTS_ALL")->Set_Value(1);
@@ -172,14 +171,13 @@ int CGW_Regression_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 //---------------------------------------------------------
 bool CGW_Regression_Grid::On_Execute(void)
 {
-	//-----------------------------------------------------
-	m_pPredictor	= Parameters("PREDICTOR" )->asGrid  ();
-	m_pRegression	= Parameters("REGRESSION")->asGrid  ();
-	m_pQuality		= Parameters("QUALITY"   )->asGrid  ();
-	m_pIntercept	= Parameters("INTERCEPT" )->asGrid  ();
-	m_pSlope		= Parameters("SLOPE"     )->asGrid  ();
-	m_pPoints		= Parameters("POINTS"    )->asShapes();
-	m_iDependent	= Parameters("DEPENDENT" )->asInt   ();
+	m_pPredictor  = Parameters("PREDICTOR" )->asGrid  ();
+	m_pRegression = Parameters("REGRESSION")->asGrid  ();
+	m_pQuality    = Parameters("QUALITY"   )->asGrid  ();
+	m_pIntercept  = Parameters("INTERCEPT" )->asGrid  ();
+	m_pSlope      = Parameters("SLOPE"     )->asGrid  ();
+	m_pPoints     = Parameters("POINTS"    )->asShapes();
+	m_iDependent  = Parameters("DEPENDENT" )->asInt   ();
 
 	m_Weighting.Set_Parameters(Parameters);
 
@@ -246,26 +244,40 @@ bool CGW_Regression_Grid::On_Execute(void)
 //---------------------------------------------------------
 bool CGW_Regression_Grid::Get_Model(int x, int y, CSG_Regression_Weighted &Model, bool bLogistic)
 {
+	Model.Destroy(); TSG_Point Point = Get_System().Get_Grid_to_World(x, y);
+
 	//-----------------------------------------------------
-	TSG_Point	Point	= Get_System().Get_Grid_to_World(x, y);
-	int			nPoints = m_Search.Set_Location(Point);
-
-	Model.Destroy();
-
-	for(int iPoint=0; iPoint<nPoints; iPoint++)
+	if( m_Search.Do_Use_All() )
 	{
-		double	ix, iy, iz;
-
-		CSG_Shape	*pPoint = m_Search.Do_Use_All() && m_Search.Get_Point(iPoint, ix, iy, iz)
-			? m_pPoints->Get_Shape((int)iz)
-			: m_pPoints->Get_Shape(iPoint);
-
-		if( !pPoint->is_NoData(m_iDependent) && m_pPredictor->Get_Value(pPoint->Get_Point(0), iz) )
+		for(sLong iPoint=0; iPoint<m_pPoints->Get_Count(); iPoint++)
 		{
-			Model.Add_Sample(
-				m_Weighting.Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point(0))),
-				pPoint->asDouble(m_iDependent), CSG_Vector(1, &iz)
-			);
+			CSG_Shape *pPoint = m_pPoints->Get_Shape(iPoint); double Value;
+
+			if( !pPoint->is_NoData(m_iDependent) && m_pPredictor->Get_Value(pPoint->Get_Point(0), Value) )
+			{
+				Model.Add_Sample(m_Weighting.Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point(0))), pPoint->asDouble(m_iDependent), CSG_Vector(1, &Value));
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	else
+	{
+		CSG_Array_Int Index; CSG_Vector Distance;
+
+		if( !m_Search.Get_Points(Point, Index, Distance) )
+		{
+			return( false );
+		}
+
+		for(sLong iPoint=0; iPoint<Index.Get_Size(); iPoint++)
+		{
+			CSG_Shape *pPoint = m_pPoints->Get_Shape(Index[iPoint]); double Value;
+
+			if( !pPoint->is_NoData(m_iDependent) && m_pPredictor->Get_Value(pPoint->Get_Point(0), Value) )
+			{
+				Model.Add_Sample(m_Weighting.Get_Weight(Distance[iPoint]), pPoint->asDouble(m_iDependent), CSG_Vector(1, &Value));
+			}
 		}
 	}
 

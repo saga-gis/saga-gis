@@ -350,32 +350,31 @@ public:
 								CSG_Vector			(const CSG_Vector &Vector);
 	bool						Create				(const CSG_Vector &Vector);
 
-								CSG_Vector			(int    n, double *Data = NULL);
-	bool						Create				(int    n, double *Data = NULL);
-
-								CSG_Vector			(size_t n, double *Data = NULL);
-	bool						Create				(size_t n, double *Data = NULL);
+								CSG_Vector			(sLong n, double *Data = NULL);
+	bool						Create				(sLong n, double *Data = NULL);
 
 	bool						Destroy				(void);
 
-	bool						Set_Rows			(int    nRows);
-	bool						Set_Rows			(size_t nRows);
-	bool						Add_Rows			(int    nRows);
-	bool						Add_Rows			(size_t nRows);
-	bool						Del_Rows			(int    nRows);
-	bool						Del_Rows			(size_t nRows);
+	bool						Set_Rows			(sLong  nRows);
+	bool						Add_Rows			(sLong  nRows);
+	bool						Del_Rows			(sLong  nRows);
 	bool						Add_Row				(double Value = 0.);
-	bool						Del_Row				(int    Row = -1);
-	bool						Del_Row				(size_t Row);
+	bool						Del_Row				(sLong  Row = -1);
 
-	int							Get_N				(void)		const	{	return(    (int)Get_Size() );	}
-	size_t						Get_Size			(void)		const	{	return( m_Array.Get_Size() );	}
+	sLong						Get_Row_Count		(void)		const	{	return( m_Array.Get_Size () );	}
+	sLong						Get_Size			(void)		const	{	return( m_Array.Get_Size () );	}
+	size_t						Get_uSize			(void)		const	{	return( m_Array.Get_uSize() );	}
+	int							Get_N				(void)		const	{	return( (int)m_Array.Get_Size() );	}
+
 	double *					Get_Data			(void)		const	{	return( (double *)m_Array.Get_Array() );	}
-	double						Get_Data			(int    x)	const	{	return( Get_Data()[x] );	}
-	double						operator ()			(int    x)	const	{	return( Get_Data()[x] );	}
-	double &					operator []			(int    x)			{	return( Get_Data()[x] );	}
-	double &					operator []			(size_t x)			{	return( Get_Data()[x] );	}
+	double						Get_Data			(sLong  x)	const	{	return( Get_Data()[x] );	}
+	double						operator ()			(sLong  x)	const	{	return( Get_Data()[x] );	}
 	double &					operator []			(sLong  x)			{	return( Get_Data()[x] );	}
+	double &					operator []			(size_t x)			{	return( Get_Data()[x] );	}
+	double &					operator []			(int    x)			{	return( Get_Data()[x] );	}
+	const double &				operator []			(sLong  x)	const	{	return( Get_Data()[x] );	}
+	const double &				operator []			(size_t x)	const	{	return( Get_Data()[x] );	}
+	const double &				operator []			(int    x)	const	{	return( Get_Data()[x] );	}
 	operator const double *							(void)		const	{	return( Get_Data() );		}
 
 	CSG_String					to_String			(int Width = -1, int Precision = -1, bool bScientific = false, const SG_Char *Separator = NULL)	const;
@@ -463,52 +462,52 @@ public:
 								CSG_Matrix			(const CSG_Matrix &Matrix);
 	bool						Create				(const CSG_Matrix &Matrix);
 
-								CSG_Matrix			(int nCols, int nRows, double *Data = NULL);
-	bool						Create				(int nCols, int nRows, double *Data = NULL);
+								CSG_Matrix			(sLong nCols, sLong nRows, double *Data = NULL);
+	bool						Create				(sLong nCols, sLong nRows, double *Data = NULL);
 
-								CSG_Matrix			(int nCols, int nRows, double **Data);
-	bool						Create				(int nCols, int nRows, double **Data);
+								CSG_Matrix			(sLong nCols, sLong nRows, double **Data);
+	bool						Create				(sLong nCols, sLong nRows, double **Data);
 
 	bool						Destroy				(void);
 
-	bool						Set_Size			(int nRows, int nCols);
-	bool						Set_Cols			(int nCols);
-	bool						Set_Rows			(int nRows);
-	bool						Add_Cols			(int nCols);
-	bool						Add_Rows			(int nRows);
-	bool						Del_Cols			(int nCols);
-	bool						Del_Rows			(int nRows);
-	bool						Add_Col				(         double *Data = NULL);
-	bool						Add_Col				(         const CSG_Vector &Data);
-	bool						Add_Row				(         double *Data = NULL);
-	bool						Add_Row				(         const CSG_Vector &Data);
-	bool						Ins_Col				(int Col, double *Data = NULL);
-	bool						Ins_Col				(int Col, const CSG_Vector &Data);
-	bool						Ins_Row				(int Row, double *Data = NULL);
-	bool						Ins_Row				(int Row, const CSG_Vector &Data);
-	bool						Set_Col				(int Col, double *Data);
-	bool						Set_Col				(int Col, const CSG_Vector &Data);
-	bool						Set_Col				(         const CSG_Vector &Data);
-	bool						Set_Row				(int Row, double *Data);
-	bool						Set_Row				(int Row, const CSG_Vector &Data);
-	bool						Set_Row				(         const CSG_Vector &Data);
-	bool						Del_Col				(int Col);
-	bool						Del_Row				(int Row);
-	CSG_Vector					Get_Col				(int Col)	const;
-	CSG_Vector					Get_Row				(int Row)	const;
+	bool						Set_Size			(sLong nRows, sLong nCols);
+	bool						Set_Cols			(sLong nCols);
+	bool						Set_Rows			(sLong nRows);
+	bool						Add_Cols			(sLong nCols);
+	bool						Add_Rows			(sLong nRows);
+	bool						Del_Cols			(sLong nCols);
+	bool						Del_Rows			(sLong nRows);
+	bool						Add_Col				(           double           *Data = NULL);
+	bool						Add_Col				(           const CSG_Vector &Data);
+	bool						Add_Row				(           double           *Data = NULL);
+	bool						Add_Row				(           const CSG_Vector &Data);
+	bool						Ins_Col				(sLong Col, double           *Data = NULL);
+	bool						Ins_Col				(sLong Col, const CSG_Vector &Data);
+	bool						Ins_Row				(sLong Row, double           *Data = NULL);
+	bool						Ins_Row				(sLong Row, const CSG_Vector &Data);
+	bool						Set_Col				(sLong Col, double           *Data);
+	bool						Set_Col				(sLong Col, const CSG_Vector &Data);
+	bool						Set_Col				(           const CSG_Vector &Data);
+	bool						Set_Row				(sLong Row, double           *Data);
+	bool						Set_Row				(sLong Row, const CSG_Vector &Data);
+	bool						Set_Row				(           const CSG_Vector &Data);
+	bool						Del_Col				(sLong Col);
+	bool						Del_Row				(sLong Row);
+	CSG_Vector					Get_Col				(sLong Col) const;
+	CSG_Vector					Get_Row				(sLong Row) const;
 
-	int							Get_NX				(void)		const	{	return( m_nx );			}
-	int							Get_NY				(void)		const	{	return( m_ny );			}
-	int							Get_NCols			(void)		const	{	return( m_nx );			}
-	int							Get_NRows			(void)		const	{	return( m_ny );			}
+	int							Get_NX				(void) const { return( (int)m_nx ); }
+	int							Get_NY				(void) const { return( (int)m_ny ); }
+	sLong						Get_NCols			(void) const { return(      m_nx ); }
+	sLong						Get_NRows			(void) const { return(      m_ny ); }
 
-	operator const double **						(void)		const	{	return( (const double **)m_z );	}
-	double **					Get_Data			(void)		const	{	return( m_z );			}
+	operator const double **						(void) const { return( (const double **)m_z ); }
+	double **					Get_Data			(void) const { return(                  m_z ); }
 
-	double						operator ()			(int    Row, int    Col)	const	{	return( m_z[Row][Col] );	}
-	double						operator ()			(size_t Row, size_t Col)	const	{	return( m_z[Row][Col] );	}
-	double *					operator []			(int    Row)				const	{	return( m_z[Row]      );	}
-	double *					operator []			(size_t Row)				const	{	return( m_z[Row]      );	}
+	double						operator ()			(sLong  Row, sLong Col) const { return( m_z[Row][Col] ); }
+	double *					operator []			(sLong  Row)            const { return( m_z[Row]      ); }
+	double *					operator []			(size_t Row)            const { return( m_z[Row]      ); }
+	double *					operator []			(int    Row)            const { return( m_z[Row]      ); }
 
 	CSG_String					to_String			(int Width = -1, int Precision = -1, bool bScientific = false, const SG_Char *Separator = NULL)	const;
 	bool						from_String			(const CSG_String &String);
@@ -554,7 +553,7 @@ public:
 
 private:
 
-	int							m_nx, m_ny;
+	sLong						m_nx, m_ny;
 
 	double						**m_z;
 
@@ -1434,7 +1433,7 @@ public:
 	bool					Destroy				(void);
 
 	bool					Set_Point_Count		(int Count)	{	return( m_Points.Set_Count(Count) );	}
-	int						Get_Point_Count		(void)		{	return( m_Points.Get_Count() );			}
+	int						Get_Point_Count		(void)		{	return( (int)m_Points.Get_Count() );	}
 
 	CSG_Points_Z &			Get_Points			(void)		{	return( m_Points );	}
 
@@ -1777,8 +1776,8 @@ public:
 	bool						Destroy				(void);
 
 	bool						Add_Sample			(double Weight, double Dependent, const CSG_Vector &Predictors);
-	int							Get_Sample_Count	(void)	const	{	return( m_X.Get_NRows()     );	}
-	int							Get_Predictor_Count	(void)	const	{	return( m_X.Get_NCols() - 1 );	}
+	int							Get_Sample_Count	(void)	const	{	return( m_X.Get_NY()     );	}
+	int							Get_Predictor_Count	(void)	const	{	return( m_X.Get_NX() - 1 );	}
 
 	bool						Calculate			(const CSG_Vector &Weights, const CSG_Vector &Dependents, const CSG_Matrix &Predictors, bool bLogistic = false);
 	bool						Calculate			(bool bLogistic = false);

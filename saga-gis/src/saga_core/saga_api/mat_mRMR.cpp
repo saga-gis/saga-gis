@@ -396,7 +396,7 @@ bool CSG_mRMR::Set_Data(CSG_Table &Data, int ClassField, double Threshold)
 //---------------------------------------------------------
 bool CSG_mRMR::Set_Data(CSG_Matrix &Data, int ClassField, double Threshold)
 {
-	if( !Get_Memory(Data.Get_NCols(), Data.Get_NRows()) )
+	if( !Get_Memory(Data.Get_NX(), Data.Get_NY()) )
 	{
 		return( false );
 	}

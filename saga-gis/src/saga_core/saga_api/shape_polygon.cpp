@@ -148,7 +148,7 @@ void CSG_Shape_Polygon_Part::_Update_Area(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-TSG_Polygon_Point_Relation CSG_Shape_Polygon_Part::Get_Point_Relation(const TSG_Point &p)
+TSG_Polygon_Point_Relation CSG_Shape_Polygon_Part::Get_Point_Relation(const CSG_Point &p)
 {
 	return( Get_Point_Relation(p.x, p.y) );
 }
@@ -265,7 +265,7 @@ TSG_Polygon_Point_Relation CSG_Shape_Polygon_Part::Get_Point_Relation(double x, 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Shape_Polygon_Part::is_OnEdge(const TSG_Point &p)
+bool CSG_Shape_Polygon_Part::is_OnEdge(const CSG_Point &p)
 {
 	return( is_OnEdge(p.x, p.y) );
 }
@@ -286,7 +286,7 @@ bool CSG_Shape_Polygon_Part::is_OnEdge(double x, double y)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Shape_Polygon_Part::Contains(const TSG_Point &p)
+bool CSG_Shape_Polygon_Part::Contains(const CSG_Point &p)
 {
 	return( Contains(p.x, p.y) );
 }
@@ -776,7 +776,7 @@ TSG_Point CSG_Shape_Polygon::Get_Centroid(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-TSG_Polygon_Point_Relation CSG_Shape_Polygon::Get_Point_Relation(const TSG_Point &p, int iPart)
+TSG_Polygon_Point_Relation CSG_Shape_Polygon::Get_Point_Relation(const CSG_Point &p, int iPart)
 {
 	return( Get_Point_Relation(p.x, p.y, iPart) );
 }
@@ -790,7 +790,7 @@ TSG_Polygon_Point_Relation CSG_Shape_Polygon::Get_Point_Relation(double x, doubl
 }
 
 //---------------------------------------------------------
-TSG_Polygon_Point_Relation CSG_Shape_Polygon::Get_Point_Relation(const TSG_Point &p)
+TSG_Polygon_Point_Relation CSG_Shape_Polygon::Get_Point_Relation(const CSG_Point &p)
 {
 	return( Get_Point_Relation(p.x, p.y) );
 }
@@ -828,7 +828,7 @@ TSG_Polygon_Point_Relation CSG_Shape_Polygon::Get_Point_Relation(double x, doubl
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Shape_Polygon::is_OnEdge(const TSG_Point &p, int iPart)
+bool CSG_Shape_Polygon::is_OnEdge(const CSG_Point &p, int iPart)
 {
 	return( is_OnEdge(p.x, p.y, iPart) );
 }
@@ -842,7 +842,7 @@ bool CSG_Shape_Polygon::is_OnEdge(double x, double y, int iPart)
 }
 
 //---------------------------------------------------------
-bool CSG_Shape_Polygon::is_OnEdge(const TSG_Point &p)
+bool CSG_Shape_Polygon::is_OnEdge(const CSG_Point &p)
 {
 	return( is_OnEdge(p.x, p.y) );
 }
@@ -870,7 +870,7 @@ bool CSG_Shape_Polygon::is_OnEdge(double x, double y)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Shape_Polygon::Contains(const TSG_Point &p, int iPart)
+bool CSG_Shape_Polygon::Contains(const CSG_Point &p, int iPart)
 {
 	return( Contains(p.x, p.y, iPart) );
 }
@@ -884,7 +884,7 @@ bool CSG_Shape_Polygon::Contains(double x, double y, int iPart)
 }
 
 //---------------------------------------------------------
-bool CSG_Shape_Polygon::Contains(const TSG_Point &p)
+bool CSG_Shape_Polygon::Contains(const CSG_Point &p)
 {
 	return( Contains(p.x, p.y) );
 }

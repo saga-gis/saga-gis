@@ -91,7 +91,7 @@ private:
 
 	CSG_Distance_Weighting			m_Weighting;
 
-	CSG_Parameters_Search_Points	m_Search;
+	CSG_Parameters_Point_Search_KDTree_2D	m_Search;
 
 	CSG_Shapes						*m_pPoints;
 

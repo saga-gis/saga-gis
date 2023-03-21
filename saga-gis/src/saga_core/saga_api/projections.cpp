@@ -933,7 +933,7 @@ bool CSG_Projections::Add(const CSG_Projection &Projection)
 //---------------------------------------------------------
 bool CSG_Projections::Add(const SG_Char *WKT, const SG_Char *Proj4, const SG_Char *Authority, int Authority_ID)
 {
-	CSG_Table_Record	*pProjection	= m_pProjections->Add_Record();
+	CSG_Table_Record *pProjection = m_pProjections->Add_Record();
 
 	pProjection->Set_Value(PRJ_FIELD_SRID     , (int)m_pProjections->Get_Count());
 	pProjection->Set_Value(PRJ_FIELD_AUTH_NAME, Authority);
@@ -945,26 +945,26 @@ bool CSG_Projections::Add(const SG_Char *WKT, const SG_Char *Proj4, const SG_Cha
 }
 
 //---------------------------------------------------------
-CSG_Projection CSG_Projections::Get_Projection(int Index)	const
+CSG_Projection CSG_Projections::Get_Projection(sLong Index)	const
 {
-	CSG_Projection	Projection;
+	CSG_Projection Projection;
 
 	if( Index >= 0 && Index < m_pProjections->Get_Count() )
 	{
-		CSG_Table_Record	*pRecord	= m_pProjections->Get_Record(Index);
+		CSG_Table_Record *pRecord = m_pProjections->Get_Record(Index);
 
-		Projection.m_Authority		= pRecord->asString(PRJ_FIELD_AUTH_NAME);
-		Projection.m_Authority_ID	= pRecord->asInt   (PRJ_FIELD_AUTH_SRID);
-		Projection.m_WKT			= pRecord->asString(PRJ_FIELD_SRTEXT   );
-		Projection.m_Proj4			= pRecord->asString(PRJ_FIELD_PROJ4TEXT);
+		Projection.m_Authority    = pRecord->asString(PRJ_FIELD_AUTH_NAME);
+		Projection.m_Authority_ID = pRecord->asInt   (PRJ_FIELD_AUTH_SRID);
+		Projection.m_WKT          = pRecord->asString(PRJ_FIELD_SRTEXT   );
+		Projection.m_Proj4        = pRecord->asString(PRJ_FIELD_PROJ4TEXT);
 
-		CSG_MetaData	m	= WKT_to_MetaData(Projection.m_WKT);
+		CSG_MetaData m = WKT_to_MetaData(Projection.m_WKT);
 
-		Projection.m_Name	= m.Get_Property("name");
-		Projection.m_Type	= !m.Get_Name().Cmp("GEOCCS") ? SG_PROJ_TYPE_CS_Geocentric
-							: !m.Get_Name().Cmp("GEOGCS") ? SG_PROJ_TYPE_CS_Geographic
-							: !m.Get_Name().Cmp("PROJCS") ? SG_PROJ_TYPE_CS_Projected
-							: SG_PROJ_TYPE_CS_Undefined;
+		Projection.m_Name = m.Get_Property("name");
+		Projection.m_Type = !m.Get_Name().Cmp("GEOCCS") ? SG_PROJ_TYPE_CS_Geocentric
+		                  : !m.Get_Name().Cmp("GEOGCS") ? SG_PROJ_TYPE_CS_Geographic
+		                  : !m.Get_Name().Cmp("PROJCS") ? SG_PROJ_TYPE_CS_Projected
+		                  :                               SG_PROJ_TYPE_CS_Undefined;
 
 		SG_Set_Projection_Unit(m, Projection.m_Unit, Projection.m_Unit_Name, Projection.m_Unit_To_Meter);
 	}

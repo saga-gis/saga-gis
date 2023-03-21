@@ -591,7 +591,7 @@ bool CSG_Shapes::On_Update(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Shape * CSG_Shapes::Get_Shape(const TSG_Point &Point, double Epsilon)
+CSG_Shape * CSG_Shapes::Get_Shape(const CSG_Point &Point, double Epsilon)
 {
 	CSG_Rect r(Point.x - Epsilon, Point.y - Epsilon, Point.x + Epsilon, Point.y + Epsilon);
 

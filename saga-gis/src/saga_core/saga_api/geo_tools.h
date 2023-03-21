@@ -380,20 +380,22 @@ public:
 
 	bool						Add				(double x, double y);
 	bool						Add				(const TSG_Point &Point);
-	bool						Del				(int Index);
+	bool						Del				(sLong Index);
 
-	bool						Set_Count		(int nPoints);
-	int							Get_Count		(void)		const	{	return( m_nPoints );	}
+	bool						Set_Count		(sLong nPoints);
+	sLong						Get_Count		(void)        const { return( m_nPoints ); }
 
-	TSG_Point &					operator []		(int Index)			{	return( m_Points[Index]   );	}
-	TSG_Point &					Get_Point		(int Index)			{	return( m_Points[Index]   );	}
-	double						Get_X			(int Index) const	{	return( m_Points[Index].x );	}
-	double						Get_Y			(int Index) const	{	return( m_Points[Index].y );	}
+	TSG_Point &					operator []		(sLong Index)       { return( m_Points[Index]   ); }
+	TSG_Point &					Get_Point		(sLong Index)       { return( m_Points[Index]   ); }
+	const TSG_Point &			operator []		(sLong Index) const { return( m_Points[Index]   ); }
+	const TSG_Point &			Get_Point		(sLong Index) const { return( m_Points[Index]   ); }
+	double						Get_X			(sLong Index) const { return( m_Points[Index].x ); }
+	double						Get_Y			(sLong Index) const { return( m_Points[Index].y ); }
 
 
 private:
 
-	int							m_nPoints, m_nBuffer;
+	sLong						m_nPoints, m_nBuffer;
 
 	TSG_Point					*m_Points;
 
@@ -413,20 +415,22 @@ public:
 
 	bool						Add				(int x, int y);
 	bool						Add				(const TSG_Point_Int &Point);
-	bool						Del				(int Index);
+	bool						Del				(sLong Index);
 
-	bool						Set_Count		(int nPoints);
-	int							Get_Count		(void)		const	{	return( m_nPoints );	}
+	bool						Set_Count		(sLong nPoints);
+	sLong						Get_Count		(void)        const { return( m_nPoints ); }
 
-	TSG_Point_Int &				operator []		(int Index)			{	return( m_Points[Index]   );	}
-	TSG_Point_Int &				Get_Point		(int Index)			{	return( m_Points[Index]   );	}
-	int							Get_X			(int Index) const	{	return( m_Points[Index].x );	}
-	int							Get_Y			(int Index) const	{	return( m_Points[Index].y );	}
+	TSG_Point_Int &				operator []		(sLong Index)       { return( m_Points[Index]   ); }
+	TSG_Point_Int &				Get_Point		(sLong Index)       { return( m_Points[Index]   ); }
+	const TSG_Point_Int &		operator []		(sLong Index) const { return( m_Points[Index]   ); }
+	const TSG_Point_Int &		Get_Point		(sLong Index) const { return( m_Points[Index]   ); }
+	int							Get_X			(sLong Index) const	{ return( m_Points[Index].x ); }
+	int							Get_Y			(sLong Index) const	{ return( m_Points[Index].y ); }
 
 
 private:
 
-	int							m_nPoints, m_nBuffer;
+	sLong						m_nPoints, m_nBuffer;
 
 	TSG_Point_Int				*m_Points;
 
@@ -446,21 +450,23 @@ public:
 
 	bool						Add				(double x, double y, double z);
 	bool						Add				(const TSG_Point_Z &Point);
-	bool						Del				(int Index);
+	bool						Del				(sLong Index);
 
-	bool						Set_Count		(int nPoints);
-	int							Get_Count		(void)		const	{	return( m_nPoints );	}
+	bool						Set_Count		(sLong nPoints);
+	sLong						Get_Count		(void)        const	{ return( m_nPoints ); }
 
-	TSG_Point_Z &				operator []		(int Index)			{	return( m_Points[Index]   );	}
-	TSG_Point_Z &				Get_Point		(int Index)			{	return( m_Points[Index]   );	}
-	double						Get_X			(int Index)	const	{	return( m_Points[Index].x );	}
-	double						Get_Y			(int Index)	const	{	return( m_Points[Index].y );	}
-	double						Get_Z			(int Index)	const	{	return( m_Points[Index].z );	}
+	TSG_Point_Z &				operator []		(sLong Index)       { return( m_Points[Index]   ); }
+	TSG_Point_Z &				Get_Point		(sLong Index)       { return( m_Points[Index]   ); }
+	const TSG_Point_Z &			operator []		(sLong Index) const { return( m_Points[Index]   ); }
+	const TSG_Point_Z &			Get_Point		(sLong Index) const { return( m_Points[Index]   ); }
+	double						Get_X			(sLong Index) const { return( m_Points[Index].x ); }
+	double						Get_Y			(sLong Index) const { return( m_Points[Index].y ); }
+	double						Get_Z			(sLong Index) const { return( m_Points[Index].z ); }
 
 
 private:
 
-	int							m_nPoints, m_nBuffer;
+	sLong						m_nPoints, m_nBuffer;
 
 	TSG_Point_Z					*m_Points;
 
@@ -856,10 +862,10 @@ public:
 	bool							Add						(const CSG_Projection &Projection);
 	bool							Add						(const SG_Char *WKT, const SG_Char *Proj4, const SG_Char *Authority, int Authority_ID);
 
-	CSG_Projection					Get_Projection			(int Index)	const;
-	CSG_Projection					operator []				(int Index) const	{	return( Get_Projection(Index) );	}
+	CSG_Projection					Get_Projection			(sLong Index)	const;
+	CSG_Projection					operator []				(sLong Index)	const	{	return( Get_Projection(Index) );	}
 
-	bool							Get_Projection			(CSG_Projection &Projection, int EPSG_ID)									const;
+	bool							Get_Projection			(CSG_Projection &Projection,                              int EPSG_ID     )	const;
 	bool							Get_Projection			(CSG_Projection &Projection, const CSG_String &Authority, int Authority_ID)	const;
 
 	CSG_String						Get_Names_List			(TSG_Projection_Type Type = SG_PROJ_TYPE_CS_Undefined)	const;
