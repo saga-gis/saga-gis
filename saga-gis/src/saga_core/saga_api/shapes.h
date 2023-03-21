@@ -279,7 +279,6 @@ public:
 
 	virtual int					Del_Point			(                       int iPoint    , int iPart = 0) { return( -1 ); }
 
-	virtual TSG_Point			Get_Point			(void)                                          const  { return( m_Point ); }
 	virtual TSG_Point			Get_Point			(int iPoint = 0)                                const  { return( m_Point ); }
 	virtual TSG_Point			Get_Point			(int iPoint, int iPart, bool bAscending = true) const  { return( m_Point ); }
 
