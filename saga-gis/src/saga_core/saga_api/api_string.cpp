@@ -786,16 +786,16 @@ bool CSG_String::asDouble(double &Value) const
 //---------------------------------------------------------
 CSG_String CSG_String::from_UTF8(const char *String, size_t Length)
 {
-	CSG_String	s;
+	CSG_String s;
 
 	if( String )
 	{
 		if( !Length )
 		{
-			Length	= strlen(String);
+			Length = strlen(String);
 		}
 
-		*s.m_pString	= wxString::FromUTF8(String, Length);
+		*s.m_pString = wxString::FromUTF8(String, Length);
 	}
 
 	return( s );
@@ -814,17 +814,17 @@ size_t CSG_String::to_UTF8(char **pString) const
 {
 	if( !is_Empty() )
 	{
-		const wxScopedCharBuffer	Buffer	= m_pString->utf8_str();
+		const wxScopedCharBuffer Buffer = m_pString->utf8_str();
 
-		if( (*pString = (char *)SG_Malloc(Buffer.length())) != NULL )
+		if( (*pString = (char *)SG_Malloc(Buffer.length() + 1)) != NULL )
 		{
-			memcpy(*pString, Buffer.data(), Buffer.length());
+			memcpy(*pString, Buffer.data(), Buffer.length() + 1);
 
 			return( Buffer.length() );
 		}
 	}
 
-	*pString	= NULL;
+	*pString = NULL;
 
 	return( 0 );
 }
@@ -832,14 +832,11 @@ size_t CSG_String::to_UTF8(char **pString) const
 //---------------------------------------------------------
 CSG_Buffer CSG_String::to_UTF8(void) const
 {
-	CSG_Buffer	String;
+	CSG_Buffer String;
 
-	if( !is_Empty() )
-	{
-		const wxScopedCharBuffer	Buffer	= m_pString->utf8_str();
+	const wxScopedCharBuffer Buffer = m_pString->utf8_str();
 
-		String.Set_Data(Buffer.data(), Buffer.length() + 1);
-	}
+	String.Set_Data(Buffer.data(), Buffer.length() + 1);
 
 	return( String );
 }
@@ -860,7 +857,7 @@ CSG_Buffer CSG_String::to_UTF8(void) const
 //---------------------------------------------------------
 size_t CSG_String::to_MBChar(char **pString, int Encoding) const
 {
-	CSG_Buffer	String(to_MBChar(Encoding));
+	CSG_Buffer String(to_MBChar(Encoding));
 
 	if( String.Get_Size() && (*pString = (char *)SG_Malloc(String.Get_Size())) != NULL )
 	{
@@ -869,7 +866,7 @@ size_t CSG_String::to_MBChar(char **pString, int Encoding) const
 		return( String.Get_Size() );
 	}
 
-	*pString	= NULL;
+	*pString = NULL;
 
 	return( 0 );
 }
@@ -877,26 +874,23 @@ size_t CSG_String::to_MBChar(char **pString, int Encoding) const
 //---------------------------------------------------------
 CSG_Buffer CSG_String::to_MBChar(int Encoding) const
 {
-	CSG_Buffer	String;
+	CSG_Buffer String;
 
-	if( !is_Empty() )
+	wxScopedCharBuffer Buffer;
+
+	switch( Encoding )	// selecting the appropriate wxMBConv class
 	{
-		wxScopedCharBuffer	Buffer;
-
-		switch( Encoding )	// selecting the appropriate wxMBConv class
-		{
-		case SG_FILE_ENCODING_ANSI   : Buffer = m_pString->mb_str(wxConvLibc       ); break;
-		case SG_FILE_ENCODING_UTF7   : Buffer = m_pString->mb_str(wxConvUTF7       ); break;
-		case SG_FILE_ENCODING_UTF8   : Buffer = m_pString->mb_str(wxConvUTF8       ); break;
-		case SG_FILE_ENCODING_UTF16LE: Buffer = m_pString->mb_str(wxMBConvUTF16LE()); break;
-		case SG_FILE_ENCODING_UTF16BE: Buffer = m_pString->mb_str(wxMBConvUTF16BE()); break;
-		case SG_FILE_ENCODING_UTF32LE: Buffer = m_pString->mb_str(wxMBConvUTF32LE()); break;
-		case SG_FILE_ENCODING_UTF32BE: Buffer = m_pString->mb_str(wxMBConvUTF32BE()); break;
-		default                      : Buffer = m_pString->mb_str(wxConvAuto     ()); break;
-		}
-
-		String.Set_Data(Buffer.data(), Buffer.length());
+	case SG_FILE_ENCODING_ANSI   : Buffer = m_pString->mb_str(wxConvLibc       ); break;
+	case SG_FILE_ENCODING_UTF7   : Buffer = m_pString->mb_str(wxConvUTF7       ); break;
+	case SG_FILE_ENCODING_UTF8   : Buffer = m_pString->mb_str(wxConvUTF8       ); break;
+	case SG_FILE_ENCODING_UTF16LE: Buffer = m_pString->mb_str(wxMBConvUTF16LE()); break;
+	case SG_FILE_ENCODING_UTF16BE: Buffer = m_pString->mb_str(wxMBConvUTF16BE()); break;
+	case SG_FILE_ENCODING_UTF32LE: Buffer = m_pString->mb_str(wxMBConvUTF32LE()); break;
+	case SG_FILE_ENCODING_UTF32BE: Buffer = m_pString->mb_str(wxMBConvUTF32BE()); break;
+	default                      : Buffer = m_pString->mb_str(wxConvAuto     ()); break;
 	}
+
+	String.Set_Data(Buffer.data(), Buffer.length() + 1);
 
 	return( String );
 }
@@ -920,9 +914,9 @@ bool CSG_String::to_ASCII(char **pString, char Replace)	const
 	if( !is_Empty() )
 	{
 		#if wxCHECK_VERSION(3, 1, 0)
-			const wxScopedCharBuffer	Buffer	= m_pString->ToAscii(Replace);
+			const wxScopedCharBuffer Buffer = m_pString->ToAscii(Replace);
 		#else
-			const wxScopedCharBuffer	Buffer	= m_pString->ToAscii();
+			const wxScopedCharBuffer Buffer = m_pString->ToAscii();
 		#endif
 
 		if( (*pString = (char *)SG_Malloc(Buffer.length())) != NULL )
@@ -939,18 +933,15 @@ bool CSG_String::to_ASCII(char **pString, char Replace)	const
 //---------------------------------------------------------
 CSG_Buffer CSG_String::to_ASCII(char Replace) const
 {
-	CSG_Buffer	String;
+	CSG_Buffer String;
 
-	if( !is_Empty() )
-	{
-		#if wxCHECK_VERSION(3, 1, 0)
-			const wxScopedCharBuffer	Buffer	= m_pString->ToAscii(Replace);
-		#else
-			const wxScopedCharBuffer	Buffer	= m_pString->ToAscii();
-		#endif
+	#if wxCHECK_VERSION(3, 1, 0)
+		const wxScopedCharBuffer Buffer = m_pString->ToAscii(Replace);
+	#else
+		const wxScopedCharBuffer Buffer = m_pString->ToAscii();
+	#endif
 
-		String.Set_Data(Buffer.data(), Buffer.length());
-	}
+	String.Set_Data(Buffer.data(), Buffer.length() + 1);
 
 	return( String );
 }
