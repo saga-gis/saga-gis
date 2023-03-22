@@ -1396,7 +1396,7 @@ CSG_Table_Record * CSG_PointCloud::Get_Record(sLong Index)	const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Shape * CSG_PointCloud::Get_Shape(TSG_Point Point, double Epsilon)
+CSG_Shape * CSG_PointCloud::Get_Shape(const CSG_Point &Point, double Epsilon)
 {
 	CSG_Rect r(Point.x - Epsilon, Point.y - Epsilon, Point.x + Epsilon, Point.y + Epsilon);
 

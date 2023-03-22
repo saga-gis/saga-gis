@@ -202,7 +202,7 @@ public:
 
 	virtual CSG_Table_Record *		Get_Record			(sLong Index)	const;
 
-	virtual CSG_Shape *				Get_Shape			(TSG_Point Point, double Epsilon = 0.);
+	virtual CSG_Shape *				Get_Shape			(const CSG_Point &Point, double Epsilon = 0.);
 
 	virtual bool					Del_Record			(sLong Index)	{	return( Del_Point(Index) );	}
 	virtual bool					Del_Shape			(sLong Index)	{	return( Del_Point(Index) );	}

@@ -136,8 +136,8 @@ public:
 	//-----------------------------------------------------
 	virtual void				Destroy				(void);
 
-	virtual bool				Assign				(CSG_Shape *pShape);
-	virtual bool				Assign				(CSG_Shape *pShape, bool bAssign_Attributes);
+	virtual bool				Assign				(CSG_Table_Record *pRecord);
+	virtual bool				Assign				(CSG_Table_Record *pRecord, bool bAssign_Attributes);
 
 	virtual bool				is_Valid			(void)	const = 0;
 
@@ -812,8 +812,8 @@ public:
 	virtual bool					Del_Shapes				(void)					{	return( Del_Records() );	}
 
 	virtual CSG_Shape *				Get_Shape				(const CSG_Point &Point, double Epsilon = 0.);
-	virtual CSG_Shape *				Get_Shape				(sLong  Index)	const	{	return( (CSG_Shape *)Get_Record        (Index) );	}
-	virtual CSG_Shape *				Get_Shape_byIndex		(sLong  Index)	const	{	return( (CSG_Shape *)Get_Record_byIndex(Index) );	}
+	virtual CSG_Shape *				Get_Shape				(sLong Index)	const	{	return( (CSG_Shape *)Get_Record        (Index) );	}
+	virtual CSG_Shape *				Get_Shape_byIndex		(sLong Index)	const	{	return( (CSG_Shape *)Get_Record_byIndex(Index) );	}
 
 	//-----------------------------------------------------
 	bool							Make_Clean				(void);
