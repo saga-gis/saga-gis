@@ -91,19 +91,22 @@ CGrid_IMCORR::CGrid_IMCORR(void)
 	));
 
 	Add_Reference(
-		"Scambos, T. A., Dutkiewicz, M. J., Wilson, J. C., and R. A. Bindschadler", "1992",
+		"Scambos, T. A., Dutkiewicz, M. J., Wilson, J. C., and Bindschadler, R. A.", "1992",
 		"Application of image cross-correlation to the measurement of glacier velocity using satellite image data",
 		"Remote Sensing Environ., 42(3), 177-186."
 	);
 
 	Add_Reference(
-		"Fahnestock, M. A., Scambos, T.A., and R. A. Bindschadler", "1992",
+		"Fahnestock, M. A., Scambos, T. A., and Bindschadler, R. A.", "1992",
 		"Semi-automated ice velocity determination from satellite imagery",
 		"Eos, 73, 493."
 	);
 
 	Add_Reference(
-		"http://nsidc.org/data/velmap/imcorr.html", SG_T("standalone software and documentation")
+		"Fey, C., Rutzinger, M., Wichmann, V., Prager, C., Bremer, M., and Zangerl, C.", "2015",
+		"Deriving 3D displacement vectors from multi-temporal airborne laser scanning data for landslide activity analyses",
+		"GIScience & Remote Sensing, 52(4), 437-461.",
+		SG_T("https://doi.org/10.1080/15481603.2015.1045278"), SG_T("DOI 10.1080/15481603.2015.1045278")
 	);
 
 	Parameters.Add_Grid(
