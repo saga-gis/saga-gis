@@ -144,7 +144,7 @@ delaunay *delaunay_build(int np, point points[], int ns, int segments[], int nh,
 	d->neighbours = (triangle_neighbours *)malloc(d->ntriangles * sizeof(triangle_neighbours));
 	d->circles    = (circle              *)malloc(d->ntriangles * sizeof(circle             ));
 
-	for(int iTriangle=0; iTriangle<TIN.Get_Triangle_Count(); iTriangle++)
+	for(sLong iTriangle=0; iTriangle<TIN.Get_Triangle_Count(); iTriangle++)
 	{
 		CSG_TIN_Triangle &Triangle = *TIN.Get_Triangle(iTriangle);
 
@@ -152,9 +152,9 @@ delaunay *delaunay_build(int np, point points[], int ns, int segments[], int nh,
 		triangle_neighbours *n = &d->neighbours[iTriangle];
 		circle              *c = &d->circles   [iTriangle];
 
-		t->vids[0] = Triangle.Get_Node(0)->Get_Index();
-		t->vids[1] = Triangle.Get_Node(1)->Get_Index();
-		t->vids[2] = Triangle.Get_Node(2)->Get_Index();
+		t->vids[0] = (int)Triangle.Get_Node(0)->Get_Index();
+		t->vids[1] = (int)Triangle.Get_Node(1)->Get_Index();
+		t->vids[2] = (int)Triangle.Get_Node(2)->Get_Index();
 
 		n->tids[0] = -1;
 		n->tids[1] = -1;

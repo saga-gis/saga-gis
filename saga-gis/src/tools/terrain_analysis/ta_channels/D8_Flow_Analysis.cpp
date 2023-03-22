@@ -156,7 +156,7 @@ void CD8_Flow_Analysis::Get_Direction(void)
 
 	m_pDir->Set_NoData_Value(-1);
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -183,7 +183,7 @@ void CD8_Flow_Analysis::Get_Direction(void)
 
 		pConnection->Set_NoData_Value(0.);
 
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			#pragma omp parallel for
 			for(int x=0; x<Get_NX(); x++)
@@ -219,7 +219,7 @@ void CD8_Flow_Analysis::Get_Order(void)
 	m_pOrder->Set_NoData_Value_Range(1 - m_Threshold, 0);
 	m_pOrder->Assign(0.);
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
@@ -396,7 +396,7 @@ void CD8_Flow_Analysis::Get_Nodes(void)
 	//-----------------------------------------------------
 	bool bSubbasins = Parameters("SUBBASINS")->asBool();
 
-	for(int y=0, nNodes=0, nBasins=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0, nNodes=0, nBasins=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
@@ -498,7 +498,7 @@ void CD8_Flow_Analysis::Get_Basins(void)
 {
 	Process_Set_Text(_TL("Drainage Basins"));
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
@@ -533,7 +533,7 @@ void CD8_Flow_Analysis::Get_Basins(void)
 				pBasins->Add_Field("ORDER", SG_DATATYPE_Int);
 			}
 
-			for(int i=0; i<pBasins->Get_Count(); i++)
+			for(sLong i=0; i<pBasins->Get_Count(); i++)
 			{
 				CSG_Shape_Polygon *pBasin = pBasins->Get_Shape(i)->asPolygon();
 
@@ -641,7 +641,7 @@ void CD8_Flow_Analysis::Get_Segments(void)
 	m_pSegments->Add_Field("ORDER_CELL", SG_DATATYPE_Int);
 	m_pSegments->Add_Field("LENGTH"    , SG_DATATYPE_Double);
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{

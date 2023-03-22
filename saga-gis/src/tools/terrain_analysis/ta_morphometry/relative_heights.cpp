@@ -177,7 +177,7 @@ bool CRelative_Heights::Get_Heights_Catchment(CSG_Grid *pDEM, CSG_Grid *pH, doub
 	pH->Assign(0.);
 
 	//-----------------------------------------------------
-	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(sLong n=0; n<Get_NCells() && Set_Progress_Cells(n); n++)
 	{
 		int	x, y;
 
@@ -252,7 +252,7 @@ bool CRelative_Heights::Get_Heights_Modified(CSG_Grid *pDEM, CSG_Grid *pH, doubl
 
 	CSG_Grid	H, H_Last, T(pH);
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -331,7 +331,7 @@ bool CRelative_Heights::Get_Heights_Modified(CSG_Grid *pDEM, CSG_Grid *pH, doubl
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("Modify: post-processing..."));
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -437,7 +437,7 @@ bool CRelative_Heights::Get_Results(CSG_Grid *pDEM, CSG_Grid *pHO, CSG_Grid *pHU
 	CSG_Grid	*pSH	= Parameters("SH")->asGrid();
 	CSG_Grid	*pMS	= Parameters("MS")->asGrid();
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)

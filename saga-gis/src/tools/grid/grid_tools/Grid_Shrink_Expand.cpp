@@ -59,7 +59,7 @@
 //---------------------------------------------------------
 enum
 {
-	EXPAND_MIN		= 0,
+	EXPAND_MIN = 0,
 	EXPAND_MAX,
 	EXPAND_MEAN,
 	EXPAND_MAJORITY
@@ -75,34 +75,36 @@ enum
 //---------------------------------------------------------
 CGrid_Shrink_Expand::CGrid_Shrink_Expand(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Shrink and Expand"));
 
 	Set_Author		("V.Wichmann & O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
-		"The tool allows one to shrink or expand regions with valid data by a certain distance (defined by the kernel radius). "
-		"Shrinking just invalidates cells with valid data at the border to No Data regions, expanding sets No Data "
-		"cells along the border of regions with valid data to a new valid value. The tool provides several options "
-		"how to calculate this new value: minimum, maximum, mean or majority of the valid cells within the kernel.\n\n"
+		"With this tool you can shrink and/or expand regions with valid data by a certain distance "
+		"defined by the (kernel) radius. Shrinking just invalidates all (valid) data cells found within "
+		"the given distance to no-data cells, while expansion replaces no-data cells with new values "
+		"based on the evaluation of all (valid) data cells found within the neighbourhood as defined "
+		"by the kernel. Both operations can be combined.\n\n"
+		"The method for the value expansion can be chosen as minimum, maximum, mean or majority value. "
+		"The neighbourhood can be evaluated either at once or in a stepwise iterative way. "
 	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid("",
 		"INPUT"		, _TL("Grid"),
-		_TL("The input grid."),
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid("",
-		"RESULT"	, _TL("Result Grid"),
-		_TL("The output grid."),
+		"RESULT"	, _TL("Result"),
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Choice("",
 		"OPERATION"	, _TL("Operation"),
-		_TL("Choose the type of operation."),
+		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s",
 			_TL("shrink"           ),
 			_TL("expand"           ),
@@ -142,6 +144,12 @@ CGrid_Shrink_Expand::CGrid_Shrink_Expand(void)
 		_TL("If false, mean value expansion results will be stored with floating point precision."),
 		true
 	);
+
+	Parameters.Add_Bool("",
+		"ITERATIVE"	, _TL("Iterative Expansion"),
+		_TL("If false, the neighbourhood for expansion is evaluated in one step, else expansion is done stepwise with a one cell radius for each iteration until desired kernel radius is reached."),
+		false
+	);
 }
 
 
@@ -154,12 +162,13 @@ int CGrid_Shrink_Expand::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 {
 	if(	pParameter->Cmp_Identifier("OPERATION") )
 	{
-		pParameters->Set_Enabled("EXPAND", pParameter->asInt() > 0);
+		pParameters->Set_Enabled("EXPAND"   , pParameter->asInt() > 0);
+		pParameters->Set_Enabled("ITERATIVE", pParameter->asInt() > 0);
 	}
 
 	if(	pParameter->Cmp_Identifier("EXPAND") )
 	{
-		pParameters->Set_Enabled("KEEP_TYPE", pParameter->asInt() == 2);	// mean?!
+		pParameters->Set_Enabled("KEEP_TYPE", pParameter->asInt() == 2); // mean?!
 	}
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
@@ -173,10 +182,8 @@ int CGrid_Shrink_Expand::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 //---------------------------------------------------------
 bool CGrid_Shrink_Expand::On_Execute(void)
 {
-	if( !m_Kernel.Set_Radius(Parameters("RADIUS")->asInt(), Parameters("CIRCLE")->asInt() == 0) )
+	if( !Set_Kernel() )
 	{
-		Error_Set(_TL("could not initialize search kernel"));
-
 		return( false );
 	}
 
@@ -184,24 +191,22 @@ bool CGrid_Shrink_Expand::On_Execute(void)
 	CSG_Grid *pInput  = Parameters("INPUT" )->asGrid(), Input;
 	CSG_Grid *pResult = Parameters("RESULT")->asGrid();
 
-	if( !pResult || pResult == pInput )
-	{
-		Input.Create(*pInput);
-		pResult = pInput;
-		pInput  = &Input;
-	}
-
-	//-----------------------------------------------------
-	TSG_Data_Type	Type	= pInput->Get_Type();
+	TSG_Data_Type Type = pInput->Get_Type();
 
 	if( Parameters("OPERATION")->asInt ()  > 0     // expands
 	&&  Parameters("EXPAND"   )->asInt () == 2     // mean
 	&&  Parameters("KEEP_TYPE")->asBool() == false // keep data type?
 	&&  Type != SG_DATATYPE_Float && Type != SG_DATATYPE_Double )
 	{
-		Type	= SG_DATATYPE_Float;
+		Type = SG_DATATYPE_Float;
 	}
 
+	if( !pResult || pResult == pInput )
+	{
+		Input.Create(*pInput); pResult = pInput; pInput = &Input;
+	}
+
+	//-----------------------------------------------------
 	if( pResult->Get_Type() != Type )
 	{
 		pResult->Create(Get_System(), Type);
@@ -209,38 +214,7 @@ bool CGrid_Shrink_Expand::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	switch( Parameters("OPERATION")->asInt() )
-	{
-	case  0:	// shrink
-		{
-			Do_Shrink(pInput, pResult);
-		}
-		break;
-
-	case  1:	// expand
-		{
-			Do_Expand(pInput, pResult);
-		}
-		break;
-
-	case  2:	// shrink and expand
-		{
-			CSG_Grid TMP(pResult);
-
-			Do_Shrink(pInput,    &TMP);
-			Do_Expand(&TMP  , pResult);
-		}
-		break;
-
-	default:	// expand and shrink
-		{
-			CSG_Grid TMP(pResult);
-
-			Do_Expand(pInput,    &TMP);
-			Do_Shrink(&TMP  , pResult);
-		}
-		break;
-	}
+	bool bResult = Do_Operation(pInput, pResult);
 
 	//-----------------------------------------------------
 	if( pResult == Parameters("INPUT")->asGrid() )
@@ -255,7 +229,30 @@ bool CGrid_Shrink_Expand::On_Execute(void)
 	default: pResult->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Expand and Shrink")); break;
 	}
 
-	m_Kernel.Destroy();
+	Set_Kernel(false);
+
+	return( bResult );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Shrink_Expand::Set_Kernel(bool bInitialize)
+{
+	if( !bInitialize )
+	{
+		return( m_Kernel.Destroy() );
+	}
+
+	if( !m_Kernel.Set_Radius(Parameters("RADIUS")->asInt(), Parameters("CIRCLE")->asInt() == 0) )
+	{
+		Error_Set(_TL("could not initialize search kernel"));
+
+		return( false );
+	}
 
 	return( true );
 }
@@ -266,27 +263,47 @@ bool CGrid_Shrink_Expand::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CGrid_Shrink_Expand::Do_Operation(CSG_Grid *pInput, CSG_Grid *pResult)
+{
+	switch( Parameters("OPERATION")->asInt() )
+	{
+	case  0: // shrink
+		{ return( Do_Shrink(pInput, pResult) ); }
+
+	case  1: // expand
+		{ return( Do_Expand(pInput, pResult) ); }
+
+	case  2: // shrink and expand
+		{ CSG_Grid TMP(pResult); return( Do_Shrink(pInput, &TMP) && Do_Expand(&TMP, pResult) ); }
+
+	default: // expand and shrink
+		{ CSG_Grid TMP(pResult); return( Do_Expand(pInput, &TMP) && Do_Shrink(&TMP, pResult) ); }
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CGrid_Shrink_Expand::Do_Shrink(CSG_Grid *pInput, CSG_Grid *pResult)
 {
-	m_pInput	= pInput;
-
-	Process_Set_Text("%s...", _TL("Shrink"));
-
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			bool	bShrink = m_pInput->is_NoData(x, y);
+			bool bShrink = pInput->is_NoData(x, y);
 
 			for(int i=0; !bShrink && i<m_Kernel.Get_Count(); i++)
 			{
-				int	ix	= m_Kernel.Get_X(i, x);
-				int	iy	= m_Kernel.Get_Y(i, y);
+				int ix = m_Kernel.Get_X(i, x);
+				int iy = m_Kernel.Get_Y(i, y);
 
-				if( is_InGrid(ix, iy) && m_pInput->is_NoData(ix, iy) )
+				if( is_InGrid(ix, iy) && pInput->is_NoData(ix, iy) )
 				{
-					bShrink	= true;
+					bShrink = true;
 				}
 			}
 
@@ -296,7 +313,7 @@ bool CGrid_Shrink_Expand::Do_Shrink(CSG_Grid *pInput, CSG_Grid *pResult)
 			}
 			else
 			{
-				pResult->Set_Value(x, y, m_pInput->asDouble(x, y));
+				pResult->Set_Value(x, y, pInput->asDouble(x, y));
 			}
 		}
 	}
@@ -312,20 +329,62 @@ bool CGrid_Shrink_Expand::Do_Shrink(CSG_Grid *pInput, CSG_Grid *pResult)
 //---------------------------------------------------------
 bool CGrid_Shrink_Expand::Do_Expand(CSG_Grid *pInput, CSG_Grid *pResult)
 {
-	m_pInput	= pInput;
+	if( m_Kernel.Get_Radius() == 1 || !Parameters("ITERATIVE")->asBool() )
+	{
+		return( Do_Expand(pInput, pResult, m_Kernel) );
+	}
 
-	Process_Set_Text("%s...", _TL("Expand"));
+	CSG_Grid_Cell_Addressor Kernel; Kernel.Set_Radius(1, Parameters("CIRCLE")->asInt() == 0);
 
-	int		Method	= Parameters("EXPAND")->asInt();
+	Do_Expand(pInput, pResult, Kernel);
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	int Method = Parameters("EXPAND")->asInt();
+
+	for(int i=0; i<m_Kernel.Get_Radius(); i++)
+	{
+		CSG_Grid Input(*pResult); bool bChanged = false;
+
+		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+		{
+			#pragma omp parallel for
+			for(int x=0; x<Get_NX(); x++)
+			{
+				if( Input.is_NoData(x, y) )
+				{
+					double Value;
+
+					if( Get_Expand_Value(&Input, x, y, Method, Value, Kernel) )
+					{
+						pResult->Set_Value(x, y, Value);
+
+						bChanged = true;
+					}
+				}
+			}
+		}
+
+		if( !bChanged )
+		{
+			return( true );
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CGrid_Shrink_Expand::Do_Expand(CSG_Grid *pInput, CSG_Grid *pResult, const CSG_Grid_Cell_Addressor &Kernel)
+{
+	int Method = Parameters("EXPAND")->asInt();
+
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			double	Value;
+			double Value;
 
-			if( Get_Expand_Value(x, y, Method, Value) )
+			if( Get_Expand_Value(pInput, x, y, Method, Value, Kernel) )
 			{
 				pResult->Set_Value(x, y, Value);
 			}
@@ -345,11 +404,11 @@ bool CGrid_Shrink_Expand::Do_Expand(CSG_Grid *pInput, CSG_Grid *pResult)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Shrink_Expand::Get_Expand_Value(int x, int y, int Method, double &Value)
+bool CGrid_Shrink_Expand::Get_Expand_Value(CSG_Grid *pInput, int x, int y, int Method, double &Value, const CSG_Grid_Cell_Addressor &Kernel)
 {
-	if( !m_pInput->is_NoData(x, y) )
+	if( !pInput->is_NoData(x, y) )
 	{
-		Value	= m_pInput->asDouble(x, y);
+		Value = pInput->asDouble(x, y);
 
 		return( true );
 	}
@@ -357,45 +416,44 @@ bool CGrid_Shrink_Expand::Get_Expand_Value(int x, int y, int Method, double &Val
 	//-----------------------------------------------------
 	if( Method == EXPAND_MAJORITY )
 	{
-		CSG_Unique_Number_Statistics	Majority;
+		CSG_Unique_Number_Statistics s;
 
-		for(int i=0; i<m_Kernel.Get_Count(); i++)
+		for(int i=0; i<Kernel.Get_Count(); i++)
 		{
-			int	ix	= m_Kernel.Get_X(i, x);
-			int	iy	= m_Kernel.Get_Y(i, y);
+			int ix = Kernel.Get_X(i, x);
+			int iy = Kernel.Get_Y(i, y);
 
-			if( m_pInput->is_InGrid(ix, iy) )
+			if( pInput->is_InGrid(ix, iy) )
 			{
-				Majority.Add_Value(m_pInput->asDouble(ix, iy));
+				s += pInput->asDouble(ix, iy);
 			}
 		}
 
-		return( Majority.Get_Majority(Value) );
+		return( s.Get_Majority(Value) );
 	}
 
 	//-----------------------------------------------------
 	{
-		CSG_Simple_Statistics	Statistics;
+		CSG_Simple_Statistics s;
 
-		for(int i=0; i<m_Kernel.Get_Count(); i++)
+		for(int i=0; i<Kernel.Get_Count(); i++)
 		{
-			int	ix	= m_Kernel.Get_X(i, x);
-			int	iy	= m_Kernel.Get_Y(i, y);
+			int ix = Kernel.Get_X(i, x);
+			int iy = Kernel.Get_Y(i, y);
 
-			if( m_pInput->is_InGrid(ix, iy) )
+			if( pInput->is_InGrid(ix, iy) )
 			{
-				Statistics.Add_Value(m_pInput->asDouble(ix, iy));
+				s += pInput->asDouble(ix, iy);
 			}
 		}
 
-		if( Statistics.Get_Count() > 0 )
+		if( s.Get_Count() > 0 )
 		{
 			switch( Method )
 			{
-			default:
-			case EXPAND_MEAN:	Value	= Statistics.Get_Mean   ();	break;
-			case EXPAND_MIN :	Value	= Statistics.Get_Minimum();	break;
-			case EXPAND_MAX :	Value	= Statistics.Get_Maximum();	break;
+			default        : Value = s.Get_Mean   (); break;
+			case EXPAND_MIN: Value = s.Get_Minimum(); break;
+			case EXPAND_MAX: Value = s.Get_Maximum(); break;
 			}
 
 			return( true );
@@ -403,6 +461,94 @@ bool CGrid_Shrink_Expand::Get_Expand_Value(int x, int y, int Method, double &Val
 	}
 
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CGrids_Shrink_Expand::CGrids_Shrink_Expand(void)
+{
+	Set_Name		(_TL("Shrink and Expand (Grid Collection)"));
+
+	Set_Author		("O.Conrad (c) 2023");
+
+	Set_Description	(_TW(
+		"This is the multi-raster version of the \'Shrink and Expand\' tool for single grids "
+		"and applies the tool operation to each grid provided by the input grid collection.\n\n"
+	) + Get_Description());
+
+	//-----------------------------------------------------
+	Parameters.Del_Parameter("INPUT" ); Parameters.Add_Grids("", "INPUT" , _TL("Input" ), _TL(""), PARAMETER_INPUT);
+	Parameters.Del_Parameter("RESULT"); Parameters.Add_Grids("", "RESULT", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrids_Shrink_Expand::On_Execute(void)
+{
+	if( !Set_Kernel() )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Grids *pInput  = Parameters("INPUT" )->asGrids(), Input;
+	CSG_Grids *pResult = Parameters("RESULT")->asGrids();
+
+	TSG_Data_Type Type = pInput->Get_Type();
+
+	if( Parameters("OPERATION")->asInt ()  > 0     // expands
+	&&  Parameters("EXPAND"   )->asInt () == 2     // mean
+	&&  Parameters("KEEP_TYPE")->asBool() == false // keep data type?
+	&&  Type != SG_DATATYPE_Float && Type != SG_DATATYPE_Double )
+	{
+		Type = SG_DATATYPE_Float;
+	}
+
+	if( !pResult || pResult == pInput )
+	{
+		Input.Create(*pInput); pResult = pInput; pInput = &Input;
+	}
+	else
+	{
+		pResult->Create(Get_System(), pInput->Get_Attributes(), pInput->Get_Z_Attribute(), Type, true);
+		pResult->Set_Z_Name_Field(pInput->Get_Z_Name_Field());
+		pResult->Set_Name(pInput->Get_Name());
+	}
+
+	//-----------------------------------------------------
+	for(int i=0; i<pInput->Get_NZ(); i++)
+	{
+		Process_Set_Text(CSG_String::Format("%s %d/%d", _TL("processing"), i, pInput->Get_NZ()));
+
+		Do_Operation(pInput->Get_Grid_Ptr(i), pResult->Get_Grid_Ptr(i));
+	}
+
+	//-----------------------------------------------------
+	if( pResult == Parameters("INPUT")->asGrids() )
+	{
+		DataObject_Update(pResult);
+	}
+	else switch( Parameters("OPERATION")->asInt() )
+	{
+	case  0: pResult->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Shrink"           )); break;
+	case  1: pResult->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Expand"           )); break;
+	case  2: pResult->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Shrink and Expand")); break;
+	default: pResult->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Expand and Shrink")); break;
+	}
+
+	Set_Kernel(false);
+
+	return( true );
 }
 
 

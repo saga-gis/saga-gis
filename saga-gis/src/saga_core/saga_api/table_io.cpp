@@ -424,7 +424,7 @@ bool CSG_Table::_Load_Text(const CSG_String &FileName, bool bHeadline, const SG_
 			Add_Field(Table.Get_Field_Name(iField), Type[iField]);
 		}
 
-		for(int iRecord=0; iRecord<Table.Get_Count() && SG_UI_Process_Set_Progress(iRecord, Table.Get_Count()); iRecord++)
+		for(sLong iRecord=0; iRecord<Table.Get_Count() && SG_UI_Process_Set_Progress(iRecord, Table.Get_Count()); iRecord++)
 		{
 			CSG_Table_Record *pRecord = Add_Record();
 
@@ -466,9 +466,9 @@ bool CSG_Table::_Save_Text(const CSG_String &FileName, bool bHeadline, const SG_
 	}
 
 	//-----------------------------------------------------
-	for(int iRecord=0; iRecord<Get_Record_Count() && SG_UI_Process_Set_Progress(iRecord, Get_Record_Count()); iRecord++)
+	for(sLong iRecord=0; iRecord<Get_Count() && SG_UI_Process_Set_Progress(iRecord, Get_Count()); iRecord++)
 	{
-		CSG_Table_Record	*pRecord	= Get_Record_byIndex(iRecord);
+		CSG_Table_Record *pRecord = Get_Record_byIndex(iRecord);
 
 		for(int iField=0; iField<Get_Field_Count(); iField++)
 		{
@@ -549,7 +549,7 @@ bool CSG_Table::Serialize(CSG_File &Stream, bool bSave)
 			Stream.Printf("%d \"%s\"\n", Get_Field_Type(iField), Get_Field_Name(iField));
 		}
 
-		for(int iRecord=0; iRecord<m_nRecords; iRecord++)
+		for(sLong iRecord=0; iRecord<m_nRecords; iRecord++)
 		{
 			for(int iField=0; iField<m_nFields; iField++)
 			{
@@ -561,9 +561,9 @@ bool CSG_Table::Serialize(CSG_File &Stream, bool bSave)
 	}
 
 	//-----------------------------------------------------
-	CSG_String sLine; int nFields, nRecords, FieldType;
+	CSG_String sLine; int nFields, FieldType; sLong nRecords;
 
-	if( Stream.Read_Line(sLine) && SG_SSCANF(sLine, SG_T("%d %d"), &nFields, &nRecords) == 2 && nFields > 0 )
+	if( Stream.Read_Line(sLine) && SG_SSCANF(sLine, SG_T("%d %lld"), &nFields, &nRecords) == 2 && nFields > 0 )
 	{
 		Destroy();
 
@@ -575,7 +575,7 @@ bool CSG_Table::Serialize(CSG_File &Stream, bool bSave)
 			}
 		}
 
-		for(int iRecord=0; iRecord<nRecords; iRecord++)
+		for(sLong iRecord=0; iRecord<nRecords; iRecord++)
 		{
 			if( Stream.Read_Line(sLine) )
 			{

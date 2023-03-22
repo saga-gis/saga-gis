@@ -127,8 +127,8 @@ bool CGrid_Interpolate_Value_Along_Line::On_Execute(void)
 
 	m_bAdd			= false;
 
-	DataObject_Update(m_pGrid, SG_UI_DATAOBJECT_SHOW_NEW_MAP);
-	DataObject_Update(m_pLine, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
+	DataObject_Update(m_pGrid, SG_UI_DATAOBJECT_SHOW_MAP);
+	DataObject_Update(m_pLine, SG_UI_DATAOBJECT_SHOW_MAP_ACTIVE);
 
 	return( true );
 }
@@ -248,10 +248,10 @@ bool CGrid_Interpolate_Value_Along_Line::Set_Line(void)
 
 	Az			= m_pGrid->asDouble(Ax, Ay);
 	Bz			= m_pGrid->asDouble(Bx, By);
-	Length		= m_pPoints->Get_Record(m_pPoints->Get_Record_Count() - 1)->asDouble(0);
+	Length		= m_pPoints->Get_Record(m_pPoints->Get_Count() - 1)->asDouble(0);
 	tanAlpha	= (Bz - Az) / Length;
 
-	for(int i=1; i<m_pPoints->Get_Count() - 1; i++)
+	for(sLong i=1; i<m_pPoints->Get_Count() - 1; i++)
 	{
 		Cz = Az + tanAlpha * m_pPoints->Get_Shape(i)->asDouble(0);
 

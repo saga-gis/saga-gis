@@ -189,7 +189,7 @@ bool CPC_Transform::On_Execute(void)
 
 
     //-----------------------------------------------------
-    for (int iPoint=0; iPoint<pIn->Get_Point_Count(); iPoint++)
+    for (sLong iPoint=0; iPoint<pIn->Get_Count(); iPoint++)
     {
         P   = pIn->Get_Point(iPoint);
 

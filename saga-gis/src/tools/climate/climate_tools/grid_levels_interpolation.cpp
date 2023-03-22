@@ -861,11 +861,9 @@ bool CGrid_Levels_to_Points::On_Execute(void)
 
 	//-----------------------------------------------------
 //	#pragma omp parallel for
-	for(int iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
+	for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 	{
-		CSG_Shape	*pPoint	= pPoints->Get_Shape(iPoint);
-
-		double	Value;
+		CSG_Shape *pPoint = pPoints->Get_Shape(iPoint); double Value;
 
 		if( !pPoint->is_NoData(zField) && Get_Value(pPoint->Get_Point(0), pPoint->asDouble(zField), Value) )
 		{

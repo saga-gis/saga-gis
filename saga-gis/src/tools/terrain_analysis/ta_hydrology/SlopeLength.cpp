@@ -95,7 +95,7 @@ bool CSlopeLength::On_Execute(void)
 	//-----------------------------------------------------
 	m_Slope.Create(Get_System());
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for private(x)
 		for(x=0; x<Get_NX(); x++)
@@ -116,7 +116,7 @@ bool CSlopeLength::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(sLong n=0; n<Get_NCells() && Set_Progress_Cells(n); n++)
 	{
 		if( m_pDEM->Get_Sorted(n, x, y) )
 		{

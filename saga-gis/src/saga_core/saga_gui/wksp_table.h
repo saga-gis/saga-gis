@@ -107,7 +107,7 @@ public:
 	void							Toggle_View				(void);
 
 	class CVIEW_Table_Diagram *		Get_Diagram				(void)			{	return( m_pDiagram );	}
-	void							Set_Diagram				(bool bShow);
+	bool							Set_Diagram				(bool bShow, CSG_Parameters *pParameters = NULL);
 	void							Toggle_Diagram			(void);
 
 	virtual bool					Show					(int Flags = 0);

@@ -272,7 +272,7 @@ bool CDiffuse_Pollution_Risk::Set_Flow(void)
 	m_RainAcc.Create(Get_System());
 	m_TWI    .Create(Get_System());
 
-	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(sLong n=0; n<Get_NCells() && Set_Progress_Cells(n); n++)
 	{
 		int		x, y;
 
@@ -368,7 +368,7 @@ bool CDiffuse_Pollution_Risk::Set_Delivery_Index(void)
 
 		pChannel	= &Channel;	Channel.Create(Get_System(), SG_DATATYPE_Word);	Channel.Assign(0.0);	Channel.Set_NoData_Value(0.0);
 
-		for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+		for(sLong n=0; n<Get_NCells() && Set_Progress_Cells(n); n++)
 		{
 			int		x, y, ix, iy;
 
@@ -387,7 +387,7 @@ bool CDiffuse_Pollution_Risk::Set_Delivery_Index(void)
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("Delivery Index"));
 
-	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(sLong n=0; n<Get_NCells() && Set_Progress_Cells(n); n++)
 	{
 		int		x, y, ix, iy;
 
@@ -438,7 +438,7 @@ bool CDiffuse_Pollution_Risk::Get_Risk_Diffuse(void)
 	m_pRisk_Diffuse->Assign(0.0);
 
 	//-----------------------------------------------------
-	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(sLong n=0; n<Get_NCells() && Set_Progress_Cells(n); n++)
 	{
 		int		x, y;
 

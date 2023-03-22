@@ -168,7 +168,7 @@ bool CGrid_To_Points::On_Execute(void)
 		}
 
 		//-------------------------------------------------
-		for(y=0, yPos=Get_YMin() - (Type ? 0.5 * Get_Cellsize() : 0.0), iPoint=0; y<Get_NY() && Set_Progress(y); y++, yPos+=Get_Cellsize())
+		for(y=0, yPos=Get_YMin() - (Type ? 0.5 * Get_Cellsize() : 0.0), iPoint=0; y<Get_NY() && Set_Progress_Rows(y); y++, yPos+=Get_Cellsize())
 		{
 			for(x=0, xPos=Get_XMin() - (Type ? 0.5 * Get_Cellsize() : 0.0); x<Get_NX(); x++, xPos+=Get_Cellsize())
 			{
@@ -216,7 +216,7 @@ inline bool CGrid_To_Points::is_Contained(double x, double y, CSG_Shapes *pPolyg
 {
 	if( pPolygons && pPolygons->Get_Type() == SHAPE_TYPE_Polygon )
 	{
-		for(int iPolygon=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
+		for(sLong iPolygon=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
 		{
 			CSG_Shape_Polygon *pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
 

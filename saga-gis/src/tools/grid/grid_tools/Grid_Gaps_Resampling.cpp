@@ -161,7 +161,7 @@ bool CGrid_Gaps_Resampling::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		double	py	= Get_YMin() + y * Get_Cellsize();
 

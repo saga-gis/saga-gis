@@ -262,7 +262,7 @@ bool CTIN_From_Grid_Specific_Points::Get_MarkHighestNB(CSG_Grid *pResult, CSG_Gr
 	chi		= SG_Create_Grid(pGrid, SG_DATATYPE_Char);
 
 	// Pass 1: Auszaehlen...
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX()-1; x++)
         {
@@ -300,7 +300,7 @@ bool CTIN_From_Grid_Specific_Points::Get_MarkHighestNB(CSG_Grid *pResult, CSG_Gr
 	}
 
 	// Pass 2: Setzen...
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX()-1; x++)
 		{
@@ -342,7 +342,7 @@ bool CTIN_From_Grid_Specific_Points::Get_OppositeNB(CSG_Grid *pResult, CSG_Grid 
 	chi		= SG_Create_Grid(pGrid, SG_DATATYPE_Char);
 
 	// Pass 1: Auszaehlen...
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX()-1; x++)
         {
@@ -375,7 +375,7 @@ bool CTIN_From_Grid_Specific_Points::Get_OppositeNB(CSG_Grid *pResult, CSG_Grid 
 	}
 
 	// Pass 2: Setzen...
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX()-1; x++)
 		{
@@ -417,7 +417,7 @@ bool CTIN_From_Grid_Specific_Points::Get_FlowDirection(CSG_Grid *pResult, CSG_Gr
 
 	pResult->Assign();
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
         {
@@ -459,7 +459,7 @@ bool CTIN_From_Grid_Specific_Points::Get_FlowDirection(CSG_Grid *pResult, CSG_Gr
 		}
 	}
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
         {

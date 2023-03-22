@@ -91,19 +91,22 @@ CGrid_IMCORR::CGrid_IMCORR(void)
 	));
 
 	Add_Reference(
-		"Scambos, T. A., Dutkiewicz, M. J., Wilson, J. C., and R. A. Bindschadler", "1992",
+		"Scambos, T. A., Dutkiewicz, M. J., Wilson, J. C., and Bindschadler, R. A.", "1992",
 		"Application of image cross-correlation to the measurement of glacier velocity using satellite image data",
 		"Remote Sensing Environ., 42(3), 177-186."
 	);
 
 	Add_Reference(
-		"Fahnestock, M. A., Scambos, T.A., and R. A. Bindschadler", "1992",
+		"Fahnestock, M. A., Scambos, T. A., and Bindschadler, R. A.", "1992",
 		"Semi-automated ice velocity determination from satellite imagery",
 		"Eos, 73, 493."
 	);
 
 	Add_Reference(
-		"http://nsidc.org/data/velmap/imcorr.html", SG_T("standalone software and documentation")
+		"Fey, C., Rutzinger, M., Wichmann, V., Prager, C., Bremer, M., and Zangerl, C.", "2015",
+		"Deriving 3D displacement vectors from multi-temporal airborne laser scanning data for landslide activity analyses",
+		"GIScience & Remote Sensing, 52(4), 437-461.",
+		SG_T("https://doi.org/10.1080/15481603.2015.1045278"), SG_T("DOI 10.1080/15481603.2015.1045278")
 	);
 
 	Parameters.Add_Grid(
@@ -1128,18 +1131,18 @@ void CGrid_IMCORR::gnorm(std::vector<double>& CCNORM , std::vector<double>& pkva
 	std::vector<double>ser, ref;
 	//create arrays
 	ser.push_back(0.0); // dummy index to allow fortran conform indexing 
-	for(int i = 0; i<ChipSearch.size(); i++)
+	for(size_t i=0; i<ChipSearch.size(); i++)
 	{
-		for(int ii = 0; ii<ChipSearch[0].size(); ii++)
+		for(size_t ii=0; ii<ChipSearch[0].size(); ii++)
 		{
 			ser.push_back(ChipSearch[i][ii]);
 		}
 	}
 
 	ref.push_back(0.0); // dummy index to allow fortran conform indexing 
-	for(int i = 0; i<ChipRef.size(); i++)
+	for(size_t i=0; i<ChipRef.size(); i++)
 	{
-		for(int ii = 0; ii<ChipRef[0].size(); ii++)
+		for(size_t ii=0; ii<ChipRef[0].size(); ii++)
 		{
 			ref.push_back(ChipRef[i][ii]);
 		}
@@ -1353,13 +1356,13 @@ void CGrid_IMCORR::cross(std::vector<double>& UNORMC , std::vector<std::vector<d
 
 	std::vector<std::vector<double> > ChipRef2;
 	ChipRef2.resize(ChipSearch[0].size());
-	for(int i = 0; i < ChipSearch[0].size(); i++)
+	for(size_t i=0; i<ChipSearch[0].size(); i++)
 		ChipRef2[i].resize(ChipSearch.size(),0.0);
 
 	// zero extent chipref to search chip size
-	for(int i = 0; i<ChipRef.size(); i++)
+	for(size_t i=0; i<ChipRef.size(); i++)
 	{
-		for(int ii = 0; ii<ChipRef[0].size(); ii++)
+		for(size_t ii=0; ii<ChipRef[0].size(); ii++)
 		{
 			ChipRef2[i][ii] = ChipRef[i][ii];
 		}
@@ -1369,18 +1372,18 @@ void CGrid_IMCORR::cross(std::vector<double>& UNORMC , std::vector<std::vector<d
 	std::vector<double>ser, ref;
 	//create arrays
 	ser.push_back(0.0); // dummy index to allow fortran conform indexing 
-	for(int i = 0; i<ChipSearch.size(); i++)
+	for(size_t i=0; i<ChipSearch.size(); i++)
 	{
-		for(int ii = 0; ii<ChipSearch[0].size(); ii++)
+		for(size_t ii=0; ii<ChipSearch[0].size(); ii++)
 		{
 			ser.push_back(ChipSearch[i][ii]);
 		}
 	}
 
 	ref.push_back(0.0); // dummy index to allow fortran conform indexing 
-	for(int i = 0; i<ChipRef2.size(); i++)
+	for(size_t i=0; i<ChipRef2.size(); i++)
 	{
-		for(int ii = 0; ii<ChipRef2[0].size(); ii++)
+		for(size_t ii=0; ii<ChipRef2[0].size(); ii++)
 		{
 			ref.push_back(ChipRef2[i][ii]);
 		}
@@ -1395,7 +1398,7 @@ void CGrid_IMCORR::cross(std::vector<double>& UNORMC , std::vector<std::vector<d
 	std::vector<double>cser, cref;
 	cser.push_back(0.0);
 	cref.push_back(0.0);
-	for (int i = 1; i < ser.size(); i++)
+	for (size_t i=1; i<ser.size(); i++)
 	{
 		cser.push_back(ser[i]);
 		cser.push_back(0.0);
@@ -1408,7 +1411,7 @@ void CGrid_IMCORR::cross(std::vector<double>& UNORMC , std::vector<std::vector<d
 	fft2(cref,nsnew,1);
 
 	// make point by multiplication of ft of search ft with conjugate of reference image
-	for(int i = 1; i<cser.size(); i+=2)
+	for(size_t i=1; i<cser.size(); i+=2)
 	{
 		// cser[i] = cser[i] * conjg(cref[i])
 		double temp_cser_real = cser[i];
@@ -1554,7 +1557,7 @@ void CGrid_IMCORR::fft2(std::vector<double>& data, std::vector<int>nel, int isig
 int CGrid_IMCORR::decimal(std::vector<int> Bin) 
 {
 	int Sum = 0;
-	for (int i = 0; i < Bin.size(); i++)
+	for (size_t i=0; i<Bin.size(); i++)
 	{	
 		int Exponent = (int)(Bin.size()-1)-i;
 		Sum+= Bin[i] * (int)pow(2.0, Exponent);

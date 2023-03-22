@@ -139,7 +139,7 @@ bool CFragmentation_Standard::Initialise(CSG_Grid *pClasses, int Class)
 	m_Grid.Create(Get_System(), SG_DATATYPE_Char);
 	m_Grid.Set_NoData_Value(VAL_NODATA);
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{

@@ -72,7 +72,7 @@ bool CAHP::On_Execute(void){
 	if( (pGridsList = Parameters("GRIDS")->asGridList()) != 
 			NULL && pGridsList->Get_Grid_Count() > 0 ){
 		if (pTable->Get_Field_Count() != pGridsList->Get_Grid_Count() ||
-				pTable->Get_Record_Count() < pGridsList->Get_Grid_Count()){
+				pTable->Get_Count() < pGridsList->Get_Grid_Count()){
 			Message_Add(_TL("Error : Wrong table. Check table dimensions"));
 			return false;
 		}//if
@@ -110,7 +110,7 @@ bool CAHP::On_Execute(void){
 		for (i = 0; i<pGridsList->Get_Grid_Count(); i++){
 			pGrids[i] = pGridsList->Get_Grid(i); 
 		}//for
-		for(y=0; y<Get_NY() && Set_Progress(y); y++){
+		for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++){
 			for(x=0; x<Get_NX(); x++){
 				fValue = 0;
 				for (i = 0; i<pGridsList->Get_Grid_Count(); i++){

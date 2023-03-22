@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: polygon_flatten.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "polygon_flatten.h"
 
 
@@ -70,7 +58,6 @@
 //---------------------------------------------------------
 CPolygon_Flatten::CPolygon_Flatten(void)
 {
-	//-----------------------------------------------------
 	Set_Name	(_TL("Flatten Polygon Layer"));
 
 	Set_Author	("O.Conrad (c) 2014");
@@ -83,17 +70,8 @@ CPolygon_Flatten::CPolygon_Flatten(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		NULL	, "INPUT"		, _TL("Input"),
-		_TL(""),
-		PARAMETER_INPUT, SHAPE_TYPE_Polygon
-	);
-
-	Parameters.Add_Shapes(
-		NULL	, "OUTPUT"		, _TL("Output"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
-	);
+	Parameters.Add_Shapes("", "INPUT" , _TL("Input" ), _TL(""), PARAMETER_INPUT          , SHAPE_TYPE_Polygon);
+	Parameters.Add_Shapes("", "OUTPUT", _TL("Output"), _TL(""), PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon);
 }
 
 
@@ -104,7 +82,7 @@ CPolygon_Flatten::CPolygon_Flatten(void)
 //---------------------------------------------------------
 bool CPolygon_Flatten::On_Execute(void)
 {
-	CSG_Shapes	*pShapes	= Parameters("INPUT")->asShapes();
+	CSG_Shapes *pShapes = Parameters("INPUT")->asShapes();
 
 	if( !pShapes->is_Valid() || pShapes->Get_Count() <= 1 )
 	{
@@ -121,42 +99,41 @@ bool CPolygon_Flatten::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int		i, j, k, n;
-
-	int		*Container	= (int *)SG_Malloc(pShapes->Get_Count() * sizeof(int));
+	sLong n = 0, *Container = (sLong *)SG_Malloc(pShapes->Get_Count() * sizeof(sLong));
 
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("find inner rings"));
 
-	for(i=0, n=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
+	for(sLong i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
 	{
-		CSG_Shape	*pShape	= pShapes->Get_Shape(i);
+		CSG_Shape *pShape = pShapes->Get_Shape(i);
 
 		if( !pShape->is_Valid() )
 		{
-			Container[i]	= -2;
+			Container[i] = -2;
 		}
 		else
 		{
-			for(j=0, k=-1; k<0 && j<pShapes->Get_Count(); j++)
+			sLong k = -1;
+
+			for(sLong j=0; k<0 && j<pShapes->Get_Count(); j++)
 			{
 				if( j > i || (j < i && Container[j] != i) )
 				{
-					CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pShapes->Get_Shape(j);
+					CSG_Shape_Polygon *pPolygon = (CSG_Shape_Polygon *)pShapes->Get_Shape(j);
 
 					if( pPolygon->Intersects(pShape) == INTERSECTION_Contains )
 					{
-						k	= j;
-						n	++;
+						k = j; n++;
 					}
 				}
 			}
 
-			Container[i]	= k;
+			Container[i] = k;
 		}
 	}
 
-	Message_Fmt("\n%s: %d", _TL("number of inner rings"), n);
+	Message_Fmt("\n%s: %lld", _TL("number of inner rings"), n);
 
 	if( n == 0 )
 	{
@@ -168,19 +145,21 @@ bool CPolygon_Flatten::On_Execute(void)
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("solve inner rings"));
 
-	for(i=0, n=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
+	n = 0;
+
+	for(sLong i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
 	{
 		if( Container[i] >= 0 )
 		{
-			j	= Container[i];
+			sLong j = Container[i];
 
 			while( Container[j] >= 0 )
 			{
-				j	= Container[j];
+				j = Container[j];
 			}
 
-			CSG_Shape	*pOuter	= pShapes->Get_Shape(j);
-			CSG_Shape	*pInner	= pShapes->Get_Shape(i);
+			CSG_Shape *pOuter = pShapes->Get_Shape(j);
+			CSG_Shape *pInner = pShapes->Get_Shape(i);
 
 			for(int iPart=0; iPart<pInner->Get_Part_Count(); iPart++)
 			{
@@ -199,7 +178,7 @@ bool CPolygon_Flatten::On_Execute(void)
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("clean inner rings"));
 
-	for(i=0, j=pShapes->Get_Count()-1; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++, j--)
+	for(sLong i=0, j=pShapes->Get_Count()-1; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++, j--)
 	{
 		if( Container[j] != -1 )	// valid outer ring
 		{

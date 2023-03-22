@@ -196,7 +196,7 @@ bool CPointCloud_Create_SPCVF::On_Execute(void)
 
 		sFiles.Clear();
 
-		for (int i=0; i<pTable->Get_Record_Count(); i++)
+		for (sLong i=0; i<pTable->Get_Count(); i++)
 		{
 			sFiles.Add(pTable->Get_Record(i)->asString(0));
 		}
@@ -493,7 +493,7 @@ bool CPointCloud_Create_SPCVF::On_Execute(void)
 			}
 
 			//-----------------------------------------------------
-			if( pPC->Get_Point_Count() <= 0 )
+			if( pPC->Get_Count() <= 0 )
 			{
 				delete( pPC );
 				iEmpty++;
@@ -516,7 +516,7 @@ bool CPointCloud_Create_SPCVF::On_Execute(void)
 
 			pDataset->Add_Property("File", sFilePath);
 
-			pDataset->Add_Property("Points", pPC->Get_Point_Count());
+			pDataset->Add_Property("Points", (int)pPC->Get_Count());
 
 			pDataset->Add_Property("ZMin", pPC->Get_ZMin());
 			pDataset->Add_Property("ZMax", pPC->Get_ZMax());
@@ -539,7 +539,7 @@ bool CPointCloud_Create_SPCVF::On_Execute(void)
 				dBBoxYMax = pPC->Get_Extent().Get_YMax();
 		
 			iDatasetCount	+= 1;
-			dPointCount		+= pPC->Get_Point_Count();
+			dPointCount		+= pPC->Get_Count();
 
 			if( dZMin > pPC->Get_ZMin() )
 				dZMin = pPC->Get_ZMin();

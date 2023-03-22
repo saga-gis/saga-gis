@@ -107,11 +107,16 @@ public:
 	virtual wxStatusBar *		OnCreateStatusBar			(int number, long style, wxWindowID id, const wxString& name);
 
 	virtual void				Tile						(wxOrientation orient = wxHORIZONTAL);
+	void						Split						(int Arrange);
 
+	bool						Arrange_Children			(int Arrange);
 	void						Close_Children				(void);
+
 	void						On_Child_Activates			(int View_ID);
 	void						On_Child_Created			(void) { m_nChildren++; }
 	void						On_Child_Deleted			(void) { m_nChildren--; }
+
+	class CVIEW_Base *			Get_Active_Child			(int View_ID = -1);
 
 	void						Set_Pane_Caption			(wxWindow *pWindow, const wxString &Caption);
 

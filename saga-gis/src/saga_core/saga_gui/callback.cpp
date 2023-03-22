@@ -53,6 +53,7 @@
 #include "helper.h"
 
 #include "wksp_data_manager.h"
+#include "wksp_map_manager.h"
 #include "wksp_tool.h"
 #include "data_source.h"
 
@@ -298,6 +299,22 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 
 	//-----------------------------------------------------
+	case CALLBACK_SET_MAP_EXTENT:
+
+		Result	= g_pMaps->Set_Extent(*((CSG_Rect *)Param_1.Pointer), (int)Param_2.Number) ? 1 : 0;
+
+		break;
+
+
+	//-----------------------------------------------------
+	case CALLBACK_DIAGRAM_SHOW:
+
+		Result	= g_pData->Show_Diagram((CSG_Table *)Param_1.Pointer, (CSG_Parameters *)Param_2.Pointer) ? 1 : 0;
+
+		break;
+
+
+	//-----------------------------------------------------
 	case CALLBACK_DATABASE_UPDATE:
 
 		Result	= g_pData_Source->Update_Database(Param_1.String.c_str()) ? 1 : 0;
@@ -310,7 +327,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	///////////////////////////////////////////////////////
 
 	//-----------------------------------------------------
-	case CALLBACK_GUI_GET_WINDOW:
+	case CALLBACK_GET_APP_WINDOW:
 
 		Param_1.Pointer	= MDI_Get_Frame();
 

@@ -340,9 +340,9 @@ bool CPC_Reclass_Extract::On_Execute(void)
 	}
 
 	if( m_bExtract)
-		SG_UI_Msg_Add(CSG_String::Format(_TL("%d points out of %d extracted."), m_pInput->Get_Point_Count()-m_iOrig, m_pInput->Get_Point_Count()), true);
+		SG_UI_Msg_Add(CSG_String::Format(_TL("%lld points out of %lld extracted."   ), m_pInput->Get_Count()-m_iOrig, m_pInput->Get_Count()), true);
 	else
-		SG_UI_Msg_Add(CSG_String::Format(_TL("%d points out of %d reclassified."), m_pInput->Get_Point_Count()-m_iOrig, m_pInput->Get_Point_Count()), true);
+		SG_UI_Msg_Add(CSG_String::Format(_TL("%lld points out of %lld reclassified."), m_pInput->Get_Count()-m_iOrig, m_pInput->Get_Count()), true);
 
 
 	return( true );
@@ -379,7 +379,7 @@ void CPC_Reclass_Extract::Reclass_Range(void)
 	else
 		floating = false;
 
-	for (int i=0; i<m_pInput->Get_Point_Count() && Set_Progress(i, m_pInput->Get_Point_Count()); i++)
+	for (sLong i=0; i<m_pInput->Get_Count() && Set_Progress(i, m_pInput->Get_Count()); i++)
 	{
 		if( floating == true )
 			value = m_pInput->Get_Value(i, m_AttrField);
@@ -448,7 +448,7 @@ void CPC_Reclass_Extract::Reclass_Single(void)
 		floating = false;
 
 
-	for (int i=0; i<m_pInput->Get_Point_Count() && Set_Progress(i, m_pInput->Get_Point_Count()); i++)
+	for (sLong i=0; i<m_pInput->Get_Count() && Set_Progress(i, m_pInput->Get_Count()); i++)
 	{
 		if( floating == true )
 			value = m_pInput->Get_Value(i, m_AttrField);
@@ -587,19 +587,19 @@ bool CPC_Reclass_Extract::Reclass_Table(bool bUser)
 		return( false );
 	}
 
-	if( pReTab->Get_Record_Count() == 0 )
+	if( pReTab->Get_Count() == 0 )
 	{
 		Error_Set(_TL("You must specify a reclass table with a minimium of one record!\n"));
 		return( false );
 	}
 
 
-	for (int i=0; i<m_pInput->Get_Point_Count() && Set_Progress(i, m_pInput->Get_Point_Count()); i++)
+	for (sLong i=0; i<m_pInput->Get_Count() && Set_Progress(i, m_pInput->Get_Count()); i++)
 	{
 		value	= m_pInput->Get_Value(i, m_AttrField);
 		set		= false;
 
-		for(int iRecord=0; iRecord<pReTab->Get_Record_Count(); iRecord++)									// reclass
+		for(sLong iRecord=0; iRecord<pReTab->Get_Count(); iRecord++)	// reclass
 		{
 			pRecord		= pReTab->Get_Record(iRecord);
 

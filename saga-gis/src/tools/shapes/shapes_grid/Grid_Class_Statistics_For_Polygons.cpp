@@ -179,7 +179,7 @@ bool CGrid_Class_Statistics_For_Polygons::On_Execute(void)
 
 		pResult->Create(SHAPE_TYPE_Polygon, CSG_String::Format("%s [%s]", pPolygons->Get_Name(), _TL("Grid Classes")));
 
-		for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
+		for(sLong i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 		{
 			pResult->Add_Shape(pPolygons->Get_Shape(i), SHAPE_COPY_GEOM);
 		}
@@ -207,7 +207,7 @@ bool CGrid_Class_Statistics_For_Polygons::On_Execute(void)
 	//-----------------------------------------------------
 	if( Parameters("PROCESS")->asInt() == 1 )
 	{
-		for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
+		for(sLong i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 		{
 			CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(i);
 
@@ -245,7 +245,7 @@ bool CGrid_Class_Statistics_For_Polygons::On_Execute(void)
 	//-----------------------------------------------------
 	else
 	{
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			double	yWorld	= Get_YMin() + y * Get_Cellsize();
 
@@ -357,7 +357,7 @@ bool CGrid_Class_Statistics_For_Polygons::Get_Classes(CSG_Grid *pGrid, CSG_Shape
 	{
 		CSG_Category_Statistics	Classes(pGrid->Get_Type());
 
-		for(sLong iCell=0; iCell<pGrid->Get_NCells() && Set_Progress_NCells(iCell); iCell++)
+		for(sLong iCell=0; iCell<pGrid->Get_NCells() && Set_Progress_Cells(iCell); iCell++)
 		{
 			if( !pGrid->is_NoData(iCell) )
 			{

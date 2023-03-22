@@ -96,26 +96,20 @@ bool CSG_Tool_Grid::Set_System(const CSG_Grid_System &System)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Tool_Grid::Set_Progress_NCells(sLong iCell)	const
+bool CSG_Tool_Grid::Set_Progress_Cells(sLong Cell)	const
 {
 	if( Get_System().is_Valid() )
 	{
-		return( CSG_Tool::Set_Progress((double)iCell, (double)Get_NCells()) );
+		return( CSG_Tool::Set_Progress((double)Cell, (double)Get_NCells() - 1.) );
 	}
 
 	return( is_Progress() );
 }
 
 //---------------------------------------------------------
-bool CSG_Tool_Grid::Set_Progress(int iRow)	const
+bool CSG_Tool_Grid::Set_Progress_Rows(int Row)	const
 {
-	return( CSG_Tool::Set_Progress(iRow, Get_NY() - 1) );
-}
-
-//---------------------------------------------------------
-bool CSG_Tool_Grid::Set_Progress(double Position, double Range)	const
-{
-	return( CSG_Tool::Set_Progress(Position, Range) );
+	return( CSG_Tool::Set_Progress((double)Row, (double)Get_NY() - 1.) );
 }
 
 

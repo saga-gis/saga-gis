@@ -244,7 +244,7 @@ bool CShapes_Buffer::Get_Buffers(CSG_Shapes *pShapes, int Field, CSG_Shapes *pBu
 	}
 
 	//-----------------------------------------------------
-	for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 	{
 		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
 

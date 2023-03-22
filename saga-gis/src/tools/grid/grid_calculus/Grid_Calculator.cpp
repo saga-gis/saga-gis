@@ -149,7 +149,7 @@ int CGrid_Calculator_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 {
 	if( pParameter->Cmp_Identifier("XGRIDS") )
 	{
-		pParameters->Set_Enabled("RESAMPLING", pParameter->asList()->Get_Data_Count() > 0);
+		pParameters->Set_Enabled("RESAMPLING", pParameter->asList()->Get_Item_Count() > 0);
 	}
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
@@ -188,9 +188,9 @@ CSG_Data_Object * CGrid_Calculator_Base::Preprocess_Get_Object(const CSG_String 
 	{
 		CSG_String Index(Argument.c_str() + 1); int i;
 
-		if( Index.asInt(i) && --i >= 0 && i < pList->Get_Data_Count() )
+		if( Index.asInt(i) && --i >= 0 && i < (pList->asGridList() ? pList->asGridList()->Get_Grid_Count() : pList->Get_Item_Count()) )
 		{
-			return( pList->Get_Data(i) );
+			return( (pList->asGridList() ? pList->asGridList()->Get_Grid(i) : pList->Get_Item(i)) );
 		}
 	}
 
@@ -490,7 +490,7 @@ bool CGrid_Calculator::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -680,7 +680,7 @@ bool CGrids_Calculator::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)

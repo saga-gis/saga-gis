@@ -434,10 +434,10 @@ bool CPDAL_Writer_Las::On_Execute(void)
 
 
     //---------------------------------------------------------
-    for( int i=0; i<pPoints->Get_Count(); i++ )
+    for(sLong i=0; i<pPoints->Get_Count(); i++ )
     {
         if (i % 100000 == 0)
-            SG_UI_Process_Set_Progress(i, pPoints->Get_Count() * 2.0);
+            SG_UI_Process_Set_Progress(i, pPoints->Get_Count() * 2);
 
         View->setField(pdal::Dimension::Id::X, i, pPoints->Get_X(i));
         View->setField(pdal::Dimension::Id::Y, i, pPoints->Get_Y(i));

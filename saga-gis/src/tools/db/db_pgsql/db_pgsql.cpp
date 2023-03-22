@@ -962,7 +962,7 @@ bool CSG_PG_Connection::Table_Insert(const CSG_String &_Table_Name, const CSG_Ta
 	//-----------------------------------------------------
 	bool	bResult	= true;
 
-	for(int iRecord=0; iRecord<Table.Get_Count() && bResult && SG_UI_Process_Set_Progress(iRecord, Table.Get_Count()); iRecord++)
+	for(sLong iRecord=0; iRecord<Table.Get_Count() && bResult && SG_UI_Process_Set_Progress(iRecord, Table.Get_Count()); iRecord++)
 	{
 		CSG_Table_Record	*pRecord	= Table.Get_Record(iRecord);
 
@@ -1674,7 +1674,7 @@ bool CSG_PG_Connection::Shapes_Insert(CSG_Shapes *pShapes, const CSG_String &_ge
 	//-----------------------------------------------------
 	bool	bResult	= true;
 
-	for(int iShape=0; iShape<pShapes->Get_Count() && bResult && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<pShapes->Get_Count() && bResult && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 	{
 		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
 

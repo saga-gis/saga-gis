@@ -72,10 +72,12 @@
 class CVIEW_Table_Diagram : public CVIEW_Base
 {
 public:
-	CVIEW_Table_Diagram(class CWKSP_Table *pTable);
+	CVIEW_Table_Diagram(class CWKSP_Table *pTable, class CSG_Parameters *pParameters = NULL);
 
 	static class wxToolBarBase *		_Create_ToolBar		(void);
 	static class wxMenu *				_Create_Menu		(void);
+
+	bool								Update_Parameters	(class CSG_Parameters *pParameters);
 
 	virtual void						Do_Update			(void);
 

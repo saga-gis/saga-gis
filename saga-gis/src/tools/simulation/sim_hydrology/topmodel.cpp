@@ -278,7 +278,7 @@ bool CTOPMODEL::On_Execute(void)
 	nClasses		= Parameters("NCLASSES"   )->asInt   ();
 	bInfiltration	= Parameters("BINF"       )->asBool  ();
 
-	nTimeSteps		= m_pWeather->Get_Record_Count();
+	nTimeSteps		= m_pWeather->Get_Count();
 
 	if( (pMoist = Parameters("MOIST")->asGrid()) != NULL )
 	{

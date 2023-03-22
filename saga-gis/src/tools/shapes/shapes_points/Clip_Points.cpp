@@ -170,7 +170,7 @@ bool CClip_Points::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
+	for(sLong iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
 	{
 		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
 
@@ -190,7 +190,7 @@ bool CClip_Points::On_Execute(void)
 			}
 		}
 
-		for(int iPoint=0; iPoint<pPoints->Get_Count() && Process_Get_Okay(false); iPoint++)
+		for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Process_Get_Okay(false); iPoint++)
 		{
 			CSG_Shape	*pPoint	= pPoints->Get_Shape(iPoint);
 

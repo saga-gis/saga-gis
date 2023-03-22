@@ -136,15 +136,13 @@ bool CTL_Union::On_Execute(void)
 	int	Method	= Parameters("METHOD")->asInt();
 
 	//-----------------------------------------------------
-	for(int i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
+	for(sLong i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
 	{
-		CSG_Table_Record	*pRecord	= pTable->Get_Record(i);
-
-		CSG_String	Translation;
+		CSG_Table_Record *pRecord = pTable->Get_Record(i); CSG_String Translation;
 
 		switch( Method )
 		{
-		default:	// replace all
+		default :	// replace all
 			if( Translator.Get_Translation(pRecord->asString(0), Translation) )
 			{
 				pRecord->Set_Value(1, Translation);

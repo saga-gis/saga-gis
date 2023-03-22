@@ -227,7 +227,7 @@ bool CTable_Calculator_Base::On_Execute(void)
 {
 	CSG_Table *pTable = Parameters("TABLE")->asTable();
 
-	if( !pTable->is_Valid() || pTable->Get_Field_Count() <= 0 || pTable->Get_Record_Count() <= 0 )
+	if( !pTable->is_Valid() || pTable->Get_Field_Count() <= 0 || pTable->Get_Count() <= 0 )
 	{
 		Error_Set(_TL("invalid table"));
 
@@ -277,14 +277,14 @@ bool CTable_Calculator_Base::On_Execute(void)
 
 	if( pTable->Get_Selection_Count() > 0 && Parameters("SELECTION")->asBool() )
 	{
-		for(size_t i=0; i<pTable->Get_Selection_Count() && Set_Progress((int)i, (int)pTable->Get_Selection_Count()); i++)
+		for(sLong i=0; i<pTable->Get_Selection_Count() && Set_Progress(i, pTable->Get_Selection_Count()); i++)
 		{
 			Get_Value(pTable->Get_Selection(i));
 		}
 	}
 	else
 	{
-		for(int i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
+		for(sLong i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
 		{
 			Get_Value(pTable->Get_Record(i));
 		}
@@ -307,11 +307,11 @@ bool CTable_Calculator_Base::On_Execute(void)
 //---------------------------------------------------------
 bool CTable_Calculator_Base::Get_Value(CSG_Table_Record *pRecord)
 {
-	CSG_Vector Values(m_Values.Get_Size());
+	CSG_Vector Values(m_Values.Get_uSize());
 
 	bool bNoData = false;
 
-	for(int i=0; i<m_Values.Get_Size(); i++)
+	for(sLong i=0; i<m_Values.Get_Size(); i++)
 	{
 		Values[i] = pRecord->asDouble(m_Values[i]);
 

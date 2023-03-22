@@ -168,7 +168,7 @@ bool CGrid_Classes_To_Shapes::Get_Classes(void)
 
 	m_pPolygons->Create(SHAPE_TYPE_Polygon);
 
-	m_pPolygons->Add_Field("ID"   , SG_DATATYPE_Int   );
+	m_pPolygons->Add_Field("ID"   , SG_DATATYPE_Long  );
 	m_pPolygons->Add_Field("VALUE", pGrid->Get_Type ());
 	m_pPolygons->Add_Field("NAME" , SG_DATATYPE_String);
 
@@ -210,7 +210,7 @@ bool CGrid_Classes_To_Shapes::Get_Classes(void)
 
 		int	x, y, id	= -1;
 
-		for(sLong i=0; i<Get_NCells() && Set_Progress_NCells(i); i++)
+		for(sLong i=0; i<Get_NCells() && Set_Progress_Cells(i); i++)
 		{
 			if( pGrid->Get_Sorted(i, x, y, false) )
 			{
@@ -237,7 +237,7 @@ bool CGrid_Classes_To_Shapes::Get_Classes(void)
 		pPolygon->Set_Value(1, Value = Parameters("CLASS_ID")->asDouble());
 		pPolygon->Set_Value(2, Get_Class_Name(Value, pLUT));
 
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			for(int x=0; x<Get_NX(); x++)
 			{
@@ -262,7 +262,7 @@ CSG_String CGrid_Classes_To_Shapes::Get_Class_Name(double Value, CSG_Table *pLUT
 {
 	if( pLUT )	// using LUT ?
 	{
-		for(int i=0; i<pLUT->Get_Count(); i++)
+		for(sLong i=0; i<pLUT->Get_Count(); i++)
 		{
 			CSG_Table_Record	*pClass	= pLUT->Get_Record(i);
 
@@ -465,7 +465,7 @@ bool CGrid_Classes_To_Shapes::Split_Polygons(void)
 
 	m_pPolygons->Del_Records();
 
-	for(int iPolygon=0; iPolygon<Polygons.Get_Count() && Set_Progress(iPolygon, Polygons.Get_Count()); iPolygon++)
+	for(sLong iPolygon=0; iPolygon<Polygons.Get_Count() && Set_Progress(iPolygon, Polygons.Get_Count()); iPolygon++)
 	{
 		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)Polygons.Get_Shape(iPolygon);
 

@@ -75,7 +75,7 @@ bool Cdirectional1::On_Execute(void)
 	{
 		cosi = co / si;
 		r2si = r2 / sqrt(si2);
-		for(y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			for(x=0; x<Get_NX(); x++)
 			{
@@ -112,7 +112,7 @@ bool Cdirectional1::On_Execute(void)
 	{
 		sico = si / co;
 		r2co = r2 / sqrt(co2);
-		for(y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			for(x=0; x<Get_NX(); x++)
 			{

@@ -97,7 +97,7 @@ bool CThresholdBuffer::On_Execute(void){
 
 	m_pBuffer->Assign((double)0);
 
-    for(int y=0; y<Get_NY() && Set_Progress(y); y++){
+    for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++){
 		for(int x=0; x<Get_NX(); x++){
             dValue = m_pFeatures->asDouble(x,y);
 			if (dValue != 0 && !m_pFeatures->is_NoData(x,y)){

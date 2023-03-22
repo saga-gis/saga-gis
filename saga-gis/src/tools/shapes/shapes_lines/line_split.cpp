@@ -168,7 +168,7 @@ bool CCut_Lines::On_Execute(void)
 	double 	Distance_Overhang = 0.;
 	bool 	Switch_To_Default = false;
 
-	for( int i=0; i<pInputLines->Get_Count(); i++ )
+	for( sLong i=0; i<pInputLines->Get_Count(); i++ )
 	{
 		CSG_Shape_Line *pLine = pInputLines->Get_Shape(i)->asLine();
 
@@ -238,7 +238,7 @@ bool CCut_Lines::On_Execute(void)
 
 				// This loop investigates all segments. A segment is a
 				// line between two points so n-1 operations (k=1)
-				for( int k=1; k<pPart->Get_Count(); k++ )
+				for( sLong k=1; k<pPart->Get_Count(); k++ )
 				{
 					// Investigate the next segment, get the length and reductor
 					TSG_Point Front = pPart->Get_Point(k-1);

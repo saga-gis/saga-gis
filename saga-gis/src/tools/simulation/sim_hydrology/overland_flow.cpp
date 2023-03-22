@@ -401,7 +401,7 @@ bool COverland_Flow::Initialize(void)
 		DataObject_Set_Colors(m_pVelocity , Colors);
 	}
 
-	DataObject_Update(m_pFlow, SG_UI_DATAOBJECT_SHOW);	// show in new map
+	DataObject_Update(m_pFlow, SG_UI_DATAOBJECT_SHOW_MAP);	// show in new map
 
 	//-----------------------------------------------------
 	m_Flow.Create(Get_System()       , SG_DATATYPE_Float);

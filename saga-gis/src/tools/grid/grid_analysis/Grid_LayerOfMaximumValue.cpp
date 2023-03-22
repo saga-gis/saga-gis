@@ -76,7 +76,7 @@ bool CLayerOfMaximumValue::On_Execute(void)
 	//-----------------------------------------------------
 	if( nGrids > 1 )
 	{
-		for(y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			for(x=0; x<Get_NX(); x++)
 			{

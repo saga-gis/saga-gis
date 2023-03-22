@@ -155,7 +155,7 @@ bool CGrid_Value_Replace_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG
 
 	case TOOL_INTERACTIVE_LUP:
 		{
-			DataObject_Update(m_pGrid, SG_UI_DATAOBJECT_UPDATE_ONLY);
+			DataObject_Update(m_pGrid, SG_UI_DATAOBJECT_UPDATE);
 		}
 		return( true );
 

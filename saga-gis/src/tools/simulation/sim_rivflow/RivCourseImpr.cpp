@@ -154,12 +154,12 @@ bool CRivCourseImpr::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive
 		else
 			m_pDTM->Set_Value( iX, iY, minVal );
 	
-		DataObject_Update(m_pDTM, SG_UI_DATAOBJECT_UPDATE_ONLY);
+		DataObject_Update(m_pDTM, SG_UI_DATAOBJECT_UPDATE);
 	}
 	else
 	{
 		m_pDTM->Set_Value( iX, iY, dValue - m_pDiffH );
-		DataObject_Update(m_pDTM, SG_UI_DATAOBJECT_UPDATE_ONLY);
+		DataObject_Update(m_pDTM, SG_UI_DATAOBJECT_UPDATE);
 	}
 
 	return (true);

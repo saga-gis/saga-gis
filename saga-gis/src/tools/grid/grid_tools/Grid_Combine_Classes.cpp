@@ -136,7 +136,7 @@ bool CGrid_Combine_Classes::Set_Classes(CSG_Parameters *pParameters)
 	//-----------------------------------------------------
 	CSG_String	Classes;
 
-	for(int i=0; i<LUT.Get_Count(); i++)
+	for(sLong i=0; i<LUT.Get_Count(); i++)
 	{
 		if( i > 0 )
 		{
@@ -151,9 +151,9 @@ bool CGrid_Combine_Classes::Set_Classes(CSG_Parameters *pParameters)
 
 	pClasses->Del_Parameters();
 
-	for(int i=0; i<LUT.Get_Count(); i++)
+	for(sLong i=0; i<LUT.Get_Count(); i++)
 	{
-		pClasses->Add_Choice("", CSG_String::Format("CLASS%d", i), LUT[i].asString(1), "", Classes, i);
+		pClasses->Add_Choice("", CSG_String::Format("CLASS%lld", i), LUT[i].asString(1), "", Classes, i);
 	}
 
 	//-----------------------------------------------------
@@ -218,7 +218,7 @@ bool CGrid_Combine_Classes::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#ifndef _DEBUG
 		#pragma omp parallel for
@@ -239,7 +239,7 @@ bool CGrid_Combine_Classes::On_Execute(void)
 
 	pLUT->asTable()->Del_Records();
 
-	for(int i=0; i<LUT.Get_Count(); i++)
+	for(sLong i=0; i<LUT.Get_Count(); i++)
 	{
 		bool	bAdd	= false;
 
@@ -279,7 +279,7 @@ bool CGrid_Combine_Classes::On_Execute(void)
 //---------------------------------------------------------
 int CGrid_Combine_Classes::Get_Class(const CSG_Table &LUT, double Value)
 {
-	for(int i=0; i<LUT.Get_Count(); i++)
+	for(sLong i=0; i<LUT.Get_Count(); i++)
 	{
 		if( LUT[i].asDouble(3) <= Value && Value <= LUT[i].asDouble(4) )
 		{

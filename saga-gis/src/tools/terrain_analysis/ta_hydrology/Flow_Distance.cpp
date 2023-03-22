@@ -167,7 +167,7 @@ bool CFlow_Distance::On_Execute(void)
 	}
 
 	//-------------------------------------------------
-	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(sLong n=0; n<Get_NCells() && Set_Progress_Cells(n); n++)
 	{
 		m_pDTM->Get_Sorted(n, x, y, true, false);
 

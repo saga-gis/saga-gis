@@ -319,9 +319,9 @@ bool CSurfer_BLN_Export::On_Execute(void)
 	int Flag	= 1;
 
 	//-----------------------------------------------------
-	for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 	{
-		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+		CSG_Shape *pShape = pShapes->Get_Shape(iShape);
 
 		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{

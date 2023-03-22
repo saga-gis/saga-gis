@@ -192,7 +192,7 @@ bool CPoint_Grid_Regression::Get_Regression(CSG_Regression &Regression)
 	}
 
 	//-----------------------------------------------------
-	for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 	{
 		CSG_Shape *pShape = pShapes->Get_Shape(iShape);
 
@@ -254,7 +254,7 @@ bool CPoint_Grid_Regression::Set_Regression(const CSG_Regression &Regression)
 
 	pRegression->Fmt_Name("%s [%s]", Parameters("ATTRIBUTE")->asString(), _TL("Regression Model"));
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -289,7 +289,7 @@ bool CPoint_Grid_Regression::Set_Residuals(const CSG_Regression &Regression)
 	}
 
 	#pragma omp parallel for
-	for(int iPoint=0; iPoint<pResiduals->Get_Count(); iPoint++)
+	for(sLong iPoint=0; iPoint<pResiduals->Get_Count(); iPoint++)
 	{
 		CSG_Shape *pPoint = pResiduals->Get_Shape(iPoint);
 			

@@ -113,7 +113,7 @@ bool CGrid_Difference::On_Execute(void)
 	DataObject_Set_Colors(pC, 11, SG_COLORS_RED_GREY_BLUE);
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -186,7 +186,7 @@ bool CGrid_Division::On_Execute(void)
 	DataObject_Set_Colors(pC, 11, SG_COLORS_RED_GREY_BLUE);
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -267,7 +267,7 @@ bool CGrids_Sum::On_Execute(void)
 	bool	bNoData	= Parameters("NODATA")->asBool();
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -360,7 +360,7 @@ bool CGrids_Product::On_Execute(void)
 	bool	bNoData	= Parameters("NODATA")->asBool();
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)

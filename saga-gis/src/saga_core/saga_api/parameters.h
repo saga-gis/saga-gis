@@ -1017,6 +1017,8 @@ public:
 
 	CSG_Table *					Get_Table				(void)	const;
 
+	static CSG_String			Get_Choices				(const class CSG_Table &Table, bool bAllowNone = false);
+
 
 protected:
 
@@ -1324,9 +1326,6 @@ public:
 
 	virtual bool				Update_Data				(void)	{	return( true );	}
 
-	virtual int					Get_Data_Count			(void)		const	{	return( Get_Item_Count() );	}
-	virtual CSG_Data_Object *	Get_Data				(int Index)	const	{	return( Get_Item(Index) );	}
-
 
 protected:
 
@@ -1371,11 +1370,8 @@ public:
 
 	virtual bool				Update_Data				(void);
 
-	virtual int					Get_Data_Count			(void)		const	{	return( Get_Grid_Count() );	}
-	virtual CSG_Data_Object *	Get_Data				(int Index)	const	{	return( (CSG_Data_Object *)Get_Grid(Index) );	}
-
 	int							Get_Grid_Count			(void)		const	{	return( (int)m_Grids.Get_Size() );	}
-	CSG_Grid *					Get_Grid				(int Index)	const	{	return( Index >= 0 && Index < Get_Data_Count() ? (CSG_Grid *)m_Grids[Index] : NULL );	}
+	CSG_Grid *					Get_Grid				(int Index)	const	{	return( Index >= 0 && Index < Get_Grid_Count() ? (CSG_Grid *)m_Grids[Index] : NULL );	}
 
 
 protected:

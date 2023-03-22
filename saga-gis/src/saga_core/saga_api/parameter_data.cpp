@@ -1134,7 +1134,7 @@ void CSG_Parameter_Choices::_Set_String(void)
 {
 	m_String.Clear();
 
-	for(size_t i=0; i<m_Selection.Get_Size(); i++)
+	for(size_t i=0; i<m_Selection.Get_uSize(); i++)
 	{
 		m_String	+= CSG_String::Format("%d;", m_Selection[i]);
 	}
@@ -1201,7 +1201,7 @@ void CSG_Parameter_Choices::Add_Item(const CSG_String &Item, const CSG_String &D
 //---------------------------------------------------------
 bool CSG_Parameter_Choices::is_Selected(int Index)
 {
-	for(size_t i=0; i<m_Selection.Get_Size(); i++)
+	for(size_t i=0; i<m_Selection.Get_uSize(); i++)
 	{
 		if( Index == m_Selection[i] )
 		{
@@ -1223,11 +1223,11 @@ bool CSG_Parameter_Choices::Select(int Index, bool bSelect)
 		}
 		else if( !bSelect )
 		{
-			for(size_t i=0; i<m_Selection.Get_Size(); i++)
+			for(size_t i=0; i<m_Selection.Get_uSize(); i++)
 			{
 				if( Index == m_Selection[i] )
 				{
-					for(size_t j=i+1; j<m_Selection.Get_Size(); i++, j++)
+					for(size_t j=i+1; j<m_Selection.Get_uSize(); i++, j++)
 					{
 						m_Selection[i]	= m_Selection[j];
 					}
@@ -1722,7 +1722,7 @@ CSG_Parameter_Fixed_Table::CSG_Parameter_Fixed_Table(CSG_Parameters *pOwner, CSG
 //---------------------------------------------------------
 void CSG_Parameter_Fixed_Table::_Set_String(void)
 {
-	m_String.Printf("%s (%s: %d, %s: %d)", m_Table.Get_Name(), _TL("columns"), m_Table.Get_Field_Count(), _TL("rows"), m_Table.Get_Record_Count());
+	m_String.Printf("%s (%s: %d, %s: %lld)", m_Table.Get_Name(), _TL("columns"), m_Table.Get_Field_Count(), _TL("rows"), m_Table.Get_Count());
 }
 
 //---------------------------------------------------------
@@ -1755,7 +1755,7 @@ bool CSG_Parameter_Fixed_Table::_Serialize(CSG_MetaData &Entry, bool bSave)
 
 		pNode	= Entry.Add_Child("RECORDS");
 
-		for(int iRecord=0; iRecord<m_Table.Get_Count(); iRecord++)
+		for(sLong iRecord=0; iRecord<m_Table.Get_Count(); iRecord++)
 		{
 			CSG_MetaData	*pEntry	= pNode->Add_Child("RECORD");
 
@@ -2116,6 +2116,28 @@ bool CSG_Parameter_Table_Field::_Serialize(CSG_MetaData &Entry, bool bSave)
 
 		return( _Set_Value(Entry.Get_Content()) != 0 );
 	}
+}
+
+//---------------------------------------------------------
+CSG_String CSG_Parameter_Table_Field::Get_Choices(const CSG_Table &Table, bool bAllowNone)
+{
+	CSG_String Choices;
+
+	for(int i=0; i<Table.Get_Field_Count(); i++)
+	{
+		if( i > 0 ) { Choices += "|"; }
+
+		Choices += Table.Get_Field_Name(i);
+	}
+
+	if( bAllowNone )
+	{
+		if( Table.Get_Field_Count() ) { Choices += "|"; }
+
+		Choices += _TL("<not set>");
+	}
+
+	return( Choices );
 }
 
 

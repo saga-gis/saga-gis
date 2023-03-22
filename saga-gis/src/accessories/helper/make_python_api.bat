@@ -136,16 +136,17 @@ IF EXIST "%PYTHONOUT%" (
 	RMDIR /S/Q "%PYTHONOUT%"
 )
 
-XCOPY /C/Q/Y/H "%SAGA_ROOT%\src\accessories\python\examples\*.py" "%PYTHONOUT%\Lib\site-packages\saga_api_examples\"
-COPY "%SAGA_ROOT%\src\accessories\python\examples\test_all.bat" "%PYTHONOUT%\Lib\site-packages\saga_api_examples\"
+XCOPY /C/Q/Y/H "%SAGA_ROOT%\src\accessories\python\saga_python_example.py" "%PYTHONOUT%\Lib\site-packages\saga_api_examples\"
+COPY "%SAGA_ROOT%\src\accessories\python\saga_python_example.py" "%PYTHONOUT%\Lib\site-packages\saga_api_examples\"
+COPY "%SAGA_ROOT%\src\accessories\python\saga_python_runner.bat" "%PYTHONOUT%\Lib\site-packages\saga_api_examples\"
 COPY "%SAGA_ROOT%\src\accessories\python\saga_python_api.txt" "%PYTHONOUT%\Lib\site-packages\"
 
-COPY "%SAGA_ROOT%\src\accessories\python\examples\saga_helper.py" "%PYTHONPKG%\"
+COPY "%SAGA_ROOT%\src\accessories\python\saga.py" "%PYTHONPKG%\"
 
-COPY "%PYTHONPKG%\*saga_*.py*" "%PYTHONOUT%\Lib\site-packages\"
+COPY "%PYTHONPKG%\*saga*.py*" "%PYTHONOUT%\Lib\site-packages\"
 
 IF EXIST "%PYTHONEGG%" (
-	COPY "%PYTHONEGG%\*saga_*.py*" "%PYTHONOUT%\Lib\site-packages\"
+	COPY "%PYTHONEGG%\*saga*.py*" "%PYTHONOUT%\Lib\site-packages\"
 )
 
 REM ___________________________________

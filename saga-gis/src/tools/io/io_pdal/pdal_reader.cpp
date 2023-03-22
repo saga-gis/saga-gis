@@ -252,7 +252,7 @@ bool CPDAL_Reader::On_Execute(void)
 
         if( Files.Get_Count() == 1 )
         {
-            Set_Progress(50.0);
+            Set_Progress(50., 100.);
         }
         else
         {

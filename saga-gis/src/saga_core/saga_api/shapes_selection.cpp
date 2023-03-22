@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -53,15 +50,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "shapes.h"
 
 
@@ -72,7 +60,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Shapes::Select(int Index, bool bInvert)
+bool CSG_Shapes::Select(sLong Index, bool bInvert)
 {
 	return( CSG_Table::Select(Index, bInvert) );
 }
@@ -91,7 +79,7 @@ bool CSG_Shapes::Select(TSG_Rect Extent, bool bInvert)
 		CSG_Table::Select();
 	}
 
-	for(int i=0; i<Get_Count(); i++)
+	for(sLong i=0; i<Get_Count(); i++)
 	{
 		if( Get_Shape(i)->Intersects(Extent) )
 		{
@@ -115,7 +103,7 @@ bool CSG_Shapes::Select(TSG_Point Point, bool bInvert)
 		CSG_Table::Select();
 	}
 
-	for(int i=0; i<Get_Count(); i++)
+	for(sLong i=0; i<Get_Count(); i++)
 	{
 		if( ((CSG_Shape_Polygon *)Get_Shape(i))->Contains(Point) )
 		{
@@ -131,16 +119,16 @@ const CSG_Rect & CSG_Shapes::Get_Selection_Extent(void)
 {
 	if( Get_Selection_Count() > 0 )
 	{
-		m_Extent_Selected	= Get_Selection(0)->Get_Extent();
+		m_Extent_Selected = Get_Selection(0)->Get_Extent();
 
-		for(int i=1; i<(int)Get_Selection_Count(); i++)
+		for(sLong i=1; i<Get_Selection_Count(); i++)
 		{
 			m_Extent_Selected.Union(Get_Selection(i)->Get_Extent());
 		}
 	}
 	else
 	{
-		m_Extent_Selected.Assign(0.0, 0.0, 0.0, 0.0);
+		m_Extent_Selected.Assign(0., 0., 0., 0.);
 	}
 
 	return( m_Extent_Selected );

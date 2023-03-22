@@ -198,7 +198,7 @@ bool CTopographic_Correction::On_Execute(void)
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("Topographic Correction"));
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
@@ -315,7 +315,7 @@ bool CTopographic_Correction::Get_Model(void)
 			sLong n		= Parameters("MAXCELLS")->asInt();
 			int	nStep	= Get_NCells() < n ? 1 : (int)(Get_NCells() / n);
 
-			for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n+=nStep)
+			for(n=0; n<Get_NCells() && Set_Progress_Cells(n); n+=nStep)
 			{
 				R.Add_Values(m_pOriginal->asDouble(n), m_Illumination.asDouble(n));
 			}
@@ -374,7 +374,7 @@ bool CTopographic_Correction::Get_Illumination(void)
 	m_Illumination	.Create(Get_System());
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{

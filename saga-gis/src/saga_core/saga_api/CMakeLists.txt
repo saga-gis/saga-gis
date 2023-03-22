@@ -75,7 +75,6 @@ set(SAGA_API_SOURCES
 	shapes.cpp
 	shapes_io.cpp
 	shapes_ogis.cpp
-	shapes_search.cpp
 	shapes_selection.cpp
 	table.cpp
 	table_dbase.cpp

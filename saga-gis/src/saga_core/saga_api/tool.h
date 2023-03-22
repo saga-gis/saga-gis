@@ -270,8 +270,9 @@ protected:
 	bool						Dlg_Parameters				(CSG_Parameters *pParameters, const CSG_String &Caption);
 
 	//-----------------------------------------------------
-	virtual bool				Set_Progress				(double Percent)				const;
-	virtual bool				Set_Progress				(double Position, double Range)	const;
+	virtual bool				Set_Progress				(int    Position, int    Range     )	const;
+	virtual bool				Set_Progress				(sLong  Position, sLong  Range     )	const;
+	virtual bool				Set_Progress				(double Position, double Range = 1.)	const;
 
 	bool						Stop_Execution				(bool bDialog = true);
 
@@ -304,8 +305,8 @@ public:	// static functions...
 	static void					Process_Set_Text			(const char    *Format, ...);
 	static void					Process_Set_Text			(const wchar_t *Format, ...);
 
-	static bool					DataObject_Update			(CSG_Data_Object *pDataObject                                , int Show = SG_UI_DATAOBJECT_UPDATE_ONLY);
-	static bool					DataObject_Update			(CSG_Data_Object *pDataObject, double Minimum, double Maximum, int Show = SG_UI_DATAOBJECT_UPDATE_ONLY);
+	static bool					DataObject_Update			(CSG_Data_Object *pDataObject                                , int Show = SG_UI_DATAOBJECT_UPDATE);
+	static bool					DataObject_Update			(CSG_Data_Object *pDataObject, double Minimum, double Maximum, int Show = SG_UI_DATAOBJECT_UPDATE);
 
 	static bool					DataObject_Get_Colors		(CSG_Data_Object *pDataObject, CSG_Colors &Colors);
 	static bool					DataObject_Set_Colors		(CSG_Data_Object *pDataObject, const CSG_Colors &Colors);
@@ -383,9 +384,8 @@ public:
 
 protected:
 
-	virtual bool				Set_Progress_NCells		(sLong iCell)					const;
-	virtual bool				Set_Progress			(int    iRow)					const;
-	virtual bool				Set_Progress			(double Position, double Range)	const;
+	virtual bool				Set_Progress_Cells		(sLong Cell)					const;
+	virtual bool				Set_Progress_Rows		(int    Row)					const;
 
 	//-----------------------------------------------------
 	int							Get_NX					(void)						const	{	return( Get_System().Get_NX      () );	}

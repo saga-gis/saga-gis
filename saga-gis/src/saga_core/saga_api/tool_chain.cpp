@@ -62,8 +62,11 @@
 //---------------------------------------------------------
 #define GET_XML_CONTENT(XML, ID, DEFAULT, TRANSLATE)	(!XML(ID) ? CSG_String(DEFAULT) : !TRANSLATE ? XML[ID].Get_Content() : CSG_String(SG_Translate(XML[ID].Get_Content())))
 
-#define IS_TRUE_STRING(String)				(!String.CmpNoCase("true") || !String.CmpNoCase("1"))
-#define IS_TRUE_PROPERTY(Item, Property)	(Item.Cmp_Property(Property, "true", true) || Item.Cmp_Property(Property, "1"))
+#define IS_TRUE_STRING(String)           (!String.CmpNoCase("true") || !String.CmpNoCase("1"))
+#define IS_TRUE_PROPERTY(Item, Property) (Item.Cmp_Property(Property, "true", true) || Item.Cmp_Property(Property, "1"))
+
+#define Get_List_Count(p)   (p->asGridList() ? p->asGridList()->Get_Grid_Count() : p->asList() ? p->asList()->Get_Item_Count() : 0)
+#define Get_List_Item(p, i) (p->asGridList() ? p->asGridList()->Get_Grid     (i) : p->asList() ? p->asList()->Get_Item     (i) : NULL)
 
 
 ///////////////////////////////////////////////////////////
@@ -551,10 +554,10 @@ bool CSG_Tool_Chain::Data_Add(const CSG_String &ID, CSG_Parameter *pData)
 	}
 	else if( pData->is_DataObject_List() && pParameter->is_DataObject_List() )
 	{
-		for(int i=0; i<pData->asList()->Get_Data_Count(); i++)
+		for(int i=0; i<Get_List_Count(pData); i++)
 		{
-			pParameter->asList()->Add_Item(pData->asList()->Get_Data(i));
-			m_Data_Manager.Add            (pData->asList()->Get_Data(i));
+			pParameter->asList()->Add_Item(Get_List_Item(pData, i));
+			m_Data_Manager.Add            (Get_List_Item(pData, i));
 		}
 	}
 
@@ -600,9 +603,9 @@ bool CSG_Tool_Chain::Data_Del_Temp(const CSG_String &ID, bool bData)
 			}
 			else if( pData->is_DataObject_List() )
 			{
-				for(int i=0; i<pData->asList()->Get_Data_Count(); i++)
+				for(int i=0; i<Get_List_Count(pData); i++)
 				{
-					m_Data_Manager.Delete(pData->asList()->Get_Data(i));
+					m_Data_Manager.Delete(Get_List_Item(pData, i));
 				}
 			}
 		}
@@ -632,9 +635,9 @@ bool CSG_Tool_Chain::Data_Exists(CSG_Data_Object *pData)
 		}
 		else if( m_Data(i)->is_DataObject_List() )
 		{
-			for(int j=0; j<m_Data(i)->asList()->Get_Data_Count(); j++)
+			for(int j=0; j<Get_List_Count(m_Data(i)); j++)
 			{
-				if( pData == m_Data(i)->asList()->Get_Data(j) )
+				if( pData == Get_List_Item(m_Data(i), j) )
 				{
 					return( true );
 				}
@@ -687,15 +690,15 @@ bool CSG_Tool_Chain::Data_Finalize(void)
 			{
 				CSG_Parameter	*pData	= m_Data(Parameters(i)->Get_Identifier());
 
-				for(int j=0; j<pData->asList()->Get_Data_Count(); j++)	// csg_parameter::assign() will not work, if parameters data manager is the standard data manager because it checks for existing data sets
+				for(int j=0; j<Get_List_Count(pData); j++)	// csg_parameter::assign() will not work, if parameters data manager is the standard data manager because it checks for existing data sets
 				{
-					Parameters(i)->asList()->Add_Item(pData->asList()->Get_Data(j));
+					Parameters(i)->asList()->Add_Item(Get_List_Item(pData, j));
 				}
 			}
 
-			for(int j=0; j<Parameters(i)->asList()->Get_Data_Count(); j++)
+			for(int j=0; j<Get_List_Count(Parameters(i)); j++)
 			{
-				m_Data_Manager.Delete(Parameters(i)->asList()->Get_Data(j), true);
+				m_Data_Manager.Delete(Get_List_Item(Parameters(i), j), true);
 			}
 		}
 	}
@@ -816,7 +819,7 @@ bool CSG_Tool_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Paramete
 	{
 		CSG_Parameter	*pParameter	= (*pData)(Variable);
 
-		return( pParameter && ((pParameter->is_DataObject() && pParameter->asDataObject()) || (pParameter->is_DataObject_List() && pParameter->asList()->Get_Data_Count())) );
+		return( pParameter && ((pParameter->is_DataObject() && pParameter->asDataObject()) || (pParameter->is_DataObject_List() && pParameter->asList()->Get_Item_Count())) );
 	}
 
 	if( !Type.CmpNoCase("not_exists") )	// data object does not exist
@@ -1041,7 +1044,7 @@ bool CSG_Tool_Chain::ForEach_Object(const CSG_MetaData &Commands, const CSG_Stri
 
 	if( pList->is_DataObject_List() )
 	{
-		for(int iObject=0; bResult && iObject<pList->asList()->Get_Data_Count(); iObject++)
+		for(int iObject=0; bResult && iObject<Get_List_Count(pList->asList()); iObject++)
 		{
 			for(int iTool=0; bResult && iTool<Commands.Get_Children_Count(); iTool++)
 			{
@@ -1141,7 +1144,7 @@ bool CSG_Tool_Chain::ForEach_File(const CSG_MetaData &Commands, const CSG_String
 
 				bResult	= Tool_Run(Tool, bIgnoreErrors);
 
-				for(size_t i=0; i<Input.Get_Size(); i++)
+				for(size_t i=0; i<Input.Get_uSize(); i++)
 				{
 					Tool(Input[i])->Set_Content(ListVarName);
 					Tool(Input[i])->Set_Property("varname", "true");
@@ -1605,11 +1608,11 @@ bool CSG_Tool_Chain::Tool_Finalize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 				}
 				else if( pParameter->is_DataObject_List() )
 				{
-					for(int k=0; k<pParameter->asList()->Get_Data_Count(); k++)
+					for(int k=0; k<Get_List_Count(pParameter); k++)
 					{
-						if( !Data_Exists(pParameter->asList()->Get_Data(k)) )
+						if( !Data_Exists(Get_List_Item(pParameter, k)) )
 						{
-							m_Data_Manager.Delete(pParameter->asList()->Get_Data(k));
+							m_Data_Manager.Delete(Get_List_Item(pParameter, k));
 						}
 					}
 				}
@@ -1962,7 +1965,7 @@ CSG_Tool_Chains::~CSG_Tool_Chains(void)
 {
 	Delete_Tools();
 
-	for(size_t i=0; i<m_Tools.Get_Size(); i++)
+	for(size_t i=0; i<m_Tools.Get_uSize(); i++)
 	{
 		delete((CSG_Tool_Chain *)m_Tools[i]);
 	}
@@ -2041,7 +2044,7 @@ bool CSG_Tool_Chains::Delete_Tool(CSG_Tool *pTool)
 //---------------------------------------------------------
 bool CSG_Tool_Chains::Delete_Tools(void)
 {
-	for(size_t i=0; i<m_xTools.Get_Size(); i++)
+	for(size_t i=0; i<m_xTools.Get_uSize(); i++)
 	{
 		delete((CSG_Tool_Chain *)m_xTools[i]);
 	}

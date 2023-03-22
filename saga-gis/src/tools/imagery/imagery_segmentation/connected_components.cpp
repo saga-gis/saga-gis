@@ -136,7 +136,7 @@ bool CConnected_Components::On_Execute(void)
     std::queue<sLong>   qFIFO;
 
     //-------------------------------------------------
-	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(sLong n=0; n<Get_NCells() && Set_Progress_Cells(n); n++)
 	{
         if( pInput->is_NoData(n) || pInput->asDouble(n) < 1.0 || !pOutput->is_NoData(n) )
         {
@@ -153,8 +153,8 @@ bool CConnected_Components::On_Execute(void)
         {
             sLong nc = qFIFO.front();
 
-            int x	= nc % Get_NX();
-            int y	= nc / Get_NX();
+            int x = (int)(nc % Get_NX());
+            int y = (int)(nc / Get_NX());
 
             for(int i=0, ix, iy; i<8; i+=iNeighbour)
             {

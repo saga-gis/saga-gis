@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,6 +47,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifndef HEADER_INCLUDED__Geomrec_H
+#define HEADER_INCLUDED__Geomrec_H
 
 
 ///////////////////////////////////////////////////////////
@@ -59,13 +58,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Geomrec_H
-#define HEADER_INCLUDED__Geomrec_H
-
-//---------------------------------------------------------
-
-
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -78,21 +71,14 @@
 class CGeomrec : public CSG_Tool_Grid
 {
 public:
-	CGeomrec (void);
+	CGeomrec(void);
 
 
 protected:
 
-	virtual bool				On_Execute		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-
-private:
-	int						m_Radius, m_Threshold;
-
-	CSG_Grid				m_Kernel, *m_pInput;
-
-
-	bool					Get_Range		(int x, int y, double &Minimum, double &Maximum);
+	virtual bool			On_Execute				(void);
 
 };
 

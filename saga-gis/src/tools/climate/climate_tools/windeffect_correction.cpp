@@ -192,7 +192,7 @@ bool CWindeffect_Correction::On_Execute(void)
 	{
 		double	B	= Parameters("B_CONST")->asDouble();
 
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			#pragma omp parallel for
 			for(int x=0; x<Get_NX(); x++)
@@ -222,7 +222,7 @@ bool CWindeffect_Correction::On_Execute(void)
 
 		m_Kernel.Set_Radius(Parameters("KERNEL_SIZE")->asInt(), Parameters("KERNEL_TYPE")->asInt() == 0);
 
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			#ifndef _DEBUG
 			#pragma omp parallel for

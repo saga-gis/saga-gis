@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: polygon_shared_edges.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "polygon_shared_edges.h"
 
 
@@ -70,7 +58,6 @@
 //---------------------------------------------------------
 CPolygon_Shared_Edges::CPolygon_Shared_Edges(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Shared Polygon Edges"));
 
 	Set_Author		("O.Conrad (c) 2014");
@@ -80,46 +67,46 @@ CPolygon_Shared_Edges::CPolygon_Shared_Edges(void)
 	));
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode	= Parameters.Add_Shapes(
-		NULL	, "POLYGONS"	, _TL("Polygons"),
+	Parameters.Add_Shapes("",
+		"POLYGONS"	, _TL("Polygons"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "ATTRIBUTE"	, _TL("Attribute"),
+	Parameters.Add_Table_Field("POLYGONS",
+		"ATTRIBUTE"	, _TL("Attribute"),
 		_TL(""),
 		true
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "EDGES"		, _TL("Edges"),
+	Parameters.Add_Shapes("",
+		"EDGES"		, _TL("Edges"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Line
 	);
 
-//	Parameters.Add_Shapes(
-//		NULL	, "NODES"		, _TL("Nodes"),
+//	Parameters.Add_Shapes(""
+//		"NODES"		, _TL("Nodes"),
 //		_TL(""),
 //		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 //	);
 
-	Parameters.Add_Value(
-		NULL	, "EPSILON"		, _TL("Tolerance"),
+	Parameters.Add_Double("",
+		"EPSILON"	, _TL("Tolerance"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 0.0, 0.0, true
+		0., 0., true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "VERTICES"	, _TL("Check Vertices"),
+	Parameters.Add_Bool("",
+		"VERTICES"	, _TL("Check Vertices"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Value(
-		NULL	, "DOUBLE"		, _TL("Double Edges"),
+	Parameters.Add_Bool("",
+		"DOUBLE"	, _TL("Double Edges"),
 		_TL("give output of an edge twice, i.e. once for each of the two adjacent polygons"),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 }
 
@@ -131,29 +118,28 @@ CPolygon_Shared_Edges::CPolygon_Shared_Edges(void)
 //---------------------------------------------------------
 bool CPolygon_Shared_Edges::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Shapes	*pPolygons	= Parameters("POLYGONS")->asShapes();
+	CSG_Shapes *pPolygons = Parameters("POLYGONS")->asShapes();
 
-	m_Field		= Parameters("ATTRIBUTE")->asInt();
+	m_Field  = Parameters("ATTRIBUTE")->asInt();
 
-	m_pEdges	= Parameters("EDGES")->asShapes();
+	m_pEdges = Parameters("EDGES")->asShapes();
 	m_pEdges->Create(SHAPE_TYPE_Line, CSG_String::Format(SG_T("%s [%s]"), pPolygons->Get_Name(), _TL("Edges")));
 	m_pEdges->Add_Field("ID_A", m_Field < 0 ? SG_DATATYPE_Int : pPolygons->Get_Field_Type(m_Field));
 	m_pEdges->Add_Field("ID_B", m_Field < 0 ? SG_DATATYPE_Int : pPolygons->Get_Field_Type(m_Field));
 
-//	m_pNodes	= Parameters("NODES")->asShapes();
+//	m_pNodes = Parameters("NODES")->asShapes();
 //	m_pNodes->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), pPolygons->Get_Name(), _TL("Nodes")));
 //	m_pNodes->Add_Field("ID", SG_DATATYPE_Int);
 
-	bool	bVertices	= Parameters("VERTICES")->asBool  ();
-	double	Epsilon		= Parameters("EPSILON" )->asDouble();
+	bool   bVertices = Parameters("VERTICES")->asBool  ();
+	double Epsilon   = Parameters("EPSILON" )->asDouble();
 
-	int	iPolygon, nAdded	= 0, nRemoved	= 0;
+	sLong nAdded = 0, nRemoved = 0;
 
 	//-----------------------------------------------------
 	if( bVertices )
 	{
-		for(iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
+		for(sLong iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
 		{
 			CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
 
@@ -184,13 +170,13 @@ bool CPolygon_Shared_Edges::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(iPolygon=0; iPolygon<pPolygons->Get_Count()-1 && Set_Progress(iPolygon, pPolygons->Get_Count()-1); iPolygon++)
+	for(sLong iPolygon=0; iPolygon<pPolygons->Get_Count()-1 && Set_Progress(iPolygon, pPolygons->Get_Count()-1); iPolygon++)
 	{
-		CSG_Shape_Polygon	*pA	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
+		CSG_Shape_Polygon *pA = (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
 
-		for(int jPolygon=iPolygon+1; jPolygon<pPolygons->Get_Count() && Process_Get_Okay(); jPolygon++)
+		for(sLong jPolygon=iPolygon+1; jPolygon<pPolygons->Get_Count() && Process_Get_Okay(); jPolygon++)
 		{
-			CSG_Shape_Polygon	*pB	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(jPolygon);
+			CSG_Shape_Polygon *pB = (CSG_Shape_Polygon *)pPolygons->Get_Shape(jPolygon);
 
 			for(int iPart=0; iPart<pA->Get_Part_Count() && Process_Get_Okay(); iPart++)
 			{
@@ -200,8 +186,8 @@ bool CPolygon_Shared_Edges::On_Execute(void)
 					{
 						if( bVertices )
 						{
-							nAdded	+= Check_Vertices(pA->Get_Part(iPart), pB->Get_Part(jPart), Epsilon);
-							nAdded	+= Check_Vertices(pB->Get_Part(jPart), pA->Get_Part(iPart), Epsilon);
+							nAdded += Check_Vertices(pA->Get_Part(iPart), pB->Get_Part(jPart), Epsilon);
+							nAdded += Check_Vertices(pB->Get_Part(jPart), pA->Get_Part(iPart), Epsilon);
 						}
 
 						Get_Shared_Edges(pA->Get_Part(iPart), pB->Get_Part(jPart), Epsilon);
@@ -214,20 +200,20 @@ bool CPolygon_Shared_Edges::On_Execute(void)
 	//-----------------------------------------------------
 	if( Parameters("DOUBLE")->asBool() )
 	{
-		for(int iEdge=0, nEdges=m_pEdges->Get_Count(); iEdge<nEdges && Set_Progress(iEdge, nEdges); iEdge++)
+		for(sLong iEdge=0, nEdges=m_pEdges->Get_Count(); iEdge<nEdges && Set_Progress(iEdge, nEdges); iEdge++)
 		{
-			CSG_Shape	*pA	= m_pEdges->Get_Shape(iEdge);
-			CSG_Shape	*pB	= m_pEdges->Add_Shape(pA);
+			CSG_Shape *pA = m_pEdges->Get_Shape(iEdge);
+			CSG_Shape *pB = m_pEdges->Add_Shape(pA);
 
-			*(pB->Get_Value(0))	= *(pA->Get_Value(1));
-			*(pB->Get_Value(1))	= *(pA->Get_Value(0));
+			*(pB->Get_Value(0)) = *(pA->Get_Value(1));
+			*(pB->Get_Value(1)) = *(pA->Get_Value(0));
 		}
 	}
 
 	//-----------------------------------------------------
 	if( nAdded > 0 || nRemoved > 0 )
 	{
-		Message_Fmt("\n%s: %d %s, %d %s\n", _TL("Vertices"), nAdded, _TL("added"), nRemoved, _TL("removed"));
+		Message_Fmt("\n%s: %lld %s, %lld %s\n", _TL("Vertices"), nAdded, _TL("added"), nRemoved, _TL("removed"));
 
 		DataObject_Update(pPolygons);
 	}
@@ -243,13 +229,13 @@ bool CPolygon_Shared_Edges::On_Execute(void)
 //---------------------------------------------------------
 bool CPolygon_Shared_Edges::Get_Shared_Edges(CSG_Shape_Part *pA, CSG_Shape_Part *pB, double Epsilon)
 {
-	int	Edge_1st	= m_pEdges->Get_Count();
+	int Edge_1st = (int)m_pEdges->Get_Count();
 
-	CSG_Shape	*pEdge	= NULL;
+	CSG_Shape *pEdge = NULL;
 
 	for(int iPoint=0, jPoint; iPoint<pA->Get_Count(); iPoint++)
 	{
-		CSG_Point	Point	= pA->Get_Point(iPoint);
+		CSG_Point Point = pA->Get_Point(iPoint);
 
 		if( !pEdge )
 		{
@@ -257,8 +243,8 @@ bool CPolygon_Shared_Edges::Get_Shared_Edges(CSG_Shape_Part *pA, CSG_Shape_Part 
 			{
 				if( Point.is_Equal(pB->Get_Point(jPoint), Epsilon) )
 				{
-					pEdge	= m_pEdges->Add_Shape();
-					pEdge	->Add_Point(Point);
+					pEdge = m_pEdges->Add_Shape();
+					pEdge->Add_Point(Point);
 
 					if( m_Field < 0 )
 					{
@@ -276,7 +262,7 @@ bool CPolygon_Shared_Edges::Get_Shared_Edges(CSG_Shape_Part *pA, CSG_Shape_Part 
 		}
 		else
 		{
-			int	j	= jPoint;
+			int j = jPoint;
 
 			if( Point.is_Equal(pB->Get_Point(jPoint = Get_Next_Vertex(pB, j, false)), Epsilon)
 			||  Point.is_Equal(pB->Get_Point(jPoint = Get_Next_Vertex(pB, j, true )), Epsilon) )
@@ -285,7 +271,7 @@ bool CPolygon_Shared_Edges::Get_Shared_Edges(CSG_Shape_Part *pA, CSG_Shape_Part 
 			}
 			else
 			{
-				pEdge	= NULL;
+				pEdge = NULL;
 			}
 		}
 	}
@@ -293,7 +279,7 @@ bool CPolygon_Shared_Edges::Get_Shared_Edges(CSG_Shape_Part *pA, CSG_Shape_Part 
 	//-----------------------------------------------------
 	if( pEdge )
 	{
-		CSG_Shape	*pEdge_1st	= m_pEdges->Get_Shape(Edge_1st);
+		CSG_Shape *pEdge_1st = m_pEdges->Get_Shape(Edge_1st);
 
 		if( pEdge != pEdge_1st && SG_Is_Equal(pA->Get_Point(0), pEdge_1st->Get_Point(0)) )
 		{
@@ -307,7 +293,7 @@ bool CPolygon_Shared_Edges::Get_Shared_Edges(CSG_Shape_Part *pA, CSG_Shape_Part 
 	}
 
 	//-----------------------------------------------------
-	for(int iEdge=m_pEdges->Get_Count()-1; iEdge>=Edge_1st; iEdge--)
+	for(sLong iEdge=m_pEdges->Get_Count()-1; iEdge>=Edge_1st; iEdge--)
 	{
 		if( m_pEdges->Get_Shape(iEdge)->Get_Point_Count() <= 1 )	// touches at point
 		{
@@ -356,17 +342,15 @@ int CPolygon_Shared_Edges::Get_Next_Vertex(CSG_Shape_Part *pPoints, int iPoint, 
 //---------------------------------------------------------
 int CPolygon_Shared_Edges::Check_Vertices(CSG_Shape_Part *pPolygon, CSG_Shape_Part *pVertices, double Epsilon)
 {
-	int	nAdded	= 0;
-
-	TSG_Point	A = pPolygon->Get_Point(0, false);
+	int nAdded = 0; TSG_Point A = pPolygon->Get_Point(0, false);
 
 	for(int iPoint=0; iPoint<pPolygon->Get_Count(); iPoint++)
 	{
-		TSG_Point	B = A; A = pPolygon->Get_Point(iPoint);
+		TSG_Point B = A; A = pPolygon->Get_Point(iPoint);
 
 		for(int iVertex=0; iVertex<pVertices->Get_Count(); iVertex++)
 		{
-			TSG_Point	Vertex	= pVertices->Get_Point(iVertex);
+			TSG_Point Vertex = pVertices->Get_Point(iVertex);
 
 			if( (SG_Is_Between(Vertex.x, A.x, B.x, Epsilon) && SG_Is_Between(Vertex.y, A.y, B.y, Epsilon))
 			&&  !SG_Is_Equal(Vertex, A, Epsilon) && !SG_Is_Equal(Vertex, B, Epsilon)
@@ -392,7 +376,6 @@ int CPolygon_Shared_Edges::Check_Vertices(CSG_Shape_Part *pPolygon, CSG_Shape_Pa
 //---------------------------------------------------------
 CPolygon_Vertex_Check::CPolygon_Vertex_Check(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Polygon Vertex Check"));
 
 	Set_Author		("O.Conrad (c) 2014");
@@ -402,28 +385,28 @@ CPolygon_Vertex_Check::CPolygon_Vertex_Check(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		NULL	, "POLYGONS"	, _TL("Polygons"),
+	Parameters.Add_Shapes("",
+		"POLYGONS"	, _TL("Polygons"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "CHECKED"		, _TL("Checked"),
+	Parameters.Add_Shapes("",
+		"CHECKED"		, _TL("Checked"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "ADDED"		, _TL("Added"),
+	Parameters.Add_Shapes("",
+		"ADDED"		, _TL("Added"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Value(
-		NULL	, "EPSILON"		, _TL("Tolerance"),
+	Parameters.Add_Double("",
+		"EPSILON"		, _TL("Tolerance"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 0.0, 0.0, true
+		0., 0., true
 	);
 }
 
@@ -435,17 +418,16 @@ CPolygon_Vertex_Check::CPolygon_Vertex_Check(void)
 //---------------------------------------------------------
 bool CPolygon_Vertex_Check::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Shapes	*pPolygons	= Parameters("POLYGONS")->asShapes();
+	CSG_Shapes *pPolygons = Parameters("POLYGONS")->asShapes();
 
 	if( Parameters("CHECKED")->asShapes() && Parameters("CHECKED")->asShapes() != pPolygons )
 	{
-		CSG_Shapes	*pCopy	= Parameters("CHECKED")->asShapes();
+		CSG_Shapes *pCopy = Parameters("CHECKED")->asShapes();
 
 		pCopy->Create(*pPolygons);
 		pCopy->Fmt_Name("%s [%s]", pPolygons->Get_Name(), _TL("checked"));
 
-		pPolygons	= pCopy;
+		pPolygons = pCopy;
 	}
 
 	if( (m_pAdded = Parameters("ADDED")->asShapes()) != NULL )
@@ -453,16 +435,16 @@ bool CPolygon_Vertex_Check::On_Execute(void)
 		m_pAdded->Create(SHAPE_TYPE_Point, _TL("Added"));
 	}
 
-	double	Epsilon	= Parameters("EPSILON")->asDouble();
+	double Epsilon = Parameters("EPSILON")->asDouble();
 
 	//-----------------------------------------------------
-	for(int iPolygon=0; iPolygon<pPolygons->Get_Count()-1 && Set_Progress(iPolygon, pPolygons->Get_Count()-1); iPolygon++)
+	for(sLong iPolygon=0; iPolygon<pPolygons->Get_Count()-1 && Set_Progress(iPolygon, pPolygons->Get_Count()-1); iPolygon++)
 	{
-		CSG_Shape_Polygon	*pA	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
+		CSG_Shape_Polygon *pA = pPolygons->Get_Shape(iPolygon)->asPolygon();
 
-		for(int jPolygon=iPolygon+1; jPolygon<pPolygons->Get_Count() && Process_Get_Okay(); jPolygon++)
+		for(sLong jPolygon=iPolygon+1; jPolygon<pPolygons->Get_Count() && Process_Get_Okay(); jPolygon++)
 		{
-			CSG_Shape_Polygon	*pB	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(jPolygon);
+			CSG_Shape_Polygon *pB = pPolygons->Get_Shape(jPolygon)->asPolygon();
 
 			for(int iPart=0; iPart<pA->Get_Part_Count() && Process_Get_Okay(); iPart++)
 			{
@@ -490,15 +472,15 @@ bool CPolygon_Vertex_Check::On_Execute(void)
 //---------------------------------------------------------
 bool CPolygon_Vertex_Check::Check_Vertices(CSG_Shape_Part *pPolygon, CSG_Shape_Part *pVertices, double Epsilon)
 {
-	TSG_Point	A = pPolygon->Get_Point(0, false);
+	TSG_Point A = pPolygon->Get_Point(0, false);
 
 	for(int iPoint=0; iPoint<pPolygon->Get_Count(); iPoint++)
 	{
-		TSG_Point	B = A; A = pPolygon->Get_Point(iPoint);
+		TSG_Point B = A; A = pPolygon->Get_Point(iPoint);
 
 		for(int iVertex=0; iVertex<pVertices->Get_Count(); iVertex++)
 		{
-			TSG_Point	Vertex	= pVertices->Get_Point(iVertex);
+			TSG_Point Vertex = pVertices->Get_Point(iVertex);
 
 			if( (SG_Is_Between(Vertex.x, A.x, B.x, Epsilon) && SG_Is_Between(Vertex.y, A.y, B.y, Epsilon))
 			&&  !SG_Is_Equal(Vertex, A, Epsilon) && !SG_Is_Equal(Vertex, B, Epsilon)

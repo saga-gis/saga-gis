@@ -51,6 +51,7 @@
 #include <saga_api/saga_api.h>
 
 #include "res_commands.h"
+#include "res_controls.h"
 #include "res_dialogs.h"
 
 #include "helper.h"
@@ -437,7 +438,22 @@ wxString CWKSP_Map_Manager::Get_Numbering(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Map_Manager::Set_Extents(const TSG_Rect &Extent, const CSG_Projection &Projection)
+bool CWKSP_Map_Manager::Set_Extent(const TSG_Rect &Extent, int Maps)
+{
+	CWKSP_Map *pMap = NULL;
+
+	switch( Maps )
+	{
+	case SG_UI_MAP_ACTIVE: pMap = (CWKSP_Map *)g_pSAGA_Frame->Get_Active_Child(ID_VIEW_MAP); break;
+	case SG_UI_MAP_LAST  : pMap = Get_Map(Get_Count() - 1); break;
+	case SG_UI_MAP_ALL   : return( Set_Extents(Extent, CSG_Projection()) );
+	}
+
+	return( pMap ? pMap->Set_Extent(Extent) : false );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Map_Manager::Set_Extents(const TSG_Rect &Extent, const CSG_Projection &Projection)
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
@@ -445,10 +461,12 @@ void CWKSP_Map_Manager::Set_Extents(const TSG_Rect &Extent, const CSG_Projection
 		Get_Map(i)->Set_Extent(Extent, Projection);
 		Get_Map(i)->Lock_Synchronising(false);
 	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
-void CWKSP_Map_Manager::Set_Mouse_Position(const TSG_Point &Point, const CSG_Projection &Projection)
+bool CWKSP_Map_Manager::Set_Mouse_Position(const TSG_Point &Point, const CSG_Projection &Projection)
 {
 	if( m_CrossHair > 0 )
 	{
@@ -462,7 +480,11 @@ void CWKSP_Map_Manager::Set_Mouse_Position(const TSG_Point &Point, const CSG_Pro
 		}
 
 		m_CrossHair *= -1;
+
+		return( true );
 	}
+
+	return( false );
 }
 
 //---------------------------------------------------------

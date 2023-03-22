@@ -285,7 +285,7 @@ bool CRaw_Import::On_Execute(void)
 
 		Stream.Read(Record.Get_Array(), Record.Get_Value_Size() * Record.Get_Size());
 
-		for(int iValue=0; iValue<nValues; iValue++)
+		for(size_t iValue=0; iValue<(size_t)nValues; iValue++)
 		{
 			if( bBigOrder )
 			{

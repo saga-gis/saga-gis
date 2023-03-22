@@ -1028,7 +1028,7 @@ void Cihacres_eq::AssignFirstLastRec(CSG_Table &pTable, int &first, int &last,
 	// searching the first and the last record of the time range
 	///////////////////////////////////////////////////////////////
 
-	for (j = 0; j < pTable.Get_Record_Count(); j++)
+	for (j = 0; j < pTable.Get_Count(); j++)
 	{
 		if (!date1.Cmp(pTable.Get_Record(j)->asString(dateField)))
 		{

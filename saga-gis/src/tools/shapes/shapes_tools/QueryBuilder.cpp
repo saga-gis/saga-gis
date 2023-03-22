@@ -137,13 +137,13 @@ bool CSelect_Numeric::On_Execute(void)
 	CSG_Vector	Values((int)Fields.Get_Size());
 
 	//-----------------------------------------------------
-	for(int i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
+	for(sLong i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
 	{
 		CSG_Table_Record	*pRecord	= pTable->Get_Record(i);
 
 		bool	bOkay	= true;
 
-		for(size_t Field=0; bOkay && Field<Fields.Get_Size(); Field++)
+		for(size_t Field=0; bOkay && Field<Fields.Get_uSize(); Field++)
 		{
 			if( (bOkay = bUseNoData || !pRecord->is_NoData(Fields[Field])) == true )
 			{
@@ -189,7 +189,7 @@ bool CSelect_Numeric::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Message_Fmt("\n%s: %d", _TL("selected shapes"), pTable->Get_Selection_Count());
+	Message_Fmt("\n%s: %lld", _TL("selected shapes"), pTable->Get_Selection_Count());
 
 	DataObject_Update(pTable);
 

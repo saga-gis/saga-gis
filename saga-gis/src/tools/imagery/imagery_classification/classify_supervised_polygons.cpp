@@ -253,15 +253,15 @@ bool CPolygon_Classify_Supervised::On_Execute(void)
 
 	int	Method	= Parameters("METHOD")->asInt();
 
-	for(int iRecord=0; iRecord<m_pTable->Get_Count() && Set_Progress(iRecord, m_pTable->Get_Count()); iRecord++)
+	for(sLong iRecord=0; iRecord<m_pTable->Get_Count() && Set_Progress(iRecord, m_pTable->Get_Count()); iRecord++)
 	{
-		int	Class;	double	Quality;	CSG_Vector	Features(m_nFeatures);
+		int Class; double Quality; CSG_Vector Features(m_nFeatures);
 
 		if( Get_Features(iRecord, Features) && Classifier.Get_Class(Features, Class, Quality, Method) )
 		{
-			CSG_Table_Record	*pClass	= pClasses->Add_Record();
+			CSG_Table_Record *pClass = pClasses->Add_Record();
 
-			pClass->Set_Value(0, 1 + Class);
+			pClass->Set_Value(0, 1l + Class);
 			pClass->Set_Value(1, Classifier.Get_Class_ID(Class));
 			pClass->Set_Value(2, Quality);
 
@@ -284,19 +284,19 @@ bool CPolygon_Classify_Supervised::On_Execute(void)
 //---------------------------------------------------------
 bool CPolygon_Classify_Supervised::Get_Features(void)
 {
-	m_pTable		= Parameters(m_bShapes ? "SHAPES" : "TABLE")->asTable();
+	m_pTable     = Parameters(m_bShapes ? "SHAPES" : "TABLE")->asTable();
 
-	m_Features		= (int *)Parameters("FEATURES" )->asPointer();
-	m_nFeatures		=        Parameters("FEATURES" )->asInt    ();
-	m_bNormalise	=        Parameters("NORMALISE")->asBool   ();
+	m_Features   = (int *)Parameters("FEATURES" )->asPointer();
+	m_nFeatures  =        Parameters("FEATURES" )->asInt    ();
+	m_bNormalise =        Parameters("NORMALISE")->asBool   ();
 
 	return( m_Features && m_nFeatures > 0 );
 }
 
 //---------------------------------------------------------
-bool CPolygon_Classify_Supervised::Get_Features(int iRecord, CSG_Vector &Features)
+bool CPolygon_Classify_Supervised::Get_Features(sLong iRecord, CSG_Vector &Features)
 {
-	CSG_Table_Record	*pRecord	= m_pTable->Get_Record(iRecord);
+	CSG_Table_Record *pRecord = m_pTable->Get_Record(iRecord);
 
 	if( !pRecord )
 	{
@@ -312,7 +312,7 @@ bool CPolygon_Classify_Supervised::Get_Features(int iRecord, CSG_Vector &Feature
 
 		Features[i]	= pRecord->asDouble(m_Features[i]);
 
-		if( m_bNormalise && m_pTable->Get_StdDev(m_Features[i]) > 0.0 )
+		if( m_bNormalise && m_pTable->Get_StdDev(m_Features[i]) > 0. )
 		{
 			Features[i]	= (Features[i] - m_pTable->Get_Mean(m_Features[i])) / m_pTable->Get_StdDev(m_Features[i]);
 		}
@@ -372,13 +372,13 @@ bool CPolygon_Classify_Supervised::Set_Classifier(CSG_Classifier_Supervised &Cla
 {
 	Process_Set_Text(_TL("training"));
 
-	for(int iRecord=0; iRecord<m_pTable->Get_Count() && Set_Progress(iRecord, m_pTable->Get_Count()); iRecord++)
+	for(sLong iRecord=0; iRecord<m_pTable->Get_Count() && Set_Progress(iRecord, m_pTable->Get_Count()); iRecord++)
 	{
-		CSG_Table_Record	*pRecord	= m_pTable->Get_Record(iRecord);
+		CSG_Table_Record *pRecord = m_pTable->Get_Record(iRecord);
 
 		if( SG_STR_LEN(pRecord->asString(Training)) > 0 )
 		{
-			CSG_Vector	Features(m_nFeatures);
+			CSG_Vector Features(m_nFeatures);
 
 			if( Get_Features(iRecord, Features) )
 			{
@@ -406,9 +406,9 @@ bool CPolygon_Classify_Supervised::Set_Classifier(CSG_Classifier_Supervised &Cla
 //---------------------------------------------------------
 bool CPolygon_Classify_Supervised::Set_Classification(CSG_Classifier_Supervised &Classifier)
 {
-	CSG_Table	*pClasses	= Parameters("CLASSES")->asTable();
+	CSG_Table *pClasses = Parameters("CLASSES")->asTable();
 
-	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(pClasses, "LUT");
+	CSG_Parameter *pLUT = DataObject_Get_Parameter(pClasses, "LUT");
 
 	if( pLUT && pLUT->asTable() )
 	{
@@ -423,11 +423,11 @@ bool CPolygon_Classify_Supervised::Set_Classification(CSG_Classifier_Supervised 
 
 			pClass->Set_Value(1, Classifier.Get_Class_ID(iClass).c_str());
 			pClass->Set_Value(2, "");
-			pClass->Set_Value(3, iClass + 1);
-			pClass->Set_Value(4, iClass + 1);
+			pClass->Set_Value(3, 1l + iClass);
+			pClass->Set_Value(4, 1l + iClass);
 		}
 
-		pLUT->asTable()->Set_Record_Count(Classifier.Get_Class_Count());
+		pLUT->asTable()->Set_Count(Classifier.Get_Class_Count());
 
 		DataObject_Set_Parameter(pClasses, pLUT);
 		DataObject_Set_Parameter(pClasses, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table

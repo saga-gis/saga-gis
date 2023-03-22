@@ -101,7 +101,7 @@ public:
 	//-----------------------------------------------------
 	virtual int			GetNumberRows		(void)
 	{
-		return( m_bSelection ? m_pTable->Get_Selection_Count() : m_pTable->Get_Record_Count() );
+		return( m_bSelection ? m_pTable->Get_Selection_Count() : m_pTable->Get_Count() );
 	}
 
 	virtual int			GetNumberCols		(void)

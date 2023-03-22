@@ -68,7 +68,7 @@ bool CProtectionIndex::On_Execute(void){
 	m_dRadius = Parameters("RADIUS")->asDouble();
 	m_pDEM = Parameters("DEM")->asGrid();
 
-    for(y=0; y<Get_NY() && Set_Progress(y); y++){
+    for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++){
 		for(x=0; x<Get_NX(); x++){
 			dProtectionIndex = getProtectionIndex(x,y);
 			if (dProtectionIndex == NO_DATA){

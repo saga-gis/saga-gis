@@ -279,7 +279,7 @@ bool CShapes_Report::Add_Shapes(void)
 		sLeft	.Add(CSG_String::Format(SG_T("%s:")	, _TL("Name")));
 		sRight	.Add(CSG_String::Format(SG_T("%s")	, m_pShapes->Get_Name()));
 		sLeft	.Add(CSG_String::Format(SG_T("%s:")	, _TL("Count")));
-		sRight	.Add(CSG_String::Format(SG_T("%d")	, m_pShapes->Get_Count()));
+		sRight	.Add(CSG_String::Format(SG_T("%lld")	, m_pShapes->Get_Count()));
 
 		m_pPDF->Draw_Text(m_rTable.Get_XMin()   , m_rTable.Get_YMax(), sLeft , 8, PDF_STYLE_TEXT_ALIGN_H_LEFT|PDF_STYLE_TEXT_ALIGN_V_TOP);
 		m_pPDF->Draw_Text(m_rTable.Get_XCenter(), m_rTable.Get_YMax(), sRight, 8, PDF_STYLE_TEXT_ALIGN_H_LEFT|PDF_STYLE_TEXT_ALIGN_V_TOP);
@@ -287,7 +287,7 @@ bool CShapes_Report::Add_Shapes(void)
 		//-------------------------------------------------
 		bAddAll	= m_pShapes->Get_Selection_Count() == 0;
 
-		for(int iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
+		for(sLong iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
 		{
 			if( bAddAll || m_pShapes->Get_Record(iShape)->is_Selected() )
 			{
@@ -486,7 +486,7 @@ void CWKSP_Map::SaveAs_PDF_Indexed(void)
 
 			if( pShapes )
 			{
-				for(int i=0; i<pShapes->Get_Count() && SG_UI_Process_Set_Progress(i, pShapes->Get_Count()); i++)
+				for(sLong i=0; i<pShapes->Get_Count() && SG_UI_Process_Set_Progress(i, pShapes->Get_Count()); i++)
 				{
 					Draw_PDF(&PDF, FilePath_Maps, i, FileName_Icon, Name, pShapes->Get_Shape(i)->Get_Extent(), bRoundScale, iField, pShapes);
 				}

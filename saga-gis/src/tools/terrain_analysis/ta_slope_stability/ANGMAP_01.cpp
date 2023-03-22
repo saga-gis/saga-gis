@@ -140,7 +140,7 @@ bool CANGMAP::On_Execute(void)
 	pF		= Parameters("F"  )->asGrid();		//output ce dipdir
 	pG		= Parameters("G"  )->asGrid();		//output ce dip
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)

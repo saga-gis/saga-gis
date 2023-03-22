@@ -485,7 +485,7 @@ bool CTree_Growth::On_Execute(void)
 	m_Model.Set_SW_min (Parameters( "SW_MIN")->asDouble() / 100.);
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 #ifndef _DEBUG
 		#pragma omp parallel for
@@ -689,7 +689,7 @@ bool CWater_Balance::On_Execute(void)
 	m_Model.Get_Soil().Set_ET_Resistance(1, Parameters("SW1_RESIST" )->asDouble());
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 #ifndef _DEBUG
 		#pragma omp parallel for
@@ -876,7 +876,7 @@ bool CWater_Balance_Interactive::On_Execute(void)
 	m_pDaily->Add_Field("ETP" , SG_DATATYPE_Double);
 	m_pDaily->Add_Field("SW_0", SG_DATATYPE_Double);
 	m_pDaily->Add_Field("SW_1", SG_DATATYPE_Double);
-	m_pDaily->Set_Record_Count(365);
+	m_pDaily->Set_Count(365);
 
 	//-----------------------------------------------------
 	return( true );

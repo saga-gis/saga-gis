@@ -221,7 +221,7 @@ bool CGridding_Spline_CSA::On_Execute(void)
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("approximating points..."));
 
-	csa_approximate_points(pCSA, m_pGrid->Get_NCells(), Points);
+	csa_approximate_points(pCSA, (long)m_pGrid->Get_NCells(), Points);
 
 	//-----------------------------------------------------
 	#pragma omp parallel for private(y)

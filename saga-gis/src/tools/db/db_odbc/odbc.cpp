@@ -813,16 +813,15 @@ bool CSG_ODBC_Connection::Table_Insert(const CSG_String &Table_Name, const CSG_T
 	//-----------------------------------------------------
 	try
 	{
-		bool	bLOB	= false;
+		bool bLOB = false;
 
-		int				iField, iRecord;
-		CSG_String		Insert;
-		otl_stream		Stream;
+		CSG_String Insert;
+		otl_stream Stream;
 
 		//-------------------------------------------------
 		Insert.Printf(SG_T("INSERT INTO %s VALUES("), Table_Name.c_str());
 
-		for(iField=0; iField<Table.Get_Field_Count(); iField++)
+		for(int iField=0; iField<Table.Get_Field_Count(); iField++)
 		{
 			if( iField > 0 )
 			{
@@ -855,11 +854,11 @@ bool CSG_ODBC_Connection::Table_Insert(const CSG_String &Table_Name, const CSG_T
 		std_string	valString;
 
 		//-------------------------------------------------
-		for(iRecord=0; iRecord<Table.Get_Count() && SG_UI_Process_Set_Progress(iRecord, Table.Get_Count()); iRecord++)
+		for(sLong iRecord=0; iRecord<Table.Get_Count() && SG_UI_Process_Set_Progress(iRecord, Table.Get_Count()); iRecord++)
 		{
-			CSG_Table_Record	*pRecord	= Table.Get_Record(iRecord);
+			CSG_Table_Record *pRecord = Table.Get_Record(iRecord);
 
-			for(iField=0; iField<Table.Get_Field_Count(); iField++)
+			for(int iField=0; iField<Table.Get_Field_Count(); iField++)
 			{
 				if( pRecord->is_NoData(iField) )
 				{
@@ -874,13 +873,13 @@ bool CSG_ODBC_Connection::Table_Insert(const CSG_String &Table_Name, const CSG_T
 					Stream << valString;
 					break;
 
-				case SG_DATATYPE_Char:		Stream << (char)pRecord->asChar  (iField);	break;
-				case SG_DATATYPE_Short:		Stream <<       pRecord->asShort (iField);	break;
-				case SG_DATATYPE_Int:		Stream <<       pRecord->asInt   (iField);	break;
-				case SG_DATATYPE_Color:
-				case SG_DATATYPE_Long:		Stream << (long)pRecord->asInt   (iField);	break;
-				case SG_DATATYPE_Float:		Stream <<       pRecord->asFloat (iField);	break;
-				case SG_DATATYPE_Double:	Stream <<       pRecord->asDouble(iField);	break;
+				case SG_DATATYPE_Char  : Stream << (char)pRecord->asChar  (iField);	break;
+				case SG_DATATYPE_Short : Stream <<       pRecord->asShort (iField);	break;
+				case SG_DATATYPE_Int   : Stream <<       pRecord->asInt   (iField);	break;
+				case SG_DATATYPE_Color :
+				case SG_DATATYPE_Long  : Stream << (long)pRecord->asInt   (iField);	break;
+				case SG_DATATYPE_Float : Stream <<       pRecord->asFloat (iField);	break;
+				case SG_DATATYPE_Double: Stream <<       pRecord->asDouble(iField);	break;
 				}
 			}
 		}

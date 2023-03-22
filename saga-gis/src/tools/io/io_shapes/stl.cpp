@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: stl.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "stl.h"
 
 
@@ -72,96 +60,45 @@
 //---------------------------------------------------------
 CSTL_Import::CSTL_Import(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("Import Stereo Lithography File (STL)"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2008"));
+	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
-		"<a href=\"http://www.ennex.com/~fabbers/StL.asp\">The StL Format</a>"
+		""
 	));
 
+	Add_Reference("http://www.fabbers.com/tech/STL_Format", SG_T("The StL Format"));
+
 	//-----------------------------------------------------
-	Parameters.Add_PointCloud_Output(
-		NULL	, "POINTS"		, _TL("Point Cloud"),
-		_TL("")
+	Parameters.Add_PointCloud_Output("", "POINTS", _TL("Point Cloud"), _TL(""));
+	Parameters.Add_Shapes_Output    ("", "SHAPES", _TL("Shapes"     ), _TL(""));
+	Parameters.Add_Grid_Output      ("", "GRID"  , _TL("Grid"       ), _TL(""));
+
+	Parameters.Add_FilePath("", "FILE", _TL("File"), _TL(""), CSG_String::Format("%s|*.stl|%s|*.*",
+		_TL("STL Files"),
+		_TL("All Files"))
 	);
 
-	Parameters.Add_Shapes_Output(
-		NULL	, "SHAPES"		, _TL("Shapes"),
-		_TL("")
+	Parameters.Add_Choice("", "METHOD", _TL("Target"), _TL(""), CSG_String::Format("%s|%s|%s|%s",
+		_TL("point cloud"),
+		_TL("point cloud (centered)"),
+		_TL("points"),
+		_TL("raster")), 3
 	);
 
-	Parameters.Add_Grid_Output(
-		NULL	, "GRID"		, _TL("Grid"),
-		_TL("")
+	Parameters.Add_Choice("", "METHOD_RASTER", _TL("Raster Dimension"), _TL(""), CSG_String::Format("%s|%s",
+		_TL("Number of Pixels (Width)"),
+		_TL("Pixel Size")), 0
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "FILE"		, _TL("File"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s"),
-			_TL("STL Files")	, SG_T("*.stl"),
-			_TL("All Files")	, SG_T("*.*")
-		)
-	);
+	Parameters.Add_Int   ("METHOD_RASTER", "GRID_NX"  , _TL("Number of Pixels"), _TL(""), 2000 , 10 , true);
+	Parameters.Add_Double("METHOD_RASTER", "GRID_CELL", _TL("Pixel Size"      ), _TL(""),    1.,  0., true);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Target"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
-			_TL("point cloud"),
-			_TL("point cloud (centered)"),
-			_TL("points"),
-			_TL("raster")
-		), 3
-	);
-
-	pNode	= Parameters.Add_Choice(
-		NULL	, "METHOD_RASTER", _TL("Raster Dimension"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("Raster Resolution (Pixels X)"),
-			_TL("Raster Resolution (Pixel Size)")
-		), 0
-	);
-
-	Parameters.Add_Value(
-		pNode	, "GRID_NX"		, _TL("Raster Resolution (Pixels X)"),
-		_TL(""),
-		PARAMETER_TYPE_Int		, 2000, 10, true
-	);
-
-	Parameters.Add_Value(
-		pNode	, "GRID_CELL"	, _TL("Raster Resolution (Pixels Size)"),
-		_TL(""),
-		PARAMETER_TYPE_Double	, 1.0, 0.0, true
-	);
-
-	pNode	= Parameters.Add_Node(
-		NULL	, "NODE_ROTATE"	, _TL("Rotation"),
-		_TL("")
-	);
-
-	Parameters.Add_Value(
-		pNode	, "ROT_X"		, _TL("X Axis"),
-		_TL(""),
-		PARAMETER_TYPE_Double	, 0.0
-	);
-
-	Parameters.Add_Value(
-		pNode	, "ROT_Y"		, _TL("Y Axis"),
-		_TL(""),
-		PARAMETER_TYPE_Double	, 0.0
-	);
-
-	Parameters.Add_Value(
-		pNode	, "ROT_Z"		, _TL("Z Axis"),
-		_TL(""),
-		PARAMETER_TYPE_Double	, 0.0
-	);
+	Parameters.Add_Node  ("", "ROTATE", _TL("Rotation"), _TL(""));
+	Parameters.Add_Double("ROTATE", "ROT_X", _TL("X Axis"), _TL(""), 0.);
+	Parameters.Add_Double("ROTATE", "ROT_Y", _TL("Y Axis"), _TL(""), 0.);
+	Parameters.Add_Double("ROTATE", "ROT_Z", _TL("Z Axis"), _TL(""), 0.);
 }
 
 
@@ -172,16 +109,35 @@ CSTL_Import::CSTL_Import(void)
 //---------------------------------------------------------
 bool CSTL_Import::On_Execute(void)
 {
-	int			Method;
-	DWORD		iFacette, nFacettes;
-	TSTL_Point	p[3];
-	CSG_String	sFile, sHeader;
-	CSG_File	Stream;
+	CSG_File Stream;
+
+	if( !Stream.Open(Parameters("FILE")->asString()) )
+	{
+		return( false );
+	}
 
 	//-----------------------------------------------------
-	sFile		= Parameters("FILE")		->asString();
-	Method		= Parameters("METHOD")		->asInt();
+	CSG_String Header;
 
+	if( !Stream.Read(Header, 80) )
+	{
+		return( false );
+	}
+
+	Message_Add(Header);
+
+	DWORD _nFacettes;
+
+	if( !Stream.Read(&_nFacettes, sizeof(_nFacettes)) )
+	{
+		return( false );
+	}
+
+	int nFacettes = (int)_nFacettes;
+
+	Message_Fmt("\n%s: %d", _TL("Number of Facettes"), nFacettes);
+
+	//-----------------------------------------------------
 	r_sin_x	= sin(Parameters("ROT_X")->asDouble() * M_DEG_TO_RAD);
 	r_sin_y	= sin(Parameters("ROT_Y")->asDouble() * M_DEG_TO_RAD);
 	r_sin_z	= sin(Parameters("ROT_Z")->asDouble() * M_DEG_TO_RAD);
@@ -189,152 +145,159 @@ bool CSTL_Import::On_Execute(void)
 	r_cos_y	= cos(Parameters("ROT_Y")->asDouble() * M_DEG_TO_RAD);
 	r_cos_z	= cos(Parameters("ROT_Z")->asDouble() * M_DEG_TO_RAD);
 
-	//-----------------------------------------------------
-	if( !Stream.Open(sFile) )
-	{
-		return( false );
-	}
-
-	if( !Stream.Read(sHeader, 80) )
-	{
-		return( false );
-	}
-
-	Message_Add(sHeader);
-
-	if( !Stream.Read(&nFacettes, sizeof(nFacettes)) )
-	{
-		return( false );
-	}
-
-	Message_Fmt("\n%s: %d", _TL("Number of Facettes"), nFacettes);
-
-	//-----------------------------------------------------
-	switch( Method )
+	switch( Parameters("METHOD")->asInt() )
 	{
 
 	//-----------------------------------------------------
 	case 0:	{	// Point Cloud
-		CSG_Rect	Extent;
+		CSG_Rect Extent;
 
 		if( Get_Extent(Stream, Extent, nFacettes) )
 		{
-			CSG_PRQuadTree	Points(Extent);
-			CSG_PointCloud	*pPoints	= SG_Create_PointCloud();
+			CSG_PointCloud *pPoints = SG_Create_PointCloud();
 			Parameters("POINTS")->Set_Value(pPoints);
-			pPoints->Set_Name(SG_File_Get_Name(sFile, false));
-			pPoints->Add_Field((const char *)NULL, SG_DATATYPE_Undefined);
+			pPoints->Set_Name(SG_File_Get_Name(Parameters("FILE")->asString(), false));
+			pPoints->Add_Field("ENUM", SG_DATATYPE_Int);
 
-			for(iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
+			for(int iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
 			{
+				TSTL_Point p[3];
+
 				if( Read_Facette(Stream, p) )
 				{
 					for(int i=0; i<3; i++)
 					{
-						if( Points.Add_Point(p[i].x, p[i].y, p[i].z) )
-						{
-							pPoints->Add_Point(p[i].x, p[i].y, p[i].z);
-						}
+						pPoints->Add_Point(p[i].x, p[i].y, p[i].z);
+						pPoints->Set_Attribute(0, 0.);
 					}
 				}
 			}
-		}
 
-	break;	}
+			// enumerate duplicates
+			CSG_KDTree_2D Search(pPoints);
+
+			for(sLong i=0; i<pPoints->Get_Count() && Set_Progress(i, pPoints->Get_Count()); i++)
+			{
+				if( pPoints->Get_Attribute(i, 0) == 0. )
+				{
+					size_t n = Search.Get_Duplicates(pPoints->Get_X(i), pPoints->Get_Y(i));
+
+					for(size_t j=1; j<n; j++)
+					{
+						pPoints->Set_Attribute(Search.Get_Match_Index(j), 0, (double)j);
+					}
+				}
+			}
+
+			for(sLong i=pPoints->Get_Count()-1; i>=0; i--)
+			{
+				if( pPoints->Get_Attribute(i, 0) > 0. )
+				{
+					pPoints->Del_Point(i);
+				}
+			}
+		}
+		break; }
 
 	//-----------------------------------------------------
 	case 1:	{	// Point Cloud (centered)
-		CSG_PointCloud	*pPoints	= SG_Create_PointCloud();
+		CSG_PointCloud *pPoints = SG_Create_PointCloud();
 		Parameters("POINTS")->Set_Value(pPoints);
-		pPoints->Set_Name(SG_File_Get_Name(sFile, false));
+		pPoints->Set_Name(SG_File_Get_Name(Parameters("FILE")->asString(), false));
 		pPoints->Add_Field((const char *)NULL, SG_DATATYPE_Undefined);
 
-		for(iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
+		for(int iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
 		{
+			TSTL_Point p[3];
+
 			if( Read_Facette(Stream, p) )
 			{
 				pPoints->Add_Point(
-					(p[0].x + p[1].x + p[2].x) / 3.0,
-					(p[0].y + p[1].y + p[2].y) / 3.0,
-					(p[0].z + p[1].z + p[2].z) / 3.0
+					((double)p[0].x + p[1].x + p[2].x) / 3.,
+					((double)p[0].y + p[1].y + p[2].y) / 3.,
+					((double)p[0].z + p[1].z + p[2].z) / 3.
 				);
 			}
 		}
 
-	break;	}
+		break; }
 
 	//-----------------------------------------------------
 	case 2:	{	// Points
-		CSG_Shapes	*pPoints	= SG_Create_Shapes(SHAPE_TYPE_Point, SG_File_Get_Name(sFile, false));
-		pPoints->Add_Field(SG_T("Z"), SG_DATATYPE_Float);
+		CSG_Shapes *pPoints = SG_Create_Shapes(SHAPE_TYPE_Point);
+		pPoints->Set_Name(SG_File_Get_Name(Parameters("FILE")->asString(), false));
+		pPoints->Add_Field("Z", SG_DATATYPE_Float);
 		Parameters("SHAPES")->Set_Value(pPoints);
 
-		for(iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
+		for(int iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
 		{
+			TSTL_Point p[3];
+
 			if( Read_Facette(Stream, p) )
 			{
-				CSG_Shape	*pPoint	= pPoints->Add_Shape();
+				CSG_Shape *pPoint = pPoints->Add_Shape();
 
 				pPoint->Add_Point(
-					(p[0].x + p[1].x + p[2].x) / 3.0,
-					(p[0].y + p[1].y + p[2].y) / 3.0
+					((double)p[0].x + p[1].x + p[2].x) / 3.,
+					((double)p[0].y + p[1].y + p[2].y) / 3.
 				);
 
 				pPoint->Set_Value(0,
-					(p[0].z + p[1].z + p[2].z) / 3.0
+					((double)p[0].z + p[1].z + p[2].z) / 3.
 				);
 			}
 		}
 
-	break;	}
+		break; }
 
 	//-----------------------------------------------------
 	case 3:	{	// Raster
-		CSG_Rect	Extent;
+		CSG_Rect Extent;
 
 		if( Get_Extent(Stream, Extent, nFacettes) )
 		{
-			int		nx, ny;
-			double	d;
+			int nx, ny; double d;
 
 			switch( Parameters("METHOD_RASTER")->asInt() )
 			{
-			case 1:				// Pixel Size
-				d		= Parameters("GRID_CELL")->asDouble();
+			case  1: // Pixel Size
+				d = Parameters("GRID_CELL")->asDouble();
 
-				if( d > 0.0 )
+				if( d > 0. )
 				{
-					nx		= 1 + (int)(Extent.Get_XRange() / d);;
-					ny		= 1 + (int)(Extent.Get_YRange() / d);
+					nx = 1 + (int)(Extent.Get_XRange() / d);;
+					ny = 1 + (int)(Extent.Get_YRange() / d);
 					break;
 				}
 
-			case 0: default:	// Pixels in X Direction
-				nx		= Parameters("GRID_NX")->asInt();
-				d		= Extent.Get_XRange() / nx;
-				ny		= 1 + (int)(Extent.Get_YRange() / d);
+			default: // Pixels in X Direction
+				nx = Parameters("GRID_NX")->asInt();
+				d  = Extent.Get_XRange() / nx;
+				ny = 1 + (int)(Extent.Get_YRange() / d);
 				break;
 			}
 
 			m_pGrid	= SG_Create_Grid(SG_DATATYPE_Float, nx, ny, d, Extent.Get_XMin(), Extent.Get_YMin());
-			m_pGrid->Set_Name(SG_File_Get_Name(sFile, false));
-			m_pGrid->Set_NoData_Value(-99999);
+			m_pGrid->Set_Name(SG_File_Get_Name(Parameters("FILE")->asString(), false));
+			m_pGrid->Set_NoData_Value(-99999.);
 			m_pGrid->Assign_NoData();
 
 			Parameters("GRID")->Set_Value(m_pGrid);
 
 			//---------------------------------------------
-			for(iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
+			for(int iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
 			{
+				TSTL_Point p[3];
+
 				if( Read_Facette(Stream, p) )
 				{
 					TSG_Point_Z	Point[3];
 
 					for(int i=0; i<3; i++)
 					{
-						Point[i].x	= (p[i].x - m_pGrid->Get_XMin()) / m_pGrid->Get_Cellsize();
-						Point[i].y	= (p[i].y - m_pGrid->Get_YMin()) / m_pGrid->Get_Cellsize();
-						Point[i].z	=  p[i].z;
+						Point[i].x = (p[i].x - m_pGrid->Get_XMin()) / m_pGrid->Get_Cellsize();
+						Point[i].y = (p[i].y - m_pGrid->Get_YMin()) / m_pGrid->Get_Cellsize();
+						Point[i].z =  p[i].z;
 					}
 
 					Set_Triangle(Point);
@@ -342,7 +305,7 @@ bool CSTL_Import::On_Execute(void)
 			}
 		}
 
-	break;	}
+		break; }
 	}
 
 	//-----------------------------------------------------
@@ -357,13 +320,13 @@ bool CSTL_Import::On_Execute(void)
 //---------------------------------------------------------
 inline bool CSTL_Import::Read_Facette(CSG_File &Stream, TSTL_Point p[3])
 {
-	WORD	Attribute;
+	WORD Attribute;
 
 	if( Stream.Read(p + 0, sizeof(TSTL_Point))
-	&&	Stream.Read(p + 0, sizeof(TSTL_Point))
-	&&	Stream.Read(p + 1, sizeof(TSTL_Point))
-	&&	Stream.Read(p + 2, sizeof(TSTL_Point))
-	&&	Stream.Read(&Attribute, sizeof(Attribute)) )
+	&&  Stream.Read(p + 0, sizeof(TSTL_Point))
+	&&  Stream.Read(p + 1, sizeof(TSTL_Point))
+	&&  Stream.Read(p + 2, sizeof(TSTL_Point))
+	&&  Stream.Read(&Attribute, sizeof(Attribute)) )
 	{
 		Rotate(p[0]);
 		Rotate(p[1]);
@@ -378,19 +341,19 @@ inline bool CSTL_Import::Read_Facette(CSG_File &Stream, TSTL_Point p[3])
 //---------------------------------------------------------
 inline void CSTL_Import::Rotate(TSTL_Point &p)
 {
-	float	d;
+	float d;
 
-	d	= (float)(r_cos_z * p.x - r_sin_z * p.y);
-	p.y	= (float)(r_sin_z * p.x + r_cos_z * p.y);
-	p.x	= d;
+	d   = (float)(r_cos_z * p.x - r_sin_z * p.y);
+	p.y = (float)(r_sin_z * p.x + r_cos_z * p.y);
+	p.x = d;
 
-	d	= (float)(r_cos_y * p.z - r_sin_y * p.x);
-	p.x	= (float)(r_sin_y * p.z + r_cos_y * p.x);
-	p.z	= d;
+	d   = (float)(r_cos_y * p.z - r_sin_y * p.x);
+	p.x = (float)(r_sin_y * p.z + r_cos_y * p.x);
+	p.z = d;
 
-	d	= (float)(r_cos_x * p.z - r_sin_x * p.y);
-	p.y	= (float)(r_sin_x * p.z + r_cos_x * p.y);
-	p.z	= d;
+	d   = (float)(r_cos_x * p.z - r_sin_x * p.y);
+	p.y = (float)(r_sin_x * p.z + r_cos_x * p.y);
+	p.z = d;
 }
 
 
@@ -401,24 +364,24 @@ inline void CSTL_Import::Rotate(TSTL_Point &p)
 //---------------------------------------------------------
 bool CSTL_Import::Get_Extent(CSG_File &Stream, CSG_Rect &Extent, int nFacettes)
 {
-	float	xMin = 1, xMax = 0, yMin, yMax;
+	float xMin = 0., xMax = 0., yMin = 0., yMax = 0.;
 
 	for(int iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
 	{
-		TSTL_Point	p[3];
+		TSTL_Point p[3];
 
 		if( Read_Facette(Stream, p) )
 		{
 			if( iFacette == 0 )
 			{
-				xMin	= xMax	= p[0].x;
-				yMin	= yMax	= p[0].y;
+				xMin = xMax = p[0].x;
+				yMin = yMax = p[0].y;
 			}
 
 			for(int i=0; i<3; i++)
 			{
-				if( xMin > p[i].x )	{	xMin	= p[i].x;	}	else if( xMax < p[i].x )	{	xMax	= p[i].x;	}
-				if( yMin > p[i].y )	{	yMin	= p[i].y;	}	else if( yMax < p[i].y )	{	yMax	= p[i].y;	}
+				if( xMin > p[i].x ) { xMin = p[i].x; } else if( xMax < p[i].x ) { xMax = p[i].x; }
+				if( yMin > p[i].y ) { yMin = p[i].y; } else if( yMax < p[i].y ) { yMax = p[i].y; }
 			}
 		}
 	}
@@ -436,7 +399,6 @@ bool CSTL_Import::Get_Extent(CSG_File &Stream, CSG_Rect &Extent, int nFacettes)
 //---------------------------------------------------------
 void CSTL_Import::Set_Triangle(TSG_Point_Z p[3])
 {
-	//-----------------------------------------------------
 	if( p[1].y < p[0].y ) {	TSG_Point_Z pp = p[1]; p[1] = p[0]; p[0] = pp;	}
 	if( p[2].y < p[0].y ) {	TSG_Point_Z pp = p[2]; p[2] = p[0]; p[0] = pp;	}
 	if( p[2].y < p[1].y ) {	TSG_Point_Z pp = p[2]; p[2] = p[1]; p[1] = pp;	}
@@ -547,74 +509,64 @@ inline void CSTL_Import::Set_Triangle_Line(int y, double xa, double za, double x
 //---------------------------------------------------------
 CSTL_Export::CSTL_Export(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("Export TIN to Stereo Lithography File (STL)"));
 
-	Set_Author		(_TL("Navaladi, Schoeller, Conrad (c) 2009"));
+	Set_Author		("Navaladi, Schoeller, Conrad (c) 2009");
 
 	Set_Description	(_TW(
-		"<a href=\"http://www.ennex.com/~fabbers/StL.asp\">The StL Format</a>"
+		""
 	));
 
+	Add_Reference("http://www.fabbers.com/tech/STL_Format", SG_T("The StL Format"));
+
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_TIN(
-		NULL	, "TIN"			, _TL("TIN"),
-		_TL(""),
-		PARAMETER_INPUT
+	Parameters.Add_TIN("",
+		"TIN"   , _TL("TIN"        ), _TL(""), PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "ZFIELD"		, _TL("Z Attribute"),
-		_TL("")
+	Parameters.Add_Table_Field("TIN",
+		"ZFIELD", _TL("Attribute"  ), _TL("")
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "FILE"		, _TL("File"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s"),
-			_TL("STL Files")	, SG_T("*.stl"),
-			_TL("All Files")	, SG_T("*.*")
-		), NULL, true
+	Parameters.Add_FilePath("",
+		"FILE"  , _TL("File"       ), _TL(""), CSG_String::Format("%s|*.stl|%s|*.*",
+			_TL("STL Files"),
+			_TL("All Files")), NULL, true
 	);
 
-	Parameters.Add_Choice(
-		pNode	, "BINARY"		, _TL("Output Type"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+	Parameters.Add_Choice("",
+		"BINARY", _TL("Output Type"), _TL(""), CSG_String::Format("%s|%s",
 			_TL("ASCII"),
 			_TL("binary")
 		), 1
 	);
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 bool CSTL_Export::On_Execute(void)
 {
-	bool		bBinary;
-	int			zField;
-	float		v[3];
-	CSG_String	File;
-	CSG_File	Stream;
-	CSG_TIN		*pTIN;
+	CSG_TIN   *pTIN   = Parameters("TIN"   )->asTIN();
+	int        zField = Parameters("ZFIELD")->asInt(); 
+	CSG_String File   = Parameters("FILE"  )->asString();
 
-	pTIN	= Parameters("TIN")		->asTIN();
-	File	= Parameters("FILE")	->asString();
-	zField	= Parameters("ZFIELD")	->asInt(); 
-	bBinary	= Parameters("BINARY")	->asInt() == 1; 
+	CSG_File Stream;
 
-	if( !Stream.Open(File, SG_FILE_W, bBinary) )
+	if( !Stream.Open(File, SG_FILE_W, Parameters("BINARY")->asInt() == 1) )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	if( bBinary )
+	if( Parameters("BINARY")->asInt() == 1 )
 	{
-		char	*sHeader	= (char *)SG_Calloc(80, sizeof(char));
-		DWORD	nFacets		= pTIN->Get_Triangle_Count();
-		WORD	nBytes		= 0;
+		char *sHeader = (char *)SG_Calloc(80, sizeof(char));
+		DWORD nFacets = (DWORD)pTIN->Get_Triangle_Count();
+		WORD  nBytes  = 0;
 
 		Stream.Write(sHeader , sizeof(char), 80);
 		Stream.Write(&nFacets, sizeof(DWORD));
@@ -622,21 +574,21 @@ bool CSTL_Export::On_Execute(void)
 		SG_Free(sHeader);
 
 		//-------------------------------------------------
-		for(int iTriangle=0; iTriangle<pTIN->Get_Triangle_Count(); iTriangle++)
+		for(sLong iTriangle=0; iTriangle<pTIN->Get_Triangle_Count(); iTriangle++)
 		{
-			CSG_TIN_Triangle	*pTriangle	= pTIN->Get_Triangle(iTriangle);
+			CSG_TIN_Triangle *pTriangle = pTIN->Get_Triangle(iTriangle);
 
-			Get_Normal(pTriangle, zField, v);
+			float v[3]; Get_Normal(pTriangle, zField, v);
 
 			Stream.Write(v, sizeof(float), 3);	// facet normal
 
 			for(int iNode=0; iNode<3; iNode++)
 			{
-				CSG_TIN_Node	*pNode	= pTriangle->Get_Node(iNode);
+				CSG_TIN_Node *pNode = pTriangle->Get_Node(iNode);
 
-				v[0]	= (float)pNode->Get_X();
-				v[1]	= (float)pNode->Get_Y();
-				v[2]	= (float)pNode->asDouble(zField);
+				v[0] = (float)pNode->Get_X();
+				v[1] = (float)pNode->Get_Y();
+				v[2] = (float)pNode->asDouble(zField);
 
 				Stream.Write(v, sizeof(float), 3);
 			}
@@ -648,33 +600,33 @@ bool CSTL_Export::On_Execute(void)
 	//-----------------------------------------------------
 	else	// ASCII
 	{
-		Stream.Printf(SG_T("solid %s\n"), SG_File_Get_Name(File, false).c_str());
+		Stream.Printf("solid %s\n", SG_File_Get_Name(File, false).c_str());
 
-		for(int iTriangle=0; iTriangle<pTIN->Get_Triangle_Count(); iTriangle++)
+		for(sLong iTriangle=0; iTriangle<pTIN->Get_Triangle_Count(); iTriangle++)
 		{
-			CSG_TIN_Triangle	*pTriangle	= pTIN->Get_Triangle(iTriangle);
+			CSG_TIN_Triangle *pTriangle = pTIN->Get_Triangle(iTriangle);
 
-			Get_Normal(pTriangle, zField, v);
+			float v[3]; Get_Normal(pTriangle, zField, v);
 
-			Stream.Printf(SG_T(" facet normal %.4f %.4f %.4f\n"), v[0], v[1], v[2]);
-			Stream.Printf(SG_T("  outer loop\n"));
+			Stream.Printf(" facet normal %.4f %.4f %.4f\n", v[0], v[1], v[2]);
+			Stream.Printf("  outer loop\n");
 
 			for(int iNode=0; iNode<3; iNode++)
 			{
-				CSG_TIN_Node	*pNode	= pTriangle->Get_Node(iNode);
+				CSG_TIN_Node *pNode = pTriangle->Get_Node(iNode);
 
-				v[0]	= (float)pNode->Get_X();
-				v[1]	= (float)pNode->Get_Y();
-				v[2]	= (float)pNode->asDouble(zField);
+				v[0] = (float)pNode->Get_X();
+				v[1] = (float)pNode->Get_Y();
+				v[2] = (float)pNode->asDouble(zField);
 
-				Stream.Printf(SG_T("   vertex %.4f %.4f %.4f\n"), v[0], v[1], v[2]);
+				Stream.Printf("   vertex %.4f %.4f %.4f\n", v[0], v[1], v[2]);
 			}
 
-			Stream.Printf(SG_T("  endloop\n"));
-			Stream.Printf(SG_T(" endfacet\n"));		
+			Stream.Printf("  endloop\n");
+			Stream.Printf(" endfacet\n");		
 		}
 
-		Stream.Printf(SG_T("endsolid %s\n"), SG_File_Get_Name(File, false).c_str());
+		Stream.Printf("endsolid %s\n", SG_File_Get_Name(File, false).c_str());
 	}
 
 	return( true );
@@ -683,24 +635,21 @@ bool CSTL_Export::On_Execute(void)
 //---------------------------------------------------------
 inline bool CSTL_Export::Get_Normal(CSG_TIN_Triangle *pTriangle, int zField, float Normal[3])
 {
-	double			u[3], v[3];
-	CSG_TIN_Node	*pA, *pB;
+	double u[3], v[3]; CSG_TIN_Node *pB, *pA = pTriangle->Get_Node(0);
 
-	pA			= pTriangle->Get_Node(0);
+	pB   = pTriangle->Get_Node(1);
+	u[0] = pB->Get_X()          - pA->Get_X();
+	u[1] = pB->Get_Y()          - pA->Get_Y();
+	u[2] = pB->asDouble(zField) - pA->asDouble(zField);
 
-	pB			= pTriangle->Get_Node(1);
-	u[0]		= pB->Get_X()          - pA->Get_X();
-	u[1]		= pB->Get_Y()          - pA->Get_Y();
-	u[2]		= pB->asDouble(zField) - pA->asDouble(zField);
+	pB   = pTriangle->Get_Node(2);
+	v[0] = pB->Get_X()          - pA->Get_X();
+	v[1] = pB->Get_Y()          - pA->Get_Y();
+	v[2] = pB->asDouble(zField) - pA->asDouble(zField);
 
-	pB			= pTriangle->Get_Node(2);
-	v[0]		= pB->Get_X()          - pA->Get_X();
-	v[1]		= pB->Get_Y()          - pA->Get_Y();
-	v[2]		= pB->asDouble(zField) - pA->asDouble(zField);
-
-	Normal[0]	= (float)(u[1] * v[2] - u[2] * v[2]);
-	Normal[1]	= (float)(u[2] * v[0] - u[0] * v[1]);
-	Normal[2]	= (float)(u[0] * v[1] - u[1] * v[0]);
+	Normal[0] = (float)(u[1] * v[2] - u[2] * v[2]);
+	Normal[1] = (float)(u[2] * v[0] - u[0] * v[1]);
+	Normal[2] = (float)(u[0] * v[1] - u[1] * v[0]);
 
 	return( true );
 }

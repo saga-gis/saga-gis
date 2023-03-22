@@ -170,7 +170,7 @@ bool CTable_Trend_Base::On_Execute(void)
 	{
 		m_Trend.Clr_Data();
 
-		for(i=0; i<pTable->Get_Record_Count(); i++)
+		for(i=0; i<pTable->Get_Count(); i++)
 		{
 			pRecord	= pTable->Get_Record(i);
 

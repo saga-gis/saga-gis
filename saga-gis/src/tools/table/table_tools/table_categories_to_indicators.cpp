@@ -142,7 +142,7 @@ bool CTable_Categories_to_Indicators::On_Execute(void)
 			pOutput->Fmt_Name("%s [%s]", pTable->Get_Name(), pTable->Get_Field_Name(iCategory));
 			pOutput->Add_Field(pTable->Get_Field_Name(iCategory), pTable->Get_Field_Type(iCategory));
 
-			for(int i=0; i<pTable->Get_Count(); i++)
+			for(sLong i=0; i<pTable->Get_Count(); i++)
 			{
 				CSG_Table_Record *pRecord = pOutput->Add_Shape((CSG_Shape *)pTable->Get_Record(i), SHAPE_COPY_GEOM);
 
@@ -165,7 +165,7 @@ bool CTable_Categories_to_Indicators::On_Execute(void)
 			pOutput->Fmt_Name("%s [%s]", pTable->Get_Name(), pTable->Get_Field_Name(iCategory));
 			pOutput->Add_Field(pTable->Get_Field_Name(iCategory), pTable->Get_Field_Type(iCategory));
 
-			for(int i=0; i<pTable->Get_Count(); i++)
+			for(sLong i=0; i<pTable->Get_Count(); i++)
 			{
 				CSG_Table_Record *pRecord = pOutput->Add_Record();
 
@@ -184,7 +184,7 @@ bool CTable_Categories_to_Indicators::On_Execute(void)
 
 	CSG_String Value;
 
-	for(int iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
+	for(sLong iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
 	{
 		CSG_Table_Record *pRecord = pTable->Get_Record(Index[iRecord]);
 

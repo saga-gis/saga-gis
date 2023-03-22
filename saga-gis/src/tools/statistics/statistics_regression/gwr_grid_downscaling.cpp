@@ -437,7 +437,7 @@ bool CGWR_Grid_Downscaling::Set_Model(void)
 
 	bool	bLogistic	= Parameters("LOGISTIC")->asBool();
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		double	p_y	= Get_YMin() + y * Get_Cellsize();
 

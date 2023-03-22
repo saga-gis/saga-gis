@@ -151,7 +151,7 @@ bool CGrid_Transpose::On_Execute(void)
 		pTransposed->Get_MetaData  ()	= pGrid->Get_MetaData  ();
 		pTransposed->Get_Projection()	= pGrid->Get_Projection();
 
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			int	iy	= bMirror_Y ? Get_NY() - 1 - y : y;
 

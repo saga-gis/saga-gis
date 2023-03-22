@@ -380,7 +380,7 @@ bool CSVM_Grids::Predict(void)
 	Features[m_pGrids->Get_Grid_Count()].index	= -1;
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
@@ -423,7 +423,7 @@ bool CSVM_Grids::Load(void)
 	}
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -472,16 +472,16 @@ bool CSVM_Grids::Training(void)
 	}
 
 	//-----------------------------------------------------
-	m_Problem.l	= Elements.Get_Count();
+	m_Problem.l	= (int)Elements.Get_Count();
 	m_Problem.y	= (double           *)SG_Malloc(m_Problem.l * sizeof(double));
 	m_Problem.x	= (struct svm_node **)SG_Malloc(m_Problem.l * sizeof(struct svm_node *));
-	m_Nodes		= (struct svm_node  *)SG_Malloc(m_Problem.l * sizeof(struct svm_node  ) * (1 + m_pGrids->Get_Grid_Count()));
+	m_Nodes		= (struct svm_node  *)SG_Malloc(m_Problem.l * sizeof(struct svm_node  ) * (1l + m_pGrids->Get_Grid_Count()));
 
 	//-----------------------------------------------------
 	CSG_String	ID_ROI;
 
 	m_Classes.Destroy();
-	m_Classes.Add_Field(SG_T("NAME"), SG_DATATYPE_String);
+	m_Classes.Add_Field("NAME", SG_DATATYPE_String);
 
 	Elements.Set_Index(0, TABLE_INDEX_Ascending);
 
@@ -662,7 +662,7 @@ bool CSVM_Grids::Training_Get_Elements(CSG_Table &Elements)
 	}
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		double	p_y	= Get_YMin() + y * Get_Cellsize();
 
@@ -750,7 +750,7 @@ bool CSVM_Grids::Finalize(void)
 				pClass->Set_Value(4, i + 1);
 			}
 
-			pLUT->asTable()->Set_Record_Count(m_Classes.Get_Count());
+			pLUT->asTable()->Set_Count(m_Classes.Get_Count());
 
 			DataObject_Set_Parameter(m_pClasses, pLUT);
 			DataObject_Set_Parameter(m_pClasses, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table

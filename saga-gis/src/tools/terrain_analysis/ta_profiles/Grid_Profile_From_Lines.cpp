@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Grid_Profile_From_Lines.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Grid_Profile_From_Lines.h"
 
 
@@ -70,116 +58,144 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+enum
+{
+	FIELD_ID_LINE = 0,
+	FIELD_ID_POINT,
+	FIELD_DISTANCE,
+	FIELD_OVERLAND,
+	FIELD_X,
+	FIELD_Y,
+	FIELD_Z,
+	FIELD_VALUES
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CGrid_Profile_From_Lines::CGrid_Profile_From_Lines(void)
 {
-	CSG_Parameter	*pNode;
-
 	Set_Name		(_TL("Profiles from Lines"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2006"));
+	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
 		"Create profiles from a grid based DEM for each line of a lines layer. "
 	));
 
-	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("DEM"),
+	Parameters.Add_Grid       (""     , "DEM"     , _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_List(
-		NULL	, "VALUES"		, _TL("Values"),
-		_TL("Additional values that shall be saved to the output table."),
+	Parameters.Add_Grid_List  (""     , "VALUES"  , _TL("Values"),
+		_TL("Additional values to be collected along profile."),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "LINES"		, _TL("Lines"),
+	Parameters.Add_Shapes     (""     , "LINES"   , _TL("Lines"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Line
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "NAME"		, _TL("Name"),
-		_TL("Naming for split lines"),
+	Parameters.Add_Table_Field("LINES", "NAME"    , _TL("Name"),
+		_TL("Attribute to use for splitted line naming (=> each line as new profile)"),
 		true
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "PROFILE"		, _TL("Profiles"),
+	Parameters.Add_Shapes     (""     , "PROFILE" , _TL("Profiles"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Shapes_List(
-		NULL	, "PROFILES"	, _TL("Profiles"),
+	Parameters.Add_Shapes_List(""     , "PROFILES", _TL("Profiles"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Value(
-		NULL	, "SPLIT"		, _TL("Each Line as new Profile"),
+	Parameters.Add_Bool       (""     , "SPLIT"   , _TL("Each Line as new Profile"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
+
+	Parameters.Add_Bool       (""     , "DIAGRAM", _TL("Show Diagram"),
+		_TL(""),
+		false
+	)->Set_UseInCMD(false);
 }
-
-//---------------------------------------------------------
-CGrid_Profile_From_Lines::~CGrid_Profile_From_Lines(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGrid_Profile_From_Lines::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("SPLIT") )
+	{
+		pParameters->Set_Enabled("PROFILE" , pParameter->asBool() == false);
+	//	pParameters->Set_Enabled("PROFILES", pParameter->asBool() ==  true); // not necessary, (optional) output lists are never visible!
+		pParameters->Set_Enabled("NAME"    , pParameter->asBool() ==  true);
+	}
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGrid_Profile_From_Lines::On_Execute(void)
 {
-	int			iLine, iName;
-
-	//-----------------------------------------------------
-	m_pDEM		= Parameters("DEM")		->asGrid();
-	m_pValues	= Parameters("VALUES")	->asGridList();
-	m_pLines	= Parameters("LINES")	->asShapes();
-	iName		= Parameters("NAME")	->asInt();
+	m_pDEM    = Parameters("DEM"   )->asGrid();
+	m_pValues = Parameters("VALUES")->asGridList();
+	m_pLines  = Parameters("LINES" )->asShapes();
 
 	//-----------------------------------------------------
 	if( Parameters("SPLIT")->asBool() == false )
 	{
-		if( (m_pProfile = Parameters("PROFILE")->asShapes()) == NULL )
+		if( (m_pPoints = Parameters("PROFILE")->asShapes()) == NULL )
 		{
-			Parameters("PROFILE")->Set_Value(m_pProfile = SG_Create_Shapes(SHAPE_TYPE_Point));
+			Parameters("PROFILE")->Set_Value(m_pPoints = SG_Create_Shapes(SHAPE_TYPE_Point));
 		}
 
-		Init_Profile(m_pProfile, CSG_String::Format(SG_T("%s [%s]"), m_pDEM->Get_Name(), _TL("Profile")));
+		Init_Profile(m_pPoints, CSG_String::Format("%s [%s]", m_pDEM->Get_Name(), _TL("Profile")));
 
-		for(iLine=0; iLine<m_pLines->Get_Count() && Set_Progress(iLine, m_pLines->Get_Count()); iLine++)
+		for(sLong i=0; i<m_pLines->Get_Count() && Set_Progress(i, m_pLines->Get_Count()); i++)
 		{
-			Set_Profile(iLine, m_pLines->Get_Shape(iLine));
+			Set_Profile(i, m_pLines->Get_Shape(i));
 		}
+
+		Show_Profile(m_pPoints);
 
 		return( true );
 	}
 
 	//-----------------------------------------------------
-	else
+	else // if( Parameters("SPLIT")->asBool() == true )
 	{
+		int Name = Parameters("NAME")->asInt();
+
 		Parameters("PROFILES")->asShapesList()->Del_Items();
 
-		for(iLine=0; iLine<m_pLines->Get_Count() && Set_Progress(iLine, m_pLines->Get_Count()); iLine++)
+		for(sLong i=0; i<m_pLines->Get_Count() && Set_Progress(i, m_pLines->Get_Count()); i++)
 		{
-			Init_Profile(m_pProfile = SG_Create_Shapes(), iName < 0
-				? CSG_String::Format(SG_T("%s [%s %d]"), m_pDEM->Get_Name(), _TL("Profile"), iLine + 1)
-				: CSG_String::Format(SG_T("%s [%s %s]"), m_pDEM->Get_Name(), _TL("Profile"), m_pLines->Get_Shape(iLine)->asString(iName))
+			Init_Profile(m_pPoints = SG_Create_Shapes(), Name < 0
+				? CSG_String::Format("%s [%s %d]", m_pDEM->Get_Name(), _TL("Profile"), i + 1)
+				: CSG_String::Format("%s [%s %s]", m_pDEM->Get_Name(), _TL("Profile"), m_pLines->Get_Shape(i)->asString(Name))
 			);
 
-			Set_Profile(iLine, m_pLines->Get_Shape(iLine));
+			Set_Profile(i, m_pLines->Get_Shape(i));
 
-			Parameters("PROFILES")->asShapesList()->Add_Item(m_pProfile);
+			Parameters("PROFILES")->asShapesList()->Add_Item(m_pPoints);
+
+			Show_Profile(m_pPoints);
 		}
 
 		return( true );
@@ -192,37 +208,22 @@ bool CGrid_Profile_From_Lines::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-enum
-{
-	F_LINE_ID	= 0,
-	F_ID,
-	F_DIST,
-	F_DIST_SURF,
-	F_X,
-	F_Y,
-	F_Z,
-	F_VALUES
-};
-
-//---------------------------------------------------------
-bool CGrid_Profile_From_Lines::Init_Profile(CSG_Shapes *pPoints, const SG_Char *Name)
+bool CGrid_Profile_From_Lines::Init_Profile(CSG_Shapes *pPoints, const CSG_String &Name)
 {
 	if( pPoints )
 	{
 		pPoints->Create(SHAPE_TYPE_Point, Name);
 
-		pPoints->Add_Field("LINE_ID"	, SG_DATATYPE_Int);
-		pPoints->Add_Field("ID"			, SG_DATATYPE_Int);
-		pPoints->Add_Field("DIST"		, SG_DATATYPE_Double);
-		pPoints->Add_Field("DIST_SURF"	, SG_DATATYPE_Double);
-		pPoints->Add_Field("X"			, SG_DATATYPE_Double);
-		pPoints->Add_Field("Y"			, SG_DATATYPE_Double);
-		pPoints->Add_Field("Z"			, SG_DATATYPE_Double);
+		pPoints->Add_Field("ID_LINE" , SG_DATATYPE_Int   ); // FIELD_ID_LINE
+		pPoints->Add_Field("ID_POINT", SG_DATATYPE_Int   ); // FIELD_ID_POINT
+		pPoints->Add_Field("DISTANCE", SG_DATATYPE_Double); // FIELD_DISTANCE
+		pPoints->Add_Field("OVERLAND", SG_DATATYPE_Double); // FIELD_OVERLAND
+		pPoints->Add_Field("X"       , SG_DATATYPE_Double); // FIELD_X
+		pPoints->Add_Field("Y"       , SG_DATATYPE_Double); // FIELD_Y
+		pPoints->Add_Field("Z"       , SG_DATATYPE_Double); // FIELD_Z
 
 		for(int i=0; i<m_pValues->Get_Grid_Count(); i++)
 		{
@@ -235,147 +236,162 @@ bool CGrid_Profile_From_Lines::Init_Profile(CSG_Shapes *pPoints, const SG_Char *
 	return( false );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-bool CGrid_Profile_From_Lines::Set_Profile(int Line_ID, CSG_Shape *pLine)
+bool CGrid_Profile_From_Lines::Show_Profile(CSG_Shapes *pPoints)
 {
-	if( pLine && pLine->Get_Point_Count(0) > 1 )
+	if( Parameters("DIAGRAM")->asBool() )
 	{
-		for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
-		{
-			TSG_Point	A, B;
+		CSG_Parameters P; CSG_String Fields(CSG_Parameter_Table_Field::Get_Choices(*pPoints, true));
 
-			B	= pLine->Get_Point(0, iPart);
+		P.Add_Bool  ("", "LEGEND"       , "", "", false);
+		P.Add_Bool  ("", "Y_SCALE_TO_X" , "", "", true     );
+		P.Add_Double("", "Y_SCALE_RATIO", "", "", 1.       );
+		P.Add_Choice("", "X_FIELD"      , "", "", Fields, FIELD_DISTANCE); // Distance
 
-			for(int iPoint=1; iPoint<pLine->Get_Point_Count(iPart); iPoint++)
-			{
-				A	= B;
-				B	= pLine->Get_Point(iPoint, iPart);
+		P.Add_Bool  ("", CSG_String::Format("FIELD_%d", FIELD_Z), "", "", true); // Z
 
-				bool bLastPoint = false;
+		DataObject_Add(pPoints);
 
-				if( iPart == pLine->Get_Part_Count() - 1 && iPoint == pLine->Get_Point_Count(iPart) - 1 )
-				{
-					bLastPoint = true;
-				}
-				
-				Set_Profile(Line_ID, iPoint == 1, A, B, bLastPoint);
-			}
-		}
-
-		return( true );
+		return( SG_UI_Diagram_Show(pPoints, &P) );
 	}
 
 	return( false );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-bool CGrid_Profile_From_Lines::Set_Profile(int Line_ID, bool bStart, const TSG_Point &A, const TSG_Point &B, bool bLastPoint)
+bool CGrid_Profile_From_Lines::Set_Profile(int ID_Line, CSG_Shape *pLine)
 {
-	double		dx, dy, d, n;
-	TSG_Point	p;
-
-	//-----------------------------------------------------
-	dx	= fabs(B.x - A.x);
-	dy	= fabs(B.y - A.y);
-
-	if( dx > 0.0 || dy > 0.0 )
+	if( pLine && pLine->Get_Point_Count(0) < 2 )
 	{
-		if( dx > dy )
-		{
-			dx	/= Get_Cellsize();
-			n	 = dx;
-			dy	/= dx;
-			dx	 = Get_Cellsize();
-		}
-		else
-		{
-			dy	/= Get_Cellsize();
-			n	 = dy;
-			dx	/= dy;
-			dy	 = Get_Cellsize();
-		}
+		return( false );
+	}
 
-		if( B.x < A.x )
-		{
-			dx	= -dx;
-		}
+	for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
+	{
+		CSG_Point B = pLine->Get_Point(0, iPart);
 
-		if( B.y < A.y )
+		for(int iPoint=1; iPoint<pLine->Get_Point_Count(iPart); iPoint++)
 		{
-			dy	= -dy;
-		}
+			CSG_Point A = B; B = pLine->Get_Point(iPoint, iPart);
 
-		//-------------------------------------------------
-		for(d=0.0, p.x=A.x, p.y=A.y; d<=n; d++, p.x+=dx, p.y+=dy)
-		{
-			Add_Point(Line_ID, bStart, p);
-
-			bStart	= false;
-		}
-
-		if( bLastPoint && SG_Get_Distance(p, B) > M_ALMOST_ZERO )
-		{
-			Add_Point(Line_ID, bStart, B);
+			Set_Profile(ID_Line, iPoint == 1, A, B, iPart == pLine->Get_Part_Count() - 1 && iPoint == pLine->Get_Point_Count(iPart) - 1);
 		}
 	}
 
-	//-----------------------------------------------------
 	return( true );
 }
 
 //---------------------------------------------------------
-bool CGrid_Profile_From_Lines::Add_Point(int Line_ID, bool bStart, const TSG_Point &Point)
+bool CGrid_Profile_From_Lines::Set_Profile(int ID_Line, bool bStart, const TSG_Point &A, const TSG_Point &B, bool bLastPoint)
 {
-	int			x, y, i;
-	double		z, Distance, Distance_2;
-	CSG_Shape	*pPoint, *pLast;
+	double dx = fabs(B.x - A.x);
+	double dy = fabs(B.y - A.y), n;
 
-	if( Get_System().Get_World_to_Grid(x, y, Point) && m_pDEM->is_InGrid(x, y) )
+	if( dx <= 0. && dy <= 0. )
 	{
-		z	= m_pDEM->asDouble(x, y);
-
-		if( bStart || m_pProfile->Get_Count() == 0 )
-		{
-			Distance	= 0.0;
-			Distance_2	= 0.0;
-		}
-		else
-		{
-			pLast		= m_pProfile->Get_Shape(m_pProfile->Get_Count() - 1);
-			Distance	= SG_Get_Distance(Point, pLast->Get_Point(0));
-
-			if( Distance == 0.0 )
-			{
-				return( false );
-			}
-
-			Distance_2	= pLast->asDouble(F_Z) - z;
-			Distance_2	= sqrt(Distance*Distance + Distance_2*Distance_2);
-
-			Distance	+= pLast->asDouble(F_DIST);
-			Distance_2	+= pLast->asDouble(F_DIST_SURF);
-		}
-
-		pPoint	= m_pProfile->Add_Shape();
-		pPoint->Add_Point(Point);
-
-		pPoint->Set_Value(F_LINE_ID  , Line_ID);
-		pPoint->Set_Value(F_ID       , m_pProfile->Get_Count());
-		pPoint->Set_Value(F_DIST     , Distance);
-		pPoint->Set_Value(F_DIST_SURF, Distance_2);
-		pPoint->Set_Value(F_X        , Point.x);
-		pPoint->Set_Value(F_Y        , Point.y);
-		pPoint->Set_Value(F_Z        , z);
-
-		for(i=0; i<m_pValues->Get_Grid_Count(); i++)
-		{
-			pPoint->Set_Value(F_VALUES + i, m_pValues->Get_Grid(i)->asDouble(x, y));
-		}
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	if( dx > dy )
+	{
+		dx /= Get_Cellsize();
+		n   = dx;
+		dy /= dx;
+		dx  = Get_Cellsize();
+	}
+	else
+	{
+		dy /= Get_Cellsize();
+		n   = dy;
+		dx /= dy;
+		dy  = Get_Cellsize();
+	}
+
+	dx = A.x < B.x ? dx : -dx;
+	dy = A.y < B.y ? dy : -dy;
+
+	//-----------------------------------------------------
+	CSG_Point P(A);
+
+	for(double d=0.; d<=n; d++, P.x+=dx, P.y+=dy)
+	{
+		Add_Point(ID_Line, bStart, P);
+
+		bStart = false;
+	}
+
+	if( bLastPoint && SG_Get_Distance(P, B) > M_ALMOST_ZERO )
+	{
+		Add_Point(ID_Line, bStart, B);
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CGrid_Profile_From_Lines::Add_Point(int ID_Line, bool bStart, const TSG_Point &Point)
+{
+	int x, y; Get_System().Get_World_to_Grid(x, y, Point);
+
+	if( !m_pDEM->is_InGrid(x, y) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	double z = m_pDEM->asDouble(x, y), Distance, Overland;
+
+	if( bStart || m_pPoints->Get_Count() == 0 )
+	{
+		Distance = Overland = 0.;
+	}
+	else
+	{
+		CSG_Shape *pLast = m_pPoints->Get_Shape(m_pPoints->Get_Count() - 1);
+
+		Distance = SG_Get_Distance(Point, pLast->Get_Point(0));
+
+		if( Distance == 0. )
+		{
+			return( false );
+		}
+
+		Overland  = pLast->asDouble(FIELD_Z) - z;
+		Overland  = sqrt(Distance*Distance + Overland*Overland);
+
+		Distance += pLast->asDouble(FIELD_DISTANCE);
+		Overland += pLast->asDouble(FIELD_OVERLAND);
+	}
+
+	//-----------------------------------------------------
+	CSG_Shape *pPoint = m_pPoints->Add_Shape();
+
+	pPoint->Add_Point(Point);
+
+	pPoint->Set_Value(FIELD_ID_LINE , ID_Line);
+	pPoint->Set_Value(FIELD_ID_POINT, m_pPoints->Get_Count());
+	pPoint->Set_Value(FIELD_DISTANCE, Distance);
+	pPoint->Set_Value(FIELD_OVERLAND, Overland);
+	pPoint->Set_Value(FIELD_X       , Point.x);
+	pPoint->Set_Value(FIELD_Y       , Point.y);
+	pPoint->Set_Value(FIELD_Z       ,       z);
+
+	for(int i=0; i<m_pValues->Get_Grid_Count(); i++)
+	{
+		pPoint->Set_Value(FIELD_VALUES + i, m_pValues->Get_Grid(i)->asDouble(x, y));
+	}
+
+	return( true );
 }
 
 

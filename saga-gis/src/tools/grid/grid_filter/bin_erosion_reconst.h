@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,6 +47,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifndef HEADER_INCLUDED__bin_erosion_reconst_H
+#define HEADER_INCLUDED__bin erosion_reconst_H
 
 
 ///////////////////////////////////////////////////////////
@@ -59,13 +58,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__bin_erosion_reconst_H
-#define HEADER_INCLUDED__bin erosion_reconst_H
-
-//---------------------------------------------------------
-
-
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -83,16 +76,7 @@ public:
 
 protected:
 
-	virtual bool On_Execute (void);
-
-
-private:
-	int						m_Radius, m_Threshold;
-
-	CSG_Grid				m_Kernel, *m_pInput;
-
-
-	bool					Get_Range		(int x, int y, double &Minimum, double &Maximum);
+	virtual bool			On_Execute		(void);
 
 };
 

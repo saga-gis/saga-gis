@@ -219,7 +219,7 @@ bool CSVG_Export::On_Execute(void)
 		pGroup->Add_Property("id"       , pShapes->Get_Name());
 		pGroup->Add_Property("transform", "scale(1,-1)");
 
-		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		for(sLong iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
 			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
 

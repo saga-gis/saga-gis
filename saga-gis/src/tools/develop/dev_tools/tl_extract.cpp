@@ -169,13 +169,13 @@ bool CTL_Extract::On_Execute(void)
 
 	Elements.Set_Index(0, TABLE_INDEX_Ascending);
 
-	for(int i=0; i<Elements.Get_Count() && Set_Progress(i, Elements.Get_Count()); i++)
+	for(sLong i=0; i<Elements.Get_Count() && Set_Progress(i, Elements.Get_Count()); i++)
 	{
 		if( i == 0 || Text.Cmp(Elements.Get_Record_byIndex(i)->asString(0)) )
 		{
-			Text	= Elements.Get_Record_byIndex(i)->asString(0);
+			Text = Elements.Get_Record_byIndex(i)->asString(0);
 
-			CSG_Table_Record	*pRecord	= pTarget->Add_Record();
+			CSG_Table_Record *pRecord = pTarget->Add_Record();
 
 			pRecord->Set_Value(0, Text);
 

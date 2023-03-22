@@ -178,7 +178,7 @@ bool CWator::On_Execute(void)
 
 	DataObject_Add       (m_pWator);
 	DataObject_Set_Colors(m_pWator, Colors);
-	DataObject_Update    (m_pWator, 0, 2, SG_UI_DATAOBJECT_SHOW);
+	DataObject_Update    (m_pWator, 0, 2, SG_UI_DATAOBJECT_SHOW_MAP);
 
 	//-----------------------------------------------------
 	if( Parameters("REFRESH")->asBool() )

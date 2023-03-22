@@ -286,7 +286,7 @@ void CHillslope_Evolution_ADI::Set_Difference(void)
 		CSG_Grid	*pDEM	= Parameters("DEM")->asGrid();
 
 		#pragma omp parallel for
-		for(int i=0; i<Get_NCells(); i++)
+		for(sLong i=0; i<Get_NCells(); i++)
 		{
 			if( m_pDEM->is_NoData(i) )
 			{
@@ -300,7 +300,7 @@ void CHillslope_Evolution_ADI::Set_Difference(void)
 
 		if( Parameters("UPDATE")->asBool() )
 		{
-			DataObject_Update(pDiff, SG_UI_DATAOBJECT_SHOW);
+			DataObject_Update(pDiff, SG_UI_DATAOBJECT_SHOW_MAP);
 		}
 	}
 }

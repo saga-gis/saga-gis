@@ -315,9 +315,9 @@ bool CShapes2Grid::On_Execute(void)
 	m_pCount->Assign(0.);
 
 	//-----------------------------------------------------
-	for(int i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
+	for(sLong i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
 	{
-		CSG_Shape	*pShape	= pShapes->Get_Shape(i);
+		CSG_Shape *pShape = pShapes->Get_Shape(i);
 
 		m_Cells_On_Shape.clear();
 
@@ -939,9 +939,9 @@ bool CPolygons2Grid::On_Execute(void)
 	m_pCoverage->Assign(0.);
 
 	//-----------------------------------------------------
-	for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
+	for(sLong i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 	{
-		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(i);
+		CSG_Shape_Polygon *pPolygon = (CSG_Shape_Polygon *)pPolygons->Get_Shape(i);
 
 		if( pPolygons->Get_Selection_Count() <= 0 || pPolygon->is_Selected() )
 		{
@@ -949,7 +949,7 @@ bool CPolygons2Grid::On_Execute(void)
 			{
 				if( pPolygon->Intersects(m_pGrid->Get_Extent()) )
 				{
-					Set_Polygon(pPolygon, Field < 0 ? i + 1 : pPolygon->asDouble(Field));
+					Set_Polygon(pPolygon, Field < 0 ? i + 1. : pPolygon->asDouble(Field));
 				}
 			}
 		}

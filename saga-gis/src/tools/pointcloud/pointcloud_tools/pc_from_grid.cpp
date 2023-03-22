@@ -130,7 +130,7 @@ bool CPC_From_Grid::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(y=0, p.y=Get_YMin(); y<Get_NY() && Set_Progress(y); y++, p.y+=Get_Cellsize())
+	for(y=0, p.y=Get_YMin(); y<Get_NY() && Set_Progress_Rows(y); y++, p.y+=Get_Cellsize())
 	{
 		for(x=0, p.x=Get_XMin(); x<Get_NX(); x++, p.x+=Get_Cellsize())
 		{

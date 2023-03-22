@@ -264,59 +264,55 @@ inline double CTable_PCA::Get_Value(int iFeature, int iElement)
 //---------------------------------------------------------
 bool CTable_PCA::Get_Matrix(CSG_Matrix &Matrix)
 {
-	int		i, j1, j2;
-
 	Matrix.Create(m_nFeatures, m_nFeatures);
 	Matrix.Set_Zero();
 
 	switch( m_Method )
 	{
-	//-----------------------------------------------------
-	default:
-	case 0:	// Correlation matrix: Center and reduce the column vectors.
-		for(j1=0; j1<m_nFeatures; j1++)
+	default: {	// Correlation matrix: Center and reduce the column vectors.
+		for(int j1=0; j1<m_nFeatures; j1++)
 		{
 			Matrix[j1][j1] = 1.0;
 		}
 
-		for(i=0; i<m_pTable->Get_Count() && Set_Progress(i, m_pTable->Get_Count()); i++)
+		for(sLong i=0; i<m_pTable->Get_Count() && Set_Progress(i, m_pTable->Get_Count()); i++)
 		{
 			if( !is_NoData(i) )
 			{
-				for(j1=0; j1<m_nFeatures-1; j1++)
+				for(int j1=0; j1<m_nFeatures-1; j1++)
 				{
-					for(j2=j1+1; j2<m_nFeatures; j2++)
+					for(int j2=j1+1; j2<m_nFeatures; j2++)
 					{
 						Matrix[j1][j2]	+= Get_Value(j1, i) * Get_Value(j2, i);
 					}
 				}
 			}
 		}
-		break;
+		break; }
 
 	//-----------------------------------------------------
-	case 1:	// Variance-covariance matrix: Center the column vectors.
-	case 2:	// Sums-of-squares-and-cross-products matrix
-		for(i=0; i<m_pTable->Get_Count() && Set_Progress(i, m_pTable->Get_Count()); i++)
+	case  1:	// Variance-covariance matrix: Center the column vectors.
+	case  2: {	// Sums-of-squares-and-cross-products matrix
+		for(sLong i=0; i<m_pTable->Get_Count() && Set_Progress(i, m_pTable->Get_Count()); i++)
 		{
 			if( !is_NoData(i) )
 			{
-				for(j1=0; j1<m_nFeatures; j1++)
+				for(int j1=0; j1<m_nFeatures; j1++)
 				{
-					for(j2=j1; j2<m_nFeatures; j2++)
+					for(int j2=j1; j2<m_nFeatures; j2++)
 					{
 						Matrix[j1][j2]	+= Get_Value(j1, i) * Get_Value(j2, i);
 					}
 				}
 			}
 		}
-		break;
+		break; }
 	}
 
 	//-----------------------------------------------------
-	for(j1=0; j1<m_nFeatures; j1++)
+	for(int j1=0; j1<m_nFeatures; j1++)
 	{
-		for(j2=j1; j2<m_nFeatures; j2++)
+		for(int j2=j1; j2<m_nFeatures; j2++)
 		{
 			Matrix[j2][j1] = Matrix[j1][j2];
 		}
@@ -398,7 +394,7 @@ bool CTable_PCA::Get_Components(CSG_Matrix &Eigen_Vectors, CSG_Vector &Eigen_Val
 	}
 
 	//-----------------------------------------------------
-	for(int iElement=0; iElement<m_pTable->Get_Count() && Set_Progress(iElement, m_pTable->Get_Count()); iElement++)
+	for(sLong iElement=0; iElement<m_pTable->Get_Count() && Set_Progress(iElement, m_pTable->Get_Count()); iElement++)
 	{
 		if( !is_NoData(iElement) )
 		{

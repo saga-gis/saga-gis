@@ -224,7 +224,7 @@ bool CJoin_Tables_Base::On_Execute(void)
 
 	CSG_Table_Record *pRecord_B = pTable_B->Get_Record(Index_B[0]);
 
-	for(int a=0, b=0, nJoined=0, Cmp; a<pTable_A->Get_Count() && Set_Progress(a, pTable_A->Get_Count()); a++)
+	for(sLong a=0, b=0, nJoined=0, Cmp; a<pTable_A->Get_Count() && Set_Progress(a, pTable_A->Get_Count()); a++)
 	{
 		CSG_Table_Record *pRecord_A = pTable_A->Get_Record(Index_A[a]);
 
@@ -298,7 +298,7 @@ bool CJoin_Tables_Base::On_Execute(void)
 	{
 		Delete.Set_Index(0, TABLE_INDEX_Descending);
 
-		for(int i=0; i<Delete.Get_Count(); i++)
+		for(sLong i=0; i<Delete.Get_Count(); i++)
 		{
 			pTable_A->Del_Record(Delete[i].asInt(0));
 		}
@@ -450,7 +450,7 @@ bool CTable_Append_Cols::On_Execute(void)
 {
 	CSG_Table *pTable  = Parameters("INPUT" )->asTable();
 
-	if( pTable->Get_Record_Count() <= 0 )
+	if( pTable->Get_Count() <= 0 )
 	{
 		Error_Set(_TL("no records in data set"));
 
@@ -459,7 +459,7 @@ bool CTable_Append_Cols::On_Execute(void)
 
 	CSG_Table *pAppend = Parameters("APPEND")->asTable();
 
-	if( pAppend->Get_Record_Count() <= 0 )
+	if( pAppend->Get_Count() <= 0 )
 	{
 		Error_Set(_TL("no records to append"));
 

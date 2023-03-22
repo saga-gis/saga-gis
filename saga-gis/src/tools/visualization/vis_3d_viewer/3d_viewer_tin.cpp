@@ -322,7 +322,7 @@ bool C3D_Viewer_TIN_Panel::On_Draw(void)
 		}
 
 		#pragma omp parallel for
-		for(int iTriangle=0; iTriangle<m_pTIN->Get_Triangle_Count(); iTriangle++)
+		for(sLong iTriangle=0; iTriangle<m_pTIN->Get_Triangle_Count(); iTriangle++)
 		{
 			CSG_TIN_Triangle *pTriangle = m_pTIN->Get_Triangle(iTriangle); TSG_Triangle_Node p[3];
 
@@ -362,7 +362,7 @@ bool C3D_Viewer_TIN_Panel::On_Draw(void)
 		int  Color  = m_Parameters("EDGE_COLOR"    )->asColor();
 
 		#pragma omp parallel for
-		for(int iEdge=0; iEdge<m_pTIN->Get_Edge_Count(); iEdge++)
+		for(sLong iEdge=0; iEdge<m_pTIN->Get_Edge_Count(); iEdge++)
 		{
 			CSG_TIN_Edge *pEdge = m_pTIN->Get_Edge(iEdge); TSG_Triangle_Node p[2];
 
@@ -397,7 +397,7 @@ bool C3D_Viewer_TIN_Panel::On_Draw(void)
 		int Size  = m_Parameters("NODE_SIZE" )->asInt   ();
 
 		#pragma omp parallel for
-		for(int iNode=0; iNode<m_pTIN->Get_Node_Count(); iNode++)
+		for(sLong iNode=0; iNode<m_pTIN->Get_Node_Count(); iNode++)
 		{
 			CSG_TIN_Node *pNode = m_pTIN->Get_Node(iNode); TSG_Point_Z p;
 

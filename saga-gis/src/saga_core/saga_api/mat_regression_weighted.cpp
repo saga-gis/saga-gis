@@ -150,10 +150,9 @@ bool CSG_Regression_Weighted::Calculate(const CSG_Vector &Weights, const CSG_Vec
 //---------------------------------------------------------
 bool CSG_Regression_Weighted::Calculate(bool bLogistic)
 {
-	//-----------------------------------------------------
-	int	i, nSamples, nPredictors;
+	sLong nSamples = m_w.Get_Size(), nPredictors = m_X.Get_NCols() - 1;
 
-	if( (nSamples = m_w.Get_N()) <= (nPredictors = m_X.Get_NCols() - 1) || nSamples < 2 )
+	if( nSamples <= nPredictors || nSamples < 2 )
 	{
 		return( false );
 	}
@@ -161,7 +160,7 @@ bool CSG_Regression_Weighted::Calculate(bool bLogistic)
 	//-----------------------------------------------------
 	if( bLogistic )
 	{
-		m_b	= _Log_Get_Beta(m_X, m_y, m_w);
+		m_b = _Log_Get_Beta(m_X, m_y, m_w);
 
 		if( m_b.Get_N() == 0 )
 		{
@@ -170,53 +169,53 @@ bool CSG_Regression_Weighted::Calculate(bool bLogistic)
 	}
 	else
 	{
-		CSG_Matrix	YtW(nSamples, 1 + nPredictors);
+		CSG_Matrix YtW(nSamples, 1 + nPredictors);
 
-		for(i=0; i<nSamples; i++)
+		for(sLong i=0; i<nSamples; i++)
 		{
-			YtW[0][i]	= m_w[i];
+			YtW[0][i] = m_w[i];
 
-			for(int j=1; j<=nPredictors; j++)
+			for(sLong j=1; j<=nPredictors; j++)
 			{
-				YtW[j][i]	= m_w[i] * m_X[i][j];
+				YtW[j][i] = m_w[i] * m_X[i][j];
 			}
 		}
 
-		m_b	= (YtW * m_X).Get_Inverse() * (YtW * m_y);
+		m_b = (YtW * m_X).Get_Inverse() * (YtW * m_y);
 	}
 
 	//-----------------------------------------------------
-	CSG_Simple_Statistics	yStats(m_y);
+	CSG_Simple_Statistics yStats(m_y);
 
-	double	rss	= 0.0, tss	= 0.0;
+	double rss = 0., tss = 0.;
 
-	for(i=0; i<nSamples; i++)
+	for(sLong i=0; i<nSamples; i++)
 	{
-		double	yr	= m_b[0];
+		double yr = m_b[0];
 
-		for(int j=1; j<=nPredictors; j++)
+		for(sLong j=1; j<=nPredictors; j++)
 		{
-			yr	+= m_b[j] * m_X[i][j];
+			yr += m_b[j] * m_X[i][j];
 		}
 
 		if( bLogistic )
 		{
-			yr	= 1. / (1. + exp(-yr));
+			yr = 1. / (1. + exp(-yr));
 		}
 
-		rss	+= m_w[i] * SG_Get_Square(m_y[i] - yr);
-		tss	+= m_w[i] * SG_Get_Square(m_y[i] - yStats.Get_Mean());
+		rss += m_w[i] * SG_Get_Square(m_y[i] - yr);
+		tss += m_w[i] * SG_Get_Square(m_y[i] - yStats.Get_Mean());
 	}
 
 	//-----------------------------------------------------
 	if( tss > 0.0 && tss >= rss )
 	{
-		m_r2	= fabs(tss - rss) / tss;
+		m_r2 = fabs(tss - rss) / tss;
 
 		return( true );
 	}
 
-	m_r2	= -1.0;
+	m_r2 = -1.;
 
 	return( false );
 }

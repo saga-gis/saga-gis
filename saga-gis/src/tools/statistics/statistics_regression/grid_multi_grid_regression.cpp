@@ -370,7 +370,7 @@ bool CGrid_Multi_Grid_Regression::Set_Regression(CSG_Grid *pRegression, CSG_Para
 	if( yCoord )	{	yCoord	= nValues++;	}
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		double	py	= Get_YMin() + y * Get_Cellsize();
 
@@ -433,7 +433,7 @@ bool CGrid_Multi_Grid_Regression::Set_Residuals(CSG_Grid *pDependent, CSG_Grid *
 	pResiduals->Fmt_Name("%s [OLS %s]", pDependent->Get_Name(), _TL("Residuals"));
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		double	py	= Get_YMin() + y * Get_Cellsize();
 

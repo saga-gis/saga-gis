@@ -47,6 +47,7 @@
 
 //---------------------------------------------------------
 #include "res_commands.h"
+#include "res_controls.h"
 #include "res_dialogs.h"
 
 #include "saga_frame.h"
@@ -74,6 +75,7 @@
 
 #include "wksp_shapes.h"
 
+#include "view_map.h"
 #include "view_histogram.h"
 
 
@@ -332,7 +334,7 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	// Classification: Classified...
 
 	m_Parameters.Add_Node("NODE_COLORS",
-		"NODE_LUT"			, _TL("Classified"),
+		"NODE_LUT"		, _TL("Classified"),
 		_TL("")
 	);
 
@@ -343,8 +345,8 @@ void CWKSP_Layer::On_Create_Parameters(void)
 		m_Parameters.Add_Choice("NODE_LUT", "LUT_ATTRIB", _TL("Attribute"), _TL(""), _TL("<default>"));
 	}
 
-	CSG_Table	*pLUT	= m_Parameters.Add_FixedTable("NODE_LUT",
-		"LUT"				, _TL("Table"),
+	CSG_Table *pLUT = m_Parameters.Add_FixedTable("NODE_LUT",
+		"LUT"			, _TL("Table"),
 		_TL("")
 	)->asTable();
 
@@ -357,6 +359,19 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	pLUT->Add_Field(_TL("Maximum"    ), SG_DATATYPE_Double);
 
 	m_pClassify->Initialise(this, pLUT, g_pData->Get_Parameter("COLORS_DEFAULT")->asColors());
+
+	if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid
+	||  m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grids )
+	{
+		m_Parameters.Add_Choice("NODE_LUT", "LUT_RESAMPLING", _TL("Resampling"), _TL(""),
+			CSG_String::Format("%s|%s|%s|%s",
+				_TL("Nearest Neighbour"),
+				_TL("Bilinear Interpolation"),
+				_TL("Bicubic Spline Interpolation"),
+				_TL("B-Spline Interpolation")
+			), 0
+		);
+	}
 
 	//-----------------------------------------------------
 	// Classification: Colors...
@@ -1061,28 +1076,22 @@ bool CWKSP_Layer::Show(CWKSP_Map *pMap)
 
 			return( true );
 		}
+
+		return( false );
 	}
-	else
+
+	//-----------------------------------------------------
+	for(int i=0; i<g_pMaps->Get_Count(); i++) // find first map that includes this layer
 	{
-		for(int i=0; i<g_pMaps->Get_Count(); i++)
+		if( g_pMaps->Get_Map(i)->Get_Map_Layer(this) != NULL )
 		{
-			if( g_pMaps->Get_Map(i)->Get_Map_Layer(this) != NULL )
-			{
-				pMap	= g_pMaps->Get_Map(i);
+			g_pMaps->Get_Map(i)->View_Show(true);
 
-				pMap->View_Show(true);
-
-				return( true );
-			}
-		}
-
-		if( g_pMaps->Add(this, NULL) )
-		{
-			return( Show((CWKSP_Map *)NULL) );
+			return( true );
 		}
 	}
 
-	return( false );
+	return( g_pMaps->Add(this, NULL) && Show((CWKSP_Map *)NULL) ); // not found? add to new map and show
 }
 
 //---------------------------------------------------------
@@ -1090,17 +1099,21 @@ bool CWKSP_Layer::Show(int Flags)
 {
 	switch( Flags )
 	{
-	case SG_UI_DATAOBJECT_SHOW:
+	case SG_UI_DATAOBJECT_SHOW_MAP:
 		return( Show((CWKSP_Map *)NULL) );
 
-	case SG_UI_DATAOBJECT_SHOW_NEW_MAP:
+	case SG_UI_DATAOBJECT_SHOW_MAP_NEW:
 		g_pMaps->Add(this, NULL);
 
-	case SG_UI_DATAOBJECT_SHOW_LAST_MAP:
+	case SG_UI_DATAOBJECT_SHOW_MAP_LAST:
 		return( Show(g_pMaps->Get_Map(g_pMaps->Get_Count() - 1)) );
+
+	case SG_UI_DATAOBJECT_SHOW_MAP_ACTIVE: {
+		CVIEW_Map *pView = (CVIEW_Map *)g_pSAGA_Frame->Get_Active_Child(ID_VIEW_MAP);
+		return( Show(pView ? pView->Get_Map() : NULL) ); }
 	}
 
-	return( true );
+	return( false );
 }
 
 //---------------------------------------------------------

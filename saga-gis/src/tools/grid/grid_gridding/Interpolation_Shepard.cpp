@@ -110,6 +110,13 @@ bool CInterpolation_Shepard::On_Initialize(void)
 {
 	CSG_Shapes	*pPoints	= Get_Points();
 
+	if( pPoints->Get_Count() > std::numeric_limits<int>::max() )
+	{
+		Error_Set(_TL("too many points (exceeds size of 32bit integer)"));
+
+		return( false );
+	}
+
 	m_Points[0].Destroy();
 	m_Points[1].Destroy();
 	m_Points[2].Destroy();

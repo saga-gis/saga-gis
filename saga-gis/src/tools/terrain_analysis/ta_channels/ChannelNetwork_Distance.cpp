@@ -295,7 +295,7 @@ bool CChannelNetwork_Distance::On_Execute(void)
 	int  Method		= Parameters("METHOD")->asInt();
 	bool bBoundary	= Parameters("BOUNDARY")->asBool();
 
-	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(sLong n=0; n<Get_NCells() && Set_Progress_Cells(n); n++)
 	{
 		int		x, y;
 

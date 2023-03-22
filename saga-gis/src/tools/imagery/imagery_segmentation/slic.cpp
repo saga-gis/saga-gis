@@ -306,7 +306,7 @@ bool CSLIC::Get_Polygons(CSG_Grid &Segments)
 		pPolygons->Add_Field(m_pGrids->Get_Grid(k)->Get_Name(), SG_DATATYPE_Double);
 	}
 
-	for(int i=0; i<pPolygons->Get_Count(); i++)
+	for(sLong i=0; i<pPolygons->Get_Count(); i++)
 	{
 		CSG_Shape	*pPolygon	= pPolygons->Get_Shape(i);
 

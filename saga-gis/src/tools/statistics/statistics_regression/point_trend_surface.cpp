@@ -244,65 +244,60 @@ CSG_String CPoint_Trend_Surface::Get_Power(const CSG_String &Value, int Power)
 //---------------------------------------------------------
 bool CPoint_Trend_Surface::Get_Regression(CSG_Shapes *pPoints, int iAttribute)
 {
-	int		i, j, Field;
-
 	m_Names.Clear();
 
 	m_Names	+= pPoints->Get_Name();
 
-	for(i=1; i<=m_xOrder; i++)
+	for(int i=1; i<=m_xOrder; i++)
 	{
 		m_Names	+= Get_Power("x", i);
 	}
 
-	for(i=1; i<=m_yOrder; i++)
+	for(int i=1; i<=m_yOrder; i++)
 	{
 		m_Names	+= Get_Power("y", i);
 
-		for(j=1; j<=m_xOrder && i<m_tOrder && j<m_tOrder; j++)
+		for(int j=1; j<=m_xOrder && i<m_tOrder && j<m_tOrder; j++)
 		{
 			m_Names	+= Get_Power("x", j) + Get_Power("y", i);
 		}
 	}
 
 	//-----------------------------------------------------
-	CSG_Vector	Y, xPow, yPow;
-	CSG_Matrix	X;
+	CSG_Matrix X; CSG_Vector Y, xPow, yPow;
 
-	Y.Create(pPoints->Get_Count());
-	X.Create(m_Names.Get_Count(), pPoints->Get_Count());
+	Y.Create(                     (int)pPoints->Get_Count());
+	X.Create(m_Names.Get_Count(), (int)pPoints->Get_Count());
 	
-	xPow.Create(m_xOrder + 1);
-	yPow.Create(m_yOrder + 1);
-
-	xPow[0]	= 1.0;
-	yPow[0]	= 1.0;
+	xPow.Create(m_xOrder + 1); xPow[0] = 1.;
+	yPow.Create(m_yOrder + 1); yPow[0] = 1.;
 
 	//-----------------------------------------------------
-	for(int iShape=0; iShape<pPoints->Get_Count() && Set_Progress(iShape, pPoints->Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<pPoints->Get_Count() && Set_Progress(iShape, pPoints->Get_Count()); iShape++)
 	{
-		CSG_Shape	*pShape	= pPoints->Get_Shape(iShape);
+		CSG_Shape *pShape = pPoints->Get_Shape(iShape);
 
 		if( !pShape->is_NoData(iAttribute) )
 		{
-			double		zShape	= pShape->asDouble(iAttribute);
-			TSG_Point	Point	= pShape->Get_Point(0);
+			TSG_Point Point = pShape->Get_Point(0); int ii = (int)iShape;
 
-			Y[iShape]		= zShape;
-			X[iShape][0]	= 1.0;
+			Y[ii]    = pShape->asDouble(iAttribute);
+			X[ii][0] = 1.;
 
-			for(i=1, Field=1; i<=m_xOrder; i++)
+			int Field = 1;
+
+			for(int i=1; i<=m_xOrder; i++)
 			{
-				X[iShape][Field++]	= xPow[i]	= xPow[i - 1] * Point.x;
+				X[ii][Field++] = xPow[i] = xPow[i - 1] * Point.x;
 			}
 
-			for(i=1; i<=m_yOrder; i++)
+			for(int i=1; i<=m_yOrder; i++)
 			{
-				X[iShape][Field++]	= yPow[i]	= yPow[i - 1] * Point.y;
+				X[ii][Field++] = yPow[i] = yPow[i - 1] * Point.y;
 
-				for(j=1; j<=m_xOrder && i<m_tOrder && j<m_tOrder; j++)
+				for(int j=1; j<=m_xOrder && i<m_tOrder && j<m_tOrder; j++)
 				{
-					X[iShape][Field++]	= xPow[j] * yPow[i];
+					X[ii][Field++] = xPow[j] * yPow[i];
 				}
 			}
 		}
@@ -325,32 +320,32 @@ bool CPoint_Trend_Surface::Get_Regression(CSG_Shapes *pPoints, int iAttribute)
 //---------------------------------------------------------
 bool CPoint_Trend_Surface::Set_Regression(CSG_Grid *pRegression)
 {
-	int			x, y, i, j, Field;
-	double		z;
-	TSG_Point	Point;
-	CSG_Vector	xPow(m_xOrder + 1), yPow(m_yOrder + 1);
+	CSG_Vector xPow(m_xOrder + 1); xPow[0] = 1.;
+	CSG_Vector yPow(m_yOrder + 1); yPow[0] = 1.;
 
-	xPow[0]	= 1.0;
-	yPow[0]	= 1.0;
-
-	for(y=0, Point.y=pRegression->Get_YMin(); y<pRegression->Get_NY() && Set_Progress(y, pRegression->Get_NY()); y++, Point.y+=pRegression->Get_Cellsize())
+	for(int y=0; y<pRegression->Get_NY() && Set_Progress(y, pRegression->Get_NY()); y++)
 	{
-		for(x=0, Point.x=pRegression->Get_XMin(); x<pRegression->Get_NX(); x++, Point.x+=pRegression->Get_Cellsize())
-		{
-			z	 = m_Coefficients[0];
+		double yPos = pRegression->Get_YMin() + y * pRegression->Get_Cellsize();
 
-			for(i=1, Field=1; i<=m_xOrder; i++)
+		#pragma omp parallel for
+		for(int x=0; x<pRegression->Get_NX(); x++)
+		{
+			double xPos = pRegression->Get_XMin() + x * pRegression->Get_Cellsize();
+
+			double z = m_Coefficients[0]; int Field = 1;
+
+			for(int i=1; i<=m_xOrder; i++)
 			{
-				z	+= m_Coefficients[Field++] * (xPow[i] = xPow[i - 1] * Point.x);
+				z += m_Coefficients[Field++] * (xPow[i] = xPow[i - 1] * xPos);
 			}
 
-			for(i=1; i<=m_yOrder; i++)
+			for(int i=1; i<=m_yOrder; i++)
 			{
-				z	+= m_Coefficients[Field++] * (yPow[i] = yPow[i - 1] * Point.y);
+				z += m_Coefficients[Field++] * (yPow[i] = yPow[i - 1] * yPos);
 
-				for(j=1; j<=m_xOrder && i<m_tOrder && j<m_tOrder; j++)
+				for(int j=1; j<=m_xOrder && i<m_tOrder && j<m_tOrder; j++)
 				{
-					z	+= m_Coefficients[Field++] * xPow[j] * yPow[i];
+					z += m_Coefficients[Field++] * xPow[j] * yPow[i];
 				}
 			}
 
@@ -366,12 +361,6 @@ bool CPoint_Trend_Surface::Set_Regression(CSG_Grid *pRegression)
 //---------------------------------------------------------
 bool CPoint_Trend_Surface::Set_Residuals(CSG_Shapes *pPoints, int iAttribute, CSG_Shapes *pResiduals, CSG_Grid *pRegression)
 {
-	int			iPoint, iPart, iShape;
-	double		zShape, zGrid;
-	TSG_Point	Point;
-	CSG_Shape	*pShape, *pResidual;
-
-	//-----------------------------------------------------
 	if( pResiduals )
 	{
 		pResiduals->Create(SHAPE_TYPE_Point, CSG_String::Format("%s [%s]", pPoints->Get_Name(), _TL("Residuals")));
@@ -380,23 +369,23 @@ bool CPoint_Trend_Surface::Set_Residuals(CSG_Shapes *pPoints, int iAttribute, CS
 		pResiduals->Add_Field("RESIDUAL", SG_DATATYPE_Double);
 
 		//-------------------------------------------------
-		for(iShape=0; iShape<pPoints->Get_Count() && Set_Progress(iShape, pPoints->Get_Count()); iShape++)
+		for(sLong iShape=0; iShape<pPoints->Get_Count() && Set_Progress(iShape, pPoints->Get_Count()); iShape++)
 		{
-			pShape	= pPoints->Get_Shape(iShape);
+			CSG_Shape *pShape = pPoints->Get_Shape(iShape);
 
 			if( !pShape->is_NoData(iAttribute) )
 			{
-				zShape	= pShape->asDouble(iAttribute);
+				double zShape = pShape->asDouble(iAttribute);
 
-				for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+				for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 				{
-					for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+					for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 					{
-						Point	= pShape->Get_Point(iPoint, iPart);
+						TSG_Point Point = pShape->Get_Point(iPoint, iPart); double zGrid;
 
 						if( pRegression->Get_Value(Point, zGrid) )
 						{
-							pResidual	= pResiduals->Add_Shape();
+							CSG_Shape *pResidual = pResiduals->Add_Shape();
 							pResidual->Add_Point(Point);
 							pResidual->Set_Value(0, zShape);
 							pResidual->Set_Value(1, zGrid);
@@ -415,7 +404,6 @@ bool CPoint_Trend_Surface::Set_Residuals(CSG_Shapes *pPoints, int iAttribute, CS
 //---------------------------------------------------------
 void CPoint_Trend_Surface::Set_Message(void)
 {
-	int			i;
 	CSG_String	s;
 
 	//-----------------------------------------------------
@@ -424,7 +412,7 @@ void CPoint_Trend_Surface::Set_Message(void)
 	//-----------------------------------------------------
 	s	+= CSG_String::Format("\n z = A");
 
-	for(i=1; i<m_Coefficients.Get_N(); i++)
+	for(int i=1; i<m_Coefficients.Get_N(); i++)
 	{
 		s	+= CSG_String::Format(" + %c%s", 'A' + i, m_Names[i].c_str());
 	}
@@ -434,7 +422,7 @@ void CPoint_Trend_Surface::Set_Message(void)
 	//-----------------------------------------------------
 	s	+= CSG_String::Format("\n z = %f", m_Coefficients[0]);
 
-	for(i=1; i<m_Coefficients.Get_N(); i++)
+	for(int i=1; i<m_Coefficients.Get_N(); i++)
 	{
 		s	+= CSG_String::Format(" %+f*%s", m_Coefficients[i], m_Names[i].c_str());
 	}

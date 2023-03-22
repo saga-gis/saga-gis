@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "TIN_To_Shapes.h"
 
 
@@ -82,41 +70,13 @@ CTIN_To_Shapes::CTIN_To_Shapes(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_TIN(
-		"", "TIN"		, _TL("TIN"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
+	Parameters.Add_TIN("", "TIN", _TL("TIN"), _TL(""), PARAMETER_INPUT);
 
-	Parameters.Add_Shapes(
-		"", "POINTS"	, _TL("Points"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
-	);
-
-	Parameters.Add_Shapes(
-		"", "CENTER"	, _TL("Center of Triangles"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
-	);
-
-	Parameters.Add_Shapes(
-		"", "EDGES"		, _TL("Edges"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Line
-	);
-
-	Parameters.Add_Shapes(
-		"", "TRIANGLES"	, _TL("Triangles"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
-	);
-
-	Parameters.Add_Shapes(
-		"", "POLYGONS"	, _TL("Polygons"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
-	);
+	Parameters.Add_Shapes("", "POINTS"   , _TL("Points"             ), _TL(""), PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point  );
+	Parameters.Add_Shapes("", "CENTER"   , _TL("Center of Triangles"), _TL(""), PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point  );
+	Parameters.Add_Shapes("", "EDGES"    , _TL("Edges"              ), _TL(""), PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Line   );
+	Parameters.Add_Shapes("", "TRIANGLES", _TL("Triangles"          ), _TL(""), PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon);
+	Parameters.Add_Shapes("", "POLYGONS" , _TL("Polygons"           ), _TL(""), PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon);
 }
 
 
@@ -127,17 +87,16 @@ CTIN_To_Shapes::CTIN_To_Shapes(void)
 //---------------------------------------------------------
 bool CTIN_To_Shapes::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_TIN	*pTIN = Parameters("TIN")->asTIN();
 
 	//-----------------------------------------------------
 	if( Parameters("POINTS")->asShapes() )
 	{
-		CSG_Shapes	*pPoints	= Parameters("POINTS")->asShapes();
+		CSG_Shapes *pPoints = Parameters("POINTS")->asShapes();
 
 		pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format("%s [%s]", pTIN->Get_Name(), _TL("TIN")), pTIN);
 
-		for(int i=0; i<pTIN->Get_Node_Count() && Set_Progress(i, pTIN->Get_Node_Count()); i++)
+		for(sLong i=0; i<pTIN->Get_Node_Count() && Set_Progress(i, pTIN->Get_Node_Count()); i++)
 		{
 			pPoints->Add_Shape(pTIN->Get_Node(i), SHAPE_COPY_ATTR)->Add_Point(pTIN->Get_Node(i)->Get_Point());
 		}
@@ -146,18 +105,18 @@ bool CTIN_To_Shapes::On_Execute(void)
 	//-----------------------------------------------------
 	if( Parameters("EDGES")->asShapes() )
 	{
-		CSG_Shapes *pLines	= Parameters("EDGES")->asShapes();
+		CSG_Shapes *pLines = Parameters("EDGES")->asShapes();
 
 		pLines->Create(SHAPE_TYPE_Line, CSG_String::Format("%s [%s]", pTIN->Get_Name(), _TL("TIN Edges")));
 
 		pLines->Add_Field("POINT_ID_A", SG_DATATYPE_Int);
 		pLines->Add_Field("POINT_ID_B", SG_DATATYPE_Int);
 
-		for(int i=0; i<pTIN->Get_Edge_Count() && Set_Progress(i, pTIN->Get_Edge_Count()); i++)
+		for(sLong i=0; i<pTIN->Get_Edge_Count() && Set_Progress(i, pTIN->Get_Edge_Count()); i++)
 		{
-			CSG_TIN_Edge	*pEdge	= pTIN->Get_Edge(i);
+			CSG_TIN_Edge *pEdge = pTIN->Get_Edge(i);
 
-			CSG_Shape	*pLine	= pLines->Add_Shape();
+			CSG_Shape *pLine = pLines->Add_Shape();
 
 			pLine->Add_Point(pEdge->Get_Node(0)->Get_Point());
 			pLine->Add_Point(pEdge->Get_Node(1)->Get_Point());
@@ -170,7 +129,7 @@ bool CTIN_To_Shapes::On_Execute(void)
 	//-----------------------------------------------------
 	if( Parameters("TRIANGLES")->asShapes() )
 	{
-		CSG_Shapes	*pPolygons	= Parameters("TRIANGLES")->asShapes();
+		CSG_Shapes *pPolygons = Parameters("TRIANGLES")->asShapes();
 
 		pPolygons->Create(SHAPE_TYPE_Polygon, CSG_String::Format("%s [%s]", pTIN->Get_Name(), _TL("TIN Triangles")));
 
@@ -178,11 +137,11 @@ bool CTIN_To_Shapes::On_Execute(void)
 		pPolygons->Add_Field("POINT_ID_B", SG_DATATYPE_Int);
 		pPolygons->Add_Field("POINT_ID_C", SG_DATATYPE_Int);
 
-		for(int i=0; i<pTIN->Get_Triangle_Count() && Set_Progress(i, pTIN->Get_Triangle_Count()); i++)
+		for(sLong i=0; i<pTIN->Get_Triangle_Count() && Set_Progress(i, pTIN->Get_Triangle_Count()); i++)
 		{
-			CSG_TIN_Triangle	*pTriangle	= pTIN->Get_Triangle(i);
+			CSG_TIN_Triangle *pTriangle = pTIN->Get_Triangle(i);
 
-			CSG_Shape	*pPolygon	= pPolygons->Add_Shape();
+			CSG_Shape *pPolygon = pPolygons->Add_Shape();
 
 			pPolygon->Add_Point(pTriangle->Get_Node(0)->Get_Point());
 			pPolygon->Add_Point(pTriangle->Get_Node(1)->Get_Point());
@@ -197,7 +156,7 @@ bool CTIN_To_Shapes::On_Execute(void)
 	//-----------------------------------------------------
 	if( Parameters("CENTER")->asShapes() )
 	{
-		CSG_Shapes	*pPoints	= Parameters("CENTER")->asShapes();
+		CSG_Shapes *pPoints = Parameters("CENTER")->asShapes();
 
 		pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format("%s [%s]", pTIN->Get_Name(), _TL("TIN Centroids")));
 
@@ -205,11 +164,11 @@ bool CTIN_To_Shapes::On_Execute(void)
 		pPoints->Add_Field("POINT_ID_B", SG_DATATYPE_Int);
 		pPoints->Add_Field("POINT_ID_C", SG_DATATYPE_Int);
 
-		for(int i=0; i<pTIN->Get_Triangle_Count() && Set_Progress(i, pTIN->Get_Triangle_Count()); i++)
+		for(sLong i=0; i<pTIN->Get_Triangle_Count() && Set_Progress(i, pTIN->Get_Triangle_Count()); i++)
 		{
-			CSG_TIN_Triangle	*pTriangle	= pTIN->Get_Triangle(i);
+			CSG_TIN_Triangle *pTriangle = pTIN->Get_Triangle(i);
 
-			CSG_Shape	*pPoint	= pPoints->Add_Shape();
+			CSG_Shape *pPoint = pPoints->Add_Shape();
 
 			pPoint->Add_Point(pTriangle->Get_CircumCircle_Point());
 
@@ -222,17 +181,17 @@ bool CTIN_To_Shapes::On_Execute(void)
 	//-----------------------------------------------------
 	if( Parameters("POLYGONS")->asShapes() )
 	{
-		CSG_Shapes	*pPolygons	= Parameters("POLYGONS")->asShapes();
+		CSG_Shapes *pPolygons = Parameters("POLYGONS")->asShapes();
 
 		pPolygons->Create(SHAPE_TYPE_Polygon, CSG_String::Format("%s [%s]", pTIN->Get_Name(), _TL("TIN Voronoi")), pTIN);
 
-		for(int i=0; i<pTIN->Get_Node_Count() && Set_Progress(i, pTIN->Get_Node_Count()); i++)
+		for(sLong i=0; i<pTIN->Get_Node_Count() && Set_Progress(i, pTIN->Get_Node_Count()); i++)
 		{
-			CSG_Points	Points;
+			CSG_Points Points;
 
 			if( pTIN->Get_Node(i)->Get_Polygon(Points) )
 			{
-				CSG_Shape	*pPolygon	= pPolygons->Add_Shape(pTIN->Get_Node(i), SHAPE_COPY_ATTR);
+				CSG_Shape *pPolygon	= pPolygons->Add_Shape(pTIN->Get_Node(i), SHAPE_COPY_ATTR);
 
 				for(int iPoint=0; iPoint<Points.Get_Count(); iPoint++)
 				{

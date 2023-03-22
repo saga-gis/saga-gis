@@ -173,7 +173,7 @@ bool CLine_Polygon_Intersection::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
+	for(sLong iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
 	{
 		CSG_Shapes Intersection(SHAPE_TYPE_Line, NULL, pLines, pLines->Get_Vertex_Type());
 		CSG_Shapes Difference  (SHAPE_TYPE_Line, NULL, pLines, pLines->Get_Vertex_Type());

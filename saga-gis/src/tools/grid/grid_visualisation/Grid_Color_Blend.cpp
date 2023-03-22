@@ -261,7 +261,7 @@ bool CGrid_Color_Blend::On_Execute(void)
 	m_pGrid	->Assign(m_pGrids->Get_Grid(0));
 
 	DataObject_Set_Colors(m_pGrid, *Parameters("COLORS")->asColors());
-	DataObject_Update    (m_pGrid, SG_UI_DATAOBJECT_SHOW);
+	DataObject_Update    (m_pGrid, SG_UI_DATAOBJECT_SHOW_MAP);
 
 	//-----------------------------------------------------
 	int nGrids = Parameters("LOOP")->asInt() ? m_pGrids->Get_Grid_Count() : m_pGrids->Get_Grid_Count() - 1;

@@ -127,7 +127,7 @@ bool CGrid_Metric_Conversion::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{

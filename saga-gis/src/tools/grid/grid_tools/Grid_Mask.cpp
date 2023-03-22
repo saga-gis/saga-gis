@@ -187,7 +187,7 @@ bool CGrid_Mask::Mask_Grid(CSG_Grid *pMask, bool bNoData)
 	}
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		double	py	= Get_YMin() + y * Get_Cellsize();
 
@@ -259,7 +259,7 @@ bool CGrid_Mask::Mask_Grids(CSG_Grid *pMask, bool bNoData)
 	}
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		double	py	= Get_YMin() + y * Get_Cellsize();
 

@@ -513,19 +513,18 @@ bool		SG_Get_Triangle_CircumCircle(TSG_Point Triangle[3], TSG_Point &Point, doub
 //---------------------------------------------------------
 double		SG_Get_Polygon_Area(TSG_Point *Points, int nPoints)
 {
-	double	Area	= 0.;
+	double Area = 0.;
 
 	if( nPoints >= 3 )
 	{
-		int			i;
-		TSG_Point	*jP, *iP;
+		TSG_Point *iP = Points, *jP = Points + nPoints - 1;
 
-		for(i=0, iP=Points, jP=Points+nPoints-1; i<nPoints; i++, jP=iP++)
+		for(int i=0; i<nPoints; i++, jP=iP++)
 		{
-			Area	+= (jP->x * iP->y) - (iP->x * jP->y);
+			Area += (jP->x * iP->y) - (iP->x * jP->y);
 		}
 
-		Area	/= 2.;
+		Area /= 2.;
 	}
 
 	return( Area );
@@ -534,17 +533,17 @@ double		SG_Get_Polygon_Area(TSG_Point *Points, int nPoints)
 //---------------------------------------------------------
 double		SG_Get_Polygon_Area(const CSG_Points &Points)
 {
-	double	Area	= 0.;
+	double Area = 0.;
 
 	if( Points.Get_Count() >= 3 )
 	{
-		for(int i=0, j=Points.Get_Count()-1; i<Points.Get_Count(); j=i++)
+		for(sLong i=0, j=Points.Get_Count()-1; i<Points.Get_Count(); j=i++)
 		{
-			Area	+= (Points.Get_X(j) * Points.Get_Y(i))
-					 - (Points.Get_X(i) * Points.Get_Y(j));
+			Area += (Points.Get_X(j) * Points.Get_Y(i))
+			      - (Points.Get_X(i) * Points.Get_Y(j));
 		}
 
-		Area	/= 2.;
+		Area /= 2.;
 	}
 
 	return( Area );

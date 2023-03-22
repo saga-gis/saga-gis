@@ -130,6 +130,7 @@ public:
 	bool							Set_Colors			(class CSG_Data_Object *pObject, class CSG_Colors *pColors);
 	bool							Get_Parameters		(class CSG_Data_Object *pObject, class CSG_Parameters *pParameters);
 	bool							Set_Parameters		(class CSG_Data_Object *pObject, class CSG_Parameters *pParameters);
+	bool							Show_Diagram		(class CSG_Table       *pTable , class CSG_Parameters *pParameters);
 
 	size_t							MultiSelect_Count	(void);
 	bool							MultiSelect_Check	(void);

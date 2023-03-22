@@ -268,7 +268,7 @@ bool CBreach_Depressions::On_Execute(void)
 
 	int nSolved	= 0;
 
-	for(int iPit=0; iPit<Pits.Get_Count() && Set_Progress(iPit, Pits.Get_Count()); iPit++)
+	for(sLong iPit=0; iPit<Pits.Get_Count() && Set_Progress(iPit, Pits.Get_Count()); iPit++)
 	{
 		int	x	= Pits[iPit].x;
 		int	y	= Pits[iPit].y;

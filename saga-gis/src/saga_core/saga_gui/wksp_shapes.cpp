@@ -172,9 +172,9 @@ wxString CWKSP_Shapes::Get_Description(void)
 		break;
 	}
 
-	DESC_ADD_INT  (_TL("Number of Shapes"), Get_Shapes()->Get_Count());
-	DESC_ADD_SIZET(_TL("Selected"        ), Get_Shapes()->Get_Selection_Count());
-	DESC_ADD_STR  (_TL("File Encoding"   ), Get_Shapes()->Get_File_Encoding() ? SG_T("UTF-8") : SG_T("ANSI"));
+	DESC_ADD_LONG(_TL("Number of Shapes"), Get_Shapes()->Get_Count());
+	DESC_ADD_LONG(_TL("Selected"        ), Get_Shapes()->Get_Selection_Count());
+	DESC_ADD_STR (_TL("File Encoding"   ), Get_Shapes()->Get_File_Encoding() ? SG_T("UTF-8") : SG_T("ANSI"));
 
 	s	+= "</table>";
 
@@ -653,7 +653,7 @@ bool CWKSP_Shapes::Set_Metrics(int zField, int nField, int nType)
 		{
 			m_Metrics.Create();
 
-			for(int i=0; i<Get_Shapes()->Get_Count(); i++)
+			for(sLong i=0; i<Get_Shapes()->Get_Count(); i++)
 			{
 				double	z	= Get_Shapes()->Get_Record(i)->asDouble(zField);
 				double	n	= Get_Shapes()->Get_Record(i)->asDouble(nField) / (nType == 0 ? 1. : 100.);
@@ -811,10 +811,21 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 	return( CWKSP_Layer::On_Parameter_Changed(pParameters, pParameter, Flags) );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 void CWKSP_Shapes::On_Update_Views(void)
 {
 	m_pTable->Update_Views();
+}
+
+//---------------------------------------------------------
+bool CWKSP_Shapes::Set_Diagram(bool bShow, CSG_Parameters *pParameters)
+{
+	return( m_pTable->Set_Diagram(bShow, pParameters) );
 }
 
 
@@ -899,7 +910,7 @@ void CWKSP_Shapes::_LUT_Create(void)
 
 			int	maxClasses	= Parameters("COUNTMAX")->asInt();
 
-			for(int iShape=0; iShape<Get_Shapes()->Get_Count() && s.Get_Count()<maxClasses; iShape++)
+			for(sLong iShape=0; iShape<Get_Shapes()->Get_Count() && s.Get_Count()<maxClasses; iShape++)
 			{
 				s	+= Get_Shapes()->Get_Shape(iShape)->asString(Field);
 			}
@@ -1078,7 +1089,7 @@ wxString CWKSP_Shapes::Get_Value(CSG_Point ptWorld, double Epsilon)
 
 	if( m_fValue < 0 )
 	{
-		return( wxString::Format("%s: %d", _TL("Index"), pShape->Get_Index() + 1) );
+		return( wxString::Format("%s: %lld", _TL("Index"), pShape->Get_Index() + 1) );
 	}
 
 	if( m_pClassify->Get_Mode() == CLASSIFY_LUT )
@@ -1163,7 +1174,7 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	{
 		Draw_Initialize(dc_Map, Flags);
 
-		for(int iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
+		for(sLong iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
 		{
 			_Draw_Shape(dc_Map, Get_Shapes()->Get_Shape(iShape));
 		}
@@ -1186,14 +1197,14 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	//-----------------------------------------------------
 	if( (Flags & LAYER_DRAW_FLAG_NOEDITS) != 0 || !(m_Edit_pShape || Get_Shapes()->Get_Selection_Count()) )
 	{
-		for(int iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
+		for(sLong iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
 		{
 			_Draw_Shape(dc, Get_Shapes()->Get_Shape(iShape));
 		}
 
 		if( _Chart_is_Valid() )
 		{
-			for(int iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
+			for(sLong iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
 			{
 				_Draw_Chart(dc, Get_Shapes()->Get_Shape(iShape));
 			}
@@ -1201,7 +1212,7 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	}
 	else	// selection and/or editing
 	{
-		for(int iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
+		for(sLong iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
 		{
 			if( !Get_Shapes()->Get_Shape(iShape)->is_Selected() )
 			{
@@ -1209,7 +1220,7 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 			}
 		}
 
-		for(int iShape=0; iShape<(int)Get_Shapes()->Get_Selection_Count(); iShape++)
+		for(sLong iShape=0; iShape<(int)Get_Shapes()->Get_Selection_Count(); iShape++)
 		{
 			if( iShape != m_Edit_Index )
 			{
@@ -1262,7 +1273,7 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 
 		if( iSize >= 0 && iSize < Get_Shapes()->Get_Field_Count() )	// size by attribute
 		{
-			for(int iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
+			for(sLong iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
 			{
 				int	Size	= (int)(0.5 + dSize * Get_Shapes()->Get_Shape(iShape)->asDouble(iSize));
 
@@ -1278,7 +1289,7 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 
 			if( Size > 0 )
 			{
-				for(int iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
+				for(sLong iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
 				{
 					_Draw_Label(dc, Get_Shapes()->Get_Shape(iShape), Size);
 				}

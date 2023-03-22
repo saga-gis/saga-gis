@@ -235,7 +235,7 @@ bool CSG_Arcs::Set_Lines(CSG_Shapes *pLines)
 	{
 		bool bIntersects = false;
 
-		for(int iLine=0; iLine<pLines->Get_Count(); iLine++)
+		for(sLong iLine=0; iLine<pLines->Get_Count(); iLine++)
 		{
 			CSG_Shape_Line *pLine = pLines->Get_Shape(iLine)->asLine();
 
@@ -785,7 +785,7 @@ bool CPolygon_Line_Intersection::On_Execute(void)
 	int Method = Parameters("METHOD")->asInt();
 
 	//--------------------------------------------------------
-	for(int iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
+	for(sLong iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
 	{
 		CSG_Shape_Polygon *pPolygon = pPolygons->Get_Shape(iPolygon)->asPolygon();
 

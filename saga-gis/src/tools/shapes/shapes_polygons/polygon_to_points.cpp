@@ -140,7 +140,7 @@ bool CPolygon_To_Points::On_Execute(void)
 			break;
 		}
 
-		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		for(sLong iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
 			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
 
@@ -154,7 +154,7 @@ bool CPolygon_To_Points::On_Execute(void)
 
 					int	n	= 0;
 
-					pPoint->Set_Value(n++, CSG_String::Format(SG_T("%d/%d/%d"), iShape, iPart, iPoint));
+					pPoint->Set_Value(n++, CSG_String::Format(SG_T("%lld/%d/%d"), iShape, iPart, iPoint));
 					pPoint->Set_Value(n++, iShape);
 					pPoint->Set_Value(n++, iPart);
 					pPoint->Set_Value(n++, iPoint);

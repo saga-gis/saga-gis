@@ -253,7 +253,7 @@ bool	PGSQL_is_Connected		(const CSG_String &Server)
 
 	RUN_TOOL(DB_PGSQL_Get_Connections, false, false, SET_PARAMETER("CONNECTIONS", &Connections));	// CGet_Connections
 
-	for(int i=0; bResult && i<Connections.Get_Count(); i++)
+	for(sLong i=0; bResult && i<Connections.Get_Count(); i++)
 	{
 		if( !Server.Cmp(Connections[i].asString(0)) )
 		{
@@ -278,7 +278,7 @@ bool	PGSQL_Get_Connections	(CSG_Strings &Servers, double vPostGIS)
 
 	RUN_TOOL(DB_PGSQL_Get_Connections, false, false, SET_PARAMETER("CONNECTIONS", &Connections));	// CGet_Connections
 
-	for(int i=0; bResult && i<Connections.Get_Count(); i++)
+	for(sLong i=0; bResult && i<Connections.Get_Count(); i++)
 	{
 		if( vPostGIS <= 0.0 || vPostGIS <= Connections[i].asDouble("PostGIS") )
 		{
@@ -830,7 +830,7 @@ void CData_Source_PgSQL::Update_Sources(const wxTreeItemId &Root)
 
 	RUN_TOOL(DB_PGSQL_Get_Connections, false, false, SET_PARAMETER("CONNECTIONS", &Connections));	// CGet_Connections
 
-	for(int i=0; i<Connections.Get_Count(); i++)
+	for(sLong i=0; i<Connections.Get_Count(); i++)
 	{
 		if( !Find_Source(Connections[i].asString(0)) )
 		{
@@ -930,7 +930,7 @@ void CData_Source_PgSQL::Update_Source(const wxTreeItemId &Item)
 
 		bool bSkipPostGISTables = true;
 
-		for(int i=0; i<Tables.Get_Count(); i++)
+		for(sLong i=0; i<Tables.Get_Count(); i++)
 		{
 			CSG_String Name(Tables[i].asString(0));
 
@@ -987,7 +987,7 @@ void CData_Source_PgSQL::Append_Table(const wxTreeItemId &Parent, const SG_Char 
 
 		if( bResult )
 		{
-			for(int i=0; i<Grids.Get_Count(); i++)
+			for(sLong i=0; i<Grids.Get_Count(); i++)
 			{
 				AppendItem(Item, Grids[i].asString(1), IMG_GRID, IMG_GRID,
 					new CData_Source_PgSQL_Data(TYPE_GRID, CSG_String::Format("%s:rid=%d", Name, Grids[i].asInt(0)), pData->Get_Server())

@@ -204,8 +204,7 @@ bool CPolygon_Transect::On_Execute(void)
     // the points where it crosses are recorded in the map LineBorders, with 
     // the polygon_id as key.
     
-    for (int iLine=0; iLine<pTransect->Get_Count() && Set_Progress(iLine, pTransect->Get_Count());
-                iLine++)
+    for(sLong iLine=0; iLine<pTransect->Get_Count() && Set_Progress(iLine, pTransect->Get_Count()); iLine++)
     {
         pLine =(CSG_Shape_Line *) pTransect->Get_Shape(iLine);
         for (int iLinePart=0;iLinePart<pLine->Get_Part_Count();iLinePart++)
@@ -213,7 +212,7 @@ bool CPolygon_Transect::On_Execute(void)
             CSG_Shape_Part *pLinePart =pLine->Get_Part(iLinePart);
             CSG_Rect LinePartExtent = pLinePart->Get_Extent();
             map<int,list<double> > LineBorders;
-            for (int iShape=0; iShape<pTheme->Get_Count();iShape++)
+            for (sLong iShape=0; iShape<pTheme->Get_Count();iShape++)
             {
                 pTheme_Shape = (CSG_Shape_Polygon *) pTheme->Get_Shape(iShape);
                 if (pLinePart->Get_Extent().Intersects(pTheme_Shape->Get_Extent())>0)

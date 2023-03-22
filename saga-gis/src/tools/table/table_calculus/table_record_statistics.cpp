@@ -139,7 +139,7 @@ bool CTable_Record_Statistics_Base::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
 
-	if( !pTable->is_Valid() || pTable->Get_Field_Count() <= 0 || pTable->Get_Record_Count() <= 0 )
+	if( !pTable->is_Valid() || pTable->Get_Field_Count() <= 0 || pTable->Get_Count() <= 0 )
 	{
 		Error_Set(_TL("invalid table"));
 
@@ -205,7 +205,7 @@ bool CTable_Record_Statistics_Base::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
+	for(sLong iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
 	{
 		CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
 

@@ -170,7 +170,7 @@ bool CGrid_Iterative_Truncation::On_Execute(void)
     }
 
     //-------------------------------------------------
-    for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+    for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
     {
         for(int x=0; x<Get_NX(); x++)
         {
@@ -199,7 +199,7 @@ bool CGrid_Iterative_Truncation::On_Execute(void)
 
 
     //-------------------------------------------------
-	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(sLong n=0; n<Get_NCells() && Set_Progress_Cells(n); n++)
 	{
         if( dAverage <= dTarget )
         {

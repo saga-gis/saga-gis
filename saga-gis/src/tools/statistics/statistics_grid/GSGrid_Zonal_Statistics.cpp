@@ -203,7 +203,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
     
     sLong iNoDataCount = 0;
 
-    for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+    for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
     {
         for(int x=0; x<Get_NX(); x++)
         {
@@ -342,7 +342,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
     //---------------------------------------------------------
 	if( iNoDataCount > 0 )
 	{
-		Message_Fmt("\n%s: %d %s", _TL("Warning"), iNoDataCount, _TL("NoData value(s) in statistic grid(s)!"));
+		Message_Fmt("\n%s: %lld %s", _TL("Warning"), iNoDataCount, _TL("NoData value(s) in statistic grid(s)!"));
 	}
     
 	return (true);

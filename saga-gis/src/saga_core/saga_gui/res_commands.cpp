@@ -285,6 +285,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 
 	case ID_CMD_MAP3D_PARAMETERS:		return( _TL("Properties") );
 	case ID_CMD_MAP3D_USAGE:			return( _TL("Usage") );
+	case ID_CMD_MAP3D_TO_CLIPBOARD:		return( _TL("Copy to Clipboard"));
 	case ID_CMD_MAP3D_ROTATE_X_LESS:	return( _TL("Up") );
 	case ID_CMD_MAP3D_ROTATE_X_MORE:	return( _TL("Down") );
 	case ID_CMD_MAP3D_ROTATE_Y_LESS:	return( _TL("Left") );
@@ -446,6 +447,7 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_MAP_LEGEND_HORIZONTAL:	return( ID_IMG_TB_MAP_LEGEND_HORIZONTAL );
 
 	case ID_CMD_MAP3D_PARAMETERS:		return( ID_IMG_TB_MAP3D_PROPERTIES );
+	case ID_CMD_MAP3D_TO_CLIPBOARD:		return( ID_IMG_TB_CLIPBOARD );
 	case ID_CMD_MAP3D_CENTRAL_LESS:		return( ID_IMG_TB_MAP3D_CENTRAL_LESS );
 	case ID_CMD_MAP3D_CENTRAL_MORE:		return( ID_IMG_TB_MAP3D_CENTRAL_MORE );
 	case ID_CMD_MAP3D_EXAGGERATE_LESS:	return( ID_IMG_TB_MAP3D_EXAGGERATE_LESS );

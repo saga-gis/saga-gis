@@ -83,7 +83,7 @@ bool CSelection_Copy::On_Execute(void)
 
 	pOutput->Create(pInput->Get_Type(), CSG_String::Format(SG_T("%s [%s]"), pInput->Get_Name(), _TL("Selection")), pInput, pInput->Get_Vertex_Type());
 
-	for(int i=0; i<pInput->Get_Selection_Count() && Set_Progress(i, pInput->Get_Selection_Count()); i++)
+	for(sLong i=0; i<pInput->Get_Selection_Count() && Set_Progress(i, pInput->Get_Selection_Count()); i++)
 	{
 		CSG_Shape	*pShape	= pInput->Get_Selection(i);
 

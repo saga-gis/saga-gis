@@ -244,7 +244,7 @@ bool CCold_Air_Flow::Initialize(void)
 
 	DataObject_Set_Colors(m_pAir, 11, SG_COLORS_WHITE_BLUE, false);
 //	m_pAir->Set_NoData_Value_Range(0., 1.);
-	DataObject_Update    (m_pAir, SG_UI_DATAOBJECT_SHOW);
+	DataObject_Update    (m_pAir, SG_UI_DATAOBJECT_SHOW_MAP);
 
 	//-----------------------------------------------------
 	if( !m_pVelocity )

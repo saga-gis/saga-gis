@@ -203,12 +203,12 @@ bool CAdd_Point_Attributes::On_Execute(void)
 
 
 	//-----------------------------------------------------
-	for(int iPolygon=0; iPolygon<pOutput->Get_Count() && Set_Progress(iPolygon, pOutput->Get_Count()); iPolygon++)
+	for(sLong iPolygon=0; iPolygon<pOutput->Get_Count() && Set_Progress(iPolygon, pOutput->Get_Count()); iPolygon++)
 	{
 		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pOutput->Get_Shape(iPolygon);
 
 		//-------------------------------------------------
-		for(int iPoint=0; iPoint<pPoints->Get_Count() && Process_Get_Okay(); iPoint++)
+		for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Process_Get_Okay(); iPoint++)
 		{
 			CSG_Shape	*pPoint	= pPoints->Get_Shape(iPoint);
 

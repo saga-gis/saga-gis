@@ -227,7 +227,7 @@ bool CGrid_Seeds::On_Execute(void)
 
 	Process_Set_Text(_TL("masking no data"));
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for private(x)
 		for(x=0; x<Get_NX(); x++)
@@ -246,7 +246,7 @@ bool CGrid_Seeds::On_Execute(void)
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("calculating variance"));
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for private(x)
 		for(x=0; x<Get_NX(); x++)
@@ -458,7 +458,7 @@ bool CGrid_Seeds::Get_Seeds(void)
 	}
 
 	//-----------------------------------------------------
-	for(int n=0, y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int n=0, y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{

@@ -150,7 +150,7 @@ void CDLG_Table::Save_Changes(void)
 
 	m_pTable->Del_Records();
 
-	for(int i=0; i<Table.Get_Count(); i++)
+	for(sLong i=0; i<Table.Get_Count(); i++)
 	{
 		m_pTable->Add_Record(Table.Get_Record_byIndex(i));	// apply any sorting
 	}
@@ -272,7 +272,7 @@ void CDLG_Table::On_Colors(wxCommandEvent &event)
 
 		CSG_Colors	Colors(Table.Get_Count());
 
-		for(int i=0; i<Table.Get_Count(); i++)
+		for(sLong i=0; i<Table.Get_Count(); i++)
 		{
 			Colors[i]	= Table.Get_Record(i)->asInt(0);
 		}
@@ -281,7 +281,7 @@ void CDLG_Table::On_Colors(wxCommandEvent &event)
 		{
 			Colors.Set_Count(Table.Get_Count());
 
-			for(int i=0; i<Table.Get_Count(); i++)
+			for(sLong i=0; i<Table.Get_Count(); i++)
 			{
 				Table.Get_Record(i)->Set_Value(0, Colors[i]);
 			}

@@ -670,7 +670,7 @@ bool CMMF_SAGA::On_Execute(void)
 
 		// Estimation of rainfall energy (effective rainfall, leaf drainage, direct throughfall, kinetic energy)
 		//------------------------------------------------------------------------------------------------------
-		for (y=0; y<Get_NY() && Set_Progress(y); y++)
+		for (y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			for (x=0; x<Get_NX(); x++)
 			{
@@ -730,7 +730,7 @@ bool CMMF_SAGA::On_Execute(void)
 		Ro	= R / Rn;											// Equ. (9) mean rain per rain day
 
 
-		for (sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+		for (sLong n=0; n<Get_NCells() && Set_Progress_Cells(n); n++)
 		{
 			pDTM->Get_Sorted(n, x, y, true, false);
 

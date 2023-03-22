@@ -154,7 +154,7 @@ bool CGrid_RGB_Composite::On_Execute(void)
 	bool	bNoData	= Parameters("NODATA")->asBool() == false;
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#ifndef _DEBUG
 		#pragma omp parallel for
@@ -322,7 +322,7 @@ bool CGrid_RGB_Split::On_Execute(void)
 	CSG_Grid	*pB	= Parameters("B")->asGrid();	if( bNoData && pB )	pB->Set_NoData_Value(-1);
 	CSG_Grid	*pA	= Parameters("A")->asGrid();	if( bNoData && pA )	pA->Set_NoData_Value(-1);
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)

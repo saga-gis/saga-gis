@@ -297,7 +297,7 @@ bool CGrid_Polygon_Clip::Get_Mask(CSG_Grid &Mask)
 	Line[1].x	= Get_XMax() + 1.0;
 
 	//-----------------------------------------------------
-	for(int iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
+	for(sLong iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
 	{
 		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
 

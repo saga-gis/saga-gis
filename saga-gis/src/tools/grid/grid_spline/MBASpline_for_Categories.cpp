@@ -165,7 +165,7 @@ bool CMBASpline_for_Categories::On_Execute(void)
 
 		CSG_Table	*pClasses	= pLUT->asTable();
 
-		pClasses->Set_Record_Count(nCategories);
+		pClasses->Set_Count(nCategories);
 
 		for(int iClass=0; iClass<nCategories; iClass++)
 		{

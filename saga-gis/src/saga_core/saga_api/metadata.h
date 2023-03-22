@@ -138,6 +138,7 @@ public:
 	bool						Get_Content			(const CSG_String &Name, CSG_String &Value)	const;
 	bool						Get_Content			(const CSG_String &Name, double     &Value)	const;
 	bool						Get_Content			(const CSG_String &Name, int        &Value)	const;
+	bool						Get_Content			(const CSG_String &Name, sLong      &Value)	const;
 	void						Set_Content			(const CSG_String &Content)			{	m_Content	= Content;	}
 	void						Fmt_Content			(const char    *Format, ...);
 	void						Fmt_Content			(const wchar_t *Format, ...);
@@ -153,12 +154,14 @@ public:
 	CSG_MetaData *				Add_Child			(const CSG_String &Name, const CSG_String &Content);
 	CSG_MetaData *				Add_Child			(const CSG_String &Name, double            Content);
 	CSG_MetaData *				Add_Child			(const CSG_String &Name, int               Content);
+	CSG_MetaData *				Add_Child			(const CSG_String &Name, sLong             Content);
 	CSG_MetaData *				Add_Child			(const CSG_MetaData &MetaData, bool bAddChildren = true);
 	CSG_MetaData *				Ins_Child			(                                                   int Position);
 	CSG_MetaData *				Ins_Child			(const CSG_String &Name                           , int Position);
 	CSG_MetaData *				Ins_Child			(const CSG_String &Name, const CSG_String &Content, int Position);
 	CSG_MetaData *				Ins_Child			(const CSG_String &Name, double            Content, int Position);
 	CSG_MetaData *				Ins_Child			(const CSG_String &Name, int               Content, int Position);
+	CSG_MetaData *				Ins_Child			(const CSG_String &Name, sLong             Content, int Position);
 	CSG_MetaData *				Ins_Child			(const CSG_MetaData &MetaData                     , int Position, bool bAddChildren = true);
 	bool						Mov_Child			(int from_Index, int to_Index);
 	bool						Del_Child			(int Index);
@@ -180,12 +183,15 @@ public:
 	bool						Get_Property		(const CSG_String &Name, CSG_String &Value)	const;
 	bool						Get_Property		(const CSG_String &Name, double     &Value)	const;
 	bool						Get_Property		(const CSG_String &Name, int        &Value)	const;
+	bool						Get_Property		(const CSG_String &Name, sLong      &Value)	const;
 	bool						Add_Property		(const CSG_String &Name, const CSG_String &Value);
 	bool						Add_Property		(const CSG_String &Name, double            Value);
 	bool						Add_Property		(const CSG_String &Name, int               Value);
+	bool						Add_Property		(const CSG_String &Name, sLong             Value);
 	bool						Set_Property		(const CSG_String &Name, const CSG_String &Value, bool bAddIfNotExists = true);
 	bool						Set_Property		(const CSG_String &Name, double            Value, bool bAddIfNotExists = true);
 	bool						Set_Property		(const CSG_String &Name, int               Value, bool bAddIfNotExists = true);
+	bool						Set_Property		(const CSG_String &Name, sLong             Value, bool bAddIfNotExists = true);
 	bool						Cmp_Property		(const CSG_String &Name, const CSG_String &String, bool bNoCase = false)	const;
 	bool						Del_Property		(const CSG_String &Name);
 	bool						Del_Property		(int i);

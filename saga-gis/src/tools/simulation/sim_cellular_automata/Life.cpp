@@ -173,7 +173,7 @@ bool CLife::On_Execute(void)
 		}
 
 		DataObject_Set_Colors(m_pLife, 11, SG_COLORS_WHITE_BLUE);
-		DataObject_Update    (m_pLife, 0, m_nColors, SG_UI_DATAOBJECT_SHOW);
+		DataObject_Update    (m_pLife, 0, m_nColors, SG_UI_DATAOBJECT_SHOW_MAP);
 	}
 
 	//-----------------------------------------------------

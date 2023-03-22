@@ -218,7 +218,7 @@ bool CBeachball::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int i=0; i<pPoints->Get_Count() && Set_Progress(i, pPoints->Get_Count()); i++)
+	for(sLong i=0; i<pPoints->Get_Count() && Set_Progress(i, pPoints->Get_Count()); i++)
 	{
 		CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
 

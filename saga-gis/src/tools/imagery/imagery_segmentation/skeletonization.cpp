@@ -747,7 +747,7 @@ void CSkeletonization::SK_Execute(void)
 	//-----------------------------------------------------
 	// 1.) Find definitive channel points...
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
@@ -776,7 +776,7 @@ void CSkeletonization::SK_Execute(void)
 	//-----------------------------------------------------
 	// 2.) Find channels...
 
-	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(n=0; n<Get_NCells() && Set_Progress_Cells(n); n++)
 	{
 		if( pInput->Get_Sorted(n, x, y) )	// Von oben nach unten...
 		{
@@ -823,7 +823,7 @@ void CSkeletonization::SK_Execute(void)
 
 	Lock_Create();
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
@@ -831,7 +831,7 @@ void CSkeletonization::SK_Execute(void)
 		}
 	}
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{

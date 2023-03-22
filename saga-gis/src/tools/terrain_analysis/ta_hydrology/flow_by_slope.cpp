@@ -198,7 +198,7 @@ bool CFlow_by_Slope::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(sLong i=0; i<Get_NCells() && Set_Progress_NCells(i); i++)
+	for(sLong i=0; i<Get_NCells() && Set_Progress_Cells(i); i++)
 	{
 		int	x, y;
 

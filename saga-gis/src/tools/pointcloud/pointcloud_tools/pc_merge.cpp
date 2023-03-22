@@ -129,7 +129,7 @@ bool CPC_Merge::On_Execute(void)
 {
 	CSG_Parameter_PointCloud_List	*pList	= Parameters("PC_LAYERS")->asPointCloudList();
 
-	if( pList->Get_Data_Count() < 2 )
+	if( pList->Get_Item_Count() < 2 )
 	{
 		Error_Set(_TL("Nothing to do. Less than two input layers."));
 
@@ -156,7 +156,7 @@ bool CPC_Merge::On_Execute(void)
 	bool	bDelete	= Parameters("DEL_LAYERS")->asBool();
 
 	//-----------------------------------------------------
-	for(int i=0; i<pList->Get_Data_Count() && Process_Get_Okay(); i++, ID++)
+	for(int i=0; i<pList->Get_Item_Count() && Process_Get_Okay(); i++, ID++)
 	{
 		pPoints	= pList->Get_PointCloud(i);
 
@@ -169,9 +169,9 @@ bool CPC_Merge::On_Execute(void)
 
 		Process_Set_Text("%s: %s", _TL("processing"), pPoints->Get_Name());
 
-		int	nPoints	= pPoints->Get_Point_Count();
+		sLong nPoints = pPoints->Get_Count();
 
-		for(int iPoint=nPoints-1; iPoint>=0 && Set_Progress(nPoints - iPoint, nPoints); iPoint--)
+		for(sLong iPoint=nPoints-1; iPoint>=0 && Set_Progress(nPoints - iPoint, nPoints); iPoint--)
 		{
 			pResult->Add_Record(pPoints->Get_Record(iPoint));
 
@@ -182,7 +182,7 @@ bool CPC_Merge::On_Execute(void)
 
 			if( fID >= 0 )
 			{
-				pResult->Set_Value(pResult->Get_Point_Count() - 1, fID, ID);
+				pResult->Set_Value(pResult->Get_Count() - 1, fID, ID);
 			}
 		}
 

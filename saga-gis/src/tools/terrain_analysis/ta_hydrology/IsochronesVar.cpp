@@ -135,7 +135,7 @@ bool CIsochronesVar_Tool_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG
     m_Calculator.Calculate(iX, iY);
 	
 
-	DataObject_Update(Parameters("TIME")->asGrid(), SG_UI_DATAOBJECT_SHOW_LAST_MAP);
+	DataObject_Update(Parameters("TIME")->asGrid(), SG_UI_DATAOBJECT_SHOW_MAP_ACTIVE);
 
 	return( true );
 }

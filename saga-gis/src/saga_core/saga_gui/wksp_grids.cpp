@@ -1147,7 +1147,7 @@ void CWKSP_Grids::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	{
 	case CLASSIFY_SINGLE   : m_pClassify->Set_Mode(CLASSIFY_SINGLE   ); break;
 	case CLASSIFY_LUT      : m_pClassify->Set_Mode(CLASSIFY_LUT      ); break;
-	case CLASSIFY_DISCRETE   : m_pClassify->Set_Mode(CLASSIFY_DISCRETE   ); break;
+	case CLASSIFY_DISCRETE : m_pClassify->Set_Mode(CLASSIFY_DISCRETE ); break;
 	case CLASSIFY_GRADUATED: m_pClassify->Set_Mode(CLASSIFY_GRADUATED); break;
 	case CLASSIFY_OVERLAY  : m_pClassify->Set_Mode(CLASSIFY_OVERLAY  ); break;
 	}
@@ -1155,12 +1155,11 @@ void CWKSP_Grids::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	//-----------------------------------------------------
 	TSG_Grid_Resampling	Resampling;
 
-	if( m_pClassify->Get_Mode() == CLASSIFY_SINGLE
-	||  m_pClassify->Get_Mode() == CLASSIFY_LUT )
+	if( m_pClassify->Get_Mode() == CLASSIFY_SINGLE )
 	{
 		Resampling	= GRID_RESAMPLING_NearestNeighbour;
 	}
-	else switch( m_Parameters("DISPLAY_RESAMPLING")->asInt() )
+	else switch( m_Parameters(m_pClassify->Get_Mode() == CLASSIFY_LUT ? "LUT_RESAMPLING" : "DISPLAY_RESAMPLING")->asInt() )
 	{
 	default: Resampling = GRID_RESAMPLING_NearestNeighbour; break;
 	case  1: Resampling = GRID_RESAMPLING_Bilinear        ; break;

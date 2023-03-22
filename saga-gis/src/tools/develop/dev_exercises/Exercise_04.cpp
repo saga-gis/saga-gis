@@ -146,7 +146,7 @@ bool CExercise_04::On_Execute(void)
 //---------------------------------------------------------
 bool CExercise_04::Method_01(void)
 {
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
@@ -186,7 +186,7 @@ bool CExercise_04::Method_01(void)
 //---------------------------------------------------------
 bool CExercise_04::Method_02(void)
 {
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
@@ -226,7 +226,7 @@ bool CExercise_04::Method_02(void)
 //---------------------------------------------------------
 bool CExercise_04::Method_03(void)
 {
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
@@ -273,7 +273,7 @@ bool CExercise_04::Method_03(void)
 //---------------------------------------------------------
 bool CExercise_04::Method_04(void)
 {
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
@@ -328,7 +328,7 @@ bool CExercise_04::Method_04(void)
 //---------------------------------------------------------
 bool CExercise_04::Method_05(void)
 {
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
@@ -377,7 +377,7 @@ bool CExercise_04::Method_06(void)
 {
 	if( Method_05() == true )
 	{
-		for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+		for(sLong n=0; n<Get_NCells() && Set_Progress_Cells(n); n++)
 		{
 			if( m_pOutput->is_NoData(n) == false )
 			{

@@ -346,7 +346,7 @@ bool CHillShade::Get_Shading(bool bDelimit, bool bCombine)
 	double	Scale	= Parameters("EXAGGERATION")->asDouble();
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -451,7 +451,7 @@ bool CHillShade::Get_Shadows(bool bMask)
 	}
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
@@ -533,7 +533,7 @@ bool CHillShade::AmbientOcclusion(void)
 
 	m_pShade->Assign(0.0);
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)

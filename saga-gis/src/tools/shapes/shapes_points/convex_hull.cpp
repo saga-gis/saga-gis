@@ -184,7 +184,7 @@ bool CConvex_Hull::On_Execute(void)
 			}
 		}
 
-		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		for(sLong iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
 			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
 
@@ -226,7 +226,7 @@ bool CConvex_Hull::On_Execute(void)
 		pBoxes->Add_Field(_TL("AREA"     ), SG_DATATYPE_Double);
 		pBoxes->Add_Field(_TL("PERIMETER"), SG_DATATYPE_Double);
 
-		for(int iHull=0; iHull<pHulls->Get_Count() && Set_Progress(iHull, pHulls->Get_Count()); iHull++)
+		for(sLong iHull=0; iHull<pHulls->Get_Count() && Set_Progress(iHull, pHulls->Get_Count()); iHull++)
 		{
 			Get_Bounding_Box(pHulls->Get_Shape(iHull), pBoxes->Add_Shape());
 		}
@@ -319,7 +319,7 @@ public:
 
 	CIndex_Compare_Points(CSG_Shapes *pPoints) : m_pPoints(pPoints) {}
 
-	virtual int			Compare		(const int _a, const int _b)
+	virtual int			Compare		(const sLong _a, const sLong _b)
 	{
 		TSG_Point	a	= m_pPoints->Get_Shape(_a)->Get_Point(0);
 		TSG_Point	b	= m_pPoints->Get_Shape(_b)->Get_Point(0);
@@ -348,7 +348,7 @@ bool CConvex_Hull::Get_Chain_Hull(CSG_Shapes *pPoints, CSG_Shapes *pHulls, CSG_S
 	//-----------------------------------------------------
 	CSG_Points	Points;
 
-	CIndex_Compare_Points	Compare(pPoints);
+	CIndex_Compare_Points Compare(pPoints);
 
 	CSG_Index	Index(pPoints->Get_Count(), &Compare);
 

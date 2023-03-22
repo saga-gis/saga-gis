@@ -136,7 +136,7 @@ bool CPolygon_to_Edges_Nodes::On_Execute(void)
 	m_Nodes.Create(pPolygons->Get_Extent());
 
 	//-----------------------------------------------------
-	for(int iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
+	for(sLong iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
 	{
 		CSG_Shape	*pPolygon	= pPolygons->Get_Shape(iPolygon);
 

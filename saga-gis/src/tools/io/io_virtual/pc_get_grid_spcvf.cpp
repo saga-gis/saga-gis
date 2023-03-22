@@ -326,7 +326,7 @@ bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(int iFieldToGrid)
 
 			bool bFound = false;
 
-			for(int iPoint=0; iPoint<pPC->Get_Count(); iPoint++)
+			for(sLong iPoint=0; iPoint<pPC->Get_Count(); iPoint++)
 			{
 				if( m_AOI.Get_XMin() <= pPC->Get_X(iPoint) && pPC->Get_X(iPoint) < m_AOI.Get_XMax() &&
 					m_AOI.Get_YMin() <= pPC->Get_Y(iPoint) && pPC->Get_Y(iPoint) < m_AOI.Get_YMax() )
@@ -347,22 +347,23 @@ bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(int iFieldToGrid)
 						}
 					}
 
-					if( System.Get_World_to_Grid(x, y, pPC->Get_X(iPoint), pPC->Get_Y(iPoint)) )
+					if( pGrid && System.Get_World_to_Grid(x, y, pPC->Get_X(iPoint), pPC->Get_Y(iPoint)) )
 					{
 						switch( m_iMethod )
 						{
 						default:
-						case 0:		if( pGrid->is_NoData(x, y) || pGrid->asDouble(x, y) > pPC->Get_Value(iPoint, iFieldToGrid) )
-									{
-										pGrid->Set_Value(x, y, pPC->Get_Value(iPoint, iFieldToGrid));
-									}
-									break;
+							if( pGrid->is_NoData(x, y) || pGrid->asDouble(x, y) > pPC->Get_Value(iPoint, iFieldToGrid) )
+							{
+								pGrid->Set_Value(x, y, pPC->Get_Value(iPoint, iFieldToGrid));
+							}
+							break;
 
-						case 1:		if( pGrid->is_NoData(x, y) || pGrid->asDouble(x, y) < pPC->Get_Value(iPoint, iFieldToGrid) )
-									{
-										pGrid->Set_Value(x, y, pPC->Get_Value(iPoint, iFieldToGrid));
-									}
-									break;
+						case 1:
+							if( pGrid->is_NoData(x, y) || pGrid->asDouble(x, y) < pPC->Get_Value(iPoint, iFieldToGrid) )
+							{
+								pGrid->Set_Value(x, y, pPC->Get_Value(iPoint, iFieldToGrid));
+							}
+							break;
 						}
 
 						bFound = true;
@@ -881,7 +882,7 @@ bool CPointCloud_Get_Grid_SPCVF_Interactive::On_Execute_Position(CSG_Point ptWor
 		{
 			CSG_Grid *pGrid = Parameters("GRID_OUT")->asGridList()->Get_Grid(Parameters("GRID_OUT")->asGridList()->Get_Grid_Count()-1);
 
-			DataObject_Update(pGrid, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
+			DataObject_Update(pGrid, SG_UI_DATAOBJECT_SHOW_MAP_ACTIVE);
 		}
 
 		m_Get_Grid_SPCVF.Finalise();

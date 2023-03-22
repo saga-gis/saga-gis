@@ -116,7 +116,7 @@ CGW_Multi_Regression::CGW_Multi_Regression(void)
 	m_Weighting.Create_Parameters(Parameters);
 
 	//-----------------------------------------------------
-	m_Search.Create(&Parameters, Parameters.Add_Node("", "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
+	m_Search.Create(&Parameters, "NODE_SEARCH", 16);
 
 	Parameters("SEARCH_RANGE"     )->Set_Value(1);
 	Parameters("SEARCH_POINTS_ALL")->Set_Value(1);
@@ -295,44 +295,69 @@ bool CGW_Multi_Regression::On_Execute(void)
 //---------------------------------------------------------
 bool CGW_Multi_Regression::Get_Model(int x, int y, CSG_Regression_Weighted &Model, bool bLogistic)
 {
+	Model.Destroy(); TSG_Point Point = m_pIntercept->Get_System().Get_Grid_to_World(x, y); CSG_Vector Predictors(m_nPredictors);
+
 	//-----------------------------------------------------
-	TSG_Point	Point	= m_pIntercept->Get_System().Get_Grid_to_World(x, y);
-	int			nPoints = m_Search.Set_Location(Point);
-
-	CSG_Vector	Predictors(m_nPredictors);
-
-	Model.Destroy();
-
-	for(int iPoint=0; iPoint<nPoints; iPoint++)
+	if( m_Search.Do_Use_All() )
 	{
-		double	ix, iy, iz;
-
-		CSG_Shape	*pPoint = m_Search.Do_Use_All() && m_Search.Get_Point(iPoint, ix, iy, iz)
-			? m_pPoints->Get_Shape((int)iz)
-			: m_pPoints->Get_Shape(iPoint);
-
-		if( !pPoint->is_NoData(m_iDependent) )
+		for(sLong iPoint=0; iPoint<m_pPoints->Get_Count(); iPoint++)
 		{
-			bool	bOkay	= true;
+			CSG_Shape *pPoint = m_pPoints->Get_Shape(iPoint); double Value;
 
-			for(int iPredictor=0; iPredictor<m_nPredictors && bOkay; iPredictor++)
+			if( !pPoint->is_NoData(m_iDependent) )
 			{
-				if( !pPoint->is_NoData(m_iPredictor[iPredictor]) )
+				bool bOkay = true;
+
+				for(int iPredictor=0; iPredictor<m_nPredictors && bOkay; iPredictor++)
 				{
-					Predictors[iPredictor]	= pPoint->asDouble(m_iPredictor[iPredictor]);
+					if( (bOkay = !pPoint->is_NoData(m_iPredictor[iPredictor])) == true )
+					{
+						Predictors[iPredictor] = pPoint->asDouble(m_iPredictor[iPredictor]);
+					}
 				}
-				else
+
+				if( bOkay )
 				{
-					bOkay	= false;
+					Model.Add_Sample(m_Weighting.Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point(0))),
+						pPoint->asDouble(m_iDependent), Predictors
+					);
 				}
 			}
+		}
+	}
 
-			if( bOkay )
+	//-----------------------------------------------------
+	else
+	{
+		CSG_Array_Int Index; CSG_Vector Distance;
+
+		if( !m_Search.Get_Points(Point, Index, Distance) )
+		{
+			return( false );
+		}
+
+		for(sLong iPoint=0; iPoint<Index.Get_Size(); iPoint++)
+		{
+			CSG_Shape *pPoint = m_pPoints->Get_Shape(Index[iPoint]); double Value;
+
+			if( !pPoint->is_NoData(m_iDependent) )
 			{
-				Model.Add_Sample(
-					m_Weighting.Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point(0))),
-					pPoint->asDouble(m_iDependent), Predictors
-				);
+				bool bOkay = true;
+
+				for(int iPredictor=0; iPredictor<m_nPredictors && bOkay; iPredictor++)
+				{
+					if( (bOkay = !pPoint->is_NoData(m_iPredictor[iPredictor])) == true )
+					{
+						Predictors[iPredictor] = pPoint->asDouble(m_iPredictor[iPredictor]);
+					}
+				}
+
+				if( bOkay )
+				{
+					Model.Add_Sample(m_Weighting.Get_Weight(Distance[iPoint]),
+						pPoint->asDouble(m_iDependent), Predictors
+					);
+				}
 			}
 		}
 	}

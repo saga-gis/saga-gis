@@ -616,7 +616,7 @@ bool CSG_File_Zip::Open(const CSG_String &FileName, int Mode, int Encoding)
 //---------------------------------------------------------
 bool CSG_File_Zip::Close(void)
 {
-	for(size_t i=0; i<m_Files.Get_Size(); i++)
+	for(sLong i=0; i<m_Files.Get_Size(); i++)
 	{
 		delete((wxZipEntry *)m_Files[i]);
 	}
@@ -688,7 +688,7 @@ bool CSG_File_Zip::Get_File(const CSG_String &Name)
 {
 	if( is_Reading() )
 	{
-		for(size_t i=0; i<m_Files.Get_Size(); i++)
+		for(sLong i=0; i<m_Files.Get_Size(); i++)
 		{
 			if( !((wxZipEntry *)m_Files[i])->GetName().Cmp(Name.c_str()) )
 			{

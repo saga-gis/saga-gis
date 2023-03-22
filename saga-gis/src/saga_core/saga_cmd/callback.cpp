@@ -161,7 +161,9 @@ void			CMD_Print			(const CSG_String &Text, const CSG_String &XML_Tag)
 		}
 		else
 		{
-			printf("%s\n", Text.to_ASCII().Get_Data());
+			CSG_Buffer Buffer = Text.to_ASCII();	Buffer.Add_Value('\0');
+
+			printf("%s\n", Buffer.Get_Data());
 		}
 	}
 

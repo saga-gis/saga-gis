@@ -207,11 +207,11 @@ bool CPolygon_Clip::Clip_Shapes(CSG_Shapes *pClip, CSG_Shapes *pInput, CSG_Shape
 //---------------------------------------------------------
 void CPolygon_Clip::Clip_Points(CSG_Shapes *pClips, CSG_Shapes *pInputs, CSG_Shapes *pOutputs)
 {
-	for(int iClip=0; iClip<pClips->Get_Count() && Set_Progress(iClip, pClips->Get_Count()); iClip++)
+	for(sLong iClip=0; iClip<pClips->Get_Count() && Set_Progress(iClip, pClips->Get_Count()); iClip++)
 	{
 		CSG_Shape_Polygon	*pClip	= (CSG_Shape_Polygon *)pClips->Get_Shape(iClip);
 
-		for(int iInput=0; iInput<pInputs->Get_Count(); iInput++)
+		for(sLong iInput=0; iInput<pInputs->Get_Count(); iInput++)
 		{
 			CSG_Shape	*pInput		= pInputs->Get_Shape(iInput);
 			CSG_Shape	*pOutput	= NULL;
@@ -240,13 +240,13 @@ void CPolygon_Clip::Clip_Points(CSG_Shapes *pClips, CSG_Shapes *pInputs, CSG_Sha
 //---------------------------------------------------------
 void CPolygon_Clip::Clip_Lines(CSG_Shapes *pClips, CSG_Shapes *pInputs, CSG_Shapes *pOutputs)
 {
-	for(int iClip=0; iClip<pClips->Get_Count() && Set_Progress(iClip, pClips->Get_Count()); iClip++)
+	for(sLong iClip=0; iClip<pClips->Get_Count() && Set_Progress(iClip, pClips->Get_Count()); iClip++)
 	{
 		CSG_Shape_Polygon	*pClip	= (CSG_Shape_Polygon *)pClips->Get_Shape(iClip);
 
 		if( pInputs->Select(pClip->Get_Extent()) )
 		{
-			for(int iInput=0; iInput<pInputs->Get_Selection_Count(); iInput++)
+			for(sLong iInput=0; iInput<pInputs->Get_Selection_Count(); iInput++)
 			{
 				CSG_Shape	*pNew_Line, *pLine	= pInputs->Get_Selection(iInput);
 
@@ -333,13 +333,13 @@ TSG_Point CPolygon_Clip::Get_Crossing(CSG_Shape_Polygon *pPolygon, const TSG_Poi
 //---------------------------------------------------------
 void CPolygon_Clip::Clip_Polygons(CSG_Shapes *pClips, CSG_Shapes *pInputs, CSG_Shapes *pOutputs)
 {
-	for(int iClip=0; iClip<pClips->Get_Count() && Process_Get_Okay(); iClip++)
+	for(sLong iClip=0; iClip<pClips->Get_Count() && Process_Get_Okay(); iClip++)
 	{
-		Process_Set_Text("%s: %d/%d", _TL("clip features"), iClip + 1, pClips->Get_Count());
+		Process_Set_Text("%s: %lld/%lld", _TL("clip features"), iClip + 1, pClips->Get_Count());
 
 		CSG_Shape_Polygon *pClip = pClips->Get_Shape(iClip)->asPolygon();
 
-		for(int iInput=0; iInput<pInputs->Get_Count() && Set_Progress(iInput, pInputs->Get_Count()); iInput++)
+		for(sLong iInput=0; iInput<pInputs->Get_Count() && Set_Progress(iInput, pInputs->Get_Count()); iInput++)
 		{
 			CSG_Shape *pOutput = pOutputs->Add_Shape(pInputs->Get_Shape(iInput));
 
@@ -364,7 +364,7 @@ bool CPolygon_Clip::Dissolve(CSG_Shapes *pPolygons, CSG_Shapes *pOutput)
 
 	CSG_Shape	*pDissolved	= pOutput->Add_Shape(pPolygons->Get_Shape(0), SHAPE_COPY_GEOM);
 
-	for(int iPolygon=1; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
+	for(sLong iPolygon=1; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
 	{
 		CSG_Shape	*pPolygon	= pPolygons->Get_Shape(iPolygon);
 

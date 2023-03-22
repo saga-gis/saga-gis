@@ -514,8 +514,8 @@ bool CSolarRadiation::Get_Insolation(void)
 {
 	switch( Parameters("PERIOD")->asInt() ? Parameters("UPDATE")->asInt() : 0 )
 	{
-	case 1: DataObject_Update(m_pDirect                                              , SG_UI_DATAOBJECT_SHOW); break;
-	case 2: DataObject_Update(m_pDirect, 0., Parameters("UPDATE_STRETCH")->asDouble(), SG_UI_DATAOBJECT_SHOW); break;
+	case 1: DataObject_Update(m_pDirect                                              , SG_UI_DATAOBJECT_SHOW_MAP); break;
+	case 2: DataObject_Update(m_pDirect, 0., Parameters("UPDATE_STRETCH")->asDouble(), SG_UI_DATAOBJECT_SHOW_MAP); break;
 	}
 
 	//-----------------------------------------------------
@@ -626,8 +626,8 @@ bool CSolarRadiation::Get_Insolation(CSG_DateTime Date)
 
 			switch( Update )
 			{
-			case 1: DataObject_Update(m_pDirect             , SG_UI_DATAOBJECT_SHOW); break;
-			case 2: DataObject_Update(m_pDirect, 0., dUpdate, SG_UI_DATAOBJECT_SHOW); break;
+			case 1: DataObject_Update(m_pDirect             , SG_UI_DATAOBJECT_SHOW_MAP); break;
+			case 2: DataObject_Update(m_pDirect, 0., dUpdate, SG_UI_DATAOBJECT_SHOW_MAP); break;
 			}
 
 			if( bIsDay )
@@ -1013,7 +1013,7 @@ bool CSolarRadiation::Get_Slope_Gradient(void)
 	m_Slope .Create(Get_System());
 	m_Aspect.Create(Get_System());
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)

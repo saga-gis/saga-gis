@@ -255,7 +255,7 @@ bool CHypsometry::Calculate_A(CSG_Grid *pDEM, CSG_Table *pTable, bool bDown, int
 
 	A	= 0;
 
-	for(n=0; n<pDEM->Get_NCells() && Set_Progress_NCells(n); n++)
+	for(n=0; n<pDEM->Get_NCells() && Set_Progress_Cells(n); n++)
 	{
 		if( !pDEM->is_NoData(n) )
 		{
@@ -289,7 +289,7 @@ bool CHypsometry::Calculate_A(CSG_Grid *pDEM, CSG_Table *pTable, bool bDown, int
 	{
 		Cells_Count	= (sLong *)SG_Calloc(nClasses + 1, sizeof(sLong));
 
-		for(n=0; n<pDEM->Get_NCells() && Set_Progress_NCells(n); n++)
+		for(n=0; n<pDEM->Get_NCells() && Set_Progress_Cells(n); n++)
 		{
 			if( !pDEM->is_NoData(n) )
 			{
@@ -340,7 +340,7 @@ bool CHypsometry::Calculate_B(CSG_Grid *pDEM, CSG_Table *pTable, bool bDown, int
 	//-----------------------------------------------------
 	if( zMin < zMax && zMin < pDEM->Get_Max() && zMax > pDEM->Get_Min() )
 	{
-		for(nMin=0; nMin<pDEM->Get_NCells() && Set_Progress_NCells(nMin); nMin++)
+		for(nMin=0; nMin<pDEM->Get_NCells() && Set_Progress_Cells(nMin); nMin++)
 		{
 			if( pDEM->Get_Sorted(nMin, x, y, !bDown) && zMin <= pDEM->asDouble(x, y) )
 			{
@@ -349,7 +349,7 @@ bool CHypsometry::Calculate_B(CSG_Grid *pDEM, CSG_Table *pTable, bool bDown, int
 			}
 		}
 
-		for(nMax=pDEM->Get_NCells() - 1; nMax > nMin && Set_Progress_NCells(nMax); nMax--)
+		for(nMax=pDEM->Get_NCells() - 1; nMax > nMin && Set_Progress_Cells(nMax); nMax--)
 		{
 			if( pDEM->Get_Sorted(nMax, x, y, !bDown) && zMax >= pDEM->asDouble(x, y) )
 			{

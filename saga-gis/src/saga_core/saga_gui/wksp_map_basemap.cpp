@@ -197,13 +197,21 @@ CWKSP_Map_BaseMap::~CWKSP_Map_BaseMap(void)
 //---------------------------------------------------------
 bool CWKSP_Map_BaseMap::Load(CSG_MetaData &Entry)
 {
+	m_bShow = !Entry.Cmp_Property("SHOW", "false", true);
+
 	return( m_Parameters.Serialize(Entry, false) );
 }
 
 //---------------------------------------------------------
 bool CWKSP_Map_BaseMap::Save(CSG_MetaData &Entry)
 {
-	return( m_Parameters.Serialize(*Entry.Add_Child("BASEMAP"), true) );
+	CSG_MetaData &Child = *Entry.Add_Child("BASEMAP");
+
+	m_Parameters.Serialize(Child, true);
+
+	Child.Add_Property("SHOW", m_bShow ? "true" : "false");
+
+	return( true );
 }
 
 
@@ -448,7 +456,7 @@ bool CWKSP_Map_BaseMap::Set_BaseMap(const CSG_Grid_System &System)
 		if( System == BaseMap.Get_System() )
 		{
 			#pragma omp parallel for
-			for(int i=0; i<m_BaseMap.Get_NCells(); i++)
+			for(sLong i=0; i<m_BaseMap.Get_NCells(); i++)
 			{
 				m_BaseMap.Set_Value(i, BaseMap.asInt(i));
 			}
@@ -467,7 +475,7 @@ bool CWKSP_Map_BaseMap::Set_BaseMap(const CSG_Grid_System &System)
 			int	Threshold	= (int)(0.5 + 3 * 255 * m_Parameters("BRIGHTNESS")->asDouble() / 100.);
 
 			#pragma omp parallel for
-			for(int i=0; i<m_BaseMap.Get_NCells(); i++)
+			for(sLong i=0; i<m_BaseMap.Get_NCells(); i++)
 			{
 				int	c	= m_BaseMap.asInt(i);
 

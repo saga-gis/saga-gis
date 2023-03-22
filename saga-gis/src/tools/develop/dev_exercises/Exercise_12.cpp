@@ -110,29 +110,27 @@ bool CExercise_12::On_Execute(void)
 
 	pShapes_B->Create(pShapes_A->Get_Type(), _TL("Translation"), pShapes_A);
 
-
 	//-----------------------------------------------------
 	// Copy shapes layer A to B and translate each point's position...
 
-	for(int iShape=0; iShape<pShapes_A->Get_Count() && Set_Progress(iShape, pShapes_A->Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<pShapes_A->Get_Count() && Set_Progress(iShape, pShapes_A->Get_Count()); iShape++)
 	{
-		CSG_Shape	*pShape_A	= pShapes_A->Get_Shape(iShape);
-		CSG_Shape	*pShape_B	= pShapes_B->Add_Shape(pShape_A, SHAPE_COPY_ATTR);
+		CSG_Shape *pShape_A = pShapes_A->Get_Shape(iShape);
+		CSG_Shape *pShape_B = pShapes_B->Add_Shape(pShape_A, SHAPE_COPY_ATTR);
 
 		for(int iPart=0; iPart<pShape_A->Get_Part_Count(); iPart++)
 		{
 			for(int iPoint=0; iPoint<pShape_A->Get_Point_Count(iPart); iPoint++)
 			{
-				TSG_Point	Point	= pShape_A->Get_Point(iPoint, iPart);
+				TSG_Point Point = pShape_A->Get_Point(iPoint, iPart);
 
-				Point.x	+= dx;	// perform the translation before
-				Point.y	+= dy;	// you add the point to the new shape...
+				Point.x += dx;	// perform the translation before
+				Point.y += dy;	// you add the point to the new shape...
 
 				pShape_B->Add_Point(Point, iPart);
 			}
 		}
 	}
-
 
 	//-----------------------------------------------------
 	// Return 'true' if everything went okay...

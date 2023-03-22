@@ -210,7 +210,7 @@ bool CGSGrid_Directional_Statistics::On_Execute(void)
 	//-----------------------------------------------------
 	if( m_pMean || m_pDifMean || m_pMin || m_pMax || m_pRange || m_pVar || m_pStdDev || m_pStdDevLo || m_pStdDevHi || m_pPercent )
 	{
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			#pragma omp parallel for
 			for(int x=0; x<Get_NX(); x++)
@@ -273,7 +273,7 @@ bool CGSGrid_Directional_Statistics::On_Execute(void)
 		pPoints->Add_Field(_TL("STDDEV_MEAN"), SG_DATATYPE_Double);
 		pPoints->Add_Field(_TL("PERCENTILE" ), SG_DATATYPE_Double);
 
-		for(int iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
+		for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 		{
 			CSG_Shape	*pPoint	= pPoints->Get_Shape(iPoint);
 

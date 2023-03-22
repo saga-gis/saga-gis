@@ -143,7 +143,7 @@ bool CConfusion_Matrix::On_Execute(void)
 
 	CSG_Category_Statistics	Categories;
 
-	for(int i=0; i<Table.Get_Count() && Set_Progress(i, Table.Get_Count()); i++)
+	for(sLong i=0; i<Table.Get_Count() && Set_Progress(i, Table.Get_Count()); i++)
 	{
 		if( bNoData || !Table[i].is_NoData(Field[0]) )
 		{
@@ -181,7 +181,7 @@ bool CConfusion_Matrix::On_Execute(void)
 	//-----------------------------------------------------
 	// count associations..
 
-	for(int i=0; i<Table.Get_Count() && Set_Progress(i, Table.Get_Count()); i++)
+	for(sLong i=0; i<Table.Get_Count() && Set_Progress(i, Table.Get_Count()); i++)
 	{
 		int	c0	= Categories.Get_Category(Table[i].asString(Field[0]));
 		int	c1	= Categories.Get_Category(Table[i].asString(Field[1]));
@@ -229,7 +229,7 @@ bool CConfusion_Matrix::Get_Quality(CSG_Table &Confusion)
 	Classes.Add_Field("AccProd"      , SG_DATATYPE_Double);
 	Classes.Add_Field("SumClassified", SG_DATATYPE_Int   );
 	Classes.Add_Field("AccUser"      , SG_DATATYPE_Double);
-	Classes.Set_Record_Count(Confusion.Get_Count());
+	Classes.Set_Count(Confusion.Get_Count());
 
 	Confusion.Add_Field("SumUser", SG_DATATYPE_Double);
 	Confusion.Add_Field("AccUser", SG_DATATYPE_Double);
@@ -287,7 +287,7 @@ bool CConfusion_Matrix::Get_Quality(CSG_Table &Confusion)
 	Summary.Fmt_Name("%s [%s - %s]", _TL("Summary"), Name[0], Name[1]);
 	Summary.Add_Field("NAME" , SG_DATATYPE_String);
 	Summary.Add_Field("VALUE", SG_DATATYPE_Double);
-	Summary.Set_Record_Count(2);
+	Summary.Set_Count(2);
 
 	double	d	= (double)(nTotal*nTotal - nProd);
 

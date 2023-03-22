@@ -174,7 +174,7 @@ bool CPolygon_Geometrics::On_Execute(void)
 			);
 		}
 
-		for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
+		for(sLong i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 		{
 			CSG_Shape *pPolygon = pPolygons->Get_Shape(i); CSG_Shape *pCopy = pCopies->Add_Shape(pPolygon, SHAPE_COPY_GEOM);
 
@@ -203,7 +203,7 @@ bool CPolygon_Geometrics::On_Execute(void)
 	double	Scaling	= Parameters("SCALING")->asDouble();
 
 	//-------------------------------------------------
-	for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
+	for(sLong i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 	{
 		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(i);
 

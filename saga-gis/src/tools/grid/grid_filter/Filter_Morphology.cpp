@@ -197,7 +197,7 @@ bool CFilter_Morphology::Get_Extreme(bool bMinimum, CSG_Grid *pInput, CSG_Grid *
 		pResult->Create(Get_System());
 	}
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)

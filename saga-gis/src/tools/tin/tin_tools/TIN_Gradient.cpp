@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "TIN_Gradient.h"
 
 
@@ -72,97 +60,79 @@
 //---------------------------------------------------------
 CTIN_Gradient::CTIN_Gradient(void)
 {
-	CSG_Parameter	*pNode;
+	Set_Name		(_TL("Gradient"));
 
-	//-----------------------------------------------------
-	Set_Name(_TL("Gradient"));
-
-	Set_Author		(SG_T("(c) 2004 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2004");
 
 	Set_Description(
 		_TL("Calculates the gradient based on the values of each triangle's points.\n\n")
 	);
 
-
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_TIN(
-		NULL	, "TIN"			, _TL("TIN"),
+	Parameters.Add_TIN("",
+		"TIN"		, _TL("TIN"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "ZFIELD"		, _TL("Z Values"),
+	Parameters.Add_Table_Field("TIN",
+		"ZFIELD"	, _TL("Z Values"),
 		_TL("")
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "GRADIENT"	, _TL("TIN_Gradient"),
+	Parameters.Add_Shapes("",
+		"GRADIENT"	, _TL("TIN_Gradient"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "DEGREE"		, _TL("Output Unit"),
+	Parameters.Add_Choice("",
+		"DEGREE"	, _TL("Output Unit"),
 		_TL(""),
-
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("Radians"),
 			_TL("Degree")
 		), 1
 	);
 }
 
-//---------------------------------------------------------
-CTIN_Gradient::~CTIN_Gradient(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CTIN_Gradient::On_Execute(void)
 {
-	bool			bDegree;
-	int				iTriangle, zField;
-	double			a, b;
-	CSG_TIN_Triangle	*pTriangle;
-	CSG_TIN			*pTIN;
-	CSG_Shape			*pShape;
-	CSG_Shapes			*pShapes;
+	//-----------------------------------------------------
+	CSG_TIN *pTIN = Parameters("TIN")->asTIN();
+
+	int  zField  = Parameters("ZFIELD")->asInt();
+	bool bDegree = Parameters("DEGREE")->asInt() == 1;
 
 	//-----------------------------------------------------
-	pTIN		= Parameters("TIN")			->asTIN();
-	zField		= Parameters("ZFIELD")		->asInt();
-	pShapes		= Parameters("GRADIENT")	->asShapes();
-	bDegree		= Parameters("DEGREE")		->asInt() == 1;
+	CSG_Shapes *pShapes = Parameters("GRADIENT")->asShapes();
+	pShapes->Create(SHAPE_TYPE_Polygon, CSG_String::Format("%s [%s], %s [%s]", _TL("TIN_Gradient"), pTIN->Get_Field_Name(zField), _TL("TIN"), pTIN->Get_Name()));
+	pShapes->Add_Field("ID"     , SG_DATATYPE_Int   );
+	pShapes->Add_Field("AREA"   , SG_DATATYPE_Double);
+	pShapes->Add_Field("DECLINE", SG_DATATYPE_Double);
+	pShapes->Add_Field("AZIMUTH", SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
-	pShapes->Create(SHAPE_TYPE_Polygon, CSG_String::Format(SG_T("%s [%s], %s [%s]"), _TL("TIN_Gradient"), pTIN->Get_Field_Name(zField), _TL("TIN"), pTIN->Get_Name()));
-
-	pShapes->Add_Field(_TL("ID")		, SG_DATATYPE_Int);
-	pShapes->Add_Field(_TL("AREA")	, SG_DATATYPE_Double);
-	pShapes->Add_Field(_TL("DECLINE"), SG_DATATYPE_Double);
-	pShapes->Add_Field(_TL("AZIMUTH"), SG_DATATYPE_Double);
-
-	//-----------------------------------------------------
-	for(iTriangle=0; iTriangle<pTIN->Get_Triangle_Count() && Set_Progress(iTriangle, pTIN->Get_Triangle_Count()); iTriangle++)
+	for(sLong iTriangle=0; iTriangle<pTIN->Get_Triangle_Count() && Set_Progress(iTriangle, pTIN->Get_Triangle_Count()); iTriangle++)
 	{
-		pTriangle	= pTIN->Get_Triangle(iTriangle);
+		CSG_TIN_Triangle *pTriangle = pTIN->Get_Triangle(iTriangle); double a, b;
 
 		if( pTriangle->Get_Gradient(zField, a, b) )
 		{
 			if( bDegree )
 			{
-				a	*= M_RAD_TO_DEG;
-				b	*= M_RAD_TO_DEG;
+				a *= M_RAD_TO_DEG;
+				b *= M_RAD_TO_DEG;
 			}
 
-			pShape		= pShapes->Add_Shape();
+			CSG_Shape *pShape = pShapes->Add_Shape();
+
 			pShape->Add_Point(pTriangle->Get_Node(0)->Get_Point());
 			pShape->Add_Point(pTriangle->Get_Node(1)->Get_Point());
 			pShape->Add_Point(pTriangle->Get_Node(2)->Get_Point());

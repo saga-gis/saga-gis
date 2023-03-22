@@ -163,7 +163,7 @@ bool CExercise_03::Method_01(void)
 	double	a, b, c;
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX()-1; x++)
 		{
@@ -203,7 +203,7 @@ bool CExercise_03::Method_02(void)
 	double	a, b, c;
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		x	= 0;	// initialize x...
 		
@@ -247,7 +247,7 @@ bool CExercise_03::Method_03(void)
 	double	a, b, c;
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0, ix=1; x<Get_NX()-1; x++, ix++)
 		{
@@ -285,7 +285,7 @@ bool CExercise_03::Method_04(void)
 	double	a, b, c;
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0, ix=1; x<Get_NX()-1; x++, ix++)
 		{

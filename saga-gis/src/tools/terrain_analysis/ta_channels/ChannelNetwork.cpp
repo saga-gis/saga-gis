@@ -236,7 +236,7 @@ bool CChannelNetwork::On_Execute(void)
 	Trace_pWeight		= Parameters("TRACE_WEIGHT")->asGrid();
 	Trace_Method		= Trace_pWeight ? 1 : 0;
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
@@ -271,7 +271,7 @@ bool CChannelNetwork::On_Execute(void)
 	Init_Method			= Parameters("INIT_METHOD")	->asInt();
 	Init_Threshold		= Parameters("INIT_VALUE")	->asDouble();
 
-	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(n=0; n<Get_NCells() && Set_Progress_Cells(n); n++)
 	{
 		switch( Init_Method )
 		{
@@ -303,7 +303,7 @@ bool CChannelNetwork::On_Execute(void)
 	Direction			= NULL;
 	Direction_Buffer	= 0;
 
-	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(n=0; n<Get_NCells() && Set_Progress_Cells(n); n++)
 	{
 		if( pDTM->Get_Sorted(n,x,y) )
 		{
@@ -324,7 +324,7 @@ bool CChannelNetwork::On_Execute(void)
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("Channel Network: Pass 4"));
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
@@ -336,7 +336,7 @@ bool CChannelNetwork::On_Execute(void)
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("Channel Network: Pass 5"));
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
@@ -358,7 +358,7 @@ bool CChannelNetwork::On_Execute(void)
 
 		Lock_Create();
 
-		for(y=0, ID=1; y<Get_NY() && Set_Progress(y); y++)
+		for(y=0, ID=1; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			for(x=0; x<Get_NX(); x++)
 			{

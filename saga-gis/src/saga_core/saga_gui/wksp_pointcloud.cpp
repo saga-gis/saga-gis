@@ -129,19 +129,19 @@ wxString CWKSP_PointCloud::Get_Description(void)
 		DESC_ADD_STR(_TL("Data Source"   ), _TL("memory"));
 	}
 
-	DESC_ADD_STR  (_TL("Modified"        ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
-	DESC_ADD_STR  (_TL("Projection"      ), m_pObject->Get_Projection().Get_Description().c_str());
-	DESC_ADD_FLT  (_TL("West"            ), Get_PointCloud()->Get_Extent().Get_XMin());
-	DESC_ADD_FLT  (_TL("East"            ), Get_PointCloud()->Get_Extent().Get_XMax());
-	DESC_ADD_FLT  (_TL("West-East"       ), Get_PointCloud()->Get_Extent().Get_XRange());
-	DESC_ADD_FLT  (_TL("South"           ), Get_PointCloud()->Get_Extent().Get_YMin());
-	DESC_ADD_FLT  (_TL("North"           ), Get_PointCloud()->Get_Extent().Get_YMax());
-	DESC_ADD_FLT  (_TL("South-North"     ), Get_PointCloud()->Get_Extent().Get_YRange());
-	DESC_ADD_FLT  (_TL("Z Minimum"       ), Get_PointCloud()->Get_ZMin());
-	DESC_ADD_FLT  (_TL("Z Maximum"       ), Get_PointCloud()->Get_ZMax());
-	DESC_ADD_FLT  (_TL("Z Range"         ), Get_PointCloud()->Get_ZMax() - Get_PointCloud()->Get_ZMin());
-	DESC_ADD_INT  (_TL("Number of Points"), Get_PointCloud()->Get_Count());
-	DESC_ADD_SIZET(_TL("Selected"        ), Get_PointCloud()->Get_Selection_Count());
+	DESC_ADD_STR (_TL("Modified"        ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
+	DESC_ADD_STR (_TL("Projection"      ), m_pObject->Get_Projection().Get_Description().c_str());
+	DESC_ADD_FLT (_TL("West"            ), Get_PointCloud()->Get_Extent().Get_XMin());
+	DESC_ADD_FLT (_TL("East"            ), Get_PointCloud()->Get_Extent().Get_XMax());
+	DESC_ADD_FLT (_TL("West-East"       ), Get_PointCloud()->Get_Extent().Get_XRange());
+	DESC_ADD_FLT (_TL("South"           ), Get_PointCloud()->Get_Extent().Get_YMin());
+	DESC_ADD_FLT (_TL("North"           ), Get_PointCloud()->Get_Extent().Get_YMax());
+	DESC_ADD_FLT (_TL("South-North"     ), Get_PointCloud()->Get_Extent().Get_YRange());
+	DESC_ADD_FLT (_TL("Z Minimum"       ), Get_PointCloud()->Get_ZMin());
+	DESC_ADD_FLT (_TL("Z Maximum"       ), Get_PointCloud()->Get_ZMax());
+	DESC_ADD_FLT (_TL("Z Range"         ), Get_PointCloud()->Get_ZMax() - Get_PointCloud()->Get_ZMin());
+	DESC_ADD_LONG(_TL("Number of Points"), Get_PointCloud()->Get_Count());
+	DESC_ADD_LONG(_TL("Selected"        ), Get_PointCloud()->Get_Selection_Count());
 
 	s	+= "</table>";
 
@@ -278,7 +278,7 @@ bool CWKSP_PointCloud::On_Command(int Cmd_ID)
 
             pCopy->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Get_PointCloud()->Get_Name(), _TL("Selection")));
 
-            for(int i=0; i<Get_PointCloud()->Get_Selection_Count() && SG_UI_Process_Set_Progress(i, Get_PointCloud()->Get_Selection_Count()); i++)
+            for(sLong i=0; i<Get_PointCloud()->Get_Selection_Count() && SG_UI_Process_Set_Progress(i, Get_PointCloud()->Get_Selection_Count()); i++)
             {
                 pCopy->Add_Shape(Get_PointCloud()->Get_Selection(i), SHAPE_COPY);
             }
@@ -625,7 +625,7 @@ void CWKSP_PointCloud::_LUT_Create(void)
 
 			#define MAX_CLASSES	1024
 
-			for(int iShape=0; iShape<Get_PointCloud()->Get_Count() && s.Get_Count()<MAX_CLASSES; iShape++)
+			for(sLong iShape=0; iShape<Get_PointCloud()->Get_Count() && s.Get_Count()<MAX_CLASSES; iShape++)
 			{
 				s	+= Get_PointCloud()->Get_Record(iShape)->asString(Field);
 			}
@@ -789,7 +789,7 @@ wxString CWKSP_PointCloud::Get_Value(CSG_Point ptWorld, double Epsilon)
 		}
 		else
 		{
-			return( wxString::Format("%s: %d", _TL("Index"), pShape->Get_Index() + 1) );
+			return( wxString::Format("%s: %lld", _TL("Index"), pShape->Get_Index() + 1) );
 		}
 	}
 
@@ -937,7 +937,7 @@ bool CWKSP_PointCloud::Edit_Set_Attributes(void)
 
 	if( pSelection )
 	{
-		for(int i=0; i<m_Edit_Attributes.Get_Record_Count(); i++)
+		for(sLong i=0; i<m_Edit_Attributes.Get_Count(); i++)
 		{
 			pSelection->Set_Value(i, m_Edit_Attributes.Get_Record(i)->asString(1));
 		}
@@ -1051,9 +1051,9 @@ void CWKSP_PointCloud::_Draw_Points(CWKSP_Map_DC &dc_Map)
 	//-----------------------------------------------------
 	CSG_PointCloud	*pPoints	= Get_PointCloud();
 
-	int	Selection	= pPoints->Get_Selection_Count() > 0 ? (int)pPoints->Get_Selection_Index(m_Edit_Index) : -1;
+	sLong	Selection	= pPoints->Get_Selection_Count() > 0 ? pPoints->Get_Selection_Index(m_Edit_Index) : -1;
 
-	for(int i=0; i<pPoints->Get_Count(); i++)
+	for(sLong i=0; i<pPoints->Get_Count(); i++)
 	{
 		pPoints->Set_Cursor(i);
 
@@ -1091,9 +1091,9 @@ void CWKSP_PointCloud::_Draw_Thumbnail(CWKSP_Map_DC &dc_Map)
 {
 	CSG_PointCloud	*pPoints	= Get_PointCloud();
 
-	int	n	= 1 + (int)(pPoints->Get_Count() / (2 * dc_Map.m_rDC.GetWidth() * dc_Map.m_rDC.GetHeight()));
+	sLong	n	= 1 + (sLong)(pPoints->Get_Count() / (2 * dc_Map.m_rDC.GetWidth() * dc_Map.m_rDC.GetHeight()));
 
-	for(int i=0; i<pPoints->Get_Count(); i+=n)
+	for(sLong i=0; i<pPoints->Get_Count(); i+=n)
 	{
 		pPoints->Set_Cursor(i);
 

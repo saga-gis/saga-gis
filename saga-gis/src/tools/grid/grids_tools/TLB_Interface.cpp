@@ -74,7 +74,7 @@ CSG_String Get_Info(int i)
 		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
-		return( _TL("Grid|Grid Collection") );
+		return( _TL("Grid Collection") );
 	}
 }
 

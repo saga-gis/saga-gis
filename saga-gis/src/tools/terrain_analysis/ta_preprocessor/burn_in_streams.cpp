@@ -201,7 +201,7 @@ bool CBurnIn_Streams::On_Execute(void)
 //---------------------------------------------------------
 bool CBurnIn_Streams::Burn_Simple(bool bNeighbours)
 {
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -250,7 +250,7 @@ bool CBurnIn_Streams::Burn_Trace(void)
 	CSG_Grid	*pDir	= Parameters("FLOWDIR")->asGrid();
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
@@ -275,7 +275,7 @@ bool CBurnIn_Streams::Burn_Trace(void)
 	m_pStream	= &Stream;
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{

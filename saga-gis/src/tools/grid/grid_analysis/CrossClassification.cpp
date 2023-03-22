@@ -89,7 +89,7 @@ bool CCrossClassification::On_Execute(void){
 	}//for
 	pTable->Add_Field(_TL("Total"), SG_DATATYPE_Int);
 	
-	for(y=0; y<Get_NY() && Set_Progress(y); y++){
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++){
 		for(x=0; x<Get_NX(); x++){
 			if (!pInput->is_NoData(x,y) && !pInput2->is_NoData(x,y)){
 				iClass = pInput->asInt(x,y)-1;

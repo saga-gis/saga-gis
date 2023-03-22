@@ -154,7 +154,7 @@ bool CGrids_Masking::On_Execute(void)
 	bool	bMaskBetween	= Parameters("MASKING")->asInt() == 1;
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		double	py	= Get_YMin() + y * Get_Cellsize();
 

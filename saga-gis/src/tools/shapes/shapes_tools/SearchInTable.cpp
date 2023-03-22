@@ -119,7 +119,7 @@ bool CSelect_String::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
+	for(sLong i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
 	{
 		CSG_Shape	*pShape	= pShapes->Get_Shape(i);
 
@@ -157,7 +157,7 @@ bool CSelect_String::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Message_Fmt("\n%s: %d", _TL("selected shapes"), pShapes->Get_Selection_Count());
+	Message_Fmt("\n%s: %lld", _TL("selected shapes"), pShapes->Get_Selection_Count());
 
 	DataObject_Update(pShapes);
 
@@ -202,7 +202,7 @@ inline bool CSelect_String::Do_Select(CSG_Shape *pShape)
 		return( Do_Compare(pShape->asString(m_Field)) );
 	}
 
-	for(int i=0; i<pShape->Get_Table()->Get_Field_Count(); i++)
+	for(sLong i=0; i<pShape->Get_Table()->Get_Field_Count(); i++)
 	{
 		if( Do_Compare(pShape->asString(i)) )
 		{

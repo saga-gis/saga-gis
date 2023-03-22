@@ -189,6 +189,7 @@ wxMenu * CVIEW_Map_3D::_Create_Menu(void)
 	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_PARAMETERS);
 	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_USAGE);
 	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_SAVE);
+	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_TO_CLIPBOARD);
 
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_EXAGGERATE_LESS);
@@ -234,6 +235,7 @@ wxToolBarBase * CVIEW_Map_3D::_Create_ToolBar(void)
 	wxToolBarBase *pToolBar = CMD_ToolBar_Create(ID_TB_VIEW_MAP_3D);
 
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_PARAMETERS);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_TO_CLIPBOARD);
 	CMD_ToolBar_Add_Separator(pToolBar);
 	CMD_ToolBar_Add_Item(pToolBar,  true, ID_CMD_MAP3D_STEREO);
 	CMD_ToolBar_Add_Separator(pToolBar);
@@ -315,6 +317,11 @@ void CVIEW_Map_3D::On_Command(wxCommandEvent &event)
 			Set_Buisy_Cursor(false);
 		}
 		return; }
+
+	//-----------------------------------------------------
+	case ID_CMD_MAP3D_TO_CLIPBOARD:
+		m_pPanel->Save_toClipboard();
+		break;
 
 	//-----------------------------------------------------
 	case ID_CMD_MAP3D_SEQ_POS_EDIT   : {

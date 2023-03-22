@@ -127,7 +127,7 @@ bool CExtract_Closed_Lines::On_Execute(void)
 
 
     //--------------------------------------------------------
-    for(int iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
+    for(sLong iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
     {
         CSG_Shape *pLineIn = pLines->Get_Shape(iLine);
 

@@ -577,24 +577,24 @@ void CSAGA_Frame::On_Frame_Unsplit_UI(wxUpdateUIEvent &event)
 }
 
 //---------------------------------------------------------
-void CSAGA_Frame::On_Frame_Split(wxCommandEvent &event)
+void CSAGA_Frame::Split(int Arrange)
 {
 #ifdef MDI_TABBED
-	int		n	= GetNotebook()->GetPageCount();
+	int n = GetNotebook()->GetPageCount();
 
 	if( n > 1 )
 	{
 		GetNotebook()->Freeze();
 
-		int	iActive	= GetNotebook()->GetSelection(); if( iActive < 0 ) iActive = 0;
-		int	nSqrt	= (int)sqrt((double)n);
+		int iActive = GetNotebook()->GetSelection(); if( iActive < 0 ) iActive = 0;
+		int nSqrt   = (int)sqrt((double)n);
 
-		switch( event.GetId() )
+		switch( Arrange )
 		{
-		case ID_CMD_FRAME_SPLIT_LEFT  : GetNotebook()->Split(iActive, wxLEFT  ); break;
-		case ID_CMD_FRAME_SPLIT_RIGHT : GetNotebook()->Split(iActive, wxRIGHT ); break;
-		case ID_CMD_FRAME_SPLIT_TOP   : GetNotebook()->Split(iActive, wxTOP   ); break;
-		case ID_CMD_FRAME_SPLIT_BOTTOM: GetNotebook()->Split(iActive, wxBOTTOM); break;
+		case ID_CMD_FRAME_SPLIT_LEFT    : GetNotebook()->Split(iActive, wxLEFT  ); break;
+		case ID_CMD_FRAME_SPLIT_RIGHT   : GetNotebook()->Split(iActive, wxRIGHT ); break;
+		case ID_CMD_FRAME_SPLIT_TOP     : GetNotebook()->Split(iActive, wxTOP   ); break;
+		case ID_CMD_FRAME_SPLIT_BOTTOM  : GetNotebook()->Split(iActive, wxBOTTOM); break;
 
 		case ID_CMD_FRAME_SPLIT_ALL_HORZ:
 			{
@@ -618,6 +618,12 @@ void CSAGA_Frame::On_Frame_Split(wxCommandEvent &event)
 		GetNotebook()->Thaw();
 	}
 #endif
+}
+
+//---------------------------------------------------------
+void CSAGA_Frame::On_Frame_Split(wxCommandEvent &event)
+{
+	Split(event.GetId());
 }
 
 void CSAGA_Frame::On_Frame_Split_UI(wxUpdateUIEvent &event)
@@ -733,6 +739,29 @@ void CSAGA_Frame::On_Frame_Close_All(wxCommandEvent &WXUNUSED(event))
 void CSAGA_Frame::On_Frame_Close_All_UI(wxUpdateUIEvent &event)
 {
 	event.Enable(GetActiveChild() != NULL);
+}
+
+//---------------------------------------------------------
+bool CSAGA_Frame::Arrange_Children(int Arrange)
+{
+#ifndef MDI_TABBED
+	if     ( (Arrange & SG_UI_WINDOW_ARRANGE_MDI_CASCADE     ) != 0 ) { Cascade();          }
+	else if( (Arrange & SG_UI_WINDOW_ARRANGE_MDI_TILE_VER    ) != 0 ) { Tile(wxVERTICAL  ); }
+	else if( (Arrange & SG_UI_WINDOW_ARRANGE_MDI_TILE_HOR    ) != 0 ) { Tile(wxHORIZONTAL); }
+#else // #ifdef MDI_TABBED
+	if     ( (Arrange & SG_UI_WINDOW_ARRANGE_TDI_TILE_VER    ) != 0 ) { Split(ID_CMD_FRAME_SPLIT_ALL_VERT); }
+	else if( (Arrange & SG_UI_WINDOW_ARRANGE_TDI_TILE_HOR    ) != 0 ) { Split(ID_CMD_FRAME_SPLIT_ALL_HORZ); }
+	else if( (Arrange & SG_UI_WINDOW_ARRANGE_TDI_SPLIT_LEFT  ) != 0 ) { Split(ID_CMD_FRAME_SPLIT_LEFT    ); }
+	else if( (Arrange & SG_UI_WINDOW_ARRANGE_TDI_SPLIT_RIGHT ) != 0 ) { Split(ID_CMD_FRAME_SPLIT_RIGHT   ); }
+	else if( (Arrange & SG_UI_WINDOW_ARRANGE_TDI_SPLIT_TOP   ) != 0 ) { Split(ID_CMD_FRAME_SPLIT_TOP     ); }
+	else if( (Arrange & SG_UI_WINDOW_ARRANGE_TDI_SPLIT_BOTTOM) != 0 ) { Split(ID_CMD_FRAME_SPLIT_BOTTOM  ); }
+#endif
+	else
+	{
+		return( false );
+	}
+
+	return( true );
 }
 
 
@@ -1086,6 +1115,19 @@ void CSAGA_Frame::On_Child_Activates(int View_ID)
 		_Bar_Show(m_pTB_ScatterPlot, View_ID == ID_VIEW_SCATTERPLOT  );
 		_Bar_Show(m_pTB_Layout     , View_ID == ID_VIEW_LAYOUT       );
 	}
+}
+
+//---------------------------------------------------------
+CVIEW_Base * CSAGA_Frame::Get_Active_Child(int View_ID)
+{
+	CVIEW_Base *pChild = (CVIEW_Base *)GetActiveChild();
+
+	if( View_ID == -1 )
+	{
+		return( pChild );
+	}
+
+	return( pChild && pChild->Get_ID() == View_ID ? pChild : NULL );
 }
 
 

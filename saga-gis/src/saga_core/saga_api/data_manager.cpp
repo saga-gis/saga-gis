@@ -131,7 +131,7 @@ bool CSG_Data_Collection::Add(CSG_Data_Object *pObject)
 
 			if( m_pManager == &g_Data_Manager )
 			{
-				SG_UI_DataObject_Add(pObject, SG_UI_DATAOBJECT_UPDATE_ONLY);
+				SG_UI_DataObject_Add(pObject, SG_UI_DATAOBJECT_UPDATE);
 			}
 
 			return( true );
@@ -146,7 +146,7 @@ bool CSG_Data_Collection::Delete(CSG_Data_Object *pObject, bool bDetachOnly)
 {
 	CSG_Data_Object	**pObjects	= (CSG_Data_Object **)m_Objects.Get_Array();
 
-	size_t	i, n;
+	size_t i, n;
 
 	for(i=0, n=0; i<Count(); i++)
 	{
@@ -156,16 +156,16 @@ bool CSG_Data_Collection::Delete(CSG_Data_Object *pObject, bool bDetachOnly)
 			{
 				delete(Get(i));
 
-				bDetachOnly	= true;	// just in case the same object has been added more than once
+				bDetachOnly = true;	// just in case the same object has been added more than once
 			}
 		}
 		else
 		{
-			pObjects[n++]	= pObjects[i];
+			pObjects[n++] = pObjects[i];
 		}
 	}
 
-	if( n < m_Objects.Get_Size() )
+	if( n < m_Objects.Get_uSize() )
 	{
 		m_Objects.Set_Array(n);
 
@@ -684,7 +684,7 @@ bool CSG_Data_Manager::Delete(CSG_Data_Collection *pCollection, bool bDetachOnly
 
 		size_t	i, n;
 
-		for(i=0, n=0; i<m_Grid_Systems.Get_Size(); i++)
+		for(i=0, n=0; i<m_Grid_Systems.Get_uSize(); i++)
 		{
 			if( pCollection == pSystems[i] )
 			{
@@ -701,7 +701,7 @@ bool CSG_Data_Manager::Delete(CSG_Data_Collection *pCollection, bool bDetachOnly
 			}
 		}
 
-		if( n < m_Grid_Systems.Get_Size() )
+		if( n < m_Grid_Systems.Get_uSize() )
 		{
 			m_Grid_Systems.Set_Array(n);
 
@@ -795,7 +795,7 @@ CSG_String CSG_Data_Manager::Get_Summary(void)	const
 	//-----------------------------------------------------
 	if( Get_Table()->Count() > 0 )
 	{
-		s	+= CSG_String::Format("___\n%s [%d %s]\n", _TL("Table"), Get_Table()->Count(), _TL("objects"));
+		s	+= CSG_String::Format("___\n%s [%zu %s]\n", _TL("Table"), Get_Table()->Count(), _TL("objects"));
 
 		for(size_t i=0; i<Get_Table()->Count(); i++)
 		{
@@ -811,7 +811,7 @@ CSG_String CSG_Data_Manager::Get_Summary(void)	const
 	//-----------------------------------------------------
 	if( Get_Shapes()->Count() > 0 )
 	{
-		s	+= CSG_String::Format("___\n%s [%d %s]\n", _TL("Shapes"), Get_Shapes()->Count(), _TL("objects"));
+		s	+= CSG_String::Format("___\n%s [%zu %s]\n", _TL("Shapes"), Get_Shapes()->Count(), _TL("objects"));
 
 		for(size_t i=0; i<Get_Shapes()->Count(); i++)
 		{
@@ -831,7 +831,7 @@ CSG_String CSG_Data_Manager::Get_Summary(void)	const
 	//-----------------------------------------------------
 	if( Get_Point_Cloud()->Count() > 0 )
 	{
-		s	+= CSG_String::Format("___\n%s [%d %s]\n", _TL("Point Cloud"), Get_Point_Cloud()->Count(), _TL("objects"));
+		s	+= CSG_String::Format("___\n%s [%zu %s]\n", _TL("Point Cloud"), Get_Point_Cloud()->Count(), _TL("objects"));
 
 		for(size_t i=0; i<Get_Point_Cloud()->Count(); i++)
 		{
@@ -847,7 +847,7 @@ CSG_String CSG_Data_Manager::Get_Summary(void)	const
 	//-----------------------------------------------------
 //	if( Get_TIN()->Count() > 0 )
 //	{
-//		s	+= CSG_String::Format("___\n%s [%d %s]\n", _TL("TIN"), Get_TIN()->Count(), _TL("objects"));
+//		s	+= CSG_String::Format("___\n%s [%zu %s]\n", _TL("TIN"), Get_TIN()->Count(), _TL("objects"));
 //
 //		for(size_t i=0; i<Get_TIN()->Count(); i++)
 //		{
@@ -869,7 +869,7 @@ CSG_String CSG_Data_Manager::Get_Summary(void)	const
 		{
 			CSG_Grid_Collection	*pSystem	= Get_Grid_System(i);
 
-			s	+= CSG_String::Format("___\n%s [%s; %d %s]\n", _TL("Grid System"), pSystem->m_System.Get_Name(), pSystem->Count(), _TL("objects"));
+			s	+= CSG_String::Format("___\n%s [%s; %zu %s]\n", _TL("Grid System"), pSystem->m_System.Get_Name(), pSystem->Count(), _TL("objects"));
 
 			for(size_t j=0; j<pSystem->Count(); j++)
 			{

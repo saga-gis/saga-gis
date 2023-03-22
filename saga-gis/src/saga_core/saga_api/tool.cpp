@@ -97,7 +97,7 @@ CSG_Tool::~CSG_Tool(void)
 {
 	if( m_Settings_Stack.Get_Size() > 0 )
 	{
-		for(size_t i=0; i<m_Settings_Stack.Get_Size(); i++)
+		for(size_t i=0; i<m_Settings_Stack.Get_uSize(); i++)
 		{
 			delete(((CSG_Parameters **)m_Settings_Stack.Get_Array())[i]);
 		}
@@ -365,7 +365,7 @@ bool CSG_Tool::Execute(bool bAddHistory)
 			}
 			else
 			{
-				SG_UI_Msg_Add_Execution(CSG_String::Format("\n__________\n%s %s: %ld %s (%s)\n", _TL("total"),
+				SG_UI_Msg_Add_Execution(CSG_String::Format("\n__________\n%s %s: %lld %s (%s)\n", _TL("total"),
 					_TL("execution time"), Span.Get_Milliseconds(), _TL("milliseconds"), Time.c_str()),
 					false, SG_UI_MSG_STYLE_BOLD
 				);
@@ -641,13 +641,19 @@ bool CSG_Tool::Settings_Pop(void)
 //---------------------------------------------------------
 void CSG_Tool::Set_Show_Progress(bool bOn)
 {
-	m_bShow_Progress	= bOn;
+	m_bShow_Progress = bOn;
 }
 
 //---------------------------------------------------------
-bool CSG_Tool::Set_Progress(double Percent)	const
+bool CSG_Tool::Set_Progress(int Position, int Range)	const
 {
-	return( Set_Progress(Percent, 100.0) );
+	return( Set_Progress((double)Position / (double)Range) );
+}
+
+//---------------------------------------------------------
+bool CSG_Tool::Set_Progress(sLong Position, sLong Range)	const
+{
+	return( Set_Progress((double)Position / (double)Range) );
 }
 
 //---------------------------------------------------------
@@ -659,7 +665,7 @@ bool CSG_Tool::Set_Progress(double Position, double Range)	const
 //---------------------------------------------------------
 bool CSG_Tool::Stop_Execution(bool bDialog)
 {
-	m_bExecutes	= false;
+	m_bExecutes = false;
 
 	return( SG_UI_Stop_Execution(bDialog) );
 }
@@ -1539,7 +1545,7 @@ void CSG_Tool::_Get_Script_CMD(CSG_String &Script, CSG_Parameters *pParameters, 
 //---------------------------------------------------------
 CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 {
-	CSG_String	Script, Name(Get_Name()); Name.Replace(" ", "_"); Name.Replace("(", ""); Name.Replace(")", ""); Name.Replace("[", ""); Name.Replace("]", ""); Name.Replace(".", "");
+	CSG_String	Script, Name(Get_Name()); Name.Replace(" ", "_"); Name.Replace("(", ""); Name.Replace(")", ""); Name.Replace("[", ""); Name.Replace("]", ""); Name.Replace(".", ""); Name.Replace(",", "");
 
 	//-----------------------------------------------------
 	if( bHeader )
@@ -1553,16 +1559,16 @@ CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 #ifdef _SAGA_MSW
 		CSG_String AppPath = SG_UI_Get_Application_Path(true); AppPath.Replace("\\", "/");
 		Script += "# Windows: Let the 'SAGA_PATH' environment variable point to\n";
-		Script += "# the SAGA installation folder before importing 'saga_helper'\n";
-		Script += "# or alternatively set it in 'saga_helper.py' itself.\n";
+		Script += "# the SAGA installation folder before importing 'saga'\n";
+		Script += "# or alternatively set it in 'saga.py' itself.\n";
 		Script += "import os; os.environ['SAGA_PATH'] = '" + AppPath + "'\n";
 		Script += "\n";
 #endif // _SAGA_MSW
-		Script += "# Import 'saga_helper' before importing 'saga_api' for the first time!\n";
-		Script += "import saga_helper, saga_api\n";
+		Script += "# Import 'saga' before importing 'saga_api' for the first time!\n";
+		Script += "import saga, saga_api\n";
 		Script += "\n";
 		Script += "# Call 'Initialize()' to load SAGA's standard tool libraries!\n";
-		Script += "saga_helper.Initialize(True)\n";
+		Script += "saga.Initialize(True)\n";
 		Script += "\n";
 		Script += "\n";
 		Script += "#_________________________________________\n";
@@ -1628,7 +1634,7 @@ CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 			else if( p->is_DataObject_List() )
 			{
 				Script += "    List = Tool.Get_Parameter('" +  id + "').as" + type + "List()\n";
-				Script += "    for i in range(0, List.Get_Data_Count()):\n";
+				Script += "    for i in range(0, List.Get_Item_Count()):\n";
 
 				if( bHeader )
 				{

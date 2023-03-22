@@ -60,7 +60,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Shape::CSG_Shape(CSG_Shapes *pOwner, int Index)
+CSG_Shape::CSG_Shape(CSG_Shapes *pOwner, sLong Index)
 	: CSG_Table_Record(pOwner, Index)
 {
 }

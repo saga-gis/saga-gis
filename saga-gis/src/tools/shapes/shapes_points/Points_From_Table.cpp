@@ -99,14 +99,14 @@ bool CPoints_From_Table::On_Execute(void)
 	yField	= Parameters("Y")		->asInt();
 	zField	= Parameters("Z")		->asInt();
 
-	if( pTable->Get_Field_Count() < 1 || pTable->Get_Record_Count() <= 0 )
+	if( pTable->Get_Field_Count() < 1 || pTable->Get_Count() <= 0 )
 	{
 		return( false );
 	}
 
 	pShapes->Create(SHAPE_TYPE_Point, pTable->Get_Name(), pTable, zField < 0 ? SG_VERTEX_TYPE_XY : SG_VERTEX_TYPE_XYZ);
 
-	for(int iRecord=0; iRecord<pTable->Get_Record_Count() && Set_Progress(iRecord, pTable->Get_Record_Count()); iRecord++)
+	for(sLong iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
 	{
 		CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
 

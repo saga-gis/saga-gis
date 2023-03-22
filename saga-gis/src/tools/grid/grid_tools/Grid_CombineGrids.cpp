@@ -86,11 +86,11 @@ bool CCombineGrids::On_Execute(void){
 
 	pLookup	= Parameters("LOOKUP")->asTable();
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++){		
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++){		
 		for(x=0; x<Get_NX(); x++){
 			iCellValue1 = pGrid1->asInt(x,y);
 			iCellValue2 = pGrid2->asInt(x,y);
-			for (i = 0; i < pLookup->Get_Record_Count(); i++){
+			for (i = 0; i < pLookup->Get_Count(); i++){
 				pRecord = pLookup->Get_Record(i);
 				iTableValue1 = pRecord->asInt(0);
 				iTableValue2 = pRecord->asInt(1);
@@ -102,7 +102,7 @@ bool CCombineGrids::On_Execute(void){
 					}//if
 				}//if				
 			}//for
-			if (i >= pLookup->Get_Record_Count()){
+			if (i >= pLookup->Get_Count()){
 				pResult->Set_NoData(x,y);
 			}//if
 		}//for

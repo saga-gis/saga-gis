@@ -196,9 +196,9 @@ void CActive_Info::Set_Info(void)
 	{
 		if( pShapes->Get_Selection_Count() > 1 )
 		{
-			for(int i=0; i<pShapes->Get_Selection_Count(); i++)
+			for(sLong i=0; i<pShapes->Get_Selection_Count(); i++)
 			{
-				m_pSelections->Append(wxString::Format("%d", i + 1));
+				m_pSelections->Append(wxString::Format("%lld", i + 1));
 			}
 
 			m_pSelections->Select(m_pItem->Edit_Get_Index());

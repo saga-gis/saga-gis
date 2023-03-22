@@ -284,7 +284,7 @@ bool CMine_Sweeper::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_
 {
 	int ok = true;
 	
-	int time;
+	int time = 0;
 	int redraw = false;
 	int xpos; 	int ypos;
 

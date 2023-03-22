@@ -194,13 +194,13 @@ bool CTable_Running_Average::On_Execute(void)
 	int fStDvHi = GET_FIELD("STDV_HI", SG_T("STDV_HIGH")); if( fStDvHi >= 0 ) Parameters("FIELD_STDV_HI")->Set_Value(fStDvHi);
 
 	//-----------------------------------------------------
-	for(int i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
+	for(sLong i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
 	{
 		CSG_Simple_Statistics s(fMedian >= 0); int a = i - Offset, b = i - Offset + Length;
 
 		if( Missing == 2 || (a >= 0 && b < pTable->Get_Count()) )
 		{
-			for(int j=a; j<b; j++)
+			for(sLong j=a; j<b; j++)
 			{
 				if( j >= 0 && j < pTable->Get_Count() )
 				{

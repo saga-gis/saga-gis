@@ -115,7 +115,7 @@ bool CStrahler::On_Execute(void)
 	//---------------------------------------------------------
 	int x, y, i, ix, iy;
 
-	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(sLong n=0; n<Get_NCells() && Set_Progress_Cells(n); n++)
 	{
 		if( pDEM->Get_Sorted(n, x, y) )
 		{

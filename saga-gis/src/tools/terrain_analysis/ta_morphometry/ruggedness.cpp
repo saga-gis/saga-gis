@@ -140,7 +140,7 @@ bool CRuggedness_TRI::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -291,7 +291,7 @@ bool CRuggedness_VRM::On_Execute(void)
 	m_Y.Create(Get_System(), SG_DATATYPE_Float);
 	m_Z.Create(Get_System(), SG_DATATYPE_Float);
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for private(x)
 		for(x=0; x<Get_NX(); x++)
@@ -312,7 +312,7 @@ bool CRuggedness_VRM::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for private(x)
 		for(x=0; x<Get_NX(); x++)

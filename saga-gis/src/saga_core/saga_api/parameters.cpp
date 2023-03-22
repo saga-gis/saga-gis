@@ -291,9 +291,7 @@ void CSG_Parameters::Set_Description(const CSG_String &Description)
 //---------------------------------------------------------
 void CSG_Parameters::Add_Reference(const CSG_String &Authors, const CSG_String &Year, const CSG_String &Title, const CSG_String &Where, const SG_Char *Link, const SG_Char *Link_Text)
 {
-	CSG_String	Reference	= Authors;
-
-	Reference.Printf("<b>%s (%s):</b> %s. %s", Authors.c_str(), Year.c_str(), Title.c_str(), Where.c_str());
+	CSG_String Reference("<b>" + Authors + " (" + Year + "):</b> " + Title  + ". " + Where);
 
 	if( Link && *Link )
 	{
@@ -1681,7 +1679,7 @@ bool CSG_Parameters::DataObjects_Synchronize(void)
 							m_pManager->Add(pObject);
 						}
 
-						SG_UI_DataObject_Update(pObject, SG_UI_DATAOBJECT_UPDATE_ONLY, NULL);
+						SG_UI_DataObject_Update(pObject, SG_UI_DATAOBJECT_UPDATE, NULL);
 					}
 				}
 			}
@@ -1698,7 +1696,7 @@ bool CSG_Parameters::DataObjects_Synchronize(void)
 						m_pManager->Add(pObject);
 					}
 
-					SG_UI_DataObject_Update(pObject, SG_UI_DATAOBJECT_UPDATE_ONLY, NULL);
+					SG_UI_DataObject_Update(pObject, SG_UI_DATAOBJECT_UPDATE, NULL);
 				}
 			}
 		}

@@ -73,13 +73,13 @@ bool Cut_Shapes(CSG_Shapes *pPolygons, int Method, CSG_Shapes *pShapes, CSG_Shap
 		? Intersect.Add_Shape()->asPolygon() : NULL;
 
 	//-----------------------------------------------------
-	for(int iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 	{
 		CSG_Shape *pShape = pShapes->Get_Shape(iShape);
 
 		bool bAdd = false;
 
-		for(int iPolygon=0; !bAdd && iPolygon<pPolygons->Get_Count(); iPolygon++)
+		for(sLong iPolygon=0; !bAdd && iPolygon<pPolygons->Get_Count(); iPolygon++)
 		{
 			CSG_Shape_Polygon *pPolygon = pPolygons->Get_Shape(iPolygon)->asPolygon();
 
@@ -149,9 +149,9 @@ bool Cut_Shapes(CSG_Rect Extent, int Method, CSG_Shapes *pShapes, CSG_Shapes *pC
 	pCut->Create(pShapes->Get_Type(), CSG_String::Format("%s [%s]", pShapes->Get_Name(), _TL("Cut")), pShapes, pShapes->Get_Vertex_Type());
 
 	//-----------------------------------------------------
-	for(int iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 	{
-		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+		CSG_Shape *pShape = pShapes->Get_Shape(iShape);
 
 		bool	bAdd;
 

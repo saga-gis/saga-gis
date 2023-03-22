@@ -133,7 +133,7 @@ class SAGA_API_DLL_EXPORT CSG_Table_Record
 public:
 
 	class CSG_Table *			Get_Table		(void)			{	return( m_pTable );	}
-	int							Get_Index		(void)	const	{	return( m_Index  );	}
+	sLong						Get_Index		(void)	const	{	return( m_Index  );	}
 
 	bool						Set_Value		(int               Field, const CSG_String &Value);
 	bool						Set_Value		(int               Field, const char       *Value) { return( Set_Value(           Field , CSG_String(Value)) ); }
@@ -153,6 +153,31 @@ public:
 	bool						Set_Value		(const CSG_String &Field, double            Value);
 	bool						Set_Value		(const char       *Field, double            Value) { return( Set_Value(CSG_String(Field), Value) ); }
 	bool						Set_Value		(const wchar_t    *Field, double            Value) { return( Set_Value(CSG_String(Field), Value) ); }
+
+	bool						Set_Value		(int               Field, sLong             Value);
+	bool						Set_Value		(const CSG_String &Field, sLong             Value);
+	bool						Set_Value		(const char       *Field, sLong             Value) { return( Set_Value(CSG_String(Field), Value) ); }
+	bool						Set_Value		(const wchar_t    *Field, sLong             Value) { return( Set_Value(CSG_String(Field), Value) ); }
+
+	bool						Set_Value		(int               Field, size_t            Value) { return( Set_Value(Field, (double)Value) ); }
+	bool						Set_Value		(const CSG_String &Field, size_t            Value) { return( Set_Value(Field, (double)Value) ); }
+	bool						Set_Value		(const char       *Field, size_t            Value) { return( Set_Value(Field, (double)Value) ); }
+	bool						Set_Value		(const wchar_t    *Field, size_t            Value) { return( Set_Value(Field, (double)Value) ); }
+
+	bool						Set_Value		(int               Field, DWORD             Value) { return( Set_Value(Field, (double)Value) ); }
+	bool						Set_Value		(const CSG_String &Field, DWORD             Value) { return( Set_Value(Field, (double)Value) ); }
+	bool						Set_Value		(const char       *Field, DWORD             Value) { return( Set_Value(Field, (double)Value) ); }
+	bool						Set_Value		(const wchar_t    *Field, DWORD             Value) { return( Set_Value(Field, (double)Value) ); }
+
+	bool						Set_Value		(int               Field, long              Value) { return( Set_Value(Field, (double)Value) ); }
+	bool						Set_Value		(const CSG_String &Field, long              Value) { return( Set_Value(Field, (double)Value) ); }
+	bool						Set_Value		(const char       *Field, long              Value) { return( Set_Value(Field, (double)Value) ); }
+	bool						Set_Value		(const wchar_t    *Field, long              Value) { return( Set_Value(Field, (double)Value) ); }
+
+	bool						Set_Value		(int               Field, int               Value) { return( Set_Value(Field, (double)Value) ); }
+	bool						Set_Value		(const CSG_String &Field, int               Value) { return( Set_Value(Field, (double)Value) ); }
+	bool						Set_Value		(const char       *Field, int               Value) { return( Set_Value(Field, (double)Value) ); }
+	bool						Set_Value		(const wchar_t    *Field, int               Value) { return( Set_Value(Field, (double)Value) ); }
 
 	bool						Add_Value		(int               Field, double            Value);
 	bool						Add_Value		(const CSG_String &Field, double            Value);
@@ -220,13 +245,13 @@ public:
 
 protected:
 
-	CSG_Table_Record(class CSG_Table *pTable, int Index);
+	CSG_Table_Record(class CSG_Table *pTable, sLong Index);
 	virtual ~CSG_Table_Record(void);
 
 
 	char						m_Flags;
 
-	int							m_Index;
+	sLong						m_Index;
 
 	class CSG_Table_Value		**m_Values;
 
@@ -350,64 +375,61 @@ public:
 	const CSG_Simple_Statistics &	Get_Statistics		(int iField)	const	{	_Stats_Update(iField); return( *m_Field_Stats[iField] );	}
 
 	//-----------------------------------------------------
-	virtual CSG_Table_Record *		Add_Record			(             CSG_Table_Record *pCopy = NULL);
-	virtual CSG_Table_Record *		Ins_Record			(int iRecord, CSG_Table_Record *pCopy = NULL);
-	virtual bool					Set_Record			(int iRecord, CSG_Table_Record *pCopy       );
-	virtual bool					Del_Record			(int iRecord);
+	virtual CSG_Table_Record *		Add_Record			(               CSG_Table_Record *pCopy = NULL);
+	virtual CSG_Table_Record *		Ins_Record			(sLong iRecord, CSG_Table_Record *pCopy = NULL);
+	virtual bool					Set_Record			(sLong iRecord, CSG_Table_Record *pCopy       );
+	virtual bool					Del_Record			(sLong iRecord);
 	virtual bool					Del_Records			(void);
 
-	virtual bool					Set_Count			(int nRecords);
-	virtual bool					Set_Record_Count	(int nRecords);
-
-	int								Get_Count			(void)			const	{	return( m_nRecords );	}
-	int								Get_Record_Count	(void)			const	{	return( m_nRecords );	}
+	virtual bool					Set_Count			(sLong nRecords);
+	sLong							Get_Count			(void)			const	{	return( m_nRecords );	}
 
 	virtual CSG_Table_Record *		Get_Record			(int    Index)	const	{	return( Index >= 0 && Index < m_nRecords ? m_Records[Index] : NULL );	}
-	virtual CSG_Table_Record *		Get_Record			(size_t Index)	const	{	return(          (int)Index < m_nRecords ? m_Records[Index] : NULL );	}
+	virtual CSG_Table_Record *		Get_Record			(size_t Index)	const	{	return(        (sLong)Index < m_nRecords ? m_Records[Index] : NULL );	}
 	virtual CSG_Table_Record *		Get_Record			(sLong  Index)	const	{	return( Index >= 0 && Index < m_nRecords ? m_Records[Index] : NULL );	}
 
 	virtual CSG_Table_Record &		operator []			(int    Index)	const	{	return( *Get_Record_byIndex(Index) );	}
 	virtual CSG_Table_Record &		operator []			(size_t Index)	const	{	return( *Get_Record_byIndex(Index) );	}
 	virtual CSG_Table_Record &		operator []			(sLong  Index)	const	{	return( *Get_Record_byIndex(Index) );	}
 
-	int								Get_Index			(int    Index)	const	{	return( Index >= 0 && Index < m_nRecords ? (is_Indexed() ? m_Index[Index] : Index) : -1 );	}
-	int								Get_Index			(size_t Index)	const	{	return( Get_Index((int)Index) );	}
-	int								Get_Index			(sLong  Index)	const	{	return( Get_Index((int)Index) );	}
+	sLong							Get_Index			(sLong  Index)	const	{	return( Index >= 0 && Index < m_nRecords ? (is_Indexed() ? m_Index[Index] : Index) : -1 );	}
+	sLong							Get_Index			(int    Index)	const	{	return( Get_Index((sLong)Index) );	}
+	sLong							Get_Index			(size_t Index)	const	{	return( Get_Index((sLong)Index) );	}
 
-	CSG_Table_Record *				Get_Record_byIndex	(sLong  Index)	const	{	return( Get_Record_byIndex((int)Index) ); }
-	CSG_Table_Record *				Get_Record_byIndex	(size_t Index)	const	{	return( Get_Record_byIndex((int)Index) ); }
-	CSG_Table_Record *				Get_Record_byIndex	(int    Index)	const
+	CSG_Table_Record *				Get_Record_byIndex	(int    Index)	const	{	return( Get_Record_byIndex((sLong)Index) ); }
+	CSG_Table_Record *				Get_Record_byIndex	(size_t Index)	const	{	return( Get_Record_byIndex((sLong)Index) ); }
+	CSG_Table_Record *				Get_Record_byIndex	(sLong  Index)	const
 	{
 		return( Index >= 0 && Index < m_nRecords ? Get_Record(is_Indexed() ? m_Index[Index] : Index) : NULL );
 	}
 
 	//-----------------------------------------------------
-	virtual bool					Find_Record			(int &iRecord, int iField, const CSG_String &Value, bool bCreateIndex = false);
-	virtual CSG_Table_Record *		Find_Record			(              int iField, const CSG_String &Value, bool bCreateIndex = false);
-	virtual bool					Find_Record			(int &iRecord, int iField, double            Value, bool bCreateIndex = false);
-	virtual CSG_Table_Record *		Find_Record			(              int iField, double            Value, bool bCreateIndex = false);
+	virtual bool					Find_Record			(sLong &iRecord, int iField, const CSG_String &Value, bool bCreateIndex = false);
+	virtual CSG_Table_Record *		Find_Record			(                int iField, const CSG_String &Value, bool bCreateIndex = false);
+	virtual bool					Find_Record			(sLong &iRecord, int iField, double            Value, bool bCreateIndex = false);
+	virtual CSG_Table_Record *		Find_Record			(                int iField, double            Value, bool bCreateIndex = false);
 
 	//-----------------------------------------------------
-	virtual bool					Set_Value			(int iRecord, int iField, const SG_Char  *Value);
-	virtual bool					Set_Value			(int iRecord, int iField, double          Value);
+	virtual bool					Set_Value			(sLong iRecord, int iField, const SG_Char  *Value);
+	virtual bool					Set_Value			(sLong iRecord, int iField, double          Value);
 
-	virtual bool					Get_Value			(int iRecord, int iField, CSG_String     &Value)	const;
-	virtual bool					Get_Value			(int iRecord, int iField, double         &Value)	const;
+	virtual bool					Get_Value			(sLong iRecord, int iField, CSG_String     &Value)	const;
+	virtual bool					Get_Value			(sLong iRecord, int iField, double         &Value)	const;
 
 	virtual void					Set_Modified		(bool bModified = true);
 
 	//-----------------------------------------------------
-	size_t							Get_Selection_Count	(void)				const	{	return( m_Selection.Get_Size() );	}
-	size_t							Get_Selection_Index	(size_t Index = 0)	const	{	return( Index < m_Selection.Get_Size() ? *((size_t *)m_Selection.Get_Entry(Index)) : (size_t)Get_Count() );	}
-	virtual CSG_Table_Record *		Get_Selection		(size_t Index = 0)	const	{	return( Index < m_Selection.Get_Size() ? Get_Record((int)Get_Selection_Index(Index)) : NULL );	}
+	sLong							Get_Selection_Count	(void)				const	{	return( m_Selection.Get_Size() );	}
+	sLong							Get_Selection_Index	(sLong Index = 0)	const	{	return( Index < m_Selection.Get_Size() ? *((sLong *)m_Selection.Get_Entry(Index)) : Get_Count() );	}
+	virtual CSG_Table_Record *		Get_Selection		(sLong Index = 0)	const	{	return( Index < m_Selection.Get_Size() ? Get_Record(Get_Selection_Index(Index)) : NULL );	}
 
-	virtual bool					is_Selected			(int iRecord)	const	{	return( iRecord >= 0 && iRecord < m_nRecords ? m_Records[iRecord]->is_Selected() : false );	}
+	virtual bool					is_Selected			(sLong iRecord)		const	{	return( iRecord >= 0 && iRecord < m_nRecords ? m_Records[iRecord]->is_Selected() : false );	}
 
-	virtual bool					Select				(int iRecord						, bool bInvert = false);
-	virtual bool					Select				(CSG_Table_Record *pRecord = NULL	, bool bInvert = false);
+	virtual bool					Select				(sLong iRecord                   , bool bInvert = false);
+	virtual bool					Select				(CSG_Table_Record *pRecord = NULL, bool bInvert = false);
 
-	virtual int						Del_Selection		(void);
-	virtual int						Inv_Selection		(void);
+	virtual sLong					Del_Selection		(void);
+	virtual sLong					Inv_Selection		(void);
 
 	//-----------------------------------------------------
 	bool							Set_Index			(CSG_Index &Index, int Field                  , bool bAscending = true)	const;
@@ -418,13 +440,17 @@ public:
 	bool							Set_Index			(int Field_1, TSG_Table_Index_Order Order_1 = TABLE_INDEX_Ascending, int Field_2 = -1, TSG_Table_Index_Order Order_2 = TABLE_INDEX_None, int Field_3 = -1, TSG_Table_Index_Order Order_3 = TABLE_INDEX_None);
 	bool							Del_Index			(void);
 	bool							Toggle_Index		(int iField);
-	int								Get_Index_Field		(size_t i)	const	{	return( i >= m_Index_Fields.Get_Size() ? -1 : abs(m_Index_Fields[i]) - 1 );	}
-	TSG_Table_Index_Order			Get_Index_Order		(size_t i)	const	{	return( i >= m_Index_Fields.Get_Size() ? TABLE_INDEX_None : m_Index_Fields[i] > 0 ? TABLE_INDEX_Ascending : TABLE_INDEX_Descending );	}
+	int								Get_Index_Field		(int    i)	const	{	return( i < 0 || i >= m_Index_Fields.Get_Size() ? -1 : abs(m_Index_Fields[i]) - 1 );	}
+	TSG_Table_Index_Order			Get_Index_Order		(int    i)	const	{	return( i < 0 || i >= m_Index_Fields.Get_Size() ? TABLE_INDEX_None : m_Index_Fields[i] > 0 ? TABLE_INDEX_Ascending : TABLE_INDEX_Descending );	}
+	int								Get_Index_Field		(size_t i)	const	{	return( Get_Index_Field((int)i) );	}
+	TSG_Table_Index_Order			Get_Index_Order		(size_t i)	const	{	return( Get_Index_Order((int)i) );	}
 
 
 protected:
 
-	int								m_nFields, m_nRecords, m_nBuffer, m_Encoding;
+	int								m_nFields, m_Encoding;
+
+	sLong							m_nRecords, m_nBuffer;
 
 	TSG_Data_Type					*m_Field_Type;
 
@@ -439,11 +465,11 @@ protected:
 
 	virtual void					_On_Construction	(void);
 
-	virtual CSG_Table_Record *		_Get_New_Record		(int Index);
+	virtual CSG_Table_Record *		_Get_New_Record		(sLong Index);
 
-	bool							_Add_Selection		(size_t iRecord);
-	bool							_Set_Selection		(size_t iRecord, size_t Index);
-	bool							_Del_Selection		(size_t iRecord);
+	bool							_Add_Selection		(sLong iRecord);
+	bool							_Set_Selection		(sLong iRecord, sLong Index);
+	bool							_Del_Selection		(sLong iRecord);
 
 	bool							_Stats_Invalidate	(void)			const;
 	bool							_Stats_Invalidate	(int iField)	const;

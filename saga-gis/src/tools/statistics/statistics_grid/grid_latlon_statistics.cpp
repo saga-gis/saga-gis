@@ -112,7 +112,7 @@ bool CGrid_Statistics_Latitudinal::On_Execute(void)
 	pTable->Add_Field("MAX"   , SG_DATATYPE_Double);
 	pTable->Add_Field("STDDEV", SG_DATATYPE_Double);
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		CSG_Simple_Statistics	Statistics;
 

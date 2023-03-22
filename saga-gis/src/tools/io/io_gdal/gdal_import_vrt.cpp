@@ -320,7 +320,7 @@ bool CGDAL_Import_VRT::On_Execute(void)
 		{
 			if( bMaskOutsideVRT )
 			{
-				for(int y=0; y<pGrid->Get_NY() && Set_Progress(y); y++)
+				for(int y=0; y<pGrid->Get_NY() && Set_Progress(y, pGrid->Get_NY()-1); y++)
 				{
 					double yWorld = pGrid->Get_System().Get_yGrid_to_World(y);
 
@@ -356,7 +356,7 @@ bool CGDAL_Import_VRT::On_Execute(void)
 
 	if( Parameters("MULTIPLE")->asInt() == 0 || (Parameters("MULTIPLE")->asInt() == 2 && pGrids.Get_Size() == 1) )
 	{
-		for(size_t i=0; i<pGrids.Get_Size(); i++)
+		for(sLong i=0; i<pGrids.Get_Size(); i++)
 		{
 			pList->Add_Item((CSG_Grid *)pGrids[i]);
 		}
@@ -370,7 +370,7 @@ bool CGDAL_Import_VRT::On_Execute(void)
 
 		pCollection->Get_MetaData().Add_Child("GDAL_DRIVER", DataSet.Get_DriverID());
 
-		for(size_t i=0; i<pGrids.Get_Size(); i++)
+		for(sLong i=0; i<pGrids.Get_Size(); i++)
 		{
 			pCollection->Add_Grid((double)i, (CSG_Grid *)pGrids.Get(i), true);
 		}

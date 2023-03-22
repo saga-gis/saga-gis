@@ -180,7 +180,7 @@ public:		///////////////////////////////////////////////
 
 	int								Get_NX				(void)	const	{	return( m_pGrids[0]->Get_System().Get_NX() );	}
 	int								Get_NY				(void)	const	{	return( m_pGrids[0]->Get_System().Get_NY() );	}
-	int								Get_NZ				(void)	const	{	return( m_Attributes.Get_Count()           );	}
+	int								Get_NZ				(void)	const	{	return( (int)m_Attributes.Get_Count()      );	}
 	sLong							Get_NCells			(void)	const	{	return( Get_System().Get_NCells() * Get_NZ() );	}
 	sLong							Get_Data_Count		(void);
 	sLong							Get_NoData_Count	(void);
@@ -230,7 +230,7 @@ public:		///////////////////////////////////////////////
 	// Grids...
 
 	bool							Set_Grid_Count		(int Count);
-	int								Get_Grid_Count		(void)	const	{	return( m_Attributes.Get_Count() );	}
+	int								Get_Grid_Count		(void)	const	{	return( (int)m_Attributes.Get_Count() );	}
 
 	bool							Add_Grid			(double                     Z);
 	bool							Add_Grid			(double                     Z, CSG_Grid *pGrid, bool bAttach = false);

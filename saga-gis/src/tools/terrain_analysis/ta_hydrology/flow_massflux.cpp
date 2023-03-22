@@ -175,7 +175,7 @@ bool CFlow_MassFlux::On_Execute(void)
 
 		//-------------------------------------------------
 		// Calculate flow portions...
-		for(y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			for(x=0; x<Get_NX(); x++)
 			{
@@ -194,7 +194,7 @@ bool CFlow_MassFlux::On_Execute(void)
 
 		//-------------------------------------------------
 		// Calculate flow accumulation...
-		for(y=0, iy=0; y<Get_NY() && Set_Progress(y); y++, iy+=2)
+		for(y=0, iy=0; y<Get_NY() && Set_Progress_Rows(y); y++, iy+=2)
 		{
 			for(x=0, ix=0; x<Get_NX(); x++, ix+=2)
 			{
@@ -207,7 +207,7 @@ bool CFlow_MassFlux::On_Execute(void)
 
 		//-------------------------------------------------
 		// Scale flow accumulation to original cell size...
-		for(y=0, iy=0; y<Get_NY() && Set_Progress(y); y++, iy+=2)
+		for(y=0, iy=0; y<Get_NY() && Set_Progress_Rows(y); y++, iy+=2)
 		{
 			for(x=0, ix=0; x<Get_NX(); x++, ix+=2)
 			{

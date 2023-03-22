@@ -83,7 +83,7 @@ bool CSG_Variogram::Calculate(const CSG_Matrix &Points, CSG_Table *pVariogram, i
 	double	lagDistance	= maxDistance / nClasses;
 
 	//-----------------------------------------------------
-	for(int i=0, n=0; i<Points.Get_NRows() - nSkip && SG_UI_Process_Set_Progress(n, 0.5 * SG_Get_Square(Points.Get_NRows() / nSkip)); i+=nSkip)
+	for(int i=0, n=0; i<Points.Get_NRows() - nSkip && SG_UI_Process_Set_Progress((double)n, 0.5 * SG_Get_Square(Points.Get_NRows() / nSkip)); i+=nSkip)
 	{
 		CSG_Vector	Point	= Points.Get_Row(i);
 

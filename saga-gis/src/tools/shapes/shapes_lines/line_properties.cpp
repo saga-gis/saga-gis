@@ -155,7 +155,7 @@ bool CLine_Properties::On_Execute(void)
 	if( !bLength )	{	bLength	= pLines->Get_Field_Count();	pLines->Add_Field(SG_T("LENGTH") , SG_DATATYPE_Double);	}
 
 	//-------------------------------------------------
-	for(int i=0; i<pLines->Get_Count() && Set_Progress(i, pLines->Get_Count()); i++)
+	for(sLong i=0; i<pLines->Get_Count() && Set_Progress(i, pLines->Get_Count()); i++)
 	{
 		CSG_Shape	*pLine	= pLines->Get_Shape(i);
 

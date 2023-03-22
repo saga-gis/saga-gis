@@ -1,3 +1,4 @@
+
 ///////////////////////////////////////////////////////////
 //                                                       //
 //                         SAGA                          //
@@ -46,20 +47,18 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Grid_Profile_From_Points_H
 #define HEADER_INCLUDED__Grid_Profile_From_Points_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -73,30 +72,26 @@ class CProfileFromPoints : public CSG_Tool_Grid
 {
 public:
 	CProfileFromPoints(void);
-	virtual ~CProfileFromPoints(void);
+
 
 protected:
-	virtual bool    On_Execute(void);
+
+	virtual bool				On_Execute		(void);
+
 
 private:
 
-    enum
-    {
-        F_ID	= 0,
-        F_DIST,
-        F_DIST_SURF,
-        F_X,
-        F_Y,
-        F_Z,
-        F_VALUES
-    };
+	CSG_Grid					*m_pDEM;
 
-    CSG_Grid                *m_pGrid;
-    CSG_Parameter_Grid_List *m_pValues;
-    CSG_Table               *m_pProfile;
+	CSG_Parameter_Grid_List		*m_pValues;
 
-    bool    Set_Profile(const TSG_Point &A, const TSG_Point &B, bool bLastPoint);
-    bool    Add_Point(const TSG_Point &Point);
+	CSG_Table					*m_pPoints;
+
+
+	bool						Set_Profile		(const CSG_Point &A, const CSG_Point &B, bool bLastPoint);
+
+	bool						Add_Point		(const CSG_Point &Point);
+
 };
 
 

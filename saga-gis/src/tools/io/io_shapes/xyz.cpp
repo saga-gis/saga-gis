@@ -172,7 +172,7 @@ bool CXYZ_Export::On_Execute(void)
 	}
 
 	//-------------------------------------------------
-	for(int iShape=0; iShape<pPoints->Get_Count() && Set_Progress(iShape, pPoints->Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<pPoints->Get_Count() && Set_Progress(iShape, pPoints->Get_Count()); iShape++)
 	{
 		CSG_Shape	*pShape	= pPoints->Get_Shape(iShape);
 

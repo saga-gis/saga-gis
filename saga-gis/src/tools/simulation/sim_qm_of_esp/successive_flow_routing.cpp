@@ -150,7 +150,7 @@ bool CSuccessive_Flow_Routing::On_Execute(void)
 	CSG_Colors	Colors(11, SG_COLORS_WHITE_BLUE);
 	Colors[0]	= SG_GET_RGB(255, 255, 200);
 	DataObject_Set_Colors(m_pFlow, Colors);
-	DataObject_Update(m_pFlow, SG_UI_DATAOBJECT_SHOW);
+	DataObject_Update(m_pFlow, SG_UI_DATAOBJECT_SHOW_MAP);
 
 	Fill_Sinks();
 
@@ -181,7 +181,7 @@ bool CSuccessive_Flow_Routing::On_Execute(void)
 			}
 		}
 
-		for(int i=0; i<Get_NCells() && Process_Get_Okay(); i++)
+		for(sLong i=0; i<Get_NCells() && Process_Get_Okay(); i++)
 		{
 			if( m_pDEM->Get_Sorted(i, x, y) )
 			{

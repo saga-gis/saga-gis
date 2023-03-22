@@ -80,12 +80,12 @@ protected:
 	virtual bool				On_Initialize		(void);
 	virtual bool				On_Finalize			(void);
 
-	virtual bool				Get_Value			(const TSG_Point &p, double &z);
+	virtual bool				Get_Value			(const TSG_Point &Point, double &Value);
 
 
 private:
 
-	CSG_PRQuadTree				m_Search;
+	CSG_KDTree_2D				m_Search;
 
 };
 

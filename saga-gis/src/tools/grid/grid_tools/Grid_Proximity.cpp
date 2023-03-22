@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Grid_Proximity.h"
 
 
@@ -70,84 +58,50 @@
 //---------------------------------------------------------
 CGrid_Proximity::CGrid_Proximity(void)
 {
-	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("Proximity Grid"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
 		"Calculates a grid with euclidean distance to feature cells (not no-data cells)."
 	));
 
-
-	//-----------------------------------------------------
-	// 2. Standard in- and output...
-
-	Parameters.Add_Grid(
-		NULL	, "FEATURES"		, _TL("Features"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "DISTANCE"		, _TL("Distance"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "DIRECTION"		, _TL("Direction"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "ALLOCATION"		, _TL("Allocation"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
+	Parameters.Add_Grid("", "FEATURES"  , _TL("Features"  ), _TL(""), PARAMETER_INPUT          );
+	Parameters.Add_Grid("", "DISTANCE"  , _TL("Distance"  ), _TL(""), PARAMETER_OUTPUT         );
+	Parameters.Add_Grid("", "DIRECTION" , _TL("Direction" ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid("", "ALLOCATION", _TL("Allocation"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGrid_Proximity::On_Execute(void)
 {
-	int				x, y;
-	double			z, d;
-	TSG_Point		p;
-	CSG_Grid		*pFeatures, *pDistance, *pDirection, *pAllocation;
-	CSG_PRQuadTree	Search;
-
-	//-----------------------------------------------------
-	pFeatures	= Parameters("FEATURES")	->asGrid();
-	pDistance	= Parameters("DISTANCE")	->asGrid();
-	pDirection	= Parameters("DIRECTION")	->asGrid();
-	pAllocation	= Parameters("ALLOCATION")	->asGrid();
+	CSG_Grid *pFeatures   = Parameters("FEATURES"  )->asGrid();
+	CSG_Grid *pDistance   = Parameters("DISTANCE"  )->asGrid();
+	CSG_Grid *pDirection  = Parameters("DIRECTION" )->asGrid();
+	CSG_Grid *pAllocation = Parameters("ALLOCATION")->asGrid();
 
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("preparing distance calculation..."));
 
-	Search.Create(CSG_Rect(-1, -1, Get_NX(), Get_NY()));
+	CSG_Shapes Points(SHAPE_TYPE_Point, NULL, NULL, SG_VERTEX_TYPE_XYZ);
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
 			if( pFeatures->is_NoData(x, y) )
 			{
-				pDistance->Set_Value(x, y, -1.0);
+				pDistance->Set_Value(x, y, -1.);
 			}
 			else
 			{
-				pDistance->Set_Value(x, y,  0.0);
+				pDistance->Set_Value(x, y,  0.);
 
 				if( pDirection )
 				{
@@ -160,60 +114,68 @@ bool CGrid_Proximity::On_Execute(void)
 				}
 
 				//-----------------------------------------
-				bool	bBorder	= false;
+				bool bBorder = false;
 
-				for(int i=0; i<8 && !bBorder; i++)
+				for(int i=0; !bBorder && i<8; i++)
 				{
-					int	ix	= Get_xTo(i, x);
-					int	iy	= Get_yTo(i, y);
+					int ix = Get_xTo(i, x), iy = Get_yTo(i, y);
 
-					if( is_InGrid(ix, iy) && pFeatures->is_NoData(ix, iy) )
-					{
-						bBorder	= true;
-					}
+					bBorder = is_InGrid(ix, iy) && pFeatures->is_NoData(ix, iy);
 				}
 
 				if( bBorder )
 				{
-					Search.Add_Point(x, y, pFeatures->asDouble(x, y));
+					Points.Add_Shape()->Add_Point(CSG_Point_Z(x, y, pFeatures->asDouble(x, y)));
 				}
 			}
 		}
 	}
 
-	if( !Search.is_Okay() || Search.Get_Point_Count() <= 0 || Search.Get_Point_Count() >= Get_NCells() )
+	if( Points.Get_Count() < 1 )
 	{
-		Message_Add(_TL("no features to buffer."));
+		Message_Add(_TL("no features to allocate."));
 
 		return( false );
 	}
 
+	CSG_KDTree_2D Search(&Points);
+
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("performing distance calculation..."));
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
-			if( pDistance->asDouble(x, y) < 0.0 && Search.Get_Nearest_Point(x, y, p, z, d) )
+			if( pDistance->asDouble(x, y) < 0. )
 			{
-				pDistance->Set_Value(x, y, d * Get_Cellsize());
+				size_t Index; double Distance;
 
-				if( pDirection )
+				if( Search.Get_Nearest_Point(x, y, Index, Distance) )
 				{
-					if( d > 0.0 )
-					{
-						pDirection->Set_Value(x, y, SG_Get_Angle_Of_Direction(x, y, p.x, p.y) * M_RAD_TO_DEG);
-					}
-					else
-					{
-						pDirection->Set_NoData(x, y);
-					}
-				}
+					pDistance->Set_Value(x, y, Distance * Get_Cellsize());
 
-				if( pAllocation )
-				{
-					pAllocation->Set_Value(x, y, z);
+					CSG_Shape &Point = *Points.Get_Shape((sLong)Index);
+
+					if( pDirection )
+					{
+						if( Distance > 0. )
+						{
+							TSG_Point p = Point.Get_Point(0);
+
+							pDirection->Set_Value(x, y, SG_Get_Angle_Of_Direction(x, y, p.x, p.y) * M_RAD_TO_DEG);
+						}
+						else
+						{
+							pDirection->Set_NoData(x, y);
+						}
+					}
+
+					if( pAllocation )
+					{
+						pAllocation->Set_Value(x, y, Point.Get_Z(0));
+					}
 				}
 			}
 		}

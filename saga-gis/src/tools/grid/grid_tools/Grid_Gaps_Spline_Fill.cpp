@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Grid_Gaps_Spline_Fill.h"
 
 
@@ -92,7 +80,7 @@ CGrid_Gaps_Spline_Fill::CGrid_Gaps_Spline_Fill(void)
 
 	Parameters.Add_Int(
 		"", "MAXGAPCELLS"	, _TL("Only Process Gaps with Less Cells"),
-		_TL("is ignored if set to zero"),
+		_TL("ignored if set to zero"),
 		0, 0, true
 	);
 
@@ -132,13 +120,13 @@ CGrid_Gaps_Spline_Fill::CGrid_Gaps_Spline_Fill(void)
 	Parameters.Add_Int(
 		"", "RADIUS"		, _TL("Radius (Cells)"),
 		_TL(""),
-		0.0, 0.0, true
+		0, 0, true
 	);
 
 	Parameters.Add_Double(
 		"", "RELAXATION"	, _TL("Relaxation"),
 		_TL(""),
-		0.0, 0.0, true
+		0., 0., true
 	);
 }
 
@@ -150,16 +138,15 @@ CGrid_Gaps_Spline_Fill::CGrid_Gaps_Spline_Fill(void)
 //---------------------------------------------------------
 bool CGrid_Gaps_Spline_Fill::On_Execute(void)
 {
-	//-----------------------------------------------------
-	m_pGrid			= Parameters("CLOSED"     )->asGrid();
-	m_pMask			= Parameters("MASK"       )->asGrid();
-	m_nGapCells_Max	= Parameters("MAXGAPCELLS")->asInt();
-	m_nPoints_Max	= Parameters("MAXPOINTS"  )->asInt();
-	m_nPoints_Local	= Parameters("LOCALPOINTS")->asInt();
-	m_bExtended		= Parameters("EXTENDED"   )->asBool();
-	m_Neighbours	= Parameters("NEIGHBOURS" )->asInt() == 0 ? 2 : 1;
-	m_Radius		= Parameters("RADIUS"     )->asDouble();
-	m_Relaxation	= Parameters("RELAXATION" )->asDouble();
+	m_pGrid         = Parameters("CLOSED"     )->asGrid();
+	m_pMask         = Parameters("MASK"       )->asGrid();
+	m_nGapCells_Max = Parameters("MAXGAPCELLS")->asInt();
+	m_nPoints_Max   = Parameters("MAXPOINTS"  )->asInt();
+	m_nPoints_Local = Parameters("LOCALPOINTS")->asInt();
+	m_bExtended     = Parameters("EXTENDED"   )->asBool();
+	m_Neighbours    = Parameters("NEIGHBOURS" )->asInt() == 0 ? 2 : 1;
+	m_Radius        = Parameters("RADIUS"     )->asDouble();
+	m_Relaxation    = Parameters("RELAXATION" )->asDouble();
 
 	if( m_pGrid == NULL )
 	{
@@ -186,10 +173,10 @@ bool CGrid_Gaps_Spline_Fill::On_Execute(void)
 
 	//-----------------------------------------------------
 	m_Gaps.Create(Get_System(), SG_DATATYPE_Int);
-	m_Gaps.Assign(0.0);
+	m_Gaps.Assign(0.);
 	m_nGaps	= 0;
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
@@ -201,10 +188,10 @@ bool CGrid_Gaps_Spline_Fill::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_Stack		.Clear();
-	m_GapCells	.Clear();
-	m_Gaps		.Destroy();
-	m_Spline	.Destroy();
+	m_Stack   .Clear();
+	m_GapCells.Clear();
+	m_Gaps    .Destroy();
+	m_Spline  .Destroy();
 
 	return( true );
 }
@@ -228,8 +215,8 @@ inline void CGrid_Gaps_Spline_Fill::Push(int x, int y)
 		m_Stack.Set_Count(m_Stack.Get_Count() + 1024);
 	}
 
-	m_Stack[m_iStack].x	= x;
-	m_Stack[m_iStack].y	= y;
+	m_Stack[m_iStack].x = x;
+	m_Stack[m_iStack].y = y;
 
 	m_iStack++;
 }
@@ -241,8 +228,8 @@ inline void CGrid_Gaps_Spline_Fill::Pop(int &x, int &y)
 	{
 		m_iStack--;
 
-		x	= m_Stack[m_iStack].x;
-		y	= m_Stack[m_iStack].y;
+		x = m_Stack[m_iStack].x;
+		y = m_Stack[m_iStack].y;
 	}
 }
 
@@ -259,7 +246,7 @@ void CGrid_Gaps_Spline_Fill::Set_Gap_Cell(int x, int y)
 
 			for(int i=0; m_bExtended && i<8; i+=m_Neighbours)
 			{
-				int		ix	= Get_xTo(i, x),	iy	= Get_yTo(i, y);
+				int ix = Get_xTo(i, x), iy = Get_yTo(i, y);
 
 				if( m_pGrid->is_InGrid(ix, iy) && m_Gaps.asInt(ix, iy) != m_nGaps )
 				{
@@ -276,8 +263,8 @@ void CGrid_Gaps_Spline_Fill::Set_Gap_Cell(int x, int y)
 				m_GapCells.Set_Count(m_GapCells.Get_Count() + 1024);
 			}
 
-			m_GapCells[m_nGapCells].x	= x;
-			m_GapCells[m_nGapCells].y	= y;
+			m_GapCells[m_nGapCells].x = x;
+			m_GapCells[m_nGapCells].y = y;
 
 			m_nGapCells++;
 
@@ -294,10 +281,7 @@ void CGrid_Gaps_Spline_Fill::Set_Gap_Cell(int x, int y)
 //---------------------------------------------------------
 void CGrid_Gaps_Spline_Fill::Close_Gap(int x, int y)
 {
-	//-----------------------------------------------------
-	m_nGaps		++;
-	m_nGapCells	= 0;
-	m_iStack	= 0;
+	m_nGaps++; m_nGapCells = m_iStack = 0;
 
 	m_Spline.Destroy();
 
@@ -320,9 +304,9 @@ void CGrid_Gaps_Spline_Fill::Close_Gap(int x, int y)
 		{
 			if( m_Spline.Create(m_Relaxation, true) )
 			{
-				for(int i=0; i<m_nGapCells; i++)
+				for(sLong i=0; i<m_nGapCells; i++)
 				{
-					TSG_Point_Int	p	= m_GapCells[i];
+					TSG_Point_Int p = m_GapCells[i];
 
 					m_pGrid->Set_Value(p.x, p.y, m_Spline.Get_Value(p.x, p.y));
 				}
@@ -343,34 +327,28 @@ void CGrid_Gaps_Spline_Fill::Close_Gap(int x, int y)
 //---------------------------------------------------------
 void CGrid_Gaps_Spline_Fill::Close_Gap(void)
 {
-	int				i, j;
-	CSG_PRQuadTree	Search(CSG_Rect(0, 0, Get_NX(), Get_NY()));
+	CSG_Shapes Points(SHAPE_TYPE_Point, NULL, NULL, SG_VERTEX_TYPE_XYZ);
 
-	for(i=0; i<m_Spline.Get_Point_Count(); i++)
+	for(int i=0; i<m_Spline.Get_Point_Count(); i++)
 	{
-		TSG_Point_Z	p	= m_Spline.Get_Points().Get_Point(i);
-
-		Search.Add_Point(p.x, p.y, p.z);
+		Points.Add_Shape()->Add_Point(m_Spline.Get_Points().Get_Point(i));
 	}
 
-	for(i=0; i<m_nGapCells && Process_Get_Okay(); i++)
+	CSG_KDTree_2D Search(&Points);
+
+	for(sLong i=0; i<m_nGapCells && Process_Get_Okay(); i++)
 	{
-		TSG_Point_Int	p	= m_GapCells[i];
+		TSG_Point_Int p = m_GapCells[i];
 
 		m_Spline.Destroy();
 
-		for(j=0; j<4; j++)
+		Search.Get_Nearest_Points(p.x, p.y, m_nPoints_Local, m_Radius);
+
+		for(size_t j=0; j<Search.Get_Match_Count(); j++)
 		{
-			Search.Select_Nearest_Points(p.x, p.y, m_nPoints_Local, m_Radius, j);
+			CSG_Shape &Point = *Points.Get_Shape(Search.Get_Match_Index(j));
 
-			for(int k=0; k<Search.Get_Selected_Count(); k++)
-			{
-				double	x, y, z;
-
-				Search.Get_Selected_Point(k, x, y, z);
-
-				m_Spline.Add_Point(x, y, z);
-			}
+			m_Spline.Add_Point(Point.Get_Point(), Point.Get_Z());
 		}
 
 		if( m_Spline.Create(m_Relaxation, true) )
@@ -378,54 +356,6 @@ void CGrid_Gaps_Spline_Fill::Close_Gap(void)
 			m_pGrid->Set_Value(p.x, p.y, m_Spline.Get_Value(p.x, p.y));
 		}
 	}
-
-/*	for(i=0; i<m_nGapCells && Process_Get_Okay(); i++)
-	{
-		TSG_Point_Int	p	= m_GapCells[i];
-
-		if( Search.Select_Nearest_Points(p.x, p.y, m_nPoints_Local, m_Radius, m_Radius > 0 ? -1 : 4) > 2 )
-		{
-			m_Spline.Set_Point_Count(Search.Get_Selected_Count());
-
-			for(j=0; j<m_Spline.Get_Point_Count(); j++)
-			{
-				double	x, y, z;
-
-				Search.Get_Selected_Point(j, x, y, z);
-
-				m_Spline.Set_Point(j, x, y, z);
-			}
-
-			if( m_Spline.Create(m_Relaxation, true) )
-			{
-				m_pGrid->Set_Value(p.x, p.y, m_Spline.Get_Value(p.x, p.y));
-			}
-		}
-	}/**/
-
-/*	m_Spline.Set_Point_Count(m_nPoints_Local);
-
-	for(i=0; i<m_nGapCells && Process_Get_Okay(); i++)
-	{
-		TSG_Point_Int	p	= m_GapCells[i];
-
-		if( Search.Select_Nearest_Points(p.x, p.y, m_Spline.Get_Point_Count()) == m_Spline.Get_Point_Count() )
-		{
-			for(j=0; j<m_Spline.Get_Point_Count(); j++)
-			{
-				double	x, y, z;
-
-				Search.Get_Selected_Point(j, x, y, z);
-
-				m_Spline.Set_Point(j, x, y, z);
-			}
-
-			if( m_Spline.Create(m_Relaxation, true) )
-			{
-				m_pGrid->Set_Value(p.x, p.y, m_Spline.Get_Value(p.x, p.y));
-			}
-		}
-	}/**/
 }
 
 

@@ -231,7 +231,7 @@ bool CClassification_Quality::On_Execute(void)
 	//-----------------------------------------------------
 	TSG_Point	p;	p.y	= Get_YMin();
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++, p.y+=Get_Cellsize())
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++, p.y+=Get_Cellsize())
 	{
 		p.x	= Get_XMin();
 
@@ -241,7 +241,7 @@ bool CClassification_Quality::On_Execute(void)
 
 			if( bUnclassified || iGrid < m_Classes.Get_Count() )
 			{
-				for(int iPolygon=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
+				for(sLong iPolygon=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
 				{
 					CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
 
@@ -269,7 +269,7 @@ bool CClassification_Quality::On_Execute(void)
 	Classes.Add_Field("AccProd"      , SG_DATATYPE_Double);
 	Classes.Add_Field("SumClassified", SG_DATATYPE_Int);
 	Classes.Add_Field("AccUser"      , SG_DATATYPE_Double);
-	Classes.Set_Record_Count(m_Classes.Get_Count());
+	Classes.Set_Count(m_Classes.Get_Count());
 
 	sLong	nTotal = 0, nTrue = 0, nProd = 0;
 
@@ -315,7 +315,7 @@ bool CClassification_Quality::On_Execute(void)
 	Summary.Fmt_Name("%s [%s - %s]", _TL("Summary"), pPolygons->Get_Name(), pGrid->Get_Name());
 	Summary.Add_Field("NAME" , SG_DATATYPE_String);
 	Summary.Add_Field("VALUE", SG_DATATYPE_Double);
-	Summary.Set_Record_Count(2);
+	Summary.Set_Count(2);
 
 	double	k	= nTotal*nTotal - nProd, OA = 0.0;
 
@@ -352,7 +352,7 @@ bool CClassification_Quality::Get_Classes(CSG_Shapes *pPolygons, int Field, CSG_
 {
 	CSG_Category_Statistics	Classes;
 
-	for(int iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
+	for(sLong iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
 	{
 		Classes	+= pPolygons->Get_Shape(iPolygon)->asString(Field);
 	}
@@ -519,7 +519,7 @@ int CClassification_Quality::Get_Class(double Value)
 		}
 	}
 
-	return( m_Classes.Get_Count() );
+	return( (int)m_Classes.Get_Count() );
 }
 
 

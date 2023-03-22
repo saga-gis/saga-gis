@@ -168,7 +168,7 @@ bool CGrid_CVA::On_Execute(void)
 	DataObject_Set_Colors(pAngle , Colors);
 
 	//-----------------------------------------------------
-    for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+    for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)

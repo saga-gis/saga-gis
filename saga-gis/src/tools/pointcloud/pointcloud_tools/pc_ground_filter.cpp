@@ -164,17 +164,22 @@ bool CGround_Filter::On_Execute(void)
 
 	CSG_KDTree_2D	Search(pPC_in);
 
-	for (int i=0; i<pPC_in->Get_Point_Count() && Set_Progress(i, pPC_in->Get_Point_Count()); i++)
+	for(sLong i=0; i<pPC_in->Get_Count() && Set_Progress(i, pPC_in->Get_Count()); i++)
 	{
 		pPC_out->Add_Point(pPC_in->Get_X(i), pPC_in->Get_Y(i), pPC_in->Get_Z(i));
 
-		for (int j=0; j<pPC_in->Get_Attribute_Count(); j++)
+		for(int j=0; j<pPC_in->Get_Attribute_Count(); j++)
 		{
-			switch (pPC_in->Get_Attribute_Type(j))
+			switch( pPC_in->Get_Attribute_Type(j) )
 			{
-			default:					pPC_out->Set_Attribute(i, j, pPC_in->Get_Attribute(i, j));		break;
-			case SG_DATATYPE_Date:
-			case SG_DATATYPE_String:	CSG_String sAttr; pPC_in->Get_Attribute(i, j, sAttr); pPC_out->Set_Attribute(i, j, sAttr);		break;
+			default                : {
+				pPC_out->Set_Attribute(i, j, pPC_in->Get_Attribute(i, j));
+				break; }
+
+			case SG_DATATYPE_Date  :
+			case SG_DATATYPE_String: { CSG_String sAttr; pPC_in->Get_Attribute(i, j, sAttr);
+				pPC_out->Set_Attribute(i, j, sAttr);
+				break; }
 			}
 		}
 	}
@@ -183,23 +188,24 @@ bool CGround_Filter::On_Execute(void)
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("Processing ..."));
 
-	const int	iPackages	= 8;
-	int 		iPstep		= (int)(0.5 + pPC_in->Get_Point_Count() / iPackages);
-	int 		iPstart		= 0;
-	int 		iPend		= iPstep;
+	const int iPackages = 8;
+	sLong     iPstep    = (sLong)(0.5 + pPC_in->Get_Count() / iPackages);
+	sLong     iPstart   = 0;
+	sLong     iPend     = iPstep;
 
-	while (iPstart < pPC_in->Get_Point_Count() && Process_Get_Okay())
+	while( iPstart < pPC_in->Get_Count() && Process_Get_Okay() )
 	{
-		if (iPend > pPC_in->Get_Point_Count())
-			iPend = pPC_in->Get_Point_Count();
+		if( iPend > pPC_in->Get_Count() )
+		{
+			iPend = pPC_in->Get_Count();
+		}
 
-		Set_Progress(iPend, pPC_in->Get_Point_Count());
+		Set_Progress(iPend, pPC_in->Get_Count());
 
 		#pragma omp parallel for
-		for (int iPoint=iPstart; iPoint<iPend; iPoint++)
+		for(sLong iPoint=iPstart; iPoint<iPend; iPoint++)
 		{
-			CSG_Array_Int	Indices;
-			CSG_Vector		Distances;
+			CSG_Array_Int Indices; CSG_Vector Distances;
 
 			Search.Get_Nearest_Points(pPC_in->Get_X(iPoint), pPC_in->Get_Y(iPoint), 0, dRadius, Indices, Distances);
 
@@ -207,16 +213,13 @@ bool CGround_Filter::On_Execute(void)
 
 			for(size_t i=0; i<Indices.Get_Size(); i++)
 			{
-				double dMaxDz = 0.0;
+				double dMaxDz = 0.;
 
-				switch (iFilterMod)
+				switch( iFilterMod )
 				{
-				default:
-				case 0:		dMaxDz = Distances[i] * dTerrainSlope;								break;
-				case 1:		dMaxDz = Distances[i] * dTerrainSlope + 1.65 * sqrt(2 * dStdDev);	break;
-				case 2:		double dz = Distances[i] * dTerrainSlope - 1.65 * sqrt(2 * dStdDev);
-							dz > 0.0 ? dMaxDz = dz : dMaxDz = 0.0;
-							break;
+				default: dMaxDz = Distances[i] * dTerrainSlope; break;
+				case  1: dMaxDz = Distances[i] * dTerrainSlope + 1.65 * sqrt(2. * dStdDev); break;
+				case  2: dMaxDz = Distances[i] * dTerrainSlope - 1.65 * sqrt(2. * dStdDev); if( dMaxDz < 0. ) { dMaxDz = 0.; } break;
 				}
 
 				double dz = pPC_in->Get_Z(iPoint) - pPC_in->Get_Z(Indices[i]);

@@ -85,7 +85,7 @@ protected:
 
 private:
 
-	CSG_Parameters_Search_Points	m_Search;
+	CSG_Parameters_Point_Search_KDTree_2D	m_Search;
 
 
 	bool							Set_Value				(int x, int y, double xWorld, double yWorld, double Regularization);

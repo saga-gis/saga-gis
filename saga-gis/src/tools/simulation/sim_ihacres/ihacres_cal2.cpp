@@ -784,7 +784,7 @@ bool Cihacres_cal2::_CreateDialog2()
 
 	s.Printf(SG_T("LDAY") , 1-2);
 	P.Add_String(pNode,s,_TL("Last Day"),_TL(""),
-		m_pTable->Get_Record(m_pTable->Get_Record_Count()-1)->asString(m_dateField));
+		m_pTable->Get_Record(m_pTable->Get_Count()-1)->asString(m_dateField));
 
 	//-----------------------------------------------------------------
 	// Non-linear parameters

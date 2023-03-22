@@ -1197,7 +1197,7 @@ bool CSG_Doc_PDF::_Draw_Table(CSG_Rect r, CSG_Table *pTable, int iRecord, int nR
 	bool			bAddHeader;
 	CSG_Table_Record	*pRecord;
 
-	if( pTable && pTable->is_Valid() && iRecord < pTable->Get_Record_Count() )
+	if( pTable && pTable->is_Valid() && iRecord < pTable->Get_Count() )
 	{
 	//	Draw_Text(r.Get_XMin(), r.Get_YMax(), pTable->Get_Name(), 16);	// the table's name should not be drawn here...
 
@@ -1218,9 +1218,9 @@ bool CSG_Doc_PDF::_Draw_Table(CSG_Rect r, CSG_Table *pTable, int iRecord, int nR
 
 		nRecords	+= iRecord;
 
-		if( nRecords > pTable->Get_Record_Count() )
+		if( nRecords > pTable->Get_Count() )
 		{
-			nRecords	= pTable->Get_Record_Count();
+			nRecords	= pTable->Get_Count();
 		}
 
 		//-------------------------------------------------
@@ -1267,7 +1267,7 @@ bool CSG_Doc_PDF::Draw_Table(const CSG_Rect &r, CSG_Table *pTable, double CellHe
 {
 	if( pTable && pTable->is_Valid() )
 	{
-		return( _Draw_Table(r, pTable, 0, pTable->Get_Record_Count(), CellHeight, HeaderHeightRel) );
+		return( _Draw_Table(r, pTable, 0, pTable->Get_Count(), CellHeight, HeaderHeightRel) );
 	}
 
 	return( false );
@@ -1285,7 +1285,7 @@ bool CSG_Doc_PDF::Draw_Table(const CSG_Rect &r, CSG_Table *pTable, int nColumns,
 		dxSpace		= 4;
 		rTable.Inflate(dxSpace, 0.0, false);
 		dx			= rTable.Get_XRange() / (double)nColumns;
-		nRecords	= pTable->Get_Record_Count() / nColumns;
+		nRecords	= pTable->Get_Count() / nColumns;
 
 		for(int i=0, iRecord=0; i<nColumns; i++, iRecord+=nRecords)
 		{
@@ -1403,7 +1403,7 @@ bool CSG_Doc_PDF::Draw_Shapes(const CSG_Rect &r, CSG_Shapes *pShapes, int Style,
 
 			World2PDF	= rFit.Get_XRange() / rWorld.Get_XRange();
 
-			for(int iShape=0; iShape<pShapes->Get_Count(); iShape++)
+			for(sLong iShape=0; iShape<pShapes->Get_Count(); iShape++)
 			{
 				_Draw_Shape(rFit, pShapes->Get_Shape(iShape), rWorld.Get_XMin(), rWorld.Get_YMin(), World2PDF, Style, Fill_Color, Line_Color, Line_Width, Line_Width);
 			}

@@ -180,7 +180,7 @@ bool CGeoref_Shapes::On_Execute(void)
 	pShapes_B	= Parameters("OUTPUT")->asShapes();
 	pShapes_B	->Create(pShapes_A->Get_Type(), pShapes_A->Get_Name(), pShapes_A);
 
-	for(int iShape=0; iShape<pShapes_A->Get_Count() && Set_Progress(iShape, pShapes_A->Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<pShapes_A->Get_Count() && Set_Progress(iShape, pShapes_A->Get_Count()); iShape++)
 	{
 		CSG_Shape	*pShape_A	= pShapes_A->Get_Shape(iShape);
 		CSG_Shape	*pShape_B	= pShapes_B->Add_Shape(pShape_A, SHAPE_COPY_ATTR);

@@ -604,9 +604,11 @@ bool CPhenIps_Table::On_Execute(void)
 	CPhenIps	PhenIps;	PhenIps.Set_Parameters(Parameters);
 
 	//-----------------------------------------------------
-	for(int iDay=0, Day=1; iDay<Weather.Get_Count() && Set_Progress(iDay, Weather.Get_Count()); iDay++, Day++)
+	int Day = 1;
+
+	for(sLong iDay=0; iDay<Weather.Get_Count() && Set_Progress(iDay, Weather.Get_Count()); iDay++, Day++)
 	{
-		double	DayLength	= SG_Get_Day_Length(Day, Latitude);
+		double DayLength = SG_Get_Day_Length(Day, Latitude);
 
 		PhenIps.Add_Day(Day,
 			Weather[iDay].asDouble(ATmean),
@@ -614,7 +616,7 @@ bool CPhenIps_Table::On_Execute(void)
 			Weather[iDay].asDouble(SIrel ), DayLength
 		);
 
-		CSG_Table_Record	*pRecord	= pPhenology->Add_Record();
+		CSG_Table_Record *pRecord = pPhenology->Add_Record();
 
 		pRecord->Set_Value(0, Day);
 		pRecord->Set_Value(1, DayLength);
@@ -908,7 +910,7 @@ bool CPhenIps_Grids_Annual::On_Execute(void)
 	_PhenIps.Set_Parameters(Parameters);
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#ifndef _DEBUG
 		#pragma omp parallel for
@@ -1087,7 +1089,7 @@ bool CPhenIps_Grids_Days::On_Execute(void)
 	_PhenIps.Set_Parameters(Parameters);
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#ifndef _DEBUG
 		#pragma omp parallel for

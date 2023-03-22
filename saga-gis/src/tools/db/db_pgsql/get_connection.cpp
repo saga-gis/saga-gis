@@ -602,7 +602,7 @@ bool CExecute_SQL::On_Execute(void)
 
 						s = "\n___";
 
-						for(int iRecord=0; iRecord<pTable->Get_Count(); iRecord++)
+						for(sLong iRecord=0; iRecord<pTable->Get_Count(); iRecord++)
 						{
 							CSG_Table_Record *pRecord = pTable->Get_Record(iRecord);
 

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,15 +47,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -241,20 +229,20 @@ void			SG_Mem_Set_Double(char *Buffer, double Value, bool bSwapBytes)
 //---------------------------------------------------------
 CSG_Array::CSG_Array(void)
 {
-	m_nBuffer		= 0;
-	m_nValues		= 0;
-	m_Values		= NULL;
+	m_nBuffer    = 0;
+	m_nValues    = 0;
+	m_Values     = NULL;
 
-	m_Value_Size	= sizeof(char);
-	m_Growth		= SG_ARRAY_GROWTH_0;
+	m_Value_Size = sizeof(char);
+	m_Growth     = SG_ARRAY_GROWTH_0;
 }
 
 //---------------------------------------------------------
 CSG_Array::CSG_Array(const CSG_Array &Array)
 {
-	m_nBuffer		= 0;
-	m_nValues		= 0;
-	m_Values		= NULL;
+	m_nBuffer    = 0;
+	m_nValues    = 0;
+	m_Values     = NULL;
 
 	Create(Array);
 }
@@ -263,8 +251,8 @@ void * CSG_Array::Create(const CSG_Array &Array)
 {
 	Destroy();
 
-	m_Value_Size	= Array.m_Value_Size;
-	m_Growth		= Array.m_Growth;
+	m_Value_Size = Array.m_Value_Size;
+	m_Growth     = Array.m_Growth;
 
 	if( Array.m_nValues > 0 && Get_Array(Array.m_nValues) )
 	{
@@ -275,21 +263,21 @@ void * CSG_Array::Create(const CSG_Array &Array)
 }
 
 //---------------------------------------------------------
-CSG_Array::CSG_Array(size_t Value_Size, size_t nValues, TSG_Array_Growth Growth)
+CSG_Array::CSG_Array(size_t Value_Size, sLong nValues, TSG_Array_Growth Growth)
 {
-	m_nBuffer		= 0;
-	m_nValues		= 0;
-	m_Values		= NULL;
+	m_nBuffer    = 0;
+	m_nValues    = 0;
+	m_Values     = NULL;
 
 	Create(Value_Size, nValues, Growth);
 }
 
-void * CSG_Array::Create(size_t Value_Size, size_t nValues, TSG_Array_Growth Growth)
+void * CSG_Array::Create(size_t Value_Size, sLong nValues, TSG_Array_Growth Growth)
 {
 	Destroy();
 
-	m_Value_Size	= Value_Size;
-	m_Growth		= Growth;
+	m_Value_Size = Value_Size;
+	m_Growth     = Growth;
 
 	return( Get_Array(nValues) );
 }
@@ -302,8 +290,8 @@ CSG_Array::~CSG_Array(void)
 
 void CSG_Array::Destroy(void)
 {
-	m_nBuffer		= 0;
-	m_nValues		= 0;
+	m_nBuffer    = 0;
+	m_nValues    = 0;
 
 	SG_FREE_SAFE(m_Values);
 }
@@ -311,24 +299,24 @@ void CSG_Array::Destroy(void)
 //---------------------------------------------------------
 bool CSG_Array::Set_Growth(TSG_Array_Growth Growth)
 {
-	m_Growth		= Growth;
+	m_Growth     = Growth;
 
 	return( true );
 }
 
 //---------------------------------------------------------
-bool CSG_Array::Set_Array(size_t nValues, bool bShrink)
+bool CSG_Array::Set_Array(sLong nValues, bool bShrink)
 {
 	if( nValues >= m_nValues && nValues <= m_nBuffer )
 	{
-		m_nValues	= nValues;
+		m_nValues = nValues;
 
 		return( true );
 	}
 
 	if( nValues < m_nValues && !bShrink )
 	{
-		m_nValues	= nValues;
+		m_nValues = nValues;
 
 		return( true );
 	}
@@ -341,7 +329,7 @@ bool CSG_Array::Set_Array(size_t nValues, bool bShrink)
 	}
 
 	//-----------------------------------------------------
-	size_t	nBuffer;
+	sLong nBuffer;
 
 	switch( m_Growth )
 	{
@@ -377,19 +365,19 @@ bool CSG_Array::Set_Array(size_t nValues, bool bShrink)
 	//-----------------------------------------------------
 	if( nBuffer == m_nBuffer )
 	{
-		m_nValues	= nValues;
+		m_nValues = nValues;
 
 		return( true );
 	}
 
 	//-----------------------------------------------------
-	void	*Values	= SG_Realloc(m_Values, nBuffer * m_Value_Size);
+	void *Values = SG_Realloc(m_Values, nBuffer * m_Value_Size);
 
 	if( Values )
 	{
-		m_nBuffer	= nBuffer;
-		m_nValues	= nValues;
-		m_Values	= Values;
+		m_nBuffer = nBuffer;
+		m_nValues = nValues;
+		m_Values  = Values;
 
 		return( true );
 	}
@@ -398,22 +386,22 @@ bool CSG_Array::Set_Array(size_t nValues, bool bShrink)
 }
 
 //---------------------------------------------------------
-bool CSG_Array::Set_Array(size_t nValues, void **pArray, bool bShrink)
+bool CSG_Array::Set_Array(sLong nValues, void **pArray, bool bShrink)
 {
 	if( Set_Array(nValues, bShrink) )
 	{
-		*pArray	= m_Values;
+		*pArray = m_Values;
 
 		return( true );
 	}
 
-	*pArray	= m_Values;
+	*pArray = m_Values;
 
 	return( false );
 }
 
 //---------------------------------------------------------
-bool CSG_Array::Inc_Array		(size_t nValues)
+bool CSG_Array::Inc_Array		(sLong nValues)
 {
 	return( Set_Array(m_nValues + nValues) );
 }
@@ -450,7 +438,7 @@ void ** CSG_Array_Pointer::Create(const CSG_Array_Pointer &Array)
 }
 
 //---------------------------------------------------------
-void ** CSG_Array_Pointer::Create(size_t nValues, TSG_Array_Growth Growth)
+void ** CSG_Array_Pointer::Create(sLong nValues, TSG_Array_Growth Growth)
 {
 	m_Array.Create(sizeof(void *), nValues, Growth);
 
@@ -473,7 +461,7 @@ bool CSG_Array_Pointer::Add(void *Value)
 //---------------------------------------------------------
 bool CSG_Array_Pointer::Add(const CSG_Array_Pointer &Array)
 {
-	for(size_t i=0; i<Array.Get_Size(); i++)
+	for(sLong i=0; i<Array.Get_Size(); i++)
 	{
 		if( Add(Array[i]) == false )
 		{
@@ -485,19 +473,13 @@ bool CSG_Array_Pointer::Add(const CSG_Array_Pointer &Array)
 }
 
 //---------------------------------------------------------
-bool CSG_Array_Pointer::Del(int Index)
-{
-	return( Del((size_t)Index) );
-}
-
-//---------------------------------------------------------
-bool CSG_Array_Pointer::Del(size_t Index)
+bool CSG_Array_Pointer::Del(sLong Index)
 {
 	if( Index < Get_Size() )
 	{
-		for(size_t i=Index+1; i<Get_Size(); i++, Index++)
+		for(sLong i=Index+1; i<Get_Size(); i++, Index++)
 		{
-			(*this)[Index]	= (*this)[i];
+			(*this)[Index] = (*this)[i];
 		}
 
 		return( Dec_Array() );
@@ -507,11 +489,11 @@ bool CSG_Array_Pointer::Del(size_t Index)
 }
 
 //---------------------------------------------------------
-size_t CSG_Array_Pointer::Del(void *Value)
+sLong CSG_Array_Pointer::Del(void *Value)
 {
-	size_t	n	= 0;
+	sLong n = 0;
 
-	for(size_t i=Get_Size(); i>0; i--)
+	for(sLong i=Get_Size(); i>0; i--)
 	{
 		if( Value == (*this)[i - 1] && Del(i - 1) )
 		{
@@ -538,7 +520,7 @@ int * CSG_Array_Int::Create(const CSG_Array_Int &Array)
 }
 
 //---------------------------------------------------------
-int * CSG_Array_Int::Create(size_t nValues, TSG_Array_Growth Growth)
+int * CSG_Array_Int::Create(sLong nValues, TSG_Array_Growth Growth)
 {
 	m_Array.Create(sizeof(int), nValues, Growth);
 
@@ -561,7 +543,7 @@ bool CSG_Array_Int::Add(int Value)
 //---------------------------------------------------------
 bool CSG_Array_Int::Add(const CSG_Array_Int &Array)
 {
-	for(size_t i=0; i<Array.Get_Size(); i++)
+	for(sLong i=0; i<Array.Get_Size(); i++)
 	{
 		if( Add(Array[i]) == false )
 		{
@@ -575,9 +557,70 @@ bool CSG_Array_Int::Add(const CSG_Array_Int &Array)
 //---------------------------------------------------------
 bool CSG_Array_Int::Assign(int Value)
 {
-	for(size_t i=0; i<Get_Size(); i++)
+	for(sLong i=0; i<Get_Size(); i++)
 	{
 		Get_Array()[i]	= Value;
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+sLong * CSG_Array_sLong::Create(const CSG_Array_sLong &Array)
+{
+	m_Array.Create(Array.m_Array);
+
+	return( (sLong *)m_Array.Get_Array() );
+}
+
+//---------------------------------------------------------
+sLong * CSG_Array_sLong::Create(sLong nValues, TSG_Array_Growth Growth)
+{
+	m_Array.Create(sizeof(sLong), nValues, Growth);
+
+	return( (sLong *)m_Array.Get_Array() );
+}
+
+//---------------------------------------------------------
+bool CSG_Array_sLong::Add(sLong Value)
+{
+	if( Inc_Array() )
+	{
+		Get_Array()[Get_Size() - 1]	= Value;
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Array_sLong::Add(const CSG_Array_sLong &Array)
+{
+	for(sLong i=0; i<Array.Get_Size(); i++)
+	{
+		if( Add(Array[i]) == false )
+		{
+			return( false );
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Array_sLong::Assign(sLong Value)
+{
+	for(sLong i=0; i<Get_Size(); i++)
+	{
+		Get_Array()[i] = Value;
 	}
 
 	return( true );

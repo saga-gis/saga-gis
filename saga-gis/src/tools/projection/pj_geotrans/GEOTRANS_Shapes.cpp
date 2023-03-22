@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: GEOTRANS_Shapes.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "GEOTRANS_Shapes.h"
 
 
@@ -72,26 +60,19 @@
 //---------------------------------------------------------
 CGEOTRANS_Shapes::CGEOTRANS_Shapes(void)
 {
-	//-----------------------------------------------------
-	// 1. Info...
+	Set_Name		(_TL("GeoTrans (Shapes)"));
 
-	Set_Name	(_TL("GeoTrans (Shapes)"));
-
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
 		"Coordinate Transformation for Shapes. "
-		"This library makes use of the Geographic Translator (GeoTrans) library. "
-		"\n"
-		"GeoTrans is maintained by the National Geospatial Agency (NGA).\n"
-		"  <a target=\"_blank\" href=\"http://earth-info.nga.mil/GandG/geotrans/\">"
-		"  http://earth-info.nga.mil/GandG/geotrans/</a>\n"
+		"This library makes use of the Geographic Translator (GeoTrans) library.\n\n"
+		"GeoTrans is maintained by the National Geospatial Agency (NGA)."
 	));
 
+	Add_Reference("https://earth-info.nga.mil/GandG/geotrans/", SG_T("GeoTrans, National Geospatial Agency (NGA)"));
 
 	//-----------------------------------------------------
-	// 2. In-/Output...
-
 	Parameters.Add_Shapes(
 		Parameters("SOURCE_NODE"), "SOURCE", _TL("Source"),
 		_TL(""),
@@ -105,90 +86,80 @@ CGEOTRANS_Shapes::CGEOTRANS_Shapes(void)
 	);
 }
 
-//---------------------------------------------------------
-CGEOTRANS_Shapes::~CGEOTRANS_Shapes(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGEOTRANS_Shapes::On_Execute_Conversion(void)
 {
-	bool		bCopy, bDropped;
-	int			iShape, iPart, iPoint, nDropped;
-	TSG_Point	Point;
-	CSG_Shape		*pShape_Source, *pShape_Target;
-	CSG_Shapes		*pSource, *pTarget;
+	CSG_Shapes *pSource = Parameters("SOURCE")->asShapes();
+	CSG_Shapes *pTarget = Parameters("TARGET")->asShapes();
 
-	//-----------------------------------------------------
-	if( 1 )
+	bool bCopy = pSource == pTarget;
+	
+	if( bCopy )
 	{
-		pSource		= Parameters("SOURCE")->asShapes();
-		pTarget		= Parameters("TARGET")->asShapes();
-
-		if( pSource == pTarget )
-		{
-			bCopy		= true;
-
-			pTarget		= SG_Create_Shapes();
-		}
-		else
-		{
-			bCopy		= false;
-		}
-
-		pTarget->Create(pSource->Get_Type(), pSource->Get_Name(), pSource);
-
-		//-------------------------------------------------
-		for(iShape=0, nDropped=0; iShape<pSource->Get_Count() && Set_Progress(iShape, pSource->Get_Count()); iShape++)
-		{
-			pShape_Source	= pSource->Get_Shape(iShape);
-			pShape_Target	= pTarget->Add_Shape(pShape_Source, SHAPE_COPY_ATTR);
-
-			for(iPart=0, bDropped=false; iPart<pShape_Source->Get_Part_Count() && !bDropped; iPart++)
-			{
-				for(iPoint=0; iPoint<pShape_Source->Get_Point_Count(iPart) && !bDropped; iPoint++)
-				{
-					Point	= pShape_Source->Get_Point(iPoint, iPart);
-
-					if( Get_Converted(Point.x, Point.y) )
-					{
-						pShape_Target->Add_Point(Point.x, Point.y, iPart);
-					}
-					else
-					{
-						bDropped	= true;
-					}
-				}
-			}
-
-			if( bDropped )
-			{
-				nDropped++;
-				pTarget->Del_Shape(pShape_Target);
-			}
-		}
-
-		//-------------------------------------------------
-		if( nDropped > 0 )
-		{
-			Message_Fmt("\n%s: %d", _TL("number of dropped shapes"), nDropped);
-		}
-
-		if( bCopy )
-		{
-			pSource->Assign(pTarget);
-
-			delete( pTarget );
-		}
-
-		return( true );
+		pTarget = SG_Create_Shapes();
 	}
 
-	return( false );
+	pTarget->Create(pSource->Get_Type(), pSource->Get_Name(), pSource);
+
+	//-------------------------------------------------
+	sLong nDropped = 0;
+
+	for(sLong iShape=0; iShape<pSource->Get_Count() && Set_Progress(iShape, pSource->Get_Count()); iShape++)
+	{
+		CSG_Shape *pShape_Source = pSource->Get_Shape(iShape);
+		CSG_Shape *pShape_Target = pTarget->Add_Shape(pShape_Source, SHAPE_COPY_ATTR);
+
+		bool bDropped = false;
+
+		for(int iPart=0; !bDropped && iPart<pShape_Source->Get_Part_Count(); iPart++)
+		{
+			for(int iPoint=0; iPoint<pShape_Source->Get_Point_Count(iPart) && !bDropped; iPoint++)
+			{
+				TSG_Point Point = pShape_Source->Get_Point(iPoint, iPart);
+
+				if( Get_Converted(Point.x, Point.y) )
+				{
+					pShape_Target->Add_Point(Point.x, Point.y, iPart);
+				}
+				else
+				{
+					bDropped = true;
+				}
+			}
+		}
+
+		if( bDropped )
+		{
+			nDropped++; pTarget->Del_Shape(pShape_Target);
+		}
+	}
+
+	//-------------------------------------------------
+	if( nDropped > 0 )
+	{
+		Message_Fmt("\n%s: %lld", _TL("number of dropped shapes"), nDropped);
+	}
+
+	if( bCopy )
+	{
+		pSource->Assign(pTarget);
+
+		delete(pTarget);
+	}
+
+	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

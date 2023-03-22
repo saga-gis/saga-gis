@@ -194,7 +194,7 @@ bool CGrid_Cell_Polygon_Coverage::On_Execute(void)
 				//---------------------------------------------
 				if( pPolygons->Get_Extent().Intersects(pCell->Get_Extent()) )
 				{
-					for(size_t i=0; pCell->Get_Area() > 0.0 && i<GET_NPOLYGONS; i++)
+					for(sLong i=0; pCell->Get_Area()>0. && i<GET_NPOLYGONS; i++)
 					{
 						if( !SG_Shape_Get_Difference(pCell, GET_POLYGON(i)) )	// completely contained or identical > difference is empty !
 						{
@@ -203,7 +203,7 @@ bool CGrid_Cell_Polygon_Coverage::On_Execute(void)
 					}
 				}
 
-				pArea->Set_Value(x, y, s.Get_Cellarea() > pCell->Get_Area() ? s.Get_Cellarea() - pCell->Get_Area() : 0.0);
+				pArea->Set_Value(x, y, s.Get_Cellarea() > pCell->Get_Area() ? s.Get_Cellarea() - pCell->Get_Area() : 0.);
 			}
 		}
 	}
@@ -213,7 +213,7 @@ bool CGrid_Cell_Polygon_Coverage::On_Execute(void)
 	{
 		pArea->Assign(0.0);
 
-		for(size_t i=0; i<GET_NPOLYGONS && Set_Progress((double)i, (double)GET_NPOLYGONS); i++)
+		for(sLong i=0; i<GET_NPOLYGONS && Set_Progress(i, GET_NPOLYGONS); i++)
 		{
 			Get_Area(GET_POLYGON(i), pArea);
 		}
@@ -222,7 +222,7 @@ bool CGrid_Cell_Polygon_Coverage::On_Execute(void)
 	//-----------------------------------------------------
 	if( Parameters("OUTPUT")->asInt() == 1 )	// Percentage
 	{
-		pArea->Multiply(100.0 / pArea->Get_Cellarea());
+		pArea->Multiply(100. / pArea->Get_Cellarea());
 	}
 
 	//-----------------------------------------------------
@@ -428,15 +428,15 @@ bool CPolygonCategories2Grid::On_Execute(void)
 
 	pPolygons->Select();	// clear selection
 
-	for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
+	for(sLong i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 	{
-		CSG_Shape	*pPolygon	= pPolygons->Get_Shape_byIndex(i);
+		CSG_Shape *pPolygon = pPolygons->Get_Shape_byIndex(i);
 
 		if( Category.Cmp(pPolygon->asString(Field)) )	// new category
 		{
 			Set_Category(pPolygons, pCategory, pCoverage, Classes, Category, bNumber);	// also clears selection
 
-			Category	= pPolygon->asString(Field);
+			Category = pPolygon->asString(Field);
 		}
 
 		pPolygons->Select(pPolygon, true);	// adds polygon to selection

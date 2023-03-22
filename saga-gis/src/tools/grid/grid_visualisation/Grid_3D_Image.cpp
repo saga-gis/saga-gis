@@ -258,7 +258,7 @@ void CGrid_3D_Image::_Set_Grid(void)
 	//-----------------------------------------------------
 	_Get_Line(0, b);
 
-	for(int y=1; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=1; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		d	= a;
 		a	= b;
@@ -290,34 +290,28 @@ void CGrid_3D_Image::_Set_Grid(void)
 //---------------------------------------------------------
 void CGrid_3D_Image::_Set_Shapes(CSG_Shapes *pInput)
 {
-	int			iShape, iPart, iPoint;
-	double		x, y, z, dx, dy;
-	T3DPoint	p;
-	TSG_Point	Point;
-	CSG_Shape	*pShape;
-	CSG_Shapes	*pOutput;
-
 	if( pInput && pInput->is_Valid() )
 	{
 		Process_Set_Text("%s \"%s\"", _TL("Project"), pInput->Get_Name());
 
-		pOutput	= SG_Create_Shapes(*pInput);
-		dx		= (double)Get_NX() / Get_System().Get_XRange();
-		dy		= (double)Get_NY() / Get_System().Get_YRange();
+		CSG_Shapes *pOutput = SG_Create_Shapes(*pInput);
 
-		for(iShape=0; iShape<pOutput->Get_Count() && Set_Progress(iShape, pOutput->Get_Count()); iShape++)
+		double dx = (double)Get_NX() / Get_System().Get_XRange();
+		double dy = (double)Get_NY() / Get_System().Get_YRange();
+
+		for(sLong iShape=0; iShape<pOutput->Get_Count() && Set_Progress(iShape, pOutput->Get_Count()); iShape++)
 		{
-			pShape	= pOutput->Get_Shape(iShape);
+			CSG_Shape *pShape = pOutput->Get_Shape(iShape);
 
-			for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
-				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
-					Point	= pShape->Get_Point(iPoint, iPart);
+					TSG_Point Point = pShape->Get_Point(iPoint, iPart); T3DPoint p;
 
-					x		= dx * (Point.x - Get_XMin());
-					y		= dy * (Point.y - Get_YMin());
-					z		= m_pDEM->is_InGrid((int)x, (int)y, true) ? m_pDEM->asDouble((int)x, (int)y) : 0.0;
+					double x = dx * (Point.x - Get_XMin());
+					double y = dy * (Point.y - Get_YMin());
+					double z = m_pDEM->is_InGrid((int)x, (int)y, true) ? m_pDEM->asDouble((int)x, (int)y) : 0.;
 
 					_Get_Position(x, y, z, p);
 

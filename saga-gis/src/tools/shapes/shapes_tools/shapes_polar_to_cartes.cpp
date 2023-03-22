@@ -159,7 +159,7 @@ bool CShapes_Polar_to_Cartes::On_Execute(void)
 	pCartes->Create(pPolar->Get_Type(), CSG_String::Format(SG_T("%s [%s]"), pPolar->Get_Name(), _TL("cartesian")), pPolar, SG_VERTEX_TYPE_XYZ);
 
 	//-----------------------------------------------------
-	for(int iShape=0; iShape<pPolar->Get_Count() && Set_Progress(iShape, pPolar->Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<pPolar->Get_Count() && Set_Progress(iShape, pPolar->Get_Count()); iShape++)
 	{
 		CSG_Shape	*pShape		= pPolar->Get_Shape(iShape);
 		CSG_Shape	*pTarget	= pCartes->Add_Shape(pShape, SHAPE_COPY_ATTR);

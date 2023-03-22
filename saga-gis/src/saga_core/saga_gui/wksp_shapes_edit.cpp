@@ -509,7 +509,7 @@ bool CWKSP_Shapes::Edit_Set_Attributes(void)
 	{
 		int	Decimals;	GET_TABLE_NUM_PREC(Decimals);
 
-		for(int i=0; i<m_Edit_Attributes.Get_Record_Count(); i++)
+		for(int i=0; i<m_Edit_Attributes.Get_Count(); i++)
 		{
 			if( !pSelection->Set_Value(i, m_Edit_Attributes.Get_Record(i)->asString(1)) )
 			{
@@ -543,7 +543,7 @@ bool CWKSP_Shapes::_Edit_Merge(void)
 	//-----------------------------------------------------
 	CSG_Shape	*pMerged	= Get_Shapes()->Get_Selection(0);
 
-	for(int i=1; i<Get_Shapes()->Get_Selection_Count(); i++)
+	for(sLong i=1; i<Get_Shapes()->Get_Selection_Count(); i++)
 	{
 		CSG_Shape	*pShape	= Get_Shapes()->Get_Selection(i);
 
@@ -649,7 +649,7 @@ bool CWKSP_Shapes::_Edit_Split(void)
 					{
 						m_Edit_pShape->Assign(Split.Get_Shape(0), false);
 
-						for(int iSplit=1; iSplit<Split.Get_Count(); iSplit++)
+						for(sLong iSplit=1; iSplit<Split.Get_Count(); iSplit++)
 						{
 							CSG_Shape	*pSplit	= Split.Get_Shape(iSplit);
 
@@ -668,7 +668,7 @@ bool CWKSP_Shapes::_Edit_Split(void)
 						
 						pSelection->Assign(Split.Get_Shape(0), false);
 
-						for(int iSplit=1; iSplit<Split.Get_Count(); iSplit++)
+						for(sLong iSplit=1; iSplit<Split.Get_Count(); iSplit++)
 						{
 							CSG_Shape	*pSplit	= Get_Shapes()->Add_Shape(Split.Get_Shape(iSplit));
 
@@ -1152,7 +1152,7 @@ void CWKSP_Shapes::_Edit_Snap_Point(const CSG_Point &Point, CSG_Point &snap_Poin
 
 	if( pShapes->Select(CSG_Rect(Point.Get_X() - snap_Dist, Point.Get_Y() - snap_Dist, Point.Get_X() + snap_Dist, Point.Get_Y() + snap_Dist)) )
 	{
-		for(int i=0; i<pShapes->Get_Selection_Count(); i++)
+		for(sLong i=0; i<pShapes->Get_Selection_Count(); i++)
 		{
 			if( pShapes != Get_Shapes() || pSelected != pShapes->Get_Selection(i) )
 			{

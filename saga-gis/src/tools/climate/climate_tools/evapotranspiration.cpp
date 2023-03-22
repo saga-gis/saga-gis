@@ -141,7 +141,7 @@ bool CETpot_Day_To_Hour::On_Execute(void)
 	double sinHgt = 0.; // -0.0145; // >> -50'' desired height of horizon
 
 	//-----------------------------------------------------
-	for(int iDay=0; iDay<pDays->Get_Count() && Set_Progress(iDay, pDays->Get_Count()); iDay++)
+	for(sLong iDay=0; iDay<pDays->Get_Count() && Set_Progress(iDay, pDays->Get_Count()); iDay++)
 	{
 		CSG_Table_Record *pDay = pDays->Get_Record(iDay);
 
@@ -336,7 +336,7 @@ bool CETpot_Table::On_Execute(void)
 	double Lat = Parameters("LAT")->asDouble();
 
 	//-----------------------------------------------------
-	for(int iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
+	for(sLong iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
 	{
 		CSG_Table_Record &V	= *pTable->Get_Record(iRecord);
 
@@ -626,7 +626,7 @@ bool CETpot_Grid::On_Execute(void)
 	double const_R0 = CT_Get_Radiation_Daily_TopOfAtmosphere(Day, const_Lat); // [MJ/m2/day]
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#ifndef _DEBUG
 		#pragma omp parallel for

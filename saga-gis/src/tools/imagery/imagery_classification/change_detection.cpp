@@ -212,14 +212,14 @@ bool CChange_Detection::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Table	*pConfusion		= Parameters("CONFUSION")->asTable();
+	CSG_Table *pConfusion = Parameters("CONFUSION")->asTable();
 
-	bool	bUnclassified	= Parameters("NODATA")->asBool();
+	bool bUnclassified = Parameters("NODATA")->asBool();
 
-	int	nOne	= One.Get_Count(); if( bUnclassified ) nOne++;
-	int	nTwo	= Two.Get_Count(); if( bUnclassified ) nTwo++;
+	int nOne = (int)One.Get_Count(); if( bUnclassified ) nOne++;
+	int nTwo = (int)Two.Get_Count(); if( bUnclassified ) nTwo++;
 
-	CSG_Matrix	Identity;
+	CSG_Matrix Identity;
 
 	if( !Get_Changes(One, Two, pConfusion, Identity, bUnclassified) )
 	{
@@ -231,7 +231,7 @@ bool CChange_Detection::On_Execute(void)
 
 	bool	bNoChange	= Parameters("NOCHANGE")->asBool();
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
@@ -344,7 +344,7 @@ bool CChange_Detection::Get_Quality(CSG_Table &Confusion, CSG_Table &Classes, CS
 		return( false );
 	}
 
-	int	nClasses	= Confusion.Get_Count();
+	int nClasses = (int)Confusion.Get_Count();
 
 	//-----------------------------------------------------
 	Classes.Destroy();
@@ -353,7 +353,7 @@ bool CChange_Detection::Get_Quality(CSG_Table &Confusion, CSG_Table &Classes, CS
 	Classes.Add_Field("AccProd"      , SG_DATATYPE_Double);
 	Classes.Add_Field("SumClassified", SG_DATATYPE_Int   );
 	Classes.Add_Field("AccUser"      , SG_DATATYPE_Double);
-	Classes.Set_Record_Count(nClasses);
+	Classes.Set_Count(nClasses);
 
 	Confusion.Add_Field("SumUser", SG_DATATYPE_Double);
 	Confusion.Add_Field("AccUser", SG_DATATYPE_Double);
@@ -393,7 +393,7 @@ bool CChange_Detection::Get_Quality(CSG_Table &Confusion, CSG_Table &Classes, CS
 		Classes[i].Set_Value(3, nTwo); if( AccTwo < 0 ) Classes[i].Set_NoData(3); else
 		Classes[i].Set_Value(4, AccTwo);
 
-		n	= Confusion.Get_Count() - 2;
+		n	= (int)Confusion.Get_Count() - 2;
 		Confusion[n + 0].Set_Value (1 + i, nOne); if( AccOne < 0. )
 		Confusion[n + 1].Set_NoData(1 + i); else
 		Confusion[n + 1].Set_Value (1 + i, AccOne * 100.);
@@ -408,7 +408,7 @@ bool CChange_Detection::Get_Quality(CSG_Table &Confusion, CSG_Table &Classes, CS
 	Summary.Destroy();
 	Summary.Add_Field("NAME" , SG_DATATYPE_String);
 	Summary.Add_Field("VALUE", SG_DATATYPE_Double);
-	Summary.Set_Record_Count(2);
+	Summary.Set_Count(2);
 
 	double	k	= (double)(nTotal*nTotal - nProd), OA = 0.;
 
@@ -505,7 +505,7 @@ bool CChange_Detection::Get_Classes(CSG_Table &Classes, CSG_Grid *pGrid, bool bI
 
 		double	z;
 
-		for(sLong i=0; i<Get_NCells() && Set_Progress_NCells(i); i++)
+		for(sLong i=0; i<Get_NCells() && Set_Progress_Cells(i); i++)
 		{
 			double iz	= pGrid->asDouble(pGrid->Get_Sorted(i, false, false));
 
@@ -549,7 +549,7 @@ bool CChange_Detection::Get_Changes(CSG_Table &One, CSG_Table &Two, CSG_Table *p
 		}
 	}
 
-	Identity[One.Get_Count()][Two.Get_Count()]	= 1;	// unclassified
+	Identity[(int)One.Get_Count()][(int)Two.Get_Count()]	= 1;	// unclassified
 
 	//-----------------------------------------------------
 	pConfusion->Destroy();
@@ -612,7 +612,7 @@ int CChange_Detection::Get_Class(CSG_Table &Classes, double Value)
 	{
 		int	a, b;
 
-		for(a=0, b=Classes.Get_Record_Count()-1; a < b; )
+		for(a=0, b=Classes.Get_Count()-1; a < b; )
 		{
 			int	i	= a + (b - a) / 2;
 			int	c	= Cmp_Class(Classes, Value, i);

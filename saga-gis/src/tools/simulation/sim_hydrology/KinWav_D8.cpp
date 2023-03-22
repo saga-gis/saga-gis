@@ -352,7 +352,7 @@ bool CKinWav_D8::Initialize(void)
 		}
 
 		DataObject_Set_Colors(m_pFlow, 11, SG_COLORS_WHITE_BLUE);
-		DataObject_Update    (m_pFlow, SG_UI_DATAOBJECT_SHOW);
+		DataObject_Update    (m_pFlow, SG_UI_DATAOBJECT_SHOW_MAP);
 	}
 
 	//-----------------------------------------------------
@@ -814,7 +814,7 @@ bool CKinWav_D8::Gauges_Initialise(void)
 
 		m_pGauges->Add_Field(_TL("ID"), SG_DATATYPE_Int);
 
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			for(int x=0; x<Get_NX(); x++)
 			{

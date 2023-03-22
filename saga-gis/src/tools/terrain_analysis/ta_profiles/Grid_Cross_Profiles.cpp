@@ -201,7 +201,7 @@ bool CGrid_Cross_Profiles::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
+	for(sLong iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
 	{
 		CSG_Shape_Line	*pLine	= (CSG_Shape_Line *)pLines->Get_Shape(iLine);
 

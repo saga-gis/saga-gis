@@ -209,7 +209,7 @@ bool CFilter_Terrain_SlopeBased::On_Execute(void)
 	//---------------------------------------------------------
 	// filter
 
-	for(int y=0; y<pInput->Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<pInput->Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<pInput->Get_NX(); x++ )

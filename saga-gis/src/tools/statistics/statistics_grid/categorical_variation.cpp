@@ -150,7 +150,7 @@ bool CCategorical_Variation::On_Execute(void)
 	m_Cells.Set_Radius(Parameters("RADIUS")->asInt());
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)

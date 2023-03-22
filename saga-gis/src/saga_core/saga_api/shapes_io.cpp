@@ -266,7 +266,7 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 	//-----------------------------------------------------
 	// Load Shapes...
 
-	for(int iShape=0; iShape<fDBF.Get_Record_Count() && SG_UI_Process_Set_Progress(iShape, fDBF.Get_Record_Count()); iShape++)
+	for(int iShape=0; iShape<fDBF.Get_Count() && SG_UI_Process_Set_Progress(iShape, fDBF.Get_Count()); iShape++)
 	{
 		if( fSHP.Read(Record_Header.Get_Data(0), sizeof(int), 2) != 2 )		// read record header
 		{
@@ -591,14 +591,14 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 	//-----------------------------------------------------
 	// Save Shapes...
 
-	for(int iShape=0; iShape<Get_Count() && SG_UI_Process_Set_Progress(iShape, Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<Get_Count() && SG_UI_Process_Set_Progress(iShape, Get_Count()); iShape++)
 	{
-		CSG_Shape	*pShape	= Get_Shape(iShape);
+		CSG_Shape *pShape = Get_Shape(iShape);
 
 		//-------------------------------------------------
 		// geometries...
 
-		Record_Header.Set_Value(0, iShape + 1, true);	// record number
+		Record_Header.Set_Value(0, (int)iShape + 1, true);	// record number
 
 		for(iPart=0, nPoints=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{
@@ -608,16 +608,16 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 		//-------------------------------------------------
 		switch( m_Type )			// write content header
 		{
-		default:	break;
+		default: break;
 
 		//-------------------------------------------------
 		case SHAPE_TYPE_Point:		///////////////////////
 
 			switch( Vertex_Type )
 			{
-			case SG_VERTEX_TYPE_XY:		Set_Content_Length(10);	break;
-			case SG_VERTEX_TYPE_XYZ:	Set_Content_Length(14);	break;
-			case SG_VERTEX_TYPE_XYZM:	Set_Content_Length(18);	break;
+			case SG_VERTEX_TYPE_XY  : Set_Content_Length(10); break;
+			case SG_VERTEX_TYPE_XYZ : Set_Content_Length(14); break;
+			case SG_VERTEX_TYPE_XYZM: Set_Content_Length(18); break;
 			}
 
 			fSHP.Write_Int		(Type);
@@ -629,9 +629,9 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 
 			switch( Vertex_Type )
 			{
-			case SG_VERTEX_TYPE_XY:		Set_Content_Length(20 +  8 * nPoints);	break;
-			case SG_VERTEX_TYPE_XYZ:	Set_Content_Length(28 + 12 * nPoints);	break;
-			case SG_VERTEX_TYPE_XYZM:	Set_Content_Length(36 + 16 * nPoints);	break;
+			case SG_VERTEX_TYPE_XY  : Set_Content_Length(20 +  8 * nPoints); break;
+			case SG_VERTEX_TYPE_XYZ : Set_Content_Length(28 + 12 * nPoints); break;
+			case SG_VERTEX_TYPE_XYZM: Set_Content_Length(36 + 16 * nPoints); break;
 			}
 
 			fSHP.Write_Int		(Type);

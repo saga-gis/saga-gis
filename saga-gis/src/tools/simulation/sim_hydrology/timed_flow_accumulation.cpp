@@ -269,7 +269,7 @@ bool CTimed_Flow_Accumulation::On_Execute(void)
 	m_pConc->Assign(0.);
 
 	//-----------------------------------------------------
-	for(sLong i=0; i<Get_NCells() && Set_Progress_NCells(i); i++)
+	for(sLong i=0; i<Get_NCells() && Set_Progress_Cells(i); i++)
 	{
 		int	x, y;	m_pDEM->Get_Sorted(i, x, y, true, false);
 

@@ -226,16 +226,16 @@ bool CGrid_To_Contour::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( m_pPolygons && m_pContours->Get_Count() > 0 && Set_Progress(0))
+	if( m_pPolygons && m_pContours->Get_Count() > 0 && Set_Progress(0.) )
 	{
 		Get_Polygons(NULL, (CSG_Shape_Line *)m_pContours->Get_Shape(0));
 
-		for(int i=1; i<m_pContours->Get_Count() && Set_Progress(i, m_pContours->Get_Count()); i++)
+		for(sLong i=1; i<m_pContours->Get_Count() && Set_Progress(i, m_pContours->Get_Count()); i++)
 		{
 			Get_Polygons((CSG_Shape_Line *)m_pContours->Get_Shape(i - 1), (CSG_Shape_Line *)m_pContours->Get_Shape(i));
 		}
 
-		if( Set_Progress(100) )
+		if( Set_Progress(1.) )
 		{
 			Get_Polygons((CSG_Shape_Line *)m_pContours->Get_Shape(m_pContours->Get_Count() - 1), NULL);
 		}
@@ -721,7 +721,7 @@ bool CGrid_To_Contour::Add_Edge(CSG_Shapes &Segments, int x, int y)
 //---------------------------------------------------------
 CSG_Shape * CGrid_To_Contour::Get_Segment(const CSG_Shapes &Segments, int &x, int &y, bool &bAscending)
 {
-	for(int i=0; i<Segments.Get_Count(); i++)
+	for(sLong i=0; i<Segments.Get_Count(); i++)
 	{
 		if( Segments[i].asInt(0) == x && Segments[i].asInt(1) == y )
 		{
@@ -773,7 +773,7 @@ bool CGrid_To_Contour::Split_Polygon_Parts(CSG_Shapes *pPolygons)
 	pPolygons->Del_Shapes();
 
 	//-----------------------------------------------------
-	for(int iPolygon=0; iPolygon<Polygons.Get_Count() && Set_Progress(iPolygon, Polygons.Get_Count()); iPolygon++)
+	for(sLong iPolygon=0; iPolygon<Polygons.Get_Count() && Set_Progress(iPolygon, Polygons.Get_Count()); iPolygon++)
 	{
 		CSG_Shape_Polygon *pPolygon = (CSG_Shape_Polygon *)Polygons.Get_Shape(iPolygon);
 

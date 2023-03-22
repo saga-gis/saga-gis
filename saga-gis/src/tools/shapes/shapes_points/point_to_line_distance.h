@@ -79,7 +79,7 @@ protected:
 
 private:
 
-	int							Get_Distance			(const CSG_Shapes *pLines, const CSG_Point &Point, CSG_Point &PointOnLine);
+	sLong						Get_Distance			(const CSG_Shapes *pLines, const CSG_Point &Point, CSG_Point &PointOnLine);
 
 };
 

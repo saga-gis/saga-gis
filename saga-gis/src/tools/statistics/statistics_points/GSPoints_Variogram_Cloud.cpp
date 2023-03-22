@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: GSPoints_Variogram_Cloud.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "GSPoints_Variogram_Cloud.h"
 
 
@@ -70,7 +58,7 @@
 //---------------------------------------------------------
 enum
 {
-	DIF_FIELD_DISTANCE		= 0,
+	DIF_FIELD_DISTANCE = 0,
 	DIF_FIELD_DIRECTION,
 	DIF_FIELD_DIFFERENCE,
 	DIF_FIELD_VARIANCE,
@@ -81,88 +69,74 @@ enum
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CGSPoints_Variogram_Cloud::CGSPoints_Variogram_Cloud(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("Variogram Cloud"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2003"));
+	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description(
 		_TL("")
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "POINTS"		, _TL("Points"),
+	Parameters.Add_Shapes("",
+		"POINTS"	, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD"		, _TL("Attribute"),
+	Parameters.Add_Table_Field("POINTS",
+		"FIELD"		, _TL("Attribute"),
 		_TL("")
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Table(
-		NULL	, "RESULT"		, _TL("Variogram Cloud"),
+	Parameters.Add_Table("",
+		"RESULT"	, _TL("Variogram Cloud"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "DISTMAX"		, _TL("Maximum Distance"),
+	Parameters.Add_Double("",
+		"DISTMAX"	, _TL("Maximum Distance"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 0.0, 0.0, true
+		0., 0., true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NSKIP"		, _TL("Skip Number"),
+	Parameters.Add_Int("",
+		"NSKIP"		, _TL("Skip Number"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 1, 1, true
+		1, 1, true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGSPoints_Variogram_Cloud::On_Execute(void)
 {
-	int			nSkip, Attribute;
-	double		zi, zj, zMean, d, maxDistance;
-	TSG_Point	Pt_i, Pt_j;
-	CSG_Table	*pTable;
-	CSG_Shape	*pPoint;
-	CSG_Shapes	*pPoints;
+	CSG_Shapes *pPoints = Parameters("POINTS")->asShapes();
 
-	//-----------------------------------------------------
-	pPoints		= Parameters("POINTS")		->asShapes();
-	pTable		= Parameters("RESULT")		->asTable();
-	Attribute	= Parameters("FIELD")		->asInt();
-	nSkip		= Parameters("NSKIP")		->asInt();
-	maxDistance	= Parameters("DISTMAX")		->asDouble();
+	double maxDistance = Parameters("DISTMAX")->asDouble();
 
-	if( maxDistance <= 0.0 )
+	if( maxDistance <= 0. )
 	{
 		maxDistance	= SG_Get_Length(pPoints->Get_Extent().Get_XRange(), pPoints->Get_Extent().Get_YRange());
 	}
 
-	zMean		= pPoints->Get_Mean(Attribute);
+	int Attribute = Parameters("FIELD")->asInt();
+
+	double zMean = pPoints->Get_Mean(Attribute);
 
 	//-----------------------------------------------------
+	CSG_Table *pTable = Parameters("RESULT")->asTable();
 	pTable->Destroy();
 	pTable->Fmt_Name("%s [%s]", pPoints->Get_Name(), _TL("Variogram Cloud"));
 	pTable->Add_Field(_TL("Distance"    ), SG_DATATYPE_Double);	// DIF_FIELD_DISTANCE
@@ -173,35 +147,36 @@ bool CGSPoints_Variogram_Cloud::On_Execute(void)
 	pTable->Add_Field(_TL("Covariance"  ), SG_DATATYPE_Double);	// DIF_FIELD_COVARIANCE
 
 	//-----------------------------------------------------
-	for(int i=0; i<pPoints->Get_Count()-nSkip && Set_Progress(i, pPoints->Get_Count()-nSkip); i+=nSkip)
+	int nSkip = Parameters("NSKIP")->asInt();
+
+	for(sLong i=0; i<pPoints->Get_Count()-nSkip && Set_Progress(i, pPoints->Get_Count()-nSkip); i+=nSkip)
 	{
-		pPoint	= pPoints->Get_Shape(i);
+		CSG_Shape *pPoint = pPoints->Get_Shape(i);
 
 		if( !pPoint->is_NoData(Attribute) )
 		{
-			Pt_i	= pPoint->Get_Point(0);
-			zi		= pPoint->asDouble(Attribute);
+			TSG_Point Pt_i = pPoint->Get_Point(0); double zi = pPoint->asDouble(Attribute);
 
-			for(int j=i; j<pPoints->Get_Count() && Process_Get_Okay(); j+=nSkip)
+			for(sLong j=i; j<pPoints->Get_Count() && Process_Get_Okay(); j+=nSkip)
 			{
-				pPoint	= pPoints->Get_Shape(j);
+				pPoint = pPoints->Get_Shape(j);
 
 				if( !pPoint->is_NoData(Attribute) )
 				{
-					Pt_j	= pPoint->Get_Point(0);
+					TSG_Point Pt_j = pPoint->Get_Point(0); double d = SG_Get_Distance(Pt_i, Pt_j);
 
-					if( (d = SG_Get_Distance(Pt_i, Pt_j)) <= maxDistance )
+					if( d <= maxDistance )
 					{
-						CSG_Table_Record	*pRecord	= pTable->Add_Record();
+						CSG_Table_Record *pRecord = pTable->Add_Record();
 
-						zj	= pPoint->asDouble(Attribute);
+						double zj = pPoint->asDouble(Attribute);
 
-						pRecord->Set_Value(DIF_FIELD_DISTANCE		, d);
-						pRecord->Set_Value(DIF_FIELD_DIRECTION		, SG_Get_Angle_Of_Direction(Pt_i, Pt_j) * M_RAD_TO_DEG);
-						pRecord->Set_Value(DIF_FIELD_DIFFERENCE		, fabs(d = zi - zj));
-						pRecord->Set_Value(DIF_FIELD_VARIANCE		, d = d*d);
-						pRecord->Set_Value(DIF_FIELD_SEMIVARIANCE	, 0.5*d);
-						pRecord->Set_Value(DIF_FIELD_COVARIANCE		, (zi - zMean) * (zj - zMean));
+						pRecord->Set_Value(DIF_FIELD_DISTANCE    , d);
+						pRecord->Set_Value(DIF_FIELD_DIRECTION   , SG_Get_Angle_Of_Direction(Pt_i, Pt_j) * M_RAD_TO_DEG);
+						pRecord->Set_Value(DIF_FIELD_DIFFERENCE  , fabs(d = zi - zj));
+						pRecord->Set_Value(DIF_FIELD_VARIANCE    , d = d*d);
+						pRecord->Set_Value(DIF_FIELD_SEMIVARIANCE, 0.5*d);
+						pRecord->Set_Value(DIF_FIELD_COVARIANCE  , (zi - zMean) * (zj - zMean));
 					}
 				}
 			}

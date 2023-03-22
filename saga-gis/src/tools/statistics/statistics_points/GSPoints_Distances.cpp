@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: GSPoints_Distances.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "GSPoints_Distances.h"
 
 
@@ -70,82 +58,60 @@
 //---------------------------------------------------------
 CGSPoints_Distances::CGSPoints_Distances(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("Minimum Distance Analysis"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description(
 		_TL("")
 	);
 
-	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "POINTS"		, _TL("Points"),
-		_TL(""),
-		PARAMETER_INPUT, SHAPE_TYPE_Point
-	);
-
-	Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Minimum Distance Analysis"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
+	Parameters.Add_Shapes("", "POINTS", _TL("Points"                   ), _TL(""), PARAMETER_INPUT, SHAPE_TYPE_Point);
+	Parameters.Add_Table ("", "TABLE" , _TL("Minimum Distance Analysis"), _TL(""), PARAMETER_OUTPUT);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#define SET_VALUE(s, v)	{ pRecord = pTable->Add_Record(); pRecord->Set_Value(0, s); pRecord->Set_Value(1, v); }
 
 //---------------------------------------------------------
 bool CGSPoints_Distances::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Shapes	*pPoints	= Parameters("POINTS")	->asShapes();
-	CSG_Table	*pTable		= Parameters("TABLE")	->asTable();
+	CSG_Shapes *pPoints = Parameters("POINTS")->asShapes();
+	CSG_Table  *pTable  = Parameters("TABLE" )->asTable ();
 
 	//-----------------------------------------------------
-	CSG_PRQuadTree			QT(pPoints, 0);
-	CSG_Simple_Statistics	s;
+	CSG_KDTree_2D Search(pPoints, 0); CSG_Simple_Statistics s;
 
-	double	x, y, z;
-
-	for(int iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
+	for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 	{
-		TSG_Point	p	= pPoints->Get_Shape(iPoint)->Get_Point(0);
+		TSG_Point p = pPoints->Get_Shape(iPoint)->Get_Point(0); size_t Index[2]; double Distance[2];
 
-		if( QT.Select_Nearest_Points(p.x, p.y, 2) && QT.Get_Selected_Point(1, x, y, z) && (x != p.x || y != p.y) )
+		if( Search.Get_Nearest_Points(p.x, p.y, 2, Index, Distance) && Distance[1] > 0. )
 		{
-			s.Add_Value(SG_Get_Distance(x, y, p.x, p.y));
+			s += Distance[1];
 		}
 	}
 
 	//-----------------------------------------------------
 	if( s.Get_Count() > 0 )
 	{
-		CSG_Table_Record	*pRecord;
-
 		pTable->Destroy();
 		pTable->Fmt_Name("%s [%s]", _TL("Minimum Distance Analysis"), pPoints->Get_Name());
 
 		pTable->Add_Field("NAME" , SG_DATATYPE_String);
 		pTable->Add_Field("VALUE", SG_DATATYPE_Double);
 
-		SET_VALUE(_TL("Mean Average"      ), s.Get_Mean());
+		#define SET_VALUE(name, value)	{ CSG_Table_Record *pRecord = pTable->Add_Record(); pRecord->Set_Value(0, name); pRecord->Set_Value(1, value); }
+
+		SET_VALUE(_TL("Mean Average"      ), s.Get_Mean   ());
 		SET_VALUE(_TL("Minimum"           ), s.Get_Minimum());
 		SET_VALUE(_TL("Maximum"           ), s.Get_Maximum());
-		SET_VALUE(_TL("Standard Deviation"), s.Get_StdDev());
+		SET_VALUE(_TL("Standard Deviation"), s.Get_StdDev ());
 		SET_VALUE(_TL("Duplicates"        ), pPoints->Get_Count() - s.Get_Count());
 
-		DataObject_Update(pTable, SG_UI_DATAOBJECT_SHOW);
+		DataObject_Update(pTable, SG_UI_DATAOBJECT_SHOW_MAP);
 
 		return( true );
 	}

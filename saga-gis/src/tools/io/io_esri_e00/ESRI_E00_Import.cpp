@@ -686,7 +686,7 @@ CSG_Shapes * CESRI_E00_Import::getarcs(int prec, double scale, TSG_Shape_Type &s
 	//-----------------------------------------------------
 	do
 	{
-		Process_Set_Text("%s: %d", _TL("loaded arcs"), pShapes->Get_Count());
+		Process_Set_Text("%s: %lld", _TL("loaded arcs"), pShapes->Get_Count());
 
 		if( (line = E00_Read_Line()) == NULL )
 		{
@@ -775,7 +775,7 @@ CSG_Shapes * CESRI_E00_Import::Arcs2Polygons(CSG_Shapes *pArcs)
 	pPolygons->Add_Field("ID", SG_DATATYPE_Int);
 
 	//-----------------------------------------------------
-	for(int iArc=0; iArc<pArcs->Get_Count() && Set_Progress(iArc, pArcs->Get_Count()); iArc++)
+	for(sLong iArc=0; iArc<pArcs->Get_Count() && Set_Progress(iArc, pArcs->Get_Count()); iArc++)
 	{
 		Arcs2Polygon(pArcs, pPolygons, pArcs->Get_Shape(iArc)->asInt(ARC_LPOL));
 		Arcs2Polygon(pArcs, pPolygons, pArcs->Get_Shape(iArc)->asInt(ARC_RPOL));
@@ -805,7 +805,7 @@ void CESRI_E00_Import::Arcs2Polygon(CSG_Shapes *pArcs, CSG_Shapes *pPolygons, in
 	Segments.Add_Field("TNODE", SG_DATATYPE_Int);
 
 	//-----------------------------------------------------
-	for(int iArc=0; iArc<pArcs->Get_Count(); iArc++)
+	for(sLong iArc=0; iArc<pArcs->Get_Count(); iArc++)
 	{
 		CSG_Shape	*pArc	= pArcs->Get_Shape(iArc);
 
@@ -869,7 +869,7 @@ void CESRI_E00_Import::Arcs2Polygon(CSG_Shapes *pArcs, CSG_Shapes *pPolygons, in
 
 			if( fNode != tNode )
 			{
-				for(int iSegment=0; iSegment<Segments.Get_Count() && !pSegment; iSegment++)
+				for(sLong iSegment=0; iSegment<Segments.Get_Count() && !pSegment; iSegment++)
 				{
 					if( fNode == Segments.Get_Shape(iSegment)->asInt(1) )
 					{
@@ -1205,7 +1205,7 @@ int CESRI_E00_Import::info_Get_Tables(void)
 					pShapes->Add_Field("X" , SG_DATATYPE_Double);
 					pShapes->Add_Field("Y" , SG_DATATYPE_Double);
 
-					for(i=0; i<pTable->Get_Record_Count(); i++)
+					for(i=0; i<pTable->Get_Count(); i++)
 					{
 						CSG_Table_Record	*pRecord	= pTable->Get_Record(i);
 						CSG_Shape			*pShape		= pShapes->Add_Shape();
@@ -1414,7 +1414,7 @@ bool CESRI_E00_Import::Assign_Attributes(CSG_Shapes *pShapes)
 		pShapes->Add_Field(m_pPAT->Get_Field_Name(iField), m_pPAT->Get_Field_Type(iField));
 	}
 
-	for(int i=0; i<m_pPAT->Get_Count() && Set_Progress(i, m_pPAT->Get_Count()); i++)
+	for(sLong i=0; i<m_pPAT->Get_Count() && Set_Progress(i, m_pPAT->Get_Count()); i++)
 	{
 		CSG_Shape	*pShape	= pShapes->Get_Shape(i);
 
@@ -1449,7 +1449,7 @@ bool CESRI_E00_Import::Assign_Attributes(CSG_Shapes *pShapes)
 		CSG_Shape	*pShape	= pShapes->Get_Shape_byIndex(iShape);
 		int			id		= pShape->asInt(0);
 
-		for(int iRecord=off_Record; iRecord<m_pPAT->Get_Record_Count(); iRecord++)
+		for(int iRecord=off_Record; iRecord<m_pPAT->Get_Count(); iRecord++)
 		{
 			CSG_Table_Record	*pRecord	= m_pPAT->Get_Record_byIndex(iRecord);
 
@@ -1481,9 +1481,9 @@ bool CESRI_E00_Import::Assign_Attributes(CSG_Shapes *pShapes)
 //---------------------------------------------------------
 void CESRI_E00_Import::skip(char *end)
 {
-	const char	*line;
+	const char *line;
 
-	int		l	= strlen(end);
+	size_t l = strlen(end);
 
 	while( (line = E00_Read_Line()) != NULL && strncmp(line, end, l) );
 }

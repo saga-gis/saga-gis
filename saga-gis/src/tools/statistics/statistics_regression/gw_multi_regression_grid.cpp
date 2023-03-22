@@ -145,7 +145,7 @@ CGW_Multi_Regression_Grid::CGW_Multi_Regression_Grid(void)
 	m_Weighting.Create_Parameters(Parameters);
 
 	//-----------------------------------------------------
-	m_Search.Create(&Parameters, Parameters.Add_Node("", "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
+	m_Search.Create(&Parameters, "NODE_SEARCH", 16);
 
 	Parameters("SEARCH_RANGE"     )->Set_Value(1);
 	Parameters("SEARCH_POINTS_ALL")->Set_Value(1);
@@ -193,9 +193,6 @@ int CGW_Multi_Regression_Grid::On_Parameters_Enable(CSG_Parameters *pParameters,
 //---------------------------------------------------------
 bool CGW_Multi_Regression_Grid::On_Execute(void)
 {
-	int		i;
-
-	//-----------------------------------------------------
 	CSG_Parameter_Grid_List	*pPredictors	= Parameters("PREDICTORS")->asGridList();
 
 	if( !Initialize(Parameters("POINTS")->asShapes(), Parameters("DEPENDENT")->asInt(), pPredictors) )
@@ -206,58 +203,58 @@ bool CGW_Multi_Regression_Grid::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid	Quality;
+	CSG_Grid Quality;
 
-	m_dimModel	= Get_System();
+	m_dimModel = Get_System();
 
 	if( Parameters("RESOLUTION")->asInt() == 1 && Parameters("RESOLUTION_VAL")->asDouble() > Get_Cellsize() )
 	{
-		CSG_Rect	r(Get_System().Get_Extent()); r.Inflate(0.5 * Parameters("RESOLUTION_VAL")->asDouble(), false);
+		CSG_Rect r(Get_System().Get_Extent()); r.Inflate(0.5 * Parameters("RESOLUTION_VAL")->asDouble(), false);
 
 		m_dimModel.Assign(Parameters("RESOLUTION_VAL")->asDouble(), r);
 
 		Quality.Create(m_dimModel);
-		m_pQuality	= &Quality;
+		m_pQuality = &Quality;
 	}
 	else
 	{
-		m_pQuality	= Parameters("QUALITY")->asGrid();
+		m_pQuality = Parameters("QUALITY")->asGrid();
 	}
 
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("upsetting model domain"));
 
-	m_pPredictors	= (CSG_Grid **)SG_Calloc(m_nPredictors    , sizeof(CSG_Grid *));
-	m_pModel		= (CSG_Grid **)SG_Calloc(m_nPredictors + 1, sizeof(CSG_Grid *));
+	m_pPredictors = (CSG_Grid **)SG_Calloc(m_nPredictors    , sizeof(CSG_Grid *));
+	m_pModel      = (CSG_Grid **)SG_Calloc(m_nPredictors + 1, sizeof(CSG_Grid *));
 
-	for(i=0; i<m_nPredictors; i++)
+	for(int i=0; i<m_nPredictors; i++)
 	{
 		if( m_dimModel.Get_Cellsize() > Get_Cellsize() )	// scaling
 		{
-			m_pPredictors[i]	= SG_Create_Grid(m_dimModel);
-			m_pPredictors[i]	->Assign(pPredictors->Get_Grid(i), GRID_RESAMPLING_NearestNeighbour);	// GRID_RESAMPLING_Mean_Cells
+			m_pPredictors[i] = SG_Create_Grid(m_dimModel);
+			m_pPredictors[i] ->Assign(pPredictors->Get_Grid(i), GRID_RESAMPLING_NearestNeighbour);	// GRID_RESAMPLING_Mean_Cells
 		}
 		else
 		{
-			m_pPredictors[i]	= pPredictors->Get_Grid(i);
+			m_pPredictors[i] = pPredictors->Get_Grid(i);
 		}
 
-		m_pModel     [i]	= SG_Create_Grid(m_dimModel);
-		m_pModel     [i]	->Fmt_Name("%s [%s]", pPredictors->Get_Grid(i)->Get_Name(), _TL("Factor"));
+		m_pModel     [i] = SG_Create_Grid(m_dimModel);
+		m_pModel     [i] ->Fmt_Name("%s [%s]", pPredictors->Get_Grid(i)->Get_Name(), _TL("Factor"));
 	}
 
-	m_pModel[m_nPredictors]	= SG_Create_Grid(m_dimModel);
-	m_pModel[m_nPredictors]	->Set_Name(_TL("Intercept"));
+	m_pModel[m_nPredictors] = SG_Create_Grid(m_dimModel);
+	m_pModel[m_nPredictors] ->Set_Name(_TL("Intercept"));
 
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("model creation"));
 
-	bool	bResult	= Get_Model();
+	bool bResult = Get_Model();
 
 	//-----------------------------------------------------
 	if( m_dimModel.Get_Cellsize() > Get_Cellsize() )	// scaling
 	{
-		for(i=0; i<m_nPredictors; i++)
+		for(int i=0; i<m_nPredictors; i++)
 		{
 			delete(m_pPredictors[i]);
 
@@ -281,14 +278,14 @@ bool CGW_Multi_Regression_Grid::On_Execute(void)
 		pModel->Del_Items();
 		pModel->Add_Item(m_pModel[m_nPredictors]);
 
-		for(i=0; i<m_nPredictors; i++)
+		for(int i=0; i<m_nPredictors; i++)
 		{
 			pModel->Add_Item(m_pModel[i]);
 		}
 	}
 	else
 	{
-		for(i=0; i<=m_nPredictors; i++)
+		for(int i=0; i<=m_nPredictors; i++)
 		{
 			delete(m_pModel[i]);
 		}
@@ -310,7 +307,6 @@ bool CGW_Multi_Regression_Grid::On_Execute(void)
 //---------------------------------------------------------
 bool CGW_Multi_Regression_Grid::Initialize(CSG_Shapes *pPoints, int iDependent, CSG_Parameter_Grid_List *pPredictors)
 {
-	//-----------------------------------------------------
 	if( (m_nPredictors = pPredictors->Get_Grid_Count()) <= 0 )
 	{
 		return( false );
@@ -324,7 +320,7 @@ bool CGW_Multi_Regression_Grid::Initialize(CSG_Shapes *pPoints, int iDependent, 
 	//-----------------------------------------------------
 	int	iPredictor;
 	
-	TSG_Grid_Resampling	Resampling	= GRID_RESAMPLING_BSpline;
+	TSG_Grid_Resampling Resampling = GRID_RESAMPLING_BSpline;
 
 	m_Points.Create   (SHAPE_TYPE_Point);
 	m_Points.Set_Name (Parameters("DEPENDENT")->asString());
@@ -336,9 +332,9 @@ bool CGW_Multi_Regression_Grid::Initialize(CSG_Shapes *pPoints, int iDependent, 
 	}
 
 	//-----------------------------------------------------
-	for(int iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
+	for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 	{
-		CSG_Shape	*pPoint	= pPoints->Get_Shape(iPoint);
+		CSG_Shape *pPoint = pPoints->Get_Shape(iPoint);
 
 		if( !pPoint->is_NoData(iDependent) )
 		{
@@ -387,7 +383,7 @@ void CGW_Multi_Regression_Grid::Finalize(void)
 //---------------------------------------------------------
 bool CGW_Multi_Regression_Grid::Get_Model(void)
 {
-	bool	bLogistic	= Parameters("LOGISTIC")->asBool();
+	bool bLogistic = Parameters("LOGISTIC")->asBool();
 
 	//-----------------------------------------------------
 	for(int y=0; y<m_dimModel.Get_NY() && Set_Progress(y, m_dimModel.Get_NY()); y++)
@@ -427,32 +423,45 @@ bool CGW_Multi_Regression_Grid::Get_Model(void)
 //---------------------------------------------------------
 bool CGW_Multi_Regression_Grid::Get_Model(int x, int y, CSG_Regression_Weighted &Model, bool bLogistic)
 {
-	TSG_Point	Point	= m_dimModel.Get_Grid_to_World(x, y);
-	int			nPoints = m_Search.Set_Location(Point);
-
-	CSG_Vector	Predictors(m_nPredictors);
-
-	Model.Destroy();
+	Model.Destroy(); TSG_Point Point = m_dimModel.Get_Grid_to_World(x, y); CSG_Vector Predictors(m_nPredictors);
 
 	//-----------------------------------------------------
-	for(int iPoint=0; iPoint<nPoints; iPoint++)
+	if( m_Search.Do_Use_All() )
 	{
-		double	ix, iy, iz;
-
-		CSG_Shape	*pPoint = m_Search.Do_Use_All() && m_Search.Get_Point(iPoint, ix, iy, iz)
-			? m_Points.Get_Shape((int)iz)
-			: m_Points.Get_Shape(iPoint);
-
-		for(int iPredictor=0; iPredictor<m_nPredictors; iPredictor++)
+		for(sLong iPoint=0; iPoint<m_Points.Get_Count(); iPoint++)
 		{
-			Predictors[iPredictor]	= pPoint->asDouble(1 + iPredictor);
+			CSG_Shape *pPoint = m_Points.Get_Shape(iPoint); double Value;
+
+			for(int iPredictor=0; iPredictor<m_nPredictors; iPredictor++)
+			{
+				Predictors[iPredictor] = pPoint->asDouble(1 + iPredictor);
+			}
+
+			Model.Add_Sample(m_Weighting.Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point(0))), pPoint->asDouble(0), Predictors);
+		}
+	}
+
+	//-----------------------------------------------------
+	else
+	{
+		CSG_Array_Int Index; CSG_Vector Distance;
+
+		if( !m_Search.Get_Points(Point, Index, Distance) )
+		{
+			return( false );
 		}
 
-		Model.Add_Sample(
-			m_Weighting.Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point(0))),
-			pPoint->asDouble(0),
-			Predictors
-		);
+		for(sLong iPoint=0; iPoint<Index.Get_Size(); iPoint++)
+		{
+			CSG_Shape *pPoint = m_Points.Get_Shape(Index[iPoint]);
+
+			for(int iPredictor=0; iPredictor<m_nPredictors; iPredictor++)
+			{
+				Predictors[iPredictor] = pPoint->asDouble(1 + iPredictor);
+			}
+
+			Model.Add_Sample(m_Weighting.Get_Weight(Distance[iPoint]), pPoint->asDouble(0), Predictors);
+		}
 	}
 
 	//-----------------------------------------------------
@@ -481,7 +490,7 @@ bool CGW_Multi_Regression_Grid::Set_Model(void)
 	}
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		double	p_y	= Get_YMin() + y * Get_Cellsize();
 
@@ -555,7 +564,7 @@ bool CGW_Multi_Regression_Grid::Set_Residuals(void)
 	pResiduals->Add_Field("RESIDUAL", SG_DATATYPE_Double);
 
 	//-------------------------------------------------
-	for(int iShape=0; iShape<m_Points.Get_Count() && Set_Progress(iShape, m_Points.Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<m_Points.Get_Count() && Set_Progress(iShape, m_Points.Get_Count()); iShape++)
 	{
 		CSG_Shape	*pShape	= m_Points.Get_Shape(iShape);
 		double		 zShape	= pShape->asDouble(0);

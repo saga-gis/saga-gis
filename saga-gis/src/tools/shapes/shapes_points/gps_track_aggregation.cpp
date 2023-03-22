@@ -221,7 +221,7 @@ int CGPS_Track_Aggregation::On_Parameters_Enable(CSG_Parameters *pParameters, CS
 bool CGPS_Track_Aggregation::On_Execute(void)
 {
 	bool					bVerbose, bPolar;
-	int						Time_Span, fRefID, fX, fY, fTrack, fDate, fTime, fParameter, Observation, iDropped, nDropped;
+	int						Time_Span, fRefID, fX, fY, fTrack, fDate, fTime, fParameter;
 	double					eps_Space, eps_Time, off_Time, iTime;
 	TSG_Point				Position;
 	CSG_String				iTrack, iDate;
@@ -277,7 +277,7 @@ bool CGPS_Track_Aggregation::On_Execute(void)
 		fTrack			= pObservations->Get_Field_Count();
 		pObservations	= &Observations;
 
-		for(Observation=0; Observation<pObservations->Get_Count() && Set_Progress(Observation, pObservations->Get_Count()); Observation++)
+		for(sLong Observation=0; Observation<pObservations->Get_Count() && Set_Progress(Observation, pObservations->Get_Count()); Observation++)
 		{
 			pObservation	= pObservations->Get_Record(Observation);
 			pNearest		= Search.Get_Nearest_Shape(pObservation->asDouble(fX), pObservation->asDouble(fY));
@@ -318,12 +318,12 @@ bool CGPS_Track_Aggregation::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	pAggregate	= NULL;
-	nDropped	= 0;
-	iDropped	= 0;
+	pAggregate     = NULL;
+	sLong nDropped = 0;
+	sLong iDropped = 0;
 
 	//-----------------------------------------------------
-	for(Observation=0; Observation<pObservations->Get_Count() && Set_Progress(Observation, pObservations->Get_Count()); Observation++)
+	for(sLong Observation=0; Observation<pObservations->Get_Count() && Set_Progress(Observation, pObservations->Get_Count()); Observation++)
 	{
 		pObservation	= pObservations->Get_Record_byIndex(Observation);
 
@@ -389,7 +389,7 @@ bool CGPS_Track_Aggregation::On_Execute(void)
 	//-----------------------------------------------------
 	if( nDropped > 0 )
 	{
-		Message_Fmt("\n%s: %d", _TL("number of dropped observations"), nDropped);
+		Message_Fmt("\n%s: %lld", _TL("number of dropped observations"), nDropped);
 	}
 
 	//-----------------------------------------------------

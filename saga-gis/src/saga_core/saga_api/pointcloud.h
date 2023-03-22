@@ -87,7 +87,7 @@
 //---------------------------------------------------------
 typedef enum ESG_PointCloud_FileType
 {
-	POINTCLOUD_FILE_FORMAT_Undefined	= 0,
+	POINTCLOUD_FILE_FORMAT_Undefined = 0,
 	POINTCLOUD_FILE_FORMAT_Normal,
 	POINTCLOUD_FILE_FORMAT_Compressed
 }
@@ -118,8 +118,8 @@ public:
 									CSG_PointCloud		(const wchar_t    *File);
 	bool							Create				(const wchar_t    *File);
 
-									CSG_PointCloud		(CSG_PointCloud *pStructure);
-	bool							Create				(CSG_PointCloud *pStructure);
+									CSG_PointCloud		(CSG_PointCloud *pTemplate);
+	bool							Create				(CSG_PointCloud *pTemplate);
 
 	virtual ~CSG_PointCloud(void);
 
@@ -142,59 +142,57 @@ public:
 	bool							is_Compatible		(CSG_PointCloud *pPointCloud)	const;
 
 	//-----------------------------------------------------
-	virtual bool					Add_Field			(const CSG_String &Name, TSG_Data_Type Type, int iField = -1);
-	virtual bool					Del_Field			(int iField);
-	virtual bool					Mov_Field			(int iField, int Position);
+	virtual bool					Add_Field			(const CSG_String &Name, TSG_Data_Type Type, int Field = -1);
+	virtual bool					Del_Field			(int Field);
+	virtual bool					Mov_Field			(int Field, int Position);
 
-	virtual bool					Set_Field_Type		(int iField, TSG_Data_Type Type);
+	virtual bool					Set_Field_Type		(int Field, TSG_Data_Type Type);
 
 	//-----------------------------------------------------
 	int								Get_Attribute_Count	(void)			const	{	return( m_nFields - 3 );	}
-	const SG_Char *					Get_Attribute_Name	(int iField)	const	{	iField += 3; return( iField >= 3 && iField < m_nFields ? m_Field_Name[iField]->c_str() : NULL );			}
-	TSG_Data_Type					Get_Attribute_Type	(int iField)	const	{	iField += 3; return( iField >= 3 && iField < m_nFields ? m_Field_Type[iField] : SG_DATATYPE_Undefined );	}
+	const SG_Char *					Get_Attribute_Name	(int Field)		const	{	Field += 3; return( Field >= 3 && Field < m_nFields ? m_Field_Name[Field]->c_str() : NULL );			}
+	TSG_Data_Type					Get_Attribute_Type	(int Field)		const	{	Field += 3; return( Field >= 3 && Field < m_nFields ? m_Field_Type[Field] : SG_DATATYPE_Undefined );	}
 
 	//-----------------------------------------------------
 	bool							Add_Point			(double x, double y, double z);
-	bool							Del_Point			(int iPoint);
+	bool							Del_Point			(sLong Index);
 	bool							Del_Points			(void);
 
-	int								Get_Point_Count		(void)			const	{	return( m_nRecords );	}
-
 	//-----------------------------------------------------
-	bool							Set_Cursor			(int iPoint)							{	return( (m_Cursor = iPoint >= 0 && iPoint < m_nRecords ? m_Points[iPoint] : NULL) != NULL );	}
-	virtual bool					Set_Value			(            int iField, double Value)	{	return( _Set_Field_Value(m_Cursor, iField, Value) );	}
-	virtual double					Get_Value			(            int iField)	const		{	return( _Get_Field_Value(m_Cursor, iField) );			}
+	bool							Set_Cursor			(sLong Index)							{	return( (m_Cursor = Index >= 0 && Index < m_nRecords ? m_Points[Index] : NULL) != NULL );	}
+	virtual bool					Set_Value			(             int Field, double Value)	{	return( _Set_Field_Value(m_Cursor, Field, Value) );	}
+	virtual double					Get_Value			(             int Field)	const		{	return( _Get_Field_Value(m_Cursor, Field) );			}
 	double							Get_X				(void)						const		{	return( _Get_Field_Value(m_Cursor, 0) );				}
 	double							Get_Y				(void)						const		{	return( _Get_Field_Value(m_Cursor, 1) );				}
 	double							Get_Z				(void)						const		{	return( _Get_Field_Value(m_Cursor, 2) );				}
-	bool							Set_Attribute		(            int iField, double Value)	{	return( Set_Value(iField + 3, Value) );					}
-	double							Get_Attribute		(            int iField)	const		{	return( Get_Value(iField + 3) );						}
-	bool							Set_NoData			(            int iField)				{	return( Set_Value(iField, Get_NoData_Value()) );	}
-	bool							is_NoData			(            int iField)	const		{	return( is_NoData_Value(Get_Value(iField)) );		}
+	bool							Set_Attribute		(             int Field, double Value)	{	return( Set_Value(Field + 3, Value) );					}
+	double							Get_Attribute		(             int Field)	const		{	return( Get_Value(Field + 3) );						}
+	bool							Set_NoData			(             int Field)				{	return( Set_Value(Field, Get_NoData_Value()) );	}
+	bool							is_NoData			(             int Field)	const		{	return( is_NoData_Value(Get_Value(Field)) );		}
 
-	virtual bool					Set_Value			(int iPoint, int iField, double Value)	{	return( _Set_Field_Value(iPoint >= 0 && iPoint < m_nRecords ? m_Points[iPoint] : NULL, iField, Value) );	}
-	virtual double					Get_Value			(int iPoint, int iField)	const		{	return( _Get_Field_Value(iPoint >= 0 && iPoint < m_nRecords ? m_Points[iPoint] : NULL, iField) );		}
-	double							Get_X				(int iPoint)				const		{	return( _Get_Field_Value(iPoint >= 0 && iPoint < m_nRecords ? m_Points[iPoint] : NULL, 0) );				}
-	double							Get_Y				(int iPoint)				const		{	return( _Get_Field_Value(iPoint >= 0 && iPoint < m_nRecords ? m_Points[iPoint] : NULL, 1) );				}
-	double							Get_Z				(int iPoint)				const		{	return( _Get_Field_Value(iPoint >= 0 && iPoint < m_nRecords ? m_Points[iPoint] : NULL, 2) );				}
-	bool							Set_Attribute		(int iPoint, int iField, double Value)	{	return( Set_Value(iPoint, iField + 3, Value) );				}
-	double							Get_Attribute		(int iPoint, int iField)	const		{	return( Get_Value(iPoint, iField + 3) );					}
-	bool							Set_NoData			(int iPoint, int iField)				{	return( Set_Value(iPoint, iField, Get_NoData_Value()) );}
-	bool							is_NoData			(int iPoint, int iField)	const		{	return( is_NoData_Value(Get_Value(iPoint, iField)) );	}
+	virtual bool					Set_Value			(sLong Index, int Field, double Value)	{	return( _Set_Field_Value(Index >= 0 && Index < m_nRecords ? m_Points[Index] : NULL, Field, Value) );	}
+	virtual double					Get_Value			(sLong Index, int Field)	const		{	return( _Get_Field_Value(Index >= 0 && Index < m_nRecords ? m_Points[Index] : NULL, Field) );		}
+	double							Get_X				(sLong Index)				const		{	return( _Get_Field_Value(Index >= 0 && Index < m_nRecords ? m_Points[Index] : NULL, 0) );				}
+	double							Get_Y				(sLong Index)				const		{	return( _Get_Field_Value(Index >= 0 && Index < m_nRecords ? m_Points[Index] : NULL, 1) );				}
+	double							Get_Z				(sLong Index)				const		{	return( _Get_Field_Value(Index >= 0 && Index < m_nRecords ? m_Points[Index] : NULL, 2) );				}
+	bool							Set_Attribute		(sLong Index, int Field, double Value)	{	return( Set_Value(Index, Field + 3, Value) );				}
+	double							Get_Attribute		(sLong Index, int Field)	const		{	return( Get_Value(Index, Field + 3) );					}
+	bool							Set_NoData			(sLong Index, int Field)				{	return( Set_Value(Index, Field, Get_NoData_Value()) );}
+	bool							is_NoData			(sLong Index, int Field)	const		{	return( is_NoData_Value(Get_Value(Index, Field)) );	}
 
-	virtual bool					Set_Value			(            int iField, const SG_Char *Value)			{	return( _Set_Field_Value(m_Cursor, iField, Value) );	}
-	virtual bool					Get_Value			(            int iField, CSG_String    &Value)	const	{	return( _Get_Field_Value(m_Cursor, iField, Value) );	}
-	virtual bool					Set_Value			(int iPoint, int iField, const SG_Char *Value)			{	return( _Set_Field_Value(iPoint >= 0 && iPoint < m_nRecords ? m_Points[iPoint] : NULL, iField, Value) );	}
-	virtual bool					Get_Value			(int iPoint, int iField, CSG_String    &Value)	const	{	return( _Get_Field_Value(iPoint >= 0 && iPoint < m_nRecords ? m_Points[iPoint] : NULL, iField, Value) );	}
-	virtual bool					Set_Attribute		(            int iField, const SG_Char *Value)			{	return( Set_Value(iField + 3, Value) );			}
-	virtual bool					Get_Attribute		(            int iField, CSG_String    &Value)	const	{	return( Get_Value(iField + 3, Value) );			}
-	virtual bool					Set_Attribute		(int iPoint, int iField, const SG_Char *Value)			{	return( Set_Value(iPoint, iField + 3, Value) );	}
-	virtual bool					Get_Attribute		(int iPoint, int iField, CSG_String    &Value)	const	{	return( Get_Value(iPoint, iField + 3, Value) );	}
+	virtual bool					Set_Value			(             int Field, const SG_Char *Value)			{	return( _Set_Field_Value(m_Cursor, Field, Value) );	}
+	virtual bool					Get_Value			(             int Field, CSG_String    &Value)	const	{	return( _Get_Field_Value(m_Cursor, Field, Value) );	}
+	virtual bool					Set_Value			(sLong Index, int Field, const SG_Char *Value)			{	return( _Set_Field_Value(Index >= 0 && Index < m_nRecords ? m_Points[Index] : NULL, Field, Value) );	}
+	virtual bool					Get_Value			(sLong Index, int Field, CSG_String    &Value)	const	{	return( _Get_Field_Value(Index >= 0 && Index < m_nRecords ? m_Points[Index] : NULL, Field, Value) );	}
+	virtual bool					Set_Attribute		(             int Field, const SG_Char *Value)			{	return( Set_Value(Field + 3, Value) );			}
+	virtual bool					Get_Attribute		(             int Field, CSG_String    &Value)	const	{	return( Get_Value(Field + 3, Value) );			}
+	virtual bool					Set_Attribute		(sLong Index, int Field, const SG_Char *Value)			{	return( Set_Value(Index, Field + 3, Value) );	}
+	virtual bool					Get_Attribute		(sLong Index, int Field, CSG_String    &Value)	const	{	return( Get_Value(Index, Field + 3, Value) );	}
 
 	TSG_Point_Z						Get_Point			(void)			const;
-	TSG_Point_Z						Get_Point			(int iPoint)	const;
-	virtual bool					Set_Point			(            const TSG_Point_Z &Point);
-	virtual bool					Set_Point			(int iPoint, const TSG_Point_Z &Point);
+	TSG_Point_Z						Get_Point			(sLong Index)	const;
+	virtual bool					Set_Point			(             const TSG_Point_Z &Point);
+	virtual bool					Set_Point			(sLong Index, const TSG_Point_Z &Point);
 
 	virtual void					Set_Modified		(bool bModified = true)		{	CSG_Data_Object::Set_Modified(bModified);	}
 
@@ -202,30 +200,30 @@ public:
 	//-----------------------------------------------------
 	// Overrides: CSG_Table, CSG_Shapes
 
-	virtual CSG_Table_Record *		Get_Record			(int iRecord)	const;
+	virtual CSG_Table_Record *		Get_Record			(sLong Index)	const;
 
-	virtual CSG_Shape *				Get_Shape			(TSG_Point Point, double Epsilon = 0.0);
+	virtual CSG_Shape *				Get_Shape			(TSG_Point Point, double Epsilon = 0.);
 
-	virtual bool					Del_Record			(int iRecord)	{	return( Del_Point(iRecord) );	}
-	virtual bool					Del_Shape			(int iShape)	{	return( Del_Point(iShape) );	}
-	virtual bool					Del_Records			(void)			{	return( Del_Points() );			}
-	virtual bool					Del_Shapes			(void)			{	return( Del_Points() );			}
+	virtual bool					Del_Record			(sLong Index)	{	return( Del_Point(Index) );	}
+	virtual bool					Del_Shape			(sLong Index)	{	return( Del_Point(Index) );	}
+	virtual bool					Del_Records			(void)			{	return( Del_Points()     );	}
+	virtual bool					Del_Shapes			(void)			{	return( Del_Points()     );	}
 
-	virtual CSG_Table_Record *		Ins_Record			(int iRecord, CSG_Table_Record *pCopy = NULL);
+	virtual CSG_Table_Record *		Ins_Record			(sLong Index, CSG_Table_Record *pCopy = NULL);
 	virtual CSG_Table_Record *		Add_Record			(             CSG_Table_Record *pCopy = NULL);
 	virtual CSG_Shape *				Add_Shape			(             CSG_Table_Record *pCopy = NULL, TSG_ADD_Shape_Copy_Mode mCopy = SHAPE_COPY);
 	virtual bool					Del_Shape			(CSG_Shape *pShape)	{	return( false );	}
 
-	virtual bool					Select				(int iRecord             , bool bInvert = false);
+	virtual bool					Select				(sLong Index             , bool bInvert = false);
 	virtual bool					Select				(CSG_Shape *pShape = NULL, bool bInvert = false);
 	virtual bool					Select				(TSG_Rect Extent         , bool bInvert = false);
 	virtual bool					Select				(TSG_Point Point         , bool bInvert = false);
 
-	virtual bool					is_Selected			(int iRecord)	const;
+	virtual bool					is_Selected			(sLong Index)	const;
 
-	virtual int						Del_Selection		(void);
-	virtual int						Inv_Selection		(void);
-	virtual CSG_Shape *				Get_Selection		(size_t Index = 0);
+	virtual sLong					Del_Selection		(void);
+	virtual sLong					Inv_Selection		(void);
+	virtual CSG_Shape *				Get_Selection		(sLong Index = 0);
 	virtual const CSG_Rect &		Get_Selection_Extent(void);
 
 
@@ -237,7 +235,7 @@ protected:
 
 	virtual void					_On_Construction	(void);
 
-	virtual bool					_Stats_Update		(int iField)	const;
+	virtual bool					_Stats_Update		(int Field)	const;
 
 
 private:
@@ -246,7 +244,9 @@ private:
 
 	char							**m_Points, *m_Cursor;
 
-	int								m_nPointBytes, *m_Field_Offset, m_Shapes_Index;
+	int								m_nPointBytes, *m_Field_Offset;
+	
+	sLong							m_Shapes_Index;
 
 	CSG_Array						m_Array_Points;
 
@@ -258,16 +258,16 @@ private:
 	bool							_Save				(CSG_File &Stream);
 	CSG_MetaData					_Create_Header		(void)	const;
 
-	bool							_Add_Field			(const SG_Char *Name, TSG_Data_Type Type, int iField = -1);
-	bool							_Set_Field_Value	(char *pPoint, int iField, double         Value);
-	double							_Get_Field_Value	(char *pPoint, int iField                      )	const;
-	bool							_Set_Field_Value	(char *pPoint, int iField, const SG_Char *Value);
-	bool							_Get_Field_Value	(char *pPoint, int iField, CSG_String    &Value)	const;
+	bool							_Add_Field			(const SG_Char *Name, TSG_Data_Type Type, int Field = -1);
+	bool							_Set_Field_Value	(char *pPoint, int Field, double         Value);
+	double							_Get_Field_Value	(char *pPoint, int Field                      )	const;
+	bool							_Set_Field_Value	(char *pPoint, int Field, const SG_Char *Value);
+	bool							_Get_Field_Value	(char *pPoint, int Field, CSG_String    &Value)	const;
 
 	bool							_Inc_Array			(void);
 	bool							_Dec_Array			(void);
 
-	CSG_Shape *						_Set_Shape			(int iPoint);
+	CSG_Shape *						_Set_Shape			(sLong Index);
 
 };
 

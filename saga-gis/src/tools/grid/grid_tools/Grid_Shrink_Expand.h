@@ -82,20 +82,41 @@ protected:
 
 	virtual bool			On_Execute				(void);
 
+	bool					Set_Kernel				(bool bInitialize = true);
+
+	bool					Do_Operation			(CSG_Grid *pInput, CSG_Grid *pResult);
+
 
 private:
 
-	int						m_Threshold;
-
 	CSG_Grid_Cell_Addressor	m_Kernel;
-
-	CSG_Grid				*m_pInput;
 
 
 	bool					Do_Shrink				(CSG_Grid *pInput, CSG_Grid *pResult);
 	bool					Do_Expand				(CSG_Grid *pInput, CSG_Grid *pResult);
+	bool					Do_Expand				(CSG_Grid *pInput, CSG_Grid *pResult, const CSG_Grid_Cell_Addressor &Kernel);
 
-	bool					Get_Expand_Value		(int x, int y, int Method, double &Value);
+	bool					Get_Expand_Value		(CSG_Grid *pInput, int x, int y, int Method, double &Value, const CSG_Grid_Cell_Addressor &Kernel);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGrids_Shrink_Expand : public CGrid_Shrink_Expand
+{
+public:
+	CGrids_Shrink_Expand(void);
+
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:Grid Collection|Gaps") );	}
+
+
+protected:
+
+	virtual bool			On_Execute				(void);
 
 };
 

@@ -1,3 +1,4 @@
+
 ///////////////////////////////////////////////////////////
 //                                                       //
 //                         SAGA                          //
@@ -46,15 +47,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "line_parts_to_separate_lines.h"
 
 
@@ -67,10 +59,9 @@
 //---------------------------------------------------------
 CLine_Parts_to_Separate_Lines::CLine_Parts_to_Separate_Lines(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Line Parts to Separate Lines"));
 
-	Set_Author		(SG_T("V. Wichmann (c) 2023"));
+	Set_Author		("V. Wichmann (c) 2023");
 
 	Set_Description	(_TW(
 		"The tool allows one to split multi-part lines into separate lines. "
@@ -79,7 +70,7 @@ CLine_Parts_to_Separate_Lines::CLine_Parts_to_Separate_Lines(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes("",
-		"LINES"		, _TL("Lines"),
+		"LINES"	, _TL("Lines"),
 		_TL("The multi-part lines."),
 		PARAMETER_INPUT, SHAPE_TYPE_Line
 	);
@@ -94,22 +85,18 @@ CLine_Parts_to_Separate_Lines::CLine_Parts_to_Separate_Lines(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CLine_Parts_to_Separate_Lines::On_Execute(void)
 {
-
 	CSG_Shapes  *pLines	= Parameters("LINES")->asShapes();
 	CSG_Shapes  *pParts	= Parameters("PARTS")->asShapes();
 
 	pParts->Create(SHAPE_TYPE_Line, CSG_String::Format("%s [%s]", pLines->Get_Name(), _TL("Parts")), pLines, pLines->Get_Vertex_Type());
 
-
     //--------------------------------------------------------
-    for(int iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
+    for(sLong iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
     {
         CSG_Shape *pLine = pLines->Get_Shape(iLine);
 
@@ -127,9 +114,9 @@ bool CLine_Parts_to_Separate_Lines::On_Execute(void)
 				switch (pLines->Get_Vertex_Type())
 				{
 				default:
-				case SG_VERTEX_TYPE_XY:		pShape->Add_Point(pLine->Get_Point   (iPoint, iPart));		break;
-				case SG_VERTEX_TYPE_XYZ:	pShape->Add_Point(pLine->Get_Point_Z (iPoint, iPart));		break;
-				case SG_VERTEX_TYPE_XYZM:	pShape->Add_Point(pLine->Get_Point_ZM(iPoint, iPart));		break;
+				case SG_VERTEX_TYPE_XY  : pShape->Add_Point(pLine->Get_Point   (iPoint, iPart)); break;
+				case SG_VERTEX_TYPE_XYZ : pShape->Add_Point(pLine->Get_Point_Z (iPoint, iPart)); break;
+				case SG_VERTEX_TYPE_XYZM: pShape->Add_Point(pLine->Get_Point_ZM(iPoint, iPart)); break;
 				}
 			}
 		}

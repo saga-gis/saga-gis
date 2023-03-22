@@ -88,6 +88,8 @@ public:
 	CVIEW_Base(class CWKSP_Base_Item *pOwner, int View_ID, wxString Caption, int Icon_ID, bool bShow = true);
 	virtual ~CVIEW_Base(void);
 
+	int							Get_ID				(void)	const	{ return( m_View_ID ); }
+
 	virtual void				Do_Destroy			(void);
 	virtual void				Do_Update			(void);
 

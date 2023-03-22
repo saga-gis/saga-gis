@@ -107,6 +107,8 @@ void				MDI_Top_Window_Push				(wxWindow *pWindow);
 void				MDI_Top_Window_Pop				(wxWindow *pWindow);
 wxWindow *			MDI_Get_Top_Window				(void);
 
+bool				MDI_Window_Arrange				(int Arrange);
+
 //---------------------------------------------------------
 void				Set_Buisy_Cursor				(bool bOn);
 

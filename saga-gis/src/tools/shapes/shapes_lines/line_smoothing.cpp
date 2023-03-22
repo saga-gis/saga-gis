@@ -238,7 +238,7 @@ bool CLine_Smoothing::Calc_SIA(CSG_Shapes *pLines, CSG_Shapes *pSmooth, int iMet
 
 
 	//--------------------------------------------------------
-	for(int iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
+	for(sLong iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
 	{
 		CSG_Shape *pLine = pLines->Get_Shape(iLine);
 		
@@ -406,7 +406,7 @@ bool CLine_Smoothing::Calc_Gaussian(CSG_Shapes *pLines, CSG_Shapes *pSmooth, dou
 
 
 	//--------------------------------------------------------
-	for(int iLine=0; iLine<pLines->Get_Count() && Set_Progress (iLine, pLines->Get_Count ()); iLine++)
+	for(sLong iLine=0; iLine<pLines->Get_Count() && Set_Progress (iLine, pLines->Get_Count ()); iLine++)
 	{
 		CSG_Shape *pLine = pLines->Get_Shape(iLine);
 		

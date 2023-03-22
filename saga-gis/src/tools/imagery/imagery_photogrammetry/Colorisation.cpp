@@ -163,7 +163,7 @@ bool CColorisation::On_Execute(void)
 	angles[1]				= Parameters("kappa")		->asDouble();
 	angles[2]				= Parameters("alpha")		->asDouble();
 
-	int pointCount = pPoints->Get_Point_Count();
+	sLong pointCount = pPoints->Get_Count();
 	int attrCount = pPoints->Get_Attribute_Count();
 	
 	bool applyDistortions = false;
@@ -203,7 +203,7 @@ bool CColorisation::On_Execute(void)
 	
 	int iAccept = 0;
 	
-	for (int i = 0; i < pointCount && Set_Progress(i, pointCount); i++) {
+	for (sLong i=0; i<pointCount && Set_Progress(i, pointCount); i++) {
 		
 		if ( applyTimeStamp && fabs( imgTimeStamp - pPoints->Get_Attribute(i,0) ) >= timeThresh ) {
 			

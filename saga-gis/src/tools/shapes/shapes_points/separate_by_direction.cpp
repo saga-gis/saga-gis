@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "separate_by_direction.h"
 
 
@@ -74,7 +62,7 @@ CSeparate_by_Direction::CSeparate_by_Direction(void)
 {
 	Set_Name		(_TL("Separate points by direction"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2008"));
+	Set_Author		("O. Conrad (c) 2008");
 
 	Set_Description	(_TW(
 		"Separates points by direction. Direction is determined as average direction of three consecutive points A, B, C. "
@@ -83,51 +71,40 @@ CSeparate_by_Direction::CSeparate_by_Direction(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes_List(
-		NULL	, "OUTPUT"		, _TL("Ouput"),
+	Parameters.Add_Shapes_List("",
+		"OUTPUT"	, _TL("Ouput"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "POINTS"		, _TL("Points"),
+	Parameters.Add_Shapes("",
+		"POINTS"	, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Value(
-		NULL	, "DIRECTIONS"	, _TL("Number of Directions"),
+	Parameters.Add_Int("",
+		"DIRECTIONS", _TL("Number of Directions"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 4.0, 2.0, true
+		4, 2, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "TOLERANCE"	, _TL("Tolerance (Degree)"),
+	Parameters.Add_Double("",
+		"TOLERANCE"	, _TL("Tolerance (Degree)"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 5.0, 0.0, true
+		5., 0., true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSeparate_by_Direction::On_Execute(void)
 {
-	int							iSector, dir_Field;
-	CSG_Shapes					*pPoints;
-	CSG_Parameter_Shapes_List	*pOutput;
-
-	//-----------------------------------------------------
-	pOutput		= Parameters("OUTPUT")		->asShapesList();
-	pPoints		= Parameters("POINTS")		->asShapes();
-	m_Tolerance	= Parameters("TOLERANCE")	->asDouble() * M_DEG_TO_RAD;
-	m_nSectors	= Parameters("DIRECTIONS")	->asInt();
-	m_dSector	= M_PI_360 / m_nSectors;
+	CSG_Shapes *pPoints = Parameters("POINTS")->asShapes();
 
 	if( !pPoints || !pPoints->is_Valid() || pPoints->Get_Count() < 3 )
 	{
@@ -135,35 +112,34 @@ bool CSeparate_by_Direction::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	pOutput->Del_Items();
+	m_Tolerance = Parameters("TOLERANCE")->asDouble() * M_DEG_TO_RAD;
+	m_nSectors  = Parameters("DIRECTIONS")->asInt();
+	m_dSector   = M_PI_360 / m_nSectors;
 
-	dir_Field	= pPoints->Get_Field_Count();
+	//-----------------------------------------------------
+	CSG_Parameter_Shapes_List *pOutput = Parameters("OUTPUT")->asShapesList(); pOutput->Del_Items();
 
-	for(iSector=0; iSector<m_nSectors; iSector++)
+	int dir_Field = pPoints->Get_Field_Count();
+
+	for(int iSector=0; iSector<m_nSectors; iSector++)
 	{
-		pOutput->Add_Item(SG_Create_Shapes(SHAPE_TYPE_Point, CSG_String::Format(SG_T("Direction %.2f"), iSector * m_dSector * M_RAD_TO_DEG), pPoints));
+		pOutput->Add_Item(SG_Create_Shapes(SHAPE_TYPE_Point, CSG_String::Format("Direction %.2f", iSector * m_dSector * M_RAD_TO_DEG), pPoints));
 		pOutput->Get_Shapes(iSector)->Add_Field(_TL("Direction"), SG_DATATYPE_Double);
 	}
 
 	//-----------------------------------------------------
-	int			iPoint;
-	double		dir_A, dir_B, dir, dif;
-	CSG_Shape	*pt_A, *pt_B;
+	CSG_Shape *pt_B = pPoints->Get_Shape(pPoints->Get_Count() - 2);
+	CSG_Shape *pt_A = pPoints->Get_Shape(pPoints->Get_Count() - 1);
 
-	pt_B	= pPoints->Get_Shape(pPoints->Get_Count() - 2);
-	pt_A	= pPoints->Get_Shape(pPoints->Get_Count() - 1);
+	double dir_A = SG_Get_Angle_Of_Direction(pt_B->Get_Point(0), pt_A->Get_Point(0));
 
-	dir_A	= SG_Get_Angle_Of_Direction(pt_B->Get_Point(0), pt_A->Get_Point(0));
-
-	for(iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
+	for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 	{
-		pt_B	= pt_A;
-		pt_A	= pPoints->Get_Shape(iPoint);
+		pt_B = pt_A;
+		pt_A = pPoints->Get_Shape(iPoint);
 
-		dir_B	= dir_A;
-		dir_A	= SG_Get_Angle_Of_Direction(pt_B->Get_Point(0), pt_A->Get_Point(0));
-
-		dif		= fmod(dir_A - dir_B, M_PI_360);
+		double dir_B = dir_A; dir_A = SG_Get_Angle_Of_Direction(pt_B->Get_Point(0), pt_A->Get_Point(0));
+		double dif = fmod(dir_A - dir_B, M_PI_360);
 
 		if( dif > M_PI_180 )
 		{
@@ -176,9 +152,9 @@ bool CSeparate_by_Direction::On_Execute(void)
 
 		if( fabs(dif) <= m_Tolerance )
 		{
-			dir		= dir_B + 0.5 * dif;
+			double dir = dir_B + 0.5 * dif;
 
-			iSector	= (int)(fmod(M_PI_360 + 0.5 * m_dSector + dir, M_PI_360) / m_dSector);
+			int iSector	= (int)(fmod(M_PI_360 + 0.5 * m_dSector + dir, M_PI_360) / m_dSector);
 
 			if( iSector >= 0 && iSector < m_nSectors )
 			{
@@ -188,7 +164,7 @@ bool CSeparate_by_Direction::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(iSector=pOutput->Get_Item_Count()-1; iSector>=0; iSector--)
+	for(int iSector=pOutput->Get_Item_Count()-1; iSector>=0; iSector--)
 	{
 		if( pOutput->Get_Shapes(iSector)->Get_Count() == 0 )
 		{

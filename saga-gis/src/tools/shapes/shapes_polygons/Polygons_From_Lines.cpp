@@ -148,7 +148,7 @@ bool CPolygons_From_Lines::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
+	for(sLong iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
 	{
 		pLine	= pLines->Get_Shape(iLine);
 

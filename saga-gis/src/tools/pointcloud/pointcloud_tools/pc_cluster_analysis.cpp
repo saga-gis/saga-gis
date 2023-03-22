@@ -141,7 +141,7 @@ CPC_Cluster_Analysis::CPC_Cluster_Analysis(void)
 bool CPC_Cluster_Analysis::On_Execute(void)
 {
 	int				nCluster;
-	long			nElements;
+	sLong			nElements;
 	double			SP;
 
 	//-----------------------------------------------------
@@ -181,7 +181,7 @@ bool CPC_Cluster_Analysis::On_Execute(void)
 	for( int i=0; i<m_nFeatures; i++ )
 		vValues.push_back( std::vector<double>() );
 
-	for( int i=0; i<pPC_in->Get_Record_Count() && SG_UI_Process_Set_Progress(i, pPC_in->Get_Record_Count()); i++ )
+	for(sLong i=0; i<pPC_in->Get_Count() && SG_UI_Process_Set_Progress(i, pPC_in->Get_Count()); i++ )
 	{
 		pPC_out->Add_Point(pPC_in->Get_X(i), pPC_in->Get_Y(i), pPC_in->Get_Z(i));
 
@@ -238,7 +238,7 @@ bool CPC_Cluster_Analysis::On_Execute(void)
 	}
 
 	//-------------------------------------------------
-	nElements	= pPC_in->Get_Point_Count();
+	nElements	= pPC_in->Get_Count();
 
 	switch( Parameters("METHOD")->asInt() )
 	{
@@ -253,7 +253,7 @@ bool CPC_Cluster_Analysis::On_Execute(void)
 	case 2:
 		SP	= MinimumDistance	(nElements, nCluster);
 
-		nElements	= pPC_in->Get_Point_Count();	// may have been diminished because of no data values...
+		nElements	= pPC_in->Get_Count();	// may have been diminished because of no data values...
 
 		SP	= HillClimbing		(nElements, nCluster);
 		break;
@@ -317,7 +317,7 @@ bool CPC_Cluster_Analysis::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CPC_Cluster_Analysis::Write_Result(CSG_Table *pTable, long nElements, int nCluster, double SP)
+void CPC_Cluster_Analysis::Write_Result(CSG_Table *pTable, sLong nElements, int nCluster, double SP)
 {
 	CSG_String			s;
 	CSG_Table_Record	*pRecord;
@@ -329,7 +329,7 @@ void CPC_Cluster_Analysis::Write_Result(CSG_Table *pTable, long nElements, int n
 	pTable->Add_Field(_TL("Elements" ), SG_DATATYPE_Int);
 	pTable->Add_Field(_TL("Variance" ), SG_DATATYPE_Double);
 
-	Message_Fmt("\n%s:\t%ld \n%s:\t%d \n%s:\t%d \n%s:\t%f",
+	Message_Fmt("\n%s:\t%lld \n%s:\t%d \n%s:\t%d \n%s:\t%f",
 		_TL("Number of Elements"      ), nElements,
 		_TL("Number of Variables"     ), m_nFeatures,
 		_TL("Number of Clusters"      ), nCluster,
@@ -376,20 +376,20 @@ void CPC_Cluster_Analysis::Write_Result(CSG_Table *pTable, long nElements, int n
 // (nElements)-Array -> Bei Eingabe Startgruppierung oder 0.
 // Bei Ausgabe Gruppierung: >Das ite Element ist im Cluster Cluster(i).
 
-double CPC_Cluster_Analysis::MinimumDistance(long &nElements, int nCluster)
+double CPC_Cluster_Analysis::MinimumDistance(sLong &nElements, int nCluster)
 {
 	//-----------------------------------------------------
 	// Variablen...
 
 	bool	bContinue;
-	int		iElement, iField, iCluster, nClusterElements, nShifts, minCluster, nPasses;
+	int		iField, iCluster, nClusterElements = 0, nShifts, minCluster, nPasses;
 	double	d, Variance, minVariance, SP, SP_Last	= -1;
 
 
 	//-----------------------------------------------------
 	// Anfangspartition (Standard falls nicht vorgegeben
 
-	for( iElement=0, nClusterElements=0; iElement<nElements; iElement++ )
+	for(sLong iElement=0; iElement<nElements; iElement++ )
 	{
 		if( pPC_out->Get_Value(iElement, clustField) < 0 || pPC_out->Get_Value(iElement, clustField) >= nCluster )
 		{
@@ -418,7 +418,7 @@ double CPC_Cluster_Analysis::MinimumDistance(long &nElements, int nCluster)
 		}
 
 		//-------------------------------------------------
-		for( iElement=0; iElement<nElements; iElement++ )
+		for(sLong iElement=0; iElement<nElements; iElement++ )
 		{
 			if( pPC_out->Get_Value(iElement, clustField) >= 0 )
 			{
@@ -450,7 +450,7 @@ double CPC_Cluster_Analysis::MinimumDistance(long &nElements, int nCluster)
 		SP		= 0;
 		nShifts	= 0;
 
-		for( iElement=0; iElement<nElements && bContinue; iElement++ )
+		for(sLong iElement=0; iElement<nElements && bContinue; iElement++ )
 		{
 			if( !(iElement % (nElements / 100)) && !Set_Progress(iElement, nElements) )
 			{
@@ -515,13 +515,13 @@ double CPC_Cluster_Analysis::MinimumDistance(long &nElements, int nCluster)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CPC_Cluster_Analysis::HillClimbing(long &nElements, int nCluster)
+double CPC_Cluster_Analysis::HillClimbing(sLong &nElements, int nCluster)
 {
 	//-----------------------------------------------------
 	// Variablen...
 
 	bool	bContinue;
-	int		iElement, iField, iCluster, jCluster, kCluster, nClusterElements, noShift, nPasses;
+	int		iField, iCluster, jCluster, kCluster, nClusterElements = 0, noShift, nPasses;
 	double	d, e, n_iK, n_jK, V, VMin, V1, V2, SP, SP_Last	= -1;
 
 
@@ -542,7 +542,7 @@ double CPC_Cluster_Analysis::HillClimbing(long &nElements, int nCluster)
 	//-----------------------------------------------------
 	// Anfangspartition (Standard falls nicht vorgegeben)
 
-	for( iElement=0, nClusterElements=0; iElement<nElements; iElement++ )
+	for(sLong iElement=0; iElement<nElements; iElement++ )
 	{
 		if( pPC_out->Get_Value(iElement, clustField) < 0 || pPC_out->Get_Value(iElement, clustField) >= nCluster )
 		{
@@ -597,7 +597,7 @@ double CPC_Cluster_Analysis::HillClimbing(long &nElements, int nCluster)
 	for( nPasses=1, bContinue=true; bContinue && Process_Get_Okay(false); nPasses++ )
 	{
 		//-------------------------------------------------
-		for( iElement=0; iElement<nElements && bContinue; iElement++ )
+		for(sLong iElement=0; iElement<nElements && bContinue; iElement++ )
 		{
 			if( !(iElement % (nElements / 100)) && !Set_Progress(iElement, nElements) )
 			{
@@ -728,9 +728,9 @@ bool CPC_Cluster_Analysis::On_After_Execution(void)
 			pClass->Set_Value(4, i);
 		}
 
-		while( pLUT->Get_Record_Count() > (pPC_out->Get_Maximum(pPC_out->Get_Field_Count()-1) + 1) )
+		while( pLUT->Get_Count() > (pPC_out->Get_Maximum(pPC_out->Get_Field_Count()-1) + 1) )
 		{
-			pLUT->Del_Record(pLUT->Get_Record_Count() - 1);
+			pLUT->Del_Record(pLUT->Get_Count() - 1);
 		}
 
 		Parms("COLORS_TYPE")	->Set_Value(1);	// Color Classification Type: Lookup Table

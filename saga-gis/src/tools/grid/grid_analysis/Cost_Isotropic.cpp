@@ -213,8 +213,10 @@ bool CCost_Accumulated::Get_Destinations(CSG_Points_Int &Destinations)
 	{
 		CSG_Shapes	*pDestinations	= Parameters("DEST_POINTS")->asShapes();
 
-		for(int i=0, x, y; i<pDestinations->Get_Count(); i++)
+		for(sLong i=0; i<pDestinations->Get_Count(); i++)
 		{
+			int x, y;
+
 			if( Get_System().Get_World_to_Grid(x, y, pDestinations->Get_Shape(i)->Get_Point(0)) && !m_pCost->is_NoData(x, y) )
 			{
 				Destinations.Add(x, y); m_pAllocation->Set_Value(x, y, Destinations.Get_Count()); m_pAccumulated->Set_Value(x, y, 0.);
@@ -264,7 +266,7 @@ bool CCost_Accumulated::Get_Cost(CSG_Points_Int &Destinations)
 	sLong	nProcessed	= Destinations.Get_Count();
 
 	//-----------------------------------------------------
-	while( Destinations.Get_Count() > 0 && Set_Progress_NCells(nProcessed) )
+	while( Destinations.Get_Count() > 0 && Set_Progress_Cells(nProcessed) )
 	{
 		Process_Set_Text("%s: %d", _TL("cells in process"), Destinations.Get_Count());
 
@@ -373,7 +375,7 @@ int CCost_Accumulated::Get_Allocation(int x, int y)
 //---------------------------------------------------------
 bool CCost_Accumulated::Get_Allocation(void)
 {
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{

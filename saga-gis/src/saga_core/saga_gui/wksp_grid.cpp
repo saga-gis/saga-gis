@@ -878,14 +878,14 @@ void CWKSP_Grid::_LUT_Create(void)
 //---------------------------------------------------------
 wxString CWKSP_Grid::Get_Value(CSG_Point ptWorld, double Epsilon)
 {
-	wxString	s;	double	Value;
+	wxString s; double Value;
 
 	if( Get_Grid()->Get_Value(ptWorld, Value, GRID_RESAMPLING_NearestNeighbour) )
 	{
 		switch( m_pClassify->Get_Mode() )
 		{
 		default:
-			s	= SG_Get_String(Value, -12).c_str();
+			s = SG_Get_String(Value, -12).c_str();
 
 			if( !Get_Grid()->Get_Unit().is_Empty() )
 			{
@@ -898,7 +898,7 @@ wxString CWKSP_Grid::Get_Value(CSG_Point ptWorld, double Epsilon)
 			break;
 
 		case CLASSIFY_LUT:
-			s	= m_pClassify->Get_Class_Name_byValue(Value);
+			s = m_pClassify->Get_Class_Name_byValue(Value);
 			break;
 		}
 	}
@@ -1047,7 +1047,7 @@ bool CWKSP_Grid::Edit_Set_Attributes(void)
 {
 	if( m_Edit_Attributes.Get_Count() > 0 )
 	{
-		for(int y=0; y<m_Edit_Attributes.Get_Count(); y++)
+		for(sLong y=0; y<m_Edit_Attributes.Get_Count(); y++)
 		{
 			CSG_Table_Record	*pRecord	= m_Edit_Attributes.Get_Record(m_Edit_Attributes.Get_Count() - 1 - y);
 
@@ -1099,7 +1099,7 @@ bool CWKSP_Grid::_Edit_Del_Selection(void)
 {
 	if( m_Edit_Attributes.Get_Count() > 0 && DLG_Message_Confirm(_TL("Set selected values to no data."), _TL("Delete")) )
 	{
-		for(int y=0; y<m_Edit_Attributes.Get_Count(); y++)
+		for(sLong y=0; y<m_Edit_Attributes.Get_Count(); y++)
 		{
 			for(int x=0, xx=1; xx<m_Edit_Attributes.Get_Field_Count(); x++, xx++)
 			{
@@ -1353,11 +1353,7 @@ void CWKSP_Grid::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	//-----------------------------------------------------
 	TSG_Grid_Resampling	Resampling;
 
-	if( m_pClassify->Get_Mode() == CLASSIFY_LUT )
-	{
-		Resampling	= GRID_RESAMPLING_NearestNeighbour;
-	}
-	else switch( m_Parameters("DISPLAY_RESAMPLING")->asInt() )
+	switch( m_Parameters(m_pClassify->Get_Mode() == CLASSIFY_LUT ? "LUT_RESAMPLING" : "DISPLAY_RESAMPLING")->asInt() )
 	{
 	default: Resampling = GRID_RESAMPLING_NearestNeighbour; break;
 	case  1: Resampling = GRID_RESAMPLING_Bilinear        ; break;

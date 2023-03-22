@@ -111,9 +111,16 @@ bool CInterpolation_NaturalNeighbour::Interpolate(void)
 
 	CSG_Shapes *pPoints = Get_Points();
 
+	if( pPoints->Get_Count() > std::numeric_limits<int>::max() )
+	{
+		Error_Set(_TL("too many points (exceeds size of 32bit integer)"));
+
+		return( false );
+	}
+
 	int nn_nPoints = 0; point *nn_pPoints = (point *)SG_Malloc(pPoints->Get_Count() * sizeof(point));
 
-	for(int iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
+	for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 	{
 		CSG_Shape *pShape = pPoints->Get_Shape(iPoint);
 
@@ -173,7 +180,7 @@ bool CInterpolation_NaturalNeighbour::Interpolate(void)
 
 	//-----------------------------------------------------
 	#pragma omp parallel for
-	for(int iCell=0; iCell<pGrid->Get_NCells(); iCell++)
+	for(sLong iCell=0; iCell<pGrid->Get_NCells(); iCell++)
 	{
 		double z = nn_pCells[iCell].z;
 

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: GSPoints_Pattern_Analysis.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "GSPoints_Pattern_Analysis.h"
 
 
@@ -70,7 +58,6 @@
 //---------------------------------------------------------
 CGSPoints_Pattern_Analysis::CGSPoints_Pattern_Analysis(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Spatial Point Pattern Analysis"));
 
 	Set_Author		("O.Conrad (c) 2010");
@@ -125,31 +112,31 @@ CGSPoints_Pattern_Analysis::CGSPoints_Pattern_Analysis(void)
 //---------------------------------------------------------
 bool CGSPoints_Pattern_Analysis::On_Execute(void)
 {
-	CSG_Shapes	*pPoints	= Parameters("POINTS")->asShapes();
+	CSG_Shapes *pPoints = Parameters("POINTS")->asShapes();
 
-	if( pPoints->Get_Count() <= 1 )
+	if( pPoints->Get_Count() < 2 )
 	{
 		Error_Set(_TL("not enough points to perform pattern analysis"));
 
 		return( false );
 	}
 
-	int	iPoint, Weight	= Parameters("WEIGHT")->asInt();
+	int	Weight = Parameters("WEIGHT")->asInt();
 
-	CSG_Simple_Statistics	X, Y, D;
+	CSG_Simple_Statistics X, Y, D;
 
 	//-----------------------------------------------------
-	for(iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
+	for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 	{
-		TSG_Point	p	= pPoints->Get_Shape(iPoint)->Get_Point(0);
+		TSG_Point p = pPoints->Get_Shape(iPoint)->Get_Point(0);
 
-		double	w	= Weight < 0 ? 1.0 : pPoints->Get_Shape(iPoint)->asDouble(Weight);
+		double w = Weight < 0 ? 1.0 : pPoints->Get_Shape(iPoint)->asDouble(Weight);
 
 		X.Add_Value(p.x, w);
 		Y.Add_Value(p.y, w);
 	}
 
-	if( X.Get_Range() == 0.0 && Y.Get_Range() == 0.0 )
+	if( X.Get_Range() == 0. && Y.Get_Range() == 0. )
 	{
 		Error_Set(_TL("no variation in point pattern"));
 
@@ -157,30 +144,30 @@ bool CGSPoints_Pattern_Analysis::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	double	StdDist	= 0.0;
+	double StdDist = 0.;
 
-	for(iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
+	for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 	{
-		TSG_Point	p	= pPoints->Get_Shape(iPoint)->Get_Point(0);
+		TSG_Point p = pPoints->Get_Shape(iPoint)->Get_Point(0);
 
-		double	w	= Weight < 0 ? 1.0 : pPoints->Get_Shape(iPoint)->asDouble(Weight);
+		double w = Weight < 0 ? 1. : pPoints->Get_Shape(iPoint)->asDouble(Weight);
 
 		D.Add_Value(SG_Get_Distance(X.Get_Mean(), Y.Get_Mean(), p.x, p.y), w);
 
-		StdDist	+= w * (SG_Get_Square(p.x - X.Get_Mean()) + SG_Get_Square(p.y - Y.Get_Mean()));
+		StdDist += w * (SG_Get_Square(p.x - X.Get_Mean()) + SG_Get_Square(p.y - Y.Get_Mean()));
 	}
 
-	if( D.Get_Weights() == 0.0 )
+	if( D.Get_Weights() == 0. )
 	{
 		Error_Set(_TL("number of valid points or sum of weights equals zero"));
 
 		return( false );
 	}
 
-	StdDist	= sqrt(StdDist / D.Get_Weights());
+	StdDist = sqrt(StdDist / D.Get_Weights());
 
 	//-----------------------------------------------------
-	CSG_Shapes	*pShapes;	CSG_Shape	*pShape;
+	CSG_Shapes *pShapes; CSG_Shape *pShape;
 
 	pShapes	= Parameters("CENTRE")->asShapes();
 
@@ -217,9 +204,9 @@ bool CGSPoints_Pattern_Analysis::On_Execute(void)
 	pShape	->Set_Value(2, X.Get_Count());
 	pShape	->Set_Value(3, StdDist      );
 
-	double	dTheta	= Parameters("STEP")->asDouble() * M_DEG_TO_RAD;
+	double dTheta = Parameters("STEP")->asDouble() * M_DEG_TO_RAD;
 
-	for(double Theta=0.0; Theta<=M_PI_360; Theta+=dTheta)
+	for(double Theta=0.; Theta<=M_PI_360; Theta+=dTheta)
 	{
 		pShape->Add_Point(
 			X.Get_Mean() + StdDist * cos(Theta),

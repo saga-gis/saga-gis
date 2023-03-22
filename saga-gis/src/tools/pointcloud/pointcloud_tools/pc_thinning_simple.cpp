@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -47,15 +44,6 @@
 //                laserscanning data                     //
 //                Innsbruck, Austria                     //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -123,16 +111,16 @@ int CPC_Thinning_Simple::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_P
 	{
 		if( SG_STR_CMP(pParameter->Get_Identifier(), "NUMBER" ) )
 		{
-			pParameters->Set_Parameter("NUMBER", (int)(pPoints->Get_Point_Count() * (*pParameters)("PERCENT")->asDouble() / 100.0));
+			pParameters->Set_Parameter("NUMBER", (int)(pPoints->Get_Count() * (*pParameters)("PERCENT")->asDouble() / 100.0));
 		}
-		else if( pParameter->asInt() < pPoints->Get_Point_Count() )
+		else if( pParameter->asInt() < pPoints->Get_Count() )
 		{
-			pParameters->Set_Parameter("PERCENT", 100.0 * pParameter->asInt() / pPoints->Get_Point_Count());
+			pParameters->Set_Parameter("PERCENT", 100.0 * pParameter->asInt() / pPoints->Get_Count());
 		}
 		else
 		{
 			pParameters->Set_Parameter("PERCENT", 100.0);
-			pParameters->Set_Parameter("NUMBER" , pPoints->Get_Point_Count());
+			pParameters->Set_Parameter("NUMBER" , (int)pPoints->Get_Count());
 		}
 	}
 
@@ -149,9 +137,9 @@ bool CPC_Thinning_Simple::On_Execute(void)
 {
 	CSG_PointCloud	*pPoints	= Parameters("INPUT")->asPointCloud();
 
-	double	d	= pPoints->Get_Point_Count() * Parameters("PERCENT")->asDouble() / 100.0;
+	double d = pPoints->Get_Count() * Parameters("PERCENT")->asDouble() / 100.;
 
-	int n	= (int)d;
+	sLong n	= (sLong)d;
 
 	if( n < 1 )
 	{
@@ -159,14 +147,14 @@ bool CPC_Thinning_Simple::On_Execute(void)
 
 		return( false );
 	}
-	else if( n >= pPoints->Get_Point_Count() - 1 )
+	else if( n >= pPoints->Get_Count() - 1 )
 	{
 		Error_Set(_TL("Execution stopped, because this would delete no point at all."));
 
 		return( false );
 	}
 
-	d	= pPoints->Get_Point_Count() / (double)n;
+	d	= pPoints->Get_Count() / (double)n;
 
 	//-----------------------------------------------------
 	if( Parameters("RESULT")->asPointCloud() && Parameters("RESULT")->asPointCloud() != pPoints )
@@ -177,9 +165,9 @@ bool CPC_Thinning_Simple::On_Execute(void)
 
 		pResult->Fmt_Name("%s [%.1f%%]", pPoints->Get_Name(), Parameters("PERCENT")->asDouble());
 
-		for(int i=0; i<n && Set_Progress(i, n); i++)
+		for(sLong i=0; i<n && Set_Progress(i, n); i++)
 		{
-			pResult->Add_Record(pPoints->Get_Record((int)(i * d)));
+			pResult->Add_Record(pPoints->Get_Record((sLong)(i * d)));
 		}
 	}
 
@@ -188,9 +176,9 @@ bool CPC_Thinning_Simple::On_Execute(void)
 	{
 		pPoints->Select();
 
-		for(int i=0; i<n && Set_Progress(i, n); i++)
+		for(sLong i=0; i<n && Set_Progress(i, n); i++)
 		{
-			pPoints->Select((int)(i * d), true);
+			pPoints->Select((sLong)(i * d), true);
 		}
 
 		pPoints->Inv_Selection();

@@ -137,7 +137,7 @@ double CCloud_Overlap::Get_Value(const CSG_Table &Values, double z)
 
 	if( z > z1 )
 	{
-		for(int i=1; i<Values.Get_Count(); i++)
+		for(sLong i=1; i<Values.Get_Count(); i++)
 		{
 			double	z0 = z1; z1 = Values[i].asDouble(0);
 			double	c0 = c1; c1 = Values[i].asDouble(1);
@@ -224,7 +224,7 @@ bool CCloud_Overlap::On_Execute(void)
 	double	Interval = Parameters("INTERVAL")->asDouble();
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		double	yWorld	= Get_YMin() + y * Get_Cellsize();
 

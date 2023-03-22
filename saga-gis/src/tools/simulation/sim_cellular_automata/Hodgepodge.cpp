@@ -201,7 +201,7 @@ bool CHodgepodge::On_Execute(void)
 
 		SG_UI_ProgressAndMsg_Lock(true);
 		m_pStates->Assign(&m_States);
-		DataObject_Update(m_pStates, 0, m_nStates, SG_UI_DATAOBJECT_SHOW);
+		DataObject_Update(m_pStates, 0, m_nStates, SG_UI_DATAOBJECT_SHOW_MAP);
 		SG_UI_ProgressAndMsg_Lock(false);
 	}
 

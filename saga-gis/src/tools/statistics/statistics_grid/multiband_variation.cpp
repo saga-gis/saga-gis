@@ -158,7 +158,7 @@ bool CMultiBand_Variation::On_Execute(void)
 	m_Mask.Create(Get_System(), SG_DATATYPE_Byte);
 	m_Mask.Set_NoData_Value(0);
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for private(x)
 		for(x=0; x<Get_NX(); x++)
@@ -178,7 +178,7 @@ bool CMultiBand_Variation::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for private(x)
 		for(x=0; x<Get_NX(); x++)

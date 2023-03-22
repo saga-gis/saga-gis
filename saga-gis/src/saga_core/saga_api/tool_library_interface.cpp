@@ -137,7 +137,7 @@ bool CSG_Tool_Library_Interface::Destroy(void)
 {
 	Delete_Tools();
 
-	for(size_t i=0; i<m_Tools.Get_Size(); i++)
+	for(size_t i=0; i<m_Tools.Get_uSize(); i++)
 	{
 		delete((CSG_Tool *)m_Tools[i]);
 	}
@@ -209,7 +209,7 @@ CSG_Tool * CSG_Tool_Library_Interface::Create_Tool(int ID, bool bWithGUI)
 //---------------------------------------------------------
 bool CSG_Tool_Library_Interface::Delete_Tool(CSG_Tool *pTool)
 {
-	for(size_t i=0; i<m_xTools.Get_Size(); i++)
+	for(size_t i=0; i<m_xTools.Get_uSize(); i++)
 	{
 		if( pTool == m_xTools.Get(i) && m_xTools.Del(i) )
 		{
@@ -225,7 +225,7 @@ bool CSG_Tool_Library_Interface::Delete_Tool(CSG_Tool *pTool)
 //---------------------------------------------------------
 bool CSG_Tool_Library_Interface::Delete_Tools(void)
 {
-	for(size_t i=0; i<m_xTools.Get_Size(); i++)
+	for(size_t i=0; i<m_xTools.Get_uSize(); i++)
 	{
 		delete((CSG_Tool *)m_xTools[i]);
 	}

@@ -58,7 +58,6 @@
 //---------------------------------------------------------
 CPolygon_Generalization::CPolygon_Generalization(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Polygon Generalization"));
 
 	Set_Author		("O.Conrad (c) 2019");
@@ -131,11 +130,11 @@ bool CPolygon_Generalization::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int	i = 0, n = pPolygons->Get_Count();
+	sLong	i = 0, n = pPolygons->Get_Count();
 
 	do
 	{
-		Process_Set_Text(CSG_String::Format("%s %d", _TL("pass"), ++i));
+		Process_Set_Text(CSG_String::Format("%s %lld", _TL("pass"), ++i));
 	}
 	while( Set_JoinTos(pPolygons) && Process_Get_Okay() );
 
@@ -147,7 +146,7 @@ bool CPolygon_Generalization::On_Execute(void)
 
 	n	-= pPolygons->Get_Count();
 
-	Message_Fmt("\n%s: %d", _TL("total number of removed polygons"), n);
+	Message_Fmt("\n%s: %lld", _TL("total number of removed polygons"), n);
 
 	return( n > 0 );
 }
@@ -160,16 +159,16 @@ bool CPolygon_Generalization::On_Execute(void)
 //---------------------------------------------------------
 bool CPolygon_Generalization::Set_JoinTos(CSG_Shapes *pPolygons)
 {
-	CSG_Array_Int	JoinTo;
+	CSG_Array_Int JoinTo;
 
 	if( !Get_JoinTos(pPolygons, JoinTo) )
 	{
 		return( false );
 	}
 
-	int	i, nDropped = 0, nRemoved = 0;
+	sLong nDropped = 0, nRemoved = 0;
 
-	for(i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
+	for(sLong i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 	{
 		if( JoinTo[i] < 0 )
 		{
@@ -179,8 +178,8 @@ bool CPolygon_Generalization::Set_JoinTos(CSG_Shapes *pPolygons)
 		{
 			nRemoved++;
 
-			CSG_Shape_Polygon	*pJoinTo	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(JoinTo[i]);
-			CSG_Shape_Polygon	*pRemove	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(       i );
+			CSG_Shape_Polygon *pJoinTo = (CSG_Shape_Polygon *)pPolygons->Get_Shape(JoinTo[i]);
+			CSG_Shape_Polygon *pRemove = (CSG_Shape_Polygon *)pPolygons->Get_Shape(       i );
 
 			for(int iPart=0; iPart<pRemove->Get_Part_Count(); iPart++)
 			{
@@ -191,7 +190,7 @@ bool CPolygon_Generalization::Set_JoinTos(CSG_Shapes *pPolygons)
 		}
 	}
 
-	for(i=pPolygons->Get_Count()-1; i>=0; i--)
+	for(sLong i=pPolygons->Get_Count()-1; i>=0; i--)
 	{
 		if( JoinTo[i] >= 0 && JoinTo[i] != i )
 		{
@@ -199,7 +198,7 @@ bool CPolygon_Generalization::Set_JoinTos(CSG_Shapes *pPolygons)
 		}
 	}
 
-	Message_Fmt("\n%s: %d; %s: %d", _TL("candidates"), nRemoved + nDropped, _TL("eliminated"), nRemoved);
+	Message_Fmt("\n%s: %lld; %s: %lld", _TL("candidates"), nRemoved + nDropped, _TL("eliminated"), nRemoved);
 
 	return( nDropped > 0 && nRemoved > 0 );
 }
@@ -212,30 +211,30 @@ bool CPolygon_Generalization::Set_JoinTos(CSG_Shapes *pPolygons)
 //---------------------------------------------------------
 bool CPolygon_Generalization::Get_JoinTos(CSG_Shapes *pPolygons, CSG_Array_Int &JoinTo)
 {
-	double	Threshold	= Parameters("THRESHOLD")->asDouble();
+	double Threshold = Parameters("THRESHOLD")->asDouble();
 
-	if( Threshold <= 0.0 || !JoinTo.Create(pPolygons->Get_Count()) )
+	if( Threshold <= 0. || !JoinTo.Create(pPolygons->Get_Count()) )
 	{
 		return( false );
 	}
 
-	int	n	= 0;
+	sLong n = 0;
 
-	for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
+	for(sLong i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 	{
-		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(i);
+		CSG_Shape_Polygon *pPolygon = (CSG_Shape_Polygon *)pPolygons->Get_Shape(i);
 
 		if( Threshold <= pPolygon->Get_Area() )
 		{
-			JoinTo[i]	= i;
+			JoinTo[i] = i;
 		}
 		else // if( Threshold > pPolygon->Get_Area() )
 		{
-			JoinTo[i]	= -1;
+			JoinTo[i] = -1;
 
-			double	maxArea	= Threshold;
+			double maxArea = Threshold;
 
-			for(int j=0; j<pPolygons->Get_Count(); j++)
+			for(sLong j=0; j<pPolygons->Get_Count(); j++)
 			{
 				if( j != i )
 				{
@@ -243,9 +242,9 @@ bool CPolygon_Generalization::Get_JoinTos(CSG_Shapes *pPolygons, CSG_Array_Int &
 
 					if( maxArea <= pNeighbour->Get_Area() && pPolygon->is_Neighbour(pNeighbour) )
 					{
-						maxArea		= pNeighbour->Get_Area();
+						maxArea   = pNeighbour->Get_Area();
 
-						JoinTo[i]	= j;
+						JoinTo[i] = j;
 					}
 				}
 			}

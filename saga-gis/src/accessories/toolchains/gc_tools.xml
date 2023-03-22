@@ -3,7 +3,7 @@
   <group>gc_tools</group>
   <identifier>gc_tools</identifier>
   <name>Grid Collection</name>
-	<menu>Grid|Grid Collection</menu>
+	<menu>Grid Collection</menu>
 	<description>
 		Tools for grid collections.
 	</description>

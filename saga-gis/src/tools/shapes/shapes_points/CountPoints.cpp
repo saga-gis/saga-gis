@@ -77,13 +77,13 @@ bool CCountPoints::On_Execute(void)
 
 	pPolygons->Add_Field(_TL("Points"), SG_DATATYPE_Int);
 
-	for(int iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
+	for(sLong iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
 	{
 		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
 
 		int	nPoints	= 0;
 
-		for(int iPoint=0; iPoint<pPoints->Get_Count(); iPoint++)
+		for(sLong iPoint=0; iPoint<pPoints->Get_Count(); iPoint++)
 		{
 			CSG_Shape	*pPoint	= pPoints->Get_Shape(iPoint);
 

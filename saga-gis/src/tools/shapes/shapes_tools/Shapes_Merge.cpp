@@ -180,7 +180,7 @@ bool CTables_Merge::On_Execute(void)
 	{
 		pMerged->Add_Field(_TL("Source"), SG_DATATYPE_String, 0);
 
-		for(int i=0; i<pMerged->Get_Count(); i++)
+		for(sLong i=0; i<pMerged->Get_Count(); i++)
 		{
 			pMerged->Set_Value(i, 0, pList->Get_Item(0)->Get_Name());
 		}
@@ -223,7 +223,7 @@ bool CTables_Merge::On_Execute(void)
 		}
 
 		//-------------------------------------------------
-		for(int iRecord=0; iRecord<pTable->Get_Count(); iRecord++)
+		for(sLong iRecord=0; iRecord<pTable->Get_Count(); iRecord++)
 		{
 			CSG_Table_Record	*pOutput, *pInput 	= pTable->Get_Record(iRecord);
 

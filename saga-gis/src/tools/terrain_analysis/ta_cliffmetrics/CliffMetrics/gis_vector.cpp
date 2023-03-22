@@ -792,7 +792,7 @@ int CDelineation::nReadVectorCoastlineData(CSG_Shapes *pShapes)
 
 	 int nCoast = m_VUserCoast.size()-1;
 
-	for(int i=0; i<pShapes->Get_Count(); i++)
+	for(sLong i=0; i<pShapes->Get_Count(); i++)
 	{
 		CSG_Point	Point	= pShapes->Get_Shape(i)->Get_Point(0);
 

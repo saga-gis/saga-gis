@@ -319,8 +319,8 @@ bool CSG_Thin_Plate_Spline::Destroy(void)
 //---------------------------------------------------------
 double CSG_Thin_Plate_Spline::_Get_hDistance(TSG_Point_Z A, TSG_Point_Z B)
 {
-	A.x	-= B.x;
-	A.y	-= B.y;
+	A.x -= B.x;
+	A.y -= B.y;
 
 	return( sqrt(A.x*A.x + A.y*A.y) );
 }
@@ -334,10 +334,10 @@ double CSG_Thin_Plate_Spline::_Get_Base_Funtion(double x)
 //---------------------------------------------------------
 double CSG_Thin_Plate_Spline::_Get_Base_Funtion(TSG_Point_Z A, double x, double y)
 {
-	x	-= A.x;
-	y	-= A.y;
+	x -= A.x;
+	y -= A.y;
 	
-	double	d	= sqrt(x*x + y*y);
+	double d = sqrt(x*x + y*y);
 
 	return( d > 0. ? d*d * log(d) : 0. );
 }
@@ -352,105 +352,103 @@ double CSG_Thin_Plate_Spline::_Get_Base_Funtion(TSG_Point_Z A, double x, double 
 //
 bool CSG_Thin_Plate_Spline::Create(double Regularization, bool bSilent)
 {
-	bool		bResult	= false;
-	int			n;
-	CSG_Matrix	M;
+	sLong n = m_Points.Get_Count();
 
-	//-----------------------------------------------------
-	// We need at least 3 points to define a plane
-	if( (n = m_Points.Get_Count()) >= 3 && M.Create(n + 3, n + 3) && m_V.Create(n + 3) )
-	{
-		int			i, j;
-		double		a, b;
-		TSG_Point_Z	Point;
-
-		//-------------------------------------------------
-		// Fill K (n x n, upper left of L) and calculate
-		// mean edge length from control points
-		//
-		// K is symmetrical so we really have to
-		// calculate only about half of the coefficients.
-		for(i=0, a=0.; i<n && (bSilent || SG_UI_Process_Set_Progress(i, n)); ++i )
-		{
-			Point	= m_Points[i];
-
-			for(j=i+1; j<n; ++j)
-			{
-				b		 = _Get_hDistance(Point, m_Points[j]);
-				a		+= b * 2.;	// same for upper & lower tri
-				M[i][j]	 = (M[j][i]	= _Get_Base_Funtion(b));
-			}
-		}
-
-		a	/= (double)(n*n);
-
-		//-------------------------------------------------
-		// Fill the rest of L
-		for(i=0; i<n; ++i)
-		{
-			// diagonal: reqularization parameters (lambda * a^2)
-			M[i][i]		= Regularization * (a*a);
-
-			// P (n x 3, upper right)
-			M[i][n + 0]	= 1.;
-			M[i][n + 1]	= m_Points[i].x;
-			M[i][n + 2]	= m_Points[i].y;
-
-			// P transposed (3 x n, bottom left)
-			M[n + 0][i]	= 1.;
-			M[n + 1][i]	= m_Points[i].x;
-			M[n + 2][i]	= m_Points[i].y;
-		}
-
-		//-------------------------------------------------
-		// O (3 x 3, lower right)
-		for(i=n; i<n+3; ++i)
-		{
-			for(j=n; j<n+3; ++j)
-			{
-				M[i][j]	= 0.;
-			}
-		}
-
-		//-------------------------------------------------
-		// Fill the right hand vector m_V
-		for(i=0; i<n; ++i)
-		{
-			m_V[i]	= m_Points[i].z;
-		}
-
-		m_V[n + 0] = m_V[n + 1] = m_V[n + 2] = 0.;
-
-		//-------------------------------------------------
-		// Solve the linear system "inplace"
-		if( !bSilent )
-		{
-			SG_UI_Process_Set_Text(_TL("Thin Plate Spline: solving matrix"));
-		}
-
-		bResult		= SG_Matrix_Solve(M, m_V, bSilent);
-	}
-
-	//-----------------------------------------------------
-	if( !bResult )
+	if( n < 3 ) // We need at least 3 points to define a plane
 	{
 		Destroy();
+
+		return( false );
 	}
 
-	return( bResult );
+	CSG_Matrix M;
+
+	if( !M.Create(n + 3, n + 3) || !m_V.Create(n + 3) )
+	{
+		Destroy();
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	// Fill K (n x n, upper left of L) and calculate
+	// mean edge length from control points
+	//
+	// K is symmetrical so we really have to
+	// calculate only about half of the coefficients.
+
+	double a = 0.;
+
+	for(sLong i=0; i<n && (bSilent || SG_UI_Process_Set_Progress(i, n)); ++i)
+	{
+		TSG_Point_Z Point = m_Points[i];
+
+		for(sLong j=i+1; j<n; ++j)
+		{
+			double b = _Get_hDistance(Point, m_Points[j]); a += b * 2.;	// same for upper & lower tri
+
+			M[i][j] = (M[j][i] = _Get_Base_Funtion(b));
+		}
+	}
+
+	a /= n*n;
+
+	//-------------------------------------------------
+	// Fill the rest of L
+
+	for(sLong i=0; i<n; ++i)
+	{
+		// P diagonal: reqularization parameters (lambda * a^2)
+		M[i][i]	= Regularization * (a*a);
+
+		// P (n x 3, upper right), P transposed (3 x n, bottom left)
+		M[i][n + 0] = M[n + 0][i] = 1.;
+		M[i][n + 1] = M[n + 1][i] = m_Points[i].x;
+		M[i][n + 2] = M[n + 2][i] = m_Points[i].y;
+
+		// Fill the right hand vector m_V
+		m_V[i] = m_Points[i].z;
+	}
+
+	for(sLong i=n; i<n+3; ++i)
+	{
+		for(sLong j=n; j<n+3; ++j)
+		{
+			M[i][j]	= 0.; // O (3 x 3, lower right)
+		}
+	}
+
+	m_V[n + 0] = m_V[n + 1] = m_V[n + 2] = 0.;
+
+	//-------------------------------------------------
+	// Solve the linear system "inplace"
+
+	if( !bSilent )
+	{
+		SG_UI_Process_Set_Text(_TL("Thin Plate Spline: solving matrix"));
+	}
+
+	if( !SG_Matrix_Solve(M, m_V, bSilent) )
+	{
+		Destroy();
+
+		return( false );
+	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
 double CSG_Thin_Plate_Spline::Get_Value(double x, double y)
 {
-	if( m_V.Get_N() > 0 )
+	if( m_V.Get_Size() > 0 )
 	{
-		int		n	= m_Points.Get_Count();
-		double	z	= m_V[n + 0] + m_V[n + 1] * x + m_V[n + 2] * y;
+		sLong  n = m_Points.Get_Count();
+		double z = m_V[n + 0] + m_V[n + 1] * x + m_V[n + 2] * y;
 
-		for(int i=0; i<n; i++)
+		for(sLong i=0; i<n; i++)
 		{
-			z	+= m_V[i] * _Get_Base_Funtion(m_Points[i], x, y);
+			z += m_V[i] * _Get_Base_Funtion(m_Points[i], x, y);
 		}
 
 		return( z );

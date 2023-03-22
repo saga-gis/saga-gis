@@ -80,10 +80,10 @@
 //---------------------------------------------------------
 CSG_Tool_Interactive_Base::CSG_Tool_Interactive_Base(void)
 {
-	m_pTool		= NULL;
+	m_pTool     = NULL;
 
-	m_Keys		= 0;
-	m_Drag_Mode	= TOOL_INTERACTIVE_DRAG_BOX;
+	m_Keys      = 0;
+	m_Drag_Mode = TOOL_INTERACTIVE_DRAG_BOX;
 
 	m_Point     .Assign(0., 0.);
 	m_Point_Last.Assign(0., 0.);

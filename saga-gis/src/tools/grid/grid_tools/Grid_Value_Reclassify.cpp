@@ -409,7 +409,7 @@ bool CGrid_Value_Reclassify::ReclassRange(void)
 	else
 		floating = false;
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -473,7 +473,7 @@ bool CGrid_Value_Reclassify::ReclassSingle(void)
 	else
 		floating = false;
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -590,14 +590,14 @@ bool CGrid_Value_Reclassify::ReclassTable(bool bUser)
 		return( false );
 	}
 
-	if( pReTab->Get_Record_Count() == 0 )
+	if( pReTab->Get_Count() == 0 )
 	{
 		Error_Set(_TL("You must specify a reclass table with a minimium of one record!\n"));
 		return( false );
 	}
 
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -605,7 +605,7 @@ bool CGrid_Value_Reclassify::ReclassTable(bool bUser)
 			double	value	= pInput->asDouble(x, y);
 			bool	set		= false;
 
-			for(int iRecord=0; iRecord<pReTab->Get_Record_Count(); iRecord++)									// reclass
+			for(sLong iRecord=0; iRecord<pReTab->Get_Count(); iRecord++)	// reclass
 			{
 				CSG_Table_Record	*pRecord = pReTab->Get_Record(iRecord);
 

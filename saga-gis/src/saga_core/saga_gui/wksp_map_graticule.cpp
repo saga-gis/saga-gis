@@ -242,13 +242,21 @@ CWKSP_Map_Graticule::~CWKSP_Map_Graticule(void)
 //---------------------------------------------------------
 bool CWKSP_Map_Graticule::Load(CSG_MetaData &Entry)
 {
+	m_bShow = !Entry.Cmp_Property("SHOW", "false", true);
+
 	return( m_Parameters.Serialize(Entry, false) );
 }
 
 //---------------------------------------------------------
 bool CWKSP_Map_Graticule::Save(CSG_MetaData &Entry)
 {
-	return( m_Parameters.Serialize(*Entry.Add_Child("GRATICULE"), true) );
+	CSG_MetaData &Child = *Entry.Add_Child("GRATICULE");
+
+	m_Parameters.Serialize(Child, true);
+
+	Child.Add_Property("SHOW", m_bShow ? "true" : "false");
+
+	return( true );
 }
 
 
@@ -503,7 +511,7 @@ bool CWKSP_Map_Graticule::Draw(CWKSP_Map_DC &dc_Map)
 	dc.dc.SetPen(Pen);
 
 	//-----------------------------------------------------
-	for(int iLine=0; iLine<m_Graticule.Get_Count(); iLine++)
+	for(sLong iLine=0; iLine<m_Graticule.Get_Count(); iLine++)
 	{
 		CSG_Shape	*pLine	= m_Graticule.Get_Shape(iLine);
 
@@ -557,7 +565,7 @@ bool CWKSP_Map_Graticule::Draw(CWKSP_Map_DC &dc_Map)
 			case  9:	Effect	= TEXTEFFECT_TOPRIGHT   ;	break;
 			}
 
-			for(int iPoint=0; iPoint<m_Coordinates.Get_Count(); iPoint++)
+			for(sLong iPoint=0; iPoint<m_Coordinates.Get_Count(); iPoint++)
 			{
 				CSG_Shape	*pPoint	= m_Coordinates.Get_Shape(iPoint);
 

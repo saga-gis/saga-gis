@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: remove_duplicates.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,12 +45,6 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 #include "points_filter.h"
 
@@ -67,63 +58,60 @@
 //---------------------------------------------------------
 CPoints_Filter::CPoints_Filter(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("Points Filter"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
 		""
 	));
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "POINTS"		, _TL("Points"),
+	Parameters.Add_Shapes("",
+		"POINTS"	, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD"		, _TL("Attribute"),
+	Parameters.Add_Table_Field("POINTS",
+		"FIELD"		, _TL("Attribute"),
 		_TL("")
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "FILTER"		, _TL("Filtered Points"),
+	Parameters.Add_Shapes("",
+		"FILTER"	, _TL("Filtered Points"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Value(
-		NULL	, "RADIUS"		, _TL("Radius"),
+	Parameters.Add_Double("",
+		"RADIUS"	, _TL("Radius"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0, 0.0, true
+		1., 0., true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "MINNUM"		, _TL("Minimum Number of Points"),
+	Parameters.Add_Int("",
+		"MINNUM"	, _TL("Minimum Number of Points"),
 		_TL("only points with given minimum number of points in search radius will be processed"),
-		PARAMETER_TYPE_Int, 0, 0.0, true
+		0, 0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "MAXNUM"		, _TL("Maximum Number of Points"),
+	Parameters.Add_Int("",
+		"MAXNUM"	, _TL("Maximum Number of Points"),
 		_TL("Number of nearest points, which will be evaluated for filtering. Set to zero to investigate all points in search radius."),
-		PARAMETER_TYPE_Int, 0, 0.0, true
+		0, 0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "QUADRANTS"	, _TL("Quadrants"),
+	Parameters.Add_Bool("",
+		"QUADRANTS"	, _TL("Quadrants"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Filter Criterion"),
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Filter Criterion"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s",
 			_TL("keep maxima (with tolerance)"),
 			_TL("keep minima (with tolerance)"),
 			_TL("remove maxima (with tolerance)"),
@@ -133,46 +121,29 @@ CPoints_Filter::CPoints_Filter(void)
 		), 0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "TOLERANCE"	, _TL("Tolerance"),
+	Parameters.Add_Double("",
+		"TOLERANCE"	, _TL("Tolerance"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 0.0, 0.0, true
+		0., 0., true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "PERCENT"		, _TL("Percentile"),
+	Parameters.Add_Double("",
+		"PERCENT"		, _TL("Percentile"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 50.0, 0.0, true, 100.0, true
+		50., 0., true, 100., true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CPoints_Filter::On_Execute(void)
 {
-	bool		bQuadrants;
-	int			zField;
-	CSG_Shapes	*pPoints, *pFilter;
+	CSG_Shapes *pPoints = Parameters("POINTS")->asShapes();
 
-	//-----------------------------------------------------
-	pPoints			= Parameters("POINTS")		->asShapes();
-	pFilter			= Parameters("FILTER")		->asShapes();
-	zField			= Parameters("FIELD")		->asInt();
-	bQuadrants		= Parameters("QUADRANTS")	->asBool();
-	m_Method		= Parameters("METHOD")		->asInt();
-	m_nMinPoints	= Parameters("MINNUM")		->asInt();
-	m_nMaxPoints	= Parameters("MAXNUM")		->asInt();
-	m_Radius		= Parameters("RADIUS")		->asDouble();
-	m_Tolerance		= Parameters("TOLERANCE")	->asDouble();
-	m_Percentile	= Parameters("PERCENT")		->asDouble();
-
-	//-----------------------------------------------------
 	if( !pPoints->is_Valid() )
 	{
 		Error_Set(_TL("invalid points layer"));
@@ -187,6 +158,8 @@ bool CPoints_Filter::On_Execute(void)
 		return( false );
 	}
 
+	int zField = Parameters("FIELD")->asInt();
+
 	if( !m_Search.Create(pPoints, zField) )
 	{
 		Error_Set(_TL("failed to initialise search engine"));
@@ -195,6 +168,8 @@ bool CPoints_Filter::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	CSG_Shapes *pFilter = Parameters("FILTER")->asShapes();
+
 	if( pFilter )
 	{
 		pFilter->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), pPoints->Get_Name(), _TL("Filtered")), pPoints);
@@ -205,20 +180,30 @@ bool CPoints_Filter::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int	nFiltered	= 0;
+	m_Method     = Parameters("METHOD"   )->asInt();
+	m_nMinPoints = Parameters("MINNUM"   )->asInt();
+	m_nMaxPoints = Parameters("MAXNUM"   )->asInt();
+	m_Radius     = Parameters("RADIUS"   )->asDouble();
+	m_Tolerance  = Parameters("TOLERANCE")->asDouble();
+	m_Percentile = Parameters("PERCENT"  )->asDouble();
 
-	for(int i=0; i<pPoints->Get_Count() && Set_Progress(i, pPoints->Get_Count()); i++)
+	bool bQuadrants = Parameters("QUADRANTS")->asBool();
+
+	//-----------------------------------------------------
+	sLong nFiltered = 0;
+
+	for(sLong i=0; i<pPoints->Get_Count() && Set_Progress(i, pPoints->Get_Count()); i++)
 	{
-		CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
+		CSG_Shape *pPoint = pPoints->Get_Shape(i);
 
 		if( pPoint )
 		{
-			bool	bFilter	= bQuadrants
-				? 		Do_Filter(pPoint->Get_Point(0), pPoint->asDouble(zField), 0)
-					||	Do_Filter(pPoint->Get_Point(0), pPoint->asDouble(zField), 1)
-					||	Do_Filter(pPoint->Get_Point(0), pPoint->asDouble(zField), 2)
-					||	Do_Filter(pPoint->Get_Point(0), pPoint->asDouble(zField), 3)
-				:		Do_Filter(pPoint->Get_Point(0), pPoint->asDouble(zField));
+			bool bFilter = bQuadrants
+				?  Do_Filter(pPoint->Get_Point(0), pPoint->asDouble(zField), 0)
+				|| Do_Filter(pPoint->Get_Point(0), pPoint->asDouble(zField), 1)
+				|| Do_Filter(pPoint->Get_Point(0), pPoint->asDouble(zField), 2)
+				|| Do_Filter(pPoint->Get_Point(0), pPoint->asDouble(zField), 3)
+				:  Do_Filter(pPoint->Get_Point(0), pPoint->asDouble(zField)   );
 
 			if( bFilter )
 			{
@@ -244,15 +229,13 @@ bool CPoints_Filter::On_Execute(void)
 		DataObject_Update(pPoints);
 	}
 
-	Message_Fmt("\n%d %s", nFiltered, _TL("points have been filtered"));
+	Message_Fmt("\n%lld %s", nFiltered, _TL("points have been filtered"));
 
 	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -277,7 +260,7 @@ bool CPoints_Filter::Do_Filter(TSG_Point Point, double zPoint, int Quadrant)
 	case 2:	// remove maxima
 	case 3:	// remove minima
 		{
-			for(int i=0; i<m_Search.Get_Selected_Count(); i++)
+			for(size_t i=0; i<m_Search.Get_Selected_Count(); i++)
 			{
 				CSG_PRQuadTree_Leaf	*pLeaf	= m_Search.Get_Selected_Leaf(i);
 
@@ -319,7 +302,7 @@ bool CPoints_Filter::Do_Filter(TSG_Point Point, double zPoint, int Quadrant)
 		{
 			double	n	= 0.0;
 
-			for(int i=0; i<m_Search.Get_Selected_Count(); i++)
+			for(size_t i=0; i<m_Search.Get_Selected_Count(); i++)
 			{
 				CSG_PRQuadTree_Leaf	*pLeaf	= m_Search.Get_Selected_Leaf(i);
 

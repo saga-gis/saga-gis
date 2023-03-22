@@ -206,7 +206,7 @@ bool CFragmentation_Base::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -351,7 +351,7 @@ void CFragmentation_Base::Add_Border(CSG_Grid *pFragmentation)
 	int			x, y;
 	CSG_Grid	Tmp(pFragmentation, SG_DATATYPE_Byte);
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
@@ -372,7 +372,7 @@ void CFragmentation_Base::Add_Border(CSG_Grid *pFragmentation)
 		}
 	}
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
@@ -404,7 +404,7 @@ void CFragmentation_Base::Get_Statistics(CSG_Grid *pFragmentation, CSG_Table &St
 			s[i]	= 0;
 		}
 
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			for(int x=0; x<Get_NX(); x++)
 			{

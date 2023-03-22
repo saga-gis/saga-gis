@@ -127,20 +127,20 @@ bool CGridsFromTableAndGrid::On_Execute(void)
 	}
 
     //-----------------------------------------------------
-    std::map<double, int>   mapKeys;
+    std::map<double, sLong>   mapKeys;
 
-    for(int i=0; i<pTable->Get_Count(); i++)
+    for(sLong i=0; i<pTable->Get_Count(); i++)
     {
-        mapKeys.insert(std::pair<double, int>(pTable->Get_Record(i)->asDouble(iField), i));
+        mapKeys.insert(std::pair<double, sLong>(pTable->Get_Record(i)->asDouble(iField), i));
     }
 
 	//-----------------------------------------------------
-    for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+    for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
     {
         #pragma omp parallel for
         for(int x=0; x<Get_NX(); x++)
         {
-            std::map<double, int>::iterator it = mapKeys.find(pClasses->asDouble(x, y));
+            std::map<double, sLong>::iterator it = mapKeys.find(pClasses->asDouble(x, y));
 
             if( it == mapKeys.end())
             {

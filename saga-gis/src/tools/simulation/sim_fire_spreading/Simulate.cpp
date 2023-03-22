@@ -175,7 +175,7 @@ bool CSimulate::AssignParameters(){
     Fire_FlameLengthTable(m_Catalog, 500, 0.1);
 
 	//substitute no-data values
-	for(y=0; y<Get_NY() && Set_Progress(y); y++){		
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++){		
 		for(x=0; x<Get_NX(); x++){
 
 			if (m_pWindSpdGrid->is_NoData(x, y)){
@@ -211,7 +211,7 @@ bool CSimulate::AssignParameters(){
 	m_pSlopeGrid	= SG_Create_Grid(m_pDEM, SG_DATATYPE_Double);
 	m_pAspectGrid	= SG_Create_Grid(m_pDEM, SG_DATATYPE_Double);
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{		
 		for(x=0; x<Get_NX(); x++)
 		{

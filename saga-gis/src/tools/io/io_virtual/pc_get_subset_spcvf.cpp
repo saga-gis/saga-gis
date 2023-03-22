@@ -151,7 +151,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Initialise(int iOutputs, CSG_Rect AOI, C
 
 		m_vAttrMapper.clear();
 
-		for(int i=3; i<(int)vValues.size(); i++)
+		for(size_t i=3; i<vValues.size(); i++)
 		{
 			m_vAttrMapper.push_back(vValues.at(i) - 3);
 		}
@@ -388,7 +388,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(bool bCopyAttr)
 				{
 					pPC_out = SG_Create_PointCloud();
 
-					for(int iField=0; iField<(int)m_vAttrMapper.size(); iField++)
+					for(size_t iField=0; iField<m_vAttrMapper.size(); iField++)
 					{
 						if( iField >= pPC->Get_Attribute_Count() )
 							continue;
@@ -400,7 +400,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(bool bCopyAttr)
 
 			bool bFound = false;
 
-			for(int iPoint=0; iPoint<pPC->Get_Count(); iPoint++)
+			for(sLong iPoint=0; iPoint<pPC->Get_Count(); iPoint++)
 			{
 				if( m_AOI.Get_XMin() <= pPC->Get_X(iPoint) && pPC->Get_X(iPoint) < m_AOI.Get_XMax() &&
 					m_AOI.Get_YMin() <= pPC->Get_Y(iPoint) && pPC->Get_Y(iPoint) < m_AOI.Get_YMax() )
@@ -567,7 +567,7 @@ void CPointCloud_Get_Subset_SPCVF_Base::Write_Subset(CSG_PointCloud *pPC_out, in
 
 
 	//-----------------------------------------------------
-	SG_UI_Msg_Add(CSG_String::Format(_TL("%d points from %d dataset(s) written to output point cloud %s."), pPC_out->Get_Count(), iDatasets, pPC_out->Get_Name()), true);
+	SG_UI_Msg_Add(CSG_String::Format(_TL("%lld points from %d dataset(s) written to output point cloud %s."), pPC_out->Get_Count(), iDatasets, pPC_out->Get_Name()), true);
 
 	if( m_pFilePath == NULL )
 	{
@@ -1024,7 +1024,7 @@ bool CPointCloud_Get_Subset_SPCVF_Interactive::On_Execute_Position(CSG_Point ptW
 
 			DataObject_Set_Parameters(pPC, sParms);
 
-			DataObject_Update(pPC, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
+			DataObject_Update(pPC, SG_UI_DATAOBJECT_SHOW_MAP_ACTIVE);
 		}
 
 		m_Get_Subset_SPCVF.Finalise();

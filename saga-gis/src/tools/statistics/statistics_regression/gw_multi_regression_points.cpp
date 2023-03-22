@@ -105,7 +105,7 @@ CGW_Multi_Regression_Points::CGW_Multi_Regression_Points(void)
 	m_Weighting.Create_Parameters(Parameters);
 
 	//-----------------------------------------------------
-	m_Search.Create(&Parameters, Parameters.Add_Node("", "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
+	m_Search.Create(&Parameters, "NODE_SEARCH", 16);
 
 	Parameters("SEARCH_RANGE"     )->Set_Value(1);
 	Parameters("SEARCH_POINTS_ALL")->Set_Value(1);
@@ -311,7 +311,7 @@ bool CGW_Multi_Regression_Points::On_Execute(void)
 	CSG_Simple_Statistics	Residuals;
 
 	//-----------------------------------------------------
-	for(int iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
 	{
 		CSG_Regression_Weighted	Model;
 
@@ -348,7 +348,7 @@ bool CGW_Multi_Regression_Points::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
 	{
 		CSG_Shape	*pShape = m_pShapes->Get_Shape(iShape);
 

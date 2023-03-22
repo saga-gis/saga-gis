@@ -137,7 +137,7 @@ bool CIsochronesConst::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interacti
 	double	dMax = m_pTime->Get_Max();
 	bool	bMaxFound = false;
 
-    for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+    for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		if( bMaxFound )
 			break;
@@ -170,7 +170,7 @@ bool CIsochronesConst::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interacti
 	SG_UI_Msg_Add(CSG_String::Format(_TL("Average velocity in watercourse: %.2f m/min"), dSpeed), true);
 	SG_UI_Msg_Add(SG_T("--------------------------------------------------------------------------------"), true);
 	
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -181,7 +181,7 @@ bool CIsochronesConst::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interacti
 
 	m_pTime->Set_NoData_Value(0.0);
 
-	DataObject_Update(m_pTime, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
+	DataObject_Update(m_pTime, SG_UI_DATAOBJECT_SHOW_MAP_ACTIVE);
 
 	return (true);
 

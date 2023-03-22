@@ -248,7 +248,7 @@ bool CGrid_Classify_Supervised::On_Execute(void)
 
 	int	Method	= Parameters("METHOD")->asInt();
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -370,7 +370,7 @@ bool CGrid_Classify_Supervised::Set_Classifier(CSG_Classifier_Supervised &Classi
 	//-----------------------------------------------------
 	TSG_Point	p;	p.y	= Get_YMin();
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++, p.y+=Get_Cellsize())
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++, p.y+=Get_Cellsize())
 	{
 		p.x	= Get_XMin();
 
@@ -380,7 +380,7 @@ bool CGrid_Classify_Supervised::Set_Classifier(CSG_Classifier_Supervised &Classi
 
 			if( Get_Features(x, y, Features) )
 			{
-				for(int iPolygon=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
+				for(sLong iPolygon=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
 				{
 					CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
 
@@ -447,7 +447,7 @@ bool CGrid_Classify_Supervised::Set_Classification(CSG_Classifier_Supervised &Cl
 		}
 
 		//-------------------------------------------------
-		pLUT->asTable()->Set_Record_Count(Classifier.Get_Class_Count());
+		pLUT->asTable()->Set_Count(Classifier.Get_Class_Count());
 
 		for(int i=0; i<Classifier.Get_Class_Count(); i++)
 		{

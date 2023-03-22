@@ -272,7 +272,7 @@ bool CFrost_Change_Frequency::On_Execute(void)
 	DataObject_Set_Colors(pFrequency, 11, SG_COLORS_GREEN_RED);
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#ifndef _DEBUG
 		#pragma omp parallel for
@@ -400,7 +400,7 @@ bool CFrost_Change_Frequency_Interactive::On_Execute(void)
 	m_pDaily->Add_Field("Tmax"  , SG_DATATYPE_Double);
 	m_pDaily->Add_Field("Tspan" , SG_DATATYPE_Double);
 	m_pDaily->Add_Field("Change", SG_DATATYPE_Int   );
-	m_pDaily->Set_Record_Count(365);
+	m_pDaily->Set_Count(365);
 
 	//-----------------------------------------------------
 	return( true );
@@ -440,12 +440,12 @@ bool CFrost_Change_Frequency_Interactive::On_Execute_Position(CSG_Point ptWorld,
 			m_pStatistics->Set_Value(6, 1, Min.Get_Mean   ());
 			m_pStatistics->Set_Value(7, 1, Min.Get_Minimum());
 		}
-		else for(int i=3; i<m_pStatistics->Get_Count(); i++)
+		else for(sLong i=3; i<m_pStatistics->Get_Count(); i++)
 		{
 			m_pStatistics->Get_Record(i)->Set_NoData(1);
 		}
 
-		m_pDaily->Set_Record_Count(365);
+		m_pDaily->Set_Count(365);
 
 		for(int i=0; i<365; i++)
 		{
@@ -466,7 +466,7 @@ bool CFrost_Change_Frequency_Interactive::On_Execute_Position(CSG_Point ptWorld,
 			}
 		}
 	}
-	else for(int i=2; i<m_pStatistics->Get_Count(); i++)
+	else for(sLong i=2; i<m_pStatistics->Get_Count(); i++)
 	{
 		m_pStatistics->Get_Record(i)->Set_NoData(1);
 	}

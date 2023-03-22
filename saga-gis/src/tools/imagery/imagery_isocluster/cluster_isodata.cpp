@@ -146,8 +146,8 @@ void CCluster_ISODATA::_On_Construction(void)
 	m_nCluster_Ini	= 0;	// number of initial cluster centers
 
 	m_nSamples_Min	= 1;	// minimum number of samples in cluster
-	m_StdDev_Max	= 3.0;	// maximum standard deviation of one cluster
-	m_Distance_Max	= 2.0;	// maximum distance to merge clusters
+	m_StdDev_Max	= 3.;	// maximum standard deviation of one cluster
+	m_Distance_Max	= 2.;	// maximum distance to merge clusters
 }
 
 
@@ -215,16 +215,16 @@ inline double CCluster_ISODATA::_Get_Sample(size_t iSample, size_t iFeature)
 
 	switch( m_Data_Type )
 	{
-	case SG_DATATYPE_Byte  :	return( ((BYTE   *)Sample)[iFeature] );
-	case SG_DATATYPE_Char  :	return( ((char   *)Sample)[iFeature] );
-	case SG_DATATYPE_Word  :	return( ((WORD   *)Sample)[iFeature] );
-	case SG_DATATYPE_Short :	return( ((short  *)Sample)[iFeature] );
-	case SG_DATATYPE_DWord :	return( ((DWORD  *)Sample)[iFeature] );
-	case SG_DATATYPE_Int   :	return( ((int    *)Sample)[iFeature] );
-	case SG_DATATYPE_ULong :	return( ((uLong  *)Sample)[iFeature] );
-	case SG_DATATYPE_Long  :	return( ((sLong  *)Sample)[iFeature] );
-	case SG_DATATYPE_Float :	return( ((float  *)Sample)[iFeature] );
-	default                :	return( ((double *)Sample)[iFeature] );
+	case SG_DATATYPE_Byte  : return( (double)((BYTE   *)Sample)[iFeature] );
+	case SG_DATATYPE_Char  : return( (double)((char   *)Sample)[iFeature] );
+	case SG_DATATYPE_Word  : return( (double)((WORD   *)Sample)[iFeature] );
+	case SG_DATATYPE_Short : return( (double)((short  *)Sample)[iFeature] );
+	case SG_DATATYPE_DWord : return( (double)((DWORD  *)Sample)[iFeature] );
+	case SG_DATATYPE_Int   : return( (double)((int    *)Sample)[iFeature] );
+	case SG_DATATYPE_ULong : return( (double)((uLong  *)Sample)[iFeature] );
+	case SG_DATATYPE_Long  : return( (double)((sLong  *)Sample)[iFeature] );
+	case SG_DATATYPE_Float : return( (double)((float  *)Sample)[iFeature] );
+	default                : return( (double)((double *)Sample)[iFeature] );
 	}
 }
 
@@ -283,7 +283,7 @@ bool CCluster_ISODATA::Set_Min_Samples(size_t Value)
 //---------------------------------------------------------
 bool CCluster_ISODATA::Set_Max_StdDev(double d)
 {
-	if( d < 0.0 )	// maximum standard deviation of one cluster must be a positive real
+	if( d < 0. )	// maximum standard deviation of one cluster must be a positive real
 	{
 		return( false );
 	}
@@ -296,7 +296,7 @@ bool CCluster_ISODATA::Set_Max_StdDev(double d)
 //---------------------------------------------------------
 bool CCluster_ISODATA::Set_Max_Distance(double d)
 {
-	if( d < 0.0 )	// maximum distance to merge clusters must be a positive real
+	if( d < 0. )	// maximum distance to merge clusters must be a positive real
 	{
 		return( false );
 	}
@@ -387,7 +387,7 @@ bool CCluster_ISODATA::Run(int Initialization)
 
 	if( m_nCluster > 0 )
 	{
-		cl_c.Assign(0.0);
+		cl_c.Assign(0.);
 
 		for(iCluster=0; iCluster<m_nCluster; iCluster++)
 		{
@@ -502,7 +502,7 @@ bool CCluster_ISODATA::Run(int Initialization)
 
 		//-------------------------------------------------
 		// Step 4
-		cl_c.Assign(0.0);
+		cl_c.Assign(0.);
 
 		for(iSample=0; iSample<Get_Sample_Count(); iSample++)
 		{
@@ -522,7 +522,7 @@ bool CCluster_ISODATA::Run(int Initialization)
 
 		//-------------------------------------------------
 		// Step 5
-		cl_d.Assign(0.0);
+		cl_d.Assign(0.);
 
 		for(iSample=0; iSample<Get_Sample_Count(); iSample++)
 		{
@@ -536,7 +536,7 @@ bool CCluster_ISODATA::Run(int Initialization)
 
 		//-------------------------------------------------
 		// Step 6
-		for(iSample=0, m_Distance=0.0; iSample<Get_Sample_Count(); iSample++)
+		for(iSample=0, m_Distance=0.; iSample<Get_Sample_Count(); iSample++)
 		{
 			m_Distance	+= _Get_Sample_Distance(iSample, data_cl[iSample]);
 		}
@@ -549,7 +549,7 @@ bool CCluster_ISODATA::Run(int Initialization)
 		{
 			//---------------------------------------------
 			// Step 8
-			cl_s.Assign(0.0);
+			cl_s.Assign(0.);
 
 			for(iSample=0; iSample<Get_Sample_Count(); iSample++)
 			{
@@ -674,7 +674,7 @@ bool CCluster_ISODATA::Run(int Initialization)
 		//-------------------------------------------------
 		// Step 14: Additional criterion by Ch Iossif
 
-		double	d	= 0.0;
+		double	d	= 0.;
 
 		for(iSample=0; iSample<Get_Sample_Count(); iSample++)
 		{
@@ -703,7 +703,7 @@ bool CCluster_ISODATA::Run(int Initialization)
 //---------------------------------------------------------
 double CCluster_ISODATA::_Get_Sample_Distance(int iSample, int iCluster)
 {
-	double	s	= 0.0;
+	double	s	= 0.;
 
 	for(size_t iFeature=0; iFeature<m_nFeatures; iFeature++)
 	{
@@ -716,7 +716,7 @@ double CCluster_ISODATA::_Get_Sample_Distance(int iSample, int iCluster)
 //---------------------------------------------------------
 double CCluster_ISODATA::_Get_Cluster_Distance(int iCluster, int jCluster)
 {
-	double	s	= 0.0;
+	double	s	= 0.;
 
 	for(size_t iFeature=0; iFeature<m_nFeatures; iFeature++)
 	{

@@ -124,7 +124,7 @@ bool CPoints_From_Lines::On_Execute(void)
 //---------------------------------------------------------
 void CPoints_From_Lines::Convert(CSG_Shapes *pLines, CSG_Shapes *pPoints, bool bOrder)
 {
-	for(int iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
+	for(sLong iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
 	{
 		CSG_Shape *pLine = pLines->Get_Shape(iLine); int nPoints = 0;
 
@@ -162,7 +162,7 @@ void CPoints_From_Lines::Convert_Add_Points_Segment(CSG_Shapes *pLines, CSG_Shap
 {
 	double dx, dy, dz, dm, dLine, A_z, B_z, A_m, B_m;
 
-	for(int iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
+	for(sLong iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
 	{
 		CSG_Shape *pLine = pLines->Get_Shape(iLine); int nPoints = 0;
 
@@ -275,7 +275,7 @@ void CPoints_From_Lines::Convert_Add_Points_Line(CSG_Shapes *pLines, CSG_Shapes 
 	double		dx, dy, dz, dm, dLine,  A_z, B_z, A_m, B_m;
 
 
-	for(int iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
+	for(sLong iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
 	{
 		pLine	= pLines->Get_Shape(iLine);
 
@@ -410,7 +410,7 @@ void CPoints_From_Lines::Convert_Add_Points_Center(CSG_Shapes *pLines, CSG_Shape
 	double		dx, dy, dz, dm, dLine,  A_z, B_z, C_z, A_m, B_m, C_m;
 	int			iSplitPart, iSplitPoint;
 
-	for(int iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
+	for(sLong iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
 	{
 		pLine	= pLines->Get_Shape(iLine);
 
@@ -689,7 +689,7 @@ bool CPoints_From_MultiPoints::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int iMultipoint=0; iMultipoint<pMultipoints->Get_Count() && Set_Progress(iMultipoint, pMultipoints->Get_Count()); iMultipoint++)
+	for(sLong iMultipoint=0; iMultipoint<pMultipoints->Get_Count() && Set_Progress(iMultipoint, pMultipoints->Get_Count()); iMultipoint++)
 	{
 		CSG_Shape *pMultipoint = pMultipoints->Get_Shape(iMultipoint);
 

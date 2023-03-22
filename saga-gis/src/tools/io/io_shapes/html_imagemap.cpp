@@ -191,7 +191,7 @@ bool CHTML_ImageMap::On_Execute(void)
 	CSG_String	Prefix	= Parameters("LINK_PREFIX")->asString();
 	CSG_String	Suffix	= Parameters("LINK_SUFFIX")->asString();
 
-	for(int iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
+	for(sLong iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
 	{
 		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
 
@@ -212,7 +212,7 @@ bool CHTML_ImageMap::On_Execute(void)
 
 				if( Title < 0 )
 				{
-					s	= CSG_String::Format("%d. %s, %d. %s", 1 + iPolygon, _TL("Polygon"), 1 + iPart, _TL("Part"));
+					s	= CSG_String::Format("%lld. %s, %d. %s", 1 + iPolygon, _TL("Polygon"), 1 + iPart, _TL("Part"));
 				}
 				else
 				{
@@ -248,9 +248,9 @@ bool CHTML_ImageMap::Get_Polygon(CSG_String &Coords, CSG_Shape_Part *pPolygon)
 
 	TSG_Point	p	= pPolygon->Get_Point(0, false);	// get last point
 
-	int			n	= 0;
+	sLong		n	= 0;
 
-	for(int iPoint=0; iPoint<pPolygon->Get_Count(); iPoint++)
+	for(sLong iPoint=0; iPoint<pPolygon->Get_Count(); iPoint++)
 	{
 		CSG_Point	q	= pPolygon->Get_Point(iPoint);
 

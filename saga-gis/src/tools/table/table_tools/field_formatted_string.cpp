@@ -198,7 +198,7 @@ bool CField_Formatted_String_Base::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
 
-	if( !pTable->is_Valid() || pTable->Get_Field_Count() <= 0 || pTable->Get_Record_Count() <= 0 )
+	if( !pTable->is_Valid() || pTable->Get_Field_Count() <= 0 || pTable->Get_Count() <= 0 )
 	{
 		Error_Set(_TL("invalid table"));
 
@@ -247,14 +247,14 @@ bool CField_Formatted_String_Base::On_Execute(void)
 
 	if( pTable->Get_Selection_Count() > 0 && Parameters("SELECTION")->asBool() )
 	{
-		for(size_t i=0; i<pTable->Get_Selection_Count() && Set_Progress(i, pTable->Get_Selection_Count()); i++)
+		for(sLong i=0; i<pTable->Get_Selection_Count() && Set_Progress(i, pTable->Get_Selection_Count()); i++)
 		{
 			Set_String(pTable->Get_Selection(i));
 		}
 	}
 	else
 	{
-		for(int i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
+		for(sLong i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
 		{
 			Set_String(pTable->Get_Record(i));
 		}
@@ -297,7 +297,7 @@ bool CField_Formatted_String_Base::Set_String(CSG_Table_Record *pRecord)
 			break;
 
 		case Key_Index:
-			s	.Printf("%d", m_Formats[i].option + pRecord->Get_Index());
+			s	.Printf("%lld", m_Formats[i].option + pRecord->Get_Index());
 			break;
 
 		case Key_String:

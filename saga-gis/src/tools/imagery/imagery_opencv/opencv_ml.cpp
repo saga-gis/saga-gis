@@ -226,7 +226,7 @@ bool COpenCV_ML::_Initialize(void)
 	//-----------------------------------------------------
 	m_pClasses->Set_NoData_Value(-1.);
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -292,7 +292,7 @@ bool COpenCV_ML::_Finalize(void)
 				}
 			}
 
-			pLUT->asTable()->Set_Record_Count(m_Classes.Get_Count());
+			pLUT->asTable()->Set_Count(m_Classes.Get_Count());
 
 			DataObject_Set_Parameter(m_pClasses, pLUT);
 			DataObject_Set_Parameter(m_pClasses, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
@@ -377,7 +377,7 @@ inline double COpenCV_ML::_Get_Feature(int x, int y, int iFeature)
 //---------------------------------------------------------
 bool COpenCV_ML::_Get_Prediction(const Ptr<StatModel> &Model)
 {
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -440,7 +440,7 @@ bool COpenCV_ML::_Get_Training(CSG_Matrix &Data)
 		Polygons.Create(SHAPE_TYPE_Polygon);
 		Polygons.Add_Field(pPolygons->Get_Field_Name(Field), pPolygons->Get_Field_Type(Field));
 
-		for(int iShape=0; iShape<pPolygons->Get_Count(); iShape++)
+		for(sLong iShape=0; iShape<pPolygons->Get_Count(); iShape++)
 		{
 			CSG_Shape	*pShape		= pPolygons->Get_Shape(iShape);
 			CSG_Shape	*pBuffer	= Polygons.Add_Shape();
@@ -460,7 +460,7 @@ bool COpenCV_ML::_Get_Training(CSG_Matrix &Data)
 	CSG_Table_Record	*pClass	= NULL;
 
 	//-----------------------------------------------------
-	for(int iPolygon=0, ID=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
+	for(sLong iPolygon=0, ID=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
 	{
 		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape_byIndex(iPolygon);
 
@@ -476,7 +476,7 @@ bool COpenCV_ML::_Get_Training(CSG_Matrix &Data)
 	}
 
 	//-----------------------------------------------------
-	for(int iClass=m_Classes.Get_Count()-1; iClass>=0; iClass--)
+	for(sLong iClass=m_Classes.Get_Count()-1; iClass>=0; iClass--)
 	{
 		if( m_Classes[iClass].asInt(CLASS_COUNT) < 1 )
 		{

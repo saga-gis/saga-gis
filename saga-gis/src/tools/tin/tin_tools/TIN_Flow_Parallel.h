@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,20 +48,18 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__TIN_Flow_Parallel_H
 #define HEADER_INCLUDED__TIN_Flow_Parallel_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -78,26 +73,33 @@ class CTIN_Flow_Parallel : public CSG_Tool
 {
 public:
 	CTIN_Flow_Parallel(void);
-	virtual ~CTIN_Flow_Parallel(void);
 
-	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("Terrain Analysis") );	}
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Terrain Analysis") );	}
 
 
 protected:
 
-	virtual bool				On_Execute		(void);
+	virtual bool		On_Execute				(void);
 
 
 private:
 
-	int							m_iHeight, m_iArea, m_iFlow, m_iSpecific;
+	int					m_iHeight, m_iArea, m_iFlow, m_iSpecific;
 
-	CSG_TIN						*m_pFlow;
+	CSG_TIN				*m_pFlow;
 
 
-	void						Let_it_flow_single		(CSG_TIN_Node *pPoint);
-	void						Let_it_flow_multiple	(CSG_TIN_Node *pPoint);
+	void				Let_it_flow_single		(CSG_TIN_Node *pPoint);
+	void				Let_it_flow_multiple	(CSG_TIN_Node *pPoint);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__TIN_Flow_Parallel_H

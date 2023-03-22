@@ -86,7 +86,7 @@ private:
 
 	CSG_Parameters_Grid_Target	m_Grid_Target;
 
-	CSG_Parameters_PointSearch	m_Search_Options;
+	CSG_Parameters_Point_Search	m_Search_Options;
 
 	CSG_Distance_Weighting		m_Weighting;
 

@@ -227,7 +227,7 @@ bool CTransformShapes::On_Execute(void)
 	Rotate.z	= Parameters("ROTATEZ")->asDouble() * -M_DEG_TO_RAD;
 
 	//-----------------------------------------------------
-	for(int iShape=0; iShape<pShapes->Get_Count(); iShape++)
+	for(sLong iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 	{
 		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
 

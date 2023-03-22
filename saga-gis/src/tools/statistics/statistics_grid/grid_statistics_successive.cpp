@@ -558,7 +558,7 @@ bool CGrid_Statistics_Evaluate::On_Execute(void)
 	CSG_Grid	*pStdDev	= Parameters("STDDEV")->asGrid();
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#ifndef _DEBUG
 		#pragma omp parallel for

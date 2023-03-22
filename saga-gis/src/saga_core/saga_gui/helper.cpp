@@ -381,6 +381,12 @@ wxWindow *	MDI_Get_Top_Window(void)
 	return( g_pSAGA_Frame ? g_pSAGA_Frame->Top_Window_Get() : NULL );
 }
 
+//---------------------------------------------------------
+bool		MDI_Window_Arrange(int Arrange)
+{
+	return( g_pSAGA_Frame ? g_pSAGA_Frame->Arrange_Children(Arrange) : false );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -1292,7 +1298,7 @@ bool QGIS_Styles_Export(const CSG_String &File, const CSG_Table &Classes, const 
 
 		ColorRamp.Add_Child("colorRampType", "DISCRETE");
 
-		for(int i=0; i<Classes.Get_Count(); i++)
+		for(sLong i=0; i<Classes.Get_Count(); i++)
 		{
 			CSG_Table_Record &Class = Classes[i];
 

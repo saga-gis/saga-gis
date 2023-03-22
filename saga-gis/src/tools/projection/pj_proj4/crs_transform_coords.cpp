@@ -165,7 +165,7 @@ bool CCRS_Transform_Coords_Grid::On_Execute(void)
 	CSG_Grid	*pTarget_Y	= Parameters("TARGET_Y")->asGrid();
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
@@ -330,13 +330,13 @@ bool CCRS_Transform_Coords_Table::On_Execute(void)
 
 	//-----------------------------------------------------
 	//	#pragma omp parallel for
-	for(int i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
+	for(sLong i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
 	{
-		CSG_Table_Record	*pRecord	= pTable->Get_Record(i);
+		CSG_Table_Record *pRecord = pTable->Get_Record(i);
 
 		if( !pRecord->is_NoData(Source_X) && !pRecord->is_NoData(Source_Y) )
 		{
-			CSG_Point	Point(pRecord->asDouble(Source_X), pRecord->asDouble(Source_Y));
+			CSG_Point Point(pRecord->asDouble(Source_X), pRecord->asDouble(Source_Y));
 
 			if( Projector.Get_Projection(Point) )
 			{

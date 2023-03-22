@@ -188,9 +188,9 @@ bool CSG_TIN::Create(CSG_Shapes *pShapes)
 		Set_Name(pShapes->Get_Name());
 
 		//-------------------------------------------------
-		for(int iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		for(sLong iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
-			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+			CSG_Shape *pShape = pShapes->Get_Shape(iShape);
 
 			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
@@ -255,7 +255,7 @@ bool CSG_TIN::_Destroy_Edges(void)
 {
 	if( m_nEdges > 0 )
 	{
-		for(int i=0; i<m_nEdges; i++)
+		for(sLong i=0; i<m_nEdges; i++)
 		{
 			delete(m_Edges[i]);
 		}
@@ -273,7 +273,7 @@ bool CSG_TIN::_Destroy_Triangles(void)
 {
 	if( m_nTriangles > 0 )
 	{
-		for(int i=0; i<m_nTriangles; i++)
+		for(sLong i=0; i<m_nTriangles; i++)
 		{
 			delete(m_Triangles[i]);
 		}
@@ -307,7 +307,7 @@ bool CSG_TIN::Assign(CSG_Data_Object *pObject)
 		Get_History()	= pTIN->Get_History();
 
 		//-------------------------------------------------
-		for(int iNode=0; iNode<pTIN->Get_Node_Count(); iNode++)
+		for(sLong iNode=0; iNode<pTIN->Get_Node_Count(); iNode++)
 		{
 			CSG_TIN_Node	*pNode	= pTIN->Get_Node(iNode);
 
@@ -315,7 +315,7 @@ bool CSG_TIN::Assign(CSG_Data_Object *pObject)
 		}
 
 		//-------------------------------------------------
-		for(int iTriangle=0; iTriangle<pTIN->Get_Triangle_Count(); iTriangle++)
+		for(sLong iTriangle=0; iTriangle<pTIN->Get_Triangle_Count(); iTriangle++)
 		{
 			CSG_TIN_Triangle	*pTriangle	= pTIN->Get_Triangle(iTriangle);
 
@@ -352,7 +352,7 @@ bool CSG_TIN::Save(const CSG_String &File, int Format)
 
 				Points.Create(SHAPE_TYPE_Point, Get_Name(), this);
 
-				for(int i=0; i<Get_Node_Count(); i++)
+				for(sLong i=0; i<Get_Node_Count(); i++)
 				{
 					CSG_TIN_Node	*pNode	= Get_Node(i);
 
@@ -381,7 +381,7 @@ bool CSG_TIN::Save(const CSG_String &File, int Format)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Table_Record * CSG_TIN::_Get_New_Record(int Index)
+CSG_Table_Record * CSG_TIN::_Get_New_Record(sLong Index)
 {
 	return( new CSG_TIN_Node(this, Index) );
 }
@@ -405,9 +405,9 @@ CSG_TIN_Node * CSG_TIN::Add_Node(TSG_Point Point, CSG_Table_Record *pRecord, boo
 }
 
 //---------------------------------------------------------
-bool CSG_TIN::Del_Node(int iNode, bool bUpdateNow)
+bool CSG_TIN::Del_Node(sLong Index, bool bUpdateNow)
 {
-	if( Del_Record(iNode) )
+	if( Del_Record(Index) )
 	{
 		if( bUpdateNow )
 		{

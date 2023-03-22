@@ -118,7 +118,7 @@ bool CGrid_To_Points_Random::On_Execute(void)
 
 	srand((unsigned)time(NULL));
 
-	for(n=0, y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(n=0, y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{

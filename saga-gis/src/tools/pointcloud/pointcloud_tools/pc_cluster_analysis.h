@@ -98,10 +98,10 @@ private:
 
 	std::vector< std::vector<double> >	vValues;	
 
-	void					Write_Result	(CSG_Table *pTable, long nElements, int nCluster, double SP);
+	void					Write_Result	(CSG_Table *pTable, sLong nElements, int nCluster, double SP);
 
-	double					MinimumDistance	(long &nElements, int nCluster);
-	double					HillClimbing	(long &nElements, int nCluster);
+	double					MinimumDistance	(sLong &nElements, int nCluster);
+	double					HillClimbing	(sLong &nElements, int nCluster);
 
 	virtual bool			On_After_Execution(void);
 

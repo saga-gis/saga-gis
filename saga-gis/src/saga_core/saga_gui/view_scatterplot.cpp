@@ -916,7 +916,7 @@ bool CVIEW_ScatterPlot::_Initialize_Table(void)
 	m_sX.Printf("%s", m_pTable->Get_Field_Name(xField));
 	m_sY.Printf("%s", m_pTable->Get_Field_Name(yField));
 
-	for(double i=0; i<m_pTable->Get_Record_Count() && PROGRESSBAR_Set_Position(i, m_pTable->Get_Record_Count()); i+=Step)
+	for(double i=0; i<m_pTable->Get_Count() && PROGRESSBAR_Set_Position(i, m_pTable->Get_Count()); i+=Step)
 	{
 		CSG_Table_Record	*pRecord	= m_pTable->Get_Record((int)i);
 

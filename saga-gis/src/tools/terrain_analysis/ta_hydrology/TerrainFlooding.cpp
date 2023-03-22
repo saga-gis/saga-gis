@@ -229,7 +229,7 @@ bool CTerrainFloodingBase::Set_Flooding(double xWorld, double yWorld, double dWa
 			}
 		}
 
-		int iUpdate = bShow ? SG_UI_DATAOBJECT_SHOW_LAST_MAP : SG_UI_DATAOBJECT_UPDATE_ONLY;
+		int iUpdate = bShow ? SG_UI_DATAOBJECT_SHOW_MAP_ACTIVE : SG_UI_DATAOBJECT_UPDATE;
 		
 		CSG_Parameters Parameters;
 		Parameters.Add_Range("", "METRIC_ZRANGE", "", "", m_pWaterBody->Get_Min(), m_pWaterBody->Get_Max());
@@ -303,9 +303,9 @@ bool CTerrainFlooding::On_Execute(void)
 	
 
 	//-----------------------------------------------------
-	for(int iPoint=0; iPoint<pPoints->Get_Count() && Process_Get_Okay(); iPoint++)
+	for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Process_Get_Okay(); iPoint++)
 	{
-		Process_Set_Text("%s %d ...", _TL("Processing seed"), 1 + iPoint);
+		Process_Set_Text("%s %lld ...", _TL("Processing seed"), 1 + iPoint);
 
 		CSG_Shape &Point = *pPoints->Get_Shape(iPoint);
 

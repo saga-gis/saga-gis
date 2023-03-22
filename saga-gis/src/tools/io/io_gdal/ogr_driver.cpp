@@ -983,10 +983,10 @@ bool CSG_OGR_DataSet::Write(CSG_Shapes *pShapes, const CSG_String &CreationOptio
 #endif
 
 	//-----------------------------------------------------
-	for(int iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	for(sLong iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 	{
-		CSG_Shape	*pShape		= pShapes->Get_Shape(iShape);
-		OGRFeatureH pFeature	= OGR_F_Create(OGR_L_GetLayerDefn(pLayer));
+		CSG_Shape   *pShape  = pShapes->Get_Shape(iShape);
+		OGRFeatureH pFeature = OGR_F_Create(OGR_L_GetLayerDefn(pLayer));
 
 		if( _Write_Geometry(pShape, pFeature, pShapes->Get_Vertex_Type() != SG_VERTEX_TYPE_XY) )
 		{

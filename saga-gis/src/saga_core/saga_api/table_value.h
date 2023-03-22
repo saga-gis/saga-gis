@@ -259,7 +259,7 @@ public:
 
 	virtual bool					Set_Value		(sLong            Value)
 	{
-		return( Set_Value(CSG_String::Format("%ld", Value).c_str()) );
+		return( Set_Value(CSG_String::Format("%lld", Value).c_str()) );
 	}
 
 	virtual bool					Set_Value		(double           Value)
@@ -509,7 +509,7 @@ public:
 	{
 		static CSG_String	s;
 
-		s.Printf("%ld", m_Value);
+		s.Printf("%lld", m_Value);
 
 		return( s.c_str() );
 	}

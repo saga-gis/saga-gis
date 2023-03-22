@@ -276,19 +276,19 @@ bool CInterpolation::_Get_Cross_Validation(void)
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("Cross Validation"));
 
-	CSG_Simple_Statistics	SFull, SR, SE;
+	CSG_Simple_Statistics SFull, SR, SE;
 
-	CSG_Shapes	*pFull	= m_pPoints;
+	CSG_Shapes *pFull = m_pPoints;
 
-	int		i, nSamples	= 0;
+	int nSamples = 0;
 
-	for(i=0; i<pFull->Get_Count(); i++)
+	for(sLong i=0; i<pFull->Get_Count(); i++)
 	{
-		CSG_Shape	*pPoint	= pFull->Get_Shape(i);
+		CSG_Shape *pPoint = pFull->Get_Shape(i);
 
 		if( !pPoint->is_NoData(m_zField) )
 		{
-			SFull	+= pPoint->asDouble(m_zField);
+			SFull += pPoint->asDouble(m_zField);
 		}
 	}
 
@@ -297,34 +297,34 @@ bool CInterpolation::_Get_Cross_Validation(void)
 
 	if( nSubSets <= 1 || nSubSets > pFull->Get_Count() / 2 )
 	{
-		CSG_Shapes	Sample(*pFull), *pResiduals;	m_pPoints	= &Sample;
+		CSG_Shapes Sample(*pFull), *pResiduals; m_pPoints = &Sample;
 
 		if( (pResiduals = Parameters("CV_RESIDUALS")->asShapes()) != NULL )
 		{
 			pResiduals->Create(SHAPE_TYPE_Point, CSG_String::Format("%s [%s, %s]", m_pPoints->Get_Name(), Get_Name().c_str(), _TL("Residuals")));
 			pResiduals->Add_Field(pFull->Get_Field_Name(m_zField), SG_DATATYPE_Double);
-			pResiduals->Add_Field("PREDICTED", SG_DATATYPE_Double);
-			pResiduals->Add_Field("RESIDUALS" , SG_DATATYPE_Double);
+			pResiduals->Add_Field("PREDICTED"                    , SG_DATATYPE_Double);
+			pResiduals->Add_Field("RESIDUALS"                    , SG_DATATYPE_Double);
 		}
 
-		for(i=pFull->Get_Count()-1; i>=0 && Set_Progress(pFull->Get_Count()-1-i, pFull->Get_Count()); i--)
+		for(sLong i=pFull->Get_Count()-1; i>=0 && Set_Progress(pFull->Get_Count()-1-i, pFull->Get_Count()); i--)
 		{
-			CSG_Shape	*pPoint	= pFull->Get_Shape(i);
+			CSG_Shape *pPoint = pFull->Get_Shape(i);
 
 			Sample.Del_Shape(i);
 
-			double	z;
+			double z;
 
 			if( !pPoint->is_NoData(m_zField) && On_Initialize() && Get_Value(pPoint->Get_Point(0), z) )
 			{
 				nSamples++;
 
-				SE	+= SG_Get_Square(z - pPoint->asDouble(m_zField));
-				SR	+= SG_Get_Square(z - (SFull.Get_Sum() - pPoint->asDouble(m_zField)) / Sample.Get_Count());
+				SE += SG_Get_Square(z - pPoint->asDouble(m_zField));
+				SR += SG_Get_Square(z - (SFull.Get_Sum() - pPoint->asDouble(m_zField)) / Sample.Get_Count());
 
 				if( pResiduals )
 				{
-					CSG_Shape	*pResidual	= pResiduals->Add_Shape();
+					CSG_Shape *pResidual = pResiduals->Add_Shape();
 
 					pResidual->Add_Point(pPoint->Get_Point(0));
 					pResidual->Set_Value(0, pPoint->asDouble(m_zField));
@@ -342,26 +342,24 @@ bool CInterpolation::_Get_Cross_Validation(void)
 
 	else
 	{
-		CSG_Array_Int	SubSet(pFull->Get_Count());
+		CSG_Array_Int SubSet(pFull->Get_Count());
 
-		for(i=0; i<pFull->Get_Count(); i++)
+		for(sLong i=0; i<pFull->Get_Count(); i++)
 		{
-			SubSet[i]	= i % nSubSets;
+			SubSet[i] = i % nSubSets;
 		}
 
 		//-------------------------------------------------
 		for(int iSubSet=0; iSubSet<nSubSets && Process_Get_Okay(); iSubSet++)
 		{
-			CSG_Simple_Statistics	iSFull;
+			CSG_Simple_Statistics iSFull; CSG_Shapes Sample[2];
 
-			CSG_Shapes	Sample[2];
+			Sample[0].Create(SHAPE_TYPE_Point, NULL, pFull); m_pPoints = &Sample[0];
+			Sample[1].Create(SHAPE_TYPE_Point, NULL, pFull);
 
-			Sample[0].Create(SHAPE_TYPE_Point, SG_T(""), pFull); m_pPoints = &Sample[0];
-			Sample[1].Create(SHAPE_TYPE_Point, SG_T(""), pFull);
-
-			for(i=0; i<pFull->Get_Count(); i++)
+			for(sLong i=0; i<pFull->Get_Count(); i++)
 			{
-				CSG_Shape	*pPoint	= pFull->Get_Shape(i);
+				CSG_Shape *pPoint = pFull->Get_Shape(i);
 
 				if( !pPoint->is_NoData(m_zField) )
 				{
@@ -373,7 +371,7 @@ bool CInterpolation::_Get_Cross_Validation(void)
 					{
 						Sample[0].Add_Shape(pPoint);
 
-						iSFull	+= pPoint->asDouble(m_zField);
+						iSFull += pPoint->asDouble(m_zField);
 					}
 				}
 			}
@@ -383,16 +381,14 @@ bool CInterpolation::_Get_Cross_Validation(void)
 			{
 				nSamples++;
 
-				for(i=0; i<Sample[1].Get_Count(); i++)
+				for(sLong i=0; i<Sample[1].Get_Count(); i++)
 				{
-					CSG_Shape	*pPoint	= Sample[1].Get_Shape(i);
-
-					double	z;
+					CSG_Shape *pPoint = Sample[1].Get_Shape(i); double z;
 
 					if( Get_Value(pPoint->Get_Point(0), z) )
 					{
-						SE	+= SG_Get_Square(z - pPoint->asDouble(m_zField));
-						SR	+= SG_Get_Square(z - iSFull.Get_Mean());
+						SE += SG_Get_Square(z - pPoint->asDouble(m_zField));
+						SR += SG_Get_Square(z - iSFull.Get_Mean());
 					}
 				}
 			}
@@ -406,7 +402,7 @@ bool CInterpolation::_Get_Cross_Validation(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Table	*pSummary	= Parameters("CV_SUMMARY")->asTable();
+	CSG_Table *pSummary = Parameters("CV_SUMMARY")->asTable();
 
 	if( pSummary )
 	{
@@ -429,7 +425,7 @@ bool CInterpolation::_Get_Cross_Validation(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_String	Message;
+	CSG_String Message;
 
 	Message	+= CSG_String::Format("\n%s:\n"      , _TL("Cross Validation"));
 	Message	+= CSG_String::Format("\t%s:\t%s\n"  , _TL("Method" ), Parameters("CV_METHOD")->asString());

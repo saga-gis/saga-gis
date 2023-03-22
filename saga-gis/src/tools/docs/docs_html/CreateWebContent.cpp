@@ -148,24 +148,23 @@ bool CCreateWebContent::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interact
 
 bool CCreateWebContent::On_Execute_Finish(void){
 
-	int i,j;
 	CSG_String sFileName;
 	CSG_Doc_HTML HTMLDoc;
 
-	for (i = 0; i < m_pShapes->Get_Count(); i++){
+	for (sLong i = 0; i < m_pShapes->Get_Count(); i++){
 		Set_Progress(i, m_pShapes->Get_Count());
 		const SG_Char **Pictures;
 
 		if (m_Pictures[i].size() || m_Links[i].size()){
 			HTMLDoc.Open(m_pShapes->Get_Shape(i)->asString(m_iNameField));
 			Pictures = new const SG_Char *[m_Pictures[i].size()];
-			for (j = 0; j < m_Pictures[i].size(); j++){
+			for (size_t j = 0; j < m_Pictures[i].size(); j++){
 				Pictures[j] = m_Pictures[i].at(j).c_str();
 			}//for*/
 		
 			HTMLDoc.AddThumbnails(Pictures, (int)m_Pictures[i].size(), 4);
 			HTMLDoc.AddLineBreak();
-			for (j = 0; j < m_Links[i].size(); j++){
+			for (size_t j = 0; j < m_Links[i].size(); j++){
 				HTMLDoc.AddHyperlink(m_LinksDescription[i].at(j).c_str(), m_Links[i].at(j).c_str());
 				HTMLDoc.AddLineBreak();
 			}//for

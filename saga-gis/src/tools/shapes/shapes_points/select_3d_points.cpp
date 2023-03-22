@@ -148,7 +148,7 @@ bool CSelect_3D_Points::On_Execute(void)
 	//-----------------------------------------------------
 	pPoints->Select();	// unselect everything...
 
-	for(int i=0; i<pPoints->Get_Count() && Set_Progress(i, pPoints->Get_Count()); i++)
+	for(sLong i=0; i<pPoints->Get_Count() && Set_Progress(i, pPoints->Get_Count()); i++)
 	{
 		int	x, y;	CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
 

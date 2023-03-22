@@ -260,7 +260,7 @@ double CWKSP_Layer_Classify::Get_Class_Value_Minimum(int iClass)
 	switch( m_Mode )
 	{
 	case CLASSIFY_LUT:
-		if( iClass >= 0 && iClass < m_pLUT->Get_Record_Count() )
+		if( iClass >= 0 && iClass < m_pLUT->Get_Count() )
 		{
 			return( m_pLUT->Get_Record(iClass)->asDouble(LUT_MIN) );
 		}
@@ -287,7 +287,7 @@ double CWKSP_Layer_Classify::Get_Class_Value_Maximum(int iClass)
 	switch( m_Mode )
 	{
 	case CLASSIFY_LUT:
-		if( iClass >= 0 && iClass < m_pLUT->Get_Record_Count() )
+		if( iClass >= 0 && iClass < m_pLUT->Get_Count() )
 		{
 			return( m_pLUT->Get_Record(iClass)->asDouble(LUT_MAX) );
 		}
@@ -314,7 +314,7 @@ double CWKSP_Layer_Classify::Get_Class_Value_Center(int iClass)
 	switch( m_Mode )
 	{
 	case CLASSIFY_LUT:
-		if( iClass >= 0 && iClass < m_pLUT->Get_Record_Count() )
+		if( iClass >= 0 && iClass < m_pLUT->Get_Count() )
 		{
 			return( 0.5 * (m_pLUT->Get_Record(iClass)->asDouble(LUT_MIN) + m_pLUT->Get_Record(iClass)->asDouble(LUT_MAX)) );
 		}
@@ -344,7 +344,7 @@ wxString CWKSP_Layer_Classify::Get_Class_Name(int iClass)
 	switch( m_Mode )
 	{
 	case CLASSIFY_LUT:
-		if( iClass >= 0 && iClass < m_pLUT->Get_Record_Count() )
+		if( iClass >= 0 && iClass < m_pLUT->Get_Count() )
 		{
 			s.Printf(SG_T("%s"), m_pLUT->Get_Record(iClass)->asString(LUT_TITLE));
 		}
@@ -469,14 +469,14 @@ int CWKSP_Layer_Classify::_LUT_Get_Class(double Value)	const
 {
 	int		a, b, i, c;
 
-	if( m_pLUT->Get_Record_Count() > 0 )
+	if( m_pLUT->Get_Count() > 0 )
 	{
 		if( m_pLUT->Get_Index_Field(0) != LUT_MIN || m_pLUT->Get_Index_Order(0) != TABLE_INDEX_Ascending )
 		{
 			m_pLUT->Set_Index(LUT_MIN, TABLE_INDEX_Ascending);
 		}
 
-		for(a=0, b=m_pLUT->Get_Record_Count()-1; a < b; )
+		for(a=0, b=m_pLUT->Get_Count()-1; a < b; )
 		{
 			i	= a + (b - a) / 2;
 			c	= _LUT_Cmp_Class(Value, i);
@@ -534,14 +534,14 @@ int CWKSP_Layer_Classify::_LUT_Get_Class(const CSG_String &Value)	const
 {
 	int		a, b, i, c;
 
-	if( m_pLUT->Get_Record_Count() > 0 )
+	if( m_pLUT->Get_Count() > 0 )
 	{
 		if( m_pLUT->Get_Index_Field(0) != LUT_MIN || m_pLUT->Get_Index_Order(0) != TABLE_INDEX_Ascending )
 		{
 			m_pLUT->Set_Index(LUT_MIN, TABLE_INDEX_Ascending);
 		}
 
-		for(a=0, b=m_pLUT->Get_Record_Count()-1; a < b; )
+		for(a=0, b=m_pLUT->Get_Count()-1; a < b; )
 		{
 			i	= a + (b - a) / 2;
 			c	= _LUT_Cmp_Class(Value, i);
@@ -827,7 +827,7 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Shapes *pShapes, int Attribute,
 		return( true );
 	}
 
-	for(int i=0; i<pShapes->Get_Count() && PROGRESSBAR_Set_Position(i, pShapes->Get_Count()); i++)
+	for(sLong i=0; i<pShapes->Get_Count() && PROGRESSBAR_Set_Position(i, pShapes->Get_Count()); i++)
 	{
 		CSG_Shape	*pShape	= pShapes->Get_Shape(i);
 

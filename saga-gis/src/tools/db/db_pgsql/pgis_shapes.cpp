@@ -90,7 +90,7 @@ void CShapes_Load::On_Connection_Changed(CSG_Parameters *pParameters)
 
 		if( Get_Connection()->Table_Load(t, "geometry_columns") )
 		{
-			for(int i=0; i<t.Get_Count(); i++)
+			for(sLong i=0; i<t.Get_Count(); i++)
 			{
 				s += t[i].asString("f_table_name") + CSG_String("|");
 			}
@@ -442,7 +442,7 @@ void CShapes_SRID_Update::On_Connection_Changed(CSG_Parameters *pParameters)
 
 		if( Get_Connection()->Table_Load(t, "geometry_columns") )
 		{
-			for(int i=0; i<t.Get_Count(); i++)
+			for(sLong i=0; i<t.Get_Count(); i++)
 			{
 				s += t[i].asString("f_table_name") + CSG_String("|");
 			}
@@ -521,7 +521,7 @@ void CShapes_Join::On_Connection_Changed(CSG_Parameters *pParameters)
 
 	if( Get_Connection()->Table_Load(t, "geometry_columns") )
 	{
-		for(int i=0; i<t.Get_Count(); i++)
+		for(sLong i=0; i<t.Get_Count(); i++)
 		{
 			s += t[i].asString("f_table_name") + CSG_String("|");
 		}
@@ -572,7 +572,7 @@ void CShapes_Join::Update_Fields(CSG_Parameters *pParameters, bool bGeoTable)
 
 	Get_Connection()->Shapes_Geometry_Info(Table, &geoField, NULL);
 
-	for(int i=0; i<t.Get_Count(); i++)
+	for(sLong i=0; i<t.Get_Count(); i++)
 	{
 		if( geoField.Cmp(t[i].asString(0)) )
 		{

@@ -154,7 +154,7 @@ bool CGrid_Plotter::On_Execute(void)
 	double yRange	= Parameters("Y_RANGE.MAX")->asDouble() - yMin;
 
 	//-----------------------------------------------------
-	for(int y=0; y<pFunction->Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<pFunction->Get_NY() && Set_Progress(y, pFunction->Get_NY()-1); y++)
 	{
 		Formula.Set_Variable('y', yMin + yRange * (y / (double)pFunction->Get_NY()));
 

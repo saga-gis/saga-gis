@@ -251,7 +251,7 @@ bool CGrid_PCA::Get_Matrix(CSG_Matrix &Matrix)
 			Matrix[j1][j1] = 1.0;
 		}
 
-		for(iCell=0; iCell<Get_NCells() && Set_Progress_NCells(iCell); iCell++)
+		for(iCell=0; iCell<Get_NCells() && Set_Progress_Cells(iCell); iCell++)
 		{
 			if( !is_NoData(iCell) )
 			{
@@ -269,7 +269,7 @@ bool CGrid_PCA::Get_Matrix(CSG_Matrix &Matrix)
 	//-----------------------------------------------------
 	case  1:	// Variance-covariance matrix: Center the column vectors.
 	case  2:	// Sums-of-squares-and-cross-products matrix
-		for(iCell=0; iCell<Get_NCells() && Set_Progress_NCells(iCell); iCell++)
+		for(iCell=0; iCell<Get_NCells() && Set_Progress_Cells(iCell); iCell++)
 		{
 			if( !is_NoData(iCell) )
 			{
@@ -529,7 +529,7 @@ bool CGrid_PCA::Get_Components(const CSG_Matrix &Eigen_Vectors)
 	}
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for private(i)
 		for(int x=0; x<Get_NX(); x++)
@@ -701,7 +701,7 @@ bool CGrid_PCA_Inverse::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for private(i)
 		for(int x=0; x<Get_NX(); x++)
