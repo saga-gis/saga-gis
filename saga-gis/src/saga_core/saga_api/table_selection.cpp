@@ -71,11 +71,11 @@ bool CSG_Table::_Add_Selection(sLong iRecord)
 }
 
 //---------------------------------------------------------
-bool CSG_Table::_Set_Selection(sLong iRecord, sLong Index)
+bool CSG_Table::_Set_Selection(sLong Index, sLong Selected)
 {
-	if( Index < m_Selection.Get_Size() )
+	if( Selected < m_Selection.Get_Size() )
 	{
-		*((sLong *)m_Selection.Get_Entry(Index)) = iRecord;
+		*((sLong *)m_Selection.Get_Entry(Selected)) = Index;
 
 		return( true );
 	}
@@ -84,11 +84,11 @@ bool CSG_Table::_Set_Selection(sLong iRecord, sLong Index)
 }
 
 //---------------------------------------------------------
-bool CSG_Table::_Del_Selection(sLong iRecord)
+bool CSG_Table::_Del_Selection(sLong Index)
 {
 	for(sLong i=0; i<m_Selection.Get_Size(); i++)
 	{
-		if( iRecord == Get_Selection_Index(i) )
+		if( Index == Get_Selection_Index(i) )
 		{
 			sLong *Selection = (sLong *)m_Selection.Get_Array();
 

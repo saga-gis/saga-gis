@@ -143,8 +143,6 @@ public:
 
 	virtual TSG_Point_Type		Get_Type		(void)	const	{	return( TSG_Point_Type::SG_POINT_TYPE_2D );	}
 
-	operator TSG_Point							(void)	const	{	TSG_Point p; p.x = x; p.y = y; return( p );	}
-
 	virtual bool				operator ==		(const CSG_Point &Point)	const	{	return(  is_Equal(Point) );	}
 	virtual bool				operator !=		(const CSG_Point &Point)	const	{	return( !is_Equal(Point) );	}
 
@@ -237,8 +235,6 @@ public:
 
 	virtual TSG_Point_Type		Get_Type		(void)	const	{	return( TSG_Point_Type::SG_POINT_TYPE_3D );	}
 
-	operator TSG_Point_3D						(void)	const	{	TSG_Point_3D p; p.x = x; p.y = y; p.z = z; return( p );	}
-
 	virtual bool				operator ==		(const CSG_Point_3D &Point)	const	{	return(  is_Equal(Point) );	}
 	virtual bool				operator !=		(const CSG_Point_3D &Point)	const	{	return( !is_Equal(Point) );	}
 
@@ -330,8 +326,6 @@ public:
 	virtual ~CSG_Point_4D(void)	{}
 
 	virtual TSG_Point_Type		Get_Type		(void)	const	{	return( TSG_Point_Type::SG_POINT_TYPE_4D );	}
-
-	operator TSG_Point_4D						(void)	const	{	TSG_Point_4D p; p.x = x; p.y = y; p.z = z; p.m = m; return( p );	}
 
 	virtual bool				operator ==		(const CSG_Point_4D &Point)	const	{	return(  is_Equal(Point) );	}
 	virtual bool				operator !=		(const CSG_Point_4D &Point)	const	{	return( !is_Equal(Point) );	}
@@ -437,8 +431,6 @@ public:
 	CSG_Rect(double xMin, double yMin, double xMax, double yMax);
 
 	~CSG_Rect(void);
-
-	operator const TSG_Rect &					(void) const	{	return( *this );	}
 
 	bool						operator ==		(const CSG_Rect &Rect) const;
 	bool						operator !=		(const CSG_Rect &Rect) const;

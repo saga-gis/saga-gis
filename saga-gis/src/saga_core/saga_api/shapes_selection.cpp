@@ -66,13 +66,13 @@ bool CSG_Shapes::Select(sLong Index, bool bInvert)
 }
 
 //---------------------------------------------------------
-bool CSG_Shapes::Select(CSG_Shape *pShape, bool bInvert)
+bool CSG_Shapes::Select(CSG_Table_Record *pShape, bool bInvert)
 {
 	return( CSG_Table::Select(pShape, bInvert) );
 }
 
 //---------------------------------------------------------
-bool CSG_Shapes::Select(TSG_Rect Extent, bool bInvert)
+bool CSG_Shapes::Select(const TSG_Rect &Extent, bool bInvert)
 {
 	if( !bInvert )
 	{
@@ -91,7 +91,7 @@ bool CSG_Shapes::Select(TSG_Rect Extent, bool bInvert)
 }
 
 //---------------------------------------------------------
-bool CSG_Shapes::Select(TSG_Point Point, bool bInvert)
+bool CSG_Shapes::Select(const TSG_Point &Point, bool bInvert)
 {
 	if( Get_Type() != SHAPE_TYPE_Polygon )
 	{
@@ -119,11 +119,11 @@ const CSG_Rect & CSG_Shapes::Get_Selection_Extent(void)
 {
 	if( Get_Selection_Count() > 0 )
 	{
-		m_Extent_Selected = Get_Selection(0)->Get_Extent();
+		m_Extent_Selected = ((CSG_Shape *)Get_Selection(0))->Get_Extent();
 
 		for(sLong i=1; i<Get_Selection_Count(); i++)
 		{
-			m_Extent_Selected.Union(Get_Selection(i)->Get_Extent());
+			m_Extent_Selected.Union(((CSG_Shape *)Get_Selection(i))->Get_Extent());
 		}
 	}
 	else

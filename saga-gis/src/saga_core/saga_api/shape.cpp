@@ -176,7 +176,7 @@ TSG_Intersection CSG_Shape::Intersects(CSG_Shape *pShape)
 }
 
 //---------------------------------------------------------
-TSG_Intersection CSG_Shape::Intersects(TSG_Rect Region)
+TSG_Intersection CSG_Shape::Intersects(const TSG_Rect &Region)
 {
 	TSG_Intersection Intersection = Get_Extent().Intersects(Region);
 

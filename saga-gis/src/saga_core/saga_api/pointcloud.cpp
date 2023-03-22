@@ -1510,13 +1510,13 @@ bool CSG_PointCloud::Select(sLong Index, bool bInvert)
 }
 
 //---------------------------------------------------------
-bool CSG_PointCloud::Select(CSG_Shape *pShape, bool bInvert)
+bool CSG_PointCloud::Select(CSG_Table_Record *pShape, bool bInvert)
 {
     return( CSG_Table::Select(pShape, bInvert) );
 }
 
 //---------------------------------------------------------
-bool CSG_PointCloud::Select(TSG_Rect Extent, bool bInvert)
+bool CSG_PointCloud::Select(const TSG_Rect &Extent, bool bInvert)
 {
 	if( !bInvert )	// clear selection
 	{
@@ -1541,7 +1541,7 @@ bool CSG_PointCloud::Select(TSG_Rect Extent, bool bInvert)
 }
 
 //---------------------------------------------------------
-bool CSG_PointCloud::Select(TSG_Point Point, bool bInvert)
+bool CSG_PointCloud::Select(const TSG_Point &Point, bool bInvert)
 {
 	return( Select(CSG_Rect(Point.x, Point.y, Point.x, Point.y), bInvert) );
 }

@@ -219,7 +219,7 @@ public:
 	virtual TSG_Point			Get_Centroid		(void) = 0;
 
 	TSG_Intersection			Intersects			(CSG_Shape *pShape);
-	TSG_Intersection			Intersects			(TSG_Rect Extent);
+	TSG_Intersection			Intersects			(const TSG_Rect &Extent);
 
 	virtual double				Get_Distance		(TSG_Point Point                            ) const = 0;
 	virtual double				Get_Distance		(TSG_Point Point                 , int iPart) const = 0;
@@ -819,13 +819,13 @@ public:
 	bool							Make_Clean				(void);
 
 	//-----------------------------------------------------
-	virtual CSG_Shape *				Get_Selection			(sLong Index = 0)		{	return( (CSG_Shape *)CSG_Table::Get_Selection(Index) );	};
 	virtual const CSG_Rect &		Get_Selection_Extent	(void);
+	virtual CSG_Shape *				Get_Selection			(sLong Index = 0)		{	return( (CSG_Shape *)CSG_Table::Get_Selection(Index) );	};
 
-	virtual bool					Select					(sLong Index             , bool bInvert = false);
-	virtual bool					Select					(CSG_Shape *pShape = NULL, bool bInvert = false);
-	virtual bool					Select					(TSG_Rect Extent         , bool bInvert = false);
-	virtual bool					Select					(TSG_Point Point         , bool bInvert = false);
+	virtual bool					Select					(sLong Index                    , bool bInvert = false);
+	virtual bool					Select					(CSG_Table_Record *pShape = NULL, bool bInvert = false);
+	virtual bool					Select					(const TSG_Rect &Extent         , bool bInvert = false);
+	virtual bool					Select					(const TSG_Point &Point         , bool bInvert = false);
 
 
 protected:
