@@ -492,7 +492,7 @@ bool CGrid_Statistics_AddTo_Polygon::Get_Simple_Index(CSG_Shapes *pPolygons, CSG
 	//-----------------------------------------------------
 	for(sLong iShape=0; iShape<pPolygons->Get_Count() && Set_Progress(iShape, pPolygons->Get_Count()); iShape++)
 	{
-		CSG_Shape *pPolygon = pPolygons->Get_Shape(iShape); TSG_Rect Extent = pPolygon->Get_Extent().m_rect;
+		CSG_Shape *pPolygon = pPolygons->Get_Shape(iShape); TSG_Rect Extent = pPolygon->Get_Extent();
 
 		int xStart = Get_System().Get_xWorld_to_Grid(Extent.xMin) - 1;	if( xStart < 0 )		xStart	= 0;
 		int xStop  = Get_System().Get_xWorld_to_Grid(Extent.xMax) + 1;	if( xStop >= Get_NX() )	xStop	= Get_NX() - 1;

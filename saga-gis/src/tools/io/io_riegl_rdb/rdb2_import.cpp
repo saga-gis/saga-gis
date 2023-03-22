@@ -268,7 +268,7 @@ bool CRDB2_Import::On_Execute(void)
 			auto create_and_bind_attribute = [&att_id_cnt, &select, pPoints] (
 				const char *att, int &att_id, void *buffer,
 				const riegl::rdb::pointcloud::DataType rdb_type,
-				ESG_Data_Type saga_type
+				TSG_Data_Type saga_type
 				)
 			{
 				select.bind(att,        rdb_type, buffer);

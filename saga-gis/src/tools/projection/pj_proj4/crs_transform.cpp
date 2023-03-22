@@ -398,8 +398,8 @@ bool CSG_CRSProjector::Get_Projection(TSG_Point &Point)	const
 //---------------------------------------------------------
 bool CSG_CRSProjector::Get_Projection(CSG_Point &Point)	const
 {
-	double	x	= Point.Get_X();
-	double	y	= Point.Get_Y();
+	double	x	= Point.x;
+	double	y	= Point.y;
 
 	if( Get_Projection(x, y) )
 	{
@@ -470,17 +470,15 @@ bool CSG_CRSProjector::Get_Projection(double &x, double &y, double &z)	const
 }
 
 //---------------------------------------------------------
-bool CSG_CRSProjector::Get_Projection(TSG_Point_Z &Point)	const
+bool CSG_CRSProjector::Get_Projection(TSG_Point_3D &Point)	const
 {
 	return( Get_Projection(Point.x, Point.y, Point.z) );
 }
 
 //---------------------------------------------------------
-bool CSG_CRSProjector::Get_Projection(CSG_Point_Z &Point)	const
+bool CSG_CRSProjector::Get_Projection(CSG_Point_3D &Point)	const
 {
-	double	x	= Point.Get_X();
-	double	y	= Point.Get_Y();
-	double	z	= Point.Get_Z();
+	double x = Point.x, y = Point.y, z = Point.z;
 
 	if( Get_Projection(x, y, z) )
 	{

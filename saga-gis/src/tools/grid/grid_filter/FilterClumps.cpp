@@ -111,8 +111,8 @@ int CFilterClumps::CalculateCellBlockArea(){
 
 		for (int iPt=0; iPt<m_CentralPoints.Get_Count();iPt++){
 
-			iX=m_CentralPoints.Get_X(iPt);
-			iY=m_CentralPoints.Get_Y(iPt);
+			iX=m_CentralPoints[iPt].x;
+			iY=m_CentralPoints[iPt].y;
 			iClass = m_pInputGrid->asInt(iX,iY);
 
 			for (int i = -1; i < 2; i++) {
@@ -135,8 +135,8 @@ int CFilterClumps::CalculateCellBlockArea(){
 
 		m_CentralPoints.Clear();
 		for (int i=0; i<m_AdjPoints.Get_Count(); i++){
-			iX = m_AdjPoints.Get_X(i);
-			iY = m_AdjPoints.Get_Y(i);
+			iX = m_AdjPoints[i].x;
+			iY = m_AdjPoints[i].y;
 			m_CentralPoints.Add(iX,iY);
 		}//for
 		m_AdjPoints.Clear();
@@ -156,8 +156,8 @@ void CFilterClumps::EliminateClump(){
 
 		for (int iPt=0; iPt<m_CentralPoints.Get_Count();iPt++){
 
-			iX=m_CentralPoints.Get_X(iPt);
-			iY=m_CentralPoints.Get_Y(iPt);
+			iX=m_CentralPoints[iPt].x;
+			iY=m_CentralPoints[iPt].y;
 			iClass = m_pInputGrid->asInt(iX,iY);
 
 			for (int i = -1; i < 2; i++) {
@@ -179,8 +179,8 @@ void CFilterClumps::EliminateClump(){
 
 		m_CentralPoints.Clear();
 		for (int i=0; i<m_AdjPoints.Get_Count(); i++){
-			iX = m_AdjPoints.Get_X(i);
-			iY = m_AdjPoints.Get_Y(i);
+			iX = m_AdjPoints[i].x;
+			iY = m_AdjPoints[i].y;
 			m_CentralPoints.Add(iX,iY);
 		}//for
 		m_AdjPoints.Clear();

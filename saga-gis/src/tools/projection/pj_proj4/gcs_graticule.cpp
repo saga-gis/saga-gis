@@ -248,17 +248,17 @@ bool CGCS_Graticule::Get_Graticule(const CSG_Rect &Extent)
 	}
 
 	//-----------------------------------------------------
-	r.m_rect.xMin = Interval * floor(r.Get_XMin() / Interval);
-	r.m_rect.xMax = Interval * ceil (r.Get_XMax() / Interval);
-	r.m_rect.yMin = Interval * floor(r.Get_YMin() / Interval);
-	r.m_rect.yMax = Interval * ceil (r.Get_YMax() / Interval);
+	r.xMin = Interval * floor(r.Get_XMin() / Interval);
+	r.xMax = Interval * ceil (r.Get_XMax() / Interval);
+	r.yMin = Interval * floor(r.Get_YMin() / Interval);
+	r.yMax = Interval * ceil (r.Get_YMax() / Interval);
 
 	r.Inflate(Interval, false);
 
-	if( r.Get_XMin() < -180. ) r.m_rect.xMin = -180.;
-	if( r.Get_XMax() >  180. ) r.m_rect.xMax =  180.;
-	if( r.Get_YMin() <  -90. ) r.m_rect.yMin =  -90.;
-	if( r.Get_YMax() >   90. ) r.m_rect.yMax =   90.;
+	if( r.Get_XMin() < -180. ) r.xMin = -180.;
+	if( r.Get_XMax() >  180. ) r.xMax =  180.;
+	if( r.Get_YMin() <  -90. ) r.yMin =  -90.;
+	if( r.Get_YMax() >   90. ) r.yMax =   90.;
 
 	//-----------------------------------------------------
 	double Resolution = Parameters("RESOLUTION")->asDouble(); if( Resolution <= 0. ) Resolution = Interval;
@@ -505,8 +505,8 @@ bool CGCS_Graticule::Get_Extent(const CSG_Rect &Extent, CSG_Rect &r)
 
 		m_Projector.Set_Inverse(false);
 
-		if( r.Get_XMin() < -180. ) r.m_rect.xMin = -180.; else if( r.Get_XMax() > 180. ) r.m_rect.xMax = 180.;
-		if( r.Get_YMin() <  -90. ) r.m_rect.yMin =  -90.; else if( r.Get_YMax() >  90. ) r.m_rect.yMax =  90.;
+		if( r.Get_XMin() < -180. ) r.xMin = -180.; else if( r.Get_XMax() > 180. ) r.xMax = 180.;
+		if( r.Get_YMin() <  -90. ) r.yMin =  -90.; else if( r.Get_YMax() >  90. ) r.yMax =  90.;
 
 		return( r.Get_XRange() > 0. && r.Get_YRange() > 0. );
 	}

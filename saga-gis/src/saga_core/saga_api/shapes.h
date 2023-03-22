@@ -87,7 +87,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_Vertex_Type
+typedef enum
 {
 	SG_VERTEX_TYPE_XY		= 0,
 	SG_VERTEX_TYPE_XYZ,
@@ -96,7 +96,7 @@ typedef enum ESG_Vertex_Type
 TSG_Vertex_Type;
 
 //---------------------------------------------------------
-typedef enum ESG_Shape_Type
+typedef enum
 {
 	SHAPE_TYPE_Undefined	= 0,
 	SHAPE_TYPE_Point,
@@ -110,7 +110,7 @@ TSG_Shape_Type;
 SAGA_API_DLL_EXPORT CSG_String	SG_Get_ShapeType_Name	(TSG_Shape_Type Type);
 
 //---------------------------------------------------------
-typedef enum ESG_Shape_File_Format
+typedef enum
 {
 	SHAPE_FILE_FORMAT_Undefined	= 0,
 	SHAPE_FILE_FORMAT_ESRI,
@@ -161,18 +161,18 @@ public:
 
 	virtual int					Add_Point			(double x, double y,                    int iPart = 0) = 0;
 	virtual int					Add_Point			(const CSG_Point    &p,                 int iPart = 0) = 0;
-	virtual int					Add_Point			(const CSG_Point_Z  &p,                 int iPart = 0) = 0;
-	virtual int					Add_Point			(const CSG_Point_ZM &p,                 int iPart = 0) = 0;
+	virtual int					Add_Point			(const CSG_Point_3D &p,                 int iPart = 0) = 0;
+	virtual int					Add_Point			(const CSG_Point_4D &p,                 int iPart = 0) = 0;
 
 	virtual int					Ins_Point			(double x, double y,    int iPoint    , int iPart = 0) = 0;
 	virtual int					Ins_Point			(const CSG_Point    &p, int iPoint    , int iPart = 0) = 0;
-	virtual int					Ins_Point			(const CSG_Point_Z  &p, int iPoint    , int iPart = 0) = 0;
-	virtual int					Ins_Point			(const CSG_Point_ZM &p, int iPoint    , int iPart = 0) = 0;
+	virtual int					Ins_Point			(const CSG_Point_3D &p, int iPoint    , int iPart = 0) = 0;
+	virtual int					Ins_Point			(const CSG_Point_4D &p, int iPoint    , int iPart = 0) = 0;
 
 	virtual int					Set_Point			(double x, double y,    int iPoint = 0, int iPart = 0) = 0;
 	virtual int					Set_Point			(const CSG_Point    &p, int iPoint = 0, int iPart = 0) = 0;
-	virtual int					Set_Point			(const CSG_Point_Z  &p, int iPoint = 0, int iPart = 0) = 0;
-	virtual int					Set_Point			(const CSG_Point_ZM &p, int iPoint = 0, int iPart = 0) = 0;
+	virtual int					Set_Point			(const CSG_Point_3D &p, int iPoint = 0, int iPart = 0) = 0;
+	virtual int					Set_Point			(const CSG_Point_4D &p, int iPoint = 0, int iPart = 0) = 0;
 
 	virtual int					Del_Point			(                       int iPoint    , int iPart = 0) = 0;
 
@@ -184,9 +184,9 @@ public:
 	virtual double				Get_Z				(int iPoint = 0, int iPart = 0, bool bAscending = true) const { return( 0. ); }
 	virtual double				Get_ZMin			(void)                                                        { return( 0. ); }
 	virtual double				Get_ZMax			(void)                                                        { return( 0. ); }
-	virtual TSG_Point_Z			Get_Point_Z			(int iPoint = 0, int iPart = 0, bool bAscending = true) const
+	virtual TSG_Point_3D		Get_Point_Z			(int iPoint = 0, int iPart = 0, bool bAscending = true) const
 	{
-		TSG_Point_Z Point; TSG_Point p = Get_Point(iPoint, iPart, bAscending);
+		TSG_Point_3D Point; TSG_Point p = Get_Point(iPoint, iPart, bAscending);
 
 		Point.x = p.x;
 		Point.y = p.y;
@@ -200,9 +200,9 @@ public:
 	virtual double				Get_M				(int iPoint = 0, int iPart = 0, bool bAscending = true) const { return( 0. ); }
 	virtual double				Get_MMin			(void)                                                        { return( 0. ); }
 	virtual double				Get_MMax			(void)                                                        { return( 0. ); }
-	virtual TSG_Point_ZM		Get_Point_ZM		(int iPoint = 0, int iPart = 0, bool bAscending = true) const
+	virtual TSG_Point_4D		Get_Point_ZM		(int iPoint = 0, int iPart = 0, bool bAscending = true) const
 	{
-		TSG_Point_ZM Point; TSG_Point p = Get_Point(iPoint, iPart, bAscending);
+		TSG_Point_4D Point; TSG_Point p = Get_Point(iPoint, iPart, bAscending);
 
 		Point.x = p.x;
 		Point.y = p.y;
@@ -264,18 +264,18 @@ public:
 
 	virtual int					Add_Point			(double x, double y,                    int iPart = 0) { return( Set_Point(x, y, 0) ); }
 	virtual int					Add_Point			(const CSG_Point    &p,                 int iPart = 0) { return( Set_Point(p   , 0) ); }
-	virtual int					Add_Point			(const CSG_Point_Z  &p,                 int iPart = 0) { return( Set_Point(p   , 0) ); }
-	virtual int					Add_Point			(const CSG_Point_ZM &p,                 int iPart = 0) { return( Set_Point(p   , 0) ); }
+	virtual int					Add_Point			(const CSG_Point_3D &p,                 int iPart = 0) { return( Set_Point(p   , 0) ); }
+	virtual int					Add_Point			(const CSG_Point_4D &p,                 int iPart = 0) { return( Set_Point(p   , 0) ); }
 
 	virtual int					Ins_Point			(double x, double y,    int iPoint    , int iPart = 0) { return( Set_Point(x, y, 0) ); }
 	virtual int					Ins_Point			(const CSG_Point    &p, int iPoint    , int iPart = 0) { return( Set_Point(p   , 0) ); }
-	virtual int					Ins_Point			(const CSG_Point_Z  &p, int iPoint    , int iPart = 0) { return( Set_Point(p   , 0) ); }
-	virtual int					Ins_Point			(const CSG_Point_ZM &p, int iPoint    , int iPart = 0) { return( Set_Point(p   , 0) ); }
+	virtual int					Ins_Point			(const CSG_Point_3D &p, int iPoint    , int iPart = 0) { return( Set_Point(p   , 0) ); }
+	virtual int					Ins_Point			(const CSG_Point_4D &p, int iPoint    , int iPart = 0) { return( Set_Point(p   , 0) ); }
 
 	virtual int					Set_Point			(double x, double y,    int iPoint = 0, int iPart = 0) { m_Point.x =   x; m_Point.y =   y;                               _Invalidate(); return( 1 ); }
 	virtual int					Set_Point			(const CSG_Point    &p, int iPoint = 0, int iPart = 0) { m_Point.x = p.x; m_Point.y = p.y;                               _Invalidate(); return( 1 ); }
-	virtual int					Set_Point			(const CSG_Point_Z  &p, int iPoint = 0, int iPart = 0) { m_Point.x = p.x; m_Point.y = p.y; Set_Z(p.z, 0);                _Invalidate(); return( 1 ); }
-	virtual int					Set_Point			(const CSG_Point_ZM &p, int iPoint = 0, int iPart = 0) { m_Point.x = p.x; m_Point.y = p.y; Set_Z(p.z, 0); Set_M(p.m, 0); _Invalidate(); return( 1 ); }
+	virtual int					Set_Point			(const CSG_Point_3D &p, int iPoint = 0, int iPart = 0) { m_Point.x = p.x; m_Point.y = p.y; Set_Z(p.z, 0);                _Invalidate(); return( 1 ); }
+	virtual int					Set_Point			(const CSG_Point_4D &p, int iPoint = 0, int iPart = 0) { m_Point.x = p.x; m_Point.y = p.y; Set_Z(p.z, 0); Set_M(p.m, 0); _Invalidate(); return( 1 ); }
 
 	virtual int					Del_Point			(                       int iPoint    , int iPart = 0) { return( -1 ); }
 
@@ -286,10 +286,10 @@ public:
 
 	virtual const CSG_Rect &	Get_Extent			(void);
 
-	virtual double				Get_Distance		(TSG_Point Point                            )	const	{                 return( SG_Get_Distance(Point, m_Point) ); }
-	virtual double				Get_Distance		(TSG_Point Point                 , int iPart)	const	{                 return( SG_Get_Distance(Point, m_Point) ); }
-	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next           )	const	{ Next = m_Point; return( SG_Get_Distance(Point, m_Point) ); }
-	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next, int iPart)	const	{ Next = m_Point; return( SG_Get_Distance(Point, m_Point) ); }
+	virtual double				Get_Distance		(TSG_Point Point                            )	const  {                 return( SG_Get_Distance(Point, m_Point) ); }
+	virtual double				Get_Distance		(TSG_Point Point                 , int iPart)	const  {                 return( SG_Get_Distance(Point, m_Point) ); }
+	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next           )	const  { Next = m_Point; return( SG_Get_Distance(Point, m_Point) ); }
+	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next, int iPart)	const  { Next = m_Point; return( SG_Get_Distance(Point, m_Point) ); }
 
 
 protected:
@@ -381,24 +381,24 @@ public:
 			return( m_Points[bAscending ? iPoint : m_nPoints - 1 - iPoint] );
 		}
 
-		return( CSG_Point(0., 0.) );
+		return( (TSG_Point)CSG_Point(0., 0.) );
 	}
 
 
 	int							Add_Point			(double x, double y   ) { return( Ins_Point(x, y, m_nPoints) ); }
 	int							Add_Point			(const CSG_Point    &p) { return( Ins_Point(p   , m_nPoints) ); }
-	int							Add_Point			(const CSG_Point_Z  &p) { return( Ins_Point(p   , m_nPoints) ); }
-	int							Add_Point			(const CSG_Point_ZM &p) { return( Ins_Point(p   , m_nPoints) ); }
+	int							Add_Point			(const CSG_Point_3D &p) { return( Ins_Point(p   , m_nPoints) ); }
+	int							Add_Point			(const CSG_Point_4D &p) { return( Ins_Point(p   , m_nPoints) ); }
 
 	int							Ins_Point			(double x, double y   , int iPoint);
 	int							Ins_Point			(const CSG_Point    &p, int iPoint) { return( Ins_Point(p.x, p.y, iPoint) ); }
-	int							Ins_Point			(const CSG_Point_Z  &p, int iPoint);
-	int							Ins_Point			(const CSG_Point_ZM &p, int iPoint);
+	int							Ins_Point			(const CSG_Point_3D &p, int iPoint);
+	int							Ins_Point			(const CSG_Point_4D &p, int iPoint);
 
 	int							Set_Point			(double x, double y   , int iPoint);
 	int							Set_Point			(const CSG_Point    &p, int iPoint) { return( Set_Point(p.x, p.y, iPoint) ); }
-	int							Set_Point			(const CSG_Point_Z  &p, int iPoint);
-	int							Set_Point			(const CSG_Point_ZM &p, int iPoint);
+	int							Set_Point			(const CSG_Point_3D &p, int iPoint);
+	int							Set_Point			(const CSG_Point_4D &p, int iPoint);
 
 	int							Del_Point			(                    int iPoint);
 
@@ -406,9 +406,9 @@ public:
 	double						Get_Z				(int iPoint, bool bAscending = true) const { return( m_Z && iPoint >= 0 && iPoint < m_nPoints ?   m_Z[bAscending ? iPoint : m_nPoints - 1 - iPoint] : 0. ); }
 	double						Get_ZMin			(void)                                     { _Update_Extent(); return( m_ZMin ); }
 	double						Get_ZMax			(void)                                     { _Update_Extent(); return( m_ZMax ); }
-	TSG_Point_Z					Get_Point_Z			(int iPoint, bool bAscending = true) const
+	TSG_Point_3D				Get_Point_Z			(int iPoint, bool bAscending = true) const
 	{
-		TSG_Point_Z Point; TSG_Point p = Get_Point(iPoint, bAscending);
+		TSG_Point_3D Point; TSG_Point p = Get_Point(iPoint, bAscending);
 
 		Point.x = p.x;
 		Point.y = p.y;
@@ -421,9 +421,9 @@ public:
 	double						Get_M				(int iPoint, bool bAscending = true) const { return( m_M && iPoint >= 0 && iPoint < m_nPoints ?	 m_M[bAscending ? iPoint : m_nPoints - 1 - iPoint] : 0. ); }
 	double						Get_MMin			(void)                                     { _Update_Extent(); return( m_MMin ); }
 	double						Get_MMax			(void)                                     { _Update_Extent(); return( m_MMax ); }
-	TSG_Point_ZM				Get_Point_ZM		(int iPoint, bool bAscending = true) const
+	TSG_Point_4D				Get_Point_ZM		(int iPoint, bool bAscending = true) const
 	{
-		TSG_Point_ZM Point; TSG_Point p = Get_Point(iPoint, bAscending);
+		TSG_Point_4D Point; TSG_Point p = Get_Point(iPoint, bAscending);
 
 		Point.x = p.x;
 		Point.y = p.y;
@@ -491,18 +491,18 @@ public:
 
 	virtual int					Add_Point			(double x, double y,                    int iPart = 0) { return( Ins_Point(x, y, Get_Point_Count(iPart), iPart) ); }
 	virtual int					Add_Point			(const CSG_Point    &p,                 int iPart = 0) { return( Ins_Point(p   , Get_Point_Count(iPart), iPart) ); }
-	virtual int					Add_Point			(const CSG_Point_Z  &p,                 int iPart = 0) { return( Ins_Point(p   , Get_Point_Count(iPart), iPart) ); }
-	virtual int					Add_Point			(const CSG_Point_ZM &p,                 int iPart = 0) { return( Ins_Point(p   , Get_Point_Count(iPart), iPart) ); }
+	virtual int					Add_Point			(const CSG_Point_3D &p,                 int iPart = 0) { return( Ins_Point(p   , Get_Point_Count(iPart), iPart) ); }
+	virtual int					Add_Point			(const CSG_Point_4D &p,                 int iPart = 0) { return( Ins_Point(p   , Get_Point_Count(iPart), iPart) ); }
 
 	virtual int					Ins_Point			(double x, double y,    int iPoint    , int iPart = 0);
 	virtual int					Ins_Point			(const CSG_Point    &p, int iPoint    , int iPart = 0) { return( Ins_Point(p.x, p.y, iPoint, iPart) ); }
-	virtual int					Ins_Point			(const CSG_Point_Z  &p, int iPoint    , int iPart = 0);
-	virtual int					Ins_Point			(const CSG_Point_ZM &p, int iPoint    , int iPart = 0);
+	virtual int					Ins_Point			(const CSG_Point_3D &p, int iPoint    , int iPart = 0);
+	virtual int					Ins_Point			(const CSG_Point_4D &p, int iPoint    , int iPart = 0);
 
 	virtual int					Set_Point			(double x, double y,    int iPoint = 0, int iPart = 0);
 	virtual int					Set_Point			(const CSG_Point    &p, int iPoint = 0, int iPart = 0) { return( Set_Point(p.x, p.y, iPoint, iPart) ); }
-	virtual int					Set_Point			(const CSG_Point_Z  &p, int iPoint = 0, int iPart = 0);
-	virtual int					Set_Point			(const CSG_Point_ZM &p, int iPoint = 0, int iPart = 0);
+	virtual int					Set_Point			(const CSG_Point_3D &p, int iPoint = 0, int iPart = 0);
+	virtual int					Set_Point			(const CSG_Point_4D &p, int iPoint = 0, int iPart = 0);
 
 	virtual int					Del_Point			(                       int iPoint    , int iPart = 0);
 
@@ -514,7 +514,7 @@ public:
 			return( m_pParts[iPart]->Get_Point(iPoint, bAscending) );
 		}
 
-		return( CSG_Point(0., 0.) );
+		return( (TSG_Point)CSG_Point(0., 0.) );
 	}
 
 	virtual void				Set_Z				(double z, int iPoint = 0, int iPart = 0)                               { if    ( iPart >= 0 && iPart < m_nParts ) m_pParts[iPart]->Set_Z(z, iPoint); }
@@ -620,7 +620,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_Polygon_Point_Relation
+typedef enum
 {
 	SG_POLYGON_POINT_Outside,
 	SG_POLYGON_POINT_Vertex,
@@ -749,7 +749,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_Shape_Copy_Mode
+typedef enum
 {
 	SHAPE_NO_COPY	= 0,
 	SHAPE_COPY_GEOM,
@@ -812,11 +812,7 @@ public:
 	virtual bool					Del_Shapes				(void)					{	return( Del_Records() );	}
 
 	virtual CSG_Shape *				Get_Shape				(const CSG_Point &Point, double Epsilon = 0.);
-	virtual CSG_Shape *				Get_Shape				(int    Index)	const	{	return( (CSG_Shape *)Get_Record        (Index) );	}
-	virtual CSG_Shape *				Get_Shape				(size_t Index)	const	{	return( (CSG_Shape *)Get_Record        (Index) );	}
 	virtual CSG_Shape *				Get_Shape				(sLong  Index)	const	{	return( (CSG_Shape *)Get_Record        (Index) );	}
-	virtual CSG_Shape *				Get_Shape_byIndex		(int    Index)	const	{	return( (CSG_Shape *)Get_Record_byIndex(Index) );	}
-	virtual CSG_Shape *				Get_Shape_byIndex		(size_t Index)	const	{	return( (CSG_Shape *)Get_Record_byIndex(Index) );	}
 	virtual CSG_Shape *				Get_Shape_byIndex		(sLong  Index)	const	{	return( (CSG_Shape *)Get_Record_byIndex(Index) );	}
 
 	//-----------------------------------------------------
@@ -912,12 +908,12 @@ public:
 	virtual bool			has_Statistics	(void)	const	{	return( false );	}
 
 	const CSG_Rect &		Get_Extent		(void)	const	{	return( m_Extent );	}
-	double					Get_xMin		(void)	const	{	return( m_Extent.m_rect.xMin   );	}
+	double					Get_xMin		(void)	const	{	return( m_Extent.xMin   );	}
 	double					Get_xCenter		(void)	const	{	return( m_Extent.Get_XCenter() );	}
-	double					Get_xMax		(void)	const	{	return( m_Extent.m_rect.xMax   );	}
-	double					Get_yMin		(void)	const	{	return( m_Extent.m_rect.yMin   );	}
+	double					Get_xMax		(void)	const	{	return( m_Extent.xMax   );	}
+	double					Get_yMin		(void)	const	{	return( m_Extent.yMin   );	}
 	double					Get_yCenter		(void)	const	{	return( m_Extent.Get_YCenter() );	}
-	double					Get_yMax		(void)	const	{	return( m_Extent.m_rect.yMax   );	}
+	double					Get_yMax		(void)	const	{	return( m_Extent.yMax   );	}
 	double					Get_Size		(void)	const	{	return( m_Extent.Get_XRange()  );	}
 
 	bool					Contains		(const CSG_Point &p)	const	{	return(	m_Extent.Contains(p   ) );	}
@@ -1129,8 +1125,8 @@ public:
 	bool						Get_Nearest_Point		(const TSG_Point &p, TSG_Point &Point, double &Value, double &Distance)	const;
 	bool						Get_Nearest_Point		(double x, double y, TSG_Point &Point, double &Value, double &Distance)	const;
 
-	size_t						Get_Nearest_Points		(CSG_Points_Z &Points, const TSG_Point &p, size_t maxPoints, double Radius = 0., int iQuadrant = -1)	const;
-	size_t						Get_Nearest_Points		(CSG_Points_Z &Points, double x, double y, size_t maxPoints, double Radius = 0., int iQuadrant = -1)	const;
+	size_t						Get_Nearest_Points		(CSG_Points_3D &Points, const TSG_Point &p, size_t maxPoints, double Radius = 0., int iQuadrant = -1)	const;
+	size_t						Get_Nearest_Points		(CSG_Points_3D &Points, double x, double y, size_t maxPoints, double Radius = 0., int iQuadrant = -1)	const;
 
 	size_t						Select_Nearest_Points	(const TSG_Point &p, size_t maxPoints, double Radius = 0., int iQuadrant = -1);
 	size_t						Select_Nearest_Points	(double x, double y, size_t maxPoints, double Radius = 0., int iQuadrant = -1);
@@ -1400,8 +1396,8 @@ public:
 	sLong						Get_Count				(void)	const	{	return( m_pPoints ? m_pPoints->Get_Count() : m_Search.Get_Match_Count() ); }
 	bool						Get_Point				(sLong Index, double &x, double &y, double &z);
 
-	bool						Get_Points				(double x, double y, CSG_Points_Z &Points);
-	bool						Get_Points				(const CSG_Point &p, CSG_Points_Z &Points);
+	bool						Get_Points				(double x, double y, CSG_Points_3D &Points);
+	bool						Get_Points				(const CSG_Point &p, CSG_Points_3D &Points);
 
 	bool						Get_Points				(double x, double y, CSG_Array_Int &Indices);
 	bool						Get_Points				(const CSG_Point &p, CSG_Array_Int &Indices);
@@ -1452,7 +1448,7 @@ enum ESG_OGIS_ByteOrder
 };
 
 //---------------------------------------------------------
-typedef enum ESG_OGIS_Type_Geometry
+typedef enum
 {
 	SG_OGIS_TYPE_Undefined				=    0,
 

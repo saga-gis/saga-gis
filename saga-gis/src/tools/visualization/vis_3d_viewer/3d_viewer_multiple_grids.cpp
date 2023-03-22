@@ -245,7 +245,7 @@ inline bool C3D_Viewer_Multiple_Grids_Panel::Get_Node(CSG_Grid *pGrid, int x, in
 {
 	if( pGrid->is_InGrid(x, y) )
 	{
-		TSG_Point_Z	p;
+		TSG_Point_3D	p;
 
 		p.x = pGrid->Get_System().Get_xGrid_to_World(x);
 		p.y = pGrid->Get_System().Get_yGrid_to_World(y);

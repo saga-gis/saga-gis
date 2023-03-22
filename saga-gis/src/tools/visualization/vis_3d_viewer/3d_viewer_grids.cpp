@@ -510,7 +510,7 @@ bool C3D_Viewer_Grids_Panel::Set_Plane(CSG_Grid &Plane, double Position, int Sid
 			#pragma omp parallel for
 			for(int y=0; y<Plane.Get_NY(); y++)
 			{
-				TSG_Point_Z p;
+				TSG_Point_3D p;
 
 				p.z = m_pGrids->Get_ZMin();
 				p.y = Plane.Get_YMin() + Plane.Get_Cellsize() * y;
@@ -546,7 +546,7 @@ bool C3D_Viewer_Grids_Panel::Set_Plane(CSG_Grid &Plane, double Position, int Sid
 			#pragma omp parallel for
 			for(int x=0; x<Plane.Get_NX(); x++)
 			{
-				TSG_Point_Z p;
+				TSG_Point_3D p;
 
 				p.z = m_pGrids->Get_ZMin();
 				p.y = m_pGrids->Get_YMin() + Position * m_pGrids->Get_YRange();
@@ -580,7 +580,7 @@ bool C3D_Viewer_Grids_Panel::Set_Plane(CSG_Grid &Plane, double Position, int Sid
 			#pragma omp parallel for
 			for(int y=0; y<Plane.Get_NY(); y++)
 			{
-				TSG_Point_Z p;
+				TSG_Point_3D p;
 
 				p.z = m_pGrids->Get_ZMin() + Position * m_pGrids->Get_ZRange();
 				p.y = Plane.Get_YMin() + Plane.Get_Cellsize() * y;
@@ -617,7 +617,7 @@ inline bool C3D_Viewer_Grids_Panel::Get_Node(CSG_Grid &Plane, double Position, i
 {
 	if( Plane.is_InGrid(x, y) )
 	{
-		TSG_Point_Z p;
+		TSG_Point_3D p;
 
 		switch( Side )
 		{

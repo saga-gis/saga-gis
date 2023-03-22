@@ -152,7 +152,7 @@ bool CGridding_Spline_BA::BA_Set_Phi(CSG_Grid &Phi, double Cellsize)
 	//-----------------------------------------------------
 	for(int i=0; i<m_Points.Get_Count(); i++)
 	{
-		TSG_Point_Z	p	= m_Points[i];
+		TSG_Point_3D	p	= m_Points[i];
 
 		int	x	= (int)(p.x	= (p.x - Phi.Get_XMin()) / Phi.Get_Cellsize());
 		int	y	= (int)(p.y	= (p.y - Phi.Get_YMin()) / Phi.Get_Cellsize());

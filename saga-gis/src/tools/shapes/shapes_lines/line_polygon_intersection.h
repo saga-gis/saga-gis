@@ -84,7 +84,7 @@ private:
 
 	bool				Get_Intersection		(CSG_Shape_Polygon *pPolygon, CSG_Shape *pLine, CSG_Shapes &Intersection);
 
-	bool				Add_Crossings			(CSG_Shape_Polygon *pPolygon, const TSG_Point_ZM Segment[2], double Distance, CSG_Shapes &Vertices);
+	bool				Add_Crossings			(CSG_Shape_Polygon *pPolygon, const TSG_Point_4D Segment[2], double Distance, CSG_Shapes &Vertices);
 
 };
 

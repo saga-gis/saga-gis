@@ -908,8 +908,8 @@ bool CCRS_Transform_Grid::Set_Target_Area(const CSG_Grid_System &Source, const C
 	if( m_Projector.Get_Source().Get_Type() == SG_PROJ_TYPE_CS_Geographic )
 	{
 		if( r.Get_XMax() > 180. )	r.Move(-180., 0.);
-		if( r.Get_YMin() < -90. )	r.m_rect.yMin	= -90.;
-		if( r.Get_YMax() <  90. )	r.m_rect.yMax	=  90.;
+		if( r.Get_YMin() < -90. )	r.yMin	= -90.;
+		if( r.Get_YMax() <  90. )	r.yMax	=  90.;
 	}
 
 	//-----------------------------------------------------

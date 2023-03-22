@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__HillShade_H
 #define HEADER_INCLUDED__HillShade_H
 
@@ -71,7 +59,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -81,7 +69,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_lighting_EXPORT CHillShade : public CSG_Tool_Grid
+class CHillShade : public CSG_Tool_Grid
 {
 public:
 	CHillShade(void);
@@ -111,7 +99,7 @@ private:
 	bool				Set_Shadow_Trace		(double x, double y, double z, double dx, double dy, double dz, int Shadow);
 
 	bool				AmbientOcclusion		(void);
-	bool				AmbientOcclusion_Trace	(int x, int y, CSG_Point_Z Direction, double dRadius);
+	bool				AmbientOcclusion_Trace	(int x, int y, const CSG_Point_3D &Direction, double Radius);
 
 };
 

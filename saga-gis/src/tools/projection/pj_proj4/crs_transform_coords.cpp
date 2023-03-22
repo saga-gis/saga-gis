@@ -176,8 +176,8 @@ bool CCRS_Transform_Coords_Grid::On_Execute(void)
 
 				if( Projector.Get_Projection(Point) )
 				{
-					pTarget_X->Set_Value(x, y, Point.Get_X());
-					pTarget_Y->Set_Value(x, y, Point.Get_Y());
+					pTarget_X->Set_Value(x, y, Point.x);
+					pTarget_Y->Set_Value(x, y, Point.y);
 
 					continue;
 				}
@@ -340,8 +340,8 @@ bool CCRS_Transform_Coords_Table::On_Execute(void)
 
 			if( Projector.Get_Projection(Point) )
 			{
-				pRecord->Set_Value(Target_X, Point.Get_X());
-				pRecord->Set_Value(Target_Y, Point.Get_Y());
+				pRecord->Set_Value(Target_X, Point.x);
+				pRecord->Set_Value(Target_Y, Point.y);
 
 				continue;
 			}

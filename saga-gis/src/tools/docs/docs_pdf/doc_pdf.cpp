@@ -1289,8 +1289,8 @@ bool CSG_Doc_PDF::Draw_Table(const CSG_Rect &r, CSG_Table *pTable, int nColumns,
 
 		for(int i=0, iRecord=0; i<nColumns; i++, iRecord+=nRecords)
 		{
-			rColumn.m_rect.xMin	= rTable.Get_XMin() + (i + 0) * dx + dxSpace;
-			rColumn.m_rect.xMax	= rTable.Get_XMin() + (i + 1) * dx - dxSpace;
+			rColumn.xMin	= rTable.Get_XMin() + (i + 0) * dx + dxSpace;
+			rColumn.xMax	= rTable.Get_XMin() + (i + 1) * dx - dxSpace;
 
 			_Draw_Table(rColumn, pTable, iRecord, nRecords, CellHeight, HeaderHeightRel);
 		}

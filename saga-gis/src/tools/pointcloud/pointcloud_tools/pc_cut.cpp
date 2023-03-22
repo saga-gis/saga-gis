@@ -521,7 +521,7 @@ bool CPC_Cut_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Intera
 
 		if( m_bAOIBox )
 		{
-			CSG_Rect		r(m_ptDown.Get_X(), m_ptDown.Get_Y(), ptWorld.Get_X(), ptWorld.Get_Y());
+			CSG_Rect		r(m_ptDown.x, m_ptDown.y, ptWorld.x, ptWorld.y);
 
 			CSG_Parameters	*pParameters	= Get_Parameters("CUT");
 

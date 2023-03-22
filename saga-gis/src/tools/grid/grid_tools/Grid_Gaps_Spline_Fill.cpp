@@ -331,7 +331,7 @@ void CGrid_Gaps_Spline_Fill::Close_Gap(void)
 
 	for(int i=0; i<m_Spline.Get_Point_Count(); i++)
 	{
-		Points.Add_Shape()->Add_Point(m_Spline.Get_Points().Get_Point(i));
+		Points.Add_Shape()->Add_Point(m_Spline.Get_Points()[i]);
 	}
 
 	CSG_KDTree_2D Search(&Points);

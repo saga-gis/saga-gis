@@ -73,13 +73,13 @@ bool		SG_Matrix_Tridiagonal_QL			(CSG_Matrix &Q, CSG_Vector &d, CSG_Vector &e);
 //---------------------------------------------------------
 CSG_Vector::CSG_Vector(void)
 {
-	m_Array.Create(sizeof(double), 0, SG_ARRAY_GROWTH_2);
+	m_Array.Create(sizeof(double), 0, TSG_Array_Growth::SG_ARRAY_GROWTH_2);
 }
 
 //---------------------------------------------------------
 CSG_Vector::CSG_Vector(const CSG_Vector &Vector)
 {
-	m_Array.Create(sizeof(double), 0, SG_ARRAY_GROWTH_2);
+	m_Array.Create(sizeof(double), 0, TSG_Array_Growth::SG_ARRAY_GROWTH_2);
 
 	Create(Vector);
 }
@@ -92,7 +92,7 @@ bool CSG_Vector::Create(const CSG_Vector &Vector)
 //---------------------------------------------------------
 CSG_Vector::CSG_Vector(sLong n, double *Data)
 {
-	m_Array.Create(sizeof(double), 0, SG_ARRAY_GROWTH_2);
+	m_Array.Create(sizeof(double), 0, TSG_Array_Growth::SG_ARRAY_GROWTH_2);
 
 	Create(n, Data);
 }

@@ -866,7 +866,7 @@ bool CPointCloud_Get_Grid_SPCVF_Interactive::On_Execute_Position(CSG_Point ptWor
 	//-----------------------------------------------------
 	case TOOL_INTERACTIVE_LUP:
 
-		CSG_Rect	AOI(m_ptDown.Get_X(), m_ptDown.Get_Y(), ptWorld.Get_X(), ptWorld.Get_Y());
+		CSG_Rect	AOI(m_ptDown.x, m_ptDown.y, ptWorld.x, ptWorld.y);
 
 		// as long as this tool only supports to drag a box, we initialize it with a fake overlap in order
 		// to use CSG_Rect instead of CSG_Shape for point in polygon check in Get_Subset():

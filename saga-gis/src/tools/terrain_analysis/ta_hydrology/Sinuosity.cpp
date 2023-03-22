@@ -138,12 +138,12 @@ bool CSinuosity::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mod
 		return( false );
 	}
 
-//	if( !m_pDEM->is_InGrid_byPos(ptWorld.Get_X(), ptWorld.Get_Y()) ){
+//	if( !m_pDEM->is_InGrid_byPos(ptWorld.x, ptWorld.y) ){
 //		return false;
 //	}//if
 
-//	iX	= (int) ((ptWorld.Get_X() - m_pDEM->Get_XMin()) / m_pDEM->Get_Cellsize());
-//	iY	= (int) ((ptWorld.Get_Y() - m_pDEM->Get_YMin()) / m_pDEM->Get_Cellsize());
+//	iX	= (int) ((ptWorld.x - m_pDEM->Get_XMin()) / m_pDEM->Get_Cellsize());
+//	iY	= (int) ((ptWorld.y - m_pDEM->Get_YMin()) / m_pDEM->Get_Cellsize());
 
 	m_iX = iX;
 	m_iY = iY;

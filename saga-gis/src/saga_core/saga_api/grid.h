@@ -85,7 +85,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_Grid_File_Format
+typedef enum
 {
 	GRID_FILE_FORMAT_Undefined			= 0,
 	GRID_FILE_FORMAT_Binary_old,
@@ -97,7 +97,7 @@ typedef enum ESG_Grid_File_Format
 TSG_Grid_File_Format;
 
 //---------------------------------------------------------
-typedef enum ESG_Grid_File_Key
+typedef enum
 {
 	GRID_FILE_KEY_NAME					= 0,
 	GRID_FILE_KEY_DESCRIPTION,
@@ -152,7 +152,7 @@ const SG_Char	gSG_Grid_File_Key_Names[GRID_FILE_KEY_Count][32]	=
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_Grid_Resampling
+typedef enum
 {
 	GRID_RESAMPLING_NearestNeighbour	= 0,
 	GRID_RESAMPLING_Bilinear,
@@ -170,7 +170,7 @@ typedef enum ESG_Grid_Resampling
 TSG_Grid_Resampling;
 
 //---------------------------------------------------------
-typedef enum ESG_Grid_Operation
+typedef enum
 {
 	GRID_OPERATION_Addition				= 0,
 	GRID_OPERATION_Subtraction,

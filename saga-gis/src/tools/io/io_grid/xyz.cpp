@@ -484,7 +484,7 @@ bool CXYZ_Import::On_Execute(void)
 
 	for(sLong i=0; i<Points.Get_Count() && Set_Progress(i, Points.Get_Count()); i++)
 	{
-		int	x, y;	CSG_Point_Z	p(Points.Get_Point(i));
+		int	x, y;	CSG_Point_3D	p(Points.Get_Point(i));
 
 		if( pGrid->Get_System().Get_World_to_Grid(x, y, p.x, p.y) )
 		{

@@ -396,7 +396,7 @@ bool CTerrainFloodingInteractive::On_Execute_Position(CSG_Point ptWorld, TSG_Too
 	{
 		Set_Progress(50.0, 100.0);
 	
-		return( Set_Flooding(ptWorld.Get_X(), ptWorld.Get_Y(), m_dWaterLevel, true) );
+		return( Set_Flooding(ptWorld.x, ptWorld.y, m_dWaterLevel, true) );
 	}
 
 	return( false );

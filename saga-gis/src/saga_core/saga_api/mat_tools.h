@@ -1403,8 +1403,8 @@ public:
 	void						Add					(double x, double y);
 
 	int							Get_Count			(void)	const	{	return( m_x.Get_N() );	}
-	double						Get_xMin			(void)	const	{	return( m_x.Get_N() > 0 ? m_x(0              ) : 0. );	}
-	double						Get_xMax			(void)	const	{	return( m_x.Get_N() > 0 ? m_x(m_x.Get_N() - 1) : 0. );	}
+	double						Get_xMin			(void)	const	{	return( m_x.Get_N() > 0 ? m_x(0                 ) : 0. );	}
+	double						Get_xMax			(void)	const	{	return( m_x.Get_N() > 0 ? m_x(m_x.Get_Size() - 1) : 0. );	}
 	double						Get_x				(int i)	const	{	return( i >= 0 && i < m_x.Get_N() ? m_x(i) : 0. );	}
 	double						Get_y				(int i)	const	{	return( i >= 0 && i < m_y.Get_N() ? m_y(i) : 0. );	}
 
@@ -1435,7 +1435,7 @@ public:
 	bool					Set_Point_Count		(int Count)	{	return( m_Points.Set_Count(Count) );	}
 	int						Get_Point_Count		(void)		{	return( (int)m_Points.Get_Count() );	}
 
-	CSG_Points_Z &			Get_Points			(void)		{	return( m_Points );	}
+	CSG_Points_3D &			Get_Points			(void)		{	return( m_Points );	}
 
 	bool					Add_Point			(double x, double y, double z)	{	return( m_Points.Add(  x,   y, z) );	}
 	bool					Add_Point			(const TSG_Point &p, double z)	{	return( m_Points.Add(p.x, p.y, z) );	}
@@ -1465,14 +1465,14 @@ public:
 
 private:
 
-	CSG_Points_Z			m_Points;
+	CSG_Points_3D			m_Points;
 
 	CSG_Vector				m_V;
 
 
-	double					_Get_hDistance		(TSG_Point_Z A, TSG_Point_Z B);
+	double					_Get_hDistance		(TSG_Point_3D A, TSG_Point_3D B);
 	double					_Get_Base_Funtion	(double x);
-	double					_Get_Base_Funtion	(TSG_Point_Z A, double x, double y);
+	double					_Get_Base_Funtion	(TSG_Point_3D A, double x, double y);
 
 };
 
@@ -1484,7 +1484,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_Test_Distribution_Type
+typedef enum
 {
 	TESTDIST_TYPE_Left	= 0,
 	TESTDIST_TYPE_Right,
@@ -1542,7 +1542,7 @@ SAGA_API_DLL_EXPORT CSG_Matrix	SG_Get_Correlation_Matrix		(const CSG_Matrix &Val
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_Regression_Correction
+typedef enum
 {
 	REGRESSION_CORR_None	= 0,
 	REGRESSION_CORR_Smith,
@@ -1563,7 +1563,7 @@ SAGA_API_DLL_EXPORT double		SG_Regression_Get_Adjusted_R2	(double R2, int nSampl
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_Regression_Type
+typedef enum
 {
 	REGRESSION_Linear	= 0,	// Y = a + b * X
 	REGRESSION_Rez_X,			// Y = a + b / X

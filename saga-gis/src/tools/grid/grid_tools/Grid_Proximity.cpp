@@ -125,7 +125,7 @@ bool CGrid_Proximity::On_Execute(void)
 
 				if( bBorder )
 				{
-					Points.Add_Shape()->Add_Point(CSG_Point_Z(x, y, pFeatures->asDouble(x, y)));
+					Points.Add_Shape()->Add_Point(CSG_Point_3D(x, y, pFeatures->asDouble(x, y)));
 				}
 			}
 		}

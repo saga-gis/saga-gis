@@ -99,7 +99,7 @@ public:
 	CSG_TimeSpan(double hours)				{	m_span	= (sLong)(1000.*60.*60. * hours);	}
 	CSG_TimeSpan(long hours, long min = 0, sLong sec = 0, sLong msec = 0)
 	{
-		m_span	= msec + 1000 * (sec + 60 * (min + 60 * hours));
+		m_span	= msec + 1000 * (sec + 60 * ((sLong)min + 60 * (sLong)hours));
 	}
 
 	//-----------------------------------------------------

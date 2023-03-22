@@ -932,8 +932,8 @@ bool CWater_Balance_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool
 		}
 
 		//-------------------------------------------------
-		m_pSummary->Get_Record(0)->Set_Value(1, ptWorld.Get_X());
-		m_pSummary->Get_Record(1)->Set_Value(1, ptWorld.Get_Y());
+		m_pSummary->Get_Record(0)->Set_Value(1, ptWorld.x);
+		m_pSummary->Get_Record(1)->Set_Value(1, ptWorld.y);
 		m_pSummary->Get_Record(2)->Set_Value(1, Latitude);
 
 		return( true );

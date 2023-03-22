@@ -113,7 +113,7 @@
   * @see CSG_Grids
 */
 //---------------------------------------------------------
-typedef enum ESG_Data_Object_Type
+typedef enum
 {
 	SG_DATAOBJECT_TYPE_Grid,
 	SG_DATAOBJECT_TYPE_Grids,

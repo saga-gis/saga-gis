@@ -560,10 +560,10 @@ bool CGrid_from_KML::Load_Overlay(const SG_Char *Dir, const CSG_MetaData &KML)
 	CSG_Rect	r;
 
 	if(    !KML("LatLonBox")
-		|| !KML["LatLonBox"]("North") || !KML["LatLonBox"]["North"].Get_Content().asDouble(r.m_rect.yMax)
-		|| !KML["LatLonBox"]("South") || !KML["LatLonBox"]["South"].Get_Content().asDouble(r.m_rect.yMin)
-		|| !KML["LatLonBox"]("East" ) || !KML["LatLonBox"]["East" ].Get_Content().asDouble(r.m_rect.xMax)
-		|| !KML["LatLonBox"]("West" ) || !KML["LatLonBox"]["West" ].Get_Content().asDouble(r.m_rect.xMin) )
+		|| !KML["LatLonBox"]("North") || !KML["LatLonBox"]["North"].Get_Content().asDouble(r.yMax)
+		|| !KML["LatLonBox"]("South") || !KML["LatLonBox"]["South"].Get_Content().asDouble(r.yMin)
+		|| !KML["LatLonBox"]("East" ) || !KML["LatLonBox"]["East" ].Get_Content().asDouble(r.xMax)
+		|| !KML["LatLonBox"]("West" ) || !KML["LatLonBox"]["West" ].Get_Content().asDouble(r.xMin) )
 	{
 		Error_Set(_TL("failed to load georeference for KML ground overlay"));
 

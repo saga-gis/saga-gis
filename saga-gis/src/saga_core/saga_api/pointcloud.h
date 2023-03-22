@@ -85,7 +85,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_PointCloud_FileType
+typedef enum
 {
 	POINTCLOUD_FILE_FORMAT_Undefined = 0,
 	POINTCLOUD_FILE_FORMAT_Normal,
@@ -189,10 +189,10 @@ public:
 	virtual bool					Set_Attribute		(sLong Index, int Field, const SG_Char *Value)			{	return( Set_Value(Index, Field + 3, Value) );	}
 	virtual bool					Get_Attribute		(sLong Index, int Field, CSG_String    &Value)	const	{	return( Get_Value(Index, Field + 3, Value) );	}
 
-	TSG_Point_Z						Get_Point			(void)			const;
-	TSG_Point_Z						Get_Point			(sLong Index)	const;
-	virtual bool					Set_Point			(             const TSG_Point_Z &Point);
-	virtual bool					Set_Point			(sLong Index, const TSG_Point_Z &Point);
+	TSG_Point_3D						Get_Point			(void)			const;
+	TSG_Point_3D						Get_Point			(sLong Index)	const;
+	virtual bool					Set_Point			(             const TSG_Point_3D &Point);
+	virtual bool					Set_Point			(sLong Index, const TSG_Point_3D &Point);
 
 	virtual void					Set_Modified		(bool bModified = true)		{	CSG_Data_Object::Set_Modified(bModified);	}
 

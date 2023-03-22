@@ -319,7 +319,7 @@ bool CGeoRef_with_Coordinate_Grids::Get_Coordinates(CSG_Grid Coords[2])
 			if( !pX->is_NoData(x, y) && !pX->is_NoData(x - 1, y - 1)
 			&&  !pY->is_NoData(x, y) && !pY->is_NoData(x - 1, y - 1) )
 			{
-				TSG_Point_Z	p[3];
+				TSG_Point_3D	p[3];
 
 				#define SET_POINT(P, X, Y, C) {\
 					P.x = (pX->asDouble(X, Y) - Coords[i].Get_XMin()) / Coords[i].Get_Cellsize();\
@@ -366,10 +366,10 @@ bool CGeoRef_with_Coordinate_Grids::Get_Coordinates(CSG_Grid Coords[2])
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGeoRef_with_Coordinate_Grids::Set_Triangle(CSG_Grid &Coords, TSG_Point_Z p[3])
+void CGeoRef_with_Coordinate_Grids::Set_Triangle(CSG_Grid &Coords, TSG_Point_3D p[3])
 {
 	//-----------------------------------------------------
-	#define SWAP_POINTS(a, b) { TSG_Point_Z pp = p[a]; p[a] = p[b]; p[b] = pp; }
+	#define SWAP_POINTS(a, b) { TSG_Point_3D pp = p[a]; p[a] = p[b]; p[b] = pp; }
 
 	if( p[1].y < p[0].y ) SWAP_POINTS(1, 0);
 	if( p[2].y < p[0].y ) SWAP_POINTS(2, 0);
@@ -395,7 +395,7 @@ void CGeoRef_with_Coordinate_Grids::Set_Triangle(CSG_Grid &Coords, TSG_Point_Z p
 	}
 
 	//-----------------------------------------------------
-	TSG_Point_Z	d[3];
+	TSG_Point_3D	d[3];
 
 	if( (d[0].y	= p[2].y - p[0].y) != 0. )
 	{

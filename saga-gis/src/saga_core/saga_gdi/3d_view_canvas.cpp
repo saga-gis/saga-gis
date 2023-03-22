@@ -243,9 +243,9 @@ void CSG_3DView_Canvas::_Draw_Background(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_3DView_Canvas::_Draw_Get_Box(TSG_Point_Z Box[8], bool bProjected)
+void CSG_3DView_Canvas::_Draw_Get_Box(TSG_Point_3D Box[8], bool bProjected)
 {
-	TSG_Point_Z	Buffer;
+	TSG_Point_3D	Buffer;
 
 	Buffer.x = m_BoxBuffer * (m_Data_Max.x - m_Data_Min.x);
 	Buffer.y = m_BoxBuffer * (m_Data_Max.y - m_Data_Min.y);
@@ -270,7 +270,7 @@ void CSG_3DView_Canvas::_Draw_Get_Box(TSG_Point_Z Box[8], bool bProjected)
 //---------------------------------------------------------
 int CSG_3DView_Canvas::_Draw_Get_Box_Front(void)
 {
-	int Front = 0; TSG_Point_Z b[8]; _Draw_Get_Box(b, true);
+	int Front = 0; TSG_Point_3D b[8]; _Draw_Get_Box(b, true);
 
 	for(int i=1; i<4; i++)
 	{
@@ -293,7 +293,7 @@ void CSG_3DView_Canvas::_Draw_Box(void)
 
 	int Color = SG_GET_RGB(SG_GET_R(m_bgColor) + 128, SG_GET_G(m_bgColor) + 128, SG_GET_B(m_bgColor) + 128);
 
-	TSG_Point_Z	Box[8]; _Draw_Get_Box(Box, true);
+	TSG_Point_3D	Box[8]; _Draw_Get_Box(Box, true);
 
 	for(int i=0; i<8; i+=4)
 	{
@@ -324,7 +324,7 @@ void CSG_3DView_Canvas::_Draw_North(void)
 
 	const double Arrow[9][2] = { { 0., 0. }, { 0., 1. }, { 0., -0.5 }, { -0.5, -1. }, { 0.5, -1. }, { -1, -1. }, { 1, -1. }, { 1, 1. }, { -1, 1. } };
 
-	TSG_Point_Z A[9]; CSG_Rect r; double Scale = M_GET_MIN(m_Data_Max.x - m_Data_Min.x, m_Data_Max.y - m_Data_Min.y) / 2.;
+	TSG_Point_3D A[9]; CSG_Rect r; double Scale = M_GET_MIN(m_Data_Max.x - m_Data_Min.x, m_Data_Max.y - m_Data_Min.y) / 2.;
 
 	for(int i=0; i<9; i++)
 	{
@@ -404,7 +404,7 @@ void CSG_3DView_Canvas::_Draw_Labels(int Front)
 		return;
 	}
 
-	TSG_Point_Z Box[8]; _Draw_Get_Box(Box, false);
+	TSG_Point_3D Box[8]; _Draw_Get_Box(Box, false);
 
 	switch( m_Labels )
 	{
@@ -451,7 +451,7 @@ void CSG_3DView_Canvas::_Draw_Labels(int Front)
 }
 
 //---------------------------------------------------------
-void CSG_3DView_Canvas::_Draw_Labels(double Min, double Max, const TSG_Point_Z &Point, double Rx, double Ry, double Rz, int Resolution, double Scale)
+void CSG_3DView_Canvas::_Draw_Labels(double Min, double Max, const TSG_Point_3D &Point, double Rx, double Ry, double Rz, int Resolution, double Scale)
 {
 	bool bAscending = Max > Min; if( !bAscending ) { double val = Min; Min = Max; Max = val; }
 
@@ -481,7 +481,7 @@ void CSG_3DView_Canvas::_Draw_Labels(double Min, double Max, const TSG_Point_Z &
 }
 
 //---------------------------------------------------------
-void CSG_3DView_Canvas::_Draw_Labels(int Axis, const TSG_Point_Z &A, const TSG_Point_Z &B, double Rx, double Ry, double Rz, int Align, int Resolution, double Scale)
+void CSG_3DView_Canvas::_Draw_Labels(int Axis, const TSG_Point_3D &A, const TSG_Point_3D &B, double Rx, double Ry, double Rz, int Align, int Resolution, double Scale)
 {
 	double Min = Axis == 0 ? A.x : Axis == 1 ? A.y : A.z;
 	double Max = Axis == 0 ? B.x : Axis == 1 ? B.y : B.z;
@@ -522,7 +522,7 @@ void CSG_3DView_Canvas::_Draw_Labels(int Axis, const TSG_Point_Z &A, const TSG_P
 	}
 
 	//-----------------------------------------------------
-	CSG_Point_Z D(B.x - A.x, B.y - A.y, B.z - A.z);
+	CSG_Point_3D D(B.x - A.x, B.y - A.y, B.z - A.z);
 
 	for(double Value=Step*floor(Min/Step); !std::isinf(Value) && Value<=Max; Value+=Step)
 	{
@@ -531,14 +531,14 @@ void CSG_3DView_Canvas::_Draw_Labels(int Axis, const TSG_Point_Z &A, const TSG_P
 			continue;
 		}
 
-		double i = (Value - Min) / (Max - Min); CSG_Point_Z p(A.x + i * D.x, A.y + i * D.y, A.z + i * D.z);
+		double i = (Value - Min) / (Max - Min); CSG_Point_3D p(A.x + i * D.x, A.y + i * D.y, A.z + i * D.z);
 
 		_Draw_Label(SG_Get_String(Value, -Decimals), p, Rx, Ry, Rz, Align, Resolution, Scale);
 	}
 }
 
 //---------------------------------------------------------
-void CSG_3DView_Canvas::_Draw_Label(const CSG_String &Text, const TSG_Point_Z &Point, double Rx, double Ry, double Rz, int Align, int Resolution, double Scale)
+void CSG_3DView_Canvas::_Draw_Label(const CSG_String &Text, const TSG_Point_3D &Point, double Rx, double Ry, double Rz, int Align, int Resolution, double Scale)
 {
 	if( Text.is_Empty() || Resolution < 20 )
 	{
@@ -811,7 +811,7 @@ void CSG_3DView_Canvas::Draw_Line(double ax, double ay, double az, double bx, do
 	}
 }
 
-void CSG_3DView_Canvas::Draw_Line(const TSG_Point_Z &a, const TSG_Point_Z &b, int aColor, int bColor)
+void CSG_3DView_Canvas::Draw_Line(const TSG_Point_3D &a, const TSG_Point_3D &b, int aColor, int bColor)
 {
 	Draw_Line(a.x, a.y, a.z, b.x, b.y, b.z, aColor, bColor);
 }
@@ -854,7 +854,7 @@ void CSG_3DView_Canvas::Draw_Line(double ax, double ay, double az, double bx, do
 	}
 }
 
-void CSG_3DView_Canvas::Draw_Line(const TSG_Point_Z &a, const TSG_Point_Z &b, int Color)
+void CSG_3DView_Canvas::Draw_Line(const TSG_Point_3D &a, const TSG_Point_3D &b, int Color)
 {
 	Draw_Line(a.x, a.y, a.z, b.x, b.y, b.z, Color);
 }

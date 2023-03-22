@@ -993,7 +993,7 @@ bool CPointCloud_Get_Subset_SPCVF_Interactive::On_Execute_Position(CSG_Point ptW
 	//-----------------------------------------------------
 	case TOOL_INTERACTIVE_LUP:
 
-		CSG_Rect	AOI(m_ptDown.Get_X(), m_ptDown.Get_Y(), ptWorld.Get_X(), ptWorld.Get_Y());
+		CSG_Rect	AOI(m_ptDown.x, m_ptDown.y, ptWorld.x, ptWorld.y);
 
 		CSG_Parameters P; CSG_Parameter_PointCloud_List	&PointCloudList	= *P.Add_PointCloud_List("", "PCL", "", "", PARAMETER_INPUT_OPTIONAL)->asPointCloudList();
 

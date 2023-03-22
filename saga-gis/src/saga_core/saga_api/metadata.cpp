@@ -135,7 +135,7 @@ void CSG_MetaData::_On_Construction(void)
 {
 	m_pParent	= NULL;
 
-	m_Children.Create(sizeof(CSG_MetaData **), 0, SG_ARRAY_GROWTH_1);
+	m_Children.Create(sizeof(CSG_MetaData **), 0, TSG_Array_Growth::SG_ARRAY_GROWTH_1);
 }
 
 //---------------------------------------------------------

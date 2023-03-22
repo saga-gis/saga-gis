@@ -290,7 +290,7 @@ void C3D_Viewer_Shapes_Panel::Draw_Shape(CSG_Shape *pShape, int Field_Color)
 			{
 				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
-					TSG_Point_Z	a;
+					TSG_Point_3D	a;
 					TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
 
 					a.x	= p.x;
@@ -307,7 +307,7 @@ void C3D_Viewer_Shapes_Panel::Draw_Shape(CSG_Shape *pShape, int Field_Color)
 		//-------------------------------------------------
 		case SHAPE_TYPE_Line:
 			{
-				TSG_Point_Z	a, b;
+				TSG_Point_3D	a, b;
 				TSG_Point	p	= pShape->Get_Point(0, iPart);
 
 				a.x	= p.x;
@@ -334,7 +334,7 @@ void C3D_Viewer_Shapes_Panel::Draw_Shape(CSG_Shape *pShape, int Field_Color)
 		//-------------------------------------------------
 		case SHAPE_TYPE_Polygon:
 			{
-				TSG_Point_Z	a, b;
+				TSG_Point_3D	a, b;
 				TSG_Point	p	= pShape->Get_Point(0, iPart, false);
 
 				a.x	= p.x;

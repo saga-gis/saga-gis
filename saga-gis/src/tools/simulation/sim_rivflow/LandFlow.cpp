@@ -920,7 +920,7 @@ bool CLandFlow::On_Execute(void)
 	//
 	double zMax, zMax2;
 	double k_Min0;			//temporaerer Operator zur bestimmung von KMin und vMax
-	int n0;					//temporaerer Operator zur bestimmung von KMin und vMax 
+//	int n0;					//temporaerer Operator zur bestimmung von KMin und vMax 
 
 	//-----------------------------------------------------
 	//nMax Wird benoetigt um Eintraege in NCArray-Array und -File zu setzten / zu lesen | Eigentlich sollte gelten nC >= nCr 

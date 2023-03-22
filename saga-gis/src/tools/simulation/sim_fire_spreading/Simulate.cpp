@@ -294,8 +294,8 @@ int CSimulate::CalculateFireSpreading(float fTimeLimit){
 
 		for (int iPt=0; iPt<m_CentralPoints.Get_Count();iPt++){
 
-			x = m_CentralPoints.Get_X(iPt);
-			y = m_CentralPoints.Get_Y(iPt);
+			x = m_CentralPoints[iPt].x;
+			y = m_CentralPoints[iPt].y;
 
 			if (!m_pDEM->is_NoData(x,y) && !m_pFuelGrid->is_NoData(x,y)){
 
@@ -341,8 +341,8 @@ int CSimulate::CalculateFireSpreading(float fTimeLimit){
 
 		m_CentralPoints.Clear();
 		for (int i=0; i<m_AdjPoints.Get_Count(); i++){
-			x= m_AdjPoints.Get_X(i);
-			y = m_AdjPoints.Get_Y(i);
+			x = m_AdjPoints[i].x;
+			y = m_AdjPoints[i].y;
 			m_CentralPoints.Add(x, y);
 		}//for
 		m_AdjPoints.Clear();
@@ -360,4 +360,3 @@ int CSimulate::CalculateFireSpreading(float fTimeLimit){
 	return iBurntCells;
 
 }//method
-

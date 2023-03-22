@@ -1344,7 +1344,7 @@ bool CSG_Parameters_Point_Search_KDTree_2D::Get_Point(sLong Index, double &x, do
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Parameters_Point_Search_KDTree_2D::Get_Points(double x, double y, CSG_Points_Z &Points)
+bool CSG_Parameters_Point_Search_KDTree_2D::Get_Points(double x, double y, CSG_Points_3D &Points)
 {
 	CSG_Array_Int Index; if( Get_Points(x, y, Index) )
 	{
@@ -1376,7 +1376,7 @@ bool CSG_Parameters_Point_Search_KDTree_2D::Get_Points(double x, double y, CSG_P
 }
 
 //---------------------------------------------------------
-bool CSG_Parameters_Point_Search_KDTree_2D::Get_Points(const CSG_Point &p, CSG_Points_Z &Points)
+bool CSG_Parameters_Point_Search_KDTree_2D::Get_Points(const CSG_Point &p, CSG_Points_3D &Points)
 {
 	return( Get_Points(p.x, p.y, Points) );
 }

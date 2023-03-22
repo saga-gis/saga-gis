@@ -135,18 +135,18 @@ bool CMandelbrot::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_POS(p)		p.Assign(\
-						m_Extent.Get_XMin() + m_Extent.Get_XRange() * (ptWorld.Get_X() - m_pGrid->Get_XMin()) / m_pGrid->Get_XRange(),\
-						m_Extent.Get_YMin() + m_Extent.Get_YRange() * (ptWorld.Get_Y() - m_pGrid->Get_YMin()) / m_pGrid->Get_YRange());
+#define GET_POS(p) p.Assign(\
+	m_Extent.Get_XMin() + m_Extent.Get_XRange() * (ptWorld.x - m_pGrid->Get_XMin()) / m_pGrid->Get_XRange(),\
+	m_Extent.Get_YMin() + m_Extent.Get_YRange() * (ptWorld.y - m_pGrid->Get_YMin()) / m_pGrid->Get_YRange());
 
-#define SET_POS(a, b)	if( a.Get_X() > b.Get_X() )	{	d	= a.Get_X(); a.Set_X(b.Get_X()); b.Set_X(d);	}\
-						if( a.Get_Y() > b.Get_Y() )	{	d	= a.Get_Y(); a.Set_Y(b.Get_Y()); b.Set_Y(d);	}
+#define SET_POS(a, b) {\
+	if( a.x > b.x ) { double d = a.x; a.x = b.x; b.x = d; }\
+	if( a.y > b.y ) { double d = a.y; a.y = b.y; b.y = d; }\
+}
 
 //---------------------------------------------------------
 bool CMandelbrot::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
-	double	d;
-
 	switch( Mode )
 	{
 	default:
@@ -162,7 +162,7 @@ bool CMandelbrot::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mo
 		GET_POS(m_Up);
 		SET_POS(m_Up, m_Down);
 
-		if( m_Up.Get_X() >= m_Down.Get_X() || m_Up.Get_Y() >= m_Down.Get_Y() )
+		if( m_Up.x >= m_Down.x || m_Up.y >= m_Down.y )
 		{
 			m_Extent.Inflate(50.0);
 			m_Extent.Move(m_Up - m_Extent.Get_Center());
@@ -180,14 +180,14 @@ bool CMandelbrot::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mo
 		GET_POS(m_Up);
 		SET_POS(m_Up, m_Down);
 
-		if( m_Up.Get_X() >= m_Down.Get_X() || m_Up.Get_Y() >= m_Down.Get_Y() )
+		if( m_Up.x >= m_Down.x || m_Up.y >= m_Down.y )
 		{
 			m_Extent.Deflate(50.0);
 			m_Extent.Move(m_Up - m_Extent.Get_Center());
 		}
 		else
 		{
-			m_Extent.Deflate(100.0 * (m_Down.Get_X() - m_Up.Get_X()) / m_Extent.Get_XRange());
+			m_Extent.Deflate(100.0 * (m_Down.x - m_Up.x) / m_Extent.Get_XRange());
 			m_Extent.Move(m_Up - m_Extent.Get_Center());
 		}
 

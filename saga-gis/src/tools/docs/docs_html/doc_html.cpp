@@ -418,7 +418,7 @@ void CSG_Doc_HTML::AddCurve(const SG_Char *Filename,
 		{
 	        fX = OFFSET_X + i * fWidth;
 			fY = GRAPH_HEIGHT;
-			fY2 = (Data.Get_Y(i) - fMin) / fRange * GRAPH_HEIGHT;
+			fY2 = (Data[i].y - fMin) / fRange * GRAPH_HEIGHT;
 			fY2 = GRAPH_HEIGHT - fY2;
 			SVG.Draw_Rectangle(fX, fY, fX + fWidth, fY2, 0x660000, 0x000000);
 	    }
@@ -427,8 +427,8 @@ void CSG_Doc_HTML::AddCurve(const SG_Char *Filename,
 	{
 		for (i = 0; i < Data.Get_Count(); i++)
 		{
-			fX = OFFSET_X + (Data.Get_X(i) - fMinX) / fRangeX * GRAPH_WIDTH;
-			fY = (Data.Get_Y(i) - fMin) / fRange * GRAPH_HEIGHT;
+			fX = OFFSET_X + (Data[i].x - fMinX) / fRangeX * GRAPH_WIDTH;
+			fY = (Data[i].y - fMin) / fRange * GRAPH_HEIGHT;
 			fY = GRAPH_HEIGHT - fY;
 			Points.Add(fX, fY);
 	    }
@@ -521,10 +521,10 @@ void CSG_Doc_HTML::_AddBicolumTable(CSG_Points *pData)
 	{
 		m_sHTMLCode.Append(SG_T("<tr>\n"));
 		m_sHTMLCode.Append(SG_T("<td width=\"50%\" align=\"center\">"));
-		m_sHTMLCode.Append(SG_Get_String(pData->Get_X(i),2));
+		m_sHTMLCode.Append(SG_Get_String((*pData)[i].x,2));
 		m_sHTMLCode.Append(SG_T("</td>"));
 		m_sHTMLCode.Append(SG_T("<td width=\"50%\" align=\"center\">"));
-		m_sHTMLCode.Append(SG_Get_String(pData->Get_Y(i),2));
+		m_sHTMLCode.Append(SG_Get_String((*pData)[i].y,2));
 		m_sHTMLCode.Append(SG_T("</td>"));
 		m_sHTMLCode.Append(SG_T("\n</tr>\n"));
 	}

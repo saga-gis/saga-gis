@@ -430,7 +430,7 @@ bool CGW_Multi_Regression_Grid::Get_Model(int x, int y, CSG_Regression_Weighted 
 	{
 		for(sLong iPoint=0; iPoint<m_Points.Get_Count(); iPoint++)
 		{
-			CSG_Shape *pPoint = m_Points.Get_Shape(iPoint); double Value;
+			CSG_Shape *pPoint = m_Points.Get_Shape(iPoint);
 
 			for(int iPredictor=0; iPredictor<m_nPredictors; iPredictor++)
 			{

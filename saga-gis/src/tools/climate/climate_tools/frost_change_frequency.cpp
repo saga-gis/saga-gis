@@ -423,8 +423,8 @@ bool CFrost_Change_Frequency_Interactive::On_Execute_Position(CSG_Point ptWorld,
 	}
 
 	//-----------------------------------------------------
-	m_pStatistics->Set_Value(0, 1, ptWorld.Get_X());
-	m_pStatistics->Set_Value(1, 1, ptWorld.Get_Y());
+	m_pStatistics->Set_Value(0, 1, ptWorld.x);
+	m_pStatistics->Set_Value(1, 1, ptWorld.y);
 
 	CSG_Simple_Statistics	Dif, Min;	CSG_Vector	Tmin, Tmax;
 

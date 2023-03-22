@@ -202,7 +202,7 @@ void CSG_PointCloud::_On_Construction(void)
 	m_Shapes.Add_Shape();
 	m_Shapes_Index = -1;
 
-	m_Array_Points.Create(sizeof(char *), 0, SG_ARRAY_GROWTH_3);
+	m_Array_Points.Create(sizeof(char *), 0, TSG_Array_Growth::SG_ARRAY_GROWTH_3);
 }
 
 //---------------------------------------------------------
@@ -1022,9 +1022,9 @@ bool CSG_PointCloud::_Get_Field_Value(char *pPoint, int iField, CSG_String &Valu
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-TSG_Point_Z CSG_PointCloud::Get_Point(void)	const
+TSG_Point_3D CSG_PointCloud::Get_Point(void)	const
 {
-	TSG_Point_Z	p;
+	TSG_Point_3D	p;
 
 	if( m_Cursor )
 	{
@@ -1041,9 +1041,9 @@ TSG_Point_Z CSG_PointCloud::Get_Point(void)	const
 }
 
 //---------------------------------------------------------
-TSG_Point_Z CSG_PointCloud::Get_Point(sLong Index)	const
+TSG_Point_3D CSG_PointCloud::Get_Point(sLong Index)	const
 {
-	TSG_Point_Z p;
+	TSG_Point_3D p;
 
 	if( Index >= 0 && Index < m_nRecords )
 	{
@@ -1062,7 +1062,7 @@ TSG_Point_Z CSG_PointCloud::Get_Point(sLong Index)	const
 }
 
 //---------------------------------------------------------
-bool CSG_PointCloud::Set_Point(const TSG_Point_Z &Point)
+bool CSG_PointCloud::Set_Point(const TSG_Point_3D &Point)
 {
 	return( _Set_Field_Value(m_Cursor, 0, Point.x)
 		&&  _Set_Field_Value(m_Cursor, 1, Point.y)
@@ -1071,7 +1071,7 @@ bool CSG_PointCloud::Set_Point(const TSG_Point_Z &Point)
 }
 
 //---------------------------------------------------------
-bool CSG_PointCloud::Set_Point(sLong Index, const TSG_Point_Z &Point)
+bool CSG_PointCloud::Set_Point(sLong Index, const TSG_Point_3D &Point)
 {
 	if( Index >= 0 && Index < m_nRecords )
 	{
@@ -1543,9 +1543,7 @@ bool CSG_PointCloud::Select(TSG_Rect Extent, bool bInvert)
 //---------------------------------------------------------
 bool CSG_PointCloud::Select(TSG_Point Point, bool bInvert)
 {
-	CSG_Rect	r(Point.x, Point.y, Point.x, Point.y);
-
-	return( Select(r.m_rect, bInvert) );
+	return( Select(CSG_Rect(Point.x, Point.y, Point.x, Point.y), bInvert) );
 }
 
 

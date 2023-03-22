@@ -496,10 +496,10 @@ bool CCRS_Distance_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_
 			Distance.Set_Parameter("DISTANCES", Parameters("DISTANCES")->asShapes());
 			Distance.Set_Parameter("EPSILON"  , Parameters("EPSILON"  )->asDouble());
 			Distance.Set_Parameter("CRS_PROJ4", m_Projection.Get_Proj4());
-			Distance.Set_Parameter("COORD_X1" , m_Down .Get_X());
-			Distance.Set_Parameter("COORD_Y1" , m_Down .Get_Y());
-			Distance.Set_Parameter("COORD_X2" , ptWorld.Get_X());
-			Distance.Set_Parameter("COORD_Y2" , ptWorld.Get_Y());
+			Distance.Set_Parameter("COORD_X1" , m_Down .x);
+			Distance.Set_Parameter("COORD_Y1" , m_Down .y);
+			Distance.Set_Parameter("COORD_X2" , ptWorld.x);
+			Distance.Set_Parameter("COORD_Y2" , ptWorld.y);
 
 			Distance.Execute();
 

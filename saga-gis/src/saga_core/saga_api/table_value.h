@@ -88,7 +88,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_Table_Value_Type
+typedef enum
 {
 	SG_TABLE_VALUE_TYPE_Binary,
 	SG_TABLE_VALUE_TYPE_String,

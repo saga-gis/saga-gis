@@ -142,8 +142,8 @@ bool CLakeFloodInteractive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Inte
 		int			x, y, ix, iy, i;
 		double		level;
 	
-		x	= Get_System().Get_xWorld_to_Grid(ptWorld.Get_X());
-		y	= Get_System().Get_yWorld_to_Grid(ptWorld.Get_Y());
+		x	= Get_System().Get_xWorld_to_Grid(ptWorld.x);
+		y	= Get_System().Get_yWorld_to_Grid(ptWorld.y);
 	
 		if( pElev->is_InGrid(x, y, true) )
 		{

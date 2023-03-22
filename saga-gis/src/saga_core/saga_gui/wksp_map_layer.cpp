@@ -350,7 +350,7 @@ bool CWKSP_Map_Layer::Fit_Colors(const CSG_Rect &rWorld)
 
 		if( m_bProject && _Projected_Get_Projections(prj_Layer, prj_Map) )
 		{
-			SG_Get_Projected(prj_Map, prj_Layer, _rWorld.m_rect);
+			SG_Get_Projected(prj_Map, prj_Layer, _rWorld);
 		}
 
 		switch( m_pLayer->Get_Type() )

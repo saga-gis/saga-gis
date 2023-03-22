@@ -399,7 +399,7 @@ bool C3D_Viewer_TIN_Panel::On_Draw(void)
 		#pragma omp parallel for
 		for(sLong iNode=0; iNode<m_pTIN->Get_Node_Count(); iNode++)
 		{
-			CSG_TIN_Node *pNode = m_pTIN->Get_Node(iNode); TSG_Point_Z p;
+			CSG_TIN_Node *pNode = m_pTIN->Get_Node(iNode); TSG_Point_3D p;
 
 			p.x = pNode->Get_Point().x;
 			p.y = pNode->Get_Point().y;

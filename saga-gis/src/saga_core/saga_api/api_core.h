@@ -287,14 +287,13 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_Array_Growth
+enum class TSG_Array_Growth
 {
 	SG_ARRAY_GROWTH_0 = 0,
 	SG_ARRAY_GROWTH_1,
 	SG_ARRAY_GROWTH_2,
 	SG_ARRAY_GROWTH_3
-}
-TSG_Array_Growth;
+};
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Array
@@ -306,10 +305,10 @@ public:
 	CSG_Array							(const CSG_Array &Array);
 	void *				Create			(const CSG_Array &Array);
 
-	CSG_Array							(size_t Value_Size, sLong nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0);
-	void *				Create			(size_t Value_Size, sLong nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0);
+	CSG_Array							(size_t Value_Size, sLong nValues = 0, TSG_Array_Growth Growth = TSG_Array_Growth::SG_ARRAY_GROWTH_0);
+	void *				Create			(size_t Value_Size, sLong nValues = 0, TSG_Array_Growth Growth = TSG_Array_Growth::SG_ARRAY_GROWTH_0);
 
-	void				Destroy			(void);
+	bool				Destroy			(void);
 
 	CSG_Array &			operator =		(const CSG_Array &Array)    {	Create(Array); return( *this );	}
 
@@ -324,13 +323,7 @@ public:
 	void *				Get_Entry		(sLong  Index)     const	{	return( Index >= 0 && Index < m_nValues ? (char *)m_Values + Index * m_Value_Size : NULL );	}
 	void *				operator []		(sLong  Index)     const    {	return( Get_Entry(Index) );	}
 
-	/// Returns a pointer to the memory address of the requested variable. You have to type cast and dereference the pointer to get access to the variable itself.
-	void *				Get_Entry		(int    Index)     const	{	return( Get_Entry((sLong)Index) );	}
-	void *				operator []		(int    Index)     const    {	return( Get_Entry((sLong)Index) );	}
-
-	/// Returns a pointer to the memory address of the requested variable. You have to type cast and dereference the pointer to get access to the variable itself.
-	void *				Get_Entry		(size_t Index)     const	{	return( Get_Entry((sLong)Index) );	}
-	void *				operator []		(size_t Index)     const	{	return( Get_Entry((sLong)Index) );	}
+	bool				Del_Entry		(sLong Index, bool bShrink = true);
 
 	void *				Get_Array		(void)             const    {	return( m_Values );		}
 	void *				Get_Array		(sLong nValues)             {	Set_Array(nValues);	return( m_Values );	}
@@ -369,8 +362,8 @@ public:
 	CSG_Array_Pointer					(const CSG_Array_Pointer &Array)        {	Create(Array);	}
 	void **				Create			(const CSG_Array_Pointer &Array);
 
-	CSG_Array_Pointer					(sLong nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0)	{	Create(nValues, Growth);	}
-	void **				Create			(sLong nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0);
+	CSG_Array_Pointer					(sLong nValues = 0, TSG_Array_Growth Growth = TSG_Array_Growth::SG_ARRAY_GROWTH_0)	{	Create(nValues, Growth);	}
+	void **				Create			(sLong nValues = 0, TSG_Array_Growth Growth = TSG_Array_Growth::SG_ARRAY_GROWTH_0);
 
 	void				Destroy			(void)                                  {	m_Array.Destroy();	}
 
@@ -389,31 +382,16 @@ public:
 
 	bool				Add				(void *Value);
 	bool				Add				(const CSG_Array_Pointer &Array);
-
-	bool				Del				(sLong  Index);
-	bool				Del				(int    Index)                          {	return( Del((sLong)Index) );	};
-	bool				Del				(size_t Index)                          {	return( Del((sLong)Index) );	};
-	sLong				Del				(void  *Value);
-
-	bool				Set				(sLong  Index, void *Value)             {	if( !m_Array.Get_Entry(Index) ) return( false ); *((void **)m_Array.Get_Entry(Index)) = Value; return( true );	}
-	bool				Set				(int    Index, void *Value)             {	return( Set((sLong)Index, Value) );	}
-	bool				Set				(size_t Index, void *Value)             {	return( Set((sLong)Index, Value) );	}
-
-	void *&				Get				(sLong  Index)							{	return( *((void **)m_Array.Get_Entry(Index)) );	}
-	void *				Get				(sLong  Index)                 const    {	return( *((void **)m_Array.Get_Entry(Index)) );	}
-	void *&				Get				(int    Index)							{	return( Get((sLong)Index) );	}
-	void *				Get				(int    Index)                 const    {	return( Get((sLong)Index) );	}
-	void *&				Get				(size_t Index)							{	return( Get((sLong)Index) );	}
-	void *				Get				(size_t Index)                 const    {	return( Get((sLong)Index) );	}
+	bool				Set				(sLong Index, void *Value)              {	if( !m_Array.Get_Entry(Index) ) return( false ); *((void **)m_Array.Get_Entry(Index)) = Value; return( true );	}
+	void *&				Get				(sLong Index)                           {	return( *((void **)m_Array.Get_Entry(Index)) );	}
+	void *				Get				(sLong Index)                  const    {	return( *((void **)m_Array.Get_Entry(Index)) );	}
+	bool				Del				(sLong Index);
+	sLong				Del				(void *Value);
 
 	CSG_Array_Pointer &	operator =		(const CSG_Array_Pointer &Array)		{	Create(Array);	return( *this );	}
 
-	void *&				operator []		(sLong  Index)                          {	return( Get(Index) );	}
-	void *				operator []		(sLong  Index)                 const    {	return( Get(Index) );	}
-	void *&				operator []		(int    Index)                          {	return( Get(Index) );	}
-	void *				operator []		(int    Index)                 const    {	return( Get(Index) );	}
-	void *&				operator []		(size_t Index)                          {	return( Get(Index) );	}
-	void *				operator []		(size_t Index)                 const    {	return( Get(Index) );	}
+	void *&				operator []		(sLong Index)                           {	return( Get(Index) );	}
+	void *				operator []		(sLong Index)                  const    {	return( Get(Index) );	}
 
 	CSG_Array_Pointer &	operator +=		(void *Value)                           {	Add(Value);	return( *this );	}
 	CSG_Array_Pointer &	operator +=		(const CSG_Array_Pointer &Array)        {	Add(Array);	return( *this );	}
@@ -437,8 +415,8 @@ public:
 	CSG_Array_Int						(const CSG_Array_Int &Array)            {	Create(Array);	}
 	int *				Create			(const CSG_Array_Int &Array);
 
-	CSG_Array_Int						(sLong nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0)	{	Create(nValues, Growth);	}
-	int *				Create			(sLong nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0);
+	CSG_Array_Int						(sLong nValues = 0, TSG_Array_Growth Growth = TSG_Array_Growth::SG_ARRAY_GROWTH_0)	{	Create(nValues, Growth);	}
+	int *				Create			(sLong nValues = 0, TSG_Array_Growth Growth = TSG_Array_Growth::SG_ARRAY_GROWTH_0);
 
 	void				Destroy			(void)                                  {	m_Array.Destroy();	}
 
@@ -457,29 +435,17 @@ public:
 
 	bool				Add				(int Value);
 	bool				Add				(const CSG_Array_Int &Array);
-
-	bool				Set				(sLong  Index, int Value)               {	if( !m_Array.Get_Entry(Index) ) return( false ); *((int *)m_Array.Get_Entry(Index)) = Value; return( true );	}
-	bool				Set				(int    Index, int Value)               {	return( Set((sLong)Index, Value) );	}
-	bool				Set				(size_t Index, int Value)               {	return( Set((sLong)Index, Value) );	}
-
-	int &				Get				(sLong  Index)                          {	return( *((int *)m_Array.Get_Entry(Index)) );	}
-	int	 				Get				(sLong  Index)                 const    {	return( *((int *)m_Array.Get_Entry(Index)) );	}
-	int &				Get				(int    Index)                          {	return( Get((sLong)Index) );	}
-	int	 				Get				(int    Index)                 const    {	return( Get((sLong)Index) );	}
-	int &				Get				(size_t Index)                          {	return( Get((sLong)Index) );	}
-	int	 				Get				(size_t Index)                 const    {	return( Get((sLong)Index) );	}
+	bool				Set				(sLong Index, int Value)                {	if( !m_Array.Get_Entry(Index) ) return( false ); *((int *)m_Array.Get_Entry(Index)) = Value; return( true );	}
+	int &				Get				(sLong Index)                           {	return( *((int *)m_Array.Get_Entry(Index)) );	}
+	int	 				Get				(sLong Index)                  const    {	return( *((int *)m_Array.Get_Entry(Index)) );	}
 
 	bool				Assign			(int Value);
 
 	CSG_Array_Int &		operator =		(const CSG_Array_Int &Array)            {	Create(Array);	return( *this );	}
 	CSG_Array_Int &		operator =		(int Value)                             {	Assign(Value);	return( *this );	}
 
-	int &				operator []		(sLong  Index)                          {	return( Get(Index) );	}
-	int  				operator []		(sLong  Index)                 const    {	return( Get(Index) );	}
-	int &				operator []		(int    Index)                          {	return( Get(Index) );	}
-	int  				operator []		(int    Index)                 const    {	return( Get(Index) );	}
-	int &				operator []		(size_t Index)                          {	return( Get(Index) );	}
-	int  				operator []		(size_t Index)                 const    {	return( Get(Index) );	}
+	int &				operator []		(sLong Index)                           {	return( Get(Index) );	}
+	int  				operator []		(sLong Index)                  const    {	return( Get(Index) );	}
 
 	CSG_Array_Int &		operator +=		(int Value)                             {	Add(Value);	return( *this );	}
 	CSG_Array_Int &		operator +=		(const CSG_Array_Int &Array)            {	Add(Array);	return( *this );	}
@@ -503,8 +469,8 @@ public:
 	CSG_Array_sLong						(const CSG_Array_sLong &Array)          {	Create(Array);	}
 	sLong *				Create			(const CSG_Array_sLong &Array);
 
-	CSG_Array_sLong						(sLong nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0)	{	Create(nValues, Growth);	}
-	sLong *				Create			(sLong nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0);
+	CSG_Array_sLong						(sLong nValues = 0, TSG_Array_Growth Growth = TSG_Array_Growth::SG_ARRAY_GROWTH_0)	{	Create(nValues, Growth);	}
+	sLong *				Create			(sLong nValues = 0, TSG_Array_Growth Growth = TSG_Array_Growth::SG_ARRAY_GROWTH_0);
 
 	void				Destroy			(void)                                  {	m_Array.Destroy();	}
 
@@ -523,29 +489,17 @@ public:
 
 	bool				Add				(sLong Value);
 	bool				Add				(const CSG_Array_sLong &Array);
-
-	bool				Set				(sLong  Index, sLong Value)             {	if( !m_Array.Get_Entry(Index) ) return( false ); *((sLong *)m_Array.Get_Entry(Index)) = Value; return( true );	}
-	bool				Set				(int    Index, sLong Value)             {	return( Set((sLong)Index, Value) );	}
-	bool				Set				(size_t Index, sLong Value)             {	return( Set((sLong)Index, Value) );	}
-
-	sLong &				Get				(sLong  Index)                          {	return( *((sLong *)m_Array.Get_Entry(Index)) );	}
-	sLong	 			Get				(sLong  Index)                 const    {	return( *((sLong *)m_Array.Get_Entry(Index)) );	}
-	sLong &				Get				(int    Index)                          {	return( Get((sLong)Index) );	}
-	sLong	 			Get				(int    Index)                 const    {	return( Get((sLong)Index) );	}
-	sLong &				Get				(size_t Index)                          {	return( Get((sLong)Index) );	}
-	sLong	 			Get				(size_t Index)                 const    {	return( Get((sLong)Index) );	}
+	bool				Set				(sLong Index, sLong Value)              {	if( !m_Array.Get_Entry(Index) ) return( false ); *((sLong *)m_Array.Get_Entry(Index)) = Value; return( true );	}
+	sLong &				Get				(sLong Index)                           {	return( *((sLong *)m_Array.Get_Entry(Index)) );	}
+	sLong	 			Get				(sLong Index)                  const    {	return( *((sLong *)m_Array.Get_Entry(Index)) );	}
 
 	bool				Assign			(sLong Value);
 
 	CSG_Array_sLong &	operator =		(const CSG_Array_sLong &Array)          {	Create(Array);	return( *this );	}
 	CSG_Array_sLong &	operator =		(sLong Value)                           {	Assign(Value);	return( *this );	}
 
-	sLong &				operator []		(sLong  Index)                          {	return( Get(Index) );	}
-	sLong  				operator []		(sLong  Index)                 const    {	return( Get(Index) );	}
-	sLong &				operator []		(int    Index)                          {	return( Get(Index) );	}
-	sLong  				operator []		(int    Index)                 const    {	return( Get(Index) );	}
-	sLong &				operator []		(size_t Index)                          {	return( Get(Index) );	}
-	sLong  				operator []		(size_t Index)                 const    {	return( Get(Index) );	}
+	sLong &				operator []		(sLong Index)                           {	return( Get(Index) );	}
+	sLong  				operator []		(sLong Index)                  const    {	return( Get(Index) );	}
 
 	CSG_Array_sLong &	operator +=		(sLong Value)                           {	Add(Value);	return( *this );	}
 	CSG_Array_sLong &	operator +=		(const CSG_Array_sLong &Array)          {	Add(Array);	return( *this );	}
@@ -577,7 +531,7 @@ private:
 #define SG_STR_MBTOSG(s)	CSG_String(s).w_str()
 
 //---------------------------------------------------------
-enum ESG_File_Flags_Encoding
+typedef enum
 {
 	SG_FILE_ENCODING_ANSI,
 	SG_FILE_ENCODING_UTF7,
@@ -587,7 +541,8 @@ enum ESG_File_Flags_Encoding
 	SG_FILE_ENCODING_UTF32LE,
 	SG_FILE_ENCODING_UTF32BE,
 	SG_FILE_ENCODING_UNDEFINED
-};
+}
+TSG_File_Flags_Encoding;
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_String
@@ -1046,9 +1001,9 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_Data_Type
+typedef enum
 {
-	SG_DATATYPE_Bit			= 0,
+	SG_DATATYPE_Bit = 0,
 	SG_DATATYPE_Byte,
 	SG_DATATYPE_Char,
 	SG_DATATYPE_Word,
@@ -1127,7 +1082,7 @@ SAGA_API_DLL_EXPORT bool			SG_Data_Type_Range_Check	(TSG_Data_Type Type, double 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_File_Type
+typedef enum
 {
 	SG_FILE_TYPE_NORMAL,
 	SG_FILE_TYPE_ZIP
@@ -1406,12 +1361,11 @@ public:
 		if( Index     >= m_nColors - 1. ) return( m_Colors[m_nColors - 1] );
 
 		int i = (int)Index; Index -= i;
+		int r = (int)(Get_Red  (i) + Index * ((double)Get_Red  (i + 1) - Get_Red  (i)));
+		int g = (int)(Get_Green(i) + Index * ((double)Get_Green(i + 1) - Get_Green(i)));
+		int b = (int)(Get_Blue (i) + Index * ((double)Get_Blue (i + 1) - Get_Blue (i)));
 
-		return( SG_GET_RGB(
-			Get_Red  (i) + Index * (Get_Red  (i + 1) - Get_Red  (i)),
-			Get_Green(i) + Index * (Get_Green(i + 1) - Get_Green(i)),
-			Get_Blue (i) + Index * (Get_Blue (i + 1) - Get_Blue (i)))
-		);
+		return( SG_GET_RGB(r, g, b) );
 	}
 
 	static int						Get_Predefined_Count(void);
@@ -1528,7 +1482,7 @@ SAGA_API_DLL_EXPORT const SG_Char *		SG_Translate		(const CSG_String &Text);
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_UI_MSG_STYLE
+typedef enum
 {
 	SG_UI_MSG_STYLE_NORMAL	= 0,
 	SG_UI_MSG_STYLE_BOLD,
@@ -1544,7 +1498,7 @@ typedef enum ESG_UI_MSG_STYLE
 TSG_UI_MSG_STYLE;
 
 //---------------------------------------------------------
-typedef enum ESG_UI_DataObject_Update
+typedef enum
 {
 	SG_UI_DATAOBJECT_UPDATE = 0,
 	SG_UI_DATAOBJECT_SHOW_MAP,
@@ -1555,7 +1509,7 @@ typedef enum ESG_UI_DataObject_Update
 TSG_UI_DataObject_Update;
 
 //---------------------------------------------------------
-typedef enum ESG_UI_Map
+typedef enum
 {
 	SG_UI_MAP_ACTIVE = 0,
 	SG_UI_MAP_LAST,
@@ -1564,7 +1518,7 @@ typedef enum ESG_UI_Map
 TSG_UI_Maps;
 
 //---------------------------------------------------------
-typedef enum ESG_UI_Window_Arrange
+typedef enum
 {
 	SG_UI_WINDOW_ARRANGE_MDI_CASCADE      = 0x0001,
 	SG_UI_WINDOW_ARRANGE_MDI_TILE_VER     = 0x0002,
@@ -1579,7 +1533,7 @@ typedef enum ESG_UI_Window_Arrange
 TSG_UI_Window_Arrange;
 
 //---------------------------------------------------------
-typedef enum ESG_UI_Callback_ID
+typedef enum
 {
 	CALLBACK_PROCESS_GET_OKAY,
 	CALLBACK_PROCESS_SET_OKAY,

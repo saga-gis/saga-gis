@@ -86,7 +86,7 @@ private:
 
 	double					m_Radius;
 
-	CSG_Points_Z			m_Direction;
+	CSG_Points_3D			m_Direction;
 
 	CSG_Grid_Pyramid		m_Pyramid;
 

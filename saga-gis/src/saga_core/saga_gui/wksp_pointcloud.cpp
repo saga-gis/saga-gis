@@ -842,7 +842,7 @@ TSG_Rect CWKSP_PointCloud::Edit_Get_Extent(void)
 {
 	if( Get_PointCloud()->Get_Selection_Count() > 0 )
 	{
-		return( Get_PointCloud()->Get_Selection_Extent().m_rect );
+		return( Get_PointCloud()->Get_Selection_Extent() );
 	}
 
 	return( Get_PointCloud()->Get_Extent() );
@@ -1059,7 +1059,7 @@ void CWKSP_PointCloud::_Draw_Points(CWKSP_Map_DC &dc_Map)
 
 		if( !pPoints->is_NoData(m_fValue) )
 		{
-			TSG_Point_Z	Point	= pPoints->Get_Point();
+			TSG_Point_3D	Point	= pPoints->Get_Point();
 
 			if( dc_Map.m_rWorld.Contains(Point.x, Point.y) )
 			{
@@ -1099,7 +1099,7 @@ void CWKSP_PointCloud::_Draw_Thumbnail(CWKSP_Map_DC &dc_Map)
 
 		if( !pPoints->is_NoData(m_fValue) )
 		{
-			TSG_Point_Z	Point	= pPoints->Get_Point();
+			TSG_Point_3D	Point	= pPoints->Get_Point();
 
 			int	x	= (int)dc_Map.xWorld2DC(Point.x);
 			int	y	= (int)dc_Map.yWorld2DC(Point.y);

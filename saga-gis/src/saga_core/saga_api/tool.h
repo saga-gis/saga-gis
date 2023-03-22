@@ -88,7 +88,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_Summary_Format
+typedef enum
 {
 	SG_SUMMARY_FMT_FLAT		= 0,
 	SG_SUMMARY_FMT_HTML,
@@ -97,7 +97,7 @@ typedef enum ESG_Summary_Format
 TSG_Summary_Format;
 
 //---------------------------------------------------------
-typedef enum ESG_Tool_Type
+typedef enum
 {
 	TOOL_TYPE_Base			= 0,
 	TOOL_TYPE_Interactive,
@@ -108,7 +108,7 @@ typedef enum ESG_Tool_Type
 TSG_Tool_Type;
 
 //---------------------------------------------------------
-typedef enum ESG_Tool_Error
+typedef enum
 {
 	TOOL_ERROR_Unknown		= 0,
 	TOOL_ERROR_Calculation
@@ -116,7 +116,7 @@ typedef enum ESG_Tool_Error
 TSG_Tool_Error;
 
 //---------------------------------------------------------
-typedef enum ESG_Tool_Script_Type
+typedef enum
 {
 	TOOL_SCRIPT_CMD_SHELL	= 0,
 	TOOL_SCRIPT_CMD_BATCH,
@@ -438,7 +438,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_Tool_Interactive_Mode
+typedef enum
 {
 	TOOL_INTERACTIVE_UNDEFINED		= 0,
 	TOOL_INTERACTIVE_LDOWN,
@@ -458,7 +458,7 @@ typedef enum ESG_Tool_Interactive_Mode
 TSG_Tool_Interactive_Mode;
 
 //---------------------------------------------------------
-typedef enum ESG_Tool_Interactive_DragMode
+typedef enum
 {
 	TOOL_INTERACTIVE_DRAG_NONE		= 0,
 	TOOL_INTERACTIVE_DRAG_LINE,
@@ -506,13 +506,13 @@ protected:
 	virtual bool				On_Execute_Keyboard		(int Character);
 	virtual bool				On_Execute_Finish		(void);
 
-	const CSG_Point &			Get_Position			(void)	const	{	return( m_Point              );	}
-	double						Get_xPosition			(void)	const	{	return( m_Point     .Get_X() );	}
-	double						Get_yPosition			(void)	const	{	return( m_Point     .Get_Y() );	}
+	const CSG_Point &			Get_Position			(void)	const	{	return( m_Point        );	}
+	double						Get_xPosition			(void)	const	{	return( m_Point     .x );	}
+	double						Get_yPosition			(void)	const	{	return( m_Point     .y );	}
 
-	const CSG_Point &			Get_Position_Last		(void)	const	{	return( m_Point_Last         );	}
-	double						Get_xPosition_Last		(void)	const	{	return( m_Point_Last.Get_X() );	}
-	double						Get_yPosition_Last		(void)	const	{	return( m_Point_Last.Get_Y() );	}
+	const CSG_Point &			Get_Position_Last		(void)	const	{	return( m_Point_Last   );	}
+	double						Get_xPosition_Last		(void)	const	{	return( m_Point_Last.x );	}
+	double						Get_yPosition_Last		(void)	const	{	return( m_Point_Last.y );	}
 
 	bool						is_Shift				(void)	const	{	return( (m_Keys & TOOL_INTERACTIVE_KEY_SHIFT) != 0 );	}
 	bool						is_Alt					(void)	const	{	return( (m_Keys & TOOL_INTERACTIVE_KEY_ALT  ) != 0 );	}
@@ -601,7 +601,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_TLB_Info
+typedef enum
 {
 	TLB_INFO_Name	= 0,
 	TLB_INFO_Description,

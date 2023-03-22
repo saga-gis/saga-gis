@@ -89,7 +89,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_Table_FileType
+typedef enum
 {
 	TABLE_FILETYPE_Undefined	= 0,
 	TABLE_FILETYPE_Text,
@@ -99,7 +99,7 @@ typedef enum ESG_Table_FileType
 TSG_Table_File_Type;
 
 //---------------------------------------------------------
-typedef enum ESG_Table_Index_Order
+typedef enum
 {
 	TABLE_INDEX_None			= 0,
 	TABLE_INDEX_Ascending,
@@ -314,8 +314,8 @@ public:
 
 	virtual TSG_Data_Object_Type	Get_ObjectType		(void)	const			{	return( SG_DATAOBJECT_TYPE_Table );	}
 
-	CSG_Table &						operator =			(const CSG_Table &Table);
-	virtual bool					Assign				(CSG_Data_Object *pSource);
+	CSG_Table &						operator =			(const CSG_Table  &Table);
+	virtual bool					Assign				(CSG_Data_Object *pTable);
 
 	bool							Assign_Values		(const CSG_Table  &Table);
 	bool							Assign_Values		(      CSG_Table *pTable);
@@ -384,20 +384,11 @@ public:
 	virtual bool					Set_Count			(sLong nRecords);
 	sLong							Get_Count			(void)			const	{	return( m_nRecords );	}
 
-	virtual CSG_Table_Record *		Get_Record			(int    Index)	const	{	return( Index >= 0 && Index < m_nRecords ? m_Records[Index] : NULL );	}
-	virtual CSG_Table_Record *		Get_Record			(size_t Index)	const	{	return(        (sLong)Index < m_nRecords ? m_Records[Index] : NULL );	}
 	virtual CSG_Table_Record *		Get_Record			(sLong  Index)	const	{	return( Index >= 0 && Index < m_nRecords ? m_Records[Index] : NULL );	}
-
-	virtual CSG_Table_Record &		operator []			(int    Index)	const	{	return( *Get_Record_byIndex(Index) );	}
-	virtual CSG_Table_Record &		operator []			(size_t Index)	const	{	return( *Get_Record_byIndex(Index) );	}
 	virtual CSG_Table_Record &		operator []			(sLong  Index)	const	{	return( *Get_Record_byIndex(Index) );	}
 
 	sLong							Get_Index			(sLong  Index)	const	{	return( Index >= 0 && Index < m_nRecords ? (is_Indexed() ? m_Index[Index] : Index) : -1 );	}
-	sLong							Get_Index			(int    Index)	const	{	return( Get_Index((sLong)Index) );	}
-	sLong							Get_Index			(size_t Index)	const	{	return( Get_Index((sLong)Index) );	}
 
-	CSG_Table_Record *				Get_Record_byIndex	(int    Index)	const	{	return( Get_Record_byIndex((sLong)Index) ); }
-	CSG_Table_Record *				Get_Record_byIndex	(size_t Index)	const	{	return( Get_Record_byIndex((sLong)Index) ); }
 	CSG_Table_Record *				Get_Record_byIndex	(sLong  Index)	const
 	{
 		return( Index >= 0 && Index < m_nRecords ? Get_Record(is_Indexed() ? m_Index[Index] : Index) : NULL );

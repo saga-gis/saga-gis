@@ -123,7 +123,7 @@ bool CCluster_ISODATA::Create(size_t nFeatures, TSG_Data_Type Data_Type)
 
 	m_nFeatures	= nFeatures;
 
-	m_Data.Create(m_nFeatures * SG_Data_Type_Get_Size(m_Data_Type), 0, SG_ARRAY_GROWTH_2);
+	m_Data.Create(m_nFeatures * SG_Data_Type_Get_Size(m_Data_Type), 0, TSG_Array_Growth::SG_ARRAY_GROWTH_2);
 
 	return( m_nFeatures > 0 );
 }

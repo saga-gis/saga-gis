@@ -271,7 +271,7 @@ bool CLine_Polygon_Intersection::Get_Intersection(CSG_Shape_Polygon *pPolygon, C
 		}
 
 		//-------------------------------------------------
-		TSG_Point_ZM Segment[2]; Segment[1] = pPart->Get_Point_ZM(0);
+		TSG_Point_4D Segment[2]; Segment[1] = pPart->Get_Point_ZM(0);
 		
 		double Distance = 0.; bool bCrossings = false;
 
@@ -432,7 +432,7 @@ bool CLine_Polygon_Intersection::Get_Intersection(CSG_Shape_Polygon *pPolygon, C
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CLine_Polygon_Intersection::Add_Crossings(CSG_Shape_Polygon *pPolygon, const TSG_Point_ZM Segment[2], double Distance, CSG_Shapes &Vertices)
+bool CLine_Polygon_Intersection::Add_Crossings(CSG_Shape_Polygon *pPolygon, const TSG_Point_4D Segment[2], double Distance, CSG_Shapes &Vertices)
 {
 	CSG_Point a(Segment[0].x, Segment[0].y);
 	CSG_Point b(Segment[1].x, Segment[1].y);
@@ -455,7 +455,7 @@ bool CLine_Polygon_Intersection::Add_Crossings(CSG_Shape_Polygon *pPolygon, cons
 				{
 					bCrossings = true;
 
-					TSG_Point_ZM c; double d = SG_Get_Distance(a, C);
+					TSG_Point_4D c; double d = SG_Get_Distance(a, C);
 
 					c.x = C.x;
 					c.y = C.y;

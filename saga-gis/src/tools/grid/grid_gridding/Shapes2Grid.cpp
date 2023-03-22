@@ -667,7 +667,7 @@ void CShapes2Grid::Set_Polygon(CSG_Shape_Polygon *pPolygon, double Value)
 	//-----------------------------------------------------
 	for(int y=0; y<m_pGrid->Get_NY(); y++, A.y+=m_pGrid->Get_Cellsize())
 	{
-		if( A.y >= Extent.m_rect.yMin && A.y <= Extent.m_rect.yMax )
+		if( A.y >= Extent.yMin && A.y <= Extent.yMax )
 		{
 			B.y	= A.y;
 

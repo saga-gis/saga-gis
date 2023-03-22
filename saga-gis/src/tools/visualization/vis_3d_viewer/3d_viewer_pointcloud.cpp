@@ -157,7 +157,7 @@ C3D_Viewer_PointCloud_Panel::C3D_Viewer_PointCloud_Panel(wxWindow *pParent, CSG_
 	//-----------------------------------------------------
 	m_Extent = pPoints->Get_Extent();
 
-	m_Selection.Create(sizeof(sLong), 0, SG_ARRAY_GROWTH_2);
+	m_Selection.Create(sizeof(sLong), 0, TSG_Array_Growth::SG_ARRAY_GROWTH_2);
 
 	Update_Statistics();
 }
@@ -401,7 +401,7 @@ bool C3D_Viewer_PointCloud_Panel::On_Draw(void)
 	{
 		sLong jPoint = m_Selection.Get_Size() > 0 ? *((sLong *)m_Selection.Get_Entry(iPoint)) : iPoint;
 
-		TSG_Point_Z p = m_pPoints->Get_Point(jPoint); m_Projector.Get_Projection(p);
+		TSG_Point_3D p = m_pPoints->Get_Point(jPoint); m_Projector.Get_Projection(p);
 
 		double Size = minSize; if( dSize > 0. ) { Size += (int)(50. * exp(-p.z / dSize)); }
 

@@ -258,7 +258,7 @@ inline double CVIEW_Map_Control::_Get_Client2World(double Length, bool bToActive
 
 	if( bToActive && m_pMap->Get_Map_Layer_Active() )
 	{
-		SG_Get_Projected(m_pMap->Get_Projection(), Get_Active_Layer()->Get_Object()->Get_Projection(), rWorld.m_rect);
+		SG_Get_Projected(m_pMap->Get_Projection(), Get_Active_Layer()->Get_Object()->Get_Projection(), rWorld);
 	}
 
 	return( Length * rWorld.Get_XRange() / (double)rClient.GetWidth() );

@@ -186,7 +186,7 @@ bool CSelect_Points::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive
 			m_pSelection->Add_Shape()->Add_Point(ptWorld);
 		}
 
-		if( m_Search.Select_Nearest_Points(ptWorld.Get_X(), ptWorld.Get_Y(), m_MaxPoints, m_Radius, m_Quadrant) )
+		if( m_Search.Select_Nearest_Points(ptWorld.x, ptWorld.y, m_MaxPoints, m_Radius, m_Quadrant) )
 		{
 			for(int i=0; i<m_Search.Get_Selected_Count(); i++)
 			{

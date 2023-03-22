@@ -363,8 +363,8 @@ double CForecasting::CalculateFireSpreading(){
         nAzm[n] = n * 45.;
     }//for
 
-	x = m_CentralPoints.Get_X(0);
-	y = m_CentralPoints.Get_Y(0);
+	x = m_CentralPoints[0].x;
+	y = m_CentralPoints[0].y;
 	dProbability = (float)(rand()) / (float)(RAND_MAX); 
 
 	if (m_pBaseProbabilityGrid->asFloat(x,y) < dProbability){
@@ -375,8 +375,8 @@ double CForecasting::CalculateFireSpreading(){
 
 		for (int iPt=0; iPt<m_CentralPoints.Get_Count();iPt++){
 
-			x = m_CentralPoints.Get_X(iPt);
-			y = m_CentralPoints.Get_Y(iPt);
+			x = m_CentralPoints[iPt].x;
+			y = m_CentralPoints[iPt].y;
 
 			if (!m_pDEM->is_NoData(x,y) && !m_pFuelGrid->is_NoData(x,y)){
 
@@ -423,8 +423,8 @@ double CForecasting::CalculateFireSpreading(){
 
 		m_CentralPoints.Clear();
 		for (int i=0; i<m_AdjPoints.Get_Count(); i++){
-			x= m_AdjPoints.Get_X(i);
-			y = m_AdjPoints.Get_Y(i);
+			x = m_AdjPoints[i].x;
+			y = m_AdjPoints[i].y;
 			m_CentralPoints.Add(x, y);
 		}//for
 		m_AdjPoints.Clear();

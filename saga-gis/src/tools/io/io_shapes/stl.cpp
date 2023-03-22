@@ -291,7 +291,7 @@ bool CSTL_Import::On_Execute(void)
 
 				if( Read_Facette(Stream, p) )
 				{
-					TSG_Point_Z	Point[3];
+					TSG_Point_3D	Point[3];
 
 					for(int i=0; i<3; i++)
 					{
@@ -397,11 +397,11 @@ bool CSTL_Import::Get_Extent(CSG_File &Stream, CSG_Rect &Extent, int nFacettes)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSTL_Import::Set_Triangle(TSG_Point_Z p[3])
+void CSTL_Import::Set_Triangle(TSG_Point_3D p[3])
 {
-	if( p[1].y < p[0].y ) {	TSG_Point_Z pp = p[1]; p[1] = p[0]; p[0] = pp;	}
-	if( p[2].y < p[0].y ) {	TSG_Point_Z pp = p[2]; p[2] = p[0]; p[0] = pp;	}
-	if( p[2].y < p[1].y ) {	TSG_Point_Z pp = p[2]; p[2] = p[1]; p[1] = pp;	}
+	if( p[1].y < p[0].y ) {	TSG_Point_3D pp = p[1]; p[1] = p[0]; p[0] = pp;	}
+	if( p[2].y < p[0].y ) {	TSG_Point_3D pp = p[2]; p[2] = p[0]; p[0] = pp;	}
+	if( p[2].y < p[1].y ) {	TSG_Point_3D pp = p[2]; p[2] = p[1]; p[1] = pp;	}
 
 	//-----------------------------------------------------
 	TSG_Rect	r;
@@ -423,7 +423,7 @@ void CSTL_Import::Set_Triangle(TSG_Point_Z p[3])
 	}
 
 	//-----------------------------------------------------
-	TSG_Point_Z	d[3];
+	TSG_Point_3D	d[3];
 
 	if( (d[0].y	= p[2].y - p[0].y) != 0.0 )
 	{

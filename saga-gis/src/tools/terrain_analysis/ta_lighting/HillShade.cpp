@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "HillShade.h"
 
 
@@ -72,7 +60,6 @@
 //---------------------------------------------------------
 CHillShade::CHillShade(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Analytical Hillshading"));
 
 	Set_Author		("O.Conrad, V.Wichmann (c) 2003-2013");
@@ -113,7 +100,7 @@ CHillShade::CHillShade(void)
 	Parameters.Add_Choice("",
 		"METHOD"		, _TL("Shading Method"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s",
 			_TL("Standard"),
 			_TL("Limited Maximum"),
 			_TL("With Shadows"),
@@ -126,7 +113,7 @@ CHillShade::CHillShade(void)
 	Parameters.Add_Choice("",
 		"POSITION"		, _TL("Sun's Position"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("azimuth and height"),
 			_TL("date and time")
 		), 0
@@ -135,13 +122,13 @@ CHillShade::CHillShade(void)
 	Parameters.Add_Double("POSITION",
 		"AZIMUTH"		, _TL("Azimuth"),
 		_TL("Direction of the light source, measured in degree clockwise from the North direction."),
-		315.0, 0.0, true, 360.0, true
+		315., 0., true, 360., true
 	);
 
 	Parameters.Add_Double("POSITION",
 		"DECLINATION"	, _TL("Height"),
 		_TL("Height of the light source, measured in degree above the horizon."),
-		45.0, 0.0, true, 90.0, true
+		45., 0., true, 90., true
 	);
 
 	Parameters.Add_Date("POSITION",
@@ -153,13 +140,13 @@ CHillShade::CHillShade(void)
 	Parameters.Add_Double("POSITION",
 		"TIME"			, _TL("Hour"),
 		_TL(""),
-		12.0, 0.0, true, 24.0, true
+		12., 0., true, 24., true
 	);
 
 	Parameters.Add_Double("",
 		"EXAGGERATION"	, _TL("Exaggeration"),
 		_TL("The terrain exaggeration factor allows one to increase the shading contrasts in flat areas."),
-		1.0
+		1.
 	);
 
 	Parameters.Add_Choice("",
@@ -190,7 +177,7 @@ CHillShade::CHillShade(void)
 	Parameters.Add_Double("",
 		"RADIUS"		, _TL("Search Radius"),
 		_TL("Radius used to trace for shadows (ambient occlusion) [map units]."),
-		10.0, 0.001, true
+		10., 0.001, true
 	);
 }
 
@@ -231,12 +218,11 @@ int CHillShade::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 //---------------------------------------------------------
 bool CHillShade::On_Execute(void)
 {
-	//-----------------------------------------------------
-	m_pDEM		= Parameters("ELEVATION")->asGrid();
-	m_pShade	= Parameters("SHADE"    )->asGrid();
+	m_pDEM   = Parameters("ELEVATION")->asGrid();
+	m_pShade = Parameters("SHADE"    )->asGrid();
 
 	//-----------------------------------------------------
-	bool	bResult;
+	bool bResult;
 
 	switch( Parameters("METHOD")->asInt() )
 	{
@@ -282,7 +268,7 @@ bool CHillShade::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	return( bResult );
+	return( true );
 }
 
 
@@ -295,31 +281,31 @@ bool CHillShade::Get_Position(double &Azimuth, double &Decline)
 {
 	if( Parameters("POSITION")->asInt() == 0 )
 	{
-		Azimuth	= Parameters("AZIMUTH"    )->asDouble() * M_DEG_TO_RAD;
-		Decline	= Parameters("DECLINATION")->asDouble() * M_DEG_TO_RAD;
+		Azimuth = Parameters("AZIMUTH"    )->asDouble() * M_DEG_TO_RAD;
+		Decline = Parameters("DECLINATION")->asDouble() * M_DEG_TO_RAD;
 	}
 	else
 	{
-		CSG_Shapes	Origin(SHAPE_TYPE_Point), GCS;
+		CSG_Shapes Origin(SHAPE_TYPE_Point), GCS;
 
 		Origin.Get_Projection().Create(m_pDEM->Get_Projection());
 		Origin.Add_Shape()->Add_Point(m_pDEM->Get_System().Get_Extent().Get_Center());
 
 		SG_RUN_TOOL_ExitOnError("pj_proj4", 2,	// Coordinate Transformation (Shapes)
-				SG_TOOL_PARAMETER_SET("SOURCE", &Origin)
-			&&	SG_TOOL_PARAMETER_SET("TARGET", &GCS)
+			    SG_TOOL_PARAMETER_SET("SOURCE", &Origin)
+			&&  SG_TOOL_PARAMETER_SET("TARGET", &GCS)
 		)
 
-		TSG_Point	Center	= GCS.Get_Shape(0)->Get_Point(0);
+		TSG_Point Center = GCS.Get_Shape(0)->Get_Point(0);
 
-		CSG_DateTime	Date(Parameters("DATE")->asDate()->Get_Date());
+		CSG_DateTime Date(Parameters("DATE")->asDate()->Get_Date());
 
-		double	Hour	= Parameters("TIME")->asDouble();
+		double Hour = Parameters("TIME")->asDouble();
 
 		Date.Set_Hour(Hour);
-		Date.Set(floor(Date.Get_JDN()) - 0.5 + Hour / 24.0);	// relate to UTC, avoid problems with daylight saving time
+		Date.Set(floor(Date.Get_JDN()) - 0.5 + Hour / 24.);	// relate to UTC, avoid problems with daylight saving time
 
-		SG_Get_Sun_Position(Date, 0.0, Center.y * M_DEG_TO_RAD, Decline, Azimuth);
+		SG_Get_Sun_Position(Date, 0., Center.y * M_DEG_TO_RAD, Decline, Azimuth);
 
 		Message_Fmt("\n%s: %f", _TL("Longitude"), Center.x);
 		Message_Fmt("\n%s: %f", _TL("Latitude" ), Center.y);
@@ -327,23 +313,23 @@ bool CHillShade::Get_Position(double &Azimuth, double &Decline)
 		Message_Fmt("\n%s: %f", _TL("Height"   ), Decline * M_RAD_TO_DEG);
 	}
 
-	return( Decline >= 0.0 );
+	return( Decline >= 0. );
 }
 
 //---------------------------------------------------------
 bool CHillShade::Get_Shading(bool bDelimit, bool bCombine)
 {
-	double	Azimuth, Decline;
+	double Azimuth, Decline;
 
 	if( !Get_Position(Azimuth, Decline) )
 	{
 		return( false );
 	}
 
-	double	sinDecline	= sin(Decline);
-	double	cosDecline	= cos(Decline);
+	double sinDecline = sin(Decline);
+	double cosDecline = cos(Decline);
 
-	double	Scale	= Parameters("EXAGGERATION")->asDouble();
+	double Scale = Parameters("EXAGGERATION")->asDouble();
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
@@ -359,23 +345,23 @@ bool CHillShade::Get_Shading(bool bDelimit, bool bCombine)
 			}
 			else
 			{
-				if( Scale != 1.0 )
+				if( Scale != 1. )
 				{
-					Slope	= atan(Scale * tan(Slope));
+					Slope = atan(Scale * tan(Slope));
 				}
 
-				double	d	= M_PI_090 - Slope;
+				double d = M_PI_090 - Slope;
 
-				d	= acos(sin(d) * sinDecline + cos(d) * cosDecline * cos(Aspect - Azimuth));
+				d = acos(sin(d) * sinDecline + cos(d) * cosDecline * cos(Aspect - Azimuth));
 
 				if( bDelimit && d > M_PI_090 )
 				{
-					d	= M_PI_090;
+					d = M_PI_090;
 				}
 
 				if( bCombine )
 				{
-					d	*= Slope / M_PI_090;
+					d *= Slope / M_PI_090;
 				}
 
 				m_pShade->Set_Value(x, y, d);
@@ -519,48 +505,50 @@ bool CHillShade::Set_Shadow_Trace(double x, double y, double z, double dx, doubl
 //---------------------------------------------------------
 bool CHillShade::AmbientOcclusion(void)
 {
-	double	dRadius	= Parameters("RADIUS")->asDouble();
-	int		iDirs	= Parameters("NDIRS" )->asInt();
+	int    nDirections = Parameters("NDIRS" )->asInt();
+	double Radius      = Parameters("RADIUS")->asDouble();
 
-	CSG_Points_Z	Directions;	Directions.Set_Count(iDirs);
+	CSG_Matrix Directions(3, nDirections);
 
-	for(int i=0; i<iDirs; i++)
+	for(int i=0; i<nDirections; i++)
 	{
-		Directions[i].z	= (M_PI_180 * i) / iDirs; // only northern half-space, otherwise: (M_PI_360 * i) / iDirs;
-		Directions[i].x	= sin(Directions[i].z - M_PI_090);
-		Directions[i].y	= cos(Directions[i].z - M_PI_090);
+		double dz = ((M_PI_180 * i) / nDirections) - M_PI_090; // only northern half-space, otherwise: (M_PI_360 * i) / iDirs;
+
+		Directions[i][0] = sin(dz);
+		Directions[i][1] = cos(dz);
+		Directions[i][2] = sin((M_PI_090 * i) / (nDirections / 4.));
 	}
 
-	m_pShade->Assign(0.0);
+	m_pShade->Assign(0.);
 
 	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			double	s, a;
+			double s, a;
 
 			if( !m_pDEM->Get_Gradient(x, y, s, a) )
 			{
 				m_pShade->Set_NoData(x, y);
+
 				continue;
 			}
 
-			CSG_Point_Z	Normal(sin(s) * sin(a), sin(s) * cos(a), cos(s));
-
 			//-----------------------------------------------------
-			for(int i=0; i<Directions.Get_Count(); i++)
+			CSG_Point_3D Normal(sin(s) * sin(a), sin(s) * cos(a), cos(s));
+
+			for(int i=0; i<nDirections; i++)
 			{
-				for(int j=0; j<Directions.Get_Count(); j++)
+				CSG_Point_3D Direction(Directions[i][0], Directions[i][1], 0.);
+
+				for(int j=0; j<nDirections; j++)
 				{
-					Directions[i].z	= sin((M_PI_090 * j) / (iDirs / 4.0));
+					Direction.z	= Directions[j][2];
 					
-					double	dAngle =	(Normal.Get_X() * Directions[i].x + Normal.Get_Y() * Directions[i].y + Normal.Get_Z() * Directions[i].z);
+					double dAngle = (Normal.x * Direction.x + Normal.y * Direction.y + Normal.z * Direction.z);
 
-					if (dAngle <= 0.0)
-						continue;
-
-					if( AmbientOcclusion_Trace(x, y, Directions[i], dRadius) )
+					if( dAngle > 0. && AmbientOcclusion_Trace(x, y, Direction, Radius) )
 					{
 						m_pShade->Add_Value(x, y, dAngle);
 					}
@@ -568,7 +556,9 @@ bool CHillShade::AmbientOcclusion(void)
 			}
 
 			if( !m_pShade->is_NoData(x, y) )
-				m_pShade->Set_Value(x, y, M_PI - m_pShade->asDouble(x, y) / (iDirs * (iDirs / 4.0)));
+			{
+				m_pShade->Set_Value(x, y, M_PI_180 - m_pShade->asDouble(x, y) / (nDirections * (nDirections / 4.)));
+			}
 		}
 	}
 
@@ -576,30 +566,24 @@ bool CHillShade::AmbientOcclusion(void)
 }
 
 //---------------------------------------------------------
-bool CHillShade::AmbientOcclusion_Trace(int x, int y, CSG_Point_Z Direction, double dRadius)
+bool CHillShade::AmbientOcclusion_Trace(int x, int y, const CSG_Point_3D &d, double Radius)
 {
-	double		dDistance, iDistance, dx, dy, dz, ix, iy, iz, z;
+	double dz = tan(asin(d.z)) * sqrt(d.x*d.x + d.y*d.y) * Get_Cellsize();
+	double ix = x, iy = y, iz = m_pDEM->asDouble(x, y);
+	double Distance = 0., dDistance	= Get_Cellsize() * M_GET_LENGTH(d.x, d.y);
 
-	z			= m_pDEM->asDouble(x, y);
-	dx			= Direction.Get_X();
-	dy			= Direction.Get_Y();
-	dz			= tan( asin(Direction.Get_Z()) ) * sqrt(dx*dx + dy*dy) * Get_Cellsize();
-	ix			= x;
-	iy			= y;
-	iz			= m_pDEM->asDouble(x, y);
-	dDistance	= 0.0;
-	iDistance	= Get_Cellsize() * M_GET_LENGTH(dx, dy);
-
-	while( is_InGrid(x, y) && dDistance <= dRadius )
+	while( is_InGrid(x, y) && Distance <= Radius )
 	{
-		ix	+= dx;	x	= (int)(0.5 + ix);
-		iy	+= dy;	y	= (int)(0.5 + iy);
-		iz	+= dz;
+		ix += d.x; iy += d.y; iz += dz;
+	
+		x = (int)(0.5 + ix); y = (int)(0.5 + iy);
 
 		if( m_pDEM->is_InGrid(x, y) && m_pDEM->asDouble(x, y) > iz )
+		{
 			return( false );
+		}
 
-		dDistance	+= iDistance;
+		Distance += dDistance;
 	}
 
 	return( true );

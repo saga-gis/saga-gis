@@ -302,7 +302,7 @@ bool CGW_Multi_Regression::Get_Model(int x, int y, CSG_Regression_Weighted &Mode
 	{
 		for(sLong iPoint=0; iPoint<m_pPoints->Get_Count(); iPoint++)
 		{
-			CSG_Shape *pPoint = m_pPoints->Get_Shape(iPoint); double Value;
+			CSG_Shape *pPoint = m_pPoints->Get_Shape(iPoint);
 
 			if( !pPoint->is_NoData(m_iDependent) )
 			{
@@ -338,7 +338,7 @@ bool CGW_Multi_Regression::Get_Model(int x, int y, CSG_Regression_Weighted &Mode
 
 		for(sLong iPoint=0; iPoint<Index.Get_Size(); iPoint++)
 		{
-			CSG_Shape *pPoint = m_pPoints->Get_Shape(Index[iPoint]); double Value;
+			CSG_Shape *pPoint = m_pPoints->Get_Shape(Index[iPoint]);
 
 			if( !pPoint->is_NoData(m_iDependent) )
 			{

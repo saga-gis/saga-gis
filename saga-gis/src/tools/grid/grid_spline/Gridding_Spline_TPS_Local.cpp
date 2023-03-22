@@ -188,7 +188,7 @@ bool CGridding_Spline_TPS_Local::On_Execute(void)
 //---------------------------------------------------------
 bool CGridding_Spline_TPS_Local::Set_Value(int x, int y, double xWorld, double yWorld, double Regularization)
 {
-	CSG_Points_Z	Points;
+	CSG_Points_3D	Points;
 
 	if( m_Search.Get_Points(xWorld, yWorld, Points) && Points.Get_Count() > 2 )
 	{

@@ -168,7 +168,7 @@ bool CShapes_Polar_to_Cartes::On_Execute(void)
 		{
 			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 			{
-				TSG_Point_Z	Point	= Get_Cartes(pShape->Get_Point(iPoint, iPart), fExagg < 0 ? Radius : Radius + dExagg * pShape->asDouble(fExagg), bDegree);
+				TSG_Point_3D	Point	= Get_Cartes(pShape->Get_Point(iPoint, iPart), fExagg < 0 ? Radius : Radius + dExagg * pShape->asDouble(fExagg), bDegree);
 
 				pTarget->Add_Point(Point.x, Point.y, iPart);
 				pTarget->Set_Z    (Point.z, iPoint , iPart);
@@ -188,7 +188,7 @@ bool CShapes_Polar_to_Cartes::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline TSG_Point_Z CShapes_Polar_to_Cartes::Get_Cartes(TSG_Point Point, double Radius, bool bDegree)
+inline TSG_Point_3D CShapes_Polar_to_Cartes::Get_Cartes(TSG_Point Point, double Radius, bool bDegree)
 {
 	if( bDegree )
 	{
@@ -196,7 +196,7 @@ inline TSG_Point_Z CShapes_Polar_to_Cartes::Get_Cartes(TSG_Point Point, double R
 		Point.y	*= M_DEG_TO_RAD;
 	}
 
-	TSG_Point_Z	p;
+	TSG_Point_3D	p;
 
 	p.z		= Radius * sin(Point.y);
 	Radius	= Radius * cos(Point.y);

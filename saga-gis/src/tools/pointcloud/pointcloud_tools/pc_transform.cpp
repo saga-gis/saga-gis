@@ -134,8 +134,8 @@ int CPC_Transform::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramet
 {
     if( pParameter->Cmp_Identifier("IN") && pParameter->asPointCloud() != NULL )
     {
-        pParameters->Set_Parameter("ANCHORX",  pParameter->asPointCloud()->Get_Extent().Get_Center().Get_X());
-        pParameters->Set_Parameter("ANCHORY",  pParameter->asPointCloud()->Get_Extent().Get_Center().Get_Y());
+        pParameters->Set_Parameter("ANCHORX",  pParameter->asPointCloud()->Get_Extent().Get_Center().x);
+        pParameters->Set_Parameter("ANCHORY",  pParameter->asPointCloud()->Get_Extent().Get_Center().y);
         pParameters->Set_Parameter("ANCHORZ", (pParameter->asPointCloud()->Get_ZMin() + pParameter->asPointCloud()->Get_ZMax()) / 2.0);
     }
 
@@ -154,7 +154,7 @@ bool CPC_Transform::On_Execute(void)
 {
     bool            bCopy;
     double          angleX, angleY, angleZ;
-    TSG_Point_Z     P, Q, Move, Scale, Anchor;
+    TSG_Point_3D     P, Q, Move, Scale, Anchor;
     CSG_PointCloud  *pIn, *pOut;
     double          a11, a12, a13, a21, a22, a23, a31, a32, a33;
 

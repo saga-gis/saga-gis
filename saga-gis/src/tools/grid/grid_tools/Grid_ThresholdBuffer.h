@@ -1,6 +1,4 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
+
 /*******************************************************************************
     ThresholdBuffer.h
     Copyright (C) Victor Olaya
@@ -20,37 +18,54 @@
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/ 
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-#include "MLB_Interface.h"
+//---------------------------------------------------------
+#include <saga_api/saga_api.h>
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CThresholdBuffer : public CSG_Tool_Grid
 {
 public:
 	CThresholdBuffer(void);
-	virtual ~CThresholdBuffer(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid|Distances") );	}
+	virtual CSG_String	Get_MenuPath	(void)	{	return( _TL("A:Grid|Distances") );	}
 
 
 protected:
 
-	virtual bool				On_Execute				(void);
+	virtual bool		On_Execute		(void);
 
 
 private:
 
-	int							m_iThresholdType;
+	int					m_Type;
 
-	double						m_dThreshold;
+	double				m_Threshold;
 
-	CSG_Grid					*m_pFeatures, *m_pBuffer, *m_pValueGrid, *m_pThresholdGrid;
-
-	CSG_Points_Int				m_pCentralPoints, m_pAdjPoints;
+	CSG_Grid			*m_pFeatures, *m_pBuffer, *m_pValues, *m_pThreshold;
 
 
-	void						BufferPoint				(int x, int y);
+	void				BufferPoint		(int x, int y);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

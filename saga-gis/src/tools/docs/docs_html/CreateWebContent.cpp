@@ -93,7 +93,7 @@ bool CCreateWebContent::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interact
 		if( m_bDown == true ){
 			m_bDown	= false;
 
-			r.Assign(m_ptDown.Get_X(), m_ptDown.Get_Y(), ptWorld.Get_X(), ptWorld.Get_Y());
+			r.Assign(m_ptDown.x, m_ptDown.y, ptWorld.x, ptWorld.y);
 
 			if( r.Get_XRange() == 0.0 && r.Get_YRange() == 0.0 ){
 				m_pShapes->Select(m_pShapes->Get_Shape(m_ptDown), is_Shift());

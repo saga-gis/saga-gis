@@ -351,7 +351,7 @@ bool CSG_Simple_Statistics::Create(bool bHoldValues)
 {
 	Invalidate();
 
-	m_Values.Create(bHoldValues ? sizeof(double) : 0, 0, SG_ARRAY_GROWTH_1);
+	m_Values.Create(bHoldValues ? sizeof(double) : 0, 0, TSG_Array_Growth::SG_ARRAY_GROWTH_1);
 
 	return( true );
 }
@@ -2013,7 +2013,7 @@ bool CSG_Cluster_Analysis::Create(int nFeatures)
 	{
 		m_nFeatures	= nFeatures;
 
-		m_Features.Create(m_nFeatures * sizeof(double), 0, SG_ARRAY_GROWTH_3);
+		m_Features.Create(m_nFeatures * sizeof(double), 0, TSG_Array_Growth::SG_ARRAY_GROWTH_3);
 
 		return( true );
 	}
