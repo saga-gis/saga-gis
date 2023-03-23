@@ -54,7 +54,7 @@ if(SWIG_FOUND)
 
 		swig_add_library(saga_api_python LANGUAGE Python SOURCES ../saga_api.i)
 
-		set_property(TARGET saga_api_python PROPERTY OUTPUT_NAME _saga_api)
+		set_property(TARGET saga_api_python PROPERTY OUTPUT_NAME saga_api)
 
 		swig_link_libraries(saga_api_python saga_api)
 		swig_link_libraries(saga_api_python ${Python_LIBRARIES})
