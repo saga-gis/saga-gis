@@ -853,7 +853,7 @@ void CVIEW_Table_Diagram_Control::_Draw(wxDC &dc, wxRect rDC)
 	//-----------------------------------------------------
 	int Type = m_Parameters("TYPE")->asInt(); bool bDifferent = Type >= 4, bScaling = m_Parameters("Y_SCALING")->asBool();
 
-	for(size_t iField=0; iField<m_Fields.Get_Size(); iField++)
+	for(int iField=0; iField<(int)m_Fields.Get_Size(); iField++)
 	{
 		if( bDifferent )
 		{
@@ -1021,7 +1021,7 @@ void CVIEW_Table_Diagram_Control::_Draw_Legend(wxDC &dc, wxRect r)
 	dc.SetPen(*wxBLACK_PEN);
 
 	//-----------------------------------------------------
-	for(size_t iField=0; iField<m_Fields.Get_Size(); iField++)
+	for(int iField=0; iField<(int)m_Fields.Get_Size(); iField++)
 	{
 		wxRect	rBox(r.GetLeft(), r.GetTop() + iField * dyBox, dxBox, dyBox);
 		wxBrush	Brush(dc.GetBrush());
@@ -1113,7 +1113,7 @@ void CVIEW_Table_Diagram_Control::_Draw_Lines(wxDC &dc, wxRect r, double dx, dou
 		{
 			CSG_Table_Record *pRecord = _Get_Record(iRecord);
 
-			if( (bLast = !pRecord->is_NoData(iField) && (m_pTable->Get_Selection_Count() < 1 || pRecord->is_Selected())) == true )
+			if( !pRecord->is_NoData(iField) && (m_pTable->Get_Selection_Count() < 1 || pRecord->is_Selected()) )
 			{
 				int x = DRAW_GET_XPOS, y = DRAW_GET_YPOS;
 
@@ -1122,7 +1122,11 @@ void CVIEW_Table_Diagram_Control::_Draw_Lines(wxDC &dc, wxRect r, double dx, dou
 					dc.DrawLine(xLast, yLast, x, y);
 				}
 
-				xLast = x; yLast = y;
+				bLast = true; xLast = x; yLast = y;
+			}
+			else
+			{
+				bLast = false;
 			}
 		}
 	}
