@@ -45,18 +45,19 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 #ifndef HEADER_INCLUDED__select_points_H
 #define HEADER_INCLUDED__select_points_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -77,22 +78,22 @@ public:
 protected:
 
 	virtual bool				On_Execute				(void);
+	virtual bool				On_Execute_Finish		(void);
 
 	virtual bool				On_Execute_Position		(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
 
 
 private:
 
-	bool						m_bAddCenter;
+	bool						m_bMultiple, m_bAddCenter;
 
-	int							m_MaxPoints, m_Quadrant;
+	int							m_MaxPoints;
 
 	double						m_Radius;
 
+	CSG_KDTree_2D				m_Search;
+
 	CSG_Shapes					*m_pPoints, *m_pSelection;
-
-	CSG_PRQuadTree				m_Search;
-
 
 };
 

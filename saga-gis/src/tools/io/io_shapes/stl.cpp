@@ -80,11 +80,12 @@ CSTL_Import::CSTL_Import(void)
 		_TL("All Files"))
 	);
 
-	Parameters.Add_Choice("", "METHOD", _TL("Target"), _TL(""), CSG_String::Format("%s|%s|%s|%s",
+	Parameters.Add_Choice("", "METHOD", _TL("Target"), _TL(""), CSG_String::Format("%s|%s|%s|%s|%s",
 		_TL("point cloud"),
 		_TL("point cloud (centered)"),
 		_TL("points"),
-		_TL("raster")), 3
+		_TL("faces"),
+		_TL("raster")), 0
 	);
 
 	Parameters.Add_Choice("", "METHOD_RASTER", _TL("Raster Dimension"), _TL(""), CSG_String::Format("%s|%s",
@@ -99,6 +100,28 @@ CSTL_Import::CSTL_Import(void)
 	Parameters.Add_Double("ROTATE", "ROT_X", _TL("X Axis"), _TL(""), 0.);
 	Parameters.Add_Double("ROTATE", "ROT_Y", _TL("Y Axis"), _TL(""), 0.);
 	Parameters.Add_Double("ROTATE", "ROT_Z", _TL("Z Axis"), _TL(""), 0.);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CSTL_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("METHOD") )
+	{
+		pParameters->Set_Enabled("METHOD_RASTER", pParameter->asInt() == 4);
+	}
+
+	if( pParameter->Cmp_Identifier("METHOD_RASTER") )
+	{
+		pParameters->Set_Enabled("GRID_NX"  , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("GRID_CELL", pParameter->asInt() == 1);
+	}
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -196,6 +219,8 @@ bool CSTL_Import::On_Execute(void)
 					pPoints->Del_Point(i);
 				}
 			}
+
+			pPoints->Del_Field(3);
 		}
 		break; }
 
@@ -251,7 +276,38 @@ bool CSTL_Import::On_Execute(void)
 		break; }
 
 	//-----------------------------------------------------
-	case 3:	{	// Raster
+	case 3:	{	// Faces
+		CSG_Shapes *pFaces = SG_Create_Shapes(SHAPE_TYPE_Polygon);
+		pFaces->Set_Name(SG_File_Get_Name(Parameters("FILE")->asString(), false));
+		pFaces->Add_Field("Z0"   , SG_DATATYPE_Float);
+		pFaces->Add_Field("Z1"   , SG_DATATYPE_Float);
+		pFaces->Add_Field("Z2"   , SG_DATATYPE_Float);
+		pFaces->Add_Field("Zmean", SG_DATATYPE_Float);
+		Parameters("SHAPES")->Set_Value(pFaces);
+
+		for(int iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
+		{
+			TSTL_Point p[3];
+
+			if( Read_Facette(Stream, p) )
+			{
+				CSG_Shape *pFace = pFaces->Add_Shape();
+
+				pFace->Add_Point(p[0].x, p[0].y);
+				pFace->Add_Point(p[1].x, p[1].y);
+				pFace->Add_Point(p[2].x, p[2].y);
+
+				pFace->Set_Value(0, p[0].z);
+				pFace->Set_Value(1, p[1].z);
+				pFace->Set_Value(2, p[2].z);
+				pFace->Set_Value(3, ((double)p[0].z + p[1].z + p[2].z) / 3.);
+			}
+		}
+
+		break; }
+
+	//-----------------------------------------------------
+	case 4:	{	// Raster
 		CSG_Rect Extent;
 
 		if( Get_Extent(Stream, Extent, nFacettes) )
@@ -291,7 +347,7 @@ bool CSTL_Import::On_Execute(void)
 
 				if( Read_Facette(Stream, p) )
 				{
-					TSG_Point_Z	Point[3];
+					TSG_Point_3D	Point[3];
 
 					for(int i=0; i<3; i++)
 					{
@@ -397,11 +453,11 @@ bool CSTL_Import::Get_Extent(CSG_File &Stream, CSG_Rect &Extent, int nFacettes)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSTL_Import::Set_Triangle(TSG_Point_Z p[3])
+void CSTL_Import::Set_Triangle(TSG_Point_3D p[3])
 {
-	if( p[1].y < p[0].y ) {	TSG_Point_Z pp = p[1]; p[1] = p[0]; p[0] = pp;	}
-	if( p[2].y < p[0].y ) {	TSG_Point_Z pp = p[2]; p[2] = p[0]; p[0] = pp;	}
-	if( p[2].y < p[1].y ) {	TSG_Point_Z pp = p[2]; p[2] = p[1]; p[1] = pp;	}
+	if( p[1].y < p[0].y ) {	TSG_Point_3D pp = p[1]; p[1] = p[0]; p[0] = pp;	}
+	if( p[2].y < p[0].y ) {	TSG_Point_3D pp = p[2]; p[2] = p[0]; p[0] = pp;	}
+	if( p[2].y < p[1].y ) {	TSG_Point_3D pp = p[2]; p[2] = p[1]; p[1] = pp;	}
 
 	//-----------------------------------------------------
 	TSG_Rect	r;
@@ -423,7 +479,7 @@ void CSTL_Import::Set_Triangle(TSG_Point_Z p[3])
 	}
 
 	//-----------------------------------------------------
-	TSG_Point_Z	d[3];
+	TSG_Point_3D	d[3];
 
 	if( (d[0].y	= p[2].y - p[0].y) != 0.0 )
 	{

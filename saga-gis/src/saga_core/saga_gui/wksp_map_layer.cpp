@@ -350,7 +350,7 @@ bool CWKSP_Map_Layer::Fit_Colors(const CSG_Rect &rWorld)
 
 		if( m_bProject && _Projected_Get_Projections(prj_Layer, prj_Map) )
 		{
-			SG_Get_Projected(prj_Map, prj_Layer, _rWorld.m_rect);
+			SG_Get_Projected(prj_Map, prj_Layer, _rWorld);
 		}
 
 		switch( m_pLayer->Get_Type() )
@@ -537,7 +537,7 @@ bool CWKSP_Map_Layer::_Projected_Shapes_Clipped(const CSG_Rect &rMap, CSG_Shapes
 
 		for(sLong i=0; i<Extent.Get_Count(); i++)
 		{
-			TSG_Point	p	= Extent.Get_Shape(i)->Get_Point(0);
+			TSG_Point	p	= Extent.Get_Shape(i)->Get_Point();
 
 			if( std::isinf(p.x) ) p.x = std::signbit(p.x) ? Extent.Get_Extent().Get_XMin() : Extent.Get_Extent().Get_XMax();
 			if( std::isinf(p.y) ) p.y = std::signbit(p.y) ? Extent.Get_Extent().Get_YMin() : Extent.Get_Extent().Get_YMax();

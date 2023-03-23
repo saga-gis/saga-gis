@@ -865,7 +865,7 @@ bool CGrid_Levels_to_Points::On_Execute(void)
 	{
 		CSG_Shape *pPoint = pPoints->Get_Shape(iPoint); double Value;
 
-		if( !pPoint->is_NoData(zField) && Get_Value(pPoint->Get_Point(0), pPoint->asDouble(zField), Value) )
+		if( !pPoint->is_NoData(zField) && Get_Value(pPoint->Get_Point(), pPoint->asDouble(zField), Value) )
 		{
 			pPoint->Set_Value(vField, Value);
 		}

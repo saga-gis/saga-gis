@@ -176,7 +176,7 @@ TSG_Intersection CSG_Shape::Intersects(CSG_Shape *pShape)
 }
 
 //---------------------------------------------------------
-TSG_Intersection CSG_Shape::Intersects(TSG_Rect Region)
+TSG_Intersection CSG_Shape::Intersects(const TSG_Rect &Region)
 {
 	TSG_Intersection Intersection = Get_Extent().Intersects(Region);
 
@@ -194,21 +194,26 @@ TSG_Intersection CSG_Shape::Intersects(TSG_Rect Region)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Shape::Assign(CSG_Shape *pShape)
+bool CSG_Shape::Assign(CSG_Table_Record *pRecord)
 {
-	return( Assign(pShape, true) );
+	return( Assign(pRecord, true) );
 }
 
-bool CSG_Shape::Assign(CSG_Shape *pShape, bool bAssign_Attributes)
+bool CSG_Shape::Assign(CSG_Table_Record *pRecord, bool bAssign_Attributes)
 {
-	if( pShape && Get_Type() == pShape->Get_Type() && On_Assign(pShape) )
+	if( pRecord )
 	{
-		if( bAssign_Attributes )
+		if( pRecord->Get_Table()->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
 		{
-			CSG_Table_Record::Assign(pShape);
+			CSG_Shape *pShape = (CSG_Shape *)pRecord;
+
+			if( Get_Type() == pShape->Get_Type() )
+			{
+				On_Assign(pShape);
+			}
 		}
- 
-		return( true );
+
+		return( !bAssign_Attributes || CSG_Table_Record::Assign(pRecord) );
 	}
 
 	return( false );

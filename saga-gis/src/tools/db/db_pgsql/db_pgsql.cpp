@@ -821,61 +821,60 @@ bool CSG_PG_Connection::Table_Create(const CSG_String &_Table_Name, const CSG_Ta
 	}
 
 	//-----------------------------------------------------
-	int			iField;
-	CSG_String	SQL, Table_Name(Make_Table_Name(_Table_Name));
+	CSG_String SQL, Table_Name(Make_Table_Name(_Table_Name));
 
 	SQL.Printf("CREATE TABLE \"%s\"(", Table_Name.c_str());
 
 	//-----------------------------------------------------
-	for(iField=0; iField<Table.Get_Field_Count(); iField++)
+	for(int iField=0; iField<Table.Get_Field_Count(); iField++)
 	{
-		CSG_String	s	= Get_Type_To_SQL(Table.Get_Field_Type(iField), Table.Get_Field_Length(iField));
+		CSG_String s = Get_Type_To_SQL(Table.Get_Field_Type(iField), Table.Get_Field_Length(iField));
 
-		char	Flag	= (int)Flags.Get_Size() == Table.Get_Field_Count() ? Flags[iField] : 0;
+		char Flag = (int)Flags.Get_Size() == Table.Get_Field_Count() ? Flags[iField] : 0;
 
 		if( (Flag & SG_PG_PRIMARY_KEY) == 0 )
 		{
 			if( (Flag & SG_PG_UNIQUE) != 0 )
 			{
-				s	+= " UNIQUE";
+				s += " UNIQUE";
 			}
 
 			if( (Flag & SG_PG_NOT_NULL) != 0 )
 			{
-				s	+= " NOT NULL";
+				s += " NOT NULL";
 			}
 		}
 
 		if( iField > 0 )
 		{
-			SQL	+= ", ";
+			SQL += ", ";
 		}
 
-		SQL	+= CSG_String::Format("\"%s\" %s", Make_Table_Field_Name(Table, iField).c_str(), s.c_str());
+		SQL += CSG_String::Format("\"%s\" %s", Make_Table_Field_Name(Table, iField).c_str(), s.c_str());
 	}
 
 	//-----------------------------------------------------
 	if( (int)Flags.Get_Size() == Table.Get_Field_Count() )
 	{
-		CSG_String	s;
+		CSG_String s;
 
-		for(iField=0; iField<Table.Get_Field_Count(); iField++)
+		for(int iField=0; iField<Table.Get_Field_Count(); iField++)
 		{
 			if( (Flags[iField] & SG_PG_PRIMARY_KEY) != 0 )
 			{
-				s	+= s.Length() == 0 ? ", PRIMARY KEY(" : ", ";
-				s	+= Make_Table_Field_Name(Table, iField);
+				s += s.Length() == 0 ? ", PRIMARY KEY(" : ", ";
+				s += Make_Table_Field_Name(Table, iField);
 			}
 		}
 
 		if( s.Length() > 0 )
 		{
-			SQL	+= s + ")";
+			SQL += s + ")";
 		}
 	}
 
 	//-----------------------------------------------------
-	SQL	+= ")";
+	SQL += ")";
 
 	return( Execute(SQL) );
 }
@@ -903,10 +902,10 @@ bool CSG_PG_Connection::Table_Drop(const CSG_String &_Table_Name, bool bCommit)
 //---------------------------------------------------------
 bool CSG_PG_Connection::Table_Insert(const CSG_String &_Table_Name, const CSG_Table &Table, bool bCommit)
 {
-	if( !is_Connected() )	{	_Error_Message(_TL("no database connection"));	return( false );	}
+	if( !is_Connected() ) { _Error_Message(_TL("no database connection")); return( false ); }
 
 	//-----------------------------------------------------
-	CSG_String	Table_Name(Make_Table_Name(_Table_Name));
+	CSG_String Table_Name(Make_Table_Name(_Table_Name));
 
 	if( !Table_Exists(Table_Name) )
 	{
@@ -919,18 +918,18 @@ bool CSG_PG_Connection::Table_Insert(const CSG_String &_Table_Name, const CSG_Ta
 	}
 
 	//-----------------------------------------------------
-	int		iField, nFields	= Table.Get_Field_Count();
+	int nFields = Table.Get_Field_Count();
 
-	char	**paramValues	= (char **)SG_Malloc(nFields * sizeof(char *));
-	int		 *paramLengths	= (int   *)SG_Malloc(nFields * sizeof(int   ));
-	int		 *paramFormats	= (int   *)SG_Malloc(nFields * sizeof(int   ));
-//	Oid		 *paramTypes	= (Oid   *)SG_Malloc(nFields * sizeof(Oid   ));
+	char **paramValues  = (char **)SG_Malloc(nFields * sizeof(char *));
+	int   *paramLengths = (int   *)SG_Malloc(nFields * sizeof(int   ));
+	int   *paramFormats = (int   *)SG_Malloc(nFields * sizeof(int   ));
+//	Oid   *paramTypes   = (Oid   *)SG_Malloc(nFields * sizeof(Oid   ));
 
-	CSG_Buffer	*Values	= new CSG_Buffer[nFields];
+	CSG_Buffer *Values = new CSG_Buffer[nFields];
 
-	CSG_String	Insert("INSERT INTO \"" + Table_Name + "\" VALUES(");
+	CSG_String Insert("INSERT INTO \"" + Table_Name + "\" VALUES(");
 
-	for(iField=0; iField<nFields; iField++)
+	for(int iField=0; iField<nFields; iField++)
 	{
 		Insert	+= CSG_String::Format("$%d%c", 1 + iField, iField < nFields - 1 ? SG_T(',') : SG_T(')'));
 
@@ -960,37 +959,37 @@ bool CSG_PG_Connection::Table_Insert(const CSG_String &_Table_Name, const CSG_Ta
 	}
 
 	//-----------------------------------------------------
-	bool	bResult	= true;
+	bool bResult = true;
 
 	for(sLong iRecord=0; iRecord<Table.Get_Count() && bResult && SG_UI_Process_Set_Progress(iRecord, Table.Get_Count()); iRecord++)
 	{
-		CSG_Table_Record	*pRecord	= Table.Get_Record(iRecord);
+		CSG_Table_Record *pRecord = Table.Get_Record(iRecord);
 
-		for(iField=0; iField<Table.Get_Field_Count(); iField++)
+		for(int iField=0; iField<Table.Get_Field_Count(); iField++)
 		{
 			if( pRecord->is_NoData(iField) )
 			{
-				paramValues [iField]	= NULL;
+				paramValues [iField] = NULL;
 			}
 			else if( Table.Get_Field_Type(iField) == SG_DATATYPE_Binary )
 			{
-				paramValues [iField]	= (char *)pRecord->Get_Value(iField)->asBinary().Get_Bytes();
-				paramLengths[iField]	=         pRecord->Get_Value(iField)->asBinary().Get_Count();
+				paramValues [iField] = (char *)pRecord->Get_Value(iField)->asBinary().Get_Bytes();
+				paramLengths[iField] =         pRecord->Get_Value(iField)->asBinary().Get_Count();
 			}
 			else
 			{
-				CSG_String	Value	= pRecord->asString(iField);
+				CSG_String Value = pRecord->asString(iField);
 
 				if( Table.Get_Field_Type(iField) == SG_DATATYPE_String )
 				{
-					Values[iField]	= Value.to_UTF8();
+					Values[iField] = Value.to_UTF8();
 				}
 				else
 				{
 					strcpy(Values[iField].Get_Data(), Value.b_str());
 				}
 
-				paramValues[iField]	= Values[iField].Get_Data();
+				paramValues[iField] = Values[iField].Get_Data();
 			}
 		}
 
@@ -1000,7 +999,7 @@ bool CSG_PG_Connection::Table_Insert(const CSG_String &_Table_Name, const CSG_Ta
 		{
 			_Error_Message(CSG_String::Format("%s (record: %d)", _TL("Record insertion failed"), 1 + iRecord), m_pgConnection);
 
-			bResult	= false;
+			bResult = false;
 		}
 
 		PQclear(pResult);
@@ -1027,7 +1026,6 @@ bool CSG_PG_Connection::Table_Insert(const CSG_String &_Table_Name, const CSG_Ta
 //---------------------------------------------------------
 bool CSG_PG_Connection::Table_Save(const CSG_String &_Table_Name, const CSG_Table &Table, const CSG_Buffer &Flags, bool bCommit)
 {
-	//-----------------------------------------------------
 	if( !is_Connected() )
 	{
 		_Error_Message(_TL("no database connection"));
@@ -1035,7 +1033,7 @@ bool CSG_PG_Connection::Table_Save(const CSG_String &_Table_Name, const CSG_Tabl
 		return( false );
 	}
 
-	CSG_String	Table_Name(Make_Table_Name(_Table_Name));
+	CSG_String Table_Name(Make_Table_Name(_Table_Name));
 
 	if( Table_Exists(Table_Name) && !Table_Drop(Table_Name, bCommit) )
 	{
@@ -1066,10 +1064,10 @@ bool CSG_PG_Connection::Table_Save(const CSG_String &_Table_Name, const CSG_Tabl
 //---------------------------------------------------------
 bool CSG_PG_Connection::_Table_Load(CSG_Table &Table, const CSG_String &Select, const CSG_String &Name) const
 {
-	if( !is_Connected() )	{	_Error_Message(_TL("no database connection"));	return( false );	}
+	if( !is_Connected() ) { _Error_Message(_TL("no database connection")); return( false ); }
 
 	//-----------------------------------------------------
-	bool	bResult	= _Table_Load(Table, PQexec(m_pgConnection, Select));
+	bool bResult = _Table_Load(Table, PQexec(m_pgConnection, Select));
 
 	Table.Set_Name(Name);
 
@@ -1079,8 +1077,7 @@ bool CSG_PG_Connection::_Table_Load(CSG_Table &Table, const CSG_String &Select, 
 //---------------------------------------------------------
 bool CSG_PG_Connection::_Table_Load(CSG_Table &Table, void *_pResult) const
 {
-	//-----------------------------------------------------
-	PGresult	*pResult	= (PGresult *)_pResult;
+	PGresult *pResult = (PGresult *)_pResult;
 
 	if( PQresultStatus(pResult) != PGRES_TUPLES_OK )
 	{
@@ -1092,7 +1089,7 @@ bool CSG_PG_Connection::_Table_Load(CSG_Table &Table, void *_pResult) const
 	}
 
 	//-----------------------------------------------------
-	int		iField, nFields	= PQnfields(pResult);
+	int nFields = PQnfields(pResult);
 
 	if( nFields <= 0 )
 	{
@@ -1104,19 +1101,19 @@ bool CSG_PG_Connection::_Table_Load(CSG_Table &Table, void *_pResult) const
 	//-----------------------------------------------------
 	Table.Destroy();
 
-	for(iField=0; iField<nFields; iField++)
+	for(int iField=0; iField<nFields; iField++)
 	{
 		Table.Add_Field(PQfname(pResult, iField), Get_Type_From_SQL(PQftype(pResult, iField)));
 	}
 
 	//-----------------------------------------------------
-	int		iRecord, nRecords	= PQntuples(pResult);
+	int nRecords = PQntuples(pResult);
 
-	for(iRecord=0; iRecord<nRecords && SG_UI_Process_Set_Progress(iRecord, nRecords); iRecord++)
+	for(int iRecord=0; iRecord<nRecords && SG_UI_Process_Set_Progress(iRecord, nRecords); iRecord++)
 	{
-		CSG_Table_Record	*pRecord	= Table.Add_Record();
+		CSG_Table_Record *pRecord = Table.Add_Record();
 
-		for(iField=0; pRecord && iField<nFields; iField++)
+		for(int iField=0; pRecord && iField<nFields; iField++)
 		{
 			if( PQgetisnull(pResult, iRecord, iField) )
 			{
@@ -1144,7 +1141,7 @@ bool CSG_PG_Connection::_Table_Load(CSG_Table &Table, void *_pResult) const
 	//-----------------------------------------------------
 	PQclear(pResult);
 
-	SG_UI_Process_Set_Progress(0.0, 0.0);
+	SG_UI_Process_Set_Progress(0., 0.);
 
 	return( true );
 }
@@ -1590,10 +1587,10 @@ int CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes[4], const CSG_String &Nam
 //---------------------------------------------------------
 bool CSG_PG_Connection::Shapes_Insert(CSG_Shapes *pShapes, const CSG_String &_geoTable)
 {
-	if( !is_Connected() )	{	_Error_Message(_TL("no database connection"));	return( false );	}
-	if( !has_PostGIS () )	{	_Error_Message(_TL("not a PostGIS database"));	return( false );	}
+	if( !is_Connected() ) { _Error_Message(_TL("no database connection")); return( false ); }
+	if( !has_PostGIS () ) { _Error_Message(_TL("not a PostGIS database")); return( false ); }
 
-	CSG_String	geoTable(Make_Table_Name(_geoTable));
+	CSG_String geoTable(Make_Table_Name(_geoTable));
 
 	if( !Table_Exists(geoTable) )
 	{
@@ -1601,7 +1598,7 @@ bool CSG_PG_Connection::Shapes_Insert(CSG_Shapes *pShapes, const CSG_String &_ge
 	}
 
 	//-----------------------------------------------------
-	CSG_String	geoField;	int	geoSRID;
+	CSG_String geoField; int geoSRID;
 
 	if( !Shapes_Geometry_Info(geoTable, &geoField, &geoSRID) )
 	{
@@ -1609,29 +1606,29 @@ bool CSG_PG_Connection::Shapes_Insert(CSG_Shapes *pShapes, const CSG_String &_ge
 	}
 
 	//-----------------------------------------------------
-	int		iField, nFields	= pShapes->Get_Field_Count();
+	int nFields = pShapes->Get_Field_Count();
 
-	char	**paramValues	= (char **)SG_Malloc((1 + nFields) * sizeof(char *));
-	int		 *paramLengths	= (int   *)SG_Malloc((1 + nFields) * sizeof(int   ));
-	int		 *paramFormats	= (int   *)SG_Malloc((1 + nFields) * sizeof(int   ));
-//	Oid		 *paramTypes	= (Oid   *)SG_Malloc((1 + nFields) * sizeof(Oid   ));
+	char **paramValues  = (char **)SG_Malloc((1 + (size_t)nFields) * sizeof(char *));
+	int   *paramLengths = (int   *)SG_Malloc((1 + (size_t)nFields) * sizeof(int   ));
+	int   *paramFormats = (int   *)SG_Malloc((1 + (size_t)nFields) * sizeof(int   ));
+//	Oid   *paramTypes   = (Oid   *)SG_Malloc((1 + (size_t)nFields) * sizeof(Oid   ));
 
-	CSG_Buffer	*Values	= new CSG_Buffer[1 + nFields];
+	CSG_Buffer *Values = new CSG_Buffer[1 + (size_t)nFields];
 
-	CSG_String	Insert("INSERT INTO \"" + geoTable + "\" (");
+	CSG_String Insert("INSERT INTO \"" + geoTable + "\" (");
 
-	for(iField=0; iField<nFields; iField++)
+	for(int iField=0; iField<nFields; iField++)
 	{
-		Insert	+= "\"" + Make_Table_Field_Name(pShapes, iField) + "\", ";
+		Insert += "\"" + Make_Table_Field_Name(pShapes, iField) + "\", ";
 	}
 
-	Insert	+= "\"" + geoField + "\") VALUES (";
+	Insert += "\"" + geoField + "\") VALUES (";
 
-	for(iField=0; iField<nFields; iField++)
+	for(int iField=0; iField<nFields; iField++)
 	{
-		Insert	+= CSG_String::Format("$%d, ", 1 + iField);
+		Insert += CSG_String::Format("$%d, ", 1 + iField);
 
-		paramFormats[iField]	= pShapes->Get_Field_Type(iField) == SG_DATATYPE_Binary ? 1 : 0;
+		paramFormats[iField] = pShapes->Get_Field_Type(iField) == SG_DATATYPE_Binary ? 1 : 0;
 
 		switch( pShapes->Get_Field_Type(iField) )
 		{
@@ -1656,81 +1653,78 @@ bool CSG_PG_Connection::Shapes_Insert(CSG_Shapes *pShapes, const CSG_String &_ge
 		}
 	}
 
-	bool	bBinary	= has_Version(9);
+	bool bBinary = has_Version(9);
 
 	if( bBinary )
 	{
-		Insert	+= CSG_String::Format("ST_GeomFromWKB($%d, %d))" , 1 + nFields, geoSRID);
+		Insert += CSG_String::Format("ST_GeomFromWKB($%d, %d))" , 1 + nFields, geoSRID);
 
-		paramFormats[nFields]	= 1;
+		paramFormats[nFields] = 1;
 	}
 	else
 	{
-		Insert	+= CSG_String::Format("ST_GeomFromText($%d, %d))", 1 + nFields, geoSRID);
+		Insert += CSG_String::Format("ST_GeomFromText($%d, %d))", 1 + nFields, geoSRID);
 
-		paramFormats[nFields]	= 0;
+		paramFormats[nFields] = 0;
 	}
 
 	//-----------------------------------------------------
-	bool	bResult	= true;
+	bool bResult = true;
 
 	for(sLong iShape=0; iShape<pShapes->Get_Count() && bResult && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 	{
-		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+		CSG_Shape *pShape = pShapes->Get_Shape(iShape);
 
 		if( !pShape->is_Valid() )
 		{
-			bResult	= false;
+			bResult = false;
 
 			continue;
 		}
 
 		//-------------------------------------------------
-		for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
+		for(int iField=0; iField<pShapes->Get_Field_Count(); iField++)
 		{
 			if( pShape->is_NoData(iField) )
 			{
-				paramValues [iField]	= NULL;
+				paramValues [iField] = NULL;
 			}
 			else if( pShapes->Get_Field_Type(iField) == SG_DATATYPE_Binary )
 			{
-				paramValues [iField]	= (char *)pShape->Get_Value(iField)->asBinary().Get_Bytes();
-				paramLengths[iField]	=         pShape->Get_Value(iField)->asBinary().Get_Count();
+				paramValues [iField] = (char *)pShape->Get_Value(iField)->asBinary().Get_Bytes();
+				paramLengths[iField] =         pShape->Get_Value(iField)->asBinary().Get_Count();
 			}
 			else
 			{
-				CSG_String	Value	= pShape->asString(iField);
+				CSG_String Value = pShape->asString(iField);
 
 				if( pShapes->Get_Field_Type(iField) == SG_DATATYPE_String )
 				{
-					Values[iField]	= Value.to_UTF8();
+					Values[iField] = Value.to_UTF8();
 				}
 				else
 				{
 					strcpy(Values[iField].Get_Data(), Value.b_str());
 				}
 
-				paramValues[iField]	= Values[iField].Get_Data();
+				paramValues[iField] = Values[iField].Get_Data();
 			}
 		}
 
 		//-------------------------------------------------
-		CSG_Bytes	WKB;
-		CSG_String	WKT;
-
 		if( bBinary )
 		{
-			CSG_Shapes_OGIS_Converter::to_WKBinary(pShape, WKB);
+			CSG_Bytes  WKB; CSG_Shapes_OGIS_Converter::to_WKBinary(pShape, WKB);
 
-			paramValues [nFields]	= (char *)WKB.Get_Bytes();
-			paramLengths[nFields]	=         WKB.Get_Count();
+			paramValues [nFields] = (char *)WKB.Get_Bytes();
+			paramLengths[nFields] =         WKB.Get_Count();
 		}
 		else
 		{
-			CSG_Shapes_OGIS_Converter::to_WKText  (pShape, WKT);
+			CSG_String WKT; CSG_Shapes_OGIS_Converter::to_WKText  (pShape, WKT);
 
-			Values[nFields].Set_Data(WKT.b_str(), WKT.Length() + 1);	WKT.Clear();
-			paramValues[nFields]	= Values[nFields].Get_Data();
+			Values[nFields].Set_Data(WKT.b_str(), WKT.Length() + 1); WKT.Clear();
+			paramValues[nFields] = Values[nFields].Get_Data();
 		}
 
 		//-------------------------------------------------
@@ -2247,7 +2241,7 @@ CSG_PG_Connection * CSG_PG_Connections::Add_Connection(const CSG_String &Name, c
 	{
 		if( pConnection->is_Connected() )
 		{
-			m_pConnections	= (CSG_PG_Connection **)SG_Realloc(m_pConnections, (m_nConnections + 1) * sizeof(CSG_PG_Connection *));
+			m_pConnections	= (CSG_PG_Connection **)SG_Realloc(m_pConnections, ((size_t)m_nConnections + 1) * sizeof(CSG_PG_Connection *));
 
 			m_pConnections[m_nConnections++]	= pConnection;
 		}

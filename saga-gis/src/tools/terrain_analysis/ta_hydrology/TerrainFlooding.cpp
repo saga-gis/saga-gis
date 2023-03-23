@@ -47,15 +47,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "TerrainFlooding.h"
 
 
@@ -253,7 +244,7 @@ CTerrainFlooding::CTerrainFlooding(void)
 {
 	Set_Name		(_TL("Terrain Flooding"));
 
-	Set_Author		(SG_T("V. Wichmann (c) 2022"));
+	Set_Author		("V. Wichmann (c) 2022");
 
 	Parameters.Set_Description(_TW(
 		"The tool allows one to flood a digital elevation model for a given water level. "
@@ -309,7 +300,7 @@ bool CTerrainFlooding::On_Execute(void)
 
 		CSG_Shape &Point = *pPoints->Get_Shape(iPoint);
 
-		Set_Flooding(Point.Get_Point(0).x, Point.Get_Point(0).y, iField < 0 ? m_dWaterLevel : Point.asDouble(iField), false);
+		Set_Flooding(Point.Get_Point().x, Point.Get_Point().y, iField < 0 ? m_dWaterLevel : Point.asDouble(iField), false);
 	}
 
 	//-----------------------------------------------------
@@ -330,7 +321,7 @@ CTerrainFloodingInteractive::CTerrainFloodingInteractive(void)
 {
 	Set_Name		(_TL("Terrain Flooding"));
 
-	Set_Author		(SG_T("V. Wichmann (c) 2022"));
+	Set_Author		("V. Wichmann (c) 2022");
 	
 	Parameters.Set_Description(_TW(
 		"The tool allows one to flood a digital elevation model for a given water level. "
@@ -396,7 +387,7 @@ bool CTerrainFloodingInteractive::On_Execute_Position(CSG_Point ptWorld, TSG_Too
 	{
 		Set_Progress(50.0, 100.0);
 	
-		return( Set_Flooding(ptWorld.Get_X(), ptWorld.Get_Y(), m_dWaterLevel, true) );
+		return( Set_Flooding(ptWorld.x, ptWorld.y, m_dWaterLevel, true) );
 	}
 
 	return( false );

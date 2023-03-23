@@ -1,6 +1,4 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
+
 ///////////////////////////////////////////////////////////
 //                                                       //
 //                         SAGA                          //
@@ -49,15 +47,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "LeastCostPathProfile_Points.h"
 
 
@@ -94,32 +83,32 @@ CLeastCostPathProfile_Points::CLeastCostPathProfile_Points(void)
 		"along the least cost path are written to the outputs as additional table fields.\n"
 	));
 
-	Parameters.Add_Shapes(
-		NULL	, "SOURCE"	, _TL("Source Point(s)"),
+	Parameters.Add_Shapes("",
+		"SOURCE", _TL("Source Point(s)"),
 		_TL("Point shapefile with source point(s)"),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "DEM"		, _TL("Accumulated Cost Surface"),
+	Parameters.Add_Grid("",
+		"DEM"   , _TL("Accumulated Cost Surface"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_List(
-		NULL	, "VALUES"	, _TL("Values"),
+	Parameters.Add_Grid_List("",
+		"VALUES", _TL("Values"),
 		_TL("Allows writing cell values from additional grids to the output"),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Shapes_List(
-		NULL	, "POINTS"	, _TL("Profile Points"),
+	Parameters.Add_Shapes_List("",
+		"POINTS", _TL("Profile Points"),
 		_TL("Least cost path profile points"),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Shapes_List(
-		NULL	, "LINE"	, _TL("Profile Lines"),
+	Parameters.Add_Shapes_List("",
+		"LINE"  , _TL("Profile Lines"),
 		_TL("Least cost path profile lines"),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Line
 	);
@@ -151,7 +140,7 @@ bool CLeastCostPathProfile_Points::On_Execute(void)
 	{
 		CSG_Shape	*pShape		= pSources->Get_Shape(i);
 
-		if( Get_System().Get_World_to_Grid(x, y, pShape->Get_Point(0)) && m_pDEM->is_InGrid(x, y) )
+		if( Get_System().Get_World_to_Grid(x, y, pShape->Get_Point()) && m_pDEM->is_InGrid(x, y) )
 		{
 			//-----------------------------------------------------
 			m_pPoints	= SG_Create_Shapes(SHAPE_TYPE_Point, CSG_String::Format("%s [%s] %d", _TL("Profile Points"), m_pDEM->Get_Name(), i + 1));
@@ -221,7 +210,7 @@ bool CLeastCostPathProfile_Points::Add_Point(int x, int y)
 	{
 		CSG_Shape	*pLast	= m_pPoints->Get_Shape(m_pPoints->Get_Count() - 1);
 
-		Distance	= SG_Get_Distance(Point, pLast->Get_Point(0)) + pLast->asDouble(1);
+		Distance	= SG_Get_Distance(Point, pLast->Get_Point()) + pLast->asDouble(1);
 	}
 
 	//-----------------------------------------------------

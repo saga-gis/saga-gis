@@ -359,7 +359,7 @@ bool CGrid_Profile_From_Lines::Add_Point(int ID_Line, bool bStart, const TSG_Poi
 	{
 		CSG_Shape *pLast = m_pPoints->Get_Shape(m_pPoints->Get_Count() - 1);
 
-		Distance = SG_Get_Distance(Point, pLast->Get_Point(0));
+		Distance = SG_Get_Distance(Point, pLast->Get_Point());
 
 		if( Distance == 0. )
 		{

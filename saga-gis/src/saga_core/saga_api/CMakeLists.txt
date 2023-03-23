@@ -117,7 +117,7 @@ set(SAGA_API_SOURCES
 )
 
 #________________________________________
-option(WITH_CLIPPER_ONE "Check to make SAGA API use older Clipper1 instead of newer Clipper2 (expects at least C++ 17)" ON)
+option(WITH_CLIPPER_ONE "Check to make SAGA API use older Clipper1 instead of newer Clipper2 (which expects at least C++ 17)" OFF)
 
 if(WITH_CLIPPER_ONE)
 	set(SAGA_API_SOURCES

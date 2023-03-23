@@ -106,9 +106,9 @@ CKriging_Universal::CKriging_Universal(void)
 //---------------------------------------------------------
 bool CKriging_Universal::Init_Points(CSG_Shapes *pPoints, int Field, bool bLog)
 {
-	m_pPredictors	= Parameters("PREDICTORS")->asGridList();
+	m_pPredictors = Parameters("PREDICTORS")->asGridList();
 
-	m_bCoords	= Parameters("COORDS")->asBool();
+	m_bCoords = Parameters("COORDS")->asBool();
 
 	switch( Parameters("RESAMPLING")->asInt() )
 	{
@@ -121,24 +121,24 @@ bool CKriging_Universal::Init_Points(CSG_Shapes *pPoints, int Field, bool bLog)
 	//-----------------------------------------------------
 	m_Points.Create(3, pPoints->Get_Count());
 
-	int	n	= 0;
+	sLong n = 0;
 
-	for(int i=0; i<pPoints->Get_Count(); i++)
+	for(sLong i=0; i<pPoints->Get_Count(); i++)
 	{
-		CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
+		CSG_Shape *pPoint = pPoints->Get_Shape(i);
 
-		bool	bOkay	= !pPoint->is_NoData(Field);	// for better performance, make sure all predictors supply a value now
+		bool bOkay = !pPoint->is_NoData(Field);	// for better performance, make sure all predictors supply a value now
 
 		for(int j=0; bOkay && j<m_pPredictors->Get_Grid_Count(); j++)
 		{
-			bOkay	= m_pPredictors->Get_Grid(j)->is_InGrid_byPos(pPoint->Get_Point(0));
+			bOkay = m_pPredictors->Get_Grid(j)->is_InGrid_byPos(pPoint->Get_Point());
 		}
 
 		if( bOkay )
 		{
-			m_Points[n][0]	= pPoint->Get_Point(0).x;
-			m_Points[n][1]	= pPoint->Get_Point(0).y;
-			m_Points[n][2]	= bLog ? log(pPoint->asDouble(Field)) : pPoint->asDouble(Field);
+			m_Points[n][0] = pPoint->Get_Point().x;
+			m_Points[n][1] = pPoint->Get_Point().y;
+			m_Points[n][2] = bLog ? log(pPoint->asDouble(Field)) : pPoint->asDouble(Field);
 
 			n++;
 		}
@@ -162,10 +162,10 @@ bool CKriging_Universal::Init_Points(CSG_Shapes *pPoints, int Field, bool bLog)
 //---------------------------------------------------------
 bool CKriging_Universal::Get_Weights(const CSG_Matrix &Points, CSG_Matrix &W)
 {
-	int	i, j, k, n	= Points.Get_NRows();
+	int	i, j, k, n = (int)Points.Get_NRows();
 
-	int	nCoords	= m_bCoords ? 2 : 0;
-	int	nGrids	= m_pPredictors->Get_Grid_Count();
+	int nCoords = m_bCoords ? 2 : 0;
+	int nGrids  = m_pPredictors->Get_Grid_Count();
 
 	if( n < 1 || !W.Create(n + 1 + nGrids + nCoords, n + 1 + nGrids + nCoords) )
 	{

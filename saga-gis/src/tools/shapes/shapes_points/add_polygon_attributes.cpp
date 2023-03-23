@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -46,12 +43,6 @@
 //                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -171,7 +162,7 @@ bool CAdd_Polygon_Attributes::On_Execute(void)
 	for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 	{
 		CSG_Shape *pPoint   = pPoints  ->Get_Shape(iPoint);
-		CSG_Shape *pPolygon = pPolygons->Get_Shape(pPoint->Get_Point(0));
+		CSG_Shape *pPolygon = pPolygons->Get_Shape(pPoint->Get_Point());
 
 		if( !pPolygon )
 		{

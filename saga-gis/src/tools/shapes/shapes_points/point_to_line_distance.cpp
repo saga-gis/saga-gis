@@ -134,7 +134,7 @@ bool CPoint_to_Line_Distance::On_Execute(void)
 		{
 			CSG_Shape	*pPoint	= pResult->Add_Shape();
 
-			pPoint->Add_Point(pPoints->Get_Shape(i)->Get_Point(0));
+			pPoint->Add_Point(pPoints->Get_Shape(i)->Get_Point());
 			pPoint->Set_Value(0, i + 1);
 		}
 
@@ -183,7 +183,7 @@ bool CPoint_to_Line_Distance::On_Execute(void)
 
 		CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
 
-		CSG_Point Point[2]; sLong Line = Get_Distance(pLines, Point[0] = pPoint->Get_Point(0), Point[1]);
+		CSG_Point Point[2]; sLong Line = Get_Distance(pLines, Point[0] = pPoint->Get_Point(), Point[1]);
 
 		if( Line < 0 )	// this should actually never happen!
 		{

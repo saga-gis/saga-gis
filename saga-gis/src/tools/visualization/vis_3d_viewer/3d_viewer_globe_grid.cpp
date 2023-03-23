@@ -89,7 +89,7 @@ private:
 
 	CSG_Grid					*m_pGrid, *m_pZ;
 
-	TSG_Point_Z					**m_pNodes;
+	TSG_Point_3D					**m_pNodes;
 
 
 	bool						Create_Nodes			(void);
@@ -203,8 +203,8 @@ int C3D_Viewer_Globe_Grid_Panel::On_Parameters_Enable(CSG_Parameters *pParameter
 //---------------------------------------------------------
 bool C3D_Viewer_Globe_Grid_Panel::Create_Nodes(void)
 {
-	m_pNodes    = (TSG_Point_Z **)SG_Malloc(m_pGrid->Get_NY    () * sizeof(TSG_Point_Z *));
-	m_pNodes[0] = (TSG_Point_Z  *)SG_Malloc(m_pGrid->Get_NCells() * sizeof(TSG_Point_Z  ));
+	m_pNodes    = (TSG_Point_3D **)SG_Malloc(m_pGrid->Get_NY    () * sizeof(TSG_Point_3D *));
+	m_pNodes[0] = (TSG_Point_3D  *)SG_Malloc(m_pGrid->Get_NCells() * sizeof(TSG_Point_3D  ));
 
 	for(int y=0; y<m_pGrid->Get_NY(); y++)
 	{
@@ -231,7 +231,7 @@ void C3D_Viewer_Globe_Grid_Panel::Update_Statistics(void)
 
 	for(int y=0; y<m_pGrid->Get_NY(); y++)
 	{
-		TSG_Point_Z *pNode = m_pNodes[y];
+		TSG_Point_3D *pNode = m_pNodes[y];
 
 		double wy = M_DEG_TO_RAD * (m_pGrid->Get_YMin() + y * m_pGrid->Get_Cellsize());
 		double wx = M_DEG_TO_RAD * (m_pGrid->Get_XMin());
@@ -337,7 +337,7 @@ inline bool C3D_Viewer_Globe_Grid_Panel::Get_Node(int x, int y, TSG_Triangle_Nod
 {
 	if( m_pGrid->is_InGrid(x, y) )
 	{
-		TSG_Point_Z p = m_pNodes[y][x]; m_Projector.Get_Projection(p);
+		TSG_Point_3D p = m_pNodes[y][x]; m_Projector.Get_Projection(p);
 
 		Node.x = p.x;
 		Node.y = p.y;

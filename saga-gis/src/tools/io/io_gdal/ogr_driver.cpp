@@ -1043,7 +1043,7 @@ bool CSG_OGR_DataSet::_Write_Geometry(CSG_Shape *pShape, OGRFeatureH pFeature, b
 	//-----------------------------------------------------
 	case SHAPE_TYPE_Point:
 		{
-			TSG_Point	p	= pShape->Get_Point(0);
+			TSG_Point	p	= pShape->Get_Point();
 
 			OGRGeometryH	Point	= OGR_G_CreateGeometry(wkbPoint);
 

@@ -195,7 +195,7 @@ bool CVisualize_Gradients::On_Execute(void)
 		if( !pPoint->is_NoData(Field[0])
 		&&  !pPoint->is_NoData(Field[1]) )
 		{
-			TSG_Point	Point	= pPoint->Get_Point(0);
+			TSG_Point	Point	= pPoint->Get_Point();
 
 			switch( Definition )
 			{
@@ -212,7 +212,7 @@ bool CVisualize_Gradients::On_Execute(void)
 
 			CSG_Shape	*pGradient	= pGradients->Add_Shape(pPoint, SHAPE_COPY_ATTR);
 			
-			pGradient->Add_Point(pPoint->Get_Point(0)); pGradient->Add_Point(Point);
+			pGradient->Add_Point(pPoint->Get_Point()); pGradient->Add_Point(Point);
 
 			if( pTargets )
 			{

@@ -79,6 +79,8 @@ public:
 
 protected:
 
+	virtual int				On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
 	virtual bool			On_Execute			(void);
 
 
@@ -101,7 +103,7 @@ private:
 
 	bool					Get_Extent			(CSG_File &Stream, CSG_Rect &Extent, int nFacettes);
 
-	void					Set_Triangle		(TSG_Point_Z p[3]);
+	void					Set_Triangle		(TSG_Point_3D p[3]);
 	void					Set_Triangle_Line	(int y, double xa, double za, double xb, double zb);
 
 };

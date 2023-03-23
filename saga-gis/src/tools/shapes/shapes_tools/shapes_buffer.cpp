@@ -297,7 +297,7 @@ bool CShapes_Buffer::Get_Buffer(CSG_Shape *pShape, CSG_Shape *pBuffer, double Di
 //---------------------------------------------------------
 bool CShapes_Buffer::Get_Buffer_Point(CSG_Shape *pPoint, CSG_Shape *pBuffer, double Distance)
 {
-	Add_Arc(pBuffer, pPoint->Get_Point(0), Distance, 0.0, M_PI_360);
+	Add_Arc(pBuffer, pPoint->Get_Point(), Distance, 0.0, M_PI_360);
 
 	return( true );
 }

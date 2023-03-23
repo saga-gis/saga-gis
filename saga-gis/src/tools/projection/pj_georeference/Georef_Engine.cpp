@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Georef_Engine.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,14 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Georef_Engine.h"
 
 
@@ -71,7 +60,7 @@ CGeoref_Engine::CGeoref_Engine(void)
 {
 	m_Method	= GEOREF_NotSet;
 	m_Order		= 0;
-	m_Scaling	= 0.0;
+	m_Scaling	= 0.;
 
 	m_TIN_Fwd.Add_Field("X", SG_DATATYPE_Double);
 	m_TIN_Fwd.Add_Field("Y", SG_DATATYPE_Double);
@@ -108,8 +97,6 @@ bool CGeoref_Engine::Destroy(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -193,8 +180,8 @@ bool CGeoref_Engine::Set_Reference(CSG_Shapes *pFrom, int xTo_Field, int yTo_Fie
 		CSG_Shape	*pPoint	= pFrom->Get_Shape(iPoint);
 
 		Add_Reference(
-			pPoint->Get_Point(0).x,
-			pPoint->Get_Point(0).y,
+			pPoint->Get_Point().x,
+			pPoint->Get_Point().y,
 			pPoint->asDouble(xTo_Field),
 			pPoint->asDouble(yTo_Field)
 		);
@@ -224,11 +211,11 @@ bool CGeoref_Engine::Get_Reference_Extent(CSG_Rect &Extent, bool bInverse)
 }
 
 //---------------------------------------------------------
-double CGeoref_Engine::Get_Reference_Residual(int i)
+double CGeoref_Engine::Get_Reference_Residual(sLong i)
 {
 	if( is_Okay() && i >= 0 && i < Get_Reference_Count() )
 	{
-		TSG_Point	p	= m_From[i];
+		TSG_Point p = m_From[i];
 
 		if( Get_Converted(p) )
 		{
@@ -236,22 +223,20 @@ double CGeoref_Engine::Get_Reference_Residual(int i)
 		}
 	}
 
-	return( -1.0 );
+	return( -1. );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGeoref_Engine::Set_Scaling(double Scaling)
 {
-	m_Scaling	= Scaling > 0.0 ? Scaling : 0.0;
+	m_Scaling	= Scaling > 0. ? Scaling : 0.;
 
-	return( m_Scaling > 0.0 );
+	return( m_Scaling > 0. );
 }
 
 //---------------------------------------------------------
@@ -265,7 +250,7 @@ bool CGeoref_Engine::Get_Converted(double &x, double &y, bool bInverse)
 {
 	bool	bResult;
 
-	if( m_Scaling > 0.0 )
+	if( m_Scaling > 0. )
 	{
 		x	= bInverse
 			? (x - m_rTo  .Get_XMin()) * m_Scaling / m_rTo  .Get_XRange()
@@ -299,7 +284,7 @@ bool CGeoref_Engine::Get_Converted(double &x, double &y, bool bInverse)
 		break;
 	}
 
-	if( bResult && m_Scaling > 0.0 )
+	if( bResult && m_Scaling > 0. )
 	{
 		x	= bInverse
 			? m_rFrom.Get_XMin() + x * m_rFrom.Get_XRange() / m_Scaling
@@ -338,7 +323,7 @@ bool CGeoref_Engine::Evaluate(int Method, int Order)
 	//-----------------------------------------------------
 	CSG_Points	From, To;
 
-	if( m_Scaling > 0.0 )
+	if( m_Scaling > 0. )
 	{
 		From	= m_From;
 		To		= m_To;
@@ -384,7 +369,7 @@ bool CGeoref_Engine::Evaluate(int Method, int Order)
 	}
 
 	//-----------------------------------------------------
-	if( m_Scaling > 0.0 )
+	if( m_Scaling > 0. )
 	{
 		m_From	= From;
 		m_To	= To;
@@ -416,8 +401,6 @@ int CGeoref_Engine::_Get_Reference_Minimum(int Method, int Order)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -465,8 +448,6 @@ bool CGeoref_Engine::_Get_Triangulation(double &x, double &y, CSG_TIN *pTIN)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -511,14 +492,12 @@ bool CGeoref_Engine::_Get_Spline(double &x, double &y, CSG_Thin_Plate_Spline Spl
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CGeoref_Engine::_Get_Polynomial(double x, double y, double *z)
 {
-	z[0]	= 1.0;
+	z[0]	= 1.;
 
 	switch( m_Method )
 	{
@@ -541,8 +520,8 @@ void CGeoref_Engine::_Get_Polynomial(double x, double y, double *z)
 		{
 			int	j, k, n;
 
-			CSG_Vector	xPow(m_Order + 1);	xPow[0]	= 1.0;
-			CSG_Vector	yPow(m_Order + 1);	yPow[0]	= 1.0;
+			CSG_Vector	xPow(m_Order + 1);	xPow[0]	= 1.;
+			CSG_Vector	yPow(m_Order + 1);	yPow[0]	= 1.;
 
 			for(j=1, n=1; j<=m_Order; j++)
 			{
@@ -620,7 +599,7 @@ bool CGeoref_Engine::_Set_Polynomial(CSG_Points &From, CSG_Points &To, CSG_Vecto
 		X[i]	= To[i].x;
 		Y[i]	= To[i].y;
 
-		M[i][0]	= 1.0;
+		M[i][0]	= 1.;
 
 		switch( m_Method )
 		{
@@ -643,8 +622,8 @@ bool CGeoref_Engine::_Set_Polynomial(CSG_Points &From, CSG_Points &To, CSG_Vecto
 			{
 				int	j, k, n;
 
-				CSG_Vector	xPow(m_Order + 1);	xPow[0]	= 1.0;
-				CSG_Vector	yPow(m_Order + 1);	yPow[0]	= 1.0;
+				CSG_Vector	xPow(m_Order + 1);	xPow[0]	= 1.;
+				CSG_Vector	yPow(m_Order + 1);	yPow[0]	= 1.;
 
 				for(j=1, n=1; j<=m_Order; j++)
 				{
@@ -703,8 +682,8 @@ bool CGeoref_Engine::_Get_Polynomial(double &x, double &y, CSG_Vector b[2])
 		{
 			int	j, k, n;
 
-			CSG_Vector	xPow(m_Order + 1);	xPow[0]	= 1.0;
-			CSG_Vector	yPow(m_Order + 1);	yPow[0]	= 1.0;
+			CSG_Vector	xPow(m_Order + 1);	xPow[0]	= 1.;
+			CSG_Vector	yPow(m_Order + 1);	yPow[0]	= 1.;
 
 			for(j=1, n=1; j<=m_Order; j++)
 			{

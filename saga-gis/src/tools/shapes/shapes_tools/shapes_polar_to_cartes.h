@@ -92,7 +92,7 @@ protected:
 
 private:
 
-	TSG_Point_Z					Get_Cartes		(TSG_Point Point, double Radius, bool bDegree);
+	TSG_Point_3D					Get_Cartes		(TSG_Point Point, double Radius, bool bDegree);
 
 
 };

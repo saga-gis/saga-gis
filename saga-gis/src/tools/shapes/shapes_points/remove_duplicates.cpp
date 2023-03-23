@@ -191,7 +191,7 @@ bool CRemove_Duplicates::On_Execute(void)
 		{
 			double Distance;
 
-			CSG_PRQuadTree_Leaf	*pLeaf = Search.Get_Nearest_Leaf(pPoint->Get_Point(0), Distance);
+			CSG_PRQuadTree_Leaf	*pLeaf = Search.Get_Nearest_Leaf(pPoint->Get_Point(), Distance);
 
 			if( Distance == 0. && pLeaf && pLeaf->has_Statistics() )
 			{

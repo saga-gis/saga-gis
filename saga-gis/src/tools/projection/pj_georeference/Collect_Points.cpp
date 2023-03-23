@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Collect_Points.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Collect_Points.h"
 
 
@@ -70,10 +58,9 @@
 //---------------------------------------------------------
 CCollect_Points::CCollect_Points(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Create Reference Points"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2013"));
+	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
 		"Digitize reference points for georeferencing grids, images and shapes. "
@@ -84,56 +71,22 @@ CCollect_Points::CCollect_Points(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		NULL	, "REF_SOURCE"	, _TL("Reference Points (Origin)"),
-		_TL(""),
-		PARAMETER_OUTPUT, SHAPE_TYPE_Point
-	);
+	Parameters.Add_Shapes("", "REF_SOURCE", _TL("Reference Points (Origin)"    ), _TL(""), PARAMETER_OUTPUT         , SHAPE_TYPE_Point);
+	Parameters.Add_Shapes("", "REF_TARGET", _TL("Reference Points (Projection)"), _TL(""), PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point);
 
-	Parameters.Add_Shapes(
-		NULL	, "REF_TARGET"	, _TL("Reference Points (Projection)"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
-	);
-
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
-		_TL(""),
-		GEOREF_METHODS_CHOICE, 0
-	);
-
-	Parameters.Add_Value(
-		NULL	, "ORDER"		,_TL("Polynomial Order"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 3, 1, true
-	);
-
-	Parameters.Add_Value(
-		NULL	, "REFRESH"		, _TL("Clear Reference Points"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, false
-	);
+	Parameters.Add_Choice("", "METHOD"    , _TL("Method"                       ), _TL(""), GEOREF_METHODS_CHOICE, 0);
+	Parameters.Add_Int   ("", "ORDER"     , _TL("Polynomial Order"             ), _TL(""), 3, 1, true);
+	Parameters.Add_Bool  ("", "REFRESH"   , _TL("Clear Reference Points"       ), _TL(""), false);
 
 	//-----------------------------------------------------
-	CSG_Parameters	*pParameters	= Add_Parameters("REFERENCE", _TL("Point Position"), _TL(""));
+	CSG_Parameters *pParameters = Add_Parameters("REFERENCE", _TL("Point Position"), _TL(""));
 
-	pParameters->Add_Value(
-		NULL	, "X"			, _TL("x Position"),
-		_TL(""),
-		PARAMETER_TYPE_Double
-	);
-
-	pParameters->Add_Value(
-		NULL	, "Y"			, _TL("y Position"),
-		_TL(""),
-		PARAMETER_TYPE_Double
-	);
+	pParameters->Add_Double("", "X", _TL("x Position"), _TL(""));
+	pParameters->Add_Double("", "Y", _TL("y Position"), _TL(""));
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -157,13 +110,11 @@ int CCollect_Points::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 		pParameters->Get_Parameter("REFRESH")->Set_Enabled(is_Compatible(pParameter->asShapes()));
 	}
 
-	return( 1 );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -172,7 +123,7 @@ bool CCollect_Points::On_Execute(void)
 {
 	m_Engine.Destroy();
 
-	m_pPoints	= Parameters("REF_SOURCE")->asShapes();
+	m_pPoints = Parameters("REF_SOURCE")->asShapes();
 
 	Get_Parameters("REFERENCE")->Restore_Defaults();
 
@@ -188,18 +139,18 @@ bool CCollect_Points::On_Execute(void)
 	}
 	else
 	{
-		for(int i=0; i<m_pPoints->Get_Count(); i++)
+		for(sLong i=0; i<m_pPoints->Get_Count(); i++)
 		{
-			CSG_Shape	*pPoint	= m_pPoints->Get_Shape(i);
+			CSG_Shape *pPoint = m_pPoints->Get_Shape(i);
 
-			m_Engine.Add_Reference(pPoint->Get_Point(0), CSG_Point(
+			m_Engine.Add_Reference(pPoint->Get_Point(), CSG_Point(
 				pPoint->asDouble(2),
 				pPoint->asDouble(3)
 			));
 		}
 
-		int	Method	= Parameters("METHOD")->asInt();
-		int	Order	= Parameters("ORDER" )->asInt();
+		int Method = Parameters("METHOD")->asInt();
+		int Order  = Parameters("ORDER" )->asInt();
 
 		m_Engine.Evaluate(Method, Order);
 	}
@@ -212,7 +163,7 @@ bool CCollect_Points::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactiv
 {
 	if( Mode == TOOL_INTERACTIVE_LUP )
 	{
-		TSG_Point	ptTarget;
+		TSG_Point ptTarget;
 
 		if( m_Engine.Get_Converted(ptTarget = ptWorld) )
 		{
@@ -228,14 +179,14 @@ bool CCollect_Points::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactiv
 			CSG_Shape	*pPoint	= m_pPoints->Add_Shape();
 
 			pPoint->Add_Point(ptWorld);
-			pPoint->Set_Value(0, ptWorld.Get_X());
-			pPoint->Set_Value(1, ptWorld.Get_Y());
+			pPoint->Set_Value(0, ptWorld.x);
+			pPoint->Set_Value(1, ptWorld.y);
 			pPoint->Set_Value(2, ptTarget.x = Get_Parameters("REFERENCE")->Get_Parameter("X")->asDouble());
 			pPoint->Set_Value(3, ptTarget.y = Get_Parameters("REFERENCE")->Get_Parameter("Y")->asDouble());
 
-			if( m_Engine.Add_Reference(ptWorld, ptTarget) && m_Engine.Evaluate(Method, Order) && m_pPoints->Get_Count() == m_Engine.Get_Reference_Count() )
+			if( m_Engine.Add_Reference(ptWorld, ptTarget) && m_Engine.Evaluate(Method, Order) && m_Engine.Get_Reference_Count() == m_pPoints->Get_Count() )
 			{
-				for(int i=0; i<m_pPoints->Get_Count(); i++)
+				for(sLong i=0; i<m_pPoints->Get_Count(); i++)
 				{
 					m_pPoints->Get_Shape(i)->Set_Value(4, m_Engine.Get_Reference_Residual(i));
 				}
@@ -251,7 +202,7 @@ bool CCollect_Points::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactiv
 //---------------------------------------------------------
 bool CCollect_Points::On_Execute_Finish(void)
 {
-	CSG_Shapes	*pTarget	= Parameters("REF_TARGET")->asShapes();
+	CSG_Shapes *pTarget = Parameters("REF_TARGET")->asShapes();
 
 	if( pTarget != NULL )
 	{
@@ -263,9 +214,9 @@ bool CCollect_Points::On_Execute_Finish(void)
 		pTarget->Add_Field("Y_MAP", SG_DATATYPE_Double);
 		pTarget->Add_Field("RESID", SG_DATATYPE_Double);
 
-		for(int iPoint=0; iPoint<m_pPoints->Get_Count(); iPoint++)
+		for(sLong iPoint=0; iPoint<m_pPoints->Get_Count(); iPoint++)
 		{
-			CSG_Shape	*pPoint	= pTarget->Add_Shape(m_pPoints->Get_Shape(iPoint), SHAPE_COPY_ATTR);
+			CSG_Shape *pPoint = pTarget->Add_Shape(m_pPoints->Get_Shape(iPoint), SHAPE_COPY_ATTR);
 
 			pPoint->Add_Point(
 				pPoint->asDouble(2),

@@ -182,18 +182,19 @@ bool CGSGrid_Residuals::Get_Statistics(int x, int y, bool bCenter)
 {
 	if( m_pGrid->is_InGrid(x, y) )
 	{
-		int		i, ix, iy, nLower;
-		double	z, iz, id, iw;
+		CSG_Simple_Statistics s(m_pResult[MEDIAN] != NULL);
 
-		CSG_Simple_Statistics	s(m_pResult[MEDIAN] != NULL);
+		CSG_Unique_Number_Statistics u(m_Kernel.Get_Weighting().Get_Weighting() != SG_DISTWGHT_None);
 
-		CSG_Unique_Number_Statistics	u(m_Kernel.Get_Weighting().Get_Weighting() != SG_DISTWGHT_None);
+		int nLower = 0; double z = m_pGrid->asDouble(x, y);
 
-		for(i=0, nLower=0, z=m_pGrid->asDouble(x, y); i<m_Kernel.Get_Count(); i++)
+		for(int i=0; i<m_Kernel.Get_Count(); i++)
 		{
-			if( m_Kernel.Get_Values(i, ix = x, iy = y, id, iw, true) && (bCenter || id > 0.) && m_pGrid->is_InGrid(ix, iy) )
+			int ix = x, iy = y; double id, iw;
+
+			if( m_Kernel.Get_Values(i, ix, iy, id, iw, true) && (bCenter || id > 0.) && m_pGrid->is_InGrid(ix, iy) )
 			{
-				double	iz	= m_pGrid->asDouble(ix, iy);
+				double iz = m_pGrid->asDouble(ix, iy);
 
 				s.Add_Value(iz, iw);
 

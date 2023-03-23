@@ -335,7 +335,7 @@ bool CLine_Split_at_Points::Get_Intersection(CSG_Shape_Line *pLine, TSG_Point Po
 
 		TSG_Point	min_C, C, B, A	= pLine->Get_Point(0, iPart);
 
-		int min_iPoint; double min_Dist = 1. + Epsilon;
+		int min_iPoint = 0; double min_Dist = 1. + Epsilon;
 
 		for(int iPoint=1; iPoint<pPart->Get_Count(); iPoint++)
 		{

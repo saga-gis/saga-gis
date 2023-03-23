@@ -1,6 +1,4 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
+
 /*******************************************************************************
     Watersheds.cpp
     Copyright (C) Victor Olaya
@@ -161,14 +159,11 @@ CWatersheds_ext::CWatersheds_ext(void)
 
 ///////////////////////////////////////////////////////////
 //                                                       //
-//                                                       //
-//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CWatersheds_ext::On_Execute(void)
 {
-	int			x, y;
 	CSG_Grid	*pBasins, *pSubBasins, Inflows;
 	CSG_Shapes	*pHeads, *pMouths, *pVBasins, *pVSubBasins;
 
@@ -217,9 +212,9 @@ bool CWatersheds_ext::On_Execute(void)
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("flow directions..."));
 
-	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
 			int	Direction	= -1;
 
@@ -270,9 +265,9 @@ bool CWatersheds_ext::On_Execute(void)
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("main basins..."));
 
-	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
 			if( m_pChannels->is_InGrid(x, y) && is_Outlet(x, y) )
 			{
@@ -299,9 +294,9 @@ bool CWatersheds_ext::On_Execute(void)
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("heads and mouths..."));
 
-	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
 			if( m_pChannels->is_InGrid(x, y) )
 			{
@@ -338,9 +333,9 @@ bool CWatersheds_ext::On_Execute(void)
 
 	for(sLong iMouth=0; iMouth<pMouths->Get_Count() && Set_Progress(iMouth, pMouths->Get_Count()); iMouth++)
 	{
-		CSG_Shape	*pMouth	= pMouths->Get_Shape_byIndex(iMouth);
+		CSG_Shape *pMouth = pMouths->Get_Shape_byIndex(iMouth); int x, y;
 
-		if( Get_System().Get_World_to_Grid(x, y, pMouth->Get_Point(0)) )
+		if( Get_System().Get_World_to_Grid(x, y, pMouth->Get_Point()) )
 		{
 			if( pMouth->asInt(0) == pMouth->asInt(1) )
 			{
@@ -379,8 +374,6 @@ bool CWatersheds_ext::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //                                                       //
-//                                                       //
-//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -405,14 +398,12 @@ inline bool CWatersheds_ext::is_Outlet(int x, int y)
 
 ///////////////////////////////////////////////////////////
 //                                                       //
-//                                                       //
-//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CWatersheds_ext::Get_Basin(CSG_Grid *pBasins, CSG_Shapes *pPolygons, int xMouth, int yMouth, int Main_ID)
 {
-	int						x, y, Basin_ID	= 1 + pPolygons->Get_Count();
+	int						x, y, Basin_ID	= 1 + (int)pPolygons->Get_Count();
 	CSG_Shape				*pPolygon;
 	CSG_Grid_Stack			Stack;
 	CSG_Simple_Statistics	s_Height, s_Distance;
@@ -514,8 +505,6 @@ bool CWatersheds_ext::Get_Basin(CSG_Grid *pBasins, CSG_Shapes *pPolygons, int xM
 
 ///////////////////////////////////////////////////////////
 //                                                       //
-//                                                       //
-//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -525,7 +514,7 @@ CSG_Shape * CWatersheds_ext::Get_Basin(CSG_Grid *pBasins, CSG_Shapes *pPolygons)
 	CSG_Grid	Edge;
 	CSG_Shape	*pPolygon	= NULL;
 
-	Basin_ID	= 1 + pPolygons->Get_Count();
+	Basin_ID	= 1 + (int)pPolygons->Get_Count();
 
 	//-----------------------------------------------------
 	Edge.Create(SG_DATATYPE_Char, 2 * Get_NX() + 1, 2 * Get_NY() + 1, 0.5 * Get_Cellsize(), Get_XMin() - 0.5 * Get_Cellsize(), Get_YMin() - 0.5 * Get_Cellsize());

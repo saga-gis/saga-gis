@@ -257,7 +257,7 @@ bool CGrid_Swath_Profile::Set_Profile(void)
 		CSG_Shape *pLeft  = m_pLine->Get_Shape(1); if( pLeft  ) pLeft ->Del_Parts(); else pLeft  = m_pLine->Add_Shape();
 		CSG_Shape *pRight = m_pLine->Get_Shape(2); if( pRight ) pRight->Del_Parts(); else pRight = m_pLine->Add_Shape();
 
-		CSG_Point B = pLine->Get_Point(0);
+		CSG_Point B = pLine->Get_Point();
 
 		for(int i=1; i<pLine->Get_Point_Count(0); i++)
 		{
@@ -267,7 +267,7 @@ bool CGrid_Swath_Profile::Set_Profile(void)
 			{
 				CSG_Point P = B - A; double d = m_Width / SG_Get_Distance(A, B);
 
-				P.Assign(-d * P.Get_Y(), d * P.Get_X());
+				P.Assign(-d * P.y, d * P.x);
 
 				CSG_Point Left  = A - P;
 				CSG_Point Right = A + P;
@@ -290,8 +290,8 @@ bool CGrid_Swath_Profile::Set_Profile(void)
 //---------------------------------------------------------
 bool CGrid_Swath_Profile::Set_Profile(CSG_Point A, CSG_Point B, CSG_Point Left, CSG_Point Right)
 {
-	double dx = fabs(B.Get_X() - A.Get_X());
-	double dy = fabs(B.Get_Y() - A.Get_Y()), n;
+	double dx = fabs(B.x - A.x);
+	double dy = fabs(B.y - A.y), n;
 
 	if( dx <= 0. && dy <= 0. )
 	{
@@ -320,28 +320,28 @@ bool CGrid_Swath_Profile::Set_Profile(CSG_Point A, CSG_Point B, CSG_Point Left, 
 	CSG_Point dStep( dx, dy);
 	CSG_Point Step (-dy, dx);
 
-	if( fabs(Step.Get_X()) > fabs(Step.Get_Y()) )
+	if( fabs(Step.x) > fabs(Step.y) )
 	{
-		if( Left.Get_X() > Right.Get_X() )
+		if( Left.x > Right.x )
 		{
 			CSG_Point p = Left; Left = Right; Right = p;
 		}
 
-		if( Step.Get_X() < 0. )
+		if( Step.x < 0. )
 		{
-			Step.Assign(-Step.Get_X(), -Step.Get_Y());
+			Step.Assign(-Step.x, -Step.y);
 		}
 	}
 	else
 	{
-		if( Left.Get_Y() > Right.Get_Y() )
+		if( Left.y > Right.y )
 		{
 			CSG_Point p = Left; Left = Right; Right = p;
 		}
 
-		if( Step.Get_Y() < 0. )
+		if( Step.y < 0. )
 		{
-			Step.Assign(-Step.Get_X(), -Step.Get_Y());
+			Step.Assign(-Step.x, -Step.y);
 		}
 	}
 
@@ -373,7 +373,7 @@ bool CGrid_Swath_Profile::Add_Point(CSG_Point Point, CSG_Point Left, CSG_Point R
 	{
 		CSG_Shape *pLast = m_pPoints->Get_Shape(m_pPoints->Get_Count() - 1);
 
-		Distance = SG_Get_Distance(Point, pLast->Get_Point(0));
+		Distance = SG_Get_Distance(Point, pLast->Get_Point());
 
 		if( Distance == 0. )
 		{
@@ -408,7 +408,7 @@ bool CGrid_Swath_Profile::Add_Swath(CSG_Shape *pPoint, int iEntry, CSG_Grid *pGr
 {
 	double Value;
 
-	if( pGrid->Get_Value(pPoint->Get_Point(0), Value) )
+	if( pGrid->Get_Value(pPoint->Get_Point(), Value) )
 	{
 		pPoint->Set_Value(iEntry, Value);
 	}
@@ -420,17 +420,17 @@ bool CGrid_Swath_Profile::Add_Swath(CSG_Shape *pPoint, int iEntry, CSG_Grid *pGr
 	//-----------------------------------------------------
 	double iRun, dRun, nRun;
 
-	if( Step.Get_X() > Step.Get_Y() )
+	if( Step.x > Step.y )
 	{
-		iRun = Left .Get_X();
-		dRun = Step .Get_X();
-		nRun = Right.Get_X();
+		iRun = Left .x;
+		dRun = Step .x;
+		nRun = Right.x;
 	}
 	else
 	{
-		iRun = Left .Get_Y();
-		dRun = Step .Get_Y();
-		nRun = Right.Get_Y();
+		iRun = Left .y;
+		dRun = Step .y;
+		nRun = Right.y;
 	}
 
 	//-----------------------------------------------------

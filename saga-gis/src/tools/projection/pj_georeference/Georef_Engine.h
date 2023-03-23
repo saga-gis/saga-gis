@@ -110,11 +110,11 @@ public:
 	bool					Set_Reference			(CSG_Shapes *pFrom, CSG_Shapes *pTo);
 	bool					Set_Reference			(CSG_Shapes *pFrom, int xTo_Field, int yTo_Field);
 
-	int						Get_Reference_Count		(void)	{	return( m_From.Get_Count() );	}
+	sLong					Get_Reference_Count		(void)	{	return( m_From.Get_Count() );	}
 
 	bool					Get_Reference_Extent	(CSG_Rect &Extent, bool bInverse = false);
 
-	double					Get_Reference_Residual	(int i);
+	double					Get_Reference_Residual	(sLong i);
 
 	bool					Set_Scaling				(double Scaling);
 	double					Get_Scaling				(void)	{	return( m_Scaling );	}

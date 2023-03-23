@@ -350,7 +350,7 @@ bool CShapes_Save::On_Execute(void)
 //	//-----------------------------------------------------
 //	bool	bResult	= true;
 //
-//	for(int iShape=0; iShape<pShapes->Get_Count() && bResult && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+//	for(sLong iShape=0; iShape<pShapes->Get_Count() && bResult && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 //	{
 //		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
 //

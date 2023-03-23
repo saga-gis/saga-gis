@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: LandUse_Scenario.h 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "LandUse_Scenario.h"
 
 
@@ -80,9 +68,6 @@
 //---------------------------------------------------------
 CLandUse_Scenario::CLandUse_Scenario(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("Land Use Scenario Generator"));
 
 	Set_Author		("O.Conrad (c) 2015");
@@ -94,35 +79,30 @@ CLandUse_Scenario::CLandUse_Scenario(void)
 	));
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "FIELDS"			, _TL("Fields"),
-		_TL(""),
+	Parameters.Add_Shapes("",
+		"FIELDS"     , _TL("Fields"           ), _TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD_ID"		, _TL("Field Identifier"),
-		_TL("")
+	Parameters.Add_Table_Field("FIELDS",
+		"FIELD_ID"   , _TL("Field Identifier" ), _TL("")
 	);
 
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "SCENARIO"		, _TL("Land Use Scenario"),
-		_TL(""),
+	Parameters.Add_Shapes("",
+		"SCENARIO"   , _TL("Land Use Scenario"), _TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Choice(
-		pNode	, "OUTPUT"			, _TL("Output of..."),
-		_TL(""),
-		CSG_String::Format("%s|%s|",
+	Parameters.Add_Choice("SCENARIO",
+		"OUTPUT"     , _TL("Output of..."     ), _TL(""), CSG_String::Format("%s|%s|",
 			_TL("Identifier"),
 			_TL("Name")
 		), 0
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Table(
-		NULL	, "STATISTICS"		, _TL("Crop Statistics"),
+	Parameters.Add_Table("",
+		"STATISTICS" , _TL("Crop Statistics"  ),
 		_TW("The first column specifies a crop type id. "
 			"The second column provides a human readible name for the crop type (e.g. 'potatoes') ."
 			"The third column must be an integer value, though this value is not yet used by this tool. "
@@ -130,8 +110,8 @@ CLandUse_Scenario::CLandUse_Scenario(void)
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table(
-		NULL	, "KNOWN_CROPS"		, _TL("Known Crops"),
+	Parameters.Add_Table("",
+		"KNOWN_CROPS", _TL("Known Crops"      ),
 		_TW("The first column specifies the field id as given by the 'Fields' layer. "
 			"The following columns specify the crop type for each field and year "
 			"and refer to the crop type identifiers used in the crop statistics table. "
@@ -143,15 +123,12 @@ CLandUse_Scenario::CLandUse_Scenario(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CLandUse_Scenario::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Table	*pStatistics	= Parameters("STATISTICS")->asTable();
+	CSG_Table *pStatistics = Parameters("STATISTICS")->asTable();
 
 	if( pStatistics->Get_Field_Count() <= STATISTICS_HEADCOLS )
 	{
@@ -168,8 +145,9 @@ bool CLandUse_Scenario::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Shapes	*pFields	= Parameters("FIELDS"  )->asShapes();
-	int			Field_ID	= Parameters("FIELD_ID")->asInt   ();
+	CSG_Shapes *pFields = Parameters("FIELDS")->asShapes();
+
+	int Field_ID = Parameters("FIELD_ID")->asInt();
 
 	if( pFields->Get_Count() <= 0 )
 	{
@@ -179,10 +157,7 @@ bool CLandUse_Scenario::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int		nYears, iYear, iField, iType;
-
-	//-----------------------------------------------------
-	CSG_Table	Types;
+	CSG_Table Types;
 
 	Types.Add_Field("ID"    , SG_DATATYPE_Int);
 	Types.Add_Field("NAME"  , SG_DATATYPE_String);
@@ -190,11 +165,11 @@ bool CLandUse_Scenario::On_Execute(void)
 
 	Types.Set_Count(pStatistics->Get_Count());
 
-	nYears		= pStatistics->Get_Field_Count() - STATISTICS_HEADCOLS;
+	int nYears = pStatistics->Get_Field_Count() - STATISTICS_HEADCOLS;
 
 	CSG_Matrix	Crops(nYears, Types.Get_Count());
 
-	for(iType=0; iType<Types.Get_Count(); iType++)
+	for(int iType=0; iType<Types.Get_Count(); iType++)
 	{
 		CSG_Table_Record	*pRecord	= pStatistics->Get_Record(iType);
 
@@ -202,16 +177,16 @@ bool CLandUse_Scenario::On_Execute(void)
 		Types[iType][1]	= pRecord->asString(1);
 		Types[iType][2]	= pRecord->asInt   (2);
 
-		for(iYear=0; iYear<nYears; iYear++)
+		for(int iYear=0; iYear<nYears; iYear++)
 		{
 			Crops[iType][iYear]	= pRecord->asDouble(iYear + STATISTICS_HEADCOLS);
 		}
 	}
 
 	//-----------------------------------------------------
-	CSG_Table	Scenario;
+	CSG_Table Scenario;
 
-	for(iYear=0; iYear<nYears; iYear++)
+	for(int iYear=0; iYear<nYears; iYear++)
 	{
 		Scenario.Add_Field(pStatistics->Get_Field_Name(iYear + STATISTICS_HEADCOLS), SG_DATATYPE_Int);
 	}
@@ -221,14 +196,14 @@ bool CLandUse_Scenario::On_Execute(void)
 
 	Scenario.Set_Count(pFields->Get_Count());
 
-	for(iField=0; iField<pFields->Get_Count(); iField++)
+	for(int iField=0; iField<pFields->Get_Count(); iField++)
 	{
-		CSG_Shape_Polygon	*pField		= (CSG_Shape_Polygon *)pFields->Get_Shape(iField);
+		CSG_Shape_Polygon *pField = pFields->Get_Shape(iField)->asPolygon();
 
-		Scenario[iField][nYears + 0]	= pField->asInt(Field_ID);
-		Scenario[iField][nYears + 1]	= pField->Get_Area();
+		Scenario[iField][nYears + 0] = pField->asInt(Field_ID);
+		Scenario[iField][nYears + 1] = pField->Get_Area();
 
-		for(iYear=0; iYear<nYears; iYear++)
+		for(int iYear=0; iYear<nYears; iYear++)
 		{
 			Scenario[iField][iYear]	= -1;
 		}
@@ -239,29 +214,29 @@ bool CLandUse_Scenario::On_Execute(void)
 	Get_Scenario     (nYears, Scenario, Crops);
 
 	//-----------------------------------------------------
-	CSG_Shapes	*pScenario	= Parameters("SCENARIO")->asShapes();
+	CSG_Shapes *pScenario = Parameters("SCENARIO")->asShapes();
 
-	bool	bID	= Parameters("OUTPUT")->asInt() == 0;
+	bool bID = Parameters("OUTPUT")->asInt() == 0;
 
 	pScenario->Create(SHAPE_TYPE_Polygon, CSG_String::Format("%s [%s]", pFields->Get_Name(), _TL("Land Use Scenario")));
 
 	pScenario->Add_Field("ID", SG_DATATYPE_Int);
 
-	for(iYear=0; iYear<nYears; iYear++)
+	for(int iYear=0; iYear<nYears; iYear++)
 	{
 		pScenario->Add_Field(pStatistics->Get_Field_Name(iYear + STATISTICS_HEADCOLS), bID ? SG_DATATYPE_Int : SG_DATATYPE_String);
 	}
 
 	//-----------------------------------------------------
-	for(iField=0; iField<pFields->Get_Count(); iField++)
+	for(int iField=0; iField<pFields->Get_Count(); iField++)
 	{
-		CSG_Shape	*pField	= pScenario->Add_Shape(pFields->Get_Shape(iField), SHAPE_COPY_GEOM);
+		CSG_Shape *pField = pScenario->Add_Shape(pFields->Get_Shape(iField), SHAPE_COPY_GEOM);
 
 		pField->Set_Value(0, pFields->Get_Shape(iField)->asInt(Field_ID));
 
-		for(iYear=0; iYear<nYears; iYear++)
+		for(int iYear=0; iYear<nYears; iYear++)
 		{
-			(*pField)[iYear + 1]	= Types[Scenario[iField][iYear].asInt()][bID ? 0 : 1];
+			(*pField)[iYear + 1] = Types[Scenario[iField][iYear].asInt()][bID ? 0 : 1];
 		}
 	}
 
@@ -279,16 +254,16 @@ bool CLandUse_Scenario::On_Execute(void)
 //---------------------------------------------------------
 bool CLandUse_Scenario::Get_Known_LandUse(int nYears, CSG_Table &Scenario, const CSG_Table &Types)
 {
-	CSG_Table	*pLandUse_Known	= Parameters("KNOWN_CROPS")->asTable();
+	CSG_Table *pLandUse_Known = Parameters("KNOWN_CROPS")->asTable();
 
 	if( !pLandUse_Known || pLandUse_Known->Get_Field_Count() != nYears + 1 )
 	{
 		return( true );
 	}
 
-	for(int iKnown=0; iKnown<pLandUse_Known->Get_Count(); iKnown++)
+	for(sLong iKnown=0; iKnown<pLandUse_Known->Get_Count(); iKnown++)
 	{
-		CSG_Table_Record	*pKnown	= pLandUse_Known->Get_Record(iKnown);
+		CSG_Table_Record *pKnown = pLandUse_Known->Get_Record(iKnown);
 
 		for(int iField=0, Field_ID=pKnown->asInt(0); iField<Scenario.Get_Count(); iField++)
 		{
@@ -320,28 +295,24 @@ bool CLandUse_Scenario::Get_Known_LandUse(int nYears, CSG_Table &Scenario, const
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CLandUse_Scenario::Get_Scenario(int nYears, CSG_Table &Scenario, const CSG_Matrix &Crops)
 {
-	int		iType, iField;
-	double	Sum_Area;
+	double Sum_Area = 0.;
 
-	//-----------------------------------------------------
-	for(iField=0, Sum_Area=0.0; iField<Scenario.Get_Count(); iField++)
+	for(int iField=0; iField<Scenario.Get_Count(); iField++)
 	{
-		Sum_Area	+= Scenario[iField][nYears + 1];
+		Sum_Area += Scenario[iField][nYears + 1];
 	}
 
-	if( Sum_Area <= 0.0 )
+	if( Sum_Area <= 0. )
 	{
 		return( false );
 	}
 
-	CSG_Vector	Area_Crop(Crops.Get_NRows());
+	CSG_Vector Area_Crop(Crops.Get_NRows());
 
 	//-----------------------------------------------------
 	for(int iYear=0; iYear<nYears; iYear++)
@@ -349,59 +320,57 @@ bool CLandUse_Scenario::Get_Scenario(int nYears, CSG_Table &Scenario, const CSG_
 		//-------------------------------------------------
 		// 1. determine percentage and absolute area for each crop type...
 
-		double	Sum_Crops	= 0.0;
+		double Sum_Crops = 0.;
 
-		for(iType=0; iType<Crops.Get_NRows(); iType++)
+		for(int iType=0; iType<Crops.Get_NRows(); iType++)
 		{
-			Sum_Crops	+= Crops[iType][iYear];
+			Sum_Crops += Crops[iType][iYear];
 		}
 
-		if( Sum_Crops <= 0.0 )
+		if( Sum_Crops <= 0. )
 		{
 			continue;
 		}
 
-		for(iType=0; iType<Crops.Get_NRows(); iType++)
+		for(int iType=0; iType<Crops.Get_NRows(); iType++)
 		{
-			Area_Crop[iType]	= Crops[iType][iYear] * Sum_Area / Sum_Crops;
+			Area_Crop[iType] = Crops[iType][iYear] * Sum_Area / Sum_Crops;
 		}
 
 		//-------------------------------------------------
 		// 2. remove known field crops...
 
-		double	Area_Left	= Sum_Area;
+		double Area_Left = Sum_Area;
 
-		for(iField=0; iField<Scenario.Get_Count(); iField++)
+		for(int iField=0; iField<Scenario.Get_Count(); iField++)
 		{
 			if( Scenario[iField][iYear] >= 0 )
 			{
-				iType				 = Scenario[iField][iYear].asInt();
-				Area_Left			-= Scenario[iField][nYears + 1];
-				Area_Crop[iType]	-= Scenario[iField][nYears + 1];
+				int iType         = Scenario[iField][iYear].asInt();
+				Area_Left        -= Scenario[iField][nYears + 1];
+				Area_Crop[iType] -= Scenario[iField][nYears + 1];
 			}
 		}
 
 		//-------------------------------------------------
 		// 3. fill remaining gaps with randomized scenario...
 
-		for(iField=0; iField<Scenario.Get_Count(); iField++)
+		for(int iField=0; iField<Scenario.Get_Count(); iField++)
 		{
 			if( Scenario[iField][iYear].asInt() < 0 )
 			{
 				//-----------------------------------------
 				// (a) select a crop type...
 
-				double	pArea	= 0.0, pCrop	= CSG_Random::Get_Uniform(0.0, Area_Left);
+				double pArea = 0., pCrop = CSG_Random::Get_Uniform(0.0, Area_Left); int Type = -1;
 
-				int		Type	= -1;
-
-				for(iType=0; Type<0 && iType<Crops.Get_NRows(); iType++)
+				for(int iType=0; Type<0 && iType<Crops.Get_NRows(); iType++)
 				{
-					pArea	+= Area_Crop[iType];
+					pArea += Area_Crop[iType];
 
 					if( pCrop - pArea < 0.000001 )	// if( pCrop < pArea ) pech mit fließkommagenauigkeit...
 					{
-						Type	= iType;
+						Type = iType;
 					}
 				}
 
@@ -410,10 +379,10 @@ bool CLandUse_Scenario::Get_Scenario(int nYears, CSG_Table &Scenario, const CSG_
 
 				if( Type >= 0 )
 				{
-					Area_Left		-= Scenario[iField][nYears + 1];
-					Area_Crop[Type]	-= Scenario[iField][nYears + 1];
+					Area_Left       -= Scenario[iField][nYears + 1];
+					Area_Crop[Type] -= Scenario[iField][nYears + 1];
 
-					Scenario[iField][iYear]	= Type;
+					Scenario[iField][iYear] = Type;
 				}
 			}
 		}

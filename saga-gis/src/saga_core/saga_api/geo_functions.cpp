@@ -142,7 +142,7 @@ double		SG_Get_Distance(double ax, double ay, double az, double bx, double by, d
 }
 
 //---------------------------------------------------------
-double		SG_Get_Distance(const TSG_Point_Z &A, const TSG_Point_Z &B)
+double		SG_Get_Distance(const TSG_Point_3D &A, const TSG_Point_3D &B)
 {
     double	dx,	dy, dz;
 
@@ -539,8 +539,8 @@ double		SG_Get_Polygon_Area(const CSG_Points &Points)
 	{
 		for(sLong i=0, j=Points.Get_Count()-1; i<Points.Get_Count(); j=i++)
 		{
-			Area += (Points.Get_X(j) * Points.Get_Y(i))
-			      - (Points.Get_X(i) * Points.Get_Y(j));
+			Area += (Points[j].x * Points[i].y)
+			      - (Points[i].x * Points[j].y);
 		}
 
 		Area /= 2.;

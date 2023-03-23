@@ -277,8 +277,8 @@ bool CGVMD_Import::Get_Table(CSG_Table &Table, CSG_Unique_String_Statistics &Lay
 	}
 
 	if( m_xField[0] < 0 || m_xField[1] < 0
-		||  m_yField[0] < 0 || m_yField[1] < 0
-		||  m_zField[0] < 0 || m_zField[1] < 0 )
+	||  m_yField[0] < 0 || m_yField[1] < 0
+	||  m_zField[0] < 0 || m_zField[1] < 0 )
 	{
 		Error_Set(_TL("missing coordinate fields"));
 
@@ -369,7 +369,7 @@ bool CGVMD_Import::Set_Grids(const CSG_Table &Table, const CSG_Unique_String_Sta
 
 			if( !Layer.Cmp(r.asString(id)) )
 			{
-				TSG_Point_Z	P[2];
+				TSG_Point_3D	P[2];
 
 				P[0].x = r.asDouble(m_xField[0]); P[1].x = r.asDouble(m_xField[1]);
 				P[0].y = r.asDouble(m_yField[0]); P[1].y = r.asDouble(m_yField[1]);
@@ -493,7 +493,7 @@ bool CGVMD_Import::Set_Points(const CSG_Table &Table)
 	{
 		CSG_Table_Record *pRecord = Table.Get_Record(i);
 
-		TSG_Point_Z	P[2];
+		TSG_Point_3D	P[2];
 
 		P[0].x = pRecord->asDouble(m_xField[0]); P[1].x = pRecord->asDouble(m_xField[1]);
 		P[0].y = pRecord->asDouble(m_yField[0]); P[1].y = pRecord->asDouble(m_yField[1]);

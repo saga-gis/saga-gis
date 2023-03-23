@@ -57,16 +57,6 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#define BUFFER_SIZE_GROW(size)	(size < 1024 ? 32 : 1024)
-
-
-///////////////////////////////////////////////////////////
-//														 //
 //						CSG_Point						 //
 //														 //
 ///////////////////////////////////////////////////////////
@@ -79,7 +69,7 @@ CSG_Point::CSG_Point(void)
 
 CSG_Point::CSG_Point(const CSG_Point &Point)
 {
-	Assign(Point);
+	Assign(Point.x, Point.y);
 }
 
 CSG_Point::CSG_Point(const TSG_Point &Point)
@@ -148,35 +138,35 @@ double CSG_Point::Get_Length(void)	const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Point_Z::CSG_Point_Z(void)
+CSG_Point_3D::CSG_Point_3D(void)
 {
 	Assign(0., 0., 0.);
 }
 
-CSG_Point_Z::CSG_Point_Z(const CSG_Point_Z &Point)
-{
-	Assign(Point);
-}
-
-CSG_Point_Z::CSG_Point_Z(const TSG_Point_Z &Point)
+CSG_Point_3D::CSG_Point_3D(const CSG_Point_3D &Point)
 {
 	Assign(Point.x, Point.y, Point.z);
 }
 
-CSG_Point_Z::CSG_Point_Z(double _x, double _y, double _z)
+CSG_Point_3D::CSG_Point_3D(const TSG_Point_3D &Point)
+{
+	Assign(Point.x, Point.y, Point.z);
+}
+
+CSG_Point_3D::CSG_Point_3D(double _x, double _y, double _z)
 {
 	Assign(_x, _y, _z);
 }
 
 //---------------------------------------------------------
-void CSG_Point_Z::Assign(double _x, double _y, double _z)
+void CSG_Point_3D::Assign(double _x, double _y, double _z)
 {
 	x	= _x;
 	y	= _y;
 	z	= _z;
 }
 
-void CSG_Point_Z::Assign(const CSG_Point_Z &Point)
+void CSG_Point_3D::Assign(const CSG_Point_3D &Point)
 {
 	x	= Point.x;
 	y	= Point.y;
@@ -184,35 +174,35 @@ void CSG_Point_Z::Assign(const CSG_Point_Z &Point)
 }
 
 //---------------------------------------------------------
-void CSG_Point_Z::Add(const CSG_Point_Z &Point)
+void CSG_Point_3D::Add(const CSG_Point_3D &Point)
 {
 	x	+= Point.x;
 	y	+= Point.y;
 	z	+= Point.z;
 }
 
-void CSG_Point_Z::Subtract(const CSG_Point_Z &Point)
+void CSG_Point_3D::Subtract(const CSG_Point_3D &Point)
 {
 	x	-= Point.x;
 	y	-= Point.y;
 	z	-= Point.z;
 }
 
-void CSG_Point_Z::Multiply(const CSG_Point_Z &Point)
+void CSG_Point_3D::Multiply(const CSG_Point_3D &Point)
 {
 	x	*= Point.x;
 	y	*= Point.y;
 	z	*= Point.z;
 }
 
-void CSG_Point_Z::Multiply(double Value)
+void CSG_Point_3D::Multiply(double Value)
 {
 	x	*= Value;
 	y	*= Value;
 	z	*= Value;
 }
 
-void CSG_Point_Z::Divide(double Value)
+void CSG_Point_3D::Divide(double Value)
 {
 	x	/= Value;
 	y	/= Value;
@@ -220,7 +210,7 @@ void CSG_Point_Z::Divide(double Value)
 }
 
 //---------------------------------------------------------
-double CSG_Point_Z::Get_Length(void)	const
+double CSG_Point_3D::Get_Length(void)	const
 {
 	return( sqrt(x*x + y*y + z*z) );
 }
@@ -231,28 +221,28 @@ double CSG_Point_Z::Get_Length(void)	const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Point_ZM::CSG_Point_ZM(void)
+CSG_Point_4D::CSG_Point_4D(void)
 {
 	Assign(0., 0., 0., 0.);
 }
 
-CSG_Point_ZM::CSG_Point_ZM(const CSG_Point_ZM &Point)
-{
-	Assign(Point);
-}
-
-CSG_Point_ZM::CSG_Point_ZM(const TSG_Point_ZM &Point)
+CSG_Point_4D::CSG_Point_4D(const CSG_Point_4D &Point)
 {
 	Assign(Point.x, Point.y, Point.z, Point.m);
 }
 
-CSG_Point_ZM::CSG_Point_ZM(double _x, double _y, double _z, double _m)
+CSG_Point_4D::CSG_Point_4D(const TSG_Point_4D &Point)
+{
+	Assign(Point.x, Point.y, Point.z, Point.m);
+}
+
+CSG_Point_4D::CSG_Point_4D(double _x, double _y, double _z, double _m)
 {
 	Assign(_x, _y, _z, _m);
 }
 
 //---------------------------------------------------------
-void CSG_Point_ZM::Assign(double _x, double _y, double _z, double _m)
+void CSG_Point_4D::Assign(double _x, double _y, double _z, double _m)
 {
 	x	= _x;
 	y	= _y;
@@ -260,7 +250,7 @@ void CSG_Point_ZM::Assign(double _x, double _y, double _z, double _m)
 	m	= _m;
 }
 
-void CSG_Point_ZM::Assign(const CSG_Point_ZM &Point)
+void CSG_Point_4D::Assign(const CSG_Point_4D &Point)
 {
 	x	= Point.x;
 	y	= Point.y;
@@ -269,7 +259,7 @@ void CSG_Point_ZM::Assign(const CSG_Point_ZM &Point)
 }
 
 //---------------------------------------------------------
-void CSG_Point_ZM::Add(const CSG_Point_ZM &Point)
+void CSG_Point_4D::Add(const CSG_Point_4D &Point)
 {
 	x	+= Point.x;
 	y	+= Point.y;
@@ -277,7 +267,7 @@ void CSG_Point_ZM::Add(const CSG_Point_ZM &Point)
 	m	+= Point.m;
 }
 
-void CSG_Point_ZM::Subtract(const CSG_Point_ZM &Point)
+void CSG_Point_4D::Subtract(const CSG_Point_4D &Point)
 {
 	x	-= Point.x;
 	y	-= Point.y;
@@ -285,7 +275,7 @@ void CSG_Point_ZM::Subtract(const CSG_Point_ZM &Point)
 	m	-= Point.m;
 }
 
-void CSG_Point_ZM::Multiply(const CSG_Point_ZM &Point)
+void CSG_Point_4D::Multiply(const CSG_Point_4D &Point)
 {
 	x	*= Point.x;
 	y	*= Point.y;
@@ -293,7 +283,7 @@ void CSG_Point_ZM::Multiply(const CSG_Point_ZM &Point)
 	m	*= Point.m;
 }
 
-void CSG_Point_ZM::Multiply(double Value)
+void CSG_Point_4D::Multiply(double Value)
 {
 	x	*= Value;
 	y	*= Value;
@@ -301,7 +291,7 @@ void CSG_Point_ZM::Multiply(double Value)
 	m	*= Value;
 }
 
-void CSG_Point_ZM::Divide(double Value)
+void CSG_Point_4D::Divide(double Value)
 {
 	x	/= Value;
 	y	/= Value;
@@ -310,7 +300,7 @@ void CSG_Point_ZM::Divide(double Value)
 }
 
 //---------------------------------------------------------
-double CSG_Point_ZM::Get_Length(void)	const
+double CSG_Point_4D::Get_Length(void)	const
 {
 	return( sqrt(x*x + y*y + z*z + m*m) );
 }
@@ -325,73 +315,23 @@ double CSG_Point_ZM::Get_Length(void)	const
 //---------------------------------------------------------
 CSG_Points::CSG_Points(void)
 {
-	m_nBuffer = 0;
-	m_nPoints = 0;
-	m_Points  = NULL;
+	m_Points.Create(sizeof(TSG_Point), 0, TSG_Array_Growth::SG_ARRAY_GROWTH_1);
 }
 
-//---------------------------------------------------------
-CSG_Points::~CSG_Points(void)
+CSG_Points::CSG_Points(sLong nPoints, TSG_Array_Growth Growth)
 {
-	Clear();
-}
-
-//---------------------------------------------------------
-void CSG_Points::Clear(void)
-{
-	if( m_Points )
-	{
-		SG_Free(m_Points);
-	}
-
-	m_nBuffer = 0;
-	m_nPoints = 0;
-	m_Points  = NULL;
+	m_Points.Create(sizeof(TSG_Point), nPoints, Growth);
 }
 
 //---------------------------------------------------------
 bool CSG_Points::Assign(const CSG_Points &Points)
 {
-	Set_Count(Points.m_nPoints);
-
-	if( m_nPoints > 0 )
+	if( m_Points.Set_Array(Points.m_Points.Get_Size()) )
 	{
-		memcpy(m_Points, Points.m_Points, m_nPoints * sizeof(TSG_Point));
-	}
-
-	return( true );
-}
-
-//---------------------------------------------------------
-CSG_Points & CSG_Points::operator  = (const CSG_Points &Points)
-{
-	Assign(Points);
-
-	return( *this );
-}
-
-//---------------------------------------------------------
-bool CSG_Points::Set_Count(sLong nPoints)
-{
-	if( m_nPoints == nPoints )
-	{
-		return( true );
-	}
-
-	if( nPoints < 1 )
-	{
-		Clear();
-
-		return( true );
-	}
-
-	TSG_Point *Points = (TSG_Point *)SG_Realloc(m_Points, nPoints * sizeof(TSG_Point));
-
-	if( Points )
-	{
-		m_Points  = Points;
-		m_nPoints = nPoints;
-		m_nBuffer = nPoints;
+		if( m_Points.Get_Size() > 0 )
+		{
+			memcpy(m_Points.Get_Array(), Points.m_Points.Get_Array(), m_Points.Get_Size() * m_Points.Get_Value_Size());
+		}
 
 		return( true );
 	}
@@ -402,52 +342,63 @@ bool CSG_Points::Set_Count(sLong nPoints)
 //---------------------------------------------------------
 bool CSG_Points::Add(double x, double y)
 {
-	if( m_nPoints >= m_nBuffer - 1 )
+	if( m_Points.Inc_Array() )
 	{
-		TSG_Point *Points = (TSG_Point *)SG_Realloc(m_Points, (m_nBuffer + (sLong)BUFFER_SIZE_GROW(m_nBuffer)) * sizeof(TSG_Point));
+		TSG_Point *Point = (TSG_Point *)m_Points.Get_Entry(m_Points.Get_Size() - 1);
 
-		if( Points == NULL )
-		{
-			return( false );
-		}
+		Point->x = x;
+		Point->y = y;
 
-		m_Points   = Points;
-		m_nBuffer += BUFFER_SIZE_GROW(m_nBuffer);
+		return( true );
 	}
 
-	m_Points[m_nPoints].x = x;
-	m_Points[m_nPoints].y = y;
-	m_nPoints++;
+	return( false );
+}
 
-	return( true );
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Points_3D::CSG_Points_3D(void)
+{
+	m_Points.Create(sizeof(TSG_Point_3D), 0, TSG_Array_Growth::SG_ARRAY_GROWTH_1);
+}
+
+CSG_Points_3D::CSG_Points_3D(sLong nPoints, TSG_Array_Growth Growth)
+{
+	m_Points.Create(sizeof(TSG_Point_3D), nPoints, Growth);
 }
 
 //---------------------------------------------------------
-bool CSG_Points::Add(const TSG_Point &Point)
+bool CSG_Points_3D::Assign(const CSG_Points_3D &Points)
 {
-	return( Add(Point.x, Point.y) );
-}
-
-//---------------------------------------------------------
-bool CSG_Points::Del(sLong Index)
-{
-	if( Index >= 0 && Index < m_nPoints )
+	if( m_Points.Set_Array(Points.m_Points.Get_Size()) )
 	{
-		m_nPoints--;
-
-		if( m_nPoints > 0 )
+		if( m_Points.Get_Size() > 0 )
 		{
-			for(TSG_Point *A=m_Points+Index, *B=m_Points+Index+1; Index<m_nPoints; Index++, A++, B++)
-			{
-				*A = *B;
-			}
+			memcpy(m_Points.Get_Array(), Points.m_Points.Get_Array(), m_Points.Get_Size() * m_Points.Get_Value_Size());
+		}
 
-			m_Points = (TSG_Point *)SG_Realloc(m_Points, m_nPoints * sizeof(TSG_Point));
-		}
-		else
-		{
-			SG_Free(m_Points);
-		}
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Points_3D::Add(double x, double y, double z)
+{
+	if( m_Points.Inc_Array() )
+	{
+		TSG_Point_3D *Point = (TSG_Point_3D *)m_Points.Get_Entry(m_Points.Get_Size() - 1);
+
+		Point->x = x;
+		Point->y = y;
+		Point->z = z;
 
 		return( true );
 	}
@@ -465,73 +416,23 @@ bool CSG_Points::Del(sLong Index)
 //---------------------------------------------------------
 CSG_Points_Int::CSG_Points_Int(void)
 {
-	m_nBuffer = 0;
-	m_nPoints = 0;
-	m_Points  = NULL;
+	m_Points.Create(sizeof(TSG_Point_Int), 0, TSG_Array_Growth::SG_ARRAY_GROWTH_1);
 }
 
-//---------------------------------------------------------
-CSG_Points_Int::~CSG_Points_Int(void)
+CSG_Points_Int::CSG_Points_Int(sLong nPoints, TSG_Array_Growth Growth)
 {
-	Clear();
-}
-
-//---------------------------------------------------------
-void CSG_Points_Int::Clear(void)
-{
-	if( m_Points )
-	{
-		SG_Free(m_Points);
-	}
-
-	m_nBuffer = 0;
-	m_nPoints = 0;
-	m_Points  = NULL;
+	m_Points.Create(sizeof(TSG_Point_Int), nPoints, Growth);
 }
 
 //---------------------------------------------------------
 bool CSG_Points_Int::Assign(const CSG_Points_Int &Points)
 {
-	Set_Count(Points.m_nPoints);
-
-	if( m_nPoints > 0 )
+	if( m_Points.Set_Array(Points.m_Points.Get_Size()) )
 	{
-		memcpy(m_Points, Points.m_Points, m_nPoints * sizeof(TSG_Point_Int));
-	}
-
-	return( true );
-}
-
-//---------------------------------------------------------
-CSG_Points_Int & CSG_Points_Int::operator  = (const CSG_Points_Int &Points)
-{
-	Assign(Points);
-
-	return( *this );
-}
-
-//---------------------------------------------------------
-bool CSG_Points_Int::Set_Count(sLong nPoints)
-{
-	if( m_nPoints == nPoints )
-	{
-		return( true );
-	}
-
-	if( nPoints < 1 )
-	{
-		Clear();
-
-		return( true );
-	}
-
-	TSG_Point_Int *Points = (TSG_Point_Int *)SG_Realloc(m_Points, nPoints * sizeof(TSG_Point_Int));
-
-	if( Points )
-	{
-		m_Points  = Points;
-		m_nPoints = nPoints;
-		m_nBuffer = nPoints;
+		if( m_Points.Get_Size() > 0 )
+		{
+			memcpy(m_Points.Get_Array(), Points.m_Points.Get_Array(), m_Points.Get_Size() * m_Points.Get_Value_Size());
+		}
 
 		return( true );
 	}
@@ -542,193 +443,12 @@ bool CSG_Points_Int::Set_Count(sLong nPoints)
 //---------------------------------------------------------
 bool CSG_Points_Int::Add(int x, int y)
 {
-	if( m_nPoints >= m_nBuffer - 1 )
+	if( m_Points.Inc_Array() )
 	{
-		TSG_Point_Int *Points = (TSG_Point_Int *)SG_Realloc(m_Points, (m_nBuffer + (sLong)BUFFER_SIZE_GROW(m_nBuffer)) * sizeof(TSG_Point_Int));
+		TSG_Point_Int *Point = (TSG_Point_Int *)m_Points.Get_Entry(m_Points.Get_Size() - 1);
 
-		if( Points == NULL )
-		{
-			return( false );
-		}
-
-		m_Points   = Points;
-		m_nBuffer += BUFFER_SIZE_GROW(m_nBuffer);
-	}
-
-	m_Points[m_nPoints].x = x;
-	m_Points[m_nPoints].y = y;
-	m_nPoints++;
-
-	return( true );
-}
-
-//---------------------------------------------------------
-bool CSG_Points_Int::Add(const TSG_Point_Int &Point)
-{
-	return( Add(Point.x, Point.y) );
-}
-
-//---------------------------------------------------------
-bool CSG_Points_Int::Del(sLong Index)
-{
-	if( Index >= 0 && Index < m_nPoints )
-	{
-		m_nPoints--;
-
-		if( m_nPoints > 0 )
-		{
-			for(TSG_Point_Int *A=m_Points+Index, *B=m_Points+Index+1; Index<m_nPoints; Index++, A++, B++)
-			{
-				*A = *B;
-			}
-
-			m_Points = (TSG_Point_Int *)SG_Realloc(m_Points, m_nPoints * sizeof(TSG_Point_Int));
-		}
-		else
-		{
-			SG_Free(m_Points);
-		}
-
-		return( true );
-	}
-
-	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CSG_Points_Z::CSG_Points_Z(void)
-{
-	m_nBuffer = 0;
-	m_nPoints = 0;
-	m_Points  = NULL;
-}
-
-//---------------------------------------------------------
-CSG_Points_Z::~CSG_Points_Z(void)
-{
-	Clear();
-}
-
-//---------------------------------------------------------
-void CSG_Points_Z::Clear(void)
-{
-	if( m_Points )
-	{
-		SG_Free(m_Points);
-	}
-
-	m_nBuffer = 0;
-	m_nPoints = 0;
-	m_Points  = NULL;
-}
-
-//---------------------------------------------------------
-bool CSG_Points_Z::Assign(const CSG_Points_Z &Points)
-{
-	Set_Count(Points.m_nPoints);
-
-	if( m_nPoints > 0 )
-	{
-		memcpy(m_Points, Points.m_Points, m_nPoints * sizeof(TSG_Point_Z));
-	}
-
-	return( true );
-}
-
-//---------------------------------------------------------
-CSG_Points_Z & CSG_Points_Z::operator  = (const CSG_Points_Z &Points)
-{
-	Assign(Points);
-
-	return( *this );
-}
-
-//---------------------------------------------------------
-bool CSG_Points_Z::Set_Count(sLong nPoints)
-{
-	if( m_nPoints == nPoints )
-	{
-		return( true );
-	}
-
-	if( nPoints <= 0 )
-	{
-		Clear();
-
-		return( true );
-	}
-
-	TSG_Point_Z *Points = (TSG_Point_Z *)SG_Realloc(m_Points, nPoints * sizeof(TSG_Point_Z));
-
-	if( Points )
-	{
-		m_Points  = Points;
-		m_nPoints = nPoints;
-		m_nBuffer = nPoints;
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CSG_Points_Z::Add(double x, double y, double z)
-{
-	if( m_nPoints >= m_nBuffer - 1 )
-	{
-		TSG_Point_Z	*Points	= (TSG_Point_Z *)SG_Realloc(m_Points, (m_nBuffer + (sLong)BUFFER_SIZE_GROW(m_nBuffer)) * sizeof(TSG_Point_Z));
-
-		if( Points == NULL )
-		{
-			return( false );
-		}
-
-		m_Points   = Points;
-		m_nBuffer += BUFFER_SIZE_GROW(m_nBuffer);
-	}
-
-	m_Points[m_nPoints].x = x;
-	m_Points[m_nPoints].y = y;
-	m_Points[m_nPoints].z = z;
-	m_nPoints++;
-
-	return( true );
-}
-
-//---------------------------------------------------------
-bool CSG_Points_Z::Add(const TSG_Point_Z &Point)
-{
-	return( Add(Point.x, Point.y, Point.z) );
-}
-
-//---------------------------------------------------------
-bool CSG_Points_Z::Del(sLong Index)
-{
-	if( Index >= 0 && Index < m_nPoints )
-	{
-		m_nPoints--;
-
-		if( m_nPoints > 0 )
-		{
-			for(TSG_Point_Z *A=m_Points+Index, *B=m_Points+Index+1; Index<m_nPoints; Index++, A++, B++)
-			{
-				*A = *B;
-			}
-
-			m_Points = (TSG_Point_Z *)SG_Realloc(m_Points, m_nPoints * sizeof(TSG_Point_Z));
-		}
-		else
-		{
-			SG_Free(m_Points);
-		}
+		Point->x = x;
+		Point->y = y;
 
 		return( true );
 	}
@@ -751,7 +471,7 @@ CSG_Rect::CSG_Rect(void)
 
 CSG_Rect::CSG_Rect(const CSG_Rect &Rect)
 {
-	Assign(Rect.m_rect);
+	Assign(Rect.xMin, Rect.yMin, Rect.xMax, Rect.yMax);
 }
 
 CSG_Rect::CSG_Rect(const TSG_Rect &Rect)
@@ -761,7 +481,7 @@ CSG_Rect::CSG_Rect(const TSG_Rect &Rect)
 
 CSG_Rect::CSG_Rect(const CSG_Point &A, const CSG_Point &B)
 {
-	Assign(A.Get_X(), A.Get_Y(), B.Get_X(), B.Get_Y());
+	Assign(A.x, A.y, B.x, B.y);
 }
 
 CSG_Rect::CSG_Rect(double xMin, double yMin, double xMax, double yMax)
@@ -793,12 +513,12 @@ CSG_Rect & CSG_Rect::operator = (const CSG_Rect &Rect)
 
 void CSG_Rect::operator += (const CSG_Point &Point)
 {
-	Move( Point.Get_X(),  Point.Get_Y());
+	Move( Point.x,  Point.y);
 }
 
 void CSG_Rect::operator -= (const CSG_Point &Point)
 {
-	Move(-Point.Get_Y(), -Point.Get_Y());
+	Move(-Point.y, -Point.y);
 }
 
 //---------------------------------------------------------
@@ -806,82 +526,80 @@ void CSG_Rect::Assign(double xMin, double yMin, double xMax, double yMax)
 {
 	if( xMin < xMax )
 	{
-		m_rect.xMin	= xMin;
-		m_rect.xMax	= xMax;
+		this->xMin	= xMin;
+		this->xMax	= xMax;
 	}
 	else
 	{
-		m_rect.xMin	= xMax;
-		m_rect.xMax	= xMin;
+		this->xMin	= xMax;
+		this->xMax	= xMin;
 	}
 
 	if( yMin < yMax )
 	{
-		m_rect.yMin	= yMin;
-		m_rect.yMax	= yMax;
+		this->yMin	= yMin;
+		this->yMax	= yMax;
 	}
 	else
 	{
-		m_rect.yMin	= yMax;
-		m_rect.yMax	= yMin;
+		this->yMin	= yMax;
+		this->yMax	= yMin;
 	}
 }
 
 void CSG_Rect::Assign(const CSG_Point &A, const CSG_Point &B)
 {
-	Assign(A.Get_X(), A.Get_Y(), B.Get_X(), B.Get_Y());
+	Assign(A.x, A.y, B.x, B.y);
 }
 
 void CSG_Rect::Assign(const CSG_Rect &Rect)
 {
-	Assign(Rect.Get_XMin(), Rect.Get_YMin(), Rect.Get_XMax(), Rect.Get_YMax());
+	Assign(Rect.xMin, Rect.yMin, Rect.xMax, Rect.yMax);
 }
 
 //---------------------------------------------------------
 void CSG_Rect::Set_BottomLeft(double x, double y)
 {
-	Assign(x, y, m_rect.xMax, m_rect.yMax);
+	Assign(x, y, xMax, yMax);
 }
 
 void CSG_Rect::Set_BottomLeft(const CSG_Point &Point)
 {
-	Set_BottomLeft(Point.Get_X(), Point.Get_Y() );
+	Set_BottomLeft(Point.x, Point.y );
 }
 
 void CSG_Rect::Set_TopRight(double x, double y)
 {
-	Assign(m_rect.xMin, m_rect.yMin, x, y);
+	Assign(xMin, yMin, x, y);
 }
 
 void CSG_Rect::Set_TopRight(const CSG_Point &Point)
 {
-	Set_TopRight(Point.Get_X(), Point.Get_Y() );
+	Set_TopRight(Point.x, Point.y );
 }
 
 //---------------------------------------------------------
 bool CSG_Rect::is_Equal(double xMin, double yMin, double xMax, double yMax, double epsilon) const
 {
-	return(	SG_Is_Equal(m_rect.xMin, xMin, epsilon) && SG_Is_Equal(m_rect.yMin, yMin, epsilon)
-		&&	SG_Is_Equal(m_rect.xMax, xMax, epsilon) && SG_Is_Equal(m_rect.yMax, yMax, epsilon)	);
+	return( SG_Is_Equal(this->xMin, xMin, epsilon) && SG_Is_Equal(this->yMin, yMin, epsilon)
+	     && SG_Is_Equal(this->xMax, xMax, epsilon) && SG_Is_Equal(this->yMax, yMax, epsilon) );
 }
 
 bool CSG_Rect::is_Equal(const CSG_Rect &Rect, double epsilon) const
 {
-	return(	is_Equal(Rect.Get_XMin(), Rect.Get_YMin(), Rect.Get_XMax(), Rect.Get_YMax(), epsilon) );
+	return(	is_Equal(Rect.xMin, Rect.yMin, Rect.xMax, Rect.yMax, epsilon) );
 }
 
 //---------------------------------------------------------
 void CSG_Rect::Move(double dx, double dy)
 {
-	m_rect.xMin	+= dx;
-	m_rect.yMin	+= dy;
-	m_rect.xMax	+= dx;
-	m_rect.yMax	+= dy;
+	xMin += dx; yMin += dy;
+	xMax += dx; yMax += dy;
 }
 
 void CSG_Rect::Move(const CSG_Point &Point)
 {
-	Move(Point.Get_X(), Point.Get_Y());
+	Move(Point.x, Point.y);
 }
 
 //---------------------------------------------------------
@@ -889,13 +607,13 @@ void CSG_Rect::Inflate(double dx, double dy, bool bPercent)
 {
 	if( bPercent )
 	{
-		dx	= (Get_XRange() * 0.01 * dx) / 2.;
-		dy	= (Get_YRange() * 0.01 * dy) / 2.;
+		dx = (Get_XRange() * 0.01 * dx) / 2.;
+		dy = (Get_YRange() * 0.01 * dy) / 2.;
 	}
 
 	Assign(
-		m_rect.xMin - dx, m_rect.yMin - dy,
-		m_rect.xMax + dx, m_rect.yMax + dy
+		xMin - dx, yMin - dy,
+		xMax + dx, yMax + dy
 	);
 }
 
@@ -917,47 +635,17 @@ void CSG_Rect::Deflate(double d, bool bPercent)
 //---------------------------------------------------------
 void CSG_Rect::Union(const CSG_Point &Point)
 {
-	if( m_rect.xMin > Point.Get_X() )
-	{
-		m_rect.xMin	= Point.Get_X();
-	}
-	else if( m_rect.xMax < Point.Get_X() )
-	{
-		m_rect.xMax	= Point.Get_X();
-	}
-
-	if( m_rect.yMin > Point.Get_Y() )
-	{
-		m_rect.yMin	= Point.Get_Y();
-	}
-	else if( m_rect.yMax < Point.Get_Y() )
-	{
-		m_rect.yMax	= Point.Get_Y();
-	}
+	if( xMin > Point.x ) { xMin = Point.x; } else if( xMax < Point.x ) { xMax = Point.x; }
+	if( yMin > Point.y ) { yMin = Point.y; } else if( yMax < Point.y ) { yMax = Point.y; }
 }
 
 //---------------------------------------------------------
 void CSG_Rect::Union(const CSG_Rect &Rect)
 {
-	if( m_rect.xMin > Rect.Get_XMin() )
-	{
-		m_rect.xMin	= Rect.Get_XMin();
-	}
-
-	if( m_rect.yMin > Rect.Get_YMin() )
-	{
-		m_rect.yMin	= Rect.Get_YMin();
-	}
-
-	if( m_rect.xMax < Rect.Get_XMax() )
-	{
-		m_rect.xMax	= Rect.Get_XMax();
-	}
-
-	if( m_rect.yMax < Rect.Get_YMax() )
-	{
-		m_rect.yMax	= Rect.Get_YMax();
-	}
+	if( xMin > Rect.Get_XMin() ) { xMin = Rect.Get_XMin(); }
+	if( yMin > Rect.Get_YMin() ) { yMin = Rect.Get_YMin(); }
+	if( xMax < Rect.Get_XMax() ) { xMax = Rect.Get_XMax(); }
+	if( yMax < Rect.Get_YMax() ) { yMax = Rect.Get_YMax(); }
 }
 
 //---------------------------------------------------------
@@ -973,29 +661,14 @@ bool CSG_Rect::Intersect(const CSG_Rect &Rect)
 		break;
 
 	case INTERSECTION_Contains:
-		m_rect	= Rect.m_rect;
+		(*this)	= Rect;
 		break;
 
 	case INTERSECTION_Overlaps:
-		if( m_rect.xMin < Rect.Get_XMin() )
-		{
-			m_rect.xMin	= Rect.Get_XMin();
-		}
-
-		if( m_rect.yMin < Rect.Get_YMin() )
-		{
-			m_rect.yMin	= Rect.Get_YMin();
-		}
-
-		if( m_rect.xMax > Rect.Get_XMax() )
-		{
-			m_rect.xMax	= Rect.Get_XMax();
-		}
-
-		if( m_rect.yMax > Rect.Get_YMax() )
-		{
-			m_rect.yMax	= Rect.Get_YMax();
-		}
+		if( xMin < Rect.Get_XMin() ) { xMin = Rect.Get_XMin(); }
+		if( yMin < Rect.Get_YMin() ) { yMin = Rect.Get_YMin(); }
+		if( xMax > Rect.Get_XMax() ) { xMax = Rect.Get_XMax(); }
+		if( yMax > Rect.Get_YMax() ) { yMax = Rect.Get_YMax(); }
 		break;
 	}
 
@@ -1005,8 +678,8 @@ bool CSG_Rect::Intersect(const CSG_Rect &Rect)
 //---------------------------------------------------------
 TSG_Intersection CSG_Rect::Intersects(const CSG_Rect &Rect) const
 {
-	if(	m_rect.xMax < Rect.Get_XMin() || Rect.Get_XMax() < m_rect.xMin
-	||	m_rect.yMax < Rect.Get_YMin() || Rect.Get_YMax() < m_rect.yMin )
+	if(	xMax < Rect.Get_XMin() || Rect.Get_XMax() < xMin
+	||	yMax < Rect.Get_YMin() || Rect.Get_YMax() < yMin )
 	{
 		return( INTERSECTION_None );
 	}
@@ -1034,14 +707,12 @@ TSG_Intersection CSG_Rect::Intersects(const CSG_Rect &Rect) const
 //---------------------------------------------------------
 bool CSG_Rect::Contains(double x, double y) const
 {
-	return(	m_rect.xMin <= x && x <= m_rect.xMax
-		&&	m_rect.yMin <= y && y <= m_rect.yMax
-	);
+	return( xMin <= x && x <= xMax && yMin <= y && y <= yMax );
 }
 
 bool CSG_Rect::Contains(const CSG_Point &Point) const
 {
-	return( Contains(Point.Get_X(), Point.Get_Y()) );
+	return( Contains(Point.x, Point.y) );
 }
 
 
@@ -1054,8 +725,8 @@ bool CSG_Rect::Contains(const CSG_Point &Point) const
 //---------------------------------------------------------
 CSG_Rects::CSG_Rects(void)
 {
-	m_nRects	= 0;
-	m_Rects		= NULL;
+	m_nRects = 0;
+	m_Rects  = NULL;
 }
 
 //---------------------------------------------------------
@@ -1077,8 +748,8 @@ void CSG_Rects::Clear(void)
 		SG_Free(m_Rects);
 	}
 
-	m_nRects	= 0;
-	m_Rects		= NULL;
+	m_nRects = 0;
+	m_Rects  = NULL;
 }
 
 //---------------------------------------------------------
@@ -1117,8 +788,8 @@ bool CSG_Rects::Add(double xMin, double yMin, double xMax, double yMax)
 //---------------------------------------------------------
 bool CSG_Rects::Add(const CSG_Rect &Rect)
 {
-	m_Rects				= (CSG_Rect **)SG_Realloc(m_Rects, (m_nRects + 1) * sizeof(CSG_Rect *));
-	m_Rects[m_nRects]	= new CSG_Rect(Rect);
+	m_Rects           = (CSG_Rect **)SG_Realloc(m_Rects, ((uLong)m_nRects + 1) * sizeof(CSG_Rect *));
+	m_Rects[m_nRects] = new CSG_Rect(Rect);
 	m_nRects++;
 
 	return( true );
@@ -1134,12 +805,12 @@ bool CSG_Rects::Add(const CSG_Rect &Rect)
 //---------------------------------------------------------
 CSG_Distance_Weighting::CSG_Distance_Weighting(void)
 {
-	m_Weighting		= SG_DISTWGHT_None;
+	m_Weighting   = SG_DISTWGHT_None;
 
-	m_IDW_Power		= 2.;
-	m_IDW_bOffset	= true;
+	m_IDW_Power   = 2.;
+	m_IDW_bOffset = true;
 
-	m_Bandwidth		= 1.;
+	m_Bandwidth   = 1.;
 }
 
 //---------------------------------------------------------

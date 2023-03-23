@@ -135,7 +135,7 @@ bool CGSPoints_Variogram_Surface::On_Execute(void)
 
 		if( !pPoint->is_NoData(Field) )
 		{
-			TSG_Point pi = pPoint->Get_Point(0);
+			TSG_Point pi = pPoint->Get_Point();
 			double    zi = pPoint->asDouble(Field);
 
 			for(sLong j=i+nSkip; j<pPoints->Get_Count(); j+=nSkip, n++)
@@ -144,7 +144,7 @@ bool CGSPoints_Variogram_Surface::On_Execute(void)
 
 				if( !pPoint->is_NoData(Field) )
 				{
-					TSG_Point pj = pPoint->Get_Point(0);
+					TSG_Point pj = pPoint->Get_Point();
 					double    zj = pPoint->asDouble(Field);
 
 					double v = SG_Get_Square(zi - zj);

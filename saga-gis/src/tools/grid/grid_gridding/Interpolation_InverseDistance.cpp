@@ -193,7 +193,7 @@ bool CInterpolation_InverseDistance::Get_Value(double x, double y, double &Value
 
 			if( !pPoint->is_NoData(Field) )
 			{
-				double d = Get_Distance(x, y, pPoint->Get_Point(0));
+				double d = Get_Distance(x, y, pPoint->Get_Point());
 
 				if( d > 0. )
 				{
@@ -207,7 +207,7 @@ bool CInterpolation_InverseDistance::Get_Value(double x, double y, double &Value
 					{
 						pPoint = pPoints->Get_Shape(i);
 
-						if( !pPoint->is_NoData(Field) && is_Identical(x, y, pPoint->Get_Point(0)) )
+						if( !pPoint->is_NoData(Field) && is_Identical(x, y, pPoint->Get_Point()) )
 						{
 							s += pPoint->asDouble(Field);
 						}

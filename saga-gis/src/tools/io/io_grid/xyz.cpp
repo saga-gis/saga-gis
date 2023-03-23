@@ -413,7 +413,7 @@ bool CXYZ_Import::On_Execute(void)
 	{
 		Cellsize	= Extent.Get_XRange() / (1. + sqrt(Points.Get_Count() * Extent.Get_XRange() / Extent.Get_YRange()));
 
-		double	d	= fabs(Points.Get_Point(0).x - Points.Get_Point(1).x); if( d > 0. && d < Cellsize ) { Cellsize	= d; }
+		double	d	= fabs(Points.Get_Point().x - Points.Get_Point(1).x); if( d > 0. && d < Cellsize ) { Cellsize	= d; }
 
 		CSG_Parameters	P;	P.Add_Double("", "CELLSIZE", _TL("Cellsize"), _TL(""), Cellsize, 0., true);
 
@@ -484,7 +484,7 @@ bool CXYZ_Import::On_Execute(void)
 
 	for(sLong i=0; i<Points.Get_Count() && Set_Progress(i, Points.Get_Count()); i++)
 	{
-		int	x, y;	CSG_Point_Z	p(Points.Get_Point(i));
+		int	x, y;	CSG_Point_3D	p(Points.Get_Point(i));
 
 		if( pGrid->Get_System().Get_World_to_Grid(x, y, p.x, p.y) )
 		{

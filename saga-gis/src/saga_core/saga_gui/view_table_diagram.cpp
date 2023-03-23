@@ -456,7 +456,7 @@ bool CVIEW_Table_Diagram_Control::_Create(void)
 		{
 			m_xField = -1;
 			m_xMin   = 1;
-			m_xMax   = m_pTable->Get_Count();
+			m_xMax   = (double)m_pTable->Get_Count();
 		}
 		else
 		{
@@ -981,17 +981,17 @@ void CVIEW_Table_Diagram_Control::_Draw_Frame(wxDC &dc, wxRect r, double dx, dou
 
 		if( iLabel < 0 || iLabel >= m_pTable->Get_Field_Count() )
 		{
-			Draw_Scale(dc, wxRect(r.GetLeft(), r.GetBottom(), r.GetWidth(), 20), 1, m_pTable->Get_Count(),
+			Draw_Scale(dc, wxRect(r.GetLeft(), r.GetBottom(), r.GetWidth(), 20), 1, (double)m_pTable->Get_Count(),
 				SCALE_HORIZONTAL , SCALE_TICK_TOP , SCALE_STYLE_DEFAULT, "", true
 			);
 		}
 		else
 		{
-			int	iStep	= dx > dyFont ? 1 : (int)(1 + (10 + dyFont) / dx);
+			int iStep = dx > dyFont ? 1 : (int)(1 + (10 + dyFont) / dx);
 
-			for(int iRecord=0; iRecord<m_pTable->Get_Count(); iRecord+=iStep)
+			for(sLong iRecord=0; iRecord<m_pTable->Get_Count(); iRecord+=iStep)
 			{
-				int	ix	= r.GetLeft() + (int)(dx * iRecord);
+				int ix = r.GetLeft() + (int)(dx * iRecord);
 
 				dc.DrawLine(ix, r.GetBottom(), ix, r.GetBottom() + 5);
 
@@ -1055,7 +1055,7 @@ void CVIEW_Table_Diagram_Control::_Draw_Points(wxDC &dc, wxRect r, double dx, do
 		dc.SetPen  (wxPen  (bOutline ? *wxBLACK : Get_Color_asWX(m_Colors.Get_Color(iField))));
 		dc.SetBrush(wxBrush(                      Get_Color_asWX(m_Colors.Get_Color(iField))));
 
-		for(int iRecord=0; iRecord<m_pTable->Get_Count(); iRecord++)
+		for(sLong iRecord=0; iRecord<m_pTable->Get_Count(); iRecord++)
 		{
 			CSG_Table_Record *pRecord = _Get_Record(iRecord);
 
@@ -1072,25 +1072,24 @@ void CVIEW_Table_Diagram_Control::_Draw_Points(wxDC &dc, wxRect r, double dx, do
 			dc.SetPen(wxPen(Get_Color_asWX(m_Colors.Get_Color(iField))));
 		}
 
-		CSG_Colors	*pColors	= m_Parameters("POINTS_COLORS")->asColors();
-		double		zMin		= m_pTable->Get_Minimum(zField);
-		double		dz			= pColors->Get_Count() / m_pTable->Get_Range(zField);
+		CSG_Colors &Colors = *m_Parameters("POINTS_COLORS")->asColors();
 
-		for(int iRecord=0; iRecord<m_pTable->Get_Count(); iRecord++)
+		double zMin = m_pTable->Get_Minimum(zField), zScale = Colors.Get_Count() / m_pTable->Get_Range(zField);
+
+		for(sLong iRecord=0; iRecord<m_pTable->Get_Count(); iRecord++)
 		{
 			CSG_Table_Record *pRecord = _Get_Record(iRecord);
 
 			if( !pRecord->is_NoData(iField) && (m_pTable->Get_Selection_Count() < 1 || pRecord->is_Selected()) )
 			{
-				int			iz	= (int)(dz * (pRecord->asDouble(zField) - zMin));
-				wxColour	ic	= Get_Color_asWX(pColors->Get_Color(iz < 0 ? 0 : (iz >= 255 ? 255 : iz)));
+				wxColour Color = Get_Color_asWX(Colors[(int)((pRecord->asDouble(zField) - zMin) * zScale)]);
 
 				if( !bOutline )
 				{
-					dc.SetPen(wxPen(ic));
+					dc.SetPen(wxPen(Color));
 				}
 
-				dc.SetBrush(wxBrush(ic));
+				dc.SetBrush(wxBrush(Color));
 
 				dc.DrawCircle(DRAW_GET_XPOS, DRAW_GET_YPOS, Size);
 			}
@@ -1103,34 +1102,27 @@ void CVIEW_Table_Diagram_Control::_Draw_Lines(wxDC &dc, wxRect r, double dx, dou
 {
 	if( m_pTable->Get_Count() > 1 )
 	{
-		iField	= m_Fields[iField];
+		iField = m_Fields[iField];
 
-		int Size = m_Parameters("LINES_SIZE")->asInt();
+		int Size = m_Parameters("LINES_SIZE")->asInt(), xLast = 0, yLast = 0; bool bLast = false;
 
 		dc.SetPen  (wxPen  (Get_Color_asWX(m_Colors.Get_Color(iField)), Size, wxPENSTYLE_SOLID));
 		dc.SetBrush(wxBrush(Get_Color_asWX(m_Colors.Get_Color(iField)), wxBRUSHSTYLE_SOLID));
 
-		for(int iRecord=0, bLast=0, xLast, yLast; iRecord<m_pTable->Get_Count(); iRecord++)
+		for(sLong iRecord=0; iRecord<m_pTable->Get_Count(); iRecord++)
 		{
 			CSG_Table_Record *pRecord = _Get_Record(iRecord);
 
-			if( !pRecord->is_NoData(iField) && (m_pTable->Get_Selection_Count() < 1 || pRecord->is_Selected()) )
+			if( (bLast = !pRecord->is_NoData(iField) && (m_pTable->Get_Selection_Count() < 1 || pRecord->is_Selected())) == true )
 			{
-				int	x	= DRAW_GET_XPOS;
-				int	y	= DRAW_GET_YPOS;
+				int x = DRAW_GET_XPOS, y = DRAW_GET_YPOS;
 
 				if( bLast )
 				{
 					dc.DrawLine(xLast, yLast, x, y);
 				}
 
-				xLast	= x;
-				yLast	= y;
-				bLast	= 1;
-			}
-			else
-			{
-				bLast	= 0;
+				xLast = x; yLast = y;
 			}
 		}
 	}
@@ -1148,14 +1140,13 @@ void CVIEW_Table_Diagram_Control::_Draw_Bars(wxDC &dc, wxRect r, double dx, doub
 
 	dc.SetPen(wxPen(Get_Color_asWX(m_Colors.Get_Color(iField)), 1, wxPENSTYLE_SOLID));
 
-	for(int iRecord=0; iRecord<m_pTable->Get_Count(); iRecord++)
+	for(sLong iRecord=0; iRecord<m_pTable->Get_Count(); iRecord++)
 	{
 		CSG_Table_Record *pRecord = _Get_Record(iRecord);
 
 		if( !pRecord->is_NoData(iField) && (m_pTable->Get_Selection_Count() < 1 || pRecord->is_Selected()) )
 		{
-			int	x	= DRAW_GET_XPOS + dxa;
-			int	y	= DRAW_GET_YPOS;
+			int x = DRAW_GET_XPOS + dxa, y = DRAW_GET_YPOS;
 
 			for(int xb=x+dxb; x<=xb; x++)
 			{

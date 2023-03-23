@@ -587,7 +587,7 @@ bool CSoilWater_Glugla_Table::On_Execute(void)
 	{
 		CSG_Table &Layers = *Parameters("SOIL_LAYERS")->asTable();
 
-		for(int i=0; i<Layers.Get_Count(); i++)
+		for(int i=0; i<(int)Layers.Get_Count(); i++)
 		{
 			Model.Add_Layer(
 				Layers[i].asDouble("Size"   ) * 10., // [cm] -> [mm]
@@ -1203,7 +1203,7 @@ bool CSoilWater_Glugla_Grid::On_Execute(void)
 
 	CSG_Table	&Layers	= *Parameters("SOIL_LAYERS")->asTable();
 
-	for(int i=0; i<Layers.Get_Count(); i++)
+	for(int i=0; i<(int)Layers.Get_Count(); i++)
 	{
 		Model.Add_Layer(
 			Layers[i].asDouble("Size"   ) * 10.,	// [cm] -> [mm]

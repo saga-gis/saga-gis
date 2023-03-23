@@ -170,7 +170,7 @@ bool CDistanceMatrix::On_Execute(void)
 
 		for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 		{
-			TSG_Point	Point	= pPoints->Get_Shape(iPoint)->Get_Point(0);
+			TSG_Point	Point	= pPoints->Get_Shape(iPoint)->Get_Point();
 
 			CSG_Table_Record	*pRecord	= pDistances->Add_Record();
 
@@ -178,7 +178,7 @@ bool CDistanceMatrix::On_Execute(void)
 
 			for(sLong iNear=0; iNear<pNear->Get_Count(); iNear++)
 			{
-				pRecord->Set_Value(1 + iNear, SG_Get_Distance(Point, pNear->Get_Shape(iNear)->Get_Point(0)));
+				pRecord->Set_Value(1 + iNear, SG_Get_Distance(Point, pNear->Get_Shape(iNear)->Get_Point()));
 			}
 		}
 		break; }
@@ -196,13 +196,13 @@ bool CDistanceMatrix::On_Execute(void)
 
 		for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 		{
-			TSG_Point	Point	= pPoints->Get_Shape(iPoint)->Get_Point(0);
+			TSG_Point	Point	= pPoints->Get_Shape(iPoint)->Get_Point();
 
 			for(sLong iNear=0; iNear<pNear->Get_Count(); iNear++)
 			{
 				if( pPoints != pNear || iPoint != iNear )
 				{
-					double	Distance	= SG_Get_Distance(Point, pNear->Get_Shape(iNear)->Get_Point(0));
+					double	Distance	= SG_Get_Distance(Point, pNear->Get_Shape(iNear)->Get_Point());
 
 					if( Distance <= max_Dist || max_Dist <= 0. )
 					{
@@ -217,7 +217,7 @@ bool CDistanceMatrix::On_Execute(void)
 							CSG_Shape	*pLine	= pLines->Add_Shape(pRecord, SHAPE_COPY_ATTR);
 
 							pLine->Add_Point(Point);
-							pLine->Add_Point(pNear->Get_Shape(iNear)->Get_Point(0));
+							pLine->Add_Point(pNear->Get_Shape(iNear)->Get_Point());
 						}
 					}
 				}
@@ -238,7 +238,7 @@ bool CDistanceMatrix::On_Execute(void)
 
 		for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 		{
-			TSG_Point	Point	= pPoints->Get_Shape(iPoint)->Get_Point(0), Point_Near;
+			TSG_Point	Point	= pPoints->Get_Shape(iPoint)->Get_Point(), Point_Near;
 
 			CSG_Table_Record	*pRecord	= NULL;
 
@@ -246,7 +246,7 @@ bool CDistanceMatrix::On_Execute(void)
 			{
 				if( pPoints != pNear || iPoint != iNear )
 				{
-					double	Distance	= SG_Get_Distance(Point, pNear->Get_Shape(iNear)->Get_Point(0));
+					double	Distance	= SG_Get_Distance(Point, pNear->Get_Shape(iNear)->Get_Point());
 
 					if( !pRecord || Distance < max_Dist )
 					{
@@ -262,7 +262,7 @@ bool CDistanceMatrix::On_Execute(void)
 
 						max_Dist	= Distance;
 
-						Point_Near	= pNear->Get_Shape(iNear)->Get_Point(0);
+						Point_Near	= pNear->Get_Shape(iNear)->Get_Point();
 					}
 				}
 			}

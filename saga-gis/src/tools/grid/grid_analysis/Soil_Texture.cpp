@@ -151,7 +151,7 @@ public:
 	}
 
 	//-----------------------------------------------------
-	int						Get_Count		(void)	const	{	return( m_Classes.Get_Count() );	}
+	int						Get_Count		(void)	const	{	return( (int)m_Classes.Get_Count() );	}
 
 	int						Get_ID			(int i)	const	{	return( i >= 0 && i < Get_Count() ? m_Classes[i].asInt   (0) :        0 );	}
 	int						Get_Color		(int i)	const	{	return( i >= 0 && i < Get_Count() ? m_Classes[i].asInt   (1) :        0 );	}
@@ -167,17 +167,17 @@ public:
 
 		pPolygons->Create(m_Classes);
 
-		for(int i=0; (Axes!=0 || bIsosceles) && i<pPolygons->Get_Count(); i++)
+		for(sLong i=0; (Axes!=0 || bIsosceles) && i<pPolygons->Get_Count(); i++)
 		{
-			CSG_Shape	*pPolygon	= pPolygons->Get_Shape(i);
+			CSG_Shape *pPolygon = pPolygons->Get_Shape(i);
 
 			for(int iPoint=0; iPoint<pPolygon->Get_Point_Count(0); iPoint++)
 			{
-				TSG_Point	p	= pPolygon->Get_Point(iPoint);
+				TSG_Point p = pPolygon->Get_Point(iPoint);
 
-				double	Sand	= p.x;
-				double	Silt	= 100 - (p.x + p.y);
-				double	Clay	= p.y;
+				double Sand = p.x;
+				double Silt = 100 - (p.x + p.y);
+				double Clay = p.y;
 
 				switch( Axes )
 				{
@@ -191,8 +191,8 @@ public:
 
 				if( bIsosceles )
 				{
-					p.x	+= 0.5 * p.y;
-					p.y	*= 0.8660254038;	// sqrt(100*100 - 50*50) / 100.
+					p.x += 0.5 * p.y;
+					p.y *= 0.8660254038; // sqrt(100*100 - 50*50) / 100.
 				}
 
 				pPolygon->Set_Point(p, iPoint, 0);
@@ -219,18 +219,18 @@ public:
 
 		for(int i=0; ; i++)
 		{
-			const CSG_String	*Class;
+			const CSG_String *Class;
 
 			switch( Definition )
 			{
-			case  0: Class = Definition_USDA   [i]; break;
+			default: Class = Definition_USDA   [i]; break;
 			case  1: Class = Definition_KA5    [i]; break;
 			case  2: Class = Definition_Belgium[i]; break;
 			}
 
-			if( Class[1].is_Empty() )	{	break;	}	else
+			if( Class[1].is_Empty() ) { break; } else
 			{
-				CSG_Table_Record	*pClass	= Classes.Add_Record();
+				CSG_Table_Record *pClass = Classes.Add_Record();
 
 				pClass->Set_Value(0, Class[0]);
 				pClass->Set_Value(1, Class[1]);
@@ -245,7 +245,7 @@ public:
 	//-----------------------------------------------------
 	bool	Initialize	(int Definition, int Colors_Default)
 	{
-		CSG_Table	Classes;	return( Get_Table(Classes, Definition) && Initialize(Classes, Colors_Default) );
+		CSG_Table Classes; return( Get_Table(Classes, Definition) && Initialize(Classes, Colors_Default) );
 	}
 
 	//-----------------------------------------------------
@@ -259,9 +259,9 @@ public:
 		m_Classes.Add_Field("NAME" , SG_DATATYPE_String);
 
 		//-------------------------------------------------
-		for(int i=0; i<Classes.Get_Count(); i++)
+		for(int i=0; i<(int)Classes.Get_Count(); i++)
 		{
-			CSG_String_Tokenizer	Items(Classes[i].asString(3), ",");
+			CSG_String_Tokenizer Items(Classes[i].asString(3), ",");
 
 			if( Items.Get_Tokens_Count() >= 3 )
 			{
@@ -351,7 +351,7 @@ public:
 
 		for(int i=0; i<Get_Count(); i++)
 		{
-			CSG_Table_Record	*pClass	= pClasses->Get_Record(i);
+			CSG_Table_Record *pClass = pClasses->Get_Record(i);
 
 			pClasses->Set_Value(i, 0, Get_Color(i));
 			pClasses->Set_Value(i, 1, Get_Key  (i));
@@ -385,15 +385,15 @@ private: //////////////////////////////////////////////////
 
 		if( Sand + Clay >= 99.99 )
 		{
-			double	Sum	= 99.99 / (Sand + Clay);
+			double Sum	= 99.99 / (Sand + Clay);
 
-			Sand	*= Sum;
-			Clay	*= Sum;
+			Sand *= Sum;
+			Clay *= Sum;
 		}
 
 		for(int i=0; i<Get_Count(); i++)
 		{
-			if( ((CSG_Shape_Polygon *)m_Classes.Get_Shape(i))->Contains(Sand, Clay) )
+			if( m_Classes.Get_Shape(i)->asPolygon()->Contains(Sand, Clay) )
 			{
 				return( i );
 			}
@@ -828,7 +828,7 @@ bool CSoil_Texture_Table::On_Execute(void)
 	//-----------------------------------------------------
 	for(sLong i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
 	{
-		CSG_Table_Record	*pRecord	= pTable->Get_Record(i);
+		CSG_Table_Record *pRecord = pTable->Get_Record(i);
 
 		if(	(iSand >= 0 && pRecord->is_NoData(iSand))
 		||	(iSilt >= 0 && pRecord->is_NoData(iSilt))
@@ -838,22 +838,20 @@ bool CSoil_Texture_Table::On_Execute(void)
 		}
 		else
 		{
-			double	Sum;
-
-			int		Class	= Classifier.Get_Texture(
+			double Sum; int Class = Classifier.Get_Texture(
 				iSand >= 0 ? pRecord->asDouble(iSand) : -1.0,
 				iSilt >= 0 ? pRecord->asDouble(iSilt) : -1.0,
 				iClay >= 0 ? pRecord->asDouble(iClay) : -1.0, Sum
 			);
 
-			pRecord->Set_Value (iTexture, Classifier.Get_Key(Class));
+			pRecord->Set_Value(iTexture, Classifier.Get_Key(Class));
 		}
 	}
 
 	DataObject_Update(pTable);
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(pTable, "LUT");
+	CSG_Parameter *pLUT = DataObject_Get_Parameter(pTable, "LUT");
 
 	if( pLUT && pLUT->asTable() )
 	{

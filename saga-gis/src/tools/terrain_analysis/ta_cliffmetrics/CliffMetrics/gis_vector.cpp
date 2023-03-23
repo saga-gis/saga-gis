@@ -794,7 +794,7 @@ int CDelineation::nReadVectorCoastlineData(CSG_Shapes *pShapes)
 
 	for(sLong i=0; i<pShapes->Get_Count(); i++)
 	{
-		CSG_Point	Point	= pShapes->Get_Shape(i)->Get_Point(0);
+		CSG_Point	Point	= pShapes->Get_Shape(i)->Get_Point();
 
 		m_VUserCoast[nCoast].AppendToCoastline(Point.x, Point.y);
 	}

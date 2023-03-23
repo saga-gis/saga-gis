@@ -152,7 +152,7 @@ bool CSelect_3D_Points::On_Execute(void)
 	{
 		int	x, y;	CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
 
-		if( Get_System().Get_World_to_Grid(x, y, pPoint->Get_Point(0))
+		if( Get_System().Get_World_to_Grid(x, y, pPoint->Get_Point())
 		&&  !pLower->is_NoData(x, y) && !pUpper->is_NoData(x, y) )
 		{
 			double	z	= pPoint->Get_Z(0);

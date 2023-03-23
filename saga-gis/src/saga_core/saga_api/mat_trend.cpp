@@ -216,9 +216,9 @@ void CSG_Trend::Set_Data(const CSG_Points &Data, bool bAdd)
 		Clr_Data();
 	}
 
-	for(int i=0; i<Data.Get_Count(); i++)
+	for(sLong i=0; i<Data.Get_Count(); i++)
 	{
-		Add_Data(Data.Get_X(i), Data.Get_Y(i));
+		Add_Data(Data[i].x, Data[i].y);
 	}
 }
 
@@ -825,8 +825,8 @@ bool CSG_Trend_Polynom::Get_Trend(void)
 	CSG_Matrix	X, Xt, C;
 
 	//-----------------------------------------------------
-	X .Create(m_Order + 1, m_y.Get_N());
-	Xt.Create(m_y.Get_N(), m_Order + 1);
+	X .Create((sLong)m_Order + 1, m_y.Get_Size());
+	Xt.Create(m_y.Get_Size(), (uLong)m_Order + 1);
 
 	for(i=0, Ym=0.; i<m_y.Get_N(); i++)
 	{

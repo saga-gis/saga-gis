@@ -146,14 +146,14 @@ bool CWKSP_Map_Extents::Add_Extent(const CSG_Rect &Extent, bool bReset)
 	{
 		if( bReset )
 		{
-			m_iExtent	= -1;
-			m_nExtents	= 0;
+			m_iExtent  = -1;
+			m_nExtents = 0;
 		}
 
 		if( Extent != Get_Extent() )
 		{
-			m_iExtent	++;
-			m_nExtents	= m_iExtent + 1;
+			m_iExtent++;
+			m_nExtents = m_iExtent + 1;
 
 			if( m_nExtents > Get_Count() )
 			{
@@ -161,7 +161,7 @@ bool CWKSP_Map_Extents::Add_Extent(const CSG_Rect &Extent, bool bReset)
 			}
 			else
 			{
-				Get_Rect(m_iExtent)	= Extent;
+				Get_Rect(m_iExtent) = Extent;
 			}
 
 			return( true );
@@ -1077,14 +1077,14 @@ bool CWKSP_Map::Set_Extent(const CSG_Rect &_Extent, bool bReset, bool bPan)
 
 	if( Extent.Get_XRange() == 0. )
 	{
-		Extent.m_rect.xMin	-= 1.;
-		Extent.m_rect.xMax	+= 1.;
+		Extent.xMin	-= 1.;
+		Extent.xMax	+= 1.;
 	}
 
 	if( Extent.Get_YRange() == 0. )
 	{
-		Extent.m_rect.yMin	-= 1.;
-		Extent.m_rect.yMax	+= 1.;
+		Extent.yMin	-= 1.;
+		Extent.yMax	+= 1.;
 	}
 
 	if( bPan )
@@ -1122,13 +1122,13 @@ bool CWKSP_Map::Set_Extent(const CSG_Rect &Extent, const CSG_Projection &Project
 //---------------------------------------------------------
 bool CWKSP_Map::Set_Extent_Full(void)
 {
-	CSG_Rect	Extent;
+	CSG_Rect Extent;
 
 	for(int i=0, n=0; i<Get_Count(); i++)
 	{
 		if( Get_Item(i)->Get_Type() == WKSP_ITEM_Map_Layer )
 		{
-			CWKSP_Map_Layer	*pLayer	= (CWKSP_Map_Layer *)Get_Item(i);
+			CWKSP_Map_Layer *pLayer = (CWKSP_Map_Layer *)Get_Item(i);
 
 			if( n++ == 0 )
 			{
@@ -1386,7 +1386,7 @@ void CWKSP_Map::Set_Projection(void)
 
 				CSG_Rect	r(Get_Extent());
 
-				SG_Get_Projected(m_Projection, Projection, r.m_rect);
+				SG_Get_Projected(m_Projection, Projection, r);
 
 				Set_Extent(r, true);
 			}
@@ -1519,28 +1519,25 @@ void CWKSP_Map::View_Layout_Toggle(void)
 //---------------------------------------------------------
 CSG_Rect CWKSP_Map::Get_World(wxRect rClient)
 {
-	double		d, dWorld, dClient;
-	TSG_Rect	Extent;
+	CSG_Rect Extent(Get_Extent());
 
-	Extent	= Get_Extent().m_rect;
-
-	dClient	= (double)rClient.GetHeight() / (double)rClient.GetWidth();
-	dWorld	= Get_Extent().Get_YRange() / Get_Extent().Get_XRange();
+	double dClient = (double)rClient.GetHeight() / (double)rClient.GetWidth();
+	double dWorld  = Get_Extent().Get_YRange() / Get_Extent().Get_XRange();
 
 	if( dWorld > dClient )
 	{
-		d			= (Get_Extent().Get_XRange() - Get_Extent().Get_YRange() / dClient) / 2.;
-		Extent.xMin	+= d;
-		Extent.xMax	-= d;
+		double d = (Get_Extent().Get_XRange() - Get_Extent().Get_YRange() / dClient) / 2.;
+		Extent.xMin += d;
+		Extent.xMax -= d;
 	}
 	else
 	{
-		d			= (Get_Extent().Get_YRange() - Get_Extent().Get_XRange() * dClient) / 2.;
-		Extent.yMin	+= d;
-		Extent.yMax	-= d;
+		double d = (Get_Extent().Get_YRange() - Get_Extent().Get_XRange() * dClient) / 2.;
+		Extent.yMin += d;
+		Extent.yMax -= d;
 	}
 
-	return( CSG_Rect(Extent) );
+	return( Extent );
 }
 
 //---------------------------------------------------------

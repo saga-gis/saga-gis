@@ -86,7 +86,7 @@ private:
 
 	double					m_Epsilon;
 
-	CSG_Points_Z			m_Points;
+	CSG_Points_3D			m_Points;
 
 
 	bool					_Set_MBA				(double dCell);

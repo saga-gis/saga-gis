@@ -124,8 +124,8 @@ bool CCRS_Grid_GeogCoords::On_Execute(void)
 
 			if( Projector.Get_Projection(p) )
 			{
-				pLon->Set_Value(x, y, p.Get_X());
-				pLat->Set_Value(x, y, p.Get_Y());
+				pLon->Set_Value(x, y, p.x);
+				pLat->Set_Value(x, y, p.y);
 			}
 			else
 			{

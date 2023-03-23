@@ -952,7 +952,7 @@ TSG_Rect CWKSP_Grid::Edit_Get_Extent(void)
 		);
 	}
 
-	return( Get_Grid()->Get_Extent().m_rect );
+	return( Get_Grid()->Get_Extent() );
 }
 
 //---------------------------------------------------------

@@ -243,7 +243,7 @@ bool CGrid_Statistics_For_Points::On_Execute(void)
 
 			int	iField	= offField + iGrid * nFields;
 
-			if( !Get_Statistics(pPoint->Get_Point(0), pGrids->Get_Grid(iGrid), Statistics) )
+			if( !Get_Statistics(pPoint->Get_Point(), pGrids->Get_Grid(iGrid), Statistics) )
 			{
 				if( fCOUNT    >= 0 )	pPoint->Set_NoData(iField + fCOUNT );
 				if( fMIN      >= 0 )	pPoint->Set_NoData(iField + fMIN   );

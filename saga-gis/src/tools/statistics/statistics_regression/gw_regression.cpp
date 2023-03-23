@@ -234,7 +234,7 @@ bool CGW_Regression::Get_Model(int x, int y, CSG_Regression_Weighted &Model, boo
 
 			if( !pPoint->is_NoData(m_iDependent) && !pPoint->is_NoData(m_iPredictor) )
 			{
-				Model.Add_Sample(m_Weighting.Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point(0))),
+				Model.Add_Sample(m_Weighting.Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point())),
 					pPoint->asDouble(m_iDependent), CSG_Vector(1, &(Value = pPoint->asDouble(m_iPredictor)))
 				);
 			}

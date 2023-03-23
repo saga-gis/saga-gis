@@ -104,7 +104,7 @@ bool CSG_Shape_Points::On_Assign(CSG_Shape *pShape)
 
 	if( pShape->Get_Type() == SHAPE_TYPE_Point )	// just in case...
 	{
-		Add_Point(pShape->Get_Point(0), 0);
+		Add_Point(pShape->Get_Point());
 
 		switch( Vertex_Type )
 		{
@@ -132,7 +132,7 @@ bool CSG_Shape_Points::On_Assign(CSG_Shape *pShape)
 //---------------------------------------------------------
 int CSG_Shape_Points::_Add_Part(void)
 {
-	m_pParts = (CSG_Shape_Part **)SG_Realloc(m_pParts, (m_nParts + 1) * sizeof(CSG_Shape_Part *));
+	m_pParts = (CSG_Shape_Part **)SG_Realloc(m_pParts, ((uLong)m_nParts + 1) * sizeof(CSG_Shape_Part *));
 
 	m_pParts[m_nParts++] = _Get_Part();
 
@@ -205,7 +205,7 @@ int CSG_Shape_Points::Ins_Point(double x, double y, int iPoint, int iPart)
 }
 
 //---------------------------------------------------------
-int CSG_Shape_Points::Ins_Point(const CSG_Point_Z &p, int iPoint, int iPart)
+int CSG_Shape_Points::Ins_Point(const CSG_Point_3D &p, int iPoint, int iPart)
 {
 	if( Ins_Point(p.x, p.y, iPoint, iPart) )
 	{
@@ -218,7 +218,7 @@ int CSG_Shape_Points::Ins_Point(const CSG_Point_Z &p, int iPoint, int iPart)
 }
 
 //---------------------------------------------------------
-int CSG_Shape_Points::Ins_Point(const CSG_Point_ZM &p, int iPoint, int iPart)
+int CSG_Shape_Points::Ins_Point(const CSG_Point_4D &p, int iPoint, int iPart)
 {
 	if( Ins_Point(p.x, p.y, iPoint, iPart) )
 	{
@@ -243,7 +243,7 @@ int CSG_Shape_Points::Set_Point(double x, double y, int iPoint, int iPart)
 }
 
 //---------------------------------------------------------
-int CSG_Shape_Points::Set_Point(const CSG_Point_Z &p, int iPoint, int iPart)
+int CSG_Shape_Points::Set_Point(const CSG_Point_3D &p, int iPoint, int iPart)
 {
 	if( Set_Point(p.x, p.y, iPoint, iPart) )
 	{
@@ -256,7 +256,7 @@ int CSG_Shape_Points::Set_Point(const CSG_Point_Z &p, int iPoint, int iPart)
 }
 
 //---------------------------------------------------------
-int CSG_Shape_Points::Set_Point(const CSG_Point_ZM &p, int iPoint, int iPart)
+int CSG_Shape_Points::Set_Point(const CSG_Point_4D &p, int iPoint, int iPart)
 {
 	if( Set_Point(p.x, p.y, iPoint, iPart) )
 	{
@@ -296,7 +296,7 @@ TSG_Point CSG_Shape_Points::Get_Point(int iPoint) const
 		}
 	}
 
-	return( CSG_Point(0., 0.) );
+	return( (TSG_Point)CSG_Point(0., 0.) );
 }
 
 
@@ -364,17 +364,17 @@ TSG_Point CSG_Shape_Points::Get_Centroid(void)
 	{
 		for(int iPoint=0; iPoint<Get_Point_Count(iPart); iPoint++)
 		{
-			c	+= Get_Point(iPoint, iPart);
-			n	++;
+			c += Get_Point(iPoint, iPart);
+			n ++;
 		}
 	}
 
 	if( n > 0 )
 	{
-		c.Assign(c.Get_X() / n, c.Get_Y() / n);
+		c.Assign(c.x / n, c.y / n);
 	}
 
-	return( c );
+	return( (TSG_Point)c );
 }
 
 

@@ -100,8 +100,8 @@ public:
 	bool					Get_Projection				(CSG_Point &Point)		const;
 
 	bool					Get_Projection				(double &x, double &y, double &z)	const;
-	bool					Get_Projection				(TSG_Point_Z &Point)				const;
-	bool					Get_Projection				(CSG_Point_Z &Point)				const;
+	bool					Get_Projection				(TSG_Point_3D &Point)				const;
+	bool					Get_Projection				(CSG_Point_3D &Point)				const;
 
 
 private:

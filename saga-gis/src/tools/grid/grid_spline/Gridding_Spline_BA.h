@@ -82,7 +82,7 @@ protected:
 
 private:
 
-	CSG_Points_Z			m_Points;
+	CSG_Points_3D			m_Points;
 
 
 	double					BA_Get_B		(int i, double d)	const;

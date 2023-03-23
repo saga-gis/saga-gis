@@ -105,7 +105,7 @@ bool CInterpolation_Triangulation::Interpolate(void)
 
 		if( m_pGrid->Get_Extent().Intersects(pTriangle->Get_Extent()) != INTERSECTION_None )
 		{
-			TSG_Point_Z	p[3];
+			TSG_Point_3D	p[3];
 
 			for(int iPoint=0; iPoint<3; iPoint++)
 			{
@@ -200,12 +200,12 @@ bool CInterpolation_Triangulation::Get_TIN(CSG_TIN &TIN)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CInterpolation_Triangulation::Set_Triangle(TSG_Point_Z p[3])
+void CInterpolation_Triangulation::Set_Triangle(TSG_Point_3D p[3])
 {
 	//-----------------------------------------------------
-	if( p[1].y < p[0].y ) {	TSG_Point_Z pp = p[1]; p[1] = p[0]; p[0] = pp;	}
-	if( p[2].y < p[0].y ) {	TSG_Point_Z pp = p[2]; p[2] = p[0]; p[0] = pp;	}
-	if( p[2].y < p[1].y ) {	TSG_Point_Z pp = p[2]; p[2] = p[1]; p[1] = pp;	}
+	if( p[1].y < p[0].y ) {	TSG_Point_3D pp = p[1]; p[1] = p[0]; p[0] = pp;	}
+	if( p[2].y < p[0].y ) {	TSG_Point_3D pp = p[2]; p[2] = p[0]; p[0] = pp;	}
+	if( p[2].y < p[1].y ) {	TSG_Point_3D pp = p[2]; p[2] = p[1]; p[1] = pp;	}
 
 	//-----------------------------------------------------
 	TSG_Rect	r;
@@ -227,7 +227,7 @@ void CInterpolation_Triangulation::Set_Triangle(TSG_Point_Z p[3])
 	}
 
 	//-----------------------------------------------------
-	TSG_Point_Z	d[3];
+	TSG_Point_3D	d[3];
 
 	if( (d[0].y	= p[2].y - p[0].y) != 0.0 )
 	{

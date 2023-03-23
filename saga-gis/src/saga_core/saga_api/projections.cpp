@@ -919,9 +919,9 @@ CSG_Projection CSG_Projections::Get_UTM_WGS84(int Zone, bool bSouth)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSG_Projections::Get_Count(void) const
+sLong CSG_Projections::Get_Count(void) const
 {
-	return( (int)m_pProjections->Get_Count() );
+	return( m_pProjections->Get_Count() );
 }
 
 //---------------------------------------------------------

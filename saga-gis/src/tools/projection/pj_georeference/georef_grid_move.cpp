@@ -156,8 +156,8 @@ bool CGeoref_Grid_Move::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interact
 			//---------------------------------------------
 			int		x, y, ix, iy, dx, dy;
 
-			dx		= (int)(0.5 + m_Move.Get_X() / m_pSource->Get_Cellsize());
-			dy		= (int)(0.5 + m_Move.Get_Y() / m_pSource->Get_Cellsize());
+			dx		= (int)(0.5 + m_Move.x / m_pSource->Get_Cellsize());
+			dy		= (int)(0.5 + m_Move.y / m_pSource->Get_Cellsize());
 
 			for(y=0, iy=dy; y<m_pGrid->Get_NY() && Set_Progress(y, m_pGrid->Get_NY()); y++, iy++)
 			{
@@ -200,15 +200,15 @@ bool CGeoref_Grid_Move::On_Execute_Finish(void)
 		m_pGrid->Set_Modified(m_bModified);
 		DataObject_Update(m_pGrid);
 
-		if( m_Move.Get_X() == 0.0 && m_Move.Get_Y() == 0.0 )
+		if( m_Move.x == 0.0 && m_Move.y == 0.0 )
 		{
 			Message_Add(_TL("No translation set by user"));
 		}
 		else if( Message_Dlg_Confirm(_TL("Apply Move"), _TL("Move Grid")) )
 		{
 			m_pGrid	= new CSG_Grid(m_pSource->Get_Type(), m_pSource->Get_NX(), m_pSource->Get_NY(), m_pSource->Get_Cellsize(),
-				m_pSource->Get_XMin() - m_Move.Get_X(),
-				m_pSource->Get_YMin() - m_Move.Get_Y()
+				m_pSource->Get_XMin() - m_Move.x,
+				m_pSource->Get_YMin() - m_Move.y
 			);
 
 			m_pGrid->Set_Name   (m_pSource->Get_Name());

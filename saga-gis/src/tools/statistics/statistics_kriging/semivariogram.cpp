@@ -140,31 +140,26 @@ CSemiVariogram::~CSemiVariogram(void)
 //---------------------------------------------------------
 bool CSemiVariogram::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Table	*pVariogram	= Parameters("VARIOGRAM")->asTable();
+	CSG_Table  *pVariogram = Parameters("VARIOGRAM")->asTable();
+	CSG_Shapes *pPoints    = Parameters("POINTS"   )->asShapes();
+	int         Field      = Parameters("ATTRIBUTE")->asInt();
 
-	CSG_Trend	Model;
-
-	CSG_Shapes	*pPoints	= Parameters("POINTS")->asShapes();
-
-	int	Field	= Parameters("ATTRIBUTE")->asInt();
-
-	bool	bLog	= Parameters("LOG")->asBool();
+	CSG_Trend Model; bool bLog = Parameters("LOG")->asBool();
 
 	//-----------------------------------------------------
-	CSG_Matrix	Points(3, pPoints->Get_Count());
+	CSG_Matrix Points(3, pPoints->Get_Count());
 
-	int	n	= 0;
+	sLong n = 0;
 
-	for(int i=0; i<pPoints->Get_Count(); i++)
+	for(sLong i=0; i<pPoints->Get_Count(); i++)
 	{
-		CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
+		CSG_Shape * pPoint = pPoints->Get_Shape(i);
 
 		if( !pPoint->is_NoData(Field) )
 		{
-			Points[n][0]	= pPoint->Get_Point(0).x;
-			Points[n][1]	= pPoint->Get_Point(0).y;
-			Points[n][2]	= bLog ? log(pPoint->asDouble(Field)) : pPoint->asDouble(Field);
+			Points[n][0] = pPoint->Get_Point().x;
+			Points[n][1] = pPoint->Get_Point().y;
+			Points[n][2] = bLog ? log(pPoint->asDouble(Field)) : pPoint->asDouble(Field);
 
 			n++;
 		}
@@ -178,19 +173,19 @@ bool CSemiVariogram::On_Execute(void)
 	Points.Set_Rows(n);	// resize if there are no-data values
 
 	//-----------------------------------------------------
-	bool	bResult	= false;
+	bool bResult = false;
 
 	pVariogram->Set_Name(pPoints->Get_Name());
 
 	if( m_pVariogram )
 	{
-		bResult	= m_pVariogram->Execute   (Points, pVariogram, &Model);
+		bResult = m_pVariogram->Execute   (Points, pVariogram, &Model);
 	}
 
 	//-----------------------------------------------------
 	else
 	{
-		bResult	= CSG_Variogram::Calculate(Points, pVariogram,
+		bResult = CSG_Variogram::Calculate(Points, pVariogram,
 			Parameters("VAR_NCLASSES")->asInt   (),
 			Parameters("VAR_MAXDIST" )->asDouble(),
 			Parameters("VAR_NSKIP"   )->asInt   ()
@@ -200,9 +195,9 @@ bool CSemiVariogram::On_Execute(void)
 		{
 			Model.Clr_Data();
 
-			for(int i=0; i<pVariogram->Get_Count(); i++)
+			for(sLong i=0; i<pVariogram->Get_Count(); i++)
 			{
-				CSG_Table_Record	*pRecord	= pVariogram->Get_Record(i);
+				CSG_Table_Record *pRecord = pVariogram->Get_Record(i);
 
 				Model.Add_Data(pRecord->asDouble(CSG_Variogram::FIELD_DISTANCE), pRecord->asDouble(CSG_Variogram::FIELD_VAR_EXP));
 			}
@@ -219,9 +214,9 @@ bool CSemiVariogram::On_Execute(void)
 	{
 		Message_Add(Model.Get_Formula(), false);
 
-		for(int i=0; i<pVariogram->Get_Count(); i++)
+		for(sLong i=0; i<pVariogram->Get_Count(); i++)
 		{
-			CSG_Table_Record	*pRecord	= pVariogram->Get_Record(i);
+			CSG_Table_Record *pRecord = pVariogram->Get_Record(i);
 
 			pRecord->Set_Value(CSG_Variogram::FIELD_VAR_MODEL, Model.Get_Value(pRecord->asDouble(CSG_Variogram::FIELD_DISTANCE)));
 		}

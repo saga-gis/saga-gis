@@ -155,7 +155,7 @@ bool CGSPoints_Variogram_Cloud::On_Execute(void)
 
 		if( !pPoint->is_NoData(Attribute) )
 		{
-			TSG_Point Pt_i = pPoint->Get_Point(0); double zi = pPoint->asDouble(Attribute);
+			TSG_Point Pt_i = pPoint->Get_Point(); double zi = pPoint->asDouble(Attribute);
 
 			for(sLong j=i; j<pPoints->Get_Count() && Process_Get_Okay(); j+=nSkip)
 			{
@@ -163,7 +163,7 @@ bool CGSPoints_Variogram_Cloud::On_Execute(void)
 
 				if( !pPoint->is_NoData(Attribute) )
 				{
-					TSG_Point Pt_j = pPoint->Get_Point(0); double d = SG_Get_Distance(Pt_i, Pt_j);
+					TSG_Point Pt_j = pPoint->Get_Point(); double d = SG_Get_Distance(Pt_i, Pt_j);
 
 					if( d <= maxDistance )
 					{

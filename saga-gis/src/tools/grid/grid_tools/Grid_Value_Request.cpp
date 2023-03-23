@@ -215,11 +215,11 @@ bool CGrid_Value_Request::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Intera
 		case 0:
 			if( Mode == TOOL_INTERACTIVE_LDOWN || Mode == TOOL_INTERACTIVE_MOVE_LDOWN )
 			{
-				m_pTable->Get_Record(FIELD_X_WORLD)->Set_Value(FIELD_VALUE, ptWorld.Get_X());
-				m_pTable->Get_Record(FIELD_Y_WORLD)->Set_Value(FIELD_VALUE, ptWorld.Get_Y());
+				m_pTable->Get_Record(FIELD_X_WORLD)->Set_Value(FIELD_VALUE, ptWorld.x);
+				m_pTable->Get_Record(FIELD_Y_WORLD)->Set_Value(FIELD_VALUE, ptWorld.y);
 
-				m_pTable->Get_Record(FIELD_X_GRID)->Set_Value(FIELD_VALUE, m_pGrids->Get_Grid(0)->Get_System().Get_xWorld_to_Grid(ptWorld.Get_X()));
-				m_pTable->Get_Record(FIELD_Y_GRID)->Set_Value(FIELD_VALUE, m_pGrids->Get_Grid(0)->Get_System().Get_yWorld_to_Grid(ptWorld.Get_Y()));
+				m_pTable->Get_Record(FIELD_X_GRID)->Set_Value(FIELD_VALUE, m_pGrids->Get_Grid(0)->Get_System().Get_xWorld_to_Grid(ptWorld.x));
+				m_pTable->Get_Record(FIELD_Y_GRID)->Set_Value(FIELD_VALUE, m_pGrids->Get_Grid(0)->Get_System().Get_yWorld_to_Grid(ptWorld.y));
 
 				for(iGrid=0; iGrid<m_pGrids->Get_Grid_Count(); iGrid++)
 				{
@@ -245,11 +245,11 @@ bool CGrid_Value_Request::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Intera
 			{
 				pRecord	= m_pTable->Add_Record();
 
-				pRecord->Set_Value(FIELD_X_WORLD, ptWorld.Get_X());
-				pRecord->Set_Value(FIELD_Y_WORLD, ptWorld.Get_Y());
+				pRecord->Set_Value(FIELD_X_WORLD, ptWorld.x);
+				pRecord->Set_Value(FIELD_Y_WORLD, ptWorld.y);
 
-				pRecord->Set_Value(FIELD_X_GRID, m_pGrids->Get_Grid(0)->Get_System().Get_xWorld_to_Grid(ptWorld.Get_X()));
-				pRecord->Set_Value(FIELD_Y_GRID, m_pGrids->Get_Grid(0)->Get_System().Get_yWorld_to_Grid(ptWorld.Get_Y()));
+				pRecord->Set_Value(FIELD_X_GRID, m_pGrids->Get_Grid(0)->Get_System().Get_xWorld_to_Grid(ptWorld.x));
+				pRecord->Set_Value(FIELD_Y_GRID, m_pGrids->Get_Grid(0)->Get_System().Get_yWorld_to_Grid(ptWorld.y));
 
 				for(iGrid=0; iGrid<m_pGrids->Get_Grid_Count(); iGrid++)
 				{

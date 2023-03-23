@@ -337,7 +337,7 @@ bool CChange_Detection::On_Execute(void)
 //---------------------------------------------------------
 bool CChange_Detection::Get_Quality(CSG_Table &Confusion, CSG_Table &Classes, CSG_Table &Summary)
 {
-	if( Confusion.Get_Count() != Confusion.Get_Field_Count() - 1 )
+	if( Confusion.Get_Count() != (sLong)Confusion.Get_Field_Count() - 1 )
 	{
 		Message_Add(_TL("Quality assessment is not calculated, because the number of classes in the input grids differ.")); 
 
@@ -612,7 +612,7 @@ int CChange_Detection::Get_Class(CSG_Table &Classes, double Value)
 	{
 		int	a, b;
 
-		for(a=0, b=Classes.Get_Count()-1; a < b; )
+		for(a=0, b=(int)Classes.Get_Count()-1; a < b; )
 		{
 			int	i	= a + (b - a) / 2;
 			int	c	= Cmp_Class(Classes, Value, i);
@@ -627,22 +627,22 @@ int CChange_Detection::Get_Class(CSG_Table &Classes, double Value)
 			}
 			else
 			{
-				return( Classes.Get_Record_byIndex(i)->Get_Index() );
+				return( (int)Classes.Get_Record_byIndex(i)->Get_Index() );
 			}
 		}
 
 		if( Cmp_Class(Classes, Value, a) == 0 )
 		{
-			return( Classes.Get_Record_byIndex(a)->Get_Index() );
+			return( (int)Classes.Get_Record_byIndex(a)->Get_Index() );
 		}
 
 		if( a != b && Cmp_Class(Classes, Value, b) == 0 )
 		{
-			return( Classes.Get_Record_byIndex(b)->Get_Index() );
+			return( (int)Classes.Get_Record_byIndex(b)->Get_Index() );
 		}
 	}
 
-	return( Classes.Get_Count() );	// := unclassified
+	return( (int)Classes.Get_Count() );	// := unclassified
 }
 
 

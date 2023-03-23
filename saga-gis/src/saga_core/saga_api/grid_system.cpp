@@ -150,8 +150,8 @@ bool CSG_Grid_System::Create(double Cellsize, const CSG_Rect &Extent)
 		int		nx	= 1 + (int)(0.5 + Extent.Get_XRange() / Cellsize);
 		int		ny	= 1 + (int)(0.5 + Extent.Get_YRange() / Cellsize);
 
-		double	x	= fabs(Cellsize - Extent.Get_XRange() / (nx - 1.)) <= 0. ? Extent.Get_XMin() : Extent.Get_Center().Get_X() - Cellsize * (nx - 1.) / 2.;
-		double	y	= fabs(Cellsize - Extent.Get_YRange() / (ny - 1.)) <= 0. ? Extent.Get_YMin() : Extent.Get_Center().Get_Y() - Cellsize * (ny - 1.) / 2.;
+		double	x	= fabs(Cellsize - Extent.Get_XRange() / (nx - 1.)) <= 0. ? Extent.Get_XMin() : Extent.Get_Center().x - Cellsize * (nx - 1.) / 2.;
+		double	y	= fabs(Cellsize - Extent.Get_YRange() / (ny - 1.)) <= 0. ? Extent.Get_YMin() : Extent.Get_Center().y - Cellsize * (ny - 1.) / 2.;
 
 		return( Create(Cellsize, x, y, nx, ny) );
 	}
@@ -186,10 +186,10 @@ bool CSG_Grid_System::Create(double Cellsize, double xMin, double yMin, int NX, 
 			m_Cellarea	= Cellsize * Cellsize;
 			m_Diagonal	= Cellsize * sqrt(2.);
 
-			m_Extent.m_rect.xMin	= xMin;
-			m_Extent.m_rect.yMin	= yMin;
-			m_Extent.m_rect.xMax	= xMin + (NX - 1.) * Cellsize;
-			m_Extent.m_rect.yMax	= yMin + (NY - 1.) * Cellsize;
+			m_Extent.xMin	= xMin;
+			m_Extent.yMin	= yMin;
+			m_Extent.xMax	= xMin + (NX - 1.) * Cellsize;
+			m_Extent.yMax	= yMin + (NY - 1.) * Cellsize;
 
 			m_Extent_Cells	= m_Extent;
 			m_Extent_Cells.Inflate(0.5 * Cellsize, false);
@@ -304,8 +304,8 @@ bool CSG_Grid_System::is_Equal(const CSG_Grid_System &System) const
 	return( m_Cellsize           == System.m_Cellsize
 		&&  m_NX                 == System.m_NX
 		&&  m_NY                 == System.m_NY
-		&&  m_Extent.m_rect.xMin == System.m_Extent.m_rect.xMin
-		&&  m_Extent.m_rect.yMin == System.m_Extent.m_rect.yMin
+		&&  m_Extent.xMin == System.m_Extent.xMin
+		&&  m_Extent.yMin == System.m_Extent.yMin
 	);
 }
 

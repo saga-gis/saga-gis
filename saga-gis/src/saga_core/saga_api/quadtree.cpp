@@ -267,7 +267,7 @@ bool CSG_PRQuadTree::Create(CSG_Shapes *pShapes, int Attribute, bool bStatistics
 			}
 		}
 
-		return( Get_Point_Count() > 0 );
+		return( m_nPoints > 0 );
 	}
 
 	return( false );
@@ -620,7 +620,7 @@ size_t CSG_PRQuadTree::_Select_Nearest_Points(CSG_Array &Selection, double x, do
 {
 	if( Selection.Get_Value_Size() != sizeof(TLeaf) )
 	{
-		Selection.Create(sizeof(TLeaf), 0, SG_ARRAY_GROWTH_3);
+		Selection.Create(sizeof(TLeaf), 0, TSG_Array_Growth::SG_ARRAY_GROWTH_3);
 	}
 	else
 	{
@@ -745,13 +745,13 @@ void CSG_PRQuadTree::_Select_Nearest_Points(CSG_Array &Selection, CSG_PRQuadTree
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-size_t CSG_PRQuadTree::Get_Nearest_Points(CSG_Points_Z &Points, const TSG_Point &p, size_t maxPoints, double Radius, int iQuadrant)	const
+size_t CSG_PRQuadTree::Get_Nearest_Points(CSG_Points_3D &Points, const TSG_Point &p, size_t maxPoints, double Radius, int iQuadrant)	const
 {
 	return( Get_Nearest_Points(Points, p.x, p.y, maxPoints, Radius, iQuadrant) );
 }
 
 //---------------------------------------------------------
-size_t CSG_PRQuadTree::Get_Nearest_Points(CSG_Points_Z &Points, double x, double y, size_t maxPoints, double Radius, int iQuadrant)	const
+size_t CSG_PRQuadTree::Get_Nearest_Points(CSG_Points_3D &Points, double x, double y, size_t maxPoints, double Radius, int iQuadrant)	const
 {
 	CSG_Array	Selection;
 

@@ -47,17 +47,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Grid_Interpolate_Value_Along_Line.h"
-
 
 
 ///////////////////////////////////////////////////////////
@@ -98,21 +88,15 @@ CGrid_Interpolate_Value_Along_Line::CGrid_Interpolate_Value_Along_Line(void)
 		PARAMETER_OUTPUT, SHAPE_TYPE_Line
 	);
 
-	Parameters.Add_Value("",
+	Parameters.Add_Bool("",
 		"ONLY_NODATA"	, _TL("Only No Data"),
 		_TL("Apply changes only to grid cells with No Data along the line."),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 }
 
-//---------------------------------------------------------
-CGrid_Interpolate_Value_Along_Line::~CGrid_Interpolate_Value_Along_Line(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -148,8 +132,6 @@ bool CGrid_Interpolate_Value_Along_Line::On_Execute_Finish(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -187,8 +169,6 @@ bool CGrid_Interpolate_Value_Along_Line::On_Execute_Position(CSG_Point ptWorld, 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -223,7 +203,7 @@ bool CGrid_Interpolate_Value_Along_Line::Set_Line(void)
 	m_pPoints->Add_Field("Length", SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
-	B	= pLine->Get_Point(0);
+	B	= pLine->Get_Point();
 
 	for(int i=1; i<pLine->Get_Point_Count(0); i++)
 	{
@@ -255,7 +235,7 @@ bool CGrid_Interpolate_Value_Along_Line::Set_Line(void)
 	{
 		Cz = Az + tanAlpha * m_pPoints->Get_Shape(i)->asDouble(0);
 
-		Get_System().Get_World_to_Grid(Cx, Cy, m_pPoints->Get_Shape(i)->Get_Point(0));
+		Get_System().Get_World_to_Grid(Cx, Cy, m_pPoints->Get_Shape(i)->Get_Point());
 
 		if( m_bOnlyNoData && !m_pGrid->is_NoData(Cx, Cy) )
 		{
@@ -338,7 +318,7 @@ void CGrid_Interpolate_Value_Along_Line::Add_Point(CSG_Point Point)
 		else
 		{
 			pLast		= m_pPoints->Get_Shape(m_pPoints->Get_Count() - 1);
-			Length		= SG_Get_Distance(Point, pLast->Get_Point(0));
+			Length		= SG_Get_Distance(Point, pLast->Get_Point());
 
 			if( Length == 0.0 )
 			{

@@ -88,7 +88,7 @@ private:
 
 	bool						Get_Coordinates			(CSG_Grid Coords[2]);
 
-	void						Set_Triangle			(CSG_Grid &Coords, TSG_Point_Z p[3]);
+	void						Set_Triangle			(CSG_Grid &Coords, TSG_Point_3D p[3]);
 	void						Set_Triangle_Line		(CSG_Grid &Coords, int y, double xa, double za, double xb, double zb);
 
 };

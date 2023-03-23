@@ -89,10 +89,10 @@ bool CSG_TIN_Node::_Add_Triangle(CSG_TIN_Triangle *pTriangle)
 		}
 	}
 
-	m_Triangles	= (CSG_TIN_Triangle **)SG_Realloc(m_Triangles, (m_nTriangles + 1) * sizeof(CSG_TIN_Triangle *));
+	m_Triangles	= (CSG_TIN_Triangle **)SG_Realloc(m_Triangles, ((uLong)m_nTriangles + 1) * sizeof(CSG_TIN_Triangle *));
 	m_Triangles[m_nTriangles++]	= pTriangle;
 
-//	_Add_Neighbor(pTriangle->Get_Point(0));
+//	_Add_Neighbor(pTriangle->Get_Point());
 //	_Add_Neighbor(pTriangle->Get_Point(1));
 //	_Add_Neighbor(pTriangle->Get_Point(2));
 
@@ -115,7 +115,7 @@ bool CSG_TIN_Node::_Add_Neighbor(CSG_TIN_Node *pNeighbor)
 		}
 	}
 
-	m_Neighbors	= (CSG_TIN_Node **)SG_Realloc(m_Neighbors, (m_nNeighbors + 1) * sizeof(CSG_TIN_Node *));
+	m_Neighbors	= (CSG_TIN_Node **)SG_Realloc(m_Neighbors, ((uLong)m_nNeighbors + 1) * sizeof(CSG_TIN_Node *));
 	m_Neighbors[m_nNeighbors++]	= pNeighbor;
 
 	return( true );
@@ -165,8 +165,8 @@ double CSG_TIN_Node::Get_Gradient(int iNeighbor, int iField)
 //---------------------------------------------------------
 int SG_TIN_Compare_Triangle_Center(const void *pz1, const void *pz2)
 {
-	double	z1	= ((TSG_Point_Z *)pz1)->z;
-	double	z2	= ((TSG_Point_Z *)pz2)->z;
+	double	z1	= ((TSG_Point_3D *)pz1)->z;
+	double	z2	= ((TSG_Point_3D *)pz2)->z;
 
 	return( z1 < z2 ? -1 : z1 > z2 ? 1 : 0 );
 }
@@ -178,7 +178,7 @@ bool CSG_TIN_Node::Get_Polygon(CSG_Points &Points)
 
 	if( m_nTriangles >= 3 )
 	{
-		int	i;	CSG_Points_Z	p;
+		int	i;	CSG_Points_3D	p;
 
 		for(i=0; i<m_nTriangles; i++)
 		{
@@ -187,7 +187,7 @@ bool CSG_TIN_Node::Get_Polygon(CSG_Points &Points)
 			p.Add(c.x, c.y, atan2(m_Point.y - c.y, m_Point.x - c.x));
 		}
 
-		qsort(&(p[0]), p.Get_Count(), sizeof(TSG_Point_Z), SG_TIN_Compare_Triangle_Center);
+		qsort(&(p[0]), p.Get_Count(), sizeof(TSG_Point_3D), SG_TIN_Compare_Triangle_Center);
 
 		for(i=0; i<m_nTriangles; i++)
 		{
@@ -331,7 +331,7 @@ bool CSG_TIN_Triangle::is_Containing(double x, double y)
 		||	(y == m_Nodes[2]->Get_Point().y && x > m_Nodes[2]->Get_Point().x) )
 			nCrossings	= -1;
 
-		A.x			= m_Extent.m_rect.xMin - 1.0;
+		A.x			= m_Extent.xMin - 1.0;
 		B.x			= x;
 		A.y = B.y	= y;
 

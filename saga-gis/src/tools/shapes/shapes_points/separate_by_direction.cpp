@@ -131,14 +131,14 @@ bool CSeparate_by_Direction::On_Execute(void)
 	CSG_Shape *pt_B = pPoints->Get_Shape(pPoints->Get_Count() - 2);
 	CSG_Shape *pt_A = pPoints->Get_Shape(pPoints->Get_Count() - 1);
 
-	double dir_A = SG_Get_Angle_Of_Direction(pt_B->Get_Point(0), pt_A->Get_Point(0));
+	double dir_A = SG_Get_Angle_Of_Direction(pt_B->Get_Point(), pt_A->Get_Point());
 
 	for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 	{
 		pt_B = pt_A;
 		pt_A = pPoints->Get_Shape(iPoint);
 
-		double dir_B = dir_A; dir_A = SG_Get_Angle_Of_Direction(pt_B->Get_Point(0), pt_A->Get_Point(0));
+		double dir_B = dir_A; dir_A = SG_Get_Angle_Of_Direction(pt_B->Get_Point(), pt_A->Get_Point());
 		double dif = fmod(dir_A - dir_B, M_PI_360);
 
 		if( dif > M_PI_180 )

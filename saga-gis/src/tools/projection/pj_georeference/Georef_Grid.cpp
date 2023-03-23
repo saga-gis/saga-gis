@@ -308,8 +308,8 @@ bool CGeoref_Grid::Get_Target_Extent(CSG_Rect &Extent, bool bEdge)
 	//-----------------------------------------------------
 	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
 
-	Extent.m_rect.xMin	= Extent.m_rect.yMin	= 1.;
-	Extent.m_rect.xMax	= Extent.m_rect.yMax	= 0.;
+	Extent.xMin	= Extent.yMin	= 1.;
+	Extent.xMax	= Extent.yMax	= 0.;
 
 	//-----------------------------------------------------
 	if( bEdge )

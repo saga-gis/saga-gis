@@ -234,7 +234,7 @@ CSG_Array::CSG_Array(void)
 	m_Values     = NULL;
 
 	m_Value_Size = sizeof(char);
-	m_Growth     = SG_ARRAY_GROWTH_0;
+	m_Growth     = TSG_Array_Growth::SG_ARRAY_GROWTH_0;
 }
 
 //---------------------------------------------------------
@@ -288,12 +288,14 @@ CSG_Array::~CSG_Array(void)
 	Destroy();
 }
 
-void CSG_Array::Destroy(void)
+bool CSG_Array::Destroy(void)
 {
 	m_nBuffer    = 0;
 	m_nValues    = 0;
 
 	SG_FREE_SAFE(m_Values);
+
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -333,12 +335,11 @@ bool CSG_Array::Set_Array(sLong nValues, bool bShrink)
 
 	switch( m_Growth )
 	{
-	default:
-	case SG_ARRAY_GROWTH_0:
+	case TSG_Array_Growth::SG_ARRAY_GROWTH_0: default:
 		nBuffer	= nValues;
 		break;
 
-	case SG_ARRAY_GROWTH_1:
+	case TSG_Array_Growth::SG_ARRAY_GROWTH_1:
 		nBuffer	= nValues <    100 ?      nValues
 				: nValues <   1000 ? (1 + nValues /    10) *    10
 				: nValues <  10000 ? (1 + nValues /   100) *   100
@@ -346,7 +347,7 @@ bool CSG_Array::Set_Array(sLong nValues, bool bShrink)
 				:                    (1 + nValues / 10000) * 10000;
 		break;
 
-	case SG_ARRAY_GROWTH_2:
+	case TSG_Array_Growth::SG_ARRAY_GROWTH_2:
 		nBuffer	= nValues <     10 ?      nValues
 				: nValues <    100 ? (1 + nValues /    10) *    10
 				: nValues <   1000 ? (1 + nValues /   100) *   100
@@ -354,7 +355,7 @@ bool CSG_Array::Set_Array(sLong nValues, bool bShrink)
 				:                    (1 + nValues / 10000) * 10000;
 		break;
 
-	case SG_ARRAY_GROWTH_3:
+	case TSG_Array_Growth::SG_ARRAY_GROWTH_3:
 		nBuffer	= nValues <    1000 ? (1 + nValues /    1000) *    1000
 				: nValues <   10000 ? (1 + nValues /   10000) *   10000
 				: nValues <  100000 ? (1 + nValues /  100000) *  100000
@@ -420,6 +421,32 @@ bool CSG_Array::Dec_Array		(bool bShrink)
 bool CSG_Array::Dec_Array		(void **pArray, bool bShrink)
 {
 	return( m_nValues > 0 ? Set_Array(m_nValues - 1, pArray, bShrink) : false );
+}
+
+//---------------------------------------------------------
+bool CSG_Array::Del_Entry(sLong Index, bool bShrink)
+{
+	if( Index >= 0 && Index < m_nValues )
+	{
+		if( Index < m_nValues - 1 )
+		{
+			char *ip = (char *)m_Values + Index * m_Value_Size; char *jp = ip + m_Value_Size;
+
+			for(sLong i=Index, j=Index+1; j<m_nValues; i++, j++, ip+=m_Value_Size, jp+=m_Value_Size)
+			{
+				for(size_t k=0; k<m_Value_Size; k++)
+				{
+					ip[k] = jp[k];
+				}
+			}
+		}
+
+		Set_Array(m_nValues - 1, bShrink);
+
+		return( true );
+	}
+
+	return( false );
 }
 
 
@@ -964,9 +991,9 @@ bool CSG_Bytes::fromHexString(const CSG_String &HexString)
 //---------------------------------------------------------
 CSG_Bytes_Array::CSG_Bytes_Array(void)
 {
-	m_pBytes	= NULL;
-	m_nBytes	= 0;
-	m_nBuffer	= 0;
+	m_pBytes  = NULL;
+	m_nBytes  = 0;
+	m_nBuffer = 0;
 }
 
 //---------------------------------------------------------
@@ -988,9 +1015,9 @@ bool CSG_Bytes_Array::Destroy(void)
 		SG_Free(m_pBytes);
 	}
 
-	m_pBytes	= NULL;
-	m_nBytes	= 0;
-	m_nBuffer	= 0;
+	m_pBytes  = NULL;
+	m_nBytes  = 0;
+	m_nBuffer = 0;
 
 	return( true );
 }
@@ -1000,15 +1027,15 @@ CSG_Bytes * CSG_Bytes_Array::Add(void)
 {
 	if( m_nBytes >= m_nBuffer )
 	{
-		CSG_Bytes	**pBytes	= (CSG_Bytes **)SG_Realloc(m_pBytes, (m_nBuffer + 256) * sizeof(CSG_Bytes *));
+		CSG_Bytes **pBytes = (CSG_Bytes **)SG_Realloc(m_pBytes, ((uLong)m_nBuffer + 256) * sizeof(CSG_Bytes *));
 
 		if( !pBytes )
 		{
 			return( NULL );
 		}
 
-		m_pBytes	 = pBytes;
-		m_nBuffer	+= 256;
+		m_pBytes   = pBytes;
+		m_nBuffer += 256;
 	}
 
 	return( m_pBytes[m_nBytes++] = new CSG_Bytes );

@@ -334,8 +334,8 @@ float DrainageDensity(CSG_Shapes *pHeaders,
 		
 	for (int i = 0; i < pHeaders->Get_Count(); i++) {
 
-        iX = (pHeaders->Get_Shape(i)->Get_Point(0).x - pBasinGrid->Get_XMin())/pBasinGrid->Get_DX();
-		iY = (pHeaders->Get_Shape(i)->Get_Point(0).y - pBasinGrid->Get_YMin())/pBasinGrid->Get_DX();  
+        iX = (pHeaders->Get_Shape(i)->Get_Point().x - pBasinGrid->Get_XMin())/pBasinGrid->Get_DX();
+		iY = (pHeaders->Get_Shape(i)->Get_Point().y - pBasinGrid->Get_YMin())/pBasinGrid->Get_DX();  
 
         if (!pBasinGrid->is_NoData(iX,iY)) {
                 iNextX = iX;

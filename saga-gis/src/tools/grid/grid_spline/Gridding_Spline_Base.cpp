@@ -122,7 +122,7 @@ int CGridding_Spline_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGridding_Spline_Base::Initialize(CSG_Points_Z &Points, bool bInGridOnly, bool bDetrend)
+bool CGridding_Spline_Base::Initialize(CSG_Points_3D &Points, bool bInGridOnly, bool bDetrend)
 {
 	return( _Get_Grid() && _Get_Points(Points, bInGridOnly, bDetrend) );
 }
@@ -193,7 +193,7 @@ bool CGridding_Spline_Base::_Get_Grid(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGridding_Spline_Base::_Get_Points(CSG_Points_Z &Points, bool bInGridOnly, bool bDetrend)
+bool CGridding_Spline_Base::_Get_Points(CSG_Points_3D &Points, bool bInGridOnly, bool bDetrend)
 {
 	Points.Clear();
 

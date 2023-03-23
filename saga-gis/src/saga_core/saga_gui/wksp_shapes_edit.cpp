@@ -150,7 +150,7 @@ TSG_Rect CWKSP_Shapes::Edit_Get_Extent(void)
 
 	if( Get_Shapes()->Get_Selection_Count() > 0 )
 	{
-		return( Get_Shapes()->Get_Selection_Extent().m_rect );
+		return( Get_Shapes()->Get_Selection_Extent() );
 	}
 
 	return( Get_Shapes()->Get_Extent() );
@@ -736,11 +736,11 @@ bool CWKSP_Shapes::_Edit_Move(bool bToggle)
 			if( m_Edit_Shapes.Get_Count() > 1 && m_Edit_Shapes.Get_Shape(1)->Get_Point_Count() > 1 )
 			{
 				CSG_Point	Move	= CSG_Point(m_Edit_Shapes.Get_Shape(1)->Get_Point(1))
-									- CSG_Point(m_Edit_Shapes.Get_Shape(1)->Get_Point(0));
+									- CSG_Point(m_Edit_Shapes.Get_Shape(1)->Get_Point());
 
 				m_Edit_Shapes.Get_Shape(1)->Del_Parts();
 
-				if( SG_Get_Length(Move.Get_X(), Move.Get_Y()) > 0.0 )
+				if( SG_Get_Length(Move.x, Move.y) > 0.0 )
 				{
 					for(int iPart=0; iPart<m_Edit_pShape->Get_Part_Count(); iPart++)
 					{
@@ -1150,7 +1150,7 @@ void CWKSP_Shapes::_Edit_Snap_Point(const CSG_Point &Point, CSG_Point &snap_Poin
 {
 	CSG_Shape	*pSelected	= pShapes->Get_Selection(m_Edit_Index);
 
-	if( pShapes->Select(CSG_Rect(Point.Get_X() - snap_Dist, Point.Get_Y() - snap_Dist, Point.Get_X() + snap_Dist, Point.Get_Y() + snap_Dist)) )
+	if( pShapes->Select(CSG_Rect(Point.x - snap_Dist, Point.y - snap_Dist, Point.x + snap_Dist, Point.y + snap_Dist)) )
 	{
 		for(sLong i=0; i<pShapes->Get_Selection_Count(); i++)
 		{
@@ -1183,8 +1183,8 @@ void CWKSP_Shapes::_Edit_Snap_Point(const CSG_Point &pos_Point, CSG_Point &snap_
 		for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 		{
 			Point	= pShape->Get_Point(iPoint, iPart);
-			dx		= pos_Point.Get_X() - Point.x;
-			dy		= pos_Point.Get_Y() - Point.y;
+			dx		= pos_Point.x - Point.x;
+			dy		= pos_Point.y - Point.y;
 			d		= sqrt(dx*dx + dy*dy);
 
 			if( d < snap_Dist )

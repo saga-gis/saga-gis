@@ -260,7 +260,7 @@ bool CCRS_Transform_Shapes::Transform(CSG_Shapes *pShapes)
 		{
 			if( pShapes->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud )
 			{
-				TSG_Point_Z	p	= pShapes->asPointCloud()->Get_Point(i);
+				TSG_Point_3D	p	= pShapes->asPointCloud()->Get_Point(i);
 
 				if( (bOkay[i] = bTransform_Z ? m_Projector.Get_Projection(p.x, p.y, p.z) : m_Projector.Get_Projection(p.x, p.y)) )
 				{
@@ -317,7 +317,7 @@ bool CCRS_Transform_Shapes::Transform(CSG_Shapes *pShapes)
 
 			if( pShapes->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud )
 			{
-				TSG_Point_Z	p	= pShapes->asPointCloud()->Get_Point(i);
+				TSG_Point_3D	p	= pShapes->asPointCloud()->Get_Point(i);
 
 				if( (bOkay[i] = bTransform_Z ? m_Projector[Thread].Get_Projection(p.x, p.y, p.z) : m_Projector[Thread].Get_Projection(p.x, p.y)) )
 				{

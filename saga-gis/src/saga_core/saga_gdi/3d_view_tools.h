@@ -77,7 +77,7 @@ public:
 	double				Get_Scale				(void)	const	{	return( m_Scale     );	}
 
 	void				Set_Center				(double x, double y, double z);
-	const TSG_Point_Z &	Get_Center				(void)	const	{	return( m_Center    );	}
+	const TSG_Point_3D &	Get_Center				(void)	const	{	return( m_Center    );	}
 	double				Get_xCenter				(void)	const	{	return( m_Center.x  );	}
 	double				Get_yCenter				(void)	const	{	return( m_Center.y  );	}
 	double				Get_zCenter				(void)	const	{	return( m_Center.z  );	}
@@ -89,7 +89,7 @@ public:
 	void				Inc_xScaling			(double x)		{	Set_xScaling(m_Scaling.x + x);	}
 	void				Inc_yScaling			(double y)		{	Set_yScaling(m_Scaling.y + y);	}
 	void				Inc_zScaling			(double z)		{	Set_zScaling(m_Scaling.z + z);	}
-	const TSG_Point_Z &	Get_Scaling				(void)	const	{	return( m_Scaling   );	}
+	const TSG_Point_3D &	Get_Scaling				(void)	const	{	return( m_Scaling   );	}
 	double				Get_xScaling			(void)	const	{	return( m_Scaling.x );	}
 	double				Get_yScaling			(void)	const	{	return( m_Scaling.y );	}
 	double				Get_zScaling			(void)	const	{	return( m_Scaling.z );	}
@@ -101,7 +101,7 @@ public:
 	void				Inc_xRotation			(double x, bool bDegree = false);
 	void				Inc_yRotation			(double y, bool bDegree = false);
 	void				Inc_zRotation			(double z, bool bDegree = false);
-	const TSG_Point_Z &	Get_Rotation			(void)					const	{	return( m_Rotate );	}
+	const TSG_Point_3D &	Get_Rotation			(void)					const	{	return( m_Rotate );	}
 	double				Get_xRotation			(bool bDegree = false)	const	{	return( bDegree ? M_RAD_TO_DEG * m_Rotate.x : m_Rotate.x );	}
 	double				Get_yRotation			(bool bDegree = false)	const	{	return( bDegree ? M_RAD_TO_DEG * m_Rotate.y : m_Rotate.y );	}
 	double				Get_zRotation			(bool bDegree = false)	const	{	return( bDegree ? M_RAD_TO_DEG * m_Rotate.z : m_Rotate.z );	}
@@ -113,7 +113,7 @@ public:
 	void				Inc_xShift				(double x)		{	Set_xShift(m_Shift.x + x);	}
 	void				Inc_yShift				(double y)		{	Set_yShift(m_Shift.y + y);	}
 	void				Inc_zShift				(double z)		{	Set_zShift(m_Shift.z + z);	}
-	const TSG_Point_Z &	Get_Shift				(void)	const	{	return( m_Shift    );	}
+	const TSG_Point_3D &	Get_Shift				(void)	const	{	return( m_Shift    );	}
 	double				Get_xShift				(void)	const	{	return( m_Shift.x  );	}
 	double				Get_yShift				(void)	const	{	return( m_Shift.y  );	}
 	double				Get_zShift				(void)	const	{	return( m_Shift.z  );	}
@@ -127,9 +127,9 @@ public:
 	double				Get_Central_Distance	(void)	const	{	return( m_dCentral );	}
 
 	void				Get_Projection			(double &x, double &y, double &z)	const;
-	void				Get_Projection			(      TSG_Point_Z &p)	const	{	return( Get_Projection(p.x, p.y, p.z) );	}
-	void				Get_Projection			(      CSG_Point_Z &p)	const	{	return( Get_Projection(p.x, p.y, p.z) );	}
-	TSG_Point_Z			Get_Projection			(const TSG_Point_Z &p)	const	{	CSG_Point_Z _p(p); Get_Projection(_p.x, _p.y, _p.z); return( _p );	}
+	void				Get_Projection			(      TSG_Point_3D &p)	const	{	return( Get_Projection(p.x, p.y, p.z) );	}
+	void				Get_Projection			(      CSG_Point_3D &p)	const	{	return( Get_Projection(p.x, p.y, p.z) );	}
+	TSG_Point_3D			Get_Projection			(const TSG_Point_3D &p)	const	{	CSG_Point_3D _p(p); Get_Projection(_p.x, _p.y, _p.z); return( _p );	}
 
 
 private:
@@ -140,7 +140,7 @@ private:
 
 	double				m_dCentral, m_Scale;
 
-	TSG_Point_Z			m_Center, m_Scaling, m_Rotate, m_Sin, m_Cos, m_Shift;
+	TSG_Point_3D		m_Center, m_Scaling, m_Rotate, m_Sin, m_Cos, m_Shift;
 
 
 };
@@ -173,7 +173,7 @@ protected:
 
 	TSG_Grid_Resampling			m_Drape_Mode;
 
-	TSG_Point_Z					m_Data_Min, m_Data_Max;
+	TSG_Point_3D					m_Data_Min, m_Data_Max;
 
 	CSG_Grid					*m_pDrape;
 
@@ -191,8 +191,8 @@ protected:
 	void						Draw_Point				(int x, int y, double z, int Color, int Size);
 	void						Draw_Line				(double ax, double ay, double az, double bx, double by, double bz, int Color);
 	void						Draw_Line				(double ax, double ay, double az, double bx, double by, double bz, int aColor, int bColor);
-	void						Draw_Line				(const TSG_Point_Z &a, const TSG_Point_Z &b, int Color);
-	void						Draw_Line				(const TSG_Point_Z &a, const TSG_Point_Z &b, int aColor, int bColor);
+	void						Draw_Line				(const TSG_Point_3D &a, const TSG_Point_3D &b, int Color);
+	void						Draw_Line				(const TSG_Point_3D &a, const TSG_Point_3D &b, int aColor, int bColor);
 
 	typedef struct SSG_Triangle_Node
 	{
@@ -220,16 +220,16 @@ private:
 
 	void						_Draw_Background		(void);
 
-	void						_Draw_Get_Box			(TSG_Point_Z Box[8], bool bProjected);
+	void						_Draw_Get_Box			(TSG_Point_3D Box[8], bool bProjected);
 	int							_Draw_Get_Box_Front		(void);
 	void						_Draw_Box				(void);
 
 	void						_Draw_North				(void);
 
 	void						_Draw_Labels			(int Front);
-	void						_Draw_Labels			(double Min, double Max,         const TSG_Point_Z &P, double Rx, double Ry, double Rz                             , int Resolution = 100, double Scale = 1.);
-	void						_Draw_Labels			(int Axis, const TSG_Point_Z &A, const TSG_Point_Z &B, double Rx, double Ry, double Rz, int Align = LABEL_ALIGN_TOP, int Resolution = 100, double Scale = 1.);
-	void						_Draw_Label				(const CSG_String &Text,         const TSG_Point_Z &P, double Rx, double Ry, double Rz, int Align = LABEL_ALIGN_TOP, int Resolution = 100, double Scale = 1.);
+	void						_Draw_Labels			(double Min, double Max,         const TSG_Point_3D &P, double Rx, double Ry, double Rz                             , int Resolution = 100, double Scale = 1.);
+	void						_Draw_Labels			(int Axis, const TSG_Point_3D &A, const TSG_Point_3D &B, double Rx, double Ry, double Rz, int Align = LABEL_ALIGN_TOP, int Resolution = 100, double Scale = 1.);
+	void						_Draw_Label				(const CSG_String &Text,         const TSG_Point_3D &P, double Rx, double Ry, double Rz, int Align = LABEL_ALIGN_TOP, int Resolution = 100, double Scale = 1.);
 
 	void						_Draw_Image				(class wxImage &Image, const CSG_Vector &Move, const CSG_Matrix &Rotate, int BGColor = -1, int xOffset = 0, int yOffset = 0);
 

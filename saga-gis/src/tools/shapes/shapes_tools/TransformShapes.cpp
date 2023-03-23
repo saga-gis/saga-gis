@@ -150,8 +150,8 @@ int CTransformShapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 {
 	if( pParameter->Cmp_Identifier("SHAPES") && pParameter->asShapes() != NULL )
 	{
-		pParameters->Set_Parameter("ANCHORX",  pParameter->asShapes()->Get_Extent().Get_Center().Get_X());
-		pParameters->Set_Parameter("ANCHORY",  pParameter->asShapes()->Get_Extent().Get_Center().Get_Y());
+		pParameters->Set_Parameter("ANCHORX",  pParameter->asShapes()->Get_Extent().Get_Center().x);
+		pParameters->Set_Parameter("ANCHORY",  pParameter->asShapes()->Get_Extent().Get_Center().y);
 		pParameters->Set_Parameter("ANCHORZ", (pParameter->asShapes()->Get_ZMin() + pParameter->asShapes()->Get_ZMax()) / 2.0);
 	}
 
@@ -208,7 +208,7 @@ bool CTransformShapes::On_Execute(void)
     }
 
 	//-----------------------------------------------------
-	TSG_Point_Z	Move, Scale, Anchor, Rotate;
+	TSG_Point_3D	Move, Scale, Anchor, Rotate;
 
 	Move.x		= Parameters("MOVEX"  )->asDouble();
 	Move.y		= Parameters("MOVEY"  )->asDouble();
@@ -258,7 +258,7 @@ bool CTransformShapes::On_Execute(void)
 				}
 				else
 				{
-					TSG_Point_Z	P, Q;
+					TSG_Point_3D	P, Q;
 
 					P.x	= pShape->Get_Point(iPoint, iPart).x;
 					P.y	= pShape->Get_Point(iPoint, iPart).y;

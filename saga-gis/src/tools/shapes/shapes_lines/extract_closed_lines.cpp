@@ -134,7 +134,7 @@ bool CExtract_Closed_Lines::On_Execute(void)
         //--------------------------------------------------------
         for(int iPart=0; iPart<pLineIn->Get_Part_Count(); iPart++)
         {
-            TSG_Point_Z   p1, p2;
+            TSG_Point_3D   p1, p2;
 
             p1.x = pLineIn->Get_Point(0, iPart).x;
             p1.y = pLineIn->Get_Point(0, iPart).y;

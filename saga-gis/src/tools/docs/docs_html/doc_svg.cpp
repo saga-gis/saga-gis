@@ -231,9 +231,9 @@ void CSG_Doc_SVG::Draw_Line(CSG_Points &Points,
 	
 	for (i = 0; i < Points.Get_Count(); i++)
 	{
-		sPoints.Append(SG_Get_String(Points.Get_X(i),2));
+		sPoints.Append(SG_Get_String(Points[i].x,2));
 		sPoints.Append(SG_T(","));
-		sPoints.Append(SG_Get_String(Points.Get_Y(i),2));
+		sPoints.Append(SG_Get_String(Points[i].y,2));
 		sPoints.Append(SG_T(" "));
 	}
 	m_sSVGCode.Append(SG_T("<polyline "));
@@ -286,9 +286,9 @@ void CSG_Doc_SVG::Draw_Polygon(CSG_Points &Points,
 		
 		for (i = 0; i < Points.Get_Count(); i++)
 		{
-			sPoints.Append(SG_Get_String(Points.Get_X(i),2));
+			sPoints.Append(SG_Get_String(Points[i].x,2));
 			sPoints.Append(SG_T(","));
-			sPoints.Append(SG_Get_String(Points.Get_Y(i),2));
+			sPoints.Append(SG_Get_String(Points[i].y,2));
 			sPoints.Append(SG_T(" "));
 		}
 		m_sSVGCode.Append(SG_T("<polygon "));
@@ -317,9 +317,9 @@ void CSG_Doc_SVG::Draw_LinkedPolygon(CSG_Points &Points,
 		
 		for (i = 0; i < Points.Get_Count(); i++)
 		{
-			sPoints.Append(SG_Get_String(Points.Get_X(i),2));
+			sPoints.Append(SG_Get_String(Points[i].x,2));
 			sPoints.Append(SG_T(","));
-			sPoints.Append(SG_Get_String(Points.Get_Y(i),2));
+			sPoints.Append(SG_Get_String(Points[i].y,2));
 			sPoints.Append(SG_T(" "));
 		}
 		m_sSVGCode.Append(SG_T("<polygon "));

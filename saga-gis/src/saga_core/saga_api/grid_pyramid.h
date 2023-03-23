@@ -86,7 +86,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_Grid_Pyramid_Generalisation
+typedef enum
 {
 	GRID_PYRAMID_Mean	= 0,
 	GRID_PYRAMID_Max,
@@ -96,7 +96,7 @@ typedef enum ESG_Grid_Pyramid_Generalisation
 TSG_Grid_Pyramid_Generalisation;
 
 //---------------------------------------------------------
-typedef enum ESG_Grid_Pyramid_Grow_Type
+typedef enum
 {
 	GRID_PYRAMID_Arithmetic	= 0,
 	GRID_PYRAMID_Geometric

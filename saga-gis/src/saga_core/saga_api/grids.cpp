@@ -1050,7 +1050,7 @@ CSG_Grids & CSG_Grids::Divide(double Value)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CSG_Grids::Get_Value(const TSG_Point_Z &p, TSG_Grid_Resampling Resampling, TSG_Grid_Resampling ZResampling) const
+double CSG_Grids::Get_Value(const TSG_Point_3D &p, TSG_Grid_Resampling Resampling, TSG_Grid_Resampling ZResampling) const
 {
 	double	Value;
 
@@ -1064,7 +1064,7 @@ double CSG_Grids::Get_Value(double x, double y, double z, TSG_Grid_Resampling Re
 	return( Get_Value(x, y, z, Value, Resampling, ZResampling) ? Value : Get_NoData_Value() );
 }
 
-bool CSG_Grids::Get_Value(const TSG_Point_Z &p, double &Value, TSG_Grid_Resampling Resampling, TSG_Grid_Resampling ZResampling) const
+bool CSG_Grids::Get_Value(const TSG_Point_3D &p, double &Value, TSG_Grid_Resampling Resampling, TSG_Grid_Resampling ZResampling) const
 {
 	return( Get_Value(p.x, p.y, p.z, Value, Resampling, ZResampling) );
 }

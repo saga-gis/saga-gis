@@ -85,7 +85,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_PointCloud_FileType
+typedef enum
 {
 	POINTCLOUD_FILE_FORMAT_Undefined = 0,
 	POINTCLOUD_FILE_FORMAT_Normal,
@@ -189,10 +189,10 @@ public:
 	virtual bool					Set_Attribute		(sLong Index, int Field, const SG_Char *Value)			{	return( Set_Value(Index, Field + 3, Value) );	}
 	virtual bool					Get_Attribute		(sLong Index, int Field, CSG_String    &Value)	const	{	return( Get_Value(Index, Field + 3, Value) );	}
 
-	TSG_Point_Z						Get_Point			(void)			const;
-	TSG_Point_Z						Get_Point			(sLong Index)	const;
-	virtual bool					Set_Point			(             const TSG_Point_Z &Point);
-	virtual bool					Set_Point			(sLong Index, const TSG_Point_Z &Point);
+	TSG_Point_3D					Get_Point			(void)			const;
+	TSG_Point_3D					Get_Point			(sLong Index)	const;
+	virtual bool					Set_Point			(             const TSG_Point_3D &Point);
+	virtual bool					Set_Point			(sLong Index, const TSG_Point_3D &Point);
 
 	virtual void					Set_Modified		(bool bModified = true)		{	CSG_Data_Object::Set_Modified(bModified);	}
 
@@ -202,7 +202,7 @@ public:
 
 	virtual CSG_Table_Record *		Get_Record			(sLong Index)	const;
 
-	virtual CSG_Shape *				Get_Shape			(TSG_Point Point, double Epsilon = 0.);
+	virtual CSG_Shape *				Get_Shape			(const CSG_Point &Point, double Epsilon = 0.);
 
 	virtual bool					Del_Record			(sLong Index)	{	return( Del_Point(Index) );	}
 	virtual bool					Del_Shape			(sLong Index)	{	return( Del_Point(Index) );	}
@@ -214,10 +214,10 @@ public:
 	virtual CSG_Shape *				Add_Shape			(             CSG_Table_Record *pCopy = NULL, TSG_ADD_Shape_Copy_Mode mCopy = SHAPE_COPY);
 	virtual bool					Del_Shape			(CSG_Shape *pShape)	{	return( false );	}
 
-	virtual bool					Select				(sLong Index             , bool bInvert = false);
-	virtual bool					Select				(CSG_Shape *pShape = NULL, bool bInvert = false);
-	virtual bool					Select				(TSG_Rect Extent         , bool bInvert = false);
-	virtual bool					Select				(TSG_Point Point         , bool bInvert = false);
+	virtual bool					Select				(sLong Index                    , bool bInvert = false);
+	virtual bool					Select				(CSG_Table_Record *pShape = NULL, bool bInvert = false);
+	virtual bool					Select				(const TSG_Rect &Extent         , bool bInvert = false);
+	virtual bool					Select				(const TSG_Point &Point         , bool bInvert = false);
 
 	virtual bool					is_Selected			(sLong Index)	const;
 

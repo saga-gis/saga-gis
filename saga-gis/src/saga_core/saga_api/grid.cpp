@@ -459,7 +459,7 @@ bool CSG_Grid::is_Valid(void) const
 //---------------------------------------------------------
 TSG_Intersection CSG_Grid::is_Intersecting(const CSG_Rect &Extent) const
 {
-	return( Get_Extent().Intersects(Extent.m_rect) );
+	return( Get_Extent().Intersects(Extent) );
 }
 
 TSG_Intersection CSG_Grid::is_Intersecting(const TSG_Rect &Extent) const

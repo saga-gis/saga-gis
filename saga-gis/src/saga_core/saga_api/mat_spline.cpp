@@ -317,7 +317,7 @@ bool CSG_Thin_Plate_Spline::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CSG_Thin_Plate_Spline::_Get_hDistance(TSG_Point_Z A, TSG_Point_Z B)
+double CSG_Thin_Plate_Spline::_Get_hDistance(TSG_Point_3D A, TSG_Point_3D B)
 {
 	A.x -= B.x;
 	A.y -= B.y;
@@ -332,7 +332,7 @@ double CSG_Thin_Plate_Spline::_Get_Base_Funtion(double x)
 }
 
 //---------------------------------------------------------
-double CSG_Thin_Plate_Spline::_Get_Base_Funtion(TSG_Point_Z A, double x, double y)
+double CSG_Thin_Plate_Spline::_Get_Base_Funtion(TSG_Point_3D A, double x, double y)
 {
 	x -= A.x;
 	y -= A.y;
@@ -381,7 +381,7 @@ bool CSG_Thin_Plate_Spline::Create(double Regularization, bool bSilent)
 
 	for(sLong i=0; i<n && (bSilent || SG_UI_Process_Set_Progress(i, n)); ++i)
 	{
-		TSG_Point_Z Point = m_Points[i];
+		TSG_Point_3D Point = m_Points[i];
 
 		for(sLong j=i+1; j<n; ++j)
 		{

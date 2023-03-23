@@ -307,7 +307,7 @@ void CSG_Table::_On_Construction(void)
 
 	m_Encoding    = SG_FILE_ENCODING_UTF8;
 
-	m_Selection.Create(sizeof(sLong), 0, SG_ARRAY_GROWTH_3);
+	m_Selection.Create(sizeof(sLong), 0, TSG_Array_Growth::SG_ARRAY_GROWTH_3);
 
 	Set_Update_Flag();
 }

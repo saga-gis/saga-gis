@@ -133,9 +133,9 @@ public:
 	{
 		CSG_Shape *pPoint = m_pPoints->Get_Shape(Index);
 
-		if( Dimension == 0 ) { return( pPoint->Get_Point(0).x ); }
-		if( Dimension == 1 ) { return( pPoint->Get_Point(0).y ); }
-		if( Dimension == 2 ) { return( (m_zField < 0 ? pPoint->Get_Z(0) : pPoint->asDouble(m_zField)) * m_zScale); }
+		if( Dimension == 0 ) { return( pPoint->Get_Point().x ); }
+		if( Dimension == 1 ) { return( pPoint->Get_Point().y ); }
+		if( Dimension == 2 ) { return( (m_zField < 0 ? pPoint->Get_Z() : pPoint->asDouble(m_zField)) * m_zScale); }
 
 		return( 0. );
 	}
@@ -345,8 +345,8 @@ bool CSG_KDTree_2D::Create(CSG_Shapes *pPoints, int Field)
 
 			if( !pPoint->is_NoData(Field) )
 			{
-				m_Points[n][0] = pPoint->Get_Point(0).x;
-				m_Points[n][1] = pPoint->Get_Point(0).y;
+				m_Points[n][0] = pPoint->Get_Point().x;
+				m_Points[n][1] = pPoint->Get_Point().y;
 				m_Points[n][2] = pPoint->asDouble(Field);
 
 				n++;
@@ -729,9 +729,9 @@ bool CSG_KDTree_3D::Create(CSG_Shapes *pPoints, int Field, int zField, double zS
 
 			if( !pPoint->is_NoData(Field) )
 			{
-				m_Points[n][0] = pPoint->Get_Point(0).x;
-				m_Points[n][1] = pPoint->Get_Point(0).y;
-				m_Points[n][2] = zScale * (zField < 0 ? pPoint->Get_Z(0) : pPoint->asDouble(zField));
+				m_Points[n][0] = pPoint->Get_Point().x;
+				m_Points[n][1] = pPoint->Get_Point().y;
+				m_Points[n][2] = zScale * (zField < 0 ? pPoint->Get_Z() : pPoint->asDouble(zField));
 				m_Points[n][3] = pPoint->asDouble(Field);
 
 				n++;
@@ -1298,8 +1298,8 @@ bool CSG_Parameters_Point_Search_KDTree_2D::Get_Point(sLong Index, double &x, do
 
 		if( pPoint && !pPoint->is_NoData(m_zField) )
 		{
-			x = pPoint->Get_Point(0).x;
-			y = pPoint->Get_Point(0).y;
+			x = pPoint->Get_Point().x;
+			y = pPoint->Get_Point().y;
 
 			z = m_zField < 0 ? (double)Index : pPoint->asDouble(m_zField);
 
@@ -1324,8 +1324,8 @@ bool CSG_Parameters_Point_Search_KDTree_2D::Get_Point(sLong Index, double &x, do
 
 				if( pPoint )
 				{
-					x = pPoint->Get_Point(0).x;
-					y = pPoint->Get_Point(0).y;
+					x = pPoint->Get_Point().x;
+					y = pPoint->Get_Point().y;
 
 					z = (double)Index;
 
@@ -1344,7 +1344,7 @@ bool CSG_Parameters_Point_Search_KDTree_2D::Get_Point(sLong Index, double &x, do
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Parameters_Point_Search_KDTree_2D::Get_Points(double x, double y, CSG_Points_Z &Points)
+bool CSG_Parameters_Point_Search_KDTree_2D::Get_Points(double x, double y, CSG_Points_3D &Points)
 {
 	CSG_Array_Int Index; if( Get_Points(x, y, Index) )
 	{
@@ -1364,7 +1364,7 @@ bool CSG_Parameters_Point_Search_KDTree_2D::Get_Points(double x, double y, CSG_P
 
 				if( pPoint )
 				{
-					Points.Add(pPoint->Get_Point(0).x, pPoint->Get_Point(0).y, (double)Index[i]);
+					Points.Add(pPoint->Get_Point().x, pPoint->Get_Point().y, (double)Index[i]);
 				}
 			}
 		}
@@ -1376,7 +1376,7 @@ bool CSG_Parameters_Point_Search_KDTree_2D::Get_Points(double x, double y, CSG_P
 }
 
 //---------------------------------------------------------
-bool CSG_Parameters_Point_Search_KDTree_2D::Get_Points(const CSG_Point &p, CSG_Points_Z &Points)
+bool CSG_Parameters_Point_Search_KDTree_2D::Get_Points(const CSG_Point &p, CSG_Points_3D &Points)
 {
 	return( Get_Points(p.x, p.y, Points) );
 }

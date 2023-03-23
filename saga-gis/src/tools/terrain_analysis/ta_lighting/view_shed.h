@@ -90,7 +90,7 @@ private:
 
 	CSG_Grid				*m_pDEM;
 
-	CSG_Points_Z			m_Direction;
+	CSG_Points_3D			m_Direction;
 
 	CSG_Grid_Pyramid		m_Pyramid;
 

@@ -1423,11 +1423,11 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, c
 	}
 	else if( r.Get_XRange() == 0. )
 	{
-		double d = 0.5 * r.Get_YRange() / Rows; r.m_rect.xMin -= d; r.m_rect.xMax += d;	// inflate by half cellsize
+		double d = 0.5 * r.Get_YRange() / Rows; r.xMin -= d; r.xMax += d;	// inflate by half cellsize
 	}
 	else if( r.Get_YRange() == 0. )
 	{
-		double d = 0.5 * r.Get_XRange() / Rows; r.m_rect.yMin -= d;	r.m_rect.yMax += d;	// inflate by half cellsize
+		double d = 0.5 * r.Get_XRange() / Rows; r.yMin -= d; r.yMax += d;	// inflate by half cellsize
 	}
 
 	//-----------------------------------------------------
@@ -1439,12 +1439,12 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, c
 	{
 		Size = SG_Get_Rounded_To_SignificantFigures(Size, Rounding);
 
-		r.m_rect.xMin = r.Get_XCenter() - Size * Cols / 2.;
-		r.m_rect.yMin = r.Get_YCenter() - Size * Rows / 2.;
-		r.m_rect.yMax = r.Get_YMin   () + Size * (Rows - 1);
+		r.xMin = r.Get_XCenter() - Size * Cols / 2.;
+		r.yMin = r.Get_YCenter() - Size * Rows / 2.;
+		r.yMax = r.Get_YMin   () + Size * (Rows - 1);
 	}
 
-	r.m_rect.xMax = r.Get_XMin() + Size * (Cols - 1);
+	r.xMax = r.Get_XMin() + Size * (Cols - 1);
 
 	//-----------------------------------------------------
 	if( (*pParameters)(m_Prefix + "USER_FITS")->asInt() == 1 ) // fit to cells
@@ -1487,10 +1487,10 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, C
 	{
 		Size	= SG_Get_Rounded_To_SignificantFigures(Size, Rounding);
 
-		r.m_rect.xMin = Size * floor(r.m_rect.xMin / Size);
-		r.m_rect.xMax = Size * ceil (r.m_rect.xMax / Size);
-		r.m_rect.yMin = Size * floor(r.m_rect.yMin / Size);
-		r.m_rect.yMax = Size * ceil (r.m_rect.yMax / Size);
+		r.xMin = Size * floor(r.xMin / Size);
+		r.xMax = Size * ceil (r.xMax / Size);
+		r.yMin = Size * floor(r.yMin / Size);
+		r.yMax = Size * ceil (r.yMax / Size);
 	}
 
 	int		Rows	= 1 + (int)(0.5 + r.Get_YRange() / Size);

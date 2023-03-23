@@ -269,8 +269,8 @@ bool CGridding_Spline_MBA_3D::Initialize(void)
 		{
 			CSG_Vector	p(4);
 
-			p[0]	= pPoint->Get_Point(0).x;
-			p[1]	= pPoint->Get_Point(0).y;
+			p[0]	= pPoint->Get_Point().x;
+			p[1]	= pPoint->Get_Point().y;
 			p[2]	= zScale * (zField < 0 ? pPoint->Get_Z(0)
 					: pPoint->asDouble(zField));
 			p[3]	= pPoint->asDouble(vField) - pPoints->Get_Mean(vField);	// detrend!
