@@ -1339,7 +1339,7 @@ public:
 	int								Get_Count			(void) const		{	return( m_nColors );	}
 
 	CSG_Colors &					operator  =			(const CSG_Colors &Colors);
-	long &							operator []			(int Index)			{	return( m_Colors[Index] );	}
+	long &							operator []			(int Index)			{	return( m_Colors[Index < 0 ? 0 : Index >= m_nColors ? m_nColors - 1 : Index] );	}
 
 	bool							Set_Color			(int Index, long Color);
 	bool							Set_Color			(int Index, int Red, int Green, int Blue);

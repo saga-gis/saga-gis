@@ -279,7 +279,7 @@ bool CPoint_Trend_Surface::Get_Regression(CSG_Shapes *pPoints, int iAttribute)
 
 		if( !pShape->is_NoData(iAttribute) )
 		{
-			TSG_Point Point = pShape->Get_Point(0); int ii = (int)iShape;
+			TSG_Point Point = pShape->Get_Point(); int ii = (int)iShape;
 
 			Y[ii]    = pShape->asDouble(iAttribute);
 			X[ii][0] = 1.;

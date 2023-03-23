@@ -339,7 +339,7 @@ bool CGW_Multi_Regression_Grid::Initialize(CSG_Shapes *pPoints, int iDependent, 
 		if( !pPoint->is_NoData(iDependent) )
 		{
 			CSG_Vector	z(1 + m_nPredictors);	z[0]	= pPoint->asDouble(iDependent);
-			TSG_Point	Point	= pPoint->Get_Point(0);
+			TSG_Point	Point	= pPoint->Get_Point();
 			bool		bAdd	= true;
 
 			for(iPredictor=0; bAdd && iPredictor<m_nPredictors; iPredictor++)
@@ -437,7 +437,7 @@ bool CGW_Multi_Regression_Grid::Get_Model(int x, int y, CSG_Regression_Weighted 
 				Predictors[iPredictor] = pPoint->asDouble(1 + iPredictor);
 			}
 
-			Model.Add_Sample(m_Weighting.Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point(0))), pPoint->asDouble(0), Predictors);
+			Model.Add_Sample(m_Weighting.Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point())), pPoint->asDouble(0), Predictors);
 		}
 	}
 

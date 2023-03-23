@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,12 +46,6 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 #include "add_point_attributes.h"
 
@@ -81,40 +72,38 @@ CAdd_Point_Attributes::CAdd_Point_Attributes(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		NULL	, "INPUT"	, _TL("Polygons"),
+	Parameters.Add_Shapes("",
+		"INPUT"		, _TL("Polygons"),
 		_TL("Input polygon shapefile"),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
-	CSG_Parameter	*pNode	= Parameters.Add_Shapes(
-		NULL	, "POINTS"		, _TL("Points"),
+	Parameters.Add_Shapes("",
+		"POINTS"	, _TL("Points"),
 		_TL("Input point shapefile"),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Table_Fields(
-		pNode	, "FIELDS"		, _TL("Attributes"),
+	Parameters.Add_Table_Fields("POINTS",
+		"FIELDS"	, _TL("Attributes"),
 		_TL("Attributes to add. Select none to add all")
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "OUTPUT"		, _TL("Result"),
+	Parameters.Add_Shapes("",
+		"OUTPUT"	, _TL("Result"),
 		_TL("Optional output polygon shapefile"),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 	
-	Parameters.Add_Value(
-		NULL	, "ADD_LOCATION_INFO",	_TL("Add Location Info"),
+	Parameters.Add_Bool("",
+		"ADD_LOCATION_INFO", _TL("Add Location Info"),
 		_TL("Add location information from points (x,y,(z,m))"),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -201,7 +190,6 @@ bool CAdd_Point_Attributes::On_Execute(void)
 		}
 	}
 
-
 	//-----------------------------------------------------
 	for(sLong iPolygon=0; iPolygon<pOutput->Get_Count() && Set_Progress(iPolygon, pOutput->Get_Count()); iPolygon++)
 	{
@@ -212,7 +200,7 @@ bool CAdd_Point_Attributes::On_Execute(void)
 		{
 			CSG_Shape	*pPoint	= pPoints->Get_Shape(iPoint);
 
-			if( pPolygon->Contains(pPoint->Get_Point(0)) )
+			if( pPolygon->Contains(pPoint->Get_Point()) )
 			{
 				for(int iField=0; iField<pFields->Get_Count(); iField++)
 				{
@@ -233,8 +221,8 @@ bool CAdd_Point_Attributes::On_Execute(void)
 
 				if( bAddLocInfo )
 				{
-					pPolygon->Set_Value(iXField    , pPoint->Get_Point(0).x);
-					pPolygon->Set_Value(iXField + 1, pPoint->Get_Point(0).y);
+					pPolygon->Set_Value(iXField    , pPoint->Get_Point().x);
+					pPolygon->Set_Value(iXField + 1, pPoint->Get_Point().y);
 
 					if( pPoints->Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
 					{

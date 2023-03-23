@@ -629,7 +629,7 @@ void CWKSP_Shapes_Point::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int
 
 		if( Draw_Initialize(dc_Map, Size, pShape, Selection) )
 		{
-			TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Point(0)));
+			TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Point()));
 
 			//---------------------------------------------
 			if( m_Symbol_Type == SYMBOL_TYPE_Beachball )
@@ -694,7 +694,7 @@ void CWKSP_Shapes_Point::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int
 //---------------------------------------------------------
 void CWKSP_Shapes_Point::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label)
 {
-	TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Point(0)));
+	TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Point()));
 
 	if( m_Label_Offset > 0. )
 	{

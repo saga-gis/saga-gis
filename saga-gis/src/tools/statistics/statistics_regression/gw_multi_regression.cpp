@@ -318,7 +318,7 @@ bool CGW_Multi_Regression::Get_Model(int x, int y, CSG_Regression_Weighted &Mode
 
 				if( bOkay )
 				{
-					Model.Add_Sample(m_Weighting.Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point(0))),
+					Model.Add_Sample(m_Weighting.Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point())),
 						pPoint->asDouble(m_iDependent), Predictors
 					);
 				}

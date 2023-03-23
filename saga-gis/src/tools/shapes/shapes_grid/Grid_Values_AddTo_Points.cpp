@@ -155,7 +155,7 @@ bool CGrid_Values_AddTo_Points::On_Execute(void)
 		{
 			CSG_Grid	*pGrid	= pGrids->Get_Grid(iGrid);	double Value;
 
-			if( pGrid->Get_Value(pShape->Get_Point(0), Value, Resampling) )
+			if( pGrid->Get_Value(pShape->Get_Point(), Value, Resampling) )
 			{
 				pShape->Set_Value(iField, Value);
 			}

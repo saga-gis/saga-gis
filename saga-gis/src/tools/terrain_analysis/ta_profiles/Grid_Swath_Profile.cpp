@@ -257,7 +257,7 @@ bool CGrid_Swath_Profile::Set_Profile(void)
 		CSG_Shape *pLeft  = m_pLine->Get_Shape(1); if( pLeft  ) pLeft ->Del_Parts(); else pLeft  = m_pLine->Add_Shape();
 		CSG_Shape *pRight = m_pLine->Get_Shape(2); if( pRight ) pRight->Del_Parts(); else pRight = m_pLine->Add_Shape();
 
-		CSG_Point B = pLine->Get_Point(0);
+		CSG_Point B = pLine->Get_Point();
 
 		for(int i=1; i<pLine->Get_Point_Count(0); i++)
 		{
@@ -373,7 +373,7 @@ bool CGrid_Swath_Profile::Add_Point(CSG_Point Point, CSG_Point Left, CSG_Point R
 	{
 		CSG_Shape *pLast = m_pPoints->Get_Shape(m_pPoints->Get_Count() - 1);
 
-		Distance = SG_Get_Distance(Point, pLast->Get_Point(0));
+		Distance = SG_Get_Distance(Point, pLast->Get_Point());
 
 		if( Distance == 0. )
 		{
@@ -408,7 +408,7 @@ bool CGrid_Swath_Profile::Add_Swath(CSG_Shape *pPoint, int iEntry, CSG_Grid *pGr
 {
 	double Value;
 
-	if( pGrid->Get_Value(pPoint->Get_Point(0), Value) )
+	if( pGrid->Get_Value(pPoint->Get_Point(), Value) )
 	{
 		pPoint->Set_Value(iEntry, Value);
 	}

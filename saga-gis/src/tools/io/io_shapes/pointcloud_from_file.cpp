@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: pointcloud_from_file.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "pointcloud_from_file.h"
 
 
@@ -70,27 +58,26 @@
 //---------------------------------------------------------
 CPointCloud_From_File::CPointCloud_From_File(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Import Point Cloud from Shape File"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2009"));
+	Set_Author		("O. Conrad (c) 2009");
 
 	Set_Description	(_TW(
 		"Allows one to import a point cloud from a point shapefile."
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_PointCloud_Output(
-		NULL	, "POINTS"		, _TL("Point Cloud"),
+	Parameters.Add_PointCloud_Output("",
+		"POINTS", _TL("Point Cloud"),
 		_TL("")
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "FILE"		, _TL("File"),
+	Parameters.Add_FilePath("",
+		"FILE"  , _TL("File"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s"),
-			_TL("ESRI Shapefiles")	, SG_T("*.shp"),
-			_TL("All Files")		, SG_T("*.*")
+		CSG_String::Format("%s|*.shp|%s|*.*",
+			_TL("ESRI Shapefiles"),
+			_TL("All Files")
 		)
 	);
 }
@@ -98,14 +85,12 @@ CPointCloud_From_File::CPointCloud_From_File(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CPointCloud_From_File::On_Execute(void)
 {
-	CSG_String	fName(Parameters("FILE")->asString());
+	CSG_String fName(Parameters("FILE")->asString());
 
 	if( Read_Shapefile(fName) )
 	{
@@ -125,8 +110,7 @@ bool CPointCloud_From_File::On_Execute(void)
 //---------------------------------------------------------
 bool CPointCloud_From_File::Read_Shapefile(const CSG_String &fName)
 {
-	int			iField, iPoint;
-	CSG_Shapes	Shapes;
+	CSG_Shapes Shapes;
 
 	if( !Shapes.Create(fName) || Shapes.Get_Count() == 0 )
 	{
@@ -139,22 +123,22 @@ bool CPointCloud_From_File::Read_Shapefile(const CSG_String &fName)
 	}
 
 	//-----------------------------------------------------
-	CSG_PointCloud	*pPoints	= SG_Create_PointCloud();
+	CSG_PointCloud *pPoints = SG_Create_PointCloud();
 	pPoints->Set_Name(SG_File_Get_Name(fName, false));
 	Parameters("POINTS")->Set_Value(pPoints);
 
-	for(iField=0; iField<Shapes.Get_Field_Count(); iField++)
+	for(int iField=0; iField<Shapes.Get_Field_Count(); iField++)
 	{
 		pPoints->Add_Field(Shapes.Get_Field_Name(iField), SG_DATATYPE_Double);
 	}
 
-	for(iPoint=0; iPoint<Shapes.Get_Count(); iPoint++)
+	for(sLong iPoint=0; iPoint<Shapes.Get_Count() && Set_Progress(iPoint, Shapes.Get_Count()); iPoint++)
 	{
-		CSG_Shape	*pPoint	= Shapes.Get_Shape(iPoint);
+		CSG_Shape *pPoint = Shapes.Get_Shape(iPoint);
 
-		pPoints->Add_Point(pPoint->Get_Point(0).x, pPoint->Get_Point(0).y, 0.0);
+		pPoints->Add_Point(pPoint->Get_Point().x, pPoint->Get_Point().y, 0.0);
 
-		for(iField=0; iField<Shapes.Get_Field_Count(); iField++)
+		for(int iField=0; iField<Shapes.Get_Field_Count(); iField++)
 		{
 			pPoints->Set_Value(3 + iField, pPoint->asDouble(iField));
 		}

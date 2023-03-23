@@ -296,7 +296,7 @@ bool CHillShade::Get_Position(double &Azimuth, double &Decline)
 			&&  SG_TOOL_PARAMETER_SET("TARGET", &GCS)
 		)
 
-		TSG_Point Center = GCS.Get_Shape(0)->Get_Point(0);
+		TSG_Point Center = GCS.Get_Shape(0)->Get_Point();
 
 		CSG_DateTime Date(Parameters("DATE")->asDate()->Get_Date());
 

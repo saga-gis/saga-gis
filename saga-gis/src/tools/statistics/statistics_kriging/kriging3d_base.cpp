@@ -328,9 +328,9 @@ bool CKriging3D_Base::On_Execute(void)
 			{
 				m_Model.Clr_Data();
 
-				for(int i=0; i<Variogram.Get_Count(); i++)
+				for(sLong i=0; i<Variogram.Get_Count(); i++)
 				{
-					CSG_Table_Record	*pRecord	= Variogram.Get_Record(i);
+					CSG_Table_Record *pRecord = Variogram.Get_Record(i);
 
 					m_Model.Add_Data(pRecord->asDouble(CSG_Variogram::FIELD_DISTANCE), pRecord->asDouble(CSG_Variogram::FIELD_VAR_EXP));
 				}
@@ -432,19 +432,19 @@ bool CKriging3D_Base::Init_Points(CSG_Shapes *pPoints, int Field, bool bLog, int
 {
 	m_Points.Create(4, pPoints->Get_Count());
 
-	int	n	= 0;
+	sLong n = 0;
 
-	for(int i=0; i<pPoints->Get_Count(); i++)
+	for(sLong i=0; i<pPoints->Get_Count(); i++)
 	{
-		CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
+		CSG_Shape *pPoint = pPoints->Get_Shape(i);
 
 		if( !pPoint->is_NoData(Field) )
 		{
-			m_Points[n][0]	= pPoint->Get_Point(0).x;
-			m_Points[n][1]	= pPoint->Get_Point(0).y;
-			m_Points[n][2]	= zScale * (zField < 0 ? pPoint->Get_Z(0) : pPoint->asDouble(zField));
-			m_Points[n][3]	= bLog ? log(1. + pPoint->asDouble(Field) - pPoints->Get_Minimum(Field))
-							: pPoint->asDouble(Field);
+			m_Points[n][0] = pPoint->Get_Point().x;
+			m_Points[n][1] = pPoint->Get_Point().y;
+			m_Points[n][2] = zScale * (zField < 0 ? pPoint->Get_Z(0) : pPoint->asDouble(zField));
+			m_Points[n][3] = bLog ? log(1. + pPoint->asDouble(Field) - pPoints->Get_Minimum(Field))
+			               : pPoint->asDouble(Field);
 
 			n++;
 		}
@@ -485,9 +485,9 @@ bool CKriging3D_Base::Get_Points(double x, double y, double z, CSG_Matrix &Point
 
 		m_Search.Get_Nearest_Points(x, y, z, m_Search_Options.Get_Max_Points(), m_Search_Options.Get_Radius(), Index, Distance);
 
-		if( Index.Get_Size() >= m_Search_Options.Get_Min_Points() && Points.Create(4, (int)Index.Get_Size()) )
+		if( Index.Get_Size() >= (sLong)m_Search_Options.Get_Min_Points() && Points.Create(4, Index.Get_Size()) )
 		{
-			for(size_t i=0; i<Index.Get_Size(); i++)
+			for(sLong i=0; i<Index.Get_Size(); i++)
 			{
 				Points.Set_Row(i, m_Points[Index[i]]);
 			}

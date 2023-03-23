@@ -272,7 +272,7 @@ bool CProfile_Crossings::Get_Crossing(CSG_Shapes *pLines_A, CSG_Shapes *pLines_B
 	{
 		CSG_Shape_Line	*pA	= (CSG_Shape_Line *)pLines_A->Get_Shape(aLine);
 		
-		TSG_Point	ProfileStartPoint = pA->Get_Point(0);
+		TSG_Point	ProfileStartPoint = pA->Get_Point();
 
 		for(int bLine=0; bLine<pLines_B->Get_Count() && Set_Progress(iPair++, nPairs); bLine++)
 		{

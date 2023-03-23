@@ -792,7 +792,7 @@ public:
 	bool							Load_DB					(const CSG_String &FileName, bool bAppend = false);
 	bool							Save_DB					(const CSG_String &FileName);
 
-	int								Get_Count				(void)	const;
+	sLong							Get_Count				(void)	const;
 
 	bool							Add						(const CSG_Projection &Projection);
 	bool							Add						(const SG_Char *WKT, const SG_Char *Proj4, const SG_Char *Authority, int Authority_ID);

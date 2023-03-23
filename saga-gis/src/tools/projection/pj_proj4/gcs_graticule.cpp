@@ -393,7 +393,7 @@ bool CGCS_Graticule::Get_Coordinate(const CSG_Rect &Extent, CSG_Shapes *pCoordin
 	}
 
 	//-----------------------------------------------------
-	B[1]	= pLine->Get_Point(0);
+	B[1]	= pLine->Get_Point();
 
 	for(int i=1; i<pLine->Get_Point_Count(); i++)
 	{

@@ -1,3 +1,4 @@
+
 ///////////////////////////////////////////////////////////
 //                                                       //
 //                         SAGA                          //
@@ -197,7 +198,7 @@ bool CIsochronesVar_Tool::On_Execute(void)
             return (false);
         }
 
-        TSG_Point p = pPoint->Get_Shape(0)->Get_Point(0);
+        TSG_Point p = pPoint->Get_Shape(0)->Get_Point();
 
         iX = Parameters("DEM")->asGrid()->Get_System().Get_xWorld_to_Grid(p.x);
         iY = Parameters("DEM")->asGrid()->Get_System().Get_yWorld_to_Grid(p.y);

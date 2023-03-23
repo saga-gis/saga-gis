@@ -162,7 +162,7 @@ bool CGrid_Proximity::On_Execute(void)
 					{
 						if( Distance > 0. )
 						{
-							TSG_Point p = Point.Get_Point(0);
+							TSG_Point p = Point.Get_Point();
 
 							pDirection->Set_Value(x, y, SG_Get_Angle_Of_Direction(x, y, p.x, p.y) * M_RAD_TO_DEG);
 						}

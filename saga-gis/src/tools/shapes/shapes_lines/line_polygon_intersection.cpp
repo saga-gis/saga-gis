@@ -313,8 +313,8 @@ bool CLine_Polygon_Intersection::Get_Intersection(CSG_Shape_Polygon *pPolygon, C
 			//---------------------------------------------
 			for(int i=1, j=0; i<Vertices.Get_Count(); i++, j++) // check for vertices at polygon edges/vertices (vertex + one or two crossings)
 			{
-				CSG_Point a(Vertices.Get_Shape_byIndex(i)->Get_Point(0));
-				CSG_Point b(Vertices.Get_Shape_byIndex(j)->Get_Point(0));
+				CSG_Point a(Vertices.Get_Shape_byIndex(i)->Get_Point());
+				CSG_Point b(Vertices.Get_Shape_byIndex(j)->Get_Point());
 
 				if( a == b )
 				{
@@ -324,15 +324,15 @@ bool CLine_Polygon_Intersection::Get_Intersection(CSG_Shape_Polygon *pPolygon, C
 			}
 
 			//---------------------------------------------
-			bool bInterior = pPolygon->Contains(Vertices.Get_Shape_byIndex(0)->Get_Point(0));
+			bool bInterior = pPolygon->Contains(Vertices.Get_Shape_byIndex(0)->Get_Point());
 
 			if( bInterior && Vertices.Get_Shape_byIndex(0)->asInt(1) ) // starts with crossing => first vertex is on polygon edge/vertex
 			{
-				CSG_Point First(Vertices.Get_Shape_byIndex(0)->Get_Point(0));
+				CSG_Point First(Vertices.Get_Shape_byIndex(0)->Get_Point());
 
 				for(int i=1; i<Vertices.Get_Count(); i++)
 				{
-					CSG_Point Next(Vertices.Get_Shape_byIndex(i)->Get_Point(0));
+					CSG_Point Next(Vertices.Get_Shape_byIndex(i)->Get_Point());
 
 					if( First != Next )
 					{

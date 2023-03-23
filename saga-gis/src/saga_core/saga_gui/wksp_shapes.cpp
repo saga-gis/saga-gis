@@ -1248,7 +1248,7 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 				{
 					dc_Map.dc.SetPen(wxPen(i == 0 ? *wxWHITE : *wxBLACK, i == 0 ? 3 : 1));
 
-					TSG_Point_Int	B, A	= dc_Map.World2DC(pSplit->Get_Point(0));
+					TSG_Point_Int	B, A	= dc_Map.World2DC(pSplit->Get_Point());
 
 					for(int iPoint=1; iPoint<pSplit->Get_Point_Count(); iPoint++)
 					{

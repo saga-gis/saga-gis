@@ -123,7 +123,7 @@ bool CCollect_Points::On_Execute(void)
 {
 	m_Engine.Destroy();
 
-	m_pPoints	= Parameters("REF_SOURCE")->asShapes();
+	m_pPoints = Parameters("REF_SOURCE")->asShapes();
 
 	Get_Parameters("REFERENCE")->Restore_Defaults();
 
@@ -139,18 +139,18 @@ bool CCollect_Points::On_Execute(void)
 	}
 	else
 	{
-		for(int i=0; i<m_pPoints->Get_Count(); i++)
+		for(sLong i=0; i<m_pPoints->Get_Count(); i++)
 		{
-			CSG_Shape	*pPoint	= m_pPoints->Get_Shape(i);
+			CSG_Shape *pPoint = m_pPoints->Get_Shape(i);
 
-			m_Engine.Add_Reference(pPoint->Get_Point(0), CSG_Point(
+			m_Engine.Add_Reference(pPoint->Get_Point(), CSG_Point(
 				pPoint->asDouble(2),
 				pPoint->asDouble(3)
 			));
 		}
 
-		int	Method	= Parameters("METHOD")->asInt();
-		int	Order	= Parameters("ORDER" )->asInt();
+		int Method = Parameters("METHOD")->asInt();
+		int Order  = Parameters("ORDER" )->asInt();
 
 		m_Engine.Evaluate(Method, Order);
 	}
@@ -163,7 +163,7 @@ bool CCollect_Points::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactiv
 {
 	if( Mode == TOOL_INTERACTIVE_LUP )
 	{
-		TSG_Point	ptTarget;
+		TSG_Point ptTarget;
 
 		if( m_Engine.Get_Converted(ptTarget = ptWorld) )
 		{
@@ -184,9 +184,9 @@ bool CCollect_Points::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactiv
 			pPoint->Set_Value(2, ptTarget.x = Get_Parameters("REFERENCE")->Get_Parameter("X")->asDouble());
 			pPoint->Set_Value(3, ptTarget.y = Get_Parameters("REFERENCE")->Get_Parameter("Y")->asDouble());
 
-			if( m_Engine.Add_Reference(ptWorld, ptTarget) && m_Engine.Evaluate(Method, Order) && m_pPoints->Get_Count() == m_Engine.Get_Reference_Count() )
+			if( m_Engine.Add_Reference(ptWorld, ptTarget) && m_Engine.Evaluate(Method, Order) && m_Engine.Get_Reference_Count() == m_pPoints->Get_Count() )
 			{
-				for(int i=0; i<m_pPoints->Get_Count(); i++)
+				for(sLong i=0; i<m_pPoints->Get_Count(); i++)
 				{
 					m_pPoints->Get_Shape(i)->Set_Value(4, m_Engine.Get_Reference_Residual(i));
 				}
@@ -202,7 +202,7 @@ bool CCollect_Points::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactiv
 //---------------------------------------------------------
 bool CCollect_Points::On_Execute_Finish(void)
 {
-	CSG_Shapes	*pTarget	= Parameters("REF_TARGET")->asShapes();
+	CSG_Shapes *pTarget = Parameters("REF_TARGET")->asShapes();
 
 	if( pTarget != NULL )
 	{
@@ -214,9 +214,9 @@ bool CCollect_Points::On_Execute_Finish(void)
 		pTarget->Add_Field("Y_MAP", SG_DATATYPE_Double);
 		pTarget->Add_Field("RESID", SG_DATATYPE_Double);
 
-		for(int iPoint=0; iPoint<m_pPoints->Get_Count(); iPoint++)
+		for(sLong iPoint=0; iPoint<m_pPoints->Get_Count(); iPoint++)
 		{
-			CSG_Shape	*pPoint	= pTarget->Add_Shape(m_pPoints->Get_Shape(iPoint), SHAPE_COPY_ATTR);
+			CSG_Shape *pPoint = pTarget->Add_Shape(m_pPoints->Get_Shape(iPoint), SHAPE_COPY_ATTR);
 
 			pPoint->Add_Point(
 				pPoint->asDouble(2),

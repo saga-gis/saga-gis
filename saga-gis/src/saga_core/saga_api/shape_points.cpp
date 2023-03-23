@@ -104,7 +104,7 @@ bool CSG_Shape_Points::On_Assign(CSG_Shape *pShape)
 
 	if( pShape->Get_Type() == SHAPE_TYPE_Point )	// just in case...
 	{
-		Add_Point(pShape->Get_Point(0), 0);
+		Add_Point(pShape->Get_Point());
 
 		switch( Vertex_Type )
 		{

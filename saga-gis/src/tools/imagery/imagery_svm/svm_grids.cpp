@@ -485,7 +485,7 @@ bool CSVM_Grids::Training(void)
 
 	Elements.Set_Index(0, TABLE_INDEX_Ascending);
 
-	for(int i=0, j=0, ID_Class=0; i<Elements.Get_Count(); i++, j++)
+	for(int i=0, j=0, ID_Class=0; i<(int)Elements.Get_Count(); i++, j++)
 	{
 		CSG_Table_Record	*pElement	= Elements.Get_Record_byIndex(i);
 
@@ -646,15 +646,14 @@ bool CSVM_Grids::Training_Get_Parameters(struct svm_parameter &param)
 //---------------------------------------------------------
 bool CSVM_Grids::Training_Get_Elements(CSG_Table &Elements)
 {
-	int			iROI_ID, iGrid;
-	CSG_Shapes	*pROIs;
+	CSG_Shapes *pROIs; int iROI_ID, iGrid;
 
 	//-----------------------------------------------------
-	pROIs	= Parameters("ROI"   )->asShapes();
-	iROI_ID	= Parameters("ROI_ID")->asInt();
+	pROIs   = Parameters("ROI"   )->asShapes();
+	iROI_ID = Parameters("ROI_ID")->asInt();
 
 	Elements.Destroy();
-	Elements.Add_Field(SG_T("ID"), SG_DATATYPE_String);
+	Elements.Add_Field("ID", SG_DATATYPE_String);
 
 	for(iGrid=0; iGrid<m_pGrids->Get_Grid_Count(); iGrid++)
 	{
@@ -664,18 +663,18 @@ bool CSVM_Grids::Training_Get_Elements(CSG_Table &Elements)
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		double	p_y	= Get_YMin() + y * Get_Cellsize();
+		double p_y = Get_YMin() + y * Get_Cellsize();
 
 	//	#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			bool	bNoData	= false;
+			bool bNoData = false;
 
 			for(iGrid=0; iGrid<m_pGrids->Get_Grid_Count() && !bNoData; iGrid++)
 			{
 				if( m_pGrids->Get_Grid(iGrid)->is_NoData(x, y) )
 				{
-					bNoData	= true;
+					bNoData = true;
 				}
 			}
 
@@ -685,15 +684,15 @@ bool CSVM_Grids::Training_Get_Elements(CSG_Table &Elements)
 			}
 			else
 			{
-				double	p_x		= Get_XMin() + x * Get_Cellsize();
+				double p_x = Get_XMin() + x * Get_Cellsize();
 
-				for(int iROI=0; iROI<pROIs->Get_Count(); iROI++)
+				for(sLong iROI=0; iROI<pROIs->Get_Count(); iROI++)
 				{
-					CSG_Shape_Polygon	*pROI	= (CSG_Shape_Polygon *)pROIs->Get_Shape(iROI);
+					CSG_Shape_Polygon *pROI = pROIs->Get_Shape(iROI)->asPolygon();
 
 					if( pROI->Contains(p_x, p_y) )
 					{
-						CSG_Table_Record	*pElement	= Elements.Add_Record();
+						CSG_Table_Record *pElement = Elements.Add_Record();
 
 						pElement->Set_Value(0, pROI->asString(iROI_ID));
 

@@ -152,7 +152,7 @@ bool CLines_From_Points::On_Execute(void)
 		CSG_Shape *pPoint = pPoints->Get_Shape(Index.is_Okay() ? Index[iPoint] : iPoint);
 
 		if( pLine == NULL || (Separate >= 0 && SeparateID.Cmp(pPoint->asString(Separate)))
-		|| (maxDist > 0. && maxDist <= SG_Get_Distance(pPoint->Get_Point(0), pLine->Get_Point(pLine->Get_Point_Count() - 1))) )
+		|| (maxDist > 0. && maxDist <= SG_Get_Distance(pPoint->Get_Point(), pLine->Get_Point(pLine->Get_Point_Count() - 1))) )
 		{
 			if( pLine && pLine->Get_Point_Count() < 2 )
 			{
@@ -171,7 +171,7 @@ bool CLines_From_Points::On_Execute(void)
 			}
 		}
 
-		pLine->Add_Point(pPoint->Get_Point(0));
+		pLine->Add_Point(pPoint->Get_Point());
 
 		if( Z >= 0 )
 		{

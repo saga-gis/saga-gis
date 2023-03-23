@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,12 +47,6 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 #include "Clip_Points.h"
 
@@ -78,73 +69,61 @@ CClip_Points::CClip_Points(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		NULL	, "POINTS"		, _TL("Points"),
+	Parameters.Add_Shapes("",
+		"POINTS"	, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	CSG_Parameter	*pNode	= Parameters.Add_Shapes(
-		NULL	, "POLYGONS"	, _TL("Polygons"),
+	Parameters.Add_Shapes("",
+		"POLYGONS"	, _TL("Polygons"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD"		, _TL("Add Attribute to Clipped Points"),
+	Parameters.Add_Table_Field("POLYGONS",
+		"FIELD"		, _TL("Add Attribute to Clipped Points"),
 		_TL(""),
 		true
 	);
 
-	Parameters.Add_Shapes_List(
-		NULL	, "CLIPS"		, _TL("Clipped Points"),
+	Parameters.Add_Shapes_List("",
+		"CLIPS"		, _TL("Clipped Points"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Clipping Options"),
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Clipping Options"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("one layer for all points"),
 			_TL("separate layer for each polygon")
 		), 0
 	);
 }
 
-//---------------------------------------------------------
-CClip_Points::~CClip_Points(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CClip_Points::On_Execute(void)
 {
-	int							Method, iField;
-	CSG_Shapes					*pPoints, *pPolygons, *pClip;
-	CSG_Parameter_Shapes_List	*pClips;
+	CSG_Shapes *pPoints = Parameters("POINTS")->asShapes();
 
-	//-----------------------------------------------------
-	pPoints		= Parameters("POINTS")		->asShapes();
-	pPolygons	= Parameters("POLYGONS")	->asShapes();
-	pClips		= Parameters("CLIPS")		->asShapesList();
-	Method		= Parameters("METHOD")		->asInt();
-	iField		= Parameters("FIELD")		->asInt();
-
-	//-----------------------------------------------------
 	if( !pPoints->is_Valid() )
 	{
 		Message_Add(_TL("Invalid points layer."));
 
 		return( false );
 	}
-	else if( !pPolygons->is_Valid() )
+
+	//-----------------------------------------------------
+	CSG_Shapes *pPolygons = Parameters("POLYGONS")->asShapes();
+
+	if( !pPolygons->is_Valid() )
 	{
 		Message_Add(_TL("Invalid polygon layer."));
 
@@ -152,16 +131,21 @@ bool CClip_Points::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	int iField = Parameters("FIELD")->asInt();
+
 	if( iField >= pPolygons->Get_Field_Count() )
 	{
 		iField	= -1;
 	}
 
-	pClips->Del_Items();
+	//-----------------------------------------------------
+	CSG_Shapes *pClip = NULL; CSG_Parameter_Shapes_List *pClips = Parameters("CLIPS")->asShapesList(); pClips->Del_Items();
+
+	int Method = Parameters("METHOD")->asInt();
 
 	if( Method == 0 )
 	{
-		pClip	= SG_Create_Shapes(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), pPoints->Get_Name(), pPolygons->Get_Name()), pPoints);
+		pClip = SG_Create_Shapes(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), pPoints->Get_Name(), pPolygons->Get_Name()), pPoints);
 
 		if( iField >= 0 )
 		{
@@ -172,17 +156,17 @@ bool CClip_Points::On_Execute(void)
 	//-----------------------------------------------------
 	for(sLong iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
 	{
-		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
+		CSG_Shape_Polygon *pPolygon = pPolygons->Get_Shape(iPolygon)->asPolygon();
 
 		if( Method == 1 )
 		{
-			CSG_String	Name(pPoints->Get_Name());
+			CSG_String Name(pPoints->Get_Name());
 
-			Name	+= iField >= 0
-					? CSG_String::Format(SG_T(" [%s]"), pPolygon->asString(iField))
-					: CSG_String::Format(SG_T(" [%00d]"), 1 + pClips->Get_Item_Count());
+			Name += iField >= 0
+				? CSG_String::Format(" [%s]", pPolygon->asString(iField))
+				: CSG_String::Format(" [%00d]", 1 + pClips->Get_Item_Count());
 
-			pClip	= SG_Create_Shapes(SHAPE_TYPE_Point, Name, pPoints);
+			pClip = SG_Create_Shapes(SHAPE_TYPE_Point, Name, pPoints);
 
 			if( iField >= 0 )
 			{
@@ -192,11 +176,11 @@ bool CClip_Points::On_Execute(void)
 
 		for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Process_Get_Okay(false); iPoint++)
 		{
-			CSG_Shape	*pPoint	= pPoints->Get_Shape(iPoint);
+			CSG_Shape *pPoint = pPoints->Get_Shape(iPoint);
 
-			if( pPolygon->Contains(pPoint->Get_Point(0)) )
+			if( pPolygon->Contains(pPoint->Get_Point()) )
 			{
-				pPoint	= pClip->Add_Shape(pPoint, SHAPE_COPY);
+				pPoint = pClip->Add_Shape(pPoint, SHAPE_COPY);
 
 				if( iField >= 0 )
 				{

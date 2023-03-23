@@ -313,7 +313,7 @@ bool CPoints_Thinning::QuadTree_Execute(const CSG_Rect &Extent)
 	{
 		CSG_Shape	*pPoint	= m_pPoints->Get_Shape(i);
 
-		m_QuadTree.Add_Point(pPoint->Get_Point(0), pPoint->asDouble(m_Field));
+		m_QuadTree.Add_Point(pPoint->Get_Point(), pPoint->asDouble(m_Field));
 	}
 
 	//-----------------------------------------------------
@@ -417,12 +417,12 @@ bool CPoints_Thinning::Raster_Execute(const CSG_Rect &Extent)
 	{
 		int	x, y;	CSG_Shape	*pPoint	= m_pPoints->Get_Shape(i);
 
-		if( System.Get_World_to_Grid(x, y, pPoint->Get_Point(0)) )
+		if( System.Get_World_to_Grid(x, y, pPoint->Get_Point()) )
 		{
 			double	Value	= pPoint->asDouble(m_Field);
 
-			X   .Add_Value(x, y, pPoint->Get_Point(0).x);
-			Y   .Add_Value(x, y, pPoint->Get_Point(0).y);
+			X   .Add_Value(x, y, pPoint->Get_Point().x);
+			Y   .Add_Value(x, y, pPoint->Get_Point().y);
 			N   .Add_Value(x, y, 1.);
 			Sum .Add_Value(x, y, Value);
 			Sum2.Add_Value(x, y, Value * Value);

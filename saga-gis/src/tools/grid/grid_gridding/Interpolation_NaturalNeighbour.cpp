@@ -126,8 +126,8 @@ bool CInterpolation_NaturalNeighbour::Interpolate(void)
 
 		if( !pShape->is_NoData(Get_Field()) )
 		{
-			nn_pPoints[nn_nPoints].x = pShape->Get_Point(0).x;
-			nn_pPoints[nn_nPoints].y = pShape->Get_Point(0).y;
+			nn_pPoints[nn_nPoints].x = pShape->Get_Point().x;
+			nn_pPoints[nn_nPoints].y = pShape->Get_Point().y;
 			nn_pPoints[nn_nPoints].z = pShape->asDouble(Get_Field());
 			nn_nPoints++;
 		}

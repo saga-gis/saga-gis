@@ -569,7 +569,7 @@ bool CWKSP_Map_Graticule::Draw(CWKSP_Map_DC &dc_Map)
 			{
 				CSG_Shape	*pPoint	= m_Coordinates.Get_Shape(iPoint);
 
-				TSG_Point_Int	p(dc.World2DC(pPoint->Get_Point(0)));
+				TSG_Point_Int	p(dc.World2DC(pPoint->Get_Point()));
 				wxString		Type(pPoint->asString(0));
 
 				int	Align	= !Type.Cmp("LAT_MIN") ? TEXTALIGN_CENTERLEFT

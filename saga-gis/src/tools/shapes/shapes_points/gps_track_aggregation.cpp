@@ -339,7 +339,7 @@ bool CGPS_Track_Aggregation::On_Execute(void)
 		Position.y	= pObservation->asDouble(fY);
 		pNearest	= Search.Get_Nearest_Shape(Position.x, Position.y);
 
-		if( eps_Space > 0.0 && eps_Space <= (bPolar ? SG_Get_Distance_Polar(Position, pNearest->Get_Point(0)) : SG_Get_Distance(Position, pNearest->Get_Point(0))) )
+		if( eps_Space > 0.0 && eps_Space <= (bPolar ? SG_Get_Distance_Polar(Position, pNearest->Get_Point()) : SG_Get_Distance(Position, pNearest->Get_Point())) )
 		{
 			nDropped++;
 			iDropped++;
@@ -374,8 +374,8 @@ bool CGPS_Track_Aggregation::On_Execute(void)
 
 				if( bVerbose )
 				{
-					pAggregate	->Set_Value(AGG_X, pReference->Get_Point(0).x);
-					pAggregate	->Set_Value(AGG_Y, pReference->Get_Point(0).y);
+					pAggregate	->Set_Value(AGG_X, pReference->Get_Point().x);
+					pAggregate	->Set_Value(AGG_Y, pReference->Get_Point().y);
 				}
 			}
 

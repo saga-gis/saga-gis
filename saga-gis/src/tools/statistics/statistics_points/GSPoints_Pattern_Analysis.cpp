@@ -128,7 +128,7 @@ bool CGSPoints_Pattern_Analysis::On_Execute(void)
 	//-----------------------------------------------------
 	for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 	{
-		TSG_Point p = pPoints->Get_Shape(iPoint)->Get_Point(0);
+		TSG_Point p = pPoints->Get_Shape(iPoint)->Get_Point();
 
 		double w = Weight < 0 ? 1.0 : pPoints->Get_Shape(iPoint)->asDouble(Weight);
 
@@ -148,7 +148,7 @@ bool CGSPoints_Pattern_Analysis::On_Execute(void)
 
 	for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 	{
-		TSG_Point p = pPoints->Get_Shape(iPoint)->Get_Point(0);
+		TSG_Point p = pPoints->Get_Shape(iPoint)->Get_Point();
 
 		double w = Weight < 0 ? 1. : pPoints->Get_Shape(iPoint)->asDouble(Weight);
 

@@ -1336,9 +1336,9 @@ CSG_Shape * CSG_PointCloud::_Set_Shape(sLong Index)
 			}
 		}
 
-		Set_Value(0, pShape->Get_Point(0).x);
-		Set_Value(1, pShape->Get_Point(0).y);
-		Set_Value(2, pShape->Get_Z    (0)  );
+		Set_Value(0, pShape->Get_Point().x);
+		Set_Value(1, pShape->Get_Point().y);
+		Set_Value(2, pShape->Get_Z    ()  );
 	}
 
 	if( Index >= 0 && Index < m_nRecords )

@@ -78,9 +78,9 @@ bool CSG_Shape_Point::On_Assign(CSG_Shape *pShape)
 {
 	if( pShape->Get_Point_Count(0) > 0 )
 	{
-		Set_Point(pShape->Get_Point(0), 0);
-		Set_Z    (pShape->Get_Z    (0), 0);
-		Set_M    (pShape->Get_M    (0), 0);
+		Set_Point(pShape->Get_Point());
+		Set_Z    (pShape->Get_Z    ());
+		Set_M    (pShape->Get_M    ());
 
 		return( true );
 	}

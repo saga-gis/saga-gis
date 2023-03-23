@@ -217,7 +217,7 @@ bool CCost_Accumulated::Get_Destinations(CSG_Points_Int &Destinations)
 		{
 			int x, y;
 
-			if( Get_System().Get_World_to_Grid(x, y, pDestinations->Get_Shape(i)->Get_Point(0)) && !m_pCost->is_NoData(x, y) )
+			if( Get_System().Get_World_to_Grid(x, y, pDestinations->Get_Shape(i)->Get_Point()) && !m_pCost->is_NoData(x, y) )
 			{
 				Destinations.Add(x, y); m_pAllocation->Set_Value(x, y, Destinations.Get_Count()); m_pAccumulated->Set_Value(x, y, 0.);
 			}

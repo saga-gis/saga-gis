@@ -154,7 +154,7 @@ bool CGSPoints_Semi_Variances::On_Execute(void)
 
 		if( !pPoint->is_NoData(Attribute) )
 		{
-			TSG_Point Pt_i = pPoint->Get_Point(0); double zi = pPoint->asDouble(Attribute);
+			TSG_Point Pt_i = pPoint->Get_Point(); double zi = pPoint->asDouble(Attribute);
 
 			for(sLong j=i+nSkip; j<pPoints->Get_Count(); j+=nSkip, n++)
 			{
@@ -162,7 +162,7 @@ bool CGSPoints_Semi_Variances::On_Execute(void)
 
 				if( !pPoint->is_NoData(Attribute) )
 				{
-					TSG_Point Pt_j = pPoint->Get_Point(0);
+					TSG_Point Pt_j = pPoint->Get_Point();
 
 					int k = (int)(SG_Get_Distance(Pt_i, Pt_j) / lagDistance);
 

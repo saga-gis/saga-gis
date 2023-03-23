@@ -46,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "salem.h"
 
 
@@ -570,7 +561,7 @@ void CSaLEM_Tracers::Destroy(void)
 
 	if( m_Trim == 1 && m_pPoints )
 	{
-		for(int i=m_Trim_Points.Get_Count()-1; i>=0; i--)	// remove those tracers and paths that have left the scene
+		for(sLong i=m_Trim_Points.Get_Count()-1; i>=0; i--)	// remove those tracers and paths that have left the scene
 		{
 			m_pPoints->Add_Shape(m_Trim_Points.Get_Shape(i)); m_Trim_Points.Del_Shape(i);
 
@@ -783,20 +774,18 @@ bool CSaLEM_Tracers::Set_Tracers(double Time, double k, CSG_Grid &Surface, CSG_G
 
 	CSG_Grid_System	System(Surface.Get_System());
 
-	int		i;
-
 	//-----------------------------------------------------
-	for(i=m_Candidates.Get_Count()-1; i>=0; i--)	// candidates' first move ?
+	for(sLong i=m_Candidates.Get_Count()-1; i>=0; i--)	// candidates' first move ?
 	{
-		CSG_Shape	*pTracer	= m_Candidates.Get_Shape(i);
+		CSG_Shape *pTracer = m_Candidates.Get_Shape(i);
 
-		TSG_Point	p	= pTracer->Get_Point(0);
+		TSG_Point p = pTracer->Get_Point();
 
-		double		Height;
+		double Height;
 
 		if( Surface.Get_Value(p, Height) )
 		{
-			double	Depth	= Height - pTracer->asDouble(TRACER_HEIGHT);
+			double Depth = Height - pTracer->asDouble(TRACER_HEIGHT);
 
 			if( Depth <= dHout.Get_Value(p) )	// we take dHout as rough estimation of potentially active layer thickness
 			{
@@ -811,7 +800,7 @@ bool CSaLEM_Tracers::Set_Tracers(double Time, double k, CSG_Grid &Surface, CSG_G
 				{
 					CSG_Shape	*pLine	= m_pLines->Add_Shape();
 
-					pLine->Add_Point(pTracer->Get_Point(0));
+					pLine->Add_Point(pTracer->Get_Point());
 					pLine->Set_Z(pTracer->Get_Z(0), pLine->Get_Point_Count() - 1);
 					pLine->Set_Value(0, pTracer->asInt   (TRACER_TID     ));
 					pLine->Set_Value(1, pTracer->asString(TRACER_ROCKTYPE));
@@ -821,18 +810,18 @@ bool CSaLEM_Tracers::Set_Tracers(double Time, double k, CSG_Grid &Surface, CSG_G
 	}
 
 	//-----------------------------------------------------
-	#pragma omp parallel for private(i)
-	for(i=0; i<m_pPoints->Get_Count(); i++)
+	#pragma omp parallel for
+	for(sLong i=0; i<m_pPoints->Get_Count(); i++)
 	{
-		CSG_Shape	*pTracer	= m_pPoints->Get_Shape(i);
+		CSG_Shape *pTracer = m_pPoints->Get_Shape(i);
 
-		TSG_Point	p	= pTracer->Get_Point(0);
+		TSG_Point p = pTracer->Get_Point();
 
-		double		Height;
+		double Height;
 
 		if( Surface.Get_Value(p, Height) )
 		{
-			double	Depth	= Height - pTracer->asDouble(TRACER_HEIGHT);
+			double Depth = Height - pTracer->asDouble(TRACER_HEIGHT);
 
 			if( !Do_Move(Depth, dHout.Get_Value(p)) )	// tracer will not move because it's deeper than the active layer is thick
 			{
@@ -864,9 +853,9 @@ bool CSaLEM_Tracers::Set_Tracers(double Time, double k, CSG_Grid &Surface, CSG_G
 				}
 
 				//-----------------------------------------
-				if( p.x != pTracer->Get_Point(0).x || p.y != pTracer->Get_Point(0).y )	// tracer has moved
+				if( p.x != pTracer->Get_Point().x || p.y != pTracer->Get_Point().y )	// tracer has moved
 				{
-					pTracer->Add_Value(TRACER_DISTANCE, SG_Get_Distance(p, pTracer->Get_Point(0)));
+					pTracer->Add_Value(TRACER_DISTANCE, SG_Get_Distance(p, pTracer->Get_Point()));
 					pTracer->Set_Value(TRACER_T_MOV_LAST, Time);
 					pTracer->Set_Point(p, 0);
 
@@ -886,7 +875,7 @@ bool CSaLEM_Tracers::Set_Tracers(double Time, double k, CSG_Grid &Surface, CSG_G
 					if( m_pLines )
 					{
 						CSG_Shape	*pLine	= m_pLines->Get_Shape(i);
-						pLine->Add_Point(pTracer->Get_Point(0));
+						pLine->Add_Point(pTracer->Get_Point());
 						pLine->Set_Z(Height, pLine->Get_Point_Count() - 1);
 					}
 				}
@@ -897,9 +886,9 @@ bool CSaLEM_Tracers::Set_Tracers(double Time, double k, CSG_Grid &Surface, CSG_G
 	//-----------------------------------------------------
 	if( m_Trim )
 	{
-		for(i=m_pPoints->Get_Count()-1; i>=0; i--)	// remove those tracers and paths that have left the scene
+		for(sLong i=m_pPoints->Get_Count()-1; i>=0; i--)	// remove those tracers and paths that have left the scene
 		{
-			if( !Surface.is_InGrid_byPos(m_pPoints->Get_Shape(i)->Get_Point(0)) )
+			if( !Surface.is_InGrid_byPos(m_pPoints->Get_Shape(i)->Get_Point()) )
 			{
 				if( m_Trim == 1 )
 				{
@@ -934,7 +923,6 @@ bool CSaLEM_Tracers::Set_Tracers(double Time, double k, CSG_Grid &Surface, CSG_G
 //---------------------------------------------------------
 CSaLEM::CSaLEM(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("SaLEM"));
 
 	Set_Author		("M.Bock, O.Conrad (c) 2017");

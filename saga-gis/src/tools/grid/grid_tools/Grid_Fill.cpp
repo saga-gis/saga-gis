@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 //                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -132,6 +120,11 @@ void CGrid_Filler::Parameters_Add(CSG_Parameters &Parameters)
 		0.0
 	);
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CGrid_Filler::Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
@@ -292,7 +285,7 @@ bool CGrid_Fill::On_Execute(void)
 	sLong	nReplaced	= 0;
 
 	#define GET_NPOINTS  (bSelection ? pPoints->Get_Selection_Count() : pPoints->Get_Count())
-	#define GET_POINT(i) (bSelection ? pPoints->Get_Selection(i)->Get_Point(0) : pPoints->Get_Shape(i)->Get_Point(0))
+	#define GET_POINT(i) (bSelection ? pPoints->Get_Selection(i)->Get_Point() : pPoints->Get_Shape(i)->Get_Point())
 
 	bool	bSelection	= pPoints->Get_Selection_Count() > 0;
 

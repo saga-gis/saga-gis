@@ -195,7 +195,7 @@ bool CKernel_Density::On_Execute(void)
 		{
 			CSG_Shape	*pPoint	= pPoints->Get_Selection(iPoint);
 
-			Set_Kernel(pPoint->Get_Point(0), Population < 0 ? 1. : pPoint->asDouble(Population));
+			Set_Kernel(pPoint->Get_Point(), Population < 0 ? 1. : pPoint->asDouble(Population));
 		}
 	}
 	else
@@ -204,7 +204,7 @@ bool CKernel_Density::On_Execute(void)
 		{
 			CSG_Shape *pPoint = pPoints->Get_Shape(iPoint);
 
-			Set_Kernel(pPoint->Get_Point(0), Population < 0 ? 1. : pPoint->asDouble(Population));
+			Set_Kernel(pPoint->Get_Point(), Population < 0 ? 1. : pPoint->asDouble(Population));
 		}
 	}
 

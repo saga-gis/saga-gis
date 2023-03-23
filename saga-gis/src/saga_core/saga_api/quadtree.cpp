@@ -267,7 +267,7 @@ bool CSG_PRQuadTree::Create(CSG_Shapes *pShapes, int Attribute, bool bStatistics
 			}
 		}
 
-		return( Get_Point_Count() > 0 );
+		return( m_nPoints > 0 );
 	}
 
 	return( false );

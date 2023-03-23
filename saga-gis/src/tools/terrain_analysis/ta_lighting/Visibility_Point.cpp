@@ -436,7 +436,7 @@ bool CVisibility_Points::On_Execute(void)
 
 		CSG_Shape &Point = *pPoints->Get_Shape(iPoint);
 
-		int x, y; Get_System().Get_World_to_Grid(x, y, Point.Get_Point(0));
+		int x, y; Get_System().Get_World_to_Grid(x, y, Point.Get_Point());
 
 		Set_Visibility(x, y, Field < 0 ? Height : Point.asDouble(Field), false);
 	}

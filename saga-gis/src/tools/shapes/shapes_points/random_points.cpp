@@ -46,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "random_points.h"
 
 
@@ -67,7 +58,6 @@
 //---------------------------------------------------------
 CRandom_Points::CRandom_Points(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Create Random Points"));
 
 	Set_Author		("O.Conrad (c) 2018");
@@ -122,7 +112,7 @@ CRandom_Points::CRandom_Points(void)
 	Parameters.Add_Double("",
 		"BUFFER"	, _TL("Buffer"),
 		_TL("add buffer (map units) to extent"),
-		0.0, 0.0, true
+		0., 0., true
 	);
 
 	//-----------------------------------------------------
@@ -194,8 +184,7 @@ int CRandom_Points::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 bool CRandom_Points::On_Execute(void)
 {
-	//--------------------------------------------------------
-	m_pPolygons	= NULL;	m_pPolygon	= NULL;
+	m_pPolygons = NULL; m_pPolygon = NULL;
 
 	switch( Parameters("EXTENT")->asInt() )
 	{
@@ -221,17 +210,17 @@ bool CRandom_Points::On_Execute(void)
 		break;
 	}
 
-	if( Parameters("BUFFER")->asDouble() > 0.0 && Parameters("EXTENT")->asInt() != 3 )	// no buffering for polygon clip
+	if( Parameters("BUFFER")->asDouble() > 0. && Parameters("EXTENT")->asInt() != 3 )	// no buffering for polygon clip
 	{
 		m_Extent.Inflate(Parameters("BUFFER")->asDouble(), false);
 	}
 
-	int	nPoints		= Parameters("COUNT"     )->asInt   ();
-	int	Iterations	= Parameters("ITERATIONS")->asInt   ();
-	m_Distance		= Parameters("DISTANCE"  )->asDouble();
+	int	nPoints    = Parameters("COUNT"     )->asInt   ();
+	int	Iterations = Parameters("ITERATIONS")->asInt   ();
+	m_Distance     = Parameters("DISTANCE"  )->asDouble();
 
 	//--------------------------------------------------------
-	CSG_Shapes	*pPoints	= Parameters("POINTS")->asShapes();
+	CSG_Shapes *pPoints = Parameters("POINTS")->asShapes();
 
 	pPoints->Create(SHAPE_TYPE_Point, _TL("Random Points"));
 
@@ -249,11 +238,11 @@ bool CRandom_Points::On_Execute(void)
 		{
 			for(bOkay=Iterations; bOkay; bOkay--)
 			{
-				TSG_Point	Point;
+				TSG_Point Point;
 
 				if( Get_Point(Point) )
 				{
-					CSG_Shape	*pPoint	= pPoints->Add_Shape();
+					CSG_Shape *pPoint = pPoints->Add_Shape();
 
 					pPoint->Set_Point(Point, 0);
 					pPoint->Set_Value(0, i + 1);
@@ -267,7 +256,7 @@ bool CRandom_Points::On_Execute(void)
 	//--------------------------------------------------------
 	else for(sLong iPolygon=0; iPolygon<m_pPolygons->Get_Count() && Set_Progress(iPolygon, m_pPolygons->Get_Count()); iPolygon++)
 	{
-		m_pPolygon	= (CSG_Shape_Polygon *)m_pPolygons->Get_Shape(iPolygon);
+		m_pPolygon = (CSG_Shape_Polygon *)m_pPolygons->Get_Shape(iPolygon);
 
 		m_Extent.Assign(m_pPolygon->Get_Extent());
 
@@ -284,7 +273,7 @@ bool CRandom_Points::On_Execute(void)
 
 				if( Get_Point(Point) )
 				{
-					CSG_Shape	*pPoint	= pPoints->Add_Shape();
+					CSG_Shape *pPoint = pPoints->Add_Shape();
 
 					pPoint->Set_Point(Point, 0);
 					pPoint->Set_Value(0, iPolygon + 1);

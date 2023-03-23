@@ -1,6 +1,4 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
+
 /*******************************************************************************
     CCreateChartLayer.cpp
     Copyright (C) Victor Olaya
@@ -243,7 +241,7 @@ void CCreateChartLayer::AddPieChart(CSG_Shape *pShape, int iType)
 		Point = GetLineMidPoint((CSG_Shape_Line*)pShape);
 		break;
 	case SHAPE_TYPE_Point:
-		Point = pShape->Get_Point(0);
+		Point = pShape->Get_Point();
 		break;
 	default:
 		break;
@@ -334,7 +332,7 @@ void CCreateChartLayer::AddBarChart(CSG_Shape* pShape, int iType)
 		Point = GetLineMidPoint((CSG_Shape_Line*)pShape);
 		break;
 	case SHAPE_TYPE_Point:
-		Point = pShape->Get_Point(0);
+		Point = pShape->Get_Point();
 		break;
 	default:
 		break;

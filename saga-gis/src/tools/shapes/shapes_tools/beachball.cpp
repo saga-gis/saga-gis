@@ -45,15 +45,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "beachball.h"
 
 
@@ -66,7 +57,6 @@
 //---------------------------------------------------------
 CBeachball::CBeachball(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Focal Mechanism (Beachball Plots)"));
 
 	Set_Author		("O.Conrad (c) 2018");
@@ -139,7 +129,7 @@ CBeachball::CBeachball(void)
 	Parameters.Add_Choice("",
 		"STYLE"		, _TL("Style"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("one"),
 			_TL("two")
 		)
@@ -228,7 +218,7 @@ bool CBeachball::On_Execute(void)
 
 		double	Size	= Scale_Range <= 0.0 ? Scale_Min : Scale_Min + Scale_Range * (pPoint->asDouble(fSize) - pPoints->Get_Minimum(fSize));
 
-		Set_Plot(pPlots->Add_Shape(pPoint, SHAPE_COPY_ATTR), pPoint->Get_Point(0), Size, Strike, Dip, Rake);
+		Set_Plot(pPlots->Add_Shape(pPoint, SHAPE_COPY_ATTR), pPoint->Get_Point(), Size, Strike, Dip, Rake);
 	}
 
 	//-----------------------------------------------------

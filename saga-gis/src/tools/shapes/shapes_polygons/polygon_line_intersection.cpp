@@ -118,7 +118,7 @@ private:
 	int						_Add_Node				(const CSG_Point &Point, int Polygon_Part, int Polygon_Point);
 
 	bool					_Split_Polygon			(void);
-	bool					_Split_Arc				(const CSG_Shape &Node, int Polygon_Offset);
+	bool					_Split_Arc				(const CSG_Shape &Node, sLong Polygon_Offset);
 
 	bool					_Check_Arc				(CSG_Shape_Line *pArc);
 
@@ -453,7 +453,7 @@ bool CSG_Arcs::_Split_Polygon(void)
 	}
 
 	//-----------------------------------------------------
-	int Polygon_Offset = m_Arcs.Get_Count();
+	sLong Polygon_Offset = m_Arcs.Get_Count();
 
 	for(int iPart=0; iPart<m_pPolygon->Get_Part_Count(); iPart++)
 	{
@@ -486,13 +486,13 @@ bool CSG_Arcs::_Split_Polygon(void)
 }
 
 //---------------------------------------------------------
-bool CSG_Arcs::_Split_Arc(const CSG_Shape &Node, int Polygon_Offset)
+bool CSG_Arcs::_Split_Arc(const CSG_Shape &Node, sLong Polygon_Offset)
 {
-	//	SG_UI_Msg_Add(CSG_String::Format("\n%d, %d, %f", Node.asInt(1), Node.asInt(2), Node.asDouble(3)), false);
+//	SG_UI_Msg_Add(CSG_String::Format("\n%d, %d, %f", Node.asInt(1), Node.asInt(2), Node.asDouble(3)), false);
 
 	CSG_Point Point = Node.Get_Point(0); int SplitBefore = Node.asInt(2);
 
-	CSG_Shape *pArc = m_Arcs.Get_Shape(Node.asInt(1) + Polygon_Offset);
+	CSG_Shape *pArc = m_Arcs.Get_Shape((sLong)Node.asInt(1) + Polygon_Offset);
 	CSG_Shape *pNew = m_Arcs.Add_Shape(pArc, SHAPE_COPY_ATTR);
 
 	pNew->Set_Value(ARC_ID, m_Arcs.Get_Count());
@@ -645,7 +645,7 @@ bool CSG_Arcs::_Collect_Get_Polygon(CSG_Shape_Polygon &Polygon)
 //---------------------------------------------------------
 bool CSG_Arcs::Get_Intersection(CSG_Shapes *pPolygons, CSG_Table_Record *pAttributes, bool bSplitParts)
 {
-	for(int i=m_Arcs.Get_Count()-1; i>=0; i--)
+	for(sLong i=m_Arcs.Get_Count()-1; i>=0; i--)
 	{
 		if( !_Check_Arc(m_Arcs.Get_Shape(i)->asLine()) )
 		{
@@ -810,13 +810,13 @@ bool CPolygon_Line_Intersection::On_Execute(void)
 
 			Intersection.Add_Shape(pPolygon);
 
-			for(int iLine=0; iLine<pLines->Get_Count(); iLine++)
+			for(sLong iLine=0; iLine<pLines->Get_Count(); iLine++)
 			{
 				CSG_Shape *pLine = pLines->Get_Shape(iLine);
 
 				for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
 				{
-					for(int iIntersect=Intersection.Get_Count()-1; iIntersect>=0; iIntersect--)
+					for(sLong iIntersect=Intersection.Get_Count()-1; iIntersect>=0; iIntersect--)
 					{
 						CSG_Arcs Arcs(Intersection.Get_Shape(iIntersect)->asPolygon());
 

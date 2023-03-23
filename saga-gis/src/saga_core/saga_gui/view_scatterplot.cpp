@@ -881,7 +881,7 @@ bool CVIEW_ScatterPlot::_Initialize_Shapes(void)
 	{
 		CSG_Shape	*pShape	= pPoints->Get_Shape((int)i);
 
-		if( !pShape->is_NoData(Field) && m_pGrid->Get_Value(pShape->Get_Point(0), x, Resampling) )
+		if( !pShape->is_NoData(Field) && m_pGrid->Get_Value(pShape->Get_Point(), x, Resampling) )
 		{
 			m_Trend.Add_Data(x, pShape->asDouble(Field));
 		}

@@ -1,6 +1,4 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
+
 ///////////////////////////////////////////////////////////
 //                                                       //
 //                         SAGA                          //
@@ -50,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "LeastCostPathProfile.h"
 
 
@@ -87,29 +76,10 @@ CLeastCostPathProfile::CLeastCostPathProfile(void)
 		"Creates a least cost past profile using an accumulated cost surface."
 	));
 
-	Parameters.Add_Grid(
-		NULL	, "DEM"		, _TL("Accumulated cost"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
-
-	Parameters.Add_Grid_List(
-		NULL	, "VALUES"	, _TL("Values"),
-		_TL(""),
-		PARAMETER_INPUT_OPTIONAL
-	);
-
-	Parameters.Add_Shapes(
-		NULL	, "POINTS"	, _TL("Profile Points"),
-		_TL(""),
-		PARAMETER_OUTPUT, SHAPE_TYPE_Point
-	);
-
-	Parameters.Add_Shapes(
-		NULL	, "LINE"	, _TL("Profile Line"),
-		_TL(""),
-		PARAMETER_OUTPUT, SHAPE_TYPE_Line
-	);
+	Parameters.Add_Grid     ("", "DEM"   , _TL("Accumulated cost"), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid_List("", "VALUES", _TL("Values"          ), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Shapes   ("", "POINTS", _TL("Profile Points"  ), _TL(""), PARAMETER_OUTPUT, SHAPE_TYPE_Point);
+	Parameters.Add_Shapes   ("", "LINE"  , _TL("Profile Line"    ), _TL(""), PARAMETER_OUTPUT, SHAPE_TYPE_Line);
 }
 
 
@@ -120,10 +90,10 @@ CLeastCostPathProfile::CLeastCostPathProfile(void)
 //---------------------------------------------------------
 bool CLeastCostPathProfile::On_Execute(void)
 {
-	m_pDEM		= Parameters("DEM"   )->asGrid    ();
-	m_pValues	= Parameters("VALUES")->asGridList();
-	m_pPoints	= Parameters("POINTS")->asShapes  ();
-	m_pLines	= Parameters("LINE"  )->asShapes  ();
+	m_pDEM    = Parameters("DEM"   )->asGrid    ();
+	m_pValues = Parameters("VALUES")->asGridList();
+	m_pPoints = Parameters("POINTS")->asShapes  ();
+	m_pLines  = Parameters("LINE"  )->asShapes  ();
 
 	//-----------------------------------------------------
 	m_pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format("%s [%s]", _TL("Profile"), m_pDEM->Get_Name()));
@@ -180,14 +150,15 @@ bool CLeastCostPathProfile::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Inte
 //---------------------------------------------------------
 bool CLeastCostPathProfile::Set_Profile(TSG_Point ptWorld)
 {
-	m_pPoints->Del_Shapes();
-	m_pLine  ->Del_Parts();
+	m_pPoints->Del_Shapes(); m_pLine->Del_Parts();
 
 	//-----------------------------------------------------
-	int		x, y, Direction;
+	int x, y;
 
 	if( Get_Grid_Pos(x, y) )
 	{
+		int Direction;
+
 		while( Add_Point(x, y) && (Direction = m_pDEM->Get_Gradient_NeighborDir(x, y, true, false)) >= 0 )
 		{
 			x	+= Get_xTo(Direction);
@@ -211,19 +182,19 @@ bool CLeastCostPathProfile::Add_Point(int x, int y)
 	}
 
 	//-----------------------------------------------------
-	TSG_Point	Point	= Get_System().Get_Grid_to_World(x, y);
+	TSG_Point Point = Get_System().Get_Grid_to_World(x, y);
 
-	double	Distance	= 0.0;
+	double Distance = 0.;
 
 	if( m_pPoints->Get_Count() > 0 )
 	{
-		CSG_Shape	*pLast	= m_pPoints->Get_Shape(m_pPoints->Get_Count() - 1);
+		CSG_Shape *pLast = m_pPoints->Get_Shape(m_pPoints->Get_Count() - 1);
 
-		Distance	= SG_Get_Distance(Point, pLast->Get_Point(0)) + pLast->asDouble(1);
+		Distance = SG_Get_Distance(Point, pLast->Get_Point()) + pLast->asDouble(1);
 	}
 
 	//-----------------------------------------------------
-	CSG_Shape	*pPoint	= m_pPoints->Add_Shape();
+	CSG_Shape *pPoint = m_pPoints->Add_Shape();
 
 	pPoint->Add_Point(Point);
 

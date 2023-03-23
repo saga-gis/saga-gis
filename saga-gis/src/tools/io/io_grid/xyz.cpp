@@ -413,7 +413,7 @@ bool CXYZ_Import::On_Execute(void)
 	{
 		Cellsize	= Extent.Get_XRange() / (1. + sqrt(Points.Get_Count() * Extent.Get_XRange() / Extent.Get_YRange()));
 
-		double	d	= fabs(Points.Get_Point(0).x - Points.Get_Point(1).x); if( d > 0. && d < Cellsize ) { Cellsize	= d; }
+		double	d	= fabs(Points.Get_Point().x - Points.Get_Point(1).x); if( d > 0. && d < Cellsize ) { Cellsize	= d; }
 
 		CSG_Parameters	P;	P.Add_Double("", "CELLSIZE", _TL("Cellsize"), _TL(""), Cellsize, 0., true);
 

@@ -996,15 +996,15 @@ public:
 
 	virtual bool			has_Statistics	(void)	const	{	return( true );	}
 
-	sLong					Get_Count		(void)	{	return( s_z.Get_Count   () );	}
-	double					Get_Value		(int i)	{	return( s_z.Get_Value  (i) );	}
-	double					Get_Minimum		(void)	{	return( s_z.Get_Minimum () );	}
-	double					Get_Maximum		(void)	{	return( s_z.Get_Maximum () );	}
-	double					Get_Range		(void)	{	return( s_z.Get_Range   () );	}
-	double					Get_Sum			(void)	{	return( s_z.Get_Sum     () );	}
-	double					Get_Mean		(void)	{	return( s_z.Get_Mean    () );	}
-	double					Get_Variance	(void)	{	return( s_z.Get_Variance() );	}
-	double					Get_StdDev		(void)	{	return( s_z.Get_StdDev  () );	}
+	sLong					Get_Count		(void)		{	return( s_z.Get_Count   () );	}
+	double					Get_Value		(sLong i)	{	return( s_z.Get_Value  (i) );	}
+	double					Get_Minimum		(void)		{	return( s_z.Get_Minimum () );	}
+	double					Get_Maximum		(void)		{	return( s_z.Get_Maximum () );	}
+	double					Get_Range		(void)		{	return( s_z.Get_Range   () );	}
+	double					Get_Sum			(void)		{	return( s_z.Get_Sum     () );	}
+	double					Get_Mean		(void)		{	return( s_z.Get_Mean    () );	}
+	double					Get_Variance	(void)		{	return( s_z.Get_Variance() );	}
+	double					Get_StdDev		(void)		{	return( s_z.Get_StdDev  () );	}
 
 
 protected:
@@ -1039,7 +1039,7 @@ public:
 
 	virtual bool			is_Node			(void)	const	{	return( true );		}
 
-	CSG_PRQuadTree_Item *	Get_Child		(int i)	const	{	return( i >= 0 && i < 4 ? m_pChildren[i] : NULL );	}
+	CSG_PRQuadTree_Item *	Get_Child		(int Quadrant)	const	{	return( Quadrant >= 0 && Quadrant < 4 ? m_pChildren[Quadrant] : NULL );	}
 	CSG_PRQuadTree_Item *	Get_Child		(double x, double y);
 
 	bool					Add_Point		(double x, double y, double z);
@@ -1110,7 +1110,7 @@ public:
 	bool						Add_Point				(double x, double y, double z);
 	bool						Add_Point				(const TSG_Point &p, double z);
 
-	int							Get_Point_Count			(void)	const	{	return( m_nPoints );		}
+	size_t						Get_Point_Count			(void)	const	{	return( m_nPoints );		}
 
 	const CSG_PRQuadTree_Node &	Get_Root				(void)	const	{	return( *m_pRoot );			}
 	CSG_PRQuadTree_Node *		Get_Root_Pointer		(void)	const	{	return(  m_pRoot );			}
@@ -1167,7 +1167,7 @@ private:
 
 	bool						m_bPolar;
 
-	int							m_nPoints;
+	size_t						m_nPoints;
 
 	CSG_Array					m_Selection;
 

@@ -86,7 +86,7 @@ bool CGSPoints_Distances::On_Execute(void)
 
 	for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 	{
-		TSG_Point p = pPoints->Get_Shape(iPoint)->Get_Point(0); size_t Index[2]; double Distance[2];
+		TSG_Point p = pPoints->Get_Shape(iPoint)->Get_Point(); size_t Index[2]; double Distance[2];
 
 		if( Search.Get_Nearest_Points(p.x, p.y, 2, Index, Distance) && Distance[1] > 0. )
 		{

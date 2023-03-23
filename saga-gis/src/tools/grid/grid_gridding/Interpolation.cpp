@@ -315,7 +315,7 @@ bool CInterpolation::_Get_Cross_Validation(void)
 
 			double z;
 
-			if( !pPoint->is_NoData(m_zField) && On_Initialize() && Get_Value(pPoint->Get_Point(0), z) )
+			if( !pPoint->is_NoData(m_zField) && On_Initialize() && Get_Value(pPoint->Get_Point(), z) )
 			{
 				nSamples++;
 
@@ -326,7 +326,7 @@ bool CInterpolation::_Get_Cross_Validation(void)
 				{
 					CSG_Shape *pResidual = pResiduals->Add_Shape();
 
-					pResidual->Add_Point(pPoint->Get_Point(0));
+					pResidual->Add_Point(pPoint->Get_Point());
 					pResidual->Set_Value(0, pPoint->asDouble(m_zField));
 					pResidual->Set_Value(1, z);
 					pResidual->Set_Value(2, pPoint->asDouble(m_zField) - z);
@@ -385,7 +385,7 @@ bool CInterpolation::_Get_Cross_Validation(void)
 				{
 					CSG_Shape *pPoint = Sample[1].Get_Shape(i); double z;
 
-					if( Get_Value(pPoint->Get_Point(0), z) )
+					if( Get_Value(pPoint->Get_Point(), z) )
 					{
 						SE += SG_Get_Square(z - pPoint->asDouble(m_zField));
 						SR += SG_Get_Square(z - iSFull.Get_Mean());

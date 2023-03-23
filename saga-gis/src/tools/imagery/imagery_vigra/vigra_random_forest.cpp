@@ -89,8 +89,8 @@ public:
 	double						Get_OOB					(void)	{	return( m_OOB.oob_breiman );	}
 
 	double						Get_Importance			(int iFeature, int iClass)	{	return( m_VI.variable_importance_(iFeature, iClass) );	}
-	double						Get_Importance			(int iFeature)	{	return( m_VI.variable_importance_(iFeature, Get_Class_Count() + 0) );	}
-	double						Get_Gini				(int iFeature)	{	return( m_VI.variable_importance_(iFeature, Get_Class_Count() + 1) );	}
+	double						Get_Importance			(int iFeature)	{	return( m_VI.variable_importance_(iFeature, (size_t)Get_Class_Count() + 0) );	}
+	double						Get_Gini				(int iFeature)	{	return( m_VI.variable_importance_(iFeature, (size_t)Get_Class_Count() + 1) );	}
 
 
 private:
@@ -441,22 +441,22 @@ bool CViGrA_Random_Forest::On_Execute(void)
 	//-----------------------------------------------------
 	// Feature Grids
 
-	CSG_Parameter_Grid_List		*pFeatures	= Parameters("FEATURES")->asGridList();
+	CSG_Parameter_Grid_List *pFeatures= Parameters("FEATURES")->asGridList();
 
-	CSG_Array	Features(sizeof(CSG_Grid *), pFeatures->Get_Grid_Count());
+	CSG_Array Features(sizeof(CSG_Grid *), pFeatures->Get_Grid_Count());
 
-	m_pFeatures	= (CSG_Grid **)Features.Get_Array();
-	m_nFeatures	= 0;
+	m_pFeatures = (CSG_Grid **)Features.Get_Array();
+	m_nFeatures = 0;
 
-	for(int i=pFeatures->Get_Grid_Count()-1; i>=0; i--)
+	for(int iFeature=pFeatures->Get_Grid_Count()-1; iFeature>=0; iFeature--)
 	{
-		if( pFeatures->Get_Grid(i)->Get_Range() <= 0.0 )
+		if( pFeatures->Get_Grid(iFeature)->Get_Range() <= 0. )
 		{
-			Message_Fmt("\n%s: %s", _TL("grid has been dropped"), pFeatures->Get_Grid(i)->Get_Name());
+			Message_Fmt("\n%s: %s", _TL("grid has been dropped"), pFeatures->Get_Grid(iFeature)->Get_Name());
 		}
 		else
 		{
-			m_pFeatures[m_nFeatures++]	= pFeatures->Get_Grid(i);
+			m_pFeatures[m_nFeatures++] = pFeatures->Get_Grid(iFeature);
 		}
 	}
 
@@ -471,9 +471,7 @@ bool CViGrA_Random_Forest::On_Execute(void)
 	//-----------------------------------------------------
 	// Model Creation
 
-	CRandom_Forest	Model(&Parameters);
-
-	CSG_Table		Classes;
+	CRandom_Forest Model(&Parameters); CSG_Table Classes;
 
 	if( Model.Load_Model(false) )	// load model from file ...
 	{
@@ -493,7 +491,7 @@ bool CViGrA_Random_Forest::On_Execute(void)
 	}
 	else							// train model from training data ...
 	{
-		CSG_Matrix	Data;
+		CSG_Matrix Data;
 
 		if( !Get_Training(Data, Classes) )
 		{
@@ -505,16 +503,14 @@ bool CViGrA_Random_Forest::On_Execute(void)
 		Model.Train_Model(Data);
 
 		//-------------------------------------------------
-		int	iFeature, iClass;
-
-		CSG_Table	*pImportances	= Parameters("IMPORTANCES")->asTable();
+		CSG_Table *pImportances = Parameters("IMPORTANCES")->asTable();
 
 		pImportances->Destroy();
 		pImportances->Set_Name(_TL("Feature Importances"));
 
 		pImportances->Add_Field(_TL("Feature"), SG_DATATYPE_String);
 
-		for(iClass=0; iClass<Classes.Get_Count(); iClass++)
+		for(sLong iClass=0; iClass<Classes.Get_Count(); iClass++)
 		{
 			pImportances->Add_Field(Classes[iClass].asString(CLASS_NAME), SG_DATATYPE_Double);
 		}
@@ -522,13 +518,13 @@ bool CViGrA_Random_Forest::On_Execute(void)
 		pImportances->Add_Field(_TL("Permutation Importance"), SG_DATATYPE_Double);
 		pImportances->Add_Field(_TL("Gini Decrease"         ), SG_DATATYPE_Double);
 
-		for(iFeature=0; iFeature<m_nFeatures; iFeature++)
+		for(int iFeature=0; iFeature<m_nFeatures; iFeature++)
 		{
-			CSG_Table_Record	*pImportance	= pImportances->Add_Record();
+			CSG_Table_Record *pImportance = pImportances->Add_Record();
 
 			pImportance->Set_Value(0, m_pFeatures[iFeature]->Get_Name());
 
-			for(iClass=0; iClass<Classes.Get_Count(); iClass++)
+			for(sLong iClass=0; iClass<Classes.Get_Count(); iClass++)
 			{
 				pImportance->Set_Value(1 + iClass, Model.Get_Importance(iFeature, iClass));
 			}
@@ -542,13 +538,13 @@ bool CViGrA_Random_Forest::On_Execute(void)
 	//-----------------------------------------------------
 	// Output Grids
 
-	CSG_Grid	*pClasses		= Get_Class_Grid();
+	CSG_Grid *pClasses = Get_Class_Grid();
 
-	CSG_Grid	*pProbability	= Parameters("PROBABILITY")->asGrid();
+	CSG_Grid *pProbability = Parameters("PROBABILITY")->asGrid();
 
-	CSG_Parameter_Grid_List	*pProbabilities	= Get_Propability_Grids(Classes);
+	CSG_Parameter_Grid_List *pProbabilities = Get_Propability_Grids(Classes);
 
-	if( pProbability && !pProbability->Get_Range() ) DataObject_Set_Colors(pProbability, 11, SG_COLORS_WHITE_GREEN);
+	if( pProbability && !pProbability->Get_Range() ) { DataObject_Set_Colors(pProbability, 11, SG_COLORS_WHITE_GREEN); }
 
 
 	//-----------------------------------------------------
@@ -563,22 +559,22 @@ bool CViGrA_Random_Forest::On_Execute(void)
 		{
 			if( !pClasses->is_NoData(x, y) )
 			{
-				vigra::Matrix<double>	features(1, m_nFeatures);
+				vigra::Matrix<double> features(1, m_nFeatures);
 
 				for(int iFeature=0; iFeature<m_nFeatures; iFeature++)
 				{
-					features(0, iFeature)	= m_pFeatures[iFeature]->asDouble(x, y);
+					features(0, iFeature) = m_pFeatures[iFeature]->asDouble(x, y);
 				}
 
-				int	id	= Model.Get_Prediction(features);
+				int id = Model.Get_Prediction(features);
 
 				pClasses->Set_Value(x, y, id);
 
 				if( pProbability || pProbabilities )
 				{
-					vigra::Matrix<double>	p	= Model.Get_Probabilities(features);
+					vigra::Matrix<double> p = Model.Get_Probabilities(features);
 
-					SG_GRID_PTR_SAFE_SET_VALUE(pProbability, x, y, p(0, id - 1));
+					SG_GRID_PTR_SAFE_SET_VALUE(pProbability, x, y, p(0, (size_t)id - 1));
 
 					for(int i=0; pProbabilities && i<pProbabilities->Get_Grid_Count(); i++)
 					{
@@ -615,26 +611,24 @@ bool CViGrA_Random_Forest::On_Execute(void)
 //---------------------------------------------------------
 bool CViGrA_Random_Forest::Get_Training(CSG_Matrix &Data, CSG_Table &Classes)
 {
-	CSG_Shapes	*pTraining	= Parameters("TRAINING")->asShapes();
+	CSG_Shapes *pTraining = Parameters("TRAINING")->asShapes();
 
-	bool	bLabelAsId	= Parameters("LABEL_AS_ID")->asBool();
+	bool bLabelAsId = Parameters("LABEL_AS_ID")->asBool();
 
-	int		Field	= Parameters("FIELD")->asInt();
+	int Field = Parameters("FIELD")->asInt();
 
 	Classes.Destroy();
 	Classes.Add_Field("ID"   , SG_DATATYPE_Int   );	// CLASS_ID
 	Classes.Add_Field("NAME" , SG_DATATYPE_String);	// CLASS_NAME
 	Classes.Add_Field("COUNT", SG_DATATYPE_Int   );	// CLASS_COUNT
 
-	CSG_String	Label;
-
-	CSG_Table_Record	*pClass	= NULL;
+	CSG_String Label; int ID = 0; CSG_Table_Record *pClass = NULL;
 
 	pTraining->Set_Index(Field, TABLE_INDEX_Ascending);
 
-	for(int iTraining=0, ID=0; iTraining<pTraining->Get_Count(); iTraining++)
+	for(sLong iTraining=0; iTraining<pTraining->Get_Count(); iTraining++)
 	{
-		CSG_Shape	*pArea	= pTraining->Get_Shape(iTraining);
+		CSG_Shape *pArea = pTraining->Get_Shape(iTraining);
 
 		if( !pArea->is_Valid() )
 		{
@@ -645,13 +639,13 @@ bool CViGrA_Random_Forest::Get_Training(CSG_Matrix &Data, CSG_Table &Classes)
 		|| ( bLabelAsId && ID !=     pArea->asInt   (Field) )
 		|| (!bLabelAsId && Label.Cmp(pArea->asString(Field))) )
 		{
-			Label	= pArea->asString(Field);
+			Label = pArea->asString(Field);
 
 			if( !pClass || pClass->asInt(CLASS_COUNT) > 0 )
 			{
-				pClass	= Classes.Add_Record();
+				pClass = Classes.Add_Record();
 
-				ID	= bLabelAsId ? pArea->asInt(Field) : ID + 1;
+				ID = bLabelAsId ? pArea->asInt(Field) : ID + 1;
 			}
 
 			pClass->Set_Value(CLASS_ID   , ID   );
@@ -665,16 +659,18 @@ bool CViGrA_Random_Forest::Get_Training(CSG_Matrix &Data, CSG_Table &Classes)
 #ifdef WITH_MRMR
 	if( Data.Get_NCols() > 1 && Data.Get_NRows() > 1 && Parameters("DO_MRMR")->asBool() )
 	{
-		CSG_mRMR	Selector;
+		CSG_mRMR Selector;
 
 		if( Selector.Set_Data(Data, m_nFeatures, &Parameters) && Selector.Get_Selection(&Parameters)
 		&&  Selector.Get_Count() > 0 && Selector.Get_Count() < m_nFeatures )
 		{
-			int	i, j, *bSelected	= (int *)SG_Calloc(m_nFeatures, sizeof(int));
+			int *bSelected = (int *)SG_Calloc(m_nFeatures, sizeof(int));
 
-			for(i=0; i<Selector.Get_Count(); i++)
+			for(int i=0; i<Selector.Get_Count(); i++)
 			{
-				bSelected[j = Selector.Get_Index(i) - 1]	= 1;
+				int j = Selector.Get_Index(i) - 1;
+
+				bSelected[j] = 1;
 
 				Message_Fmt("\n%02d. %s (%s: %f)",
 					i + 1, m_pFeatures[j]->Get_Name(), _TL("Score"), Selector.Get_Score(i)
@@ -683,16 +679,16 @@ bool CViGrA_Random_Forest::Get_Training(CSG_Matrix &Data, CSG_Table &Classes)
 
 			Message_Add("\n", false);
 
-			for(i=0, j=0; i<m_nFeatures; i++)
+			for(int i=0, j=0; i<m_nFeatures; i++)
 			{
 				if( bSelected[m_nFeatures - i - 1] == 0 )
 				{
-					Data.Del_Col(m_nFeatures - i - 1);
+					Data.Del_Col((sLong)m_nFeatures - i - 1);
 				}
 
 				if( bSelected[i] == 1 )
 				{
-					m_pFeatures[j++]	= m_pFeatures[i];
+					m_pFeatures[j++] = m_pFeatures[i];
 				}
 			}
 
@@ -709,12 +705,12 @@ bool CViGrA_Random_Forest::Get_Training(CSG_Matrix &Data, CSG_Table &Classes)
 //---------------------------------------------------------
 int CViGrA_Random_Forest::Get_Training(CSG_Matrix &Data, int ID, CSG_Shape_Polygon *pArea)
 {
-	int	Count	= 0;
+	int	Count = 0;
 
-	int	xMin	= Get_System().Get_xWorld_to_Grid(pArea->Get_Extent().Get_XMin());	if( xMin <  0        ) xMin = 0;
-	int	xMax	= Get_System().Get_xWorld_to_Grid(pArea->Get_Extent().Get_XMax());	if( xMax >= Get_NX() ) xMax = Get_NX() - 1;
-	int	yMin	= Get_System().Get_yWorld_to_Grid(pArea->Get_Extent().Get_YMin());	if( yMin <  0        ) yMin = 0;
-	int	yMax	= Get_System().Get_yWorld_to_Grid(pArea->Get_Extent().Get_YMax());	if( yMax >= Get_NY() ) yMax = Get_NY() - 1;
+	int	xMin = Get_System().Get_xWorld_to_Grid(pArea->Get_Extent().Get_XMin());	if( xMin <  0        ) xMin = 0;
+	int	xMax = Get_System().Get_xWorld_to_Grid(pArea->Get_Extent().Get_XMax());	if( xMax >= Get_NX() ) xMax = Get_NX() - 1;
+	int	yMin = Get_System().Get_yWorld_to_Grid(pArea->Get_Extent().Get_YMin());	if( yMin <  0        ) yMin = 0;
+	int	yMax = Get_System().Get_yWorld_to_Grid(pArea->Get_Extent().Get_YMax());	if( yMax >= Get_NY() ) yMax = Get_NY() - 1;
 
 	for(int y=yMin; y<=yMax; y++)
 	{
@@ -722,7 +718,7 @@ int CViGrA_Random_Forest::Get_Training(CSG_Matrix &Data, int ID, CSG_Shape_Polyg
 		{
 			if( pArea->Contains(Get_System().Get_Grid_to_World(x, y)) )
 			{
-				CSG_Vector	z(1 + m_nFeatures);
+				CSG_Vector	z(1 + (sLong)m_nFeatures);
 
 				z[m_nFeatures]	= ID;
 
@@ -757,21 +753,21 @@ int CViGrA_Random_Forest::Get_Training(CSG_Matrix &Data, int ID, CSG_Shape_Polyg
 //---------------------------------------------------------
 CSG_Grid * CViGrA_Random_Forest::Get_Class_Grid(void)
 {
-	CSG_Grid	*pClasses	= Parameters("CLASSES")->asGrid();
+	CSG_Grid *pClasses = Parameters("CLASSES")->asGrid();
 
 	pClasses->Set_NoData_Value(-1.0);
 
 	#pragma omp parallel for
 	for(sLong i=0; i<Get_NCells(); i++)
 	{
-		bool	bOkay	= true;
+		bool bOkay = true;
 
 		for(int iFeature=0; bOkay && iFeature<m_nFeatures; iFeature++)
 		{
-			bOkay	= !m_pFeatures[iFeature]->is_NoData(i);
+			bOkay = !m_pFeatures[iFeature]->is_NoData(i);
 		}
 
-		pClasses->Set_Value(i, bOkay ? 0.0 : -1.0);
+		pClasses->Set_Value(i, bOkay ? 0. : -1.);
 	}
 
 	return( pClasses );
@@ -782,22 +778,20 @@ void CViGrA_Random_Forest::Set_Classification(CSG_Table &Classes)
 {
 	if( Classes.Get_Field_Count() == 3 && Classes.Get_Count() > 0 )
 	{
-		CSG_Grid	*pClasses	= Parameters("CLASSES")->asGrid();
-
-		CSG_Parameters	P;
+		CSG_Grid *pClasses = Parameters("CLASSES")->asGrid(); CSG_Parameters P;
 
 		if( DataObject_Get_Parameters(pClasses, P) && P("COLORS_TYPE") && P("LUT") )
 		{
-			CSG_Table	*pTable	= P("LUT")->asTable();
+			CSG_Table *pTable = P("LUT")->asTable();
 
 			for(int i=0; i<Classes.Get_Count(); i++)
 			{
-				CSG_Table_Record	*pRecord	= pTable->Get_Record(i);
+				CSG_Table_Record *pRecord = pTable->Get_Record(i);
 
 				if( pRecord == NULL )
 				{
 					pRecord	= pTable->Add_Record();
-					pRecord->Set_Value(0, CSG_Random::Get_Uniform(0, 255*255*255));
+					pRecord->Set_Value(0, CSG_Random::Get_Uniform(0, 255.*255.*255.));
 				}
 
 				pRecord->Set_Value(1, Classes[i].asString(1));
@@ -1080,7 +1074,7 @@ bool CViGrA_RF_Presence::Get_Training(CSG_Matrix &Data)
 
 	for(sLong iPoint=0; iPoint<pPresence->Get_Count() && Set_Progress(iPoint, pPresence->Get_Count()); iPoint++)
 	{
-		TSG_Point p = pPresence->Get_Shape(iPoint)->Get_Point(0);
+		TSG_Point p = pPresence->Get_Shape(iPoint)->Get_Point();
 
 		int x = Get_System().Get_xWorld_to_Grid(p.x);
 		int y = Get_System().Get_yWorld_to_Grid(p.y);
@@ -1108,16 +1102,18 @@ bool CViGrA_RF_Presence::Get_Training(CSG_Matrix &Data)
 #ifdef WITH_MRMR
 	if( Data.Get_NCols() > 1 && Data.Get_NRows() > 1 && Parameters("DO_MRMR")->asBool() )
 	{
-		CSG_mRMR	Selector;
+		CSG_mRMR Selector;
 
 		if( Selector.Set_Data(Data, m_nFeatures, &Parameters) && Selector.Get_Selection(&Parameters)
 		&&  Selector.Get_Count() > 0 && Selector.Get_Count() < m_nFeatures )
 		{
-			int	i, j, *bSelected	= (int *)SG_Calloc(m_nFeatures, sizeof(int));
+			int *bSelected = (int *)SG_Calloc(m_nFeatures, sizeof(int));
 
-			for(i=0; i<Selector.Get_Count(); i++)
+			for(int i=0; i<Selector.Get_Count(); i++)
 			{
-				bSelected[j = Selector.Get_Index(i) - 1]	= 1;
+				int j = Selector.Get_Index(i) - 1;
+
+				bSelected[j] = 1;
 
 				Message_Fmt("\n%02d. %s (%s: %f)",
 					i + 1, m_pFeatures[j]->Get_Name(), _TL("Score"), Selector.Get_Score(i)
@@ -1126,20 +1122,20 @@ bool CViGrA_RF_Presence::Get_Training(CSG_Matrix &Data)
 
 			Message_Add("\n", false);
 
-			for(i=0, j=0; i<m_nFeatures; i++)
+			for(int i=0, j=0; i<m_nFeatures; i++)
 			{
 				if( bSelected[m_nFeatures - i - 1] == 0 )
 				{
-					Data.Del_Col(m_nFeatures - i - 1);
+					Data.Del_Col((sLong)m_nFeatures - i - 1);
 				}
 
 				if( bSelected[i] == 1 )
 				{
-					m_pFeatures[j++]	= m_pFeatures[i];
+					m_pFeatures[j++] = m_pFeatures[i];
 				}
 			}
 
-			m_nFeatures	= Selector.Get_Count();
+			m_nFeatures = Selector.Get_Count();
 
 			delete[](bSelected);
 		}
@@ -1152,9 +1148,9 @@ bool CViGrA_RF_Presence::Get_Training(CSG_Matrix &Data)
 //---------------------------------------------------------
 bool CViGrA_RF_Presence::Get_Training(CSG_Matrix &Data, int x, int y, int ID)
 {
-	CSG_Vector	z(1 + m_nFeatures);
+	CSG_Vector z(1 + (sLong)m_nFeatures);
 
-	z[m_nFeatures]	= ID;
+	z[m_nFeatures] = ID;
 
 	for(int i=0; i<m_nFeatures; i++)
 	{
@@ -1163,7 +1159,7 @@ bool CViGrA_RF_Presence::Get_Training(CSG_Matrix &Data, int x, int y, int ID)
 			return( false );
 		}
 
-		z[i]	= m_pFeatures[i]->asDouble(x, y);
+		z[i] = m_pFeatures[i]->asDouble(x, y);
 	}
 
 	Data.Add_Row(z);
@@ -1181,7 +1177,6 @@ bool CViGrA_RF_Presence::Get_Training(CSG_Matrix &Data, int x, int y, int ID)
 //---------------------------------------------------------
 CViGrA_RF_Table::CViGrA_RF_Table(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Random Forest Table Classification (ViGrA)"));
 
 	Set_Author		("B. Bechtel, O.Conrad (c) 2015");
@@ -1242,7 +1237,7 @@ int CViGrA_RF_Table::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 {
 	if( pParameter->Cmp_Identifier("RF_IMPORT") )
 	{
-		bool	bTraining	= !SG_File_Exists(pParameter->asString());
+		bool bTraining = !SG_File_Exists(pParameter->asString());
 
 		pParameters->Set_Enabled("RF_OPTIONS" , bTraining);
 		pParameters->Set_Enabled("TRAINING"   , bTraining);
@@ -1260,25 +1255,22 @@ int CViGrA_RF_Table::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 //---------------------------------------------------------
 bool CViGrA_RF_Table::On_Execute(void)
 {
-	//-----------------------------------------------------		
 	Process_Set_Text(_TL("Initialization"));
 
-	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
+	CSG_Table *pTable = Parameters("TABLE")->asTable();
 
-	int	*Features	= (int *)Parameters("FEATURES")->asPointer();	// gibt Pointer auf Feature List
-	int	nFeatures	=        Parameters("FEATURES")->asInt    ();	// gibt Anzahl der Features
+	int *Features = (int *)Parameters("FEATURES")->asPointer();	// gibt Pointer auf Feature List
+	int nFeatures =        Parameters("FEATURES")->asInt    ();	// gibt Anzahl der Features
 
-	int fPredict	= Parameters("PREDICTION")->asInt();
+	int fPredict = Parameters("PREDICTION")->asInt();
 
 	//-----------------------------------------------------
-	CSG_Category_Statistics	Categories;
-
-	bool	bCategories	= false;
+	CSG_Category_Statistics	Categories; bool bCategories = false;
 
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("Model Creation"));
 
-	CRandom_Forest	Model(&Parameters);
+	CRandom_Forest Model(&Parameters);
 
 	//-----------------------------------------------------		
 	if( Model.Load_Model(false) )	// load model from file ...
@@ -1299,7 +1291,7 @@ bool CViGrA_RF_Table::On_Execute(void)
 
 		if( fPredict < 0 )
 		{
-			fPredict	= pTable->Get_Field_Count();
+			fPredict = pTable->Get_Field_Count();
 
 			pTable->Add_Field("RF_CLASSES", SG_DATATYPE_Int);
 		}
@@ -1321,17 +1313,17 @@ bool CViGrA_RF_Table::On_Execute(void)
 			return( false );
 		}
 
-		for(int iRecord=0; iRecord<pTable->Get_Count(); iRecord++) // baue trainingsdaten aus records
+		for(sLong iRecord=0; iRecord<pTable->Get_Count(); iRecord++) // baue trainingsdaten aus records
 		{
-			CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
+			CSG_Table_Record *pRecord = pTable->Get_Record(iRecord);
 
 			if( !pRecord->is_NoData(fTrain) )	// ist trainingswertn
 			{
-				CSG_Vector	d(nFeatures + 1);
+				CSG_Vector	d((sLong)nFeatures + 1);
 
 				for(int iFeature=0; iFeature<nFeatures; iFeature++)
 				{
-					d[iFeature]	= pRecord->asDouble(Features[iFeature]); // andere felder aus Tabelle bauen
+					d[iFeature] = pRecord->asDouble(Features[iFeature]); // andere felder aus Tabelle bauen
 				}
 
 				if( bCategories )
@@ -1358,22 +1350,20 @@ bool CViGrA_RF_Table::On_Execute(void)
 
 		if( fPredict < 0 )
 		{
-			fPredict	= pTable->Get_Field_Count();
+			fPredict = pTable->Get_Field_Count();
 
 			pTable->Add_Field("RF_CLASSES", pTable->Get_Field_Type(fTrain));
 		}
 
 		//-------------------------------------------------
-		int	iFeature, iClass;
-
-		CSG_Table	*pImportances	= Parameters("IMPORTANCES")->asTable();
+		CSG_Table *pImportances = Parameters("IMPORTANCES")->asTable();
 
 		pImportances->Destroy();
 		pImportances->Set_Name(_TL("Feature Importances"));
 
 		pImportances->Add_Field(_TL("Feature"), SG_DATATYPE_String);
 
-		for(iClass=0; iClass<Categories.Get_Count(); iClass++)
+		for(sLong iClass=0; iClass<Categories.Get_Count(); iClass++)
 		{
 			pImportances->Add_Field(Categories.asString(iClass), SG_DATATYPE_Double);
 		}
@@ -1381,13 +1371,13 @@ bool CViGrA_RF_Table::On_Execute(void)
 		pImportances->Add_Field(_TL("Permutation Importance"), SG_DATATYPE_Double);
 		pImportances->Add_Field(_TL("Gini Decrease"         ), SG_DATATYPE_Double);
 
-		for(iFeature=0; iFeature<nFeatures; iFeature++)
+		for(int iFeature=0; iFeature<nFeatures; iFeature++)
 		{
-			CSG_Table_Record	*pImportance	= pImportances->Add_Record();
+			CSG_Table_Record *pImportance = pImportances->Add_Record();
 
 			pImportance->Set_Value(0, pTable->Get_Field_Name(Features[iFeature]));
 
-			for(iClass=0; iClass<Model.Get_Class_Count(); iClass++)
+			for(sLong iClass=0; iClass<Model.Get_Class_Count(); iClass++)
 			{
 				pImportance->Set_Value(1 + iClass, Model.Get_Importance(iFeature, iClass));
 			}
@@ -1411,7 +1401,7 @@ bool CViGrA_RF_Table::On_Execute(void)
 			features(0, iFeature) = pRecord->asDouble(Features[iFeature]);
 		}
 
-		int	Prediction = Model.Get_Prediction(features);
+		int Prediction = Model.Get_Prediction(features);
 
 		if( bCategories )
 		{

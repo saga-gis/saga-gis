@@ -169,7 +169,7 @@ bool CSnap_Points_to_Features::On_Execute(void)
 	for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 	{
 		CSG_Shape	*pPoint		= pPoints->Get_Shape(iPoint);
-		TSG_Point	Point		= pPoint->Get_Point(0), snap_Point;
+		TSG_Point	Point		= pPoint->Get_Point(), snap_Point;
 		double		snap_Dist	= Distance;
 
 		if( !bDistance || pFeatures->Select(CSG_Rect(Point.x - Distance, Point.y - Distance, Point.x + Distance, Point.y + Distance)) )
@@ -219,12 +219,12 @@ bool CSnap_Points_to_Features::On_Execute(void)
 //---------------------------------------------------------
 void CSnap_Points_to_Features::Snap_To_Point(const TSG_Point &Point, CSG_Shape *pFeature, TSG_Point &snap_Point, double &snap_Dist)
 {
-	double	d	= SG_Get_Distance(Point, pFeature->Get_Point(0));
+	double	d	= SG_Get_Distance(Point, pFeature->Get_Point());
 
 	if( d < snap_Dist )
 	{
 		snap_Dist	= d;
-		snap_Point	= pFeature->Get_Point(0);
+		snap_Point	= pFeature->Get_Point();
 	}
 }
 

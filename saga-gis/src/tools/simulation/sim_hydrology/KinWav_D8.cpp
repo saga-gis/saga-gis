@@ -843,7 +843,7 @@ bool CKinWav_D8::Gauges_Initialise(void)
 						CSG_Shape	*pGauge	= m_pGauges->Add_Shape();
 
 						pGauge->Add_Point(Get_System().Get_Grid_to_World(x, y));
-						pGauge->Set_Value(0, m_pGauges->Get_Count() + 1);
+						pGauge->Set_Value(0, (int)m_pGauges->Get_Count() + 1);
 					}
 				}
 			}
@@ -857,7 +857,7 @@ bool CKinWav_D8::Gauges_Initialise(void)
 	m_pGauges_Flow->Set_Name(_TL("Outlet Hydrographs"));
 	m_pGauges_Flow->Add_Field("TIME", SG_DATATYPE_Double);
 
-	for(int i=0; i<m_pGauges->Get_Count(); i++)
+	for(int i=0; i<(int)m_pGauges->Get_Count(); i++)
 	{
 		m_pGauges_Flow->Add_Field(CSG_String::Format("GAUGE_%02d", i + 1), SG_DATATYPE_Double);
 	}
@@ -871,15 +871,15 @@ bool CKinWav_D8::Gauges_Set_Flow(double Time)
 {
 	if( m_pGauges_Flow && m_pGauges_Flow->Get_Field_Count() == m_pGauges->Get_Count() + 1 )
 	{
-		CSG_Table_Record	*pRecord	= m_pGauges_Flow->Add_Record();
+		CSG_Table_Record *pRecord = m_pGauges_Flow->Add_Record();
 
 		pRecord->Set_Value(0, Time);
 
-		for(int i=0; i<m_pGauges->Get_Count(); i++)
+		for(int i=0; i<(int)m_pGauges->Get_Count(); i++)
 		{
 			double	Flow;
 
-			if( m_pFlow->Get_Value(m_pGauges->Get_Shape(i)->Get_Point(0), Flow) )
+			if( m_pFlow->Get_Value(m_pGauges->Get_Shape(i)->Get_Point(), Flow) )
 			{
 				pRecord->Set_Value(i + 1, Flow);
 			}

@@ -199,11 +199,11 @@ bool CPoints_Filter::On_Execute(void)
 		if( pPoint )
 		{
 			bool bFilter = bQuadrants
-				?  Do_Filter(pPoint->Get_Point(0), pPoint->asDouble(zField), 0)
-				|| Do_Filter(pPoint->Get_Point(0), pPoint->asDouble(zField), 1)
-				|| Do_Filter(pPoint->Get_Point(0), pPoint->asDouble(zField), 2)
-				|| Do_Filter(pPoint->Get_Point(0), pPoint->asDouble(zField), 3)
-				:  Do_Filter(pPoint->Get_Point(0), pPoint->asDouble(zField)   );
+				?  Do_Filter(pPoint->Get_Point(), pPoint->asDouble(zField), 0)
+				|| Do_Filter(pPoint->Get_Point(), pPoint->asDouble(zField), 1)
+				|| Do_Filter(pPoint->Get_Point(), pPoint->asDouble(zField), 2)
+				|| Do_Filter(pPoint->Get_Point(), pPoint->asDouble(zField), 3)
+				:  Do_Filter(pPoint->Get_Point(), pPoint->asDouble(zField)   );
 
 			if( bFilter )
 			{

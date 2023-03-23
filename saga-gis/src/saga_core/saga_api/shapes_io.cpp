@@ -678,7 +678,7 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 		//-------------------------------------------------
 		case SHAPE_TYPE_Point:		///////////////////////
 
-			fSHP.Write(&(Point = pShape->Get_Point(0)), sizeof(TSG_Point));
+			fSHP.Write(&(Point = pShape->Get_Point()), sizeof(TSG_Point));
 
 			//---------------------------------------------
 			if( Vertex_Type != SG_VERTEX_TYPE_XY )

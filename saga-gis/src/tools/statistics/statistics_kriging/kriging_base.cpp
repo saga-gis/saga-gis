@@ -244,7 +244,7 @@ int CKriging_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramet
 //---------------------------------------------------------
 bool CKriging_Base::On_Execute(void)
 {
-	CSG_Shapes	*pPoints	= Parameters("POINTS")->asShapes();
+	CSG_Shapes *pPoints = Parameters("POINTS")->asShapes();
 
 	if( pPoints->Get_Count() < 2 )
 	{
@@ -254,27 +254,27 @@ bool CKriging_Base::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int	Field	= Parameters("FIELD")->asInt();
+	int Field = Parameters("FIELD")->asInt();
 
-	m_Block		= Parameters("BLOCK")->asBool() ? Parameters("DBLOCK")->asDouble() / 2. : 0.;
+	bool bLog = Parameters("LOG")->asBool();
 
-	bool	bLog	= Parameters("LOG")->asBool();
+	m_Block = Parameters("BLOCK")->asBool() ? Parameters("DBLOCK")->asDouble() / 2. : 0.;
 
 	//-----------------------------------------------------
-	bool	bResult	= Init_Points(pPoints, Field, bLog);	
+	bool bResult = Init_Points(pPoints, Field, bLog);	
 
 	//-----------------------------------------------------
 	if( bResult )
 	{
-		CSG_Table	Variogram;
+		CSG_Table Variogram;
 
 		if( m_pVariogram )
 		{
-			bResult	= m_pVariogram->Execute   (m_Points, &Variogram, &m_Model);
+			bResult = m_pVariogram->Execute   (m_Points, &Variogram, &m_Model);
 		}
 		else
 		{
-			bResult	= CSG_Variogram::Calculate(m_Points, &Variogram,
+			bResult = CSG_Variogram::Calculate(m_Points, &Variogram,
 				Parameters("VAR_NCLASSES")->asInt   (),
 				Parameters("VAR_MAXDIST" )->asDouble(),
 				Parameters("VAR_NSKIP"   )->asInt   ()
@@ -284,9 +284,9 @@ bool CKriging_Base::On_Execute(void)
 			{
 				m_Model.Clr_Data();
 
-				for(int i=0; i<Variogram.Get_Count(); i++)
+				for(sLong i=0; i<Variogram.Get_Count(); i++)
 				{
-					CSG_Table_Record	*pRecord	= Variogram.Get_Record(i);
+					CSG_Table_Record *pRecord = Variogram.Get_Record(i);
 
 					m_Model.Add_Data(pRecord->asDouble(CSG_Variogram::FIELD_DISTANCE), pRecord->asDouble(CSG_Variogram::FIELD_VAR_EXP));
 				}
@@ -305,37 +305,37 @@ bool CKriging_Base::On_Execute(void)
 	//-----------------------------------------------------
 	if( bResult )
 	{
-		bResult	= _Init_Grids() && _Init_Search(true);
+		bResult = _Init_Grids() && _Init_Search(true);
 	}
 
 	//-----------------------------------------------------
 	if( bResult )
 	{
-		bool	bStdDev	= Parameters("TQUALITY")->asInt() == 0;
+		bool bStdDev = Parameters("TQUALITY")->asInt() == 0;
 
 		Message_Fmt("\n%s: %s", _TL("Variogram Model"), m_Model.Get_Formula(SG_TREND_STRING_Formula_Parameters).c_str());
 
 		for(int y=0; y<m_pValue->Get_NY() && Set_Progress(y, m_pValue->Get_NY()); y++)
 		{
-			double	py = m_pValue->Get_YMin() + y * m_pValue->Get_Cellsize();
+			double py = m_pValue->Get_YMin() + y * m_pValue->Get_Cellsize();
 
 			#ifndef _DEBUG
 			#pragma omp parallel for
 			#endif // !_DEBUG
 			for(int x=0; x<m_pValue->Get_NX(); x++)
 			{
-				double	v, e, px = m_pValue->Get_XMin() + x * m_pValue->Get_Cellsize();
+				double v, e, px = m_pValue->Get_XMin() + x * m_pValue->Get_Cellsize();
 
 				if( Get_Value(px, py, v, e) )
 				{
 					if( bLog )
 					{
-						v	= exp(v) - 1. + pPoints->Get_Minimum(Field);
+						v = exp(v) - 1. + pPoints->Get_Minimum(Field);
 					}
 
 					if( bStdDev )
 					{
-						e	= sqrt(e);
+						e = sqrt(e);
 					}
 
 					Set_Value(x, y, v, e);
@@ -388,18 +388,18 @@ bool CKriging_Base::Init_Points(CSG_Shapes *pPoints, int Field, bool bLog)
 {
 	m_Points.Create(3, pPoints->Get_Count());
 
-	int	n	= 0;
+	sLong n = 0;
 
-	for(int i=0; i<pPoints->Get_Count(); i++)
+	for(sLong i=0; i<pPoints->Get_Count(); i++)
 	{
-		CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
+		CSG_Shape *pPoint = pPoints->Get_Shape(i);
 
 		if( !pPoint->is_NoData(Field) )
 		{
-			m_Points[n][0]	= pPoint->Get_Point(0).x;
-			m_Points[n][1]	= pPoint->Get_Point(0).y;
-			m_Points[n][2]	= bLog ? log(1. + pPoint->asDouble(Field) - pPoints->Get_Minimum(Field))
-							: pPoint->asDouble(Field);
+			m_Points[n][0] = pPoint->Get_Point().x;
+			m_Points[n][1] = pPoint->Get_Point().y;
+			m_Points[n][2] = bLog ? log(1. + pPoint->asDouble(Field) - pPoints->Get_Minimum(Field))
+			               : pPoint->asDouble(Field);
 
 			n++;
 		}
@@ -436,13 +436,13 @@ bool CKriging_Base::Get_Points(double x, double y, CSG_Matrix &Points)
 {
 	if( m_Search.is_Okay() )
 	{
-		CSG_Array_Int	Index;	CSG_Vector	Distance;
+		CSG_Array_Int Index; CSG_Vector Distance;
 
 		m_Search.Get_Nearest_Points(x, y, m_Search_Options.Get_Max_Points(), m_Search_Options.Get_Radius(), Index, Distance);
 		
-		if( Index.Get_Size() >= m_Search_Options.Get_Min_Points() && Points.Create(3, (int)Index.Get_Size()) )
+		if( Index.Get_Size() >= (sLong)m_Search_Options.Get_Min_Points() && Points.Create(3, Index.Get_Size()) )
 		{
-			for(size_t i=0; i<Index.Get_Size(); i++)
+			for(sLong i=0; i<Index.Get_Size(); i++)
 			{
 				Points.Set_Row(i, m_Points[Index[i]]);
 			}

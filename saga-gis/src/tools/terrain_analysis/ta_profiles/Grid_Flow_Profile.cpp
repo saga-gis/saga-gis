@@ -240,7 +240,7 @@ bool CGrid_Flow_Profile::Add_Point(int x, int y)
 	{
 		CSG_Shape *pLast = m_pPoints->Get_Shape(m_pPoints->Get_Count() - 1);
 
-		Distance  = SG_Get_Distance(Point, pLast->Get_Point(0));
+		Distance  = SG_Get_Distance(Point, pLast->Get_Point());
 
 		if( Distance == 0. )
 		{

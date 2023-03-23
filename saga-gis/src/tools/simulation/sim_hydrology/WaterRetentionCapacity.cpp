@@ -1,6 +1,4 @@
-/**********************************************************
- * Version $Id: WaterRetentionCapacity.cpp 966 2011-03-25 00:40:53Z johanvdw $
- *********************************************************/
+
 /*******************************************************************************
     WaterRetentionCapacity.cpp
     Copyright (C) Victor Olaya
@@ -124,21 +122,21 @@ bool CWaterRetentionCapacity::On_Execute(void)
 
 	CSG_Matrix	Data(5, pInput->Get_Field_Count() / 5);
 
-	for(int iPoint=0; iPoint<pInput->Get_Count(); iPoint++)
+	for(sLong iPoint=0; iPoint<pInput->Get_Count(); iPoint++)
 	{
-		CSG_Shape	*pPoint	= pInput->Get_Shape(iPoint);
+		CSG_Shape *pPoint = pInput->Get_Shape(iPoint);
 
-		for(int iHorizon=0, n=0; iHorizon<Data.Get_NRows(); iHorizon++, n+=5)
+		for(int iHorizon=0, n=0; iHorizon<(int)Data.Get_NRows(); iHorizon++, n+=5)
 		{
 			for(int i=0; i<5; i++)
 			{
-				Data[iHorizon][i]	= pPoint->asDouble(n + i);
+				Data[iHorizon][i] = pPoint->asDouble(n + i);
 			}
 		}
 
 		double	Slope, Aspect;
 
-		if( !pDEM->Get_Gradient(pPoint->Get_Point(0), Slope, Aspect, GRID_RESAMPLING_BSpline) )
+		if( !pDEM->Get_Gradient(pPoint->Get_Point(), Slope, Aspect, GRID_RESAMPLING_BSpline) )
 		{
 			Slope	= 0.0;
 		}
@@ -209,8 +207,6 @@ bool CWaterRetentionCapacity::On_Execute(void)
 //---------------------------------------------------------
 void CWaterRetentionCapacity::Get_WaterRetention(CSG_Matrix &Data, double fC, CSG_Shape *pPoint)
 {
-	int		i;
-
 	double	fWRC = 0, fPerm = 0, fHe = 0, fK = 0, fCCC = 0, fCIL = 0, fTotalDepth = 0;
 
 	CSG_Vector	CCC (Data.Get_NRows());
@@ -220,7 +216,7 @@ void CWaterRetentionCapacity::Get_WaterRetention(CSG_Matrix &Data, double fC, CS
 	CSG_Vector	He  (Data.Get_NRows());
 	CSG_Vector	CRA (Data.Get_NRows());
 
-	for(i=0; i<Data.Get_NRows(); i++)
+	for(sLong i=0; i<Data.Get_NRows(); i++)
 	{
 		CCC [i]	= Get_CCC(Data[i]);
 		CIL [i]	= Get_CIL(Data[i]);
@@ -238,7 +234,7 @@ void CWaterRetentionCapacity::Get_WaterRetention(CSG_Matrix &Data, double fC, CS
 		fTotalDepth	+= Data[i][0];
 	}
 
-	for(i=0; i<Data.Get_NRows(); i++)
+	for(sLong i=0; i<Data.Get_NRows(); i++)
 	{
 		fWRC	+= Data[i][0] / fTotalDepth * CRA [i];
 		fCCC	+= Data[i][0] / fTotalDepth * CCC [i];

@@ -142,8 +142,8 @@ bool CInterpolation_AngularDistance::On_Initialize(void)
 
 		if( !pPoint->is_NoData(Field) )
 		{
-			m_Points[n][0] = pPoint->Get_Point(0).x;
-			m_Points[n][1] = pPoint->Get_Point(0).y;
+			m_Points[n][0] = pPoint->Get_Point().x;
+			m_Points[n][1] = pPoint->Get_Point().y;
 			m_Points[n][2] = pPoint->asDouble(Field);
 
 			n++;

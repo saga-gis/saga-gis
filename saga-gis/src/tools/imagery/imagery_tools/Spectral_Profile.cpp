@@ -175,7 +175,7 @@ bool CSpectral_Profile::On_Execute(void)
 
 	for(sLong i=0; i<pLocations->Get_Count() && Set_Progress(i, pLocations->Get_Count()); i++)
 	{
-		Add_Profile(pLocations->Get_Shape(i)->Get_Point(0), true);
+		Add_Profile(pLocations->Get_Shape(i)->Get_Point(), true);
 	}
 
 	//-----------------------------------------------------
@@ -430,7 +430,7 @@ bool CSpectral_Profile_Interactive::On_Execute(void)
 
 		Location.Set_Point(m_Profile.Get_Extent().Get_Center(), 0);
 
-		m_Profile.Add_Profile(Location.Get_Point(0), false);
+		m_Profile.Add_Profile(Location.Get_Point(), false);
 	}
 
 	//-----------------------------------------------------

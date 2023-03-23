@@ -58,7 +58,6 @@
 //---------------------------------------------------------
 CConvex_Hull::CConvex_Hull(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Convex Hull"));
 
 	Set_Author		("O.Conrad (c) 2011");
@@ -297,7 +296,7 @@ bool CConvex_Hull::Get_Bounding_Box(CSG_Shape *pHull, CSG_Shape *pBox)
 	pBox->Add_Point(rBox.xMin * dCos - rBox.yMax * dSin, rBox.xMin * dSin + rBox.yMax * dCos);
 	pBox->Add_Point(rBox.xMax * dCos - rBox.yMax * dSin, rBox.xMax * dSin + rBox.yMax * dCos);
 	pBox->Add_Point(rBox.xMax * dCos - rBox.yMin * dSin, rBox.xMax * dSin + rBox.yMin * dCos);
-	pBox->Add_Point(pBox->Get_Point(0));
+	pBox->Add_Point(pBox->Get_Point());
 
 	pBox->Set_Value(0, pBox->Get_Index());
 	pBox->Set_Value(1, aBox);
@@ -321,8 +320,8 @@ public:
 
 	virtual int			Compare		(const sLong _a, const sLong _b)
 	{
-		TSG_Point	a	= m_pPoints->Get_Shape(_a)->Get_Point(0);
-		TSG_Point	b	= m_pPoints->Get_Shape(_b)->Get_Point(0);
+		TSG_Point	a	= m_pPoints->Get_Shape(_a)->Get_Point();
+		TSG_Point	b	= m_pPoints->Get_Shape(_b)->Get_Point();
 
 		if( a.x < b.x )	{	return( -1 );	}
 		if( a.x > b.x )	{	return(  1 );	}
@@ -361,7 +360,7 @@ bool CConvex_Hull::Get_Chain_Hull(CSG_Shapes *pPoints, CSG_Shapes *pHulls, CSG_S
 
 	for(int i=0; i<pPoints->Get_Count(); i++)
 	{
-		Points.Add(pPoints->Get_Shape(Index[i])->Get_Point(0));
+		Points.Add(pPoints->Get_Shape(Index[i])->Get_Point());
 	}
 
 	Index.Destroy();

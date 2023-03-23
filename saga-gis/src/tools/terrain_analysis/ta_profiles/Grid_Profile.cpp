@@ -235,7 +235,7 @@ bool CGrid_Profile::Set_Profile(void)
 
 	if( pLine && pLine->Get_Point_Count(0) > 1 )
 	{
-		CSG_Point B = pLine->Get_Point(0);
+		CSG_Point B = pLine->Get_Point();
 
 		for(int i=1; i<pLine->Get_Point_Count(0); i++)
 		{
@@ -314,7 +314,7 @@ bool CGrid_Profile::Add_Point(CSG_Point Point)
 	{
 		CSG_Shape *pLast = m_pPoints->Get_Shape(m_pPoints->Get_Count() - 1);
 
-		Distance = SG_Get_Distance(Point, pLast->Get_Point(0));
+		Distance = SG_Get_Distance(Point, pLast->Get_Point());
 
 		if( Distance == 0. )
 		{

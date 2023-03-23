@@ -1,6 +1,4 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
+
 /*******************************************************************************
     AddCoordinates.cpp
     Copyright (C) Victor Olaya
@@ -156,14 +154,14 @@ bool CAddCoordinates::On_Execute(void)
 	{
 		CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
 
-		if( xField >= 0 ) pPoint->Set_Value(xField, pPoint->Get_Point(0).x);
-		if( yField >= 0 ) pPoint->Set_Value(yField, pPoint->Get_Point(0).y);
+		if( xField >= 0 ) pPoint->Set_Value(xField, pPoint->Get_Point().x);
+		if( yField >= 0 ) pPoint->Set_Value(yField, pPoint->Get_Point().y);
 		if( zField >= 0 ) pPoint->Set_Value(zField, pPoint->Get_Z    (0)  );
 		if( mField >= 0 ) pPoint->Set_Value(mField, pPoint->Get_M    (0)  );
 
 		if( i < Points.Get_Count() )
 		{
-			TSG_Point	Point	= Points.Get_Shape(i)->Get_Point(0);
+			TSG_Point	Point	= Points.Get_Shape(i)->Get_Point();
 
 			if( lonField >= 0 )	pPoint->Set_Value(lonField, Point.x);
 			if( latField >= 0 )	pPoint->Set_Value(latField, Point.y);

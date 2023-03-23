@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: template.cpp 911 2011-11-11 11:11:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,18 +46,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "presence_prediction.h"
 
-//---------------------------------------------------------
 #include "me.h"
 
 //---------------------------------------------------------
@@ -76,7 +63,6 @@ using namespace std;
 //---------------------------------------------------------
 CPresence_Prediction::CPresence_Prediction(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Maximum Entropy Presence Prediction"));
 
 	Set_Author		("O.Conrad (c) 2015");
@@ -127,7 +113,7 @@ CPresence_Prediction::CPresence_Prediction(void)
 	Parameters.Add_Double("",
 		"BACKGROUND"		, _TL("Background Sample Density [Percent]"),
 		_TL(""),
-		1.0, 0.0, true, 100, true
+		1., 0., true, 100, true
 	);
 
 	//-----------------------------------------------------
@@ -166,7 +152,7 @@ CPresence_Prediction::CPresence_Prediction(void)
 	Parameters.Add_Double("YT_REGUL",
 		"YT_REGUL_VAL"	, _TL("Regularization Factor"),
 		_TL(""),
-		1.0, 0.0, true
+		1., 0., true
 	);
 
 	Parameters.Add_Bool("",
@@ -185,7 +171,7 @@ CPresence_Prediction::CPresence_Prediction(void)
 	Parameters.Add_Double("",
 		"DL_THRESHOLD"	, _TL("Threshold"),
 		_TL(""),
-		0.0, 0.0, true
+		0., 0., true
 	);
 
 	Parameters.Add_Int("",
@@ -430,7 +416,7 @@ bool CPresence_Prediction::Get_Training(void)
 
 	for(sLong iPoint=0; iPoint<pPresence->Get_Count() && Set_Progress(iPoint, pPresence->Get_Count()); iPoint++)
 	{
-		TSG_Point	p	= pPresence->Get_Shape(iPoint)->Get_Point(0);
+		TSG_Point	p	= pPresence->Get_Shape(iPoint)->Get_Point();
 
 		int	x	= Get_System().Get_xWorld_to_Grid(p.x);
 		int	y	= Get_System().Get_yWorld_to_Grid(p.y);
@@ -441,7 +427,7 @@ bool CPresence_Prediction::Get_Training(void)
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("collecting background data"));
 
-	double	Background	= Parameters("BACKGROUND")->asDouble() / 100.0;
+	double	Background	= Parameters("BACKGROUND")->asDouble() / 100.;
 
 	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
@@ -464,17 +450,17 @@ bool CPresence_Prediction::Get_Training(void)
 		switch( Parameters("YT_REGUL")->asInt() )
 		{
 		default:
-			m_YT_Model.use_l1_regularizer(0.0);
-			m_YT_Model.use_l2_regularizer(0.0);
+			m_YT_Model.use_l1_regularizer(0.);
+			m_YT_Model.use_l2_regularizer(0.);
 			break;
 
 		case  1:
 			m_YT_Model.use_l1_regularizer(Parameters("YT_REGUL_VAL")->asDouble());
-			m_YT_Model.use_l2_regularizer(0.0);
+			m_YT_Model.use_l2_regularizer(0.);
 			break;
 
 		case  2:
-			m_YT_Model.use_l1_regularizer(0.0);
+			m_YT_Model.use_l1_regularizer(0.);
 			m_YT_Model.use_l2_regularizer(Parameters("YT_REGUL_VAL")->asDouble());
 			break;
 		}

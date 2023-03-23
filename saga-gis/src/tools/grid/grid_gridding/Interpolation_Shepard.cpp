@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Interpolation_Shepard.h"
 
 
@@ -87,13 +75,13 @@ CInterpolation_Shepard::CInterpolation_Shepard(void)
 		"Classes: E2b. Interpolation of scattered, non-gridded multivariate data."
 	));
 
-	Parameters.Add_Int(NULL,
+	Parameters.Add_Int("",
 		"QUADRATIC_NEIGHBORS"	, _TL("Quadratic Neighbors"),
 		_TL(""),
 		13, 5, true
 	);
 
-	Parameters.Add_Int(NULL,
+	Parameters.Add_Int("",
 		"WEIGHTING_NEIGHBORS"	, _TL("Weighting Neighbors"),
 		_TL(""),
 		19, 3, true
@@ -108,7 +96,7 @@ CInterpolation_Shepard::CInterpolation_Shepard(void)
 //---------------------------------------------------------
 bool CInterpolation_Shepard::On_Initialize(void)
 {
-	CSG_Shapes	*pPoints	= Get_Points();
+	CSG_Shapes *pPoints = Get_Points();
 
 	if( pPoints->Get_Count() > std::numeric_limits<int>::max() )
 	{
@@ -121,14 +109,14 @@ bool CInterpolation_Shepard::On_Initialize(void)
 	m_Points[1].Destroy();
 	m_Points[2].Destroy();
 
-	for(int iPoint=0; iPoint<pPoints->Get_Count(); iPoint++)
+	for(sLong iPoint=0; iPoint<pPoints->Get_Count(); iPoint++)
 	{
-		CSG_Shape	*pPoint	= pPoints->Get_Shape(iPoint);
+		CSG_Shape *pPoint = pPoints->Get_Shape(iPoint);
 
 		if( !pPoint->is_NoData(Get_Field()) )
 		{
-			m_Points[0].Add_Row(pPoint->Get_Point(0).x);
-			m_Points[1].Add_Row(pPoint->Get_Point(0).y);
+			m_Points[0].Add_Row(pPoint->Get_Point().x);
+			m_Points[1].Add_Row(pPoint->Get_Point().y);
 			m_Points[2].Add_Row(pPoint->asDouble(Get_Field()));
 		}
 	}
@@ -225,7 +213,7 @@ void CInterpolation_Shepard::Remove_Duplicate()
 
 	for(i=0; i<n; i++)
 	{
-		Data[i].x	= m_Points[0][i];
+		Data[i].x 	= m_Points[0][i];
 		Data[i].y	= m_Points[1][i];
 		Data[i].z	= m_Points[2][i];
 	}

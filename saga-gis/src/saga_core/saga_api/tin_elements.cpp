@@ -92,7 +92,7 @@ bool CSG_TIN_Node::_Add_Triangle(CSG_TIN_Triangle *pTriangle)
 	m_Triangles	= (CSG_TIN_Triangle **)SG_Realloc(m_Triangles, ((uLong)m_nTriangles + 1) * sizeof(CSG_TIN_Triangle *));
 	m_Triangles[m_nTriangles++]	= pTriangle;
 
-//	_Add_Neighbor(pTriangle->Get_Point(0));
+//	_Add_Neighbor(pTriangle->Get_Point());
 //	_Add_Neighbor(pTriangle->Get_Point(1));
 //	_Add_Neighbor(pTriangle->Get_Point(2));
 

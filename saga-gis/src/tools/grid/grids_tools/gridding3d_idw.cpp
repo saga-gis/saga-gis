@@ -57,7 +57,6 @@
 //---------------------------------------------------------
 CGridding3D_IDW::CGridding3D_IDW(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Inverse Distance Weighted (3D)"));
 
 	Set_Author		("O.Conrad (c) 2019");
@@ -254,8 +253,8 @@ bool CGridding3D_IDW::Initialize(void)
 
 		if( !pPoint->is_NoData(Field) )
 		{
-			m_Points[n][0]	= pPoint->Get_Point(0).x;
-			m_Points[n][1]	= pPoint->Get_Point(0).y;
+			m_Points[n][0]	= pPoint->Get_Point().x;
+			m_Points[n][1]	= pPoint->Get_Point().y;
 			m_Points[n][2]	= zScale * (zField < 0 ? pPoint->Get_Z(0) : pPoint->asDouble(zField));
 			m_Points[n][3]	= pPoint->asDouble(Field);
 
@@ -300,7 +299,7 @@ bool CGridding3D_IDW::Finalize(void)
 //---------------------------------------------------------
 bool CGridding3D_IDW::Get_Value(double Coordinate[3], double &Value)
 {
-	CSG_Array_Int	Index;	CSG_Vector	Distance;
+	CSG_Array_Int Index; CSG_Vector Distance;
 
 	if( m_Search.is_Okay() )
 	{
@@ -313,37 +312,37 @@ bool CGridding3D_IDW::Get_Value(double Coordinate[3], double &Value)
 		}
 	}
 
-	CSG_Simple_Statistics	s;
+	CSG_Simple_Statistics s;
 
-	int	nPoints	= m_Search.is_Okay() ? (int)Index.Get_Size() : m_Points.Get_NRows();
+	sLong nPoints = m_Search.is_Okay() ? Index.Get_Size() : m_Points.Get_NRows();
 
-	for(int i=0; i<nPoints; i++)
+	for(sLong i=0; i<nPoints; i++)
 	{
-		double	*p	= m_Points[m_Search.is_Okay() ? Index[i] : i];
-		double	 d	= m_Search.is_Okay() ? Distance[i] : Get_Distance(Coordinate, p);
+		double *p = m_Points[m_Search.is_Okay() ? Index[i] : i];
+		double  d = m_Search.is_Okay() ? Distance[i] : Get_Distance(Coordinate, p);
 
 		if( d > 0. )
 		{
 			s.Add_Value(p[3], m_Weighting.Get_Weight(d));
 		}
-		else	// d == 0! there is a point at the requested coordinate!
+		else // d == 0! there is a point at the requested coordinate!
 		{
-			s.Create();	s	+= p[3];
+			s.Create(); s += p[3];
 
 			for(++i; i<nPoints; i++)	// is there more than one point?!
 			{
-				p	= m_Points[m_Search.is_Okay() ? Index[i] : i];
-				d	= m_Search.is_Okay() ? Distance[i] : Get_Distance(Coordinate, p);
+				p = m_Points[m_Search.is_Okay() ? Index[i] : i];
+				d = m_Search.is_Okay() ? Distance[i] : Get_Distance(Coordinate, p);
 
 				if( d <= 0. )
 				{
-					s	+= p[3];
+					s += p[3];
 				}
 			}
 		}
 	}
 
-	Value	= s.Get_Mean();
+	Value = s.Get_Mean();
 
 	return( true );
 }
@@ -351,9 +350,9 @@ bool CGridding3D_IDW::Get_Value(double Coordinate[3], double &Value)
 //---------------------------------------------------------
 inline double CGridding3D_IDW::Get_Distance(double Coordinate[3], double Point[3])
 {
-	double	dx	= Coordinate[0] - Point[0];
-	double	dy	= Coordinate[1] - Point[1];
-	double	dz	= Coordinate[2] - Point[2];
+	double dx = Coordinate[0] - Point[0];
+	double dy = Coordinate[1] - Point[1];
+	double dz = Coordinate[2] - Point[2];
 
 	return( sqrt(dx*dx + dy*dy + dz*dz) );
 }
@@ -362,8 +361,8 @@ inline double CGridding3D_IDW::Get_Distance(double Coordinate[3], double Point[3
 inline bool CGridding3D_IDW::is_Identical(double Coordinate[3], double Point[3])
 {
 	return( Coordinate[0] == Point[0]
-		&&  Coordinate[1] == Point[1]
-		&&  Coordinate[2] == Point[2]
+	    &&  Coordinate[1] == Point[1]
+	    &&  Coordinate[2] == Point[2]
 	);
 }
 

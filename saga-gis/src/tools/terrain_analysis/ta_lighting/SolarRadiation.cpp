@@ -286,7 +286,7 @@ int CSolarRadiation::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 
 		if( bResult )
 		{
-			pParameters->Get_Parameter("LATITUDE")->Set_Value(dstCenter.Get_Shape(0)->Get_Point(0).y);
+			pParameters->Get_Parameter("LATITUDE")->Set_Value(dstCenter.Get_Shape(0)->Get_Point().y);
 		}
 	}
 

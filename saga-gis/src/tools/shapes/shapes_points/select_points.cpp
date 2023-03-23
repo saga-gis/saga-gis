@@ -45,12 +45,6 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 #include "select_points.h"
 
@@ -66,73 +60,35 @@ CSelect_Points::CSelect_Points(void)
 {
 	Set_Name		(_TL("Select Points"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2011"));
+	Set_Author		("O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
 		""
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		NULL	, "POINTS"		, _TL("Points"),
-		_TL(""),
-		PARAMETER_INPUT, SHAPE_TYPE_Point
-	);
-
-	Parameters.Add_Shapes(
-		NULL	, "SELECTION"	, _TL("Selection"),
-		_TL(""),
-		PARAMETER_OUTPUT, SHAPE_TYPE_Point
-	);
-
-	Parameters.Add_Value(
-		NULL	, "RADIUS"		, _TL("Radius"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 1.0, 0.0, true
-	);
-
-	Parameters.Add_Value(
-		NULL	, "MAXNUM"		, _TL("Maximum Number of Points"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 0.0, 0.0, true
-	);
-
-	Parameters.Add_Choice(
-		NULL	, "QUADRANT"	, _TL("Quadrant"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("all quadrants"),
-			_TL("1. quadrant (upper right)"),
-			_TL("2. quadrant (lower right)"),
-			_TL("3. quadrant (lower left)"),
-			_TL("4. quadrant (upper left)")
-		), 0
-	);
-
-	Parameters.Add_Value(
-		NULL	, "ADDCENTER"	, _TL("Add Center"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, false
-	);
+	Parameters.Add_Shapes("", "POINTS"   , _TL("Points"                  ), _TL(""), PARAMETER_INPUT , SHAPE_TYPE_Point);
+	Parameters.Add_Shapes("", "SELECTION", _TL("Selection"               ), _TL(""), PARAMETER_OUTPUT, SHAPE_TYPE_Point);
+	Parameters.Add_Double("", "RADIUS"   , _TL("Radius"                  ), _TL("ignored if zero"), 1000., 0., true);
+	Parameters.Add_Int   ("", "MAXNUM"   , _TL("Maximum Number of Points"), _TL("ignored if zero"),    0 , 0 , true);
+	Parameters.Add_Bool  ("", "MULTIPLE" , _TL("Multiple Selections"     ), _TL(""), false);
+	Parameters.Add_Bool  ("", "ADDCENTER", _TL("Add Center Point"        ), _TL(""), false);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSelect_Points::On_Execute(void)
 {
-	//-----------------------------------------------------
-	m_pPoints		= Parameters("POINTS")		->asShapes();
-	m_pSelection	= Parameters("SELECTION")	->asShapes();
-	m_Radius		= Parameters("RADIUS")		->asDouble();
-	m_MaxPoints		= Parameters("MAXNUM")		->asInt();
-	m_Quadrant		= Parameters("QUADRANT")	->asInt() - 1;
-	m_bAddCenter	= Parameters("ADDCENTER")	->asBool();
+	m_pPoints    = Parameters("POINTS"   )->asShapes();
+	m_pSelection = Parameters("SELECTION")->asShapes();
+	m_Radius     = Parameters("RADIUS"   )->asDouble();
+	m_MaxPoints  = Parameters("MAXNUM"   )->asInt();
+	m_bMultiple  = Parameters("MULTIPLE" )->asBool();
+	m_bAddCenter = Parameters("ADDCENTER")->asBool();
 
 	//-----------------------------------------------------
 	if( !m_pPoints->is_Valid() )
@@ -149,7 +105,14 @@ bool CSelect_Points::On_Execute(void)
 		return( false );
 	}
 
-	if( !m_Search.Create(m_pPoints, -1) )
+	if( m_MaxPoints <= 0 && m_Radius <= 0. )
+	{
+		Error_Set(_TL("either maximum point number or radius have to be greater zero"));
+
+		return( false );
+	}
+
+	if( !m_Search.Create(m_pPoints) )
 	{
 		Error_Set(_TL("failed to initialise search engine"));
 
@@ -157,19 +120,24 @@ bool CSelect_Points::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_pSelection->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), m_pPoints->Get_Name(), _TL("Selection")), m_pPoints);
+	m_pSelection->Create(SHAPE_TYPE_Point, CSG_String::Format("%s [%s]", m_pPoints->Get_Name(), _TL("Selection")), m_pPoints);
 
-	m_pSelection->Add_Field(_TL("Order")	, SG_DATATYPE_Int);
-	m_pSelection->Add_Field(_TL("Distance")	, SG_DATATYPE_Double);
+	m_pSelection->Add_Field(_TL("Order"   ), SG_DATATYPE_Int   );
+	m_pSelection->Add_Field(_TL("Distance"), SG_DATATYPE_Double);
 
-	//-----------------------------------------------------
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSelect_Points::On_Execute_Finish(void)
+{
+	m_Search.Destroy();
+
 	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -181,19 +149,24 @@ bool CSelect_Points::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive
 	case TOOL_INTERACTIVE_LUP:
 		m_pSelection->Del_Records();
 
+		if( m_bMultiple == false )
+		{
+			m_pSelection->Del_Shapes();
+		}
+
 		if( m_bAddCenter )
 		{
 			m_pSelection->Add_Shape()->Add_Point(ptWorld);
 		}
 
-		if( m_Search.Select_Nearest_Points(ptWorld.x, ptWorld.y, m_MaxPoints, m_Radius, m_Quadrant) )
+		if( m_Search.Get_Nearest_Points(ptWorld.x, ptWorld.y, m_MaxPoints, m_Radius) )
 		{
-			for(int i=0; i<m_Search.Get_Selected_Count(); i++)
+			for(size_t i=0; i<m_Search.Get_Match_Count(); i++)
 			{
-				CSG_Shape	*pPoint	= m_pSelection->Add_Shape(m_pPoints->Get_Shape((int)m_Search.Get_Selected_Z(i)));
+				CSG_Shape &Point = *m_pSelection->Add_Shape(m_pPoints->Get_Shape(m_Search.Get_Match_Index(i)));
 
-				pPoint->Set_Value(m_pSelection->Get_Field_Count() - 2, i + 1);
-				pPoint->Set_Value(m_pSelection->Get_Field_Count() - 1, m_Search.Get_Selected_Distance(i));
+				Point.Set_Value(m_pSelection->Get_Field_Count() - 2, i + 1);
+				Point.Set_Value(m_pSelection->Get_Field_Count() - 1, m_Search.Get_Match_Distance(i));
 			}
 		}
 

@@ -736,7 +736,7 @@ bool CWKSP_Shapes::_Edit_Move(bool bToggle)
 			if( m_Edit_Shapes.Get_Count() > 1 && m_Edit_Shapes.Get_Shape(1)->Get_Point_Count() > 1 )
 			{
 				CSG_Point	Move	= CSG_Point(m_Edit_Shapes.Get_Shape(1)->Get_Point(1))
-									- CSG_Point(m_Edit_Shapes.Get_Shape(1)->Get_Point(0));
+									- CSG_Point(m_Edit_Shapes.Get_Shape(1)->Get_Point());
 
 				m_Edit_Shapes.Get_Shape(1)->Del_Parts();
 

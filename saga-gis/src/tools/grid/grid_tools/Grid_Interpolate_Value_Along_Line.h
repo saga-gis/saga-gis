@@ -47,17 +47,15 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Grid_Interpolate_Value_Along_Line_H
 #define HEADER_INCLUDED__Grid_Interpolate_Value_Along_Line_H
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
@@ -74,7 +72,6 @@ class CGrid_Interpolate_Value_Along_Line : public CSG_Tool_Grid_Interactive
 {
 public:
 	CGrid_Interpolate_Value_Along_Line(void);
-	virtual ~CGrid_Interpolate_Value_Along_Line(void);
 
 
 protected:
