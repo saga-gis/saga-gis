@@ -157,7 +157,7 @@ void			CMD_Print			(const CSG_String &Text, const CSG_String &XML_Tag)
 	{
 		if( g_bUTF8 )
 		{
-			printf("%s\n", Text.to_UTF8 ().Get_Data());
+			printf("%s\n", Text.to_UTF8().Get_Data());
 		}
 		else
 		{
