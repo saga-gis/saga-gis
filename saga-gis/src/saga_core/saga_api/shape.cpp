@@ -196,14 +196,19 @@ TSG_Intersection CSG_Shape::Intersects(const TSG_Rect &Region)
 //---------------------------------------------------------
 bool CSG_Shape::Assign(CSG_Table_Record *pRecord)
 {
-	return( Assign(pRecord, true) );
+	return( Assign(pRecord, SHAPE_COPY) );
 }
 
 bool CSG_Shape::Assign(CSG_Table_Record *pRecord, bool bAssign_Attributes)
 {
+	return( Assign(pRecord, bAssign_Attributes ? SHAPE_COPY : SHAPE_COPY_GEOM) );
+}
+
+bool CSG_Shape::Assign(CSG_Table_Record *pRecord, TSG_ADD_Shape_Copy_Mode mCopy)
+{
 	if( pRecord )
 	{
-		if( pRecord->Get_Table()->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
+		if( (mCopy == SHAPE_COPY || mCopy == SHAPE_COPY_GEOM) && pRecord->Get_Table()->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
 		{
 			CSG_Shape *pShape = (CSG_Shape *)pRecord;
 
@@ -213,7 +218,12 @@ bool CSG_Shape::Assign(CSG_Table_Record *pRecord, bool bAssign_Attributes)
 			}
 		}
 
-		return( !bAssign_Attributes || CSG_Table_Record::Assign(pRecord) );
+		if( (mCopy == SHAPE_COPY || mCopy == SHAPE_COPY_ATTR) )
+		{
+			return( CSG_Table_Record::Assign(pRecord) );
+		}
+
+		return( true );
 	}
 
 	return( false );

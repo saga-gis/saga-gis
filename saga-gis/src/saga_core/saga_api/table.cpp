@@ -812,14 +812,7 @@ CSG_Table_Record * CSG_Table::Ins_Record(sLong iRecord, CSG_Table_Record *pCopy)
 	{
 		if( pCopy )
 		{
-			if( Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes && pCopy->Get_Table()->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
-			{
-				((CSG_Shape *)pRecord)->Assign((CSG_Shape *)pCopy, true);
-			}
-			else
-			{
-				pRecord->Assign(pCopy);
-			}
+			pRecord->Assign(pCopy);
 		}
 
 		//-------------------------------------------------

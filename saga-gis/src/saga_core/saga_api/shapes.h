@@ -119,6 +119,16 @@ typedef enum
 }
 TSG_Shape_File_Format;
 
+//---------------------------------------------------------
+typedef enum
+{
+	SHAPE_NO_COPY	= 0,
+	SHAPE_COPY_GEOM,
+	SHAPE_COPY_ATTR,
+	SHAPE_COPY
+}
+TSG_ADD_Shape_Copy_Mode;
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -138,6 +148,7 @@ public:
 
 	virtual bool				Assign				(CSG_Table_Record *pRecord);
 	virtual bool				Assign				(CSG_Table_Record *pRecord, bool bAssign_Attributes);
+	virtual bool				Assign				(CSG_Table_Record *pRecord, TSG_ADD_Shape_Copy_Mode mCopy);
 
 	virtual bool				is_Valid			(void)	const = 0;
 
@@ -747,16 +758,6 @@ protected:
 //						Shapes							 //
 //														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-typedef enum
-{
-	SHAPE_NO_COPY	= 0,
-	SHAPE_COPY_GEOM,
-	SHAPE_COPY_ATTR,
-	SHAPE_COPY
-}
-TSG_ADD_Shape_Copy_Mode;
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Shapes : public CSG_Table
