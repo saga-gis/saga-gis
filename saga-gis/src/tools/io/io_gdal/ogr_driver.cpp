@@ -1001,7 +1001,7 @@ bool CSG_OGR_DataSet::Write(CSG_Shapes *pShapes, const CSG_String &CreationOptio
 					break;
 
 				case SG_DATATYPE_String: default: {
-					CSG_Buffer	s(CSG_String(pShape->asString(iField)).to_UTF8());	s	+= '\0';
+					CSG_Buffer	s(CSG_String(pShape->asString(iField)).to_UTF8());
 
 					OGR_F_SetFieldString (pFeature, iField, s.Get_Data());
 				}	break;

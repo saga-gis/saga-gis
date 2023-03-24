@@ -812,16 +812,13 @@ CSG_String CSG_String::from_UTF8(const char *String, size_t Length)
 //---------------------------------------------------------
 size_t CSG_String::to_UTF8(char **pString) const
 {
-	if( !is_Empty() )
+	CSG_Buffer String(to_UTF8());
+
+	if( String.Get_Size() > 1 && (*pString = (char *)SG_Malloc(String.Get_Size())) != NULL )
 	{
-		const wxScopedCharBuffer Buffer = m_pString->utf8_str();
+		memcpy(*pString, String.Get_Data(), String.Get_Size());
 
-		if( (*pString = (char *)SG_Malloc(Buffer.length() + 1)) != NULL )
-		{
-			memcpy(*pString, Buffer.data(), Buffer.length() + 1);
-
-			return( Buffer.length() );
-		}
+		return( String.Get_Size() - 1 );
 	}
 
 	*pString = NULL;
@@ -859,11 +856,11 @@ size_t CSG_String::to_MBChar(char **pString, int Encoding) const
 {
 	CSG_Buffer String(to_MBChar(Encoding));
 
-	if( String.Get_Size() && (*pString = (char *)SG_Malloc(String.Get_Size())) != NULL )
+	if( String.Get_Size() > 1 && (*pString = (char *)SG_Malloc(String.Get_Size())) != NULL )
 	{
 		memcpy(*pString, String.Get_Data(), String.Get_Size());
 
-		return( String.Get_Size() );
+		return( String.Get_Size() - 1 );
 	}
 
 	*pString = NULL;
@@ -911,21 +908,16 @@ CSG_Buffer CSG_String::to_MBChar(int Encoding) const
 //---------------------------------------------------------
 bool CSG_String::to_ASCII(char **pString, char Replace)	const
 {
-	if( !is_Empty() )
+	CSG_Buffer String(to_ASCII());
+
+	if( String.Get_Size() > 1 && (*pString = (char *)SG_Malloc(String.Get_Size())) != NULL )
 	{
-		#if wxCHECK_VERSION(3, 1, 0)
-			const wxScopedCharBuffer Buffer = m_pString->ToAscii(Replace);
-		#else
-			const wxScopedCharBuffer Buffer = m_pString->ToAscii();
-		#endif
+		memcpy(*pString, String.Get_Data(), String.Get_Size());
 
-		if( (*pString = (char *)SG_Malloc(Buffer.length())) != NULL )
-		{
-			memcpy(*pString, Buffer.data(), Buffer.length());
-
-			return( true );
-		}
+		return( true );
 	}
+
+	*pString = NULL;
 
 	return( false );
 }
@@ -945,6 +937,7 @@ CSG_Buffer CSG_String::to_ASCII(char Replace) const
 
 	return( String );
 }
+
 
 ///////////////////////////////////////////////////////////
 //														 //

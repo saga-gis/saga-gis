@@ -157,13 +157,11 @@ void			CMD_Print			(const CSG_String &Text, const CSG_String &XML_Tag)
 	{
 		if( g_bUTF8 )
 		{
-			printf("%s\n", Text.to_UTF8().Get_Data());
+			printf("%s\n", Text.to_UTF8 ().Get_Data());
 		}
 		else
 		{
-			CSG_Buffer Buffer = Text.to_ASCII();	Buffer.Add_Value('\0');
-
-			printf("%s\n", Buffer.Get_Data());
+			printf("%s\n", Text.to_ASCII().Get_Data());
 		}
 	}
 
