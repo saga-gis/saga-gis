@@ -101,7 +101,6 @@ CSG_String Get_Info(int i)
 #include "FlowDepth.h"
 #include "TopographicIndices.h"
 #include "SAGA_Wetness_Index.h"
-#include "LakeFlood.h"
 #include "flow_massflux.h"
 #include "flow_width.h"
 #include "melton_ruggedness.h"
@@ -131,8 +130,6 @@ CSG_Tool *		Create_Tool(int i)
 	case 12:	return( new CFlowDepth );
 	case 13:	return( new CEdgeContamination );
 	case 15:	return( new CSAGA_Wetness_Index );
-	case 16:	return( new CLakeFlood );
-	case 17:	return( new CLakeFloodInteractive );
 	case 18:	return( new CFlow_MassFlux );
 	case 19:	return( new CFlow_Width );
 	case 20:	return( new CTWI );
