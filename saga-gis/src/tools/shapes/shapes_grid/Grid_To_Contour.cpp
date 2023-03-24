@@ -76,7 +76,7 @@ CGrid_To_Contour::CGrid_To_Contour(void)
 	Parameters.Add_Bool  ("CONTOUR" , "LINE_PARTS", _TL("Split Parts"), _TL(""),  true);
 
 	Parameters.Add_Shapes(""        , "POLYGONS"  , _TL("Polygons"   ), _TL(""), PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon);
-	Parameters.Add_Bool  ("POLYGONS", "POLY_PARTS", _TL("Split Parts"), _TL(""), false);
+	Parameters.Add_Bool  ("POLYGONS", "POLY_PARTS", _TL("Split Polygon Parts"), _TL(""), false);
 
 	Parameters.Add_Double("",
 		"SCALE"		, _TL("Interpolation Scale"),
@@ -149,7 +149,7 @@ bool CGrid_To_Contour::On_Execute(void)
 	m_pContours  = Parameters("CONTOUR"   )->asShapes();
 	m_pPolygons  = Parameters("POLYGONS"  )->asShapes();
 
-	m_bParts     = Parameters("LINE_PARTS")->asBool  () && !m_pPolygons;	// only split parts if polygons are not requested
+	m_bParts     = Parameters("LINE_PARTS")->asBool() && !m_pPolygons;	// only split parts if polygons are not requested
 
 	double zMin	 = Parameters("ZMIN"      )->asDouble();
 	double zMax	 = Parameters("ZMAX"      )->asDouble();
