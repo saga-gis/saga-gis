@@ -360,16 +360,16 @@ size_t CSG_File::Write(const CSG_String &Buffer) const
 {
 	if( m_pConvert )
 	{
-		wxString	_Buffer(Buffer.w_str());
+		wxString _Buffer(Buffer.w_str());
 
 		const wxScopedCharBuffer s(_Buffer.mb_str(*((wxMBConv *)m_pConvert)));
 
 		return( Write((void *)s.data(), sizeof(char), s.length()) );
 	}
 
-	CSG_Buffer	s(Buffer.to_ASCII());
+	CSG_Buffer s(Buffer.to_ASCII()); // returns NULL terminated char sequence, Get_Size() count includes terminating NULL!!!
 
-	return( Write((void *)s.Get_Data(), sizeof(char), s.Get_Size()) );
+	return( s.Get_Size() > 1 ? Write((void *)s.Get_Data(), sizeof(char), s.Get_Size() - 1) : 0 );
 }
 
 //---------------------------------------------------------

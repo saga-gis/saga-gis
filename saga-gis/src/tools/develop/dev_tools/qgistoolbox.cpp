@@ -78,6 +78,12 @@ CQGIS_ToolBox::CQGIS_ToolBox(void)
 		"",
 		true
 	);
+
+	Parameters.Add_Choice(
+		"", "GROUP"    , "Group by...",
+		"",
+		"Category|Library"
+	);
 }
 
 
@@ -88,11 +94,11 @@ CQGIS_ToolBox::CQGIS_ToolBox(void)
 //---------------------------------------------------------
 bool CQGIS_ToolBox::On_Execute(void)
 {
-	CSG_String	Directory	= Parameters("DIRECTORY")->asString();
+	CSG_String Directory(Parameters("DIRECTORY")->asString());
 
 	if( Parameters("CLEAR")->asBool() )
 	{
-		CSG_Strings	Files;
+		CSG_Strings Files;
 
 		SG_Dir_List_Files(Files, Directory);
 
@@ -110,13 +116,11 @@ bool CQGIS_ToolBox::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int		nTools	= 0;
-
-	CSG_String	Groups, Algorithms;
+	int nTools = 0; CSG_String Groups, Algorithms; bool bGroupByCategory = Parameters("GROUP")->asInt() == 0;
 
 	for(int iLibrary=0; iLibrary<SG_Get_Tool_Library_Manager().Get_Count() && Set_Progress(iLibrary, SG_Get_Tool_Library_Manager().Get_Count()); iLibrary++)
 	{
-		CSG_Tool_Library	*pLibrary	= SG_Get_Tool_Library_Manager().Get_Library(iLibrary);
+		CSG_Tool_Library *pLibrary = SG_Get_Tool_Library_Manager().Get_Library(iLibrary);
 
 		if( !pLibrary->Get_Category    ().Cmp("SAGA Development" )	// generally exclude certain categories/libraries
 		||  !pLibrary->Get_Category    ().Cmp("Garden"           )
@@ -135,15 +139,15 @@ bool CQGIS_ToolBox::On_Execute(void)
 
 		Process_Set_Text(CSG_String::Format("%s: %s", SG_T("Library"), pLibrary->Get_Library_Name().c_str()));
 
-		CSG_String	Library(pLibrary->Get_Library_Name());
+		CSG_String Library(pLibrary->Get_Library_Name());
 
 		Library.Make_Lower();
 		Library.Replace(" ", "_");
 
 		for(int iTool=0, nAdded=0; iTool<pLibrary->Get_Count(); iTool++)
 		{
-			CSG_Tool	*pTool	= pLibrary->Get_Tool(iTool);
-			CSG_String	Code	= pTool->Get_Name() + "|" + pTool->Get_ID() + "\n" + Library + "\n";
+			CSG_Tool *pTool = pLibrary->Get_Tool(iTool);
+			CSG_String Code = pTool->Get_Name() + "|" + pTool->Get_ID() + "\n" + Library + "\n";
 
 			if( Get_Tool(pTool, Code) )
 			{
@@ -154,7 +158,7 @@ bool CQGIS_ToolBox::On_Execute(void)
 				Name.Replace("/", "-");
 				Name.Replace(":", "_");
 
-				CSG_File	Stream;
+				CSG_File Stream;
 
 				if( Stream.Open(SG_File_Make_Path(Directory + "/description", Name, "txt"), SG_FILE_W, false) )
 				{
@@ -163,29 +167,32 @@ bool CQGIS_ToolBox::On_Execute(void)
 					nTools++;
 
 					//-------------------------------------------------
-					CSG_String	s[2];
+					CSG_String s[2];
 					
-					s[0]	= pTool->Get_Name();
+					s[0] = pTool->Get_Name();
 					s[0].Replace("'", "''");
 
-					s[1]	= pTool->Get_Name();
+					s[1] = pTool->Get_Name();
 					s[1].Replace("'", "''");
 					s[1].Replace("Grid"  , "Raster"  );
 					s[1].Replace("Shapes", "Features");
 
 					if( !Algorithms.is_Empty() )
 					{
-						Algorithms	+= ",\n";
+						Algorithms += ",\n";
 					}
 
-					Algorithms	+= "'" + s[0] + "': '" + s[1] + "'";
+					Algorithms += "'" + s[0] + "': '" + s[1] + "'";
 
 					//-------------------------------------------------
 					if( ++nAdded == 1 )
 					{
-						s[0]	= Library;
+						s[0] = Library;
 
-						s[1]	= pLibrary->Get_Category() + " - " + pLibrary->Get_Name();
+						s[1] = bGroupByCategory
+							? pLibrary->Get_Category()
+							: pLibrary->Get_Category() + " - " + pLibrary->Get_Name();
+
 						s[1].Replace("'", "''");
 						s[1].Replace("Gridding", "Rasterizing");
 						s[1].Replace("Grid"    , "Raster"     );
@@ -193,10 +200,10 @@ bool CQGIS_ToolBox::On_Execute(void)
 
 						if( !Groups.is_Empty() )
 						{
-							Groups	+= ",\n";
+							Groups += ",\n";
 						}
 
-						Groups	+= "'" + s[0] + "': '" + s[1] + "'";
+						Groups += "'" + s[0] + "': '" + s[1] + "'";
 					}
 				}
 			}
@@ -206,7 +213,7 @@ bool CQGIS_ToolBox::On_Execute(void)
 	//-----------------------------------------------------
 	if( nTools > 0 )
 	{
-		CSG_File	Stream;
+		CSG_File Stream;
 
 		if( Stream.Open(SG_File_Make_Path(Directory, "SagaNameDecorator", "py"), SG_FILE_W, false) )
 		{
@@ -420,6 +427,7 @@ bool CQGIS_ToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_String &Paramet
 		else
 		{
 			PARAMETER_SET("VectorDestination");
+		//	PARAMETER_BOL(pParameter->is_Optional()); // 'optional' seems not to be supported for 'VectorDestination' by QGIS !!!
 		}
 		break;
 
@@ -434,6 +442,7 @@ bool CQGIS_ToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_String &Paramet
 		else
 		{
 			PARAMETER_SET("VectorDestination");
+		//	PARAMETER_BOL(pParameter->is_Optional()); // 'optional' seems not to be supported for 'VectorDestination' by QGIS !!!
 		}
 		break;
 
@@ -448,6 +457,7 @@ bool CQGIS_ToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_String &Paramet
 		else
 		{
 			PARAMETER_SET("VectorDestination");
+		//	PARAMETER_BOL(pParameter->is_Optional()); // 'optional' seems not to be supported for 'VectorDestination' by QGIS !!!
 		}
 		break;
 
@@ -462,6 +472,7 @@ bool CQGIS_ToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_String &Paramet
 		else
 		{
 			PARAMETER_SET("VectorDestination");
+			//	PARAMETER_BOL(pParameter->is_Optional()); // 'optional' seems not to be supported for 'VectorDestination' by QGIS !!!
 		}
 		break;
 
