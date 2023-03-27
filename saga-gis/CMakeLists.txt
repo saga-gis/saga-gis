@@ -21,6 +21,12 @@ if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release)
 endif()
 
+
+# Platform independant compiler requirements 
+set(CMAKE_CXX_STANDARD		 		14		CACHE STRING "C++ standard to be used")
+set(CMAKE_CXX_STANDARD_REQUIRED		ON 		CACHE STRING "The C++ standard is required")
+
+# Platform dependant compiler requirements
 if(MSVC)
 	set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
 
@@ -41,8 +47,8 @@ if(MSVC)
 	set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL /LTCG:OFF" CACHE STRING "" FORCE)
 else()
 	# Unix Flags
-	set(CMAKE_CXX_FLAGS_RELEASE 		"-O3 -Wall -DNDEBUG"			CACHE STRING "" FORCE)
-	set(CMAKE_CXX_FLAGS_DEBUG 			"-Og -ggdb -Wall"				CACHE STRING "" FORCE)
+	set(CMAKE_CXX_FLAGS_RELEASE 		"-O3 -Wall -DNDEBUG"			CACHE STRING "")
+	set(CMAKE_CXX_FLAGS_DEBUG 			"-Og -ggdb -Wall"				CACHE STRING "")
 endif()
 
 # options
@@ -55,7 +61,6 @@ option(OpenMP_SUPPORT "Compile with OpenMP optimizations" ON)
 include(version.cmake)
 
 # include shared definitions and scripts
-include(cmake/shared/require-cpp11.cmake)
 include(cmake/shared/enable_warnings.cmake)
 include(cmake/shared/windows_version_info.cmake)
 
