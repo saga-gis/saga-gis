@@ -441,7 +441,9 @@ double CSG_Shape_Polygon_Part::Get_Distance(TSG_Point Point, TSG_Point &Next)
 //---------------------------------------------------------
 CSG_Shape_Polygon::CSG_Shape_Polygon(CSG_Shapes *pOwner, sLong Index)
 	: CSG_Shape_Points(pOwner, Index)
-{}
+{
+	m_bUpdate_Lakes = true;
+}
 
 //---------------------------------------------------------
 CSG_Shape_Polygon::~CSG_Shape_Polygon(void)
@@ -459,11 +461,11 @@ void CSG_Shape_Polygon::_Invalidate(void)
 
 	if( m_bUpdate_Lakes )
 	{
-		m_bUpdate_Lakes	= false;
+		m_bUpdate_Lakes = false;
 
 		for(int i=0; i<m_nParts; i++)
 		{
-			Get_Polygon_Part(i)->m_bLake	= BOOL3_NOTSET;
+			Get_Polygon_Part(i)->m_bLake = BOOL3_NOTSET;
 		}
 	}
 }
