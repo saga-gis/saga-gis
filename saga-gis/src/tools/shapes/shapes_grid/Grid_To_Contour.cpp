@@ -192,7 +192,7 @@ bool CGrid_To_Contour::On_Execute(void)
 		m_pPolygons->Add_Field("ID"   , SG_DATATYPE_Int   );
 		m_pPolygons->Add_Field("MIN"  , SG_DATATYPE_Double);
 		m_pPolygons->Add_Field("MAX"  , SG_DATATYPE_Double);
-		m_pPolygons->Add_Field("RANGE", SG_DATATYPE_String);
+		m_pPolygons->Add_Field("LABEL", SG_DATATYPE_String);
 	}
 
 	//-----------------------------------------------------
@@ -508,7 +508,7 @@ bool CGrid_To_Contour::Get_Polygons(CSG_Shape_Line *pContour_Lo, CSG_Shape_Line 
 	}
 
 	//-----------------------------------------------------
-	CSG_Shape_Polygon *pPolygon = (CSG_Shape_Polygon *)m_pPolygons->Add_Shape();
+	CSG_Shape_Polygon *pPolygon = m_pPolygons->Add_Shape()->asPolygon();
 
 	pPolygon->Set_Value(0, m_pPolygons->Get_Count());
 	pPolygon->Set_Value(1, zMin);
@@ -539,7 +539,7 @@ bool CGrid_To_Contour::Get_Polygons(CSG_Shape_Line *pContour_Lo, CSG_Shape_Line 
 
 					if( Segments.Get_Count() )
 					{
-						pPolygon->Add_Part(((CSG_Shape_Polygon *)Segments.Get_Shape(0))->Get_Part(0));
+						pPolygon->Add_Part(Segments.Get_Shape(0)->Get_Part(0));
 
 						Segments.Del_Shapes();
 					}
@@ -775,13 +775,13 @@ bool CGrid_To_Contour::Split_Polygon_Parts(CSG_Shapes *pPolygons)
 	//-----------------------------------------------------
 	for(sLong iPolygon=0; iPolygon<Polygons.Get_Count() && Set_Progress(iPolygon, Polygons.Get_Count()); iPolygon++)
 	{
-		CSG_Shape_Polygon *pPolygon = (CSG_Shape_Polygon *)Polygons.Get_Shape(iPolygon);
+		CSG_Shape_Polygon *pPolygon = Polygons.Get_Shape(iPolygon)->asPolygon();
 
 		for(int iPart=0; iPart<pPolygon->Get_Part_Count() && Process_Get_Okay(); iPart++)
 		{
 			if( !pPolygon->is_Lake(iPart) )
 			{
-				CSG_Shape_Polygon *pPart = (CSG_Shape_Polygon *)pPolygons->Add_Shape(pPolygon, SHAPE_COPY_ATTR);
+				CSG_Shape_Polygon *pPart = pPolygons->Add_Shape(pPolygon, SHAPE_COPY_ATTR)->asPolygon();
 
 				pPart->Add_Part(pPolygon->Get_Part(iPart));
 

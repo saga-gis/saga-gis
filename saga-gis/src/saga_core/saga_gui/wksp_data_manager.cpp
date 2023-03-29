@@ -1265,6 +1265,27 @@ bool CWKSP_Data_Manager::Save_Modified_Sel(void)
 //---------------------------------------------------------
 bool CWKSP_Data_Manager::Close(bool bSilent)
 {
+	if( g_pTool )
+	{
+		if( !g_pTool->is_Executing() )
+		{
+			g_pTool->Finish(false, false);
+		}
+		else
+		{
+			if( bSilent )
+			{
+				MSG_General_Add(_TL("Stop running tool or wait until its exection has been finished!"), true, false);
+			}
+			else
+			{
+				DLG_Message_Show(_TL("Stop running tool or wait until its exection has been finished!"), g_pTool->Get_Name());
+			}
+
+			return( false );
+		}
+	}
+
 	if( Get_Count() == 0 || ((bSilent || DLG_Message_Confirm(_TL("Close all data sets"), _TL("Close"))) && Save_Modified(this)) )
 	{
 		m_pProject->Clr_File_Name();

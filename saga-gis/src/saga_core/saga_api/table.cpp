@@ -755,15 +755,15 @@ bool CSG_Table::_Inc_Array(void)
 		return( true );
 	}
 
-	CSG_Table_Record	**pRecords	= (CSG_Table_Record **)SG_Realloc(m_Records, (m_nBuffer + GET_GROW_SIZE(m_nBuffer)) * sizeof(CSG_Table_Record *));
+	CSG_Table_Record **pRecords = (CSG_Table_Record **)SG_Realloc(m_Records, (m_nBuffer + GET_GROW_SIZE(m_nBuffer)) * sizeof(CSG_Table_Record *));
 
 	if( pRecords == NULL )
 	{
 		return( false );
 	}
 
-	m_Records	= pRecords;
-	m_nBuffer	+= GET_GROW_SIZE(m_nBuffer);
+	m_Records  = pRecords;
+	m_nBuffer += GET_GROW_SIZE(m_nBuffer);
 
 	return( true );
 }

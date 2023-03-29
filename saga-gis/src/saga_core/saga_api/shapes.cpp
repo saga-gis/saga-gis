@@ -506,12 +506,9 @@ CSG_Shape * CSG_Shapes::Add_Shape(CSG_Table_Record *pCopy, TSG_ADD_Shape_Copy_Mo
 {
 	CSG_Shape *pShape = (CSG_Shape *)Add_Record();
 
-	if( pShape && pCopy )
+	if( pShape && pCopy && mCopy != SHAPE_NO_COPY )
 	{
-		if( (mCopy == SHAPE_COPY || mCopy == SHAPE_COPY_GEOM) && pCopy->Get_Table()->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
-		{
-			pShape->Assign(pCopy, mCopy);
-		}
+		pShape->Assign(pCopy, mCopy);
 	}
 
 	return( pShape );

@@ -62,8 +62,7 @@
 //---------------------------------------------------------
 CSG_Shape::CSG_Shape(CSG_Shapes *pOwner, sLong Index)
 	: CSG_Table_Record(pOwner, Index)
-{
-}
+{}
 
 //---------------------------------------------------------
 CSG_Shape::~CSG_Shape(void)
@@ -118,7 +117,6 @@ inline void CSG_Shape::_Invalidate(void)
 //---------------------------------------------------------
 TSG_Intersection CSG_Shape::Intersects(CSG_Shape *pShape)
 {
-	//-----------------------------------------------------
 	if( !pShape || !Intersects(pShape->Get_Extent()) )
 	{
 		return( INTERSECTION_None );
@@ -127,21 +125,21 @@ TSG_Intersection CSG_Shape::Intersects(CSG_Shape *pShape)
 	//-----------------------------------------------------
 	if( Get_Extent().is_Equal(pShape->Get_Extent()) && Get_Part_Count() == pShape->Get_Part_Count() && Get_Point_Count() == pShape->Get_Point_Count() )
 	{
-		bool	bIdentical	= true;
+		bool bIdentical = true;
 
 		for(int iPart=0; iPart<Get_Part_Count() && bIdentical; iPart++)
 		{
 			if( Get_Point_Count(iPart) != pShape->Get_Point_Count(iPart) )
 			{
-				bIdentical	= false;
+				bIdentical = false;
 			}
 			else for(int iPoint=0; iPoint<Get_Point_Count(iPart) && bIdentical; iPoint++)
 			{
-				CSG_Point	Point(Get_Point(iPoint, iPart));
+				CSG_Point Point(Get_Point(iPoint, iPart));
 
 				if( !Point.is_Equal(pShape->Get_Point(iPoint, iPart)) )
 				{
-					bIdentical	= false;
+					bIdentical = false;
 				}
 			}
 		}
@@ -153,14 +151,14 @@ TSG_Intersection CSG_Shape::Intersects(CSG_Shape *pShape)
 	}
 
 	//-----------------------------------------------------
-	TSG_Intersection	Intersection;
+	TSG_Intersection Intersection;
 
 	if( Get_Type() >= pShape->Get_Type() && (Intersection = On_Intersects(pShape)) != INTERSECTION_None )
 	{
 		return( Intersection );
 	}
 
-	Intersection	= pShape->On_Intersects(this);
+	Intersection = pShape->On_Intersects(this);
 
 	if( Intersection == INTERSECTION_Contained )
 	{
