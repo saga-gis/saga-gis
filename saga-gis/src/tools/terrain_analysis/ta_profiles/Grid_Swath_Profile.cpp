@@ -314,7 +314,7 @@ bool CGrid_Swath_Profile::Set_Profile(CSG_Point A, CSG_Point B, CSG_Point Left, 
 	}
 
 	dx = A.x < B.x ? dx : -dx;
-	dy = A.x < B.x ? dy : -dy;
+	dy = A.y < B.y ? dy : -dy;
 
 	//-----------------------------------------------------
 	CSG_Point dStep( dx, dy);
