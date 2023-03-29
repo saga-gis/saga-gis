@@ -380,7 +380,7 @@ tools = [
 ['shapes_points', 2, 'Create Point Grid'],
 ['shapes_points', 3, 'Point to Point Distances'],
 ['shapes_points', 4, 'Populate Polygons with Points'],
-['shapes_points', 5, 'Convert Lines to Points'],
+['shapes_points', 5, 'Convert Line/Polygon Vertices to Points'],
 ['shapes_points', 6, 'Add Coordinates to Points'],
 ['shapes_points', 7, 'Remove Duplicate Points'],
 ['shapes_points', 8, 'Clip Points with Polygons'],
@@ -579,7 +579,7 @@ tools = [
 ['table_calculus', 0, 'Function Fit'],
 ['table_calculus', 1, 'Field Calculator'],
 ['table_calculus', 2, 'Field Calculator [Shapes]'],
-['table_calculus', 5, 'Running Average'],
+['table_calculus', 5, 'Moving Statistics'],
 ['table_calculus', 6, 'Cluster Analysis'],
 ['table_calculus', 7, 'Principal Component Analysis'],
 ['table_calculus', 8, 'Fill Gaps in Ordered Records'],
@@ -823,5 +823,9 @@ tools = [
 ['vis_3d_viewer', 2, '3D Shapes Viewer'],
 ['vis_3d_viewer', 3, 'Globe Viewer for Grids'],
 ['vis_3d_viewer', 4, 'Multiple Grids Viewer'],
-['vis_3d_viewer', 5, 'Grid Collection Viewer']
+['vis_3d_viewer', 5, 'Grid Collection Viewer'],
+['grid_tools', 41, 'Shrink and Expand (Grid Collection)'],
+['imagery_tools', 17, 'Spectral Profile'],
+['pointcloud_tools', 16, 'Isolated Points Filter'],
+['shapes_lines', 12, 'Line Parts to Separate Lines']
 ]
