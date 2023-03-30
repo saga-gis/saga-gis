@@ -530,7 +530,9 @@ bool CCMD_Tool::_Get_Options(CSG_Parameters *pParameters, bool bInitialize)
 
 		else if( pParameter->is_Output() )
 		{
-			if( pParameter->is_DataObject() && pParameter->is_Optional() && !pParameter->asDataObject() && _Found(ID) )
+			CSG_String FileName; // only create optional output if a valid output file name is given!
+
+			if( pParameter->is_DataObject() && pParameter->is_Optional() && !pParameter->asDataObject() && _Found(ID, FileName) && FileName.Length() > 0 )
 			{
 				pParameter->Set_Value(DATAOBJECT_CREATE);
 			}
