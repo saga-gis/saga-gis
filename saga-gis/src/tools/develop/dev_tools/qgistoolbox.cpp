@@ -231,14 +231,13 @@ bool CQGIS_ToolBox::On_Execute(void)
 		{
 			Stream.Write(
 				"Replace the SAGA binaries in:\n"
-				"> C:\\Program Files\\QGIS X.Y\\apps\\saga(-ltr)\n"
+				"> C:\\Program Files\\QGIS X.Y\\apps\\saga\n"
 				"\n"
-				"Adjust the interface in:\n"
-				"> C:\\Program Files\\QGIS X.Y\\apps\\qgis(-ltr)\\python\\plugins\\processing\\algs\\saga(-ltr)\n"
+				"Replace the tools interface ('description\\' and 'SagaNameDecorator.py' in:\n"
+				"> C:\\Program Files\\QGIS X.Y\\apps\\qgis(-ltr)\\python\\plugins\\processing\\sagaprovider\n"
 				"\n"
-				"Adjust version in file:\n"
-				"> SagaAlgorithmProvider.py\n"
-				">> REQUIRED_VERSION = '7.7.'\n"
+				"Adjust version in file 'SagaAlgorithmProvider.py', e.g.:\n"
+				"> BETA_SUPPORT_VERSION = '9.'\n"
 			);
 		}
 	}
@@ -383,12 +382,8 @@ bool CQGIS_ToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_String &Paramet
 		else
 		{
 			PARAMETER_SET("RasterDestination");
-
-			if( pParameter->is_Optional() )
-			{
-				PARAMETER_STR("None");
-				PARAMETER_BOL(true);
-			}
+			PARAMETER_STR("None");
+			PARAMETER_BOL(pParameter->is_Optional());
 		}
 		break;
 
@@ -403,12 +398,8 @@ bool CQGIS_ToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_String &Paramet
 		else
 		{
 			PARAMETER_SET("RasterDestination");
-
-			if( pParameter->is_Optional() )
-			{
-				PARAMETER_STR("None");
-				PARAMETER_BOL(true);
-			}
+			PARAMETER_STR("None");
+			PARAMETER_BOL(pParameter->is_Optional());
 		}
 		break;
 
@@ -427,7 +418,9 @@ bool CQGIS_ToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_String &Paramet
 		else
 		{
 			PARAMETER_SET("VectorDestination");
-		//	PARAMETER_BOL(pParameter->is_Optional()); // 'optional' seems not to be supported for 'VectorDestination' by QGIS !!!
+			PARAMETER_INT(5);
+			PARAMETER_STR("None");
+			PARAMETER_BOL(pParameter->is_Optional());
 		}
 		break;
 
@@ -442,7 +435,9 @@ bool CQGIS_ToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_String &Paramet
 		else
 		{
 			PARAMETER_SET("VectorDestination");
-		//	PARAMETER_BOL(pParameter->is_Optional()); // 'optional' seems not to be supported for 'VectorDestination' by QGIS !!!
+			PARAMETER_INT(Get_Shape_Type(((CSG_Parameter_Shapes *)pParameter)->Get_Shape_Type()));
+			PARAMETER_STR("None");
+			PARAMETER_BOL(pParameter->is_Optional());
 		}
 		break;
 
@@ -457,7 +452,9 @@ bool CQGIS_ToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_String &Paramet
 		else
 		{
 			PARAMETER_SET("VectorDestination");
-		//	PARAMETER_BOL(pParameter->is_Optional()); // 'optional' seems not to be supported for 'VectorDestination' by QGIS !!!
+			PARAMETER_INT(Get_Shape_Type(((CSG_Parameter_Shapes *)pParameter)->Get_Shape_Type()));
+			PARAMETER_STR("None");
+			PARAMETER_BOL(pParameter->is_Optional());
 		}
 		break;
 
@@ -472,13 +469,42 @@ bool CQGIS_ToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_String &Paramet
 		else
 		{
 			PARAMETER_SET("VectorDestination");
-			//	PARAMETER_BOL(pParameter->is_Optional()); // 'optional' seems not to be supported for 'VectorDestination' by QGIS !!!
+			PARAMETER_INT(Get_Shape_Type(((CSG_Parameter_Shapes *)pParameter)->Get_Shape_Type()));
+			PARAMETER_STR("None");
+			PARAMETER_BOL(pParameter->is_Optional());
 		}
 		break;
 
 	case PARAMETER_TYPE_PointCloud     :
+		if( pParameter->is_Input() )
+		{
+			PARAMETER_SET("PointCloudLayer");
+			PARAMETER_STR("None");
+			PARAMETER_BOL(pParameter->is_Optional());
+		}
+		else
+		{
+			PARAMETER_SET("PointCloudDestination");
+			PARAMETER_STR("None");
+			PARAMETER_BOL(pParameter->is_Optional());
+		}
+		break;
+
 	case PARAMETER_TYPE_PointCloud_List:
-		return( false );
+		if( pParameter->is_Input() )
+		{
+			PARAMETER_SET("MultipleLayers");
+			PARAMETER_INT(8);
+			PARAMETER_STR("None");
+			PARAMETER_BOL(pParameter->is_Optional());
+		}
+		else
+		{
+			PARAMETER_SET("PointCloudDestination");
+			PARAMETER_STR("None");
+			PARAMETER_BOL(pParameter->is_Optional());
+		}
+		break;
 
 	case PARAMETER_TYPE_TIN            :
 	case PARAMETER_TYPE_TIN_List       :
