@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
 #include "res_commands.h"
@@ -88,8 +76,6 @@ CWKSP_Shapes_Manager::CWKSP_Shapes_Manager(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -101,12 +87,12 @@ wxString CWKSP_Shapes_Manager::Get_Name(void)
 //---------------------------------------------------------
 wxString CWKSP_Shapes_Manager::Get_Description(void)
 {
-	wxString	s;
+	wxString s;
 
 	//-----------------------------------------------------
-	s	+= wxString::Format("<h4>%s</h4>", _TL("Shapes"));
+	s += wxString::Format("<h4>%s</h4>", _TL("Shapes"));
 
-	s	+= "<table border=\"0\">";
+	s += "<table border=\"0\">";
 
 	DESC_ADD_INT(_TL("Shape Layers"), Get_Items_Count());
 
@@ -115,7 +101,7 @@ wxString CWKSP_Shapes_Manager::Get_Description(void)
 		DESC_ADD_INT(Get_Item(i)->Get_Name().c_str(), ((CWKSP_Base_Manager *)Get_Item(i))->Get_Count());
 	}
 
-	s	+= wxT("</table>");
+	s += wxT("</table>");
 
 	return( s );
 }
@@ -123,7 +109,7 @@ wxString CWKSP_Shapes_Manager::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_Shapes_Manager::Get_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu(_TL("Shapes"));
+	wxMenu *pMenu = new wxMenu(_TL("Shapes"));
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_OPEN);
 
@@ -137,8 +123,6 @@ wxMenu * CWKSP_Shapes_Manager::Get_Menu(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -159,7 +143,7 @@ CWKSP_Shapes_Type * CWKSP_Shapes_Manager::Get_Shapes_Type(TSG_Shape_Type Type)
 //---------------------------------------------------------
 CWKSP_Shapes_Type * CWKSP_Shapes_Manager::_Get_Shapes_Type(TSG_Shape_Type Type)
 {
-	CWKSP_Shapes_Type	*pItem	= NULL;
+	CWKSP_Shapes_Type *pItem = NULL;
 
 	if( Type != SHAPE_TYPE_Undefined )
 	{
@@ -175,23 +159,21 @@ CWKSP_Shapes_Type * CWKSP_Shapes_Manager::_Get_Shapes_Type(TSG_Shape_Type Type)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CWKSP_Shapes * CWKSP_Shapes_Manager::Get_Data(CSG_Shapes *pObject)
 {
-	CWKSP_Shapes	*pItem	= NULL;
+	CWKSP_Shapes *pItem = NULL;
 
 	for(int i=0; !pItem && i<Get_Count(); i++)
 	{
-		pItem	= ((CWKSP_Shapes_Type *)Get_Item(i))->Get_Data(pObject);
+		pItem = ((CWKSP_Shapes_Type *)Get_Item(i))->Get_Data(pObject);
 	}
 
 	if( !pItem && SG_Get_Data_Manager().Exists(pObject) && _Get_Shapes_Type(pObject->Get_Type()) )
 	{
-		pItem	= _Get_Shapes_Type(pObject->Get_Type())->Add_Data(pObject);
+		pItem = _Get_Shapes_Type(pObject->Get_Type())->Add_Data(pObject);
 	}
 
 	return( pItem );
@@ -200,11 +182,11 @@ CWKSP_Shapes * CWKSP_Shapes_Manager::Get_Data(CSG_Shapes *pObject)
 //---------------------------------------------------------
 CWKSP_Shapes * CWKSP_Shapes_Manager::Add_Data(CSG_Shapes *pObject)
 {
-	CWKSP_Shapes	*pItem	= Get_Data(pObject);
+	CWKSP_Shapes *pItem = Get_Data(pObject);
 
-	if( pItem == NULL && pObject != NULL && pObject->is_Valid() )
+	if( pItem && pObject && pObject->is_Valid() )
 	{
-		pItem	= _Get_Shapes_Type(pObject->Get_Type())->Add_Data(pObject);
+		pItem = _Get_Shapes_Type(pObject->Get_Type())->Add_Data(pObject);
 	}
 
 	return( pItem );

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
 #include "res_commands.h"
@@ -83,8 +71,6 @@ CWKSP_Table_Manager::CWKSP_Table_Manager(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -96,9 +82,9 @@ wxString CWKSP_Table_Manager::Get_Name(void)
 //---------------------------------------------------------
 wxString CWKSP_Table_Manager::Get_Description(void)
 {
-	wxString	s;
+	wxString s;
 
-	s.Printf(wxT("<b>%s</b>: %d<br>"), _TL("Tables"), Get_Count());
+	s.Printf("<b>%s</b>: %d<br>", _TL("Tables"), Get_Count());
 
 	return( s );
 }
@@ -106,7 +92,7 @@ wxString CWKSP_Table_Manager::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_Table_Manager::Get_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu(_TL("Tables"));
+	wxMenu *pMenu = new wxMenu(_TL("Tables"));
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_OPEN);
 
@@ -120,8 +106,6 @@ wxMenu * CWKSP_Table_Manager::Get_Menu(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -142,7 +126,7 @@ CWKSP_Table * CWKSP_Table_Manager::Get_Data(CSG_Table *pObject)
 //---------------------------------------------------------
 CWKSP_Table * CWKSP_Table_Manager::Add_Data(CSG_Table *pObject)
 {
-	CWKSP_Table	*pItem	= Get_Data(pObject);
+	CWKSP_Table *pItem = Get_Data(pObject);
 
 	if( pItem == NULL && pObject != NULL )
 	{

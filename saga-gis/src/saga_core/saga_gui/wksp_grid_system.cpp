@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "res_commands.h"
 
 #include "helper.h"
@@ -78,19 +66,13 @@
 //---------------------------------------------------------
 CWKSP_Grid_System::CWKSP_Grid_System(const CSG_Grid_System &System)
 {
-	m_System	= System;
+	m_System = System;
 
-	m_Parameters.Add_String(
-		NULL	, "NAME"	, _TL("Name"),
-		_TL("Descriptive name for the grid system"),
-		m_System.Get_Name()
-	);
+	m_Parameters.Add_String("", "NAME", _TL("Name"), _TL("Descriptive name for the grid system"), m_System.Get_Name());
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -103,12 +85,12 @@ wxString CWKSP_Grid_System::Get_Name(void)
 //---------------------------------------------------------
 wxString CWKSP_Grid_System::Get_Description(void)
 {
-	wxString	s;
+	wxString s;
 
 	//-----------------------------------------------------
-	s	+= wxString::Format("<h4>%s</h4>", _TL("Grid System"));
+	s += wxString::Format("<h4>%s</h4>", _TL("Grid System"));
 
-	s	+= "<table border=\"0\">";
+	s += "<table border=\"0\">";
 
 	DESC_ADD_STR (_TL("Name"             ), Get_Name());
 	DESC_ADD_INT (_TL("Number of Grids"  ), Get_Count());
@@ -123,7 +105,7 @@ wxString CWKSP_Grid_System::Get_Description(void)
 	DESC_ADD_INT (_TL("Number of Rows"   ), m_System.Get_NY());
 	DESC_ADD_LONG(_TL("Number of Cells"  ), m_System.Get_NCells());
 
-	s	+= "</table>";
+	s += "</table>";
 
 	//-----------------------------------------------------
 	return( s );
@@ -132,7 +114,7 @@ wxString CWKSP_Grid_System::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_Grid_System::Get_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu(Get_Name());
+	wxMenu *pMenu = new wxMenu(Get_Name());
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 
@@ -141,8 +123,6 @@ wxMenu * CWKSP_Grid_System::Get_Menu(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -163,7 +143,7 @@ CWKSP_Grid * CWKSP_Grid_System::Get_Grid(CSG_Grid *pGrid)
 //---------------------------------------------------------
 CWKSP_Grid * CWKSP_Grid_System::Add_Grid(CSG_Grid *pGrid)
 {
-	CWKSP_Grid	*pItem	= Get_Grid(pGrid);
+	CWKSP_Grid *pItem = Get_Grid(pGrid);
 
 	if( pItem == NULL && pGrid != NULL )
 	{
@@ -190,7 +170,7 @@ CWKSP_Grids * CWKSP_Grid_System::Get_Grids(CSG_Grids *pGrids)
 //---------------------------------------------------------
 CWKSP_Grids * CWKSP_Grid_System::Add_Grids(CSG_Grids *pGrids)
 {
-	CWKSP_Grids	*pItem	= Get_Grids(pGrids);
+	CWKSP_Grids *pItem = Get_Grids(pGrids);
 
 	if( pItem == NULL && pGrids != NULL )
 	{

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
 #include "res_commands.h"
@@ -85,8 +73,6 @@ CWKSP_TIN_Manager::CWKSP_TIN_Manager(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -98,9 +84,9 @@ wxString CWKSP_TIN_Manager::Get_Name(void)
 //---------------------------------------------------------
 wxString CWKSP_TIN_Manager::Get_Description(void)
 {
-	wxString	s;
+	wxString s;
 
-	s.Printf(wxT("<b>%s</b>:%d<br>"), _TL("TIN"), Get_Count());
+	s.Printf("<b>%s</b>:%d<br>", _TL("TIN"), Get_Count());
 
 	return( s );
 }
@@ -108,7 +94,7 @@ wxString CWKSP_TIN_Manager::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_TIN_Manager::Get_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu(_TL("TIN"));
+	wxMenu *pMenu = new wxMenu(_TL("TIN"));
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TIN_OPEN);
 
@@ -122,8 +108,6 @@ wxMenu * CWKSP_TIN_Manager::Get_Menu(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -144,7 +128,7 @@ CWKSP_TIN * CWKSP_TIN_Manager::Get_Data(CSG_TIN *pObject)
 //---------------------------------------------------------
 CWKSP_TIN * CWKSP_TIN_Manager::Add_Data(CSG_TIN *pObject)
 {
-	CWKSP_TIN	*pItem	= Get_Data(pObject);
+	CWKSP_TIN *pItem = Get_Data(pObject);
 
 	if( pItem == NULL && pObject != NULL )
 	{

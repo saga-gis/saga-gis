@@ -801,33 +801,33 @@ int CWKSP_Data_Manager::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Base_Item * CWKSP_Data_Manager::Open(const wxString &File, int DataType)
+CWKSP_Data_Item * CWKSP_Data_Manager::Open(const wxString &File, int DataType)
 {
-	CSG_Data_Object	*pObject	= NULL;
+	CSG_Data_Object *pObject = NULL;
 
 //	SG_Get_Data_Manager().Add(File, DataType);
 
 	switch( DataType )
 	{
-	case SG_DATAOBJECT_TYPE_Table     :	pObject	= SG_Create_Table     (&File);	break;
-	case SG_DATAOBJECT_TYPE_Shapes    :	pObject	= SG_Create_Shapes    (&File);	break;
-	case SG_DATAOBJECT_TYPE_TIN       :	pObject	= SG_Create_TIN       (&File);	break;
-	case SG_DATAOBJECT_TYPE_PointCloud:	pObject	= SG_Create_PointCloud(&File);	break;
-	case SG_DATAOBJECT_TYPE_Grid      :	pObject	= SG_Create_Grid      (&File);	break;
-	case SG_DATAOBJECT_TYPE_Grids     :	pObject	= SG_Create_Grids     (&File);	break;
+	case SG_DATAOBJECT_TYPE_Table     : pObject = SG_Create_Table     (&File); break;
+	case SG_DATAOBJECT_TYPE_Shapes    : pObject = SG_Create_Shapes    (&File); break;
+	case SG_DATAOBJECT_TYPE_TIN       : pObject = SG_Create_TIN       (&File); break;
+	case SG_DATAOBJECT_TYPE_PointCloud: pObject = SG_Create_PointCloud(&File); break;
+	case SG_DATAOBJECT_TYPE_Grid      : pObject = SG_Create_Grid      (&File); break;
+	case SG_DATAOBJECT_TYPE_Grids     : pObject = SG_Create_Grids     (&File); break;
 	}
 
 	if( pObject )
 	{
-		CWKSP_Data_Item	*pItem;
+		CWKSP_Data_Item *pItem = Add(pObject);
 
-		if( pObject->is_Valid() && (pItem = Add(pObject)) != NULL )
+		if( pItem )
 		{
 			m_pMenu_Files->Recent_Add(pObject->Get_ObjectType(), File);
 
 			SG_Get_Data_Manager().Add(pObject);
 
-			return( (CWKSP_Base_Item *)pItem );
+			return( pItem );
 		}
 
 		delete(pObject);
@@ -1341,7 +1341,7 @@ CWKSP_Data_Item * CWKSP_Data_Manager::Get(CSG_Data_Object *pObject)
 		case SG_DATAOBJECT_TYPE_Shapes    : return( (CWKSP_Data_Item *)m_pShapes     ->Get_Data((CSG_Shapes     *)pObject) );
 		case SG_DATAOBJECT_TYPE_Grid      : return( (CWKSP_Data_Item *)m_pGrids      ->Get_Data((CSG_Grid       *)pObject) );
 		case SG_DATAOBJECT_TYPE_Grids     : return( (CWKSP_Data_Item *)m_pGrids      ->Get_Data((CSG_Grids      *)pObject) );
-		default:	break;
+		default: break;
 		}
 	}
 
@@ -1349,9 +1349,29 @@ CWKSP_Data_Item * CWKSP_Data_Manager::Get(CSG_Data_Object *pObject)
 }
 
 //---------------------------------------------------------
+CWKSP_Data_Item * CWKSP_Data_Manager::Get_byFile(const wxString &File)
+{
+	return( Get(SG_Get_Data_Manager().Find(&File, false)) );
+}
+
+//---------------------------------------------------------
+CWKSP_Data_Item * CWKSP_Data_Manager::Get_byID(const wxString &ID)
+{
+	CWKSP_Data_Item *pItem;
+
+	if( m_pTables      && (pItem = (CWKSP_Data_Item *)m_pTables     ->Get_Item_byID(ID)) != NULL ) { return( pItem ); }
+	if( m_pTINs        && (pItem = (CWKSP_Data_Item *)m_pTINs       ->Get_Item_byID(ID)) != NULL ) { return( pItem ); }
+	if( m_pPointClouds && (pItem = (CWKSP_Data_Item *)m_pPointClouds->Get_Item_byID(ID)) != NULL ) { return( pItem ); }
+	if( m_pShapes      && (pItem = (CWKSP_Data_Item *)m_pShapes     ->Get_Item_byID(ID)) != NULL ) { return( pItem ); }
+	if( m_pGrids       && (pItem = (CWKSP_Data_Item *)m_pGrids      ->Get_Item_byID(ID)) != NULL ) { return( pItem ); }
+
+	return( NULL );
+}
+
+//---------------------------------------------------------
 CWKSP_Data_Item * CWKSP_Data_Manager::Add(CSG_Data_Object *pObject)
 {
-	if( SG_Get_Data_Manager().Add(pObject) && Get_Manager(pObject->Get_ObjectType(), true) )
+	if( pObject && pObject->is_Valid() && SG_Get_Data_Manager().Add(pObject) && Get_Manager(pObject->Get_ObjectType(), true) )
 	{
 		switch( pObject->Get_ObjectType() )
 		{
@@ -1361,7 +1381,7 @@ CWKSP_Data_Item * CWKSP_Data_Manager::Add(CSG_Data_Object *pObject)
 		case SG_DATAOBJECT_TYPE_Shapes    : return( (CWKSP_Data_Item *)m_pShapes     ->Add_Data((CSG_Shapes     *)pObject) );
 		case SG_DATAOBJECT_TYPE_Grid      : return( (CWKSP_Data_Item *)m_pGrids      ->Add_Data((CSG_Grid       *)pObject) );
 		case SG_DATAOBJECT_TYPE_Grids     : return( (CWKSP_Data_Item *)m_pGrids      ->Add_Data((CSG_Grids      *)pObject) );
-		default:	break;
+		default: break;
 		}
 	}
 
@@ -1380,7 +1400,7 @@ CWKSP_Layer * CWKSP_Data_Manager::Get_Layer(CSG_Data_Object *pObject)
 		case SG_DATAOBJECT_TYPE_Shapes    : return( (CWKSP_Layer *)m_pShapes     ->Get_Data((CSG_Shapes     *)pObject) );
 		case SG_DATAOBJECT_TYPE_Grid      : return( (CWKSP_Layer *)m_pGrids      ->Get_Data((CSG_Grid       *)pObject) );
 		case SG_DATAOBJECT_TYPE_Grids     : return( (CWKSP_Layer *)m_pGrids      ->Get_Data((CSG_Grids      *)pObject) );
-		default:	break;
+		default: break;
 		}
 	}
 

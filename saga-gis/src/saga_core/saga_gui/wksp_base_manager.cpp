@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <wx/window.h>
 #include <wx/debug.h>
 
@@ -84,10 +72,9 @@
 //---------------------------------------------------------
 CWKSP_Base_Manager::CWKSP_Base_Manager(void)
 {
-	m_bManager	= true;
-	m_nItems	= 0;
-	m_Items		= NULL;
-	m_Item_ID	= 0;
+	m_nItems  = 0;
+	m_Items   = NULL;
+	m_Item_ID = 0;
 }
 
 //---------------------------------------------------------
@@ -106,40 +93,40 @@ bool CWKSP_Base_Manager::Add_Item(CWKSP_Base_Item *pItem)
 {
 	if( pItem )
 	{
-		m_Items				= (CWKSP_Base_Item **)realloc(m_Items, (m_nItems + 1) * sizeof(CWKSP_Base_Item *));
-		m_Items[m_nItems++]	= pItem;
-		pItem->m_pManager	= this;
-		pItem->m_ID			= m_Item_ID++;
+		m_Items             = (CWKSP_Base_Item **)realloc(m_Items, (m_nItems + 1) * sizeof(CWKSP_Base_Item *));
+		m_Items[m_nItems++] = pItem;
+		pItem->m_pManager   = this;
+		pItem->m_ID         = m_Item_ID++;
 
 		//-------------------------------------------------
 		switch( Get_Type() )
 		{
-		default:
-			break;
-
-		case WKSP_ITEM_Tool_Manager:
+		case WKSP_ITEM_Tool_Manager      :
 			g_pTool_Ctrl->Add_Group((CWKSP_Tool_Group *)pItem);
 			break;
 
-		case WKSP_ITEM_Tool_Group:
+		case WKSP_ITEM_Tool_Group        :
 			g_pTool_Ctrl->Add_Library(GetId(), (CWKSP_Tool_Library *)pItem);
 			break;
 
-		case WKSP_ITEM_Data_Manager:
-		case WKSP_ITEM_Table_Manager:
-		case WKSP_ITEM_Shapes_Manager:
-		case WKSP_ITEM_Shapes_Type:
-		case WKSP_ITEM_TIN_Manager:
+		case WKSP_ITEM_Data_Manager      :
+		case WKSP_ITEM_Table_Manager     :
+		case WKSP_ITEM_Shapes_Manager    :
+		case WKSP_ITEM_Shapes_Type       :
+		case WKSP_ITEM_TIN_Manager       :
 		case WKSP_ITEM_PointCloud_Manager:
-		case WKSP_ITEM_Grid_Manager:
-		case WKSP_ITEM_Grid_System:
+		case WKSP_ITEM_Grid_Manager      :
+		case WKSP_ITEM_Grid_System       :
 			g_pData_Ctrl->Add_Item(this, pItem);
 			g_pActive->Update_DataObjects();
 			break;
 
-		case WKSP_ITEM_Map_Manager:
-		case WKSP_ITEM_Map:
+		case WKSP_ITEM_Map_Manager       :
+		case WKSP_ITEM_Map               :
 			g_pMap_Ctrl->Add_Item(this, pItem);
+			break;
+
+		default:
 			break;
 		}
 
@@ -213,9 +200,9 @@ bool CWKSP_Base_Manager::On_Data_Deletion(CSG_Data_Object *pObject)
 {
 	CWKSP_Base_Item::On_Data_Deletion(pObject);
 
-	for(int iItem=0; iItem<m_nItems; iItem++)
+	for(int i=0; i<m_nItems; i++)
 	{
-		m_Items[iItem]->On_Data_Deletion(pObject);
+		m_Items[i]->On_Data_Deletion(pObject);
 	}
 
 	return( true );
@@ -229,16 +216,14 @@ bool CWKSP_Base_Manager::On_Data_Deletion(CSG_Data_Object *pObject)
 //---------------------------------------------------------
 bool CWKSP_Base_Manager::Move_Top(CWKSP_Base_Item *pItem)
 {
-	int		Index, i;
-
-	if( pItem && (Index = pItem->Get_Index()) > 0 )
+	if( pItem && pItem->Get_Index() > 0 )
 	{
-		for(i=Index; i>0; i--)
+		for(int i=pItem->Get_Index(); i>0; i--)
 		{
-			m_Items[i]	= m_Items[i - 1];
+			m_Items[i] = m_Items[i - 1];
 		}
 
-		m_Items[0]		= pItem;
+		m_Items[0] = pItem;
 
 		Get_Control()->SortChildren(GetId());
 
@@ -251,16 +236,14 @@ bool CWKSP_Base_Manager::Move_Top(CWKSP_Base_Item *pItem)
 //---------------------------------------------------------
 bool CWKSP_Base_Manager::Move_Bottom(CWKSP_Base_Item *pItem)
 {
-	int		Index, i;
-
-	if( pItem && (Index = pItem->Get_Index()) < Get_Count() - 1 )
+	if( pItem && pItem->Get_Index() < Get_Count() - 1 )
 	{
-		for(i=Index; i<Get_Count()-1; i++)
+		for(int i=pItem->Get_Index(); i<Get_Count()-1; i++)
 		{
-			m_Items[i]	= m_Items[i + 1];
+			m_Items[i] = m_Items[i + 1];
 		}
 
-		m_Items[Get_Count() - 1]	= pItem;
+		m_Items[Get_Count() - 1] = pItem;
 
 		Get_Control()->SortChildren(GetId());
 
@@ -273,12 +256,11 @@ bool CWKSP_Base_Manager::Move_Bottom(CWKSP_Base_Item *pItem)
 //---------------------------------------------------------
 bool CWKSP_Base_Manager::Move_Up(CWKSP_Base_Item *pItem)
 {
-	int		Index;
-
-	if( pItem && (Index = pItem->Get_Index()) > 0 )
+	if( pItem && pItem->Get_Index() > 0 )
 	{
-		m_Items[Index]		= m_Items[Index - 1];
-		m_Items[Index - 1]	= pItem;
+		int i = pItem->Get_Index();
+
+		m_Items[i] = m_Items[i - 1]; m_Items[i - 1] = pItem;
 
 		Get_Control()->SortChildren(GetId());
 
@@ -291,12 +273,11 @@ bool CWKSP_Base_Manager::Move_Up(CWKSP_Base_Item *pItem)
 //---------------------------------------------------------
 bool CWKSP_Base_Manager::Move_Down(CWKSP_Base_Item *pItem)
 {
-	int		Index;
-
-	if( pItem && (Index = pItem->Get_Index()) < Get_Count() - 1 )
+	if( pItem && pItem->Get_Index() < Get_Count() - 1 )
 	{
-		m_Items[Index]		= m_Items[Index + 1];
-		m_Items[Index + 1]	= pItem;
+		int i = pItem->Get_Index();
+
+		m_Items[i] = m_Items[i + 1]; m_Items[i + 1] = pItem;
 
 		Get_Control()->SortChildren(GetId());
 
@@ -311,27 +292,25 @@ bool CWKSP_Base_Manager::Move_To(CWKSP_Base_Item *pItem, CWKSP_Base_Item *pItem_
 {
 	if( pItem && pItem_Dst && pItem != pItem_Dst && pItem->Get_Manager() == this && pItem_Dst->Get_Manager() == this )
 	{
-		int		Index, Index_Dst, i;
-
-		Index		= pItem		->Get_Index();
-		Index_Dst	= pItem_Dst	->Get_Index();
+		int Index     = pItem    ->Get_Index();
+		int Index_Dst = pItem_Dst->Get_Index();
 
 		if( Index < Index_Dst )
 		{
-			for(i=Index; i<Index_Dst; i++)
+			for(int i=Index; i<Index_Dst; i++)
 			{
-				m_Items[i]	= m_Items[i + 1];
+				m_Items[i] = m_Items[i + 1];
 			}
 		}
 		else
 		{
-			for(i=Index; i>Index_Dst; i--)
+			for(int i=Index; i>Index_Dst; i--)
 			{
-				m_Items[i]	= m_Items[i - 1];
+				m_Items[i] = m_Items[i - 1];
 			}
 		}
 
-		m_Items[Index_Dst]	= pItem;
+		m_Items[Index_Dst] = pItem;
 
 		Get_Control()->SortChildren(GetId());
 
@@ -349,17 +328,49 @@ bool CWKSP_Base_Manager::Move_To(CWKSP_Base_Item *pItem, CWKSP_Base_Item *pItem_
 //---------------------------------------------------------
 int CWKSP_Base_Manager::Get_Items_Count(void)
 {
-	int	nCount	= 0;
+	int n = 0;
 
-	for(int iItem=0; iItem<m_nItems; iItem++)
+	for(int i=0; i<m_nItems; i++)
 	{
-		if( m_Items[iItem]->m_bManager )
+		if( m_Items[i]->is_Manager() )
 		{
-			nCount	+= ((CWKSP_Base_Manager *)m_Items[iItem])->Get_Count();
+			n += ((CWKSP_Base_Manager *)m_Items[i])->Get_Count();
 		}
 	}
 
-	return( nCount );
+	return( n );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CWKSP_Base_Item * CWKSP_Base_Manager::Get_Item_byID(const wxString &Unique_ID)
+{
+	if( !Unique_ID.IsEmpty() )
+	{
+		for(int i=0; i<m_nItems; i++)
+		{
+			if( m_Items[i]->Cmp_Unique_ID(Unique_ID) )
+			{
+				return( m_Items[i] );
+			}
+
+			if( m_Items[i]->is_Manager() )
+			{
+				CWKSP_Base_Item *pItem = ((CWKSP_Base_Manager *)m_Items[i])->Get_Item_byID(Unique_ID);
+
+				if( pItem )
+				{
+					return( pItem );
+				}
+			}
+		}
+	}
+
+	return( NULL );
 }
 
 
