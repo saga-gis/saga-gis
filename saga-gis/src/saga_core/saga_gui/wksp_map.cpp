@@ -720,29 +720,7 @@ bool CWKSP_Map::Serialize(CSG_MetaData &Root, const wxString &ProjectDir, bool b
 
 			if( Layer.Cmp_Name("FILE") )
 			{
-				CWKSP_Base_Item *pItem = NULL;
-
-				if( pItem == NULL )
-				{
-					CSG_String Unique_ID;
-
-					if( Layer.Get_Property("dataset_id", Unique_ID) )
-					{
-						pItem = g_pData->Get_byID(Unique_ID.c_str());
-					}
-				}
-
-				if( pItem == NULL )
-				{
-					wxString FileName(Layer.Get_Content().w_str());
-
-					if( FileName.Find("PGSQL") != 0 )
-					{
-						FileName = Get_FilePath_Absolute(ProjectDir, FileName);
-					}
-
-					pItem = g_pData->Get(SG_Get_Data_Manager().Find(&FileName, false));
-				}
+				CWKSP_Data_Item *pItem = g_pData->Get_byID_or_File(Layer.Get_Property("dataset_id"), Layer.Get_Content(), ProjectDir);
 
 				if(	pItem &&
 				(   pItem->Get_Type() == WKSP_ITEM_Grid
@@ -763,15 +741,8 @@ bool CWKSP_Map::Serialize(CSG_MetaData &Root, const wxString &ProjectDir, bool b
 			}
 			else if( Layer.Cmp_Name("PARAMETERS") )
 			{
-				if( Layer.Cmp_Property("name", "GRATICULE") )
-				{
-					Add_Graticule(&Layer);
-				}
-
-				if( Layer.Cmp_Property("name", "BASEMAP") )
-				{
-					Add_BaseMap  (&Layer);
-				}
+				if( Layer.Cmp_Property("name", "GRATICULE") ) { Add_Graticule(&Layer); }
+				if( Layer.Cmp_Property("name", "BASEMAP"  ) ) { Add_BaseMap  (&Layer); }
 			}
 		}
 

@@ -1369,6 +1369,41 @@ CWKSP_Data_Item * CWKSP_Data_Manager::Get_byID(const wxString &ID)
 }
 
 //---------------------------------------------------------
+CWKSP_Data_Item * CWKSP_Data_Manager::Get_byID_or_File(const SG_Char *ID, const SG_Char *File, const SG_Char *Root)
+{
+	CWKSP_Data_Item *pItem = NULL;
+
+	if( ID )
+	{
+		pItem = Get_byID(ID);
+	}
+
+	if( File )
+	{
+		wxString _File(File);
+
+		if( _File.Find("PGSQL") != 0 && Root && SG_Dir_Exists(Root) )
+		{
+			_File = Get_FilePath_Absolute(Root, _File);
+		}
+
+		if( pItem )
+		{
+			if( _File.CmpNoCase(pItem->Get_Object()->Get_File_Name(false)) != 0 )
+			{
+				pItem = NULL;
+			}
+		}
+		else
+		{
+			pItem = Get_byFile(_File);
+		}
+	}
+
+	return( pItem );
+}
+
+//---------------------------------------------------------
 CWKSP_Data_Item * CWKSP_Data_Manager::Add(CSG_Data_Object *pObject)
 {
 	if( SG_Get_Data_Manager().Add(pObject) && Get_Manager(pObject->Get_ObjectType(), true) )

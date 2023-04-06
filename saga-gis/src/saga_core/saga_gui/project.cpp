@@ -686,12 +686,7 @@ bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 		}
 		else
 		{
-			pItem = g_pData->Get_byID(Unique_ID.c_str());
-			
-			if( !pItem || File.CmpNoCase(Get_FilePath_Absolute(ProjectDir, pItem->Get_Object()->Get_File_Name(false))) )
-			{
-				pItem = g_pData->Get_byFile(File);
-			}
+			pItem = g_pData->Get_byID_or_File(Unique_ID, File, ProjectDir);
 		}
 	}
 
