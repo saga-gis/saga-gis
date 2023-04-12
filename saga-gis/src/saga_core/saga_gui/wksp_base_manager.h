@@ -77,9 +77,13 @@ public:
 	CWKSP_Base_Manager(void);
 	virtual ~CWKSP_Base_Manager(void);
 
-	int							Get_Count			(void)		{	return( m_nItems );	}
+	virtual bool				is_Manager			(void) const { return( true ); }
 
-	CWKSP_Base_Item *			Get_Item			(int iItem)	{	return( iItem >= 0 && iItem < m_nItems ? m_Items[iItem] : NULL );	}
+	int							Get_Count			(void)       { return( m_nItems ); }
+
+	CWKSP_Base_Item *			Get_Item			(int iItem)  { return( iItem >= 0 && iItem < m_nItems ? m_Items[iItem] : NULL ); }
+
+	virtual CWKSP_Base_Item *	Get_Item_byID		(const wxString &Unique_ID);
 
 	int							Get_Items_Count		(void);
 

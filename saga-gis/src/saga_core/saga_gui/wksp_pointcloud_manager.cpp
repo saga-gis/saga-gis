@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
 #include "res_commands.h"
@@ -83,8 +71,6 @@ CWKSP_PointCloud_Manager::CWKSP_PointCloud_Manager(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -96,9 +82,9 @@ wxString CWKSP_PointCloud_Manager::Get_Name(void)
 //---------------------------------------------------------
 wxString CWKSP_PointCloud_Manager::Get_Description(void)
 {
-	wxString	s;
+	wxString s;
 
-	s.Printf(wxT("<b>%s</b>:%d<br>"), _TL("PointCloud"), Get_Count());
+	s.Printf("<b>%s</b>:%d<br>", _TL("PointCloud"), Get_Count());
 
 	return( s );
 }
@@ -106,7 +92,7 @@ wxString CWKSP_PointCloud_Manager::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_PointCloud_Manager::Get_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu(_TL("PointCloud"));
+	wxMenu *pMenu = new wxMenu(_TL("PointCloud"));
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_POINTCLOUD_OPEN);
 
@@ -120,8 +106,6 @@ wxMenu * CWKSP_PointCloud_Manager::Get_Menu(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

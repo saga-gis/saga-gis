@@ -662,19 +662,22 @@ bool CWKSP_Map::Serialize(CSG_MetaData &Root, const wxString &ProjectDir, bool b
 
 				if( pObject && pObject->Get_File_Name(false) && *pObject->Get_File_Name(false) )
 				{
-					wxString FileName(pObject->Get_File_Name(false));
+					wxString FileName(pObject->Get_File_Name(false)); CSG_MetaData *pEntry = NULL;
 
 					if( FileName.Find("PGSQL") == 0 )
 					{
-						pLayer->Save_Settings(
-							Layers.Add_Child("FILE", &FileName)
-						);
+						pEntry = Layers.Add_Child("FILE", &FileName);
 					}
 					else if( wxFileExists(FileName) )
 					{
-						pLayer->Save_Settings(
-							Layers.Add_Child("FILE", SG_File_Get_Path_Relative(&ProjectDir, &FileName))
-						);
+						pEntry = Layers.Add_Child("FILE", SG_File_Get_Path_Relative(&ProjectDir, &FileName));
+					}
+
+					if( pEntry )
+					{
+						pEntry->Add_Property("dataset_id", pLayer->Get_Layer()->Get_Unique_ID().wc_str());
+
+						pLayer->Save_Settings(pEntry);
 					}
 				}
 				break; }
@@ -717,14 +720,7 @@ bool CWKSP_Map::Serialize(CSG_MetaData &Root, const wxString &ProjectDir, bool b
 
 			if( Layer.Cmp_Name("FILE") )
 			{
-				wxString FileName(Layer.Get_Content().w_str());
-
-				if( FileName.Find("PGSQL") != 0 )
-				{
-					FileName = Get_FilePath_Absolute(ProjectDir, FileName);
-				}
-
-				CWKSP_Base_Item *pItem = g_pData->Get(SG_Get_Data_Manager().Find(&FileName, false));
+				CWKSP_Data_Item *pItem = g_pData->Get_byID_or_File(Layer.Get_Property("dataset_id"), Layer.Get_Content(), ProjectDir);
 
 				if(	pItem &&
 				(   pItem->Get_Type() == WKSP_ITEM_Grid
@@ -745,15 +741,8 @@ bool CWKSP_Map::Serialize(CSG_MetaData &Root, const wxString &ProjectDir, bool b
 			}
 			else if( Layer.Cmp_Name("PARAMETERS") )
 			{
-				if( Layer.Cmp_Property("name", "GRATICULE") )
-				{
-					Add_Graticule(&Layer);
-				}
-
-				if( Layer.Cmp_Property("name", "BASEMAP") )
-				{
-					Add_BaseMap  (&Layer);
-				}
+				if( Layer.Cmp_Property("name", "GRATICULE") ) { Add_Graticule(&Layer); }
+				if( Layer.Cmp_Property("name", "BASEMAP"  ) ) { Add_BaseMap  (&Layer); }
 			}
 		}
 
