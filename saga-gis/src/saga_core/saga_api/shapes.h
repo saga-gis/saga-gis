@@ -1520,10 +1520,12 @@ public:
 	static CSG_String		from_ShapeType			(                        TSG_Shape_Type  Shape, TSG_Vertex_Type  Vertex = SG_VERTEX_TYPE_XY);
 	static bool				to_ShapeType			(const CSG_String &Type, TSG_Shape_Type &Shape, TSG_Vertex_Type &Vertex);
 	static TSG_Shape_Type	to_ShapeType			(const CSG_String &Type);
+	static TSG_Vertex_Type	to_VertexType			(const CSG_String &Type);
 
 	static bool				from_ShapeType			(DWORD            &Type, TSG_Shape_Type  Shape, TSG_Vertex_Type  Vertex = SG_VERTEX_TYPE_XY);
 	static bool				to_ShapeType			(DWORD             Type, TSG_Shape_Type &Shape, TSG_Vertex_Type &Vertex);
 	static TSG_Shape_Type	to_ShapeType			(DWORD             Type);
+	static TSG_Vertex_Type	to_VertexType			(DWORD             Type);
 
 	static CSG_String		Type_asWKText			(DWORD             Type);
 	static DWORD			Type_asWKBinary			(const CSG_String &Type);
@@ -1541,16 +1543,15 @@ private:
 	static bool				_WKT_Write_Parts		(CSG_String &Text, CSG_Shape *pShape);
 	static bool				_WKT_Write_Polygon		(CSG_String &Text, CSG_Shape *pShape);
 
-	static bool				_WKB_Read_Point			(CSG_Bytes &Bytes, bool bSwapBytes, CSG_Shape *pShape, int iPart);
-	static bool				_WKB_Read_Points		(CSG_Bytes &Bytes, bool bSwapBytes, CSG_Shape *pShape);
-	static bool				_WKB_Read_Parts			(CSG_Bytes &Bytes, bool bSwapBytes, CSG_Shape *pShape);
-	static bool				_WKB_Read_MultiPoint	(CSG_Bytes &Bytes, bool bSwapBytes, CSG_Shape *pShape);
-	static bool				_WKB_Read_MultiLine		(CSG_Bytes &Bytes, bool bSwapBytes, CSG_Shape *pShape);
-	static bool				_WKB_Read_MultiPolygon	(CSG_Bytes &Bytes, bool bSwapBytes, CSG_Shape *pShape);
+	static bool				_WKB_Read_Point			(CSG_Bytes &Bytes, bool bSwapBytes, TSG_Vertex_Type Vertex, CSG_Shape *pShape, int iPart);
+	static bool				_WKB_Read_Points		(CSG_Bytes &Bytes, bool bSwapBytes, TSG_Vertex_Type Vertex, CSG_Shape *pShape);
+	static bool				_WKB_Read_Polygon		(CSG_Bytes &Bytes, bool bSwapBytes, TSG_Vertex_Type Vertex, CSG_Shape *pShape);
+	static bool				_WKB_Read_MultiPoint	(CSG_Bytes &Bytes, bool bSwapBytes, TSG_Vertex_Type Vertex, CSG_Shape *pShape);
+	static bool				_WKB_Read_MultiLine		(CSG_Bytes &Bytes, bool bSwapBytes, TSG_Vertex_Type Vertex, CSG_Shape *pShape);
+	static bool				_WKB_Read_MultiPolygon	(CSG_Bytes &Bytes, bool bSwapBytes, TSG_Vertex_Type Vertex, CSG_Shape *pShape);
 
 	static bool				_WKB_Write_Point		(CSG_Bytes &Bytes, CSG_Shape *pShape, int iPoint, int iPart);
 	static bool				_WKB_Write_Points		(CSG_Bytes &Bytes, CSG_Shape *pShape, int iPart);
-	static bool				_WKB_Write_Parts		(CSG_Bytes &Bytes, CSG_Shape *pShape);
 	static bool				_WKB_Write_MultiPoint	(CSG_Bytes &Bytes, CSG_Shape *pShape);
 	static bool				_WKB_Write_MultiLine	(CSG_Bytes &Bytes, CSG_Shape *pShape);
 	static bool				_WKB_Write_MultiPolygon	(CSG_Bytes &Bytes, CSG_Shape *pShape);
