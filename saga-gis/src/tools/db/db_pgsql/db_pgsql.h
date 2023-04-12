@@ -167,6 +167,7 @@ private:
 	bool						_Shapes_Load			(const CSG_String &geoTable, CSG_String &Fields);
 	bool						_Shapes_Load			(const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where, const CSG_String &Geometry, bool bBinary, int &SRID, CSG_String &Select);
 	void *						_Shapes_Load			(const CSG_String &Select, const CSG_String &geoFieldName, int &nFields, int &nRecords, int &geoField);
+	bool						_Shape_Get_Type			(const char *WKBytes, bool bBinary, TSG_Shape_Type &Geometry, TSG_Vertex_Type &Vertex);
 	TSG_Shape_Type				_Shape_Get_Type			(const char *WKBytes, bool bBinary);
 	bool						_Shape_Load_Record		(void *_pResult, int iRecord, int geoField, bool bBinary, CSG_Shapes *pShapes);
 
