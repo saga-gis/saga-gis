@@ -501,6 +501,12 @@ void		SG_UI_Msg_Add_Execution(const CSG_String &Message, bool bNewLine, TSG_UI_M
 	}
 }
 
+//---------------------------------------------------------
+void		SG_UI_Msg_Flush(void)
+{
+	fflush(stdout);
+	fflush(stderr);
+}
 
 ///////////////////////////////////////////////////////////
 //														 //
