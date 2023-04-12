@@ -86,8 +86,6 @@ private:
 
 	bool					m_bGrids;
 
-	static double			s_Coefficients[4][12];
-
 	CSG_Matrix				m_Coefficients;
 
 
