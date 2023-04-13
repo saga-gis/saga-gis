@@ -238,7 +238,7 @@ public:
 		{
 			Clipper2Lib::EndType EndType;
 
-			if( pShape->Get_Type() == SHAPE_TYPE_Line )
+			if( pShape->Get_Type() != SHAPE_TYPE_Polygon )
 			{
 				Delta *= 2.;
 
