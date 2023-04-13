@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Grid_To_Points.h"
 
 
@@ -72,10 +60,9 @@
 //---------------------------------------------------------
 CGrid_To_Points::CGrid_To_Points(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Grid Values to Points"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2001"));
+	Set_Author		("O.Conrad (c) 2001");
 
 	Set_Description	(_TW(
 		"This tool saves grid values to point (grid nodes) or polygon (grid cells) shapes. Optionally only points "
@@ -84,150 +71,262 @@ CGrid_To_Points::CGrid_To_Points(void)
 		"first grid of the grid list."
 	));
 
-
-	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"		, _TL("Grids"),
+	Parameters.Add_Grid_List("",
+		"GRIDS"		, _TL("Grids"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "POLYGONS"	, _TL("Polygons"),
+	Parameters.Add_Shapes("",
+		"POLYGONS"	, _TL("Polygons"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "SHAPES"		, _TL("Shapes"),
+	Parameters.Add_Table_Field("POLYGONS",
+		"ATTRIBUTE"	, _TL("Attribute"),
 		_TL(""),
-		PARAMETER_OUTPUT
+		true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NODATA"		, _TL("Exclude NoData Cells"),
+	Parameters.Add_Shapes("",
+		"POINTS"	, _TL("Points"),
 		_TL(""),
-		PARAMETER_TYPE_Bool		, true
+		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "TYPE"		, _TL("Type"),
+	Parameters.Add_Shapes("",
+		"CELLS"		, _TL("Points"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
+	);
+
+	Parameters.Add_Choice("",
+		"NODATA"	, _TL("No-Data Cells"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s",
+			_TL("include all cells"),
+			_TL("include cell if at least one grid provides data"),
+			_TL("exclude cell if at least one grid does not provide data")
+		)
+	);
+
+	Parameters.Add_Choice("",
+		"TYPE"		, _TL("Type"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
 			_TL("nodes"),
 			_TL("cells")
 		)
 	);
 }
 
-//---------------------------------------------------------
-CGrid_To_Points::~CGrid_To_Points(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGrid_To_Points::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("TYPE") )
+	{
+		pParameters->Set_Enabled("POINTS", pParameter->asInt() == 0);
+		pParameters->Set_Enabled("CELLS" , pParameter->asInt() == 1);
+	}
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGrid_To_Points::On_Execute(void)
 {
-	bool					bNoNoData;
-	int						x, y, iGrid, iPoint, Type;
-	double					xPos, yPos;
-	CSG_Grid				*pGrid;
-	CSG_Parameter_Grid_List	*pGrids;
-	CSG_Shape				*pShape;
-	CSG_Shapes				*pShapes, *pPolygons;
+	CSG_Parameter_Grid_List *pGrids = Parameters("GRIDS")->asGridList();
 
-	//-----------------------------------------------------
-	pGrids		= Parameters("GRIDS")	->asGridList();
-	pPolygons	= Parameters("POLYGONS")->asShapes();
-	pShapes		= Parameters("SHAPES")	->asShapes();
-	bNoNoData	= Parameters("NODATA")	->asBool();
-	Type		= Parameters("TYPE")	->asInt();
-
-	//-----------------------------------------------------
-	if( pGrids->Get_Grid_Count() > 0 )
+	if( pGrids->Get_Grid_Count() < 1 )
 	{
-		switch( Type )
+		Error_Set(_TL("no grids in input list"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Grid Mask; CSG_Shapes *pPolygons = Parameters("POLYGONS")->asShapes();
+
+	Get_Mask(Mask, Parameters("NODATA")->asInt() ? pGrids : NULL, pPolygons);
+
+	//-----------------------------------------------------
+	CSG_Shapes *pShapes;
+
+	switch( Parameters("TYPE")->asInt() )
+	{
+	default: pShapes = Parameters("POINTS")->asShapes(); pShapes->Create(SHAPE_TYPE_Point  , CSG_String::Format("%s %s", _TL("Grid"), _TL("Nodes"))); break;
+	case 1 : pShapes = Parameters("CELLS" )->asShapes(); pShapes->Create(SHAPE_TYPE_Polygon, CSG_String::Format("%s %s", _TL("Grid"), _TL("Cells"))); break;
+	}
+
+	int Attribute = Parameters("ATTRIBUTE")->asInt();
+
+	if( pPolygons )
+	{
+		if( Attribute >= 0 )
 		{
-		case 0:	pShapes->Create(SHAPE_TYPE_Point  , _TL("Grid Values [Nodes]"));	break;
-		case 1:	pShapes->Create(SHAPE_TYPE_Polygon, _TL("Grid Values [Cells]"));	break;
+			pShapes->Add_Field(pPolygons->Get_Field_Name(Attribute), pPolygons->Get_Field_Type(Attribute));
 		}
-
-		pShapes->Add_Field("ID"	, SG_DATATYPE_Int);
-		pShapes->Add_Field("X"	, SG_DATATYPE_Double);
-		pShapes->Add_Field("Y"	, SG_DATATYPE_Double);
-
-		for(iGrid=0; iGrid<pGrids->Get_Grid_Count(); iGrid++)
+		else
 		{
-			pShapes->Add_Field(CSG_String::Format(SG_T("%s"),pGrids->Get_Grid(iGrid)->Get_Name()).BeforeFirst(SG_Char('.')).c_str(), SG_DATATYPE_Double);
+			pShapes->Add_Field("POLYGON_NR", SG_DATATYPE_Int);
 		}
+	}
 
-		//-------------------------------------------------
-		for(y=0, yPos=Get_YMin() - (Type ? 0.5 * Get_Cellsize() : 0.0), iPoint=0; y<Get_NY() && Set_Progress_Rows(y); y++, yPos+=Get_Cellsize())
+	int Offset = pShapes->Get_Field_Count();
+
+	for(int i=0; i<pGrids->Get_Grid_Count(); i++)
+	{
+		CSG_Grid *pGrid = pGrids->Get_Grid(i);
+
+		pShapes->Add_Field(pGrid->Get_Name(), pGrid->is_Scaled() ? SG_DATATYPE_Double : pGrid->Get_Type());
+	}
+
+	//-------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	{
+		double py = Get_YMin() + y * Get_Cellsize();
+
+		for(int x=0; x<Get_NX(); x++)
 		{
-			for(x=0, xPos=Get_XMin() - (Type ? 0.5 * Get_Cellsize() : 0.0); x<Get_NX(); x++, xPos+=Get_Cellsize())
+			double px = Get_XMin() + x * Get_Cellsize();
+
+			if( !Mask.is_Valid() || !Mask.is_NoData(x, y) )
 			{
-				if( (!bNoNoData || (bNoNoData && !pGrids->Get_Grid(0)->is_NoData(x, y)))
-				&&	(!pPolygons || is_Contained(xPos, yPos, pPolygons)) )
+				CSG_Shape *pShape = pShapes->Add_Shape();
+
+				if( pShapes->Get_Type() == SHAPE_TYPE_Polygon )
 				{
-					pShape	= pShapes->Add_Shape();
+					#define dc (Get_Cellsize() / 2.)
 
-					switch( Type )
+					pShape->Add_Point(px - dc, py - dc);
+					pShape->Add_Point(px + dc, py - dc);
+					pShape->Add_Point(px + dc, py + dc);
+					pShape->Add_Point(px - dc, py + dc);
+				}
+				else
+				{
+					pShape->Add_Point(px     , py     );
+				}
+
+				if( pPolygons )
+				{
+					int i = Mask.asInt(x, y);
+
+					if( Attribute >= 0 && i >= 0 && i < (int)pPolygons->Get_Count() )
 					{
-					case 0:
-						pShape->Add_Point(xPos, yPos);
-						break;
-
-					case 1:
-						pShape->Add_Point(xPos                 , yPos                 );
-						pShape->Add_Point(xPos + Get_Cellsize(), yPos                 );
-						pShape->Add_Point(xPos + Get_Cellsize(), yPos + Get_Cellsize());
-						pShape->Add_Point(xPos                 , yPos + Get_Cellsize());
-						break;
+						pShape->Set_Value(0, pPolygons->Get_Shape(i)->asString(Attribute));
 					}
-
-					pShape->Set_Value(0, ++iPoint);
-					pShape->Set_Value(1, xPos);
-					pShape->Set_Value(2, yPos);
-
-					for(iGrid=0; iGrid<pGrids->Get_Grid_Count(); iGrid++)
+					else
 					{
-						pGrid	= pGrids->Get_Grid(iGrid);
+						pShape->Set_Value(0, i + 1);
+					}
+				}
 
-						pShape->Set_Value(iGrid + 3, pGrid->is_NoData(x, y) ? -99999 : pGrid->asDouble(x, y));
+				for(int i=0; i<pGrids->Get_Grid_Count(); i++)
+				{
+					CSG_Grid *pGrid = pGrids->Get_Grid(i);
+
+					if( pGrid->is_NoData(x, y) )
+					{
+						pShape->Set_NoData(Offset + i);
+					}
+					else
+					{
+						pShape->Set_Value(Offset + i, pGrid->asDouble(x, y));
 					}
 				}
 			}
 		}
-
-		return( pShapes->Get_Count() > 0 );
 	}
 
-	return( false );
+	return( pShapes->Get_Count() > 0 );
 }
 
-//---------------------------------------------------------
-inline bool CGrid_To_Points::is_Contained(double x, double y, CSG_Shapes *pPolygons)
-{
-	if( pPolygons && pPolygons->Get_Type() == SHAPE_TYPE_Polygon )
-	{
-		for(sLong iPolygon=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
-		{
-			CSG_Shape_Polygon *pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
 
-			if( pPolygon->Contains(x, y) )
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_To_Points::Get_Mask(CSG_Grid &Mask, CSG_Parameter_Grid_List *pGrids, CSG_Shapes *pPolygons)
+{
+	if( pGrids == NULL && pPolygons == NULL )
+	{
+		return( false ); // no mask needed, just include all cells!
+	}
+
+	Mask.Create(Get_System(), pPolygons ? SG_DATATYPE_Int : SG_DATATYPE_Char);
+
+	Mask.Set_NoData_Value(-1.);
+
+	bool bSkipNoData = Parameters("NODATA")->asInt() == 2;
+
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	{
+		#ifndef _DEBUG
+		#pragma omp parallel for
+		#endif
+		for(int x=0; x<Get_NX(); x++)
+		{
+			int id = 0;
+
+			if( !id && pGrids )
 			{
-				return( true );
+				if( bSkipNoData ) // exclude cell if at least one grid does not provide data
+				{
+					for(int i=0; !id && i<pGrids->Get_Grid_Count(); i++)
+					{
+						if( pGrids->Get_Grid(i)->is_NoData(x, y) )
+						{
+							id = -1; // at least one grid provides no data!
+						}
+					}
+				}
+				else              // include cell if at least one grid provides data
+				{
+					id = -1;
+
+					for(int i=0; id<0 && i<pGrids->Get_Grid_Count(); i++)
+					{
+						if( !pGrids->Get_Grid(i)->is_NoData(x, y) )
+						{
+							id = 0; // at least one grid provides a value!
+						}
+					}
+				}
 			}
+
+			if( !id && pPolygons )
+			{
+				id = -1;
+
+				CSG_Point p(Get_XMin() + x * Get_Cellsize(), Get_YMin() + y * Get_Cellsize());
+
+				for(int i=0; id<0 && i<(int)pPolygons->Get_Count(); i++)
+				{
+					if( pPolygons->Get_Shape(i)->asPolygon()->Contains(p) )
+					{
+						id = i;
+					}
+				}
+			}
+
+			Mask.Set_Value(x, y, id);
 		}
 	}
 
-	return( false );
+	return( true );
 }
 
 
