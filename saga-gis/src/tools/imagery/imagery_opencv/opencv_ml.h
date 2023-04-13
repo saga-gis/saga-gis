@@ -122,6 +122,7 @@ protected:
 	bool						Check_Model_File		(const CSG_String &File);
 
 	virtual const char *		Get_Model_ID			(void)	const	= 0;
+	virtual const char *		Get_Model_Name			(void)	const	= 0;
 
 	virtual Ptr<StatModel>		Get_Model				(const CSG_String &File)	= 0;
 	virtual Ptr<StatModel>		Get_Model				(void)						= 0;
@@ -147,6 +148,7 @@ private:
 	bool						_Finalize				(void);
 
 	bool						_Get_Training			(CSG_Matrix &Data);
+	bool						_Get_Training			(CSG_Matrix &Data, CSG_Table_Record *pClass, CSG_Table_Record  *pSample );
 	bool						_Get_Training			(CSG_Matrix &Data, CSG_Table_Record *pClass, CSG_Shape_Polygon *pPolygon);
 
 	bool						_Get_Prediction			(const Ptr<StatModel> &Model);
@@ -168,6 +170,7 @@ public:
 protected:
 
 	virtual const char *		Get_Model_ID			(void)	const	{	return( "nbayes" );	}
+	virtual const char *		Get_Model_Name			(void)	const	{	return( "Normal Bayes" );	}
 
 	virtual Ptr<StatModel>		Get_Model				(const CSG_String &File);
 	virtual Ptr<StatModel>		Get_Model				(void);
@@ -193,6 +196,7 @@ protected:
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual const char *		Get_Model_ID			(void)	const	{	return( "knn" );	}
+	virtual const char *		Get_Model_Name			(void)	const	{	return( "K-Nearest Neighours" );	}
 
 	virtual Ptr<StatModel>		Get_Model				(const CSG_String &File);
 	virtual Ptr<StatModel>		Get_Model				(void);
@@ -216,6 +220,7 @@ protected:
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual const char *		Get_Model_ID			(void)	const	{	return( "svm" );	}
+	virtual const char *		Get_Model_Name			(void)	const	{	return( "Support Vector Machine" );	}
 
 	virtual Ptr<StatModel>		Get_Model				(const CSG_String &File);
 	virtual Ptr<StatModel>		Get_Model				(void);
@@ -237,6 +242,7 @@ public:
 protected:
 
 	virtual const char *		Get_Model_ID			(void)	const	{	return( "dtree" );	}
+	virtual const char *		Get_Model_Name			(void)	const	{	return( "Decision Tree" );	}
 
 	virtual Ptr<StatModel>		Get_Model				(const CSG_String &File);
 	virtual Ptr<StatModel>		Get_Model				(void);
@@ -256,6 +262,7 @@ public:
 protected:
 
 	virtual const char *		Get_Model_ID			(void)	const	{	return( "boost" );	}
+	virtual const char *		Get_Model_Name			(void)	const	{	return( "Boosting" );	}
 
 	virtual Ptr<DTrees>			Get_Trees				(const CSG_String &File);
 	virtual Ptr<DTrees>			Get_Trees				(void);
@@ -272,6 +279,7 @@ public:
 protected:
 
 	virtual const char *		Get_Model_ID			(void)	const	{	return( "rtrees" );	}
+	virtual const char *		Get_Model_Name			(void)	const	{	return( "Random Forest" );	}
 
 	virtual Ptr<DTrees>			Get_Trees				(const CSG_String &File);
 	virtual Ptr<DTrees>			Get_Trees				(void);
@@ -295,6 +303,7 @@ protected:
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual const char *		Get_Model_ID			(void)	const	{	return( "ann" );	}
+	virtual const char *		Get_Model_Name			(void)	const	{	return( "Artificial Neural Network" );	}
 
 	virtual Ptr<StatModel>		Get_Model				(const CSG_String &File);
 	virtual Ptr<StatModel>		Get_Model				(void);
@@ -320,6 +329,7 @@ protected:
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual const char *		Get_Model_ID			(void)	const	{	return( "logr" );	}
+	virtual const char *		Get_Model_Name			(void)	const	{	return( "Logistic Regression" );	}
 
 	virtual Ptr<StatModel>		Get_Model				(const CSG_String &File);
 	virtual Ptr<StatModel>		Get_Model				(void);
