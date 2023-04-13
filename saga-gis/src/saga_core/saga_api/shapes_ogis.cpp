@@ -764,19 +764,19 @@ bool CSG_Shapes_OGIS_Converter::_WKB_Write_MultiPolygon(CSG_Bytes &Bytes, CSG_Sh
 
 	Bytes += (DWORD)nPolygons;
 
-	DWORD Type; switch( pShape->Get_Vertex_Type() )
-	{
-	case SG_VERTEX_TYPE_XY  : Type = SG_OGIS_TYPE_Polygon  ; break;
-	case SG_VERTEX_TYPE_XYZ : Type = SG_OGIS_TYPE_PolygonZ ; break;
-	case SG_VERTEX_TYPE_XYZM: Type = SG_OGIS_TYPE_PolygonZM; break;
-	}
-
 	for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 	{
 		if( nRings[iPart] > 0 )
 		{
 			Bytes += (BYTE)SG_OGIS_BYTEORDER_NDR;
-			Bytes += Type;
+
+			switch( pShape->Get_Vertex_Type() )
+			{
+			case SG_VERTEX_TYPE_XY  : Bytes += (DWORD)SG_OGIS_TYPE_Polygon  ; break;
+			case SG_VERTEX_TYPE_XYZ : Bytes += (DWORD)SG_OGIS_TYPE_PolygonZ ; break;
+			case SG_VERTEX_TYPE_XYZM: Bytes += (DWORD)SG_OGIS_TYPE_PolygonZM; break;
+			}
+
 			Bytes += (DWORD)nRings[iPart];
 
 			for(int jPart=0; jPart<pShape->Get_Part_Count(); jPart++)
