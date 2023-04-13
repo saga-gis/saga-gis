@@ -443,7 +443,14 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 		g_pData->Get_Menu_Files()->Recent_Del(SG_DATAOBJECT_TYPE_Undefined, FileName);
 	}
 
-	MSG_General_Add(_TL("Could not load project."), true, true, SG_UI_MSG_STYLE_FAILURE);
+	if( FileName.AfterLast('.').CmpNoCase("cfg") )
+	{
+		MSG_General_Add(_TL("Could not load project."), true, true, SG_UI_MSG_STYLE_FAILURE);
+	}
+	else
+	{
+		MSG_General_Add(_TL("okay"), true, true, SG_UI_MSG_STYLE_SUCCESS);
+	}
 
 	return( false );
 }
