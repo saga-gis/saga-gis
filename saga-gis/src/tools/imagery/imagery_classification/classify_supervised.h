@@ -82,16 +82,17 @@ protected:
 
 private:
 
-	bool						m_bNormalise;
+	bool						m_bNormalize;
 
 	CSG_Parameter_Grid_List		*m_pFeatures;
 
 
-	bool						Get_Features			(void);
 	bool						Get_Features			(int x, int y, CSG_Vector &Features);
 
 	bool						Set_Classifier			(CSG_Classifier_Supervised &Classifier);
+	bool						Set_Classifier			(CSG_Classifier_Supervised &Classifier, CSG_Table *pSamples);
 	bool						Set_Classifier			(CSG_Classifier_Supervised &Classifier, CSG_Shapes *pPolygons, int Field);
+	bool						Set_Classifier			(CSG_Classifier_Supervised &Classifier, CSG_Shape_Polygon *pPolygon, int Field);
 
 	bool						Set_Classification		(CSG_Classifier_Supervised &Classifier);
 
