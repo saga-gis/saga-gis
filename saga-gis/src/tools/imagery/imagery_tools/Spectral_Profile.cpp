@@ -213,18 +213,18 @@ bool CSpectral_Profile::Initialize(void)
 	{
 		CSG_Strings Values = SG_String_Tokenize(Parameters("LENGTHS")->asString(), " ;,");
 
-		if( Values.Get_Size() < Length.Get_Size() )
+		if( Values.Get_Size() < Length.Get_uSize() )
 		{
 			SG_UI_Msg_Add(CSG_String::Format("[%s] %s", _TL("Warning"), _TL("There are more bands provided than wave lengths ...using enumeration instead!")), true, SG_UI_MSG_STYLE_FAILURE);
 
-			for(size_t i=0; i<Length.Get_Size(); i++)
+			for(size_t i=0; i<Length.Get_uSize(); i++)
 			{
 				Length[i] = 1. + i;
 			}
 		}
 		else
 		{
-			for(size_t i=0; i<Length.Get_Size(); i++)
+			for(size_t i=0; i<Length.Get_uSize(); i++)
 			{
 				double Value; Length[i] = Values[i].asDouble(Value) ? Value : i > 0 ? Length[i - 1] + 1. : 0.;
 			}
@@ -418,8 +418,14 @@ bool CSpectral_Profile_Interactive::On_Execute(void)
 	//-----------------------------------------------------
 	m_pLocation = Parameters("LOCATION")->asShapes();
 	m_pLocation->Create(SHAPE_TYPE_Point, _TL("Profile Location"));
-	m_pLocation->Add_Field("ID"     , SG_DATATYPE_Int   );
-	m_pLocation->Add_Field("Profile", SG_DATATYPE_String);
+	m_pLocation->Add_Field("Profile", SG_DATATYPE_Int);
+
+	CSG_Parameter_Grid_List *pBands = Parameters("BANDS")->asGridList();
+
+	for(int i=0; i<pBands->Get_Grid_Count(); i++)
+	{
+		m_pLocation->Add_Field(pBands->Get_Grid(i)->Get_Name(), SG_DATATYPE_Double);
+	}
 
 	if( m_bMultiple == false )
 	{
@@ -451,18 +457,26 @@ bool CSpectral_Profile_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_T
 	{
 		if( m_Profile.Add_Profile(ptWorld, m_bMultiple) )
 		{
+			CSG_Shape *pLocation;
+
 			if( m_bMultiple )
 			{
-				CSG_Shape &Location = *m_pLocation->Add_Shape();
+				pLocation = m_pLocation->Add_Shape();
 
-				Location.Set_Value(0, m_pLocation->Get_Count());
-				Location.Set_Value(1, CSG_String::Format("Profile-%02d", 1 + m_pLocation->Get_Count()));
-
-				Location.Set_Point(ptWorld, 0);
+				pLocation->Set_Value(0, m_pLocation->Get_Count());
 			}
 			else
 			{
-				m_pLocation->Get_Shape(0)->Set_Point(ptWorld, 0);
+				pLocation = m_pLocation->Get_Shape(0);
+			}
+
+			pLocation->Set_Point(ptWorld);
+
+			CSG_Table &Profile = *Parameters("PROFILE")->asTable();
+
+			for(int i=0, n=Profile.Get_Field_Count()-1; i<(int)Profile.Get_Count(); i++)
+			{
+				pLocation->Set_Value(1 + i, Profile[i].asDouble(n));
 			}
 
 			return( m_Profile.Update_Profile(m_bMultiple) );
