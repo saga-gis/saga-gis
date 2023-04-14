@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Shapes_Type_H
 #define _HEADER_INCLUDED__SAGA_GUI__WKSP_Shapes_Type_H
 
@@ -86,18 +74,18 @@ class CWKSP_Shapes_Type : public CWKSP_Base_Manager
 public:
 	CWKSP_Shapes_Type(TSG_Shape_Type Type);
 
-	virtual TWKSP_Item			Get_Type		(void)		{	return( WKSP_ITEM_Shapes_Type );	}
+	virtual TWKSP_Item			Get_Type			(void)		{	return( WKSP_ITEM_Shapes_Type );	}
 
-	virtual wxString			Get_Name		(void);
-	virtual wxString			Get_Description	(void);
+	virtual wxString			Get_Name			(void);
+	virtual wxString			Get_Description		(void);
 
-	virtual wxMenu *			Get_Menu		(void);
+	int							Get_Shape_Type		(void)		{	return( m_Shape_Type );	}
 
-	class CWKSP_Shapes *		Get_Data		(int i)		{	return( (class CWKSP_Shapes *)Get_Item(i) );	}
-	class CWKSP_Shapes *		Get_Data		(class CSG_Shapes *pShapes);
-	class CWKSP_Shapes *		Add_Data		(class CSG_Shapes *pShapes);
+	virtual wxMenu *			Get_Menu			(void);
 
-	int							Get_Shape_Type	(void)		{	return( m_Shape_Type );	}
+	class CWKSP_Shapes *		Get_Data			(int i)		{	return( (class CWKSP_Shapes *)Get_Item(i) );	}
+	class CWKSP_Shapes *		Get_Data			(class CSG_Shapes *pShapes);
+	class CWKSP_Shapes *		Add_Data			(class CSG_Shapes *pShapes);
 
 
 private:

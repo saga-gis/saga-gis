@@ -97,43 +97,43 @@ CWKSP_Table::~CWKSP_Table(void)
 //---------------------------------------------------------
 wxString CWKSP_Table::Get_Description(void)
 {
-	wxString	s;
+	wxString s;
 
 	//-----------------------------------------------------
-	s	+= wxString::Format("<h4>%s</h4>", _TL("Table"));
+	s += wxString::Format("<h4>%s</h4>", _TL("Table"));
 
-	s	+= "<table border=\"0\">";
+	s += "<table border=\"0\">";
 
-	DESC_ADD_STR(_TL("Name"               ), m_pObject->Get_Name());
-	DESC_ADD_STR(_TL("Description"        ), m_pObject->Get_Description());
+	DESC_ADD_STR(_TL("Name"              ), m_pObject->Get_Name());
+	DESC_ADD_STR(_TL("Description"       ), m_pObject->Get_Description());
 
 	if( SG_File_Exists(m_pObject->Get_File_Name(false)) )
 	{
-		DESC_ADD_STR(_TL("Data Source"    ), SG_File_Get_Path(m_pObject->Get_File_Name(false)      ).c_str());
-		DESC_ADD_STR(_TL("File"           ), SG_File_Get_Name(m_pObject->Get_File_Name(false), true).c_str());
+		DESC_ADD_STR(_TL("Data Source"   ), SG_File_Get_Path(m_pObject->Get_File_Name(false)      ).c_str());
+		DESC_ADD_STR(_TL("File"          ), SG_File_Get_Name(m_pObject->Get_File_Name(false), true).c_str());
 	}
 	else if( m_pObject->Get_MetaData_DB().Get_Children_Count() )
 	{
-		DESC_ADD_STR(_TL("Data Source"    ), m_pObject->Get_File_Name(false));
+		DESC_ADD_STR(_TL("Data Source"   ), m_pObject->Get_File_Name(false));
 	}
 	else
 	{
-		DESC_ADD_STR(_TL("Data Source"    ), _TL("memory"));
+		DESC_ADD_STR(_TL("Data Source"   ), _TL("memory"));
 	}
 
-	DESC_ADD_STR  (_TL("Modified"         ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
-	DESC_ADD_INT  (_TL("Number of Records"), Get_Table()->Get_Count());
-	DESC_ADD_SIZET(_TL("Selected"         ), Get_Table()->Get_Selection_Count());
-	DESC_ADD_STR  (_TL("File Encoding"    ), Get_Table()->Get_File_Encoding() ? SG_T("UTF-8") : SG_T("ANSI"));
+	DESC_ADD_STR (_TL("Modified"         ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
+	DESC_ADD_LONG(_TL("Number of Records"), Get_Table()->Get_Count());
+	DESC_ADD_LONG(_TL("Selected"         ), Get_Table()->Get_Selection_Count());
+	DESC_ADD_STR (_TL("File Encoding"    ), Get_Table()->Get_File_Encoding() ? SG_T("UTF-8") : SG_T("ANSI"));
 
-	s	+= "</table>";
+	s += "</table>";
 
-	s	+= Get_TableInfo_asHTML(Get_Table());
+	s += Get_TableInfo_asHTML(Get_Table());
 
 	//-----------------------------------------------------
-//	s	+= wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), _TL("Data History"));
-//	s	+= m_pTable->Get_History().Get_HTML();
-//	s	+= wxString::Format(wxT("</font"));
+//	s += wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), _TL("Data History"));
+//	s += m_pTable->Get_History().Get_HTML();
+//	s += wxString::Format(wxT("</font"));
 
 	//-----------------------------------------------------
 	return( s );

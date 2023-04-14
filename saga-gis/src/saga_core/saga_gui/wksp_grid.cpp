@@ -352,7 +352,7 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	m_Parameters.Add_Choice("NODE_DISPLAY", "DISPLAY_SHADING"	, _TL("Shading"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s",
-			_TL("none"), _TL("normal"), _TL("inverse")
+			_TL("none"), _TL("traditional"), _TL("multidirectional")
 		), 0
 	);
 
@@ -1579,13 +1579,7 @@ void CWKSP_Grid::_Draw_Grid_Cells(CWKSP_Map_DC &dc_Map)
 //---------------------------------------------------------
 inline void CWKSP_Grid::_Set_Shading(double Shade, int &Color)
 {
-	switch( m_Shade_Mode )
-	{
-	default: Shade =      Shade / M_PI_090; break;
-	case  1: Shade = 1. - Shade / M_PI_090; break;
-	}
-
-	Shade	= m_Shade_Parms[5] * (Shade - m_Shade_Parms[4]);
+	Shade	= m_Shade_Parms[5] * ((1. - Shade / M_PI_090) - m_Shade_Parms[4]);
 
 	int	r	= (int)(Shade * SG_GET_R(Color)); if( r < 0 ) r = 0; else if( r > 255 ) r = 255;
 	int	g	= (int)(Shade * SG_GET_G(Color)); if( g < 0 ) g = 0; else if( g > 255 ) g = 255;
@@ -1605,7 +1599,21 @@ inline int CWKSP_Grid::_Get_Shading(int x, int y, int Color)
 		{
 			s	= M_PI_090 - atan(m_Shade_Parms[0] * tan(s));
 
-			_Set_Shading(acos(sin(s) * m_Shade_Parms[1] + cos(s) * m_Shade_Parms[2] * cos(a - m_Shade_Parms[3])), Color);
+			if( m_Shade_Mode == 1 )
+			{
+				_Set_Shading(acos(sin(s) * m_Shade_Parms[1] + cos(s) * m_Shade_Parms[2] * cos(a - m_Shade_Parms[3])), Color);
+			}
+			else
+			{
+				double sum = 0., dir = m_Shade_Parms[3] - M_PI_180 / 2.;
+
+				for(int i=0; i<6; i++, dir+=M_PI_180/5.)
+				{
+					sum += acos(sin(s) * m_Shade_Parms[1] + cos(s) * m_Shade_Parms[2] * cos(a - dir));
+				}
+
+				_Set_Shading(sum / 6., Color);
+			}
 		}
 	}
 
@@ -1632,7 +1640,21 @@ inline int CWKSP_Grid::_Get_Shading(double x, double y, int Color, TSG_Grid_Resa
 		{
 			s	= M_PI_090 - atan(m_Shade_Parms[0] * tan(s));
 
-			_Set_Shading(acos(sin(s) * m_Shade_Parms[1] + cos(s) * m_Shade_Parms[2] * cos(a - m_Shade_Parms[3])), Color);
+			if( m_Shade_Mode == 1 )
+			{
+				_Set_Shading(acos(sin(s) * m_Shade_Parms[1] + cos(s) * m_Shade_Parms[2] * cos(a - m_Shade_Parms[3])), Color);
+			}
+			else
+			{
+				double sum = 0., dir = m_Shade_Parms[3] - M_PI_180 / 2.;
+
+				for(int i=0; i<6; i++, dir+=M_PI_180/5.)
+				{
+					sum += acos(sin(s) * m_Shade_Parms[1] + cos(s) * m_Shade_Parms[2] * cos(a - dir));
+				}
+
+				_Set_Shading(sum / 6., Color);
+			}
 		}
 	}
 

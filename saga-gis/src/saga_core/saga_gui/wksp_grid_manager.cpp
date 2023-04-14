@@ -87,17 +87,17 @@ wxString CWKSP_Grid_Manager::Get_Name(void)
 //---------------------------------------------------------
 wxString CWKSP_Grid_Manager::Get_Description(void)
 {
-	wxString	s;
+	wxString s;
 
 	//-----------------------------------------------------
-	s	+= wxString::Format("<h4>%s</h4>", _TL("Grids"));
+	s += wxString::Format("<h4>%s</h4>", _TL("Grids"));
 
-	s	+= "<table border=\"0\">";
+	s += "<table border=\"0\">";
 
 	DESC_ADD_INT(_TL("Grid Systems"), Get_Count      ());
 	DESC_ADD_INT(_TL("Grids"       ), Get_Items_Count());
 
-	s	+= wxT("</table>");
+	s += wxT("</table>");
 
 	return( s );
 }
@@ -105,7 +105,7 @@ wxString CWKSP_Grid_Manager::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_Grid_Manager::Get_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu(_TL("Grids"));
+	wxMenu *pMenu = new wxMenu(_TL("Grids"));
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRID_OPEN);
 
@@ -139,7 +139,7 @@ CWKSP_Grid_System * CWKSP_Grid_Manager::Get_System(const CSG_Grid_System &System
 //---------------------------------------------------------
 CWKSP_Grid_System * CWKSP_Grid_Manager::_Get_System(const CSG_Grid_System &System)
 {
-	CWKSP_Grid_System	*pItem	= NULL;
+	CWKSP_Grid_System *pItem = NULL;
 
 	if( (pItem = Get_System(System)) == NULL )
 	{
@@ -157,11 +157,11 @@ CWKSP_Grid_System * CWKSP_Grid_Manager::_Get_System(const CSG_Grid_System &Syste
 //---------------------------------------------------------
 CWKSP_Grid * CWKSP_Grid_Manager::Get_Data(CSG_Grid *pGrid)
 {
-	CWKSP_Grid	*pItem	= NULL;
+	CWKSP_Grid *pItem = NULL;
 
 	for(int i=0; !pItem && i<Get_Count(); i++)
 	{
-		pItem	= ((CWKSP_Grid_System *)Get_Item(i))->Get_Grid(pGrid);
+		pItem = ((CWKSP_Grid_System *)Get_Item(i))->Get_Grid(pGrid);
 	}
 
 	return( pItem );
@@ -170,11 +170,11 @@ CWKSP_Grid * CWKSP_Grid_Manager::Get_Data(CSG_Grid *pGrid)
 //---------------------------------------------------------
 CWKSP_Grid * CWKSP_Grid_Manager::Add_Data(CSG_Grid *pGrid)
 {
-	CWKSP_Grid	*pItem	= Get_Data(pGrid);
+	CWKSP_Grid *pItem = Get_Data(pGrid);
 
 	if( pItem == NULL && pGrid != NULL && pGrid->is_Valid() )
 	{
-		pItem	= _Get_System(pGrid->Get_System())->Add_Grid(pGrid);
+		pItem = _Get_System(pGrid->Get_System())->Add_Grid(pGrid);
 	}
 
 	return( pItem );
@@ -183,11 +183,11 @@ CWKSP_Grid * CWKSP_Grid_Manager::Add_Data(CSG_Grid *pGrid)
 //---------------------------------------------------------
 CWKSP_Grids * CWKSP_Grid_Manager::Get_Data(CSG_Grids *pGrids)
 {
-	CWKSP_Grids	*pItem	= NULL;
+	CWKSP_Grids *pItem = NULL;
 
 	for(int i=0; !pItem && i<Get_Count(); i++)
 	{
-		pItem	= ((CWKSP_Grid_System *)Get_Item(i))->Get_Grids(pGrids);
+		pItem = ((CWKSP_Grid_System *)Get_Item(i))->Get_Grids(pGrids);
 	}
 
 	return( pItem );
@@ -196,11 +196,11 @@ CWKSP_Grids * CWKSP_Grid_Manager::Get_Data(CSG_Grids *pGrids)
 //---------------------------------------------------------
 CWKSP_Grids * CWKSP_Grid_Manager::Add_Data(CSG_Grids *pGrids)
 {
-	CWKSP_Grids	*pItem	= Get_Data(pGrids);
+	CWKSP_Grids *pItem = Get_Data(pGrids);
 
 	if( pItem == NULL && pGrids != NULL && pGrids->is_Valid() )
 	{
-		pItem	= _Get_System(pGrids->Get_System())->Add_Grids(pGrids);
+		pItem = _Get_System(pGrids->Get_System())->Add_Grids(pGrids);
 	}
 
 	return( pItem );

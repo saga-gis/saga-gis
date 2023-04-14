@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
 #include "res_commands.h"
@@ -90,8 +78,6 @@ CWKSP_Shapes_Type::CWKSP_Shapes_Type(TSG_Shape_Type Type)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -103,16 +89,16 @@ wxString CWKSP_Shapes_Type::Get_Name(void)
 //---------------------------------------------------------
 wxString CWKSP_Shapes_Type::Get_Description(void)
 {
-	wxString	s;
+	wxString s;
 
 	//-----------------------------------------------------
-	s	+= wxString::Format("<h4>%s</h4>", Get_Name().c_str());
+	s += wxString::Format("<h4>%s</h4>", Get_Name().c_str());
 
-	s	+= "<table border=\"0\">";
+	s += "<table border=\"0\">";
 
 	DESC_ADD_INT(Get_Name().c_str(), Get_Count());
 
-	s	+= wxT("</table>");
+	s += wxT("</table>");
 
 	return( s );
 }
@@ -120,7 +106,7 @@ wxString CWKSP_Shapes_Type::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_Shapes_Type::Get_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu(Get_Name());
+	wxMenu *pMenu = new wxMenu(Get_Name());
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 
@@ -129,8 +115,6 @@ wxMenu * CWKSP_Shapes_Type::Get_Menu(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -151,17 +135,17 @@ CWKSP_Shapes * CWKSP_Shapes_Type::Get_Data(CSG_Shapes *pObject)
 //---------------------------------------------------------
 CWKSP_Shapes * CWKSP_Shapes_Type::Add_Data(CSG_Shapes *pObject)
 {
-	CWKSP_Shapes	*pItem	= Get_Data(pObject);
+	CWKSP_Shapes *pItem = Get_Data(pObject);
 
-	if( pItem == NULL && pObject != NULL && pObject->Get_Type() == m_Shape_Type )
+	if( pItem == NULL && pObject && pObject->Get_Type() == m_Shape_Type )
 	{
 		switch( pObject->Get_Type() )
 		{
-		default:																			break;
-		case SHAPE_TYPE_Point:		Add_Item(pItem = new CWKSP_Shapes_Point  (pObject));	break;
-		case SHAPE_TYPE_Points:		Add_Item(pItem = new CWKSP_Shapes_Points (pObject));	break;
-		case SHAPE_TYPE_Line:		Add_Item(pItem = new CWKSP_Shapes_Line   (pObject));	break;
-		case SHAPE_TYPE_Polygon:	Add_Item(pItem = new CWKSP_Shapes_Polygon(pObject));	break;
+		case SHAPE_TYPE_Point  : Add_Item(pItem = new CWKSP_Shapes_Point  (pObject)); break;
+		case SHAPE_TYPE_Points : Add_Item(pItem = new CWKSP_Shapes_Points (pObject)); break;
+		case SHAPE_TYPE_Line   : Add_Item(pItem = new CWKSP_Shapes_Line   (pObject)); break;
+		case SHAPE_TYPE_Polygon: Add_Item(pItem = new CWKSP_Shapes_Polygon(pObject)); break;
+		default                :                                                      break;
 		}
 	}
 

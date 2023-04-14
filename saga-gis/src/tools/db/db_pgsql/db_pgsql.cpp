@@ -1365,6 +1365,19 @@ void * CSG_PG_Connection::_Shapes_Load(const CSG_String &Select, const CSG_Strin
 }
 
 //---------------------------------------------------------
+inline bool CSG_PG_Connection::_Shape_Get_Type(const char *WKBytes, bool bBinary, TSG_Shape_Type &Geometry, TSG_Vertex_Type &Vertex)
+{
+	if( bBinary )
+	{
+		CSG_Bytes Binary; Binary.fromHexString(WKBytes + 2);
+
+		return( CSG_Shapes_OGIS_Converter::to_ShapeType(Binary.asDWord(1, false), Geometry, Vertex) );
+	}
+
+	return( CSG_Shapes_OGIS_Converter::to_ShapeType(CSG_String(WKBytes).BeforeFirst('('), Geometry, Vertex) );
+}
+
+//---------------------------------------------------------
 inline TSG_Shape_Type CSG_PG_Connection::_Shape_Get_Type(const char *WKBytes, bool bBinary)
 {
 	if( bBinary )
@@ -1458,16 +1471,16 @@ bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name,
 	//-----------------------------------------------------
 	for(int iRecord=0; iRecord<nRecords && SG_UI_Process_Set_Progress(iRecord, nRecords); iRecord++)
 	{
-		TSG_Shape_Type Type = _Shape_Get_Type(PQgetvalue(pResult, iRecord, geoField), bBinary);
+		TSG_Shape_Type Geometry; TSG_Vertex_Type Vertex; _Shape_Get_Type(PQgetvalue(pResult, iRecord, geoField), bBinary, Geometry, Vertex);
 
-		if( Type == SHAPE_TYPE_Undefined || (Type != pShapes->Get_Type() && pShapes->Get_Type() != SHAPE_TYPE_Undefined) )
+		if( Geometry == SHAPE_TYPE_Undefined || (Geometry != pShapes->Get_Type() && pShapes->Get_Type() != SHAPE_TYPE_Undefined) )
 		{
 			continue;
 		}
 
 		if( pShapes->Get_Type() == SHAPE_TYPE_Undefined )
 		{
-			pShapes->Create(Type, Name); pShapes->Get_Projection().Create(SRID);
+			pShapes->Create(Geometry, Name, NULL, Vertex); pShapes->Get_Projection().Create(SRID);
 
 			for(int iField=0; iField<nFields; iField++)
 			{
@@ -1533,21 +1546,21 @@ int CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes[4], const CSG_String &Nam
 	//-----------------------------------------------------
 	for(int iRecord=0; iRecord<nRecords && SG_UI_Process_Set_Progress(iRecord, nRecords); iRecord++)
 	{
-		TSG_Shape_Type Type = _Shape_Get_Type(PQgetvalue(pResult, iRecord, geoField), bBinary);
+		TSG_Shape_Type Geometry; TSG_Vertex_Type Vertex; _Shape_Get_Type(PQgetvalue(pResult, iRecord, geoField), bBinary, Geometry, Vertex);
 
-		if( Type == SHAPE_TYPE_Undefined )
+		if( Geometry == SHAPE_TYPE_Undefined )
 		{
 			continue;
 		}
 
-		int i = Type == SHAPE_TYPE_Point   ? 0
-			  : Type == SHAPE_TYPE_Points  ? 1
-			  : Type == SHAPE_TYPE_Line    ? 2
-			  : Type == SHAPE_TYPE_Polygon ? 3 : -1;
+		int i = Geometry == SHAPE_TYPE_Point   ? 0
+			  : Geometry == SHAPE_TYPE_Points  ? 1
+			  : Geometry == SHAPE_TYPE_Line    ? 2
+			  : Geometry == SHAPE_TYPE_Polygon ? 3 : -1;
 
 		if( pShapes[i] == NULL )
 		{
-			pShapes[i] = SG_Create_Shapes(Type, Name); pShapes[i]->Get_Projection().Create(SRID);
+			pShapes[i] = SG_Create_Shapes(Geometry, Name, NULL, Vertex); pShapes[i]->Get_Projection().Create(SRID);
 
 			for(int iField=0; iField<nFields; iField++)
 			{
@@ -1712,16 +1725,18 @@ bool CSG_PG_Connection::Shapes_Insert(CSG_Shapes *pShapes, const CSG_String &_ge
 		}
 
 		//-------------------------------------------------
+		CSG_Bytes WKB; CSG_String WKT;
+
 		if( bBinary )
 		{
-			CSG_Bytes  WKB; CSG_Shapes_OGIS_Converter::to_WKBinary(pShape, WKB);
+			CSG_Shapes_OGIS_Converter::to_WKBinary(pShape, WKB);
 
 			paramValues [nFields] = (char *)WKB.Get_Bytes();
 			paramLengths[nFields] =         WKB.Get_Count();
 		}
 		else
 		{
-			CSG_String WKT; CSG_Shapes_OGIS_Converter::to_WKText  (pShape, WKT);
+			CSG_Shapes_OGIS_Converter::to_WKText  (pShape, WKT);
 
 			Values[nFields].Set_Data(WKT.b_str(), WKT.Length() + 1); WKT.Clear();
 			paramValues[nFields] = Values[nFields].Get_Data();

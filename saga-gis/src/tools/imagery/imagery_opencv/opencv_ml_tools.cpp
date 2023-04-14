@@ -61,7 +61,7 @@
 COpenCV_ML_NBayes::COpenCV_ML_NBayes(void)
 	: COpenCV_ML(true)
 {
-	Set_Name		(_TL("Normal Bayes Classification (OpenCV)"));
+	Set_Name		(CSG_String(Get_Model_Name()) + " " + _TL("Classification"));
 
 	Set_Author		("O.Conrad (c) 2016");
 
@@ -69,8 +69,6 @@ COpenCV_ML_NBayes::COpenCV_ML_NBayes(void)
 		"Integration of the OpenCV Machine Learning library for "
 		"Normal Bayes classification of gridded features."
 	));
-
-	Add_Reference(SG_T("http://docs.opencv.org"), SG_T("Open Source Computer Vision"));
 }
 
 //---------------------------------------------------------
@@ -94,9 +92,9 @@ Ptr<StatModel> COpenCV_ML_NBayes::Get_Model(void)
 //---------------------------------------------------------
 double COpenCV_ML_NBayes::Get_Probability(const Ptr<StatModel> &Model, const Mat &Sample)
 {
-	const Ptr<NormalBayesClassifier>	&m	= *((Ptr<NormalBayesClassifier>*)&Model);
+	const Ptr<NormalBayesClassifier> &m = *((Ptr<NormalBayesClassifier>*)&Model);
 
-	Mat	Output, Probabilities;
+	Mat Output, Probabilities;
 
 	return( m->predictProb(Sample, Output, Probabilities) );
 }
@@ -112,7 +110,7 @@ double COpenCV_ML_NBayes::Get_Probability(const Ptr<StatModel> &Model, const Mat
 COpenCV_ML_KNN::COpenCV_ML_KNN(void)
 	: COpenCV_ML(false)
 {
-	Set_Name		(_TL("K-Nearest Neighbours Classification (OpenCV)"));
+	Set_Name		(CSG_String(Get_Model_Name()) + " " + _TL("Classification"));
 
 	Set_Author		("O.Conrad (c) 2016");
 
@@ -120,8 +118,6 @@ COpenCV_ML_KNN::COpenCV_ML_KNN(void)
 		"Integration of the OpenCV Machine Learning library for "
 		"K-Nearest Neighbours classification of gridded features."
 	));
-
-	Add_Reference(SG_T("http://docs.opencv.org"), SG_T("Open Source Computer Vision"));
 
 	//-----------------------------------------------------
 	Parameters.Add_Int("MODEL_TRAIN",
@@ -182,12 +178,12 @@ Ptr<StatModel> COpenCV_ML_KNN::Get_Model(const CSG_String &File)
 //---------------------------------------------------------
 Ptr<StatModel> COpenCV_ML_KNN::Get_Model(void)
 {
-	Ptr<KNearest>	Model	= KNearest::create();
+	Ptr<KNearest> Model = KNearest::create();
 
 	switch( Parameters("ALGORITHM")->asInt() )
 	{
-	default:	Model->setAlgorithmType(KNearest::BRUTE_FORCE);	break;
-	case  1:	Model->setAlgorithmType(KNearest::KDTREE     );	break;
+	default: Model->setAlgorithmType(KNearest::BRUTE_FORCE); break;
+	case  1: Model->setAlgorithmType(KNearest::KDTREE     ); break;
 	}
 
 	Model->setDefaultK    (Parameters("NEIGHBOURS")->asInt());
@@ -208,7 +204,7 @@ Ptr<StatModel> COpenCV_ML_KNN::Get_Model(void)
 COpenCV_ML_SVM::COpenCV_ML_SVM(void)
 	: COpenCV_ML(false)
 {
-	Set_Name		(_TL("Support Vector Machine Classification (OpenCV)"));
+	Set_Name		(CSG_String(Get_Model_Name()) + " " + _TL("Classification"));
 
 	Set_Author		("O.Conrad (c) 2016");
 
@@ -216,8 +212,6 @@ COpenCV_ML_SVM::COpenCV_ML_SVM(void)
 		"Integration of the OpenCV Machine Learning library for "
 		"Support Vector Machine classification of gridded features."
 	));
-
-	Add_Reference(SG_T("http://docs.opencv.org"), SG_T("Open Source Computer Vision"));
 
 	//-----------------------------------------------------
 	Parameters.Add_Choice("MODEL_TRAIN",
@@ -232,9 +226,9 @@ COpenCV_ML_SVM::COpenCV_ML_SVM(void)
 		), 0
 	);
 
-	Parameters.Add_Double("SVM_TYPE", "C" , _TL("C" ), _TL(""), 1.0, 0.0, true);
-	Parameters.Add_Double("SVM_TYPE", "NU", _TL("Nu"), _TL(""), 0.5, 0.0, true);
-	Parameters.Add_Double("SVM_TYPE", "P" , _TL("P" ), _TL(""), 0.5, 0.0, true);
+	Parameters.Add_Double("SVM_TYPE", "C" , _TL("C" ), _TL(""), 1.0, 0., true);
+	Parameters.Add_Double("SVM_TYPE", "NU", _TL("Nu"), _TL(""), 0.5, 0., true);
+	Parameters.Add_Double("SVM_TYPE", "P" , _TL("P" ), _TL(""), 0.5, 0., true);
 
 	Parameters.Add_Choice("MODEL_TRAIN",
 		"KERNEL"	, _TL("Kernel Type"),
@@ -250,9 +244,9 @@ COpenCV_ML_SVM::COpenCV_ML_SVM(void)
 		), 1
 	);
 
-	Parameters.Add_Double("KERNEL", "COEF0" , _TL("Coefficient 0"), _TL(""), 1.0, 0.0, true);
-	Parameters.Add_Double("KERNEL", "DEGREE", _TL("Degree"       ), _TL(""), 0.5, 0.0, true);
-	Parameters.Add_Double("KERNEL", "GAMMA" , _TL("Gamma"        ), _TL(""), 1.0, 0.0, true);
+	Parameters.Add_Double("KERNEL", "COEF0" , _TL("Coefficient 0"), _TL(""), 1.0, 0., true);
+	Parameters.Add_Double("KERNEL", "DEGREE", _TL("Degree"       ), _TL(""), 0.5, 0., true);
+	Parameters.Add_Double("KERNEL", "GAMMA" , _TL("Gamma"        ), _TL(""), 1.0, 0., true);
 }
 
 //---------------------------------------------------------
@@ -291,26 +285,26 @@ Ptr<StatModel> COpenCV_ML_SVM::Get_Model(const CSG_String &File)
 //---------------------------------------------------------
 Ptr<StatModel> COpenCV_ML_SVM::Get_Model(void)
 {
-	Ptr<SVM>	Model	= SVM::create();
+	Ptr<SVM> Model = SVM::create();
 
 	switch( Parameters("SVM_TYPE")->asInt() )
 	{
-	default:	Model->setType(SVM::C_SVC    );	break;
-	case  1:	Model->setType(SVM::NU_SVC   );	break;
-	case  2:	Model->setType(SVM::ONE_CLASS);	break;
-	case  3:	Model->setType(SVM::EPS_SVR  );	break;
-	case  4:	Model->setType(SVM::NU_SVR   );	break;
+	default: Model->setType(SVM::C_SVC    ); break;
+	case  1: Model->setType(SVM::NU_SVC   ); break;
+	case  2: Model->setType(SVM::ONE_CLASS); break;
+	case  3: Model->setType(SVM::EPS_SVR  ); break;
+	case  4: Model->setType(SVM::NU_SVR   ); break;
 	}
 
 	switch( Parameters("KERNEL")->asInt() )
 	{
-	default:	Model->setKernel(SVM::LINEAR );	break;
-	case  1:	Model->setKernel(SVM::POLY   );	break;
-	case  2:	Model->setKernel(SVM::RBF    );	break;
-	case  3:	Model->setKernel(SVM::SIGMOID);	break;
-	case  4:	Model->setKernel(SVM::CHI2   );	break;
-	case  5:	Model->setKernel(SVM::INTER  );	break;
-	case  6:	Model->setKernel(SVM::CUSTOM );	break;
+	default: Model->setKernel(SVM::LINEAR ); break;
+	case  1: Model->setKernel(SVM::POLY   ); break;
+	case  2: Model->setKernel(SVM::RBF    ); break;
+	case  3: Model->setKernel(SVM::SIGMOID); break;
+	case  4: Model->setKernel(SVM::CHI2   ); break;
+	case  5: Model->setKernel(SVM::INTER  ); break;
+	case  6: Model->setKernel(SVM::CUSTOM ); break;
 	}
 
 	Model->setC     (Parameters("C"     )->asDouble());
@@ -336,7 +330,7 @@ Ptr<StatModel> COpenCV_ML_SVM::Get_Model(void)
 COpenCV_ML_DTrees::COpenCV_ML_DTrees(void)
 	: COpenCV_ML(false)
 {
-	Set_Name		(_TL("Decision Tree Classification (OpenCV)"));
+	Set_Name		(CSG_String(Get_Model_Name()) + " " + _TL("Classification"));
 
 	Set_Author		("O.Conrad (c) 2016");
 
@@ -344,8 +338,6 @@ COpenCV_ML_DTrees::COpenCV_ML_DTrees(void)
 		"Integration of the OpenCV Machine Learning library for "
 		"Decision Tree classification of gridded features."
 	));
-
-	Add_Reference(SG_T("http://docs.opencv.org"), SG_T("Open Source Computer Vision"));
 
 	//-----------------------------------------------------
 	Parameters.Add_Int("MODEL_TRAIN",
@@ -366,11 +358,11 @@ COpenCV_ML_DTrees::COpenCV_ML_DTrees(void)
 		10, 1, true
 	);
 
-	//Parameters.Add_Int("MODEL_TRAIN",
-	//	"CV_FOLDS"		, _TL("CV Folds"),
-	//	_TL("If CVFolds > 1 then algorithms prunes the built decision tree using K-fold cross-validation procedure where K is equal to CVFolds. Default value is 10."),
-	//	10, 0, true
-	//);
+//	Parameters.Add_Int("MODEL_TRAIN",
+//		"CV_FOLDS"		, _TL("CV Folds"),
+//		_TL("If CVFolds > 1 then algorithms prunes the built decision tree using K-fold cross-validation procedure where K is equal to CVFolds. Default value is 10."),
+//		10, 0, true
+//	);
 
 	Parameters.Add_Bool("MODEL_TRAIN",
 		"1SE_RULE"		, _TL("Use 1SE Rule"),
@@ -387,7 +379,7 @@ COpenCV_ML_DTrees::COpenCV_ML_DTrees(void)
 	Parameters.Add_Double("MODEL_TRAIN",
 		"REG_ACCURACY"	, _TL("Regression Accuracy"),
 		_TL("Termination criteria for regression trees. If all absolute differences between an estimated value in a node and values of train samples in this node are less than this parameter then the node will not be split further."),
-		 0.01, 0.0, true
+		 0.01, 0., true
 	);
 
 //	Parameters.Add_Bool("MODEL_TRAIN",
@@ -423,7 +415,7 @@ Ptr<StatModel> COpenCV_ML_DTrees::Get_Model(const CSG_String &File)
 //---------------------------------------------------------
 Ptr<StatModel> COpenCV_ML_DTrees::Get_Model(void)
 {
-	Ptr<DTrees>	Model	= Get_Trees();
+	Ptr<DTrees> Model = Get_Trees();
 
 	Model->setMaxDepth                 (Parameters("MAX_DEPTH"   )->asInt   ());
 	Model->setMinSampleCount           (Parameters("MIN_SAMPLES" )->asInt   ());
@@ -446,7 +438,7 @@ Ptr<StatModel> COpenCV_ML_DTrees::Get_Model(void)
 //---------------------------------------------------------
 COpenCV_ML_Boost::COpenCV_ML_Boost(void)
 {
-	Set_Name		(_TL("Boosting Classification (OpenCV)"));
+	Set_Name		(CSG_String(Get_Model_Name()) + " " + _TL("Classification"));
 
 	Set_Author		("O.Conrad (c) 2016");
 
@@ -454,8 +446,6 @@ COpenCV_ML_Boost::COpenCV_ML_Boost(void)
 		"Integration of the OpenCV Machine Learning library for "
 		"Boosted Trees classification of gridded features."
 	));
-
-	Add_Reference(SG_T("http://docs.opencv.org"), SG_T("Open Source Computer Vision"));
 
 	//-----------------------------------------------------
 	Parameters.Add_Int("MODEL_TRAIN",
@@ -467,7 +457,7 @@ COpenCV_ML_Boost::COpenCV_ML_Boost(void)
 	Parameters.Add_Double("MODEL_TRAIN",
 		"WGT_TRIM_RATE"	, _TL("Weight Trim Rate"),
 		_TL("A threshold between 0 and 1 used to save computational time. Set this parameter to 0 to turn off this functionality."),
-		0.95, 0.0, true, 1.0, true
+		0.95, 0., true, 1., true
 	);
 
 	Parameters.Add_Choice("MODEL_TRAIN",
@@ -490,20 +480,20 @@ Ptr<DTrees> COpenCV_ML_Boost::Get_Trees(const CSG_String &File)
 
 Ptr<DTrees> COpenCV_ML_Boost::Get_Trees(void)
 {
-	Ptr<Boost>	Model	= Boost::create();
+	Ptr<Boost> Model = Boost::create();
 
-	Model->setWeakCount         (Parameters("WEAK_COUNT"   )->asInt   ());
-	Model->setWeightTrimRate    (Parameters("WGT_TRIM_RATE")->asDouble());
+	Model->setWeakCount     (Parameters("WEAK_COUNT"   )->asInt   ());
+	Model->setWeightTrimRate(Parameters("WGT_TRIM_RATE")->asDouble());
 
 	switch( Parameters("BOOST_TYPE")->asInt() )
 	{
-	default:	Model->setBoostType(Boost::DISCRETE);	break;
-	case  1:	Model->setBoostType(Boost::REAL    );	break;
-	case  2:	Model->setBoostType(Boost::LOGIT   );	break;
-	case  3:	Model->setBoostType(Boost::GENTLE  );	break;
+	default: Model->setBoostType(Boost::DISCRETE); break;
+	case  1: Model->setBoostType(Boost::REAL    ); break;
+	case  2: Model->setBoostType(Boost::LOGIT   ); break;
+	case  3: Model->setBoostType(Boost::GENTLE  ); break;
 	}
 
-//	Model->setPriors        (Mat());
+//	Model->setPriors(Mat());
 
 	return(	Model );
 }
@@ -516,7 +506,7 @@ Ptr<DTrees> COpenCV_ML_Boost::Get_Trees(void)
 //---------------------------------------------------------
 COpenCV_ML_RTrees::COpenCV_ML_RTrees(void)
 {
-	Set_Name		(_TL("Random Forest Classification (OpenCV)"));
+	Set_Name		(CSG_String(Get_Model_Name()) + " " + _TL("Classification"));
 
 	Set_Author		("O.Conrad (c) 2016");
 
@@ -524,8 +514,6 @@ COpenCV_ML_RTrees::COpenCV_ML_RTrees(void)
 		"Integration of the OpenCV Machine Learning library for "
 		"Random Forest classification of gridded features."
 	));
-
-	Add_Reference(SG_T("http://docs.opencv.org"), SG_T("Open Source Computer Vision"));
 
 	//-----------------------------------------------------
 	Parameters.Add_Int("MODEL_TRAIN",
@@ -543,7 +531,7 @@ Ptr<DTrees> COpenCV_ML_RTrees::Get_Trees(const CSG_String &File)
 
 Ptr<DTrees> COpenCV_ML_RTrees::Get_Trees(void)
 {
-	Ptr<RTrees>	Model	= RTrees::create();
+	Ptr<RTrees> Model = RTrees::create();
 
 	Model->setActiveVarCount(Parameters("ACTIVE_VARS")->asInt());
 
@@ -551,7 +539,7 @@ Ptr<DTrees> COpenCV_ML_RTrees::Get_Trees(void)
 
 	Model->setTermCriteria(TermCriteria(TermCriteria::MAX_ITER, 5, 0));
 
-//	Model->setPriors                (Mat());
+//	Model->setPriors(Mat());
 
 	return(	Model );
 }
@@ -566,7 +554,7 @@ Ptr<DTrees> COpenCV_ML_RTrees::Get_Trees(void)
 //---------------------------------------------------------
 enum E_ANN_ACTIVATION
 {
-	ANN_ACTIVATION_IDENTITY	= 0,
+	ANN_ACTIVATION_IDENTITY = 0,
 	ANN_ACTIVATION_SIGMOID,
 	ANN_ACTIVATION_GAUSSIAN
 };
@@ -587,7 +575,7 @@ enum E_ANN_PROPAGATION
 COpenCV_ML_ANN::COpenCV_ML_ANN(void)
 	: COpenCV_ML(false)
 {
-	Set_Name		(_TL("Artificial Neural Network Classification (OpenCV)"));
+	Set_Name		(CSG_String(Get_Model_Name()) + " " + _TL("Classification"));
 
 	Set_Author		("O.Conrad (c) 2016, L.Piras (c) 2013");
 
@@ -595,8 +583,6 @@ COpenCV_ML_ANN::COpenCV_ML_ANN(void)
 		"Integration of the OpenCV Machine Learning library for "
 		"Artificial Neural Network classification of gridded features."
 	));
-
-	Add_Reference(SG_T("http://docs.opencv.org"), SG_T("Open Source Computer Vision"));
 
 	//-----------------------------------------------------
 	Parameters.Add_Int("MODEL_TRAIN",
@@ -608,7 +594,7 @@ COpenCV_ML_ANN::COpenCV_ML_ANN(void)
 	Parameters.Add_Int("MODEL_TRAIN",
 		"ANN_NEURONS"		, _TL("Number of Neurons"),
 		_TL("You can specify the number of neurons in each layer of the network."),
-		3, 1, true
+		5, 1, true
 	);
 
 	Parameters.Add_Int("MODEL_TRAIN",
@@ -620,7 +606,7 @@ COpenCV_ML_ANN::COpenCV_ML_ANN(void)
 	Parameters.Add_Double("MODEL_TRAIN",
 		"ANN_EPSILON"		, _TL("Error Change (Epsilon)"),
 		_TL("Termination criteria of the training algorithm. You can specify how much the error could change between the iterations to make the algorithm continue (epsilon)."),
-		FLT_EPSILON, 0.0, true
+		FLT_EPSILON, 0., true
 	);
 
 	Parameters.Add_Choice("MODEL_TRAIN",
@@ -633,8 +619,8 @@ COpenCV_ML_ANN::COpenCV_ML_ANN(void)
 		), 1
 	);
  
-	Parameters.Add_Double("ANN_ACTIVATION", "ANN_ACT_ALPHA", _TL("Function's Alpha"), _TL(""), 1.0);
-	Parameters.Add_Double("ANN_ACTIVATION", "ANN_ACT_BETA" , _TL("Function's Beta" ), _TL(""), 1.0);
+	Parameters.Add_Double("ANN_ACTIVATION", "ANN_ACT_ALPHA", _TL("Function's Alpha"), _TL(""), 1.);
+	Parameters.Add_Double("ANN_ACTIVATION", "ANN_ACT_BETA" , _TL("Function's Beta" ), _TL(""), 1.);
 
 	Parameters.Add_Choice("MODEL_TRAIN",
 		"ANN_PROPAGATION"	, _TL("Training Method"),
@@ -695,19 +681,19 @@ Ptr<StatModel> COpenCV_ML_ANN::Get_Model(const CSG_String &File)
 //---------------------------------------------------------
 Ptr<StatModel> COpenCV_ML_ANN::Get_Model(void)
 {
-	Ptr<ANN_MLP>	Model	= ANN_MLP::create();
+	Ptr<ANN_MLP> Model = ANN_MLP::create();
 
 	//-----------------------------------------------------
 	Mat_<int> layer_sizes(1, 2 + Parameters("ANN_LAYERS")->asInt());
 
-	layer_sizes(0, 0)	= Get_Feature_Count();	// The first layer needs the same size (number of neurons) as the number of columns in the training data
+	layer_sizes(0, 0) = Get_Feature_Count();	// The first layer needs the same size (number of neurons) as the number of columns in the training data
 
 	for(int i=1; i<layer_sizes.cols-1; i++)
 	{
-		layer_sizes(0, i)	= Parameters("ANN_NEURONS")->asInt();
+		layer_sizes(0, i) = Parameters("ANN_NEURONS")->asInt();
 	}
 
-	layer_sizes(0, layer_sizes.cols-1)	= Get_Class_Count();	// The last layer needs the same size (number of neurons) as the number of output columns
+	layer_sizes(0, layer_sizes.cols-1) = Get_Class_Count();	// The last layer needs the same size (number of neurons) as the number of output columns
 
 	Model->setLayerSizes(layer_sizes);
 
@@ -765,21 +751,21 @@ Ptr<StatModel> COpenCV_ML_ANN::Get_Model(void)
 //---------------------------------------------------------
 Ptr<TrainData> COpenCV_ML_ANN::Get_Training(const CSG_Matrix &Data)
 {
-	Mat	Samples (Data.Get_NRows(), Data.Get_NCols() - 1, CV_32F);
-	Mat	Response(Data.Get_NRows(), Get_Class_Count()   , CV_32F);
+	Mat	Samples (Data.Get_NY(), Data.Get_NX() - 1, CV_32F);
+	Mat	Response(Data.Get_NY(), Get_Class_Count(), CV_32F);
 
 	for(int i=0; i<Data.Get_NRows(); i++)
 	{
-		int	j, k	= (int)Data[i][Data.Get_NCols() - 1];
+		int j, k = (int)Data[i][Data.Get_NCols() - 1];
 
 		for(j=0; j<Response.cols; j++)
 		{
-			Response.at<float>(i, j)	= j == k ? 1.f : 0.f;
+			Response.at<float>(i, j) = j == k ? 1.f : 0.f;
 		}
 
 		for(j=0; j<Samples.cols; j++)
 		{
-			Samples.at<float>(i, j)	= (float)Data[i][j];
+			Samples.at<float>(i, j) = (float)Data[i][j];
 		}
 	}
 
@@ -797,7 +783,7 @@ Ptr<TrainData> COpenCV_ML_ANN::Get_Training(const CSG_Matrix &Data)
 COpenCV_ML_LogR::COpenCV_ML_LogR(void)
 	: COpenCV_ML(false)
 {
-	Set_Name		(_TL("Logistic Regression (OpenCV)"));
+	Set_Name		(CSG_String(Get_Model_Name()) + " " + _TL("Classification"));
 
 	Set_Author		("O.Conrad (c) 2019");
 
@@ -820,8 +806,6 @@ COpenCV_ML_LogR::COpenCV_ML_LogR(void)
 		"methods with <i>Batch Gradient Descent</i> or the <i>Mini-Batch Gradient "
 		"Descent</i>. "
 	));
-
-	Add_Reference(SG_T("http://docs.opencv.org"), SG_T("Open Source Computer Vision"));
 
 	//-----------------------------------------------------
 	Parameters.Add_Double("MODEL_TRAIN",
@@ -889,7 +873,7 @@ Ptr<StatModel> COpenCV_ML_LogR::Get_Model(const CSG_String &File)
 //---------------------------------------------------------
 Ptr<StatModel> COpenCV_ML_LogR::Get_Model(void)
 {
-	Ptr<LogisticRegression>	Model	= LogisticRegression::create();
+	Ptr<LogisticRegression> Model = LogisticRegression::create();
 
 	//-----------------------------------------------------
 	Model->setLearningRate(Parameters("LOGR_LEARNING_RATE")->asDouble());
@@ -920,16 +904,16 @@ Ptr<StatModel> COpenCV_ML_LogR::Get_Model(void)
 //---------------------------------------------------------
 Ptr<TrainData> COpenCV_ML_LogR::Get_Training(const CSG_Matrix &Data)
 {
-	Mat	Samples (Data.Get_NRows(), Data.Get_NCols() - 1, CV_32F);
-	Mat	Response(Data.Get_NRows(),                    1, CV_32F);
+	Mat	Samples (Data.Get_NY(), Data.Get_NX() - 1, CV_32F);
+	Mat	Response(Data.Get_NY(),                 1, CV_32F);
 
-	for(int i=0; i<Data.Get_NRows(); i++)
+	for(int i=0; i<Data.Get_NY(); i++)
 	{
-		Response.at<float>(i)	= (float)Data[i][Data.Get_NCols() - 1];
+		Response.at<float>(i) = (float)Data[i][Data.Get_NCols() - 1];
 
 		for(int j=0; j<Samples.cols; j++)
 		{
-			Samples.at<float>(i, j)	= (float)Data[i][j];
+			Samples.at<float>(i, j) = (float)Data[i][j];
 		}
 	}
 

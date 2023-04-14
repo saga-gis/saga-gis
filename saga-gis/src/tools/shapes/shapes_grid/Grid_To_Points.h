@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Grid_To_Points_H
 #define HEADER_INCLUDED__Grid_To_Points_H
 
@@ -71,7 +59,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -85,19 +73,20 @@ class CGrid_To_Points : public CSG_Tool_Grid
 {
 public:
 	CGrid_To_Points(void);
-	virtual ~CGrid_To_Points(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Vectorization") );	}
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Vectorization") );	}
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool		On_Execute				(void);
 
 
 private:
 
-	bool					is_Contained	(double x, double y, CSG_Shapes *pPolygons);
+	bool				Get_Mask				(CSG_Grid &Mask, CSG_Parameter_Grid_List *pGrids, CSG_Shapes *pPolygons);
 
 };
 

@@ -1632,6 +1632,7 @@ SAGA_API_DLL_EXPORT int						SG_UI_Msg_Reset				(void);
 SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add				(const CSG_String &Message, bool bNewLine, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
 SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add_Error			(const CSG_String &Message);
 SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add_Execution		(const CSG_String &Message, bool bNewLine, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
+SAGA_API_DLL_EXPORT void					SG_UI_Msg_Flush				(void);
 
 SAGA_API_DLL_EXPORT void					SG_UI_ProgressAndMsg_Lock	(bool bOn);
 SAGA_API_DLL_EXPORT void					SG_UI_ProgressAndMsg_Reset	(void);

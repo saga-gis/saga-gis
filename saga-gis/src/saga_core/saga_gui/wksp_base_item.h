@@ -151,12 +151,16 @@ public:
 	CWKSP_Base_Item(void);
 	virtual ~CWKSP_Base_Item(void);
 
-	virtual TWKSP_Item				Get_Type				(void)	{	return( WKSP_ITEM_Undefined );	}
+	virtual TWKSP_Item				Get_Type				(void)       { return( WKSP_ITEM_Undefined ); }
 
-	virtual wxString				Get_Name				(void)	{	return( wxEmptyString );		}
-	virtual wxString				Get_Description			(void)	{	return( wxEmptyString );		}
+	virtual wxString				Get_Name				(void)       { return( wxEmptyString ); }
+	virtual wxString				Get_Description			(void)       { return( wxEmptyString ); }
 
-	virtual wxMenu *				Get_Menu				(void)	{	return( NULL );					}
+	const wxString &				Get_Unique_ID			(void);
+	const wxString &				Set_Unique_ID			(const wxString &ID);
+	bool							Cmp_Unique_ID			(const wxString &ID);
+
+	virtual wxMenu *				Get_Menu				(void)       { return( NULL ); }
 
 	virtual bool					On_Command				(int Cmd_ID);
 	virtual bool					On_Command_UI			(wxUpdateUIEvent &event);
@@ -168,12 +172,13 @@ public:
 	virtual void					Parameters_Changed		(void);
 
 	class CWKSP_Base_Control *		Get_Control				(void);
-	class CWKSP_Base_Manager *		Get_Manager				(void)	{	return( m_pManager );	}
+	class CWKSP_Base_Manager *		Get_Manager				(void)       { return( m_pManager ); }
 
-	int								Get_ID					(void)	{	return( m_ID );			}
+	int								Get_ID					(void)       { return( m_ID ); }
 	int								Get_Index				(void);
 
-	bool							is_Manager				(void)	{	return( m_bManager );	}
+	virtual bool					is_Manager				(void) const { return( false ); }
+
 	bool							is_Selected				(void);
 
 	static wxString					Get_Type_Name			(TWKSP_Item Type);
@@ -194,9 +199,9 @@ protected:
 
 private:
 
-	bool							m_bManager;
-
 	int								m_ID;
+
+	wxString						m_Unique_ID;
 
 	CWKSP_Base_Manager				*m_pManager;
 

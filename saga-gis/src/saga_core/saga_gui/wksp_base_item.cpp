@@ -113,9 +113,8 @@ wxString CWKSP_Base_Item::Get_Type_Name(TWKSP_Item Type)
 //---------------------------------------------------------
 CWKSP_Base_Item::CWKSP_Base_Item(void)
 {
-	m_bManager	= false;
-	m_pManager	= NULL;
-	m_ID		= 0;
+	m_pManager = NULL;
+	m_ID       = 0;
 
 	m_Parameters.Create(this, _TL(""));
 	m_Parameters.Set_Callback_On_Parameter_Changed(&Parameter_Callback);
@@ -143,15 +142,13 @@ CWKSP_Base_Item::~CWKSP_Base_Item(void)
 //---------------------------------------------------------
 int CWKSP_Base_Item::Get_Index(void)
 {
-	int		iItem;
-
 	if( m_pManager )
 	{
-		for(iItem=0; iItem<m_pManager->Get_Count(); iItem++)
+		for(int i=0; i<m_pManager->Get_Count(); i++)
 		{
-			if( this == m_pManager->Get_Item(iItem) )
+			if( this == m_pManager->Get_Item(i) )
 			{
-				return( iItem );
+				return( i );
 			}
 		}
 	}
@@ -164,9 +161,6 @@ CWKSP_Base_Control * CWKSP_Base_Item::Get_Control(void)
 {
 	switch( Get_Type() )
 	{
-    default:
-        return( NULL );
-
 	case WKSP_ITEM_Tool_Manager      :
 	case WKSP_ITEM_Tool_Group        :
 	case WKSP_ITEM_Tool_Library      :
@@ -195,6 +189,9 @@ CWKSP_Base_Control * CWKSP_Base_Item::Get_Control(void)
 	case WKSP_ITEM_Map_Graticule     :
 	case WKSP_ITEM_Map_BaseMap       :
 		return( g_pMap_Ctrl );
+
+	default:
+		return( NULL );
 	}
 }
 
@@ -204,6 +201,44 @@ bool CWKSP_Base_Item::is_Selected(void)
 	CWKSP_Base_Control	*pControl	= Get_Control();
 
 	return( pControl != NULL && pControl->IsSelected(GetId()) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#include <wx/datetime.h>
+
+//---------------------------------------------------------
+const wxString & CWKSP_Base_Item::Get_Unique_ID(void)
+{
+	static int ID = 0;
+
+	if( m_Unique_ID.IsEmpty() ) // generate a unique id, might become more sophisticated...
+	{
+		m_Unique_ID = wxDateTime::Now().GetValue().ToString() + wxString::Format("%04d", ++ID);
+	}
+
+	return( m_Unique_ID  );
+}
+
+//---------------------------------------------------------
+const wxString & CWKSP_Base_Item::Set_Unique_ID(const wxString &ID)
+{
+	if( !ID.IsEmpty() )
+	{
+		m_Unique_ID = ID;
+	}
+
+	return( Get_Unique_ID() );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Base_Item::Cmp_Unique_ID(const wxString &ID)
+{
+	return( m_Unique_ID.Cmp(ID) == 0 );
 }
 
 

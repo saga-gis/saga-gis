@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: wksp_data_item.h 1246 2011-11-25 13:42:38Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef _HEADER_INCLUDED__SAGA_GUI__wksp_data_item_H
 #define _HEADER_INCLUDED__SAGA_GUI__wksp_data_item_H
 
@@ -94,9 +82,9 @@ public:
 
 	virtual wxString				Get_Name				(void);
 
-	CSG_Data_Object *				Get_Object				(void)	{	return( m_pObject );	}
+	CSG_Data_Object *				Get_Object				(void)       { return( m_pObject     ); }
 
-	virtual CSG_Parameters *		Get_Parameters			(void)	{	return( &m_Parameters );	}
+	virtual CSG_Parameters *		Get_Parameters			(void)       { return( &m_Parameters ); }
 
 	virtual void					Parameters_Changed		(void);
 	bool							DataObject_Changed		(void);
@@ -105,7 +93,7 @@ public:
 	bool							Save					(const wxString &File_Name);
 
 	virtual bool					Show					(int Flags = 0)	= 0;
-	virtual bool					Update					(CWKSP_Data_Item *pChanged)		{	return( pChanged == this );	}
+	virtual bool					Update					(CWKSP_Data_Item *pChanged) { return( pChanged == this ); }
 
 	virtual bool					View_Opened				(class MDI_ChildFrame *pView);
 	virtual bool					View_Closes				(class MDI_ChildFrame *pView);

@@ -56,7 +56,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double	CSoil_Water_Capacity::s_Coefficients[4][12]	= {	// pedotransfer coefficients developed by Hodnett and Tomasella (2002)
+double s_Coefficients[4][12] = { // pedotransfer coefficients developed by Hodnett and Tomasella (2002)
 	{ -2.294,  0.   , -3.526,  0.   ,  2.44 ,   0.   , -0.076, -11.331, 0.019, 0.    ,  0.   ,  0.     }, // ln(alpha)
 	{ 62.986,  0.   ,  0.   , -0.833, -0.529,   0.   ,  0.   ,   0.593, 0.   , 0.007 , -0.014,  0.     }, // ln(n)
 	{ 81.799,  0.   ,  0.   ,  0.099,  0.   , -31.42 ,  0.018,   0.451, 0.   , 0     ,  0.   , -5.e-04 }, // theta_s
@@ -263,29 +263,27 @@ bool CSoil_Water_Capacity::On_Execute(void)
 //---------------------------------------------------------
 bool CSoil_Water_Capacity::Get_HodnettTomasella(void)
 {
-	double	Scale	= Parameters("UNIT")->asInt() == 1 ? 100. : 1.;
+	double Scale   = Parameters("UNIT")->asInt() == 1 ? 100. : 1.;
 
-	double	psi_FC	= Parameters("PSI_FC" )->asDouble() / 10.;	// [hPa] -> [kPa]
-	double	psi_PWP	= Parameters("PSI_PWP")->asDouble() / 10.;	// [hPa] -> [kPa]
+	double psi_FC  = Parameters("PSI_FC" )->asDouble() / 10.;	// [hPa] -> [kPa]
+	double psi_PWP = Parameters("PSI_PWP")->asDouble() / 10.;	// [hPa] -> [kPa]
 
-	bool	bAdjust	= Parameters("ADJUST")->asBool();
+	bool   bAdjust = Parameters("ADJUST")->asBool();
 
-	//-----------------------------------------------------
 	m_Coefficients.Create(12, 4);
 
-	switch( Parameters("FUNCTION")->asInt() )
+	if( Parameters("USERDEF")->asBool() == false )
 	{
-	default: {
 		for(int j=0; j<12; j++)
 		{
 			for(int i=0; i<4; i++)
 			{
-				m_Coefficients[i][j]	= s_Coefficients[i][j];
+				m_Coefficients[i][j] = s_Coefficients[i][j];
 			}
 		}
-		break; }
-
-	case  1: {
+	}
+	else
+	{
 		CSG_Table &a = *Parameters("COEFFICIENTS")->asTable();
 
 		if( a.Get_Count() != 12 )
@@ -299,10 +297,9 @@ bool CSoil_Water_Capacity::Get_HodnettTomasella(void)
 		{
 			for(int i=0; i<4; i++)
 			{
-				m_Coefficients[i][j]	= a[j][i];
+				m_Coefficients[i][j] = a[j][i];
 			}
 		}
-		break; }
 	}
 
 	//-----------------------------------------------------
@@ -334,9 +331,9 @@ bool CSoil_Water_Capacity::Get_HodnettTomasella(void)
 		#undef CREATE_LAYERS
 
 		//-------------------------------------------------
-		for(sLong z=0; z<Layers.Get_Count() && Process_Get_Okay(); z++)
+		for(int z=0; z<(int)Layers.Get_Count() && Process_Get_Okay(); z++)
 		{
-			Process_Set_Text("%s [%lld/%lld]", _TL("processing"), z + 1, Layers.Get_Count());
+			Process_Set_Text("%s [%d/%d]", _TL("processing"), z + 1, (int)Layers.Get_Count());
 
 			for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 			{
@@ -362,16 +359,16 @@ bool CSoil_Water_Capacity::Get_HodnettTomasella(void)
 					}
 
 					//-------------------------------------
-					double	Sand = pSand->asDouble(x, y, z);
-					double	Silt = pSilt->asDouble(x, y, z);
-					double	Clay = pClay->asDouble(x, y, z);
-					double	Bulk = pBulk->asDouble(x, y, z);
-					double	Corg = pCorg->asDouble(x, y, z);
-					double	CEC  = pCEC ->asDouble(x, y, z);
-					double	pH   = ppH  ->asDouble(x, y, z);
+					double Sand = pSand->asDouble(x, y, z);
+					double Silt = pSilt->asDouble(x, y, z);
+					double Clay = pClay->asDouble(x, y, z);
+					double Bulk = pBulk->asDouble(x, y, z);
+					double Corg = pCorg->asDouble(x, y, z);
+					double CEC  = pCEC ->asDouble(x, y, z);
+					double pH   = ppH  ->asDouble(x, y, z);
 
 					//-------------------------------------
-					double	alpha, n, theta_s, theta_r;
+					double alpha, n, theta_s, theta_r;
 
 					if( !Get_HodnettTomasella(alpha, n, theta_s, theta_r, Sand, Silt, Clay, Bulk, Corg, CEC, pH, bAdjust) )
 					{
@@ -428,16 +425,16 @@ bool CSoil_Water_Capacity::Get_HodnettTomasella(void)
 				}
 
 				//-----------------------------------------
-				double	Sand = pSand ? pSand->asDouble(x, y) : cSand;
-				double	Silt = pSilt ? pSilt->asDouble(x, y) : cSilt;
-				double	Clay = pClay ? pClay->asDouble(x, y) : cClay;
-				double	Bulk = pBulk ? pBulk->asDouble(x, y) : cBulk;
-				double	Corg = pCorg ? pCorg->asDouble(x, y) : cCorg;
-				double	CEC  = pCEC  ? pCEC ->asDouble(x, y) : cCEC ;
-				double	pH   = ppH   ? ppH  ->asDouble(x, y) : cpH  ;
+				double Sand = pSand ? pSand->asDouble(x, y) : cSand;
+				double Silt = pSilt ? pSilt->asDouble(x, y) : cSilt;
+				double Clay = pClay ? pClay->asDouble(x, y) : cClay;
+				double Bulk = pBulk ? pBulk->asDouble(x, y) : cBulk;
+				double Corg = pCorg ? pCorg->asDouble(x, y) : cCorg;
+				double CEC  = pCEC  ? pCEC ->asDouble(x, y) : cCEC ;
+				double pH   = ppH   ? ppH  ->asDouble(x, y) : cpH  ;
 
 				//-----------------------------------------
-				double	alpha, n, theta_s, theta_r;
+				double alpha, n, theta_s, theta_r;
 
 				if( !Get_HodnettTomasella(alpha, n, theta_s, theta_r, Sand, Silt, Clay, Bulk, Corg, CEC, pH, bAdjust) )
 				{
@@ -523,12 +520,12 @@ inline bool CSoil_Water_Capacity::Get_HodnettTomasella(double &alpha, double &n,
 //---------------------------------------------------------
 bool CSoil_Water_Capacity::Get_Toth(void)
 {
-	double	Scale	= Parameters("UNIT")->asInt() == 1 ? 100. : 1.;
+	double Scale = Parameters("UNIT")->asInt() == 1 ? 100. : 1.;
 
 	//-----------------------------------------------------
 	if( m_bGrids )
 	{
-		CSG_Table	Layers;
+		CSG_Table Layers;
 
 		#define CHECK_LAYERS(pGrids) if( pGrids && pGrids->Get_NZ() && (!Layers.Get_Count() || Layers.Get_Count() > pGrids->Get_NZ()) ) { Layers.Create(pGrids->Get_Attributes()); }
 		CSG_Grids *pSilt = Parameters("SILT"  )->asGrids();	CHECK_LAYERS(pSilt);
@@ -549,9 +546,9 @@ bool CSoil_Water_Capacity::Get_Toth(void)
 		#undef CREATE_LAYERS
 
 		//-------------------------------------------------
-		for(sLong z=0; z<Layers.Get_Count() && Process_Get_Okay(); z++)
+		for(int z=0; z<(int)Layers.Get_Count() && Process_Get_Okay(); z++)
 		{
-			Process_Set_Text("%s [%lld/%lld]", _TL("processing"), z + 1, Layers.Get_Count());
+			Process_Set_Text("%s [%d/%d]", _TL("processing"), z + 1, (int)Layers.Get_Count());
 
 			for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 			{
@@ -571,11 +568,11 @@ bool CSoil_Water_Capacity::Get_Toth(void)
 						SET_NODATA(x, y, z);
 					}
 
-					double	Silt = pSilt->asDouble(x, y, z);
-					double	Clay = pClay->asDouble(x, y, z);
-					double	Corg = pCorg->asDouble(x, y, z);
+					double Silt = pSilt->asDouble(x, y, z);
+					double Clay = pClay->asDouble(x, y, z);
+					double Corg = pCorg->asDouble(x, y, z);
 
-					double	FC, PWP;
+					double FC, PWP;
 
 					if( !Get_Toth(FC, PWP, Silt, Clay, Corg) )
 					{
@@ -621,11 +618,11 @@ bool CSoil_Water_Capacity::Get_Toth(void)
 				}
 
 				//-----------------------------------------
-				double	Silt = pSilt ? pSilt->asDouble(x, y) : cSilt;
-				double	Clay = pClay ? pClay->asDouble(x, y) : cClay;
-				double	Corg = pCorg ? pCorg->asDouble(x, y) : cCorg;
+				double Silt = pSilt ? pSilt->asDouble(x, y) : cSilt;
+				double Clay = pClay ? pClay->asDouble(x, y) : cClay;
+				double Corg = pCorg ? pCorg->asDouble(x, y) : cCorg;
 
-				double	FC, PWP;
+				double FC, PWP;
 
 				if( !Get_Toth(FC, PWP, Silt, Clay, Corg) )
 				{

@@ -78,6 +78,10 @@ enum
 //---------------------------------------------------------
 COpenCV_ML::COpenCV_ML(bool bProbability)
 {
+	m_bNormalize = false;
+
+	Add_Reference("https://docs.opencv.org/", SG_T("Open Source Computer Vision"));
+
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List("",
 		"FEATURES"		, _TL("Features"),
@@ -130,6 +134,12 @@ COpenCV_ML::COpenCV_ML(bool bProbability)
 	Parameters.Add_Node("",
 		"MODEL_TRAIN"	, _TL("Model Training"),
 		_TL("")
+	);
+
+	Parameters.Add_Table("MODEL_TRAIN",
+		"TRAIN_SAMPLES"	, _TL("Training Samples"),
+		_TL("Provide a class identifier in the first field followed by sample data corresponding to the input feature grids."),
+		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes("MODEL_TRAIN",
@@ -189,7 +199,7 @@ int COpenCV_ML::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 
 	if( pParameter->Cmp_Identifier("MODEL_LOAD") )
 	{
-		bool	bOkay	= Check_Model_File(pParameter->asString());
+		bool bOkay = Check_Model_File(pParameter->asString());
 
 		if( !bOkay )
 		{
@@ -199,6 +209,16 @@ int COpenCV_ML::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 		pParameters->Set_Enabled("MODEL_TRAIN", !bOkay);
 		pParameters->Set_Enabled("RGB_COLORS" , !bOkay);
 		pParameters->Set_Enabled("CLASSES_LUT", !bOkay);
+	}
+
+	if( pParameter->Cmp_Identifier("TRAIN_SAMPLES") )
+	{
+		pParameters->Set_Enabled("TRAIN_AREAS", pParameter->asTable() == NULL);
+	}
+
+	if( pParameter->Cmp_Identifier("TRAIN_AREAS") )
+	{
+		pParameters->Set_Enabled("TRAIN_SAMPLES", pParameter->asShapes() == NULL);
 	}
 
 	if( pParameter->Cmp_Identifier("TRAIN_AREAS") )
@@ -218,10 +238,10 @@ int COpenCV_ML::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 //---------------------------------------------------------
 bool COpenCV_ML::_Initialize(void)
 {
-	m_pFeatures		= Parameters("FEATURES"   )->asGridList();
-	m_pClasses		= Parameters("CLASSES"    )->asGrid();
-	m_pProbability	= Parameters("PROBABILITY") ? Parameters("PROBABILITY")->asGrid() : NULL;
-	m_bNormalize	= Parameters("NORMALIZE"  )->asBool();
+	m_pFeatures    = Parameters("FEATURES"   )->asGridList();
+	m_pClasses     = Parameters("CLASSES"    )->asGrid();
+	m_pProbability = Parameters("PROBABILITY") ? Parameters("PROBABILITY")->asGrid() : NULL;
+	m_bNormalize   = Parameters("NORMALIZE"  )->asBool();
 
 	//-----------------------------------------------------
 	m_pClasses->Set_NoData_Value(-1.);
@@ -231,11 +251,11 @@ bool COpenCV_ML::_Initialize(void)
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			bool	bNoData	= false;
+			bool bNoData = false;
 
 			for(int i=0; !bNoData && i<m_pFeatures->Get_Grid_Count(); i++)
 			{
-				bNoData	= m_pFeatures->Get_Grid(i)->is_NoData(x, y);
+				bNoData = m_pFeatures->Get_Grid(i)->is_NoData(x, y);
 			}
 
 			m_pClasses->Set_Value(x, y, bNoData ? -1. : 0.);
@@ -249,29 +269,21 @@ bool COpenCV_ML::_Initialize(void)
 //---------------------------------------------------------
 bool COpenCV_ML::_Finalize(void)
 {
-	m_pClasses->Set_Name(Get_Name());
-
-	if( m_pProbability )
-	{
-		m_pProbability->Set_Name(Get_Name() + " [" + _TL("Probability") + "]");
-	}
-
-	//-----------------------------------------------------
 	if( m_Classes.Get_Count() > 0 )
 	{
-		CSG_Parameter	*pLUT	= DataObject_Get_Parameter(m_pClasses, "LUT");
+		CSG_Parameter *pLUT = DataObject_Get_Parameter(m_pClasses, "LUT");
 
 		if( pLUT )
 		{
-			bool	bRGB	= m_pFeatures->Get_Grid_Count() >= 3 && Parameters("RGB_COLORS")->asBool();
+			bool bRGB = m_pFeatures->Get_Grid_Count() >= 3 && Parameters("RGB_COLORS")->asBool();
 
 			for(int i=0; i<m_Classes.Get_Count(); i++)
 			{
-				CSG_Table_Record	*pClass	= pLUT->asTable()->Get_Record(i);
+				CSG_Table_Record *pClass = pLUT->asTable()->Get_Record(i);
 
 				if( !pClass )
 				{
-					(pClass	= pLUT->asTable()->Add_Record())->Set_Value(0, SG_Color_Get_Random());
+					(pClass = pLUT->asTable()->Add_Record())->Set_Value(0, SG_Color_Get_Random());
 				}
 
 				pClass->Set_Value(1, m_Classes[i].asString(1));
@@ -284,9 +296,9 @@ bool COpenCV_ML::_Finalize(void)
 					#define SET_COLOR_COMPONENT(c, i)	c = 127 + 127 * (m_bNormalize ? c : (c - m_pFeatures->Get_Grid(i)->Get_Mean()) / m_pFeatures->Get_Grid(i)->Get_StdDev());\
 						if( c < 0 ) c = 0; else if( c > 255 ) c = 255;
 
-					double	r = m_Classes[i].asDouble(CLASS_R) / m_Classes[i].asInt(CLASS_COUNT); SET_COLOR_COMPONENT(r, 2);
-					double	g = m_Classes[i].asDouble(CLASS_G) / m_Classes[i].asInt(CLASS_COUNT); SET_COLOR_COMPONENT(g, 1);
-					double	b = m_Classes[i].asDouble(CLASS_B) / m_Classes[i].asInt(CLASS_COUNT); SET_COLOR_COMPONENT(b, 0);
+					double r = m_Classes[i].asDouble(CLASS_R) / m_Classes[i].asInt(CLASS_COUNT); SET_COLOR_COMPONENT(r, 2);
+					double g = m_Classes[i].asDouble(CLASS_G) / m_Classes[i].asInt(CLASS_COUNT); SET_COLOR_COMPONENT(g, 1);
+					double b = m_Classes[i].asDouble(CLASS_B) / m_Classes[i].asInt(CLASS_COUNT); SET_COLOR_COMPONENT(b, 0);
 
 					pClass->Set_Value(0, SG_GET_RGB(r, g, b));
 				}
@@ -301,7 +313,7 @@ bool COpenCV_ML::_Finalize(void)
 		//-------------------------------------------------
 		if( Parameters("CLASSES_LUT")->asTable() )
 		{
-			CSG_Table	&LUT	= *Parameters("CLASSES_LUT")->asTable();
+			CSG_Table &LUT = *Parameters("CLASSES_LUT")->asTable();
 
 			LUT.Destroy();
 			LUT.Set_Name(m_pClasses->Get_Name());
@@ -310,7 +322,7 @@ bool COpenCV_ML::_Finalize(void)
 
 			for(int i=0; i<m_Classes.Get_Count(); i++)
 			{
-				CSG_Table_Record	&Class	= *LUT.Add_Record();
+				CSG_Table_Record &Class = *LUT.Add_Record();
 
 				Class.Set_Value(0, m_Classes[i].asInt   (0));
 				Class.Set_Value(1, m_Classes[i].asString(1));
@@ -318,6 +330,14 @@ bool COpenCV_ML::_Finalize(void)
 		}
 
 		m_Classes.Destroy();
+	}
+
+	//-----------------------------------------------------
+	m_pClasses->Set_Name(Get_Name());
+
+	if( m_pProbability )
+	{
+		m_pProbability->Set_Name(Get_Name() + " [" + _TL("Probability") + "]");
 	}
 
 	//-----------------------------------------------------
@@ -337,7 +357,7 @@ bool COpenCV_ML::Check_Model_File(const CSG_String &File)
 		return( false );
 	}
 	
-	CSG_MetaData	Model(File);
+	CSG_MetaData Model(File);
 
 	if( !Model.Load(File) || !Model.Cmp_Name("opencv_storage") || !Model("opencv_ml_" + CSG_String(Get_Model_ID())) )
 	{
@@ -357,9 +377,9 @@ bool COpenCV_ML::Check_Model_File(const CSG_String &File)
 //---------------------------------------------------------
 inline double COpenCV_ML::_Get_Feature(int x, int y, int iFeature)
 {
-	CSG_Grid	*pFeature	= m_pFeatures->Get_Grid(iFeature);
+	CSG_Grid *pFeature = m_pFeatures->Get_Grid(iFeature);
 
-	double	Feature	= pFeature->asDouble(x, y);
+	double Feature = pFeature->asDouble(x, y);
 
 	if( m_bNormalize )
 	{
@@ -422,105 +442,177 @@ bool COpenCV_ML::_Get_Training(CSG_Matrix &Data)
 	m_Classes.Add_Field("BLUE" , SG_DATATYPE_Double);	// CLASS_B
 
 	//-----------------------------------------------------
-	int	Field	= Parameters("TRAIN_CLASS")->asInt();
-
-	CSG_Shapes	Polygons, *pPolygons	= Parameters("TRAIN_AREAS")->asShapes();
-
-	if( pPolygons->Get_Type() != SHAPE_TYPE_Polygon )
+	if( Parameters("TRAIN_SAMPLES")->asTable() )
 	{
-		double	Buffer	= Parameters("TRAIN_BUFFER")->asDouble() / 2.;	// diameter, not radius!
+		CSG_Table *pSamples = Parameters("TRAIN_SAMPLES")->asTable();
 
-		if( Buffer <= 0. )
+		if( pSamples->Get_Field_Count() < m_pFeatures->Get_Grid_Count() + 1 )
 		{
-			Error_Set(_TL("buffer size must not be zero"));
+			Error_Set(_TL("Training samples have to provide a class identifier in the first field followed by a value for each feature."));
 
 			return( false );
 		}
 
-		Polygons.Create(SHAPE_TYPE_Polygon);
-		Polygons.Add_Field(pPolygons->Get_Field_Name(Field), pPolygons->Get_Field_Type(Field));
+		int Field = 0;
 
-		for(sLong iShape=0; iShape<pPolygons->Get_Count(); iShape++)
+		CSG_Index Index; pSamples->Set_Index(Index, Field);
+
+		CSG_String Label; CSG_Table_Record *pClass = NULL;
+
+		//-------------------------------------------------
+		for(sLong i=0, ID=0; i<pSamples->Get_Count(); i++)
 		{
-			CSG_Shape	*pShape		= pPolygons->Get_Shape(iShape);
-			CSG_Shape	*pBuffer	= Polygons.Add_Shape();
+			CSG_Table_Record *pSample = pSamples->Get_Record(Index[i]);
 
-			*pBuffer->Get_Value(0)	= *pShape->Get_Value(Field);
+			if( !pClass || Label.Cmp(pSample->asString(Field)) )
+			{
+				pClass = m_Classes.Add_Record();
 
-			SG_Shape_Get_Offset(pShape, Buffer, 5 * M_DEG_TO_RAD, pBuffer);
+				pClass->Set_Value(CLASS_ID  , ID++);
+				pClass->Set_Value(CLASS_NAME, Label = pSample->asString(Field));
+			}
+
+			_Get_Training(Data, pClass, pSample);
 		}
-
-		pPolygons = &Polygons; Field = 0;
 	}
 
 	//-----------------------------------------------------
-	pPolygons->Set_Index(Field, TABLE_INDEX_Ascending);
-
-	CSG_String			Label;
-	CSG_Table_Record	*pClass	= NULL;
-
-	//-----------------------------------------------------
-	for(sLong iPolygon=0, ID=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
+	else if( Parameters("TRAIN_AREAS")->asShapes() )
 	{
-		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape_byIndex(iPolygon);
+		CSG_Shapes Polygons, *pPolygons = Parameters("TRAIN_AREAS")->asShapes();
 
-		if( !pClass || Label.Cmp(pPolygon->asString(Field)) )
+		int Field = Parameters("TRAIN_CLASS")->asInt();
+
+		if( pPolygons->Get_Type() != SHAPE_TYPE_Polygon )
 		{
-			pClass	= m_Classes.Add_Record();
+			double Buffer = Parameters("TRAIN_BUFFER")->asDouble() / 2.;	// diameter, not radius!
 
-			pClass->Set_Value(CLASS_ID  , ID++);
-			pClass->Set_Value(CLASS_NAME, Label = pPolygon->asString(Field));
+			if( Buffer <= 0. )
+			{
+				Error_Set(_TL("buffer size must not be zero"));
+
+				return( false );
+			}
+
+			Polygons.Create(SHAPE_TYPE_Polygon);
+			Polygons.Add_Field(pPolygons->Get_Field_Name(Field), pPolygons->Get_Field_Type(Field));
+
+			for(sLong i=0; i<pPolygons->Get_Count(); i++)
+			{
+				CSG_Shape *pShape = pPolygons->Get_Shape(i), *pBuffer = Polygons.Add_Shape();
+
+				*pBuffer->Get_Value(0) = *pShape->Get_Value(Field);
+
+				SG_Shape_Get_Offset(pShape, Buffer, 5 * M_DEG_TO_RAD, pBuffer);
+			}
+
+			pPolygons = &Polygons; Field = 0;
 		}
 
-		_Get_Training(Data, pClass, pPolygon);
+		//-------------------------------------------------
+		CSG_Index Index; pPolygons->Set_Index(Index, Field);
+
+		CSG_String Label; CSG_Table_Record *pClass = NULL;
+
+		//-------------------------------------------------
+		for(sLong i=0, ID=0; i<pPolygons->Get_Count(); i++)
+		{
+			CSG_Shape_Polygon *pPolygon = pPolygons->Get_Shape(Index[i])->asPolygon();
+
+			if( !pClass || Label.Cmp(pPolygon->asString(Field)) )
+			{
+				pClass = m_Classes.Add_Record();
+
+				pClass->Set_Value(CLASS_ID  , ID++);
+				pClass->Set_Value(CLASS_NAME, Label = pPolygon->asString(Field));
+			}
+
+			_Get_Training(Data, pClass, pPolygon);
+		}
+
+		//-------------------------------------------------
+		for(sLong iClass=m_Classes.Get_Count()-1; iClass>=0; iClass--)
+		{
+			if( m_Classes[iClass].asInt(CLASS_COUNT) < 1 )
+			{
+				m_Classes.Del_Record(iClass);
+			}
+		}
 	}
 
 	//-----------------------------------------------------
-	for(sLong iClass=m_Classes.Get_Count()-1; iClass>=0; iClass--)
-	{
-		if( m_Classes[iClass].asInt(CLASS_COUNT) < 1 )
-		{
-			m_Classes.Del_Record(iClass);
-		}
-	}
-
 	return( m_Classes.Get_Count() > 1 );
+}
+
+//---------------------------------------------------------
+bool COpenCV_ML::_Get_Training(CSG_Matrix &Data, CSG_Table_Record *pClass, CSG_Table_Record *pSample)
+{
+	double r = 0., g = 0., b = 0.;
+
+	CSG_Vector z(1 + (sLong)m_pFeatures->Get_Grid_Count());
+
+	z[m_pFeatures->Get_Grid_Count()] = pClass->asInt(CLASS_ID);
+
+	for(int i=0; i<m_pFeatures->Get_Grid_Count(); i++)
+	{
+		double Feature = pSample->asDouble(i + 1);
+
+		if( m_bNormalize )
+		{
+			CSG_Grid *pFeature = m_pFeatures->Get_Grid(i);
+
+			Feature = (Feature - pFeature->Get_Mean()) / pFeature->Get_StdDev();
+		}
+
+		z[i] = Feature;
+	}
+
+	Data.Add_Row(z);
+
+	if( m_pFeatures->Get_Grid_Count() >= 3 )
+	{
+		r += z[2]; g += z[1]; b += z[0];
+	}
+
+	pClass->Add_Value(CLASS_COUNT, 1);
+	pClass->Add_Value(CLASS_R    , r);
+	pClass->Add_Value(CLASS_G    , g);
+	pClass->Add_Value(CLASS_B    , b);
+
+	return( true );
 }
 
 //---------------------------------------------------------
 bool COpenCV_ML::_Get_Training(CSG_Matrix &Data, CSG_Table_Record *pClass, CSG_Shape_Polygon *pArea)
 {
-	int	ID = pClass->asInt(CLASS_ID), n = 0; double	r = 0., g = 0., b = 0.;
+	int n = 0; double r = 0., g = 0., b = 0.;
 
-	int	xMin	= Get_System().Get_xWorld_to_Grid(pArea->Get_Extent().Get_XMin());	if( xMin <  0        ) xMin = 0;
-	int	xMax	= Get_System().Get_xWorld_to_Grid(pArea->Get_Extent().Get_XMax());	if( xMax >= Get_NX() ) xMax = Get_NX() - 1;
-	int	yMin	= Get_System().Get_yWorld_to_Grid(pArea->Get_Extent().Get_YMin());	if( yMin <  0        ) yMin = 0;
-	int	yMax	= Get_System().Get_yWorld_to_Grid(pArea->Get_Extent().Get_YMax());	if( yMax >= Get_NY() ) yMax = Get_NY() - 1;
+	int xMin = Get_System().Get_xWorld_to_Grid(pArea->Get_Extent().Get_XMin()); if( xMin <  0        ) { xMin = 0           ; }
+	int xMax = Get_System().Get_xWorld_to_Grid(pArea->Get_Extent().Get_XMax()); if( xMax >= Get_NX() ) { xMax = Get_NX() - 1; }
+	int yMin = Get_System().Get_yWorld_to_Grid(pArea->Get_Extent().Get_YMin()); if( yMin <  0        ) { yMin = 0           ; }
+	int yMax = Get_System().Get_yWorld_to_Grid(pArea->Get_Extent().Get_YMax()); if( yMax >= Get_NY() ) { yMax = Get_NY() - 1; }
 
-	for(int y=yMin; y<=yMax; y++)
+	for(int y=yMin; y<=yMax; y++) for(int x=xMin; x<=xMax; x++)
 	{
-		for(int x=xMin; x<=xMax; x++)
+		if( !m_pClasses->is_NoData(x, y) && pArea->Contains(Get_System().Get_Grid_to_World(x, y)) )
 		{
-			if( !m_pClasses->is_NoData(x, y) && pArea->Contains(Get_System().Get_Grid_to_World(x, y)) )
+			CSG_Vector z(1 + (sLong)m_pFeatures->Get_Grid_Count());
+
+			z[m_pFeatures->Get_Grid_Count()] = pClass->asInt(CLASS_ID);
+
+			for(int i=0; i<m_pFeatures->Get_Grid_Count(); i++)
 			{
-				CSG_Vector	z(1 + m_pFeatures->Get_Grid_Count());
-
-				z[m_pFeatures->Get_Grid_Count()]	= ID;
-
-				for(int i=0; i<m_pFeatures->Get_Grid_Count(); i++)
-				{
-					z[i]	= _Get_Feature(x, y, i);
-				}
-
-				Data.Add_Row(z);
-
-				if( m_pFeatures->Get_Grid_Count() >= 3 )
-				{
-					r += z[2]; g += z[1]; b += z[0];
-				}
-
-				n++;
+				z[i] = _Get_Feature(x, y, i);
 			}
+
+			Data.Add_Row(z);
+
+			if( m_pFeatures->Get_Grid_Count() >= 3 )
+			{
+				r += z[2]; g += z[1]; b += z[0];
+			}
+
+			n++;
 		}
 	}
 
@@ -545,12 +637,12 @@ bool COpenCV_ML::_Get_Training(CSG_Matrix &Data, CSG_Table_Record *pClass, CSG_S
 //---------------------------------------------------------
 Ptr<TrainData> COpenCV_ML::Get_Training(const CSG_Matrix &Data)
 {
-	Mat	Samples (Data.Get_NRows(), Data.Get_NCols() - 1, CV_32F);
-	Mat	Response(Data.Get_NRows(),                    1, CV_32S);
+	Mat	Samples (Data.Get_NY(), Data.Get_NX() - 1, CV_32F);
+	Mat	Response(Data.Get_NY(),                 1, CV_32S);
 
-	for(int i=0; i<Data.Get_NRows(); i++)
+	for(int i=0; i<Data.Get_NY(); i++)
 	{
-		Response.at<int>(i)	= (int)Data[i][Data.Get_NCols() - 1];
+		Response.at<int>(i)	= (int)Data[i][Data.Get_NX() - 1];
 
 		for(int j=0; j<Samples.cols; j++)
 		{
@@ -578,29 +670,29 @@ bool COpenCV_ML::On_Execute(void)
 		return( false );
 	}
 
-	Ptr<StatModel>	Model;
+	Ptr<StatModel> Model;
 
 	//-----------------------------------------------------
 	if( SG_File_Exists(Parameters("MODEL_LOAD")->asString()) )
 	{
-		Model	= Get_Model(Parameters("MODEL_LOAD")->asString());
+		Model = Get_Model(Parameters("MODEL_LOAD")->asString());
 	}
 	else
 	{
 		Process_Set_Text(_TL("preparing training"));
 
-		CSG_Matrix	Data;
+		CSG_Matrix Data;
 
 		if( !_Get_Training(Data) )
 		{
 			return( false );
 		}
 
-		Ptr<TrainData>	tData	= Get_Training(Data);	Data.Destroy();
+		Ptr<TrainData> tData = Get_Training(Data); Data.Destroy();
 
 		Process_Set_Text(_TL("training"));
 
-		Model	= Get_Model();
+		Model = Get_Model();
 
 		try
 		{
@@ -615,7 +707,7 @@ bool COpenCV_ML::On_Execute(void)
 
 		if( *Parameters("MODEL_SAVE")->asString() )
 		{
-			CSG_String	File(Parameters("MODEL_SAVE")->asString());
+			CSG_String File(Parameters("MODEL_SAVE")->asString());
 
 			Model->save(File.b_str());
 		}
