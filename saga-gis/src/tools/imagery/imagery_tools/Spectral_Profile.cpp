@@ -372,6 +372,18 @@ CSpectral_Profile_Interactive::CSpectral_Profile_Interactive(void)
 		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
+	Parameters.Add_Shapes("",
+		"SAMPLES"   , _TL("Collect Samples"),
+		_TL("In single profile mode use the right mouse button to label current profile and add it to this sample collection."),
+		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
+	);
+
+	Parameters.Add_Bool("SAMPLES",
+		"CONTINUE"  , _TL("Continue"),
+		_TL("Continue previously collected sample list. Expects that input band list did not change or is compatible with previous one."),
+		false
+	);
+
 	Parameters.Add_Choice("",
 		"COLLECT"   , _TL("Collect"),
 		_TL(""),
@@ -397,6 +409,19 @@ int CSpectral_Profile_Interactive::On_Parameter_Changed(CSG_Parameters *pParamet
 	return( CSG_Tool_Interactive::On_Parameter_Changed(pParameters, pParameter) );
 }
 
+//---------------------------------------------------------
+int CSpectral_Profile_Interactive::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("COLLECT") )
+	{
+		pParameters->Set_Enabled("SAMPLES", pParameter->asInt() == 0);
+	}
+
+	m_Profile.On_Parameters_Enable(pParameters, pParameter);
+
+	return( CSG_Tool_Interactive::On_Parameters_Enable(pParameters, pParameter) );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -417,7 +442,7 @@ bool CSpectral_Profile_Interactive::On_Execute(void)
 
 	//-----------------------------------------------------
 	m_pLocation = Parameters("LOCATION")->asShapes();
-	m_pLocation->Create(SHAPE_TYPE_Point, _TL("Profile Location"));
+	m_pLocation->Create(SHAPE_TYPE_Point, _TL("Spectral Profile Location"));
 	m_pLocation->Add_Field("Profile", SG_DATATYPE_Int);
 
 	CSG_Parameter_Grid_List *pBands = Parameters("BANDS")->asGridList();
@@ -437,6 +462,34 @@ bool CSpectral_Profile_Interactive::On_Execute(void)
 		Location.Set_Point(m_Profile.Get_Extent().Get_Center(), 0);
 
 		m_Profile.Add_Profile(Location.Get_Point(), false);
+	}
+
+	//-----------------------------------------------------
+	m_pSamples = m_bMultiple ? NULL : Parameters("SAMPLES")->asShapes();
+
+	if( m_pSamples )
+	{
+		if( m_pSamples->Get_Count() > 0 && Parameters("CONTINUE")->asBool() )
+		{
+			if( m_pSamples->Get_Field_Count() != m_pLocation->Get_Field_Count() )
+			{
+				Error_Fmt("%s [%d / %d]", _TL("Continue samples not allowed! Number of previously collected bands differs from current selection."),
+					m_pSamples->Get_Field_Count() - 1, m_pLocation->Get_Field_Count() - 1
+				);
+
+				return( false );
+			}
+		}
+		else
+		{
+			m_pSamples->Create(SHAPE_TYPE_Point, _TL("Spectral Profile Samples"));
+			m_pSamples->Add_Field("LABEL", SG_DATATYPE_String);
+
+			for(int i=0; i<pBands->Get_Grid_Count(); i++)
+			{
+				m_pSamples->Add_Field(pBands->Get_Grid(i)->Get_Name(), SG_DATATYPE_Double);
+			}
+		}
 	}
 
 	//-----------------------------------------------------
@@ -480,6 +533,25 @@ bool CSpectral_Profile_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_T
 			}
 
 			return( m_Profile.Update_Profile(m_bMultiple) );
+		}
+	}
+
+	if( Mode == TOOL_INTERACTIVE_RDOWN && m_pSamples )
+	{
+		CSG_Shape *pLocation = m_pLocation->Get_Shape(m_pLocation->Get_Count() - 1);
+
+		if( pLocation )
+		{
+			CSG_String Label; if( m_pSamples->Get_Count() > 0 ) { Label = m_pSamples->Get_Shape(m_pSamples->Get_Count() - 1)->asString(0); } else { Label = "Class 1"; }
+
+			CSG_Parameters dlg; dlg.Add_String("", "LABEL", _TL("Label"), _TL(""), Label);
+
+			if( SG_UI_Dlg_Parameters(&dlg, _TL("Add Sample")) )
+			{
+				CSG_Shape *pSample = m_pSamples->Add_Shape(pLocation);
+
+				pSample->Set_Value(0, dlg["LABEL"].asString());
+			}
 		}
 	}
 
