@@ -101,6 +101,12 @@ CSpectral_Profile::CSpectral_Profile(void)
 		PARAMETER_OUTPUT
 	);
 
+	Parameters.Add_Bool("PROFILE",
+		"SHOW"      , _TL("Show Diagram"),
+		_TL(""),
+		false
+	);
+
 	Parameters.Add_Choice("",
 		"RESAMPLING", _TL("Resampling"),
 		_TL(""),
@@ -309,6 +315,11 @@ bool CSpectral_Profile::Add_Profile(const CSG_Point &Point, bool bMultiple)
 //---------------------------------------------------------
 bool CSpectral_Profile::Update_Profile(bool bUpdate)
 {
+	if( Parameters("SHOW")->asBool() == false )
+	{
+		return( false );
+	}
+
 	CSG_Parameters P; CSG_String Fields(CSG_Parameter_Table_Field::Get_Choices(*m_pProfile, true)), Types("bars|lines|points|points connected with lines");
 
 	P.Add_Int   ("", "WINDOW_ARRANGE", "", "", SG_UI_WINDOW_ARRANGE_MDI_TILE_HOR|SG_UI_WINDOW_ARRANGE_TDI_SPLIT_BOTTOM);
@@ -365,6 +376,7 @@ CSpectral_Profile_Interactive::CSpectral_Profile_Interactive(void)
 	Parameters.Assign_Parameters(&m_Profile.Parameters);
 
 	Parameters.Del_Parameter("LOCATION");
+	Parameters.Del_Parameter("SHOW"    ); m_Profile.Parameters("SHOW")->Set_Value(true);
 
 	Parameters.Add_Shapes("",
 		"LOCATION"  , _TL("Profile Location"),

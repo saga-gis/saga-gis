@@ -150,6 +150,14 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define GET_NFIELDS ((m_pTable->Get_Field_Count() < 128) ? m_pTable->Get_Field_Count() : 128)
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 IMPLEMENT_CLASS(CVIEW_Table_Diagram_Control, wxScrolledWindow);
 
 //---------------------------------------------------------
@@ -172,7 +180,7 @@ CVIEW_Table_Diagram_Control::CVIEW_Table_Diagram_Control(wxWindow *pParent, CWKS
 {
 	SYS_Set_Color_BG_Window(this);
 
-	m_pTable	= pTable->Get_Table();
+	m_pTable = pTable->Get_Table();
 
 	_Initialize();
 }
@@ -191,21 +199,24 @@ CVIEW_Table_Diagram_Control::~CVIEW_Table_Diagram_Control(void)
 //---------------------------------------------------------
 bool CVIEW_Table_Diagram_Control::Set_Parameters(CSG_Parameters *pParameters)
 {
-	if( pParameters )
+	if( m_pTable )
 	{
-		m_Parameters.Assign_Values(pParameters);
-	}
-
-	double Ratio = m_Parameters("FIX_RATIO")->asBool() ? m_Parameters("RATIO")->asDouble() : 0.;
-
-	if( (pParameters || DLG_Parameters(&m_Parameters)) && _Create() )
-	{
-		if( ((Ratio == 0.) == m_Parameters("FIX_RATIO")->asBool()) || ((Ratio != 0.) && Ratio != m_Parameters("RATIO")->asDouble()) )
+		if( pParameters )
 		{
-			Fit_Size();
+			m_Parameters.Assign_Values(pParameters);
 		}
 
-		return( true );
+		double Ratio = m_Parameters("FIX_RATIO")->asBool() ? m_Parameters("RATIO")->asDouble() : 0.;
+
+		if( (pParameters || DLG_Parameters(&m_Parameters)) && _Create() )
+		{
+			if( ((Ratio == 0.) == m_Parameters("FIX_RATIO")->asBool()) || ((Ratio != 0.) && Ratio != m_Parameters("RATIO")->asDouble()) )
+			{
+				Fit_Size();
+			}
+
+			return( true );
+		}
 	}
 
 	return( false );
@@ -450,7 +461,7 @@ bool CVIEW_Table_Diagram_Control::_Create(void)
 	//-----------------------------------------------------
 	if( m_pTable && m_pTable->Get_Field_Count() > 0 )
 	{
-		m_xField	= _Get_Field_By_Name(m_Parameters("X_FIELD")->asString());
+		m_xField = _Get_Field_By_Name(m_Parameters("X_FIELD")->asString());
 
 		if( m_xField < 0 || m_pTable->Get_Range(m_xField) <= 0. )
 		{
@@ -467,14 +478,14 @@ bool CVIEW_Table_Diagram_Control::_Create(void)
 		}
 
 		//-------------------------------------------------
-		bool	bScaling	= m_Parameters("Y_SCALING")->asBool();
+		bool bScaling = m_Parameters("Y_SCALING")->asBool();
 
-		for(int iField=0; iField<m_pTable->Get_Field_Count(); iField++)
+		for(int iField=0; iField<GET_NFIELDS; iField++)
 		{
 			if( SG_Data_Type_is_Numeric(m_pTable->Get_Field_Type(iField))
 			&&  m_Parameters(CSG_String::Format("FIELD_%d", iField))->asBool() )
 			{
-				m_Fields	+= iField;
+				m_Fields += iField;
 
 				m_Colors.Set_Color(iField, m_Parameters(CSG_String::Format("COLOR_%d" , iField))->asColor());
 
@@ -488,16 +499,16 @@ bool CVIEW_Table_Diagram_Control::_Create(void)
 
 				if( m_Fields.Get_Size() == 1 )
 				{
-					m_yMin	= yMin;
-					m_yMax	= yMax;
+					m_yMin = yMin;
+					m_yMax = yMax;
 				}
 				else
 				{
-					if( m_yMin	> yMin )
-						m_yMin	= yMin;
+					if( m_yMin > yMin )
+						m_yMin = yMin;
 
-					if( m_yMax	< yMax )
-						m_yMax	= yMax;
+					if( m_yMax < yMax )
+						m_yMax = yMax;
 				}
 			}
 		}
@@ -545,14 +556,30 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 		return( false );
 	}
 
+	int nFields = GET_NFIELDS;
+
+	if( nFields < m_pTable->Get_Field_Count() )
+	{
+		wxString Message(_TL("For performance reason the maximum number of selectable attribute fields has been limited!"));
+		Message += wxString::Format("\n\n%s: %d\n%s: %d\n\n", _TL("Limit"), nFields, _TL("Total"), m_pTable->Get_Field_Count());
+		Message += _TL("Continue anyway?");
+
+		if( !DLG_Message_Confirm(Message, _TL("Warning")) )
+		{
+			_Destroy(); m_pTable = NULL;
+
+			return( false );
+		}
+	}
+
 	//-----------------------------------------------------
 	#define CHART_TYPES _TL("bars"), _TL("lines"), _TL("points"), _TL("points connected with lines"), _TL("select a chart type for each attribute")
 
-	CSG_String	sFields_All, sFields_Num; int nFields_Num = 0;
+	CSG_String sFields_All, sFields_Num; int nFields_Num = 0;
 
 	m_Structure.Create(m_pTable);
 
-	m_Colors.Set_Count(m_pTable->Get_Field_Count());
+	m_Colors.Set_Count(nFields);
 
 	m_Parameters.Create(_TL("Properties"));
 	m_Parameters.Set_Callback_On_Parameter_Changed(_On_Parameter_Changed);
@@ -560,7 +587,7 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 	//-----------------------------------------------------
 	m_Parameters.Add_Bool("", "SHOW_FIELDS", _TL("Show/Hide All Attributes"), _TL("Show or hide all attributes."));
 
-	for(int iField=0; iField<m_pTable->Get_Field_Count(); iField++)
+	for(int iField=0; iField<nFields; iField++)
 	{
 		if( SG_Data_Type_is_Numeric(m_pTable->Get_Field_Type(iField)) )
 		{
@@ -590,7 +617,7 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 	m_Parameters.Add_Node  (""            , "NODE_X"            , _TL("X Axis"            ), _TL(""));
 	m_Parameters.Add_Choice("NODE_X"      , "X_FIELD"           , _TL("Values"            ), _TL(""), sFields_Num, nFields_Num);
 	m_Parameters.Add_Choice("X_FIELD"     , "X_DATE_STYLE"      , _TL("Date Style"        ), _TL(""), CSG_String::Format("%s|%s", _TL("horizontal"), _TL("diagonal")), 0);
-	m_Parameters.Add_Choice("NODE_X"      , "X_LABEL"           , _TL("Label"             ), _TL(""), sFields_All, m_pTable->Get_Field_Count());
+	m_Parameters.Add_Choice("NODE_X"      , "X_LABEL"           , _TL("Label"             ), _TL(""), sFields_All, nFields);
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Node  (""            , "NODE_Y"            , _TL("Y Axis"            ), _TL(""));
@@ -771,7 +798,7 @@ int CVIEW_Table_Diagram_Control::_Get_Field_By_Name(const CSG_String &sField)
 {
 	if( m_pTable )
 	{
-		for(int iField=0; iField<m_pTable->Get_Field_Count(); iField++)
+		for(int iField=0; iField<GET_NFIELDS; iField++)
 		{
 			if( sField.Cmp(m_pTable->Get_Field_Name(iField)) == 0 )
 			{
@@ -979,7 +1006,7 @@ void CVIEW_Table_Diagram_Control::_Draw_Frame(wxDC &dc, wxRect r, double dx, dou
 	{
 		int	iLabel	= m_Parameters("X_LABEL")->asInt();
 
-		if( iLabel < 0 || iLabel >= m_pTable->Get_Field_Count() )
+		if( iLabel < 0 || iLabel >= GET_NFIELDS )
 		{
 			Draw_Scale(dc, wxRect(r.GetLeft(), r.GetBottom(), r.GetWidth(), 20), 1, (double)m_pTable->Get_Count(),
 				SCALE_HORIZONTAL , SCALE_TICK_TOP , SCALE_STYLE_DEFAULT, "", true
