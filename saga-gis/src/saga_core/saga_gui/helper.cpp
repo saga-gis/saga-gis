@@ -155,13 +155,13 @@ wxString	Get_FilePath_Absolute(const wxString &Directory, const wxString &FileNa
 //---------------------------------------------------------
 wxString		Get_TableInfo_asHTML(const CSG_Table *pTable)
 {
-	wxString	s;
+	wxString s;
 
 	if( pTable && pTable->is_Valid() )
 	{
-		s	+= wxString::Format("<hr><h4>%s</h4>", _TL("Table Description"));
+		s += wxString::Format("<hr><h4>%s</h4>", _TL("Table Description"));
 
-		s	+= wxString::Format("<table border=\"1\"><tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th>",
+		s += wxString::Format("<table border=\"1\"><tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th>",
 			_TL("Field"),
 			_TL("Name"),
 			_TL("Type"),
@@ -171,9 +171,11 @@ wxString		Get_TableInfo_asHTML(const CSG_Table *pTable)
 			_TL("Standard Deviation")
 		);
 
-		for(int i=0; i<pTable->Get_Field_Count(); i++)
+		int nFields = pTable->Get_Field_Count() > 128 ? 128 : pTable->Get_Field_Count();
+
+		for(int i=0; i<nFields; i++)
 		{
-			s	+= wxString::Format("<tr><td>%d</td><td>%s</td><td>%s</td>",
+			s += wxString::Format("<tr><td>%d</td><td>%s</td><td>%s</td>",
 				i + 1,
 				pTable->Get_Field_Name(i),
 				SG_Data_Type_Get_Name(pTable->Get_Field_Type(i)).c_str()
@@ -181,7 +183,7 @@ wxString		Get_TableInfo_asHTML(const CSG_Table *pTable)
 
 			if( SG_Data_Type_is_Numeric(pTable->Get_Field_Type(i)) )
 			{
-				s	+= wxString::Format("<td align=\"right\">%s</td><td align=\"right\">%s</td><td align=\"right\">%s</td><td align=\"right\">%s</td></tr>",
+				s += wxString::Format("<td align=\"right\">%s</td><td align=\"right\">%s</td><td align=\"right\">%s</td><td align=\"right\">%s</td></tr>",
 					SG_Get_String(pTable->Get_Minimum(i), -6).c_str(),
 					SG_Get_String(pTable->Get_Maximum(i), -6).c_str(),
 					SG_Get_String(pTable->Get_Mean   (i), -6).c_str(),
@@ -190,11 +192,20 @@ wxString		Get_TableInfo_asHTML(const CSG_Table *pTable)
 			}
 			else
 			{
-				s	+= wxString::Format("<td></td><td></td><td></td><td></td></tr>");
+				s += wxString::Format("<td></td><td></td><td></td><td></td></tr>");
 			}
 		}
 
-		s	+= "</table>";
+		if( nFields < pTable->Get_Field_Count() )
+		{
+			s += "<tr><td>..</td><td>..</td><td>..</td><td>..</td><td>..</td><td>..</td><td>..</td></tr></table>";
+
+			s += wxString::Format("<i>%s: %s [%d / %d]</i>", _TL("Notice"), _TL("Only a limited number of leading fields is listed here."), nFields, pTable->Get_Field_Count());
+		}
+		else
+		{
+			s += "</table>";
+		}
 	}
 
 	return( s );
