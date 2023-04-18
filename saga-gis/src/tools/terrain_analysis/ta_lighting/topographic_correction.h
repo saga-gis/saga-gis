@@ -73,25 +73,32 @@ class CTopographic_Correction : public CSG_Tool_Grid
 public:
 	CTopographic_Correction(void);
 
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Imagery|Tools") );	}
+
 
 protected:
+
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool				On_Execute				(void);
 
 
 private:
 
-	int							m_Method, m_maxValue;
+	int							m_Method;
 
-	double						m_cosTz, m_sinTz, m_Minnaert, m_C;
+	double						m_Value_Min, m_Value_Max, m_cosTz, m_sinTz, m_Minnaert, m_C;
 
-	CSG_Grid					*m_pOriginal, *m_pCorrected, m_Slope, m_Illumination;
+	CSG_Grid					m_Illumination[2];
 
 
 	double						Get_Correction			(double Slope, double Incidence, double Value);
 
+	bool						Get_Model				(CSG_Grid *pImage);
+
 	bool						Get_Illumination		(void);
-	bool						Get_Model				(void);
+
+	CSG_Parameter_Grid_List *	Get_Bands				(void);
 
 };
 
