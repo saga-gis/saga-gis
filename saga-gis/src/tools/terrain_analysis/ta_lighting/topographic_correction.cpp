@@ -440,7 +440,7 @@ CSG_Parameter_Grid_List * CTopographic_Correction::Get_Bands(void)
 	{
 		Error_Set(_TL("no images in input list"));
 
-		return( false );
+		return( NULL );
 	}
 
 	Parameters("CORRECTED")->asGridList()->Del_Items();
