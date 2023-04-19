@@ -329,36 +329,36 @@ bool CTopographic_Correction::Get_Model(CSG_Grid *pImage)
 {
 	switch( m_Method )
 	{
-	case 5:	// C Correction
-		{
-			CSG_Regression R;
-
-			sLong Step = Get_NCells() < Parameters("MAXCELLS")->asInt() ? 1 : Get_NCells() / Parameters("MAXCELLS")->asInt();
-
-			for(sLong i=0; i<Get_NCells() && Set_Progress_Cells(i); i+=Step)
-			{
-				R.Add_Values(pImage->asDouble(i), m_Illumination[1].asDouble(i));
-			}
-
-			if( !R.Calculate() || !R.Get_Constant() )
-			{
-				SG_UI_Msg_Add_Error(_TL("Regression failed"));
-
-				return( false );
-			}
-
-			m_C = R.Get_Coefficient() / R.Get_Constant();
-
-			Message_Add(R.asString());
-		}
-		break;
+	case  1:	// Cosine Correction (Civco 1989)
+		return( m_Illumination[1].Get_Mean() );
 
 	//-----------------------------------------------------
-	case 6:	// Normalization (after Civco, modified by Law & Nichol)
+	case  5: {	// C Correction
+		CSG_Regression R;
+
+		sLong Step = Get_NCells() < Parameters("MAXCELLS")->asInt() ? 1 : Get_NCells() / Parameters("MAXCELLS")->asInt();
+
+		for(sLong i=0; i<Get_NCells() && Set_Progress_Cells(i); i+=Step)
 		{
-			m_C = 1.;
+			R.Add_Values(pImage->asDouble(i), m_Illumination[1].asDouble(i));
 		}
-		break;
+
+		if( !R.Calculate() || !R.Get_Constant() )
+		{
+			SG_UI_Msg_Add_Error(_TL("Regression failed"));
+
+			return( false );
+		}
+
+		m_C = R.Get_Coefficient() / R.Get_Constant();
+
+		Message_Add(R.asString());
+
+		break; }
+
+	//-----------------------------------------------------
+	case  6:	// Normalization
+		m_C = 1.; return( m_Illumination[1].Get_Mean() );
 	}
 
 	//-----------------------------------------------------
