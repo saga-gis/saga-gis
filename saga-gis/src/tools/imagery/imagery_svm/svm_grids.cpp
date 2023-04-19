@@ -95,7 +95,7 @@ CSVM_Grids::CSVM_Grids(void)
 	Parameters.Add_Grid("",
 		"CLASSES"		, _TL("Classification"),
 		_TL(""),
-		PARAMETER_OUTPUT, true, SG_DATATYPE_Short
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Char
 	);
 
 	Parameters.Add_Table("CLASSES",
@@ -210,7 +210,7 @@ CSVM_Grids::CSVM_Grids(void)
 		"NU"		, _TL("nu-SVR"),
 		_TL("parameter nu of nu-SVC, one-class SVM, and nu-SVR"),
 		0.5
-		);
+	);
 
 	Parameters.Add_Double("MODEL_TRAIN",
 		"EPS_SVR"	, _TL("SVR Epsilon"),
@@ -261,7 +261,7 @@ CSVM_Grids::CSVM_Grids(void)
 //---------------------------------------------------------
 int CSVM_Grids::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	pParameter->Cmp_Identifier(SG_T("MODEL_SRC")) )
+	if(	pParameter->Cmp_Identifier("MODEL_SRC") )
 	{
 		pParameters->Set_Enabled("MODEL_TRAIN", pParameter->asInt() == 0);
 		pParameters->Set_Enabled("MODEL_LOAD" , pParameter->asInt() == 1);
@@ -278,7 +278,7 @@ int CSVM_Grids::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 //---------------------------------------------------------
 inline double CSVM_Grids::Get_Value(int x, int y, int iGrid)
 {
-	CSG_Grid	*pGrid	= m_pGrids->Get_Grid(iGrid);
+	CSG_Grid *pGrid = m_pGrids->Get_Grid(iGrid);
 
 	switch( m_Scaling )
 	{
@@ -296,15 +296,7 @@ inline double CSVM_Grids::Get_Value(int x, int y, int iGrid)
 //---------------------------------------------------------
 bool CSVM_Grids::On_Execute(void)
 {
-	m_pModel	= NULL;
-
-	m_pClasses	= Parameters("CLASSES")->asGrid();
-	m_pClasses	->Set_NoData_Value(-1.);
-	m_pClasses	->Assign(0.);
-
-	m_Scaling	= Parameters("SCALING")->asInt();
-
-	m_pGrids	= Parameters("GRIDS"  )->asGridList();
+	m_pGrids = Parameters("GRIDS")->asGridList();
 
 	for(int i=m_pGrids->Get_Grid_Count()-1; i>=0; i--)
 	{
@@ -316,7 +308,7 @@ bool CSVM_Grids::On_Execute(void)
 		}
 	}
 
-	if( m_pGrids->Get_Grid_Count() <= 0 )
+	if( m_pGrids->Get_Grid_Count() < 1 )
 	{
 		Error_Set(_TL("no valid grid in list."));
 
@@ -324,12 +316,19 @@ bool CSVM_Grids::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	svm_set_print_string_function(Parameters("MESSAGE")->asBool() ? SVM_Printf : NULL);
+	m_pClasses = Parameters("CLASSES")->asGrid();
+	m_pClasses->Set_NoData_Value(-1.);
+	m_pClasses->Assign(0.);
+
+	m_Scaling = Parameters("SCALING")->asInt();
 
 	//-------------------------------------------------
-	m_Problem.y	= NULL;
-	m_Problem.x	= NULL;
-	m_Nodes		= NULL;
+	m_pModel    = NULL;
+	m_Problem.y = NULL;
+	m_Problem.x = NULL;
+	m_Nodes     = NULL;
+
+	svm_set_print_string_function(Parameters("MESSAGE")->asBool() ? SVM_Printf : NULL);
 
 	switch( Parameters("MODEL_SRC")->asInt() )
 	{
@@ -366,8 +365,6 @@ bool CSVM_Grids::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -375,9 +372,9 @@ bool CSVM_Grids::Predict(void)
 {
 	Process_Set_Text(_TL("prediction"));
 
-	struct svm_node	*Features	= (struct svm_node *)SG_Malloc((m_pGrids->Get_Grid_Count() + 1) * sizeof(struct svm_node));
+	struct svm_node	*Features = (struct svm_node *)SG_Malloc((m_pGrids->Get_Grid_Count() + 1) * sizeof(struct svm_node));
 
-	Features[m_pGrids->Get_Grid_Count()].index	= -1;
+	Features[m_pGrids->Get_Grid_Count()].index = -1;
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
@@ -388,11 +385,11 @@ bool CSVM_Grids::Predict(void)
 			{
 				for(int iGrid=0; iGrid<m_pGrids->Get_Grid_Count(); iGrid++)
 				{
-					Features[iGrid].index	= iGrid + 1;
-					Features[iGrid].value	= Get_Value(x, y, iGrid);
+					Features[iGrid].index = iGrid;
+					Features[iGrid].value = Get_Value(x, y, iGrid);
 				}
 
-				m_pClasses->Set_Value(x, y, svm_predict(m_pModel, Features));
+				m_pClasses->Set_Value(x, y, svm_predict(m_pModel, Features) - 1);
 			}
 		}
 	}
@@ -413,11 +410,11 @@ bool CSVM_Grids::Load(void)
 {
 	Process_Set_Text(_TL("restore model from file"));
 
-	CSG_String	File	= Parameters("MODEL_LOAD")->asString();
+	CSG_String File = Parameters("MODEL_LOAD")->asString();
 
 	if( (m_pModel = svm_load_model(File)) == NULL )
 	{
-		Error_Set(CSG_String::Format(SG_T("%s [%s]"), _TL("could not open model file"), File.c_str()));
+		Error_Set(CSG_String::Format("%s [%s]", _TL("could not open model file"), File.c_str()));
 
 		return( false );
 	}
@@ -428,13 +425,13 @@ bool CSVM_Grids::Load(void)
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			bool	bNoData	= false;
+			bool bNoData = false;
 
 			for(int iGrid=0; iGrid<m_pGrids->Get_Grid_Count() && !bNoData; iGrid++)
 			{
 				if( m_pGrids->Get_Grid(iGrid)->is_NoData(x, y) )
 				{
-					bNoData	= true;
+					bNoData = true;
 
 					m_pClasses->Set_NoData(x, y);
 				}
@@ -454,19 +451,18 @@ bool CSVM_Grids::Load(void)
 //---------------------------------------------------------
 bool CSVM_Grids::Training(void)
 {
-	CSG_Table				Elements;
-
-	struct svm_parameter	param;
-
-	//-----------------------------------------------------
 	Process_Set_Text(_TL("create model from training areas"));
+
+	CSG_Table Elements;
 
 	if( !Training_Get_Elements(Elements) )
 	{
 		return( false );
 	}
 
-	if( !Training_Get_Parameters(param) )
+	struct svm_parameter svm_parameters;
+
+	if( !Training_Get_Parameters(svm_parameters) )
 	{
 		return( false );
 	}
@@ -478,35 +474,34 @@ bool CSVM_Grids::Training(void)
 	m_Nodes		= (struct svm_node  *)SG_Malloc(m_Problem.l * sizeof(struct svm_node  ) * (1l + m_pGrids->Get_Grid_Count()));
 
 	//-----------------------------------------------------
-	CSG_String	ID_ROI;
-
 	m_Classes.Destroy();
 	m_Classes.Add_Field("NAME", SG_DATATYPE_String);
 
 	Elements.Set_Index(0, TABLE_INDEX_Ascending);
 
+	CSG_String ID_ROI;
+
 	for(int i=0, j=0, ID_Class=0; i<(int)Elements.Get_Count(); i++, j++)
 	{
-		CSG_Table_Record	*pElement	= Elements.Get_Record_byIndex(i);
+		CSG_Table_Record *pElement = Elements.Get_Record_byIndex(i);
 
 		if( ID_ROI.Cmp(pElement->asString(0)) )
 		{
-			ID_ROI		= pElement->asString(0);
-			ID_Class	++;
+			ID_ROI = pElement->asString(0); ID_Class++;
 
 			m_Classes.Add_Record()->Set_Value(0, pElement->asString(0));
 		}
 
-		m_Problem.x[i]	= &m_Nodes[j];
-		m_Problem.y[i]	= ID_Class;
+		m_Problem.x[i] = &m_Nodes[j];
+		m_Problem.y[i] = ID_Class;
 
 		for(int iGrid=0; iGrid<m_pGrids->Get_Grid_Count(); iGrid++, j++)
 		{
-			m_Nodes[j].index	= 1 + iGrid;
-			m_Nodes[j].value	= pElement->asDouble(1 + iGrid);
+			m_Nodes[j].index = iGrid;
+			m_Nodes[j].value = pElement->asDouble(1 + iGrid);
 		}
 
-		m_Nodes[j].index	= -1;
+		m_Nodes[j].index = -1;
 	}
 
 	/*/-----------------------------------------------------
@@ -531,21 +526,20 @@ bool CSVM_Grids::Training(void)
 	}/**/
 
 	//-----------------------------------------------------
-	const char *error_msg	= svm_check_parameter(&m_Problem, &param);
+	const char *error_msg = svm_check_parameter(&m_Problem, &svm_parameters);
 
 	if( error_msg )
 	{
 		Error_Set(_TL("training failed"));
 		Error_Set(error_msg);
 	}
-	else if( (m_pModel = svm_train(&m_Problem, &param)) != NULL )
+	else if( (m_pModel = svm_train(&m_Problem, &svm_parameters)) != NULL )
 	{
-		//-------------------------------------------------
-		CSG_String	File	= Parameters("MODEL_SAVE")->asString();
+		CSG_String File(Parameters("MODEL_SAVE")->asString());
 
 		if( File.Length() > 0 && svm_save_model(File, m_pModel) )
 		{
-			Error_Set(CSG_String::Format(SG_T("%s [%s]"), _TL("could not save model to file"), File.c_str()));
+			Error_Fmt("%s [%s]", _TL("could not save model to file"), File.c_str());
 		}
 
 		//-------------------------------------------------
@@ -555,9 +549,9 @@ bool CSVM_Grids::Training(void)
 
 			double *target = (double *)SG_Malloc(m_Problem.l * sizeof(double));
 
-			svm_cross_validation(&m_Problem, &param, Parameters("CROSSVAL")->asInt(), target);
+			svm_cross_validation(&m_Problem, &svm_parameters, Parameters("CROSSVAL")->asInt(), target);
 
-			if( param.svm_type == EPSILON_SVR || param.svm_type == NU_SVR )
+			if( svm_parameters.svm_type == EPSILON_SVR || svm_parameters.svm_type == NU_SVR )
 			{
 				double	total_error = 0., sum_v = 0., sum_y = 0., sum_vv = 0., sum_yy = 0., sum_vy = 0.;
 
@@ -610,7 +604,7 @@ bool CSVM_Grids::Training(void)
 	}
 
 	//-----------------------------------------------------
-	svm_destroy_param(&param);
+	svm_destroy_param(&svm_parameters);
 
 	return( m_pModel != NULL );
 }
@@ -730,23 +724,25 @@ bool CSVM_Grids::Finalize(void)
 	//-----------------------------------------------------
 	if( m_Classes.Get_Count() > 0 )
 	{
-		CSG_Parameter	*pLUT	= DataObject_Get_Parameter(m_pClasses, "LUT");
+		CSG_Parameter *pLUT = DataObject_Get_Parameter(m_pClasses, "LUT");
 
-		if( pLUT )
+		if( pLUT && pLUT->asTable() )
 		{
+			CSG_Table &LUT = *pLUT->asTable();
+
 			for(int i=0; i<m_Classes.Get_Count(); i++)
 			{
-				CSG_Table_Record	*pClass	= pLUT->asTable()->Get_Record(i);
+				CSG_Table_Record *pClass = LUT.Get_Record(i);
 
 				if( !pClass )
 				{
-					(pClass	= pLUT->asTable()->Add_Record())->Set_Value(0, SG_Color_Get_Random());
+					(pClass	= LUT.Add_Record())->Set_Value(0, SG_Color_Get_Random());
 				}
 
 				pClass->Set_Value(1, m_Classes[i].asString(0));
 				pClass->Set_Value(2, m_Classes[i].asString(0));
-				pClass->Set_Value(3, i + 1);
-				pClass->Set_Value(4, i + 1);
+				pClass->Set_Value(3, i);
+				pClass->Set_Value(4, i);
 			}
 
 			pLUT->asTable()->Set_Count(m_Classes.Get_Count());
@@ -758,7 +754,7 @@ bool CSVM_Grids::Finalize(void)
 		//-------------------------------------------------
 		if( Parameters("CLASSES_LUT")->asTable() )
 		{
-			CSG_Table	&LUT	= *Parameters("CLASSES_LUT")->asTable();
+			CSG_Table &LUT = *Parameters("CLASSES_LUT")->asTable();
 
 			LUT.Destroy();
 			LUT.Set_Name(m_pClasses->Get_Name());
@@ -778,6 +774,9 @@ bool CSVM_Grids::Finalize(void)
 	}
 
 	//-----------------------------------------------------
+	m_pClasses->Set_NoData_Value(-1.);
+	m_pClasses->Fmt_Name("SVM %s", _TL("Classification"));
+
 	return( true );
 }
 
