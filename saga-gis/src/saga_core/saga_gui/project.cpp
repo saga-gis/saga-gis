@@ -445,11 +445,11 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 
 	if( FileName.AfterLast('.').CmpNoCase("cfg") )
 	{
-		MSG_General_Add(_TL("Could not load project."), true, true, SG_UI_MSG_STYLE_FAILURE);
+		MSG_General_Add(_TL("failed"), false, false, SG_UI_MSG_STYLE_FAILURE);
 	}
 	else
 	{
-		MSG_General_Add(_TL("okay"), true, true, SG_UI_MSG_STYLE_SUCCESS);
+		MSG_General_Add(_TL("okay"  ), false, false, SG_UI_MSG_STYLE_SUCCESS);
 	}
 
 	return( false );
