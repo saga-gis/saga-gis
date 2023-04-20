@@ -674,7 +674,10 @@ bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 
 					pItem = g_pData->Add(SG_Create_Grid(&File, SG_DATATYPE_Undefined, bCached));
 
-					pItem->Set_Unique_ID(Unique_ID.c_str());
+					if( pItem )
+					{
+						pItem->Set_Unique_ID(Unique_ID.c_str());
+					}
 				}
 			}
 		}
