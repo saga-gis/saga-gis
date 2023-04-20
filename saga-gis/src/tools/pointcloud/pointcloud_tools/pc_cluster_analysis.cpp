@@ -707,38 +707,40 @@ bool CPC_Cluster_Analysis::On_After_Execution(void)
 		pPC_out = Parameters("PC_IN")->asPointCloud();
 	}
 
-	CSG_Parameters	Parms;
-
-	if( DataObject_Get_Parameters(pPC_out, Parms) && Parms("COLORS_TYPE") && Parms("LUT") && Parms("LUT_ATTRIB") )
+	if( m_Features && m_nFeatures > 0 )
 	{
-		CSG_Table_Record	*pClass;
-		CSG_Table			*pLUT	= Parms("LUT")->asTable();
+		CSG_Parameters	Parms;
 
-		for( int i=0; i<=pPC_out->Get_Maximum(pPC_out->Get_Field_Count()-1); i++ )
+		if( DataObject_Get_Parameters(pPC_out, Parms) && Parms("COLORS_TYPE") && Parms("LUT") && Parms("LUT_ATTRIB") )
 		{
-			if( (pClass = pLUT->Get_Record(i)) == NULL )
+			CSG_Table_Record	*pClass;
+			CSG_Table			*pLUT	= Parms("LUT")->asTable();
+
+			for( int i=0; i<=pPC_out->Get_Maximum(pPC_out->Get_Field_Count()-1); i++ )
 			{
-				pClass	= pLUT->Add_Record();
-				pClass->Set_Value(0, SG_GET_RGB(rand() * 255.0 / RAND_MAX, rand() * 255.0 / RAND_MAX, rand() * 255.0 / RAND_MAX));
+				if( (pClass = pLUT->Get_Record(i)) == NULL )
+				{
+					pClass	= pLUT->Add_Record();
+					pClass->Set_Value(0, SG_GET_RGB(rand() * 255.0 / RAND_MAX, rand() * 255.0 / RAND_MAX, rand() * 255.0 / RAND_MAX));
+				}
+
+				pClass->Set_Value(1, CSG_String::Format("%s %d", _TL("Class"), i));
+				pClass->Set_Value(2, CSG_String::Format("%s %d", _TL("Class"), i));
+				pClass->Set_Value(3, i);
+				pClass->Set_Value(4, i);
 			}
 
-			pClass->Set_Value(1, CSG_String::Format("%s %d", _TL("Class"), i));
-			pClass->Set_Value(2, CSG_String::Format("%s %d", _TL("Class"), i));
-			pClass->Set_Value(3, i);
-			pClass->Set_Value(4, i);
+			while( pLUT->Get_Count() > (pPC_out->Get_Maximum(pPC_out->Get_Field_Count()-1) + 1) )
+			{
+				pLUT->Del_Record(pLUT->Get_Count() - 1);
+			}
+
+			Parms("COLORS_TYPE")	->Set_Value(1);	// Color Classification Type: Lookup Table
+			Parms("LUT_ATTRIB")		->Set_Value(clustField);
+
+			DataObject_Set_Parameters(pPC_out, Parms);
 		}
-
-		while( pLUT->Get_Count() > (pPC_out->Get_Maximum(pPC_out->Get_Field_Count()-1) + 1) )
-		{
-			pLUT->Del_Record(pLUT->Get_Count() - 1);
-		}
-
-		Parms("COLORS_TYPE")	->Set_Value(1);	// Color Classification Type: Lookup Table
-		Parms("LUT_ATTRIB")		->Set_Value(clustField);
-
-		DataObject_Set_Parameters(pPC_out, Parms);
 	}
-
 
 	if (pPC_out == Parameters("PC_IN")->asPointCloud())
 	{
