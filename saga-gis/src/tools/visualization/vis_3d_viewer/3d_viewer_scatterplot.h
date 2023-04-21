@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//                 3d_viewer_scatterplot.h               //
 //                                                       //
-//                 Copyright (C) 2011 by                 //
+//                 Copyright (C) 2023 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -39,77 +39,15 @@
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
 //    contact:    Olaf Conrad                            //
-//                Institute for Geography                //
+//                Institute of Geography                 //
 //                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-
-#include <saga_api/saga_api.h>
-
-
-//---------------------------------------------------------
-// 2. Place general tool library informations here...
-
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("3D Viewer") );
-
-	case TLB_INFO_Category:
-		return( _TL("Visualization") );
-
-	case TLB_INFO_Author:
-		return( "O.Conrad (c) 2014" );
-
-	case TLB_INFO_Description:
-		return( _TL("3D Viewer." ));
-
-	case TLB_INFO_Version:
-		return( "1.0" );
-
-	case TLB_INFO_Menu_Path:
-		return( _TL("Visualization|3D Viewer" ));
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your tools here...
-
-#include "3d_viewer_tin.h"
-#include "3d_viewer_pointcloud.h"
-#include "3d_viewer_shapes.h"
-#include "3d_viewer_globe_grid.h"
-#include "3d_viewer_multiple_grids.h"
-#include "3d_viewer_grids.h"
-#include "3d_viewer_scatterplot.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your tools to be created here...
-
-CSG_Tool *		Create_Tool(int i)
-{
-	switch( i )
-	{
-	case  0: return( new C3D_Viewer_TIN );
-	case  1: return( new C3D_Viewer_PointCloud );
-	case  2: return( new C3D_Viewer_Shapes );
-	case  3: return( new C3D_Viewer_Globe_Grid );
-	case  4: return( new C3D_Viewer_Multiple_Grids );
-	case  5: return( new C3D_Viewer_Grids );
-	case  6: return( new C3D_Viewer_Scatterplot );
-
-	case  7: return( NULL );
-	default: return( TLB_INTERFACE_SKIP_TOOL );
-	}
-}
+#ifndef HEADER_INCLUDED__3d_viewer_scatterplot_H
+#define HEADER_INCLUDED__3d_viewer_scatterplot_H
 
 
 ///////////////////////////////////////////////////////////
@@ -119,8 +57,36 @@ CSG_Tool *		Create_Tool(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+#include <saga_gdi/3d_view.h>
 
-	TLB_INTERFACE
 
-//}}AFX_SAGA
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class C3D_Viewer_Scatterplot : public CSG_Tool_Grid
+{
+public:
+	C3D_Viewer_Scatterplot(void);
+
+	virtual bool			needs_GUI				(void)	const	{	return( true );	}
+
+
+protected:
+
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__3d_viewer_scatterplot_H

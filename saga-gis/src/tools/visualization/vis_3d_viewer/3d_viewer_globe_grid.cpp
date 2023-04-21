@@ -89,7 +89,7 @@ private:
 
 	CSG_Grid					*m_pGrid, *m_pZ;
 
-	TSG_Point_3D					**m_pNodes;
+	TSG_Point_3D				**m_pNodes;
 
 
 	bool						Create_Nodes			(void);
