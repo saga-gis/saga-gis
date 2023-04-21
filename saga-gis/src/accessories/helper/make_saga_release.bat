@@ -37,8 +37,8 @@ REM For all bug-fix-releases!
 REM Don't forget to activate the variable
 REM - SWITCH_TO_BRANCH -
 SET SWITCH_TO_BRANCH=saga-9.0
-SET SAGA_VER_TEXT=9.0.1
-SET SAGA_VER_NEXT=9.0.2
+SET SAGA_VER_TEXT=9.0.2
+SET SAGA_VER_NEXT=9.0.3
 SET SAGA_VERSION=saga-%SAGA_VER_TEXT%
 
 
@@ -184,7 +184,6 @@ MKDIR SAGA-Python-API
 PUSHD SAGA-Python-API
 
 SET SAGA_LIBDIR=%SAGA_DIR_WIN32%
-CMD /C CALL ..\..\make_python_api.bat 2.7  win32 true false F:\develop\libs\Python\_win32\Python-2.7
 CMD /C CALL ..\..\make_python_api.bat 3.6  win32 true false F:\develop\libs\Python\_win32\Python-3.6
 CMD /C CALL ..\..\make_python_api.bat 3.7  win32 true false F:\develop\libs\Python\_win32\Python-3.7
 CMD /C CALL ..\..\make_python_api.bat 3.8  win32 true false F:\develop\libs\Python\_win32\Python-3.8
@@ -193,7 +192,6 @@ CMD /C CALL ..\..\make_python_api.bat 3.10 win32 true false F:\develop\libs\Pyth
 CMD /C CALL ..\..\make_python_api.bat 3.11 win32 true false F:\develop\libs\Python\_win32\Python-3.11
 
 SET SAGA_LIBDIR=%SAGA_DIR_X64%
-CMD /C CALL ..\..\make_python_api.bat 2.7  x64 true false F:\develop\libs\Python\Python-2.7
 CMD /C CALL ..\..\make_python_api.bat 3.6  x64 true false F:\develop\libs\Python\Python-3.6
 CMD /C CALL ..\..\make_python_api.bat 3.7  x64 true false F:\develop\libs\Python\Python-3.7
 CMD /C CALL ..\..\make_python_api.bat 3.8  x64 true false F:\develop\libs\Python\Python-3.8
