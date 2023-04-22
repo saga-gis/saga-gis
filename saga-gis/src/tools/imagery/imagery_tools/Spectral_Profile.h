@@ -121,6 +121,7 @@ public:
 protected:
 
 	virtual int 			On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int 			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool			On_Execute				(void);
 
@@ -131,7 +132,7 @@ private:
 
 	bool					m_bMultiple{false};
 
-	CSG_Shapes				*m_pLocation{NULL};
+	CSG_Shapes				*m_pLocation{NULL}, *m_pSamples{NULL};
 
 	CSpectral_Profile		m_Profile;
 

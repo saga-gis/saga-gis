@@ -2493,6 +2493,18 @@ int CSG_PG_Tool::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 {
 	if( has_GUI() )
 	{
+		CSG_Projection Projection;
+
+		if(	pParameter->Cmp_Identifier("CRS_EPSG") || pParameter->Cmp_Identifier("CRS_EPSG_AUTH") )
+		{
+			int Code = (*pParameters)("CRS_EPSG")->asInt();
+
+			if( Code >= 0 && !Projection.Create(Code) ) //, (*pParameters)("CRS_EPSG_AUTH")->asString()) )
+			{
+				SG_UI_Dlg_Message(_TL("Unknown Authority Code"), _TL("Warning"));
+			}
+		}
+
 		if(	pParameter->Cmp_Identifier("CRS_EPSG_GEOGCS")
 		||  pParameter->Cmp_Identifier("CRS_EPSG_PROJCS") )
 		{
@@ -2500,8 +2512,17 @@ int CSG_PG_Tool::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 
 			if( pParameter->asChoice()->Get_Data(EPSG) )
 			{
-				pParameters->Get_Parameter("CRS_EPSG")->Set_Value(EPSG);
+				Projection.Create(EPSG);
 			}
+		}
+
+		if( Projection.is_Okay() )
+		{
+			pParameters->Set_Parameter("CRS_EPSG"     , Projection.Get_Authority_ID());
+			pParameters->Set_Parameter("CRS_EPSG_AUTH", Projection.Get_Authority   ());
+
+			if(	!pParameter->Cmp_Identifier("CRS_EPSG_GEOGCS") ) { pParameters->Set_Parameter("CRS_EPSG_GEOGCS", 0); }
+			if(	!pParameter->Cmp_Identifier("CRS_EPSG_PROJCS") ) { pParameters->Set_Parameter("CRS_EPSG_PROJCS", 0); }
 		}
 
 		//-------------------------------------------------
@@ -2546,12 +2567,12 @@ bool CSG_PG_Tool::Add_SRID_Picker(CSG_Parameters *pParameters)
 	{
 		pParameters->Add_Choice(
 			"CRS_EPSG", "CRS_EPSG_GEOGCS", _TL("Geographic Coordinate Systems"), _TL(""),
-			SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Geographic)
+			CSG_String::Format("{0}<%s>|", _TL("select")) + SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Geographic)
 		);
 
 		pParameters->Add_Choice(
 			"CRS_EPSG", "CRS_EPSG_PROJCS", _TL("Projected Coordinate Systems" ), _TL(""),
-			SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Projected)
+			CSG_String::Format("{0}<%s>|", _TL("select")) + SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Projected)
 		);
 	}
 

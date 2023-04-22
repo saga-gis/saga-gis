@@ -105,9 +105,9 @@ CClassify_Grid::CClassify_Grid(void)
 	);
 
 	Parameters.Add_Grid("",
-		"CLASSES"		, _TL("Classes"),
+		"CLASSES"		, _TL("Classification"),
 		_TL(""),
-		PARAMETER_OUTPUT, true, SG_DATATYPE_Short
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Char
 	);
 
 	Parameters.Add_Table("CLASSES",
@@ -164,7 +164,7 @@ CClassify_Grid::CClassify_Grid(void)
 			_TL("none"),
 			SG_T("L1"),
 			SG_T("L2")
-		), 1
+		), 0
 	);
 
 	Parameters.Add_Double("YT_REGUL",
@@ -258,8 +258,6 @@ bool CClassify_Grid::On_Execute(void)
 	CSG_Grid	*pClasses	= Parameters("CLASSES")->asGrid();
 	CSG_Grid	*pProb		= Parameters("PROB"   )->asGrid();
 
-	pClasses->Set_NoData_Value(-1);
-
 	if( !pProb->Get_Range() )
 	{
 		DataObject_Set_Colors(pProb, 11, SG_COLORS_YELLOW_GREEN);
@@ -292,6 +290,9 @@ bool CClassify_Grid::On_Execute(void)
 	{
 		return( false );
 	}
+
+	pClasses->Set_NoData_Value(-1);
+	pClasses->Fmt_Name("Maximum Entropy %s", _TL("Classification"));
 
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("prediction"));

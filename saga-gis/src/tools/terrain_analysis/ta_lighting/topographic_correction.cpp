@@ -65,9 +65,9 @@ CTopographic_Correction::CTopographic_Correction(void)
 	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
-		"Topographic correction for satellite imagery's bands using "
-		"a Digital Elevation Model to estimate and remove the shading "
-		"effect for the given position of the Sun at acquisition time. "
+		"Topographic correction tools for satellite imagery using a "
+		"digital elevation model (DEM) and the position of the Sun "
+		"at acquisition time to estimate and remove shading effects. "
 	));
 
 	Add_Reference(
@@ -109,28 +109,28 @@ CTopographic_Correction::CTopographic_Correction(void)
 		PARAMETER_INPUT, false
 	);
 
-	Parameters.Add_Grid("",
-		"ORIGINAL"	, _TL("Original Image"),
+	Parameters.Add_Grid_List("",
+		"BANDS"		, _TL("Bands"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid("",
-		"CORRECTED"	, _TL("Corrected Image"),
+	Parameters.Add_Grid_List("",
+		"CORRECTED"	, _TL("Corrected Bands"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Node("", "NODE_SOLAR", _TL("Solar Position"), _TL(""));
+	Parameters.Add_Node("", "SOLAR_POSITION", _TL("Solar Position"), _TL(""));
 
-	Parameters.Add_Double("NODE_SOLAR",
-		"AZI"		, _TL("Azimuth"),
+	Parameters.Add_Double("SOLAR_POSITION",
+		"AZIMUTH"	, _TL("Azimuth"),
 		_TL("direction of sun (degree, clockwise from North)"),
 		180., 0., true, 360., true
 	);
 
-	Parameters.Add_Double("NODE_SOLAR",
-		"HGT"		, _TL("Height"),
+	Parameters.Add_Double("SOLAR_POSITION",
+		"HEIGHT"	, _TL("Height"),
 		_TL("height of sun above horizon (degree)"),
 		 45., 0., true,  90., true
 	);
@@ -146,29 +146,61 @@ CTopographic_Correction::CTopographic_Correction(void)
 			_TL("Minnaert Correction with Slope (Law & Nichol 2004)"),
 			_TL("C Correction"),
 			_TL("Normalization (after Civco, modified by Law & Nichol)")
-		), 4
+		), 2
 	);
 
-	Parameters.Add_Double("",
+	Parameters.Add_Double("METHOD",
 		"MINNAERT"	, _TL("Minnaert Correction"),
 		_TL(""),
 		0.5, 0., true, 1., true
 	);
 
-	Parameters.Add_Int("",
-		"MAXCELLS"	, _TL("Maximum Cells (C Correction Analysis)"),
+	Parameters.Add_Int("METHOD",
+		"MAXCELLS"	, _TL("Maximum Number of Cells"),
 		_TL("Maximum number of grid cells used for trend analysis as required by C correction."),
-		1000, 10, true
+		100000, 1000, true
 	);
 
-	Parameters.Add_Choice("",
-		"MAXVALUE"	, _TL("Value Range"),
-		_TL(""),
-		CSG_String::Format("%s|%s",
-			_TL("1 byte (0-255)"),
-			_TL("2 byte (0-65535)")
-		), 0
+	Parameters.Add_Bool("",
+		"LIMIT"		, _TL("Limit Value Range"),
+		_TL("Avoid over and undershootings specifying value range limits."),
+		false
 	);
+
+	Parameters.Add_Double("LIMIT",
+		"LIMIT_MIN"	, _TL("Minimum"),
+		_TL(""),
+		1.
+	);
+
+	Parameters.Add_Double("LIMIT",
+		"LIMIT_MAX"	, _TL("Maximum"),
+		_TL(""),
+		255.
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CTopographic_Correction::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("METHOD") )
+	{
+		pParameters->Set_Enabled("MINNAERT", pParameter->asInt() == 2 || pParameter->asInt() == 3 || pParameter->asInt() == 4);
+
+		pParameters->Set_Enabled("MAXCELLS", pParameter->asInt() == 5);
+	}
+
+	if( pParameter->Cmp_Identifier("LIMIT") )
+	{
+		pParameter->Set_Children_Enabled(pParameter->asBool());
+	}
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -179,47 +211,50 @@ CTopographic_Correction::CTopographic_Correction(void)
 //---------------------------------------------------------
 bool CTopographic_Correction::On_Execute(void)
 {
-	if( !Get_Illumination() )
+	CSG_Parameter_Grid_List *pBands = Get_Bands();
+
+	if( !pBands || pBands->Get_Grid_Count() < 1 || !Get_Illumination() )
 	{
-		m_Slope			.Destroy();
-		m_Illumination	.Destroy();
-
-		return( false );
-	}
-
-	if( !Get_Model() )
-	{
-		m_Slope			.Destroy();
-		m_Illumination	.Destroy();
-
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	Process_Set_Text(_TL("Topographic Correction"));
+	m_Method    = Parameters("METHOD")->asInt();
 
-	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	m_Value_Min = Parameters("LIMIT")->asBool() ? Parameters("LIMIT_MIN")->asDouble() : 0.;
+	m_Value_Max = Parameters("LIMIT")->asBool() ? Parameters("LIMIT_MAX")->asDouble() : 0.;
+
+	m_Minnaert  = Parameters("MINNAERT")->asDouble();
+
+	//-----------------------------------------------------
+	for(int i=0; i<pBands->Get_Grid_Count() && Process_Get_Okay(); i++)
 	{
-		for(int x=0; x<Get_NX(); x++)
+		Process_Set_Text("%s [%d/%d]", _TL("Topographic Correction"), i + 1, pBands->Get_Grid_Count());
+
+		CSG_Grid *pBand = pBands->Get_Grid(i);
+
+		if( Get_Model(pBand) )
 		{
-			if( m_pOriginal->is_NoData(x, y) )
+			for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 			{
-				m_pCorrected->Set_NoData(x, y);
-			}
-			else
-			{
-				m_pCorrected->Set_Value(x, y, Get_Correction(
-					m_Slope       .asDouble(x, y),
-					m_Illumination.asDouble(x, y),
-					m_pOriginal  ->asDouble(x, y)
-				));
+				#pragma omp parallel for
+				for(int x=0; x<Get_NX(); x++)
+				{
+					if( !pBand->is_NoData(x, y) )
+					{
+						pBand->Set_Value(x, y, Get_Correction(
+							m_Illumination[0].asDouble(x, y),
+							m_Illumination[1].asDouble(x, y), pBand->asDouble(x, y)
+						));
+					}
+				}
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	m_Slope			.Destroy();
-	m_Illumination	.Destroy();
+	m_Illumination[0].Destroy();
+	m_Illumination[1].Destroy();
 
 	return( true );
 }
@@ -230,113 +265,100 @@ bool CTopographic_Correction::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CTopographic_Correction::Get_Correction(double Slope, double Illumination, double Value)
+inline double CTopographic_Correction::Get_Correction(double Slope, double Incidence, double Value)
 {
 	switch( m_Method )
 	{
-	case 0:	// Cosine Correction (Teillet et al. 1982)
-		if( Illumination > 0.0 )
+	default:	// Cosine Correction (Teillet et al. 1982)
+		if( Incidence > 0. )
 		{
-			Value	= Value * m_cosTz / Illumination;
+			Value = Value * m_cosTz / Incidence;
 		}
 		break;
 
-	case 1:	// Cosine Correction (Civco 1989)
-		Value	= Value + (Value * ((m_Illumination.Get_Mean() - Illumination) / m_Illumination.Get_Mean()));
+	case  1:	// Cosine Correction (Civco 1989)
+		Value = Value + (Value * ((m_Illumination[1].Get_Mean() - Incidence) / m_Illumination[1].Get_Mean()));
 		break;
 
-	case 2:	// Minnaert Correction
-		if( Illumination > 0.0 )
+	case  2:	// Minnaert Correction
+		if( Incidence > 0. )
 		{
-			Value	= Value * pow(m_cosTz / Illumination, m_Minnaert);
+			Value = Value * pow(m_cosTz / Incidence, m_Minnaert);
 		}
 		break;
 
-	case 3:	// Minnaert Correction with Slope (Riano et al. 2003)
-		if( Illumination > 0.0 )
+	case  3:	// Minnaert Correction with Slope (Riano et al. 2003)
+		if( Incidence > 0. )
 		{
-			Value	= Value * cos(Slope) * pow(m_cosTz / (Illumination * cos(Slope)), m_Minnaert);
+			Value = Value * cos(Slope) * pow(m_cosTz / (Incidence * cos(Slope)), m_Minnaert);
 		}
 		break;
 
-	case 4:	// Minnaert Correction with Slope (Law & Nichol 2004)
-		if( Illumination > 0.0 )
+	case  4:	// Minnaert Correction with Slope (Law & Nichol 2004)
+		if( Incidence > 0. )
 		{
-			Value	= Value * cos(Slope) / pow(Illumination * cos(Slope), m_Minnaert);
+			Value = Value * cos(Slope) / pow(Incidence * cos(Slope), m_Minnaert);
 		}
 		break;
 
-	case 5:	// C Correction
-		Value	= Value * (m_cosTz + m_C) / (Illumination + m_C);
+	case  5:	// C Correction
+		Value = Value * (m_cosTz + m_C) / (Incidence + m_C);
 		break;
 
-	case 6:	// Normalization
-		Value	= Value + ((Value * ((m_Illumination.Get_Mean() - Illumination) / m_Illumination.Get_Mean())) * m_C);
+	case  6:	// Normalization
+		Value = Value + ((Value * ((m_Illumination[1].Get_Mean() - Incidence) / m_Illumination[1].Get_Mean())) * m_C);
 		break;
 	}
 
-	return( Value < 0 ? 0 : Value > m_maxValue ? m_maxValue : Value );
+	if( m_Value_Min < m_Value_Max )
+	{
+		if( Value < m_Value_Min ) { return( m_Value_Min ); }
+		if( Value > m_Value_Max ) { return( m_Value_Max ); }
+	}
+
+	return( Value );
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTopographic_Correction::Get_Model(void)
+bool CTopographic_Correction::Get_Model(CSG_Grid *pImage)
 {
-	m_pOriginal		= Parameters("ORIGINAL" )->asGrid();
-	m_pCorrected	= Parameters("CORRECTED")->asGrid();
-
-	m_pCorrected	->Fmt_Name("%s [%s]", m_pOriginal->Get_Name(), _TL("Topographic Correction"));
-
-	m_Method		= Parameters("METHOD")		->asInt();
-
-	m_Minnaert		= Parameters("MINNAERT")	->asDouble();
-
-	switch( Parameters("MAXVALUE")->asInt() )
-	{
-	default:	m_maxValue	=   255;	break;
-	case  1:	m_maxValue	= 65535;	break;
-	}
-
 	switch( m_Method )
 	{
-	//-----------------------------------------------------
-	case 5:	// C Correction
-		{
-			Process_Set_Text(_TL("Regression Analysis"));
-
-			CSG_Regression	R;
-
-			sLong n		= Parameters("MAXCELLS")->asInt();
-			int	nStep	= Get_NCells() < n ? 1 : (int)(Get_NCells() / n);
-
-			for(n=0; n<Get_NCells() && Set_Progress_Cells(n); n+=nStep)
-			{
-				R.Add_Values(m_pOriginal->asDouble(n), m_Illumination.asDouble(n));
-			}
-
-			if( !R.Calculate() || !R.Get_Constant() )
-			{
-				return( false );
-			}
-
-			m_C	= R.Get_Coefficient() / R.Get_Constant();
-
-			Message_Add(R.asString());
-		}
-		break;
+	case  1:	// Cosine Correction (Civco 1989)
+		return( m_Illumination[1].Get_Mean() );
 
 	//-----------------------------------------------------
-	case 6:	// Normalization (after Civco, modified by Law & Nichol)
+	case  5: {	// C Correction
+		CSG_Regression R;
+
+		sLong Step = Get_NCells() < Parameters("MAXCELLS")->asInt() ? 1 : Get_NCells() / Parameters("MAXCELLS")->asInt();
+
+		for(sLong i=0; i<Get_NCells() && Set_Progress_Cells(i); i+=Step)
 		{
-			m_C	= 1.0;
+			R.Add_Values(pImage->asDouble(i), m_Illumination[1].asDouble(i));
 		}
-		break;
+
+		if( !R.Calculate() || !R.Get_Constant() )
+		{
+			SG_UI_Msg_Add_Error(_TL("Regression failed"));
+
+			return( false );
+		}
+
+		m_C = R.Get_Coefficient() / R.Get_Constant();
+
+		Message_Add(R.asString());
+
+		break; }
+
+	//-----------------------------------------------------
+	case  6:	// Normalization
+		m_C = 1.; return( m_Illumination[1].Get_Mean() );
 	}
 
 	//-----------------------------------------------------
@@ -351,50 +373,111 @@ bool CTopographic_Correction::Get_Model(void)
 //---------------------------------------------------------
 bool CTopographic_Correction::Get_Illumination(void)
 {
-	Process_Set_Text(_TL("Illumination calculation"));
+	Process_Set_Text(_TL("calculating illumination"));
 
 	//-----------------------------------------------------
-	CSG_Grid	DEM, *pDEM	= Parameters("DEM")->asGrid();
+	CSG_Grid DEM, *pDEM = Parameters("DEM")->asGrid();
+
+	if( !pDEM->Get_Extent().Intersects(Get_System().Get_Extent()) )
+	{
+		Error_Set(_TL("Extents of elevation model and images do not intersect!"));
+
+		return( false );
+	}
 
 	if( !pDEM->Get_System().is_Equal(Get_System()) )
 	{
 		DEM.Create(Get_System());
 		DEM.Assign(pDEM, pDEM->Get_Cellsize() > Get_Cellsize() ? GRID_RESAMPLING_BSpline : GRID_RESAMPLING_Mean_Cells);
-		pDEM	= &DEM;
+		pDEM = &DEM;
 	}
 
 	//-----------------------------------------------------
-	double	Azi	= Parameters("AZI")->asDouble() * M_DEG_TO_RAD;
-	double	Hgt	= Parameters("HGT")->asDouble() * M_DEG_TO_RAD;
+	double Azimuth = Parameters("AZIMUTH")->asDouble() * M_DEG_TO_RAD;
+	double Height  = Parameters("HEIGHT" )->asDouble() * M_DEG_TO_RAD;
 
-	m_cosTz	= cos(M_PI_090 - Hgt);
-	m_sinTz	= sin(M_PI_090 - Hgt);
+	m_cosTz = cos(M_PI_090 - Height);
+	m_sinTz = sin(M_PI_090 - Height);
 
-	m_Slope			.Create(Get_System());
-	m_Illumination	.Create(Get_System());
+	m_Illumination[0].Create(Get_System()); m_Illumination[1].Create(Get_System());
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			double	Slope, Aspect;
+			double Slope, Aspect;
 
 			if( pDEM->Get_Gradient(x, y, Slope, Aspect) )
 			{
-				m_Slope			.Set_Value(x, y, Slope);
-				m_Illumination	.Set_Value(x, y, cos(Slope) * m_cosTz + sin(Slope) * m_sinTz * cos(Azi - Aspect));
+				m_Illumination[0].Set_Value(x, y, Slope);
+				m_Illumination[1].Set_Value(x, y, cos(Slope) * m_cosTz + sin(Slope) * m_sinTz * cos(Azimuth - Aspect));
 			}
 			else
 			{
-				m_Slope			.Set_Value(x, y, 0.0);
-				m_Illumination	.Set_Value(x, y, m_cosTz);
+				m_Illumination[0].Set_Value(x, y, 0.);
+				m_Illumination[1].Set_Value(x, y, m_cosTz);
 			}
 		}
 	}
 
 	//-----------------------------------------------------
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Parameter_Grid_List * CTopographic_Correction::Get_Bands(void)
+{
+	CSG_Parameter_Grid_List *pBands = Parameters("BANDS")->asGridList();
+
+	if( pBands->Get_Grid_Count() < 1 )
+	{
+		Error_Set(_TL("no images in input list"));
+
+		return( NULL );
+	}
+
+	Parameters("CORRECTED")->asGridList()->Del_Items();
+
+	for(int i=0; i<pBands->Get_Item_Count() && Process_Get_Okay(); i++)
+	{
+		CSG_Data_Object	*pInput = pBands->Get_Item(i), *pOutput;
+
+		switch( pInput->Get_ObjectType() )
+		{
+		default: {
+			CSG_Grid  *pGrid  = (CSG_Grid  *)pInput; pOutput = SG_Create_Grid (*pGrid );
+
+			((CSG_Grid  *)pOutput)->Set_Scaling(pGrid ->Get_Scaling(), pGrid ->Get_Offset());
+
+			break; }
+
+		case SG_DATAOBJECT_TYPE_Grids: {
+			CSG_Grids *pGrids = (CSG_Grids *)pInput; pOutput = SG_Create_Grids(*pGrids);
+
+			((CSG_Grids *)pOutput)->Set_Scaling(pGrids->Get_Scaling(), pGrids->Get_Offset());
+
+			break; }
+		}
+
+		DataObject_Add(pOutput); DataObject_Set_Parameters(pOutput, pInput);
+
+		pOutput->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Topographic Correction"));
+		pOutput->Set_NoData_Value_Range(pInput->Get_NoData_Value(), pInput->Get_NoData_Value(true));
+
+		pOutput->Set_Description      (pInput->Get_Description());
+		pOutput->Get_MetaData().Assign(pInput->Get_MetaData   ());
+
+		Parameters("CORRECTED")->asGridList()->Add_Item(pOutput);
+	}
+
+	return( Parameters("CORRECTED")->asGridList() );
 }
 
 

@@ -226,7 +226,7 @@ COpenCV_ML_SVM::COpenCV_ML_SVM(void)
 		), 0
 	);
 
-	Parameters.Add_Double("SVM_TYPE", "C" , _TL("C" ), _TL(""), 1.0, 0., true);
+	Parameters.Add_Double("SVM_TYPE", "C" , _TL("C" ), _TL(""), 5.0, 0., true);
 	Parameters.Add_Double("SVM_TYPE", "NU", _TL("Nu"), _TL(""), 0.5, 0., true);
 	Parameters.Add_Double("SVM_TYPE", "P" , _TL("P" ), _TL(""), 0.5, 0., true);
 
@@ -241,12 +241,12 @@ COpenCV_ML_SVM::COpenCV_ML_SVM(void)
 			_TL("exponential chi2"),
 			_TL("histogram intersection"),
 			_TL("custom")
-		), 1
+		), 2
 	);
 
 	Parameters.Add_Double("KERNEL", "COEF0" , _TL("Coefficient 0"), _TL(""), 1.0, 0., true);
 	Parameters.Add_Double("KERNEL", "DEGREE", _TL("Degree"       ), _TL(""), 0.5, 0., true);
-	Parameters.Add_Double("KERNEL", "GAMMA" , _TL("Gamma"        ), _TL(""), 1.0, 0., true);
+	Parameters.Add_Double("KERNEL", "GAMMA" , _TL("Gamma"        ), _TL(""), 5.0, 0., true);
 }
 
 //---------------------------------------------------------

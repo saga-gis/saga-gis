@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                imagery_classification                 //
+//                      3d_viewer                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//               Grid_Classify_Supervised.h              //
+//                 3d_viewer_scatterplot.h               //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2023 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -40,16 +40,14 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Grid_Classify_Supervised_H
-#define HEADER_INCLUDED__Grid_Classify_Supervised_H
+#ifndef HEADER_INCLUDED__3d_viewer_scatterplot_H
+#define HEADER_INCLUDED__3d_viewer_scatterplot_H
 
 
 ///////////////////////////////////////////////////////////
@@ -59,51 +57,36 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <saga_api/saga_api.h>
+#include <saga_gdi/3d_view.h>
 
 
 ///////////////////////////////////////////////////////////
 //														 //
+//														 //
+//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Classify_Supervised : public CSG_Tool_Grid
+class C3D_Viewer_Scatterplot : public CSG_Tool_Grid
 {
 public:
-	CGrid_Classify_Supervised(void);
+	C3D_Viewer_Scatterplot(void);
+
+	virtual bool			needs_GUI				(void)	const	{	return( true );	}
 
 
 protected:
 
-	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool				On_Execute				(void);
-
-
-private:
-
-	bool						m_bNormalize;
-
-	CSG_Parameter_Grid_List		*m_pFeatures;
-
-
-	bool						Get_Features			(int x, int y, CSG_Vector &Features);
-
-	bool						Set_Classifier			(CSG_Classifier_Supervised &Classifier);
-	bool						Set_Classifier			(CSG_Classifier_Supervised &Classifier, CSG_Table *pSamples);
-	bool						Set_Classifier			(CSG_Classifier_Supervised &Classifier, CSG_Shapes *pPolygons, int Field);
-	bool						Set_Classifier			(CSG_Classifier_Supervised &Classifier, CSG_Shape_Polygon *pPolygon, int Field);
-
-	bool						Set_Classification		(CSG_Classifier_Supervised &Classifier);
+	virtual bool			On_Execute				(void);
 
 };
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Grid_Classify_Supervised_H
+#endif // #ifndef HEADER_INCLUDED__3d_viewer_scatterplot_H

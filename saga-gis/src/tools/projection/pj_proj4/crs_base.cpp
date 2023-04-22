@@ -146,24 +146,21 @@ CCRS_Base::CCRS_Base(void)
 	Set_User_Parameters(*Parameters("CRS_DIALOG")->asParameters());
 
 	Parameters.Add_Parameters("CRS_PROJ4",
-		"CRS_GRID"	, _TL("Loaded Grid")  , _TL("")
+		"CRS_PICKER"	, _TL("Pick from Data Set"),
+		_TL("")
 	)->Set_UseInCMD(false);
 
-	Parameters("CRS_GRID")->asParameters()->Add_Grid("",
-		"PICK"		, _TL("Grid"),
+	Parameters("CRS_PICKER")->asParameters()->Add_Grid("",
+		"CRS_GRID"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL, false
 	);
 
-	Parameters.Add_Parameters("CRS_PROJ4",
-		"CRS_SHAPES", _TL("Loaded Shapes"), _TL("")
-	)->Set_UseInCMD(false);
-	
-	Parameters("CRS_SHAPES")->asParameters()->Add_Shapes("",
-		"PICK"		, _TL("Shapes"),
+	Parameters("CRS_PICKER")->asParameters()->Add_Shapes("",
+		"CRS_SHAPES"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
-	)->Set_UseInCMD(false);
+	);
 
 	//-----------------------------------------------------
 	Parameters.Add_FilePath("CRS_PROJ4",
@@ -194,13 +191,13 @@ CCRS_Base::CCRS_Base(void)
 	Parameters.Add_Choice("CRS_EPSG",
 		"CRS_EPSG_GEOGCS"	, _TL("Geographic Coordinate Systems"),
 		_TL(""),
-		SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Geographic)
+		CSG_String::Format("{0}<%s>|", _TL("select")) + SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Geographic)
 	)->Set_UseInCMD(false);
 
 	Parameters.Add_Choice("CRS_EPSG",
 		"CRS_EPSG_PROJCS"	, _TL("Projected Coordinate Systems"),
 		_TL(""),
-		SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Projected)
+		CSG_String::Format("{0}<%s>|", _TL("select")) + SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Projected)
 	)->Set_UseInCMD(false);
 
 	//-----------------------------------------------------
@@ -301,7 +298,7 @@ CSG_Projection CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 	//-----------------------------------------------------
 	if(	pParameter->Cmp_Identifier("CRS_EPSG") || pParameter->Cmp_Identifier("CRS_EPSG_AUTH") )
 	{
-		int	Code	= (*pParameters)("CRS_EPSG")->asInt();
+		int Code = (*pParameters)("CRS_EPSG")->asInt();
 
 		if( Code >= 0 )
 		{
@@ -316,7 +313,7 @@ CSG_Projection CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 	if(	pParameter->Cmp_Identifier("CRS_EPSG_GEOGCS")
 	||	pParameter->Cmp_Identifier("CRS_EPSG_PROJCS") )
 	{
-		int		EPSG;
+		int EPSG;
 
 		if( pParameter->asChoice()->Get_Data(EPSG) && Projection.Create(EPSG) )
 		{
@@ -325,19 +322,30 @@ CSG_Projection CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 	}
 
 	//-----------------------------------------------------
-	if(	pParameter->Cmp_Identifier("CRS_GRID"  )
-	||	pParameter->Cmp_Identifier("CRS_SHAPES") )
-	{
-		CSG_Data_Object	*pPick	= (*pParameter->asParameters())("PICK")->asDataObject();
+	if(	pParameter->Cmp_Identifier("CRS_GRID"  ) ) { (*pParameters)("CRS_SHAPES")              ->Set_Value(DATAOBJECT_NOTSET); }
+	if(	pParameter->Cmp_Identifier("CRS_SHAPES") ) { (*pParameters)("CRS_GRID"  )->Get_Parent()->Set_Value(DATAOBJECT_NOTSET); }
 
-		if( pPick && pPick->Get_Projection().is_Okay() )
+	if(	pParameter->Cmp_Identifier("CRS_PICKER") )
+	{
+		CSG_Data_Object *pPick;
+
+		if( (pPick = (*pParameter->asParameters())("CRS_GRID"  )->asDataObject()) && pPick->Get_Projection().is_Okay() )
 		{
 			Projection.Create(pPick->Get_Projection());
 		}
+
+		(*pParameter->asParameters())("CRS_GRID"  )->Get_Parent()->Set_Value(DATAOBJECT_NOTSET);
+
+		if( (pPick = (*pParameter->asParameters())("CRS_SHAPES")->asDataObject()) && pPick->Get_Projection().is_Okay() )
+		{
+			Projection.Create(pPick->Get_Projection());
+		}
+
+		(*pParameter->asParameters())("CRS_SHAPES")              ->Set_Value(DATAOBJECT_NOTSET);
 	}
 
 	//-----------------------------------------------------
-	if( Projection.is_Okay() )
+	if( Projection.is_Okay() && (*pParameters)("CRS_PROJ4") )
 	{
 		pParameters->Set_Parameter("CRS_PROJ4"    , Projection.Get_Proj4       ());
 		pParameters->Set_Parameter("CRS_EPSG"     , Projection.Get_Authority_ID());
@@ -347,6 +355,9 @@ CSG_Projection CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 		{
 			Set_User_Definition(*(*pParameters)("CRS_DIALOG")->asParameters(), Projection.Get_Proj4());
 		}
+
+		if(	!pParameter->Cmp_Identifier("CRS_EPSG_GEOGCS") ) { pParameters->Set_Parameter("CRS_EPSG_GEOGCS", 0); }
+		if(	!pParameter->Cmp_Identifier("CRS_EPSG_PROJCS") ) { pParameters->Set_Parameter("CRS_EPSG_PROJCS", 0); }
 	}
 
 	//-----------------------------------------------------

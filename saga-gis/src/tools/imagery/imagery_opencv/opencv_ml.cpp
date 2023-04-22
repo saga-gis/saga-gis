@@ -78,8 +78,6 @@ enum
 //---------------------------------------------------------
 COpenCV_ML::COpenCV_ML(bool bProbability)
 {
-	m_bNormalize = false;
-
 	Add_Reference("https://docs.opencv.org/", SG_T("Open Source Computer Vision"));
 
 	//-----------------------------------------------------
@@ -96,7 +94,7 @@ COpenCV_ML::COpenCV_ML(bool bProbability)
 	);
 
 	Parameters.Add_Bool("FEATURES",
-		"RGB_COLORS"	, _TL("Update Colors from Features"),
+		"RGB_COLORS"	, _TL("Colors from Features"),
 		_TL("Use the first three features in list to obtain blue, green, red components for class colour in look-up table."),
 		false
 	)->Set_UseInCMD(false);
@@ -122,18 +120,14 @@ COpenCV_ML::COpenCV_ML(bool bProbability)
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_FilePath("",
-		"MODEL_LOAD"	, _TL("Load Model"),
-		_TL("Use a model previously stored to file."),
-		CSG_String::Format("%s (*.xml)|*.xml|%s|*.*",
-			_TL("XML Files"),
-			_TL("All Files")
+	Parameters.Add_Choice("",
+		"MODEL_TRAIN"	, _TL("Training"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s",
+			_TL("training areas"),
+			_TL("training samples"),
+			_TL("load from file")
 		)
-	);
-
-	Parameters.Add_Node("",
-		"MODEL_TRAIN"	, _TL("Model Training"),
-		_TL("")
 	);
 
 	Parameters.Add_Table("MODEL_TRAIN",
@@ -157,6 +151,15 @@ COpenCV_ML::COpenCV_ML(bool bProbability)
 		"TRAIN_BUFFER"	, _TL("Buffer Size"),
 		_TL("For non-polygon type training areas, creates a buffer with a diameter of specified size."),
 		1., 0., true
+	);
+
+	Parameters.Add_FilePath("",
+		"MODEL_LOAD"	, _TL("Load Model"),
+		_TL("Use a model previously stored to file."),
+		CSG_String::Format("%s (*.xml)|*.xml|%s|*.*",
+			_TL("XML Files"),
+			_TL("All Files")
+		)
 	);
 
 	Parameters.Add_FilePath("MODEL_TRAIN",
@@ -185,6 +188,16 @@ int COpenCV_ML::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 		}
 	}
 
+	if( pParameter->Cmp_Identifier("MODEL_LOAD") )
+	{
+		if( !Check_Model_File(pParameter->asString()) )
+		{
+			pParameter->Set_Value("");
+
+			Error_Fmt("%s: %s", _TL("invalid model file"), pParameter->asString());
+		}
+	}
+
 	//-----------------------------------------------------
 	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
 }
@@ -194,36 +207,24 @@ int COpenCV_ML::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 {
 	if( pParameter->Cmp_Identifier("FEATURES") )
 	{
-		pParameters->Set_Enabled("RGB_COLORS", pParameter->asGridList()->Get_Grid_Count() >= 3);
+		pParameters->Set_Enabled("RGB_COLORS"   , pParameter->asGridList()->Get_Grid_Count() >= 3 && (*pParameters)("MODEL_TRAIN")->asInt() != 2);
 	}
 
-	if( pParameter->Cmp_Identifier("MODEL_LOAD") )
+	if( pParameter->Cmp_Identifier("MODEL_TRAIN") )
 	{
-		bool bOkay = Check_Model_File(pParameter->asString());
+		pParameter->Set_Children_Enabled(pParameter->asInt() != 2);
 
-		if( !bOkay )
-		{
-			pParameter->Set_Value("");
-		}
+		pParameters->Set_Enabled("MODEL_LOAD"   , pParameter->asInt() == 2);
+		pParameters->Set_Enabled("TRAIN_SAMPLES", pParameter->asInt() == 1);
+		pParameters->Set_Enabled("TRAIN_AREAS"  , pParameter->asInt() == 0);
 
-		pParameters->Set_Enabled("MODEL_TRAIN", !bOkay);
-		pParameters->Set_Enabled("RGB_COLORS" , !bOkay);
-		pParameters->Set_Enabled("CLASSES_LUT", !bOkay);
-	}
-
-	if( pParameter->Cmp_Identifier("TRAIN_SAMPLES") )
-	{
-		pParameters->Set_Enabled("TRAIN_AREAS", pParameter->asTable() == NULL);
+		pParameters->Set_Enabled("CLASSES_LUT"  , pParameter->asInt() != 2);
+		pParameters->Set_Enabled("RGB_COLORS"   , pParameter->asInt() != 2 && (*pParameters)("FEATURES")->asGridList()->Get_Grid_Count() >= 3);
 	}
 
 	if( pParameter->Cmp_Identifier("TRAIN_AREAS") )
 	{
-		pParameters->Set_Enabled("TRAIN_SAMPLES", pParameter->asShapes() == NULL);
-	}
-
-	if( pParameter->Cmp_Identifier("TRAIN_AREAS") )
-	{
-		pParameters->Set_Enabled("TRAIN_BUFFER", pParameter->asShapes() && pParameter->asShapes()->Get_Type() != SHAPE_TYPE_Polygon);
+		pParameters->Set_Enabled("TRAIN_BUFFER" , pParameter->asShapes() && pParameter->asShapes()->Get_Type() != SHAPE_TYPE_Polygon);
 	}
 
 	//-----------------------------------------------------
@@ -352,21 +353,9 @@ bool COpenCV_ML::_Finalize(void)
 //---------------------------------------------------------
 bool COpenCV_ML::Check_Model_File(const CSG_String &File)
 {
-	if( !SG_File_Exists(File) )
-	{
-		return( false );
-	}
-	
-	CSG_MetaData Model(File);
+	CSG_MetaData Model;
 
-	if( !Model.Load(File) || !Model.Cmp_Name("opencv_storage") || !Model("opencv_ml_" + CSG_String(Get_Model_ID())) )
-	{
-		Error_Fmt("%s: %s", _TL("failed to load model"), File.c_str());
-
-		return( false);
-	}
-
-	return( true );
+	return( Model.Load(File) && Model.Cmp_Name("opencv_storage") && Model("opencv_ml_" + CSG_String(Get_Model_ID())) );
 }
 
 
@@ -583,36 +572,42 @@ bool COpenCV_ML::_Get_Training(CSG_Matrix &Data, CSG_Table_Record *pClass, CSG_T
 }
 
 //---------------------------------------------------------
-bool COpenCV_ML::_Get_Training(CSG_Matrix &Data, CSG_Table_Record *pClass, CSG_Shape_Polygon *pArea)
+bool COpenCV_ML::_Get_Training(CSG_Matrix &Data, CSG_Table_Record *pClass, CSG_Shape_Polygon *pPolygon)
 {
-	int n = 0; double r = 0., g = 0., b = 0.;
+	int n = 0; double r = 0., g = 0., b = 0.; CSG_Vector z(1 + (sLong)m_pFeatures->Get_Grid_Count());
 
-	int xMin = Get_System().Get_xWorld_to_Grid(pArea->Get_Extent().Get_XMin()); if( xMin <  0        ) { xMin = 0           ; }
-	int xMax = Get_System().Get_xWorld_to_Grid(pArea->Get_Extent().Get_XMax()); if( xMax >= Get_NX() ) { xMax = Get_NX() - 1; }
-	int yMin = Get_System().Get_yWorld_to_Grid(pArea->Get_Extent().Get_YMin()); if( yMin <  0        ) { yMin = 0           ; }
-	int yMax = Get_System().Get_yWorld_to_Grid(pArea->Get_Extent().Get_YMax()); if( yMax >= Get_NY() ) { yMax = Get_NY() - 1; }
-
-	for(int y=yMin; y<=yMax; y++) for(int x=xMin; x<=xMax; x++)
+	for(int i=0; i<pPolygon->Get_Part_Count(); i++)
 	{
-		if( !m_pClasses->is_NoData(x, y) && pArea->Contains(Get_System().Get_Grid_to_World(x, y)) )
+		CSG_Shape_Polygon_Part *pPart = pPolygon->Get_Polygon_Part(i);
+
+		if( pPart->Get_Extent().Intersects(Get_System().Get_Extent()) )
 		{
-			CSG_Vector z(1 + (sLong)m_pFeatures->Get_Grid_Count());
+			int xMin = Get_System().Get_xWorld_to_Grid(pPart->Get_Extent().Get_XMin()); if( xMin <  0        ) { xMin = 0           ; }
+			int xMax = Get_System().Get_xWorld_to_Grid(pPart->Get_Extent().Get_XMax()); if( xMax >= Get_NX() ) { xMax = Get_NX() - 1; }
+			int yMin = Get_System().Get_yWorld_to_Grid(pPart->Get_Extent().Get_YMin()); if( yMin <  0        ) { yMin = 0           ; }
+			int yMax = Get_System().Get_yWorld_to_Grid(pPart->Get_Extent().Get_YMax()); if( yMax >= Get_NY() ) { yMax = Get_NY() - 1; }
 
-			z[m_pFeatures->Get_Grid_Count()] = pClass->asInt(CLASS_ID);
-
-			for(int i=0; i<m_pFeatures->Get_Grid_Count(); i++)
+			for(int y=yMin; y<=yMax; y++) for(int x=xMin; x<=xMax; x++)
 			{
-				z[i] = _Get_Feature(x, y, i);
+				if( !m_pClasses->is_NoData(x, y) && pPart->Contains(Get_System().Get_Grid_to_World(x, y)) )
+				{
+					z[m_pFeatures->Get_Grid_Count()] = pClass->asInt(CLASS_ID);
+
+					for(int i=0; i<m_pFeatures->Get_Grid_Count(); i++)
+					{
+						z[i] = _Get_Feature(x, y, i);
+					}
+
+					Data.Add_Row(z);
+
+					if( m_pFeatures->Get_Grid_Count() >= 3 )
+					{
+						r += z[2]; g += z[1]; b += z[0];
+					}
+
+					n++;
+				}
 			}
-
-			Data.Add_Row(z);
-
-			if( m_pFeatures->Get_Grid_Count() >= 3 )
-			{
-				r += z[2]; g += z[1]; b += z[0];
-			}
-
-			n++;
 		}
 	}
 
