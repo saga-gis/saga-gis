@@ -45,16 +45,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "pc_isolated_points_filter.h"
+
+#include <vector>
 
 
 ///////////////////////////////////////////////////////////
@@ -66,7 +59,6 @@
 //---------------------------------------------------------
 CIsolated_Points_Filter::CIsolated_Points_Filter(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Isolated Points Filter"));
 
 	Set_Author		("V. Wichmann (c) 2023");
@@ -87,7 +79,7 @@ CIsolated_Points_Filter::CIsolated_Points_Filter(void)
 	);
 
 	Parameters.Add_PointCloud("",
-		"PC_OUT", _TL("Point Cloud Filtered"),
+		"PC_OUT", _TL("Filtered Point Cloud"),
 		_TL("The filtered point cloud."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
@@ -107,7 +99,7 @@ CIsolated_Points_Filter::CIsolated_Points_Filter(void)
 	Parameters.Add_Choice("",
 		"METHOD", _TL("Method"),
 		_TL("Choose the filter method."),
-		CSG_String::Format(SG_T("%s|%s"),
+		CSG_String::Format("%s|%s",
 			_TL("remove points"),
 			_TL("label points")
 		), 0
@@ -117,133 +109,133 @@ CIsolated_Points_Filter::CIsolated_Points_Filter(void)
 //---------------------------------------------------------
 bool CIsolated_Points_Filter::On_Execute(void)
 {
-	CSG_PointCloud	*pPC_in			= Parameters("PC_IN")->asPointCloud();
-	CSG_PointCloud	*pPC_out		= Parameters("PC_OUT")->asPointCloud();
-	double			dRadius			= Parameters("RADIUS")->asDouble();
-	size_t			iMaxPoints		= Parameters("MAX_POINTS")->asInt();
-	int				iMethod			= Parameters("METHOD")->asInt();
-	
 	enum
 	{
 		METHOD_REMOVE_PTS = 0,
 		METHOD_LABEL_PTS
 	};
-	
+
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("Initializing ..."));
 
-	CSG_PointCloud PC_out;
+	CSG_PointCloud *pPoints = Parameters("PC_IN")->asPointCloud();
 
-	if( !pPC_out || pPC_out == pPC_in )
-	{
-		pPC_out = &PC_out;
-	}
-
-	pPC_out->Create(pPC_in);
-	pPC_out->Add_Field(_TL("isolated"), SG_DATATYPE_Byte);
-	int iFieldLabel = pPC_out->Get_Field_Count() - 1;
-
-	//-----------------------------------------------------
-	CSG_KDTree_2D		Search(pPC_in);
-	std::vector<bool>	Isolated(pPC_in->Get_Count(), false);
-
-	Set_Progress(20., 100.);
-
+	CSG_KDTree_3D Search(pPoints); std::vector<bool> Isolated(pPoints->Get_Count(), false);
 
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("Processing ..."));
-		
+
+	double Radius = Parameters("RADIUS")->asDouble(); size_t MaxPoints = Parameters("MAX_POINTS")->asInt();
+
+	Set_Progress(0.2);
+
+	#ifndef _DEBUG
 	#pragma omp parallel for
-	for(sLong iPoint=0; iPoint<pPC_in->Get_Count(); iPoint++)
+	#endif
+	for(sLong i=0; i<pPoints->Get_Count(); i++)
 	{
 		if( SG_OMP_Get_Thread_Num() == 0 )
 		{
-			Set_Progress(20. + 55. / pPC_in->Get_Count() * iPoint * SG_OMP_Get_Max_Num_Threads(), 100.);
+			Set_Progress(0.2 + 0.55 / pPoints->Get_Count() * i * SG_OMP_Get_Max_Num_Threads());
 		}
 
-		CSG_Array_Int	Indices;
-		CSG_Vector		Distances;
+		CSG_Array_Int Indices; CSG_Vector Distances;
 
-		Search.Get_Nearest_Points(pPC_in->Get_X(iPoint), pPC_in->Get_Y(iPoint), 0, dRadius, Indices, Distances);
+		Search.Get_Nearest_Points(pPoints->Get_X(i), pPoints->Get_Y(i), pPoints->Get_Z(i), 0, Radius, Indices, Distances);
 
-		if (Indices.Get_Size() <= iMaxPoints)
+		if( Indices.Get_uSize() <= MaxPoints )
 		{
-			Isolated[iPoint] = true;
+			Isolated[i] = true;
 		}
 	}
 	
-	Set_Progress(75., 100.);
-
+	Set_Progress(0.75);
 
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("Writing ..."));
 
-	sLong iCntIsolated = 0;
+	CSG_PointCloud *pFiltered = Parameters("PC_OUT")->asPointCloud(), Filtered;
 
-	for(sLong iPoint=0; iPoint<pPC_in->Get_Count() && Set_Progress(75. + 25. / pPC_in->Get_Count() * iPoint, 100.); iPoint++)
+	if( !pFiltered || pFiltered == pPoints )
 	{
-		if( iMethod == METHOD_REMOVE_PTS && Isolated[iPoint] )
+		pFiltered = &Filtered;
+	}
+
+	pFiltered->Create(pPoints);
+	pFiltered->Add_Field(_TL("isolated"), SG_DATATYPE_Byte);
+
+	int Label = pFiltered->Get_Field_Count() - 1;
+
+	int Method = Parameters("METHOD")->asInt();
+
+	sLong nIsolated = 0;
+
+	for(sLong i=0; i<pPoints->Get_Count() && Set_Progress(0.75 + 0.25 / pPoints->Get_Count() * i); i++)
+	{
+		if( Method == METHOD_REMOVE_PTS && Isolated[i] )
 		{
-			iCntIsolated++;
+			nIsolated++;
+
 			continue;
 		}
 
-		pPC_out->Add_Point(pPC_in->Get_X(iPoint), pPC_in->Get_Y(iPoint), pPC_in->Get_Z(iPoint));
+		pFiltered->Add_Point(pPoints->Get_X(i), pPoints->Get_Y(i), pPoints->Get_Z(i));
 
-		for(int j=0; j<pPC_in->Get_Attribute_Count(); j++)
+		for(int j=0; j<pPoints->Get_Attribute_Count(); j++)
 		{
-			switch (pPC_in->Get_Attribute_Type(j))
+			switch( pPoints->Get_Attribute_Type(j) )
 			{
-			default:					pPC_out->Set_Attribute(iPoint, j, pPC_in->Get_Attribute(iPoint, j));		break;
-			case SG_DATATYPE_Date:
-			case SG_DATATYPE_String:	CSG_String sAttr; pPC_in->Get_Attribute(iPoint, j, sAttr); pPC_out->Set_Attribute(iPoint, j, sAttr);		break;
+			default                : {
+				pFiltered->Set_Attribute(i, j, pPoints->Get_Attribute(i, j));
+				break; }
+
+			case SG_DATATYPE_Date  :
+			case SG_DATATYPE_String: { CSG_String Value; pPoints->Get_Attribute(i, j, Value);
+				pFiltered->Set_Attribute(i, j, Value);
+				break; }
 			}
 		}
 
-		pPC_out->Set_Value(iFieldLabel, Isolated[iPoint]);
+		pFiltered->Set_Value(Label, Isolated[i]);
 
-		if( Isolated[iPoint] )
+		if( Isolated[i] )
 		{
-			iCntIsolated++;
+			nIsolated++;
 		}
 	}
 
-	SG_UI_Msg_Add(_TL("Number of isolated points:") + CSG_String::Format(" %lld (%.2f%%)", iCntIsolated, iCntIsolated / (double)pPC_in->Get_Count() * 100.0), true);
-
-
 	//-----------------------------------------------------
-	if( pPC_out == &PC_out )
+	SG_UI_Msg_Add(_TL("Number of isolated points:") + CSG_String::Format(" %lld (%.2f%%)", nIsolated, 100. * nIsolated / (double)pPoints->Get_Count()), true);
+
+	if( pFiltered == &Filtered )
 	{
-		CSG_MetaData	History = pPC_in->Get_History();
-		CSG_String		sName = pPC_in->Get_Name();
+		CSG_MetaData History = pPoints->Get_History(); CSG_String Name = pPoints->Get_Name();
 
-		pPC_in->Assign(pPC_out);
+		pPoints->Assign(pFiltered);
 
-		pPC_in->Get_History() = History;
-		pPC_in->Set_Name(sName);
+		pPoints->Get_History() = History; pPoints->Set_Name(Name);
 
-		Parameters("PC_OUT")->Set_Value(pPC_in);
+		Parameters("PC_OUT")->Set_Value(pPoints);
 	}
 	else
 	{
-		pPC_out->Fmt_Name("%s_filtered", pPC_in->Get_Name());
+		pFiltered->Fmt_Name("%s (filtered)", pPoints->Get_Name());
 	}
 
 	return( true );	
 }
 
-
 //---------------------------------------------------------
 bool CIsolated_Points_Filter::On_After_Execution(void)
 {
-	CSG_PointCloud	*pPC_out = Parameters("PC_OUT")->asPointCloud();
+	CSG_PointCloud *pFiltered = Parameters("PC_OUT")->asPointCloud();
 
-	if( pPC_out == NULL )
+	if( pFiltered == NULL )
 	{
-		pPC_out = Parameters("PC_IN")->asPointCloud();
+		pFiltered = Parameters("PC_IN")->asPointCloud();
 	}
 
-	if( pPC_out == Parameters("PC_IN")->asPointCloud() )
+	if( pFiltered == Parameters("PC_IN")->asPointCloud() )
 	{
 		Parameters("PC_OUT")->Set_Value(DATAOBJECT_NOTSET);
 	}
