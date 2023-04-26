@@ -186,12 +186,12 @@ bool CIsolated_Points_Filter::On_Execute(void)
 			switch( pPoints->Get_Attribute_Type(j) )
 			{
 			default                : {
-				pFiltered->Set_Attribute(i, j, pPoints->Get_Attribute(i, j));
+				pFiltered->Set_Attribute(j, pPoints->Get_Attribute(i, j));
 				break; }
 
 			case SG_DATATYPE_Date  :
 			case SG_DATATYPE_String: { CSG_String Value; pPoints->Get_Attribute(i, j, Value);
-				pFiltered->Set_Attribute(i, j, Value);
+				pFiltered->Set_Attribute(j, Value);
 				break; }
 			}
 		}
