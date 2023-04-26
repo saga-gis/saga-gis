@@ -127,13 +127,17 @@ CSpectral_Profile::CSpectral_Profile(void)
 	Parameters.Add_Choice("LENGTHS",
 		"PREDEFS"   , _TL("Predefined"),
 		_TL(""),
-		CSG_String::Format("<%s>|%s|%s|%s|%s|%s",
+		CSG_String::Format("<%s>|%s|%s|%s|%s|%s|%s|%s|%s|%s",
 			_TL("select from predefined wave lengths"),
 			SG_T("Landsat 1-5 MSS (Bands 1, 2, 3, 4)"),
 			SG_T("Landsat 4-5 TM (Bands 1, 2, 3, 4, 5, 7, 6)"),
 			SG_T("Landsat 7 ETM+ (Bands 1, 2, 3, 4, 5, 7, 6)"),
 			SG_T("Landsat 8-9 OLI/TIRS (Bands 2, 3, 4, 5, 7, 10, 11)"),
-			SG_T("Sentinel-2 (Bands 2, 3, 4, 5, 6, 7, 8, 11, 12)")
+			SG_T("Sentinel-2 (Bands 1, 2, 3, 4, 5, 6, 7, 8, 8a, 9, 10, 11, 12)"),
+			SG_T("Sentinel-2 (10/20m Bands 2, 3, 4, 5, 6, 7, 8, 8a, 11, 12)"),
+			SG_T("Sentinel-2 (10m Bands 2, 3, 4, 8)"),
+			SG_T("Sentinel-2 (20m Bands 5, 6, 7, 8a, 11, 12)"),
+			SG_T("Sentinel-3 (OLCI)")
 		), 0
 	)->Set_UseInCMD(false);
 }
@@ -150,11 +154,17 @@ int CSpectral_Profile::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 	{
 		switch( pParameter->asInt() )
 		{
-		case  1: (*pParameters)["LENGTHS"].Set_Value("0.55 0.65 0.75 0.95"                                           ); break; // Landsat 1-5 MSS
-		case  2: (*pParameters)["LENGTHS"].Set_Value("0.485 0.56 0.66 0.83 1.65 2.215 11.45"                         ); break; // Landsat 4-5 TM
-		case  3: (*pParameters)["LENGTHS"].Set_Value("0.485 0.57 0.66 0.84 1.65 2.220 11.45"                         ); break; // Landsat 7 ETM+
-		case  4: (*pParameters)["LENGTHS"].Set_Value("0.4825 0.5625 0.655 0.865 1.61 2.2 10.8 12"                    ); break; // Landsat 8-9 OLI/TIRS
-		case  5: (*pParameters)["LENGTHS"].Set_Value("0.4927 0.5598 0.6646 0.7041 0.4705 0.7828 0.8328 1.6137 2.2024"); break; // Sentinel-2
+		case  1: (*pParameters)["LENGTHS"].Set_Value("0.55 0.65 0.75 0.95"                       ); break; // Landsat 1-5 MSS
+		case  2: (*pParameters)["LENGTHS"].Set_Value("0.485 0.56 0.66 0.83 1.65 2.215 11.45"     ); break; // Landsat 4-5 TM
+		case  3: (*pParameters)["LENGTHS"].Set_Value("0.485 0.57 0.66 0.84 1.65 2.220 11.45"     ); break; // Landsat 7 ETM+
+		case  4: (*pParameters)["LENGTHS"].Set_Value("0.4825 0.5625 0.655 0.865 1.61 2.2 10.8 12"); break; // Landsat 8-9 OLI/TIRS
+
+		case  5: (*pParameters)["LENGTHS"].Set_Value("0.4425 0.4923 0.5594 0.6648 0.7040 0.7398 0.7813 0.8329 0.8644 0.9442 1.3752 1.6121 2.1941"); break; // Sentinel-2, all
+		case  6: (*pParameters)["LENGTHS"].Set_Value(       "0.4923 0.5594 0.6648 0.7040 0.7398 0.7813 0.8329 0.8644 "            "1.6121 2.1941"); break; // Sentinel-2, without aerosol, water vapour, cirrus
+		case  7: (*pParameters)["LENGTHS"].Set_Value(       "0.4923 0.5594 0.6648 "                   "0.8329"                                   ); break; // Sentinel-2, 10m
+		case  8: (*pParameters)["LENGTHS"].Set_Value(                            "0.7040 0.7398 0.7813 "     "0.8644 "            "1.6121 2.1941"); break; // Sentinel-2, 20m
+
+		case  9: (*pParameters)["LENGTHS"].Set_Value("0.4000 0.4125 0.4425 0.4900 0.5100 0.5600 0.6200 0.6650 0.6738 0.6813 0.7088 0.7538 0.7613 0.7644 0.7675 0.7788 0.8650 0.8850 0.9000 0.9400 1.0200"); break; // Sentinel-3
 		}
 
 		pParameter->Set_Value(0);
@@ -427,6 +437,11 @@ int CSpectral_Profile_Interactive::On_Parameters_Enable(CSG_Parameters *pParamet
 	if( pParameter->Cmp_Identifier("COLLECT") )
 	{
 		pParameters->Set_Enabled("SAMPLES", pParameter->asInt() == 0);
+	}
+
+	if( pParameter->Cmp_Identifier("SAMPLES") )
+	{
+		pParameters->Set_Enabled("CONTINUE", pParameter->asTable() != NULL);
 	}
 
 	m_Profile.On_Parameters_Enable(pParameters, pParameter);
