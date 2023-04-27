@@ -1345,13 +1345,15 @@ void CWKSP_Map::Set_CrossHair_Off(void)
 //---------------------------------------------------------
 void CWKSP_Map::Set_Projection(void)
 {
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 15, true);	// CCRS_Picker
+	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 15, true);	// CCRS_Picker
 
 	if(	pTool )
 	{
-		CSG_Parameters	P(*pTool->Get_Parameters());
+		CSG_Parameters P(*pTool->Get_Parameters());
 
-		P.Set_Parameter("CRS_PROJ4", m_Projection.Get_Proj4());
+		P.Set_Parameter("CRS_PROJ4"    , m_Projection.Get_Proj4       ());
+		P.Set_Parameter("CRS_EPSG"     , m_Projection.Get_Authority_ID());
+		P.Set_Parameter("CRS_EPSG_AUTH", m_Projection.Get_Authority   ());
 
 		P.Add_Bool("", "ONTHEFLY", _TL("On-The-Fly Projection"),
 			_TL("Turn on the on-the-fly projection for all layers in the map."),
@@ -1361,7 +1363,12 @@ void CWKSP_Map::Set_Projection(void)
 		if(	DLG_Parameters(&P) && pTool->Get_Parameters()->Assign_Values(&P)
 		&&  pTool->Set_Manager(NULL) && pTool->On_Before_Execution() && pTool->Execute() )
 		{
-			CSG_Projection	Projection(pTool->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+			CSG_Projection Projection; CSG_Parameters &_P = *pTool->Get_Parameters();
+
+			if( _P["CRS_EPSG"].asInt() < 0 || !Projection.Create(_P["CRS_EPSG"].asInt(), _P["CRS_EPSG_AUTH"].asString()) )
+			{
+				Projection.Create(_P["CRS_PROJ4"].asString(), SG_PROJ_FMT_Proj4);
+			}
 
 			if( P("ONTHEFLY")->asBool() )
 			{
@@ -1373,7 +1380,7 @@ void CWKSP_Map::Set_Projection(void)
 					}
 				}
 
-				CSG_Rect	r(Get_Extent());
+				CSG_Rect r(Get_Extent());
 
 				SG_Get_Projected(m_Projection, Projection, r);
 

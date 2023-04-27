@@ -76,7 +76,7 @@
 CWKSP_PointCloud::CWKSP_PointCloud(CSG_PointCloud *pPointCloud)
 	: CWKSP_Layer(pPointCloud)
 {
-	m_pTable	= new CWKSP_Table(pPointCloud);
+	m_pTable = new CWKSP_Table(pPointCloud);
 
 	m_Edit_Attributes.Destroy();
 	m_Edit_Attributes.Add_Field(_TL("Name" ), SG_DATATYPE_String);
@@ -361,8 +361,8 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	m_Parameters.Add_Int("NODE_DISPLAY",
 		"DISPLAY_SIZE"	, _TL("Point Size"),
-		_TL(""),
-		0, 0, true
+		_TL("Radius given as number of pixels."),
+		1, 1, true, 10, true
 	);
 
 	m_Parameters.Add_Choice("NODE_DISPLAY",
@@ -403,18 +403,16 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 //---------------------------------------------------------
 void CWKSP_PointCloud::On_DataObject_Changed(void)
 {
+	if( m_fValue >= Get_PointCloud()->Get_Field_Count() )
 	{
-		if( m_fValue >= Get_PointCloud()->Get_Field_Count() )
-		{
-			m_fValue	= Get_PointCloud()->Get_Field_Count() - 1;
-		}
-
-		double	m	= Get_PointCloud()->Get_Mean  (m_fValue);
-		double	s	= Get_PointCloud()->Get_StdDev(m_fValue) * 2.;
-
-		m_Parameters("METRIC_ZRANGE")->asRange()->Set_Range(m - s, m + s);
+		m_fValue = Get_PointCloud()->Get_Field_Count() - 1;
 	}
 
+	double m = Get_PointCloud()->Get_Mean(m_fValue), s = 2. * Get_PointCloud()->Get_StdDev(m_fValue);
+
+	m_Parameters("METRIC_ZRANGE")->asRange()->Set_Range(m - s, m + s);
+
+	//-----------------------------------------------------
 	_AttributeList_Set(m_Parameters("LUT_ATTRIB"   ), false);
 	_AttributeList_Set(m_Parameters("METRIC_ATTRIB"), false);
 	_AttributeList_Set(m_Parameters("RGB_ATTRIB"   ), false);
@@ -436,16 +434,16 @@ void CWKSP_PointCloud::On_Parameters_Changed(void)
 	//-----------------------------------------------------
 	switch( m_Parameters("COLORS_TYPE")->asInt() )
 	{
-	default: m_fValue = -1                                    ; break;	// CLASSIFY_SINGLE
-	case  1: m_fValue = m_Parameters("LUT_ATTRIB"   )->asInt(); break;	// CLASSIFY_LUT
-	case  2: m_fValue = m_Parameters("METRIC_ATTRIB")->asInt(); break;	// CLASSIFY_DISCRETE
-	case  3: m_fValue = m_Parameters("METRIC_ATTRIB")->asInt(); break;	// CLASSIFY_GRADUATED
-	case  4: m_fValue = m_Parameters("RGB_ATTRIB"   )->asInt(); break;	// CLASSIFY_RGB
+	default: m_fValue = -1                                    ; break; // CLASSIFY_SINGLE
+	case  1: m_fValue = m_Parameters("LUT_ATTRIB"   )->asInt(); break; // CLASSIFY_LUT
+	case  2: m_fValue = m_Parameters("METRIC_ATTRIB")->asInt(); break; // CLASSIFY_DISCRETE
+	case  3: m_fValue = m_Parameters("METRIC_ATTRIB")->asInt(); break; // CLASSIFY_GRADUATED
+	case  4: m_fValue = m_Parameters("RGB_ATTRIB"   )->asInt(); break; // CLASSIFY_RGB
 	}
 
 	if( m_fValue < 0 || m_fValue >= Get_PointCloud()->Get_Field_Count() )
 	{
-		m_fValue	= -1;
+		m_fValue = -1;
 
 		m_pClassify->Set_Mode(CLASSIFY_SINGLE);
 	}
@@ -457,10 +455,10 @@ void CWKSP_PointCloud::On_Parameters_Changed(void)
 	m_pObject->Set_Max_Samples(Get_PointCloud()->Get_Count() * (m_Parameters("MAX_SAMPLES")->asDouble() / 100.) );
 
 	//-----------------------------------------------------
-	long	DefColor	= m_Parameters("SINGLE_COLOR")->asColor();
-	m_Color_Pen			= wxColour(SG_GET_R(DefColor), SG_GET_G(DefColor), SG_GET_B(DefColor));
+	long DefColor = m_Parameters("SINGLE_COLOR")->asColor();
+	m_Color_Pen   = wxColour(SG_GET_R(DefColor), SG_GET_G(DefColor), SG_GET_B(DefColor));
 
-	m_PointSize			= m_Parameters("DISPLAY_SIZE")->asInt();
+	m_PointSize   = m_Parameters("DISPLAY_SIZE")->asInt() - 1;
 }
 
 //---------------------------------------------------------
@@ -482,12 +480,10 @@ int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 	{
 		if(	pParameter->Cmp_Identifier("METRIC_ATTRIB") )
 		{
-			int		zField	= pParameter->asInt();
+			int zField = pParameter->asInt(); double m = Get_PointCloud()->Get_Mean(zField), s = 2. * Get_PointCloud()->Get_StdDev(zField);
 
-			double	m	= Get_PointCloud()->Get_Mean  (zField);
-			double	s	= Get_PointCloud()->Get_StdDev(zField) * 2.;
-			double	min	= m - s;	if( min < Get_PointCloud()->Get_Minimum(zField) )	min	= Get_PointCloud()->Get_Minimum(zField);
-			double	max	= m + s;	if( max > Get_PointCloud()->Get_Maximum(zField) )	max	= Get_PointCloud()->Get_Maximum(zField);
+			double min = m - s;	if( min < Get_PointCloud()->Get_Minimum(zField) ) { min = Get_PointCloud()->Get_Minimum(zField); }
+			double max = m + s;	if( max > Get_PointCloud()->Get_Maximum(zField) ) { max = Get_PointCloud()->Get_Maximum(zField); }
 
 			pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(min, max);
 		}
@@ -498,12 +494,12 @@ int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 	{
 		if(	pParameter->Cmp_Identifier("COLORS_TYPE") )
 		{
-			int	Value	= pParameter->asInt();
+			int Value = pParameter->asInt();
 
-			pParameters->Set_Enabled("NODE_SINGLE"   , Value == CLASSIFY_SINGLE);
-			pParameters->Set_Enabled("NODE_LUT"      , Value == CLASSIFY_LUT);
-			pParameters->Set_Enabled("NODE_METRIC"   , Value == CLASSIFY_DISCRETE || Value == CLASSIFY_GRADUATED);
-			pParameters->Set_Enabled("NODE_RGB"	     , Value == 4);
+			pParameters->Set_Enabled("NODE_SINGLE", Value == CLASSIFY_SINGLE);
+			pParameters->Set_Enabled("NODE_LUT"   , Value == CLASSIFY_LUT);
+			pParameters->Set_Enabled("NODE_METRIC", Value == CLASSIFY_DISCRETE || Value == CLASSIFY_GRADUATED);
+			pParameters->Set_Enabled("NODE_RGB"	  , Value == 4);
 
 			return( 1 );
 		}
@@ -529,16 +525,16 @@ void CWKSP_PointCloud::_AttributeList_Set(CSG_Parameter *pFields, bool bAddNoFie
 {
 	if( pFields && pFields->Get_Type() == PARAMETER_TYPE_Choice )
 	{
-		CSG_String	s;
+		CSG_String s;
 
 		for(int i=0; i<Get_PointCloud()->Get_Field_Count(); i++)
 		{
-			s	+= Get_PointCloud()->Get_Field_Name(i); s += "|";
+			s += Get_PointCloud()->Get_Field_Name(i); s += "|";
 		}
 
 		if( bAddNoField )
 		{
-			s	+= _TL("<none>");
+			s += _TL("<none>");
 
 			pFields->asChoice()->Set_Items(s);
 
@@ -559,7 +555,6 @@ void CWKSP_PointCloud::_AttributeList_Set(CSG_Parameter *pFields, bool bAddNoFie
 //---------------------------------------------------------
 void CWKSP_PointCloud::_LUT_Create(void)
 {
-	//-----------------------------------------------------
 	if( Get_PointCloud()->Get_Field_Count() <= 0 || Get_PointCloud()->Get_Count() < 1 )
 	{
 		DLG_Message_Show(_TL("Function failed because no attributes are available"), _TL("Classify"));
@@ -568,7 +563,7 @@ void CWKSP_PointCloud::_LUT_Create(void)
 	}
 
 	//-----------------------------------------------------
-	static CSG_Parameters	Parameters;
+	static CSG_Parameters Parameters;
 
 	if( Parameters.Get_Count() == 0 )
 	{
@@ -768,22 +763,22 @@ void CWKSP_PointCloud::_LUT_Create(void)
 //---------------------------------------------------------
 wxString CWKSP_PointCloud::Get_Value(CSG_Point ptWorld, double Epsilon)
 {
-	CSG_Shape		*pShape;
+	CSG_Shape *pShape = Get_PointCloud()->Get_Shape(ptWorld, Epsilon);
 
-	if( (pShape = Get_PointCloud()->Get_Shape(ptWorld, Epsilon)) != NULL )
+	if( pShape != NULL )
 	{
 		if( m_fValue >= 0 )
 		{
 			switch( m_pClassify->Get_Mode() )
 			{
-			case CLASSIFY_LUT:
+			case CLASSIFY_LUT     :
 				return( m_pClassify->Get_Class_Name_byValue(pShape->asDouble(m_fValue)) );
 
 			case CLASSIFY_DISCRETE:	default:
 				return( pShape->asString(m_fValue) );
 
-			case CLASSIFY_RGB:
-				double	Value = pShape->asDouble(m_fValue);
+			case CLASSIFY_RGB     :
+				double Value = pShape->asDouble(m_fValue);
 				return( wxString::Format("R%03d G%03d B%03d", SG_GET_R((int)Value), SG_GET_G((int)Value), SG_GET_B((int)Value)) );
 			}
 		}
@@ -827,7 +822,7 @@ bool CWKSP_PointCloud::asImage(CSG_Grid *pImage)
 //---------------------------------------------------------
 wxMenu * CWKSP_PointCloud::Edit_Get_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu;
+	wxMenu *pMenu = new wxMenu;
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_DEL_SHAPE);
     CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_COPY_TO_NEW_LAYER);
@@ -857,7 +852,7 @@ bool CWKSP_PointCloud::Edit_On_Mouse_Up(const CSG_Point &Point, double ClientToW
 	}
 	else
 	{
-		CSG_Rect	rWorld(m_Edit_Mouse_Down, Point);
+		CSG_Rect rWorld(m_Edit_Mouse_Down, Point);
 
 		if( rWorld.Get_XRange() == 0. && rWorld.Get_YRange() == 0. )
 		{
@@ -870,15 +865,16 @@ bool CWKSP_PointCloud::Edit_On_Mouse_Up(const CSG_Point &Point, double ClientToW
 
 		//-----------------------------------------------------
 		m_Edit_Attributes.Del_Records();
-		m_Edit_Index	= 0;
+		m_Edit_Index = 0;
 
-		CSG_Table_Record	*pRecord	= Get_PointCloud()->Get_Selection();
+		CSG_Table_Record *pRecord = Get_PointCloud()->Get_Selection();
 
 		if( pRecord != NULL )
 		{
 			for(int i=0; i<Get_PointCloud()->Get_Field_Count(); i++)
 			{
-				CSG_Table_Record	*pAttribute	= m_Edit_Attributes.Add_Record();
+				CSG_Table_Record *pAttribute = m_Edit_Attributes.Add_Record();
+
 				pAttribute->Set_Value(0, pRecord->Get_Table()->Get_Field_Name(i));
 				pAttribute->Set_Value(1, pRecord->asString(i));
 			}
@@ -905,18 +901,18 @@ bool CWKSP_PointCloud::Edit_Set_Index(int Index)
 
 	if( Index > (int)Get_PointCloud()->Get_Selection_Count() )
 	{
-		Index	= Get_PointCloud()->Get_Selection_Count();
+		Index = Get_PointCloud()->Get_Selection_Count();
 	}
 
-	CSG_Table_Record	*pSelection	= Get_PointCloud()->Get_Selection(Index);
+	CSG_Table_Record *pSelection = Get_PointCloud()->Get_Selection(Index);
 
 	if( pSelection )
 	{
-		m_Edit_Index	= Index;
+		m_Edit_Index = Index;
 
 		for(int i=0; i<Get_PointCloud()->Get_Field_Count(); i++)
 		{
-			CSG_Table_Record	*pRecord	= m_Edit_Attributes.Add_Record();
+			CSG_Table_Record *pRecord = m_Edit_Attributes.Add_Record();
 
 			pRecord->Set_Value(0, pSelection->Get_Table()->Get_Field_Name(i));
 			pRecord->Set_Value(1, pSelection->asString(i));
@@ -924,7 +920,7 @@ bool CWKSP_PointCloud::Edit_Set_Index(int Index)
 	}
 	else
 	{
-		m_Edit_Index	= 0;
+		m_Edit_Index = 0;
 	}
 
 	return( true );
@@ -933,7 +929,7 @@ bool CWKSP_PointCloud::Edit_Set_Index(int Index)
 //---------------------------------------------------------
 bool CWKSP_PointCloud::Edit_Set_Attributes(void)
 {
-	CSG_Table_Record	*pSelection	= Get_PointCloud()->Get_Selection(m_Edit_Index);
+	CSG_Table_Record *pSelection = Get_PointCloud()->Get_Selection(m_Edit_Index);
 
 	if( pSelection )
 	{
@@ -1040,7 +1036,7 @@ void CWKSP_PointCloud::_Draw_Point(CWKSP_Map_DC &dc_Map, int x, int y, double z,
 //---------------------------------------------------------
 void CWKSP_PointCloud::_Draw_Points(CWKSP_Map_DC &dc_Map)
 {
-	m_Aggregation	= m_Parameters("DISPLAY_VALUE_AGGREGATE")->asInt();
+	m_Aggregation = m_Parameters("DISPLAY_VALUE_AGGREGATE")->asInt();
 
 	if( m_Aggregation != 1 )
 	{
@@ -1049,9 +1045,9 @@ void CWKSP_PointCloud::_Draw_Points(CWKSP_Map_DC &dc_Map)
 	}
 
 	//-----------------------------------------------------
-	CSG_PointCloud	*pPoints	= Get_PointCloud();
+	CSG_PointCloud *pPoints = Get_PointCloud();
 
-	sLong	Selection	= pPoints->Get_Selection_Count() > 0 ? pPoints->Get_Selection_Index(m_Edit_Index) : -1;
+	sLong Selection = pPoints->Get_Selection_Count() > 0 ? pPoints->Get_Selection_Index(m_Edit_Index) : -1;
 
 	for(sLong i=0; i<pPoints->Get_Count(); i++)
 	{
@@ -1059,25 +1055,23 @@ void CWKSP_PointCloud::_Draw_Points(CWKSP_Map_DC &dc_Map)
 
 		if( !pPoints->is_NoData(m_fValue) )
 		{
-			TSG_Point_3D	Point	= pPoints->Get_Point();
+			TSG_Point_3D Point = pPoints->Get_Point();
 
 			if( dc_Map.m_rWorld.Contains(Point.x, Point.y) )
 			{
-				int		x	= (int)dc_Map.xWorld2DC(Point.x);
-				int		y	= (int)dc_Map.yWorld2DC(Point.y);
+				int x = (int)dc_Map.xWorld2DC(Point.x);
+				int y = (int)dc_Map.yWorld2DC(Point.y);
 
 				if( Selection >= 0 && pPoints->is_Selected(i) )
 				{
-					int	Size	= Selection == i ? 2 + m_PointSize : m_PointSize;
+					int Size = Selection == i ? 2 + m_PointSize : m_PointSize;
 
 					_Draw_Point(dc_Map, x, y, Point.z, SG_COLOR_YELLOW, Size    );
 					_Draw_Point(dc_Map, x, y, Point.z, SG_COLOR_RED   , Size + 2);
 				}
 				else
 				{
-					int		Color;
-
-					m_pClassify->Get_Class_Color_byValue(pPoints->Get_Value(m_fValue), Color);
+					int Color; m_pClassify->Get_Class_Color_byValue(pPoints->Get_Value(m_fValue), Color);
 
 					_Draw_Point(dc_Map, x, y, Point.z, Color, m_PointSize);
 				}
@@ -1089,9 +1083,9 @@ void CWKSP_PointCloud::_Draw_Points(CWKSP_Map_DC &dc_Map)
 //---------------------------------------------------------
 void CWKSP_PointCloud::_Draw_Thumbnail(CWKSP_Map_DC &dc_Map)
 {
-	CSG_PointCloud	*pPoints	= Get_PointCloud();
+	CSG_PointCloud *pPoints = Get_PointCloud();
 
-	sLong	n	= 1 + (sLong)(pPoints->Get_Count() / (2 * dc_Map.m_rDC.GetWidth() * dc_Map.m_rDC.GetHeight()));
+	sLong n = 1 + (sLong)(pPoints->Get_Count() / (2 * dc_Map.m_rDC.GetWidth() * dc_Map.m_rDC.GetHeight()));
 
 	for(sLong i=0; i<pPoints->Get_Count(); i+=n)
 	{
@@ -1099,14 +1093,12 @@ void CWKSP_PointCloud::_Draw_Thumbnail(CWKSP_Map_DC &dc_Map)
 
 		if( !pPoints->is_NoData(m_fValue) )
 		{
-			TSG_Point_3D	Point	= pPoints->Get_Point();
+			TSG_Point_3D Point = pPoints->Get_Point();
 
-			int	x	= (int)dc_Map.xWorld2DC(Point.x);
-			int	y	= (int)dc_Map.yWorld2DC(Point.y);
+			int x = (int)dc_Map.xWorld2DC(Point.x);
+			int y = (int)dc_Map.yWorld2DC(Point.y);
 
-			int	Color;
-
-			m_pClassify->Get_Class_Color_byValue(pPoints->Get_Value(m_fValue), Color);
+			int Color; m_pClassify->Get_Class_Color_byValue(pPoints->Get_Value(m_fValue), Color);
 
 			dc_Map.IMG_Set_Pixel(x, y, Color);
 		}

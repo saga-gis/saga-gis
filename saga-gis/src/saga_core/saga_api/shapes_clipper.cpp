@@ -51,7 +51,7 @@
 //---------------------------------------------------------
 #include "shapes.h"
 
-#include "clipper.h"
+#include "clipper2/clipper.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -249,21 +249,9 @@ public:
 				EndType = Clipper2Lib::EndType::Polygon;
 			}
 
-			if( true )
-			{
-				// Workaround: ClipperOffset::ArcTolerance not accessible through InflatePaths(),
-				// but ClipperOffset::Execute() currently only returns Paths64 type objects!!!
-				Clipper2Lib::ClipperOffset Offset;
-				const double Scale = std::pow(10., m_Precision);
-				Offset.AddPaths(Clipper2Lib::ScalePaths<int64_t, double>(Paths, Scale), Clipper2Lib::JoinType::Round, EndType);
-				Offset.ArcTolerance(Scale * Delta * (1. - cos(dArc / 2.)));
-				Clipper2Lib::Paths64 Solution64 = Offset.Execute(Scale * Delta);
-				Solution = Clipper2Lib::ScalePaths<double, int64_t>(Solution64, 1. / Scale);
-			}
-			else
-			{
-				Solution = Clipper2Lib::InflatePaths(Paths, Delta, Clipper2Lib::JoinType::Round, EndType, 2., m_Precision);
-			}
+			double ArcTolerance = std::pow(10., m_Precision) * Delta * (1. - cos(dArc / 2.));
+
+			Solution = Clipper2Lib::InflatePaths(Paths, Delta, Clipper2Lib::JoinType::Round, EndType, 2., m_Precision, ArcTolerance);
 
 			return( to_Shape(Solution, pSolution ? pSolution : pShape) );
 		}
@@ -409,7 +397,9 @@ bool	SG_Shape_Get_Offset		(CSG_Shape *pShape, double Size, double dArc, CSG_Shap
 //---------------------------------------------------------
 const char *	SG_Clipper_Get_Version	(void)
 {
-	return( "Clipper2 1.0.0" );
+	static CSG_String Version(CSG_String("Clipper2 ") + CLIPPER2_VERSION);
+
+	return( Version );
 }
 
 

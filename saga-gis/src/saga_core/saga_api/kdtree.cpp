@@ -50,7 +50,7 @@
 //---------------------------------------------------------
 #include "pointcloud.h"
 
-#include "nanoflann.hpp"
+#include "nanoflann/nanoflann.hpp"
 
 
 ///////////////////////////////////////////////////////////
@@ -261,6 +261,18 @@ void CSG_KDTree::_On_Construction(void)
 {
 	m_pKDTree  = NULL;
 	m_pAdaptor = NULL;
+}
+
+//---------------------------------------------------------
+const char * CSG_KDTree::Get_Version(void)
+{
+	static CSG_String Version(CSG_String::Format("nanoflann %d.%d.%d",
+		(NANOFLANN_VERSION&0xf00)/0x100,
+		(NANOFLANN_VERSION&0x0f0)/0x010,
+		(NANOFLANN_VERSION&0x00f)/0x001)
+	);
+
+	return( Version );
 }
 
 //---------------------------------------------------------

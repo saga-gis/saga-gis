@@ -471,7 +471,7 @@ bool CSG_mRMR::Discretize(double Threshold)
 		curmean	= cursum / m_nSamples;
 		cursum	= 0;
 
-		register double tmpf;
+		double tmpf;
 
 		for(i=0; i<m_nSamples; i++)
 		{
@@ -490,7 +490,7 @@ bool CSG_mRMR::Discretize(double Threshold)
 	//-----------------------------------------------------
 	for(j=1; j<m_nVars; j++)
 	{
-		register double tmpf;
+		double tmpf;
 
 		for(i=0; i<m_nSamples; i++)
 		{
