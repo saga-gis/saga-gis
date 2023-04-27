@@ -775,7 +775,7 @@ bool CSVM_Grids::Finalize(void)
 
 	//-----------------------------------------------------
 	m_pClasses->Set_NoData_Value(-1.);
-	m_pClasses->Fmt_Name("SVM %s", _TL("Classification"));
+	m_pClasses->Fmt_Name("%s [%s]", _TL("Classification"), _TL("SVM"));
 
 	return( true );
 }

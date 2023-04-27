@@ -334,11 +334,13 @@ bool COpenCV_ML::_Finalize(void)
 	}
 
 	//-----------------------------------------------------
-	m_pClasses->Set_Name(Get_Name());
+	CSG_String Name(Get_Model_Name());
+
+	m_pClasses->Fmt_Name("%s [%s]", _TL("Classification"), Name.c_str());
 
 	if( m_pProbability )
 	{
-		m_pProbability->Set_Name(Get_Name() + " [" + _TL("Probability") + "]");
+		m_pProbability->Fmt_Name("%s %s [%s]", _TL("Classification"), _TL("Probability"), Name.c_str());
 	}
 
 	//-----------------------------------------------------

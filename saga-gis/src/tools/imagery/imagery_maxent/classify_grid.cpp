@@ -292,7 +292,8 @@ bool CClassify_Grid::On_Execute(void)
 	}
 
 	pClasses->Set_NoData_Value(-1);
-	pClasses->Fmt_Name("Maximum Entropy %s", _TL("Classification"));
+	pClasses->Fmt_Name("%s [%s]", _TL("Classification"), _TL("Maximum Entropy"));
+	pProb->Fmt_Name("%s %s [%s]", _TL("Classification"), _TL("Probability"), _TL("Maximum Entropy"));
 
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("prediction"));
