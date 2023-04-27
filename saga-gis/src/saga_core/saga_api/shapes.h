@@ -1207,6 +1207,8 @@ public:
 	CSG_KDTree(void);
 	virtual ~CSG_KDTree(void);
 
+	static const char *			Get_Version			(void);
+
 	virtual bool				Destroy				(void);
 
 	bool						is_Okay				(void)		const	{	return( m_pKDTree != NULL );	}

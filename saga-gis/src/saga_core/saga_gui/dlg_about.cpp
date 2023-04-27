@@ -47,7 +47,6 @@
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
-#include <saga_api/nanoflann.hpp>
 
 #include <wx/notebook.h>
 #include <wx/html/htmlwin.h>
@@ -229,10 +228,7 @@ wxString CDLG_About::_Get_Version(void)
 	s	+= "<i>and</i><br>";
 	s	+= "The Nearest Neighbor (NN) search with KD-trees library<br>";
 	s	+= "<a href=\"https://github.com/jlblancoc/nanoflann/\">";
-	s	+= wxString::Format("nanoflann %d.%d.%d",
-			(NANOFLANN_VERSION&0xf00)/0x100,
-			(NANOFLANN_VERSION&0x0f0)/0x010,
-			(NANOFLANN_VERSION&0x00f)/0x001);
+	s	+= CSG_KDTree::Get_Version();
 	s	+= "</a>";
 
 	//-----------------------------------------------------

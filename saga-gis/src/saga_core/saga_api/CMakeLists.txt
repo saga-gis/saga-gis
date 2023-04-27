@@ -102,7 +102,6 @@ set(SAGA_API_SOURCES
 	grid_pyramid.h
 	mat_tools.h
 	metadata.h
-	nanoflann.hpp
 	parameters.h
 	pointcloud.h
 	saga_api.h
@@ -114,6 +113,7 @@ set(SAGA_API_SOURCES
 	tool.h
 	tool_chain.h
 	tool_library.h
+	nanoflann/nanoflann.hpp
 )
 
 #________________________________________
@@ -122,20 +122,25 @@ option(WITH_CLIPPER_ONE "Check to make SAGA API use older Clipper1 instead of ne
 if(WITH_CLIPPER_ONE)
 	set(SAGA_API_SOURCES
 		${SAGA_API_SOURCES}
-		clipper.cpp
-		clipper.hpp
+		clipper1/clipper.cpp
+		clipper1/clipper.hpp
 		shapes_polygons.cpp
 	)
 else()
+	set(CMAKE_CXX_STANDARD 17)
+	set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 	set(SAGA_API_SOURCES
 		${SAGA_API_SOURCES}
-		clipper.engine.cpp
-		clipper.offset.cpp
-		clipper.h
-		clipper.core.h
-		clipper.engine.h
-		clipper.minkowski.h
-		clipper.offset.h
+		clipper2/clipper.engine.cpp
+		clipper2/clipper.offset.cpp
+		clipper2/clipper.rectclip.cpp
+		clipper2/clipper.h
+		clipper2/clipper.core.h
+		clipper2/clipper.engine.h
+		clipper2/clipper.minkowski.h
+		clipper2/clipper.offset.h
+		clipper2/clipper.rectclip.h
 		shapes_clipper.cpp
 	)
 endif()
@@ -157,6 +162,10 @@ add_library(saga_api SHARED
 )
 
 target_include_directories(saga_api INTERFACE "${saga_core_include_dir}")
+
+if(NOT WITH_CLIPPER_ONE)
+	target_include_directories(saga_api PRIVATE "${saga_core_include_dir}/saga_api")
+endif()
 
 find_package(wxWidgets COMPONENTS base net xml html REQUIRED)
 target_link_libraries(saga_api PRIVATE ${wxWidgets_LIBRARIES})

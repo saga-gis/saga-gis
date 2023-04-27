@@ -522,10 +522,10 @@ double CSG_Formula::_Get_Value(const double *Parameters, TSG_Formula func) const
 {
 	double	x, y, z, buffer[GET_VALUE_BUFSIZE];
 
-	register double *bufp     = buffer;	// points to the first free space in the buffer
-	register char   *function = func.code;
-	register double *ctable   = func.ctable;
-	register double result;
+	double *bufp     = buffer;	// points to the first free space in the buffer
+	char   *function = func.code;
+	double *ctable   = func.ctable;
+	double result;
 
 	if( !function )
 	{
