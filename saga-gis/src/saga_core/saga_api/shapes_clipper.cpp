@@ -409,7 +409,9 @@ bool	SG_Shape_Get_Offset		(CSG_Shape *pShape, double Size, double dArc, CSG_Shap
 //---------------------------------------------------------
 const char *	SG_Clipper_Get_Version	(void)
 {
-	return( "Clipper2 1.0.0" );
+	static CSG_String Version(CSG_String("Clipper-2 ") + CLIPPER2_VERSION);
+
+	return( Version );
 }
 
 
