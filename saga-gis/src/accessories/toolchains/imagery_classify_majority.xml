@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchain saga-version="9.1.0">
+	<group>imagery</group>
+	<identifier>imagery_classify_majority</identifier>
+	<name>Supervised Majority Choice Image Classification</name>
+	<author>O. Conrad (c) 2023</author>
+	<menu absolute="true">Imagery|Classification</menu>
+	<description>
+		The majority choice tool for supervised image classification runs the selected classification tools using standard settings and takes for each pixel of the resulting classification the class that has been identified most often by the individual classifiers.
+		
+		[[i]]Random Forest[[/i]] is not selected by default because it generates randomized results with more or less strong differences each time it is run.
+		[[i]]K-Nearest Neighbours[[/i]] and [[i]]Artifical Neural Network[[/i]] have been excluded from default, because using them might be a bit more time consuming.
+	</description>
+
+	<parameters>
+		<option varname="GRID_SYSTEM" type="grid_system">
+			<name>Grid System</name>
+		</option>
+		<input varname="FEATURES" type="grid_list" parent="GRID_SYSTEM">
+			<name>Features</name>
+		</input>
+		<option varname="NORMALIZE" type="boolean" parent="FEATURES">
+			<name>Normalize</name>
+			<value>false</value>
+		</option>
+
+		<option varname="MODEL_TRAIN" type="choice">
+			<name>Training</name>
+			<value>training areas</value>
+			<choices>training areas|training samples</choices>
+		</option>
+		<input varname="TRAIN_AREAS" type="shapes" parent="MODEL_TRAIN">
+			<condition value="0" type="=">MODEL_TRAIN</condition>
+			<name>Training Areas</name>
+		</input>
+		<option varname="TRAIN_CLASS" type="table_field" parent="TRAIN_AREAS">
+			<name>Class Identifier</name>
+		</option>
+		<option varname="TRAIN_BUFFER" type="double" parent="TRAIN_AREAS">
+			<name>Buffer Size</name>
+			<description>For non-polygon type training areas, creates a buffer with a diameter of specified size.</description>
+			<value min="0">30</value>
+		</option>
+		<input varname="TRAIN_SAMPLES" type="table" parent="MODEL_TRAIN">
+			<condition value="1" type="=">MODEL_TRAIN</condition>
+			<name>Training Samples</name>
+		</input>
+
+		<output varname="CLASSES" type="grid" parent="GRID_SYSTEM">
+			<name>Majority Choice</name>
+			<output_name>Classification [Majority Choice]</output_name>
+		</output>
+		<output varname="MAJORITY_COUNT" type="grid" parent="GRID_SYSTEM" optional="true">
+			<name>Majority Count</name>
+			<output_name>Majority Count</output_name>
+		</output>
+		<output varname="NUNIQUES" type="grid" parent="GRID_SYSTEM" optional="true">
+			<name>Classes Count</name>
+			<output_name>Classes Count</output_name>
+		</output>
+
+		<option varname="CLASSIFY_BOX"         type="boolean"><value>1</value><name>Parallel Epiped</name></option>
+		<option varname="CLASSIFY_MINDIST"     type="boolean"><value>1</value><name>Minimum Distance</name></option>
+		<option varname="CLASSIFY_MAHALONOBIS" type="boolean"><value>1</value><name>Mahalonobis Distance</name></option>
+		<option varname="CLASSIFY_MAXLIKE"     type="boolean"><value>1</value><name>Maximum Likelihood</name></option>
+		<option varname="CLASSIFY_SAM"         type="boolean"><value>1</value><name>Spectral Angle Mapping</name></option>
+		<option varname="CLASSIFY_BAYES"       type="boolean"><value>1</value><name>Normal Bayes</name></option>
+		<option varname="CLASSIFY_DT"          type="boolean"><value>1</value><name>Decision Tree</name></option>
+		<option varname="CLASSIFY_RF"          type="boolean"><value>0</value><name>Random Forest</name></option>
+		<option varname="CLASSIFY_SVM"         type="boolean"><value>1</value><name>Support Vector Machine</name></option>
+		<option varname="CLASSIFY_KNN"         type="boolean"><value>0</value><name>K-Nearest Neighbours</name></option>
+		<option varname="CLASSIFY_ANN"         type="boolean"><value>0</value><name>Artificial Neural Network</name></option>
+	</parameters>
+
+	<tools>
+		<datalist type='grid_list'>CLASSIFICATIONS</datalist>
+
+		<condition value="true" type="=" variable="CLASSIFY_BOX">
+			<tool library="imagery_classification" tool="0" name="Supervised Image Classification">
+				<option id="METHOD">1</option>
+				<option id="TRAIN_WITH" varname="true">MODEL_TRAIN</option>
+				<input  id="TRAIN_SAMPLES">TRAIN_SAMPLES</input>
+				<input  id="TRAINING">TRAIN_AREAS</input>
+				<option id="TRAINING_CLASS" varname="true">TRAIN_CLASS</option>
+				<option id="TRAIN_BUFFER" varname="true">TRAIN_BUFFER</option>
+				<input  id="GRIDS">FEATURES</input>
+				<option id="NORMALISE" varname="true">NORMALIZE</option>
+				<output id="CLASSES">CLASSIFICATIONS</output>
+			</tool>
+		</condition>
+
+		<condition value="1" type="=" variable="CLASSIFY_MINDIST">
+			<tool library="imagery_classification" tool="0" name="Supervised Image Classification">
+				<option id="METHOD">2</option>
+				<option id="TRAIN_WITH" varname="true">MODEL_TRAIN</option>
+				<input  id="TRAIN_SAMPLES">TRAIN_SAMPLES</input>
+				<input  id="TRAINING">TRAIN_AREAS</input>
+				<option id="TRAINING_CLASS" varname="true">TRAIN_CLASS</option>
+				<option id="TRAIN_BUFFER" varname="true">TRAIN_BUFFER</option>
+				<input  id="GRIDS">FEATURES</input>
+				<option id="NORMALISE" varname="true">NORMALIZE</option>
+				<output id="CLASSES">CLASSIFICATIONS</output>
+			</tool>
+		</condition>
+
+		<condition value="1" type="=" variable="CLASSIFY_MAHALONOBIS">
+			<tool library="imagery_classification" tool="0" name="Supervised Image Classification">
+				<option id="METHOD">3</option>
+				<option id="TRAIN_WITH" varname="true">MODEL_TRAIN</option>
+				<input  id="TRAIN_SAMPLES">TRAIN_SAMPLES</input>
+				<input  id="TRAINING">TRAIN_AREAS</input>
+				<option id="TRAINING_CLASS" varname="true">TRAIN_CLASS</option>
+				<option id="TRAIN_BUFFER" varname="true">TRAIN_BUFFER</option>
+				<input  id="GRIDS">FEATURES</input>
+				<option id="NORMALISE" varname="true">NORMALIZE</option>
+				<output id="CLASSES">CLASSIFICATIONS</output>
+			</tool>
+		</condition>
+
+		<condition value="1" type="=" variable="CLASSIFY_MAXLIKE">
+			<tool library="imagery_classification" tool="0" name="Supervised Image Classification">
+				<option id="METHOD">4</option>
+				<option id="TRAIN_WITH" varname="true">MODEL_TRAIN</option>
+				<input  id="TRAIN_SAMPLES">TRAIN_SAMPLES</input>
+				<input  id="TRAINING">TRAIN_AREAS</input>
+				<option id="TRAINING_CLASS" varname="true">TRAIN_CLASS</option>
+				<option id="TRAIN_BUFFER" varname="true">TRAIN_BUFFER</option>
+				<input  id="GRIDS">FEATURES</input>
+				<option id="NORMALISE" varname="true">NORMALIZE</option>
+				<output id="CLASSES">CLASSIFICATIONS</output>
+			</tool>
+		</condition>
+
+		<condition value="1" type="=" variable="CLASSIFY_SAM">
+			<tool library="imagery_classification" tool="0" name="Supervised Image Classification">
+				<option id="METHOD">5</option>
+				<option id="TRAIN_WITH" varname="true">MODEL_TRAIN</option>
+				<input  id="TRAIN_SAMPLES">TRAIN_SAMPLES</input>
+				<input  id="TRAINING">TRAIN_AREAS</input>
+				<option id="TRAINING_CLASS" varname="true">TRAIN_CLASS</option>
+				<option id="TRAIN_BUFFER" varname="true">TRAIN_BUFFER</option>
+				<input  id="GRIDS">FEATURES</input>
+				<option id="NORMALISE" varname="true">NORMALIZE</option>
+				<output id="CLASSES">CLASSIFICATIONS</output>
+			</tool>
+		</condition>
+
+		<condition value="1" type="=" variable="CLASSIFY_BAYES">
+			<tool library="imagery_opencv" tool="5" name="Normal Bayes Classification">
+
+				<option id="MODEL_TRAIN" varname="true">MODEL_TRAIN</option>
+				<input  id="TRAIN_SAMPLES">TRAIN_SAMPLES</input>
+				<input  id="TRAIN_AREAS">TRAIN_AREAS</input>
+				<option id="TRAIN_CLASS" varname="true">TRAIN_CLASS</option>
+				<option id="TRAIN_BUFFER" varname="true">TRAIN_BUFFER</option>
+				<input  id="FEATURES">FEATURES</input>
+				<option id="NORMALIZE" varname="true">NORMALIZE</option>
+				<output id="CLASSES">CLASSIFICATIONS</output>
+			</tool>
+		</condition>
+
+		<condition value="1" type="=" variable="CLASSIFY_DT">
+			<tool library="imagery_opencv" tool="8" name="Decision Tree Classification">
+				<option id="MAX_DEPTH">10</option>
+				<option id="MIN_SAMPLES">2</option>
+				<option id="MAX_CATEGRS">10</option>
+				<option id="1SE_RULE">true</option>
+				<option id="TRUNC_PRUNED">true</option>
+				<option id="REG_ACCURACY">0.01</option>
+
+				<option id="MODEL_TRAIN" varname="true">MODEL_TRAIN</option>
+				<input  id="TRAIN_SAMPLES">TRAIN_SAMPLES</input>
+				<input  id="TRAIN_AREAS">TRAIN_AREAS</input>
+				<option id="TRAIN_CLASS" varname="true">TRAIN_CLASS</option>
+				<option id="TRAIN_BUFFER" varname="true">TRAIN_BUFFER</option>
+				<input  id="FEATURES">FEATURES</input>
+				<option id="NORMALIZE" varname="true">NORMALIZE</option>
+				<output id="CLASSES">CLASSIFICATIONS</output>
+			</tool>
+		</condition>
+
+		<condition value="1" type="=" variable="CLASSIFY_RF">
+			<tool library="imagery_opencv" tool="10" name="Random Forest Classification">
+				<option id="MAX_DEPTH">10</option>
+				<option id="MIN_SAMPLES">2</option>
+				<option id="MAX_CATEGRS">10</option>
+				<option id="1SE_RULE">true</option>
+				<option id="TRUNC_PRUNED">true</option>
+				<option id="REG_ACCURACY">0.01</option>
+				<option id="ACTIVE_VARS">0</option>
+
+				<option id="MODEL_TRAIN" varname="true">MODEL_TRAIN</option>
+				<input  id="TRAIN_SAMPLES">TRAIN_SAMPLES</input>
+				<input  id="TRAIN_AREAS">TRAIN_AREAS</input>
+				<option id="TRAIN_CLASS" varname="true">TRAIN_CLASS</option>
+				<option id="TRAIN_BUFFER" varname="true">TRAIN_BUFFER</option>
+				<input  id="FEATURES">FEATURES</input>
+				<option id="NORMALIZE" varname="true">NORMALIZE</option>
+				<output id="CLASSES">CLASSIFICATIONS</output>
+			</tool>
+		</condition>
+
+		<condition value="1" type="=" variable="CLASSIFY_SVM">
+			<tool library="imagery_opencv" tool="7" name="Support Vector Machine Classification">
+				<option id="SVM_TYPE">0</option>
+				<option id="C">5</option>
+				<option id="KERNEL">5</option>
+
+				<option id="MODEL_TRAIN" varname="true">MODEL_TRAIN</option>
+				<input  id="TRAIN_SAMPLES">TRAIN_SAMPLES</input>
+				<input  id="TRAIN_AREAS">TRAIN_AREAS</input>
+				<option id="TRAIN_CLASS" varname="true">TRAIN_CLASS</option>
+				<option id="TRAIN_BUFFER" varname="true">TRAIN_BUFFER</option>
+				<input  id="FEATURES">FEATURES</input>
+				<option id="NORMALIZE" varname="true">NORMALIZE</option>
+				<output id="CLASSES">CLASSIFICATIONS</output>
+			</tool>
+		</condition>
+
+		<condition value="1" type="=" variable="CLASSIFY_KNN">
+			<tool library="imagery_opencv" tool="6" name="K-Nearest Neighours Classification">
+				<option id="NEIGHBOURS">3</option>
+				<option id="TRAINING">0</option>
+				<option id="ALGORITHM">0</option>
+
+				<option id="MODEL_TRAIN" varname="true">MODEL_TRAIN</option>
+				<input  id="TRAIN_SAMPLES">TRAIN_SAMPLES</input>
+				<input  id="TRAIN_AREAS">TRAIN_AREAS</input>
+				<option id="TRAIN_CLASS" varname="true">TRAIN_CLASS</option>
+				<option id="TRAIN_BUFFER" varname="true">TRAIN_BUFFER</option>
+				<input  id="FEATURES">FEATURES</input>
+				<option id="NORMALIZE" varname="true">NORMALIZE</option>
+				<output id="CLASSES">CLASSIFICATIONS</output>
+			</tool>
+		</condition>
+
+		<condition value="1" type="=" variable="CLASSIFY_ANN">
+			<tool library="imagery_opencv" tool="11" name="Artificial Neural Network Classification">
+				<option id="ANN_LAYERS">3</option>
+				<option id="ANN_NEURONS">5</option>
+				<option id="ANN_MAXITER">300</option>
+				<option id="ANN_EPSILON">0.0000001192092896</option>
+				<option id="ANN_ACTIVATION">1</option>
+				<option id="ANN_ACT_ALPHA">1</option>
+				<option id="ANN_ACT_BETA">1</option>
+				<option id="ANN_PROPAGATION">1</option>
+				<option id="ANN_RP_DW0">0</option>
+				<option id="ANN_RP_DW_PLUS">1.2</option>
+				<option id="ANN_RP_DW_MINUS">0.5</option>
+				<option id="ANN_RP_DW_MIN">0.1</option>
+				<option id="ANN_RP_DW_MAX">1.1</option>
+				<option id="ANN_BP_DW">0.1</option>
+				<option id="ANN_BP_MOMENT">0.1</option>
+
+				<option id="MODEL_TRAIN" varname="true">MODEL_TRAIN</option>
+				<input  id="TRAIN_SAMPLES">TRAIN_SAMPLES</input>
+				<input  id="TRAIN_AREAS">TRAIN_AREAS</input>
+				<option id="TRAIN_CLASS" varname="true">TRAIN_CLASS</option>
+				<option id="TRAIN_BUFFER" varname="true">TRAIN_BUFFER</option>
+				<input  id="FEATURES">FEATURES</input>
+				<option id="NORMALIZE" varname="true">NORMALIZE</option>
+				<output id="CLASSES">CLASSIFICATIONS</output>
+			</tool>
+		</condition>
+
+		<tool library="statistics_grid" tool="20" name="Unique Value Statistics for Grids">
+			<input  id="GRIDS">CLASSIFICATIONS</input>
+			<output id="MAJORITY">CLASSES</output>
+			<output id="MAJORITY_COUNT">MAJORITY_COUNT</output>
+			<output id="NUNIQUES">NUNIQUES</output>
+		</tool>
+	</tools>
+</toolchain>
