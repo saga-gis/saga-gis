@@ -302,9 +302,11 @@ CGSGrid_Unique_Value_Statistics::CGSGrid_Unique_Value_Statistics(void)
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid("", "MAJORITY", _TL("Majority"               ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-	Parameters.Add_Grid("", "MINORITY", _TL("Minority"               ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-	Parameters.Add_Grid("", "NUNIQUES", _TL("Number of Unique Values"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid("", "MAJORITY"      , _TL("Majority"               ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid("", "MAJORITY_COUNT", _TL("Majority Count"         ), _TL(""), PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Byte);
+	Parameters.Add_Grid("", "MINORITY"      , _TL("Minority"               ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid("", "MINORITY_COUNT", _TL("Minority Count"         ), _TL(""), PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Byte);
+	Parameters.Add_Grid("", "NUNIQUES"      , _TL("Number of Unique Values"), _TL(""), PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Byte);
 }
 
 
@@ -338,11 +340,13 @@ bool CGSGrid_Unique_Value_Statistics::On_Execute(void)
 	//-----------------------------------------------------
 	#define Get_Output(id) Parameters(id)->asGrid(); if( Parameters(id)->asGrid() ) bHasOutput = true;
 
-	bool	bHasOutput	= false;
+	bool bHasOutput = false;
 
-	CSG_Grid *pMajority   = Get_Output("MAJORITY");
-	CSG_Grid *pMinority   = Get_Output("MINORITY");
-	CSG_Grid *pNUniques   = Get_Output("NUNIQUES");
+	CSG_Grid *pMajority = Get_Output("MAJORITY"      );
+	CSG_Grid *pMajCount = Get_Output("MAJORITY_COUNT");
+	CSG_Grid *pMinority = Get_Output("MINORITY"      );
+	CSG_Grid *pMinCount = Get_Output("MINORITY_COUNT");
+	CSG_Grid *pNUniques = Get_Output("NUNIQUES"      );
 
 	//-----------------------------------------------------
 	if( !bHasOutput )
@@ -372,13 +376,27 @@ bool CGSGrid_Unique_Value_Statistics::On_Execute(void)
 			if( s.Get_Count() < 1 )
 			{
 				if( pMajority ) pMajority->Set_NoData(x, y);
+				if( pMajCount ) pMajCount->Set_NoData(x, y);
 				if( pMinority ) pMinority->Set_NoData(x, y);
+				if( pMinCount ) pMinCount->Set_NoData(x, y);
 				if( pNUniques ) pNUniques->Set_NoData(x, y);
 			}
 			else
 			{
-				if( pMajority ) { double d; s.Get_Majority(d); pMajority->Set_Value(x, y, d); }
-				if( pMinority ) { double d; s.Get_Minority(d); pMinority->Set_Value(x, y, d); }
+				double d; int n;
+
+				if( (pMajority || pMajCount) &&  s.Get_Majority(d, n) )
+				{
+					if( pMajority ) pMajority->Set_Value(x, y, d);
+					if( pMajCount ) pMajCount->Set_Value(x, y, n);
+				}
+
+				if( (pMinority || pMajCount) &&  s.Get_Minority(d, n) )
+				{
+					if( pMinority ) pMinority->Set_Value(x, y, d);
+					if( pMinCount ) pMinCount->Set_Value(x, y, n);
+				}
+
 				if( pNUniques ) pNUniques->Set_Value(x, y, s.Get_Count());
 			}
 		}
