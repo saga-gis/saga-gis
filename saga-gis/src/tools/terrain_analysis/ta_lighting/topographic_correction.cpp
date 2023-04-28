@@ -186,6 +186,30 @@ CTopographic_Correction::CTopographic_Correction(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CTopographic_Correction::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("BANDS") && pParameter->asList()->Get_Item_Count() > 0 )
+	{
+		for(int i=0; i<pParameter->asList()->Get_Item_Count(); i++)
+		{
+			CSG_MetaData &MD = pParameter->asList()->Get_Item(i)->Get_MetaData(); double Azimuth, Height;
+
+			if( MD("LANDSAT")
+			&&  MD["LANDSAT"].Get_Content("SUN_AZIMUTH"  , Azimuth)
+			&&  MD["LANDSAT"].Get_Content("SUN_ELEVATION", Height ) )
+			{
+				pParameters->Set_Parameter("AZIMUTH", Azimuth);
+				pParameters->Set_Parameter("HEIGHT" , Height );
+
+				break;
+			}
+		}
+	}
+
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
 int CTopographic_Correction::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	if( pParameter->Cmp_Identifier("METHOD") )
