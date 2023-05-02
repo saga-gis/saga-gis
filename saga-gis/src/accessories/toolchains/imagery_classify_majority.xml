@@ -50,6 +50,11 @@
 			<name>Majority Choice</name>
 			<output_name>Classification [Majority Choice]</output_name>
 		</output>
+		<option varname="UNAMBIGUOUS" type="boolean" parent="CLASSES">
+			<name>Unambiguous</name>
+			<description>Do not classify a pixel if more than one class reaches the same majority count for it.</description>
+			<value>false</value>
+		</option>
 		<output varname="MAJORITY_COUNT" type="grid" parent="GRID_SYSTEM" optional="true">
 			<name>Majority Count</name>
 			<output_name>Majority Count</output_name>
@@ -266,6 +271,7 @@
 		<tool library="statistics_grid" tool="20" name="Unique Value Statistics for Grids">
 			<input  id="GRIDS">CLASSIFICATIONS</input>
 			<output id="MAJORITY">CLASSES</output>
+			<option id="UNAMBIGUOUS" varname="true">UNAMBIGUOUS</option>
 			<output id="MAJORITY_COUNT">MAJORITY_COUNT</output>
 			<output id="NUNIQUES">NUNIQUES</output>
 		</tool>
