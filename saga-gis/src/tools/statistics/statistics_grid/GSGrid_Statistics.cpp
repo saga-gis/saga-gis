@@ -297,7 +297,7 @@ CGSGrid_Unique_Value_Statistics::CGSGrid_Unique_Value_Statistics(void)
 	));
 
 	Parameters.Add_Grid_List("",
-		"GRIDS"		, _TL("Values"),
+		"GRIDS", _TL("Values"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
@@ -307,6 +307,12 @@ CGSGrid_Unique_Value_Statistics::CGSGrid_Unique_Value_Statistics(void)
 	Parameters.Add_Grid("", "MINORITY"      , _TL("Minority"               ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	Parameters.Add_Grid("", "MINORITY_COUNT", _TL("Minority Count"         ), _TL(""), PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Byte);
 	Parameters.Add_Grid("", "NUNIQUES"      , _TL("Number of Unique Values"), _TL(""), PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Byte);
+
+	Parameters.Add_Bool("",
+		"UNAMBIGUOUS", _TL("Unambiguous"),
+		_TL("Set no-data if more than one value reaches the same majority count."),
+		false
+	);
 }
 
 
@@ -356,6 +362,8 @@ bool CGSGrid_Unique_Value_Statistics::On_Execute(void)
 		return( false );
 	}
 
+	bool bUnambigous = Parameters("UNAMBIGUOUS")->asBool();
+
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
@@ -368,7 +376,7 @@ bool CGSGrid_Unique_Value_Statistics::On_Execute(void)
 			{
 				if( !pGrids->Get_Grid(i)->is_NoData(x, y) )
 				{
-					s	+= pGrids->Get_Grid(i)->asDouble(x, y);
+					s += pGrids->Get_Grid(i)->asDouble(x, y);
 				}
 			}
 
@@ -385,13 +393,37 @@ bool CGSGrid_Unique_Value_Statistics::On_Execute(void)
 			{
 				double d; int n;
 
-				if( (pMajority || pMajCount) &&  s.Get_Majority(d, n) )
+				if( (pMajority || pMajCount) && s.Get_Majority(d, n) )
 				{
-					if( pMajority ) pMajority->Set_Value(x, y, d);
+					if( pMajority )
+					{
+						int nMajorities = 0;
+
+						if( bUnambigous )
+						{
+							for(int i=0; nMajorities<2 && i<s.Get_Count(); i++)
+							{
+								if( n == s.Get_Count(i) )
+								{
+									nMajorities++;
+								}
+							}
+						}
+
+						if( nMajorities > 1 )
+						{
+							pMajority->Set_NoData(x, y);
+						}
+						else
+						{
+							pMajority->Set_Value(x, y, d);
+						}
+					}
+
 					if( pMajCount ) pMajCount->Set_Value(x, y, n);
 				}
 
-				if( (pMinority || pMajCount) &&  s.Get_Minority(d, n) )
+				if( (pMinority || pMajCount) && s.Get_Minority(d, n) )
 				{
 					if( pMinority ) pMinority->Set_Value(x, y, d);
 					if( pMinCount ) pMinCount->Set_Value(x, y, n);
@@ -543,7 +575,7 @@ bool CGSGrid_Statistics_To_Table::On_Execute(void)
 
 		if( s.asDouble(v) && v >= 0. && v <= 100. )
 		{
-			int n = Percentiles.Get_Count();
+			sLong n = Percentiles.Get_Count();
 
 			Percentiles.Add_Record();
 
@@ -833,9 +865,9 @@ bool CGSGrid_Histogram::On_Execute(void)
 //---------------------------------------------------------
 bool CGSGrid_Histogram::Add_Value(CSG_Table &Histogram, double Value, bool bUnclassed)
 {
-	int n = bUnclassed ? Histogram.Get_Count() - 1 : Histogram.Get_Count();
+	sLong n = bUnclassed ? Histogram.Get_Count() - 1 : Histogram.Get_Count();
 
-	for(int i=0; i<n; i++)
+	for(sLong i=0; i<n; i++)
 	{
 		if( Histogram[i].asDouble(FIELD_MIN) <= Value && Value <= Histogram[i].asDouble(FIELD_MAX) )
 		{
