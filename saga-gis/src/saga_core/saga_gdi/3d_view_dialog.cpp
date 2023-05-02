@@ -60,6 +60,8 @@
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CSG_3DView_Dialog, CSGDI_Dialog)
+	EVT_CLOSE     (CSG_3DView_Dialog::On_Close)
+
 	EVT_BUTTON    (wxID_ANY	, CSG_3DView_Dialog::On_Button)
 	EVT_CHECKBOX  (wxID_ANY	, CSG_3DView_Dialog::On_Update_Control)
 	EVT_TEXT_ENTER(wxID_ANY	, CSG_3DView_Dialog::On_Update_Control)
@@ -75,6 +77,8 @@ CSG_3DView_Dialog::CSG_3DView_Dialog(const CSG_String &Caption, int Style)
 	: CSGDI_Dialog(Caption.c_str(), Style)
 {
 	SetWindowStyle(wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE);
+
+	m_pPanel = NULL;
 }
 
 //---------------------------------------------------------
@@ -91,6 +95,17 @@ bool CSG_3DView_Dialog::Create(CSG_3DView_Panel *pPanel)
 	Add_Output(m_pPanel);
 
 	return( true );
+}
+
+//---------------------------------------------------------
+void CSG_3DView_Dialog::On_Close(wxCloseEvent &event)
+{
+	if( m_pPanel )
+	{
+		m_pPanel->Play_Stop();
+	}
+
+	event.Skip();
 }
 
 //---------------------------------------------------------

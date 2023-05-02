@@ -246,6 +246,7 @@ protected:
 
 	bool						Create					(CSG_3DView_Panel *pPanel);
 
+	virtual void				On_Close				(wxCloseEvent   &event);
 	virtual void				On_Update_Control		(wxCommandEvent &event);
 	virtual void				On_Update_Choices		(wxCommandEvent &event);
 	virtual void				On_Button				(wxCommandEvent &event);
