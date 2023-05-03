@@ -1378,9 +1378,9 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 	//-----------------------------------------------------
 	for(int i=0; i<Tool.Get_Children_Count(); i++)	// check for invalid parameters...
 	{
-		const CSG_MetaData	&Parameter	= Tool[i];	if( Parameter.Cmp_Name("comment") )	{	continue;	}
+		const CSG_MetaData &Parameter = Tool[i]; if( Parameter.Cmp_Name("comment") ) { continue; }
 
-		CSG_Parameter	*pParameter, *pOwner;
+		CSG_Parameter *pParameter, *pOwner;
 
 		if( !Tool_Get_Parameter(Parameter, pTool, &pParameter, &pOwner) )
 		{
@@ -1391,145 +1391,151 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 	}
 
 	//-----------------------------------------------------
+	for(int i=0; i<Tool.Get_Children_Count(); i++)	// initialize all options first, some might en-/disable mandatory input data
+	{
+		const CSG_MetaData &Parameter = Tool[i]; if( !Parameter.Cmp_Name("option") ) { continue; }
+
+		CSG_Parameter *pParameter, *pOwner; Tool_Get_Parameter(Parameter, pTool, &pParameter, &pOwner);
+
+		if( IS_TRUE_PROPERTY(Parameter, "varname")
+			? pParameter->Set_Value(Parameters(Parameter.Get_Content()))
+			: pParameter->Set_Value(           Parameter.Get_Content() ) )
+		{
+			pParameter->has_Changed(); if( pOwner ) { pOwner->has_Changed(); }
+		}
+	}
+
+	//-----------------------------------------------------
 	for(int i=0; i<Tool.Get_Children_Count(); i++)	// set data input first
 	{
-		const CSG_MetaData	&Parameter	= Tool[i];	if( Parameter.Cmp_Name("comment") )	{	continue;	}
+		const CSG_MetaData &Parameter = Tool[i]; if( !Parameter.Cmp_Name("input") ) { continue; }
 
-		if( Parameter.Cmp_Name("input") )
+		CSG_Parameter *pParameter, *pOwner; Tool_Get_Parameter(Parameter, pTool, &pParameter, &pOwner);
+
+		int	Index;
+
+		if( Parameter.Get_Content().Find('[') < 1 || !Parameter.Get_Content().AfterFirst('[').asInt(Index) )
 		{
-			CSG_Parameter	*pParameter, *pOwner;	Tool_Get_Parameter(Parameter, pTool, &pParameter, &pOwner);
+			Index = -1;
+		}
 
-			int	Index;
+		bool bResult = false;
 
-			if( Parameter.Get_Content().Find('[') < 1 || !Parameter.Get_Content().AfterFirst('[').asInt(Index) )
+		CSG_Parameter *pData = m_Data(Index < 0 ? Parameter.Get_Content() : Parameter.Get_Content().BeforeFirst('['));
+
+		if( pData && (pParameter->is_DataObject() || pParameter->is_DataObject_List()) )
+		{
+			if( Index >= 0 && (pData->is_DataObject_List() || pData->asGrids()) )
 			{
-				Index	= -1;
-			}
+				CSG_Data_Object	*pObject = pData->is_DataObject_List()
+					? pData->asList ()->Get_Item    (Index)
+					: pData->asGrids()->Get_Grid_Ptr(Index);
 
-			bool	bResult	= false;
-
-			CSG_Parameter	*pData	= m_Data(Index < 0 ? Parameter.Get_Content() : Parameter.Get_Content().BeforeFirst('['));
-
-			if( pData && (pParameter->is_DataObject() || pParameter->is_DataObject_List()) )
-			{
-				if( Index >= 0 && (pData->is_DataObject_List() || pData->asGrids()) )
+				if( pParameter->is_DataObject() )
 				{
-					CSG_Data_Object	*pObject	= pData->is_DataObject_List()
-						? pData->asList ()->Get_Item    (Index)
-						: pData->asGrids()->Get_Grid_Ptr(Index);
-
-					if( pParameter->is_DataObject() )
-					{
-						bResult	= pParameter->Set_Value(pObject);
-					}
-					if( pParameter->is_DataObject_List() )
-					{
-						bResult	= pParameter->asList()->Add_Item(pObject);
-					}
+					bResult = pParameter->Set_Value(pObject);
 				}
-				else if( pParameter->Get_Type() == pData->Get_Type() )
+				if( pParameter->is_DataObject_List() )
 				{
-					if( pParameter->is_DataObject_List() && pParameter->asList()->Get_Item_Count() > 0 )
-					{
-						bResult	= true;
-
-						for(int i=0; bResult && i<pData->asList()->Get_Item_Count(); i++)
-						{
-							bResult	= pParameter->asList()->Add_Item(pData->asList()->Get_Item(i));
-						}
-					}
-					else
-					{
-						bResult	= pParameter->Assign(pData);
-					}
-				}
-				else if( pParameter->is_DataObject_List() && pData->is_DataObject() )
-				{
-					bResult	= pParameter->asList()->Add_Item(pData->asDataObject());
-				}
-				else if( Parameter_isCompatible(pParameter->Get_Type(), pData->Get_Type()) )
-				{
-					bResult = pParameter->Set_Value(pData->asDataObject());
+					bResult = pParameter->asList()->Add_Item(pObject);
 				}
 			}
-
-			if( !bResult )
+			else if( pParameter->Get_Type() == pData->Get_Type() )
 			{
-				Error_Fmt("%s: %s", _TL("set input"), Parameter.Get_Property("id"));
+				if( pParameter->is_DataObject_List() && pParameter->asList()->Get_Item_Count() > 0 )
+				{
+					bResult = true;
 
-				return( false );
+					for(int i=0; bResult && i<pData->asList()->Get_Item_Count(); i++)
+					{
+						bResult = pParameter->asList()->Add_Item(pData->asList()->Get_Item(i));
+					}
+				}
+				else
+				{
+					bResult = pParameter->Assign(pData);
+				}
 			}
-
-			pParameter->has_Changed();
-
-			if( pOwner )
+			else if( pParameter->is_DataObject_List() && pData->is_DataObject() )
 			{
-				pOwner->has_Changed();
+				bResult = pParameter->asList()->Add_Item(pData->asDataObject());
 			}
+			else if( Parameter_isCompatible(pParameter->Get_Type(), pData->Get_Type()) )
+			{
+				bResult = pParameter->Set_Value(pData->asDataObject());
+			}
+		}
+
+		if( bResult )
+		{
+			pParameter->has_Changed(); if( pOwner ) { pOwner->has_Changed(); }
+		}
+		else if( pParameter->is_Enabled() )
+		{
+			Error_Fmt("%s: %s", _TL("set input"), Parameter.Get_Property("id"));
+
+			return( false );
 		}
 	}
 
 	//-----------------------------------------------------
 	for(int i=0; i<Tool.Get_Children_Count(); i++)	// now set all options
 	{
-		const CSG_MetaData	&Parameter	= Tool[i];	if( Parameter.Cmp_Name("comment") )	{	continue;	}
+		const CSG_MetaData &Parameter = Tool[i]; if( !Parameter.Cmp_Name("option") ) { continue; }
 
-		if( Parameter.Cmp_Name("option") )
-		{
-			CSG_Parameter	*pParameter, *pOwner;	Tool_Get_Parameter(Parameter, pTool, &pParameter, &pOwner);
+		CSG_Parameter *pParameter, *pOwner; Tool_Get_Parameter(Parameter, pTool, &pParameter, &pOwner);
 
-			if( IS_TRUE_PROPERTY(Parameter, "varname") )
-			{	// does option want a value from tool chain parameters and do these provide one ?
-				switch( pParameter->Get_Type() )
-				{
-				default:
-					pParameter->Set_Value(Parameters(Parameter.Get_Content()));
-					break;
-
-				case PARAMETER_TYPE_FixedTable:
-					if( m_Data(Parameter.Get_Content()) && pParameter->asTable()->Assign_Values(m_Data(Parameter.Get_Content())->asTable()) )
-					{
-						pParameter->has_Changed();
-					}
-					break;
-				}
-			}
-			else
+		if( IS_TRUE_PROPERTY(Parameter, "varname") )
+		{	// does option want a value from tool chain parameters and do these provide one ?
+			switch( pParameter->Get_Type() )
 			{
-				switch( pParameter->Get_Type() )
+			default:
+				pParameter->Set_Value(Parameters(Parameter.Get_Content()));
+				break;
+
+			case PARAMETER_TYPE_FixedTable:
+				if( m_Data(Parameter.Get_Content()) && pParameter->asTable()->Assign_Values(m_Data(Parameter.Get_Content())->asTable()) )
 				{
-				case PARAMETER_TYPE_FixedTable:
-					if( Parameter("OPTION") )
-					{
-						pParameter->Serialize(*Parameter("OPTION"), false);
-					}
-					break;
+					pParameter->has_Changed();
+				}
+				break;
+			}
+		}
+		else
+		{
+			switch( pParameter->Get_Type() )
+			{
+			case PARAMETER_TYPE_FixedTable:
+				if( Parameter("OPTION") )
+				{
+					pParameter->Serialize(*Parameter("OPTION"), false);
+				}
+				break;
 
-				default: {
-					CSG_String	Value(Parameter.Get_Content());
+			default: {
+				CSG_String	Value(Parameter.Get_Content());
 
-					if( Value.Find("$(") >= 0 )
+				if( Value.Find("$(") >= 0 )
+				{
+					for(int j=0; j<Parameters.Get_Count(); j++)
 					{
-						for(int j=0; j<Parameters.Get_Count(); j++)
+						CSG_String	Var; Var.Printf("$(%s)", Parameters(j)->Get_Identifier());
+
+						if( Value.Find(Var) >= 0 )
 						{
-							CSG_String	Var; Var.Printf("$(%s)", Parameters(j)->Get_Identifier());
-
-							if( Value.Find(Var) >= 0 )
-							{
-								Value.Replace(Var, Parameters(j)->asString());
-							}
+							Value.Replace(Var, Parameters(j)->asString());
 						}
 					}
-
-					pParameter->Set_Value(Value);
-
-					if( pOwner )
-					{
-						pOwner->has_Changed();
-					}
-
-					break; }
 				}
+
+				pParameter->Set_Value(Value);
+
+				if( pOwner )
+				{
+					pOwner->has_Changed();
+				}
+
+				break; }
 			}
 		}
 	}
@@ -1537,26 +1543,23 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 	//-----------------------------------------------------
 	for(int i=0; i<Tool.Get_Children_Count(); i++)	// finally set the data output
 	{
-		const CSG_MetaData	&Parameter	= Tool[i];	if( Parameter.Cmp_Name("comment") )	{	continue;	}
+		const CSG_MetaData &Parameter = Tool[i]; if( !Parameter.Cmp_Name("output") ) { continue; }
 
-		if( Parameter.Cmp_Name("output") )
+		CSG_Parameter *pParameter, *pOwner; Tool_Get_Parameter(Parameter, pTool, &pParameter, &pOwner);
+
+		if( !pParameter->Assign(m_Data(Parameter.Get_Content())) )
 		{
-			CSG_Parameter	*pParameter, *pOwner;	Tool_Get_Parameter(Parameter, pTool, &pParameter, &pOwner);
-
-			if( !pParameter->Assign(m_Data(Parameter.Get_Content())) )
+			if( pParameter->is_DataObject() )
 			{
-				if( pParameter->is_DataObject() )
-				{
-					pParameter->Set_Value(DATAOBJECT_CREATE);
-				}
-				else if( pParameter->is_DataObject_List() )
-				{
-					pParameter->asList()->Del_Items();
-				}
-				else if( pParameter->asGrids() )
-				{
-					pParameter->asGrids()->Del_Grids();
-				}
+				pParameter->Set_Value(DATAOBJECT_CREATE);
+			}
+			else if( pParameter->is_DataObject_List() )
+			{
+				pParameter->asList()->Del_Items();
+			}
+			else if( pParameter->asGrids() )
+			{
+				pParameter->asGrids()->Del_Grids();
 			}
 		}
 	}

@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                      ta_lighting                      //
+//                imagery_classification                 //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                topographic_correction.h               //
+//              table_classify_supervised.h              //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2012 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -40,15 +40,14 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__topographic_correction_H
-#define HEADER_INCLUDED__topographic_correction_H
+#ifndef HEADER_INCLUDED__table_classify_supervised_H
+#define HEADER_INCLUDED__table_classify_supervised_H
 
 
 ///////////////////////////////////////////////////////////
@@ -63,17 +62,15 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTopographic_Correction : public CSG_Tool_Grid
+class CTable_Classify_Supervised : public CSG_Tool
 {
 public:
-	CTopographic_Correction(void);
+	CTable_Classify_Supervised(bool bShapes);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Imagery|Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( m_bShapes ? _TL("A:Shapes|Attributes") : _TL("A:Table|Classification") );	}
 
 
 protected:
@@ -85,20 +82,21 @@ protected:
 
 private:
 
-	int							m_Method;
+	bool						m_bShapes, m_bNormalize;
 
-	double						m_Value_Min, m_Value_Max, m_cosTz, m_sinTz, m_Minnaert, m_C;
+	int							*m_Features, m_nFeatures;
 
-	CSG_Grid					m_Illumination[2];
+	CSG_Table					*m_pTable;
 
 
-	double						Get_Correction			(double Slope, double Incidence, double Value);
+	bool						Get_Features			(void);
+	bool						Get_Features			(sLong iRecord, CSG_Vector &Features);
 
-	bool						Get_Model				(CSG_Grid *pImage);
+	bool						Set_Classifier			(CSG_Classifier_Supervised &Classifier);
+	bool						Set_Classifier			(CSG_Classifier_Supervised &Classifier, int Field);
+	bool						Set_Classifier			(CSG_Classifier_Supervised &Classifier, const CSG_Table &Samples);
 
-	bool						Get_Illumination		(void);
-
-	CSG_Parameter_Grid_List *	Get_Bands				(void);
+	bool						Set_Classification		(CSG_Classifier_Supervised &Classifier, int Offset);
 
 };
 
@@ -110,4 +108,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__topographic_correction_H
+#endif // #ifndef HEADER_INCLUDED__table_classify_supervised_H

@@ -196,7 +196,7 @@ protected:
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual const char *		Get_Model_ID			(void)	const	{	return( "knn" );	}
-	virtual const char *		Get_Model_Name			(void)	const	{	return( "K-Nearest Neighours" );	}
+	virtual const char *		Get_Model_Name			(void)	const	{	return( "K-Nearest Neighbours" );	}
 
 	virtual Ptr<StatModel>		Get_Model				(const CSG_String &File);
 	virtual Ptr<StatModel>		Get_Model				(void);

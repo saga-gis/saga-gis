@@ -58,10 +58,14 @@
 //---------------------------------------------------------
 CTable_Cluster_Analysis::CTable_Cluster_Analysis(bool bShapes)
 {
+	m_bShapes = bShapes;
+
+	Set_Name		(CSG_String::Format("%s (%s)", _TL("Cluster Analysis"), m_bShapes ? _TL("Shapes") : _TL("Table")));
+
 	Set_Author		("O. Conrad (c) 2010");
 
 	Set_Description	(_TW(
-		"Cluster Analysis for tables."
+		"K-Means cluster analysis using selected features from attributes table."
 	));
 
 	Add_Reference("Forgy, E.", "1965",
@@ -75,29 +79,31 @@ CTable_Cluster_Analysis::CTable_Cluster_Analysis(bool bShapes)
 	);
 
 	//-----------------------------------------------------
-	if( (m_bShapes = bShapes) == true )
+	if( m_bShapes )
 	{
-		Set_Name		(_TL("Cluster Analysis (Shapes)"));
-
 		Parameters.Add_Shapes("", "INPUT" , _TL("Shapes"), _TL(""), PARAMETER_INPUT);
 		Parameters.Add_Shapes("", "RESULT", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	}
 	else
 	{
-		Set_Name		(_TL("Cluster Analysis"));
-
 		Parameters.Add_Table("", "INPUT"  , _TL("Table" ), _TL(""), PARAMETER_INPUT);
 		Parameters.Add_Table("", "RESULT" , _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	}
 
 	Parameters.Add_Table_Fields("INPUT",
-		"FIELDS"		, _TL("Attributes"),
+		"FIELDS"		, _TL("Features"),
 		_TL("")
+	);
+
+	Parameters.Add_Bool("INPUT",
+		"NORMALISE"		, _TL("Normalize"),
+		_TL(""),
+		false
 	);
 
 	Parameters.Add_Table_Field("INPUT",
 		"CLUSTER"		, _TL("Cluster"),
-		_TL(""),
+		_TL("Target field for cluster numbers. If not set a new field will be added"),
 		true
 	);
 
@@ -118,15 +124,9 @@ CTable_Cluster_Analysis::CTable_Cluster_Analysis(bool bShapes)
 	);
 
 	Parameters.Add_Int("",
-		"NCLUSTER"	, _TL("Number of Clusters"),
+		"NCLUSTER"		, _TL("Number of Clusters"),
 		_TL(""),
 		10, 2, true
-	);
-
-	Parameters.Add_Bool("",
-		"NORMALISE"	, _TL("Normalise"),
-		_TL(""),
-		false
 	);
 }
 
@@ -138,18 +138,8 @@ CTable_Cluster_Analysis::CTable_Cluster_Analysis(bool bShapes)
 //---------------------------------------------------------
 bool CTable_Cluster_Analysis::On_Execute(void)
 {
-	bool					bNormalize;
-	int						iFeature, nFeatures, *Features, Cluster;
-	CSG_Cluster_Analysis	Analysis;
-	CSG_Table				*pTable;
-
-	//-----------------------------------------------------
-	pTable		= Parameters("RESULT"   )->asTable();
-	bNormalize	= Parameters("NORMALISE")->asBool();
-	Cluster		= Parameters("CLUSTER"  )->asInt();
-
-	Features	= (int *)Parameters("FIELDS")->asPointer();
-	nFeatures	=        Parameters("FIELDS")->asInt    ();
+	int *Features = (int *)Parameters("FIELDS")->asPointer();
+	int nFeatures =        Parameters("FIELDS")->asInt    ();
 
 	if( !Features || nFeatures <= 0 )
 	{
@@ -158,12 +148,18 @@ bool CTable_Cluster_Analysis::On_Execute(void)
 		return( false );
 	}
 
+	//-----------------------------------------------------
+	CSG_Cluster_Analysis Analysis;
+
 	if( !Analysis.Create(nFeatures) )
 	{
 		Error_Set(_TL("could not initialize cluster engine"));
 
 		return( false );
 	}
+
+	//-----------------------------------------------------
+	CSG_Table *pTable = Parameters("RESULT")->asTable();
 
 	if( pTable && pTable != Parameters("INPUT")->asTable() )
 	{
@@ -181,6 +177,9 @@ bool CTable_Cluster_Analysis::On_Execute(void)
 		pTable	= Parameters("INPUT")->asTable();
 	}
 
+	//-----------------------------------------------------
+	int Cluster = Parameters("CLUSTER")->asInt();
+
 	if( Cluster < 0 )
 	{
 		Cluster	= pTable->Get_Field_Count();
@@ -189,73 +188,66 @@ bool CTable_Cluster_Analysis::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	sLong nElements = 0;
+	bool bNormalize = Parameters("NORMALISE")->asBool();
 
-	for(sLong iElement=0; iElement<pTable->Get_Count() && Set_Progress(iElement, pTable->Get_Count()); iElement++)
+	for(sLong i=0, n=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
 	{
-		CSG_Table_Record	*pRecord	= pTable->Get_Record(iElement);
+		CSG_Table_Record &Record = *pTable->Get_Record(i);
 
-		bool	bNoData		= false;
+		bool bNoData = false;
 
-		for(iFeature=0; iFeature<nFeatures && !bNoData; iFeature++)
+		for(int iFeature=0; !bNoData && iFeature<nFeatures && !bNoData; iFeature++)
 		{
-			if( pRecord->is_NoData(Features[iFeature]) )
-			{
-				bNoData	= true;
-			}
+			bNoData = Record.is_NoData(Features[iFeature]);
 		}
 
 		if( bNoData || !Analysis.Add_Element() )
 		{
-			pRecord->Set_NoData(Cluster);
+			Record.Set_NoData(Cluster);
 		}
 		else
 		{
-			pRecord->Set_Value(Cluster, 0.0);
+			Record.Set_Value(Cluster, 0.);
 
-			for(iFeature=0; iFeature<nFeatures; iFeature++)
+			for(int iFeature=0; iFeature<nFeatures; iFeature++)
 			{
-				double	d	= pRecord->asDouble(Features[iFeature]);
+				double d = Record.asDouble(Features[iFeature]);
 
-				if( bNormalize )
+				if( bNormalize && pTable->Get_StdDev(Features[iFeature]) > 0. )
 				{
-					d	= (d - pTable->Get_Mean(Features[iFeature])) / pTable->Get_StdDev(Features[iFeature]);
+					d = (d - pTable->Get_Mean(Features[iFeature])) / pTable->Get_StdDev(Features[iFeature]);
 				}
 
-				Analysis.Set_Feature(nElements, iFeature, d);
+				Analysis.Set_Feature((int)n, iFeature, d);
 			}
 
-			nElements++;
+			n++;
 		}
 	}
 
-	if( nElements <= 1 )
+	if( Analysis.Get_nElements() <= 1 )
 	{
+		Error_Set(_TL("did not find valid feature records!"));
+
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	bool	bResult	= Analysis.Execute(Parameters("METHOD")->asInt(), Parameters("NCLUSTER")->asInt());
+	bool bResult = Analysis.Execute(Parameters("METHOD")->asInt(), Parameters("NCLUSTER")->asInt());
 
-	nElements = 0;
-
-	for(sLong iElement=0; iElement<pTable->Get_Count(); iElement++)
+	for(sLong i=0, n=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
 	{
-		Set_Progress(iElement, pTable->Get_Count());
+		CSG_Table_Record &Record = *pTable->Get_Record(i);
 
-		CSG_Table_Record	*pRecord	= pTable->Get_Record(iElement);
-
-		if( !pRecord->is_NoData(Cluster) )
+		if( !Record.is_NoData(Cluster) )
 		{
-			pRecord->Set_Value(Cluster, Analysis.Get_Cluster(nElements++));
+			Record.Set_Value(Cluster, Analysis.Get_Cluster((int)n++));
 		}
 	}
 
 	Save_Statistics(pTable, Features, bNormalize, Analysis);
 
-//	Save_LUT(pCluster, Analysis.Get_nClusters());
-
-	DataObject_Update(pTable);
+	Set_Classification(pTable, Cluster, Analysis.Get_nClusters());
 
 	return( bResult );
 }
@@ -268,62 +260,96 @@ bool CTable_Cluster_Analysis::On_Execute(void)
 //---------------------------------------------------------
 void CTable_Cluster_Analysis::Save_Statistics(CSG_Table *pTable, int *Features, bool bNormalize, const CSG_Cluster_Analysis &Analysis)
 {
-	int			iCluster, iFeature;
-	CSG_String	s;
-	CSG_Table	*pStatistics;
+	CSG_String s; CSG_Table &Statistics = *Parameters("STATISTICS")->asTable();
 
-	pStatistics	= Parameters("STATISTICS")->asTable();
-
-	pStatistics->Destroy();
-	pStatistics->Set_Name(_TL("Cluster Analysis"));
-
-	pStatistics->Add_Field(_TL("ClusterID")	, SG_DATATYPE_Int);
-	pStatistics->Add_Field(_TL("Elements")	, SG_DATATYPE_Int);
-	pStatistics->Add_Field(_TL("Std.Dev.")	, SG_DATATYPE_Double);
+	Statistics.Destroy();
+	Statistics.Set_Name(_TL("Cluster Analysis"));
+	Statistics.Add_Field("ClusterID", SG_DATATYPE_Int   );
+	Statistics.Add_Field("Elements" , SG_DATATYPE_Int   );
+	Statistics.Add_Field("Std.Dev." , SG_DATATYPE_Double);
 
 	s.Printf("\n%s:\t%d \n%s:\t%d \n%s:\t%d \n%s:\t%f\n\n%s\t%s\t%s",
-		_TL("Number of Elements")		, Analysis.Get_nElements(),
-		_TL("Number of Variables")		, Analysis.Get_nFeatures(),
-		_TL("Number of Clusters")		, Analysis.Get_nClusters(),
-		_TL("Value of Target Function")	, Analysis.Get_SP(),
+		_TL("Number of Elements"      ), Analysis.Get_nElements(),
+		_TL("Number of Variables"     ), Analysis.Get_nFeatures(),
+		_TL("Number of Clusters"      ), Analysis.Get_nClusters(),
+		_TL("Value of Target Function"), Analysis.Get_SP       (),
 		_TL("Cluster"), _TL("Elements"), _TL("Std.Dev.")
 	);
 
-	for(iFeature=0; iFeature<Analysis.Get_nFeatures(); iFeature++)
+	for(int iFeature=0; iFeature<Analysis.Get_nFeatures(); iFeature++)
 	{
-		s	+= CSG_String::Format("\t%s", pTable->Get_Field_Name(Features[iFeature]));
+		s += CSG_String::Format("\t%s", pTable->Get_Field_Name(Features[iFeature]));
 
-		pStatistics->Add_Field(pTable->Get_Field_Name(Features[iFeature]), SG_DATATYPE_Double);
+		Statistics.Add_Field(pTable->Get_Field_Name(Features[iFeature]), SG_DATATYPE_Double);
 	}
 
 	Message_Add(s);
 
-	for(iCluster=0; iCluster<Analysis.Get_nClusters(); iCluster++)
+	for(int iCluster=0; iCluster<Analysis.Get_nClusters(); iCluster++)
 	{
 		s.Printf("\n%d\t%d\t%f", iCluster, Analysis.Get_nMembers(iCluster), sqrt(Analysis.Get_Variance(iCluster)));
 
-		CSG_Table_Record	*pRecord	= pStatistics->Add_Record();
+		CSG_Table_Record &Record = *Statistics.Add_Record();
 
-		pRecord->Set_Value(0, iCluster);
-		pRecord->Set_Value(1, Analysis.Get_nMembers(iCluster));
-		pRecord->Set_Value(2, sqrt(Analysis.Get_Variance(iCluster)));
+		Record.Set_Value(0, iCluster);
+		Record.Set_Value(1, Analysis.Get_nMembers(iCluster));
+		Record.Set_Value(2, sqrt(Analysis.Get_Variance(iCluster)));
 
-		for(iFeature=0; iFeature<Analysis.Get_nFeatures(); iFeature++)
+		for(int iFeature=0; iFeature<Analysis.Get_nFeatures(); iFeature++)
 		{
-			double	Centroid	= Analysis.Get_Centroid(iCluster, iFeature);
+			double Centroid = Analysis.Get_Centroid(iCluster, iFeature);
 
 			if( bNormalize )
 			{
-				Centroid	= pTable->Get_Mean(Features[iFeature]) + Centroid * pTable->Get_StdDev(Features[iFeature]);
+				Centroid = pTable->Get_Mean(Features[iFeature]) + Centroid * pTable->Get_StdDev(Features[iFeature]);
 			}
 
-			s	+= CSG_String::Format("\t%f", Centroid);
+			s += CSG_String::Format("\t%f", Centroid);
 
-			pRecord->Set_Value(iFeature + 3, Centroid);
+			Record.Set_Value(iFeature + 3, Centroid);
 		}
 
 		Message_Add(s, false);
 	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CTable_Cluster_Analysis::Set_Classification(CSG_Table *pTable, int Cluster, int nClusters)
+{
+	DataObject_Update(pTable);
+
+	CSG_Parameter *pLUT = DataObject_Get_Parameter(pTable, "LUT");
+
+	if( pLUT && pLUT->asTable() )
+	{
+		for(int Class=0; Class<nClusters; Class++)
+		{
+			CSG_Table_Record *pClass = pLUT->asTable()->Get_Record(Class);
+
+			if( !pClass )
+			{
+				(pClass	= pLUT->asTable()->Add_Record())->Set_Value(0, SG_Color_Get_Random());
+			}
+
+			pClass->Set_Value(1, CSG_String::Format("Cluster %02d", 1 + Class));
+			pClass->Set_Value(2, "");
+			pClass->Set_Value(3, Class);
+			pClass->Set_Value(4, Class);
+		}
+
+		pLUT->asTable()->Set_Count(nClusters);
+
+		DataObject_Set_Parameter(pTable, pLUT                  ); // Lookup Table
+		DataObject_Set_Parameter(pTable, "LUT_ATTRIB" , Cluster); // Lookup Table Attribute
+		DataObject_Set_Parameter(pTable, "COLORS_TYPE", 1      ); // Color Classification Type: Lookup Table
+	}
+
+	return( true );
 }
 
 
