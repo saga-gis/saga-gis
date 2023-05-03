@@ -12,8 +12,8 @@
 //                                                       //
 //                   TLB_Interface.cpp                   //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
-//                 SAGA User Group Assoc.                //
+//                 Copyright (C) 2023 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -36,12 +36,12 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     author@email.de                        //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    Author                                 //
-//                Sesame Street. 7                       //
-//                12345 Metropolis                       //
-//                Nirwana                                //
+//    contact:    Olaf Conrad                            //
+//                Institute of Geography                 //
+//                University of Hamburg                  //
+//                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -71,7 +71,7 @@ CSG_String Get_Info(int i)
 		return( _TL("Image processing and analysis tools.") );
 
 	case TLB_INFO_Version:
-		return( SG_T("1.0") );
+		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
 		return( _TL("Imagery") );
@@ -101,6 +101,8 @@ CSG_String Get_Info(int i)
 #include "sentinel_3_scene_import.h"
 
 #include "Spectral_Profile.h"
+
+#include "topographic_correction.h"
 
 
 //---------------------------------------------------------
@@ -135,8 +137,10 @@ CSG_Tool *		Create_Tool(int i)
 	case 17: return( new CSpectral_Profile );
 	case 18: return( new CSpectral_Profile_Interactive );
 
+	case 19: return( new CTopographic_Correction );
+
 	//-----------------------------------------------------
-	case 19: return( NULL );
+	case 20: return( NULL );
 	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

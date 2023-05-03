@@ -12,7 +12,7 @@
 //                                                       //
 //                   TLB_Interface.cpp                   //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2023 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -40,17 +40,20 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+// 1. Include the appropriate SAGA-API header...
+
 #include <saga_api/saga_api.h>
 
+
 //---------------------------------------------------------
+// 2. Place general tool library informations here...
+
 CSG_String Get_Info(int i)
 {
 	switch( i )
@@ -62,7 +65,7 @@ CSG_String Get_Info(int i)
 		return( _TL("Terrain Analysis") );
 
 	case TLB_INFO_Author:
-		return( "O.Conrad, V.Wichmann (c) 2003-22" );
+		return( "O.Conrad, V.Wichmann (c) 2003-23" );
 
 	case TLB_INFO_Description:
 		return( _TL("Lighting and visibility calculations for digital terrain models." ));
@@ -75,18 +78,23 @@ CSG_String Get_Info(int i)
 	}
 }
 
+
 //---------------------------------------------------------
+// 3. Include the headers of your tools here...
+
 #include "HillShade.h"
 #include "Visibility_Point.h"
 #include "SolarRadiation.h"
 #include "SolarRadiationYear.h"
 #include "view_shed.h"
-#include "topographic_correction.h"
 #include "topographic_openness.h"
 #include "Visibility_Point.h"
 #include "geomorphons.h"
 
+
 //---------------------------------------------------------
+// 4. Allow your tools to be created here...
+
 CSG_Tool * Create_Tool(int i)
 {
 	switch( i )
@@ -96,11 +104,11 @@ CSG_Tool * Create_Tool(int i)
 	case  2: return( new CSolarRadiation );
 	case  7: return( new CSolarRadiationYear );
 	case  3: return( new CView_Shed );
-	case  4: return( new CTopographic_Correction );
 	case  5: return( new CTopographic_Openness );
 	case  6: return( new CVisibility_Points );
 	case  8: return( new CGeomorphons );
 
+	//-----------------------------------------------------
 	case  9: return( NULL );
 	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
