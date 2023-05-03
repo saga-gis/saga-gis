@@ -95,6 +95,7 @@ CSG_String Get_Info(int i)
 #include "table_categories_to_indicators.h"
 #include "field_formatted_string.h"
 #include "table_classify_supervised.h"
+#include "table_cluster_analysis.h"
 
 
 //---------------------------------------------------------
@@ -134,8 +135,11 @@ CSG_Tool *		Create_Tool(int i)
 	case 26: return( new CTable_Classify_Supervised(false) );
 	case 27: return( new CTable_Classify_Supervised(true) );
 
+	case 28: return( new CTable_Cluster_Analysis(false) );
+	case 29: return( new CTable_Cluster_Analysis(true) );
+
 	//-----------------------------------------------------
-	case 28: return( NULL );
+	case 30: return( NULL );
 	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
