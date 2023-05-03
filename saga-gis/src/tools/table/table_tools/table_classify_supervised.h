@@ -70,7 +70,7 @@ class CTable_Classify_Supervised : public CSG_Tool
 public:
 	CTable_Classify_Supervised(bool bShapes);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( m_bShapes ? _TL("A:Shapes|Attributes") : _TL("A:Table|Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( m_bShapes ? _TL("A:Shapes|Attributes") : _TL("A:Table|Classification") );	}
 
 
 protected:
@@ -82,7 +82,7 @@ protected:
 
 private:
 
-	bool						m_bShapes, m_bNormalise;
+	bool						m_bShapes, m_bNormalize;
 
 	int							*m_Features, m_nFeatures;
 
@@ -93,9 +93,10 @@ private:
 	bool						Get_Features			(sLong iRecord, CSG_Vector &Features);
 
 	bool						Set_Classifier			(CSG_Classifier_Supervised &Classifier);
-	bool						Set_Classifier			(CSG_Classifier_Supervised &Classifier, int Training);
+	bool						Set_Classifier			(CSG_Classifier_Supervised &Classifier, int Field);
+	bool						Set_Classifier			(CSG_Classifier_Supervised &Classifier, const CSG_Table &Samples);
 
-	bool						Set_Classification		(CSG_Classifier_Supervised &Classifier);
+	bool						Set_Classification		(CSG_Classifier_Supervised &Classifier, int Offset);
 
 };
 
