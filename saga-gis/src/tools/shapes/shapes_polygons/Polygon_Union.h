@@ -102,6 +102,8 @@ private:
 	CSG_String					Statistics_Get_Name		(const CSG_String &Type, const CSG_String &Name);
 	bool						Statistics_Add			(CSG_Shape *pDissolve, CSG_Shape *pPolygon, bool bReset);
 
+	bool						Split_Distinct			(CSG_Shapes *pDissolved);
+
 };
 
 
