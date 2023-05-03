@@ -86,17 +86,16 @@
 			<name>Number of Clusters</name>
 			<value>10</value>
 		</option>
-		<input varname="SAMPLES" type="table" parent="CLASSIFICATION">
-			<condition value="2" type="=">CLASSIFICATION</condition>
-			<name>Training Samples</name>
-			<description>Training samples for supervised classification. Provide a class identifier in the first field followed by sample data corresponding to the selected feature attributes</description>
-		</input>
 		<option varname="CLASSIFIER" type="choice" parent="CLASSIFICATION">
 			<condition value="2" type="=">CLASSIFICATION</condition>
 			<name>Method</name>
 			<choices>Binary Encoding|Parallelepiped|Minimum Distance|Mahalanobis Distance|Maximum Likelihood|Spectral Angle Mapping</choices>
 			<value>2</value>
 		</option>
+		<input varname="SAMPLES" type="table" parent="CLASSIFIER">
+			<name>Training Samples</name>
+			<description>Training samples for supervised classification. Provide a class identifier in the first field followed by sample data corresponding to the selected feature attributes</description>
+		</input>
 	</parameters>
 
 	<tools>
