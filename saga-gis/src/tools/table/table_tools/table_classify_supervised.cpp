@@ -6,11 +6,11 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                imagery_classification                 //
+//                     table_tools                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//              classify_supervised_polygons.cpp         //
+//              table_classify_supervised.cpp            //
 //                                                       //
 //                 Copyright (C) 2012 by                 //
 //                      Olaf Conrad                      //
@@ -46,7 +46,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "classify_supervised_polygons.h"
+#include "table_classify_supervised.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -56,7 +56,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CPolygon_Classify_Supervised::CPolygon_Classify_Supervised(bool bShapes)
+CTable_Classify_Supervised::CTable_Classify_Supervised(bool bShapes)
 {
 	m_bShapes	= bShapes;
 
@@ -188,7 +188,7 @@ CPolygon_Classify_Supervised::CPolygon_Classify_Supervised(bool bShapes)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CPolygon_Classify_Supervised::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CTable_Classify_Supervised::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	if(	pParameter->Cmp_Identifier("TRAINING") )
 	{
@@ -215,7 +215,7 @@ int CPolygon_Classify_Supervised::On_Parameters_Enable(CSG_Parameters *pParamete
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPolygon_Classify_Supervised::On_Execute(void)
+bool CTable_Classify_Supervised::On_Execute(void)
 {
 	if( !Get_Features() )
 	{
@@ -282,7 +282,7 @@ bool CPolygon_Classify_Supervised::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPolygon_Classify_Supervised::Get_Features(void)
+bool CTable_Classify_Supervised::Get_Features(void)
 {
 	m_pTable     = Parameters(m_bShapes ? "SHAPES" : "TABLE")->asTable();
 
@@ -294,7 +294,7 @@ bool CPolygon_Classify_Supervised::Get_Features(void)
 }
 
 //---------------------------------------------------------
-bool CPolygon_Classify_Supervised::Get_Features(sLong iRecord, CSG_Vector &Features)
+bool CTable_Classify_Supervised::Get_Features(sLong iRecord, CSG_Vector &Features)
 {
 	CSG_Table_Record *pRecord = m_pTable->Get_Record(iRecord);
 
@@ -327,7 +327,7 @@ bool CPolygon_Classify_Supervised::Get_Features(sLong iRecord, CSG_Vector &Featu
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPolygon_Classify_Supervised::Set_Classifier(CSG_Classifier_Supervised &Classifier)
+bool CTable_Classify_Supervised::Set_Classifier(CSG_Classifier_Supervised &Classifier)
 {
 	Classifier.Create(m_nFeatures);
 
@@ -368,7 +368,7 @@ bool CPolygon_Classify_Supervised::Set_Classifier(CSG_Classifier_Supervised &Cla
 }
 
 //---------------------------------------------------------
-bool CPolygon_Classify_Supervised::Set_Classifier(CSG_Classifier_Supervised &Classifier, int Training)
+bool CTable_Classify_Supervised::Set_Classifier(CSG_Classifier_Supervised &Classifier, int Training)
 {
 	Process_Set_Text(_TL("training"));
 
@@ -404,7 +404,7 @@ bool CPolygon_Classify_Supervised::Set_Classifier(CSG_Classifier_Supervised &Cla
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPolygon_Classify_Supervised::Set_Classification(CSG_Classifier_Supervised &Classifier)
+bool CTable_Classify_Supervised::Set_Classification(CSG_Classifier_Supervised &Classifier)
 {
 	CSG_Table *pClasses = Parameters("CLASSES")->asTable();
 

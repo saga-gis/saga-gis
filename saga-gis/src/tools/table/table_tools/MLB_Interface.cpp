@@ -6,14 +6,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                      Table_Tools                      //
+//                     table_tools                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
 //                   TLB_Interface.cpp                   //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//              SAGA User Group Associaton               //
+//                 Copyright (C) 2023 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -36,24 +36,13 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     aringel@gwdg.de                        //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    SAGA User Group Associaton             //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -76,7 +65,7 @@ CSG_String Get_Info(int i)
 		return( _TL("Table") );
 
 	case TLB_INFO_Author:
-		return( _TL("SAGA User Group Associaton (c) 2002-2019") );
+		return( "SAGA User Group Associaton (c) 2002-2023" );
 
 	case TLB_INFO_Description:
 		return( _TL("Tools for the creation and manipulation of tables.") );
@@ -105,6 +94,7 @@ CSG_String Get_Info(int i)
 #include "table_selection.h"
 #include "table_categories_to_indicators.h"
 #include "field_formatted_string.h"
+#include "table_classify_supervised.h"
 
 
 //---------------------------------------------------------
@@ -114,35 +104,39 @@ CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
-	case  0:	return( new CTable_Create_Empty );
-	case 22:	return( new CTable_Create_Copy );
-	case  1:	return( new CTable_Rotate );
-	case  2:	return( new CTable_Enumerate(false) );
-	case 21:	return( new CTable_Enumerate(true) );
-	case  3:	return( new CJoin_Tables );
-	case  4:	return( new CJoin_Tables_Shapes );
-	case  5:	return( new CTable_Change_Date_Format );
-	case  6:	return( new CTable_Change_Time_Format );
-	case  7:	return( new CTable_Change_Field_Type );
-	case 23:	return( new CTable_Change_Field_Name );
-	case  8:	return( new CTable_Append_Cols );
-	case  9:	return( new CTable_Change_Color_Format );
-	case 10:	return( new CTable_Text_Replacer );
-	case 11:	return( new CTable_Field_Deletion );
+	case  0: return( new CTable_Create_Empty );
+	case 22: return( new CTable_Create_Copy );
+	case  1: return( new CTable_Rotate );
+	case  2: return( new CTable_Enumerate(false) );
+	case 21: return( new CTable_Enumerate(true) );
+	case  3: return( new CJoin_Tables );
+	case  4: return( new CJoin_Tables_Shapes );
+	case  5: return( new CTable_Change_Date_Format );
+	case  6: return( new CTable_Change_Time_Format );
+	case  7: return( new CTable_Change_Field_Type );
+	case 23: return( new CTable_Change_Field_Name );
+	case  8: return( new CTable_Append_Cols );
+	case  9: return( new CTable_Change_Color_Format );
+	case 10: return( new CTable_Text_Replacer );
+	case 11: return( new CTable_Field_Deletion );
 
-	case 15:	return( new CSelection_Copy );
-	case 16:	return( new CSelection_Delete );
-	case 17:	return( new CSelection_Invert );
-	case 18:	return( new CSelect_Numeric );
-	case 19:	return( new CSelect_String );
+	case 15: return( new CSelection_Copy );
+	case 16: return( new CSelection_Delete );
+	case 17: return( new CSelection_Invert );
+	case 18: return( new CSelect_Numeric );
+	case 19: return( new CSelect_String );
 
-	case 20:	return( new CTable_Categories_to_Indicators );
+	case 20: return( new CTable_Categories_to_Indicators );
 
-	case 24:	return( new CField_Formatted_String );
-	case 25:	return( new CField_Formatted_String_Shapes );
+	case 24: return( new CField_Formatted_String );
+	case 25: return( new CField_Formatted_String_Shapes );
 
-	case 26:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
+	case 26: return( new CTable_Classify_Supervised(false) );
+	case 27: return( new CTable_Classify_Supervised(true) );
+
+	//-----------------------------------------------------
+	case 28: return( NULL );
+	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
 

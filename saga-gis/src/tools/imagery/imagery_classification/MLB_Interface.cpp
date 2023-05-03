@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -15,7 +12,7 @@
 //                                                       //
 //                   TLB_Interface.cpp                   //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2023 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -43,26 +40,15 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
@@ -79,13 +65,13 @@ CSG_String Get_Info(int i)
 		return( _TL("Imagery") );
 
 	case TLB_INFO_Author:
-		return( SG_T("O. Conrad (c) 2002-11") );
+		return( "O.Conrad (c) 2002-23" );
 
 	case TLB_INFO_Description:
 		return( _TL("Classification tools for grids.") );
 
 	case TLB_INFO_Version:
-		return( SG_T("1.0") );
+		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
 		return( _TL("Imagery|Classification") );
@@ -100,7 +86,6 @@ CSG_String Get_Info(int i)
 #include "classify_cluster_analysis.h"
 #include "change_detection.h"
 #include "decision_tree.h"
-#include "classify_supervised_polygons.h"
 #include "classification_quality.h"
 
 
@@ -111,16 +96,15 @@ CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
-	case  0:	return( new CGrid_Classify_Supervised );
-	case  1:	return( new CGrid_Cluster_Analysis );
-	case  2:	return( new CChange_Detection );
-	case  3:	return( new CDecision_Tree );
-	case  4:	return( new CPolygon_Classify_Supervised( true) );
-	case  5:	return( new CPolygon_Classify_Supervised(false) );
-	case  6:	return( new CClassification_Quality );
+	case  0: return( new CGrid_Classify_Supervised );
+	case  1: return( new CGrid_Cluster_Analysis );
+	case  2: return( new CChange_Detection );
+	case  3: return( new CDecision_Tree );
+	case  6: return( new CClassification_Quality );
 
-	case  8:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
+	//-----------------------------------------------------
+	case  8: return( NULL );
+	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
 

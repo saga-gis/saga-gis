@@ -10,7 +10,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//             classify_supervised_polygons.h            //
+//              table_classify_supervised.h              //
 //                                                       //
 //                 Copyright (C) 2012 by                 //
 //                      Olaf Conrad                      //
@@ -46,8 +46,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__classify_supervised_polygons_H
-#define HEADER_INCLUDED__classify_supervised_polygons_H
+#ifndef HEADER_INCLUDED__table_classify_supervised_H
+#define HEADER_INCLUDED__table_classify_supervised_H
 
 
 ///////////////////////////////////////////////////////////
@@ -65,10 +65,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPolygon_Classify_Supervised : public CSG_Tool
+class CTable_Classify_Supervised : public CSG_Tool
 {
 public:
-	CPolygon_Classify_Supervised(bool bShapes);
+	CTable_Classify_Supervised(bool bShapes);
 
 	virtual CSG_String			Get_MenuPath			(void)	{	return( m_bShapes ? _TL("A:Shapes|Attributes") : _TL("A:Table|Tools") );	}
 
@@ -107,4 +107,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__classify_supervised_polygons_H
+#endif // #ifndef HEADER_INCLUDED__table_classify_supervised_H
