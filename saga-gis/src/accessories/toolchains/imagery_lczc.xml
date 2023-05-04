@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <toolchain saga-version="2.2.0">
-	<!-- <group>imagery</group> -->
 	<group>imagery</group>
 	<identifier>lczc</identifier>
 	<menu absolute="true">Imagery|Classification</menu>
@@ -20,6 +19,7 @@
 		<where>ISPRS International Journal of Geo-Information, 4(1), 199-219. doi:10.3390/ijgi4010199.</where>
 	</reference>
 
+	<!-- P A R A M E T E R S -->
 	<parameters>
 		<!-- Input Grids -->
 		<option varname="GRID_SYSTEM" type="grid_system">
@@ -42,16 +42,11 @@
 			<filter>KML/KMZ Files|*.kml;*.kmz|All Files|*.*</filter>
 		</option>
 
-		<!-- for debugging purposes, uncomment this to access the imported training polygons - ->
-		<output varname="TRAINING_PROJ" type="shapes" feature_type="polygon" optional="true">
-			<name>Training Polygons</name>
-		</output>-->
-		
-		<!-- Random Forest Options -->
-		<option varname="RF_TREE_COUNT" type="integer">
-			<name>Random Forest Tree Count</name>
-			<value min="1">32</value>
-			<description>How many trees to create?</description>
+		<!-- Classification -->
+		<option varname="CLASSIFIER" type="choice">
+			<name>Classifier</name>
+			<choices>Random Forest (ViGrA)|Random Forest (OpenCV)|Normal Bayes|Support Vector Machine|Artificial Neural Network</choices>
+			<value>0</value>
 		</option>
 
 		<!-- Results -->
@@ -93,7 +88,9 @@
 		</option>
 	</parameters>
 	
+	<!-- T O O L S -->
 	<tools>
+		<!-- P R E P R O C E S S I N G -->
 		<tool library="io_gdal" tool="3" name="OGR: Import Vector Data">
 			<output id="SHAPES">TRAINING_SINGLE</output>
 			<option id="FILES" varname="true">FILE_TRAINING</option>
@@ -120,7 +117,8 @@
 		<condition type="has_gui" variable="true"><if>
 			<!-- with GUI - pick definition from Grid -->
 			<tool library="pj_proj4" tool="2" name="Coordinate Transformation (Shapes)">
-				<input	id="PICK" parms="CRS_GRID">FEATURE</input>
+				<input  id="CRS_PICKER.CRS_GRID">FEATURE</input>
+			<!--<input	id="PICK" parms="CRS_GRID">FEATURE</input>-->
 				<input	id="SOURCE">TRAINING_MERGED</input>
 				<output id="TARGET">TRAINING_PROJ</output>
 			</tool>
@@ -134,18 +132,119 @@
 			</tool>
 		</else></condition>
 
-		<!-- perform the random forest classification -->
-		<tool library="imagery_vigra" tool="9" name="Random Forest Classification (ViGrA)">
-			<input	id="FEATURES">FEATURES</input>
-			<input	id="TRAINING">TRAINING_PROJ</input>
-			<option id="FIELD">Source</option>
-			<option id="LABEL_AS_ID">TRUE</option>
-			<option id="DO_MRMR">FALSE</option>
-			<option id="RF_TREE_COUNT" varname="true">RF_TREE_COUNT</option>
-			<option id="RF_TREE_SAMPLES">1</option>
-			<output id="CLASSES">LCZC</output>
-		</tool>
+		<!-- C L A S S I F I C A T I O N -->
+		<condition variable="CLASSIFIER" type="=" value="0">
+			<tool library="imagery_vigra" tool="9" name="Random Forest Classification (ViGrA)">
+				<input	id="FEATURES">FEATURES</input>
+				<input	id="TRAINING">TRAINING_PROJ</input>
+				<option id="FIELD">Source</option>
+				<option id="LABEL_AS_ID">TRUE</option>
+				<option id="DO_MRMR">FALSE</option>
+				<option id="RF_TREE_COUNT" varname="true">RF_TREE_COUNT</option>
+				<option id="RF_TREE_SAMPLES">1</option>
+				<output id="CLASSES">LCZC</output>
+			</tool>
+		</condition>
 
+		<condition variable="CLASSIFIER" type="=" value="1">
+			<tool library="imagery_opencv" tool="10" name="Random Forest Classification">
+				<input  id="FEATURES">FEATURES</input>
+				<option id="NORMALIZE">false</option>
+				<output id="CLASSES">CLASSES</output>
+				<output id="CLASSES_LUT">CLASSES_LUT</output>
+				<option id="MODEL_TRAIN">0</option>
+				<input  id="TRAIN_AREAS">TRAINING_PROJ</input>
+				<option id="TRAIN_CLASS">Source</option>
+
+				<option id="MAX_DEPTH">32</option>
+				<option id="MIN_SAMPLES">2</option>
+				<option id="MAX_CATEGRS">17</option>
+				<option id="1SE_RULE">true</option>
+				<option id="TRUNC_PRUNED">true</option>
+				<option id="REG_ACCURACY">0.01</option>
+				<option id="ACTIVE_VARS">0</option>
+			</tool>
+		</condition>
+
+		<condition variable="CLASSIFIER" type="=" value="2">
+			<tool library="imagery_opencv" tool="5" name="Normal Bayes Classification">
+				<input  id="FEATURES">FEATURES</input>
+				<option id="NORMALIZE">false</option>
+				<output id="CLASSES">CLASSES</output>
+				<output id="CLASSES_LUT">CLASSES_LUT</output>
+				<option id="MODEL_TRAIN">0</option>
+				<input  id="TRAIN_AREAS">TRAINING_PROJ</input>
+				<option id="TRAIN_CLASS">Source</option>
+			</tool>
+		</condition>
+
+		<condition variable="CLASSIFIER" type="=" value="3">
+			<tool library="imagery_opencv" tool="7" name="Support Vector Machine Classification">
+				<input  id="FEATURES">FEATURES</input>
+				<option id="NORMALIZE">false</option>
+				<output id="CLASSES">CLASSES</output>
+				<output id="CLASSES_LUT">CLASSES_LUT</output>
+				<option id="MODEL_TRAIN">0</option>
+				<input  id="TRAIN_AREAS">TRAINING_PROJ</input>
+				<option id="TRAIN_CLASS">Source</option>
+
+				<option id="SVM_TYPE">0</option>
+				<option id="C">5</option>
+				<option id="NU">0.5</option>
+				<option id="P">0.5</option>
+				<option id="KERNEL">5</option>
+				<option id="COEF0">1</option>
+				<option id="DEGREE">0.5</option>
+				<option id="GAMMA">5</option>
+			</tool>
+		</condition>
+
+		<condition variable="CLASSIFIER" type="=" value="4">
+			<tool library="imagery_opencv" tool="11" name="Artificial Neural Network Classification">
+				<input  id="FEATURES">FEATURES</input>
+				<option id="NORMALIZE">false</option>
+				<output id="CLASSES">CLASSES</output>
+				<output id="CLASSES_LUT">CLASSES_LUT</output>
+				<option id="MODEL_TRAIN">0</option>
+				<input  id="TRAIN_AREAS">TRAINING_PROJ</input>
+				<option id="TRAIN_CLASS">Source</option>
+
+				<option id="ANN_LAYERS">3</option>
+				<option id="ANN_NEURONS">5</option>
+				<option id="ANN_MAXITER">300</option>
+				<option id="ANN_EPSILON">0.0000001192092896</option>
+				<option id="ANN_ACTIVATION">1</option>
+				<option id="ANN_ACT_ALPHA">1</option>
+				<option id="ANN_ACT_BETA">1</option>
+				<option id="ANN_PROPAGATION">1</option>
+				<option id="ANN_RP_DW0">0</option>
+				<option id="ANN_RP_DW_PLUS">1.2</option>
+				<option id="ANN_RP_DW_MINUS">0.5</option>
+				<option id="ANN_RP_DW_MIN">0.1</option>
+				<option id="ANN_RP_DW_MAX">1.1</option>
+				<option id="ANN_BP_DW">0.1</option>
+				<option id="ANN_BP_MOMENT">0.1</option>
+			</tool>
+		</condition>
+
+		<condition variable="CLASSIFIER" type="!" value="0">
+			<tool library="grid_tools" tool="15" name="Reclassify Grid Values">
+				<input  id="INPUT">CLASSES</input>
+				<output id="RESULT">LCZC</output>
+				<option id="METHOD">3</option>
+				<option id="TOPERATOR">1</option>
+				<input  id="RETAB_2">CLASSES_LUT</input>
+				<option id="F_MIN">VALUE</option>
+				<option id="F_MAX">VALUE</option>
+				<option id="F_CODE">CLASS</option>
+				<option id="NODATAOPT">false</option>
+				<option id="OTHEROPT">false</option>
+				<option id="RESULT_TYPE">9</option>
+				<option id="RESULT_NODATA_CHOICE">0</option>
+			</tool>
+		</condition>
+
+		<!-- P O S T P R O C E S S I N G -->
 		<!-- create look-up table for classification -->
 		<condition variable="CLASS_DEF_SRC" type="=" value="1">
 			<condition variable="CLASS_DEF_FILE" type="not_equal" value="">
