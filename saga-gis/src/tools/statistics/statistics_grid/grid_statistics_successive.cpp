@@ -86,8 +86,8 @@ CGrid_Statistics_Build::CGrid_Statistics_Build(void)
 	Parameters.Add_Grids("", "HISTOGRAM", _TL("Histogram"       ), _TL(""), PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Word);
 
 	Parameters.Add_Int   ("HISTOGRAM", "HCLASSES", _TL("Number of Classes"), _TL(""), 20, 2, true);
-	Parameters.Add_Double("HISTOGRAM", "HMIN"    , _TL("Minimum"          ), _TL(""), 0.0);
-	Parameters.Add_Double("HISTOGRAM", "HMAX"    , _TL("Minimum"          ), _TL(""), 0.0);
+	Parameters.Add_Double("HISTOGRAM", "HMIN"    , _TL("Minimum"          ), _TL(""), 0.);
+	Parameters.Add_Double("HISTOGRAM", "HMAX"    , _TL("Maximum"          ), _TL(""), 0.);
 
 	Parameters.Add_Bool("", "RESET", _TL("Reset"), _TL(""), true)->Set_UseInCMD(false);
 }
@@ -138,9 +138,9 @@ bool CGrid_Statistics_Build::On_Execute(void)
 
 	if( Parameters("RESET")->asBool() )
 	{
-		if( pCount ) { pCount->Assign(0.0); pCount->Set_NoData_Value(65535); }
-		if( pSum   ) { pSum  ->Assign(0.0); }
-		if( pSum2  ) { pSum2 ->Assign(0.0); }
+		if( pCount ) { pCount->Assign(0.); pCount->Set_NoData_Value(65535); }
+		if( pSum   ) { pSum  ->Assign(0.); }
+		if( pSum2  ) { pSum2 ->Assign(0.); }
 
 		if( pMin   ) { pMin  ->Assign_NoData(); }
 		if( pMin   ) { pMax  ->Assign_NoData(); }
@@ -520,9 +520,9 @@ bool CGrid_Statistics_Evaluate::On_Execute(void)
 		
 			double	v;
 
-			if( s.asDouble(v) && v >= 0.0 && v <= 100.0 )
+			if( s.asDouble(v) && v >= 0. && v <= 100. )
 			{
-				Quantiles.Add_Row(v / 100.0);
+				Quantiles.Add_Row(v / 100.);
 
 				CSG_Grid	*pQuantile	= SG_Create_Grid(Get_System());
 
@@ -630,12 +630,12 @@ bool CGrid_Statistics_Evaluate::On_Execute(void)
 //---------------------------------------------------------
 double CGrid_Statistics_Evaluate::Get_Quantile(double Quantile, const CSG_Vector &Cumulative, const CSG_Vector &ClassBreaks)
 {
-	if( Quantile <= 0.0 )	{	return( ClassBreaks[0                      ] );	}
-	if( Quantile >= 1.0 )	{	return( ClassBreaks[ClassBreaks.Get_N() - 1] );	}
+	if( Quantile <= 0. )	{	return( ClassBreaks[0                      ] );	}
+	if( Quantile >= 1. )	{	return( ClassBreaks[ClassBreaks.Get_N() - 1] );	}
 
 	Quantile	*= Cumulative[Cumulative.Get_N() - 1];
 
-	double	y0 = 0.0;
+	double	y0 = 0.;
 
 	for(int i=0; i<Cumulative.Get_N(); i++)
 	{
@@ -644,7 +644,7 @@ double CGrid_Statistics_Evaluate::Get_Quantile(double Quantile, const CSG_Vector
 			double	dy	= Cumulative[i] - y0;
 			double	dx	= ClassBreaks[i + 1] - ClassBreaks[i];
 
-			return( dy <= 0.0 ? -99999 : ClassBreaks[i] + dx * (Quantile - y0) / dy );
+			return( dy <= 0. ? -99999 : ClassBreaks[i] + dx * (Quantile - y0) / dy );
 		}
 		else if( Quantile == Cumulative[i] )
 		{
@@ -655,7 +655,7 @@ double CGrid_Statistics_Evaluate::Get_Quantile(double Quantile, const CSG_Vector
 				x1	= ClassBreaks[i + 1];
 			}
 			
-			return( x0 + (x1 - x0) / 2.0 );
+			return( x0 + (x1 - x0) / 2. );
 		}
 
 		y0	= Cumulative[i];
