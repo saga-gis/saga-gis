@@ -76,27 +76,27 @@
 			<choices>none|cluster analysis|supervised classification</choices>
 			<value>0</value>
 		</option>
-		<option varname="SPLIT_POLYGONS" type="boolean" parent="CLASSIFICATION">
+		<option varname="SPLIT_POLYGONS" type="choice" parent="CLASSIFICATION">
 			<condition value="0" type="!">CLASSIFICATION</condition>
 			<name>Split Distinct Polygon Parts</name>
-			<value>TRUE</value>
+			<choices>no|yes</choices>
+			<value>yes</value>
 		</option>
 		<option varname="NCLUSTER" type="integer" parent="CLASSIFICATION">
 			<condition value="1" type="=">CLASSIFICATION</condition>
 			<name>Number of Clusters</name>
 			<value>10</value>
 		</option>
-		<input varname="SAMPLES" type="table" parent="CLASSIFICATION">
-			<condition value="2" type="=">CLASSIFICATION</condition>
-			<name>Training Samples</name>
-			<description>Training samples for supervised classification. Provide a class identifier in the first field followed by sample data corresponding to the selected feature attributes</description>
-		</input>
 		<option varname="CLASSIFIER" type="choice" parent="CLASSIFICATION">
 			<condition value="2" type="=">CLASSIFICATION</condition>
 			<name>Method</name>
 			<choices>Binary Encoding|Parallelepiped|Minimum Distance|Mahalanobis Distance|Maximum Likelihood|Spectral Angle Mapping</choices>
 			<value>2</value>
 		</option>
+		<input varname="SAMPLES" type="table" parent="CLASSIFIER">
+			<name>Training Samples</name>
+			<description>Training samples for supervised classification. Provide a class identifier in the first field followed by sample data corresponding to the selected feature attributes</description>
+		</input>
 	</parameters>
 
 	<tools>
@@ -139,7 +139,7 @@
 			<input  id="GRID">SEGMENTS_GRID</input>
 			<output id="POLYGONS">SEGMENTS</output>
 		</tool>
-	
+
 		<tool library="shapes_grid" tool="2" name="Grid Statistics for Polygons">
 			<option id="METHOD"  >0</option>
 			<option id="NAMING"  >1</option>
@@ -156,45 +156,87 @@
 			<output id="RESULT"  >OBJECTS</output>
 		</tool>
 
-		<condition value="0" type="!" variable="CLASSIFICATION">
-			<condition value="1" type="=" variable="CLASSIFICATION">
-				<if>
-					<tool library="table_tools" tool="29" name="Cluster Analysis (Shapes)">
-						<option id="FIELDS">3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32</option>
-						<option id="METHOD">1</option>
-						<option id="NCLUSTER"  varname="TRUE">NCLUSTER</option>
-						<option id="NORMALISE" varname="TRUE">NORMALIZE</option>
-						<input  id="INPUT" >OBJECTS</input>
-						<output id="RESULT">CLASSES</output>
-					</tool>
+		<!-- Classification | Cluster Analysis -->
+		<condition value="1" type="=" variable="CLASSIFICATION">
+			<tool library="table_tools" tool="29" name="Cluster Analysis (Shapes)">
+				<option id="FIELDS">3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32</option>
+				<option id="METHOD">1</option>
+				<option id="NCLUSTER"  varname="TRUE">NCLUSTER</option>
+				<option id="NORMALISE" varname="TRUE">NORMALIZE</option>
+				<input  id="INPUT" >OBJECTS</input>
+				<output id="RESULT">CLASSES</output>
+			</tool>
 
-					<tool library="shapes_polygons" tool="5" name="Polygon Dissolve">
-						<option id="FIELDS">CLUSTER</option>
-						<option id="SPLIT_DISTINCT" varname="TRUE">SPLIT_POLYGONS</option>
-						<input  id="POLYGONS" >CLASSES</input>
-						<output id="DISSOLVED">OBJECTS</output>
-					</tool>
-				</if>
+			<tool library="grid_gridding" tool="0" name="Shapes to Grid">
+				<option id="OUTPUT">2</option>
+				<option id="MULTIPLE">1</option>
+				<option id="POLY_TYPE">1</option>
+				<option id="GRID_TYPE">9</option>
+				<option id="TARGET_DEFINITION">1</option>
+				<input  id="INPUT">CLASSES</input>
+				<option id="FIELD">CLUSTER</option>
+				<output id="GRID">SEGMENTS_GRID</output>
+			</tool>
 
-				<else>
-					<tool library="table_tools" tool="27" name="Supervised Classification (Shapes)">
-						<option id="FEATURES">3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32</option>
-						<option id="NORMALISE" varname="TRUE">NORMALIZE</option>
-						<option id="TRAIN_WITH">1</option>
-						<input  id="TRAIN_SAMPLES">SAMPLES</input>
-						<option id="METHOD" varname="TRUE">CLASSIFIER</option>
-						<input  id="SHAPES" >OBJECTS</input>
-						<output id="CLASSES">CLASSES</output>
-					</tool>
+			<tool library="shapes_grid" tool="6" name="Vectorising Grid Classes">
+				<option id="CLASS_ALL">1</option>
+				<option id="SPLIT" varname="TRUE">SPLIT_POLYGONS</option>
+				<option id="ALLVERTICES">FALSE</option>
+				<input  id="GRID">SEGMENTS_GRID</input>
+				<output id="POLYGONS">OBJECTS</output>
+			</tool>
 
-					<tool library="shapes_polygons" tool="5" name="Polygon Dissolve">
-						<option id="FIELDS">0,1</option>
-						<option id="SPLIT_DISTINCT" varname="TRUE">SPLIT_POLYGONS</option>
-						<input  id="POLYGONS" >CLASSES</input>
-						<output id="DISSOLVED">OBJECTS</output>
-					</tool>
-				</else>
-			</condition>
+			<tool library="table_tools" tool="11" name="Delete Fields">
+				<input id="TABLE">OBJECTS</input>
+				<option id="FIELDS">0,2</option> <!-- ID, VALUE, NAME -->
+			</tool>
+		</condition>
+
+		<!-- Classification | Supervised -->
+		<condition value="2" type="=" variable="CLASSIFICATION">
+			<tool library="table_tools" tool="27" name="Supervised Classification (Shapes)">
+				<option id="FEATURES">3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32</option>
+				<option id="NORMALISE" varname="TRUE">NORMALIZE</option>
+				<option id="TRAIN_WITH">1</option>
+				<input  id="TRAIN_SAMPLES">SAMPLES</input>
+				<option id="METHOD" varname="TRUE">CLASSIFIER</option>
+				<input  id="SHAPES" >OBJECTS</input>
+				<output id="CLASSES">CLASSES</output>
+			</tool>
+
+			<tool library="grid_gridding" tool="0" name="Shapes to Grid">
+				<option id="OUTPUT">2</option>
+				<option id="MULTIPLE">1</option>
+				<option id="POLY_TYPE">1</option>
+				<option id="GRID_TYPE">9</option>
+				<option id="TARGET_DEFINITION">1</option>
+				<input  id="INPUT">CLASSES</input>
+				<option id="FIELD">CLASS_NUM</option>
+				<output id="GRID">SEGMENTS_GRID</output>
+			</tool>
+
+			<tool library="shapes_grid" tool="6" name="Vectorising Grid Classes">
+				<option id="CLASS_ALL">1</option>
+				<option id="SPLIT" varname="TRUE">SPLIT_POLYGONS</option>
+				<option id="ALLVERTICES">FALSE</option>
+				<input  id="GRID">SEGMENTS_GRID</input>
+				<output id="POLYGONS">OBJECTS</output>
+			</tool>
+
+			<tool library="table_tools" tool="11" name="Delete Fields">
+				<input id="TABLE">OBJECTS</input>
+				<option id="FIELDS">0,2</option> <!-- ID, VALUE, NAME -->
+			</tool>
+
+			<tool library="table_tools" tool="4" name="Join Attributes from a Table (Shapes)">
+				<option id="FIELDS_ALL">false</option>
+				<option id="FIELDS">1</option> <!-- CLASS_ID -->
+				<option id="KEEP_ALL">true</option>
+				<input  id="TABLE_A">OBJECTS</input>
+				<option id=   "ID_A">VALUE</option>
+				<input  id="TABLE_B">CLASSES</input>
+				<option id=   "ID_B">CLASS_NUM</option>
+			</tool>
 		</condition>
 	</tools>
 </toolchain>
