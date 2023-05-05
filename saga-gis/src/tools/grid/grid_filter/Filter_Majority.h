@@ -89,19 +89,15 @@ protected:
 
 	virtual bool			On_Execute			(void);
 
-	virtual bool			On_After_Execution	(void);
-
 
 private:
-
-	int						m_Type, m_Threshold;
 
 	CSG_Grid_Cell_Addressor	m_Kernel;
 
 	CSG_Grid				*m_pInput;
 
 
-	double					Get_Majority		(int x, int y);
+	double					Get_Value		(int x, int y, bool bMajority, int Threshold);
 
 };
 

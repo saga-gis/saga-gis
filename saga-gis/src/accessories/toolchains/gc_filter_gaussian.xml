@@ -22,11 +22,6 @@
 			<name>Standard Deviation</name>
 			<value>50</value>
 		</option>
-		<option varname="KERNEL_TYPE" type="choice">
-			<name>Kernel Type</name>
-			<choices>Square|Circle</choices>
-			<value>1</value>
-		</option>
 		<option varname="KERNEL_RADIUS" type="integer">
 			<name>Kernel Radius</name>
 			<value>2</value>
@@ -39,7 +34,6 @@
 		<foreach input="GRIDS">
 			<tool library="grid_filter" tool="1" name="Gaussian Filter">
 				<option id="SIGMA"         varname="1">SIGMA</option>
-				<option id="KERNEL_TYPE"   varname="1">KERNEL_TYPE</option>
 				<option id="KERNEL_RADIUS" varname="1">KERNEL_RADIUS</option>
 				<input  id="INPUT" >GRIDS</input>
 				<output id="RESULT">LIST</output>

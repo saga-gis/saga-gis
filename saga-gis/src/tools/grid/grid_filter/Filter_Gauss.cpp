@@ -12,8 +12,8 @@
 //                                                       //
 //                    Filter_Gauss.cpp                   //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                    Andre Ringeler                     //
+//                 Copyright (C) 2023 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -36,13 +36,11 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     aringel@gwdg.de                        //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    Andre Ringeler                         //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -60,38 +58,43 @@
 //---------------------------------------------------------
 CFilter_Gauss::CFilter_Gauss(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Gaussian Filter"));
 
-	Set_Author		("A.Ringeler (c) 2003");
+	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
-		"The Gaussian filter is a smoothing operator that is used to 'blur' or 'soften' data "
-		"and to remove detail and noise. "
-		"The degree of smoothing is determined by the standard deviation. "
-		"For higher standard deviations you need to use a larger search radius."
+		"The Gaussian filter is a low-pass filter operator that is used to 'blur' "
+		"or 'soften' data and to remove detail and noise.\n"
+		"The degree of smoothing is determined by the kernel size specified as "
+		"radius and the weighting of each raster cell within the kernel. The "
+		"weighting scheme uses the Gaussian bell curve function and can be adjusted "
+		"to the kernel size with the 'Standard Deviation' option. "
 	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid("",
-		"INPUT"		, _TL("Grid"),
+		"INPUT"			, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid("",
-		"RESULT"	, _TL("Filtered Grid"),
+		"RESULT"		, _TL("Filtered Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Double("",
-		"SIGMA"		, _TL("Standard Deviation"),
-		_TL("The standard deviation as percentage of the kernel radius, determines the degree of smoothing."),
-		50.0, 0.0001, true
+	Parameters.Add_Int("",
+		"KERNEL_RADIUS"	, _TL("Kernel Radius"),
+		_TL(""),
+		2, 1, true
 	);
 
-	CSG_Grid_Cell_Addressor::Add_Parameters(Parameters);
+	Parameters.Add_Double("",
+		"SIGMA"			, _TL("Standard Deviation"),
+		_TL("The standard deviation as percentage of the kernel radius."),
+		50., 1., true
+	);
 }
 
 
@@ -102,39 +105,46 @@ CFilter_Gauss::CFilter_Gauss(void)
 //---------------------------------------------------------
 bool CFilter_Gauss::On_Execute(void)
 {
-	//-----------------------------------------------------
-	double	Sigma	= Parameters("SIGMA")->asDouble();
+	int Radius = Parameters("KERNEL_RADIUS")->asInt();
 
-	CSG_Grid_Cell_Addressor	Kernel;
+	CSG_Matrix Kernel;
 
-	Kernel.Get_Weighting().Set_Weighting(SG_DISTWGHT_GAUSS);
-	Kernel.Get_Weighting().Set_BandWidth(Sigma * Parameters("KERNEL_RADIUS")->asDouble() / 100.0);
-
-	if( !Kernel.Set_Parameters(Parameters) )
+	if( !Kernel.Create(1 + 2 * (sLong)Radius, 1 + 2 * (sLong)Radius) )
 	{
-		Error_Set(_TL("could not initialize kernel"));
+		Error_Set(_TL("Kernel initialization failed!"));
 
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid	*pInput 	= Parameters("INPUT" )->asGrid(), Input;
-	CSG_Grid	*pResult	= Parameters("RESULT")->asGrid();
+	double Bandwidth = Radius * Parameters("SIGMA")->asDouble() / 100.;
+
+	for(int i=0; i<Kernel.Get_NY(); i++)
+	{
+		for(int j=0; j<Kernel.Get_NX(); j++)
+		{
+			double d = SG_Get_Square((double)i - Radius) + SG_Get_Square((double)j - Radius) / Bandwidth;
+
+			Kernel[i][j] = exp(-0.5 * d*d);
+		}
+	}
+
+	//-----------------------------------------------------
+	CSG_Grid Input, *pInput = Parameters("INPUT")->asGrid();
+
+	CSG_Grid *pResult = Parameters("RESULT")->asGrid();
 
 	if( !pResult || pResult == pInput )
 	{
-		Input.Create(*pInput);
-
-		pResult	= pInput;
-		pInput	= &Input;
+		Input.Create(*pInput); pResult = pInput; pInput = &Input;
 	}
 	else
 	{
+		DataObject_Set_Parameters(pResult, pInput);
+
 		pResult->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Gaussian Filter"));
 
 		pResult->Set_NoData_Value(pInput->Get_NoData_Value());
-
-		DataObject_Set_Parameters(pResult, pInput);
 	}
 
 	//-----------------------------------------------------
@@ -143,23 +153,23 @@ bool CFilter_Gauss::On_Execute(void)
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			CSG_Simple_Statistics	s;
+			CSG_Simple_Statistics s;
 
 			if( !pInput->is_NoData(x, y) )
 			{
-				for(int i=0; i<Kernel.Get_Count(); i++)
+				for(int i=0, iy=y-Radius; i<Kernel.Get_NY(); i++, iy++)
 				{
-					int	ix	= Kernel.Get_X(i, x);
-					int	iy	= Kernel.Get_Y(i, y);
-
-					if( pInput->is_InGrid(ix, iy) )
+					for(int j=0, ix=x-Radius; j<Kernel.Get_NX(); j++, ix++)
 					{
-						s.Add_Value(pInput->asDouble(ix, iy), Kernel.Get_Weight(i));
+						if( pInput->is_InGrid(ix, iy) )
+						{
+							s.Add_Value(pInput->asDouble(ix, iy), Kernel[i][j]);
+						}
 					}
 				}
 			}
 
-			if( s.Get_Weights() > 0.0 )
+			if( s.Get_Weights() > 0. )
 			{
 				pResult->Set_Value(x, y, s.Get_Mean());
 			}

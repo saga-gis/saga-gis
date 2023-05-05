@@ -12,8 +12,8 @@
 //                                                       //
 //                    Filter_LoG.cpp                     //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                    Andre Ringeler                     //
+//                 Copyright (C) 2023 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -36,13 +36,11 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     aringel@gwdg.de                        //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    Andre Ringeler                         //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -65,46 +63,46 @@ CFilter_LoG::CFilter_LoG(void)
 	Set_Author		("A.Ringeler (c) 2003, O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
-		 "Other Common Names: Laplacian, Laplacian of Gaussian, LoG, Marr Filter\n"
-		 "\n"
-		 "Standard kernel 1 (3x3):\n"
-		 " 0 | -1 |  0\n"
-		 "-- + -- + --\n"
-		 "-1 |  4 | -1\n"
-		 "-- + -- + --\n"
-		 " 0 | -1 |  0\n"
-		 "\n"
-		 "Standard kernel 2 (3x3):\n"
-		 "-1 | -1 | -1\n"
-		 "-- + -- + --\n"
-		 "-1 |  8 | -1\n"
-		 "-- + -- + --\n"
-		 "-1 | -1 | -1\n"
-		 "\n"
-		 "Standard kernel 3 (3x3):\n"
-		 "-1 | -2 | -1\n"
-		 "-- + -- + --\n"
-		 "-2 | 12 | -2\n"
-		 "-- + -- + --\n"
-		 "-1 | -2 | -1\n"
-		 "\n"
+		"The Laplacian filter is a high-pass filter operator that is "
+		"commonly used for edge detection. Also referred to as "
+		"Laplacian of Gaussian (LoG) or Marr-Hildreth-Operator.\n"
+		"The kernel can be defined by search radius and weighting "
+		"function adjustment or be chosen from predefined standards.\n"
+		"\n"
+		"Standard kernel 1 (3x3):\n<table border=\"1\" align=\"center\">"
+		"<tr><td> 0</td><td>-1</td><td> 0</td></tr>"
+		"<tr><td>-1</td><td> 4</td><td>-1</td></tr>"
+		"<tr><td> 0</td><td>-1</td><td> 0</td></tr>"
+		"</table>\n"
+		"\n"
+		"Standard kernel 1 (3x3):\n<table border=\"1\" align=\"center\">"
+		"<tr><td>-1</td><td>-1</td><td>-1</td></tr>"
+		"<tr><td>-1</td><td> 8</td><td>-1</td></tr>"
+		"<tr><td>-1</td><td>-1</td><td>-1</td></tr>"
+		"</table>\n"
+		"\n"
+		"Standard kernel 1 (3x3):\n<table border=\"1\" align=\"center\">"
+		"<tr><td>-1</td><td>-2</td><td>-1</td></tr>"
+		"<tr><td>-2</td><td>12</td><td>-2</td></tr>"
+		"<tr><td>-1</td><td>-2</td><td>-1</td></tr>"
+		"</table>\n"
 	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid("",
-		"INPUT"		, _TL("Grid"),
+		"INPUT"			, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid("",
-		"RESULT"	, _TL("Filtered Grid"),
+		"RESULT"		, _TL("Filtered Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Choice("",
-		"METHOD"	, _TL("Method"),
+		"METHOD"		, _TL("Method"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s",
 			_TL("standard kernel 1"),
@@ -114,13 +112,17 @@ CFilter_LoG::CFilter_LoG(void)
 		), 3
 	);
 
-	Parameters.Add_Double("",
-		"SIGMA"		, _TL("Standard Deviation"),
-		_TL("The standard deviation, expressed as a percentage of the radius."),
-		50., 0.00001, true
+	Parameters.Add_Int("METHOD",
+		"KERNEL_RADIUS"	, _TL("Kernel Radius"),
+		_TL(""),
+		2, 1, true
 	);
 
-	CSG_Grid_Cell_Addressor::Add_Parameters(Parameters);
+	Parameters.Add_Double("METHOD",
+		"SIGMA"			, _TL("Standard Deviation"),
+		_TL("The standard deviation as percentage of the kernel radius."),
+		50., 1., true
+	);
 }
 
 
@@ -133,9 +135,8 @@ int CFilter_LoG::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter
 {
 	if(	pParameter->Cmp_Identifier("METHOD") )
 	{
-		pParameters->Set_Enabled("SIGMA"        , pParameter->asInt() == 3);
 		pParameters->Set_Enabled("KERNEL_RADIUS", pParameter->asInt() == 3);
-		pParameters->Set_Enabled("KERNEL_TYPE"  , pParameter->asInt() == 3);
+		pParameters->Set_Enabled("SIGMA"        , pParameter->asInt() == 3);
 	}
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
@@ -147,45 +148,35 @@ int CFilter_LoG::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CFilter_LoG::On_After_Execution(void)
-{
-	if( Parameters("RESULT")->asGrid() == Parameters("INPUT")->asGrid() )
-	{
-		Parameters("RESULT")->Set_Value(DATAOBJECT_NOTSET);
-	}
-
-	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 bool CFilter_LoG::On_Execute(void)
 {
-	if( !Initialise() )
+	CSG_Matrix Kernel;
+
+	if( !Get_Kernel(Kernel) )
 	{
+		Error_Set(_TL("Kernel initialization failed!"));
+
 		return( false );
 	}
 
+	int Radius = (Kernel.Get_NX() - 1) / 2;
+
 	//-----------------------------------------------------
-	m_pInput	= Parameters("INPUT")->asGrid();
+	CSG_Grid Input, *pInput = Parameters("INPUT")->asGrid();
 
-	CSG_Grid	Result, *pResult	= Parameters("RESULT")->asGrid();
+	CSG_Grid *pResult = Parameters("RESULT")->asGrid();
 
-	if( !pResult || pResult == m_pInput )
+	if( !pResult || pResult == pInput )
 	{
-		pResult	= &Result;
-		
-		pResult->Create(m_pInput);
+		Input.Create(*pInput); pResult = pInput; pInput = &Input;
 	}
 	else
 	{
-		pResult->Fmt_Name("%s [%s]", m_pInput->Get_Name(), _TL("Laplace Filter"));
+		DataObject_Set_Colors(pResult, 11, SG_COLORS_BLACK_WHITE);
 
-		pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
+		pResult->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Laplacian Filter"));
+
+		pResult->Set_NoData_Value(pInput->Get_NoData_Value());
 	}
 
 	//-----------------------------------------------------
@@ -194,33 +185,35 @@ bool CFilter_LoG::On_Execute(void)
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			if( m_pInput->is_InGrid(x, y) )
+			if( pInput->is_NoData(x, y) )
 			{
-				pResult->Set_Value(x, y, Get_Value(x, y));
+				pResult->Set_NoData(x, y);
 			}
 			else
 			{
-				pResult->Set_NoData(x, y);
+				double s = 0.;
+
+				for(int i=0, iy=y-Radius; i<Kernel.Get_NY(); i++, iy++)
+				{
+					for(int j=0, ix=x-Radius; j<Kernel.Get_NX(); j++, ix++)
+					{
+						if( Kernel[i][j] )
+						{
+							s += Kernel[i][j] * (pInput->is_InGrid(ix, iy) ? pInput->asDouble(ix, iy) : pInput->asDouble(x, y));
+						}
+					}
+				}
+
+				pResult->Set_Value(x, y, s);
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	if( pResult == &Result )
+	if( pResult == Parameters("INPUT")->asGrid() )
 	{
-		CSG_MetaData	History	= m_pInput->Get_History();
-
-		m_pInput->Assign(pResult);
-		m_pInput->Get_History() = History;
-
-		DataObject_Update(m_pInput);
-
-		Parameters("RESULT")->Set_Value(m_pInput);
+		DataObject_Update(pResult);
 	}
-
-	DataObject_Set_Colors(pResult, 11, SG_COLORS_BLACK_WHITE);
-
-	m_Kernel.Destroy();
 
 	return( true );
 }
@@ -231,70 +224,58 @@ bool CFilter_LoG::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CFilter_LoG::Initialise(void)
+bool CFilter_LoG::Get_Kernel(CSG_Matrix &Kernel)
 {
-	bool	bCircle	= Parameters("KERNEL_TYPE")->asInt() == 1;
-
-	double	Sigma	= Parameters("SIGMA")->asDouble();
+	const double Standard[3][9] =
+	{	{  0, -1,  0,
+		  -1,  4, -1,
+		   0, -1,  0
+		},
+		{ -1, -1, -1,
+		  -1,  8, -1,
+		  -1, -1, -1
+		},
+		{ -1, -2, -1,
+		  -2, 12, -2,
+		  -1, -2, -1
+		}
+	};
 
 	switch( Parameters("METHOD")->asInt() )
 	{
-	case 0:
-		m_Radius	= 1;
-		m_Kernel.Create(SG_DATATYPE_Double, 3, 3);
-		m_Kernel.Set_Value(0, 0,  0);	m_Kernel.Set_Value(0, 1, -1);	m_Kernel.Set_Value(0, 2,  0);
-		m_Kernel.Set_Value(1, 0, -1);	m_Kernel.Set_Value(1, 1,  4);	m_Kernel.Set_Value(1, 2, -1);
-		m_Kernel.Set_Value(2, 0,  0);	m_Kernel.Set_Value(2, 1, -1);	m_Kernel.Set_Value(2, 2,  0);
-		break;
+	case  0: Kernel.Create(3, 3, Standard[0]); break;
+	case  1: Kernel.Create(3, 3, Standard[1]); break;
+	case  2: Kernel.Create(3, 3, Standard[2]); break;
 
-	case 1:
-		m_Radius	= 1;
-		m_Kernel.Create(SG_DATATYPE_Double, 3, 3);
-		m_Kernel.Set_Value(0, 0, -1);	m_Kernel.Set_Value(0, 1, -1);	m_Kernel.Set_Value(0, 2, -1);
-		m_Kernel.Set_Value(1, 0, -1);	m_Kernel.Set_Value(1, 1,  8);	m_Kernel.Set_Value(1, 2, -1);
-		m_Kernel.Set_Value(2, 0, -1);	m_Kernel.Set_Value(2, 1, -1);	m_Kernel.Set_Value(2, 2, -1);
-		break;
-
-	case 2:
-		m_Radius	= 1;
-		m_Kernel.Create(SG_DATATYPE_Double, 3, 3);
-		m_Kernel.Set_Value(0, 0, -1);	m_Kernel.Set_Value(0, 1, -2);	m_Kernel.Set_Value(0, 2, -1);
-		m_Kernel.Set_Value(1, 0, -2);	m_Kernel.Set_Value(1, 1, 12);	m_Kernel.Set_Value(1, 2, -2);
-		m_Kernel.Set_Value(2, 0, -1);	m_Kernel.Set_Value(2, 1, -2);	m_Kernel.Set_Value(2, 2, -1);
-		break;
-
-	case 3:	default:
-		m_Radius	= Parameters("KERNEL_RADIUS")->asInt();
+	default: {
+		double Sigma = Parameters("SIGMA")->asDouble() / 100.;
 
 		if( Sigma <= 0. )
 		{
 			return( false );
 		}
 
-		m_Kernel.Create(SG_DATATYPE_Double, 1 + 2 * m_Radius, 1 + 2 * m_Radius);
+		int Radius = Parameters("KERNEL_RADIUS")->asInt();
 
-		Sigma	= SG_Get_Square(m_Radius * Sigma * 0.01);
+		Kernel.Create(1 + 2 * (sLong)Radius, 1 + 2 * (sLong)Radius);
 
-		for(int y=-m_Radius, iy=0; y<=m_Radius; y++, iy++)
+		double s2 = SG_Get_Square(Radius * Sigma);
+
+		CSG_Simple_Statistics s;
+
+		for(int i=0; i<Kernel.Get_NY(); i++)
 		{
-			for(int x=-m_Radius, ix=0; x<=m_Radius; x++, ix++)
+			for(int j=0; j<Kernel.Get_NX(); j++)
 			{
-				double	d	= x*x + y*y;
+				double d = SG_Get_Square((double)i - Radius) + SG_Get_Square((double)j - Radius);
 
-				if( bCircle && d > m_Radius*m_Radius )
-				{
-					m_Kernel.Set_NoData(ix, iy);
-				}
-				else
-				{
-					m_Kernel.Set_Value(ix, iy, 1. / (M_PI * Sigma*Sigma) * (1. - d / (2. * Sigma)) * exp(-d / (2. * Sigma)));
-				}
+				s += Kernel[i][j] = (1. / (M_PI * s2*s2)) * exp(-d / (2. * s2)) * (1. - d / (2. * s2));
 			}
 		}
 
-		m_Kernel	+= -m_Kernel.Get_Mean();
+		Kernel -= s.Get_Mean();
 
-		break;
+		break; }
 	}
 
 	return( true );
@@ -303,25 +284,98 @@ bool CFilter_LoG::Initialise(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
+//														 //
+//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CFilter_LoG::Get_Value(int x, int y)
+CFilter_LoG_Sharpening::CFilter_LoG_Sharpening(void)
 {
-	double	s	= 0.;
+	Set_Name		(_TL("Sharpening Filter"));
 
-	for(int ky=0, iy=y-m_Radius; ky<m_Kernel.Get_NY(); ky++, iy++)
- 	{
-		for(int kx=0, ix=x-m_Radius; kx<m_Kernel.Get_NX(); kx++, ix++)
+	Set_Author		("O.Conrad (c) 2023");
+
+	Set_Description	(_TW(
+		"This Sharpening filter uses a Laplacian filter to detect "
+		"the high frequencies in the supplied grid and adds it to "
+		"the original values. "
+	));
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CFilter_LoG_Sharpening::On_Execute(void)
+{
+	CSG_Matrix Kernel;
+
+	if( !Get_Kernel(Kernel) )
+	{
+		Error_Set(_TL("Kernel initialization failed!"));
+
+		return( false );
+	}
+
+	int Radius = (Kernel.Get_NX() - 1) / 2;
+
+	//-----------------------------------------------------
+	CSG_Grid Input, *pInput = Parameters("INPUT")->asGrid();
+
+	CSG_Grid *pResult = Parameters("RESULT")->asGrid();
+
+	if( !pResult || pResult == pInput )
+	{
+		Input.Create(*pInput); pResult = pInput; pInput = &Input;
+	}
+	else
+	{
+		DataObject_Set_Parameters(pResult, pInput);
+
+		pResult->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Sharpening Filter"));
+
+		pResult->Set_NoData_Value(pInput->Get_NoData_Value());
+	}
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	{
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
-			if( !m_Kernel.is_NoData(kx, ky) )
+			if( pInput->is_NoData(x, y) )
 			{
-				s	+= m_Kernel.asDouble(kx, ky) * (m_pInput->is_InGrid(ix, iy) ? m_pInput->asDouble(ix, iy) : m_pInput->asDouble(x, y));
+				pResult->Set_NoData(x, y);
+			}
+			else
+			{
+				double s = pInput->asDouble(x, y);
+
+				for(int i=0, iy=y-Radius; i<Kernel.Get_NY(); i++, iy++)
+				{
+					for(int j=0, ix=x-Radius; j<Kernel.Get_NX(); j++, ix++)
+					{
+						if( Kernel[i][j] )
+						{
+							s += Kernel[i][j] * (pInput->is_InGrid(ix, iy) ? pInput->asDouble(ix, iy) : pInput->asDouble(x, y));
+						}
+					}
+				}
+
+				pResult->Set_Value(x, y, s);
 			}
 		}
 	}
 
-	return( s );
+	//-----------------------------------------------------
+	if( pResult == Parameters("INPUT")->asGrid() )
+	{
+		DataObject_Update(pResult);
+	}
+
+	return( true );
 }
 
 

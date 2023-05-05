@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -15,8 +12,8 @@
 //                                                       //
 //                   TLB_Interface.cpp                   //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//               SAGA User Group Associaton              //
+//                 Copyright (C) 2023 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -41,28 +38,17 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    SAGA User Group Associaton             //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
@@ -79,13 +65,13 @@ CSG_String Get_Info(int i)
 		return( _TL("Grid") );
 
 	case TLB_INFO_Author:
-		return( SG_T("SAGA User Group Associaton, HfT Stuttgart (c) 2002-14") );
+		return( "SAGA User Group Associaton, HfT Stuttgart (c) 2002-23" );
 
 	case TLB_INFO_Description:
-		return( _TL("Tools for the manipulation of gridded data.") );
+		return( _TL("Various filter and convolution tools for raster data.") );
 
 	case TLB_INFO_Version:
-		return( SG_T("1.0") );
+		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
 		return( _TL("Grid|Filter") );
@@ -123,28 +109,30 @@ CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
-	case  0:	return( new CFilter );
-	case  1:	return( new CFilter_Gauss );
-	case  2:	return( new CFilter_LoG );
-	case  3:	return( new CFilter_Multi_Dir_Lee );
-	case  4:	return( new CFilter_3x3 );
-	case  5:	return( new CFilterClumps );
-	case  6:	return( new CFilter_Majority );
-	case  7:	return( new CFilter_Terrain_SlopeBased );
-	case  8:	return( new CFilter_Morphology );
-	case  9:	return( new CFilter_Rank );
-	case 10:	return( new CMesh_Denoise_Grid );
-	case 11:	return( new CFilter_Resample );
-	case 12:	return( new CGeomrec );
-	case 13:	return( new Cbin_erosion_reconst );
-	case 14:	return( new Cconnectivity_analysis );
-	case 15:	return( new CFilter_Sieve );
-	case 16:	return( new CWombling );
-	case 17:	return( new CWombling_MultiFeature );
-	case 18:	return( new CFilter_in_Polygon );
+	case  0: return( new CFilter );
+	case  1: return( new CFilter_Gauss );
+	case  2: return( new CFilter_LoG );
+	case  3: return( new CFilter_Multi_Dir_Lee );
+	case  4: return( new CFilter_3x3 );
+	case  5: return( new CFilterClumps );
+	case  6: return( new CFilter_Majority );
+	case  7: return( new CFilter_Terrain_SlopeBased );
+	case  8: return( new CFilter_Morphology );
+	case  9: return( new CFilter_Rank );
+	case 10: return( new CMesh_Denoise_Grid );
+	case 11: return( new CFilter_Resample );
+	case 12: return( new CGeomrec );
+	case 13: return( new Cbin_erosion_reconst );
+	case 14: return( new Cconnectivity_analysis );
+	case 15: return( new CFilter_Sieve );
+	case 16: return( new CWombling );
+	case 17: return( new CWombling_MultiFeature );
+	case 18: return( new CFilter_in_Polygon );
+	case 19: return( new CFilter_LoG_Sharpening );
 
-	case 19:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
+	//-----------------------------------------------------
+	case 20: return( NULL );
+	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
 

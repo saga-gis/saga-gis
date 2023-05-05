@@ -12,8 +12,8 @@
 //                                                       //
 //                       Filter_LoG.h                    //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                     Andre Ringeler                    //
+//                 Copyright (C) 2023 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -36,13 +36,11 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     aringel@saga-gis.org                   //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    Andre Ringeler                         //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -81,19 +79,26 @@ protected:
 
 	virtual bool		On_Execute				(void);
 
-	virtual bool		On_After_Execution		(void);
+
+	bool				Get_Kernel				(CSG_Matrix &Kernel);
+
+};
 
 
-private:
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
-	int					m_Radius;
+//---------------------------------------------------------
+class CFilter_LoG_Sharpening : public CFilter_LoG
+{
+public:
+	CFilter_LoG_Sharpening(void);
 
-	CSG_Grid			*m_pInput, m_Kernel;
 
+protected:
 
-	bool				Initialise				(void);
-
-	double				Get_Value				(int x, int y);
+	virtual bool		On_Execute				(void);
 
 };
 

@@ -28,12 +28,6 @@
 			<name>Standard Deviation</name>
 			<value>50</value>
 		</option>
-		<option varname="KERNEL_TYPE" type="choice">
-			<condition value="3" type="=">METHOD</condition>
-			<name>Kernel Type</name>
-			<choices>Square|Circle</choices>
-			<value>1</value>
-		</option>
 		<option varname="KERNEL_RADIUS" type="integer">
 			<condition value="3" type="=">METHOD</condition>
 			<name>Kernel Radius</name>
@@ -48,7 +42,6 @@
 			<tool library="grid_filter" tool="2" name="Laplacian Filter">
 				<option id="METHOD"        varname="1">METHOD</option>
 				<option id="SIGMA"         varname="1">SIGMA</option>
-				<option id="KERNEL_TYPE"   varname="1">KERNEL_TYPE</option>
 				<option id="KERNEL_RADIUS" varname="1">KERNEL_RADIUS</option>
 				<input  id="INPUT" >GRIDS</input>
 				<output id="RESULT">LIST</output>
