@@ -153,20 +153,26 @@ CGCS_Graticule::CGCS_Graticule(void)
 //---------------------------------------------------------
 int CGCS_Graticule::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	pParameter->Cmp_Identifier("CRS_GRID"  )
-	||	pParameter->Cmp_Identifier("CRS_SHAPES") )
+	if( pParameter->Cmp_Identifier("CRS_PICKER") )
 	{
-		CSG_Rect	r(pParameter->Cmp_Identifier("CRS_GRID")
-			? pParameter->asParameters()->Get_Parameter("PICK")->asGrid  ()->Get_Extent()
-			: pParameter->asParameters()->Get_Parameter("PICK")->asShapes()->Get_Extent()
-		);
+		CSG_Rect Extent;
 
-		if( r.Get_XRange() > 0. && r.Get_YRange() > 0. )
+		if(	pParameter->asParameters()->Get_Parameter("CRS_GRID"  )->asGrid() )
 		{
-			pParameters->Set_Parameter("XMIN", r.Get_XMin());
-			pParameters->Set_Parameter("XMAX", r.Get_XMax());
-			pParameters->Set_Parameter("YMIN", r.Get_YMin());
-			pParameters->Set_Parameter("YMAX", r.Get_YMax());
+			Extent = pParameter->asParameters()->Get_Parameter("CRS_GRID"  )->asGrid  ()->Get_Extent();
+		}
+
+		if(	pParameter->asParameters()->Get_Parameter("CRS_SHAPES")->asShapes() )
+		{
+			Extent = pParameter->asParameters()->Get_Parameter("CRS_SHAPES")->asShapes()->Get_Extent();
+		}
+
+		if( Extent.Get_XRange() > 0. && Extent.Get_YRange() > 0. )
+		{
+			pParameters->Set_Parameter("XMIN", Extent.Get_XMin());
+			pParameters->Set_Parameter("XMAX", Extent.Get_XMax());
+			pParameters->Set_Parameter("YMIN", Extent.Get_YMin());
+			pParameters->Set_Parameter("YMAX", Extent.Get_YMax());
 		}
 	}
 
@@ -193,8 +199,7 @@ int CGCS_Graticule::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 bool CGCS_Graticule::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Projection	Projection;
+	CSG_Projection Projection;
 
 	if( !Get_Projection(Projection) )
 	{
@@ -212,7 +217,7 @@ bool CGCS_Graticule::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Rect	Extent(
+	CSG_Rect Extent(
 		Parameters("XMIN")->asDouble(),
 		Parameters("YMIN")->asDouble(),
 		Parameters("XMAX")->asDouble(),
@@ -253,6 +258,8 @@ bool CGCS_Graticule::Get_Graticule(const CSG_Rect &Extent)
 	r.yMin = Interval * floor(r.Get_YMin() / Interval);
 	r.yMax = Interval * ceil (r.Get_YMax() / Interval);
 
+	bool bClip = false;
+
 	r.Inflate(Interval, false);
 
 	if( r.Get_XMin() < -180. ) r.xMin = -180.;
@@ -291,8 +298,8 @@ bool CGCS_Graticule::Get_Graticule(const CSG_Rect &Extent)
 	}
 
 	//-----------------------------------------------------
-	CSG_Shapes	Clip(SHAPE_TYPE_Polygon);
-	CSG_Shape	*pClip	= Clip.Add_Shape();
+	CSG_Shapes Clip(SHAPE_TYPE_Polygon);
+	CSG_Shape *pClip = Clip.Add_Shape();
 
 	pClip->Add_Point(Extent.Get_XMin(), Extent.Get_YMin());
 	pClip->Add_Point(Extent.Get_XMin(), Extent.Get_YMax());
@@ -325,7 +332,7 @@ bool CGCS_Graticule::Get_Graticule(const CSG_Rect &Extent)
 		Get_Coordinate(Extent, pCoordinates, pLine, AXIS_LEFT);
 		Get_Coordinate(Extent, pCoordinates, pLine, AXIS_RIGHT);
 
-		if( !SG_Shape_Get_Intersection(pLine, pClip->asPolygon()) )
+		if( bClip && !SG_Shape_Get_Intersection(pLine, pClip->asPolygon()) )
 		{
 			pGraticule->Del_Shape(pLine);
 		}
@@ -356,7 +363,7 @@ bool CGCS_Graticule::Get_Graticule(const CSG_Rect &Extent)
 		Get_Coordinate(Extent, pCoordinates, pLine, AXIS_BOTTOM);
 		Get_Coordinate(Extent, pCoordinates, pLine, AXIS_TOP);
 
-		if( !SG_Shape_Get_Intersection(pLine, pClip->asPolygon()) )
+		if( bClip && !SG_Shape_Get_Intersection(pLine, pClip->asPolygon()) )
 		{
 			pGraticule->Del_Shape(pLine);
 		}
