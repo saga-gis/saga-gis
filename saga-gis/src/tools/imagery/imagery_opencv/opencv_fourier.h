@@ -72,13 +72,36 @@ class COpenCV_FFT : public CSG_Tool_Grid
 public:
 	COpenCV_FFT(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Imagery|Fourier Analysis") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:Imagery|Fourier Analysis") );	}
 
 
 protected:
 
-	virtual bool			On_Execute			(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
+	virtual bool			On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class COpenCV_FFTinv : public CSG_Tool_Grid
+{
+public:
+	COpenCV_FFTinv(void);
+
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:Imagery|Fourier Analysis") );	}
+
+
+protected:
+
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 };
 

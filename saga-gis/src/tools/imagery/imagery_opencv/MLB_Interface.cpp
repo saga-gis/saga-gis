@@ -109,6 +109,7 @@ CSG_Tool *		Create_Tool(int i)
 	{
 	case  0:	return( new COpenCV_Morphology );
 	case  1:	return( new COpenCV_FFT );
+	case 13:	return( new COpenCV_FFTinv );
 	case  2:	return( new COpenCV_SVD );
 	case  3:	return( new_COpenCV_NNet );
 	case  4:	return( new_COpenCV_Stereo_Match );
@@ -122,7 +123,7 @@ CSG_Tool *		Create_Tool(int i)
 	case 11:	return( new_COpenCV_ML_ANN    );
 	case 12:	return( new_COpenCV_ML_LogR   );
 
-	case 13:	return( NULL );
+	case 14:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
