@@ -94,13 +94,13 @@ bool	Copy_Grid_To_CVMatrix(CSG_Grid *pGrid, cv::Mat &Matrix, bool bCheckSize)
 {
 	if( pGrid && (!bCheckSize || (pGrid->Get_NX() == Matrix.cols && pGrid->Get_NY() == Matrix.rows)) )
 	{
-		int		nx	= pGrid->Get_NX() < Matrix.cols ? pGrid->Get_NX() : Matrix.cols;
-		int		ny	= pGrid->Get_NY() < Matrix.rows ? pGrid->Get_NY() : Matrix.rows;
+		int nx = pGrid->Get_NX() < Matrix.cols ? pGrid->Get_NX() : Matrix.cols;
+		int ny = pGrid->Get_NY() < Matrix.rows ? pGrid->Get_NY() : Matrix.rows;
 
 		#pragma omp parallel for
 		for(int y=0; y<ny; y++)
 		{
-			uchar *Row	= Matrix.row(y).ptr();
+			uchar *Row = Matrix.row(y).ptr();
 
 			for(int x=0; x<nx; x++)
 			{
@@ -128,13 +128,13 @@ bool	Copy_CVMatrix_To_Grid(CSG_Grid *pGrid, cv::Mat &Matrix, bool bCheckSize)
 {
 	if( pGrid && (!bCheckSize || (pGrid->Get_NX() == Matrix.cols && pGrid->Get_NY() == Matrix.rows)) )
 	{
-		int	nx	= pGrid->Get_NX() < Matrix.cols ? pGrid->Get_NX() : Matrix.cols;
-		int	ny	= pGrid->Get_NY() < Matrix.rows ? pGrid->Get_NY() : Matrix.rows;
+		int nx = pGrid->Get_NX() < Matrix.cols ? pGrid->Get_NX() : Matrix.cols;
+		int ny = pGrid->Get_NY() < Matrix.rows ? pGrid->Get_NY() : Matrix.rows;
 
 		#pragma omp parallel for
 		for(int y=0; y<ny; y++)
 		{
-			uchar *Row	= Matrix.row(y).ptr();
+			uchar *Row = Matrix.row(y).ptr();
 
 			for(int x=0; x<nx; x++)
 			{

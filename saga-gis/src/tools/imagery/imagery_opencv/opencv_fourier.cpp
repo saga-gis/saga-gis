@@ -109,7 +109,9 @@ COpenCV_FFT::COpenCV_FFT(void)
 		"Discrete Fourier transformation."
 	));
 
-	Add_Reference("https://opencv.org/", SG_T("OpenCV - Open Source Computer Vision"));
+	Add_Reference("https://docs.opencv.org/4.7.0/de/dbc/tutorial_py_fourier_transform.html",
+		SG_T("OpenCV Tutorial | Fourier Transform")
+	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid        ("", "GRID"   , _TL("Grid"                  ), _TL(""), PARAMETER_INPUT);
@@ -293,7 +295,9 @@ COpenCV_FFTinv::COpenCV_FFTinv(void)
 		"Inverse discrete Fourier transformation."
 	));
 
-	Add_Reference("https://opencv.org/", SG_T("OpenCV - Open Source Computer Vision"));
+	Add_Reference("https://docs.opencv.org/4.7.0/de/dbc/tutorial_py_fourier_transform.html",
+		SG_T("OpenCV Tutorial | Fourier Transform")
+	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid("", "REAL", _TL("Real"     ), _TL(""), PARAMETER_INPUT );
@@ -406,6 +410,170 @@ bool COpenCV_FFTinv::On_Execute(void)
 			}
 		}
 	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+COpenCV_FFT_Filter::COpenCV_FFT_Filter(void)
+{
+	Set_Name		(_TL("Frequency Domain Filter"));
+
+	Set_Author		("O.Conrad (c) 2023");
+
+	Set_Description	(_TW(
+		"The frequency domain filter works on the discrete Fourier transformation."
+	));
+
+	Add_Reference("https://docs.opencv.org/4.7.0/de/dbc/tutorial_py_fourier_transform.html",
+		SG_T("OpenCV Tutorial | Fourier Transform")
+	);
+
+	//-----------------------------------------------------
+	Parameters.Add_Grid("", "GRID"    , _TL("Grid"         ), _TL(""), PARAMETER_INPUT );
+	Parameters.Add_Grid("", "FILTERED", _TL("Filtered Grid"), _TL(""), PARAMETER_OUTPUT);
+
+	Parameters.Add_Choice("",
+		"FILTER", _TL("Filter"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|%s",
+			_TL("range"),
+			_TL("power of distance"),
+			_TL("Hann window"),
+			_TL("Gaussian")
+		), 2
+	);
+
+	Parameters.Add_Bool  ("FILTER", "INVERSE", _TL("Inverse"   ), _TL(""), false);
+
+	Parameters.Add_Range ("FILTER", "RANGE"  , _TL("Range"     ), _TL(""), 0.0, 0.5, 0.0, true, 1.0, true);
+	Parameters.Add_Double("FILTER", "POWER"  , _TL("Power"     ), _TL(""), 0.5);
+	Parameters.Add_Double("FILTER", "SCALE"  , _TL("Band Width"), _TL(""), 2.0, 0.0, true);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int COpenCV_FFT_Filter::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("FILTER") )
+	{
+		pParameters->Set_Enabled("RANGE", pParameter->asInt() == 0);
+		pParameters->Set_Enabled("POWER", pParameter->asInt() == 1);
+		pParameters->Set_Enabled("SCALE", pParameter->asInt() >= 2);
+	}
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool COpenCV_FFT_Filter::On_Execute(void)
+{
+	CSG_Grid *pGrid = Parameters("GRID")->asGrid();
+
+	COpenCV_FFT DFT;
+
+	DFT.Set_Manager(NULL);
+	DFT.Set_Parameter("GRID"    , pGrid);
+	DFT.Set_Parameter("CENTERED", true);
+	DFT.Set_Parameter("SIZE"    , 1);
+
+	if( !DFT.Execute() )
+	{
+		return( false );
+	}
+
+	CSG_Grids &Complex = *DFT.Get_Parameter("DFT_OPT")->asGrids();
+
+	//-----------------------------------------------------
+	int    Filter = Parameters("FILTER"   )->asInt();
+
+	bool bInverse = Parameters("INVERSE"  )->asBool();
+
+	double Min    = Parameters("RANGE.MIN")->asDouble();
+	double Max    = Parameters("RANGE.MAX")->asDouble();
+	double Scale  = Parameters("SCALE"    )->asDouble();
+	double Power  = Parameters("POWER"    )->asDouble();
+
+	#pragma omp parallel for
+	for(int y=0; y<Complex.Get_NY(); y++)
+	{
+		double dy = (y - 0.5 * Complex.Get_NY()) / Complex.Get_NY();
+
+		for(int x=0; x<Complex.Get_NX(); x++)
+		{
+			double dx = (x - 0.5 * Complex.Get_NX()) / Complex.Get_NX(); double d = dx*dx + dy*dy;
+
+			switch( Filter )
+			{
+			default:
+				d = sqrt(d); d = d < Min || d > Max ? 0. : 1.;
+				break;
+
+			case  1:
+				d = pow(sqrt(d), Power);
+				break;
+
+			case  2:
+				d = sqrt(d); d = d > Scale ? 0. : 0.5 * (1. + cos(M_PI_360 * sqrt(d) / Scale));
+				break;
+
+			case  3:
+				d = exp(-0.5 * d / (Scale*Scale));
+				break;
+			}
+
+			if( bInverse )
+			{
+				d = 1. - d;
+			}
+
+			if( d < 0. ) d = 0.; else if( d > 1. ) d = 1.;
+
+			Complex[0].Mul_Value(x, y, d);
+			Complex[1].Mul_Value(x, y, d);
+		}
+	}
+
+	//-----------------------------------------------------
+	CSG_Grid Filtered(Complex.Get_System());
+
+	COpenCV_FFTinv iDFT;
+
+	iDFT.Set_Manager(NULL);
+	iDFT.Set_Parameter("REAL"    , Complex.Get_Grid_Ptr(0));
+	iDFT.Set_Parameter("IMAG"    , Complex.Get_Grid_Ptr(1));
+	iDFT.Set_Parameter("GRID"    , &Filtered);
+	iDFT.Set_Parameter("CENTERED", true);
+
+	if( !iDFT.Execute() )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	delete(&Complex);
+
+	CSG_Grid *pFiltered = Parameters("FILTERED")->asGrid();
+
+	pFiltered->Assign(&Filtered);
+
+	pFiltered->Fmt_Name("%s [%s]", pGrid->Get_Name(), _TL("Frequency Domain Filter"));
 
 	return( true );
 }
