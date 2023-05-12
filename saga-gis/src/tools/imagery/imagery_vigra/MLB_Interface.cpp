@@ -70,7 +70,7 @@ CSG_String Get_Info(int i)
 	switch( i )
 	{
 	case TLB_INFO_Name:	default:
-		return( _TL("ViGrA") );
+		return( _TL("ViGrA [deprecated]") );
 
 	case TLB_INFO_Category:
 		return( _TL("Imagery") );
@@ -92,10 +92,11 @@ CSG_String Get_Info(int i)
 				"By using template techniques similar to those in the C++ "
 				"Standard Template Library (STL), you can easily adapt any ViGrA "
 				"component to the needs of your application, without thereby "
-				"giving up execution speed.\n"
-				"Find out more at the ViGrA - Vision with Generic Algorithms - homepage:\n"
-				"<a target=\"_blank\" href=\"http://ukoethe.github.io/vigra/\">"
-				"http://hci.iwr.uni-heidelberg.de</a>\n"
+				"giving up execution speed.\nFind out more at the "
+				"<a target=\"_blank\" href=\"https://ukoethe.github.io/vigra/\">ViGrA - Homepage</a>.\n"
+				"<br><b>Because the ViGrA project seems to be abandoned since quite a while "
+				"SAGA's ViGrA tool set has been marked as <u>deprecated</u> and might become "
+				"removed from future SAGA versions!</b>"
 			);
 
 			return( s );
@@ -105,7 +106,7 @@ CSG_String Get_Info(int i)
 		return( SG_T("1.0") );
 
 	case TLB_INFO_Menu_Path:
-		return( _TL("Imagery|ViGrA") );
+		return( "Imagery|ViGrA [deprecated]" );
 	}
 }
 
@@ -136,7 +137,6 @@ CSG_Tool *		Create_Tool(int i)
 	case  4:	return( new CViGrA_Watershed );
 	case  5:	return( new CViGrA_FFT );
 	case  6:	return( new CViGrA_FFT_Inverse );
-	case  7:	return( new CViGrA_FFT_Real );
 	case  8:	return( new CViGrA_FFT_Filter );
 	case  9:	return( new_CViGrA_Random_Forest );
 	case 10:	return( new_CViGrA_RF_Presence );

@@ -72,8 +72,6 @@ class CViGrA_FFT : public CSG_Tool_Grid
 public:
 	CViGrA_FFT(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Imagery|Fourier Analysis") );	}
-
 
 protected:
 
@@ -92,8 +90,6 @@ class CViGrA_FFT_Inverse : public CSG_Tool_Grid
 {
 public:
 	CViGrA_FFT_Inverse(void);
-
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Imagery|Fourier Analysis") );	}
 
 
 protected:
@@ -114,8 +110,6 @@ class CViGrA_FFT_Real : public CSG_Tool_Grid
 public:
 	CViGrA_FFT_Real(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Imagery|Fourier Analysis") );	}
-
 
 protected:
 
@@ -134,8 +128,6 @@ class CViGrA_FFT_Filter : public CSG_Tool_Grid
 {
 public:
 	CViGrA_FFT_Filter(void);
-
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Imagery|Fourier Analysis") );	}
 
 
 protected:
