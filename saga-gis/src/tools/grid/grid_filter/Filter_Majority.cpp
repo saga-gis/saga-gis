@@ -82,7 +82,7 @@ CFilter_Majority::CFilter_Majority(void)
 	Parameters.Add_Choice("",
 		"TYPE"		, _TL("Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("Majority"),
 			_TL("Minority")
 		), 0
@@ -91,7 +91,7 @@ CFilter_Majority::CFilter_Majority(void)
 	Parameters.Add_Double("",
 		"THRESHOLD"	, _TL("Threshold"),
 		_TL("The majority/minority threshold [percent]."),
-		0.0, 0.0, true, 100.0, true
+		0., 0., true, 100., true
 	);
 
 	CSG_Grid_Cell_Addressor::Add_Parameters(Parameters);
@@ -103,61 +103,43 @@ CFilter_Majority::CFilter_Majority(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CFilter_Majority::On_After_Execution(void)
-{
-	if( Parameters("RESULT")->asGrid() == Parameters("INPUT")->asGrid() )
-	{
-		Parameters("RESULT")->Set_Value(DATAOBJECT_NOTSET);
-	}
-
-	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 bool CFilter_Majority::On_Execute(void)
 {
-	//-----------------------------------------------------
 	if( !m_Kernel.Set_Parameters(Parameters) )
 	{
-		Error_Set(_TL("could not initialize kernel"));
+		Error_Set(_TL("Kernel initialization failed!"));
 
 		return( false );
 	}
 
-	m_Type	= Parameters("TYPE")->asInt();
+	//-----------------------------------------------------
+	bool bMajority = Parameters("TYPE")->asInt() == 0;
 
-	double	d	= Parameters("THRESHOLD")->asDouble() / 100.0;
+	double d = Parameters("THRESHOLD")->asDouble() / 100.;
 
-	if( m_Type == 1 )
+	if( bMajority == false )
 	{
-		d	= 1.0 - m_Threshold;
+		d = 1. - d;
 	}
 
-	m_Threshold	= (int)(0.5 + d * m_Kernel.Get_Count());
+	int Threshold = (int)(0.5 + d * m_Kernel.Get_Count());
 
 	//-----------------------------------------------------
-	m_pInput	= Parameters("INPUT")->asGrid();
+	CSG_Grid Input; m_pInput = Parameters("INPUT")->asGrid();
 
-	CSG_Grid	Result, *pResult = Parameters("RESULT")->asGrid();
+	CSG_Grid *pResult = Parameters("RESULT")->asGrid();
 
 	if( !pResult || pResult == m_pInput )
 	{
-		pResult	= &Result;
-		
-		pResult->Create(m_pInput);
+		Input.Create(*m_pInput); pResult = m_pInput; m_pInput = &Input;
 	}
 	else
 	{
-		pResult->Fmt_Name("%s [%s]", m_pInput->Get_Name(), _TL("Majority Filter"));
+		DataObject_Set_Parameters(pResult, m_pInput);
+
+		pResult->Fmt_Name("%s [%s %s]", m_pInput->Get_Name(), bMajority ? _TL("Majority") : _TL("Minority"), _TL("Filter"));
 
 		pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
-
-		DataObject_Set_Parameters(pResult, m_pInput);
 	}
 
 	//-----------------------------------------------------
@@ -166,9 +148,9 @@ bool CFilter_Majority::On_Execute(void)
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			if( m_pInput->is_InGrid(x, y) )
+			if( !m_pInput->is_NoData(x, y) )
 			{
-				pResult->Set_Value(x, y, Get_Majority(x, y));
+				pResult->Set_Value(x, y, Get_Value(x, y, bMajority, Threshold));
 			}
 			else
 			{
@@ -177,20 +159,13 @@ bool CFilter_Majority::On_Execute(void)
 		}
 	}
 
-	//-------------------------------------------------
-	if( pResult == &Result )
-	{
-		CSG_MetaData	History	= m_pInput->Get_History();
-
-		m_pInput->Assign(pResult);
-		m_pInput->Get_History() = History;
-
-		DataObject_Update(m_pInput);
-
-		Parameters("RESULT")->Set_Value(m_pInput);
-	}
-
 	m_Kernel.Destroy();
+
+	//-------------------------------------------------
+	if( pResult == Parameters("INPUT")->asGrid() )
+	{
+		DataObject_Update(pResult);
+	}
 
 	return( true );
 }
@@ -201,35 +176,34 @@ bool CFilter_Majority::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CFilter_Majority::Get_Majority(int x, int y)
+double CFilter_Majority::Get_Value(int x, int y, bool bMajority, int Threshold)
 {
-	CSG_Unique_Number_Statistics	s;
+	CSG_Unique_Number_Statistics s;
 
 	for(int i=0; i<m_Kernel.Get_Count(); i++)
 	{
-		int	ix	= m_Kernel.Get_X(i, x);
-		int	iy	= m_Kernel.Get_Y(i, y);
+		int ix = m_Kernel.Get_X(i, x);
+		int iy = m_Kernel.Get_Y(i, y);
 
 		if( m_pInput->is_InGrid(ix, iy) )
 		{
-			s.Add_Value(m_pInput->asDouble(ix, iy));
+			s += m_pInput->asDouble(ix, iy);
 		}
 	}
 
-	int		Count;
-	double	Value;
+	int Count; double Value;
 
-	if( m_Type == 0 )
+	if( bMajority )
 	{
 		s.Get_Majority(Value, Count);
 
-		return( Count > m_Threshold ? Value : m_pInput->asDouble(x, y) );
+		return( Count > Threshold ? Value : m_pInput->asDouble(x, y) );
 	}
 	else
 	{
 		s.Get_Minority(Value, Count);
 
-		return( Count < m_Threshold ? Value : m_pInput->asDouble(x, y) );
+		return( Count < Threshold ? Value : m_pInput->asDouble(x, y) );
 	}
 }
 

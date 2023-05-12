@@ -6,11 +6,11 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                      Grid_Filter                      //
+//                        OpenCV                         //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                       Filter_LoG.h                    //
+//                    opencv_canny.h                     //
 //                                                       //
 //                 Copyright (C) 2023 by                 //
 //                      Olaf Conrad                      //
@@ -46,68 +46,48 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Filter_LoG_H
-#define HEADER_INCLUDED__Filter_LoG_H
+#ifndef HEADER_INCLUDED__opencv_canny_H
+#define HEADER_INCLUDED__opencv_canny_H
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//                                                       //
 //														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#include <saga_api/saga_api.h>
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CFilter_LoG : public CSG_Tool_Grid
+#include "opencv.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class COpenCV_Canny : public CSG_Tool_Grid
 {
 public:
-	CFilter_LoG(void);
-	
+	COpenCV_Canny(void);
+
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Imagery|Segmentation") );	}
+
 
 protected:
 
-	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual bool			On_Execute			(void);
 
-	virtual bool		On_Execute				(void);
-
-
-	bool				Get_Kernel				(CSG_Matrix &Kernel);
 
 };
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CFilter_LoG_Sharpening : public CFilter_LoG
-{
-public:
-	CFilter_LoG_Sharpening(void);
-
-
-protected:
-
-	virtual bool		On_Execute				(void);
-
-};
-
-
-///////////////////////////////////////////////////////////
 //														 //
-//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Filter_LoG_H
+#endif // #ifndef HEADER_INCLUDED__opencv_canny_H

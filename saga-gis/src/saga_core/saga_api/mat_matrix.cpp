@@ -90,14 +90,14 @@ bool CSG_Vector::Create(const CSG_Vector &Vector)
 }
 
 //---------------------------------------------------------
-CSG_Vector::CSG_Vector(sLong n, double *Data)
+CSG_Vector::CSG_Vector(sLong n, const double *Data)
 {
 	m_Array.Create(sizeof(double), 0, TSG_Array_Growth::SG_ARRAY_GROWTH_2);
 
 	Create(n, Data);
 }
 
-bool CSG_Vector::Create(sLong n, double *Data)
+bool CSG_Vector::Create(sLong n, const double *Data)
 {
 	if( n > 0 )
 	{
@@ -784,14 +784,14 @@ bool CSG_Matrix::Create(const CSG_Matrix &Matrix)
 }
 
 //---------------------------------------------------------
-CSG_Matrix::CSG_Matrix(sLong nCols, sLong nRows, double *Data)
+CSG_Matrix::CSG_Matrix(sLong nCols, sLong nRows, const double *Data)
 {
 	_On_Construction();
 
 	Create(nCols, nRows, Data);
 }
 
-bool CSG_Matrix::Create(sLong nCols, sLong nRows, double *Data)
+bool CSG_Matrix::Create(sLong nCols, sLong nRows, const double *Data)
 {
 	if( nCols < 1 || nRows < 1 )
 	{
@@ -834,14 +834,14 @@ bool CSG_Matrix::Create(sLong nCols, sLong nRows, double *Data)
 }
 
 //---------------------------------------------------------
-CSG_Matrix::CSG_Matrix(sLong nCols, sLong nRows, double **Data)
+CSG_Matrix::CSG_Matrix(sLong nCols, sLong nRows, const double **Data)
 {
 	_On_Construction();
 
 	Create(nCols, nRows, Data);
 }
 
-bool CSG_Matrix::Create(sLong nCols, sLong nRows, double **Data)
+bool CSG_Matrix::Create(sLong nCols, sLong nRows, const double **Data)
 {
 	if( Create(nCols, nRows) )
 	{
@@ -1019,7 +1019,7 @@ bool CSG_Matrix::Del_Rows(sLong nRows)
 }
 
 //---------------------------------------------------------
-bool CSG_Matrix::Add_Col(double *Data)
+bool CSG_Matrix::Add_Col(const double *Data)
 {
 	if( Add_Cols(1) )
 	{
@@ -1042,7 +1042,7 @@ bool CSG_Matrix::Add_Col(const CSG_Vector &Data)
 }
 
 //---------------------------------------------------------
-bool CSG_Matrix::Add_Row(double *Data)
+bool CSG_Matrix::Add_Row(const double *Data)
 {
 	if( Add_Rows(1) )
 	{
@@ -1065,7 +1065,7 @@ bool CSG_Matrix::Add_Row(const CSG_Vector &Data)
 }
 
 //---------------------------------------------------------
-bool CSG_Matrix::Ins_Col(sLong Col, double *Data)
+bool CSG_Matrix::Ins_Col(sLong Col, const double *Data)
 {
 	if( Col >= 0 && Col <= m_nx )
 	{
@@ -1103,7 +1103,7 @@ bool CSG_Matrix::Ins_Col(sLong Col, const CSG_Vector &Data)
 }
 
 //---------------------------------------------------------
-bool CSG_Matrix::Ins_Row(sLong Row, double *Data)
+bool CSG_Matrix::Ins_Row(sLong Row, const double *Data)
 {
 	if( Row >= 0 && Row <= m_ny )
 	{
@@ -1136,7 +1136,7 @@ bool CSG_Matrix::Ins_Row(sLong Row, const CSG_Vector &Data)
 }
 
 //---------------------------------------------------------
-bool CSG_Matrix::Set_Col(sLong Col, double *Data)
+bool CSG_Matrix::Set_Col(sLong Col, const double *Data)
 {
 	if( Data && Col >= 0 && Col < m_nx )
 	{
@@ -1166,7 +1166,7 @@ bool CSG_Matrix::Set_Col(const CSG_Vector &Data)
 }
 
 //---------------------------------------------------------
-bool CSG_Matrix::Set_Row(sLong Row, double *Data)
+bool CSG_Matrix::Set_Row(sLong Row, const double *Data)
 {
 	if( Data && Row >= 0 && Row < m_ny )
 	{

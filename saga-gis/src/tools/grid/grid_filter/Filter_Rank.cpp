@@ -58,7 +58,6 @@
 //---------------------------------------------------------
 CFilter_Rank::CFilter_Rank(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Rank Filter"));
 
 	Set_Author		("O.Conrad (c) 2010");
@@ -68,22 +67,22 @@ CFilter_Rank::CFilter_Rank(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(NULL,
-		"INPUT"		, _TL("Grid"),
+	Parameters.Add_Grid("",
+		"INPUT" , _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(NULL,
-		"RESULT"	, _TL("Filtered Grid"),
+	Parameters.Add_Grid("",
+		"RESULT", _TL("Filtered Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Double(NULL,
-		"RANK"		, _TL("Rank"),
+	Parameters.Add_Double("",
+		"RANK"  , _TL("Rank"),
 		_TL("The rank [percent]."),
-		50.0, 0.0, true, 100.0, true
+		50., 0., true, 100., true
 	);
 
 	CSG_Grid_Cell_Addressor::Add_Parameters(Parameters);
@@ -95,52 +94,33 @@ CFilter_Rank::CFilter_Rank(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CFilter_Rank::On_After_Execution(void)
-{
-	if( Parameters("RESULT")->asGrid() == Parameters("INPUT")->asGrid() )
-	{
-		Parameters("RESULT")->Set_Value(DATAOBJECT_NOTSET);
-	}
-
-	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 bool CFilter_Rank::On_Execute(void)
 {
-	//-----------------------------------------------------
 	if( !m_Kernel.Set_Parameters(Parameters) )
 	{
-		Error_Set(_TL("could not initialize kernel"));
+		Error_Set(_TL("Kernel initialization failed!"));
 
 		return( false );
 	}
 
-	double	Rank	= Parameters("RANK")->asDouble() / 100.0;
+	double Quantile = Parameters("RANK")->asDouble() / 100.;
 
 	//-----------------------------------------------------
-	m_pInput	= Parameters("INPUT")->asGrid();
+	CSG_Grid Input; m_pInput = Parameters("INPUT")->asGrid();
 
-	CSG_Grid	Result, *pResult	= Parameters("RESULT")->asGrid();
+	CSG_Grid *pResult = Parameters("RESULT")->asGrid();
 
 	if( !pResult || pResult == m_pInput )
 	{
-		pResult	= &Result;
-		
-		pResult->Create(m_pInput);
+		Input.Create(*m_pInput); pResult = m_pInput; m_pInput = &Input;
 	}
 	else
 	{
-		pResult->Fmt_Name("%s [%s: %.1f]", m_pInput->Get_Name(), _TL("Rank"), 100.0 * Rank);
+		DataObject_Set_Parameters(pResult, m_pInput);
+
+		pResult->Fmt_Name("%s [%s: %.1f%%]", m_pInput->Get_Name(), _TL("Rank"), 100. * Quantile);
 
 		pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
-
-		DataObject_Set_Parameters(pResult, m_pInput);
 	}
 
 	//-----------------------------------------------------
@@ -149,9 +129,9 @@ bool CFilter_Rank::On_Execute(void)
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			double	Value;
+			double Value;
 
-			if( Get_Value(x, y, Rank, Value) )
+			if( Get_Value(x, y, Quantile, Value) )
 			{
 				pResult->Set_Value(x, y, Value);
 			}
@@ -162,21 +142,13 @@ bool CFilter_Rank::On_Execute(void)
 		}
 	}
 
+	m_Kernel.Destroy();
 
 	//-------------------------------------------------
-	if( pResult == &Result )
+	if( pResult == Parameters("INPUT")->asGrid() )
 	{
-		CSG_MetaData	History	= m_pInput->Get_History();
-
-		m_pInput->Assign(pResult);
-		m_pInput->Get_History() = History;
-
-		DataObject_Update(m_pInput);
-
-		Parameters("RESULT")->Set_Value(m_pInput);
+		DataObject_Update(pResult);
 	}
-
-	m_Kernel.Destroy();
 
 	return( true );
 }
@@ -187,53 +159,26 @@ bool CFilter_Rank::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CFilter_Rank::Get_Value(int x, int y, double Rank, double &Value)
+bool CFilter_Rank::Get_Value(int x, int y, double Quantile, double &Value)
 {
 	if( m_pInput->is_InGrid(x, y) )
 	{
-		CSG_Table	Values;
-
-		Values.Add_Field("Z", SG_DATATYPE_Double);
+		CSG_Simple_Statistics s(true);
 
 		for(int i=0; i<m_Kernel.Get_Count(); i++)
 		{
-			int	ix	= m_Kernel.Get_X(i, x);
-			int	iy	= m_Kernel.Get_Y(i, y);
+			int ix = m_Kernel.Get_X(i, x);
+			int iy = m_Kernel.Get_Y(i, y);
 
 			if( m_pInput->is_InGrid(ix, iy) )
 			{
-				Values.Add_Record()->Set_Value(0, m_pInput->asDouble(ix, iy));
+				s += m_pInput->asDouble(ix, iy);
 			}
 		}
 
-		switch( Values.Get_Count() )
+		if( s.Get_Count() > 0 )
 		{
-		case 0:
-			return( false );
-
-		case 1:
-			Value	= Values[0].asDouble(0);
-			return( true );
-
-		case 2:
-			Value	= (Values[0].asDouble(0) + Values[1].asDouble(0)) / 2.0;
-			return( true );
-
-		default:
-			{
-				Values.Set_Index(0, TABLE_INDEX_Ascending);
-
-				Rank	= Rank * (Values.Get_Count() - 1.0);
-
-				int	i	= (int)Rank;
-
-				Value	= Values.Get_Record_byIndex(i)->asDouble(0);
-
-				if( Rank - i > 0.0 && i < Values.Get_Count() - 1 )
-				{
-					Value	= (Value + Values.Get_Record_byIndex(i + 1)->asDouble(0)) / 2.0;
-				}
-			}
+			Value = s.Get_Quantile(Quantile);
 
 			return( true );
 		}

@@ -69,16 +69,13 @@ CSG_String Get_Info(int i)
 	case TLB_INFO_Author:
 		return( "O. Conrad (c) 2009" );
 
-	case TLB_INFO_Description:
-		{
-			CSG_String	s;
+	case TLB_INFO_Description: { CSG_String	s;
 
-			s	+= _TW("OpenCV - \"Open Source Computer Vision Library\"\nVersion: ");
-			s	+= CV_VERSION;
-			s	+= "\n<a target=\"_blank\" href=\"http://opencv.org\">OpenCV homepage</a>";
+		s += _TW("OpenCV - \"Open Source Computer Vision Library\"\nVersion: ");
+		s += CV_VERSION;
+		s += "\n<a target=\"_blank\" href=\"http://opencv.org\">OpenCV homepage</a>";
 
-			return( s );
-		}
+		return( s ); }
 
 	case TLB_INFO_Version:
 		return( "1.0" );
@@ -98,6 +95,7 @@ CSG_String Get_Info(int i)
 #include "opencv_nnet.h"
 #include "opencv_stereo_match.h"
 #include "opencv_ml.h"
+#include "opencv_canny.h"
 
 
 //---------------------------------------------------------
@@ -107,23 +105,28 @@ CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
-	case  0:	return( new COpenCV_Morphology );
-	case  1:	return( new COpenCV_FFT );
-	case  2:	return( new COpenCV_SVD );
-	case  3:	return( new_COpenCV_NNet );
-	case  4:	return( new_COpenCV_Stereo_Match );
+	case  0: return( new COpenCV_Morphology );
+	case  1: return( new COpenCV_FFT );
+	case 13: return( new COpenCV_FFTinv );
+	case 14: return( new COpenCV_FFT_Filter );
+	case  2: return( new COpenCV_SVD );
+	case  3: return( new_COpenCV_NNet );
+	case  4: return( new_COpenCV_Stereo_Match );
 
-	case  5:	return( new_COpenCV_ML_NBayes );
-	case  6:	return( new_COpenCV_ML_KNN    );
-	case  7:	return( new_COpenCV_ML_SVM    );
-	case  8:	return( new_COpenCV_ML_DTrees );
-	case  9:	return( new_COpenCV_ML_Boost  );
-	case 10:	return( new_COpenCV_ML_RTrees );
-	case 11:	return( new_COpenCV_ML_ANN    );
-	case 12:	return( new_COpenCV_ML_LogR   );
+	case  5: return( new_COpenCV_ML_NBayes );
+	case  6: return( new_COpenCV_ML_KNN    );
+	case  7: return( new_COpenCV_ML_SVM    );
+	case  8: return( new_COpenCV_ML_DTrees );
+	case  9: return( new_COpenCV_ML_Boost  );
+	case 10: return( new_COpenCV_ML_RTrees );
+	case 11: return( new_COpenCV_ML_ANN    );
+	case 12: return( new_COpenCV_ML_LogR   );
 
-	case 13:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
+	case 15: return( new COpenCV_Canny );
+
+	//-----------------------------------------------------
+	case 16: return( NULL );
+	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
 

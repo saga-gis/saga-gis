@@ -350,8 +350,8 @@ public:
 								CSG_Vector			(const CSG_Vector &Vector);
 	bool						Create				(const CSG_Vector &Vector);
 
-								CSG_Vector			(sLong n, double *Data = NULL);
-	bool						Create				(sLong n, double *Data = NULL);
+								CSG_Vector			(sLong n, const double *Data = NULL);
+	bool						Create				(sLong n, const double *Data = NULL);
 
 	bool						Destroy				(void);
 
@@ -462,11 +462,11 @@ public:
 								CSG_Matrix			(const CSG_Matrix &Matrix);
 	bool						Create				(const CSG_Matrix &Matrix);
 
-								CSG_Matrix			(sLong nCols, sLong nRows, double *Data = NULL);
-	bool						Create				(sLong nCols, sLong nRows, double *Data = NULL);
+								CSG_Matrix			(sLong nCols, sLong nRows, const double *Data = NULL);
+	bool						Create				(sLong nCols, sLong nRows, const double *Data = NULL);
 
-								CSG_Matrix			(sLong nCols, sLong nRows, double **Data);
-	bool						Create				(sLong nCols, sLong nRows, double **Data);
+								CSG_Matrix			(sLong nCols, sLong nRows, const double **Data);
+	bool						Create				(sLong nCols, sLong nRows, const double **Data);
 
 	bool						Destroy				(void);
 
@@ -477,18 +477,18 @@ public:
 	bool						Add_Rows			(sLong nRows);
 	bool						Del_Cols			(sLong nCols);
 	bool						Del_Rows			(sLong nRows);
-	bool						Add_Col				(           double           *Data = NULL);
+	bool						Add_Col				(           const double     *Data = NULL);
 	bool						Add_Col				(           const CSG_Vector &Data);
-	bool						Add_Row				(           double           *Data = NULL);
+	bool						Add_Row				(           const double     *Data = NULL);
 	bool						Add_Row				(           const CSG_Vector &Data);
-	bool						Ins_Col				(sLong Col, double           *Data = NULL);
+	bool						Ins_Col				(sLong Col, const double     *Data = NULL);
 	bool						Ins_Col				(sLong Col, const CSG_Vector &Data);
-	bool						Ins_Row				(sLong Row, double           *Data = NULL);
+	bool						Ins_Row				(sLong Row, const double     *Data = NULL);
 	bool						Ins_Row				(sLong Row, const CSG_Vector &Data);
-	bool						Set_Col				(sLong Col, double           *Data);
+	bool						Set_Col				(sLong Col, const double     *Data);
 	bool						Set_Col				(sLong Col, const CSG_Vector &Data);
 	bool						Set_Col				(           const CSG_Vector &Data);
-	bool						Set_Row				(sLong Row, double           *Data);
+	bool						Set_Row				(sLong Row, const double     *Data);
 	bool						Set_Row				(sLong Row, const CSG_Vector &Data);
 	bool						Set_Row				(           const CSG_Vector &Data);
 	bool						Del_Col				(sLong Col);

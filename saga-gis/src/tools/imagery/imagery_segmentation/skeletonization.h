@@ -77,6 +77,8 @@ public:
 
 protected:
 
+	virtual int			On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
 	virtual bool		On_Execute			(void);
 
 
@@ -87,7 +89,7 @@ private:
 
 	int					Get_Neighbours		(int x, int y, CSG_Grid *pGrid, bool Neighbours[8]);
 
-	int					Vectorize			(CSG_Shapes *pShapes);
+	bool				Vectorize			(CSG_Shapes *pShapes);
 	bool				Vectorize_Trace		(int x, int y, CSG_Shape *pShape);
 
 	void				Standard_Execute	(void);

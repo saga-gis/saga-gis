@@ -84,26 +84,32 @@ CSkeletonization::CSkeletonization(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		"", "INPUT"			, _TL("Grid"),
+	Parameters.Add_Grid("",
+		"INPUT"         , _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		"", "RESULT"		, _TL("Skeleton"),
+	Parameters.Add_Grid("",
+		"RESULT"        , _TL("Skeleton"),
 		_TL(""),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Char
 	);
 
-	Parameters.Add_Shapes(
-		"", "VECTOR"		, _TL("Skeleton"),
+	Parameters.Add_Bool("RESULT",
+		"SHOW_MAP"      , _TL("Show Progress in Map"),
 		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
+		false
+	)->Set_UseInCMD(false);
+
+	Parameters.Add_Shapes("",
+		"VECTOR"        , _TL("Skeleton"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Line
 	);
 
-	Parameters.Add_Choice(
-		"", "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"        , _TL("Method"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s",
 			_TL("Standard"),
@@ -112,25 +118,44 @@ CSkeletonization::CSkeletonization(void)
 		), 0
 	);
 
-	Parameters.Add_Choice(
-		"", "INIT_METHOD"	, _TL("Initialisation"),
-		_TL(""),
-		CSG_String::Format("%s|%s",
-			_TL("Less than"),
-			_TL("Greater than")
-		),1
-	);
-
-	Parameters.Add_Double(
-		"", "INIT_THRESHOLD", _TL("Threshold (Init.)"),
-		_TL("")
-	);
-
-	Parameters.Add_Int(
-		"", "CONVERGENCE"	, _TL("Convergence"),
+	Parameters.Add_Int("METHOD",
+		"CONVERGENCE"   , _TL("Convergence"),
 		_TL(""),
 		3, 0, true
 	);
+
+	Parameters.Add_Choice("",
+		"INIT_METHOD"   , _TL("Initialisation"),
+		_TL("Initialize a grid cell as potential skeleton member based on given threshold."),
+		CSG_String::Format("%s|%s|%s|%s",
+			_TL("less than"),
+			_TL("greater than"),
+			_TL("less than or equal"),
+			_TL("greater than or equal")
+		), 1
+	);
+
+	Parameters.Add_Double("INIT_METHOD",
+		"INIT_THRESHOLD", _TL("Threshold"),
+		_TL("")
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CSkeletonization::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("METHOD") )
+	{
+		pParameters->Set_Enabled("SHOW_MAP"   , pParameter->asInt() != 2); // Channel Skeleton
+		pParameters->Set_Enabled("CONVERGENCE", pParameter->asInt() == 2); // Channel Skeleton
+	}
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -141,36 +166,30 @@ CSkeletonization::CSkeletonization(void)
 //---------------------------------------------------------
 bool CSkeletonization::On_Execute(void)
 {
-	m_pResult	= Parameters("RESULT")->asGrid();
+	CSG_Grid *pInput = Parameters("INPUT")->asGrid();
 
-	m_pResult->Assign(0.);
+	m_pResult = Parameters("RESULT")->asGrid();
 
 	DataObject_Set_Colors(m_pResult, 2, SG_COLORS_BLACK_WHITE, true);
 
 	//-----------------------------------------------------
-	CSG_Grid	*pInput	= Parameters("INPUT")->asGrid();
+	int    Initiation = Parameters("INIT_METHOD"   )->asInt   ();
+	double Threshold  = Parameters("INIT_THRESHOLD")->asDouble();
 
-	int		Initiation	= Parameters("INIT_METHOD"   )->asInt   ();
-	double	Threshold	= Parameters("INIT_THRESHOLD")->asDouble();
-
-	for(sLong n=0; n<Get_NCells(); n++)
+	#pragma omp parallel for
+	for(sLong i=0; i<Get_NCells(); i++)
 	{
+		bool bInitial;
+
 		switch( Initiation )
 		{
-		default:
-			if( !pInput->is_NoData(n) && pInput->asDouble(n) < Threshold )
-			{
-				m_pResult->Set_Value(n, 1);
-			}
-			break;
-
-		case  1:
-			if( !pInput->is_NoData(n) && pInput->asDouble(n) > Threshold )
-			{
-				m_pResult->Set_Value(n, 1);
-			}
-			break;
+		default: bInitial = !pInput->is_NoData(i) && pInput->asDouble(i) <  Threshold; break;
+		case  1: bInitial = !pInput->is_NoData(i) && pInput->asDouble(i) >  Threshold; break;
+		case  2: bInitial = !pInput->is_NoData(i) && pInput->asDouble(i) <= Threshold; break;
+		case  3: bInitial = !pInput->is_NoData(i) && pInput->asDouble(i) >= Threshold; break;
 		}
+
+		m_pResult->Set_Value(i, bInitial ? 1 : 0);
 	}
 
 	//-----------------------------------------------------
@@ -189,23 +208,22 @@ bool CSkeletonization::On_Execute(void)
 
 	if( 1 )
 	{
-		for(sLong n=0; n<Get_NCells(); n++)
+		#pragma omp parallel for
+		for(sLong i=0; i<Get_NCells(); i++)
 		{
+			bool bInitial;
+
 			switch( Initiation )
 			{
-			default:
-				if( !pInput->is_NoData(n) && pInput->asDouble(n) < Threshold )
-				{
-					m_pResult->Add_Value(n, 1);
-				}
-				break;
+			default: bInitial = !pInput->is_NoData(i) && pInput->asDouble(i) <  Threshold; break;
+			case  1: bInitial = !pInput->is_NoData(i) && pInput->asDouble(i) >  Threshold; break;
+			case  2: bInitial = !pInput->is_NoData(i) && pInput->asDouble(i) <= Threshold; break;
+			case  3: bInitial = !pInput->is_NoData(i) && pInput->asDouble(i) >= Threshold; break;
+			}
 
-			case  1:
-				if( !pInput->is_NoData(n) && pInput->asDouble(n) > Threshold )
-				{
-					m_pResult->Add_Value(n, 1);
-				}
-				break;
+			if( bInitial )
+			{
+				m_pResult->Add_Value(i, 1);
 			}
 		}
 	}
@@ -222,22 +240,22 @@ bool CSkeletonization::On_Execute(void)
 //---------------------------------------------------------
 int CSkeletonization::Get_Neighbours(int x, int y, CSG_Grid *pGrid, bool Neighbours[8])
 {
-	int	nNeighbours	= 0;
+	int nNeighbours = 0;
 
 	for(int i=0; i<8; i++)
 	{
-		int	ix	= Get_xTo(i, x);
-		int	iy	= Get_yTo(i, y);
+		int ix = Get_xTo(i, x);
+		int iy = Get_yTo(i, y);
 
 		if( pGrid->is_InGrid(ix, iy) && pGrid->asByte(ix, iy) )
 		{
-			Neighbours[i]	= true;
+			Neighbours[i] = true;
 
 			nNeighbours++;
 		}
 		else
 		{
-			Neighbours[i]	= false;
+			Neighbours[i] = false;
 		}
 	}
 
@@ -250,30 +268,21 @@ int CSkeletonization::Get_Neighbours(int x, int y, CSG_Grid *pGrid, bool Neighbo
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSkeletonization::Vectorize(CSG_Shapes *pShapes)
+bool CSkeletonization::Vectorize(CSG_Shapes *pLines)
 {
-	bool	z[8], bPrev;
-
-	int		x, y, i, ix, iy, n, nSegments;
-
-	double	xMin, yMin, dx, dy;
-
-	CSG_Shape	*pShape;
-
-	//-----------------------------------------------------
-	pShapes->Create(SHAPE_TYPE_Line, _TL("Skeleton"));
-	pShapes->Add_Field("ID", SG_DATATYPE_Int);
+	pLines->Create(SHAPE_TYPE_Line, _TL("Skeleton"));
+	pLines->Add_Field("ID", SG_DATATYPE_Int);
 
 	Lock_Create();
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Process_Get_Okay(false); y++)
+	for(int y=0; y<Get_NY() && Process_Get_Okay(false); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
 			if( m_pResult->asByte(x, y) )
 			{
-				n	= Get_Neighbours(x, y, m_pResult, z);
+				bool z[8]; int n = Get_Neighbours(x, y, m_pResult, z);
 
 				if( n == 1 )
 				{
@@ -281,16 +290,16 @@ int CSkeletonization::Vectorize(CSG_Shapes *pShapes)
 				}
 				else if( n > 1 )
 				{
-					n	= 0;
+					n = 0; bool bPrev = z[7];
 
-					for(i=0, bPrev=z[7]; i<8; i++)
+					for(int i=0; i<8; i++)
 					{
 						if( bPrev == false && z[i] == true )
 						{
 							n++;
 						}
 
-						bPrev	= z[i];
+						bPrev = z[i];
 					}
 
 					if( n > 2 )
@@ -303,33 +312,30 @@ int CSkeletonization::Vectorize(CSG_Shapes *pShapes)
 	}
 
 	//-----------------------------------------------------
-	nSegments	= 0;
-
-	for(y=0; y<Get_NY() && Process_Get_Okay(false); y++)
+	for(int y=0; y<Get_NY() && Process_Get_Okay(false); y++)
 	{
-		dx			= m_pResult->Get_Cellsize();
-		xMin		= m_pResult->Get_XMin();// + 0.5 * dx;
-		dy			= m_pResult->Get_Cellsize();
-		yMin		= m_pResult->Get_YMin();// + 0.5 * dy;
+		double dx = m_pResult->Get_Cellsize(), xMin = m_pResult->Get_XMin(); // + 0.5 * dx;
+		double dy = m_pResult->Get_Cellsize(), yMin = m_pResult->Get_YMin(); // + 0.5 * dy;
 
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
 			if( Lock_Get(x, y) == SEGMENT_NODE || Lock_Get(x, y) == SEGMENT_END )
 			{
 				Lock_Set(x, y, SEGMENT_LOCKED);
 
-				for(i=0; i<8; i++)
+				for(int i=0; i<8; i++)
 				{
-					ix	= Get_xTo(i, x);
-					iy	= Get_yTo(i, y);
+					int ix = Get_xTo(i, x);
+					int iy = Get_yTo(i, y);
 
 					if( m_pResult->is_InGrid(ix, iy) && m_pResult->asByte(ix, iy) && !Lock_Get(ix, iy) )
 					{
-						pShape	= pShapes->Add_Shape();
-						pShape->Set_Value(0, ++nSegments);
-						pShape->Add_Point(xMin + dx * (double)x, yMin + dy * (double)y);
+						CSG_Shape *pLine = pLines->Add_Shape();
 
-						Vectorize_Trace(ix, iy, pShape);
+						pLine->Set_Value(0, pLines->Get_Count());
+						pLine->Add_Point(xMin + dx * (double)x, yMin + dy * (double)y);
+
+						Vectorize_Trace(ix, iy, pLine);
 					}
 				}
 			}
@@ -339,50 +345,42 @@ int CSkeletonization::Vectorize(CSG_Shapes *pShapes)
 	//-----------------------------------------------------
 	Lock_Destroy();
 
-	Message_Dlg(CSG_String::Format("%d %s\n", nSegments, _TL("segments identified")), Get_Name());
+	Message_Fmt("\n%s: %lld\n", _TL("number of segments"), pLines->Get_Count());
 
-	return( nSegments );
+	return( pLines->Get_Count() > 0 );
 }
 
 //---------------------------------------------------------
-bool CSkeletonization::Vectorize_Trace(int x, int y, CSG_Shape *pShape)
+bool CSkeletonization::Vectorize_Trace(int x, int y, CSG_Shape *pLine)
 {
-	bool	bContinue;
-
-	int		i, ix, iy, iNext;
-
-	double	xMin, yMin, dx, dy;
+	double dx = m_pResult->Get_Cellsize(), xMin = m_pResult->Get_XMin(); // + 0.5 * dx;
+	double dy = m_pResult->Get_Cellsize(), yMin = m_pResult->Get_YMin(); // + 0.5 * dy;
 
 	//-----------------------------------------------------
-	dx			= m_pResult->Get_Cellsize();
-	xMin		= m_pResult->Get_XMin();// + 0.5 * dx;
-	dy			= m_pResult->Get_Cellsize();
-	yMin		= m_pResult->Get_YMin();// + 0.5 * dy;
+	bool bContinue = true;
 
-	bContinue	= true;
-
-	do
+	while( bContinue )
 	{
-		pShape->Add_Point(xMin + dx * (double)x, yMin + dy * (double)y);
+		pLine->Add_Point(xMin + dx * (double)x, yMin + dy * (double)y);
 
 		if( Lock_Get(x, y) == SEGMENT_NODE || Lock_Get(x, y) == SEGMENT_END )
 		{
-			bContinue	= false;
+			bContinue = false;
 		}
 		else
 		{
 			Lock_Set(x, y, SEGMENT_LOCKED);
 
-			iNext	= -1;
+			int iNext = -1;
 
-			for(i=0; i<8; i+=2)
+			for(int i=0; i<8; i+=2)
 			{
-				ix	= Get_xTo(i, x);
-				iy	= Get_yTo(i, y);
+				int ix = Get_xTo(i, x);
+				int iy = Get_yTo(i, y);
 
 				if( m_pResult->is_InGrid(ix, iy) && m_pResult->asByte(ix, iy) && Lock_Get(ix, iy) != SEGMENT_LOCKED )
 				{
-					iNext	= i;
+					iNext = i;
 
 					if( Lock_Get(ix, iy) == SEGMENT_NODE )
 					{
@@ -393,14 +391,14 @@ bool CSkeletonization::Vectorize_Trace(int x, int y, CSG_Shape *pShape)
 
 			if( iNext < 0 )
 			{
-				for(i=1; i<8; i+=2)
+				for(int i=1; i<8; i+=2)
 				{
-					ix	= Get_xTo(i, x);
-					iy	= Get_yTo(i, y);
+					int ix = Get_xTo(i, x);
+					int iy = Get_yTo(i, y);
 
 					if( m_pResult->is_InGrid(ix, iy) && m_pResult->asByte(ix, iy) && Lock_Get(ix, iy) != SEGMENT_LOCKED )
 					{
-						iNext	= i;
+						iNext = i;
 
 						if( Lock_Get(ix, iy) == SEGMENT_NODE )
 						{
@@ -412,16 +410,15 @@ bool CSkeletonization::Vectorize_Trace(int x, int y, CSG_Shape *pShape)
 
 			if( iNext < 0 )
 			{
-				bContinue	= false;
+				bContinue = false;
 			}
 			else
 			{
-				x	+= Get_xTo(iNext);
-				y	+= Get_yTo(iNext);
+				x += Get_xTo(iNext);
+				y += Get_yTo(iNext);
 			}
 		}
 	}
-	while( bContinue );
 
 	//-----------------------------------------------------
 	return( true );
@@ -435,68 +432,58 @@ bool CSkeletonization::Vectorize_Trace(int x, int y, CSG_Shape *pShape)
 //---------------------------------------------------------
 void CSkeletonization::Standard_Execute(void)
 {
-	int		i, nChanges;
+	bool bUpdate = Parameters("SHOW_MAP")->asBool() && has_GUI();
 
-	CSG_Grid	*pPrev, *pNext, *pTemp;
-
-	//-----------------------------------------------------
-	pPrev		= m_pResult;
-	pNext		= SG_Create_Grid(pPrev);
-
-	//-----------------------------------------------------
-	do
+	if( bUpdate )
 	{
-		DataObject_Update(m_pResult, 0, 1, true);
+		DataObject_Update(m_pResult, 0, 1, SG_UI_DATAOBJECT_SHOW_MAP);
+	}
 
-		nChanges	= 0;
+	//-----------------------------------------------------
+	CSG_Grid *pNow = m_pResult, Next(m_pResult); CSG_Grid *pNext = &Next;
 
-		for(i=0; i<8; i++)
+	for(int nChanges=1; nChanges > 0 && Process_Get_Okay(true); )
+	{
+		nChanges = 0;
+
+		for(int i=0; i<8; i++)
 		{
-			nChanges	+= Standard_Step(i, pPrev, pNext);
+			nChanges += Standard_Step(i, pNow, pNext);
 
-			pTemp		= pPrev;
-			pPrev		= pNext;
-			pNext		= pTemp;
+			CSG_Grid *pTemp = pNow; pNow = pNext; pNext = pTemp;
+		}
+
+		if( bUpdate && nChanges > 0 )
+		{
+			DataObject_Update(m_pResult, 0, 1);
 		}
 	}
-	while( nChanges > 0 && Process_Get_Okay(true) );
 
 	//-----------------------------------------------------
-	if( pNext == m_pResult )
-	{
-		delete(pPrev);
-	}
-	else
+	if( m_pResult != pNext )
 	{
 		m_pResult->Assign(pNext);
-
-		delete(pNext);
 	}
 }
 
 //---------------------------------------------------------
 int CSkeletonization::Standard_Step(int iDir, CSG_Grid *pPrev, CSG_Grid *pNext)
 {
-	bool	z[8], bRemove;
-
-	int		x, y, nNeighbours, nChanges;
-
 	pNext->Assign();
 
-	nChanges	= 0;
+	int nChanges = 0;
 
-	for(y=0; y<Get_NY() && Process_Get_Okay(false); y++)
+	for(int y=0; y<Get_NY() && Process_Get_Okay(false); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
 			if( pPrev->asByte(x, y) )
 			{
-				bRemove		= false;
-				nNeighbours	= Get_Neighbours(x, y, pPrev, z);
+				bool bRemove = false, z[8]; int nNeighbours = Get_Neighbours(x, y, pPrev, z);
 
 				if( nNeighbours > 1 && nNeighbours < 6 )
 				{
-					bRemove	= Standard_Check(iDir, z);
+					bRemove = Standard_Check(iDir, z);
 				}
 
 				if( bRemove )
@@ -577,34 +564,36 @@ inline bool CSkeletonization::Standard_Check(int iDir, bool z[8])
 //---------------------------------------------------------
 void CSkeletonization::Hilditch_Execute(void)
 {
-	int		nChanges;
+	bool bUpdate = Parameters("SHOW_MAP")->asBool() && has_GUI();
 
-	CSG_Grid	*pPrev, *pNext, *pTemp, *pNC_Gaps;
-
-	//-----------------------------------------------------
-	pPrev		= m_pResult;
-	pNext		= SG_Create_Grid(pPrev);
-	pNC_Gaps	= SG_Create_Grid(pPrev, SG_DATATYPE_Char);
-
-	//-----------------------------------------------------
-	do
+	if( bUpdate )
 	{
-		DataObject_Update(m_pResult, 0, 1, true);
-
-		nChanges	= Hilditch_Step(pPrev, pNext, pNC_Gaps);
-
-		pTemp		= pPrev;
-		pPrev		= pNext;
-		pNext		= pTemp;
+		DataObject_Update(m_pResult, 0, 1, SG_UI_DATAOBJECT_SHOW_MAP);
 	}
-	while( nChanges > 0 && Process_Get_Okay(true) );
+
+	//-----------------------------------------------------
+	CSG_Grid *pNow = m_pResult, *pNext = SG_Create_Grid(m_pResult);
+	CSG_Grid *pNC_Gaps = SG_Create_Grid(m_pResult, SG_DATATYPE_Char);
+
+	//-----------------------------------------------------
+	for(int nChanges=1; nChanges > 0 && Process_Get_Okay(true); )
+	{
+		nChanges = Hilditch_Step(pNow, pNext, pNC_Gaps);
+
+		CSG_Grid *pTemp = pNow; pNow = pNext; pNext = pTemp;
+
+		if( bUpdate && nChanges > 0 )
+		{
+			DataObject_Update(pNow, 0, 1);
+		}
+	}
 
 	//-----------------------------------------------------
 	delete(pNC_Gaps);
 
 	if( pNext == m_pResult )
 	{
-		delete(pPrev);
+		delete(pNow);
 	}
 	else
 	{

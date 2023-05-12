@@ -60,7 +60,6 @@
 //---------------------------------------------------------
 CFilter::CFilter(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Simple Filter"));
 
 	Set_Author		("O.Conrad (c) 2003");
@@ -103,38 +102,34 @@ CFilter::CFilter(void)
 //---------------------------------------------------------
 bool CFilter::On_Execute(void)
 {
-	//-----------------------------------------------------
-	int	Method	= Parameters("METHOD")->asInt();
-
 	if( !m_Kernel.Set_Parameters(Parameters) )
 	{
-		Error_Set(_TL("could not initialize kernel"));
+		Error_Set(_TL("Kernel initialization failed!"));
 
 		return( false );
 	}
 
-	//-----------------------------------------------------
-	m_pInput	= Parameters("INPUT")->asGrid();
+	int Method = Parameters("METHOD")->asInt();
 
-	CSG_Grid	Input, *pResult	= Parameters("RESULT")->asGrid();
+	//-----------------------------------------------------
+	CSG_Grid Input; m_pInput = Parameters("INPUT")->asGrid();
+
+	CSG_Grid *pResult = Parameters("RESULT")->asGrid();
 
 	if( !pResult || pResult == m_pInput )
 	{
-		Input.Create(*m_pInput);
-
-		pResult		= m_pInput;
-		m_pInput	= &Input;
+		Input.Create(*m_pInput); pResult = m_pInput; m_pInput = &Input;
 	}
 	else
 	{
-		pResult->Fmt_Name("%s [%s]", m_pInput->Get_Name(), _TL("Filter"));
-
-		if( Method != 2 )	// Edge...
+		if( Method != 2 )	// not edge...
 		{
-			pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
-
 			DataObject_Set_Parameters(pResult, m_pInput);
 		}
+
+		pResult->Fmt_Name("%s [%s]", m_pInput->Get_Name(), Method == 0 ? _TL("Smoothed") : Method == 1 ? _TL("Sharpened") : _TL("Edge"));
+
+		pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
 	}
 
 	//-----------------------------------------------------
@@ -143,7 +138,7 @@ bool CFilter::On_Execute(void)
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			double	Mean;
+			double Mean;
 
 			if( Get_Mean(x, y, Mean) )
 			{
@@ -169,15 +164,14 @@ bool CFilter::On_Execute(void)
 		}
 	}
 
+	m_Kernel.Destroy();
+
 	//-------------------------------------------------
 	if( pResult == Parameters("INPUT")->asGrid() )
 	{
 		DataObject_Update(pResult);
 	}
 
-	m_Kernel.Destroy();
-
-	//-----------------------------------------------------
 	return( true );
 }
 
@@ -189,25 +183,25 @@ bool CFilter::On_Execute(void)
 //---------------------------------------------------------
 bool CFilter::Get_Mean(int x, int y, double &Value)
 {
-	CSG_Simple_Statistics	s;
+	CSG_Simple_Statistics s;
 
 	if( m_pInput->is_InGrid(x, y) )
 	{
 		for(int i=0; i<m_Kernel.Get_Count(); i++)
 		{
-			int	ix	= m_Kernel.Get_X(i, x);
-			int	iy	= m_Kernel.Get_Y(i, y);
+			int ix = m_Kernel.Get_X(i, x);
+			int iy = m_Kernel.Get_Y(i, y);
 
 			if( m_pInput->is_InGrid(ix, iy) )
 			{
-				s	+= m_pInput->asDouble(ix, iy);
+				s += m_pInput->asDouble(ix, iy);
 			}
 		}
 	}
 
 	if( s.Get_Count() > 0 )
 	{
-		Value	= s.Get_Mean();
+		Value = s.Get_Mean();
 
 		return( true );
 	}
