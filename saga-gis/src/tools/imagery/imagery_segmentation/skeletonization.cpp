@@ -118,13 +118,7 @@ CSkeletonization::CSkeletonization(void)
 		), 0
 	);
 
-	Parameters.Add_Int("METHOD",
-		"CONVERGENCE"   , _TL("Convergence"),
-		_TL(""),
-		3, 0, true
-	);
-
-	Parameters.Add_Choice("",
+	Parameters.Add_Choice("METHOD",
 		"INIT_METHOD"   , _TL("Initialisation"),
 		_TL("Initialize a grid cell as potential skeleton member based on given threshold."),
 		CSG_String::Format("%s|%s|%s|%s",
@@ -139,6 +133,12 @@ CSkeletonization::CSkeletonization(void)
 		"INIT_THRESHOLD", _TL("Threshold"),
 		_TL("")
 	);
+
+	Parameters.Add_Int("METHOD",
+		"CONVERGENCE"   , _TL("Convergence"),
+		_TL(""),
+		3, 0, true
+	);
 }
 
 
@@ -152,6 +152,7 @@ int CSkeletonization::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 	if( pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Set_Enabled("SHOW_MAP"   , pParameter->asInt() != 2); // Channel Skeleton
+		pParameters->Set_Enabled("INIT_METHOD", pParameter->asInt() != 2); // Channel Skeleton
 		pParameters->Set_Enabled("CONVERGENCE", pParameter->asInt() == 2); // Channel Skeleton
 	}
 
