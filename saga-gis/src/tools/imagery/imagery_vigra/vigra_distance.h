@@ -72,8 +72,6 @@ class CViGrA_Distance : public CSG_Tool_Grid
 public:
 	CViGrA_Distance(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Grid|Distances") );	}
-
 
 protected:
 

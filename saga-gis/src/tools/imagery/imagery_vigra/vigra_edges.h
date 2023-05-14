@@ -72,8 +72,6 @@ class CViGrA_Edges : public CSG_Tool_Grid
 public:
 	CViGrA_Edges(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Imagery|Segmentation") );	}
-
 
 protected:
 
