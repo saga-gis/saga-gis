@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//              boundary_cells_to_polygons.h             //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2023 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -46,93 +46,50 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__edges_to_polygons_H
+#define HEADER_INCLUDED__edges_to_polygons_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
 
-//---------------------------------------------------------
-// 2. Place general tool library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-CSG_String Get_Info(int i)
+//---------------------------------------------------------
+class CBoundary_Cells_to_Polygons : public CSG_Tool_Grid  
 {
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("Shapes-Grid Tools") );
+public:
+	CBoundary_Cells_to_Polygons(void);
 
-	case TLB_INFO_Category:
-		return( _TL("Shapes") );
-
-	case TLB_INFO_Author:
-		return( "O. Conrad, V.Wichmann (c) 2002-23" );
-
-	case TLB_INFO_Description:
-		return( _TL("Tools related to gridded and vector data (conversions, combinations, etc.).") );
-
-	case TLB_INFO_Version:
-		return( "1.0" );
-
-	case TLB_INFO_Menu_Path:
-		return( _TL("Shapes|Shapes-Grid Tools") );
-	}
-}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Vectorization") );	}
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your tools here...
+protected:
 
-#include "Grid_Values_AddTo_Points.h"
-#include "Grid_Values_AddTo_Shapes.h"
-#include "Grid_Statistics_AddTo_Polygon.h"
-#include "Grid_Statistics_For_Points.h"
-#include "Grid_To_Points.h"
-#include "Grid_To_Points_Random.h"
-#include "Grid_To_Contour.h"
-#include "Grid_Classes_To_Shapes.h"
-#include "Grid_Polygon_Clip.h"
-#include "Grid_To_Gradient.h"
-#include "grid_local_extremes_to_points.h"
-#include "grid_extent.h"
-#include "grid_rectangle_clip.h"
-#include "Grid_Class_Statistics_For_Polygons.h"
-#include "boundary_cells_to_polygons.h"
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your tools to be created here...
+private:
 
-CSG_Tool *		Create_Tool(int i)
-{
-	switch( i )
-	{
-	case  0: return( new CGrid_Values_AddTo_Points );
-	case  1: return( new CGrid_Values_AddTo_Shapes );
-	case  2: return( new CGrid_Statistics_AddTo_Polygon );
-	case  8: return( new CGrid_Statistics_For_Points );
-	case  3: return( new CGrid_To_Points );
-	case  4: return( new CGrid_To_Points_Random );
-	case  5: return( new CGrid_To_Contour );
-	case  6: return( new CGrid_Classes_To_Shapes );
-	case  7: return( new CGrid_Polygon_Clip );
+	bool					Get_Polygon				(CSG_Grid &Mask, int x, int y, CSG_Shape *pPolygon);
 
-	case  9: return( new CGrid_Local_Extremes_to_Points );
-	case 10: return( new CGrid_Extent );
-	case 11: return( new CGrid_Rectangle_Clip );
+	bool					Set_Mask				(CSG_Grid &Mask, int x, int y, int id, const CSG_Grid &Grid);
+	sLong					Set_Mask				(CSG_Grid &Mask);
 
-	case 15: return( new CGrid_To_Gradient(0) );
-	case 16: return( new CGrid_To_Gradient(1) );
-	case 17: return( new CGrid_To_Gradient(2) );
-
-	case 18: return( new CGrid_Class_Statistics_For_Polygons );
-
-	case 19: return( new CBoundary_Cells_to_Polygons );
-
-	//-----------------------------------------------------
-	case 20: return( NULL );
-	default: return( TLB_INTERFACE_SKIP_TOOL );
-	}
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -142,8 +99,4 @@ CSG_Tool *		Create_Tool(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	TLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__edges_to_polygons_H
