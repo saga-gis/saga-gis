@@ -48,10 +48,7 @@
 //---------------------------------------------------------
 #include "opencv_hough_circles.h"
 
-#include "opencv2/imgcodecs.hpp"
 #include "opencv2/imgproc.hpp"
-
-//#include <vector>
 
 
 ///////////////////////////////////////////////////////////
@@ -185,7 +182,7 @@ bool COpenCV_Hough_Circles::On_Execute(void)
 		return( true );
 	}
 
-	Message_Fmt("\n%s\n", _TL("No circles have been detected"), pCircles->Get_Count());
+	Message_Fmt("\n%s\n", _TL("No circles have been detected"));
 
 	return( false );
 }
