@@ -191,6 +191,37 @@ bool CBoundary_Cells_to_Polygons::On_Execute(void)
 #define MASK_BOUNDARY  -2
 
 //---------------------------------------------------------
+inline bool CBoundary_Cells_to_Polygons::is_Boundary(CSG_Grid &Mask, int x, int y, int Direction)
+{
+	x += Get_xTo(Direction); y += Get_yTo(Direction);
+
+	return( Mask.is_InGrid(x, y, false) && Mask.asInt(x, y) == MASK_BOUNDARY );
+}
+
+//---------------------------------------------------------
+bool CBoundary_Cells_to_Polygons::Find_Next_Boundary(CSG_Grid &Mask, int x, int y, int &Direction, bool bClockwise)
+{
+	int n = bClockwise ? -1 : 1;
+
+	for(int i=0; i<8; i++, Direction+=n)
+	{
+		if( is_Boundary(Mask, x, y, Direction) )
+		{
+			if( (Direction % 2) && is_Boundary(Mask, x, y, Direction + n) ) // prefer orthogonal neighbour direction
+			{
+				Direction += n;
+			}
+
+			Direction = (Direction + 8) % 8;
+
+			return( true );
+		}
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 bool CBoundary_Cells_to_Polygons::Get_Polygon(CSG_Grid &Mask, int x, int y, CSG_Shape *pPolygon)
 {
 	int x0 = x, y0 = y, id = Mask.asInt(x, y);
@@ -211,11 +242,11 @@ bool CBoundary_Cells_to_Polygons::Get_Polygon(CSG_Grid &Mask, int x, int y, CSG_
 		{
 			int ix = Get_xTo(i, x), iy = Get_yTo(i, y);
 
-			if(	Mask.asInt(ix, iy) == 0 )
+			if( Mask.asInt(ix, iy) == 0 )
 			{
 				Boundary.Push(ix, iy); Mask.Set_Value(ix, iy, MASK_BOUNDARY ); // to be processed now
 			}
-			if(	Mask.asInt(ix, iy) == id )
+			else if( Mask.asInt(ix, iy) == id )
 			{
 				Stack   .Push(ix, iy); Mask.Set_Value(ix, iy, MASK_PROCESSED); // mark as processed
 			}
@@ -223,48 +254,40 @@ bool CBoundary_Cells_to_Polygons::Get_Polygon(CSG_Grid &Mask, int x, int y, CSG_
 	}
 
 	//-----------------------------------------------------
-	int Direction = -1;
+	int Direction = 0;
 
-	for(int i=0; Direction<0 && i<8; i++)
+	for(int i=0; i<8; i++, Direction++)
 	{
-		if( Mask.asInt(Get_xTo(i, x0), Get_yTo(i, y0)) == MASK_BOUNDARY )
+		if( Mask.asInt(Get_xTo(Direction, x0), Get_yTo(Direction, y0)) == MASK_BOUNDARY )
 		{
-			Direction = i;
+			break;
 		}
 	}
 
-	x = x0 = Get_xTo(Direction, x0);
-	y = y0 = Get_yTo(Direction, y0);
+	x = Get_xTo(Direction, x0);
+	y = Get_yTo(Direction, y0);
 
-	Direction += 2;
+	Find_Next_Boundary(Mask, x, y, Direction += 3);
 
+	x0 = x = Get_xTo(Direction, x);
+	y0 = y = Get_yTo(Direction, y);
+
+	//-----------------------------------------------------
 	do
 	{
+		if( pPolygon->Get_Point_Count() >= (sLong)(2 * Boundary.Get_Size()) )
+		{ // under certain circumstances a boundary cell can be visited twice, ...but this should not happen very often!
+			break;
+		}
+
 		pPolygon->Add_Point(Mask.Get_System().Get_Grid_to_World(x, y));
 
-		int j = Direction + 2; Direction = -1;
+		Find_Next_Boundary(Mask, x, y, Direction += 2);
 
-		for(int i=0; Direction<0 && i<8; i++, j--)
-		{
-			int ix = Get_xTo(j, x), iy = Get_yTo(j, y);
-
-			if( Mask.is_InGrid(ix, iy, false) && Mask.asInt(ix, iy) == MASK_BOUNDARY )
-			{
-				if( j % 2 ) // diagonal
-				{
-					ix = Get_xTo(j - 1, x); iy = Get_yTo(j - 1, y);
-
-					if( Mask.is_InGrid(ix, iy, false) && Mask.asInt(ix, iy) == MASK_BOUNDARY )
-					{
-						j--;
-					}
-				}
-
-				Direction = (j + 8) % 8; x += Get_xTo(Direction); y += Get_yTo(Direction);
-			}
-		}
+		x += Get_xTo(Direction);
+		y += Get_yTo(Direction);
 	}
-	while( (x != x0 || y != y0) && pPolygon->Get_Point_Count() < (sLong)Boundary.Get_Size() );
+	while( x != x0 || y != y0 ); // stop when polygon is closed
 
 	//-----------------------------------------------------
 	while( Boundary.Pop(x, y) )

@@ -84,6 +84,9 @@ protected:
 
 private:
 
+	bool					is_Boundary				(CSG_Grid &Mask, int x, int y, int  Direction);
+	bool					Find_Next_Boundary		(CSG_Grid &Mask, int x, int y, int &Direction, bool bClockwise = true);
+
 	bool					Get_Polygon				(CSG_Grid &Mask, int x, int y, CSG_Shape *pPolygon);
 
 	bool					Set_Mask				(CSG_Grid &Mask, int x, int y, int id, const CSG_Grid &Grid);
