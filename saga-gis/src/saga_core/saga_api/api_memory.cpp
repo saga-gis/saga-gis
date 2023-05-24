@@ -340,27 +340,36 @@ bool CSG_Array::Set_Array(sLong nValues, bool bShrink)
 		break;
 
 	case TSG_Array_Growth::SG_ARRAY_GROWTH_1:
-		nBuffer	= nValues <    100 ?      nValues
-				: nValues <   1000 ? (1 + nValues /    10) *    10
-				: nValues <  10000 ? (1 + nValues /   100) *   100
-				: nValues < 100000 ? (1 + nValues /  1000) *  1000
-				:                    (1 + nValues / 10000) * 10000;
+		nBuffer	= nValues <      10 ?      nValues
+				: nValues <     100 ? (1 + nValues /     10) *      10
+				: nValues <    1000 ? (1 + nValues /    100) *     100
+				: nValues <   10000 ? (1 + nValues /   1000) *    1000
+				:                     (1 + nValues /  10000) *   10000;
 		break;
 
 	case TSG_Array_Growth::SG_ARRAY_GROWTH_2:
-		nBuffer	= nValues <     10 ?      nValues
-				: nValues <    100 ? (1 + nValues /    10) *    10
-				: nValues <   1000 ? (1 + nValues /   100) *   100
-				: nValues <  10000 ? (1 + nValues /  1000) *  1000
-				:                    (1 + nValues / 10000) * 10000;
+		nBuffer	= nValues <    100 ?      nValues
+				: nValues <   1000 ? (1 + nValues /      10) *      10
+				: nValues <  10000 ? (1 + nValues /     100) *     100
+				: nValues < 100000 ? (1 + nValues /    1000) *    1000
+				:                    (1 + nValues /   10000) *   10000;
 		break;
 
 	case TSG_Array_Growth::SG_ARRAY_GROWTH_3:
-		nBuffer	= nValues <    1000 ? (1 + nValues /    1000) *    1000
-				: nValues <   10000 ? (1 + nValues /   10000) *   10000
-				: nValues <  100000 ? (1 + nValues /  100000) *  100000
-				:                     (1 + nValues / 1000000) * 1000000;
+		nBuffer	= nValues <   1000 ? (1 + nValues /    1000) *    1000
+				: nValues <  10000 ? (1 + nValues /   10000) *   10000
+				: nValues < 100000 ? (1 + nValues /  100000) *  100000
+				:                    (1 + nValues / 1000000) * 1000000;
 		break;
+
+	case TSG_Array_Growth::SG_ARRAY_GROWTH_FIX_8   : nBuffer = (1 + nValues /    8) *    8; break;
+	case TSG_Array_Growth::SG_ARRAY_GROWTH_FIX_16  : nBuffer = (1 + nValues /   16) *   16; break;
+	case TSG_Array_Growth::SG_ARRAY_GROWTH_FIX_32  : nBuffer = (1 + nValues /   32) *   32; break;
+	case TSG_Array_Growth::SG_ARRAY_GROWTH_FIX_64  : nBuffer = (1 + nValues /   64) *   64; break;
+	case TSG_Array_Growth::SG_ARRAY_GROWTH_FIX_128 : nBuffer = (1 + nValues /  128) *  128; break;
+	case TSG_Array_Growth::SG_ARRAY_GROWTH_FIX_256 : nBuffer = (1 + nValues /  256) *  256; break;
+	case TSG_Array_Growth::SG_ARRAY_GROWTH_FIX_512 : nBuffer = (1 + nValues /  512) *  512; break;
+	case TSG_Array_Growth::SG_ARRAY_GROWTH_FIX_1024: nBuffer = (1 + nValues / 1024) * 1024; break;
 	}
 
 	//-----------------------------------------------------
