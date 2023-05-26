@@ -37,8 +37,8 @@ REM For all bug-fix-releases!
 REM Don't forget to activate the variable
 REM - SWITCH_TO_BRANCH -
 SET SWITCH_TO_BRANCH=saga-9.0
-SET SAGA_VER_TEXT=9.0.2
-SET SAGA_VER_NEXT=9.0.3
+SET SAGA_VER_TEXT=9.0.3
+SET SAGA_VER_NEXT=9.0.4
 SET SAGA_VERSION=saga-%SAGA_VER_TEXT%
 
 

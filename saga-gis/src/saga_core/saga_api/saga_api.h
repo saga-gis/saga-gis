@@ -86,8 +86,8 @@
 //---------------------------------------------------------
 #define SAGA_MAJOR_VERSION		9
 #define SAGA_MINOR_VERSION		0
-#define SAGA_RELEASE_NUMBER		2
-#define SAGA_VERSION			SG_T("9.0.2")
+#define SAGA_RELEASE_NUMBER		3
+#define SAGA_VERSION			SG_T("9.0.3")
 
 
 ///////////////////////////////////////////////////////////
