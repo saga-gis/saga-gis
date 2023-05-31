@@ -30,9 +30,13 @@
 # Initialize the environment...
 
 # Windows: Let the 'SAGA_PATH' environment variable point to
-# the SAGA installation folder before importing 'saga'
-# or alternatively set it in 'saga.py' itself.
-import os; os.environ['SAGA_PATH'] = 'F:/develop/saga/saga-code/master/saga-gis/bin/saga_x64/'
+# the SAGA installation folder before importing 'saga_api'!
+# This can be defined globally in the Windows system or
+# user environment variable settings, in the 
+# 'Lib/site-packages/saga.py' file of your Python installation,
+# or in the individual Python script itself. To do the latter
+# just uncomment the following line and adjust the path accordingly:
+# import os; os.environ['SAGA_PATH'] = 'F:/develop/saga/saga-code/master/saga-gis/bin/saga_x64/'
 
 # Import 'saga' before importing 'saga_api' for the first time!
 import saga, saga_api
@@ -44,7 +48,7 @@ saga.Initialize()
 #_________________________________________
 ##########################################
 def Run_Random_Terrain():
-    print('Run_Random_Terrain')
+    print('Running: Random Terrain')
     Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('grid_calculus', '6')
     if not Tool:
         print('Failed to request tool: Random Terrain')
@@ -69,7 +73,7 @@ def Run_Random_Terrain():
 #_________________________________________
 ##########################################
 def Run_Slope_Aspect_Curvature(DEM):
-    print('Run_Slope_Aspect_Curvature')
+    print('Running: Slope, Aspect, Curvature')
     Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('ta_morphometry', '0')
     if not Tool:
         print('Failed to request tool: Slope, Aspect, Curvature')
@@ -105,7 +109,7 @@ def Run_Grid_Difference(A, B, PythonLoop):
     # ------------------------------------
     # cell by cell, slower than second solution
     if PythonLoop:
-        print('Run difference cell by cell\n')
+        print('Running: Grid Difference (Cell by Cell)\n')
         C = saga_api.SG_Create_Grid(A.Get_System())
         for y in range(0, C.Get_NY()):
             print('\r{:04.1f}%'.format(y * 100. / C.Get_NY()), end='\r', flush=True)
@@ -118,7 +122,7 @@ def Run_Grid_Difference(A, B, PythonLoop):
     # ------------------------------------
     # using built-in CSG_Grid function 'Subtract()'
     else:
-        print('Run difference using CSG_Grid''s subtract function')
+        print('Running: Grid Difference (CSG_Grid::Subtract())')
         C = saga_api.SG_Create_Grid(A)
         C.Subtract(B)
 
@@ -131,7 +135,7 @@ def Run_Grid_Difference(A, B, PythonLoop):
 #_________________________________________
 ##########################################
 def Run_Contour_Lines_from_Grid(Grid):
-    print('Run_Contour_Lines_from_Grid')
+    print('Running: Contour Lines from Grid')
     Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('shapes_grid', '5')
     if not Tool:
         print('Failed to request tool: Contour Lines from Grid')
@@ -150,7 +154,7 @@ def Run_Contour_Lines_from_Grid(Grid):
 #_________________________________________
 ##########################################
 def Run_Geomorphons(DEM):
-    print('Run_Geomorphons')
+    print('Running: Geomorphons')
     Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('ta_lighting', '8')
     if not Tool:
         print('Failed to request tool: Geomorphons')
