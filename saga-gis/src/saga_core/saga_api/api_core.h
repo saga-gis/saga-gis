@@ -292,7 +292,15 @@ enum class TSG_Array_Growth
 	SG_ARRAY_GROWTH_0 = 0,
 	SG_ARRAY_GROWTH_1,
 	SG_ARRAY_GROWTH_2,
-	SG_ARRAY_GROWTH_3
+	SG_ARRAY_GROWTH_3,
+	SG_ARRAY_GROWTH_FIX_8,
+	SG_ARRAY_GROWTH_FIX_16,
+	SG_ARRAY_GROWTH_FIX_32,
+	SG_ARRAY_GROWTH_FIX_64,
+	SG_ARRAY_GROWTH_FIX_128,
+	SG_ARRAY_GROWTH_FIX_256,
+	SG_ARRAY_GROWTH_FIX_512,
+	SG_ARRAY_GROWTH_FIX_1024
 };
 
 //---------------------------------------------------------
@@ -922,47 +930,45 @@ private:
 class CSG_Stack
 {
 public:
-	CSG_Stack(size_t RecordSize) : m_Size(0), m_Buffer(0), m_RecordSize(RecordSize), m_Stack(NULL)	{}
-	virtual ~CSG_Stack(void)						{	Destroy();				}
-
-	size_t					Get_RecordSize	(void)	{	return( m_RecordSize );	}
-	size_t					Get_Size		(void)	{	return( m_Size );		}
-	void					Clear			(void)	{	m_Size	= 0;			}
-
-	void					Destroy			(void)
+	CSG_Stack(size_t RecordSize)
 	{
-		if( m_Stack )
-		{
-			SG_Free(m_Stack);
-		}
+		m_Stack.Create(RecordSize, 1, TSG_Array_Growth::SG_ARRAY_GROWTH_FIX_256);
+	}
 
-		m_Size		= 0;
-		m_Buffer	= 0;
-		m_Stack		= NULL;
+	virtual ~CSG_Stack(void) {}
+
+	bool					Destroy			(void)       { return( m_Stack.Set_Array(1) ); }
+
+	size_t					Get_RecordSize	(void) const { return( m_Stack.Get_Value_Size() ); }
+	size_t					Get_Size		(void) const { return( m_Stack.Get_uSize() - 1 ); }
+
+	bool					Clear			(bool bFreeMemory = false)
+	{
+		return( m_Stack.Set_Array(1, bFreeMemory) );
 	}
 
 
 protected:
 
+	void *					Get_Record		(size_t i) const
+	{
+		return( m_Stack.Get_Entry((sLong)(i + 1)) );
+	}
+
 	void *					Get_Record_Push	(void)
 	{
-		if( m_Size < m_Buffer || _Grow() )
-		{
-			m_Size++;
-
-			return( (void *)(((char *)m_Stack) + m_RecordSize * (m_Size - 1)) );
-		}
-
-		return( NULL );
+		return( m_Stack.Inc_Array() ? m_Stack.Get_Entry(m_Stack.Get_Size() - 1) : NULL );
 	}
 
 	void *					Get_Record_Pop	(void)
 	{
-		if( m_Size > 0 )
+		if( m_Stack.Get_Size() > 0 )
 		{
-			m_Size--;
+			memcpy(m_Stack.Get_Array(), m_Stack.Get_Entry(m_Stack.Get_Size() - 1), m_Stack.Get_Value_Size());
 
-			return( (void *)(((char *)m_Stack) + m_RecordSize * (m_Size)) );
+			m_Stack.Dec_Array(true);
+
+			return( m_Stack.Get_Array() );
 		}
 
 		return( NULL );
@@ -971,25 +977,7 @@ protected:
 
 private:
 
-	size_t					m_Size, m_Buffer, m_RecordSize;
-
-	void					*m_Stack;
-
-
-	virtual bool			_Grow			(void)
-	{
-		void	*Stack	= SG_Realloc(m_Stack, (m_Buffer + 256) * m_RecordSize);
-
-		if( Stack )
-		{
-			m_Stack		= Stack;
-			m_Buffer	+= 256;
-
-			return( true );
-		}
-
-		return( false );
-	}
+	CSG_Array				m_Stack;
 
 };
 

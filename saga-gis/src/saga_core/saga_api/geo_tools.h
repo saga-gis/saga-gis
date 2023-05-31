@@ -477,6 +477,7 @@ public:
 	void						Inflate			(double dx, double dy, bool bPercent = true);
 	void						Deflate			(double dx, double dy, bool bPercent = true);
 
+	void						Union			(double x, double y);
 	void						Union			(const CSG_Point &Point);
 	void						Union			(const CSG_Rect &Rect);
 	bool						Intersect		(const CSG_Rect &Rect);
@@ -497,8 +498,8 @@ public:
 
 	void						Clear			(void);
 
-	CSG_Rects &					operator  =		(const CSG_Rects &Points);
-	bool						Assign			(const CSG_Rects &Points);
+	CSG_Rects &					operator  =		(const CSG_Rects &Rects);
+	bool						Assign			(const CSG_Rects &Rects);
 
 	bool						Add				(void);
 	bool						Add				(double xMin, double yMin, double xMax, double yMax);
@@ -515,6 +516,113 @@ private:
 	int							m_nRects;
 
 	CSG_Rect					**m_Rects;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+typedef struct SSG_Rect_Int
+{
+	int							xMin, yMin, xMax, yMax;
+}
+TSG_Rect_Int;
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Rect_Int : public TSG_Rect_Int
+{
+public:
+	CSG_Rect_Int(void);
+	CSG_Rect_Int(const CSG_Rect_Int &Rect);
+	CSG_Rect_Int(const TSG_Rect_Int &Rect);
+	CSG_Rect_Int(const TSG_Point_Int &A, const TSG_Point_Int &B);
+	CSG_Rect_Int(int xMin, int yMin, int xMax, int yMax);
+
+	~CSG_Rect_Int(void);
+
+	bool						operator ==		(const CSG_Rect_Int &Rect) const;
+	bool						operator !=		(const CSG_Rect_Int &Rect) const;
+
+	CSG_Rect_Int &				operator  =		(const CSG_Rect_Int &Rect);
+	void						operator +=		(const TSG_Point_Int &Point);
+	void						operator -=		(const TSG_Point_Int &Point);
+
+	void						Assign			(int xMin, int yMin, int xMax, int yMax);
+	void						Assign			(const TSG_Point_Int &A, const TSG_Point_Int &B);
+	void						Assign			(const CSG_Rect_Int &Rect);
+
+	void						Set_BottomLeft	(int x, int y);
+	void						Set_BottomLeft	(const TSG_Point_Int &Point);
+	void						Set_TopRight	(int x, int y);
+	void						Set_TopRight	(const TSG_Point_Int &Point);
+
+	bool						is_Equal		(int xMin, int yMin, int xMax, int yMax) const;
+	bool						is_Equal		(const CSG_Rect_Int &Rect              ) const;
+
+	int							Get_XMin		(void) const	{	return( xMin );	}
+	int							Get_XMax		(void) const	{	return( xMax );	}
+	int							Get_YMin		(void) const	{	return( yMin );	}
+	int							Get_YMax		(void) const	{	return( yMax );	}
+
+	int							Get_XRange		(void) const	{	return( xMax - xMin );	}
+	int							Get_YRange		(void) const	{	return( yMax - yMin );	}
+
+	double						Get_Area		(void) const	{	return( ((double)Get_XRange() * (double)Get_YRange()) );	}
+	double						Get_Diameter	(void) const	{	double x = (double)xMax - xMin, y = (double)yMax - yMin; return( sqrt(x*x + y*y) );	}
+
+	TSG_Point_Int				Get_TopLeft		(void) const	{	TSG_Point_Int p; p.x = xMin; p.y = yMax; return( p );	}
+	TSG_Point_Int				Get_BottomRight	(void) const	{	TSG_Point_Int p; p.x = xMax; p.y = yMin; return( p );	}
+
+	void						Move			(int dx, int dy);
+	void						Move			(const TSG_Point_Int &Point);
+
+	void						Inflate			(int d);
+	void						Deflate			(int d);
+	void						Inflate			(int dx, int dy);
+	void						Deflate			(int dx, int dy);
+
+	void						Union			(int x, int y);
+	void						Union			(const TSG_Point_Int &Point);
+	void						Union			(const CSG_Rect_Int &Rect);
+	bool						Intersect		(const CSG_Rect_Int &Rect);
+
+	TSG_Intersection			Intersects		(const CSG_Rect_Int &Rect)   const;
+
+	bool						Contains		(double x, double y)         const;
+	bool						Contains		(const TSG_Point_Int &Point) const;
+
+};
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Rects_Int
+{
+public:
+	CSG_Rects_Int(void);
+	virtual ~CSG_Rects_Int(void);
+
+	void						Clear			(void);
+
+	CSG_Rects_Int &				operator  =		(const CSG_Rects_Int &Rects);
+	bool						Assign			(const CSG_Rects_Int &Rects);
+
+	bool						Add				(void);
+	bool						Add				(int xMin, int yMin, int xMax, int yMax);
+	bool						Add				(const CSG_Rect_Int &Rect);
+
+	int							Get_Count		(void)	const	{	return( m_nRects );	}
+
+	CSG_Rect_Int &				operator []		(int Index)		{	return( *m_Rects[Index] );	}
+	CSG_Rect_Int &				Get_Rect		(int Index)		{	return( *m_Rects[Index] );	}
+
+
+private:
+
+	int							m_nRects;
+
+	CSG_Rect_Int				**m_Rects;
 
 };
 

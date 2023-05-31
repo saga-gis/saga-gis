@@ -60,7 +60,7 @@
 //---------------------------------------------------------
 CGrid_Classes_To_Shapes::CGrid_Classes_To_Shapes(void)
 {
-	Set_Name		(_TL("Vectorising Grid Classes"));
+	Set_Name		(_TL("Vectorizing Grid Classes"));
 
 	Set_Author		("O.Conrad (c) 2008");
 

@@ -720,7 +720,7 @@ void CSG_3DView_Panel::On_Mouse_Wheel(wxMouseEvent &event)
 {
 	if( event.GetWheelRotation() )
 	{
-		m_Projector.Set_zShift(m_Projector.Get_zShift()	+ event.GetWheelRotation() * 0.001);
+		m_Projector.Set_zShift(m_Projector.Get_zShift()	- event.GetWheelRotation() * 0.001);
 
 		Update_View();
 	}

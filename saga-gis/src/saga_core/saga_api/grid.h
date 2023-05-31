@@ -1045,14 +1045,17 @@ public:
 	CSG_Grid_Stack(void) : CSG_Stack(sizeof(TSG_Point_Int))	{}
 
 	//-----------------------------------------------------
+	const TSG_Point_Int &	operator []		(size_t i) const { return( *((TSG_Point_Int *)Get_Record(i)) ); }
+
+	//-----------------------------------------------------
 	virtual bool			Push			(int  x, int  y)
 	{
-		TSG_Point_Int	*pPoint	= (TSG_Point_Int *)Get_Record_Push();
+		TSG_Point_Int *pPoint = (TSG_Point_Int *)Get_Record_Push();
 
 		if( pPoint )
 		{
-			pPoint->x	= x;
-			pPoint->y	= y;
+			pPoint->x = x;
+			pPoint->y = y;
 
 			return( true );
 		}
@@ -1063,12 +1066,12 @@ public:
 	//-----------------------------------------------------
 	virtual bool			Pop				(int &x, int &y)
 	{
-		TSG_Point_Int	*pPoint	= (TSG_Point_Int *)Get_Record_Pop();
+		TSG_Point_Int *pPoint = (TSG_Point_Int *)Get_Record_Pop();
 
 		if( pPoint )
 		{
-			x	= pPoint->x;
-			y	= pPoint->y;
+			x = pPoint->x;
+			y = pPoint->y;
 
 			return( true );
 		}

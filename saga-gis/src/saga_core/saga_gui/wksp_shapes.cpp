@@ -1315,18 +1315,20 @@ void CWKSP_Shapes::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Sele
 
 		if( m_bVertices > 0 )
 		{
-			wxPen	oldPen  (dc_Map.dc.GetPen  ());	dc_Map.dc.SetPen  (*wxBLACK_PEN  );
-			wxBrush	oldBrush(dc_Map.dc.GetBrush());	dc_Map.dc.SetBrush(*wxWHITE_BRUSH);
+			bool bLabel = m_bVertices == 2 && (Selection || m_pObject->asShapes()->Get_Selection_Count() == 0);
+
+			wxPen   oldPen  (dc_Map.dc.GetPen  ()); dc_Map.dc.SetPen  (*wxBLACK_PEN  );
+			wxBrush oldBrush(dc_Map.dc.GetBrush()); dc_Map.dc.SetBrush(*wxWHITE_BRUSH);
 
 			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
 				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
-					TSG_Point_Int	A	= dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
+					TSG_Point_Int A = dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
 
 					dc_Map.dc.DrawCircle(A.x, A.y, 2);
 
-					if( m_bVertices == 2 )
+					if( bLabel )
 					{
 						Draw_Text(dc_Map.dc, TEXTALIGN_TOPLEFT, A.x, A.y, wxString::Format("%d", iPoint + 1));
 					}

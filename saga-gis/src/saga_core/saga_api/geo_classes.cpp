@@ -633,6 +633,13 @@ void CSG_Rect::Deflate(double d, bool bPercent)
 }
 
 //---------------------------------------------------------
+void CSG_Rect::Union(double x, double y)
+{
+	if( xMin > x ) { xMin = x; } else if( xMax < x ) { xMax = x; }
+	if( yMin > y ) { yMin = y; } else if( yMax < y ) { yMax = y; }
+}
+
+//---------------------------------------------------------
 void CSG_Rect::Union(const CSG_Point &Point)
 {
 	if( xMin > Point.x ) { xMin = Point.x; } else if( xMax < Point.x ) { xMax = Point.x; }
@@ -718,8 +725,6 @@ bool CSG_Rect::Contains(const CSG_Point &Point) const
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -790,6 +795,341 @@ bool CSG_Rects::Add(const CSG_Rect &Rect)
 {
 	m_Rects           = (CSG_Rect **)SG_Realloc(m_Rects, ((uLong)m_nRects + 1) * sizeof(CSG_Rect *));
 	m_Rects[m_nRects] = new CSG_Rect(Rect);
+	m_nRects++;
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//						CSG_Rect_Int					 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Rect_Int::CSG_Rect_Int(void)
+{
+	Assign(0, 0, 0, 0);
+}
+
+CSG_Rect_Int::CSG_Rect_Int(const CSG_Rect_Int &Rect)
+{
+	Assign(Rect.xMin, Rect.yMin, Rect.xMax, Rect.yMax);
+}
+
+CSG_Rect_Int::CSG_Rect_Int(const TSG_Rect_Int &Rect)
+{
+	Assign(Rect.xMin, Rect.yMin, Rect.xMax, Rect.yMax);
+}
+
+CSG_Rect_Int::CSG_Rect_Int(const TSG_Point_Int &A, const TSG_Point_Int &B)
+{
+	Assign(A.x, A.y, B.x, B.y);
+}
+
+CSG_Rect_Int::CSG_Rect_Int(int xMin, int yMin, int xMax, int yMax)
+{
+	Assign(xMin, yMin, xMax, yMax);
+}
+
+//---------------------------------------------------------
+CSG_Rect_Int::~CSG_Rect_Int(void)
+{}
+
+//---------------------------------------------------------
+bool CSG_Rect_Int::operator == (const CSG_Rect_Int &Rect) const
+{
+	return( is_Equal(Rect) );
+}
+
+bool CSG_Rect_Int::operator != (const CSG_Rect_Int &Rect) const
+{
+	return( !is_Equal(Rect) );
+}
+
+CSG_Rect_Int & CSG_Rect_Int::operator = (const CSG_Rect_Int &Rect)
+{
+	Assign(Rect);
+
+	return( *this );
+}
+
+void CSG_Rect_Int::operator += (const TSG_Point_Int &Point)
+{
+	Move( Point.x,  Point.y);
+}
+
+void CSG_Rect_Int::operator -= (const TSG_Point_Int &Point)
+{
+	Move(-Point.y, -Point.y);
+}
+
+//---------------------------------------------------------
+void CSG_Rect_Int::Assign(int xMin, int yMin, int xMax, int yMax)
+{
+	if( xMin < xMax )
+	{
+		this->xMin	= xMin;
+		this->xMax	= xMax;
+	}
+	else
+	{
+		this->xMin	= xMax;
+		this->xMax	= xMin;
+	}
+
+	if( yMin < yMax )
+	{
+		this->yMin	= yMin;
+		this->yMax	= yMax;
+	}
+	else
+	{
+		this->yMin	= yMax;
+		this->yMax	= yMin;
+	}
+}
+
+void CSG_Rect_Int::Assign(const TSG_Point_Int &A, const TSG_Point_Int &B)
+{
+	Assign(A.x, A.y, B.x, B.y);
+}
+
+void CSG_Rect_Int::Assign(const CSG_Rect_Int &Rect)
+{
+	Assign(Rect.xMin, Rect.yMin, Rect.xMax, Rect.yMax);
+}
+
+//---------------------------------------------------------
+void CSG_Rect_Int::Set_BottomLeft(int x, int y)
+{
+	Assign(x, y, xMax, yMax);
+}
+
+void CSG_Rect_Int::Set_BottomLeft(const TSG_Point_Int &Point)
+{
+	Set_BottomLeft(Point.x, Point.y );
+}
+
+void CSG_Rect_Int::Set_TopRight(int x, int y)
+{
+	Assign(xMin, yMin, x, y);
+}
+
+void CSG_Rect_Int::Set_TopRight(const TSG_Point_Int &Point)
+{
+	Set_TopRight(Point.x, Point.y );
+}
+
+//---------------------------------------------------------
+bool CSG_Rect_Int::is_Equal(int xMin, int yMin, int xMax, int yMax) const
+{
+	return( (this->xMin == xMin) && (this->yMin == yMin)
+		&&  (this->xMax == xMax) && (this->yMax == yMax) );
+}
+
+bool CSG_Rect_Int::is_Equal(const CSG_Rect_Int &Rect) const
+{
+	return(	is_Equal(Rect.xMin, Rect.yMin, Rect.xMax, Rect.yMax) );
+}
+
+//---------------------------------------------------------
+void CSG_Rect_Int::Move(int dx, int dy)
+{
+	xMin += dx; yMin += dy;
+	xMax += dx; yMax += dy;
+}
+
+void CSG_Rect_Int::Move(const TSG_Point_Int &Point)
+{
+	Move(Point.x, Point.y);
+}
+
+//---------------------------------------------------------
+void CSG_Rect_Int::Inflate(int dx, int dy)
+{
+	Assign(xMin - dx, yMin - dy, xMax + dx, yMax + dy);
+}
+
+void CSG_Rect_Int::Inflate(int d)
+{
+	Inflate(d, d);
+}
+
+void CSG_Rect_Int::Deflate(int dx, int dy)
+{
+	Inflate(-dx, -dy);
+}
+
+void CSG_Rect_Int::Deflate(int d)
+{
+	Deflate(d, d);
+}
+
+//---------------------------------------------------------
+void CSG_Rect_Int::Union(int x, int y)
+{
+	if( xMin > x ) { xMin = x; } else if( xMax < x ) { xMax = x; }
+	if( yMin > y ) { yMin = y; } else if( yMax < y ) { yMax = y; }
+}
+
+//---------------------------------------------------------
+void CSG_Rect_Int::Union(const TSG_Point_Int &Point)
+{
+	if( xMin > Point.x ) { xMin = Point.x; } else if( xMax < Point.x ) { xMax = Point.x; }
+	if( yMin > Point.y ) { yMin = Point.y; } else if( yMax < Point.y ) { yMax = Point.y; }
+}
+
+//---------------------------------------------------------
+void CSG_Rect_Int::Union(const CSG_Rect_Int &Rect)
+{
+	if( xMin > Rect.Get_XMin() ) { xMin = Rect.Get_XMin(); }
+	if( yMin > Rect.Get_YMin() ) { yMin = Rect.Get_YMin(); }
+	if( xMax < Rect.Get_XMax() ) { xMax = Rect.Get_XMax(); }
+	if( yMax < Rect.Get_YMax() ) { yMax = Rect.Get_YMax(); }
+}
+
+//---------------------------------------------------------
+bool CSG_Rect_Int::Intersect(const CSG_Rect_Int &Rect)
+{
+	switch( Intersects(Rect) )
+	{
+	case INTERSECTION_None: default:
+		return( false );
+
+	case INTERSECTION_Identical:
+	case INTERSECTION_Contained:
+		break;
+
+	case INTERSECTION_Contains:
+		(*this)	= Rect;
+		break;
+
+	case INTERSECTION_Overlaps:
+		if( xMin < Rect.Get_XMin() ) { xMin = Rect.Get_XMin(); }
+		if( yMin < Rect.Get_YMin() ) { yMin = Rect.Get_YMin(); }
+		if( xMax > Rect.Get_XMax() ) { xMax = Rect.Get_XMax(); }
+		if( yMax > Rect.Get_YMax() ) { yMax = Rect.Get_YMax(); }
+		break;
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+TSG_Intersection CSG_Rect_Int::Intersects(const CSG_Rect_Int &Rect) const
+{
+	if(	xMax < Rect.Get_XMin() || Rect.Get_XMax() < xMin
+	||	yMax < Rect.Get_YMin() || Rect.Get_YMax() < yMin )
+	{
+		return( INTERSECTION_None );
+	}
+
+	if(	is_Equal(Rect) )
+	{
+		return( INTERSECTION_Identical );
+	}
+
+	if(	Contains(Rect.Get_XMin(), Rect.Get_YMin())
+	&&	Contains(Rect.Get_XMax(), Rect.Get_YMax()) )
+	{
+		return( INTERSECTION_Contains );
+	}
+
+	if(	Rect.Contains(Get_XMin(), Get_YMin())
+	&&	Rect.Contains(Get_XMax(), Get_YMax()) )
+	{
+		return( INTERSECTION_Contained );
+	}
+
+	return( INTERSECTION_Overlaps );
+}
+
+//---------------------------------------------------------
+bool CSG_Rect_Int::Contains(double x, double y) const
+{
+	return( xMin <= x && x <= xMax && yMin <= y && y <= yMax );
+}
+
+bool CSG_Rect_Int::Contains(const TSG_Point_Int &Point) const
+{
+	return( Contains(Point.x, Point.y) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Rects_Int::CSG_Rects_Int(void)
+{
+	m_nRects = 0;
+	m_Rects  = NULL;
+}
+
+//---------------------------------------------------------
+CSG_Rects_Int::~CSG_Rects_Int(void)
+{
+	Clear();
+}
+
+//---------------------------------------------------------
+void CSG_Rects_Int::Clear(void)
+{
+	if( m_Rects )
+	{
+		for(int i=0; i<m_nRects; i++)
+		{
+			delete(m_Rects[i]);
+		}
+
+		SG_Free(m_Rects);
+	}
+
+	m_nRects = 0;
+	m_Rects  = NULL;
+}
+
+//---------------------------------------------------------
+bool CSG_Rects_Int::Assign(const CSG_Rects_Int &Rects)
+{
+	Clear();
+
+	for(int i=0; i<Rects.m_nRects; i++)
+	{
+		Add(*Rects.m_Rects[i]);
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+CSG_Rects_Int & CSG_Rects_Int::operator  = (const CSG_Rects_Int &Rects)
+{
+	Assign(Rects);
+
+	return( *this );
+}
+
+//---------------------------------------------------------
+bool CSG_Rects_Int::Add(void)
+{
+	return( Add(CSG_Rect_Int()) );
+}
+
+//---------------------------------------------------------
+bool CSG_Rects_Int::Add(int xMin, int yMin, int xMax, int yMax)
+{
+	return( Add(CSG_Rect_Int(xMin, yMin, xMax, yMax)) );
+}
+
+//---------------------------------------------------------
+bool CSG_Rects_Int::Add(const CSG_Rect_Int &Rect)
+{
+	m_Rects           = (CSG_Rect_Int **)SG_Realloc(m_Rects, ((uLong)m_nRects + 1) * sizeof(CSG_Rect_Int *));
+	m_Rects[m_nRects] = new CSG_Rect_Int(Rect);
 	m_nRects++;
 
 	return( true );

@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                        OpenCV                         //
+//                      Grid_Shapes                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//              boundary_cells_to_polygons.h             //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
+//                 Copyright (C) 2023 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -46,93 +46,53 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__edges_to_polygons_H
+#define HEADER_INCLUDED__edges_to_polygons_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
-#include <opencv2/core.hpp>
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 2. Place general tool library informations here...
-
-CSG_String Get_Info(int i)
+class CBoundary_Cells_to_Polygons : public CSG_Tool_Grid  
 {
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("OpenCV") );
+public:
+	CBoundary_Cells_to_Polygons(void);
 
-	case TLB_INFO_Category:
-		return( _TL("Imagery") );
-
-	case TLB_INFO_Author:
-		return( "O. Conrad (c) 2009" );
-
-	case TLB_INFO_Description: { CSG_String	s;
-
-		s += _TW("OpenCV - \"Open Source Computer Vision Library\"\nVersion: ");
-		s += CV_VERSION;
-		s += "\n<a target=\"_blank\" href=\"http://opencv.org\">OpenCV homepage</a>";
-
-		return( s ); }
-
-	case TLB_INFO_Version:
-		return( "1.0" );
-
-	case TLB_INFO_Menu_Path:
-		return( _TL("Imagery") );
-	}
-}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Vectorization") );	}
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your tools here...
+protected:
 
-#include "opencv_morphology.h"
-#include "opencv_fourier.h"
-#include "opencv_svd.h"
-#include "opencv_nnet.h"
-#include "opencv_stereo_match.h"
-#include "opencv_ml.h"
-#include "opencv_canny.h"
-#include "opencv_hough_circles.h"
-#include "opencv_watershed.h"
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your tools to be created here...
+private:
 
-CSG_Tool *		Create_Tool(int i)
-{
-	switch( i )
-	{
-	case  0: return( new COpenCV_Morphology );
-	case  1: return( new COpenCV_FFT );
-	case 13: return( new COpenCV_FFTinv );
-	case 14: return( new COpenCV_FFT_Filter );
-	case  2: return( new COpenCV_SVD );
-	case  3: return( new_COpenCV_NNet );
-	case  4: return( new_COpenCV_Stereo_Match );
+	bool					is_Boundary				(CSG_Grid &Mask, int x, int y, int  Direction);
+	bool					Find_Next_Boundary		(CSG_Grid &Mask, int x, int y, int &Direction, bool bClockwise = true);
 
-	case  5: return( new_COpenCV_ML_NBayes );
-	case  6: return( new_COpenCV_ML_KNN    );
-	case  7: return( new_COpenCV_ML_SVM    );
-	case  8: return( new_COpenCV_ML_DTrees );
-	case  9: return( new_COpenCV_ML_Boost  );
-	case 10: return( new_COpenCV_ML_RTrees );
-	case 11: return( new_COpenCV_ML_ANN    );
-	case 12: return( new_COpenCV_ML_LogR   );
+	bool					Get_Polygon				(CSG_Grid &Mask, int x, int y, CSG_Shape *pPolygon);
 
-	case 15: return( new COpenCV_Canny );
-	case 16: return( new COpenCV_Hough_Circles );
-	case 17: return( new COpenCV_Watershed );
+	bool					Set_Mask				(CSG_Grid &Mask, int x, int y, int id, const CSG_Grid &Grid);
+	sLong					Set_Mask				(CSG_Grid &Mask);
 
-	//-----------------------------------------------------
-	case 18: return( NULL );
-	default: return( TLB_INTERFACE_SKIP_TOOL );
-	}
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -142,8 +102,4 @@ CSG_Tool *		Create_Tool(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	TLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__edges_to_polygons_H

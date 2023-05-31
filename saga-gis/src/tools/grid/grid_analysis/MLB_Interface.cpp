@@ -113,6 +113,8 @@ CSG_String Get_Info(int i)
 
 #include "coverage_of_categories.h"
 
+#include "object_enumeration.h"
+
 
 //---------------------------------------------------------
 // 4. Allow your tools to be created here...
@@ -121,44 +123,47 @@ CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
-	case  0:	return( new CCost_Accumulated );
-	case  4:	return( new CLeastCostPathProfile );
-	case  5:	return( new CLeastCostPathProfile_Points );
+	case  0: return( new CCost_Accumulated );
+	case  4: return( new CLeastCostPathProfile );
+	case  5: return( new CLeastCostPathProfile_Points );
 
-	case  6:	return( new CGrid_CVA );
-	case  7:	return( new CCoveredDistance );
-	case  8:	return( new CGrid_Pattern );
-	case  9:	return( new CLayerOfMaximumValue );
-	case 10:	return( new CAHP );
-	case 11:	return( new COWA );
-	case 12:	return( new CAggregationIndex );
-	case 13:	return( new CCrossClassification );
+	case  6: return( new CGrid_CVA );
+	case  7: return( new CCoveredDistance );
+	case  8: return( new CGrid_Pattern );
+	case  9: return( new CLayerOfMaximumValue );
+	case 10: return( new CAHP );
+	case 11: return( new COWA );
+	case 12: return( new CAggregationIndex );
+	case 13: return( new CCrossClassification );
 
-	case 14:	return( new CSoil_Texture );
-	case 20:	return( new CSoil_Texture_Table );
-	case 27:	return( new CSoil_Water_Capacity(false) );
-	case 28:	return( new CSoil_Water_Capacity( true) );
+	case 14: return( new CSoil_Texture );
+	case 20: return( new CSoil_Texture_Table );
+	case 27: return( new CSoil_Water_Capacity(false) );
+	case 28: return( new CSoil_Water_Capacity( true) );
 
-	case 15:	return( new CFragmentation_Standard );
-	case 16:	return( new CFragmentation_Resampling );
-	case 17:	return( new CFragmentation_Classify );
+	case 15: return( new CFragmentation_Standard );
+	case 16: return( new CFragmentation_Resampling );
+	case 17: return( new CFragmentation_Classify );
 
-	case 18:	return( new CGrid_Accumulation_Functions );
+	case 18: return( new CGrid_Accumulation_Functions );
 
-	case 19:	return( new CGrid_IMCORR );
+	case 19: return( new CGrid_IMCORR );
 
-	case 21:	return( new CDiversity_Analysis );
-	case 22:	return( new CDiversity_Shannon );
-	case 23:	return( new CDiversity_Simpson );
-	case 24:	return( new CDiversity_Raos_Q_Classic );
-	case 25:	return( new CDiversity_Raos_Q );
+	case 21: return( new CDiversity_Analysis );
+	case 22: return( new CDiversity_Shannon );
+	case 23: return( new CDiversity_Simpson );
+	case 24: return( new CDiversity_Raos_Q_Classic );
+	case 25: return( new CDiversity_Raos_Q );
 
-	case 26:	return( new CCoverage_of_Categories );
-    
-    case 29:    return( new CGrid_Iterative_Truncation );
+	case 26: return( new CCoverage_of_Categories );
 
-	case 30:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
+	case 29: return( new CGrid_Iterative_Truncation );
+
+	case 30: return( new CObject_Enumeration );
+
+	//-----------------------------------------------------
+	case 31: return( NULL );
+	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
 
