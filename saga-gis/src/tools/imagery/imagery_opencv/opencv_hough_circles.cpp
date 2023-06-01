@@ -97,7 +97,11 @@ COpenCV_Hough_Circles::COpenCV_Hough_Circles(void)
 	Parameters.Add_Choice("",
 		"METHOD"    , _TL("Method"),
 		_TL(""),
+	#if CV_MAJOR_VERSION > 4 || (CV_MAJOR_VERSION == 4 && CV_MINOR_VERSION >= 3)
 		CSG_String::Format("%s|%s", _TL("Hough gradient"), _TL("Hough gradient (alternative)")), 0
+	#else
+		_TL("Hough gradient"), 0
+	#endif
 	);
 
 	Parameters.Add_Double("",
@@ -133,7 +137,11 @@ bool COpenCV_Hough_Circles::On_Execute(void)
 	int     maxRadius = (int)(Parameters("RADIUS.MAX")->asDouble() * Scale);
 	double    minDist = Parameters("MIN_DIST")->asDouble() * Scale;
 	double Resolution = Parameters("RESOLUTION")->asDouble();
+#if CV_MAJOR_VERSION > 4 || (CV_MAJOR_VERSION == 4 && CV_MINOR_VERSION >= 3)
 	int        Method = Parameters("METHOD")->asInt() == 0 ? cv::HOUGH_GRADIENT : cv::HOUGH_GRADIENT_ALT;
+#else
+	int        Method = cv::HOUGH_GRADIENT;
+#endif
 
 	std::vector<cv::Vec3f> Circles;
 
