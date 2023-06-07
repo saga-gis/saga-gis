@@ -61,8 +61,47 @@
 
 
 ///////////////////////////////////////////////////////////
-//                                                       //												
-//                                                       //												
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CACCA
+{
+public:
+	CACCA(void) {}
+
+	bool						m_bCelsius { false };
+
+	enum
+	{
+		NO_DEFINED = 0, IS_COLD_CLOUD = 1, IS_WARM_CLOUD = 2, IS_SHADOW = 3
+	};
+
+
+	void	acca_algorithm		(CSG_Grid *pCloud, CSG_Grid *band[], int single_pass, int with_shadow, int cloud_signature, int n_hist = 100);
+
+	void	filter_holes		(CSG_Grid *pGrid);
+
+
+private:
+
+	int		hist_n { 100 };
+
+	void	acca_first			(CSG_Grid *pCloud, CSG_Grid *band[], int with_shadow, int count[], int cold[], int warm[], double stats[]);
+	void	acca_second			(CSG_Grid *pCloud, CSG_Grid *band, int review_warm, double upper, double lower);
+
+	int		shadow_algorithm	(double pixel[]);
+
+	void	hist_put			(double t, int hist[]);
+	double	quantile			(double q, int hist[]);
+	double	moment				(int n, int hist[], int k);
+
+};
+
+
+///////////////////////////////////////////////////////////
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -70,7 +109,6 @@
 class CLandsat_ACCA : public CSG_Tool_Grid
 {
 public:
-
 	CLandsat_ACCA(void);
 
 	virtual CSG_String	Get_MenuPath	(void)	{	return( _TL("Landsat") );	}
@@ -79,9 +117,6 @@ public:
 protected:
 
 	virtual bool		On_Execute		(void);
-
-
-private:
 
 };
 

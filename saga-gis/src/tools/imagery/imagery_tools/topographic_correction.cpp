@@ -190,16 +190,22 @@ int CTopographic_Correction::On_Parameter_Changed(CSG_Parameters *pParameters, C
 	{
 		for(int i=0; i<pParameter->asList()->Get_Item_Count(); i++)
 		{
-			CSG_MetaData &MD = pParameter->asList()->Get_Item(i)->Get_MetaData(); double Azimuth, Height;
+			CSG_MetaData &MD = pParameter->asList()->Get_Item(i)->Get_Owner()
+				? pParameter->asList()->Get_Item(i)->Get_Owner()->Get_MetaData()
+				: pParameter->asList()->Get_Item(i)             ->Get_MetaData();
 
-			if( MD("LANDSAT")
-			&&  MD["LANDSAT"].Get_Content("SUN_AZIMUTH"  , Azimuth)
-			&&  MD["LANDSAT"].Get_Content("SUN_ELEVATION", Height ) )
+			if( MD("LANDSAT") )
 			{
-				pParameters->Set_Parameter("AZIMUTH", Azimuth);
-				pParameters->Set_Parameter("HEIGHT" , Height );
+				double Azimuth, Height;
 
-				break;
+				if( MD["LANDSAT"].Get_Content("SUN_AZIMUTH"  , Azimuth)
+				&&  MD["LANDSAT"].Get_Content("SUN_ELEVATION", Height ) )
+				{
+					pParameters->Set_Parameter("AZIMUTH", Azimuth);
+					pParameters->Set_Parameter("HEIGHT" , Height );
+
+					break;
+				}
 			}
 		}
 	}

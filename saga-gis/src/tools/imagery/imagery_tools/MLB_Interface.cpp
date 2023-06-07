@@ -103,6 +103,7 @@ CSG_String Get_Info(int i)
 #include "Spectral_Profile.h"
 
 #include "topographic_correction.h"
+#include "clouds_and_shadows.h"
 
 
 //---------------------------------------------------------
@@ -139,8 +140,11 @@ CSG_Tool *		Create_Tool(int i)
 
 	case 19: return( new CTopographic_Correction );
 
+	case 20: return( new CDetect_Clouds );
+	case 21: return( new CDetect_CloudShadows );
+
 	//-----------------------------------------------------
-	case 20: return( NULL );
+	case 22: return( NULL );
 	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
