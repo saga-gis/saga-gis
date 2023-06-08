@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Shapes_Create_Empty_H
 #define HEADER_INCLUDED__Shapes_Create_Empty_H
 
@@ -98,7 +86,7 @@ protected:
 
 private:
 
-	void						Set_Field_Count			(CSG_Parameters *pFields, int nFields);
+	static void					Set_Field_Count			(CSG_Parameters *pFields, int nFields);
 
 	CSG_String					Get_Field_Name			(int iField);
 	TSG_Data_Type				Get_Field_Type			(int iField);

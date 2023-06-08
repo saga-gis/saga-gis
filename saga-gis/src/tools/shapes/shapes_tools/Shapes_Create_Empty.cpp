@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Shapes_Create_Empty.h"
 
 
@@ -83,10 +71,9 @@
 //---------------------------------------------------------
 CShapes_Create_Empty::CShapes_Create_Empty(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Create New Shapes Layer"));
 
-	Set_Author		("O. Conrad (c) 2008");
+	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(CSG_String::Format(_TW(
 		"Creates a new empty shapes layer of given type, "
@@ -124,7 +111,7 @@ CShapes_Create_Empty::CShapes_Create_Empty(void)
 	Parameters.Add_Choice("",
 		"TYPE"		, _TL("Shape Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Point"),
 			_TL("Multipoint"),
 			_TL("Lines"),
@@ -135,7 +122,7 @@ CShapes_Create_Empty::CShapes_Create_Empty(void)
 	Parameters.Add_Choice("",
 		"VERTEX"	, _TL("Vertex Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("x, y"),
 			_TL("x, y, z"),
 			_TL("x, y, z, m")
@@ -149,15 +136,18 @@ CShapes_Create_Empty::CShapes_Create_Empty(void)
 		2, 1, true
 	);
 
-	Parameters.Add_Parameters("",
+	CSG_Parameters *pFields = Parameters.Add_Parameters("",
 		"FIELDS"	, _TL("Attributes"),
 		_TL("")
-	);
+	)->asParameters();
 
-	Set_Field_Count(Parameters("FIELDS")->asParameters(), Parameters("NFIELDS")->asInt());
+	Set_Field_Count(pFields, Parameters("NFIELDS")->asInt());
 
-	Parameters("FIELDS")->asParameters()->Get_Parameter(GET_ID_NAME(0))->Set_Value("ID");
-	Parameters("FIELDS")->asParameters()->Get_Parameter(GET_ID_TYPE(0))->Set_Value( 3  );
+	(*pFields)(GET_ID_NAME(0))->Set_Value("ID");
+	(*pFields)(GET_ID_TYPE(0))->Set_Value( 3  );
+
+	(*pFields)(GET_ID_NAME(1))->Set_Value("Name");
+	(*pFields)(GET_ID_TYPE(1))->Set_Value( 0  );
 }
 
 
@@ -170,7 +160,7 @@ int CShapes_Create_Empty::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_
 {
 	if( pParameter->Cmp_Identifier("NFIELDS") )
 	{
-		Set_Field_Count(pParameters->Get_Parameter("FIELDS")->asParameters(), pParameter->asInt());
+		Set_Field_Count((*pParameters)("FIELDS")->asParameters(), pParameter->asInt());
 	}
 
 	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
@@ -203,21 +193,24 @@ void CShapes_Create_Empty::Set_Field_Count(CSG_Parameters *pFields, int nFields)
 
 	if( pFields && nFields > 0 )
 	{
-		int		nCurrent	= pFields->Get_Count() / 2;
+		int nCurrent = pFields->Get_Count() / 2;
 
 		if( nCurrent < nFields )
 		{
 			for(int i=nCurrent; i<nFields; i++)
 			{
-				pFields->Add_String(""            , GET_ID_NAME(i), _TL("Name"), _TL(""), _TL("Name"));
-				pFields->Add_Choice(GET_ID_NAME(i), GET_ID_TYPE(i), _TL("Type"), _TL(""), Types);
+				CSG_String Name(CSG_String::Format("%s %d", _TL("Field"), i + 1));
+
+				pFields->Add_String(""            , GET_ID_NAME(i),      Name  , _TL("Name"), Name);
+				pFields->Add_Choice(GET_ID_NAME(i), GET_ID_TYPE(i), _TL("Type"), _TL("Type"), Types);
 			}
 		}
 		else if( nCurrent > nFields )
 		{
-			for(int i=nCurrent-1; i>=nFields; i--)
+			for(int i=nCurrent, j=2*nCurrent; i>nFields; i--)
 			{
-				pFields->Del_Parameter(i);
+				pFields->Del_Parameter(--j);
+				pFields->Del_Parameter(--j);
 			}
 		}
 	}
@@ -301,10 +294,9 @@ bool CShapes_Create_Empty::On_Execute(void)
 //---------------------------------------------------------
 CShapes_Create_Copy::CShapes_Create_Copy(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Copy Shapes"));
 
-	Set_Author		("O. Conrad (c) 2017");
+	Set_Author		("O.Conrad (c) 2017");
 
 	Set_Description	(_TW(
 		"Creates a copy of a shapes layer."
@@ -332,7 +324,7 @@ CShapes_Create_Copy::CShapes_Create_Copy(void)
 //---------------------------------------------------------
 bool CShapes_Create_Copy::On_Execute(void)
 {
-	CSG_Shapes	*pCopy	= Parameters("COPY")->asShapes();
+	CSG_Shapes *pCopy = Parameters("COPY")->asShapes();
 
 	return( pCopy->Create(*Parameters("SHAPES")->asShapes()) );
 }
