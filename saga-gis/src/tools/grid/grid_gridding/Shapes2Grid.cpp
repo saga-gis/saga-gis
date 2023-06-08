@@ -248,12 +248,12 @@ TSG_Data_Type CShapes2Grid::Get_Data_Type(int Field)
 //---------------------------------------------------------
 bool CShapes2Grid::On_Execute(void)
 {
-	CSG_Shapes	*pShapes	= Parameters("INPUT")->asShapes();
+	CSG_Shapes *pShapes = Parameters("INPUT")->asShapes();
 
-	m_Multiple	= Parameters("MULTIPLE")->asInt();
+	m_Multiple = Parameters("MULTIPLE")->asInt();
 
 	//-----------------------------------------------------
-	bool	bFat;
+	bool bFat;
 
 	switch( pShapes->Get_Type() )
 	{
@@ -263,17 +263,35 @@ bool CShapes2Grid::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int		Field;
+	int Field; CSG_String Name(pShapes->Get_Name());
 
 	switch( Parameters("OUTPUT")->asInt() )
 	{
-	case  0: Field = OUTPUT_NODATA;         break;	// data / no-data
-	case  1: Field = OUTPUT_INDEX ;         break;	// index number
-	default: Field = Parameters("FIELD")->asInt();	// attribute
-		if( Field < 0 || !SG_Data_Type_is_Numeric(pShapes->Get_Field_Type(Field)) )
+	case  0: // data / no-data
+		Field = OUTPUT_NODATA;
+		break;
+
+	case  1: // index number
+		Field = OUTPUT_INDEX;
+		Name += " [ID]";
+		break;
+
+	default: // attribute
+		Field = Parameters("FIELD")->asInt();
+
+		if( Field < 0 )
+		{
+			Error_Set(_TL("Field needs to be specified!"));
+
+			return( false );
+		}
+
+		if( !SG_Data_Type_is_Numeric(pShapes->Get_Field_Type(Field)) )
 		{
 			Message_Add(_TL("WARNING: selected attribute is not numeric."));
 		}
+
+		Name += CSG_String::Format(" [%s, %s]", pShapes->Get_Field_Name(Field), Parameters("MULTIPLE")->asString());
 		break;
 	}
 
@@ -295,7 +313,7 @@ bool CShapes2Grid::On_Execute(void)
 		m_pGrid->Set_NoData_Value(0.);
 	}
 
-	m_pGrid->Fmt_Name("%s [%s]", pShapes->Get_Name(), Field < 0 ? _TL("ID") : pShapes->Get_Field_Name(Field));
+	m_pGrid->Set_Name(Name);
 	m_pGrid->Assign_NoData();
 
 	//-------------------------------------------------
