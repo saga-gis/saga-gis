@@ -56,29 +56,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define NO_DEFINED		1
-#define IS_SHADOW		2
-#define IS_COLD_CLOUD	6
-#define IS_WARM_CLOUD	9
-
-//---------------------------------------------------------
-#define LUT_SET_CLASS(id, name, color)	{ CSG_Table_Record *pR = pLUT->asTable()->Add_Record(); pR->Set_Value(0, color); pR->Set_Value(1, name); pR->Set_Value(3, id); pR->Set_Value(3, id); }
-
-//---------------------------------------------------------
-void	acca_algorithm	(CSG_Grid *pCloud, CSG_Grid *band[], int single_pass, int with_shadow, int cloud_signature);
-void	filter_holes	(CSG_Grid *pGrid);
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 CLandsat_ACCA::CLandsat_ACCA(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Automated Cloud Cover Assessment"));
 
 	Set_Author		("B.Bechtel, O.Conrad (c) 2013");
@@ -91,83 +70,74 @@ CLandsat_ACCA::CLandsat_ACCA(void)
 	Add_Reference("Irish, R.R.", "2000",
 		"Landsat 7 Automatic Cloud Cover Assessment",
 		"In: Shen, S.S., Descour, M.R. [Eds.]: Algorithms for Multispectral, Hyperspectral, and Ultraspectral Imagery VI. Proceedings of SPIE, 4049: 348-355.",
-		SG_T("http://landsathandbook.gsfc.nasa.gov/pdfs/ACCA_Special_Issue_Final.pdf")
+		SG_T("https://doi.org/10.1117/12.410358"), SG_T("doi:10.1117/12.410358")
 	);
 
 	Add_Reference("Irish, R.R., Barker, J.L., Goward, S.N., Arvidson, T.", "2006",
 		"Characterization of the Landsat-7 ETM+ Automated Cloud-Cover Assessment (ACCA) Algorithm.",
 		"Photogrammetric Engineering and Remote Sensing vol. 72(10): 1179-1188.",
-		SG_T("https://pdfs.semanticscholar.org/3d20/f685ce83a82b294f0773768624d4166d105d.pdf")
+		SG_T("https://doi.org/10.14358/PERS.72.10.1179"), SG_T("doi:10.14358/PERS.72.10.1179")
 	);
 
-	Add_Reference("https://grass.osgeo.org/grass72/manuals/i.landsat.acca.html",
-		SG_T("GRASS i.landsat.acca")
+	Add_Reference("Tizado, E.J.", "2010",
+		"GRASS GIS i.landsat.acca",
+		"E.J. Tizado's implementation of the method proposed by Irish (2000), Irish et al. (2006).",
+		SG_T("https://github.com/OSGeo/grass/tree/main/imagery/i.landsat.acca"), SG_T("Source Code") // https://grass.osgeo.org/grass72/manuals/i.landsat.acca.html
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid("", "BAND2", _TL("Green"  ), _TL("Landsat band 2 reflectance"), PARAMETER_INPUT);
-	Parameters.Add_Grid("", "BAND3", _TL("Red"    ), _TL("Landsat band 3 reflectance"), PARAMETER_INPUT);
-	Parameters.Add_Grid("", "BAND4", _TL("NIR"    ), _TL("Landsat band 4 reflectance"), PARAMETER_INPUT);
-	Parameters.Add_Grid("", "BAND5", _TL("SWIR"   ), _TL("Landsat band 5 reflectance"), PARAMETER_INPUT);
-	Parameters.Add_Grid("", "BAND6", _TL("Thermal"), _TL("Landsat band 6 temperature [Kelvin]"), PARAMETER_INPUT, false);
+	Parameters.Add_Grid("", "BAND2", _TL("Green"  ), _TL("Reflectance"), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "BAND3", _TL("Red"    ), _TL("Reflectance"), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "BAND4", _TL("NIR"    ), _TL("Reflectance"), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "BAND5", _TL("SWIR"   ), _TL("Reflectance"), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "BAND6", _TL("Thermal"), _TL("Kelvin"     ), PARAMETER_INPUT, false);
 
 	Parameters.Add_Grid("",
-		"CLOUD"		, _TL("Cloud Cover"),
+		"CLOUD" , _TL("Clouds"),
 		_TL(""),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Char
 	);
 
+	//-----------------------------------------------------
+	Parameters.Add_Double("",
+		"B56C"  , _TL("SWIR/Thermal Threshold"),
+		_TL("Threshold for SWIR/Thermal Composite (step 6)."),
+		225.
+	);
+
+	Parameters.Add_Double("",
+		"B45R"  , _TL("Desert Detection Threshold"),
+		_TL("Threshold for desert detection (step 10,  NIR/SWIR Ratio)."),
+		1.
+	);
+
+	Parameters.Add_Int("",
+		"HIST_N", _TL("Temperature Histogram"),
+		_TL("Number of classes in the cloud temperature histogram."),
+		100, 10, true
+	);
+
 	Parameters.Add_Bool("",
-		"FILTER"	, _TL("Apply post-processing filter to remove small holes"),
-		_TL(""),
+		"CSIG"  , _TL("Cloud Signature"),
+		_TL("Always use cloud signature (step 14)."),
 		true
 	);
 
-	//-----------------------------------------------------
-	Parameters.Add_Node("",
-		"NODE_THRS"	, _TL("Thresholds"),
-		_TL("")
+	Parameters.Add_Bool("",
+		"PASS2" , _TL("Cloud Differentiation"),
+		_TL("Differentiate between warm (not ambiguous) and cold clouds."),
+		false
 	);
 
-	Parameters.Add_Double("NODE_THRS",
-		"B56C"		, _TL("B56 Composite (step 6)"),
-		_TL(""),
-		225.0
-	);
-
-	Parameters.Add_Double("NODE_THRS",
-		"B45R"		, _TL("B45 Ratio: Desert detection (step 10)"),
-		_TL(""),
-		1.0
-	);
-
-	//-----------------------------------------------------
-	Parameters.Add_Node("",
-		"NODE_CLOUD", _TL("Cloud Settings"),
-		_TL("")
-	);
-
-//	Parameters.Add_Int("NODE_CLOUD",
-//		"HIST_N"	, _TL("Number of classes in the cloud temperature histogram"),
-//		_TL(""),
-//		100, 10, true
-//	);
-
-	Parameters.Add_Bool("NODE_CLOUD",
-		"CSIG"		, _TL("Always use cloud signature (step 14)"),
-		_TL(""),
+	Parameters.Add_Bool("",
+		"SHADOW", _TL("Shadows"),
+		_TL("Include a category for cloud shadows."),
 		true
 	);
 
-	Parameters.Add_Bool("NODE_CLOUD",
-		"PASS2"		, _TL("Bypass second-pass processing, and merge warm (not ambiguous) and cold clouds"),
-		_TL(""),
-		true
-	);
-
-	Parameters.Add_Bool("NODE_CLOUD",
-		"SHADOW"	, _TL("Include a category for cloud shadows"),
-		_TL(""),
+	Parameters.Add_Bool("",
+		"FILTER", _TL("Filter"),
+		_TL("Apply post-processing filter to remove small holes."),
 		true
 	);
 }
@@ -180,27 +150,27 @@ CLandsat_ACCA::CLandsat_ACCA(void)
 //---------------------------------------------------------
 bool CLandsat_ACCA::On_Execute(void)
 {
-	CSG_Grid	*pCloud, *pBand[5];
+	CSG_Grid *pCloud = Parameters("CLOUD")->asGrid();
 
-	//-----------------------------------------------------
-	pBand[0]	= Parameters("BAND2")->asGrid();
-	pBand[1]	= Parameters("BAND3")->asGrid();
-	pBand[2]	= Parameters("BAND4")->asGrid();
-	pBand[3]	= Parameters("BAND5")->asGrid();
-	pBand[4]	= Parameters("BAND6")->asGrid();
-
-	pCloud		= Parameters("CLOUD")->asGrid();
-
-	//-----------------------------------------------------
-	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(pCloud, "LUT");
+	CSG_Parameter *pLUT = DataObject_Get_Parameter(pCloud, "LUT");
 
 	if( pLUT && pLUT->asTable() )
 	{
 		pLUT->asTable()->Del_Records();
 
-		LUT_SET_CLASS(IS_SHADOW    , _TL("Shadow"    ), SG_COLOR_RED);
-		LUT_SET_CLASS(IS_COLD_CLOUD, _TL("Cold Cloud"), SG_COLOR_BLUE);
-		LUT_SET_CLASS(IS_WARM_CLOUD, _TL("Warm Cloud"), SG_COLOR_BLUE_LIGHT);
+		#define LUT_SET_CLASS(id, name, color)	{ CSG_Table_Record *pR = pLUT->asTable()->Add_Record(); pR->Set_Value(0, color); pR->Set_Value(1, name); pR->Set_Value(3, id); pR->Set_Value(3, id); }
+
+		if( Parameters("PASS2")->asBool() )
+		{
+			LUT_SET_CLASS(CACCA::IS_COLD_CLOUD, _TL("Cold Cloud"), SG_COLOR_BLUE);
+			LUT_SET_CLASS(CACCA::IS_WARM_CLOUD, _TL("Warm Cloud"), SG_COLOR_BLUE_LIGHT);
+		}
+		else
+		{
+			LUT_SET_CLASS(CACCA::IS_COLD_CLOUD, _TL("Cloud"     ), SG_COLOR_BLUE_LIGHT);
+		}
+
+		LUT_SET_CLASS(CACCA::IS_SHADOW    , _TL("Shadow"    ), SG_COLOR_RED);
 
 		DataObject_Set_Parameter(pCloud, pLUT);
 
@@ -210,18 +180,27 @@ bool CLandsat_ACCA::On_Execute(void)
 	pCloud->Set_NoData_Value(0.);
 
 	//-----------------------------------------------------
-//	int	hist_n		= Parameters("HIST_N")->asInt();
+	CSG_Grid *pBands[5] = {
+		Parameters("BAND2")->asGrid(),
+		Parameters("BAND3")->asGrid(),
+		Parameters("BAND4")->asGrid(),
+		Parameters("BAND5")->asGrid(),
+		Parameters("BAND6")->asGrid()
+	};
 
 	//-----------------------------------------------------
-	acca_algorithm(pCloud, pBand,
-		Parameters("PASS2" )->asBool(),
-		Parameters("SHADOW")->asBool(),
-		Parameters("CSIG"  )->asBool()
+	CACCA ACCA;
+
+	ACCA.acca_algorithm(pCloud, pBands,
+		Parameters("PASS2" )->asBool() ? 0 : 1,
+		Parameters("SHADOW")->asBool() ? 1 : 0,
+		Parameters("CSIG"  )->asBool() ? 1 : 0,
+		Parameters("HIST_N")->asInt()
 	);
 
 	if( Parameters("FILTER")->asBool() )
 	{
-		filter_holes(pCloud);
+		ACCA.filter_holes(pCloud);
 	}
 
 	//-----------------------------------------------------
@@ -252,31 +231,46 @@ bool CLandsat_ACCA::On_Execute(void)
  *
  *****************************************************************************/
 
-#define SCALE		200.
-#define K_BASE		230.
+//---------------------------------------------------------
+#define G_message SG_Printf
 
-/* value and count */
-#define TOTAL		0
-#define WARM		1
-#define COLD		2
-#define SNOW		3
-#define SOIL		4
+#define TRUE 1
 
-/* signa */
-#define COVER		1
-#define SUM_COLD	0
-#define SUM_WARM	1
-#define KMEAN		2
-#define KMAX		3
-#define KMIN		4
+enum
+{
+	BAND2 = 0, BAND3, BAND4, BAND5, BAND6
+};
 
-/* re-use value */
-#define KLOWER		0
-#define KUPPER		1
-#define MEAN		2
-#define SKEW		3
-#define DSTD		4
+enum
+{
+	NO_CLOUD = 0, IS_CLOUD = 1, COLD_CLOUD = 30, WARM_CLOUD = 50
+};
 
+//---------------------------------------------------------
+#define SCALE    200.
+#define K_BASE   230.
+
+ /* value and count */
+#define TOTAL    0
+#define WARM     1
+#define COLD     2
+#define SNOW     3
+#define SOIL     4
+
+ /* signa */
+#define COVER    1
+#define SUM_COLD 0
+#define SUM_WARM 1
+#define KMEAN    2
+#define KMAX     3
+#define KMIN     4
+
+ /* re-use value */
+#define KLOWER   0
+#define KUPPER   1
+#define MEAN     2
+#define SKEW     3
+#define DSTD     4
 
 /**********************************************************
  *
@@ -290,58 +284,35 @@ bool CLandsat_ACCA::On_Execute(void)
   como opciones desde el programa main.
  ---------------------------------------------------------*/
 
-double th_1		= 0.08;		/* Band 3 Brightness Threshold */
-double th_1_b	= 0.07;
-double th_2[2]	= { -0.25, 0.70 };	/* Normalized Snow Difference Index */
-double th_2_b	= 0.8;
-double th_3		= 300.;		/* Band 6 Temperature Threshold */
-double th_4		= 225.;		/* Band 5/6 Composite */
-double th_4_b	= 0.08;
-double th_5		= 2.35;		/* Band 4/3 Ratio */
-double th_6		= 2.16248;	/* Band 4/2 Ratio */
-double th_7		= 1.0;		/* Band 4/5 Ratio */ ;
-double th_8		= 210.;		/* Band 5/6 Composite */
+double th_1 = 0.08; /* Band 3 Brightness Threshold */
+double th_1_b = 0.07;
+double th_2[] = {-0.25, 0.70}; /* Normalized Snow Difference Index */
+
+double th_2_b = 0.8;
+double th_3 = 300.; /* Band 6 Temperature Threshold */
+double th_4 = 225.; /* Band 5/6 Composite */
+double th_4_b = 0.08;
+double th_5 = 2.35;    /* Band 4/3 Ratio */
+double th_6 = 2.16248; /* Band 4/2 Ratio */
+double th_7 = 1.0;     /* Band 4/5 Ratio */
+
+double th_8 = 210.; /* Band 5/6 Composite */
 
 //---------------------------------------------------------
-const int hist_n = 100;		/* interval of real data 100/hist_n */
-
-//---------------------------------------------------------
-#define G_message(s)	SG_UI_Msg_Add(s, false)
-
-void acca_first(CSG_Grid *pCloud, CSG_Grid *band[], int with_shadow, int count[], int cold[], int warm[], double stats[]);
-void acca_second(CSG_Grid *pCloud, CSG_Grid *band, int review_warm, double upper, double lower);
-int shadow_algorithm(double pixel[]);
-
-void hist_put(double t, int hist[]);
-double quantile(double q, int hist[]);
-double moment(int n, int hist[], int k);
-
-
-#define BAND2			0
-#define BAND3			1
-#define BAND4			2
-#define BAND5			3
-#define BAND6			4
-
-#define NO_CLOUD		0
-#define IS_CLOUD		1
-#define COLD_CLOUD		30
-#define WARM_CLOUD		50
-
-//---------------------------------------------------------
-void acca_algorithm(CSG_Grid *pCloud, CSG_Grid *band[], int single_pass, int with_shadow, int cloud_signature)
+void CACCA::acca_algorithm(CSG_Grid *pCloud, CSG_Grid *band[], int single_pass, int with_shadow, int cloud_signature, int _hist_n)
 {
-	int		i, count[5], hist_cold[hist_n], hist_warm[hist_n], review_warm;
+	hist_n = _hist_n; CSG_Array_Int _hist_cold(_hist_n), _hist_warm(_hist_n);
+
+	int		i, count[5], *hist_cold = _hist_cold.Get_Array(), *hist_warm = _hist_warm.Get_Array(), review_warm;
 	double	max, value[5], signa[5], idesert, shift;
 
 	/* Reset variables ... */
 	for (i = 0; i < 5; i++) {
-	count[i] = 0;
-	value[i] = 0.;
+		count[i] = 0;
+		value[i] = 0.;
 	}
-
 	for (i = 0; i < hist_n; i++) {
-	hist_cold[i] = hist_warm[i] = 0;
+		hist_cold[i] = hist_warm[i] = 0;
 	}
 
 	/* FIRST FILTER ... */
@@ -356,55 +327,56 @@ void acca_algorithm(CSG_Grid *pCloud, CSG_Grid *band[], int single_pass, int wit
 	value[0] = (double)(count[WARM] + count[COLD]);
 	idesert = (value[0] == 0. ? 0. : value[0] / ((double)count[SOIL]));
 
-	//-----------------------------------------------------
-	// BAND-6 CLOUD SIGNATURE DEVELOPMENT
-	if( idesert <= .5 || value[SNOW] > 0.01 )
-	{	// Only the cold clouds are used if snow or desert soil is present
-		review_warm		= 1;
+	/* BAND-6 CLOUD SIGNATURE DEVELOPMENT */
+	if (idesert <= .5 || value[SNOW] > 0.01) {
+		/* Only the cold clouds are used
+		if snow or desert soil is present */
+		review_warm = 1;
 	}
-	else
-	{	// The cold and warm clouds are combined and treated as a single population
-		review_warm		= 0;
-
-		count[COLD]		+= count[WARM];
-		value[COLD]		+= value[WARM];
-		signa[SUM_COLD]	+= signa[SUM_WARM];
-
-		for(i=0; i<hist_n; i++)
-			hist_cold[i]	+= hist_warm[i];
+	else {
+		/* The cold and warm clouds are combined
+		and treated as a single population */
+		review_warm = 0;
+		count[COLD] += count[WARM];
+		value[COLD] += value[WARM];
+		signa[SUM_COLD] += signa[SUM_WARM];
+		for (i = 0; i < hist_n; i++)
+			hist_cold[i] += hist_warm[i];
 	}
 
 	signa[KMEAN] = SCALE * signa[SUM_COLD] / ((double)count[COLD]);
 	signa[COVER] = ((double)count[COLD]) / ((double)count[TOTAL]);
 
-/*	G_message(_TL("Preliminary scene analysis:"));
-	G_message(("* Desert index: %.2lf"), idesert);
-	G_message(("* Snow cover: %.2lf %%"), 100. * value[SNOW]);
-	G_message(("* Cloud cover: %.2lf %%"), 100. * signa[COVER]);
-	G_message(("* Temperature of clouds:"));
-	G_message(("** Maximum: %.2lf K"), signa[KMAX]);
-	G_message(("** Mean (%s cloud): %.2lf K"), (review_warm ? "cold" : "all"), signa[KMEAN]);
-	G_message(("** Minimum: %.2lf K"), signa[KMIN]);
-/**/
+	G_message(SG_T("Preliminary scene analysis:"));
+	G_message(SG_T("* Desert index: %.2lf"), idesert);
+	G_message(SG_T("* Snow cover: %.2lf %%"), 100. * value[SNOW]);
+	G_message(SG_T("* Cloud cover: %.2lf %%"), 100. * signa[COVER]);
+	G_message(SG_T("* Temperature of clouds:"));
+	G_message(SG_T("** Maximum: %.2lf K"), signa[KMAX]);
+	G_message(SG_T("** Mean (%s cloud): %.2lf K"), (review_warm ? "cold" : "all"),
+		signa[KMEAN]);
+	G_message(SG_T("** Minimum: %.2lf K"), signa[KMIN]);
+
 	/* WARNING: re-use of the variable 'value' with new meaning */
 
 	/* step 14 */
 
-	/* To correct Irish2006: idesert has to be bigger than 0.5 to start pass 2 processing (see Irish2000)
-	   because then we have no desert condition (thanks to Matthias Eder, Germany) */
-	if( cloud_signature || (idesert > .5 && signa[COVER] > 0.004 && signa[KMEAN] < 295.) )
-	{
-		G_message(_TL("Histogram cloud signature:"));
+	/* To correct Irish2006: idesert has to be bigger than 0.5 to start pass 2
+	processing (see Irish2000) because then we have no desert condition
+	(thanks to Matthias Eder, Germany) */
+	if (cloud_signature ||
+		(idesert > .5 && signa[COVER] > 0.004 && signa[KMEAN] < 295.)) {
+		G_message(SG_T("Histogram cloud signature:"));
 
-		value[MEAN]	= quantile(0.5, hist_cold) + K_BASE;
-		value[DSTD]	= sqrt(moment(2, hist_cold, 1));
-		value[SKEW]	= moment(3, hist_cold, 3) / pow(value[DSTD], 3);
+		value[MEAN] = quantile(0.5, hist_cold) + K_BASE;
+		value[DSTD] = sqrt(moment(2, hist_cold, 1));
+		value[SKEW] = moment(3, hist_cold, 3) / pow(value[DSTD], 3);
 
-	/*	G_message(("* Mean temperature: %.2lf K"), value[MEAN]);
-		G_message(("* Standard deviation: %.2lf"), value[DSTD]);
-		G_message(("* Skewness: %.2lf"), value[SKEW]);
-		G_message(("* Histogram classes: %d"), hist_n);
-	/**/
+		G_message(SG_T("* Mean temperature: %.2lf K"), value[MEAN]);
+		G_message(SG_T("* Standard deviation: %.2lf"), value[DSTD]);
+		G_message(SG_T("* Skewness: %.2lf"), value[SKEW]);
+		G_message(SG_T("* Histogram classes: %d"), hist_n);
+
 		shift = value[SKEW];
 		if (shift > 1.)
 			shift = 1.;
@@ -415,93 +387,79 @@ void acca_algorithm(CSG_Grid *pCloud, CSG_Grid *band[], int single_pass, int wit
 		value[KUPPER] = quantile(0.975, hist_cold) + K_BASE;
 		value[KLOWER] = quantile(0.835, hist_cold) + K_BASE;
 
-	/*	G_message(("* 98.75 percentile: %.2lf K"), max);
-		G_message(("* 97.50 percentile: %.2lf K"), value[KUPPER]);
-		G_message(("* 83.50 percentile: %.2lf K"), value[KLOWER]);
-	/**/
+		G_message(SG_T("* 98.75 percentile: %.2lf K"), max);
+		G_message(SG_T("* 97.50 percentile: %.2lf K"), value[KUPPER]);
+		G_message(SG_T("* 83.50 percentile: %.2lf K"), value[KLOWER]);
+
 		/* step 17 & 18 */
-		if (shift > 0.)
-		{
+		if (shift > 0.) {
 			shift *= value[DSTD];
 
-			if ((value[KUPPER] + shift) > max)
-			{
-				if ((value[KLOWER] + shift) > max)
-				{
+			if ((value[KUPPER] + shift) > max) {
+				if ((value[KLOWER] + shift) > max) {
 					value[KLOWER] += (max - value[KUPPER]);
 				}
-				else
-				{
+				else {
 					value[KLOWER] += shift;
 				}
-
 				value[KUPPER] = max;
 			}
-			else
-			{
+			else {
 				value[KLOWER] += shift;
 				value[KUPPER] += shift;
 			}
 		}
 
-	/*	G_message(("Maximum temperature:"));
-		G_message(("* Cold cloud: %.2lf K"), value[KUPPER]);
-		G_message(("* Warm cloud: %.2lf K"), value[KLOWER]);
-	/**/
+		G_message(SG_T("Maximum temperature:"));
+		G_message(SG_T("* Cold cloud: %.2lf K"), value[KUPPER]);
+		G_message(SG_T("* Warm cloud: %.2lf K"), value[KLOWER]);
 	}
-	else if( signa[KMEAN] < 295. )
-	{	// Retained warm and cold clouds
-		G_message(_TL("Result: Scene with clouds"));
-		review_warm = 0;
+	else {
+		if (signa[KMEAN] < 295.) {
+			/* Retained warm and cold clouds */
+			G_message(SG_T("Result: Scene with clouds"));
+			review_warm = 0;
+			value[KUPPER] = 0.;
+			value[KLOWER] = 0.;
+		}
+		else {
+			/* Retained cold clouds */
+			G_message(SG_T("Result: Scene cloud free"));
+			review_warm = 1;
+			value[KUPPER] = 0.;
+			value[KLOWER] = 0.;
+		}
+	}
+
+	/* SECOND FILTER ... */
+	/* By-pass two processing but it retains warm and cold clouds */
+	if (single_pass == TRUE) {
+		review_warm = -1.;
 		value[KUPPER] = 0.;
 		value[KLOWER] = 0.;
 	}
-	else
-	{	// Retained cold clouds
-		G_message(_TL("Result: Scene cloud free"));
-		review_warm = 1;
-		value[KUPPER] = 0.;
-		value[KLOWER] = 0.;
-	}
-
-	//-----------------------------------------------------
-	// SECOND FILTER ...
-
-	// By-pass two processing but it retains warm and cold clouds
-	if( single_pass != 0 )
-	{
-		review_warm		= -1;
-		value[KUPPER]	= 0.;
-		value[KLOWER]	= 0.;
-	}
-
-	// CATEGORIES: IS_WARM_CLOUD, IS_COLD_CLOUD, IS_SHADOW, NULL (= NO_CLOUD)
 	acca_second(pCloud, band[BAND6], review_warm, value[KUPPER], value[KLOWER]);
+	/* CATEGORIES: IS_WARM_CLOUD, IS_COLD_CLOUD, IS_SHADOW, NULL (= NO_CLOUD) */
 
-	//-----------------------------------------------------
 	return;
 }
 
 //---------------------------------------------------------
-void acca_first(CSG_Grid *pCloud, CSG_Grid *band[], int with_shadow, int count[], int cold[], int warm[], double stats[])
+void CACCA::acca_first(CSG_Grid *pCloud, CSG_Grid *band[], int with_shadow, int count[], int cold[], int warm[], double stats[])
 {
-	double	nsdi, rat56;
-
-	/* Creation of output file */
-	/* ----- ----- */
 	SG_UI_Msg_Add_Execution(_TL("Processing first pass..."), true);
 
-	stats[SUM_COLD]	= 0.;
-	stats[SUM_WARM]	= 0.;
-	stats[KMAX]		= 0.;
-	stats[KMIN]		= 10000.;
+	stats[SUM_COLD] = 0.;
+	stats[SUM_WARM] = 0.;
+	stats[KMAX] = 0.;
+	stats[KMIN] = 10000.;
 
 	for(int y=0; y<pCloud->Get_NY() && SG_UI_Process_Set_Progress(y, pCloud->Get_NY()); y++)
 	{
 		for(int x=0; x<pCloud->Get_NX(); x++)
 		{
-			char	code	= NO_DEFINED;
-			double	pixel[5];
+			char code = NO_DEFINED;
+			double pixel[5], nsdi, rat56;
 
 			for(int i=BAND2; i<=BAND6; i++)	// Null when null pixel in any band
 			{
@@ -509,128 +467,119 @@ void acca_first(CSG_Grid *pCloud, CSG_Grid *band[], int with_shadow, int count[]
 				{
 					if( band[i]->is_NoData(x, y) )
 					{
-						code	= NO_CLOUD;
+						code = NO_CLOUD;
 						break;
 					}
 
-					pixel[i]	= band[i]->asDouble(x, y);
+					pixel[i] = band[i]->asDouble(x, y);
 				}
 				else if( !band[i]->Get_Value(pCloud->Get_System().Get_Grid_to_World(x, y), pixel[i]) )
 				{
-					code	= NO_CLOUD;
+					code = NO_CLOUD;
 					break;
 				}
+
+				if( m_bCelsius && i == BAND6 && code == NO_DEFINED ) { pixel[i] -= 273.15; }
 			}
 
 			/* Determina los pixeles de sombras */
-			if( code == NO_DEFINED && with_shadow )
-			{
+			if (code == NO_DEFINED && with_shadow) {
 				code = shadow_algorithm(pixel);
 			}
-
 			/* Analiza el valor de los pixeles no definidos */
-			if (code == NO_DEFINED)
-			{
-				code	= NO_CLOUD;
+			if (code == NO_DEFINED) {
+				code = NO_CLOUD;
 				count[TOTAL]++;
-				nsdi	= (pixel[BAND2] - pixel[BAND5]) / (pixel[BAND2] + pixel[BAND5]);
-
+				nsdi = (pixel[BAND2] - pixel[BAND5]) /
+				       (pixel[BAND2] + pixel[BAND5]);
 				/* ----------------------------------------------------- */
 				/* step 1. Brightness Threshold: Eliminates dark images */
-				if (pixel[BAND3] > th_1)
-				{
-					/* step 3. Normalized Snow Difference Index: Eliminates many types of snow */
-					if (nsdi > th_2[0] && nsdi < th_2[1])
-					{
-						/* step 5. Temperature Threshold: Eliminates warm image features */
-						if (pixel[BAND6] < th_3)
-						{
+				if (pixel[BAND3] > th_1) {
+					/* step 3. Normalized Snow Difference Index: Eliminates many
+					* types of snow */
+					if (nsdi > th_2[0] && nsdi < th_2[1]) {
+						/* step 5. Temperature Threshold: Eliminates warm image
+						* features */
+						if (pixel[BAND6] < th_3) {
 							rat56 = (1. - pixel[BAND5]) * pixel[BAND6];
-							/* step 6. Band 5/6 Composite: Eliminates numerous categories including ice */
-							if (rat56 < th_4)
-							{
+							/* step 6. Band 5/6 Composite: Eliminates numerous
+							* categories including ice */
+							if (rat56 < th_4) {
 								/* step 8. Eliminates growing vegetation */
-								if ((pixel[BAND4] / pixel[BAND3]) < th_5)
-								{
-									/* step 9. Eliminates senescing vegetation */
-									if ((pixel[BAND4] / pixel[BAND2]) < th_6)
-									{
-										/* step 10. Eliminates rocks and desert */
+								if ((pixel[BAND4] / pixel[BAND3]) < th_5) {
+									/* step 9. Eliminates senescing vegetation
+									*/
+									if ((pixel[BAND4] / pixel[BAND2]) < th_6) {
+										/* step 10. Eliminates rocks and desert
+										*/
 										count[SOIL]++;
-
-										if ((pixel[BAND4] / pixel[BAND5]) > th_7)
-										{
-											/* step 11. Distinguishes warm clouds from cold clouds */
-											if (rat56 < th_8)
-											{
+										if ((pixel[BAND4] / pixel[BAND5]) >
+											th_7) {
+											/* step 11. Distinguishes warm
+											* clouds from cold clouds */
+											if (rat56 < th_8) {
 												code = COLD_CLOUD;
 												count[COLD]++;
 												/* for statistic */
-												stats[SUM_COLD] += (pixel[BAND6] / SCALE);
-												hist_put(pixel[BAND6] - K_BASE, cold);
+												stats[SUM_COLD] +=
+													(pixel[BAND6] / SCALE);
+												hist_put(pixel[BAND6] - K_BASE,
+													cold);
 											}
-											else
-											{
+											else {
 												code = WARM_CLOUD;
 												count[WARM]++;
 												/* for statistic */
-												stats[SUM_WARM] += (pixel[BAND6] / SCALE);
-												hist_put(pixel[BAND6] - K_BASE, warm);
+												stats[SUM_WARM] +=
+													(pixel[BAND6] / SCALE);
+												hist_put(pixel[BAND6] - K_BASE,
+													warm);
 											}
-
-											if (pixel[BAND6] > stats[KMAX])	stats[KMAX] = pixel[BAND6];
-											if (pixel[BAND6] < stats[KMIN])	stats[KMIN] = pixel[BAND6];
+											if (pixel[BAND6] > stats[KMAX])
+												stats[KMAX] = pixel[BAND6];
+											if (pixel[BAND6] < stats[KMIN])
+												stats[KMIN] = pixel[BAND6];
 										}
-										else
-										{
+										else {
 											code = NO_DEFINED;
 										}
 									}
-									else
-									{
+									else {
 										code = NO_DEFINED;
 										count[SOIL]++;
 									}
 								}
-								else
-								{
+								else {
 									code = NO_DEFINED;
 								}
 							}
-							else
-							{
+							else {
 								/* step 7 */
-								code = (pixel[BAND5] < th_4_b) ? NO_CLOUD : NO_DEFINED;
+								code = (pixel[BAND5] < th_4_b) ? NO_CLOUD
+									: NO_DEFINED;
 							}
 						}
-						else
-						{
+						else {
 							code = NO_CLOUD;
 						}
 					}
-					else
-					{
+					else {
 						/* step 3 */
 						code = NO_CLOUD;
-				
 						if (nsdi > th_2_b)
 							count[SNOW]++;
 					}
 				}
-				else
-				{
+				else {
 					/* step 2 */
 					code = (pixel[BAND3] < th_1_b) ? NO_CLOUD : NO_DEFINED;
 				}
+				/* ----------------------------------------------------- */
 			}
-
-			//---------------------------------------------
-			if (code == NO_CLOUD)
-			{
-				pCloud->Set_Value(x, y, 1);
+			if (code == NO_CLOUD) {
+				pCloud->Set_Value(x, y, NO_DEFINED);
 			}
-			else
-			{
+			else {
 				pCloud->Set_Value(x, y, code);
 			}
 		}
@@ -640,9 +589,11 @@ void acca_first(CSG_Grid *pCloud, CSG_Grid *band[], int with_shadow, int count[]
 }
 
 //---------------------------------------------------------
-void acca_second(CSG_Grid *pCloud, CSG_Grid *pThermal, int review_warm, double upper, double lower)
+void CACCA::acca_second(CSG_Grid *pCloud, CSG_Grid *pThermal, int review_warm, double upper, double lower)
 {
-	SG_UI_Process_Set_Text(upper == 0.0
+	if( m_bCelsius ) { upper -= 273.15; lower -= 273.15; }
+
+	SG_UI_Process_Set_Text(upper == 0.
 		? _TL("Removing ambiguous pixels...")
 		: _TL("Pass two processing...")
 	);
@@ -650,36 +601,37 @@ void acca_second(CSG_Grid *pCloud, CSG_Grid *pThermal, int review_warm, double u
 	//-----------------------------------------------------
 	for(int y=0; y<pCloud->Get_NY() && SG_UI_Process_Set_Progress(y, pCloud->Get_NY()); y++)
 	{
-		double	p_y	= pCloud->Get_YMin() + y * pCloud->Get_Cellsize();
+		double p_y = pCloud->Get_YMin() + y * pCloud->Get_Cellsize();
 
 		#pragma omp parallel for
 		for(int x=0; x<pCloud->Get_NX(); x++)
 		{
-			if( !pCloud->is_NoData(x, y) )
+			double p_x = pCloud->Get_XMin() + x * pCloud->Get_Cellsize(), temp;
+
+			if( pThermal->Get_Value(p_x, p_y, temp) )
 			{
-				int	code	= pCloud->asInt(x, y);
-
-				if( code == NO_DEFINED || (code == WARM_CLOUD && review_warm == 1) )	// Resolve ambiguous pixels
-				{
-					double	t, p_x	= pCloud->Get_XMin() + x * pCloud->Get_Cellsize();
-
-					if( !pThermal->Get_Value(p_x, p_y, t) || t > upper )
-					{
-						pCloud->Set_NoData(x, y);
+				int code = pCloud->asInt(x, y);
+				/* Resolve ambiguous pixels */
+				if(code == NO_DEFINED ) continue; if(
+					(code == WARM_CLOUD && review_warm == 1)) {
+					if (temp > upper) {
+						pCloud->Set_Value(x, y, NO_DEFINED);
 					}
-					else
-					{
-						pCloud->Set_Value(x, y, t < lower ? IS_WARM_CLOUD : IS_COLD_CLOUD);
+					else {
+						pCloud->Set_Value(x, y, (temp < lower) ? IS_WARM_CLOUD : IS_COLD_CLOUD);
 					}
-				}
-				else if( code == COLD_CLOUD || code == WARM_CLOUD )	// Join warm (not ambiguous) and cold clouds
-				{
-					pCloud->Set_Value(x, y, (code == WARM_CLOUD && review_warm == 0) ? IS_WARM_CLOUD : IS_COLD_CLOUD);
 				}
 				else
-				{
-					pCloud->Set_Value(x, y, IS_SHADOW);
-				}
+					/* Join warm (not ambiguous) and cold clouds */
+					if (code == COLD_CLOUD || code == WARM_CLOUD) {
+						pCloud->Set_Value(x, y,
+							(code == WARM_CLOUD && review_warm == 0)
+							? IS_WARM_CLOUD
+							: IS_COLD_CLOUD
+						);
+					}
+					else
+						pCloud->Set_Value(x, y, IS_SHADOW);
 			}
 		}
 	}
@@ -696,7 +648,7 @@ void acca_second(CSG_Grid *pCloud, CSG_Grid *pThermal, int review_warm, double u
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int shadow_algorithm(double pixel[])
+int CACCA::shadow_algorithm(double pixel[])
 {
 	// I think this filter is better but not in any paper
 	if( pixel[BAND3] < 0.07 && (1 - pixel[BAND4]) * pixel[BAND6] > 240. && pixel[BAND4] / pixel[BAND2] > 1.
@@ -726,7 +678,7 @@ int shadow_algorithm(double pixel[])
 //---------------------------------------------------------
 
 //---------------------------------------------------------
-void hist_put(double t, int hist[])
+void CACCA::hist_put(double t, int hist[])
 {
 	int	i	= (int)(t * ((double)hist_n / 100.));	// scale factor
 
@@ -740,7 +692,7 @@ void hist_put(double t, int hist[])
 
 //---------------------------------------------------------
 /* histogram moment */
-double moment(int n, int hist[], int k)
+double CACCA::moment(int n, int hist[], int k)
 {
 	int		i, total;
 	double	value, mean;
@@ -766,7 +718,7 @@ double moment(int n, int hist[], int k)
 
 //---------------------------------------------------------
 /* Real data quantile */
-double quantile(double q, int hist[])
+double CACCA::quantile(double q, int hist[])
 {
 	int		i, total;
 	double	value, qmax, qmin;
@@ -804,7 +756,7 @@ double quantile(double q, int hist[])
 // This a >=50% filter of 3x3
 // if >= 50% vecinos cloud then pixel set to cloud
 //---------------------------------------------------------
-void filter_holes(CSG_Grid *pCloud)
+void CACCA::filter_holes(CSG_Grid *pCloud)
 {
 	if( pCloud->Get_NY() < 3 || pCloud->Get_NX() < 3 )
 		return;
@@ -819,29 +771,27 @@ void filter_holes(CSG_Grid *pCloud)
 		#pragma omp parallel for
 		for(int x=0; x<pCloud->Get_NX(); x++)
 		{
-			int	z	= Cloud.asInt(x, y);
+			int z = Cloud.asInt(x, y);
 
 			if( z == 0 )
 			{
-				int	cold, warm, shadow, nulo;
-
-				cold = warm = shadow = nulo = 0;
+				int cold = 0, warm = 0, shadow = 0, nulo = 0;
 
 				for(int i=0; i<8; i++)
 				{
-					int	ix	= pCloud->Get_System().Get_xTo(i, x);
-					int	iy	= pCloud->Get_System().Get_yTo(i, y);
+					int ix = pCloud->Get_System().Get_xTo(i, x);
+					int iy = pCloud->Get_System().Get_yTo(i, y);
 
 					switch( Cloud.is_InGrid(ix, iy) ? Cloud.asInt(ix, iy) : -1 )
 					{
-					case IS_COLD_CLOUD:	cold  ++;	break;
-					case IS_WARM_CLOUD:	warm  ++;	break;
-					case IS_SHADOW:		shadow++;	break;
-					default:			nulo  ++;	break;
+					case IS_COLD_CLOUD: cold  ++; break;
+					case IS_WARM_CLOUD: warm  ++; break;
+					case IS_SHADOW    : shadow++; break;
+					default           : nulo  ++; break;
 					}
 				}
 
-				int	lim	= (cold + warm + shadow + nulo) / 2;
+				int lim = (cold + warm + shadow + nulo) / 2;
 
 				// Entra pixel[0] = 0
 				if( nulo < lim )
@@ -870,9 +820,9 @@ void filter_holes(CSG_Grid *pCloud)
 
 
 ///////////////////////////////////////////////////////////
-//													   //
-//													   //
-//													   //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

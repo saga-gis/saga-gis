@@ -272,8 +272,8 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAP_LEGEND_HORIZONTAL:			return( _TL("Show Horizontal Legend") );
 	case ID_CMD_MAP_MODE_ZOOM:					return( _TL("Zoom") );
 	case ID_CMD_MAP_MODE_PAN:					return( _TL("Pan") );
-	case ID_CMD_MAP_MODE_SELECT:				return( _TL("Action") );
-	case ID_CMD_MAP_MODE_DISTANCE:				return( _TL("Measure Distance") );
+	case ID_CMD_MAP_MODE_SELECT:				return( _TL("Interact") );
+	case ID_CMD_MAP_MODE_DISTANCE:				return( _TL("Measure") );
 	case ID_CMD_MAP_ZOOM_FULL:					return( _TL("Zoom To Full Extent") );
 	case ID_CMD_MAP_ZOOM_BACK:					return( _TL("Zoom To Previous Extent") );
 	case ID_CMD_MAP_ZOOM_FORWARD:				return( _TL("Zoom To Next Extent") );

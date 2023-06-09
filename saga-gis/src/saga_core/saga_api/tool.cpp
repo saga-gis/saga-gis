@@ -1638,11 +1638,11 @@ CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 
 				if( bHeader )
 				{
-					Script += "        List.Get_Data(i).Save('{:s}/{:s}_{:d}.{:s}'.format(Results, List.Get_Name(), i, '" + ext + "'))\n\n";
+					Script += "        List.Get_Item(i).Save('{:s}/{:s}_{:d}.{:s}'.format(Results, List.Get_Name(), i, '" + ext + "'))\n\n";
 				}
 				else
 				{
-					Script += "        Data = List.Get_Data(i)\n";
+					Script += "        Data = List.Get_Item(i)\n";
 				}
 			}
 		}

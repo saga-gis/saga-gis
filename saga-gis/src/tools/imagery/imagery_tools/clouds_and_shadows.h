@@ -6,14 +6,15 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                     Shapes_Tools                      //
+//                      ta_lighting                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 Shapes_Create_Empty.h                 //
+//                  clouds_and_shadows.h                 //
 //                                                       //
-//                 Copyright (C) 2005 by                 //
-//                      Olaf Conrad                      //
+//                  Copyrights (c) 2023                  //
+//                  Justus Spitzmüller                   //
+//                     Olaf Conrad                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,16 +41,14 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Shapes_Create_Empty_H
-#define HEADER_INCLUDED__Shapes_Create_Empty_H
+#ifndef HEADER_INCLUDED__clouds_and_shadows_H
+#define HEADER_INCLUDED__clouds_and_shadows_H
 
 
 ///////////////////////////////////////////////////////////
@@ -69,27 +68,34 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CShapes_Create_Empty : public CSG_Tool  
+class CDetect_Clouds : public CSG_Tool_Grid
 {
 public:
-	CShapes_Create_Empty(void);
+	CDetect_Clouds(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Shapes|Construction") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Imagery|Analysis") );	}
 
 
 protected:
 
 	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool				On_Execute				(void);
 
 
 private:
 
-	static void					Set_Field_Count			(CSG_Parameters *pFields, int nFields);
+	bool						m_bCelsius;
 
-	CSG_String					Get_Field_Name			(int iField);
-	TSG_Data_Type				Get_Field_Type			(int iField);
+	CSG_Grid					*m_pBand[8];
+
+
+	bool						Get_Brightness			(int x, int y, double &b, double &g, double &r, double &nir, double &swir1, double &swir2, double &tir, double &cirr);
+	int							Get_Fmask				(int x, int y);
+	bool						Set_Fmask				(CSG_Grid *pClouds);
+
+	bool						Set_ACCA				(CSG_Grid *pClouds);
 
 };
 
@@ -99,17 +105,33 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CShapes_Create_Copy : public CSG_Tool  
+class CDetect_CloudShadows : public CSG_Tool_Grid
 {
 public:
-	CShapes_Create_Copy(void);
+	CDetect_CloudShadows(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Shapes|Construction") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Imagery|Analysis") );	}
 
 
 protected:
 
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
 	virtual bool				On_Execute				(void);
+
+
+private:
+
+	CSG_Grid *					Get_Target				(void);
+
+	bool						Get_Candidates			(CSG_Grid &Candidates);
+
+	bool						Get_Cloud				(CSG_Grid_Stack &Cloud, const CSG_Grid *pClouds);
+	bool						Get_Cloud				(CSG_Grid_Stack &Cloud,       CSG_Grid *pClouds, int x, int y);
+
+	bool						Get_GroundCell			(CSG_Grid *pDEM, int &x, int &y, double z, double dx, double dy, double dz);
+	bool						Find_Shadow				(CSG_Grid *pShadows, CSG_Grid &Candidates, const CSG_Grid_Stack &Cloud, double zRange[2], double dx, double dy, double dz);
 
 };
 
@@ -121,4 +143,4 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Shapes_Create_Empty_H
+#endif // #ifndef HEADER_INCLUDED__clouds_and_shadows_H

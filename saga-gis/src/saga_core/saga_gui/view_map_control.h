@@ -164,7 +164,7 @@ private:
 
 private:
 
-	int							m_Mode, m_Drag_Mode;
+	int							m_Mode, m_Mode_Previous, m_Drag_Mode;
 
 	wxPoint						m_Mouse_Down, m_Mouse_Move, m_CrossHair;
 	
