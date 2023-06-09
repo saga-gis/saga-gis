@@ -1,7 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
-
 ///////////////////////////////////////////////////////////
 //                                                       //
 //                         SAGA                          //
@@ -13,10 +9,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//                line_flip_direction.cpp                //
 //                                                       //
-//                 Copyright (C) 2005 by                 //
-//                      Olaf Conrad                      //
+//                 Copyright (C) 2023 by                 //
+//                    Volker Wichmann                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -39,14 +35,13 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     wichmann@laserdata.at                  //
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
-//                Germany                                //
+//    contact:    Volker Wichmann                        //
+//                LASERDATA GmbH                         //
+//                Management and analysis of             //
+//                laserscanning data                     //
+//                Innsbruck, Austria                     //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -55,87 +50,46 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//           The Tool Link Library Interface             //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-
-#include "MLB_Interface.h"
-
-
-//---------------------------------------------------------
-// 2. Place general tool library informations here...
-
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("Lines") );
-
-	case TLB_INFO_Category:
-		return( _TL("Shapes") );
-
-	case TLB_INFO_Author:
-		return( SG_T("O. Conrad, V. Wichmann (c) 2005-2023") );
-
-	case TLB_INFO_Description:
-		return( _TL("Tools for lines.") );
-
-	case TLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case TLB_INFO_Menu_Path:
-		return( _TL("Shapes|Lines") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your tools here...
-
-#include "Lines_From_Polygons.h"
-#include "Lines_From_Points.h"
-#include "line_properties.h"
-#include "line_polygon_intersection.h"
-#include "line_simplification.h"
-#include "line_dissolve.h"
-#include "line_split_with_lines.h"
-#include "line_smoothing.h"
-#include "line_crossings.h"
-#include "extract_closed_lines.h"
-#include "line_split.h"
-#include "line_parts_to_separate_lines.h"
 #include "line_flip_direction.h"
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-// 4. Allow your tools to be created here...
-
-CSG_Tool *		Create_Tool(int i)
+CLine_Flip_Direction::CLine_Flip_Direction(void)
 {
-	switch( i )
-	{
-	case  0:	return( new CLines_From_Polygons );
-	case  1:	return( new CLines_From_Points );
-	case  2:	return( new CLine_Properties );
-	case  3:	return( new CLine_Polygon_Intersection );
-	case  4:	return( new CLine_Simplification );
-	case  5:	return( new CLine_Dissolve );
-	case  6:	return( new CLine_Split_with_Lines );
-	case  8:	return( new CLine_Split_at_Points );
-	case  7:	return( new CLine_Smoothing );
-	case  9:	return( new CLine_Crossings );
-    case 10:    return( new CExtract_Closed_Lines );
-	case 11:	return( new CCut_Lines );
-	case 12:	return( new CLine_Parts_to_Separate_Lines );
-	case 13:	return( new CLine_Flip_Direction );
+	//-----------------------------------------------------
+	Set_Name		(_TL("Flip Line Direction"));
 
-	case 14:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
-	}
+	Set_Author		(SG_T("V. Wichmann (c) 2023"));
+
+	Set_Description	(_TW(
+		"The tool allows one to reverse the from-to direction of line "
+		"features. Flipping can be useful, when the line orientation "
+		"represents flow direction, for example.\n\n"
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Shapes("",
+		"LINES"		, _TL("Lines"),
+		_TL("The input line shapefile."),
+		PARAMETER_INPUT, SHAPE_TYPE_Line
+	);
+	
+	Parameters.Add_Shapes("",
+		"FLIPPED"	, _TL("Flipped Lines"),
+		_TL("The output line shapefile with the flipped lines."),
+		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Line
+	);
 }
 
 
@@ -146,8 +100,46 @@ CSG_Tool *		Create_Tool(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+bool CLine_Flip_Direction::On_Execute(void)
+{
+    CSG_Shapes	*pShapes	= Parameters("FLIPPED")->asShapes();
 
-	TLB_INTERFACE
+	if( pShapes && pShapes != Parameters("LINES")->asShapes() )
+	{
+		pShapes->Create(*Parameters("LINES")->asShapes());
 
-//}}AFX_SAGA
+		DataObject_Set_Parameters(pShapes, Parameters("LINES")->asShapes());
+
+		pShapes->Fmt_Name("%s [%s]", pShapes->Get_Name(), _TL("Flipped"));
+	}
+	else
+	{
+		pShapes	= Parameters("LINES")->asShapes();
+	}
+
+
+    //--------------------------------------------------------
+    for(sLong iLine=0; iLine<pShapes->Get_Count() && Set_Progress(iLine, pShapes->Get_Count()); iLine++)
+    {
+        CSG_Shape *pLine = pShapes->Get_Shape(iLine);
+
+        for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
+        {
+			pLine->Revert_Points(iPart);
+        }
+    }
+
+
+	//--------------------------------------------------------
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
