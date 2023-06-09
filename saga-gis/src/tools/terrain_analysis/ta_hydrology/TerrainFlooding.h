@@ -60,61 +60,65 @@
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
-#include <queue>
-#include <set>
-
 
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
-
 
 //---------------------------------------------------------
 class CTerrainFloodingBase
 {
-
 protected:
 
-	bool	Create(CSG_Parameters &Parameters, bool bInteractive);
-	bool	Initialize(const CSG_Parameters &Parameters);
-	bool	Finalize(const CSG_Parameters &Parameters);
+	double				m_dWaterLevel;
 
-	bool	Set_Flooding(double xWorld, double yWorld, double dWaterLevel, bool bShow);
 
-	double	m_dWaterLevel;
+	bool				Create				(CSG_Parameters &Parameters, bool bInteractive);
+
+	bool				Initialize			(const CSG_Parameters &Parameters);
+	bool				Finalize			(const CSG_Parameters &Parameters);
+
+	bool				Set_Flooding		(double xWorld, double yWorld, double dWaterLevel, bool bShow, bool bReset = false);
+
 
 private:
 
-	CSG_Grid		*m_pDEM, *m_pWaterBody, *m_pFlooded;
-	
-	int				m_iLevelReference;
-	bool			m_bConstantLevel;
+	bool				m_bConstantLevel;
+
+	int					m_iLevelReference;
+
+	CSG_Grid			*m_pDEM, *m_pWaterBody, *m_pFlooded;
 	
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CTerrainFlooding : public CSG_Tool_Grid, CTerrainFloodingBase
 {
 public:
-
 	CTerrainFlooding(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Miscellaneous") );	}
+	virtual CSG_String	Get_MenuPath		(void)	{	return( _TL("Miscellaneous") );	}
 
 
 protected:
 
-	virtual bool	On_Execute			(void);
+	virtual int			On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual int		On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
-private:
+	virtual bool		On_Execute			(void);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CTerrainFloodingInteractive : public CSG_Tool_Grid_Interactive, CTerrainFloodingBase
@@ -123,18 +127,16 @@ public:
 
 	CTerrainFloodingInteractive(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Miscellaneous") );	}
+	virtual CSG_String	Get_MenuPath		(void)	{	return( _TL("Miscellaneous") );	}
 
 
 protected:
 
-	virtual bool	On_Execute			(void);
-	virtual bool	On_Execute_Finish	(void);
-	virtual bool	On_Execute_Position	(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
+	virtual int			On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual int		On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
-private:
+	virtual bool		On_Execute			(void);
+	virtual bool		On_Execute_Finish	(void);
+	virtual bool		On_Execute_Position	(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
 
 };
 
