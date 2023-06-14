@@ -89,7 +89,7 @@ private:
 
 	int					m_iLevelReference;
 
-	CSG_Grid			*m_pDEM, *m_pWaterBody, *m_pFlooded;
+	CSG_Grid			*m_pDEM, *m_pWaterBody, *m_pFlooded, m_Flooded;
 	
 };
 
