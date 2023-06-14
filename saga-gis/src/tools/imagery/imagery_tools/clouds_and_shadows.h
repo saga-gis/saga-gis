@@ -73,7 +73,7 @@ class CDetect_Clouds : public CSG_Tool_Grid
 public:
 	CDetect_Clouds(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Imagery|Analysis") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Imagery|Feature Extraction") );	}
 
 
 protected:
@@ -86,7 +86,7 @@ protected:
 
 private:
 
-	bool						m_bCelsius;
+	bool						m_bCelsius { false };
 
 	CSG_Grid					*m_pBand[8];
 
@@ -110,7 +110,7 @@ class CDetect_CloudShadows : public CSG_Tool_Grid
 public:
 	CDetect_CloudShadows(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Imagery|Analysis") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Imagery|Feature Extraction") );	}
 
 
 protected:
@@ -123,14 +123,22 @@ protected:
 
 private:
 
+	CSG_Table					*m_pInfo { NULL };
+
+	CSG_Grid					m_Correction;
+
+
 	CSG_Grid *					Get_Target				(void);
 
 	bool						Get_Candidates			(CSG_Grid &Candidates);
 
-	bool						Get_Cloud				(CSG_Grid_Stack &Cloud, const CSG_Grid *pClouds);
-	bool						Get_Cloud				(CSG_Grid_Stack &Cloud,       CSG_Grid *pClouds, int x, int y);
+	double						Get_Correction			(double dx, double dy, double dz, CSG_Grid *pDEM, int x, int y);
+	bool						Get_Correction			(double dx, double dy, double dz);
+	bool						Get_Correction			(double dx, double dy, int &x, int &y);
 
-	bool						Get_GroundCell			(CSG_Grid *pDEM, int &x, int &y, double z, double dx, double dy, double dz);
+	bool						Get_Cloud				(CSG_Grid_Stack &Cloud, const CSG_Grid *pClouds);
+	bool						Get_Cloud				(CSG_Grid_Stack &Cloud,       CSG_Grid *pClouds, int x, int y, CSG_Grid *pID);
+
 	bool						Find_Shadow				(CSG_Grid *pShadows, CSG_Grid &Candidates, const CSG_Grid_Stack &Cloud, double zRange[2], double dx, double dy, double dz);
 
 };
