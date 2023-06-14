@@ -31,7 +31,7 @@
 		</input>
 
 		<output varname="LS_FACTOR" type="grid" parent="GRID_SYSTEM">
-			<name>LS Factor</name> <colours revert="true">12</colours>
+			<name>LS Factor</name> <colours revert="false">12</colours>
 		</output>
 
 		<option varname="FEET" type="boolean">
