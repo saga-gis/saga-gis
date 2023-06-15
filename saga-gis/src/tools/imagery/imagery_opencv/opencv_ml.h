@@ -142,7 +142,7 @@ private:
 	CSG_Table					m_Classes;
 
 
-	double						_Get_Feature			(int x, int y, int iFeature);
+	bool						_Get_Features			(int x, int y, CSG_Vector &Features);
 
 	bool						_Initialize				(void);
 	bool						_Finalize				(void);

@@ -84,7 +84,7 @@ COpenCV_ML::COpenCV_ML(bool bProbability)
 	Parameters.Add_Grid_List("",
 		"FEATURES"		, _TL("Features"),
 		_TL(""),
-		PARAMETER_INPUT
+		PARAMETER_INPUT, false
 	);
 
 	Parameters.Add_Bool("FEATURES",
@@ -244,26 +244,8 @@ bool COpenCV_ML::_Initialize(void)
 	m_pProbability = Parameters("PROBABILITY") ? Parameters("PROBABILITY")->asGrid() : NULL;
 	m_bNormalize   = Parameters("NORMALIZE"  )->asBool();
 
-	//-----------------------------------------------------
 	m_pClasses->Set_NoData_Value(-1.);
 
-	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
-	{
-		#pragma omp parallel for
-		for(int x=0; x<Get_NX(); x++)
-		{
-			bool bNoData = false;
-
-			for(int i=0; !bNoData && i<m_pFeatures->Get_Grid_Count(); i++)
-			{
-				bNoData = m_pFeatures->Get_Grid(i)->is_NoData(x, y);
-			}
-
-			m_pClasses->Set_Value(x, y, bNoData ? -1. : 0.);
-		}
-	}
-
-	//-----------------------------------------------------
 	return( true );
 }
 
@@ -366,18 +348,33 @@ bool COpenCV_ML::Check_Model_File(const CSG_String &File)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline double COpenCV_ML::_Get_Feature(int x, int y, int iFeature)
+bool COpenCV_ML::_Get_Features(int x, int y, CSG_Vector &Features)
 {
-	CSG_Grid *pFeature = m_pFeatures->Get_Grid(iFeature);
-
-	double Feature = pFeature->asDouble(x, y);
-
-	if( m_bNormalize )
+	for(int i=0; i<m_pFeatures->Get_Grid_Count(); i++)
 	{
-		return( (Feature - pFeature->Get_Mean()) / pFeature->Get_StdDev() );
+		CSG_Grid *pFeature = m_pFeatures->Get_Grid(i);
+
+		if( pFeature->Get_System().is_Equal(Get_System()) )
+		{
+			if( pFeature->is_NoData(x, y) )
+			{
+				return( false );
+			}
+
+			Features[i] = pFeature->asDouble(x, y);
+		}
+		else if( pFeature->Get_Value(Get_System().Get_Grid_to_World(x, y), Features[i]) == false )
+		{
+			return( false );
+		}
+
+		if( m_bNormalize && pFeature->Get_StdDev() > 0. )
+		{
+			Features[i] = (Features[i] - pFeature->Get_Mean()) / pFeature->Get_StdDev();
+		}
 	}
 
-	return( Feature );
+	return( true );
 }
 
 
@@ -393,13 +390,15 @@ bool COpenCV_ML::_Get_Prediction(const Ptr<StatModel> &Model)
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			if( !m_pClasses->is_NoData(x, y) )
+			CSG_Vector Features(m_pFeatures->Get_Grid_Count());
+
+			if( _Get_Features(x, y, Features) )
 			{
 				Mat	Sample(1, m_pFeatures->Get_Grid_Count(), CV_32FC1);
 
 				for(int i=0; i<m_pFeatures->Get_Grid_Count(); i++)
 				{
-					Sample.at<float>(i)	= (float)_Get_Feature(x, y, i);
+					Sample.at<float>(i)	= (float)Features[i];
 				}
 
 				m_pClasses->Set_Value(x, y, Model->predict(Sample));
@@ -407,6 +406,15 @@ bool COpenCV_ML::_Get_Prediction(const Ptr<StatModel> &Model)
 				if( m_pProbability )
 				{
 					m_pProbability->Set_Value(x, y, Get_Probability(Model, Sample));
+				}
+			}
+			else
+			{
+				m_pClasses->Set_NoData(x, y);
+
+				if( m_pProbability )
+				{
+					m_pProbability->Set_NoData(x, y);
 				}
 			}
 		}
@@ -576,7 +584,7 @@ bool COpenCV_ML::_Get_Training(CSG_Matrix &Data, CSG_Table_Record *pClass, CSG_T
 //---------------------------------------------------------
 bool COpenCV_ML::_Get_Training(CSG_Matrix &Data, CSG_Table_Record *pClass, CSG_Shape_Polygon *pPolygon)
 {
-	int n = 0; double r = 0., g = 0., b = 0.; CSG_Vector z(1 + (sLong)m_pFeatures->Get_Grid_Count());
+	int n = 0; double r = 0., g = 0., b = 0.; CSG_Vector Features(m_pFeatures->Get_Grid_Count()), z(1 + (sLong)m_pFeatures->Get_Grid_Count());
 
 	for(int i=0; i<pPolygon->Get_Part_Count(); i++)
 	{
@@ -591,13 +599,13 @@ bool COpenCV_ML::_Get_Training(CSG_Matrix &Data, CSG_Table_Record *pClass, CSG_S
 
 			for(int y=yMin; y<=yMax; y++) for(int x=xMin; x<=xMax; x++)
 			{
-				if( !m_pClasses->is_NoData(x, y) && pPart->Contains(Get_System().Get_Grid_to_World(x, y)) )
+				if( pPart->Contains(Get_System().Get_Grid_to_World(x, y)) && _Get_Features(x, y, Features) )
 				{
 					z[m_pFeatures->Get_Grid_Count()] = pClass->asInt(CLASS_ID);
 
 					for(int i=0; i<m_pFeatures->Get_Grid_Count(); i++)
 					{
-						z[i] = _Get_Feature(x, y, i);
+						z[i] = Features[i];
 					}
 
 					Data.Add_Row(z);
