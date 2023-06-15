@@ -213,6 +213,12 @@ COpenCV_ML_SVM::COpenCV_ML_SVM(void)
 		"Support Vector Machine classification of gridded features."
 	));
 
+	Add_Reference("Change, C.-C. & Lin, C.-J.", "2011",
+		"Libsvm: a library for support vector machines",
+		"ACM Transactions on Intelligent Systems and Technology (TIST), 2(3):27.",
+		SG_T("https://doi.org/10.1145/1961189.1961199"), SG_T("doi:10.1145/1961189.1961199")
+	);
+
 	//-----------------------------------------------------
 	Parameters.Add_Choice("MODEL_TRAIN",
 		"SVM_TYPE"	, _TL("SVM Type"),
@@ -514,6 +520,12 @@ COpenCV_ML_RTrees::COpenCV_ML_RTrees(void)
 		"Integration of the OpenCV Machine Learning library for "
 		"Random Forest classification of gridded features."
 	));
+
+	Add_Reference("Breiman, L.", "2001",
+		"Random Forests",
+		"Machine Learning, 45 (1): 5–32.",
+		SG_T("https://doi.org/10.1023%2FA%3A1010933404324"), SG_T("doi:10.1023/A:1010933404324")
+	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Int("MODEL_TRAIN",

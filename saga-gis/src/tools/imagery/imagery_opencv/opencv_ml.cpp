@@ -78,7 +78,9 @@ enum
 //---------------------------------------------------------
 COpenCV_ML::COpenCV_ML(bool bProbability)
 {
-	Add_Reference("https://docs.opencv.org/", SG_T("Open Source Computer Vision"));
+	Add_Reference("https://docs.opencv.org/", SG_T("OpenCV - Open Source Computer Vision"));
+
+	Add_Reference("https://docs.opencv.org/4.x/dc/dd6/ml_intro.html", SG_T("OpenCV - Machine Learning Overview"));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List("",
