@@ -88,7 +88,7 @@ CSG_3DView_Canvas::CSG_3DView_Canvas(void)
 	m_BoxBuffer   = 0.01;
 	m_bStereo     = false;
 	m_dStereo     = 1.;
-	m_North       = 0;
+	m_North       = 1;
 	m_North_Size  = 15.;
 	m_Labels      = 0;
 	m_Label_Res   = 50;
