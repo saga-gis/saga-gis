@@ -16,7 +16,8 @@
 		<option varname="GRID_SYSTEM" type="grid_system">
 			<name>Grid System</name>
 		</option>
-		<input varname="FEATURES" type="grid_list" parent="GRID_SYSTEM">
+
+		<input varname="FEATURES" type="grid_list" no_system="true">
 			<name>Features</name>
 		</input>
 		<option varname="NORMALIZE" type="boolean" parent="FEATURES">
@@ -81,7 +82,7 @@
 		<datalist type='grid_list'>CLASSIFICATIONS</datalist>
 
 		<condition value="true" type="=" variable="CLASSIFY_BOX">
-			<tool library="imagery_classification" tool="0" name="Supervised Image Classification">
+			<tool library="imagery_classification" tool="0" name="Supervised Image Classification" grid_system="GRID_SYSTEM">
 				<option id="METHOD">1</option>
 				<option id="TRAIN_WITH" varname="true">MODEL_TRAIN</option>
 				<input  id="TRAIN_SAMPLES">TRAIN_SAMPLES</input>
@@ -95,7 +96,7 @@
 		</condition>
 
 		<condition value="1" type="=" variable="CLASSIFY_MINDIST">
-			<tool library="imagery_classification" tool="0" name="Supervised Image Classification">
+			<tool library="imagery_classification" tool="0" name="Supervised Image Classification" grid_system="GRID_SYSTEM">
 				<option id="METHOD">2</option>
 				<option id="TRAIN_WITH" varname="true">MODEL_TRAIN</option>
 				<input  id="TRAIN_SAMPLES">TRAIN_SAMPLES</input>
@@ -109,7 +110,7 @@
 		</condition>
 
 		<condition value="1" type="=" variable="CLASSIFY_MAHALONOBIS">
-			<tool library="imagery_classification" tool="0" name="Supervised Image Classification">
+			<tool library="imagery_classification" tool="0" name="Supervised Image Classification" grid_system="GRID_SYSTEM">
 				<option id="METHOD">3</option>
 				<option id="TRAIN_WITH" varname="true">MODEL_TRAIN</option>
 				<input  id="TRAIN_SAMPLES">TRAIN_SAMPLES</input>
@@ -123,7 +124,7 @@
 		</condition>
 
 		<condition value="1" type="=" variable="CLASSIFY_MAXLIKE">
-			<tool library="imagery_classification" tool="0" name="Supervised Image Classification">
+			<tool library="imagery_classification" tool="0" name="Supervised Image Classification" grid_system="GRID_SYSTEM">
 				<option id="METHOD">4</option>
 				<option id="TRAIN_WITH" varname="true">MODEL_TRAIN</option>
 				<input  id="TRAIN_SAMPLES">TRAIN_SAMPLES</input>
@@ -137,7 +138,7 @@
 		</condition>
 
 		<condition value="1" type="=" variable="CLASSIFY_SAM">
-			<tool library="imagery_classification" tool="0" name="Supervised Image Classification">
+			<tool library="imagery_classification" tool="0" name="Supervised Image Classification" grid_system="GRID_SYSTEM">
 				<option id="METHOD">5</option>
 				<option id="TRAIN_WITH" varname="true">MODEL_TRAIN</option>
 				<input  id="TRAIN_SAMPLES">TRAIN_SAMPLES</input>
@@ -151,7 +152,7 @@
 		</condition>
 
 		<condition value="1" type="=" variable="CLASSIFY_BAYES">
-			<tool library="imagery_opencv" tool="5" name="Normal Bayes Classification">
+			<tool library="imagery_opencv" tool="5" name="Normal Bayes Classification" grid_system="GRID_SYSTEM">
 
 				<option id="MODEL_TRAIN" varname="true">MODEL_TRAIN</option>
 				<input  id="TRAIN_SAMPLES">TRAIN_SAMPLES</input>
@@ -165,7 +166,7 @@
 		</condition>
 
 		<condition value="1" type="=" variable="CLASSIFY_DT">
-			<tool library="imagery_opencv" tool="8" name="Decision Tree Classification">
+			<tool library="imagery_opencv" tool="8" name="Decision Tree Classification" grid_system="GRID_SYSTEM">
 				<option id="MAX_DEPTH">10</option>
 				<option id="MIN_SAMPLES">2</option>
 				<option id="MAX_CATEGRS">10</option>
@@ -185,7 +186,7 @@
 		</condition>
 
 		<condition value="1" type="=" variable="CLASSIFY_RF">
-			<tool library="imagery_opencv" tool="10" name="Random Forest Classification">
+			<tool library="imagery_opencv" tool="10" name="Random Forest Classification" grid_system="GRID_SYSTEM">
 				<option id="MAX_DEPTH">10</option>
 				<option id="MIN_SAMPLES">2</option>
 				<option id="MAX_CATEGRS">10</option>
@@ -206,7 +207,7 @@
 		</condition>
 
 		<condition value="1" type="=" variable="CLASSIFY_SVM">
-			<tool library="imagery_opencv" tool="7" name="Support Vector Machine Classification">
+			<tool library="imagery_opencv" tool="7" name="Support Vector Machine Classification" grid_system="GRID_SYSTEM">
 				<option id="SVM_TYPE">0</option>
 				<option id="C">5</option>
 				<option id="KERNEL">5</option>
@@ -223,7 +224,7 @@
 		</condition>
 
 		<condition value="1" type="=" variable="CLASSIFY_KNN">
-			<tool library="imagery_opencv" tool="6" name="K-Nearest Neighours Classification">
+			<tool library="imagery_opencv" tool="6" name="K-Nearest Neighours Classification" grid_system="GRID_SYSTEM">
 				<option id="NEIGHBOURS">3</option>
 				<option id="TRAINING">0</option>
 				<option id="ALGORITHM">0</option>
@@ -240,7 +241,7 @@
 		</condition>
 
 		<condition value="1" type="=" variable="CLASSIFY_ANN">
-			<tool library="imagery_opencv" tool="11" name="Artificial Neural Network Classification">
+			<tool library="imagery_opencv" tool="11" name="Artificial Neural Network Classification" grid_system="GRID_SYSTEM">
 				<option id="ANN_LAYERS">3</option>
 				<option id="ANN_NEURONS">5</option>
 				<option id="ANN_MAXITER">300</option>

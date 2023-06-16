@@ -76,7 +76,7 @@ CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 	Parameters.Add_Grid_List("",
 		"GRIDS"			, _TL("Features"),
 		_TL(""),
-		PARAMETER_INPUT
+		PARAMETER_INPUT, false
 	);
 
 	Parameters.Add_Bool("GRIDS",
@@ -164,7 +164,7 @@ CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 	//-----------------------------------------------------
 	CSG_String Methods;
 
-	for(int i=0; i<=SG_CLASSIFY_SUPERVISED_WTA; i++)
+	for(int i=0; i<SG_CLASSIFY_SUPERVISED_WTA; i++)
 	{
 		Methods	+= CSG_Classifier_Supervised::Get_Name_of_Method(i) + "|";
 	}
@@ -346,12 +346,24 @@ bool CGrid_Classify_Supervised::Get_Features(int x, int y, CSG_Vector &Features)
 	{
 		CSG_Grid *pFeature = m_pFeatures->Get_Grid(i);
 
-		if( pFeature->is_NoData(x, y) )
+		if( pFeature->Get_System().is_Equal(Get_System()) )
+		{
+			if( pFeature->is_NoData(x, y) )
+			{
+				return( false );
+			}
+
+			Features[i] = pFeature->asDouble(x, y);
+		}
+		else if( pFeature->Get_Value(Get_System().Get_Grid_to_World(x, y), Features[i]) == false )
 		{
 			return( false );
 		}
 
-		Features[i] = m_bNormalize && pFeature->Get_StdDev() > 0. ? (pFeature->asDouble(x, y) - pFeature->Get_Mean()) / pFeature->Get_StdDev() : pFeature->asDouble(x, y);
+		if( m_bNormalize && pFeature->Get_StdDev() > 0. )
+		{
+			Features[i] = (Features[i] - pFeature->Get_Mean()) / pFeature->Get_StdDev();
+		}
 	}
 
 	return( true );

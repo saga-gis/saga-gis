@@ -455,7 +455,7 @@ wxMenu * CWKSP_Base_Control::Get_Menu(void)
 //---------------------------------------------------------
 bool CWKSP_Base_Control::_Del_Active(bool bSilent)
 {
-	if( m_pManager->Get_Type() == WKSP_ITEM_Data_Manager && PROCESS_is_Executing() )	// never allow data deletion during tool execution!
+	if( PROCESS_is_Executing() && m_pManager->Get_Type() != WKSP_ITEM_Map_Manager )	// never allow tool or data deletion while a tool is running!
 	{
 		return( false );
 	}

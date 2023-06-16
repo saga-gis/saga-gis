@@ -1000,7 +1000,7 @@ void CVIEW_Map_Control::On_Mouse_MDown(wxMouseEvent &event)
 
 	//-----------------------------------------------------
 	case MAP_MODE_SELECT:
-		if( _Check_Interactive() )
+		if( _Check_Interactive() && (event.ShiftDown() || event.AltDown() || event.ControlDown())  )
 		{
 			g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_MDOWN, GET_KEYS(event));
 		}

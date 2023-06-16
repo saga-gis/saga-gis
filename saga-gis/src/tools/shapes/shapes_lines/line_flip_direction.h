@@ -1,4 +1,3 @@
-
 ///////////////////////////////////////////////////////////
 //                                                       //
 //                         SAGA                          //
@@ -6,15 +5,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                      ta_lighting                      //
+//                     shapes_lines                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  clouds_and_shadows.h                 //
+//                 line_flip_direction.h                 //
 //                                                       //
-//                  Copyrights (c) 2023                  //
-//                  Justus Spitzmüller                   //
-//                     Olaf Conrad                       //
+//                 Copyright (C) 2023 by                 //
+//                    Volker Wichmann                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,18 +35,28 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     wichmann@laserdata.at                  //
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Hamburg                  //
-//                Germany                                //
+//    contact:    Volker Wichmann                        //
+//                LASERDATA GmbH                         //
+//                Management and analysis of             //
+//                laserscanning data                     //
+//                Innsbruck, Austria                     //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__clouds_and_shadows_H
-#define HEADER_INCLUDED__clouds_and_shadows_H
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifndef HEADER_INCLUDED__line_flip_direction_H
+#define HEADER_INCLUDED__line_flip_direction_H
 
 
 ///////////////////////////////////////////////////////////
@@ -58,7 +66,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <saga_api/saga_api.h>
+#include "MLB_Interface.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -68,78 +76,17 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CDetect_Clouds : public CSG_Tool_Grid
+class CLine_Flip_Direction : public CSG_Tool  
 {
 public:
-	CDetect_Clouds(void);
-
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Imagery|Feature Extraction") );	}
+	CLine_Flip_Direction(void);
 
 
 protected:
 
-	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
-	virtual bool				On_Execute				(void);
-
+	virtual bool			On_Execute			(void);
 
 private:
-
-	bool						m_bCelsius { false };
-
-	CSG_Grid					*m_pBand[8];
-
-
-	bool						Get_Brightness			(int x, int y, double &b, double &g, double &r, double &nir, double &swir1, double &swir2, double &tir, double &cirr);
-	int							Get_Fmask				(int x, int y);
-	bool						Set_Fmask				(CSG_Grid *pClouds);
-
-	bool						Set_ACCA				(CSG_Grid *pClouds);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CDetect_CloudShadows : public CSG_Tool_Grid
-{
-public:
-	CDetect_CloudShadows(void);
-
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Imagery|Feature Extraction") );	}
-
-
-protected:
-
-	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
-	virtual bool				On_Execute				(void);
-
-
-private:
-
-	CSG_Table					*m_pInfo { NULL };
-
-	CSG_Grid					m_Correction;
-
-
-	CSG_Grid *					Get_Target				(void);
-
-	bool						Get_Candidates			(CSG_Grid &Candidates);
-
-	double						Get_Correction			(double dx, double dy, double dz, CSG_Grid *pDEM, int x, int y);
-	bool						Get_Correction			(double dx, double dy, double dz);
-	bool						Get_Correction			(double dx, double dy, int &x, int &y);
-
-	bool						Get_Cloud				(CSG_Grid_Stack &Cloud, const CSG_Grid *pClouds);
-	bool						Get_Cloud				(CSG_Grid_Stack &Cloud,       CSG_Grid *pClouds, int x, int y, CSG_Grid *pID);
-
-	bool						Find_Shadow				(CSG_Grid *pShadows, CSG_Grid &Candidates, const CSG_Grid_Stack &Cloud, double zRange[2], double dx, double dy, double dz);
 
 };
 
@@ -151,4 +98,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__clouds_and_shadows_H
+#endif // #ifndef HEADER_INCLUDED__line_flip_direction_H

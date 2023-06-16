@@ -88,7 +88,7 @@ CPoint_Multi_Grid_Regression::CPoint_Multi_Grid_Regression(void)
 	Parameters.Add_Shapes("",
 		"POINTS"		, _TL("Points"),
 		_TL(""),
-		PARAMETER_INPUT
+		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Table_Field("POINTS",
@@ -123,7 +123,7 @@ CPoint_Multi_Grid_Regression::CPoint_Multi_Grid_Regression(void)
 	Parameters.Add_Grid("",
 		"REGRESSION"	, _TL("Regression"),
 		_TL("regression model applied to predictor grids"),
-		PARAMETER_OUTPUT
+		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Grid("",

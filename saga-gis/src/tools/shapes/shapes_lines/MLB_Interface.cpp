@@ -108,6 +108,7 @@ CSG_String Get_Info(int i)
 #include "extract_closed_lines.h"
 #include "line_split.h"
 #include "line_parts_to_separate_lines.h"
+#include "line_flip_direction.h"
 
 
 //---------------------------------------------------------
@@ -130,8 +131,9 @@ CSG_Tool *		Create_Tool(int i)
     case 10:    return( new CExtract_Closed_Lines );
 	case 11:	return( new CCut_Lines );
 	case 12:	return( new CLine_Parts_to_Separate_Lines );
+	case 13:	return( new CLine_Flip_Direction );
 
-	case 13:	return( NULL );
+	case 14:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

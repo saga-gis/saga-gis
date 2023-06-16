@@ -1391,6 +1391,20 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 	}
 
 	//-----------------------------------------------------
+	if( Tool.Get_Property("grid_system") )
+	{
+		CSG_Parameter *pParameter = Parameters(Tool.Get_Property("grid_system"));
+
+		if( pParameter && pParameter->asGrid_System() )
+		{
+			if( !pTool->Set_Grid_System(*pParameter->asGrid_System()) )
+			{
+				Message_Fmt("\n%s: %s\n", _TL("Warning"), _TL("failed to set tool's grid system"));
+			}
+		}
+	}
+
+	//-----------------------------------------------------
 	for(int i=0; i<Tool.Get_Children_Count(); i++)	// initialize all options first, some might en-/disable mandatory input data
 	{
 		const CSG_MetaData &Parameter = Tool[i]; if( !Parameter.Cmp_Name("option") ) { continue; }

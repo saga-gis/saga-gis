@@ -49,6 +49,9 @@
 //---------------------------------------------------------
 #include "TerrainFlooding.h"
 
+#include <queue>
+#include <set>
+
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -122,19 +125,19 @@ bool CTerrainFloodingBase::Create(CSG_Parameters &Parameters, bool bInteractive)
 //---------------------------------------------------------
 bool CTerrainFloodingBase::Initialize(const CSG_Parameters &Parameters)
 {
-	m_pDEM				= Parameters("DEM")->asGrid();
-	m_pWaterBody		= Parameters("WATER_BODY")->asGrid();
-	m_pFlooded			= Parameters("DEM_FLOODED")->asGrid();
-	m_dWaterLevel		= Parameters("WATER_LEVEL")->asDouble();
-	m_iLevelReference	= Parameters("LEVEL_REFERENCE")->asInt();
-	m_bConstantLevel	= Parameters("CONSTANT_LEVEL")->asBool();
+	           m_pDEM = Parameters("DEM"            )->asGrid();
+	     m_pWaterBody = Parameters("WATER_BODY"     )->asGrid();
+	       m_pFlooded = Parameters("DEM_FLOODED"    )->asGrid();
+	    m_dWaterLevel = Parameters("WATER_LEVEL"    )->asDouble();
+	m_iLevelReference = Parameters("LEVEL_REFERENCE")->asInt();
+	 m_bConstantLevel = Parameters("CONSTANT_LEVEL" )->asBool();
 
 	m_pWaterBody->Assign_NoData();
 	m_pWaterBody->Set_Max_Samples(m_pWaterBody->Get_NCells());
 
-	if (m_pFlooded == NULL)
+	if( m_pFlooded == NULL )
 	{
-		m_pFlooded = SG_Create_Grid(m_pDEM);
+		m_pFlooded = &m_Flooded; m_Flooded.Create(m_pDEM);
 	}
 
 	m_pFlooded->Assign(m_pDEM);
@@ -146,90 +149,94 @@ bool CTerrainFloodingBase::Initialize(const CSG_Parameters &Parameters)
 //---------------------------------------------------------
 bool CTerrainFloodingBase::Finalize(const CSG_Parameters &Parameters)
 {
-	if( Parameters("DEM_FLOODED")->asGrid() == NULL )
-	{
-		delete( m_pFlooded );
-	}
+	m_Flooded.Destroy();
 
 	return( true );
 }
 
 
 //---------------------------------------------------------
-bool CTerrainFloodingBase::Set_Flooding(double xWorld, double yWorld, double dWaterLevel, bool bShow)
+bool CTerrainFloodingBase::Set_Flooding(double xWorld, double yWorld, double dWaterLevel, bool bShow, bool bReset)
 {
-	int x = m_pDEM->Get_System().Get_xWorld_to_Grid(xWorld);
-	int y = m_pDEM->Get_System().Get_yWorld_to_Grid(yWorld);
+	CSG_Grid_System System(m_pDEM->Get_System());
 
-	if( m_pDEM->is_InGrid(x, y, true) )
+	int x = System.Get_xWorld_to_Grid(xWorld);
+	int y = System.Get_yWorld_to_Grid(yWorld);
+
+	if( !m_pDEM->is_InGrid(x, y, true) )
 	{
-		double dWaterHeight = dWaterLevel;
-
-		if( m_iLevelReference == 0 )
-		{
-			dWaterHeight += m_pDEM->asDouble(x, y);
-		}
-
-		if( dWaterHeight > m_pFlooded->asDouble(x, y) )
-		{
-			m_pWaterBody->Set_Value(x, y, dWaterHeight - m_pDEM->asDouble(x, y));
-			m_pFlooded->Set_Value(x, y, dWaterHeight);
-
-			std::queue<sLong>	qFIFO;
-
-			sLong n = m_pDEM->Get_System().Get_IndexFromRowCol(x, y);
-
-			qFIFO.push(n);
-
-			while( qFIFO.size() > 0 && SG_UI_Process_Get_Okay() )
-			{
-				n = qFIFO.front();
-
-				m_pDEM->Get_System().Get_RowColFromIndex(x, y, n);
-
-				if( m_iLevelReference == 0 && !m_bConstantLevel )
-				{
-					dWaterHeight = m_pDEM->asDouble(x, y) + dWaterLevel;
-
-					m_pWaterBody->Set_Value(x, y, dWaterLevel);
-					m_pFlooded->Set_Value(x, y, dWaterHeight);
-				}
-
-				for(int i=0, ix, iy; i<8; i++)
-				{
-					if( m_pDEM->Get_System().Get_Neighbor_Pos(i, x, y, ix, iy) && !m_pFlooded->is_NoData(ix, iy) )
-					{
-						if( m_iLevelReference == 0 && !m_bConstantLevel && !m_pWaterBody->is_NoData(ix, iy) )
-						{
-							continue;
-						}
-
-						if( m_pFlooded->asDouble(ix, iy) < dWaterHeight )
-						{
-							m_pWaterBody->Set_Value(ix, iy, dWaterHeight - m_pDEM->asDouble(ix, iy));
-							m_pFlooded->Set_Value(ix, iy, dWaterHeight);
-
-							n = m_pDEM->Get_System().Get_IndexFromRowCol(ix, iy);
-
-							qFIFO.push(n);
-						}
-					}
-				}
-
-				qFIFO.pop();
-			}
-		}
-
-		int iUpdate = bShow ? SG_UI_DATAOBJECT_SHOW_MAP_ACTIVE : SG_UI_DATAOBJECT_UPDATE;
-		
-		CSG_Parameters Parameters;
-		Parameters.Add_Range("", "METRIC_ZRANGE", "", "", m_pWaterBody->Get_Min(), m_pWaterBody->Get_Max());
-		SG_UI_DataObject_Update(m_pWaterBody, iUpdate, &Parameters);
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	if( bReset )
+	{
+		m_pWaterBody->Assign_NoData();
+		m_pFlooded  ->Assign(m_pDEM);
+	}
+
+	double dWaterHeight = dWaterLevel;
+
+	if( m_iLevelReference == 0 )
+	{
+		dWaterHeight += m_pDEM->asDouble(x, y);
+	}
+
+	//-----------------------------------------------------
+	if( dWaterHeight > m_pFlooded->asDouble(x, y) )
+	{
+		CSG_Grid Processed(System, SG_DATATYPE_Bit);
+
+		m_pWaterBody->Set_Value(x, y, dWaterHeight - m_pDEM->asDouble(x, y));
+		m_pFlooded  ->Set_Value(x, y, dWaterHeight);
+		Processed    .Set_Value(x, y, 1);
+
+		CSG_Grid_Stack Stack; Stack.Push(x, y);
+
+		while( Stack.Get_Size() > 0 && SG_UI_Process_Get_Okay() )
+		{
+			Stack.Pop(x, y);
+
+			if( m_iLevelReference == 0 && !m_bConstantLevel )
+			{
+				dWaterHeight = m_pDEM->asDouble(x, y) + dWaterLevel;
+
+				m_pWaterBody->Set_Value(x, y, dWaterLevel);
+				m_pFlooded  ->Set_Value(x, y, dWaterHeight);
+			}
+
+			for(int i=0; i<8; i++)
+			{
+				int ix = System.Get_xTo(i, x), iy = System.Get_yTo(i, y);
+
+				if( System.is_InGrid(ix, iy) && !Processed.asInt(ix, iy) && !m_pFlooded->is_NoData(ix, iy) )
+				{
+					if( m_iLevelReference == 0 && !m_bConstantLevel && !m_pWaterBody->is_NoData(ix, iy) )
+					{
+						continue;
+					}
+
+					if( m_pFlooded->asDouble(ix, iy) < dWaterHeight )
+					{
+						m_pWaterBody->Set_Value(ix, iy, dWaterHeight - m_pDEM->asDouble(ix, iy));
+						m_pFlooded  ->Set_Value(ix, iy, dWaterHeight);
+						Processed    .Set_Value(ix, iy, 1);
+
+						Stack.Push(ix, iy);
+					}
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	int iUpdate = bShow ? SG_UI_DATAOBJECT_SHOW_MAP_ACTIVE : SG_UI_DATAOBJECT_UPDATE;
+		
+	CSG_Parameters Parameters;
+	Parameters.Add_Range("", "METRIC_ZRANGE", "", "", m_pWaterBody->Get_Min(), m_pWaterBody->Get_Max());
+	SG_UI_DataObject_Update(m_pWaterBody, iUpdate, &Parameters);
+
+	return( SG_UI_Process_Get_Okay() );
 }
 
 
@@ -256,8 +263,8 @@ CTerrainFlooding::CTerrainFlooding(void)
 		"surfaces, e.g. along a river, can be modelled. Note that this usually requires "
 		"rather small relative water levels in order to prevent the flooding of the "
 		"complete DEM; the functionality is most suited to generate a segment (connected "
-		"component) of a river bed.\n\n")
-	);
+		"component) of a river bed.\n"
+	));
 
 	Create(Parameters, false);
 
@@ -276,7 +283,7 @@ int CTerrainFlooding::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 		pParameters->Set_Enabled("CONSTANT_LEVEL", pParameter->asInt() == 0);
 	}
 
-	return( 1 );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -290,8 +297,7 @@ bool CTerrainFlooding::On_Execute(void)
 	Initialize(Parameters);
 
 	CSG_Shapes *pPoints = Parameters("SEEDS")->asShapes();
-	int			iField	= Parameters("WATER_LEVEL")->asInt();
-	
+	int          iField = Parameters("WATER_LEVEL")->asInt();
 
 	//-----------------------------------------------------
 	for(sLong iPoint=0; iPoint<pPoints->Get_Count() && Process_Get_Okay(); iPoint++)
@@ -336,8 +342,12 @@ CTerrainFloodingInteractive::CTerrainFloodingInteractive(void)
 		"component) of a river bed.\n\n")
 	);
 
-	Create(Parameters, true);
-	
+	Create(Parameters, true);	
+
+	Parameters.Add_Bool("WATER_LEVEL", "CUMULATIVE", _TL("Cumulative"),
+		_TL("Do not reset the water body grid before water level is calculated for the next point clicked."),
+		false
+	);
 }
 
 
@@ -353,7 +363,7 @@ int CTerrainFloodingInteractive::On_Parameters_Enable(CSG_Parameters *pParameter
 		pParameters->Set_Enabled("CONSTANT_LEVEL", pParameter->asInt() == 0);
 	}
 
-	return( 1 );
+	return( CSG_Tool_Grid_Interactive::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -382,12 +392,26 @@ bool CTerrainFloodingInteractive::On_Execute_Finish(void)
 //---------------------------------------------------------
 bool CTerrainFloodingInteractive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
-	//-----------------------------------------------------
+	static bool bBusy = false;
+
 	if( Mode == TOOL_INTERACTIVE_LDOWN )
 	{
-		Set_Progress(50.0, 100.0);
-	
-		return( Set_Flooding(ptWorld.x, ptWorld.y, m_dWaterLevel, true) );
+		if( bBusy == false )
+		{
+			bBusy = true;
+
+			Process_Set_Text("%s...", _TL("Processing"));
+
+			SG_UI_Progress_Lock(true);
+			bool bResult = Set_Flooding(ptWorld.x, ptWorld.y, m_dWaterLevel, true, !Parameters("CUMULATIVE")->asBool());
+			SG_UI_Progress_Lock(false);
+
+			SG_UI_Process_Set_Okay();
+
+			bBusy = false;
+
+			return( bResult );
+		}
 	}
 
 	return( false );
