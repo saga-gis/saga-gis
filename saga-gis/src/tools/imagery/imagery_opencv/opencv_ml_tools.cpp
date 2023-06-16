@@ -523,7 +523,7 @@ COpenCV_ML_RTrees::COpenCV_ML_RTrees(void)
 
 	Add_Reference("Breiman, L.", "2001",
 		"Random Forests",
-		"Machine Learning, 45 (1): 5–32.",
+		"Machine Learning, 45 (1): 5-32.",
 		SG_T("https://doi.org/10.1023%2FA%3A1010933404324"), SG_T("doi:10.1023/A:1010933404324")
 	);
 
