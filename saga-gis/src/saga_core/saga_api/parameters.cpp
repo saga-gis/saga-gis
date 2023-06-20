@@ -1516,16 +1516,16 @@ bool CSG_Parameters::DataObjects_Check(bool bSilent)
 //---------------------------------------------------------
 bool CSG_Parameters::DataObjects_Create(void)
 {
-	bool	bResult	= true;
+	bool bResult = true;
 
 	for(int i=0; i<Get_Count() && bResult; i++)
 	{
-		CSG_Parameter	*p	= m_Parameters[i];
+		CSG_Parameter *p = m_Parameters[i];
 
 		//-------------------------------------------------
 		if( p->Get_Type() == PARAMETER_TYPE_Parameters )
 		{
-			bResult	= p->asParameters()->DataObjects_Create();
+			bResult = p->asParameters()->DataObjects_Create();
 		}
 		else if( p->Get_Type() == PARAMETER_TYPE_DataObject_Output )
 		{
@@ -1536,7 +1536,7 @@ bool CSG_Parameters::DataObjects_Create(void)
 		}
 		else if( p->is_Input() )
 		{
-			bResult	= !p->is_Enabled() || p->Check(true);
+			bResult = !p->is_Enabled() || p->Check(true);
 		}
 
 		//-------------------------------------------------
@@ -1564,9 +1564,9 @@ bool CSG_Parameters::DataObjects_Create(void)
 		{
 			CSG_Data_Object *pDataObject = p->asDataObject();
 
-			if(	(pDataObject == DATAOBJECT_CREATE)
-			||	(pDataObject == DATAOBJECT_NOTSET && !p->is_Optional())
-			||	(pDataObject != DATAOBJECT_NOTSET && m_pManager && !m_pManager->Exists(pDataObject)) )
+			if( (pDataObject == DATAOBJECT_CREATE)
+			||  (pDataObject == DATAOBJECT_NOTSET && !p->is_Optional())
+			||  (pDataObject != DATAOBJECT_NOTSET && m_pManager && !m_pManager->Exists(pDataObject)) )
 			{
 				pDataObject = NULL;
 
@@ -1587,11 +1587,11 @@ bool CSG_Parameters::DataObjects_Create(void)
 					{
 						if( p->Get_Type() == PARAMETER_TYPE_Grid )
 						{
-							pDataObject	= SG_Create_Grid(*p->Get_Parent()->asGrid_System(), ((CSG_Parameter_Grid *)p)->Get_Preferred_Type());
+							pDataObject = SG_Create_Grid(*p->Get_Parent()->asGrid_System(), ((CSG_Parameter_Grid *)p)->Get_Preferred_Type());
 						}
 						else
 						{
-							pDataObject	= SG_Create_Grids(*p->Get_Parent()->asGrid_System(), 0, 0.0, ((CSG_Parameter_Grids *)p)->Get_Preferred_Type());
+							pDataObject = SG_Create_Grids(*p->Get_Parent()->asGrid_System(), 0, 0.0, ((CSG_Parameter_Grids *)p)->Get_Preferred_Type());
 						}
 					}
 					break;
@@ -1614,6 +1614,7 @@ bool CSG_Parameters::DataObjects_Create(void)
 				if( p->Set_Value(pDataObject) )
 				{
 					pDataObject->Set_Name(p->Get_Name());
+					pDataObject->Get_MetaData().Del_Children();
 
 					if( m_pManager )
 					{
@@ -1624,12 +1625,12 @@ bool CSG_Parameters::DataObjects_Create(void)
 				{
 					delete(pDataObject);
 
-					bResult	= false;
+					bResult = false;
 				}
 			}
 			else
 			{
-				bResult	= p->is_Optional();
+				bResult = p->is_Optional();
 			}
 		}
 	}
