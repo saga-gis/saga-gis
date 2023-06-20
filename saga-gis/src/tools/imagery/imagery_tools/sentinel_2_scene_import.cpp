@@ -471,6 +471,23 @@ bool CSentinel_2_Scene_Import::Load_Metadata(const CSG_String &File, CSG_MetaDat
 		Image = Metadata["n1:General_Info"]["Product_Image_Characteristics"];
 	}
 
+	CSG_String _File(Granule.Get_Content(0)); _File = SG_File_Get_Path(File) + "/GRANULE/" + _File.AfterFirst('/').BeforeFirst('/') + "/MTD_TL.xml";
+
+	if( Metadata.Load(_File)
+	&&  Metadata("n1:Geometric_Info")
+	&&  Metadata["n1:Geometric_Info"]("Tile_Angles")
+	&&  Metadata["n1:Geometric_Info"]["Tile_Angles"]("Mean_Sun_Angle") )
+	{
+		double Azimuth, Zenith;
+
+		if( Metadata["n1:Geometric_Info"]["Tile_Angles"]["Mean_Sun_Angle"].Get_Content("AZIMUTH_ANGLE", Azimuth)
+		&&  Metadata["n1:Geometric_Info"]["Tile_Angles"]["Mean_Sun_Angle"].Get_Content( "ZENITH_ANGLE", Zenith ) )
+		{
+			General.Add_Child("SUN_AZIMUTH",      Azimuth);
+			General.Add_Child("SUN_HEIGHT" , 90. - Zenith);
+		}
+	}
+
 	return( true );
 }
 
