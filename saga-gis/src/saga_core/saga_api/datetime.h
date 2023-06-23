@@ -253,6 +253,9 @@ public:
 
 
 	//-----------------------------------------------------
+	CSG_DateTime				From_UTC				(bool noDST = false)	const;
+	CSG_DateTime				To_UTC					(bool noDST = false)	const;
+
 	CSG_DateTime &				Make_UTC				(bool noDST = false);
 
 	bool						is_DST					(void)	const;

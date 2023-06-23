@@ -277,6 +277,20 @@ CSG_DateTime & CSG_DateTime::Reset_Time(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_DateTime CSG_DateTime::From_UTC(bool noDST) const
+{
+	return( CSG_DateTime(m_pDateTime->FromUTC(noDST).GetJDN()) );
+
+//	CSG_DateTime dt; dt.m_pDateTime->Set(m_pDateTime->FromUTC(noDST).GetTm()); return( dt );
+}
+
+//---------------------------------------------------------
+CSG_DateTime CSG_DateTime::To_UTC(bool noDST) const
+{
+	return( CSG_DateTime(m_pDateTime->ToUTC(noDST).GetJDN()) );
+}
+
+//---------------------------------------------------------
 CSG_DateTime & CSG_DateTime::Make_UTC(bool noDST)
 {
 	m_pDateTime->MakeUTC(noDST);

@@ -66,6 +66,59 @@ enum
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool Get_Sun_Position(CSG_Grid *pGrid, double &Azimuth, double &Height)
+{
+	if( pGrid )
+	{
+		CSG_MetaData &MetaData = pGrid->Get_Owner() ? pGrid->Get_Owner()->Get_MetaData() : pGrid->Get_MetaData();
+
+		if( MetaData("SUN_AZIMUTH") && MetaData("SUN_HEIGHT") )
+		{
+			return( MetaData.Get_Content("SUN_AZIMUTH", Azimuth)
+				 && MetaData.Get_Content("SUN_HEIGHT" , Height )
+			);
+		}
+
+		if( MetaData("LANDSAT") )
+		{
+			return( MetaData["LANDSAT"].Get_Content("SUN_AZIMUTH"  , Azimuth)
+				 && MetaData["LANDSAT"].Get_Content("SUN_ELEVATION", Height )
+			);
+		}
+
+		if( MetaData("SENTINEL-2") && MetaData["SENTINEL-2"]("SUN_AZIMUTH") && MetaData["SENTINEL-2"]("SUN_HEIGHT") )
+		{
+			return( MetaData["SENTINEL-2"].Get_Content("SUN_AZIMUTH", Azimuth)
+				 && MetaData["SENTINEL-2"].Get_Content("SUN_HEIGHT" , Height )
+			);
+		}
+
+		if( MetaData("SENTINEL-2") && MetaData["SENTINEL-2"]("PRODUCT_START_TIME") ) // estimate from time and location
+		{
+			CSG_DateTime Time; CSG_Point Center(pGrid->Get_Extent().Get_Center());
+
+			if( Time.Parse_Format(MetaData["SENTINEL-2"]["PRODUCT_START_TIME"].Get_Content(), "%Y-%m-%dT%H:%M:%S")
+			&&  SG_Get_Projected(pGrid->Get_Projection(), CSG_Projections::Get_GCS_WGS84(), Center)
+			&&  SG_Get_Sun_Position(Time.From_UTC().Get_JDN(), M_DEG_TO_RAD * Center.x, M_DEG_TO_RAD * Center.y, Height, Azimuth) )
+			{
+				Azimuth *= M_RAD_TO_DEG; Height *= M_RAD_TO_DEG;
+
+				return( true );
+			}
+		}
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CDetect_Clouds::CDetect_Clouds(void)
 {
 	Set_Name		(_TL("Cloud Detection"));
@@ -134,12 +187,6 @@ CDetect_Clouds::CDetect_Clouds(void)
 
 	Parameters.Add_Choice("BAND_THERMAL", "THERMAL_UNIT", _TL("Unit" ), _TL(""), CSG_String::Format("%s|%s", _TL("Kelvin"), _TL("Celsius")), 0);
 
-	Parameters.Add_Bool("",
-		"SHADOWS"    , _TL("Shadow Detection"),
-		_TL("Run cloud shadow detection tool with standard settings."),
-		false
-	);
-
 	//-----------------------------------------------------
 	Parameters.Add_Choice("",
 		"ALGORITHM"  , _TL("Algorithm"),
@@ -182,6 +229,25 @@ CDetect_Clouds::CDetect_Clouds(void)
 		_TL("Include a category for cloud shadows."),
 		false
 	);
+
+	//-----------------------------------------------------
+	Parameters.Add_Bool("",
+		"SHADOWS"    , _TL("Shadow Detection"),
+		_TL("Run cloud shadow detection tool with standard settings."),
+		false
+	);
+
+	Parameters.Add_Double("SHADOWS",
+		"SUN_AZIMUTH" , _TL("Sun's Azimuth"),
+		_TL("Direction of sun clockwise from North [degree]."),
+		-180., 0., true, 360., true
+	);
+
+	Parameters.Add_Double("SHADOWS",
+		"SUN_HEIGHT"  , _TL("Sun's Height"),
+		_TL("Height of sun above horizon [degree]."),
+		45., 0., true,  90., true
+	);
 }
 
 
@@ -192,6 +258,17 @@ CDetect_Clouds::CDetect_Clouds(void)
 //---------------------------------------------------------
 int CDetect_Clouds::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if( pParameter->is_Input() && pParameter->asGrid() )
+	{
+		double Azimuth, Height;
+
+		if( Get_Sun_Position(pParameter->asGrid(), Azimuth, Height) )
+		{
+			pParameters->Set_Parameter("SUN_AZIMUTH", Azimuth);
+			pParameters->Set_Parameter("SUN_HEIGHT" , Height );
+		}
+	}
+
 	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
 }
 
@@ -214,6 +291,11 @@ int CDetect_Clouds::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 		pParameters->Set_Enabled("ACCA_HIST_N" , pParameter->asInt() == 1);
 		pParameters->Set_Enabled("ACCA_CSIG"   , pParameter->asInt() == 1);
 		pParameters->Set_Enabled("ACCA_PASS2"  , pParameter->asInt() == 1);
+	}
+
+	if( pParameter->Cmp_Identifier("SHADOWS") )
+	{
+		pParameter->Set_Children_Enabled(pParameter->asBool());
 	}
 
 	pParameters->Set_Enabled("ACCA_SHADOW" ,
@@ -293,16 +375,14 @@ bool CDetect_Clouds::On_Execute(void)
 
 	for(int i=0; i<8; i++)
 	{
-		if( m_pBand[i] )
-		{
-			CSG_MetaData &MD = m_pBand[i]->Get_Owner() ? m_pBand[i]->Get_Owner()->Get_MetaData() : m_pBand[i]->Get_MetaData();
+		double Azimuth, Height;
 
-			if( MD("LANDSAT") )
-			{
-				pClouds->Get_MetaData().Del_Child("LANDSAT");
-				pClouds->Get_MetaData().Add_Child("LANDSAT")->Add_Children(MD["LANDSAT"]);
-				break;
-			}
+		if( Get_Sun_Position(m_pBand[i], Azimuth, Height) )
+		{
+			pClouds->Get_MetaData().Add_Child("SUN_AZIMUTH", Azimuth);
+			pClouds->Get_MetaData().Add_Child("SUN_HEIGHT" , Height );
+
+			break;
 		}
 	}
 
@@ -332,6 +412,8 @@ bool CDetect_Clouds::On_Execute(void)
 		Tool.Get_Parameter("BANDS_BRIGHTNESS")->asList()->Add_Item(m_pBand[3]);
 		Tool.Get_Parameter("BANDS_BRIGHTNESS")->asList()->Add_Item(m_pBand[4]);
 		Tool.Get_Parameter("BANDS_BRIGHTNESS")->asList()->Add_Item(m_pBand[5]);
+		Tool.Set_Parameter("SUN_AZIMUTH", Parameters("SUN_AZIMUTH"));
+		Tool.Set_Parameter("SUN_HEIGHT" , Parameters("SUN_HEIGHT" ));
 
 		if( (bResult = Tool.Execute()) == true )
 		{
@@ -340,7 +422,7 @@ bool CDetect_Clouds::On_Execute(void)
 			{
 				if( Shadows.asInt(i) && !pClouds->asInt(i) )
 				{
-					pClouds->Set_Value(i, CACCA::IS_SHADOW);
+					pClouds->Set_Value(i, ID_SHADOW);
 				}
 			}
 		}
@@ -589,20 +671,12 @@ int CDetect_CloudShadows::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_
 {
 	if( pParameter->is_Input() && pParameter->asGrid() )
 	{
-		CSG_MetaData &MD = pParameter->asGrid()->Get_Owner()
-			? pParameter->asGrid()->Get_Owner()->Get_MetaData()
-			: pParameter->asGrid()             ->Get_MetaData();
+		double Azimuth, Height;
 
-		if( MD("LANDSAT") )
+		if( Get_Sun_Position(pParameter->asGrid(), Azimuth, Height) )
 		{
-			double Azimuth, Height;
-
-			if( MD["LANDSAT"].Get_Content("SUN_AZIMUTH"  , Azimuth)
-			&&  MD["LANDSAT"].Get_Content("SUN_ELEVATION", Height ) )
-			{
-				pParameters->Set_Parameter("SUN_AZIMUTH", Azimuth);
-				pParameters->Set_Parameter("SUN_HEIGHT" , Height );
-			}
+			pParameters->Set_Parameter("SUN_AZIMUTH", Azimuth);
+			pParameters->Set_Parameter("SUN_HEIGHT" , Height );
 		}
 	}
 
@@ -620,7 +694,7 @@ int CDetect_CloudShadows::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_
 		pParameters->Set_Enabled("CAND_GRID_VALUE" , m == 1);
 		pParameters->Set_Enabled("CAND_GRID_OUT"   , m >= 2);
 
-		pParameters->Set_Enabled("BAND_GREEN"      ,           m == 4);
+		pParameters->Set_Enabled("BAND_GREEN"      , m == 3 || m == 4);
 		pParameters->Set_Enabled("BAND_RED"        , m == 3 || m == 4);
 		pParameters->Set_Enabled("BAND_NIR"        , m == 3 || m == 4);
 		pParameters->Set_Enabled("BANDS_SWIR"      ,           m == 4);
@@ -852,7 +926,7 @@ bool CDetect_CloudShadows::Get_Candidates(CSG_Grid &Candidates)
 				break;
 
 			case  2: { CSG_Simple_Statistics s; for(int i=0; i<pBands->Get_Grid_Count(); i++) { double d; if( pBands->Get_Grid(i)->Get_Value(p, d) ) { s += d; } }
-				bCandidate = s.Get_Count() > 0 && s.Get_Mean()  < Brightness;
+				bCandidate = s.Get_Count() > 0 && s.Get_Mean() < Brightness;
 				break; }
 
 			case  3: if( pG->Get_Value(p, G) && pR->Get_Value(p, R) && pNIR->Get_Value(p, NIR) && pBT->Get_Value(p, BT) )
