@@ -9,10 +9,6 @@ IF "%SAGA_DIR_X64%" == "" (
 	SET SAGA_DIR_X64=%SAGA_ROOT%\bin\saga_x64
 )
 
-IF "%SAGA_DIR_WIN32%" == "" (
-	SET SAGA_DIR_WIN32=%SAGA_ROOT%\bin_win32\saga_Win32
-)
-
 REM ___________________________________
 IF /i "%ARC_VERSION%" == "0" (
 	SET OUTDIR=ArcSAGA Toolboxes 10.1
@@ -31,13 +27,6 @@ COPY "%SAGA_ROOT%\src\tools\develop\dev_tools\ArcSAGA_Grid.lyr" "%OUTDIR%\grid.l
 "%SAGA_DIR_X64%\saga_cmd.exe" dev_tools 5 -BOX_NAMING=1 -ARC_VERSION=%ARC_VERSION% -DIRECTORY="%OUTDIR%"
 
 REM ___________________________________
-IF EXIST "%SAGA_DIR_WIN32%" (
-	IF EXIST "%SAGA_DIR_WIN32%\%OUTDIR%\" (
-		RMDIR /S/Q "%SAGA_DIR_WIN32%\%OUTDIR%\"
-	)
-	XCOPY /C/Q/Y "%OUTDIR%" "%SAGA_DIR_WIN32%\%OUTDIR%\"
-)
-
 IF EXIST "%SAGA_DIR_X64%" (
 	IF EXIST "%SAGA_DIR_X64%\%OUTDIR%\" (
 		RMDIR /S/Q "%SAGA_DIR_X64%\%OUTDIR%\"
