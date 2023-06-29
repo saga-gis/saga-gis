@@ -781,13 +781,18 @@ bool CWKSP_Map::Serialize(CSG_MetaData &Root, const wxString &ProjectDir, bool b
 //---------------------------------------------------------
 bool CWKSP_Map::Update(CWKSP_Layer *pLayer, bool bMapOnly)
 {
-	bool	bRefresh	= false;
+	if( !m_Projection.is_Okay() && pLayer->Get_Object()->Get_Projection().is_Okay() )
+	{
+		m_Projection.Create(pLayer->Get_Object()->Get_Projection());
+	}
+
+	bool bRefresh = false;
 
 	for(int i=0; i<Get_Count(); i++)
 	{
 		if( Get_Item(i)->Get_Type() == WKSP_ITEM_Map_Layer && ((CWKSP_Map_Layer *)Get_Item(i))->Get_Layer()->Update(pLayer) )
 		{
-			bRefresh	= true;
+			bRefresh = true;
 
 			if( !bMapOnly )
 			{
@@ -842,7 +847,7 @@ CWKSP_Map_Layer * CWKSP_Map::Get_Map_Layer(CWKSP_Layer *pLayer)
 //---------------------------------------------------------
 CWKSP_Map_Layer * CWKSP_Map::Get_Map_Layer_Active(bool bEditable)
 {
-	CWKSP_Map_Layer	*pLayer	= Get_Map_Layer(Get_Active_Layer());
+	CWKSP_Map_Layer *pLayer = Get_Map_Layer(Get_Active_Layer());
 
 	return( pLayer && !(bEditable && pLayer->is_Projecting()) ? pLayer : NULL );
 }
@@ -858,27 +863,27 @@ CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 	}
 
 	//-----------------------------------------------------
-	bool	bProject	= false;
+	bool bProject = false;
 
 	if( m_Parameters("CRS_CHECK")->asBool()
 	&&  m_Projection.is_Okay() && pLayer->Get_Object()->Get_Projection().is_Okay()
 	&&  m_Projection.is_Equal(    pLayer->Get_Object()->Get_Projection()) == false )
 	{
-		wxString	s;
+		wxString s;
 
-		s	+= _TL("The coordinate system used by the layer is not identical with the one of the map!");
-		s	+= "\n";
-		s	+= wxString::Format("\n%s:\n  [%s]", _TL("Map"  ),                         m_Projection  .Get_Proj4().c_str());
-		s	+= wxString::Format("\n%s:\n  [%s]", _TL("Layer"), pLayer->Get_Object()->Get_Projection().Get_Proj4().c_str());
-		s	+= "\n\n";
-		s	+= _TL("Do you want to activate on-the-fly projection for this layer in the map?");
-		s	+= "\n";
-		s	+= _TL("(Press cancel if you decide not to add the layer at all!)");
+		s += _TL("The coordinate system used by the layer is not identical with the one of the map!");
+		s += "\n";
+		s += wxString::Format("\n%s:\n  [%s]", _TL("Map"  ),                         m_Projection  .Get_Proj4().c_str());
+		s += wxString::Format("\n%s:\n  [%s]", _TL("Layer"), pLayer->Get_Object()->Get_Projection().Get_Proj4().c_str());
+		s += "\n\n";
+		s += _TL("Do you want to activate on-the-fly projection for this layer in the map?");
+		s += "\n";
+		s += _TL("(Press cancel if you decide not to add the layer at all!)");
 
 		switch( DLG_Message_YesNoCancel(s, _TL("Add Layer to Map")) )
 		{
 		case  0: // yes
-			bProject	= true;
+			bProject = true;
 			break;
 
 		case  1: // no
@@ -891,11 +896,11 @@ CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 
 	if( !m_Projection.is_Okay() && pLayer->Get_Object()->Get_Projection().is_Okay() )
 	{
-		m_Projection	= pLayer->Get_Object()->Get_Projection();
+		m_Projection = pLayer->Get_Object()->Get_Projection();
 	}
 
 	//-----------------------------------------------------
-	CWKSP_Map_Layer	*pMapLayer	= new CWKSP_Map_Layer(pLayer);
+	CWKSP_Map_Layer *pMapLayer = new CWKSP_Map_Layer(pLayer);
 
 	Add_Item(pMapLayer);
 
@@ -1136,11 +1141,11 @@ bool CWKSP_Map::Set_Extent_Full(void)
 //---------------------------------------------------------
 bool CWKSP_Map::Set_Extent_Active(bool bPan)
 {
-	CWKSP_Layer	*pLayer	= Get_Active_Layer();
+	CWKSP_Layer *pLayer = Get_Active_Layer();
 
 	if( pLayer )
 	{
-		CWKSP_Map_Layer	*pMapLayer	= Get_Map_Layer(pLayer);
+		CWKSP_Map_Layer *pMapLayer = Get_Map_Layer(pLayer);
 
 		if( pMapLayer )
 		{
@@ -1156,11 +1161,11 @@ bool CWKSP_Map::Set_Extent_Active(bool bPan)
 //---------------------------------------------------------
 bool CWKSP_Map::Set_Extent_Selection(bool bPan)
 {
-	CWKSP_Layer	*pLayer	= Get_Active_Layer();
+	CWKSP_Layer *pLayer = Get_Active_Layer();
 
 	if( pLayer )
 	{
-		CWKSP_Map_Layer	*pMapLayer	= Get_Map_Layer(Get_Active_Layer());
+		CWKSP_Map_Layer *pMapLayer = Get_Map_Layer(Get_Active_Layer());
 
 		if( pMapLayer && !pMapLayer->do_Project() )
 		{
