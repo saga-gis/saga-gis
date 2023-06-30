@@ -68,9 +68,9 @@ CSoil_Water_Balance::CSoil_Water_Balance(void)
 		"A Simple Soil Water Balance Model"
 	));
 
-	Add_Reference("Paulsen, J. / Körner, C.", "2014",
+	Add_Reference(SG_T("Paulsen, J. / Körner, C."), "2014",
 		"A climate-based model to predict potential treeline position around the globe",
-		"Alpine Botany, 124:1, 1–12. doi:10.1007/s00035-014-0124-0.",
+		"Alpine Botany, 124:1, 1-12. doi:10.1007/s00035-014-0124-0.",
 		SG_T("http://link.springer.com/article/10.1007%2Fs00035-014-0124-0"), _TL("online")
 	);
 
