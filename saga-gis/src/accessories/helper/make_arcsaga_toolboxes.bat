@@ -11,10 +11,10 @@ IF "%SAGA_DIR_X64%" == "" (
 
 REM ___________________________________
 IF /i "%ARC_VERSION%" == "0" (
-	SET OUTDIR=ArcSAGA Toolboxes 10.1
+	SET OUTDIR=ArcSAGA-10.1
 	SET ARC_VERSION=0
 ) ELSE (
-	SET OUTDIR=ArcSAGA Toolboxes
+	SET OUTDIR=ArcSAGA
 	SET ARC_VERSION=1
 )
 

@@ -1,116 +1,196 @@
 @ECHO OFF
 
 REM ___________________________________
-REM This batch script expects 4 arguments
-REM 1. Python version suffix ('2.7', '3.5', ...)
-REM 2. architecture (win32/x64)
-REM 3. output to zip (true/false)
-REM 4. clean swig wrapper (true/false)
-REM 5. Python root directory
+REM ###################################
+REM This batch script expects 5 arguments
+REM 1. output ('zip', 'install', 'update')
+REM 2. clean swig wrapper ('true', 'false')
+REM 3. Python version suffix (e.g. '3.11')
+REM 4. Python root directory
+REM 5. architecture ('win32', defaults to 'x64')
 
-SET PYTHON_VERSION=%1
-SET ARCHITECTURE=%2
-SET MAKE_ZIP=%3
-SET MAKE_CLEAN=%4
-SET PYTHONDIR=%5
+SETLOCAL EnableDelayedExpansion
+
+SET OUTPUT=%1
+SET MAKE_CLEAN=%2
+SET PYTHON_VERSION=%3
+SET PYTHON_DIR=%4
+SET ARCHITECTURE=%5
 
 
 REM ___________________________________
+REM ###################################
 REM File paths, adjusted to your system in the calling batch or take the defaults!
 
-IF "%ZIP%" == "" (
-	SET EXE_ZIP="C:\Program Files\7-Zip\7z.exe" a -r -y -mx5
-) ELSE (
-	SET EXE_ZIP="%ZIP%" a -r -y -mx5
-)
-
 IF "%SWIG%" == "" (
-	SET EXE_SWIG="F:\develop\libs\swigwin-4.0.2\swig.exe"
-) ELSE (
-	SET EXE_SWIG="%SWIG%"
+	SET SWIG="F:\develop\libs\swigwin-4.0.2\swig.exe"
 )
 
-IF "%PYTHONDIR%" == "" (
-	SET PYTHONDIR=F:\develop\libs\Python\Python-3.10
+IF NOT EXIST "%SWIG%" (
+	ECHO ERROR: swig executable not found ("%SWIG%")
 )
 
-SET PYTHONPKG=%PYTHONDIR%\Lib\site-packages
+IF "%PYTHON_DIR%" == "" (
+	SET PYTHON_DIR=F:\develop\libs\Python\Python-3.11
+)
+
+IF NOT EXIST "%PYTHON_DIR%\python.exe" (
+	ECHO ERROR: Python executable not found ("%PYTHON_DIR%")
+)
+
+SET PYTHON_PKG=%PYTHON_DIR%\Lib\site-packages
 
 IF "%SAGA_ROOT%" == "" (
 	SET SAGA_ROOT=%CD%\..\..\..
 )
 
-IF "%SAGA_LIBDIR%" == "" (
+IF "%SAGA_BIN%" == "" (
 	IF /i "%ARCHITECTURE%" == "win32" (
-		SET SAGA_LIBDIR=%SAGA_ROOT%\bin_win32\saga_%ARCHITECTURE%
+		SET SAGA_BIN=%SAGA_ROOT%\bin_win32\saga_%ARCHITECTURE%
 	) ELSE (
-		SET SAGA_LIBDIR=%SAGA_ROOT%\bin\saga_%ARCHITECTURE%
+		SET ARCHITECTURE=x64
+		SET SAGA_BIN=%SAGA_ROOT%\bin\saga_x64
 	)
 )
+
+
+REM ___________________________________
+REM ###################################
+REM Initialization of the MSVC environment
 
 IF "%VARSALL%" == "" (
 REM	SET "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat"
 	SET EXE_VARSALL="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat"
 )
 
-
-REM ___________________________________
-REM Initialization of the MSVC environment
 IF /i "%ARCHITECTURE%" == "win32" (
 	REM VS2015 x86 x64 Cross Tools Command Prompt
 	CALL %EXE_VARSALL% x86
-	SET PYTHONEGG=%PYTHONPKG%\SAGA_Python_API-1.0-py%PYTHON_VERSION%-win-win32.egg
+	SET PYTHONEGG=%PYTHON_PKG%\SAGA_Python_API-1.0-py%PYTHON_VERSION%-win-win32.egg
 
 ) ELSE (
 	REM VS2015 x86 x64 Cross Tools Command Prompt
 	CALL %EXE_VARSALL% x86_amd64
 	SET DISTUTILS_USE_SDK=1
 	SET MSSDK=1
-	SET PYTHONEGG=%PYTHONPKG%\SAGA_Python_API-1.0-py%PYTHON_VERSION%-win-amd64.egg
+	SET PYTHONEGG=%PYTHON_PKG%\SAGA_Python_API-1.0-py%PYTHON_VERSION%-win-amd64.egg
 )
 
 
 REM ___________________________________
+REM ###################################
 REM Compiling SWIG / Python
 
 ECHO __________________
 ECHO ##################
-ECHO Generating SAGA-Python-API...
+ECHO Generating the SAGA Python-API...
 
-PUSHD "%SAGA_ROOT%\src\saga_core\saga_api"
+SET SAGA_LIBDIR=%SAGA_BIN%
+SET SAGA_LIBSRC=%SAGA_ROOT%\src\saga_core\saga_api
+
+PUSHD "%SAGA_LIBSRC%"
 
 IF NOT EXIST saga_api_wrap.cxx (
 	ECHO __________________
 	ECHO SWIG Compilation...
 	ECHO.
 
-	%EXE_SWIG% -c++ -python -includeall -I. -D_SAGA_PYTHON saga_api.i
+	"%SWIG%" -c++ -python -includeall -I. -D_SAGA_PYTHON saga_api.i
 )
 
 ECHO __________________
 ECHO Python%PYTHON_VERSION% Compilation (%ARCHITECTURE%)...
 ECHO.
 
-REM Remove previous instances of saga-python-api
-DEL "%PYTHONPKG%\*saga_*.py*"
-DEL "%PYTHONPKG%\*saga_*.egg-info"
-IF EXIST "%PYTHONEGG%" (
-	RMDIR /S/Q "%PYTHONEGG%"
+rem "%PYTHON_DIR%\python.exe" saga_api_to_python.py install
+"%PYTHON_DIR%\python.exe" saga_api_to_python.py build_ext --inplace
+
+POPD
+
+
+REM ___________________________________
+REM ###################################
+REM Collecting files...
+
+REM ___________________________________
+REM update files in Python's \Lib\site-packages directory...
+IF /i "%OUTPUT%" == "update" (
+	REM remove previous instances of the SAGA Python-API
+	DEL "%PYTHON_PKG%\*saga_*.py*"
+	DEL "%PYTHON_PKG%\*saga_*.egg-info"
+	IF EXIST "%PYTHONEGG%" (
+		RMDIR /S/Q "%PYTHONEGG%"
+	)
+
+	PUSHD "%PYTHON_PKG%"	
+	COPY "%SAGA_LIBSRC%\saga_api.py"
+	COPY "%SAGA_LIBSRC%\_saga_api*.pyd"
+	COPY "%SAGA_ROOT%\src\accessories\python\saga.py"
+	POPD
 )
 
-REM Compilation
-rem "%PYTHONDIR%\python.exe" saga_api_to_python.py install
-"%PYTHONDIR%\python.exe" saga_api_to_python.py build_ext --inplace
+REM ___________________________________
+REM install files to SAGA PySAGA directory...
+IF /i "%OUTPUT%" == "install" (
+	IF NOT EXIST "%SAGA_BIN%\PySAGA" (
+		MKDIR "%SAGA_BIN%\PySAGA"
+	)
 
-COPY saga_api.py "%PYTHONPKG%\saga_api.py"
-MOVE _saga_api*.pyd "%PYTHONPKG%\"
+	PUSHD "%SAGA_BIN%\PySAGA"
+	COPY "%SAGA_LIBSRC%\saga_api.py"
+	COPY "%SAGA_LIBSRC%\_saga_api*.pyd"
+	COPY "%SAGA_ROOT%\src\accessories\python\saga.py"
+	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_example.py"
+	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_runner.bat"
+	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_api.txt"
+	POPD
+)
+
+REM ___________________________________
+REM zipping files...
+IF /i "%OUTPUT%" == "zip" (
+	SET TARGET=Python%PYTHON_VERSION%_%ARCHITECTURE%
+
+	IF NOT EXIST "!TARGET!" (
+		MKDIR "!TARGET!"
+	)
+
+	PUSHD "!TARGET!"
+	COPY "%SAGA_LIBSRC%\saga_api.py"
+	COPY "%SAGA_LIBSRC%\_saga_api*.pyd"
+	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_example.py"
+	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_runner.bat"
+	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_api.txt"
+	POPD
+
+	IF "%ZIP%" == "" (
+		SET ZIP=C:\Program Files\7-Zip\7z.exe
+	)
+
+	IF "%SAGA_VERSION%" == "" (
+		SET SAGA_VERSION=saga-major.minor.release
+	)
+
+	"!ZIP!" a -r -y -mx5 !SAGA_VERSION!_%ARCHITECTURE%_python%PYTHON_VERSION%.zip "!TARGET!"
+
+	RMDIR /S/Q "!TARGET!"
+)
 
 
-REM Postprocessing jobs
+REM ___________________________________
+REM ###################################
+REM clean up...
+
+PUSHD "%SAGA_LIBSRC%"
+
 RMDIR /S/Q build
+
+DEL /F _saga_api*.pyd
+
 IF EXIST "SAGA_Python_API.egg-info" (
 	RMDIR /S/Q "SAGA_Python_API.egg-info"
 )
+
 IF EXIST "dist" (
 	RMDIR /S/Q "dist"
 )
@@ -122,47 +202,7 @@ IF /i "%MAKE_CLEAN%" == "true" (
 
 POPD
 
-
-REM ___________________________________
-REM Collecting files...
-
-ECHO __________________
-ECHO Collecting files...
-ECHO.
-
-SET PYTHONOUT=Python%PYTHON_VERSION%_%ARCHITECTURE%
-
-IF EXIST "%PYTHONOUT%" (
-	RMDIR /S/Q "%PYTHONOUT%"
-)
-
-XCOPY /C/Q/Y/H "%SAGA_ROOT%\src\accessories\python\saga_python_example.py" "%PYTHONOUT%\Lib\site-packages\saga_api_examples\"
-COPY "%SAGA_ROOT%\src\accessories\python\saga_python_example.py" "%PYTHONOUT%\Lib\site-packages\saga_api_examples\"
-COPY "%SAGA_ROOT%\src\accessories\python\saga_python_runner.bat" "%PYTHONOUT%\Lib\site-packages\saga_api_examples\"
-COPY "%SAGA_ROOT%\src\accessories\python\saga_python_api.txt" "%PYTHONOUT%\Lib\site-packages\"
-
-COPY "%SAGA_ROOT%\src\accessories\python\saga.py" "%PYTHONPKG%\"
-
-COPY "%PYTHONPKG%\*saga*.py*" "%PYTHONOUT%\Lib\site-packages\"
-
-IF EXIST "%PYTHONEGG%" (
-	COPY "%PYTHONEGG%\*saga*.py*" "%PYTHONOUT%\Lib\site-packages\"
-)
-
-REM ___________________________________
-REM zipping files...
-IF /i "%MAKE_ZIP%" == "true" (
-	SETLOCAL EnableDelayedExpansion
-
-	IF "%SAGA_VERSION%" == "" (
-		SET SAGA_VERSION=saga-snapshot
-	)
-
-	%EXE_ZIP% !SAGA_VERSION!_%ARCHITECTURE%_python%PYTHON_VERSION%.zip "%PYTHONOUT%"
-	RMDIR /S/Q "%PYTHONOUT%"
-)
-
-ECHO __________________
+ECHO __________________________________
 ECHO ...finished!
 ECHO.
 ECHO.
