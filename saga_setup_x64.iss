@@ -26,7 +26,7 @@ OutputBaseFilename=saga-9.1.0_x64_setup
 
 VersionInfoVersion=9.1.0.0
 VersionInfoCompany=SAGA User Group Association
-VersionInfoCopyright=(c) 2005-2018 by O. Conrad
+VersionInfoCopyright=(c) 2005-2023 by O. Conrad
 VersionInfoDescription=SAGA single-file installer
 
 PrivilegesRequired=admin
@@ -39,7 +39,8 @@ Source: "*.*"; Excludes: "*.iss,*.ini,*.cfg,*.bak,*.exe,*.bat,*.rtf"; DestDir: "
 Source: "tools\*.*"; DestDir: "{app}\tools"
 Source: "tools\toolchains\*.*"; DestDir: "{app}\tools\toolchains"
 Source: "dll\*.*"; DestDir: "{app}\dll"; Flags: recursesubdirs
-Source: "ArcSAGA Toolboxes\*.*"; DestDir: "{app}\ArcSAGA Toolboxes"
+Source: "ArcSAGA\*.*"; DestDir: "{app}\ArcSAGA"
+Source: "PySAGA\*.*"; DestDir: "{app}\PySAGA"
 
 [Icons]
 ; Start up in tools folder so SAGA will load all tools automatically.
