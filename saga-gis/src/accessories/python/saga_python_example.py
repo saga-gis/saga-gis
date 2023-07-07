@@ -32,24 +32,25 @@
 # Windows: Let the 'SAGA_PATH' environment variable point to
 # the SAGA installation folder before importing 'saga_api'!
 # This can be defined globally in the Windows system or
-# user environment variable settings, in the 
-# 'Lib/site-packages/saga.py' file of your Python installation,
-# or in the individual Python script itself. To do the latter
+# user environment variable settings, in the 'PySAGA/__init__.py'
+# file, or in the individual Python script itself. To do the latter
 # just uncomment the following line and adjust the path accordingly:
-# import os; os.environ['SAGA_PATH'] = 'F:/develop/saga/saga-code/master/saga-gis/bin/saga_x64/'
+###import os; os.environ['SAGA_PATH'] = os.path.split(os.path.dirname(__file__))[0]
 
-# Import 'saga' before importing 'saga_api' for the first time!
-import saga, saga_api
+# If you have not copied the PySAGA folder to your Python's 'Lib/site-packages/' folder
+# you can alternatively add the path containing PySAGA (i.e. the 'SAGA_PATH') to
+# the Python's package paths here:
+###import sys; sys.path.insert(1, os.environ['SAGA_PATH'])
 
-# Simply call 'Initialize()' to load SAGA's standard tool libraries!
-saga.Initialize()
+# Initialize the SAGA environment (also loads all tools by default) and import the saga_api
+import PySAGA; PySAGA.Initialize(True); import PySAGA.saga_api as saga
 
 
 #_________________________________________
 ##########################################
 def Run_Random_Terrain():
     print('Running: Random Terrain')
-    Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('grid_calculus', '6')
+    Tool = saga.SG_Get_Tool_Library_Manager().Get_Tool('grid_calculus', '6')
     if not Tool:
         print('Failed to request tool: Random Terrain')
         import sys; sys.exit()
@@ -74,7 +75,7 @@ def Run_Random_Terrain():
 ##########################################
 def Run_Slope_Aspect_Curvature(DEM):
     print('Running: Slope, Aspect, Curvature')
-    Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('ta_morphometry', '0')
+    Tool = saga.SG_Get_Tool_Library_Manager().Get_Tool('ta_morphometry', '0')
     if not Tool:
         print('Failed to request tool: Slope, Aspect, Curvature')
         return  None, None, None, None
@@ -84,8 +85,8 @@ def Run_Slope_Aspect_Curvature(DEM):
     Tool.Set_Parameter('METHOD'     , 6) # '9 parameter 2nd order polynom (Zevenbergen & Thorne 1987)'
     Tool.Set_Parameter('UNIT_SLOPE' , 0) # 'radians'
     Tool.Set_Parameter('UNIT_ASPECT', 1) # 'degree'
-    Tool.Set_Parameter('C_LONG'     , saga_api.SG_Get_Create_Pointer()) # optional output, remove this line, if you don't want to create it
-    Tool.Set_Parameter('C_CROS'     , saga_api.SG_Get_Create_Pointer()) # optional output, remove this line, if you don't want to create it
+    Tool.Set_Parameter('C_LONG'     , saga.SG_Get_Create_Pointer()) # optional output, remove this line, if you don't want to create it
+    Tool.Set_Parameter('C_CROS'     , saga.SG_Get_Create_Pointer()) # optional output, remove this line, if you don't want to create it
 
     if not Tool.Execute():
         print('failed to execute tool: ' + Tool.Get_Name().c_str())
@@ -110,7 +111,7 @@ def Run_Grid_Difference(A, B, PythonLoop):
     # cell by cell, slower than second solution
     if PythonLoop:
         print('Running: Grid Difference (Cell by Cell)\n')
-        C = saga_api.SG_Create_Grid(A.Get_System())
+        C = saga.SG_Create_Grid(A.Get_System())
         for y in range(0, C.Get_NY()):
             print('\r{:04.1f}%'.format(y * 100. / C.Get_NY()), end='\r', flush=True)
             for x in range(0, C.Get_NX()):
@@ -123,7 +124,7 @@ def Run_Grid_Difference(A, B, PythonLoop):
     # using built-in CSG_Grid function 'Subtract()'
     else:
         print('Running: Grid Difference (CSG_Grid::Subtract())')
-        C = saga_api.SG_Create_Grid(A)
+        C = saga.SG_Create_Grid(A)
         C.Subtract(B)
 
     # ------------------------------------
@@ -136,7 +137,7 @@ def Run_Grid_Difference(A, B, PythonLoop):
 ##########################################
 def Run_Contour_Lines_from_Grid(Grid):
     print('Running: Contour Lines from Grid')
-    Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('shapes_grid', '5')
+    Tool = saga.SG_Get_Tool_Library_Manager().Get_Tool('shapes_grid', '5')
     if not Tool:
         print('Failed to request tool: Contour Lines from Grid')
         import sys; sys.exit()
@@ -155,7 +156,7 @@ def Run_Contour_Lines_from_Grid(Grid):
 ##########################################
 def Run_Geomorphons(DEM):
     print('Running: Geomorphons')
-    Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('ta_lighting', '8')
+    Tool = saga.SG_Get_Tool_Library_Manager().Get_Tool('ta_lighting', '8')
     if not Tool:
         print('Failed to request tool: Geomorphons')
         import sys; sys.exit()
@@ -180,47 +181,52 @@ print('This is a simple script to demonstrate the usage of SAGA and its tools th
 
 Verbose = False
 if not Verbose:
-    saga_api.SG_UI_ProgressAndMsg_Lock(True)
+    saga.SG_UI_ProgressAndMsg_Lock(True)
+
+import os;
+output = 'test/'
+if not os.path.exists(output):
+    os.mkdir(output)
 
 #_________________________________________
 # load or create a Digital Elevation Model
-DEM = saga_api.SG_Get_Data_Manager().Add_Grid('./dem.tif')
+DEM = saga.SG_Get_Data_Manager().Add_Grid(output + 'dem.tif')
 if not DEM:
     DEM = Run_Random_Terrain()
-    DEM.Save('./dem.tif')
+    DEM.Save(output + 'dem.tif')
 
 #_________________________________________
 # derive some terrain parameters
 Slope, Aspect, vCurv, hCurv = Run_Slope_Aspect_Curvature(DEM)
-Slope .Save('./slope.tif' )
-Aspect.Save('./aspect.tif')
-vCurv .Save('./vcurv.tif' )
-hCurv .Save('./hcurv.tif' )
+Slope .Save(output + 'slope.tif' )
+Aspect.Save(output + 'aspect.tif')
+vCurv .Save(output + 'vcurv.tif' )
+hCurv .Save(output + 'hcurv.tif' )
 
 #_________________________________________
 # calculate grid differences
 Difference = Run_Grid_Difference(vCurv, hCurv, PythonLoop=True)
-Difference.Save('./diff_1.tif')
+Difference.Save(output + 'diff_1.tif')
 
 Difference = Run_Grid_Difference(vCurv, hCurv, PythonLoop=False)
-Difference.Save('./diff_2.tif')
+Difference.Save(output + 'diff_2.tif')
 
 #_________________________________________
 # get contour lines from elevation grid
 Contour = Run_Contour_Lines_from_Grid(DEM)
-Contour.Save('./contour.geojson')
+Contour.Save(output + 'contour.geojson')
 
 #_________________________________________
 # perform some terrain classification
 Geomorphons = Run_Geomorphons(DEM)
-Geomorphons.Save('./geomorphons.tif')
+Geomorphons.Save(output + 'geomorphons.tif')
 
 #_________________________________________
 # when job is done, free memory resources:
-saga_api.SG_Get_Data_Manager().Delete_All()
+saga.SG_Get_Data_Manager().Delete_All()
 
 if not Verbose:
-    saga_api.SG_UI_ProgressAndMsg_Lock(False)
+    saga.SG_UI_ProgressAndMsg_Lock(False)
 
 print('________________\n...the end!')
 

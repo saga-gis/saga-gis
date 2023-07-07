@@ -24,41 +24,59 @@
 # SOFTWARE.
 #################################################################################
 
+#_________________________________________
+##########################################
+
+__bibtex__ = r"""@Article{gmd-8-1991-2015,
+AUTHOR  = {Conrad, O. and Bechtel, B. and Bock, M. and Dietrich, H. and Fischer, E. and Gerlitz, L. and Wehberg, J. and Wichmann, V. and B\"ohner, J.},
+TITLE   = {System for Automated Geoscientific Analyses (SAGA) v. 2.1.4},
+JOURNAL = {Geoscientific Model Development},
+VOLUME  = {8},
+YEAR    = {2015},
+NUMBER  = {7},
+PAGES   = {1991--2007},
+URL     = {https://gmd.copernicus.org/articles/8/1991/2015/},
+DOI     = {10.5194/gmd-8-1991-2015}
+}"""
+
 
 #_________________________________________
 ##########################################
-import os, sys
 
+import os
+
+SAGA_Path = None
 if os.name == 'nt': # Windows
-	if not os.getenv('SAGA_PATH'):
-		os.environ['SAGA_PATH'] = 'F:/develop/saga/saga-code/master/saga-gis/bin/saga_x64'
-	if 'add_dll_directory' in dir(os):
-		os.add_dll_directory(os.environ['SAGA_PATH'])
-	else:
-		os.environ['PATH'] = os.environ['SAGA_PATH'] + os.sep + ';' + os.environ['PATH']
+	SAGA_Path = os.getenv('SAGA_PATH')
+	if not SAGA_Path:
+		SAGA_Path = 'F:/develop/saga/saga-code/master/saga-gis/bin/saga_x64'
 
-import saga_api
+	if 'add_dll_directory' in dir(os):
+		os.add_dll_directory(SAGA_Path)
+	else:
+		os.environ['PATH'] = SAGA_Path + ';' + os.environ['PATH']
 
 
 #_________________________________________
 ##########################################
+
 bInitialized = False
 
-def Initialize(Verbose = True):
+def Initialize(Verbose = True, WithTools = True):
+	import PySAGA.saga_api as saga
+
 	global bInitialized
 	if not bInitialized:
 		bInitialized = True
-		if os.name == 'nt': # Windows
-			saga_api.SG_Initialize_Environment(True, True, os.environ['SAGA_PATH'])
-		else:               # Linux
-			saga_api.SG_Initialize_Environment(True, True)
+		saga.SG_Initialize_Environment(WithTools, True, SAGA_Path)
 
 	if Verbose == True:
+		import sys
 		print('_______')
 		print('Python-' + sys.version)
-		print('SAGA-{:s} (loaded {:d} libraries, {:d} tools)'.format(saga_api.SAGA_VERSION,
-			saga_api.SG_Get_Tool_Library_Manager().Get_Count(),
-			saga_api.SG_Get_Tool_Library_Manager().Get_Tool_Count()
+		print('SAGA-{:s} (loaded {:d} libraries, {:d} tools)'.format(saga.SAGA_VERSION,
+			saga.SG_Get_Tool_Library_Manager().Get_Count(),
+			saga.SG_Get_Tool_Library_Manager().Get_Tool_Count()
 		))
 		print('_______')
 

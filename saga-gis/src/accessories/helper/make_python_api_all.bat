@@ -16,12 +16,13 @@ REM SET SAGA_VERSION=saga-major.minor.release
 REM SET ZIP=C:\Program Files\7-Zip\7z.exe
 REM SET SWIG=F:\develop\libs\swigwin-4.0.2\swig.exe
 SET PYTHONS=F:\develop\libs\Python
+SET OUTPUT=install
 
-CMD /C CALL make_python_api.bat update false 3.6  %PYTHONS%\Python-3.6
-CMD /C CALL make_python_api.bat update false 3.7  %PYTHONS%\Python-3.7
-CMD /C CALL make_python_api.bat update false 3.8  %PYTHONS%\Python-3.8
-CMD /C CALL make_python_api.bat update false 3.9  %PYTHONS%\Python-3.9
-CMD /C CALL make_python_api.bat update false 3.10 %PYTHONS%\Python-3.10
-CMD /C CALL make_python_api.bat update true  3.11 %PYTHONS%\Python-3.11
+CMD /C CALL make_python_api.bat %OUTPUT% false 3.6  %PYTHONS%\Python-3.6
+CMD /C CALL make_python_api.bat %OUTPUT% false 3.7  %PYTHONS%\Python-3.7
+CMD /C CALL make_python_api.bat %OUTPUT% false 3.8  %PYTHONS%\Python-3.8
+CMD /C CALL make_python_api.bat %OUTPUT% false 3.9  %PYTHONS%\Python-3.9
+CMD /C CALL make_python_api.bat %OUTPUT% false 3.10 %PYTHONS%\Python-3.10
+CMD /C CALL make_python_api.bat %OUTPUT% true  3.11 %PYTHONS%\Python-3.11
 
 PAUSE
