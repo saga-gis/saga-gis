@@ -296,16 +296,16 @@ CTree_Growth::CTree_Growth(void)
 		"Using the given thresholds a relative tree line height can optionally be estimated."
 	));
 
-	Add_Reference("Karger, D.N., Kessler, M., Conrad, O., Weigelt, P., Kreft, H., König, C., Zimmermann, N.E.", "2019",
+	Add_Reference(SG_T("Karger, D.N., Kessler, M., Conrad, O., Weigelt, P., Kreft, H., König, C., Zimmermann, N.E."), "2019",
 		"Why tree lines are lower on islands - Climatic and biogeographic effects hold the answer",
-		"Global Ecol. Biogeogr., 00:1–12.",
-		SG_T("https://doi.org/10.1111/geb.12897"), _TL("doi:10.1111/geb.12897")
+		"Global Ecol. Biogeogr., 00:1-12.",
+		SG_T("https://doi.org/10.1111/geb.12897"), SG_T("doi:10.1111/geb.12897")
 	);
 
-	Add_Reference("Paulsen, J. / Körner, C.", "2014",
+	Add_Reference(SG_T("Paulsen, J. / Körner, C."), "2014",
 		"A climate-based model to predict potential treeline position around the globe",
-		"Alpine Botany, 124:1, 1–12.",
-		SG_T("https://doi.org/10.1007/s00035-014-0124-0"), _TL("doi:10.1007/s00035-014-0124-0")
+		"Alpine Botany, 124:1, 1-12.",
+		SG_T("https://doi.org/10.1007/s00035-014-0124-0"), SG_T("doi:10.1007/s00035-014-0124-0")
 	);
 
 	//-----------------------------------------------------
@@ -574,10 +574,10 @@ CWater_Balance::CWater_Balance(void)
 		"Needed input is monthly data of mean, minimum, and maximum temperature as well as precipitation."
 	));
 
-	Add_Reference("Paulsen, J. / Körner, C.", "2014",
+	Add_Reference(SG_T("Paulsen, J. / Körner, C."), "2014",
 		"A climate-based model to predict potential treeline position around the globe",
-		"Alpine Botany, 124:1, 1–12.",
-		SG_T("https://doi.org/10.1007/s00035-014-0124-0"), _TL("doi:10.1007/s00035-014-0124-0")
+		"Alpine Botany, 124:1, 1-12.",
+		SG_T("https://doi.org/10.1007/s00035-014-0124-0"), SG_T("doi:10.1007/s00035-014-0124-0")
 	);
 
 	//-----------------------------------------------------
@@ -753,10 +753,10 @@ CWater_Balance_Interactive::CWater_Balance_Interactive(void)
 		"Needed input is monthly data of mean, minimum, and maximum temperature as well as precipitation."
 	));
 
-	Add_Reference("Paulsen, J. / Körner, C.", "2014",
+	Add_Reference(SG_T("Paulsen, J. / Körner, C."), "2014",
 		"A climate-based model to predict potential treeline position around the globe",
-		"Alpine Botany, 124:1, 1–12.",
-		SG_T("https://doi.org/10.1007/s00035-014-0124-0"), _TL("doi:10.1007/s00035-014-0124-0")
+		"Alpine Botany, 124:1, 1-12.",
+		SG_T("https://doi.org/10.1007/s00035-014-0124-0"), SG_T("doi:10.1007/s00035-014-0124-0")
 	);
 
 	//-----------------------------------------------------
