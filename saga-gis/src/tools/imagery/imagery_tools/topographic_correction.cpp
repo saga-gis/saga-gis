@@ -184,28 +184,23 @@ CTopographic_Correction::CTopographic_Correction(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+extern bool Get_Sun_Position(CSG_Grid *pGrid, double &Azimuth, double &Height);
+
+//---------------------------------------------------------
 int CTopographic_Correction::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	if( pParameter->Cmp_Identifier("BANDS") && pParameter->asList()->Get_Item_Count() > 0 )
 	{
-		for(int i=0; i<pParameter->asList()->Get_Item_Count(); i++)
+		for(int i=0; i<pParameter->asGridList()->Get_Grid_Count(); i++)
 		{
-			CSG_MetaData &MD = pParameter->asList()->Get_Item(i)->Get_Owner()
-				? pParameter->asList()->Get_Item(i)->Get_Owner()->Get_MetaData()
-				: pParameter->asList()->Get_Item(i)             ->Get_MetaData();
+			double Azimuth, Height;
 
-			if( MD("LANDSAT") )
+			if( Get_Sun_Position(pParameter->asGridList()->Get_Grid(i), Azimuth, Height) )
 			{
-				double Azimuth, Height;
+				pParameters->Set_Parameter("AZIMUTH", Azimuth);
+				pParameters->Set_Parameter("HEIGHT" , Height );
 
-				if( MD["LANDSAT"].Get_Content("SUN_AZIMUTH"  , Azimuth)
-				&&  MD["LANDSAT"].Get_Content("SUN_ELEVATION", Height ) )
-				{
-					pParameters->Set_Parameter("AZIMUTH", Azimuth);
-					pParameters->Set_Parameter("HEIGHT" , Height );
-
-					break;
-				}
+				break;
 			}
 		}
 	}

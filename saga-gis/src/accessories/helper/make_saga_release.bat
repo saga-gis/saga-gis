@@ -163,6 +163,7 @@ MKDIR "%SAGA_VERSION%_x64"
 PUSHD "%SAGA_VERSION%_x64"
 XCOPY /C/S/Q/Y/H "%SAGA_BIN%"
 DEL /F *.ini *.cfg *.exp *.pdb *.tmp tools\*.exp tools\*.lib tools\*.pdb tools\dev_*.*
+RMDIR /S/Q PySAGA\__pycache__
 POPD
 
 REM ___________________________________

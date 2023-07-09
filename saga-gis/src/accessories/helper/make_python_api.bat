@@ -122,10 +122,16 @@ IF /i "%OUTPUT%" == "update" (
 		RMDIR /S/Q "%PYTHONEGG%"
 	)
 
-	PUSHD "%PYTHON_PKG%"	
+	PUSHD "%PYTHON_PKG%"
+	IF EXIST PySAGA (
+		RMDIR /S/Q PySAGA
+	)
+	MKDIR PySAGA
+	PUSHD PySAGA
 	COPY "%SAGA_LIBSRC%\saga_api.py"
 	COPY "%SAGA_LIBSRC%\_saga_api*.pyd"
-	COPY "%SAGA_ROOT%\src\accessories\python\saga.py"
+	COPY "%SAGA_ROOT%\src\accessories\python\__init__.py"
+	POPD
 	POPD
 )
 
@@ -135,14 +141,13 @@ IF /i "%OUTPUT%" == "install" (
 	IF NOT EXIST "%SAGA_BIN%\PySAGA" (
 		MKDIR "%SAGA_BIN%\PySAGA"
 	)
-
 	PUSHD "%SAGA_BIN%\PySAGA"
 	COPY "%SAGA_LIBSRC%\saga_api.py"
 	COPY "%SAGA_LIBSRC%\_saga_api*.pyd"
-	COPY "%SAGA_ROOT%\src\accessories\python\saga.py"
+	COPY "%SAGA_ROOT%\src\accessories\python\__init__.py"
 	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_example.py"
-	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_runner.bat"
-	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_api.txt"
+	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_example.bat"
+	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_readme.txt"
 	POPD
 )
 
@@ -150,17 +155,22 @@ REM ___________________________________
 REM zipping files...
 IF /i "%OUTPUT%" == "zip" (
 	SET TARGET=Python%PYTHON_VERSION%_%ARCHITECTURE%
-
-	IF NOT EXIST "!TARGET!" (
-		MKDIR "!TARGET!"
+	IF EXIST "!TARGET!" (
+		RMDIR /S/Q "!TARGET!"
 	)
-
+	MKDIR "!TARGET!"
 	PUSHD "!TARGET!"
+
+	MKDIR PySAGA
+	PUSHD PySAGA
 	COPY "%SAGA_LIBSRC%\saga_api.py"
 	COPY "%SAGA_LIBSRC%\_saga_api*.pyd"
+	COPY "%SAGA_ROOT%\src\accessories\python\__init__.py"
 	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_example.py"
-	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_runner.bat"
-	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_api.txt"
+	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_example.bat"
+	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_readme.txt"
+	POPD
+
 	POPD
 
 	IF "%ZIP%" == "" (
