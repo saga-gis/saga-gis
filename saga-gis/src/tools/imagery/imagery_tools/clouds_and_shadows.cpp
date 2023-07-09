@@ -131,7 +131,8 @@ CDetect_Clouds::CDetect_Clouds(void)
 		"Atmosphere (TOA) reflectance and Brightness Temperature (BT) are used "
 		"as input.\n"
 		"Alternatively you can choose the scene-average automated cloud-cover assessment "
-		"(ACCA) algorithm as proposed by Irish (2000) and Irish et al. (2006). "
+		"(ACCA) algorithm as proposed by Irish (2000) and Irish et al. (2006).\n"
+		"This tool can optionally pass the cloud mask to the \"Cloud Shadow Detection\" tool as well."
 	));
 
 	Add_Reference("Zhu, Z., Woodcock, C.E.", "2012",
@@ -583,8 +584,23 @@ CDetect_CloudShadows::CDetect_CloudShadows(void)
 	Set_Author		(SG_T("J.Spitzmüller, O.Conrad (c) 2023"));
 
 	Set_Description	(_TW(
-		""
+		"This tool derives cloud shadows from detected clouds based on their spectral "
+		"characteristics as well as terrain, sun position and expected cloud height. "
+		"The initial cloud mask can be created by the tool \"Cloud Detection\"."
 	));
+
+
+	Add_Reference("Irish, R.R.", "2000",
+		"Landsat 7 Automatic Cloud Cover Assessment",
+		"In: Shen, S.S., Descour, M.R. [Eds.]: Algorithms for Multispectral, Hyperspectral, and Ultraspectral Imagery VI. Proceedings of SPIE, 4049: 348-355.",
+		SG_T("https://doi.org/10.1117/12.410358"), SG_T("doi:10.1117/12.410358")
+	);
+
+	Add_Reference("Tizado, E.J.", "2010",
+		"GRASS GIS i.landsat.acca",
+		"E.J. Tizado's implementation of the ACCA algorithm as proposed by Irish (2000), Irish et al. (2006).",
+		SG_T("https://github.com/OSGeo/grass/tree/main/imagery/i.landsat.acca"), SG_T("Source Code") // https://grass.osgeo.org/grass72/manuals/i.landsat.acca.html
+	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_System("", "BANDS_SWIR"   , _TL("Grid System"), _TL(""));
