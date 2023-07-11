@@ -1554,21 +1554,33 @@ CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 		Script += "\n";
 		Script += "#_________________________________________\n";
 		Script += "##########################################\n";
-		Script += "# Initialize the environment...\n";
 		Script += "\n";
 #ifdef _SAGA_MSW
 		CSG_String AppPath = SG_UI_Get_Application_Path(true); AppPath.Replace("\\", "/");
+		Script += "# Initialize the environment...\n";
+		Script += "\n";
 		Script += "# Windows: Let the 'SAGA_PATH' environment variable point to\n";
-		Script += "# the SAGA installation folder before importing 'saga'\n";
-		Script += "# or alternatively set it in 'saga.py' itself.\n";
-		Script += "import os; os.environ['SAGA_PATH'] = '" + AppPath + "'\n";
+		Script += "# the SAGA installation folder before importing 'saga_api'!\n";
+		Script += "# This can be defined globally in the Windows system or\n";
+		Script += "# user environment variable settings, in the 'PySAGA/__init__.py'\n";
+		Script += "# file, or in the individual Python script itself. To do the latter\n";
+		Script += "# just uncomment the following line and adjust the path accordingly:\n";
+		Script += "###import os; os.environ['SAGA_PATH'] = '" + AppPath + "'\n";
+		Script += "\n";
+		Script += "# Windows: The most convenient way to make PySAGA available to all your\n";
+		Script += "# Python scripts is to copy the PySAGA folder to the 'Lib/site-packages/'\n";
+		Script += "# folder of your Python installation. If don't want to do this or if you\n";
+		Script += "# don't have the rights to do so, you can also copy it to the folder with\n";
+		Script += "# the Python scripts in which you want to use PySAGA, or alternatively\n";
+		Script += "# you can add the path containing the PySAGA folder (e.g. the path to your\n";
+		Script += "# SAGA installation) to the PYTHONPATH environment variable. To do this\n";
+		Script += "# from within your script you can also take the following command (just\n";
+		Script += "# uncomment the following line and adjust the path accordingly):\n";
+		Script += "###import sys; sys.path.insert(1, '" + AppPath + "')\n";
 		Script += "\n";
 #endif // _SAGA_MSW
-		Script += "# Import 'saga' before importing 'saga_api' for the first time!\n";
-		Script += "import saga, saga_api\n";
-		Script += "\n";
-		Script += "# Call 'Initialize()' to load SAGA's standard tool libraries!\n";
-		Script += "saga.Initialize(True)\n";
+		Script += "# Import saga_api from PySAGA:\n";
+		Script += "from PySAGA import saga_api as saga\n";
 		Script += "\n";
 		Script += "\n";
 		Script += "#_________________________________________\n";
@@ -1578,7 +1590,7 @@ CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 
 	//-----------------------------------------------------
 	if( bHeader ) Script += "    # Get the tool:\n";
-	Script += "    Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('" + Get_Library() + "', '" + Get_ID() + "')\n";
+	Script += "    Tool = saga.SG_Get_Tool_Library_Manager().Get_Tool('" + Get_Library() + "', '" + Get_ID() + "')\n";
 	Script += "    if not Tool:\n";
     Script += "        print('Failed to request tool: " + Get_Name() + "')\n";
 	Script += "        return False\n";
@@ -1652,7 +1664,7 @@ CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 	if( bHeader )
 	{
 		Script += "    # job is done, free memory resources:\n";
-		Script += "    saga_api.SG_Get_Data_Manager().Delete_All()\n";
+		Script += "    saga.SG_Get_Data_Manager().Delete_All()\n";
 		Script += "\n";
 		Script += "    return True\n";
 		Script += "\n";
@@ -1738,13 +1750,13 @@ void CSG_Tool::_Get_Script_Python(CSG_String &Script, CSG_Parameters *pParameter
 			break;
 
 		case PARAMETER_TYPE_FixedTable     :
-			Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', saga_api.SG_Create_Table('table.txt'))\n", ID.c_str());
+			Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', saga.SG_Create_Table('table.txt'))\n", ID.c_str());
 			break;
 
 		case PARAMETER_TYPE_Grid_System    :
 			if( p->Get_Children_Count() == 0 )
 			{
-				Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', saga_api.CSG_Grid_System(%g, %g, %g, %d, %d))\n", ID.c_str(),
+				Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', saga.CSG_Grid_System(%g, %g, %g, %d, %d))\n", ID.c_str(),
 					p->asGrid_System()->Get_Cellsize(),
 					p->asGrid_System()->Get_XMin(), p->asGrid_System()->Get_YMin(),
 					p->asGrid_System()->Get_NX  (), p->asGrid_System()->Get_NY  ()
@@ -1760,13 +1772,13 @@ void CSG_Tool::_Get_Script_Python(CSG_String &Script, CSG_Parameters *pParameter
 		case PARAMETER_TYPE_PointCloud     :
 			if( p->is_Input() )
 			{
-				Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', saga_api.SG_Get_Data_Manager().Add('%s input file%s'))\n", ID.c_str(),
+				Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', saga.SG_Get_Data_Manager().Add('%s input file%s'))\n", ID.c_str(),
 					SG_Get_DataObject_Name(p->Get_DataObject_Type()).c_str(), p->is_Optional() ? SG_T(", optional") : SG_T("")
 				);
 			}
 			else if( p->is_Output() && p->is_Optional() )
 			{
-				Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', saga_api.SG_Get_Create_Pointer()) # optional output, remove this line, if you don't want to create it\n", ID.c_str());
+				Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', saga.SG_Get_Create_Pointer()) # optional output, remove this line, if you don't want to create it\n", ID.c_str());
 			}
 			break;
 

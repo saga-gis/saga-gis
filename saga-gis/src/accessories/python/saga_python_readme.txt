@@ -1,35 +1,38 @@
 SAGA API - Python Interface
+
 * MS-Windows Installation *
 
-To load the SAGA API from a Python script you have to import the saga_api.py module
-> import saga_api
+To use SAGA in your Python scripts you first have to define the path
+to your SAGA installation. This can be done by a 'SAGA_PATH' environment
+variable, either through the Windows' system or user environment
+variable settings, or with a Python command in the individual Python
+scripts itself. For the latter you can use a command like this
 
+> import os; os.environ['SAGA_PATH'] = 'C:/saga-9.1.0_x64'
 
-- The SAGA API DLL (Dynamic Link Library) must be in the PATH
-- 
+Another convenient possibility to define the SAGA installation path is
+the '__init__.py' module of the PySAGA package folder, where you find
+a 'SAGA_Path' variable for this purpose.
 
-Windows: Let the 'SAGA_PATH' environment variable point to
-the SAGA installation folder before importing 'saga_api'!
-This can be defined globally in the Windows system or
-user environment variable settings, in the 'PySAGA/__init__.py'
-file, or in the individual Python script itself. To do the latter
-just uncomment the following line and adjust the path accordingly:
-> import os; os.environ['SAGA_PATH'] = os.path.split(os.path.dirname(__file__))[0]
+The second step is to make the PySAGA package available to your Python
+scripts. Maybe the most convenient way to achieve this done by copying
+the PySAGA folder to the 'Lib/site-packages/' folder of your Python
+installation. This way all your Python scripts can easily import PySAGA.
+If don't want to do this or if you don't have the rights to do so, you
+can copy the PySAGA folder to the folder with the Python scripts in
+which you want to work with PySAGA. A further alternative is to add
+the path containing the PySAGA folder (e.g. the path to your SAGA
+installation) to the PYTHONPATH environment variable. You also can do
+this within your Python script with the following command (adjust the
+path accordingly):
 
-If you have not copied the PySAGA folder to your Python's 'Lib/site-packages/' folder
-you can alternatively add the path containing PySAGA (i.e. the 'SAGA_PATH') to
-the Python's package paths here:
-> import sys; sys.path.insert(1, os.environ['SAGA_PATH'])
+> import sys; sys.path.insert(1, 'C:/saga-9.1.0_x64')
 
-Initialize the SAGA environment (also loads all tools by default) and import the saga_api
-> import PySAGA; PySAGA.Initialize(True); import PySAGA.saga_api as saga
+With these two prerequisites in mind you can start using SAGA in your
+Python scripts by importing 'saga_api' from the PySAGA package
 
+> from PySAGA import saga_api
 
+...and add a short test requesting the loaded tool libraries
 
-import os; os.environ['SAGA_PATH'] = 'F:/develop/saga/saga-code/master/saga-gis/bin/saga_x64'
-
-# import sys; sys.path.insert(1, os.environ['SAGA_PATH'])
-
-import PySAGA; PySAGA.Initialize(); import PySAGA.saga_api as saga
-
-print(saga.SG_Get_Tool_Library_Manager().Get_Summary(saga.SG_SUMMARY_FMT_FLAT).c_str())
+> print(saga_api.SG_Get_Tool_Library_Manager().Get_Summary(saga_api.SG_SUMMARY_FMT_FLAT).c_str())

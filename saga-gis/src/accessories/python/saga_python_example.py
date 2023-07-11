@@ -24,7 +24,6 @@
 # SOFTWARE.
 #################################################################################
 
-
 #_________________________________________
 ##########################################
 # Initialize the environment...
@@ -37,13 +36,19 @@
 # just uncomment the following line and adjust the path accordingly:
 ###import os; os.environ['SAGA_PATH'] = os.path.split(os.path.dirname(__file__))[0]
 
-# If you have not copied the PySAGA folder to your Python's 'Lib/site-packages/' folder
-# you can alternatively add the path containing PySAGA (i.e. the 'SAGA_PATH') to
-# the Python's package paths here:
-###import sys; sys.path.insert(1, os.environ['SAGA_PATH'])
+# Windows: The most convenient way to make PySAGA available to all your
+# Python scripts is to copy the PySAGA folder to the 'Lib/site-packages/'
+# folder of your Python installation. If don't want to do this or if you
+# don't have the rights to do so, you can also copy it to the folder with
+# the Python scripts in which you want to use PySAGA, or alternatively
+# you can add the path containing the PySAGA folder (e.g. the path to your
+# SAGA installation) to the PYTHONPATH environment variable. To do this
+# from within your script you can also take the following command (just
+# uncomment the following line and adjust the path accordingly):
+###import sys, os; sys.path.insert(1, os.path.split(os.path.dirname(__file__))[0])
 
-# Initialize the SAGA environment (also loads all tools by default) and import the saga_api
-import PySAGA; PySAGA.Initialize(True); import PySAGA.saga_api as saga
+# Import saga_api from PySAGA:
+import PySAGA.saga_api as saga
 
 
 #_________________________________________
