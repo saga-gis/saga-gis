@@ -25,7 +25,7 @@ set(SAGA_API_PUBLIC_HEADERS
 find_package(SWIG QUIET)
 if(SWIG_FOUND)
 	message(STATUS "SWIG for Python found")
-    find_package(Python COMPONENTS Interpreter Development)
+	find_package(Python COMPONENTS Interpreter Development)
 	if(Python_FOUND)
 #		project(saga_api_python)
 
@@ -43,8 +43,8 @@ if(SWIG_FOUND)
 
 		include(UseSWIG)
 
-        include_directories("${Python_INCLUDE_DIRS}")
-        include_directories("${Python_INCLUDE_DIRS}/../PC")	# msvc builds
+		include_directories("${Python_INCLUDE_DIRS}")
+		include_directories("${Python_INCLUDE_DIRS}/../PC")	# msvc builds
 		include_directories("..")
 
 		set(CMAKE_SWIG_FLAGS "-D_SAGA_PYTHON -D_SWIG_WCHAR")
@@ -60,10 +60,18 @@ if(SWIG_FOUND)
 		swig_link_libraries(saga_api_python ${Python_LIBRARIES})
 
 
-        if(EXISTS ${Python_SITELIB})
-            message(STATUS "Python site-packages: ${PYTHON_SITELIB}")
-            install(TARGETS saga_api_python DESTINATION ${Python_SITELIB})
-            install(FILES ${CMAKE_BINARY_DIR}/src/saga_core/saga_api/saga_api_python/saga_api.py DESTINATION ${Python_SITELIB})
+		if(EXISTS ${Python_SITELIB})
+			option(WITH_PYTHON_PKG "PySAGA package installation (if not checked API modules become installed directly in Python's site/dist-packages folder)" ON)
+			if(WITH_PYTHON_PKG)
+				message(STATUS "SAGA-Python-API installed to: ${PYTHON_SITELIB}/PySAGA")
+				install(TARGETS saga_api_python                                                      DESTINATION ${Python_SITELIB}/PySAGA)
+				install(FILES ${CMAKE_BINARY_DIR}/src/saga_core/saga_api/saga_api_python/saga_api.py DESTINATION ${Python_SITELIB}/PySAGA)
+				install(FILES ${CMAKE_SOURCE_DIR}/src/accessories/python/__init__.py                 DESTINATION ${Python_SITELIB}/PySAGA)
+			else()
+				message(STATUS "SAGA-Python-API installed to: ${PYTHON_SITELIB}")
+				install(TARGETS saga_api_python                                                      DESTINATION ${Python_SITELIB})
+				install(FILES ${CMAKE_BINARY_DIR}/src/saga_core/saga_api/saga_api_python/saga_api.py DESTINATION ${Python_SITELIB})
+			endif()
 		endif()
 	endif()
 endif()
