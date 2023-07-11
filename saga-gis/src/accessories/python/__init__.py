@@ -49,7 +49,7 @@ SAGA_Path = None
 if os.name == 'nt': # Windows
 	SAGA_Path = os.getenv('SAGA_PATH')
 	if not SAGA_Path:
-		SAGA_Path = 'F:/develop/saga/saga-code/master/saga-gis/bin/saga_x64'
+		SAGA_Path = os.path.split(os.path.dirname(__file__))[0]
 
 	if 'add_dll_directory' in dir(os):
 		os.add_dll_directory(SAGA_Path)
@@ -60,28 +60,28 @@ if os.name == 'nt': # Windows
 #_________________________________________
 ##########################################
 
-bInitialized = False
+AutoLoadTools = True
 
-def Initialize(Verbose = True, WithTools = True):
-	import PySAGA.saga_api as saga
+from PySAGA import saga_api
 
-	global bInitialized
-	if not bInitialized:
-		bInitialized = True
-		saga.SG_Initialize_Environment(WithTools, True, SAGA_Path)
+saga_api.SG_Initialize_Environment(AutoLoadTools, True, SAGA_Path)
 
-	if Verbose == True:
-		import sys
-		print('_______')
-		print('Python-' + sys.version)
-		print('SAGA-{:s} (loaded {:d} libraries, {:d} tools)'.format(saga.SAGA_VERSION,
-			saga.SG_Get_Tool_Library_Manager().Get_Count(),
-			saga.SG_Get_Tool_Library_Manager().Get_Tool_Count()
-		))
-		print('_______')
+
+#_________________________________________
+##########################################
+
+def Version():
+	import sys
+	print('_______')
+	print('Python-' + sys.version)
+	print('SAGA-{:s} (loaded {:d} libraries, {:d} tools)'.format(saga_api.SAGA_VERSION,
+		saga_api.SG_Get_Tool_Library_Manager().Get_Count(),
+		saga_api.SG_Get_Tool_Library_Manager().Get_Tool_Count()
+	))
+	print('_______')
 
 	return True
 
-	
+
 #_________________________________________
 ##########################################
