@@ -309,15 +309,15 @@ CTree_Growth::CTree_Growth(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List("", "T"   , _TL("Mean Temperature"   ), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid_List("", "TMIN", _TL("Minimum Temperature"), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid_List("", "TMAX", _TL("Maximum Temperature"), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid_List("", "P"   , _TL("Precipitation"      ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid_List("", "T"   , _TL("Mean Temperature"   ), _TL("Monthly averages of daily mean temperature (12 grids, January to December) [°C]"), PARAMETER_INPUT);
+	Parameters.Add_Grid_List("", "TMIN", _TL("Minimum Temperature"), _TL("Monthly averages of daily minimum temperature (12 grids, January to December) [°C]"), PARAMETER_INPUT);
+	Parameters.Add_Grid_List("", "TMAX", _TL("Maximum Temperature"), _TL("Monthly averages of daily maximum temperature (12 grids, January to December) [°C]"), PARAMETER_INPUT);
+	Parameters.Add_Grid_List("", "P"   , _TL("Precipitation"      ), _TL("Monthly sums of precipitation (12 grids, January to December) [mm / m²]"), PARAMETER_INPUT);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_or_Const("",
 		"SWC"			, _TL("Soil Water Capacity of Profile"),
-		_TL("Total soil water capacity (mm H2O)."),
+		_TL("Total soil water capacity (mm H₂O)."),
 		220., 0., true
 	);
 
