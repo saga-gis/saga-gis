@@ -949,11 +949,6 @@ CSG_String CSG_Parameter_Choice::Get_Items(void) const
 			Items += "|";
 		}
 
-		if( !m_Data[i].is_Empty() )
-		{
-			Items += "{" + m_Data[i] + "}";
-		}
-
 		Items += m_Items[i];
 	}
 
