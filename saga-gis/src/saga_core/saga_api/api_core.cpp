@@ -372,101 +372,110 @@ bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char
 		g_App_Initialize.Initialize();
 	}
 
-	SG_UI_ProgressAndMsg_Lock(true);
-
 	//-----------------------------------------------------
-	#ifdef _SAGA_MSW
+	static bool bInitialized = false;
+
+	if( bInitialized == false )
 	{
-		wxString App_Path, Dll_Paths, System_Paths;
+		bInitialized = true;
 
-		if( Directory && SG_Dir_Exists(Directory) )
+		SG_UI_ProgressAndMsg_Lock(true);
+
+		#ifdef _SAGA_MSW
 		{
-			App_Path	= Directory;
+			wxString App_Path, Dll_Paths, System_Paths;
+
+			if( Directory && SG_Dir_Exists(Directory) )
+			{
+				App_Path	= Directory;
+			}
+			else
+			{
+				App_Path	= SG_UI_Get_Application_Path(true).c_str();
+			}
+
+			wxGetEnv("PATH", &System_Paths);
+
+			if( SG_Add_Dll_Paths(App_Path + "\\dll", Dll_Paths) )
+			{
+				Dll_Paths   += ';' + App_Path + ';' + System_Paths;
+
+				wxSetEnv("PATH", Dll_Paths);
+			}
+
+			if( bLibraries )
+			{
+				SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(&App_Path, "tools"), false);
+			}
+
+			if( bProjections )
+			{
+				SG_Get_Projections().Load_Dictionary(SG_File_Make_Path(&App_Path, "saga_prj", "dic"));
+				SG_Get_Projections().Load_DB        (SG_File_Make_Path(&App_Path, "saga_prj", "srs"));
+			}
 		}
-		else
+		#elif defined(__WXMAC__)
 		{
-			App_Path	= SG_UI_Get_Application_Path(true).c_str();
+			CSG_String App_Path(SG_UI_Get_Application_Path(true));
+
+			if( bLibraries )
+			{
+				if( SG_Get_Tool_Library_Manager().Add_Directory(App_Path + "/../Tools", false) < 1 )
+				{
+					#ifdef TOOLS_PATH
+					SG_Get_Tool_Library_Manager().Add_Directory(TOOLS_PATH);
+					#endif
+
+					#ifdef SHARE_PATH
+					SG_Get_Tool_Library_Manager().Add_Directory(CSG_String(SHARE_PATH) + "/toolchains");	// look for tool chains
+					#endif
+				}
+			}
+
+			if( bProjections )
+			{
+				if( SG_Get_Projections().Load_Dictionary(App_Path + "/saga_prj.dic") == false )
+				{
+					#ifdef SHARE_PATH
+					SG_Get_Projections().Load_Dictionary(CSG_String(SHARE_PATH) + "/saga_prj.dic");
+					#endif
+				}
+
+				if( SG_Get_Projections().Load_DB        (App_Path + "/saga_prj.srs") == false )
+				{
+					#ifdef SHARE_PATH
+					SG_Get_Projections().Load_DB        (CSG_String(SHARE_PATH) + "/saga_prj.srs");
+					#endif
+				}
+			}
+
+			if( SG_Dir_Exists(App_Path + "/proj-data") ) { wxSetEnv("PROJ_LIB" , wxString::Format("%s/proj-data", App_Path.c_str())); }
+			if( SG_Dir_Exists(App_Path + "/gdal-data") ) { wxSetEnv("GDAL_DATA", wxString::Format("%s/gdal-data", App_Path.c_str())); }
 		}
-
-		wxGetEnv("PATH", &System_Paths);
-
-		if( SG_Add_Dll_Paths(App_Path + "\\dll", Dll_Paths) )
+		#else // #ifdef _SAGA_LINUX
 		{
-			Dll_Paths   += ';' + App_Path + ';' + System_Paths;
-
-			wxSetEnv("PATH", Dll_Paths);
-		}
-
-		if( bLibraries )
-		{
-			SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(&App_Path, "tools"), false);
-		}
-
-		if( bProjections )
-		{
-			SG_Get_Projections().Load_Dictionary(SG_File_Make_Path(&App_Path, "saga_prj", "dic"));
-			SG_Get_Projections().Load_DB        (SG_File_Make_Path(&App_Path, "saga_prj", "srs"));
-		}
-	}
-	#elif defined(__WXMAC__)
-	{
-		CSG_String App_Path(SG_UI_Get_Application_Path(true));
-
-		if( bLibraries )
-		{
-			if( SG_Get_Tool_Library_Manager().Add_Directory(App_Path + "/../Tools", false) < 1 )
+			if( bLibraries )
 			{
 				#ifdef TOOLS_PATH
 				SG_Get_Tool_Library_Manager().Add_Directory(TOOLS_PATH);
 				#endif
-
 				#ifdef SHARE_PATH
-				SG_Get_Tool_Library_Manager().Add_Directory(CSG_String(SHARE_PATH) + "/toolchains");	// look for tool chains
+				SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(SHARE_PATH, "toolchains"));	// look for tool chains
 				#endif
 			}
-		}
 
-		if( bProjections )
-		{
-			if( SG_Get_Projections().Load_Dictionary(App_Path + "/saga_prj.dic") == false )
+			if( bProjections )
 			{
 				#ifdef SHARE_PATH
-				SG_Get_Projections().Load_Dictionary(CSG_String(SHARE_PATH) + "/saga_prj.dic");
-				#endif
-			}
-
-			if( SG_Get_Projections().Load_DB        (App_Path + "/saga_prj.srs") == false )
-			{
-				#ifdef SHARE_PATH
-				SG_Get_Projections().Load_DB        (CSG_String(SHARE_PATH) + "/saga_prj.srs");
+				SG_Get_Projections().Load_Dictionary(SG_File_Make_Path(SHARE_PATH, "saga_prj", "dic"));
+				SG_Get_Projections().Load_DB        (SG_File_Make_Path(SHARE_PATH, "saga_prj", "srs"));
 				#endif
 			}
 		}
+		#endif
 
-		if( SG_Dir_Exists(App_Path + "/proj-data") ) { wxSetEnv("PROJ_LIB" , wxString::Format("%s/proj-data", App_Path.c_str())); }
-		if( SG_Dir_Exists(App_Path + "/gdal-data") ) { wxSetEnv("GDAL_DATA", wxString::Format("%s/gdal-data", App_Path.c_str())); }
+		SG_UI_ProgressAndMsg_Lock(false);
 	}
-	#else // #ifdef _SAGA_LINUX
-	{
-		if( bLibraries )
-		{
-			#ifdef TOOLS_PATH
-			SG_Get_Tool_Library_Manager().Add_Directory(TOOLS_PATH);
-			#endif
-			#ifdef SHARE_PATH
-			SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(SHARE_PATH, "toolchains"));	// look for tool chains
-			#endif
-		}
-
-		if( bProjections )
-		{
-			#ifdef SHARE_PATH
-			SG_Get_Projections().Load_Dictionary(SG_File_Make_Path(SHARE_PATH, "saga_prj", "dic"));
-			SG_Get_Projections().Load_DB        (SG_File_Make_Path(SHARE_PATH, "saga_prj", "srs"));
-			#endif
-		}
-	}
-	#endif
 		
 	//-----------------------------------------------------
 	if( bLibraries )
@@ -475,6 +484,8 @@ bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char
 
 		if( wxGetEnv("SAGA_TLB", &Path) )
 		{
+			SG_UI_ProgressAndMsg_Lock(true);
+
 			#ifdef _SAGA_MSW
 				CSG_Strings	Paths = SG_String_Tokenize(&Path, ";" ); // colon (':') would split drive from paths!
 			#else // #ifdef _SAGA_LINUX
@@ -485,12 +496,12 @@ bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char
 			{
 				SG_Get_Tool_Library_Manager().Add_Directory(Paths[i]);
 			}
+
+			SG_UI_ProgressAndMsg_Lock(false);
 		}
 	}
 
 	//-----------------------------------------------------
-	SG_UI_ProgressAndMsg_Lock(false);
-
 	return( true );
 }
 
