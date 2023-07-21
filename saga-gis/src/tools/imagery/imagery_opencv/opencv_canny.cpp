@@ -102,7 +102,7 @@ bool COpenCV_Canny::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid *pGrid = Parameters("GRID")->asGrid();
+	CSG_Grid *pGrid = Parameters("GRID")->asGrid(); pGrid->Set_Max_Samples(pGrid->Get_NCells());
 
 	cv::Mat Grid(Get_NY(), Get_NX(), CV_8U);
 
