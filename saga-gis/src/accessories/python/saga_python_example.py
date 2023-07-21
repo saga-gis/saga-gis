@@ -48,7 +48,7 @@
 ###import sys, os; sys.path.insert(1, os.path.split(os.path.dirname(__file__))[0])
 
 # Import saga_api from PySAGA:
-import PySAGA.saga_api
+from PySAGA import saga_api
 
 
 #_________________________________________
