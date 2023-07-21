@@ -38,7 +38,7 @@
 
 # Windows: The most convenient way to make PySAGA available to all your
 # Python scripts is to copy the PySAGA folder to the 'Lib/site-packages/'
-# folder of your Python installation. If don't want to do this or if you
+# folder of your Python installation. If you don't want to do this or if you
 # don't have the rights to do so, you can also copy it to the folder with
 # the Python scripts in which you want to use PySAGA, or alternatively
 # you can add the path containing the PySAGA folder (e.g. the path to your
@@ -48,14 +48,14 @@
 ###import sys, os; sys.path.insert(1, os.path.split(os.path.dirname(__file__))[0])
 
 # Import saga_api from PySAGA:
-import PySAGA.saga_api as saga
+import PySAGA.saga_api
 
 
 #_________________________________________
 ##########################################
 def Run_Random_Terrain():
     print('Running: Random Terrain')
-    Tool = saga.SG_Get_Tool_Library_Manager().Get_Tool('grid_calculus', '6')
+    Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('grid_calculus', '6')
     if not Tool:
         print('Failed to request tool: Random Terrain')
         import sys; sys.exit()
@@ -80,7 +80,7 @@ def Run_Random_Terrain():
 ##########################################
 def Run_Slope_Aspect_Curvature(DEM):
     print('Running: Slope, Aspect, Curvature')
-    Tool = saga.SG_Get_Tool_Library_Manager().Get_Tool('ta_morphometry', '0')
+    Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('ta_morphometry', '0')
     if not Tool:
         print('Failed to request tool: Slope, Aspect, Curvature')
         return  None, None, None, None
@@ -90,8 +90,8 @@ def Run_Slope_Aspect_Curvature(DEM):
     Tool.Set_Parameter('METHOD'     , 6) # '9 parameter 2nd order polynom (Zevenbergen & Thorne 1987)'
     Tool.Set_Parameter('UNIT_SLOPE' , 0) # 'radians'
     Tool.Set_Parameter('UNIT_ASPECT', 1) # 'degree'
-    Tool.Set_Parameter('C_LONG'     , saga.SG_Get_Create_Pointer()) # optional output, remove this line, if you don't want to create it
-    Tool.Set_Parameter('C_CROS'     , saga.SG_Get_Create_Pointer()) # optional output, remove this line, if you don't want to create it
+    Tool.Set_Parameter('C_LONG'     , saga_api.SG_Get_Create_Pointer()) # optional output, remove this line, if you don't want to create it
+    Tool.Set_Parameter('C_CROS'     , saga_api.SG_Get_Create_Pointer()) # optional output, remove this line, if you don't want to create it
 
     if not Tool.Execute():
         print('failed to execute tool: ' + Tool.Get_Name().c_str())
@@ -116,7 +116,7 @@ def Run_Grid_Difference(A, B, PythonLoop):
     # cell by cell, slower than second solution
     if PythonLoop:
         print('Running: Grid Difference (Cell by Cell)\n')
-        C = saga.SG_Create_Grid(A.Get_System())
+        C = saga_api.SG_Create_Grid(A.Get_System())
         for y in range(0, C.Get_NY()):
             print('\r{:04.1f}%'.format(y * 100. / C.Get_NY()), end='\r', flush=True)
             for x in range(0, C.Get_NX()):
@@ -129,7 +129,7 @@ def Run_Grid_Difference(A, B, PythonLoop):
     # using built-in CSG_Grid function 'Subtract()'
     else:
         print('Running: Grid Difference (CSG_Grid::Subtract())')
-        C = saga.SG_Create_Grid(A)
+        C = saga_api.SG_Create_Grid(A)
         C.Subtract(B)
 
     # ------------------------------------
@@ -142,7 +142,7 @@ def Run_Grid_Difference(A, B, PythonLoop):
 ##########################################
 def Run_Contour_Lines_from_Grid(Grid):
     print('Running: Contour Lines from Grid')
-    Tool = saga.SG_Get_Tool_Library_Manager().Get_Tool('shapes_grid', '5')
+    Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('shapes_grid', '5')
     if not Tool:
         print('Failed to request tool: Contour Lines from Grid')
         import sys; sys.exit()
@@ -161,7 +161,7 @@ def Run_Contour_Lines_from_Grid(Grid):
 ##########################################
 def Run_Geomorphons(DEM):
     print('Running: Geomorphons')
-    Tool = saga.SG_Get_Tool_Library_Manager().Get_Tool('ta_lighting', '8')
+    Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('ta_lighting', '8')
     if not Tool:
         print('Failed to request tool: Geomorphons')
         import sys; sys.exit()
@@ -186,7 +186,7 @@ print('This is a simple script to demonstrate the usage of SAGA and its tools th
 
 Verbose = False
 if not Verbose:
-    saga.SG_UI_ProgressAndMsg_Lock(True)
+    saga_api.SG_UI_ProgressAndMsg_Lock(True)
 
 import os;
 output = 'test/'
@@ -195,7 +195,7 @@ if not os.path.exists(output):
 
 #_________________________________________
 # load or create a Digital Elevation Model
-DEM = saga.SG_Get_Data_Manager().Add_Grid(output + 'dem.tif')
+DEM = saga_api.SG_Get_Data_Manager().Add_Grid(output + 'dem.tif')
 if not DEM:
     DEM = Run_Random_Terrain()
     DEM.Save(output + 'dem.tif')
@@ -228,10 +228,10 @@ Geomorphons.Save(output + 'geomorphons.tif')
 
 #_________________________________________
 # when job is done, free memory resources:
-saga.SG_Get_Data_Manager().Delete_All()
+saga_api.SG_Get_Data_Manager().Delete_All()
 
 if not Verbose:
-    saga.SG_UI_ProgressAndMsg_Lock(False)
+    saga_api.SG_UI_ProgressAndMsg_Lock(False)
 
 print('________________\n...the end!')
 
