@@ -51,9 +51,8 @@ ECHO #                                #
 ECHO ##################################
 ECHO __________________________________
 ECHO Things you should have updated and committed before:
-ECHO.  - dev_tools.dll (x64)
+ECHO.  - dev_tools.dll
 ECHO.  - Translation Files
-ECHO.  - Tools Interface (Python)
 ECHO.
 ECHO Enter 'y' to continue!
 SET /P ANSWER=
