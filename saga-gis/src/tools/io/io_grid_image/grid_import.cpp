@@ -152,11 +152,11 @@ bool CGrid_Import::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_File	Stream;
 
-	if     ( SG_File_Cmp_Extension(File, "bmp") ) { Stream.Open(SG_File_Make_Path("", File,   "bpw"), SG_FILE_R, false); }
-	else if( SG_File_Cmp_Extension(File, "jpg") ) { Stream.Open(SG_File_Make_Path("", File,   "jgw"), SG_FILE_R, false); }
-	else if( SG_File_Cmp_Extension(File, "png") ) { Stream.Open(SG_File_Make_Path("", File,   "pgw"), SG_FILE_R, false); }
-	else if( SG_File_Cmp_Extension(File, "tif") ) { Stream.Open(SG_File_Make_Path("", File,   "tfw"), SG_FILE_R, false); }
-	else                                          { Stream.Open(SG_File_Make_Path("", File, "world"), SG_FILE_R, false); }
+	if     ( SG_File_Cmp_Extension(File, "bmp") ) { if( !Stream.Open(SG_File_Make_Path("", File, "bpw"), SG_FILE_R, false) ) { Stream.Open(SG_File_Make_Path("", File,  "bpwx"), SG_FILE_R, false); } }
+	else if( SG_File_Cmp_Extension(File, "jpg") ) { if( !Stream.Open(SG_File_Make_Path("", File, "jgw"), SG_FILE_R, false) ) { Stream.Open(SG_File_Make_Path("", File,  "jgwx"), SG_FILE_R, false); } }
+	else if( SG_File_Cmp_Extension(File, "png") ) { if( !Stream.Open(SG_File_Make_Path("", File, "pgw"), SG_FILE_R, false) ) { Stream.Open(SG_File_Make_Path("", File,  "pgwx"), SG_FILE_R, false); } }
+	else if( SG_File_Cmp_Extension(File, "tif") ) { if( !Stream.Open(SG_File_Make_Path("", File, "tfw"), SG_FILE_R, false) ) { Stream.Open(SG_File_Make_Path("", File,  "tfwx"), SG_FILE_R, false); } }
+	else                                          {                                                                            Stream.Open(SG_File_Make_Path("", File, "world"), SG_FILE_R, false);   }
 
 	bool bTransform = false; double xMin = 0., yMin = 0., Cellsize = 1., m[6];
 
@@ -175,9 +175,34 @@ bool CGrid_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	CSG_Projection Projection;
+
+	if( SG_File_Exists(File + ".aux.xml") )
+	{
+		CSG_MetaData MD(File + ".aux.xml");
+
+		for(int i=0; i<MD.Get_Children_Count(); i++)
+		{
+			if( MD[i].Cmp_Name("Metadata") && MD[i].Cmp_Property("domain", "xml:ESRI") && MD[i].Cmp_Property("format", "xml")
+			&&  MD[i]("GeodataXform")
+			&&  MD[i]["GeodataXform"]("SpatialReference")
+			&&  MD[i]["GeodataXform"]["SpatialReference"]("WKT") )
+			{
+				Projection.Create(MD[i]["GeodataXform"]["SpatialReference"]["WKT"].Get_Content());
+				break;
+			}
+		}
+	}
+
+	if( !Projection.is_Okay() && SG_File_Exists(SG_File_Make_Path("", File, "prj")) )
+	{
+		Projection.Load(SG_File_Make_Path("", File, "prj"));
+	}
+
+	//-----------------------------------------------------
 	#define SET_METADATA(pGrid, Suffix, Output) {\
 		pGrid->Set_Name(SG_File_Get_Name(File, false) + Suffix);\
-		pGrid->Get_Projection().Load(SG_File_Make_Path("", File, "prj"), SG_PROJ_FMT_WKT);\
+		pGrid->Get_Projection().Create(Projection);\
 		Parameters(Output)->Set_Value(pGrid);\
 		DataObject_Set_Colors(pGrid, 11, SG_COLORS_BLACK_WHITE);\
 	}
