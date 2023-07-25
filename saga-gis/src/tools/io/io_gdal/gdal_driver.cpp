@@ -1069,21 +1069,21 @@ bool CSG_GDAL_DataSet::Write(int i, CSG_Grid *pGrid, double noDataValue)
 		return( false );
 	}
 
-	GDALRasterBandH	pBand	= GDALGetRasterBand(m_pDataSet, i + 1);
+	GDALRasterBandH pBand = GDALGetRasterBand(m_pDataSet, i + 1);
 
 	//-----------------------------------------------------
-	CPLErr	Error	= CE_None;
+	CPLErr Error  = CE_None;
 
-	double	*zLine	= (double *)SG_Malloc(Get_NX() * sizeof(double));
+	double *zLine = (double *)SG_Malloc(Get_NX() * sizeof(double));
 
 	for(int y=0, yy=Get_NY()-1; Error==CE_None && y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++, yy--)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
-			zLine[x]	= pGrid->is_NoData(x, yy) ? noDataValue : pGrid->asDouble(x, yy);
+			zLine[x] = pGrid->is_NoData(x, yy) ? noDataValue : pGrid->asDouble(x, yy, false);
 		}
 
-		Error	= GDALRasterIO(pBand, GF_Write, 0, y, Get_NX(), 1, zLine, Get_NX(), 1, GDT_Float64, 0, 0);
+		Error = GDALRasterIO(pBand, GF_Write, 0, y, Get_NX(), 1, zLine, Get_NX(), 1, GDT_Float64, 0, 0);
 	}
 
 	SG_Free(zLine);
