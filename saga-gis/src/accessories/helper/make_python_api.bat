@@ -130,7 +130,7 @@ IF /i "%OUTPUT%" == "update" (
 	PUSHD PySAGA
 	COPY "%SAGA_LIBSRC%\saga_api.py"
 	COPY "%SAGA_LIBSRC%\_saga_api*.pyd"
-	COPY "%SAGA_ROOT%\src\accessories\python\__init__.py"
+	COPY "%SAGA_ROOT%\src\accessories\python\*.py"
 	POPD
 	POPD
 )
@@ -144,7 +144,7 @@ IF /i "%OUTPUT%" == "install" (
 	PUSHD "%SAGA_BIN%\PySAGA"
 	COPY "%SAGA_LIBSRC%\saga_api.py"
 	COPY "%SAGA_LIBSRC%\_saga_api*.pyd"
-	COPY "%SAGA_ROOT%\src\accessories\python\__init__.py"
+	COPY "%SAGA_ROOT%\src\accessories\python\*.py"
 	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_example.py"
 	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_example.bat"
 	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_readme.txt"
@@ -165,7 +165,7 @@ IF /i "%OUTPUT%" == "zip" (
 	PUSHD PySAGA
 	COPY "%SAGA_LIBSRC%\saga_api.py"
 	COPY "%SAGA_LIBSRC%\_saga_api*.pyd"
-	COPY "%SAGA_ROOT%\src\accessories\python\__init__.py"
+	COPY "%SAGA_ROOT%\src\accessories\python\*.py"
 	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_example.py"
 	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_example.bat"
 	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_readme.txt"
