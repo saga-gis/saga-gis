@@ -233,7 +233,7 @@ def Get_Monthly(Variable, Year, Month, AOI=None, bDeleteGlobal=False):
     return os.path.exists(Target_File) or Get_Variable(Get_Global_Monthly(Variable, Year, Month), Target_File, AOI, Scaling, Offset, Unit, bDeleteGlobal)
 
 #________________________________________________________________________________
-def Get_Monthly_Series(Variable, Years=[1980, 2019], Months=[1, 12], AOI=None, bDeleteGlobal=False):
+def Get_Monthly_Series(Variable, AOI=None, Years=[1980, 2019], Months=[1, 12], bDeleteGlobal=False):
     for Year in range(Years[0], Years[1] + 1):
         for Month in range(Months[0], Months[1] + 1):
             Get_Monthly(Variable, Year, Month, AOI, bDeleteGlobal)
@@ -322,15 +322,15 @@ def Get_Variable(Global_File, Target_File, AOI, Scaling=1., Offset=0., Unit=None
 
     #############################################################################
     #____________________________________________________________________________
-    print('\nprocessing: {:s}...'.format(Target_File), end='', flush=True)
     if os.path.exists(Target_File):
-        print('okay')
         return True # has already been processed
 
-    if not os.path.exists(Global_File):
+    if not Global_File or not os.path.exists(Global_File):
         return False # download of original file seems to have failed
 
     #____________________________________________________________________________
+    print('\nprocessing: {:s}...'.format(Target_File), end='', flush=True)
+
     saga_api.SG_UI_ProgressAndMsg_Lock(True) # suppress noise
 
     Grid = Import_Raster(Global_File, AOI)
