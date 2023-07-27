@@ -287,7 +287,10 @@ def Get_Variable(Global_File, Target_File, AOI, Scaling=1., Offset=0., Unit=None
             return None
 
         Grid = Tool.Get_Parameter('GRIDS').asGridList().Get_Grid(0)
-        Grid.Set_NoData_Value(-32767)
+
+        if Grid.Get_Type() == saga_api.SG_DATATYPE_Short and Grid.Get_NoData_Value() < -32767:
+            Grid.Set_NoData_Value(-32767)
+
         if AOI.Get_Projection().is_Geographic():
             return Grid
 
