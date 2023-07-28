@@ -34,11 +34,11 @@ if(SWIG_FOUND)
 		message(STATUS "Python found")
 
 		if(POLICY CMP0078)	# SWIG: use standard target name.
-		  cmake_policy(SET CMP0078 NEW)
+			cmake_policy(SET CMP0078 NEW)
 		endif()
 
 		if(POLICY CMP0086)	# SWIG: use SWIG_MODULE_NAME property.
-		  cmake_policy(SET CMP0086 NEW)
+			cmake_policy(SET CMP0086 NEW)
 		endif()
 
 		include(UseSWIG)
@@ -67,9 +67,7 @@ if(SWIG_FOUND)
 				install(TARGETS saga_api_python                                                      DESTINATION ${Python_SITELIB}/PySAGA)
 				install(FILES ${CMAKE_BINARY_DIR}/src/saga_core/saga_api/saga_api_python/saga_api.py DESTINATION ${Python_SITELIB}/PySAGA)
 				install(FILES ${CMAKE_SOURCE_DIR}/src/accessories/python/__init__.py                 DESTINATION ${Python_SITELIB}/PySAGA)
-				install(FILES ${CMAKE_SOURCE_DIR}/src/accessories/python/chelsa.py                   DESTINATION ${Python_SITELIB}/PySAGA)
-				install(FILES ${CMAKE_SOURCE_DIR}/src/accessories/python/srtm.py                     DESTINATION ${Python_SITELIB}/PySAGA)
-			#	install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/accessories/python DESTINATION ${Python_SITELIB}/PySAGA FILES_MATCHING PATTERN "*.py")
+				install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/accessories/python/data                    DESTINATION ${Python_SITELIB}/PySAGA FILES_MATCHING PATTERN "*.py")
 			else()
 				message(STATUS "SAGA-Python-API installed to: ${Python_SITELIB}")
 				install(TARGETS saga_api_python                                                      DESTINATION ${Python_SITELIB})

@@ -115,14 +115,14 @@ REM Collecting files...
 REM ___________________________________
 REM update files in Python's \Lib\site-packages directory...
 IF /i "%OUTPUT%" == "update" (
+	PUSHD "%PYTHON_PKG%"
+
 	REM remove previous instances of the SAGA Python-API
-	DEL "%PYTHON_PKG%\*saga_*.py*"
-	DEL "%PYTHON_PKG%\*saga_*.egg-info"
+	DEL *saga_*.py*"
+	DEL *saga_*.egg-info"
 	IF EXIST "%PYTHONEGG%" (
 		RMDIR /S/Q "%PYTHONEGG%"
 	)
-
-	PUSHD "%PYTHON_PKG%"
 	IF EXIST PySAGA (
 		RMDIR /S/Q PySAGA
 	)
@@ -130,8 +130,9 @@ IF /i "%OUTPUT%" == "update" (
 	PUSHD PySAGA
 	COPY "%SAGA_LIBSRC%\saga_api.py"
 	COPY "%SAGA_LIBSRC%\_saga_api*.pyd"
-	COPY "%SAGA_ROOT%\src\accessories\python\*.py"
+	XCOPY /C/S/Q/Y/H "%SAGA_ROOT%\src\accessories\python"
 	POPD
+
 	POPD
 )
 
@@ -144,10 +145,7 @@ IF /i "%OUTPUT%" == "install" (
 	PUSHD "%SAGA_BIN%\PySAGA"
 	COPY "%SAGA_LIBSRC%\saga_api.py"
 	COPY "%SAGA_LIBSRC%\_saga_api*.pyd"
-	COPY "%SAGA_ROOT%\src\accessories\python\*.py"
-	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_example.py"
-	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_example.bat"
-	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_readme.txt"
+	XCOPY /C/S/Q/Y/H "%SAGA_ROOT%\src\accessories\python"
 	POPD
 )
 
@@ -165,10 +163,7 @@ IF /i "%OUTPUT%" == "zip" (
 	PUSHD PySAGA
 	COPY "%SAGA_LIBSRC%\saga_api.py"
 	COPY "%SAGA_LIBSRC%\_saga_api*.pyd"
-	COPY "%SAGA_ROOT%\src\accessories\python\*.py"
-	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_example.py"
-	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_example.bat"
-	COPY "%SAGA_ROOT%\src\accessories\python\saga_python_readme.txt"
+	XCOPY /C/S/Q/Y/H "%SAGA_ROOT%\src\accessories\python"
 	POPD
 
 	POPD

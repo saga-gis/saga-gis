@@ -33,14 +33,38 @@
 
 import os; from PySAGA import saga_api
 
-Dir_Global = os.getcwd() + '/srtm_global'
+Dir_Global = os.getcwd() + '/global'
+Dir_Target = os.getcwd() + '/aoi'
+Ext_Target = 'sg-grd-z'
 
 Download_Retries = 4
 
 
 #################################################################################
+#________________________________________________________________________________
+def _Variable_Unit_Conversion(Variable):
+    if Variable == 'tas' or Variable == 'tasmin' or Variable == 'tasmax':
+        return 0.1 , -273.15, 'Celsius'    # 1/10 Kelvin => ° Celsius
+
+    if Variable == 'pr':
+        return 0.1 ,    0.  , 'mm / month' # 1/10 kg / m² / month
+
+    if Variable == 'pet':
+        return 0.01,    0.  , 'mm / month' # 1/100 kg / m² / month
+
+    return 1., 0., None
+
+#________________________________________________________________________________
+def _Variable_File_Suffix(Variable):
+    if Variable == 'pet':
+        return '_penman'
+
+    return ''
+
+
+#################################################################################
 #
-# Providing the original SRTM files...
+# Providing the original CHELSA files...
 #________________________________________________________________________________
 
 #________________________________________________________________________________
@@ -48,15 +72,16 @@ Download_Retries = 4
 # it tries to download the file from 'Remote_Dir'. The function returns the file
 # path to the requested data set if it exists in 'Local_Dir' or 'None'.
 #________________________________________________________________________________
-def Get_File(File, Local_Dir, Remote_Dir):
+def Get_Global_File(File, Local_Dir, Remote_Dir):
+    if not os.path.exists(Local_Dir):
+        os.makedirs(Local_Dir)
+
     Local_File = '{:s}/{:s}'.format(Local_Dir, File)
     if os.path.exists(Local_File):
         return Local_File
 
-    if not os.path.exists(Local_Dir):
-        os.makedirs(Local_Dir)
-
-    Remote_File = '{:s}/{:s}'.format(Remote_Dir, File)
+    Remote_Root = 'https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL'
+    Remote_File = '{:s}/{:s}/{:s}'.format(Remote_Root, Remote_Dir, File)
 
     Retry = Download_Retries
     if Retry < 0:
@@ -79,127 +104,149 @@ def Get_File(File, Local_Dir, Remote_Dir):
 
 #################################################################################
 #
-# Virtual Raster Tiles...
+# Climatologies...
 #________________________________________________________________________________
 
 #________________________________________________________________________________
-# This function creates or updates the virtual raster (VRT) file named 'File'
-# using all raster tiles found in 'Dir_Global'. It will be stored in the same
-# directory.
+# Returns file path to requested data set or 'None'. Local storage path is defined
+# by the global 'Dir_Global' variable and defaults to 'global' subfolder relative
+# to the current working directory.
 #________________________________________________________________________________
-def Set_VRT(VRT_Name='srtm_global'):
-    import glob; Files = glob.glob('{:s}/*.tif'.format(Dir_Global))
-    if len(Files) < 1:
-        print('Error: directory \'{:s}\' does not contain any TIFF!'.format(Dir_Global))
-        return None
+def Get_Global_Climatology_Month(Variable, Month):
+    File       = 'CHELSA_{:s}{:s}_{:02d}_1981-2010_V.2.1.tif'.format(Variable, _Variable_File_Suffix(Variable), Month)
+    Local_Dir  = '{:s}/{:s}'.format(Dir_Global, Variable)
+    Remote_Dir = 'climatologies/1981-2010/{:s}'.format(Variable)
 
-    Tiles = ''
-    for File in Files:
-        Tiles += '\"{:s}\" '.format(File)
+    return Get_Global_File(File, Local_Dir, Remote_Dir)
 
-    Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('io_gdal', '12')
-    if not Tool:
-        print('Failed to request tool: Create Virtual Raster (VRT)')
-        return None
+#________________________________________________________________________________
+# Get the original file of a variable for all months.
+#________________________________________________________________________________
+def Get_Global_Climatology(Variable):
+    nFailed = 0
+    for Month in range(1, 12 + 1):
+        if not Get_Global_Climatology_Month(Variable, Month):
+            nFailed += 1; print('download failed for {:s}-{:02d}'.format(Variable, Month))
 
-    Tool.Reset()
-    Tool.Set_Parameter('FILES'   , Tiles)
-    Tool.Set_Parameter('VRT_NAME', '{:s}/{:s}.vrt'.format(Dir_Global, VRT_Name))
+    if nFailed > 0:
+        print('Error: {:d} download(s) failed'.format(nFailed));
+        return False
+    return True
 
-    saga_api.SG_UI_ProgressAndMsg_Lock(True)
-    if not Tool.Execute():
-        saga_api.SG_UI_ProgressAndMsg_Lock(False)
-        print('failed to execute tool: ' + Tool.Get_Name().c_str())
-        return None
+#________________________________________________________________________________
+# Get a variable for the area of your interest (AOI)...
+#________________________________________________________________________________
+def Get_Climatology_Month(Variable, Month, AOI=None, bDeleteGlobal=False):
+    Scaling, Offset, Unit = _Variable_Unit_Conversion(Variable)
+    Target_File = '{:s}/{:s}/{:s}_{:02d}.{:s}'.format(Dir_Target, Variable, Variable, Month, Ext_Target)
+    return os.path.exists(Target_File) or Get_Variable(Get_Global_Climatology_Month(Variable, Month), Target_File, AOI, Scaling, Offset, Unit, bDeleteGlobal)
 
-    saga_api.SG_UI_ProgressAndMsg_Lock(False)
-    return Tool.Get_Parameter("VRT_NAME").asString()
+#________________________________________________________________________________
+def Get_Climatology(Variable, AOI=None, bDeleteGlobal=False):
+    for Month in range(1, 12 + 1):
+        Get_Climatology_Month(Variable, Month, AOI, bDeleteGlobal)
 
 
 #################################################################################
 #
-# CGIAR SRTM 3''...
+# Future Projections...
 #________________________________________________________________________________
 
 #________________________________________________________________________________
-# Returns 0 if tile is already present in the local storage path, 1 if it has
-# been download successfully, or -1 if the download failed. Local storage path is
-# defined by the global 'Dir_Global' variable and defaults to 'global' subfolder
-# relative to the current working directory.
+# Returns file path to requested data set or 'None'. Local storage path is defined
+# by the global 'Dir_Global' variable and defaults to 'global' subfolder relative
+# to the current working directory.
 #________________________________________________________________________________
-def CGIAR_Get_Tile(Col, Row, DeleteZip=True):
-    if Col < 1 or Col >= 72:
-        print('Error: requested column {:d} is out-of-range (1-72)'.format(Row))
-        return -1
+def Get_Global_Projection(Variable, Month, Period = '2041-2070', Model = 'MPI-ESM1-2-HR', SSP = '585'):
+    File       = 'CHELSA_{:s}_r1i1p1f1_w5e5_ssp{:s}_{:s}_{:02d}_{:s}_norm.tif'.format(Model.lower(), SSP, Variable, Month, Period.replace('-', '_'))
+    Local_Dir  = '{:s}/{:s}'.format(Dir_Global, Variable)
+    Remote_Dir = 'climatologies/{:s}/{:s}/ssp{:s}/{:s}'.format(Period, Model.upper(), SSP, Variable)
 
-    if Row < 1 or Row >= 24:
-        print('Error: requested row {:d} is out-of-range (1-24)'.format(Col))
-        return -1
-
-    Local_File = '{:s}/srtm_{:02d}_{:02d}.tif'.format(Dir_Global, Col, Row)
-    if os.path.exists(Local_File):
-        return 0
-
-    Remote_Dir = 'https://srtm.csi.cgiar.org/wp-content/uploads/files/srtm_5x5/TIFF'
-
-    Zip_File = Get_File('srtm_{:02d}_{:02d}.zip'.format(Col, Row), Dir_Global, Remote_Dir)
-    if not Zip_File:
-        return -1
-
-    import zipfile; zf = zipfile.ZipFile(Zip_File, 'r')
-    Local_File = zf.extract('srtm_{:02d}_{:02d}.tif'.format(Col, Row), Dir_Global)
-    zf.close()
-    if DeleteZip:
-        os.remove(Zip_File)
-    return 1
+    return Get_Global_File(File, Local_Dir, Remote_Dir)
 
 #________________________________________________________________________________
-def CGIAR_Get_Tiles(Cols=[1, 1], Rows=[1, 1], DeleteZip=True):
-    if Cols[1] < Cols[0]:
-        Col = Cols[0]; Cols[0] = Cols[1]; Cols[1] = Col
-    if Cols[0] < 1:
-        Cols[0] = 1
-    elif Cols[1] > 72:
-        Cols[1] = 72
-
-    if Rows[1] < Rows[0]:
-        Row = Rows[0]; Rows[0] = Rows[1]; Cols[1] = Row
-    if Rows[0] < 1:
-        Rows[0] = 1
-    elif Rows[1] > 24:
-        Rows[1] = 24
-
-    print('requesting tiles for rows {:d}-{:d} and columns {:d}-{:d}\n'.format(Rows[0], Rows[1], Cols[0], Cols[1]))
-    nAdded = 0; nFailed = 0
-    for Col in range(Cols[0], Cols[1] + 1):
-        for Row in range(Rows[0], Rows[1] + 1):
-            if Col >= 1 and Col <= 72 and Row >= 1 and Row <= 24:
-                Result = CGIAR_Get_Tile(Col, Row, DeleteZip)
-                if Result > 0:
-                    nAdded  += 1
-                elif Result < 0:
-                    nFailed += 1
+# Get the original file of a variable for all months.
+#________________________________________________________________________________
+def Get_Global_Projection_AllMonths(Variable, Period = '2041-2070', Model = 'MPI-ESM1-2-HR', SSP = '585'):
+    nFailed = 0
+    for Month in range(1, 12 + 1):
+        if not Get_Global_Projection(Variable, Month, Period, Model, SSP):
+            nFailed += 1; print('download failed for {:s}-{:02d} [{:s}/{:s}/{:s}]'.format(Variable, Month, Period, SSP, Model))
 
     if nFailed > 0:
-        print('Error: {:d} download(s) of {:d} failed'.format(nFailed, nFailed + nAdded))
-    if nAdded > 0:
-        Set_VRT()
-    return nFailed == 0
+        print('Error: {:d} download(s) failed'.format(nFailed));
+        return False
+    return True
 
 #________________________________________________________________________________
-def CGIAR_Get_Tiles_byExtent(Lon=[-180, 180], Lat=[-60, 60], DeleteZip=True):
-    Cellsize = 3. / 3600.; Lon[0] -= Cellsize; Lon[1] += Cellsize; Lat[0] -= Cellsize; Lat[1] += Cellsize
-
-    Cols = [1 + int((Lon[0] + 180.) / 5.), 1 + int((Lon[1] + 180.) / 5.)]
-    Rows = [1 + int(( 60. - Lat[1]) / 5.), 1 + int(( 60. - Lat[0]) / 5.)]
-
-    return CGIAR_Get_Tiles(Cols, Rows, DeleteZip)
+# Get a variable for the area of your interest (AOI)...
+#________________________________________________________________________________
+def Get_Projection_Month(Variable, Month, AOI=None, bDeleteGlobal=False):
+    Scaling, Offset, Unit = _Variable_Unit_Conversion(Variable)
+    Target_File = '{:s}/{:s}/{:s}_{:02d}.{:s}'.format(Dir_Target, Variable, Variable, Month, Ext_Target)
+    return os.path.exists(Target_File) or Get_Variable(Get_Global_Climatology_Month(Variable, Month), Target_File, AOI, Scaling, Offset, Unit, bDeleteGlobal)
 
 #________________________________________________________________________________
-def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90, DeleteZip=True, Verbose=False):
+def Get_Projection(Variable, AOI=None, bDeleteGlobal=False):
+    for Month in range(1, 12 + 1):
+        Get_Projection_Month(Variable, Month, AOI, bDeleteGlobal)
+
+
+#################################################################################
+#
+# Monthly Time Series...
+#________________________________________________________________________________
+
+#________________________________________________________________________________
+# Returns file path to requested data set or 'None'. Local storage path is defined
+# by the global 'Dir_Global' variable and defaults to 'global' subfolder relative
+# to the current working directory.
+#________________________________________________________________________________
+def Get_Global_Monthly(Variable, Year, Month):
+    File       = 'CHELSA_{:s}{:s}_{:02d}_{:04d}_V.2.1.tif'.format(Variable, _Variable_File_Suffix(Variable), Month, Year)
+    Local_Dir  = '{:s}/{:s}'.format(Dir_Global, Variable)
+    Remote_Dir = 'monthly/{:s}/'.format(Variable)
+
+    return Get_Global_File(File, Local_Dir, Remote_Dir)
+
+#________________________________________________________________________________
+# Get the original file of a variable for the given monthly and year's range.
+#________________________________________________________________________________
+def Get_Global_Monthly_Series(Variable, Years = [1980, 2019], Months=[1, 12]):
+    nFailed = 0
+    for Year in range(Years[0], Years[1] + 1):
+        for Month in range(1, 12 + 1):
+            if not Get_Global_Monthly(Variable, Year, Month):
+                nFailed += 1; print('download failed for {:s}-{:04d}-{:02d}'.format(Variable, Year, Month))
+
+    if nFailed > 0:
+        print('Error: {:d} download(s) failed'.format(nFailed));
+        return False
+    return True
+
+#________________________________________________________________________________
+# Get a variable for the area of your interest (AOI)...
+#________________________________________________________________________________
+def Get_Monthly(Variable, Year, Month, AOI=None, bDeleteGlobal=False):
+    Scaling, Offset, Unit = _Variable_Unit_Conversion(Variable)
+    Target_File = '{:s}/{:s}/{:s}_{:04d}_{:02d}.{:s}'.format(Dir_Target, Variable, Variable, Year, Month, Ext_Target)
+    return os.path.exists(Target_File) or Get_Variable(Get_Global_Monthly(Variable, Year, Month), Target_File, AOI, Scaling, Offset, Unit, bDeleteGlobal)
+
+#________________________________________________________________________________
+def Get_Monthly_Series(Variable, AOI=None, Years=[1980, 2019], Months=[1, 12], bDeleteGlobal=False):
+    for Year in range(Years[0], Years[1] + 1):
+        for Month in range(Months[0], Months[1] + 1):
+            Get_Monthly(Variable, Year, Month, AOI, bDeleteGlobal)
+
+
+#################################################################################
+#
+# Extract and project a variable to fit the given area of your interest (AOI)...
+#________________________________________________________________________________
+def Get_Variable(Global_File, Target_File, AOI, Scaling=1., Offset=0., Unit=None, bDeleteGlobal=False):
 
     #____________________________________________________________________________
-    def Import_Raster():
+    def Import_Raster(File, AOI):
         if not AOI or not AOI.is_Valid() or not AOI.Get_Projection().is_Okay():
             print('Error: invalid AOI')
             return None
@@ -218,13 +265,8 @@ def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90, DeleteZip=True, Verbos
             if not saga_api.SG_Get_Projected(_AOI, None, saga_api.CSG_Projections().Get_GCS_WGS84()):
                 del(_AOI); print('Error: failed to project AOI to GCS')
                 return None
-            Extent = _AOI.Get_Extent()#; Extent.Inflate(10 * 3 / 3600, False)
+            Extent = _AOI.Get_Extent(); Extent.Inflate(10 * 30 / 3600, False)
             del(_AOI)
-
-        #________________________________________________________________________
-        if not CGIAR_Get_Tiles_byExtent([Extent.Get_XMin(), Extent.Get_XMax()], [Extent.Get_YMin(), Extent.Get_YMax()], DeleteZip):
-            print('Error: failed to update virtual raster tiles for requested extent')
-            return None
 
         #________________________________________________________________________
         Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('io_gdal', '0')
@@ -233,7 +275,7 @@ def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90, DeleteZip=True, Verbos
             return None
 
         Tool.Reset()
-        Tool.Set_Parameter('FILES', '{:s}/srtm_global.vrt'.format(Dir_Global))
+        Tool.Set_Parameter('FILES', File)
         Tool.Set_Parameter('EXTENT', 1) # 'user defined'
         Tool.Set_Parameter('EXTENT_XMIN', Extent.Get_XMin())
         Tool.Set_Parameter('EXTENT_XMAX', Extent.Get_XMax())
@@ -245,6 +287,10 @@ def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90, DeleteZip=True, Verbos
             return None
 
         Grid = Tool.Get_Parameter('GRIDS').asGridList().Get_Grid(0)
+
+        if Grid.Get_Type() == saga_api.SG_DATATYPE_Short and Grid.Get_NoData_Value() < -32767:
+            Grid.Set_NoData_Value(-32767)
+
         if AOI.Get_Projection().is_Geographic():
             return Grid
 
@@ -261,11 +307,11 @@ def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90, DeleteZip=True, Verbos
         Tool.Set_Parameter('SOURCE'    , Grid)
         Tool.Set_Parameter('KEEP_TYPE' , False)
         Tool.Set_Parameter('TARGET_DEFINITION', 0) # 'user defined'
-        Tool.Set_Parameter('TARGET_USER_SIZE', Target_Resolution)
-        Tool.Set_Parameter('TARGET_USER_XMAX', AOI.Get_Extent().Get_XMax())
+        Tool.Set_Parameter('TARGET_USER_SIZE', 1000)
         Tool.Set_Parameter('TARGET_USER_XMIN', AOI.Get_Extent().Get_XMin())
-        Tool.Set_Parameter('TARGET_USER_YMAX', AOI.Get_Extent().Get_YMax())
+        Tool.Set_Parameter('TARGET_USER_XMAX', AOI.Get_Extent().Get_XMax())
         Tool.Set_Parameter('TARGET_USER_YMIN', AOI.Get_Extent().Get_YMin())
+        Tool.Set_Parameter('TARGET_USER_YMAX', AOI.Get_Extent().Get_YMax())
 
         if not Tool.Execute():
             print('Error: failed to execute tool \{:s}\''.format(Tool.Get_Name().c_str()))
@@ -279,25 +325,35 @@ def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90, DeleteZip=True, Verbos
 
     #############################################################################
     #____________________________________________________________________________
-    print('\nprocessing: {:s}...'.format(Target_File))
+    if os.path.exists(Target_File):
+        return True # has already been processed
 
-    if not Verbose:
-        saga_api.SG_UI_ProgressAndMsg_Lock(True) # suppress noise
+    if not Global_File or not os.path.exists(Global_File):
+        return False # download of original file seems to have failed
 
-    Grid = Import_Raster()
+    #____________________________________________________________________________
+    print('\nprocessing: {:s}...'.format(Target_File), end='', flush=True)
+
+    saga_api.SG_UI_ProgressAndMsg_Lock(True) # suppress noise
+
+    Grid = Import_Raster(Global_File, AOI)
     if Grid:
         Target_Dir = os.path.split(Target_File)[0]
         if not os.path.exists(Target_Dir):
             os.makedirs(Target_Dir)
 
+        Grid.Set_Scaling(Scaling, Offset)
+        Grid.Set_Unit(saga_api.CSG_String(Unit))
         Grid.Save(Target_File)
 
         saga_api.SG_Get_Data_Manager().Delete(Grid) # free memory
 
+        if bDeleteGlobal and os.path.exists(Global_File):
+            os.remove(Global_File)
+
         print('okay')
 
-    if not Verbose:
-        saga_api.SG_UI_ProgressAndMsg_Lock(False)
+    saga_api.SG_UI_ProgressAndMsg_Lock(False)
 
     return Grid != None
 
@@ -370,7 +426,13 @@ def Get_AOI_From_Raster(File):
 # Basic usage...
 #________________________________________________________________________________
 
-# from PySAGA import srtm
-# srtm.Dir_Global = 'C:/srtm_3arcsec/global'
-# AOI = srtm.Get_AOI_From_Extent(279000, 920000, 5235000, 6102000, 32632)
-# srtm.CGIAR_Get_AOfInterest(AOI, 'C:/srtm_3arcsec/germany_utm32n.sg-grd-z')
+# from PySAGA.data import chelsa
+
+# chelsa.Dir_Global = 'C:/chelsa/global'
+# chelsa.Dir_Target = 'C:/chelsa/germany_utm32n'
+# AOI = chelsa.Get_AOI_From_Extent(279000, 920000, 5235000, 6102000, 32632)
+# chelsa.Get_Climatology('tas'   , AOI)
+# chelsa.Get_Climatology('tasmin', AOI)
+# chelsa.Get_Climatology('tasmax', AOI)
+# chelsa.Get_Climatology('pr'    , AOI)
+# chelsa.Get_Climatology('pet'   , AOI)

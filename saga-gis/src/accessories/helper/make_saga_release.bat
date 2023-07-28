@@ -125,6 +125,8 @@ REM ###################################
 REM PYTHON API
 REM ###################################
 
+RMDIR /S/Q %SAGA_BIN%\PySAGA
+
 CMD /C CALL ..\make_python_api.bat install false 3.6  F:\develop\libs\Python\Python-3.6
 CMD /C CALL ..\make_python_api.bat install false 3.7  F:\develop\libs\Python\Python-3.7
 CMD /C CALL ..\make_python_api.bat install false 3.8  F:\develop\libs\Python\Python-3.8
@@ -165,7 +167,6 @@ MKDIR "%SAGA_RELEASE_NAME%_x64"
 PUSHD "%SAGA_RELEASE_NAME%_x64"
 XCOPY /C/S/Q/Y/H "%SAGA_BIN%"
 DEL /F *.ini *.cfg *.exp *.pdb *.tmp tools\*.exp tools\*.lib tools\*.pdb tools\dev_*.*
-RMDIR /S/Q PySAGA\__pycache__
 POPD
 
 REM ___________________________________
@@ -222,8 +223,7 @@ ECHO     major.minor version without patch number: saga-%SAGA_VERSION_NEXT%
 ECHO.    https://sourceforge.net/p/saga-gis/bugs/milestones
 ECHO.
 ECHO - Create new bug-fix-branch: saga-%SAGA_VERSION%
-ECHO.    activate the SWITCH_TO_BRANCH flag for this branch
-ECHO.    for all bug-fix-releases!
+ECHO.    activate the SWITCH_TO_BRANCH flag for this branch!
 ECHO.
 )
 ECHO - Create new tag: saga-%SAGA_RELEASE%
