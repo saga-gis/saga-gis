@@ -177,8 +177,8 @@ REM ___________________________________
 REM create setup file...
 
 ATTRIB -H "%SAGA_RELEASE_NAME%_x64\*.*" /S /D
-COPY "%SAGA_ROOT%\..\saga_setup_readme.rtf" "%SAGA_RELEASE_NAME%_x64"
-COPY "%SAGA_ROOT%\..\saga_setup_x64.iss" "%SAGA_RELEASE_NAME%_x64"
+COPY "..\saga_setup_readme.rtf" "%SAGA_RELEASE_NAME%_x64"
+COPY "..\saga_setup_x64.iss" "%SAGA_RELEASE_NAME%_x64"
 %ISETUP% "%SAGA_RELEASE_NAME%_x64\saga_setup_x64.iss"
 MOVE "%SAGA_RELEASE_NAME%_x64\%SAGA_RELEASE_NAME%_x64_setup.exe"
 
