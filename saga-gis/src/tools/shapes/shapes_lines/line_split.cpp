@@ -57,51 +57,50 @@ CCut_Lines::CCut_Lines(void)
 	Set_Version("1.3");
 
 	Set_Description (_TW(
-		"The Tool provides methods to split lines in multiple lines based on a regular distance or number"
+		"The tool allows one to split lines into multiple lines. The lines can be split based on a user-defined line length or the given number of divisions of each input line."
 		)
 	);
 
 	Parameters.Add_Shapes(
-		NULL, "INPUT", _TL("Input Lines"), _TL("Input Line Shapefile"),
+		NULL, "INPUT", _TL("Input Lines"), _TL("Input line shapefile."),
 		PARAMETER_INPUT, SHAPE_TYPE_Line
 	);
 
 	Parameters.Add_Shapes(
-		NULL, "OUTPUT", _TL("Output Lines"), _TL("Output Line Shapefile"),
+		NULL, "OUTPUT", _TL("Output Lines"), _TL("Output line shapefile."),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Line
 	);
 
-	// TODO Better better description
 	Parameters.Add_Choice(
-		NULL, "DISTRIBUTION", _TL("Distribution"), _TL(""),
+		NULL, "DISTRIBUTION", _TL("Distribution"), _TL("Choose the method how to split the lines, either by a given line length or by the given number of divisions."),
 		CSG_String::Format("%s|%s|",
-			_TL("By Length"), 
-			_TL("By Number")
+			_TL("by length"), 
+			_TL("by number")
 		), 0
 	);
 
 	Parameters.Add_Double(
-		"DISTRIBUTION", "LENGTH", _TL("Length"), _TL("Length where the lines will be cutted in map-units"), 5.0, 0.0, true
+		"DISTRIBUTION", "LENGTH", _TL("Length"), _TL("Output line length used to split the lines [map units]."), 5.0, 0.0, true
 	);
 
 	Parameters.Add_Choice(
 		"DISTRIBUTION", "CAPS_LENGTH", _TL("Caps"), _TL(""),
 		CSG_String::Format("%s|%s|%s|",
-			_TL("Start Full Length"), 
-			_TL("Start Remaining Length"), 
-			_TL("Even Ends")
+			_TL("start full length"), 
+			_TL("start remaining length"), 
+			_TL("even ends")
 		), 0
 	);
 
 	Parameters.Add_Int(
-		"DISTRIBUTION", "NUMBER", _TL("Number Of Splits"), _TL("Number of splits per line"), 5, 0, true
+		"DISTRIBUTION", "NUMBER", _TL("Number Of Splits"), _TL("The number of divisions per line [-]."), 5, 0, true
 	);
 
 	Parameters.Add_Choice(
 		"DISTRIBUTION", "CAPS_NUMBER", _TL("Caps"), _TL(""),
 		CSG_String::Format("%s|%s|",
-			_TL("Full Segment"),
-			_TL("Half Segment")
+			_TL("full segment"),
+			_TL("half segment")
 		),0
 	);
 
