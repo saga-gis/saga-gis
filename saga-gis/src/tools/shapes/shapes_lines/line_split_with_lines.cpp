@@ -63,31 +63,31 @@ CLine_Split_with_Lines::CLine_Split_with_Lines(void)
 	Set_Author		("O. Conrad (c) 2014");
 
 	Set_Description	(_TW(
-		"Split Lines with Lines."
+		"The tool allows one to split lines with lines."
 	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes("",
 		"LINES"		, _TL("Lines"),
-		_TL(""),
+		_TL("The input lines to split."),
 		PARAMETER_INPUT , SHAPE_TYPE_Line
 	);
 
 	Parameters.Add_Shapes("",
 		"SPLIT"		, _TL("Split Features"),
-		_TL(""),
+		_TL("The lines with which the input lines are to be divided."),
 		PARAMETER_INPUT , SHAPE_TYPE_Line
 	);
 
 	Parameters.Add_Shapes("",
 		"INTERSECT"	, _TL("Intersection"),
-		_TL(""),
+		_TL("The splitted lines."),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Line
 	);
 
 	Parameters.Add_Choice("",
 		"OUTPUT"	, _TL("Output"),
-		_TL(""),
+		_TL("Choose the output line type, either polylines or separate lines."),
 		CSG_String::Format("%s|%s",
 			_TL("polylines"),
 			_TL("separate lines")
@@ -221,31 +221,31 @@ CLine_Split_at_Points::CLine_Split_at_Points(void)
 	Set_Author		("O. Conrad (c) 2015");
 
 	Set_Description	(_TW(
-		"Split Lines at Points."
+		"The tool allows one to split lines at certain points. The points must be provided as point shapes."
 	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes("",
 		"LINES"		, _TL("Lines"),
-		_TL(""),
+		_TL("The input lines to split."),
 		PARAMETER_INPUT , SHAPE_TYPE_Line
 	);
 
 	Parameters.Add_Shapes("",
 		"SPLIT"		, _TL("Split Features"),
-		_TL(""),
+		_TL("The points at which the input lines are to be split."),
 		PARAMETER_INPUT , SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Shapes("",
 		"INTERSECT"	, _TL("Intersection"),
-		_TL(""),
+		_TL("The splitted lines."),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Line
 	);
 
 	Parameters.Add_Choice("",
 		"OUTPUT"	, _TL("Output"),
-		_TL(""),
+		_TL("Choose the output line type, either polylines or separate lines."),
 		CSG_String::Format("%s|%s",
 			_TL("polylines"),
 			_TL("separate lines")
@@ -254,7 +254,7 @@ CLine_Split_at_Points::CLine_Split_at_Points(void)
 
 	Parameters.Add_Double("",
 		"EPSILON"	, _TL("Epsilon"),
-		_TL(""),
+		_TL("The tolerance used to find the point-line intersections [map units]."),
 		0., true
 	);
 }
@@ -307,7 +307,7 @@ bool CLine_Split_at_Points::On_Execute(void)
 
 		if( Parameters("OUTPUT")->asInt() == 1 )
 		{
-			for(int iPart=pLine->Get_Part_Count()-1; iPart>1; iPart--)
+			for(int iPart=pLine->Get_Part_Count()-1; iPart>0; iPart--)
 			{
 				CSG_Shape_Line	*pAdd	= (CSG_Shape_Line *)pIntersect->Add_Shape(pLine, SHAPE_COPY_ATTR);	// only attributes
 
