@@ -76,15 +76,26 @@ CTop_Hat::CTop_Hat(void)
 	Set_Author		(SG_T("O.Conrad (c) 2013"));
 
 	Set_Description	(_TW(
-		"Calculating fuzzy valley and ridge class memberships using the Top Hat approach. "
-		"Based on the AML script \'tophat\' by Jochen Schmidt, Landcare Research. "
-		"\n"
-		"\nReferences:\n"
-		"Rodriguez, F., Maire, E., Courjault-Rad'e, P., Darrozes, J. (2002): "
-		"The Black Top Hat function applied to a DEM: a tool to estimate recent incision in a mountainous watershed. "
-		"(Estib`ere Watershed, Central Pyrenees). Geophysical Research Letters, 29(6), 9-1 - 9-4.\n"
+		"The tool allows one to calculate fuzzy valley and ridge class memberships from a DEM using the Top Hat approach. "
+		"The mathematical morphology functions \"Opening\" and \"Closing\" form the "
+		"basis of \"The Top Hat Transform\" function. The function extracts "
+		"peaks and valleys with a size condition corresponding to the size of the considered structuring element.\n"
+		"Peaks are extracted by the \"White Top Hat\" (WTH) function:\n\n"
+		"WTH = DEM - Opening >= t\n\n"
+		"Valleys are extracted by the \"Black Top Hat\" (BTH) function:\n\n"
+		"BTH = Closing - DEM >= t\n\n"
+		"The threshold value \"t\" works as an additional cut-off to extract "
+		"only the highest peaks and deepest valleys. This means that the functions permit to "
+		"extract peaks and valleys based on width and height criterions. For details "
+		"see the referenced paper.\n"
+		"The tool is based on the AML script \'tophat\' by Jochen Schmidt, Landcare Research."
 	));
 
+	Add_Reference(SG_T("Rodriguez, F.,  Maire, É., Courjault-Radé, P., Darrozes, J."), "2002",
+		SG_T("The Black Top Hat function applied to a DEM: A tool to estimate recent incision in a mountainous watershed (Estibère Watershed, Central Pyrenees)"),
+		"Geophysical Research Letters, 29(6): 9-1 - 9-4.",
+		SG_T("https://univ-tlse2.hal.science/hal-01367706v1/document"), SG_T("doi:10.1029/2001GL014412")
+	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(NULL, "DEM"       , _TL("Elevation"      ), _TL(""), PARAMETER_INPUT);
@@ -96,25 +107,25 @@ CTop_Hat::CTop_Hat(void)
 
 	Parameters.Add_Value(
 		NULL	, "RADIUS_VALLEY"	, _TL("Valley Radius"),
-		_TL("radius given in map units used to fill valleys"),
+		_TL("The radius used to fill valleys [map units]."),
 		PARAMETER_TYPE_Double, 1000.0, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "RADIUS_HILL"		, _TL("Hill Radius"),
-		_TL("radius given in map units used to cut hills"),
+		_TL("The radius used to cut hills [map units]"),
 		PARAMETER_TYPE_Double, 1000.0, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "THRESHOLD"		, _TL("Elevation Threshold"),
-		_TL("elevation threshold used to identify hills/valleys"),
+		_TL("The elevation threshold used to identify hills/valleys [map units]."),
 		PARAMETER_TYPE_Double, 100.0, 0.0, true
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"			, _TL("Slope Index"),
-		_TL(""),
+		_TL("Choose the method to calculate the slope index."),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("default"),
 			_TL("alternative")
