@@ -199,7 +199,7 @@ int CSG_GDAL_Drivers::Get_GDAL_Type(TSG_Data_Type Type)
 	{
 	case SG_DATATYPE_Bit   :	return( GDT_Byte    );	// Eight bit unsigned integer
 	case SG_DATATYPE_Byte  :	return( GDT_Byte    );	// Eight bit unsigned integer
-	case SG_DATATYPE_Char  :	return( GDT_Byte    );	// Eight bit unsigned integer
+	case SG_DATATYPE_Char  :	return( GDT_Int16   );	// Use sixteen bit signed integer as GDAL has no eight bit signed integer
 	case SG_DATATYPE_Word  :	return( GDT_UInt16  );	// Sixteen bit unsigned integer
 	case SG_DATATYPE_Short :	return( GDT_Int16   );	// Sixteen bit signed integer
 	case SG_DATATYPE_DWord :	return( GDT_UInt32  );	// Thirty two bit unsigned integer
