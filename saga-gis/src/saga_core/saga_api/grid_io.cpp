@@ -176,7 +176,7 @@ bool CSG_Grid::Save(const CSG_String &FileName, int Format)
 		SG_RUN_TOOL(bResult, "io_gdal", 2,	// Export GeoTIFF
 			    SG_TOOL_PARAMLIST_ADD("GRIDS"   , this)
 			&&	SG_TOOL_PARAMETER_SET("FILE"    , FileName)
-            &&	SG_TOOL_PARAMETER_SET("OPTIONS" , SG_T("COMPRESS=LZW"))
+            &&	SG_TOOL_PARAMETER_SET("OPTIONS" , SG_T("COMPRESS=LZW BIGTIFF=YES"))		// enable bigtiff as the 'if needed' default setting is not available for compressed files
 		);
 		break;
 	}
