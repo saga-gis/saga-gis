@@ -73,7 +73,7 @@ def Get_File(File, Local_Dir, Remote_Dir):
         except: # remote file might not exist or internet connection is not available
             break
 
-    print('Error: downloading ' + File)
+    saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('downloading ' + File))
     return None
 
 
@@ -90,7 +90,7 @@ def Get_File(File, Local_Dir, Remote_Dir):
 def Set_VRT(VRT_Name='srtm_global'):
     import glob; Files = glob.glob('{:s}/*.tif'.format(Dir_Global))
     if len(Files) < 1:
-        print('Error: directory \'{:s}\' does not contain any TIFF!'.format(Dir_Global))
+        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('directory \'{:s}\' does not contain any TIFF!'.format(Dir_Global)))
         return None
 
     Tiles = ''
@@ -99,7 +99,7 @@ def Set_VRT(VRT_Name='srtm_global'):
 
     Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('io_gdal', '12')
     if not Tool:
-        print('Failed to request tool: Create Virtual Raster (VRT)')
+        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('Failed to request tool: Create Virtual Raster (VRT)'))
         return None
 
     Tool.Reset()
@@ -109,7 +109,7 @@ def Set_VRT(VRT_Name='srtm_global'):
     saga_api.SG_UI_ProgressAndMsg_Lock(True)
     if not Tool.Execute():
         saga_api.SG_UI_ProgressAndMsg_Lock(False)
-        print('failed to execute tool: ' + Tool.Get_Name().c_str())
+        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('failed to execute tool: ' + Tool.Get_Name().c_str()))
         return None
 
     saga_api.SG_UI_ProgressAndMsg_Lock(False)
@@ -129,11 +129,11 @@ def Set_VRT(VRT_Name='srtm_global'):
 #________________________________________________________________________________
 def CGIAR_Get_Tile(Col, Row, DeleteZip=True):
     if Col < 1 or Col >= 72:
-        print('Error: requested column {:d} is out-of-range (1-72)'.format(Row))
+        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('requested column {:d} is out-of-range (1-72)'.format(Row)))
         return -1
 
     if Row < 1 or Row >= 24:
-        print('Error: requested row {:d} is out-of-range (1-24)'.format(Col))
+        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('requested row {:d} is out-of-range (1-24)'.format(Col)))
         return -1
 
     Local_File = '{:s}/srtm_{:02d}_{:02d}.tif'.format(Dir_Global, Col, Row)
@@ -169,7 +169,7 @@ def CGIAR_Get_Tiles(Cols=[1, 1], Rows=[1, 1], DeleteZip=True):
     elif Rows[1] > 24:
         Rows[1] = 24
 
-    print('requesting tiles for rows {:d}-{:d} and columns {:d}-{:d}\n'.format(Rows[0], Rows[1], Cols[0], Cols[1]))
+    saga_api.SG_UI_Msg_Add(saga_api.CSG_String('requesting tiles for rows {:d}-{:d} and columns {:d}-{:d}\n'.format(Rows[0], Rows[1], Cols[0], Cols[1])), True)
     nAdded = 0; nFailed = 0; nFound = 0
     for Col in range(Cols[0], Cols[1] + 1):
         for Row in range(Rows[0], Rows[1] + 1):
@@ -183,7 +183,7 @@ def CGIAR_Get_Tiles(Cols=[1, 1], Rows=[1, 1], DeleteZip=True):
                     nFound  += 1
 
     if nFailed > 0:
-        print('Error: {:d} download(s) of {:d} failed'.format(nFailed, nFailed + nAdded))
+        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('{:d} download(s) of {:d} failed'.format(nFailed, nFailed + nAdded)))
     if nAdded > 0:
         Set_VRT()
     return nAdded + nFound > 0
@@ -203,7 +203,7 @@ def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90, DeleteZip=True, Verbos
     #____________________________________________________________________________
     def Import_Raster():
         if not AOI or not AOI.is_Valid() or not AOI.Get_Projection().is_Okay():
-            print('Error: invalid AOI')
+            saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('invalid AOI'))
             return None
 
         Extent = saga_api.CSG_Rect(AOI.Get_Extent())
@@ -218,7 +218,7 @@ def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90, DeleteZip=True, Verbos
             _AOI.Add_Shape().Add_Point(Extent.Get_XMax   (), Extent.Get_YMin   ())
             _AOI.Add_Shape().Add_Point(Extent.Get_XCenter(), Extent.Get_YMin   ())
             if not saga_api.SG_Get_Projected(_AOI, None, saga_api.CSG_Projections().Get_GCS_WGS84()):
-                del(_AOI); print('Error: failed to project AOI to GCS')
+                del(_AOI); saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('failed to project AOI to GCS'))
                 return None
             Extent = _AOI.Get_Extent()#; Extent.Inflate(10 * 3 / 3600, False)
             del(_AOI)
@@ -227,13 +227,13 @@ def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90, DeleteZip=True, Verbos
 
         #________________________________________________________________________
         if not CGIAR_Get_Tiles_byExtent([Extent.Get_XMin(), Extent.Get_XMax()], [Extent.Get_YMin(), Extent.Get_YMax()], DeleteZip):
-            print('Error: failed to update virtual raster tiles for requested extent')
+            saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('failed to update virtual raster tiles for requested extent'))
             return None
 
         #________________________________________________________________________
         Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('io_gdal', '0')
         if not Tool:
-            print('Error: failed to request tool \'{:s}\''.format('Import Raster'))
+            saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('failed to request tool \'{:s}\''.format('Import Raster')))
             return None
 
         Tool.Reset()
@@ -245,7 +245,7 @@ def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90, DeleteZip=True, Verbos
         Tool.Set_Parameter('EXTENT_YMAX', Lat[1])
 
         if not Tool.Execute():
-            print('Error: failed to execute tool \'{:s}\''.format(Tool.Get_Name().c_str()))
+            saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('failed to execute tool \'{:s}\''.format(Tool.Get_Name().c_str())))
             return None
 
         Grid = Tool.Get_Parameter('GRIDS').asGridList().Get_Grid(0)
@@ -255,7 +255,7 @@ def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90, DeleteZip=True, Verbos
         #________________________________________________________________________
         Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('pj_proj4', '4')
         if not Tool:
-            print('Error: failed to request tool \'{:s}\''.format('Coordinate Transformation (Grid)'))
+            saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('failed to request tool \'{:s}\''.format('Coordinate Transformation (Grid)')))
             saga_api.SG_Get_Data_Manager().Delete(Grid)
             return None
 
@@ -272,7 +272,7 @@ def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90, DeleteZip=True, Verbos
         Tool.Set_Parameter('TARGET_USER_YMIN', AOI.Get_Extent().Get_YMin())
 
         if not Tool.Execute():
-            print('Error: failed to execute tool \{:s}\''.format(Tool.Get_Name().c_str()))
+            saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('failed to execute tool \{:s}\''.format(Tool.Get_Name().c_str())))
             saga_api.SG_Get_Data_Manager().Delete(Grid)
             return None
 
@@ -283,7 +283,7 @@ def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90, DeleteZip=True, Verbos
 
     #############################################################################
     #____________________________________________________________________________
-    print('\nprocessing: {:s}...'.format(Target_File))
+    saga_api.SG_UI_Msg_Add(saga_api.CSG_String('processing: {:s}... '.format(Target_File)), True)
 
     if not Verbose:
         saga_api.SG_UI_ProgressAndMsg_Lock(True) # suppress noise
@@ -298,7 +298,7 @@ def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90, DeleteZip=True, Verbos
 
         saga_api.SG_Get_Data_Manager().Delete(Grid) # free memory
 
-        print('okay')
+        saga_api.SG_UI_Msg_Add(saga_api.CSG_String('okay'), False)
 
     if not Verbose:
         saga_api.SG_UI_ProgressAndMsg_Lock(False)
@@ -332,12 +332,12 @@ def Get_AOI_From_Extent(Xmin, Xmax, Ymin, Ymax, EPSG=4326):
 def Get_AOI_From_Features(File):
     AOI = saga_api.SG_Create_Shapes(File)
     if not AOI:
-        print('Error: failed to load AOI from file \n\t\'{:s}\''.format(File))
+        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('failed to load AOI from file \n\t\'{:s}\''.format(File)))
         return None
 
     if not AOI.Get_Projection().is_Okay():
         del(AOI)
-        print('Error: coordinate reference system of AOI is not defined \n\t\'{:s}\''.format(File))
+        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('coordinate reference system of AOI is not defined \n\t\'{:s}\''.format(File)))
         return None
 
     return AOI
@@ -350,12 +350,12 @@ def Get_AOI_From_Features(File):
 def Get_AOI_From_Raster(File):
     Grid = saga_api.SG_Create_Grid(File)
     if not Grid:
-        print('Error: failed to load AOI from file \n\t\'{:s}\''.format(File))
+        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('failed to load AOI from file \n\t\'{:s}\''.format(File)))
         return None
 
     if not Grid.Get_Projection().is_Okay():
         del(Grid)
-        print('Error: coordinate reference system of AOI is not defined \n\t\'{:s}\''.format(File))
+        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('coordinate reference system of AOI is not defined \n\t\'{:s}\''.format(File)))
         return None
 
     AOI = saga_api.CSG_Shapes(saga_api.SHAPE_TYPE_Polygon)

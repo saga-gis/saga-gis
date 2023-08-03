@@ -98,7 +98,7 @@ def Get_Global_File(File, Local_Dir, Remote_Dir):
         except: # remote file might not exist or internet connection is not available
             break
 
-    print('Error: downloading ' + File)
+    saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('downloading ' + File))
     return None
 
 
@@ -126,10 +126,10 @@ def Get_Global_Climatology(Variable):
     nFailed = 0
     for Month in range(1, 12 + 1):
         if not Get_Global_Climatology_Month(Variable, Month):
-            nFailed += 1; print('download failed for {:s}-{:02d}'.format(Variable, Month))
+            nFailed += 1; saga_api.SG_UI_Msg_Add(saga_api.CSG_String('download failed for {:s}-{:02d}'.format(Variable, Month)), True)
 
     if nFailed > 0:
-        print('Error: {:d} download(s) failed'.format(nFailed));
+        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('{:d} download(s) failed'.format(nFailed)));
         return False
     return True
 
@@ -171,10 +171,10 @@ def Get_Global_Projection_AllMonths(Variable, Period = '2041-2070', Model = 'MPI
     nFailed = 0
     for Month in range(1, 12 + 1):
         if not Get_Global_Projection(Variable, Month, Period, Model, SSP):
-            nFailed += 1; print('download failed for {:s}-{:02d} [{:s}/{:s}/{:s}]'.format(Variable, Month, Period, SSP, Model))
+            nFailed += 1; saga_api.SG_UI_Msg_Add(saga_api.CSG_String('download failed for {:s}-{:02d} [{:s}/{:s}/{:s}]'.format(Variable, Month, Period, SSP, Model)), True)
 
     if nFailed > 0:
-        print('Error: {:d} download(s) failed'.format(nFailed));
+        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('{:d} download(s) failed'.format(nFailed)));
         return False
     return True
 
@@ -217,10 +217,10 @@ def Get_Global_Monthly_Series(Variable, Years = [1980, 2019], Months=[1, 12]):
     for Year in range(Years[0], Years[1] + 1):
         for Month in range(1, 12 + 1):
             if not Get_Global_Monthly(Variable, Year, Month):
-                nFailed += 1; print('download failed for {:s}-{:04d}-{:02d}'.format(Variable, Year, Month))
+                nFailed += 1; saga_api.SG_UI_Msg_Add(saga_api.CSG_String('download failed for {:s}-{:04d}-{:02d}'.format(Variable, Year, Month)), True)
 
     if nFailed > 0:
-        print('Error: {:d} download(s) failed'.format(nFailed));
+        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('{:d} download(s) failed'.format(nFailed)));
         return False
     return True
 
@@ -248,7 +248,7 @@ def Get_Variable(Global_File, Target_File, AOI, Scaling=1., Offset=0., Unit=None
     #____________________________________________________________________________
     def Import_Raster(File, AOI):
         if not AOI or not AOI.is_Valid() or not AOI.Get_Projection().is_Okay():
-            print('Error: invalid AOI')
+            saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('invalid AOI'))
             return None
 
         Extent = saga_api.CSG_Rect(AOI.Get_Extent())
@@ -263,7 +263,7 @@ def Get_Variable(Global_File, Target_File, AOI, Scaling=1., Offset=0., Unit=None
             _AOI.Add_Shape().Add_Point(Extent.Get_XMax   (), Extent.Get_YMin   ())
             _AOI.Add_Shape().Add_Point(Extent.Get_XCenter(), Extent.Get_YMin   ())
             if not saga_api.SG_Get_Projected(_AOI, None, saga_api.CSG_Projections().Get_GCS_WGS84()):
-                del(_AOI); print('Error: failed to project AOI to GCS')
+                del(_AOI); saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('failed to project AOI to GCS'))
                 return None
             Extent = _AOI.Get_Extent(); Extent.Inflate(10 * 30 / 3600, False)
             del(_AOI)
@@ -271,7 +271,7 @@ def Get_Variable(Global_File, Target_File, AOI, Scaling=1., Offset=0., Unit=None
         #________________________________________________________________________
         Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('io_gdal', '0')
         if not Tool:
-            print('Error: failed to request tool \{:s}\''.format('Import Raster'))
+            saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('failed to request tool \{:s}\''.format('Import Raster')))
             return None
 
         Tool.Reset()
@@ -283,7 +283,7 @@ def Get_Variable(Global_File, Target_File, AOI, Scaling=1., Offset=0., Unit=None
         Tool.Set_Parameter('EXTENT_YMAX', Extent.Get_YMax())
 
         if not Tool.Execute():
-            print('Error: failed to execute tool \{:s}\''.format(Tool.Get_Name().c_str()))
+            saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('failed to execute tool \{:s}\''.format(Tool.Get_Name().c_str())))
             return None
 
         Grid = Tool.Get_Parameter('GRIDS').asGridList().Get_Grid(0)
@@ -297,7 +297,7 @@ def Get_Variable(Global_File, Target_File, AOI, Scaling=1., Offset=0., Unit=None
         #________________________________________________________________________
         Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('pj_proj4', '4')
         if not Tool:
-            print('Error: failed to request tool \'{:s}\''.format('Coordinate Transformation (Grid)'))
+            saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('failed to request tool \'{:s}\''.format('Coordinate Transformation (Grid)')))
             saga_api.SG_Get_Data_Manager().Delete(Grid)
             return None
 
@@ -314,7 +314,7 @@ def Get_Variable(Global_File, Target_File, AOI, Scaling=1., Offset=0., Unit=None
         Tool.Set_Parameter('TARGET_USER_YMAX', AOI.Get_Extent().Get_YMax())
 
         if not Tool.Execute():
-            print('Error: failed to execute tool \{:s}\''.format(Tool.Get_Name().c_str()))
+            saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('failed to execute tool \{:s}\''.format(Tool.Get_Name().c_str())))
             saga_api.SG_Get_Data_Manager().Delete(Grid)
             return None
 
@@ -332,7 +332,7 @@ def Get_Variable(Global_File, Target_File, AOI, Scaling=1., Offset=0., Unit=None
         return False # download of original file seems to have failed
 
     #____________________________________________________________________________
-    print('\nprocessing: {:s}...'.format(Target_File), end='', flush=True)
+    saga_api.SG_UI_Msg_Add(saga_api.CSG_String('processing: {:s}... '.format(Target_File)), True)
 
     saga_api.SG_UI_ProgressAndMsg_Lock(True) # suppress noise
 
@@ -351,7 +351,7 @@ def Get_Variable(Global_File, Target_File, AOI, Scaling=1., Offset=0., Unit=None
         if bDeleteGlobal and os.path.exists(Global_File):
             os.remove(Global_File)
 
-        print('okay')
+        saga_api.SG_UI_Msg_Add(saga_api.CSG_String('okay'), False)
 
     saga_api.SG_UI_ProgressAndMsg_Lock(False)
 
@@ -384,12 +384,12 @@ def Get_AOI_From_Extent(Xmin, Xmax, Ymin, Ymax, EPSG=4326):
 def Get_AOI_From_Features(File):
     AOI = saga_api.SG_Create_Shapes(File)
     if not AOI:
-        print('Error: failed to load AOI from file \n\t\'{:s}\''.format(File))
+        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('failed to load AOI from file \n\t\'{:s}\''.format(File)))
         return None
 
     if not AOI.Get_Projection().is_Okay():
         del(AOI)
-        print('Error: coordinate reference system of AOI is not defined \n\t\'{:s}\''.format(File))
+        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('coordinate reference system of AOI is not defined \n\t\'{:s}\''.format(File)))
         return None
 
     return AOI
@@ -402,12 +402,12 @@ def Get_AOI_From_Features(File):
 def Get_AOI_From_Raster(File):
     Grid = saga_api.SG_Create_Grid(File)
     if not Grid:
-        print('Error: failed to load AOI from file \n\t\'{:s}\''.format(File))
+        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('failed to load AOI from file \n\t\'{:s}\''.format(File)))
         return None
 
     if not Grid.Get_Projection().is_Okay():
         del(Grid)
-        print('Error: coordinate reference system of AOI is not defined \n\t\'{:s}\''.format(File))
+        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('coordinate reference system of AOI is not defined \n\t\'{:s}\''.format(File)))
         return None
 
     AOI = saga_api.CSG_Shapes(saga_api.SHAPE_TYPE_Polygon)

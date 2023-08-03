@@ -54,10 +54,10 @@ from PySAGA import saga_api
 #_________________________________________
 ##########################################
 def Run_Random_Terrain():
-    print('Running: Random Terrain')
+    saga_api.SG_UI_Msg_Add(saga_api.CSG_String('Running: Random Terrain'), True)
     Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('grid_calculus', '6')
     if not Tool:
-        print('Failed to request tool: Random Terrain')
+        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('Failed to request tool: Random Terrain'))
         import sys; sys.exit()
 
     Tool.Reset()
@@ -70,7 +70,7 @@ def Run_Random_Terrain():
     Tool.Set_Parameter('TARGET_USER_YMAX', 2000)
 
     if not Tool.Execute():
-        print('failed to execute tool: ' + Tool.Get_Name().c_str())
+        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('failed to execute tool: ' + Tool.Get_Name().c_str()))
         import sys; sys.exit()
 
     return Tool.Get_Parameter('TARGET_OUT_GRID').asGrid()
@@ -79,10 +79,10 @@ def Run_Random_Terrain():
 #_________________________________________
 ##########################################
 def Run_Slope_Aspect_Curvature(DEM):
-    print('Running: Slope, Aspect, Curvature')
+    saga_api.SG_UI_Msg_Add(saga_api.CSG_String('Running: Slope, Aspect, Curvature'), True)
     Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('ta_morphometry', '0')
     if not Tool:
-        print('Failed to request tool: Slope, Aspect, Curvature')
+        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('Failed to request tool: Slope, Aspect, Curvature'))
         return  None, None, None, None
 
     Tool.Reset()
@@ -94,7 +94,7 @@ def Run_Slope_Aspect_Curvature(DEM):
     Tool.Set_Parameter('C_CROS'     , saga_api.SG_Get_Create_Pointer()) # optional output, remove this line, if you don't want to create it
 
     if not Tool.Execute():
-        print('failed to execute tool: ' + Tool.Get_Name().c_str())
+        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('failed to execute tool: ' + Tool.Get_Name().c_str()))
         import sys; sys.exit()
 
     return Tool.Get_Parameter('SLOPE' ).asGrid(),\
@@ -107,7 +107,7 @@ def Run_Slope_Aspect_Curvature(DEM):
 ##########################################
 def Run_Grid_Difference(A, B, PythonLoop):
     if not A.is_Compatible(B):
-        print('Error: grids [' + A + '] and [' + B + '] are not compatible')
+        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('grids [' + A + '] and [' + B + '] are not compatible'))
         import sys; sys.exit()
 
     import time; Time_Start = time.time()
@@ -115,10 +115,10 @@ def Run_Grid_Difference(A, B, PythonLoop):
     # ------------------------------------
     # cell by cell, slower than second solution
     if PythonLoop:
-        print('Running: Grid Difference (Cell by Cell)\n')
+        saga_api.SG_UI_Msg_Add(saga_api.CSG_String('Running: Grid Difference (Cell by Cell)'), True)
         C = saga_api.SG_Create_Grid(A.Get_System())
         for y in range(0, C.Get_NY()):
-            print('\r{:04.1f}%'.format(y * 100. / C.Get_NY()), end='\r', flush=True)
+            saga_api.SG_UI_Msg_Add(saga_api.CSG_String('{:04.1f}%'.format(y * 100. / C.Get_NY())), False)
             for x in range(0, C.Get_NX()):
                 if A.is_NoData(x, y) or B.is_NoData(x, y):
                     C.Set_NoData(x, y)
@@ -128,30 +128,30 @@ def Run_Grid_Difference(A, B, PythonLoop):
     # ------------------------------------
     # using built-in CSG_Grid function 'Subtract()'
     else:
-        print('Running: Grid Difference (CSG_Grid::Subtract())')
+        saga_api.SG_UI_Msg_Add(saga_api.CSG_String('Running: Grid Difference (CSG_Grid::Subtract())'), True)
         C = saga_api.SG_Create_Grid(A)
         C.Subtract(B)
 
     # ------------------------------------
     Time = time.time() - Time_Start
-    print('finished after {:d}min {:02.2f}sec'.format(int(Time / 60.), Time % 60.))
+    saga_api.SG_UI_Msg_Add(saga_api.CSG_String('finished after {:d}min {:02.2f}sec'.format(int(Time / 60.), Time % 60.)), True)
     return C
 
 
 #_________________________________________
 ##########################################
 def Run_Contour_Lines_from_Grid(Grid):
-    print('Running: Contour Lines from Grid')
+    saga_api.SG_UI_Msg_Add(saga_api.CSG_String('Running: Contour Lines from Grid'), True)
     Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('shapes_grid', '5')
     if not Tool:
-        print('Failed to request tool: Contour Lines from Grid')
+        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('Failed to request tool: Contour Lines from Grid'))
         import sys; sys.exit()
 
     Tool.Reset()
     Tool.Set_Parameter('GRID', Grid)
 
     if not Tool.Execute():
-        print('failed to execute tool: ' + Tool.Get_Name().c_str())
+        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('failed to execute tool: ' + Tool.Get_Name().c_str()))
         import sys; sys.exit()
 
     return Tool.Get_Parameter('CONTOUR').asShapes()
@@ -160,10 +160,10 @@ def Run_Contour_Lines_from_Grid(Grid):
 #_________________________________________
 ##########################################
 def Run_Geomorphons(DEM):
-    print('Running: Geomorphons')
+    saga_api.SG_UI_Msg_Add(saga_api.CSG_String('Running: Geomorphons'), True)
     Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('ta_lighting', '8')
     if not Tool:
-        print('Failed to request tool: Geomorphons')
+        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('Failed to request tool: Geomorphons'))
         import sys; sys.exit()
 
     Tool.Reset()
@@ -173,7 +173,7 @@ def Run_Geomorphons(DEM):
     Tool.Set_Parameter('METHOD'   , 1) # 'line tracing'
 
     if not Tool.Execute():
-        print('failed to execute tool: ' + Tool.Get_Name().c_str())
+        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('failed to execute tool: ' + Tool.Get_Name().c_str()))
         import sys; sys.exit()
 
     return Tool.Get_Parameter('GEOMORPHONS').asGrid()
@@ -182,11 +182,11 @@ def Run_Geomorphons(DEM):
 #_________________________________________
 ##########################################
 
-print('This is a simple script to demonstrate the usage of SAGA and its tools through Python.')
+saga_api.SG_UI_Msg_Add(saga_api.CSG_String('This is a simple script to demonstrate the usage of SAGA and its tools through Python.'), True)
 
-Verbose = False
-if not Verbose:
-    saga_api.SG_UI_ProgressAndMsg_Lock(True)
+ReportProgress = False
+if not ReportProgress:
+    saga_api.SG_UI_Progress_Lock(True)
 
 import os;
 output = 'test/'
@@ -230,10 +230,10 @@ Geomorphons.Save(output + 'geomorphons.tif')
 # when job is done, free memory resources:
 saga_api.SG_Get_Data_Manager().Delete_All()
 
-if not Verbose:
-    saga_api.SG_UI_ProgressAndMsg_Lock(False)
+if not ReportProgress:
+    saga_api.SG_UI_Progress_Lock(False)
 
-print('________________\n...the end!')
+saga_api.SG_UI_Msg_Add(saga_api.CSG_String('________________\n...the end!'), True)
 
 
 #_________________________________________
