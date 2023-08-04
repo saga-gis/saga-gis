@@ -77,7 +77,7 @@ def Version():
 	saga_api.SG_UI_Msg_Add(saga_api.CSG_String('SAGA-{:s} (loaded {:d} libraries, {:d} tools)'.format(saga_api.SAGA_VERSION,
 		saga_api.SG_Get_Tool_Library_Manager().Get_Count(),
 		saga_api.SG_Get_Tool_Library_Manager().Get_Tool_Count()
-	), True)
+	)), True)
 	saga_api.SG_UI_Msg_Add(saga_api.CSG_String('_______'), True)
 
 	return True
