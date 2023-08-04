@@ -106,12 +106,13 @@ bool COpenCV_Canny::On_Execute(void)
 
 	cv::Mat Grid(Get_NY(), Get_NX(), CV_8U);
 
-	unsigned char *data = (unsigned char *)Grid.data;
-
-	#pragma omp parallel for
-	for(sLong i=0; i<Get_NCells(); i++)
+	for(int y=0; y<Get_NY() && Process_Get_Okay(); y++)
 	{
-		data[i] = (unsigned char)((pGrid->asDouble(i) - pGrid->Get_Min()) * 255 / pGrid->Get_Range());
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
+		{
+			Grid.at<uchar>(y, x) = (unsigned char)((pGrid->asDouble(x, y) - pGrid->Get_Min()) * 255 / pGrid->Get_Range());
+		}
 	}
 
 	//-----------------------------------------------------
@@ -132,6 +133,8 @@ bool COpenCV_Canny::On_Execute(void)
 
 	pEdges->Fmt_Name("%s [%s]", pGrid->Get_Name(), Get_Name().c_str());
 	pEdges->Set_NoData_Value(0.);
+
+	unsigned char *data = (unsigned char *)Grid.data;
 
 	#pragma omp parallel for
 	for(sLong i=0; i<Get_NCells(); i++)
