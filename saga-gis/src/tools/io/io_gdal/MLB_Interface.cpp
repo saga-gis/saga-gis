@@ -72,7 +72,7 @@ CSG_String Get_Info(int i)
 		return( _TL("Import/Export") );
 
 	case TLB_INFO_Author:
-		return( _TL("SAGA User Group Associaton (c) 2008-21" ));
+		return( _TL("SAGA User Group Associaton (c) 2008-2023" ));
 
 	case TLB_INFO_Description:
 		return( CSG_String::Format(SG_T("%s\n%s %s\n%s: %s"),
@@ -105,6 +105,7 @@ CSG_String Get_Info(int i)
 #include "gdal_buildvrt.h"
 #endif
 #include "gdal_import_vrt.h"
+#include "gdal_catalogue_vrt.h"
 
 #include "ogr_import.h"
 #include "ogr_export.h"
@@ -146,9 +147,11 @@ CSG_Tool *		Create_Tool(int i)
 
 	case 10:	return( new CGDAL_Formats );
 
+	case 14:	return( new CGDAL_CatalogueVRT );
+
 
 	//-----------------------------------------------------
-	case 14:	// initializations
+	case 15:	// initializations
 
 		CPLSetErrorHandler(CPLQuietErrorHandler);
 
