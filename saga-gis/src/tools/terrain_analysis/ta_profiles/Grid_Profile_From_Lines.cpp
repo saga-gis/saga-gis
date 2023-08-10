@@ -217,7 +217,7 @@ bool CGrid_Profile_From_Lines::Init_Profile(CSG_Shapes *pPoints, const CSG_Strin
 	{
 		pPoints->Create(SHAPE_TYPE_Point, Name);
 
-		pPoints->Add_Field("ID_LINE" , SG_DATATYPE_Int   ); // FIELD_ID_LINE
+		pPoints->Add_Field("ID_LINE" , SG_DATATYPE_Long  ); // FIELD_ID_LINE
 		pPoints->Add_Field("ID_POINT", SG_DATATYPE_Int   ); // FIELD_ID_POINT
 		pPoints->Add_Field("DISTANCE", SG_DATATYPE_Double); // FIELD_DISTANCE
 		pPoints->Add_Field("OVERLAND", SG_DATATYPE_Double); // FIELD_OVERLAND
@@ -269,7 +269,7 @@ bool CGrid_Profile_From_Lines::Show_Profile(CSG_Shapes *pPoints)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Profile_From_Lines::Set_Profile(int ID_Line, CSG_Shape *pLine)
+bool CGrid_Profile_From_Lines::Set_Profile(sLong ID_Line, CSG_Shape *pLine)
 {
 	if( pLine && pLine->Get_Point_Count(0) < 2 )
 	{
@@ -292,7 +292,7 @@ bool CGrid_Profile_From_Lines::Set_Profile(int ID_Line, CSG_Shape *pLine)
 }
 
 //---------------------------------------------------------
-bool CGrid_Profile_From_Lines::Set_Profile(int ID_Line, bool bStart, const TSG_Point &A, const TSG_Point &B, bool bLastPoint)
+bool CGrid_Profile_From_Lines::Set_Profile(sLong ID_Line, bool bStart, const TSG_Point &A, const TSG_Point &B, bool bLastPoint)
 {
 	double dx = fabs(B.x - A.x);
 	double dy = fabs(B.y - A.y), n;
@@ -339,7 +339,7 @@ bool CGrid_Profile_From_Lines::Set_Profile(int ID_Line, bool bStart, const TSG_P
 }
 
 //---------------------------------------------------------
-bool CGrid_Profile_From_Lines::Add_Point(int ID_Line, bool bStart, const TSG_Point &Point)
+bool CGrid_Profile_From_Lines::Add_Point(sLong ID_Line, bool bStart, const TSG_Point &Point)
 {
 	int x, y; Get_System().Get_World_to_Grid(x, y, Point);
 

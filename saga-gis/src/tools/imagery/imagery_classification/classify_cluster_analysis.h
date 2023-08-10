@@ -96,8 +96,8 @@ private:
 
 
 	bool					_On_Execute				(void);
-	double					_MinimumDistance		(CSG_Grid **Grids, int nGrids, CSG_Grid *pCluster, int nCluster, int *nMembers, double *Variances, double **Centroids, int &nElements);
-	double					_HillClimbing			(CSG_Grid **Grids, int nGrids, CSG_Grid *pCluster, int nCluster, int *nMembers, double *Variances, double **Centroids, int &nElements);
+	double					_MinimumDistance		(CSG_Grid **Grids, int nGrids, CSG_Grid *pCluster, int nCluster, int *nMembers, double *Variances, double **Centroids, sLong &nElements);
+	double					_HillClimbing			(CSG_Grid **Grids, int nGrids, CSG_Grid *pCluster, int nCluster, int *nMembers, double *Variances, double **Centroids, sLong &nElements);
 
 };
 

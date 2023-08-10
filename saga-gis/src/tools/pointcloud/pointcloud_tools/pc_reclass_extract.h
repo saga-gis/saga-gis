@@ -109,7 +109,7 @@ private:
 	void			Reclass_Single			(void);
 	void			Reclass_Range			(void);
 	bool			Reclass_Table			(bool bUser);
-	void			Set_Value				(int i, double value);
+	void			Set_Value				(sLong i, double value);
 
 	void			Set_Display_Attributes	(CSG_PointCloud *pPC, int iField, CSG_Parameters &sParms);
 

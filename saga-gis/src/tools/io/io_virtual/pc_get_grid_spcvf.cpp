@@ -87,7 +87,7 @@ CPointCloud_Get_Grid_SPCVF_Base::~CPointCloud_Get_Grid_SPCVF_Base(void)
 
 
 //---------------------------------------------------------
-void CPointCloud_Get_Grid_SPCVF_Base::Initialise(int iOutputs, CSG_Rect AOI, CSG_Shapes *pShapes, int iFieldName, bool bMultiple, bool bAddOverlap, double dOverlap,
+void CPointCloud_Get_Grid_SPCVF_Base::Initialise(sLong iOutputs, CSG_Rect AOI, CSG_Shapes *pShapes, int iFieldName, bool bMultiple, bool bAddOverlap, double dOverlap,
 												 CSG_String sFileName, CSG_Parameter_File_Name *pFilePath, CSG_Parameter_Grid_List *pGridList, double dCellsize,
 												 bool bFitToCells, int iMethod, bool bConstrain, int iField, double dMinAttrRange, double dMaxAttrRange)
 {
@@ -209,15 +209,15 @@ bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(int iFieldToGrid)
 
 
 	//-----------------------------------------------------
-	int				iDatasets = 0;
+	sLong			iDatasets = 0;
 	CSG_Grid		*pGrid = NULL;
 	double			dPoints = 0.0;
 
-	for(int iAOI=0; iAOI<m_iOutputs; iAOI++)
+	for(sLong iAOI=0; iAOI<m_iOutputs; iAOI++)
 	{
 		if( m_iOutputs > 1 )
 		{
-			SG_UI_Process_Set_Text(CSG_String::Format("%s %d...", _TL("processing AOI"), iAOI + 1));
+			SG_UI_Process_Set_Text(CSG_String::Format("%s %lld...", _TL("processing AOI"), iAOI + 1));
 		}
 		else
 		{
@@ -417,7 +417,7 @@ bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(int iFieldToGrid)
 
 
 //---------------------------------------------------------
-void CPointCloud_Get_Grid_SPCVF_Base::Write_Subset(CSG_Grid *pGrid, int iAOI, int iDatasets, double dPoints)
+void CPointCloud_Get_Grid_SPCVF_Base::Write_Subset(CSG_Grid *pGrid, sLong iAOI, sLong iDatasets, double dPoints)
 {
 	CSG_String	sPath = SG_T("");
 
@@ -443,7 +443,7 @@ void CPointCloud_Get_Grid_SPCVF_Base::Write_Subset(CSG_Grid *pGrid, int iAOI, in
 		pGrid->Fmt_Name("%spc_subset_%s", sPath.c_str(), SG_File_Get_Name(m_sFileName, false).c_str());
 	}
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("%.0f points from %d dataset(s) written to output grid %s."), dPoints, iDatasets, pGrid->Get_Name()), true);
+	SG_UI_Msg_Add(CSG_String::Format(_TL("%.0f points from %lld dataset(s) written to output grid %s."), dPoints, iDatasets, pGrid->Get_Name()), true);
 
 	if( m_pFilePath == NULL )
 	{
@@ -641,7 +641,7 @@ bool CPointCloud_Get_Grid_SPCVF::On_Execute(void)
 	bool			bAddOverlap;
 	double			dOverlap;
 	bool			bMultiple;
-	int				iOutputs = 1;
+	sLong			iOutputs = 1;
 	CSG_Rect		AOI;
 
 

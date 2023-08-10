@@ -111,7 +111,7 @@ bool CShapes_Clean::On_Execute(void)
 	sLong	n	= pShapes->Get_Count();
 
 	//-----------------------------------------------------
-	for(int i=n-1; i>=0 && Set_Progress(n-1-i, n); i--)
+	for(sLong i=n-1; i>=0 && Set_Progress(n-1-i, n); i--)
 	{
 		CSG_Shape	*pShape	= pShapes->Get_Shape(i);
 

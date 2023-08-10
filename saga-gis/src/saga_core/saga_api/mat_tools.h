@@ -1135,13 +1135,13 @@ public:
 	bool					Destroy				(void);
 
 	bool					Add_Element			(void);
-	bool					Set_Feature			(int iElement, int iFeature, double Value);
+	bool					Set_Feature			(sLong iElement, int iFeature, double Value);
 
-	int						Get_Cluster			(int iElement)	const	{	return( iElement >= 0 && iElement < Get_nElements() ? m_Clusters[iElement] : -1 );	}
+	sLong					Get_Cluster			(sLong iElement) const	{	return( iElement >= 0 && iElement < Get_nElements() ? m_Clusters[iElement] : -1 );	}
 
 	bool					Execute				(int Method, int nClusters, int nMaxIterations = 0, int Initialization = 0);
 
-	int						Get_nElements		(void)	const	{	return( (int)m_Features.Get_Size() );	}
+	sLong					Get_nElements		(void)	const	{	return(      m_Features.Get_Size() );	}
 	int						Get_nFeatures		(void)	const	{	return(      m_nFeatures           );	}
 	int						Get_nClusters		(void)	const	{	return( (int)m_nMembers.Get_Size() );	}
 

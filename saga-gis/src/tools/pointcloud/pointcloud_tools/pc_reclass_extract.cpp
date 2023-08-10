@@ -662,7 +662,7 @@ bool CPC_Reclass_Extract::Reclass_Table(bool bUser)
 
 
 //---------------------------------------------------------
-void CPC_Reclass_Extract::Set_Value(int i, double value)
+void CPC_Reclass_Extract::Set_Value(sLong i, double value)
 {
 	m_pResult->Add_Point(m_pInput->Get_X(i), m_pInput->Get_Y(i), m_pInput->Get_Z(i));
 

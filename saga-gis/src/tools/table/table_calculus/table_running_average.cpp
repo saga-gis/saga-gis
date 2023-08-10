@@ -196,7 +196,7 @@ bool CTable_Running_Average::On_Execute(void)
 	//-----------------------------------------------------
 	for(sLong i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
 	{
-		CSG_Simple_Statistics s(fMedian >= 0); int a = i - Offset, b = i - Offset + Length;
+		CSG_Simple_Statistics s(fMedian >= 0); sLong a = i - Offset, b = i - Offset + Length;
 
 		if( Missing == 2 || (a >= 0 && b < pTable->Get_Count()) )
 		{

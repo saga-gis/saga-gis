@@ -211,7 +211,7 @@ bool CGround_Filter::On_Execute(void)
 
 			int iClass = 2;		// ground
 
-			for(size_t i=0; i<Indices.Get_Size(); i++)
+			for(sLong i=0; i<Indices.Get_Size(); i++)
 			{
 				double dMaxDz = 0.;
 

@@ -202,7 +202,7 @@ void FitFunc(double x, vector < double> ca, double &y, vector < double> &dyda, i
 
 bool CFit::On_Execute(void)
 {
-	int i, j,  NrVars;
+	int NrVars;
 	vector < double> x, y, StartValue, Result;
 	CSG_String	msg;	
 	
@@ -223,7 +223,7 @@ bool CFit::On_Execute(void)
 	const char *uservars = Formel.Get_Used_Variables();
 
 	NrVars	=	0;
-	for (i = 0; i < strlen(uservars); i++)
+	for (size_t i = 0; i < strlen(uservars); i++)
 	{
 		if (uservars[i] >='a' && uservars[i] <= 'z')
 		{
@@ -236,7 +236,7 @@ bool CFit::On_Execute(void)
 	
 	StartParameters.Add_Info_String(NULL, _TL(""), _TL("Formula"), _TL("Formula"), formel);
 	
-	for (i = 0; i < strlen(vars); i++)
+	for (size_t i = 0; i < strlen(vars); i++)
 	{
 		CSG_String	c(vars[i]);
 		StartParameters.Add_Value(NULL, c, c, _TL("Start Value"), PARAMETER_TYPE_Double, 1.0);
@@ -244,7 +244,7 @@ bool CFit::On_Execute(void)
 	
 	Dlg_Parameters(&StartParameters, _TL("Start Values"));
 	
-	for (i = 0; i < strlen(vars); i++)
+	for (size_t i = 0; i < strlen(vars); i++)
 	{
 		char c[3];
 		sprintf(c, "%c", vars[i]);
@@ -252,7 +252,7 @@ bool CFit::On_Execute(void)
 	}
 	
 	CSG_Table	*pTable	= Parameters("SOURCE")->asTable();
-	int Record_Count = pTable->Get_Count();
+	sLong  Record_Count = pTable->Get_Count();
 	
 	int	yField		= Parameters("YFIELD")->asInt();
 	int	xField		= Parameters("XFIELD")->asInt();
@@ -260,7 +260,7 @@ bool CFit::On_Execute(void)
 	
 	pTable->Add_Field(_TL("Fit")				, SG_DATATYPE_Double);	
 	
-	for (i = 0; i < Record_Count; i++)
+	for (sLong i = 0; i < Record_Count; i++)
 	{
 		CSG_Table_Record *	Record = pTable->Get_Record(i);
 		if (Use_X)
@@ -308,14 +308,14 @@ bool CFit::On_Execute(void)
 	
 	Result    = Fit->Param();
 	
-	for (i = 0; i < NrVars; i++)
+	for (int i = 0; i < NrVars; i++)
 	{
 		Formel.Set_Variable(vars[i], (double) Result[i]);
 	}
 	
 	msg.Printf(_TL("Model Parameters:"));
 	Message_Add(msg);
-	for (i = 0; i < NrVars; i++)
+	for (int i = 0; i < NrVars; i++)
 	{
 		msg.Printf(SG_T("%c = %f\n"), vars[i], Result[i]);
 		Message_Add(msg);
@@ -330,17 +330,17 @@ bool CFit::On_Execute(void)
 	vector< vector < double> > covar = Fit->Covar();
 	
 	msg.Printf(_TL(""));
-	for (j = 0; j < NrVars; j++)
+	for (int j = 0; j < NrVars; j++)
 		msg.Printf(SG_T("%s\t%c"), msg.c_str(), vars[j]);
 	
 	msg.Printf(SG_T("%s\n"), msg.c_str());
 	
 	Message_Add(msg);
 	
-	for (i = 0; i < NrVars; i++)
+	for (int i = 0; i < NrVars; i++)
 	{
 		msg.Printf(SG_T("%c"), vars[i]);
-		for (j = 0; j <= i; j++)
+		for (int j = 0; j <= i; j++)
 		{	
 			msg.Printf(SG_T("%s\t%f"), msg.c_str(), covar[i][j]/covar[i][i]);
 		}
@@ -351,7 +351,7 @@ bool CFit::On_Execute(void)
 	
 	int Field_Count  = pTable->Get_Field_Count();
 	
-	for (i = 0; i < Record_Count; i++)
+	for (sLong i = 0; i < Record_Count; i++)
 	{
 		CSG_Table_Record *	Record = pTable->Get_Record(i);
 		

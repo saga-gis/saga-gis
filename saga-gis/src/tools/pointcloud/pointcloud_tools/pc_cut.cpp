@@ -287,7 +287,7 @@ bool CPC_Cut::Get_Cut(CSG_Parameter_PointCloud_List *pPointsList, CSG_Parameter_
 
 		CSG_PointCloud	*pPoints = pPointsList->Get_PointCloud(iItem);
 
-        std::set<int>   IdxInPoly;
+        std::set<sLong>   IdxInPoly;
 
 		if( pPoints && pPoints->is_Valid() )
 		{

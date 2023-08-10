@@ -310,8 +310,8 @@ bool CGPS_Track_Aggregation::On_Execute(void)
 		pAggregated->Add_Field("MAX"    , SG_DATATYPE_Double);	// AGG_MAX
 		pAggregated->Add_Field("RANGE"  , SG_DATATYPE_Double);	// AGG_RANGE
 		pAggregated->Add_Field("STDDEV" , SG_DATATYPE_Double);	// AGG_STDDEV,
-		pAggregated->Add_Field("COUNT"  , SG_DATATYPE_Int   );	// AGG_COUNT,
-		pAggregated->Add_Field("DROPPED", SG_DATATYPE_Int   );	// AGG_DROPPED,
+		pAggregated->Add_Field("COUNT"  , SG_DATATYPE_Long   );	// AGG_COUNT,
+		pAggregated->Add_Field("DROPPED", SG_DATATYPE_Long   );	// AGG_DROPPED,
 		pAggregated->Add_Field("DTIME"  , SG_DATATYPE_Double);	// AGG_DTIME,
 		pAggregated->Add_Field("X"      , SG_DATATYPE_Double);	// AGG_X
 		pAggregated->Add_Field("Y"      , SG_DATATYPE_Double);	// AGG_Y
@@ -404,7 +404,7 @@ bool CGPS_Track_Aggregation::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGPS_Track_Aggregation::Set_Statistic(CSG_Table_Record *pAggregate, CSG_Simple_Statistics &Statistic, CSG_Simple_Statistics &Time, int nDropped, bool bVerbose)
+bool CGPS_Track_Aggregation::Set_Statistic(CSG_Table_Record *pAggregate, CSG_Simple_Statistics &Statistic, CSG_Simple_Statistics &Time, sLong nDropped, bool bVerbose)
 {
 	if( pAggregate )
 	{

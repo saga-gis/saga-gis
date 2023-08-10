@@ -271,7 +271,7 @@ bool CConfusion_Matrix::Get_Quality(CSG_Table &Confusion)
 		//-------------------------------------------------
 		int j;
 
-		j	= Confusion.Get_Count() - 2;
+		j	= (int)Confusion.Get_Count() - 2;
 		Confusion[j + 0].Set_Value (1 + i, n[0]); if( a[0] < 0. )
 		Confusion[j + 1].Set_NoData(1 + i); else
 		Confusion[j + 1].Set_Value (1 + i, a[0] * 100.);

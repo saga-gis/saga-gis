@@ -476,8 +476,8 @@ bool CTable_Append_Cols::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int	nRecords = pTable->Get_Count() < pAppend->Get_Count() ? pTable->Get_Count() : pAppend->Get_Count();
-	int offField = pTable->Get_Field_Count();
+	sLong	nRecords = pTable->Get_Count() < pAppend->Get_Count() ? pTable->Get_Count() : pAppend->Get_Count();
+	int		offField = pTable->Get_Field_Count();
 
 	for(int iField=0; iField<pAppend->Get_Field_Count(); iField++)
 	{
@@ -485,7 +485,7 @@ bool CTable_Append_Cols::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int iRecord=0; iRecord<nRecords && Set_Progress(iRecord, nRecords); iRecord++)
+	for(sLong iRecord=0; iRecord<nRecords && Set_Progress(iRecord, nRecords); iRecord++)
 	{
 		CSG_Table_Record &Record = *pTable ->Get_Record(iRecord);
 		CSG_Table_Record &Append = *pAppend->Get_Record(iRecord);

@@ -297,7 +297,7 @@ bool CClassification_Quality::On_Execute(void)
 		Classes[i].Set_Value(3, nGrid); if( AccUser < 0.0 ) Classes[i].Set_NoData(4); else
 		Classes[i].Set_Value(4, AccUser);
 
-		n	= Confusion.Get_Count() - 2;
+		n	= (int)Confusion.Get_Count() - 2;
 		Confusion[n + 0].Set_Value (1 + i, nPoly); if( AccProd < 0.0 )
 		Confusion[n + 1].Set_NoData(1 + i); else
 		Confusion[n + 1].Set_Value (1 + i, AccProd * 100.0);
@@ -317,7 +317,7 @@ bool CClassification_Quality::On_Execute(void)
 	Summary.Add_Field("VALUE", SG_DATATYPE_Double);
 	Summary.Set_Count(2);
 
-	double	k	= nTotal*nTotal - nProd, OA = 0.0;
+	double	k	= double(nTotal*nTotal - nProd), OA = 0.0;
 
 	if( k != 0.0 )
 	{

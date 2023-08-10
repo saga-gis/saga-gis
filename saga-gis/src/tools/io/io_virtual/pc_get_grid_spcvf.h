@@ -88,19 +88,19 @@ public:
 	CPointCloud_Get_Grid_SPCVF_Base(void);
 	virtual ~CPointCloud_Get_Grid_SPCVF_Base(void);
 
-	void					Initialise	(int iOutputs, CSG_Rect	AOI, CSG_Shapes *pShapes, int iFieldName, bool bMultiple, bool bAddOverlap, double dOverlap,
+	void					Initialise	(sLong iOutputs, CSG_Rect AOI, CSG_Shapes *pShapes, int iFieldName, bool bMultiple, bool bAddOverlap, double dOverlap,
 										 CSG_String sFilename, CSG_Parameter_File_Name *pFilePath, CSG_Parameter_Grid_List *pGridList, double dCellsize,
 										 bool bFitToCells, int iMethod, bool bConstrain, int iField, double dMinAttrRange, double dMaxAttrRange);
 	void					Finalise	(void);
 	bool					Get_Subset	(int iFieldToGrid);
-	void					Write_Subset(CSG_Grid *pGrid, int iAOI, int iDatasets, double dPoints);
+	void					Write_Subset(CSG_Grid *pGrid, sLong iAOI, sLong iDatasets, double dPoints);
 
 protected:
 
 
 private:
 
-	int						m_iOutputs;
+	sLong					m_iOutputs;
 	CSG_Rect				m_AOI;
 	CSG_Shapes				*m_pShapes;
 	int						m_iFieldName;

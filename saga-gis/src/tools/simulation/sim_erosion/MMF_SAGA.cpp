@@ -444,7 +444,7 @@ bool CMMF_SAGA::On_Execute(void)
 	int			    steepestN;
 	CSG_String	    InvalidGrid;
     bool            bChannelT;
-	int				iRuns, iMstep;
+	sLong			iRuns, iMstep;
 
     // change this to false to only calculate runoff
 	bool		    bCalcSoil = true;
@@ -637,13 +637,13 @@ bool CMMF_SAGA::On_Execute(void)
 	#endif
 
 
-	for (int iRun=0; iRun<iRuns; iRun++)
+	for (sLong iRun=0; iRun<iRuns; iRun++)
 	{
-		Process_Set_Text("%s %d/%d...", _TL("model step"), iRun + 1, iRuns);
+		Process_Set_Text("%s %lld/%lld...", _TL("model step"), iRun + 1, iRuns);
 
 		if (pMeteoTab != NULL)
 		{
-			iMstep		= pMeteoTab->Get_Record(iRun)->asInt(0);
+			iMstep		= pMeteoTab->Get_Record(iRun)->asLong(0);
 			T			= pMeteoTab->Get_Record(iRun)->asDouble(1);
 			R			= pMeteoTab->Get_Record(iRun)->asDouble(2);
 			I			= pMeteoTab->Get_Record(iRun)->asDouble(3);
@@ -1163,8 +1163,8 @@ bool CMMF_SAGA::On_Execute(void)
 
 		if (pMeteoTab != NULL)
 		{
-			pQ->Save(CSG_String::Format(SG_T("%s\\%03d_Runoff"), sOutPath.c_str(), iRun + 1));
-			pSL->Save(CSG_String::Format(SG_T("%s\\%03d_SoilLoss"), sOutPath.c_str(), iRun + 1));
+			pQ->Save(CSG_String::Format(SG_T("%s\\%03lld_Runoff"), sOutPath.c_str(), iRun + 1));
+			pSL->Save(CSG_String::Format(SG_T("%s\\%03lld_SoilLoss"), sOutPath.c_str(), iRun + 1));
 		}
 	}// for model step
 

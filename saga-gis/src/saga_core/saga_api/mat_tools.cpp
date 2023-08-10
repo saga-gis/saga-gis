@@ -2028,7 +2028,7 @@ bool CSG_Cluster_Analysis::Add_Element(void)
 }
 
 //---------------------------------------------------------
-bool CSG_Cluster_Analysis::Set_Feature(int iElement, int iFeature, double Value)
+bool CSG_Cluster_Analysis::Set_Feature(sLong iElement, int iFeature, double Value)
 {
 	if( iElement >= 0 && iElement < Get_nElements() && iFeature >= 0 && iFeature < m_nFeatures )
 	{

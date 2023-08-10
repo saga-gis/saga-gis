@@ -174,7 +174,7 @@ int CHugget_02::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 bool CHugget_02::On_Execute(void)
 {
 	//-----------------------------------------------------
-	#define WRITE_RECORD { int i = pTable->Get_Count(); CSG_Table_Record *pRecord = pTable->Add_Record();\
+	#define WRITE_RECORD { sLong i = pTable->Get_Count(); CSG_Table_Record *pRecord = pTable->Add_Record();\
 		pRecord->Set_Value(0, i + 1    );\
 		pRecord->Set_Value(1, i * dTime);\
 		pRecord->Set_Value(2, C_Leav   );\
@@ -190,7 +190,7 @@ bool CHugget_02::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Table *pTable = Parameters("TABLE")->asTable(); pTable->Destroy();
 	pTable->Set_Name(_TL("Terrestrial Carbon"));
-	pTable->Add_Field("STEP"	, SG_DATATYPE_Int   );
+	pTable->Add_Field("STEP"	, SG_DATATYPE_Long  );
 	pTable->Add_Field("TIME"	, SG_DATATYPE_Double);
 	pTable->Add_Field("LEAVES"	, SG_DATATYPE_Double);
 	pTable->Add_Field("BRANCHES", SG_DATATYPE_Double);

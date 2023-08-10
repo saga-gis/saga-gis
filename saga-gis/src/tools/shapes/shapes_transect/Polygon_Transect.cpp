@@ -211,7 +211,8 @@ bool CPolygon_Transect::On_Execute(void)
         {
             CSG_Shape_Part *pLinePart =pLine->Get_Part(iLinePart);
             CSG_Rect LinePartExtent = pLinePart->Get_Extent();
-            map<int,list<double> > LineBorders;
+            map<sLong, list<double> > LineBorders;
+
             for (sLong iShape=0; iShape<pTheme->Get_Count();iShape++)
             {
                 pTheme_Shape = (CSG_Shape_Polygon *) pTheme->Get_Shape(iShape);
@@ -246,7 +247,7 @@ bool CPolygon_Transect::On_Execute(void)
             // the table contains the lineids and the distance to the origin of the line,
             // and it is sorted by lineid, polygonid
             CSG_Table_Record *pRecord;
-            for (map<int,list<double> >::iterator shapeit=LineBorders.begin();shapeit!=LineBorders.end();++shapeit)
+            for (map<sLong, list<double> >::iterator shapeit=LineBorders.begin();shapeit!=LineBorders.end();++shapeit)
             {
                 //shapeit->second.sort();
                 bool start=1;

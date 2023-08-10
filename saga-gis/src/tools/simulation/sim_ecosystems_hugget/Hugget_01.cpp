@@ -148,7 +148,7 @@ int CHugget_01::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 bool CHugget_01::On_Execute(void)
 {
 	//-----------------------------------------------------
-	#define WRITE_RECORD { int i = pTable->Get_Count(); CSG_Table_Record *pRecord = pTable->Add_Record();\
+	#define WRITE_RECORD { sLong i = pTable->Get_Count(); CSG_Table_Record *pRecord = pTable->Add_Record();\
 		pRecord->Set_Value(0, i + 1    );\
 		pRecord->Set_Value(1, i * dTime);\
 		pRecord->Set_Value(2, C        );\
@@ -157,7 +157,7 @@ bool CHugget_01::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Table *pTable = Parameters("TABLE")->asTable(); pTable->Destroy();
 	pTable->Set_Name(_TL("Litter"));
-	pTable->Add_Field("Step"  , SG_DATATYPE_Int   );
+	pTable->Add_Field("Step"  , SG_DATATYPE_Long  );
 	pTable->Add_Field("Time"  , SG_DATATYPE_Double);
 	pTable->Add_Field("Litter", SG_DATATYPE_Double);
 

@@ -137,7 +137,7 @@ bool CSelection_Copy::On_Execute(void)
 		pOutput->Create(((CSG_Shapes *)pInput)->Get_Type(), SG_T(""), pInput);
 		pOutput->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Selection"));
 
-		for(size_t i=0; i<pInput->Get_Selection_Count() && Set_Progress(i, pInput->Get_Selection_Count()); i++)
+		for(sLong i=0; i<pInput->Get_Selection_Count() && Set_Progress(i, pInput->Get_Selection_Count()); i++)
 		{
 			pOutput->Add_Shape(pInput->Get_Selection(i));
 		}
@@ -156,7 +156,7 @@ bool CSelection_Copy::On_Execute(void)
 		pOutput->Create(pInput);
 		pOutput->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Selection"));
 
-		for(size_t i=0; i<pInput->Get_Selection_Count() && Set_Progress(i, pInput->Get_Selection_Count()); i++)
+		for(sLong i=0; i<pInput->Get_Selection_Count() && Set_Progress(i, pInput->Get_Selection_Count()); i++)
 		{
 			pOutput->Add_Record(pInput->Get_Selection(i));
 		}
@@ -357,7 +357,7 @@ bool CSelect_Numeric::On_Execute(void)
 
 		bool	bOkay	= true;
 
-		for(size_t Field=0; bOkay && Field<Fields.Get_Size(); Field++)
+		for(sLong Field=0; bOkay && Field<Fields.Get_Size(); Field++)
 		{
 			if( (bOkay = bUseNoData || !pRecord->is_NoData(Fields[Field])) == true )
 			{

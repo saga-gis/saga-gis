@@ -202,7 +202,7 @@ inline bool CSelect_String::Do_Select(CSG_Shape *pShape)
 		return( Do_Compare(pShape->asString(m_Field)) );
 	}
 
-	for(sLong i=0; i<pShape->Get_Table()->Get_Field_Count(); i++)
+	for(int i=0; i<pShape->Get_Table()->Get_Field_Count(); i++)
 	{
 		if( Do_Compare(pShape->asString(i)) )
 		{

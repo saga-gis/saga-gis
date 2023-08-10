@@ -90,20 +90,20 @@ public:
 	CPointCloud_Get_Subset_SPCVF_Base(void);
 	virtual ~CPointCloud_Get_Subset_SPCVF_Base(void);
 
-	bool					Initialise	(int iOutputs, CSG_Rect	AOI, CSG_Shapes *pShapes, int iFieldName, bool bMultiple, bool bAddOverlap, double dOverlap,
+	bool					Initialise	(sLong iOutputs, CSG_Rect AOI, CSG_Shapes *pShapes, int iFieldName, bool bMultiple, bool bAddOverlap, double dOverlap,
 										 CSG_String sFileNameTileInfo, CSG_String sFilename, CSG_Parameter_File_Name *pFilePath,
 										 CSG_Parameter_PointCloud_List *pPointCloudList, bool bConstrain, int iField, double dMinAttrRange, double dMaxAttrRange,
 										 bool bCopyAttr, CSG_String sAttrList);
 	void					Finalise	(void);
 	bool					Get_Subset	(bool bCopyAttr);
-	void					Write_Subset(CSG_PointCloud *pPC_out, int iAOI, int iDatasets, CSG_MetaData *pSPCVF_Tiles, bool bAbsolutePaths);
+	void					Write_Subset(CSG_PointCloud *pPC_out, sLong iAOI, sLong iDatasets, CSG_MetaData *pSPCVF_Tiles, bool bAbsolutePaths);
 
 protected:
 
 
 private:
 
-	int						m_iOutputs;
+	sLong					m_iOutputs;
 	CSG_Rect				m_AOI;
 	CSG_Shapes				*m_pShapes;
 	int						m_iFieldName;

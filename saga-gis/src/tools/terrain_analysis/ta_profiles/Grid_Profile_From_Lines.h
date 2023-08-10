@@ -95,9 +95,9 @@ private:
 
 	bool						Show_Profile			(CSG_Shapes *pPoints);
 
-	bool						Set_Profile				(int ID_Line, CSG_Shape *pLine);
-	bool						Set_Profile				(int ID_Line, bool bStart, const TSG_Point &A, const TSG_Point &B, bool bLastPoint);
-	bool						Add_Point				(int ID_Line, bool bStart, const TSG_Point &Point);
+	bool						Set_Profile				(sLong ID_Line, CSG_Shape *pLine);
+	bool						Set_Profile				(sLong ID_Line, bool bStart, const TSG_Point &A, const TSG_Point &B, bool bLastPoint);
+	bool						Add_Point				(sLong ID_Line, bool bStart, const TSG_Point &Point);
 
 };
 

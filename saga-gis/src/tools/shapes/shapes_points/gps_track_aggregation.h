@@ -82,7 +82,7 @@ protected:
 
 private:
 
-	bool					Set_Statistic			(CSG_Table_Record *pAggregate, CSG_Simple_Statistics &Statistic, CSG_Simple_Statistics &Time, int nDropped, bool bVerbose);
+	bool					Set_Statistic			(CSG_Table_Record *pAggregate, CSG_Simple_Statistics &Statistic, CSG_Simple_Statistics &Time, sLong nDropped, bool bVerbose);
 
 };
 

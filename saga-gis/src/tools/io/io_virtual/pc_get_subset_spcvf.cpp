@@ -89,7 +89,7 @@ CPointCloud_Get_Subset_SPCVF_Base::~CPointCloud_Get_Subset_SPCVF_Base(void)
 
 
 //---------------------------------------------------------
-bool CPointCloud_Get_Subset_SPCVF_Base::Initialise(int iOutputs, CSG_Rect AOI, CSG_Shapes *pShapes, int iFieldName, bool bMultiple, bool bAddOverlap, double dOverlap,
+bool CPointCloud_Get_Subset_SPCVF_Base::Initialise(sLong iOutputs, CSG_Rect AOI, CSG_Shapes *pShapes, int iFieldName, bool bMultiple, bool bAddOverlap, double dOverlap,
 												   CSG_String sFileNameTileInfo, CSG_String sFileName, CSG_Parameter_File_Name *pFilePath,
 												   CSG_Parameter_PointCloud_List *pPointCloudList, bool bConstrain, int iField, double dMinAttrRange, double dMaxAttrRange,
 												   bool bCopyAttr, CSG_String sAttrList)
@@ -286,14 +286,14 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(bool bCopyAttr)
 
 
 	//-----------------------------------------------------
-	int				iDatasets = 0;
+	sLong			iDatasets = 0;
 	CSG_PointCloud	*pPC_out = NULL;
 
-	for(int iAOI=0; iAOI<m_iOutputs; iAOI++)
+	for(sLong iAOI=0; iAOI<m_iOutputs; iAOI++)
 	{
 		if( m_iOutputs > 1 )
 		{
-			SG_UI_Process_Set_Text(CSG_String::Format(_TL("Processing AOI %d ..."), iAOI + 1));
+			SG_UI_Process_Set_Text(CSG_String::Format(_TL("Processing AOI %lld ..."), iAOI + 1));
 		}
 		else
 		{
@@ -512,7 +512,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(bool bCopyAttr)
 
 
 //---------------------------------------------------------
-void CPointCloud_Get_Subset_SPCVF_Base::Write_Subset(CSG_PointCloud *pPC_out, int iAOI, int iDatasets, CSG_MetaData *pSPCVF_Tiles, bool bAbsolutePaths)
+void CPointCloud_Get_Subset_SPCVF_Base::Write_Subset(CSG_PointCloud *pPC_out, sLong iAOI, sLong iDatasets, CSG_MetaData *pSPCVF_Tiles, bool bAbsolutePaths)
 {
 	CSG_String	sPath = SG_T("");
 
@@ -567,7 +567,7 @@ void CPointCloud_Get_Subset_SPCVF_Base::Write_Subset(CSG_PointCloud *pPC_out, in
 
 
 	//-----------------------------------------------------
-	SG_UI_Msg_Add(CSG_String::Format(_TL("%lld points from %d dataset(s) written to output point cloud %s."), pPC_out->Get_Count(), iDatasets, pPC_out->Get_Name()), true);
+	SG_UI_Msg_Add(CSG_String::Format(_TL("%lld points from %lld dataset(s) written to output point cloud %s."), pPC_out->Get_Count(), iDatasets, pPC_out->Get_Name()), true);
 
 	if( m_pFilePath == NULL )
 	{
@@ -763,7 +763,7 @@ bool CPointCloud_Get_Subset_SPCVF::On_Execute(void)
 	double			dOverlap;
 	CSG_String		sFileNameTileInfo;
 	bool			bMultiple;
-	int				iOutputs = 1;
+	sLong			iOutputs = 1;
 	CSG_Rect		AOI;
 	bool			bCopyAttr;
 	CSG_String		sAttrList;

@@ -270,7 +270,7 @@ bool CGrid_Cluster_Analysis::On_Execute(void)
 
 		if( !pCluster->is_NoData(iElement) )
 		{
-			pCluster->Set_Value(iElement, 1l + Analysis.Get_Cluster(nElements++));
+			pCluster->Set_Value(iElement, 1 + Analysis.Get_Cluster(nElements++));
 		}
 	}
 
@@ -418,7 +418,8 @@ void CGrid_Cluster_Analysis::Save_LUT(CSG_Grid *pCluster)
 //---------------------------------------------------------
 bool CGrid_Cluster_Analysis::_On_Execute(void)
 {
-	int						i, j, *nMembers, nCluster, nElements;
+	int						i, j, *nMembers, nCluster;
+	sLong					nElements;
 	double					*Variances, **Centroids, SP;
 	CSG_Grid				**Grids, *pCluster;
 	CSG_Parameter_Grid_List	*pGrids;
@@ -503,7 +504,7 @@ bool CGrid_Cluster_Analysis::_On_Execute(void)
 	pTable->Add_Field(_TL("Elements" ), SG_DATATYPE_Int   );
 	pTable->Add_Field(_TL("Std.Dev." ), SG_DATATYPE_Double);
 
-	s.Printf("\n%s:\t%d \n%s:\t%d \n%s:\t%d \n%s:\t%f\n\n%s\t%s\t%s",
+	s.Printf("\n%s:\t%lld \n%s:\t%d \n%s:\t%d \n%s:\t%f\n\n%s\t%s\t%s",
 		_TL("Number of Elements" ), nElements,
 		_TL("Number of Variables"), pGrids->Get_Grid_Count(),
 		_TL("Number of Clusters" ), nCluster,
@@ -566,10 +567,11 @@ bool CGrid_Cluster_Analysis::_On_Execute(void)
 }
 
 //---------------------------------------------------------
-double CGrid_Cluster_Analysis::_MinimumDistance(CSG_Grid **Grids, int nGrids, CSG_Grid *pCluster, int nCluster, int *nMembers, double *Variances, double **Centroids, int &nElements)
+double CGrid_Cluster_Analysis::_MinimumDistance(CSG_Grid **Grids, int nGrids, CSG_Grid *pCluster, int nCluster, int *nMembers, double *Variances, double **Centroids, sLong &nElements)
 {
 	bool	bContinue;
-	int		iElement, iGrid, iCluster, nClusterElements, nShifts, minCluster, nPasses;
+	sLong	iElement;
+	int		iGrid, iCluster, nClusterElements, nShifts, minCluster, nPasses;
 	double	d, Variance, minVariance, SP, SP_Last	= -1;
 
 	//-----------------------------------------------------
@@ -707,10 +709,11 @@ double CGrid_Cluster_Analysis::_MinimumDistance(CSG_Grid **Grids, int nGrids, CS
 }
 
 //---------------------------------------------------------
-double CGrid_Cluster_Analysis::_HillClimbing(CSG_Grid **Grids, int nGrids, CSG_Grid *pCluster, int nCluster, int *nMembers, double *Variances, double **Centroids, int &nElements)
+double CGrid_Cluster_Analysis::_HillClimbing(CSG_Grid **Grids, int nGrids, CSG_Grid *pCluster, int nCluster, int *nMembers, double *Variances, double **Centroids, sLong &nElements)
 {
 	bool	bContinue;
-	int		iElement, iGrid, iCluster, jCluster, kCluster, nClusterElements, noShift, nPasses;
+	sLong	iElement;
+	int		iGrid, iCluster, jCluster, kCluster, nClusterElements, noShift, nPasses;
 	double	d, e, n_iK, n_jK, V, VMin, V1, V2, SP, SP_Last	= -1;
 
 	//-----------------------------------------------------
