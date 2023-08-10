@@ -1685,7 +1685,7 @@ bool CSG_Parameter_Colors::_Serialize(CSG_MetaData &Entry, bool bSave)
 			return( false );
 		}
 
-		m_Colors.Set_Count(Entry.Get_Children_Count());
+		m_Colors.Set_Count((int)Entry.Get_Children_Count());
 
 		for(int i=0; i<m_Colors.Get_Count(); i++)
 		{
@@ -1773,7 +1773,7 @@ bool CSG_Parameter_Fixed_Table::_Serialize(CSG_MetaData &Entry, bool bSave)
 
 		CSG_Table	Table;
 
-		for(iField=0; iField<pNode->Get_Children_Count(); iField++)
+		for(iField=0; iField<(int)pNode->Get_Children_Count(); iField++)
 		{
 			TSG_Data_Type	type	= SG_DATATYPE_String;
 
@@ -1792,13 +1792,13 @@ bool CSG_Parameter_Fixed_Table::_Serialize(CSG_MetaData &Entry, bool bSave)
 			return( false );
 		}
 
-		for(int iRecord=0; iRecord<pNode->Get_Children_Count(); iRecord++)
+		for(sLong iRecord=0; iRecord<pNode->Get_Children_Count(); iRecord++)
 		{
 			CSG_MetaData	*pEntry	= pNode->Get_Child(iRecord);
 
 			CSG_Table_Record	*pRecord	= Table.Add_Record();
 
-			for(iField=0; iField<pEntry->Get_Children_Count(); iField++)
+			for(iField=0; iField<(int)pEntry->Get_Children_Count(); iField++)
 			{
 				pRecord->Set_Value(iField, pEntry->Get_Child(iField)->Get_Content());
 			}
@@ -2954,7 +2954,7 @@ bool CSG_Parameter_List::_Serialize(CSG_MetaData &Entry, bool bSave)
 	{
 		Del_Items();
 
-		for(int i=0; i<Entry.Get_Children_Count(); i++)
+		for(int i=0; i<(int)Entry.Get_Children_Count(); i++)
 		{
 			CSG_Data_Object	*pObject	= Get_Manager() ? Get_Manager()->Find(Entry.Get_Content(i), false) : NULL;
 

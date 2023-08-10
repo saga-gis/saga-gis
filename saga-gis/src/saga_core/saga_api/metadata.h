@@ -133,7 +133,7 @@ public:
 	void						Set_Name			(const CSG_String &Name)			{	m_Name		= Name;		}
 	bool						Cmp_Name			(const CSG_String &String, bool bNoCase =  true)	const;
 	const CSG_String &			Get_Content			(void)						const	{	return( m_Content );	}
-	const SG_Char *				Get_Content			(int Index)					const	{	return( Get_Child(Index) ? Get_Child(Index)->Get_Content().c_str() : NULL );	}
+	const SG_Char *				Get_Content			(sLong Index)				const	{	return( Get_Child(Index) ? Get_Child(Index)->Get_Content().c_str() : NULL );	}
 	const SG_Char *				Get_Content			(const CSG_String &Name)	const	{	return( Get_Content(_Get_Child(Name)) );	}
 	bool						Get_Content			(const CSG_String &Name, CSG_String &Value)	const;
 	bool						Get_Content			(const CSG_String &Name, double     &Value)	const;
@@ -146,8 +146,8 @@ public:
 
 	CSG_MetaData *				Get_Parent			(void)						const	{	return( m_pParent );	}
 
-	int							Get_Children_Count	(void)						const	{	return( (int)m_Children.Get_Size() );	}
-	CSG_MetaData *				Get_Child			(int Index)					const	{	return( Index >= 0 ? *((CSG_MetaData **)m_Children.Get_Entry((size_t)Index)) : NULL );	}
+	sLong						Get_Children_Count	(void)						const	{	return( m_Children.Get_Size() );	}
+	CSG_MetaData *				Get_Child			(sLong Index)				const	{	return( Index >= 0 ? *((CSG_MetaData **)m_Children.Get_Entry(Index)) : NULL );	}
 	CSG_MetaData *				Get_Child			(const CSG_String &Name)	const	{	return( Get_Child(_Get_Child(Name)) );	}
 	CSG_MetaData *				Add_Child			(void);
 	CSG_MetaData *				Add_Child			(const CSG_String &Name);
@@ -156,24 +156,24 @@ public:
 	CSG_MetaData *				Add_Child			(const CSG_String &Name, int               Content);
 	CSG_MetaData *				Add_Child			(const CSG_String &Name, sLong             Content);
 	CSG_MetaData *				Add_Child			(const CSG_MetaData &MetaData, bool bAddChildren = true);
-	CSG_MetaData *				Ins_Child			(                                                   int Position);
-	CSG_MetaData *				Ins_Child			(const CSG_String &Name                           , int Position);
-	CSG_MetaData *				Ins_Child			(const CSG_String &Name, const CSG_String &Content, int Position);
-	CSG_MetaData *				Ins_Child			(const CSG_String &Name, double            Content, int Position);
-	CSG_MetaData *				Ins_Child			(const CSG_String &Name, int               Content, int Position);
-	CSG_MetaData *				Ins_Child			(const CSG_String &Name, sLong             Content, int Position);
-	CSG_MetaData *				Ins_Child			(const CSG_MetaData &MetaData                     , int Position, bool bAddChildren = true);
-	bool						Mov_Child			(int from_Index, int to_Index);
-	bool						Del_Child			(int Index);
+	CSG_MetaData *				Ins_Child			(                                                   sLong Position);
+	CSG_MetaData *				Ins_Child			(const CSG_String &Name                           , sLong Position);
+	CSG_MetaData *				Ins_Child			(const CSG_String &Name, const CSG_String &Content, sLong Position);
+	CSG_MetaData *				Ins_Child			(const CSG_String &Name, double            Content, sLong Position);
+	CSG_MetaData *				Ins_Child			(const CSG_String &Name, int               Content, sLong Position);
+	CSG_MetaData *				Ins_Child			(const CSG_String &Name, sLong             Content, sLong Position);
+	CSG_MetaData *				Ins_Child			(const CSG_MetaData &MetaData                     , sLong Position, bool bAddChildren = true);
+	bool						Mov_Child			(sLong from_Index, sLong to_Index);
+	bool						Del_Child			(sLong Index);
 	bool						Del_Child			(const CSG_String &Name)			{	return( Del_Child(_Get_Child(Name)) );	}
 
 	bool						Add_Children		(const CSG_MetaData &MetaData);
 	bool						Del_Children		(int Depth = 0, const SG_Char *Name = NULL);
 
-	CSG_MetaData *				operator ()			(int Index)					const	{	return(  Get_Child(Index           ) );	}
+	CSG_MetaData *				operator ()			(sLong Index)				const	{	return(  Get_Child(Index           ) );	}
 	CSG_MetaData *				operator ()			(const CSG_String &Name)	const	{	return(  Get_Child(_Get_Child(Name)) );	}
 
-	const CSG_MetaData &		operator []			(int Index)					const	{	return( *Get_Child(Index           ) );	}
+	const CSG_MetaData &		operator []			(sLong Index)				const	{	return( *Get_Child(Index           ) );	}
 	const CSG_MetaData &		operator []			(const CSG_String &Name)	const	{	return( *Get_Child(_Get_Child(Name)) );	}
 
 	int							Get_Property_Count	(void)						const	{	return( m_Prop_Names.Get_Count() );	}
@@ -216,7 +216,7 @@ private:
 
 	void						_On_Construction	(void);
 
-	int							_Get_Child			(const CSG_String &Name)	const;
+	sLong						_Get_Child			(const CSG_String &Name)	const;
 	int							_Get_Property		(const CSG_String &Name)	const;
 
 	void						_Load				(class wxXmlNode *pNode);
