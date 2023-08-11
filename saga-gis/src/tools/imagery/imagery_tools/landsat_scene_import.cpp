@@ -339,7 +339,7 @@ bool CLandsat_Scene_Import::On_Execute(void)
 
 	Message_Add("\n___\n", false);
 
-	for(sLong j=0; j<Info_Scene.Get_Children_Count(); j++)
+	for(int j=0; j<Info_Scene.Get_Children_Count(); j++)
 	{
 		Message_Add(Info_Scene[j].Get_Name() + ": " + Info_Scene[j].Get_Content() + "\n", false);
 	}

@@ -241,7 +241,7 @@ bool CSG_Tool_Chain::Create(const CSG_MetaData &Chain)
 	m_bAddHistory	= IS_TRUE_PROPERTY(m_Chain["tools"], "history");
 
 	//-----------------------------------------------------
-	for(sLong i=0; i<m_Chain["parameters"].Get_Children_Count(); i++)
+	for(int i=0; i<m_Chain["parameters"].Get_Children_Count(); i++)
 	{
 		const CSG_MetaData	&Parameter	= m_Chain["parameters"][i];
 
@@ -289,7 +289,7 @@ bool CSG_Tool_Chain::Create(const CSG_MetaData &Chain)
 		{
 			CSG_MetaData	&Conditions	= *m_Conditions.Add_Child(ID);
 
-			for(sLong j=0; j<Parameter.Get_Children_Count(); j++)	// there might be more than one condition to be checked
+			for(int j=0; j<Parameter.Get_Children_Count(); j++)	// there might be more than one condition to be checked
 			{
 				if( Parameter[j].Cmp_Name("condition") )
 				{
@@ -392,7 +392,7 @@ bool CSG_Tool_Chain::do_Sync_Projections(void)	const
 //---------------------------------------------------------
 void CSG_Tool_Chain::Add_References(void)
 {
-	for(sLong i=0; i<m_Chain.Get_Children_Count(); i++)
+	for(int i=0; i<m_Chain.Get_Children_Count(); i++)
 	{
 		if( !m_Chain[i].Get_Name().CmpNoCase("REFERENCE") )
 		{
@@ -431,7 +431,7 @@ void CSG_Tool_Chain::Add_References(void)
 //---------------------------------------------------------
 int CSG_Tool_Chain::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	for(sLong iParameter=0; iParameter<m_Conditions.Get_Children_Count(); iParameter++)
+	for(int iParameter=0; iParameter<m_Conditions.Get_Children_Count(); iParameter++)
 	{
 		const CSG_MetaData	&Conditions	= m_Conditions[iParameter];
 
@@ -439,7 +439,7 @@ int CSG_Tool_Chain::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 		{
 			bool	bEnable	= true;
 
-			for(sLong iCondition=0; bEnable && iCondition<Conditions.Get_Children_Count(); iCondition++)
+			for(int iCondition=0; bEnable && iCondition<Conditions.Get_Children_Count(); iCondition++)
 			{
 				bEnable	= Check_Condition(Conditions[iCondition], pParameters);
 			}
@@ -466,7 +466,7 @@ bool CSG_Tool_Chain::On_Execute(void)
 		Error_Set(_TL("no data objects"));
 	}
 
-	for(sLong i=0; bResult && i<m_Chain["tools"].Get_Children_Count(); i++)
+	for(int i=0; bResult && i<m_Chain["tools"].Get_Children_Count(); i++)
 	{
 		bResult	= Tool_Run(m_Chain["tools"][i]);
 	}
@@ -708,7 +708,7 @@ bool CSG_Tool_Chain::Data_Finalize(void)
 	m_Data.Destroy();
 
 	//-----------------------------------------------------
-	for(sLong i=0; i<m_Chain["parameters"].Get_Children_Count(); i++)
+	for(int i=0; i<m_Chain["parameters"].Get_Children_Count(); i++)
 	{
 		const CSG_MetaData	&Parameter	= m_Chain["parameters"][i];
 
@@ -918,7 +918,7 @@ bool CSG_Tool_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Paramete
 //---------------------------------------------------------
 bool CSG_Tool_Chain::ForEach(const CSG_MetaData &Commands)
 {
-	for(sLong i=0; i<Commands.Get_Children_Count(); i++)	// add internal target lists, if any..
+	for(int i=0; i<Commands.Get_Children_Count(); i++)	// add internal target lists, if any..
 	{
 		if( Commands[i].Cmp_Name("output") || Commands[i].Cmp_Name("datalist") )
 		{
@@ -1008,7 +1008,7 @@ bool CSG_Tool_Chain::ForEach_Iterator(const CSG_MetaData &Commands, const CSG_St
 
 		pIterator->Set_Value(i);
 
-		for(sLong iTool=0; bResult && iTool<Commands.Get_Children_Count(); iTool++)
+		for(int iTool=0; bResult && iTool<Commands.Get_Children_Count(); iTool++)
 		{
 			const CSG_MetaData	&Tool	= Commands[iTool];
 
@@ -1046,13 +1046,13 @@ bool CSG_Tool_Chain::ForEach_Object(const CSG_MetaData &Commands, const CSG_Stri
 	{
 		for(int iObject=0; bResult && iObject<Get_List_Count(pList->asList()); iObject++)
 		{
-			for(sLong iTool=0; bResult && iTool<Commands.Get_Children_Count(); iTool++)
+			for(int iTool=0; bResult && iTool<Commands.Get_Children_Count(); iTool++)
 			{
 				const CSG_MetaData	&Tool	= Commands[iTool];
 
 				if( Tool.Cmp_Name("tool") )
 				{
-					for(sLong j=0; j<Tool.Get_Children_Count(); j++)
+					for(int j=0; j<Tool.Get_Children_Count(); j++)
 					{
 						if( Tool[j].Cmp_Name("input") && Tool[j].Get_Content().Find(ListVarName) == 0 )
 						{
@@ -1076,13 +1076,13 @@ bool CSG_Tool_Chain::ForEach_Object(const CSG_MetaData &Commands, const CSG_Stri
 	{
 		for(int iObject=0; bResult && iObject<pList->asGrids()->Get_Grid_Count(); iObject++)
 		{
-			for(sLong iTool=0; bResult && iTool<Commands.Get_Children_Count(); iTool++)
+			for(int iTool=0; bResult && iTool<Commands.Get_Children_Count(); iTool++)
 			{
 				const CSG_MetaData	&Tool	= Commands[iTool];
 
 				if( Tool.Cmp_Name("tool") )
 				{
-					for(sLong j=0; j<Tool.Get_Children_Count(); j++)
+					for(int j=0; j<Tool.Get_Children_Count(); j++)
 					{
 						if( Tool[j].Cmp_Name("input") && Tool[j].Get_Content().Find(ListVarName) == 0 )
 						{
@@ -1123,15 +1123,15 @@ bool CSG_Tool_Chain::ForEach_File(const CSG_MetaData &Commands, const CSG_String
 
 	for(int iFile=0; bResult && iFile<Files.Get_Count(); iFile++)
 	{
-		for(sLong iTool=0; bResult && iTool<Commands.Get_Children_Count(); iTool++)
+		for(int iTool=0; bResult && iTool<Commands.Get_Children_Count(); iTool++)
 		{
 			const CSG_MetaData	&Tool	= Commands[iTool];
 
 			if( Tool.Cmp_Name("tool") )
 			{
-				CSG_Array_sLong	Input;
+				CSG_Array_Int	Input;
 
-				for(sLong j=0; j<Tool.Get_Children_Count(); j++)
+				for(int j=0; j<Tool.Get_Children_Count(); j++)
 				{
 					if( Tool[j].Cmp_Name("option") && Tool[j].Get_Content().Find(ListVarName) == 0 && IS_TRUE_PROPERTY(Tool[j], "varname") )
 					{
@@ -1196,7 +1196,7 @@ bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool, bool bShowError)
 		const CSG_MetaData	*pTools	= (!Check_Condition(Tool, &m_Data) || !Check_Condition(Tool, &Parameters))
 			? Tool("else") : (Tool("if") ? Tool("if") : &Tool);
 
-		for(sLong i=0; pTools && i<pTools->Get_Children_Count(); i++)
+		for(int i=0; pTools && i<pTools->Get_Children_Count(); i++)
 		{
 			if( !Tool_Run((*pTools)[i]) )
 			{
@@ -1284,7 +1284,7 @@ bool CSG_Tool_Chain::Tool_Check_Condition(const CSG_MetaData &Tool)
 {
 	if( Tool("condition") )
 	{
-		for(sLong i=0; i<Tool.Get_Children_Count(); i++)	// there might be more than one condition to be checked
+		for(int i=0; i<Tool.Get_Children_Count(); i++)	// there might be more than one condition to be checked
 		{
 			if( !Check_Condition(Tool[i], &m_Data) )
 			{
@@ -1376,7 +1376,7 @@ bool CSG_Tool_Chain::Tool_Get_Parameter(const CSG_MetaData &Parameter, CSG_Tool 
 bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 {
 	//-----------------------------------------------------
-	for(sLong i=0; i<Tool.Get_Children_Count(); i++)	// check for invalid parameters...
+	for(int i=0; i<Tool.Get_Children_Count(); i++)	// check for invalid parameters...
 	{
 		const CSG_MetaData &Parameter = Tool[i]; if( Parameter.Cmp_Name("comment") ) { continue; }
 
@@ -1405,7 +1405,7 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 	}
 
 	//-----------------------------------------------------
-	for(sLong i=0; i<Tool.Get_Children_Count(); i++)	// initialize all options first, some might en-/disable mandatory input data
+	for(int i=0; i<Tool.Get_Children_Count(); i++)	// initialize all options first, some might en-/disable mandatory input data
 	{
 		const CSG_MetaData &Parameter = Tool[i]; if( !Parameter.Cmp_Name("option") ) { continue; }
 
@@ -1420,7 +1420,7 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 	}
 
 	//-----------------------------------------------------
-	for(sLong i=0; i<Tool.Get_Children_Count(); i++)	// set data input first
+	for(int i=0; i<Tool.Get_Children_Count(); i++)	// set data input first
 	{
 		const CSG_MetaData &Parameter = Tool[i]; if( !Parameter.Cmp_Name("input") ) { continue; }
 
@@ -1493,7 +1493,7 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 	}
 
 	//-----------------------------------------------------
-	for(sLong i=0; i<Tool.Get_Children_Count(); i++)	// now set all options
+	for(int i=0; i<Tool.Get_Children_Count(); i++)	// now set all options
 	{
 		const CSG_MetaData &Parameter = Tool[i]; if( !Parameter.Cmp_Name("option") ) { continue; }
 
@@ -1555,7 +1555,7 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 	}
 
 	//-----------------------------------------------------
-	for(sLong i=0; i<Tool.Get_Children_Count(); i++)	// finally set the data output
+	for(int i=0; i<Tool.Get_Children_Count(); i++)	// finally set the data output
 	{
 		const CSG_MetaData &Parameter = Tool[i]; if( !Parameter.Cmp_Name("output") ) { continue; }
 
@@ -1585,7 +1585,7 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 //---------------------------------------------------------
 bool CSG_Tool_Chain::Tool_Finalize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 {
-	for(sLong i=0; i<Tool.Get_Children_Count(); i++)	// add all data objects declared as output to variable list
+	for(int i=0; i<Tool.Get_Children_Count(); i++)	// add all data objects declared as output to variable list
 	{
 		const CSG_MetaData	&Parameter	= Tool[i];
 
@@ -1945,7 +1945,7 @@ CSG_Tool_Chains::CSG_Tool_Chains(const CSG_String &Library_Name, const CSG_Strin
 		m_Description.Replace("]]", ">");
 
 		// add references...
-		for(sLong i=0; i<XML.Get_Children_Count(); i++)
+		for(int i=0; i<XML.Get_Children_Count(); i++)
 		{
 			if( !XML[i].Get_Name().CmpNoCase("REFERENCE") )
 			{
@@ -2109,7 +2109,7 @@ bool CSG_Tool_Chain::Save_History_to_Model(const CSG_MetaData &History, const CS
 
 	_Save_History_Add_Tool(Tool, *Chain("parameters"), *Chain("tools"), true);
 
-	for(sLong i=0; i<Chain["tools"].Get_Children_Count(); i++)
+	for(int i=0; i<Chain["tools"].Get_Children_Count(); i++)
 	{
 		Chain["tools"](i)->Del_Property("id");
 	}
@@ -2128,7 +2128,7 @@ bool CSG_Tool_Chain::_Save_History_Add_Tool(const CSG_MetaData &History, CSG_Met
 	//-----------------------------------------------------
 	CSG_MetaData	*pParameter, &Tool	= *Tools.Ins_Child("tool", 0);
 
-	CSG_String		Tool_ID(CSG_String::Format("tool_%02lld", Tools.Get_Children_Count()));
+	CSG_String		Tool_ID(CSG_String::Format("tool_%02d", Tools.Get_Children_Count()));
 
 	Tool.Add_Property("id"     , Tool_ID);
 	Tool.Add_Property("library", History.Get_Property("library"));
@@ -2155,7 +2155,7 @@ bool CSG_Tool_Chain::_Save_History_Add_Tool(const CSG_MetaData &History, CSG_Met
 	}
 
 	//-----------------------------------------------------
-	for(sLong i=0; i<History.Get_Children_Count(); i++)	// Options and Input
+	for(int i=0; i<History.Get_Children_Count(); i++)	// Options and Input
 	{
 		CSG_MetaData	*pChild	= History.Get_Child(i);
 
@@ -2206,7 +2206,7 @@ bool CSG_Tool_Chain::_Save_History_Add_Tool(const CSG_MetaData &History, CSG_Met
 		}
 		else if( !pChild->Get_Name().Cmp("INPUT_LIST") )
 		{
-			for(sLong j=0; j<pChild->Get_Children_Count(); j++)
+			for(int j=0; j<pChild->Get_Children_Count(); j++)
 			{
 				_Save_History_Add_Input(*pChild->Get_Child(j), Parms, Tool);
 			}
@@ -2230,7 +2230,7 @@ bool CSG_Tool_Chain::_Save_History_Add_Input(const CSG_MetaData &History, CSG_Me
 
 		if( History_Tool("OUTPUT") && History_Tool["OUTPUT"].Get_Property("id") )
 		{
-			pInput->Fmt_Content("tool_%02lld__%s", Tool.Get_Parent()->Get_Children_Count() + 1, History_Tool["OUTPUT"].Get_Property("id"));
+			pInput->Fmt_Content("tool_%02d__%s", Tool.Get_Parent()->Get_Children_Count() + 1, History_Tool["OUTPUT"].Get_Property("id"));
 
 			return( _Save_History_Add_Tool(History_Tool, Parms, *Tool.Get_Parent()) );
 		}

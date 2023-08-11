@@ -209,7 +209,7 @@ bool COSM_Import::Load_Nodes(const CSG_MetaData &Root)
 	m_pPoints->Del_Shapes();
 
 	//-----------------------------------------------------
-	for(sLong i=0; i<Root.Get_Children_Count(); i++)
+	for(int i=0; i<Root.Get_Children_Count(); i++)
 	{
 		const CSG_MetaData	&Node	= Root[i];
 
@@ -255,7 +255,7 @@ bool COSM_Import::Load_Nodes(const CSG_MetaData &Root)
 bool COSM_Import::Load_Ways(const CSG_MetaData &Root)
 {
 	//-----------------------------------------------------
-	for(sLong i=0, WayID; i<Root.Get_Children_Count(); i++)
+	for(int i=0, WayID; i<Root.Get_Children_Count(); i++)
 	{
 		const CSG_MetaData	&Node	= Root[i];
 
@@ -263,7 +263,7 @@ bool COSM_Import::Load_Ways(const CSG_MetaData &Root)
 		{
 			CSG_Array_Int	NodeIDs;
 
-			for(sLong iChild=0, NodeID; iChild<Node.Get_Children_Count(); iChild++)
+			for(int iChild=0, NodeID; iChild<Node.Get_Children_Count(); iChild++)
 			{
 				const CSG_MetaData	&Child	= Node[iChild];
 

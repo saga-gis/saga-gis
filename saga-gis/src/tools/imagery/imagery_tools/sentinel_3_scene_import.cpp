@@ -444,7 +444,7 @@ bool CSentinel_3_Scene_Import::Load_Classification(CSG_Grid *pGrid, const CSG_St
 	LUT.Add_Field("Minimum"    , SG_DATATYPE_Double);
 	LUT.Add_Field("Maximum"    , SG_DATATYPE_Double);
 
-	for(sLong i=0, Index; i<ClassList.Get_Children_Count(); i++)
+	for(int i=0, Index; i<ClassList.Get_Children_Count(); i++)
 	{
 		if( ClassList[i].Cmp_Name("Scene_Classification_ID")
 		&&  ClassList[i]("SCENE_CLASSIFICATION_TEXT" )

@@ -2169,7 +2169,7 @@ bool CSG_Grids::_Load_Header(CSG_File &Stream)
 	{
 		const CSG_MetaData	&Fields	= Header["ATTRIBUTES"];
 
-		for(sLong iField=0; iField<Fields.Get_Children_Count(); iField++)
+		for(int iField=0; iField<Fields.Get_Children_Count(); iField++)
 		{
 			if( Fields[iField].Cmp_Name("FIELD") && Fields[iField].Get_Property("TYPE") )
 			{
@@ -2197,9 +2197,11 @@ bool CSG_Grids::_Load_Header(CSG_File &Stream)
 			m_Z_Attribute	= 0;
 		}
 
+		int		iField;
+
 		const CSG_MetaData	&Fields	= Header["ATTRIBUTES"]["FIELDS"];
 
-		for(sLong iField=0; iField<Fields.Get_Children_Count(); iField++)
+		for(iField=0; iField<Fields.Get_Children_Count(); iField++)
 		{
 			if( Fields[iField].Cmp_Name("FIELD") && Fields[iField].Get_Property("TYPE") )
 			{
@@ -2213,7 +2215,7 @@ bool CSG_Grids::_Load_Header(CSG_File &Stream)
 
 			const CSG_MetaData	&Records	= Header["ATTRIBUTES"]["RECORDS"];
 
-			for(sLong iRecord=0; iRecord<Records.Get_Children_Count(); iRecord++)
+			for(int iRecord=0; iRecord<Records.Get_Children_Count(); iRecord++)
 			{
 				if( Records[iRecord].Cmp_Name("RECORD") )
 				{

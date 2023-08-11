@@ -181,7 +181,7 @@ bool CCityGML_Import::Get_Buildings(const CSG_String &File, CSG_Shapes *pBuildin
 
 	bParts	= false;
 
-	for(sLong i=0; i<GML.Get_Children_Count(); i++)
+	for(int i=0; i<GML.Get_Children_Count(); i++)
 	{
 		if( GML[i].Get_Name().CmpNoCase("core:cityObjectMember") != 0 )
 		{
@@ -344,9 +344,10 @@ bool CCityGML_Import::Add_BuildingParts(const CSG_MetaData &GML, CSG_MetaData &G
 		return( false );
 	}
 
+	int				i;
 	CSG_MetaData	head;
 
-	for(sLong i=0; i<GML.Get_Children_Count(); i++)
+	for(i=0; i<GML.Get_Children_Count(); i++)
 	{
 		if( GML[i].Get_Name().CmpNoCase("core:creationDate")
 		&&  GML[i].Get_Name().BeforeFirst(':').CmpNoCase("bldg") != 0 )
@@ -357,7 +358,7 @@ bool CCityGML_Import::Add_BuildingParts(const CSG_MetaData &GML, CSG_MetaData &G
 		}
 	}
 
-	for(sLong i=0; i<GML.Get_Children_Count(); i++)
+	for(i=0; i<GML.Get_Children_Count(); i++)
 	{
 		if( GML[i]   .Get_Name().CmpNoCase("bldg:consistsOfBuildingPart") == 0 && GML[i].Get_Children_Count() == 1
 		&&  GML[i][0].Get_Name().CmpNoCase("bldg:BuildingPart") == 0 )

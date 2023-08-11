@@ -368,12 +368,12 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 		//-------------------------------------------------
 		g_pData->Get_Menu_Files()->Set_Update(false);
 
-		for(sLong i=0; i<pNode->Get_Children_Count(); i++)
+		for(int i=0; i<pNode->Get_Children_Count(); i++)
 		{
 			_Load_Data(*pNode->Get_Child(i), SG_File_Get_Path(&FileName).w_str(), true , Version);
 		}
 
-		for(sLong i=0; i<pNode->Get_Children_Count(); i++)
+		for(int i=0; i<pNode->Get_Children_Count(); i++)
 		{
 			_Load_Data(*pNode->Get_Child(i), SG_File_Get_Path(&FileName).w_str(), false, Version);
 		}
@@ -390,7 +390,7 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 				g_pSAGA_Frame->GetActiveChild()->Restore();
 			}
 
-			for(sLong i=0; i<pNode->Get_Children_Count(); i++)
+			for(int i=0; i<pNode->Get_Children_Count(); i++)
 			{
 				_Load_Map(*pNode->Get_Child(i), SG_File_Get_Path(&FileName).w_str());
 			}
@@ -573,7 +573,7 @@ bool CWKSP_Project::_Load_DBConnections(CSG_MetaData &Data)
 {
 	CSG_Strings	Connections;
 
-	for(sLong i=0; i<Data.Get_Children_Count(); i++)
+	for(int i=0; i<Data.Get_Children_Count(); i++)
 	{
 		CSG_String	Connection(Data[i].Get_Child("FILE") ? Data[i].Get_Child("FILE")->Get_Content() : "");
 
@@ -666,7 +666,7 @@ bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 	{
 		if( Type == SG_DATAOBJECT_TYPE_Grid && Entry("PARAMETERS"))
 		{
-			for(sLong i=0; i<Entry["PARAMETERS"].Get_Children_Count() && !pItem; i++)
+			for(int i=0; i<Entry["PARAMETERS"].Get_Children_Count() && !pItem; i++)
 			{
 				if( Entry["PARAMETERS"][i].Cmp_Property("id", "FILE_CACHE") )
 				{
@@ -714,7 +714,7 @@ bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 	//-----------------------------------------------------
 	CSG_MetaData *pEntry = Entry("PARAMETERS");
 
-	for(sLong i=0; i<pEntry->Get_Children_Count(); i++)
+	for(int i=0; i<pEntry->Get_Children_Count(); i++)
 	{
 		if( !pEntry->Get_Child(i)->Get_Name().CmpNoCase("DATA") && !pEntry->Get_Child(i)->Get_Content().is_Empty() && pEntry->Get_Child(i)->Get_Content().BeforeFirst(':').CmpNoCase("PGSQL") )
 		{
@@ -812,7 +812,7 @@ bool CWKSP_Project::_Save_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 		//-------------------------------------------------
 		pEntry = pEntry->Get_Child("PARAMETERS");
 
-		for(sLong i=0; i<pEntry->Get_Children_Count(); i++)
+		for(int i=0; i<pEntry->Get_Children_Count(); i++)
 		{
 			if( !pEntry->Get_Child(i)->Get_Name().CmpNoCase("DATA") )
 			{

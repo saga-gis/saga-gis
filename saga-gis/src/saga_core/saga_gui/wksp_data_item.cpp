@@ -131,7 +131,7 @@ bool CWKSP_Data_Item::On_Data_Deletion(CSG_Data_Object *pObject)
 //---------------------------------------------------------
 void Add_Metadata2Parameters(const CSG_MetaData &M, CSG_Parameters &P, CSG_Parameter *pParent = NULL)
 {
-	for(sLong i=0; i<M.Get_Children_Count(); i++)
+	for(int i=0; i<M.Get_Children_Count(); i++)
 	{
 		CSG_String	Properties;
 

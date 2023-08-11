@@ -235,7 +235,7 @@ bool CPointCloud_Create_Tileshape_From_SPCVF::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_MetaData	*pDatasets = SPCVF.Get_Child(SG_T("Datasets"));
 
-	for(sLong i=0; i<pDatasets->Get_Children_Count(); i++)
+	for(int i=0; i<pDatasets->Get_Children_Count(); i++)
 	{
 		CSG_MetaData	*pDataset	= pDatasets->Get_Child(i);
 		CSG_MetaData	*pBBox		= pDataset->Get_Child(SG_T("BBox"));

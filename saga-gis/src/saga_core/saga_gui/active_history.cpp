@@ -338,6 +338,8 @@ bool CActive_History::_Add_History(wxTreeItemId Parent, CSG_MetaData &Data)
 	//-----------------------------------------------------
 	else
 	{
+		int	i;
+
 		wxTreeItemId	Tool	= AppendItem(Parent, wxString::Format("%s [%s]",
 			pTool->Get_Child("OUTPUT")->Get_Property("name"), pTool->Get_Property("name")
 			), IMG_TOOL
@@ -346,7 +348,7 @@ bool CActive_History::_Add_History(wxTreeItemId Parent, CSG_MetaData &Data)
 		//-------------------------------------------------
 		wxTreeItemId	Options	= AppendItem(Tool, _TL("Options"), IMG_ENTRY);
 
-		for(sLong i=0; i<pTool->Get_Children_Count(); i++)	// Options
+		for(i=0; i<pTool->Get_Children_Count(); i++)	// Options
 		{
 			CSG_MetaData		*pEntry	= pTool->Get_Child(i);
 			CSG_String			Name	= pEntry->Get_Property("name");
@@ -402,7 +404,7 @@ bool CActive_History::_Add_History(wxTreeItemId Parent, CSG_MetaData &Data)
 		}
 
 		//-------------------------------------------------
-		for(sLong i=0; i<pTool->Get_Children_Count(); i++)	// Input Data
+		for(i=0; i<pTool->Get_Children_Count(); i++)	// Input Data
 		{
 			CSG_MetaData		*pEntry	= pTool->Get_Child(i);
 			CSG_String			Name	= pEntry->Get_Property("name");
@@ -418,7 +420,7 @@ bool CActive_History::_Add_History(wxTreeItemId Parent, CSG_MetaData &Data)
 				{
 					wxTreeItemId	List	= AppendItem(Tool, wxString::Format("%s %s", Name.c_str(), _TL("List")), _Get_Image(Type));
 
-					for(sLong j=0; j<pEntry->Get_Children_Count(); j++)
+					for(int j=0; j<pEntry->Get_Children_Count(); j++)
 					{
 						_Add_History(List, *pEntry->Get_Child(j));
 					}
@@ -485,12 +487,14 @@ bool CActive_History::_Add_History_OLD(wxTreeItemId Parent, CSG_MetaData &Data)
 	//-----------------------------------------------------
 	else
 	{
+		int	i;
+
 		wxTreeItemId	Tool	= AppendItem(Parent, pTool->Get_Content().c_str(), IMG_TOOL);
 
 		//-------------------------------------------------
 		wxTreeItemId	Options	= AppendItem(Tool, _TL("Options"), IMG_ENTRY);
 
-		for(sLong i=0; i<Data.Get_Children_Count(); i++)	// Options
+		for(i=0; i<Data.Get_Children_Count(); i++)	// Options
 		{
 			CSG_MetaData		*pEntry	= Data.Get_Child(i);
 			CSG_String			Name	= pEntry->Get_Property("name");
@@ -544,7 +548,7 @@ bool CActive_History::_Add_History_OLD(wxTreeItemId Parent, CSG_MetaData &Data)
 		}
 
 		//-------------------------------------------------
-		for(sLong i=0; i<Data.Get_Children_Count(); i++)	// Input Data
+		for(i=0; i<Data.Get_Children_Count(); i++)	// Input Data
 		{
 			CSG_MetaData		*pEntry	= Data.Get_Child(i);
 			CSG_String			Name	= pEntry->Get_Property("name");
@@ -560,7 +564,7 @@ bool CActive_History::_Add_History_OLD(wxTreeItemId Parent, CSG_MetaData &Data)
 				{
 					wxTreeItemId	List	= AppendItem(Tool, wxString::Format("%s %s", Name.c_str(), _TL("List")), _Get_Image(Type));
 
-					for(sLong j=0; j<pEntry->Get_Children_Count(); j++)
+					for(int j=0; j<pEntry->Get_Children_Count(); j++)
 					{
 						_Add_History_OLD(List, *pEntry->Get_Child(j));
 					}

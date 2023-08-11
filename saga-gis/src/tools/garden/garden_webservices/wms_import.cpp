@@ -129,6 +129,8 @@ bool CWMS_Capabilities::Create(CWebClient &Server, const CSG_String &Path, const
 		return( false );
 	}
 
+	int		i;
+
 	//-----------------------------------------------------
 	const CSG_MetaData	&Service	= Capabilities["Service"];
 
@@ -142,7 +144,7 @@ bool CWMS_Capabilities::Create(CWebClient &Server, const CSG_String &Path, const
 	//-----------------------------------------------------
 	const CSG_MetaData	&GetMap	= Capabilities["Capability"]["Request"][V_MAP(m_Version)];
 
-	for(sLong i=0; i<GetMap.Get_Children_Count(); i++)
+	for(i=0; i<GetMap.Get_Children_Count(); i++)
 	{
 		if( GetMap[i].Cmp_Name   ("Format"    )
 		&& (GetMap[i].Cmp_Content("image/png" )
@@ -181,7 +183,7 @@ bool CWMS_Capabilities::Create(CWebClient &Server, const CSG_String &Path, const
 		}
 	}
 
-	for(sLong i=0; i<Layer.Get_Children_Count(); i++)
+	for(i=0; i<Layer.Get_Children_Count(); i++)
 	{
 		if( Layer[i].Cmp_Name(V_SRS(m_Version)) )
 		{
