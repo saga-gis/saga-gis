@@ -134,7 +134,7 @@ bool CGPX_Import::On_Execute(void)
 	m_pShapes->Del_Items();
 
 	//-----------------------------------------------------
-	for(int i=0; i<GPX.Get_Children_Count(); i++)
+	for(sLong i=0; i<GPX.Get_Children_Count(); i++)
 	{
 		CSG_MetaData	*pChild	= GPX.Get_Child(i);
 
@@ -190,7 +190,7 @@ bool CGPX_Import::Add_Route(CSG_MetaData *pRoute)
 
 	m_pShapes->Add_Item(pPoints);
 
-	for(int i=0; i<pRoute->Get_Children_Count(); i++)
+	for(sLong i=0; i<pRoute->Get_Children_Count(); i++)
 	{
 		CSG_MetaData	*pChild	= pRoute->Get_Child(i);
 
@@ -224,7 +224,7 @@ bool CGPX_Import::Add_Track(CSG_MetaData *pTrack)
 
 		m_pShapes->Add_Item(pPoints);
 
-		for(int i=0; i<pSegment->Get_Children_Count(); i++)
+		for(sLong i=0; i<pSegment->Get_Children_Count(); i++)
 		{
 			CSG_MetaData	*pChild	= pSegment->Get_Child(i);
 
@@ -298,7 +298,7 @@ bool CGPX_Import::Add_Point(CSG_MetaData *pNode, CSG_Shapes *pPoints)
 
 		pPoint->Add_Point(Point, 0);
 
-		for(int i=0; i<pNode->Get_Children_Count(); i++)
+		for(sLong i=0; i<pNode->Get_Children_Count(); i++)
 		{
 			CSG_MetaData	*pChild	= pNode->Get_Child(i);
 

@@ -527,7 +527,7 @@ CSG_String CSentinel_2_Scene_Import::Find_Band(const CSG_Table_Record &Band, con
 {
 	CSG_String IDold(Band.asString(1)), IDnew(CSG_String::Format("%s_%dm", Band.asString(1), Band.asInt(3)));
 
-	for(int i=0; i<Granule.Get_Children_Count(); i++)
+	for(sLong i=0; i<Granule.Get_Children_Count(); i++)
 	{
 		if(  Granule[i].Cmp_Name("IMAGE_FILE")
 		&& (!Granule[i].Get_Content().Right(IDnew.Length()).Cmp(IDnew)
@@ -756,7 +756,7 @@ bool CSentinel_2_Scene_Import::Load_Classification(CSG_Grid *pGrid, const CSG_St
 	LUT.Add_Field("Minimum"    , SG_DATATYPE_Double);
 	LUT.Add_Field("Maximum"    , SG_DATATYPE_Double);
 
-	for(int i=0, Index; i<ClassList.Get_Children_Count(); i++)
+	for(sLong i=0, Index; i<ClassList.Get_Children_Count(); i++)
 	{
 		if( ClassList[i].Cmp_Name("Scene_Classification_ID")
 		&&  ClassList[i]("SCENE_CLASSIFICATION_TEXT" )

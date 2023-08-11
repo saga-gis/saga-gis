@@ -714,7 +714,7 @@ bool CWKSP_Map::Serialize(CSG_MetaData &Root, const wxString &ProjectDir, bool b
 
 		m_Parameters["CRS_CHECK"].Set_Value(false);
 
-		for(int i=0; i<Layers.Get_Children_Count(); i++)
+		for(sLong i=0; i<Layers.Get_Children_Count(); i++)
 		{
 			CSG_MetaData &Layer = *Layers(i);
 

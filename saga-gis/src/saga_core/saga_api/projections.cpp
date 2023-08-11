@@ -597,7 +597,7 @@ bool CSG_Projection::is_Equal(const CSG_Projection &Projection)	const
 
 	for(int j=0, k=1; j<2; j++, k=++k%2) // cross check
 	{
-		for(int i=0; i<Parms[j].Get_Children_Count(); i++)
+		for(sLong i=0; i<Parms[j].Get_Children_Count(); i++)
 		{
 			CSG_String key = Parms[j][i].Get_Name();
 
@@ -1345,7 +1345,7 @@ bool CSG_Projections::WKT_to_Proj4(CSG_String &Proj4, const CSG_String &WKT) con
 		{
 			double	Scale = -1., Easting = -1., Northing = -1., Meridian = -1., Latitude = -1.;
 
-			for(int i=0; i<m.Get_Children_Count(); i++)
+			for(sLong i=0; i<m.Get_Children_Count(); i++)
 			{
 				if( m[i].Cmp_Name("PARAMETER") )
 				{
@@ -1394,7 +1394,7 @@ bool CSG_Projections::WKT_to_Proj4(CSG_String &Proj4, const CSG_String &WKT) con
 			Proj4	+= CSG_String::Format(" +pm=%f", d);
 		}
 
-		for(int i=0; i<m.Get_Children_Count(); i++)
+		for(sLong i=0; i<m.Get_Children_Count(); i++)
 		{
 			if( m[i].Cmp_Name("PARAMETER") )
 			{

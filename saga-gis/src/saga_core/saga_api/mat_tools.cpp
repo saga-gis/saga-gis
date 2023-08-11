@@ -2481,7 +2481,7 @@ bool CSG_Classifier_Supervised::Load(const CSG_String &File)
 	//-----------------------------------------------------
 	CSG_MetaData	&Classes	= *Data.Get_Child("CLASSES");
 
-	for(int i=0; i<Classes.Get_Children_Count(); i++)
+	for(sLong i=0; i<Classes.Get_Children_Count(); i++)
 	{
 		if( Classes[i].Cmp_Name("class") && Classes[i].Get_Child("id") )
 		{

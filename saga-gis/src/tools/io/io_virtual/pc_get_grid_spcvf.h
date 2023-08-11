@@ -93,7 +93,7 @@ public:
 										 bool bFitToCells, int iMethod, bool bConstrain, int iField, double dMinAttrRange, double dMaxAttrRange);
 	void					Finalise	(void);
 	bool					Get_Subset	(int iFieldToGrid);
-	void					Write_Subset(CSG_Grid *pGrid, sLong iAOI, sLong iDatasets, double dPoints);
+	void					Write_Subset(CSG_Grid *pGrid, sLong iAOI, sLong iDatasets, uLong iTotalPoints);
 
 protected:
 

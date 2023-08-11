@@ -1995,7 +1995,7 @@ bool CSG_Parameters::Load(const CSG_MetaData &Data)
 	{
 		Data.Get_Property("name", m_Name);
 
-		for(int i=0; i<Data.Get_Children_Count(); i++)
+		for(sLong i=0; i<Data.Get_Children_Count(); i++)
 		{
 			CSG_Parameter	*pParameter = Get_Parameter(Data(i)->Get_Property("id"));
 

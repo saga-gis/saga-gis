@@ -530,7 +530,7 @@ bool CGrid_from_KML::On_Execute(void)
 //---------------------------------------------------------
 bool CGrid_from_KML::Load_KML(const SG_Char *Dir, const CSG_MetaData &KML)
 {
-	for(int i=0; i<KML.Get_Children_Count(); i++)
+	for(sLong i=0; i<KML.Get_Children_Count(); i++)
 	{
 		if( KML.Get_Child(i)->Cmp_Name("GroundOverlay") )
 		{

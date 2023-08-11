@@ -1096,7 +1096,7 @@ bool QGIS_Styles_Import(const CSG_String &File, CSG_Table &Classes, CSG_String &
 		const CSG_MetaData	&Categories	= QML["renderer-v2"]["categories"];
 		const CSG_MetaData	&Symbols	= QML["renderer-v2"]["symbols"   ];
 
-		for(int i=0; i<Categories.Get_Children_Count(); i++)
+		for(sLong i=0; i<Categories.Get_Children_Count(); i++)
 		{
 			CSG_String	Value, Label, Symbol;
 
@@ -1108,13 +1108,13 @@ bool QGIS_Styles_Import(const CSG_String &File, CSG_Table &Classes, CSG_String &
 
 				int	Color	= SG_Color_Get_Random();
 
-				for(int j=0; j<Symbols.Get_Children_Count(); j++)
+				for(sLong j=0; j<Symbols.Get_Children_Count(); j++)
 				{
 					if( Symbols[j].Cmp_Property("name", Symbol) && Symbols[j]("layer") )
 					{
 						const CSG_MetaData	&Props	= Symbols[j]["layer"];
 
-						for(int k=0; k<Props.Get_Children_Count(); k++)
+						for(sLong k=0; k<Props.Get_Children_Count(); k++)
 						{
 							if( Props[k].Cmp_Property("k", "color") )
 							{
@@ -1168,7 +1168,7 @@ bool QGIS_Styles_Import(const CSG_String &File, CSG_Table &Classes, CSG_String &
 			CSG_String	Value("-99999");
 
 			//---------------------------------------------
-			for(int i=0; i<ColorRamp.Get_Children_Count(); i++)
+			for(sLong i=0; i<ColorRamp.Get_Children_Count(); i++)
 			{
 				CSG_String	minVal(Value); Value = ColorRamp[i].Get_Property("value");
 
@@ -1204,7 +1204,7 @@ bool QGIS_Styles_Import(const CSG_String &File, CSG_Table &Classes, CSG_String &
 			CSG_String	Value("-99999");
 
 			//---------------------------------------------
-			for(int i=0; i<colorPalette.Get_Children_Count(); i++)
+			for(sLong i=0; i<colorPalette.Get_Children_Count(); i++)
 			{
 				CSG_String	minVal(Value); Value = colorPalette[i].Get_Property("value");
 
@@ -1245,7 +1245,7 @@ bool QGIS_Styles_Import(const CSG_String &File, CSG_Table &Classes, CSG_String &
 		CSG_String	Value("-99999");
 
 		//-------------------------------------------------
-		for(int i=0; i<ColorRamp.Get_Children_Count(); i++)
+		for(sLong i=0; i<ColorRamp.Get_Children_Count(); i++)
 		{
 			if( ColorRamp[i].Cmp_Name("colorRampEntry") )
 			{

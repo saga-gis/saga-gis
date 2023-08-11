@@ -160,7 +160,7 @@ bool CGDAL_Import_ASTER::On_Execute(void)
 		pTable->Add_Field("KEY"  , SG_DATATYPE_String);
 		pTable->Add_Field("VALUE", SG_DATATYPE_String);
 
-		for(int i=0; i<MetaData.Get_Children_Count(); i++)
+		for(sLong i=0; i<MetaData.Get_Children_Count(); i++)
 		{
 			CSG_Table_Record	*pRecord	= pTable->Add_Record();
 

@@ -1400,7 +1400,7 @@ bool CVIEW_Layout_Info::Load(const CSG_MetaData &Layout)
 	//-----------------------------------------------------
 	const CSG_MetaData	&Items   = Layout["items"];
 
-	for(int i=0; i<Items.Get_Children_Count(); i++)
+	for(sLong i=0; i<Items.Get_Children_Count(); i++)
 	{
 		const CSG_MetaData	&Item	= Items[i];
 

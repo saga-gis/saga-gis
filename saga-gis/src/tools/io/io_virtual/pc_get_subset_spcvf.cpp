@@ -336,7 +336,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(bool bCopyAttr)
 
 		CSG_Strings		sFilePaths;
 
-		for(int i=0; i<pDatasets->Get_Children_Count(); i++)
+		for(sLong i=0; i<pDatasets->Get_Children_Count(); i++)
 		{
 			CSG_MetaData	*pDataset	= pDatasets->Get_Child(i);
 			CSG_MetaData	*pBBox		= pDataset->Get_Child(SG_T("BBox"));

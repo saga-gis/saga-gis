@@ -181,7 +181,7 @@ bool CGrid_Import::On_Execute(void)
 	{
 		CSG_MetaData MD(File + ".aux.xml");
 
-		for(int i=0; i<MD.Get_Children_Count(); i++)
+		for(sLong i=0; i<MD.Get_Children_Count(); i++)
 		{
 			if( MD[i].Cmp_Name("Metadata") && MD[i].Cmp_Property("domain", "xml:ESRI") && MD[i].Cmp_Property("format", "xml")
 			&&  MD[i]("GeodataXform")

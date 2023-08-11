@@ -211,7 +211,7 @@ bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(int iFieldToGrid)
 	//-----------------------------------------------------
 	sLong			iDatasets = 0;
 	CSG_Grid		*pGrid = NULL;
-	double			dPoints = 0.0;
+	uLong			iTotalPoints = 0;
 
 	for(sLong iAOI=0; iAOI<m_iOutputs; iAOI++)
 	{
@@ -260,7 +260,7 @@ bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(int iFieldToGrid)
 
 		CSG_Strings		sFilePaths;
 
-		for(int i=0; i<pDatasets->Get_Children_Count(); i++)
+		for(sLong i=0; i<pDatasets->Get_Children_Count(); i++)
 		{
 			CSG_MetaData	*pDataset	= pDatasets->Get_Child(i);
 			CSG_MetaData	*pBBox		= pDataset->Get_Child(SG_T("BBox"));
@@ -301,7 +301,7 @@ bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(int iFieldToGrid)
 
 		if( m_bMultiple )
 		{
-			dPoints = 0.0;
+			iTotalPoints = 0;
 		}
 
 		for(int i=0; i<sFilePaths.Get_Count() && SG_UI_Process_Set_Progress(i, sFilePaths.Get_Count()); i++)
@@ -367,7 +367,7 @@ bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(int iFieldToGrid)
 						}
 
 						bFound = true;
-						dPoints++;
+						iTotalPoints++;
 					}
 				}
 			}
@@ -385,7 +385,7 @@ bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(int iFieldToGrid)
 		//---------------------------------------------------------
 		if( m_bMultiple )
 		{
-			if( pGrid != NULL && dPoints == 0.0 )
+			if( pGrid != NULL && iTotalPoints == 0 )
 			{
 				SG_UI_Msg_Add(_TL("AOI does not intersect with any point of the SPCVF datasets, nothing to do!"), true);
 				delete( pGrid );
@@ -393,7 +393,7 @@ bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(int iFieldToGrid)
 				continue;
 			}
 
-			Write_Subset(pGrid, iAOI, iDatasets, dPoints);
+			Write_Subset(pGrid, iAOI, iDatasets, iTotalPoints);
 
 			pGrid = NULL;
 		}
@@ -402,14 +402,14 @@ bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(int iFieldToGrid)
 	//---------------------------------------------------------
 	if( !m_bMultiple && pGrid != NULL)
 	{
-		if( pGrid != NULL && dPoints == 0.0 )
+		if( pGrid != NULL && iTotalPoints == 0 )
 		{
 			SG_UI_Msg_Add(_TL("AOI does not intersect with any point of the SPCVF datasets, nothing to do!"), true);
 			delete( pGrid );
 			return( true );
 		}
 
-		Write_Subset(pGrid, 0, iDatasets, dPoints);
+		Write_Subset(pGrid, 0, iDatasets, iTotalPoints);
 	}
 
 	return( true );
@@ -417,7 +417,7 @@ bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(int iFieldToGrid)
 
 
 //---------------------------------------------------------
-void CPointCloud_Get_Grid_SPCVF_Base::Write_Subset(CSG_Grid *pGrid, sLong iAOI, sLong iDatasets, double dPoints)
+void CPointCloud_Get_Grid_SPCVF_Base::Write_Subset(CSG_Grid *pGrid, sLong iAOI, sLong iDatasets, uLong iTotalPoints)
 {
 	CSG_String	sPath = SG_T("");
 
@@ -443,7 +443,7 @@ void CPointCloud_Get_Grid_SPCVF_Base::Write_Subset(CSG_Grid *pGrid, sLong iAOI, 
 		pGrid->Fmt_Name("%spc_subset_%s", sPath.c_str(), SG_File_Get_Name(m_sFileName, false).c_str());
 	}
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("%.0f points from %lld dataset(s) written to output grid %s."), dPoints, iDatasets, pGrid->Get_Name()), true);
+	SG_UI_Msg_Add(CSG_String::Format(_TL("%llu points from %lld dataset(s) written to output grid %s."), iTotalPoints, iDatasets, pGrid->Get_Name()), true);
 
 	if( m_pFilePath == NULL )
 	{

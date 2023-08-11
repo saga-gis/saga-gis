@@ -410,7 +410,7 @@ int CTL_Extract::Read_ToolChain(const SG_Char *File, CSG_Table &Elements)
 
 			if( Chain("parameters") )
 			{
-				for(int i=0; i<Chain["parameters"].Get_Children_Count(); i++)
+				for(sLong i=0; i<Chain["parameters"].Get_Children_Count(); i++)
 				{
 					const CSG_MetaData	&Parameter	= Chain["parameters"][i];
 

@@ -184,7 +184,7 @@ bool CWKSP_Tool_Menu::_Get_SubMenu(CWKSP_Tool *pTool, CSG_MetaData *pUser)
 	{
 		bool	bFound	= false;
 
-		for(int i=0; i<pUser->Get_Children_Count() && !bFound; i++)
+		for(sLong i=0; i<pUser->Get_Children_Count() && !bFound; i++)
 		{
 			if( pUser->Get_Child(i)->Cmp_Property("id_or_name", pTool->Get_Tool()->Get_ID  ())
 			||  pUser->Get_Child(i)->Cmp_Property("id_or_name", pTool->Get_Tool()->Get_Name()) )
