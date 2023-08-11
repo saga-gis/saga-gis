@@ -117,7 +117,7 @@ bool CGDAL_CatalogueVRT::On_Execute(void)
 
 	pCatalogue->Create(SHAPE_TYPE_Polygon, _TL("Raster Catalogue"));
 
-	pCatalogue->Add_Field("ID"      , SG_DATATYPE_Long  );
+	pCatalogue->Add_Field("ID"      , SG_DATATYPE_Int   );
 	pCatalogue->Add_Field("NAME"    , SG_DATATYPE_String);
 	pCatalogue->Add_Field("FILE"    , SG_DATATYPE_String);
 	pCatalogue->Add_Field("CRS"     , SG_DATATYPE_String);
@@ -176,7 +176,7 @@ bool CGDAL_CatalogueVRT::On_Execute(void)
 	std::map<std::wstring, DATA>	Datasets;
 	
 
-	for(sLong iBand=0; iBand<VRT.Get_Children_Count(); iBand++)
+	for(int iBand=0; iBand<VRT.Get_Children_Count(); iBand++)
 	{
 		CSG_MetaData *pBand = VRT.Get_Child(iBand);
 		
@@ -185,7 +185,7 @@ bool CGDAL_CatalogueVRT::On_Execute(void)
 			continue;
 		}
 
-		for(sLong iSource=0; iSource<pBand->Get_Children_Count(); iSource++)
+		for(int iSource=0; iSource<pBand->Get_Children_Count(); iSource++)
 		{
 			CSG_MetaData *pSource = pBand->Get_Child(iSource);
 
@@ -222,7 +222,7 @@ bool CGDAL_CatalogueVRT::On_Execute(void)
 
 
 	//---------------------------------------------------------
-	sLong cnt = 0;
+	int cnt = 0;
 
 	for(std::map<std::wstring, DATA>::iterator it=Datasets.begin(); it!=Datasets.end(); ++it)
 	{
