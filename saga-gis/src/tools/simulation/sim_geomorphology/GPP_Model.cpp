@@ -75,9 +75,9 @@ CGPP_Model::CGPP_Model(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Gravitational Process Path Model"));
 
-	Set_Author		(SG_T("V. Wichmann (c) 2016-2022"));
+	Set_Author		(SG_T("V. Wichmann (c) 2016-2023"));
 
-    Set_Version     ("1.1");
+    Set_Version     ("1.2");
 
 	Set_Description	(_TW("The Gravitational Process Path (GPP) model can be used to simulate the process path and "
                          "run-out area of gravitational processes based on a digital terrain model (DTM). The "
@@ -108,7 +108,11 @@ CGPP_Model::CGPP_Model(void)
                          "or classes of objects, using one-hot categorical data encoding for each object class, i.e. powers "
                          "of ten: 1, 10, 100, 1000, etc. (all other cells NoData). The 'Endangered Objects' output grid will "
                          "contain combinations of these numbers if several different classes were hit from a grid cell, allowing "
-                         "to analyse which object classes might be hit from which location."
+                         "to analyse which object classes might be hit from which location.<br/><br/>"
+                         "<b>New in version 1.2:</b><br/>"
+                         "Since version 1.2 the model supports the optional output of a grid with the material flux. This requires "
+                         "a 'Material' grid as input. The grid shows the height of the material that has passed in total "
+                         "through each grid cell."
     ));
 
 	Add_Reference("Wichmann, V.", "2017",
@@ -299,6 +303,7 @@ int CGPP_Model::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 	{
 		pParameters->Get_Parameter("SINK_MIN_SLOPE"				)->Set_Enabled( pParameter->asGrid() != NULL );
 		pParameters->Get_Parameter("DEPOSITION"					)->Set_Enabled( pParameter->asGrid() != NULL );
+		pParameters->Get_Parameter("MATERIAL_FLUX"				)->Set_Enabled( pParameter->asGrid() != NULL );
 	}
 
     //-----------------------------------------------------

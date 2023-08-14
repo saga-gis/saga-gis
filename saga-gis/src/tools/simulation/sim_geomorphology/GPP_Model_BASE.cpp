@@ -512,7 +512,7 @@ void CGPP_Model_BASE::Add_Dataset_Parameters(CSG_Parameters *pParameters)
 
 	pParameters->Add_Grid(	
 		NULL, "DEPOSITION", _TL("Deposition"), 
-		_TL("Height of material deposited in each cell [m]. Optional output in case a grid with material amounts is provided as input."), 
+		_TL("Height of the material deposited in each cell [m]. Optional output in case a grid with material amounts is provided as input."), 
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
@@ -533,6 +533,12 @@ void CGPP_Model_BASE::Add_Dataset_Parameters(CSG_Parameters *pParameters)
         _TL("Endangered objects, showing cells from which objects were hit. Cell values indicate which object classes were hit [combination of object classes]. Optional output in case a grid with potentially endangered objects is provided as input."), 
         PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Long
     );
+
+	pParameters->Add_Grid(	
+		NULL, "MATERIAL_FLUX", _TL("Material Flux"), 
+		_TL("Height of the material that has passed through each cell [m]. Optional output in case a grid with material amounts is provided as input."), 
+		PARAMETER_OUTPUT_OPTIONAL
+	);
 }
 
 //---------------------------------------------------------
@@ -795,6 +801,7 @@ bool CGPP_Model_BASE::Initialize_Parameters(CSG_Parameters &Parameters)
 	m_pMaxVelocity			= Parameters("MAX_VELOCITY")->asGrid();			if( m_pMaxVelocity != NULL )	m_pMaxVelocity->Assign_NoData();
 	m_pStopPositions		= Parameters("STOP_POSITIONS")->asGrid();		if( m_pStopPositions != NULL )	m_pStopPositions->Assign(0.0);
     m_pEndangered           = Parameters("ENDANGERED")->asGrid();
+	m_pMaterialFlux			= Parameters("MATERIAL_FLUX")->asGrid();		if( m_pMaterialFlux != NULL )	m_pMaterialFlux->Assign(0.0);
 	
 	m_GPP_Deposition_Model	= Parameters("DEPOSITION_MODEL")->asInt();
 	m_PercentInitialDeposit	= Parameters("DEPOSITION_INITIAL")->asDouble() / 100.0;
@@ -867,6 +874,11 @@ void CGPP_Model_BASE::Finalize(CSG_Parameters *pParameters)
 	delete( m_pDEM );
 
 	m_pProcessArea->Set_NoData_Value(0.0);
+
+	if( m_pMaterialFlux != NULL )
+	{
+		m_pMaterialFlux->Set_NoData_Value(0.0);
+	}
 
 	if( m_pStopPositions != NULL )
 	{
@@ -1078,7 +1090,19 @@ void CGPP_Model_BASE::Run_GPP_Model(std::vector<class CGPP_Model_Particle> *pvPr
 				{
 					break;
 				}
-					
+				
+				if( m_pMaterialFlux != NULL && Particle.Get_Material() > 0.0 )
+				{
+					double dFluxMaterial = pvProcessingList->at(iParticle).Get_Material() / m_iIterations;
+
+					if (Particle.Get_Material() < dFluxMaterial)
+					{
+						dFluxMaterial = Particle.Get_Material();
+					}
+
+					m_pMaterialFlux->Add_Value(Particle.Get_X(), Particle.Get_Y(), dFluxMaterial);
+				}
+
 				if( !Update_Speed(&Particle, &pvProcessingList->at(iParticle)) )
 				{
 					break;
