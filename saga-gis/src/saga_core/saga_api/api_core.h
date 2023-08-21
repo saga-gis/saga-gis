@@ -1617,9 +1617,15 @@ SAGA_API_DLL_EXPORT bool					SG_UI_Dlg_Parameters		(class CSG_Parameters *pParam
 
 SAGA_API_DLL_EXPORT int						SG_UI_Msg_Lock				(bool bOn);
 SAGA_API_DLL_EXPORT int						SG_UI_Msg_Reset				(void);
-SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add				(const CSG_String &Message, bool bNewLine, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
+SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add				(const char       *Message, bool bNewLine = true, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
+SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add				(const wchar_t    *Message, bool bNewLine = true, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
+SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add				(const CSG_String &Message, bool bNewLine = true, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
+SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add_Execution		(const char       *Message, bool bNewLine = true, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
+SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add_Execution		(const wchar_t    *Message, bool bNewLine = true, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
+SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add_Execution		(const CSG_String &Message, bool bNewLine = true, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
+SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add_Error			(const char       *Message);
+SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add_Error			(const wchar_t    *Message);
 SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add_Error			(const CSG_String &Message);
-SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add_Execution		(const CSG_String &Message, bool bNewLine, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
 SAGA_API_DLL_EXPORT void					SG_UI_Msg_Flush				(void);
 
 SAGA_API_DLL_EXPORT void					SG_UI_ProgressAndMsg_Lock	(bool bOn);

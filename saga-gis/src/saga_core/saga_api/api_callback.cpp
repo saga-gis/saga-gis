@@ -438,66 +438,66 @@ int			SG_UI_Msg_Reset(void)
 }
 
 //---------------------------------------------------------
+void		SG_UI_Msg_Add(const char       *Message, bool bNewLine, TSG_UI_MSG_STYLE Style) { SG_UI_Msg_Add(CSG_String(Message), bNewLine, Style); }
+void		SG_UI_Msg_Add(const wchar_t    *Message, bool bNewLine, TSG_UI_MSG_STYLE Style) { SG_UI_Msg_Add(CSG_String(Message), bNewLine, Style); }
 void		SG_UI_Msg_Add(const CSG_String &Message, bool bNewLine, TSG_UI_MSG_STYLE Style)
 {
-	if( gSG_UI_Msg_Lock )
-		return;
-
-	if( gSG_UI_Callback )
+	if( !gSG_UI_Msg_Lock )
 	{
-		int		Parameters[2];
+		if( gSG_UI_Callback )
+		{
+			int Flags[2]; Flags[0] = bNewLine ? 1 : 0; Flags[1] = Style;
 
-		Parameters[0]	= bNewLine ? 1 : 0;
-		Parameters[1]	= Style;
+			CSG_UI_Parameter p1(Message), p2(Flags);
 
-		CSG_UI_Parameter p1(Message), p2(Parameters);
-
-		gSG_UI_Callback(CALLBACK_MESSAGE_ADD, p1, p2);
-	}
-	else
-	{
-		CONSOLE_STDIO("%s\n", Message.c_str()));
+			gSG_UI_Callback(CALLBACK_MESSAGE_ADD, p1, p2);
+		}
+		else
+		{
+			CONSOLE_STDIO("%s%s", bNewLine ? "\n" : "", Message.c_str()));
+		}
 	}
 }
 
 //---------------------------------------------------------
+void		SG_UI_Msg_Add_Execution(const char       *Message, bool bNewLine, TSG_UI_MSG_STYLE Style) { SG_UI_Msg_Add_Execution(CSG_String(Message), bNewLine, Style); }
+void		SG_UI_Msg_Add_Execution(const wchar_t    *Message, bool bNewLine, TSG_UI_MSG_STYLE Style) { SG_UI_Msg_Add_Execution(CSG_String(Message), bNewLine, Style); }
+void		SG_UI_Msg_Add_Execution(const CSG_String &Message, bool bNewLine, TSG_UI_MSG_STYLE Style)
+{
+	if( !gSG_UI_Msg_Lock )
+	{
+		if( gSG_UI_Callback )
+		{
+			int Flags[2]; Flags[0] = bNewLine ? 1 : 0; Flags[1] = Style;
+
+			CSG_UI_Parameter p1(Message), p2(Flags);
+
+			gSG_UI_Callback(CALLBACK_MESSAGE_ADD_EXECUTION, p1, p2);
+		}
+		else
+		{
+			CONSOLE_STDIO("%s%s", bNewLine ? "\n" : "", Message.c_str()));
+		}
+	}
+}
+
+//---------------------------------------------------------
+void		SG_UI_Msg_Add_Error(const char       *Message) { SG_UI_Msg_Add_Error(CSG_String(Message)); }
+void		SG_UI_Msg_Add_Error(const wchar_t    *Message) { SG_UI_Msg_Add_Error(CSG_String(Message)); }
 void		SG_UI_Msg_Add_Error(const CSG_String &Message)
 {
 	if( gSG_UI_Msg_Lock )
-		return;
-
-	if( gSG_UI_Callback )
 	{
-		CSG_UI_Parameter p1(Message), p2;
+		if( gSG_UI_Callback )
+		{
+			CSG_UI_Parameter p1(Message), p2;
 
-		gSG_UI_Callback(CALLBACK_MESSAGE_ADD_ERROR, p1, p2);
-	}
-	else
-	{
-		CONSOLE_STDERR("%s: %s\n", _TL("Error"), Message.c_str()));
-	}
-}
-
-//---------------------------------------------------------
-void		SG_UI_Msg_Add_Execution(const CSG_String &Message, bool bNewLine, TSG_UI_MSG_STYLE Style)
-{
-	if( gSG_UI_Msg_Lock )
-		return;
-
-	if( gSG_UI_Callback )
-	{
-		int		Parameters[2];
-
-		Parameters[0]	= bNewLine ? 1 : 0;
-		Parameters[1]	= Style;
-
-		CSG_UI_Parameter p1(Message), p2(Parameters);
-
-		gSG_UI_Callback(CALLBACK_MESSAGE_ADD_EXECUTION, p1, p2);
-	}
-	else
-	{
-		CONSOLE_STDIO("%s\n", Message.c_str()));
+			gSG_UI_Callback(CALLBACK_MESSAGE_ADD_ERROR, p1, p2);
+		}
+		else
+		{
+			CONSOLE_STDERR("\n%s: %s", _TL("Error"), Message.c_str()));
+		}
 	}
 }
 

@@ -70,15 +70,16 @@ saga_api.SG_Initialize_Environment(AutoLoadTools, True, SAGA_Path)
 #_________________________________________
 ##########################################
 
+#_________________________________________
 def Version():
 	import sys
-	saga_api.SG_UI_Msg_Add(saga_api.CSG_String('_______'), True)
-	saga_api.SG_UI_Msg_Add(saga_api.CSG_String('Python-' + sys.version), True)
-	saga_api.SG_UI_Msg_Add(saga_api.CSG_String('SAGA-{:s} (loaded {:d} libraries, {:d} tools)'.format(saga_api.SAGA_VERSION,
+	saga_api.SG_UI_Msg_Add('_______')
+	saga_api.SG_UI_Msg_Add('Python-' + sys.version)
+	saga_api.SG_UI_Msg_Add('SAGA-{:s} (loaded {:d} libraries, {:d} tools)'.format(saga_api.SAGA_VERSION,
 		saga_api.SG_Get_Tool_Library_Manager().Get_Count(),
 		saga_api.SG_Get_Tool_Library_Manager().Get_Tool_Count()
-	)), True)
-	saga_api.SG_UI_Msg_Add(saga_api.CSG_String('_______'), True)
+	))
+	saga_api.SG_UI_Msg_Add('_______')
 
 	return True
 

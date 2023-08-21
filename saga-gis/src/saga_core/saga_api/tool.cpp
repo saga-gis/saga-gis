@@ -63,16 +63,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define ADD_MESSAGE_EXECUTION(Text, Style)	{ SG_UI_Msg_Add(Text, true, Style); if( has_GUI() ) { SG_UI_Msg_Add_Execution(Text, true, Style); } }
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 CSG_Tool::CSG_Tool(void)
 {
 	m_ID			= "-1";
@@ -255,6 +245,9 @@ bool CSG_Tool::has_GUI(void) const
 //---------------------------------------------------------
 bool CSG_Tool::Execute(bool bAddHistory)
 {
+	#define ADD_MESSAGE_EXECUTION(Text, Style) { SG_UI_Msg_Add(Text, true, Style); if( has_GUI() ) { SG_UI_Msg_Add_Execution(Text, true, Style); } }
+
+	//-----------------------------------------------------
 	if( m_bExecutes )
 	{
 		return( false );
@@ -1592,7 +1585,7 @@ CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 	if( bHeader ) Script += "    # Get the tool:\n";
 	Script += "    Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('" + Get_Library() + "', '" + Get_ID() + "')\n";
 	Script += "    if not Tool:\n";
-    Script += "        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('Failed to request tool: " + Get_Name() + "'))\n";
+	Script += "        saga_api.SG_UI_Msg_Add_Error('Failed to request tool: " + Get_Name() + "')\n";
 	Script += "        return False\n";
 	Script += "\n";
 	if( bHeader ) Script += "    # Set the parameter interface:\n";
@@ -1610,7 +1603,7 @@ CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 	Script += "\n";
 	if( bHeader ) Script += "    # Execute the tool:\n";
 	Script += "    if not Tool.Execute():\n";
-	Script += "        saga_api.SG_UI_Msg_Add_Error(saga_api.CSG_String('failed to execute tool: ' + Tool.Get_Name().c_str()))\n";
+	Script += "        saga_api.SG_UI_Msg_Add_Error('failed to execute tool: ' + Tool.Get_Name().c_str())\n";
 	Script += "        return False\n";
 	Script += "\n";
 	if( bHeader ) Script += "    # Request the results:\n";
