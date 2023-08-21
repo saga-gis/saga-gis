@@ -173,11 +173,13 @@ bool CSG_Grid::Save(const CSG_String &FileName, int Format)
 		break;
 
 	case GRID_FILE_FORMAT_GeoTIFF:
+		SG_UI_Msg_Lock(true);
 		SG_RUN_TOOL(bResult, "io_gdal", 2,	// Export GeoTIFF
 			    SG_TOOL_PARAMLIST_ADD("GRIDS"   , this)
 			&&	SG_TOOL_PARAMETER_SET("FILE"    , FileName)
             &&	SG_TOOL_PARAMETER_SET("OPTIONS" , SG_T("COMPRESS=LZW BIGTIFF=YES"))		// enable bigtiff as the 'if needed' default setting is not available for compressed files
 		);
+		SG_UI_Msg_Lock(false);
 		break;
 	}
 
