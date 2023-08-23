@@ -78,12 +78,12 @@ protected:
 
 	bool					Reset					(void);
 
-	bool					Set_Visibility			(int x, int y, double Height = 0., bool bReset = true);
+	bool					Set_Visibility			(int x, int y, double Height, bool bReset);
 
 
 private:
 
-	bool					m_bIgnoreNoData;
+	bool					m_bIgnoreNoData, m_bDegree, m_bCumulative;
 
 	int						m_Method;
 
@@ -108,16 +108,11 @@ public:
 
 protected:
 
+	virtual int 			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
 	virtual bool			On_Execute				(void);
 
 	virtual bool			On_Execute_Position		(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
-
-
-private:
-
-	double					m_Height;
-
-	bool					m_bMultiple, m_bNoDataOpaque;
 
 };
 
@@ -134,6 +129,8 @@ public:
 
 
 protected:
+
+	virtual int 			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool			On_Execute				(void);
 

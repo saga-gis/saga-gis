@@ -62,18 +62,33 @@ bool CVisibility::Create(CSG_Parameters &Parameters)
 	Parameters.Add_Grid("", "VISIBILITY", _TL("Visibility"), _TL(""), PARAMETER_OUTPUT);
 
 	Parameters.Add_Choice("",
-		"METHOD", _TL("Unit"),
+		"METHOD"    , _TL("Output"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Visibility"),
 			_TL("Shade"),
 			_TL("Distance"),
 			_TL("Size")
+		), 3
+	);
+
+	Parameters.Add_Choice("METHOD",
+		"UNIT"      , _TL("Unit"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("radians"),
+			_TL("degree")
 		), 1
 	);
 
+	Parameters.Add_Bool("METHOD",
+		"CUMULATIVE", _TL("Cumulative"),
+		_TL("If not set, output is the maximum size, or the cumulated sizes otherwise."),
+		false
+	);
+
 	Parameters.Add_Bool("",
-		"NODATA", _TL("Ignore No-Data"),
+		"NODATA"    , _TL("Ignore No-Data"),
 		_TL("Ignore elevations that have been marked as no-data."),
 		false
 	);
@@ -88,6 +103,8 @@ bool CVisibility::Initialize(const CSG_Parameters &Parameters)
 	m_pVisibility   = Parameters("VISIBILITY")->asGrid();
 	m_Method        = Parameters("METHOD"    )->asInt ();
 	m_bIgnoreNoData = Parameters("NODATA"    )->asBool();
+	m_bDegree       = Parameters("UNIT"      )->asInt () == 1;
+	m_bCumulative   = Parameters("CUMULATIVE")->asBool();
 
 	m_pDEM->Set_Max_Samples(m_pDEM->Get_NCells());	// we use max z (queried by Get_Max()) as a breaking condition in ray tracing
 
@@ -112,7 +129,7 @@ bool CVisibility::Initialize(const CSG_Parameters &Parameters)
 
 	case  3: // Size
 		Colors.Set_Ramp(SG_GET_RGB(  0,  95,   0), SG_GET_RGB(255, 255, 191));
-		Unit = _TL("radians");
+		Unit = m_bDegree ? _TL("degree") : _TL("radians");
 		break;
 	}
 
@@ -239,11 +256,15 @@ bool CVisibility::Set_Visibility(int xOrigin, int yOrigin, double Height, bool b
 
 						if( d > 0. )
 						{
-							d = atan2(fabs(Height), d);
+							d = atan2(fabs(Height), d); if( m_bDegree ) { d *= M_RAD_TO_DEG; }
 
-							if( m_pVisibility->is_NoData(x, y) || m_pVisibility->asDouble(x, y) < d )
+							if( m_pVisibility->is_NoData(x, y) || (!m_bCumulative && m_pVisibility->asDouble(x, y) < d) )
 							{
 								m_pVisibility->Set_Value(x, y, d);
+							}
+							else if( m_bCumulative )
+							{
+								m_pVisibility->Add_Value(x, y, d);
 							}
 						}
 						break; }
@@ -354,12 +375,18 @@ CVisibility_Point::CVisibility_Point(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CVisibility_Point::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	pParameters->Set_Enabled("UNIT"      , (*pParameters)("METHOD")->asInt() == 3); // Size
+	pParameters->Set_Enabled("CUMULATIVE", (*pParameters)("METHOD")->asInt() == 3); // Size
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
 bool CVisibility_Point::On_Execute(void)
 {
 	Initialize(Parameters);
-
-	m_Height    = Parameters("HEIGHT"  )->asDouble();
-	m_bMultiple = Parameters("MULTIPLE")->asBool  ();
 
 	return( true );
 }
@@ -369,7 +396,10 @@ bool CVisibility_Point::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interact
 {
 	if(	Mode == TOOL_INTERACTIVE_LDOWN )
 	{
-		if( Set_Visibility(Get_xGrid(), Get_yGrid(), m_Height, !m_bMultiple) )
+		double Height = Parameters("HEIGHT"  )->asDouble();
+		bool   bReset = Parameters("MULTIPLE")->asBool() == false;
+
+		if( Set_Visibility(Get_xGrid(), Get_yGrid(), Height, bReset) )
 		{
 			Finalize(true);
 
@@ -420,13 +450,22 @@ CVisibility_Points::CVisibility_Points(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CVisibility_Points::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	pParameters->Set_Enabled("UNIT"      , (*pParameters)("METHOD")->asInt() == 3); // Size
+	pParameters->Set_Enabled("CUMULATIVE", (*pParameters)("METHOD")->asInt() == 3); // Size
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
 bool CVisibility_Points::On_Execute(void)
 {
 	Initialize(Parameters);
 
 	CSG_Shapes *pPoints = Parameters("POINTS")->asShapes();
 
-	int    Field  = Parameters("HEIGHT")->asInt   ();
+	int     Field = Parameters("HEIGHT")->asInt   ();
 	double Height = Parameters("HEIGHT")->asDouble();
 
 	//-----------------------------------------------------
