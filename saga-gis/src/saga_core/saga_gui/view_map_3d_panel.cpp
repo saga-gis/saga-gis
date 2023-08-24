@@ -79,10 +79,12 @@ CVIEW_Map_3DPanel::CVIEW_Map_3DPanel(wxWindow *pParent, class CWKSP_Map *pMap)
 	m_DEM_Res =  100;
 	m_Map_Res = 1000;
 
-	m_Parameters.Add_Grid("GENERAL", "DEM"    , _TL("Elevation" ), _TL(""), PARAMETER_INPUT);
-	m_Parameters.Add_Int ("DEM"    , "DEM_RES", _TL("Resolution"), _TL(""), m_DEM_Res, 2, true);
+	m_Parameters.Add_Grid("GENERAL" , "DEM"    , _TL("Elevation" ), _TL(""), PARAMETER_INPUT);
+	m_Parameters.Add_Int ("DEM"     , "DEM_RES", _TL("Resolution"), _TL(""), m_DEM_Res, 2, true);
 
-	m_Parameters.Add_Int ("MAP"    , "MAP_RES", _TL("Resolution"), _TL(""), m_Map_Res, 2, true);
+	m_Parameters.Add_Int ("MAP"     , "MAP_RES", _TL("Resolution"), _TL(""), m_Map_Res, 2, true);
+
+	m_Parameters.Add_Bool("3D_VIEW" , "SIDES"  , _TL("Sides"     ), _TL(""), false);
 
 	m_Parameters.Set_Enabled("MAP_DRAPE", false);
 
@@ -255,6 +257,8 @@ void CVIEW_Map_3DPanel::On_Key_Down(wxKeyEvent &event)
 
 	case WXK_F5 : Inc_Map_Res(-25); break;
 	case WXK_F6 : Inc_Map_Res( 25); break;
+
+	case 'S'    : Parameter_Value_Toggle("SIDES"); break;
 	}
 
 	//-----------------------------------------------------
@@ -267,7 +271,7 @@ void CVIEW_Map_3DPanel::On_Key_Down(wxKeyEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline bool CVIEW_Map_3DPanel::Get_Node(int x, int y, TSG_Triangle_Node &Node)
+inline bool CVIEW_Map_3DPanel::_Get_Node(int x, int y, TSG_Triangle_Node &Node, bool bProject)
 {
 	if( m_DEM.is_InGrid(x, y) )
 	{
@@ -275,7 +279,10 @@ inline bool CVIEW_Map_3DPanel::Get_Node(int x, int y, TSG_Triangle_Node &Node)
 		Node.y = Node.d = m_DEM.Get_System().Get_yGrid_to_World(y);
 		Node.z = m_DEM.asDouble(x, y);
 
-		m_Projector.Get_Projection(Node.x, Node.y, Node.z);
+		if( bProject )
+		{
+			m_Projector.Get_Projection(Node.x, Node.y, Node.z);
+		}
 
 		return( true );
 	}
@@ -289,6 +296,25 @@ inline bool CVIEW_Map_3DPanel::Get_Node(int x, int y, TSG_Triangle_Node &Node)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CVIEW_Map_3DPanel::_Draw_Side(int xa, int xb, int ya, int yb, double zMin, int Color, const CSG_Vector &LightSource)
+{
+	TSG_Triangle_Node p[3], pa, pb;
+
+	if( _Get_Node(xa, ya, pa, false) && _Get_Node(xb, yb, pb, false) )
+	{
+		pa.c = pb.c = Color;
+
+		p[0] = pa; p[1] = p[2] = pb; p[1].z = zMin;
+
+		for(int i=0; i<3; i++) { m_Projector.Get_Projection(p[i].x, p[i].y, p[i].z); } Draw_Triangle(p, true, LightSource, 1);
+
+		p[0] = p[1] = pa; p[2] = pb; p[1].z = p[2].z = zMin;
+
+		for(int i=0; i<3; i++) { m_Projector.Get_Projection(p[i].x, p[i].y, p[i].z); } Draw_Triangle(p, true, LightSource, 1);
+	}
+}
+
+//---------------------------------------------------------
 bool CVIEW_Map_3DPanel::On_Draw(void)
 {
 	if( m_DEM.is_Valid() )
@@ -298,12 +324,60 @@ bool CVIEW_Map_3DPanel::On_Draw(void)
 		{
 			TSG_Triangle_Node p[3];
 
-			if( Get_Node(x - 1, y - 1, p[0])
-			&&  Get_Node(x    , y    , p[1]) )
+			if( _Get_Node(x - 1, y - 1, p[0])
+			&&  _Get_Node(x    , y    , p[1]) )
 			{
-				if( Get_Node(x, y - 1, p[2]) ) { Draw_Triangle(p, true); }
-				if( Get_Node(x - 1, y, p[2]) ) { Draw_Triangle(p, true); }
+				if( _Get_Node(x, y - 1, p[2]) ) { Draw_Triangle(p, true); }
+				if( _Get_Node(x - 1, y, p[2]) ) { Draw_Triangle(p, true); }
 			}
+		}
+
+		//-------------------------------------------------
+		if( m_Parameters["SIDES"].asBool() )
+		{
+			CSG_Vector LightSource(3); double decline = 45. * -M_DEG_TO_RAD, azimuth = 90. *  M_DEG_TO_RAD;
+			LightSource[0] = sin(decline) * cos(azimuth);
+			LightSource[1] = sin(decline) * sin(azimuth);
+			LightSource[2] = cos(decline);
+
+			Set_Drape(NULL); int Color = SG_GET_RGB(192, 192, 192); double zMin = m_DEM.Get_Min();// - 0.25 * m_DEM.Get_Range();
+
+			TSG_Triangle_Node p[3];
+
+			p[0].x = m_DEM.Get_XMin(); p[0].y = m_DEM.Get_YMin();
+			p[1].x = m_DEM.Get_XMax(); p[1].y = m_DEM.Get_YMin();
+			p[2].x = m_DEM.Get_XMax(); p[2].y = m_DEM.Get_YMax();
+			p[0].z = p[1].z = p[2].z = zMin;
+			p[0].c = p[1].c = p[2].c = Color;
+			for(int i=0; i<3; i++) { m_Projector.Get_Projection(p[i].x, p[i].y, p[i].z); }
+			Draw_Triangle(p, true, LightSource, 1);
+
+			p[0].x = m_DEM.Get_XMin(); p[0].y = m_DEM.Get_YMin();
+			p[1].x = m_DEM.Get_XMax(); p[1].y = m_DEM.Get_YMax();
+			p[2].x = m_DEM.Get_XMin(); p[2].y = m_DEM.Get_YMax();
+			p[0].z = p[1].z = p[2].z = zMin;
+			p[0].c = p[1].c = p[2].c = Color;
+			for(int i=0; i<3; i++) { m_Projector.Get_Projection(p[i].x, p[i].y, p[i].z); }
+			Draw_Triangle(p, true, LightSource, 1);
+
+			for(int i=0; i<2; i++)
+			{
+				for(int y=1; y<m_DEM.Get_NY(); y++)
+				{
+					int x = i ? 0 : m_DEM.Get_NX() - 1;
+
+					_Draw_Side(x, x, y - 1, y, zMin, Color, LightSource);
+				}
+
+				for(int x=1; x<m_DEM.Get_NX(); x++)
+				{
+					int y = i ? 0 : m_DEM.Get_NY() - 1;
+
+					_Draw_Side(x - 1, x, y, y, zMin, Color, LightSource);
+				}
+			}
+
+			Set_Drape(&m_Map);
 		}
 
 		return( true );

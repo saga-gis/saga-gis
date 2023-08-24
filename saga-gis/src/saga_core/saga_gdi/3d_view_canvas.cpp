@@ -114,6 +114,14 @@ void CSG_3DView_Canvas::Set_Image(BYTE *pRGB, int NX, int NY)
 }
 
 //---------------------------------------------------------
+bool CSG_3DView_Canvas::Set_Drape(CSG_Grid *pDrape)
+{
+	m_pDrape = pDrape;
+
+	return( m_pDrape != NULL );
+}
+
+//---------------------------------------------------------
 bool CSG_3DView_Canvas::Draw(void)
 {
 	if( !m_Image_pRGB || m_Image_NX < 1 || m_Image_NY < 1 )
@@ -1112,6 +1120,90 @@ inline void CSG_3DView_Canvas::_Draw_Triangle_Line(int y, double a[], double b[]
 
 			_Draw_Pixel(x, y, z, _Dim_Color(SG_GET_RGB(r, g, b), Dim));
 			break; }
+		}
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool Get_Polygon_Plane(const CSG_Shape_Polygon &Polygon, int iPart, CSG_Vector &Normal, double zScale)
+{
+	if( Polygon.is_Valid() )
+	{
+		CSG_Vector v[2]; int n = 0; CSG_Point_3D a = Polygon.Get_Point_Z(0, iPart, false);
+
+		for(int i=0; n<2 && i<Polygon.Get_Point_Count(iPart); i++)
+		{
+			CSG_Point_3D b = a; a = Polygon.Get_Point_Z(i, iPart);
+
+			v[n].Create(3); v[n][0] = a.x - b.x; v[n][1] = a.y - b.y; v[n][2] = (a.z - b.z);// * zScale;
+
+			if( !v[n].is_Null() && (n == 0 || !v[0].is_Collinear(v[1])) )
+			{
+				n++;
+			}
+		}
+
+		if( n == 2 )
+		{
+			Normal = v[0].Get_Cross_Product(v[1]); // cross product v0 x v1 => normal vector
+
+			return( true );
+		}
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+void CSG_3DView_Canvas::Draw_Polygon(CSG_Shape_Polygon &Polygon, int Color, const CSG_Vector &LightSource, int Shading, double zScale)
+{
+	CSG_Vector Normal; if( !Get_Polygon_Plane(Polygon, 0, Normal, zScale) ) { return; }
+
+	double a = Normal.Get_Angle(LightSource) / M_PI_090;
+
+	switch( Shading )
+	{
+	case  1: if( a > 1. ) { a = 2. - a; }
+		a = 0.5 + 0.5 * a; break;
+
+	case  2:
+		a = 1.  - 0.8 * a; break;
+	}
+
+	Draw_Polygon(Polygon, _Dim_Color(Color, a));
+}
+
+//---------------------------------------------------------
+void CSG_3DView_Canvas::Draw_Polygon(CSG_Shape_Polygon &Polygon, int Color)
+{
+	for(int iPart=0; iPart<Polygon.Get_Part_Count(); iPart++)
+	{
+		CSG_Vector Plane;
+
+		if( Get_Polygon_Plane(Polygon, iPart, Plane, 1) )
+		{
+			CSG_Point_3D p = Polygon.Get_Point_Z(0, iPart), n(Plane[0], Plane[1], Plane[2]);
+
+			CSG_Rect r(0, 0, m_Image_NX, m_Image_NY); r.Intersect(Polygon.Get_Part(iPart)->Get_Extent());
+
+			#pragma omp parallel for
+			for(int y=(int)r.Get_YMin(); y<=(int)r.Get_YMax(); y++)
+			{
+				for(int x=(int)r.Get_XMin(); x<=(int)r.Get_XMax(); x++)
+				{
+					if( Polygon.Contains(x, y, iPart) )
+					{
+						double z = p.z - ((x - p.x) * n.x + (y - p.y) * n.y) / n.z;
+
+						_Draw_Pixel(x, y, z, Color);
+					}
+				}
+			}
 		}
 	}
 }
