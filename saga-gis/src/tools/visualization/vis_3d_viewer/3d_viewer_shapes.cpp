@@ -278,86 +278,90 @@ bool C3D_Viewer_Shapes_Panel::On_Draw(void)
 //---------------------------------------------------------
 void C3D_Viewer_Shapes_Panel::Draw_Shape(CSG_Shape *pShape, int Field_Color)
 {
-	int	Color	= Get_Color(pShape->asDouble(Field_Color));
+	int Color = Get_Color(pShape->asDouble(Field_Color));
 
-	for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+	switch( pShape->Get_Type() )
 	{
-		switch( pShape->Get_Type() )
+	//-----------------------------------------------------
+	case SHAPE_TYPE_Point: case SHAPE_TYPE_Points:
+		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{
-		//-------------------------------------------------
-		case SHAPE_TYPE_Point:
-		case SHAPE_TYPE_Points:
+			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 			{
-				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
-				{
-					TSG_Point_3D	a;
-					TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
+				CSG_Point_3D a = pShape->Get_Point_Z(iPoint, iPart); m_Projector.Get_Projection(a);
 
-					a.x	= p.x;
-					a.y	= p.y;
-					a.z	= pShape->Get_Z(iPoint, iPart);
-
-					m_Projector.Get_Projection(a);
-
-					Draw_Point(a.x, a.y, a.z, Color, 2);
-				}
+				Draw_Point(a.x, a.y, a.z, Color, 2);
 			}
-			break;
-
-		//-------------------------------------------------
-		case SHAPE_TYPE_Line:
-			{
-				TSG_Point_3D	a, b;
-				TSG_Point	p	= pShape->Get_Point(0, iPart);
-
-				a.x	= p.x;
-				a.y	= p.y;
-				a.z	= pShape->Get_Z(0, iPart);
-
-				m_Projector.Get_Projection(a);
-
-				for(int iPoint=1; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
-				{
-					b	= a;
-					p	= pShape->Get_Point(iPoint, iPart);
-					a.x	= p.x;
-					a.y	= p.y;
-					a.z	= pShape->Get_Z(iPoint, iPart);
-
-					m_Projector.Get_Projection(a);
-
-					Draw_Line(a, b, Color);
-				}
-			}
-			break;
-
-		//-------------------------------------------------
-		case SHAPE_TYPE_Polygon:
-			{
-				TSG_Point_3D	a, b;
-				TSG_Point	p	= pShape->Get_Point(0, iPart, false);
-
-				a.x	= p.x;
-				a.y	= p.y;
-				a.z	= pShape->Get_Z(0, iPart, false);
-
-				m_Projector.Get_Projection(a);
-
-				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
-				{
-					b	= a;	p	= pShape->Get_Point(iPoint, iPart);
-
-					a.x	= p.x;
-					a.y	= p.y;
-					a.z	= pShape->Get_Z(iPoint, iPart);
-
-					m_Projector.Get_Projection(a);
-
-					Draw_Line(a, b, Color);
-				}
-			}
-			break;
 		}
+		break;
+
+	//-----------------------------------------------------
+	case SHAPE_TYPE_Line:
+		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+		{
+			CSG_Point_3D a = pShape->Get_Point_Z(0, iPart);
+			m_Projector.Get_Projection(a);
+
+			for(int iPoint=1; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+			{
+				CSG_Point_3D b = a; a = pShape->Get_Point_Z(iPoint, iPart); m_Projector.Get_Projection(a);
+
+				Draw_Line(a, b, Color);
+			}
+		}
+		break;
+
+	//-----------------------------------------------------
+	case SHAPE_TYPE_Polygon:
+		{
+			if( 1 )
+			{
+				for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+				{
+					CSG_Point_3D a = pShape->Get_Point_Z(0, iPart, false); m_Projector.Get_Projection(a);
+
+					for(int iPoint=1; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+					{
+						CSG_Point_3D b = a; a = pShape->Get_Point_Z(iPoint, iPart); m_Projector.Get_Projection(a);
+
+						Draw_Line(a, b, SG_GET_RGB(0, 0, 0));
+					}
+				}
+			}
+
+			if( 0 )
+			{
+				CSG_Vector LightSource;
+
+				//	if( m_Parameters("SHADING")->asInt() && LightSource.Create(3) )
+				if( LightSource.Create(3) )
+				{
+					//	double decline = m_Parameters("SHADE_DEC")->asDouble() * -M_DEG_TO_RAD;
+					//	double azimuth = m_Parameters("SHADE_AZI")->asDouble() *  M_DEG_TO_RAD;
+					double decline = 45. * -M_DEG_TO_RAD;
+					double azimuth = 90. *  M_DEG_TO_RAD;
+
+					LightSource[0] = sin(decline) * cos(azimuth);
+					LightSource[1] = sin(decline) * sin(azimuth);
+					LightSource[2] = cos(decline);
+				}
+
+				for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+				{
+					CSG_Shapes Polygons(SHAPE_TYPE_Polygon, NULL, NULL, SG_VERTEX_TYPE_XYZ); CSG_Shape_Polygon &Polygon = *Polygons.Add_Shape()->asPolygon();
+
+					for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+					{
+						CSG_Point_3D a = pShape->Get_Point_Z(iPoint, iPart); m_Projector.Get_Projection(a);
+
+						Polygon.Add_Point(a);
+					}
+
+					Draw_Polygon(Polygon, Color, LightSource);
+				}
+			}
+		}
+		break;
 	}
 }
 
