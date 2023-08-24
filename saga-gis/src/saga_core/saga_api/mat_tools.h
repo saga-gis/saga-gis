@@ -380,7 +380,9 @@ public:
 	CSG_String					to_String			(int Width = -1, int Precision = -1, bool bScientific = false, const SG_Char *Separator = NULL)	const;
 	bool						from_String			(const CSG_String &String);
 
+	bool						is_Null				(void)						const;
 	bool						is_Equal			(const CSG_Vector &Vector)	const;
+	bool						is_Collinear		(const CSG_Vector &Vector)	const;
 
 	bool						Assign				(double Scalar);
 	bool						Assign				(const CSG_Vector &Vector);
@@ -389,10 +391,12 @@ public:
 	bool						Subtract			(const CSG_Vector &Vector);
 	bool						Multiply			(double Scalar);
 	bool						Multiply			(const CSG_Vector &Vector);
+	bool						Multiply_Cross		(const CSG_Vector &Vector);
 	double						Multiply_Scalar		(const CSG_Vector &Vector)	const;
 	bool						Multiply			(const class CSG_Matrix &Matrix);
 
-	bool						operator ==			(const CSG_Vector &Vector)	const;
+	bool						operator ==			(const CSG_Vector &Vector)	const { return(  is_Equal(Vector) ); }
+	bool						operator !=			(const CSG_Vector &Vector)	const { return( !is_Equal(Vector) ); }
 	CSG_Vector &				operator =			(double Scalar);
 	CSG_Vector &				operator =			(const CSG_Vector &Vector);
 	CSG_Vector &				operator +=			(double Scalar);
@@ -417,6 +421,8 @@ public:
 	bool						Sort				(bool bAscending = true);
 
 	double						Get_Length			(void)						const;
+	CSG_Vector					Get_Scalar_Product	(const CSG_Vector &Vector)	const;
+	CSG_Vector					Get_Cross_Product	(const CSG_Vector &Vector)	const;
 	double						Get_Angle			(const CSG_Vector &Vector)	const;
 	CSG_Vector					Get_Unity			(void)						const;
 

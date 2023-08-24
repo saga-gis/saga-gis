@@ -260,6 +260,20 @@ bool CSG_Vector::from_String(const CSG_String &String)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Vector::is_Null(void)	const
+{
+	for(sLong i=0; i<Get_N(); i++)
+	{
+		if( Get_Data(i) != 0. )
+		{
+			return( false );
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
 bool CSG_Vector::is_Equal(const CSG_Vector &Vector) const
 {
 	if( Get_Size() == Vector.Get_Size() )
@@ -267,6 +281,27 @@ bool CSG_Vector::is_Equal(const CSG_Vector &Vector) const
 		for(sLong i=0; i<Get_N(); i++)
 		{
 			if( Get_Data(i) != Vector.Get_Data(i) )
+			{
+				return( false );
+			}
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Vector::is_Collinear(const CSG_Vector &Vector)	const
+{
+	if( Get_Size() == Vector.Get_Size() && !is_Null() && !Vector.is_Null() )
+	{
+		double b = Vector.Get_Length() / Get_Length();
+
+		for(sLong i=0; i<Get_N(); i++)
+		{
+			if( b * Get_Data(i) != Vector.Get_Data(i) )
 			{
 				return( false );
 			}
@@ -374,6 +409,12 @@ bool CSG_Vector::Multiply(double Scalar)
 //---------------------------------------------------------
 bool CSG_Vector::Multiply(const CSG_Vector &Vector)
 {
+	return( Multiply_Cross(Vector) );
+}
+
+//---------------------------------------------------------
+bool CSG_Vector::Multiply_Cross(const CSG_Vector &Vector)
+{
 	if( Get_Size() == Vector.Get_Size() && Get_Size() == 3 )
 	{
 		CSG_Vector v(*this);
@@ -414,12 +455,6 @@ bool CSG_Vector::Multiply(const class CSG_Matrix &Matrix)
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CSG_Vector::operator == (const CSG_Vector &Vector) const
-{
-	return( is_Equal(Vector) );
-}
 
 //---------------------------------------------------------
 CSG_Vector & CSG_Vector::operator = (double Scalar)
@@ -625,6 +660,26 @@ bool CSG_Vector::Sort(bool bAscending)
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Vector CSG_Vector::Get_Scalar_Product(const CSG_Vector &Vector)	const
+{
+	CSG_Vector v(*this);
+
+	v.Multiply_Scalar(Vector);
+
+	return( v );
+}
+
+//---------------------------------------------------------
+CSG_Vector CSG_Vector::Get_Cross_Product(const CSG_Vector &Vector)	const
+{
+	CSG_Vector v(*this);
+
+	v.Multiply_Cross(Vector);
+
+	return( v );
+}
 
 //---------------------------------------------------------
 double CSG_Vector::Get_Length(void) const
