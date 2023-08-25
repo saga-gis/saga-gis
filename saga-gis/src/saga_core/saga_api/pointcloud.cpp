@@ -199,8 +199,11 @@ void CSG_PointCloud::_On_Construction(void)
 	Set_Update_Flag();
 
 	m_Shapes.Create(SHAPE_TYPE_Point, NULL, NULL, SG_VERTEX_TYPE_XYZ);
-	m_Shapes.Add_Shape();
-	m_Shapes_Index = -1;
+	m_Shapes.Set_Count(SG_OMP_Get_Max_Num_Procs());
+	for(sLong i=0; i<m_Shapes.Get_Count(); i++)
+	{
+		m_Shapes[i].m_Index = -1;
+	}
 
 	m_Array_Points.Create(sizeof(char *), 0, TSG_Array_Growth::SG_ARRAY_GROWTH_3);
 }
@@ -540,7 +543,7 @@ bool CSG_PointCloud::_Save(CSG_File &Stream)
 		Stream.Write((void *)m_Field_Name[iField]->b_str(), sizeof(char), iBuffer);
 	}
 
-	_Set_Shape(m_Shapes_Index);
+	_Shape_Flush();
 
 	for(sLong i=0; i<m_nRecords && SG_UI_Process_Set_Progress(i, m_nRecords); i++)
 	{
@@ -1215,7 +1218,7 @@ bool CSG_PointCloud::On_Update(void)
 {
 	if( m_nFields >= 2 )
 	{
-		_Set_Shape(m_Shapes_Index);
+		_Shape_Flush();
 
 		_Stats_Update(0);
 		_Stats_Update(1);
@@ -1316,23 +1319,23 @@ bool CSG_PointCloud::On_Delete(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Shape * CSG_PointCloud::_Set_Shape(sLong Index)
+CSG_Shape * CSG_PointCloud::_Shape_Get(sLong Index)
 {
 	SG_UI_Progress_Lock(true);
 
-	CSG_Shape *pShape = m_Shapes.Get_Shape(0);
+	CSG_Shape *pShape = m_Shapes.Get_Shape(SG_OMP_Get_Thread_Num());
 
-	if( pShape->is_Modified() && m_Shapes_Index >= 0 && m_Shapes_Index < m_nRecords )
+	if( pShape->is_Modified() && pShape->m_Index >= 0 && pShape->m_Index < m_nRecords )
 	{
-		m_Cursor = m_Points[m_Shapes_Index];
+		char *Point = m_Points[pShape->m_Index];
 
 		for(int iField=0; iField<m_nFields; iField++)
 		{
 			switch( Get_Field_Type(iField) )
 			{
-			default                : _Set_Field_Value(m_Cursor, iField, pShape->asDouble(iField)); break;
+			default                : _Set_Field_Value(Point, iField, pShape->asDouble(iField)); break;
 			case SG_DATATYPE_Date  :
-			case SG_DATATYPE_String: _Set_Field_Value(m_Cursor, iField, pShape->asString(iField)); break;
+			case SG_DATATYPE_String: _Set_Field_Value(Point, iField, pShape->asString(iField)); break;
 			}
 		}
 
@@ -1343,49 +1346,50 @@ CSG_Shape * CSG_PointCloud::_Set_Shape(sLong Index)
 
 	if( Index >= 0 && Index < m_nRecords )
 	{
-		if(1|| Index != m_Shapes_Index )
+		char *Point = m_Points[Index];
+
+		for(int iField=0; iField<m_nFields; iField++)
 		{
-			m_Cursor = m_Points[Index];
-
-			pShape->Set_Point(Get_X(), Get_Y(), 0, 0);
-			pShape->Set_Z    (Get_Z()         , 0, 0);
-
-			for(int iField=0; iField<m_nFields; iField++)
+			switch( Get_Field_Type(iField) )
 			{
-				switch( Get_Field_Type(iField) )
-				{
-				default: pShape->Set_Value(iField, _Get_Field_Value(m_Cursor, iField)); break;
+			default: pShape->Set_Value(iField, _Get_Field_Value(Point, iField)); break;
 
-				case SG_DATATYPE_Date  :
-				case SG_DATATYPE_String: {
-					CSG_String s; _Get_Field_Value(m_Cursor, iField, s); pShape->Set_Value(iField, s);
-					break; }
-				}
+			case SG_DATATYPE_Date  :
+			case SG_DATATYPE_String: {
+				CSG_String s; _Get_Field_Value(Point, iField, s); pShape->Set_Value(iField, s);
+				break; }
 			}
-
-			m_Shapes_Index  = Index;
-			pShape->m_Index = Index;
-			pShape->Set_Selected(is_Selected(Index));
 		}
 
-		m_Shapes.Set_Modified(false);
+		pShape->Set_Point(Get_Point(Index));
+		pShape->Set_Selected(is_Selected(Index));
+		pShape->Set_Modified(false);
 
-		SG_UI_Progress_Lock(false);
-
-		return( pShape );
+		pShape->m_Index = Index;
 	}
-
-	m_Shapes_Index = -1;
+	else
+	{
+		pShape->m_Index = -1;
+	}
 
 	SG_UI_Progress_Lock(false);
 
-	return( NULL );
+	return( pShape->m_Index >= 0 ? pShape : NULL );
+}
+
+//---------------------------------------------------------
+void CSG_PointCloud::_Shape_Flush(void)
+{
+	for(sLong i=0; i<m_Shapes.Get_Count(); i++)
+	{
+		_Shape_Get(m_Shapes[i].m_Index); m_Shapes[i].m_Index = -1;
+	}
 }
 
 //---------------------------------------------------------
 CSG_Table_Record * CSG_PointCloud::Get_Record(sLong Index)	const
 {
-	return( ((CSG_PointCloud *)this)->_Set_Shape(Index) );
+	return( ((CSG_PointCloud *)this)->_Shape_Get(Index) );
 }
 
 
@@ -1461,7 +1465,7 @@ CSG_Shape * CSG_PointCloud::Add_Shape(CSG_Table_Record *pCopy, TSG_ADD_Shape_Cop
 		}
 	}
 
-	return( _Set_Shape(m_nRecords - 1) );
+	return( _Shape_Get(m_nRecords - 1) );
 }
 
 
@@ -1565,7 +1569,7 @@ bool CSG_PointCloud::is_Selected(sLong Index)	const
 //---------------------------------------------------------
 CSG_Shape * CSG_PointCloud::Get_Selection(sLong Index)
 {
-	return( Index < Get_Selection_Count() ? _Set_Shape(Get_Selection_Index(Index)) : NULL );
+	return( Index < Get_Selection_Count() ? _Shape_Get(Get_Selection_Index(Index)) : NULL );
 }
 
 //---------------------------------------------------------

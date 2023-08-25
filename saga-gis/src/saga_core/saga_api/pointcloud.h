@@ -246,8 +246,6 @@ private:
 
 	int								m_nPointBytes, *m_Field_Offset;
 	
-	sLong							m_Shapes_Index;
-
 	CSG_Array						m_Array_Points;
 
 	CSG_Shapes						m_Shapes;
@@ -267,7 +265,8 @@ private:
 	bool							_Inc_Array			(void);
 	bool							_Dec_Array			(void);
 
-	CSG_Shape *						_Set_Shape			(sLong Index);
+	CSG_Shape *						_Shape_Get			(sLong Index);
+	void							_Shape_Flush		(void);
 
 };
 
