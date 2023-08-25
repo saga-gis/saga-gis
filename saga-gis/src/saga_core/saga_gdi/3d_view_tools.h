@@ -185,6 +185,9 @@ protected:
 	virtual int					Get_Color				(double Value);
 	virtual int					Dim_Color				(int Color, double Dim);
 
+	double						Get_Dim					(double x0, double y0, double z0, double x1, double y1, double z1, double x2, double y2, double z2, const CSG_Vector &LightSource, int Shading, double zScale = 1000.);
+	double						Get_Dim					(const CSG_Point_3D &p0, const CSG_Point_3D &p1, const CSG_Point_3D &p2, const CSG_Vector &LightSource, int Shading, double zScale = 1000.);
+
 	void						Set_Image				(BYTE *pRGB, int NX, int NY);
 	bool						Set_Drape				(CSG_Grid *pDrape);
 

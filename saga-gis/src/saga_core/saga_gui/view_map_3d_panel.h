@@ -112,6 +112,7 @@ private:
 
 	bool						_Get_Node				(int x, int y, TSG_Triangle_Node &Node, bool bProject = true);
 
+	void						_Draw_Bottom			(                                double zMin, int Color, const CSG_Vector &LightSource);
 	void						_Draw_Side				(int xa, int xb, int ya, int yb, double zMin, int Color, const CSG_Vector &LightSource);
 
 

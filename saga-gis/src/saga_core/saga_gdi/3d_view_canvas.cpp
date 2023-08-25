@@ -707,6 +707,33 @@ int CSG_3DView_Canvas::_Dim_Color(int Color, double Dim)
 }
 
 //---------------------------------------------------------
+double CSG_3DView_Canvas::Get_Dim(double x0, double y0, double z0, double x1, double y1, double z1, double x2, double y2, double z2, const CSG_Vector &LightSource, int Shading, double zScale)
+{
+	CSG_Vector n(3), v(3);
+
+	n[0] = x2 - x0; n[1] = y2 - y0; n[2] = (z2 - z0) * zScale;
+	v[0] = x1 - x0; v[1] = y1 - y0; v[2] = (z1 - z0) * zScale;
+
+	double dim = n.Get_Cross_Product(v).Get_Angle(LightSource) / M_PI_090;
+
+	switch( Shading )
+	{
+	case  1: if( dim > 1. ) { dim = 2. - dim; }
+		dim = 0.5 + 0.5 * dim; break;
+
+	case  2:
+		dim = 1.  - 0.8 * dim; break;
+	}
+
+	return( dim );
+}
+
+double CSG_3DView_Canvas::Get_Dim(const CSG_Point_3D &p0, const CSG_Point_3D &p1, const CSG_Point_3D &p2, const CSG_Vector &LightSource, int Shading, double zScale)
+{
+	return( Get_Dim(p0.x, p0.y, p0.z, p1.x, p1.y, p1.z, p2.x, p2.y, p2.z, LightSource, Shading, zScale) );
+}
+
+//---------------------------------------------------------
 inline void CSG_3DView_Canvas::_Draw_Pixel(int x, int y, double z, int color)
 {
 	if( x >= 0 && x < m_Image_NX && y >= 0 && y < m_Image_NY && z < m_Image_zMax[y][x] )
@@ -875,30 +902,7 @@ void CSG_3DView_Canvas::Draw_Line(const TSG_Point_3D &a, const TSG_Point_3D &b, 
 //---------------------------------------------------------
 void CSG_3DView_Canvas::Draw_Triangle(TSG_Triangle_Node p[3], bool bValueAsColor, const CSG_Vector &LightSource, int Shading, double zScale)
 {
-	CSG_Vector n(3), v(3);
-
-	n[0] = p[2].x - p[0].x; n[1] = p[2].y - p[0].y; n[2] = (p[2].z - p[0].z) * zScale;
-	v[0] = p[1].x - p[0].x; v[1] = p[1].y - p[0].y; v[2] = (p[1].z - p[0].z) * zScale;
-
-	n.Multiply(v); // cross product n x v => normal vector
-
-	double a = n.Get_Angle(LightSource) / M_PI_090;
-
-	switch( Shading )
-	{
-	case  1: if( a > 1. ) { a = 2. - a; }
-		a = 0.5 + 0.5 * a;
-		break;
-
-	case  2:
-		a = 1.  - 0.8 * a;
-		break;
-
-	default:
-		break;
-	}
-
-	Draw_Triangle(p, bValueAsColor, a);
+	Draw_Triangle(p, bValueAsColor, Get_Dim(p[0].x, p[0].y, p[0].z, p[1].x, p[1].y, p[1].z, p[2].x, p[2].y, p[2].z, LightSource, Shading, zScale));
 }
 
 //---------------------------------------------------------
@@ -1164,18 +1168,18 @@ void CSG_3DView_Canvas::Draw_Polygon(CSG_Shape_Polygon &Polygon, int Color, cons
 {
 	CSG_Vector Normal; if( !Get_Polygon_Plane(Polygon, 0, Normal, zScale) ) { return; }
 
-	double a = Normal.Get_Angle(LightSource) / M_PI_090;
+	double dim = Normal.Get_Angle(LightSource) / M_PI_090;
 
 	switch( Shading )
 	{
-	case  1: if( a > 1. ) { a = 2. - a; }
-		a = 0.5 + 0.5 * a; break;
+	case  1: if( dim > 1. ) { dim = 2. - dim; }
+		dim = 0.5 + 0.5 * dim; break;
 
 	case  2:
-		a = 1.  - 0.8 * a; break;
+		dim = 1.  - 0.8 * dim; break;
 	}
 
-	Draw_Polygon(Polygon, _Dim_Color(Color, a));
+	Draw_Polygon(Polygon, _Dim_Color(Color, dim));
 }
 
 //---------------------------------------------------------

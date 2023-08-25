@@ -73,11 +73,13 @@ END_EVENT_TABLE()
 CVIEW_Map_3DPanel::CVIEW_Map_3DPanel(wxWindow *pParent, class CWKSP_Map *pMap)
 	: CSG_3DView_Panel(pParent, &m_Map)
 {
-	m_pDEM    = NULL;
-	m_pMap    = pMap;
+	m_pDEM      = NULL;
+	m_pMap      = pMap;
 
-	m_DEM_Res =  100;
-	m_Map_Res = 1000;
+	m_DEM_Res   =  100;
+	m_Map_Res   = 1000;
+
+	m_BoxBuffer = 0.;
 
 	m_Parameters.Add_Grid("GENERAL" , "DEM"    , _TL("Elevation" ), _TL(""), PARAMETER_INPUT);
 	m_Parameters.Add_Int ("DEM"     , "DEM_RES", _TL("Resolution"), _TL(""), m_DEM_Res, 2, true);
@@ -239,8 +241,10 @@ CSG_String CVIEW_Map_3DPanel::Get_Usage(void)
 	ADD_SHORTCUT("F3", _TL("Decrease Elevation Model Resolution"));
 	ADD_SHORTCUT("F4", _TL("Increase Elevation Model Resolution"));
 
-	ADD_SHORTCUT("F5", _TL("Decrease Map Resolution"  ));
-	ADD_SHORTCUT("F6", _TL("Increase Map Resolution"  ));
+	ADD_SHORTCUT("F5", _TL("Decrease Map Resolution"));
+	ADD_SHORTCUT("F6", _TL("Increase Map Resolution"));
+
+	ADD_SHORTCUT("S" , _TL("Fill Sides"));
 
 	return( CSG_3DView_Panel::Get_Usage(Shortcuts) );
 }
@@ -296,6 +300,36 @@ inline bool CVIEW_Map_3DPanel::_Get_Node(int x, int y, TSG_Triangle_Node &Node, 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CVIEW_Map_3DPanel::_Draw_Bottom(double zMin, int Color, const CSG_Vector &LightSource)
+{
+	CSG_Points_3D P; CSG_Rect r(m_DEM.Get_Extent()); P.Add(r.Get_XCenter(), r.Get_YCenter(), zMin);
+
+	P.Add(r.Get_XMin   (), r.Get_YMin   (), zMin);
+	P.Add(r.Get_XMin   (), r.Get_YCenter(), zMin);
+	P.Add(r.Get_XMin   (), r.Get_YMax   (), zMin);
+	P.Add(r.Get_XCenter(), r.Get_YMax   (), zMin);
+	P.Add(r.Get_XMax   (), r.Get_YMax   (), zMin);
+	P.Add(r.Get_XMax   (), r.Get_YCenter(), zMin);
+	P.Add(r.Get_XMax   (), r.Get_YMin   (), zMin);
+	P.Add(r.Get_XCenter(), r.Get_YMin   (), zMin);
+
+	TSG_Triangle_Node p[3]; p[0].c = p[1].c = p[2].c = Color; p[0].d = p[1].d = p[2].d = 0.;
+
+	double dim = Get_Dim(P[0], P[2], P[1], LightSource, 1);
+
+	for(int i=1; i<P.Get_Count(); i++)
+	{
+		int j = i == 1 ? P.Get_Count() - 1 : i - 1;
+
+		p[0].x = P[0].x; p[0].y = P[0].y; p[0].z = zMin; m_Projector.Get_Projection(p[0].x, p[0].y, p[0].z);
+		p[1].x = P[i].x; p[1].y = P[i].y; p[1].z = zMin; m_Projector.Get_Projection(p[1].x, p[1].y, p[1].z);
+		p[2].x = P[j].x; p[2].y = P[j].y; p[2].z = zMin; m_Projector.Get_Projection(p[2].x, p[2].y, p[2].z);
+
+		Draw_Triangle(p, true, dim);
+	}
+}
+
+//---------------------------------------------------------
 void CVIEW_Map_3DPanel::_Draw_Side(int xa, int xb, int ya, int yb, double zMin, int Color, const CSG_Vector &LightSource)
 {
 	TSG_Triangle_Node p[3], pa, pb;
@@ -335,30 +369,14 @@ bool CVIEW_Map_3DPanel::On_Draw(void)
 		//-------------------------------------------------
 		if( m_Parameters["SIDES"].asBool() )
 		{
-			CSG_Vector LightSource(3); double decline = 45. * -M_DEG_TO_RAD, azimuth = 90. *  M_DEG_TO_RAD;
+			Set_Drape(NULL); int Color = SG_GET_RGB(192, 192, 192); double zMin = m_DEM.Get_Min();// - 0.25 * m_DEM.Get_Range();
+
+			CSG_Vector LightSource(3); double decline = 45. * -M_DEG_TO_RAD, azimuth = 50. *  M_DEG_TO_RAD;
 			LightSource[0] = sin(decline) * cos(azimuth);
 			LightSource[1] = sin(decline) * sin(azimuth);
 			LightSource[2] = cos(decline);
 
-			Set_Drape(NULL); int Color = SG_GET_RGB(192, 192, 192); double zMin = m_DEM.Get_Min();// - 0.25 * m_DEM.Get_Range();
-
-			TSG_Triangle_Node p[3];
-
-			p[0].x = m_DEM.Get_XMin(); p[0].y = m_DEM.Get_YMin();
-			p[1].x = m_DEM.Get_XMax(); p[1].y = m_DEM.Get_YMin();
-			p[2].x = m_DEM.Get_XMax(); p[2].y = m_DEM.Get_YMax();
-			p[0].z = p[1].z = p[2].z = zMin;
-			p[0].c = p[1].c = p[2].c = Color;
-			for(int i=0; i<3; i++) { m_Projector.Get_Projection(p[i].x, p[i].y, p[i].z); }
-			Draw_Triangle(p, true, LightSource, 1);
-
-			p[0].x = m_DEM.Get_XMin(); p[0].y = m_DEM.Get_YMin();
-			p[1].x = m_DEM.Get_XMax(); p[1].y = m_DEM.Get_YMax();
-			p[2].x = m_DEM.Get_XMin(); p[2].y = m_DEM.Get_YMax();
-			p[0].z = p[1].z = p[2].z = zMin;
-			p[0].c = p[1].c = p[2].c = Color;
-			for(int i=0; i<3; i++) { m_Projector.Get_Projection(p[i].x, p[i].y, p[i].z); }
-			Draw_Triangle(p, true, LightSource, 1);
+			_Draw_Bottom(zMin, Color, LightSource);
 
 			for(int i=0; i<2; i++)
 			{
