@@ -1506,19 +1506,15 @@ public:
 			switch( m_pTable->Get_Field_Type(Field) )
 			{
 			default: {
-				double d =
-					m_pTable->Get_Record(a)->asDouble(Field) -
-					m_pTable->Get_Record(b)->asDouble(Field);
-
+				double d = m_pTable->Get_Record(a)->asDouble(Field);
+				d       -= m_pTable->Get_Record(b)->asDouble(Field);
 				Difference = d < 0. ? -1 : d > 0. ? 1 : 0;
 			}	break;
 
 			case SG_DATATYPE_String:
 			case SG_DATATYPE_Date  :
-				Difference = SG_STR_CMP(
-					m_pTable->Get_Record(a)->asString(Field),
-					m_pTable->Get_Record(b)->asString(Field)
-				);
+				CSG_String   s    (m_pTable->Get_Record(a)->asString(Field));
+				Difference = s.Cmp(m_pTable->Get_Record(b)->asString(Field));
 				break;
 			}
 		}
