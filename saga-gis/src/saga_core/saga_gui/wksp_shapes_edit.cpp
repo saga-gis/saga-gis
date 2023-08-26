@@ -672,7 +672,7 @@ bool CWKSP_Shapes::_Edit_Split(void)
 						{
 							CSG_Shape	*pSplit	= Get_Shapes()->Add_Shape(Split.Get_Shape(iSplit));
 
-							((CSG_Table_Record *)pSplit)->Assign(pSelection);
+							pSplit->Assign( pSelection, SHAPE_COPY_ATTR );
 
 							Get_Shapes()->Select(pSplit, true);
 						}
