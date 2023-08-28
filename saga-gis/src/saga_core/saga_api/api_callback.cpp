@@ -486,7 +486,7 @@ void		SG_UI_Msg_Add_Error(const char       *Message) { SG_UI_Msg_Add_Error(CSG_S
 void		SG_UI_Msg_Add_Error(const wchar_t    *Message) { SG_UI_Msg_Add_Error(CSG_String(Message)); }
 void		SG_UI_Msg_Add_Error(const CSG_String &Message)
 {
-	if( gSG_UI_Msg_Lock )
+	if( !gSG_UI_Msg_Lock )
 	{
 		if( gSG_UI_Callback )
 		{
