@@ -83,10 +83,12 @@ CLandsat_Scene_Import::CLandsat_Scene_Import(void)
 	Parameters.Add_FilePath("",
 		"METAFILE"		, _TL("Metadata File"),
 		_TL(""),
-		CSG_String::Format("%s|*.met;*.txt|%s (*.met)|*.met|%s (*.txt)|*.txt|%s|*.*",
+		CSG_String::Format("%s|*.met;*.txt;*.xml;*.json|%s (*.met)|*.met|%s (*.txt)|*.txt|%s (*.xml)|*.xml|%s (*.json)|*.json|%s|*.*",
 			_TL("Recognized Files"),
 			_TL("Landsat Metadata Files"),
 			_TL("Text Files"),
+			_TL("Extended Markup Language Files"),
+			_TL("JavaScript Object Notation Files"),
 			_TL("All Files")
 		)
 	);
@@ -527,27 +529,44 @@ bool CLandsat_Scene_Import::is_Cirrus(int Sensor, int Band)
 //---------------------------------------------------------
 bool CLandsat_Scene_Import::Load_Metadata(CSG_MetaData &Metadata, const CSG_String &File)
 {
-	CSG_File Stream;
-
-	if( !Stream.Open(File, SG_FILE_R, false) )
+	if( SG_File_Cmp_Extension(File, "xml") )
 	{
-		return( false );
+		CSG_MetaData m; if( !m.Load(File) ) { return( false ); }
+		for(int i=0; i<m.Get_Children_Count(); i++)
+			Metadata.Add_Children(m[i]);
+		Metadata.Set_Name(m.Get_Name());
 	}
-
-	CSG_String Line, Key, Value;
-
-	if( !Stream.Read_Line(Line) || !Load_Metadata(Line, Key, Value) || Key.Cmp("GROUP") )
+	else if( SG_File_Cmp_Extension(File, "json") )
 	{
-		return( false );
+		CSG_MetaData m; if( !m.Load_JSON(File) || !m(0) ) { return( false ); }
+		for(int i=0; i<m[0].Get_Children_Count(); i++)
+			Metadata.Add_Children(m[0][i]);
+		Metadata.Set_Name(m[0].Get_Name());
 	}
-
-	Metadata.Set_Name(Value);
-
-	while( Stream.Read_Line(Line) && Line.Cmp("END") )
+	else // *.met, *.txt
 	{
-		if( Line.Cmp("END_GROUP") && Load_Metadata(Line, Key, Value) && Key.Cmp("GROUP") )
+		CSG_File Stream;
+
+		if( !Stream.Open(File, SG_FILE_R, false) )
 		{
-			Metadata.Add_Child(Key, Value);
+			return( false );
+		}
+
+		CSG_String Line, Key, Value;
+
+		if( !Stream.Read_Line(Line) || !Load_Metadata(Line, Key, Value) || Key.Cmp("GROUP") )
+		{
+			return( false );
+		}
+
+		Metadata.Set_Name(Value);
+
+		while( Stream.Read_Line(Line) && Line.Cmp("END") )
+		{
+			if( Line.Cmp("END_GROUP") && Load_Metadata(Line, Key, Value) && Key.Cmp("GROUP") )
+			{
+				Metadata.Add_Child(Key, Value);
+			}
 		}
 	}
 

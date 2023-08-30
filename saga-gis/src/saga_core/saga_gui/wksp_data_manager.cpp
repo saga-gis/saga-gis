@@ -841,7 +841,9 @@ CWKSP_Data_Item * CWKSP_Data_Manager::Open(const wxString &File, int DataType)
 //---------------------------------------------------------
 bool CWKSP_Data_Manager::Open(const wxString &File)
 {
-	if( SG_File_Cmp_Extension(&File, "txt") && File.Right(8).CmpNoCase("_MTL.txt") == 0 )
+	if( (SG_File_Cmp_Extension(&File, "txt" ) && !File.Right(8).CmpNoCase("_MTL.txt" ))
+	||  (SG_File_Cmp_Extension(&File, "xml" ) && !File.Right(8).CmpNoCase("_MTL.xml" ))
+	||  (SG_File_Cmp_Extension(&File, "json") && !File.Right(9).CmpNoCase("_MTL.json")) )
 	{
 		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Get_Tool("imagery_tools", 14); // Import Landsat Scene
 
