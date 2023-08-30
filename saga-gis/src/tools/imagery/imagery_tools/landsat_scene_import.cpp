@@ -234,34 +234,32 @@ int CLandsat_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 {
 	if( pParameter->Cmp_Identifier("METAFILE") )
 	{
-		CSG_MetaData	Info_Scene, Metadata;
-		CSG_Table		Info_Bands;
-		CSG_Strings		File_Bands;
+		CSG_MetaData Metadata, Info_Scene; CSG_Table Info_Bands; CSG_Strings File_Bands;
 
 		if( Load_Metadata(Metadata, pParameter->asString()) && Get_Info(Metadata, File_Bands, Info_Bands, Info_Scene) )
 		{
-			int	Sensor	= Get_Info_Sensor(Metadata);
+			int Sensor = Get_Info_Sensor(Metadata);
 
-			pParameters->Set_Enabled("SKIP_PAN"    , Sensor == SENSOR_OLI_TIRS || Sensor == SENSOR_ETM);
-			pParameters->Set_Enabled("SKIP_AEROSOL", Sensor == SENSOR_OLI_TIRS);
-			pParameters->Set_Enabled("SKIP_CIRRUS" , Sensor == SENSOR_OLI_TIRS);
+			pParameters->Set_Enabled("SKIP_PAN"    , Sensor >= SENSOR_ETM);
+			pParameters->Set_Enabled("SKIP_AEROSOL", Sensor >= SENSOR_OLI);
+			pParameters->Set_Enabled("SKIP_CIRRUS" , Sensor >= SENSOR_OLI);
 
-			const CSG_Table_Record	&Info_Band	= Info_Bands[0];
+			const CSG_Table_Record &Info_Band = Info_Bands[0];
 
-			bool	bRadiance	=  (Info_Band.asString("RADIANCE_ADD") && Info_Band.asString("RADIANCE_MUL"))
-								|| (Info_Band.asString("L_MIN") && Info_Band.asString("QCAL_MIN")
-								&&  Info_Band.asString("L_MAX") && Info_Band.asString("QCAL_MAX"));
+			bool bRadiance =  (Info_Band.asString("RADIANCE_ADD") && Info_Band.asString("RADIANCE_MUL"))
+			               || (Info_Band.asString("L_MIN") && Info_Band.asString("QCAL_MIN")
+			               &&  Info_Band.asString("L_MAX") && Info_Band.asString("QCAL_MAX"));
 
-			bool	bReflectance	= Info_Band.asString("REFLECTANCE_ADD") && Info_Band.asString("REFLECTANCE_MUL");
+			bool bReflectance = Info_Band.asString("REFLECTANCE_ADD") && Info_Band.asString("REFLECTANCE_MUL");
 
 			pParameters->Set_Enabled("CALIBRATION", bRadiance || bReflectance);
 
 			if( bRadiance || bReflectance )
 			{
-				CSG_String	Choices(_TL("none"));
+				CSG_String Choices(_TL("none"));
 
-				if( bRadiance    )	Choices	+= CSG_String("|") + _TL("radiance"   );
-				if( bReflectance )	Choices	+= CSG_String("|") + _TL("reflectance");
+				if( bRadiance    ) Choices += CSG_String("|") + _TL("radiance"   );
+				if( bReflectance ) Choices += CSG_String("|") + _TL("reflectance");
 
 				(*pParameters)("CALIBRATION")->asChoice()->Set_Items(Choices);
 			}
@@ -277,15 +275,15 @@ int CLandsat_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 
 	if( pParameter->Cmp_Identifier("CALIBRATION") )
 	{
-		pParameters->Set_Enabled("DATA_TYPE", pParameter->asInt() != 0);
-		pParameters->Set_Enabled("TEMP_UNIT", pParameter->asInt() == 2);
+		pParameters->Set_Enabled("DATA_TYPE"    , pParameter->asInt() != 0);
+		pParameters->Set_Enabled("TEMP_UNIT"    , pParameter->asInt() == 2);
 	}
 
 	if( pParameter->Cmp_Identifier("PROJECTION") )
 	{
-		pParameters->Set_Enabled("RESAMPLING", pParameter->asInt() >= 2);
-		pParameters->Set_Enabled("UTM_ZONE"  , pParameter->asInt() == 3);
-		pParameters->Set_Enabled("UTM_SOUTH" , pParameter->asInt() == 3);
+		pParameters->Set_Enabled("RESAMPLING"   , pParameter->asInt() >= 2);
+		pParameters->Set_Enabled("UTM_ZONE"     , pParameter->asInt() == 3);
+		pParameters->Set_Enabled("UTM_SOUTH"    , pParameter->asInt() == 3);
 	}
 
 	if(	pParameter->Cmp_Identifier("EXTENT") )
@@ -310,7 +308,7 @@ int CLandsat_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 //---------------------------------------------------------
 bool CLandsat_Scene_Import::On_Execute(void)
 {
-	CSG_MetaData	Metadata;
+	CSG_MetaData Metadata;
 
 	if( !Load_Metadata(Metadata, Parameters("METAFILE")->asString()) )
 	{
@@ -320,16 +318,14 @@ bool CLandsat_Scene_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_MetaData	Info_Scene;
-	CSG_Table		Info_Bands;
-	CSG_Strings		File_Bands;
+	CSG_MetaData Info_Scene; CSG_Table Info_Bands; CSG_Strings File_Bands;
 
 	if( !Get_Info(Metadata, File_Bands, Info_Bands, Info_Scene) )
 	{
 		return( false );
 	}
 
-	int	Sensor	= Get_Info_Sensor(Metadata);
+	int Sensor = Get_Info_Sensor(Metadata);
 
 	//-----------------------------------------------------
 	if( Parameters("BAND_INFO")->asTable() )
@@ -345,16 +341,16 @@ bool CLandsat_Scene_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_String	Path	= SG_File_Get_Path(Parameters("METAFILE")->asString());
+	CSG_String Path = SG_File_Get_Path(Parameters("METAFILE")->asString());
 
-	bool	bMultiGrids	= Parameters("MULTI2GRIDS")->asBool();
-	int		Calibration	= Parameters("CALIBRATION")->asInt ();
+	bool bMultiGrids = Parameters("MULTI2GRIDS")->asBool();
+	int  Calibration = Parameters("CALIBRATION")->asInt ();
 
-	double	SunHeight	= -1;
+	double SunHeight = -1;
 
 	if( Info_Scene("SUN_ELEVATION") )
 	{
-		SunHeight	= Info_Scene["SUN_ELEVATION"].Get_Content().asDouble();
+		SunHeight = Info_Scene["SUN_ELEVATION"].Get_Content().asDouble();
 	}
 
 	//-----------------------------------------------------
@@ -404,7 +400,7 @@ bool CLandsat_Scene_Import::On_Execute(void)
 				DataObject_Add(pBand); DataObject_Set_Colors(pBand, 2, SG_COLORS_BLACK_WHITE);
 			}
 
-			if( bMultiGrids && is_Multispectral(Sensor, i) && !is_Aerosol(Sensor, i) && !is_Cirrus(Sensor, i) )
+			if( bMultiGrids && is_Spectral(Sensor, i) && !is_Aerosol(Sensor, i) && !is_Cirrus(Sensor, i) )
 			{
 				if( pBands == NULL )
 				{
@@ -414,8 +410,6 @@ bool CLandsat_Scene_Import::On_Execute(void)
 
 						return( false );
 					}
-
-					Parameters("BANDS")->asGridList()->Add_Item(pBands);
 				}
 
 				pBands->Add_Grid(Info_Bands[i], pBand, true);
@@ -434,6 +428,8 @@ bool CLandsat_Scene_Import::On_Execute(void)
 		pBands->Set_Description(Info_Scene.asText());
 		pBands->Set_Z_Attribute (4);
 		pBands->Set_Z_Name_Field(2);
+
+		Parameters("BANDS")->asGridList()->Add_Item(pBands);
 	}
 
 	//-----------------------------------------------------
@@ -446,13 +442,7 @@ bool CLandsat_Scene_Import::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CLandsat_Scene_Import::is_Panchromatic(int Sensor, int Band)
-{
-	return( (Sensor == SENSOR_ETM && Band == 8) || (Sensor == SENSOR_OLI_TIRS && Band == 7) );
-}
-
-//---------------------------------------------------------
-bool CLandsat_Scene_Import::is_Multispectral(int Sensor, int Band)
+bool CLandsat_Scene_Import::is_Spectral(int Sensor, int Band)
 {
 	switch( Sensor )
 	{
@@ -465,8 +455,41 @@ bool CLandsat_Scene_Import::is_Multispectral(int Sensor, int Band)
 	case SENSOR_ETM:
 		return( Band != 5 && Band != 6 && Band != 8 );
 
-	case SENSOR_OLI_TIRS:
+	case SENSOR_OLI: case SENSOR_OLI_TIRS:
 		return( Band != 7 && Band != 9  && Band != 10 );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CLandsat_Scene_Import::is_Thermal(int Sensor, int Band)
+{
+	switch( Sensor )
+	{
+	case SENSOR_TM:
+		return( Band == 5 );
+
+	case SENSOR_ETM:
+		return( Band == 5 || Band == 6 );
+
+	case SENSOR_OLI_TIRS:
+		return( Band == 9 || Band == 10 );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CLandsat_Scene_Import::is_Panchromatic(int Sensor, int Band)
+{
+	switch( Sensor )
+	{
+	case SENSOR_ETM:
+		return( Band == 8 );
+
+	case SENSOR_OLI: case SENSOR_OLI_TIRS:
+		return( Band == 7 );
 	}
 
 	return( false );
@@ -475,19 +498,25 @@ bool CLandsat_Scene_Import::is_Multispectral(int Sensor, int Band)
 //---------------------------------------------------------
 bool CLandsat_Scene_Import::is_Aerosol(int Sensor, int Band)
 {
-	return( (Sensor == SENSOR_OLI_TIRS && Band == 0) );
+	switch( Sensor )
+	{
+	case SENSOR_OLI: case SENSOR_OLI_TIRS:
+		return( Band == 0 );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
 bool CLandsat_Scene_Import::is_Cirrus(int Sensor, int Band)
 {
-	return( (Sensor == SENSOR_OLI_TIRS && Band == 8) );
-}
+	switch( Sensor )
+	{
+	case SENSOR_OLI: case SENSOR_OLI_TIRS:
+		return( Band == 8 );
+	}
 
-//---------------------------------------------------------
-bool CLandsat_Scene_Import::is_Thermal(int Sensor, int Band)
-{
-	return( !is_Panchromatic(Sensor, Band) && !is_Multispectral(Sensor, Band) );
+	return( false );
 }
 
 
@@ -498,14 +527,14 @@ bool CLandsat_Scene_Import::is_Thermal(int Sensor, int Band)
 //---------------------------------------------------------
 bool CLandsat_Scene_Import::Load_Metadata(CSG_MetaData &Metadata, const CSG_String &File)
 {
-	CSG_File	Stream;
+	CSG_File Stream;
 
 	if( !Stream.Open(File, SG_FILE_R, false) )
 	{
 		return( false );
 	}
 
-	CSG_String	Line, Key, Value;
+	CSG_String Line, Key, Value;
 
 	if( !Stream.Read_Line(Line) || !Load_Metadata(Line, Key, Value) || Key.Cmp("GROUP") )
 	{
@@ -528,15 +557,15 @@ bool CLandsat_Scene_Import::Load_Metadata(CSG_MetaData &Metadata, const CSG_Stri
 //---------------------------------------------------------
 bool CLandsat_Scene_Import::Load_Metadata(const CSG_String &Line, CSG_String &Key, CSG_String &Value)
 {
-	Key	= Line.BeforeFirst('='); Key.Trim(true); Key.Trim(false);
+	Key = Line.BeforeFirst('='); Key.Trim(true); Key.Trim(false);
 
 	if( !Key.is_Empty() )
 	{
-		Value	= Line.AfterFirst('='); Value.Trim(true); Value.Trim(false);
+		Value = Line.AfterFirst('='); Value.Trim(true); Value.Trim(false);
 
 		if( Value.Length() >= 2 && Value[0] == '\"' )
 		{
-			Value	= Value.Mid(1, Value.Length() - 2);
+			Value = Value.Mid(1, Value.Length() - 2);
 		}
 
 		return( !Value.is_Empty() );
@@ -564,13 +593,14 @@ int CLandsat_Scene_Import::Get_Info_Sensor(const CSG_MetaData &Metadata)
 {
 	if( Metadata("SENSOR_ID") )
 	{
-		CSG_String	Sensor	= Metadata["SENSOR_ID"].Get_Content();
+		CSG_String Sensor = Metadata["SENSOR_ID"].Get_Content();
 
-		if( !Sensor.Cmp("MSS"     ) )	return( SENSOR_MSS      );
-		if( !Sensor.Cmp("TM"      ) )	return( SENSOR_TM       );
-		if( !Sensor.Cmp("ETM"     ) )	return( SENSOR_ETM      );
-		if( !Sensor.Cmp("ETM+"    ) )	return( SENSOR_ETM      );
-		if( !Sensor.Cmp("OLI_TIRS") )	return( SENSOR_OLI_TIRS );
+		if( !Sensor.Cmp("MSS"     ) ) return( SENSOR_MSS      );
+		if( !Sensor.Cmp("TM"      ) ) return( SENSOR_TM       );
+		if( !Sensor.Cmp("ETM"     ) ) return( SENSOR_ETM      );
+		if( !Sensor.Cmp("ETM+"    ) ) return( SENSOR_ETM      );
+		if( !Sensor.Cmp("OLI"     ) ) return( SENSOR_OLI      );
+		if( !Sensor.Cmp("OLI_TIRS") ) return( SENSOR_OLI_TIRS );
 	}
 
 	return( SENSOR_UNKNOWN );
@@ -609,7 +639,7 @@ struct SBand_Keys
 //---------------------------------------------------------
 enum EBand_Head
 {
-	BAND_HEAD_ID	= 0,
+	BAND_HEAD_ID = 0,
 	BAND_HEAD_NR,
 	BAND_HEAD_NAME,
 	BAND_HEAD_WAVE_MIN,
@@ -667,7 +697,7 @@ struct SBand_Keys	Band_Data[BAND_DATA_COUNT]	=
 //---------------------------------------------------------
 bool CLandsat_Scene_Import::Get_Info(const CSG_MetaData &Metadata, CSG_Strings &File_Bands, CSG_Table &Info_Bands, CSG_MetaData &Info_Scene)
 {
-	int	Version	= Get_Info_Version(Metadata);
+	int Version = Get_Info_Version(Metadata);
 
 	if( Version == VERSION_UNKNOWN )
 	{
@@ -676,7 +706,7 @@ bool CLandsat_Scene_Import::Get_Info(const CSG_MetaData &Metadata, CSG_Strings &
 		return( false );
 	}
 
-	int	Sensor	= Get_Info_Sensor(Metadata);
+	int Sensor = Get_Info_Sensor(Metadata);
 
 	if( Sensor == SENSOR_UNKNOWN )
 	{
@@ -707,12 +737,10 @@ bool CLandsat_Scene_Import::Get_Info(const CSG_MetaData &Metadata, CSG_Strings &
 	GET_INFO_SCENE(false, "ROLL_ANGLE"              );	// MTL
 
 	//-----------------------------------------------------
-	int	iField;
-
 	Info_Bands.Destroy();
 	Info_Bands.Set_Name(_TL("Band Info"));
 
-	for(iField=0; iField<BAND_HEAD_COUNT; iField++)
+	for(int iField=0; iField<BAND_HEAD_COUNT; iField++)
 	{
 		Info_Bands.Add_Field(
 			Band_Head[iField].Name,
@@ -720,11 +748,11 @@ bool CLandsat_Scene_Import::Get_Info(const CSG_MetaData &Metadata, CSG_Strings &
 		);
 	}
 
-	bool	bOkay[BAND_DATA_COUNT];
+	bool bOkay[BAND_DATA_COUNT];
 
-	for(iField=0; iField<BAND_DATA_COUNT; iField++)
+	for(int iField=0; iField<BAND_DATA_COUNT; iField++)
 	{
-		bOkay[iField]	= false;
+		bOkay[iField] = false;
 
 		Info_Bands.Add_Field(
 			Band_Data[iField].Name,
@@ -733,31 +761,31 @@ bool CLandsat_Scene_Import::Get_Info(const CSG_MetaData &Metadata, CSG_Strings &
 	}
 
 	//-----------------------------------------------------
-	const int	Sensor_nBands[SENSOR_UNKNOWN]	=
+	const int Sensor_nBands[SENSOR_UNKNOWN] =
 	{
-		4, 7, 9, 11
+		4, 7, 9, 9, 11 // MSS, TM, ETM, OLI, OLI/TIRS
 	};
 
 	for(int Band=0; Band<Sensor_nBands[Sensor]; Band++)
 	{
-		CSG_String	Value;
+		CSG_String Value;
 
 		if( !Get_Info_Band(Metadata, Version, Sensor, Band, BAND_DATA_FILE, Value) )
 		{
 			return( false );
 		}
 
-		File_Bands	+= Value;
+		File_Bands += Value;
 
-		CSG_Table_Record	&Info	= *Info_Bands.Add_Record();
+		CSG_Table_Record &Info = *Info_Bands.Add_Record();
 
 		Set_Info_Band(Sensor, Band, Info);	// set defaults
 
-		for(iField=0; iField<BAND_DATA_COUNT; iField++)
+		for(int iField=0; iField<BAND_DATA_COUNT; iField++)
 		{
 			if( Get_Info_Band(Metadata, Version, Sensor, Band, iField, Value) )
 			{
-				bOkay[iField]	= true;
+				bOkay[iField] = true;
 
 				Info.Set_Value (BAND_HEAD_COUNT + iField, Value);
 			}
@@ -769,7 +797,7 @@ bool CLandsat_Scene_Import::Get_Info(const CSG_MetaData &Metadata, CSG_Strings &
 	}
 
 	//-----------------------------------------------------
-	for(iField=BAND_DATA_COUNT-1; iField>=0; iField--)
+	for(int iField=BAND_DATA_COUNT-1; iField>=0; iField--)
 	{
 		if( !bOkay[iField] )
 		{
@@ -783,21 +811,21 @@ bool CLandsat_Scene_Import::Get_Info(const CSG_MetaData &Metadata, CSG_Strings &
 //---------------------------------------------------------
 bool CLandsat_Scene_Import::Get_Info_Band(const CSG_MetaData &Metadata, int Version, int Sensor, int Band, int Key, CSG_String &Value)
 {
-	CSG_String	Name;
+	CSG_String Name;
 
 	if( Sensor == SENSOR_ETM )
 	{
 		switch( Band )
 		{
-		case 0:	Name	= Version != VERSION_MTL_2  ? "BAND1"  : "BAND_1"       ; break;
-		case 1:	Name	= Version != VERSION_MTL_2  ? "BAND2"  : "BAND_2"       ; break;
-		case 2:	Name	= Version != VERSION_MTL_2  ? "BAND3"  : "BAND_3"       ; break;
-		case 3:	Name	= Version != VERSION_MTL_2  ? "BAND4"  : "BAND_4"       ; break;
-		case 4:	Name	= Version != VERSION_MTL_2  ? "BAND5"  : "BAND_5"       ; break;
-		case 5:	Name	= Version != VERSION_MTL_2  ? "BAND61" : "BAND_6_VCID_1"; break;
-		case 6:	Name	= Version != VERSION_MTL_2  ? "BAND62" : "BAND_6_VCID_2"; break;
-		case 7:	Name	= Version != VERSION_MTL_2  ? "BAND7"  : "BAND_7"       ; break;
-		case 8:	Name	= Version != VERSION_MTL_2  ? "BAND8"  : "BAND_8"       ; break;
+		case 0: Name = Version != VERSION_MTL_2 ? "BAND1"  : "BAND_1"       ; break;
+		case 1: Name = Version != VERSION_MTL_2 ? "BAND2"  : "BAND_2"       ; break;
+		case 2: Name = Version != VERSION_MTL_2 ? "BAND3"  : "BAND_3"       ; break;
+		case 3: Name = Version != VERSION_MTL_2 ? "BAND4"  : "BAND_4"       ; break;
+		case 4: Name = Version != VERSION_MTL_2 ? "BAND5"  : "BAND_5"       ; break;
+		case 5: Name = Version != VERSION_MTL_2 ? "BAND61" : "BAND_6_VCID_1"; break;
+		case 6: Name = Version != VERSION_MTL_2 ? "BAND62" : "BAND_6_VCID_2"; break;
+		case 7: Name = Version != VERSION_MTL_2 ? "BAND7"  : "BAND_7"       ; break;
+		case 8: Name = Version != VERSION_MTL_2 ? "BAND8"  : "BAND_8"       ; break;
 		}
 	}
 	else if( Sensor == SENSOR_MSS && Version == VERSION_MTL_2 )
@@ -810,7 +838,7 @@ bool CLandsat_Scene_Import::Get_Info_Band(const CSG_MetaData &Metadata, int Vers
 	}
 
 	//-----------------------------------------------------
-	CSG_String	Tag;
+	CSG_String Tag;
 
 	Tag.Printf(Key != BAND_DATA_FILE ? Band_Data[Key].Format : Version != VERSION_MTL_2 
 		? "%s_FILE_NAME" : "FILE_NAME_%s", Name.c_str()
@@ -821,7 +849,7 @@ bool CLandsat_Scene_Import::Get_Info_Band(const CSG_MetaData &Metadata, int Vers
 		return( false );
 	}
 
-	Value	= Metadata[Tag].Get_Content();
+	Value = Metadata[Tag].Get_Content();
 
 	return( true );
 }
@@ -829,7 +857,7 @@ bool CLandsat_Scene_Import::Get_Info_Band(const CSG_MetaData &Metadata, int Vers
 //---------------------------------------------------------
 bool CLandsat_Scene_Import::Set_Info_Band(int Sensor, int Band, CSG_Table_Record &Info)
 {
-	#define SET_INFO_BAND(band, name, wmin, wmax)	{\
+	#define SET_INFO_BAND(band, name, wmin, wmax) {\
 		Info.Set_Value(BAND_HEAD_ID      , 1 + (int)Info.Get_Index());\
 		Info.Set_Value(BAND_HEAD_NR      , band);\
 		Info.Set_Value(BAND_HEAD_NAME    , name);\
@@ -879,7 +907,7 @@ bool CLandsat_Scene_Import::Set_Info_Band(int Sensor, int Band, CSG_Table_Record
 		}
 		break;
 
-	case SENSOR_OLI_TIRS:
+	case SENSOR_OLI: case SENSOR_OLI_TIRS:
 		switch( Band )
 		{
 		case  0: SET_INFO_BAND( 1, _TL("Coast & Aerosol"), 0.433, 0.453);
@@ -936,8 +964,8 @@ CSG_Grid * CLandsat_Scene_Import::Load_Grid(const CSG_String &File)
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid	*pGrid	= NULL;
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("io_gdal", 0);	// Import Raster
+	CSG_Grid *pGrid = NULL;
+	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("io_gdal", 0);	// Import Raster
 
 	if( pTool && pTool->Set_Manager(NULL)
 		&&  pTool->Set_Parameter("FILES"      , File)
@@ -948,7 +976,7 @@ CSG_Grid * CLandsat_Scene_Import::Load_Grid(const CSG_String &File)
 		&&	pTool->Set_Parameter("EXTENT_YMAX", Extent.Get_YMax())
 		&&  pTool->Execute() )
 	{
-		pGrid	= pTool->Get_Parameter("GRIDS")->asGridList()->Get_Grid(0);
+		pGrid = pTool->Get_Parameter("GRIDS")->asGridList()->Get_Grid(0);
 	}
 
 	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
@@ -982,9 +1010,9 @@ CSG_Grid * CLandsat_Scene_Import::Load_Band(const CSG_String &File)
 	//-----------------------------------------------------
 	else if( Parameters("PROJECTION")->asInt() <= 1 ) // UTM
 	{
-		CSG_Grid	*pTmp	= pBand;
+		CSG_Grid *pTmp = pBand;
 
-		CSG_String	Projection	= pTmp->Get_Projection().Get_Proj4();
+		CSG_String Projection = pTmp->Get_Projection().Get_Proj4();
 
 		if( Projection.Find("+proj=utm") >= 0
 		&&  (  (Projection.Find("+south") >= 0 && Parameters("PROJECTION")->asInt() == 0)
@@ -1021,7 +1049,7 @@ CSG_Grid * CLandsat_Scene_Import::Load_Band(const CSG_String &File)
 	//-----------------------------------------------------
 	else if( Parameters("PROJECTION")->asInt() == 2 )	// Geographic Coordinates
 	{
-		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4);	// Coordinate Transformation (Grid)
+		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4);	// Coordinate Transformation (Grid)
 
 		if(	pTool )
 		{
@@ -1037,7 +1065,7 @@ CSG_Grid * CLandsat_Scene_Import::Load_Band(const CSG_String &File)
 			{
 				delete(pBand);
 
-				pBand	= pTool->Get_Parameters()->Get_Parameter("GRID")->asGrid();
+				pBand = pTool->Get_Parameters()->Get_Parameter("GRID")->asGrid();
 			}
 
 			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
@@ -1054,7 +1082,7 @@ CSG_Grid * CLandsat_Scene_Import::Load_Band(const CSG_String &File)
 
 		if( !Projection.is_Equal(pBand->Get_Projection()) )
 		{
-			CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4);	// Coordinate Transformation (Grid)
+			CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4);	// Coordinate Transformation (Grid)
 
 			if(	pTool )
 			{
@@ -1071,7 +1099,7 @@ CSG_Grid * CLandsat_Scene_Import::Load_Band(const CSG_String &File)
 				{
 					delete(pBand);
 
-					pBand	= pTool->Get_Parameters()->Get_Parameter("GRID")->asGrid();
+					pBand = pTool->Get_Parameters()->Get_Parameter("GRID")->asGrid();
 				}
 
 				SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
@@ -1106,19 +1134,19 @@ bool CLandsat_Scene_Import::Get_Float(CSG_Grid *pBand, CSG_Grid &DN)
 bool CLandsat_Scene_Import::Get_Radiance(CSG_Grid *pBand, const CSG_Table_Record &Info_Band)
 {
 	//-----------------------------------------------------
-	double	Offset, Scale, DNmin;
+	double Offset, Scale, DNmin;
 
 	if( Info_Band.asString("RADIANCE_ADD") && Info_Band.asString("RADIANCE_MUL") )
 	{
-		DNmin	=  0.;
-		Offset	=  Info_Band.asDouble("RADIANCE_ADD");
-		Scale	=  Info_Band.asDouble("RADIANCE_MUL");
+		DNmin  =  0.;
+		Offset =  Info_Band.asDouble("RADIANCE_ADD");
+		Scale  =  Info_Band.asDouble("RADIANCE_MUL");
 	}
 	else if( Info_Band.asString("L_MIN") && Info_Band.asString("L_MAX") && Info_Band.asString("QCAL_MIN") && Info_Band.asString("QCAL_MAX") )
 	{
-		DNmin	=  Info_Band.asDouble("QCAL_MIN");
-		Offset	=  Info_Band.asDouble("L_MIN");
-		Scale	= (Info_Band.asDouble("L_MAX") - Offset) / (Info_Band.asDouble("QCAL_MAX") - DNmin);
+		DNmin  =  Info_Band.asDouble("QCAL_MIN");
+		Offset =  Info_Band.asDouble("L_MIN");
+		Scale  = (Info_Band.asDouble("L_MAX") - Offset) / (Info_Band.asDouble("QCAL_MAX") - DNmin);
 	}
 	else
 	{
@@ -1128,7 +1156,7 @@ bool CLandsat_Scene_Import::Get_Radiance(CSG_Grid *pBand, const CSG_Table_Record
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid	DN(*pBand);
+	CSG_Grid DN(*pBand);
 
 	if( Parameters("DATA_TYPE")->asInt() == 1 )
 	{
@@ -1136,7 +1164,7 @@ bool CLandsat_Scene_Import::Get_Radiance(CSG_Grid *pBand, const CSG_Table_Record
 	}
 	else
 	{
-		double	MaxVal	= (pBand->Get_Type() == SG_DATATYPE_Byte ? 256 : 256*256) - 1;
+		double MaxVal = (pBand->Get_Type() == SG_DATATYPE_Byte ? 256 : 256*256) - 1;
 		pBand->Set_NoData_Value(MaxVal--);
 		pBand->Set_Scaling(1000. / MaxVal, 0.);
 	}
@@ -1165,12 +1193,12 @@ bool CLandsat_Scene_Import::Get_Radiance(CSG_Grid *pBand, const CSG_Table_Record
 bool CLandsat_Scene_Import::Get_Reflectance(CSG_Grid *pBand, const CSG_Table_Record &Info_Band, double SunHeight)
 {
 	//-----------------------------------------------------
-	double	Offset, Scale;
+	double Offset, Scale;
 
 	if( Info_Band.asString("REFLECTANCE_ADD") && Info_Band.asString("REFLECTANCE_MUL") )
 	{
-		Offset	= Info_Band.asDouble("REFLECTANCE_ADD");
-		Scale	= Info_Band.asDouble("REFLECTANCE_MUL");
+		Offset = Info_Band.asDouble("REFLECTANCE_ADD");
+		Scale  = Info_Band.asDouble("REFLECTANCE_MUL");
 	}
 	else
 	{
@@ -1179,10 +1207,10 @@ bool CLandsat_Scene_Import::Get_Reflectance(CSG_Grid *pBand, const CSG_Table_Rec
 		return( false );
 	}
 
-	SunHeight	= sin(SunHeight * M_DEG_TO_RAD);
+	SunHeight = sin(SunHeight * M_DEG_TO_RAD);
 
 	//-----------------------------------------------------
-	CSG_Grid	DN(*pBand);
+	CSG_Grid DN(*pBand);
 
 	if( Parameters("DATA_TYPE")->asInt() == 1 )
 	{
@@ -1190,7 +1218,7 @@ bool CLandsat_Scene_Import::Get_Reflectance(CSG_Grid *pBand, const CSG_Table_Rec
 	}
 	else
 	{
-		double	MaxVal	= (pBand->Get_Type() == SG_DATATYPE_Byte ? 256 : 256*256) - 1;
+		double MaxVal = (pBand->Get_Type() == SG_DATATYPE_Byte ? 256 : 256*256) - 1;
 		pBand->Set_NoData_Value(MaxVal--);
 		pBand->Set_Scaling(1. / MaxVal, 0.);	// 0 to 1 (reflectance)
 	}
@@ -1207,7 +1235,7 @@ bool CLandsat_Scene_Import::Get_Reflectance(CSG_Grid *pBand, const CSG_Table_Rec
 		}
 		else
 		{
-			double	r	= (Offset + Scale * DN.asDouble(i)) / SunHeight;
+			double r = (Offset + Scale * DN.asDouble(i)) / SunHeight;
 
 			pBand->Set_Value(i, r < 0. ? 0. : r > 1. ? 1. : r);
 		}
@@ -1227,16 +1255,16 @@ bool CLandsat_Scene_Import::Get_Temperature(CSG_Grid *pBand, const CSG_Table_Rec
 		return( false );
 	}
 
-	double	Offset	= Info_Band.asDouble("RADIANCE_ADD");
-	double	Scale	= Info_Band.asDouble("RADIANCE_MUL");
+	double Offset = Info_Band.asDouble("RADIANCE_ADD");
+	double  Scale = Info_Band.asDouble("RADIANCE_MUL");
 
-	double	k1		= Info_Band.asDouble("THERMAL_K1");
-	double	k2		= Info_Band.asDouble("THERMAL_K2");
+	double     k1 = Info_Band.asDouble("THERMAL_K1");
+	double     k2 = Info_Band.asDouble("THERMAL_K2");
 
 	//-----------------------------------------------------
-	CSG_Grid	DN(*pBand);
+	CSG_Grid DN(*pBand);
 
-	int	Unit	= Parameters("TEMP_UNIT")->asInt();
+	int Unit = Parameters("TEMP_UNIT")->asInt();
 
 	if( Parameters("DATA_TYPE")->asInt() == 1 )
 	{
@@ -1244,7 +1272,7 @@ bool CLandsat_Scene_Import::Get_Temperature(CSG_Grid *pBand, const CSG_Table_Rec
 	}
 	else
 	{
-		double	MaxVal	= (pBand->Get_Type() == SG_DATATYPE_Byte ? 256 : 256*256) - 1;
+		double MaxVal = (pBand->Get_Type() == SG_DATATYPE_Byte ? 256 : 256*256) - 1;
 		pBand->Set_NoData_Value(MaxVal--);
 		pBand->Set_Scaling(100. / MaxVal, (Unit == 0 ? 273.15 : 0.) - 40.);	// -40�C to 60�C
 	}
@@ -1261,7 +1289,7 @@ bool CLandsat_Scene_Import::Get_Temperature(CSG_Grid *pBand, const CSG_Table_Rec
 		}
 		else
 		{
-			double	r	= Offset + Scale * DN.asDouble(i);
+			double r = Offset + Scale * DN.asDouble(i);
 
 			pBand->Set_Value(i, k2 / log(1. + (k1 / r)) - (Unit == 0 ? 0. : 273.15));
 		}
