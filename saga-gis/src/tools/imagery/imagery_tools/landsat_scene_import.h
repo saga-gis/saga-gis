@@ -71,6 +71,7 @@ enum
 	SENSOR_MSS	= 0,
 	SENSOR_TM,
 	SENSOR_ETM,
+	SENSOR_OLI,
 	SENSOR_OLI_TIRS,
 	SENSOR_UNKNOWN
 };
@@ -98,11 +99,11 @@ protected:
 
 private:
 
+	bool					is_Spectral				(int Sensor, int Band);
+	bool					is_Thermal				(int Sensor, int Band);
 	bool					is_Panchromatic			(int Sensor, int Band);
-	bool					is_Multispectral		(int Sensor, int Band);
 	bool					is_Aerosol				(int Sensor, int Band);
 	bool					is_Cirrus				(int Sensor, int Band);
-	bool					is_Thermal				(int Sensor, int Band);
 
 	bool					Load_Metadata			(CSG_MetaData &Metadata, const CSG_String &File);
 	bool					Load_Metadata			(const CSG_String &Line, CSG_String &Key, CSG_String &Value);
