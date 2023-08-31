@@ -64,13 +64,50 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#if defined(_SAGA_MSW)
-	#define CONSOLE_STDIO      printf(        CSG_String::Format
-	#define CONSOLE_STDERR    fprintf(stderr, CSG_String::Format
+#ifdef _SAGA_MSW
+static bool gSG_UI_Console_bUTF8 = false;
 #else
-	#define CONSOLE_STDIO   SG_Printf(        CSG_String::Format
-	#define CONSOLE_STDERR SG_FPrintf(stderr, CSG_String::Format
+static bool gSG_UI_Console_bUTF8 = true;
 #endif
+
+void	SG_UI_Console_Set_UTF8(bool bOn) {          gSG_UI_Console_bUTF8 = bOn; }
+bool	SG_UI_Console_Get_UTF8(void)     {	return( gSG_UI_Console_bUTF8 );     }
+
+//---------------------------------------------------------
+void	SG_UI_Console_Print_StdOut(const CSG_String &Text, SG_Char End, bool bFlush)
+{
+	if( gSG_UI_Console_bUTF8 )
+	{
+		printf("%s%c", Text.to_UTF8 ().Get_Data(), End);
+	}
+	else
+	{
+		printf("%s%c", Text.to_ASCII().Get_Data(), End);
+	}
+
+	if( bFlush )
+	{
+		fflush(stdout);
+	}
+}
+
+//---------------------------------------------------------
+void	SG_UI_Console_Print_StdErr(const CSG_String &Text, SG_Char End, bool bFlush)
+{
+	if( gSG_UI_Console_bUTF8 )
+	{
+		fprintf(stderr, "%s%c", Text.to_UTF8 ().Get_Data(), End);
+	}
+	else
+	{
+		fprintf(stderr, "%s%c", Text.to_ASCII().Get_Data(), End);
+	}
+
+	if( bFlush )
+	{
+		fflush(stderr);
+	}
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -158,13 +195,11 @@ bool		SG_UI_Process_Get_Okay(bool bBlink)
 
 	if( gSG_UI_Progress_Lock == 0 && bBlink )
 	{
-		static const SG_Char	Buisy[4]	= {	'|', '/', '-', '\\'	};
+		static int iBuisy = 0; static const SG_Char Buisy[4] = { '|', '/', '-', '\\' };
 
-		static int	iBuisy	= 0;
+		SG_UI_Console_Print_StdOut(CSG_String::Format("\r%c", Buisy[iBuisy++]), '\0', true);
 
-		CONSOLE_STDIO("\r%c   ", Buisy[iBuisy++]));
-
-		iBuisy	%= 4;
+		iBuisy %= 4;
 	}
 
 	return( true );
@@ -224,22 +259,22 @@ bool		SG_UI_Process_Set_Progress(double Position, double Range)
 	}
 
 	//-----------------------------------------------------
-	static int	iPercent	= -1;
+	static int Progress = -1;
 
-	int	i	= Position < 0.0 ? -1 : Range > 0.0 ? 1 + (int)(100.0 * Position / Range) : 100;
+	int i = Position < 0. ? -1 : Range > 0. ? 1 + (int)(100. * Position / Range) : 100;
 
-	if( iPercent != i )
+	if( Progress != i )
 	{
-		if( iPercent < 0 || i < iPercent )
+		if( Progress < 0 || i < Progress )
 		{
-			CONSOLE_STDIO("\n"));
+			SG_UI_Console_Print_StdOut("", '\n', true);
 		}
 
-		iPercent	= i;
+		Progress = i;
 
-		if( iPercent >= 0 )
+		if( Progress >= 0 )
 		{
-			CONSOLE_STDIO("\r%3d%%", iPercent > 100 ? 100 : iPercent));
+			SG_UI_Console_Print_StdOut(CSG_String::Format("\r%3d%%", Progress > 100 ? 100 : Progress), '\0', true);
 		}
 	}
 
@@ -277,7 +312,7 @@ void		SG_UI_Process_Set_Text(const CSG_String &Text)
 		}
 		else
 		{
-			CONSOLE_STDIO("%s\n", Text.c_str()));
+			SG_UI_Console_Print_StdOut(Text, '\n', true);
 		}
 	}
 }
@@ -322,7 +357,7 @@ void		SG_UI_Dlg_Message(const CSG_String &Message, const CSG_String &Caption)
 		}
 		else
 		{
-			CONSOLE_STDIO("%s: %s\n", Caption.c_str(), Message.c_str()));
+			SG_UI_Console_Print_StdOut(CSG_String::Format("%s: %s", Caption.c_str(), Message.c_str()), '\n', true);
 		}
 	}
 }
@@ -377,7 +412,7 @@ void		SG_UI_Dlg_Info(const CSG_String &Message, const CSG_String &Caption)
 		}
 		else
 		{
-			CONSOLE_STDIO("%s: %s\n", Caption.c_str(), Message.c_str()));
+			SG_UI_Console_Print_StdOut(CSG_String::Format("%s: %s", Caption.c_str(), Message.c_str()), '\n', true);
 		}
 	}
 }
@@ -454,7 +489,7 @@ void		SG_UI_Msg_Add(const CSG_String &Message, bool bNewLine, TSG_UI_MSG_STYLE S
 		}
 		else
 		{
-			CONSOLE_STDIO("%s%s", bNewLine ? "\n" : "", Message.c_str()));
+			SG_UI_Console_Print_StdOut(CSG_String::Format("%c%s", bNewLine ? '\n' : '\0', Message.c_str()), '\0', true);
 		}
 	}
 }
@@ -476,7 +511,7 @@ void		SG_UI_Msg_Add_Execution(const CSG_String &Message, bool bNewLine, TSG_UI_M
 		}
 		else
 		{
-			CONSOLE_STDIO("%s%s", bNewLine ? "\n" : "", Message.c_str()));
+			SG_UI_Console_Print_StdOut(CSG_String::Format("%c%s", bNewLine ? '\n' : '\0', Message.c_str()), '\0', true);
 		}
 	}
 }
@@ -496,7 +531,7 @@ void		SG_UI_Msg_Add_Error(const CSG_String &Message)
 		}
 		else
 		{
-			CONSOLE_STDERR("\n%s: %s", _TL("Error"), Message.c_str()));
+			SG_UI_Console_Print_StdErr(CSG_String::Format("\n[%s] %s", _TL("Error"), Message.c_str()), '\0', true);
 		}
 	}
 }

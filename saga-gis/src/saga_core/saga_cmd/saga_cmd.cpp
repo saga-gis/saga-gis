@@ -233,7 +233,7 @@ bool		Execute(int argc, char *argv[])
 	//-----------------------------------------------------
 	if( argc == 3 && CMD_Get_XML() )
 	{	// Just output tool synopsis as XML-tagged text, then return.
-		SG_Printf(pTool->Get_Summary(true, "", "", SG_SUMMARY_FMT_XML).c_str());
+		CMD_Print(pTool->Get_Summary(true, "", "", SG_SUMMARY_FMT_XML));
 
 		return( true );
 	}
@@ -526,8 +526,8 @@ bool		Check_Flags		(const CSG_String &Argument)
 
 		if( s.Find('l') >= 0 )	// l: load translation dictionary
 		{
-			SG_Printf(CSG_String::Format("\n%s:", _TL("loading translation dictionary")));
-			SG_Printf(CSG_String::Format("\n%s.\n",
+			CMD_Print(CSG_String::Format("\n%s:", _TL("loading translation dictionary")));
+			CMD_Print(CSG_String::Format("\n%s.\n",
 				SG_Get_Translator().Create(SG_File_Make_Path(Path_Shared, SG_T("saga"), SG_T("lng")), false)
 				? _TL("success") : _TL("failed")
 			));
@@ -575,7 +575,7 @@ bool		Check_Flags		(const CSG_String &Argument)
 	{
 		int	On; if( !CSG_String(Argument).AfterFirst('=').asInt(On) ) { On = 1; } // let's switch it on by default!
 
-		CMD_Set_UTF8(On);
+		SG_UI_Console_Set_UTF8(On);
 
 		return( true );
 	}
@@ -598,7 +598,7 @@ void		Print_Libraries	(void)
 	{
 		if( CMD_Get_XML() )
 		{
-			SG_Printf(SG_Get_Tool_Library_Manager().Get_Summary(SG_SUMMARY_FMT_XML).c_str());
+			CMD_Print(SG_Get_Tool_Library_Manager().Get_Summary(SG_SUMMARY_FMT_XML));
 		}
 		else
 		{
@@ -620,11 +620,11 @@ void		Print_Tools		(const CSG_String &Library)
 		{
 			for(int i=0; i<SG_Get_Tool_Library_Manager().Get_Count(); i++)
 			{
-				CSG_Tool_Library	*pLibrary	= SG_Get_Tool_Library_Manager().Get_Library(i);
+				CSG_Tool_Library *pLibrary = SG_Get_Tool_Library_Manager().Get_Library(i);
 
 				if( !pLibrary->Get_Library_Name().Cmp(Library) )
 				{
-					SG_Printf(pLibrary->Get_Summary(SG_SUMMARY_FMT_XML , false).c_str());
+					CMD_Print(pLibrary->Get_Summary(SG_SUMMARY_FMT_XML , false));
 				}
 			}
 		}
@@ -632,7 +632,7 @@ void		Print_Tools		(const CSG_String &Library)
 		{
 			for(int i=0; i<SG_Get_Tool_Library_Manager().Get_Count(); i++)
 			{
-				CSG_Tool_Library	*pLibrary	= SG_Get_Tool_Library_Manager().Get_Library(i);
+				CSG_Tool_Library *pLibrary = SG_Get_Tool_Library_Manager().Get_Library(i);
 
 				if( !pLibrary->Get_Library_Name().Cmp(Library) )
 				{
@@ -725,8 +725,7 @@ void		Print_Get_Help	(void)
 {
 	if( CMD_Get_Show_Messages() )
 	{
-		CMD_Print(_TL("type -h or --help for further information"));
-		CMD_Print("");
+		CMD_Print(CSG_String::Format("\n%s\n", _TL("type -h or --help for further information")));
 	}
 }
 
@@ -836,7 +835,7 @@ void		Print_Help		(const CSG_String &Library)
 {
 	Print_Logo();
 
-	CSG_Tool_Library	*pLibrary;
+	CSG_Tool_Library *pLibrary;
 
 	if( !Load_Libraries() || !(pLibrary = SG_Get_Tool_Library_Manager().Get_Library(Library, true)) )
 	{
@@ -860,7 +859,7 @@ void		Print_Help		(const CSG_String &Library, const CSG_String &Tool)
 	}
 	else
 	{
-		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool(Library, Tool);
+		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Get_Tool(Library, Tool);
 
 		if( !pTool )
 		{

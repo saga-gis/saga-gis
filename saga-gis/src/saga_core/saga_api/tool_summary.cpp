@@ -717,16 +717,16 @@ CSG_String CSG_Tool_Library::Get_Summary(int Format, bool bWithGUINeeded) const
 
 		if( !bToolChains )
 		{
-			s	+= CSG_String::Format("\n%s:\t", _TL("Library" )) + Get_Info(TLB_INFO_Name    );
-			s	+= CSG_String::Format("\n%s:\t", _TL("Category")) + Get_Info(TLB_INFO_Category);
-			s	+= CSG_String::Format("\n%s:\t", _TL("File"    )) + Get_File_Name();
+			s	+= CSG_String::Format("\n%s%s: ", _TL("Library"), SG_T("    ")) + Get_Info(TLB_INFO_Name    );
+			s	+= CSG_String::Format("\n%s%s: ", _TL("Category"), SG_T("   ")) + Get_Info(TLB_INFO_Category);
+			s	+= CSG_String::Format("\n%s%s: ", _TL("File"), SG_T("       ")) + Get_File_Name();
 		}
 		else
 		{
-			s	+= CSG_String::Format("\n%s:\t", _TL("Tool Chains")) + Get_Info(TLB_INFO_Name);
+			s	+= CSG_String::Format("\n%s: ", _TL("Tool Chains")) + Get_Info(TLB_INFO_Name);
 		}
 
-		s	+= CSG_String::Format("\n%s:\n", _TL("Description")) + Get_Info(TLB_INFO_Description);
+		s	+= CSG_String::Format("\n%s: ", _TL("Description")) + Get_Info(TLB_INFO_Description);
 
 		if( Get_References().Get_Count() > 0 )
 		{

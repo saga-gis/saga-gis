@@ -1596,6 +1596,13 @@ SAGA_API_DLL_EXPORT bool					SG_Set_UI_Callback			(TSG_PFNC_UI_Callback Function
 SAGA_API_DLL_EXPORT TSG_PFNC_UI_Callback	SG_Get_UI_Callback			(void);
 
 //---------------------------------------------------------
+SAGA_API_DLL_EXPORT void					SG_UI_Console_Set_UTF8		(bool bOn);
+SAGA_API_DLL_EXPORT bool					SG_UI_Console_Get_UTF8		(void);
+
+SAGA_API_DLL_EXPORT void					SG_UI_Console_Print_StdOut	(const CSG_String &Text, SG_Char End = '\n', bool bFlush = true);
+SAGA_API_DLL_EXPORT void					SG_UI_Console_Print_StdErr	(const CSG_String &Text, SG_Char End = '\n', bool bFlush = true);
+
+//---------------------------------------------------------
 SAGA_API_DLL_EXPORT int						SG_UI_Progress_Lock			(bool bOn);
 SAGA_API_DLL_EXPORT int						SG_UI_Progress_Reset		(void);
 SAGA_API_DLL_EXPORT bool					SG_UI_Process_Get_Okay		(bool bBlink = false);

@@ -107,34 +107,23 @@ bool			CMD_Get_Show_Messages	(void)		{	return( g_bShow_Messages );	}
 //---------------------------------------------------------
 static bool		g_bShow_Progress	= true;
 
-void			CMD_Set_Show_Progress	(bool bOn)	{	g_bShow_Progress	= bOn;	}
+void			CMD_Set_Show_Progress	(bool bOn)	{	g_bShow_Progress = bOn;	}
 
 bool			CMD_Get_Show_Progress	(void)		{	return( g_bShow_Progress );	}
 
 //---------------------------------------------------------
 static bool		g_bInteractive		= false;
 
-void			CMD_Set_Interactive	(bool bOn)		{	g_bInteractive		= bOn;	}
+void			CMD_Set_Interactive		(bool bOn)	{	g_bInteractive = bOn;	}
 
-bool			CMD_Get_Interactive	(void)			{	return( g_bInteractive );	}
+bool			CMD_Get_Interactive		(void)		{	return( g_bInteractive );	}
 
 //---------------------------------------------------------
 static bool		g_bXML				= false;
 
-void			CMD_Set_XML			(bool bOn)		{	g_bXML				= bOn;	}
+void			CMD_Set_XML			(bool bOn)		{	g_bXML = bOn;	}
 
-bool			CMD_Get_XML			(void)			{	return( g_bXML );			}
-
-//---------------------------------------------------------
-#ifdef _SAGA_MSW
-static bool		g_bUTF8 = false;
-#else
-static bool		g_bUTF8 = true;
-#endif
-
-void			CMD_Set_UTF8		(bool bOn)		{	g_bUTF8				= bOn;	}
-
-bool			CMD_Get_UTF8		(void)			{	return( g_bUTF8 );			}
+bool			CMD_Get_XML			(void)			{	return( g_bXML );	}
 
 
 ///////////////////////////////////////////////////////////
@@ -146,59 +135,33 @@ bool			CMD_Get_UTF8		(void)			{	return( g_bUTF8 );			}
 //---------------------------------------------------------
 void			CMD_Print			(const CSG_String &Text, const CSG_String &XML_Tag)
 {
-	if( g_bXML )
+	if( !g_bXML )
 	{
-		if( !XML_Tag.is_Empty() )
-		{
-			SG_Printf("<%s>%s</%s>\n", XML_Tag.c_str(), Text.c_str(), XML_Tag.c_str());
-		}
+		SG_UI_Console_Print_StdOut(Text.c_str(), '\n', true);
+	}
+	else if( !XML_Tag.is_Empty() )
+	{
+		SG_UI_Console_Print_StdOut(CSG_String::Format("<%s>%s</%s>", XML_Tag.c_str(), Text.c_str(), XML_Tag.c_str()), '\n', true);
+	}
+}
+
+//---------------------------------------------------------
+void			CMD_Print_Error		(const CSG_String &Text)
+{
+	if( !g_bXML )
+	{
+		SG_UI_Console_Print_StdErr(CSG_String::Format("[%s] %s", _TL("Error"), Text.c_str()), '\n', true);
 	}
 	else
 	{
-		if( g_bUTF8 )
-		{
-			printf("%s\n", Text.to_UTF8().Get_Data());
-		}
-		else
-		{
-			printf("%s\n", Text.to_ASCII().Get_Data());
-		}
+		SG_UI_Console_Print_StdErr(CSG_String::Format("<%s>%s</%s>", SG_XML_ERROR, Text.c_str(), SG_XML_ERROR), '\n', true);
 	}
-
-	std::cout << std::flush;
 }
 
 //---------------------------------------------------------
-void			CMD_Print			(FILE *Stream, const CSG_String &Text, const CSG_String &XML_Tag)
+void			CMD_Print_Error		(const CSG_String &Text, const CSG_String &Info)
 {
-	if( Stream )
-	{
-		if( g_bXML )
-		{
-			if( !XML_Tag.is_Empty() )
-			{
-				SG_FPrintf(Stream, "<%s>%s</%s>\n", XML_Tag.c_str(), Text.c_str(), XML_Tag.c_str());
-			}
-		}
-		else
-		{
-			SG_FPrintf(Stream, "%s\n", Text.c_str());
-		}
-	}
-
-	fflush(Stream);
-}
-
-//---------------------------------------------------------
-void			CMD_Print_Error		(const CSG_String &Error)
-{
-	CMD_Print(stderr, CSG_String::Format("%s: %s", _TL("Error"), Error.c_str()), SG_XML_ERROR);
-}
-
-//---------------------------------------------------------
-void			CMD_Print_Error		(const CSG_String &Error, const CSG_String &Info)
-{
-	CMD_Print_Error(CSG_String::Format("%s [%s]", Error.c_str(), Info.c_str()));
+	CMD_Print_Error(CSG_String::Format("%s:\n%s", Text.c_str(), Info.c_str()));
 }
 
 
@@ -227,7 +190,7 @@ bool			CMD_Get_YesNo		(const CSG_String &Caption, const CSG_String &Message)
 	if( g_bInteractive )
 	{
 #ifdef _SAGA_MSW
-		CSG_String	sKey, sYes("y"), sNo("n");
+		CSG_String sKey, sYes("y"), sNo("n");
 
 		SG_Printf("%s: %s\n", Caption.c_str(), Message.c_str());
 
@@ -256,18 +219,16 @@ bool			CMD_Get_YesNo		(const CSG_String &Caption, const CSG_String &Message)
 //---------------------------------------------------------
 int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter &Param_2)
 {
-	static int		iBuisy		= 0;
-	static int		iPercent	= -1;
-	const SG_Char	Buisy[4]	= {	'|', '/', '-', '\\'	};
+	static int Progress = -1;
 
-	int		Result	= 1;
+	int Result = 1;
 
 	//-----------------------------------------------------
 	switch( ID )
 	{
 	default:
 
-		Result	= 0;
+		Result = 0;
 
 		break;
 
@@ -281,9 +242,11 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 		if( g_bShow_Progress && Param_1.Boolean )
 		{
-			SG_Printf("\r%c   ", Buisy[iBuisy++]);
+			static int iBuisy = 0; static const SG_Char Buisy[4] = { '|', '/', '-', '\\' };
 
-			iBuisy	%= 4;
+			SG_UI_Console_Print_StdOut(CSG_String::Format("\r%c", Buisy[iBuisy++]), '\0', true);
+
+			iBuisy %= 4;
 		}
 
 		break;
@@ -300,25 +263,23 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 		if( g_bShow_Progress )
 		{
-			int	i	= Param_2.Number != 0.0 ? 1 + (int)(100.0 * Param_1.Number / Param_2.Number) : 100;
+			int i = Param_2.Number != 0. ? 1 + (int)(100. * Param_1.Number / Param_2.Number) : 100;
 
-			if( i != iPercent )
+			if( i != Progress )
 			{
 				if( g_bXML )
 				{
-					SG_Printf("<%s>%d</%s>\n", SG_XML_PROGRESS, iPercent = i, SG_XML_PROGRESS);
+					SG_UI_Console_Print_StdOut(CSG_String::Format("<%s>%d</%s>", SG_XML_PROGRESS, Progress = i, SG_XML_PROGRESS), '\n', true);
 				}
 				else
 				{
-					if( iPercent < 0 || i < iPercent )
+					if( Progress < 0 || i < Progress )
 					{
-						SG_Printf("\n");
+						SG_UI_Console_Print_StdOut("", '\n', true);
 					}
 
-					SG_Printf("\r%3d%%", iPercent = i);
+					SG_UI_Console_Print_StdOut(CSG_String::Format("\r%3d%%", Progress > 100 ? 100 : Progress), '\0', true);
 				}
-
-				std::cout << std::flush;
 			}
 		}
 
@@ -327,12 +288,12 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_PROCESS_SET_READY:
 
-		if( iPercent >= 0 )
+		if( Progress >= 0 )
 		{
-			SG_Printf("\n");
+			SG_UI_Console_Print_StdOut("", '\n', true);
 		}
 
-		iPercent	= -1;
+		Progress = -1;
 
 		break;
 
@@ -400,7 +361,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DLG_CONTINUE:
 
-		Result	= CMD_Get_YesNo(Param_2.String.c_str(), Param_1.String.c_str());
+		Result = CMD_Get_YesNo(Param_2.String.c_str(), Param_1.String.c_str());
 
 		break;
 
@@ -408,7 +369,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DLG_ERROR:
 
-		Result	= CMD_Get_YesNo(Param_2.String.c_str(), Param_1.String.c_str());
+		Result = CMD_Get_YesNo(Param_2.String.c_str(), Param_1.String.c_str());
 
 		break;
 
@@ -420,7 +381,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_ADD:
 
-		Result	= SG_Get_Data_Manager().Add((CSG_Data_Object *)Param_1.Pointer) ? 1 : 0;
+		Result = SG_Get_Data_Manager().Add((CSG_Data_Object *)Param_1.Pointer) ? 1 : 0;
 
 		break;
 
@@ -463,7 +424,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DLG_PARAMETERS:
 
-		Result	= g_pCMD_Tool && g_pCMD_Tool->Get_Parameters((CSG_Parameters *)Param_1.Pointer) ? 1 : 0;
+		Result = g_pCMD_Tool && g_pCMD_Tool->Get_Parameters((CSG_Parameters *)Param_1.Pointer) ? 1 : 0;
 
 		break;
 
