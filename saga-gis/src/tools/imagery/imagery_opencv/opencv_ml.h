@@ -101,7 +101,7 @@ using namespace cv::ml;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class COpenCV_ML : public CSG_Tool_Grid
+class COpenCV_ML : public CSG_Tool
 {
 public:
 	COpenCV_ML(bool bProbability);

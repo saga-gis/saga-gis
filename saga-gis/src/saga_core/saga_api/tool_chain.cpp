@@ -902,6 +902,21 @@ bool CSG_Tool_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Paramete
 		break;
 
 	//-----------------------------------------------------
+	case PARAMETER_TYPE_Grid_System:
+		{
+			CSG_String	Value;
+
+			if( Condition.Get_Property("value", Value) )
+			{
+				bool bValid = pOption->asGrid_System()->is_Valid();
+
+				if(      !Type.CmpNoCase("=") || !Type.CmpNoCase("equal"    ) )	{	return( (IS_TRUE_STRING(Value) ?  bValid : !bValid) );	}
+				else if( !Type.CmpNoCase("!") || !Type.CmpNoCase("not_equal") )	{	return( (IS_TRUE_STRING(Value) ? !bValid :  bValid) );	}
+			}
+		}
+		break;
+
+	//-----------------------------------------------------
 	default:
 		// nop
 		break;

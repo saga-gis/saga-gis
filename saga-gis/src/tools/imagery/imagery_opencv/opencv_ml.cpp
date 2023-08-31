@@ -101,22 +101,27 @@ COpenCV_ML::COpenCV_ML(bool bProbability)
 		false
 	)->Set_UseInCMD(false);
 
+	Parameters.Add_Grid_System("",
+		"GRID_SYSTEM"	, _TL("Grid System"),
+		_TL("")
+	);
+
+	Parameters.Add_Grid("GRID_SYSTEM",
+		"CLASSES"		, _TL("Classification"),
+		_TL(""),
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Short
+	);
+
 	if( bProbability )
 	{
-		Parameters.Add_Grid("",
+		Parameters.Add_Grid("GRID_SYSTEM",
 			"PROBABILITY"	, _TL("Probability"),
 			_TL(""),
 			PARAMETER_OUTPUT_OPTIONAL
 		);
 	}
 
-	Parameters.Add_Grid("",
-		"CLASSES"		, _TL("Classification"),
-		_TL(""),
-		PARAMETER_OUTPUT, true, SG_DATATYPE_Short
-	);
-
-	Parameters.Add_Table("CLASSES",
+	Parameters.Add_Table("",
 		"CLASSES_LUT"	, _TL("Look-up Table"),
 		_TL("A reference list of the grid values that have been assigned to the training classes."),
 		PARAMETER_OUTPUT_OPTIONAL
@@ -182,7 +187,7 @@ COpenCV_ML::COpenCV_ML(bool bProbability)
 //---------------------------------------------------------
 int COpenCV_ML::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( pParameter->Cmp_Identifier("PARAMETERS_GRID_SYSTEM") )
+	if( pParameter->Cmp_Identifier("GRID_SYSTEM") )
 	{
 		if( pParameter->asGrid_System()->is_Valid() )
 		{
@@ -201,12 +206,17 @@ int COpenCV_ML::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 	}
 
 	//-----------------------------------------------------
-	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 	
 //---------------------------------------------------------
 int COpenCV_ML::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if( pParameter->Cmp_Identifier("GRID_SYSTEM") )
+	{
+		pParameters->Set_Enabled("CLASSES"      , pParameter->asGrid_System()->is_Valid());
+	}
+
 	if( pParameter->Cmp_Identifier("FEATURES") )
 	{
 		pParameters->Set_Enabled("RGB_COLORS"   , pParameter->asGridList()->Get_Grid_Count() >= 3 && (*pParameters)("MODEL_TRAIN")->asInt() != 2);
@@ -230,7 +240,7 @@ int COpenCV_ML::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 	}
 
 	//-----------------------------------------------------
-	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -241,10 +251,34 @@ int COpenCV_ML::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 //---------------------------------------------------------
 bool COpenCV_ML::_Initialize(void)
 {
-	m_pFeatures    = Parameters("FEATURES"   )->asGridList();
+	m_pFeatures = Parameters("FEATURES")->asGridList();
+
+	if( m_pFeatures->Get_Grid_Count() < 1 )
+	{
+		Error_Set(_TL("invalid features"));
+
+		return( false );
+	}
+
+	m_bNormalize = Parameters("NORMALIZE")->asBool();
+
+	//-----------------------------------------------------
+	CSG_Grid_System System(*Parameters("GRID_SYSTEM")->asGrid_System());
+
+	if( !System.is_Valid() )
+	{
+		System.Create(m_pFeatures->Get_Grid(0)->Get_System());
+
+		Parameters("CLASSES")->Set_Value(m_pClasses = SG_Create_Grid(System, SG_DATATYPE_Short)); DataObject_Add(m_pClasses);
+
+		if( Parameters("PROBABILITY") && Parameters("PROBABILITY")->asPointer() == DATAOBJECT_CREATE )
+		{
+			Parameters("PROBABILITY")->Set_Value(m_pProbability = SG_Create_Grid(System)); DataObject_Add(m_pProbability);
+		}
+	}
+
 	m_pClasses     = Parameters("CLASSES"    )->asGrid();
 	m_pProbability = Parameters("PROBABILITY") ? Parameters("PROBABILITY")->asGrid() : NULL;
-	m_bNormalize   = Parameters("NORMALIZE"  )->asBool();
 
 	m_pClasses->Set_NoData_Value(-1.);
 
@@ -356,7 +390,7 @@ bool COpenCV_ML::_Get_Features(int x, int y, CSG_Vector &Features)
 	{
 		CSG_Grid *pFeature = m_pFeatures->Get_Grid(i);
 
-		if( pFeature->Get_System().is_Equal(Get_System()) )
+		if( pFeature->Get_System().is_Equal(m_pClasses->Get_System()) )
 		{
 			if( pFeature->is_NoData(x, y) )
 			{
@@ -365,7 +399,7 @@ bool COpenCV_ML::_Get_Features(int x, int y, CSG_Vector &Features)
 
 			Features[i] = pFeature->asDouble(x, y);
 		}
-		else if( pFeature->Get_Value(Get_System().Get_Grid_to_World(x, y), Features[i]) == false )
+		else if( pFeature->Get_Value(m_pClasses->Get_System().Get_Grid_to_World(x, y), Features[i]) == false )
 		{
 			return( false );
 		}
@@ -387,10 +421,10 @@ bool COpenCV_ML::_Get_Features(int x, int y, CSG_Vector &Features)
 //---------------------------------------------------------
 bool COpenCV_ML::_Get_Prediction(const Ptr<StatModel> &Model)
 {
-	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	for(int y=0; y<m_pClasses->Get_NY() && Set_Progress(y, m_pClasses->Get_NY()); y++)
 	{
 		#pragma omp parallel for
-		for(int x=0; x<Get_NX(); x++)
+		for(int x=0; x<m_pClasses->Get_NX(); x++)
 		{
 			CSG_Vector Features(m_pFeatures->Get_Grid_Count());
 
@@ -586,22 +620,22 @@ bool COpenCV_ML::_Get_Training(CSG_Matrix &Data, CSG_Table_Record *pClass, CSG_T
 //---------------------------------------------------------
 bool COpenCV_ML::_Get_Training(CSG_Matrix &Data, CSG_Table_Record *pClass, CSG_Shape_Polygon *pPolygon)
 {
-	int n = 0; double r = 0., g = 0., b = 0.; CSG_Vector Features(m_pFeatures->Get_Grid_Count()), z(1 + (sLong)m_pFeatures->Get_Grid_Count());
+	int n = 0; double r = 0., g = 0., b = 0.; CSG_Vector Features(m_pFeatures->Get_Grid_Count()), z(1 + (sLong)m_pFeatures->Get_Grid_Count()); CSG_Grid_System System(m_pClasses->Get_System());
 
 	for(int i=0; i<pPolygon->Get_Part_Count(); i++)
 	{
 		CSG_Shape_Polygon_Part *pPart = pPolygon->Get_Polygon_Part(i);
 
-		if( pPart->Get_Extent().Intersects(Get_System().Get_Extent()) )
+		if( pPart->Get_Extent().Intersects(System.Get_Extent()) )
 		{
-			int xMin = Get_System().Get_xWorld_to_Grid(pPart->Get_Extent().Get_XMin()); if( xMin <  0        ) { xMin = 0           ; }
-			int xMax = Get_System().Get_xWorld_to_Grid(pPart->Get_Extent().Get_XMax()); if( xMax >= Get_NX() ) { xMax = Get_NX() - 1; }
-			int yMin = Get_System().Get_yWorld_to_Grid(pPart->Get_Extent().Get_YMin()); if( yMin <  0        ) { yMin = 0           ; }
-			int yMax = Get_System().Get_yWorld_to_Grid(pPart->Get_Extent().Get_YMax()); if( yMax >= Get_NY() ) { yMax = Get_NY() - 1; }
+			int xMin = System.Get_xWorld_to_Grid(pPart->Get_Extent().Get_XMin()); if( xMin <  0               ) { xMin = 0                  ; }
+			int xMax = System.Get_xWorld_to_Grid(pPart->Get_Extent().Get_XMax()); if( xMax >= System.Get_NX() ) { xMax = System.Get_NX() - 1; }
+			int yMin = System.Get_yWorld_to_Grid(pPart->Get_Extent().Get_YMin()); if( yMin <  0               ) { yMin = 0                  ; }
+			int yMax = System.Get_yWorld_to_Grid(pPart->Get_Extent().Get_YMax()); if( yMax >= System.Get_NY() ) { yMax = System.Get_NY() - 1; }
 
 			for(int y=yMin; y<=yMax; y++) for(int x=xMin; x<=xMax; x++)
 			{
-				if( pPart->Contains(Get_System().Get_Grid_to_World(x, y)) && _Get_Features(x, y, Features) )
+				if( pPart->Contains(System.Get_Grid_to_World(x, y)) && _Get_Features(x, y, Features) )
 				{
 					z[m_pFeatures->Get_Grid_Count()] = pClass->asInt(CLASS_ID);
 

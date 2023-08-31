@@ -50,6 +50,9 @@
 //---------------------------------------------------------
 #include "classify_supervised.h"
 
+//---------------------------------------------------------
+//#define WITH_WTA
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -91,21 +94,26 @@ CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 		false
 	)->Set_UseInCMD(false);
 
-	Parameters.Add_Grid("",
-		"CLASSES"		, _TL("Classification"),
-		_TL(""),
-		PARAMETER_OUTPUT, true, SG_DATATYPE_Char
+	Parameters.Add_Grid_System("",
+		"GRID_SYSTEM"	, _TL("Grid System"),
+		_TL("")
 	);
 
-	Parameters.Add_Table("CLASSES",
-		"CLASSES_LUT"	, _TL("Look-up Table"),
-		_TL("A reference list of the grid values that have been assigned to the training classes."),
+	Parameters.Add_Grid("GRID_SYSTEM",
+		"CLASSES"		, _TL("Classification"),
+		_TL(""),
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Short
+	);
+
+	Parameters.Add_Grid("GRID_SYSTEM",
+		"QUALITY"		, _TL("Quality"),
+		_TL("Dependent on chosen method, these are distances or probabilities."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid("",
-		"QUALITY"		, _TL("Quality"),
-		_TL("Dependent on chosen method, these are distances or probabilities."),
+	Parameters.Add_Table("",
+		"CLASSES_LUT"	, _TL("Look-up Table"),
+		_TL("A reference list of the grid values that have been assigned to the training classes."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
@@ -169,6 +177,10 @@ CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 		Methods	+= CSG_Classifier_Supervised::Get_Name_of_Method(i) + "|";
 	}
 
+#ifdef WITH_WTA
+	Methods	+= CSG_Classifier_Supervised::Get_Name_of_Method(SG_CLASSIFY_SUPERVISED_WTA);
+#endif
+
 	Parameters.Add_Choice("",
 		"METHOD"		, _TL("Method"),
 		_TL(""),
@@ -202,6 +214,7 @@ CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 		), 1
 	);
 
+#ifdef WITH_WTA
 	Parameters.Add_Node("METHOD",
 		"WTA"			, _TL("Winner Takes All"),
 		_TL("")
@@ -211,6 +224,7 @@ CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 	{
 		Parameters.Add_Bool("WTA", CSG_String::Format("WTA_%d", i), CSG_Classifier_Supervised::Get_Name_of_Method(i), _TL(""), false);
 	}
+#endif
 }
 
 
@@ -221,9 +235,14 @@ CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 //---------------------------------------------------------
 int CGrid_Classify_Supervised::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( pParameter->Cmp_Identifier("PARAMETERS_GRID_SYSTEM") && pParameter->asGrid_System()->is_Valid() )
+	if( pParameter->Cmp_Identifier("GRID_SYSTEM") )
 	{
-		pParameters->Set_Parameter("TRAIN_BUFFER" , pParameter->asGrid_System()->Get_Cellsize());
+		pParameters->Set_Enabled("CLASSES"        , pParameter->asGrid_System()->is_Valid());
+
+		if( pParameter->asGrid_System()->is_Valid() )
+		{
+			pParameters->Set_Parameter("TRAIN_BUFFER", pParameter->asGrid_System()->Get_Cellsize());
+		}
 	}
 
 	if( pParameter->Cmp_Identifier("GRIDS") )
@@ -251,10 +270,12 @@ int CGrid_Classify_Supervised::On_Parameters_Enable(CSG_Parameters *pParameters,
 		pParameters->Set_Enabled("THRESHOLD_PROB" , pParameter->asInt() == SG_CLASSIFY_SUPERVISED_MaximumLikelihood);
 		pParameters->Set_Enabled("RELATIVE_PROB"  , pParameter->asInt() == SG_CLASSIFY_SUPERVISED_MaximumLikelihood);
 		pParameters->Set_Enabled("THRESHOLD_ANGLE", pParameter->asInt() == SG_CLASSIFY_SUPERVISED_SAM              );
+#ifdef WITH_WTA
 		pParameters->Set_Enabled("WTA"            , pParameter->asInt() == SG_CLASSIFY_SUPERVISED_WTA              );
+#endif
 	}
 
-	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -277,6 +298,26 @@ bool CGrid_Classify_Supervised::On_Execute(void)
 	m_bNormalize = Parameters("NORMALISE")->asBool();
 
 	//-----------------------------------------------------
+	m_System.Create(*Parameters("GRID_SYSTEM")->asGrid_System());
+
+	if( !m_System.is_Valid() )
+	{
+		m_System.Create(m_pFeatures->Get_Grid(0)->Get_System());
+
+		Parameters("CLASSES")->Set_Value(SG_Create_Grid(m_System, SG_DATATYPE_Short));
+
+		if( Parameters("QUALITY")->asPointer() == DATAOBJECT_CREATE )
+		{
+			Parameters("QUALITY")->Set_Value(SG_Create_Grid(m_System));
+		}
+	}
+
+	CSG_Grid *pClasses = Parameters("CLASSES")->asGrid();
+	CSG_Grid *pQuality = Parameters("QUALITY")->asGrid();
+
+	pClasses->Set_NoData_Value(-1); pClasses->Assign_NoData();
+
+	//-----------------------------------------------------
 	Process_Set_Text(_TL("training"));
 
 	CSG_Classifier_Supervised Classifier;
@@ -291,20 +332,14 @@ bool CGrid_Classify_Supervised::On_Execute(void)
 	Message_Add(Classifier.Print(), false);
 
 	//-----------------------------------------------------
-	CSG_Grid *pClasses = Parameters("CLASSES")->asGrid();
-	CSG_Grid *pQuality = Parameters("QUALITY")->asGrid();
-
-	pClasses->Set_NoData_Value(-1); pClasses->Assign_NoData();
-
-	//-----------------------------------------------------
 	Process_Set_Text(_TL("prediction"));
 
 	int Method = Parameters("METHOD")->asInt();
 
-	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	for(int y=0; y<m_System.Get_NY() && Set_Progress(y, m_System.Get_NY()); y++)
 	{
 		#pragma omp parallel for
-		for(int x=0; x<Get_NX(); x++)
+		for(int x=0; x<m_System.Get_NX(); x++)
 		{
 			int Class; double Quality; CSG_Vector Features(m_pFeatures->Get_Grid_Count());
 
@@ -346,7 +381,7 @@ bool CGrid_Classify_Supervised::Get_Features(int x, int y, CSG_Vector &Features)
 	{
 		CSG_Grid *pFeature = m_pFeatures->Get_Grid(i);
 
-		if( pFeature->Get_System().is_Equal(Get_System()) )
+		if( pFeature->Get_System().is_Equal(m_System) )
 		{
 			if( pFeature->is_NoData(x, y) )
 			{
@@ -355,7 +390,7 @@ bool CGrid_Classify_Supervised::Get_Features(int x, int y, CSG_Vector &Features)
 
 			Features[i] = pFeature->asDouble(x, y);
 		}
-		else if( pFeature->Get_Value(Get_System().Get_Grid_to_World(x, y), Features[i]) == false )
+		else if( pFeature->Get_Value(m_System.Get_Grid_to_World(x, y), Features[i]) == false )
 		{
 			return( false );
 		}
@@ -384,10 +419,12 @@ bool CGrid_Classify_Supervised::Set_Classifier(CSG_Classifier_Supervised &Classi
 	Classifier.Set_Threshold_Probability(Parameters("THRESHOLD_PROB" )->asDouble());
 	Classifier.Set_Probability_Relative (Parameters("RELATIVE_PROB"  )->asBool  ());
 
+#ifdef WITH_WTA
 	for(int i=0; i<SG_CLASSIFY_SUPERVISED_WTA; i++)
 	{
 		Classifier.Set_WTA(i, Parameters(CSG_String::Format("WTA_%d", i))->asBool());
 	}
+#endif
 
 	//-----------------------------------------------------
 	switch( Parameters("TRAIN_WITH")->asInt() )
@@ -510,16 +547,16 @@ bool CGrid_Classify_Supervised::Set_Classifier(CSG_Classifier_Supervised &Classi
 	{
 		CSG_Shape_Polygon_Part *pPart = pPolygon->Get_Polygon_Part(i);
 
-		if( pPart->Get_Extent().Intersects(Get_System().Get_Extent()) )
+		if( pPart->Get_Extent().Intersects(m_System.Get_Extent()) )
 		{
-			int xMin = Get_System().Get_xWorld_to_Grid(pPart->Get_Extent().Get_XMin()); if( xMin <  0        ) { xMin = 0           ; }
-			int xMax = Get_System().Get_xWorld_to_Grid(pPart->Get_Extent().Get_XMax()); if( xMax >= Get_NX() ) { xMax = Get_NX() - 1; }
-			int yMin = Get_System().Get_yWorld_to_Grid(pPart->Get_Extent().Get_YMin()); if( yMin <  0        ) { yMin = 0           ; }
-			int yMax = Get_System().Get_yWorld_to_Grid(pPart->Get_Extent().Get_YMax()); if( yMax >= Get_NY() ) { yMax = Get_NY() - 1; }
+			int xMin = m_System.Get_xWorld_to_Grid(pPart->Get_Extent().Get_XMin()); if( xMin <  0                 ) { xMin = 0                    ; }
+			int xMax = m_System.Get_xWorld_to_Grid(pPart->Get_Extent().Get_XMax()); if( xMax >= m_System.Get_NX() ) { xMax = m_System.Get_NX() - 1; }
+			int yMin = m_System.Get_yWorld_to_Grid(pPart->Get_Extent().Get_YMin()); if( yMin <  0                 ) { yMin = 0                    ; }
+			int yMax = m_System.Get_yWorld_to_Grid(pPart->Get_Extent().Get_YMax()); if( yMax >= m_System.Get_NY() ) { yMax = m_System.Get_NY() - 1; }
 
 			for(int y=yMin; y<=yMax; y++) for(int x=xMin; x<=xMax; x++)
 			{
-				if( pPart->Contains(Get_System().Get_Grid_to_World(x, y)) && Get_Features(x, y, Features) )
+				if( pPart->Contains(m_System.Get_Grid_to_World(x, y)) && Get_Features(x, y, Features) )
 				{
 					Classifier.Train_Add_Sample(pPolygon->asString(Field), Features);
 				}
@@ -538,7 +575,7 @@ bool CGrid_Classify_Supervised::Set_Classifier(CSG_Classifier_Supervised &Classi
 //---------------------------------------------------------
 bool CGrid_Classify_Supervised::Set_Classification(CSG_Classifier_Supervised &Classifier)
 {
-	CSG_Grid *pClasses = Parameters("CLASSES")->asGrid();
+	CSG_Grid *pClasses = Parameters("CLASSES")->asGrid(); DataObject_Add(pClasses);
 
 	CSG_Parameter *pLUT = DataObject_Get_Parameter(pClasses, "LUT");
 
@@ -609,7 +646,7 @@ bool CGrid_Classify_Supervised::Set_Classification(CSG_Classifier_Supervised &Cl
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid *pQuality = Parameters("QUALITY")->asGrid();
+	CSG_Grid *pQuality = Parameters("QUALITY")->asGrid(); DataObject_Add(pQuality);
 
 	if( pQuality )
 	{

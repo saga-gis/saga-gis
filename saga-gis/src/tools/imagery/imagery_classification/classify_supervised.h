@@ -67,7 +67,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Classify_Supervised : public CSG_Tool_Grid
+class CGrid_Classify_Supervised : public CSG_Tool
 {
 public:
 	CGrid_Classify_Supervised(void);
@@ -83,6 +83,8 @@ protected:
 private:
 
 	bool						m_bNormalize;
+
+	CSG_Grid_System				m_System;
 
 	CSG_Parameter_Grid_List		*m_pFeatures;
 
