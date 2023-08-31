@@ -1018,15 +1018,7 @@ bool CWKSP_Grid::Edit_On_Mouse_Up(const CSG_Point &Point, double ClientToWorld, 
 					for(int x=0; x<nx; x++)
 					{
 						pRecord->Set_Value(0, m_ySel + ny - y);
-
-						if( !Get_Grid()->is_NoData(m_xSel + x, m_ySel + ny - 1 - y) )
-						{
-							pRecord->Set_Value(1 + x, Get_Grid()->asDouble(m_xSel + x, m_ySel + ny - 1 - y));
-						}
-						else
-						{
-							pRecord->Set_NoData(1 + x);
-						}
+						pRecord->Set_Value(1 + x, Get_Grid()->asDouble(m_xSel + x, m_ySel + ny - 1 - y));
 					}
 				}
 			}
