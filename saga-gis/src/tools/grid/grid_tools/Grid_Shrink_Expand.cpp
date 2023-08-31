@@ -166,9 +166,12 @@ int CGrid_Shrink_Expand::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 		pParameters->Set_Enabled("ITERATIVE", pParameter->asInt() > 0);
 	}
 
-	if(	pParameter->Cmp_Identifier("EXPAND") )
+	if(	pParameter->Cmp_Identifier("EXPAND") || pParameter->Cmp_Identifier("RESULT") )
 	{
-		pParameters->Set_Enabled("KEEP_TYPE", pParameter->asInt() == 2); // mean?!
+		pParameters->Set_Enabled("KEEP_TYPE",
+		   (*pParameters)("EXPAND")->asInt() == 2 // expand mean?!
+		&& (*pParameters)("RESULT")->asPointer()  // create new target?!
+		);
 	}
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
@@ -205,12 +208,15 @@ bool CGrid_Shrink_Expand::On_Execute(void)
 	{
 		Input.Create(*pInput); pResult = pInput; pInput = &Input;
 	}
-
-	//-----------------------------------------------------
-	if( pResult->Get_Type() != Type )
+	else
 	{
-		pResult->Create(Get_System(), Type);
-		pResult->Set_Name(pInput->Get_Name());
+		if( pResult->Get_Type() != Type )
+		{
+			pResult->Create(Get_System(), Type);
+		}
+
+		pResult->Set_Scaling(pInput->Get_Scaling(), pInput->Get_Offset());
+		pResult->Set_NoData_Value_Range(pInput->Get_NoData_Value(false), pInput->Get_NoData_Value(true));
 	}
 
 	//-----------------------------------------------------
@@ -522,13 +528,18 @@ bool CGrids_Shrink_Expand::On_Execute(void)
 	{
 		pResult->Create(Get_System(), pInput->Get_Attributes(), pInput->Get_Z_Attribute(), Type, true);
 		pResult->Set_Z_Name_Field(pInput->Get_Z_Name_Field());
-		pResult->Set_Name(pInput->Get_Name());
+
+		if( Type == pInput->Get_Type() )
+		{
+			pResult->Set_Scaling(pInput->Get_Scaling(), pInput->Get_Offset());
+			pResult->Set_NoData_Value_Range(pInput->Get_NoData_Value(false), pInput->Get_NoData_Value(true));
+		}
 	}
 
 	//-----------------------------------------------------
 	for(int i=0; i<pInput->Get_NZ(); i++)
 	{
-		Process_Set_Text(CSG_String::Format("%s %d/%d", _TL("processing"), i, pInput->Get_NZ()));
+		Process_Set_Text(CSG_String::Format("%s %d/%d", _TL("processing"), i + 1, pInput->Get_NZ()));
 
 		Do_Operation(pInput->Get_Grid_Ptr(i), pResult->Get_Grid_Ptr(i));
 	}
