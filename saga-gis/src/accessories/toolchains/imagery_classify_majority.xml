@@ -13,10 +13,6 @@
 	</description>
 
 	<parameters>
-		<option varname="GRID_SYSTEM" type="grid_system">
-			<name>Grid System</name>
-		</option>
-
 		<input varname="FEATURES" type="grid_list" no_system="true">
 			<name>Features</name>
 		</input>
@@ -47,15 +43,14 @@
 			<name>Training Samples</name>
 		</input>
 
+		<option varname="GRID_SYSTEM" type="grid_system">
+			<name>Grid System</name>
+		</option>
 		<output varname="CLASSES" type="grid" parent="GRID_SYSTEM">
 			<name>Majority Choice</name>
 			<output_name>Classification [Majority Choice]</output_name>
+			<condition value="true" type="=">GRID_SYSTEM</condition>
 		</output>
-		<option varname="UNAMBIGUOUS" type="boolean" parent="CLASSES">
-			<name>Unambiguous</name>
-			<description>Do not classify a pixel if more than one class reaches the same majority count for it.</description>
-			<value>false</value>
-		</option>
 		<output varname="MAJORITY_COUNT" type="grid" parent="GRID_SYSTEM" optional="true">
 			<name>Majority Count</name>
 			<output_name>Majority Count</output_name>
@@ -64,18 +59,24 @@
 			<name>Classes Count</name>
 			<output_name>Classes Count</output_name>
 		</output>
+		<option varname="UNAMBIGUOUS" type="boolean">
+			<name>Unambiguous</name>
+			<description>Do not classify a pixel if more than one class reaches the same majority count for it.</description>
+			<value>false</value>
+		</option>
 
-		<option varname="CLASSIFY_BOX"         type="boolean"><value>1</value><name>Parallel Epiped</name></option>
-		<option varname="CLASSIFY_MINDIST"     type="boolean"><value>1</value><name>Minimum Distance</name></option>
-		<option varname="CLASSIFY_MAHALONOBIS" type="boolean"><value>1</value><name>Mahalonobis Distance</name></option>
-		<option varname="CLASSIFY_MAXLIKE"     type="boolean"><value>1</value><name>Maximum Likelihood</name></option>
-		<option varname="CLASSIFY_SAM"         type="boolean"><value>1</value><name>Spectral Angle Mapping</name></option>
-		<option varname="CLASSIFY_BAYES"       type="boolean"><value>1</value><name>Normal Bayes</name></option>
-		<option varname="CLASSIFY_DT"          type="boolean"><value>1</value><name>Decision Tree</name></option>
-		<option varname="CLASSIFY_RF"          type="boolean"><value>0</value><name>Random Forest</name></option>
-		<option varname="CLASSIFY_SVM"         type="boolean"><value>1</value><name>Support Vector Machine</name></option>
-		<option varname="CLASSIFY_KNN"         type="boolean"><value>0</value><name>K-Nearest Neighbours</name></option>
-		<option varname="CLASSIFY_ANN"         type="boolean"><value>0</value><name>Artificial Neural Network</name></option>
+		<option varname="CLASSIFIERS" type="node"><name>Classifiers</name></option>
+		<option varname="CLASSIFY_BOX"         type="boolean" parent="CLASSIFIERS"><value>1</value><name>Parallel Epiped</name></option>
+		<option varname="CLASSIFY_MINDIST"     type="boolean" parent="CLASSIFIERS"><value>1</value><name>Minimum Distance</name></option>
+		<option varname="CLASSIFY_MAHALONOBIS" type="boolean" parent="CLASSIFIERS"><value>1</value><name>Mahalonobis Distance</name></option>
+		<option varname="CLASSIFY_MAXLIKE"     type="boolean" parent="CLASSIFIERS"><value>1</value><name>Maximum Likelihood</name></option>
+		<option varname="CLASSIFY_SAM"         type="boolean" parent="CLASSIFIERS"><value>1</value><name>Spectral Angle Mapping</name></option>
+		<option varname="CLASSIFY_BAYES"       type="boolean" parent="CLASSIFIERS"><value>1</value><name>Normal Bayes</name></option>
+		<option varname="CLASSIFY_DT"          type="boolean" parent="CLASSIFIERS"><value>1</value><name>Decision Tree</name></option>
+		<option varname="CLASSIFY_RF"          type="boolean" parent="CLASSIFIERS"><value>0</value><name>Random Forest</name></option>
+		<option varname="CLASSIFY_SVM"         type="boolean" parent="CLASSIFIERS"><value>1</value><name>Support Vector Machine</name></option>
+		<option varname="CLASSIFY_KNN"         type="boolean" parent="CLASSIFIERS"><value>0</value><name>K-Nearest Neighbours</name></option>
+		<option varname="CLASSIFY_ANN"         type="boolean" parent="CLASSIFIERS"><value>0</value><name>Artificial Neural Network</name></option>
 	</parameters>
 
 	<tools>
