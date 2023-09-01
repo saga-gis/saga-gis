@@ -677,9 +677,12 @@ bool CSG_Tool_Chain::Data_Finalize(void)
 	{
 		if( Parameters(i)->is_DataObject() )
 		{
-			if( Parameters(i)->Get_Type() == PARAMETER_TYPE_DataObject_Output && m_Data(Parameters(i)->Get_Identifier()) )
+			if( m_Data(Parameters(i)->Get_Identifier()) )
 			{
-				Parameters(i)->Set_Value(m_Data(Parameters(i)->Get_Identifier())->asDataObject());
+				if( Parameters(i)->Get_Type() == PARAMETER_TYPE_DataObject_Output || (Parameters(i)->is_Output() && !Parameters(i)->is_Optional()) )
+				{
+					Parameters(i)->Set_Value(m_Data(Parameters(i)->Get_Identifier())->asDataObject());
+				}
 			}
 
 			m_Data_Manager.Delete(Parameters(i)->asDataObject(), true);
