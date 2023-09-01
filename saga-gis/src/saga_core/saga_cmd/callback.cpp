@@ -74,7 +74,6 @@
 #define SG_XML_MESSAGE		SG_T("message")
 #define SG_XML_MESSAGE_PROC	SG_T("message-proc")
 #define SG_XML_MESSAGE_EXEC	SG_T("message-exec")
-#define SG_XML_PROGRESS		SG_T("progress")
 
 
 ///////////////////////////////////////////////////////////
@@ -98,32 +97,32 @@ void			CMD_Set_Tool		(CCMD_Tool *pCMD_Tool)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-static bool		g_bShow_Messages	= true;
+static bool		g_bShow_Messages		= true;
 
 void			CMD_Set_Show_Messages	(bool bOn)	{	g_bShow_Messages	= bOn;	}
 
 bool			CMD_Get_Show_Messages	(void)		{	return( g_bShow_Messages );	}
 
 //---------------------------------------------------------
-static bool		g_bShow_Progress	= true;
+static bool		g_bShow_Progress		= true;
 
 void			CMD_Set_Show_Progress	(bool bOn)	{	g_bShow_Progress = bOn;	}
 
 bool			CMD_Get_Show_Progress	(void)		{	return( g_bShow_Progress );	}
 
 //---------------------------------------------------------
-static bool		g_bInteractive		= false;
+static bool		g_bInteractive			= false;
 
 void			CMD_Set_Interactive		(bool bOn)	{	g_bInteractive = bOn;	}
 
 bool			CMD_Get_Interactive		(void)		{	return( g_bInteractive );	}
 
 //---------------------------------------------------------
-static bool		g_bXML				= false;
+static bool		g_bXML					= false;
 
-void			CMD_Set_XML			(bool bOn)		{	g_bXML = bOn;	}
+void			CMD_Set_XML				(bool bOn)	{	g_bXML = bOn;	}
 
-bool			CMD_Get_XML			(void)			{	return( g_bXML );	}
+bool			CMD_Get_XML				(void)		{	return( g_bXML );	}
 
 
 ///////////////////////////////////////////////////////////
@@ -261,23 +260,21 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_PROCESS_SET_PROGRESS:
 
-		if( g_bShow_Progress )
+		if( g_bShow_Progress && !g_bXML )
 		{
 			int i = Param_2.Number != 0. ? 1 + (int)(100. * Param_1.Number / Param_2.Number) : 100;
 
-			if( i != Progress )
+			if( Progress != i )
 			{
-				if( g_bXML )
+				if( Progress < 0 || i < Progress )
 				{
-					SG_UI_Console_Print_StdOut(CSG_String::Format("<%s>%d</%s>", SG_XML_PROGRESS, Progress = i, SG_XML_PROGRESS), '\n', true);
+					SG_UI_Console_Print_StdOut("", '\n', true);
 				}
-				else
-				{
-					if( Progress < 0 || i < Progress )
-					{
-						SG_UI_Console_Print_StdOut("", '\n', true);
-					}
 
+				Progress = i;
+
+				if( Progress >= 0 )
+				{
 					SG_UI_Console_Print_StdOut(CSG_String::Format("\r%3d%%", Progress > 100 ? 100 : Progress), '\0', true);
 				}
 			}
