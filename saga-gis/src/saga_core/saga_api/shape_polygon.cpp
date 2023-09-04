@@ -361,10 +361,10 @@ bool CSG_Shape_Polygon_Part::is_Neighbour(CSG_Shape_Polygon_Part *pPart, bool bS
 		return( false );
 	}
 
-	int iPoint;	bool	bNeighbour	= false;
+	bool bNeighbour = false;
 
 	//---------------------------------------------------------
-	for(iPoint=0; iPoint<pPart->Get_Count(); iPoint++)
+	for(int iPoint=0; iPoint<pPart->Get_Count(); iPoint++)
 	{
 		switch( Get_Point_Relation(pPart->Get_Point(iPoint)) )
 		{
@@ -378,7 +378,7 @@ bool CSG_Shape_Polygon_Part::is_Neighbour(CSG_Shape_Polygon_Part *pPart, bool bS
 	}
 
 	//---------------------------------------------------------
-	for(iPoint=0; iPoint<Get_Count(); iPoint++)
+	for(int iPoint=0; iPoint<Get_Count(); iPoint++)
 	{
 		switch( pPart->Get_Point_Relation(Get_Point(iPoint)) )
 		{
@@ -392,6 +392,60 @@ bool CSG_Shape_Polygon_Part::is_Neighbour(CSG_Shape_Polygon_Part *pPart, bool bS
 	}
 
 	return( bNeighbour );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Lines CSG_Shape_Polygon_Part::Get_Shared_Edges(CSG_Shape_Polygon_Part *pPart)
+{
+	CSG_Lines Edges;
+
+	if( Get_Extent().Intersects(pPart->Get_Extent()) )
+	{
+		bool bOnEdge = is_OnEdge(pPart->Get_Point(0, false)); // close the ring, starting with last point!
+
+		if( bOnEdge )
+		{
+			Edges.Add().Add(pPart->Get_Point(0, false));
+		}
+
+		for(int i=0; i<pPart->Get_Count(); i++)
+		{
+			CSG_Point Point = pPart->Get_Point(i);
+
+			if( is_OnEdge(Point) )
+			{
+				if( !bOnEdge ) // start a new edge segment
+				{
+					Edges.Add().Add(Point);
+				}
+				else // continue edge segment
+				{
+					Edges[Edges.Get_Count() - 1].Add(Point);
+				}
+
+				bOnEdge = true;
+			}
+			else
+			{
+				bOnEdge = false;
+			}
+		}
+	}
+
+	return( Edges );
+}
+
+//---------------------------------------------------------
+double CSG_Shape_Polygon_Part::Get_Shared_Length(CSG_Shape_Polygon_Part *pPart)
+{
+	CSG_Lines Edges(Get_Shared_Edges(pPart));
+
+	return( Edges.Get_Length() );
 }
 
 
@@ -973,9 +1027,41 @@ bool CSG_Shape_Polygon::is_Neighbour(CSG_Shape_Polygon *pPolygon, bool bSimpleCh
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_Lines CSG_Shape_Polygon::Get_Shared_Edges(CSG_Shape_Polygon *pPolygon)
+{
+	CSG_Lines Edges;
+
+	if( Get_Extent().Intersects(pPolygon->Get_Extent()) )
+	{
+		for(int i=0; i<Get_Part_Count(); i++)
+		{
+			for(int j=0; j<pPolygon->Get_Part_Count(); j++)
+			{
+				Edges.Add(Get_Polygon_Part(i)->Get_Shared_Edges(pPolygon->Get_Polygon_Part(j)));
+			}
+		}
+	}
+
+	return( Edges );
+}
+
+//---------------------------------------------------------
+double CSG_Shape_Polygon::Get_Shared_Length(CSG_Shape_Polygon *pPolygon)
+{
+	CSG_Lines Edges(Get_Shared_Edges(pPolygon));
+
+	return( Edges.Get_Length() );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 double CSG_Shape_Polygon::Get_Distance(TSG_Point Point, TSG_Point &Next, int iPart)	const
 {
-	CSG_Shape_Polygon_Part	*pPart	= Get_Polygon_Part(iPart);
+	CSG_Shape_Polygon_Part *pPart = Get_Polygon_Part(iPart);
 
 	return(	pPart ? pPart->Get_Distance(Point, Next) : -1. );
 }

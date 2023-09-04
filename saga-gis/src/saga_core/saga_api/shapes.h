@@ -666,6 +666,9 @@ public:
 
 	bool						is_Neighbour		(CSG_Shape_Polygon_Part *pPart, bool bSimpleCheck = true);
 
+	CSG_Lines					Get_Shared_Edges	(CSG_Shape_Polygon_Part *pPart);
+	double						Get_Shared_Length	(CSG_Shape_Polygon_Part *pPart);
+
 	double						Get_Distance		(TSG_Point Point, TSG_Point &Next);
 
 
@@ -730,6 +733,9 @@ public:
 	bool						Contains			(double x, double y);
 
 	bool						is_Neighbour		(CSG_Shape_Polygon *pPolygon, bool bSimpleCheck = true);
+
+	CSG_Lines					Get_Shared_Edges	(CSG_Shape_Polygon *pPolygon);
+	double						Get_Shared_Length	(CSG_Shape_Polygon *pPolygon);
 
 	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next, int iPart)	const;
 
