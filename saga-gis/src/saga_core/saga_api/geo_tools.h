@@ -184,6 +184,7 @@ class SAGA_API_DLL_EXPORT CSG_Points
 {
 public:
 	CSG_Points(void);
+	CSG_Points(const CSG_Points &Points);
 	CSG_Points(sLong nPoints, TSG_Array_Growth Growth = TSG_Array_Growth::SG_ARRAY_GROWTH_1);
 
 	bool						Clear			(void)              { return( m_Points.Destroy() ); }
@@ -207,6 +208,43 @@ public:
 private:
 
 	CSG_Array					m_Points;
+
+};
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Lines
+{
+public:
+	CSG_Lines(void);
+	CSG_Lines(const CSG_Lines &Lines);
+	CSG_Lines(sLong nLines);
+
+	bool						Clear			(void);
+
+	CSG_Lines &					operator  =		(const CSG_Lines &Lines) { Assign(Lines); return( *this ); }
+	bool						Assign			(const CSG_Lines &Lines);
+
+	CSG_Points &				Add				(void);
+	bool						Add				(const CSG_Points &Line);
+	bool						Add				(const CSG_Lines &Lines);
+	bool						Del				(sLong Index);
+
+	bool						Set_Count		(sLong nLines);
+	sLong						Get_Count		(void)        const { return( m_Lines.Get_Size() ); }
+
+	CSG_Points &				Get_Line		(sLong Index)       { return( *((CSG_Points *)m_Lines[Index]) ); }
+	const CSG_Points &			Get_Line		(sLong Index) const { return( *((CSG_Points *)m_Lines[Index]) ); }
+
+	CSG_Points &				operator []		(sLong Index)       { return( Get_Line(Index) ); }
+	const CSG_Points &			operator []		(sLong Index) const { return( Get_Line(Index) ); }
+
+	double						Get_Length		(void)        const;
+	double						Get_Length		(sLong Index) const;
+
+
+private:
+
+	CSG_Array_Pointer			m_Lines;
 
 };
 
@@ -276,6 +314,7 @@ class SAGA_API_DLL_EXPORT CSG_Points_3D
 {
 public:
 	CSG_Points_3D(void);
+	CSG_Points_3D(const CSG_Points_3D &Points);
 	CSG_Points_3D(sLong nPoints, TSG_Array_Growth Growth = TSG_Array_Growth::SG_ARRAY_GROWTH_1);
 
 	bool						Clear			(void)              { return( m_Points.Destroy() ); }
@@ -380,6 +419,7 @@ class SAGA_API_DLL_EXPORT CSG_Points_Int
 {
 public:
 	CSG_Points_Int(void);
+	CSG_Points_Int(const CSG_Points_Int &Points);
 	CSG_Points_Int(sLong nPoints, TSG_Array_Growth Growth = TSG_Array_Growth::SG_ARRAY_GROWTH_1);
 
 	bool						Clear			(void)              { return( m_Points.Destroy() ); }
@@ -494,6 +534,7 @@ class SAGA_API_DLL_EXPORT CSG_Rects
 {
 public:
 	CSG_Rects(void);
+	CSG_Rects(const CSG_Rects &Rects);
 	virtual ~CSG_Rects(void);
 
 	void						Clear			(void);

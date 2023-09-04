@@ -318,6 +318,13 @@ CSG_Points::CSG_Points(void)
 	m_Points.Create(sizeof(TSG_Point), 0, TSG_Array_Growth::SG_ARRAY_GROWTH_1);
 }
 
+CSG_Points::CSG_Points(const CSG_Points &Points)
+{
+	m_Points.Create(sizeof(TSG_Point), 0, TSG_Array_Growth::SG_ARRAY_GROWTH_1);
+
+	Assign(Points);
+}
+
 CSG_Points::CSG_Points(sLong nPoints, TSG_Array_Growth Growth)
 {
 	m_Points.Create(sizeof(TSG_Point), nPoints, Growth);
@@ -363,9 +370,169 @@ bool CSG_Points::Add(double x, double y)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_Lines::CSG_Lines(void)
+{
+	m_Lines.Create(0, TSG_Array_Growth::SG_ARRAY_GROWTH_0);
+}
+
+CSG_Lines::CSG_Lines(const CSG_Lines &Lines)
+{
+	m_Lines.Create(0, TSG_Array_Growth::SG_ARRAY_GROWTH_0);
+
+	Assign(Lines);
+}
+
+CSG_Lines::CSG_Lines(sLong nLines)
+{
+	m_Lines.Create(0, TSG_Array_Growth::SG_ARRAY_GROWTH_0);
+
+	Set_Count(nLines);
+}
+
+//---------------------------------------------------------
+bool CSG_Lines::Clear(void)
+{
+	return( Set_Count(0) );
+}
+
+//---------------------------------------------------------
+bool CSG_Lines::Assign(const CSG_Lines &Lines)
+{
+	if( Set_Count(Lines.m_Lines.Get_Size()) )
+	{
+		for(sLong i=0; i<Lines.Get_Count(); i++)
+		{
+			Get_Line(i) = Lines[i];
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+CSG_Points & CSG_Lines::Add(void)
+{
+	Set_Count(Get_Count() + 1);
+
+	return( Get_Line(Get_Count() - 1) );
+}
+
+//---------------------------------------------------------
+bool CSG_Lines::Add(const CSG_Points &Line)
+{
+	Add().Assign(Line);
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Lines::Add(const CSG_Lines &Lines)
+{
+	for(sLong i=0; i<Lines.Get_Count(); i++)
+	{
+		Add(Lines[i]);
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Lines::Del(sLong Index)
+{
+	if( Index >= 0 && Index < m_Lines.Get_Size() )
+	{
+		delete((CSG_Points *)m_Lines[Index]);
+
+		return( m_Lines.Del(Index) );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Lines::Set_Count(sLong new_Count)
+{
+	if( new_Count < 0 )
+	{
+		new_Count = 0;
+	}
+
+	sLong old_Count = m_Lines.Get_Size();
+
+	if( new_Count > old_Count )
+	{
+		m_Lines.Set_Array(new_Count);
+
+		for(sLong i=old_Count; i<new_Count; i++)
+		{
+			m_Lines[i] = new CSG_Points;
+		}
+	}
+	else if( new_Count < old_Count )
+	{
+		for(sLong i=new_Count; i<old_Count; i++)
+		{
+			delete(m_Lines[i]);
+		}
+
+		m_Lines.Set_Array(new_Count);
+	}
+
+	return( true );
+}
+
+double CSG_Lines::Get_Length(void) const
+{
+	double Length = 0.;
+
+	for(sLong i=0; i<Get_Count(); i++)
+	{
+		Length += Get_Length(i);
+	}
+
+	return( Length );
+}
+
+double CSG_Lines::Get_Length(sLong Index) const
+{
+	double Length = 0.;
+
+	if( Index >= 0 && Index < Get_Count() )
+	{
+		const CSG_Points &Line = Get_Line(Index);
+
+		if( Line.Get_Count() > 1 )
+		{
+			for(sLong i=0, j=1; j<Line.Get_Count(); i++, j++)
+			{
+				Length += SG_Get_Distance(Line[i], Line[j]);
+			}
+		}
+	}
+
+	return( Length );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CSG_Points_3D::CSG_Points_3D(void)
 {
 	m_Points.Create(sizeof(TSG_Point_3D), 0, TSG_Array_Growth::SG_ARRAY_GROWTH_1);
+}
+
+CSG_Points_3D::CSG_Points_3D(const CSG_Points_3D &Points)
+{
+	m_Points.Create(sizeof(CSG_Points_3D), 0, TSG_Array_Growth::SG_ARRAY_GROWTH_1);
+
+	Assign(Points);
 }
 
 CSG_Points_3D::CSG_Points_3D(sLong nPoints, TSG_Array_Growth Growth)
@@ -417,6 +584,13 @@ bool CSG_Points_3D::Add(double x, double y, double z)
 CSG_Points_Int::CSG_Points_Int(void)
 {
 	m_Points.Create(sizeof(TSG_Point_Int), 0, TSG_Array_Growth::SG_ARRAY_GROWTH_1);
+}
+
+CSG_Points_Int::CSG_Points_Int(const CSG_Points_Int &Points)
+{
+	m_Points.Create(sizeof(TSG_Point_Int), 0, TSG_Array_Growth::SG_ARRAY_GROWTH_1);
+
+	Assign(Points);
 }
 
 CSG_Points_Int::CSG_Points_Int(sLong nPoints, TSG_Array_Growth Growth)
@@ -730,8 +904,15 @@ bool CSG_Rect::Contains(const CSG_Point &Point) const
 //---------------------------------------------------------
 CSG_Rects::CSG_Rects(void)
 {
-	m_nRects = 0;
-	m_Rects  = NULL;
+	m_nRects = 0; m_Rects = NULL;
+}
+
+//---------------------------------------------------------
+CSG_Rects::CSG_Rects(const CSG_Rects &Rects)
+{
+	m_nRects = 0; m_Rects = NULL;
+
+	Assign(Rects);
 }
 
 //---------------------------------------------------------
