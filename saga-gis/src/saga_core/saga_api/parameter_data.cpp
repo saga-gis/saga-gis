@@ -1827,7 +1827,7 @@ CSG_Parameter_Grid_System::CSG_Parameter_Grid_System(CSG_Parameters *pOwner, CSG
 //---------------------------------------------------------
 int CSG_Parameter_Grid_System::_Set_Value(void *Value)
 {
-	CSG_Grid_System	System;
+	CSG_Grid_System System;
 
 	if( Value != NULL )
 	{
@@ -1839,20 +1839,22 @@ int CSG_Parameter_Grid_System::_Set_Value(void *Value)
 		return( SG_PARAMETER_DATA_SET_TRUE );
 	}
 
-	m_System	= System;
+	m_System = System;
 
 	//-----------------------------------------------------
-	CSG_Data_Manager *pManager    = Get_Manager();
+	bool bCallback = Get_Parameters()->Set_Callback(false); // only update grid parameter objects in 1st loop...
+
+	CSG_Data_Manager *pManager = Get_Manager();
 
 	for(int i=0; i<Get_Children_Count(); i++)
 	{
-		CSG_Parameter	*pParameter	= Get_Child(i);
+		CSG_Parameter *pParameter = Get_Child(i);
 
 		if( pParameter->is_DataObject() )
 		{
-			CSG_Data_Object	*pObject	= pParameter->asDataObject();
+			CSG_Data_Object *pObject = pParameter->asDataObject();
 
-			bool	bInvalid	= !m_System.is_Valid() || !(pManager && pManager->Exists(pObject));
+			bool bInvalid = !m_System.is_Valid() || !(pManager && pManager->Exists(pObject));
 
 			if( !bInvalid && pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE )
 			{
@@ -1873,7 +1875,7 @@ int CSG_Parameter_Grid_System::_Set_Value(void *Value)
 		//-------------------------------------------------
 		else if( pParameter->is_DataObject_List() )
 		{
-			CSG_Parameter_List	*pList	= pParameter->asList();
+			CSG_Parameter_List *pList = pParameter->asList();
 
 			if( !m_System.is_Valid() )
 			{
@@ -1881,9 +1883,9 @@ int CSG_Parameter_Grid_System::_Set_Value(void *Value)
 			}
 			else for(int j=pList->Get_Item_Count()-1; j>=0; j--)
 			{
-				CSG_Data_Object	*pObject	= pList->Get_Item(j);
+				CSG_Data_Object *pObject = pList->Get_Item(j);
 
-				bool	bInvalid	= !(pManager && pManager->Exists(pObject));
+				bool bInvalid = !(pManager && pManager->Exists(pObject));
 
 				if( !bInvalid && pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE )
 				{
@@ -1900,8 +1902,21 @@ int CSG_Parameter_Grid_System::_Set_Value(void *Value)
 					pList->Del_Item(j);
 				}
 			}
+		}
+	}
 
-			pParameter->has_Changed();
+	Get_Parameters()->Set_Callback(bCallback);
+
+	if( bCallback ) // ...process On_Parameter_Changed()/On_Parameters_Enable() in a 2nd loop!
+	{
+		for(int i=0; i<Get_Children_Count(); i++)
+		{
+			CSG_Parameter *pParameter = Get_Child(i);
+
+			if( pParameter->is_DataObject() || pParameter->is_DataObject_List() )
+			{
+				pParameter->has_Changed();
+			}
 		}
 	}
 

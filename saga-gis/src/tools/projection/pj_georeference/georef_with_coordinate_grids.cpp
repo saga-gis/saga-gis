@@ -129,8 +129,8 @@ int CGeoRef_with_Coordinate_Grids::On_Parameter_Changed(CSG_Parameters *pParamet
 	if( pParameter->Cmp_Identifier("GRID_X")
 	||  pParameter->Cmp_Identifier("GRID_Y") )
 	{
-		CSG_Grid	*pX	= (*pParameters)("GRID_X")->asGrid();
-		CSG_Grid	*pY	= (*pParameters)("GRID_Y")->asGrid();
+		CSG_Grid *pX = (*pParameters)["GRID_X"].asGrid();
+		CSG_Grid *pY = (*pParameters)["GRID_Y"].asGrid();
 
 		if( pX && pY )
 		{
@@ -169,17 +169,17 @@ int CGeoRef_with_Coordinate_Grids::On_Parameters_Enable(CSG_Parameters *pParamet
 //---------------------------------------------------------
 bool CGeoRef_with_Coordinate_Grids::On_Execute(void)
 {
-	CSG_Grid	Coords[2];
+	CSG_Grid Coords[2];
 
 	if( !Get_Coordinates(Coords) )
 	{
 		return( false );
 	}
 
-	CSG_Grid_System	System(Coords->Get_System());
+	CSG_Grid_System System(Coords->Get_System());
 
 	//-----------------------------------------------------
-	TSG_Grid_Resampling	Resampling;
+	TSG_Grid_Resampling Resampling;
 
 	switch( Parameters("RESAMPLING")->asInt() )
 	{
@@ -189,26 +189,26 @@ bool CGeoRef_with_Coordinate_Grids::On_Execute(void)
 	default: Resampling = GRID_RESAMPLING_BSpline         ; break;
 	}
 
-	bool	bByteWise	= Parameters("BYTEWISE")->asBool();
+	bool bByteWise = Parameters("BYTEWISE")->asBool();
 
 	//-----------------------------------------------------
-	CSG_Parameter_Grid_List	*pGrids[2];
+	CSG_Parameter_Grid_List *pGrids[2];
 
-	pGrids[0]	= Parameters("GRIDS" )->asGridList();
-	pGrids[1]	= Parameters("OUTPUT")->asGridList(); pGrids[1]->Del_Items();
+	pGrids[0] = Parameters("GRIDS" )->asGridList();
+	pGrids[1] = Parameters("OUTPUT")->asGridList(); pGrids[1]->Del_Items();
 
 	for(int i=0; i<pGrids[0]->Get_Item_Count() && Process_Get_Okay(); i++)
 	{
-		bool	bKeepType	= bByteWise || Parameters("KEEP_TYPE")->asBool();
+		bool bKeepType = bByteWise || Parameters("KEEP_TYPE")->asBool();
 
-		CSG_Data_Object	*pOutput, *pInput = pGrids[0]->Get_Item(i);
+		CSG_Data_Object *pOutput, *pInput = pGrids[0]->Get_Item(i);
 
 		switch( pInput->Get_ObjectType() )
 		{
 		default: {
-			CSG_Grid	*pGrid	= (CSG_Grid  *)pInput;
+			CSG_Grid *pGrid = (CSG_Grid  *)pInput;
 
-			pOutput	= SG_Create_Grid (System,
+			pOutput = SG_Create_Grid (System,
 				bKeepType ? pGrid->Get_Type() : SG_DATATYPE_Undefined
 			);
 
@@ -220,9 +220,9 @@ bool CGeoRef_with_Coordinate_Grids::On_Execute(void)
 			break; }
 
 		case SG_DATAOBJECT_TYPE_Grids: {
-			CSG_Grids	*pGrids	= (CSG_Grids *)pInput;
+			CSG_Grids *pGrids = (CSG_Grids *)pInput;
 
-			pOutput	= SG_Create_Grids(System, pGrids->Get_Attributes(), pGrids->Get_Z_Attribute(),
+			pOutput = SG_Create_Grids(System, pGrids->Get_Attributes(), pGrids->Get_Z_Attribute(),
 				bKeepType ? pGrids->Get_Type() : SG_DATATYPE_Undefined, true
 			);
 
@@ -265,13 +265,13 @@ bool CGeoRef_with_Coordinate_Grids::On_Execute(void)
 			}
 			else
 			{
-				double	cx, cy, z;
-
-				cx	= Get_XMin() + Get_Cellsize() * Coords[0].asDouble(x, y);
-				cy	= Get_XMin() + Get_Cellsize() * Coords[1].asDouble(x, y);
+				double cx = Get_XMin() + Get_Cellsize() * Coords[0].asDouble(x, y);
+				double cy = Get_XMin() + Get_Cellsize() * Coords[1].asDouble(x, y);
 
 				for(int i=0; i<pGrids[1]->Get_Grid_Count(); i++)
 				{
+					double z;
+
 					if( pGrids[0]->Get_Grid(i)->Get_Value(cx, cy, z, Resampling, false, bByteWise) )
 					{
 						pGrids[1]->Get_Grid(i)->Set_Value(x, y, z);
@@ -303,13 +303,13 @@ bool CGeoRef_with_Coordinate_Grids::On_Execute(void)
 //---------------------------------------------------------
 bool CGeoRef_with_Coordinate_Grids::Get_Coordinates(CSG_Grid Coords[2])
 {
-	CSG_Grid_System	System	= m_Grid_Target.Get_System();
+	CSG_Grid_System System = m_Grid_Target.Get_System();
 
 	Coords[0].Create(System); Coords[0].Assign_NoData();
 	Coords[1].Create(System); Coords[1].Assign_NoData();
 
-	CSG_Grid	*pX	= Parameters("GRID_X")->asGrid();
-	CSG_Grid	*pY	= Parameters("GRID_Y")->asGrid();
+	CSG_Grid *pX = Parameters("GRID_X")->asGrid();
+	CSG_Grid *pY = Parameters("GRID_Y")->asGrid();
 
 	//-----------------------------------------------------
 	for(int y=1; y<Get_NY() && Set_Progress_Rows(y); y++)
@@ -319,7 +319,7 @@ bool CGeoRef_with_Coordinate_Grids::Get_Coordinates(CSG_Grid Coords[2])
 			if( !pX->is_NoData(x, y) && !pX->is_NoData(x - 1, y - 1)
 			&&  !pY->is_NoData(x, y) && !pY->is_NoData(x - 1, y - 1) )
 			{
-				TSG_Point_3D	p[3];
+				TSG_Point_3D p[3];
 
 				#define SET_POINT(P, X, Y, C) {\
 					P.x = (pX->asDouble(X, Y) - Coords[i].Get_XMin()) / Coords[i].Get_Cellsize();\
@@ -447,25 +447,22 @@ inline void CGeoRef_with_Coordinate_Grids::Set_Triangle_Line(CSG_Grid &Coords, i
 {
 	if( xb < xa )
 	{
-		double	d;
-
-		d	= xa;	xa	= xb;	xb	= d;
-		d	= za;	za	= zb;	zb	= d;
+		{ double d = xa; xa = xb; xb = d; }
+		{ double d = za; za = zb; zb = d; }
 	}
 
 	if( xb > xa )
 	{
-		double	dz	= (zb - za) / (xb - xa);
-		int		ax	= (int)xa;	if( ax < 0 )	ax	= 0;	if( ax < xa )	ax++;
-		int		bx	= (int)xb;	if( bx >= Coords.Get_NX() )	bx	= Coords.Get_NX() - 1;
+		double dz = (zb - za) / (xb - xa);
+
+		int ax = (int)xa; if( ax <  0 ) ax = 0; if( ax < xa ) ax++;
+		int bx = (int)xb; if( bx >= Coords.Get_NX() ) bx = Coords.Get_NX() - 1;
 
 		for(int x=ax; x<=bx; x++)
 		{
-			double	z	= za + dz * (x - xa);
-
 		//	if( Coords.is_NoData(x, y) )
 			{
-				Coords.Set_Value(x, y, z);
+				Coords.Set_Value(x, y, za + dz * (x - xa));
 			}
 		}
 	}
