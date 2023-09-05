@@ -666,8 +666,8 @@ public:
 
 	bool						is_Neighbour		(CSG_Shape_Polygon_Part *pPart, bool bSimpleCheck = true);
 
-	CSG_Lines					Get_Shared_Edges	(CSG_Shape_Polygon_Part *pPart);
-	double						Get_Shared_Length	(CSG_Shape_Polygon_Part *pPart);
+	CSG_Lines					Get_Shared_Edges	(CSG_Shape_Polygon_Part *pPart, double Epsilon = 0.);
+	double						Get_Shared_Length	(CSG_Shape_Polygon_Part *pPart, double Epsilon = 0.);
 
 	double						Get_Distance		(TSG_Point Point, TSG_Point &Next);
 
@@ -688,6 +688,9 @@ protected:
 	virtual void				_Invalidate			(void);
 
 	void						_Update_Area		(void);
+
+	void						_Add_Edge_Points	(CSG_Shape_Polygon_Part *pPart, const CSG_Point &P0, const CSG_Point &P1, CSG_Points &Part, double Epsilon);
+	bool						_is_OnEdge			(CSG_Shape_Polygon_Part *pPart, const CSG_Point &P, bool bVertex                          , double Epsilon);
 
 };
 
@@ -734,8 +737,8 @@ public:
 
 	bool						is_Neighbour		(CSG_Shape_Polygon *pPolygon, bool bSimpleCheck = true);
 
-	CSG_Lines					Get_Shared_Edges	(CSG_Shape_Polygon *pPolygon);
-	double						Get_Shared_Length	(CSG_Shape_Polygon *pPolygon);
+	CSG_Lines					Get_Shared_Edges	(CSG_Shape_Polygon *pPolygon, double Epsilon = 0.);
+	double						Get_Shared_Length	(CSG_Shape_Polygon *pPolygon, double Epsilon = 0.);
 
 	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next, int iPart)	const;
 
