@@ -65,25 +65,36 @@ CPolygon_Generalization::CPolygon_Generalization(void)
 	Set_Description	(_TW(
 		"A simple generalization tool for polygons. "
 		"The tool joins polygons with an area size smaller than "
-		"the specified threshold to their largest neighbouring polygon. "
+		"the specified threshold to a neighbouring polygon. "
+		"Either the neighbouring polygon with the largest area or "
+		"the one with which the largest edge length is shared wins."
 	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes("",
 		"POLYGONS", _TL("Shapes"),
-		_TL(""),
+		_TL("The input polygons."),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_Shapes("",
-		"GENERALIZED"	, _TL("Shape Indices"),
-		_TL(""),
+		"GENERALIZED"	, _TL("Generalized Shapes"),
+		_TL("The generalized output polygons."),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 
+	Parameters.Add_Choice("",
+		"JOIN_TO"	, _TL("Join to Neighbour with ..."),
+		_TL("Choose the method to determine the winner polygon."),
+		CSG_String::Format("%s|%s",
+			_TL("largest area"),
+			_TL("largest shared edge length")
+		), 0
+	);
+
 	Parameters.Add_Double("",
-		"THRESHOLD"	, _TL("Threshold"),
-		_TL(""),
+		"THRESHOLD"	, _TL("Area Threshold"),
+		_TL("The maximum area of a polygon to get joined [map units squared]."),
 		100., 0., true
 	);
 }
@@ -108,7 +119,8 @@ int CPolygon_Generalization::On_Parameters_Enable(CSG_Parameters *pParameters, C
 bool CPolygon_Generalization::On_Execute(void)
 {
 	//-----------------------------------------------------
-	CSG_Shapes	*pPolygons = Parameters("POLYGONS")->asShapes();
+	CSG_Shapes	*pPolygons	= Parameters("POLYGONS")->asShapes();
+	int			MethodJoin	= Parameters("JOIN_TO")->asInt();
 
 	if( !pPolygons->is_Valid() )
 	{
@@ -136,7 +148,7 @@ bool CPolygon_Generalization::On_Execute(void)
 	{
 		Process_Set_Text(CSG_String::Format("%s %lld", _TL("pass"), ++i));
 	}
-	while( Set_JoinTos(pPolygons) && Process_Get_Okay() );
+	while( Set_JoinTos(pPolygons, MethodJoin) && Process_Get_Okay() );
 
 	//-----------------------------------------------------
 	if( pPolygons == Parameters("POLYGONS")->asShapes() )
@@ -157,11 +169,11 @@ bool CPolygon_Generalization::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPolygon_Generalization::Set_JoinTos(CSG_Shapes *pPolygons)
+bool CPolygon_Generalization::Set_JoinTos(CSG_Shapes *pPolygons, int MethodJoin)
 {
-	CSG_Array_Int JoinTo;
+	CSG_Array_sLong JoinTo;
 
-	if( !Get_JoinTos(pPolygons, JoinTo) )
+	if( !Get_JoinTos(pPolygons, MethodJoin, JoinTo) )
 	{
 		return( false );
 	}
@@ -209,7 +221,7 @@ bool CPolygon_Generalization::Set_JoinTos(CSG_Shapes *pPolygons)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPolygon_Generalization::Get_JoinTos(CSG_Shapes *pPolygons, CSG_Array_Int &JoinTo)
+bool CPolygon_Generalization::Get_JoinTos(CSG_Shapes *pPolygons, int MethodJoin, CSG_Array_sLong &JoinTo)
 {
 	double Threshold = Parameters("THRESHOLD")->asDouble();
 
@@ -232,7 +244,7 @@ bool CPolygon_Generalization::Get_JoinTos(CSG_Shapes *pPolygons, CSG_Array_Int &
 		{
 			JoinTo[i] = -1;
 
-			double maxArea = Threshold;
+			double maxValue = MethodJoin == 0 ? Threshold : 0.0;
 
 			for(sLong j=0; j<pPolygons->Get_Count(); j++)
 			{
@@ -240,11 +252,25 @@ bool CPolygon_Generalization::Get_JoinTos(CSG_Shapes *pPolygons, CSG_Array_Int &
 				{
 					CSG_Shape_Polygon	*pNeighbour	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(j);
 
-					if( maxArea <= pNeighbour->Get_Area() && pPolygon->is_Neighbour(pNeighbour) )
+					if( MethodJoin == 0 )	// largest area
 					{
-						maxArea   = pNeighbour->Get_Area();
+						if( maxValue <= pNeighbour->Get_Area() && pPolygon->is_Neighbour(pNeighbour) )
+						{
+							maxValue   = pNeighbour->Get_Area();
 
-						JoinTo[i] = j;
+							JoinTo[i] = j;
+						}
+					}
+					else if( pPolygon->is_Neighbour(pNeighbour) )	// largest shared edge length
+					{
+						double sharedLength = pPolygon->Get_Shared_Length(pNeighbour);
+						
+						if( sharedLength > maxValue )
+						{
+							maxValue  = sharedLength;
+
+							JoinTo[i] = j;
+						}
 					}
 				}
 			}
