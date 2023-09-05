@@ -72,28 +72,10 @@ class CPolygon_Shared_Edges : public CSG_Tool
 public:
 	CPolygon_Shared_Edges(void);
 
-//	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Landsat") );	}
-
 
 protected:
 
 	virtual bool		On_Execute				(void);
-
-
-private:
-
-	bool				m_bDouble;
-
-	int					m_Field;
-
-	CSG_Shapes			*m_pEdges, *m_pNodes;
-
-
-	bool				Get_Shared_Edges		(CSG_Shape_Part *pA, CSG_Shape_Part *pB, double Epsilon);
-
-	int					Get_Next_Vertex			(CSG_Shape_Part *pPoints, int iPoint, bool bAscending);
-
-	int					Check_Vertices			(CSG_Shape_Part *pPolygon, CSG_Shape_Part *pVertices, double Epsilon);
 
 };
 
@@ -107,8 +89,6 @@ class CPolygon_Vertex_Check : public CSG_Tool
 {
 public:
 	CPolygon_Vertex_Check(void);
-
-//	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Landsat") );	}
 
 
 protected:
