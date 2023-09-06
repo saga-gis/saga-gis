@@ -83,6 +83,12 @@ CPolygon_Generalization::CPolygon_Generalization(void)
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 
+	Parameters.Add_Double("",
+		"THRESHOLD"	, _TL("Area Threshold"),
+		_TL("The maximum area of a polygon to get joined [map units squared]."),
+		100., 0., true
+	);
+
 	Parameters.Add_Choice("",
 		"JOIN_TO"	, _TL("Join to Neighbour with ..."),
 		_TL("Choose the method to determine the winner polygon."),
@@ -92,10 +98,16 @@ CPolygon_Generalization::CPolygon_Generalization(void)
 		), 0
 	);
 
-	Parameters.Add_Double("",
-		"THRESHOLD"	, _TL("Area Threshold"),
-		_TL("The maximum area of a polygon to get joined [map units squared]."),
-		100., 0., true
+	Parameters.Add_Bool("",
+		"VERTICES"	, _TL("Check Vertices"),
+		_TL(""),
+		false
+	);
+
+	Parameters.Add_Double("VERTICES",
+		"EPSILON"	, _TL("Tolerance"),
+		_TL(""),
+		0.00001, 0., true
 	);
 }
 
@@ -107,6 +119,16 @@ CPolygon_Generalization::CPolygon_Generalization(void)
 //---------------------------------------------------------
 int CPolygon_Generalization::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if( pParameter->Cmp_Identifier("JOIN_TO") )
+	{
+		pParameters->Set_Enabled("VERTICES", pParameter->asInt() == 1);
+	}
+
+	if( pParameter->Cmp_Identifier("VERTICES") )
+	{
+		pParameters->Set_Enabled("EPSILON", pParameter->asBool());
+	}
+
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
@@ -118,9 +140,7 @@ int CPolygon_Generalization::On_Parameters_Enable(CSG_Parameters *pParameters, C
 //---------------------------------------------------------
 bool CPolygon_Generalization::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Shapes	*pPolygons	= Parameters("POLYGONS")->asShapes();
-	int			MethodJoin	= Parameters("JOIN_TO")->asInt();
+	CSG_Shapes *pPolygons = Parameters("POLYGONS")->asShapes();
 
 	if( !pPolygons->is_Valid() )
 	{
@@ -132,23 +152,23 @@ bool CPolygon_Generalization::On_Execute(void)
 	//-----------------------------------------------------
 	if( Parameters("GENERALIZED")->asShapes() && Parameters("GENERALIZED")->asShapes() != pPolygons )
 	{
-		CSG_Shapes	*pTarget   = Parameters("GENERALIZED")->asShapes();
+		CSG_Shapes *pTarget = Parameters("GENERALIZED")->asShapes();
 
 		pTarget->Create(*pPolygons);
 
 		pTarget->Fmt_Name("%s [%s]", pPolygons->Get_Name(), _TL("generalized"));
 
-		pPolygons	= pTarget;
+		pPolygons = pTarget;
 	}
 
 	//-----------------------------------------------------
-	sLong	i = 0, n = pPolygons->Get_Count();
+	sLong i = 0, n = pPolygons->Get_Count();
 
 	do
 	{
 		Process_Set_Text(CSG_String::Format("%s %lld", _TL("pass"), ++i));
 	}
-	while( Set_JoinTos(pPolygons, MethodJoin) && Process_Get_Okay() );
+	while( Set_JoinTos(pPolygons) && Process_Get_Okay() );
 
 	//-----------------------------------------------------
 	if( pPolygons == Parameters("POLYGONS")->asShapes() )
@@ -156,7 +176,7 @@ bool CPolygon_Generalization::On_Execute(void)
 		DataObject_Update(pPolygons);
 	}
 
-	n	-= pPolygons->Get_Count();
+	n -= pPolygons->Get_Count();
 
 	Message_Fmt("\n%s: %lld", _TL("total number of removed polygons"), n);
 
@@ -169,11 +189,11 @@ bool CPolygon_Generalization::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPolygon_Generalization::Set_JoinTos(CSG_Shapes *pPolygons, int MethodJoin)
+bool CPolygon_Generalization::Set_JoinTos(CSG_Shapes *pPolygons)
 {
 	CSG_Array_sLong JoinTo;
 
-	if( !Get_JoinTos(pPolygons, MethodJoin, JoinTo) )
+	if( !Get_JoinTos(pPolygons, JoinTo) )
 	{
 		return( false );
 	}
@@ -221,9 +241,12 @@ bool CPolygon_Generalization::Set_JoinTos(CSG_Shapes *pPolygons, int MethodJoin)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPolygon_Generalization::Get_JoinTos(CSG_Shapes *pPolygons, int MethodJoin, CSG_Array_sLong &JoinTo)
+bool CPolygon_Generalization::Get_JoinTos(CSG_Shapes *pPolygons, CSG_Array_sLong &JoinTo)
 {
 	double Threshold = Parameters("THRESHOLD")->asDouble();
+	int       Method = Parameters("JOIN_TO")->asInt();
+	bool   bVertices = Parameters("VERTICES")->asBool();
+	double   Epsilon = Parameters("EPSILON")->asDouble();
 
 	if( Threshold <= 0. || !JoinTo.Create(pPolygons->Get_Count()) )
 	{
@@ -244,15 +267,15 @@ bool CPolygon_Generalization::Get_JoinTos(CSG_Shapes *pPolygons, int MethodJoin,
 		{
 			JoinTo[i] = -1;
 
-			double maxValue = MethodJoin == 0 ? Threshold : 0.0;
+			double maxValue = Method == 0 ? Threshold : 0.;
 
 			for(sLong j=0; j<pPolygons->Get_Count(); j++)
 			{
 				if( j != i )
 				{
-					CSG_Shape_Polygon	*pNeighbour	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(j);
+					CSG_Shape_Polygon *pNeighbour = (CSG_Shape_Polygon *)pPolygons->Get_Shape(j);
 
-					if( MethodJoin == 0 )	// largest area
+					if( Method == 0 ) // largest area
 					{
 						if( maxValue <= pNeighbour->Get_Area() && pPolygon->is_Neighbour(pNeighbour) )
 						{
@@ -261,9 +284,9 @@ bool CPolygon_Generalization::Get_JoinTos(CSG_Shapes *pPolygons, int MethodJoin,
 							JoinTo[i] = j;
 						}
 					}
-					else if( pPolygon->is_Neighbour(pNeighbour) )	// largest shared edge length
+					else if( pPolygon->is_Neighbour(pNeighbour) ) // largest shared edge length
 					{
-						double sharedLength = pPolygon->Get_Shared_Length(pNeighbour);
+						double sharedLength = pPolygon->Get_Shared_Length(pNeighbour, bVertices, Epsilon);
 						
 						if( sharedLength > maxValue )
 						{

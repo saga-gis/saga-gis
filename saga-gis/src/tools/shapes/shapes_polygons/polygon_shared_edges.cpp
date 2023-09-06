@@ -85,7 +85,13 @@ CPolygon_Shared_Edges::CPolygon_Shared_Edges(void)
 		PARAMETER_OUTPUT, SHAPE_TYPE_Line
 	);
 
-	Parameters.Add_Double("",
+	Parameters.Add_Bool("",
+		"VERTICES"	, _TL("Check Vertices"),
+		_TL(""),
+		false
+	);
+
+	Parameters.Add_Double("VERTICES",
 		"EPSILON"	, _TL("Tolerance"),
 		_TL(""),
 		0.00001, 0., true
@@ -96,6 +102,22 @@ CPolygon_Shared_Edges::CPolygon_Shared_Edges(void)
 		_TL("give output of an edge twice, i.e. once for each of the two adjacent polygons"),
 		false
 	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CPolygon_Shared_Edges::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("VERTICES") )
+	{
+		pParameters->Set_Enabled("EPSILON", pParameter->asBool());
+	}
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -115,6 +137,7 @@ bool CPolygon_Shared_Edges::On_Execute(void)
 	pEdges->Add_Field("ID_A", Field < 0 ? SG_DATATYPE_Int : pPolygons->Get_Field_Type(Field));
 	pEdges->Add_Field("ID_B", Field < 0 ? SG_DATATYPE_Int : pPolygons->Get_Field_Type(Field));
 
+	bool bVertices = Parameters("VERTICES")->asBool();
 	double Epsilon = Parameters("EPSILON")->asDouble();
 
 	//-----------------------------------------------------
@@ -126,7 +149,7 @@ bool CPolygon_Shared_Edges::On_Execute(void)
 		{
 			CSG_Shape_Polygon *pB = pPolygons->Get_Shape(jPolygon)->asPolygon();
 
-			CSG_Lines Edges = pA->Get_Shared_Edges(pB, Epsilon);
+			CSG_Lines Edges = pA->Get_Shared_Edges(pB, bVertices, Epsilon);
 
 			for(sLong iEdge=0; iEdge<Edges.Get_Count(); iEdge++)
 			{

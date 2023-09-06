@@ -465,48 +465,45 @@ bool CSG_Shape_Polygon_Part::_is_OnEdge(CSG_Shape_Polygon_Part *pPart, const CSG
 }
 
 //---------------------------------------------------------
-CSG_Lines CSG_Shape_Polygon_Part::Get_Shared_Edges(CSG_Shape_Polygon_Part *pPart, double Epsilon)
+/**
+* Returns all edge segments shared by this polygon part and
+* the one provide by pPart argument as CSG_Lines object.
+* If bVertexCheck is true vertices lying on edged segments
+* of the other polygon part will be recognized. If not only
+* vertices are taken into respect that are shared by both
+* polygon parts. Due to precision issues the tolerance factor
+* specified with Epsilon should be slightly greater than zero
+* when using the bVertexCheck option.
+*/
+//---------------------------------------------------------
+CSG_Lines CSG_Shape_Polygon_Part::Get_Shared_Edges(CSG_Shape_Polygon_Part *pPart, bool bVertexCheck, double Epsilon)
 {
 	CSG_Lines Edges;
 
 	if( Get_Extent().Intersects(pPart->Get_Extent()) )
 	{
-		CSG_Points Part; CSG_Point P1 = Get_Point(0, false); // close the ring, starting with last point!
-
-		if( _is_OnEdge(pPart, P1, true, Epsilon) ) { Part.Add(P1); }
-
-		for(int i=0; i<Get_Count(); i++)
+		if( bVertexCheck == false )
 		{
-			CSG_Point P0 = P1; P1 = Get_Point(i);
+			bool bOnEdge = is_OnEdge(pPart->Get_Point(0, false)); // close the ring, starting with last point!
 
-			_Add_Edge_Points(pPart, P0, P1, Part, Epsilon);
-
-			if( _is_OnEdge(pPart, P1, true, Epsilon) ) { Part.Add(P1); }
-		}
-
-		//-------------------------------------------------
-		if( Part.Get_Count() > 1 )
-		{
-			P1 = Part[0]; bool bOnEdge = false;
-
-			for(sLong i=1, n=-1; i<Part.Get_Count(); i++)
+			if( bOnEdge )
 			{
-				CSG_Point C, P0 = P1; P1 = Part[i];
+				Edges.Add().Add(pPart->Get_Point(0, false));
+			}
 
-				C.x = P0.x + 0.5 * (P1.x - P0.x);
-				C.y = P0.y + 0.5 * (P1.y - P0.y);
+			for(int i=0; i<pPart->Get_Count(); i++)
+			{
+				CSG_Point Point = pPart->Get_Point(i);
 
-				if( _is_OnEdge(this, C, true, Epsilon) && _is_OnEdge(pPart, C, true, Epsilon) )
+				if( is_OnEdge(Point) )
 				{
 					if( !bOnEdge ) // start a new edge segment
 					{
-						n = Edges.Get_Count(); Edges.Add();
-						Edges[n].Add(P0);
-						Edges[n].Add(P1);
+						Edges.Add().Add(Point);
 					}
 					else // continue edge segment
 					{
-						Edges[n].Add(P1);
+						Edges[Edges.Get_Count() - 1].Add(Point);
 					}
 
 					bOnEdge = true;
@@ -517,15 +514,70 @@ CSG_Lines CSG_Shape_Polygon_Part::Get_Shared_Edges(CSG_Shape_Polygon_Part *pPart
 				}
 			}
 		}
+		else
+		{
+			CSG_Points Part; CSG_Point P1 = Get_Point(0, false); // close the ring, starting with last point!
+
+			if( _is_OnEdge(pPart, P1, true, Epsilon) ) { Part.Add(P1); }
+
+			for(int i=0; i<Get_Count(); i++)
+			{
+				CSG_Point P0 = P1; P1 = Get_Point(i);
+
+				_Add_Edge_Points(pPart, P0, P1, Part, Epsilon);
+
+				if( _is_OnEdge(pPart, P1, true, Epsilon) ) { Part.Add(P1); }
+			}
+
+			//---------------------------------------------
+			if( Part.Get_Count() > 1 )
+			{
+				P1 = Part[0]; bool bOnEdge = false;
+
+				for(sLong i=1, n=-1; i<Part.Get_Count(); i++)
+				{
+					CSG_Point C, P0 = P1; P1 = Part[i];
+
+					C.x = P0.x + 0.5 * (P1.x - P0.x);
+					C.y = P0.y + 0.5 * (P1.y - P0.y);
+
+					if( _is_OnEdge(this, C, true, Epsilon) && _is_OnEdge(pPart, C, true, Epsilon) )
+					{
+						if( !bOnEdge ) // start a new edge segment
+						{
+							n = Edges.Get_Count(); Edges.Add();
+							Edges[n].Add(P0);
+							Edges[n].Add(P1);
+						}
+						else // continue edge segment
+						{
+							Edges[n].Add(P1);
+						}
+
+						bOnEdge = true;
+					}
+					else
+					{
+						bOnEdge = false;
+					}
+				}
+			}
+		}
 	}
 
 	return( Edges );
 }
 
 //---------------------------------------------------------
-double CSG_Shape_Polygon_Part::Get_Shared_Length(CSG_Shape_Polygon_Part *pPart, double Epsilon)
+/**
+* This function requests the edges shared by this polygon part
+* and the one provided by the pPart argument and returns
+* the total length. See Get_Shared_Edges() for more details.
+*/
+//---------------------------------------------------------
+double CSG_Shape_Polygon_Part::Get_Shared_Length(CSG_Shape_Polygon_Part *pPart, bool bVertexCheck, double Epsilon)
 {
-	CSG_Lines Edges(Get_Shared_Edges(pPart, Epsilon));
+	CSG_Lines Edges(Get_Shared_Edges(pPart, bVertexCheck, Epsilon));
 
 	return( Edges.Get_Length() );
 }
@@ -1109,7 +1161,18 @@ bool CSG_Shape_Polygon::is_Neighbour(CSG_Shape_Polygon *pPolygon, bool bSimpleCh
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Lines CSG_Shape_Polygon::Get_Shared_Edges(CSG_Shape_Polygon *pPolygon, double Epsilon)
+/**
+* Returns all edge segments shared by this polygon and the
+* one provide by the pPolygon argument as CSG_Lines object.
+* If bVertexCheck is true vertices lying on edged segments
+* of the other polygon will be recognized. If not only
+* vertices are taken into respect that are shared by both
+* polygons. Due to precision issues the tolerance factor
+* specified with Epsilon argument should be slightly greater
+* than zero when using the bVertexCheck option.
+*/
+//---------------------------------------------------------
+CSG_Lines CSG_Shape_Polygon::Get_Shared_Edges(CSG_Shape_Polygon *pPolygon, bool bVertexCheck, double Epsilon)
 {
 	CSG_Lines Edges;
 
@@ -1119,7 +1182,7 @@ CSG_Lines CSG_Shape_Polygon::Get_Shared_Edges(CSG_Shape_Polygon *pPolygon, doubl
 		{
 			for(int j=0; j<pPolygon->Get_Part_Count(); j++)
 			{
-				Edges.Add(Get_Polygon_Part(i)->Get_Shared_Edges(pPolygon->Get_Polygon_Part(j), Epsilon));
+				Edges.Add(Get_Polygon_Part(i)->Get_Shared_Edges(pPolygon->Get_Polygon_Part(j), bVertexCheck, Epsilon));
 			}
 		}
 	}
@@ -1128,9 +1191,15 @@ CSG_Lines CSG_Shape_Polygon::Get_Shared_Edges(CSG_Shape_Polygon *pPolygon, doubl
 }
 
 //---------------------------------------------------------
-double CSG_Shape_Polygon::Get_Shared_Length(CSG_Shape_Polygon *pPolygon, double Epsilon)
+/**
+* This function requests the edges shared by this polygon
+* and the one provided by the pPolygon argument and returns
+* the total length. See Get_Shared_Edges() for more details.
+*/
+//---------------------------------------------------------
+double CSG_Shape_Polygon::Get_Shared_Length(CSG_Shape_Polygon *pPolygon, bool bVertexCheck, double Epsilon)
 {
-	CSG_Lines Edges(Get_Shared_Edges(pPolygon, Epsilon));
+	CSG_Lines Edges(Get_Shared_Edges(pPolygon, bVertexCheck, Epsilon));
 
 	return( Edges.Get_Length() );
 }

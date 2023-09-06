@@ -82,9 +82,9 @@ protected:
 
 private:
 
-	bool					Set_JoinTos				(CSG_Shapes *pPolygons, int MethodJoin);
+	bool					Set_JoinTos				(CSG_Shapes *pPolygons);
 
-	bool					Get_JoinTos				(CSG_Shapes *pPolygons, int MethodJoin, CSG_Array_sLong &JoinTo);
+	bool					Get_JoinTos				(CSG_Shapes *pPolygons, CSG_Array_sLong &JoinTo);
 
 };
 
