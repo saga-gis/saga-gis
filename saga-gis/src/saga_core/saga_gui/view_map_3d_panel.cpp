@@ -327,6 +327,21 @@ void CVIEW_Map_3DPanel::_Draw_Bottom(double zMin, int Color, const CSG_Vector &L
 
 		Draw_Triangle(p, true, dim);
 	}
+
+//	int n = 10; double dx = r.Get_XRange() / (n - 1.), dy = r.Get_YRange() / (n - 1.); zMin -= m_DEM.Get_Range() * 0.2;
+//
+//	for(int i=0; i<n; i++)
+//	{
+//		CSG_Point_3D a, b;
+//
+//		a.x = r.Get_XMin() + i * dx; a.y = r.Get_YMin(); a.z = zMin; m_Projector.Get_Projection(a);
+//		b.x = r.Get_XMin() + i * dx; b.y = r.Get_YMax(); b.z = zMin; m_Projector.Get_Projection(b);
+//		Draw_Line(a, b, SG_COLOR_BLACK);
+//
+//		a.x = r.Get_XMin(); a.y = r.Get_YMin() + i * dy; a.z = zMin; m_Projector.Get_Projection(a);
+//		b.x = r.Get_XMax(); b.y = r.Get_YMin() + i * dy; b.z = zMin; m_Projector.Get_Projection(b);
+//		Draw_Line(a, b, SG_COLOR_BLACK);
+//	}
 }
 
 //---------------------------------------------------------
