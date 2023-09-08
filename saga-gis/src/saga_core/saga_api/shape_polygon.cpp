@@ -408,7 +408,7 @@ void CSG_Shape_Polygon_Part::_Add_Edge_Points(CSG_Shape_Polygon_Part *pPart, con
 	{
 		CSG_Point P = pPart->Get_Point(i);
 
-		if( P != P0 && P != P1 && SG_Is_Point_On_Line(P, P0, P1, true, 0.00001) )//Epsilon) )
+		if( P != P0 && P != P1 && SG_Is_Point_On_Line(P, P0, P1, true, Epsilon) )
 		{
 			Points.Add(P);
 		}
