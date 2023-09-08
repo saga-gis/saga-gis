@@ -40,7 +40,7 @@ Source: "tools\*.*"; DestDir: "{app}\tools"
 Source: "tools\toolchains\*.*"; DestDir: "{app}\tools\toolchains"
 Source: "dll\*.*"; DestDir: "{app}\dll"; Flags: recursesubdirs
 Source: "ArcSAGA\*.*"; DestDir: "{app}\ArcSAGA"
-Source: "PySAGA\*.*"; DestDir: "{app}\PySAGA"
+Source: "PySAGA\*.*"; DestDir: "{app}\PySAGA"; Flags: recursesubdirs
 
 [Icons]
 ; Start up in tools folder so SAGA will load all tools automatically.
