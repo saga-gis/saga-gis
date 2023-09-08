@@ -78,7 +78,6 @@ public:
 
 	static void					Add_Parameters			(CSG_Parameters &Parameters);
 	static void					Set_Target				(CSG_Parameters *pParameters, CSG_Parameter_List *pList, CSG_Parameters_Grid_Target &Target);
-	static TSG_Data_Type		Get_Type				(int Type, TSG_Data_Type Default);
 
 
 protected:

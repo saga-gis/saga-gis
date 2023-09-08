@@ -560,6 +560,7 @@ bool CQGIS_ToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_String &Paramet
 		if( pParameter->asValue()->has_Maximum() ) { PARAMETER_FLT(pParameter->asValue()->Get_Maximum()); } else { PARAMETER_STR("None"); }
 		break;
 
+	case PARAMETER_TYPE_Data_Type      :
 	case PARAMETER_TYPE_Choice         :
 		PARAMETER_SET("Enum");
 		PARAMETER_STR(Get_Choices(pParameter->asChoice()));

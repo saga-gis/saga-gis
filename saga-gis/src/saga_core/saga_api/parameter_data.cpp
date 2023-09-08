@@ -75,6 +75,7 @@ CSG_String SG_Parameter_Type_Get_Name(TSG_Parameter_Type Type)
 	case PARAMETER_TYPE_Degree           :	return( _TL("Degree"          ) );
 	case PARAMETER_TYPE_Date             :	return( _TL("Date"            ) );
 	case PARAMETER_TYPE_Range            :	return( _TL("Value range"     ) );
+	case PARAMETER_TYPE_Data_Type        :	return( _TL("Data type"       ) );
 	case PARAMETER_TYPE_Choice           :	return( _TL("Choice"          ) );
 	case PARAMETER_TYPE_Choices          :	return( _TL("Choices"         ) );
 
@@ -124,6 +125,7 @@ CSG_String SG_Parameter_Type_Get_Identifier(TSG_Parameter_Type Type)
 	case PARAMETER_TYPE_Degree           :	return( "degree"       );
 	case PARAMETER_TYPE_Date             :	return( "date"         );
 	case PARAMETER_TYPE_Range            :	return( "range"        );
+	case PARAMETER_TYPE_Data_Type        :	return( "datatype"     );
 	case PARAMETER_TYPE_Choice           :	return( "choice"       );
 	case PARAMETER_TYPE_Choices          :	return( "choices"      );
 
@@ -168,6 +170,7 @@ TSG_Parameter_Type SG_Parameter_Type_Get_Type(const CSG_String &Identifier)
 	if( !Identifier.Cmp("degree"      ) )	{	return( PARAMETER_TYPE_Degree           );	}
 	if( !Identifier.Cmp("date"        ) )	{	return( PARAMETER_TYPE_Date             );	}
 	if( !Identifier.Cmp("range"       ) )	{	return( PARAMETER_TYPE_Range            );	}
+	if( !Identifier.Cmp("datatype"    ) )	{	return( PARAMETER_TYPE_Data_Type        );	}
 	if( !Identifier.Cmp("choice"      ) )	{	return( PARAMETER_TYPE_Choice           );	}
 	if( !Identifier.Cmp("choices"     ) )	{	return( PARAMETER_TYPE_Choices          );	}
 
@@ -1088,6 +1091,108 @@ bool CSG_Parameter_Choice::_Serialize(CSG_MetaData &Entry, bool bSave)
 
 		return( (Entry.Get_Property("index", Index) || Entry.Get_Content().asInt(Index)) && _Set_Value(Index) );
 	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//						Data Type						 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Parameter_Data_Type::CSG_Parameter_Data_Type(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint)
+	: CSG_Parameter_Choice(pOwner, pParent, ID, Name, Description, Constraint)
+{
+	// nop
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter_Data_Type::Set_Data_Types(int Data_Types, int Default, const CSG_String &User)
+{
+	if( Data_Types <= Undefined || Data_Types > Standard )
+	{
+		Data_Types = Standard;
+	}
+
+	#define ADD_TYPE(type) Add_Item(SG_Data_Type_Get_Name(type), SG_Data_Type_Get_Identifier(type))
+
+	if( Data_Types >= Integer )
+	{
+		ADD_TYPE(SG_DATATYPE_Bit   );
+		ADD_TYPE(SG_DATATYPE_Byte  );
+		ADD_TYPE(SG_DATATYPE_Char  );
+		ADD_TYPE(SG_DATATYPE_Word  );
+		ADD_TYPE(SG_DATATYPE_Short );
+		ADD_TYPE(SG_DATATYPE_DWord );
+		ADD_TYPE(SG_DATATYPE_Int   );
+		ADD_TYPE(SG_DATATYPE_ULong );
+		ADD_TYPE(SG_DATATYPE_Long  );
+	}
+
+	if( Data_Types >= Numeric )
+	{
+		ADD_TYPE(SG_DATATYPE_Float );
+		ADD_TYPE(SG_DATATYPE_Double);
+	}
+
+	if( Data_Types >= Standard )
+	{
+		ADD_TYPE(SG_DATATYPE_String);
+		ADD_TYPE(SG_DATATYPE_Date  );
+		ADD_TYPE(SG_DATATYPE_Color );
+		ADD_TYPE(SG_DATATYPE_Binary);
+	}
+
+	if( !User.is_Empty() )
+	{
+		Add_Item(User, SG_Data_Type_Get_Identifier(SG_DATATYPE_Undefined));
+	}
+
+	if( Default < 0 || Default >= Get_Count() )
+	{
+		if( !User.is_Empty() )
+		{
+			Default = Get_Count() - 1;
+		}
+		else switch( Data_Types )
+		{
+		case Integer: Default =  6; break; // SG_DATATYPE_Int
+		case Numeric: Default =  9; break; // SG_DATATYPE_Float
+		default     : Default = 11; break; // SG_DATATYPE_String
+		}
+	}
+
+	Set_Default(Default);
+	Set_Value  (Default);
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter_Data_Type::is_User_Type(void)	const
+{
+	return( Get_Data_Type() == SG_DATATYPE_Undefined );
+}
+
+//---------------------------------------------------------
+TSG_Data_Type CSG_Parameter_Data_Type::Get_Data_Type(TSG_Data_Type Default)	const
+{
+	TSG_Data_Type Type = SG_Data_Type_Get_Type(Get_Data());
+
+	return( Type == SG_DATATYPE_Undefined ? Default : Type );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter_Data_Type::_Assign(CSG_Parameter *pSource)
+{
+	return( CSG_Parameter_Choice::_Assign(pSource) );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter_Data_Type::_Serialize(CSG_MetaData &Entry, bool bSave)
+{
+	return( CSG_Parameter_Choice::_Serialize(Entry, bSave) );
 }
 
 

@@ -123,6 +123,7 @@ void CParameters_PG_Choice::_Create(void)
 
 		switch( m_pParameter->Get_Type() )
 		{
+		case PARAMETER_TYPE_Data_Type  :
 		case PARAMETER_TYPE_Choice     : iSelection = _Set_Choice     ();	break;
 		case PARAMETER_TYPE_Grid_System: iSelection = _Set_Grid_System();	break;
 		case PARAMETER_TYPE_Table_Field: iSelection = _Set_Table_Field();	break;
@@ -448,7 +449,8 @@ void CParameters_PG_Choice::_Set_Parameter_Value(int iChoice)
 	{
 		switch( m_pParameter->Get_Type() )
 		{
-		case PARAMETER_TYPE_Choice:
+		case PARAMETER_TYPE_Data_Type  :
+		case PARAMETER_TYPE_Choice     :
 		case PARAMETER_TYPE_Table_Field:
 			m_pParameter->Set_Value(iChoice);
 			break;
@@ -459,15 +461,15 @@ void CParameters_PG_Choice::_Set_Parameter_Value(int iChoice)
 			_Update_Grids();
 			break;
 
-		case PARAMETER_TYPE_Grid:
-		case PARAMETER_TYPE_Grids:
+		case PARAMETER_TYPE_Grid       :
+		case PARAMETER_TYPE_Grids      :
 			m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(iChoice)));
 			break;
 
-		case PARAMETER_TYPE_Table:
-		case PARAMETER_TYPE_Shapes:
-		case PARAMETER_TYPE_TIN:
-		case PARAMETER_TYPE_PointCloud:
+		case PARAMETER_TYPE_Table      :
+		case PARAMETER_TYPE_Shapes     :
+		case PARAMETER_TYPE_TIN        :
+		case PARAMETER_TYPE_PointCloud :
 			m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(iChoice)));
 
 			_Update_TableFields();

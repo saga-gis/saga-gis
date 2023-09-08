@@ -247,6 +247,7 @@ bool CSG_Parameter::is_Option(void)	const
 		case PARAMETER_TYPE_Degree      :
 		case PARAMETER_TYPE_Date        :
 		case PARAMETER_TYPE_Range       :
+		case PARAMETER_TYPE_Data_Type   :
 		case PARAMETER_TYPE_Choice      :
 		case PARAMETER_TYPE_Choices     :
 		case PARAMETER_TYPE_String      :
@@ -339,6 +340,7 @@ bool CSG_Parameter::is_Compatible(CSG_Parameter *pParameter)	const
 		switch( Get_Type() )
 		{
 		//-------------------------------------------------
+		case PARAMETER_TYPE_Data_Type        :
 		case PARAMETER_TYPE_Choice           :
 			{
 				bool	bResult	= pParameter->asChoice()->Get_Count() == asChoice()->Get_Count();
@@ -401,6 +403,7 @@ bool CSG_Parameter::is_Value_Equal(CSG_Parameter *pParameter)	const
 		//-------------------------------------------------
 		case PARAMETER_TYPE_Bool             :	return( pParameter->asBool  () == asBool  () );
 		case PARAMETER_TYPE_Table_Field      :
+		case PARAMETER_TYPE_Data_Type        :
 		case PARAMETER_TYPE_Choice           :
 		case PARAMETER_TYPE_Color            :
 		case PARAMETER_TYPE_Int              :	return( pParameter->asInt   () == asInt   () );
@@ -648,6 +651,7 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	c
 		default:
 			break;
 
+		case PARAMETER_TYPE_Data_Type:
 		case PARAMETER_TYPE_Choice:
 			SEPARATE;	s	+= CSG_String::Format("%s:", _TL("Available Choices"));
 
@@ -812,6 +816,7 @@ bool CSG_Parameter::Set_Value(CSG_Parameter *Value)
 		default:
 			break;
 
+		case PARAMETER_TYPE_Data_Type:
 		case PARAMETER_TYPE_Choice:
 			return( Set_Value(Value->asInt()) );
 		}
@@ -1026,7 +1031,9 @@ CSG_Parameter_Value           * CSG_Parameter::asValue         (void) const
 }
 
 CSG_Parameter_Date            * CSG_Parameter::asDate          (void) const {	return( Get_Type() != PARAMETER_TYPE_Date            ? NULL : (CSG_Parameter_Date            *)this );	}
-CSG_Parameter_Choice          * CSG_Parameter::asChoice        (void) const {	return( Get_Type() != PARAMETER_TYPE_Choice          ? NULL : (CSG_Parameter_Choice          *)this );	}
+CSG_Parameter_Data_Type       * CSG_Parameter::asDataType      (void) const {	return( Get_Type() != PARAMETER_TYPE_Data_Type       ? NULL : (CSG_Parameter_Data_Type       *)this );	}
+CSG_Parameter_Choice          * CSG_Parameter::asChoice        (void) const {	return( Get_Type() != PARAMETER_TYPE_Choice
+                                                                                     && Get_Type() != PARAMETER_TYPE_Data_Type       ? NULL : (CSG_Parameter_Choice          *)this );	}
 CSG_Parameter_Choices         * CSG_Parameter::asChoices       (void) const {	return( Get_Type() != PARAMETER_TYPE_Choices         ? NULL : (CSG_Parameter_Choices         *)this );	}
 CSG_Parameter_Range           * CSG_Parameter::asRange         (void) const {	return( Get_Type() != PARAMETER_TYPE_Range           ? NULL : (CSG_Parameter_Range           *)this );	}
 CSG_Parameter_File_Name       * CSG_Parameter::asFilePath      (void) const {	return( Get_Type() != PARAMETER_TYPE_FilePath        ? NULL : (CSG_Parameter_File_Name       *)this );	}

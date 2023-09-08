@@ -644,6 +644,7 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 		}
 		break;
 
+	case PARAMETER_TYPE_Data_Type      :
 	case PARAMETER_TYPE_Choice         :
 	case PARAMETER_TYPE_Table_Field    :
 	case PARAMETER_TYPE_Grid_System    :
@@ -821,6 +822,7 @@ void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
             }
             break;
 
+		case PARAMETER_TYPE_Data_Type      :
 		case PARAMETER_TYPE_Choice         :
 		case PARAMETER_TYPE_Table_Field    :
 		case PARAMETER_TYPE_Grid_System    :

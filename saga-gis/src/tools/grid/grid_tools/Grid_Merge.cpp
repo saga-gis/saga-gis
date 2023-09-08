@@ -112,21 +112,10 @@ void CGrid_Merge::Add_Parameters(CSG_Parameters &Parameters)
 		_TL("Mosaic")
 	);
 
-	Parameters.Add_Choice("",
+	Parameters.Add_Data_Type("",
 		"TYPE"		, _TL("Data Storage Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
-			_TL("1 bit"                     ),
-			_TL("1 byte unsigned integer"   ),
-			_TL("1 byte signed integer"     ),
-			_TL("2 byte unsigned integer"   ),
-			_TL("2 byte signed integer"     ),
-			_TL("4 byte unsigned integer"   ),
-			_TL("4 byte signed integer"     ),
-			_TL("4 byte floating point"     ),
-			_TL("8 byte floating point"     ),
-			_TL("same as first grid in list")
-		), 9
+		CSG_Parameter_Data_Type::Data_Types::Numeric, -1, _TL("same as first grid in list")
 	);
 
 	Parameters.Add_Choice("",
@@ -228,7 +217,6 @@ int CGrid_Merge::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter
 //---------------------------------------------------------
 bool CGrid_Merge::On_Execute(void)
 {
-	//-----------------------------------------------------
 	if( !Initialize() )
 	{
 		return( false );
@@ -237,22 +225,22 @@ bool CGrid_Merge::On_Execute(void)
 	//-----------------------------------------------------
 	for(int i=0; i<m_pGrids->Get_Grid_Count(); i++)
 	{
-		CSG_Grid	*pGrid	= m_pGrids->Get_Grid(i);
+		CSG_Grid *pGrid = m_pGrids->Get_Grid(i);
 
 		Set_Weight(pGrid);
 
 		Get_Match(i > 0 ? pGrid : NULL);
 
-		int	ax	= (int)((pGrid->Get_XMin() - m_pMosaic->Get_XMin()) / m_pMosaic->Get_Cellsize());
-		int	ay	= (int)((pGrid->Get_YMin() - m_pMosaic->Get_YMin()) / m_pMosaic->Get_Cellsize());
+		int ax = (int)((pGrid->Get_XMin() - m_pMosaic->Get_XMin()) / m_pMosaic->Get_Cellsize());
+		int ay = (int)((pGrid->Get_YMin() - m_pMosaic->Get_YMin()) / m_pMosaic->Get_Cellsize());
 
 		//-------------------------------------------------
 		if(	is_Aligned(pGrid) )
 		{
 			Process_Set_Text("[%d/%d] %s: %s", i + 1, m_pGrids->Get_Grid_Count(), _TL("copying"), pGrid->Get_Name());
 
-			int	nx	= pGrid->Get_NX(); if( nx > m_pMosaic->Get_NX() - ax )	nx	= m_pMosaic->Get_NX() - ax;
-			int	ny	= pGrid->Get_NY(); if( ny > m_pMosaic->Get_NY() - ay )	ny	= m_pMosaic->Get_NY() - ay;
+			int nx = pGrid->Get_NX(); if( nx > m_pMosaic->Get_NX() - ax ) nx = m_pMosaic->Get_NX() - ax;
+			int ny = pGrid->Get_NY(); if( ny > m_pMosaic->Get_NY() - ay ) ny = m_pMosaic->Get_NY() - ay;
 
 			for(int y=0; y<ny && Set_Progress(y, ny); y++)
 			{
@@ -275,20 +263,20 @@ bool CGrid_Merge::On_Execute(void)
 		{
 			Process_Set_Text("[%d/%d] %s: %s", i + 1, m_pGrids->Get_Grid_Count(), _TL("resampling"), pGrid->Get_Name());
 
-			if( ax < 0 )	ax	= 0;
-			if( ay < 0 )	ay	= 0;
+			if( ax < 0 ) ax = 0;
+			if( ay < 0 ) ay = 0;
 
-			int	nx	= 1 + m_pMosaic->Get_System().Get_xWorld_to_Grid(pGrid->Get_XMax()); if( nx > m_pMosaic->Get_NX() )	nx	= m_pMosaic->Get_NX();
-			int	ny	= 1 + m_pMosaic->Get_System().Get_yWorld_to_Grid(pGrid->Get_YMax()); if( ny > m_pMosaic->Get_NY() )	ny	= m_pMosaic->Get_NY();
+			int nx = 1 + m_pMosaic->Get_System().Get_xWorld_to_Grid(pGrid->Get_XMax()); if( nx > m_pMosaic->Get_NX() ) nx = m_pMosaic->Get_NX();
+			int ny = 1 + m_pMosaic->Get_System().Get_yWorld_to_Grid(pGrid->Get_YMax()); if( ny > m_pMosaic->Get_NY() ) ny = m_pMosaic->Get_NY();
 
 			for(int y=ay; y<ny && Set_Progress(y-ay, ny-ay); y++)
 			{
-				double	py	= m_pMosaic->Get_YMin() + y * m_pMosaic->Get_Cellsize();
+				double py = m_pMosaic->Get_YMin() + y * m_pMosaic->Get_Cellsize();
 
 				#pragma omp parallel for
 				for(int x=ax; x<nx; x++)
 				{
-					double	px	= m_pMosaic->Get_XMin() + x * m_pMosaic->Get_Cellsize();
+					double px = m_pMosaic->Get_XMin() + x * m_pMosaic->Get_Cellsize();
 
 					Set_Value(x, y, pGrid, px, py);
 				}
@@ -304,9 +292,9 @@ bool CGrid_Merge::On_Execute(void)
 			#pragma omp parallel for
 			for(int x=0; x<m_pMosaic->Get_NX(); x++)
 			{
-				double	w	= m_Weights.asDouble(x, y);
+				double w = m_Weights.asDouble(x, y);
 
-				if( w > 0.0 )
+				if( w > 0. )
 				{
 					m_pMosaic->Mul_Value(x, y, 1.0 / w);
 				}
@@ -383,7 +371,7 @@ bool CGrid_Merge::Initialize(void)
 	}
 
 	//-----------------------------------------------------
-	TSG_Data_Type	Type	= CGrid_Merge::Get_Type(Parameters("TYPE")->asInt(), m_pGrids->Get_Grid(0)->Get_Type());
+	TSG_Data_Type Type = Parameters("TYPE")->asDataType()->Get_Data_Type(m_pGrids->Get_Grid(0)->Get_Type());
 
 	if( (m_pMosaic = m_Grid_Target.Get_Grid(Type)) == NULL )
 	{
@@ -398,7 +386,7 @@ bool CGrid_Merge::Initialize(void)
 		}
 	}
 
-	if( Parameters("TYPE")->asInt() == 9 )	// same as first grid in list
+	if( Parameters("TYPE")->asDataType()->is_User_Type() )	// same as first grid in list
 	{
 		m_pMosaic->Set_Scaling(
 			m_pGrids->Get_Grid(0)->Get_Scaling(),
@@ -478,25 +466,6 @@ void CGrid_Merge::Set_Target(CSG_Parameters *pParameters, CSG_Parameter_List *pL
 	int	ny	= 1 + (int)(r.Get_YRange() / d);
 
 	Target.Set_User_Defined(pParameters, r.Get_XMin(), r.Get_YMin(), d, nx, ny);
-}
-
-//---------------------------------------------------------
-TSG_Data_Type CGrid_Merge::Get_Type(int Type, TSG_Data_Type Default)
-{
-	switch( Type )
-	{
-	case  0: return( SG_DATATYPE_Bit    );
-	case  1: return( SG_DATATYPE_Byte   );
-	case  2: return( SG_DATATYPE_Char   );
-	case  3: return( SG_DATATYPE_Word   );
-	case  4: return( SG_DATATYPE_Short  );
-	case  5: return( SG_DATATYPE_DWord  );
-	case  6: return( SG_DATATYPE_Int    );
-	case  7: return( SG_DATATYPE_Float  );
-	case  8: return( SG_DATATYPE_Double );
-	}
-
-	return( Default );
 }
 
 
@@ -962,8 +931,7 @@ int CGrids_Merge::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 //---------------------------------------------------------
 bool CGrids_Merge::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Parameter_Grids_List	*pList_Grids	= Parameters("GRIDS")->asGridsList();
+	CSG_Parameter_Grids_List *pList_Grids = Parameters("GRIDS")->asGridsList();
 
 	if( pList_Grids->Get_Item_Count() < 1 )
 	{
@@ -973,11 +941,11 @@ bool CGrids_Merge::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Grids		*pGrids	= pList_Grids->Get_Grids(0);
+	CSG_Grids  *pGrids = pList_Grids->Get_Grids(0);
 
-	TSG_Data_Type	Type	= CGrid_Merge::Get_Type(Parameters("TYPE")->asInt(), pGrids->Get_Type());
+	TSG_Data_Type Type = Parameters("TYPE")->asDataType()->Get_Data_Type(pGrids->Get_Type());
 
-	CSG_Grids	*pMosaic	= m_Grid_Target.Get_Grids("MOSAIC");
+	CSG_Grids *pMosaic = m_Grid_Target.Get_Grids("MOSAIC");
 
 	if( !pMosaic || !pMosaic->Create(CSG_Grid_System(pMosaic->Get_System()), pGrids->Get_Attributes(), pGrids->Get_Z_Attribute(), Type, true) )
 	{

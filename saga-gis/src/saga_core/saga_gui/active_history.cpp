@@ -363,6 +363,7 @@ bool CActive_History::_Add_History(wxTreeItemId Parent, CSG_MetaData &Data)
 				case PARAMETER_TYPE_Double:
 				case PARAMETER_TYPE_Degree:
 				case PARAMETER_TYPE_Date:
+				case PARAMETER_TYPE_Data_Type:
 				case PARAMETER_TYPE_Choice:
 				case PARAMETER_TYPE_Choices:
 				case PARAMETER_TYPE_Range:
@@ -509,6 +510,7 @@ bool CActive_History::_Add_History_OLD(wxTreeItemId Parent, CSG_MetaData &Data)
 				case PARAMETER_TYPE_Double:
 				case PARAMETER_TYPE_Degree:
 				case PARAMETER_TYPE_Date:
+				case PARAMETER_TYPE_Data_Type:
 				case PARAMETER_TYPE_Choice:
 				case PARAMETER_TYPE_Choices:
 				case PARAMETER_TYPE_Range:

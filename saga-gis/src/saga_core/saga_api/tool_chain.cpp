@@ -324,10 +324,16 @@ bool CSG_Tool_Chain::Create(const CSG_MetaData &Chain)
 		case PARAMETER_TYPE_String           : Parameters.Add_String         (ParentID, ID, Name, Desc, Value, false);	break;
 		case PARAMETER_TYPE_Text             : Parameters.Add_String         (ParentID, ID, Name, Desc, Value,  true);	break;
 
+		case PARAMETER_TYPE_Data_Type        : Parameters.Add_Data_Type      (ParentID, ID, Name, Desc,
+												Parameter.Cmp_Property("data_type", "integer" ) ? CSG_Parameter_Data_Type::Data_Types::Integer  :
+												Parameter.Cmp_Property("data_type", "numeric" ) ? CSG_Parameter_Data_Type::Data_Types::Numeric  :
+												Parameter.Cmp_Property("data_type", "standard") ? CSG_Parameter_Data_Type::Data_Types::Standard : CSG_Parameter_Data_Type::Data_Types::Undefined
+											); break;
+
 		case PARAMETER_TYPE_FilePath         : Parameters.Add_FilePath       (ParentID, ID, Name, Desc, Parameter.Get_Content("filter"), Value,
-													IS_TRUE_PROPERTY(Parameter, "save"     ),
-													IS_TRUE_PROPERTY(Parameter, "directory"),
-													IS_TRUE_PROPERTY(Parameter, "multiple" )
+												IS_TRUE_PROPERTY(Parameter, "save"     ),
+												IS_TRUE_PROPERTY(Parameter, "directory"),
+												IS_TRUE_PROPERTY(Parameter, "multiple" )
 											); break;
 
 		case PARAMETER_TYPE_Font             : break;

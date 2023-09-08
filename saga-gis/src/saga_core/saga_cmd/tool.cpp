@@ -426,6 +426,7 @@ bool CCMD_Tool::_Set_Parser(CSG_Parameters *pParameters, wxCmdLineParser &Parser
 				Parser.AddOption(ID, wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
 				break;
 
+			case PARAMETER_TYPE_Data_Type   :
 			case PARAMETER_TYPE_Choice      :
 			case PARAMETER_TYPE_Choices     :
 			case PARAMETER_TYPE_Table_Field :
@@ -580,6 +581,7 @@ bool CCMD_Tool::_Get_Options(CSG_Parameters *pParameters, bool bInitialize)
 				}
 				break;
 
+			case PARAMETER_TYPE_Data_Type:
 			case PARAMETER_TYPE_Choice:
 				if( _Found(ID, valString) )
 				{

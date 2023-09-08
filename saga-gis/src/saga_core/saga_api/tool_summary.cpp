@@ -164,6 +164,7 @@ void SG_XML_Add_Parameter(CSG_MetaData *pParent, CSG_Parameter *pParameter, CSG_
 		break;
 
 	//-----------------------------------------------------
+	case PARAMETER_TYPE_Data_Type:
 	case PARAMETER_TYPE_Choice:
 		{
 			CSG_MetaData	*pChild	= pItem->Add_Child(SG_XML_PARAM_LIST);

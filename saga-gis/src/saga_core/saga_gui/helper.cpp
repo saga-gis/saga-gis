@@ -667,36 +667,37 @@ bool		CONFIG_Read(wxConfigBase *pConfig, CSG_Parameter *pParameter)
 
 	switch( pParameter->Get_Type() )
 	{
-	case PARAMETER_TYPE_Bool    :
-	case PARAMETER_TYPE_Int     :
-	case PARAMETER_TYPE_Choice  :
-	case PARAMETER_TYPE_Color   :
+	case PARAMETER_TYPE_Bool      :
+	case PARAMETER_TYPE_Int       :
+	case PARAMETER_TYPE_Data_Type :
+	case PARAMETER_TYPE_Choice    :
+	case PARAMETER_TYPE_Color     :
 		return( pConfig->Read(Entry, &l) && pParameter->Set_Value((int)l) );
 
-	case PARAMETER_TYPE_Double  :
-	case PARAMETER_TYPE_Degree  :
+	case PARAMETER_TYPE_Double    :
+	case PARAMETER_TYPE_Degree    :
 		return( pConfig->Read(Entry, &d) && pParameter->Set_Value(d) );
 
-	case PARAMETER_TYPE_Date    :
-	case PARAMETER_TYPE_String  :
-	case PARAMETER_TYPE_Text    :
-	case PARAMETER_TYPE_FilePath:
-	case PARAMETER_TYPE_Choices :
+	case PARAMETER_TYPE_Date      :
+	case PARAMETER_TYPE_String    :
+	case PARAMETER_TYPE_Text      :
+	case PARAMETER_TYPE_FilePath  :
+	case PARAMETER_TYPE_Choices   :
 		return( pConfig->Read(Entry, &s) && pParameter->Set_Value((const SG_Char *)s) );
 
-	case PARAMETER_TYPE_Range   :
+	case PARAMETER_TYPE_Range     :
 		return(
 			pConfig->Read(Entry + "_LO", &d) && pParameter->asRange()->Set_Min(d)
 		&&	pConfig->Read(Entry + "_HI", &d) && pParameter->asRange()->Set_Max(d)
 		);
 
-	case PARAMETER_TYPE_Font    :
+	case PARAMETER_TYPE_Font      :
 		return(
 			pConfig->Read(Entry + "_FONT" , &s) && pParameter->Set_Value((const SG_Char *)s)
 		&&	pConfig->Read(Entry + "_COLOR", &l) && pParameter->Set_Value((int)l)
 		);
 
-	case PARAMETER_TYPE_Colors  :
+	case PARAMETER_TYPE_Colors    :
 		return( pConfig->Read(Entry, &s) && pParameter->asColors()->from_Text(&s) );
 
 	case PARAMETER_TYPE_Parameters:
@@ -731,36 +732,37 @@ bool		CONFIG_Write(wxConfigBase *pConfig, CSG_Parameter *pParameter)
 
 		switch( pParameter->Get_Type() )
 		{
-		case PARAMETER_TYPE_Bool    :
-		case PARAMETER_TYPE_Int     :
-		case PARAMETER_TYPE_Choice  :
-		case PARAMETER_TYPE_Color   :
+		case PARAMETER_TYPE_Bool      :
+		case PARAMETER_TYPE_Int       :
+		case PARAMETER_TYPE_Data_Type :
+		case PARAMETER_TYPE_Choice    :
+		case PARAMETER_TYPE_Color     :
 			return( pConfig->Write(Entry, pParameter->asInt()) );
 
-		case PARAMETER_TYPE_Double  :
-		case PARAMETER_TYPE_Degree  :
+		case PARAMETER_TYPE_Double    :
+		case PARAMETER_TYPE_Degree    :
 			return( pConfig->Write(Entry, pParameter->asDouble()) );
 
-		case PARAMETER_TYPE_Date    :
-		case PARAMETER_TYPE_String  :
-		case PARAMETER_TYPE_Text    :
-		case PARAMETER_TYPE_FilePath:
-		case PARAMETER_TYPE_Choices :
+		case PARAMETER_TYPE_Date      :
+		case PARAMETER_TYPE_String    :
+		case PARAMETER_TYPE_Text      :
+		case PARAMETER_TYPE_FilePath  :
+		case PARAMETER_TYPE_Choices   :
 			return( pConfig->Write(Entry, pParameter->asString()) );
 
-		case PARAMETER_TYPE_Range   :
+		case PARAMETER_TYPE_Range     :
 			return(
 				pConfig->Write(Entry + "_LO", pParameter->asRange()->Get_Min())
 			&&	pConfig->Write(Entry + "_HI", pParameter->asRange()->Get_Max())
 			);
 
-		case PARAMETER_TYPE_Font    :
+		case PARAMETER_TYPE_Font      :
 			return(
 				pConfig->Write(Entry + "_FONT" , (const SG_Char *)pParameter->asPointer())
 			&&	pConfig->Write(Entry + "_COLOR", pParameter->asInt())
 			);
 
-		case PARAMETER_TYPE_Colors  :
+		case PARAMETER_TYPE_Colors    :
 			{
 				CSG_String	s;
 

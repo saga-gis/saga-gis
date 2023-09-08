@@ -1680,7 +1680,8 @@ bool CWKSP_Data_Manager::MultiSelect_Check(void)
 							case PARAMETER_TYPE_Degree     :
 							case PARAMETER_TYPE_Color      :
 							case PARAMETER_TYPE_Table_Field:
-							case PARAMETER_TYPE_Choice     :	Parameter.Set_Value(0.0);	break;
+							case PARAMETER_TYPE_Data_Type  :
+							case PARAMETER_TYPE_Choice     :	Parameter.Set_Value(0.);	break;
 
 							case PARAMETER_TYPE_Choices    :
 							case PARAMETER_TYPE_String     :

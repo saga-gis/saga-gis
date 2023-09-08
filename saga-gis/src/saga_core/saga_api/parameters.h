@@ -128,6 +128,7 @@ typedef enum
 	PARAMETER_TYPE_Degree,
 	PARAMETER_TYPE_Date,
 	PARAMETER_TYPE_Range,
+	PARAMETER_TYPE_Data_Type,
 	PARAMETER_TYPE_Choice,
 	PARAMETER_TYPE_Choices,
 	PARAMETER_TYPE_String,
@@ -297,6 +298,7 @@ public:	///////////////////////////////////////////////////
 	//-----------------------------------------------------
 	class CSG_Parameter_Value           *	asValue			(void)	const;
 	class CSG_Parameter_Date            *	asDate			(void)	const;
+	class CSG_Parameter_Data_Type       *	asDataType		(void)	const;
 	class CSG_Parameter_Choice          *	asChoice		(void)	const;
 	class CSG_Parameter_Choices         *	asChoices		(void)	const;
 	class CSG_Parameter_Range           *	asRange			(void)	const;
@@ -686,6 +688,43 @@ protected:
 
 	virtual int					_asInt					(void)	const	{	return( m_Value );		}
 	virtual double				_asDouble				(void)	const	{	return( m_Value );		}
+
+	virtual bool				_Assign					(CSG_Parameter *pSource);
+	virtual bool				_Serialize				(CSG_MetaData &Entry, bool bSave);
+
+
+	friend class CSG_Parameters;
+};
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Parameter_Data_Type : public CSG_Parameter_Choice
+{
+public:
+
+	typedef enum
+	{
+		Undefined = 0x0, Integer = 0x1, Numeric = 0x2, Standard = 0x4
+	}
+	Data_Types;
+
+	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Data_Type );	}
+
+	bool						Set_Data_Types			(int Data_Types, int Default = -1, const CSG_String &User = "");
+
+	TSG_Data_Type				Get_Data_Type			(TSG_Data_Type Default = SG_DATATYPE_Undefined)	const;
+	
+	bool						is_User_Type			(void)	const;
+
+
+protected:
+
+	CSG_Parameter_Data_Type(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+
 
 	virtual bool				_Assign					(CSG_Parameter *pSource);
 	virtual bool				_Serialize				(CSG_MetaData &Entry, bool bSave);
@@ -1698,6 +1737,8 @@ public:
 
 	CSG_Parameter *				Add_Range				(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, double Range_Min = 0.0, double Range_Max = 0.0, double Minimum = 0.0, bool bMinimum = false, double Maximum = 0.0, bool bMaximum = false);
 	CSG_Parameter *				Add_Info_Range			(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, double Range_Min = 0.0, double Range_Max = 0.0);
+
+	CSG_Parameter *				Add_Data_Type			(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Data_Types, int Default = -1, const CSG_String &User = "");
 
 	CSG_Parameter *				Add_Choice				(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, const CSG_String &Items, int Default = 0);
 	CSG_Parameter *				Add_Choices				(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, const CSG_String &Items);

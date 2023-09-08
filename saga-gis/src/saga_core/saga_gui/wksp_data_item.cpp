@@ -557,7 +557,7 @@ bool CWKSP_Data_Item::Copy_Settings(CSG_Parameters *pParameters)
 
 				if( pTarget && pTarget->Get_Type() == pSource->Get_Type() )
 				{
-					if( pSource->Get_Type() == PARAMETER_TYPE_Choice )
+					if( pSource->Get_Type() == PARAMETER_TYPE_Choice || pSource->Get_Type() == PARAMETER_TYPE_Data_Type )
 					{
 						pTarget->Set_Value(pSource->asString()); // only try to match feature attributes by name
 					}

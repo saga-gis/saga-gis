@@ -107,20 +107,10 @@ CGrid_Calculator_Base::CGrid_Calculator_Base(void)
 		false
 	);
 
-	Parameters.Add_Choice("",
+	Parameters.Add_Data_Type("",
 		"TYPE"		, _TL("Data Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s",
-			SG_Data_Type_Get_Name(SG_DATATYPE_Bit   ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Byte  ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Char  ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Word  ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Short ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_DWord ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Int   ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Float ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Double).c_str()
-		), 7
+		CSG_Parameter_Data_Type::Data_Types::Numeric
 	);
 }
 
@@ -365,19 +355,7 @@ bool CGrid_Calculator_Base::Initialize(int nGrids, int nGrids_X)
 //---------------------------------------------------------
 TSG_Data_Type CGrid_Calculator_Base::Get_Result_Type(void)
 {
-	switch( Parameters("TYPE")->asInt() )
-	{
-	default: return( SG_DATATYPE_Float  );
-	case  0: return( SG_DATATYPE_Bit    );
-	case  1: return( SG_DATATYPE_Byte   );
-	case  2: return( SG_DATATYPE_Char   );
-	case  3: return( SG_DATATYPE_Word   );
-	case  4: return( SG_DATATYPE_Short  );
-	case  5: return( SG_DATATYPE_DWord  );
-	case  6: return( SG_DATATYPE_Int    );
-	case  7: return( SG_DATATYPE_Float  );
-	case  8: return( SG_DATATYPE_Double );
-	}
+	return( Parameters("TYPE")->asDataType()->Get_Data_Type() );
 }
 
 //---------------------------------------------------------

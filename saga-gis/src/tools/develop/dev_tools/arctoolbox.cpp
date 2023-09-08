@@ -389,6 +389,7 @@ bool CArcToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_Strings &Infos, C
 		Info	+= CSG_String::Format("\t\tparam.value = %f\n", pParameter->asDouble());
 		break;
 
+	case PARAMETER_TYPE_Data_Type:
 	case PARAMETER_TYPE_Choice:
 		Info	+= ArcDataType(ARC_String   , false);
 		Info	+= "\t\tparam.filter.list = [\"";

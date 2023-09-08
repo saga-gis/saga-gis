@@ -440,13 +440,25 @@ CSG_Parameter * CSG_Parameters::Add_Info_Range(const CSG_String &ParentID, const
 }
 
 //---------------------------------------------------------
+CSG_Parameter * CSG_Parameters::Add_Data_Type(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Data_Types, int Default, const CSG_String &User)
+{
+	CSG_Parameter *pParameter = _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_Data_Type, 0);
+
+	bool bCallback = Set_Callback(false);
+	pParameter->asDataType()->Set_Data_Types(Data_Types, Default, User);
+	Set_Callback(bCallback);
+
+	return( pParameter );
+}
+
+//---------------------------------------------------------
 CSG_Parameter * CSG_Parameters::Add_Choice(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, const CSG_String &Items, int Default)
 {
 	CSG_Parameter	*pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_Choice, 0);
 
 	pParameter->asChoice()->Set_Items(Items);
 
-	bool	bCallback	= Set_Callback(false);
+	bool bCallback = Set_Callback(false);
 	pParameter->Set_Value  (Default);
 	pParameter->Set_Default(Default);
 	Set_Callback(bCallback);
@@ -1052,6 +1064,7 @@ CSG_Parameter * CSG_Parameters::_Add(const CSG_String &ParentID, const CSG_Strin
 	case PARAMETER_TYPE_Degree           : pParameter = new CSG_Parameter_Degree            (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
 	case PARAMETER_TYPE_Date             : pParameter = new CSG_Parameter_Date              (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
 	case PARAMETER_TYPE_Range            : pParameter = new CSG_Parameter_Range             (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
+	case PARAMETER_TYPE_Data_Type        : pParameter = new CSG_Parameter_Data_Type         (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
 	case PARAMETER_TYPE_Choice           : pParameter = new CSG_Parameter_Choice            (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
 	case PARAMETER_TYPE_Choices          : pParameter = new CSG_Parameter_Choices           (this, Get_Parameter(ParentID), ID, Name, Description, Constraint); break;
 

@@ -1411,6 +1411,7 @@ void CSG_Tool::_Get_Script_CMD(CSG_String &Script, CSG_Parameters *pParameters, 
 			break;
 
 		case PARAMETER_TYPE_Int              :
+		case PARAMETER_TYPE_Data_Type        :
 		case PARAMETER_TYPE_Choice           :
 		case PARAMETER_TYPE_Table_Field      :
 			Script	+= Prefix + CSG_String::Format("%s=%d", GET_ID1(p), p->asInt());
@@ -1705,6 +1706,7 @@ void CSG_Tool::_Get_Script_Python(CSG_String &Script, CSG_Parameters *pParameter
 			Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', %d)\n", ID.c_str(), p->asInt());
 			break;
 
+		case PARAMETER_TYPE_Data_Type      :
 		case PARAMETER_TYPE_Choice         :
 			Script	+= CSG_String::Format("    Tool.Set_Parameter('%s', %d) # '%s'\n", ID.c_str(), p->asInt(), p->asString());
 			break;
