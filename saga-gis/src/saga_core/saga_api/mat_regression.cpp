@@ -160,18 +160,24 @@ bool CSG_Regression::Set_Values(int nValues, double *x, double *y)
 //---------------------------------------------------------
 const SG_Char * CSG_Regression::asString(void)
 {
-	static CSG_String s;
+	static CSG_String s; s.Clear();
 
-	s.Printf(
-		"N = %d\n"
-		"  Min. = %.6f  Max. = %.6f\n  Arithmetic Mean = %.6f\n  Variance = %.6f\n  Standard Deviation = %.6f\n"
-		"  Min. = %.6f  Max. = %.6f\n  Arithmetic Mean = %.6f\n  Variance = %.6f\n  Standard Deviation = %.6f\n"
-		"Linear Regression:\n  Y = %.6f * X %+.6f\n  (r=%.4f, r\xc2\xb2=%.4f)",
-		Get_Count(),
-		m_xMin, m_xMax, m_xMean, m_xVar, sqrt(m_xVar),
-		m_yMin, m_yMax, m_yMean, m_yVar, sqrt(m_yVar),
-		m_RCoeff, m_RConst, m_R, m_R2
-	);
+	s += CSG_String::Format("\nNumber of observations = %d\n", Get_Count());
+	s += CSG_String::Format("\nPredictor variable (x):\n  min. = %.6f, max. = %.6f, mean = %.6f, stddev. = %.6f\n", m_xMin, m_xMax, m_xMean, sqrt(m_xVar));
+	s += CSG_String::Format("\nDependent variable (y):\n  min. = %.6f, max. = %.6f, mean = %.6f, stddev. = %.6f\n", m_yMin, m_yMax, m_yMean, sqrt(m_yVar));
+	s += CSG_String::Format(SG_T("\nRegression (r = %.4f, r² = %.4f):\n\n  y = "), m_R, m_R2);
+
+	switch( m_Type )
+	{
+	case REGRESSION_Linear: s += CSG_String::Format("%.6f %+.6f * x"     , m_RConst, m_RCoeff); break; // Y = a + b * X
+	case REGRESSION_Rez_X : s += CSG_String::Format("%.6f %+.6f / x"     , m_RConst, m_RCoeff); break; // Y = a + b / X
+	case REGRESSION_Rez_Y : s += CSG_String::Format("%.6f / (%.6f - x)"  , m_RConst, m_RCoeff); break; // Y = a / (b - X)
+	case REGRESSION_Pow   : s += CSG_String::Format("%.6f * x^%.6f"      , m_RConst, m_RCoeff); break; // Y = a * X^b
+	case REGRESSION_Exp   : s += CSG_String::Format("%.6f * e^(%.6f * x)", m_RConst, m_RCoeff); break; // Y = a * e^(b * X)
+	case REGRESSION_Log   : s += CSG_String::Format("%.6f %+.6f * ln(x)" , m_RConst, m_RCoeff); break; // Y = a + b * ln(X)
+	}
+
+	s += "\n";
 
 	return( s );
 }
@@ -191,26 +197,32 @@ double CSG_Regression::Get_x(double y)	const
 		case REGRESSION_Linear:	// Y = a + b * X     -> X = (Y - a) / b
 			if( m_RCoeff != 0. )
 				return( (m_RConst * y) / m_RCoeff );
+			break;
 
 		case REGRESSION_Rez_X:	// Y = a + b / X     -> X = b / (Y - a)
 			if( (y = y - m_RConst) != 0. )
 				return( m_RCoeff / y );
+			break;
 
 		case REGRESSION_Rez_Y:	// Y = a / (b - X)   -> X = b - a / Y
 			if( y != 0. )
 				return( m_RCoeff - m_RConst / y );
+			break;
 
 		case REGRESSION_Pow:	// Y = a * X^b       -> X = (Y / a)^(1 / b)
 			if( m_RConst != 0. && m_RCoeff != 0. )
 				return( pow(y / m_RConst, 1. / m_RCoeff) );
+			break;
 
 		case REGRESSION_Exp:	// Y = a * e^(b * X) -> X = ln(Y / a) / b
 			if( m_RConst != 0. && (y = y / m_RConst) > 0. && m_RCoeff != 0. )
-			return( log(y) / m_RCoeff );
+				return( log(y) / m_RCoeff );
+			break;
 
 		case REGRESSION_Log:	// Y = a + b * ln(X) -> X = e^((Y - a) / b)
 			if( m_RCoeff != 0. )
 				return( exp((y - m_RConst) / m_RCoeff) );
+			break;
 		}
 	}
 
@@ -230,10 +242,12 @@ double CSG_Regression::Get_y(double x)	const
 		case REGRESSION_Rez_X:	// Y = a + b / X
 			if( x != 0. )
 				return( m_RConst + m_RCoeff / x );
+			break;
 
 		case REGRESSION_Rez_Y:	// Y = a / (b - X)
 			if( (x = m_RCoeff - x) != 0. )
 				return( m_RConst / x );
+			break;
 
 		case REGRESSION_Pow:	// Y = a * X^b
 			return( m_RConst * pow(x, m_RCoeff) );
@@ -244,6 +258,7 @@ double CSG_Regression::Get_y(double x)	const
 		case REGRESSION_Log:	// Y = a + b * ln(X)
 			if( x > 0. )
 				return( m_RConst + m_RCoeff * log(x) );
+			break;
 		}
 	}
 
@@ -409,7 +424,7 @@ bool CSG_Regression::Calculate(TSG_Regression_Type Type, bool bStdError)
 	CSG_Simple_Statistics s;
 
 	if( !s.Create(m_x) ) { return( false ); } m_xMin = s.Get_Minimum(); m_xMean = s.Get_Mean(); m_xMax = s.Get_Maximum(); m_xVar = s.Get_Variance();
-	if( !s.Create(m_y) ) { return( false ); } m_yMin = s.Get_Minimum(); m_yMean = s.Get_Mean(); m_yMax = s.Get_Maximum(); m_xVar = s.Get_Variance();
+	if( !s.Create(m_y) ) { return( false ); } m_yMin = s.Get_Minimum(); m_yMean = s.Get_Mean(); m_yMax = s.Get_Maximum(); m_yVar = s.Get_Variance();
 
 	return( true );
 }

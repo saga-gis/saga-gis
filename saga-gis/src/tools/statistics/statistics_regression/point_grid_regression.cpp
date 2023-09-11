@@ -120,12 +120,12 @@ CPoint_Grid_Regression::CPoint_Grid_Regression(void)
 		"METHOD"	, _TL("Regression Function"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s|%s",
-			SG_T("Y = a + b * X (linear)"),
-			SG_T("Y = a + b / X"),
-			SG_T("Y = a / (b - X)"),
-			SG_T("Y = a * X^b (power)"),
-			SG_T("Y = a e^(b * X) (exponential)"),
-			SG_T("Y = a + b * ln(X) (logarithmic)")
+			SG_T("y = a + b * x (linear)"),
+			SG_T("y = a + b / x"),
+			SG_T("y = a / (b - x)"),
+			SG_T("y = a * x^b (power)"),
+			SG_T("y = a e^(b * x) (exponential)"),
+			SG_T("y = a + b * ln(x) (logarithmic)")
 		), 0
 	);
 }
