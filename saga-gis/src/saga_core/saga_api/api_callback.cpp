@@ -78,11 +78,16 @@ void	SG_UI_Console_Print_StdOut(const CSG_String &Text, SG_Char End, bool bFlush
 {
 	if( gSG_UI_Console_bUTF8 )
 	{
-		printf("%s%c", Text.to_UTF8 ().Get_Data(), End);
+		printf("%s", Text.to_UTF8 ().Get_Data());
 	}
 	else
 	{
-		printf("%s%c", Text.to_ASCII().Get_Data(), End);
+		printf("%s", Text.to_ASCII().Get_Data());
+	}
+
+	if( End )
+	{
+		printf("%c", End);
 	}
 
 	if( bFlush )
@@ -96,11 +101,16 @@ void	SG_UI_Console_Print_StdErr(const CSG_String &Text, SG_Char End, bool bFlush
 {
 	if( gSG_UI_Console_bUTF8 )
 	{
-		fprintf(stderr, "%s%c", Text.to_UTF8 ().Get_Data(), End);
+		fprintf(stderr, "%s", Text.to_UTF8 ().Get_Data());
 	}
 	else
 	{
-		fprintf(stderr, "%s%c", Text.to_ASCII().Get_Data(), End);
+		fprintf(stderr, "%s", Text.to_ASCII().Get_Data());
+	}
+
+	if( End )
+	{
+		printf("%c", End);
 	}
 
 	if( bFlush )
@@ -489,7 +499,12 @@ void		SG_UI_Msg_Add(const CSG_String &Message, bool bNewLine, TSG_UI_MSG_STYLE S
 		}
 		else
 		{
-			SG_UI_Console_Print_StdOut(CSG_String::Format("%c%s", bNewLine ? '\n' : '\0', Message.c_str()), '\0', true);
+			if( bNewLine )
+			{
+				SG_UI_Console_Print_StdOut("");
+			}
+
+			SG_UI_Console_Print_StdOut(Message, '\0', true);
 		}
 	}
 }
@@ -511,7 +526,12 @@ void		SG_UI_Msg_Add_Execution(const CSG_String &Message, bool bNewLine, TSG_UI_M
 		}
 		else
 		{
-			SG_UI_Console_Print_StdOut(CSG_String::Format("%c%s", bNewLine ? '\n' : '\0', Message.c_str()), '\0', true);
+			if( bNewLine )
+			{
+				SG_UI_Console_Print_StdOut("");
+			}
+
+			SG_UI_Console_Print_StdOut(Message, '\0', true);
 		}
 	}
 }
