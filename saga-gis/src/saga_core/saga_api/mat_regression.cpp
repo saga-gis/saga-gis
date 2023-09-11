@@ -165,7 +165,7 @@ const SG_Char * CSG_Regression::asString(void)
 	s += CSG_String::Format("\nNumber of observations = %d\n", Get_Count());
 	s += CSG_String::Format("\nPredictor variable (x):\n  min. = %.6f, max. = %.6f, mean = %.6f, stddev. = %.6f\n", m_xMin, m_xMax, m_xMean, sqrt(m_xVar));
 	s += CSG_String::Format("\nDependent variable (y):\n  min. = %.6f, max. = %.6f, mean = %.6f, stddev. = %.6f\n", m_yMin, m_yMax, m_yMean, sqrt(m_yVar));
-	s += CSG_String::Format(SG_T("\nRegression (r = %.4f, r² = %.4f):\n\n  y = "), m_R, m_R2);
+	s += CSG_String::Format(SG_T("\nRegression (r = %.4f, rÂ² = %.4f):\n\n  y = "), m_R, m_R2);
 
 	switch( m_Type )
 	{
