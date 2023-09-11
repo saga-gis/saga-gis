@@ -318,17 +318,12 @@ bool CSG_Tool_Chain::Create(const CSG_MetaData &Chain)
 		case PARAMETER_TYPE_Date             : Parameters.Add_Date           (ParentID, ID, Name, Desc, 0.)->Set_Value(Value);	break;
 
 		case PARAMETER_TYPE_Range            : Parameters.Add_Range          (ParentID, ID, Name, Desc, Value.BeforeFirst(';').asDouble(), Value.AfterFirst(';').asDouble(), Min, bMin, Max, bMax);	break;
+		case PARAMETER_TYPE_Data_Type        :
 		case PARAMETER_TYPE_Choice           : Parameters.Add_Choice         (ParentID, ID, Name, Desc, Parameter.Get_Content("choices"))->Set_Value(Value);	break;
 		case PARAMETER_TYPE_Choices          : Parameters.Add_Choices        (ParentID, ID, Name, Desc, Parameter.Get_Content("choices"))->Set_Value(Value);	break;
 
 		case PARAMETER_TYPE_String           : Parameters.Add_String         (ParentID, ID, Name, Desc, Value, false);	break;
 		case PARAMETER_TYPE_Text             : Parameters.Add_String         (ParentID, ID, Name, Desc, Value,  true);	break;
-
-		case PARAMETER_TYPE_Data_Type        : Parameters.Add_Data_Type      (ParentID, ID, Name, Desc,
-												Parameter.Cmp_Property("data_type", "integer" ) ? CSG_Parameter_Data_Type::Data_Types::Integer  :
-												Parameter.Cmp_Property("data_type", "numeric" ) ? CSG_Parameter_Data_Type::Data_Types::Numeric  :
-												Parameter.Cmp_Property("data_type", "standard") ? CSG_Parameter_Data_Type::Data_Types::Standard : CSG_Parameter_Data_Type::Data_Types::Undefined
-											); break;
 
 		case PARAMETER_TYPE_FilePath         : Parameters.Add_FilePath       (ParentID, ID, Name, Desc, Parameter.Get_Content("filter"), Value,
 												IS_TRUE_PROPERTY(Parameter, "save"     ),
@@ -847,7 +842,7 @@ bool CSG_Tool_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Paramete
 	switch( pOption->Get_Type() )
 	{
 	//-----------------------------------------------------
-	case PARAMETER_TYPE_Bool    :
+	case PARAMETER_TYPE_Bool     :
 		{
 			CSG_String	Value;
 
@@ -860,9 +855,10 @@ bool CSG_Tool_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Paramete
 		break;
 
 	//-----------------------------------------------------
-	case PARAMETER_TYPE_Int     :
-	case PARAMETER_TYPE_Color   :
-	case PARAMETER_TYPE_Choice  :
+	case PARAMETER_TYPE_Int      :
+	case PARAMETER_TYPE_Color    :
+	case PARAMETER_TYPE_Data_Type:
+	case PARAMETER_TYPE_Choice   :
 		{
 			int		Value;
 
@@ -877,8 +873,8 @@ bool CSG_Tool_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Paramete
 		break;
 
 	//-----------------------------------------------------
-	case PARAMETER_TYPE_Double  :
-	case PARAMETER_TYPE_Degree  :
+	case PARAMETER_TYPE_Double   :
+	case PARAMETER_TYPE_Degree   :
 		{
 			double	Value;
 
@@ -893,9 +889,9 @@ bool CSG_Tool_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Paramete
 		break;
 
 	//-----------------------------------------------------
-	case PARAMETER_TYPE_String  :
-	case PARAMETER_TYPE_Text    :
-	case PARAMETER_TYPE_FilePath:
+	case PARAMETER_TYPE_String   :
+	case PARAMETER_TYPE_Text     :
+	case PARAMETER_TYPE_FilePath :
 		{
 			CSG_String	Value;
 
@@ -1760,6 +1756,7 @@ bool CSG_Tool_Chain::_Get_Script_Tool(CSG_MetaData &Tool, CSG_Parameters *pParam
 			pChild	= Tool.Add_Child("option", pParameter->asString());
 			break;
 
+		case PARAMETER_TYPE_Data_Type   :
 		case PARAMETER_TYPE_Choice      :
 			pChild	= Tool.Add_Child("option", pParameter->asInt());
 			break;
@@ -2204,6 +2201,7 @@ bool CSG_Tool_Chain::_Save_History_Add_Tool(const CSG_MetaData &History, CSG_Met
 				pParameter	= Tool.Add_Child("option", pChild->Get_Content());
 				break;
 
+			case PARAMETER_TYPE_Data_Type   :
 			case PARAMETER_TYPE_Choice      :
 				pParameter	= Tool.Add_Child("option", pChild->Get_Property("index"));
 				break;
