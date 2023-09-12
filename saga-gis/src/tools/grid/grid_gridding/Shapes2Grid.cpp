@@ -133,21 +133,10 @@ CShapes2Grid::CShapes2Grid(void)
 		), 1
 	);
 
-	Parameters.Add_Choice("",
+	Parameters.Add_Data_Type("",
 		"GRID_TYPE"	, _TL("Data Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
-			_TL("1 bit"),
-			_TL("1 byte unsigned integer"),
-			_TL("1 byte signed integer"),
-			_TL("2 byte unsigned integer"),
-			_TL("2 byte signed integer"),
-			_TL("4 byte unsigned integer"),
-			_TL("4 byte signed integer"),
-			_TL("4 byte floating point"),
-			_TL("8 byte floating point"),
-			_TL("same as attribute")
-		), 9
+		SG_DATATYPES_Numeric|SG_DATATYPES_Bit, SG_DATATYPE_Undefined, _TL("same as attribute")
 	);
 
 	//-----------------------------------------------------
