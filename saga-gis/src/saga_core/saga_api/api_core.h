@@ -1011,6 +1011,31 @@ typedef enum
 TSG_Data_Type;
 
 //---------------------------------------------------------
+#define SG_DATATYPES_Undefined 0x0000
+#define SG_DATATYPES_Bit       0x0001
+#define SG_DATATYPES_Byte      0x0002
+#define SG_DATATYPES_Char      0x0004
+#define SG_DATATYPES_Word      0x0008
+#define SG_DATATYPES_Short     0x0010
+#define SG_DATATYPES_DWord     0x0020
+#define SG_DATATYPES_Int       0x0040
+#define SG_DATATYPES_ULong     0x0080
+#define SG_DATATYPES_Long      0x0100
+#define SG_DATATYPES_Float     0x0200
+#define SG_DATATYPES_Double    0x0400
+#define SG_DATATYPES_String    0x0800
+#define SG_DATATYPES_Date      0x1000
+#define SG_DATATYPES_Color     0x2000
+#define SG_DATATYPES_Binary    0x4000
+#define SG_DATATYPES_Standard  0xFFFF // all flags set
+#define SG_DATATYPES_SInteger  (SG_DATATYPES_Char|SG_DATATYPES_Short|SG_DATATYPES_Int  |SG_DATATYPES_Long)
+#define SG_DATATYPES_UInteger  (SG_DATATYPES_Byte|SG_DATATYPES_Word |SG_DATATYPES_DWord|SG_DATATYPES_ULong)
+#define SG_DATATYPES_Integer   (SG_DATATYPES_SInteger|SG_DATATYPES_UInteger)
+#define SG_DATATYPES_Real      (SG_DATATYPES_Float|SG_DATATYPES_Double)
+#define SG_DATATYPES_Numeric   (SG_DATATYPES_Integer|SG_DATATYPES_Real)
+#define SG_DATATYPES_Table     (SG_DATATYPES_String|SG_DATATYPES_Date|SG_DATATYPES_Color|SG_DATATYPES_Numeric|SG_DATATYPES_Binary)
+
+//---------------------------------------------------------
 const char	gSG_Data_Type_Identifier[][32]	=
 {
 	"BIT",
@@ -1059,6 +1084,7 @@ inline size_t	SG_Data_Type_Get_Size	(TSG_Data_Type Type)
 SAGA_API_DLL_EXPORT CSG_String		SG_Data_Type_Get_Name		(TSG_Data_Type Type, bool bShort = false);
 SAGA_API_DLL_EXPORT CSG_String		SG_Data_Type_Get_Identifier	(TSG_Data_Type Type);
 SAGA_API_DLL_EXPORT TSG_Data_Type	SG_Data_Type_Get_Type		(const CSG_String &Identifier);
+SAGA_API_DLL_EXPORT int				SG_Data_Type_Get_Flag		(TSG_Data_Type Type);
 SAGA_API_DLL_EXPORT bool			SG_Data_Type_is_Numeric		(TSG_Data_Type Type);
 SAGA_API_DLL_EXPORT bool			SG_Data_Type_Range_Check	(TSG_Data_Type Type, double &Value);
 

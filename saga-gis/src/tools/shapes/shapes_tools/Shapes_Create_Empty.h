@@ -88,9 +88,6 @@ private:
 
 	static void					Set_Field_Count			(CSG_Parameters *pFields, int nFields);
 
-	CSG_String					Get_Field_Name			(int iField);
-	TSG_Data_Type				Get_Field_Type			(int iField);
-
 };
 
 

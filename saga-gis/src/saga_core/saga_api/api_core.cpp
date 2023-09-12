@@ -123,7 +123,6 @@ CSG_String	SG_Data_Type_Get_Name	(TSG_Data_Type Type, bool bShort)
 {
 	switch( Type )
 	{
-	default                : return( bShort ? _TL("none"  ) : _TL("undefined"                   ) );
 	case SG_DATATYPE_Bit   : return(          _TL("bit"   ) );
 	case SG_DATATYPE_Byte  : return( bShort ? _TL("uint8" ) : _TL("unsigned 1 byte integer"     ) );
 	case SG_DATATYPE_Char  : return( bShort ? _TL("int8"  ) : _TL("signed 1 byte integer"       ) );
@@ -139,6 +138,7 @@ CSG_String	SG_Data_Type_Get_Name	(TSG_Data_Type Type, bool bShort)
 	case SG_DATATYPE_Date  : return(          _TL("date"  ) );
 	case SG_DATATYPE_Color : return(          _TL("color" ) );
 	case SG_DATATYPE_Binary: return(          _TL("binary") );
+	default                : return( bShort ? _TL("none"  ) : _TL("undefined"                   ) );
 	}
 };
 
@@ -168,6 +168,30 @@ TSG_Data_Type SG_Data_Type_Get_Type(const CSG_String &Identifier)
 
 	return( SG_DATATYPE_Undefined );
 }
+
+//---------------------------------------------------------
+int	SG_Data_Type_Get_Flag(TSG_Data_Type Type)
+{
+	switch( Type )
+	{
+	case SG_DATATYPE_Bit   : return( SG_DATATYPES_Bit       );
+	case SG_DATATYPE_Byte  : return( SG_DATATYPES_Byte      );
+	case SG_DATATYPE_Char  : return( SG_DATATYPES_Char      );
+	case SG_DATATYPE_Word  : return( SG_DATATYPES_Word      );
+	case SG_DATATYPE_Short : return( SG_DATATYPES_Short     );
+	case SG_DATATYPE_DWord : return( SG_DATATYPES_DWord     );
+	case SG_DATATYPE_Int   : return( SG_DATATYPES_Int       );
+	case SG_DATATYPE_ULong : return( SG_DATATYPES_ULong     );
+	case SG_DATATYPE_Long  : return( SG_DATATYPES_Long      );
+	case SG_DATATYPE_Float : return( SG_DATATYPES_Float     );
+	case SG_DATATYPE_Double: return( SG_DATATYPES_Double    );
+	case SG_DATATYPE_String: return( SG_DATATYPES_String    );
+	case SG_DATATYPE_Date  : return( SG_DATATYPES_Date      );
+	case SG_DATATYPE_Color : return( SG_DATATYPES_Color     );
+	case SG_DATATYPE_Binary: return( SG_DATATYPES_Binary    );
+	default                : return( SG_DATATYPES_Undefined );
+	}
+};
 
 //---------------------------------------------------------
 bool SG_Data_Type_is_Numeric(TSG_Data_Type Type)

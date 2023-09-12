@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 /*******************************************************************************
     ConstantGrid.cpp
     Copyright (C) Victor Olaya
@@ -47,37 +44,24 @@ CConstantGrid::CConstantGrid(void)
 		"Constant grid creation."
 	));
 
-	//-----------------------------------------------------
-	Parameters.Add_String(
-		NULL	, "NAME"		, _TL("Name"),
+	Parameters.Add_String("",
+		"NAME"	, _TL("Name"),
 		_TL(""),
 		_TL("Constant Grid")
 	);
 
-	Parameters.Add_Value(
-		NULL	, "CONST"		, _TL("Constant Value"),
+	Parameters.Add_Double("",
+		"CONST"	, _TL("Constant Value"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1
+		1.
 	);
 
-	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		NULL	, "TYPE"		, _TL("Data Type"),
+	Parameters.Add_Data_Type("",
+		"TYPE"	, _TL("Data Type"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Bit   ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Byte  ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Char  ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Word  ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Short ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_ULong ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Long  ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Float ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Double).c_str()
-		), 7
+		SG_DATATYPES_Numeric|SG_DATATYPES_Bit
 	);
 
-	//-----------------------------------------------------
 	m_Grid_Target.Create(&Parameters);
 }
 
@@ -89,13 +73,17 @@ CConstantGrid::CConstantGrid(void)
 //---------------------------------------------------------
 int CConstantGrid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
 int CConstantGrid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -106,36 +94,17 @@ int CConstantGrid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramet
 //---------------------------------------------------------
 bool CConstantGrid::On_Execute(void)
 {
-	//-----------------------------------------------------
-	TSG_Data_Type	Type	= SG_DATATYPE_Float;
+	CSG_Grid *pGrid = m_Grid_Target.Get_Grid(Parameters("TYPE")->asDataType()->Get_Data_Type());
 
-	switch( Parameters("TYPE")->asInt() )
+	if( pGrid )
 	{
-	case 0:	Type	= SG_DATATYPE_Bit   ;	break;
-	case 1:	Type	= SG_DATATYPE_Byte  ;	break;
-	case 2:	Type	= SG_DATATYPE_Char  ;	break;
-	case 3:	Type	= SG_DATATYPE_Word  ;	break;
-	case 4:	Type	= SG_DATATYPE_Short ;	break;
-	case 5:	Type	= SG_DATATYPE_ULong ;	break;
-	case 6:	Type	= SG_DATATYPE_Long  ;	break;
-	case 7:	Type	= SG_DATATYPE_Float ;	break;
-	case 8:	Type	= SG_DATATYPE_Double;	break;
+		pGrid->Set_Name(Parameters("NAME" )->asString());
+		pGrid->Assign  (Parameters("CONST")->asDouble());
+
+		return( true );
 	}
 
-	//-----------------------------------------------------
-	CSG_Grid	*pGrid	= m_Grid_Target.Get_Grid(Type);
-
-	if( pGrid == NULL )
-	{
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	pGrid->Set_Name(Parameters("NAME" )->asString());
-
-	pGrid->Assign  (Parameters("CONST")->asDouble());
-
-	return( true );
+	return( false );
 }
 
 

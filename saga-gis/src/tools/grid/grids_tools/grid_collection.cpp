@@ -212,33 +212,16 @@ int CGrids_Create::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramet
 //---------------------------------------------------------
 void CGrids_Create::Set_Field_Count(CSG_Parameters *pFields, int nFields)
 {
-	static const CSG_String	Types(
-		SG_Data_Type_Get_Name(SG_DATATYPE_String) + "|" + //  0
-		SG_Data_Type_Get_Name(SG_DATATYPE_Date  ) + "|" + //  1
-		SG_Data_Type_Get_Name(SG_DATATYPE_Color ) + "|" + //  2
-		SG_Data_Type_Get_Name(SG_DATATYPE_Byte  ) + "|" + //  3
-		SG_Data_Type_Get_Name(SG_DATATYPE_Char  ) + "|" + //  4
-		SG_Data_Type_Get_Name(SG_DATATYPE_Word  ) + "|" + //  5
-		SG_Data_Type_Get_Name(SG_DATATYPE_Short ) + "|" + //  6
-		SG_Data_Type_Get_Name(SG_DATATYPE_DWord ) + "|" + //  7
-		SG_Data_Type_Get_Name(SG_DATATYPE_Int   ) + "|" + //  8
-		SG_Data_Type_Get_Name(SG_DATATYPE_ULong ) + "|" + //  9
-		SG_Data_Type_Get_Name(SG_DATATYPE_Long  ) + "|" + // 10
-		SG_Data_Type_Get_Name(SG_DATATYPE_Float ) + "|" + // 11
-		SG_Data_Type_Get_Name(SG_DATATYPE_Double) + "|" + // 12
-		SG_Data_Type_Get_Name(SG_DATATYPE_Binary) + "|"   // 13
-	);
-
 	if( pFields && nFields >= 0 )
 	{
-		int		nCurrent	= pFields->Get_Count() / 2;
+		int nCurrent = pFields->Get_Count() / 2;
 
 		if( nCurrent < nFields )
 		{
 			for(int i=nCurrent; i<nFields; i++)
 			{
-				pFields->Add_String(""            , GET_ID_NAME(i), _TL("Name"), _TL(""), _TL("Value"));
-				pFields->Add_Choice(GET_ID_NAME(i), GET_ID_TYPE(i), _TL("Type"), _TL(""), Types, 11);	// float
+				pFields->Add_String   (""            , GET_ID_NAME(i), _TL("Name"), _TL(""), _TL("Value"));
+				pFields->Add_Data_Type(GET_ID_NAME(i), GET_ID_TYPE(i), _TL("Type"), _TL(""), SG_DATATYPES_Table, SG_DATATYPE_Float);
 			}
 		}
 		else if( nCurrent > nFields )
@@ -260,23 +243,7 @@ CSG_String CGrids_Create::Get_Field_Name(int iField)
 //---------------------------------------------------------
 TSG_Data_Type CGrids_Create::Get_Field_Type(int iField)
 {
-	switch( Parameters("FIELDS")->asParameters()->Get_Parameter(GET_ID_TYPE(iField))->asInt() )
-	{
-	default: return( SG_DATATYPE_String );
-	case  1: return( SG_DATATYPE_Date   );
-	case  2: return( SG_DATATYPE_Color  );
-	case  3: return( SG_DATATYPE_Byte   );
-	case  4: return( SG_DATATYPE_Char   );
-	case  5: return( SG_DATATYPE_Word   );
-	case  6: return( SG_DATATYPE_Short  );
-	case  7: return( SG_DATATYPE_DWord  );
-	case  8: return( SG_DATATYPE_Int    );
-	case  9: return( SG_DATATYPE_ULong  );
-	case 10: return( SG_DATATYPE_Long   );
-	case 11: return( SG_DATATYPE_Float  );
-	case 12: return( SG_DATATYPE_Double );
-	case 13: return( SG_DATATYPE_Binary );
-	}
+	return( Parameters("FIELDS")->asParameters()->Get_Parameter(GET_ID_TYPE(iField))->asDataType()->Get_Data_Type() );
 }
 
 

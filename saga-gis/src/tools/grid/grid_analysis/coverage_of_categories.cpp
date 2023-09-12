@@ -111,15 +111,10 @@ CCoverage_of_Categories::CCoverage_of_Categories(void)
 		true
 	);
 
-	Parameters.Add_Choice("",
+	Parameters.Add_Data_Type("",
 		"DATADEPTH"	, _TL("Data Depth"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s",
-			_TL("1-byte"),
-			_TL("2-byte"),
-			_TL("4-byte"),
-			_TL("8-byte")
-		), 1
+		SG_DATATYPES_Byte|SG_DATATYPES_Word|SG_DATATYPES_Float|SG_DATATYPES_Double, SG_DATATYPE_Word
 	);
 
 	Parameters.Add_Choice("",
@@ -345,14 +340,14 @@ bool CCoverage_of_Categories::Initialize(const CSG_Grid_System &System)
 	}
 
 	//-----------------------------------------------------
-	TSG_Data_Type Type; double Scaling, Scale = Parameters("UNIT")->asInt() == 0 ? 1. : 100.;
+	TSG_Data_Type Type = Parameters("DATADEPTH")->asDataType()->Get_Data_Type(); double Scaling, Scale = Parameters("UNIT")->asInt() == 0 ? 1. : 100.;
 
-	switch( Parameters("DATADEPTH")->asInt() )
+	switch( Type )
 	{
-	case  0: Type = SG_DATATYPE_Byte  ; Scaling = Scale /   250.; break; // fraction => 0.004    or percent => 0.4
-	default: Type = SG_DATATYPE_Word  ; Scaling = Scale / 62500.; break; // fraction => 0.000016 or percent => 0.0016
-	case  2: Type = SG_DATATYPE_Float ; Scaling = 1.            ; break;
-	case  3: Type = SG_DATATYPE_Double; Scaling = 1.            ; break;
+	case SG_DATATYPE_Byte  : Scaling = Scale /   250.; break; // fraction => 0.004    or percent => 0.4
+	default                : Scaling = Scale / 62500.; break; // fraction => 0.000016 or percent => 0.0016
+	case SG_DATATYPE_Float : Scaling = 1.            ; break;
+	case SG_DATATYPE_Double: Scaling = 1.            ; break;
 	}
 
 	CSG_Parameter_Grid_List	*pCoverages	= Parameters("COVERAGES")->asGridList();

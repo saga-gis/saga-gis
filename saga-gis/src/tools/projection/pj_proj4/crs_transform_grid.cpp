@@ -119,10 +119,10 @@ CCRS_Transform_Grid::CCRS_Transform_Grid(bool bList)
 		false
 	);
 
-	Parameters.Add_Bool("TARGET_NODE",
-		"KEEP_TYPE"		, _TL("Preserve Data Type"),
+	Parameters.Add_Data_Type("TARGET_NODE",
+		"DATA_TYPE"		, _TL("Data Type"),
 		_TL(""),
-		false
+		SG_DATATYPES_Numeric, SG_DATATYPE_Undefined, _TL("Preserve")
 	);
 
 	Parameters.Add_Bool("TARGET_NODE",
@@ -201,7 +201,7 @@ int CCRS_Transform_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 			(*pParameters)("RESAMPLING")->asInt() > 0
 		);
 
-		pParameters->Set_Enabled("KEEP_TYPE",
+		pParameters->Set_Enabled("DATA_TYPE",
 			(*pParameters)("RESAMPLING")->asInt() > 0 && !(*pParameters)("BYTEWISE")->asBool()
 		);
 	}
@@ -287,8 +287,12 @@ bool CCRS_Transform_Grid::On_Execute_Transformation(void)
 
 		if( pGrid && m_Projector.Set_Source(pGrid->Get_Projection()) )
 		{
-			TSG_Data_Type	Type	= m_Resampling == GRID_RESAMPLING_NearestNeighbour || m_bByteWise || Parameters("KEEP_TYPE")->asBool()
-				? pGrid->Get_Type() : SG_DATATYPE_Undefined;
+			TSG_Data_Type Type = Parameters("DATA_TYPE")->asDataType()->Get_Data_Type();
+			
+			if( m_Resampling == GRID_RESAMPLING_NearestNeighbour || m_bByteWise || Type == SG_DATATYPE_Undefined )
+			{
+				Type = pGrid->Get_Type();
+			}
 
 			return( Transform(pGrid, m_Grid_Target.Get_Grid("GRID", Type)) );
 		}
@@ -446,19 +450,24 @@ bool CCRS_Transform_Grid::Transform(const CSG_Array_Pointer &Grids, CSG_Paramete
 
 	Set_Target_Area(Source_System, Target_System);
 
-	bool	bGeogCS_Adjust	= m_Projector.Get_Source().Get_Type() == SG_PROJ_TYPE_CS_Geographic && Source_System.Get_XMax() > 180.;
+	bool bGeogCS_Adjust = m_Projector.Get_Source().Get_Type() == SG_PROJ_TYPE_CS_Geographic && Source_System.Get_XMax() > 180.;
 
-	bool	bKeepType	= m_Resampling == GRID_RESAMPLING_NearestNeighbour || m_bByteWise || Parameters("KEEP_TYPE")->asBool();
+	TSG_Data_Type Type = Parameters("DATA_TYPE")->asDataType()->Get_Data_Type();
+
+	if( m_Resampling == GRID_RESAMPLING_NearestNeighbour || m_bByteWise )
+	{
+		Type = SG_DATATYPE_Undefined;
+	}
 
 	//-----------------------------------------------------
-	int	n	= pTargets->Get_Item_Count();
+	int n = pTargets->Get_Item_Count();
 
 	for(size_t iSource=0; iSource<nSources; iSource++)
 	{
 		if( pSources[iSource]->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid )
 		{
-			CSG_Grid	*pSource	= (CSG_Grid *)pSources[iSource];
-			CSG_Grid	*pTarget	= SG_Create_Grid(Target_System, bKeepType ? pSource->Get_Type() : SG_DATATYPE_Float);
+			CSG_Grid *pSource = (CSG_Grid *)pSources[iSource];
+			CSG_Grid *pTarget = SG_Create_Grid(Target_System, Type == SG_DATATYPE_Undefined ? pSource->Get_Type() : Type);
 
 			if( pTarget )
 			{
@@ -477,8 +486,8 @@ bool CCRS_Transform_Grid::Transform(const CSG_Array_Pointer &Grids, CSG_Paramete
 		}
 		else // if( pSources->Get_Item(iSource)->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grids )
 		{
-			CSG_Grids	*pSource	= (CSG_Grids *)pSources[iSource];
-			CSG_Grids	*pTarget	= SG_Create_Grids(Target_System, pSource->Get_Attributes(), pSource->Get_Z_Attribute(), bKeepType ? pSource->Get_Type() : SG_DATATYPE_Float);
+			CSG_Grids *pSource = (CSG_Grids *)pSources[iSource];
+			CSG_Grids *pTarget = SG_Create_Grids(Target_System, pSource->Get_Attributes(), pSource->Get_Z_Attribute(), Type == SG_DATATYPE_Undefined ? pSource->Get_Type() : Type);
 
 			if( pTarget )
 			{
@@ -509,7 +518,7 @@ bool CCRS_Transform_Grid::Transform(const CSG_Array_Pointer &Grids, CSG_Paramete
 
 	for(int y=0; y<Target_System.Get_NY() && Set_Progress(y, Target_System.Get_NY()); y++)
 	{
-		double	yTarget	= Target_System.Get_YMin() + y * Target_System.Get_Cellsize();
+		double yTarget = Target_System.Get_YMin() + y * Target_System.Get_Cellsize();
 
 		#if PROJ_VERSION_MAJOR >= 6	// proj.4 is not parallelizable?!
 		#pragma omp parallel for
@@ -521,7 +530,7 @@ bool CCRS_Transform_Grid::Transform(const CSG_Array_Pointer &Grids, CSG_Paramete
 				continue;
 			}
 
-			double	z, ySource, xSource	= Target_System.Get_XMin() + x * Target_System.Get_Cellsize();
+			double z, ySource, xSource = Target_System.Get_XMin() + x * Target_System.Get_Cellsize();
 
 			#if PROJ_VERSION_MAJOR >= 6
 			if( !m_Projector[SG_OMP_Get_Thread_Num()].Get_Projection(xSource, ySource = yTarget) )
@@ -536,23 +545,23 @@ bool CCRS_Transform_Grid::Transform(const CSG_Array_Pointer &Grids, CSG_Paramete
 			{
 				if( xSource < 0. )
 				{
-					xSource	+= 360.;
+					xSource += 360.;
 				}
 				else if( xSource >= 360. )
 				{
-					xSource	-= 360.;
+					xSource -= 360.;
 				}
 			}
 
-			if( pX ) pX->Set_Value(x, y, xSource);
-			if( pY ) pY->Set_Value(x, y, ySource);
+			if( pX ) { pX->Set_Value(x, y, xSource); }
+			if( pY ) { pY->Set_Value(x, y, ySource); }
 
 			for(size_t i=0, j=n; i<nSources; i++, j++)
 			{
 				if( pSources[i]->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid )
 				{
-					CSG_Grid	*pSource	= (CSG_Grid *)pSources[i];
-					CSG_Grid	*pTarget	= (CSG_Grid *)pTargets->Get_Item((int)j);
+					CSG_Grid *pSource = (CSG_Grid *)pSources[i];
+					CSG_Grid *pTarget = (CSG_Grid *)pTargets->Get_Item((int)j);
 
 					if( pSource->Get_Value(xSource, ySource, z, m_Resampling, false, m_bByteWise) )
 					{
@@ -561,14 +570,14 @@ bool CCRS_Transform_Grid::Transform(const CSG_Array_Pointer &Grids, CSG_Paramete
 				}
 				else // if( pSources[i]->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grids )
 				{
-					CSG_Grids	*pSource	= (CSG_Grids *)pSources[i];
-					CSG_Grids	*pTarget	= (CSG_Grids *)pTargets->Get_Item((int)j);
+					CSG_Grids *pSource = (CSG_Grids *)pSources[i];
+					CSG_Grids *pTarget = (CSG_Grids *)pTargets->Get_Item((int)j);
 
 					for(int k=0; k<pTarget->Get_Grid_Count(); k++)
 					{
 						if( pSource->Get_Grid_Ptr(k)->Get_Value(xSource, ySource, z, m_Resampling, false, m_bByteWise) )
 						{
-							pTarget->Get_Grid_Ptr(k)->Set_Value(x, y, z);	// pTarget->Set_Value(x, y, k, z);
+							pTarget->Get_Grid_Ptr(k)->Set_Value(x, y, z); // pTarget->Set_Value(x, y, k, z);
 						}
 					}
 				}

@@ -308,20 +308,10 @@ CDirect_Georeferencing::CDirect_Georeferencing(void)
 		), 3
 	);
 
-	Parameters.Add_Choice("",
-		"DATA_TYPE"	, _TL("Data Storage Type"),
+	Parameters.Add_Data_Type("",
+		"DATA_TYPE"	, _TL("Data Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s",
-			_TL("1 byte unsigned integer"),
-			_TL("1 byte signed integer"),
-			_TL("2 byte unsigned integer"),
-			_TL("2 byte signed integer"),
-			_TL("4 byte unsigned integer"),
-			_TL("4 byte signed integer"),
-			_TL("4 byte floating point"),
-			_TL("8 byte floating point"),
-			_TL("same as original")
-		), 8
+		SG_DATATYPES_Numeric, SG_DATATYPE_Undefined, _TL("same as original")
 	);
 
 	//-----------------------------------------------------
@@ -421,20 +411,7 @@ bool CDirect_Georeferencing::On_Execute(void)
 		return( false );
 	}
 
-	TSG_Data_Type	Type;
-
-	switch( Parameters("DATA_TYPE")->asInt() )
-	{
-	case  0: Type = SG_DATATYPE_Byte     ; break;
-	case  1: Type = SG_DATATYPE_Char     ; break;
-	case  2: Type = SG_DATATYPE_Word     ; break;
-	case  3: Type = SG_DATATYPE_Short    ; break;
-	case  4: Type = SG_DATATYPE_DWord    ; break;
-	case  5: Type = SG_DATATYPE_Int      ; break;
-	case  6: Type = SG_DATATYPE_Float    ; break;
-	case  7: Type = SG_DATATYPE_Double   ; break;
-	default: Type = SG_DATATYPE_Undefined; break;
-	}
+	TSG_Data_Type Type = Parameters("DATA_TYPE")->asDataType()->Get_Data_Type();
 
 	//-----------------------------------------------------
 	for(int i=0; i<pInput->Get_Item_Count(); i++)
@@ -444,7 +421,7 @@ bool CDirect_Georeferencing::On_Execute(void)
 		switch( _pInput->Get_ObjectType() )
 		{
 		default:	{
-			CSG_Grid	*pGrid	= (CSG_Grid  *)_pInput;
+			CSG_Grid *pGrid = (CSG_Grid  *)_pInput;
 
 			if( !(_pOutput = SG_Create_Grid(System, Type != SG_DATATYPE_Undefined ? Type : pInput->Get_Grid(i)->Get_Type())) )
 			{
@@ -455,7 +432,7 @@ bool CDirect_Georeferencing::On_Execute(void)
 			break;	}
 
 		case SG_DATAOBJECT_TYPE_Grids:	{
-			CSG_Grids	*pGrids	= (CSG_Grids *)_pInput;
+			CSG_Grids *pGrids = (CSG_Grids *)_pInput;
 
 			if( !(_pOutput = SG_Create_Grids(System, pGrids->Get_Attributes(), pGrids->Get_Z_Attribute(), Type != SG_DATATYPE_Undefined ? Type : pInput->Get_Grid(i)->Get_Type(), true)) )
 			{

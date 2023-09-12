@@ -115,7 +115,7 @@ void CGrid_Merge::Add_Parameters(CSG_Parameters &Parameters)
 	Parameters.Add_Data_Type("",
 		"TYPE"		, _TL("Data Storage Type"),
 		_TL(""),
-		CSG_Parameter_Data_Type::Data_Types::Numeric, -1, _TL("same as first grid in list")
+		SG_DATATYPES_Numeric|SG_DATATYPES_Bit, SG_DATATYPE_Undefined, _TL("same as first grid in list")
 	);
 
 	Parameters.Add_Choice("",
@@ -386,7 +386,7 @@ bool CGrid_Merge::Initialize(void)
 		}
 	}
 
-	if( Parameters("TYPE")->asDataType()->is_User_Type() )	// same as first grid in list
+	if( Parameters("TYPE")->asDataType()->Get_Data_Type() == SG_DATATYPE_Undefined ) // same as first grid in list
 	{
 		m_pMosaic->Set_Scaling(
 			m_pGrids->Get_Grid(0)->Get_Scaling(),

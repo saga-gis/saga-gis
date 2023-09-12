@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Table_Create_Empty.h"
 
 
@@ -70,9 +58,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_NODE(i)	CSG_String::Format(SG_T("NODE%03d"), i)
-#define GET_NAME(i)	CSG_String::Format(SG_T("NAME%03d"), i)
-#define GET_TYPE(i)	CSG_String::Format(SG_T("TYPE%03d"), i)
+#define GET_ID_NAME(i)	CSG_String::Format("NAME%d", i)
+#define GET_ID_TYPE(i)	CSG_String::Format("TYPE%d", i)
 
 
 ///////////////////////////////////////////////////////////
@@ -84,198 +71,126 @@
 //---------------------------------------------------------
 CTable_Create_Empty::CTable_Create_Empty(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Create New Table"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2005"));
+	Set_Author		("O.Conrad (c) 2005");
+
+	CSG_String Types;
+
+	for(int i=0; i<SG_DATATYPE_Undefined; i++)
+	{
+		if( (SG_DATATYPES_Table & SG_Data_Type_Get_Flag((TSG_Data_Type)i)) != 0 )
+		{
+			Types += "<li>" + SG_Data_Type_Get_Name((TSG_Data_Type)i) + "</li>";
+		}
+	}
 
 	Set_Description	(CSG_String::Format(_TW(
-		"Creates a new empty table.\n\n"
-		"Possible field types are:\n"
-		"- %s\n- %s\n- %s\n- %s\n- %s\n- %s\n- %s\n- %s\n- %s\n- %s\n- %s\n- %s\n- %s\n- %s\n"),
-		SG_Data_Type_Get_Name(SG_DATATYPE_String).c_str(),
-		SG_Data_Type_Get_Name(SG_DATATYPE_Date  ).c_str(),
-		SG_Data_Type_Get_Name(SG_DATATYPE_Color ).c_str(),
-		SG_Data_Type_Get_Name(SG_DATATYPE_Byte  ).c_str(),
-		SG_Data_Type_Get_Name(SG_DATATYPE_Char  ).c_str(),
-		SG_Data_Type_Get_Name(SG_DATATYPE_Word  ).c_str(),
-		SG_Data_Type_Get_Name(SG_DATATYPE_Short ).c_str(),
-		SG_Data_Type_Get_Name(SG_DATATYPE_DWord ).c_str(),
-		SG_Data_Type_Get_Name(SG_DATATYPE_Int   ).c_str(),
-		SG_Data_Type_Get_Name(SG_DATATYPE_ULong ).c_str(),
-		SG_Data_Type_Get_Name(SG_DATATYPE_Long  ).c_str(),
-		SG_Data_Type_Get_Name(SG_DATATYPE_Float ).c_str(),
-		SG_Data_Type_Get_Name(SG_DATATYPE_Double).c_str(),
-		SG_Data_Type_Get_Name(SG_DATATYPE_Binary).c_str()
+		"Creates a new empty table.\n\nPossible field types are:\n<ul>%s</ul>"), Types.c_str()
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Table_Output(
-		NULL	, "TABLE"	, _TL("Table"),
+	Parameters.Add_Table_Output("",
+		"TABLE"  , _TL("Table"),
 		_TL("")
 	);
 
-	Parameters.Add_String(
-		NULL	, "NAME"	, _TL("Name"),
+	Parameters.Add_String("",
+		"NAME"   , _TL("Name"),
 		_TL(""),
 		_TL("New Table")
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NFIELDS"		, _TL("Number of Attributes"),
-		_TL(""),
-		PARAMETER_TYPE_Int		, 2, 1, true
-	);
-
-	Parameters.Add_Parameters(
-		NULL	, "FIELDS"		, _TL("Attributes"),
-		_TL("")
-	);
-
 	//-----------------------------------------------------
-	CSG_Parameters	*pAttributes	= Parameters("FIELDS")->asParameters();
+	Parameters.Add_Int("",
+		"NFIELDS", _TL("Number of Attributes"),
+		_TL(""),
+		2, 1, true
+	);
 
-	_Set_Field_Count(pAttributes, Parameters("NFIELDS")->asInt());
+	CSG_Parameters *pFields = Parameters.Add_Parameters("",
+		"FIELDS" , _TL("Attributes"),
+		_TL("")
+	)->asParameters();
 
-	pAttributes->Get_Parameter(GET_NAME(0))->Set_Value(_TL("ID"));
-	pAttributes->Get_Parameter(GET_TYPE(0))->Set_Value(3);
+	Set_Field_Count(pFields, Parameters("NFIELDS")->asInt());
+
+	(*pFields)(GET_ID_NAME(0))->Set_Value("ID");
+	(*pFields)(GET_ID_TYPE(0))->Set_Value( 3  );
+
+	(*pFields)(GET_ID_NAME(1))->Set_Value("Name");
+	(*pFields)(GET_ID_TYPE(1))->Set_Value( 0  );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CTable_Create_Empty::_Set_Field_Count(CSG_Parameters *pAttributes, int nAttributes)
+void CTable_Create_Empty::Set_Field_Count(CSG_Parameters *pFields, int nFields)
 {
-	//-----------------------------------------------------
-	CSG_String	Types;
-
-	Types = CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
-			SG_Data_Type_Get_Name(SG_DATATYPE_String).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Date  ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Color ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Byte  ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Char  ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Word  ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Short ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_DWord ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Int   ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_ULong ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Long  ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Float ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Double).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Binary).c_str()
-	);
-
-
-	//-----------------------------------------------------
-	if( pAttributes && nAttributes > 0 )
+	if( pFields && nFields > 0 )
 	{
-		int		nCurrent	= pAttributes->Get_Count() / 3;
+		int nCurrent = pFields->Get_Count() / 2;
 
-		if( nCurrent < nAttributes )
+		if( nCurrent < nFields )
 		{
-			for(int i=nCurrent; i<nAttributes; i++)
+			for(int i=nCurrent; i<nFields; i++)
 			{
-				CSG_Parameter	*pNode	= pAttributes->Add_Node(
-					NULL	, GET_NODE(i), CSG_String::Format(SG_T("%i. %s"), i + 1, _TL("Attribute")), _TL("")
-				);
+				CSG_String Name(CSG_String::Format("%s %d", _TL("Field"), i + 1));
 
-				pAttributes->Add_String(
-					pNode	, GET_NAME(i), _TL("Name"), _TL(""), _TL("Name")
-				);
-
-				pAttributes->Add_Choice(
-					pNode	, GET_TYPE(i), _TL("Type"), _TL(""), Types
-				);
+				pFields->Add_String   (""            , GET_ID_NAME(i),      Name  , _TL("Name"), Name);
+				pFields->Add_Data_Type(GET_ID_NAME(i), GET_ID_TYPE(i), _TL("Type"), _TL("Type"), SG_DATATYPES_Table);
 			}
 		}
-		else if( nCurrent > nAttributes )
+		else if( nCurrent > nFields )
 		{
-			CSG_Parameters	Tmp;
-			Tmp.Assign(pAttributes);
-			pAttributes->Destroy();
-			pAttributes->Set_Name(Tmp.Get_Name());
-
-			for(int i=0; i<nAttributes; i++)
+			for(int i=nCurrent, j=2*nCurrent; i>nFields; i--)
 			{
-				CSG_Parameter	*pNode	= pAttributes->Add_Node(
-					NULL	, GET_NODE(i), CSG_String::Format(SG_T("%i. %s"), i + 1, _TL("Attribute")), _TL("")
-				);
-
-				pAttributes->Add_String(
-					pNode	, GET_NAME(i), _TL("Name"), _TL(""), Tmp(GET_NAME(i)) ? Tmp(GET_NAME(i))->asString() : _TL("Name")
-				);
-
-				pAttributes->Add_Choice(
-					pNode	, GET_TYPE(i), _TL("Type"), _TL(""), Types, Tmp(GET_TYPE(i)) ? Tmp(GET_TYPE(i))->asInt() : 0
-				);
+				pFields->Del_Parameter(--j);
+				pFields->Del_Parameter(--j);
 			}
 		}
 	}
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 int CTable_Create_Empty::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( pParameter->Cmp_Identifier(SG_T("NFIELDS")) )
+	if( pParameter->Cmp_Identifier("NFIELDS") )
 	{
-		_Set_Field_Count(pParameters->Get_Parameter("FIELDS")->asParameters(), pParameter->asInt());
-
-		return( true );
+		Set_Field_Count((*pParameters)("FIELDS")->asParameters(), pParameter->asInt());
 	}
 
-	return( false );
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CTable_Create_Empty::On_Execute(void)
 {
-	CSG_Table	*pTable	= SG_Create_Table();
+	CSG_Table *pTable = SG_Create_Table();
 
 	pTable->Set_Name(Parameters("NAME")->asString());
 
-	//-----------------------------------------------------
-	int				i, n;
-	TSG_Data_Type	Type;
-	CSG_Parameters	*pAttributes;
+	CSG_Parameters &Fields = *Parameters("FIELDS")->asParameters();
 
-	pAttributes	= Parameters("FIELDS")->asParameters();
-	n			= pAttributes->Get_Count() / 3;
-
-	for(i=0; i<n; i++)
+	for(int i=0; i<Parameters("NFIELDS")->asInt(); i++)
 	{
-		switch( pAttributes->Get_Parameter(GET_TYPE(i))->asInt() )
-		{
-		default:
-		case  0:	Type	= SG_DATATYPE_String;	break;
-		case  1:	Type	= SG_DATATYPE_Date;		break;
-		case  2:	Type	= SG_DATATYPE_Color;	break;
-		case  3:	Type	= SG_DATATYPE_Byte;		break;
-		case  4:	Type	= SG_DATATYPE_Char;		break;
-		case  5:	Type	= SG_DATATYPE_Word;		break;
-		case  6:	Type	= SG_DATATYPE_Short;	break;
-		case  7:	Type	= SG_DATATYPE_DWord;	break;
-		case  8:	Type	= SG_DATATYPE_Int;		break;
-		case  9:	Type	= SG_DATATYPE_ULong;	break;
-		case 10:	Type	= SG_DATATYPE_Long;		break;
-		case 11:	Type	= SG_DATATYPE_Float;	break;
-		case 12:	Type	= SG_DATATYPE_Double;	break;
-		case 13:	Type	= SG_DATATYPE_Binary;	break;
-		}
-
-		pTable->Add_Field(pAttributes->Get_Parameter(GET_NAME(i))->asString(), Type);
+		pTable->Add_Field(
+			Fields(GET_ID_NAME(i))->asString(),
+			Fields(GET_ID_TYPE(i))->asDataType()->Get_Data_Type()
+		);
 	}
 
 	Parameters("TABLE")->Set_Value(pTable);
@@ -293,27 +208,16 @@ bool CTable_Create_Empty::On_Execute(void)
 //---------------------------------------------------------
 CTable_Create_Copy::CTable_Create_Copy(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Copy Table"));
 
-	Set_Author		("O. Conrad (c) 2017");
+	Set_Author		("O.Conrad (c) 2017");
 
 	Set_Description	(_TW(
 		"Creates a copy of a table."
 	));
 
-	//-----------------------------------------------------
-	Parameters.Add_Table("",
-		"TABLE"	, _TL("Table"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
-
-	Parameters.Add_Table("",
-		"COPY"	, _TL("Copy"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
+	Parameters.Add_Table("", "TABLE", _TL("Table"), _TL(""), PARAMETER_INPUT );
+	Parameters.Add_Table("", "COPY" , _TL("Copy" ), _TL(""), PARAMETER_OUTPUT);
 }
 
 
@@ -324,7 +228,7 @@ CTable_Create_Copy::CTable_Create_Copy(void)
 //---------------------------------------------------------
 bool CTable_Create_Copy::On_Execute(void)
 {
-	CSG_Table	*pCopy	= Parameters("COPY")->asTable();
+	CSG_Table *pCopy = Parameters("COPY")->asTable();
 
 	return( pCopy->Create(*Parameters("TABLE")->asTable()) );
 }

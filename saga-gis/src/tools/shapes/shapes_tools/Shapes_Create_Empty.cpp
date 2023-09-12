@@ -75,25 +75,20 @@ CShapes_Create_Empty::CShapes_Create_Empty(void)
 
 	Set_Author		("O.Conrad (c) 2008");
 
+	CSG_String Types;
+
+	for(int i=0; i<SG_DATATYPE_Undefined; i++)
+	{
+		if( SG_DATATYPES_Table & SG_Data_Type_Get_Flag((TSG_Data_Type)i) )
+		{
+			Types += "<li>" + SG_Data_Type_Get_Name((TSG_Data_Type)i) + "</li>";
+		}
+	}
+
 	Set_Description	(CSG_String::Format(_TW(
 		"Creates a new empty shapes layer of given type, "
 		"which might be either point, multipoint, line or polygon.\n\n"
-		"Possible field types for the attributes table are:\n"
-		"- %s\n- %s\n- %s\n- %s\n- %s\n- %s\n- %s\n- %s\n- %s\n- %s\n- %s\n- %s\n- %s\n- %s\n"),
-		SG_Data_Type_Get_Name(SG_DATATYPE_String).c_str(),
-		SG_Data_Type_Get_Name(SG_DATATYPE_Date  ).c_str(),
-		SG_Data_Type_Get_Name(SG_DATATYPE_Color ).c_str(),
-		SG_Data_Type_Get_Name(SG_DATATYPE_Byte  ).c_str(),
-		SG_Data_Type_Get_Name(SG_DATATYPE_Char  ).c_str(),
-		SG_Data_Type_Get_Name(SG_DATATYPE_Word  ).c_str(),
-		SG_Data_Type_Get_Name(SG_DATATYPE_Short ).c_str(),
-		SG_Data_Type_Get_Name(SG_DATATYPE_DWord ).c_str(),
-		SG_Data_Type_Get_Name(SG_DATATYPE_Int   ).c_str(),
-		SG_Data_Type_Get_Name(SG_DATATYPE_ULong ).c_str(),
-		SG_Data_Type_Get_Name(SG_DATATYPE_Long  ).c_str(),
-		SG_Data_Type_Get_Name(SG_DATATYPE_Float ).c_str(),
-		SG_Data_Type_Get_Name(SG_DATATYPE_Double).c_str(),
-		SG_Data_Type_Get_Name(SG_DATATYPE_Binary).c_str()
+		"Possible field types for the attributes table are:\n<ul>%s</ul>"), Types.c_str()
 	));
 
 	//-----------------------------------------------------
@@ -156,6 +151,39 @@ CShapes_Create_Empty::CShapes_Create_Empty(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CShapes_Create_Empty::Set_Field_Count(CSG_Parameters *pFields, int nFields)
+{
+	if( pFields && nFields > 0 )
+	{
+		int nCurrent = pFields->Get_Count() / 2;
+
+		if( nCurrent < nFields )
+		{
+			for(int i=nCurrent; i<nFields; i++)
+			{
+				CSG_String Name(CSG_String::Format("%s %d", _TL("Field"), i + 1));
+
+				pFields->Add_String   (""            , GET_ID_NAME(i),      Name  , _TL("Name"), Name);
+				pFields->Add_Data_Type(GET_ID_NAME(i), GET_ID_TYPE(i), _TL("Type"), _TL("Type"), SG_DATATYPES_Table);
+			}
+		}
+		else if( nCurrent > nFields )
+		{
+			for(int i=nCurrent, j=2*nCurrent; i>nFields; i--)
+			{
+				pFields->Del_Parameter(--j);
+				pFields->Del_Parameter(--j);
+			}
+		}
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 int CShapes_Create_Empty::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	if( pParameter->Cmp_Identifier("NFIELDS") )
@@ -172,110 +200,37 @@ int CShapes_Create_Empty::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CShapes_Create_Empty::Set_Field_Count(CSG_Parameters *pFields, int nFields)
-{
-	static const CSG_String	Types(
-		SG_Data_Type_Get_Name(SG_DATATYPE_String) + "|" +
-		SG_Data_Type_Get_Name(SG_DATATYPE_Date  ) + "|" +
-		SG_Data_Type_Get_Name(SG_DATATYPE_Color ) + "|" +
-		SG_Data_Type_Get_Name(SG_DATATYPE_Byte  ) + "|" +
-		SG_Data_Type_Get_Name(SG_DATATYPE_Char  ) + "|" +
-		SG_Data_Type_Get_Name(SG_DATATYPE_Word  ) + "|" +
-		SG_Data_Type_Get_Name(SG_DATATYPE_Short ) + "|" +
-		SG_Data_Type_Get_Name(SG_DATATYPE_DWord ) + "|" +
-		SG_Data_Type_Get_Name(SG_DATATYPE_Int   ) + "|" +
-		SG_Data_Type_Get_Name(SG_DATATYPE_ULong ) + "|" +
-		SG_Data_Type_Get_Name(SG_DATATYPE_Long  ) + "|" +
-		SG_Data_Type_Get_Name(SG_DATATYPE_Float ) + "|" +
-		SG_Data_Type_Get_Name(SG_DATATYPE_Double) + "|" +
-		SG_Data_Type_Get_Name(SG_DATATYPE_Binary) + "|"
-	);
-
-	if( pFields && nFields > 0 )
-	{
-		int nCurrent = pFields->Get_Count() / 2;
-
-		if( nCurrent < nFields )
-		{
-			for(int i=nCurrent; i<nFields; i++)
-			{
-				CSG_String Name(CSG_String::Format("%s %d", _TL("Field"), i + 1));
-
-				pFields->Add_String(""            , GET_ID_NAME(i),      Name  , _TL("Name"), Name);
-				pFields->Add_Choice(GET_ID_NAME(i), GET_ID_TYPE(i), _TL("Type"), _TL("Type"), Types);
-			}
-		}
-		else if( nCurrent > nFields )
-		{
-			for(int i=nCurrent, j=2*nCurrent; i>nFields; i--)
-			{
-				pFields->Del_Parameter(--j);
-				pFields->Del_Parameter(--j);
-			}
-		}
-	}
-}
-
-//---------------------------------------------------------
-CSG_String CShapes_Create_Empty::Get_Field_Name(int iField)
-{
-	return( Parameters("FIELDS")->asParameters()->Get_Parameter(GET_ID_NAME(iField))->asString() );
-}
-
-//---------------------------------------------------------
-TSG_Data_Type CShapes_Create_Empty::Get_Field_Type(int iField)
-{
-	switch( Parameters("FIELDS")->asParameters()->Get_Parameter(GET_ID_TYPE(iField))->asInt() )
-	{
-	default: return( SG_DATATYPE_String );
-	case  1: return( SG_DATATYPE_Date   );
-	case  2: return( SG_DATATYPE_Color  );
-	case  3: return( SG_DATATYPE_Byte   );
-	case  4: return( SG_DATATYPE_Char   );
-	case  5: return( SG_DATATYPE_Word   );
-	case  6: return( SG_DATATYPE_Short  );
-	case  7: return( SG_DATATYPE_DWord  );
-	case  8: return( SG_DATATYPE_Int    );
-	case  9: return( SG_DATATYPE_ULong  );
-	case 10: return( SG_DATATYPE_Long   );
-	case 11: return( SG_DATATYPE_Float  );
-	case 12: return( SG_DATATYPE_Double );
-	case 13: return( SG_DATATYPE_Binary );
-	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 bool CShapes_Create_Empty::On_Execute(void)
 {
-	TSG_Vertex_Type	Vertex;
+	TSG_Vertex_Type Vertex;
 
 	switch( Parameters("VERTEX")->asInt() )
 	{
-	default: Vertex = SG_VERTEX_TYPE_XY  ;	break;
-	case  1: Vertex = SG_VERTEX_TYPE_XYZ ;	break;
-	case  2: Vertex = SG_VERTEX_TYPE_XYZM;	break;
+	default: Vertex = SG_VERTEX_TYPE_XY  ; break;
+	case  1: Vertex = SG_VERTEX_TYPE_XYZ ; break;
+	case  2: Vertex = SG_VERTEX_TYPE_XYZM; break;
 	}
 
 	//-----------------------------------------------------
-	CSG_Shapes	*pShapes;
+	CSG_Shapes *pShapes;
 
 	switch( Parameters("TYPE")->asInt() )
 	{
-	default: pShapes = SG_Create_Shapes(SHAPE_TYPE_Point  , Parameters("NAME")->asString(), NULL, Vertex);	break;
-	case  1: pShapes = SG_Create_Shapes(SHAPE_TYPE_Points , Parameters("NAME")->asString(), NULL, Vertex);	break;
-	case  2: pShapes = SG_Create_Shapes(SHAPE_TYPE_Line   , Parameters("NAME")->asString(), NULL, Vertex);	break;
-	case  3: pShapes = SG_Create_Shapes(SHAPE_TYPE_Polygon, Parameters("NAME")->asString(), NULL, Vertex);	break;
+	default: pShapes = SG_Create_Shapes(SHAPE_TYPE_Point  , Parameters("NAME")->asString(), NULL, Vertex); break;
+	case  1: pShapes = SG_Create_Shapes(SHAPE_TYPE_Points , Parameters("NAME")->asString(), NULL, Vertex); break;
+	case  2: pShapes = SG_Create_Shapes(SHAPE_TYPE_Line   , Parameters("NAME")->asString(), NULL, Vertex); break;
+	case  3: pShapes = SG_Create_Shapes(SHAPE_TYPE_Polygon, Parameters("NAME")->asString(), NULL, Vertex); break;
 	}
 
 	//-----------------------------------------------------
+	CSG_Parameters &Fields = *Parameters("FIELDS")->asParameters();
+
 	for(int i=0; i<Parameters("NFIELDS")->asInt(); i++)
 	{
-		pShapes->Add_Field(Get_Field_Name(i), Get_Field_Type(i));
+		pShapes->Add_Field(
+			Fields(GET_ID_NAME(i))->asString(),
+			Fields(GET_ID_TYPE(i))->asDataType()->Get_Data_Type()
+		);
 	}
 
 	//-----------------------------------------------------

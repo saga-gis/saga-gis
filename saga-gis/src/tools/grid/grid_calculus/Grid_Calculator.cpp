@@ -110,7 +110,7 @@ CGrid_Calculator_Base::CGrid_Calculator_Base(void)
 	Parameters.Add_Data_Type("",
 		"TYPE"		, _TL("Data Type"),
 		_TL(""),
-		CSG_Parameter_Data_Type::Data_Types::Numeric
+		SG_DATATYPES_Numeric|SG_DATATYPES_Bit
 	);
 }
 

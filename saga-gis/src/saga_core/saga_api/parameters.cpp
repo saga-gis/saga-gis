@@ -440,7 +440,7 @@ CSG_Parameter * CSG_Parameters::Add_Info_Range(const CSG_String &ParentID, const
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_Data_Type(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Data_Types, int Default, const CSG_String &User)
+CSG_Parameter * CSG_Parameters::Add_Data_Type(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Data_Types, TSG_Data_Type Default, const CSG_String &User)
 {
 	CSG_Parameter *pParameter = _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_Data_Type, 0);
 

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Table_Rotate.h"
 
 
@@ -74,104 +62,97 @@ CTable_Rotate::CTable_Rotate(void)
 {
 	Set_Name		(_TL("Transpose Table"));
 
+	Set_Author		("O.Conrad (c) 2003");
+
 	Set_Description	(_TW(
-		"Transposes a table, i.e. to swap rows and columns."
+		"Transposes a table, i.e. swap the rows and columns."
 	));
 
-	Parameters.Add_Table(
-		NULL	, "INPUT"	, _TL("Input"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
+	Parameters.Add_Table("", "INPUT" , _TL("Input" ), _TL(""), PARAMETER_INPUT          );
+	Parameters.Add_Table("", "OUTPUT", _TL("Output"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 
-	Parameters.Add_Table(
-		NULL	, "OUTPUT"	, _TL("Output"),
+	Parameters.Add_Data_Type("",
+		"TYPE", _TL("Data Type"),
 		_TL(""),
-		PARAMETER_OUTPUT
+		SG_DATATYPES_String|SG_DATATYPES_Numeric, SG_DATATYPE_String
 	);
 }
 
-//---------------------------------------------------------
-CTable_Rotate::~CTable_Rotate(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CTable_Rotate::On_Execute(void)
 {
-	bool				bCopy;
-	int					x, y;
-	TSG_Data_Type		FieldType;
-	CSG_Table			*pInput, *pOutput;
-	CSG_Table_Record	*pRec_In, *pRec_Out;
+	CSG_Table *pTable = Parameters("INPUT")->asTable();
 
-	//-----------------------------------------------------
-	pInput	= Parameters("INPUT")	->asTable();
-	pOutput	= Parameters("OUTPUT")	->asTable();
-
-	//-----------------------------------------------------
-	if( pInput->Get_Field_Count() > 0 && pInput->Get_Count() > 0 )
+	if( pTable->Get_Field_Count() < 1 || pTable->Get_Count() < 1 )
 	{
-		if( pInput != pOutput )
-		{
-			bCopy	= true;
-		}
-		else
-		{
-			bCopy	= false;
-			pOutput	= SG_Create_Table();
-		}
+		Error_Set(_TL("Empty or invalid input table."));
 
-		pOutput->Destroy();
-		pOutput->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("rotated"));
-
-		FieldType	= SG_DATATYPE_String;
-
-		//-------------------------------------------------
-		pOutput->Add_Field(pInput->Get_Field_Name(0), SG_DATATYPE_String);
-
-		for(y=0; y<pInput->Get_Count(); y++)
-		{
-			pOutput->Add_Field(pInput->Get_Record(y)->asString(0), FieldType);
-		}
-
-		for(y=1; y<pInput->Get_Field_Count(); y++)
-		{
-			pRec_Out	= pOutput->Add_Record();
-			pRec_Out->Set_Value(0, pInput->Get_Field_Name(y));
-
-			for(x=0; x<pInput->Get_Count(); x++)
-			{
-				pRec_In		= pInput->Get_Record(x);
-
-				if( FieldType == SG_DATATYPE_String )
-				{
-					pRec_Out->Set_Value(x + 1, pRec_In->asString(y));
-				}
-				else
-				{
-					pRec_Out->Set_Value(x + 1, pRec_In->asDouble(y));
-				}
-			}
-		}
-
-		//-------------------------------------------------
-		if( !bCopy )
-		{
-			pInput->Assign(pOutput);
-			delete(pOutput);
-		}
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	if( pTable->Get_ObjectType() != SG_DATAOBJECT_TYPE_Table )
+	{
+		Error_Set(_TL("Attribute tables of vector data cannot be transposed directly."));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Table *pOutput = Parameters("OUTPUT")->asTable(), Table;
+
+	if( pOutput == NULL || pOutput == pTable )
+	{
+		pOutput = pTable; Table.Create(*pTable); pTable = &Table;
+	}
+
+	pOutput->Destroy();
+
+	if( pOutput != Parameters("INPUT")->asTable() )
+	{
+		pOutput->Fmt_Name("%s [%s]", pTable->Get_Name(), _TL("rotated"));
+	}
+
+	TSG_Data_Type Type = Parameters("TYPE")->asDataType()->Get_Data_Type();
+
+	pOutput->Add_Field(pTable->Get_Field_Name(0), SG_DATATYPE_String);
+
+	for(int row=0; row<pTable->Get_Count(); row++)
+	{
+		pOutput->Add_Field(pTable->Get_Record(row)->asString(0), Type);
+	}
+
+	//-----------------------------------------------------
+	for(int col=1; col<pTable->Get_Field_Count(); col++)
+	{
+		CSG_Table_Record &Output = *pOutput->Add_Record();
+
+		Output.Set_Value(0, pTable->Get_Field_Name(col));
+
+		for(int row=0; row<pTable->Get_Count(); row++)
+		{
+			if( Type == SG_DATATYPE_String )
+			{
+				Output.Set_Value(row + 1, pTable->Get_Record(row)->asString(col));
+			}
+			else
+			{
+				Output.Set_Value(row + 1, pTable->Get_Record(row)->asDouble(col));
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	if( pOutput == Parameters("INPUT")->asTable() )
+	{
+		DataObject_Update(pOutput);
+	}
+
+	return( true );
 }
 
 

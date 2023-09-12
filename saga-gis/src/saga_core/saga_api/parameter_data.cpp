@@ -1108,71 +1108,77 @@ CSG_Parameter_Data_Type::CSG_Parameter_Data_Type(CSG_Parameters *pOwner, CSG_Par
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter_Data_Type::Set_Data_Types(int Data_Types, int Default, const CSG_String &User)
+bool CSG_Parameter_Data_Type::Set_Data_Types(int Data_Types, TSG_Data_Type Default, const CSG_String &User)
 {
-	if( Data_Types <= Undefined || Data_Types > Standard )
+	if( Data_Types <= SG_DATATYPES_Undefined )
 	{
-		Data_Types = Standard;
+		Data_Types = SG_DATATYPES_Standard;
 	}
 
-	#define ADD_TYPE(type) Add_Item(SG_Data_Type_Get_Name(type), SG_Data_Type_Get_Identifier(type))
-
-	if( Data_Types >= Integer )
+	if( Default == SG_DATATYPE_Undefined && User.is_Empty() )
 	{
-		ADD_TYPE(SG_DATATYPE_Bit   );
-		ADD_TYPE(SG_DATATYPE_Byte  );
-		ADD_TYPE(SG_DATATYPE_Char  );
-		ADD_TYPE(SG_DATATYPE_Word  );
-		ADD_TYPE(SG_DATATYPE_Short );
-		ADD_TYPE(SG_DATATYPE_DWord );
-		ADD_TYPE(SG_DATATYPE_Int   );
-		ADD_TYPE(SG_DATATYPE_ULong );
-		ADD_TYPE(SG_DATATYPE_Long  );
+		switch( Data_Types )
+		{
+		case (SG_DATATYPES_Integer                 ): Default = SG_DATATYPE_Int   ; break;
+		case (SG_DATATYPES_Integer|SG_DATATYPES_Bit): Default = SG_DATATYPE_Int   ; break;
+		case (SG_DATATYPES_Numeric                 ): Default = SG_DATATYPE_Float ; break;
+		case (SG_DATATYPES_Numeric|SG_DATATYPES_Bit): Default = SG_DATATYPE_Float ; break;
+		case (SG_DATATYPES_Table                   ): Default = SG_DATATYPE_String; break;
+		case (SG_DATATYPES_Standard                ): Default = SG_DATATYPE_String; break;
+		}
 	}
 
-	if( Data_Types >= Numeric )
-	{
-		ADD_TYPE(SG_DATATYPE_Float );
-		ADD_TYPE(SG_DATATYPE_Double);
-	}
+	#define ADD_TYPE(type) if( (Data_Types & SG_Data_Type_Get_Flag(type)) != 0 ) {  if( Default == type ) { _Default = Get_Count(); } Add_Item(SG_Data_Type_Get_Name(type), SG_Data_Type_Get_Identifier(type)); }
 
-	if( Data_Types >= Standard )
-	{
-		ADD_TYPE(SG_DATATYPE_String);
-		ADD_TYPE(SG_DATATYPE_Date  );
-		ADD_TYPE(SG_DATATYPE_Color );
-		ADD_TYPE(SG_DATATYPE_Binary);
-	}
+	int _Default = -1;
+
+	ADD_TYPE(SG_DATATYPE_String); // data types are added in this order to the choice item list
+	ADD_TYPE(SG_DATATYPE_Date  );
+	ADD_TYPE(SG_DATATYPE_Color );
+	ADD_TYPE(SG_DATATYPE_Bit   );
+	ADD_TYPE(SG_DATATYPE_Byte  );
+	ADD_TYPE(SG_DATATYPE_Char  );
+	ADD_TYPE(SG_DATATYPE_Word  );
+	ADD_TYPE(SG_DATATYPE_Short );
+	ADD_TYPE(SG_DATATYPE_DWord );
+	ADD_TYPE(SG_DATATYPE_Int   );
+	ADD_TYPE(SG_DATATYPE_ULong );
+	ADD_TYPE(SG_DATATYPE_Long  );
+	ADD_TYPE(SG_DATATYPE_Float );
+	ADD_TYPE(SG_DATATYPE_Double);
+	ADD_TYPE(SG_DATATYPE_Binary);
 
 	if( !User.is_Empty() )
 	{
+		if( _Default < 0 )
+		{
+			_Default = Get_Count();
+		}
+
 		Add_Item(User, SG_Data_Type_Get_Identifier(SG_DATATYPE_Undefined));
 	}
-
-	if( Default < 0 || Default >= Get_Count() )
+	else if( _Default < 0 )
 	{
-		if( !User.is_Empty() )
-		{
-			Default = Get_Count() - 1;
-		}
-		else switch( Data_Types )
-		{
-		case Integer: Default =  6; break; // SG_DATATYPE_Int
-		case Numeric: Default =  9; break; // SG_DATATYPE_Float
-		default     : Default = 11; break; // SG_DATATYPE_String
-		}
+		_Default = 0;
 	}
 
-	Set_Default(Default);
-	Set_Value  (Default);
+	Set_Default(_Default); Set_Value(_Default);
 
 	return( true );
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter_Data_Type::is_User_Type(void)	const
+bool CSG_Parameter_Data_Type::Set_Data_Type(TSG_Data_Type Value)
 {
-	return( Get_Data_Type() == SG_DATATYPE_Undefined );
+	for(int i=0; i<Get_Count(); i++)
+	{
+		if( Value == SG_Data_Type_Get_Type(Get_Item_Data(i)) )
+		{
+			return( Set_Value(i) );
+		}
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -1198,7 +1204,7 @@ bool CSG_Parameter_Data_Type::_Serialize(CSG_MetaData &Entry, bool bSave)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//						Choice							 //
+//						Choices							 //
 //														 //
 ///////////////////////////////////////////////////////////
 

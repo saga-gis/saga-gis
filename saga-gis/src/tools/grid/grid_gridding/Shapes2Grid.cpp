@@ -204,39 +204,26 @@ int CShapes2Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 //---------------------------------------------------------
 TSG_Data_Type CShapes2Grid::Get_Data_Type(int Field)
 {
-	CSG_Shapes	*pShapes	= Parameters("INPUT")->asShapes();
+	CSG_Shapes *pShapes = Parameters("INPUT")->asShapes();
 
 	if( Field >= 0 && (Field >= pShapes->Get_Field_Count() || !SG_Data_Type_is_Numeric(pShapes->Get_Field_Type(Field))) )
 	{
-		Field	= OUTPUT_INDEX;	// index number
+		Field = OUTPUT_INDEX;    // index number
 	}
 
-	if( Field == OUTPUT_NODATA )	// data / no-data
+	if( Field == OUTPUT_NODATA ) // data / no-data
 	{
 		return( SG_DATATYPE_Byte );
 	}
 
-	if( Field <= OUTPUT_INDEX )	// index number
+	if( Field <= OUTPUT_INDEX )  // index number
 	{
 		return( pShapes->Get_Count() < 65535 ? SG_DATATYPE_Word : SG_DATATYPE_DWord );
 	}
 
-//	if( Field >= 0 )	// attribute
+//	if( Field >= 0 )             // attribute
 	{
-		switch( Parameters("GRID_TYPE")->asInt() )
-		{
-		case  0: return( SG_DATATYPE_Bit    );
-		case  1: return( SG_DATATYPE_Byte   );
-		case  2: return( SG_DATATYPE_Char   );
-		case  3: return( SG_DATATYPE_Word   );
-		case  4: return( SG_DATATYPE_Short  );
-		case  5: return( SG_DATATYPE_DWord  );
-		case  6: return( SG_DATATYPE_Int    );
-		case  7: return( SG_DATATYPE_Float  );
-		case  8: return( SG_DATATYPE_Double );
-		}
-
-		return( pShapes->Get_Field_Type(Field) );
+		return( Parameters("GRID_TYPE")->asDataType()->Get_Data_Type(pShapes->Get_Field_Type(Field)) );
 	}
 }
 
@@ -797,21 +784,10 @@ CPolygons2Grid::CPolygons2Grid(void)
 		), 1
 	);
 
-	Parameters.Add_Choice("",
+	Parameters.Add_Data_Type("",
 		"GRID_TYPE"	, _TL("Data Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
-			_TL("1 bit"),
-			_TL("1 byte unsigned integer"),
-			_TL("1 byte signed integer"),
-			_TL("2 byte unsigned integer"),
-			_TL("2 byte signed integer"),
-			_TL("4 byte unsigned integer"),
-			_TL("4 byte signed integer"),
-			_TL("4 byte floating point"),
-			_TL("8 byte floating point"),
-			_TL("same as attribute")
-		), 9
+		SG_DATATYPES_Numeric|SG_DATATYPES_Bit, SG_DATATYPE_Undefined, _TL("same as attribute")
 	);
 
 	//-----------------------------------------------------
@@ -861,34 +837,21 @@ int CPolygons2Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 TSG_Data_Type CPolygons2Grid::Get_Data_Type(int Field)
 {
-	CSG_Shapes	*pShapes	= Parameters("POLYGONS")->asShapes();
+	CSG_Shapes *pShapes = Parameters("POLYGONS")->asShapes();
 
 	if( Field >= 0 && (Field >= pShapes->Get_Field_Count() || !SG_Data_Type_is_Numeric(pShapes->Get_Field_Type(Field))) )
 	{
-		Field	= OUTPUT_INDEX;	// index number
+		Field  = OUTPUT_INDEX;  // index number
 	}
 
-	if( Field <= OUTPUT_INDEX )	// index number
+	if( Field <= OUTPUT_INDEX ) // index number
 	{
 		return( pShapes->Get_Count() < 65535 ? SG_DATATYPE_Word : SG_DATATYPE_DWord );
 	}
 
-//	if( Field >= 0 )	// attribute
+//	if( Field >= 0 )            // attribute
 	{
-		switch( Parameters("GRID_TYPE")->asInt() )
-		{
-		case  0: return( SG_DATATYPE_Bit    );
-		case  1: return( SG_DATATYPE_Byte   );
-		case  2: return( SG_DATATYPE_Char   );
-		case  3: return( SG_DATATYPE_Word   );
-		case  4: return( SG_DATATYPE_Short  );
-		case  5: return( SG_DATATYPE_DWord  );
-		case  6: return( SG_DATATYPE_Int    );
-		case  7: return( SG_DATATYPE_Float  );
-		case  8: return( SG_DATATYPE_Double );
-		}
-
-		return( pShapes->Get_Field_Type(Field) );
+		return( Parameters("GRID_TYPE")->asDataType()->Get_Data_Type(pShapes->Get_Field_Type(Field)) );
 	}
 }
 
@@ -900,18 +863,17 @@ TSG_Data_Type CPolygons2Grid::Get_Data_Type(int Field)
 //---------------------------------------------------------
 bool CPolygons2Grid::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Shapes	*pPolygons	= Parameters("POLYGONS")->asShapes();
+	CSG_Shapes *pPolygons = Parameters("POLYGONS")->asShapes();
 
-	m_Multiple	= Parameters("MULTIPLE")->asInt();
+	m_Multiple = Parameters("MULTIPLE")->asInt();
 
 	//-----------------------------------------------------
 	int		Field;
 
 	switch( Parameters("OUTPUT")->asInt() )
 	{
-	case  0:	Field	= OUTPUT_INDEX ;	break;		// index number
-	default:	Field	= Parameters("FIELD")->asInt();	// attribute
+	case  0: Field = OUTPUT_INDEX; break;          // index number
+	default: Field = Parameters("FIELD")->asInt(); // attribute
 		if( Field < 0 || !SG_Data_Type_is_Numeric(pPolygons->Get_Field_Type(Field)) )
 		{
 			Message_Add(_TL("WARNING: selected attribute is not numeric."));

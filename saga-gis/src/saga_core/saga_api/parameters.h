@@ -706,19 +706,12 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_Data_Type : public CSG_Parameter_Choice
 {
 public:
 
-	typedef enum
-	{
-		Undefined = 0x0, Integer = 0x1, Numeric = 0x2, Standard = 0x4
-	}
-	Data_Types;
-
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Data_Type );	}
 
-	bool						Set_Data_Types			(int Data_Types, int Default = -1, const CSG_String &User = "");
+	bool						Set_Data_Types			(int Data_Types, TSG_Data_Type Default = SG_DATATYPE_Undefined, const CSG_String &User = "");
 
+	bool						Set_Data_Type			(TSG_Data_Type Value);
 	TSG_Data_Type				Get_Data_Type			(TSG_Data_Type Default = SG_DATATYPE_Undefined)	const;
-	
-	bool						is_User_Type			(void)	const;
 
 
 protected:
@@ -1738,7 +1731,7 @@ public:
 	CSG_Parameter *				Add_Range				(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, double Range_Min = 0.0, double Range_Max = 0.0, double Minimum = 0.0, bool bMinimum = false, double Maximum = 0.0, bool bMaximum = false);
 	CSG_Parameter *				Add_Info_Range			(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, double Range_Min = 0.0, double Range_Max = 0.0);
 
-	CSG_Parameter *				Add_Data_Type			(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Data_Types, int Default = -1, const CSG_String &User = "");
+	CSG_Parameter *				Add_Data_Type			(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Data_Types, TSG_Data_Type Default = SG_DATATYPE_Undefined, const CSG_String &User = "");
 
 	CSG_Parameter *				Add_Choice				(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, const CSG_String &Items, int Default = 0);
 	CSG_Parameter *				Add_Choices				(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, const CSG_String &Items);

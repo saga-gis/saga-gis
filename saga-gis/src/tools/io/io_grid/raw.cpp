@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: raw.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "raw.h"
 
 
@@ -72,7 +60,6 @@
 //---------------------------------------------------------
 CRaw_Import::CRaw_Import(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Import Binary Raw Data"));
 
 	Set_Author		("O.Conrad (c) 2003");
@@ -114,7 +101,7 @@ CRaw_Import::CRaw_Import(void)
 	Parameters.Add_Choice("",
 		"POS_VECTOR"	, _TL("Position Vector"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("cell's center"),
 			_TL("cell's corner")
 		)
@@ -128,7 +115,7 @@ CRaw_Import::CRaw_Import(void)
 	Parameters.Add_Choice("POS_X",
 		"POS_X_SIDE"	, _TL("Side"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("left"),
 			_TL("right")
 		)
@@ -149,19 +136,10 @@ CRaw_Import::CRaw_Import(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice("",
+	Parameters.Add_Data_Type("",
 		"DATA_TYPE"		, _TL("Data Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|",
-			_TL("8 bit unsigned integer"),
-			_TL("8 bit signed integer"),
-			_TL("16 bit unsigned integer"),
-			_TL("16 bit signed integer"),
-			_TL("32 bit unsigned integer"),
-			_TL("32 bit signed integer"),
-			_TL("32 bit floating point"),
-			_TL("64 bit floating point")
-		)
+		SG_DATATYPES_Numeric
 	);
 
 	Parameters.Add_Choice("",
@@ -237,8 +215,7 @@ CRaw_Import::CRaw_Import(void)
 //---------------------------------------------------------
 bool CRaw_Import::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_File	Stream;
+	CSG_File Stream;
 
 	if( !Stream.Open(Parameters("FILE")->asString(), SG_FILE_R, true) )
 	{
@@ -250,7 +227,7 @@ bool CRaw_Import::On_Execute(void)
 	Skip(Stream, Parameters("DATA_OFFSET")->asInt());
 
 	//-----------------------------------------------------
-	CSG_Grid	*pGrid	= Get_Grid();
+	CSG_Grid *pGrid = Get_Grid();
 
 	if( !pGrid )
 	{
@@ -264,19 +241,19 @@ bool CRaw_Import::On_Execute(void)
 	Parameters("GRID")->Set_Value(pGrid);
 
 	//-----------------------------------------------------
-	bool	bRecIsRow	= Parameters("ORDER"    )->asInt() == 0;
-	bool	bRecInvert	= Parameters("TOPDOWN"  )->asBool() == false;
-	bool	bColInvert	= Parameters("LEFTRIGHT")->asBool() == false;
+	bool  bRecIsRow = Parameters("ORDER"    )->asInt() == 0;
+	bool bRecInvert = Parameters("TOPDOWN"  )->asBool() == false;
+	bool bColInvert = Parameters("LEFTRIGHT")->asBool() == false;
 
-	int	nRecords	= bRecIsRow ? pGrid->Get_NY() : pGrid->Get_NX();
-	int	nValues		= bRecIsRow ? pGrid->Get_NX() : pGrid->Get_NY();
+	int nRecords = bRecIsRow ? pGrid->Get_NY() : pGrid->Get_NX();
+	int nValues  = bRecIsRow ? pGrid->Get_NX() : pGrid->Get_NY();
 
-	CSG_Array	Record(SG_Data_Type_Get_Size(pGrid->Get_Type()), nValues);
+	CSG_Array Record(SG_Data_Type_Get_Size(pGrid->Get_Type()), nValues);
 
-	bool	bBigOrder	= Record.Get_Value_Size() > 1 && Parameters("BYTEORDER")->asInt() == 1;
+	bool bBigOrder = Record.Get_Value_Size() > 1 && Parameters("BYTEORDER")->asInt() == 1;
 
-	int		Record_Head	= Parameters("LINE_OFFSET")->asInt();
-	int		Record_Tail	= Parameters("LINE_ENDSET")->asInt();
+	int Record_Head	= Parameters("LINE_OFFSET")->asInt();
+	int Record_Tail	= Parameters("LINE_ENDSET")->asInt();
 
 	//-----------------------------------------------------
 	for(int iRecord=0; !Stream.is_EOF() && iRecord<nRecords && Set_Progress(iRecord, nRecords); iRecord++)
@@ -285,15 +262,15 @@ bool CRaw_Import::On_Execute(void)
 
 		Stream.Read(Record.Get_Array(), Record.Get_Value_Size() * Record.Get_Size());
 
-		for(size_t iValue=0; iValue<(size_t)nValues; iValue++)
+		for(int iValue=0; iValue<nValues; iValue++)
 		{
 			if( bBigOrder )
 			{
-				SG_Swap_Bytes(Record.Get_Entry(iValue), Record.Get_Value_Size());
+				SG_Swap_Bytes(Record.Get_Entry(iValue), (int)Record.Get_Value_Size());
 			}
 
-			int	y	= bRecIsRow ? iRecord : iValue; if( bRecInvert ) y = pGrid->Get_NY() - 1 - y;
-			int	x	= bRecIsRow ? iValue : iRecord; if( bColInvert ) x = pGrid->Get_NX() - 1 - x;
+			int y = bRecIsRow ? iRecord : iValue; if( bRecInvert ) y = pGrid->Get_NY() - 1 - y;
+			int x = bRecIsRow ? iValue : iRecord; if( bColInvert ) x = pGrid->Get_NX() - 1 - x;
 
 			switch( pGrid->Get_Type() )
 			{
@@ -345,62 +322,45 @@ bool CRaw_Import::Skip(CSG_File &Stream, size_t nBytes)
 //---------------------------------------------------------
 CSG_Grid * CRaw_Import::Get_Grid(void)
 {
-	TSG_Data_Type	Type;
-
-	switch( Parameters("DATA_TYPE")->asInt() )
-	{
-	default: return( NULL );
-	case  0: Type	= SG_DATATYPE_Byte  ;	break;
-	case  1: Type	= SG_DATATYPE_Char  ;	break;
-	case  2: Type	= SG_DATATYPE_Word  ;	break;
-	case  3: Type	= SG_DATATYPE_Short ;	break;
-	case  4: Type	= SG_DATATYPE_DWord ;	break;
-	case  5: Type	= SG_DATATYPE_Int   ;	break;
-	case  6: Type	= SG_DATATYPE_Float ;	break;
-	case  7: Type	= SG_DATATYPE_Double;	break;
-	}
+	TSG_Data_Type Type = Parameters("DATA_TYPE")->asDataType()->Get_Data_Type();
+	int             nx = Parameters("NX")->asInt();
+	int             ny = Parameters("NY")->asInt();
+	double          cs = Parameters("CELLSIZE")->asDouble();
+	bool       bCorner = Parameters("POS_VECTOR")->asInt() == 1;
 
 	//-----------------------------------------------------
-	int	nx	= Parameters("NX")->asInt();
-	int	ny	= Parameters("NY")->asInt();
+	double x = Parameters("POS_X")->asDouble();
 
-	double	cs	= Parameters("CELLSIZE")->asDouble();
-
-	bool	bCorner	= Parameters("POS_VECTOR")->asInt() == 1;
-
-	//-----------------------------------------------------
-	double	x	= Parameters("POS_X")->asDouble();
-
-	if( Parameters("POS_X_SIDE")->asInt() == 1 )	// right
+	if( Parameters("POS_X_SIDE")->asInt() == 1 ) // right
 	{
-		x	-= cs * nx;
+		x -= cs * nx;
 		
 		if( bCorner )
 		{
-			x	-= cs / 2.0;
+			x -= cs / 2.;
 		}
 
 	}
 	else if( bCorner )
 	{
-		x	+= cs / 2.0;
+		x += cs / 2.;
 	}
 
 	//-----------------------------------------------------
-	double	y	= Parameters("POS_Y")->asDouble();
+	double y = Parameters("POS_Y")->asDouble();
 
-	if( Parameters("POS_Y_SIDE")->asInt() == 0 )	// top
+	if( Parameters("POS_Y_SIDE")->asInt() == 0 ) // top
 	{
-		y	-= cs * ny;
+		y -= cs * ny;
 
 		if( bCorner )
 		{
-			y	-= cs / 2.0;
+			y -= cs / 2.;
 		}
 	}
 	else if( bCorner )
 	{
-		y	+= cs / 2.0;
+		y += cs / 2.;
 	}
 
 	//-----------------------------------------------------

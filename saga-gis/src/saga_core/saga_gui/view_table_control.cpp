@@ -307,20 +307,25 @@ bool CVIEW_Table_Control::_Update_Records(bool bViews)
 	//-----------------------------------------------------
 	for(int iField=0; iField<m_pTable->Get_Field_Count(); iField++)
 	{
-		if( m_pTable->Get_Field_Type(iField) == SG_DATATYPE_Color )
-		{
-			BeginBatch();
+		BeginBatch();
 
-			for(int i=0; i<m_pData->GetNumberRows(); i++)
+		for(int i=0; i<m_pData->GetNumberRows(); i++)
+		{
+			if( m_pTable->Get_Field_Type(iField) == SG_DATATYPE_Color )
 			{
 				wxColour Colour(Get_Color_asWX(m_pData->Get_Record(i)->asInt(iField)));
 
 				SetCellBackgroundColour(i, iField, Colour);
 				SetCellTextColour      (i, iField, Colour);
 			}
-
-			EndBatch();
+			else
+			{
+				SetCellBackgroundColour(i, iField, GetDefaultCellBackgroundColour());
+				SetCellTextColour      (i, iField, GetDefaultCellTextColour      ());
+			}
 		}
+
+		EndBatch();
 	}
 
 	//-----------------------------------------------------
@@ -1026,75 +1031,18 @@ void CVIEW_Table_Control::On_Field_Type(wxCommandEvent &event)
 {
 	CSG_Parameters P(_TL("Change Field Type"));
 
-	CSG_Array_Int Types(m_pTable->Get_Field_Count());
-
 	for(int i=0; i<m_pTable->Get_Field_Count(); i++)
 	{
-		switch( m_pTable->Get_Field_Type(i) )
-		{
-		default:
-		case SG_DATATYPE_String: Types[i] =  0; break;
-		case SG_DATATYPE_Date  : Types[i] =  1; break;
-		case SG_DATATYPE_Color : Types[i] =  2; break;
-		case SG_DATATYPE_Byte  : Types[i] =  3; break;
-		case SG_DATATYPE_Char  : Types[i] =  4; break;
-		case SG_DATATYPE_Word  : Types[i] =  5; break;
-		case SG_DATATYPE_Short : Types[i] =  6; break;
-		case SG_DATATYPE_DWord : Types[i] =  7; break;
-		case SG_DATATYPE_Int   : Types[i] =  8; break;
-		case SG_DATATYPE_ULong : Types[i] =  9; break;
-		case SG_DATATYPE_Long  : Types[i] = 10; break;
-		case SG_DATATYPE_Float : Types[i] = 11; break;
-		case SG_DATATYPE_Double: Types[i] = 12; break;
-		case SG_DATATYPE_Binary: Types[i] = 13; break;
-		}
-
-		P.Add_Choice("", SG_Get_String(i), m_pTable->Get_Field_Name(i), _TL(""),
-			CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
-			SG_Data_Type_Get_Name(SG_DATATYPE_String).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Date  ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Color ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Byte  ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Char  ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Word  ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Short ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_DWord ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Int   ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_ULong ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Long  ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Float ).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Double).c_str(),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Binary).c_str()
-			), Types[i]
-		);
+		P.Add_Data_Type("", SG_Get_String(i), m_pTable->Get_Field_Name(i), _TL(""), SG_DATATYPES_Table, m_pTable->Get_Field_Type(i));
 	}
 
-	//-----------------------------------------------------
 	if( DLG_Parameters(&P) )
 	{
 		bool bChanged = false;
 
 		for(int i=0; i<m_pTable->Get_Field_Count(); i++)
 		{
-			TSG_Data_Type Type;
-
-			switch( P(i)->asInt() )
-			{
-			default: Type = SG_DATATYPE_String; break;
-			case  1: Type = SG_DATATYPE_Date  ; break;
-			case  2: Type = SG_DATATYPE_Color ; break;
-			case  3: Type = SG_DATATYPE_Byte  ; break;
-			case  4: Type = SG_DATATYPE_Char  ; break;
-			case  5: Type = SG_DATATYPE_Word  ; break;
-			case  6: Type = SG_DATATYPE_Short ; break;
-			case  7: Type = SG_DATATYPE_DWord ; break;
-			case  8: Type = SG_DATATYPE_Int   ; break;
-			case  9: Type = SG_DATATYPE_ULong ; break;
-			case 10: Type = SG_DATATYPE_Long  ; break;
-			case 11: Type = SG_DATATYPE_Float ; break;
-			case 12: Type = SG_DATATYPE_Double; break;
-			case 13: Type = SG_DATATYPE_Binary; break;
-			}
+			TSG_Data_Type Type = P(i)->asDataType()->Get_Data_Type();
 
 			if( Type != m_pTable->Get_Field_Type(i) )
 			{

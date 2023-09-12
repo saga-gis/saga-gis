@@ -119,20 +119,20 @@ void CParameters_PG_Choice::_Create(void)
 
 	if( m_pParameter )
 	{
-		int		iSelection = 0;
+		int Choice = -1;
 
 		switch( m_pParameter->Get_Type() )
 		{
 		case PARAMETER_TYPE_Data_Type  :
-		case PARAMETER_TYPE_Choice     : iSelection = _Set_Choice     ();	break;
-		case PARAMETER_TYPE_Grid_System: iSelection = _Set_Grid_System();	break;
-		case PARAMETER_TYPE_Table_Field: iSelection = _Set_Table_Field();	break;
-		case PARAMETER_TYPE_Grid       : iSelection = _Set_Grid       ();	break;
-		case PARAMETER_TYPE_Grids      : iSelection = _Set_Grid       ();	break;
-		case PARAMETER_TYPE_Table      : iSelection = _Set_Table      ();	break;
-		case PARAMETER_TYPE_Shapes     : iSelection = _Set_Shapes     ();	break;
-		case PARAMETER_TYPE_TIN        : iSelection = _Set_TIN        ();	break;
-		case PARAMETER_TYPE_PointCloud : iSelection = _Set_PointCloud ();	break;
+		case PARAMETER_TYPE_Choice     : Choice = _Set_Choice     (); break;
+		case PARAMETER_TYPE_Grid_System: Choice = _Set_Grid_System(); break;
+		case PARAMETER_TYPE_Table_Field: Choice = _Set_Table_Field(); break;
+		case PARAMETER_TYPE_Grid       : Choice = _Set_Grid       (); break;
+		case PARAMETER_TYPE_Grids      : Choice = _Set_Grid       (); break;
+		case PARAMETER_TYPE_Table      : Choice = _Set_Table      (); break;
+		case PARAMETER_TYPE_Shapes     : Choice = _Set_Shapes     (); break;
+		case PARAMETER_TYPE_TIN        : Choice = _Set_TIN        (); break;
+		case PARAMETER_TYPE_PointCloud : Choice = _Set_PointCloud (); break;
 		default:	break;
 		}
 
@@ -141,9 +141,9 @@ void CParameters_PG_Choice::_Create(void)
 			RecreateEditor();
 		}
 
-		if( iSelection >= 0 )
+		if( Choice >= 0 )
 		{
-			SetChoiceSelection(iSelection);
+			SetChoiceSelection(Choice);
 		}
 	}
 }
@@ -151,8 +151,8 @@ void CParameters_PG_Choice::_Create(void)
 //---------------------------------------------------------
 void CParameters_PG_Choice::_Destroy(void)
 {
-	m_choices		.Clear();
-	m_choices_data	.Clear();
+	m_choices     .Clear();
+	m_choices_data.Clear();
 
 //	SetChoiceSelection(0);
 }
@@ -160,14 +160,14 @@ void CParameters_PG_Choice::_Destroy(void)
 //---------------------------------------------------------
 void CParameters_PG_Choice::_Append(const wxString &Label, long Value)
 {
-	m_choices		.Add(Label, Value);
-	m_choices_data	.Add((void *)NULL);
+	m_choices     .Add(Label, Value);
+	m_choices_data.Add((void *)NULL);
 }
 
 void CParameters_PG_Choice::_Append(const wxString &Label, void *Value)
 {
-	m_choices		.Add(Label);
-	m_choices_data	.Add(Value);
+	m_choices     .Add(Label);
+	m_choices_data.Add(Value);
 }
 
 //---------------------------------------------------------
@@ -184,8 +184,7 @@ int CParameters_PG_Choice::_Set_Choice(void)
 //---------------------------------------------------------
 int CParameters_PG_Choice::_Set_Table_Field(void)
 {
-	CSG_Parameter	*pParent;
-	CSG_Table		*pTable;
+	CSG_Parameter *pParent; CSG_Table *pTable;
 
 	if(	(pParent = m_pParameter->Get_Parent()) != NULL)
 	{
@@ -222,7 +221,7 @@ int CParameters_PG_Choice::_Set_Table_Field(void)
 //---------------------------------------------------------
 int CParameters_PG_Choice::_Set_Table(void)
 {
-	CWKSP_Table_Manager	*pTables;
+	CWKSP_Table_Manager *pTables;
 
 	if( (pTables = g_pData->Get_Tables()) != NULL )
 	{
@@ -232,13 +231,13 @@ int CParameters_PG_Choice::_Set_Table(void)
 		}
 	}
 
-	CWKSP_Shapes_Manager	*pManager;
+	CWKSP_Shapes_Manager *pManager;
 
 	if( (pManager = g_pData->Get_Shapes()) != NULL )
 	{
 		for(int i=0; i<pManager->Get_Count(); i++)
 		{
-			CWKSP_Shapes_Type	*pShapes	= (CWKSP_Shapes_Type *)pManager->Get_Item(i);
+			CWKSP_Shapes_Type *pShapes = (CWKSP_Shapes_Type *)pManager->Get_Item(i);
 
 			for(int j=0; j<pShapes->Get_Count(); j++)
 			{
@@ -247,7 +246,7 @@ int CParameters_PG_Choice::_Set_Table(void)
 		}
 	}
 
-	CWKSP_PointCloud_Manager	*pPointClouds;
+	CWKSP_PointCloud_Manager *pPointClouds;
 
 	if( (pPointClouds = g_pData->Get_PointClouds()) != NULL )
 	{
@@ -263,15 +262,15 @@ int CParameters_PG_Choice::_Set_Table(void)
 //---------------------------------------------------------
 int CParameters_PG_Choice::_Set_Shapes(void)
 {
-	CWKSP_Shapes_Manager	*pManager;
+	CWKSP_Shapes_Manager *pManager;
 
 	if( (pManager = g_pData->Get_Shapes()) != NULL )
 	{
-		int		Shape_Type	= ((CSG_Parameter_Shapes *)m_pParameter)->Get_Shape_Type();
+		int Shape_Type = ((CSG_Parameter_Shapes *)m_pParameter)->Get_Shape_Type();
 
 		for(int i=0; i<pManager->Get_Count(); i++)
 		{
-			CWKSP_Shapes_Type	*pShapes	= (CWKSP_Shapes_Type *)pManager->Get_Item(i);
+			CWKSP_Shapes_Type *pShapes = (CWKSP_Shapes_Type *)pManager->Get_Item(i);
 
 			if( Shape_Type == SHAPE_TYPE_Undefined || Shape_Type == pShapes->Get_Shape_Type() )
 			{
@@ -283,9 +282,9 @@ int CParameters_PG_Choice::_Set_Shapes(void)
 		}
 	}
 
-	if(	m_pParameter->is_Input()
-	&&	(	((CSG_Parameter_Shapes *)m_pParameter)->Get_Shape_Type() == SHAPE_TYPE_Point
-		||	((CSG_Parameter_Shapes *)m_pParameter)->Get_Shape_Type() == SHAPE_TYPE_Undefined ) )
+	if(	m_pParameter->is_Input() &&
+	  ( ((CSG_Parameter_Shapes *)m_pParameter)->Get_Shape_Type() == SHAPE_TYPE_Point
+	 || ((CSG_Parameter_Shapes *)m_pParameter)->Get_Shape_Type() == SHAPE_TYPE_Undefined ) )
 	{
 		return( _Set_PointCloud() );
 	}
@@ -296,7 +295,7 @@ int CParameters_PG_Choice::_Set_Shapes(void)
 //---------------------------------------------------------
 int CParameters_PG_Choice::_Set_TIN(void)
 {
-	CWKSP_TIN_Manager	*pManager	= g_pData->Get_TINs();
+	CWKSP_TIN_Manager *pManager = g_pData->Get_TINs();
 
 	if( pManager )
 	{
@@ -312,7 +311,7 @@ int CParameters_PG_Choice::_Set_TIN(void)
 //---------------------------------------------------------
 int CParameters_PG_Choice::_Set_PointCloud(void)
 {
-	CWKSP_PointCloud_Manager	*pManager	= g_pData->Get_PointClouds();
+	CWKSP_PointCloud_Manager *pManager = g_pData->Get_PointClouds();
 
 	if( pManager )
 	{
@@ -330,7 +329,7 @@ int CParameters_PG_Choice::_Set_Grid_System(void)
 {
 	m_pParameter->Check();
 
-	CWKSP_Grid_Manager	*pManager	= g_pData->Get_Grids();
+	CWKSP_Grid_Manager *pManager = g_pData->Get_Grids();
 
 	if( !pManager || pManager->Get_Count() <= 0 )
 	{
@@ -339,7 +338,7 @@ int CParameters_PG_Choice::_Set_Grid_System(void)
 		return( 0 );
 	}
 
-	int	index	= pManager->Get_Count();
+	int Choice = pManager->Get_Count();
 
 	if( m_choices.GetCount() == 0 )
 	{
@@ -349,20 +348,20 @@ int CParameters_PG_Choice::_Set_Grid_System(void)
 
 			if( m_pParameter->asGrid_System()->is_Equal(pManager->Get_System(i)->Get_System()) )
 			{
-				index	= i;
+				Choice = i;
 			}
 		}
 
 		_Append(_TL("<not set>"));
 	}
 
-	return( index );
+	return( Choice );
 }
 
 //---------------------------------------------------------
 int CParameters_PG_Choice::_Set_Grid(void)
 {
-	CWKSP_Grid_System	*pGrid_System
+	CWKSP_Grid_System *pGrid_System
 		= m_pParameter->Get_Parent() && m_pParameter->Get_Parent()->Get_Type() == PARAMETER_TYPE_Grid_System && g_pData->Get_Grids()
 		? g_pData->Get_Grids()->Get_System(*m_pParameter->Get_Parent()->asGrid_System()) : NULL;
 
@@ -370,7 +369,7 @@ int CParameters_PG_Choice::_Set_Grid(void)
 	{
 		for(int i=0; i<pGrid_System->Get_Count(); i++)
 		{
-			CWKSP_Data_Item	*pItem	= pGrid_System->Get_Data(i);
+			CWKSP_Data_Item *pItem = pGrid_System->Get_Data(i);
 
 			switch( m_pParameter->Get_Type() )
 			{
@@ -443,34 +442,34 @@ int CParameters_PG_Choice::_DataObject_Init(void)
 }
 
 //---------------------------------------------------------
-void CParameters_PG_Choice::_Set_Parameter_Value(int iChoice)
+void CParameters_PG_Choice::_Set_Parameter_Value(int Choice)
 {
-	if( iChoice != GetChoiceSelection() && iChoice >= 0 && iChoice < (int)m_choices.GetCount() && m_pParameter )
+	if( Choice != GetChoiceSelection() && Choice >= 0 && Choice < (int)m_choices.GetCount() && m_pParameter )
 	{
 		switch( m_pParameter->Get_Type() )
 		{
 		case PARAMETER_TYPE_Data_Type  :
 		case PARAMETER_TYPE_Choice     :
 		case PARAMETER_TYPE_Table_Field:
-			m_pParameter->Set_Value(iChoice);
+			m_pParameter->Set_Value(Choice);
 			break;
 
 		case PARAMETER_TYPE_Grid_System:
-			m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(iChoice)));
+			m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(Choice)));
 
 			_Update_Grids();
 			break;
 
 		case PARAMETER_TYPE_Grid       :
 		case PARAMETER_TYPE_Grids      :
-			m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(iChoice)));
+			m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(Choice)));
 			break;
 
 		case PARAMETER_TYPE_Table      :
 		case PARAMETER_TYPE_Shapes     :
 		case PARAMETER_TYPE_TIN        :
 		case PARAMETER_TYPE_PointCloud :
-			m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(iChoice)));
+			m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(Choice)));
 
 			_Update_TableFields();
 			break;
@@ -486,7 +485,6 @@ void CParameters_PG_Choice::_Set_Parameter_Value(int iChoice)
 //---------------------------------------------------------
 bool CParameters_PG_Choice::OnEvent(wxPropertyGrid *pPG, wxWindow *pPGCtrl, wxEvent &event)
 {
-	//-----------------------------------------------------
 	if( event.GetEventType() == wxEVT_SET_FOCUS )
 	{
 		wxPostEvent(pPG->GetEditorControl(), wxMouseEvent(wxEVT_LEFT_DOWN));
@@ -495,7 +493,7 @@ bool CParameters_PG_Choice::OnEvent(wxPropertyGrid *pPG, wxWindow *pPGCtrl, wxEv
 	//-----------------------------------------------------
 	if( event.GetEventType() == wxEVT_RIGHT_DOWN && m_pParameter )
 	{
-		int	iChoice	= GetChoiceSelection();
+		int Choice = GetChoiceSelection();
 
 		if( m_pParameter->is_DataObject() )
 		{
@@ -503,33 +501,31 @@ bool CParameters_PG_Choice::OnEvent(wxPropertyGrid *pPG, wxWindow *pPGCtrl, wxEv
 			{
 				if( m_pParameter->is_Optional() )
 				{
-					iChoice	= m_choices.GetCount() - 1;
+					Choice = m_choices.GetCount() - 1;
 				}
 			}
 			else // if( m_pParameter->is_Output() )
 			{
 				if( m_pParameter->is_Optional() )
 				{
-					iChoice	= m_choices.GetCount() - (iChoice == m_choices.GetCount() - 1 ? 2 : 1);
+					Choice = m_choices.GetCount() - (Choice == m_choices.GetCount() - 1 ? 2 : 1);
 				}
 				else if( m_pParameter->asDataObject() != DATAOBJECT_CREATE )
 				{
-					iChoice	= m_choices.GetCount() - 1;
+					Choice = m_choices.GetCount() - 1;
 				}
 			}
 		}
 		else if( m_pParameter->Get_Type() == PARAMETER_TYPE_Table_Field && m_pParameter->is_Optional() )
 		{
-			iChoice	= m_choices.GetCount() - 1;
+			Choice = m_choices.GetCount() - 1;
 		}
 
-		if( iChoice != GetChoiceSelection() )
+		if( Choice != GetChoiceSelection() )
 		{
-			_Set_Parameter_Value(iChoice);
-
-			SetChoiceSelection(iChoice);
-
-			SetValueInEvent(iChoice);
+			_Set_Parameter_Value(Choice);
+			SetChoiceSelection  (Choice);
+			SetValueInEvent     (Choice);
 
 			return( true );
 		}
@@ -538,12 +534,11 @@ bool CParameters_PG_Choice::OnEvent(wxPropertyGrid *pPG, wxWindow *pPGCtrl, wxEv
 	//-----------------------------------------------------
 	if( event.GetEventType() == wxEVT_COMMAND_COMBOBOX_SELECTED )
 	{
-		int			iChoice;
-		wxVariant	vChoice;
+		int Choice; wxVariant Variant;
 
-		if( GetEditorClass()->GetValueFromControl(vChoice, this, pPGCtrl) && m_choices.IsOk() && (iChoice = vChoice.GetInteger()) >= 0 && iChoice < (int)m_choices.GetCount() && m_pParameter )
+		if( GetEditorClass()->GetValueFromControl(Variant, this, pPGCtrl) && m_choices.IsOk() && (Choice = Variant.GetInteger()) >= 0 && Choice < (int)m_choices.GetCount() && m_pParameter )
 		{
-			_Set_Parameter_Value(iChoice);
+			_Set_Parameter_Value(Choice);
 		}
 	}
 
@@ -558,12 +553,12 @@ void CParameters_PG_Choice::_Update_Grids(void)
 	{
 		for(int i=0; i<m_pParameter->Get_Children_Count(); i++)
 		{
-			CSG_Parameter	*pChild	= m_pParameter->Get_Child(i);
+			CSG_Parameter *pChild = m_pParameter->Get_Child(i);
 
 			if( pChild->Get_Type() == PARAMETER_TYPE_Grid
 			||  pChild->Get_Type() == PARAMETER_TYPE_Grids )
 			{
-				wxPGProperty	*pProperty	= GetGrid()->GetProperty(wxString::Format("%s.%s", m_pParameter->Get_Identifier(), pChild->Get_Identifier()));
+				wxPGProperty *pProperty = GetGrid()->GetProperty(wxString::Format("%s.%s", m_pParameter->Get_Identifier(), pChild->Get_Identifier()));
 
 				if( pProperty )
 				{
@@ -581,11 +576,11 @@ void CParameters_PG_Choice::_Update_TableFields(void)
 	{
 		for(int i=0; i<m_pParameter->Get_Children_Count(); i++)
 		{
-			CSG_Parameter	*pChild	= m_pParameter->Get_Child(i);
+			CSG_Parameter *pChild = m_pParameter->Get_Child(i);
 
 			if(	pChild->Get_Type() == PARAMETER_TYPE_Table_Field )
 			{
-				wxPGProperty	*pProperty	= GetGrid()->GetProperty(wxString::Format("%s.%s", m_pParameter->Get_Identifier(), pChild->Get_Identifier()));
+				wxPGProperty *pProperty = GetGrid()->GetProperty(wxString::Format("%s.%s", m_pParameter->Get_Identifier(), pChild->Get_Identifier()));
 
 				if( pProperty )
 				{

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: table_change_field_type.h 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__table_change_field_type_H
 #define HEADER_INCLUDED__table_change_field_type_H
 
@@ -87,10 +75,9 @@ public:
 
 protected:
 
-	virtual bool			On_Execute				(void);
-
 	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
+	virtual bool			On_Execute				(void);
 
 };
 
@@ -108,10 +95,9 @@ public:
 
 protected:
 
-	virtual bool			On_Execute				(void);
-
 	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
+	virtual bool			On_Execute				(void);
 
 };
 
