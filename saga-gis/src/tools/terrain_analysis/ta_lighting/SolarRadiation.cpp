@@ -1053,7 +1053,7 @@ inline bool CSolarRadiation::Get_Shade_Params(double Sun_Height, double Sun_Azim
 {
 	if( Sun_Height > 0. )
 	{
-		dx = sin(dz); dy = cos(dz); dz = Sun_Azimuth + M_PI_180;
+		dz = Sun_Azimuth + M_PI_180; dx = sin(dz); dy = cos(dz);
 
 		if( fabs(dx) - fabs(dy) > EPSILON )
 		{
