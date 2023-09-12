@@ -95,50 +95,40 @@ CPC_Attribute_Calculator::CPC_Attribute_Calculator(void)
 
 
 	//-----------------------------------------------------
-	Parameters.Add_PointCloud(
-		NULL	, "PC_IN"		,_TL("Point Cloud"),
-		_TL("Input"),
+	Parameters.Add_PointCloud("",
+		"PC_IN"		,_TL("Point Cloud"),
+		_TL("Input point cloud."),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_PointCloud(
-		NULL	, "PC_OUT"		,_TL("Result"),
-		_TL("Output"),
+	Parameters.Add_PointCloud("",
+		"PC_OUT"		,_TL("Result"),
+		_TL("Output point cloud."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_String(
-		NULL	, "FORMULA"		, _TL("Formula"),
+	Parameters.Add_String("",
+		"FORMULA"		, _TL("Formula"),
 		_TL(""),
 		SG_T("f1+f2")
 	);
 
-	Parameters.Add_String(
-		NULL	, "NAME"		, _TL("Output Field Name"),
+	Parameters.Add_String("",
+		"NAME"		, _TL("Output Field Name"),
 		_TL(""),
 		SG_T("Calculation")
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "TYPE"		, _TL("Field data type"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
-			_TL("1 bit"),
-			_TL("1 byte unsigned integer"),
-			_TL("1 byte signed integer"),
-			_TL("2 byte unsigned integer"),
-			_TL("2 byte signed integer"),
-			_TL("4 byte unsigned integer"),
-			_TL("4 byte signed integer"),
-			_TL("4 byte floating point"),
-			_TL("8 byte floating point")
-		), 7
+	Parameters.Add_Data_Type("",
+		"TYPE"		, _TL("Data Type"),
+		_TL("Choose the data type of the output attribute."),
+		SG_DATATYPES_Numeric|SG_DATATYPES_Bit
 	);
 
-	Parameters.Add_Value(
-		NULL	, "USE_NODATA"	, _TL("Use NoData"),
-		_TL("Check this in order to include NoData points in the calculation."),
-		PARAMETER_TYPE_Bool, false
+	Parameters.Add_Bool("",
+		"USE_NODATA"	, _TL("Use NoData"),
+		_TL("Include NoData points in the calculation."),
+		false
 	);
 
 }
@@ -168,19 +158,7 @@ bool CPC_Attribute_Calculator::On_Execute(void)
 	pPC_in		= Parameters("PC_IN")->asPointCloud();
 	pPC_out		= Parameters("PC_OUT")->asPointCloud();
 	bUseNoData	= Parameters("USE_NODATA")->asBool();
-
-	switch( Parameters("TYPE")->asInt() )
-	{
-	case 0:				Type	= SG_DATATYPE_Bit;		break;
-	case 1:				Type	= SG_DATATYPE_Byte;		break;
-	case 2:				Type	= SG_DATATYPE_Char;		break;
-	case 3:				Type	= SG_DATATYPE_Word;		break;
-	case 4:				Type	= SG_DATATYPE_Short;	break;
-	case 5:				Type	= SG_DATATYPE_DWord;	break;
-	case 6:				Type	= SG_DATATYPE_Int;		break;
-	case 7: default:	Type	= SG_DATATYPE_Float;	break;
-	case 8:				Type	= SG_DATATYPE_Double;	break;
-	}
+	Type		= Parameters("TYPE")->asDataType()->Get_Data_Type();
 
 
 	//-----------------------------------------------------
