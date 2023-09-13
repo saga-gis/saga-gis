@@ -71,12 +71,10 @@
 //---------------------------------------------------------
 CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name(_TL("Reclassify Grid Values"));
 
-	Set_Author(_TL("V. Wichmann (c) 2005-19"));
+	Set_Author(_TL("V. Wichmann (c) 2005-2019"));
 
 	Set_Description	(_TW(
 		"The tool can be used to reclassify the values of a grid. It provides three different options:\n"
@@ -115,16 +113,16 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 
 
 	//-----------------------------------------------------
-	Parameters.Add_Value("",
+	Parameters.Add_Double("",
 		"OLD"	, _TL("Old Value"),
 		_TL("Value to reclassify."),
-		PARAMETER_TYPE_Double, 0.0
+		0.0
 	);
 
-	Parameters.Add_Value("",
+	Parameters.Add_Double("",
 		"NEW"	, _TL("New Value"),
 		_TL("The value to assign (with method 'single value')."),
-		PARAMETER_TYPE_Double, 1.0
+		1.0
 	);
 
 	Parameters.Add_Choice("",
@@ -140,22 +138,22 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Value("",
+	Parameters.Add_Double("",
 		"MIN"	, _TL("Minimum Value"),
 		_TL("The minimum value of the range to be reclassified."),
-		PARAMETER_TYPE_Double, 0.0
+		0.0
 	);
 
-	Parameters.Add_Value("",
+	Parameters.Add_Double("",
 		"MAX"	, _TL("Maximum Value"),
 		_TL("The maximum value of the range to be reclassified."),
-		PARAMETER_TYPE_Double, 10.0
+		10.0
 	);
 
-	Parameters.Add_Value("",
+	Parameters.Add_Double("",
 		"RNEW"	, _TL("New Value"),
 		_TL("The value to assign (with method 'range')."),
-		PARAMETER_TYPE_Double, 5.0
+		5.0
 	);
 
 	Parameters.Add_Choice("",
@@ -176,7 +174,7 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 	Parameters.Add_Choice("",
 		"TOPERATOR"	, _TL("Operator"),
 		_TL("Select the desired operator (for method 'table')."),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|%s"),
 			_TL("min <= value < max"),
 			_TL("min <= value <= max"),
 			_TL("min < value <= max"),
@@ -185,81 +183,70 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Table("",
+	Parameters.Add_Table("",
 		"RETAB_2"	, _TL("Lookup Table"),
 		_TL("The lookup table used with method 'user supplied table'."),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Table_Field(pNode,
+	Parameters.Add_Table_Field("RETAB_2",
 		"F_MIN"		, _TL("Minimum Value"),
 		_TL("The table field with the minimum value.")
 	);
 
-	Parameters.Add_Table_Field(pNode,
+	Parameters.Add_Table_Field("RETAB_2",
 		"F_MAX"		, _TL("Maximum Value"),
 		_TL("The table field with the maximum value.")
 	);
 
-	Parameters.Add_Table_Field(pNode,
+	Parameters.Add_Table_Field("RETAB_2",
 		"F_CODE"	, _TL("New Value"),
 		_TL("The table field with the value to assign.")
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Node("",
+	Parameters.Add_Node("",
 		"OPTIONS"	, _TL("Special Cases"),
 		_TL("Parameter settings for the special cases (a) No-Data values and (b) values not included in the reclassification setup.")
 	);
 
-	Parameters.Add_Value(pNode,
+	Parameters.Add_Bool("OPTIONS",
 		"NODATAOPT"	, _TL("No Data Values"),
 		_TL("Use this option to reclassify No Data values independently of the method settings."),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Value(Parameters("NODATAOPT"),
+	Parameters.Add_Double("NODATAOPT",
 		"NODATA"	, _TL("New Value"),
 		_TL("The value to assign to No Data values."),
-		PARAMETER_TYPE_Double, 0.0
+		0.0
 	);
 
-	Parameters.Add_Value(pNode,
+	Parameters.Add_Bool("OPTIONS",
 		"OTHEROPT"	, _TL("Other Values"),
 		_TL("Use this option to reclassify all values that are not included in the reclassification setup."),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Value(Parameters("OTHEROPT"),
+	Parameters.Add_Double("OTHEROPT",
 		"OTHERS"	, _TL("New Value"),
 		_TL("The value to assign to all values not included in the reclassification setup."),
-		PARAMETER_TYPE_Double, 0.0
+		0.0
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Node("",
+	Parameters.Add_Node("",
 		"OPT_RESULT"	, _TL("Output Grid"),
 		_TL("The parameter settings for the output grid.")
 	);
 
-	Parameters.Add_Choice(pNode,
-		"RESULT_TYPE"	, _TL("Data Storage Type"),
+	Parameters.Add_Data_Type("OPT_RESULT",
+		"RESULT_TYPE"		, _TL("Data Storage Type"),
 		_TL("The data storage type of the output grid."),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
-			_TL("1 bit"                     ),
-			_TL("1 byte unsigned integer"   ),
-			_TL("1 byte signed integer"     ),
-			_TL("2 byte unsigned integer"   ),
-			_TL("2 byte signed integer"     ),
-			_TL("4 byte unsigned integer"   ),
-			_TL("4 byte signed integer"     ),
-			_TL("4 byte floating point"     ),
-			_TL("8 byte floating point"     ),
-			_TL("same as input grid"		)
-		), 9
+		SG_DATATYPES_Numeric|SG_DATATYPES_Bit, SG_DATATYPE_Undefined, _TL("same as first grid in list")
 	);
 
-	Parameters.Add_Choice(pNode,
+	Parameters.Add_Choice("OPT_RESULT",
 		"RESULT_NODATA_CHOICE"	, _TL("No Data Value"),
 		_TL("Choose how to handle the No Data value of the output grid."),
 		CSG_String::Format(SG_T("%s|%s|%s"),
@@ -269,10 +256,10 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 		), 0
 	);
 
-	Parameters.Add_Value(Parameters("RESULT_NODATA_CHOICE"),
+	Parameters.Add_Double("RESULT_NODATA_CHOICE",
 		"RESULT_NODATA_VALUE"		, _TL("No Data Value"),
 		_TL("User defined No Data value for output grid."),
-		PARAMETER_TYPE_Double, -99999.0
+		-99999.0
 	);
 
 	//-----------------------------------------------------
@@ -311,20 +298,7 @@ bool CGrid_Value_Reclassify::On_Execute(void)
 	method		= Parameters("METHOD")->asInt();
 
 	//---------------------------------------------------------
-	switch( Parameters("RESULT_TYPE")->asInt() )
-	{
-	case 0:		pResult->Create(pInput, SG_DATATYPE_Bit);		break;
-	case 1:		pResult->Create(pInput, SG_DATATYPE_Byte);		break;
-	case 2:		pResult->Create(pInput, SG_DATATYPE_Char);		break;
-	case 3:		pResult->Create(pInput, SG_DATATYPE_Word);		break;
-	case 4:		pResult->Create(pInput, SG_DATATYPE_Short);		break;
-	case 5:		pResult->Create(pInput, SG_DATATYPE_DWord);		break;
-	case 6:		pResult->Create(pInput, SG_DATATYPE_Int);		break;
-	case 7:		pResult->Create(pInput, SG_DATATYPE_Float);		break;
-	case 8:		pResult->Create(pInput, SG_DATATYPE_Double);	break;
-	case 9:
-	default:	pResult->Create(pInput, pInput->Get_Type());	break;
-	}
+	pResult->Create(pInput, Parameters("RESULT_TYPE")->asDataType()->Get_Data_Type());
 
 
 	//---------------------------------------------------------
