@@ -105,19 +105,10 @@ CGrid_Table_Import::CGrid_Table_Import(void)
 	Parameters.Add_Double("", "NODATA"   , _TL("No Data Value"), _TL(""), -99999.0);
 	Parameters.Add_Int   ("", "HEADLINES", _TL("Header Lines" ), _TL(""), 0, 0, true);
 
-	Parameters.Add_Choice(
-		"", "DATA_TYPE"	, _TL("Data Type"),
+	Parameters.Add_Data_Type("",
+		"DATA_TYPE"		, _TL("Data Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s",
-			_TL("1 Byte Integer (unsigned)"),
-			_TL("1 Byte Integer (signed)"  ),
-			_TL("2 Byte Integer (unsigned)"),
-			_TL("2 Byte Integer (signed)"  ),
-			_TL("4 Byte Integer (unsigned)"),
-			_TL("4 Byte Integer (signed)"  ),
-			_TL("4 Byte Floating Point"    ),
-			_TL("8 Byte Floating Point"    )
-		), 6
+		SG_DATATYPES_Numeric|SG_DATATYPES_Bit
 	);
 
 	Parameters.Add_Choice(
@@ -159,22 +150,7 @@ bool CGrid_Table_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	TSG_Data_Type	Type;
-
-	switch( Parameters("DATA_TYPE")->asInt() )
-	{
-	case  0:	Type	= SG_DATATYPE_Byte  ;	break;	// 1 Byte Integer (unsigned)
-	case  1:	Type	= SG_DATATYPE_Char  ;	break;	// 1 Byte Integer (signed)
-	case  2:	Type	= SG_DATATYPE_Word  ;	break;	// 2 Byte Integer (unsigned)
-	case  3:	Type	= SG_DATATYPE_Short ;	break;	// 2 Byte Integer (signed)
-	case  4:	Type	= SG_DATATYPE_DWord ;	break;	// 4 Byte Integer (unsigned)
-	case  5:	Type	= SG_DATATYPE_Int   ;	break;	// 4 Byte Integer (signed)
-	default:	Type	= SG_DATATYPE_Float ;	break;	// 4 Byte Floating Point
-	case  7:	Type	= SG_DATATYPE_Double;	break;	// 8 Byte Floating Point
-	}
-
-	//-----------------------------------------------------
-	CSG_Grid	*pGrid	= SG_Create_Grid(Type, nx, ny,
+	CSG_Grid	*pGrid	= SG_Create_Grid(Parameters("DATA_TYPE")->asDataType()->Get_Data_Type(), nx, ny,
 		Parameters("CELLSIZE")->asDouble(),
 		Parameters("XMIN"    )->asDouble(),
 		Parameters("YMIN"    )->asDouble()
