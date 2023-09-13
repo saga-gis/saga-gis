@@ -1108,6 +1108,15 @@ CSG_Parameter_Data_Type::CSG_Parameter_Data_Type(CSG_Parameters *pOwner, CSG_Par
 }
 
 //---------------------------------------------------------
+/**
+* This function initializes the data types available for
+* selection. The Data_Types argument expects a combination
+* of data type flags as defined in <api_core.h>, e.g.
+* SG_DATATYPES_Integer or SG_DATATYPES_Numeric. You can add
+* an additional choice with the User argument, e.g. to offer
+* a type related to an selected input data set.
+*/
+//---------------------------------------------------------
 bool CSG_Parameter_Data_Type::Set_Data_Types(int Data_Types, TSG_Data_Type Default, const CSG_String &User)
 {
 	if( Data_Types <= SG_DATATYPES_Undefined )
@@ -1168,6 +1177,13 @@ bool CSG_Parameter_Data_Type::Set_Data_Types(int Data_Types, TSG_Data_Type Defau
 }
 
 //---------------------------------------------------------
+/**
+* Select a data type from the choices list after it has been
+* initialized. Useful e.g. when adjusting a default data type
+* in CSG_Tool::On_Parameters_Changed() to a changed input data
+* selection.
+*/
+//---------------------------------------------------------
 bool CSG_Parameter_Data_Type::Set_Data_Type(TSG_Data_Type Value)
 {
 	for(int i=0; i<Get_Count(); i++)
@@ -1181,6 +1197,14 @@ bool CSG_Parameter_Data_Type::Set_Data_Type(TSG_Data_Type Value)
 	return( false );
 }
 
+//---------------------------------------------------------
+/**
+* This function returns the selected data type. If an additional
+* 'user' option has been added and is selected, the data type
+* returned is the one given as 'Default' argument. This is useful
+* e.g. if you want to return a data type that comes from an input
+* data set.
+*/
 //---------------------------------------------------------
 TSG_Data_Type CSG_Parameter_Data_Type::Get_Data_Type(TSG_Data_Type Default)	const
 {

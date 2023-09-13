@@ -440,6 +440,15 @@ CSG_Parameter * CSG_Parameters::Add_Info_Range(const CSG_String &ParentID, const
 }
 
 //---------------------------------------------------------
+/**
+* Add a parameter for selecting a data type from a list of
+* choices. The Data_Types argument expects a combination
+* of data type flags as defined in <api_core.h>, e.g.
+* SG_DATATYPES_Integer or SG_DATATYPES_Numeric. You can add
+* an additional choice with the User argument, e.g. to offer
+* a type related to an selected input data set.
+*/
+//---------------------------------------------------------
 CSG_Parameter * CSG_Parameters::Add_Data_Type(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Data_Types, TSG_Data_Type Default, const CSG_String &User)
 {
 	CSG_Parameter *pParameter = _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_Data_Type, 0);
