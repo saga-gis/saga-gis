@@ -294,20 +294,10 @@ CXYZ_Import::CXYZ_Import(void)
 		"*"
 	);
 
-	Parameters.Add_Choice("",
+	Parameters.Add_Data_Type("",
 		"TYPE"		, _TL("Data Storage Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s",
-			_TL("1 bit"                     ),
-			_TL("1 byte unsigned integer"   ),
-			_TL("1 byte signed integer"     ),
-			_TL("2 byte unsigned integer"   ),
-			_TL("2 byte signed integer"     ),
-			_TL("4 byte unsigned integer"   ),
-			_TL("4 byte signed integer"     ),
-			_TL("4 byte floating point"     ),
-			_TL("8 byte floating point"     )
-		), 7	// defaults to '4 byte floating point'
+		SG_DATATYPES_Numeric|SG_DATATYPES_Bit
 	);
 
 	Parameters.Add_Double("",
@@ -433,22 +423,7 @@ bool CXYZ_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	TSG_Data_Type	Type;
-
-	switch( Parameters("TYPE")->asInt() )
-	{
-	case  0: Type = SG_DATATYPE_Bit   ; break;
-	case  1: Type = SG_DATATYPE_Byte  ; break;
-	case  2: Type = SG_DATATYPE_Char  ; break;
-	case  3: Type = SG_DATATYPE_Word  ; break;
-	case  4: Type = SG_DATATYPE_Short ; break;
-	case  5: Type = SG_DATATYPE_DWord ; break;
-	case  6: Type = SG_DATATYPE_Int   ; break;
-	default: Type = SG_DATATYPE_Float ; break;
-	case  8: Type = SG_DATATYPE_Double; break;
-	}
-
-	CSG_Grid	*pGrid	= SG_Create_Grid(CSG_Grid_System(Cellsize, Extent), Type);
+	CSG_Grid	*pGrid	= SG_Create_Grid(CSG_Grid_System(Cellsize, Extent), Parameters("TYPE")->asDataType()->Get_Data_Type());
 
 	if( !pGrid )
 	{
