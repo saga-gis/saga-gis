@@ -625,7 +625,7 @@ CSG_Grid * CSentinel_2_Scene_Import::Load_Band(const CSG_String &Path, const CSG
 			if( pTool->Set_Parameter("CRS_PROJ4" , SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"))
 			&&  pTool->Set_Parameter("SOURCE"    , pBand)
 			&&  pTool->Set_Parameter("RESAMPLING", Parameters("RESAMPLING"))
-			&&  pTool->Set_Parameter("KEEP_TYPE" , true)
+		//	&&  pTool->Set_Parameter("DATA_TYPE" , 10) // "Preserve" => is already default!
 			&&  pTool->Execute() )
 			{
 				delete(pBand);
@@ -658,7 +658,7 @@ CSG_Grid * CSentinel_2_Scene_Import::Load_Band(const CSG_String &Path, const CSG
 				if( pTool->Set_Parameter("CRS_PROJ4"       , Projection.Get_Proj4())
 				&&  pTool->Set_Parameter("SOURCE"          , pBand)
 				&&  pTool->Set_Parameter("RESAMPLING"      , Parameters("RESAMPLING"))
-				&&  pTool->Set_Parameter("KEEP_TYPE"       , true)
+			//	&&  pTool->Set_Parameter("DATA_TYPE"       , 10) // "Preserve" => is already default!
 				&&  pTool->Set_Parameter("TARGET_USER_SIZE", pBand->Get_Cellsize())
 				&&  pTool->Execute() )
 				{

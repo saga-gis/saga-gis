@@ -370,7 +370,7 @@ bool CSentinel_3_Scene_Import::Georeference(CSG_Grid *pLon, CSG_Grid *pLat, CSG_
 	||  !pTool->Set_Parameter("GRID_Y"           , pLat  )
 	||  !pTool->Set_Parameter("GRIDS"            , pBands)
 	||  !pTool->Set_Parameter("BYTEWISE"         , false )
-	||  !pTool->Set_Parameter("KEEP_TYPE"        , true  )
+//	||  !pTool->Set_Parameter("DATA_TYPE"        , 10    ) // "Preserve" => is already default!
 	||  !pTool->Set_Parameter("RESAMPLING"       , 3     ) // B-Spline Interpolation
 	||  !pTool->Set_Parameter("TARGET_DEFINITION", 0     ) // user defined
 	||  !pTool->Set_Parameter("TARGET_USER_XMIN" , pLon->Get_Min())

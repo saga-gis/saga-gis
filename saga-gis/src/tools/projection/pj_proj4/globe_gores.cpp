@@ -188,8 +188,8 @@ bool CGlobe_Gores::Add_Gore(int iGore, int nGores)
 	pTool->Set_Parameter("CRS_PROJ4"        , "+proj=longlat +datum=WGS84");
 	pTool->Set_Parameter("SOURCE"           , Parameters("GRID"));
 	pTool->Set_Parameter("GRID"             , &Grid);
-	pTool->Set_Parameter("RESAMPLING"       , 3);	// B-Spline Interpolation
-	pTool->Set_Parameter("KEEP_TYPE"        , false);
+	pTool->Set_Parameter("RESAMPLING"       , 3); // B-Spline Interpolation
+	pTool->Set_Parameter("DATA_TYPE"        , 8); // SG_Data_Type_Get_Name(SG_DATATYPE_Float) => _TL("4 byte floating point number")
 	pTool->Set_Parameter("BYTEWISE"         , Parameters("BYTEWISE"));
 	pTool->Set_Parameter("TARGET_AREA"      , false);
 	pTool->Set_Parameter("TARGET_DEFINITION", 1);
