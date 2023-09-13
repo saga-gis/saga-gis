@@ -109,7 +109,7 @@ private:
 
 	bool					Get_Slope_Gradient		(void);
 
-	bool					Get_Shade_Params		(double Sun_Height, double Sun_Azimuth, double &dx, double &dy, double &dz, int &Shadowing);
+	bool					Get_Shade_Direction		(double Sun_Height, double Sun_Azimuth, double &dx, double &dy, double &dz);
 	bool					Get_Shade				(double Sun_Height, double Sun_Azimuth);
 	void					Set_Shade				(double x, double y, double z, double dx, double dy, double dz, int Shadowing);
 	void					Set_Shade_Bended		(double x, double y, double z                                 , int Shadowing);
