@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,15 +47,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Grid_Value_Reclassify.h"
 
 
@@ -71,10 +59,9 @@
 //---------------------------------------------------------
 CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 {
-	//-----------------------------------------------------
-	Set_Name(_TL("Reclassify Grid Values"));
+	Set_Name	(_TL("Reclassify Grid Values"));
 
-	Set_Author(_TL("V. Wichmann (c) 2005-2019"));
+	Set_Author	("V. Wichmann (c) 2005-2019");
 
 	Set_Description	(_TW(
 		"The tool can be used to reclassify the values of a grid. It provides three different options:\n"
@@ -90,7 +77,6 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 		"The tool also provides options to control the data storage type and No Data value of the "
 		"output grid.\n\n"
 	));
-
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid("",
@@ -111,7 +97,6 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 		_TL("single|range|simple table|user supplied table"), 0
 	);
 
-
 	//-----------------------------------------------------
 	Parameters.Add_Double("",
 		"OLD"	, _TL("Old Value"),
@@ -128,7 +113,7 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 	Parameters.Add_Choice("",
 		"SOPERATOR"	, _TL("Operator"),
 		_TL("Select the desired operator; it is possible to define a range above or below the old value."),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s"),
+		CSG_String::Format("%s|%s|%s|%s|%s",
 			SG_T("="),
 			SG_T("<"),
 			SG_T("<="),
@@ -174,7 +159,7 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 	Parameters.Add_Choice("",
 		"TOPERATOR"	, _TL("Operator"),
 		_TL("Select the desired operator (for method 'table')."),
-		CSG_String::Format(SG_T("%s|%s|%s|%s"),
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("min <= value < max"),
 			_TL("min <= value <= max"),
 			_TL("min < value <= max"),
@@ -276,10 +261,6 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 	pRecord	= pLookup->Add_Record();	pRecord->Set_Value(0, 10.0);	pRecord->Set_Value(1, 20.0);	pRecord->Set_Value(2, 2.0);
 }
 
-//---------------------------------------------------------
-CGrid_Value_Reclassify::~CGrid_Value_Reclassify(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -298,7 +279,7 @@ bool CGrid_Value_Reclassify::On_Execute(void)
 	method		= Parameters("METHOD")->asInt();
 
 	//---------------------------------------------------------
-	pResult->Create(pInput, Parameters("RESULT_TYPE")->asDataType()->Get_Data_Type());
+	pResult->Create(pInput, Parameters("RESULT_TYPE")->asDataType()->Get_Data_Type(pInput->Get_Type()));
 
 
 	//---------------------------------------------------------
