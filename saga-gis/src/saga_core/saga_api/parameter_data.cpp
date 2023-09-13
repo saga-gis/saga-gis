@@ -1035,22 +1035,21 @@ int CSG_Parameter_Choice::_Set_Value(const CSG_String &Value)
 {
 	if( !Value.is_Empty() )
 	{
-		int Index; // first test, if value string is an integer specifying the index position
+		for(int i=0; i<m_Items.Get_Count(); i++)
+		{
+			if( !Value.Cmp(Get_Item_Data(i)) || !Value.Cmp(Get_Item(i)) )
+			{
+				return( _Set_Value(i) );
+			}
+		}
+
+		int Index; // choice not found? then test, if value string is an integer specifying the index position
 
 		if( Value.asInt(Index) && Index >= 0 && Index < m_Items.Get_Count() )
 		{
 			return( _Set_Value(Index) );
 		}
 
-		CSG_String _Value(Value[0] == '\"' ? Value.AfterFirst('\"').BeforeFirst('\"') : Value); // quotations can be used to enforce comparison with item's data/name (overpassing index based selection)
-
-		for(int i=0; i<m_Items.Get_Count(); i++)
-		{
-			if( !_Value.Cmp(Get_Item_Data(i)) || !_Value.Cmp(Get_Item(i)) )
-			{
-				return( _Set_Value(i) );
-			}
-		}
 	}
 
 	return( SG_PARAMETER_DATA_SET_FALSE );
