@@ -152,7 +152,7 @@ CHillShade::CHillShade(void)
 	Parameters.Add_Choice("",
 		"UNIT"			, _TL("Unit"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("radians"),
 			_TL("degree")
 		), 0
@@ -161,9 +161,9 @@ CHillShade::CHillShade(void)
 	Parameters.Add_Choice("",
 		"SHADOW"		, _TL("Shadow"),
 		_TL("Choose 'slim' to trace grid node's shadow, 'fat' to trace the whole cell's shadow. The first is slightly faster but might show some artifacts."),
-		CSG_String::Format("%s|%s|",
-			_TL("slim"),
-			_TL("fat")
+		CSG_String::Format("%s|%s",
+			_TL("fat"),
+			_TL("slim")
 		), 0
 	);
 
@@ -337,7 +337,7 @@ bool CHillShade::Get_Shading(bool bDelimit, bool bCombine)
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			double	Slope, Aspect;
+			double Slope, Aspect;
 
 			if( !m_pDEM->Get_Gradient(x, y, Slope, Aspect) )
 			{
@@ -378,16 +378,9 @@ bool CHillShade::Get_Shading(bool bDelimit, bool bCombine)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SHADOW_SLIM		0x0
-#define SHADOW_FAT_X	0x1
-#define SHADOW_FAT_Y	0x2
-
-#define EPSILON			0.0001
-
-//---------------------------------------------------------
 bool CHillShade::Get_Shadows(bool bMask)
 {
-	double	Azimuth, Decline;
+	double Azimuth, Decline;
 
 	if( !Get_Position(Azimuth, Decline) )
 	{
@@ -395,36 +388,22 @@ bool CHillShade::Get_Shadows(bool bMask)
 	}
 
 	//-----------------------------------------------------
-	int	Shadow	= SHADOW_SLIM;
-	double	dx	= sin(Azimuth + M_PI_180);
-	double	dy	= cos(Azimuth + M_PI_180);
+	double dx = sin(Azimuth + M_PI_180), dy = cos(Azimuth + M_PI_180);
 
-	if( fabs(dx) - fabs(dy) > EPSILON )
+	if( fabs(dx) > fabs(dy) ) // left-right
 	{
-		dy	/= fabs(dx);
-		dx	 = dx < 0 ? -1 : 1;
-
-		if( Parameters("SHADOW")->asInt() && fabs(dy) > EPSILON )
-			Shadow	= SHADOW_FAT_X;
+		dy /= fabs(dx); dx = dx < 0. ? -1. : 1.;
 	}
-	else if( fabs(dy) - fabs(dx) > EPSILON )
+	else if( fabs(dy) > fabs(dx) ) // bottom-top
 	{
-		dx	/= fabs(dy);
-		dy	 = dy < 0 ? -1 : 1;
-
-		if( Parameters("SHADOW")->asInt() && fabs(dx) > EPSILON )
-			Shadow	= SHADOW_FAT_Y;
+		dx /= fabs(dy); dy = dy < 0. ? -1. : 1.;
 	}
-	else	// diagonal
+	else // diagonal
 	{
-		dx	 = dx < 0 ? -1 : 1;
-		dy	 = dy < 0 ? -1 : 1;
-
-		if( Parameters("SHADOW")->asInt() )
-			Shadow	= SHADOW_FAT_X|SHADOW_FAT_Y;
+		dx = dx < 0. ? -1. : 1.; dy = dy < 0. ? -1. : 1.;
 	}
 
-	double	dz	= tan(Decline) * sqrt(dx*dx + dy*dy) * Get_Cellsize();
+	double dz = tan(Decline) * sqrt(dx*dx + dy*dy) * Get_Cellsize();
 
 	//-----------------------------------------------------
 	if( bMask )
@@ -436,14 +415,17 @@ bool CHillShade::Get_Shadows(bool bMask)
 		Get_Shading(true, false);
 	}
 
+	int Shadowing = Parameters("SHADOW")->asInt();
+
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
 			if( !m_pDEM->is_NoData(x, y) )
 			{
-				Set_Shadow_Trace(x, y, m_pDEM->asDouble(x, y), dx, dy, dz, Shadow);
+				Set_Shadow_Trace(x, y, m_pDEM->asDouble(x, y), dx, dy, dz, Shadowing);
 			}
 		}
 	}
@@ -452,49 +434,53 @@ bool CHillShade::Get_Shadows(bool bMask)
 }
 
 //---------------------------------------------------------
-bool CHillShade::Set_Shadow_Trace(double x, double y, double z, double dx, double dy, double dz, int Shadow)
+void CHillShade::Set_Shadow_Trace(double x, double y, double z, double dx, double dy, double dz, int Shadowing)
 {
-	for(x+=dx+0.5, y+=dy+0.5, z-=dz; ; x+=dx, y+=dy, z-=dz)
+	bool bX = dx && fabs(dx) < 1., bY = dy && fabs(dy) < 1.;
+
+	for(x+=dx, y+=dy, z-=dz; ; x+=dx, y+=dy, z-=dz)
 	{
-		int	ix	= (int)x,	iy	= (int)y;
+		int ix = (int)(bX ? x + 0.5 : x);
+		int iy = (int)(bY ? y + 0.5 : y);
 
 		if( !is_InGrid(ix, iy) )
 		{
-			return( true );
+			return;
 		}
 
 		if( !m_pDEM->is_NoData(ix, iy) )
 		{
 			if( z < m_pDEM->asDouble(ix, iy) )
 			{
-				return( true );
+				return;
 			}
 
 			m_pShade->Set_Value(ix, iy, M_PI_090);
 
-			if( Shadow & SHADOW_FAT_X )
+			if( Shadowing == 0 ) // fat
 			{
-				int	xx	= x - ix < 0.5 ? ix - 1 : ix + 1;
-
-				if( m_pDEM->is_InGrid(xx, iy) && z < m_pDEM->asDouble(xx, iy) )
+				if( bX )
 				{
-					m_pShade->Set_Value(xx, iy, M_PI_090);
+					int xx = x - ix < 0.5 ? ix - 1 : ix + 1;
+
+					if( m_pDEM->is_InGrid(xx, iy) && z >= m_pDEM->asDouble(xx, iy) )
+					{
+						m_pShade->Set_Value(xx, iy, M_PI_090);
+					}
 				}
-			}
 
-			if( Shadow & SHADOW_FAT_Y )
-			{
-				int	yy	= y - iy < 0.5 ? iy - 1 : iy + 1;
-
-				if( m_pDEM->is_InGrid(ix, yy) && z < m_pDEM->asDouble(ix, yy) )
+				if( bY )
 				{
-					m_pShade->Set_Value(ix, yy, M_PI_090);
+					int yy = y - iy < 0.5 ? iy - 1 : iy + 1;
+
+					if( m_pDEM->is_InGrid(ix, yy) && z >= m_pDEM->asDouble(ix, yy) )
+					{
+						m_pShade->Set_Value(ix, yy, M_PI_090);
+					}
 				}
 			}
 		}
 	}
-
-	return( false );
 }
 
 
@@ -505,8 +491,8 @@ bool CHillShade::Set_Shadow_Trace(double x, double y, double z, double dx, doubl
 //---------------------------------------------------------
 bool CHillShade::AmbientOcclusion(void)
 {
-	int    nDirections = Parameters("NDIRS" )->asInt();
-	double Radius      = Parameters("RADIUS")->asDouble();
+	int nDirections = Parameters("NDIRS" )->asInt();
+	double   Radius = Parameters("RADIUS")->asDouble();
 
 	CSG_Matrix Directions(3, nDirections);
 

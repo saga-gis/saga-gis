@@ -96,7 +96,7 @@ private:
 	bool				Get_Shading				(bool bDelimit, bool bCombine);
 
 	bool				Get_Shadows				(bool bMask);
-	bool				Set_Shadow_Trace		(double x, double y, double z, double dx, double dy, double dz, int Shadow);
+	void				Set_Shadow_Trace		(double x, double y, double z, double dx, double dy, double dz, int Shadowing);
 
 	bool				AmbientOcclusion		(void);
 	bool				AmbientOcclusion_Trace	(int x, int y, const CSG_Point_3D &Direction, double Radius);

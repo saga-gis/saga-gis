@@ -132,8 +132,8 @@ CSolarRadiation::CSolarRadiation(void)
 		"SHADOW"		, _TL("Shadow"),
 		_TL("Choose 'slim' to trace grid node's shadow, 'fat' to trace the whole cell's shadow, or ignore shadowing effects. The first is slightly faster but might show some artifacts."),
 		CSG_String::Format("%s|%s|%s",
-			_TL("slim"),
 			_TL("fat"),
+			_TL("slim"),
 			_TL("none")
 		), 0
 	);
@@ -620,11 +620,13 @@ bool CSolarRadiation::Get_Insolation(CSG_DateTime Date)
 		{
 			bWasDay	= bIsDay;
 
+			SG_UI_Progress_Lock(true);
 			switch( Update )
 			{
 			case 1: DataObject_Update(m_pDirect             , SG_UI_DATAOBJECT_SHOW_MAP); break;
 			case 2: DataObject_Update(m_pDirect, 0., dUpdate, SG_UI_DATAOBJECT_SHOW_MAP); break;
 			}
+			SG_UI_Progress_Lock(false);
 
 			if( bIsDay )
 			{
@@ -1139,7 +1141,7 @@ void CSolarRadiation::Set_Shade(double x, double y, double z, double dx, double 
 
 			m_Shade.Set_Value(ix, iy, 1);
 
-			if( Shadowing == 1 )
+			if( Shadowing == 0 ) // fat
 			{
 				if( bX )
 				{
