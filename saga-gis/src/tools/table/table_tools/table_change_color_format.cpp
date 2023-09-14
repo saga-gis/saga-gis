@@ -69,22 +69,23 @@ CTable_Change_Color_Format::CTable_Change_Color_Format(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Table     ("", "TABLE"		, _TL("Table" )				, _TL("The input table." )		, PARAMETER_INPUT);
-	Parameters.Add_Table     ("", "OUTPUT"		, _TL("Output")				, _TL("The output table.")		, PARAMETER_OUTPUT_OPTIONAL);
-	Parameters.Add_Shapes    ("", "OUTPUT_SHP"	, _TL("Output Shapes")		, _TL("The output shapes.")		, PARAMETER_OUTPUT_OPTIONAL);
-	Parameters.Add_PointCloud("", "OUTPUT_PC"	, _TL("Output Point Cloud")	, _TL("The output point cloud."), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Table     ("", "TABLE"     , _TL("Table" ), _TL("The input table."       ), PARAMETER_INPUT);
+	Parameters.Add_Table     ("", "OUTPUT"    , _TL("Output"), _TL("The output table."      ), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Shapes    ("", "OUTPUT_SHP", _TL("Output"), _TL("The output shapes."     ), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_PointCloud("", "OUTPUT_PC" , _TL("Output"), _TL("The output point cloud."), PARAMETER_OUTPUT_OPTIONAL);
 
-	Parameters.Add_Table_Field("TABLE", "FIELD_SAGA_RGB", _TL("SAGA RGB"), _TL("The field with SAGA RGB coded values." ), true);
-	Parameters.Add_Table_Field("TABLE", "FIELD_RED"     , _TL("Red"     ), _TL("The field with R values."), true);
-	Parameters.Add_Table_Field("TABLE", "FIELD_GREEN"   , _TL("Green"   ), _TL("The field with G values."), true);
-	Parameters.Add_Table_Field("TABLE", "FIELD_BLUE"    , _TL("Blue"    ), _TL("The field with B values."), true);
+	Parameters.Add_Table_Field("TABLE", "FIELD_RGB"  , _TL("RGB"  ), _TL("The field with RGB coded values."));
+
+	Parameters.Add_Table_Field("TABLE", "FIELD_RED"  , _TL("Red"  ), _TL("The field with R values."        ));
+	Parameters.Add_Table_Field("TABLE", "FIELD_GREEN", _TL("Green"), _TL("The field with G values."        ));
+	Parameters.Add_Table_Field("TABLE", "FIELD_BLUE" , _TL("Blue" ), _TL("The field with B values."        ));
 
 	Parameters.Add_Choice("",
-		"MODE", _TL("Mode of Operation"),
+		"MODE"       , _TL("Mode of Operation"),
 		_TL("Choose the mode of operation."),
 		CSG_String::Format("%s|%s",
-			_TL("SAGA RGB to R, G, B"),
-			_TL("R, G, B to SAGA RGB")
+			_TL("RGB to R, G, B"),
+			_TL("R, G, B to RGB")
 		), 0
 	);
 
@@ -96,11 +97,27 @@ CTable_Change_Color_Format::CTable_Change_Color_Format(void)
 
 	Parameters.Add_Choice("",
 		"COLOR_DEPTH", _TL("Color Depth"),
-		_TL("Choose the color depth of the R,G,B values, either 8 bit [0-255] or 16 bit [0-65535]."),
-		CSG_String::Format(SG_T("%s|%s|"),
-		_TL("8 bit"),
-		_TL("16 bit")
+		_TL("Choose the color depth of the red, green, blue values, either 8 bit [0-255] or 16 bit [0-65535]."),
+		CSG_String::Format("%s|%s",
+			_TL("8 bit"),
+			_TL("16 bit")
 		), 0
+	);
+
+	Parameters.Add_Choice("",
+		"NORM"       , _TL("Normalization"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s",
+			_TL("none"),
+			_TL("range"),
+			_TL("standard deviation")
+		), 0
+	);
+
+	Parameters.Add_Double("NORM",
+		"NORM_STDDEV", _TL("Standard Deviation"),
+		_TL(""),
+		2., 0., true
 	);
 }
 
@@ -114,61 +131,26 @@ int CTable_Change_Color_Format::On_Parameters_Enable(CSG_Parameters *pParameters
 {
 	if(	pParameter->Cmp_Identifier("TABLE") )
 	{
-		if( pParameter->asDataObject() == NULL )
-		{
-			pParameters->Set_Enabled("OUTPUT"		, true);
-			pParameters->Set_Enabled("OUTPUT_SHP"	, false);
-			pParameters->Set_Enabled("OUTPUT_PC"	, false);
+		CSG_Data_Object *pTable = pParameter->asDataObject();
 
-			Parameters("OUTPUT_SHP")	->Set_Value(DATAOBJECT_NOTSET);
-			Parameters("OUTPUT_PC")		->Set_Value(DATAOBJECT_NOTSET);
-		}
-		else
-		{
-			TSG_Data_Object_Type Type = pParameter->asDataObject()->Get_ObjectType();
-		
-			switch( Type )
-			{
-			default:
-			case SG_DATAOBJECT_TYPE_Table:
-				pParameters->Set_Enabled("OUTPUT"		, true);
-				pParameters->Set_Enabled("OUTPUT_SHP"	, false);
-				pParameters->Set_Enabled("OUTPUT_PC"	, false);
-
-				Parameters("OUTPUT_SHP")	->Set_Value(DATAOBJECT_NOTSET);
-				Parameters("OUTPUT_PC")		->Set_Value(DATAOBJECT_NOTSET);
-				break;
-
-			case SG_DATAOBJECT_TYPE_Shapes:
-				pParameters->Set_Enabled("OUTPUT"		, false);
-				pParameters->Set_Enabled("OUTPUT_SHP"	, true);
-				pParameters->Set_Enabled("OUTPUT_PC"	, false);
-
-				Parameters("OUTPUT")		->Set_Value(DATAOBJECT_NOTSET);
-				Parameters("OUTPUT_PC")		->Set_Value(DATAOBJECT_NOTSET);
-				break;
-
-			case SG_DATAOBJECT_TYPE_PointCloud:
-				pParameters->Set_Enabled("OUTPUT"		, false);
-				pParameters->Set_Enabled("OUTPUT_SHP"	, false);
-				pParameters->Set_Enabled("OUTPUT_PC"	, true);
-
-				Parameters("OUTPUT")		->Set_Value(DATAOBJECT_NOTSET);
-				Parameters("OUTPUT_SHP")	->Set_Value(DATAOBJECT_NOTSET);
-				break;
-			}
-		}
+		pParameters->Set_Enabled("OUTPUT"    , pTable && pTable->asTable     ());
+		pParameters->Set_Enabled("OUTPUT_SHP", pTable && pTable->asShapes    ());
+		pParameters->Set_Enabled("OUTPUT_PC" , pTable && pTable->asPointCloud());
 	}
 	
 	if(	pParameter->Cmp_Identifier("MODE") )
 	{
-		int iMode = pParameter->asInt();
+		pParameters->Set_Enabled("FIELD_RGB"  , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("FIELD_RED"  , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("FIELD_GREEN", pParameter->asInt() == 1);
+		pParameters->Set_Enabled("FIELD_BLUE" , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("COLOR_DEPTH", pParameter->asInt() == 1);
+		pParameters->Set_Enabled("NORM"       , pParameter->asInt() == 1);
+	}
 
-		pParameters->Set_Enabled("FIELD_SAGA_RGB", iMode == 0);
-		pParameters->Set_Enabled("FIELD_RED"     , iMode == 1);
-		pParameters->Set_Enabled("FIELD_GREEN"   , iMode == 1);
-		pParameters->Set_Enabled("FIELD_BLUE"    , iMode == 1);
-		pParameters->Set_Enabled("COLOR_DEPTH"   , iMode == 1);
+	if(	pParameter->Cmp_Identifier("NORM") )
+	{
+		pParameters->Set_Enabled("NORM_STDDEV", pParameter->asInt() == 2);
 	}
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
@@ -182,132 +164,120 @@ int CTable_Change_Color_Format::On_Parameters_Enable(CSG_Parameters *pParameters
 //---------------------------------------------------------
 bool CTable_Change_Color_Format::On_Execute(void)
 {
-	CSG_Table		*pTable;
-	CSG_Data_Object *pOutput = NULL;
-	
-	//-----------------------------------------------------
-	if( Parameters("OUTPUT")->asTable() != NULL )
-	{
-		pOutput = Parameters("OUTPUT")->asDataObject();
-	}
-	else if( Parameters("OUTPUT_SHP")->asShapes() != NULL )
-	{
-		pOutput = Parameters("OUTPUT_SHP")->asDataObject();
-	}
-	else if( Parameters("OUTPUT_PC")->asPointCloud() != NULL )
-	{
-		pOutput = Parameters("OUTPUT_PC")->asDataObject();
-	}
+	CSG_Table *pTable = Parameters("TABLE")->asTable();
 
-	//-----------------------------------------------------
-	CSG_Data_Object *pInput = Parameters("TABLE")->asDataObject();
-
-	if( pOutput && pOutput != pInput )
+	switch( pTable->Get_ObjectType() )
 	{
-		TSG_Data_Object_Type Type = pOutput->Get_ObjectType();
+	case SG_DATAOBJECT_TYPE_Table     : {
+		CSG_Table *pOutput = Parameters("OUTPUT")->asTable();
 
-		switch( Type )
+		if( pOutput && pOutput != pTable )
 		{
-		default:
-		case SG_DATAOBJECT_TYPE_Table:
-			pTable = pOutput->asTable();
-			pTable->Assign  (Parameters("TABLE")->asTable());
-			pTable->Set_Name(Parameters("TABLE")->asTable()->Get_Name());
-			break;
-		case SG_DATAOBJECT_TYPE_Shapes:
-			pTable = pOutput->asShapes();
-			pTable->Assign  (Parameters("TABLE")->asShapes());
-			pTable->Set_Name(Parameters("TABLE")->asShapes()->Get_Name());
-			break;
-		case SG_DATAOBJECT_TYPE_PointCloud:
-			pTable = pOutput->asPointCloud();
-			pTable->Assign  (Parameters("TABLE")->asPointCloud());
-			pTable->Set_Name(Parameters("TABLE")->asPointCloud()->Get_Name());
-			break;
+			pOutput->Create(*pTable->asTable()); pTable = pOutput;
 		}
-	}
-	else
-	{
-		pTable = Parameters("TABLE")->asTable();
-	}
+		break; }
 
+	case SG_DATAOBJECT_TYPE_Shapes    : {
+		CSG_Shapes *pOutput = Parameters("OUTPUT_SHP")->asShapes();
 
-	//-----------------------------------------------------
-	int			iFieldRGB	= Parameters("FIELD_SAGA_RGB")->asInt();
-	int			iFieldR		= Parameters("FIELD_RED"     )->asInt();
-	int			iFieldG		= Parameters("FIELD_GREEN"   )->asInt();
-	int			iFieldB		= Parameters("FIELD_BLUE"    )->asInt();
-	int			iDepth		= Parameters("COLOR_DEPTH"   )->asInt();
-	CSG_String	sAttrSuffix	= Parameters("ATTR_SUFFIX"   )->asString();
-
-	if( sAttrSuffix.Length() > 0 )	{ sAttrSuffix.Prepend(SG_T("_")); }
-
-	//-----------------------------------------------------
-	int Mode = Parameters("MODE")->asInt();
-
-	switch( Mode )
-	{
-	default:
-	case 0:
-		if( iFieldRGB < 0 )
+		if( pOutput && pOutput != pTable )
 		{
-			SG_UI_Msg_Add_Error(_TL("Please provide a valid SAGA RGB field for this kind of operation!"));
-			return( false );
+			pOutput->Create(*pTable->asShapes()); pTable = pOutput;
+		}
+		break; }
+
+	case SG_DATAOBJECT_TYPE_PointCloud: {
+		CSG_PointCloud *pOutput = Parameters("OUTPUT_PC")->asPointCloud();
+
+		if( pOutput && pOutput != pTable )
+		{
+			pOutput->Create(*pTable->asPointCloud()); pTable = pOutput;
+		}
+		break; }
+	}
+
+	//-----------------------------------------------------
+	CSG_String Suffix = Parameters("ATTR_SUFFIX")->asString();
+
+	if( Suffix.Length() > 0 )
+	{
+		Suffix.Prepend("_");
+	}
+
+	switch( Parameters("MODE")->asInt() )
+	{
+	//-----------------------------------------------------
+	default: { // rgb to r, g, b
+		int fIn = Parameters("FIELD_RGB")->asInt(), fOut = pTable->Get_Field_Count();
+
+		pTable->Add_Field(CSG_String::Format("R%s", Suffix.c_str()), SG_DATATYPE_Byte);
+		pTable->Add_Field(CSG_String::Format("G%s", Suffix.c_str()), SG_DATATYPE_Byte);
+		pTable->Add_Field(CSG_String::Format("B%s", Suffix.c_str()), SG_DATATYPE_Byte);
+
+		for(sLong iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
+		{
+			CSG_Table_Record &Record = *pTable->Get_Record(iRecord);
+
+			Record.Set_Value(fOut + 0, SG_GET_R(Record.asInt(fIn)));
+			Record.Set_Value(fOut + 1, SG_GET_G(Record.asInt(fIn)));
+			Record.Set_Value(fOut + 2, SG_GET_B(Record.asInt(fIn)));
 		}
 
-		iFieldR = pTable->Get_Field_Count();
-
-		pTable->Add_Field(CSG_String::Format("R%s", sAttrSuffix.c_str()), SG_DATATYPE_Int);
-		pTable->Add_Field(CSG_String::Format("G%s", sAttrSuffix.c_str()), SG_DATATYPE_Int);
-		pTable->Add_Field(CSG_String::Format("B%s", sAttrSuffix.c_str()), SG_DATATYPE_Int);
-		break;
-
-	case  1:
-		if( iFieldR < 0 || iFieldG < 0 || iFieldB < 0 )
-		{
-			SG_UI_Msg_Add_Error(_TL("Please provide a valid R,G,B fields for this kind of operation!"));
-
-			return( false );
-		}
-
-		iFieldRGB = pTable->Get_Field_Count();
-
-		pTable->Add_Field(CSG_String::Format("RGB%s", sAttrSuffix.c_str()), SG_DATATYPE_Int);
-		break;
-	}
-
+		break; }
 
 	//-----------------------------------------------------
-	for(sLong iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
-	{
-		CSG_Table_Record *pRecord = pTable->Get_Record(iRecord);
+	case  1: { // r, g, b to rgb
+		bool b8bit = Parameters("COLOR_DEPTH")->asInt() == 0;
 
-		switch( Mode )
+		int fIn[3], fOut = pTable->Get_Field_Count();
+
+		pTable->Add_Field(CSG_String::Format("RGB%s", Suffix.c_str()), b8bit ? SG_DATATYPE_DWord : SG_DATATYPE_ULong);
+
+		fIn[0] = Parameters("FIELD_RED"  )->asInt();
+		fIn[1] = Parameters("FIELD_GREEN")->asInt();
+		fIn[2] = Parameters("FIELD_BLUE" )->asInt();
+
+		double Norm[2][3], StdDev = Parameters("NORM_STDDEV")->asDouble();
+
+		for(int i=0; i<3; i++)
 		{
-		default:
-		case 0:
-			pRecord->Set_Value(iFieldR,		SG_GET_R(pRecord->asInt(iFieldRGB)));
-			pRecord->Set_Value(iFieldR + 1,	SG_GET_G(pRecord->asInt(iFieldRGB)));
-			pRecord->Set_Value(iFieldR + 2,	SG_GET_B(pRecord->asInt(iFieldRGB)));
-			break;
-
-		case  1:
-			double r = pRecord->asDouble(iFieldR);
-			double g = pRecord->asDouble(iFieldG);
-			double b = pRecord->asDouble(iFieldB);
-
-			if( iDepth == COLOR_DEPTH_16BIT )
+			switch( Parameters("NORM")->asInt() )
 			{
-				r = r / 65535 * 255;
-				g = g / 65535 * 255;
-				b = b / 65535 * 255;
+			default: Norm[0][i] =                          0.; Norm[1][i] =                                                                                                 0.; break;
+			case  1: Norm[0][i] = pTable->Get_Minimum(fIn[i]); Norm[1][i] = pTable->Get_Range (fIn[i]) > 0.                ? 255. / (pTable->Get_Range (fIn[i])         ) : 0.; break;
+			case  2: Norm[0][i] = pTable->Get_Mean   (fIn[i]); Norm[1][i] = pTable->Get_StdDev(fIn[i]) > 0. && StdDev > 0. ? 255. / (pTable->Get_StdDev(fIn[i]) * StdDev) : 0.; break;
+			}
+		}
+
+		for(sLong iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
+		{
+			CSG_Table_Record &Record = *pTable->Get_Record(iRecord);
+
+			int rgb[3];
+
+			for(int i=0; i<3; i++)
+			{
+				double d = Record.asDouble(fIn[i]);
+
+				if( Norm[1][i] )
+				{
+					d = Norm[1][i] * (d - Norm[0][i]);
+				}
+
+				rgb[i] = (int)(d + 0.5); if( rgb[i] < 0 ) { rgb[i] = 0; } else if( rgb[i] > 255 ) { rgb[i] = 255; }
 			}
 
-			pRecord->Set_Value(iFieldRGB,	SG_GET_RGB(r, g, b));
-			break;
+			if( b8bit )
+			{
+				Record.Set_Value(fOut, rgb[0] +   256 * rgb[1] +      65536 * rgb[2]);
+			}
+			else
+			{
+				Record.Set_Value(fOut, rgb[0] + 65536 * rgb[1] + 4294967296 * rgb[2]);
+			}
 		}
+		break; }
 	}
-
 
 	//-----------------------------------------------------
 	if( pTable == Parameters("TABLE")->asTable() )
