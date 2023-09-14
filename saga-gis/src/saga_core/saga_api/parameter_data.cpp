@@ -2225,7 +2225,7 @@ void CSG_Parameter_Table_Field::_Set_String(void)
 //---------------------------------------------------------
 double CSG_Parameter_Table_Field::_asDouble(void) const
 {
-	return( Get_Child(m_Default) ? Get_Child(m_Default)->asDouble() : CSG_Parameter_Int::asDouble() );
+	return( Get_Child(m_Default) ? Get_Child(m_Default)->asDouble() : 0. );
 }
 
 //---------------------------------------------------------
