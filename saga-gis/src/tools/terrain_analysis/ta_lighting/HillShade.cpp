@@ -162,9 +162,9 @@ CHillShade::CHillShade(void)
 		"SHADOW"		, _TL("Shadow"),
 		_TL("Choose 'slim' to trace grid node's shadow, 'fat' to trace the whole cell's shadow. The first is slightly faster but might show some artifacts."),
 		CSG_String::Format("%s|%s",
-			_TL("fat"),
-			_TL("slim")
-		), 0
+			_TL("slim"),
+			_TL("fat")
+		), 1
 	);
 
 	Parameters.Add_Int("",
@@ -258,7 +258,7 @@ bool CHillShade::On_Execute(void)
 	//-----------------------------------------------------
 	if( Parameters("METHOD")->asInt() == 3 )	// Shadows Only
 	{
-		DataObject_Set_Parameter(m_pShade, "UNISYMBOL_COLOR", (int)SG_COLOR_BLACK);
+		DataObject_Set_Parameter(m_pShade, "SINGLE_COLOR", (int)SG_COLOR_BLACK);
 		DataObject_Set_Parameter(m_pShade, "COLORS_TYPE", 0);	// Single Symbol
 	}
 	else
@@ -457,7 +457,7 @@ void CHillShade::Set_Shadow_Trace(double x, double y, double z, double dx, doubl
 
 			m_pShade->Set_Value(ix, iy, M_PI_090);
 
-			if( Shadowing == 0 ) // fat
+			if( Shadowing == 1 ) // fat
 			{
 				if( bX )
 				{

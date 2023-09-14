@@ -132,10 +132,10 @@ CSolarRadiation::CSolarRadiation(void)
 		"SHADOW"		, _TL("Shadow"),
 		_TL("Choose 'slim' to trace grid node's shadow, 'fat' to trace the whole cell's shadow, or ignore shadowing effects. The first is slightly faster but might show some artifacts."),
 		CSG_String::Format("%s|%s|%s",
-			_TL("fat"),
 			_TL("slim"),
+			_TL("fat"),
 			_TL("none")
-		), 0
+		), 1
 	);
 
 	//-----------------------------------------------------
@@ -1141,7 +1141,7 @@ void CSolarRadiation::Set_Shade(double x, double y, double z, double dx, double 
 
 			m_Shade.Set_Value(ix, iy, 1);
 
-			if( Shadowing == 0 ) // fat
+			if( Shadowing == 1 ) // fat
 			{
 				if( bX )
 				{
