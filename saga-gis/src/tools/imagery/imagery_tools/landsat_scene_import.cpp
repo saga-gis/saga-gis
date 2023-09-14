@@ -160,12 +160,13 @@ CLandsat_Scene_Import::CLandsat_Scene_Import(void)
 	Parameters.Add_Choice("",
 		"PROJECTION"	, _TL("Coordinate System"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s",
+		CSG_String::Format("%s|%s|%s|%s|%s",
 			_TL("UTM North"),
 			_TL("UTM South"),
 			_TL("Geographic Coordinates"),
-			_TL("Different UTM Zone")
-		), 0
+			_TL("Different UTM Zone"),
+			_TL("keep as it is provided")
+		), 4
 	);
 
 	Parameters.Add_Choice("PROJECTION",
@@ -264,6 +265,8 @@ int CLandsat_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 				if( bReflectance ) Choices += CSG_String("|") + _TL("reflectance");
 
 				(*pParameters)("CALIBRATION")->asChoice()->Set_Items(Choices);
+
+				if( bReflectance ) (*pParameters)("CALIBRATION")->Set_Value((*pParameters)("CALIBRATION")->asChoice()->Get_Count() - 1);
 			}
 		}
 		else
@@ -1024,6 +1027,12 @@ CSG_Grid * CLandsat_Scene_Import::Load_Band(const CSG_String &File)
 	if( !pBand->Get_Projection().is_Okay() )
 	{
 		// undefined coordinate system, nothing to do be further done...
+	}
+
+	//-----------------------------------------------------
+	else if( Parameters("PROJECTION")->asInt() >= 4 ) // keep as it is provided
+	{
+		// nothing to do be further done...
 	}
 
 	//-----------------------------------------------------

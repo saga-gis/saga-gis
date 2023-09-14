@@ -195,12 +195,13 @@ CSentinel_2_Scene_Import::CSentinel_2_Scene_Import(void)
 	Parameters.Add_Choice("",
 		"PROJECTION"	, _TL("Coordinate System"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s",
+		CSG_String::Format("%s|%s|%s|%s|%s",
 			_TL("UTM North"),
 			_TL("UTM South"),
 			_TL("Geographic Coordinates"),
-			_TL("Different UTM Zone")
-		), 0
+			_TL("Different UTM Zone"),
+			_TL("keep as it is provided")
+		), 4
 	);
 
 	Parameters.Add_Choice("PROJECTION",
@@ -575,6 +576,12 @@ CSG_Grid * CSentinel_2_Scene_Import::Load_Band(const CSG_String &Path, const CSG
 	if( !pBand->Get_Projection().is_Okay() )
 	{
 		// undefined coordinate system, nothing to do be further done...
+	}
+
+	//-----------------------------------------------------
+	else if( Parameters("PROJECTION")->asInt() >= 4 ) // keep as it is provided
+	{
+		// nothing to do be further done...
 	}
 
 	//-----------------------------------------------------
