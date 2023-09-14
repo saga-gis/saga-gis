@@ -80,6 +80,15 @@ protected:
 
 	virtual bool	On_Execute				(void);
 
+
+private:
+
+	enum
+	{
+		COLOR_DEPTH_8BIT = 0,
+		COLOR_DEPTH_16BIT
+	};
+
 };
 
 
