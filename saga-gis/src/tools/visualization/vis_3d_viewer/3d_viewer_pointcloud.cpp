@@ -70,6 +70,7 @@ public:
 
 protected:
 
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual void				Update_Statistics		(void);
@@ -132,27 +133,24 @@ C3D_Viewer_PointCloud_Panel::C3D_Viewer_PointCloud_Panel(wxWindow *pParent, CSG_
 		Attributes += m_pPoints->Get_Field_Name(i); Attributes += "|";
 	}
 
-	//-----------------------------------------------------
-	m_Parameters.Add_Double("GENERAL"    , "DETAIL"       , _TL("Level of Detail" ), _TL(""), 100., 0., true, 100., true);
+	//----------------------------------------------------
+	m_Parameters.Add_Double("GENERAL"    , "DETAIL"       , _TL("Level of Detail"   ), _TL(""), 100., 0., true, 100., true);
 
-	m_Parameters.Add_Choice("GENERAL"    , "COLORS_ATTR"  , _TL("Color Attribute" ), _TL(""), Attributes, Field_Color);
-	m_Parameters.Add_Bool  ("COLORS_ATTR", "VAL_AS_RGB"   , _TL("RGB Values"      ), _TL(""), false);
-	m_Parameters.Add_Colors("COLORS_ATTR", "COLORS"       , _TL("Colors"          ), _TL(""));
-	m_Parameters.Add_Bool  ("COLORS_ATTR", "COLORS_GRAD"  , _TL("Graduated"       ), _TL(""), true);
-	m_Parameters.Add_Range ("COLORS_ATTR", "COLORS_RANGE" , _TL("Value Range"     ), _TL(""));
+	m_Parameters.Add_Choice("GENERAL"    , "COLORS_ATTR"  , _TL("Color Attribute"   ), _TL(""), Attributes, Field_Color);
+	m_Parameters.Add_Bool  ("COLORS_ATTR", "VAL_AS_RGB"   , _TL("RGB Values"        ), _TL(""), false);
+	m_Parameters.Add_Colors("COLORS_ATTR", "COLORS"       , _TL("Colors"            ), _TL(""));
+	m_Parameters.Add_Choice("COLORS_ATTR", "COLORS_GRAD"  , _TL("Color Classes"     ), _TL(""), CSG_String::Format("%s|%s", _TL("discrete"), _TL("graduated")), 1);
+	m_Parameters.Add_Choice("COLORS_ATTR", "COLORS_FIT"   , _TL("Color Fit"         ), _TL(""), CSG_String::Format("%s|%s", _TL("to extent when zoomed"), _TL("constant value range")), 0);
+	m_Parameters.Add_Range ("COLORS_FIT" , "COLORS_RANGE" , _TL("Value Range"       ), _TL(""));
+	m_Parameters.Add_Double("COLORS_FIT" , "COLORS_STDDEV", _TL("Standard Deviation"), _TL(""), 1.5, 0.1, true);
 
-	m_Parameters.Add_Bool  ("GENERAL"    , "DIM"          , _TL("Dim"             ), _TL(""), false);
-	m_Parameters.Add_Range ("DIM"        , "DIM_RANGE"    , _TL("Distance Range"  ), _TL(""), 0., 1., 0., true);
+	m_Parameters.Add_Bool  ("GENERAL"    , "DIM"          , _TL("Dim"               ), _TL(""), false);
+	m_Parameters.Add_Range ("DIM"        , "DIM_RANGE"    , _TL("Distance Range"    ), _TL(""), 0., 1., 0., true);
 
-	m_Parameters.Add_Int   ("GENERAL"    , "SIZE"         , _TL("Size"            ), _TL(""), 1, 1, true);
-	m_Parameters.Add_Double("GENERAL"    , "SIZE_SCALE"   , _TL("Size Scaling"    ), _TL(""), 0., 0., true);
+	m_Parameters.Add_Int   ("GENERAL"    , "SIZE"         , _TL("Size"              ), _TL(""), 1, 1, true);
+	m_Parameters.Add_Double("GENERAL"    , "SIZE_SCALE"   , _TL("Size Scaling"      ), _TL(""), 0., 0., true);
 
-	m_Parameters.Add_Choice("GENERAL"    , "OVERVIEW_ATTR", _TL("Overview Content"), _TL(""),
-		CSG_String::Format("%s|%s",
-			_TL("average value"),
-			_TL("number of points")
-		), 0
-	);
+	m_Parameters.Add_Choice("GENERAL"    , "OVERVIEW_ATTR", _TL("Overview Content"  ), _TL(""), CSG_String::Format("%s|%s", _TL("average value"), _TL("number of points")), 0);
 
 	//-----------------------------------------------------
 	m_Extent = pPoints->Get_Extent();
@@ -168,12 +166,32 @@ C3D_Viewer_PointCloud_Panel::C3D_Viewer_PointCloud_Panel(wxWindow *pParent, CSG_
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int C3D_Viewer_PointCloud_Panel::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("COLORS_ATTR") )
+	{
+		double m = m_pPoints->Get_Mean(pParameter->asInt()), s = m_pPoints->Get_StdDev(pParameter->asInt()) * (*pParameters)("COLORS_STDDEV")->asDouble();
+
+		pParameters->Set_Parameter("COLORS_RANGE.MIN", m - s);
+		pParameters->Set_Parameter("COLORS_RANGE.MAX", m + s);
+	}
+
+	return( CSG_3DView_Panel::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
 int C3D_Viewer_PointCloud_Panel::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	if( pParameter->Cmp_Identifier("VAL_AS_RGB") )
 	{
 		pParameters->Set_Enabled("COLORS"      , pParameter->asBool() == false);
-		pParameters->Set_Enabled("COLORS_RANGE", pParameter->asBool() == false);
+		pParameters->Set_Enabled("COLORS_GRAD" , pParameter->asBool() == false);
+		pParameters->Set_Enabled("COLORS_FIT"  , pParameter->asBool() == false);
+	}
+
+	if( pParameter->Cmp_Identifier("COLORS_FIT") )
+	{
+		pParameters->Set_Enabled("COLORS_RANGE", pParameter->asInt() == 1);
 	}
 
 	if( pParameter->Cmp_Identifier("DIM") )
@@ -220,23 +238,25 @@ void C3D_Viewer_PointCloud_Panel::Update_Statistics(void)
 
 	m_Selection.Set_Array(0);
 
+	int    cField = m_Parameters("COLORS_ATTR"  )->asInt   ();
+	double cSigma = m_Parameters("COLORS_STDDEV")->asDouble();
+
 	if( m_Extent.is_Equal(m_pPoints->Get_Extent()) )
 	{
-		int cField = m_Parameters("COLORS_ATTR")->asInt();
-
-		m_Parameters("COLORS_RANGE")->asRange()->Set_Range(
-			m_pPoints->Get_Mean(cField) - 1.5 * m_pPoints->Get_StdDev(cField),
-			m_pPoints->Get_Mean(cField) + 1.5 * m_pPoints->Get_StdDev(cField)
-		);
+		if( m_Parameters("COLORS_FIT")->asInt() == 0 )
+		{
+			m_Parameters("COLORS_RANGE")->asRange()->Set_Range(
+				m_pPoints->Get_Mean(cField) - cSigma * m_pPoints->Get_StdDev(cField),
+				m_pPoints->Get_Mean(cField) + cSigma * m_pPoints->Get_StdDev(cField)
+			);
+		}
 
 		m_Data_Min.z = m_pPoints->Get_Minimum(2);	// Get_ZMin();	ToDo in CSG_PointCloud class!!!
 		m_Data_Max.z = m_pPoints->Get_Maximum(2);	// Get_ZMax();	ToDo in CSG_PointCloud class!!!
 	}
 	else
 	{
-		CSG_Simple_Statistics cStats, zStats;
-
-		int cField = m_Parameters("COLORS_ATTR")->asInt();
+		CSG_Simple_Statistics zStats, cStats;
 
 		for(sLong i=0; i<m_pPoints->Get_Count(); i++)
 		{
@@ -251,10 +271,13 @@ void C3D_Viewer_PointCloud_Panel::Update_Statistics(void)
 			}
 		}
 
-		m_Parameters("COLORS_RANGE")->asRange()->Set_Range(
-			cStats.Get_Mean() - 1.5 * cStats.Get_StdDev(),
-			cStats.Get_Mean() + 1.5 * cStats.Get_StdDev()
-		);
+		if( m_Parameters("COLORS_FIT")->asInt() == 0 )
+		{
+			m_Parameters("COLORS_RANGE")->asRange()->Set_Range(
+				cStats.Get_Mean() - cSigma * cStats.Get_StdDev(),
+				cStats.Get_Mean() + cSigma * cStats.Get_StdDev()
+			);
+		}
 
 		m_Data_Min.z = zStats.Get_Minimum();
 		m_Data_Max.z = zStats.Get_Maximum();
@@ -364,17 +387,17 @@ bool C3D_Viewer_PointCloud_Panel::On_Draw(void)
 {
 	int cField = m_Parameters("COLORS_ATTR")->asInt();
 
-	if( m_Parameters("COLORS_RANGE")->asRange()->Get_Min()
-	>=  m_Parameters("COLORS_RANGE")->asRange()->Get_Max() )
+	if( m_Parameters("COLORS_RANGE.MIN")->asDouble()
+	>=  m_Parameters("COLORS_RANGE.MAX")->asDouble() )
 	{
-		m_Parameters("COLORS_RANGE")->asRange()->Set_Range(
-			m_pPoints->Get_Mean(cField) - 1.5 * m_pPoints->Get_StdDev(cField),
-			m_pPoints->Get_Mean(cField) + 1.5 * m_pPoints->Get_StdDev(cField)
-		);
+		double cSigma = m_Parameters("COLORS_STDDEV")->asDouble();
+
+		m_Parameters("COLORS_RANGE.MIN")->Set_Value(m_pPoints->Get_Mean(cField) - cSigma * m_pPoints->Get_StdDev(cField));
+		m_Parameters("COLORS_RANGE.MAX")->Set_Value(m_pPoints->Get_Mean(cField) + cSigma * m_pPoints->Get_StdDev(cField));
 	}
 
 	m_Colors      = *m_Parameters("COLORS")->asColors();
-	m_Color_bGrad = m_Parameters("COLORS_GRAD")->asBool();
+	m_Color_bGrad = m_Parameters("COLORS_GRAD")->asInt() == 1;
 	m_Color_Min   = m_Parameters("COLORS_RANGE.MIN")->asDouble();
 	m_Color_Scale = m_Parameters("COLORS_RANGE.MAX")->asDouble() - m_Color_Min;
 	m_Color_Scale = m_Parameters("VAL_AS_RGB")->asBool() || m_Color_Scale <= 0. ? 0. : m_Colors.Get_Count() / m_Color_Scale;
@@ -928,8 +951,8 @@ void C3D_Viewer_PointCloud_Dialog::On_Menu_UI(wxUpdateUIEvent &event)
 		CSG_3DView_Dialog::On_Menu_UI(event);
 		break;
 
-	case MENU_VAL_AS_RGB : event.Check(m_pPanel->m_Parameters("VAL_AS_RGB" )->asBool()); break;
-	case MENU_COLORS_GRAD: event.Check(m_pPanel->m_Parameters("COLORS_GRAD")->asBool()); break;
+	case MENU_VAL_AS_RGB : event.Check(m_pPanel->m_Parameters("VAL_AS_RGB" )->asBool()    ); break;
+	case MENU_COLORS_GRAD: event.Check(m_pPanel->m_Parameters("COLORS_GRAD")->asInt() == 1); break;
 	}
 }
 
