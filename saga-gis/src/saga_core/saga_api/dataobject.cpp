@@ -343,11 +343,22 @@ int CSG_Data_Object::Get_File_Type(void)	const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+/*
+* If the data object has a file asssociation, this function
+* can be used to reload its content.
+*/
+//---------------------------------------------------------
 bool CSG_Data_Object::Reload(void)
 {
 	return( SG_File_Exists(m_FileName) && On_Reload() );
 }
 
+//---------------------------------------------------------
+/*
+* If the data object is stored in a native SAGA format,
+* this function can be used to delete all files asssociated
+* with it.
+*/
 //---------------------------------------------------------
 bool CSG_Data_Object::Delete(void)
 {
@@ -392,6 +403,13 @@ bool CSG_Data_Object::Delete(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+/*
+* Type cast function. Returns NULL if object is not exactly
+* of class type CSG_Table with bPolymorph = false or of
+* one of its derivatives (CSG_Shapes, CSG_PointCloud,
+* CSG_TIN) with bPolymorph = true.
+*/
+//---------------------------------------------------------
 CSG_Table * CSG_Data_Object::asTable(bool bPolymorph) const
 {
 	if( bPolymorph )
@@ -408,6 +426,12 @@ CSG_Table * CSG_Data_Object::asTable(bool bPolymorph) const
 }
 
 //---------------------------------------------------------
+/*
+* Type cast function. Returns NULL if object is not exactly
+* of class type CSG_Shapes with bPolymorph = false or of
+* one of its derivatives (CSG_PointCloud) with bPolymorph = true.
+*/
+//---------------------------------------------------------
 CSG_Shapes * CSG_Data_Object::asShapes(bool bPolymorph) const
 {
 	if( bPolymorph )
@@ -422,11 +446,21 @@ CSG_Shapes * CSG_Data_Object::asShapes(bool bPolymorph) const
 }
 
 //---------------------------------------------------------
+/*
+* Type cast function. Returns NULL if object is not exactly
+* of class type CSG_TIN. The bPolymorph flag has no effect.
+*/
+//---------------------------------------------------------
 CSG_TIN * CSG_Data_Object::asTIN(bool bPolymorph) const
 {
 	return( Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN ? (CSG_TIN *)this : NULL );
 }
 
+//---------------------------------------------------------
+/*
+* Type cast function. Returns NULL if object is not exactly
+* of class type CSG_PointCloud. The bPolymorph flag has no effect.
+*/
 //---------------------------------------------------------
 CSG_PointCloud * CSG_Data_Object::asPointCloud(bool bPolymorph) const
 {
@@ -434,11 +468,21 @@ CSG_PointCloud * CSG_Data_Object::asPointCloud(bool bPolymorph) const
 }
 
 //---------------------------------------------------------
+/*
+* Type cast function. Returns NULL if object is not exactly
+* of class type CSG_Grid. The bPolymorph flag has no effect.
+*/
+//---------------------------------------------------------
 CSG_Grid * CSG_Data_Object::asGrid(bool bPolymorph) const
 {
 	return( Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid ? (CSG_Grid *)this : NULL );
 }
 
+//---------------------------------------------------------
+/*
+* Type cast function. Returns NULL if object is not exactly
+* of class type CSG_Grids. The bPolymorph flag has no effect.
+*/
 //---------------------------------------------------------
 CSG_Grids * CSG_Data_Object::asGrids(bool bPolymorph) const
 {
