@@ -64,8 +64,8 @@ CTable_Change_Color_Format::CTable_Change_Color_Format(void)
 	Set_Author		("V.Wichmann (c) 2013-2023");
 
 	Set_Description	(_TW(
-		"This tool allows one to convert table fields with SAGA RGB coded values to separate R, G, B components and vice versa. "
-		"The tool can process attributes of tables, shapefiles or point clouds."
+		"This tool allows one to convert table fields with RGB coded values to separate R, G, B components and vice versa. "
+		"The tool can process attributes of tables, shapes or point clouds."
 	));
 
 	//-----------------------------------------------------
@@ -109,9 +109,15 @@ CTable_Change_Color_Format::CTable_Change_Color_Format(void)
 		_TL(""),
 		CSG_String::Format("%s|%s|%s",
 			_TL("none"),
-			_TL("range"),
+			_TL("minimum - maximum"),
 			_TL("standard deviation")
 		), 0
+	);
+
+	Parameters.Add_Double("NORM",
+		"NORM_RANGE" , _TL("Percent"),
+		_TL(""),
+		0., 0., true, 50., true
 	);
 
 	Parameters.Add_Double("NORM",
@@ -150,6 +156,7 @@ int CTable_Change_Color_Format::On_Parameters_Enable(CSG_Parameters *pParameters
 
 	if(	pParameter->Cmp_Identifier("NORM") )
 	{
+		pParameters->Set_Enabled("NORM_RANGE" , pParameter->asInt() == 1);
 		pParameters->Set_Enabled("NORM_STDDEV", pParameter->asInt() == 2);
 	}
 
@@ -227,28 +234,40 @@ bool CTable_Change_Color_Format::On_Execute(void)
 
 	//-----------------------------------------------------
 	case  1: { // r, g, b to rgb
-		bool b8bit = Parameters("COLOR_DEPTH")->asInt() == 0;
+		bool b16bit = Parameters("COLOR_DEPTH")->asInt() == 1;
 
 		int fIn[3], fOut = pTable->Get_Field_Count();
 
-		pTable->Add_Field(CSG_String::Format("RGB%s", Suffix.c_str()), b8bit ? SG_DATATYPE_DWord : SG_DATATYPE_ULong);
+		pTable->Add_Field(CSG_String::Format("RGB%s", Suffix.c_str()), SG_DATATYPE_DWord);
 
 		fIn[0] = Parameters("FIELD_RED"  )->asInt();
 		fIn[1] = Parameters("FIELD_GREEN")->asInt();
 		fIn[2] = Parameters("FIELD_BLUE" )->asInt();
 
-		double Norm[2][3], StdDev = Parameters("NORM_STDDEV")->asDouble();
+		double Norm[2][3];
 
 		for(int i=0; i<3; i++)
 		{
 			switch( Parameters("NORM")->asInt() )
 			{
-			default: Norm[0][i] =                          0.; Norm[1][i] =                                                                                                 0.; break;
-			case  1: Norm[0][i] = pTable->Get_Minimum(fIn[i]); Norm[1][i] = pTable->Get_Range (fIn[i]) > 0.                ? 255. / (pTable->Get_Range (fIn[i])         ) : 0.; break;
-			case  2: Norm[0][i] = pTable->Get_Mean   (fIn[i]); Norm[1][i] = pTable->Get_StdDev(fIn[i]) > 0. && StdDev > 0. ? 255. / (pTable->Get_StdDev(fIn[i]) * StdDev) : 0.; break;
+			default: {
+				Norm[0][i] = 0.;
+				Norm[1][i] = 0.;
+				break; }
+
+			case  1: { double r = pTable->Get_Range(fIn[i]) * Parameters("NORM_RANGE")->asDouble() / 100.;
+				Norm[0][i] = pTable->Get_Minimum(fIn[i]) + r;
+				Norm[1][i] = (pTable->Get_Range (fIn[i]) - 2. * r) / 255. ;
+				break; }
+
+			case  2: {
+				Norm[0][i] = pTable->Get_Mean(fIn[i]) / 2.;
+				Norm[1][i] = pTable->Get_StdDev(fIn[i]) * Parameters("NORM_STDDEV")->asDouble() * 2. / 255.;
+				break; }
 			}
 		}
 
+		//-------------------------------------------------
 		for(sLong iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
 		{
 			CSG_Table_Record &Record = *pTable->Get_Record(iRecord);
@@ -259,22 +278,20 @@ bool CTable_Change_Color_Format::On_Execute(void)
 			{
 				double d = Record.asDouble(fIn[i]);
 
-				if( Norm[1][i] )
+				if( Norm[1][i] != 0. )
 				{
-					d = Norm[1][i] * (d - Norm[0][i]);
+					d = (d - Norm[0][i]) / Norm[1][i];
+				}
+
+				if( b16bit )
+				{
+					d /= 256.;
 				}
 
 				rgb[i] = (int)(d + 0.5); if( rgb[i] < 0 ) { rgb[i] = 0; } else if( rgb[i] > 255 ) { rgb[i] = 255; }
 			}
 
-			if( b8bit )
-			{
-				Record.Set_Value(fOut, rgb[0] +   256 * rgb[1] +      65536 * rgb[2]);
-			}
-			else
-			{
-				Record.Set_Value(fOut, rgb[0] + 65536 * rgb[1] + 4294967296 * rgb[2]);
-			}
+			Record.Set_Value(fOut, rgb[0] + 256 * rgb[1] + 65536 * rgb[2]);
 		}
 		break; }
 	}
