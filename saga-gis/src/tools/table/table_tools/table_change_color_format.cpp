@@ -245,6 +245,7 @@ bool CTable_Change_Color_Format::On_Execute(void)
 		fIn[2] = Parameters("FIELD_BLUE" )->asInt();
 
 		double Norm[2][3];
+		double d = b16bit ? 65535. : 255.;
 
 		for(int i=0; i<3; i++)
 		{
@@ -257,12 +258,12 @@ bool CTable_Change_Color_Format::On_Execute(void)
 
 			case  1: { double r = pTable->Get_Range(fIn[i]) * Parameters("NORM_RANGE")->asDouble() / 100.;
 				Norm[0][i] = pTable->Get_Minimum(fIn[i]) + r;
-				Norm[1][i] = (pTable->Get_Range (fIn[i]) - 2. * r) / 255. ;
+				Norm[1][i] = (pTable->Get_Range (fIn[i]) - 2. * r) / d ;
 				break; }
 
 			case  2: {
 				Norm[0][i] = pTable->Get_Mean(fIn[i]) / 2.;
-				Norm[1][i] = pTable->Get_StdDev(fIn[i]) * Parameters("NORM_STDDEV")->asDouble() * 2. / 255.;
+				Norm[1][i] = pTable->Get_StdDev(fIn[i]) * Parameters("NORM_STDDEV")->asDouble() * 2. / d;
 				break; }
 			}
 		}
