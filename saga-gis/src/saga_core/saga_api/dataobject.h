@@ -231,12 +231,12 @@ public:
 	CSG_Projection &				Get_Projection	(void);
 	const CSG_Projection &			Get_Projection	(void)	const;
 
-	class CSG_Table *				asTable			(void)	{	return( Get_ObjectType() == SG_DATAOBJECT_TYPE_Table      ? (class CSG_Table      *)this : NULL );	}
-	class CSG_Shapes *				asShapes		(void)	{	return( Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes     ? (class CSG_Shapes     *)this : NULL );	}
-	class CSG_TIN *					asTIN			(void)	{	return( Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN        ? (class CSG_TIN        *)this : NULL );	}
-	class CSG_PointCloud *			asPointCloud	(void)	{	return( Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud ? (class CSG_PointCloud *)this : NULL );	}
-	class CSG_Grid *				asGrid			(void)	{	return( Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid       ? (class CSG_Grid       *)this : NULL );	}
-	class CSG_Grids *				asGrids			(void)	{	return( Get_ObjectType() == SG_DATAOBJECT_TYPE_Grids      ? (class CSG_Grids      *)this : NULL );	}
+	class CSG_Table *				asTable			(bool bPolymorph = false)	const;
+	class CSG_Shapes *				asShapes		(bool bPolymorph = false)	const;
+	class CSG_TIN *					asTIN			(bool bPolymorph = false)	const;
+	class CSG_PointCloud *			asPointCloud	(bool bPolymorph = false)	const;
+	class CSG_Grid *				asGrid			(bool bPolymorph = false)	const;
+	class CSG_Grids *				asGrids			(bool bPolymorph = false)	const;
 
 	virtual bool					Set_NoData_Value		(double Value);
 	virtual bool					Set_NoData_Value_Range	(double Lower, double Upper);

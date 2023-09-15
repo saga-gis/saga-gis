@@ -392,6 +392,65 @@ bool CSG_Data_Object::Delete(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_Table * CSG_Data_Object::asTable(bool bPolymorph) const
+{
+	if( bPolymorph )
+	{
+		return( Get_ObjectType() == SG_DATAOBJECT_TYPE_Table
+			||  Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes
+			||  Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud
+			||  Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN
+			? (CSG_Table *)this : NULL
+		);
+	}
+
+	return( Get_ObjectType() == SG_DATAOBJECT_TYPE_Table ? (CSG_Table *)this : NULL );
+}
+
+//---------------------------------------------------------
+CSG_Shapes * CSG_Data_Object::asShapes(bool bPolymorph) const
+{
+	if( bPolymorph )
+	{
+		return( Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes
+			||  Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud
+			? (CSG_Shapes *)this : NULL
+			);
+	}
+
+	return( Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes ? (CSG_Shapes *)this : NULL );
+}
+
+//---------------------------------------------------------
+CSG_TIN * CSG_Data_Object::asTIN(bool bPolymorph) const
+{
+	return( Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN ? (CSG_TIN *)this : NULL );
+}
+
+//---------------------------------------------------------
+CSG_PointCloud * CSG_Data_Object::asPointCloud(bool bPolymorph) const
+{
+	return( Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud ? (CSG_PointCloud *)this : NULL );
+}
+
+//---------------------------------------------------------
+CSG_Grid * CSG_Data_Object::asGrid(bool bPolymorph) const
+{
+	return( Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid ? (CSG_Grid *)this : NULL );
+}
+
+//---------------------------------------------------------
+CSG_Grids * CSG_Data_Object::asGrids(bool bPolymorph) const
+{
+	return( Get_ObjectType() == SG_DATAOBJECT_TYPE_Grids ? (CSG_Grids *)this : NULL );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_Data_Object::Set_NoData_Value(double Value)
 {
 	return( Set_NoData_Value_Range(Value, Value) );
