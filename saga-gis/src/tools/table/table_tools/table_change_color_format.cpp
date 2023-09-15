@@ -285,7 +285,7 @@ bool CTable_Change_Color_Format::On_Execute(void)
 
 				if( b16bit )
 				{
-					d /= 256.;
+					d /= 65535. / 255.;
 				}
 
 				rgb[i] = (int)(d + 0.5); if( rgb[i] < 0 ) { rgb[i] = 0; } else if( rgb[i] > 255 ) { rgb[i] = 255; }
