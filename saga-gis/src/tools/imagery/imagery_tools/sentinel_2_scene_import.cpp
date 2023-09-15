@@ -273,7 +273,7 @@ int CSentinel_2_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, 
 	if( pParameter->Cmp_Identifier("METAFILE") )
 	{
 		bool bLevel2 = SG_File_Exists  (pParameter->asString())
-					&& SG_File_Get_Name(pParameter->asString(), false).Find("MTD_MSIL2") == 0;
+		            && SG_File_Get_Name(pParameter->asString(), false).Find("MTD_MSIL2") == 0;
 
 		pParameters->Set_Enabled("LOAD_AOT", bLevel2);
 		pParameters->Set_Enabled("LOAD_WVP", bLevel2);
@@ -282,7 +282,7 @@ int CSentinel_2_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, 
 
 	if( pParameter->Cmp_Identifier("PROJECTION") )
 	{
-		pParameters->Set_Enabled("RESAMPLING", pParameter->asInt() >= 2);
+		pParameters->Set_Enabled("RESAMPLING", pParameter->asInt() == 2 || pParameter->asInt() == 3);
 		pParameters->Set_Enabled("UTM_ZONE"  , pParameter->asInt() == 3);
 		pParameters->Set_Enabled("UTM_SOUTH" , pParameter->asInt() == 3);
 		pParameters->Set_Enabled("RESOLUTION", pParameter->asInt() <= 1);

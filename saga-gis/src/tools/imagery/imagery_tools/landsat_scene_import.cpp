@@ -286,7 +286,7 @@ int CLandsat_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 
 	if( pParameter->Cmp_Identifier("PROJECTION") )
 	{
-		pParameters->Set_Enabled("RESAMPLING"   , pParameter->asInt() >= 2);
+		pParameters->Set_Enabled("RESAMPLING"   , pParameter->asInt() == 2 || pParameter->asInt() == 3);
 		pParameters->Set_Enabled("UTM_ZONE"     , pParameter->asInt() == 3);
 		pParameters->Set_Enabled("UTM_SOUTH"    , pParameter->asInt() == 3);
 	}
