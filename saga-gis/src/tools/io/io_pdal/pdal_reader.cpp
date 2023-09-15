@@ -443,7 +443,7 @@ void CPDAL_Reader::_Init_PointCloud(CSG_PointCloud *pPoints, pdal::PointLayoutPt
         if( PointLayout->hasDim(pdal::Dimension::Id::Red) && PointLayout->hasDim(pdal::Dimension::Id::Green) && PointLayout->hasDim(pdal::Dimension::Id::Blue) )
         {
             iRGB_Field = pPoints->Get_Field_Count();
-            pPoints->Add_Field("Color", SG_DATATYPE_Int);
+            pPoints->Add_Field("Color", SG_DATATYPE_DWord);
         }
     }
 
