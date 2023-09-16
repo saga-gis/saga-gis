@@ -119,6 +119,12 @@ CPC_Attribute_Calculator::CPC_Attribute_Calculator(void)
 		SG_T("Calculation")
 	);
 
+	Parameters.Add_Bool("NAME",
+		"FNAME"		, _TL("Take Formula"),
+		_TL(""),
+		false
+	);
+
 	Parameters.Add_Data_Type("",
 		"TYPE"		, _TL("Data Type"),
 		_TL("Choose the data type of the output attribute."),
@@ -319,12 +325,16 @@ CSG_String	CPC_Attribute_Calculator::Get_Formula(CSG_String sFormula, CSG_Table 
 //---------------------------------------------------------
 int CPC_Attribute_Calculator::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if(	pParameter->Cmp_Identifier("FORMULA")
+	||	pParameter->Cmp_Identifier("FNAME"  ) )
+	{
+		if( (*pParameters)("FNAME")->asBool() )
+		{
+			pParameters->Set_Parameter("NAME", CSG_String::Format("%s [%s]", _TL("Calculation"), (*pParameters)("FORMULA")->asString()));
+		}
+	}
 
-	if( pParameter->Cmp_Identifier(SG_T("FORMULA")) )
-		pParameters->Get_Parameter(SG_T("NAME"))->Set_Value(pParameter->asString());
-
-    return (true);
-
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -336,15 +346,6 @@ bool CPC_Attribute_Calculator::On_After_Execution(void)
 	{
 		pPC_out = Parameters("PC_IN")->asPointCloud();
 	}
-
-	DataObject_Set_Parameter(pPC_out, "DISPLAY_VALUE_AGGREGATE", 3);
-	DataObject_Set_Parameter(pPC_out, "COLORS_TYPE", 2);
-	DataObject_Set_Parameter(pPC_out, "METRIC_ATTRIB", 2);
-	DataObject_Set_Parameter(pPC_out, "METRIC_ZRANGE", pPC_out->Get_Minimum(2), pPC_out->Get_Maximum(2));
-
-	CSG_Colors	Colors;
-	Colors.Set_Default(255);
-	DataObject_Set_Colors(pPC_out, Colors);
 
 	if (pPC_out == Parameters("PC_IN")->asPointCloud())
 	{
