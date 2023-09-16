@@ -102,7 +102,7 @@ CFillSinks_WL::CFillSinks_WL(void)
 	Parameters.Add_Grid(
 		NULL, "WSHED", _TL("Watershed Basins"),
 		_TL("Delineated watershed basins"),
-		PARAMETER_OUTPUT
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Long
 	);
 
 	Parameters.Add_Value(

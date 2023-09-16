@@ -74,18 +74,20 @@ public:
 	CFillSinks_WL_Node() : spill( 0 ) {}
 	virtual ~CFillSinks_WL_Node() {}
 
-	struct Greater : public binary_function< CFillSinks_WL_Node, CFillSinks_WL_Node, bool >
-	{
-		bool operator()(const CFillSinks_WL_Node n1, const CFillSinks_WL_Node n2) const
-		{
-			return n1.spill > n2.spill;
-		}
-	};
-
 	int		x;
 	int		y;
 	double	spill;
 };
+
+class CompareGreater
+{
+public:
+	bool operator()(CFillSinks_WL_Node n1, CFillSinks_WL_Node n2)
+	{
+		return n1.spill > n2.spill; 
+	}
+};
+
 
 //---------------------------------------------------------
 class CFillSinks_WL : public CSG_Tool_Grid
@@ -103,7 +105,7 @@ protected:
 private:
 
 	typedef				vector< CFillSinks_WL_Node > nodeVector;
-	typedef				priority_queue< CFillSinks_WL_Node, nodeVector, CFillSinks_WL_Node::Greater > PriorityQ;
+	typedef				priority_queue< CFillSinks_WL_Node, nodeVector, CompareGreater > PriorityQ;
 
 	CSG_Grid			*pFilled;
 
@@ -127,7 +129,7 @@ protected:
 private:
 
 	typedef		vector< CFillSinks_WL_Node > nodeVector;
-	typedef		priority_queue< CFillSinks_WL_Node, nodeVector, CFillSinks_WL_Node::Greater > PriorityQ;
+	typedef		priority_queue< CFillSinks_WL_Node, nodeVector, CompareGreater > PriorityQ;
 
 };
 
