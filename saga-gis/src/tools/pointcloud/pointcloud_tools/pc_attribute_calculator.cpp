@@ -75,11 +75,11 @@ CPC_Attribute_Calculator::CPC_Attribute_Calculator(void)
 
 	Set_Name(_TL("Point Cloud Attribute Calculator"));
 
-	Set_Author(_TL("Volker Wichmann (c) 2010-213, LASERDATA GmbH"));
+	Set_Author(_TL("V. Wichmann (c) 2010-2013"));
 
 	CSG_String	s(_TW(
-		"The Point Cloud Attribute Calculator calculates a new attribute "
-		"based on existing attributes and a mathematical formula. "
+		"The tool allows one to calculate a new attribute value per point, "
+		"based on existing attributes of that point and a mathematical expression. "
 		"Attribute fields are addressed by the character 'f' (for 'field') "
 		"followed by the field number (i.e.: f1, f2, ..., fn) "
 		"or by the field name in square brackets (e.g.: [Field Name]).\n"
@@ -133,7 +133,7 @@ CPC_Attribute_Calculator::CPC_Attribute_Calculator(void)
 
 	Parameters.Add_Bool("",
 		"USE_NODATA"	, _TL("Use NoData"),
-		_TL("Include NoData points in the calculation."),
+		_TL("Include NoData values in the calculation. A typical application is the use of an ifelse() statement on NoData values."),
 		false
 	);
 
