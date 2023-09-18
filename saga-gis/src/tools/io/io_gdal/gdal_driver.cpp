@@ -124,6 +124,13 @@ GDALDriverH CSG_GDAL_Drivers::Get_Driver(int Index) const
 }
 
 //---------------------------------------------------------
+CSG_String CSG_GDAL_Drivers::Get_Name(const CSG_String &Name) const
+{
+	const char	*s	= GDALGetMetadataItem(Get_Driver(Name), GDAL_DMD_LONGNAME, "");
+
+	return( s ? s : "" );
+}
+
 CSG_String CSG_GDAL_Drivers::Get_Name(int Index) const
 {
 	const char	*s	= GDALGetMetadataItem(Get_Driver(Index), GDAL_DMD_LONGNAME, "");
@@ -132,6 +139,13 @@ CSG_String CSG_GDAL_Drivers::Get_Name(int Index) const
 }
 
 //---------------------------------------------------------
+CSG_String CSG_GDAL_Drivers::Get_Description(const CSG_String &Name) const
+{
+	const char	*s	= GDALGetDescription(Get_Driver(Name));
+
+	return( s ? s : "" );
+}
+
 CSG_String CSG_GDAL_Drivers::Get_Description(int Index) const
 {
 	const char	*s	= GDALGetDescription(Get_Driver(Index));
@@ -140,6 +154,13 @@ CSG_String CSG_GDAL_Drivers::Get_Description(int Index) const
 }
 
 //---------------------------------------------------------
+CSG_String CSG_GDAL_Drivers::Get_Extension(const CSG_String &Name) const
+{
+	const char	*s	= GDALGetMetadataItem(Get_Driver(Name), GDAL_DMD_EXTENSION, "");
+
+	return( s ? s : "" );
+}
+
 CSG_String CSG_GDAL_Drivers::Get_Extension(int Index) const
 {
 	const char	*s	= GDALGetMetadataItem(Get_Driver(Index), GDAL_DMD_EXTENSION, "");

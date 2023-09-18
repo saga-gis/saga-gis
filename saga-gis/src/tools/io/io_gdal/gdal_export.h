@@ -81,6 +81,11 @@ protected:
 
 	virtual bool				On_Execute				(void);
 
+
+private:
+
+	CSG_String					Get_File_Name			(const CSG_String &Folder, const CSG_String &Name, const CSG_String &Extension, int Index);
+
 };
 
 

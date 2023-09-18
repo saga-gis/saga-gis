@@ -116,6 +116,27 @@ CGDAL_Export::CGDAL_Export(void)
 		PARAMETER_INPUT
 	);
 
+	Parameters.Add_Choice("",
+		"MULTIPLE"	, _TL("Multiple"),
+		_TL("If multiple grids are supplied: export each grid to a separate file or all grids to one multi-band file. Notice: Storing multiple bands in one file might not be supported by the selected format. For single files the grid name is used as file name."),
+		CSG_String::Format("%s|%s",
+			_TL("single files"),
+			_TL("one file")
+		), 1
+	);
+
+	Parameters.Add_FilePath("",
+		"FOLDER"	, _TL("Folder"),
+		_TL("The folder location to which single files will be stored."),
+		NULL, NULL, true, true
+	);
+
+	Parameters.Add_String("",
+		"EXTENSION"	, _TL("Extension"),
+		_TL(""),
+		""
+	);
+
 	Parameters.Add_FilePath("",
 		"FILE"		, _TL("File"),
 		_TL("The GDAL dataset to be created."),
@@ -168,6 +189,22 @@ CGDAL_Export::CGDAL_Export(void)
 //---------------------------------------------------------
 int CGDAL_Export::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	bool bSingles = (*pParameters)("GRIDS")->asGridList()->Get_Grid_Count() > 1 && (*pParameters)("MULTIPLE")->asInt() == 0; // single files
+
+	pParameters->Set_Enabled("FOLDER"   ,  bSingles);
+	pParameters->Set_Enabled("EXTENSION",  bSingles);
+	pParameters->Set_Enabled("FILE"     , !bSingles);
+
+	if( pParameter->Cmp_Identifier("GRIDS") )
+	{
+		pParameters->Set_Enabled("MULTIPLE", pParameter->asGridList()->Get_Grid_Count() > 1);
+	}
+
+	if( pParameter->Cmp_Identifier("FORMAT") )
+	{
+		pParameters->Set_Parameter("EXTENSION", SG_Get_GDAL_Drivers().Get_Extension(pParameter->asChoice()->Get_Data()));
+	}
+
 	if( pParameter->Cmp_Identifier("SET_NODATA") )
 	{
 		pParameters->Set_Enabled("NODATA", pParameter->asBool());
@@ -184,66 +221,114 @@ int CGDAL_Export::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 //---------------------------------------------------------
 bool CGDAL_Export::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
 
-	//-----------------------------------------------------
-	TSG_Data_Type	Type;
+	CSG_String Driver(Parameters("FORMAT")->asChoice()->Get_Data());
+
+	CSG_String Options(Parameters("OPTIONS")->asString());
+
+	TSG_Data_Type Type;
 
 	switch( Parameters("TYPE")->asInt() )
 	{
-	default: Type = SG_Get_Grid_Type(pGrids); break;	// match input data
-	case  1: Type = SG_DATATYPE_Byte        ; break;	// Eight bit unsigned integer
-	case  2: Type = SG_DATATYPE_Word        ; break;	// Sixteen bit unsigned integer
-	case  3: Type = SG_DATATYPE_Short       ; break;	// Sixteen bit signed integer
-	case  4: Type = SG_DATATYPE_DWord       ; break;	// Thirty two bit unsigned integer
-	case  5: Type = SG_DATATYPE_Int         ; break;	// Thirty two bit signed integer
-	case  6: Type = SG_DATATYPE_Float       ; break;	// Thirty two bit floating point
-	case  7: Type = SG_DATATYPE_Double      ; break;	// Sixty four bit floating point
+	default: Type = SG_Get_Grid_Type(pGrids); break; // match input data
+	case  1: Type = SG_DATATYPE_Byte        ; break; // Eight bit unsigned integer
+	case  2: Type = SG_DATATYPE_Word        ; break; // Sixteen bit unsigned integer
+	case  3: Type = SG_DATATYPE_Short       ; break; // Sixteen bit signed integer
+	case  4: Type = SG_DATATYPE_DWord       ; break; // Thirty two bit unsigned integer
+	case  5: Type = SG_DATATYPE_Int         ; break; // Thirty two bit signed integer
+	case  6: Type = SG_DATATYPE_Float       ; break; // Thirty two bit floating point
+	case  7: Type = SG_DATATYPE_Double      ; break; // Sixty four bit floating point
 	}
 
-	//-----------------------------------------------------
-	CSG_Projection	Projection;
-
-	Get_Projection(Projection);
+	CSG_Projection Projection; Get_Projection(Projection);
 
 	//-----------------------------------------------------
-	CSG_String	Driver;
-
-	if( !Parameters("FORMAT")->asChoice()->Get_Data(Driver) )
+	if( pGrids->Get_Grid_Count() > 1 && Parameters("MULTIPLE")->asInt() == 0 ) // single files
 	{
-		return( false );
-	}
+		CSG_String Folder(Parameters("FOLDER")->asString()), Extension(Parameters("EXTENSION")->asString());
 
-	//-----------------------------------------------------
-	CSG_GDAL_DataSet	DataSet;
-
-	if( !DataSet.Open_Write(Parameters("FILE")->asString(), Driver, Parameters("OPTIONS")->asString(), Type, pGrids->Get_Grid_Count(), Get_System(), Projection) )
-	{
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	for(int i=0; i<pGrids->Get_Grid_Count(); i++)
-	{
-		Process_Set_Text("%s %d", _TL("Band"), i + 1);
-
-		if( Parameters("SET_NODATA")->asBool() )
+		for(int i=0; i<pGrids->Get_Grid_Count(); i++)
 		{
-			DataSet.Write(i, pGrids->Get_Grid(i), Parameters("NODATA")->asDouble());
-		}
-		else
-		{
-			DataSet.Write(i, pGrids->Get_Grid(i));
+			Process_Set_Text("%s %d", _TL("Band"), i + 1);
+
+			CSG_GDAL_DataSet DataSet; CSG_String File(Get_File_Name(Folder, pGrids->Get_Grid(i)->Get_Name(), Extension, i));
+
+			if( DataSet.Open_Write(File, Driver, Options, Type, 1, Get_System(), Projection) )
+			{
+				if( Parameters("SET_NODATA")->asBool() )
+				{
+					DataSet.Write(0, pGrids->Get_Grid(i), Parameters("NODATA")->asDouble());
+				}
+				else
+				{
+					DataSet.Write(0, pGrids->Get_Grid(i));
+				}
+
+				DataSet.Close();
+			}
 		}
 	}
-	
-	if( !DataSet.Close() )
+
+	//-----------------------------------------------------
+	else // one file
 	{
-		return( false );
+		CSG_GDAL_DataSet DataSet; CSG_String File(Parameters("FILE")->asString());
+
+		if( !DataSet.Open_Write(File, Driver, Options, Type, pGrids->Get_Grid_Count(), Get_System(), Projection) )
+		{
+			return( false );
+		}
+
+		for(int i=0; i<pGrids->Get_Grid_Count(); i++)
+		{
+			Process_Set_Text("%s %d", _TL("Band"), i + 1);
+
+			if( Parameters("SET_NODATA")->asBool() )
+			{
+				DataSet.Write(i, pGrids->Get_Grid(i), Parameters("NODATA")->asDouble());
+			}
+			else
+			{
+				DataSet.Write(i, pGrids->Get_Grid(i));
+			}
+		}
+
+		if( !DataSet.Close() )
+		{
+			return( false );
+		}
 	}
 
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_String CGDAL_Export::Get_File_Name(const CSG_String &Folder, const CSG_String &Name, const CSG_String &Extension, int Index)
+{
+	CSG_String File(SG_File_Make_Path(Folder, Name));
+
+	if( !Extension.is_Empty() )
+	{
+		File += "." + Extension;
+	}
+
+	if( SG_File_Exists(File) && Index > 0 )
+	{
+		File = SG_File_Make_Path(Folder, CSG_String::Format("%s_%d", Name));
+
+		if( !Extension.is_Empty() )
+		{
+			File += "." + Extension;
+		}
+	}
+
+	return( File );
 }
 
 

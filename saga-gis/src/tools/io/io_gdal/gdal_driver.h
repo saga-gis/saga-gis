@@ -80,8 +80,11 @@ public:
 	GDALDriverH					Get_Driver			(const CSG_String &Name)	const;
 	GDALDriverH					Get_Driver			(int Index)					const;
 
+	CSG_String					Get_Name			(const CSG_String &Name)	const;
 	CSG_String					Get_Name			(int Index)					const;
+	CSG_String					Get_Description		(const CSG_String &Name)	const;
 	CSG_String					Get_Description		(int Index)					const;
+	CSG_String					Get_Extension		(const CSG_String &Name)	const;
 	CSG_String					Get_Extension		(int Index)					const;
 
 	bool						is_Raster			(int Index)					const;
