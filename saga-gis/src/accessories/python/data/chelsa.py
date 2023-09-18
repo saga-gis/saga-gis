@@ -27,6 +27,38 @@
 # Purpose
 #################################################################################
 
+"""
+The PySAGA.data.chelsa module provides easy-to-use functions for accessing
+``CHELSA (Climatologies at High resolution for the Earth's Land Surface Areas)``
+global climate data. For more information on the data itself refer to
+    https://chelsa-climate.org/
+
+For downloading requested files the wget Python package is used, which needs to be
+installed in order to work. Installation can be done through pip:
+    pip install wget
+
+Basic usage:
+    from PySAGA.data import chelsa; from PySAGA import tools
+
+    chelsa.Dir_Global = 'C:/chelsa/global'
+
+    chelsa.Dir_Target = 'C:/chelsa/germany_utm32n'
+
+    AOI = tools.Get_AOI_From_Extent(279000, 920000, 5235000, 6102000, 32632)
+
+    chelsa.Get_Climatology('tas'   , AOI)
+
+    chelsa.Get_Climatology('tasmin', AOI)
+
+    chelsa.Get_Climatology('tasmax', AOI)
+
+    chelsa.Get_Climatology('pr'    , AOI)
+
+    chelsa.Get_Climatology('pet'   , AOI)
+
+"""
+
+
 #################################################################################
 # Globals
 #________________________________________________________________________________
@@ -73,6 +105,12 @@ def _Variable_File_Suffix(Variable):
 # path to the requested data set if it exists in 'Local_Dir' or 'None'.
 #________________________________________________________________________________
 def Get_Global_File(File, Local_Dir, Remote_Dir):
+    '''
+    This function checks if the requested 'File' exists in 'Local_Dir' and if not
+    it tries to download the file from 'Remote_Dir'. The function returns the file
+    path to the requested data set if it exists in 'Local_Dir' or 'None'.
+    '''
+
     if not os.path.exists(Local_Dir):
         os.makedirs(Local_Dir)
 
@@ -113,6 +151,12 @@ def Get_Global_File(File, Local_Dir, Remote_Dir):
 # to the current working directory.
 #________________________________________________________________________________
 def Get_Global_Climatology_Month(Variable, Month):
+    '''
+    Returns file path to requested data set or 'None'. Local storage path is defined
+    by the global 'Dir_Global' variable and defaults to 'global' subfolder relative
+    to the current working directory.
+    '''
+
     File       = 'CHELSA_{:s}{:s}_{:02d}_1981-2010_V.2.1.tif'.format(Variable, _Variable_File_Suffix(Variable), Month)
     Local_Dir  = '{:s}/{:s}'.format(Dir_Global, Variable)
     Remote_Dir = 'climatologies/1981-2010/{:s}'.format(Variable)
@@ -123,6 +167,10 @@ def Get_Global_Climatology_Month(Variable, Month):
 # Get the original file of a variable for all months.
 #________________________________________________________________________________
 def Get_Global_Climatology(Variable):
+    '''
+    Get the original file of a variable for all months.
+    '''
+
     nFailed = 0
     for Month in range(1, 12 + 1):
         if not Get_Global_Climatology_Month(Variable, Month):
@@ -137,6 +185,10 @@ def Get_Global_Climatology(Variable):
 # Get a variable for the area of your interest (AOI)...
 #________________________________________________________________________________
 def Get_Climatology_Month(Variable, Month, AOI=None, bDeleteGlobal=False):
+    '''
+    Get a variable for the area of your interest (AOI)...
+    '''
+
     Scaling, Offset, Unit = _Variable_Unit_Conversion(Variable)
     Target_File = '{:s}/{:s}/{:s}_{:02d}.{:s}'.format(Dir_Target, Variable, Variable, Month, Ext_Target)
     return os.path.exists(Target_File) or Get_Variable(Get_Global_Climatology_Month(Variable, Month), Target_File, AOI, Scaling, Offset, Unit, bDeleteGlobal)
@@ -158,6 +210,12 @@ def Get_Climatology(Variable, AOI=None, bDeleteGlobal=False):
 # to the current working directory.
 #________________________________________________________________________________
 def Get_Global_Projection(Variable, Month, Period = '2041-2070', Model = 'MPI-ESM1-2-HR', SSP = '585'):
+    '''
+    Returns file path to requested data set or 'None'. Local storage path is defined
+    by the global 'Dir_Global' variable and defaults to 'global' subfolder relative
+    to the current working directory.
+    '''
+
     File       = 'CHELSA_{:s}_r1i1p1f1_w5e5_ssp{:s}_{:s}_{:02d}_{:s}_norm.tif'.format(Model.lower(), SSP, Variable, Month, Period.replace('-', '_'))
     Local_Dir  = '{:s}/{:s}'.format(Dir_Global, Variable)
     Remote_Dir = 'climatologies/{:s}/{:s}/ssp{:s}/{:s}'.format(Period, Model.upper(), SSP, Variable)
@@ -168,6 +226,10 @@ def Get_Global_Projection(Variable, Month, Period = '2041-2070', Model = 'MPI-ES
 # Get the original file of a variable for all months.
 #________________________________________________________________________________
 def Get_Global_Projection_AllMonths(Variable, Period = '2041-2070', Model = 'MPI-ESM1-2-HR', SSP = '585'):
+    '''
+    Get the original file of a variable for all months.
+    '''
+
     nFailed = 0
     for Month in range(1, 12 + 1):
         if not Get_Global_Projection(Variable, Month, Period, Model, SSP):
@@ -182,6 +244,10 @@ def Get_Global_Projection_AllMonths(Variable, Period = '2041-2070', Model = 'MPI
 # Get a variable for the area of your interest (AOI)...
 #________________________________________________________________________________
 def Get_Projection_Month(Variable, Month, AOI=None, bDeleteGlobal=False):
+    '''
+    Get a variable for the area of your interest (AOI)...
+    '''
+
     Scaling, Offset, Unit = _Variable_Unit_Conversion(Variable)
     Target_File = '{:s}/{:s}/{:s}_{:02d}.{:s}'.format(Dir_Target, Variable, Variable, Month, Ext_Target)
     return os.path.exists(Target_File) or Get_Variable(Get_Global_Climatology_Month(Variable, Month), Target_File, AOI, Scaling, Offset, Unit, bDeleteGlobal)
@@ -203,6 +269,12 @@ def Get_Projection(Variable, AOI=None, bDeleteGlobal=False):
 # to the current working directory.
 #________________________________________________________________________________
 def Get_Global_Monthly(Variable, Year, Month):
+    '''
+    Returns file path to requested data set or 'None'. Local storage path is defined
+    by the global 'Dir_Global' variable and defaults to 'global' subfolder relative
+    to the current working directory.
+    '''
+
     File       = 'CHELSA_{:s}{:s}_{:02d}_{:04d}_V.2.1.tif'.format(Variable, _Variable_File_Suffix(Variable), Month, Year)
     Local_Dir  = '{:s}/{:s}'.format(Dir_Global, Variable)
     Remote_Dir = 'monthly/{:s}/'.format(Variable)
@@ -213,6 +285,10 @@ def Get_Global_Monthly(Variable, Year, Month):
 # Get the original file of a variable for the given monthly and year's range.
 #________________________________________________________________________________
 def Get_Global_Monthly_Series(Variable, Years = [1980, 2019], Months=[1, 12]):
+    '''
+    Get the original file of a variable for the given monthly and year's range.
+    '''
+
     nFailed = 0
     for Year in range(Years[0], Years[1] + 1):
         for Month in range(1, 12 + 1):
@@ -228,6 +304,10 @@ def Get_Global_Monthly_Series(Variable, Years = [1980, 2019], Months=[1, 12]):
 # Get a variable for the area of your interest (AOI)...
 #________________________________________________________________________________
 def Get_Monthly(Variable, Year, Month, AOI=None, bDeleteGlobal=False):
+    '''
+    Get a variable for the area of your interest (AOI)...
+    '''
+
     Scaling, Offset, Unit = _Variable_Unit_Conversion(Variable)
     Target_File = '{:s}/{:s}/{:s}_{:04d}_{:02d}.{:s}'.format(Dir_Target, Variable, Variable, Year, Month, Ext_Target)
     return os.path.exists(Target_File) or Get_Variable(Get_Global_Monthly(Variable, Year, Month), Target_File, AOI, Scaling, Offset, Unit, bDeleteGlobal)
@@ -244,6 +324,9 @@ def Get_Monthly_Series(Variable, AOI=None, Years=[1980, 2019], Months=[1, 12], b
 # Extract and project a variable to fit the given area of your interest (AOI)...
 #________________________________________________________________________________
 def Get_Variable(Global_File, Target_File, AOI, Scaling=1., Offset=0., Unit=None, bDeleteGlobal=False):
+    '''
+    Extract and project a variable to fit the given area of your interest (AOI)...
+    '''
 
     #____________________________________________________________________________
     def Import_Raster(File, AOI):
@@ -360,79 +443,4 @@ def Get_Variable(Global_File, Target_File, AOI, Scaling=1., Offset=0., Unit=None
 
 #################################################################################
 #
-# Defining the Area of Interest...
 #________________________________________________________________________________
-
-#################################################################################
-# Create area of interest from extent coordinates and EPSG code for CRS
-#________________________________________________________________________________
-def Get_AOI_From_Extent(Xmin, Xmax, Ymin, Ymax, EPSG=4326):
-    AOI = saga_api.CSG_Shapes(saga_api.SHAPE_TYPE_Polygon)
-    AOI.Get_Projection().Create(EPSG)
-    Shape = AOI.Add_Shape()
-    Shape.Add_Point(Xmin, Ymin)
-    Shape.Add_Point(Xmin, Ymax)
-    Shape.Add_Point(Xmax, Ymax)
-    Shape.Add_Point(Xmax, Ymin)
-    return AOI
-
-
-#################################################################################
-# Create area of interest from file. Expects to represent vector data with CRS
-# information set correctly.
-#________________________________________________________________________________
-def Get_AOI_From_Features(File):
-    AOI = saga_api.SG_Create_Shapes(File)
-    if not AOI:
-        saga_api.SG_UI_Msg_Add_Error('failed to load AOI from file \n\t\'{:s}\''.format(File))
-        return None
-
-    if not AOI.Get_Projection().is_Okay():
-        del(AOI)
-        saga_api.SG_UI_Msg_Add_Error('coordinate reference system of AOI is not defined \n\t\'{:s}\''.format(File))
-        return None
-
-    return AOI
-
-
-#################################################################################
-# Create area of interest from file. Expects to represent raster data with CRS
-# information set correctly.
-#________________________________________________________________________________
-def Get_AOI_From_Raster(File):
-    Grid = saga_api.SG_Create_Grid(File)
-    if not Grid:
-        saga_api.SG_UI_Msg_Add_Error('failed to load AOI from file \n\t\'{:s}\''.format(File))
-        return None
-
-    if not Grid.Get_Projection().is_Okay():
-        del(Grid)
-        saga_api.SG_UI_Msg_Add_Error('coordinate reference system of AOI is not defined \n\t\'{:s}\''.format(File))
-        return None
-
-    AOI = saga_api.CSG_Shapes(saga_api.SHAPE_TYPE_Polygon)
-    AOI.Get_Projection().Create(Grid.Get_Projection())
-    Shape = AOI.Add_Shape()
-    Shape.Add_Point(Grid.Get_XMin(), Grid.Get_YMin())
-    Shape.Add_Point(Grid.Get_XMin(), Grid.Get_YMax())
-    Shape.Add_Point(Grid.Get_XMax(), Grid.Get_YMax())
-    Shape.Add_Point(Grid.Get_XMax(), Grid.Get_YMin())
-    del(Grid)
-    return AOI
-
-
-#################################################################################
-#
-# Basic usage...
-#________________________________________________________________________________
-
-# from PySAGA.data import chelsa
-
-# chelsa.Dir_Global = 'C:/chelsa/global'
-# chelsa.Dir_Target = 'C:/chelsa/germany_utm32n'
-# AOI = chelsa.Get_AOI_From_Extent(279000, 920000, 5235000, 6102000, 32632)
-# chelsa.Get_Climatology('tas'   , AOI)
-# chelsa.Get_Climatology('tasmin', AOI)
-# chelsa.Get_Climatology('tasmax', AOI)
-# chelsa.Get_Climatology('pr'    , AOI)
-# chelsa.Get_Climatology('pet'   , AOI)

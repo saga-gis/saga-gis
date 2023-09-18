@@ -27,6 +27,31 @@
 # Purpose
 #################################################################################
 
+"""
+The PySAGA.data.srtm module provides easy-to-use functions for accessing
+``SRTM (Shuttle Radar Topography Mission)`` global elevation data.
+
+Currently support is only given for the SRTM 90m DEM Digital Elevation
+Database provided by CGIAR CSI. For more information on the data refer to
+    https://srtm.csi.cgiar.org/
+
+For downloading requested files the wget Python package is used, which needs to be
+installed in order to work. Installation can be done through pip:
+    pip install wget
+
+Basic usage:
+    from PySAGA.data import srtm; from PySAGA import tools
+
+    srtm.Dir_Global = 'C:/srtm_3arcsec/_global'
+
+    srtm.CGIAR_Get_AOI(
+        tools.Get_AOI_From_Extent(279000, 920000, 5235000, 6102000, 32632),
+        'C:/srtm_3arcsec/germany_utm32n_1000m.sg-grd-z', 1000
+    )
+
+"""
+
+
 #################################################################################
 # Globals
 #________________________________________________________________________________
@@ -51,6 +76,12 @@ Download_Retries = 4
 # path to the requested data set if it exists in 'Local_Dir' or 'None'.
 #________________________________________________________________________________
 def Get_File(File, Local_Dir, Remote_Dir):
+    '''
+    This function checks if the requested 'File' exists in 'Local_Dir' and if not
+    it tries to download the file from 'Remote_Dir'. The function returns the file
+    path to the requested data set if it exists in 'Local_Dir' or 'None'.
+    '''
+
     Local_File = '{:s}/{:s}'.format(Local_Dir, File)
     if os.path.exists(Local_File):
         return Local_File
@@ -90,6 +121,12 @@ def Get_File(File, Local_Dir, Remote_Dir):
 # directory.
 #________________________________________________________________________________
 def Set_VRT():
+    '''
+    This function creates or updates the virtual raster (VRT) file named 'File'
+    using all raster tiles found in 'Dir_Global'. It will be stored in the same
+    directory.
+    '''
+
     import glob; Files = glob.glob('{:s}/*.tif'.format(Dir_Global))
     if len(Files) < 1:
         saga_api.SG_UI_Msg_Add_Error('directory \'{:s}\' does not contain any TIFF!'.format(Dir_Global))
@@ -130,6 +167,13 @@ def Set_VRT():
 # relative to the current working directory.
 #________________________________________________________________________________
 def CGIAR_Get_Tile(Col, Row, DeleteZip=True):
+    '''
+    Returns 0 if tile is already present in the local storage path, 1 if it has
+    been download successfully, or -1 if the download failed. Local storage path is
+    defined by the global 'Dir_Global' variable and defaults to 'global' subfolder
+    relative to the current working directory.
+    '''
+
     if Col < 1 or Col >= 72:
         saga_api.SG_UI_Msg_Add_Error('requested column {:d} is out-of-range (1-72)'.format(Row))
         return -1
@@ -312,73 +356,4 @@ def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90, DeleteZip=True, Verbos
 
 #################################################################################
 #
-# Defining the Area of Interest...
 #________________________________________________________________________________
-
-#################################################################################
-# Create area of interest from extent coordinates and EPSG code for CRS
-#________________________________________________________________________________
-def Get_AOI_From_Extent(Xmin, Xmax, Ymin, Ymax, EPSG=4326):
-    AOI = saga_api.CSG_Shapes(saga_api.SHAPE_TYPE_Polygon)
-    AOI.Get_Projection().Create(EPSG)
-    Shape = AOI.Add_Shape()
-    Shape.Add_Point(Xmin, Ymin)
-    Shape.Add_Point(Xmin, Ymax)
-    Shape.Add_Point(Xmax, Ymax)
-    Shape.Add_Point(Xmax, Ymin)
-    return AOI
-
-
-#################################################################################
-# Create area of interest from file. Expects to represent vector data with CRS
-# information set correctly.
-#________________________________________________________________________________
-def Get_AOI_From_Features(File):
-    AOI = saga_api.SG_Create_Shapes(File)
-    if not AOI:
-        saga_api.SG_UI_Msg_Add_Error('failed to load AOI from file \n\t\'{:s}\''.format(File))
-        return None
-
-    if not AOI.Get_Projection().is_Okay():
-        del(AOI)
-        saga_api.SG_UI_Msg_Add_Error('coordinate reference system of AOI is not defined \n\t\'{:s}\''.format(File))
-        return None
-
-    return AOI
-
-
-#################################################################################
-# Create area of interest from file. Expects to represent raster data with CRS
-# information set correctly.
-#________________________________________________________________________________
-def Get_AOI_From_Raster(File):
-    Grid = saga_api.SG_Create_Grid(File)
-    if not Grid:
-        saga_api.SG_UI_Msg_Add_Error('failed to load AOI from file \n\t\'{:s}\''.format(File))
-        return None
-
-    if not Grid.Get_Projection().is_Okay():
-        del(Grid)
-        saga_api.SG_UI_Msg_Add_Error('coordinate reference system of AOI is not defined \n\t\'{:s}\''.format(File))
-        return None
-
-    AOI = saga_api.CSG_Shapes(saga_api.SHAPE_TYPE_Polygon)
-    AOI.Get_Projection().Create(Grid.Get_Projection())
-    Shape = AOI.Add_Shape()
-    Shape.Add_Point(Grid.Get_XMin(), Grid.Get_YMin())
-    Shape.Add_Point(Grid.Get_XMin(), Grid.Get_YMax())
-    Shape.Add_Point(Grid.Get_XMax(), Grid.Get_YMax())
-    Shape.Add_Point(Grid.Get_XMax(), Grid.Get_YMin())
-    del(Grid)
-    return AOI
-
-
-#################################################################################
-#
-# Basic usage...
-#________________________________________________________________________________
-
-# from PySAGA.data import srtm
-# srtm.Dir_Global = 'C:/srtm_3arcsec/global'
-# AOI = srtm.Get_AOI_From_Extent(279000, 920000, 5235000, 6102000, 32632)
-# srtm.CGIAR_Get_AOfInterest(AOI, 'C:/srtm_3arcsec/germany_utm32n.sg-grd-z')
