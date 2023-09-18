@@ -895,7 +895,7 @@ bool CSG_PointCloud::_Set_Field_Value(char *pPoint, int iField, double Value)
 {
 	if( pPoint && iField >= 0 && iField < m_nFields )
 	{
-		pPoint	= ((char *)pPoint) + m_Field_Offset[iField];
+		pPoint = ((char *)pPoint) + m_Field_Offset[iField];
 
 		switch( m_Field_Type[iField] )
 		{
@@ -909,6 +909,7 @@ bool CSG_PointCloud::_Set_Field_Value(char *pPoint, int iField, double Value)
 		case SG_DATATYPE_ULong : *((uLong  *)pPoint) = (uLong )Value ; break;
 		case SG_DATATYPE_Float : *((float  *)pPoint) = (float )Value ; break;
 		case SG_DATATYPE_Double: *((double *)pPoint) = (double)Value ; break;
+		case SG_DATATYPE_Color : *((DWORD  *)pPoint) = (DWORD )Value ; break;
 		case SG_DATATYPE_String: sprintf(    pPoint, "%f"    , Value); break;
 		default                :                                       break;
 		}
@@ -933,7 +934,7 @@ double CSG_PointCloud::_Get_Field_Value(char *pPoint, int iField) const
 {
 	if( pPoint && iField >= 0 && iField < m_nFields )
 	{
-		pPoint	+= m_Field_Offset[iField];
+		pPoint += m_Field_Offset[iField];
 
 		switch( m_Field_Type[iField] )
 		{
@@ -947,6 +948,7 @@ double CSG_PointCloud::_Get_Field_Value(char *pPoint, int iField) const
 		case SG_DATATYPE_ULong : return( (double)*((uLong  *)pPoint) );
 		case SG_DATATYPE_Float : return( (double)*((float  *)pPoint) );
 		case SG_DATATYPE_Double: return( (double)*((double *)pPoint) );
+		case SG_DATATYPE_Color : return( (double)*((DWORD  *)pPoint) );
 		case SG_DATATYPE_String: return( (double)atof(       pPoint) );
 		default                : break;
 		}
@@ -960,19 +962,13 @@ bool CSG_PointCloud::_Set_Field_Value(char *pPoint, int iField, const SG_Char *V
 {
 	if( pPoint && iField >= 0 && iField < m_nFields && Value )
 	{
-		CSG_String	s(Value);
+		CSG_String s(Value);
 
 		switch( m_Field_Type[iField] )
 		{
-		default:
-			{
-				double	d;
+		default: { double d; return( s.asDouble(d) && _Set_Field_Value(pPoint, iField, d) ); }
 
-				return( s.asDouble(d) && _Set_Field_Value(pPoint, iField, d) );
-			}
-			break;
-
-		case SG_DATATYPE_Date:
+		case SG_DATATYPE_Date  :
 		case SG_DATATYPE_String:
 			pPoint	+= m_Field_Offset[iField];
 			memset(pPoint, 0, PC_STR_NBYTES);
