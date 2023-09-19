@@ -133,7 +133,7 @@ CLandsat_Scene_Import::CLandsat_Scene_Import(void)
 		"CALIBRATION"	, _TL("Radiometric Calibration"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s",
-			_TL("none"),
+			_TL("digital numbers"),
 			_TL("radiance"),
 			_TL("reflectance")
 		), 0
@@ -165,7 +165,7 @@ CLandsat_Scene_Import::CLandsat_Scene_Import(void)
 			_TL("UTM South"),
 			_TL("Geographic Coordinates"),
 			_TL("Different UTM Zone"),
-			_TL("keep as it is provided")
+			_TL("original")
 		), 4
 	);
 

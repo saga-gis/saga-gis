@@ -179,7 +179,7 @@ CSentinel_2_Scene_Import::CSentinel_2_Scene_Import(void)
 		"REFLECTANCE"	, _TL("Reflectance Values"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
-			_TL("original"),
+			_TL("digital numbers"),
 			_TL("fraction")
 		), 1
 	);
@@ -200,7 +200,7 @@ CSentinel_2_Scene_Import::CSentinel_2_Scene_Import(void)
 			_TL("UTM South"),
 			_TL("Geographic Coordinates"),
 			_TL("Different UTM Zone"),
-			_TL("keep as it is provided")
+			_TL("original")
 		), 4
 	);
 
@@ -285,7 +285,7 @@ int CSentinel_2_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, 
 		pParameters->Set_Enabled("RESAMPLING", pParameter->asInt() == 2 || pParameter->asInt() == 3);
 		pParameters->Set_Enabled("UTM_ZONE"  , pParameter->asInt() == 3);
 		pParameters->Set_Enabled("UTM_SOUTH" , pParameter->asInt() == 3);
-		pParameters->Set_Enabled("RESOLUTION", pParameter->asInt() <= 1);
+		pParameters->Set_Enabled("RESOLUTION", pParameter->asInt() != 2 && pParameter->asInt() != 3);
 	}
 
 	if(	pParameter->Cmp_Identifier("EXTENT") )
@@ -324,7 +324,7 @@ bool CSentinel_2_Scene_Import::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_String Path = SG_File_Get_Path(Parameters("METAFILE")->asString());
 
-	bool bLevel2  = SG_File_Get_Name(Path, false).Find("MTD_MSIL2") == 0;
+	bool bLevel2  = SG_File_Get_Name(Parameters("METAFILE")->asString(), false).Find("MTD_MSIL2") == 0;
 
 	bool bLoadTCI = Parameters("LOAD_TCI") && Parameters("LOAD_TCI")->asBool();
 	bool bLoadAOT = Parameters("LOAD_AOT") && Parameters("LOAD_AOT")->asBool() && bLevel2;
@@ -332,7 +332,7 @@ bool CSentinel_2_Scene_Import::On_Execute(void)
 	bool bLoadSCL = Parameters("LOAD_SCL") && Parameters("LOAD_SCL")->asBool() && bLevel2;
 	bool bLoad60m = Parameters("LOAD_60M") && Parameters("LOAD_60M")->asBool();
 
-	int Resolution = Parameters("PROJECTION")->asInt() <= 1 ? Parameters("RESOLUTION")->asInt() : 0;
+	int Resolution = Parameters("PROJECTION")->asInt() != 2 && Parameters("PROJECTION")->asInt() != 3 ? Parameters("RESOLUTION")->asInt() : 0;
 
 	bool bMultiGrids = Parameters("MULTI2GRIDS")->asBool();
 
@@ -742,6 +742,22 @@ CSG_Grid * CSentinel_2_Scene_Import::Load_Grid(const CSG_String &File)
 //---------------------------------------------------------
 bool CSentinel_2_Scene_Import::Load_Classification(CSG_Grid *pGrid, const CSG_String &File)
 {
+	const int Colors[] = {
+		SG_GET_RGB(255, 255, 255), //  0 NODATA
+		SG_GET_RGB(255,   0,   0), //  1 SATURATED DEFECTIVE
+		SG_GET_RGB(128,   0,   0), //  2 DARK FEATURE SHADOW
+		SG_GET_RGB(162,   0, 162), //  3 CLOUD SHADOW
+		SG_GET_RGB(  0, 128,   0), //  4 VEGETATION
+		SG_GET_RGB(255, 255,   0), //  5 NOT VEGETATED
+		SG_GET_RGB(  0,   0, 255), //  6 WATER
+		SG_GET_RGB(222, 222, 222), //  7 UNCLASSIFIED
+		SG_GET_RGB(255,   0, 255), //  8 CLOUD MEDIUM PROBA
+		SG_GET_RGB(228,   0, 192), //  9 CLOUD HIGH PROBA
+		SG_GET_RGB(255, 192, 255), // 10 THIN CIRRUS
+		SG_GET_RGB(128, 255, 255)  // 11 SNOW ICE
+	};
+
+	//-----------------------------------------------------
 	CSG_MetaData Metadata;
 
 	if( !Metadata.Load(File)
@@ -773,7 +789,7 @@ bool CSentinel_2_Scene_Import::Load_Classification(CSG_Grid *pGrid, const CSG_St
 
 			CSG_Table_Record &Class = *LUT.Add_Record();
 
-			Class.Set_Value(0, SG_Color_Get_Random());
+			Class.Set_Value(0, Colors[i % 12]);
 			Class.Set_Value(1, Name);
 			Class.Set_Value(3, Index);
 			Class.Set_Value(4, Index);
