@@ -74,6 +74,8 @@ void	SG_UI_Console_Set_UTF8(bool bOn) {          gSG_UI_Console_bUTF8 = bOn; }
 bool	SG_UI_Console_Get_UTF8(void)     {	return( gSG_UI_Console_bUTF8 );     }
 
 //---------------------------------------------------------
+void	SG_UI_Console_Print_StdOut(const char       *Text, SG_Char End, bool bFlush) { SG_UI_Console_Print_StdOut(CSG_String(Text), End, bFlush); }
+void	SG_UI_Console_Print_StdOut(const wchar_t    *Text, SG_Char End, bool bFlush) { SG_UI_Console_Print_StdOut(CSG_String(Text), End, bFlush); }
 void	SG_UI_Console_Print_StdOut(const CSG_String &Text, SG_Char End, bool bFlush)
 {
 	if( gSG_UI_Console_bUTF8 )
@@ -97,6 +99,8 @@ void	SG_UI_Console_Print_StdOut(const CSG_String &Text, SG_Char End, bool bFlush
 }
 
 //---------------------------------------------------------
+void	SG_UI_Console_Print_StdErr(const char       *Text, SG_Char End, bool bFlush) { SG_UI_Console_Print_StdErr(CSG_String(Text), End, bFlush); }
+void	SG_UI_Console_Print_StdErr(const wchar_t    *Text, SG_Char End, bool bFlush) { SG_UI_Console_Print_StdErr(CSG_String(Text), End, bFlush); }
 void	SG_UI_Console_Print_StdErr(const CSG_String &Text, SG_Char End, bool bFlush)
 {
 	if( gSG_UI_Console_bUTF8 )
