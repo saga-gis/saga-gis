@@ -28,25 +28,25 @@
 #################################################################################
 
 '''
-The PySAGA.data.srtm module provides easy-to-use functions for accessing
-``SRTM (Shuttle Radar Topography Mission)`` global elevation data.
+The PySAGA.data.copernicus_dem module provides easy-to-use functions for accessing
+``Copernicus DEM`` global elevation data.
 
-Currently support is only given for the SRTM 90m DEM Digital Elevation
-Database provided by CGIAR CSI. For more information on the data refer to
-    https://srtm.csi.cgiar.org/
+Currently support is only given for the DSM_10 (=> 30m) DEM Digital Elevation
+For more information on the data refer to
+    https://sentinels.copernicus.eu/web/sentinel/-/copernicus-dem-new-direct-data-download-access/
 
 For downloading requested files the wget Python package is used, which needs to be
 installed in order to work. Installation can be done through pip:
     pip install wget
 
 Basic usage:
-    import PySAGA.data.srtm as srtm, PySAGA.helper as saga_helper
+    from PySAGA.data import copernicus_dem; import PySAGA.helper
 
-    srtm.Dir_Global = 'C:/srtm_3arcsec/_global'
+    copernicus_dem.Dir_Global = 'C:/Copernicus_DSM_10/_global'
 
-    srtm.CGIAR_Get_AOI(
-        saga_helper.Get_AOI_From_Extent(279000, 920000, 5235000, 6102000, 32632),
-        'C:/srtm_3arcsec/germany_utm32n_1000m.sg-grd-z', 1000
+    copernicus_dem.DSM_10_Get_AOI(
+        PySAGA.helper.Get_AOI_From_Extent(279000, 920000, 5235000, 6102000, 32632),
+        'C:/Copernicus_DSM_10/germany_utm32n_30m.sg-grd-z', 30
     )
 '''
 
@@ -56,92 +56,104 @@ Basic usage:
 # Globals
 #________________________________________________________________________________
 
-import os, PySAGA.saga_api as saga_api, PySAGA.helper, PySAGA.data.helper
+import os; from PySAGA import saga_api; import PySAGA.helper, PySAGA.data.helper
 
-Dir_Global = os.getcwd() + '/srtm_global'
+Dir_Global = os.getcwd() + '/copernicus_global'
 
-VRT_Name = 'srtm_global'
+VRT_Name = 'dem_global'
 
 Download_Retries = 4
 
 
 #################################################################################
 #
-# Providing the original SRTM files...
-#________________________________________________________________________________
-
-#################################################################################
-#
-# CGIAR SRTM 3''...
+# DSM_10 (=> 30m)...
 #________________________________________________________________________________
 
 #________________________________________________________________________________
-# Returns 0 if tile is already present in the local storage path, 1 if it has
-# been download successfully, or -1 if the download failed. Local storage path is
-# defined by the global 'Dir_Global' variable and defaults to 'global' subfolder
-# relative to the current working directory.
-#________________________________________________________________________________
-def CGIAR_Get_Tile(Col, Row, DeleteZip=True):
+def DSM_10_Get_Tile(Lon, Lat, DeleteArchive=True):
     '''
-    Downloads the ``SRTM 3arcsec`` tile for the specified column (range 1 to 72)
-    and row (range 1 to 24).
-    Returns 0 if tile is already present in the local storage path, 1 if it has
+    Downloads the ``Copernicus DSM 10`` tile with the lower left corner coordinate
+    as specified by *Lon* (longitude in the range of -180 to 179) and *Lat*
+    (latitude in the range of -90 to 89).
+    Returns 0 if tile already exists in the local storage path, 1 if it has
     been download successfully, or -1 if the download failed. Local storage path is
-    defined by the global 'Dir_Global' variable and defaults to 'global' subfolder
+    defined by the global variable *Dir_Global* and defaults to 'global' subfolder
     relative to the current working directory.
     '''
 
-    if Col < 1 or Col >= 72:
-        saga_api.SG_UI_Console_Print_StdErr('requested column {:d} is out-of-range (1-72)'.format(Row))
+    if Lon < -180 or Lon >= 180:
+        saga_api.SG_UI_Console_Print_StdErr(saga_api.CSG_String('requested longitude {:d} is out-of-range'.format(Lon)))
         return -1
 
-    if Row < 1 or Row >= 24:
-        saga_api.SG_UI_Console_Print_StdErr('requested row {:d} is out-of-range (1-24)'.format(Col))
+    if Lat <  -90 or Lat >=  90:
+        saga_api.SG_UI_Console_Print_StdErr(saga_api.CSG_String('requested latitude {:d} is out-of-range'.format(Lat)))
         return -1
 
-    Local_File = '{:s}/srtm_{:02d}_{:02d}.tif'.format(Dir_Global, Col, Row)
-    if os.path.exists(Local_File):
+    if Lon < 0:
+        Easting  = 'W{:03d}_00'.format(int(abs(Lon)))
+    else:
+        Easting  = 'E{:03d}_00'.format(int(    Lon ))
+
+    if Lat < 0:
+        Northing = 'S{:02d}_00'.format(int(abs(Lat)))
+    else:
+        Northing = 'N{:02d}_00'.format(int(    Lat) )
+
+    DEM_File = 'Copernicus_DSM_10_{:s}_{:s}_DEM.tif'.format(Northing, Easting)
+    if os.path.exists('{:s}/{:s}'.format(Dir_Global, DEM_File)):
         return 0
 
-    Remote_Dir = 'https://srtm.csi.cgiar.org/wp-content/uploads/files/srtm_5x5/TIFF'
+    Tar_File = '{:s}/Copernicus_DSM_10_{:s}_{:s}.tar'.format(Dir_Global, Northing, Easting)
+    if not os.path.exists(Tar_File):
+        Remote_Dir = 'https://prism-dem-open.copernicus.eu/pd-desk-open-access/prismDownload/COP-DEM_GLO-30-DGED__2022_1'
+        Tar_File = PySAGA.data.helper.Get_File('Copernicus_DSM_10_{:s}_{:s}.tar'.format(Northing, Easting), Dir_Global, Remote_Dir, Download_Retries)
+        if not Tar_File:
+            return -1
 
-    Zip_File = PySAGA.data.helper.Get_File('srtm_{:02d}_{:02d}.zip'.format(Col, Row), Dir_Global, Remote_Dir)
-    if not Zip_File:
-        return -1
+    import tarfile; tf = tarfile.TarFile(Tar_File, 'r')
 
-    import zipfile; zf = zipfile.ZipFile(Zip_File, 'r')
-    Local_File = zf.extract('srtm_{:02d}_{:02d}.tif'.format(Col, Row), Dir_Global)
-    zf.close()
-    if DeleteZip:
-        os.remove(Zip_File)
+    buf = tf.extractfile('Copernicus_DSM_10_{:s}_{:s}/DEM/{:s}'.format(Northing, Easting, DEM_File))
+    if not buf:
+        tf.close(); return -1
+
+    out = open('{:s}/{:s}'.format(Dir_Global, DEM_File), 'wb')
+    if not out:
+        tf.close(); return -1
+
+    out.write(buf.read()); out.close(); tf.close()
+
+    if DeleteArchive:
+        os.remove(Tar_File)
     return 1
 
 #________________________________________________________________________________
-def CGIAR_Get_Tiles(Cols=[1, 1], Rows=[1, 1], DeleteZip=True):
+def DSM_10_Get_Tiles(Lon=[0, 0], Lat=[0, 0], DeleteArchive=True):
     '''
-    Downloads all SRTM 3arcsec tiles for the given column and row span.
+    Downloads all Copernicus DSM 10 tiles in the given longitudinal
+    and latitudinal range.
     '''
 
-    if Cols[1] < Cols[0]:
-        Col = Cols[0]; Cols[0] = Cols[1]; Cols[1] = Col
-    if Cols[0] < 1:
-        Cols[0] = 1
-    elif Cols[1] > 72:
-        Cols[1] = 72
+    if Lon[1] < Lon[0]:
+        iLon = Lon[0]; Lon[0] = Lon[1]; Lon[1] = iLon
+    if Lon[0] < -180:
+        Lon[0] = -180
+    elif Lon[1] >= 180:
+        Lon[1] = 179
 
-    if Rows[1] < Rows[0]:
-        Row = Rows[0]; Rows[0] = Rows[1]; Cols[1] = Row
-    if Rows[0] < 1:
-        Rows[0] = 1
-    elif Rows[1] > 24:
-        Rows[1] = 24
+    if Lat[1] < Lat[0]:
+        iLat = Lat[0]; Lat[0] = Lat[1]; Lon[1] = iLat
+    if Lat[0] < -90:
+        Lat[0] = -90
+    elif Lat[1] >= 90:
+        Lat[1] = 89
 
-    saga_api.SG_UI_Msg_Add('requesting tiles for rows {:d}-{:d} and columns {:d}-{:d}\n'.format(Rows[0], Rows[1], Cols[0], Cols[1]))
+    saga_api.SG_UI_Msg_Add('requesting tiles for latitude range {:f}-{:f} and longitude range {:f}-{:f}\n'.format(Lat[0], Lat[1], Lon[0], Lon[1]))
     nAdded = 0; nFailed = 0; nFound = 0
-    for Col in range(Cols[0], Cols[1] + 1):
-        for Row in range(Rows[0], Rows[1] + 1):
-            if Col >= 1 and Col <= 72 and Row >= 1 and Row <= 24:
-                Result = CGIAR_Get_Tile(Col, Row, DeleteZip)
+    for iLon in range(int(Lon[0]), int(Lon[1]) + 1):
+        for iLat in range(int(Lat[0]), int(Lat[1]) + 1):
+            if iLon >= -180 and iLon < 180 and iLat >= -90 and iLat < 90:
+                Result = DSM_10_Get_Tile(iLon, iLat, DeleteArchive)
                 if Result > 0:
                     nAdded  += 1
                 elif Result < 0:
@@ -150,7 +162,7 @@ def CGIAR_Get_Tiles(Cols=[1, 1], Rows=[1, 1], DeleteZip=True):
                     nFound  += 1
 
     if nFailed > 0:
-        saga_api.SG_UI_Console_Print_StdErr('{:d} download(s) of {:d} failed'.format(nFailed, nFailed + nAdded))
+        saga_api.SG_UI_Console_Print_StdErr(saga_api.CSG_String('{:d} download(s) of {:d} failed'.format(nFailed, nFailed + nAdded)))
 
     if nAdded > 0 or not os.path.exists('{:s}/{:s}.vrt'.format(Dir_Global, VRT_Name)):
         PySAGA.helper.Get_VRT(Dir_Global, 'tif', VRT_Name)
@@ -158,29 +170,26 @@ def CGIAR_Get_Tiles(Cols=[1, 1], Rows=[1, 1], DeleteZip=True):
     return nAdded + nFound > 0
 
 #________________________________________________________________________________
-def CGIAR_Get_Tiles_byExtent(Lon=[-180, 180], Lat=[-60, 60], DeleteZip=True):
+def DSM_10_Get_Tiles_byExtent(Lon=[-180, 180], Lat=[-90, 90], DeleteArchive=True):
     '''
-    Downloads all SRTM 3arcsec tiles for the given longitudinal and latitudinal range.
+    Downloads all Copernicus DSM 10 tiles for the given longitudinal and latitudinal range.
     '''
 
-    Cellsize = 3. / 3600.; Lon[0] -= Cellsize; Lon[1] += Cellsize; Lat[0] -= Cellsize; Lat[1] += Cellsize
+    Cellsize = 1. / 3600.; Lon[0] -= Cellsize; Lon[1] += Cellsize; Lat[0] -= Cellsize; Lat[1] += Cellsize
 
-    Cols = [1 + int((Lon[0] + 180.) / 5.), 1 + int((Lon[1] + 180.) / 5.)]
-    Rows = [1 + int(( 60. - Lat[1]) / 5.), 1 + int(( 60. - Lat[0]) / 5.)]
-
-    return CGIAR_Get_Tiles(Cols, Rows, DeleteZip)
+    return DSM_10_Get_Tiles(Lon, Lat, DeleteArchive)
 
 #________________________________________________________________________________
-def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90, DeleteZip=True, Verbose=False):
+def DSM_10_Get_AOI(AOI, Target_File, Target_Resolution=30, DeleteArchive=True, Verbose=False):
     '''
-    Downloads, clips and projects ``SRTM 3arcsec`` data matching the desired area of interest
+    Downloads, clips and projects ``Copernicus DSM 10`` data matching the desired area of interest
     (*AOI*) including the resampling to the specified *Target_Resolution*.
     '''
 
     #____________________________________________________________________________
     def Import_Raster():
         if not AOI or not AOI.is_Valid() or not AOI.Get_Projection().is_Okay():
-            saga_api.SG_UI_Console_Print_StdErr('invalid AOI')
+            saga_api.SG_UI_Console_Print_StdErr(saga_api.CSG_String('invalid AOI'))
             return None
 
         Extent = saga_api.CSG_Rect(AOI.Get_Extent())
@@ -195,7 +204,7 @@ def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90, DeleteZip=True, Verbos
             _AOI.Add_Shape().Add_Point(Extent.Get_XMax   (), Extent.Get_YMin   ())
             _AOI.Add_Shape().Add_Point(Extent.Get_XCenter(), Extent.Get_YMin   ())
             if not saga_api.SG_Get_Projected(_AOI, None, saga_api.CSG_Projections().Get_GCS_WGS84()):
-                del(_AOI); saga_api.SG_UI_Console_Print_StdErr('failed to project AOI to GCS')
+                del(_AOI); saga_api.SG_UI_Console_Print_StdErr(saga_api.CSG_String('failed to project AOI to GCS'))
                 return None
             Extent = _AOI.Get_Extent()#; Extent.Inflate(10 * 3 / 3600, False)
             del(_AOI)
@@ -203,14 +212,14 @@ def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90, DeleteZip=True, Verbos
         Lon = [Extent.Get_XMin(), Extent.Get_XMax()]; Lat=[Extent.Get_YMin(), Extent.Get_YMax()]
 
         #________________________________________________________________________
-        if not CGIAR_Get_Tiles_byExtent([Extent.Get_XMin(), Extent.Get_XMax()], [Extent.Get_YMin(), Extent.Get_YMax()], DeleteZip):
-            saga_api.SG_UI_Console_Print_StdErr('failed to update virtual raster tiles for requested extent')
+        if not DSM_10_Get_Tiles_byExtent([Extent.Get_XMin(), Extent.Get_XMax()], [Extent.Get_YMin(), Extent.Get_YMax()], DeleteArchive):
+            saga_api.SG_UI_Console_Print_StdErr(saga_api.CSG_String('failed to update virtual raster tiles for requested extent'))
             return None
 
         #________________________________________________________________________
         Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('io_gdal', '0')
         if not Tool:
-            saga_api.SG_UI_Console_Print_StdErr('failed to request tool \'{:s}\''.format('Import Raster'))
+            saga_api.SG_UI_Console_Print_StdErr(saga_api.CSG_String('failed to request tool \'{:s}\''.format('Import Raster')))
             return None
 
         Tool.Reset()
@@ -222,7 +231,7 @@ def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90, DeleteZip=True, Verbos
         Tool.Set_Parameter('EXTENT_YMAX', Lat[1])
 
         if not Tool.Execute():
-            saga_api.SG_UI_Console_Print_StdErr('failed to execute tool \'{:s}\''.format(Tool.Get_Name().c_str()))
+            saga_api.SG_UI_Console_Print_StdErr(saga_api.CSG_String('failed to execute tool \'{:s}\''.format(Tool.Get_Name().c_str())))
             return None
 
         Grid = Tool.Get_Parameter('GRIDS').asGridList().Get_Grid(0)
@@ -232,7 +241,7 @@ def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90, DeleteZip=True, Verbos
         #________________________________________________________________________
         Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('pj_proj4', '4')
         if not Tool:
-            saga_api.SG_UI_Console_Print_StdErr('failed to request tool \'{:s}\''.format('Coordinate Transformation (Grid)'))
+            saga_api.SG_UI_Console_Print_StdErr(saga_api.CSG_String('failed to request tool \'{:s}\''.format('Coordinate Transformation (Grid)')))
             saga_api.SG_Get_Data_Manager().Delete(Grid)
             return None
 
@@ -249,7 +258,7 @@ def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90, DeleteZip=True, Verbos
         Tool.Set_Parameter('TARGET_USER_YMIN', AOI.Get_Extent().Get_YMin())
 
         if not Tool.Execute():
-            saga_api.SG_UI_Console_Print_StdErr('failed to execute tool \{:s}\''.format(Tool.Get_Name().c_str()))
+            saga_api.SG_UI_Console_Print_StdErr(saga_api.CSG_String('failed to execute tool \{:s}\''.format(Tool.Get_Name().c_str())))
             saga_api.SG_Get_Data_Manager().Delete(Grid)
             return None
 
@@ -260,7 +269,7 @@ def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90, DeleteZip=True, Verbos
 
     #############################################################################
     #____________________________________________________________________________
-    saga_api.SG_UI_Console_Print_StdOut('processing: {:s}... '.format(Target_File))
+    saga_api.SG_UI_Console_Print_StdOut(saga_api.CSG_String('processing: {:s}... '.format(Target_File)))
 
     if not Verbose:
         saga_api.SG_UI_ProgressAndMsg_Lock(True) # suppress noise
@@ -275,7 +284,7 @@ def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90, DeleteZip=True, Verbos
 
         saga_api.SG_Get_Data_Manager().Delete(Grid) # free memory
 
-        saga_api.SG_UI_Console_Print_StdOut('okay', False)
+        saga_api.SG_UI_Msg_Add('okay', False)
 
     if not Verbose:
         saga_api.SG_UI_ProgressAndMsg_Lock(False)

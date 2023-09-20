@@ -27,7 +27,7 @@
 # Purpose
 #################################################################################
 
-"""
+'''
 The PySAGA.data.chelsa module provides easy-to-use functions for accessing
 ``CHELSA (Climatologies at High resolution for the Earth's Land Surface Areas)``
 global climate data. For more information on the data itself refer to
@@ -38,13 +38,13 @@ installed in order to work. Installation can be done through pip:
     pip install wget
 
 Basic usage:
-    from PySAGA.data import chelsa; from PySAGA import tools
+    import PySAGA.data.chelsa as chelsa, PySAGA.helper as saga_helper
 
     chelsa.Dir_Global = 'C:/chelsa/global'
 
     chelsa.Dir_Target = 'C:/chelsa/germany_utm32n'
 
-    AOI = tools.Get_AOI_From_Extent(279000, 920000, 5235000, 6102000, 32632)
+    AOI = saga_helper.Get_AOI_From_Extent(279000, 920000, 5235000, 6102000, 32632)
 
     chelsa.Get_Climatology('tas'   , AOI)
 
@@ -55,20 +55,21 @@ Basic usage:
     chelsa.Get_Climatology('pr'    , AOI)
 
     chelsa.Get_Climatology('pet'   , AOI)
-
-"""
+'''
 
 
 #################################################################################
+#
 # Globals
 #________________________________________________________________________________
 
-import os; from PySAGA import saga_api
+import os, PySAGA.saga_api as saga_api, PySAGA.data.helper
 
 Dir_Global = os.getcwd() + '/global'
 Dir_Target = os.getcwd() + '/aoi'
 Ext_Target = 'sg-grd-z'
 
+Download_Root = 'https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL'
 Download_Retries = 4
 
 
@@ -96,52 +97,6 @@ def _Variable_File_Suffix(Variable):
 
 #################################################################################
 #
-# Providing the original CHELSA files...
-#________________________________________________________________________________
-
-#________________________________________________________________________________
-# This function checks if the requested 'File' exists in 'Local_Dir' and if not
-# it tries to download the file from 'Remote_Dir'. The function returns the file
-# path to the requested data set if it exists in 'Local_Dir' or 'None'.
-#________________________________________________________________________________
-def Get_Global_File(File, Local_Dir, Remote_Dir):
-    '''
-    This function checks if the requested 'File' exists in 'Local_Dir' and if not
-    it tries to download the file from 'Remote_Dir'. The function returns the file
-    path to the requested data set if it exists in 'Local_Dir' or 'None'.
-    '''
-
-    if not os.path.exists(Local_Dir):
-        os.makedirs(Local_Dir)
-
-    Local_File = '{:s}/{:s}'.format(Local_Dir, File)
-    if os.path.exists(Local_File):
-        return Local_File
-
-    Remote_Root = 'https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL'
-    Remote_File = '{:s}/{:s}/{:s}'.format(Remote_Root, Remote_Dir, File)
-
-    Retry = Download_Retries
-    if Retry < 0:
-        Retry = 0
-    Retry += 1
-
-    while Retry > 0:
-        try:
-            import wget
-            Local_File = wget.download(Remote_File, Local_Dir) # returns full path to downloaded file or 'None'
-            if Local_File:
-                return Local_File
-            Retry -= 1
-        except: # remote file might not exist or internet connection is not available
-            break
-
-    saga_api.SG_UI_Msg_Add_Error('downloading ' + File)
-    return None
-
-
-#################################################################################
-#
 # Climatologies...
 #________________________________________________________________________________
 
@@ -161,7 +116,7 @@ def Get_Global_Climatology_Month(Variable, Month):
     Local_Dir  = '{:s}/{:s}'.format(Dir_Global, Variable)
     Remote_Dir = 'climatologies/1981-2010/{:s}'.format(Variable)
 
-    return Get_Global_File(File, Local_Dir, Remote_Dir)
+    return PySAGA.data.helper.Get_File(File, Local_Dir, Download_Root + '/' + Remote_Dir, Download_Retries)
 
 #________________________________________________________________________________
 # Get the original file of a variable for all months.
@@ -220,7 +175,7 @@ def Get_Global_Projection(Variable, Month, Period = '2041-2070', Model = 'MPI-ES
     Local_Dir  = '{:s}/{:s}'.format(Dir_Global, Variable)
     Remote_Dir = 'climatologies/{:s}/{:s}/ssp{:s}/{:s}'.format(Period, Model.upper(), SSP, Variable)
 
-    return Get_Global_File(File, Local_Dir, Remote_Dir)
+    return PySAGA.data.helper.Get_File(File, Local_Dir, Download_Root + '/' + Remote_Dir, Download_Retries)
 
 #________________________________________________________________________________
 # Get the original file of a variable for all months.
@@ -277,9 +232,9 @@ def Get_Global_Monthly(Variable, Year, Month):
 
     File       = 'CHELSA_{:s}{:s}_{:02d}_{:04d}_V.2.1.tif'.format(Variable, _Variable_File_Suffix(Variable), Month, Year)
     Local_Dir  = '{:s}/{:s}'.format(Dir_Global, Variable)
-    Remote_Dir = 'monthly/{:s}/'.format(Variable)
+    Remote_Dir = 'monthly/{:s}'.format(Variable)
 
-    return Get_Global_File(File, Local_Dir, Remote_Dir)
+    return PySAGA.data.helper.Get_File(File, Local_Dir, Download_Root + '/' + Remote_Dir, Download_Retries)
 
 #________________________________________________________________________________
 # Get the original file of a variable for the given monthly and year's range.

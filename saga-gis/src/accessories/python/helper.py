@@ -27,12 +27,13 @@
 # Purpose
 #################################################################################
 
-"""
-The PySAGA.tools module provides a collection of general helper functions.
-"""
+'''
+The PySAGA.helper module provides a collection of general helper functions.
+'''
 
 
 #################################################################################
+#
 # Globals
 #________________________________________________________________________________
 
@@ -47,9 +48,10 @@ from PySAGA import saga_api
 #################################################################################
 #________________________________________________________________________________
 def Get_AOI_From_Extent(Xmin, Xmax, Ymin, Ymax, EPSG=4326):
-    """
+    '''
     Create area of interest from extent coordinates and EPSG code for CRS.
-    """
+    '''
+
     AOI = saga_api.CSG_Shapes(saga_api.SHAPE_TYPE_Polygon)
     AOI.Get_Projection().Create(EPSG)
     Shape = AOI.Add_Shape()
@@ -63,10 +65,11 @@ def Get_AOI_From_Extent(Xmin, Xmax, Ymin, Ymax, EPSG=4326):
 #################################################################################
 #________________________________________________________________________________
 def Get_AOI_From_Features(File):
-    """
+    '''
     Create area of interest from file. Expects to represent vector data with CRS
     information set correctly.
-    """
+    '''
+
     AOI = saga_api.SG_Create_Shapes(File)
     if not AOI:
         saga_api.SG_UI_Msg_Add_Error('failed to load AOI from file \n\t\'{:s}\''.format(File))
@@ -83,10 +86,11 @@ def Get_AOI_From_Features(File):
 #################################################################################
 #________________________________________________________________________________
 def Get_AOI_From_Raster(File):
-    """
+    '''
     Create area of interest from file. Expects to represent raster data with CRS
     information set correctly.
-    """
+    '''
+
     Grid = saga_api.SG_Create_Grid(File)
     if not Grid:
         saga_api.SG_UI_Msg_Add_Error('failed to load AOI from file \n\t\'{:s}\''.format(File))
@@ -106,6 +110,53 @@ def Get_AOI_From_Raster(File):
     Shape.Add_Point(Grid.Get_XMax(), Grid.Get_YMin())
     del(Grid)
     return AOI
+
+
+#################################################################################
+#
+# Virtual Raster Tiles...
+#________________________________________________________________________________
+
+#################################################################################
+#________________________________________________________________________________
+def Get_VRT(Directory, Extension = 'tif', VRT_Name = 'tiles', VRT_Folder = None):
+    '''
+    This function creates or updates the virtual raster (VRT) file named 'File'
+    using all raster tiles with specified *Extension* found in *Directory*.
+    If *VRT_Folder* is None resulting VRT file will be stored in the same directory
+    as the tiles.
+    Returns the full file path to the VRT file on success or None otherwise.
+    '''
+
+    import glob; Files = glob.glob('{:s}/*.{:s}'.format(Directory, Extension))
+    if len(Files) < 1:
+        saga_api.SG_UI_Console_Print_StdErr('directory \'{:s}\' does not contain any file with extension \'{:s}\'!'.format(Directory, Extension))
+        return None
+
+    Tiles = ''
+    for File in Files:
+        Tiles += '\"{:s}\" '.format(File)
+
+    Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('io_gdal', '12')
+    if not Tool:
+        saga_api.SG_UI_Console_Print_StdErr('Failed to request tool: Create Virtual Raster (VRT)')
+        return None
+
+    if not VRT_Folder:
+        VRT_Folder = Directory
+
+    Tool.Reset()
+    Tool.Set_Parameter('FILES'   , Tiles)
+    Tool.Set_Parameter('VRT_NAME', '{:s}/{:s}.vrt'.format(VRT_Folder, VRT_Name))
+
+    saga_api.SG_UI_ProgressAndMsg_Lock(True)
+    if not Tool.Execute():
+        saga_api.SG_UI_ProgressAndMsg_Lock(False)
+        saga_api.SG_UI_Console_Print_StdErr('failed to execute tool: ' + Tool.Get_Name().c_str())
+        return None
+
+    saga_api.SG_UI_ProgressAndMsg_Lock(False)
+    return Tool.Get_Parameter("VRT_NAME").asString()
 
 
 #################################################################################
