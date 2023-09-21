@@ -119,7 +119,13 @@ def Get_Tile(Lon, Lat, SrcRes_1arcsec=True, DeleteArchive=True):
         if not Tar_File:
             return -1
 
-    import tarfile; tf = tarfile.TarFile(Tar_File, 'r')
+    import tarfile;
+
+    try:
+        tf = tarfile.TarFile(Tar_File, 'r')
+    except:
+        saga_api.SG_UI_Console_Print_StdErr('failed to open tar file: {:s}'.format(Tar_File))
+        return -1
 
     buf = tf.extractfile('{:s}/DEM/{:s}'.format(DEM_Name, DEM_File))
     if not buf:
