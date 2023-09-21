@@ -71,17 +71,24 @@ def Get_File(File, Local_Dir, Remote_Dir, Download_Retries = 4, Overwrite = Fals
         Retry = 0
     Retry += 1
 
+    try:
+        import wget
+    except:
+        saga_api.SG_UI_Console_Print_StdErr('failed to import wget module! is it installed?')
+        return None
+
     while Retry > 0:
         try:
             import wget
             Local_File = wget.download(Remote_File, Local_Dir) # returns full path to downloaded file or 'None'
             if Local_File:
+                saga_api.SG_UI_Console_Print_StdOut('')
                 return Local_File
             Retry -= 1
         except: # remote file might not exist or internet connection is not available
             break
 
-    saga_api.SG_UI_Console_Print_StdErr(saga_api.CSG_String('failed to access remote file: ' + Remote_File))
+    saga_api.SG_UI_Console_Print_StdErr('failed to access remote file: ' + Remote_File)
     return None
 
 
