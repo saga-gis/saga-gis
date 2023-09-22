@@ -130,6 +130,10 @@ public:		///////////////////////////////////////////////
 									CSG_Grids			(const CSG_Grids *pGrids, bool bCopyData = false);
 	virtual bool					Create				(const CSG_Grids *pGrids, bool bCopyData = false);
 
+									CSG_Grids			(const char       *FileName, bool bLoadData = true);
+	virtual bool					Create				(const char       *FileName, bool bLoadData = true);
+									CSG_Grids			(const wchar_t    *FileName, bool bLoadData = true);
+	virtual bool					Create				(const wchar_t    *FileName, bool bLoadData = true);
 									CSG_Grids			(const CSG_String &FileName, bool bLoadData = true);
 	virtual bool					Create				(const CSG_String &FileName, bool bLoadData = true);
 
@@ -567,6 +571,10 @@ SAGA_API_DLL_EXPORT CSG_Grids *		SG_Create_Grids		(const CSG_Grids &Grids);
 /** Safe construction of a grid collection */
 SAGA_API_DLL_EXPORT CSG_Grids *		SG_Create_Grids		(const CSG_Grids *pGrids, bool bCopyData = false);
 
+/** Safe construction of a grid collection */
+SAGA_API_DLL_EXPORT CSG_Grids *		SG_Create_Grids		(const char       *FileName, bool bLoadData = true);
+/** Safe construction of a grid collection */
+SAGA_API_DLL_EXPORT CSG_Grids *		SG_Create_Grids		(const wchar_t    *FileName, bool bLoadData = true);
 /** Safe construction of a grid collection */
 SAGA_API_DLL_EXPORT CSG_Grids *		SG_Create_Grids		(const CSG_String &FileName, bool bLoadData = true);
 

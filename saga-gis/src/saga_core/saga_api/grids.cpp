@@ -84,6 +84,8 @@ CSG_Grids * SG_Create_Grids(const CSG_Grids *_pGrids, bool bCopyData)
 }
 
 //---------------------------------------------------------
+CSG_Grids * SG_Create_Grids(const char       *FileName, bool bLoadData) { return( SG_Create_Grids(CSG_String(FileName), bLoadData) ); }
+CSG_Grids * SG_Create_Grids(const wchar_t    *FileName, bool bLoadData) { return( SG_Create_Grids(CSG_String(FileName), bLoadData) ); }
 CSG_Grids * SG_Create_Grids(const CSG_String &FileName, bool bLoadData)
 {
 	CSG_Grids	*pGrids	= new CSG_Grids(FileName, bLoadData);
@@ -175,12 +177,9 @@ CSG_Grids::CSG_Grids(const CSG_Grids *pGrids, bool bCopyData)
   * Create a grid collection from file.
 */
 //---------------------------------------------------------
-CSG_Grids::CSG_Grids(const CSG_String &FileName, bool bLoadData)
-{
-	_On_Construction();
-
-	Create(FileName, bLoadData);
-}
+CSG_Grids::CSG_Grids(const char       *FileName, bool bLoadData) { _On_Construction(); Create(FileName, bLoadData); }
+CSG_Grids::CSG_Grids(const wchar_t    *FileName, bool bLoadData) { _On_Construction(); Create(FileName, bLoadData); }
+CSG_Grids::CSG_Grids(const CSG_String &FileName, bool bLoadData) { _On_Construction(); Create(FileName, bLoadData); }
 
 //---------------------------------------------------------
 /**
@@ -305,10 +304,9 @@ bool CSG_Grids::Create(const CSG_Grids *pGrids, bool bCopyData)
 }
 
 //---------------------------------------------------------
-bool CSG_Grids::Create(const CSG_String &FileName, bool bLoadData)
-{
-	return( Load(FileName, bLoadData) );
-}
+bool CSG_Grids::Create(const char       *FileName, bool bLoadData) { return( Load(CSG_String(FileName), bLoadData) ); }
+bool CSG_Grids::Create(const wchar_t    *FileName, bool bLoadData) { return( Load(CSG_String(FileName), bLoadData) ); }
+bool CSG_Grids::Create(const CSG_String &FileName, bool bLoadData) { return( Load(           FileName , bLoadData) ); }
 
 //---------------------------------------------------------
 bool CSG_Grids::Create(const CSG_Grid_System &System, int NZ, double zMin, TSG_Data_Type Type)
