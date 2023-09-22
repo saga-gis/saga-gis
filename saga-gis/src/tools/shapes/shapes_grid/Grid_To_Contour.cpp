@@ -69,7 +69,7 @@ CGrid_To_Contour::CGrid_To_Contour(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid("", "GRID", _TL("Grid"), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid  (""        , "GRID"      , _TL("Grid"       ), _TL(""), PARAMETER_INPUT);
 
 	Parameters.Add_Shapes(""        , "CONTOUR"   , _TL("Contour"    ), _TL(""), PARAMETER_OUTPUT         , SHAPE_TYPE_Line   );
 	Parameters.Add_Choice("CONTOUR" , "VERTEX"    , _TL("Vertex Type"), _TL(""), "x, y|x, y, z", 0);
@@ -79,14 +79,25 @@ CGrid_To_Contour::CGrid_To_Contour(void)
 	Parameters.Add_Bool  ("POLYGONS", "POLY_PARTS", _TL("Split Polygon Parts"), _TL(""), false);
 
 	Parameters.Add_Double("",
-		"SCALE"		, _TL("Interpolation Scale"),
+		"SCALE"    , _TL("Interpolation Scale"),
 		_TL("set greater one for line smoothing"),
 		1., 0., true
 	);
 
-	Parameters.Add_Double("", "ZSTEP", _TL("Contour Interval"     ), _TL(""),  100., 0., true);
-	Parameters.Add_Double("", "ZMIN" , _TL("Base Contour Value"   ), _TL(""),    0.);
-	Parameters.Add_Double("", "ZMAX" , _TL("Maximum Contour Value"), _TL(""), 1000.);
+	Parameters.Add_Choice("",
+		"INTERVALS", _TL("Interval Definition"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s",
+			_TL("single value"),
+			_TL("equal intervals"),
+			_TL("from list")
+		), 1
+	);
+
+	Parameters.Add_Double("INTERVALS", "ZMIN" , _TL("Base Contour Value"   ), _TL(""),    0.);
+	Parameters.Add_Double("INTERVALS", "ZMAX" , _TL("Maximum Contour Value"), _TL(""), 1000.);
+	Parameters.Add_Double("INTERVALS", "ZSTEP", _TL("Contour Interval"     ), _TL(""),  100., 0., true);
+	Parameters.Add_String("INTERVALS", "ZLIST", _TL("Contour Values"       ), _TL("List of comma separated values."), "0, 10, 20, 50, 100, 200, 500, 1000");
 }
 
 
@@ -123,9 +134,16 @@ int CGrid_To_Contour::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 //---------------------------------------------------------
 int CGrid_To_Contour::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( pParameter->Cmp_Identifier("ZSTEP") )
+	if( pParameter->Cmp_Identifier("INTERVALS") )
 	{
-		pParameters->Set_Enabled("ZMAX", pParameter->asDouble() > 0.);
+		pParameters->Set_Enabled("ZMIN" , pParameter->asInt() != 2);
+		pParameters->Set_Enabled("ZSTEP", pParameter->asInt() == 1);
+		pParameters->Set_Enabled("ZLIST", pParameter->asInt() == 2);
+	}
+
+	if( pParameter->Cmp_Identifier("INTERVALS") || pParameter->Cmp_Identifier("ZSTEP") )
+	{
+		pParameters->Set_Enabled("ZMAX", (*pParameters)("INTERVALS")->asInt() == 1 && (*pParameters)("ZSTEP")->asDouble() > 0.);
 	}
 
 	if( pParameter->Cmp_Identifier("POLYGONS") )
@@ -145,44 +163,19 @@ int CGrid_To_Contour::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 //---------------------------------------------------------
 bool CGrid_To_Contour::On_Execute(void)
 {
-	m_pGrid      = Parameters("GRID"      )->asGrid  ();
-	m_pContours  = Parameters("CONTOUR"   )->asShapes();
-	m_pPolygons  = Parameters("POLYGONS"  )->asShapes();
-
-	m_bParts     = Parameters("LINE_PARTS")->asBool() && !m_pPolygons;	// only split parts if polygons are not requested
-
-	double zMin	 = Parameters("ZMIN"      )->asDouble();
-	double zMax	 = Parameters("ZMAX"      )->asDouble();
-	double zStep = Parameters("ZSTEP"     )->asDouble();
+	m_pGrid = Parameters("GRID")->asGrid();
 
 	//-----------------------------------------------------
+	m_pContours = Parameters("CONTOUR")->asShapes();
+
 	m_pContours->Create(SHAPE_TYPE_Line, NULL, NULL, Parameters("VERTEX")->asInt() == 0 ? SG_VERTEX_TYPE_XY : SG_VERTEX_TYPE_XYZ);
 
 	m_pContours->Add_Field("ID"   , SG_DATATYPE_Int   );
 	m_pContours->Add_Field("VALUE", SG_DATATYPE_Double);
 
-	if( zStep > 0. )
-	{
-		if( zMin < m_pGrid->Get_Min() )
-		{
-			zMin += zStep * (int)((m_pGrid->Get_Min() - zMin) / zStep);
-		}
-
-		if( zMax > m_pGrid->Get_Max() )
-		{
-			zMax  = m_pGrid->Get_Max();
-		}
-
-		m_pContours->Fmt_Name("%s [%s %s]", m_pGrid->Get_Name(), _TL("Interval"), SG_Get_String(zStep).c_str());
-	}
-	else // just one contour value (zMin)
-	{
-		zStep = 1.; zMax = zMin;
-
-		m_pContours->Fmt_Name("%s [%s %s]", m_pGrid->Get_Name(), _TL("Contour" ), SG_Get_String(zMin ).c_str());
-	}
-
 	//-----------------------------------------------------
+	m_pPolygons = Parameters("POLYGONS")->asShapes();
+
 	if( m_pPolygons )
 	{
 		m_pPolygons->Create(SHAPE_TYPE_Polygon, m_pContours->Get_Name(), NULL,
@@ -193,6 +186,60 @@ bool CGrid_To_Contour::On_Execute(void)
 		m_pPolygons->Add_Field("MIN"  , SG_DATATYPE_Double);
 		m_pPolygons->Add_Field("MAX"  , SG_DATATYPE_Double);
 		m_pPolygons->Add_Field("LABEL", SG_DATATYPE_String);
+	}
+
+	//-----------------------------------------------------
+	CSG_Vector Intervals;
+
+	if( Parameters("INTERVALS")->asInt() == 2 ) // from list
+	{
+		CSG_Strings s = SG_String_Tokenize(Parameters("ZLIST")->asString(), ",;");
+
+		for(int i=0; i<s.Get_Count(); i++)
+		{
+			double Value;
+
+			if( s[i].asDouble(Value) && Value >= m_pGrid->Get_Min() && Value <= m_pGrid->Get_Max() )
+			{
+				Intervals.Add_Row(Value);
+			}
+		}
+
+		m_pContours->Fmt_Name("%s [%s]", m_pGrid->Get_Name(), _TL("Contours"));
+	}
+	else if( Parameters("INTERVALS")->asInt() == 1 && Parameters("ZSTEP")->asDouble() > 0. ) // equal intervals
+	{
+		double Value = Parameters("ZMIN" )->asDouble();
+		double   Max = Parameters("ZMAX" )->asDouble();
+		double  Step = Parameters("ZSTEP")->asDouble();
+
+		for( ; Value<=Max; Value+=Step)
+		{
+			if( Value >= m_pGrid->Get_Min() && Value <= m_pGrid->Get_Max() )
+			{
+				Intervals.Add_Row(Value);
+			}
+		}
+
+		m_pContours->Fmt_Name("%s [%s %s]", m_pGrid->Get_Name(), _TL("Interval"), SG_Get_String(Step).c_str());
+	}
+	else // single value
+	{
+		double Value = Parameters("ZMIN")->asDouble();
+
+		if( Value >= m_pGrid->Get_Min() && Value <= m_pGrid->Get_Max() )
+		{
+			Intervals.Add_Row(Value);
+		}
+
+		m_pContours->Fmt_Name("%s [%s %s]", m_pGrid->Get_Name(), _TL("Contour" ), SG_Get_String(Value).c_str());
+	}
+
+	if( Intervals.Get_Size() == 0 )
+	{
+		Error_Fmt(_TL("requested contour values are out of range"));
+
+		return( false );
 	}
 
 	//-----------------------------------------------------
@@ -213,15 +260,19 @@ bool CGrid_To_Contour::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	m_bParts = Parameters("LINE_PARTS")->asBool() && !m_pPolygons;	// only split parts if polygons are not requested
+
 	m_Edge.Create(SG_DATATYPE_Char, m_pGrid->Get_NX() + 1, m_pGrid->Get_NY() + 1, m_pGrid->Get_Cellsize(), m_pGrid->Get_XMin(), m_pGrid->Get_YMin());
 
-	for(double z=zMin; z<=zMax && Set_Progress(z - zMin, zMax - zMin); z+=zStep)
-	{
-		if( z >= m_pGrid->Get_Min() && z <= m_pGrid->Get_Max() )
-		{
-			Process_Set_Text("%s: %s", _TL("Contour"), SG_Get_String(z, -2).c_str());
+	Intervals.Sort();
 
-			Get_Contour(z);
+	for(int i=0; i<Intervals.Get_N() && Set_Progress(i, Intervals.Get_N()); i++)
+	{
+		if( i == 0 || Intervals[i] != Intervals[i - 1] )
+		{
+			Process_Set_Text("%s: %s", _TL("Contour"), SG_Get_String(Intervals[i], -2).c_str());
+
+			Get_Contour(Intervals[i]);
 		}
 	}
 
