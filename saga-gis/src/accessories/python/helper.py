@@ -161,4 +161,149 @@ def Get_VRT(Directory, Extension = 'tif', VRT_Name = 'tiles', VRT_Folder = None)
 
 #################################################################################
 #
+# SAGA / Python Type Conversations...
+#________________________________________________________________________________
+
+#________________________________________________________________________________
+def CSG_Grids_asPyArray(Grids):
+    Array = []
+    for i in range(0, Grids.Get_Grid_Count()):
+        Array.append(Grids.Get_Grid(i));
+    return Array
+
+
+#################################################################################
+#
+# Tool Execution...
+#________________________________________________________________________________
+
+#########################################
+#
+# class Tool_Wrapper
+#
+#________________________________________
+class Tool_Wrapper:
+    '''
+    The Tool_Wrapper class is smart wrapper for SAGA tools facilitating tool execution.
+    '''
+
+    Tool    = None
+    Manager = None
+    Input   = []
+    Output  = []
+
+    #____________________________________
+    def __init__(self, Library, Tool, Expected):
+        self.Tool = saga_api.SG_Get_Tool_Library_Manager().Create_Tool(Library, Tool)
+        if not self.Tool:
+            saga_api.SG_UI_Msg_Add_Error('failed to request tool: {:s}'.format(Expected))
+        else:
+            self.Manager = saga_api.CSG_Data_Manager()
+            self.Tool.Set_Manager(self.Manager)
+
+    #____________________________________
+    def __del__(self):
+        self.Destroy()
+
+    #____________________________________
+    def Destroy(self):
+        if self.is_Okay():
+            self.Manager.Delete_All(True) # detach only, should be nothing but input!
+            self.Tool.Reset_Manager()
+            saga_api.SG_Get_Tool_Library_Manager().Delete_Tool(self.Tool)
+            del self.Manager
+
+        self.Tool    = None
+        self.Manager = None
+        self.Input .clear()
+        self.Output.clear()
+
+    #____________________________________
+    def is_Okay(self):
+        return self.Tool != None
+
+    #____________________________________
+    def Set_Input(self, ID, Object):
+        if self.is_Okay() and Object:
+            Parameter = self.Tool.Get_Parameter(ID)
+            if Parameter and Parameter.is_Input():
+                if Parameter.is_DataObject():
+                    self.Input.append(Object)
+                    self.Manager.Add(Object)
+                    Parameter.Set_Value(Object)
+                elif Parameter.is_DataObject_List():
+                    for Item in Object:
+                        self.Input.append(Item)
+                        self.Manager.Add(Item)
+                        Parameter.asList().Add_Item(Item)
+
+    #____________________________________
+    def Set_Output(self, ID, Object):
+        if self.is_Okay() and Object != None:
+            Parameter = self.Tool.Get_Parameter(ID)
+            if Parameter and Parameter.is_Output():
+                if Parameter.is_DataObject() and Parameter.is_Optional():
+                    Parameter.Set_Value(saga_api.SG_Get_Create_Pointer())
+                self.Output.append([Object, ID])
+
+    #____________________________________
+    def Set_Option(self, ID, Value):
+        if self.is_Okay() and Value != None:
+            self.Tool.Set_Parameter(ID, Value)
+
+    #____________________________________
+    def Execute(self):
+        def _Copy_Output(Object, Parameter):
+            if Object.Get_ObjectType() == saga_api.SG_DATAOBJECT_TYPE_Grid:
+                Object.asGrid().Create(Parameter.asGrid())
+            if Object.Get_ObjectType() == saga_api.SG_DATAOBJECT_TYPE_Grids:
+                Object.asGrids().Create(Parameter.asGrids())
+            if Object.Get_ObjectType() == saga_api.SG_DATAOBJECT_TYPE_Table:
+                Object.asTable().Create(Parameter.asTable())
+            if Object.Get_ObjectType() == saga_api.SG_DATAOBJECT_TYPE_Shapes:
+                Object.asShapes().Create(Parameter.asShapes())
+            if Object.Get_ObjectType() == saga_api.SG_DATAOBJECT_TYPE_PointCloud:
+                Object.asPointCloud().Create(Parameter.asPointCloud())
+            if Object.Get_ObjectType() == saga_api.SG_DATAOBJECT_TYPE_TIN:
+                Object.asTIN().Create(Parameter.asTIN())
+
+        def _Process_Input(Save):
+            for Object in self.Input:
+                self.Manager.Delete(Object, True)
+
+        def _Process_Output(Save):
+            for Data in self.Output:
+                Parameter = self.Tool.Get_Parameter(Data[1])
+                if Parameter.is_DataObject():
+                    if Parameter.asDataObject() and Parameter.asDataObject() != saga_api.SG_Get_Create_Pointer():
+                        if Save:
+                            _Copy_Output(Data[0], Parameter.asDataObject())
+                        self.Manager.Delete(Parameter.asDataObject(), False)
+                elif Parameter.is_DataObject_List():
+                    for i in range(0, Parameter.asList().Get_Item_Count()):
+                        Item = Parameter.asList().Get_Item(i)
+                        if Save:
+                            Data[0].append(Item)
+                        self.Manager.Delete(Item, Save)
+
+        if self.is_Okay():
+            if self.Tool.Execute():
+                _Process_Output(True)
+                self.Destroy()
+                return True
+
+            saga_api.SG_UI_Msg_Add_Error('failed to execute tool: ' + self.Tool.Get_Name().c_str())
+            _Process_Output(False)
+            self.Destroy()
+        return False
+
+#________________________________________
+#
+# class Tool_Wrapper
+#
+#########################################
+
+
+#################################################################################
+#
 #________________________________________________________________________________
