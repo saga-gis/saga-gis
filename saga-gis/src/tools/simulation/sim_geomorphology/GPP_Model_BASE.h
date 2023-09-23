@@ -297,6 +297,7 @@ public:
 
 	double		Get_Material(void);
 	void		Set_Material(double dMaterial);
+	double		Get_Material_Release(void);
 	void		Deposit_Material(CSG_Grid *pGrid, double dSlope);
 
     void        Evaluate_Damage_Potential(CSG_Grid *pObjectClasses, CSG_Grid *pEndangered);
@@ -310,7 +311,8 @@ private:
 	GRID_CELL				m_gPosition;				// current particle position
 	GRID_CELL				m_gPosition_start;			// start position of particle
 	double					m_dPathLength;				// accumulated process path length
-	double					m_dMaterial;				// available material
+	double					m_dMaterialRelease;			// total amount of material in start cell
+	double					m_dMaterial;				// currently available material
 	double					m_dTanFrictionAngle;		// tangens of friction angle
 	double					m_dFrictionMu;				// friction parameter mu
 	double					m_dFrictionMassToDrag;		// friction parameter M/D
@@ -351,7 +353,6 @@ protected:
 	void		Fill_Sink(CGPP_Model_Particle *pParticle);
 	bool		Detect_Dir_to_Overflow_Cell(CGPP_Model_Particle *pParticle, int &iOverDir, double &dOverflowZ);
 	void		Deposit_Material_On_Stop(CGPP_Model_Particle *pParticle);
-	void		Update_Material_Start_Cell(CGPP_Model_Particle *pParticleStartCell, CGPP_Model_Particle *pParticle, double dMaterial);
 	void		Calc_Path_Deposition(CGPP_Model_Particle *pParticle);
 
 	void		Add_Dataset_Parameters(CSG_Parameters *pParameters);

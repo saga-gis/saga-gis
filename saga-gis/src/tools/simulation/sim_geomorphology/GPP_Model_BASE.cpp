@@ -70,6 +70,7 @@ CGPP_Model_Particle::CGPP_Model_Particle(int iReleaseID, GRID_CELL gPosition, do
 	m_gPosition				= gPosition;
 	m_gPosition_start		= gPosition;
 	m_dPathLength			= 0.0;
+	m_dMaterialRelease		= dMaterial;
 	m_dMaterial				= dMaterial;
 	m_dTanFrictionAngle		= dTanFrictionAngle;
 	m_dFrictionMu			= dFrictionMu;
@@ -215,6 +216,12 @@ double CGPP_Model_Particle::Get_Material(void)
 void CGPP_Model_Particle::Set_Material(double dMaterial)
 {
 	m_dMaterial = dMaterial;
+}
+
+//---------------------------------------------------------
+double CGPP_Model_Particle::Get_Material_Release(void)
+{
+	return( m_dMaterialRelease );
 }
 
 //---------------------------------------------------------
@@ -807,7 +814,7 @@ bool CGPP_Model_BASE::Initialize_Parameters(CSG_Parameters &Parameters)
 	m_PercentInitialDeposit	= Parameters("DEPOSITION_INITIAL")->asDouble() / 100.0;
 	m_dDepSlopeThres		= tan(Parameters("DEPOSITION_SLOPE_THRES")->asDouble() * M_DEG_TO_RAD);
 	m_dDepVelocityThres		= Parameters("DEPOSITION_VELOCITY_THRES")->asDouble();
-	m_PercentMaxDeposit		= Parameters("DEPOSITION_MAX")->asDouble();
+	m_PercentMaxDeposit		= Parameters("DEPOSITION_MAX")->asDouble() / 100.0;
 	m_MinPathLength			= Parameters("DEPOSITION_MIN_PATH")->asDouble();
 
 	m_SinkMinSlope			= tan(Parameters("SINK_MIN_SLOPE")->asDouble() * M_DEG_TO_RAD);
@@ -818,6 +825,13 @@ bool CGPP_Model_BASE::Initialize_Parameters(CSG_Parameters &Parameters)
 		(m_GPP_Friction_Model != GPP_FRICTION_ROCKFALL_VELOCITY && m_GPP_Friction_Model != GPP_FRICTION_PCM_MODEL) )
 	{
 		SG_UI_Msg_Add_Error(_TL("Deposition modelling based on velocity requires an appropriate friction model!"));
+		return( false );
+	}
+
+	//---------------------------------------------------------
+	if( m_GPP_Deposition_Model > GPP_DEPOSITION_NONE && m_pMaterial == NULL )
+	{
+		SG_UI_Msg_Add_Error(_TL("Deposition modelling requires a material grid as input!"));
 		return( false );
 	}
 
@@ -1079,7 +1093,8 @@ void CGPP_Model_BASE::Run_GPP_Model(std::vector<class CGPP_Model_Particle> *pvPr
 					m_pMaxVelocity->Set_Value(Particle.Get_X(), Particle.Get_Y(), Particle.Get_Speed());
 			}
 
-			double	dMaterialRun = Particle.Get_Material() / (m_iIterations - iIter);
+			double	dTotalMaterialLeft	= Particle.Get_Material();
+			double	dMaterialRun		= dTotalMaterialLeft / (m_iIterations - iIter);
 
 			Particle.Set_Material(dMaterialRun);
 
@@ -1090,12 +1105,22 @@ void CGPP_Model_BASE::Run_GPP_Model(std::vector<class CGPP_Model_Particle> *pvPr
 				{
 					break;
 				}
-				
+
+				bool bContinue = Update_Speed(&Particle, &pvProcessingList->at(iParticle));
+
+				if( bContinue )
+				{
+					if( m_GPP_Deposition_Model > GPP_DEPOSITION_ON_STOP && Particle.Get_PathLength() > m_MinPathLength )
+					{
+						Calc_Path_Deposition(&Particle);
+					}
+				}
+
 				if( m_pMaterialFlux != NULL && Particle.Get_Material() > 0.0 )
 				{
-					double dFluxMaterial = pvProcessingList->at(iParticle).Get_Material() / m_iIterations;
+					double dFluxMaterial = Particle.Get_Material_Release() / m_iIterations;
 
-					if (Particle.Get_Material() < dFluxMaterial)
+					if( Particle.Get_Material() < dFluxMaterial )
 					{
 						dFluxMaterial = Particle.Get_Material();
 					}
@@ -1103,14 +1128,9 @@ void CGPP_Model_BASE::Run_GPP_Model(std::vector<class CGPP_Model_Particle> *pvPr
 					m_pMaterialFlux->Add_Value(Particle.Get_X(), Particle.Get_Y(), dFluxMaterial);
 				}
 
-				if( !Update_Speed(&Particle, &pvProcessingList->at(iParticle)) )
+				if( !bContinue )
 				{
 					break;
-				}
-
-				if( m_GPP_Deposition_Model > GPP_DEPOSITION_ON_STOP && Particle.Get_PathLength() > m_MinPathLength )
-				{
-					Calc_Path_Deposition(&Particle);
 				}
 
 				if( (sLong)Particle.Get_Count_Path_Positions() > m_pDEM->Get_NCells() )
@@ -1125,6 +1145,12 @@ void CGPP_Model_BASE::Run_GPP_Model(std::vector<class CGPP_Model_Particle> *pvPr
 					break;
 				}
 			} // while( true )
+
+			if( m_GPP_Deposition_Model > GPP_DEPOSITION_NONE && dMaterialRun > Particle.Get_Material() )
+			{
+				// update material in start cell (amount available for subsequent runs) 
+				pvProcessingList->at(iParticle).Set_Material(dTotalMaterialLeft - (dMaterialRun - Particle.Get_Material()));
+			}
 		} // for iParticle
 	} // for iIteration
 
@@ -1157,19 +1183,13 @@ bool CGPP_Model_BASE::Update_Path(CGPP_Model_Particle *pParticle, double dMateri
 		if( bSink )
 		{
 			Fill_Sink(pParticle);
-
-			Update_Material_Start_Cell(pParticleStartCell, pParticle, dMaterialRun);
 		}
 
 		if( !bEdge && !bSink )
 		{
-			if( m_GPP_Deposition_Model >= GPP_DEPOSITION_ON_STOP )
+			if( m_GPP_Deposition_Model > GPP_DEPOSITION_NONE )
 			{
-				double dMaterialDeposit = pParticle->Get_Material();
-
 				Deposit_Material_On_Stop(pParticle);
-
-				Update_Material_Start_Cell(pParticleStartCell, pParticle, dMaterialDeposit);
 			}
 		}
 
@@ -1649,20 +1669,6 @@ void CGPP_Model_BASE::Deposit_Material_On_Stop(CGPP_Model_Particle *pParticle)
 
 
 //---------------------------------------------------------
-void CGPP_Model_BASE::Update_Material_Start_Cell(CGPP_Model_Particle *pParticleStartCell, CGPP_Model_Particle *pParticle, double dMaterial)
-{
-	if( dMaterial > pParticle->Get_Material() )
-	{
-		double dStartCellMaterial = pParticleStartCell->Get_Material();
-
-		pParticleStartCell->Set_Material(dStartCellMaterial - (dMaterial - pParticle->Get_Material()));
-	}
-
-	return;
-}
-
-
-//---------------------------------------------------------
 void CGPP_Model_BASE::Calc_Path_Deposition(CGPP_Model_Particle *pParticle)
 {
 	//---------------------------------------------------------
@@ -1749,13 +1755,21 @@ bool CGPP_Model_BASE::Update_Speed(CGPP_Model_Particle *pParticle, CGPP_Model_Pa
 			m_pStopPositions->Add_Value(pParticle->Get_X(), pParticle->Get_Y(), 1);
 		}
 
-		if( m_GPP_Deposition_Model >= GPP_DEPOSITION_ON_STOP )
+		if( m_GPP_Deposition_Model > GPP_DEPOSITION_NONE )
 		{
-			double dMaterialDeposit = pParticle->Get_Material();
+			if( m_pMaterialFlux != NULL && pParticle->Get_Material() > 0.0 )
+			{
+				double dFluxMaterial = pParticle->Get_Material_Release() / m_iIterations;
+
+				if( pParticle->Get_Material() < dFluxMaterial )
+				{
+					dFluxMaterial = pParticle->Get_Material();
+				}
+
+				m_pMaterialFlux->Add_Value(pParticle->Get_X(), pParticle->Get_Y(), dFluxMaterial);
+			}
 
 			Deposit_Material_On_Stop(pParticle);
-
-			Update_Material_Start_Cell(pParticleStartCell, pParticle, dMaterialDeposit);
 		}
 
         if( m_pObjects != NULL )

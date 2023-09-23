@@ -77,7 +77,7 @@ CGPP_Model::CGPP_Model(void)
 
 	Set_Author		(SG_T("V. Wichmann (c) 2016-2023"));
 
-    Set_Version     ("1.2");
+    Set_Version     ("1.3");
 
 	Set_Description	(_TW("The Gravitational Process Path (GPP) model can be used to simulate the process path and "
                          "run-out area of gravitational processes based on a digital terrain model (DTM). The "
