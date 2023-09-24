@@ -44,7 +44,7 @@ Basic usage:
 
     copernicus_dem.Dir_Global = 'C:/Copernicus_DSM_10/_global'
 
-    copernicus_dem.DSM_10_Get_AOI(AOI,
+    copernicus_dem.Get_AOI(AOI,
         'C:/Copernicus_DSM_10/germany_utm32n_30m.sg-grd-z'
     )
 '''
