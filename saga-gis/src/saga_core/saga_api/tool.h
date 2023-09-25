@@ -121,6 +121,7 @@ typedef enum
 	TOOL_SCRIPT_CMD_SHELL	= 0,
 	TOOL_SCRIPT_CMD_BATCH,
 	TOOL_SCRIPT_PYTHON,
+	TOOL_SCRIPT_PYTHON_WRAP,
 	TOOL_SCRIPT_CHAIN
 }
 TSG_Tool_Script_Type;
@@ -346,6 +347,9 @@ private:
 
 	CSG_String					_Get_Script_Python			(bool bHeader, bool bAllParameters);
 	void						_Get_Script_Python			(CSG_String &Script, CSG_Parameters *pParameters, bool bAllParameters, const CSG_String &Prefix = "");
+
+	CSG_String					_Get_Script_Python_Wrap		(bool bHeader);
+	bool						_Get_Script_Python_Wrap		(const CSG_Parameter &Parameter, int Constraint, CSG_String &Arguments, CSG_String &Description, CSG_String &Code, const CSG_String &Prefix = "");
 
 	CSG_MetaData				_Get_Output_History			(void);
 	void						_Set_Output_History			(void);

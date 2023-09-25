@@ -1304,10 +1304,11 @@ CSG_String CSG_Tool::Get_Script(TSG_Tool_Script_Type Type, bool bHeader, bool bA
 {
 	switch( Type )
 	{
-	case TOOL_SCRIPT_CMD_SHELL: return( _Get_Script_CMD           (      bHeader, bAllParameters, Type) );
-	case TOOL_SCRIPT_CMD_BATCH: return( _Get_Script_CMD           (      bHeader, bAllParameters, Type) );
-	case TOOL_SCRIPT_PYTHON   : return( _Get_Script_Python        (      bHeader, bAllParameters      ) );
-	case TOOL_SCRIPT_CHAIN    : return( CSG_Tool_Chain::Get_Script(this, bHeader, bAllParameters      ) );
+	case TOOL_SCRIPT_CMD_SHELL  : return( _Get_Script_CMD           (      bHeader, bAllParameters, Type) );
+	case TOOL_SCRIPT_CMD_BATCH  : return( _Get_Script_CMD           (      bHeader, bAllParameters, Type) );
+	case TOOL_SCRIPT_PYTHON     : return( _Get_Script_Python        (      bHeader, bAllParameters      ) );
+	case TOOL_SCRIPT_PYTHON_WRAP: return( _Get_Script_Python_Wrap   (      bHeader                      ) );
+	case TOOL_SCRIPT_CHAIN      : return( CSG_Tool_Chain::Get_Script(this, bHeader, bAllParameters      ) );
 	}
 
 	return( "" );
@@ -1539,7 +1540,17 @@ void CSG_Tool::_Get_Script_CMD(CSG_String &Script, CSG_Parameters *pParameters, 
 //---------------------------------------------------------
 CSG_String CSG_Tool::_Get_Script_Python(bool bHeader, bool bAllParameters)
 {
-	CSG_String	Script, Name(Get_Name()); Name.Replace(" ", "_"); Name.Replace("(", ""); Name.Replace(")", ""); Name.Replace("[", ""); Name.Replace("]", ""); Name.Replace(".", ""); Name.Replace(",", "");
+	CSG_String	Script, Name(Get_Name());
+
+	Name.Replace(" ", "_");
+	Name.Replace("(", "");
+	Name.Replace(")", "");
+	Name.Replace("[", "");
+	Name.Replace("]", "");
+	Name.Replace(".", "");
+	Name.Replace(",", "");
+	Name.Replace("/", "");
+	Name.Replace("-", "");
 
 	//-----------------------------------------------------
 	if( bHeader )
@@ -1679,14 +1690,14 @@ void CSG_Tool::_Get_Script_Python(CSG_String &Script, CSG_Parameters *pParameter
 {
 	for(int iParameter=0; iParameter<pParameters->Get_Count(); iParameter++)
 	{
-		CSG_Parameter	*p	= pParameters->Get_Parameter(iParameter);
+		CSG_Parameter *p = pParameters->Get_Parameter(iParameter);
 
 		if( !bAllParameters && (!p->is_Enabled(false) || p->is_Information() || !p->do_UseInCMD()) )
 		{
 			continue;
 		}
 
-		CSG_String	ID(p->Get_Identifier());
+		CSG_String ID(p->Get_Identifier());
 
 		if( !Prefix.is_Empty() )
 		{
@@ -1796,6 +1807,172 @@ void CSG_Tool::_Get_Script_Python(CSG_String &Script, CSG_Parameters *pParameter
 			break;
 		}
 	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader)
+{
+	CSG_String Arguments, Description, Code;
+
+	for(int i=0; i<Parameters.Get_Count(); i++)	// add input that is not optional in 1st place
+	{
+		_Get_Script_Python_Wrap(Parameters[i], PARAMETER_INPUT, Arguments, Description, Code);
+	}
+
+	for(int i=0; i<Parameters.Get_Count(); i++) // add optional input in 2nd place
+	{
+		_Get_Script_Python_Wrap(Parameters[i], PARAMETER_INPUT_OPTIONAL, Arguments, Description, Code);
+	}
+
+	for(int i=0; i<Parameters.Get_Count(); i++) // add output
+	{
+		_Get_Script_Python_Wrap(Parameters[i], PARAMETER_OUTPUT, Arguments, Description, Code);
+	}
+
+	for(int i=0; i<Parameters.Get_Count(); i++) // add options
+	{
+		_Get_Script_Python_Wrap(Parameters[i], 0, Arguments, Description, Code);
+	}
+
+	//---------------------------------------------------------
+	CSG_String Name(Get_Name());
+
+	Name.Replace(" ", "_");
+	Name.Replace("(", "");
+	Name.Replace(")", "");
+	Name.Replace("[", "");
+	Name.Replace("]", "");
+	Name.Replace(".", "");
+	Name.Replace(",", "");
+	Name.Replace("/", "");
+	Name.Replace("-", "");
+
+	CSG_Strings _Description = SG_String_Tokenize(Get_Description(), "\n");
+
+	//---------------------------------------------------------
+	CSG_String Script;
+
+	if( bHeader )
+	{
+		Script += "#! /usr/bin/env python\n";
+		Script += "from PySAGA.helper import Tool_Wrapper\n\n";
+	}
+
+	Script += "def Run_" + Name + "(" + Arguments + "):\n";
+	Script += "    '''\n";
+	Script += "    Tool: ```" + Get_Name() + "``` (" + Get_Library() + ")\\n\n";
+	for(int i=0; i<_Description.Get_Count(); i++)
+	{
+		Script += "    " + _Description[i] + "\\n\n";
+	}
+	Script += Description;
+	Script += "    '''\n";
+	Script += "    Tool = Tool_Wrapper('" + Get_Library() + "', '" + Get_ID() + "', '" + Get_Name() + "')\n";
+	Script += "    if Tool.is_Okay():\n";
+	Script += Code;
+	Script += "        return Tool.Execute()\n";
+	Script += "    return False\n\n";
+
+	Script += "def Tool__" + Get_Library() + "_" + Get_ID() + "(" + Arguments + "):\n"; Arguments.Replace("=None", "");
+	Script += "    '''Same as calling function Run_" + Name + "(...).'''\n";
+	Script += "    return Run_" + Name + "(" + Arguments + ")\n\n";
+
+	return( Script );
+}
+
+//---------------------------------------------------------
+bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Constraint, CSG_String &Arguments, CSG_String &Description, CSG_String &Code, const CSG_String &Prefix)
+{
+	if( Parameter.do_UseInCMD() == false
+	||  Parameter.is_Information()
+	||  Parameter.Get_Type() == PARAMETER_TYPE_Node
+	||  Parameter.Cmp_Identifier("PARAMETERS_GRID_SYSTEM") )
+	{
+		return( false );
+	}
+
+	CSG_String ID(Parameter.Get_Identifier());
+
+	if( !Prefix.is_Empty() )
+	{
+		ID.Prepend(Prefix + ".");
+	}
+
+	CSG_String Argument(ID); Argument.Replace(".", "_");
+
+	//-----------------------------------------------------
+	if( Parameter.asParameters() ) // PARAMETER_TYPE_Parameters
+	{
+		bool bResult = false;
+
+		for(int i=0; i<(*Parameter.asParameters()).Get_Count(); i++)
+		{
+			if( _Get_Script_Python_Wrap((*Parameter.asParameters())[i], Constraint, Arguments, Description, Code, ID) )
+			{
+				bResult = true;
+			}
+		}
+
+		return( bResult );
+	}
+
+	//-----------------------------------------------------
+	if( Parameter.is_Input () && !Parameter.is_Optional() && Constraint != PARAMETER_INPUT          ) { return( false ); }
+	if( Parameter.is_Input () &&  Parameter.is_Optional() && Constraint != PARAMETER_INPUT_OPTIONAL ) { return( false ); }
+	if( Parameter.is_Output() &&                             Constraint != PARAMETER_OUTPUT         ) { return( false ); }
+	if( Parameter.is_Option() &&                             Constraint != 0                        ) { return( false ); }
+
+	//-----------------------------------------------------
+	if( !Arguments.is_Empty() )
+	{
+		Arguments += ", ";
+	}
+
+	Arguments += Argument;
+
+	if( !(Parameter.is_Input() && !Parameter.is_Optional()) )
+	{
+		Arguments += "=None";
+	}
+
+	//-----------------------------------------------------
+	Code += "        ";
+
+	if( Parameter.is_Input () ) { Code += "Tool.Set_Input "; }
+	if( Parameter.is_Output() ) { Code += "Tool.Set_Output"; }
+	if( Parameter.is_Option() ) { Code += "Tool.Set_Option"; }
+
+	Code += CSG_String::Format("('%s', %s)\n", ID.c_str(), Argument.c_str());
+
+	//-----------------------------------------------------
+	Description += "    " + Argument + ": ```" + Parameter.Get_Name() + "```, ";
+
+	if( Parameter.is_Input() )
+	{
+		Description += Parameter.is_Optional() ? "optional input " : "input ";
+	}
+	else if( Parameter.is_Output() )
+	{
+		Description += "output ";
+	}
+
+	Description += Parameter.Get_Type_Name();
+
+	CSG_String s(Parameter.Get_Description(PARAMETER_DESCRIPTION_PROPERTIES|PARAMETER_DESCRIPTION_TEXT, SG_T(" ")));
+
+	if( !s.is_Empty() )
+	{
+		Description += ". " + s;
+	}
+
+	Description += "\\n\n";
+
+	return( true );
 }
 
 

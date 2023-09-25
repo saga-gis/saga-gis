@@ -587,24 +587,21 @@ CSG_String CSG_Parameter::Get_Description(int Flags)	const
 }
 
 //---------------------------------------------------------
-#define SEPARATE	if( bSeparate )	s.Append(Separator);	bSeparate	= true;
-
-//---------------------------------------------------------
 CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	const
 {
+	#define SEPARATE if( !s.is_Empty() ) { s.Append(Separator); }
+
 	if( !Separator || !Separator[0] )
 	{
 		return( Get_Description(Flags) );
 	}
 
-	bool		bSeparate	= false;
-	int			i;
-	CSG_String	s;
+	CSG_String s;
 
 	//-----------------------------------------------------
 	if( (Flags & PARAMETER_DESCRIPTION_NAME) != 0 )
 	{
-		SEPARATE;	s	+= CSG_String::Format("%s", Get_Name());
+		SEPARATE; s += CSG_String::Format("%s", Get_Name());
 	}
 
 	//-----------------------------------------------------
@@ -614,33 +611,33 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	c
 
 		if( is_DataObject() && Get_Type() == PARAMETER_TYPE_DataObject_Output )
 		{
-			s	+= CSG_String::Format("%s %s", Get_Type_Name().c_str(), SG_Get_DataObject_Name(Get_DataObject_Type()).c_str());
+			s += CSG_String::Format("%s %s", Get_Type_Name().c_str(), SG_Get_DataObject_Name(Get_DataObject_Type()).c_str());
 		}
 		else
 		{
-			s	+= CSG_String::Format("%s", Get_Type_Name().c_str());
+			s += CSG_String::Format("%s", Get_Type_Name().c_str());
 		}
 
 		if( is_DataObject() || is_DataObject_List() )
 		{
-			s	+= CSG_String::Format(", %s", is_Input() ? _TL("input") : _TL("output"));
+			s += CSG_String::Format(", %s", is_Input() ? _TL("input") : _TL("output"));
 
 			if( is_Optional() )
 			{
-				s	+= CSG_String::Format(", %s", _TL("optional"));
+				s += CSG_String::Format(", %s", _TL("optional"));
 			}
 		}
 
 		if( do_UseInGUI() != do_UseInCMD() )
 		{
-			s	+= CSG_String::Format(", %s", do_UseInGUI() ? SG_T("GUI") : SG_T("CMD"));
+			s += CSG_String::Format(", %s", do_UseInGUI() ? SG_T("GUI") : SG_T("CMD"));
 		}
 	}
 
 	//-----------------------------------------------------
 	if( (Flags & PARAMETER_DESCRIPTION_OPTIONAL) != 0 && is_Optional() )
 	{
-		SEPARATE;	s	+= CSG_String::Format("%s", _TL("optional"));
+		SEPARATE; s += CSG_String::Format("%s", _TL("optional"));
 	}
 
 	//-----------------------------------------------------
@@ -653,32 +650,32 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	c
 
 		case PARAMETER_TYPE_Data_Type:
 		case PARAMETER_TYPE_Choice:
-			SEPARATE;	s	+= CSG_String::Format("%s:", _TL("Available Choices"));
+			SEPARATE; s += CSG_String::Format("%s:", _TL("Available Choices"));
 
-			for(i=0; i<asChoice()->Get_Count(); i++)
+			for(int i=0; i<asChoice()->Get_Count(); i++)
 			{
-				s	+= CSG_String::Format("%s[%d] %s", Separator, i, asChoice()->Get_Item(i));
+				s += CSG_String::Format("%s[%d] %s", Separator, i, asChoice()->Get_Item(i));
 			}
 			break;
 
 		case PARAMETER_TYPE_Choices:
-			SEPARATE;	s	+= CSG_String::Format("%s:", _TL("Available Choices"));
+			SEPARATE; s += CSG_String::Format("%s:", _TL("Available Choices"));
 
-			for(i=0; i<asChoices()->Get_Item_Count(); i++)
+			for(int i=0; i<asChoices()->Get_Item_Count(); i++)
 			{
-				s	+= CSG_String::Format("%s[%d] %s", Separator, i, asChoices()->Get_Item(i).c_str());
+				s += CSG_String::Format("%s[%d] %s", Separator, i, asChoices()->Get_Item(i).c_str());
 			}
 			break;
 
 		case PARAMETER_TYPE_Int:
 			if( asValue()->has_Minimum() )
 			{
-				SEPARATE;	s	+= CSG_String::Format("%s: %d", _TL("Minimum"), (int)asValue()->Get_Minimum());
+				SEPARATE; s += CSG_String::Format("%s: %d", _TL("Minimum"), (int)asValue()->Get_Minimum());
 			}
 
 			if( asValue()->has_Maximum() )
 			{
-				SEPARATE;	s	+= CSG_String::Format("%s: %d", _TL("Maximum"), (int)asValue()->Get_Maximum());
+				SEPARATE; s += CSG_String::Format("%s: %d", _TL("Maximum"), (int)asValue()->Get_Maximum());
 			}
 			break;
 
@@ -687,49 +684,49 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	c
 //		case PARAMETER_TYPE_Range:
 			if( asValue()->has_Minimum() )
 			{
-				SEPARATE;	s	+= CSG_String::Format("%s: %f", _TL("Minimum"), asValue()->Get_Minimum());
+				SEPARATE; s += CSG_String::Format("%s: %f", _TL("Minimum"), asValue()->Get_Minimum());
 			}
 
 			if( asValue()->has_Maximum() )
 			{
-				SEPARATE;	s	+= CSG_String::Format("%s: %f", _TL("Maximum"), asValue()->Get_Maximum());
+				SEPARATE; s += CSG_String::Format("%s: %f", _TL("Maximum"), asValue()->Get_Maximum());
 			}
 			break;
 
 		case PARAMETER_TYPE_FixedTable:
 			SEPARATE;	s	+= CSG_String::Format("%d %s:%s", asTable()->Get_Field_Count(), _TL("Fields"), Separator);
 
-			for(i=0; i<asTable()->Get_Field_Count(); i++)
+			for(int i=0; i<asTable()->Get_Field_Count(); i++)
 			{
-				s	+= CSG_String::Format("- %d. [%s] %s%s", i + 1, SG_Data_Type_Get_Name(asTable()->Get_Field_Type(i)).c_str(), asTable()->Get_Field_Name(i), Separator);
+				s += CSG_String::Format("- %d. [%s] %s%s", i + 1, SG_Data_Type_Get_Name(asTable()->Get_Field_Type(i)).c_str(), asTable()->Get_Field_Name(i), Separator);
 			}
 			break;
 
 		case PARAMETER_TYPE_Parameters:
-			SEPARATE;	s	+= CSG_String::Format("%d %s:%s", asParameters()->Get_Count(), _TL("Parameters"), Separator);
+			SEPARATE; s += CSG_String::Format("%d %s:%s", asParameters()->Get_Count(), _TL("Parameters"), Separator);
 
-			for(i=0; i<asParameters()->Get_Count(); i++)
+			for(int i=0; i<asParameters()->Get_Count(); i++)
 			{
-				s	+= CSG_String::Format("- %d. %s%s", i + 1, asParameters()->Get_Parameter(i)->Get_Description(Flags, Separator).c_str(), Separator);
+				s += CSG_String::Format("- %d. %s%s", i + 1, asParameters()->Get_Parameter(i)->Get_Description(Flags, Separator).c_str(), Separator);
 			}
 			break;
 		}
 
 		if( !m_Default.is_Empty() )
 		{
-			SEPARATE;	s	+= CSG_String::Format("%s: %s", _TL("Default"), m_Default.c_str());
+			SEPARATE; s += CSG_String::Format("%s: %s", _TL("Default"), m_Default.c_str());
 		}
 	}
 
 	//-----------------------------------------------------
 	if( (Flags & PARAMETER_DESCRIPTION_TEXT) != 0 && m_Description.Length() > 0 )
 	{
-		SEPARATE;
-
-		s	+= m_Description;
+		SEPARATE; s += m_Description;
 	}
 
 	//-----------------------------------------------------
+	#undef SEPARATE
+
 	return( s );
 }
 

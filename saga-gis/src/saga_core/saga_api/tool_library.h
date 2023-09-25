@@ -188,46 +188,48 @@ public:
 	CSG_Tool_Library_Manager(void);
 	virtual ~CSG_Tool_Library_Manager(void);
 
-	bool						Destroy				(void);
+	bool						Destroy					(void);
 
-	int							Get_Count			(void)	const	{	return( m_nLibraries );	}
-	int							Get_Tool_Count		(void)	const;
+	int							Get_Count				(void)	const	{	return( m_nLibraries );	}
+	int							Get_Tool_Count			(void)	const;
 
-	CSG_Tool_Library *			Add_Library			(const CSG_String &File);
-	CSG_Tool_Library *			Add_Library			(const char       *File);
-	CSG_Tool_Library *			Add_Library			(const wchar_t    *File);
+	CSG_Tool_Library *			Add_Library				(const CSG_String &File);
+	CSG_Tool_Library *			Add_Library				(const char       *File);
+	CSG_Tool_Library *			Add_Library				(const wchar_t    *File);
 
-	int							Add_Directory		(const CSG_String &Directory, bool bOnlySubDirectories = false);
-	int							Add_Directory		(const char       *Directory, bool bOnlySubDirectories = false);
-	int							Add_Directory		(const wchar_t    *Directory, bool bOnlySubDirectories = false);
+	int							Add_Directory			(const CSG_String &Directory, bool bOnlySubDirectories = false);
+	int							Add_Directory			(const char       *Directory, bool bOnlySubDirectories = false);
+	int							Add_Directory			(const wchar_t    *Directory, bool bOnlySubDirectories = false);
 
-	bool						Del_Library			(int i);
-	bool						Del_Library			(CSG_Tool_Library *pLibrary);
+	bool						Del_Library				(int i);
+	bool						Del_Library				(CSG_Tool_Library *pLibrary);
 
-	CSG_Tool_Library *			Get_Library			(int i)	const	{	return( i >= 0 && i < Get_Count() ? m_pLibraries[i] : NULL );	}
-	CSG_Tool_Library *			Get_Library			(const CSG_String &Name, bool bLibrary)	const;
-	CSG_Tool_Library *			Get_Library			(const char       *Name, bool bLibrary)	const;
-	CSG_Tool_Library *			Get_Library			(const wchar_t    *Name, bool bLibrary)	const;
+	CSG_Tool_Library *			Get_Library				(int i)	const	{	return( i >= 0 && i < Get_Count() ? m_pLibraries[i] : NULL );	}
+	CSG_Tool_Library *			Get_Library				(const CSG_String &Name, bool bLibrary)	const;
+	CSG_Tool_Library *			Get_Library				(const char       *Name, bool bLibrary)	const;
+	CSG_Tool_Library *			Get_Library				(const wchar_t    *Name, bool bLibrary)	const;
 
-	bool						is_Loaded			(CSG_Tool_Library *pLibrary)	const;
+	bool						is_Loaded				(CSG_Tool_Library *pLibrary)	const;
 
-	CSG_Tool *					Get_Tool			(const CSG_String &Library, int              Index)	const;
-	CSG_Tool *					Get_Tool			(const char       *Library, int              Index)	const;
-	CSG_Tool *					Get_Tool			(const wchar_t    *Library, int              Index)	const;
-	CSG_Tool *					Get_Tool			(const CSG_String &Library, const CSG_String &Name)	const;
-	CSG_Tool *					Get_Tool			(const char       *Library, const char       *Name)	const;
-	CSG_Tool *					Get_Tool			(const wchar_t    *Library, const wchar_t    *Name)	const;
+	CSG_Tool *					Get_Tool				(const CSG_String &Library, int              Index)	const;
+	CSG_Tool *					Get_Tool				(const char       *Library, int              Index)	const;
+	CSG_Tool *					Get_Tool				(const wchar_t    *Library, int              Index)	const;
+	CSG_Tool *					Get_Tool				(const CSG_String &Library, const CSG_String &Name)	const;
+	CSG_Tool *					Get_Tool				(const char       *Library, const char       *Name)	const;
+	CSG_Tool *					Get_Tool				(const wchar_t    *Library, const wchar_t    *Name)	const;
 
-	CSG_Tool *					Create_Tool			(const CSG_String &Library, int              Index, bool bWithGUI = false)	const;
-	CSG_Tool *					Create_Tool			(const char       *Library, int              Index, bool bWithGUI = false)	const;
-	CSG_Tool *					Create_Tool			(const wchar_t    *Library, int              Index, bool bWithGUI = false)	const;
-	CSG_Tool *					Create_Tool			(const CSG_String &Library, const CSG_String &Name, bool bWithGUI = false)	const;
-	CSG_Tool *					Create_Tool			(const char       *Library, const char       *Name, bool bWithGUI = false)	const;
-	CSG_Tool *					Create_Tool			(const wchar_t    *Library, const wchar_t    *Name, bool bWithGUI = false)	const;
-	bool						Delete_Tool			(CSG_Tool *pTool)	const;
+	CSG_Tool *					Create_Tool				(const CSG_String &Library, int              Index, bool bWithGUI = false)	const;
+	CSG_Tool *					Create_Tool				(const char       *Library, int              Index, bool bWithGUI = false)	const;
+	CSG_Tool *					Create_Tool				(const wchar_t    *Library, int              Index, bool bWithGUI = false)	const;
+	CSG_Tool *					Create_Tool				(const CSG_String &Library, const CSG_String &Name, bool bWithGUI = false)	const;
+	CSG_Tool *					Create_Tool				(const char       *Library, const char       *Name, bool bWithGUI = false)	const;
+	CSG_Tool *					Create_Tool				(const wchar_t    *Library, const wchar_t    *Name, bool bWithGUI = false)	const;
+	bool						Delete_Tool				(CSG_Tool *pTool)	const;
 
-	CSG_String					Get_Summary			(int Format = SG_SUMMARY_FMT_HTML)	const;
-	bool						Get_Summary			(const CSG_String &Path)			const;
+	CSG_String					Get_Summary				(int Format = SG_SUMMARY_FMT_HTML)	const;
+	bool						Get_Summary				(const CSG_String &Path)			const;
+
+	bool						Create_Python_ToolBox	(const CSG_String &Folder, bool bClean = true) const;
 
 
 private:
@@ -237,7 +239,7 @@ private:
 	CSG_Tool_Library			**m_pLibraries;
 
 
-	CSG_Tool_Library *			_Add_Tool_Chain		(const CSG_String &File);
+	CSG_Tool_Library *			_Add_Tool_Chain			(const CSG_String &File);
 
 };
 

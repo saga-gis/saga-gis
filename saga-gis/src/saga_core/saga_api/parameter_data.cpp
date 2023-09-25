@@ -65,48 +65,48 @@ CSG_String SG_Parameter_Type_Get_Name(TSG_Parameter_Type Type)
 {
 	switch( Type )
 	{
-	default                              :	return( _TL("Parameter"       ) );
+	default                              :	return( _TL("parameter"            ) );
 
-	case PARAMETER_TYPE_Node             :	return( _TL("Node"            ) );
+	case PARAMETER_TYPE_Node             :	return( _TL("node"                 ) );
 
-	case PARAMETER_TYPE_Bool             :	return( _TL("Boolean"         ) );
-	case PARAMETER_TYPE_Int              :	return( _TL("Integer"         ) );
-	case PARAMETER_TYPE_Double           :	return( _TL("Floating point"  ) );
-	case PARAMETER_TYPE_Degree           :	return( _TL("Degree"          ) );
-	case PARAMETER_TYPE_Date             :	return( _TL("Date"            ) );
-	case PARAMETER_TYPE_Range            :	return( _TL("Value range"     ) );
-	case PARAMETER_TYPE_Data_Type        :	return( _TL("Data type"       ) );
-	case PARAMETER_TYPE_Choice           :	return( _TL("Choice"          ) );
-	case PARAMETER_TYPE_Choices          :	return( _TL("Choices"         ) );
+	case PARAMETER_TYPE_Bool             :	return( _TL("boolean"              ) );
+	case PARAMETER_TYPE_Int              :	return( _TL("integer number"       ) );
+	case PARAMETER_TYPE_Double           :	return( _TL("floating point number") );
+	case PARAMETER_TYPE_Degree           :	return( _TL("degree"               ) );
+	case PARAMETER_TYPE_Date             :	return( _TL("date"                 ) );
+	case PARAMETER_TYPE_Range            :	return( _TL("value range"          ) );
+	case PARAMETER_TYPE_Data_Type        :	return( _TL("data type"            ) );
+	case PARAMETER_TYPE_Choice           :	return( _TL("choice"               ) );
+	case PARAMETER_TYPE_Choices          :	return( _TL("choices"              ) );
 
-	case PARAMETER_TYPE_String           :	return( _TL("Text"            ) );
-	case PARAMETER_TYPE_Text             :	return( _TL("Long text"       ) );
-	case PARAMETER_TYPE_FilePath         :	return( _TL("File path"       ) );
+	case PARAMETER_TYPE_String           :	return( _TL("text"                 ) );
+	case PARAMETER_TYPE_Text             :	return( _TL("long text"            ) );
+	case PARAMETER_TYPE_FilePath         :	return( _TL("file path"            ) );
 
-	case PARAMETER_TYPE_Font             :	return( _TL("Font"            ) );
-	case PARAMETER_TYPE_Color            :	return( _TL("Color"           ) );
-	case PARAMETER_TYPE_Colors           :	return( _TL("Colors"          ) );
-	case PARAMETER_TYPE_FixedTable       :	return( _TL("Static table"    ) );
-	case PARAMETER_TYPE_Grid_System      :	return( _TL("Grid system"     ) );
-	case PARAMETER_TYPE_Table_Field      :	return( _TL("Table field"     ) );
-	case PARAMETER_TYPE_Table_Fields     :	return( _TL("Table fields"    ) );
+	case PARAMETER_TYPE_Font             :	return( _TL("font"                 ) );
+	case PARAMETER_TYPE_Color            :	return( _TL("color"                ) );
+	case PARAMETER_TYPE_Colors           :	return( _TL("colors"               ) );
+	case PARAMETER_TYPE_FixedTable       :	return( _TL("static table"         ) );
+	case PARAMETER_TYPE_Grid_System      :	return( _TL("grid system"          ) );
+	case PARAMETER_TYPE_Table_Field      :	return( _TL("table field"          ) );
+	case PARAMETER_TYPE_Table_Fields     :	return( _TL("table fields"         ) );
 
-	case PARAMETER_TYPE_DataObject_Output:	return( _TL("Data Object"     ) );
-	case PARAMETER_TYPE_Grid             :	return( _TL("Grid"            ) );
-	case PARAMETER_TYPE_Grids            :	return( _TL("Grids"           ) );
-	case PARAMETER_TYPE_Table            :	return( _TL("Table"           ) );
-	case PARAMETER_TYPE_Shapes           :	return( _TL("Shapes"          ) );
-	case PARAMETER_TYPE_TIN              :	return( _TL("TIN"             ) );
-	case PARAMETER_TYPE_PointCloud       :	return( _TL("Point Cloud"     ) );
+	case PARAMETER_TYPE_DataObject_Output:	return( _TL("data object"          ) );
+	case PARAMETER_TYPE_Grid             :	return( _TL("grid"                 ) );
+	case PARAMETER_TYPE_Grids            :	return( _TL("grid collection"      ) );
+	case PARAMETER_TYPE_Table            :	return( _TL("table"                ) );
+	case PARAMETER_TYPE_Shapes           :	return( _TL("shapes"               ) );
+	case PARAMETER_TYPE_TIN              :	return( _TL("TIN"                  ) );
+	case PARAMETER_TYPE_PointCloud       :	return( _TL("point cloud"          ) );
 
-	case PARAMETER_TYPE_Grid_List        :	return( _TL("Grid list"       ) );
-	case PARAMETER_TYPE_Grids_List       :	return( _TL("Grids list"      ) );
-	case PARAMETER_TYPE_Table_List       :	return( _TL("Table list"      ) );
-	case PARAMETER_TYPE_Shapes_List      :	return( _TL("Shapes list"     ) );
-	case PARAMETER_TYPE_TIN_List         :	return( _TL("TIN list"        ) );
-	case PARAMETER_TYPE_PointCloud_List  :	return( _TL("Point Cloud list") );
+	case PARAMETER_TYPE_Grid_List        :	return( _TL("grid list"            ) );
+	case PARAMETER_TYPE_Grids_List       :	return( _TL("grid collection list" ) );
+	case PARAMETER_TYPE_Table_List       :	return( _TL("table list"           ) );
+	case PARAMETER_TYPE_Shapes_List      :	return( _TL("shapes list"          ) );
+	case PARAMETER_TYPE_TIN_List         :	return( _TL("TIN list"             ) );
+	case PARAMETER_TYPE_PointCloud_List  :	return( _TL("point cloud list"     ) );
 
-	case PARAMETER_TYPE_Parameters       :	return( _TL("Parameters"      ) );
+	case PARAMETER_TYPE_Parameters       :	return( _TL("parameters"           ) );
 	}
 }
 

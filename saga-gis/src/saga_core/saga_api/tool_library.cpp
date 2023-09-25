@@ -337,7 +337,6 @@ int CSG_Tool_Library_Manager::Get_Tool_Count(void)	const
 //---------------------------------------------------------
 CSG_Tool_Library * CSG_Tool_Library_Manager::Add_Library(const CSG_String &File)
 {
-	//-----------------------------------------------------
 	if( !SG_File_Cmp_Extension(File, "mlb"  )
 	&&	!SG_File_Cmp_Extension(File, "dll"  )
 	&&	!SG_File_Cmp_Extension(File, "so"   )
@@ -447,19 +446,18 @@ int CSG_Tool_Library_Manager::Add_Directory(const wchar_t    *Directory, bool bO
 //---------------------------------------------------------
 CSG_Tool_Library * CSG_Tool_Library_Manager::_Add_Tool_Chain(const CSG_String &File)
 {
-	//-----------------------------------------------------
 	if( !SG_File_Cmp_Extension(File, "xml") )
 	{
 		return( NULL );
 	}
 
 	//-----------------------------------------------------
-	CSG_Tool_Chains	*pLibrary	= NULL;
-	CSG_Tool_Chain	*pTool		= NULL;
+	CSG_Tool_Chains *pLibrary = NULL;
+	CSG_Tool_Chain     *pTool = NULL;
 
 	//-----------------------------------------------------
 	{	// is tool chain already loaded ?
-		wxFileName	fn(File.c_str());
+		wxFileName fn(File.c_str());
 
 		for(int iLibrary=0; !pTool && iLibrary<Get_Count(); iLibrary++)
 		{
@@ -469,8 +467,8 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::_Add_Tool_Chain(const CSG_String &F
 				{
 					if( fn == ((CSG_Tool_Chain *)Get_Library(iLibrary)->Get_Tool(iTool))->Get_File_Name().c_str() )
 					{
-						pLibrary	= (CSG_Tool_Chains *)Get_Library(iLibrary);
-						pTool		= (CSG_Tool_Chain  *)Get_Library(iLibrary)->Get_Tool(iTool);
+						pLibrary = (CSG_Tool_Chains *)Get_Library(iLibrary);
+						pTool    = (CSG_Tool_Chain  *)Get_Library(iLibrary)->Get_Tool(iTool);
 					}
 				}
 			}
@@ -492,7 +490,7 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::_Add_Tool_Chain(const CSG_String &F
 	}
 
 	//-----------------------------------------------------
-	pTool	= new CSG_Tool_Chain(File);
+	pTool = new CSG_Tool_Chain(File);
 
 	if( !pTool || !pTool->is_Okay() )
 	{
@@ -505,21 +503,21 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::_Add_Tool_Chain(const CSG_String &F
 	}
 
 	//-----------------------------------------------------
-	CSG_String	Library	= pTool->Get_Library();
+	CSG_String Library = pTool->Get_Library();
 
 	for(int iLibrary=0; !pLibrary && iLibrary<Get_Count(); iLibrary++)
 	{
 		if( Get_Library(iLibrary)->Get_Type() == TOOL_CHAINS
 		&&  Get_Library(iLibrary)->Get_Library_Name().Cmp(Library) == 0 )
 		{
-			pLibrary	= (CSG_Tool_Chains *)Get_Library(iLibrary);
+			pLibrary = (CSG_Tool_Chains *)Get_Library(iLibrary);
 		}
 	}
 
 	if( !pLibrary && (pLibrary = new CSG_Tool_Chains(pTool->Get_Library(), SG_File_Get_Path(File))) != NULL )
 	{
-		m_pLibraries	= (CSG_Tool_Library **)SG_Realloc(m_pLibraries, (m_nLibraries + 1) * sizeof(CSG_Tool_Library *));
-		m_pLibraries[m_nLibraries++]	= pLibrary;
+		m_pLibraries = (CSG_Tool_Library **)SG_Realloc(m_pLibraries, (m_nLibraries + 1) * sizeof(CSG_Tool_Library *));
+		m_pLibraries[m_nLibraries++] = pLibrary;
 	}
 
 	if( !pLibrary )	// this should never happen, but who knows...
@@ -561,8 +559,8 @@ bool CSG_Tool_Library_Manager::Destroy(void)
 
 		SG_Free(m_pLibraries);
 
-		m_pLibraries	= NULL;
-		m_nLibraries	= 0;
+		m_pLibraries = NULL;
+		m_nLibraries = 0;
 	}
 
 	return( true );
@@ -617,7 +615,7 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::Get_Library(const CSG_String &Name,
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
-		CSG_Tool_Library	*pLibrary	= Get_Library(i);
+		CSG_Tool_Library *pLibrary = Get_Library(i);
 
 		if( !Name.Cmp(bLibrary ? pLibrary->Get_Library_Name() : pLibrary->Get_Name()) )
 		{
@@ -708,11 +706,11 @@ CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const CSG_String &Library, cons
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
-		CSG_Tool_Library	*pLibrary	= Get_Library(i);
+		CSG_Tool_Library *pLibrary = Get_Library(i);
 
 		if( pLibrary->Get_Library_Name().Cmp(Library) == 0 )
 		{
-			CSG_Tool	*pTool	= pLibrary->Create_Tool(Name, bWithGUI);
+			CSG_Tool *pTool = pLibrary->Create_Tool(Name, bWithGUI);
 
 			if( pTool )
 			{
@@ -736,6 +734,84 @@ bool CSG_Tool_Library_Manager::Delete_Tool(CSG_Tool *pTool) const
 	}
 
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Folder, bool bClean) const
+{
+	if( !SG_Dir_Exists(Folder) )
+	{
+		SG_UI_Msg_Add_Error(CSG_String::Format("%s: %s", _TL("folder does not exist"), Folder.c_str()));
+
+		return( false );
+	}
+
+	if( bClean )
+	{
+		CSG_Strings Files;
+
+		SG_Dir_List_Files(Files, Folder);
+
+		for(int i=0; i<Files.Get_Count(); i++)
+		{
+			SG_File_Delete(Files[i]);
+		}
+	}
+
+	//-----------------------------------------------------
+	for(int iLibrary=0; iLibrary<Get_Count() && SG_UI_Process_Set_Progress(iLibrary, Get_Count()); iLibrary++)
+	{
+		CSG_Tool_Library *pLibrary = Get_Library(iLibrary);
+
+		if( !pLibrary->Get_Category    ().Cmp("SAGA Development" )	// generally exclude certain categories/libraries
+		||  !pLibrary->Get_Category    ().Cmp("Garden"           )
+		||  !pLibrary->Get_Library_Name().Cmp("vis_3d_viewer"    )
+		||  !pLibrary->Get_Library_Name().Cmp("grid_calculus_bsl")
+		||   pLibrary->Get_Type() == TOOL_CHAINS )
+		{
+			continue;
+		}
+
+		SG_UI_Process_Set_Text(CSG_String::Format("%s: %s", SG_T("Library"), pLibrary->Get_Library_Name().c_str()));
+
+		CSG_String Library(pLibrary->Get_Library_Name());
+
+		CSG_File Stream;
+
+		if( !Stream.Open(SG_File_Make_Path(Folder, Library, "py"), SG_FILE_W, false, SG_FILE_ENCODING_UTF8) )
+		{
+			continue;
+		}
+
+		Stream.Write("#! /usr/bin/env python\n");
+		Stream.Write("from PySAGA.helper import Tool_Wrapper\n\n");
+
+		for(int iTool=0, nAdded=0; iTool<pLibrary->Get_Count(); iTool++)
+		{
+			CSG_Tool *pTool = pLibrary->Get_Tool(iTool);
+
+			if( pTool && pTool != TLB_INTERFACE_SKIP_TOOL && !pTool->needs_GUI() && !pTool->is_Interactive() && pTool->Get_Parameters_Count() == 0 )
+			{
+				CSG_String Function = pTool->Get_Script(TOOL_SCRIPT_PYTHON_WRAP, false);
+
+				if( !Function.is_Empty() )
+				{
+					Stream.Write(Function);
+
+					nAdded++;
+				}
+			}
+		}
+
+		Stream.Close();
+	}
+
+	return( true );
 }
 
 
