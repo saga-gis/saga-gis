@@ -320,13 +320,13 @@ CSG_String CGDAL_Export::Get_File_Name(const CSG_String &Folder, const CSG_Strin
 
 	if( SG_File_Exists(File) && Index > 0 )
 	{
-		CSG_String Filename = CSG_String::Format("%s_%d", Name.c_str(), Index + 1);
+		CSG_String _Name = SG_File_Get_Name(File, false), _Extension = SG_File_Get_Extension(File);
 
-		File = SG_File_Make_Path(Folder, Filename);
+		File = SG_File_Make_Path(Folder, CSG_String::Format("%s_%d", _Name.c_str(), Index));
 
-		if( !Extension.is_Empty() )
+		if( !_Extension.is_Empty() )
 		{
-			File += "." + Extension;
+			File += "." + _Extension;
 		}
 	}
 
