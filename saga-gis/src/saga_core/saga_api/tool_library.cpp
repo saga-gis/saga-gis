@@ -742,24 +742,45 @@ bool CSG_Tool_Library_Manager::Delete_Tool(CSG_Tool *pTool) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Folder, bool bClean) const
+bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Destination, bool bClean, bool bName, bool bSingleFile) const
 {
-	if( !SG_Dir_Exists(Folder) )
+	CSG_File Stream;
+
+	if( bSingleFile )
 	{
-		SG_UI_Msg_Add_Error(CSG_String::Format("%s: %s", _TL("folder does not exist"), Folder.c_str()));
-
-		return( false );
-	}
-
-	if( bClean )
-	{
-		CSG_Strings Files;
-
-		SG_Dir_List_Files(Files, Folder);
-
-		for(int i=0; i<Files.Get_Count(); i++)
+		if( SG_File_Exists(Destination) )
 		{
-			SG_File_Delete(Files[i]);
+			SG_File_Delete(Destination);
+		}
+
+		if( !Stream.Open(Destination, SG_FILE_W, false, SG_FILE_ENCODING_UTF8) )
+		{
+			SG_UI_Msg_Add_Error(CSG_String::Format("%s: %s", _TL("failed to create destination file"), Destination.c_str()));
+
+			return( false );
+		}
+
+		Stream.Write("#! /usr/bin/env python\nfrom PySAGA.helper import Tool_Wrapper\n\n");
+	}
+	else
+	{
+		if( !SG_Dir_Exists(Destination) && !SG_Dir_Create(Destination) )
+		{
+			SG_UI_Msg_Add_Error(CSG_String::Format("%s: %s", _TL("failed to create destination folder"), Destination.c_str()));
+
+			return( false );
+		}
+
+		if( bClean )
+		{
+			CSG_Strings Files;
+
+			SG_Dir_List_Files(Files, Destination);
+
+			for(int i=0; i<Files.Get_Count(); i++)
+			{
+				SG_File_Delete(Files[i]);
+			}
 		}
 	}
 
@@ -768,47 +789,85 @@ bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Folder, b
 	{
 		CSG_Tool_Library *pLibrary = Get_Library(iLibrary);
 
-		if( !pLibrary->Get_Category    ().Cmp("SAGA Development" )	// generally exclude certain categories/libraries
+		if( !pLibrary->Get_Category    ().Cmp("SAGA Development" ) // generally exclude certain categories/libraries
 		||  !pLibrary->Get_Category    ().Cmp("Garden"           )
 		||  !pLibrary->Get_Library_Name().Cmp("vis_3d_viewer"    )
 		||  !pLibrary->Get_Library_Name().Cmp("grid_calculus_bsl")
-		||   pLibrary->Get_Type() == TOOL_CHAINS )
+		||   pLibrary->Get_Type() == TOOL_CHAINS                 ) // exclude tool chains in 1st run
 		{
 			continue;
 		}
 
 		SG_UI_Process_Set_Text(CSG_String::Format("%s: %s", SG_T("Library"), pLibrary->Get_Library_Name().c_str()));
 
-		CSG_String Library(pLibrary->Get_Library_Name());
-
-		CSG_File Stream;
-
-		if( !Stream.Open(SG_File_Make_Path(Folder, Library, "py"), SG_FILE_W, false, SG_FILE_ENCODING_UTF8) )
+		if( !bSingleFile )
 		{
-			continue;
+			if( !Stream.Open(SG_File_Make_Path(Destination, pLibrary->Get_Library_Name(), "py"), SG_FILE_W, false, SG_FILE_ENCODING_UTF8) )
+			{
+				continue;
+			}
+
+			Stream.Write("#! /usr/bin/env python\nfrom PySAGA.helper import Tool_Wrapper\n\n");
 		}
 
-		Stream.Write("#! /usr/bin/env python\n");
-		Stream.Write("from PySAGA.helper import Tool_Wrapper\n\n");
-
-		for(int iTool=0, nAdded=0; iTool<pLibrary->Get_Count(); iTool++)
+		for(int iTool=0; iTool<pLibrary->Get_Count(); iTool++)
 		{
 			CSG_Tool *pTool = pLibrary->Get_Tool(iTool);
 
 			if( pTool && pTool != TLB_INTERFACE_SKIP_TOOL && !pTool->needs_GUI() && !pTool->is_Interactive() && pTool->Get_Parameters_Count() == 0 )
 			{
-				CSG_String Function = pTool->Get_Script(TOOL_SCRIPT_PYTHON_WRAP, false);
+				Stream.Write(pTool->Get_Script(bName ? TOOL_SCRIPT_PYTHON_WRAP_NAME : TOOL_SCRIPT_PYTHON_WRAP_ID, false));
+			}
+		}
+	}
 
-				if( !Function.is_Empty() )
+	//-----------------------------------------------------
+	for(int iLibrary=0; iLibrary<Get_Count() && SG_UI_Process_Set_Progress(iLibrary, Get_Count()); iLibrary++)
+	{
+		CSG_Tool_Library *pLibrary = Get_Library(iLibrary);
+
+		if( !pLibrary->Get_Category().Cmp("SAGA Development" ) // generally exclude certain categories
+		||  !pLibrary->Get_Category().Cmp("Garden"           )
+		||   pLibrary->Get_Type() != TOOL_CHAINS             ) // process tool chains in 2nd run
+		{
+			continue;
+		}
+
+		SG_UI_Process_Set_Text(CSG_String::Format("%s: %s", SG_T("Library"), pLibrary->Get_Library_Name().c_str()));
+
+		if( !bSingleFile )
+		{
+			CSG_String File(SG_File_Make_Path(Destination, pLibrary->Get_Library_Name(), "py"));
+
+			if( SG_File_Exists(File) )
+			{
+				if( !Stream.Open(File, SG_FILE_RW, false, SG_FILE_ENCODING_UTF8) )
 				{
-					Stream.Write(Function);
-
-					nAdded++;
+					continue;
 				}
+
+				Stream.Seek_End();
+			}
+			else
+			{
+				if( !Stream.Open(File, SG_FILE_R, false, SG_FILE_ENCODING_UTF8) )
+				{
+					continue;
+				}
+
+				Stream.Write("#! /usr/bin/env python\nfrom PySAGA.helper import Tool_Wrapper\n\n");
 			}
 		}
 
-		Stream.Close();
+		for(int iTool=0; iTool<pLibrary->Get_Count(); iTool++)
+		{
+			CSG_Tool *pTool = pLibrary->Get_Tool(iTool);
+
+			if( pTool && pTool != TLB_INTERFACE_SKIP_TOOL && !pTool->needs_GUI() && !pTool->is_Interactive() && pTool->Get_Parameters_Count() == 0 )
+			{
+				Stream.Write(pTool->Get_Script(bName ? TOOL_SCRIPT_PYTHON_WRAP_NAME : TOOL_SCRIPT_PYTHON_WRAP_ID, false));
+			}
+		}
 	}
 
 	return( true );

@@ -1304,11 +1304,12 @@ CSG_String CSG_Tool::Get_Script(TSG_Tool_Script_Type Type, bool bHeader, bool bA
 {
 	switch( Type )
 	{
-	case TOOL_SCRIPT_CMD_SHELL  : return( _Get_Script_CMD           (      bHeader, bAllParameters, Type) );
-	case TOOL_SCRIPT_CMD_BATCH  : return( _Get_Script_CMD           (      bHeader, bAllParameters, Type) );
-	case TOOL_SCRIPT_PYTHON     : return( _Get_Script_Python        (      bHeader, bAllParameters      ) );
-	case TOOL_SCRIPT_PYTHON_WRAP: return( _Get_Script_Python_Wrap   (      bHeader                      ) );
-	case TOOL_SCRIPT_CHAIN      : return( CSG_Tool_Chain::Get_Script(this, bHeader, bAllParameters      ) );
+	case TOOL_SCRIPT_CMD_SHELL       : return( _Get_Script_CMD           (      bHeader, bAllParameters, Type) );
+	case TOOL_SCRIPT_CMD_BATCH       : return( _Get_Script_CMD           (      bHeader, bAllParameters, Type) );
+	case TOOL_SCRIPT_PYTHON          : return( _Get_Script_Python        (      bHeader, bAllParameters      ) );
+	case TOOL_SCRIPT_PYTHON_WRAP_NAME: return( _Get_Script_Python_Wrap   (      bHeader, true                ) );
+	case TOOL_SCRIPT_PYTHON_WRAP_ID  : return( _Get_Script_Python_Wrap   (      bHeader, false               ) );
+	case TOOL_SCRIPT_CHAIN           : return( CSG_Tool_Chain::Get_Script(this, bHeader, bAllParameters      ) );
 	}
 
 	return( "" );
@@ -1815,7 +1816,7 @@ void CSG_Tool::_Get_Script_Python(CSG_String &Script, CSG_Parameters *pParameter
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader)
+CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader, bool bName)
 {
 	CSG_String Arguments, Description, Code;
 
@@ -1840,17 +1841,28 @@ CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader)
 	}
 
 	//---------------------------------------------------------
-	CSG_String Name(Get_Name());
+	CSG_String Name;
+	
+	if( bName )
+	{
+		Name = "Run_" + Get_Name();
 
-	Name.Replace(" ", "_");
-	Name.Replace("(", "");
-	Name.Replace(")", "");
-	Name.Replace("[", "");
-	Name.Replace("]", "");
-	Name.Replace(".", "");
-	Name.Replace(",", "");
-	Name.Replace("/", "");
-	Name.Replace("-", "");
+		Name.Replace(" ", "_");
+		Name.Replace("(", "");
+		Name.Replace(")", "");
+		Name.Replace("[", "");
+		Name.Replace("]", "");
+		Name.Replace(".", "");
+		Name.Replace(",", "");
+		Name.Replace("/", "");
+		Name.Replace("-", "");
+	}
+	else
+	{
+		Name = "tool__" + Get_Library() + "_" + Get_ID();
+
+		Name.Replace(" ", "_");
+	}
 
 	CSG_Strings _Description = SG_String_Tokenize(Get_Description(), "\n");
 
@@ -1863,7 +1875,7 @@ CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader)
 		Script += "from PySAGA.helper import Tool_Wrapper\n\n";
 	}
 
-	Script += "def Run_" + Name + "(" + Arguments + "):\n";
+	Script += "def " + Name + "(" + Arguments + "):\n";
 	Script += "    '''\n";
 	Script += "    Tool: ```" + Get_Name() + "``` (" + Get_Library() + ")\\n\n";
 	for(int i=0; i<_Description.Get_Count(); i++)
@@ -1877,10 +1889,6 @@ CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader)
 	Script += Code;
 	Script += "        return Tool.Execute()\n";
 	Script += "    return False\n\n";
-
-	Script += "def Tool__" + Get_Library() + "_" + Get_ID() + "(" + Arguments + "):\n"; Arguments.Replace("=None", "");
-	Script += "    '''Same as calling function Run_" + Name + "(...).'''\n";
-	Script += "    return Run_" + Name + "(" + Arguments + ")\n\n";
 
 	return( Script );
 }
@@ -1933,12 +1941,7 @@ bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Const
 		Arguments += ", ";
 	}
 
-	Arguments += Argument;
-
-	if( !(Parameter.is_Input() && !Parameter.is_Optional()) )
-	{
-		Arguments += "=None";
-	}
+	Arguments += Argument + "=None";
 
 	//-----------------------------------------------------
 	Code += "        ";

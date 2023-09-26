@@ -229,7 +229,7 @@ public:
 	CSG_String					Get_Summary				(int Format = SG_SUMMARY_FMT_HTML)	const;
 	bool						Get_Summary				(const CSG_String &Path)			const;
 
-	bool						Create_Python_ToolBox	(const CSG_String &Folder, bool bClean = true) const;
+	bool						Create_Python_ToolBox	(const CSG_String &Destination, bool bClean = true, bool bName = true, bool bSingleFile = false) const;
 
 
 private:

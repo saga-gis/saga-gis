@@ -401,34 +401,38 @@ bool CWKSP_Tool::Finish(bool bDialog, bool bCloseGUI)
 //---------------------------------------------------------
 void CWKSP_Tool::Save_to_Clipboard(void)
 {
-	wxArrayString	Choices;
+	wxArrayString Choices;
 
-	Choices.Add(_TL("Tool Chain"              ));
-	Choices.Add(_TL("Tool Chain with Header"  ));
-	Choices.Add(_TL("Command Line"            ));
-	Choices.Add(_TL("Command Line with Header"));
-	Choices.Add(_TL("Python"                  ));
-	Choices.Add(_TL("Python with Header"      ));
+	Choices.Add(_TL("Tool Chain"                ));
+	Choices.Add(_TL("Tool Chain with Header"    ));
+	Choices.Add(_TL("Command Line"              ));
+	Choices.Add(_TL("Command Line with Header"  ));
+	Choices.Add(_TL("Python"                    ));
+	Choices.Add(_TL("Python with Header"        ));
+	Choices.Add(_TL("Python Wrapper"            ));
+	Choices.Add(_TL("Python Wrapper with Header"));
 
-	wxSingleChoiceDialog	dlg(MDI_Get_Top_Window(), _TL("Select Format"), _TL("Save to Clipboard"), Choices);
+	wxSingleChoiceDialog dlg(MDI_Get_Top_Window(), _TL("Select Format"), _TL("Save to Clipboard"), Choices);
 
 	if( dlg.ShowModal() == wxID_OK )
 	{
-		CSG_String	Script;
+		CSG_String Script;
 
 		switch( dlg.GetSelection() )
 		{
-		case 0:	Script = m_pTool->Get_Script(TOOL_SCRIPT_CHAIN    , false); break;	// Tool Chain
-		case 1:	Script = m_pTool->Get_Script(TOOL_SCRIPT_CHAIN    ,  true); break;	// Tool Chain with Header
+		case 0: Script = m_pTool->Get_Script(TOOL_SCRIPT_CHAIN           , false); break; // Tool Chain
+		case 1: Script = m_pTool->Get_Script(TOOL_SCRIPT_CHAIN           ,  true); break; // Tool Chain with Header
 		#ifdef _SAGA_MSW
-		case 2:	Script = m_pTool->Get_Script(TOOL_SCRIPT_CMD_BATCH, false); break;	// Command Line
-		case 3:	Script = m_pTool->Get_Script(TOOL_SCRIPT_CMD_BATCH,  true); break;	// Command Line with Header
+		case 2: Script = m_pTool->Get_Script(TOOL_SCRIPT_CMD_BATCH       , false); break; // Command Line
+		case 3: Script = m_pTool->Get_Script(TOOL_SCRIPT_CMD_BATCH       ,  true); break; // Command Line with Header
 		#else
-		case 2:	Script = m_pTool->Get_Script(TOOL_SCRIPT_CMD_SHELL, false); break;	// Command Line
-		case 3:	Script = m_pTool->Get_Script(TOOL_SCRIPT_CMD_SHELL,  true); break;	// Command Line with Header
+		case 2: Script = m_pTool->Get_Script(TOOL_SCRIPT_CMD_SHELL       , false); break; // Command Line
+		case 3: Script = m_pTool->Get_Script(TOOL_SCRIPT_CMD_SHELL       ,  true); break; // Command Line with Header
 		#endif
-		case 4:	Script = m_pTool->Get_Script(TOOL_SCRIPT_PYTHON   , false); break;	// Python
-		case 5:	Script = m_pTool->Get_Script(TOOL_SCRIPT_PYTHON   ,  true); break;	// Python with Header
+		case 4: Script = m_pTool->Get_Script(TOOL_SCRIPT_PYTHON          , false); break; // Python
+		case 5: Script = m_pTool->Get_Script(TOOL_SCRIPT_PYTHON          ,  true); break; // Python with Header
+		case 6: Script = m_pTool->Get_Script(TOOL_SCRIPT_PYTHON_WRAP_NAME, false); break; // Python
+		case 7: Script = m_pTool->Get_Script(TOOL_SCRIPT_PYTHON_WRAP_NAME,  true); break; // Python with Header
 		}
 
 		if( !Script.is_Empty() && wxTheClipboard->Open() )
@@ -443,34 +447,34 @@ void CWKSP_Tool::Save_to_Clipboard(void)
 //---------------------------------------------------------
 void CWKSP_Tool::Save_to_Script(void)
 {
-	wxString	FileName;
+	wxString FileName;
 
 	if( DLG_Save(FileName, _TL("Create Script Command File"), "DOS Batch Script (*.bat)|*.bat|Bash Script (*.sh)|*.sh|Python Script (*.py)|*.py|SAGA Tool Chain (*.xml)|*.xml") )
 	{
-		CSG_String	Script;
+		CSG_String Script;
 
 		if( SG_File_Cmp_Extension(&FileName, "xml") )
 		{
-			Script	= m_pTool->Get_Script(TOOL_SCRIPT_CHAIN    ,  true);
+			Script = m_pTool->Get_Script(TOOL_SCRIPT_CHAIN    ,  true);
 		}
 
 		if( SG_File_Cmp_Extension(&FileName, "bat") )
 		{
-			Script	= m_pTool->Get_Script(TOOL_SCRIPT_CMD_BATCH,  true);
+			Script = m_pTool->Get_Script(TOOL_SCRIPT_CMD_BATCH,  true);
 		}
 
 		if( SG_File_Cmp_Extension(&FileName, "sh") )
 		{
-			Script	= m_pTool->Get_Script(TOOL_SCRIPT_CMD_SHELL, true);
+			Script = m_pTool->Get_Script(TOOL_SCRIPT_CMD_SHELL, true);
 		}
 
 		if( SG_File_Cmp_Extension(&FileName, "py") )
 		{
-			Script	= m_pTool->Get_Script(TOOL_SCRIPT_PYTHON   , true);
+			Script = m_pTool->Get_Script(TOOL_SCRIPT_PYTHON   , true);
 		}
 
 		//-------------------------------------------------
-		CSG_File	File;
+		CSG_File File;
 
 		if( !Script.is_Empty() && File.Open(&FileName, SG_FILE_W, false) )
 		{
