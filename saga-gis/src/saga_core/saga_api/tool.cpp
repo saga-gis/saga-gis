@@ -1841,7 +1841,7 @@ CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader, bool bName)
 	}
 
 	//---------------------------------------------------------
-	CSG_String Name;
+	CSG_String Name, Expected(Get_Name()); Expected.Replace("'", "\\'");
 	
 	if( bName )
 	{
@@ -1856,6 +1856,7 @@ CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader, bool bName)
 		Name.Replace(",", "");
 		Name.Replace("/", "");
 		Name.Replace("-", "");
+		Name.Replace("'", "");
 	}
 	else
 	{
@@ -1884,7 +1885,7 @@ CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader, bool bName)
 	}
 	Script += Description;
 	Script += "    '''\n";
-	Script += "    Tool = Tool_Wrapper('" + Get_Library() + "', '" + Get_ID() + "', '" + Get_Name() + "')\n";
+	Script += "    Tool = Tool_Wrapper('" + Get_Library() + "', '" + Get_ID() + "', '" + Expected + "')\n";
 	Script += "    if Tool.is_Okay():\n";
 	Script += Code;
 	Script += "        return Tool.Execute()\n";

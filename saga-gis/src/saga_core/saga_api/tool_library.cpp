@@ -822,6 +822,18 @@ bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Destinati
 	}
 
 	//-----------------------------------------------------
+	if( !bSingleFile )
+	{
+		CSG_String File(SG_File_Make_Path(Destination, "toolchains", "py"));
+
+		if( !Stream.Open(File, SG_FILE_W, false, SG_FILE_ENCODING_UTF8) )
+		{
+			return( false );
+		}
+
+		Stream.Write("#! /usr/bin/env python\nfrom PySAGA.helper import Tool_Wrapper\n\n");
+	}
+
 	for(int iLibrary=0; iLibrary<Get_Count() && SG_UI_Process_Set_Progress(iLibrary, Get_Count()); iLibrary++)
 	{
 		CSG_Tool_Library *pLibrary = Get_Library(iLibrary);
@@ -835,30 +847,6 @@ bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Destinati
 
 		SG_UI_Process_Set_Text(CSG_String::Format("%s: %s", SG_T("Library"), pLibrary->Get_Library_Name().c_str()));
 
-		if( !bSingleFile )
-		{
-			CSG_String File(SG_File_Make_Path(Destination, pLibrary->Get_Library_Name(), "py"));
-
-			if( SG_File_Exists(File) )
-			{
-				if( !Stream.Open(File, SG_FILE_RW, false, SG_FILE_ENCODING_UTF8) )
-				{
-					continue;
-				}
-
-				Stream.Seek_End();
-			}
-			else
-			{
-				if( !Stream.Open(File, SG_FILE_W, false, SG_FILE_ENCODING_UTF8) )
-				{
-					continue;
-				}
-
-				Stream.Write("#! /usr/bin/env python\nfrom PySAGA.helper import Tool_Wrapper\n\n");
-			}
-		}
-
 		for(int iTool=0; iTool<pLibrary->Get_Count(); iTool++)
 		{
 			CSG_Tool *pTool = pLibrary->Get_Tool(iTool);
@@ -869,6 +857,55 @@ bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Destinati
 			}
 		}
 	}
+
+	//-----------------------------------------------------
+	//for(int iLibrary=0; iLibrary<Get_Count() && SG_UI_Process_Set_Progress(iLibrary, Get_Count()); iLibrary++)
+	//{
+	//	CSG_Tool_Library *pLibrary = Get_Library(iLibrary);
+
+	//	if( !pLibrary->Get_Category().Cmp("SAGA Development" ) // generally exclude certain categories
+	//	||  !pLibrary->Get_Category().Cmp("Garden"           )
+	//	||   pLibrary->Get_Type() != TOOL_CHAINS             ) // process tool chains in 2nd run
+	//	{
+	//		continue;
+	//	}
+
+	//	SG_UI_Process_Set_Text(CSG_String::Format("%s: %s", SG_T("Library"), pLibrary->Get_Library_Name().c_str()));
+
+	//	if( !bSingleFile )
+	//	{
+	//		CSG_String File(SG_File_Make_Path(Destination, pLibrary->Get_Library_Name(), "py"));
+
+	//		if( SG_File_Exists(File) )
+	//		{
+	//			if( !Stream.Open(File, SG_FILE_RW, false, SG_FILE_ENCODING_UTF8) )
+	//			{
+	//				continue;
+	//			}
+
+	//			Stream.Seek_End();
+	//		}
+	//		else
+	//		{
+	//			if( !Stream.Open(File, SG_FILE_W, false, SG_FILE_ENCODING_UTF8) )
+	//			{
+	//				continue;
+	//			}
+
+	//			Stream.Write("#! /usr/bin/env python\nfrom PySAGA.helper import Tool_Wrapper\n\n");
+	//		}
+	//	}
+
+	//	for(int iTool=0; iTool<pLibrary->Get_Count(); iTool++)
+	//	{
+	//		CSG_Tool *pTool = pLibrary->Get_Tool(iTool);
+
+	//		if( pTool && pTool != TLB_INTERFACE_SKIP_TOOL && !pTool->needs_GUI() && !pTool->is_Interactive() && pTool->Get_Parameters_Count() == 0 )
+	//		{
+	//			Stream.Write(pTool->Get_Script(bName ? TOOL_SCRIPT_PYTHON_WRAP_NAME : TOOL_SCRIPT_PYTHON_WRAP_ID, false));
+	//		}
+	//	}
+	//}
 
 	return( true );
 }
