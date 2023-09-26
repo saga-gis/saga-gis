@@ -200,7 +200,7 @@ def Get_Tiles_byExtent(Lon=[-180, 180], Lat=[-90, 90], SrcRes_1arcsec=True, Dele
     return Get_Tiles(Lon, Lat, SrcRes_1arcsec, DeleteArchive)
 
 #________________________________________________________________________________
-def Get_AOI(AOI, Target_File, Target_Resolution=0, SrcRes_1arcsec=True, DeleteArchive=True, Verbose=False):
+def Get_AOI(AOI, Target_File, Target_Resolution=0, Round=True, SrcRes_1arcsec=True, DeleteArchive=True, Verbose=False):
     '''
     Downloads, clips and projects ``Copernicus DSM 10`` data matching the desired area of interest
     (*AOI*) including the resampling to the specified *Target_Resolution*. The *AOI* has to be
@@ -208,17 +208,35 @@ def Get_AOI(AOI, Target_File, Target_Resolution=0, SrcRes_1arcsec=True, DeleteAr
     is in a projected coordinate system (i.e. not geographic coordinates). If *Target_Resolution*
     is zero (the default) the appropriate resolution is chosen according to the selected source data
     resolution. This is controlled with the *SrcRes_1arcsec* flag and refers to either 30 meters
-    (1 arcsec) or 90 meters (3 arcsec).
+    (1 arcsec) or 90 meters (3 arcsec). If the *Round* flag is True the coordinate offset is
+    rounded to match the *Target_Resolution*.
     '''
 
     #____________________________________________________________________________
+    def Round_Extent(Extent, Resolution):
+        if Round:
+            from math import floor, ceil
+            Extent.xMin = Resolution * floor(Extent.xMin / Resolution)
+            Extent.xMax = Resolution * ceil (Extent.xMax / Resolution)
+            Extent.yMin = Resolution * floor(Extent.yMin / Resolution)
+            Extent.yMax = Resolution * ceil (Extent.yMax / Resolution)
+        return True
+
     def Import_Raster():
         if not AOI or not AOI.is_Valid() or not AOI.Get_Projection().is_Okay():
             saga_api.SG_UI_Console_Print_StdErr('invalid AOI')
             return None
 
+        Resolution = Target_Resolution
+        if Resolution <= 0:
+            if SrcRes_1arcsec:
+                Resolution = 30
+            else:
+                Resolution = 90
+
         Extent = saga_api.CSG_Rect(AOI.Get_Extent())
         if not AOI.Get_Projection().is_Geographic():
+            Round_Extent(Extent, Resolution)
             _AOI = saga_api.CSG_Shapes(saga_api.SHAPE_TYPE_Point); _AOI.Get_Projection().Create(AOI.Get_Projection())
             _AOI.Add_Shape().Add_Point(Extent.Get_XMin   (), Extent.Get_YMin   ())
             _AOI.Add_Shape().Add_Point(Extent.Get_XMin   (), Extent.Get_YCenter())
@@ -270,24 +288,20 @@ def Get_AOI(AOI, Target_File, Target_Resolution=0, SrcRes_1arcsec=True, DeleteAr
             saga_api.SG_Get_Data_Manager().Delete(Grid)
             return None
 
-        Resolution = Target_Resolution
-        if Resolution <= 0:
-            if SrcRes_1arcsec:
-                Resolution = 30
-            else:
-                Resolution = 90
+        Extent = saga_api.CSG_Rect(AOI.Get_Extent()); Round_Extent(Extent, Resolution)
 
         Tool.Reset()
-        Tool.Set_Parameter('CRS_METHOD', 0) # 'Proj4 Parameters'
+        Tool.Set_Parameter('CRS_METHOD', 0)  # 'Proj4 Parameters'
         Tool.Set_Parameter('CRS_PROJ4' , AOI.Get_Projection().Get_Proj4())
         Tool.Set_Parameter('SOURCE'    , Grid)
-        Tool.Set_Parameter('KEEP_TYPE' , False)
+        Tool.Set_Parameter('RESAMPLING', 3)  # B-Spline
+        Tool.Set_Parameter('DATA_TYPE' , 10) # Preserve
         Tool.Set_Parameter('TARGET_DEFINITION', 0) # 'user defined'
         Tool.Set_Parameter('TARGET_USER_SIZE', Resolution)
-        Tool.Set_Parameter('TARGET_USER_XMAX', AOI.Get_Extent().Get_XMax())
-        Tool.Set_Parameter('TARGET_USER_XMIN', AOI.Get_Extent().Get_XMin())
-        Tool.Set_Parameter('TARGET_USER_YMAX', AOI.Get_Extent().Get_YMax())
-        Tool.Set_Parameter('TARGET_USER_YMIN', AOI.Get_Extent().Get_YMin())
+        Tool.Set_Parameter('TARGET_USER_XMAX', Extent.xMax)
+        Tool.Set_Parameter('TARGET_USER_XMIN', Extent.xMin)
+        Tool.Set_Parameter('TARGET_USER_YMAX', Extent.yMax)
+        Tool.Set_Parameter('TARGET_USER_YMIN', Extent.yMin)
 
         if not Tool.Execute():
             saga_api.SG_UI_Console_Print_StdErr('failed to execute tool \{:s}\''.format(Tool.Get_Name().c_str()))

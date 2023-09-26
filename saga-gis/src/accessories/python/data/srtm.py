@@ -171,13 +171,22 @@ def CGIAR_Get_Tiles_byExtent(Lon=[-180, 180], Lat=[-60, 60], DeleteZip=True):
     return CGIAR_Get_Tiles(Cols, Rows, DeleteZip)
 
 #________________________________________________________________________________
-def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90, DeleteZip=True, Verbose=False):
+def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90., Round=True, DeleteZip=True, Verbose=False):
     '''
     Downloads, clips and projects ``SRTM 3arcsec`` data matching the desired area of interest
     (*AOI*) including the resampling to the specified *Target_Resolution*.
     '''
 
     #____________________________________________________________________________
+    def Round_Extent(Extent, Resolution):
+        if Round:
+            from math import floor, ceil
+            Extent.xMin = Resolution * floor(Extent.xMin / Resolution)
+            Extent.xMax = Resolution * ceil (Extent.xMax / Resolution)
+            Extent.yMin = Resolution * floor(Extent.yMin / Resolution)
+            Extent.yMax = Resolution * ceil (Extent.yMax / Resolution)
+        return True
+
     def Import_Raster():
         if not AOI or not AOI.is_Valid() or not AOI.Get_Projection().is_Okay():
             saga_api.SG_UI_Console_Print_StdErr('invalid AOI')
@@ -185,6 +194,7 @@ def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90, DeleteZip=True, Verbos
 
         Extent = saga_api.CSG_Rect(AOI.Get_Extent())
         if not AOI.Get_Projection().is_Geographic():
+            Round_Extent(Extent, Target_Resolution)
             _AOI = saga_api.CSG_Shapes(saga_api.SHAPE_TYPE_Point); _AOI.Get_Projection().Create(AOI.Get_Projection())
             _AOI.Add_Shape().Add_Point(Extent.Get_XMin   (), Extent.Get_YMin   ())
             _AOI.Add_Shape().Add_Point(Extent.Get_XMin   (), Extent.Get_YCenter())
@@ -236,17 +246,20 @@ def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90, DeleteZip=True, Verbos
             saga_api.SG_Get_Data_Manager().Delete(Grid)
             return None
 
+        Extent = saga_api.CSG_Rect(AOI.Get_Extent()); Round_Extent(Extent, Target_Resolution)
+
         Tool.Reset()
-        Tool.Set_Parameter('CRS_METHOD', 0) # 'Proj4 Parameters'
+        Tool.Set_Parameter('CRS_METHOD', 0)  # 'Proj4 Parameters'
         Tool.Set_Parameter('CRS_PROJ4' , AOI.Get_Projection().Get_Proj4())
         Tool.Set_Parameter('SOURCE'    , Grid)
-        Tool.Set_Parameter('KEEP_TYPE' , False)
+        Tool.Set_Parameter('RESAMPLING', 3)  # B-Spline
+        Tool.Set_Parameter('DATA_TYPE' , 10) # Preserve
         Tool.Set_Parameter('TARGET_DEFINITION', 0) # 'user defined'
         Tool.Set_Parameter('TARGET_USER_SIZE', Target_Resolution)
-        Tool.Set_Parameter('TARGET_USER_XMAX', AOI.Get_Extent().Get_XMax())
-        Tool.Set_Parameter('TARGET_USER_XMIN', AOI.Get_Extent().Get_XMin())
-        Tool.Set_Parameter('TARGET_USER_YMAX', AOI.Get_Extent().Get_YMax())
-        Tool.Set_Parameter('TARGET_USER_YMIN', AOI.Get_Extent().Get_YMin())
+        Tool.Set_Parameter('TARGET_USER_XMAX', Extent.xMax)
+        Tool.Set_Parameter('TARGET_USER_XMIN', Extent.xMin)
+        Tool.Set_Parameter('TARGET_USER_YMAX', Extent.yMax)
+        Tool.Set_Parameter('TARGET_USER_YMIN', Extent.yMin)
 
         if not Tool.Execute():
             saga_api.SG_UI_Console_Print_StdErr('failed to execute tool \{:s}\''.format(Tool.Get_Name().c_str()))

@@ -278,12 +278,21 @@ def Get_Monthly_Series(Variable, AOI=None, Years=[1980, 2019], Months=[1, 12], b
 #
 # Extract and project a variable to fit the given area of your interest (AOI)...
 #________________________________________________________________________________
-def Get_Variable(Global_File, Target_File, AOI, Scaling=1., Offset=0., Unit=None, bDeleteGlobal=False):
+def Get_Variable(Global_File, Target_File, AOI, Scaling=1., Offset=0., Unit=None, Round=True, bDeleteGlobal=False):
     '''
     Extract and project a variable to fit the given area of your interest (AOI)...
     '''
 
     #____________________________________________________________________________
+    def Round_Extent(Extent, Resolution=1000.):
+        if Round:
+            from math import floor, ceil
+            Extent.xMin = Resolution * floor(Extent.xMin / Resolution)
+            Extent.xMax = Resolution * ceil (Extent.xMax / Resolution)
+            Extent.yMin = Resolution * floor(Extent.yMin / Resolution)
+            Extent.yMax = Resolution * ceil (Extent.yMax / Resolution)
+        return True
+
     def Import_Raster(File, AOI):
         if not AOI or not AOI.is_Valid() or not AOI.Get_Projection().is_Okay():
             saga_api.SG_UI_Msg_Add_Error('invalid AOI')
@@ -291,6 +300,7 @@ def Get_Variable(Global_File, Target_File, AOI, Scaling=1., Offset=0., Unit=None
 
         Extent = saga_api.CSG_Rect(AOI.Get_Extent())
         if not AOI.Get_Projection().is_Geographic():
+            Round_Extent(Extent)
             _AOI = saga_api.CSG_Shapes(saga_api.SHAPE_TYPE_Point); _AOI.Get_Projection().Create(AOI.Get_Projection())
             _AOI.Add_Shape().Add_Point(Extent.Get_XMin   (), Extent.Get_YMin   ())
             _AOI.Add_Shape().Add_Point(Extent.Get_XMin   (), Extent.Get_YCenter())
@@ -339,17 +349,20 @@ def Get_Variable(Global_File, Target_File, AOI, Scaling=1., Offset=0., Unit=None
             saga_api.SG_Get_Data_Manager().Delete(Grid)
             return None
 
+        Extent = saga_api.CSG_Rect(AOI.Get_Extent()); Round_Extent(Extent)
+
         Tool.Reset()
-        Tool.Set_Parameter('CRS_METHOD', 0) # 'Proj4 Parameters'
+        Tool.Set_Parameter('CRS_METHOD', 0)  # 'Proj4 Parameters'
         Tool.Set_Parameter('CRS_PROJ4' , AOI.Get_Projection().Get_Proj4())
         Tool.Set_Parameter('SOURCE'    , Grid)
-        Tool.Set_Parameter('KEEP_TYPE' , False)
+        Tool.Set_Parameter('RESAMPLING', 3)  # B-Spline
+        Tool.Set_Parameter('DATA_TYPE' , 10) # Preserve
         Tool.Set_Parameter('TARGET_DEFINITION', 0) # 'user defined'
-        Tool.Set_Parameter('TARGET_USER_SIZE', 1000)
-        Tool.Set_Parameter('TARGET_USER_XMIN', AOI.Get_Extent().Get_XMin())
-        Tool.Set_Parameter('TARGET_USER_XMAX', AOI.Get_Extent().Get_XMax())
-        Tool.Set_Parameter('TARGET_USER_YMIN', AOI.Get_Extent().Get_YMin())
-        Tool.Set_Parameter('TARGET_USER_YMAX', AOI.Get_Extent().Get_YMax())
+        Tool.Set_Parameter('TARGET_USER_SIZE', 1000.)
+        Tool.Set_Parameter('TARGET_USER_XMAX', Extent.xMax)
+        Tool.Set_Parameter('TARGET_USER_XMIN', Extent.xMin)
+        Tool.Set_Parameter('TARGET_USER_YMAX', Extent.yMax)
+        Tool.Set_Parameter('TARGET_USER_YMIN', Extent.yMin)
 
         if not Tool.Execute():
             saga_api.SG_UI_Msg_Add_Error('failed to execute tool \{:s}\''.format(Tool.Get_Name().c_str()))
