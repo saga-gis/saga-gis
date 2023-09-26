@@ -70,9 +70,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define m_pStream_Base	((wxStreamBase   *)m_pStream)
-#define m_pStream_In	((wxInputStream  *)m_pStream)
-#define m_pStream_Out	((wxOutputStream *)m_pStream)
+#define m_pStream_Base ((wxStreamBase        *)m_pStream)
+#define m_pStream_I    ((wxFFileInputStream  *)m_pStream)
+#define m_pStream_O    ((wxFFileOutputStream *)m_pStream)
+#define m_pStream_IO   ((wxFFileStream       *)m_pStream)
 
 
 ///////////////////////////////////////////////////////////
@@ -224,7 +225,7 @@ sLong CSG_File::Length(void) const
 //---------------------------------------------------------
 bool CSG_File::is_EOF(void)	const
 {
-	return( is_Reading() && m_pStream_In->Eof() );
+	return( is_Reading() && (m_Mode == SG_FILE_R ? m_pStream_I->Eof() : m_pStream_IO->Eof()) );
 }
 
 //---------------------------------------------------------
@@ -232,14 +233,14 @@ bool CSG_File::Seek(sLong Offset, int Origin) const
 {
 	if( m_pStream )
 	{
-		wxSeekMode	Seek = Origin == SG_FILE_CURRENT ? wxFromCurrent : Origin == SG_FILE_END ? wxFromEnd : wxFromStart;
+		wxSeekMode Seek = Origin == SG_FILE_CURRENT ? wxFromCurrent : Origin == SG_FILE_END ? wxFromEnd : wxFromStart;
 
 		switch( m_Mode )
 		{
-		case SG_FILE_R : return( m_pStream_In ->SeekI(Offset, Seek) != wxInvalidOffset );
-		case SG_FILE_W : return( m_pStream_Out->SeekO(Offset, Seek) != wxInvalidOffset );
-		case SG_FILE_RW: return( m_pStream_In ->SeekI(Offset, Seek) != wxInvalidOffset
-							&&   m_pStream_Out->SeekO(Offset, Seek) != wxInvalidOffset );
+		case SG_FILE_R : return( m_pStream_I ->SeekI(Offset, Seek) != wxInvalidOffset );
+		case SG_FILE_W : return( m_pStream_O ->SeekO(Offset, Seek) != wxInvalidOffset );
+		default        : return( m_pStream_IO->SeekI(Offset, Seek) != wxInvalidOffset
+		                      && m_pStream_IO->SeekO(Offset, Seek) != wxInvalidOffset );
 		}
 	}
 
@@ -257,9 +258,9 @@ sLong CSG_File::Tell(void) const
 	{
 		switch( m_Mode )
 		{
-		case SG_FILE_R : return( m_pStream_In ->TellI() );
-		case SG_FILE_W : return( m_pStream_Out->TellO() );
-		case SG_FILE_RW: return( m_pStream_In ->TellI() );
+		case SG_FILE_R : return( m_pStream_I ->TellI() );
+		case SG_FILE_W : return( m_pStream_O ->TellO() );
+		default        : return( m_pStream_IO->TellI() );
 		}
 	}
 
@@ -320,8 +321,9 @@ int CSG_File::Printf(const wchar_t *Format, ...)
 //---------------------------------------------------------
 size_t CSG_File::Read(void *Buffer, size_t Size, size_t Count) const
 {
-	return( !is_Reading() || Size == 0 || Count == 0 ? 0 :
-		m_pStream_In->Read(Buffer, Size * Count).LastRead() / Size
+	return( !is_Reading() || Size == 0 || Count == 0 ? 0 : m_Mode == SG_FILE_R
+		? m_pStream_I ->Read(Buffer, Size * Count).LastRead() / Size
+		: m_pStream_IO->Read(Buffer, Size * Count).LastRead() / Size
 	);
 }
 
@@ -351,8 +353,9 @@ size_t CSG_File::Read(CSG_String &Buffer, size_t Size) const
 //---------------------------------------------------------
 size_t CSG_File::Write(void *Buffer, size_t Size, size_t Count) const
 {
-	return( !is_Writing() || Size == 0 || Count == 0 ? 0 :
-		m_pStream_Out->Write(Buffer, Size * Count).LastWrite()
+	return( !is_Writing() || Size == 0 || Count == 0 ? 0 : m_Mode == SG_FILE_W
+		? m_pStream_O ->Write(Buffer, Size * Count).LastWrite()
+		: m_pStream_IO->Write(Buffer, Size * Count).LastWrite()
 	);
 }
 
@@ -380,18 +383,32 @@ bool CSG_File::Read_Line(CSG_String &sLine)	const
 		return( false );
 	}
 
+	wxString s;
+
 	if( m_pConvert )
 	{
-		wxTextInputStream	Stream(*m_pStream_In, " \t", *((wxMBConv *)m_pConvert));
-
-		wxString	s(Stream.ReadLine());	sLine	= CSG_String(&s);
+		if( m_Mode == SG_FILE_R )
+		{
+			wxTextInputStream Stream(*m_pStream_I , " \t", *((wxMBConv *)m_pConvert)); s = Stream.ReadLine();
+		}
+		else
+		{
+			wxTextInputStream Stream(*m_pStream_IO, " \t", *((wxMBConv *)m_pConvert)); s = Stream.ReadLine();
+		}
 	}
 	else
 	{
-		wxTextInputStream	Stream(*m_pStream_In, " \t");
-
-		wxString	s(Stream.ReadLine());	sLine	= CSG_String(&s);
+		if( m_Mode == SG_FILE_R )
+		{
+			wxTextInputStream Stream(*m_pStream_I , " \t"                           ); s = Stream.ReadLine();
+		}
+		else
+		{
+			wxTextInputStream Stream(*m_pStream_IO, " \t"                           ); s = Stream.ReadLine();
+		}
 	}
+
+	sLine = CSG_String(&s);
 
 	return( !sLine.is_Empty() || !is_EOF() );
 }
@@ -399,13 +416,13 @@ bool CSG_File::Read_Line(CSG_String &sLine)	const
 //---------------------------------------------------------
 int CSG_File::Read_Char(void) const
 {
-	return( !is_Reading() ? 0 : m_pStream_In->GetC() );
+	return( !is_Reading() ? 0 : m_Mode == SG_FILE_R ? m_pStream_I->GetC() : m_pStream_IO->GetC() );
 }
 
 //---------------------------------------------------------
 int CSG_File::Read_Int(bool bByteOrderBig) const
 {
-	int		Value	= 0;
+	int Value = 0;
 
 	if( Read(&Value, sizeof(Value)) == 1 )
 	{
@@ -431,7 +448,7 @@ bool CSG_File::Write_Int(int Value, bool bByteOrderBig)
 //---------------------------------------------------------
 double CSG_File::Read_Double(bool bByteOrderBig) const
 {
-	double	Value	= 0;
+	double Value = 0;
 
 	if( Read(&Value, sizeof(Value)) == 1 )
 	{
@@ -459,17 +476,15 @@ bool CSG_File::Scan(int &Value) const
 {
 	if( is_Reading() )
 	{
-		int		c;
-
-		while( !is_EOF() && isspace(c = Read_Char()) );	// remove leading white space
+		int c; while( !is_EOF() && isspace(c = Read_Char()) ); // remove leading white space
 
 		if( isdigit(c) || strchr("-+", c) )
 		{
-			CSG_String	s	= (char)c;
+			CSG_String s = (char)c;
 
 			while( !is_EOF() && isdigit(c = Read_Char()) )
 			{
-				s	+= (char)c;
+				s += (char)c;
 			}
 
 			return( s.asInt(Value) );
@@ -483,17 +498,15 @@ bool CSG_File::Scan(double &Value) const
 {
 	if( is_Reading() )
 	{
-		int		c;
-
-		while( !is_EOF() && isspace(c = Read_Char()) );	// remove leading white space
+		int c; while( !is_EOF() && isspace(c = Read_Char()) ); // remove leading white space
 
 		if( isdigit(c) || strchr("-+.,eE", c) )
 		{
-			CSG_String	s	= (char)c;
+			CSG_String s = (char)c;
 
 			while( !is_EOF() && (isdigit(c = Read_Char()) || strchr(".,eE", c) || strchr("", c)) )
 			{
-				s	+= (char)c;
+				s += (char)c;
 			}
 
 			return( s.asDouble(Value) );
@@ -509,11 +522,9 @@ bool CSG_File::Scan(CSG_String &Value, SG_Char Separator) const
 	{
 		Value.Clear();
 
-		int		c;
-
-		while( !is_EOF() && (c = Read_Char()) != Separator && c != EOF )
+		int c; while( !is_EOF() && (c = Read_Char()) != Separator && c != EOF )
 		{
-			Value	+= (char)c;
+			Value += (char)c;
 		}
 
 		return( true );
@@ -525,25 +536,17 @@ bool CSG_File::Scan(CSG_String &Value, SG_Char Separator) const
 //---------------------------------------------------------
 int CSG_File::Scan_Int(void) const
 {
-	int		Value;
-
-	return( Scan(Value) ? Value : 0 );
+	int    Value; return( Scan(Value) ? Value : 0   );
 }
 
 double CSG_File::Scan_Double(void) const
 {
-	double	Value;
-
-	return( Scan(Value) ? Value : 0.0 );
+	double Value; return( Scan(Value) ? Value : 0.0 );
 }
 
 CSG_String CSG_File::Scan_String(SG_Char Separator) const
 {
-	CSG_String	Value;
-
-	Scan(Value, Separator);
-
-	return( Value );
+	CSG_String Value; Scan(Value, Separator); return( Value );
 }
 
 
