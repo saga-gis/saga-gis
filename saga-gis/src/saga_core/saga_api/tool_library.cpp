@@ -850,7 +850,7 @@ bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Destinati
 			}
 			else
 			{
-				if( !Stream.Open(File, SG_FILE_R, false, SG_FILE_ENCODING_UTF8) )
+				if( !Stream.Open(File, SG_FILE_W, false, SG_FILE_ENCODING_UTF8) )
 				{
 					continue;
 				}
