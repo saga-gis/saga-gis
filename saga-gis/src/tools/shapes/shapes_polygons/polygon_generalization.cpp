@@ -213,8 +213,21 @@ bool CPolygon_Generalization::Set_JoinTos(CSG_Shapes *pPolygons)
 			CSG_Shape_Polygon *pJoinTo = (CSG_Shape_Polygon *)pPolygons->Get_Shape(JoinTo[i]);
 			CSG_Shape_Polygon *pRemove = (CSG_Shape_Polygon *)pPolygons->Get_Shape(       i );
 
+			for(int iPart=0; iPart<pJoinTo->Get_Part_Count(); iPart++)
+			{
+				if( pJoinTo->is_Lake(iPart) == pJoinTo->is_Clockwise(iPart) )
+				{
+					pJoinTo->Revert_Points(iPart);
+				}
+			}
+
 			for(int iPart=0; iPart<pRemove->Get_Part_Count(); iPart++)
 			{
+				if( pRemove->is_Lake(iPart) == pRemove->is_Clockwise(iPart) )
+				{
+					pRemove->Revert_Points(iPart);
+				}
+
 				pJoinTo->Add_Part(pRemove->Get_Part(iPart));
 			}
 

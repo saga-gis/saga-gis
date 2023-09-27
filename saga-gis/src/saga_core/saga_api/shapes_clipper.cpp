@@ -110,7 +110,7 @@ public:
 	}
 
 	//-----------------------------------------------------
-	static bool	to_Paths	(const CSG_Shape *pShape, Clipper2Lib::PathsD &Paths)
+	static bool	to_Paths	(const CSG_Shape *pShape, Clipper2Lib::PathsD &Paths, bool bCheckOrientation = true)
 	{
 		if( !pShape )
 		{
@@ -123,7 +123,7 @@ public:
 		{
 			if( pShape->Get_Point_Count(iPart) > 0 )
 			{
-				bool bAscending = pShape->Get_Type() != SHAPE_TYPE_Polygon
+				bool bAscending = !bCheckOrientation || pShape->Get_Type() != SHAPE_TYPE_Polygon
 					|| (pShape->asPolygon()->is_Lake     (iPart)
 					==  pShape->asPolygon()->is_Clockwise(iPart));
 
@@ -214,7 +214,7 @@ public:
 	{
 		Clipper2Lib::PathsD Subject, Solution;
 
-		if(	to_Paths(pShape, Subject) )
+		if(	to_Paths(pShape, Subject, false) )
 		{
 			Clipper2Lib::ClipperD Clipper(m_Precision);
 

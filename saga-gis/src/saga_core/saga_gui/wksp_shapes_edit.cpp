@@ -541,18 +541,31 @@ bool CWKSP_Shapes::_Edit_Merge(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Shape	*pMerged	= Get_Shapes()->Get_Selection(0);
+	CSG_Shape *pMerged = Get_Shapes()->Get_Selection(0);
+
+	if( pMerged->asPolygon() )
+	{
+		for(int iPart=0; iPart<pMerged->Get_Part_Count(); iPart++)
+		{
+			if( pMerged->asPolygon()->is_Lake(iPart) == pMerged->asPolygon()->is_Clockwise(iPart) )
+			{
+				pMerged->asPolygon()->Revert_Points(iPart);
+			}
+		}
+	}
 
 	for(sLong i=1; i<Get_Shapes()->Get_Selection_Count(); i++)
 	{
-		CSG_Shape	*pShape	= Get_Shapes()->Get_Selection(i);
+		CSG_Shape *pShape = Get_Shapes()->Get_Selection(i);
 
 		for(int iPart=0, jPart=pMerged->Get_Part_Count(); iPart<pShape->Get_Part_Count(); iPart++, jPart++)
 		{
-			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+			if( pShape->asPolygon()->is_Lake(iPart) == pShape->asPolygon()->is_Clockwise(iPart) )
 			{
-				pMerged->Add_Point(pShape->Get_Point(iPoint, iPart), jPart);
+				pShape->Revert_Points(iPart);
 			}
+
+			pMerged->Add_Part(pShape->Get_Part(iPart));
 		}
 	}
 
