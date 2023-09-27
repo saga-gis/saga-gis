@@ -560,7 +560,7 @@ bool CWKSP_Shapes::_Edit_Merge(void)
 
 		for(int iPart=0, jPart=pMerged->Get_Part_Count(); iPart<pShape->Get_Part_Count(); iPart++, jPart++)
 		{
-			if( pShape->asPolygon()->is_Lake(iPart) == pShape->asPolygon()->is_Clockwise(iPart) )
+			if( pShape->asPolygon() && pShape->asPolygon()->is_Lake(iPart) == pShape->asPolygon()->is_Clockwise(iPart) )
 			{
 				pShape->Revert_Points(iPart);
 			}
