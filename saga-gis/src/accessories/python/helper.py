@@ -187,10 +187,9 @@ class Tool_Wrapper:
     The Tool_Wrapper class is smart wrapper for SAGA tools facilitating tool execution.
     '''
 
-    Tool    = None
-    Manager = None
-    Input   = []
-    Output  = []
+    Tool   = None
+    Input  = []
+    Output = []
 
     #____________________________________
     def __init__(self, Library, Tool, Expected):
@@ -198,8 +197,7 @@ class Tool_Wrapper:
         if not self.Tool:
             saga_api.SG_UI_Msg_Add_Error('failed to request tool: {:s}'.format(Expected))
         else:
-            self.Manager = saga_api.CSG_Data_Manager()
-            self.Tool.Set_Manager(self.Manager)
+            self.Tool.Create_Manager()
 
     #____________________________________
     def __del__(self):
@@ -208,13 +206,10 @@ class Tool_Wrapper:
     #____________________________________
     def Destroy(self):
         if self.is_Okay():
-            self.Manager.Delete_All(True) # detach only, should be nothing but input!
-            self.Tool.Reset_Manager()
+            self.Tool.Delete_Manager(True) # detach only, should be nothing but input!
             saga_api.SG_Get_Tool_Library_Manager().Delete_Tool(self.Tool)
-            del self.Manager
 
-        self.Tool    = None
-        self.Manager = None
+        self.Tool = None
         self.Input .clear()
         self.Output.clear()
 
@@ -229,12 +224,12 @@ class Tool_Wrapper:
             if Parameter and Parameter.is_Input():
                 if Parameter.is_DataObject():
                     self.Input.append(Object)
-                    self.Manager.Add(Object)
+                    self.Tool.Get_Manager().Add(Object)
                     Parameter.Set_Value(Object)
                 elif Parameter.is_DataObject_List():
                     for Item in Object:
                         self.Input.append(Item)
-                        self.Manager.Add(Item)
+                        self.Tool.Get_Manager().Add(Item)
                         Parameter.asList().Add_Item(Item)
 
     #____________________________________
@@ -267,10 +262,6 @@ class Tool_Wrapper:
             if Object.Get_ObjectType() == saga_api.SG_DATAOBJECT_TYPE_TIN:
                 Object.asTIN().Create(Parameter.asTIN())
 
-        def _Process_Input(Save):
-            for Object in self.Input:
-                self.Manager.Delete(Object, True)
-
         def _Process_Output(Save):
             for Data in self.Output:
                 Parameter = self.Tool.Get_Parameter(Data[1])
@@ -278,13 +269,13 @@ class Tool_Wrapper:
                     if Parameter.asDataObject() and Parameter.asDataObject() != saga_api.SG_Get_Create_Pointer():
                         if Save:
                             _Copy_Output(Data[0], Parameter.asDataObject())
-                        self.Manager.Delete(Parameter.asDataObject(), False)
+                        self.Tool.Get_Manager().Delete(Parameter.asDataObject(), False)
                 elif Parameter.is_DataObject_List():
                     for i in range(0, Parameter.asList().Get_Item_Count()):
                         Item = Parameter.asList().Get_Item(i)
                         if Save:
                             Data[0].append(Item)
-                        self.Manager.Delete(Item, Save)
+                        self.Tool.Get_Manager().Delete(Item, Save)
 
         if self.is_Okay():
             if self.Tool.Execute():
