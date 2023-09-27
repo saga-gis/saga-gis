@@ -561,9 +561,34 @@ bool CSG_Tool::Set_Manager(CSG_Data_Manager *pManager)
 }
 
 //---------------------------------------------------------
-CSG_Data_Manager *  CSG_Tool::Get_Manager(void)	const
+CSG_Data_Manager * CSG_Tool::Get_Manager(void)	const
 {
 	return( Parameters.Get_Manager() );
+}
+
+//---------------------------------------------------------
+CSG_Data_Manager * CSG_Tool::Create_Manager(void)
+{
+	Set_Manager(new CSG_Data_Manager());
+
+	return( Get_Manager() );
+}
+
+//---------------------------------------------------------
+bool CSG_Tool::Delete_Manager(bool bDetachData, bool bReset)
+{
+	CSG_Data_Manager *pManager = Get_Manager();
+
+	if( pManager && pManager != &SG_Get_Data_Manager() )
+	{
+		pManager->Delete_All(bDetachData);
+
+		delete(pManager);
+
+		return( bReset ? Set_Manager(&SG_Get_Data_Manager()) : Set_Manager(NULL) );
+	}
+
+	return( false );
 }
 
 

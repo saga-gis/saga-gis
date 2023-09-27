@@ -213,6 +213,8 @@ public:
 
 	bool						Set_Manager					(class CSG_Data_Manager *pManager);
 	class CSG_Data_Manager *	Get_Manager					(void)	const;
+	class CSG_Data_Manager *	Create_Manager				(void);
+	bool						Delete_Manager				(bool bDetachData = false, bool bReset = true);
 
 	bool						Set_Grid_System				(const CSG_Grid_System &System);
 	CSG_Grid_System *			Get_Grid_System				(void)	const;
