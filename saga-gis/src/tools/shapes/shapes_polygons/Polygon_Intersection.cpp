@@ -292,7 +292,7 @@ CSG_Shape_Polygon * CPolygon_Overlay::_Add_Polygon(sLong id_A, sLong id_B)
 		{
 			for(int i=0, j=m_bInvert ? m_pB->Get_Field_Count() : 0; i<m_pA->Get_Field_Count() && j<m_pAB->Get_Field_Count(); i++, j++)
 			{
-				if( pOriginal->is_NoData(i) ) pNew->Set_NoData(i); else *pNew->Get_Value(j)	= *pOriginal->Get_Value(i);
+				if( pOriginal->is_NoData(i) ) pNew->Set_NoData(j); else *pNew->Get_Value(j)	= *pOriginal->Get_Value(i);
 			}
 		}
 
@@ -300,7 +300,7 @@ CSG_Shape_Polygon * CPolygon_Overlay::_Add_Polygon(sLong id_A, sLong id_B)
 		{
 			for(int i=0, j=m_bInvert ? 0 : m_pA->Get_Field_Count(); i<m_pB->Get_Field_Count() && j<m_pAB->Get_Field_Count(); i++, j++)
 			{
-				if( pOriginal->is_NoData(i) ) pNew->Set_NoData(i); else *pNew->Get_Value(j)	= *pOriginal->Get_Value(i);
+				if( pOriginal->is_NoData(i) ) pNew->Set_NoData(j); else *pNew->Get_Value(j)	= *pOriginal->Get_Value(i);
 			}
 		}
 	}
