@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchains version="1.0.0">
+	<group>shapes_tools</group>
+	<identifier>shapes_tools</identifier>
+	<name>Shapes Tools</name>
+	<menu>Shapes|Tools</menu>
+	<description>
+		Tools for the manipulation of vector data.
+	</description>
+</toolchains>

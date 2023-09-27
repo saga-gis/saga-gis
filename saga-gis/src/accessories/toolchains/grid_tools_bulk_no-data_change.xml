@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <toolchain saga-version="7.7.0">
-	<group>Grid Tools</group>
-	<identifier>grid_tools_bulk_no-data_change</identifier>
+	<group>grid_tools</group>
+	<identifier>bulk_nodata_change</identifier>
 	<name>Change a Grid's No-Data Value [Bulk Processing]</name>
 	<author>O.Conrad (c) 2020</author>
 	<description>This is the bulk processing version of the likewise named tool for single grid processing.</description>

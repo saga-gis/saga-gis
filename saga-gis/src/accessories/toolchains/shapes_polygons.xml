@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchains version="1.0.0">
+  <group>shapes_polygons</group>
+  <identifier>shapes_polygons</identifier>
+  <name>Polygons</name>
+  <menu>Shapes|Polygons</menu>
+  <description>Tools for polygons.</description>
+</toolchains>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchains version="1.0.0">
+  <group>ta_hydrology</group>
+  <identifier>ta_hydrology</identifier>
+  <name>Hydrologic Terrain Analysis</name>
+  <menu>Terrain Analysis|Hydrology</menu>
+  <description>Tools for hydrology related terrain analysis.</description>
+</toolchains>

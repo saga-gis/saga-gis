@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchains version="1.0.0">
+  <group>grids_tools</group>
+  <identifier>grids_tools</identifier>
+  <name>Grid Collection Tools</name>
+	<menu>Grid Collection|Tools</menu>
+	<description>
+		Tools for grid collections.
+	</description>
+</toolchains>

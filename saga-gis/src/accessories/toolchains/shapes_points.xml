@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchains version="1.0.0">
+  <group>shapes_points</group>
+  <identifier>shapes_points</identifier>
+  <name>Points</name>
+  <menu>Shapes|Points</menu>
+  <description>Tools for polygons.</description>
+</toolchains>

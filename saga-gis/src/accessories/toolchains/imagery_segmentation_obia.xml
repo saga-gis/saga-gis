@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchain saga-version="2.2.4">
+	<group>imagery_segmentation</group>
+	<identifier>obia</identifier>
+	<name>Object Based Image Segmentation</name>
+	<author>O.Conrad (c) 2014</author>
+	<menu absolute="TRUE">Imagery|Segmentation</menu>
+	<description>
+		This [[i]]Object Based Image Segmentation[[/i]] tool chain combines a number of tools for an easy derivation of geo-objects as polygons and is typically applied to satellite imagery. Segmentation is done using a 'Seeded Region Growing Algorithm'. Optionally the resulting polygons can be grouped by an unsupervised classification (k-means cluster analysis) or supervised classification (needs classified feature samples as additional input), both is performed on the basis of zonal feature grid statistics for each polygon object.
+	</description>
+	<reference>
+		<authors>Adams, R. &amp; Bischof, L.</authors>
+		<year>1994</year>
+		<title>Seeded Region Growing</title>
+		<where>IEEE Transactions on Pattern Analysis and Machine Intelligence, Vol.16, No.6, p.641-647.</where>
+	</reference>
+	<reference>
+		<authors>Bechtel, B., Ringeler, A. &amp; Boehner, J.</authors>
+		<year>2008</year>
+		<title>Segmentation for Object Extraction of Trees using MATLAB and SAGA</title>
+		<where>In: Boehner, J., Blaschke, T., Montanarella, L. [Eds.]: SAGA - Seconds Out. Hamburger Beitraege zur Physischen Geographie und Landschaftsoekologie, 19:59-70.</where>
+		<link>http://sourceforge.net/projects/saga-gis/files/SAGA%20-%20Documentation/HBPL19/hbpl19_01.pdf/download?use_mirror=freefr</link>
+		<link_text>online</link_text>
+	</reference>
+  
+	<parameters>
+		<option varname="GRID_SYSTEM" type="grid_system">
+			<name>Grid System</name>
+		</option>
+		<input varname="FEATURES" type="grid_list" parent="GRID_SYSTEM">
+			<name>Features</name>
+		</input>
+		<option varname="NORMALIZE" type="boolean" parent="FEATURES">
+			<name>Normalize</name>
+			<value>FALSE</value>
+		</option>
+		<output varname="OBJECTS" type="shapes">
+			<name>Segments</name>
+			<output_name>Segments</output_name>
+		</output>
+		<option varname="SEEDS_BAND_WIDTH" type="double">
+			<name>Band Width for Seed Point Generation</name>
+			<description>Increase band width to get less seed points.</description>
+			<value>2</value>
+		</option>
+		<option varname="RGA_NEIGHBOUR" type="choice">
+			<name>Neighbourhood</name>
+			<choices>4 (Neumann)|8 (Moore)</choices>
+			<value>0</value>
+		</option>
+		<option varname="RGA_METHOD" type="choice">
+			<name>Distance</name>
+			<choices>feature space and position|feature space</choices>
+			<value>1</value>
+		</option>
+		<option varname="RGA_SIG_1" type="double" parent="RGA_METHOD">
+			<name>Variance in Feature Space</name>
+			<value min="0">1</value>
+		</option>
+		<option varname="RGA_SIG_2" type="double" parent="RGA_METHOD">
+			<condition value="0" type="=">RGA_METHOD</condition>
+			<value min="0">1</value>
+			<name>Variance in Position Space</name>
+		</option>
+		<option varname="RGA_SIMILARITY" type="double" parent="RGA_METHOD">
+			<name>Similarity Threshold</name>
+			<value min="0">0</value>
+		</option>
+		<option varname="MAJORITY_RADIUS" type="integer">
+			<name>Generalization</name>
+			<description>Applies a majority filter with given search radius to the segments grid. Is skipped if set to zero.</description>
+			<value>1</value>
+		</option>
+		<option varname="CLASSIFICATION" type="choice">
+			<name>Classification</name>
+			<choices>none|cluster analysis|supervised classification</choices>
+			<value>0</value>
+		</option>
+		<option varname="SPLIT_POLYGONS" type="choice" parent="CLASSIFICATION">
+			<condition value="0" type="!">CLASSIFICATION</condition>
+			<name>Split Distinct Polygon Parts</name>
+			<choices>no|yes</choices>
+			<value>yes</value>
+		</option>
+		<option varname="NCLUSTER" type="integer" parent="CLASSIFICATION">
+			<condition value="1" type="=">CLASSIFICATION</condition>
+			<name>Number of Clusters</name>
+			<value>10</value>
+		</option>
+		<option varname="CLASSIFIER" type="choice" parent="CLASSIFICATION">
+			<condition value="2" type="=">CLASSIFICATION</condition>
+			<name>Method</name>
+			<choices>Binary Encoding|Parallelepiped|Minimum Distance|Mahalanobis Distance|Maximum Likelihood|Spectral Angle Mapping</choices>
+			<value>2</value>
+		</option>
+		<input varname="SAMPLES" type="table" parent="CLASSIFIER">
+			<name>Training Samples</name>
+			<description>Training samples for supervised classification. Provide a class identifier in the first field followed by sample data corresponding to the selected feature attributes</description>
+		</input>
+	</parameters>
+
+	<tools>
+		<tool library="imagery_segmentation" tool="2" name="Seed Generation">
+			<option id="SEED_TYPE">0</option>
+			<option id="METHOD">0</option>
+			<option id="BAND_WIDTH" varname="TRUE">SEEDS_BAND_WIDTH</option>
+			<option id="NORMALIZE"  varname="TRUE">NORMALIZE</option>
+			<input  id="FEATURES">FEATURES</input>
+			<output id="SEED_GRID">SEED_GRID</output>
+		</tool>
+
+		<tool library="imagery_segmentation" tool="3" name="Simple Region Growing">
+			<option id="NORMALIZE" varname="TRUE">NORMALIZE</option>
+			<option id="NEIGHBOUR" varname="TRUE">RGA_NEIGHBOUR</option>
+			<option id="METHOD"    varname="TRUE">RGA_METHOD</option>
+			<option id="SIG_1"     varname="TRUE">RGA_SIG_1</option>
+			<option id="SIG_2"     varname="TRUE">RGA_SIG_2</option>
+			<option id="THRESHOLD" varname="TRUE">RGA_SIMILARITY</option>
+			<option id="REFRESH">FALSE</option>
+			<option id="LEAFSIZE">256</option>
+			<input  id="SEEDS">SEED_GRID</input>
+			<input  id="FEATURES">FEATURES</input>
+			<output id="SEGMENTS">SEGMENTS_GRID</output>
+		</tool>
+
+		<condition value="0" type="less" variable="MAJORITY_RADIUS">
+			<tool library="grid_filter" tool="6" name="Majority Filter">
+				<option id="KERNEL_TYPE">1</option>
+				<option id="KERNEL_RADIUS" varname="TRUE">MAJORITY_RADIUS</option>
+				<option id="THRESHOLD">0.0</option>
+				<input  id="INPUT">SEGMENTS_GRID</input>
+			</tool>
+		</condition>
+
+		<tool library="shapes_grid" tool="6" name="Vectorising Grid Classes">
+			<option id="CLASS_ALL">1</option>
+			<option id="SPLIT">0</option>
+			<option id="ALLVERTICES">FALSE</option>
+			<input  id="GRID">SEGMENTS_GRID</input>
+			<output id="POLYGONS">SEGMENTS</output>
+		</tool>
+
+		<tool library="shapes_grid" tool="2" name="Grid Statistics for Polygons">
+			<option id="METHOD"  >0</option>
+			<option id="NAMING"  >1</option>
+			<option id="COUNT"   >FALSE</option>
+			<option id="MIN"     >FALSE</option>
+			<option id="MAX"     >FALSE</option>
+			<option id="RANGE"   >FALSE</option>
+			<option id="SUM"     >FALSE</option>
+			<option id="MEAN"    >TRUE</option>
+			<option id="VAR"     >FALSE</option>
+			<option id="STDDEV"  >FALSE</option>
+			<input  id="GRIDS"   >FEATURES</input>
+			<input  id="POLYGONS">SEGMENTS</input>
+			<output id="RESULT"  >OBJECTS</output>
+		</tool>
+
+		<!-- Classification | Cluster Analysis -->
+		<condition value="1" type="=" variable="CLASSIFICATION">
+			<tool library="table_tools" tool="29" name="Cluster Analysis (Shapes)">
+				<option id="FIELDS">3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32</option>
+				<option id="METHOD">1</option>
+				<option id="NCLUSTER"  varname="TRUE">NCLUSTER</option>
+				<option id="NORMALISE" varname="TRUE">NORMALIZE</option>
+				<input  id="INPUT" >OBJECTS</input>
+				<output id="RESULT">CLASSES</output>
+			</tool>
+
+			<tool library="grid_gridding" tool="0" name="Shapes to Grid">
+				<option id="OUTPUT">2</option>
+				<option id="MULTIPLE">1</option>
+				<option id="POLY_TYPE">1</option>
+				<option id="GRID_TYPE">9</option>
+				<option id="TARGET_DEFINITION">1</option>
+				<input  id="INPUT">CLASSES</input>
+				<option id="FIELD">CLUSTER</option>
+				<output id="GRID">SEGMENTS_GRID</output>
+			</tool>
+
+			<tool library="shapes_grid" tool="6" name="Vectorising Grid Classes">
+				<option id="CLASS_ALL">1</option>
+				<option id="SPLIT" varname="TRUE">SPLIT_POLYGONS</option>
+				<option id="ALLVERTICES">FALSE</option>
+				<input  id="GRID">SEGMENTS_GRID</input>
+				<output id="POLYGONS">OBJECTS</output>
+			</tool>
+
+			<tool library="table_tools" tool="11" name="Delete Fields">
+				<input id="TABLE">OBJECTS</input>
+				<option id="FIELDS">0,2</option> <!-- ID, VALUE, NAME -->
+			</tool>
+		</condition>
+
+		<!-- Classification | Supervised -->
+		<condition value="2" type="=" variable="CLASSIFICATION">
+			<tool library="table_tools" tool="27" name="Supervised Classification (Shapes)">
+				<option id="FEATURES">3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32</option>
+				<option id="NORMALISE" varname="TRUE">NORMALIZE</option>
+				<option id="TRAIN_WITH">1</option>
+				<input  id="TRAIN_SAMPLES">SAMPLES</input>
+				<option id="METHOD" varname="TRUE">CLASSIFIER</option>
+				<input  id="SHAPES" >OBJECTS</input>
+				<output id="CLASSES">CLASSES</output>
+			</tool>
+
+			<tool library="grid_gridding" tool="0" name="Shapes to Grid">
+				<option id="OUTPUT">2</option>
+				<option id="MULTIPLE">1</option>
+				<option id="POLY_TYPE">1</option>
+				<option id="GRID_TYPE">9</option>
+				<option id="TARGET_DEFINITION">1</option>
+				<input  id="INPUT">CLASSES</input>
+				<option id="FIELD">CLASS_NUM</option>
+				<output id="GRID">SEGMENTS_GRID</output>
+			</tool>
+
+			<tool library="shapes_grid" tool="6" name="Vectorising Grid Classes">
+				<option id="CLASS_ALL">1</option>
+				<option id="SPLIT" varname="TRUE">SPLIT_POLYGONS</option>
+				<option id="ALLVERTICES">FALSE</option>
+				<input  id="GRID">SEGMENTS_GRID</input>
+				<output id="POLYGONS">OBJECTS</output>
+			</tool>
+
+			<tool library="table_tools" tool="11" name="Delete Fields">
+				<input id="TABLE">OBJECTS</input>
+				<option id="FIELDS">0,2</option> <!-- ID, VALUE, NAME -->
+			</tool>
+
+			<tool library="table_tools" tool="4" name="Join Attributes from a Table (Shapes)">
+				<option id="FIELDS_ALL">false</option>
+				<option id="FIELDS">1</option> <!-- CLASS_ID -->
+				<option id="KEEP_ALL">true</option>
+				<input  id="TABLE_A">OBJECTS</input>
+				<option id=   "ID_A">VALUE</option>
+				<input  id="TABLE_B">CLASSES</input>
+				<option id=   "ID_B">CLASS_NUM</option>
+			</tool>
+		</condition>
+	</tools>
+</toolchain>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchains version="1.0.0">
+	<group>io_table</group>
+	<identifier>io_table</identifier>
+	<name>Table Import and Export</name>
+	<menu>File|Tables</menu>
+	<description>
+		Tools for the import and export of tables.
+	</description>
+</toolchains>

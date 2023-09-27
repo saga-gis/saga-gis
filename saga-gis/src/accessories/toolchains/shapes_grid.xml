@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchains version="1.0.0">
+	<group>shapes_grid</group>
+	<identifier>shapes_grid</identifier>
+	<name>Shapes-Grid Tools</name>
+	<menu>Shapes|Shapes-Grid Tools</menu>
+	<description>
+		Tools related to gridded and vector data (conversions, combinations, etc.).
+	</description>
+</toolchains>

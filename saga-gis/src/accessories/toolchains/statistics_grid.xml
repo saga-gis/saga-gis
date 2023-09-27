@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchains version="1.0.0">
+	<group>statistics_grid</group>
+	<identifier>statistics_grid</identifier>
+	<name>Grid Statistics</name>
+	<menu>Spatial and Geostatistics|Grids</menu>
+	<description>
+		Tools for spatial and geostatistical grid analyses.
+	</description>
+</toolchains>

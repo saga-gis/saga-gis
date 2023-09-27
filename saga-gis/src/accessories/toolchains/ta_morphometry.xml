@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchains version="1.0.0">
+  <group>ta_morphometry</group>
+  <identifier>ta_morphometry</identifier>
+  <name>Geomorphometry</name>
+  <menu>Terrain Analysis|Morphometry</menu>
+  <description>Tools for morphometric terrain analysis.</description>
+</toolchains>

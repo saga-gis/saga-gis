@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchains version="1.0.0">
+  <group>imagery_classification</group>
+  <identifier>imagery_classification</identifier>
+  <name>Image Classification</name>
+  <description>Classification tools for grids.</description>
+  <menu>Imagery|Classification</menu>
+</toolchains>

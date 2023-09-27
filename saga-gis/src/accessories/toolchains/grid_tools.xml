@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchains version="1.0.0">
+  <group>grid_tools</group>
+  <identifier>grid_tools</identifier>
+  <name>Grid Tools</name>
+	<menu>Grid|Tools</menu>
+	<description>
+		Tools for the manipulation of gridded data.
+	</description>
+</toolchains>
