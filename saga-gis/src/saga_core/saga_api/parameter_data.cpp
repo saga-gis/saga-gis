@@ -2824,13 +2824,13 @@ int CSG_Parameter_Table::_Set_Value(void *Value)
 CSG_Parameter_Shapes::CSG_Parameter_Shapes(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint)
 	: CSG_Parameter_Data_Object(pOwner, pParent, ID, Name, Description, Constraint)
 {
-	m_Type	= SHAPE_TYPE_Undefined;
+	m_Type = SHAPE_TYPE_Undefined;
 }
 
 //---------------------------------------------------------
 int CSG_Parameter_Shapes::_Set_Value(void *Value)
 {
-	if(	Value != DATAOBJECT_NOTSET && Value != DATAOBJECT_CREATE
+	if( Get_Parameters()->has_GUI() && Value != DATAOBJECT_NOTSET && Value != DATAOBJECT_CREATE
 	&&	m_Type != SHAPE_TYPE_Undefined && m_Type != ((CSG_Shapes *)Value)->Get_Type() )
 	{
 		return( SG_PARAMETER_DATA_SET_FALSE );
@@ -2841,11 +2841,11 @@ int CSG_Parameter_Shapes::_Set_Value(void *Value)
 		return( SG_PARAMETER_DATA_SET_TRUE );
 	}
 
-	m_pDataObject	= (CSG_Data_Object *)Value;
+	m_pDataObject = (CSG_Data_Object *)Value;
 
 	for(int i=0; i<Get_Children_Count(); i++)
 	{
-		CSG_Parameter	*pChild	= Get_Child(i);
+		CSG_Parameter *pChild = Get_Child(i);
 
 		if(	pChild->Get_Type() == PARAMETER_TYPE_Table_Field )
 		{
@@ -2863,13 +2863,13 @@ int CSG_Parameter_Shapes::_Set_Value(void *Value)
 //---------------------------------------------------------
 void CSG_Parameter_Shapes::Set_Shape_Type(TSG_Shape_Type Type)
 {
-	m_Type	= Type;
+	m_Type = Type;
 }
 
 //---------------------------------------------------------
 bool CSG_Parameter_Shapes::_Assign(CSG_Parameter *pSource)
 {
-	m_Type	= ((CSG_Parameter_Shapes *)pSource)->m_Type;
+	m_Type = ((CSG_Parameter_Shapes *)pSource)->m_Type;
 
 	return( CSG_Parameter_Data_Object::_Assign(pSource) );
 }
