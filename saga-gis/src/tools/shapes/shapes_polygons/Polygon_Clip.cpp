@@ -64,10 +64,10 @@ CPolygon_Clip::CPolygon_Clip(void)
 
 	Set_Description	(_TW(
 		"Clipping of vector layers with a polygon layer.\n"
-		"Uses the free and open source software library <b>Clipper</b> created by Angus Johnson.\n"
-		"<a target=\"_blank\" href=\"http://www.angusj.com/delphi/clipper.php\">Clipper Homepage</a>\n"
-		"<a target=\"_blank\" href=\"http://sourceforge.net/projects/polyclipping/\">Clipper at SourceForge</a>\n"
+		"Uses the free and open source software library <b>Clipper</b> created by Angus Johnson."
 	));
+
+	Add_Reference("https://github.com/AngusJohnson/Clipper2/", SG_T("Clipper Homepage"));
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes(
