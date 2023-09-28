@@ -140,13 +140,18 @@ int CSG_Shape_Points::_Add_Part(void)
 }
 
 //---------------------------------------------------------
-int CSG_Shape_Points::Add_Part(CSG_Shape_Part *pPart)
+int CSG_Shape_Points::Add_Part(CSG_Shape_Part *pPart, bool bRevert)
 {
 	int iPart = m_nParts;
 
 	if( pPart && _Add_Part() > iPart )
 	{
 		m_pParts[iPart]->Assign(pPart);
+
+		if( bRevert )
+		{
+			m_pParts[iPart]->Revert_Points();
+		}
 	}
 
 	return( m_nParts );

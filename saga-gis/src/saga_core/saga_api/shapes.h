@@ -165,10 +165,10 @@ public:
 	virtual int					Get_Point_Count		(int iPart) const = 0;
 	virtual int					Get_Part_Count		(void)      const = 0;
 
-	virtual int					Add_Part			(class CSG_Shape_Part *pPart) {	return( -1   );	}
-	virtual CSG_Shape_Part *	Get_Part			(int iPart) const             {	return( NULL );	}
-	virtual int					Del_Part			(int iPart)                   {	return( -1   );	}
-	virtual int					Del_Parts			(void)                        {	return( -1   );	}
+	virtual int					Add_Part			(class CSG_Shape_Part *pPart, bool bRevert = false) { return( -1   ); }
+	virtual CSG_Shape_Part *	Get_Part			(int iPart) const                                   { return( NULL ); }
+	virtual int					Del_Part			(int iPart)                                         { return( -1   ); }
+	virtual int					Del_Parts			(void)                                              { return( -1   ); }
 
 	virtual int					Add_Point			(double x, double y,                    int iPart = 0) = 0;
 	virtual int					Add_Point			(const CSG_Point    &p,                 int iPart = 0) = 0;
@@ -495,7 +495,7 @@ public:
 	virtual int					Get_Point_Count		(int iPart)	const	{	return( iPart >= 0 && iPart < m_nParts ? m_pParts[iPart]->Get_Count() : 0 );	}
 	virtual int					Get_Part_Count		(void)		const	{	return( m_nParts );		}
 
-	virtual int					Add_Part			(class CSG_Shape_Part *pPart);
+	virtual int					Add_Part			(class CSG_Shape_Part *pPart, bool bRevert = false);
 	virtual CSG_Shape_Part *	Get_Part			(int iPart)	const	{	return( iPart >= 0 && iPart < m_nParts ? m_pParts[iPart] : NULL );	}
 	virtual int					Del_Part			(int iPart);
 	virtual int					Del_Parts			(void);
