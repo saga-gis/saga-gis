@@ -378,6 +378,15 @@ bool	SG_Shape_Get_Union			(CSG_Shape *pShape, CSG_Shape_Polygon *pClip, CSG_Shap
 }
 
 //---------------------------------------------------------
+/**
+* Assuming supplied shape object is of type polygon and has
+* several parts, it is important that the point order of
+* outer rings (i.e. not lakes) is clockwise, that of lakes
+* counter-clockwise to be processed correctly by the Clipper
+* dissolve function. This is in accordance with the simple
+* features definition but in contrast to ESRI's Shapefile format.
+*/
+//---------------------------------------------------------
 bool	SG_Shape_Get_Dissolve		(CSG_Shape *pShape, CSG_Shape *pSolution)
 {
 	return( CSG_Clipper::Dissolve(pShape, pSolution) );

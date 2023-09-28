@@ -547,7 +547,7 @@ bool CWKSP_Shapes::_Edit_Merge(void)
 	{
 		for(int iPart=0; iPart<pMerged->Get_Part_Count(); iPart++)
 		{
-			if( pMerged->asPolygon()->is_Lake(iPart) == pMerged->asPolygon()->is_Clockwise(iPart) )
+			if( pMerged->asPolygon()->is_Lake(iPart) == pMerged->asPolygon()->is_Clockwise(iPart) ) // reverse point order?!
 			{
 				pMerged->asPolygon()->Revert_Points(iPart);
 			}
@@ -560,12 +560,9 @@ bool CWKSP_Shapes::_Edit_Merge(void)
 
 		for(int iPart=0, jPart=pMerged->Get_Part_Count(); iPart<pShape->Get_Part_Count(); iPart++, jPart++)
 		{
-			if( pShape->asPolygon() && pShape->asPolygon()->is_Lake(iPart) == pShape->asPolygon()->is_Clockwise(iPart) )
-			{
-				pShape->Revert_Points(iPart);
-			}
-
-			pMerged->Add_Part(pShape->Get_Part(iPart));
+			pMerged->Add_Part(pShape->Get_Part(iPart),
+				pShape->asPolygon() && pShape->asPolygon()->is_Lake(iPart) == pShape->asPolygon()->is_Clockwise(iPart) // reverse point order?!
+			);
 		}
 	}
 

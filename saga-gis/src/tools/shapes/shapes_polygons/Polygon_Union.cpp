@@ -227,15 +227,15 @@ bool CPolygon_Dissolve::On_Execute(void)
 	//-----------------------------------------------------
 	Statistics_Initialize(pDissolved, pPolygons);
 
-	bool   bDissolve = Parameters("BND_KEEP")->asBool() == false;
-	double minArea   = Parameters("MIN_AREA")->asDouble();
+	bool bDissolve = Parameters("BND_KEEP")->asBool() == false;
+	double minArea = Parameters("MIN_AREA")->asDouble();
 
 	//-----------------------------------------------------
 	CSG_String Value; CSG_Shape *pDissolve = NULL;
 
 	for(sLong i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 	{
-		CSG_Shape &Polygon = *pPolygons->Get_Shape(!Dissolve.Get_Count() ? i : Dissolve[i].asInt(0));
+		CSG_Shape_Polygon &Polygon = *pPolygons->Get_Shape(!Dissolve.Get_Count() ? i : Dissolve[i].asInt(0))->asPolygon();
 
 		if( !pDissolve || (Dissolve.Get_Count() && Value.Cmp(Dissolve[i].asString(1))) )
 		{
@@ -259,7 +259,7 @@ bool CPolygon_Dissolve::On_Execute(void)
 		{
 			for(int iPart=0; iPart<Polygon.Get_Part_Count(); iPart++)
 			{
-				pDissolve->Add_Part(Polygon.asPolygon()->Get_Part(iPart));
+				pDissolve->Add_Part(Polygon.Get_Part(iPart), Polygon.is_Lake(iPart) == Polygon.is_Clockwise(iPart));
 			}
 
 			Statistics_Add(pDissolve, &Polygon, false);

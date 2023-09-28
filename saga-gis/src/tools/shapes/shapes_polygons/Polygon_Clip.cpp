@@ -359,23 +359,17 @@ void CPolygon_Clip::Clip_Polygons(CSG_Shapes *pClips, CSG_Shapes *pInputs, CSG_S
 //---------------------------------------------------------
 bool CPolygon_Clip::Dissolve(CSG_Shapes *pPolygons, CSG_Shapes *pOutput)
 {
-	pOutput->Create(SHAPE_TYPE_Polygon);
-	pOutput->Add_Field(_TL("ID"), SG_DATATYPE_Int);
+	pOutput->Create(SHAPE_TYPE_Polygon); pOutput->Add_Field(_TL("ID"), SG_DATATYPE_Int);
 
-	CSG_Shape	*pDissolved	= pOutput->Add_Shape(pPolygons->Get_Shape(0), SHAPE_COPY_GEOM);
+	CSG_Shape_Polygon *pDissolved = pOutput->Add_Shape()->asPolygon();
 
-	for(sLong iPolygon=1; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
+	for(sLong iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
 	{
-		CSG_Shape	*pPolygon	= pPolygons->Get_Shape(iPolygon);
+		CSG_Shape_Polygon *pPolygon = pPolygons->Get_Shape(iPolygon)->asPolygon();
 
 		for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
 		{
-			CSG_Shape_Part	*pPart	= ((CSG_Shape_Polygon *)pPolygon)->Get_Part(iPart);
-
-			for(int iPoint=0, nParts=pDissolved->Get_Part_Count(); iPoint<pPart->Get_Count(); iPoint++)
-			{
-				pDissolved->Add_Point(pPart->Get_Point(iPoint), nParts);
-			}
+			pDissolved->Add_Part(pPolygon->Get_Part(iPart), pPolygon->is_Lake(iPart) == pPolygon->is_Clockwise(iPart));
 		}
 	}
 
