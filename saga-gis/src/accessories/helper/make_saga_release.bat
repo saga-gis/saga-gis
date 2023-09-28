@@ -1,5 +1,7 @@
 @ECHO OFF
 
+PUSHD %~dp0
+
 REM ___________________________________
 REM ###################################
 REM PRE-RELEASE STEPS
@@ -15,8 +17,6 @@ SET DOXEXE="C:\Program Files\doxygen\bin\doxygen.exe"
 
 REM ___________________________________
 REM Absolute Path to SAGA Root Directory
-
-PUSHD %~dp0
 
 PUSHD %CD%\..\..\..
 SET SAGA_ROOT=%CD%
@@ -122,7 +122,7 @@ RMDIR /S/Q "%SAGA_RELEASE_NAME%_api_doc"
 
 REM ___________________________________
 REM ###################################
-REM PYTHON API
+REM PySAGA
 REM ###################################
 
 RMDIR /S/Q %SAGA_BIN%\PySAGA
@@ -137,14 +137,10 @@ CMD /C CALL ..\make_python_api.bat install true  3.11 F:\develop\libs\Python\Pyt
 
 REM ___________________________________
 REM ###################################
-REM QSAGA Toolboxes
+REM PySAGA Toolboxes
 REM ###################################
 
-SET SAGA4QGIS=saga4qgis.zip
-
-CALL ..\make_saga4qgis_toolboxes.bat
-
-MOVE %SAGA4QGIS% %SAGA_BIN%\%SAGA4QGIS%
+CALL ..\make_python_toolboxes.bat
 
 
 REM ___________________________________
@@ -153,6 +149,16 @@ REM ArcSAGA Toolboxes
 REM ###################################
 
 CALL ..\make_arcsaga_toolboxes.bat
+
+
+REM ___________________________________
+REM ###################################
+REM QSAGA Toolboxes
+REM ###################################
+
+SET SAGA4QGIS=saga4qgis.zip
+CALL ..\make_saga4qgis_toolboxes.bat
+MOVE %SAGA4QGIS% %SAGA_BIN%\%SAGA4QGIS%
 
 
 REM ___________________________________
