@@ -730,14 +730,14 @@ bool			SG_Dir_Exists(const CSG_String &Directory)
 }
 
 //---------------------------------------------------------
-bool			SG_Dir_Create(const CSG_String &Directory)
+bool			SG_Dir_Create(const CSG_String &Directory, bool bFullPath)
 {
 	if( SG_Dir_Exists(Directory) )
 	{
 		return( true );
 	}
 
-	return( wxFileName::Mkdir(Directory.c_str()) );
+	return( wxFileName::Mkdir(Directory.c_str(), wxS_DIR_DEFAULT, bFullPath ? wxPATH_MKDIR_FULL : 0) );
 }
 
 //---------------------------------------------------------
