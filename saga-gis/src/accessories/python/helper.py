@@ -166,6 +166,18 @@ def Get_VRT(Directory, Extension = 'tif', VRT_Name = 'tiles', VRT_Folder = None)
 
 #________________________________________________________________________________
 def CSG_Grids_asPyArray(Grids):
+    '''
+    Create a Python list that provides access to the single grids of the
+    input grid collection.
+
+    Arguments
+    ---------
+    Grids : expects a `grid collection` of type `saga_api`.`CSG_Grids`
+
+    Returns
+    ---------
+    list : a list with `saga_api`.`CSG_Grid` objects
+    '''
     Array = []
     for i in range(0, Grids.Get_Grid_Count()):
         Array.append(Grids.Get_Grid(i));
@@ -174,8 +186,30 @@ def CSG_Grids_asPyArray(Grids):
 
 #################################################################################
 #
-# Tool Execution...
+# Tools and Tool Execution...
 #________________________________________________________________________________
+
+#________________________________________________________________________________
+def Create_Toolboxes(Path='', SingleFile=False, UseToolName=True, Clean=True):
+    '''
+    PySAGA Tool Interface Generator
+    ----------
+    Create the Python interface for SAGA tools.
+
+    Arguments
+    ----------
+    - Path [`string`] : either the single target file name or the target folder
+    - SingleFile [`boolean`] : if `True` a single Python module will be created for all function calls, else one module for each tool library will be created
+    - UseToolName [`boolean`]: if `True` function names will be based on the tool names, else these will named from `library` + `tool id`
+    - Clean [boolean]: if `True` and not a single file is targeted all files from the target folder will be deleted before the new ones are generated
+
+    Returns
+    ----------
+    `boolean` : `True` on success, `False` on failure.
+    '''
+
+    return saga_api.SG_Get_Tool_Library_Manager().Create_Python_ToolBox(saga_api.CSG_String(Path), Clean, UseToolName, SingleFile)
+
 
 #########################################
 #
