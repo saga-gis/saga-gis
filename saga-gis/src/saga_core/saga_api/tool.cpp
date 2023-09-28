@@ -1903,12 +1903,19 @@ CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader, bool bName)
 
 	Script += "def " + Name + "(" + Arguments + "):\n";
 	Script += "    '''\n";
-	Script += "    Tool: ```" + Get_Name() + "``` (" + Get_Library() + ")\\n\n";
+	Script += "    " + Get_Name() + "\n";
+	Script += "    ----------\n";
+	Script += "    [" + Get_Library() + "." + Get_ID() + "]\\n\n";
 	for(int i=0; i<_Description.Get_Count(); i++)
 	{
-		Script += "    " + _Description[i] + "\\n\n";
+		_Description[i].Trim_Both(); Script += "    " + _Description[i] + "\\n\n";
 	}
-	Script += Description;
+	Script += "    Arguments\n";
+	Script += "    ----------\n";
+	Script += Description + "\n";
+	Script += "    Returns\n";
+	Script += "    ----------\n";
+	Script += "    `boolean` : `True` on success, `False` on failure.\n";
 	Script += "    '''\n";
 	Script += "    Tool = Tool_Wrapper('" + Get_Library() + "', '" + Get_ID() + "', '" + Expected + "')\n";
 	Script += "    if Tool.is_Okay():\n";
@@ -1979,7 +1986,7 @@ bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Const
 	Code += CSG_String::Format("('%s', %s)\n", ID.c_str(), Argument.c_str());
 
 	//-----------------------------------------------------
-	Description += "    " + Argument + ": ```" + Parameter.Get_Name() + "```, ";
+	Description += "    - " + Argument + " [`";
 
 	if( Parameter.is_Input() )
 	{
@@ -1990,7 +1997,7 @@ bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Const
 		Description += "output ";
 	}
 
-	Description += Parameter.Get_Type_Name();
+	Description += Parameter.Get_Type_Name() + "`] : " + Parameter.Get_Name();
 
 	CSG_String s(Parameter.Get_Description(PARAMETER_DESCRIPTION_PROPERTIES|PARAMETER_DESCRIPTION_TEXT, SG_T(" ")));
 
@@ -1999,7 +2006,7 @@ bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Const
 		Description += ". " + s;
 	}
 
-	Description += "\\n\n";
+	Description += "\n";
 
 	return( true );
 }

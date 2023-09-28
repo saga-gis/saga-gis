@@ -744,6 +744,19 @@ bool CSG_Tool_Library_Manager::Delete_Tool(CSG_Tool *pTool) const
 //---------------------------------------------------------
 bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Destination, bool bClean, bool bName, bool bSingleFile) const
 {
+	const char *Header =
+		"#! /usr/bin/env python\n\n"
+		"'''\n"
+		"Python Interface to SAGA Tools Library\n"
+		"----------\n"
+		"- Category : %s\n"
+		"- Name     : %s\n"
+		"- ID       : %s\n\n"
+		"Description\n"
+		"----------\n%s\n"
+		"'''\n\n"
+		"from PySAGA.helper import Tool_Wrapper\n\n";
+
 	CSG_File Stream;
 
 	if( bSingleFile )
@@ -760,11 +773,14 @@ bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Destinati
 			return( false );
 		}
 
-		Stream.Write("#! /usr/bin/env python\nfrom PySAGA.helper import Tool_Wrapper\n\n");
+		Stream.Write("#! /usr/bin/env python\n\n'''\n");
+		Stream.Write("Python Interface to SAGA Tools\n");
+		Stream.Write("----------\n'''\n\n");
+		Stream.Write("from PySAGA.helper import Tool_Wrapper\n\n");
 	}
 	else
 	{
-		if( !SG_Dir_Exists(Destination) && !SG_Dir_Create(Destination) )
+		if( !SG_Dir_Exists(Destination) && !SG_Dir_Create(Destination, true) )
 		{
 			SG_UI_Msg_Add_Error(CSG_String::Format("%s: %s", _TL("failed to create destination folder"), Destination.c_str()));
 
@@ -807,7 +823,7 @@ bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Destinati
 				continue;
 			}
 
-			Stream.Write("#! /usr/bin/env python\nfrom PySAGA.helper import Tool_Wrapper\n\n");
+			Stream.Printf(Header, pLibrary->Get_Category().c_str(), pLibrary->Get_Name().c_str(), pLibrary->Get_Library_Name().c_str(), pLibrary->Get_Description().c_str());
 		}
 
 		for(int iTool=0; iTool<pLibrary->Get_Count(); iTool++)
@@ -855,7 +871,7 @@ bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Destinati
 					continue;
 				}
 
-				Stream.Write("#! /usr/bin/env python\nfrom PySAGA.helper import Tool_Wrapper\n\n");
+				Stream.Printf(Header, pLibrary->Get_Category().c_str(), pLibrary->Get_Name().c_str(), pLibrary->Get_Library_Name().c_str(), pLibrary->Get_Description().c_str());
 			}
 		}
 
