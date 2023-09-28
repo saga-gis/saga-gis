@@ -2669,7 +2669,7 @@ bool CSG_Parameter_Grid::Add_Default(double Value, double Minimum, bool bMinimum
 {
 	if( m_Default < 0 && is_Input() && is_Optional() )
 	{
-		m_Default	= Get_Children_Count();
+		m_Default = Get_Children_Count();
 
 		Get_Parameters()->Add_Double(Get_Identifier(), CSG_String::Format("%s_DEFAULT", Get_Identifier()),
 			_TL("Default"), _TL("default value if no grid has been selected"),
@@ -2689,9 +2689,9 @@ int CSG_Parameter_Grid::_Set_Value(void *Value)
 	}
 
 	//-----------------------------------------------------
-	if( Value != DATAOBJECT_NOTSET && Value != DATAOBJECT_CREATE && Get_System() )// && Get_Manager()
+	if( (is_Input() || Get_Parameters()->has_GUI()) && Value != DATAOBJECT_NOTSET && Value != DATAOBJECT_CREATE && Get_System() )// && Get_Manager()
 	{
-		CSG_Grid_System	System	= Get_Type() == PARAMETER_TYPE_Grid
+		CSG_Grid_System System = Get_Type() == PARAMETER_TYPE_Grid
 			? ((CSG_Grid  *)Value)->Get_System()
 			: ((CSG_Grids *)Value)->Get_System();
 
@@ -2699,7 +2699,7 @@ int CSG_Parameter_Grid::_Set_Value(void *Value)
 		{
 			for(int i=0; i<Get_Parent()->Get_Children_Count(); i++)
 			{
-				CSG_Parameter	*pChild	= Get_Parent()->Get_Child(i);
+				CSG_Parameter *pChild = Get_Parent()->Get_Child(i);
 
 				if( pChild->Get_Type() == PARAMETER_TYPE_Grid
 				||  pChild->Get_Type() == PARAMETER_TYPE_Grids )
@@ -2727,7 +2727,7 @@ int CSG_Parameter_Grid::_Set_Value(void *Value)
 	}
 
 	//-----------------------------------------------------
-	m_pDataObject	= (CSG_Data_Object *)Value;
+	m_pDataObject = (CSG_Data_Object *)Value;
 
 	if( Get_Child(m_Default) )
 	{
@@ -2752,8 +2752,8 @@ double CSG_Parameter_Grid::_asDouble(void) const
 //---------------------------------------------------------
 bool CSG_Parameter_Grid::_Assign(CSG_Parameter *pSource)
 {
-	m_Type		= ((CSG_Parameter_Grid *)pSource)->m_Type;
-	m_Default	= ((CSG_Parameter_Grid *)pSource)->m_Default;
+	m_Type    = ((CSG_Parameter_Grid *)pSource)->m_Type;
+	m_Default = ((CSG_Parameter_Grid *)pSource)->m_Default;
 
 	return( _Set_Value(pSource->asPointer()) != 0 );
 }
@@ -2794,11 +2794,11 @@ int CSG_Parameter_Table::_Set_Value(void *Value)
 		return( SG_PARAMETER_DATA_SET_TRUE );
 	}
 
-	m_pDataObject	= (CSG_Data_Object *)Value;
+	m_pDataObject = (CSG_Data_Object *)Value;
 
 	for(int i=0; i<Get_Children_Count(); i++)
 	{
-		CSG_Parameter	*pChild	= Get_Child(i);
+		CSG_Parameter *pChild = Get_Child(i);
 
 		if( pChild->Get_Type() == PARAMETER_TYPE_Table_Field )
 		{
@@ -2830,7 +2830,7 @@ CSG_Parameter_Shapes::CSG_Parameter_Shapes(CSG_Parameters *pOwner, CSG_Parameter
 //---------------------------------------------------------
 int CSG_Parameter_Shapes::_Set_Value(void *Value)
 {
-	if( Get_Parameters()->has_GUI() && Value != DATAOBJECT_NOTSET && Value != DATAOBJECT_CREATE
+	if( (is_Input() || Get_Parameters()->has_GUI()) && Value != DATAOBJECT_NOTSET && Value != DATAOBJECT_CREATE
 	&&	m_Type != SHAPE_TYPE_Undefined && m_Type != ((CSG_Shapes *)Value)->Get_Type() )
 	{
 		return( SG_PARAMETER_DATA_SET_FALSE );
@@ -2896,11 +2896,11 @@ int CSG_Parameter_TIN::_Set_Value(void *Value)
 		return( SG_PARAMETER_DATA_SET_TRUE );
 	}
 
-	m_pDataObject	= (CSG_Data_Object *)Value;
+	m_pDataObject = (CSG_Data_Object *)Value;
 
 	for(int i=0; i<Get_Children_Count(); i++)
 	{
-		CSG_Parameter	*pChild	= Get_Child(i);
+		CSG_Parameter *pChild = Get_Child(i);
 
 		if( pChild->Get_Type() == PARAMETER_TYPE_Table_Field )
 		{
@@ -2937,11 +2937,11 @@ int CSG_Parameter_PointCloud::_Set_Value(void *Value)
 		return( SG_PARAMETER_DATA_SET_TRUE );
 	}
 
-	m_pDataObject	= (CSG_Data_Object *)Value;
+	m_pDataObject = (CSG_Data_Object *)Value;
 
 	for(int i=0; i<Get_Children_Count(); i++)
 	{
-		CSG_Parameter	*pChild	= Get_Child(i);
+		CSG_Parameter *pChild = Get_Child(i);
 
 		if( pChild->Get_Type() == PARAMETER_TYPE_Table_Field )
 		{

@@ -1584,68 +1584,68 @@ bool CSG_Parameters::DataObjects_Create(void)
 
 		else if( p->is_DataObject() )
 		{
-			CSG_Data_Object *pDataObject = p->asDataObject();
+			CSG_Data_Object *pObject = p->asDataObject();
 
-			if( (pDataObject == DATAOBJECT_CREATE)
-			||  (pDataObject == DATAOBJECT_NOTSET && !p->is_Optional())
-			||  (pDataObject != DATAOBJECT_NOTSET && m_pManager && !m_pManager->Exists(pDataObject)) )
+			if( (pObject == DATAOBJECT_CREATE)
+			||  (pObject == DATAOBJECT_NOTSET && !p->is_Optional())
+			||  (pObject != DATAOBJECT_NOTSET && m_pManager && !m_pManager->Exists(pObject)) )
 			{
-				pDataObject = NULL;
-
 				switch( p->Get_Type() )
 				{
-				case PARAMETER_TYPE_Table     : pDataObject = SG_Create_Table     (); break;
-				case PARAMETER_TYPE_TIN       : pDataObject = SG_Create_TIN       (); break;
-				case PARAMETER_TYPE_PointCloud: pDataObject = SG_Create_PointCloud(); break;
-				case PARAMETER_TYPE_Shapes    : pDataObject = SG_Create_Shapes(
-						((CSG_Parameter_Shapes *)p)->Get_Shape_Type()
-					);
-					break;
+				case PARAMETER_TYPE_Table     : pObject = SG_Create_Table     (); break;
+				case PARAMETER_TYPE_Shapes    : pObject = SG_Create_Shapes    (); break;
+				case PARAMETER_TYPE_PointCloud: pObject = SG_Create_PointCloud(); break;
+				case PARAMETER_TYPE_TIN       : pObject = SG_Create_TIN       (); break;
+				case PARAMETER_TYPE_Grid      : pObject = SG_Create_Grid      (); break;
+				case PARAMETER_TYPE_Grids     : pObject = SG_Create_Grids     (); break;
+				default                       : pObject = NULL                  ; break;
+				}
+			}
 
-				case PARAMETER_TYPE_Grid      :
-				case PARAMETER_TYPE_Grids     :
-					if(	p->Get_Parent() && p->Get_Parent()->Get_Type() == PARAMETER_TYPE_Grid_System 
-					&&	p->Get_Parent()->asGrid_System() && p->Get_Parent()->asGrid_System()->is_Valid() )
+			if( pObject )
+			{
+				if( p->Get_Type() == PARAMETER_TYPE_Shapes
+				&&  ((CSG_Parameter_Shapes *)p)->Get_Shape_Type() != SHAPE_TYPE_Undefined
+				&&  ((CSG_Parameter_Shapes *)p)->Get_Shape_Type() != pObject->asShapes()->Get_Type() )
+				{
+					if( has_GUI() && pObject->asShapes()->Get_Type() != SHAPE_TYPE_Undefined )
+					{
+						pObject	= SG_Create_Shapes (((CSG_Parameter_Shapes *)p)->Get_Shape_Type());
+					}
+					else
+					{
+						pObject->asShapes()->Create(((CSG_Parameter_Shapes *)p)->Get_Shape_Type());
+					}
+				}
+
+				if( (p->Get_Type() == PARAMETER_TYPE_Grid || p->Get_Type() == PARAMETER_TYPE_Grids) )
+				{
+					if(	p->Get_Parent() && p->Get_Parent()->asGrid_System() && p->Get_Parent()->asGrid_System()->is_Valid() )
 					{
 						if( p->Get_Type() == PARAMETER_TYPE_Grid )
 						{
-							pDataObject = SG_Create_Grid(*p->Get_Parent()->asGrid_System(), ((CSG_Parameter_Grid *)p)->Get_Preferred_Type());
+							pObject->asGrid ()->Create(*p->Get_Parent()->asGrid_System()        , ((CSG_Parameter_Grid  *)p)->Get_Preferred_Type());
 						}
 						else
 						{
-							pDataObject = SG_Create_Grids(*p->Get_Parent()->asGrid_System(), 0, 0.0, ((CSG_Parameter_Grids *)p)->Get_Preferred_Type());
+							pObject->asGrids()->Create(*p->Get_Parent()->asGrid_System(), 0, 0., ((CSG_Parameter_Grids *)p)->Get_Preferred_Type());
 						}
 					}
-					break;
-
-				default:
-					break;
 				}
-			}
-			else if( p->Get_Type() == PARAMETER_TYPE_Shapes && p->asShapes() )
-			{
-				if( ((CSG_Parameter_Shapes *)p)->Get_Shape_Type() != SHAPE_TYPE_Undefined
-				&&	((CSG_Parameter_Shapes *)p)->Get_Shape_Type() != p->asShapes()->Get_Type() )
-				{
-					pDataObject	= SG_Create_Shapes(((CSG_Parameter_Shapes *)p)->Get_Shape_Type());
-				}
-			}
 
-			if( pDataObject )
-			{
-				if( p->Set_Value(pDataObject) )
+				if( p->Set_Value(pObject) )
 				{
-					pDataObject->Set_Name(p->Get_Name());
-					pDataObject->Get_MetaData().Del_Children();
+					pObject->Set_Name(p->Get_Name());
+					pObject->Get_MetaData().Del_Children();
 
 					if( m_pManager )
 					{
-						m_pManager->Add(pDataObject);
+						m_pManager->Add(pObject);
 					}
 				}
 				else
 				{
-					delete(pDataObject);
+					delete(pObject);
 
 					bResult = false;
 				}
