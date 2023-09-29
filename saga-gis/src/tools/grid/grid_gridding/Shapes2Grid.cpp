@@ -274,6 +274,8 @@ bool CShapes2Grid::On_Execute(void)
 	//-----------------------------------------------------
 	if( (m_pGrid = m_Grid_Target.Get_Grid("GRID", Get_Data_Type(Field))) == NULL )
 	{
+		Error_Set(_TL("Failed to request target grid."));
+
 		return( false );
 	}
 
