@@ -780,14 +780,6 @@ SAGA_API_DLL_EXPORT CSG_Strings		SG_String_Tokenize				(const CSG_String &String
 //---------------------------------------------------------
 SAGA_API_DLL_EXPORT bool			SG_is_Character_Numeric			(int Character);
 
-SAGA_API_DLL_EXPORT int				SG_Printf						(const CSG_String &String);
-SAGA_API_DLL_EXPORT int				SG_Printf						(const  char   *Format, ...);
-SAGA_API_DLL_EXPORT int				SG_Printf						(const wchar_t *Format, ...);
-
-SAGA_API_DLL_EXPORT int				SG_FPrintf						(FILE *Stream, const CSG_String &String);
-SAGA_API_DLL_EXPORT int				SG_FPrintf						(FILE *Stream, const  char   *Format, ...);
-SAGA_API_DLL_EXPORT int				SG_FPrintf						(FILE *Stream, const wchar_t *Format, ...);
-
 SAGA_API_DLL_EXPORT CSG_String		SG_Get_CurrentTimeStr			(bool bWithDate = true);
 
 SAGA_API_DLL_EXPORT double			SG_Degree_To_Double				(const CSG_String &String);
