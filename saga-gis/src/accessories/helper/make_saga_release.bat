@@ -93,6 +93,10 @@ RMDIR /S/Q .git
 POPD
 
 REM ___________________________________
+REM Include the Python Toolboxes
+CALL ..\make_python_toolboxes.bat "%SAGA_RELEASE_NAME%\saga-gis\src\accessories\python\tools"
+
+REM ___________________________________
 REM Zip Source Code
 %ZIPEXE% a -r -y -mx5 %SAGA_RELEASE_NAME%_src.zip %SAGA_RELEASE_NAME%
 
