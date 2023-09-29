@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchains version="1.0.0">
+  <group>imagery_segmentation</group>
+  <identifier>imagery_segmentation</identifier>
+  <name>Image Segmentation</name>
+  <description>Image segmentation algorithms.</description>
+  <menu>Imagery|Segmentation</menu>
+</toolchains>
