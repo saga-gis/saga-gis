@@ -2683,19 +2683,24 @@ bool CSG_Parameter_Grid::Add_Default(double Value, double Minimum, bool bMinimum
 //---------------------------------------------------------
 int CSG_Parameter_Grid::_Set_Value(void *Value)
 {
-	if( Value == m_pDataObject )	// nothing to do
+	if( Value == m_pDataObject ) // nothing to do
 	{
 		return( SG_PARAMETER_DATA_SET_TRUE );
 	}
 
 	//-----------------------------------------------------
-	if( (is_Input() || Get_Parameters()->has_GUI()) && Value != DATAOBJECT_NOTSET && Value != DATAOBJECT_CREATE && Get_System() )// && Get_Manager()
+	if( Value != DATAOBJECT_NOTSET && Value != DATAOBJECT_CREATE && Get_System() )
 	{
 		CSG_Grid_System System = Get_Type() == PARAMETER_TYPE_Grid
 			? ((CSG_Grid  *)Value)->Get_System()
 			: ((CSG_Grids *)Value)->Get_System();
 
-		if( !Get_System()->is_Equal(System) )
+		if( System.is_Valid() == false && is_Input() )
+		{
+			return( SG_PARAMETER_DATA_SET_FALSE );
+		}
+
+		if( System.is_Valid() && !Get_System()->is_Equal(System) )
 		{
 			for(int i=0; i<Get_Parent()->Get_Children_Count(); i++)
 			{
@@ -2708,7 +2713,7 @@ int CSG_Parameter_Grid::_Set_Value(void *Value)
 					&&  pChild->asDataObject() != DATAOBJECT_CREATE
 					&&  pChild->asDataObject() != m_pDataObject )
 					{
-						return( false );
+						return( SG_PARAMETER_DATA_SET_FALSE );
 					}
 				}
 
@@ -2717,7 +2722,7 @@ int CSG_Parameter_Grid::_Set_Value(void *Value)
 					if( (pChild->Get_Type() == PARAMETER_TYPE_Grid_List  && pChild->asGridList ()->Get_System())
 					||  (pChild->Get_Type() == PARAMETER_TYPE_Grids_List && pChild->asGridsList()->Get_System()) )
 					{
-						return( false );
+						return( SG_PARAMETER_DATA_SET_FALSE );
 					}
 				}
 			}

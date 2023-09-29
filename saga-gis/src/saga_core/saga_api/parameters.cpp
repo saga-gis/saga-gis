@@ -1624,7 +1624,7 @@ bool CSG_Parameters::DataObjects_Create(void)
 					{
 						if( p->Get_Type() == PARAMETER_TYPE_Grid )
 						{
-							pObject->asGrid ()->Create(*p->Get_Parent()->asGrid_System()        , ((CSG_Parameter_Grid  *)p)->Get_Preferred_Type());
+							pObject->asGrid ()->Create(*p->Get_Parent()->asGrid_System()       , ((CSG_Parameter_Grid  *)p)->Get_Preferred_Type());
 						}
 						else
 						{
