@@ -654,29 +654,26 @@ void		Print_Execution	(CSG_Tool *pTool)
 	{
 		if( CMD_Get_XML() )
 		{
-			#define SG_XML_LIBRARY		SG_T("library")
-			#define SG_XML_LIBRARY_PATH	SG_T("path")
-			#define SG_XML_LIBRARY_NAME	SG_T("name")
-
-			SG_Printf("<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>\n");
-			SG_Printf("<%s>\n", SG_XML_LIBRARY);
-			SG_Printf("\t<%s>%s</%s>\n", SG_XML_LIBRARY_PATH, pTool->Get_File_Name().c_str(), SG_XML_LIBRARY_PATH);
-			SG_Printf("\t<%s>%s</%s>\n", SG_XML_LIBRARY_NAME, pTool->Get_Library  ().c_str(), SG_XML_LIBRARY_NAME);
-			SG_Printf("</%s>\n", SG_XML_LIBRARY);
+			CMD_Print("<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>\n");
+			CMD_Print("<library>");
+			CMD_Print(pTool->Get_File_Name(), "path");
+			CMD_Print(pTool->Get_Library  (), "name");
+			CMD_Print("</library>");
 		}
 		else
 		{
-			SG_Printf("____________________________\n");
-			SG_Printf("%s: %s\n", _TL("library path"), SG_File_Get_Path(pTool->Get_File_Name()       ).c_str());
-			SG_Printf("%s: %s\n", _TL("library name"), SG_File_Get_Name(pTool->Get_File_Name(), false).c_str());
-			SG_Printf("%s: %s\n", _TL("library     "), pTool->Get_Library().c_str());
-			SG_Printf("%s: %s\n", _TL("tool        "), pTool->Get_Name   ().c_str());
-			SG_Printf("%s: %s\n", _TL("identifier  "), pTool->Get_ID     ().c_str());
-			SG_Printf("%s: %s\n", _TL("author      "), pTool->Get_Author ().c_str());
+			CMD_Print("____________________________");
+			CMD_Print(CSG_String::Format("%s: %s", _TL("library path"), SG_File_Get_Path(pTool->Get_File_Name()       ).c_str()));
+			CMD_Print(CSG_String::Format("%s: %s", _TL("library path"), SG_File_Get_Path(pTool->Get_File_Name()       ).c_str()));
+			CMD_Print(CSG_String::Format("%s: %s", _TL("library name"), SG_File_Get_Name(pTool->Get_File_Name(), false).c_str()));
+			CMD_Print(CSG_String::Format("%s: %s", _TL("library     "), pTool->Get_Library().c_str()));
+			CMD_Print(CSG_String::Format("%s: %s", _TL("tool        "), pTool->Get_Name   ().c_str()));
+			CMD_Print(CSG_String::Format("%s: %s", _TL("identifier  "), pTool->Get_ID     ().c_str()));
+			CMD_Print(CSG_String::Format("%s: %s", _TL("author      "), pTool->Get_Author ().c_str()));
 		#ifdef _OPENMP
-			SG_Printf("%s: %d [%d]\n", _TL("processors  "), SG_OMP_Get_Max_Num_Threads(), SG_OMP_Get_Max_Num_Procs());
+			CMD_Print(CSG_String::Format("%s: %d [%d]", _TL("processors  "), SG_OMP_Get_Max_Num_Threads(), SG_OMP_Get_Max_Num_Procs()));
 		#endif // _OPENMP
-			SG_Printf("____________________________\n\n");
+			CMD_Print("____________________________\n");
 		}
 	}
 }

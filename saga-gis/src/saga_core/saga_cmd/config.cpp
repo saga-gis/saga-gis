@@ -159,12 +159,12 @@ bool	Config_Load		(wxConfigBase *pConfig)
 	//-----------------------------------------------------
 	if( Config_Read(pConfig, "TOOLS", "LNG_FILE_DIC", sValue) && wxFileExists(sValue) )	// load translation dictionary
 	{
-		SG_Printf("\n%s:", _TL("loading translation dictionary"));
-		SG_Printf("\n%s.\n",
+		CMD_Print(CSG_String::Format("\n%s:", _TL("loading translation dictionary")));
+		CMD_Print(CSG_String::Format("\n%s.",
 		//	SG_Get_Translator().Create(SG_File_Make_Path(Path_Shared, SG_T("saga"), SG_T("lng")), false)
 			SG_Get_Translator().Create(&sValue, false)
 			? _TL("success") : _TL("failed")
-		);
+		));
 	}
 
 	if( Config_Read(pConfig, "TOOLS", "OMP_THREADS_MAX"     , iValue) )	{	SG_OMP_Set_Max_Num_Threads(iValue);	}
@@ -278,13 +278,13 @@ bool	Config_Create	(const CSG_String &File)
 
 	if( File.is_Empty() )
 	{
-		SG_Printf(CSG_String::Format("\n%s...", _TL("creating default configuration")));
+		SG_UI_Console_Print_StdOut(CSG_String::Format("\n%s...", _TL("creating default configuration")), '\0');
 
 		pConfig	= Config_Default(true);
 	}
 	else
 	{
-		SG_Printf(CSG_String::Format("\n%s\n>>%s\n...", _TL("creating default configuration"), File.c_str()));
+		SG_UI_Console_Print_StdOut(CSG_String::Format("\n%s\n>>%s\n...", _TL("creating default configuration"), File.c_str()), '\0');
 
 		pConfig	= new wxFileConfig(wxEmptyString, wxEmptyString, File.c_str(), File.c_str(), wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_GLOBAL_FILE|wxCONFIG_USE_RELATIVE_PATH);
 	}
@@ -293,7 +293,7 @@ bool	Config_Create	(const CSG_String &File)
 
 	delete(pConfig);
 
-	SG_Printf(CSG_String::Format("%s\n", _TL("ready")));
+	SG_UI_Console_Print_StdOut(CSG_String::Format("%s", _TL("ready")));
 
 	return( true );
 }

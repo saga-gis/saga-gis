@@ -175,7 +175,7 @@ void			CMD_Get_Pause		(void)
 {
 	if( g_bInteractive )
 	{
-		SG_Printf("%s...\n", _TL("press any key"));
+		CMD_Print(CSG_String::Format("%s...", _TL("press any key")));
 
 #ifdef _SAGA_MSW
 		_getch();
@@ -191,9 +191,7 @@ bool			CMD_Get_YesNo		(const CSG_String &Caption, const CSG_String &Message)
 #ifdef _SAGA_MSW
 		CSG_String sKey, sYes("y"), sNo("n");
 
-		SG_Printf("%s: %s\n", Caption.c_str(), Message.c_str());
-
-		SG_Printf("%s? (%s/%s)\n", _TL("continue"), sYes.c_str(), sNo.c_str());
+		CMD_Print(Caption + ": " + Message + "\n" + _TL("continue") + "? (" + sYes + "/" + sNo + ")");
 
 		do
 		{
