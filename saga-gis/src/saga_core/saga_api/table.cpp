@@ -1368,33 +1368,6 @@ bool CSG_Table::Toggle_Index(int iField)
 	return( Del_Index() );
 }
 
-//---------------------------------------------------------
-void CSG_Table::_Index_Update(void)
-{
-	CSG_Array_Int Fields;
-
-	bool Ascending = Get_Index_Order(0) != TABLE_INDEX_Descending;
-
-	for(size_t i=0; i<m_Index_Fields.Get_uSize(); i++)
-	{
-		int Field = abs(m_Index_Fields[i]) - 1;
-
-		if( Ascending )
-		{
-			Fields += m_Index_Fields[i] > 0 ? Field : -Field;
-		}
-		else
-		{
-			Fields += m_Index_Fields[i] < 0 ? Field : -Field;
-		}
-	}
-
-	if( Fields.Get_Size() < 1 || !Set_Index(m_Index, Fields, Ascending) )
-	{
-		Del_Index();
-	}
-}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -1471,18 +1444,34 @@ class CSG_Table_Record_Compare_Fields : public CSG_Index::CSG_Index_Compare
 {
 public:
 	CSG_Table_Record_Compare_Fields(const CSG_Table *pTable, int Fields[], int nFields, bool Ascending)
+		: m_pTable(pTable), m_Fields(Fields), m_nFields(nFields)
 	{
-		m_pTable    = pTable;
-		m_Fields    = Fields;
-		m_nFields   = nFields;
-		m_Ascending = Ascending;
+		m_Ascending.Create(nFields);
 
 		for(int i=0; m_pTable && i<m_nFields; i++)
 		{
-			if( abs(m_Fields[i]) >= m_pTable->Get_Field_Count() )
+			if( m_Fields[i] >= m_pTable->Get_Field_Count() )
 			{
-				m_pTable	= NULL;
+				m_pTable = NULL;
 			}
+
+			m_Ascending[i] = Ascending ? 1 : 0;
+		}
+	}
+
+	CSG_Table_Record_Compare_Fields(const CSG_Table *pTable, int Fields[], int nFields, int Ascending[])
+		: m_pTable(pTable), m_Fields(Fields), m_nFields(nFields)
+	{
+		m_Ascending.Create(nFields);
+
+		for(int i=0; m_pTable && i<m_nFields; i++)
+		{
+			if( m_Fields[i] >= m_pTable->Get_Field_Count() )
+			{
+				m_pTable = NULL;
+			}
+
+			m_Ascending[i] = Ascending[i] > 0 ? 1 : 0;
 		}
 	}
 
@@ -1496,12 +1485,8 @@ public:
 		{
 			int	Field = m_Fields[i];
 
-			bool Ascending = i == 0 ? m_Ascending : m_Ascending ? Field > 0 : Field < 0;
-
-			sLong a = Ascending ? _a : _b;
-			sLong b = Ascending ? _b : _a;
-
-			Field = abs(Field);
+			sLong a = m_Ascending[i] ? _a : _b;
+			sLong b = m_Ascending[i] ? _b : _a;
 
 			switch( m_pTable->Get_Field_Type(Field) )
 			{
@@ -1525,9 +1510,9 @@ public:
 
 private:
 
-	bool				m_Ascending;
-
 	int					*m_Fields, m_nFields;
+
+	CSG_Array_Int		m_Ascending;
 
 	const CSG_Table		*m_pTable;
 
@@ -1545,6 +1530,30 @@ bool CSG_Table::Set_Index(CSG_Index &Index, int Fields[], int nFields, bool bAsc
 bool CSG_Table::Set_Index(CSG_Index &Index, const CSG_Array_Int &Fields, bool bAscending) const
 {
 	return( Set_Index(Index, Fields.Get_Array(), (int)Fields.Get_Size(), bAscending) );
+}
+
+//---------------------------------------------------------
+void CSG_Table::_Index_Update(void)
+{
+	if( m_Index_Fields.Get_Size() < 1 )
+	{
+		Del_Index();
+	}
+
+	CSG_Array_Int Fields, Ascending;
+
+	for(sLong i=0; i<m_Index_Fields.Get_Size(); i++)
+	{
+		Fields    += abs(m_Index_Fields[i]) - 1;
+		Ascending +=     m_Index_Fields[i] > 0 ? 1 : 0;
+	}
+
+	CSG_Table_Record_Compare_Fields	Compare(this, Fields.Get_Array(), (int)Fields.Get_Size(), Ascending.Get_Array());
+
+	if( !Compare.is_Okay() || !m_Index.Create(Get_Count(), &Compare) )
+	{
+		Del_Index();
+	}
 }
 
 

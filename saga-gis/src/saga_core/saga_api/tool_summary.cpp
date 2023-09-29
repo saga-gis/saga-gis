@@ -793,10 +793,7 @@ bool CSG_Tool_Library::Get_Summary(const CSG_String &Path)	const
 //---------------------------------------------------------
 CSG_String CSG_Tool_Library_Manager::Get_Summary(int Format)	const
 {
-	//-----------------------------------------------------
-	int			i, nTools;
-
-	CSG_Table	Libraries;
+	int nTools = 0; CSG_Table Libraries;
 
 	Libraries.Add_Field("LIB"  , SG_DATATYPE_String);
 	Libraries.Add_Field("TOOLS", SG_DATATYPE_Int   );
@@ -804,11 +801,11 @@ CSG_String CSG_Tool_Library_Manager::Get_Summary(int Format)	const
 	Libraries.Add_Field("PATH" , SG_DATATYPE_String);
 	Libraries.Add_Field("CHAIN", SG_DATATYPE_Int   );
 
-	for(i=0, nTools=0; i<Get_Count(); i++)
+	for(int i=0; i<Get_Count(); i++)
 	{
 		if( Get_Library(i)->Get_Count() > 0 )
 		{
-			nTools	+= Get_Library(i)->Get_Count();
+			nTools += Get_Library(i)->Get_Count();
 
 			Libraries.Add_Record();
 
@@ -823,60 +820,60 @@ CSG_String CSG_Tool_Library_Manager::Get_Summary(int Format)	const
 	Libraries.Set_Index(4, TABLE_INDEX_Ascending, 0, TABLE_INDEX_Ascending);
 
 	//-----------------------------------------------------
-	CSG_String	s;
+	CSG_String s;
 
 	switch( Format )
 	{
 	//-----------------------------------------------------
 	case SG_SUMMARY_FMT_XML:
 
-		s	+= "<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>\n";
-		s	+= CSG_String::Format("<%s>\n", SG_XML_SYSTEM);
-		s	+= CSG_String::Format("<%s>%s</%s>\n", SG_XML_SYSTEM_VER, SAGA_VERSION, SG_XML_SYSTEM_VER);
+		s += "<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>\n";
+		s += CSG_String::Format("<%s>\n", SG_XML_SYSTEM);
+		s += CSG_String::Format("<%s>%s</%s>\n", SG_XML_SYSTEM_VER, SAGA_VERSION, SG_XML_SYSTEM_VER);
 
-		for(i=0; i<Libraries.Get_Count(); i++)
+		for(int i=0; i<Libraries.Get_Count(); i++)
 		{
-			s	+= CSG_String::Format("\t<%s %s=\"%s\"/>\n", SG_XML_LIBRARY, SG_XML_LIBRARY_NAME, Libraries[i].asString(0));
+			s += CSG_String::Format("\t<%s %s=\"%s\"/>\n", SG_XML_LIBRARY, SG_XML_LIBRARY_NAME, Libraries[i].asString(0));
 		}
 
-		s	+= CSG_String::Format("</%s>\n", SG_XML_SYSTEM);
+		s += CSG_String::Format("</%s>\n", SG_XML_SYSTEM);
 
 		break;
 
 	//-----------------------------------------------------
 	case SG_SUMMARY_FMT_HTML: default:
 
-		#define SUMMARY_ADD_INT(label, value)	CSG_String::Format("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%d</td></tr>", label, value)
+		#define SUMMARY_ADD_INT(label, value) CSG_String::Format("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%d</td></tr>", label, value)
 
-		s	+= CSG_String::Format("<h4>%s</h4>", _TL("Tool Libraries"));
+		s += CSG_String::Format("<h4>%s</h4>", _TL("Tool Libraries"));
 
-		s	+= "<table border=\"0\">";
+		s += "<table border=\"0\">";
 
-		s	+= SUMMARY_ADD_INT(_TL("Libraries"), Libraries.Get_Count());
-		s	+= SUMMARY_ADD_INT(_TL("Tools"    ), nTools);
+		s += SUMMARY_ADD_INT(_TL("Libraries"), Libraries.Get_Count());
+		s += SUMMARY_ADD_INT(_TL("Tools"    ), nTools);
 
-		s	+= "</table>";
+		s += "</table>";
 
-		s	+= CSG_String::Format("<hr><h4>%s</h4><table border=\"1\">", _TL("Libraries"));
+		s += CSG_String::Format("<hr><h4>%s</h4><table border=\"1\">", _TL("Libraries"));
 
-		s	+= CSG_String::Format("<tr align=\"left\"><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>",
-				_TL("Library" ),
-				_TL("Tools"   ),
-				_TL("Name"    ),
-				_TL("Location")
-			);
+		s += CSG_String::Format("<tr align=\"left\"><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>",
+			_TL("Library" ),
+			_TL("Tools"   ),
+			_TL("Name"    ),
+			_TL("Location")
+		);
 
-		for(i=0; i<Libraries.Get_Count(); i++)
+		for(int i=0; i<Libraries.Get_Count(); i++)
 		{
-			s	+= CSG_String::Format("<tr><td>%s</td><td>%d</td><td>%s</td><td>%s</td></tr>",
-					Libraries[i].asString(0),
-					Libraries[i].asInt   (1),
-					Libraries[i].asString(2),
-					Libraries[i].asString(3)
-				);
+			s += CSG_String::Format("<tr><td>%s</td><td>%d</td><td>%s</td><td>%s</td></tr>",
+				Libraries[i].asString(0),
+				Libraries[i].asInt   (1),
+				Libraries[i].asString(2),
+				Libraries[i].asString(3)
+			);
 		}
 
-		s	+= "</table>";
+		s += "</table>";
 
 		#undef SUMMARY_ADD_INT
 
@@ -885,17 +882,17 @@ CSG_String CSG_Tool_Library_Manager::Get_Summary(int Format)	const
 	//-----------------------------------------------------
 	case SG_SUMMARY_FMT_FLAT:
 
-		s	+= CSG_String::Format("\n%d %s (%d %s):\n", Libraries.Get_Count(), _TL("loaded tool libraries"), nTools, _TL("tools"));
+		s += CSG_String::Format("\n%d %s (%d %s):\n", Libraries.Get_Count(), _TL("loaded tool libraries"), nTools, _TL("tools"));
 
-		for(i=0; i<Libraries.Get_Count(); i++)
+		for(int i=0; i<Libraries.Get_Count(); i++)
 		{
 			if( Libraries[i].asInt(4) == 0 )
-				s	+= CSG_String::Format(" - %s\n"  , Libraries[i].asString(0));
+				s += CSG_String::Format(" - %s\n"  , Libraries[i].asString(0));
 			else
-				s	+= CSG_String::Format(" - %s *\n", Libraries[i].asString(0));
+				s += CSG_String::Format(" - %s *\n", Libraries[i].asString(0));
 		}
 
-		s	+= CSG_String::Format("\n\n*) %s\n", _TL("tool chain libraries"));
+		s += CSG_String::Format("\n\n*) %s\n", _TL("tool chain libraries"));
 
 		break;
 	}
