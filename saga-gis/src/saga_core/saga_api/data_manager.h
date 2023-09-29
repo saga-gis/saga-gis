@@ -105,10 +105,12 @@ protected:
 	virtual ~CSG_Data_Collection(void);
 
 	virtual bool					Add					(CSG_Data_Object *pObject);
-	bool							Delete				(CSG_Data_Object *pObject, bool bDetachOnly = false);
-	bool							Delete				(size_t i                , bool bDetachOnly = false);
-	bool							Delete_All			(                          bool bDetachOnly = false);
-	bool							Delete_Unsaved		(                          bool bDetachOnly = false);
+	bool							Delete				(CSG_Data_Object *pObject, bool bDetach = false);
+	bool							Delete				(size_t i                , bool bDetach = false);
+	bool							Delete				(                          bool bDetach = false, bool bUnsaved = false);
+
+	bool							Delete_All			(                          bool bDetach = false); // deprecated
+	bool							Delete_Unsaved		(                          bool bDetach = false); // deprecated
 
 
 	class CSG_Data_Manager			*m_pManager;
@@ -174,41 +176,48 @@ public:
 	CSG_Grid_Collection *				Get_Grid_System		(const CSG_Grid_System &System)	const;
 
 	bool								Add					(CSG_Data_Object *pObject);
+
 	CSG_Data_Object *					Add					(const CSG_String &File, TSG_Data_Object_Type Type = SG_DATAOBJECT_TYPE_Undefined);
 	CSG_Data_Object *					Add					(const char       *File, TSG_Data_Object_Type Type = SG_DATAOBJECT_TYPE_Undefined)	{	return( Add(CSG_String(File), Type) );	}
 	CSG_Data_Object *					Add					(const wchar_t    *File, TSG_Data_Object_Type Type = SG_DATAOBJECT_TYPE_Undefined)	{	return( Add(CSG_String(File), Type) );	}
 
+	CSG_Table *							Add_Table			(void);
 	CSG_Table *							Add_Table			(const CSG_String &File)	{	return( (CSG_Table      *)Add(File, SG_DATAOBJECT_TYPE_Table     ) );	}
 	CSG_Table *							Add_Table			(const char       *File)	{	return( (CSG_Table      *)Add(File, SG_DATAOBJECT_TYPE_Table     ) );	}
 	CSG_Table *							Add_Table			(const wchar_t    *File)	{	return( (CSG_Table      *)Add(File, SG_DATAOBJECT_TYPE_Table     ) );	}
+
+	CSG_TIN *							Add_TIN				(void);
 	CSG_TIN *							Add_TIN				(const CSG_String &File)	{	return( (CSG_TIN        *)Add(File, SG_DATAOBJECT_TYPE_TIN       ) );	}
 	CSG_TIN *							Add_TIN				(const char       *File)	{	return( (CSG_TIN        *)Add(File, SG_DATAOBJECT_TYPE_TIN       ) );	}
 	CSG_TIN *							Add_TIN				(const wchar_t    *File)	{	return( (CSG_TIN        *)Add(File, SG_DATAOBJECT_TYPE_TIN       ) );	}
+
+	CSG_PointCloud *					Add_PointCloud		(void);
 	CSG_PointCloud *					Add_PointCloud		(const CSG_String &File)	{	return( (CSG_PointCloud *)Add(File, SG_DATAOBJECT_TYPE_PointCloud) );	}
 	CSG_PointCloud *					Add_PointCloud		(const char       *File)	{	return( (CSG_PointCloud *)Add(File, SG_DATAOBJECT_TYPE_PointCloud) );	}
 	CSG_PointCloud *					Add_PointCloud		(const wchar_t    *File)	{	return( (CSG_PointCloud *)Add(File, SG_DATAOBJECT_TYPE_PointCloud) );	}
+
+	CSG_Shapes *						Add_Shapes			(TSG_Shape_Type Type = SHAPE_TYPE_Undefined);
 	CSG_Shapes *						Add_Shapes			(const CSG_String &File)	{	return( (CSG_Shapes     *)Add(File, SG_DATAOBJECT_TYPE_Shapes    ) );	}
 	CSG_Shapes *						Add_Shapes			(const char       *File)	{	return( (CSG_Shapes     *)Add(File, SG_DATAOBJECT_TYPE_Shapes    ) );	}
 	CSG_Shapes *						Add_Shapes			(const wchar_t    *File)	{	return( (CSG_Shapes     *)Add(File, SG_DATAOBJECT_TYPE_Shapes    ) );	}
+
+	CSG_Grid *							Add_Grid			(const CSG_Grid_System &System, TSG_Data_Type Type = SG_DATATYPE_Undefined);
+	CSG_Grid *							Add_Grid			(int NX, int NY, double Cellsize = 0., double xMin = 0., double yMin = 0., TSG_Data_Type Type = SG_DATATYPE_Undefined);
 	CSG_Grid *							Add_Grid			(const CSG_String &File)	{	return( (CSG_Grid       *)Add(File, SG_DATAOBJECT_TYPE_Grid      ) );	}
 	CSG_Grid *							Add_Grid			(const char       *File)	{	return( (CSG_Grid       *)Add(File, SG_DATAOBJECT_TYPE_Grid      ) );	}
 	CSG_Grid *							Add_Grid			(const wchar_t    *File)	{	return( (CSG_Grid       *)Add(File, SG_DATAOBJECT_TYPE_Grid      ) );	}
+
 	CSG_Grids *							Add_Grids			(const CSG_String &File)	{	return( (CSG_Grids      *)Add(File, SG_DATAOBJECT_TYPE_Grids     ) );	}
 	CSG_Grids *							Add_Grids			(const char       *File)	{	return( (CSG_Grids      *)Add(File, SG_DATAOBJECT_TYPE_Grids     ) );	}
 	CSG_Grids *							Add_Grids			(const wchar_t    *File)	{	return( (CSG_Grids      *)Add(File, SG_DATAOBJECT_TYPE_Grids     ) );	}
 
-	CSG_Table *							Add_Table			(void);
-	CSG_TIN *							Add_TIN				(void);
-	CSG_PointCloud *					Add_PointCloud		(void);
-	CSG_Shapes *						Add_Shapes			(TSG_Shape_Type Type = SHAPE_TYPE_Undefined);
-	CSG_Grid *							Add_Grid			(const CSG_Grid_System &System, TSG_Data_Type Type = SG_DATATYPE_Undefined);
-	CSG_Grid *							Add_Grid			(int NX, int NY, double Cellsize = 0.0, double xMin = 0.0, double yMin = 0.0, TSG_Data_Type Type = SG_DATATYPE_Undefined);
+	bool								Delete				(CSG_Data_Collection *pCollection, bool bDetach = false);
+	bool								Delete				(CSG_Data_Object     *pObject    , bool bDetach = false);
+	bool								Delete				(const CSG_Grid_System &System   , bool bDetach = false);
+	bool								Delete				(                                  bool bDetach = false, bool bUnsaved = false);
 
-	bool								Delete				(CSG_Data_Collection *pCollection, bool bDetachOnly = false);
-	bool								Delete				(CSG_Data_Object     *pObject    , bool bDetachOnly = false);
-	bool								Delete				(const CSG_Grid_System &System   , bool bDetachOnly = false);
-	bool								Delete_All			(                                  bool bDetachOnly = false);
-	bool								Delete_Unsaved		(                                  bool bDetachOnly = false);
+	bool								Delete_All			(                                  bool bDetach = false); // deprecated
+	bool								Delete_Unsaved		(                                  bool bDetach = false); // deprecated
 
 	bool								Exists				(CSG_Data_Object *pObject)		const;
 	bool								Exists				(const CSG_Grid_System &System)	const;

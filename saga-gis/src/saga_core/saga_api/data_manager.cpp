@@ -59,7 +59,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Data_Manager		g_Data_Manager;
+CSG_Data_Manager	g_Data_Manager;
 
 //---------------------------------------------------------
 CSG_Data_Manager &	SG_Get_Data_Manager	(void)
@@ -142,7 +142,7 @@ bool CSG_Data_Collection::Add(CSG_Data_Object *pObject)
 }
 
 //---------------------------------------------------------
-bool CSG_Data_Collection::Delete(CSG_Data_Object *pObject, bool bDetachOnly)
+bool CSG_Data_Collection::Delete(CSG_Data_Object *pObject, bool bDetach)
 {
 	CSG_Data_Object	**pObjects	= (CSG_Data_Object **)m_Objects.Get_Array();
 
@@ -152,11 +152,11 @@ bool CSG_Data_Collection::Delete(CSG_Data_Object *pObject, bool bDetachOnly)
 	{
 		if( pObject == Get(i) )
 		{
-			if( !bDetachOnly )
+			if( !bDetach )
 			{
 				delete(Get(i));
 
-				bDetachOnly = true;	// just in case the same object has been added more than once
+				bDetach = true;	// just in case the same object has been added more than once
 			}
 		}
 		else
@@ -176,35 +176,54 @@ bool CSG_Data_Collection::Delete(CSG_Data_Object *pObject, bool bDetachOnly)
 }
 
 //---------------------------------------------------------
-bool CSG_Data_Collection::Delete(size_t i, bool bDetachOnly)
+bool CSG_Data_Collection::Delete(size_t i, bool bDetach)
 {
-	return( Delete(Get(i), bDetachOnly) );
+	return( Delete(Get(i), bDetach) );
 }
 
 //---------------------------------------------------------
-bool CSG_Data_Collection::Delete_All(bool bDetachOnly)
+bool CSG_Data_Collection::Delete(bool bDetach, bool bUnsaved)
 {
-	if( !bDetachOnly )
+	if( bUnsaved )
 	{
-		for(size_t i=0; i<Count(); i++)
+		for(size_t i=Count(); i>0; i--)
 		{
-			delete(Get(i));
+			if( !SG_File_Exists(Get(i - 1)->Get_File_Name()) )
+			{
+				Delete(i, bDetach);
+			}
 		}
 	}
+	else
+	{
+		if( !bDetach )
+		{
+			for(size_t i=0; i<Count(); i++)
+			{
+				delete(Get(i));
+			}
+		}
 
-	m_Objects.Set_Array(0);
+		m_Objects.Set_Array(0);
+	}
 
 	return( true );
 }
 
 //---------------------------------------------------------
-bool CSG_Data_Collection::Delete_Unsaved(bool bDetachOnly)
+bool CSG_Data_Collection::Delete_All(bool bDetach)
+{
+	return( Delete(bDetach, false) );
+}
+
+//---------------------------------------------------------
+bool CSG_Data_Collection::Delete_Unsaved(bool bDetach)
 {
 	for(size_t i=Count(); i>0; i--)
 	{
 		if( !SG_File_Exists(Get(i - 1)->Get_File_Name()) )
 		{
-			Delete(i, bDetachOnly);
+			Delete(i, bDetach);
 		}
 	}
 
@@ -664,7 +683,7 @@ CSG_Grid * CSG_Data_Manager::Add_Grid(int NX, int NY, double Cellsize, double xM
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Data_Manager::Delete(CSG_Data_Collection *pCollection, bool bDetachOnly)
+bool CSG_Data_Manager::Delete(CSG_Data_Collection *pCollection, bool bDetach)
 {
 	if( pCollection == NULL || pCollection->m_pManager != this )
 	{
@@ -672,10 +691,10 @@ bool CSG_Data_Manager::Delete(CSG_Data_Collection *pCollection, bool bDetachOnly
 	}
 
 	//-----------------------------------------------------
-	if( pCollection == m_pTable       )	{	return( pCollection->Delete_All(bDetachOnly) );	}
-	if( pCollection == m_pTIN         )	{	return( pCollection->Delete_All(bDetachOnly) );	}
-	if( pCollection == m_pPoint_Cloud )	{	return( pCollection->Delete_All(bDetachOnly) );	}
-	if( pCollection == m_pShapes      )	{	return( pCollection->Delete_All(bDetachOnly) );	}
+	if( pCollection == m_pTable       )	{	return( pCollection->Delete_All(bDetach) );	}
+	if( pCollection == m_pTIN         )	{	return( pCollection->Delete_All(bDetach) );	}
+	if( pCollection == m_pPoint_Cloud )	{	return( pCollection->Delete_All(bDetach) );	}
+	if( pCollection == m_pShapes      )	{	return( pCollection->Delete_All(bDetach) );	}
 
 	//-----------------------------------------------------
 	if( pCollection->m_Type == SG_DATAOBJECT_TYPE_Grid )
@@ -688,9 +707,9 @@ bool CSG_Data_Manager::Delete(CSG_Data_Collection *pCollection, bool bDetachOnly
 		{
 			if( pCollection == pSystems[i] )
 			{
-				if( bDetachOnly )
+				if( bDetach )
 				{
-					pSystems[i]->Delete_All(bDetachOnly);
+					pSystems[i]->Delete_All(bDetach);
 				}
 
 				delete(pSystems[i]);
@@ -714,15 +733,15 @@ bool CSG_Data_Manager::Delete(CSG_Data_Collection *pCollection, bool bDetachOnly
 }
 
 //---------------------------------------------------------
-bool CSG_Data_Manager::Delete(CSG_Data_Object *pObject, bool bDetachOnly)
+bool CSG_Data_Manager::Delete(CSG_Data_Object *pObject, bool bDetach)
 {
 	CSG_Data_Collection	*pCollection	= _Get_Collection(pObject);
 
-	if( pCollection && pCollection->Delete(pObject, bDetachOnly) )
+	if( pCollection && pCollection->Delete(pObject, bDetach) )
 	{
 		if( pCollection->m_Type == SG_DATAOBJECT_TYPE_Grid && pCollection->Count() == 0 )
 		{
-			Delete(pCollection, bDetachOnly);
+			Delete(pCollection, bDetach);
 		}
 
 		return( true );
@@ -732,24 +751,24 @@ bool CSG_Data_Manager::Delete(CSG_Data_Object *pObject, bool bDetachOnly)
 }
 
 //---------------------------------------------------------
-bool CSG_Data_Manager::Delete(const CSG_Grid_System &System, bool bDetachOnly)
+bool CSG_Data_Manager::Delete(const CSG_Grid_System &System, bool bDetach)
 {
-	return( Delete(Get_Grid_System(System), bDetachOnly) );
+	return( Delete(Get_Grid_System(System), bDetach) );
 }
 
 //---------------------------------------------------------
-bool CSG_Data_Manager::Delete_All(bool bDetachOnly)
+bool CSG_Data_Manager::Delete(bool bDetach, bool bUnsaved)
 {
-	m_pTable      ->Delete_All(bDetachOnly);
-	m_pTIN        ->Delete_All(bDetachOnly);
-	m_pPoint_Cloud->Delete_All(bDetachOnly);
-	m_pShapes     ->Delete_All(bDetachOnly);
+	m_pTable      ->Delete(bDetach, bUnsaved);
+	m_pTIN        ->Delete(bDetach, bUnsaved);
+	m_pPoint_Cloud->Delete(bDetach, bUnsaved);
+	m_pShapes     ->Delete(bDetach, bUnsaved);
 
 	for(size_t i=0; i<Grid_System_Count(); i++)
 	{
-		CSG_Grid_Collection	*pSystem	= Get_Grid_System(i);
+		CSG_Grid_Collection *pSystem = Get_Grid_System(i);
 
-		pSystem->Delete_All(bDetachOnly);
+		pSystem->Delete(bDetach, bUnsaved);
 
 		delete(pSystem);
 	}
@@ -760,26 +779,15 @@ bool CSG_Data_Manager::Delete_All(bool bDetachOnly)
 }
 
 //---------------------------------------------------------
-bool CSG_Data_Manager::Delete_Unsaved(bool bDetachOnly)
+bool CSG_Data_Manager::Delete_All(bool bDetach)
 {
-	m_pTable      ->Delete_Unsaved(bDetachOnly);
-	m_pTIN        ->Delete_Unsaved(bDetachOnly);
-	m_pPoint_Cloud->Delete_Unsaved(bDetachOnly);
-	m_pShapes     ->Delete_Unsaved(bDetachOnly);
+	return( Delete(bDetach, false) );
+}
 
-	for(size_t i=Grid_System_Count(); i>0; i--)
-	{
-		CSG_Grid_Collection	*pSystem	= Get_Grid_System(i - 1);
-
-		pSystem->Delete_Unsaved(bDetachOnly);
-
-		if( pSystem->Count() == 0 )
-		{
-			Delete(pSystem);
-		}
-	}
-
-	return( true );
+//---------------------------------------------------------
+bool CSG_Data_Manager::Delete_Unsaved(bool bDetach)
+{
+	return( Delete(bDetach, true) );
 }
 
 
