@@ -533,15 +533,21 @@ CSG_Lines CSG_Shape_Polygon_Part::Get_Shared_Edges(CSG_Shape_Polygon_Part *pPart
 			if( Part.Get_Count() > 1 )
 			{
 				P1 = Part[0]; bool bOnEdge = false;
+				CSG_Point C0 = P1;
 
 				for(sLong i=1, n=-1; i<Part.Get_Count(); i++)
 				{
-					CSG_Point C, P0 = P1; P1 = Part[i];
+					CSG_Point C1, P0 = P1; P1 = Part[i];
 
-					C.x = P0.x + 0.5 * (P1.x - P0.x);
-					C.y = P0.y + 0.5 * (P1.y - P0.y);
+					C1.x = P0.x + 0.5 * (P1.x - P0.x);
+					C1.y = P0.y + 0.5 * (P1.y - P0.y);
 
-					if( _is_OnEdge(this, C, true, Epsilon) && _is_OnEdge(pPart, C, true, Epsilon) )
+					if( C0 == C1 )
+					{
+						continue; // do not add the same edge twice (in different directions)
+					}
+
+					if( _is_OnEdge(this, C1, true, Epsilon) && _is_OnEdge(pPart, C1, true, Epsilon) )
 					{
 						if( !bOnEdge ) // start a new edge segment
 						{
@@ -560,6 +566,8 @@ CSG_Lines CSG_Shape_Polygon_Part::Get_Shared_Edges(CSG_Shape_Polygon_Part *pPart
 					{
 						bOnEdge = false;
 					}
+
+					C0 = C1;
 				}
 			}
 		}
