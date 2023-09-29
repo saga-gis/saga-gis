@@ -1265,7 +1265,7 @@ bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool, bool bShowError)
 
 	pTool->Settings_Push(&m_Data_Manager);
 
-	bool	bResult	= false;
+	bool bResult = false;
 
 	if( !pTool->On_Before_Execution() )
 	{
@@ -1277,7 +1277,7 @@ bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool, bool bShowError)
 	}
 	else if( !(bResult = pTool->Execute(m_bAddHistory)) )
 	{
-	//	if( bShowError ) Error_Fmt("%s [%s].[%s]", _TL("tool execution failed"             ), pTool->Get_Library().c_str(), pTool->Get_Name().c_str());
+		Message_Fmt               ("%s [%s].[%s]", _TL("tool execution failed"             ), pTool->Get_Library().c_str(), pTool->Get_Name().c_str());
 	}
 
 	if( bResult )
@@ -1942,10 +1942,10 @@ CSG_Tool_Chains::CSG_Tool_Chains(const CSG_String &Library_Name, const CSG_Strin
 	//-----------------------------------------------------
 	if( m_Library_Name.is_Empty() || !m_Library_Name.Cmp("toolchains") )
 	{
-		m_Library_Name	= "toolchains";
-		m_Name			= _TL("Tool Chains");
-		m_Description	= _TL("Unsorted tool chains");
-		m_Menu			= _TL("Tool Chains");
+		m_Library_Name	= "_tool_chains_uncategorized";
+		m_Name			= _TL("Uncategorized Tool Chains");
+		m_Description	= _TL("Uncategorized Tool Chains");
+		m_Menu			= _TL("Uncategorized Tool Chains");
 	}
 
 	//-----------------------------------------------------
