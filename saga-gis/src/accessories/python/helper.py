@@ -201,7 +201,7 @@ def Create_Toolboxes(Path='', SingleFile=False, UseToolName=True, Clean=True):
     - Path [`string`] : either the single target file name or the target folder
     - SingleFile [`boolean`] : if `True` a single Python module will be created for all function calls, else one module for each tool library will be created
     - UseToolName [`boolean`]: if `True` function names will be based on the tool names, else these will named from `library` + `tool id`
-    - Clean [boolean]: if `True` and not a single file is targeted all files from the target folder will be deleted before the new ones are generated
+    - Clean [`boolean`]: if `True` and not a single file is targeted all files from the target folder will be deleted before the new ones are generated
 
     Returns
     ----------
@@ -222,7 +222,6 @@ class Tool_Wrapper:
     '''
 
     Tool   = None
-    Input  = []
     Output = []
 
     #____________________________________
@@ -231,7 +230,7 @@ class Tool_Wrapper:
         if not self.Tool:
             saga_api.SG_UI_Msg_Add_Error('failed to request tool: {:s}'.format(Expected))
         else:
-            self.Tool.Create_Manager()
+            self.Tool.Set_Manager(None)
 
     #____________________________________
     def __del__(self):
@@ -240,11 +239,8 @@ class Tool_Wrapper:
     #____________________________________
     def Destroy(self):
         if self.is_Okay():
-            self.Tool.Delete_Manager(True) # detach only, should be nothing but input!
             saga_api.SG_Get_Tool_Library_Manager().Delete_Tool(self.Tool)
-
         self.Tool = None
-        self.Input .clear()
         self.Output.clear()
 
     #____________________________________
@@ -257,23 +253,25 @@ class Tool_Wrapper:
             Parameter = self.Tool.Get_Parameter(ID)
             if Parameter and Parameter.is_Input():
                 if Parameter.is_DataObject():
-                    self.Input.append(Object)
-                    self.Tool.Get_Manager().Add(Object)
                     Parameter.Set_Value(Object)
                 elif Parameter.is_DataObject_List():
                     for Item in Object:
-                        self.Input.append(Item)
-                        self.Tool.Get_Manager().Add(Item)
                         Parameter.asList().Add_Item(Item)
 
     #____________________________________
     def Set_Output(self, ID, Object):
-        if self.is_Okay() and Object != None:
+        if self.is_Okay():
             Parameter = self.Tool.Get_Parameter(ID)
             if Parameter and Parameter.is_Output():
-                if Parameter.is_DataObject() and Parameter.is_Optional():
-                    Parameter.Set_Value(saga_api.SG_Get_Create_Pointer())
-                self.Output.append([Object, ID])
+                if Object != None:
+                    if Parameter.is_DataObject():
+                        Parameter.Set_Value(Object)
+                    elif Parameter.is_DataObject_List():
+                        Object.clear() # should be empty Python list [] to be filled later
+                        self.Output.append([Object, ID])
+                else: # if Object == None:
+                    if Parameter.is_DataObject_List() or (Parameter.is_DataObject() and not Parameter.is_Optional()):
+                        self.Output.append([None, ID]) # not requested non-optional output needs to be deleted later
 
     #____________________________________
     def Set_Option(self, ID, Value):
@@ -282,34 +280,19 @@ class Tool_Wrapper:
 
     #____________________________________
     def Execute(self):
-        def _Copy_Output(Object, Parameter):
-            if Object.Get_ObjectType() == saga_api.SG_DATAOBJECT_TYPE_Grid:
-                Object.asGrid().Create(Parameter.asGrid())
-            if Object.Get_ObjectType() == saga_api.SG_DATAOBJECT_TYPE_Grids:
-                Object.asGrids().Create(Parameter.asGrids())
-            if Object.Get_ObjectType() == saga_api.SG_DATAOBJECT_TYPE_Table:
-                Object.asTable().Create(Parameter.asTable())
-            if Object.Get_ObjectType() == saga_api.SG_DATAOBJECT_TYPE_Shapes:
-                Object.asShapes().Create(Parameter.asShapes())
-            if Object.Get_ObjectType() == saga_api.SG_DATAOBJECT_TYPE_PointCloud:
-                Object.asPointCloud().Create(Parameter.asPointCloud())
-            if Object.Get_ObjectType() == saga_api.SG_DATAOBJECT_TYPE_TIN:
-                Object.asTIN().Create(Parameter.asTIN())
-
         def _Process_Output(Save):
             for Data in self.Output:
                 Parameter = self.Tool.Get_Parameter(Data[1])
-                if Parameter.is_DataObject():
-                    if Parameter.asDataObject() and Parameter.asDataObject() != saga_api.SG_Get_Create_Pointer():
-                        if Save:
-                            _Copy_Output(Data[0], Parameter.asDataObject())
-                        self.Tool.Get_Manager().Delete(Parameter.asDataObject(), False)
+                if Parameter.is_DataObject() and Parameter.asDataObject():
+                    Object = Parameter.asDataObject()
+                    del Object
                 elif Parameter.is_DataObject_List():
                     for i in range(0, Parameter.asList().Get_Item_Count()):
                         Item = Parameter.asList().Get_Item(i)
-                        if Save:
+                        if Save and Data[0] != None:
                             Data[0].append(Item)
-                        self.Tool.Get_Manager().Delete(Item, Save)
+                        else:
+                            del Item
 
         if self.is_Okay():
             if self.Tool.Execute():
