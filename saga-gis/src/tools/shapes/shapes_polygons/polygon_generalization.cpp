@@ -47,7 +47,7 @@
 
 //---------------------------------------------------------
 #include "polygon_generalization.h"
-
+#include <vector>
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -198,13 +198,13 @@ bool CPolygon_Generalization::Set_JoinTos(CSG_Shapes *pPolygons)
 		return( false );
 	}
 
-	sLong nDropped = 0, nRemoved = 0;
+	sLong nCandidate = 0, nRemoved = 0;
 
 	for(sLong i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 	{
 		if( JoinTo[i] < 0 )
 		{
-			nDropped++;
+			nCandidate++;
 		}
 		else if( JoinTo[i] != i )
 		{
@@ -238,9 +238,9 @@ bool CPolygon_Generalization::Set_JoinTos(CSG_Shapes *pPolygons)
 		}
 	}
 
-	Message_Fmt("\n%s: %lld; %s: %lld", _TL("candidates"), nRemoved + nDropped, _TL("eliminated"), nRemoved);
+	Message_Fmt("\n%s: %lld; %s: %lld", _TL("candidates"), nRemoved + nCandidate, _TL("eliminated"), nRemoved);
 
-	return( nDropped > 0 && nRemoved > 0 );
+	return( nRemoved > 0 );
 }
 
 
@@ -262,12 +262,13 @@ bool CPolygon_Generalization::Get_JoinTos(CSG_Shapes *pPolygons, CSG_Array_sLong
 	}
 
 	sLong n = 0;
+	std::vector<bool> Has_Join(pPolygons->Get_Count(), false);
 
 	for(sLong i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 	{
 		CSG_Shape_Polygon *pPolygon = (CSG_Shape_Polygon *)pPolygons->Get_Shape(i);
 
-		if( Threshold <= pPolygon->Get_Area() )
+		if( Has_Join[i] || Threshold <= pPolygon->Get_Area() )
 		{
 			JoinTo[i] = i;
 		}
@@ -275,7 +276,7 @@ bool CPolygon_Generalization::Get_JoinTos(CSG_Shapes *pPolygons, CSG_Array_sLong
 		{
 			JoinTo[i] = -1;
 
-			double maxValue = Method == 0 ? Threshold : 0.;
+			double maxValue = 0.;
 
 			for(sLong j=0; j<pPolygons->Get_Count(); j++)
 			{
@@ -289,7 +290,8 @@ bool CPolygon_Generalization::Get_JoinTos(CSG_Shapes *pPolygons, CSG_Array_sLong
 						{
 							maxValue   = pNeighbour->Get_Area();
 
-							JoinTo[i] = j;
+							JoinTo[i]   = j;
+							Has_Join[j] = true;
 						}
 					}
 					else if( pPolygon->is_Neighbour(pNeighbour) ) // largest shared edge length
@@ -300,7 +302,8 @@ bool CPolygon_Generalization::Get_JoinTos(CSG_Shapes *pPolygons, CSG_Array_sLong
 						{
 							maxValue  = sharedLength;
 
-							JoinTo[i] = j;
+							JoinTo[i]   = j;
+							Has_Join[j] = true;
 						}
 					}
 				}
