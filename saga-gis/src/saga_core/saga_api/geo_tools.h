@@ -216,9 +216,15 @@ class SAGA_API_DLL_EXPORT CSG_Lines
 {
 public:
 	CSG_Lines(void);
-	CSG_Lines(const CSG_Lines &Lines);
-	CSG_Lines(sLong nLines);
+	virtual ~CSG_Lines(void);
 
+								CSG_Lines		(const CSG_Lines &Lines);
+	bool						Create			(const CSG_Lines &Lines);
+
+								CSG_Lines		(sLong nLines);
+	bool						Create			(sLong nLines);
+
+	bool						Destroy			(void);
 	bool						Clear			(void);
 
 	CSG_Lines &					operator  =		(const CSG_Lines &Lines) { Assign(Lines); return( *this ); }

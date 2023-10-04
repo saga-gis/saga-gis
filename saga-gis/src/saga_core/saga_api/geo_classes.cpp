@@ -379,14 +379,36 @@ CSG_Lines::CSG_Lines(const CSG_Lines &Lines)
 {
 	m_Lines.Create(0, TSG_Array_Growth::SG_ARRAY_GROWTH_0);
 
-	Assign(Lines);
+	Create(Lines);
+}
+
+bool CSG_Lines::Create(const CSG_Lines &Lines)
+{
+	return( Assign(Lines) );
 }
 
 CSG_Lines::CSG_Lines(sLong nLines)
 {
 	m_Lines.Create(0, TSG_Array_Growth::SG_ARRAY_GROWTH_0);
 
-	Set_Count(nLines);
+	Create(nLines);
+}
+
+bool CSG_Lines::Create(sLong nLines)
+{
+	return( Set_Count(nLines) );
+}
+
+//---------------------------------------------------------
+CSG_Lines::~CSG_Lines(void)
+{
+	Destroy();
+}
+
+//---------------------------------------------------------
+bool CSG_Lines::Destroy(void)
+{
+	return( Set_Count(0) );
 }
 
 //---------------------------------------------------------
@@ -398,11 +420,11 @@ bool CSG_Lines::Clear(void)
 //---------------------------------------------------------
 bool CSG_Lines::Assign(const CSG_Lines &Lines)
 {
-	if( Set_Count(Lines.m_Lines.Get_Size()) )
+	if( Set_Count(Lines.Get_Count()) )
 	{
 		for(sLong i=0; i<Lines.Get_Count(); i++)
 		{
-			Get_Line(i) = Lines[i];
+			Get_Line(i).Assign(Lines[i]);
 		}
 
 		return( true );
@@ -474,7 +496,7 @@ bool CSG_Lines::Set_Count(sLong new_Count)
 	{
 		for(sLong i=new_Count; i<old_Count; i++)
 		{
-			delete(m_Lines[i]);
+			delete((CSG_Points *)m_Lines[i]);
 		}
 
 		m_Lines.Set_Array(new_Count);
