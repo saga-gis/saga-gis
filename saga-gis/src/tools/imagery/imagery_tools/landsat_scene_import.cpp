@@ -93,11 +93,9 @@ CLandsat_Scene_Import::CLandsat_Scene_Import(void)
 		)
 	);
 
-	Parameters.Add_Grid_List("",
-		"BANDS"			, _TL("Bands"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
+	Parameters.Add_Grid_List("", "BANDS_SPECTRAL" , _TL("Spectral Bands" ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid_List("", "BANDS_THERMAL"  , _TL("Thrmal Bands"   ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid_List("", "BANDS_AUXILIARY", _TL("Auxiliary Bands"), _TL(""), PARAMETER_OUTPUT);
 
 	Parameters.Add_Table("",
 		"BAND_INFO"		, _TL("Band Info"),
@@ -106,7 +104,7 @@ CLandsat_Scene_Import::CLandsat_Scene_Import(void)
 	);
 
 	Parameters.Add_Bool("",
-		"MULTI2GRIDS"	, _TL("Multispectral Bands as Grid Collection"),
+		"MULTI2GRIDS"	, _TL("Spectral Bands as Grid Collection"),
 		_TL(""),
 		true
 	);
@@ -346,9 +344,8 @@ bool CLandsat_Scene_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_String Path = SG_File_Get_Path(Parameters("METAFILE")->asString());
+	CSG_String  Path = SG_File_Get_Path(Parameters("METAFILE")->asString());
 
-	bool bMultiGrids = Parameters("MULTI2GRIDS")->asBool();
 	int  Calibration = Parameters("CALIBRATION")->asInt ();
 
 	double SunHeight = -1;
@@ -359,7 +356,9 @@ bool CLandsat_Scene_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Parameters("BANDS")->asGridList()->Del_Items();
+	Parameters("BANDS_SPECTRAL" )->asGridList()->Del_Items();
+	Parameters("BANDS_THERMAL"  )->asGridList()->Del_Items();
+	Parameters("BANDS_AUXILIARY")->asGridList()->Del_Items();
 
 	CSG_Grids *pBands = NULL;
 
@@ -405,7 +404,19 @@ bool CLandsat_Scene_Import::On_Execute(void)
 				DataObject_Add(pBand); DataObject_Set_Colors(pBand, 2, SG_COLORS_BLACK_WHITE);
 			}
 
-			if( bMultiGrids && is_Spectral(Sensor, i) && !is_Aerosol(Sensor, i) && !is_Cirrus(Sensor, i) )
+			if( is_Aerosol(Sensor, i) || is_Cirrus(Sensor, i) || is_Panchromatic(Sensor, i) )
+			{
+				Parameters("BANDS_AUXILIARY")->asGridList()->Add_Item(pBand);
+			}
+			else if( is_Thermal(Sensor, i) )
+			{
+				Parameters("BANDS_THERMAL"  )->asGridList()->Add_Item(pBand);
+			}
+			else if( !Parameters("MULTI2GRIDS")->asBool() ) // if( is_Spectral(Sensor, i) )
+			{
+				Parameters("BANDS_SPECTRAL" )->asGridList()->Add_Item(pBand);
+			}
+			else
 			{
 				if( pBands == NULL )
 				{
@@ -415,30 +426,27 @@ bool CLandsat_Scene_Import::On_Execute(void)
 
 						return( false );
 					}
+
+					pBands->Set_Name(SG_File_Get_Name(Parameters("METAFILE")->asString(), false));
+					pBands->Get_MetaData().Add_Child(Info_Scene)->Set_Name("LANDSAT");
+					pBands->Set_Description(Info_Scene.asText());
+					pBands->Set_Z_Attribute (4);
+					pBands->Set_Z_Name_Field(2);
 				}
 
 				pBands->Add_Grid(Info_Bands[i], pBand, true);
 			}
-			else
-			{
-				Parameters("BANDS")->asGridList()->Add_Item(pBand);
-			}
 		}
 	}
 
+	//-----------------------------------------------------
 	if( pBands )
 	{
-		pBands->Set_Name(SG_File_Get_Name(Parameters("METAFILE")->asString(), false));
-		pBands->Get_MetaData().Add_Child(Info_Scene)->Set_Name("LANDSAT");
-		pBands->Set_Description(Info_Scene.asText());
-		pBands->Set_Z_Attribute (4);
-		pBands->Set_Z_Name_Field(2);
-
-		Parameters("BANDS")->asGridList()->Add_Item(pBands);
+		Parameters("BANDS_SPECTRAL")->asGridList()->Add_Item(pBands);
 	}
 
-	//-----------------------------------------------------
-	return( Parameters("BANDS")->asGridList()->Get_Grid_Count() > 0 );
+	return( Parameters("BANDS_SPECTRAL")->asGridList()->Get_Grid_Count() > 0
+	     || Parameters("BANDS_THERMAL" )->asGridList()->Get_Grid_Count() > 0 );
 }
 
 
