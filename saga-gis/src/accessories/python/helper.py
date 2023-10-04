@@ -198,7 +198,7 @@ def Create_Toolboxes(Path='', SingleFile=False, UseToolName=True, Clean=True):
 
     Arguments
     ----------
-    - Path [`string`] : either the single target file name or the target folder
+    - Path [`string`] : either the single target file name or the target folder. If empty function tries to install targets in PySAGA directory (this file's directory).
     - SingleFile [`boolean`] : if `True` a single Python module will be created for all function calls, else one module for each tool library will be created
     - UseToolName [`boolean`]: if `True` function names will be based on the tool names, else these will named from `library` + `tool id`
     - Clean [`boolean`]: if `True` and not a single file is targeted all files from the target folder will be deleted before the new ones are generated
@@ -208,21 +208,25 @@ def Create_Toolboxes(Path='', SingleFile=False, UseToolName=True, Clean=True):
     `boolean` : `True` on success, `False` on failure.
     '''
 
+    if not Path:
+        import os; Path = os.path.dirname(__file__) + '/tools'
+        if SingleFile:
+            Path = Path + '.py'
+
     return saga_api.SG_Get_Tool_Library_Manager().Create_Python_ToolBox(saga_api.CSG_String(Path), Clean, UseToolName, SingleFile)
 
 
-#########################################
+#################################################################################
 #
 # class Tool_Wrapper
 #
-#________________________________________
+#________________________________________________________________________________
 class Tool_Wrapper:
     '''
-    The Tool_Wrapper class is smart wrapper for SAGA tools facilitating tool execution.
+    The Tool_Wrapper class is a smart wrapper for SAGA tools facilitating tool execution.
     '''
 
-    Tool   = None
-    Output = []
+    Tool = None; Input = []; Output = []
 
     #____________________________________
     def __init__(self, Library, Tool, Expected):
@@ -240,8 +244,7 @@ class Tool_Wrapper:
     def Destroy(self):
         if self.is_Okay():
             saga_api.SG_Get_Tool_Library_Manager().Delete_Tool(self.Tool)
-        self.Tool = None
-        self.Output.clear()
+        self.Tool = None; self.Input.clear(); self.Output.clear()
 
     #____________________________________
     def is_Okay(self):
@@ -250,28 +253,12 @@ class Tool_Wrapper:
     #____________________________________
     def Set_Input(self, ID, Object):
         if self.is_Okay() and Object:
-            Parameter = self.Tool.Get_Parameter(ID)
-            if Parameter and Parameter.is_Input():
-                if Parameter.is_DataObject():
-                    Parameter.Set_Value(Object)
-                elif Parameter.is_DataObject_List():
-                    for Item in Object:
-                        Parameter.asList().Add_Item(Item)
+            self.Input.append([ID, Object])
 
     #____________________________________
     def Set_Output(self, ID, Object):
         if self.is_Okay():
-            Parameter = self.Tool.Get_Parameter(ID)
-            if Parameter and Parameter.is_Output():
-                if Object != None:
-                    if Parameter.is_DataObject():
-                        Parameter.Set_Value(Object)
-                    elif Parameter.is_DataObject_List():
-                        Object.clear() # should be empty Python list [] to be filled later
-                        self.Output.append([Object, ID])
-                else: # if Object == None:
-                    if Parameter.is_DataObject_List() or (Parameter.is_DataObject() and not Parameter.is_Optional()):
-                        self.Output.append([None, ID]) # not requested non-optional output needs to be deleted later
+            self.Output.append([ID, Object])
 
     #____________________________________
     def Set_Option(self, ID, Value):
@@ -279,37 +266,74 @@ class Tool_Wrapper:
             self.Tool.Set_Parameter(ID, Value)
 
     #____________________________________
-    def Execute(self):
-        def _Process_Output(Save):
-            for Data in self.Output:
-                Parameter = self.Tool.Get_Parameter(Data[1])
-                if Parameter.is_DataObject() and Parameter.asDataObject():
-                    Object = Parameter.asDataObject()
-                    del Object
-                elif Parameter.is_DataObject_List():
-                    for i in range(0, Parameter.asList().Get_Item_Count()):
-                        Item = Parameter.asList().Get_Item(i)
-                        if Save and Data[0] != None:
-                            Data[0].append(Item)
-                        else:
-                            del Item
+    def Execute(self, Verbose=2):
 
+        #________________________________
+        def _Initialize():
+            if Verbose <= 1:
+                saga_api.SG_UI_ProgressAndMsg_Lock(True)
+                if Verbose == 1:
+                    saga_api.SG_UI_Console_Print_StdOut('[{:s}] execution... '.format(self.Tool.Get_Name().c_str()), '')
+
+            for Data in self.Input:
+                Parameter = self.Tool.Get_Parameter(Data[0])
+                if Parameter and Parameter.is_Input():
+                    if Parameter.is_DataObject():
+                        Parameter.Set_Value(Data[1])
+                    elif Parameter.is_DataObject_List():
+                        for Item in Data[1]:
+                            Parameter.asList().Add_Item(Item)
+
+            for Data in self.Output:
+                Parameter = self.Tool.Get_Parameter(Data[0])
+                if Parameter and Parameter.is_Output() and Parameter.is_DataObject():
+                    Parameter.Set_Value(Data[1])
+
+        #________________________________
+        def _Finalize(Success):
+            for Data in self.Output:
+                Parameter = self.Tool.Get_Parameter(Data[0])
+                if Parameter and Parameter.is_Output():
+                    if Parameter.is_DataObject():
+                        if Parameter.asDataObject() and not Data[1]: # delete output created by tool but not requested by user
+                            Object = Parameter.asDataObject(); del Object
+                    elif Parameter.is_DataObject_List():
+                        if Data[1] != None:
+                            Data[1].clear() # should be empty Python list to become filled with the results now
+                        for i in range(0, Parameter.asList().Get_Item_Count()):
+                            Item = Parameter.asList().Get_Item(i)
+                            if Data[1] != None and Success:
+                                Data[1].append(Item)
+                            else:
+                                del Item
+
+            self.Tool.Reset(); self.Input.clear(); self.Output.clear()
+
+            if Verbose <= 1:
+                saga_api.SG_UI_ProgressAndMsg_Lock(False)
+                if Verbose == 1:
+                    if Success:
+                        saga_api.SG_UI_Console_Print_StdOut('succeeded')
+                    else:
+                        saga_api.SG_UI_Console_Print_StdOut('failed')
+
+        #________________________________
         if self.is_Okay():
+            _Initialize()
+
             if self.Tool.Execute():
-                _Process_Output(True)
-                self.Destroy()
+                _Finalize(True)
                 return True
 
-            saga_api.SG_UI_Msg_Add_Error('failed to execute tool: ' + self.Tool.Get_Name().c_str())
-            _Process_Output(False)
-            self.Destroy()
+            _Finalize(False)
+
         return False
 
-#________________________________________
+#________________________________________________________________________________
 #
 # class Tool_Wrapper
 #
-#########################################
+#################################################################################
 
 
 #################################################################################
