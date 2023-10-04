@@ -1329,12 +1329,14 @@ CSG_String CSG_Tool::Get_Script(TSG_Tool_Script_Type Type, bool bHeader, bool bA
 {
 	switch( Type )
 	{
-	case TOOL_SCRIPT_CMD_SHELL       : return( _Get_Script_CMD           (      bHeader, bAllParameters, Type) );
-	case TOOL_SCRIPT_CMD_BATCH       : return( _Get_Script_CMD           (      bHeader, bAllParameters, Type) );
-	case TOOL_SCRIPT_PYTHON          : return( _Get_Script_Python        (      bHeader, bAllParameters      ) );
-	case TOOL_SCRIPT_PYTHON_WRAP_NAME: return( _Get_Script_Python_Wrap   (      bHeader, true                ) );
-	case TOOL_SCRIPT_PYTHON_WRAP_ID  : return( _Get_Script_Python_Wrap   (      bHeader, false               ) );
-	case TOOL_SCRIPT_CHAIN           : return( CSG_Tool_Chain::Get_Script(this, bHeader, bAllParameters      ) );
+	case TOOL_SCRIPT_CMD_SHELL            : return( _Get_Script_CMD           (      bHeader, bAllParameters, Type) );
+	case TOOL_SCRIPT_CMD_BATCH            : return( _Get_Script_CMD           (      bHeader, bAllParameters, Type) );
+	case TOOL_SCRIPT_CHAIN                : return( CSG_Tool_Chain::Get_Script(this, bHeader, bAllParameters      ) );
+	case TOOL_SCRIPT_PYTHON               : return( _Get_Script_Python        (      bHeader, bAllParameters      ) );
+	case TOOL_SCRIPT_PYTHON_WRAP_NAME     : return( _Get_Script_Python_Wrap   (      bHeader, true , false        ) );
+	case TOOL_SCRIPT_PYTHON_WRAP_NAME_CALL: return( _Get_Script_Python_Wrap   (      bHeader, true , true         ) );
+	case TOOL_SCRIPT_PYTHON_WRAP_ID       : return( _Get_Script_Python_Wrap   (      bHeader, false, false        ) );
+	case TOOL_SCRIPT_PYTHON_WRAP_ID_CALL  : return( _Get_Script_Python_Wrap   (      bHeader, false, true         ) );
 	}
 
 	return( "" );
@@ -1841,28 +1843,28 @@ void CSG_Tool::_Get_Script_Python(CSG_String &Script, CSG_Parameters *pParameter
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader, bool bName)
+CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader, bool bName, bool bCall)
 {
 	CSG_String Arguments, Description, Code;
 
 	for(int i=0; i<Parameters.Get_Count(); i++)	// add input that is not optional in 1st place
 	{
-		_Get_Script_Python_Wrap(Parameters[i], PARAMETER_INPUT, Arguments, Description, Code);
+		_Get_Script_Python_Wrap(Parameters[i], PARAMETER_INPUT         , Arguments, Description, Code, bCall && bHeader);
 	}
 
 	for(int i=0; i<Parameters.Get_Count(); i++) // add optional input in 2nd place
 	{
-		_Get_Script_Python_Wrap(Parameters[i], PARAMETER_INPUT_OPTIONAL, Arguments, Description, Code);
+		_Get_Script_Python_Wrap(Parameters[i], PARAMETER_INPUT_OPTIONAL, Arguments, Description, Code, bCall && bHeader);
 	}
 
 	for(int i=0; i<Parameters.Get_Count(); i++) // add output
 	{
-		_Get_Script_Python_Wrap(Parameters[i], PARAMETER_OUTPUT, Arguments, Description, Code);
+		_Get_Script_Python_Wrap(Parameters[i], PARAMETER_OUTPUT        , Arguments, Description, Code, bCall && bHeader);
 	}
 
 	for(int i=0; i<Parameters.Get_Count(); i++) // add options
 	{
-		_Get_Script_Python_Wrap(Parameters[i], 0, Arguments, Description, Code);
+		_Get_Script_Python_Wrap(Parameters[i], 0                       , Arguments, Description, Code, bCall && bHeader);
 	}
 
 	//---------------------------------------------------------
@@ -1895,39 +1897,59 @@ CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader, bool bName)
 	//---------------------------------------------------------
 	CSG_String Script;
 
-	if( bHeader )
+	if( bCall )
 	{
-		Script += "#! /usr/bin/env python\n";
-		Script += "from PySAGA.helper import Tool_Wrapper\n\n";
-	}
+		if( bHeader )
+		{
+			Script += "#! /usr/bin/env python\n";
+			Script += "from PySAGA import saga_api; from PySAGA.tools import " + Get_Library() + "\n\n";
+			Script += Code + "\n";
+		}
+		else
+		{
+			Script += "#! /usr/bin/env python\n";
+			Script += "from PySAGA.tools import " + Get_Library() + "\n\n";
+		}
 
-	Script += "def " + Name + "(" + Arguments + "):\n";
-	Script += "    '''\n";
-	Script += "    " + Get_Name() + "\n";
-	Script += "    ----------\n";
-	Script += "    [" + Get_Library() + "." + Get_ID() + "]\\n\n";
-	for(int i=0; i<_Description.Get_Count(); i++)
-	{
-		_Description[i].Trim_Both(); Script += "    " + _Description[i] + "\\n\n";
+		Script += Get_Library() + '.' + Name + "(" + Arguments + ", Verbose=2)\n";
 	}
-	Script += "    Arguments\n";
-	Script += "    ----------\n";
-	Script += Description + "\n";
-	Script += "    Returns\n";
-	Script += "    ----------\n";
-	Script += "    `boolean` : `True` on success, `False` on failure.\n";
-	Script += "    '''\n";
-	Script += "    Tool = Tool_Wrapper('" + Get_Library() + "', '" + Get_ID() + "', '" + Expected + "')\n";
-	Script += "    if Tool.is_Okay():\n";
-	Script += Code;
-	Script += "        return Tool.Execute()\n";
-	Script += "    return False\n\n";
+	else
+	{
+		if( bHeader )
+		{
+			Script += "#! /usr/bin/env python\n";
+			Script += "from PySAGA.helper import Tool_Wrapper\n\n";
+		}
+
+		Script += "def " + Name + "(" + Arguments + ", Verbose=2):\n";
+		Script += "    '''\n";
+		Script += "    " + Get_Name() + "\n";
+		Script += "    ----------\n";
+		Script += "    [" + Get_Library() + "." + Get_ID() + "]\\n\n";
+		for(int i=0; i<_Description.Get_Count(); i++)
+		{
+			_Description[i].Trim_Both(); Script += "    " + _Description[i] + "\\n\n";
+		}
+		Script += "    Arguments\n";
+		Script += "    ----------\n";
+		Script += Description + "\n";
+		Script += "    - Verbose [`integer number`] : Verbosity level, 0=silent, 1=tool name and success notification, 2=complete tool output.\\n\n";
+		Script += "    Returns\n";
+		Script += "    ----------\n";
+		Script += "    `boolean` : `True` on success, `False` on failure.\n";
+		Script += "    '''\n";
+		Script += "    Tool = Tool_Wrapper('" + Get_Library() + "', '" + Get_ID() + "', '" + Expected + "')\n";
+		Script += "    if Tool.is_Okay():\n";
+		Script += Code;
+		Script += "        return Tool.Execute(Verbose)\n";
+		Script += "    return False\n\n";
+	}
 
 	return( Script );
 }
 
 //---------------------------------------------------------
-bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Constraint, CSG_String &Arguments, CSG_String &Description, CSG_String &Code, const CSG_String &Prefix)
+bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Constraint, CSG_String &Arguments, CSG_String &Description, CSG_String &Code, bool bCall, const CSG_String &Prefix)
 {
 	if( Parameter.do_UseInCMD() == false
 	||  Parameter.is_Information()
@@ -1953,7 +1975,7 @@ bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Const
 
 		for(int i=0; i<(*Parameter.asParameters()).Get_Count(); i++)
 		{
-			if( _Get_Script_Python_Wrap((*Parameter.asParameters())[i], Constraint, Arguments, Description, Code, ID) )
+			if( _Get_Script_Python_Wrap((*Parameter.asParameters())[i], Constraint, Arguments, Description, Code, bCall, ID) )
 			{
 				bResult = true;
 			}
@@ -1967,6 +1989,76 @@ bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Const
 	if( Parameter.is_Input () &&  Parameter.is_Optional() && Constraint != PARAMETER_INPUT_OPTIONAL ) { return( false ); }
 	if( Parameter.is_Output() &&                             Constraint != PARAMETER_OUTPUT         ) { return( false ); }
 	if( Parameter.is_Option() &&                             Constraint != 0                        ) { return( false ); }
+
+	//-----------------------------------------------------
+	if( bCall )
+	{
+		CSG_String Value;
+
+		switch( Parameter.Get_Type() )
+		{
+		default:
+			break;
+
+		case PARAMETER_TYPE_Bool             : Value = Parameter.asBool() ? "True" : "False"; break;
+
+		case PARAMETER_TYPE_Int              :
+		case PARAMETER_TYPE_Data_Type        :
+		case PARAMETER_TYPE_Table_Field      : Value.Printf("%d", Parameter.asInt()); break;
+
+		case PARAMETER_TYPE_Double           :
+		case PARAMETER_TYPE_Degree           : Value.Printf("%f", Parameter.asDouble()); break;
+
+		case PARAMETER_TYPE_Color            : Value = SG_Color_To_Text(Parameter.asColor()); break;
+
+		case PARAMETER_TYPE_String           :
+		case PARAMETER_TYPE_Text             :
+		case PARAMETER_TYPE_Date             :
+		case PARAMETER_TYPE_Choice           :
+		case PARAMETER_TYPE_Choices          :
+		case PARAMETER_TYPE_Table_Fields     :
+		case PARAMETER_TYPE_FilePath         : Value.Printf("'%s'", Parameter.asString()); break;
+
+		case PARAMETER_TYPE_DataObject_Output:
+		case PARAMETER_TYPE_Grid             :
+		case PARAMETER_TYPE_Grids            :
+		case PARAMETER_TYPE_Table            :
+		case PARAMETER_TYPE_Shapes           :
+		case PARAMETER_TYPE_TIN              :
+		case PARAMETER_TYPE_PointCloud       : Value = Parameter.Get_Identifier(); Code += Value + " = saga_api.CSG_";
+			switch( Parameter.Get_DataObject_Type() )
+			{
+			case SG_DATAOBJECT_TYPE_Grid      : Code += "Grid"      ; break;
+			case SG_DATAOBJECT_TYPE_Grids     : Code += "Grids"     ; break;
+			case SG_DATAOBJECT_TYPE_Table     : Code += "Table"     ; break;
+			case SG_DATAOBJECT_TYPE_Shapes    : Code += "Shapes"    ; break;
+			case SG_DATAOBJECT_TYPE_PointCloud: Code += "PointCloud"; break;
+			case SG_DATAOBJECT_TYPE_TIN       : Code += "TIN"       ; break;
+			default                           : Code += "DataObject"; break;
+			}
+			if( Parameter.is_Input() && Parameter.asDataObject() && Parameter.asDataObject()->Get_File_Name() )
+			{
+				Code += CSG_String::Format("('%s')\n", Parameter.asDataObject()->Get_File_Name());
+			}
+			else
+			{
+				Code += "()\n";
+			}
+			break;
+		}
+
+		if( !Value.is_Empty() )
+		{
+			if( !Arguments.is_Empty() )
+			{
+				Arguments += ", ";
+			}
+
+			Arguments += Argument + "=" + Value;
+		}
+
+		return( true );
+	}
 
 	//-----------------------------------------------------
 	if( !Arguments.is_Empty() )
@@ -2021,14 +2113,14 @@ bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Const
 //---------------------------------------------------------
 CSG_MetaData CSG_Tool::_Get_Output_History(void)
 {
-	CSG_MetaData	History;
+	CSG_MetaData History;
 
 	History.Set_Name(SG_META_HISTORY);
 	History.Add_Property("saga-version", SAGA_VERSION);
 
 	if( SG_Get_History_Depth() )
 	{
-		CSG_MetaData	*pTool	= History.Add_Child("TOOL");
+		CSG_MetaData *pTool = History.Add_Child("TOOL");
 
 		pTool->Add_Property("library", Get_Library());
 		pTool->Add_Property("id"     , Get_ID     ());
@@ -2038,7 +2130,7 @@ CSG_MetaData CSG_Tool::_Get_Output_History(void)
 
 		pTool->Add_Children(History_Supplement);
 
-		CSG_MetaData	*pOutput	= pTool->Add_Child("OUTPUT");
+		CSG_MetaData *pOutput = pTool->Add_Child("OUTPUT");
 		pOutput->Add_Property("type", "");
 		pOutput->Add_Property("id"  , "");
 		pOutput->Add_Property("name", "");
