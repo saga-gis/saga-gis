@@ -29,10 +29,10 @@ IF "%SAGA_BIN%" == "" (
 REM ___________________________________
 REM Version
 
-SET SAGA_VERSION=9.2
-SET SAGA_RELEASE=9.2.0
-SET SAGA_VERSION_NEXT=9.3
-SET SAGA_RELEASE_NEXT=9.3.0
+SET SAGA_VERSION=9.3
+SET SAGA_RELEASE=9.3.0
+SET SAGA_VERSION_NEXT=9.4
+SET SAGA_RELEASE_NEXT=9.4.0
 SET SAGA_RELEASE_NAME=saga-%SAGA_RELEASE%
 
 REM !!! For all bug-fix-releases !!!
@@ -239,13 +239,13 @@ ECHO.
 ECHO - Create new tag: saga-%SAGA_RELEASE%
 ECHO.
 ECHO - Update version numbers accordingly:
-ECHO.    ./saga_setup_x64.iss
 ECHO.    ./saga-gis/version.cmake
 ECHO.    ./saga-gis/src/saga_core/saga_api/saga_api.h
 ECHO.    ./saga-gis/src/saga_core/saga_cmd/man/saga_cmd.1
 ECHO.    ./saga-gis/src/saga_core/saga_gui/man/saga_gui.1
 ECHO.    ./saga-gis/src/accessories/helper/doxygen_saga_api_chm
 ECHO.    ./saga-gis/src/accessories/helper/doxygen_saga_api_html
+ECHO.    ./saga-gis/src/accessories/helper/saga_setup_x64.iss
 ECHO.    ./saga-gis/src/accessories/helper/make_saga_release.bat (this file!)
 ECHO.  and commit: SAGA version updated to next aspired version %SAGA_RELEASE_NEXT%
 ECHO.
