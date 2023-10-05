@@ -134,6 +134,7 @@ SAGA_API_DLL_EXPORT void *		SG_Get_Create_Pointer			(void);
 //---------------------------------------------------------
 SAGA_API_DLL_EXPORT CSG_String	SG_Get_DataObject_Identifier	(TSG_Data_Object_Type Type);
 SAGA_API_DLL_EXPORT CSG_String	SG_Get_DataObject_Name			(TSG_Data_Object_Type Type);
+SAGA_API_DLL_EXPORT CSG_String	SG_Get_DataObject_Class_Name	(TSG_Data_Object_Type Type);
 
 
 ///////////////////////////////////////////////////////////

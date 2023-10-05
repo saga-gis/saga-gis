@@ -72,13 +72,13 @@ CSG_String	SG_Get_DataObject_Identifier(TSG_Data_Object_Type Type)
 {
 	switch( Type )
 	{
-	default                           : return( "UNDEFINED" );
 	case SG_DATAOBJECT_TYPE_Grid      : return( "GRID"      );
 	case SG_DATAOBJECT_TYPE_Grids     : return( "GRIDS"     );
 	case SG_DATAOBJECT_TYPE_Table     : return( "TABLE"     );
 	case SG_DATAOBJECT_TYPE_Shapes    : return( "SHAPES"    );
 	case SG_DATAOBJECT_TYPE_TIN       : return( "TIN"       );
 	case SG_DATAOBJECT_TYPE_PointCloud: return( "POINTS"    );
+	default                           : return( "UNDEFINED" );
 	}
 }
 
@@ -87,13 +87,28 @@ CSG_String	SG_Get_DataObject_Name(TSG_Data_Object_Type Type)
 {
 	switch( Type )
 	{
-	default                           : return( _TL("Undefined"  ) );
 	case SG_DATAOBJECT_TYPE_Grid      : return( _TL("Grid"       ) );
 	case SG_DATAOBJECT_TYPE_Grids     : return( _TL("Grids"      ) );
 	case SG_DATAOBJECT_TYPE_Table     : return( _TL("Table"      ) );
 	case SG_DATAOBJECT_TYPE_Shapes    : return( _TL("Shapes"     ) );
 	case SG_DATAOBJECT_TYPE_TIN       : return( _TL("TIN"        ) );
 	case SG_DATAOBJECT_TYPE_PointCloud: return( _TL("Point Cloud") );
+	default                           : return( _TL("Undefined"  ) );
+	}
+}
+
+//---------------------------------------------------------
+CSG_String	SG_Get_DataObject_Class_Name(TSG_Data_Object_Type Type)
+{
+	switch( Type )
+	{
+	case SG_DATAOBJECT_TYPE_Grid      : return( _TL("CSG_Grid"      ) );
+	case SG_DATAOBJECT_TYPE_Grids     : return( _TL("CSG_Grids"     ) );
+	case SG_DATAOBJECT_TYPE_Table     : return( _TL("CSG_Table"     ) );
+	case SG_DATAOBJECT_TYPE_Shapes    : return( _TL("CSG_Shapes"    ) );
+	case SG_DATAOBJECT_TYPE_TIN       : return( _TL("CSG_TIN"       ) );
+	case SG_DATAOBJECT_TYPE_PointCloud: return( _TL("CSG_PointCloud") );
+	default                           : return( _TL("CSG_DataObject") );
 	}
 }
 
