@@ -235,6 +235,12 @@ CSG_Parameter_Bool::CSG_Parameter_Bool(CSG_Parameters *pOwner, CSG_Parameter *pP
 }
 
 //---------------------------------------------------------
+bool CSG_Parameter_Bool::is_Default(void) const
+{
+	return( m_Value == (Get_Default().asInt() != 0) );
+}
+
+//---------------------------------------------------------
 bool CSG_Parameter_Bool::Toggle_Value(void)
 {
 	return( Set_Value(asBool() ? 0 : 1) );
@@ -243,11 +249,11 @@ bool CSG_Parameter_Bool::Toggle_Value(void)
 //---------------------------------------------------------
 int CSG_Parameter_Bool::_Set_Value(int Value)
 {
-	bool	bValue = Value != 0;
+	bool bValue = Value != 0;
 
 	if( m_Value != bValue )
 	{
-		m_Value	= bValue;
+		m_Value = bValue;
 
 		return( SG_PARAMETER_DATA_SET_CHANGED );
 	}
@@ -262,17 +268,17 @@ int CSG_Parameter_Bool::_Set_Value(double Value)
 
 int CSG_Parameter_Bool::_Set_Value(const CSG_String &Value)
 {
-	if( !Value.CmpNoCase("true") || !Value.CmpNoCase("yes") )
+	if( !Value.CmpNoCase(_TL("true" )) || !Value.CmpNoCase(_TL("yes")) )
 	{
 		return( _Set_Value(1) );
 	}
 
-	if( !Value.CmpNoCase("false") || !Value.CmpNoCase("no") )
+	if( !Value.CmpNoCase(_TL("false")) || !Value.CmpNoCase(_TL("no" )) )
 	{
 		return( _Set_Value(0) );
 	}
 
-	int		i;
+	int i;
 
 	if( Value.asInt(i) )
 	{
@@ -285,13 +291,13 @@ int CSG_Parameter_Bool::_Set_Value(const CSG_String &Value)
 //---------------------------------------------------------
 void CSG_Parameter_Bool::_Set_String(void)
 {
-	m_String	= m_Value ? _TL("true") : _TL("false");
+	m_String = m_Value ? _TL("true") : _TL("false");
 }
 
 //---------------------------------------------------------
 bool CSG_Parameter_Bool::_Assign(CSG_Parameter *pSource)
 {
-	m_Value		= pSource->asBool();
+	m_Value = pSource->asBool();
 
 	return( true );
 }
@@ -305,7 +311,7 @@ bool CSG_Parameter_Bool::_Serialize(CSG_MetaData &Entry, bool bSave)
 	}
 	else
 	{
-		m_Value	= Entry.Cmp_Content("true", true);
+		m_Value = Entry.Cmp_Content("true", true);
 	}
 
 	return( true );
@@ -2666,15 +2672,13 @@ bool CSG_Parameter_Data_Object_Output::Set_DataObject_Type(TSG_Data_Object_Type 
 CSG_Parameter_Grid::CSG_Parameter_Grid(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint)
 	: CSG_Parameter_Data_Object(pOwner, pParent, ID, Name, Description, Constraint)
 {
-	m_Type		= SG_DATATYPE_Undefined;
-
-	m_Default	= -1;
+	m_Type = SG_DATATYPE_Undefined; m_Default = -1;
 }
 
 //---------------------------------------------------------
 void CSG_Parameter_Grid::Set_Preferred_Type(TSG_Data_Type Type)
 {
-	m_Type	= Type;
+	m_Type = Type;
 }
 
 //---------------------------------------------------------
@@ -2713,7 +2717,7 @@ int CSG_Parameter_Grid::_Set_Value(void *Value)
 	}
 
 	//-----------------------------------------------------
-	if( Value != DATAOBJECT_NOTSET && Value != DATAOBJECT_CREATE && Get_System() )
+	if( Value != DATAOBJECT_NOTSET && Value != DATAOBJECT_CREATE && Get_System() ) // check grid system compatibility
 	{
 		CSG_Grid_System System = Get_Type() == PARAMETER_TYPE_Grid
 			? ((CSG_Grid  *)Value)->Get_System()
@@ -3182,23 +3186,26 @@ bool CSG_Parameter_Grid_List::Add_Item(CSG_Data_Object *pObject)
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid_System *pSystem = Get_System();
-
-	if( pSystem )	// check grid system compatibility
+	if( Get_System() ) // check grid system compatibility
 	{
 		CSG_Grid_System System = pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid
 			? ((CSG_Grid  *)pObject)->Get_System()
 			: ((CSG_Grids *)pObject)->Get_System();
 
-		if( !pSystem->is_Valid() )
+		if( System.is_Valid() == false && is_Input() )
+		{
+			return( false );
+		}
+
+		if( !Get_System()->is_Valid() )
 		{
 			Get_Parent()->Set_Value((void *)&System);
 		}
-		else if( !pSystem->is_Equal(System) )
+		else if( !Get_System()->is_Equal(System) )
 		{
 			for(int i=0; i<Get_Parent()->Get_Children_Count(); i++)
 			{
-				CSG_Parameter	*pChild	= Get_Parent()->Get_Child(i);
+				CSG_Parameter *pChild = Get_Parent()->Get_Child(i);
 
 				if( pChild->Get_Type() == PARAMETER_TYPE_Grid
 				||  pChild->Get_Type() == PARAMETER_TYPE_Grids )

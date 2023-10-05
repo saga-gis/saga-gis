@@ -1540,57 +1540,65 @@ bool CSG_Parameters::DataObjects_Create(void)
 {
 	bool bResult = true;
 
-	for(int i=0; i<Get_Count() && bResult; i++)
+	for(int i=0; bResult && i<Get_Count(); i++)
 	{
-		CSG_Parameter *p = m_Parameters[i];
+		CSG_Parameter &P = *m_Parameters[i];
 
 		//-------------------------------------------------
-		if( p->Get_Type() == PARAMETER_TYPE_Parameters )
+		if( P.Get_Type() == PARAMETER_TYPE_Parameters )
 		{
-			bResult = p->asParameters()->DataObjects_Create();
-		}
-		else if( p->Get_Type() == PARAMETER_TYPE_DataObject_Output )
-		{
-			if( m_pManager || p->asDataObject() == DATAOBJECT_CREATE )
+			if( !P.asParameters()->DataObjects_Create() )
 			{
-				p->Set_Value(DATAOBJECT_NOTSET);
+				bResult = false;
 			}
 		}
-		else if( p->is_Input() )
+		else if( P.Get_Type() == PARAMETER_TYPE_DataObject_Output )
 		{
-			bResult = !p->is_Enabled() || p->Check(true);
+			if( m_pManager || P.asDataObject() == DATAOBJECT_CREATE )
+			{
+				P.Set_Value(DATAOBJECT_NOTSET);
+			}
+		}
+		else if( P.is_Input() )
+		{
+			if( P.is_Enabled() && P.Check(true) == false )
+			{
+				bResult = false;
+
+				SG_UI_Dlg_Message(CSG_String::Format("%s\n[%s]\n%s", _TL("Input Error"), P.Get_Identifier(), P.Get_Name()), Get_Name());
+			}
 		}
 
 		//-------------------------------------------------
-		else if( p->is_DataObject_List() )
+		else if( P.is_DataObject_List() )
 		{
-			for(int j=p->asList()->Get_Item_Count()-1; j>=0; j--)
+			for(int j=P.asList()->Get_Item_Count()-1; j>=0; j--)
 			{
-				if( m_pManager && !m_pManager->Exists(p->asList()->Get_Item(j)) )
+				if( m_pManager && !m_pManager->Exists(P.asList()->Get_Item(j)) )
 				{
-					p->asList()->Del_Item(j);
+					P.asList()->Del_Item(j);
 				}
 			}
 		}
 
 		//-------------------------------------------------
-		else if( p->is_DataObject() && p->is_Enabled() == false )
+		else if( P.is_DataObject() && P.is_Enabled() == false )
 		{
-			if( p->asDataObject() != DATAOBJECT_CREATE && (!m_pManager || !m_pManager->Exists(p->asDataObject())) )
+			if( P.asDataObject() != DATAOBJECT_CREATE && (!m_pManager || !m_pManager->Exists(P.asDataObject())) )
 			{
-				p->Set_Value(DATAOBJECT_NOTSET);
+				P.Set_Value(DATAOBJECT_NOTSET);
 			}
 		}
 
-		else if( p->is_DataObject() )
+		else if( P.is_DataObject() )
 		{
-			CSG_Data_Object *pObject = p->asDataObject();
+			CSG_Data_Object *pObject = P.asDataObject();
 
 			if( (pObject == DATAOBJECT_CREATE)
-			||  (pObject == DATAOBJECT_NOTSET && !p->is_Optional())
+			||  (pObject == DATAOBJECT_NOTSET && !P.is_Optional())
 			||  (pObject != DATAOBJECT_NOTSET && m_pManager && !m_pManager->Exists(pObject)) )
 			{
-				switch( p->Get_Type() )
+				switch( P.Get_Type() )
 				{
 				case PARAMETER_TYPE_Table     : pObject = SG_Create_Table     (); break;
 				case PARAMETER_TYPE_Shapes    : pObject = SG_Create_Shapes    (); break;
@@ -1604,38 +1612,38 @@ bool CSG_Parameters::DataObjects_Create(void)
 
 			if( pObject )
 			{
-				if( p->Get_Type() == PARAMETER_TYPE_Shapes
-				&&  ((CSG_Parameter_Shapes *)p)->Get_Shape_Type() != SHAPE_TYPE_Undefined
-				&&  ((CSG_Parameter_Shapes *)p)->Get_Shape_Type() != pObject->asShapes()->Get_Type() )
+				if( P.Get_Type() == PARAMETER_TYPE_Shapes
+				&&  ((CSG_Parameter_Shapes *)&P)->Get_Shape_Type() != SHAPE_TYPE_Undefined
+				&&  ((CSG_Parameter_Shapes *)&P)->Get_Shape_Type() != pObject->asShapes()->Get_Type() )
 				{
 					if( has_GUI() && pObject->asShapes()->Get_Type() != SHAPE_TYPE_Undefined )
 					{
-						pObject	= SG_Create_Shapes (((CSG_Parameter_Shapes *)p)->Get_Shape_Type());
+						pObject	= SG_Create_Shapes (((CSG_Parameter_Shapes *)&P)->Get_Shape_Type());
 					}
 					else
 					{
-						pObject->asShapes()->Create(((CSG_Parameter_Shapes *)p)->Get_Shape_Type());
+						pObject->asShapes()->Create(((CSG_Parameter_Shapes *)&P)->Get_Shape_Type());
 					}
 				}
 
-				if( (p->Get_Type() == PARAMETER_TYPE_Grid || p->Get_Type() == PARAMETER_TYPE_Grids) )
+				if( (P.Get_Type() == PARAMETER_TYPE_Grid || P.Get_Type() == PARAMETER_TYPE_Grids) )
 				{
-					if(	p->Get_Parent() && p->Get_Parent()->asGrid_System() && p->Get_Parent()->asGrid_System()->is_Valid() )
+					if(	P.Get_Parent() && P.Get_Parent()->asGrid_System() && P.Get_Parent()->asGrid_System()->is_Valid() )
 					{
-						if( p->Get_Type() == PARAMETER_TYPE_Grid )
+						if( P.Get_Type() == PARAMETER_TYPE_Grid )
 						{
-							pObject->asGrid ()->Create(*p->Get_Parent()->asGrid_System()       , ((CSG_Parameter_Grid  *)p)->Get_Preferred_Type());
+							pObject->asGrid ()->Create(*P.Get_Parent()->asGrid_System()       , ((CSG_Parameter_Grid  *)&P)->Get_Preferred_Type());
 						}
 						else
 						{
-							pObject->asGrids()->Create(*p->Get_Parent()->asGrid_System(), 0, 0., ((CSG_Parameter_Grids *)p)->Get_Preferred_Type());
+							pObject->asGrids()->Create(*P.Get_Parent()->asGrid_System(), 0, 0., ((CSG_Parameter_Grids *)&P)->Get_Preferred_Type());
 						}
 					}
 				}
 
-				if( p->Set_Value(pObject) )
+				if( P.Set_Value(pObject) )
 				{
-					pObject->Set_Name(p->Get_Name());
+					pObject->Set_Name(P.Get_Name());
 					pObject->Get_MetaData().Del_Children();
 
 					if( m_pManager )
@@ -1648,11 +1656,18 @@ bool CSG_Parameters::DataObjects_Create(void)
 					delete(pObject);
 
 					bResult = false;
+
+					SG_UI_Dlg_Message(CSG_String::Format("%s\n[%s]\n%s", _TL("Output Error"), P.Get_Identifier(), P.Get_Name()), Get_Name());
 				}
 			}
-			else
+			else // if( pObject == NULL )
 			{
-				bResult = p->is_Optional();
+				if( !P.is_Optional() )
+				{
+					bResult = false;
+
+					SG_UI_Dlg_Message(CSG_String::Format("%s\n[%s]\n%s", _TL("Output Error"), P.Get_Identifier(), P.Get_Name()), Get_Name());
+				}
 			}
 		}
 	}

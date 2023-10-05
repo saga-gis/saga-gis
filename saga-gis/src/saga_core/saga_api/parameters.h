@@ -397,6 +397,8 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Bool );	}
 
+	virtual bool				is_Default				(void)	const;
+
 	virtual bool				Toggle_Value			(void);
 
 
