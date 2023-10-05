@@ -94,7 +94,7 @@ CLandsat_Scene_Import::CLandsat_Scene_Import(void)
 	);
 
 	Parameters.Add_Grid_List("", "BANDS_SPECTRAL" , _TL("Spectral Bands" ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid_List("", "BANDS_THERMAL"  , _TL("Thrmal Bands"   ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid_List("", "BANDS_THERMAL"  , _TL("Thermal Bands"  ), _TL(""), PARAMETER_OUTPUT);
 	Parameters.Add_Grid_List("", "BANDS_AUXILIARY", _TL("Auxiliary Bands"), _TL(""), PARAMETER_OUTPUT);
 
 	Parameters.Add_Table("",
