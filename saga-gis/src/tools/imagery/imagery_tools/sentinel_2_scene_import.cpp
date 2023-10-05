@@ -157,14 +157,11 @@ CSentinel_2_Scene_Import::CSentinel_2_Scene_Import(void)
 		)
 	);
 
-	Parameters.Add_Grid_List("",
-		"BANDS"			, _TL("Bands"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
+	Parameters.Add_Grid_List("", "BANDS"    , _TL("Spectral Bands" ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid_List("", "BANDS_AUX", _TL("Auxiliary Bands"), _TL(""), PARAMETER_OUTPUT);
 
 	Parameters.Add_Bool("",
-		"MULTI2GRIDS"	, _TL("Multispectral Bands as Grid Collection"),
+		"MULTI2GRIDS"	, _TL("Spectral Bands as Grid Collection"),
 		_TL(""),
 		true
 	);
@@ -339,7 +336,8 @@ bool CSentinel_2_Scene_Import::On_Execute(void)
 	CSG_Table Info_Bands(Get_Info_Bands());
 
 	//-----------------------------------------------------
-	Parameters("BANDS")->asGridList()->Del_Items();
+	Parameters("BANDS"    )->asGridList()->Del_Items();
+	Parameters("BANDS_AUX")->asGridList()->Del_Items();
 
 	CSG_Grids *pBands[2]; pBands[0] = pBands[1] = NULL; CSG_Grid *pSCL = NULL;
 
@@ -412,7 +410,14 @@ bool CSentinel_2_Scene_Import::On_Execute(void)
 				pSCL = pBand;
 			}
 
-			Parameters("BANDS")->asGridList()->Add_Item(pBand);
+			if( BAND_IS_10m(Band) || BAND_IS_20m(Band) )
+			{
+				Parameters("BANDS"    )->asGridList()->Add_Item(pBand);
+			}
+			else
+			{
+				Parameters("BANDS_AUX")->asGridList()->Add_Item(pBand);
+			}
 		}
 	}
 
