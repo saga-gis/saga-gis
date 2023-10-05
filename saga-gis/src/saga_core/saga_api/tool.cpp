@@ -273,8 +273,6 @@ bool CSG_Tool::Execute(bool bAddHistory)
 
 	if( Parameters.DataObjects_Create() == false )
 	{
-		Message_Dlg(_TL("could not initialize data objects"));
-
 		_Synchronize_DataObjects();	// not all, but some objects might have been created!
 	}
 	else
@@ -1959,6 +1957,12 @@ bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Const
 		return( false );
 	}
 
+	if( bCall && !Parameter.is_Enabled() )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
 	CSG_String ID(Parameter.Get_Identifier());
 
 	if( !Prefix.is_Empty() )
@@ -1966,7 +1970,7 @@ bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Const
 		ID.Prepend(Prefix + ".");
 	}
 
-	CSG_String Argument(ID); Argument.Replace(".", "_");
+	CSG_String Argument(ID); Argument.Replace(".", "_"); Argument.Replace("|", "_");
 
 	//-----------------------------------------------------
 	if( Parameter.asParameters() ) // PARAMETER_TYPE_Parameters
@@ -1995,56 +1999,82 @@ bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Const
 	{
 		CSG_String Value;
 
-		switch( Parameter.Get_Type() )
+		if( Parameter.is_DataObject() )
 		{
-		default:
-			break;
+			Value = Parameter.Get_Identifier(); Value.Make_Lower();
 
-		case PARAMETER_TYPE_Bool             : Value = Parameter.asBool() ? "True" : "False"; break;
-
-		case PARAMETER_TYPE_Int              :
-		case PARAMETER_TYPE_Data_Type        :
-		case PARAMETER_TYPE_Table_Field      : Value.Printf("%d", Parameter.asInt()); break;
-
-		case PARAMETER_TYPE_Double           :
-		case PARAMETER_TYPE_Degree           : Value.Printf("%f", Parameter.asDouble()); break;
-
-		case PARAMETER_TYPE_Color            : Value = SG_Color_To_Text(Parameter.asColor()); break;
-
-		case PARAMETER_TYPE_String           :
-		case PARAMETER_TYPE_Text             :
-		case PARAMETER_TYPE_Date             :
-		case PARAMETER_TYPE_Choice           :
-		case PARAMETER_TYPE_Choices          :
-		case PARAMETER_TYPE_Table_Fields     :
-		case PARAMETER_TYPE_FilePath         : Value.Printf("'%s'", Parameter.asString()); break;
-
-		case PARAMETER_TYPE_DataObject_Output:
-		case PARAMETER_TYPE_Grid             :
-		case PARAMETER_TYPE_Grids            :
-		case PARAMETER_TYPE_Table            :
-		case PARAMETER_TYPE_Shapes           :
-		case PARAMETER_TYPE_TIN              :
-		case PARAMETER_TYPE_PointCloud       : Value = Parameter.Get_Identifier(); Code += Value + " = saga_api.CSG_";
-			switch( Parameter.Get_DataObject_Type() )
+			if( Parameter.is_Input() )
 			{
-			case SG_DATAOBJECT_TYPE_Grid      : Code += "Grid"      ; break;
-			case SG_DATAOBJECT_TYPE_Grids     : Code += "Grids"     ; break;
-			case SG_DATAOBJECT_TYPE_Table     : Code += "Table"     ; break;
-			case SG_DATAOBJECT_TYPE_Shapes    : Code += "Shapes"    ; break;
-			case SG_DATAOBJECT_TYPE_PointCloud: Code += "PointCloud"; break;
-			case SG_DATAOBJECT_TYPE_TIN       : Code += "TIN"       ; break;
-			default                           : Code += "DataObject"; break;
+				if( !Parameter.asDataObject() && Parameter.is_Optional() ) // don't add optional input that has not been set
+				{
+					return( false );
+				}
+
+				CSG_String File(Parameter.asDataObject() && Parameter.asDataObject()->Get_File_Name()
+					? Parameter.asDataObject()->Get_File_Name() : SG_T("data object file")
+				); File.Replace("\\", "/");
+
+				Code += Value + " = saga_api." + SG_Get_DataObject_Class_Name(Parameter.Get_DataObject_Type()) + "('" + File + "') # input data object\n";
 			}
-			if( Parameter.is_Input() && Parameter.asDataObject() && Parameter.asDataObject()->Get_File_Name() )
+			else // if( Parameter.is_Output() )
 			{
-				Code += CSG_String::Format("('%s')\n", Parameter.asDataObject()->Get_File_Name());
+				if( !Parameter.asDataObject() && Parameter.is_Optional() ) // don't add optional output that has not been requested
+				{
+					return( false );
+				}
+
+				Code += Value + " = saga_api." + SG_Get_DataObject_Class_Name(Parameter.Get_DataObject_Type()) + "() # output data object\n";
 			}
-			else
+		}
+		else if( Parameter.is_DataObject_List() )
+		{
+			Value = Parameter.Get_Identifier(); Value.Make_Lower();
+
+			if( Parameter.is_Input() )
 			{
-				Code += "()\n";
+				if( Parameter.asList()->Get_Item_Count() < 1 && Parameter.is_Optional() ) // don't add optional input that has not been set
+				{
+					return( false );
+				}
+
+				Code += Value + " = [] # Python list with input data objects of type 'saga_api." + SG_Get_DataObject_Class_Name(Parameter.Get_DataObject_Type()) + "'\n";
 			}
-			break;
+			else // if( Parameter.is_Output() )
+			{
+				Code += Value + " = [] # Python list, will become filled after successful execution with output data objects of type 'saga_api." + SG_Get_DataObject_Class_Name(Parameter.Get_DataObject_Type()) + "'\n";
+			}
+		}
+		else if( Parameter.is_Option() )
+		{
+			if( Parameter.is_Default() )
+			{
+				return( false );
+			}
+
+			switch( Parameter.Get_Type() )
+			{
+			case PARAMETER_TYPE_Bool        : Value = Parameter.asBool() ? "True" : "False"; break;
+
+			case PARAMETER_TYPE_Int         : Value.Printf("%d", Parameter.asInt()); break;
+
+			case PARAMETER_TYPE_Double      :
+			case PARAMETER_TYPE_Degree      : Value.Printf("%f", Parameter.asDouble()); break;
+
+			case PARAMETER_TYPE_Color       : Value = SG_Color_To_Text(Parameter.asColor()); break;
+
+			case PARAMETER_TYPE_String      :
+			case PARAMETER_TYPE_Text        :
+			case PARAMETER_TYPE_Date        :
+			case PARAMETER_TYPE_Range       :
+			case PARAMETER_TYPE_Data_Type   :
+			case PARAMETER_TYPE_Choice      :
+			case PARAMETER_TYPE_Choices     :
+			case PARAMETER_TYPE_Table_Field :
+			case PARAMETER_TYPE_Table_Fields:
+			case PARAMETER_TYPE_FilePath    : Value.Printf("'%s'", Parameter.asString()); break;
+
+			default                         : return( false );
+			}
 		}
 
 		if( !Value.is_Empty() )

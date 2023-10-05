@@ -403,16 +403,16 @@ void CWKSP_Tool::Save_to_Clipboard(void)
 {
 	wxArrayString Choices;
 
-	Choices.Add(_TL("Command Line"                   ));
-	Choices.Add(_TL("Command Line with Header"       ));
-	Choices.Add(_TL("Tool Chain"                     ));
-	Choices.Add(_TL("Tool Chain with Header"         ));
-	Choices.Add(_TL("Python Wrapper Call"            ));
-	Choices.Add(_TL("Python Wrapper Call with Header"));
-	Choices.Add(_TL("Python Wrapper"                 ));
-	Choices.Add(_TL("Python Wrapper with Header"     ));
-	Choices.Add(_TL("Python"                         ));
-	Choices.Add(_TL("Python with Header"             ));
+	Choices.Add(_TL("Command Line"                          ));
+	Choices.Add(_TL("Command Line (with header)"            ));
+	Choices.Add(_TL("Tool Chain"                            ));
+	Choices.Add(_TL("Tool Chain (with header)"              ));
+	Choices.Add(_TL("Python Wrapper Call"                   ));
+	Choices.Add(_TL("Python Wrapper Call (current settings)"));
+	Choices.Add(_TL("Python Wrapper"                        ));
+	Choices.Add(_TL("Python Wrapper (with header)"          ));
+	Choices.Add(_TL("Python"                                ));
+	Choices.Add(_TL("Python (with header)"                  ));
 
 	wxSingleChoiceDialog dlg(MDI_Get_Top_Window(), _TL("Select Format"), _TL("Save to Clipboard"), Choices);
 
