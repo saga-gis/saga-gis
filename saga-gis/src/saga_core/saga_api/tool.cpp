@@ -1882,6 +1882,7 @@ CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader, bool bName, bool bCal
 		Name.Replace("/", "");
 		Name.Replace("-", "");
 		Name.Replace("'", "");
+		Name.Replace("&", "and");
 	}
 	else
 	{
@@ -1970,7 +1971,21 @@ bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Const
 		ID.Prepend(Prefix + ".");
 	}
 
-	CSG_String Argument(ID); Argument.Replace(".", "_"); Argument.Replace("|", "_");
+	CSG_String Argument(ID);
+
+	if( Argument[0] >= '0' && Argument[0] <= '9' )
+	{
+		Argument.Prepend('_');
+	}
+
+	Argument.Replace(".", "_");
+	Argument.Replace("|", "_");
+	Argument.Replace(" ", "_");
+
+	if( Argument.Length() > 2 )
+	{
+		Argument.Make_Upper();
+	}
 
 	//-----------------------------------------------------
 	if( Parameter.asParameters() ) // PARAMETER_TYPE_Parameters
