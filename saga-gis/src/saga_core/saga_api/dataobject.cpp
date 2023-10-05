@@ -102,13 +102,13 @@ CSG_String	SG_Get_DataObject_Class_Name(TSG_Data_Object_Type Type)
 {
 	switch( Type )
 	{
-	case SG_DATAOBJECT_TYPE_Grid      : return( _TL("CSG_Grid"      ) );
-	case SG_DATAOBJECT_TYPE_Grids     : return( _TL("CSG_Grids"     ) );
-	case SG_DATAOBJECT_TYPE_Table     : return( _TL("CSG_Table"     ) );
-	case SG_DATAOBJECT_TYPE_Shapes    : return( _TL("CSG_Shapes"    ) );
-	case SG_DATAOBJECT_TYPE_TIN       : return( _TL("CSG_TIN"       ) );
-	case SG_DATAOBJECT_TYPE_PointCloud: return( _TL("CSG_PointCloud") );
-	default                           : return( _TL("CSG_DataObject") );
+	case SG_DATAOBJECT_TYPE_Grid      : return( "CSG_Grid"       );
+	case SG_DATAOBJECT_TYPE_Grids     : return( "CSG_Grids"      );
+	case SG_DATAOBJECT_TYPE_Table     : return( "CSG_Table"      );
+	case SG_DATAOBJECT_TYPE_Shapes    : return( "CSG_Shapes"     );
+	case SG_DATAOBJECT_TYPE_TIN       : return( "CSG_TIN"        );
+	case SG_DATAOBJECT_TYPE_PointCloud: return( "CSG_PointCloud" );
+	default                           : return( "CSG_DataObject" );
 	}
 }
 
