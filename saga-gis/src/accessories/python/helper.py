@@ -165,7 +165,7 @@ def Get_VRT(Directory, Extension = 'tif', VRT_Name = 'tiles', VRT_Folder = None)
 #________________________________________________________________________________
 
 #________________________________________________________________________________
-def CSG_Grids_asPyArray(Grids):
+def PyList_from_Grid_Collection(Grids):
     '''
     Create a Python list that provides access to the single grids of the
     input grid collection.
@@ -178,10 +178,11 @@ def CSG_Grids_asPyArray(Grids):
     ---------
     list : a list with `saga_api`.`CSG_Grid` objects
     '''
-    Array = []
+
+    List = []
     for i in range(0, Grids.Get_Grid_Count()):
-        Array.append(Grids.Get_Grid(i));
-    return Array
+        List.append(Grids.Get_Grid(i))
+    return List
 
 
 #################################################################################
