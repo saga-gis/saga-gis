@@ -866,15 +866,21 @@ bool CSG_Parameter::Set_Default(double Value)
 //---------------------------------------------------------
 bool CSG_Parameter::Set_Default(const CSG_String &Value)
 {
-	m_Default	= Value;
+	m_Default = Value;
 
 	return( true );
 }
 
 //---------------------------------------------------------
-const CSG_String & CSG_Parameter::Get_Default(void)	const
+const CSG_String & CSG_Parameter::Get_Default(void) const
 {
 	return( m_Default );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter::is_Default(void) const
+{
+	return( m_Default.Cmp(asString()) == 0 );
 }
 
 //---------------------------------------------------------

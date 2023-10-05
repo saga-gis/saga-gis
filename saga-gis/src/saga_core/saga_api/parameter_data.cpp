@@ -424,7 +424,13 @@ bool CSG_Parameter_Value::_Assign(CSG_Parameter *pSource)
 CSG_Parameter_Int::CSG_Parameter_Int(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint)
 	: CSG_Parameter_Value(pOwner, pParent, ID, Name, Description, Constraint)
 {
-	m_Value		= 0;
+	m_Value = 0;
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter_Int::is_Default(void) const
+{
+	return( m_Value == Get_Default().asInt() );
 }
 
 //---------------------------------------------------------
@@ -457,7 +463,7 @@ int CSG_Parameter_Int::_Set_Value(double Value)
 
 int CSG_Parameter_Int::_Set_Value(const CSG_String &Value)
 {
-	int		i;
+	int i;
 
 	if( Value.asInt(i) )
 	{
@@ -507,7 +513,13 @@ bool CSG_Parameter_Int::_Serialize(CSG_MetaData &Entry, bool bSave)
 CSG_Parameter_Double::CSG_Parameter_Double(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint)
 	: CSG_Parameter_Value(pOwner, pParent, ID, Name, Description, Constraint)
 {
-	m_Value		= 0.;
+	m_Value = 0.;
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter_Double::is_Default(void) const
+{
+	return( m_Value == Get_Default().asDouble() );
 }
 
 //---------------------------------------------------------
@@ -728,17 +740,17 @@ bool CSG_Parameter_Date::_Serialize(CSG_MetaData &Entry, bool bSave)
 CSG_Parameter_Range::CSG_Parameter_Range(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint)
 	: CSG_Parameter(pOwner, pParent, ID, Name, Description, Constraint)
 {
-	m_pRange	= new CSG_Parameters;
+	m_pRange = new CSG_Parameters;
 
 	if( is_Information() )
 	{
-		m_pMin	= (CSG_Parameter_Double *)m_pRange->Add_Info_Value(ID, "MIN", "Minimum", Description, PARAMETER_TYPE_Double);
-		m_pMax	= (CSG_Parameter_Double *)m_pRange->Add_Info_Value(ID, "MAX", "Maximum", Description, PARAMETER_TYPE_Double);
+		m_pMin = (CSG_Parameter_Double *)m_pRange->Add_Info_Value(ID, "MIN", "Minimum", Description, PARAMETER_TYPE_Double);
+		m_pMax = (CSG_Parameter_Double *)m_pRange->Add_Info_Value(ID, "MAX", "Maximum", Description, PARAMETER_TYPE_Double);
 	}
 	else
 	{
-		m_pMin	= (CSG_Parameter_Double *)m_pRange->Add_Double    (ID, "MIN", "Minimum", Description);
-		m_pMax	= (CSG_Parameter_Double *)m_pRange->Add_Double    (ID, "MAX", "Maximum", Description);
+		m_pMin = (CSG_Parameter_Double *)m_pRange->Add_Double    (ID, "MIN", "Minimum", Description);
+		m_pMax = (CSG_Parameter_Double *)m_pRange->Add_Double    (ID, "MAX", "Maximum", Description);
 	}
 }
 
@@ -764,17 +776,17 @@ int CSG_Parameter_Range::_Set_Value(const CSG_String &Value)
 
 bool CSG_Parameter_Range::Set_Range(double Min, double Max)
 {
-	bool	bResult;
+	bool bResult;
 
 	if( Min > Max )
 	{
-		bResult	 = m_pMin->Set_Value(Max);
-		bResult	|= m_pMax->Set_Value(Min);
+		bResult  = m_pMin->Set_Value(Max);
+		bResult |= m_pMax->Set_Value(Min);
 	}
 	else
 	{
-		bResult	 = m_pMin->Set_Value(Min);
-		bResult	|= m_pMax->Set_Value(Max);
+		bResult  = m_pMin->Set_Value(Min);
+		bResult |= m_pMax->Set_Value(Max);
 	}
 
 	return( bResult );
@@ -814,6 +826,12 @@ bool CSG_Parameter_Range::Set_Max(double Value)
 double CSG_Parameter_Range::Get_Max(void)	const
 {
 	return( m_pMax->asDouble() );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter_Range::is_Default(void) const
+{
+	return( m_pMin->is_Default() && m_pMax->is_Default() );
 }
 
 //---------------------------------------------------------
@@ -867,7 +885,13 @@ bool CSG_Parameter_Range::_Serialize(CSG_MetaData &Entry, bool bSave)
 CSG_Parameter_Choice::CSG_Parameter_Choice(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint)
 	: CSG_Parameter(pOwner, pParent, ID, Name, Description, Constraint)
 {
-	m_Value	= -1;
+	m_Value = -1;
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter_Choice::is_Default(void) const
+{
+	return( m_Value == Get_Default().asInt() );
 }
 
 //---------------------------------------------------------

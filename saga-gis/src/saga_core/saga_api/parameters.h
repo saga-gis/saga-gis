@@ -270,6 +270,7 @@ public:	///////////////////////////////////////////////////
 	bool							Set_Default				(double            Value);
 	bool							Set_Default				(const CSG_String &Value);
 	const CSG_String &				Get_Default				(void)	const;
+	virtual bool					is_Default				(void)	const;
 	virtual bool					Restore_Default			(void);
 
 	bool							Check					(bool bSilent = true);
@@ -469,6 +470,8 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Int );		}
 
+	virtual bool				is_Default				(void)	const;
+
 
 protected:
 
@@ -504,6 +507,8 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_Double : public CSG_Parameter_Value
 public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Double );	}
+
+	virtual bool				is_Default				(void)	const;
 
 
 protected:
@@ -616,6 +621,8 @@ public:
 	double						Get_Max					(void)	const;
 	CSG_Parameter_Double *		Get_Max_Parameter		(void)	const	{	return( m_pMax );	}
 
+	virtual bool				is_Default				(void)	const;
+
 	virtual bool				Restore_Default			(void);
 
 
@@ -651,6 +658,8 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_Choice : public CSG_Parameter
 public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Choice );	}
+
+	virtual bool				is_Default				(void)	const;
 
 	virtual bool				Toggle_Value			(void);
 
