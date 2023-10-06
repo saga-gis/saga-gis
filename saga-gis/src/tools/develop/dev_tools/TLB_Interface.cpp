@@ -87,7 +87,6 @@ CSG_String Get_Info(int i)
 #include "tl_merge.h"
 #include "tool_counter.h"
 #include "arctoolbox.h"
-#include "tool_py_updater.h"
 #include "qgistoolbox.h"
 #include "svg_converter.h"
 #include "pysaga_tools.h"
@@ -106,7 +105,6 @@ CSG_Tool *		Create_Tool(int i)
 	case  3: return( new CTool_Counter );
 	case  4: return( new CTool_Menus );
 	case  5: return( new CArcToolBox );
-	case  6: return( new CTool_Py_Updater );
 	case  7: return( new CQGIS_ToolBox );
 	case  8: return( new CSVG_Converter );
 	case  9: return( new CPySAGA_Tools );
