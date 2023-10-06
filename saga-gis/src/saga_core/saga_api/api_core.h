@@ -529,8 +529,8 @@ private:
 //---------------------------------------------------------
 #define SG_Char				wchar_t
 #define SG_T(s)				L ## s
-#define SG_PRINTF			SG_Printf
-#define SG_FPRINTF			SG_FPrintf
+#define SG_PRINTF			wprintf
+#define SG_FPRINTF			fwprintf
 #define SG_SSCANF			swscanf
 #define SG_STR_CPY			wcscpy
 #define SG_STR_LEN			wcslen
