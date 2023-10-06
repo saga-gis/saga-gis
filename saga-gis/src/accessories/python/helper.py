@@ -268,6 +268,8 @@ class Tool_Wrapper:
 
     #____________________________________
     def Execute(self, Verbose=2):
+        if Verbose >= 2 and saga_api.SG_UI_Progress_is_Locked():
+            Verbose = 1
 
         #________________________________
         def _Initialize():
