@@ -249,6 +249,8 @@ protected:
 
 private:
 
+	bool						m_bCMD;
+
 	CSG_PG_Connection			*m_pConnection;
 
 };

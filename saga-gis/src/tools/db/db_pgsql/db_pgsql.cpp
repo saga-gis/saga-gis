@@ -2410,13 +2410,20 @@ int CSG_PG_Connections::Get_Connections(CSG_String &Connections)
 //---------------------------------------------------------
 CSG_PG_Tool::CSG_PG_Tool(void)
 {
-	Parameters.Add_String("", "PG_HOST"   , _TL("Host"       ), _TL(""), "127.0.0.1"    )->Set_UseInGUI(false);
-	Parameters.Add_Int   ("", "PG_PORT"   , _TL("Port"       ), _TL(""), 5432, 0, true  )->Set_UseInGUI(false);
-	Parameters.Add_String("", "PG_NAME"   , _TL("Database"   ), _TL(""), ""             )->Set_UseInGUI(false);
-	Parameters.Add_String("", "PG_USER"   , _TL("User"       ), _TL(""), ""             )->Set_UseInGUI(false);
-	Parameters.Add_String("", "PG_PWD"    , _TL("Password"   ), _TL(""), "", false, true)->Set_UseInGUI(false);
+	m_bCMD = SG_File_Get_Name(SG_UI_Get_Application_Path(false), false).Cmp("saga_cmd") == 0;
 
-	Parameters.Add_Choice("", "CONNECTION", _TL("Connections"), _TL(""), ""             )->Set_UseInCMD(false);
+	if( m_bCMD )
+	{
+		Parameters.Add_String("", "PG_HOST"   , _TL("Host"       ), _TL(""), "127.0.0.1"    )->Set_UseInGUI(false);
+		Parameters.Add_Int   ("", "PG_PORT"   , _TL("Port"       ), _TL(""), 5432, 0, true  )->Set_UseInGUI(false);
+		Parameters.Add_String("", "PG_NAME"   , _TL("Database"   ), _TL(""), ""             )->Set_UseInGUI(false);
+		Parameters.Add_String("", "PG_USER"   , _TL("User"       ), _TL(""), ""             )->Set_UseInGUI(false);
+		Parameters.Add_String("", "PG_PWD"    , _TL("Password"   ), _TL(""), "", false, true)->Set_UseInGUI(false);
+	}
+	else
+	{
+		Parameters.Add_Choice("", "CONNECTION", _TL("Connections"), _TL(""), "");
+	}
 
 	m_pConnection = NULL;
 }
@@ -2424,7 +2431,7 @@ CSG_PG_Tool::CSG_PG_Tool(void)
 //---------------------------------------------------------
 bool CSG_PG_Tool::On_Before_Execution(void)
 {
-	if( !has_GUI() )
+	if( m_bCMD )
 	{
 		m_pConnection = SG_PG_Get_Connection_Manager().Add_Connection(
 			Parameters("PG_NAME")->asString(),
@@ -2480,7 +2487,7 @@ bool CSG_PG_Tool::On_Before_Execution(void)
 //---------------------------------------------------------
 bool CSG_PG_Tool::On_After_Execution(void)
 {
-	if( !has_GUI() )
+	if( m_bCMD )
 	{
 		SG_PG_Get_Connection_Manager().Del_Connection(m_pConnection, true);
 	}
@@ -2491,7 +2498,7 @@ bool CSG_PG_Tool::On_After_Execution(void)
 //---------------------------------------------------------
 int CSG_PG_Tool::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( has_GUI() )
+	if( m_bCMD == false )
 	{
 		CSG_Projection Projection;
 
@@ -2563,7 +2570,7 @@ bool CSG_PG_Tool::Add_SRID_Picker(CSG_Parameters *pParameters)
 
 	pParameters->Add_Int("", "CRS_EPSG", _TL("EPSG Code"), _TL(""), -1, -1, true);
 
-	if( has_GUI() )
+	if( m_bCMD == false )
 	{
 		pParameters->Add_Choice(
 			"CRS_EPSG", "CRS_EPSG_GEOGCS", _TL("Geographic Coordinate Systems"), _TL(""),
