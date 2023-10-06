@@ -188,6 +188,12 @@ int			SG_UI_Progress_Lock(bool bOn)
 }
 
 //---------------------------------------------------------
+bool		SG_UI_Progress_is_Locked(void)
+{
+	return( gSG_UI_Progress_Lock != 0 );
+}
+
+//---------------------------------------------------------
 int			SG_UI_Progress_Reset(void)
 {
 	int Locked = gSG_UI_Progress_Lock;
@@ -474,6 +480,12 @@ int			SG_UI_Msg_Lock(bool bOn)
 	}
 
 	return( gSG_UI_Msg_Lock );
+}
+
+//---------------------------------------------------------
+bool		SG_UI_Msg_is_Locked(void)
+{
+	return( gSG_UI_Msg_Lock != 0 );
 }
 
 //---------------------------------------------------------
