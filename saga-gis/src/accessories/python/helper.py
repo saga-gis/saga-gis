@@ -268,7 +268,7 @@ class Tool_Wrapper:
 
     #____________________________________
     def Execute(self, Verbose=2):
-        if Verbose >= 2 and saga_api.SG_UI_Progress_is_Locked():
+        if Verbose >= 2 and saga_api.SG_UI_Msg_is_Locked():
             Verbose = 1
 
         #________________________________
@@ -294,6 +294,8 @@ class Tool_Wrapper:
 
         #________________________________
         def _Finalize(Success):
+            self.Tool.On_After_Execution()
+
             for Data in self.Output:
                 Parameter = self.Tool.Get_Parameter(Data[0])
                 if Parameter and Parameter.is_Output():
@@ -324,7 +326,7 @@ class Tool_Wrapper:
         if self.is_Okay():
             _Initialize()
 
-            if self.Tool.Execute():
+            if self.Tool.On_Before_Execution() and self.Tool.Execute():
                 _Finalize(True)
                 return True
 
