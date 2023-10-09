@@ -93,6 +93,7 @@
 				<input  id="GRIDS">FEATURES</input>
 				<option id="NORMALISE" varname="true">NORMALIZE</option>
 				<output id="CLASSES">CLASSIFICATIONS</output>
+				<output id="CLASSES_LUT">CLASSES_LUT</output>
 			</tool>
 		</condition>
 
@@ -107,6 +108,7 @@
 				<input  id="GRIDS">FEATURES</input>
 				<option id="NORMALISE" varname="true">NORMALIZE</option>
 				<output id="CLASSES">CLASSIFICATIONS</output>
+				<output id="CLASSES_LUT">CLASSES_LUT</output>
 			</tool>
 		</condition>
 
@@ -121,6 +123,7 @@
 				<input  id="GRIDS">FEATURES</input>
 				<option id="NORMALISE" varname="true">NORMALIZE</option>
 				<output id="CLASSES">CLASSIFICATIONS</output>
+				<output id="CLASSES_LUT">CLASSES_LUT</output>
 			</tool>
 		</condition>
 
@@ -135,6 +138,7 @@
 				<input  id="GRIDS">FEATURES</input>
 				<option id="NORMALISE" varname="true">NORMALIZE</option>
 				<output id="CLASSES">CLASSIFICATIONS</output>
+				<output id="CLASSES_LUT">CLASSES_LUT</output>
 			</tool>
 		</condition>
 
@@ -149,6 +153,7 @@
 				<input  id="GRIDS">FEATURES</input>
 				<option id="NORMALISE" varname="true">NORMALIZE</option>
 				<output id="CLASSES">CLASSIFICATIONS</output>
+				<output id="CLASSES_LUT">CLASSES_LUT</output>
 			</tool>
 		</condition>
 
@@ -163,6 +168,7 @@
 				<input  id="FEATURES">FEATURES</input>
 				<option id="NORMALIZE" varname="true">NORMALIZE</option>
 				<output id="CLASSES">CLASSIFICATIONS</output>
+				<output id="CLASSES_LUT">CLASSES_LUT</output>
 			</tool>
 		</condition>
 
@@ -183,6 +189,7 @@
 				<input  id="FEATURES">FEATURES</input>
 				<option id="NORMALIZE" varname="true">NORMALIZE</option>
 				<output id="CLASSES">CLASSIFICATIONS</output>
+				<output id="CLASSES_LUT">CLASSES_LUT</output>
 			</tool>
 		</condition>
 
@@ -204,6 +211,7 @@
 				<input  id="FEATURES">FEATURES</input>
 				<option id="NORMALIZE" varname="true">NORMALIZE</option>
 				<output id="CLASSES">CLASSIFICATIONS</output>
+				<output id="CLASSES_LUT">CLASSES_LUT</output>
 			</tool>
 		</condition>
 
@@ -221,6 +229,7 @@
 				<input  id="FEATURES">FEATURES</input>
 				<option id="NORMALIZE" varname="true">NORMALIZE</option>
 				<output id="CLASSES">CLASSIFICATIONS</output>
+				<output id="CLASSES_LUT">CLASSES_LUT</output>
 			</tool>
 		</condition>
 
@@ -238,6 +247,7 @@
 				<input  id="FEATURES">FEATURES</input>
 				<option id="NORMALIZE" varname="true">NORMALIZE</option>
 				<output id="CLASSES">CLASSIFICATIONS</output>
+				<output id="CLASSES_LUT">CLASSES_LUT</output>
 			</tool>
 		</condition>
 
@@ -267,6 +277,7 @@
 				<input  id="FEATURES">FEATURES</input>
 				<option id="NORMALIZE" varname="true">NORMALIZE</option>
 				<output id="CLASSES">CLASSIFICATIONS</output>
+				<output id="CLASSES_LUT">CLASSES_LUT</output>
 			</tool>
 		</condition>
 
@@ -277,5 +288,14 @@
 			<output id="MAJORITY_COUNT">MAJORITY_COUNT</output>
 			<output id="NUNIQUES">NUNIQUES</output>
 		</tool>
+
+		<condition type="has_gui" variable="true">
+			<tool library="grid_visualisation" tool="10" name="Select Look-up Table for Grid Visualization">
+				<input id="GRID">CLASSES</input>
+				<input id="LUT">CLASSES_LUT</input>
+				<option id="NAME">1</option>
+				<option id="VALUE">0</option>
+			</tool>
+		</condition>
 	</tools>
 </toolchain>
