@@ -146,9 +146,9 @@ int CCRS_Transform_Shapes::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 		if( pParameter->Cmp_Identifier("SOURCE")
 		||  pParameter->Cmp_Identifier("COPY"  ) )
 		{
-			CSG_Parameter	*pSource	= (*pParameters)("SOURCE");
+			CSG_Parameter *pSource = (*pParameters)("SOURCE");
 
-			bool	bCreate	= (*pParameters)("COPY")->asBool() && pSource->asDataObject();
+			bool bCreate = (*pParameters)("COPY")->asBool() && pSource->asDataObject();
 
 			pParameters->Set_Enabled("TARGET"   , bCreate && pSource->asPointCloud() == NULL);
 			pParameters->Set_Enabled("TARGET_PC", bCreate && pSource->asPointCloud() != NULL);
@@ -174,27 +174,27 @@ bool CCRS_Transform_Shapes::On_Execute_Transformation(void)
 {
 	if( m_bList )
 	{
-		CSG_Parameter_Shapes_List	*pSources	= Parameters("SOURCE")->asShapesList();
-		CSG_Parameter_Shapes_List	*pTargets	= Parameters("TARGET")->asShapesList();
+		CSG_Parameter_Shapes_List *pSources = Parameters("SOURCE")->asShapesList();
+		CSG_Parameter_Shapes_List *pTargets = Parameters("TARGET")->asShapesList();
 
 		pTargets->Del_Items();
 
-		bool	bResult	= true;
+		bool bResult = true;
 
 		for(int i=0; i<pSources->Get_Item_Count() && Process_Get_Okay(false); i++)
 		{
-			CSG_Shapes	*pTarget	= pSources->Get_Shapes(i);
+			CSG_Shapes *pTarget = pSources->Get_Shapes(i);
 
 			if( Parameters("COPY")->asBool() )
 			{
-				pTarget	= SG_Create_Shapes(*pTarget);
+				pTarget = SG_Create_Shapes(*pTarget);
 			}
 
 			pTargets->Add_Item(pTarget);
 
 			if( !Transform(pTarget) )
 			{
-				bResult	= false;
+				bResult = false;
 			}
 		}
 
@@ -204,10 +204,10 @@ bool CCRS_Transform_Shapes::On_Execute_Transformation(void)
 	//-----------------------------------------------------
 	else
 	{
-		CSG_Shapes	*pSource	= Parameters("SOURCE"   )->asShapes();
-		CSG_Shapes	*pTarget	= Parameters("COPY"     )->asBool() == false ? NULL : pSource->asPointCloud()
-								? Parameters("TARGET_PC")->asShapes()
-								: Parameters("TARGET"   )->asShapes();
+		CSG_Shapes *pSource = Parameters("SOURCE"   )->asShapes();
+		CSG_Shapes *pTarget = Parameters("COPY"     )->asBool() == false ? NULL : pSource->asPointCloud()
+		                    ? Parameters("TARGET_PC")->asShapes()
+		                    : Parameters("TARGET"   )->asShapes();
 
 		if( pTarget && pTarget != pSource )
 		{
@@ -215,10 +215,10 @@ bool CCRS_Transform_Shapes::On_Execute_Transformation(void)
 		}
 		else
 		{
-			pTarget	= pSource;
+			pTarget = pSource;
 		}
 
-		bool	bResult	= Transform(pTarget);
+		bool bResult = Transform(pTarget);
 
 		if( pTarget == pSource )
 		{
@@ -247,11 +247,11 @@ bool CCRS_Transform_Shapes::Transform(CSG_Shapes *pShapes)
 		return( false );
 	}
 
-	bool	bTransform_Z	= Parameters("TRANSFORM_Z")->asBool() && pShapes->Get_Vertex_Type() >= SG_VERTEX_TYPE_XYZ;
+	bool bTransform_Z = Parameters("TRANSFORM_Z")->asBool() && pShapes->Get_Vertex_Type() >= SG_VERTEX_TYPE_XYZ;
 
 	Process_Set_Text("%s: %s", _TL("Processing"), pShapes->Get_Name());
 
-	CSG_Array	_Okay(sizeof(bool), pShapes->Get_Count()); bool *bOkay = (bool *)_Okay.Get_Array();
+	CSG_Array _Okay(sizeof(bool), pShapes->Get_Count()); bool *bOkay = (bool *)_Okay.Get_Array();
 
 	//-----------------------------------------------------
 	if( !Parameters("PARALLEL") || !Parameters("PARALLEL")->asBool() || SG_OMP_Get_Max_Num_Threads() < 2 )
@@ -260,7 +260,7 @@ bool CCRS_Transform_Shapes::Transform(CSG_Shapes *pShapes)
 		{
 			if( pShapes->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud )
 			{
-				TSG_Point_3D	p	= pShapes->asPointCloud()->Get_Point(i);
+				TSG_Point_3D p = pShapes->asPointCloud()->Get_Point(i);
 
 				if( (bOkay[i] = bTransform_Z ? m_Projector.Get_Projection(p.x, p.y, p.z) : m_Projector.Get_Projection(p.x, p.y)) )
 				{
@@ -269,19 +269,19 @@ bool CCRS_Transform_Shapes::Transform(CSG_Shapes *pShapes)
 			}
 			else
 			{
-				CSG_Shape	*pShape	= pShapes->Get_Shape(i);
+				CSG_Shape *pShape = pShapes->Get_Shape(i);
 
-				bOkay[i]	= true;
+				bOkay[i] = true;
 
 				for(int iPart=0; bOkay[i] && iPart<pShape->Get_Part_Count(); iPart++)
 				{
 					for(int iPoint=0; bOkay[i] && iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 					{
-						TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
+						TSG_Point p = pShape->Get_Point(iPoint, iPart);
 
 						if( bTransform_Z )
 						{
-							double	z	= pShape->Get_Z(iPoint, iPart);
+							double z = pShape->Get_Z(iPoint, iPart);
 
 							if( (bOkay[i] = m_Projector.Get_Projection(p.x, p.y, z)) )
 							{
@@ -308,7 +308,7 @@ bool CCRS_Transform_Shapes::Transform(CSG_Shapes *pShapes)
 		#pragma omp parallel for
 		for(sLong i=0; i<pShapes->Get_Count(); i++)
 		{
-			int	Thread	= SG_OMP_Get_Thread_Num();
+			int Thread = SG_OMP_Get_Thread_Num();
 
 			if( !Thread )
 			{
@@ -317,7 +317,7 @@ bool CCRS_Transform_Shapes::Transform(CSG_Shapes *pShapes)
 
 			if( pShapes->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud )
 			{
-				TSG_Point_3D	p	= pShapes->asPointCloud()->Get_Point(i);
+				TSG_Point_3D p = pShapes->asPointCloud()->Get_Point(i);
 
 				if( (bOkay[i] = bTransform_Z ? m_Projector[Thread].Get_Projection(p.x, p.y, p.z) : m_Projector[Thread].Get_Projection(p.x, p.y)) )
 				{
@@ -326,19 +326,19 @@ bool CCRS_Transform_Shapes::Transform(CSG_Shapes *pShapes)
 			}
 			else
 			{
-				CSG_Shape	*pShape	= pShapes->Get_Shape(i);
+				CSG_Shape *pShape = pShapes->Get_Shape(i);
 
-				bOkay[i]	= true;
+				bOkay[i] = true;
 
 				for(int iPart=0; bOkay[i] && iPart<pShape->Get_Part_Count(); iPart++)
 				{
 					for(int iPoint=0; bOkay[i] && iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 					{
-						TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
+						TSG_Point p = pShape->Get_Point(iPoint, iPart);
 
 						if( bTransform_Z )
 						{
-							double	z	= pShape->Get_Z(iPoint, iPart);
+							double z = pShape->Get_Z(iPoint, iPart);
 
 							if( (bOkay[i] = m_Projector[Thread].Get_Projection(p.x, p.y, z)) )
 							{
@@ -360,7 +360,7 @@ bool CCRS_Transform_Shapes::Transform(CSG_Shapes *pShapes)
 	}
 
 	//-----------------------------------------------------
-	sLong	nDropped	= 0;
+	sLong nDropped = 0;
 
 	for(sLong i=pShapes->Get_Count()-1; i>=0; i--)
 	{

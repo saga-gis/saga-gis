@@ -76,7 +76,7 @@ CGet_Connections::CGet_Connections(void)
 //---------------------------------------------------------
 bool CGet_Connections::On_Execute(void)
 {
-	CSG_Table	*pConnections	= Parameters("CONNECTIONS")->asTable();
+	CSG_Table *pConnections = Parameters("CONNECTIONS")->asTable();
 
 	pConnections->Destroy();
 	pConnections->Set_Name(_TL("PostgreSQL Connections"));
@@ -90,8 +90,8 @@ bool CGet_Connections::On_Execute(void)
 
 	for(int i=0; i<SG_PG_Get_Connection_Manager().Get_Count(); i++)
 	{
-		CSG_PG_Connection	*pConnection = SG_PG_Get_Connection_Manager().Get_Connection(i);
-		CSG_Table_Record	*pRecord     = pConnections->Add_Record();
+		CSG_PG_Connection *pConnection = SG_PG_Get_Connection_Manager().Get_Connection(i);
+		CSG_Table_Record      *pRecord = pConnections->Add_Record();
 
 		pRecord->Set_Value(0, pConnection->Get_Connection());
 		pRecord->Set_Value(1, pConnection->Get_Host      ());
@@ -171,9 +171,9 @@ int CGet_Connection::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 		||  pParameter->Cmp_Identifier("PG_USER")
 		||  pParameter->Cmp_Identifier("PG_PWD" ) )
 		{
-			CSG_Table	DBs;
+			CSG_Table DBs;
 
-			CSG_PG_Connection	Connection(
+			CSG_PG_Connection Connection(
 				pParameters->Get_Parameter("PG_HOST")->asString(),
 				pParameters->Get_Parameter("PG_PORT")->asInt   (),
 				"",
@@ -183,11 +183,11 @@ int CGet_Connection::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 
 			if( Connection.is_Connected() && Connection.Execute("SELECT datname FROM pg_database", &DBs) )
 			{
-				CSG_String	List;	DBs.Set_Index(0, TABLE_INDEX_Ascending);
+				CSG_String List; DBs.Set_Index(0, TABLE_INDEX_Ascending);
 
 				for(int i=0; i<DBs.Get_Count(); i++)
 				{
-					List	+= DBs[i].asString(0) + CSG_String("|");
+					List += DBs[i].asString(0) + CSG_String("|");
 				}
 
 				pParameters->Get_Parameter("PG_LIST")->asChoice()->Set_Items(List);
@@ -215,7 +215,7 @@ int CGet_Connection::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 //---------------------------------------------------------
 bool CGet_Connection::On_Execute(void)
 {
-	CSG_String	Connection	= CSG_String::Format("%s [%s:%d]",
+	CSG_String Connection = CSG_String::Format("%s [%s:%d]",
 		Parameters("PG_NAME")->asString(),
 		Parameters("PG_HOST")->asString(),
 		Parameters("PG_PORT")->asInt   ()
@@ -228,7 +228,7 @@ bool CGet_Connection::On_Execute(void)
 		return( false );
 	}
 
-	CSG_PG_Connection	*pConnection	= SG_PG_Get_Connection_Manager().Add_Connection(
+	CSG_PG_Connection *pConnection = SG_PG_Get_Connection_Manager().Add_Connection(
 		Parameters("PG_NAME")->asString(),
 		Parameters("PG_USER")->asString(),
 		Parameters("PG_PWD" )->asString(),
@@ -238,6 +238,11 @@ bool CGet_Connection::On_Execute(void)
 
 	if( pConnection )
 	{
+		if( !has_GUI() )//&& !has_CMD() )
+		{
+			SG_UI_Console_Print_StdOut(CSG_String::Format("%s -> \"%s\"", _TL("PostgreSQL source connected"), Connection.c_str()));
+		}
+
 		Message_Add(Connection + ": " + _TL("PostgreSQL source connected"));
 
 		pConnection->GUI_Update();
@@ -281,7 +286,7 @@ CDel_Connection::CDel_Connection(void)
 //---------------------------------------------------------
 bool CDel_Connection::On_Execute(void)
 {
-	CSG_String	Connection	= Get_Connection()->Get_Connection();
+	CSG_String Connection = Get_Connection()->Get_Connection();
 
 	if( SG_PG_Get_Connection_Manager().Del_Connection(Get_Connection(), Parameters("TRANSACT")->asInt() == 1) )
 	{
@@ -344,9 +349,9 @@ bool CDel_Connections::On_Before_Execution(void)
 //---------------------------------------------------------
 bool CDel_Connections::On_Execute(void)
 {
-	bool	bCommit	= Parameters("TRANSACT")->asInt() == 1;
+	bool bCommit = Parameters("TRANSACT")->asInt() == 1;
 
-	CSG_PG_Connections	&Manager	= SG_PG_Get_Connection_Manager();
+	CSG_PG_Connections &Manager = SG_PG_Get_Connection_Manager();
 
 	for(int i=Manager.Get_Count()-1; i>=0; i--)
 	{
@@ -555,9 +560,9 @@ bool CExecute_SQL::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int  nErrors = 0;
-	int  Output  = Parameters("OUTPUT")->asInt();
-	bool bStop   = Parameters("STOP"  )->asBool();
+	int nErrors = 0;
+	int  Output = Parameters("OUTPUT")->asInt();
+	bool  bStop = Parameters("STOP"  )->asBool();
 
 	CSG_Parameter_Table_List *pTables = Parameters("TABLES")->asTableList();
 

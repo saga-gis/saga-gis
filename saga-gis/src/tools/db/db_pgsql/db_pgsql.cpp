@@ -2410,9 +2410,7 @@ int CSG_PG_Connections::Get_Connections(CSG_String &Connections)
 //---------------------------------------------------------
 CSG_PG_Tool::CSG_PG_Tool(void)
 {
-	m_bCMD = SG_File_Get_Name(SG_UI_Get_Application_Path(false), false).Cmp("saga_cmd") == 0;
-
-	if( m_bCMD )
+	if( has_CMD() )
 	{
 		Parameters.Add_String("", "PG_HOST"   , _TL("Host"       ), _TL(""), "127.0.0.1"    )->Set_UseInGUI(false);
 		Parameters.Add_Int   ("", "PG_PORT"   , _TL("Port"       ), _TL(""), 5432, 0, true  )->Set_UseInGUI(false);
@@ -2422,7 +2420,7 @@ CSG_PG_Tool::CSG_PG_Tool(void)
 	}
 	else
 	{
-		Parameters.Add_Choice("", "CONNECTION", _TL("Connections"), _TL(""), "");
+		Parameters.Add_Choice("", "CONNECTION", _TL("Connection"), _TL(""), "");
 	}
 
 	m_pConnection = NULL;
@@ -2431,7 +2429,7 @@ CSG_PG_Tool::CSG_PG_Tool(void)
 //---------------------------------------------------------
 bool CSG_PG_Tool::On_Before_Execution(void)
 {
-	if( m_bCMD )
+	if( has_CMD() )
 	{
 		m_pConnection = SG_PG_Get_Connection_Manager().Add_Connection(
 			Parameters("PG_NAME")->asString(),
@@ -2487,7 +2485,7 @@ bool CSG_PG_Tool::On_Before_Execution(void)
 //---------------------------------------------------------
 bool CSG_PG_Tool::On_After_Execution(void)
 {
-	if( m_bCMD )
+	if( has_CMD() )
 	{
 		SG_PG_Get_Connection_Manager().Del_Connection(m_pConnection, true);
 	}
@@ -2498,7 +2496,7 @@ bool CSG_PG_Tool::On_After_Execution(void)
 //---------------------------------------------------------
 int CSG_PG_Tool::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( m_bCMD == false )
+	if( has_GUI() )
 	{
 		CSG_Projection Projection;
 
@@ -2531,8 +2529,11 @@ int CSG_PG_Tool::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 			if(	!pParameter->Cmp_Identifier("CRS_EPSG_GEOGCS") ) { pParameters->Set_Parameter("CRS_EPSG_GEOGCS", 0); }
 			if(	!pParameter->Cmp_Identifier("CRS_EPSG_PROJCS") ) { pParameters->Set_Parameter("CRS_EPSG_PROJCS", 0); }
 		}
+	}
 
-		//-------------------------------------------------
+	//-----------------------------------------------------
+	if( has_CMD() == false )
+	{
 		if( pParameter->Cmp_Identifier("CONNECTION") )
 		{
 			CSG_PG_Connection *pConnection = SG_PG_Get_Connection_Manager().Get_Connection(pParameter->asString());
@@ -2570,7 +2571,7 @@ bool CSG_PG_Tool::Add_SRID_Picker(CSG_Parameters *pParameters)
 
 	pParameters->Add_Int("", "CRS_EPSG", _TL("EPSG Code"), _TL(""), -1, -1, true);
 
-	if( m_bCMD == false )
+	if( has_CMD() == false )
 	{
 		pParameters->Add_Choice(
 			"CRS_EPSG", "CRS_EPSG_GEOGCS", _TL("Geographic Coordinate Systems"), _TL(""),

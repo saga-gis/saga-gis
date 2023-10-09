@@ -143,7 +143,7 @@ bool CShapes_Load::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Shapes *pShapes = Parameters("SHAPES")->asShapes();
+	CSG_Shapes *pShapes = Parameters("SHAPES")->asShapes(); pShapes->Destroy();
 
 	if( !Get_Connection()->Shapes_Load(pShapes, DB_Table) )
 	{
@@ -559,16 +559,16 @@ int CShapes_Join::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 //---------------------------------------------------------
 void CShapes_Join::Update_Fields(CSG_Parameters *pParameters, bool bGeoTable)
 {
-	CSG_Parameters	&Fields	= *pParameters->Get_Parameter("FIELDS")->asParameters();
+	CSG_Parameters &Fields = *pParameters->Get_Parameter("FIELDS")->asParameters();
 
 	if( bGeoTable )
 	{
 		Fields.Del_Parameters();
 	}
 
-	CSG_String	FieldList, geoField, Table(pParameters->Get_Parameter(bGeoTable ? "GEO_TABLE" : "JOIN_TABLE")->asString());
-	CSG_Table	t	= Get_Connection()->Get_Field_Desc(Table);
-	CSG_Parameter	*pNode	= Fields.Add_Bool("", Table, Table, "");
+	CSG_String FieldList, geoField, Table(pParameters->Get_Parameter(bGeoTable ? "GEO_TABLE" : "JOIN_TABLE")->asString());
+	CSG_Table t = Get_Connection()->Get_Field_Desc(Table);
+	CSG_Parameter *pNode = Fields.Add_Bool("", Table, Table, "");
 
 	Get_Connection()->Shapes_Geometry_Info(Table, &geoField, NULL);
 
@@ -576,7 +576,7 @@ void CShapes_Join::Update_Fields(CSG_Parameters *pParameters, bool bGeoTable)
 	{
 		if( geoField.Cmp(t[i].asString(0)) )
 		{
-			FieldList	+= t[i].asString(0) + CSG_String("|");
+			FieldList += t[i].asString(0) + CSG_String("|");
 			Fields.Add_Bool(pNode, CSG_String::Format("%s.%s", Table.c_str(), t[i].asString(0)), t[i].asString(0), "");
 		}
 	}
@@ -587,8 +587,8 @@ void CShapes_Join::Update_Fields(CSG_Parameters *pParameters, bool bGeoTable)
 //---------------------------------------------------------
 bool CShapes_Join::On_Execute(void)
 {
-	CSG_String	geoTable	= Parameters("GEO_TABLE" )->asString();
-	CSG_String	joinTable	= Parameters("JOIN_TABLE")->asString();
+	CSG_String  geoTable = Parameters( "GEO_TABLE")->asString();
+	CSG_String joinTable = Parameters("JOIN_TABLE")->asString();
 
 	if( !geoTable.Cmp(joinTable) )
 	{
@@ -598,7 +598,7 @@ bool CShapes_Join::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_String	Join, Where	= Parameters("WHERE")->asString();
+	CSG_String Join, Where = Parameters("WHERE")->asString();
 
 	Join.Printf("\"%s\".\"%s\"=\"%s\".\"%s\"",
 		 geoTable.c_str(), Parameters( "GEO_KEY")->asString(),
@@ -607,13 +607,11 @@ bool CShapes_Join::On_Execute(void)
 
 	if( !Where.is_Empty() )
 	{
-		Join	+= " AND (" + Where + ")";
+		Join += " AND (" + Where + ")";
 	}
 
 	//-----------------------------------------------------
-	CSG_String Fields;
-
-	CSG_Parameters &P = *Parameters("FIELDS")->asParameters();
+	CSG_String Fields; CSG_Parameters &P = *Parameters("FIELDS")->asParameters();
 
 	for(int i=0; i<P.Get_Count(); i++)
 	{
@@ -621,24 +619,26 @@ bool CShapes_Join::On_Execute(void)
 		{
 			if( !Fields.is_Empty() )
 			{
-				Fields	+= ",";
+				Fields += ",";
 			}
 
-			CSG_String	ID	= P[i].Get_Identifier();
+			CSG_String ID = P[i].Get_Identifier();
 
-			if( ID.Find('.') < 0 )	// table
+			if( ID.Find('.') < 0 ) // table
 			{
-				Fields	+= "\"" + ID + "\"";
+				Fields += "\"" + ID + "\"";
 			}
-			else					// field
+			else                   // field
 			{
-				Fields	+= "\"" + ID.BeforeFirst('.') + "\".\"" + ID.AfterFirst('.') + "\"";
+				Fields += "\"" + ID.BeforeFirst('.') + "\".\"" + ID.AfterFirst('.') + "\"";
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	if( !Get_Connection()->Shapes_Load(Parameters("SHAPES")->asShapes(), geoTable + "." + joinTable, geoTable, "\"" + joinTable + "\"", Fields, Join) )
+	CSG_Shapes *pShapes = Parameters("SHAPES")->asShapes(); pShapes->Destroy();
+
+	if( !Get_Connection()->Shapes_Load(pShapes, geoTable + "." + joinTable, geoTable, "\"" + joinTable + "\"", Fields, Join) )
 	{
 		Error_Set(_TL("unable to load vector data from PostGIS database") + CSG_String(":\n") + geoTable + "." + joinTable);
 
