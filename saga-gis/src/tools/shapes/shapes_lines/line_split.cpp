@@ -57,7 +57,9 @@ CCut_Lines::CCut_Lines(void)
 	Set_Version("1.3");
 
 	Set_Description (_TW(
-		"The tool allows one to split lines into multiple lines. The lines can be split based on a user-defined line length or the given number of divisions of each input line."
+		"The tool allows one to split lines into multiple lines. The lines can be split based on a user-defined line length or the given number of divisions of each input line. "
+		"Optionally, a point shapes layer with the points at which the lines were split can be created. This can be used, e.g., to create the midpoint of each polyline "
+		"by dividing each line into two halves."
 		)
 	);
 
@@ -69,6 +71,11 @@ CCut_Lines::CCut_Lines(void)
 	Parameters.Add_Shapes(
 		NULL, "OUTPUT", _TL("Output Lines"), _TL("Output line shapefile."),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Line
+	);
+
+	Parameters.Add_Shapes("",
+		"INS_POINTS", _TL("Inserted Points"), _TL("The points at which the lines were split."),
+		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Choice(
@@ -134,6 +141,7 @@ bool CCut_Lines::On_Execute(void)
 {
 	CSG_Shapes	*pInputLines 		= Parameters("INPUT")->asShapes();
 	CSG_Shapes	*pOutputLines 		= Parameters("OUTPUT")->asShapes();
+	CSG_Shapes	*pInsPoints			= Parameters("INS_POINTS")->asShapes();
 	int			Distribution_Option = Parameters("DISTRIBUTION")->asInt();
 	int			Caps_Length_Option	= Parameters("CAPS_LENGTH")->asInt();
 	int			Caps_Number_Option  = Parameters("CAPS_NUMBER")->asInt();
@@ -146,6 +154,13 @@ bool CCut_Lines::On_Execute(void)
 		return false;
 	}
 
+	if( pInsPoints != NULL )
+	{
+		pInsPoints->Destroy();
+		pInsPoints->Add_Field("ID", SG_DATATYPE_Long);
+		pInsPoints->Set_Name(CSG_String::Format("%s_inserted_pts", pInputLines->Get_Name()));
+	}
+	
 	// Check for projection unit. This tool only works with projected
 	// Coordinate Reference Systems and assumes meter. Could be extended
 	//if( pInputLines->Get_Projection().Get_Unit() != SG_PROJ_UNIT_Meter )
@@ -166,6 +181,7 @@ bool CCut_Lines::On_Execute(void)
 	// Switch_To_Default (Length) will happen after the first cut.
 	double 	Distance_Overhang = 0.;
 	bool 	Switch_To_Default = false;
+	sLong	NumInsertedPoints = 0;
 
 	for( sLong i=0; i<pInputLines->Get_Count(); i++ )
 	{
@@ -290,6 +306,13 @@ bool CCut_Lines::On_Execute(void)
 						pSegment = pOutputLines->Add_Shape(pLine, SHAPE_COPY_ATTR);
 						pSegment->Add_Point( Intermediate_Point );
 
+						if( pInsPoints != NULL )
+						{
+							CSG_Shape *pShape = pInsPoints->Add_Shape();
+							pShape->Add_Point( Intermediate_Point );
+							pShape->Set_Value( 0, NumInsertedPoints++ );
+						}
+						
 						// Switch to the default length after the first cut is placed
 						if( Switch_To_Default == true )
 						{

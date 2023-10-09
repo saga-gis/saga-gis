@@ -85,8 +85,8 @@ CTop_Hat::CTop_Hat(void)
 		"Valleys are extracted by the \"Black Top Hat\" (BTH) function:\n\n"
 		"BTH = Closing - DEM >= t\n\n"
 		"The threshold value \"t\" works as an additional cut-off to extract "
-		"only the highest peaks and deepest valleys. This means that the functions permit to "
-		"extract peaks and valleys based on width and height criterions. For details "
+		"only the highest peaks and deepest valleys. This means that the functions permit "
+		"extracting peaks and valleys based on width and height criterions. For details "
 		"see the referenced paper.\n"
 		"The tool is based on the AML script \'tophat\' by Jochen Schmidt, Landcare Research."
 	));
