@@ -42,6 +42,49 @@ from PySAGA import saga_api
 
 #################################################################################
 #
+# Prints...
+#________________________________________________________________________________
+
+#################################################################################
+#________________________________________________________________________________
+def Print_Table(Table, Separator='\t'):
+    '''
+    Print the contents of a saga_api.CSG_Table object.
+
+    Arguments
+    ---------
+    Table : the table object of type `saga_api`.`CSG_Table`
+
+    Returns
+    ---------
+    boolean : True on success
+    '''
+    try:
+        Table.Get_Field_Count()
+    except:
+        return False
+    print('_____________________')
+    print(Table.Get_Name() + '[{:d} fields, {:d} records]\n'.format(Table.Get_Field_Count(), Table.Get_Count()))
+    print('=====================')
+    for Field in range(0, Table.Get_Field_Count()):
+        if Field > 0:
+            print(Separator, end='')
+        print(Table.Get_Field_Name(Field), end='')
+    print('\n_____________________')
+    for i in range(0, Table.Get_Count()):
+        Record = Table.Get_Record(i)
+        for Field in range(0, Table.Get_Field_Count()):
+            if Field > 0:
+                print(Separator, end='')
+            print(Record.asString(Field), end='')
+        print()
+    print('=====================')
+    return True
+
+
+
+#################################################################################
+#
 # Defining the Areas of Interest...
 #________________________________________________________________________________
 
@@ -184,6 +227,26 @@ def PyList_from_Grid_Collection(Grids):
         List.append(Grids.Get_Grid(i))
     return List
 
+#________________________________________________________________________________
+def PyList_to_Grid_Collection(List, Name='Grid Collection'):
+    '''
+    Create a grid collection from single grids provided by a Python list.
+
+    Arguments
+    ---------
+    List : a Python list with objects of type `saga_api`.`CSG_Grid`
+
+    Returns
+    ---------
+    `saga_api`.`CSG_Grids` : a grid collection of type `saga_api`.`CSG_Grids`
+    '''
+
+    Grids = saga_api.CSG_Grids()
+    Grids.Fmt_Name(Name)
+    for i in range(0, len(List)):
+        Grids.Add_Grid(i, List[i].asGrid())
+    return Grids
+
 
 #################################################################################
 #
@@ -227,7 +290,7 @@ class Tool_Wrapper:
     The Tool_Wrapper class is a smart wrapper for SAGA tools facilitating tool execution.
     '''
 
-    Tool = None; Input = []; Output = []
+    Tool = None; Input = []; Output = []; Options = []
 
     #____________________________________
     def __init__(self, Library, Tool, Expected):
@@ -245,7 +308,7 @@ class Tool_Wrapper:
     def Destroy(self):
         if self.is_Okay():
             saga_api.SG_Get_Tool_Library_Manager().Delete_Tool(self.Tool)
-        self.Tool = None; self.Input.clear(); self.Output.clear()
+        self.Tool = None; self.Input.clear(); self.Output.clear(); self.Options.clear()
 
     #____________________________________
     def is_Okay(self):
@@ -264,7 +327,7 @@ class Tool_Wrapper:
     #____________________________________
     def Set_Option(self, ID, Value):
         if self.is_Okay() and Value != None:
-            self.Tool.Set_Parameter(ID, Value)
+            self.Options.append([ID, Value])
 
     #____________________________________
     def Execute(self, Verbose=2):
@@ -277,6 +340,12 @@ class Tool_Wrapper:
                 saga_api.SG_UI_ProgressAndMsg_Lock(True)
                 if Verbose == 1:
                     saga_api.SG_UI_Console_Print_StdOut('[{:s}] execution... '.format(self.Tool.Get_Name().c_str()), '')
+
+            if not self.Tool.On_Before_Execution():
+                return False
+
+            for Option in self.Options:
+                self.Tool.Set_Parameter(Option[0], Option[1])
 
             for Data in self.Input:
                 Parameter = self.Tool.Get_Parameter(Data[0])
@@ -291,6 +360,8 @@ class Tool_Wrapper:
                 Parameter = self.Tool.Get_Parameter(Data[0])
                 if Parameter and Parameter.is_Output() and Parameter.is_DataObject():
                     Parameter.Set_Value(Data[1])
+
+            return True
 
         #________________________________
         def _Finalize(Success):
@@ -324,14 +395,10 @@ class Tool_Wrapper:
 
         #________________________________
         if self.is_Okay():
-            _Initialize()
-
-            if self.Tool.On_Before_Execution() and self.Tool.Execute():
+            if _Initialize() and self.Tool.Execute():
                 _Finalize(True)
                 return True
-
             _Finalize(False)
-
         return False
 
 #________________________________________________________________________________
