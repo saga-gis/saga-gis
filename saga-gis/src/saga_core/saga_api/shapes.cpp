@@ -346,7 +346,14 @@ CSG_Shapes::~CSG_Shapes(void)
 //---------------------------------------------------------
 bool CSG_Shapes::Destroy(void)
 {
-	return( CSG_Table::Destroy() );
+	if( CSG_Table::Destroy() )
+	{
+		m_Type = SHAPE_TYPE_Undefined;
+
+		return( true );
+	}
+
+	return( false );
 }
 
 
@@ -361,11 +368,11 @@ bool CSG_Shapes::Assign(CSG_Data_Object *pObject)
 {
 	if(	pObject && pObject->is_Valid() && (pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes || pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud) )
 	{
-		CSG_Shapes	*pShapes	= (CSG_Shapes *)pObject;
+		CSG_Shapes *pShapes = (CSG_Shapes *)pObject;
 
 		Create(pShapes->Get_Type(), pShapes->Get_Name(), pShapes, pShapes->Get_Vertex_Type());
 
-		Get_History()	= pShapes->Get_History();
+		Get_History() = pShapes->Get_History();
 
 		Get_Projection().Create(pShapes->Get_Projection());
 
