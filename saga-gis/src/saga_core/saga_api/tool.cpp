@@ -232,7 +232,13 @@ CSG_String CSG_Tool::Get_MenuPath(bool bSolved)
 //---------------------------------------------------------
 bool CSG_Tool::has_GUI(void) const
 {
-	return( m_bWithGUI && SG_UI_Get_Window_Main() != NULL );
+	return( m_bWithGUI && SG_UI_Get_Application_Name().Cmp("saga_gui") == 0 );
+}
+
+//---------------------------------------------------------
+bool CSG_Tool::has_CMD(void) const
+{
+	return( SG_UI_Get_Application_Name().Cmp("saga_cmd") == 0 );
 }
 
 

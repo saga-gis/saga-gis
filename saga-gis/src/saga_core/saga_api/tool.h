@@ -228,6 +228,7 @@ public:
 
 	virtual bool				needs_GUI					(void)	const	{	return( false );	}
 	bool						has_GUI						(void)	const;
+	bool						has_CMD						(void)	const;
 
 	virtual bool				is_Grid						(void)	const	{	return( false );	}
 	virtual bool				is_Interactive				(void)	const	{	return( false );	}
