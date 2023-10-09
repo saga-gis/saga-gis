@@ -807,6 +807,12 @@ CSG_String	SG_UI_Get_Application_Path	(bool bPathOnly)
 	return( SG_File_Get_Path_Absolute(App_Path) );
 }
 
+//---------------------------------------------------------
+CSG_String	SG_UI_Get_Application_Name	(void)
+{
+	return( SG_File_Get_Name(SG_UI_Get_Application_Path(false), false) );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

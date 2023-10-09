@@ -1682,6 +1682,7 @@ SAGA_API_DLL_EXPORT int						SG_UI_Window_Arrange		(int Arrange);
 
 SAGA_API_DLL_EXPORT void *					SG_UI_Get_Window_Main		(void);
 SAGA_API_DLL_EXPORT CSG_String				SG_UI_Get_Application_Path	(bool bPathOnly = false);
+SAGA_API_DLL_EXPORT CSG_String				SG_UI_Get_Application_Name	(void);
 
 
 ///////////////////////////////////////////////////////////
