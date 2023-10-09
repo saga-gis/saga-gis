@@ -75,6 +75,8 @@ public:
 
 protected:
 
+	virtual int			On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
 	virtual bool		On_Execute				(void);
 
 };

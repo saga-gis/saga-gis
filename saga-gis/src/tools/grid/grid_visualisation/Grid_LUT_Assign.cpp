@@ -79,6 +79,43 @@ CGrid_LUT_Assign::CGrid_LUT_Assign(void)
 		_TL(""),
 		PARAMETER_INPUT
 	);
+
+	Parameters.Add_Table_Field("LUT", "NAME"       , _TL("Name"                 ), _TL(""), false);
+	Parameters.Add_Table_Field("LUT", "VALUE"      , _TL("Value"                ), _TL(""), false);
+	Parameters.Add_Table_Field("LUT", "VALUE_MAX"  , _TL("Value (Range Maximum)"), _TL(""),  true);
+	Parameters.Add_Table_Field("LUT", "DESCRIPTION", _TL("Description"          ), _TL(""),  true);
+	Parameters.Add_Table_Field("LUT", "COLOR"      , _TL("Color"                ), _TL(""),  true);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGrid_LUT_Assign::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("LUT") )
+	{
+		if( pParameter->asTable() )
+		{
+			if( pParameter->asTable()->Get_Field_Count() < 5 )
+			{
+				pParameters->Set_Parameter("VALUE"      , 0);
+				pParameters->Set_Parameter("NAME"       , 1);
+			}
+			else // if( pParameter->asTable()->Get_Field_Count() >= 5 )
+			{
+				pParameters->Set_Parameter("COLOR"      , 0);
+				pParameters->Set_Parameter("NAME"       , 1);
+				pParameters->Set_Parameter("DESCRIPTION", 2);
+				pParameters->Set_Parameter("VALUE"      , 3);
+				pParameters->Set_Parameter("VALUE_MAX"  , 4);
+			}
+		}
+	}
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 
@@ -89,22 +126,55 @@ CGrid_LUT_Assign::CGrid_LUT_Assign(void)
 //---------------------------------------------------------
 bool CGrid_LUT_Assign::On_Execute(void)
 {
-	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
+	CSG_Grid *pGrid = Parameters("GRID")->asGrid();
 
-	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(pGrid, "LUT");
+	CSG_Parameter *pLUT = DataObject_Get_Parameter(pGrid, "LUT");
 
-	if( pLUT && pLUT->asTable() && pLUT->asTable()->Assign_Values(Parameters("LUT")->asTable()) )
+	if( !pLUT || !pLUT->asTable() || pLUT->asTable()->Get_Field_Count() < 5 )
 	{
-		DataObject_Set_Parameter(pGrid, pLUT);
-		DataObject_Set_Parameter(pGrid, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
+		return( false );
+	}
 
-		DataObject_Update(pGrid);
+	CSG_Table &LUT = *Parameters("LUT")->asTable();
 
-		return( true );
+	if( !LUT.is_Valid() || LUT.Get_Field_Count() < 2 || LUT.Get_Count() < 1 )
+	{
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	return( false );
+	int        fName = Parameters("NAME"       )->asInt();
+	int       fValue = Parameters("VALUE"      )->asInt();
+	int   fValue_Max = Parameters("VALUE_MAX"  )->asInt();
+	int fDescription = Parameters("DESCRIPTION")->asInt();
+	int       fColor = Parameters("COLOR"      )->asInt();
+
+	for(int i=0; i<LUT.Get_Count(); i++)
+	{
+		CSG_Table_Record &Source = *LUT.Get_Record(i), *pTarget = pLUT->asTable()->Get_Record(i);
+
+		if( !pTarget )
+		{
+			pTarget = pLUT->asTable()->Add_Record();
+
+			pTarget->Set_Value(0, fColor >= 0 ? Source.asInt(fColor) : SG_Color_Get_Random());
+		}
+
+		pTarget->Set_Value(1,                     Source.asString(fName       ));
+		pTarget->Set_Value(2, fDescription >= 0 ? Source.asString(fDescription) : SG_T(""));
+		pTarget->Set_Value(3,                     Source.asDouble(fValue      ));
+		pTarget->Set_Value(4, fValue_Max   >= 0 ? Source.asDouble(fValue_Max  ) : Source.asDouble(fValue));
+	}
+
+	pLUT->asTable()->Set_Count(LUT.Get_Count());
+
+	//-----------------------------------------------------
+	DataObject_Set_Parameter(pGrid, pLUT);
+	DataObject_Set_Parameter(pGrid, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
+
+	DataObject_Update(pGrid);
+
+	return( true );
 }
 
 
