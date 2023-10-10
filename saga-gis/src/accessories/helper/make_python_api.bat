@@ -2,6 +2,14 @@
 
 REM ___________________________________
 REM ###################################
+REM Needs pip/setuptools packages upgraded to the latest version!
+REM Windows
+REM > python -m pip install -U pip setuptools
+REM Linux or OS X
+REM > pip install -U pip setuptools
+
+REM ___________________________________
+REM ###################################
 REM This batch script expects 5 arguments
 REM 1. output ('zip', 'install', 'update')
 REM 2. clean swig wrapper ('true', 'false')

@@ -79,7 +79,7 @@ def Version():
 		saga_api.SG_Get_Tool_Library_Manager().Get_Count(),
 		saga_api.SG_Get_Tool_Library_Manager().Get_Tool_Count()
 	))
-	saga_api.SG_UI_Msg_Add('_______')
+	saga_api.SG_UI_Msg_Add('_______\n')
 
 	return True
 

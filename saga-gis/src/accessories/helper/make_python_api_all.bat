@@ -8,6 +8,14 @@ ECHO #
 ECHO ##################################
 ECHO.
 
+REM ___________________________________
+REM ###################################
+REM Needs pip/setuptools packages upgraded to the latest version!
+REM Windows
+REM > python -m pip install -U pip setuptools
+REM Linux or OS X
+REM > pip install -U pip setuptools
+
 PUSHD %~dp0
 
 REM SET SAGA_ROOT=%CD%\..\..\..
@@ -24,5 +32,6 @@ CMD /C CALL make_python_api.bat %OUTPUT% false 3.8  %PYTHONS%\Python-3.8
 CMD /C CALL make_python_api.bat %OUTPUT% false 3.9  %PYTHONS%\Python-3.9
 CMD /C CALL make_python_api.bat %OUTPUT% false 3.10 %PYTHONS%\Python-3.10
 CMD /C CALL make_python_api.bat %OUTPUT% true  3.11 %PYTHONS%\Python-3.11
+CMD /C CALL make_python_api.bat %OUTPUT% true  3.12 %PYTHONS%\Python-3.12
 
 PAUSE
