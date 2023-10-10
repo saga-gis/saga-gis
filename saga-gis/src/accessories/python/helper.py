@@ -47,13 +47,16 @@ from PySAGA import saga_api
 
 #################################################################################
 #________________________________________________________________________________
-def Print_Table(Table, Separator='\t'):
+def Print_Table(Table, Separator='\t', Fields=[]):
     '''
     Print the contents of a saga_api.CSG_Table object.
 
     Arguments
     ---------
     Table : the table object of type `saga_api`.`CSG_Table`
+    Separator : `string` used to separate fields
+    Fields : list with field indices (0 based) to be printed.
+    Prints all fields if empty or None (default).
 
     Returns
     ---------
@@ -63,21 +66,34 @@ def Print_Table(Table, Separator='\t'):
         Table.Get_Field_Count()
     except:
         return False
-    print('_____________________')
-    print(Table.Get_Name() + '[{:d} fields, {:d} records]\n'.format(Table.Get_Field_Count(), Table.Get_Count()))
     print('=====================')
-    for Field in range(0, Table.Get_Field_Count()):
-        if Field > 0:
-            print(Separator, end='')
-        print(Table.Get_Field_Name(Field), end='')
-    print('\n_____________________')
-    for i in range(0, Table.Get_Count()):
-        Record = Table.Get_Record(i)
+    print('{:s} [{:d} fields, {:d} records]\n'.format(Table.Get_Name(), Table.Get_Field_Count(), Table.Get_Count()))
+    print('_____________________')
+    if Fields and len(Fields) > 0:
+        _Separator = ''
+        for Field in Fields:
+            if Field >= 0 and Field < Table.Get_Field_Count():
+                print(_Separator + Table.Get_Field_Name(Field), end=''); _Separator = Separator
+        print('\n=====================')
+        for i in range(0, Table.Get_Count()):
+            Record = Table.Get_Record(i); _Separator = ''
+            for Field in Fields:
+                if Field >= 0 and Field < Table.Get_Field_Count():
+                    print(_Separator + Record.asString(Field), end=''); _Separator = Separator
+            print()
+    else:
         for Field in range(0, Table.Get_Field_Count()):
             if Field > 0:
                 print(Separator, end='')
-            print(Record.asString(Field), end='')
-        print()
+            print(Table.Get_Field_Name(Field), end='')
+        print('\n=====================')
+        for i in range(0, Table.Get_Count()):
+            Record = Table.Get_Record(i)
+            for Field in range(0, Table.Get_Field_Count()):
+                if Field > 0:
+                    print(Separator, end='')
+                print(Record.asString(Field), end='')
+            print()
     print('=====================')
     return True
 
