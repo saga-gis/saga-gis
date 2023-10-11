@@ -7,7 +7,7 @@
 	<menu absolute="true">Imagery|Classification</menu>
 	<description>
 		The majority choice tool for supervised image classification runs the selected classification tools using standard settings and takes for each pixel of the resulting classification the class that has been identified most often by the individual classifiers.
-		
+
 		[[i]]Random Forest[[/i]] is not selected by default because it generates randomized results with more or less strong differences each time it is run.
 		[[i]]K-Nearest Neighbours[[/i]] and [[i]]Artifical Neural Network[[/i]] have been excluded from default, because using them might be a bit more time consuming.
 	</description>
@@ -83,7 +83,7 @@
 		<datalist type='grid_list'>CLASSIFICATIONS</datalist>
 
 		<condition value="true" type="=" variable="CLASSIFY_BOX">
-			<tool library="imagery_classification" tool="0" name="Supervised Image Classification" grid_system="GRID_SYSTEM">
+			<tool library="imagery_classification" tool="0" name="Supervised Image Classification">
 				<option id="METHOD">1</option>
 				<option id="TRAIN_WITH" varname="true">MODEL_TRAIN</option>
 				<input  id="TRAIN_SAMPLES">TRAIN_SAMPLES</input>
@@ -92,13 +92,14 @@
 				<option id="TRAIN_BUFFER" varname="true">TRAIN_BUFFER</option>
 				<input  id="GRIDS">FEATURES</input>
 				<option id="NORMALISE" varname="true">NORMALIZE</option>
+				<option id="GRID_SYSTEM" varname="true">GRID_SYSTEM</option>
 				<output id="CLASSES">CLASSIFICATIONS</output>
 				<output id="CLASSES_LUT">CLASSES_LUT</output>
 			</tool>
 		</condition>
 
 		<condition value="1" type="=" variable="CLASSIFY_MINDIST">
-			<tool library="imagery_classification" tool="0" name="Supervised Image Classification" grid_system="GRID_SYSTEM">
+			<tool library="imagery_classification" tool="0" name="Supervised Image Classification">
 				<option id="METHOD">2</option>
 				<option id="TRAIN_WITH" varname="true">MODEL_TRAIN</option>
 				<input  id="TRAIN_SAMPLES">TRAIN_SAMPLES</input>
@@ -107,13 +108,14 @@
 				<option id="TRAIN_BUFFER" varname="true">TRAIN_BUFFER</option>
 				<input  id="GRIDS">FEATURES</input>
 				<option id="NORMALISE" varname="true">NORMALIZE</option>
+				<option id="GRID_SYSTEM" varname="true">GRID_SYSTEM</option>
 				<output id="CLASSES">CLASSIFICATIONS</output>
 				<output id="CLASSES_LUT">CLASSES_LUT</output>
 			</tool>
 		</condition>
 
 		<condition value="1" type="=" variable="CLASSIFY_MAHALONOBIS">
-			<tool library="imagery_classification" tool="0" name="Supervised Image Classification" grid_system="GRID_SYSTEM">
+			<tool library="imagery_classification" tool="0" name="Supervised Image Classification">
 				<option id="METHOD">3</option>
 				<option id="TRAIN_WITH" varname="true">MODEL_TRAIN</option>
 				<input  id="TRAIN_SAMPLES">TRAIN_SAMPLES</input>
@@ -122,13 +124,14 @@
 				<option id="TRAIN_BUFFER" varname="true">TRAIN_BUFFER</option>
 				<input  id="GRIDS">FEATURES</input>
 				<option id="NORMALISE" varname="true">NORMALIZE</option>
+				<option id="GRID_SYSTEM" varname="true">GRID_SYSTEM</option>
 				<output id="CLASSES">CLASSIFICATIONS</output>
 				<output id="CLASSES_LUT">CLASSES_LUT</output>
 			</tool>
 		</condition>
 
 		<condition value="1" type="=" variable="CLASSIFY_MAXLIKE">
-			<tool library="imagery_classification" tool="0" name="Supervised Image Classification" grid_system="GRID_SYSTEM">
+			<tool library="imagery_classification" tool="0" name="Supervised Image Classification">
 				<option id="METHOD">4</option>
 				<option id="TRAIN_WITH" varname="true">MODEL_TRAIN</option>
 				<input  id="TRAIN_SAMPLES">TRAIN_SAMPLES</input>
@@ -137,13 +140,14 @@
 				<option id="TRAIN_BUFFER" varname="true">TRAIN_BUFFER</option>
 				<input  id="GRIDS">FEATURES</input>
 				<option id="NORMALISE" varname="true">NORMALIZE</option>
+				<option id="GRID_SYSTEM" varname="true">GRID_SYSTEM</option>
 				<output id="CLASSES">CLASSIFICATIONS</output>
 				<output id="CLASSES_LUT">CLASSES_LUT</output>
 			</tool>
 		</condition>
 
 		<condition value="1" type="=" variable="CLASSIFY_SAM">
-			<tool library="imagery_classification" tool="0" name="Supervised Image Classification" grid_system="GRID_SYSTEM">
+			<tool library="imagery_classification" tool="0" name="Supervised Image Classification">
 				<option id="METHOD">5</option>
 				<option id="TRAIN_WITH" varname="true">MODEL_TRAIN</option>
 				<input  id="TRAIN_SAMPLES">TRAIN_SAMPLES</input>
@@ -152,13 +156,14 @@
 				<option id="TRAIN_BUFFER" varname="true">TRAIN_BUFFER</option>
 				<input  id="GRIDS">FEATURES</input>
 				<option id="NORMALISE" varname="true">NORMALIZE</option>
+				<option id="GRID_SYSTEM" varname="true">GRID_SYSTEM</option>
 				<output id="CLASSES">CLASSIFICATIONS</output>
 				<output id="CLASSES_LUT">CLASSES_LUT</output>
 			</tool>
 		</condition>
 
 		<condition value="1" type="=" variable="CLASSIFY_BAYES">
-			<tool library="imagery_opencv" tool="5" name="Normal Bayes Classification" grid_system="GRID_SYSTEM">
+			<tool library="imagery_opencv" tool="5" name="Normal Bayes Classification">
 
 				<option id="MODEL_TRAIN" varname="true">MODEL_TRAIN</option>
 				<input  id="TRAIN_SAMPLES">TRAIN_SAMPLES</input>
@@ -167,13 +172,14 @@
 				<option id="TRAIN_BUFFER" varname="true">TRAIN_BUFFER</option>
 				<input  id="FEATURES">FEATURES</input>
 				<option id="NORMALIZE" varname="true">NORMALIZE</option>
+				<option id="GRID_SYSTEM" varname="true">GRID_SYSTEM</option>
 				<output id="CLASSES">CLASSIFICATIONS</output>
 				<output id="CLASSES_LUT">CLASSES_LUT</output>
 			</tool>
 		</condition>
 
 		<condition value="1" type="=" variable="CLASSIFY_DT">
-			<tool library="imagery_opencv" tool="8" name="Decision Tree Classification" grid_system="GRID_SYSTEM">
+			<tool library="imagery_opencv" tool="8" name="Decision Tree Classification">
 				<option id="MAX_DEPTH">10</option>
 				<option id="MIN_SAMPLES">2</option>
 				<option id="MAX_CATEGRS">10</option>
@@ -188,13 +194,14 @@
 				<option id="TRAIN_BUFFER" varname="true">TRAIN_BUFFER</option>
 				<input  id="FEATURES">FEATURES</input>
 				<option id="NORMALIZE" varname="true">NORMALIZE</option>
+				<option id="GRID_SYSTEM" varname="true">GRID_SYSTEM</option>
 				<output id="CLASSES">CLASSIFICATIONS</output>
 				<output id="CLASSES_LUT">CLASSES_LUT</output>
 			</tool>
 		</condition>
 
 		<condition value="1" type="=" variable="CLASSIFY_RF">
-			<tool library="imagery_opencv" tool="10" name="Random Forest Classification" grid_system="GRID_SYSTEM">
+			<tool library="imagery_opencv" tool="10" name="Random Forest Classification">
 				<option id="MAX_DEPTH">10</option>
 				<option id="MIN_SAMPLES">2</option>
 				<option id="MAX_CATEGRS">10</option>
@@ -210,13 +217,14 @@
 				<option id="TRAIN_BUFFER" varname="true">TRAIN_BUFFER</option>
 				<input  id="FEATURES">FEATURES</input>
 				<option id="NORMALIZE" varname="true">NORMALIZE</option>
+				<option id="GRID_SYSTEM" varname="true">GRID_SYSTEM</option>
 				<output id="CLASSES">CLASSIFICATIONS</output>
 				<output id="CLASSES_LUT">CLASSES_LUT</output>
 			</tool>
 		</condition>
 
 		<condition value="1" type="=" variable="CLASSIFY_SVM">
-			<tool library="imagery_opencv" tool="7" name="Support Vector Machine Classification" grid_system="GRID_SYSTEM">
+			<tool library="imagery_opencv" tool="7" name="Support Vector Machine Classification">
 				<option id="SVM_TYPE">0</option>
 				<option id="C">5</option>
 				<option id="KERNEL">5</option>
@@ -228,13 +236,14 @@
 				<option id="TRAIN_BUFFER" varname="true">TRAIN_BUFFER</option>
 				<input  id="FEATURES">FEATURES</input>
 				<option id="NORMALIZE" varname="true">NORMALIZE</option>
+				<option id="GRID_SYSTEM" varname="true">GRID_SYSTEM</option>
 				<output id="CLASSES">CLASSIFICATIONS</output>
 				<output id="CLASSES_LUT">CLASSES_LUT</output>
 			</tool>
 		</condition>
 
 		<condition value="1" type="=" variable="CLASSIFY_KNN">
-			<tool library="imagery_opencv" tool="6" name="K-Nearest Neighours Classification" grid_system="GRID_SYSTEM">
+			<tool library="imagery_opencv" tool="6" name="K-Nearest Neighours Classification">
 				<option id="NEIGHBOURS">3</option>
 				<option id="TRAINING">0</option>
 				<option id="ALGORITHM">0</option>
@@ -246,13 +255,14 @@
 				<option id="TRAIN_BUFFER" varname="true">TRAIN_BUFFER</option>
 				<input  id="FEATURES">FEATURES</input>
 				<option id="NORMALIZE" varname="true">NORMALIZE</option>
+				<option id="GRID_SYSTEM" varname="true">GRID_SYSTEM</option>
 				<output id="CLASSES">CLASSIFICATIONS</output>
 				<output id="CLASSES_LUT">CLASSES_LUT</output>
 			</tool>
 		</condition>
 
 		<condition value="1" type="=" variable="CLASSIFY_ANN">
-			<tool library="imagery_opencv" tool="11" name="Artificial Neural Network Classification" grid_system="GRID_SYSTEM">
+			<tool library="imagery_opencv" tool="11" name="Artificial Neural Network Classification">
 				<option id="ANN_LAYERS">3</option>
 				<option id="ANN_NEURONS">5</option>
 				<option id="ANN_MAXITER">300</option>
@@ -276,6 +286,7 @@
 				<option id="TRAIN_BUFFER" varname="true">TRAIN_BUFFER</option>
 				<input  id="FEATURES">FEATURES</input>
 				<option id="NORMALIZE" varname="true">NORMALIZE</option>
+				<option id="GRID_SYSTEM" varname="true">GRID_SYSTEM</option>
 				<output id="CLASSES">CLASSIFICATIONS</output>
 				<output id="CLASSES_LUT">CLASSES_LUT</output>
 			</tool>
