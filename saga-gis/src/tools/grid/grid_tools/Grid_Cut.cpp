@@ -148,14 +148,17 @@ CGrid_Clip_Interactive::CGrid_Clip_Interactive(void)
 	);
 
 	//-----------------------------------------------------
-	CSG_Parameters	*pParameters	= Add_Parameters("EXTENT", _TL("Extent"), _TL(""));
+	m_Extent.Create(_TL("Extent"), _TL(""), SG_T("EXTENT"));
 
-	pParameters->Add_Double("", "XMIN", _TL("Left"   ), _TL(""));
-	pParameters->Add_Double("", "XMAX", _TL("Right"  ), _TL(""));
-	pParameters->Add_Double("", "YMIN", _TL("Bottom" ), _TL(""));
-	pParameters->Add_Double("", "YMAX", _TL("Top"    ), _TL(""));
-	pParameters->Add_Int   ("", "NX"  , _TL("Columns"), _TL(""), 1, 1, true);
-	pParameters->Add_Int   ("", "NY"  , _TL("Rows"   ), _TL(""), 1, 1, true);
+	m_Extent.Add_Double("", "XMIN", _TL("Left"   ), _TL(""));
+	m_Extent.Add_Double("", "XMAX", _TL("Right"  ), _TL(""));
+	m_Extent.Add_Double("", "YMIN", _TL("Bottom" ), _TL(""));
+	m_Extent.Add_Double("", "YMAX", _TL("Top"    ), _TL(""));
+	m_Extent.Add_Int   ("", "NX"  , _TL("Columns"), _TL(""), 1, 1, true);
+	m_Extent.Add_Int   ("", "NY"  , _TL("Rows"   ), _TL(""), 1, 1, true);
+
+	m_Extent.Set_Tool(this);
+	m_Extent.Set_Callback_On_Parameter_Changed(_On_Parameter_Changed);
 }
 
 
@@ -219,27 +222,25 @@ bool CGrid_Clip_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Int
 				m_ptDown.x, m_ptDown.y, ptWorld.x, ptWorld.y
 			));
 
-			CSG_Parameters *pParameters = Get_Parameters("EXTENT");
+			m_Extent.Set_Callback(false);
+			m_Extent["XMIN"].Set_Value(System.Get_XMin());
+			m_Extent["XMAX"].Set_Value(System.Get_XMax());
+			m_Extent["YMIN"].Set_Value(System.Get_YMin());
+			m_Extent["YMAX"].Set_Value(System.Get_YMax());
+			m_Extent["NX"  ].Set_Value(System.Get_NX  ());
+			m_Extent["NY"  ].Set_Value(System.Get_NY  ());
+			m_Extent.Set_Callback(true);
 
-			pParameters->Set_Callback(false);
-			(*pParameters)("XMIN")->Set_Value(System.Get_XMin());
-			(*pParameters)("XMAX")->Set_Value(System.Get_XMax());
-			(*pParameters)("YMIN")->Set_Value(System.Get_YMin());
-			(*pParameters)("YMAX")->Set_Value(System.Get_YMax());
-			(*pParameters)("NX"  )->Set_Value(System.Get_NX  ());
-			(*pParameters)("NY"  )->Set_Value(System.Get_NY  ());
-			pParameters->Set_Callback(true);
-
-			if( !Dlg_Parameters(pParameters, _TL("Clip to Extent")) )
+			if( !Dlg_Parameters(m_Extent, _TL("Clip to Extent")) )
 			{
 				return( false );
 			}
 
 			System = Fit_Extent(Get_System(), CSG_Rect(
-				(*pParameters)("XMIN")->asDouble(),
-				(*pParameters)("YMIN")->asDouble(),
-				(*pParameters)("XMAX")->asDouble(),
-				(*pParameters)("YMAX")->asDouble()
+				m_Extent["XMIN"].asDouble(),
+				m_Extent["YMIN"].asDouble(),
+				m_Extent["XMAX"].asDouble(),
+				m_Extent["YMAX"].asDouble()
 			));
 
 			if( !System.is_Valid() )

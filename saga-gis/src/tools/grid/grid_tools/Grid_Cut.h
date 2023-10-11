@@ -91,6 +91,8 @@ private:
 
 	CSG_Point					m_ptDown;
 
+	CSG_Parameters				m_Extent;
+
 };
 
 
