@@ -335,7 +335,7 @@ public:	// static functions...
 
 private:
 
-	bool						m_bExecutes, m_bError_Ignore, m_bShow_Progress, m_bWithGUI;
+	bool						m_bExecutes, m_bError_Ignore, m_bShow_Progress, m_bGUI, m_bCMD;
 
 	int							m_npParameters;
 

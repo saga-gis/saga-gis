@@ -65,19 +65,20 @@
 //---------------------------------------------------------
 CSG_Tool::CSG_Tool(void)
 {
-	m_ID			= "-1";
-	m_Version		= "1.0";
+	m_ID      = "-1";
+	m_Version = "1.0";
 
-	m_bError_Ignore	= false;
-	m_bExecutes		= false;
-	m_bWithGUI		= true;
+	m_bError_Ignore = false;
+	m_bExecutes     = false;
 
-	m_pParameters	= NULL;
-	m_npParameters	= 0;
+	m_bGUI = SG_UI_Get_Application_Name().Cmp("saga_gui") == 0;
+	m_bCMD = SG_UI_Get_Application_Name().Cmp("saga_cmd") == 0;
 
 	Parameters.Create(this, SG_T("Tool"));
 	Parameters.Set_Callback_On_Parameter_Changed(&_On_Parameter_Changed);
-	Parameters.m_pTool	= this;
+	Parameters.m_pTool = this;
+
+	m_pParameters = NULL; m_npParameters = 0;
 
 	Set_Show_Progress(true);
 }
@@ -232,13 +233,13 @@ CSG_String CSG_Tool::Get_MenuPath(bool bSolved)
 //---------------------------------------------------------
 bool CSG_Tool::has_GUI(void) const
 {
-	return( m_bWithGUI && SG_UI_Get_Application_Name().Cmp("saga_gui") == 0 );
+	return( m_bGUI );
 }
 
 //---------------------------------------------------------
 bool CSG_Tool::has_CMD(void) const
 {
-	return( SG_UI_Get_Application_Name().Cmp("saga_cmd") == 0 );
+	return( m_bCMD );
 }
 
 
@@ -585,7 +586,7 @@ bool CSG_Tool::Delete_Manager(bool bDetachData, bool bReset)
 
 	if( pManager && pManager != &SG_Get_Data_Manager() )
 	{
-		pManager->Delete_All(bDetachData);
+		pManager->Delete(bDetachData);
 
 		delete(pManager);
 

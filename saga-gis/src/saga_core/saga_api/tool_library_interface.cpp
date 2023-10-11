@@ -196,7 +196,7 @@ CSG_Tool * CSG_Tool_Library_Interface::Create_Tool(int ID, bool bWithGUI)
 		pTool->m_Library      = m_Info[TLB_INFO_Library  ];
 		pTool->m_Library_Menu = m_Info[TLB_INFO_Menu_Path];
 		pTool->m_File_Name    = m_Info[TLB_INFO_File     ];
-		pTool->m_bWithGUI     = bWithGUI;
+		pTool->m_bGUI         = bWithGUI && pTool->m_bGUI;
 
 		m_xTools.Add(pTool);
 

@@ -182,7 +182,7 @@ CKriging_Base::CKriging_Base(void)
 //---------------------------------------------------------
 CKriging_Base::~CKriging_Base(void)
 {
-	if( m_pVariogram && has_GUI() )	// don't destroy dialog, if gui is closing (i.e. main window == NULL)
+	if( m_pVariogram && has_GUI() && SG_UI_Get_Window_Main() ) // don't destroy dialog, if gui is closing (i.e. main window == NULL)
 	{
 		m_pVariogram->Destroy();
 

@@ -141,7 +141,7 @@ bool CSG_Tool_Chain::Create(const CSG_Tool_Chain &Tool, bool bWithGUI)
 	m_Library      = Tool.m_Library;
 	m_Library_Menu = Tool.m_Library_Menu;
 	m_File_Name	   = Tool.m_File_Name;
-	m_bWithGUI     = bWithGUI;
+	m_bGUI         = bWithGUI && m_bGUI;
 
 	return( true );
 }
@@ -490,7 +490,7 @@ bool CSG_Tool_Chain::Data_Add(const CSG_String &ID, CSG_Parameter *pData)
 		return( false );
 	}
 
-	CSG_Parameter	*pParameter	= m_Data(ID);	// check if the local data manager already has a parameter with this identifier
+	CSG_Parameter *pParameter = m_Data(ID);	// check if the local data manager already has a parameter with this identifier
 
 	if( pParameter )	// it has, so don't add twice!
 	{
@@ -656,11 +656,11 @@ bool CSG_Tool_Chain::Data_Initialize(void)
 
 	for(int i=0; i<Parameters.Get_Count(); i++)
 	{
-		CSG_Parameter	*pParameter	= Parameters(i);
+		CSG_Parameter &P = Parameters[i];
 
-		if( !(pParameter->is_DataObject() && !pParameter->asDataObject()) )
+		if( !(P.is_DataObject() && !P.asDataObject()) )
 		{
-			if( !Data_Add(pParameter->Get_Identifier(), pParameter) )
+			if( !Data_Add(P.Get_Identifier(), &P) )
 			{
 				return( false );
 			}
@@ -673,30 +673,31 @@ bool CSG_Tool_Chain::Data_Initialize(void)
 //---------------------------------------------------------
 bool CSG_Tool_Chain::Data_Finalize(void)
 {
-	//-----------------------------------------------------
 	for(int i=0; i<Parameters.Get_Count(); i++)	// detach non temporary data before freeing the local data manager !!!
 	{
-		if( Parameters(i)->is_DataObject() )
+		CSG_Parameter &P = Parameters[i];
+
+		if( P.is_DataObject() )
 		{
-			if( m_Data(Parameters(i)->Get_Identifier()) )
+			if( m_Data(P.Get_Identifier()) )
 			{
-				if( Parameters(i)->Get_Type() == PARAMETER_TYPE_DataObject_Output || (Parameters(i)->is_Output() && !Parameters(i)->is_Optional()) )
+				if( P.Get_Type() == PARAMETER_TYPE_DataObject_Output || (P.is_Output() && !P.is_Optional()) )
 				{
-					Parameters(i)->Set_Value(m_Data(Parameters(i)->Get_Identifier())->asDataObject());
+					P.Set_Value(m_Data(P.Get_Identifier())->asDataObject());
 				}
 			}
 
-			m_Data_Manager.Delete(Parameters(i)->asDataObject(), true);
+			m_Data_Manager.Delete(P.asDataObject(), true);
 		}
-		else if( Parameters(i)->is_DataObject_List() )
+		else if( P.is_DataObject_List() )
 		{
-			if( Parameters(i)->is_Output() && m_Data(Parameters(i)->Get_Identifier()) )	// output lists cannot be up-to-date yet
+			if( P.is_Output() && m_Data(P.Get_Identifier()) )	// output lists cannot be up-to-date yet
 			{
-				CSG_Parameter	*pData	= m_Data(Parameters(i)->Get_Identifier());
+				CSG_Parameter *pData = m_Data(P.Get_Identifier());
 
 				for(int j=0; j<Get_List_Count(pData); j++)	// csg_parameter::assign() will not work, if parameters data manager is the standard data manager because it checks for existing data sets
 				{
-					Parameters(i)->asList()->Add_Item(Get_List_Item(pData, j));
+					P.asList()->Add_Item(Get_List_Item(pData, j));
 				}
 			}
 
@@ -707,7 +708,7 @@ bool CSG_Tool_Chain::Data_Finalize(void)
 		}
 	}
 
-	m_Data_Manager.Delete_All();
+	m_Data_Manager.Delete();
 
 	m_Data.Destroy();
 
@@ -1671,7 +1672,7 @@ bool CSG_Tool_Chain::Tool_Finalize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 //---------------------------------------------------------
 CSG_String CSG_Tool_Chain::Get_Script(CSG_Tool *pTool, bool bHeader, bool bAllParameters)
 {
-	CSG_MetaData	Tool;	Tool.Set_Name("tool");
+	CSG_MetaData Tool; Tool.Set_Name("tool");
 
 	Tool.Add_Property("library", pTool->Get_Library());
 	Tool.Add_Property("tool"   , pTool->Get_ID     ());
@@ -1690,7 +1691,7 @@ CSG_String CSG_Tool_Chain::Get_Script(CSG_Tool *pTool, bool bHeader, bool bAllPa
 	}
 
 	//-----------------------------------------------------
-	CSG_MetaData	Parameters;
+	CSG_MetaData Parameters;
 
 	_Get_Script_Parameters(Parameters, pTool->Get_Parameters(), "");
 
@@ -1700,7 +1701,7 @@ CSG_String CSG_Tool_Chain::Get_Script(CSG_Tool *pTool, bool bHeader, bool bAllPa
 	}
 
 	//-----------------------------------------------------
-	CSG_MetaData	Tools;	Tools.Set_Name("toolchain");
+	CSG_MetaData Tools; Tools.Set_Name("toolchain");
 
 	Tools.Add_Property("saga-version", SAGA_VERSION);
 
@@ -1723,23 +1724,23 @@ bool CSG_Tool_Chain::_Get_Script_Tool(CSG_MetaData &Tool, CSG_Parameters *pParam
 {
 	for(int iParameter=0; iParameter<pParameters->Get_Count(); iParameter++)
 	{
-		CSG_Parameter	*pParameter	= pParameters->Get_Parameter(iParameter);
+		CSG_Parameter &P = *pParameters->Get_Parameter(iParameter);
 
-		if( !bAllParameters && (!pParameter->is_Enabled(false) || pParameter->is_Information()) )
+		if( !bAllParameters && (!P.is_Enabled(false) || P.is_Information()) )
 		{
 			continue;
 		}
 
-		CSG_MetaData	*pChild	= NULL;
+		CSG_MetaData *pChild = NULL;
 
-		switch( pParameter->Get_Type() )
+		switch( P.Get_Type() )
 		{
 		case PARAMETER_TYPE_Parameters  :
-			_Get_Script_Tool(Tool, pParameter->asParameters(), bAllParameters, Prefix + pParameter->Get_Identifier() + '.', true);
+			_Get_Script_Tool(Tool, P.asParameters(), bAllParameters, Prefix + P.Get_Identifier() + '.', true);
 			break;
 
 		case PARAMETER_TYPE_Bool        :
-			pChild	= Tool.Add_Child("option", pParameter->asBool() ? "true" : "false");
+			pChild	= Tool.Add_Child("option", P.asBool() ? "true" : "false");
 			break;
 
 		case PARAMETER_TYPE_Int         :
@@ -1753,33 +1754,33 @@ bool CSG_Tool_Chain::_Get_Script_Tool(CSG_MetaData &Tool, CSG_Parameters *pParam
 		case PARAMETER_TYPE_Choices     :
 		case PARAMETER_TYPE_Table_Field :
 		case PARAMETER_TYPE_Table_Fields:
-			pChild	= Tool.Add_Child("option", pParameter->asString());
+			pChild	= Tool.Add_Child("option", P.asString());
 			break;
 
 		case PARAMETER_TYPE_Data_Type   :
 		case PARAMETER_TYPE_Choice      :
-			pChild	= Tool.Add_Child("option", pParameter->asInt());
+			pChild	= Tool.Add_Child("option", P.asInt());
 			break;
 
 		case PARAMETER_TYPE_FixedTable  :
 			pChild	= Tool.Add_Child("option");
-			pParameter->Serialize(*pChild, true);
+			P.Serialize(*pChild, true);
 			break;
 
 		case PARAMETER_TYPE_Grid_System :
-			if( pParameter->Get_Children_Count() == 0 )
+			if( P.Get_Children_Count() == 0 )
 			{
-				pChild	= Tool.Add_Child("option", pParameter->asString());
+				pChild	= Tool.Add_Child("option", P.asString());
 			}
 			break;
 
 		default:
-			if( pParameter->is_Input() )
+			if( P.is_Input() )
 			{
-				pChild	= Tool.Add_Child("input");
-				pChild->Set_Content(pParameter->is_Optional() ? "INPUT_OPTIONAL" : "INPUT");
+				pChild 	= Tool.Add_Child("input");
+				pChild->Set_Content(P.is_Optional() ? "INPUT_OPTIONAL" : "INPUT");
 			}
-			else if( pParameter->is_Output() )
+			else if( P.is_Output() )
 			{
 				pChild	= Tool.Add_Child("output");
 				pChild->Set_Content("OUTPUT");
@@ -1789,16 +1790,16 @@ bool CSG_Tool_Chain::_Get_Script_Tool(CSG_MetaData &Tool, CSG_Parameters *pParam
 
 		if( pChild )
 		{
-			pChild->Add_Property("id", Prefix + pParameter->Get_Identifier());
+			pChild->Add_Property("id", Prefix + P.Get_Identifier());
 
 			if( bVarNames )
 			{
-				if( pParameter->is_Option() )
+				if( P.is_Option() )
 				{
 					pChild->Add_Property("varname", "true");
 				}
 
-				pChild->Set_Content(Prefix + pParameter->Get_Identifier());
+				pChild->Set_Content(Prefix + P.Get_Identifier());
 			}
 		}
 	}
@@ -1811,77 +1812,77 @@ bool CSG_Tool_Chain::_Get_Script_Parameters(CSG_MetaData &Parameters, CSG_Parame
 {
 	for(int i=0; i<pParameters->Get_Count(); i++)
 	{
-		CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
+		CSG_Parameter &P = *pParameters->Get_Parameter(i);
 
-		if( pParameter->Get_Type() == PARAMETER_TYPE_Parameters )
+		if( P.Get_Type() == PARAMETER_TYPE_Parameters )
 		{
-			_Get_Script_Parameters(Parameters, pParameter->asParameters(), Prefix + pParameter->Get_Identifier() + '.');
+			_Get_Script_Parameters(Parameters, P.asParameters(), Prefix + P.Get_Identifier() + '.');
 
 			continue;	// no support for sub-parameter-lists in here
 		}
 
-		CSG_MetaData	&Parameter	= *Parameters.Add_Child(
-			pParameter->is_Option() ? "option" :
-			pParameter->is_Output() ? "output" : "input"
+		CSG_MetaData &Parameter = *Parameters.Add_Child(
+			P.is_Option() ? "option" :
+			P.is_Output() ? "output" : "input"
 		);
 
-		Parameter.Add_Property("varname"    , pParameter->Get_Identifier ());
-		Parameter.Add_Property("type"       , SG_Parameter_Type_Get_Identifier(pParameter->Get_Type()));
-		Parameter.Add_Child   ("name"       , pParameter->Get_Name       ());
-		Parameter.Add_Child   ("description", pParameter->Get_Description());
+		Parameter.Add_Property("varname"    , P.Get_Identifier ());
+		Parameter.Add_Property("type"       , SG_Parameter_Type_Get_Identifier(P.Get_Type()));
+		Parameter.Add_Child   ("name"       , P.Get_Name       ());
+		Parameter.Add_Child   ("description", P.Get_Description());
 
-		if( pParameter->Get_Parent() )
+		if( P.Get_Parent() )
 		{
-			Parameter.Add_Property("parent", pParameter->Get_Parent()->Get_Identifier());
+			Parameter.Add_Property("parent", P.Get_Parent()->Get_Identifier());
 		}
 
-		if( pParameter->Get_Type() == PARAMETER_TYPE_Node
-		||  pParameter->Get_Type() == PARAMETER_TYPE_Grid_System )
+		if( P.Get_Type() == PARAMETER_TYPE_Node
+		||  P.Get_Type() == PARAMETER_TYPE_Grid_System )
 		{
 			continue;	// nothing more to do for these types
 		}
 
-		if( pParameter->is_Option() )
+		if( P.is_Option() )
 		{
-			CSG_MetaData	&Value	= *Parameter.Add_Child("value", pParameter->asString());
+			CSG_MetaData &Value = *Parameter.Add_Child("value", P.asString());
 
-			if( pParameter->asValue() )
+			if( P.asValue() )
 			{
-				if( pParameter->asValue()->has_Minimum() ) Value.Add_Property("min", pParameter->asValue()->Get_Minimum());
-				if( pParameter->asValue()->has_Maximum() ) Value.Add_Property("max", pParameter->asValue()->Get_Maximum());
+				if( P.asValue()->has_Minimum() ) Value.Add_Property("min", P.asValue()->Get_Minimum());
+				if( P.asValue()->has_Maximum() ) Value.Add_Property("max", P.asValue()->Get_Maximum());
 			}
 
-			if( pParameter->asChoice () ) Parameter.Add_Child("choices", pParameter->asChoice ()->Get_Items());
-			if( pParameter->asChoices() ) Parameter.Add_Child("choices", pParameter->asChoices()->Get_Items());
+			if( P.asChoice () ) Parameter.Add_Child("choices", P.asChoice ()->Get_Items());
+			if( P.asChoices() ) Parameter.Add_Child("choices", P.asChoices()->Get_Items());
 
-			if( pParameter->asFilePath() )
+			if( P.asFilePath() )
 			{
-				Parameter.Add_Property("save"     , pParameter->asFilePath()->is_Save     () ? "true" : "false");
-				Parameter.Add_Property("directory", pParameter->asFilePath()->is_Directory() ? "true" : "false");
-				Parameter.Add_Property("multiple" , pParameter->asFilePath()->is_Multiple () ? "true" : "false");
-				Parameter.Add_Child   ("filter"   , pParameter->asFilePath()->Get_Filter());
+				Parameter.Add_Property("save"     , P.asFilePath()->is_Save     () ? "true" : "false");
+				Parameter.Add_Property("directory", P.asFilePath()->is_Directory() ? "true" : "false");
+				Parameter.Add_Property("multiple" , P.asFilePath()->is_Multiple () ? "true" : "false");
+				Parameter.Add_Child   ("filter"   , P.asFilePath()->Get_Filter());
 			}
 
-			if( pParameter->Get_Type() == PARAMETER_TYPE_FixedTable )
+			if( P.Get_Type() == PARAMETER_TYPE_FixedTable )
 			{
-				pParameter->Serialize(Parameter, true);
+				P.Serialize(Parameter, true);
 			}
 
-			if( pParameter->Get_Type() == PARAMETER_TYPE_Table_Field )
+			if( P.Get_Type() == PARAMETER_TYPE_Table_Field )
 			{
-				Value.Set_Content(pParameter->is_Optional() ? "true" : "false");
+				Value.Set_Content(P.is_Optional() ? "true" : "false");
 			}
 		}
 		else	// data objects
 		{
-			if( pParameter->is_Optional() )
+			if( P.is_Optional() )
 			{
 				Parameter.Add_Property("optional", "true");
 			}
 
-			if( pParameter->Get_Type() == PARAMETER_TYPE_DataObject_Output )
+			if( P.Get_Type() == PARAMETER_TYPE_DataObject_Output )
 			{
-				switch( ((CSG_Parameter_Data_Object_Output *)pParameter)->Get_DataObject_Type() )
+				switch( ((CSG_Parameter_Data_Object_Output *)&P)->Get_DataObject_Type() )
 				{
 				case SG_DATAOBJECT_TYPE_Grid:
 					Parameter.Set_Property("type"  , SG_Parameter_Type_Get_Identifier(PARAMETER_TYPE_Grid));
@@ -1898,9 +1899,9 @@ bool CSG_Tool_Chain::_Get_Script_Parameters(CSG_MetaData &Parameters, CSG_Parame
 				}
 			}
 
-			if( pParameter->Get_Type() == PARAMETER_TYPE_Shapes )
+			if( P.Get_Type() == PARAMETER_TYPE_Shapes )
 			{
-				switch( ((CSG_Parameter_Shapes *)pParameter)->Get_Shape_Type() )
+				switch( ((CSG_Parameter_Shapes *)&P)->Get_Shape_Type() )
 				{
 				case SHAPE_TYPE_Point  : Parameter.Add_Property("feature_type", "point"  ); break;
 				case SHAPE_TYPE_Points : Parameter.Add_Property("feature_type", "points" ); break;
@@ -1910,14 +1911,14 @@ bool CSG_Tool_Chain::_Get_Script_Parameters(CSG_MetaData &Parameters, CSG_Parame
 				}
 			}
 
-			if( pParameter->Get_Type() == PARAMETER_TYPE_Grid_List
-				&&  !((CSG_Parameter_Grid_List *)pParameter)->Get_System() )
+			if( P.Get_Type() == PARAMETER_TYPE_Grid_List
+			&&  !((CSG_Parameter_Grid_List *)&P)->Get_System() )
 			{
 				Parameter.Add_Property("no_system", "true");
 			}
 
-			if( pParameter->Get_Type() == PARAMETER_TYPE_Grids_List
-				&&  !((CSG_Parameter_Grid_List *)pParameter)->Get_System() )
+			if( P.Get_Type() == PARAMETER_TYPE_Grids_List
+			&&  !((CSG_Parameter_Grid_List *)&P)->Get_System() )
 			{
 				Parameter.Add_Property("no_system", "true");
 			}
