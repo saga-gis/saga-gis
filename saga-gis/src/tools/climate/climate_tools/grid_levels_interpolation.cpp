@@ -58,7 +58,6 @@
 //---------------------------------------------------------
 CGrid_Levels_Interpolation::CGrid_Levels_Interpolation(void)
 {
-	//-----------------------------------------------------
 	Set_Author("O.Conrad (c) 2012");
 
 	//-----------------------------------------------------
@@ -145,8 +144,6 @@ CGrid_Levels_Interpolation::CGrid_Levels_Interpolation(void)
 		Parameters("X_TABLE")->asTable()->Add_Record()->Set_Value(0, i + 1);
 	}
 
-	Add_Parameters("INTERNAL", "", "");
-
 	m_Coeff	= NULL;
 }
 
@@ -184,7 +181,6 @@ int CGrid_Levels_Interpolation::On_Parameters_Enable(CSG_Parameters *pParameters
 //---------------------------------------------------------
 bool CGrid_Levels_Interpolation::Initialize(const CSG_Rect &Extent)
 {
-	//-----------------------------------------------------
 	m_pVariables		= Parameters("VARIABLE"     )->asGridList();
 	m_pXGrids			= Parameters("X_GRIDS"      )->asGridList();
 	m_pXTable			= Parameters("X_TABLE"      )->asTable();
@@ -231,16 +227,13 @@ bool CGrid_Levels_Interpolation::Initialize(const CSG_Rect &Extent)
 
 	if( pHeight_Min )
 	{
-		if( !Get_Parameters("INTERNAL")->Get_Parameter("X_GRIDS") )
-		{
-			Get_Parameters("INTERNAL")->Add_Grid_List("", "X_GRIDS", "", "", PARAMETER_INPUT_OPTIONAL);
-		}
-
-		CSG_Parameter_Grid_List	*pXGrids	= Get_Parameters("INTERNAL")->Get_Parameter("X_GRIDS")->asGridList();
+		CSG_Parameter_Grid_List *pXGrids = Parameters("INTERNAL_X_GRIDS")
+			? Parameters(                  "INTERNAL_X_GRIDS"                                   )->asGridList()
+			: Parameters.Add_Grid_List("", "INTERNAL_X_GRIDS", "", "", PARAMETER_OUTPUT_OPTIONAL)->asGridList();
 
 		for(int i=0; i<m_pXGrids->Get_Grid_Count(); i++)
 		{
-			CSG_Grid	*pHeight	= SG_Create_Grid(*m_pXGrids->Get_Grid(i));
+			CSG_Grid *pHeight = SG_Create_Grid(*m_pXGrids->Get_Grid(i));
 
 			#pragma omp parallel for
 			for(int y=0; y<Get_NY(); y++)
@@ -257,7 +250,7 @@ bool CGrid_Levels_Interpolation::Initialize(const CSG_Rect &Extent)
 			pXGrids->Add_Item(pHeight);
 		}
 
-		m_pXGrids	= pXGrids;
+		m_pXGrids = pXGrids;
 	}
 
 	//-----------------------------------------------------
@@ -373,15 +366,19 @@ bool CGrid_Levels_Interpolation::Initialize(const CSG_Rect &Extent)
 //---------------------------------------------------------
 bool CGrid_Levels_Interpolation::Finalize(void)
 {
-	if( Get_Parameters("INTERNAL")->Get_Parameter("X_GRIDS")
-	&&  Get_Parameters("INTERNAL")->Get_Parameter("X_GRIDS")->asGridList() == m_pXGrids )
+	if( Parameters("INTERNAL_X_GRIDS") )
 	{
-		for(int i=0; i<m_pXGrids->Get_Grid_Count(); i++)
+		if( Parameters("INTERNAL_X_GRIDS")->asGridList() == m_pXGrids )
 		{
-			delete(m_pXGrids->Get_Grid(i));
+			for(int i=0; i<m_pXGrids->Get_Grid_Count(); i++)
+			{
+				delete(m_pXGrids->Get_Grid(i));
+			}
+
+			m_pXGrids->Del_Items(); m_pXGrids = Parameters("X_GRIDS")->asGridList();
 		}
 
-		m_pXGrids->Del_Items();
+		Parameters.Del_Parameter("INTERNAL_X_GRIDS");
 	}
 
 	if( m_Coeff )
