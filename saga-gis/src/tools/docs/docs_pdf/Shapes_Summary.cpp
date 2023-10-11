@@ -321,9 +321,7 @@ CShapes_Summary::CShapes_Summary(void){
 							true,
 							true);
 
-	m_pExtraParameters	= Add_Parameters("EXTRA",
-										_TL("Field for Summary"),
-										_TL(""));
+	m_ExtraParameters.Create(_TL("Field for Summary"), _TL(""));
 
 }//constructor
 
@@ -352,7 +350,7 @@ bool CShapes_Summary::On_Execute(void){
 			{ //is numeric field
 				sName = pShapesTable->Get_Field_Name(i);
 				sName.Append(sParam[j]);
-				pExtraParameter[i * 5 + j] = m_pExtraParameters->Add_Value(NULL,
+				pExtraParameter[i * 5 + j] = m_ExtraParameters.Add_Value(NULL,
 																			SG_Get_String(i * 5 + j).c_str(),
 																			sName.c_str(),
 																			_TL(""),
@@ -366,7 +364,7 @@ bool CShapes_Summary::On_Execute(void){
 		}//for
 	}//for
 
-	if(Dlg_Parameters("EXTRA")){
+	if(Dlg_Parameters(&m_ExtraParameters, m_ExtraParameters.Get_Name())){
 		for (i = 0; i < pShapesTable->Get_Field_Count() * 5; i++){
 			sName = SG_Get_String(i);
 			if (m_bIncludeParam[i]){
@@ -394,7 +392,7 @@ bool CShapes_Summary::On_Execute(void){
 			}//if
 		}//if
 
-		m_pExtraParameters->Destroy();
+		m_ExtraParameters.Destroy();
 
 		delete [] m_bIncludeParam;
 
@@ -402,7 +400,7 @@ bool CShapes_Summary::On_Execute(void){
 
 	}//if
 
-	m_pExtraParameters->Destroy();
+	m_ExtraParameters.Destroy();
 
 	delete [] m_bIncludeParam;
 

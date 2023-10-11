@@ -78,7 +78,7 @@ private:
 	std::vector<CSG_String> m_ClassesID;
 	int *m_pClasses;
 	int *m_pCount;
-	CSG_Parameters *m_pExtraParameters;
+	CSG_Parameters m_ExtraParameters;
 	CShapes_Summary_PDF m_DocEngine;
 
 	void Summarize();
