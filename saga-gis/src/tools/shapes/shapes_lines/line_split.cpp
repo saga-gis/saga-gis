@@ -156,9 +156,7 @@ bool CCut_Lines::On_Execute(void)
 
 	if( pInsPoints != NULL )
 	{
-		pInsPoints->Destroy();
-		pInsPoints->Add_Field("ID", SG_DATATYPE_Long);
-		pInsPoints->Set_Name(CSG_String::Format("%s_inserted_pts", pInputLines->Get_Name()));
+		pInsPoints->Create(SHAPE_TYPE_Point, CSG_String::Format("%s_inserted_pts", pInputLines->Get_Name()), pInputLines);
 	}
 	
 	// Check for projection unit. This tool only works with projected
@@ -181,7 +179,6 @@ bool CCut_Lines::On_Execute(void)
 	// Switch_To_Default (Length) will happen after the first cut.
 	double 	Distance_Overhang = 0.;
 	bool 	Switch_To_Default = false;
-	sLong	NumInsertedPoints = 0;
 
 	for( sLong i=0; i<pInputLines->Get_Count(); i++ )
 	{
@@ -308,9 +305,8 @@ bool CCut_Lines::On_Execute(void)
 
 						if( pInsPoints != NULL )
 						{
-							CSG_Shape *pShape = pInsPoints->Add_Shape();
+							CSG_Shape *pShape = pInsPoints->Add_Shape(pLine, SHAPE_COPY_ATTR);
 							pShape->Add_Point( Intermediate_Point );
-							pShape->Set_Value( 0, NumInsertedPoints++ );
 						}
 						
 						// Switch to the default length after the first cut is placed
