@@ -790,7 +790,6 @@ bool CSG_ODBC_Connection::Table_Drop(const CSG_String &Table_Name, bool bCommit)
 //---------------------------------------------------------
 bool CSG_ODBC_Connection::Table_Insert(const CSG_String &Table_Name, const CSG_Table &Table, bool bCommit)
 {
-	//-----------------------------------------------------
 	if( !is_Connected() )
 	{
 		_Error_Message(_TL("no database connection"));
@@ -819,33 +818,33 @@ bool CSG_ODBC_Connection::Table_Insert(const CSG_String &Table_Name, const CSG_T
 		otl_stream Stream;
 
 		//-------------------------------------------------
-		Insert.Printf(SG_T("INSERT INTO %s VALUES("), Table_Name.c_str());
+		Insert.Printf("INSERT INTO %s VALUES(", Table_Name.c_str());
 
 		for(int iField=0; iField<Table.Get_Field_Count(); iField++)
 		{
 			if( iField > 0 )
 			{
-				Insert	+= SG_T(",");
+				Insert	+= ",";
 			}
 
-			Insert	+= CSG_String::Format(SG_T(":f%d"), 1 + iField);
+			Insert	+= CSG_String::Format(":f%d", 1 + iField);
 
 			switch( Table.Get_Field_Type(iField) )
 			{
 			default:
-			case SG_DATATYPE_String:	Insert	+= SG_T("<varchar>");	break;
-			case SG_DATATYPE_Date:		Insert	+= SG_T("<char[12]>");	break;
-			case SG_DATATYPE_Char:		Insert	+= SG_T("<char>");		break;
-			case SG_DATATYPE_Short:		Insert	+= SG_T("<short>");		break;
-			case SG_DATATYPE_Int:		Insert	+= SG_T("<int>");		break;
-			case SG_DATATYPE_Color:		Insert	+= SG_T("<long>");		break;
-			case SG_DATATYPE_Long:		Insert	+= SG_T("<long>");		break;
-			case SG_DATATYPE_Float:		Insert	+= SG_T("<float>");		break;
-			case SG_DATATYPE_Double:	Insert	+= SG_T("<double>");	break;
+			case SG_DATATYPE_String: Insert += "<varchar>" ; break;
+			case SG_DATATYPE_Date  : Insert += "<char[12]>"; break;
+			case SG_DATATYPE_Char  : Insert += "<char>"    ; break;
+			case SG_DATATYPE_Short : Insert += "<short>"   ; break;
+			case SG_DATATYPE_Int   : Insert += "<int>"     ; break;
+			case SG_DATATYPE_Color : Insert += "<long>"    ; break;
+			case SG_DATATYPE_Long  : Insert += "<long>"    ; break;
+			case SG_DATATYPE_Float : Insert += "<float>"   ; break;
+			case SG_DATATYPE_Double: Insert += "<double>"  ; break;
 			}
 		}
 
-		Insert	+= SG_T(")");
+		Insert	+= ")";
 
 		Stream.set_all_column_types(otl_all_date2str);
 		Stream.set_lob_stream_mode(bLOB);
@@ -903,7 +902,6 @@ bool CSG_ODBC_Connection::Table_Insert(const CSG_String &Table_Name, const CSG_T
 //---------------------------------------------------------
 bool CSG_ODBC_Connection::Table_Save(const CSG_String &Table_Name, const CSG_Table &Table, const CSG_Buffer &Flags, bool bCommit)
 {
-	//-----------------------------------------------------
 	if( !is_Connected() )
 	{
 		_Error_Message(_TL("no database connection"));
@@ -938,7 +936,6 @@ bool CSG_ODBC_Connection::Table_Save(const CSG_String &Table_Name, const CSG_Tab
 //---------------------------------------------------------
 bool CSG_ODBC_Connection::_Table_Load(CSG_Table &Table, const CSG_String &Select, const CSG_String &Name, bool bLOB)
 {
-	//-----------------------------------------------------
 	if( !is_Connected() )
 	{
 		_Error_Message(_TL("no database connection"));
@@ -989,20 +986,20 @@ bool CSG_ODBC_Connection::_Table_Load(CSG_Table &Table, const CSG_String &Select
 		//-------------------------------------------------
 		while( !Stream.eof() && SG_UI_Process_Get_Okay() )	// while not end-of-data
 		{
-			CSG_Table_Record	*pRecord	= Table.Add_Record();
+			CSG_Table_Record *pRecord = Table.Add_Record();
 
 			for(iField=0; iField<nFields; iField++)
 			{
 				switch( Table.Get_Field_Type(iField) )
 				{
-				case SG_DATATYPE_String:	Stream >> valString; if( Stream.is_null() ) pRecord->Set_NoData(iField); else pRecord->Set_Value(iField, CSG_String(valString.c_str()));	break;
-				case SG_DATATYPE_Short:			
-				case SG_DATATYPE_Int:		Stream >> valInt;    if( Stream.is_null() ) pRecord->Set_NoData(iField); else pRecord->Set_Value(iField, valInt);		break;
-				case SG_DATATYPE_DWord:
-				case SG_DATATYPE_Long:		Stream >> valLong;   if( Stream.is_null() ) pRecord->Set_NoData(iField); else pRecord->Set_Value(iField, valLong);		break;
-				case SG_DATATYPE_Float:		Stream >> valFloat;  if( Stream.is_null() ) pRecord->Set_NoData(iField); else pRecord->Set_Value(iField, valFloat);		break;
-				case SG_DATATYPE_Double:	Stream >> valDouble; if( Stream.is_null() ) pRecord->Set_NoData(iField); else pRecord->Set_Value(iField, valDouble);	break;
-				case SG_DATATYPE_Binary:	Stream >> valRaw;    if( Stream.is_null() ) pRecord->Set_NoData(iField); else
+				case SG_DATATYPE_String: Stream >> valString; if( Stream.is_null() ) pRecord->Set_NoData(iField); else pRecord->Set_Value(iField, CSG_String(valString.c_str()));	break;
+				case SG_DATATYPE_Short :			
+				case SG_DATATYPE_Int   : Stream >> valInt   ; if( Stream.is_null() ) pRecord->Set_NoData(iField); else pRecord->Set_Value(iField, valInt);		break;
+				case SG_DATATYPE_DWord :
+				case SG_DATATYPE_Long  : Stream >> valLong  ; if( Stream.is_null() ) pRecord->Set_NoData(iField); else pRecord->Set_Value(iField, valLong);		break;
+				case SG_DATATYPE_Float : Stream >> valFloat ; if( Stream.is_null() ) pRecord->Set_NoData(iField); else pRecord->Set_Value(iField, valFloat);		break;
+				case SG_DATATYPE_Double: Stream >> valDouble; if( Stream.is_null() ) pRecord->Set_NoData(iField); else pRecord->Set_Value(iField, valDouble);	break;
+				case SG_DATATYPE_Binary: Stream >> valRaw   ; if( Stream.is_null() ) pRecord->Set_NoData(iField); else
 					{
 						BLOB.Clear();
 
@@ -1032,34 +1029,34 @@ bool CSG_ODBC_Connection::_Table_Load(CSG_Table &Table, const CSG_String &Select
 //---------------------------------------------------------
 bool CSG_ODBC_Connection::Table_Load(CSG_Table &Table, const CSG_String &Table_Name, bool bLOB)
 {
-	return( _Table_Load(Table, CSG_String::Format(SG_T("SELECT * FROM \"%s\""), Table_Name.c_str()), Table_Name, bLOB) );
+	return( _Table_Load(Table, CSG_String::Format("SELECT * FROM \"%s\"", Table_Name.c_str()), Table_Name, bLOB) );
 }
 
 //---------------------------------------------------------
 bool CSG_ODBC_Connection::Table_Load(CSG_Table &Table, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where, const CSG_String &Group, const CSG_String &Having, const CSG_String &Order, bool bDistinct, bool bLOB)
 {
-	CSG_String	Select;
+	CSG_String Select;
 
-	Select.Printf(SG_T("SELECT %s %s FROM %s"), bDistinct ? SG_T("DISTINCT") : SG_T("ALL"), Fields.c_str(), Tables.c_str());
+	Select.Printf("SELECT %s %s FROM %s", bDistinct ? "DISTINCT" : "ALL", Fields.c_str(), Tables.c_str());
 
 	if( Where.Length() )
 	{
-		Select	+= SG_T(" WHERE ") + Where;
+		Select += " WHERE " + Where;
 	}
 
 	if( Group.Length() )
 	{
-		Select	+= SG_T(" GROUP BY ") + Group;
+		Select += " GROUP BY " + Group;
 
 		if( Having.Length() )
 		{
-			Select	+= SG_T(" HAVING ") + Having;
+			Select += " HAVING " + Having;
 		}
 	}
 
 	if( Order.Length() )
 	{
-		Select	+= SG_T(" ORDER BY ") + Order;
+		Select += " ORDER BY " + Order;
 	}
 
 	return( _Table_Load(Table, Select, Table.Get_Name(), bLOB) );
@@ -1073,7 +1070,6 @@ bool CSG_ODBC_Connection::Table_Load(CSG_Table &Table, const CSG_String &Tables,
 //---------------------------------------------------------
 bool CSG_ODBC_Connection::Table_Load_BLOBs(CSG_Bytes_Array &BLOBs, const CSG_String &Table_Name, const CSG_String &Field, const CSG_String &Where, const CSG_String &Order)
 {
-	//-----------------------------------------------------
 	if( !is_Connected() )
 	{
 		_Error_Message(_TL("no database connection"));
@@ -1486,7 +1482,7 @@ bool CSG_ODBC_Tool::On_Before_Execution(void)
 
 		int nConnections = SG_ODBC_Get_Connection_Manager().Get_Connections(Connections);
 
-		if( nConnections <= 0 )
+		if( nConnections < 1 )
 		{
 			Message_Dlg(
 				_TL("No ODBC connection available!"),
@@ -1533,12 +1529,9 @@ int CSG_ODBC_Tool::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramet
 	{
 		CSG_ODBC_Connection *pConnection = SG_ODBC_Get_Connection_Manager().Get_Connection(pParameter->asString());
 
-		if( m_pConnection != pConnection )
-		{
-			m_pConnection = pConnection;
+		m_pConnection = pConnection;
 
-			On_Connection_Changed(pParameters);
-		}
+		On_Connection_Changed(pParameters);
 	}
 
 	//-----------------------------------------------------
