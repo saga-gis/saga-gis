@@ -79,10 +79,10 @@ CCollect_Points::CCollect_Points(void)
 	Parameters.Add_Bool  ("", "REFRESH"   , _TL("Clear Reference Points"       ), _TL(""), false);
 
 	//-----------------------------------------------------
-	CSG_Parameters *pParameters = Add_Parameters("REFERENCE", _TL("Point Position"), _TL(""));
+	m_Reference.Create(_TL("Point Position"), _TL(""));
 
-	pParameters->Add_Double("", "X", _TL("x Position"), _TL(""));
-	pParameters->Add_Double("", "Y", _TL("y Position"), _TL(""));
+	m_Reference.Add_Double("", "X", _TL("x Position"), _TL(""));
+	m_Reference.Add_Double("", "Y", _TL("y Position"), _TL(""));
 }
 
 
@@ -125,7 +125,7 @@ bool CCollect_Points::On_Execute(void)
 
 	m_pPoints = Parameters("REF_SOURCE")->asShapes();
 
-	Get_Parameters("REFERENCE")->Restore_Defaults();
+	m_Reference.Restore_Defaults();
 
 	if( !is_Compatible(m_pPoints) || Parameters("REFRESH")->asBool() )
 	{
@@ -167,22 +167,22 @@ bool CCollect_Points::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactiv
 
 		if( m_Engine.Get_Converted(ptTarget = ptWorld) )
 		{
-			Get_Parameters("REFERENCE")->Get_Parameter("X")->Set_Value(ptTarget.x);
-			Get_Parameters("REFERENCE")->Get_Parameter("Y")->Set_Value(ptTarget.y);
+			m_Reference("X")->Set_Value(ptTarget.x);
+			m_Reference("Y")->Set_Value(ptTarget.y);
 		}
 
-		if( Dlg_Parameters("REFERENCE") )
+		if( Dlg_Parameters(m_Reference) )
 		{
-			int	Method	= Parameters("METHOD")->asInt();
-			int	Order	= Parameters("ORDER" )->asInt();
+			int	Method = Parameters("METHOD")->asInt();
+			int	Order  = Parameters("ORDER" )->asInt();
 
 			CSG_Shape	*pPoint	= m_pPoints->Add_Shape();
 
 			pPoint->Add_Point(ptWorld);
 			pPoint->Set_Value(0, ptWorld.x);
 			pPoint->Set_Value(1, ptWorld.y);
-			pPoint->Set_Value(2, ptTarget.x = Get_Parameters("REFERENCE")->Get_Parameter("X")->asDouble());
-			pPoint->Set_Value(3, ptTarget.y = Get_Parameters("REFERENCE")->Get_Parameter("Y")->asDouble());
+			pPoint->Set_Value(2, ptTarget.x = m_Reference("X")->asDouble());
+			pPoint->Set_Value(3, ptTarget.y = m_Reference("Y")->asDouble());
 
 			if( m_Engine.Add_Reference(ptWorld, ptTarget) && m_Engine.Evaluate(Method, Order) && m_Engine.Get_Reference_Count() == m_pPoints->Get_Count() )
 			{
