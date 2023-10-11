@@ -184,7 +184,7 @@ bool CCMD_Tool::Execute(int argc, char *argv[])
 			_Save_Output(m_pTool->Get_Parameters(i));
 		}
 
-		SG_Get_Data_Manager().Delete_Unsaved();	// remove temporary data to save memory resources
+		SG_Get_Data_Manager().Delete();	// remove temporary data to save memory resources
 	}
 	else
 	{

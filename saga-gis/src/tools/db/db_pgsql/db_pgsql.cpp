@@ -1913,85 +1913,76 @@ bool CSG_PG_Connection::Raster_Load(CSG_Data_Manager &Grids, const CSG_String &T
 //---------------------------------------------------------
 bool CSG_PG_Connection::Raster_Load(CSG_Parameter_Grid_List *pGrids, const CSG_String &Table, const CSG_String &Where, const CSG_String &Order, int OutputType)
 {
-	//-----------------------------------------------------
-	CSG_Data_Manager	Grids;
+	CSG_Data_Manager Manager; CSG_Table Info;
 
-	CSG_Table	Info;
-
-	if( !Raster_Load(Grids, Table, Where, Order, &Info) )
+	if( !Raster_Load(Manager, Table, Where, Order, &Info) )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	for(size_t jSystem=0, iSystem=Grids.Grid_System_Count()-1; jSystem<Grids.Grid_System_Count(); jSystem++, iSystem--)
+	while( Manager.Grid().Count() )
 	{
-		CSG_Grid_Collection	*pSystem	= Grids.Get_Grid_System(iSystem);
+		CSG_Data_Manager System; System.Add(Manager.Grid(0).asGrid()); Manager.Grid().Delete((size_t)0, true);
 
-		if( OutputType == 0 || (OutputType == 2 && pSystem->Count() == 1) )	// OutputType: 0 == single grid(s), 1 == grid collection, 2 == automatic
+		for(size_t i=Manager.Grid().Count(); i>0; i--)
 		{
-			for(size_t iGrid=0; iGrid<pSystem->Count(); iGrid++)
+			if( System.Grid(0).Get_System() == Manager.Grid(i - 1).Get_System() )
 			{
-				pGrids->Add_Item(pSystem->Get(iGrid));
+				System.Add(Manager.Grid(i - 1).asGrid()); Manager.Grid().Delete(i - 1, true);
 			}
 		}
-		else if( pSystem->Count() > 0 )
+
+		if( OutputType == 0 || (OutputType == 2 && System.Grid().Count() == 1) ) // OutputType: 0 == single grid(s), 1 == grid collection, 2 == automatic
 		{
-			bool	*bAdded	= (bool *)SG_Calloc(pSystem->Count(), sizeof(bool));
-
-			for(size_t nAdded=0; nAdded<pSystem->Count(); )
+			for(size_t i=0; i<System.Grid().Count(); i++)
 			{
-				CSG_Grids	*pCollection	= SG_Create_Grids();
+				pGrids->Add_Item(System.Grid(i).asGrid());
+			}
 
-				pCollection->Get_Attributes_Ptr()->Create(&Info);
-				pCollection->Set_Z_Attribute(0);
+			System.Delete(true);
+		}
+		else // if( System.Get_Grid().Count() > 0 ) // grid collection
+		{
+			while( System.Grid().Count() )
+			{
+				CSG_Grids *_pGrids = SG_Create_Grids(); CSG_String rids;
 
-				CSG_String	rids;
+				_pGrids->Get_Attributes_Ptr()->Create(&Info);
+				_pGrids->Set_Z_Attribute(0);
 
-				for(size_t iGrid=0; iGrid<pSystem->Count(); iGrid++)
+				for(size_t i=System.Grid().Count(); i>0; i--)
 				{
-					if( bAdded[iGrid] )
+					CSG_Grid *pGrid = System.Grid(i - 1).asGrid(); CSG_String rid(pGrid->Get_MetaData_DB().Get_Content("ID"));
+
+					CSG_Table_Record *pInfo = Info.Find_Record(0, rid);
+
+					if( pInfo ? _pGrids->Add_Grid(   *pInfo, pGrid, true)
+					          : _pGrids->Add_Grid((double)i, pGrid, true) )
 					{
-						continue;
-					}
-
-					CSG_Grid	*pGrid	= (CSG_Grid *)pSystem->Get(iGrid);
-
-					CSG_String	rid(pGrid->Get_MetaData_DB().Get_Content("ID"));
-
-					CSG_Table_Record	*pInfo	= Info.Find_Record(0, rid);
-
-					if( pInfo ? pCollection->Add_Grid(       *pInfo, pGrid, true)
-							  : pCollection->Add_Grid((double)iGrid, pGrid, true) )
-					{
-						bAdded[iGrid]	= true;
-						nAdded++;
+						System.Grid().Delete(i - 1, true);
 
 						if( !rid.is_Empty() )
 						{
 							if( !rids.is_Empty() )
 							{
-								rids	+= ",";
+								rids += ",";
 							}
 
-							rids	+= rid;
+							rids += rid;
 						}
 					}
 				}
 
-				pCollection->Set_Name(Table);
-				pCollection->Set_Modified(false);
+				_pGrids->Set_Name(Table);
+				_pGrids->Set_Modified(false);
 
-				Add_MetaData(*pCollection, Table + ":rid=" + rids);
+				Add_MetaData(*_pGrids, Table + ":rid=" + rids);
 
-				pGrids->Add_Item(pCollection);
+				pGrids->Add_Item(_pGrids);
 			}
-
-			delete[](bAdded);
 		}
 	}
-
-	Grids.Delete_All(true);
 
 	//-----------------------------------------------------
 	return( true );
@@ -2000,7 +1991,7 @@ bool CSG_PG_Connection::Raster_Load(CSG_Parameter_Grid_List *pGrids, const CSG_S
 //---------------------------------------------------------
 bool CSG_PG_Connection::Raster_Load(CSG_Grid *pGrid, const CSG_String &Table, const CSG_String &Where)
 {
-	CSG_Table	Info;
+	CSG_Table Info;
 
 	if( _Raster_Open(Info, Table, Where) && _Raster_Load(pGrid, true) )
 	{
@@ -2019,7 +2010,7 @@ bool CSG_PG_Connection::Raster_Load(CSG_Grid *pGrid, const CSG_String &Table, co
 //---------------------------------------------------------
 bool CSG_PG_Connection::Raster_Save(CSG_Grid *pGrid, int SRID, const CSG_String &Table, const CSG_String &Name)
 {
-	CSG_Table	Info;
+	CSG_Table Info;
 
 	if( !pGrid || !Table_Load(Info, "raster_columns", "*", CSG_String("r_table_name = '") + Table + "'") || Info.Get_Count() != 1 )
 	{
@@ -2412,11 +2403,11 @@ CSG_PG_Tool::CSG_PG_Tool(void)
 {
 	if( has_CMD() )
 	{
-		Parameters.Add_String("", "PG_HOST"   , _TL("Host"       ), _TL(""), "127.0.0.1"    )->Set_UseInGUI(false);
-		Parameters.Add_Int   ("", "PG_PORT"   , _TL("Port"       ), _TL(""), 5432, 0, true  )->Set_UseInGUI(false);
-		Parameters.Add_String("", "PG_NAME"   , _TL("Database"   ), _TL(""), ""             )->Set_UseInGUI(false);
-		Parameters.Add_String("", "PG_USER"   , _TL("User"       ), _TL(""), ""             )->Set_UseInGUI(false);
-		Parameters.Add_String("", "PG_PWD"    , _TL("Password"   ), _TL(""), "", false, true)->Set_UseInGUI(false);
+		Parameters.Add_String("", "PG_HOST"   , _TL("Host"      ), _TL(""), "127.0.0.1"    )->Set_UseInGUI(false);
+		Parameters.Add_Int   ("", "PG_PORT"   , _TL("Port"      ), _TL(""), 5432, 0, true  )->Set_UseInGUI(false);
+		Parameters.Add_String("", "PG_NAME"   , _TL("Database"  ), _TL(""), ""             )->Set_UseInGUI(false);
+		Parameters.Add_String("", "PG_USER"   , _TL("User"      ), _TL(""), ""             )->Set_UseInGUI(false);
+		Parameters.Add_String("", "PG_PWD"    , _TL("Password"  ), _TL(""), "", false, true)->Set_UseInGUI(false);
 	}
 	else
 	{
@@ -2532,18 +2523,15 @@ int CSG_PG_Tool::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 	}
 
 	//-----------------------------------------------------
-	if( has_CMD() == false )
+	if( has_CMD() == false && pParameter->Cmp_Identifier("CONNECTION") )
 	{
-		if( pParameter->Cmp_Identifier("CONNECTION") )
+		CSG_PG_Connection *pConnection = SG_PG_Get_Connection_Manager().Get_Connection(pParameter->asString());
+
+		if( m_pConnection != pConnection )
 		{
-			CSG_PG_Connection *pConnection = SG_PG_Get_Connection_Manager().Get_Connection(pParameter->asString());
+			m_pConnection = pConnection;
 
-			if( m_pConnection != pConnection )
-			{
-				m_pConnection = pConnection;
-
-				On_Connection_Changed(pParameters);
-			}
+			On_Connection_Changed(pParameters);
 		}
 	}
 

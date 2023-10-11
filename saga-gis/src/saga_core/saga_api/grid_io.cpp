@@ -212,28 +212,23 @@ bool CSG_Grid::Save(const CSG_String &FileName, int Format)
 //---------------------------------------------------------
 bool CSG_Grid::_Load_External(const CSG_String &FileName, bool bCached, bool bLoadData)
 {
-	bool	bResult	= false;
-
-	CSG_Data_Manager	Data;
-
-	CSG_Tool	*pTool	= NULL;
+	bool bResult = false; CSG_Data_Manager Manager; CSG_Tool *pTool = NULL;
 
 	SG_UI_Msg_Lock(true);
 
 	//-----------------------------------------------------
 	// Image Import
 
-	if( (	SG_File_Cmp_Extension(FileName, "bmp")
-		||	SG_File_Cmp_Extension(FileName, "gif")
-		||	SG_File_Cmp_Extension(FileName, "jpg")
-		||	SG_File_Cmp_Extension(FileName, "png")
-		||	SG_File_Cmp_Extension(FileName, "pcx") )
-	&&  !bResult && (pTool = SG_Get_Tool_Library_Manager().Create_Tool("io_grid_image", 1)) != NULL )
+	if( (SG_File_Cmp_Extension(FileName, "bmp")
+	  || SG_File_Cmp_Extension(FileName, "gif")
+	  || SG_File_Cmp_Extension(FileName, "jpg")
+	  || SG_File_Cmp_Extension(FileName, "png")
+	  || SG_File_Cmp_Extension(FileName, "pcx") )
+	&& !bResult && (pTool = SG_Get_Tool_Library_Manager().Create_Tool("io_grid_image", 1)) != NULL )
 	{
-		pTool->Settings_Push(&Data);
+		pTool->Settings_Push(&Manager);
 
-		bResult	=  pTool->Set_Parameter("FILE", FileName)
-				&& pTool->Execute();
+		bResult = pTool->Set_Parameter("FILE", FileName) && pTool->Execute();
 
 		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 	}
@@ -243,11 +238,11 @@ bool CSG_Grid::_Load_External(const CSG_String &FileName, bool bCached, bool bLo
 
 	if( !bResult && (pTool = SG_Get_Tool_Library_Manager().Create_Tool("io_gdal", 0)) != NULL )
 	{
-		pTool->Settings_Push(&Data);
+		pTool->Settings_Push(&Manager);
 
-		bResult	=  pTool->Set_Parameter("FILES"   , FileName)
-				&& pTool->Set_Parameter("MULTIPLE", 0       )	// output as single grid(s)
-				&& pTool->Execute();
+		bResult = pTool->Set_Parameter("FILES"   , FileName)
+		       && pTool->Set_Parameter("MULTIPLE", 0       )	// output as single grid(s)
+		       && pTool->Execute();
 
 		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 	}
@@ -255,9 +250,9 @@ bool CSG_Grid::_Load_External(const CSG_String &FileName, bool bCached, bool bLo
 	SG_UI_Msg_Lock(false);
 
 	//-----------------------------------------------------
-	if( bResult && Data.Get_Grid_System(0) && Data.Get_Grid_System(0)->Get(0) && Data.Get_Grid_System(0)->Get(0)->is_Valid() )
+	if( bResult && Manager.Grid().Count() && Manager.Grid(0).is_Valid() )
 	{
-		CSG_Grid	*pGrid	= (CSG_Grid *)Data.Get_Grid_System(0)->Get(0);
+		CSG_Grid *pGrid = Manager.Grid(0).asGrid();
 
 		if( pGrid->is_Cached() )
 		{
@@ -266,22 +261,22 @@ bool CSG_Grid::_Load_External(const CSG_String &FileName, bool bCached, bool bLo
 
 		Set_File_Name(FileName, false);
 
-		Set_Name			(pGrid->Get_Name());
-		Set_Description		(pGrid->Get_Description());
+		Set_Name          (pGrid->Get_Name());
+		Set_Description   (pGrid->Get_Description());
 
-		m_System			= pGrid->m_System;
-		m_Type				= pGrid->m_Type;
-		m_Values			= pGrid->m_Values;	pGrid->m_Values	= NULL;	// take ownership of data array
+		m_System         = pGrid->m_System;
+		m_Type           = pGrid->m_Type;
+		m_Values         = pGrid->m_Values; pGrid->m_Values = NULL; // take ownership of data array
 
-		m_zOffset			= pGrid->m_zOffset;
-		m_zScale			= pGrid->m_zScale;
-		m_Unit				= pGrid->m_Unit;
+		m_zOffset        = pGrid->m_zOffset;
+		m_zScale         = pGrid->m_zScale;
+		m_Unit           = pGrid->m_Unit;
 
-		m_nBytes_Value		= pGrid->m_nBytes_Value;
-		m_nBytes_Line		= pGrid->m_nBytes_Line;
+		m_nBytes_Value   = pGrid->m_nBytes_Value;
+		m_nBytes_Line    = pGrid->m_nBytes_Line;
 
-		Get_MetaData  ()	= pGrid->Get_MetaData  ();
-		Get_Projection()	= pGrid->Get_Projection();
+		Get_MetaData  () = pGrid->Get_MetaData  ();
+		Get_Projection() = pGrid->Get_Projection();
 
 		Set_NoData_Value_Range(pGrid->Get_NoData_Value(), pGrid->Get_NoData_Value(true));
 		

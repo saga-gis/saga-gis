@@ -905,9 +905,24 @@ bool CSG_Parameter::Check(bool bSilent)
 	//-----------------------------------------------------
 	if( Get_Type() == PARAMETER_TYPE_Grid_System )
 	{
-		if( m_pParameters->Get_Manager() && !m_pParameters->Get_Manager()->Exists(*asGrid_System()) )
+		if( m_pParameters->Get_Manager() )
 		{
-			Set_Value((void *)NULL);
+			bool bExists = false; CSG_Data_Manager &Manager = *m_pParameters->Get_Manager();
+
+			for(size_t i=0; !bExists && i<Manager.Grid ().Count(); i++)
+			{
+				bExists = Manager.Grid (i).Get_System() == *asGrid_System();
+			}
+
+			for(size_t i=0; !bExists && i<Manager.Grids().Count(); i++)
+			{
+				bExists = Manager.Grids(i).Get_System() == *asGrid_System();
+			}
+
+			if( bExists == false )
+			{
+				Set_Value((void *)NULL);
+			}
 		}
 
 		return( true );	// ( false );

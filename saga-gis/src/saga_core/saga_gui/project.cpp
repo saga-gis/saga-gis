@@ -204,14 +204,14 @@ bool CWKSP_Project::Save(const wxString &FileName, bool bSaveModified)
 //---------------------------------------------------------
 bool CWKSP_Project::Copy(void)
 {
-	wxString	FileName;
+	wxString FileName;
 
 	if( !DLG_Save(FileName, ID_DLG_PROJECT_SAVE) )
 	{
 		return( false );
 	}
 
-	wxFileName	Directory(FileName);
+	wxFileName Directory(FileName);
 
 	Directory.AppendDir(Directory.GetFullName());
 
@@ -220,34 +220,34 @@ bool CWKSP_Project::Copy(void)
 		Directory.Mkdir(wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
 	}
 
-	size_t	i, j;
-
-	for(j=0; j<SG_Get_Data_Manager().Grid_System_Count(); j++)
+	for(size_t i=0; i<SG_Get_Data_Manager().Table     ().Count(); i++)
 	{
-		for(i=0; i<SG_Get_Data_Manager().Get_Grid_System(j)->Count(); i++)
-		{
-			_Copy_To_File(g_pData->Get(SG_Get_Data_Manager().Get_Grid_System(j)->Get(i)), Directory.GetFullPath());
-		}
+		_Copy_To_File(g_pData->Get(SG_Get_Data_Manager().Table     ().Get(i)), Directory.GetFullPath());
 	}
 
-	for(i=0; i<SG_Get_Data_Manager().Get_Point_Cloud()->Count(); i++)
+	for(size_t i=0; i<SG_Get_Data_Manager().Shapes    ().Count(); i++)
 	{
-		_Copy_To_File(g_pData->Get(SG_Get_Data_Manager().Get_Point_Cloud()->Get(i)), Directory.GetFullPath());
+		_Copy_To_File(g_pData->Get(SG_Get_Data_Manager().Shapes    ().Get(i)), Directory.GetFullPath());
 	}
 
-	for(i=0; i<SG_Get_Data_Manager().Get_Shapes()->Count(); i++)
+	for(size_t i=0; i<SG_Get_Data_Manager().PointCloud().Count(); i++)
 	{
-		_Copy_To_File(g_pData->Get(SG_Get_Data_Manager().Get_Shapes()->Get(i)), Directory.GetFullPath());
+		_Copy_To_File(g_pData->Get(SG_Get_Data_Manager().PointCloud().Get(i)), Directory.GetFullPath());
 	}
 
-	for(i=0; i<SG_Get_Data_Manager().Get_Table()->Count(); i++)
+	for(size_t i=0; i<SG_Get_Data_Manager().TIN       ().Count(); i++)
 	{
-		_Copy_To_File(g_pData->Get(SG_Get_Data_Manager().Get_Table()->Get(i)), Directory.GetFullPath());
+		_Copy_To_File(g_pData->Get(SG_Get_Data_Manager().TIN       ().Get(i)), Directory.GetFullPath());
 	}
 
-	for(i=0; i<SG_Get_Data_Manager().asTIN()->Count(); i++)
+	for(size_t i=0; i<SG_Get_Data_Manager().Grid      ().Count(); i++)
 	{
-		_Copy_To_File(g_pData->Get(SG_Get_Data_Manager().asTIN()->Get(i)), Directory.GetFullPath());
+		_Copy_To_File(g_pData->Get(SG_Get_Data_Manager().Grid      ().Get(i)), Directory.GetFullPath());
+	}
+
+	for(size_t i=0; i<SG_Get_Data_Manager().Grids     ().Count(); i++)
+	{
+		_Copy_To_File(g_pData->Get(SG_Get_Data_Manager().Grids     ().Get(i)), Directory.GetFullPath());
 	}
 
 	return( _Save(Directory.GetFullPath(), false, true) );

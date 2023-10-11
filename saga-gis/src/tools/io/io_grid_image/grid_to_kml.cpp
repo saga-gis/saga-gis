@@ -578,18 +578,17 @@ bool CGrid_from_KML::Load_Overlay(const SG_Char *Dir, const CSG_MetaData &KML)
 		fn.SetPath(Dir);
 	}
 
-	CSG_Data_Manager	Data;
-	CSG_String			FullPath = fn.GetFullPath().wx_str();
+	CSG_Data_Manager Manager; CSG_String FullPath = fn.GetFullPath().wx_str();
 
-	if( !Data.Add(FullPath) || !Data.Get_Grid_System(0) || !Data.Get_Grid_System(0)->Get(0) )
+	if( !Manager.Add(FullPath) || !Manager.Grid().Count() )
 	{
 		Error_Fmt("%s: %s", _TL("failed to load KML ground overlay icon"), fn.GetFullPath().wx_str());
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid	*pIcon	= (CSG_Grid *)Data.Get_Grid_System(0)->Get(0);
+	CSG_Grid *pIcon = Manager.Grid(0).asGrid();
 
-	CSG_Grid	*pGrid	= SG_Create_Grid(pIcon->Get_Type(), pIcon->Get_NX(), pIcon->Get_NY(), r.Get_YRange() / (pIcon->Get_NY() - 1), r.Get_XMin(), r.Get_YMin());
+	CSG_Grid *pGrid = SG_Create_Grid(pIcon->Get_Type(), pIcon->Get_NX(), pIcon->Get_NY(), r.Get_YRange() / (pIcon->Get_NY() - 1), r.Get_XMin(), r.Get_YMin());
 
 	if( KML("Name") && !KML["Name"].Get_Content().is_Empty() )
 		pGrid->Set_Name(KML["Name"].Get_Content());

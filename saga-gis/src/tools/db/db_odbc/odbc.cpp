@@ -1349,31 +1349,29 @@ bool CSG_ODBC_Connections::Del_Connection(CSG_ODBC_Connection *pConnection, bool
 //---------------------------------------------------------
 CSG_Strings CSG_ODBC_Connections::Get_Servers(void)
 {
-	CSG_Strings	Servers;
+	CSG_Strings Servers;
 
-	SQLRETURN	r;
-	SQLSMALLINT	dsnlen, dsclen;
-	SQLTCHAR	dsn[SQL_MAX_DSN_LENGTH + 1], dsc[256];
+	SQLSMALLINT dsnlen, dsclen; SQLTCHAR dsn[SQL_MAX_DSN_LENGTH + 1], dsc[256];
 
-	r	= SQLDataSources(m_hEnv, SQL_FETCH_FIRST,
-			(SQLTCHAR *)dsn, SQL_MAX_DSN_LENGTH + 1, &dsnlen,
-			(SQLTCHAR *)dsc, 256,                    &dsclen
-		);
+	SQLRETURN r = SQLDataSources(m_hEnv, SQL_FETCH_FIRST,
+		(SQLTCHAR *)dsn, SQL_MAX_DSN_LENGTH + 1, &dsnlen,
+		(SQLTCHAR *)dsc, 256,                    &dsclen
+	);
 
 	if( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO )
 	{
-		SG_UI_Msg_Add_Error(SG_T("Unable to retrieve data source names!"));
+		SG_UI_Msg_Add_Error("Unable to retrieve data source names!");
 	}
 	else
 	{
 		do
 		{
-			Servers	+= CSG_String((const SG_ODBC_CHAR *)dsn);
+			Servers += CSG_String((const SG_ODBC_CHAR *)dsn);
 
-			r	= SQLDataSources(m_hEnv, SQL_FETCH_NEXT,
-					(SQLTCHAR *)dsn, SQL_MAX_DSN_LENGTH + 1, &dsnlen,
-					(SQLTCHAR *)dsc, 256,                    &dsclen
-				);
+			r = SQLDataSources(m_hEnv, SQL_FETCH_NEXT,
+				(SQLTCHAR *)dsn, SQL_MAX_DSN_LENGTH + 1, &dsnlen,
+				(SQLTCHAR *)dsc, 256,                    &dsclen
+			);
 		}
 		while( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO );
 	}
@@ -1384,7 +1382,7 @@ CSG_Strings CSG_ODBC_Connections::Get_Servers(void)
 //---------------------------------------------------------
 int CSG_ODBC_Connections::Get_Servers(CSG_Strings &Servers)
 {
-	Servers	= Get_Servers();
+	Servers = Get_Servers();
 
 	return( Servers.Get_Count() );
 }
@@ -1392,11 +1390,11 @@ int CSG_ODBC_Connections::Get_Servers(CSG_Strings &Servers)
 //---------------------------------------------------------
 int CSG_ODBC_Connections::Get_Servers(CSG_String &Servers)
 {
-	CSG_Strings		s	= Get_Servers();
+	CSG_Strings s = Get_Servers();
 
 	for(int i=0; i<s.Get_Count(); i++)
 	{
-		Servers	+= s[i] + SG_T("|");
+		Servers += s[i] + "|";
 	}
 
 	return( s.Get_Count() );
@@ -1410,7 +1408,7 @@ int CSG_ODBC_Connections::Get_Servers(CSG_String &Servers)
 //---------------------------------------------------------
 CSG_Strings CSG_ODBC_Connections::Get_Connections(void)
 {
-	CSG_Strings		Connections;
+	CSG_Strings Connections;
 
 	for(int i=0; i<m_nConnections; i++)
 	{
@@ -1423,13 +1421,13 @@ CSG_Strings CSG_ODBC_Connections::Get_Connections(void)
 //---------------------------------------------------------
 int CSG_ODBC_Connections::Get_Connections(CSG_String &Connections)
 {
-	CSG_Strings		s	= Get_Connections();
+	CSG_Strings s = Get_Connections();
 
 	Connections.Clear();
 
 	for(int i=0; i<s.Get_Count(); i++)
 	{
-		Connections	+= CSG_String::Format(SG_T("%s|"), s[i].c_str());
+		Connections += CSG_String::Format("%s|", s[i].c_str());
 	}
 
 	return( s.Get_Count() );
@@ -1445,23 +1443,28 @@ int CSG_ODBC_Connections::Get_Connections(CSG_String &Connections)
 //---------------------------------------------------------
 CSG_ODBC_Tool::CSG_ODBC_Tool(void)
 {
-	Parameters.Add_String(NULL, "ODBC_DSN"  , _TL("DSN"              ), _TL("Data Source Name" ), "")->Set_UseInGUI(false);
-	Parameters.Add_String(NULL, "ODBC_USR"  , _TL("User"             ), _TL("User Name"        ), "")->Set_UseInGUI(false);
-	Parameters.Add_String(NULL, "ODBC_PWD"  , _TL("Password"         ), _TL("Password"         ), "")->Set_UseInGUI(false);
+	if( has_CMD() )
+	{
+		Parameters.Add_String("", "ODBC_DSN"  , _TL("Data Source Name"), _TL(""), ""             )->Set_UseInGUI(false);
+		Parameters.Add_String("", "ODBC_USR"  , _TL("User"            ), _TL(""), ""             )->Set_UseInGUI(false);
+		Parameters.Add_String("", "ODBC_PWD"  , _TL("Password"        ), _TL(""), "", false, true)->Set_UseInGUI(false);
+	}
+	else
+	{
+		Parameters.Add_Choice("", "CONNECTION", _TL("Connection"      ), _TL(""), "");
+	}
 
-	Parameters.Add_Choice(NULL, "CONNECTION", _TL("Server Connection"), _TL("Server Connection"), "")->Set_UseInCMD(false);
-
-	m_pConnection	= NULL;
+	m_pConnection = NULL;
 }
 
 //---------------------------------------------------------
 bool CSG_ODBC_Tool::On_Before_Execution(void)
 {
-	m_pConnection	= NULL;
+	m_pConnection = NULL;
 
-	if( !has_GUI() )
+	if( has_CMD() )
 	{
-		m_pConnection	= SG_ODBC_Get_Connection_Manager().Add_Connection(
+		m_pConnection = SG_ODBC_Get_Connection_Manager().Add_Connection(
 			Parameters("ODBC_DSN")->asString(),
 			Parameters("ODBC_USR")->asString(),
 			Parameters("ODBC_PWD")->asString()
@@ -1479,9 +1482,9 @@ bool CSG_ODBC_Tool::On_Before_Execution(void)
 	}
 	else
 	{
-		CSG_String	Connections;
+		CSG_String Connections;
 
-		int	nConnections	= SG_ODBC_Get_Connection_Manager().Get_Connections(Connections);
+		int nConnections = SG_ODBC_Get_Connection_Manager().Get_Connections(Connections);
 
 		if( nConnections <= 0 )
 		{
@@ -1495,7 +1498,7 @@ bool CSG_ODBC_Tool::On_Before_Execution(void)
 
 		if( nConnections == 1 )
 		{
-			m_pConnection	= SG_ODBC_Get_Connection_Manager().Get_Connection(0);
+			m_pConnection = SG_ODBC_Get_Connection_Manager().Get_Connection(0);
 		}
 
 		Parameters("CONNECTION")->asChoice()->Set_Items(Connections);
@@ -1503,7 +1506,7 @@ bool CSG_ODBC_Tool::On_Before_Execution(void)
 
 		if( !(m_pConnection = SG_ODBC_Get_Connection_Manager().Get_Connection(Parameters("CONNECTION")->asString())) )
 		{
-			m_pConnection	= SG_ODBC_Get_Connection_Manager().Get_Connection(0);
+			m_pConnection = SG_ODBC_Get_Connection_Manager().Get_Connection(0);
 		}
 
 		On_Parameter_Changed(&Parameters, Parameters("CONNECTION"));
@@ -1515,7 +1518,7 @@ bool CSG_ODBC_Tool::On_Before_Execution(void)
 //---------------------------------------------------------
 bool CSG_ODBC_Tool::On_After_Execution(void)
 {
-	if( !has_GUI() )
+	if( has_CMD() )
 	{
 		SG_ODBC_Get_Connection_Manager().Del_Connection(m_pConnection, true);
 	}
@@ -1526,19 +1529,20 @@ bool CSG_ODBC_Tool::On_After_Execution(void)
 //---------------------------------------------------------
 int CSG_ODBC_Tool::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( has_GUI() && pParameter->Cmp_Identifier("CONNECTION") )
+	if( has_CMD() == false && pParameter->Cmp_Identifier("CONNECTION") )
 	{
-		m_pConnection	= SG_ODBC_Get_Connection_Manager().Get_Connection(pParameter->asString());
+		CSG_ODBC_Connection *pConnection = SG_ODBC_Get_Connection_Manager().Get_Connection(pParameter->asString());
 
-		if( m_pConnection )
+		if( m_pConnection != pConnection )
 		{
+			m_pConnection = pConnection;
+
 			On_Connection_Changed(pParameters);
 		}
-
-		return( 1 );
 	}
 
-	return( 0 );
+	//-----------------------------------------------------
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 
@@ -1558,15 +1562,15 @@ bool CSG_ODBC_Tool::Set_Constraints(CSG_Parameters *pParameters, CSG_Table *pTab
 
 	if( pTable )
 	{
-		CSG_Parameter	*pP	= pParameters->Add_Node(NULL, "P", _TL("Primary key)")	, _TL(""));
-		CSG_Parameter	*pN	= pParameters->Add_Node(NULL, "N", _TL("Not Null")		, _TL(""));
-		CSG_Parameter	*pU	= pParameters->Add_Node(NULL, "U", _TL("Unique")		, _TL(""));
+		pParameters->Add_Node("", "P", _TL("Primary key"), _TL(""));
+		pParameters->Add_Node("", "N", _TL("Not Null"   ), _TL(""));
+		pParameters->Add_Node("", "U", _TL("Unique"     ), _TL(""));
 
 		for(int i=0; i<pTable->Get_Field_Count(); i++)
 		{
-			pParameters->Add_Value(pP, CSG_String::Format(SG_T("P%d"), i), pTable->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false);
-			pParameters->Add_Value(pN, CSG_String::Format(SG_T("N%d"), i), pTable->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false);
-			pParameters->Add_Value(pU, CSG_String::Format(SG_T("U%d"), i), pTable->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false);
+			pParameters->Add_Bool("P", CSG_String::Format("P%d", i), pTable->Get_Field_Name(i), _TL(""), false);
+			pParameters->Add_Bool("N", CSG_String::Format("N%d", i), pTable->Get_Field_Name(i), _TL(""), false);
+			pParameters->Add_Bool("U", CSG_String::Format("U%d", i), pTable->Get_Field_Name(i), _TL(""), false);
 		}
 	}
 
@@ -1576,34 +1580,34 @@ bool CSG_ODBC_Tool::Set_Constraints(CSG_Parameters *pParameters, CSG_Table *pTab
 //---------------------------------------------------------
 CSG_Buffer CSG_ODBC_Tool::Get_Constraints(CSG_Parameters *pParameters, CSG_Table *pTable)
 {
-	CSG_Buffer	Flags;
+	CSG_Buffer Flags;
 
 	if( pParameters )
 	{
-		int		nFields	= pTable ? pTable->Get_Field_Count() : (pParameters->Get_Count() - 3) / 3;
+		int nFields = pTable ? pTable->Get_Field_Count() : (pParameters->Get_Count() - 3) / 3;
 
 		if( nFields * 3 + 3 == pParameters->Get_Count() )
 		{
 			for(int i=0; i<nFields; i++)
 			{
-				char	Flag	= 0;
+				char Flag = 0;
 
-				if( pParameters->Get_Parameter(CSG_String::Format(SG_T("P%d"), i))->asBool() )
+				if( pParameters->Get_Parameter(CSG_String::Format("P%d", i))->asBool() )
 				{
-					Flag	|= SG_ODBC_PRIMARY_KEY;
+					Flag |= SG_ODBC_PRIMARY_KEY;
 				}
 
-				if( pParameters->Get_Parameter(CSG_String::Format(SG_T("N%d"), i))->asBool() )
+				if( pParameters->Get_Parameter(CSG_String::Format("N%d", i))->asBool() )
 				{
-					Flag	|= SG_ODBC_NOT_NULL;
+					Flag |= SG_ODBC_NOT_NULL;
 				}
 
-				if( pParameters->Get_Parameter(CSG_String::Format(SG_T("U%d"), i))->asBool() )
+				if( pParameters->Get_Parameter(CSG_String::Format("U%d", i))->asBool() )
 				{
-					Flag	|= SG_ODBC_UNIQUE;
+					Flag |= SG_ODBC_UNIQUE;
 				}
 
-				Flags	+= Flag;
+				Flags += Flag;
 			}
 		}
 	}

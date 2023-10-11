@@ -236,21 +236,21 @@ bool CLandsat_Import::On_Execute(void)
 //---------------------------------------------------------
 CSG_Grid * CLandsat_Import::Get_Band(const CSG_String &File)
 {
-	CSG_Data_Manager	tmpMgr;
+	CSG_Data_Manager Manager;
 
-	if( !tmpMgr.Add(File) || !tmpMgr.Get_Grid_System(0) || !tmpMgr.Get_Grid_System(0)->Get(0) )
+	if( !Manager.Add(File) || !Manager.Grid().Count() )
 	{
 		Error_Set(CSG_String::Format("%s: %s", _TL("could not load file"), File.c_str()));
 
 		return( NULL );
 	}
 
-	tmpMgr.Get_Grid_System(0)->Get(0)->Set_NoData_Value(0);	// landsat 8 pretends to use a value of 65535 (2^16 - 1)
+	Manager.Grid(0).Set_NoData_Value(0);	// landsat 8 pretends to use a value of 65535 (2^16 - 1)
 
-	CSG_Grid	*pBand	= NULL;
+	CSG_Grid *pBand = NULL;
 
 	//-----------------------------------------------------
-	if( !tmpMgr.Get_Grid_System(0)->Get(0)->Get_Projection().is_Okay() )
+	if( !Manager.Grid(0).Get_Projection().is_Okay() )
 	{
 		// undefined coordinate system, nothing to do be done further...
 	}
@@ -258,15 +258,15 @@ CSG_Grid * CLandsat_Import::Get_Band(const CSG_String &File)
 	//-----------------------------------------------------
 	else if( Parameters("PROJECTION")->asInt() == 2 )	// Geographic Coordinates
 	{
-		pBand	= Get_Projection((CSG_Grid *)tmpMgr.Get_Grid_System(0)->Get(0), "+proj=longlat +ellps=WGS84 +datum=WGS84");
+		pBand = Get_Projection(Manager.Grid(0).asGrid(), "+proj=longlat +ellps=WGS84 +datum=WGS84");
 	}
 
 	//-----------------------------------------------------
 	else												// UTM
 	{
-		CSG_Grid	*pTmp	= (CSG_Grid *)tmpMgr.Get_Grid_System(0)->Get(0);
+		CSG_Grid *pTmp = Manager.Grid(0).asGrid();
 
-		CSG_String	Projection	= pTmp->Get_Projection().Get_Proj4();
+		CSG_String Projection = pTmp->Get_Projection().Get_Proj4();
 
 		if( Projection.Find("+proj=utm") >= 0
 		&&  (  (Projection.Find("+south") >= 0 && Parameters("PROJECTION")->asInt() == 0)
@@ -301,9 +301,9 @@ CSG_Grid * CLandsat_Import::Get_Band(const CSG_String &File)
 	//-----------------------------------------------------
 	if( !pBand )
 	{
-		pBand	= (CSG_Grid *)tmpMgr.Get_Grid_System(0)->Get(0);
+		pBand = Manager.Grid(0).asGrid();
 
-		tmpMgr.Delete(tmpMgr.Get_Grid_System(0)->Get(0), true);	// make permanent, detach from temporary data manager
+		Manager.Delete(pBand, true); // make permanent, detach from temporary data manager
 	}
 
 	return( pBand );

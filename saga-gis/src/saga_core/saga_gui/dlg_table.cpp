@@ -182,41 +182,37 @@ void CDLG_Table::On_Save(wxCommandEvent &event)
 //---------------------------------------------------------
 void CDLG_Table::On_WKSP_Load(wxCommandEvent &event)
 {
-	CSG_Data_Collection	*pTables	= SG_Get_Data_Manager().Get_Table();
+	const CSG_Data_Collection &Tables = SG_Get_Data_Manager().Table();
 
-	if( pTables )
+	wxArrayString Names; CSG_Table Index;
+
+	Index.Add_Field("INDEX", SG_DATATYPE_Int);
+
+	for(size_t i=0; i<Tables.Count(); i++)
 	{
-		wxArrayString	Names;
-		CSG_Table		Index;
+		CSG_Table *pTable = Tables.Get(i)->asTable();
 
-		Index.Add_Field("INDEX", SG_DATATYPE_Int);
-
-		for(size_t i=0; i<pTables->Count(); i++)
+		if( pTable->is_Compatible(m_pTable) && pTable->Get_Count() > 0 )
 		{
-			CSG_Table	*pTable	= (CSG_Table *)pTables->Get(i);
+			Names.Add(pTable->Get_Name());
 
-			if( pTable->is_Compatible(m_pTable) && pTable->Get_Count() > 0 )
-			{
-				Names.Add(pTable->Get_Name());
+			Index.Add_Record()->Set_Value(0, i);
+		}
+	}
 
-				Index.Add_Record()->Set_Value(0, i);
-			}
+	if( Names.Count() > 0 )
+	{
+		wxSingleChoiceDialog	dlg(MDI_Get_Top_Window(), _TL("Tables"), _TL("Load from Workspace"), Names);
+
+		if( dlg.ShowModal() == wxID_OK )
+		{
+			m_pControl->Get_Table().Assign_Values(Tables.Get(Index[dlg.GetSelection()].asInt(0))->asTable());
+			m_pControl->Update_Table();
+
+			Refresh();
 		}
 
-		if( Names.Count() > 0 )
-		{
-			wxSingleChoiceDialog	dlg(MDI_Get_Top_Window(), _TL("Tables"), _TL("Load from Workspace"), Names);
-
-			if( dlg.ShowModal() == wxID_OK )
-			{
-				m_pControl->Get_Table().Assign_Values((CSG_Table *)pTables->Get(Index[dlg.GetSelection()].asInt(0)));
-				m_pControl->Update_Table();
-
-				Refresh();
-			}
-
-			return;
-		}
+		return;
 	}
 
 	DLG_Message_Show(_TL("No compatible table has been found."), CTRL_Get_Name(ID_BTN_TABLE_FROM_WKSP));

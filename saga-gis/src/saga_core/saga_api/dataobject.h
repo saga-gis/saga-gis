@@ -178,6 +178,8 @@ SAGA_API_DLL_EXPORT int			SG_Get_History_Ignore_Lists		(void);
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Data_Object
 {
+	friend class CSG_Data_Collection;
+
 public:
 	CSG_Data_Object(void);
 	virtual ~CSG_Data_Object(void);
@@ -280,7 +282,7 @@ private:
 
 	bool							m_bModified, m_bUpdate, m_File_bNative;
 
-	int								m_File_Type;
+	int								m_File_Type, m_Managed{0};
 
 	sLong							m_Max_Samples;
 

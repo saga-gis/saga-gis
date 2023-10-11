@@ -207,7 +207,7 @@ bool CSentinel_3_Scene_Import::On_Execute(void)
 
 	if( !pLon || !pLat )
 	{
-		m_Data.Delete_All();
+		m_Data.Delete();
 
 		return( false );
 	}
@@ -384,7 +384,7 @@ bool CSentinel_3_Scene_Import::Georeference(CSG_Grid *pLon, CSG_Grid *pLat, CSG_
 
 		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
-		m_Data.Delete_All();
+		m_Data.Delete();
 
 		SG_UI_Msg_Lock(false);
 
@@ -408,7 +408,7 @@ bool CSentinel_3_Scene_Import::Georeference(CSG_Grid *pLon, CSG_Grid *pLat, CSG_
 	//-----------------------------------------------------
 	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
-	m_Data.Delete_All();
+	m_Data.Delete();
 
 	SG_UI_Msg_Lock(false);
 

@@ -1680,23 +1680,23 @@ bool CSG_Parameters::DataObjects_Synchronize(void)
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
-		CSG_Parameter	*p	= m_Parameters[i];
+		CSG_Parameter &P = *m_Parameters[i];
 
-		if( p->Get_Type() == PARAMETER_TYPE_Parameters )
+		if( P.Get_Type() == PARAMETER_TYPE_Parameters )
 		{
-			p->asParameters()->DataObjects_Synchronize();
+			P.asParameters()->DataObjects_Synchronize();
 		}
 
 		//-------------------------------------------------
-		else if( p->is_Output() )
+		else if( P.is_Output() )
 		{
-			if( p->is_DataObject() )
+			if( P.is_DataObject() )
 			{
-				CSG_Data_Object	*pObject	= p->asDataObject();
+				CSG_Data_Object *pObject = P.asDataObject();
 
 				if( pObject == DATAOBJECT_CREATE )
 				{
-					p->Set_Value(DATAOBJECT_NOTSET);
+					P.Set_Value(DATAOBJECT_NOTSET);
 				}
 				else if( pObject != DATAOBJECT_NOTSET )
 				{
@@ -1708,11 +1708,11 @@ bool CSG_Parameters::DataObjects_Synchronize(void)
 							delete(pObject);
 						}
 
-						p->Set_Value(DATAOBJECT_NOTSET);
+						P.Set_Value(DATAOBJECT_NOTSET);
 					}
 					else
 					{
-						if( m_pManager && !m_pManager->Exists(pObject) )
+						if( m_pManager )
 						{
 							m_pManager->Add(pObject);
 						}
@@ -1723,13 +1723,13 @@ bool CSG_Parameters::DataObjects_Synchronize(void)
 			}
 
 			//---------------------------------------------
-			else if( p->is_DataObject_List() )
+			else if( P.is_DataObject_List() )
 			{
-				for(int j=0; j<p->asList()->Get_Item_Count(); j++)
+				for(int j=0; j<P.asList()->Get_Item_Count(); j++)
 				{
-					CSG_Data_Object	*pObject	= p->asList()->Get_Item(j);
+					CSG_Data_Object *pObject = P.asList()->Get_Item(j);
 
-					if( m_pManager && !m_pManager->Exists(pObject) )
+					if( m_pManager )
 					{
 						m_pManager->Add(pObject);
 					}

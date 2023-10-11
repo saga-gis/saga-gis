@@ -183,7 +183,7 @@ int CImport_Clip_Resample::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 //---------------------------------------------------------
 bool CImport_Clip_Resample::On_Execute(void)
 {
-	CSG_Strings	Files;
+	CSG_Strings Files;
 
 	if( !Parameters("FILES")->asFilePath()->Get_FilePaths(Files) || Files.Get_Count() == 0 )
 	{
@@ -191,7 +191,7 @@ bool CImport_Clip_Resample::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_pGrids	= Parameters("GRIDS")->asGridList();
+	m_pGrids = Parameters("GRIDS")->asGridList();
 
 	m_pGrids->Del_Items();
 
@@ -218,25 +218,22 @@ bool CImport_Clip_Resample::On_Execute(void)
 //---------------------------------------------------------
 bool CImport_Clip_Resample::Load_File(const CSG_String &File)
 {
-	CSG_Data_Manager	Grids;
+	CSG_Data_Manager Manager;
 
-	if( !Grids.Add_Grid(File) || !Grids.Get_Grid_System(0) || !Grids.Get_Grid_System(0)->Get(0) )
+	if( !Manager.Add_Grid(File) || !Manager.Grid().Count() )
 	{
 		Error_Set(CSG_String::Format("%s: %s", _TL("could not load file"), File.c_str()));
 
 		return( false );
 	}
 
-	int	n	= 0;
+	int n = 0;
 
-	for(size_t iSystem=0; iSystem<Grids.Grid_System_Count(); iSystem++)
+	for(size_t i=0; i<Manager.Grid().Count(); i++)
 	{
-		for(size_t iGrid=0; iGrid<Grids.Get_Grid_System(iSystem)->Count(); iGrid++)
+		if( Load_Grid(Manager.Grid(i).asGrid()) )
 		{
-			if( Load_Grid((CSG_Grid *)Grids.Get_Grid_System(iSystem)->Get(iGrid)) )
-			{
-				n++;
-			}
+			n++;
 		}
 	}
 
@@ -246,10 +243,10 @@ bool CImport_Clip_Resample::Load_File(const CSG_String &File)
 //---------------------------------------------------------
 bool CImport_Clip_Resample::Load_Grid(CSG_Grid *pImport)
 {
-	CSG_Grid_System	System	= pImport->Get_System();
+	CSG_Grid_System	System = pImport->Get_System();
 
 	//-----------------------------------------------------
-	const CSG_Rect	*pClip	= Parameters("CLIP")->asShapes() ? &Parameters("CLIP")->asShapes()->Get_Extent() : NULL;
+	const CSG_Rect *pClip = Parameters("CLIP")->asShapes() ? &Parameters("CLIP")->asShapes()->Get_Extent() : NULL;
 
 	if( pClip )
 	{
@@ -258,7 +255,7 @@ bool CImport_Clip_Resample::Load_Grid(CSG_Grid *pImport)
 			return( false );
 		}
 
-		TSG_Rect	Extent	= System.Get_Extent();
+		TSG_Rect Extent = System.Get_Extent();
 
 		if( pClip->Get_XMin() > System.Get_XMin() )	Extent.xMin	= System.Fit_xto_Grid_System(pClip->Get_XMin());
 		if( pClip->Get_XMax() < System.Get_XMax() )	Extent.xMax	= System.Fit_xto_Grid_System(pClip->Get_XMax());

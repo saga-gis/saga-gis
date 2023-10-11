@@ -826,15 +826,17 @@ CSG_Parameter_Grid_List * CViGrA_Random_Forest::Get_Propability_Grids(CSG_Table 
 
 		for(int i=0; i<Classes.Get_Count(); i++)
 		{
-			CSG_Grid	*pGrid;
+			CSG_Grid *pGrid;
 			
 			if( i < pGrids->Get_Grid_Count() )
 			{
-				pGrid	= pGrids->Get_Grid(i);
+				pGrid = pGrids->Get_Grid(i);
 			}
 			else
 			{
-				pGrids->Add_Item(pGrid = SG_Get_Data_Manager().Add_Grid(Get_System()));
+				SG_Get_Data_Manager().Add(pGrid = SG_Create_Grid(Get_System()));
+
+				pGrids->Add_Item(pGrid);
 
 				DataObject_Set_Colors(pGrid, 11, SG_COLORS_WHITE_GREEN);
 			}

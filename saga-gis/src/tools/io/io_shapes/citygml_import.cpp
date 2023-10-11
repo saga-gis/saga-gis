@@ -239,9 +239,9 @@ bool CCityGML_Import::Get_Buildings(const CSG_String &File, CSG_Shapes *pPolygon
 
 	Process_Set_Text(_TL("importing line strings"));
 
-	CSG_Data_Manager	tmpMgr;
+	CSG_Data_Manager Manager;
 
-	if( !tmpMgr.Add(File) || !tmpMgr.Get_Shapes() || !tmpMgr.Get_Shapes()->Get(0) )
+	if( !Manager.Add(File) || !Manager.Shapes().Count() )
 	{
 		Error_Set(CSG_String::Format("%s: %s", _TL("CityGML import failed"), File.c_str()));
 
@@ -254,7 +254,7 @@ bool CCityGML_Import::Get_Buildings(const CSG_String &File, CSG_Shapes *pPolygon
 
 	Process_Set_Text(_TL("polygon conversion"));
 
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("shapes_polygons", 3);	// Convert Lines to Polygons
+	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("shapes_polygons", 3);	// Convert Lines to Polygons
 
 	if(	!pTool )
 	{
@@ -265,10 +265,10 @@ bool CCityGML_Import::Get_Buildings(const CSG_String &File, CSG_Shapes *pPolygon
 
 	pTool->Set_Manager(NULL);
 
-	bool	bResult	= pTool->Get_Parameters()->Set_Parameter("POLYGONS", pPolygons)
-				&&    pTool->Get_Parameters()->Set_Parameter("LINES"   , (CSG_Shapes *)tmpMgr.Get_Shapes()->Get(0))
-				&&    pTool->Get_Parameters()->Set_Parameter("MERGE"   , true)
-				&&    pTool->Execute();
+	bool bResult = pTool->Get_Parameters()->Set_Parameter("POLYGONS", pPolygons)
+	            && pTool->Get_Parameters()->Set_Parameter("LINES"   , (CSG_Shapes *)Manager.Shapes()[0].asShapes())
+	            && pTool->Get_Parameters()->Set_Parameter("MERGE"   , true)
+	            && pTool->Execute();
 
 	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
