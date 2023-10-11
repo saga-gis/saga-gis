@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: srtm30.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "srtm30.h"
 
 
@@ -72,13 +60,9 @@
 //---------------------------------------------------------
 CSRTM30_Import::CSRTM30_Import(void)
 {
-	CSG_Parameter	*pNode_0;
-	CSG_Parameters	*pParameters;
+	Set_Name		(_TL("Import SRTM30 DEM"));
 
-	//-----------------------------------------------------
-	Set_Name(_TL("Import SRTM30 DEM"));
-
-	Set_Author		(SG_T("(c) 2004 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2004");
 
 	Set_Description	(_TW(
 		"Extracts elevation grids from SRTM30 data.\n\n"
@@ -102,65 +86,26 @@ CSRTM30_Import::CSRTM30_Import(void)
 	);
 
 	//-----------------------------------------------------
-	pNode_0	= Parameters.Add_Grid_Output(
-		NULL	, "GRID"		, _TL("Grid"),
+	Parameters.Add_Grid_Output("",
+		"GRID"		, _TL("Grid"),
 		_TL("")
 	);
 
-	pNode_0	= Parameters.Add_FilePath(
-		NULL	, "PATH"		, _TL("Path"),
+	Parameters.Add_FilePath("",
+		"PATH"		, _TL("Path"),
 		_TL(""),
 		NULL, NULL, false, true
 	);
 
 	//-----------------------------------------------------
-	pNode_0	= Parameters.Add_Value(
-		NULL	, "XMIN"		, _TL("West []"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 60.0
-	);
-
-	pNode_0	= Parameters.Add_Value(
-		NULL	, "XMAX"		, _TL("East []"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 120.0
-	);
-
-	pNode_0	= Parameters.Add_Value(
-		NULL	, "YMIN"		, _TL("South []"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 20.0
-	);
-	pNode_0	= Parameters.Add_Value(
-		NULL	, "YMAX"		, _TL("North []"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 50.0
-	);
-
-	//-----------------------------------------------------
-	pParameters	= Add_Parameters("TILE", _TL(""), _TL(""));
-
-	pNode_0	= pParameters->Add_Info_String(
-		NULL	, "INFO"		, _TL("File does not exist:"),
-		_TL(""),
-		_TL("")
-	);
-
-	pNode_0	= pParameters->Add_FilePath(
-		NULL	, "PATH"		, _TL("Select file"),
-		_TL(""),
-		_TL("SRTM30 DEM Tiles (*.dem)|*.dem|All Files|*.*")
-	);
+	Parameters.Add_Int("", "XMIN", _TL("West" ), _TL(""),  60);
+	Parameters.Add_Int("", "XMAX", _TL("East" ), _TL(""), 120);
+	Parameters.Add_Int("", "YMIN", _TL("South"), _TL(""),  20);
+	Parameters.Add_Int("", "YMAX", _TL("North"), _TL(""),  50);
 }
-
-//---------------------------------------------------------
-CSRTM30_Import::~CSRTM30_Import(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -230,8 +175,6 @@ bool CSRTM30_Import::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -241,8 +184,9 @@ bool CSRTM30_Import::Tile_Load(const SG_Char *sTile, TSG_Rect &rTile, CSG_Grid *
 	int			x, y, xOut, yOut;
 	FILE		*Stream;
 	CSG_Rect	r(rTile);
+	CSG_String	fName(sTile);
 
-	if( r.Intersects(rOut) != INTERSECTION_None && (Stream = Tile_Open(sTile)) != NULL )
+	if( r.Intersects(rOut) != INTERSECTION_None && (Stream = fopen(fName.b_str(), "rb")) != NULL )
 	{
 		for(y=0, yOut=(int)(rTile.yMax-rOut.yMin); y<Y_WIDTH && yOut>=0 && Set_Progress(y, Y_WIDTH); y++, yOut--)
 		{
@@ -275,26 +219,3 @@ bool CSRTM30_Import::Tile_Load(const SG_Char *sTile, TSG_Rect &rTile, CSG_Grid *
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-FILE * CSRTM30_Import::Tile_Open(const SG_Char *sTile)
-{
-	const SG_Char	*sPath;
-	FILE			*Stream;
-	CSG_String		fName;
-	CSG_Parameters	*pParameters;
-
-	fName	= sTile;
-
-	if( (Stream = fopen(fName.b_str(), "rb")) == NULL )
-	{
-		pParameters	= Get_Parameters("TILE");
-		pParameters->Get_Parameter("INFO")->Set_Value(sTile);
-
-		if( Dlg_Parameters(pParameters, _TL("Locate STRM30 Data File")) && (sPath = pParameters->Get_Parameter("PATH")->asString()) != NULL )
-		{
-			fName	= sPath;
-			Stream	= fopen(fName.b_str(), "rb");
-		}
-	}
-
-	return( Stream );
-}
