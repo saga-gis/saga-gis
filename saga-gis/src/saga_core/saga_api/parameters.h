@@ -1670,6 +1670,7 @@ public:
 	void *						Get_Owner				(void)	const	{	return( m_pOwner      );	}
 
 	class CSG_Tool *			Get_Tool				(void)	const	{	return( m_pTool       );	}
+	void						Set_Tool				(class CSG_Tool *pTool);
 
 	class CSG_Data_Manager *	Get_Manager				(void)	const	{	return( m_pManager    );	}
 	void						Set_Manager				(class CSG_Data_Manager *pManager);

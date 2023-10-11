@@ -196,6 +196,12 @@ void CSG_Parameters::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CSG_Parameters::Set_Tool(CSG_Tool *pTool)
+{
+	m_pTool = pTool;
+}
+
+//---------------------------------------------------------
 /**
   * Set the responsible data manager for this parameter list.
   * If it is not NULL, the parameter list will perform checks
@@ -205,7 +211,7 @@ void CSG_Parameters::Destroy(void)
 //---------------------------------------------------------
 void CSG_Parameters::Set_Manager(CSG_Data_Manager *pManager)
 {
-	m_pManager		= pManager;
+	m_pManager = pManager;
 
 	for(int i=0; i<Get_Count(); i++)
 	{

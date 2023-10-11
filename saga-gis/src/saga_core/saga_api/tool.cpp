@@ -76,7 +76,7 @@ CSG_Tool::CSG_Tool(void)
 
 	Parameters.Create(this, SG_T("Tool"));
 	Parameters.Set_Callback_On_Parameter_Changed(&_On_Parameter_Changed);
-	Parameters.m_pTool = this;
+	Parameters.Set_Tool(this);
 
 	m_pParameters = NULL; m_npParameters = 0;
 
@@ -518,7 +518,7 @@ CSG_Parameters * CSG_Tool::Get_Parameters(const CSG_String &Identifier)
 //---------------------------------------------------------
 bool CSG_Tool::Dlg_Parameters(const CSG_String &Identifier)
 {
-	CSG_Parameters	*pParameters	= Get_Parameters(Identifier);
+	CSG_Parameters *pParameters = Get_Parameters(Identifier);
 
 	if( pParameters && (!pParameters->is_Managed() || Dlg_Parameters(pParameters, Get_Name())) )
 	{
@@ -533,7 +533,15 @@ bool CSG_Tool::Dlg_Parameters(const CSG_String &Identifier)
 //---------------------------------------------------------
 bool CSG_Tool::Dlg_Parameters(CSG_Parameters *pParameters, const CSG_String &Caption)
 {
-	return( pParameters ? SG_UI_Dlg_Parameters(pParameters, Caption) : false );
+	return( pParameters ? Dlg_Parameters(*pParameters, Caption) : false );
+}
+
+bool CSG_Tool::Dlg_Parameters(CSG_Parameters &Parameters, const CSG_String &Caption)
+{
+	return( Caption.is_Empty()
+		? SG_UI_Dlg_Parameters(&Parameters, Parameters.Get_Name())
+		: SG_UI_Dlg_Parameters(&Parameters, Caption)
+	);
 }
 
 

@@ -272,9 +272,11 @@ protected:
 	TSG_PFNC_Parameter_Changed	Get_Parameter_Changed		(void)	{	return( _On_Parameter_Changed );	}
 
 	//-----------------------------------------------------
-	CSG_Parameters *			Add_Parameters				(const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description);
-	bool						Dlg_Parameters				(const CSG_String &Identifier);
-	bool						Dlg_Parameters				(CSG_Parameters *pParameters, const CSG_String &Caption);
+	CSG_Parameters *			Add_Parameters				(const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description); // deprecated
+	bool						Dlg_Parameters				(const CSG_String &Identifier); // deprecated
+
+	bool						Dlg_Parameters				(CSG_Parameters *pParameters, const CSG_String &Caption = "");
+	bool						Dlg_Parameters				(CSG_Parameters  &Parameters, const CSG_String &Caption = "");
 
 	//-----------------------------------------------------
 	virtual bool				Set_Progress				(int    Position, int    Range     )	const;
@@ -332,18 +334,18 @@ public:	// static functions...
 	static bool					DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, const SG_Char *Value);
 	static bool					DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, double loVal, double hiVal);	// Range Parameter
 
+	static int					_On_Parameter_Changed		(CSG_Parameter *pParameter, int Flags);
+
 
 private:
 
 	bool						m_bExecutes, m_bError_Ignore, m_bShow_Progress, m_bGUI, m_bCMD;
 
-	int							m_npParameters;
-
 	CSG_Array					m_Settings_Stack;
 
-	CSG_Parameters				**m_pParameters;
-
 	CSG_String					m_ID, m_Library, m_Library_Menu, m_File_Name, m_Author, m_Version, m_Execution_Info;
+
+	CSG_Parameters **m_pParameters; int m_npParameters; // deprecated
 
 
 	bool						_Synchronize_DataObjects	(void);
@@ -361,8 +363,6 @@ private:
 	void						_Set_Output_History			(void);
 
 	void						_Update_Parameter_States	(CSG_Parameters *pParameters);
-
-	static int					_On_Parameter_Changed		(CSG_Parameter *pParameter, int Flags);
 
 };
 
