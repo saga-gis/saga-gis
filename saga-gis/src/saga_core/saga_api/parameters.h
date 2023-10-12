@@ -1099,6 +1099,8 @@ public:
 	int							Get_Count				(void)	const	{	return( m_nFields );	}
 	int							Get_Index				(int i)	const	{	return( i >= 0 && i < m_nFields ? m_Fields[i] : -1 );	}
 
+	int							operator []				(int i)	const	{	return( i >= 0 && i < m_nFields ? m_Fields[i] : -1 );	}
+
 	CSG_Table *					Get_Table				(void)	const;
 
 
