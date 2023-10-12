@@ -264,12 +264,12 @@ CSG_Data_Object * CSG_Data_Manager::Find(const CSG_String &File, bool bNative) c
 {
 	CSG_Data_Object *pObject;
 
-	if( (pObject = m_pTable     ->Find(File, bNative)) != NULL ) return( pObject );
-	if( (pObject = m_pShapes    ->Find(File, bNative)) != NULL ) return( pObject );
-	if( (pObject = m_pPointCloud->Find(File, bNative)) != NULL ) return( pObject );
-	if( (pObject = m_pTIN       ->Find(File, bNative)) != NULL ) return( pObject );
-	if( (pObject = m_pGrid      ->Find(File, bNative)) != NULL ) return( pObject );
-	if( (pObject = m_pGrids     ->Find(File, bNative)) != NULL ) return( pObject );
+	if( (pObject = Table     ().Find(File, bNative)) != NULL ) return( pObject );
+	if( (pObject = Shapes    ().Find(File, bNative)) != NULL ) return( pObject );
+	if( (pObject = PointCloud().Find(File, bNative)) != NULL ) return( pObject );
+	if( (pObject = TIN       ().Find(File, bNative)) != NULL ) return( pObject );
+	if( (pObject = Grid      ().Find(File, bNative)) != NULL ) return( pObject );
+	if( (pObject = Grids     ().Find(File, bNative)) != NULL ) return( pObject );
 
 	return(	NULL );
 }
@@ -279,17 +279,23 @@ bool CSG_Data_Manager::Exists(CSG_Data_Object *pObject) const
 {
 	if( pObject && pObject != DATAOBJECT_CREATE )
 	{
-		if( pObject->Get_Owner() && Exists(pObject->Get_Owner()) )
-		{
-			return( true );
-		}
+		if( Table     ().Exists(pObject) ) return( true );
+		if( Shapes    ().Exists(pObject) ) return( true );
+		if( PointCloud().Exists(pObject) ) return( true );
+		if( TIN       ().Exists(pObject) ) return( true );
+		if( Grid      ().Exists(pObject) ) return( true );
+		if( Grids     ().Exists(pObject) ) return( true );
 
-		if( m_pTable     ->Exists(pObject) ) return( true );
-		if( m_pShapes    ->Exists(pObject) ) return( true );
-		if( m_pPointCloud->Exists(pObject) ) return( true );
-		if( m_pTIN       ->Exists(pObject) ) return( true );
-		if( m_pGrid      ->Exists(pObject) ) return( true );
-		if( m_pGrids     ->Exists(pObject) ) return( true );
+		for(size_t i=0; i<Grids().Count(); i++)
+		{
+			for(int j=0; j<Grids(i).Get_Grid_Count(); j++)
+			{
+				if( pObject == Grids(i).Get_Grid_Ptr(j) )
+				{
+					return( true );
+				}
+			}
+		}
 	}
 
 	return(	false );
@@ -606,12 +612,12 @@ bool CSG_Data_Manager::Delete(CSG_Data_Object *pObject, bool bDetach)
 //---------------------------------------------------------
 bool CSG_Data_Manager::Delete(bool bDetach, bool bUnsaved)
 {
-	m_pTable     ->Delete(bDetach, bUnsaved);
-	m_pShapes    ->Delete(bDetach, bUnsaved);
-	m_pPointCloud->Delete(bDetach, bUnsaved);
-	m_pTIN       ->Delete(bDetach, bUnsaved);
-	m_pGrid      ->Delete(bDetach, bUnsaved);
-	m_pGrids     ->Delete(bDetach, bUnsaved);
+	Table     ().Delete(bDetach, bUnsaved);
+	Shapes    ().Delete(bDetach, bUnsaved);
+	PointCloud().Delete(bDetach, bUnsaved);
+	TIN       ().Delete(bDetach, bUnsaved);
+	Grid      ().Delete(bDetach, bUnsaved);
+	Grids     ().Delete(bDetach, bUnsaved);
 
 	return( true );
 }
