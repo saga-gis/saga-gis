@@ -704,11 +704,11 @@ void CParameters_Control::_Set_Parameter(wxPGProperty *pProperty)
 {
 	Freeze();
 
-	CSG_Parameter	*pParameter	=  _Get_Parameter(pProperty);
+	CSG_Parameter *pParameter = _Get_Parameter(pProperty);
 
 	if( pParameter )
 	{
-		m_bModified	= true;
+		m_bModified = true;
 
 		switch( pParameter->Get_Type() )
 		{

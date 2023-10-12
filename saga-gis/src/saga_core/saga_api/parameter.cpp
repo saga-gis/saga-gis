@@ -947,7 +947,7 @@ bool CSG_Parameter::Check(bool bSilent)
 	{
 		for(int j=asList()->Get_Item_Count()-1; j>=0; j--)
 		{
-			CSG_Data_Object	*pDataObject	= asList()->Get_Item(j);
+			CSG_Data_Object *pDataObject = asList()->Get_Item(j);
 
 			if( !pDataObject || (m_pParameters->Get_Manager() && !m_pParameters->Get_Manager()->Exists(pDataObject)) )
 			{

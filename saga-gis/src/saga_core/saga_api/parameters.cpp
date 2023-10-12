@@ -1311,9 +1311,9 @@ TSG_PFNC_Parameter_Changed CSG_Parameters::Set_Callback_On_Parameter_Changed(TSG
 // Return value is the previous state.
 bool CSG_Parameters::Set_Callback(bool bActive)
 {
-	bool	bPrevious	= m_bCallback;
+	bool bPrevious = m_bCallback;
 
-	m_bCallback	= bActive;
+	m_bCallback = bActive;
 
 	for(int i=0; i<m_nParameters; i++)
 	{
@@ -1331,7 +1331,7 @@ bool CSG_Parameters::_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
 {
 	if( m_Callback && m_bCallback )
 	{
-		bool	bCallback	= Set_Callback(false);
+		bool bCallback = Set_Callback(false);
 
 		m_Callback(pParameter, Flags);
 
