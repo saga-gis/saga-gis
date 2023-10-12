@@ -234,9 +234,9 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 		Result	= g_pData->Add((CSG_Data_Object *)Param_1.Pointer) ? 1 : 0;
 
-		if( Result && Param_2.Boolean )
+		if( Result && Param_2.Number )
 		{
-			g_pData->Show((CSG_Data_Object *)Param_1.Pointer, false);
+			g_pData->Show((CSG_Data_Object *)Param_1.Pointer, (int)Param_2.Number) ? 1 : 0;
 		}
 
 		break;

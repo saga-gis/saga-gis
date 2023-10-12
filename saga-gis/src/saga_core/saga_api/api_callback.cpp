@@ -611,7 +611,7 @@ bool		SG_UI_DataObject_Add(CSG_Data_Object *pDataObject, int Show)
 {
 	if( gSG_UI_Callback && pDataObject )
 	{
-		CSG_UI_Parameter p1(pDataObject), p2(Show ? true : false);
+		CSG_UI_Parameter p1(pDataObject), p2(Show);
 
 		return( gSG_UI_Callback(CALLBACK_DATAOBJECT_ADD, p1, p2) != 0 );
 	}
