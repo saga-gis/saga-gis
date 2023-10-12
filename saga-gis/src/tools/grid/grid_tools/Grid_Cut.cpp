@@ -157,8 +157,7 @@ CGrid_Clip_Interactive::CGrid_Clip_Interactive(void)
 	m_Extent.Add_Int   ("", "NX"  , _TL("Columns"), _TL(""), 1, 1, true);
 	m_Extent.Add_Int   ("", "NY"  , _TL("Rows"   ), _TL(""), 1, 1, true);
 
-	m_Extent.Set_Tool(this);
-	m_Extent.Set_Callback_On_Parameter_Changed(_On_Parameter_Changed);
+	m_Extent.Set_Tool(this); m_Extent.Set_Callback_On_Parameter_Changed(_On_Parameter_Changed);
 }
 
 

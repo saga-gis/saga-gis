@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,12 +45,6 @@
 //                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -109,16 +100,6 @@ CShapes_Cut_Interactive::CShapes_Cut_Interactive(void)
 		_TL("Show a confirmation dialog before selection is performed"),
 		false
 	);
-
-	//-----------------------------------------------------
-	CSG_Parameters	*pParameters	= Add_Parameters("CUT", _TL("Extent"), _TL(""));
-
-	pParameters->Add_Double("", "AX", _TL("Left"            ), _TL(""), 0.0);
-	pParameters->Add_Double("", "BX", _TL("Right"           ), _TL(""), 1.0);
-	pParameters->Add_Double("", "AY", _TL("Bottom"          ), _TL(""), 0.0);
-	pParameters->Add_Double("", "BY", _TL("Top"             ), _TL(""), 1.0);
-	pParameters->Add_Double("", "DX", _TL("Horizontal Range"), _TL(""), 1.0, 0.0, true);
-	pParameters->Add_Double("", "DY", _TL("Vertical Range"  ), _TL(""), 1.0, 0.0, true);
 }
 
 
@@ -131,34 +112,34 @@ int CShapes_Cut_Interactive::On_Parameter_Changed(CSG_Parameters *pParameters, C
 {
 	if( pParameters->Cmp_Identifier("CUT") )
 	{
-		double	ax	= pParameters->Get_Parameter("AX")->asDouble();
-		double	ay	= pParameters->Get_Parameter("AY")->asDouble();
-		double	bx	= pParameters->Get_Parameter("BX")->asDouble();
-		double	by	= pParameters->Get_Parameter("BY")->asDouble();
-		double	dx	= pParameters->Get_Parameter("DX")->asDouble();
-		double	dy	= pParameters->Get_Parameter("DY")->asDouble();
+		double ax = pParameters->Get_Parameter("AX")->asDouble();
+		double ay = pParameters->Get_Parameter("AY")->asDouble();
+		double bx = pParameters->Get_Parameter("BX")->asDouble();
+		double by = pParameters->Get_Parameter("BY")->asDouble();
+		double dx = pParameters->Get_Parameter("DX")->asDouble();
+		double dy = pParameters->Get_Parameter("DY")->asDouble();
 
-		if( ax > bx )	{	double	d	= ax;	ax	= bx;	bx	= d;	}
-		if( ay > by )	{	double	d	= ay;	ay	= by;	by	= d;	}
+		if( ax > bx ) { double d = ax; ax = bx; bx = d; }
+		if( ay > by ) { double d = ay; ay = by; by = d; }
 
 		if     ( pParameter->Cmp_Identifier("DX") )
 		{
-			bx	= ax + dx;
+			bx = ax + dx;
 		}
 		else if( pParameter->Cmp_Identifier("AX")
-			||   pParameter->Cmp_Identifier("BX") )
+		     ||  pParameter->Cmp_Identifier("BX") )
 		{
-			dx	= bx - ax;
+			dx = bx - ax;
 		}
 
 		else if( pParameter->Cmp_Identifier("DY") )
 		{
-			by	= ay + dy;
+			by = ay + dy;
 		}
 		else if( pParameter->Cmp_Identifier("AY")
-			||   pParameter->Cmp_Identifier("BY") )
+		      || pParameter->Cmp_Identifier("BY") )
 		{
-			dy	= by - ay;
+			dy = by - ay;
 		}
 
 		pParameters->Set_Parameter("AX", ax);
@@ -170,16 +151,20 @@ int CShapes_Cut_Interactive::On_Parameter_Changed(CSG_Parameters *pParameters, C
 	}
 
 	//-----------------------------------------------------
-	else if( pParameter->Cmp_Identifier("SHAPES") && pParameter->asShapes() )
+	else
 	{
-		CSG_Shapes	*pCut	= pParameters->Get_Parameter("CUT")->asShapes();
-
-		if( pCut != DATAOBJECT_NOTSET && pCut != DATAOBJECT_CREATE && pCut->Get_Type() != pParameter->asShapes()->Get_Type() )
+		if( pParameter->Cmp_Identifier("SHAPES") && pParameter->asShapes() )
 		{
-			pParameters->Get_Parameter("CUT")->Set_Value(DATAOBJECT_CREATE);
+			CSG_Shapes *pCut = pParameters->Get_Parameter("CUT")->asShapes();
+
+			if( pCut != DATAOBJECT_NOTSET && pCut != DATAOBJECT_CREATE && pCut->Get_Type() != pParameter->asShapes()->Get_Type() )
+			{
+				pParameters->Get_Parameter("CUT")->Set_Value(DATAOBJECT_CREATE);
+			}
 		}
 	}
 
+	//-----------------------------------------------------
 	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
@@ -191,13 +176,13 @@ int CShapes_Cut_Interactive::On_Parameter_Changed(CSG_Parameters *pParameters, C
 //---------------------------------------------------------
 bool CShapes_Cut_Interactive::On_Execute(void)
 {
-	m_bDown		= false;
+	m_bDown    = false;
 
-	m_pShapes	= Parameters("SHAPES" )->asShapes();
-	m_pCut		= Parameters("CUT"    )->asShapes();
-	m_pExtent	= Parameters("EXTENT" )->asShapes();
-	m_Method	= Parameters("METHOD" )->asInt   ();
-	m_bConfirm	= Parameters("CONFIRM")->asBool  ();
+	m_pShapes  = Parameters("SHAPES" )->asShapes();
+	m_pCut     = Parameters("CUT"    )->asShapes();
+	m_pExtent  = Parameters("EXTENT" )->asShapes();
+	m_Method   = Parameters("METHOD" )->asInt   ();
+	m_bConfirm = Parameters("CONFIRM")->asBool  ();
 
 	m_pCut->Create(m_pShapes->Get_Type());
 
@@ -218,8 +203,8 @@ bool CShapes_Cut_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_In
 	case TOOL_INTERACTIVE_LDOWN:
 		if( m_bDown == false )
 		{
-			m_bDown	= true;
-			m_pDown	= ptWorld;
+			m_bDown = true;
+			m_pDown = ptWorld;
 		}
 		break;
 
@@ -227,9 +212,9 @@ bool CShapes_Cut_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_In
 	case TOOL_INTERACTIVE_LUP:
 		if( m_bDown == true )
 		{
-			m_bDown	= false;
+			m_bDown = false;
 
-			CSG_Rect	Extent(m_pDown, ptWorld);
+			CSG_Rect Extent(m_pDown, ptWorld);
 
 			if( !m_bConfirm || Get_Extent(Extent) )
 			{
@@ -263,24 +248,22 @@ bool CShapes_Cut_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_In
 //---------------------------------------------------------
 bool CShapes_Cut_Interactive::Get_Extent(CSG_Rect &Extent)
 {
-	CSG_Parameters	*pParameters	= Get_Parameters("CUT");
+	CSG_Parameters P(_TL("Extent"), _TL(""), SG_T("CUT"));
 
-	pParameters->Set_Callback(false);
-	pParameters->Set_Parameter("AX", Extent.Get_XMin  ());
-	pParameters->Set_Parameter("AY", Extent.Get_YMin  ());
-	pParameters->Set_Parameter("BX", Extent.Get_XMax  ());
-	pParameters->Set_Parameter("BY", Extent.Get_YMax  ());
-	pParameters->Set_Parameter("DX", Extent.Get_XRange());
-	pParameters->Set_Parameter("DY", Extent.Get_YRange());
-	pParameters->Set_Callback(true);
+	P.Add_Double("", "AX", _TL("Left"            ), _TL(""), Extent.Get_XMin());
+	P.Add_Double("", "BX", _TL("Right"           ), _TL(""), Extent.Get_XMax());
+	P.Add_Double("", "AY", _TL("Bottom"          ), _TL(""), Extent.Get_YMin());
+	P.Add_Double("", "BY", _TL("Top"             ), _TL(""), Extent.Get_YMax());
+	P.Add_Double("", "DX", _TL("Horizontal Range"), _TL(""), Extent.Get_XRange(), 0., true);
+	P.Add_Double("", "DY", _TL("Vertical Range"  ), _TL(""), Extent.Get_YRange(), 0., true);
 
-	if( Dlg_Parameters("CUT") )
+	P.Set_Tool(this); P.Set_Callback_On_Parameter_Changed(_On_Parameter_Changed);
+
+	if( Dlg_Parameters(P) )
 	{
 		Extent.Assign(
-			pParameters->Get_Parameter("AX")->asDouble(),
-			pParameters->Get_Parameter("AY")->asDouble(),
-			pParameters->Get_Parameter("BX")->asDouble(),
-			pParameters->Get_Parameter("BY")->asDouble()
+			P["AX"].asDouble(), P["AY"].asDouble(),
+			P["BX"].asDouble(), P["BY"].asDouble()
 		);
 
 		return( true );
