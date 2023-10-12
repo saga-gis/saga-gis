@@ -48,17 +48,13 @@ protected:
 
 private:
 
-	bool						*m_bIncludeParam;
-
 	double						m_fMaxValue, m_fMinValue, m_fMaxSize, m_fMinSize;
 
 	CSG_Shapes					*m_pOutput;
 
 
-	bool						GetExtraParameters	(void);
-	void						AddPieChart			(CSG_Shape *, int);
-	void						AddBarChart			(CSG_Shape *, int);
-	TSG_Point					GetLineMidPoint		(CSG_Shape_Line *);
+	void						AddPieChart			(CSG_Shape *pShape);
+	void						AddBarChart			(CSG_Shape *pShape);
 
 };
 
