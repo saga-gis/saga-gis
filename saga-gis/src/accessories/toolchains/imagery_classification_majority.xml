@@ -82,6 +82,13 @@
 	<tools>
 		<datalist type='grid_list'>CLASSIFICATIONS</datalist>
 
+		<condition value="false" type="=" variable="GRID_SYSTEM">
+			<tool library="grid_tools" tool="33" name="Copy Grid">
+				<input  id="GRID">FEATURES[0]</input>
+				<output id="COPY">GRID_SYSTEM</output>
+			</tool>
+		</condition>
+
 		<condition value="true" type="=" variable="CLASSIFY_BOX">
 			<tool library="imagery_classification" tool="0" name="Supervised Image Classification">
 				<option id="METHOD">1</option>
@@ -301,6 +308,7 @@
 		</tool>
 
 		<condition type="has_gui" variable="true">
+			<update show="false">CLASSES</update>
 			<tool library="grid_visualisation" tool="10" name="Select Look-up Table for Grid Visualization">
 				<input id="GRID">CLASSES</input>
 				<input id="LUT">CLASSES_LUT</input>
