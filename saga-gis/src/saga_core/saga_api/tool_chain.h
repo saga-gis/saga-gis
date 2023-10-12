@@ -131,12 +131,14 @@ private:
 	bool						Data_Add				(const CSG_String &ID, CSG_Parameter *pData);
 	bool						Data_Add_TempList		(const CSG_String &ID, const CSG_String &Type);
 	bool						Data_Del_Temp			(const CSG_String &ID, bool bData);
+	bool						Data_Update				(const CSG_String &ID, bool bShow);
 	bool						Data_Exists				(CSG_Data_Object *pData);
 	bool						Data_Initialize			(void);
 	bool						Data_Finalize			(void);
 
 	bool						Parameter_isCompatible	(TSG_Parameter_Type A, TSG_Parameter_Type B);
 
+	bool						Message					(const CSG_MetaData &Message);
 	bool						Check_Condition			(const CSG_MetaData &Condition, CSG_Parameters *pData);
 
 	bool						ForEach					(const CSG_MetaData &Commands);

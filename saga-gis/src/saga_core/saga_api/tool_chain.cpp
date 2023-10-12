@@ -592,7 +592,7 @@ bool CSG_Tool_Chain::Data_Add_TempList(const CSG_String &ID, const CSG_String &T
 //---------------------------------------------------------
 bool CSG_Tool_Chain::Data_Del_Temp(const CSG_String &ID, bool bData)
 {
-	CSG_Parameter	*pData	= m_Data(ID);
+	CSG_Parameter *pData = m_Data(ID);
 
 	if( pData )
 	{
@@ -612,6 +612,19 @@ bool CSG_Tool_Chain::Data_Del_Temp(const CSG_String &ID, bool bData)
 		}
 
 		m_Data.Del_Parameter(ID);
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Tool_Chain::Data_Update(const CSG_String &ID, bool bShow)
+{
+	CSG_Parameter *pData = m_Data(ID);
+
+	if( pData && pData->asDataObject() && pData->asDataObject()->is_Valid() )
+	{
+		SG_UI_DataObject_Add(pData->asDataObject(), bShow ? SG_UI_DATAOBJECT_SHOW_MAP : SG_UI_DATAOBJECT_UPDATE);
 	}
 
 	return( true );
@@ -795,10 +808,30 @@ bool CSG_Tool_Chain::Parameter_isCompatible(TSG_Parameter_Type A, TSG_Parameter_
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Tool_Chain::Message(const CSG_MetaData &Message)
+{
+	if( Message.Cmp_Name("message") )
+	{
+		if( IS_TRUE_PROPERTY(Message, "dialog") )
+		{
+			Message_Dlg(Message.Get_Content());
+		}
+
+		Message_Fmt("\n%s", Message.Get_Content().c_str());
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_Tool_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Parameters *pData)
 {
-	//-----------------------------------------------------
-	CSG_String	Type;
+	CSG_String Type;
 
 	if( !Condition.Cmp_Name("condition") || !Condition.Get_Property("type", Type) )
 	{
@@ -806,11 +839,11 @@ bool CSG_Tool_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Paramete
 	}
 
 	//-----------------------------------------------------
-	CSG_String	Variable;
+	CSG_String Variable;
 
 	if( !Condition.Get_Property("varname", Variable) && !Condition.Get_Property("variable", Variable) )
 	{
-		Variable	= Condition.Get_Content();
+		Variable = Condition.Get_Content();
 	}
 
 	//-----------------------------------------------------
@@ -822,7 +855,7 @@ bool CSG_Tool_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Paramete
 	//-----------------------------------------------------
 	if( !Type.CmpNoCase("exists"    ) )	// data object exists
 	{
-		CSG_Parameter	*pParameter	= (*pData)(Variable);
+		CSG_Parameter *pParameter = (*pData)(Variable);
 
 		return( pParameter && ((pParameter->is_DataObject() && pParameter->asDataObject()) || (pParameter->is_DataObject_List() && pParameter->asList()->Get_Item_Count())) );
 	}
@@ -833,7 +866,7 @@ bool CSG_Tool_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Paramete
 	}
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pOption	= (*pData)(Variable);
+	CSG_Parameter *pOption = (*pData)(Variable);
 
 	if( pOption == NULL )
 	{
@@ -845,7 +878,7 @@ bool CSG_Tool_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Paramete
 	//-----------------------------------------------------
 	case PARAMETER_TYPE_Bool     :
 		{
-			CSG_String	Value;
+			CSG_String Value;
 
 			if( Condition.Get_Property("value", Value) )
 			{
@@ -861,7 +894,7 @@ bool CSG_Tool_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Paramete
 	case PARAMETER_TYPE_Data_Type:
 	case PARAMETER_TYPE_Choice   :
 		{
-			int		Value;
+			int Value;
 
 			if( Condition.Get_Property("value", Value) )
 			{
@@ -877,7 +910,7 @@ bool CSG_Tool_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Paramete
 	case PARAMETER_TYPE_Double   :
 	case PARAMETER_TYPE_Degree   :
 		{
-			double	Value;
+			double Value;
 
 			if( Condition.Get_Property("value", Value) )
 			{
@@ -894,7 +927,7 @@ bool CSG_Tool_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Paramete
 	case PARAMETER_TYPE_Text     :
 	case PARAMETER_TYPE_FilePath :
 		{
-			CSG_String	Value;
+			CSG_String Value;
 
 			Condition.Get_Property("value", Value);	// no 'if', bcos empty string would return false !!
 
@@ -910,7 +943,7 @@ bool CSG_Tool_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Paramete
 	//-----------------------------------------------------
 	case PARAMETER_TYPE_Grid_System:
 		{
-			CSG_String	Value;
+			CSG_String Value;
 
 			if( Condition.Get_Property("value", Value) )
 			{
@@ -948,9 +981,9 @@ bool CSG_Tool_Chain::ForEach(const CSG_MetaData &Commands)
 	}
 
 	//-----------------------------------------------------
-	bool	bIgnoreErrors	= IS_TRUE_PROPERTY(Commands, "ignore_errors");
+	bool bIgnoreErrors = IS_TRUE_PROPERTY(Commands, "ignore_errors");
 
-	CSG_String	VarName;
+	CSG_String VarName;
 
 	if( Commands.Get_Property("varname", VarName) )
 	{
@@ -960,7 +993,7 @@ bool CSG_Tool_Chain::ForEach(const CSG_MetaData &Commands)
 	if( Commands.Get_Property("input", VarName) )
 	{
 		return( ForEach_Object  (Commands, VarName, bIgnoreErrors)
-			||  ForEach_File    (Commands, VarName, bIgnoreErrors) );
+		    ||  ForEach_File    (Commands, VarName, bIgnoreErrors) );
 	}
 
 	Error_Set("foreach statement misses iterator or input list definition");
@@ -971,7 +1004,7 @@ bool CSG_Tool_Chain::ForEach(const CSG_MetaData &Commands)
 //---------------------------------------------------------
 bool CSG_Tool_Chain::ForEach_Iterator(const CSG_MetaData &Commands, const CSG_String &VarName, bool bIgnoreErrors)
 {
-	CSG_Parameter	*pIterator	= Parameters(VarName);
+	CSG_Parameter *pIterator = Parameters(VarName);
 
 	if( pIterator )
 	{
@@ -981,10 +1014,10 @@ bool CSG_Tool_Chain::ForEach_Iterator(const CSG_MetaData &Commands, const CSG_St
 	}
 
 	//-----------------------------------------------------
-	CSG_String	s;
+	CSG_String s;
 
-	double	begin	= Commands.Get_Property("begin", s) ? (Parameters(s) ? Parameters[s].asDouble() : s.asDouble()) : 0.;
-	double	end		= Commands.Get_Property("end"  , s) ? (Parameters(s) ? Parameters[s].asDouble() : s.asDouble()) : 0.;
+	double begin = Commands.Get_Property("begin", s) ? (Parameters(s) ? Parameters[s].asDouble() : s.asDouble()) : 0.;
+	double   end = Commands.Get_Property("end"  , s) ? (Parameters(s) ? Parameters[s].asDouble() : s.asDouble()) : 0.;
 
 	if( begin >= end )
 	{
@@ -993,20 +1026,20 @@ bool CSG_Tool_Chain::ForEach_Iterator(const CSG_MetaData &Commands, const CSG_St
 		return( false );
 	}
 
-	double	step	= 1.;
+	double step = 1.;
 
 	if( Commands.Get_Property("steps", s) )
 	{
-		double	steps	= Parameters(s) ? Parameters[s].asDouble() : s.asDouble();
+		double steps = Parameters(s) ? Parameters[s].asDouble() : s.asDouble();
 
 		if( steps > 0 )
 		{
-			step	= (end - begin) / steps;
+			step = (end - begin) / steps;
 		}
 	}
 	else if( Commands.Get_Property("step", s) )
 	{
-		 step	= Parameters(s) ? Parameters[s].asDouble() : s.asDouble();
+		 step = Parameters(s) ? Parameters[s].asDouble() : s.asDouble();
 	}
 
 	if( step <= 0. )
@@ -1019,9 +1052,9 @@ bool CSG_Tool_Chain::ForEach_Iterator(const CSG_MetaData &Commands, const CSG_St
 	Message_Fmt("\nfor i = %f to %f step %f (%d steps)", begin, end, step, (int)((end - begin) / step));
 
 	//-----------------------------------------------------
-	bool	bResult	= true;
+	bool bResult = true;
 
-	pIterator	= Parameters.Add_Double("", VarName, "Iterator", "");
+	pIterator = Parameters.Add_Double("", VarName, "Iterator", "");
 
 	for(double i=begin; bResult && i<=end; i+=step)
 	{
@@ -1031,7 +1064,7 @@ bool CSG_Tool_Chain::ForEach_Iterator(const CSG_MetaData &Commands, const CSG_St
 
 		for(int iTool=0; bResult && iTool<Commands.Get_Children_Count(); iTool++)
 		{
-			const CSG_MetaData	&Tool	= Commands[iTool];
+			const CSG_MetaData &Tool = Commands[iTool];
 
 			if( Tool.Cmp_Name("tool") )
 			{
@@ -1039,7 +1072,7 @@ bool CSG_Tool_Chain::ForEach_Iterator(const CSG_MetaData &Commands, const CSG_St
 
 				if( !bResult && bIgnoreErrors )
 				{
-					bResult	= true;
+					bResult = true;
 				}
 			}
 		}
@@ -1053,7 +1086,7 @@ bool CSG_Tool_Chain::ForEach_Iterator(const CSG_MetaData &Commands, const CSG_St
 //---------------------------------------------------------
 bool CSG_Tool_Chain::ForEach_Object(const CSG_MetaData &Commands, const CSG_String &ListVarName, bool bIgnoreErrors)
 {
-	CSG_Parameter	*pList	= m_Data(ListVarName);
+	CSG_Parameter *pList = m_Data(ListVarName);
 
 	if( !pList )
 	{
@@ -1061,7 +1094,7 @@ bool CSG_Tool_Chain::ForEach_Object(const CSG_MetaData &Commands, const CSG_Stri
 	}
 
 	//-----------------------------------------------------
-	bool	bResult	= true;
+	bool bResult = true;
 
 	if( pList->is_DataObject_List() )
 	{
@@ -1069,7 +1102,7 @@ bool CSG_Tool_Chain::ForEach_Object(const CSG_MetaData &Commands, const CSG_Stri
 		{
 			for(int iTool=0; bResult && iTool<Commands.Get_Children_Count(); iTool++)
 			{
-				const CSG_MetaData	&Tool	= Commands[iTool];
+				const CSG_MetaData &Tool = Commands[iTool];
 
 				if( Tool.Cmp_Name("tool") )
 				{
@@ -1082,12 +1115,12 @@ bool CSG_Tool_Chain::ForEach_Object(const CSG_MetaData &Commands, const CSG_Stri
 					}
 				}
 
-				bResult	= Tool_Run(Tool, bIgnoreErrors);
+				bResult = Tool_Run(Tool, bIgnoreErrors);
 			}
 
 			if( !bResult && bIgnoreErrors )
 			{
-				bResult	= true;
+				bResult = true;
 			}
 		}
 	}
@@ -1099,7 +1132,7 @@ bool CSG_Tool_Chain::ForEach_Object(const CSG_MetaData &Commands, const CSG_Stri
 		{
 			for(int iTool=0; bResult && iTool<Commands.Get_Children_Count(); iTool++)
 			{
-				const CSG_MetaData	&Tool	= Commands[iTool];
+				const CSG_MetaData &Tool = Commands[iTool];
 
 				if( Tool.Cmp_Name("tool") )
 				{
@@ -1112,12 +1145,12 @@ bool CSG_Tool_Chain::ForEach_Object(const CSG_MetaData &Commands, const CSG_Stri
 					}
 				}
 
-				bResult	= Tool_Run(Tool, bIgnoreErrors);
+				bResult = Tool_Run(Tool, bIgnoreErrors);
 			}
 
 			if( !bResult && bIgnoreErrors )
 			{
-				bResult	= true;
+				bResult = true;
 			}
 		}
 	}
@@ -1128,29 +1161,29 @@ bool CSG_Tool_Chain::ForEach_Object(const CSG_MetaData &Commands, const CSG_Stri
 //---------------------------------------------------------
 bool CSG_Tool_Chain::ForEach_File(const CSG_MetaData &Commands, const CSG_String &ListVarName, bool bIgnoreErrors)
 {
-	CSG_Parameter	*pList	= Parameters(ListVarName);
+	CSG_Parameter *pList = Parameters(ListVarName);
 
 	if( !pList || pList->Get_Type() != PARAMETER_TYPE_FilePath )
 	{
 		return( false );
 	}
 
-	CSG_Strings	Files;
+	CSG_Strings Files;
 
 	pList->asFilePath()->Get_FilePaths(Files);
 
 	//-----------------------------------------------------
-	bool	bResult	= true;
+	bool bResult = true;
 
 	for(int iFile=0; bResult && iFile<Files.Get_Count(); iFile++)
 	{
 		for(int iTool=0; bResult && iTool<Commands.Get_Children_Count(); iTool++)
 		{
-			const CSG_MetaData	&Tool	= Commands[iTool];
+			const CSG_MetaData &Tool = Commands[iTool];
 
 			if( Tool.Cmp_Name("tool") )
 			{
-				CSG_Array_Int	Input;
+				CSG_Array_Int Input;
 
 				for(int j=0; j<Tool.Get_Children_Count(); j++)
 				{
@@ -1159,11 +1192,11 @@ bool CSG_Tool_Chain::ForEach_File(const CSG_MetaData &Commands, const CSG_String
 						Tool(j)->Set_Content(Files[iFile]);
 						Tool(j)->Set_Property("varname", "false");
 
-						Input	+= j;
+						Input += j;
 					}
 				}
 
-				bResult	= Tool_Run(Tool, bIgnoreErrors);
+				bResult = Tool_Run(Tool, bIgnoreErrors);
 
 				for(size_t i=0; i<Input.Get_uSize(); i++)
 				{
@@ -1173,12 +1206,12 @@ bool CSG_Tool_Chain::ForEach_File(const CSG_MetaData &Commands, const CSG_String
 			}
 			else
 			{
-				bResult	= Tool_Run(Tool, bIgnoreErrors);
+				bResult = Tool_Run(Tool, bIgnoreErrors);
 			}
 
 			if( !bResult && bIgnoreErrors )
 			{
-				bResult	= true;
+				bResult = true;
 			}
 		}
 	}
@@ -1194,6 +1227,14 @@ bool CSG_Tool_Chain::ForEach_File(const CSG_MetaData &Commands, const CSG_String
 //---------------------------------------------------------
 bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool, bool bShowError)
 {
+	if( Tool.Cmp_Name("message") )
+	{
+		Message(Tool);
+
+		return( true );
+	}
+
+	//-----------------------------------------------------
 	if( Tool.Cmp_Name("comment") )
 	{
 		return( true );
@@ -1208,6 +1249,11 @@ bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool, bool bShowError)
 	if( Tool.Cmp_Name("delete") )
 	{
 		return( Data_Del_Temp(Tool.Get_Content(), IS_TRUE_PROPERTY(Tool, "data")) );
+	}
+
+	if( Tool.Cmp_Name("update") )
+	{
+		return( Data_Update(Tool.Get_Content(), IS_TRUE_PROPERTY(Tool, "show")) );
 	}
 
 	//-----------------------------------------------------
@@ -1400,6 +1446,13 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 	{
 		const CSG_MetaData &Parameter = Tool[i]; if( Parameter.Cmp_Name("comment") ) { continue; }
 
+		if( Parameter.Cmp_Name("message") )
+		{
+			Message(Parameter);
+
+			continue;
+		}
+
 		CSG_Parameter *pParameter, *pOwner;
 
 		if( !Tool_Get_Parameter(Parameter, pTool, &pParameter, &pOwner) )
@@ -1430,6 +1483,18 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 		const CSG_MetaData &Parameter = Tool[i]; if( !Parameter.Cmp_Name("option") ) { continue; }
 
 		CSG_Parameter *pParameter, *pOwner; Tool_Get_Parameter(Parameter, pTool, &pParameter, &pOwner);
+
+		if( pParameter->Get_Type() == PARAMETER_TYPE_Grid_System )
+		{
+			CSG_Parameter *pData = m_Data(Parameter.Get_Content());
+
+			if( pData && pData->asDataObject() && pData->asDataObject()->asGrid() && pData->asDataObject()->asGrid()->Get_System().is_Valid() )
+			{
+				pParameter->asGrid_System()->Create(pData->asDataObject()->asGrid()->Get_System());
+
+				continue;
+			}
+		}
 
 		if( IS_TRUE_PROPERTY(Parameter, "varname")
 			? pParameter->Set_Value(Parameters(Parameter.Get_Content()))
