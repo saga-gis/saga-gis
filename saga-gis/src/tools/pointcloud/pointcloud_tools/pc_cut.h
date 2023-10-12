@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,20 +46,18 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__PC_Cut_H
 #define HEADER_INCLUDED__PC_Cut_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -77,27 +72,28 @@ class CPC_Cut : public CSG_Tool
 public:
 	CPC_Cut(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
+	virtual CSG_String				Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
-	static bool					Get_Cut					(CSG_Parameter_PointCloud_List *pPointsList, CSG_Parameter_PointCloud_List *pCutList, const CSG_Rect &Extent, bool bInverse);
-	static bool					Get_Cut					(CSG_Parameter_PointCloud_List *pPointsList, CSG_Parameter_PointCloud_List *pCutList, CSG_Shapes *pPolygons, bool bInverse);
+	static bool						Get_Cut					(CSG_Parameter_PointCloud_List *pPointsList, CSG_Parameter_PointCloud_List *pCutList, const CSG_Rect &Extent, bool bInverse);
+	static bool						Get_Cut					(CSG_Parameter_PointCloud_List *pPointsList, CSG_Parameter_PointCloud_List *pCutList, CSG_Shapes *pPolygons, bool bInverse);
 
 
 protected:
 
-	virtual bool				On_Execute				(void);
+	virtual int						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool					On_Execute				(void);
 
 
 private:
 
-	static bool					Contains				(CSG_Shapes *pPolygons, double x, double y);
+	static bool						Contains				(CSG_Shapes *pPolygons, double x, double y);
 
 };
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -107,13 +103,13 @@ class CPC_Cut_Interactive : public CSG_Tool_Interactive
 public:
 	CPC_Cut_Interactive(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
+	virtual CSG_String				Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
 
-	virtual bool				On_Execute				(void);
-	virtual bool				On_Execute_Position		(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
+	virtual bool					On_Execute				(void);
+	virtual bool					On_Execute_Position		(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
 
 
 private:

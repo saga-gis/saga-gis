@@ -72,9 +72,6 @@
 //---------------------------------------------------------
 CPC_Cut::CPC_Cut(void)
 {
-	CSG_Parameters	*pParameters;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("Point Cloud Cutter"));
 
 	Set_Author		("O. Conrad, V. Wichmann (c) 2009-2020");
@@ -121,29 +118,52 @@ CPC_Cut::CPC_Cut(void)
 	//-----------------------------------------------------
 	// User Defined Extent
 
-	pParameters	= Add_Parameters("USER", _TL("User Defined Extent"), _TL(""));
-	pParameters	->Add_Double("", "XMIN", _TL("Left"  ), _TL(""));
-	pParameters	->Add_Double("", "XMAX", _TL("Right" ), _TL(""));
-	pParameters	->Add_Double("", "YMIN", _TL("Bottom"), _TL(""));
-	pParameters	->Add_Double("", "YMAX", _TL("Top"   ), _TL(""));
+	Parameters.Add_Node("AREA", "USER", _TL("User Defined Extent"), _TL(""));
+
+	Parameters.Add_Double("USER", "XMIN", _TL("Left"  ), _TL(""));
+	Parameters.Add_Double("USER", "XMAX", _TL("Right" ), _TL(""));
+	Parameters.Add_Double("USER", "YMIN", _TL("Bottom"), _TL(""));
+	Parameters.Add_Double("USER", "YMAX", _TL("Top"   ), _TL(""));
 
 	//-----------------------------------------------------
 	// Grid System Extent
 
-	pParameters	= Add_Parameters("GRID", _TL("Grid System Extent"), _TL(""));
-	pParameters	->Add_Grid_System("", "GRID", _TL("Grid System"), _TL(""));
+	Parameters.Add_Grid_System("AREA", "GRID", _TL("Grid System"), _TL(""));
 
 	//-----------------------------------------------------
 	// Shapes Extent
 
-	pParameters	= Add_Parameters("EXTENT", _TL("Shapes Extent"), _TL(""));
-	pParameters	->Add_Shapes("", "EXTENT", _TL("Shapes Extent"), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Shapes("AREA", "EXTENT", _TL("Shapes Extent"), _TL(""), PARAMETER_INPUT);
 
 	//-----------------------------------------------------
 	// Polygons
 
-	pParameters	= Add_Parameters("POLYGONS", _TL("Polygons"), _TL(""));
-	pParameters	->Add_Shapes("", "POLYGONS", _TL("Polygons"), _TL(""), PARAMETER_INPUT_OPTIONAL, SHAPE_TYPE_Polygon);
+	Parameters.Add_Shapes("AREA", "POLYGONS", _TL("Polygons"), _TL(""), PARAMETER_INPUT, SHAPE_TYPE_Polygon);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CPC_Cut::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
+int CPC_Cut::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("AREA") )
+	{
+		pParameters->Set_Enabled("USER"    , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("GRID"    , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("EXTENT"  , pParameter->asInt() == 2);
+		pParameters->Set_Enabled("POLYGONS", pParameter->asInt() == 3);
+	}
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -154,20 +174,17 @@ CPC_Cut::CPC_Cut(void)
 //---------------------------------------------------------
 bool CPC_Cut::On_Execute(void)
 {
-	CSG_Parameter_PointCloud_List	*pPointsList	= Parameters("POINTS")->asPointCloudList();
-	CSG_Parameter_PointCloud_List	*pCutList		= Parameters("CUT"   )->asPointCloudList();
+	CSG_Parameter_PointCloud_List *pPointsList = Parameters("POINTS")->asPointCloudList();
+	CSG_Parameter_PointCloud_List    *pCutList = Parameters("CUT"   )->asPointCloudList();
 
 	switch( Parameters("AREA")->asInt() )
 	{
 	//-----------------------------------------------------
-	case 0:	// User Defined Extent
-		if( Dlg_Parameters("USER") )
+	default: // User Defined Extent
 		{
-			CSG_Rect	r(
-				Get_Parameters("USER")->Get_Parameter("XMIN")->asDouble(),
-				Get_Parameters("USER")->Get_Parameter("YMIN")->asDouble(),
-				Get_Parameters("USER")->Get_Parameter("XMAX")->asDouble(),
-				Get_Parameters("USER")->Get_Parameter("YMAX")->asDouble()
+			CSG_Rect r(
+				Parameters("XMIN")->asDouble(), Parameters("YMIN")->asDouble(),
+				Parameters("XMAX")->asDouble(), Parameters("YMAX")->asDouble()
 			);
 
 			return( Get_Cut(pPointsList, pCutList, r, Parameters("INVERSE")->asBool()) );
@@ -175,42 +192,16 @@ bool CPC_Cut::On_Execute(void)
 		break;
 
 	//-----------------------------------------------------
-	case 1:	// Grid System Extent
-		if( Dlg_Parameters("GRID") )
-		{
-			return( Get_Cut(pPointsList, pCutList, Get_Parameters("GRID")->Get_Parameter("GRID")->asGrid_System()->Get_Extent(), Parameters("INVERSE")->asBool()) );
-		}
-		break;
+	case  1: // Grid System Extent
+		return( Get_Cut(pPointsList, pCutList, Parameters("GRID")->asGrid_System()->Get_Extent(), Parameters("INVERSE")->asBool()) );
 
 	//-----------------------------------------------------
-	case 2:	// Shapes Extent
-		if( Dlg_Parameters("EXTENT") )
-		{
-			if( Get_Parameters("EXTENT")->Get_Parameter("EXTENT")->asShapes() == NULL )
-			{
-				SG_UI_Msg_Add_Error(_TL("Please provide a shapefile with the 'Shapes Extent' parameter!"));
-
-				return( false );
-			}
-
-			return( Get_Cut(pPointsList, pCutList, Get_Parameters("EXTENT")->Get_Parameter("EXTENT")->asShapes()->Get_Extent(), Parameters("INVERSE")->asBool()) );
-		}
-		break;
+	case  2: // Shapes Extent
+		return( Get_Cut(pPointsList, pCutList, Parameters("EXTENT")->asShapes()->Get_Extent(), Parameters("INVERSE")->asBool()) );
 
 	//-----------------------------------------------------
 	case 3:	// Polygons
-		if( Dlg_Parameters("POLYGONS") )
-		{
-			if( Get_Parameters("POLYGONS")->Get_Parameter("POLYGONS")->asShapes() == NULL )
-			{
-				SG_UI_Msg_Add_Error(_TL("Please provide a shapefile with the 'Polygons' parameter!"));
-
-				return( false );
-			}
-
-			return( Get_Cut(pPointsList, pCutList, Get_Parameters("POLYGONS")->Get_Parameter("POLYGONS")->asShapes(), Parameters("INVERSE")->asBool()) );
-		}
-		break;
+		return( Get_Cut(pPointsList, pCutList, Parameters("POLYGONS")->asShapes(), Parameters("INVERSE")->asBool()) );
 	}
 
 	//-----------------------------------------------------
@@ -376,7 +367,6 @@ bool CPC_Cut::Contains(CSG_Shapes *pPolygons, double x, double y)
 //---------------------------------------------------------
 CPC_Cut_Interactive::CPC_Cut_Interactive(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Point Cloud Cutter"));
 
 	Set_Author		("O. Conrad, V. Wichmann (c) 2009-15");
@@ -386,7 +376,7 @@ CPC_Cut_Interactive::CPC_Cut_Interactive(void)
 		"point cloud datasets. The area-of-interest "
 		"is interactively defined either by dragging a box or by digitizing a polygon.\n"
 		"Best practice is to display the point cloud in a new Map View first and then "
-		"execute the tool. Use the Action tool to define the AOI.\n\n"
+		"execute the tool. Use the Action tool to define the Area of Interest (AOI).\n\n"
 	));
 
 	//-----------------------------------------------------
@@ -403,7 +393,7 @@ CPC_Cut_Interactive::CPC_Cut_Interactive(void)
 	);
 
 	Parameters.Add_Choice("",
-		"AOI"		, _TL("Define AOI by ..."),
+		"AOI"		, _TL("Define Area of Interest by ..."),
 		_TL(""),
 		CSG_String::Format("%s|%s",
             _TL("dragging a box"),
@@ -412,7 +402,7 @@ CPC_Cut_Interactive::CPC_Cut_Interactive(void)
 	);
 
 	Parameters.Add_Shapes("AOI",
-		"AOISHAPE"	, _TL("AOI Shape"),
+		"AOISHAPE"	, _TL("Area of Interest"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
@@ -422,49 +412,41 @@ CPC_Cut_Interactive::CPC_Cut_Interactive(void)
 		_TL("Invert selection."),
 		false
 	);
-
-	//-----------------------------------------------------
-	CSG_Parameters	*pParameters	= Add_Parameters("CUT", _TL("Cut"), _TL(""));
-
-	pParameters->Add_Value("", "XMIN", _TL("Left"  ), _TL(""), PARAMETER_TYPE_Double);
-	pParameters->Add_Value("", "XMAX", _TL("Right" ), _TL(""), PARAMETER_TYPE_Double);
-	pParameters->Add_Value("", "YMIN", _TL("Bottom"), _TL(""), PARAMETER_TYPE_Double);
-	pParameters->Add_Value("", "YMAX", _TL("Top"   ), _TL(""), PARAMETER_TYPE_Double);
 }
 
 //---------------------------------------------------------
 bool CPC_Cut_Interactive::On_Execute(void)
 {
-	m_pPointsList	= Parameters("POINTS")	->asPointCloudList();
-	m_pCutList		= Parameters("CUT")		->asPointCloudList();
-	m_bAOIBox		= Parameters("AOI")		->asInt() == 0 ? true : false;
-	m_pAOI			= Parameters("AOISHAPE")->asShapes();
-	m_bInverse		= Parameters("INVERSE")	->asBool();
-
+	m_pPointsList = Parameters("POINTS"  )->asPointCloudList();
+	m_pCutList    = Parameters("CUT"     )->asPointCloudList();
+	m_bAOIBox     = Parameters("AOI"     )->asInt() == 0 ? true : false;
+	m_pAOI        = Parameters("AOISHAPE")->asShapes();
+	m_bInverse    = Parameters("INVERSE" )->asBool();
 
 	if( !m_bAOIBox )
 	{
-		m_bAdd      = false;
+		m_bAdd = false;
         Set_Drag_Mode(TOOL_INTERACTIVE_DRAG_LINE);
 
 		if( m_pAOI == NULL )
 		{
-			m_pAOI = SG_Create_Shapes(SHAPE_TYPE_Polygon, _TL("AOI Cutter"));
+			m_pAOI = SG_Create_Shapes(SHAPE_TYPE_Polygon, _TL("Area of Interest"));
 			m_pAOI->Add_Field("ID", SG_DATATYPE_Int);
 			Parameters("AOISHAPE")->Set_Value(m_pAOI);
-			DataObject_Add(m_pAOI, true);
+			DataObject_Add(m_pAOI, false);
 		}
 		else if( m_pAOI->Get_Field_Count() < 1)
 		{
-			m_pAOI->Destroy();
+			m_pAOI->Create(SHAPE_TYPE_Polygon, _TL("Area of Interest"));
 			m_pAOI->Add_Field("ID", SG_DATATYPE_Int);
 		}
 
-		CSG_Parameters	sParms;
+		CSG_Parameters sParms;
+
 		if( DataObject_Get_Parameters(m_pAOI, sParms) && sParms("DISPLAY_BRUSH") && sParms("OUTLINE_COLOR"))
 		{
-			sParms("OUTLINE_COLOR")	->Set_Value((int)SG_GET_RGB(180, 0, 0));	// outline color
-			sParms("DISPLAY_BRUSH")	->Set_Value(1);								// fillstyle transparent
+			sParms("OUTLINE_COLOR")->Set_Value((int)SG_GET_RGB(180, 0, 0)); // outline color
+			sParms("DISPLAY_BRUSH")->Set_Value(1);                          // fillstyle transparent
 			DataObject_Set_Parameters(m_pAOI, sParms);
 			DataObject_Update(m_pAOI, SG_UI_DATAOBJECT_SHOW_MAP_ACTIVE);
 		}
@@ -473,7 +455,7 @@ bool CPC_Cut_Interactive::On_Execute(void)
 	{
 		if( m_pAOI != NULL )
 		{
-			m_pAOI->Destroy();
+			m_pAOI->Create(SHAPE_TYPE_Polygon, _TL("Area of Interest"));
 			m_pAOI->Add_Field("ID", SG_DATATYPE_Int);
 		}
 
@@ -482,7 +464,7 @@ bool CPC_Cut_Interactive::On_Execute(void)
 
 	if( m_pAOI != NULL )
 	{
-		m_pAOI->Set_Name(_TL("AOI_Cutter"));
+		m_pAOI->Set_Name(_TL("Area of Interest"));
 	}
 
 	//-----------------------------------------------------
@@ -498,19 +480,22 @@ bool CPC_Cut_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Intera
 	case TOOL_INTERACTIVE_LDOWN:
 
 		if( m_bAOIBox )
-			m_ptDown	= ptWorld;
+		{
+			m_ptDown = ptWorld;
+		}
 		else
 		{
 			if( !m_bAdd )
 			{
-				m_bAdd	= true;
-				m_pAOI	->Del_Records();
-				m_pAOI	->Add_Shape();
+				m_bAdd = true;
+				m_pAOI->Del_Records();
+				m_pAOI->Add_Shape();
 
 				m_pAOI->Get_Shape(0)->Add_Point(ptWorld);	// workaround to have first line immediately displayed,
 			}												// i.e. we add the first point clicked two times
 
 			m_pAOI->Get_Shape(0)->Add_Point(ptWorld);
+
 			DataObject_Update(m_pAOI, SG_UI_DATAOBJECT_SHOW_MAP_ACTIVE);
 		}
 
@@ -521,30 +506,28 @@ bool CPC_Cut_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Intera
 
 		if( m_bAOIBox )
 		{
-			CSG_Rect		r(m_ptDown.x, m_ptDown.y, ptWorld.x, ptWorld.y);
+			CSG_Rect r(m_ptDown.x, m_ptDown.y, ptWorld.x, ptWorld.y);
 
-			CSG_Parameters	*pParameters	= Get_Parameters("CUT");
+			CSG_Parameters Extent(_TL("Cut"), _TL(""));
 
-			pParameters->Get_Parameter("XMIN")->Set_Value(r.Get_XMin());
-			pParameters->Get_Parameter("XMAX")->Set_Value(r.Get_XMax());
-			pParameters->Get_Parameter("YMIN")->Set_Value(r.Get_YMin());
-			pParameters->Get_Parameter("YMAX")->Set_Value(r.Get_YMax());
+			Extent.Add_Double("", "XMIN", _TL("Left"  ), _TL(""), r.Get_XMin());
+			Extent.Add_Double("", "XMAX", _TL("Right" ), _TL(""), r.Get_XMax());
+			Extent.Add_Double("", "YMIN", _TL("Bottom"), _TL(""), r.Get_YMin());
+			Extent.Add_Double("", "YMAX", _TL("Top"   ), _TL(""), r.Get_YMax());
 
-			if( Dlg_Parameters("CUT") )
+			if( Dlg_Parameters(Extent) )
 			{
 				r.Assign(
-					pParameters->Get_Parameter("XMIN")->asDouble(),
-					pParameters->Get_Parameter("YMIN")->asDouble(),
-					pParameters->Get_Parameter("XMAX")->asDouble(),
-					pParameters->Get_Parameter("YMAX")->asDouble()
+					Extent["XMIN"].asDouble(), Extent["YMIN"].asDouble(),
+					Extent["XMAX"].asDouble(), Extent["YMAX"].asDouble()
 				);
 
 				CPC_Cut::Get_Cut(m_pPointsList, m_pCutList, r, m_bInverse);
 
 				if( m_pAOI != NULL )
 				{
-					m_pAOI	->Del_Records();
-					m_pAOI	->Add_Shape();
+					m_pAOI->Del_Records();
+					m_pAOI->Add_Shape();
 
 					m_pAOI->Get_Shape(0)->Add_Point(r.Get_XMin(), r.Get_YMin());
 					m_pAOI->Get_Shape(0)->Add_Point(r.Get_XMin(), r.Get_YMax());
@@ -564,7 +547,7 @@ bool CPC_Cut_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Intera
 
 		if( !m_bAOIBox )
 		{
-			m_bAdd    = false;
+			m_bAdd = false;
 
 			CPC_Cut::Get_Cut(m_pPointsList, m_pCutList, m_pAOI, m_bInverse);
 
