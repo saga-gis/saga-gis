@@ -460,7 +460,7 @@ int CSG_Tool_Chain::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 bool CSG_Tool_Chain::On_Execute(void)
 {
-	bool	bResult	= Data_Initialize();
+	bool bResult = Data_Initialize();
 
 	if( !bResult )
 	{
@@ -469,7 +469,7 @@ bool CSG_Tool_Chain::On_Execute(void)
 
 	for(int i=0; bResult && i<m_Chain["tools"].Get_Children_Count(); i++)
 	{
-		bResult	= Tool_Run(m_Chain["tools"][i]);
+		bResult = Tool_Run(m_Chain["tools"][i]);
 	}
 
 	Data_Finalize();
@@ -1194,7 +1194,6 @@ bool CSG_Tool_Chain::ForEach_File(const CSG_MetaData &Commands, const CSG_String
 //---------------------------------------------------------
 bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool, bool bShowError)
 {
-	//-----------------------------------------------------
 	if( Tool.Cmp_Name("comment") )
 	{
 		return( true );
@@ -1214,7 +1213,7 @@ bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool, bool bShowError)
 	//-----------------------------------------------------
 	if( Tool.Cmp_Name("condition") )
 	{
-		const CSG_MetaData	*pTools	= (!Check_Condition(Tool, &m_Data) || !Check_Condition(Tool, &Parameters))
+		const CSG_MetaData *pTools = (!Check_Condition(Tool, &m_Data) || !Check_Condition(Tool, &Parameters))
 			? Tool("else") : (Tool("if") ? Tool("if") : &Tool);
 
 		for(int i=0; pTools && i<pTools->Get_Children_Count(); i++)
@@ -1248,9 +1247,9 @@ bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool, bool bShowError)
 	}
 
 	//-----------------------------------------------------
-	const SG_Char *Name	= Tool.Get_Property("tool") ? Tool.Get_Property("tool") : Tool.Get_Property("module");
+	const SG_Char *Name = Tool.Get_Property("tool") ? Tool.Get_Property("tool") : Tool.Get_Property("module");
 
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool(Tool.Get_Property("library"), Name,
+	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool(Tool.Get_Property("library"), Name,
 		IS_TRUE_PROPERTY(Tool, "with_gui")	// this option allows to run a tool in 'gui-mode', e.g. to popup variogram dialogs for kriging interpolation
 	);
 

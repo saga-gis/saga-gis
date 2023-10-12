@@ -279,9 +279,9 @@ bool CSG_Data_Manager::Exists(CSG_Data_Object *pObject) const
 {
 	if( pObject && pObject != DATAOBJECT_CREATE )
 	{
-		if( pObject->Get_Owner() )
+		if( pObject->Get_Owner() && Exists(pObject->Get_Owner()) )
 		{
-			return( Exists(pObject->Get_Owner()) );
+			return( true );
 		}
 
 		if( m_pTable     ->Exists(pObject) ) return( true );
