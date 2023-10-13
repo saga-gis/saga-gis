@@ -136,7 +136,7 @@ CMD /C CALL ..\make_python_api.bat install false 3.7  F:\develop\libs\Python\Pyt
 CMD /C CALL ..\make_python_api.bat install false 3.8  F:\develop\libs\Python\Python-3.8
 CMD /C CALL ..\make_python_api.bat install false 3.9  F:\develop\libs\Python\Python-3.9
 CMD /C CALL ..\make_python_api.bat install false 3.10 F:\develop\libs\Python\Python-3.10
-CMD /C CALL ..\make_python_api.bat install true  3.11 F:\develop\libs\Python\Python-3.11
+CMD /C CALL ..\make_python_api.bat install false 3.11 F:\develop\libs\Python\Python-3.11
 CMD /C CALL ..\make_python_api.bat install true  3.12 F:\develop\libs\Python\Python-3.12
 
 

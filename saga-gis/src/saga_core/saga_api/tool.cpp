@@ -1921,11 +1921,10 @@ CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader, bool bName, bool bCal
 		}
 		else
 		{
-			Script += "#! /usr/bin/env python\n";
 			Script += "from PySAGA.tools import " + Get_Library() + "\n\n";
 		}
 
-		Script += Get_Library() + '.' + Name + "(" + Arguments + ", Verbose=2)\n";
+		Script += Get_Library() + '.' + Name + "(" + Arguments + ")\n";
 	}
 	else
 	{
