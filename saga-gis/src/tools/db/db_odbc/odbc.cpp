@@ -1037,7 +1037,7 @@ bool CSG_ODBC_Connection::Table_Load(CSG_Table &Table, const CSG_String &Tables,
 {
 	CSG_String Select;
 
-	Select.Printf("SELECT %s %s FROM %s", bDistinct ? "DISTINCT" : "ALL", Fields.c_str(), Tables.c_str());
+	Select.Printf("SELECT %s %s FROM %s", bDistinct ? SG_T("DISTINCT") : SG_T("ALL"), Fields.is_Empty() ? SG_T("*") : Fields.c_str(), Tables.c_str());
 
 	if( Where.Length() )
 	{
@@ -1441,13 +1441,13 @@ CSG_ODBC_Tool::CSG_ODBC_Tool(void)
 {
 	if( has_CMD() )
 	{
-		Parameters.Add_String("", "ODBC_DSN"  , _TL("Data Source Name"), _TL(""), ""             )->Set_UseInGUI(false);
-		Parameters.Add_String("", "ODBC_USR"  , _TL("User"            ), _TL(""), ""             )->Set_UseInGUI(false);
-		Parameters.Add_String("", "ODBC_PWD"  , _TL("Password"        ), _TL(""), "", false, true)->Set_UseInGUI(false);
+		Parameters.Add_String("", "ODBC_DSN"  , _TL("Data Source"), _TL(""), ""             )->Set_UseInGUI(false);
+		Parameters.Add_String("", "ODBC_USR"  , _TL("User"       ), _TL(""), ""             )->Set_UseInGUI(false);
+		Parameters.Add_String("", "ODBC_PWD"  , _TL("Password"   ), _TL(""), "", false, true)->Set_UseInGUI(false);
 	}
 	else
 	{
-		Parameters.Add_Choice("", "CONNECTION", _TL("Connection"      ), _TL(""), "");
+		Parameters.Add_Choice("", "CONNECTION", _TL("Connection" ), _TL(""), "");
 	}
 
 	m_pConnection = NULL;

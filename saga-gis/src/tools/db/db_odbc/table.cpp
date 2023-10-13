@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: table.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "get_connection.h"
 
 #include "table.h"
@@ -83,7 +71,7 @@ CTable_List::CTable_List(void)
 	));
 
 	Parameters.Add_Table(
-		"", "TABLES"		, _TL("Tables"),
+		"", "TABLES", _TL("Tables"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -92,7 +80,7 @@ CTable_List::CTable_List(void)
 //---------------------------------------------------------
 bool CTable_List::On_Execute(void)
 {
-	CSG_Table	*pTables	= Parameters("TABLES")->asTable();
+	CSG_Table *pTables = Parameters("TABLES")->asTable();
 
 	pTables->Destroy();
 	pTables->Set_Name(_TL("Tables"));
@@ -101,13 +89,13 @@ bool CTable_List::On_Execute(void)
 
 	if( Get_Connection() )
 	{
-		CSG_Strings	Tables;
+		CSG_Strings Tables;
 
 		Get_Connection()->Get_Tables(Tables);
 
 		for(int i=0; i<Tables.Get_Count(); i++)
 		{
-			CSG_Table_Record	*pTable	= pTables->Add_Record();
+			CSG_Table_Record *pTable = pTables->Add_Record();
 
 			pTable->Set_Value(0, Tables[i]);
 		}
@@ -139,13 +127,13 @@ CTable_Info::CTable_Info(void)
 	));
 
 	Parameters.Add_Table(
-		"", "TABLE"		, _TL("Field Description"),
+		"", "FIELDS", _TL("Fields"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
-		"", "TABLES"		, _TL("Tables"),
+		"", "TABLE" , _TL("Table Source"),
 		_TL(""),
 		""
 	);
@@ -154,7 +142,7 @@ CTable_Info::CTable_Info(void)
 //---------------------------------------------------------
 void CTable_Info::On_Connection_Changed(CSG_Parameters *pParameters)
 {
-	CSG_Parameter	*pParameter	= pParameters->Get_Parameter("TABLES");
+	CSG_Parameter *pParameter = pParameters->Get_Parameter("TABLE");
 
 	pParameter->asChoice()->Set_Items(Get_Connection()->Get_Tables());
 	pParameter->Set_Value(pParameter->asString());
@@ -163,12 +151,11 @@ void CTable_Info::On_Connection_Changed(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 bool CTable_Info::On_Execute(void)
 {
-	CSG_String	Table	= Parameters("TABLES")->asString();
-	CSG_Table	*pTable	= Parameters("TABLE" )->asTable();
+	CSG_Table &Fields = *Parameters("FIELDS")->asTable();
 
-	CSG_Table tab = Get_Connection()->Get_Field_Desc(Table);
-	pTable->Assign(&tab);
-	pTable->Set_Name(Table + " [" + _TL("Field Description") + "]");
+	Fields = Get_Connection()->Get_Field_Desc(Parameters("TABLE")->asString());
+
+	Fields.Fmt_Name("%s [%s]", Parameters("TABLE")->asString(), _TL("Fields"));
 
 	return( true );
 }
@@ -192,13 +179,13 @@ CTable_Load::CTable_Load(void)
 	));
 
 	Parameters.Add_Table(
-		"", "TABLE"		, _TL("Table"),
+		"", "TABLE" , _TL("Table"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
-		"", "TABLES"		, _TL("Tables"),
+		"", "SOURCE", _TL("Table Source"),
 		_TL(""),
 		""
 	);
@@ -207,7 +194,7 @@ CTable_Load::CTable_Load(void)
 //---------------------------------------------------------
 void CTable_Load::On_Connection_Changed(CSG_Parameters *pParameters)
 {
-	CSG_Parameter	*pParameter	= pParameters->Get_Parameter("TABLES");
+	CSG_Parameter *pParameter = pParameters->Get_Parameter("SOURCE");
 
 	pParameter->asChoice()->Set_Items(Get_Connection()->Get_Tables());
 	pParameter->Set_Value(pParameter->asString());
@@ -216,9 +203,9 @@ void CTable_Load::On_Connection_Changed(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 bool CTable_Load::On_Execute(void)
 {
-	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
+	CSG_Table &Table = *Parameters("TABLE")->asTable();
 
-	return( Get_Connection()->Table_Load(*pTable, Parameters("TABLES")->asString()) );
+	return( Get_Connection()->Table_Load(Table, Parameters("SOURCE")->asString()) );
 }
 
 
@@ -240,24 +227,24 @@ CTable_Save::CTable_Save(void)
 	));
 
 	Parameters.Add_Table(
-		"", "TABLE"		, _TL("Table"),
+		"", "TABLE" , _TL("Table"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_String(
-		"", "NAME"		, _TL("Table Name"),
+		"", "NAME"  , _TL("Table Name"),
 		_TL(""),
 		""
 	);
 
 	Parameters.Add_Parameters(
-		"", "FLAGS"		, _TL("Constraints"),
+		"", "FLAGS" , _TL("Constraints"),
 		_TL("")
 	);
 
 	Parameters.Add_Choice(
-		"", "EXISTS"	, _TL("If table exists..."),
+		"", "EXISTS", _TL("If table exists..."),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s",
 			_TL("abort export"),
@@ -283,9 +270,11 @@ int CTable_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 //---------------------------------------------------------
 bool CTable_Save::On_Execute(void)
 {
-	bool		bResult	= false;
-	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
-	CSG_String	Name	= Parameters("NAME" )->asString();	if( Name.Length() == 0 )	Name	= pTable->Get_Name();
+	bool bResult = false;
+
+	CSG_Table &Table = *Parameters("TABLE")->asTable();
+
+	CSG_String Name = Parameters("NAME")->asString(); if( Name.is_Empty() ) { Name = Table.Get_Name(); }
 
 	//-----------------------------------------------------
 	if( Get_Connection()->Table_Exists(Name) )
@@ -294,10 +283,10 @@ bool CTable_Save::On_Execute(void)
 
 		switch( Parameters("EXISTS")->asInt() )
 		{
-		case 0:	// abort export
+		default: // abort export
 			break;
 
-		case 1:	// replace existing table
+		case  1: // replace existing table
 			Message_Fmt("\n%s: %s", _TL("dropping table"), Name.c_str());
 
 			if( !Get_Connection()->Table_Drop(Name, false) )
@@ -306,14 +295,14 @@ bool CTable_Save::On_Execute(void)
 			}
 			else
 			{
-				bResult	= Get_Connection()->Table_Save(Name, *pTable, Get_Constraints(Parameters("FLAGS")->asParameters(), pTable));
+				bResult = Get_Connection()->Table_Save(Name, Table, Get_Constraints(Parameters("FLAGS")->asParameters(), &Table));
 			}
 			break;
 
 		case 2:	// append records, if table structure allows
 			Message_Fmt("\n%s: %s", _TL("appending to existing table"), Name.c_str());
 
-			if( !(bResult = Get_Connection()->Table_Insert(Name, *pTable)) )
+			if( !(bResult = Get_Connection()->Table_Insert(Name, Table)) )
 			{
 				Message_Fmt("...%s!", _TL("failed"));
 			}
@@ -322,7 +311,7 @@ bool CTable_Save::On_Execute(void)
 	}
 	else
 	{
-		bResult	= Get_Connection()->Table_Save(Name, *pTable, Get_Constraints(Parameters("FLAGS")->asParameters(), pTable));
+		bResult	= Get_Connection()->Table_Save(Name, Table, Get_Constraints(Parameters("FLAGS")->asParameters(), &Table));
 	}
 
 	//-----------------------------------------------------
@@ -353,7 +342,7 @@ CTable_Drop::CTable_Drop(void)
 	));
 
 	Parameters.Add_Choice(
-		"", "TABLES"		, _TL("Tables"),
+		"", "TABLE", _TL("Table"),
 		_TL(""),
 		""
 	);
@@ -362,7 +351,7 @@ CTable_Drop::CTable_Drop(void)
 //---------------------------------------------------------
 void CTable_Drop::On_Connection_Changed(CSG_Parameters *pParameters)
 {
-	CSG_Parameter	*pParameter	= pParameters->Get_Parameter("TABLES");
+	CSG_Parameter *pParameter = pParameters->Get_Parameter("TABLE");
 
 	pParameter->asChoice()->Set_Items(Get_Connection()->Get_Tables());
 	pParameter->Set_Value(pParameter->asString());
@@ -371,7 +360,7 @@ void CTable_Drop::On_Connection_Changed(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 bool CTable_Drop::On_Execute(void)
 {
-	if( Get_Connection()->Table_Drop(Parameters("TABLES")->asChoice()->asString()) )
+	if( Get_Connection()->Table_Drop(Parameters("TABLE")->asChoice()->asString()) )
 	{
 		SG_UI_ODBC_Update(Get_Connection()->Get_Server());
 
@@ -391,76 +380,44 @@ bool CTable_Drop::On_Execute(void)
 //---------------------------------------------------------
 CTable_Query::CTable_Query(void)
 {
-	Set_Name		(_TL("Import Table from SQL Query"));
+	Set_Name		(_TL("Import Table from Query"));
 
 	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
-		"Import a SQL table from a database via ODBC."
+		"Import a table from a database through ODBC via SQL query.\n"
+		"> SELECT [DISTINCT|ALL] 'Fields' FROM 'Tables' WHERE 'Where' [GROUP BY 'Group' [HAVING 'Having']] [ORDER BY 'Order']"
 	));
 
 	Parameters.Add_Table("",
-		"TABLE"		, _TL("Table from SQL Query"),
+		"TABLE"	, _TL("Table"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_String("",
-		"TABLES"	, _TL("Tables"),
-		_TL(""),
-		""
-	);
-
-	Parameters.Add_String("",
-		"FIELDS"	, _TL("Fields"),
-		_TL(""),
-		"*"
-	);
-
-	Parameters.Add_String("",
-		"WHERE"		, _TL("Where"),
-		_TL(""),
-		""
-	);
-
-	Parameters.Add_String("",
-		"GROUP"		, _TL("Group by"),
-		_TL(""),
-		""
-	);
-
-	Parameters.Add_String("GROUP",
-		"HAVING"	, _TL("Having"),
-		_TL(""),
-		""
-	);
-
-	Parameters.Add_String("",
-		"ORDER"		, _TL("Order by"),
-		_TL(""),
-		""
-	);
-
-	Parameters.Add_Bool("",
-		"DISTINCT"	, _TL("Distinct"),
-		_TL(""),
-		false
-	);
+	Parameters.Add_String(""     , "TABLES"  , _TL("Tables"  ), _TL(""), ""   );
+	Parameters.Add_String(""     , "FIELDS"  , _TL("Fields"  ), _TL(""), "*"  );
+	Parameters.Add_String(""     , "WHERE"   , _TL("Where"   ), _TL(""), ""   );
+	Parameters.Add_String(""     , "GROUP"   , _TL("Group"   ), _TL(""), ""   );
+	Parameters.Add_String("GROUP", "HAVING"  , _TL("Having"  ), _TL(""), ""   );
+	Parameters.Add_String(""     , "ORDER"   , _TL("Order"   ), _TL(""), ""   );
+	Parameters.Add_Bool  (""     , "DISTINCT", _TL("Distinct"), _TL(""), false);
 }
 
 //---------------------------------------------------------
 bool CTable_Query::On_Execute(void)
 {
-	CSG_Table	*pTable		= Parameters("TABLE"   )->asTable ();
-	CSG_String	Tables		= Parameters("TABLES"  )->asString();
-	CSG_String	Fields		= Parameters("FIELDS"  )->asString();
-	CSG_String	Where		= Parameters("WHERE"   )->asString();
-	CSG_String	Group		= Parameters("GROUP"   )->asString();
-	CSG_String	Having		= Parameters("HAVING"  )->asString();
-	CSG_String	Order		= Parameters("ORDER"   )->asString();
-	bool		bDistinct	= Parameters("DISTINCT")->asBool  ();
+	CSG_Table &Table = *Parameters("TABLE"   )->asTable ();
 
-	return( Get_Connection()->Table_Load(*pTable, Tables, Fields, Where, Group, Having, Order, bDistinct) );
+	CSG_String Tables = Parameters("TABLES"  )->asString();
+	CSG_String Fields = Parameters("FIELDS"  )->asString();
+	CSG_String  Where = Parameters("WHERE"   )->asString();
+	CSG_String  Group = Parameters("GROUP"   )->asString();
+	CSG_String Having = Parameters("HAVING"  )->asString();
+	CSG_String  Order = Parameters("ORDER"   )->asString();
+	bool    bDistinct = Parameters("DISTINCT")->asBool  ();
+
+	return( Get_Connection()->Table_Load(Table, Tables, Fields, Where, Group, Having, Order, bDistinct) );
 }
 
 
