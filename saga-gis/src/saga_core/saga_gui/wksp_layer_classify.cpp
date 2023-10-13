@@ -222,17 +222,36 @@ bool CWKSP_Layer_Classify::Initialise(CWKSP_Layer *pLayer, CSG_Table *pLUT, CSG_
 	//-----------------------------------------------------
 	if( m_pLUT && m_pLUT->Get_Count() == 0 )
 	{
-		CSG_Table_Record	*pRecord;
+		//-------------------------------------------------
+		#define nColours 10
+
+		static int Colours[nColours]	=
+		{
+			SG_COLOR_BLUE,
+			SG_COLOR_GREEN,
+			SG_COLOR_RED,
+			SG_COLOR_YELLOW_DARK,
+			SG_COLOR_BLUE_DARK,
+			SG_COLOR_GREEN_DARK,
+			SG_COLOR_RED_DARK,
+			SG_COLOR_BLUE_GREEN,
+			SG_COLOR_PURPLE,
+			SG_COLOR_PINK
+		};
+
+		int Colour = (int)CSG_Random::Get_Uniform(0, nColours); 
+
+		CSG_Table_Record *pRecord;
 
 		pRecord	= m_pLUT->Add_Record();
-		pRecord->Set_Value(LUT_COLOR		, SG_GET_RGB(1, 1, 1));
+		pRecord->Set_Value(LUT_COLOR		, Colours[Colour]); Colour = ++Colour % nColours;
 		pRecord->Set_Value(LUT_TITLE		, _TL("Class 1"));
 		pRecord->Set_Value(LUT_DESCRIPTION	, _TL("First Class"));
 		pRecord->Set_Value(LUT_MIN			, 0.0);
 		pRecord->Set_Value(LUT_MAX			, 1.0);
 
 		pRecord	= m_pLUT->Add_Record();
-		pRecord->Set_Value(LUT_COLOR		, SG_GET_RGB(255, 0, 0));
+		pRecord->Set_Value(LUT_COLOR		, Colours[Colour]);
 		pRecord->Set_Value(LUT_TITLE		, _TL("Class 2"));
 		pRecord->Set_Value(LUT_DESCRIPTION	, _TL("Second Class"));
 		pRecord->Set_Value(LUT_MIN			, 1.0);
