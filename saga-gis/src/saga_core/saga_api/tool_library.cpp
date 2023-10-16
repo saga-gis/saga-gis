@@ -67,27 +67,27 @@
 //---------------------------------------------------------
 CSG_Tool_Library::CSG_Tool_Library(void)
 {
-	m_pInterface	= NULL;
-	m_pLibrary		= NULL;
+	m_pInterface = NULL;
+	m_pLibrary   = NULL;
 }
 
 //---------------------------------------------------------
 CSG_Tool_Library::CSG_Tool_Library(const CSG_String &File)
 {
-	m_pLibrary	= new wxDynamicLibrary(SG_File_Get_Path_Absolute(File).c_str(), wxDL_DEFAULT|wxDL_QUIET);
+	m_pLibrary = new wxDynamicLibrary(SG_File_Get_Path_Absolute(File).c_str(), wxDL_DEFAULT|wxDL_QUIET);
 
 	if(	m_pLibrary->IsLoaded()
-	&&	m_pLibrary->HasSymbol(SYMBOL_TLB_Get_Interface)
-	&&	m_pLibrary->HasSymbol(SYMBOL_TLB_Initialize)
-	&&	m_pLibrary->HasSymbol(SYMBOL_TLB_Finalize)
-	&&	((TSG_PFNC_TLB_Initialize)m_pLibrary->GetSymbol(SYMBOL_TLB_Initialize))(File) )
+	&&  m_pLibrary->HasSymbol(SYMBOL_TLB_Get_Interface)
+	&&  m_pLibrary->HasSymbol(SYMBOL_TLB_Initialize)
+	&&  m_pLibrary->HasSymbol(SYMBOL_TLB_Finalize)
+	&&  ((TSG_PFNC_TLB_Initialize)m_pLibrary->GetSymbol(SYMBOL_TLB_Initialize))(File) )
 	{
-		m_pInterface	= ((TSG_PFNC_TLB_Get_Interface)m_pLibrary->GetSymbol(SYMBOL_TLB_Get_Interface))();
+		m_pInterface = ((TSG_PFNC_TLB_Get_Interface)m_pLibrary->GetSymbol(SYMBOL_TLB_Get_Interface))();
 
 		if( m_pInterface->Get_Count() > 0 )
 		{
-			m_File_Name		= m_pInterface->Get_Info(TLB_INFO_File   );
-			m_Library_Name	= m_pInterface->Get_Info(TLB_INFO_Library);
+			m_File_Name    = m_pInterface->Get_Info(TLB_INFO_File   );
+			m_Library_Name = m_pInterface->Get_Info(TLB_INFO_Library);
 
 			return;	// success
 		}
@@ -348,7 +348,7 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::Add_Library(const CSG_String &File)
 	//-----------------------------------------------------
 	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Loading library"), File.c_str()), true);
 
-	wxFileName	fn(File.c_str());
+	wxFileName fn(File.c_str());
 
 	for(int i=0; i<Get_Count(); i++)
 	{
@@ -361,12 +361,12 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::Add_Library(const CSG_String &File)
 	}
 
 	//-----------------------------------------------------
-	CSG_Tool_Library	*pLibrary	= new CSG_Tool_Library(File);
+	CSG_Tool_Library *pLibrary = new CSG_Tool_Library(File);
 
 	if( pLibrary->is_Valid() )
 	{
-		m_pLibraries	= (CSG_Tool_Library **)SG_Realloc(m_pLibraries, (m_nLibraries + 1) * sizeof(CSG_Tool_Library *));
-		m_pLibraries[m_nLibraries++]	= pLibrary;
+		m_pLibraries = (CSG_Tool_Library **)SG_Realloc(m_pLibraries, (m_nLibraries + 1) * sizeof(CSG_Tool_Library *));
+		m_pLibraries[m_nLibraries++] = pLibrary;
 
 		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 
@@ -393,12 +393,11 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::Add_Library(const wchar_t    *File)
 //---------------------------------------------------------
 int CSG_Tool_Library_Manager::Add_Directory(const CSG_String &Directory, bool bOnlySubDirectories)
 {
-	int		nOpened	= 0;
-	wxDir	Dir;
+	int nOpened = 0; wxDir Dir;
 
 	if( Dir.Open(Directory.c_str()) )
 	{
-		wxString	FileName, DirName(Dir.GetName());
+		wxString FileName, DirName(Dir.GetName());
 
 		if( !bOnlySubDirectories && Dir.GetFirst(&FileName, wxEmptyString, wxDIR_FILES) )
 		{
