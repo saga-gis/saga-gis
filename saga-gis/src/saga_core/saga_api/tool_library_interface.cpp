@@ -62,7 +62,7 @@
 //---------------------------------------------------------
 CSG_Tool_Library_Interface::CSG_Tool_Library_Interface(void)
 {
-	m_Fnc_Create_Tool	= NULL;
+	m_Fnc_Create_Tool = NULL;
 }
 
 //---------------------------------------------------------
@@ -86,10 +86,10 @@ bool CSG_Tool_Library_Interface::Create(const CSG_String &Version, const CSG_Str
 
 	for(int i=0; i<TLB_INFO_User; i++)
 	{
-		m_Info[i]	= Fnc_Info(i);
+		m_Info[i] = Fnc_Info(i);
 	}
 
-	CSG_String	Library		= SG_File_Get_Name(TLB_Path, false);
+	CSG_String Library = SG_File_Get_Name(TLB_Path, false);
 
 	#if !defined(_SAGA_MSW)
 	if( Library.Find("lib") == 0 )
@@ -98,9 +98,9 @@ bool CSG_Tool_Library_Interface::Create(const CSG_String &Version, const CSG_Str
 	}
 	#endif
 
-	m_Info[TLB_INFO_Library     ]	= Library;
-	m_Info[TLB_INFO_SAGA_Version]	= Version;
-	m_Info[TLB_INFO_File        ]	= SG_File_Get_Path_Absolute(TLB_Path);
+	m_Info[TLB_INFO_Library     ] = Library;
+	m_Info[TLB_INFO_SAGA_Version] = Version;
+	m_Info[TLB_INFO_File        ] = SG_File_Get_Path_Absolute(TLB_Path);
 
 	if( Version.Cmp(SAGA_VERSION) )
 	{
@@ -112,20 +112,27 @@ bool CSG_Tool_Library_Interface::Create(const CSG_String &Version, const CSG_Str
 	}
 
 	//-----------------------------------------------------
-	m_Fnc_Create_Tool	= Fnc_Create_Tool;
+	m_Fnc_Create_Tool = Fnc_Create_Tool;
 
-	CSG_Tool	*pTool;
+	CSG_Tool *pTool;
 
 	for(int ID=0; (pTool = m_Fnc_Create_Tool(ID)) != NULL; ID++)
 	{
 		if( pTool != TLB_INTERFACE_SKIP_TOOL )
 		{
-			pTool->m_ID.Printf("%d", ID);
-			pTool->m_Library      = m_Info[TLB_INFO_Library  ];
-			pTool->m_Library_Menu = m_Info[TLB_INFO_Menu_Path];
-			pTool->m_File_Name    = m_Info[TLB_INFO_File     ];
+			if( SG_UI_Get_Application_Name().Cmp("saga_cmd") == 0 && pTool->is_Interactive() )
+			{
+				delete(pTool);
+			}
+			else
+			{
+				pTool->m_ID.Printf("%d", ID);
+				pTool->m_Library      = m_Info[TLB_INFO_Library  ];
+				pTool->m_Library_Menu = m_Info[TLB_INFO_Menu_Path];
+				pTool->m_File_Name    = m_Info[TLB_INFO_File     ];
 
-			m_Tools.Add(pTool);
+				m_Tools.Add(pTool);
+			}
 		}
 	}
 
@@ -188,7 +195,7 @@ CSG_Tool * CSG_Tool_Library_Interface::Get_Tool(int i)
 //---------------------------------------------------------
 CSG_Tool * CSG_Tool_Library_Interface::Create_Tool(int ID, bool bWithGUI)
 {
-	CSG_Tool	*pTool	= m_Fnc_Create_Tool ? m_Fnc_Create_Tool(ID) : NULL;
+	CSG_Tool *pTool = m_Fnc_Create_Tool ? m_Fnc_Create_Tool(ID) : NULL;
 
 	if( pTool && pTool != TLB_INTERFACE_SKIP_TOOL )
 	{
