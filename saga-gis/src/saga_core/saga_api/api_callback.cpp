@@ -51,6 +51,7 @@
 
 //---------------------------------------------------------
 #include <wx/stdpaths.h>
+#include <wx/app.h>
 
 #include "api_core.h"
 #include "grid.h"
@@ -797,7 +798,7 @@ void *		SG_UI_Get_Window_Main		(void)
 //---------------------------------------------------------
 CSG_String	SG_UI_Get_Application_Path	(bool bPathOnly)
 {
-	CSG_String	App_Path(wxStandardPaths::Get().GetExecutablePath().wc_str());
+	CSG_String App_Path(wxStandardPaths::Get().GetExecutablePath().wc_str());
 
 	if( bPathOnly )
 	{
@@ -810,7 +811,8 @@ CSG_String	SG_UI_Get_Application_Path	(bool bPathOnly)
 //---------------------------------------------------------
 CSG_String	SG_UI_Get_Application_Name	(void)
 {
-	return( SG_File_Get_Name(SG_UI_Get_Application_Path(false), false) );
+	return( wxApp::GetInstance()->GetAppName().wc_str() );
+//	return( SG_File_Get_Name(SG_UI_Get_Application_Path(false), false) );
 }
 
 
