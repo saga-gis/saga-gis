@@ -319,7 +319,7 @@ def Get_Variable(Global_File, Target_File, AOI, Scaling=1., Offset=0., Unit=None
         #________________________________________________________________________
         Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('io_gdal', '0')
         if not Tool:
-            saga_api.SG_UI_Msg_Add_Error('failed to request tool \{:s}\''.format('Import Raster'))
+            saga_api.SG_UI_Msg_Add_Error('failed to request tool \'{:s}\''.format('Import Raster'))
             return None
 
         Tool.Reset()
@@ -331,7 +331,7 @@ def Get_Variable(Global_File, Target_File, AOI, Scaling=1., Offset=0., Unit=None
         Tool.Set_Parameter('EXTENT_YMAX', Extent.Get_YMax())
 
         if not Tool.Execute():
-            saga_api.SG_UI_Msg_Add_Error('failed to execute tool \{:s}\''.format(Tool.Get_Name().c_str()))
+            saga_api.SG_UI_Msg_Add_Error('failed to execute tool \'{:s}\''.format(Tool.Get_Name().c_str()))
             return None
 
         Grid = Tool.Get_Parameter('GRIDS').asGridList().Get_Grid(0)
@@ -365,7 +365,7 @@ def Get_Variable(Global_File, Target_File, AOI, Scaling=1., Offset=0., Unit=None
         Tool.Set_Parameter('TARGET_USER_YMIN', Extent.yMin)
 
         if not Tool.Execute():
-            saga_api.SG_UI_Msg_Add_Error('failed to execute tool \{:s}\''.format(Tool.Get_Name().c_str()))
+            saga_api.SG_UI_Msg_Add_Error('failed to execute tool \'{:s}\''.format(Tool.Get_Name().c_str()))
             saga_api.SG_Get_Data_Manager().Delete(Grid)
             return None
 

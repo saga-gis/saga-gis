@@ -304,7 +304,7 @@ def Get_AOI(AOI, Target_File, Target_Resolution=0, Round=True, SrcRes_1arcsec=Tr
         Tool.Set_Parameter('TARGET_USER_YMIN', Extent.yMin)
 
         if not Tool.Execute():
-            saga_api.SG_UI_Console_Print_StdErr('failed to execute tool \{:s}\''.format(Tool.Get_Name().c_str()))
+            saga_api.SG_UI_Console_Print_StdErr('failed to execute tool \'{:s}\''.format(Tool.Get_Name().c_str()))
             saga_api.SG_Get_Data_Manager().Delete(Grid)
             return None
 
