@@ -78,30 +78,15 @@ CSG_Tool::CSG_Tool(void)
 	Parameters.Set_Callback_On_Parameter_Changed(&_On_Parameter_Changed);
 	Parameters.Set_Tool(this);
 
-	m_pParameters = NULL; m_npParameters = 0;
-
 	Set_Show_Progress(true);
 }
 
 //---------------------------------------------------------
 CSG_Tool::~CSG_Tool(void)
 {
-	if( m_Settings_Stack.Get_Size() > 0 )
+	for(int i=0; i<Get_Parameters_Count(); i++)
 	{
-		for(size_t i=0; i<m_Settings_Stack.Get_uSize(); i++)
-		{
-			delete(((CSG_Parameters **)m_Settings_Stack.Get_Array())[i]);
-		}
-	}
-
-	if( m_pParameters )
-	{
-		for(int i=0; i<m_npParameters; i++)
-		{
-			delete(m_pParameters[i]);
-		}
-
-		SG_Free(m_pParameters);
+		delete(Get_Parameters(i));
 	}
 
 	Destroy();
@@ -399,9 +384,9 @@ bool CSG_Tool::_Synchronize_DataObjects(void)
 {
 	Parameters.DataObjects_Synchronize();
 
-	for(int i=0; i<m_npParameters; i++)
+	for(int i=0; i<Get_Parameters_Count(); i++)
 	{
-		m_pParameters[i]->DataObjects_Synchronize();
+		Get_Parameters(i)->DataObjects_Synchronize();
 	}
 
 	CSG_Projection	Projection;
@@ -410,9 +395,9 @@ bool CSG_Tool::_Synchronize_DataObjects(void)
 	{
 		Parameters.DataObjects_Set_Projection(Projection);
 
-		for(int j=0; j<m_npParameters; j++)
+		for(int j=0; j<Get_Parameters_Count(); j++)
 		{
-			m_pParameters[j]->DataObjects_Set_Projection(Projection);
+			Get_Parameters(j)->DataObjects_Set_Projection(Projection);
 		}
 
 		return( true );
@@ -428,9 +413,9 @@ bool CSG_Tool::Get_Projection(CSG_Projection &Projection)	const
 
 	Parameters.DataObjects_Get_Projection(Projection);
 
-	for(int i=0; i<m_npParameters && !Projection.is_Okay(); i++)
+	for(int i=0; i<Get_Parameters_Count() && !Projection.is_Okay(); i++)
 	{
-		m_pParameters[i]->DataObjects_Get_Projection(Projection);
+		Get_Parameters(i)->DataObjects_Get_Projection(Projection);
 	}
 
 	return( Projection.is_Okay() );
@@ -489,14 +474,13 @@ int CSG_Tool::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *p
 //---------------------------------------------------------
 CSG_Parameters * CSG_Tool::Add_Parameters(const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description)
 {
-	CSG_Parameters	*pParameters;
-
-	m_pParameters	= (CSG_Parameters **)SG_Realloc(m_pParameters, (m_npParameters + 1) * sizeof(CSG_Parameters *));
-	pParameters		= m_pParameters[m_npParameters++]	= new CSG_Parameters();
+	CSG_Parameters *pParameters = new CSG_Parameters(); // (Name, Description, Identifier);
 
 	pParameters->Create(this, Name, Description, Identifier);
 	pParameters->Set_Callback_On_Parameter_Changed(&_On_Parameter_Changed);
-	pParameters->m_pTool	= this;
+	pParameters->m_pTool = this;
+
+	m_pParameters.Add(pParameters);
 
 	return( pParameters );
 }
@@ -504,11 +488,11 @@ CSG_Parameters * CSG_Tool::Add_Parameters(const CSG_String &Identifier, const CS
 //---------------------------------------------------------
 CSG_Parameters * CSG_Tool::Get_Parameters(const CSG_String &Identifier)
 {
-	for(int i=0; i<m_npParameters; i++)
+	for(int i=0; i<Get_Parameters_Count(); i++)
 	{
-		if( m_pParameters[i]->Cmp_Identifier(Identifier) )
+		if( Get_Parameters(i)->Cmp_Identifier(Identifier) )
 		{
-			return( m_pParameters[i] );
+			return( Get_Parameters(i) );
 		}
 	}
 
@@ -530,6 +514,11 @@ bool CSG_Tool::Dlg_Parameters(const CSG_String &Identifier)
 	return( false );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 bool CSG_Tool::Dlg_Parameters(CSG_Parameters *pParameters, const CSG_String &Caption)
 {
@@ -538,10 +527,7 @@ bool CSG_Tool::Dlg_Parameters(CSG_Parameters *pParameters, const CSG_String &Cap
 
 bool CSG_Tool::Dlg_Parameters(CSG_Parameters &Parameters, const CSG_String &Caption)
 {
-	return( Caption.is_Empty()
-		? SG_UI_Dlg_Parameters(&Parameters, Parameters.Get_Name())
-		: SG_UI_Dlg_Parameters(&Parameters, Caption)
-	);
+	return( SG_UI_Dlg_Parameters(&Parameters, Caption.is_Empty() ? Get_Name() : Caption) );
 }
 
 
@@ -554,9 +540,9 @@ void CSG_Tool::Set_Callback(bool bActive)
 {
 	Parameters.Set_Callback(bActive);
 
-	for(int i=0; i<m_npParameters; i++)
+	for(int i=0; i<Get_Parameters_Count(); i++)
 	{
-		m_pParameters[i]->Set_Callback(bActive);
+		Get_Parameters(i)->Set_Callback(bActive);
 	}
 }
 
@@ -565,9 +551,9 @@ bool CSG_Tool::Set_Manager(CSG_Data_Manager *pManager)
 {
 	Parameters.Set_Manager(pManager);
 
-	for(int i=0; i<m_npParameters; i++)
+	for(int i=0; i<Get_Parameters_Count(); i++)
 	{
-		m_pParameters[i]->Set_Manager(pManager);
+		Get_Parameters(i)->Set_Manager(pManager);
 	}
 
 	return( true );
@@ -614,52 +600,27 @@ bool CSG_Tool::Delete_Manager(bool bDetachData, bool bReset)
 //---------------------------------------------------------
 bool CSG_Tool::Settings_Push(CSG_Data_Manager *pManager)
 {
-	if( m_Settings_Stack.Get_Value_Size() != sizeof(CSG_Parameters *) )
+	Parameters.Push(pManager);
+
+	for(int i=0; i<Get_Parameters_Count(); i++)
 	{
-		m_Settings_Stack.Create(sizeof(CSG_Parameters *));
+		Get_Parameters(i)->Push(pManager);
 	}
 
-	size_t	n	= m_Settings_Stack.Get_Size();
-
-	CSG_Parameters	**pP	= (CSG_Parameters **)m_Settings_Stack.Get_Array(n + 1 + m_npParameters);
-
-	if( pP )
-	{
-		pP[n++]	= new CSG_Parameters(Parameters); Parameters.Restore_Defaults(true); Parameters.Set_Manager(pManager);
-
-		for(int i=0; i<m_npParameters; i++)
-		{
-			pP[n++]	= new CSG_Parameters(*m_pParameters[i]); m_pParameters[i]->Restore_Defaults(true); m_pParameters[i]->Set_Manager(pManager);
-		}
-
-		return( true );
-	}
-
-	return( false );
+	return( true );
 }
 
 //---------------------------------------------------------
 bool CSG_Tool::Settings_Pop(void)
 {
-	CSG_Parameters	**pP	= (CSG_Parameters **)m_Settings_Stack.Get_Array();
+	Parameters.Pop();
 
-	if( pP && (int)m_Settings_Stack.Get_Size() >= 1 + m_npParameters )
+	for(int i=0; i<Get_Parameters_Count(); i++)
 	{
-		size_t	n	= m_Settings_Stack.Get_Size() - 1;
-
-		for(int i=m_npParameters-1; i>=0; i--, n--)
-		{
-			m_pParameters[i]->Assign_Values(pP[n]); m_pParameters[i]->Set_Manager(pP[n]->Get_Manager()); delete(pP[n]);
-		}
-
-		Parameters.Assign_Values(pP[n]); Parameters.Set_Manager(pP[n]->Get_Manager()); delete(pP[n]);
-
-		m_Settings_Stack.Set_Array(n);
-
-		return( true );
+		Get_Parameters(i)->Pop();
 	}
 
-	return( false );
+	return( true );
 }
 
 
@@ -1236,9 +1197,9 @@ bool CSG_Tool::Reset(bool bManager)
 		Reset_Manager();
 	}
 
-	for(int i=0; i<m_npParameters; i++)
+	for(int i=0; i<Get_Parameters_Count(); i++)
 	{
-		m_pParameters[i]->Restore_Defaults(true);
+		Get_Parameters(i)->Restore_Defaults(true);
 	}
 
 	return( Parameters.Restore_Defaults(true) );
@@ -1261,9 +1222,9 @@ bool CSG_Tool::Reset_Manager(void)
 */
 bool CSG_Tool::Reset_Grid_System(void)
 {
-	for(int i=0; i<m_npParameters; i++)
+	for(int i=0; i<Get_Parameters_Count(); i++)
 	{
-		m_pParameters[i]->Reset_Grid_System();
+		Get_Parameters(i)->Reset_Grid_System();
 	}
 
 	return( Parameters.Reset_Grid_System() );

@@ -175,9 +175,10 @@ public:
 	virtual CSG_String			Get_MenuPath				(void)	{	return( SG_T("") );	}
 	virtual CSG_String			Get_MenuPath				(bool bSolved);
 
-	int							Get_Parameters_Count		(void)	{	return( m_npParameters );	}
 	CSG_Parameters *			Get_Parameters				(void)	{	return( &Parameters );	}
-	CSG_Parameters *			Get_Parameters				(int i)	{	return( i >= 0 && i < m_npParameters ? m_pParameters[i] : NULL );	}
+
+	int							Get_Parameters_Count		(void)	const	{	return( (int)m_pParameters.Get_Size() );	}
+	CSG_Parameters *			Get_Parameters				(int i)	const	{	return( i >= 0 && i < Get_Parameters_Count() ? (CSG_Parameters *)m_pParameters[i] : NULL );	}
 	CSG_Parameters *			Get_Parameters				(const CSG_String &Identifier);
 
 	CSG_Parameter *				Get_Parameter				(const CSG_String &ID)	const	{	return( Parameters(ID) );	}
@@ -272,7 +273,7 @@ protected:
 	TSG_PFNC_Parameter_Changed	Get_Parameter_Changed		(void)	{	return( _On_Parameter_Changed );	}
 
 	//-----------------------------------------------------
-	CSG_Parameters *			Add_Parameters				(const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description); // deprecated
+	CSG_Parameters *			Add_Parameters				(const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description);
 	bool						Dlg_Parameters				(const CSG_String &Identifier); // deprecated
 
 	bool						Dlg_Parameters				(CSG_Parameters *pParameters, const CSG_String &Caption = "");
@@ -341,11 +342,9 @@ private:
 
 	bool						m_bExecutes, m_bError_Ignore, m_bShow_Progress, m_bGUI, m_bCMD;
 
-	CSG_Array					m_Settings_Stack;
+	CSG_Array_Pointer			m_pParameters;
 
 	CSG_String					m_ID, m_Library, m_Library_Menu, m_File_Name, m_Author, m_Version, m_Execution_Info;
-
-	CSG_Parameters **m_pParameters; int m_npParameters; // deprecated
 
 
 	bool						_Synchronize_DataObjects	(void);
