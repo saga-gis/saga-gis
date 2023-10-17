@@ -1677,6 +1677,9 @@ public:
 	class CSG_Data_Manager *	Get_Manager				(void)	const	{	return( m_pManager    );	}
 	void						Set_Manager				(class CSG_Data_Manager *pManager);
 
+	bool						Push					(class CSG_Data_Manager *pManager = NULL, bool bRestoreDefaults = true);
+	bool						Pop						(void);
+
 	bool						Use_Grid_System			(void);
 
 	bool						has_GUI					(void)	const;
@@ -1869,6 +1872,8 @@ private:
 	int							m_nParameters;
 
 	CSG_Parameter				**m_Parameters, *m_pGrid_System;
+
+	CSG_Parameters				*m_pStack;
 
 	TSG_PFNC_Parameter_Changed	m_Callback;
 

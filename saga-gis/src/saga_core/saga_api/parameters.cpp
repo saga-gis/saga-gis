@@ -105,17 +105,19 @@ CSG_Parameters::~CSG_Parameters(void)
 //---------------------------------------------------------
 void CSG_Parameters::_On_Construction(void)
 {
-	m_pOwner		= NULL;
-	m_pTool			= NULL;
-	m_pManager		= &SG_Get_Data_Manager();
+	m_pOwner       = NULL;
+	m_pTool        = NULL;
+	m_pManager     = &SG_Get_Data_Manager();
 
-	m_Parameters	= NULL;
-	m_nParameters	= 0;
+	m_Callback     = NULL;
+	m_bCallback    = true;
 
-	m_Callback		= NULL;
-	m_bCallback		= true;
+	m_Parameters   = NULL;
+	m_nParameters  = 0;
 
-	m_pGrid_System	= NULL;
+	m_pGrid_System = NULL;
+
+	m_pStack       = NULL;
 }
 
 //---------------------------------------------------------
@@ -123,18 +125,17 @@ bool CSG_Parameters::Create(const CSG_Parameters &Parameters)
 {
 	Destroy();
 
-	m_pOwner		= Parameters.m_pOwner;
-	m_pTool			= Parameters.m_pTool;
-	m_pManager		= Parameters.m_pManager;
+	Set_Identifier (Parameters.Get_Identifier ());
+	Set_Name       (Parameters.Get_Name       ());
+	Set_Description(Parameters.Get_Description());
 
-	m_Callback		= Parameters.m_Callback;
-	m_bCallback		= Parameters.m_bCallback;
+	m_pOwner       = Parameters.m_pOwner;
+	m_pTool        = Parameters.m_pTool;
+	m_pManager     = Parameters.m_pManager;
 
-	Set_Identifier	(Parameters.Get_Identifier ());
-	Set_Name		(Parameters.Get_Name       ());
-	Set_Description	(Parameters.Get_Description());
+	m_Callback     = Parameters.m_Callback;
+	m_bCallback    = Parameters.m_bCallback;
 
-	//-----------------------------------------------------
 	for(int i=0; i<Parameters.m_nParameters; i++)
 	{
 		_Add(Parameters.m_Parameters[i]);
@@ -142,7 +143,7 @@ bool CSG_Parameters::Create(const CSG_Parameters &Parameters)
 
 	if( Parameters.m_pGrid_System )
 	{
-		m_pGrid_System	= Get_Parameter(Parameters.m_pGrid_System->Get_Identifier());
+		m_pGrid_System = Get_Parameter(Parameters.m_pGrid_System->Get_Identifier());
 	}
 
 	return( m_nParameters == Parameters.m_nParameters );
@@ -170,7 +171,7 @@ bool CSG_Parameters::Create(void *pOwner, const SG_Char *Name, const SG_Char *De
 {
 	if( Create(Name, Description, Identifier, bGrid_System) )
 	{
-		m_pOwner	= pOwner;
+		m_pOwner = pOwner;
 
 		return( true );
 	}
@@ -181,6 +182,8 @@ bool CSG_Parameters::Create(void *pOwner, const SG_Char *Name, const SG_Char *De
 //---------------------------------------------------------
 void CSG_Parameters::Destroy(void)
 {
+	Pop();
+
 	m_pOwner       = NULL;
 	m_pTool        = NULL;
 	m_pGrid_System = NULL;
@@ -232,6 +235,58 @@ bool CSG_Parameters::Use_Grid_System(void)
 	if( !m_pGrid_System )
 	{
 		m_pGrid_System	= Add_Grid_System("", "PARAMETERS_GRID_SYSTEM", _TL("Grid System"), _TL(""));
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+//---------------------------------------------------------
+/**
+* Stores the current parameter settings including the data
+* manager to an internal CSG_Parameters copy.
+* Settings and data manager can be restored by a subsequent
+* call to Pop().
+*/
+//---------------------------------------------------------
+bool CSG_Parameters::Push(CSG_Data_Manager *pManager, bool bRestoreDefaults)
+{
+	CSG_Parameters *pStack = m_pStack;
+
+	m_pStack = new CSG_Parameters(*this);
+
+	m_pStack->m_pStack = pStack;
+
+	m_pManager = pManager;
+
+	if( bRestoreDefaults )
+	{
+		Restore_Defaults(true);
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+/**
+* Restores previously pushed parameter settings and data manager.
+*/
+//---------------------------------------------------------
+bool CSG_Parameters::Pop(void)
+{
+	if( m_pStack )
+	{
+		m_pManager = m_pStack->m_pManager;
+
+		Assign_Values(m_pStack);
+
+		CSG_Parameters *pStack = m_pStack->m_pStack;
+
+		delete( m_pStack );
+
+		m_pStack = pStack;
 
 		return( true );
 	}
