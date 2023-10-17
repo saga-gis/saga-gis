@@ -324,7 +324,8 @@ void C3D_Viewer_Shapes_Panel::Draw_Shape(CSG_Shape *pShape, int Field_Color)
 					{
 						CSG_Point_3D b = a; a = pShape->Get_Point_Z(iPoint, iPart); m_Projector.Get_Projection(a);
 
-						Draw_Line(a, b, SG_GET_RGB(0, 0, 0));
+						Draw_Line(a, b, Color);
+						// Draw_Line(a, b, SG_GET_RGB(0, 0, 0));
 					}
 				}
 			}
