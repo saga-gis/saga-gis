@@ -391,6 +391,10 @@ bool SG_Add_Dll_Paths(const wxString &Directory, wxString &Paths)
 //---------------------------------------------------------
 bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char *Directory, bool bInitializeWX)
 {
+	#ifdef _DEBUG
+	SG_UI_Console_Print_StdOut("\n!!! Loading SAGA API => DEBUG !!!");
+	#endif
+
 	if( bInitializeWX )
 	{
 		g_App_Initialize.Initialize();
