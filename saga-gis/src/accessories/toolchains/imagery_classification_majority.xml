@@ -54,10 +54,12 @@
 		<output varname="MAJORITY_COUNT" type="grid" parent="GRID_SYSTEM" optional="true">
 			<name>Majority Count</name>
 			<output_name>Majority Count</output_name>
+			<condition value="true" type="=">GRID_SYSTEM</condition>
 		</output>
 		<output varname="NUNIQUES" type="grid" parent="GRID_SYSTEM" optional="true">
 			<name>Classes Count</name>
 			<output_name>Classes Count</output_name>
+			<condition value="true" type="=">GRID_SYSTEM</condition>
 		</output>
 		<option varname="UNAMBIGUOUS" type="boolean">
 			<name>Unambiguous</name>
