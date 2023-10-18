@@ -47,16 +47,13 @@ from PySAGA import saga_api
 
 #################################################################################
 #________________________________________________________________________________
-def Print_Table(Table, Separator='\t', Fields=[]):
+def Print_Table_Fields(Table):
     '''
-    Print the contents of a saga_api.CSG_Table object.
+    Print the attribute fields of a saga_api.CSG_Table object.
 
     Arguments
     ---------
     Table : the table object of type `saga_api`.`CSG_Table`
-    Separator : `string` used to separate fields
-    Fields : list with field indices (0 based) to be printed.
-    Prints all fields if empty or None (default).
 
     Returns
     ---------
@@ -66,33 +63,80 @@ def Print_Table(Table, Separator='\t', Fields=[]):
         Table.Get_Field_Count()
     except:
         return False
+    print()
     print('=====================')
-    print('{:s} [{:d} fields, {:d} records]\n'.format(Table.Get_Name(), Table.Get_Field_Count(), Table.Get_Count()))
+    print('{:s} [{:d} fields, {:d} records]'.format(Table.Get_Name(), Table.Get_Field_Count(), Table.Get_Count()))
     print('_____________________')
+    for Field in range(0, Table.Get_Field_Count()):
+        print('{:2d}. {:s} [{:s}]'.format(Field + 1, Table.Get_Field_Name(Field), saga_api.SG_Data_Type_Get_Name(Table.Get_Field_Type(Field)).c_str()))
+    print('=====================')
+    return True
+
+
+#################################################################################
+#________________________________________________________________________________
+def Print_Table(Table, Separator='\t', Fields=[], NoData='---', Maximum=0):
+    '''
+    Print the contents of a saga_api.CSG_Table object.
+
+    Arguments
+    ---------
+    Table : the table object of type `saga_api`.`CSG_Table`
+    Separator : `string` used to separate fields
+    Fields : list with field indices (0 based) to be printed.
+    Prints all fields if empty or None (default)
+    NoData : prints this string for no-data values, or the
+    original (no-data) value if `None`
+    Maximum : maximum number of records to become printed.
+    Prints all records if zero (default)
+
+    Returns
+    ---------
+    boolean : True on success
+    '''
+    try:
+        Table.Get_Field_Count()
+    except:
+        return False
+    print()
+    print('=====================')
+    print('{:s} [{:d} fields, {:d} records]'.format(Table.Get_Name(), Table.Get_Field_Count(), Table.Get_Count()))
+    print('_____________________')
+    if Maximum < 1 or Maximum > Table.Get_Count():
+        nRecords = Table.Get_Count()
+    else:
+        nRecords = Maximum
     if Fields and len(Fields) > 0:
         _Separator = ''
         for Field in Fields:
             if Field >= 0 and Field < Table.Get_Field_Count():
                 print(_Separator + Table.Get_Field_Name(Field), end=''); _Separator = Separator
-        print('\n=====================')
-        for i in range(0, Table.Get_Count()):
+        print('\n_____________________')
+        for i in range(0, nRecords):
             Record = Table.Get_Record(i); _Separator = ''
             for Field in Fields:
                 if Field >= 0 and Field < Table.Get_Field_Count():
-                    print(_Separator + Record.asString(Field), end=''); _Separator = Separator
+                    if NoData != None and Record.is_NoData(Field):
+                        print(_Separator + NoData, end='')
+                    else:
+                        print(_Separator + Record.asString(Field), end='')
+                    _Separator = Separator
             print()
     else:
         for Field in range(0, Table.Get_Field_Count()):
             if Field > 0:
                 print(Separator, end='')
             print(Table.Get_Field_Name(Field), end='')
-        print('\n=====================')
-        for i in range(0, Table.Get_Count()):
+        print('\n_____________________')
+        for i in range(0, nRecords):
             Record = Table.Get_Record(i)
             for Field in range(0, Table.Get_Field_Count()):
                 if Field > 0:
                     print(Separator, end='')
-                print(Record.asString(Field), end='')
+                if NoData != None and Record.is_NoData(Field):
+                    print(NoData, end='')
+                else:
+                    print(Record.asString(Field), end='')
             print()
     print('=====================')
     return True
@@ -360,7 +404,7 @@ class Tool_Wrapper:
             if not self.Tool.On_Before_Execution():
                 return False
 
-            for Option in self.Options:
+            for Option in self.Options: # 1st pass -> dis-/enabling data object parameters
                 self.Tool.Set_Parameter(Option[0], Option[1])
 
             for Data in self.Input:
@@ -371,6 +415,9 @@ class Tool_Wrapper:
                     elif Parameter.is_DataObject_List():
                         for Item in Data[1]:
                             Parameter.asList().Add_Item(Item)
+
+            for Option in self.Options: # 2nd pass -> set options that are dependent of input data (-> table fields)
+                self.Tool.Set_Parameter(Option[0], Option[1])
 
             for Data in self.Output:
                 Parameter = self.Tool.Get_Parameter(Data[0])
