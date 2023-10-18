@@ -1572,16 +1572,14 @@ bool CSG_Parameters::Assign_Parameters(CSG_Parameters *pSource)
 //---------------------------------------------------------
 bool CSG_Parameters::DataObjects_Check(bool bSilent)
 {
-	bool		bResult	= true;
-
-	CSG_String	sError;
+	bool bResult = true; CSG_String sError;
 
 	//-----------------------------------------------------
 	for(int i=0; i<Get_Count(); i++)
 	{
 		if( m_Parameters[i]->Check(bSilent) == false )
 		{
-			bResult	= false;
+			bResult = false;
 
 			sError.Append(CSG_String::Format("\n%s: %s", m_Parameters[i]->Get_Type_Name().c_str(), m_Parameters[i]->Get_Name()));
 		}
@@ -1643,9 +1641,9 @@ bool CSG_Parameters::DataObjects_Create(void)
 		}
 
 		//-------------------------------------------------
-		else if( P.is_DataObject() && P.is_Enabled() == false )
+		else if( P.is_DataObject() && P.is_Enabled() == false && has_GUI() )
 		{
-			if( P.asDataObject() != DATAOBJECT_CREATE && (!m_pManager || !m_pManager->Exists(P.asDataObject())) )
+			if( P.asDataObject() != DATAOBJECT_CREATE && (m_pManager && !m_pManager->Exists(P.asDataObject())) )
 			{
 				P.Set_Value(DATAOBJECT_NOTSET);
 			}
@@ -1691,13 +1689,16 @@ bool CSG_Parameters::DataObjects_Create(void)
 				{
 					if(	P.Get_Parent() && P.Get_Parent()->asGrid_System() && P.Get_Parent()->asGrid_System()->is_Valid() )
 					{
-						if( P.Get_Type() == PARAMETER_TYPE_Grid )
+						CSG_Grid_System System(*P.Get_Parent()->asGrid_System());
+
+						if( P.Get_Type() == PARAMETER_TYPE_Grid  && !System.is_Equal(pObject->asGrid ()->Get_System()) )
 						{
-							pObject->asGrid ()->Create(*P.Get_Parent()->asGrid_System()       , ((CSG_Parameter_Grid  *)&P)->Get_Preferred_Type());
+							pObject->asGrid ()->Create(System       , ((CSG_Parameter_Grid  *)&P)->Get_Preferred_Type());
 						}
-						else
+
+						if( P.Get_Type() == PARAMETER_TYPE_Grids && !System.is_Equal(pObject->asGrids()->Get_System()) )
 						{
-							pObject->asGrids()->Create(*P.Get_Parent()->asGrid_System(), 0, 0., ((CSG_Parameter_Grids *)&P)->Get_Preferred_Type());
+							pObject->asGrids()->Create(System, 0, 0., ((CSG_Parameter_Grids *)&P)->Get_Preferred_Type());
 						}
 					}
 				}

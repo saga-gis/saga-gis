@@ -1159,7 +1159,7 @@ bool CSG_Parameter::_Serialize(CSG_MetaData &Entry, bool bSave)
 //---------------------------------------------------------
 CSG_Parameters_Grid_Target::CSG_Parameters_Grid_Target(void)
 {
-	m_pParameters	= NULL;
+	m_pParameters = NULL;
 }
 
 //---------------------------------------------------------
@@ -1175,11 +1175,11 @@ bool CSG_Parameters_Grid_Target::Create(CSG_Parameters *pParameters, bool bAddDe
 		return( false );
 	}
 
-	m_pParameters	= pParameters;
-	m_Prefix		= Prefix;
+	m_pParameters = pParameters;
+	m_Prefix      = Prefix;
 
 	//-----------------------------------------------------
-	CSG_String	TargetID(m_Prefix + "DEFINITION");
+	CSG_String TargetID(m_Prefix + "DEFINITION");
 
 	m_pParameters->Add_Choice(
 		ParentID, TargetID, _TL("Target Grid System"),
@@ -1229,7 +1229,7 @@ bool CSG_Parameters_Grid_Target::Create(CSG_Parameters *pParameters, bool bAddDe
 //---------------------------------------------------------
 bool CSG_Parameters_Grid_Target::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( pParameter && pParameters && m_pParameters && m_pParameters->Get_Identifier().Cmp(pParameters->Get_Identifier()) == 0
+	return( pParameter && pParameters && m_pParameters && m_pParameters->Cmp_Identifier(pParameters->Get_Identifier())
 		&& On_Parameter_Changed(pParameters, pParameter, m_Prefix)
 	);
 }
@@ -1237,9 +1237,21 @@ bool CSG_Parameters_Grid_Target::On_Parameter_Changed(CSG_Parameters *pParameter
 //---------------------------------------------------------
 bool CSG_Parameters_Grid_Target::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, const CSG_String Prefix)
 {
-	if( !pParameter || !pParameters )
+	if( !pParameters || !pParameter )
 	{
 		return( false );
+	}
+
+	if( !pParameter->Cmp_Identifier(Prefix + "USER_SIZE")
+	&&  !pParameter->Cmp_Identifier(Prefix + "USER_XMIN")
+	&&  !pParameter->Cmp_Identifier(Prefix + "USER_XMAX")
+	&&  !pParameter->Cmp_Identifier(Prefix + "USER_YMIN")
+	&&  !pParameter->Cmp_Identifier(Prefix + "USER_YMAX")
+	&&  !pParameter->Cmp_Identifier(Prefix + "USER_ROWS")
+	&&  !pParameter->Cmp_Identifier(Prefix + "USER_COLS")
+	&&  !pParameter->Cmp_Identifier(Prefix + "USER_FITS") )
+	{
+		return( true );
 	}
 
 	CSG_Parameter *pSize = (*pParameters)(Prefix + "USER_SIZE");
@@ -1342,7 +1354,7 @@ bool CSG_Parameters_Grid_Target::On_Parameter_Changed(CSG_Parameters *pParameter
 
 		bChanged = true;
 
-		if(      pParameter->Cmp_Identifier(pZSize->Get_Identifier()) && zSize > 0. )
+		if     ( pParameter->Cmp_Identifier(pZSize->Get_Identifier()) && zSize > 0. )
 		{
 			zMax = zMin + zSize * (int)(0.5 + (zMax - zMin) / zSize);
 		}
@@ -1504,13 +1516,13 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, C
 		return( false );
 	}
 
-	CSG_Rect	r	= pPoints->Get_Extent();
+	CSG_Rect r(pPoints->Get_Extent());
 
-	double	Size	= sqrt(r.Get_Area() / pPoints->Get_Count()) / (Scale > 1 ? Scale : 1);	// edge length of a square given as average area per point (cell size)
+	double Size = sqrt(r.Get_Area() / pPoints->Get_Count()) / (Scale > 1 ? Scale : 1);	// edge length of a square given as average area per point (cell size)
 
 	if( Rounding > 0 )
 	{
-		Size	= SG_Get_Rounded_To_SignificantFigures(Size, Rounding);
+		Size   = SG_Get_Rounded_To_SignificantFigures(Size, Rounding);
 
 		r.xMin = Size * floor(r.xMin / Size);
 		r.xMax = Size * ceil (r.xMax / Size);
@@ -1518,7 +1530,7 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, C
 		r.yMax = Size * ceil (r.yMax / Size);
 	}
 
-	int		Rows	= 1 + (int)(0.5 + r.Get_YRange() / Size);
+	int Rows = 1 + (int)(0.5 + r.Get_YRange() / Size);
 
 	return( Set_User_Defined(pParameters, r, Rows, 0) );
 }
@@ -1570,26 +1582,26 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined_ZLevels(CSG_Parameters *pParam
 
 	if( zMax - zMin <= 0. )
 	{
-		zMin	-= 0.5 * nLevels;
-		zMax	+= 0.5 * nLevels;	// assume cellsize = 1.
+		zMin -= 0.5 * nLevels;
+		zMax += 0.5 * nLevels;	// assume cellsize = 1.
 	}
 
 	//-----------------------------------------------------
-	double	Size	= (zMax - zMin) / (nLevels - 1.);
+	double Size = (zMax - zMin) / (nLevels - 1.);
 
 	if( Rounding > 0 )
 	{
-		Size	= SG_Get_Rounded_To_SignificantFigures(Size, Rounding);
+		Size = SG_Get_Rounded_To_SignificantFigures(Size, Rounding);
 
-		zMin	= Size * floor(zMin / Size);
-		zMax	= Size * ceil (zMax / Size);
+		zMin = Size * floor(zMin / Size);
+		zMax = Size * ceil (zMax / Size);
 	}
 
 	//-----------------------------------------------------
 	if( (*pParameters)(m_Prefix + "USER_FITS")->asInt() == 1 )
 	{
-		zMin	-= 0.5 * Size;
-		zMax	+= 0.5 * Size;
+		zMin -= 0.5 * Size;
+		zMax += 0.5 * Size;
 	}
 
 	bool	bCallback	= pParameters->Set_Callback(false);
@@ -1617,26 +1629,26 @@ bool CSG_Parameters_Grid_Target::Add_Grid(const CSG_String &Identifier, const CS
 		return( false );
 	}
 
-	CSG_Parameter	*pTarget	= (*m_pParameters)(m_Prefix + "DEFINITION");
-	CSG_Parameter	*pSystem	= NULL;
+	CSG_Parameter *pTarget = (*m_pParameters)(m_Prefix + "DEFINITION");
+	CSG_Parameter *pSystem = NULL;
 
 	for(int i=0; i<pTarget->Get_Children_Count() && !pSystem; i++)
 	{
 		if( pTarget->Get_Child(i)->Get_Type() == PARAMETER_TYPE_Grid_System )
 		{
-			pSystem	= pTarget->Get_Child(i);
+			pSystem = pTarget->Get_Child(i);
 		}
 	}
 
-	m_pParameters->Add_Grid (pSystem ? pSystem->Get_Identifier() : SG_T(""), Identifier, Name, _TL(""), bOptional ? PARAMETER_OUTPUT_OPTIONAL : PARAMETER_OUTPUT, false);
+	m_pParameters->Add_Grid(pSystem ? pSystem->Get_Identifier() : SG_T(""), Identifier, Name, _TL(""), bOptional ? PARAMETER_OUTPUT_OPTIONAL : PARAMETER_OUTPUT, false);
 
 	if( bOptional && m_pParameters->Get_Tool()->has_GUI() )
 	{
-		CSG_Parameter	*pNode	= (*m_pParameters)(m_Prefix + "USER_OPTS");
+		CSG_Parameter *pNode = (*m_pParameters)(m_Prefix + "USER_OPTS");
 
 		if( !pNode )
 		{
-			pNode	= m_pParameters->Add_Node(pTarget->Get_Identifier(), m_Prefix + "USER_OPTS", _TL("Optional Target Grids"), _TL(""));
+			pNode = m_pParameters->Add_Node(pTarget->Get_Identifier(), m_Prefix + "USER_OPTS", _TL("Optional Target Grids"), _TL(""));
 		}
 
 		m_pParameters->Add_Bool(pNode->Get_Identifier(), Identifier + "_CREATE", Name, _TL(""), false);
@@ -1653,14 +1665,14 @@ bool CSG_Parameters_Grid_Target::Add_Grids(const CSG_String &Identifier, const C
 		return( false );
 	}
 
-	CSG_Parameter	*pTarget	= (*m_pParameters)(m_Prefix + "DEFINITION");
-	CSG_Parameter	*pSystem	= NULL;
+	CSG_Parameter *pTarget = (*m_pParameters)(m_Prefix + "DEFINITION");
+	CSG_Parameter *pSystem = NULL;
 
 	for(int i=0; i<pTarget->Get_Children_Count() && !pSystem; i++)
 	{
 		if( pTarget->Get_Child(i)->Get_Type() == PARAMETER_TYPE_Grid_System )
 		{
-			pSystem	= pTarget->Get_Child(i);
+			pSystem = pTarget->Get_Child(i);
 		}
 	}
 
@@ -1668,11 +1680,11 @@ bool CSG_Parameters_Grid_Target::Add_Grids(const CSG_String &Identifier, const C
 
 	if( bOptional && m_pParameters->Get_Tool()->has_GUI() )
 	{
-		CSG_Parameter	*pNode	= (*m_pParameters)(m_Prefix + "USER_OPTS");
+		CSG_Parameter *pNode = (*m_pParameters)(m_Prefix + "USER_OPTS");
 
 		if( !pNode )
 		{
-			pNode	= m_pParameters->Add_Node(pTarget->Get_Identifier(), m_Prefix + "USER_OPTS", _TL("Optional Target Grids"), _TL(""));
+			pNode = m_pParameters->Add_Node(pTarget->Get_Identifier(), m_Prefix + "USER_OPTS", _TL("Optional Target Grids"), _TL(""));
 		}
 
 		m_pParameters->Add_Bool(pNode->Get_Identifier(), Identifier + "_CREATE", Name, _TL(""), false);
@@ -1680,7 +1692,7 @@ bool CSG_Parameters_Grid_Target::Add_Grids(const CSG_String &Identifier, const C
 
 	if( bZLevels )
 	{
-		pTarget	= m_pParameters->Add_Node(pTarget, "USER_Z", _TL("Z Levels"), _TL(""));
+		pTarget = m_pParameters->Add_Node(pTarget, "USER_Z", _TL("Z Levels"), _TL(""));
 
 		m_pParameters->Add_Double(pTarget, m_Prefix + "USER_ZSIZE", _TL("Cellsize"), _TL(""), 1., 0., true);
 		m_pParameters->Add_Double(pTarget, m_Prefix + "USER_ZMIN" , _TL("Bottom"  ), _TL(""),   0.);
@@ -1699,15 +1711,15 @@ bool CSG_Parameters_Grid_Target::Add_Grids(const CSG_String &Identifier, const C
 //---------------------------------------------------------
 CSG_Grid_System CSG_Parameters_Grid_Target::Get_System(void)
 {
-	CSG_Grid_System	System;
+	CSG_Grid_System System;
 
 	if( m_pParameters )
 	{
 		if( (*m_pParameters)(m_Prefix + "DEFINITION")->asInt() == 0 )	// user defined
 		{
-			double	Size	= (*m_pParameters)(m_Prefix + "USER_SIZE")->asDouble();
+			double Size = (*m_pParameters)(m_Prefix + "USER_SIZE")->asDouble();
 
-			CSG_Rect	r(
+			CSG_Rect r(
 				(*m_pParameters)(m_Prefix + "USER_XMIN")->asDouble(),
 				(*m_pParameters)(m_Prefix + "USER_YMIN")->asDouble(),
 				(*m_pParameters)(m_Prefix + "USER_XMAX")->asDouble(),
@@ -1723,7 +1735,7 @@ CSG_Grid_System CSG_Parameters_Grid_Target::Get_System(void)
 		}
 		else
 		{
-			CSG_Parameter	*pParameter	= (*m_pParameters)(m_Prefix + "SYSTEM");
+			CSG_Parameter *pParameter = (*m_pParameters)(m_Prefix + "SYSTEM");
 
 			if( pParameter->asGrid_System() )
 			{
@@ -1743,48 +1755,48 @@ CSG_Grid * CSG_Parameters_Grid_Target::Get_Grid(const CSG_String &Identifier, TS
 		return( NULL );
 	}
 
-	CSG_Parameter	*pParameter	= (*m_pParameters)(Identifier);
+	CSG_Parameter *pParameter = (*m_pParameters)(Identifier);
 
 	if( !pParameter || pParameter->Get_Type() != PARAMETER_TYPE_Grid )
 	{
 		return( NULL );
 	}
 
-	CSG_Grid_System	System(Get_System());
+	CSG_Grid_System System(Get_System());
 
 	if( !System.is_Valid() )
 	{
 		return( NULL );
 	}
 
-	CSG_Parameter	*pSystem	= (*m_pParameters)(m_Prefix + "SYSTEM");
+//	CSG_Parameter *pSystem = (*m_pParameters)(m_Prefix + "SYSTEM");
+//
+//	if( pSystem->asGrid_System() && !pSystem->asGrid_System()->is_Equal(System) )
+//	{
+//		pSystem->asGrid_System()->Assign(System);
+//	}
 
-	if( pSystem->asGrid_System() && !pSystem->asGrid_System()->is_Equal(System) )
-	{
-		pSystem->asGrid_System()->Assign(System);
-	}
-
-	CSG_Grid	*pGrid	= NULL;
+	CSG_Grid *pGrid = NULL;
 
 	if( (*m_pParameters)(m_Prefix + "DEFINITION")->asInt() == 0 && m_pParameters->Get_Tool()->has_GUI() )
 	{
 		if( (*m_pParameters)(Identifier + "_CREATE") == NULL
 		||  (*m_pParameters)(Identifier + "_CREATE")->asBool() )
 		{
-			pGrid	= SG_Create_Grid(System, Type);
+			pGrid = SG_Create_Grid(System, Type);
 		}
 	}
 	else
 	{
-		pGrid	= pParameter->asGrid();
+		pGrid = pParameter->asGrid();
 
-		if( pParameter->asPointer() == DATAOBJECT_CREATE || (!pGrid && !pParameter->is_Optional()) )
+		if( pParameter->asDataObject() == DATAOBJECT_CREATE || (!pGrid && !pParameter->is_Optional()) )
 		{
-			pGrid	= SG_Create_Grid(System, Type);
+			pGrid = SG_Create_Grid(System, Type);
 		}
-		else if( pGrid && pGrid->Get_Type() != Type )
+		else if( pGrid && (pGrid->Get_Type() != Type || !pGrid->Get_System().is_Equal(System)) )
 		{
-			pGrid->Create(pGrid->Get_System(), Type);
+			pGrid->Create(System, Type);
 		}
 	}
 
@@ -1815,37 +1827,37 @@ CSG_Grids * CSG_Parameters_Grid_Target::Get_Grids(const CSG_String &Identifier, 
 		return( NULL );
 	}
 
-	CSG_Parameter	*pParameter	= (*m_pParameters)(Identifier);
+	CSG_Parameter *pParameter = (*m_pParameters)(Identifier);
 
 	if( !pParameter || pParameter->Get_Type() != PARAMETER_TYPE_Grids )
 	{
 		return( NULL );
 	}
 
-	CSG_Grid_System	System(Get_System());
+	CSG_Grid_System System(Get_System());
 
 	if( !System.is_Valid() )
 	{
 		return( NULL );
 	}
 
-	CSG_Grids	*pGrids	= NULL;
+	CSG_Grids *pGrids = NULL;
 
 	if( (*m_pParameters)(m_Prefix + "DEFINITION")->asInt() == 0
 	&&  (*m_pParameters)(Identifier + "_CREATE") )
 	{
 		if( (*m_pParameters)(Identifier + "_CREATE")->asBool() )
 		{
-			pGrids	= SG_Create_Grids(System, 0, 0., Type);
+			pGrids = SG_Create_Grids(System, 0, 0., Type);
 		}
 	}
 	else
 	{
-		pGrids	= pParameter->asGrids();
+		pGrids = pParameter->asGrids();
 
 		if( pParameter->asPointer() == DATAOBJECT_CREATE || (!pGrids && !pParameter->is_Optional()) )
 		{
-			pGrids	= SG_Create_Grids(System, 0, 0., Type);
+			pGrids = SG_Create_Grids(System, 0, 0., Type);
 		}
 	}
 
@@ -1859,9 +1871,9 @@ CSG_Grids * CSG_Parameters_Grid_Target::Get_Grids(const CSG_String &Identifier, 
 	&&  (*m_pParameters)(m_Prefix + "USER_ZMIN" )
 	&&  (*m_pParameters)(m_Prefix + "USER_ZNUM" ) )
 	{
-		int		nz	= (*m_pParameters)(m_Prefix + "USER_ZNUM" )->asInt   ();
-		double	z	= (*m_pParameters)(m_Prefix + "USER_ZMIN" )->asDouble();
-		double	dz	= (*m_pParameters)(m_Prefix + "USER_ZSIZE")->asDouble();
+		int    nz = (*m_pParameters)(m_Prefix + "USER_ZNUM" )->asInt   ();
+		double  z = (*m_pParameters)(m_Prefix + "USER_ZMIN" )->asDouble();
+		double dz = (*m_pParameters)(m_Prefix + "USER_ZSIZE")->asDouble();
 
 		pGrids->Del_Grids();
 

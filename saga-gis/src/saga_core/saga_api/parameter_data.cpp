@@ -2008,8 +2008,6 @@ int CSG_Parameter_Grid_System::_Set_Value(void *Value)
 	//-----------------------------------------------------
 	bool bCallback = Get_Parameters()->Set_Callback(false); // only update grid parameter objects in 1st loop...
 
-	CSG_Data_Manager *pManager = Get_Manager();
-
 	for(int i=0; i<Get_Children_Count(); i++)
 	{
 		CSG_Parameter *pParameter = Get_Child(i);
@@ -2018,21 +2016,24 @@ int CSG_Parameter_Grid_System::_Set_Value(void *Value)
 		{
 			CSG_Data_Object *pObject = pParameter->asDataObject();
 
-			bool bInvalid = !m_System.is_Valid() || !(pManager && pManager->Exists(pObject));
-
-			if( !bInvalid && pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE )
+			if( pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE )
 			{
-				switch( pObject->Get_ObjectType() )
+				bool bInvalid = !m_System.is_Valid() || !(Get_Manager() && Get_Manager()->Exists(pObject));
+
+				if( !bInvalid )
 				{
-				case SG_DATAOBJECT_TYPE_Grid : bInvalid = !m_System.is_Equal(((CSG_Grid  *)pObject)->Get_System()); break;
-				case SG_DATAOBJECT_TYPE_Grids: bInvalid = !m_System.is_Equal(((CSG_Grids *)pObject)->Get_System()); break;
-				default: break;
+					switch( pObject->Get_ObjectType() )
+					{
+					case SG_DATAOBJECT_TYPE_Grid : bInvalid = !m_System.is_Equal(((CSG_Grid  *)pObject)->Get_System()); break;
+					case SG_DATAOBJECT_TYPE_Grids: bInvalid = !m_System.is_Equal(((CSG_Grids *)pObject)->Get_System()); break;
+					default: break;
+					}
 				}
-			}
 
-			if( bInvalid && pObject != DATAOBJECT_CREATE )
-			{
-				pParameter->Set_Value(DATAOBJECT_NOTSET);
+				if( bInvalid )
+				{
+					pParameter->Set_Value(DATAOBJECT_NOTSET);
+				}
 			}
 		}
 
@@ -2049,7 +2050,7 @@ int CSG_Parameter_Grid_System::_Set_Value(void *Value)
 			{
 				CSG_Data_Object *pObject = pList->Get_Item(j);
 
-				bool bInvalid = !(pManager && pManager->Exists(pObject));
+				bool bInvalid = !(Get_Manager() && Get_Manager()->Exists(pObject));
 
 				if( !bInvalid && pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE )
 				{
@@ -2091,7 +2092,7 @@ int CSG_Parameter_Grid_System::_Set_Value(void *Value)
 //---------------------------------------------------------
 void CSG_Parameter_Grid_System::_Set_String(void)
 {
-	m_String	= m_System.Get_Name();
+	m_String = m_System.Get_Name();
 }
 
 //---------------------------------------------------------
@@ -2103,7 +2104,7 @@ void * CSG_Parameter_Grid_System::_asPointer(void)	const
 //---------------------------------------------------------
 bool CSG_Parameter_Grid_System::_Assign(CSG_Parameter *pSource)
 {
-	m_System	= ((CSG_Parameter_Grid_System *)pSource)->m_System;
+	m_System = ((CSG_Parameter_Grid_System *)pSource)->m_System;
 
 	return( true );
 }
@@ -2115,22 +2116,19 @@ bool CSG_Parameter_Grid_System::_Serialize(CSG_MetaData &Entry, bool bSave)
 	{
 		Entry.Add_Child("CELLSIZE", m_System.Get_Cellsize());
 		Entry.Add_Child("XMIN"    , m_System.Get_Extent().Get_XMin());
-		Entry.Add_Child("XMAX"    , m_System.Get_Extent().Get_XMax());
 		Entry.Add_Child("YMIN"    , m_System.Get_Extent().Get_YMin());
+		Entry.Add_Child("XMAX"    , m_System.Get_Extent().Get_XMax());
 		Entry.Add_Child("YMAX"    , m_System.Get_Extent().Get_YMax());
 	}
 	else
 	{
-		double		Cellsize;
-		TSG_Rect	Extent;
-
-		Cellsize	= Entry("CELLSIZE")->Get_Content().asDouble();
-		Extent.xMin	= Entry("XMIN"    )->Get_Content().asDouble();
-		Extent.xMax	= Entry("XMAX"    )->Get_Content().asDouble();
-		Extent.yMin	= Entry("YMIN"    )->Get_Content().asDouble();
-		Extent.yMax	= Entry("YMAX"    )->Get_Content().asDouble();
-
-		m_System.Assign(Cellsize, CSG_Rect(Extent));
+		m_System.Create(
+			Entry("CELLSIZE")->Get_Content().asDouble(),
+			Entry("XMIN"    )->Get_Content().asDouble(),
+			Entry("YMIN"    )->Get_Content().asDouble(),
+			Entry("XMAX"    )->Get_Content().asDouble(),
+			Entry("YMAX"    )->Get_Content().asDouble()
+		);
 	}
 
 	return( true );
@@ -2723,34 +2721,45 @@ int CSG_Parameter_Grid::_Set_Value(void *Value)
 			? ((CSG_Grid  *)Value)->Get_System()
 			: ((CSG_Grids *)Value)->Get_System();
 
-		if( System.is_Valid() == false && is_Input() )
+		if( System.is_Valid() == false )
 		{
-			return( SG_PARAMETER_DATA_SET_FALSE );
-		}
-
-		if( System.is_Valid() && !Get_System()->is_Equal(System) )
-		{
-			for(int i=0; i<Get_Parent()->Get_Children_Count(); i++)
+			if( is_Input() )
 			{
-				CSG_Parameter *pChild = Get_Parent()->Get_Child(i);
-
-				if( pChild->Get_Type() == PARAMETER_TYPE_Grid
-				||  pChild->Get_Type() == PARAMETER_TYPE_Grids )
+				return( SG_PARAMETER_DATA_SET_FALSE );
+			}
+		}
+		else if( !Get_System()->is_Equal(System) )
+		{
+			if( Get_System()->is_Valid() )
+			{
+				for(int i=0; i<Get_Parent()->Get_Children_Count(); i++)
 				{
-					if( pChild->asDataObject() != DATAOBJECT_NOTSET
-					&&  pChild->asDataObject() != DATAOBJECT_CREATE
-					&&  pChild->asDataObject() != m_pDataObject )
+					CSG_Parameter *pChild = Get_Parent()->Get_Child(i);
+
+					if( pChild->is_Output() && !Get_Parameters()->has_GUI() )
 					{
-						return( SG_PARAMETER_DATA_SET_FALSE );
+						continue;
 					}
-				}
 
-				if( pChild->is_DataObject_List() && pChild->asList()->Get_Item_Count() > 0 )
-				{
-					if( (pChild->Get_Type() == PARAMETER_TYPE_Grid_List  && pChild->asGridList ()->Get_System())
-					||  (pChild->Get_Type() == PARAMETER_TYPE_Grids_List && pChild->asGridsList()->Get_System()) )
+					if( pChild->Get_Type() == PARAMETER_TYPE_Grid
+					||  pChild->Get_Type() == PARAMETER_TYPE_Grids )
 					{
-						return( SG_PARAMETER_DATA_SET_FALSE );
+						if( pChild->asDataObject() != DATAOBJECT_NOTSET
+						&&  pChild->asDataObject() != DATAOBJECT_CREATE
+						&&  pChild->asDataObject() != m_pDataObject
+						&&  pChild->asDataObject() != Value )
+						{
+							return( SG_PARAMETER_DATA_SET_FALSE );
+						}
+					}
+
+					if( pChild->is_DataObject_List() && pChild->asList()->Get_Item_Count() > 0 )
+					{
+						if( (pChild->Get_Type() == PARAMETER_TYPE_Grid_List  && pChild->asGridList ()->Get_System())
+						||  (pChild->Get_Type() == PARAMETER_TYPE_Grids_List && pChild->asGridsList()->Get_System()) )
+						{
+							return( SG_PARAMETER_DATA_SET_FALSE );
+						}
 					}
 				}
 			}
