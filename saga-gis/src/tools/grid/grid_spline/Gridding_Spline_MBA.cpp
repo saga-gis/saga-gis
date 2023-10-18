@@ -170,21 +170,22 @@ bool CGridding_Spline_MBA::On_Execute(void)
 //---------------------------------------------------------
 bool CGridding_Spline_MBA::_Set_MBA(double Cellsize)
 {
-	CSG_Grid	Phi;
+	CSG_Grid Phi; int Levels = Parameters("LEVEL_MAX")->asInt();
 
-	bool	bContinue	= true;
-
-	int	Levels	= Parameters("LEVEL_MAX")->asInt();
-
-	for(int Level=0; bContinue && Level<Levels && Process_Get_Okay(false); Level++, Cellsize/=2.)
+	if( Parameters("UPDATE")->asBool() )
 	{
-		bContinue	= BA_Set_Phi(Phi, Cellsize) && _Get_Difference(Phi, Level);
+		DataObject_Add(m_pGrid); DataObject_Update(m_pGrid, SG_UI_DATAOBJECT_SHOW_MAP);
+	}
+
+	for(int Level=0, Continue=1; Continue && Level<Levels && Process_Get_Okay(false); Level++, Cellsize/=2.)
+	{
+		Continue = BA_Set_Phi(Phi, Cellsize) && _Get_Difference(Phi, Level) ? 1 : 0;
 
 		BA_Set_Grid(Phi, Level > 0);
 
 		if( Parameters("UPDATE")->asBool() )
 		{
-			DataObject_Update(m_pGrid, true);
+			DataObject_Update(m_pGrid, SG_UI_DATAOBJECT_UPDATE);
 		}
 	}
 
