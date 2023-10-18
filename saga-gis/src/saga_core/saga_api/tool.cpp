@@ -776,16 +776,16 @@ bool CSG_Tool::Error_Fmt(const wchar_t *Format, ...)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Tool::DataObject_Add(CSG_Data_Object *pDataObject, bool bUpdate)
+bool CSG_Tool::DataObject_Add(CSG_Data_Object *pDataObject, bool bShow)
 {
 	if( Parameters.Get_Manager() )
 	{
 		Parameters.Get_Manager()->Add(pDataObject);
 	}
 
-	if( Parameters.Get_Manager() == &SG_Get_Data_Manager() )	// prevent that local data manager send their data objects to gui
+	if( Parameters.Get_Manager() == &SG_Get_Data_Manager() ) // prevent that local data manager send their data objects to gui
 	{
-		return( SG_UI_DataObject_Add(pDataObject, bUpdate) );
+		return( SG_UI_DataObject_Add(pDataObject, bShow ? SG_UI_DATAOBJECT_SHOW_MAP : SG_UI_DATAOBJECT_UPDATE) );
 	}
 
 	return( true );
