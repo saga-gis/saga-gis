@@ -265,6 +265,7 @@ int CLandsat_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 				(*pParameters)("CALIBRATION")->asChoice()->Set_Items(Choices);
 
 				if( bReflectance ) (*pParameters)("CALIBRATION")->Set_Value((*pParameters)("CALIBRATION")->asChoice()->Get_Count() - 1);
+				On_Parameters_Enable( pParameters, (*pParameters)("CALIBRATION") );
 			}
 		}
 		else
