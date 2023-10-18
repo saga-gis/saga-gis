@@ -177,9 +177,10 @@ public:
 
 	CSG_Parameters *			Get_Parameters				(void)	{	return( &Parameters );	}
 
-	int							Get_Parameters_Count		(void)	const	{	return( (int)m_pParameters.Get_Size() );	}
-	CSG_Parameters *			Get_Parameters				(int i)	const	{	return( i >= 0 && i < Get_Parameters_Count() ? (CSG_Parameters *)m_pParameters[i] : NULL );	}
-	CSG_Parameters *			Get_Parameters				(const CSG_String &Identifier);
+	int							Get_Parameters_Count		(void)  const { return( (int)m_pParameters.Get_Size() ); }
+	CSG_Parameters *			Get_Parameters				(int i) const { return( i >= 0 && i < Get_Parameters_Count() ? (CSG_Parameters *)m_pParameters[i] : NULL ); }
+	CSG_Parameters *			Get_Parameters				(int i)       { return( i >= 0 && i < Get_Parameters_Count() ? (CSG_Parameters *)m_pParameters[i] : NULL ); }
+	CSG_Parameters *			Get_Parameters				(const CSG_String &Identifier) const;
 
 	CSG_Parameter *				Get_Parameter				(const CSG_String &ID)	const	{	return( Parameters(ID) );	}
 	CSG_Parameter *				Get_Parameter				(const char       *ID)	const	{	return( Parameters(ID) );	}

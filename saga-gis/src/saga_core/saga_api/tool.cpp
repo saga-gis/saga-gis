@@ -389,15 +389,15 @@ bool CSG_Tool::_Synchronize_DataObjects(void)
 		Get_Parameters(i)->DataObjects_Synchronize();
 	}
 
-	CSG_Projection	Projection;
+	CSG_Projection Projection;
 
 	if( do_Sync_Projections() && Get_Projection(Projection) )
 	{
 		Parameters.DataObjects_Set_Projection(Projection);
 
-		for(int j=0; j<Get_Parameters_Count(); j++)
+		for(int i=0; i<Get_Parameters_Count(); i++)
 		{
-			Get_Parameters(j)->DataObjects_Set_Projection(Projection);
+			Get_Parameters(i)->DataObjects_Set_Projection(Projection);
 		}
 
 		return( true );
@@ -486,7 +486,7 @@ CSG_Parameters * CSG_Tool::Add_Parameters(const CSG_String &Identifier, const CS
 }
 
 //---------------------------------------------------------
-CSG_Parameters * CSG_Tool::Get_Parameters(const CSG_String &Identifier)
+CSG_Parameters * CSG_Tool::Get_Parameters(const CSG_String &Identifier) const
 {
 	for(int i=0; i<Get_Parameters_Count(); i++)
 	{
