@@ -3,7 +3,7 @@
 	<group>ta_hydrology</group>
 	<identifier>ls_factor</identifier>
 	<author>O.Conrad (c) 2019</author>
-	<menu>Hydrology|Topographic Indices</menu>
+	<menu>Topographic Indices</menu>
 	<name>LS Factor (One Step)</name>
 	<description>
 	This is a simple to use one step tool to derive the LS Factor of the Universal Soil Loss Equation (USLE) from a Digital Elevatin Model (DEM). It combines DEM preprocessing (sink removal), flow accumulation and specific catchment area (SCA) derivation, slope and final LS factor calculation exposing only the most important options.

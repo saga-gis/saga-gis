@@ -60,12 +60,19 @@
 //---------------------------------------------------------
 CTWI::CTWI(void)
 {
-	Set_Name		(_TL("Topographic Wetness Index (TWI)"));
+	Set_Name		(_TL("Topographic Wetness Index"));
 
 	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
-		"Calculation of the slope and specific catchment area (SCA) based Topographic Wetness Index (TWI)."
+		"Calculates the Topographic Wetness Index (TWI) using the supplied rasters for "
+		"slope (Beta), specific catchment area (SCA), and optional transmissivity (T) "
+		"when the soil profile is saturated:\n\n"
+		"TWI = ln(SCA / tan(Beta))\n"
+		"\n"
+		"or with transmissivity\n"
+		"\n"
+		"TWI = ln(SCA / (T * tan(Beta)))"
 	));
 
 	Add_Reference(

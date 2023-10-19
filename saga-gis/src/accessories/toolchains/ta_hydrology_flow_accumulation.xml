@@ -4,7 +4,7 @@
 	<identifier>flow_accumulation</identifier>
 	<name>Flow Accumulation (One Step)</name>
 	<author>O.Conrad (c) 2019</author>
-	<menu>Hydrology|Flow Accumulation</menu>
+	<menu>Flow Accumulation</menu>
 	<description>
 	This is a simple to use one step tool to derive flow accumulation from a Digital Terrain Model. It includes a preprocessing followed by a call to 'Flow Accumulation (Top-Down) exposing only the most important options.
 	</description>
