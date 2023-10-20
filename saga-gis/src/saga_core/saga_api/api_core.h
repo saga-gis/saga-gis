@@ -792,6 +792,8 @@ SAGA_API_DLL_EXPORT void			SG_Flip_Decimal_Separators		(CSG_String &String);
 SAGA_API_DLL_EXPORT CSG_String		SG_Get_String					(double Value, int Precision = -99);
 SAGA_API_DLL_EXPORT CSG_String		SG_Get_String					(int    Value, int Precision = 0);
 
+SAGA_API_DLL_EXPORT CSG_String		SG_HTML_Tag_Replacer			(const CSG_String &Text);
+
 
 ///////////////////////////////////////////////////////////
 //														 //
