@@ -257,14 +257,14 @@ void SG_XML_Add_Parameter(CSG_MetaData *pParent, CSG_Parameter *pParameter, CSG_
 //---------------------------------------------------------
 CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const CSG_String &Description, int Format)
 {
-	CSG_String	s;
+	CSG_String s;
 
 	//-----------------------------------------------------
 	switch( Format )
 	{
 	case SG_SUMMARY_FMT_XML:
 		{
-			CSG_MetaData	m;
+			CSG_MetaData m;
 
 			m.Set_Name    (SG_XML_TOOL);
 			m.Add_Property(SG_XML_TOOL_ATT_NAME   , Get_Name       ());
@@ -309,40 +309,40 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 				}
 			}
 
-			s	= m.asText(1);
+			s = m.asText(1);
 		}
 		break;
 
 	//-----------------------------------------------------
 	case SG_SUMMARY_FMT_HTML:
 		{
-			#define SUMMARY_ADD_STR(label, value)	CSG_String::Format("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%s</td></tr>", label, value)
-			#define SUMMARY_ADD_INT(label, value)	CSG_String::Format("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%d</td></tr>", label, value)
+			#define SUMMARY_ADD_STR(label, value) CSG_String::Format("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%s</td></tr>", label, value)
+			#define SUMMARY_ADD_INT(label, value) CSG_String::Format("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%d</td></tr>", label, value)
 
-			s	+= CSG_String::Format("<h4>%s</h4><table border=\"0\">", _TL("Tool"));
+			s += CSG_String::Format("<h4>%s</h4><table border=\"0\">", _TL("Tool"));
 
-			s	+= SUMMARY_ADD_STR(_TL("Name"   ), Get_Name   ().c_str());
-			s	+= SUMMARY_ADD_STR(_TL("Author" ), Get_Author ().c_str());
-			s	+= SUMMARY_ADD_STR(_TL("Version"), Get_Version().c_str());
-			s	+= SUMMARY_ADD_STR(_TL("Library"), Get_Library().c_str());
-			s	+= SUMMARY_ADD_STR(_TL("ID"     ), Get_ID     ().c_str());
+			s += SUMMARY_ADD_STR(_TL("Name"   ), Get_Name   ().c_str());
+			s += SUMMARY_ADD_STR(_TL("Author" ), Get_Author ().c_str());
+			s += SUMMARY_ADD_STR(_TL("Version"), Get_Version().c_str());
+			s += SUMMARY_ADD_STR(_TL("Library"), Get_Library().c_str());
+			s += SUMMARY_ADD_STR(_TL("ID"     ), Get_ID     ().c_str());
 
 			if( is_Interactive() && is_Grid() )
 			{
-				s	+= SUMMARY_ADD_STR(_TL("Specification"), CSG_String::Format("%s, %s", _TL("grid"), _TL("interactive")).c_str() );
+				s += SUMMARY_ADD_STR(_TL("Specification"), CSG_String::Format("%s, %s", _TL("grid"), _TL("interactive")).c_str() );
 			}
 			else if( is_Interactive() )
 			{
-				s	+= SUMMARY_ADD_STR(_TL("Specification"), _TL("interactive"));
+				s += SUMMARY_ADD_STR(_TL("Specification"), _TL("interactive"));
 			}
 			else if( is_Grid() )
 			{
-				s	+= SUMMARY_ADD_STR(_TL("Specification"), _TL("grid"));
+				s += SUMMARY_ADD_STR(_TL("Specification"), _TL("grid"));
 			}
 
 			if( Get_Type() == TOOL_TYPE_Chain )
 			{
-				s	+= SUMMARY_ADD_STR(_TL("File"), Get_File_Name().c_str() );
+				s += SUMMARY_ADD_STR(_TL("File"), Get_File_Name().c_str() );
 			}
 
 			if( Menu.Length() > 0 )
@@ -351,44 +351,44 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 
 				sMenu.Replace("|", " <b>></b> ");
 
-				s	+= SUMMARY_ADD_STR(_TL("Menu"  ), sMenu.c_str());
+				s += SUMMARY_ADD_STR(_TL("Menu"  ), sMenu.c_str());
 			}
 
-			s	+= "</table>";
+			s += "</table>";
 
 			#undef SUMMARY_ADD_STR
 			#undef SUMMARY_ADD_INT
 
 			//---------------------------------------------
-			s	+= CSG_String::Format("<hr><h4>%s</h4>", _TL("Description"));
+			s += CSG_String::Format("<hr><h4>%s</h4>", _TL("Description"));
 
-			s	+= !Description.is_Empty() ? Description : Get_Description();
+			s += !Description.is_Empty() ? Description : Get_Description();
 
 			//---------------------------------------------
 			if( Description.is_Empty() && Get_References().Get_Count() > 0 )
 			{
-				s	+= CSG_String::Format("<hr><h4>%s</h4><ul>", _TL("References"));
+				s += CSG_String::Format("<hr><h4>%s</h4><ul>", _TL("References"));
 
 				for(int i=0; i<Get_References().Get_Count(); i++)
 				{
-					s	+= "<li>" + Get_References()[i] + "</li>";
+					s += "<li>" + Get_References()[i] + "</li>";
 				}
 
-				s	+= "</ul>";
+				s += "</ul>";
 			}
 
 			//---------------------------------------------
 			if( bParameters )
 			{
-				s	+= CSG_String::Format("<hr><h4>%s</h4>", _TL("Parameters"));
-				s	+= CSG_String::Format("<table border=\"1\" width=\"100%%\" valign=\"top\" cellpadding=\"5\" rules=\"all\"><tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>\n",
+				s += CSG_String::Format("<hr><h4>%s</h4>", _TL("Parameters"));
+				s += CSG_String::Format("<table border=\"1\" width=\"100%%\" valign=\"top\" cellpadding=\"5\" rules=\"all\"><tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>\n",
 						_TL("Name"), _TL("Type"), _TL("Identifier"), _TL("Description"), _TL("Constraints")
 					);
 
 				//-----------------------------------------
 				for(int i=0, bFirst=1; i<Parameters.Get_Count(); i++)
 				{
-					CSG_Parameter	*pParameter	= Parameters(i);
+					CSG_Parameter *pParameter = Parameters(i);
 
 					if( pParameter->is_Input() )
 					{
@@ -397,7 +397,7 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 							bFirst = 0; s += CSG_String::Format("<tr><th colspan=\"5\">%s</th></tr>", _TL("Input"));
 						}
 
-						s	+= CSG_String::Format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>",
+						s += CSG_String::Format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>",
 							pParameter->Get_Name(),
 							pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE      ).c_str(),
 							pParameter->Get_Identifier (),
@@ -410,7 +410,7 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 				//-----------------------------------------
 				for(int i=0, bFirst=1; i<Parameters.Get_Count(); i++)
 				{
-					CSG_Parameter	*pParameter	= Parameters(i);
+					CSG_Parameter *pParameter = Parameters(i);
 
 					if( pParameter->is_Output() )
 					{
@@ -419,7 +419,7 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 							bFirst = 0; s += CSG_String::Format("<tr><th colspan=\"5\">%s</th></tr>", _TL("Output"));
 						}
 
-						s	+= CSG_String::Format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>",
+						s += CSG_String::Format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>",
 							pParameter->Get_Name(),
 							pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE      ).c_str(),
 							pParameter->Get_Identifier (),
@@ -432,7 +432,7 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 				//-----------------------------------------
 				for(int i=0, bFirst=1; i<Parameters.Get_Count(); i++)
 				{
-					CSG_Parameter	*pParameter	= Parameters(i);
+					CSG_Parameter *pParameter = Parameters(i);
 
 					if( pParameter->is_Option() && pParameter->Get_Type() != PARAMETER_TYPE_Grid_System )
 					{
@@ -441,7 +441,7 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 							bFirst = 0; s += CSG_String::Format("<tr><th colspan=\"5\">%s</th></tr>", _TL("Options"));
 						}
 
-						s	+= CSG_String::Format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>",
+						s += CSG_String::Format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>",
 							pParameter->Get_Name(),
 							pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE      ).c_str(),
 							pParameter->Get_Identifier (),
@@ -452,7 +452,7 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 				}
 
 				//-----------------------------------------
-				s	+= "</table>";
+				s += "</table>";
 
 				s.Replace("\n", "<br>");
 			}
@@ -462,57 +462,53 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 	//-----------------------------------------------------
 	case SG_SUMMARY_FMT_FLAT: default:
 		{
-			#define SUMMARY_ADD_STR(label, value)	CSG_String::Format("%s:\t%s\n", label, value)
-			#define SUMMARY_ADD_INT(label, value)	CSG_String::Format("%s:\t%d\n", label, value)
+			#define SUMMARY_ADD_STR(label, value) CSG_String::Format("%s:\t%s\n", label, value)
+			#define SUMMARY_ADD_INT(label, value) CSG_String::Format("%s:\t%d\n", label, value)
 
-			s	+= SUMMARY_ADD_STR(_TL("Name"   ), Get_Name   ().c_str());
-			s	+= SUMMARY_ADD_STR(_TL("ID"     ), Get_ID     ().c_str());
-			s	+= SUMMARY_ADD_STR(_TL("Author" ), Get_Author ().c_str());
-			s	+= SUMMARY_ADD_STR(_TL("Version"), Get_Version().c_str());
+			s += SUMMARY_ADD_STR(_TL("Name"   ), Get_Name   ().c_str());
+			s += SUMMARY_ADD_STR(_TL("ID"     ), Get_ID     ().c_str());
+			s += SUMMARY_ADD_STR(_TL("Author" ), Get_Author ().c_str());
+			s += SUMMARY_ADD_STR(_TL("Version"), Get_Version().c_str());
 
 			if( is_Interactive() && is_Grid() )
 			{
-				s	+= SUMMARY_ADD_STR(_TL("Specification"), CSG_String::Format("%s, %s", _TL("grid"), _TL("interactive")).c_str() );
+				s += SUMMARY_ADD_STR(_TL("Specification"), CSG_String::Format("%s, %s", _TL("grid"), _TL("interactive")).c_str() );
 			}
 			else if( is_Interactive() )
 			{
-				s	+= SUMMARY_ADD_STR(_TL("Specification"), _TL("interactive"));
+				s += SUMMARY_ADD_STR(_TL("Specification"), _TL("interactive"));
 			}
 			else if( is_Grid() )
 			{
-				s	+= SUMMARY_ADD_STR(_TL("Specification"), _TL("grid"));
+				s += SUMMARY_ADD_STR(_TL("Specification"), _TL("grid"));
 			}
 
 			if( Get_Type() == TOOL_TYPE_Chain )
 			{
-				s	+= SUMMARY_ADD_STR(_TL("File"), Get_File_Name().c_str() );
+				s += SUMMARY_ADD_STR(_TL("File"), Get_File_Name().c_str() );
 			}
 
 			if( Menu.Length() > 0 )
 			{
-				CSG_String	sMenu(Menu);
-
-				sMenu.Replace("|", " <b>></b> ");
-
-				s	+= SUMMARY_ADD_STR(_TL("Menu"  ), sMenu.c_str());
+				s += SUMMARY_ADD_STR(_TL("Menu"), Menu.c_str());
 			}
 
 			#undef SUMMARY_ADD_STR
 			#undef SUMMARY_ADD_INT
 
 			//---------------------------------------------
-			s	+= "\n____________________________\n";
+			s += "\n____________________________\n";
 
-			s	+= CSG_String::Format("%s:\n", _TL("Description"));
+			s += CSG_String::Format("%s:\n", _TL("Description"));
 
-			s	+= !Description.is_Empty() ? Description : Get_Description();
+			s += !Description.is_Empty() ? Description : SG_HTML_Tag_Replacer(Get_Description());
 
 			//---------------------------------------------
 			if( Description.is_Empty() && Get_References().Get_Count() > 0 )
 			{
-				s	+= "\n____________________________\n";
+				s += "\n____________________________\n";
 
-				s	+= CSG_String::Format("\n%s:\n", _TL("References"));
+				s += CSG_String::Format("\n%s:\n", _TL("References"));
 
 				for(int i=0; i<Get_References().Get_Count(); i++)
 				{
@@ -524,30 +520,30 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 					Reference.Replace("\">"       , " (");
 					Reference.Replace("</a>"      , ")");
 
-					s	+= " - " + Reference + "\n";
+					s += " - " + Reference + "\n";
 				}
 			}
 
 			//---------------------------------------------
 			if( bParameters )
 			{
-				s	+= "\n";
+				s += "\n";
 
 				//-----------------------------------------
 				for(int i=0, bFirst=1; i<Parameters.Get_Count(); i++)
 				{
-					CSG_Parameter	*pParameter	= Parameters(i);
+					CSG_Parameter *pParameter = Parameters(i);
 
 					if( pParameter->is_Input() )
 					{
 						if( bFirst )
 						{
-							bFirst	= 0;
-							s	+= "____________________________\n";
-							s	+= CSG_String::Format("%s:\n", _TL("Input"));
+							bFirst = 0;
+							s += "____________________________\n";
+							s += CSG_String::Format("%s:\n", _TL("Input"));
 						}
 
-						s	+= CSG_String::Format("_\n%s\n%s\n%s\n%s\n%s\n",
+						s += CSG_String::Format("_\n%s\n%s\n%s\n%s\n%s\n",
 							pParameter->Get_Name       (),
 							pParameter->Get_Identifier (),
 							pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE      ).c_str(),
@@ -560,18 +556,18 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 				//-----------------------------------------
 				for(int i=0, bFirst=1; i<Parameters.Get_Count(); i++)
 				{
-					CSG_Parameter	*pParameter	= Parameters(i);
+					CSG_Parameter *pParameter = Parameters(i);
 
 					if( pParameter->is_Output() )
 					{
 						if( bFirst )
 						{
-							bFirst	= 0;
-							s	+= "____________________________\n";
-							s	+= CSG_String::Format("%s:\n", _TL("Output"));
+							bFirst = 0;
+							s += "____________________________\n";
+							s += CSG_String::Format("%s:\n", _TL("Output"));
 						}
 
-						s	+= CSG_String::Format("_\n%s\n%s\n%s\n%s\n%s\n",
+						s += CSG_String::Format("_\n%s\n%s\n%s\n%s\n%s\n",
 							pParameter->Get_Name       (),
 							pParameter->Get_Identifier (),
 							pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE      ).c_str(),
@@ -584,18 +580,18 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 				//-----------------------------------------
 				for(int i=0, bFirst=1; i<Parameters.Get_Count(); i++)
 				{
-					CSG_Parameter	*pParameter	= Parameters(i);
+					CSG_Parameter *pParameter = Parameters(i);
 
 					if( pParameter->is_Option() && pParameter->Get_Type() != PARAMETER_TYPE_Grid_System )
 					{
 						if( bFirst )
 						{
-							bFirst	= 0;
-							s	+= "____________________________\n";
-							s	+= CSG_String::Format("%s:\n", _TL("Options"));
+							bFirst = 0;
+							s += "____________________________\n";
+							s += CSG_String::Format("%s:\n", _TL("Options"));
 						}
 
-						s	+= CSG_String::Format("_\n%s\n%s\n%s\n%s\n%s\n",
+						s += CSG_String::Format("_\n%s\n%s\n%s\n%s\n%s\n",
 							pParameter->Get_Name       (),
 							pParameter->Get_Identifier (),
 							pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE      ).c_str(),
@@ -623,20 +619,20 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 //---------------------------------------------------------
 CSG_String CSG_Tool_Library::Get_Summary(int Format, bool bWithGUINeeded) const
 {
-	bool	bToolChains	= Get_File_Name().is_Empty();
+	bool bToolChains = Get_File_Name().is_Empty();
 
-	CSG_String	s;
+	CSG_String s;
 
 	switch( Format )
 	{
 	//-----------------------------------------------------
 	case SG_SUMMARY_FMT_XML:
 
-		s	+= "<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>\n";
-		s	+= CSG_String::Format("<%s>\n"         , SG_XML_LIBRARY);
-		s	+= CSG_String::Format("\t<%s>%s</%s>\n", SG_XML_LIBRARY_PATH, Get_File_Name().c_str(), SG_XML_LIBRARY_PATH);
-		s	+= CSG_String::Format("\t<%s>%s</%s>\n", SG_XML_LIBRARY_NAME, Get_Info(TLB_INFO_Name).c_str(), SG_XML_LIBRARY_NAME);
-		s	+= CSG_String::Format("\t<%s>%s</%s>\n", SG_XML_LIBRARY_CATEGORY, Get_Info(TLB_INFO_Category).c_str(), SG_XML_LIBRARY_CATEGORY);
+		s += "<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>\n";
+		s += CSG_String::Format("<%s>\n"         , SG_XML_LIBRARY);
+		s += CSG_String::Format("\t<%s>%s</%s>\n", SG_XML_LIBRARY_PATH, Get_File_Name().c_str(), SG_XML_LIBRARY_PATH);
+		s += CSG_String::Format("\t<%s>%s</%s>\n", SG_XML_LIBRARY_NAME, Get_Info(TLB_INFO_Name).c_str(), SG_XML_LIBRARY_NAME);
+		s += CSG_String::Format("\t<%s>%s</%s>\n", SG_XML_LIBRARY_CATEGORY, Get_Info(TLB_INFO_Category).c_str(), SG_XML_LIBRARY_CATEGORY);
 
 		for(int i=0; i<Get_Count(); i++)
 		{
@@ -644,67 +640,67 @@ CSG_String CSG_Tool_Library::Get_Summary(int Format, bool bWithGUINeeded) const
 			{
 				CSG_String Name(Get_Tool(i)->Get_Name());
 				Name.Replace("&", "&amp;");
-				s	+= CSG_String::Format("\t<%s %s=\"%s\" %s=\"%s\"/>\n", SG_XML_TOOL,
+				s += CSG_String::Format("\t<%s %s=\"%s\" %s=\"%s\"/>\n", SG_XML_TOOL,
 					SG_XML_TOOL_ATT_ID  , Get_Tool(i)->Get_ID().c_str(),
 					SG_XML_TOOL_ATT_NAME, Name.c_str()
 				);
 			}
 		}
 
-		s	+= CSG_String::Format("</%s>\n", SG_XML_LIBRARY);
+		s += CSG_String::Format("</%s>\n", SG_XML_LIBRARY);
 
 		break;
 
 	//-----------------------------------------------------
 	case SG_SUMMARY_FMT_HTML: default:
 
-		#define SUMMARY_ADD_STR(label, value)	CSG_String::Format("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%s</td></tr>", label, value)
-		#define SUMMARY_ADD_INT(label, value)	CSG_String::Format("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%d</td></tr>", label, value)
+		#define SUMMARY_ADD_STR(label, value) CSG_String::Format("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%s</td></tr>", label, value)
+		#define SUMMARY_ADD_INT(label, value) CSG_String::Format("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%d</td></tr>", label, value)
 
-		s	+= CSG_String::Format("<h4>%s</h4>", _TL("Tool Library"));
+		s += CSG_String::Format("<h4>%s</h4>", _TL("Tool Library"));
 
-		s	+= "<table border=\"0\">";
+		s += "<table border=\"0\">";
 
-		s	+= SUMMARY_ADD_STR(_TL("Name"  ), Get_Info(TLB_INFO_Name   ).c_str());
-		s	+= SUMMARY_ADD_STR(_TL("Author"), Get_Info(TLB_INFO_Author ).c_str());
-		s	+= SUMMARY_ADD_STR(_TL("ID"    ), Get_Library_Name        ().c_str());
-		s	+= SUMMARY_ADD_STR(_TL("File"  ), Get_File_Name           ().c_str());
+		s += SUMMARY_ADD_STR(_TL("Name"  ), Get_Info(TLB_INFO_Name   ).c_str());
+		s += SUMMARY_ADD_STR(_TL("Author"), Get_Info(TLB_INFO_Author ).c_str());
+		s += SUMMARY_ADD_STR(_TL("ID"    ), Get_Library_Name        ().c_str());
+		s += SUMMARY_ADD_STR(_TL("File"  ), Get_File_Name           ().c_str());
 
-		s	+= "</table>";
+		s += "</table>";
 
 		//-------------------------------------------------
-		s	+= CSG_String::Format("<hr><h4>%s</h4>", _TL("Description"));
+		s += CSG_String::Format("<hr><h4>%s</h4>", _TL("Description"));
 
-		s	+= Get_Info(TLB_INFO_Description);
+		s += Get_Info(TLB_INFO_Description);
 
 		if( Get_References().Get_Count() > 0 )
 		{
-			s	+= CSG_String::Format("<hr><h4>%s</h4><ul>", _TL("References"));
+			s += CSG_String::Format("<hr><h4>%s</h4><ul>", _TL("References"));
 
 			for(int i=0; i<Get_References().Get_Count(); i++)
 			{
-				s	+= "<li>" + Get_References()[i] + "</li>";
+				s += "<li>" + Get_References()[i] + "</li>";
 			}
 
-			s	+= "</ul>";
+			s += "</ul>";
 		}
 
 		//-------------------------------------------------
-		s	+= CSG_String::Format("<hr><h4>%s</h4>", _TL("Tools"));
+		s += CSG_String::Format("<hr><h4>%s</h4>", _TL("Tools"));
 
-		s	+= "<table border=\"0\">";
+		s += "<table border=\"0\">";
 
-		s	+= CSG_String::Format("<tr align=\"left\"><th>%s</th><th>%s</th></tr>", _TL("ID"), _TL("Name"));
+		s += CSG_String::Format("<tr align=\"left\"><th>%s</th><th>%s</th></tr>", _TL("ID"), _TL("Name"));
 
 		for(int i=0; i<Get_Count(); i++)
 		{
 			if( Get_Tool(i) && (bWithGUINeeded || !Get_Tool(i)->needs_GUI()) )
 			{
-				s	+= SUMMARY_ADD_STR(Get_Tool(i)->Get_ID().c_str(), Get_Tool(i)->Get_Name().c_str());
+				s += SUMMARY_ADD_STR(Get_Tool(i)->Get_ID().c_str(), Get_Tool(i)->Get_Name().c_str());
 			}
 		}
 
-		s	+= "</table>";
+		s += "</table>";
 
 		s.Replace("\n", "<br>");
 
@@ -718,34 +714,34 @@ CSG_String CSG_Tool_Library::Get_Summary(int Format, bool bWithGUINeeded) const
 
 		if( !bToolChains )
 		{
-			s	+= CSG_String::Format("\n%s%s: ", _TL("Library"), SG_T("    ")) + Get_Info(TLB_INFO_Name    );
-			s	+= CSG_String::Format("\n%s%s: ", _TL("Category"), SG_T("   ")) + Get_Info(TLB_INFO_Category);
-			s	+= CSG_String::Format("\n%s%s: ", _TL("File"), SG_T("       ")) + Get_File_Name();
+			s += CSG_String::Format("\n%s%s: ", _TL("Library"), SG_T("    ")) + Get_Info(TLB_INFO_Name    );
+			s += CSG_String::Format("\n%s%s: ", _TL("Category"), SG_T("   ")) + Get_Info(TLB_INFO_Category);
+			s += CSG_String::Format("\n%s%s: ", _TL("File"), SG_T("       ")) + Get_File_Name();
 		}
 		else
 		{
-			s	+= CSG_String::Format("\n%s: ", _TL("Tool Chains")) + Get_Info(TLB_INFO_Name);
+			s += CSG_String::Format("\n%s: ", _TL("Tool Chains")) + Get_Info(TLB_INFO_Name);
 		}
 
-		s	+= CSG_String::Format("\n%s: ", _TL("Description")) + Get_Info(TLB_INFO_Description);
+		s += CSG_String::Format("\n%s: ", _TL("Description")) + SG_HTML_Tag_Replacer(Get_Info(TLB_INFO_Description));
 
 		if( Get_References().Get_Count() > 0 )
 		{
-			s	+= CSG_String::Format("\n%s:\n", _TL("References"));
+			s += CSG_String::Format("\n%s:\n", _TL("References"));
 
 			for(int i=0; i<Get_References().Get_Count(); i++)
 			{
-				s	+= " - " + Get_References()[i] + "\n";
+				s += " - " + Get_References()[i] + "\n";
 			}
 		}
 
-		s	+= CSG_String::Format("\n\n%s:\n", _TL("Tools"));
+		s += CSG_String::Format("\n\n%s:\n", _TL("Tools"));
 
 		for(int i=0; i<Get_Count(); i++)
 		{
 			if( Get_Tool(i) && (bWithGUINeeded || !Get_Tool(i)->needs_GUI()) )
 			{
-				s	+= " [" + Get_Tool(i)->Get_ID() + "]\t" + Get_Tool(i)->Get_Name() + "\n";
+				s += " [" + Get_Tool(i)->Get_ID() + "]\t" + Get_Tool(i)->Get_Name() + "\n";
 			}
 		}
 
@@ -765,18 +761,18 @@ CSG_String CSG_Tool_Library::Get_Summary(int Format, bool bWithGUINeeded) const
 //---------------------------------------------------------
 bool CSG_Tool_Library::Get_Summary(const CSG_String &Path)	const
 {
-	CSG_File	f;
+	CSG_File File;
 
-	if( f.Open(SG_File_Make_Path(Path, Get_Library_Name(), "html"), SG_FILE_W) )
+	if( File.Open(SG_File_Make_Path(Path, Get_Library_Name(), "html"), SG_FILE_W) )
 	{
-		f.Write(Get_Summary());
+		File.Write(Get_Summary());
 	}
 
-	for(int j=0; j<Get_Count(); j++)
+	for(int i=0; i<Get_Count(); i++)
 	{
-		if( Get_Tool(j) && f.Open(SG_File_Make_Path(Path, Get_Library_Name() + "_" + Get_Tool(j)->Get_ID(), "html"), SG_FILE_W) )
+		if( Get_Tool(i) && File.Open(SG_File_Make_Path(Path, Get_Library_Name() + "_" + Get_Tool(i)->Get_ID(), "html"), SG_FILE_W) )
 		{
-			f.Write(Get_Tool(j)->Get_Summary());
+			File.Write(Get_Tool(i)->Get_Summary());
 		}
 	}
 

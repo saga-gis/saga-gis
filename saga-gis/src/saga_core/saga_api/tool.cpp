@@ -1867,7 +1867,7 @@ CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader, bool bName, bool bCal
 		Name.Replace(" ", "_");
 	}
 
-	CSG_Strings _Description = SG_String_Tokenize(Get_Description(), "\n");
+	CSG_Strings _Description = SG_String_Tokenize(SG_HTML_Tag_Replacer(Get_Description()), "\n");
 
 	//---------------------------------------------------------
 	CSG_String Script;

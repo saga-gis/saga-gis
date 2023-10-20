@@ -840,7 +840,7 @@ void		Print_Help		(const CSG_String &Library)
 	}
 	else
 	{
-		CMD_Print(pLibrary->Get_Description());
+		CMD_Print(SG_HTML_Tag_Replacer(pLibrary->Get_Description()));
 		CMD_Print(pLibrary->Get_Summary(SG_SUMMARY_FMT_FLAT, false));
 	}
 }
