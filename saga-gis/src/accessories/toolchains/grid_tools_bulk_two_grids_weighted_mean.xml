@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchain saga-version="8.0.0">
+	<group>grid_tools</group>
+	<identifier>grid_tools_bulk_weighted_mean</identifier>
+	<name>Two Grids Weighted Mean [Bulk Processing]</name>
+	<author>O.Conrad (c) 2021</author>
+	<description>This is a bulk processing for the calculation of two grids weighted mean.</description>
+	<menu absolute="true">Grid|Calculus</menu>
+
+	<parameters>
+		<option varname="GRID_SYSTEM" type="grid_system">
+			<name>Grid System</name>
+		</option>
+		<input varname="GRIDS_A" type="grid_list" parent="GRID_SYSTEM">
+			<name>List of 1st Grids</name>
+		</input>
+		<input varname="GRIDS_B" type="grid_list" parent="GRID_SYSTEM">
+			<name>List of 2nd Grids</name>
+		</input>
+		<output varname="MEAN" type="grid_list">
+			<name>Weigthed Mean</name>
+		</output>
+		<option varname="RATIO" type="double">
+			<name>Weighting Ratio</name>
+			<description>Weighting ratio comparing 1st and 2nd grid.</description>
+			<value minimum="0" maximum="1">0.5</value>
+		</option>
+	</parameters>
+
+	<tools>
+		<foreach input="GRIDS_A">
+			<tool library="grid_calculus" tool="1" name="Grid Calculator">
+				<option id="FORMULA">(g1 - g2) / (g1 + g2)</option>
+				<option id="NAME">Weighted Mean</option>
+				<option id="FNAME">false</option>
+				<option id="USE_NODATA">false</option>
+				<option id="TYPE">7</option>
+				<input  id="GRIDS">GRIDS_A</input>
+				<input  id="GRIDS">GRIDS_B</input>
+				<output id="RESULT">MEAN</output>
+			</tool>
+		</foreach>
+	</tools>
+</toolchain>
