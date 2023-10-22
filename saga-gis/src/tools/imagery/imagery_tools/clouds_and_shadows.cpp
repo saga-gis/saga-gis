@@ -374,16 +374,25 @@ bool CDetect_Clouds::On_Execute(void)
 
 	pClouds->Set_NoData_Value(ID_NONE);
 
-	for(int i=0; i<8; i++)
+	
+	if( Parameters("SHADOWS")->asBool() )
 	{
-		double Azimuth, Height;
-
-		if( Get_Sun_Position(m_pBand[i], Azimuth, Height) )
+		pClouds->Get_MetaData().Add_Child("SUN_AZIMUTH", Parameters("SUN_AZIMUTH")->asDouble());
+		pClouds->Get_MetaData().Add_Child("SUN_HEIGHT" , Parameters("SUN_HEIGHT")->asDouble() );
+	}
+	else
+	{
+		for(int i=0; i<8; i++)
 		{
-			pClouds->Get_MetaData().Add_Child("SUN_AZIMUTH", Azimuth);
-			pClouds->Get_MetaData().Add_Child("SUN_HEIGHT" , Height );
+			double Azimuth, Height;
 
-			break;
+			if( Get_Sun_Position(m_pBand[i], Azimuth, Height) )
+			{
+				pClouds->Get_MetaData().Add_Child("SUN_AZIMUTH", Azimuth);
+				pClouds->Get_MetaData().Add_Child("SUN_HEIGHT" , Height );
+
+				break;
+			}
 		}
 	}
 
