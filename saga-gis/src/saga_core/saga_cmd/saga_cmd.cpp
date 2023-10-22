@@ -802,7 +802,7 @@ void		Print_Help		(void)
 		"\n"
 		"A more convenient way to set various saga_cmd options is to edit a\n"
 		"configuration file. The default configuration file \'saga_cmd.ini\' will be\n"
-		"loaded automatically, if present. You can specify a different configuration "
+		"loaded automatically, if present. You can specify a different configuration\n"
 		"file with the \'-C\' or \'--config\' option. Use \'--create-config\' to\n"
 		"generate such a file with default options and edit it to fit your purposes.\n"
 		"\n"
