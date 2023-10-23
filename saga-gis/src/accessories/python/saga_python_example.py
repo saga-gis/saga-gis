@@ -228,7 +228,7 @@ Geomorphons.Save(output + 'geomorphons.tif')
 
 #_________________________________________
 # when job is done, free memory resources:
-saga_api.SG_Get_Data_Manager().Delete_All()
+saga_api.SG_Get_Data_Manager().Delete()
 
 if not ReportProgress:
     saga_api.SG_UI_Progress_Lock(False)
