@@ -13,9 +13,12 @@ The method now invalidates the shape type (SHAPE_TYPE_Undefined). If you want to
 
 #### CSG_Data_Manager class
 
-The class has been reworked and improved. The most prominent change is the removal of the Delete_All() method:
+The class has been reworked and improved. The most prominent change is the removal of the Delete_All() and Delete_Unsaved() method, which is to be replaced by the CSG_Data_Manager::Delete(bool bDetach = false, bool bUnsaved = false) method:
 
-CSG_Data_Manager.Delete_All() &rarr; CSG_Data_Manager.Delete()
+CSG_Data_Manager.Delete_All(bDetach) &rarr; CSG_Data_Manager.Delete(bDetach)
+
+CSG_Data_Manager.Delete_Unsaved(bDetach) &rarr; CSG_Data_Manager.Delete(bDetach, true)
+
 
 ___
 ## SAGA 9.3.0 Tool interface changes
