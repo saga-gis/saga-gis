@@ -3,7 +3,7 @@
 	<group>ta_morphometry</group>
 	<identifier>summits</identifier>
 	<author>O.Conrad (c) 2019</author>
-	<menu>Terrain Classification</menu>
+	<menu absolute="true">Terrain Analysis|Terrain Classification</menu>
 	<name>Summit Extraction</name>
 	<description>This is a simple summit detection tool, e.g. for the analysis of Digital Elevation Models. It calculates the distance above a trend surface (using either the grid resampling filter or the topographic position index) to decide, if a local maximum in the input surface grid represents a summit.</description>
 
