@@ -48,8 +48,8 @@ print(saga_api.SG_Get_Tool_Library_Manager().Get_Summary(saga_api.SG_SUMMARY_FMT
 ##########################################
 # Get Some Test Data
 #_________________________________________
-WorkDir = 'D:/Python-SAGA/test/'
 import os
+WorkDir = os.getcwd() + '/test'
 if not os.path.exists(WorkDir):
     os.makedirs(WorkDir)
 os.chdir(WorkDir)
@@ -60,7 +60,7 @@ if not os.path.exists(File):
     from PySAGA import helper
     aoi = helper.Get_AOI_From_Extent(560000, 580000, 5700000, 5720000, EPSG=32632)
     from PySAGA.data import copernicus_dem
-    copernicus_dem.Get_AOI(aoi, WorkDir + File)
+    copernicus_dem.Get_AOI(aoi, '{:s}/{:s}'.format(WorkDir, File))
 
 #_________________________________________
 dem = saga_api.CSG_Grid(File)
@@ -128,7 +128,7 @@ flow_acc.Save('flow_acc.tif')
 from PySAGA.tools import shapes_grid
 
 contour = saga_api.CSG_Shapes()
-shapes_grid.Run_Contour_Lines_from_Grid(GRID=dem, CONTOUR=contour, INTERVALS='from list', ZLIST='800, 1000, 1200, 1500, 2000')
+shapes_grid.Run_Contour_Lines_from_Grid(GRID=dem, CONTOUR=contour, INTERVALS='equal intervals', ZSTEP=10)
 contour.Save('contour.geojson')
 
 #_________________________________________
