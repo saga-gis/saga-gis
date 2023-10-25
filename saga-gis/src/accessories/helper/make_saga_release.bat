@@ -10,10 +10,10 @@ REM ###################################
 REM ___________________________________
 REM Tools
 
-SET ZIPEXE="C:\Program Files\7-Zip\7z.exe"
 SET ISETUP="C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
 SET GITEXE="C:\Program Files\Git\bin\git.exe"
 SET DOXEXE="C:\Program Files\doxygen\bin\doxygen.exe"
+SET PYTHON="F:\develop\libs\Python\Python-3.12\python.exe"
 
 REM ___________________________________
 REM Absolute Path to SAGA Root Directory
@@ -69,13 +69,17 @@ REM ###################################
 
 CLS
 
+IF EXIST "%SAGA_RELEASE_NAME%" (
+	RMDIR /S/Q %SAGA_RELEASE_NAME%
+)
+
 MKDIR "%SAGA_RELEASE_NAME%"
 PUSHD "%SAGA_RELEASE_NAME%"
 
 
 REM ___________________________________
 REM ###################################
-REM SOURCE
+REM Source Code Archives
 REM ###################################
 
 REM ___________________________________
@@ -98,13 +102,9 @@ CALL ..\make_python_toolboxes.bat "%SAGA_RELEASE_NAME%\saga-gis\src\accessories\
 
 REM ___________________________________
 REM Zip Source Code
-%ZIPEXE% a -r -y -mx5 %SAGA_RELEASE_NAME%_src.zip %SAGA_RELEASE_NAME%
-
-REM Create a tarball
-%ZIPEXE% a -r -y -ttar %SAGA_RELEASE_NAME%.tar %SAGA_RELEASE_NAME%
-%ZIPEXE% a -y -mx5 -tgzip %SAGA_RELEASE_NAME%.tar.gz %SAGA_RELEASE_NAME%.tar
-DEL %SAGA_RELEASE_NAME%.tar
-
+%PYTHON% ..\create_archive.py tar "%SAGA_RELEASE_NAME%"
+%PYTHON% ..\create_archive.py zip "%SAGA_RELEASE_NAME%"
+MOVE "%SAGA_RELEASE_NAME%.zip" "%SAGA_RELEASE_NAME%_src.zip"
 
 REM ___________________________________
 REM Drop Sources
@@ -117,7 +117,7 @@ REM Doxygen API Documentation
 REM ###################################
 
 %DOXEXE% ..\doxygen_saga_api_html"
-%ZIPEXE% a -r -y -mx5 "%SAGA_RELEASE_NAME%_api_doc.zip" "%SAGA_RELEASE_NAME%_api_doc"
+%PYTHON% ..\create_archive.py zip "%SAGA_RELEASE_NAME%_api_doc"
 
 %DOXEXE% ..\doxygen_saga_api_chm"
 
@@ -138,7 +138,6 @@ CMD /C CALL ..\make_python_api.bat install false 3.9  F:\develop\libs\Python\Pyt
 CMD /C CALL ..\make_python_api.bat install false 3.10 F:\develop\libs\Python\Python-3.10
 CMD /C CALL ..\make_python_api.bat install false 3.11 F:\develop\libs\Python\Python-3.11
 CMD /C CALL ..\make_python_api.bat install true  3.12 F:\develop\libs\Python\Python-3.12
-
 
 REM ___________________________________
 REM ###################################
@@ -183,7 +182,7 @@ POPD
 REM ___________________________________
 REM create zip file...
 
-%ZIPEXE% a -r -y -mx5 "%SAGA_RELEASE_NAME%_x64.zip" "%SAGA_RELEASE_NAME%_x64"
+%PYTHON% ..\create_archive.py zip "%SAGA_RELEASE_NAME%_x64"
 
 REM ___________________________________
 REM create setup file...
