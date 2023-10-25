@@ -31,19 +31,19 @@ REM ###################################
 REM File paths, adjusted to your system in the calling batch or take the defaults!
 
 IF "%SWIG%" == "" (
-	SET SWIG="F:\develop\libs\swigwin-4.0.2\swig.exe"
+	SET SWIG=F:\develop\libs\swigwin-4.0.2\swig.exe
 )
 
-IF NOT EXIST "%SWIG%" (
-	ECHO ERROR: swig executable not found ("%SWIG%")
+IF NOT EXIST %SWIG% (
+	ECHO ERROR: swig executable not found (%SWIG%)
 )
 
-IF "%PYTHON_DIR%" == "" (
+IF %PYTHON_DIR% == "" (
 	SET PYTHON_DIR=F:\develop\libs\Python\Python-3.11
 )
 
-IF NOT EXIST "%PYTHON_DIR%\python.exe" (
-	ECHO ERROR: Python executable not found ("%PYTHON_DIR%")
+IF NOT EXIST %PYTHON_DIR%\python.exe (
+	ECHO ERROR: Python executable not found (%PYTHON_DIR%\python.exe)
 )
 
 SET PYTHON_PKG=%PYTHON_DIR%\Lib\site-packages
@@ -67,7 +67,7 @@ REM ###################################
 REM Initialization of the MSVC environment
 
 IF "%EXE_VARSALL%" == "" (
-REM	SET "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat"
+REM	SET EXE_VARSALL="C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat"
 	SET EXE_VARSALL="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat"
 )
 
@@ -103,15 +103,14 @@ IF NOT EXIST saga_api_wrap.cxx (
 	ECHO SWIG Compilation...
 	ECHO.
 
-	"%SWIG%" -c++ -python -includeall -I. -D_SAGA_PYTHON saga_api.i
+	%SWIG% -c++ -python -includeall -I. -D_SAGA_PYTHON saga_api.i
 )
 
 ECHO __________________
-ECHO Python%PYTHON_VERSION% Compilation (%ARCHITECTURE%)...
+ECHO Python%PYTHON_VERSION% Compilation...
 ECHO.
 
-rem "%PYTHON_DIR%\python.exe" saga_api_to_python.py install
-"%PYTHON_DIR%\python.exe" saga_api_to_python.py build_ext --inplace
+%PYTHON_DIR%\python.exe saga_api_to_python.py build_ext --inplace
 
 POPD
 
