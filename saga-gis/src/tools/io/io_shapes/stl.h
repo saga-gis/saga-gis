@@ -86,20 +86,15 @@ protected:
 
 private:
 
-	typedef struct
-	{
-		float				x, y, z;
-	}
-	TSTL_Point;
+	bool					m_bRotate;
 
-
-	double					r_sin_x, r_cos_x, r_sin_y, r_cos_y, r_sin_z, r_cos_z;
+	TSG_Point_3D			m_sin, m_cos;
 
 	CSG_Grid				*m_pGrid;
 
 
-	bool					Read_Facette		(CSG_File &Stream, TSTL_Point p[3]);
-	void					Rotate				(TSTL_Point &p);
+	bool					Read_Facette		(CSG_File &Stream, TSG_Point_3D Point[4], WORD &Attribute);
+	void					Rotate				(TSG_Point_3D &Point);
 
 	bool					Get_Extent			(CSG_File &Stream, CSG_Rect &Extent, int nFacettes);
 

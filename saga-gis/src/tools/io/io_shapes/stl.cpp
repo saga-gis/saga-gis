@@ -71,32 +71,35 @@ CSTL_Import::CSTL_Import(void)
 	Add_Reference("http://www.fabbers.com/tech/STL_Format", SG_T("The StL Format"));
 
 	//-----------------------------------------------------
-	Parameters.Add_PointCloud_Output("", "POINTS", _TL("Point Cloud"), _TL(""));
-	Parameters.Add_Shapes_Output    ("", "SHAPES", _TL("Shapes"     ), _TL(""));
-	Parameters.Add_Grid_Output      ("", "GRID"  , _TL("Grid"       ), _TL(""));
+	Parameters.Add_PointCloud ("", "POINTS"  , _TL("Points"  ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Shapes     ("", "POLYGONS", _TL("Polygons"), _TL(""), PARAMETER_OUTPUT, SHAPE_TYPE_Polygon);
+	Parameters.Add_Grid_Output("", "GRID"    , _TL("Grid"    ), _TL(""));
+	Parameters.Add_TIN        ("", "TIN"     , _TL("TIN"     ), _TL(""), PARAMETER_OUTPUT);
 
 	Parameters.Add_FilePath("", "FILE", _TL("File"), _TL(""), CSG_String::Format("%s|*.stl|%s|*.*",
 		_TL("STL Files"),
 		_TL("All Files"))
 	);
 
-	Parameters.Add_Choice("", "METHOD", _TL("Target"), _TL(""), CSG_String::Format("%s|%s|%s|%s|%s",
-		_TL("point cloud"),
-		_TL("point cloud (centered)"),
-		_TL("points"),
-		_TL("faces"),
-		_TL("raster")), 0
+	Parameters.Add_Choice("", "METHOD", _TL("Target"), _TL(""), CSG_String::Format("%s|%s|%s|%s",
+		_TL("Points"  ),
+		_TL("Polygons"),
+		_TL("TIN"     ),
+		_TL("Grid"    )), 2
 	);
 
-	Parameters.Add_Choice("", "METHOD_RASTER", _TL("Raster Dimension"), _TL(""), CSG_String::Format("%s|%s",
-		_TL("Number of Pixels (Width)"),
-		_TL("Pixel Size")), 0
+	Parameters.Add_Bool("POINTS", "CENTROIDS" , _TL("Centroids"        ), _TL(""), false);
+	Parameters.Add_Bool("POINTS", "DUPLICATES", _TL("Remove Duplicates"), _TL(""),  true);
+
+	Parameters.Add_Choice("", "GRID_DIM", _TL("Grid Dimension"), _TL(""), CSG_String::Format("%s|%s",
+		_TL("Width"   ),
+		_TL("Cellsize")), 0
 	);
 
-	Parameters.Add_Int   ("METHOD_RASTER", "GRID_NX"  , _TL("Number of Pixels"), _TL(""), 2000 , 10 , true);
-	Parameters.Add_Double("METHOD_RASTER", "GRID_CELL", _TL("Pixel Size"      ), _TL(""),    1.,  0., true);
+	Parameters.Add_Int   ("GRID_DIM", "GRID_WIDTH", _TL("Width"   ), _TL("Number of cells."), 2000 , 10 , true);
+	Parameters.Add_Double("GRID_DIM", "GRID_SIZE" , _TL("Cellsize"), _TL(""), 1., 0., true);
 
-	Parameters.Add_Node  ("", "ROTATE", _TL("Rotation"), _TL(""));
+	Parameters.Add_Bool  ("", "ROTATE", _TL("Rotation"), _TL(""), false);
 	Parameters.Add_Double("ROTATE", "ROT_X", _TL("X Axis"), _TL(""), 0.);
 	Parameters.Add_Double("ROTATE", "ROT_Y", _TL("Y Axis"), _TL(""), 0.);
 	Parameters.Add_Double("ROTATE", "ROT_Z", _TL("Z Axis"), _TL(""), 0.);
@@ -112,13 +115,26 @@ int CSTL_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter
 {
 	if( pParameter->Cmp_Identifier("METHOD") )
 	{
-		pParameters->Set_Enabled("METHOD_RASTER", pParameter->asInt() == 4);
+		pParameters->Set_Enabled("POINTS"  , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("POLYGONS", pParameter->asInt() == 1);
+		pParameters->Set_Enabled("TIN"     , pParameter->asInt() == 2);
+		pParameters->Set_Enabled("GRID_DIM", pParameter->asInt() == 3);
 	}
 
-	if( pParameter->Cmp_Identifier("METHOD_RASTER") )
+	if( pParameter->Cmp_Identifier("GRID_DIM") )
 	{
-		pParameters->Set_Enabled("GRID_NX"  , pParameter->asInt() == 0);
-		pParameters->Set_Enabled("GRID_CELL", pParameter->asInt() == 1);
+		pParameters->Set_Enabled("GRID_WIDTH", pParameter->asInt() == 0);
+		pParameters->Set_Enabled("GRID_SIZE" , pParameter->asInt() == 1);
+	}
+
+	if( pParameter->Cmp_Identifier("CENTROIDS") )
+	{
+		pParameters->Set_Enabled("DUPLICATES", pParameter->asBool() == false);
+	}
+
+	if( pParameter->Cmp_Identifier("ROTATE") )
+	{
+		pParameter->Set_Children_Enabled(pParameter->asBool());
 	}
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
@@ -161,179 +177,160 @@ bool CSTL_Import::On_Execute(void)
 	Message_Fmt("\n%s: %d", _TL("Number of Facettes"), nFacettes);
 
 	//-----------------------------------------------------
-	r_sin_x	= sin(Parameters("ROT_X")->asDouble() * M_DEG_TO_RAD);
-	r_sin_y	= sin(Parameters("ROT_Y")->asDouble() * M_DEG_TO_RAD);
-	r_sin_z	= sin(Parameters("ROT_Z")->asDouble() * M_DEG_TO_RAD);
-	r_cos_x	= cos(Parameters("ROT_X")->asDouble() * M_DEG_TO_RAD);
-	r_cos_y	= cos(Parameters("ROT_Y")->asDouble() * M_DEG_TO_RAD);
-	r_cos_z	= cos(Parameters("ROT_Z")->asDouble() * M_DEG_TO_RAD);
+	m_bRotate = Parameters("ROTATE")->asBool();
+
+	m_sin.x	= sin(Parameters("ROT_X")->asDouble() * M_DEG_TO_RAD);
+	m_sin.y	= sin(Parameters("ROT_Y")->asDouble() * M_DEG_TO_RAD);
+	m_sin.z	= sin(Parameters("ROT_Z")->asDouble() * M_DEG_TO_RAD);
+	m_cos.x	= cos(Parameters("ROT_X")->asDouble() * M_DEG_TO_RAD);
+	m_cos.y	= cos(Parameters("ROT_Y")->asDouble() * M_DEG_TO_RAD);
+	m_cos.z	= cos(Parameters("ROT_Z")->asDouble() * M_DEG_TO_RAD);
 
 	switch( Parameters("METHOD")->asInt() )
 	{
 
 	//-----------------------------------------------------
-	case 0:	{	// Point Cloud
-		CSG_Rect Extent;
+	case 0:	{	// Points
+		CSG_PointCloud *pPoints = Parameters("POINTS")->asPointCloud();
+		pPoints->Create();
+		pPoints->Set_Name(SG_File_Get_Name(Parameters("FILE")->asString(), false));
+		pPoints->Add_Field("Attribute", SG_DATATYPE_Word);
 
-		if( Get_Extent(Stream, Extent, nFacettes) )
+		bool bCentroid = Parameters("CENTROIDS")->asBool();
+
+		for(int iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
 		{
-			CSG_PointCloud *pPoints = SG_Create_PointCloud();
-			Parameters("POINTS")->Set_Value(pPoints);
-			pPoints->Set_Name(SG_File_Get_Name(Parameters("FILE")->asString(), false));
-			pPoints->Add_Field("ENUM", SG_DATATYPE_Int);
+			TSG_Point_3D Point[4]; WORD Attribute;
 
-			for(int iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
+			if( Read_Facette(Stream, Point, Attribute) )
 			{
-				TSTL_Point p[3];
-
-				if( Read_Facette(Stream, p) )
+				if( bCentroid )
 				{
-					for(int i=0; i<3; i++)
-					{
-						pPoints->Add_Point(p[i].x, p[i].y, p[i].z);
-						pPoints->Set_Attribute(0, 0.);
-					}
+					pPoints->Add_Point(
+						(Point[1].x + Point[2].x + Point[3].x) / 3.,
+						(Point[1].y + Point[2].y + Point[3].y) / 3.,
+						(Point[1].z + Point[2].z + Point[3].z) / 3.
+					);
+
+					pPoints->Set_Attribute(0, Attribute);
+				}
+				else for(int i=1; i<=3; i++)
+				{
+					pPoints->Add_Point(Point[i]);
+
+					pPoints->Set_Attribute(0, Attribute);
 				}
 			}
+		}
 
-			// enumerate duplicates
-			CSG_KDTree_2D Search(pPoints);
+		if( !bCentroid && Parameters("DUPLICATES")->asBool() ) // remove duplicates
+		{
+			CSG_Array_Int Duplicates(pPoints->Get_Count()); CSG_KDTree_3D Search(pPoints);
 
 			for(sLong i=0; i<pPoints->Get_Count() && Set_Progress(i, pPoints->Get_Count()); i++)
 			{
 				if( pPoints->Get_Attribute(i, 0) == 0. )
 				{
-					size_t n = Search.Get_Duplicates(pPoints->Get_X(i), pPoints->Get_Y(i));
+					size_t n = Search.Get_Duplicates(pPoints->Get_X(i), pPoints->Get_Y(i), pPoints->Get_Z(i));
 
 					for(size_t j=1; j<n; j++)
 					{
-						pPoints->Set_Attribute(Search.Get_Match_Index(j), 0, (double)j);
+						Duplicates[Search.Get_Match_Index(j)] = (int)j;
 					}
 				}
 			}
 
 			for(sLong i=pPoints->Get_Count()-1; i>=0; i--)
 			{
-				if( pPoints->Get_Attribute(i, 0) > 0. )
+				if( Duplicates[i] > 0 )
 				{
 					pPoints->Del_Point(i);
 				}
 			}
-
-			pPoints->Del_Field(3);
 		}
 		break; }
 
 	//-----------------------------------------------------
-	case 1:	{	// Point Cloud (centered)
-		CSG_PointCloud *pPoints = SG_Create_PointCloud();
-		Parameters("POINTS")->Set_Value(pPoints);
-		pPoints->Set_Name(SG_File_Get_Name(Parameters("FILE")->asString(), false));
-		pPoints->Add_Field((const char *)NULL, SG_DATATYPE_Undefined);
+	case 1:	{	// Polygons
+		CSG_Shapes *pPolygons = Parameters("POLYGONS")->asShapes();
+		pPolygons->Create(SHAPE_TYPE_Polygon, SG_File_Get_Name(Parameters("FILE")->asString(), false), NULL, SG_VERTEX_TYPE_XYZ);
+		pPolygons->Add_Field("Attribute", SG_DATATYPE_Word );
+		pPolygons->Add_Field("Mean"     , SG_DATATYPE_Float);
+		Parameters("POLYGONS")->Set_Value(pPolygons);
 
 		for(int iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
 		{
-			TSTL_Point p[3];
+			TSG_Point_3D Point[4]; WORD Attribute;
 
-			if( Read_Facette(Stream, p) )
+			if( Read_Facette(Stream, Point, Attribute) )
 			{
-				pPoints->Add_Point(
-					((double)p[0].x + p[1].x + p[2].x) / 3.,
-					((double)p[0].y + p[1].y + p[2].y) / 3.,
-					((double)p[0].z + p[1].z + p[2].z) / 3.
-				);
+				CSG_Shape *pPolygon = pPolygons->Add_Shape();
+
+				pPolygon->Add_Point(Point[1]);
+				pPolygon->Add_Point(Point[2]);
+				pPolygon->Add_Point(Point[3]);
+
+				pPolygon->Set_Value(0, Attribute);
+				pPolygon->Set_Value(1, (Point[1].z + Point[2].z + Point[3].z) / 3.);
 			}
 		}
 
 		break; }
 
 	//-----------------------------------------------------
-	case 2:	{	// Points
-		CSG_Shapes *pPoints = SG_Create_Shapes(SHAPE_TYPE_Point);
-		pPoints->Set_Name(SG_File_Get_Name(Parameters("FILE")->asString(), false));
-		pPoints->Add_Field("Z", SG_DATATYPE_Float);
-		Parameters("SHAPES")->Set_Value(pPoints);
+	case 2:	{	// TIN
+		CSG_TIN *pTIN = Parameters("TIN")->asTIN();
+		pTIN->Set_Name(SG_File_Get_Name(Parameters("FILE")->asString(), false));
+		pTIN->Add_Field("Z"        , SG_DATATYPE_Float);
+		pTIN->Add_Field("Attribute", SG_DATATYPE_Word );
+	//	pTIN->Triangulate(false);
 
 		for(int iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
 		{
-			TSTL_Point p[3];
+			TSG_Point_3D Point[4]; WORD Attribute;
 
-			if( Read_Facette(Stream, p) )
+			if( Read_Facette(Stream, Point, Attribute) )
 			{
-				CSG_Shape *pPoint = pPoints->Add_Shape();
+				CSG_TIN_Node *Node[3];
 
-				pPoint->Add_Point(
-					((double)p[0].x + p[1].x + p[2].x) / 3.,
-					((double)p[0].y + p[1].y + p[2].y) / 3.
-				);
+				for(int i=0; i<3; i++)
+				{
+					Node[i] = pTIN->Add_Node(CSG_Point(Point[i + 1].x, Point[i + 1].y));
+					Node[i]->Set_Value(0, Point[i + 1].z);
+					Node[i]->Set_Value(1, Attribute);
+				}
 
-				pPoint->Set_Value(0,
-					((double)p[0].z + p[1].z + p[2].z) / 3.
-				);
+				pTIN->Add_Triangle(Node);
 			}
 		}
+
+		pTIN->Triangulate(false, true);
 
 		break; }
 
 	//-----------------------------------------------------
-	case 3:	{	// Faces
-		CSG_Shapes *pFaces = SG_Create_Shapes(SHAPE_TYPE_Polygon);
-		pFaces->Set_Name(SG_File_Get_Name(Parameters("FILE")->asString(), false));
-		pFaces->Add_Field("Z0"   , SG_DATATYPE_Float);
-		pFaces->Add_Field("Z1"   , SG_DATATYPE_Float);
-		pFaces->Add_Field("Z2"   , SG_DATATYPE_Float);
-		pFaces->Add_Field("Zmean", SG_DATATYPE_Float);
-		Parameters("SHAPES")->Set_Value(pFaces);
-
-		for(int iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
-		{
-			TSTL_Point p[3];
-
-			if( Read_Facette(Stream, p) )
-			{
-				CSG_Shape *pFace = pFaces->Add_Shape();
-
-				pFace->Add_Point(p[0].x, p[0].y);
-				pFace->Add_Point(p[1].x, p[1].y);
-				pFace->Add_Point(p[2].x, p[2].y);
-
-				pFace->Set_Value(0, p[0].z);
-				pFace->Set_Value(1, p[1].z);
-				pFace->Set_Value(2, p[2].z);
-				pFace->Set_Value(3, ((double)p[0].z + p[1].z + p[2].z) / 3.);
-			}
-		}
-
-		break; }
-
-	//-----------------------------------------------------
-	case 4:	{	// Raster
+	case 3:	{	// Grid
 		CSG_Rect Extent;
 
 		if( Get_Extent(Stream, Extent, nFacettes) )
 		{
-			int nx, ny; double d;
+			CSG_Grid_System System;
 
-			switch( Parameters("METHOD_RASTER")->asInt() )
+			switch( Parameters("GRID_DIM")->asInt() )
 			{
-			case  1: // Pixel Size
-				d = Parameters("GRID_CELL")->asDouble();
-
-				if( d > 0. )
-				{
-					nx = 1 + (int)(Extent.Get_XRange() / d);;
-					ny = 1 + (int)(Extent.Get_YRange() / d);
-					break;
-				}
-
-			default: // Pixels in X Direction
-				nx = Parameters("GRID_NX")->asInt();
-				d  = Extent.Get_XRange() / nx;
-				ny = 1 + (int)(Extent.Get_YRange() / d);
+			default: // Width (number of cells)
+				System.Create(Extent.Get_XRange() / Parameters("GRID_WIDTH")->asInt(),
+					Extent
+				);
 				break;
+
+			case  1: // Cellsize
+				System.Create(Parameters("GRID_SIZE")->asDouble(),
+					Extent
+				);
 			}
 
-			m_pGrid	= SG_Create_Grid(SG_DATATYPE_Float, nx, ny, d, Extent.Get_XMin(), Extent.Get_YMin());
+			m_pGrid	= SG_Create_Grid(System);
 			m_pGrid->Set_Name(SG_File_Get_Name(Parameters("FILE")->asString(), false));
 			m_pGrid->Set_NoData_Value(-99999.);
 			m_pGrid->Assign_NoData();
@@ -343,20 +340,17 @@ bool CSTL_Import::On_Execute(void)
 			//---------------------------------------------
 			for(int iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
 			{
-				TSTL_Point p[3];
+				TSG_Point_3D Point[4]; WORD Attribute;
 
-				if( Read_Facette(Stream, p) )
+				if( Read_Facette(Stream, Point, Attribute) )
 				{
-					TSG_Point_3D	Point[3];
-
-					for(int i=0; i<3; i++)
+					for(int i=1; i<=3; i++)
 					{
-						Point[i].x = (p[i].x - m_pGrid->Get_XMin()) / m_pGrid->Get_Cellsize();
-						Point[i].y = (p[i].y - m_pGrid->Get_YMin()) / m_pGrid->Get_Cellsize();
-						Point[i].z =  p[i].z;
+						Point[i].x = (Point[i].x - m_pGrid->Get_XMin()) / m_pGrid->Get_Cellsize();
+						Point[i].y = (Point[i].y - m_pGrid->Get_YMin()) / m_pGrid->Get_Cellsize();
 					}
 
-					Set_Triangle(Point);
+					Set_Triangle(Point + 1);
 				}
 			}
 		}
@@ -374,41 +368,50 @@ bool CSTL_Import::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline bool CSTL_Import::Read_Facette(CSG_File &Stream, TSTL_Point p[3])
+inline bool CSTL_Import::Read_Facette(CSG_File &Stream, TSG_Point_3D Point[4], WORD &Attribute)
 {
-	WORD Attribute;
+	float p[3];
 
-	if( Stream.Read(p + 0, sizeof(TSTL_Point))
-	&&  Stream.Read(p + 0, sizeof(TSTL_Point))
-	&&  Stream.Read(p + 1, sizeof(TSTL_Point))
-	&&  Stream.Read(p + 2, sizeof(TSTL_Point))
-	&&  Stream.Read(&Attribute, sizeof(Attribute)) )
+	for(int i=0; i<4; i++)
 	{
-		Rotate(p[0]);
-		Rotate(p[1]);
-		Rotate(p[2]);
+		if( !Stream.Read(p, sizeof(float), 3) )
+		{
+			return( false );
+		}
 
-		return( true );
+		Point[i].x = (double)p[0];
+		Point[i].y = (double)p[1];
+		Point[i].z = (double)p[2];
+
+		if( m_bRotate )
+		{
+			Rotate(Point[i]);
+		}
 	}
 
-	return( false );
+	if( !Stream.Read(&Attribute, sizeof(Attribute)) )
+	{
+		return( false );
+	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
-inline void CSTL_Import::Rotate(TSTL_Point &p)
+inline void CSTL_Import::Rotate(TSG_Point_3D &p)
 {
-	float d;
+	double d;
 
-	d   = (float)(r_cos_z * p.x - r_sin_z * p.y);
-	p.y = (float)(r_sin_z * p.x + r_cos_z * p.y);
+	d   = (m_cos.z * p.x - m_sin.z * p.y);
+	p.y = (m_sin.z * p.x + m_cos.z * p.y);
 	p.x = d;
 
-	d   = (float)(r_cos_y * p.z - r_sin_y * p.x);
-	p.x = (float)(r_sin_y * p.z + r_cos_y * p.x);
+	d   = (m_cos.y * p.z - m_sin.y * p.x);
+	p.x = (m_sin.y * p.z + m_cos.y * p.x);
 	p.z = d;
 
-	d   = (float)(r_cos_x * p.z - r_sin_x * p.y);
-	p.y = (float)(r_sin_x * p.z + r_cos_x * p.y);
+	d   = (m_cos.x * p.z - m_sin.x * p.y);
+	p.y = (m_sin.x * p.z + m_cos.x * p.y);
 	p.z = d;
 }
 
@@ -420,24 +423,23 @@ inline void CSTL_Import::Rotate(TSTL_Point &p)
 //---------------------------------------------------------
 bool CSTL_Import::Get_Extent(CSG_File &Stream, CSG_Rect &Extent, int nFacettes)
 {
-	float xMin = 0., xMax = 0., yMin = 0., yMax = 0.;
+	double xMin = 0., xMax = 0., yMin = 0., yMax = 0.;
 
 	for(int iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
 	{
-		TSTL_Point p[3];
+		TSG_Point_3D Point[4]; WORD Attribute;
 
-		if( Read_Facette(Stream, p) )
+		if( Read_Facette(Stream, Point, Attribute) )
 		{
 			if( iFacette == 0 )
 			{
-				xMin = xMax = p[0].x;
-				yMin = yMax = p[0].y;
+				xMin = xMax = Point[1].x;
+				yMin = yMax = Point[1].y;
 			}
-
-			for(int i=0; i<3; i++)
+			else for(int i=1; i<=3; i++)
 			{
-				if( xMin > p[i].x ) { xMin = p[i].x; } else if( xMax < p[i].x ) { xMax = p[i].x; }
-				if( yMin > p[i].y ) { yMin = p[i].y; } else if( yMax < p[i].y ) { yMax = p[i].y; }
+				if( xMin > Point[i].x ) { xMin = Point[i].x; } else if( xMax < Point[i].x ) { xMax = Point[i].x; }
+				if( yMin > Point[i].y ) { yMin = Point[i].y; } else if( yMax < Point[i].y ) { yMax = Point[i].y; }
 			}
 		}
 	}
