@@ -134,11 +134,8 @@ void CSG_TIN::_On_Construction(void)
 {
 	CSG_Table::_On_Construction();
 
-	m_Edges			= NULL;
-	m_nEdges		= 0;
-
-	m_Triangles		= NULL;
-	m_nTriangles	= 0;
+	m_Edges     = NULL; m_nEdges     = 0;
+	m_Triangles = NULL; m_nTriangles = 0;
 }
 
 
@@ -203,6 +200,8 @@ bool CSG_TIN::Create(CSG_Shapes *pShapes)
 
 		SG_UI_Process_Set_Ready();
 
+		m_bTriangulate = true;
+
 		if( Update() )
 		{
 			SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
@@ -260,9 +259,7 @@ bool CSG_TIN::_Destroy_Edges(void)
 			delete(m_Edges[i]);
 		}
 
-		SG_Free(m_Edges);
-		m_Edges			= NULL;
-		m_nEdges		= 0;
+		SG_Free(m_Edges); m_Edges = NULL; m_nEdges = 0;
 	}
 
 	return( true );
@@ -278,9 +275,7 @@ bool CSG_TIN::_Destroy_Triangles(void)
 			delete(m_Triangles[i]);
 		}
 
-		SG_Free(m_Triangles);
-		m_Triangles		= NULL;
-		m_nTriangles	= 0;
+		SG_Free(m_Triangles); m_Triangles = NULL; m_nTriangles = 0;
 	}
 
 	return( true );
@@ -296,7 +291,7 @@ bool CSG_TIN::Assign(CSG_Data_Object *pObject)
 {
 	if(	pObject && pObject->is_Valid() && pObject->Get_ObjectType() == Get_ObjectType() )
 	{
-		CSG_TIN	*pTIN	= (CSG_TIN *)pObject;
+		CSG_TIN *pTIN = (CSG_TIN *)pObject;
 
 		Destroy();
 
@@ -304,12 +299,12 @@ bool CSG_TIN::Assign(CSG_Data_Object *pObject)
 
 		Set_Name(pTIN->Get_Name());
 
-		Get_History()	= pTIN->Get_History();
+		Get_History() = pTIN->Get_History();
 
 		//-------------------------------------------------
 		for(sLong iNode=0; iNode<pTIN->Get_Node_Count(); iNode++)
 		{
-			CSG_TIN_Node	*pNode	= pTIN->Get_Node(iNode);
+			CSG_TIN_Node *pNode = pTIN->Get_Node(iNode);
 
 			Add_Node(pNode->Get_Point(), pNode, false);
 		}
@@ -317,7 +312,7 @@ bool CSG_TIN::Assign(CSG_Data_Object *pObject)
 		//-------------------------------------------------
 		for(sLong iTriangle=0; iTriangle<pTIN->Get_Triangle_Count(); iTriangle++)
 		{
-			CSG_TIN_Triangle	*pTriangle	= pTIN->Get_Triangle(iTriangle);
+			CSG_TIN_Triangle *pTriangle = pTIN->Get_Triangle(iTriangle);
 
 			_Add_Triangle(
 				Get_Node(pTriangle->Get_Node(0)->Get_Index()),
@@ -326,10 +321,35 @@ bool CSG_TIN::Assign(CSG_Data_Object *pObject)
 			);
 		}
 
+		m_bTriangulate = false;
+		Update();
+		m_bTriangulate = pTIN->m_bTriangulate;
+
 		return( true );
 	}
 
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_TIN::Triangulate(bool bOn, bool bUpdate)
+{
+	if( m_bTriangulate != bOn )
+	{
+		m_bTriangulate = bOn;
+	}
+
+	if( bUpdate )
+	{
+		Update();
+	}
+
+	return( true );
 }
 
 
@@ -387,13 +407,13 @@ CSG_Table_Record * CSG_TIN::_Get_New_Record(sLong Index)
 }
 
 //---------------------------------------------------------
-CSG_TIN_Node * CSG_TIN::Add_Node(TSG_Point Point, CSG_Table_Record *pRecord, bool bUpdateNow)
+CSG_TIN_Node * CSG_TIN::Add_Node(const TSG_Point &Point, CSG_Table_Record *pRecord, bool bUpdateNow)
 {
-	CSG_TIN_Node	*pNode	= (CSG_TIN_Node *)Add_Record(pRecord);
+	CSG_TIN_Node *pNode = (CSG_TIN_Node *)Add_Record(pRecord);
 
 	if( pNode )
 	{
-		pNode->m_Point	= Point;
+		pNode->m_Point = Point;
 
 		if( bUpdateNow )
 		{
@@ -426,21 +446,39 @@ bool CSG_TIN::Del_Node(sLong Index, bool bUpdateNow)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline bool CSG_TIN::_Add_Edge(CSG_TIN_Node *a, CSG_TIN_Node *b)
+CSG_TIN_Triangle * CSG_TIN::Add_Triangle(CSG_TIN_Node *p0, CSG_TIN_Node *p1, CSG_TIN_Node *p2)
 {
-	m_Edges		= (CSG_TIN_Edge **)SG_Realloc(m_Edges, (m_nEdges + 1) * sizeof(CSG_TIN_Edge *));
-	m_Edges[m_nEdges++]	= new CSG_TIN_Edge(a, b);
+	return( _Add_Triangle((CSG_TIN_Node *)p0, (CSG_TIN_Node *)p1, (CSG_TIN_Node *)p2) );
+}
 
-	return( true );
+CSG_TIN_Triangle * CSG_TIN::Add_Triangle(CSG_TIN_Node *p[3])
+{
+	return( Add_Triangle(p[0], p[1], p[2]) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+inline CSG_TIN_Edge * CSG_TIN::_Add_Edge(CSG_TIN_Node *a, CSG_TIN_Node *b)
+{
+	CSG_TIN_Edge *pEdge = new CSG_TIN_Edge(a, b);
+
+	m_Edges = (CSG_TIN_Edge **)SG_Realloc(m_Edges, (m_nEdges + 1) * sizeof(CSG_TIN_Edge *));
+	m_Edges[m_nEdges++]	= pEdge;
+
+	return( pEdge );
 }
 
 //---------------------------------------------------------
-bool CSG_TIN::_Add_Triangle(CSG_TIN_Node *a, CSG_TIN_Node *b, CSG_TIN_Node *c)
+CSG_TIN_Triangle * CSG_TIN::_Add_Triangle(CSG_TIN_Node *a, CSG_TIN_Node *b, CSG_TIN_Node *c)
 {
-	CSG_TIN_Triangle	*pTriangle;
+	CSG_TIN_Triangle *pTriangle = new CSG_TIN_Triangle(a, b, c);
 
 	m_Triangles	= (CSG_TIN_Triangle **)SG_Realloc(m_Triangles, (m_nTriangles + 1) * sizeof(CSG_TIN_Triangle *));
-	m_Triangles[m_nTriangles++]	= pTriangle = new CSG_TIN_Triangle(a, b, c);
+	m_Triangles[m_nTriangles++]	= pTriangle;
 
 	if( a->_Add_Neighbor(b) )
 	{
@@ -464,7 +502,7 @@ bool CSG_TIN::_Add_Triangle(CSG_TIN_Node *a, CSG_TIN_Node *b, CSG_TIN_Node *c)
 	b->_Add_Triangle(pTriangle);
 	c->_Add_Triangle(pTriangle);
 
-	return( true );
+	return( pTriangle );
 }
 
 
@@ -475,7 +513,26 @@ bool CSG_TIN::_Add_Triangle(CSG_TIN_Node *a, CSG_TIN_Node *b, CSG_TIN_Node *c)
 //---------------------------------------------------------
 bool CSG_TIN::On_Update(void)
 {
-	return( _Triangulate() );
+	if( m_bTriangulate )
+	{
+		return( _Triangulate() );
+	}
+
+	if( Get_Node_Count() >= 3 ) // Update extent...
+	{
+		m_Extent.Assign(Get_Node(0)->Get_Point(), Get_Node(0)->Get_Point());
+
+		for(int i=1; i<Get_Node_Count(); i++)
+		{
+			m_Extent.Union(Get_Node(i)->Get_Point());
+		}
+
+		return( true );
+	}
+
+	m_Extent.Assign(0., 0., 0., 0.);
+
+	return( false );
 }
 
 

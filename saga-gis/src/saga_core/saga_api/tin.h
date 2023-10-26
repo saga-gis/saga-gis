@@ -253,9 +253,10 @@ public:
 
 	const CSG_Rect &				Get_Extent				(void)					{	Update();	return( m_Extent );	}
 
+	bool							Triangulate				(bool bOn = true, bool bUpdate = false);
 
 	//-----------------------------------------------------
-	CSG_TIN_Node *					Add_Node				(TSG_Point Point, CSG_Table_Record *pRecord, bool bUpdateNow);
+	CSG_TIN_Node *					Add_Node				(const TSG_Point &Point, CSG_Table_Record *pRecord = NULL, bool bUpdateNow = false);
 	bool							Del_Node				(sLong Index, bool bUpdateNow);
 
 	sLong							Get_Node_Count			(void)          const	{	return( Get_Count() );	}
@@ -266,6 +267,8 @@ public:
 
 	sLong							Get_Triangle_Count		(void)          const	{	return( m_nTriangles );	}
 	CSG_TIN_Triangle *				Get_Triangle			(sLong Index)   const	{	return( Index >= 0 && Index < m_nTriangles ? m_Triangles[Index] : NULL );	}
+	CSG_TIN_Triangle *				Add_Triangle			(CSG_TIN_Node *p0, CSG_TIN_Node *p1, CSG_TIN_Node *p2);
+	CSG_TIN_Triangle *				Add_Triangle			(CSG_TIN_Node *p[3]);
 
 
 protected:
@@ -284,6 +287,8 @@ protected:
 
 
 protected:
+
+	bool							m_bTriangulate{true};
 
 	sLong							m_nEdges, m_nTriangles;
 
@@ -306,8 +311,8 @@ protected:
 	bool							_Destroy_Edges			(void);
 	bool							_Destroy_Triangles		(void);
 
-	bool							_Add_Edge				(CSG_TIN_Node *a, CSG_TIN_Node *b);
-	bool							_Add_Triangle			(CSG_TIN_Node *a, CSG_TIN_Node *b, CSG_TIN_Node *c);
+	CSG_TIN_Edge *					_Add_Edge				(CSG_TIN_Node *a, CSG_TIN_Node *b);
+	CSG_TIN_Triangle *				_Add_Triangle			(CSG_TIN_Node *a, CSG_TIN_Node *b, CSG_TIN_Node *c);
 
 	bool							_Triangulate			(void);
 	bool							_Triangulate			(CSG_TIN_Node **Nodes, int nNodes, TTIN_Triangle *Triangles, int &nTriangles);
