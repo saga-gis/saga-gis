@@ -995,7 +995,7 @@ size_t      CSG_KDTree_3D::Get_Duplicates(double Coordinate[3], CSG_Array_Int &I
 
 	std::vector<std::pair<size_t, double>> Matches;
 
-	((CSG_KDTree_Adaptor::kd_tree_2d *)m_pKDTree)->radiusSearch(Coordinate, 0.0000001, Matches, SearchParams);
+	((CSG_KDTree_Adaptor::kd_tree_3d *)m_pKDTree)->radiusSearch(Coordinate, 0.0000001, Matches, SearchParams);
 
 	Indices  .Create(Matches.size());
 	Distances.Create(Matches.size());
