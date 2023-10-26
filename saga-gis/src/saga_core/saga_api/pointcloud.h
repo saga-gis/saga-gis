@@ -155,6 +155,7 @@ public:
 
 	//-----------------------------------------------------
 	bool							Add_Point			(double x, double y, double z);
+	bool							Add_Point			(const CSG_Point_3D &Point);
 	bool							Del_Point			(sLong Index);
 	bool							Del_Points			(void);
 

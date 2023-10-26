@@ -1110,6 +1110,12 @@ bool CSG_PointCloud::Add_Point(double x, double y, double z)
 }
 
 //---------------------------------------------------------
+bool CSG_PointCloud::Add_Point(const CSG_Point_3D &Point)
+{
+	return( Add_Point(Point.x, Point.y, Point.z) );
+}
+
+//---------------------------------------------------------
 bool CSG_PointCloud::Del_Point(sLong Index)
 {
 	if( Index >= 0 && Index < m_nRecords )
