@@ -65,10 +65,15 @@ CSTL_Import::CSTL_Import(void)
 	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
-		""
+		"An StL (\"StereoLithography\") file is a triangular representation "
+		"of a 3-dimensional surface geometry. The surface is tessellated or "
+		"broken down logically into a series of small triangles (facets). "
+		"Each facet is described by a perpendicular direction and three points "
+		"representing the vertices (corners) of the triangle (Ennex Research Corporation). "
+		"The StL file format is commonly used for 3D printing."
 	));
 
-	Add_Reference("http://www.fabbers.com/tech/STL_Format", SG_T("The StL Format"));
+	Add_Reference("http://www.fabbers.com/tech/STL_Format", SG_T("Ennex Research Corporation - The StL Format"));
 
 	//-----------------------------------------------------
 	Parameters.Add_PointCloud ("", "POINTS"  , _TL("Points"  ), _TL(""), PARAMETER_OUTPUT);
@@ -280,10 +285,10 @@ bool CSTL_Import::On_Execute(void)
 	//-----------------------------------------------------
 	case 2:	{	// TIN
 		CSG_TIN *pTIN = Parameters("TIN")->asTIN();
+		pTIN->Destroy();
 		pTIN->Set_Name(SG_File_Get_Name(Parameters("FILE")->asString(), false));
 		pTIN->Add_Field("Z"        , SG_DATATYPE_Float);
 		pTIN->Add_Field("Attribute", SG_DATATYPE_Word );
-	//	pTIN->Triangulate(false);
 
 		for(int iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
 		{
@@ -572,10 +577,15 @@ CSTL_Export::CSTL_Export(void)
 	Set_Author		("Navaladi, Schoeller, Conrad (c) 2009");
 
 	Set_Description	(_TW(
-		""
+		"An StL (\"StereoLithography\") file is a triangular representation "
+		"of a 3-dimensional surface geometry. The surface is tessellated or "
+		"broken down logically into a series of small triangles (facets). "
+		"Each facet is described by a perpendicular direction and three points "
+		"representing the vertices (corners) of the triangle (Ennex Research Corporation). "
+		"The StL file format is commonly used for 3D printing."
 	));
 
-	Add_Reference("http://www.fabbers.com/tech/STL_Format", SG_T("The StL Format"));
+	Add_Reference("http://www.fabbers.com/tech/STL_Format", SG_T("Ennex Research Corporation - The StL Format"));
 
 	//-----------------------------------------------------
 	Parameters.Add_TIN("",
@@ -608,14 +618,15 @@ CSTL_Export::CSTL_Export(void)
 //---------------------------------------------------------
 bool CSTL_Export::On_Execute(void)
 {
-	CSG_TIN   *pTIN   = Parameters("TIN"   )->asTIN();
-	int        zField = Parameters("ZFIELD")->asInt(); 
-	CSG_String File   = Parameters("FILE"  )->asString();
+	CSG_TIN *pTIN = Parameters("TIN")->asTIN();
+	int    zField = Parameters("ZFIELD")->asInt(); 
 
 	CSG_File Stream;
 
-	if( !Stream.Open(File, SG_FILE_W, Parameters("BINARY")->asInt() == 1) )
+	if( !Stream.Open(Parameters("FILE")->asString(), SG_FILE_W, Parameters("BINARY")->asInt() == 1) )
 	{
+		Error_Fmt("%s\n'%s'", _TL("failed to create target file"), Parameters("FILE")->asString());
+
 		return( false );
 	}
 
@@ -624,7 +635,7 @@ bool CSTL_Export::On_Execute(void)
 	{
 		char *sHeader = (char *)SG_Calloc(80, sizeof(char));
 		DWORD nFacets = (DWORD)pTIN->Get_Triangle_Count();
-		WORD  nBytes  = 0;
+		WORD   nBytes = 0;
 
 		Stream.Write(sHeader , sizeof(char), 80);
 		Stream.Write(&nFacets, sizeof(DWORD));
@@ -658,7 +669,7 @@ bool CSTL_Export::On_Execute(void)
 	//-----------------------------------------------------
 	else	// ASCII
 	{
-		Stream.Printf("solid %s\n", SG_File_Get_Name(File, false).c_str());
+		Stream.Printf("solid %s\n", SG_File_Get_Name(Parameters("FILE")->asString(), false).c_str());
 
 		for(sLong iTriangle=0; iTriangle<pTIN->Get_Triangle_Count(); iTriangle++)
 		{
@@ -684,7 +695,7 @@ bool CSTL_Export::On_Execute(void)
 			Stream.Printf(" endfacet\n");		
 		}
 
-		Stream.Printf("endsolid %s\n", SG_File_Get_Name(File, false).c_str());
+		Stream.Printf("endsolid %s\n", SG_File_Get_Name(Parameters("FILE")->asString(), false).c_str());
 	}
 
 	return( true );
