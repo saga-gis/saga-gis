@@ -836,7 +836,7 @@ void CSG_3DView_Canvas::Draw_Line(double ax, double ay, double az, double bx, do
 			if( ax < 0. ) { ay -= dy * ax; az -= dz * ax; ax = 0.; }
 			if( bx >= m_Image_NX ) { bx = m_Image_NX - 1; }
 
-			for(double i=0, d=1/(bx-ax); i>=0 &&i<=1; i+=d, ax++, ay+=dy, az+=dz)
+			for(double i=0, d=1/(bx-ax); i<=1; i+=d, ax++, ay+=dy, az+=dz)
 			{
 				_Draw_Pixel((int)ax, (int)ay, az, Colors.Get_Interpolated(i));
 			}
@@ -848,7 +848,7 @@ void CSG_3DView_Canvas::Draw_Line(double ax, double ay, double az, double bx, do
 			if( ay < 0. ) { ax -= dx * ay; az -= dz * ay; ay = 0.; }
 			if( by >= m_Image_NY ) { by = m_Image_NY - 1; }
 
-			for(double i=0., d=1/(by-ay); i>=0 &&i<=1; i+=d, ax+=dx, ay++, az+=dz)
+			for(double i=0., d=1/(by-ay); i<=1; i+=d, ax+=dx, ay++, az+=dz)
 			{
 				_Draw_Pixel((int)ax, (int)ay, az, Colors.Get_Interpolated(i));
 			}

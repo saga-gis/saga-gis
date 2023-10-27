@@ -597,8 +597,7 @@ void CVIEW_Histogram::On_Command_UI(wxUpdateUIEvent &event)
 	{
 	case ID_CMD_HISTOGRAM_CUMULATIVE:
 		if( m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_SINGLE
-		||  m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_RGB
-		||  m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_LUT )
+		||  m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_RGB )
 		{
 			event.Enable(false);
 			event.Check (false);
