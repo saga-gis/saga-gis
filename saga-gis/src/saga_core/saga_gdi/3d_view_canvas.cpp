@@ -736,7 +736,7 @@ double CSG_3DView_Canvas::Get_Dim(const CSG_Point_3D &p0, const CSG_Point_3D &p1
 //---------------------------------------------------------
 inline void CSG_3DView_Canvas::_Draw_Pixel(int x, int y, double z, int color)
 {
-	if( x >= 0 && x < m_Image_NX && y >= 0 && y < m_Image_NY && z < m_Image_zMax[y][x] )
+	if( x >= 0 && x < m_Image_NX && y >= 0 && y < m_Image_NY && z >= 0. && z < m_Image_zMax[y][x] )
 	{
 		BYTE *RGB = m_Image_pRGB + 3 * (y * m_Image_NX + x);
 
@@ -808,8 +808,8 @@ void CSG_3DView_Canvas::Draw_Point(int x, int y, double z, int Color, int Size)
 //---------------------------------------------------------
 void CSG_3DView_Canvas::Draw_Line(double ax, double ay, double az, double bx, double by, double bz, int aColor, int bColor)
 {
-	if(	(ax < 0 && bx < 0) || (ax >= m_Image_NX && bx >= m_Image_NX)
-	||	(ay < 0 && by < 0) || (ay >= m_Image_NY && by >= m_Image_NY) )
+	if(	(ax < 0. && bx < 0.) || ((int)ax >= m_Image_NX && (int)bx >= m_Image_NX)
+	||	(ay < 0. && by < 0.) || ((int)ay >= m_Image_NY && (int)by >= m_Image_NY) )
 	{
 		return; // completely out of area
 	}
@@ -819,30 +819,40 @@ void CSG_3DView_Canvas::Draw_Line(double ax, double ay, double az, double bx, do
 		return; // completely in front of screen
 	}
 
-	double n, dx = bx - ax, dy = by - ay, dz = bz - az;
+	double dx = bx - ax, dy = by - ay;
 
-	if( fabs(dx) > fabs(dy) && fabs(dx) > 0. )
+	if( fabs(dx) < 1. && fabs(dy) < 1. ) // both end points fall into the same pixel
 	{
-		n = fabs(dx); dx = dx < 0. ? -1. : 1.; dy /= n; dz /= n;
-	}
-	else if( fabs(dy) > 0. )
-	{
-		n = fabs(dy); dy = dy < 0. ? -1. : 1.; dx /= n; dz /= n;
+		_Draw_Pixel((int)ax, (int)ay, az < bz ? az : bz, az < bz ? aColor : bColor);
 	}
 	else
 	{
-		_Draw_Pixel((int)ax, (int)ay, az, aColor);
-		_Draw_Pixel((int)bx, (int)by, bz, bColor);
+		double dz = bz - az; CSG_Colors Colors(2); Colors[0] = aColor; Colors[1] = bColor;
 
-		return;
-	}
+		if( fabs(dx) > fabs(dy) )
+		{
+			dy /= fabs(dx); dz /= fabs(dx);
+			if( dx < 0. ) { dx = ax; ax = bx; bx = dx; } // ax < bx
+			if( ax < 0. ) { ay -= dy * ax; az -= dz * ax; ax = 0.; }
+			if( bx >= m_Image_NX ) { bx = m_Image_NX - 1; }
 
-	//-----------------------------------------------------
-	CSG_Colors Colors(2); Colors[0] = aColor; Colors[1] = bColor;
+			for(double i=0, d=1/(bx-ax); i>=0 &&i<=1; i+=d, ax++, ay+=dy, az+=dz)
+			{
+				_Draw_Pixel((int)ax, (int)ay, az, Colors.Get_Interpolated(i));
+			}
+		}
+		else
+		{
+			dx /= fabs(dy); dz /= fabs(dy);
+			if( dy < 0. ) { dy = ay; ay = by; by = dy; } // ay < by
+			if( ay < 0. ) { ax -= dx * ay; az -= dz * ay; ay = 0.; }
+			if( by >= m_Image_NY ) { by = m_Image_NY - 1; }
 
-	for(double i=0.; i<=n; i++, ax+=dx, ay+=dy, az+=dz)
-	{
-		_Draw_Pixel((int)ax, (int)ay, az, Colors.Get_Interpolated(i / n));
+			for(double i=0., d=1/(by-ay); i>=0 &&i<=1; i+=d, ax+=dx, ay++, az+=dz)
+			{
+				_Draw_Pixel((int)ax, (int)ay, az, Colors.Get_Interpolated(i));
+			}
+		}
 	}
 }
 
