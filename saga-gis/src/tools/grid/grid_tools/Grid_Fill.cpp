@@ -311,12 +311,13 @@ CGrid_Fill_Interactive::CGrid_Fill_Interactive(void)
 {
 	Set_Name		(_TL("Change Grid Values - Flood Fill"));
 
-	Set_Author		("A.Ringeler (c) 2005, O.Conrad (c) 2006");
+	Set_Author		("A.Ringeler (c) 2005, O.Conrad (c) 2006, J.Spitzmueller (c) 2023");
 
 	Set_Description	(_TW(
 		"Interactively use the flood fill method for replacement of grid cell values "
 		"starting at the positions clicked with the left mouse button. "
 		"If the target grid is not set, the changes will be applied to the original grid. "
+		"If the target grid is set the tool will add the new grid on-top of the active map. "
 	));
 
 	//-----------------------------------------------------
@@ -334,6 +335,15 @@ int CGrid_Fill_Interactive::On_Parameters_Enable(CSG_Parameters *pParameters, CS
 //---------------------------------------------------------
 bool CGrid_Fill_Interactive::On_Execute(void)
 {
+	if( Parameters("GRID")->asGrid() != Parameters("GRID_OUT")->asGrid() )
+	{
+	 	bool bSet = Parameters_Set(Parameters); 
+		CSG_String Name = m_pGrid->Get_Name();
+		DataObject_Set_Parameters( m_pGrid, Parameters("GRID")->asGrid() );
+		m_pGrid->Set_Name( Name );
+		return( bSet && DataObject_Update(m_pGrid, SG_UI_DATAOBJECT_SHOW_MAP_ACTIVE) );
+	}
+
 	return( Parameters_Set(Parameters) );
 }
 
