@@ -827,30 +827,48 @@ void CSG_3DView_Canvas::Draw_Line(double ax, double ay, double az, double bx, do
 	}
 	else
 	{
-		double dz = bz - az; CSG_Colors Colors(2); Colors[0] = aColor; Colors[1] = bColor;
+		double dz = bz - az, ac = 0., dc = 1.; CSG_Colors Colors(2); Colors[0] = aColor; Colors[1] = bColor;
 
 		if( fabs(dx) > fabs(dy) )
 		{
-			dy /= fabs(dx); dz /= fabs(dx);
-			if( dx < 0. ) { dx = ax; ax = bx; bx = dx; } // ax < bx
-			if( ax < 0. ) { ay -= dy * ax; az -= dz * ax; ax = 0.; }
+			if( dx < 0. ) // ax < bx
+			{
+				double d = ax;
+				ax = bx; dx = -dx; bx = d;
+				ay = by; dy = -dy;
+				az = bz; dz = -dz;
+				ac = 1.; dc = -1.;
+			}
+
+			dy /= fabs(dx); dz /= fabs(dx); dc /= fabs(dx);
+
+			if( ax < 0. ) { ay -= dy * ax; az -= dz * ax; ac -= dc * ax; ax = 0.; }
 			if( bx >= m_Image_NX ) { bx = m_Image_NX - 1; }
 
-			for(double i=0, d=1/(bx-ax); i<=1; i+=d, ax++, ay+=dy, az+=dz)
+			for(int ix=(int)ax; ix<=(int)bx; ix++, ay+=dy, az+=dz, ac+=dc)
 			{
-				_Draw_Pixel((int)ax, (int)ay, az, Colors.Get_Interpolated(i));
+				_Draw_Pixel(ix, (int)ay, az, Colors.Get_Interpolated(ac));
 			}
 		}
 		else
 		{
-			dx /= fabs(dy); dz /= fabs(dy);
-			if( dy < 0. ) { dy = ay; ay = by; by = dy; } // ay < by
-			if( ay < 0. ) { ax -= dx * ay; az -= dz * ay; ay = 0.; }
+			if( dy < 0. ) // ax < bx
+			{
+				double d = ay;
+				ay = by; dy = -dy; by = d;
+				ax = bx; dx = -dx;
+				az = bz; dz = -dz;
+				ac = 1.; dc = -1.;
+			}
+
+			dx /= fabs(dy); dz /= fabs(dy); dc /= fabs(dy);
+
+			if( ay < 0. ) { ax -= dx * ay; az -= dz * ay; ac -= dc * ay; ay = 0.; }
 			if( by >= m_Image_NY ) { by = m_Image_NY - 1; }
 
-			for(double i=0., d=1/(by-ay); i<=1; i+=d, ax+=dx, ay++, az+=dz)
+			for(int iy=(int)ay; iy<=(int)by; iy++, ax+=dx, az+=dz, ac+=dc)
 			{
-				_Draw_Pixel((int)ax, (int)ay, az, Colors.Get_Interpolated(i));
+				_Draw_Pixel((int)ax, iy, az, Colors.Get_Interpolated(ac));
 			}
 		}
 	}
