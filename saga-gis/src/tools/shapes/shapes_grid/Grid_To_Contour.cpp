@@ -84,6 +84,12 @@ CGrid_To_Contour::CGrid_To_Contour(void)
 		1., 0., true
 	);
 
+	Parameters.Add_Double("",
+		"MINLENGTH", _TL("Minimum Length"),
+		_TL("Contour line segments with minimum length or less will be removed from resulting data set."),
+		0., 0., true
+	);
+
 	Parameters.Add_Choice("",
 		"INTERVALS", _TL("Interval Definition"),
 		_TL(""),
@@ -174,21 +180,6 @@ bool CGrid_To_Contour::On_Execute(void)
 	m_pContours->Add_Field("VALUE", SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
-	m_pPolygons = Parameters("POLYGONS")->asShapes();
-
-	if( m_pPolygons )
-	{
-		m_pPolygons->Create(SHAPE_TYPE_Polygon, m_pContours->Get_Name(), NULL,
-			Parameters("VERTEX")->asInt() == 0 ? SG_VERTEX_TYPE_XY : SG_VERTEX_TYPE_XYZ
-		);
-
-		m_pPolygons->Add_Field("ID"   , SG_DATATYPE_Int   );
-		m_pPolygons->Add_Field("MIN"  , SG_DATATYPE_Double);
-		m_pPolygons->Add_Field("MAX"  , SG_DATATYPE_Double);
-		m_pPolygons->Add_Field("LABEL", SG_DATATYPE_String);
-	}
-
-	//-----------------------------------------------------
 	CSG_Vector Intervals;
 
 	if( Parameters("INTERVALS")->asInt() == 2 ) // from list
@@ -260,7 +251,9 @@ bool CGrid_To_Contour::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_bParts = Parameters("LINE_PARTS")->asBool() && !m_pPolygons;	// only split parts if polygons are not requested
+	bool bParts = Parameters("LINE_PARTS")->asBool() && !Parameters("POLYGONS")->asShapes();	// only split parts if polygons are not requested
+
+	double minLength = Parameters("MINLENGTH")->asDouble();
 
 	m_Edge.Create(SG_DATATYPE_Char, m_pGrid->Get_NX() + 1, m_pGrid->Get_NY() + 1, m_pGrid->Get_Cellsize(), m_pGrid->Get_XMin(), m_pGrid->Get_YMin());
 
@@ -272,28 +265,43 @@ bool CGrid_To_Contour::On_Execute(void)
 		{
 			Process_Set_Text("%s: %s", _TL("Contour"), SG_Get_String(Intervals[i], -2).c_str());
 
-			Get_Contour(Intervals[i]);
+			Get_Contour(Intervals[i], bParts, minLength);
 		}
 	}
 
 	//-----------------------------------------------------
-	if( m_pPolygons && m_pContours->Get_Count() > 0 && Set_Progress(0.) )
+	CSG_Shapes *pPolygons = Parameters("POLYGONS")->asShapes();
+
+	if( pPolygons && m_pContours->Get_Count() > 0 && Set_Progress(0.) )
 	{
-		Get_Polygons(NULL, (CSG_Shape_Line *)m_pContours->Get_Shape(0));
+		pPolygons->Create(SHAPE_TYPE_Polygon, m_pContours->Get_Name(), NULL,
+			Parameters("VERTEX")->asInt() == 0 ? SG_VERTEX_TYPE_XY : SG_VERTEX_TYPE_XYZ
+		);
 
-		for(sLong i=1; i<m_pContours->Get_Count() && Set_Progress(i, m_pContours->Get_Count()); i++)
-		{
-			Get_Polygons((CSG_Shape_Line *)m_pContours->Get_Shape(i - 1), (CSG_Shape_Line *)m_pContours->Get_Shape(i));
-		}
+		pPolygons->Add_Field("ID"   , SG_DATATYPE_Int   );
+		pPolygons->Add_Field("MIN"  , SG_DATATYPE_Double);
+		pPolygons->Add_Field("MAX"  , SG_DATATYPE_Double);
+		pPolygons->Add_Field("LABEL", SG_DATATYPE_String);
 
-		if( Set_Progress(1.) )
+		//-------------------------------------------------
+		if( m_pContours->Get_Count() > 0 && Set_Progress(0.) )
 		{
-			Get_Polygons((CSG_Shape_Line *)m_pContours->Get_Shape(m_pContours->Get_Count() - 1), NULL);
-		}
+			Get_Polygons(pPolygons, NULL, (CSG_Shape_Line *)m_pContours->Get_Shape(0));
 
-		if( Parameters("POLY_PARTS")->asBool() )
-		{
-			Split_Polygon_Parts(m_pPolygons);
+			for(sLong i=1; i<m_pContours->Get_Count() && Set_Progress(i, m_pContours->Get_Count()); i++)
+			{
+				Get_Polygons(pPolygons, (CSG_Shape_Line *)m_pContours->Get_Shape(i - 1), (CSG_Shape_Line *)m_pContours->Get_Shape(i));
+			}
+
+			if( Set_Progress(1.) )
+			{
+				Get_Polygons(pPolygons, (CSG_Shape_Line *)m_pContours->Get_Shape(m_pContours->Get_Count() - 1), NULL);
+			}
+
+			if( Parameters("POLY_PARTS")->asBool() )
+			{
+				Split_Polygon_Parts(pPolygons);
+			}
 		}
 	}
 
@@ -330,7 +338,7 @@ inline bool CGrid_To_Contour::is_Edge(int x, int y)
 //---------------------------------------------------------
 inline void CGrid_To_Contour::Set_Row(int x, int y, bool bOn)
 {
-	int	Edge	= m_Edge.asInt(x, y);
+	int	Edge = m_Edge.asInt(x, y);
 
 	m_Edge.Set_Value(x, y, bOn ? (Edge | EDGE_ROW) : (Edge & EDGE_COL));
 }
@@ -343,7 +351,7 @@ inline bool CGrid_To_Contour::Get_Row(int x, int y)
 //---------------------------------------------------------
 inline void CGrid_To_Contour::Set_Col(int x, int y, bool bOn)
 {
-	int	Edge	= m_Edge.asInt(x, y);
+	int	Edge = m_Edge.asInt(x, y);
 
 	m_Edge.Set_Value(x, y, bOn ? (Edge | EDGE_COL) : (Edge & EDGE_ROW));
 }
@@ -359,7 +367,7 @@ inline bool CGrid_To_Contour::Get_Col(int x, int y)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_To_Contour::Get_Contour(double z)
+bool CGrid_To_Contour::Get_Contour(double z, bool bParts, double minLength)
 {
 	#pragma omp parallel for
 	for(int y=0; y<m_pGrid->Get_NY(); y++)	// Find Border Cells
@@ -383,7 +391,7 @@ bool CGrid_To_Contour::Get_Contour(double z)
  	}
 
 	//-----------------------------------------------------
-	if( m_bParts == false )
+	if( bParts == false )
 	{
 		CSG_Shape *pContour = m_pContours->Add_Shape();
 
@@ -391,13 +399,14 @@ bool CGrid_To_Contour::Get_Contour(double z)
 		pContour->Set_Value(1, z);
 	}
 
+	//-----------------------------------------------------
 	for(int y=0; y<m_pGrid->Get_NY(); y++)	// find unclosed contours first so that these start/end at edges and not somewhere else
 	{
 		for(int x=0; x<m_pGrid->Get_NX(); x++)
 		{
 			if( m_Edge.asInt(x, y) && is_Edge(x, y) )
 			{
-				Get_Contour(z, x, y);
+				Get_Contour(z, x, y, bParts, minLength);
 			}
 		}
 	}
@@ -406,11 +415,23 @@ bool CGrid_To_Contour::Get_Contour(double z)
 	{
 		for(int x=0; x<m_pGrid->Get_NX(); x++)
 		{
-			while( Get_Contour(z, x, y) );
+			while( Get_Contour(z, x, y, bParts, minLength) );
 		}
 	}
 
 	//-----------------------------------------------------
+	if( bParts == false )
+	{
+		CSG_Shape *pContour = m_pContours->Get_Shape(m_pContours->Get_Count() - 1);
+
+		if( pContour->Get_Part_Count() < 1 )
+		{
+			m_pContours->Del_Shape(pContour);
+
+			return( false );
+		}
+	}
+
 	return( true );
 }
 
@@ -420,17 +441,17 @@ bool CGrid_To_Contour::Get_Contour(double z)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_To_Contour::Get_Contour(double z, int x, int y)
+bool CGrid_To_Contour::Get_Contour(double z, int x, int y, bool bParts, double minLength)
 {
-	bool	bRow;
+	bool bRow;
 
 	if( Get_Row(x, y) )
 	{
-		bRow	= true;
+		bRow = true;
 	}
 	else if( Get_Col(x, y) )
 	{
-		bRow	= false;
+		bRow = false;
 	}
 	else
 	{
@@ -438,21 +459,21 @@ bool CGrid_To_Contour::Get_Contour(double z, int x, int y)
 	}
 
 	//-----------------------------------------------------
-	CSG_Shape *pContour;
+	CSG_Shape_Line *pContour;
 
-	if( m_bParts )
+	if( bParts )
 	{
-		pContour = m_pContours->Add_Shape();
+		pContour = m_pContours->Add_Shape()->asLine();
 
 		pContour->Set_Value(0, m_pContours->Get_Count());
 		pContour->Set_Value(1, z);
 	}
 	else
 	{
-		pContour = m_pContours->Get_Shape(m_pContours->Get_Count() - 1);
+		pContour = m_pContours->Get_Shape(m_pContours->Get_Count() - 1)->asLine();
 	}
 
-	int iPart = m_bParts ? 0 : pContour->Get_Part_Count();
+	int iPart = pContour->Get_Part_Count();
 
 	//-----------------------------------------------------
 	for(int Dir=0, x0=x, y0=y, bRow0=bRow?1:0; Dir>=0; )
@@ -485,7 +506,21 @@ bool CGrid_To_Contour::Get_Contour(double z, int x, int y)
 	}
 
 	//-----------------------------------------------------
-	return( pContour->Get_Point_Count(iPart) > 1 );
+	bool bResult = pContour->Get_Point_Count(iPart) > 1; // found at least one contour pixel
+
+	if( pContour->Get_Point_Count(iPart) < 2 || (pContour->Get_Length(iPart) <= minLength && CSG_Point(pContour->Get_Point(0, iPart, true)) == pContour->Get_Point(0, iPart, false)) )
+	{
+		if( bParts )
+		{
+			m_pContours->Del_Shape(pContour);
+		}
+		else
+		{
+			pContour->Del_Part(iPart);
+		}
+	}
+
+	return( bResult );
 }
 
 //---------------------------------------------------------
@@ -544,7 +579,7 @@ inline bool CGrid_To_Contour::Get_Contour_Cell(int &Dir, int &x, int &y, bool &b
 #define EDGE_NODE_TWO	3
 
 //---------------------------------------------------------
-bool CGrid_To_Contour::Get_Polygons(CSG_Shape_Line *pContour_Lo, CSG_Shape_Line *pContour_Hi)
+bool CGrid_To_Contour::Get_Polygons(CSG_Shapes *pPolygons, CSG_Shape_Line *pContour_Lo, CSG_Shape_Line *pContour_Hi)
 {
 	double zMin = pContour_Lo ? pContour_Lo->asDouble(1) : m_pGrid->Get_Min();
 	double zMax = pContour_Hi ? pContour_Hi->asDouble(1) : m_pGrid->Get_Max();
@@ -559,9 +594,9 @@ bool CGrid_To_Contour::Get_Polygons(CSG_Shape_Line *pContour_Lo, CSG_Shape_Line 
 	}
 
 	//-----------------------------------------------------
-	CSG_Shape_Polygon *pPolygon = m_pPolygons->Add_Shape()->asPolygon();
+	CSG_Shape_Polygon *pPolygon = pPolygons->Add_Shape()->asPolygon();
 
-	pPolygon->Set_Value(0, m_pPolygons->Get_Count());
+	pPolygon->Set_Value(0, pPolygons->Get_Count());
 	pPolygon->Set_Value(1, zMin);
 	pPolygon->Set_Value(2, zMax);
 	pPolygon->Set_Value(3, SG_Get_String(zMin) + " - " + SG_Get_String(zMax));
