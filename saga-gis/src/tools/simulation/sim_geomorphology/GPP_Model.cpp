@@ -77,7 +77,7 @@ CGPP_Model::CGPP_Model(void)
 
 	Set_Author		(SG_T("V. Wichmann (c) 2016-2023"));
 
-    Set_Version     ("1.3");
+    Set_Version     ("1.4");
 
 	Set_Description	(_TW("The Gravitational Process Path (GPP) model can be used to simulate the process path and "
                          "run-out area of gravitational processes based on a digital terrain model (DTM). The "
@@ -113,6 +113,12 @@ CGPP_Model::CGPP_Model(void)
                          "Since version 1.2 the model supports the optional output of a grid with the material flux. This requires "
                          "a 'Material' grid as input. The grid shows the height of the material that has passed in total "
                          "through each grid cell."
+                         "<b>Version 1.3:</b><br/>"
+                         "Version 1.3 includes a fix for material deposition along the process path (amounts and the update of "
+                         "available material for subsequent runs) and improves the output of material flux."
+                         "<b>Version 1.4:</b><br/>"
+                         "Since version 1.4 two separate 'Endangered Objects' output grids are created, one encoding the process "
+                         "path cells, the other only the source cells from which objects have been hit."
     ));
 
 	Add_Reference("Wichmann, V.", "2017",
@@ -203,7 +209,15 @@ bool CGPP_Model::On_Execute(void)
     //---------------------------------------------------------
     if( m_pObjects != NULL )
     {
-        m_pEndangered->Assign_NoData();
+        if( m_pEndangeredPath != NULL )
+        {
+            m_pEndangeredPath->Assign_NoData();
+        }
+
+        if( m_pEndangeredSources != NULL )
+        {
+            m_pEndangeredSources->Assign_NoData();
+        }
 
         m_pObjectClasses = new CSG_Grid(m_pObjects, SG_DATATYPE_Int);
 
@@ -218,19 +232,7 @@ bool CGPP_Model::On_Execute(void)
                 }
                 else
                 {
-                    sLong n = m_pObjects->asLong(x, y);
-
-                    int decimal = 0, i = 0, remainder;
-
-                    while( n != 0 )
-                    {
-                        remainder = n%10;
-                        n /= 10;
-                        decimal += (int)(remainder * pow(2, i));
-                        ++i;
-                    }
-
-                    m_pObjectClasses->Set_Value(x, y, decimal);
+                    m_pObjectClasses->Set_Value(x, y, _Get_ObjectClass_Decimal(m_pObjects->asLong(x, y)));
                 }
             }
         }
@@ -309,7 +311,8 @@ int CGPP_Model::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
     //-----------------------------------------------------
     if(	pParameter->Cmp_Identifier(SG_T("OBJECTS")) )
     {
-        pParameters->Get_Parameter("ENDANGERED" 		        )->Set_Enabled( pParameter->asGrid() != NULL );
+        pParameters->Get_Parameter("ENDANGERED_PATH"	        )->Set_Enabled( pParameter->asGrid() != NULL );
+        pParameters->Get_Parameter("ENDANGERED_SOURCES"	        )->Set_Enabled( pParameter->asGrid() != NULL );
     }
 
 	//-----------------------------------------------------
