@@ -58,8 +58,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CJoin_Tables_Base::On_Construction(void)
+CJoin_Table::CJoin_Table(void)
 {
+	Set_Name		(_TL("Join Attributes from a Table"));
+
 	Set_Author		("V.Olaya (c) 2005, O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
@@ -67,9 +69,21 @@ void CJoin_Tables_Base::On_Construction(void)
 	));
 
 	//-----------------------------------------------------
+	Parameters.Add_Table("",
+		"TABLE_A"	, _TL("Input Table"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
 	Parameters.Add_Table_Field("TABLE_A",
 		"ID_A"		, _TL("Input Join Field"),
 		_TL("")
+	);
+
+	Parameters.Add_Table("",
+		"TABLE_B"	, _TL("Join Table"),
+		_TL(""),
+		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table_Field("TABLE_B",
@@ -105,6 +119,9 @@ void CJoin_Tables_Base::On_Construction(void)
 		_TL("Collect unjoined records from join table."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
+
+	Parameters.Add_Table ("", "RESULT_TABLE" , _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Shapes("", "RESULT_SHAPES", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 }
 
 
@@ -113,8 +130,22 @@ void CJoin_Tables_Base::On_Construction(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CJoin_Tables_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CJoin_Table::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if(	pParameter->Cmp_Identifier("TABLE_A") )
+	{
+		if( pParameter->asPointer() )
+		{
+			pParameters->Set_Enabled("RESULT_TABLE" , pParameter->asShapes() == NULL);
+			pParameters->Set_Enabled("RESULT_SHAPES", pParameter->asShapes() != NULL);
+		}
+		else
+		{
+			pParameters->Set_Enabled("RESULT_TABLE" , false);
+			pParameters->Set_Enabled("RESULT_SHAPES", false);
+		}
+	}
+
 	if(	pParameter->Cmp_Identifier("FIELDS_ALL") )
 	{
 		pParameters->Set_Enabled("FIELDS", pParameter->asBool() == false);
@@ -129,7 +160,7 @@ int CJoin_Tables_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Par
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CJoin_Tables_Base::On_Execute(void)
+bool CJoin_Table::On_Execute(void)
 {
 	CSG_Table *pTable_A = Parameters("TABLE_A")->asTable(); int Key_A = Parameters("ID_A")->asInt();
 
@@ -150,18 +181,20 @@ bool CJoin_Tables_Base::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( Parameters("RESULT")->asTable() && Parameters("RESULT")->asTable() != pTable_A )
+	if( pTable_A->asShapes() == NULL && Parameters("RESULT_TABLE")->asTable () )
 	{
-		pTable_A = Parameters("RESULT")->asTable();
+		pTable_A = Parameters("RESULT_TABLE")->asTable();
 
-		if( Parameters("RESULT")->asTable()->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
-		{
-			((CSG_Shapes *)pTable_A)->Create(*Parameters("TABLE_A")->asShapes());
-		}
-		else
-		{
-			((CSG_Table  *)pTable_A)->Create(*Parameters("TABLE_A")->asTable ());
-		}
+		((CSG_Table  *)pTable_A)->Create(*Parameters("TABLE_A")->asTable ());
+
+		pTable_A->Fmt_Name("%s [%s]", pTable_A->Get_Name(), pTable_B->Get_Name());
+	}
+
+	if( pTable_A->asShapes() != NULL && Parameters("RESULT_SHAPES")->asShapes() )
+	{
+		pTable_A = Parameters("RESULT_SHAPES")->asShapes();
+
+		((CSG_Shapes *)pTable_A)->Create(*Parameters("TABLE_A")->asShapes());
 
 		pTable_A->Fmt_Name("%s [%s]", pTable_A->Get_Name(), pTable_B->Get_Name());
 	}
@@ -318,7 +351,7 @@ bool CJoin_Tables_Base::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline int CJoin_Tables_Base::Cmp_Keys(CSG_Table_Value *pA, CSG_Table_Value *pB)
+inline int CJoin_Table::Cmp_Keys(CSG_Table_Value *pA, CSG_Table_Value *pB)
 {
 	if( pB == NULL )
 	{
@@ -335,72 +368,6 @@ inline int CJoin_Tables_Base::Cmp_Keys(CSG_Table_Value *pA, CSG_Table_Value *pB)
 	CSG_String	Key(pB->asString());
 
 	return( m_bCmpNoCase ? Key.CmpNoCase(pA->asString()) : Key.Cmp(pA->asString()) );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CJoin_Tables::CJoin_Tables(void)
-{
-	Set_Name		(_TL("Join Attributes from a Table"));
-
-	Parameters.Add_Table("",
-		"TABLE_A"	, _TL("Input Table"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
-
-	Parameters.Add_Table("",
-		"TABLE_B"	, _TL("Join Table"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
-
-	Parameters.Add_Table("",
-		"RESULT"	, _TL("Result"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
-
-	On_Construction();
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CJoin_Tables_Shapes::CJoin_Tables_Shapes(void)
-{
-	Set_Name		(_TL("Join Attributes from a Table (Shapes)"));
-
-	Parameters.Add_Shapes("",
-		"TABLE_A"	, _TL("Input Table"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
-
-	Parameters.Add_Table("",
-		"TABLE_B"	, _TL("Join Table"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
-
-	Parameters.Add_Shapes("",
-		"RESULT"	, _TL("Result"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
-
-	On_Construction();
 }
 
 

@@ -69,11 +69,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CJoin_Tables_Base : public CSG_Tool  
+class CJoin_Table : public CSG_Tool
 {
-protected:
+public:
+	CJoin_Table(void);
 
-	void				On_Construction			(void);
+
+protected:
 
 	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
@@ -89,31 +91,13 @@ private:
 
 };
 
-//---------------------------------------------------------
-class CJoin_Tables : public CJoin_Tables_Base  
-{
-public:
-	CJoin_Tables(void);
-
-};
-
-//---------------------------------------------------------
-class CJoin_Tables_Shapes : public CJoin_Tables_Base  
-{
-public:
-	CJoin_Tables_Shapes(void);
-
-	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("A:Shapes|Attributes") );	}
-
-};
-
 
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Append_Cols : public CSG_Tool  
+class CTable_Append_Cols : public CSG_Tool
 {
 public:
 	CTable_Append_Cols(void);
