@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Polygons_From_Lines_H
 #define HEADER_INCLUDED__Polygons_From_Lines_H
 
@@ -71,7 +59,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -86,19 +74,19 @@ class CPolygons_From_Lines : public CSG_Tool
 public:
 	CPolygons_From_Lines(void);
 
-	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Shapes|Conversion") );	}
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("A:Shapes|Conversion") );	}
 
 
 protected:
 
-	virtual bool				On_Execute		(void);
+	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool		On_Execute				(void);
 
 
 private:
 
-	bool						Add_Part		(CSG_Shape *pPolygon, CSG_Shape *pLine, int iPart_Polygon, int iPart_Line, bool bAscending = true);
-	bool						Add_Line		(CSG_Shape *pPolygon, CSG_Shape *pLine, int iPart_Polygon = 0);
-	bool						Get_Part		(CSG_Point Point, CSG_Shape *pLine, int &iPart, bool &bAscending);
+	CSG_Shape *			Merge_Line				(CSG_Shape *pLine);
 
 };
 
