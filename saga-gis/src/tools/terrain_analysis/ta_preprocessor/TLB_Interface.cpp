@@ -83,6 +83,7 @@ CSG_String Get_Info(int i)
 #include "FillSinks_WL.h"
 #include "burn_in_streams.h"
 #include "breach_depressions.h"
+#include "fill_minima.h"
 
 //---------------------------------------------------------
 CSG_Tool *		Create_Tool(int i)
@@ -97,8 +98,9 @@ CSG_Tool *		Create_Tool(int i)
 	case  5:	return( new CFillSinks_WL_XXL );
 	case  6:	return( new CBurnIn_Streams );
 	case  7:	return( new CBreach_Depressions );
+	case  8:	return( new CFillMinima );
 
-	case  8:	return( NULL );
+	case  9:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
