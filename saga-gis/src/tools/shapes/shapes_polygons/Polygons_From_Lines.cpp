@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Polygons_From_Lines.h"
 
 
@@ -72,9 +60,6 @@
 //---------------------------------------------------------
 CPolygons_From_Lines::CPolygons_From_Lines(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("Convert Lines to Polygons"));
 
 	Set_Author		("O.Conrad (c) 2005");
@@ -82,99 +67,140 @@ CPolygons_From_Lines::CPolygons_From_Lines(void)
 	Set_Description	(_TW(
 		"Converts lines to polygons. "
 		"Line arcs are closed to polygons simply by connecting the last point with the first. "
-		"Optionally parts of polylines can be merged into one polygon optionally. "
+		"Optionally single parts of polylines can be merged into one polygon part if these share "
+		"start/end vertices. "
 	));
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "POLYGONS"	, _TL("Polygons"),
-		_TL(""),
-		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
-	);
-
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "LINES"		, _TL("Lines"),
+	Parameters.Add_Shapes("",
+		"LINES"   , _TL("Lines"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Line
 	);
 
-	pNode	= Parameters.Add_Value(
-		NULL	, "SINGLE"		, _TL("Create Single Multipart Polygon"),
+	Parameters.Add_Shapes("",
+		"POLYGONS", _TL("Polygons"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
-	pNode	= Parameters.Add_Value(
-		NULL	, "MERGE"		, _TL("Merge Line Parts to One Polygon"),
+	Parameters.Add_Bool("",
+		"RINGS"   , _TL("Rings"),
+		_TL("Only convert closed rings, i.e. first and last line vertex must be identical."),
+		false
+	);
+
+	Parameters.Add_Bool("",
+		"SINGLE"  , _TL("Create One Single Multipart Polygon"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
+	);
+
+	Parameters.Add_Bool("",
+		"MERGE"   , _TL("Merge Connected Line Parts"),
+		_TL("Treat single polyline parts as one line if connected, i.e. parts share end/start vertices."),
+		false
+	);
+
+	Parameters.Add_Bool("",
+		"SPLIT"   , _TL("Line Parts as Individual Polygons"),
+		_TL("If checked polyline parts become individual polygons. Applies only if single multipart polygon output is unchecked."),
+		false
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CPolygons_From_Lines::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	pParameters->Set_Enabled("SPLIT", (*pParameters)["SINGLE"].asBool() == false);
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CPolygons_From_Lines::On_Execute(void)
 {
-	bool		bSingle, bMerge;
-	CSG_Shape	*pLine , *pPolygon;
-	CSG_Shapes	*pLines, *pPolygons;
-
-	pPolygons	= Parameters("POLYGONS")->asShapes();
-	pLines		= Parameters("LINES"   )->asShapes();
-	bSingle		= Parameters("SINGLE"  )->asBool  ();
-	bMerge		= Parameters("MERGE"   )->asBool  ();
+	CSG_Shapes *pLines = Parameters("LINES")->asShapes();
 
 	if(	pLines->Get_Count() <= 0 )
 	{
 		return( false );
 	}
 
-	if( !bSingle )
+	//-----------------------------------------------------
+	CSG_Shapes *pPolygons = Parameters("POLYGONS")->asShapes();
+
+	bool  bRings = Parameters("RINGS" )->asBool();
+	bool  bMerge = Parameters("MERGE" )->asBool();
+	bool bSingle = Parameters("SINGLE")->asBool();
+	bool  bSplit = Parameters("SPLIT" )->asBool();
+
+	if( bSingle )
 	{
-		pPolygons	->Create(SHAPE_TYPE_Polygon, pLines->Get_Name(), pLines);
+		pPolygons->Create(SHAPE_TYPE_Polygon, pLines->Get_Name(),   NULL, pLines->Get_Vertex_Type());
+		pPolygons->Add_Field("ID", SG_DATATYPE_Int);
 	}
 	else
 	{
-		pPolygons	->Create(SHAPE_TYPE_Polygon, pLines->Get_Name());
-		pPolygons	->Add_Field(SG_T("ID"), SG_DATATYPE_Int);
-		pPolygon	= pPolygons	->Add_Shape();
-		pPolygon	->Set_Value(0, 1);
+		pPolygons->Create(SHAPE_TYPE_Polygon, pLines->Get_Name(), pLines, pLines->Get_Vertex_Type());
 	}
+
+	CSG_Shapes Copy(SHAPE_TYPE_Line, NULL, pLines, pLines->Get_Vertex_Type());
 
 	//-----------------------------------------------------
 	for(sLong iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
 	{
-		pLine	= pLines->Get_Shape(iLine);
+		CSG_Shape *pLine = pLines->Get_Shape(iLine)->asLine(), *pPolygon = NULL;
 
-		if( pLine->is_Valid() )
+		if( bMerge )
 		{
-			if( !bSingle )
-			{
-				pPolygon	= pPolygons->Add_Shape(pLine, SHAPE_COPY_ATTR);
-			}
+			pLine = Merge_Line(Copy.Add_Shape(pLine));
+		}
 
-			if( !bMerge || pLine->Get_Part_Count() == 1 )
+		for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
+		{
+			if( bRings )
 			{
-				for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
+				if( CSG_Point(pLine->Get_Point(0, iPart, true)) != pLine->Get_Point(0, iPart, false) || pLine->Get_Point_Count(iPart) <= 3 ) // only add closed rings with more than 3 vertices
 				{
-					Add_Part(pPolygon, pLine, pPolygon->Get_Part_Count(), iPart);
+					continue;
 				}
 			}
-			else //	if( bMerge && pLine->Get_Part_Count() > 1 )
+			else if( pLine->Get_Point_Count(iPart) < 3 )
 			{
-				CSG_Shapes	Copy(SHAPE_TYPE_Line);
-
-				Add_Line(pPolygon, Copy.Add_Shape(pLine));
+				continue;
 			}
+
+			//---------------------------------------------
+			if( bSingle )
+			{
+				pPolygon = pPolygons->Get_Shape(0);
+
+				if( !pPolygon )
+				{
+					pPolygon = pPolygons->Add_Shape(); pPolygon->Set_Value(0, 1);
+				}
+			}
+			else if( bSplit || !pPolygon )
+			{
+				pPolygon = pPolygons->Add_Shape(pLine, SHAPE_COPY_ATTR);
+			}
+
+			pPolygon->Add_Part(pLine->Get_Part(iPart));
 		}
 	}
 
+	//-----------------------------------------------------
 	return( true );
 }
 
@@ -184,56 +210,26 @@ bool CPolygons_From_Lines::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPolygons_From_Lines::Add_Part(CSG_Shape *pPolygon, CSG_Shape *pLine, int iPart_Polygon, int iPart_Line, bool bAscending)
+CSG_Shape * CPolygons_From_Lines::Merge_Line(CSG_Shape *pLine)
 {
-	for(int iPoint=0; iPoint<pLine->Get_Point_Count(iPart_Line); iPoint++)
+	for(int i=0; i<pLine->Get_Part_Count(); i++)
 	{
-		pPolygon->Add_Point(pLine->Get_Point(iPoint, iPart_Line, bAscending), iPart_Polygon);
-	}
+		CSG_Point End(pLine->Get_Point(0, i, true));
 
-	return( true );
-}
-
-//---------------------------------------------------------
-bool CPolygons_From_Lines::Add_Line(CSG_Shape *pPolygon, CSG_Shape *pLine, int iPart_Polygon)
-{
-	bool	bAscending;
-	int		iPart_Line;
-
-	Add_Part(pPolygon, pLine, iPart_Polygon, 0);	pLine->Del_Part(0);
-
-	while( pLine->Get_Part_Count() > 0 )
-	{
-		if( Get_Part(pPolygon->Get_Point(0, iPart_Polygon, false), pLine, iPart_Line, bAscending) )
+		for(int j=pLine->Get_Part_Count()-1; j>i; j--)
 		{
-			Add_Part(pPolygon, pLine, iPart_Polygon, iPart_Line, bAscending);	pLine->Del_Part(iPart_Line);
-		}
-		else // start a new polygon part
-		{
-			Add_Part(pPolygon, pLine, ++iPart_Polygon, 0);	pLine->Del_Part(0);
+			bool bAscending;
+
+			if( End == pLine->Get_Point(0, j, bAscending =  true)
+			||  End == pLine->Get_Point(0, j, bAscending = false) )
+			{
+				pLine->Get_Part(i)->Add_Points(pLine->Get_Part(j));
+				pLine->Del_Part(j);
+			}
 		}
 	}
 
-	return( true );
-}
-
-//---------------------------------------------------------
-bool CPolygons_From_Lines::Get_Part(CSG_Point Point, CSG_Shape *pLine, int &iPart, bool &bAscending)
-{
-	for(iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
-	{
-		if( Point.is_Equal(pLine->Get_Point(0, iPart, bAscending = true)) )
-		{
-			return( true );
-		}
-
-		if( Point.is_Equal(pLine->Get_Point(0, iPart, bAscending = false)) )
-		{
-			return( true );
-		}
-	}
-
-	return( false );
+	return( pLine );
 }
 
 

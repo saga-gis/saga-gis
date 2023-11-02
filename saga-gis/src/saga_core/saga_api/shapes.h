@@ -444,6 +444,8 @@ public:
 		return( Point );
 	}
 
+	bool						Add_Points			(CSG_Shape_Part *pPoints, bool bAscending = true);
+
 	bool						Revert_Points		(void);
 
 

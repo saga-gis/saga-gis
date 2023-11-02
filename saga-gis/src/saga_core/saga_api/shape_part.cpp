@@ -353,6 +353,22 @@ int CSG_Shape_Part::Del_Point(int iPoint)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Shape_Part::Add_Points(CSG_Shape_Part *pPoints, bool bAscending)
+{
+	if( pPoints && pPoints->Get_Count() > 0 )
+	{
+		for(int i=0; i<pPoints->Get_Count(); i++)
+		{
+			Add_Point(pPoints->Get_Point_ZM(i, bAscending));
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 bool CSG_Shape_Part::Revert_Points(void)
 {
 	for(int i=0, j=m_nPoints-1; i<j; i++, j--)
