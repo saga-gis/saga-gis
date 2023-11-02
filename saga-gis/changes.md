@@ -23,7 +23,15 @@ CSG_Data_Manager.Delete_Unsaved(bDetach) &rarr; CSG_Data_Manager.Delete(bDetach,
 ___
 ## SAGA 9.3.0 Tool interface changes
 
-In some tools, the "extra" tool parameters have been removed, which changes the parameter interface.
+#### Join Attributes from a Table (Shapes) ('table_tools', '4')
+The tool has been merged with the "Join Attributes from a Table" tool ('table_tools', '3') and has been removed.
+
+#### Join Attributes from a Table ('table_tools', '3')
+The tool has been merged with the "Join Attributes from a Table (Shapes)" tool. The "RESULT" parameter has been replaced by two new ones, one for tables and one for shapes:
+
+-RESULT &rarr; -RESULT_TABLE
+
+-RESULT &rarr; -RESULT_SHAPE
 
 #### Point Cloud Cutter ('pointcloud_tools', '0')
 | old | new |
