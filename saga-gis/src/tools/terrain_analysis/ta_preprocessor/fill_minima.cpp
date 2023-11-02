@@ -252,6 +252,10 @@ CFillMinima::CFillMinima(void)
 		"Minima filling. Currently only for unsigned 1 byte integer grids."
 	));
 
+	Add_Reference("https://www.pythonfmask.org/",
+		SG_T("Python Fmask")
+	);
+
     Add_Reference("Soille, P., & C. Gratin", "1994", 
 		"An efficient algorithm for drainage network extraction on DEMs.",
 		"J. Visual Communication and Image Representation. 5(2): 181-189."
