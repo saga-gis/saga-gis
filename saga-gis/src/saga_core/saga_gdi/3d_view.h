@@ -122,6 +122,8 @@ protected:
 
 	int							m_Play_State;
 
+	int 						m_Mouse_Wheel_Accumulator = 0;
+
 	TSG_Point					m_Down_Value;
 
 	CSG_Table					*m_pPlay;

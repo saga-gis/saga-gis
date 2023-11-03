@@ -718,11 +718,24 @@ void CSG_3DView_Panel::On_Mouse_Motion(wxMouseEvent &event)
 //---------------------------------------------------------
 void CSG_3DView_Panel::On_Mouse_Wheel(wxMouseEvent &event)
 {
-	if( event.GetWheelRotation() )
+	m_Mouse_Wheel_Accumulator += event.GetWheelRotation();
+
+	if( m_Mouse_Wheel_Accumulator >= event.GetWheelDelta() )
 	{
-		m_Projector.Set_zShift(m_Projector.Get_zShift()	- event.GetWheelRotation() * 0.001);
+		m_Projector.Set_zShift(m_Projector.Get_zShift()	- event.GetWheelDelta() * 0.001);
 
 		Update_View();
+
+		m_Mouse_Wheel_Accumulator -= event.GetWheelDelta();
+	}
+
+	if( m_Mouse_Wheel_Accumulator <= -event.GetWheelDelta() )
+	{
+		m_Projector.Set_zShift(m_Projector.Get_zShift()	+ event.GetWheelDelta() * 0.001);
+
+		Update_View();
+
+		m_Mouse_Wheel_Accumulator += event.GetWheelDelta();
 	}
 }
 
