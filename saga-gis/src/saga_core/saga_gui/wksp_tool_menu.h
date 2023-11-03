@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,14 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Tool_Menu_H
 #define _HEADER_INCLUDED__SAGA_GUI__WKSP_Tool_Menu_H
 
@@ -106,7 +95,7 @@ private:
 
 	void						_Update				(wxMenu *pMenu);
 	bool						_Get_SubMenu		(class CWKSP_Tool *pTool, class CSG_MetaData *pUser);
-	wxMenu *					_Get_SubMenu_byToken(wxMenu *pMenu, wxString Token);
+	wxMenu *					_Get_SubMenu		(wxMenu *pMenu, const wxString &Name);
 	void						_Set_Recent			(wxMenu *pMenu);
 
 };
