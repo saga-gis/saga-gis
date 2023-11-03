@@ -123,13 +123,21 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 	);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Node  ("", "NODE_DEFAULTS", _TL("Defaults for New Maps"), _TL(""));
+	m_Parameters.Add_Node  ("", "NODE_DEFAULTS", _TL("Defaults"), _TL(""));
 
-	m_Parameters.Add_Bool  ("NODE_DEFAULTS", "GOTO_NEWLAYER", _TL("Zoom to added layer"), _TL(""), false);
-	m_Parameters.Add_Bool  ("NODE_DEFAULTS", "CRS_CHECK"    , _TL("CRS Check"          ), _TL("Perform a coordinate system compatibility check before a layer is added."), true);
-	m_Parameters.Add_Bool  ("NODE_DEFAULTS", "SCALE_BAR"    , _TL("Scale Bar"          ), _TL(""), false);
-	m_Parameters.Add_Bool  ("NODE_DEFAULTS", "FRAME_SHOW"   , _TL("Frame"              ), _TL(""), true );
+	//-----------------------------------------------------
+	m_Parameters.Add_Node  ("NODE_DEFAULTS", "NODE_NEW_MAPS", _TL("New Maps"), _TL(""));
+
+	m_Parameters.Add_Bool  ("NODE_NEW_MAPS", "GOTO_NEWLAYER", _TL("Zoom to added layer"), _TL(""), false);
+	m_Parameters.Add_Bool  ("NODE_NEW_MAPS", "CRS_CHECK"    , _TL("CRS Check"          ), _TL("Perform a coordinate system compatibility check before a layer is added."), true);
+	m_Parameters.Add_Bool  ("NODE_NEW_MAPS", "SCALE_BAR"    , _TL("Scale Bar"          ), _TL(""), false);
+	m_Parameters.Add_Bool  ("NODE_NEW_MAPS", "FRAME_SHOW"   , _TL("Frame"              ), _TL(""), true );
 	m_Parameters.Add_Int   ("FRAME_SHOW"   , "FRAME_WIDTH"  , _TL("Width"              ), _TL(""), 17, 10, true);
+
+	//-----------------------------------------------------
+	m_Parameters.Add_Node  ("NODE_DEFAULTS", "NODE_3DVIEW", _TL("3D View"), _TL(""));
+
+	m_Parameters.Add_Double("NODE_3DVIEW", "3DVIEW_Z_SCALE", _TL("Exaggeration"), _TL(""), 1.);
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Node  ("", "NODE_CLIPBOARD", _TL("Clipboard"), _TL(""));
