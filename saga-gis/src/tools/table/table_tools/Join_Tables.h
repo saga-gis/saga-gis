@@ -74,6 +74,8 @@ class CJoin_Table : public CSG_Tool
 public:
 	CJoin_Table(void);
 
+	virtual CSG_String	Get_MenuPath			(void)	{	return( ";A:Shapes|Attributes" );	}
+
 
 protected:
 
