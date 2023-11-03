@@ -350,6 +350,7 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 				CSG_String	sMenu(Menu);
 
 				sMenu.Replace("|", " <b>></b> ");
+				sMenu.Replace(";", " <br> ");
 
 				s += SUMMARY_ADD_STR(_TL("Menu"  ), sMenu.c_str());
 			}

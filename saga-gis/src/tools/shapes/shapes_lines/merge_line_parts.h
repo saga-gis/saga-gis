@@ -1,4 +1,3 @@
-
 ///////////////////////////////////////////////////////////
 //                                                       //
 //                         SAGA                          //
@@ -6,14 +5,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                     Shapes_Tools                      //
+//                     shapes_lines                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                     Join_Tables.h                     //
+//                   merge_line_parts.h                  //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                      Olaf Conrad                      //
+//                 Copyright (C) 2023 by                 //
+//                    Volker Wichmann                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -36,20 +35,17 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     wichmann@laserdata.at                  //
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
-//                Germany                                //
+//    contact:    Volker Wichmann                        //
+//                LASERDATA GmbH                         //
+//                Management and analysis of             //
+//                laserscanning data                     //
+//                Innsbruck, Austria                     //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Join_Tables_H
-#define HEADER_INCLUDED__Join_Tables_H
 
 
 ///////////////////////////////////////////////////////////
@@ -59,7 +55,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <saga_api/saga_api.h>
+#ifndef HEADER_INCLUDED__merge_line_parts_H
+#define HEADER_INCLUDED__merge_line_parts_H
 
 
 ///////////////////////////////////////////////////////////
@@ -69,46 +66,28 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CJoin_Table : public CSG_Tool
+#include "MLB_Interface.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CMerge_Line_Parts : public CSG_Tool  
 {
 public:
-	CJoin_Table(void);
-
-	virtual CSG_String	Get_MenuPath			(void)	{	return( ";A:Shapes|Attributes" );	}
+	CMerge_Line_Parts(void);
 
 
 protected:
 
-	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
-	virtual bool		On_Execute				(void);
-
+	virtual bool			On_Execute			(void);
 
 private:
 
-	bool				m_bCmpNumeric, m_bCmpNoCase;
-
-
-	int					Cmp_Keys				(CSG_Table_Value *pA, CSG_Table_Value *pB);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CTable_Append_Cols : public CSG_Tool
-{
-public:
-	CTable_Append_Cols(void);
-
-
-protected:
-
-	virtual bool		On_Execute				(void);
-
 };
 
 
@@ -119,4 +98,4 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Join_Tables_H
+#endif // #ifndef HEADER_INCLUDED__merge_line_parts_H

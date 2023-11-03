@@ -63,12 +63,14 @@ CLocal_Statistical_Measures::CLocal_Statistical_Measures(void)
 	Set_Author		("O.Conrad (c) 2016");
 
 	Set_Description	(_TW(
-		"<hr><h4>References</h4><ul>"
-		"<li><b>Zhang, Y. (2001):</b> Texture-integrated classification of urban treed areas in high-resolution color-infrared imagery."
-		" Photogrammetric Engineering and Remote Sensing 67(12), 1359-1365."
-		" <a href=\"http://web.pdx.edu/~nauna/2001_dec_1359-1365.pdf\">online</a>.</li>"
-		"</ul>"
+		""
 	));
+
+	Add_Reference("Zhang, Y.", "2001",
+		"Texture-integrated classification of urban treed areas in high-resolution color-infrared imagery",
+		"Photogrammetric Engineering and Remote Sensing 67(12), 1359-1365.",
+		SG_T("http://web.pdx.edu/~nauna/2001_dec_1359-1365.pdf"), SG_T("online")
+	);
 
 	Parameters.Add_Grid("", "GRID"    , _TL("Grid"    ), _TL(""), PARAMETER_INPUT);
 

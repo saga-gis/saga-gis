@@ -190,29 +190,48 @@ CSG_String CSG_Tool::Get_MenuPath(bool bSolved)
 		return( Get_MenuPath() );
 	}
 
-	CSG_String	Menu	= Get_MenuPath();
+	CSG_Strings Menu = SG_String_Tokenize(Get_MenuPath(), ";"); if( !Menu.Get_Count() ) { Menu += ""; }
 
-	if( Menu.Length() > 1 && Menu[1] == ':' )
+	for(int i=0; i<Menu.Get_Count(); i++)
 	{
-		if( Menu[0] == 'A' || Menu[0] == 'a' )	// absolute menu path, overwrites library's default menu path
+		if( Menu[i].Length() > 1 && Menu[i][1] == ':' )
 		{
-			return( Menu.AfterFirst(':') );
+			if( Menu[i][0] == 'A' || Menu[i][0] == 'a' ) // absolute menu path, overwrites library's default menu path
+			{
+				Menu[i] = Menu[i].AfterFirst(':');
+
+				continue;
+			}
+
+			Menu[i] = Menu[i].AfterFirst(':'); // Menu[0] == 'R' || Menu[0] == 'r' // menu path explicitly declared as relative to library's default menu path
 		}
 
-		Menu	= Menu.AfterFirst(':');	// Menu[0] == 'R' || Menu[0] == 'r'	// menu path explicitly declared as relative to library's default menu path
+		if( !m_Library_Menu.is_Empty() )
+		{
+			if( Menu[i].is_Empty() )
+			{
+				Menu[i] = m_Library_Menu;
+			}
+			else
+			{
+				Menu[i] = m_Library_Menu + "|" + Menu[i];
+			}
+		}
 	}
 
-	if( m_Library_Menu.is_Empty() )
+	CSG_String Menus; 
+
+	for(int i=0; i<Menu.Get_Count(); i++)
 	{
-		return( Menu );
+		if( i > 0 )
+		{
+			Menus += ";";
+		}
+
+		Menus += Menu[i];
 	}
 
-	if( Menu.is_Empty() )
-	{
-		return( m_Library_Menu );
-	}
-
-	return( m_Library_Menu + "|" + Menu );
+	return( Menus );
 }
 
 //---------------------------------------------------------
