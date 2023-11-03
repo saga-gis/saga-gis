@@ -158,13 +158,13 @@
 
 		<!-- Classification | Cluster Analysis -->
 		<condition value="1" type="=" variable="CLASSIFICATION">
-			<tool library="table_tools" tool="29" name="Cluster Analysis (Shapes)">
+			<tool library="table_tools" tool="28" name="Cluster Analysis (Table)">
 				<option id="FIELDS">3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32</option>
 				<option id="METHOD">1</option>
 				<option id="NCLUSTER"  varname="TRUE">NCLUSTER</option>
 				<option id="NORMALISE" varname="TRUE">NORMALIZE</option>
 				<input  id="INPUT" >OBJECTS</input>
-				<output id="RESULT">CLASSES</output>
+				<output id="RESULT_SHAPES">CLASSES</output>
 			</tool>
 
 			<tool library="grid_gridding" tool="0" name="Shapes to Grid">
@@ -194,14 +194,14 @@
 
 		<!-- Classification | Supervised -->
 		<condition value="2" type="=" variable="CLASSIFICATION">
-			<tool library="table_tools" tool="27" name="Supervised Classification (Shapes)">
+			<tool library="table_tools" tool="26" name="Supervised Classification">
 				<option id="FEATURES">3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32</option>
 				<option id="NORMALISE" varname="TRUE">NORMALIZE</option>
 				<option id="TRAIN_WITH">1</option>
 				<input  id="TRAIN_SAMPLES">SAMPLES</input>
 				<option id="METHOD" varname="TRUE">CLASSIFIER</option>
-				<input  id="SHAPES" >OBJECTS</input>
-				<output id="CLASSES">CLASSES</output>
+				<input  id="TABLE">OBJECTS</input>
+				<output id="RESULT_SHAPES">CLASSES</output>
 			</tool>
 
 			<tool library="grid_gridding" tool="0" name="Shapes to Grid">
@@ -228,7 +228,7 @@
 				<option id="FIELDS">0,2</option> <!-- ID, VALUE, NAME -->
 			</tool>
 
-			<tool library="table_tools" tool="4" name="Join Attributes from a Table (Shapes)">
+			<tool library="table_tools" tool="3" name="Join Attributes from a Table (Shapes)">
 				<option id="FIELDS_ALL">false</option>
 				<option id="FIELDS">1</option> <!-- CLASS_ID -->
 				<option id="KEEP_ALL">true</option>

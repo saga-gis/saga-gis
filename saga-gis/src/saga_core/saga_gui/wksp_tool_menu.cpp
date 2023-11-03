@@ -195,11 +195,12 @@ bool CWKSP_Tool_Menu::_Get_SubMenu(CWKSP_Tool *pTool, CSG_MetaData *pUser)
 	{
 		wxMenu *pMenu = m_pMenu;
 
-		wxStringTokenizer SubMenus(Menu[i].c_str(), "|"); wxString SubMenu(SubMenus.GetNextToken());
+		CSG_Strings SubMenus = SG_String_Tokenize(Menu[i].c_str(), "|");
 
-		while( !SubMenu.IsNull() )
+		for(int i=0; i<SubMenus.Get_Count(); i++)
 		{
-			wxMenu *pSubMenu = _Get_SubMenu(pMenu, SubMenu);
+			CSG_String SubMenu(SG_Translate(SubMenus[i]));
+			wxMenu *pSubMenu = _Get_SubMenu(pMenu, SubMenu.c_str());
 
 			if( !pSubMenu )
 			{
@@ -213,18 +214,18 @@ bool CWKSP_Tool_Menu::_Get_SubMenu(CWKSP_Tool *pTool, CSG_MetaData *pUser)
 					if( pMenu->FindItemByPosition(iPos)->GetItemLabelText().Cmp(SubMenu) > 0 )
 				#else
 					if(	pMenu->FindItemByPosition(iPos)->IsSubMenu() == false
-					||	pMenu->FindItemByPosition(iPos)->GetItemLabelText().Cmp(SubMenu) > 0 )
+					||	pMenu->FindItemByPosition(iPos)->GetItemLabelText().Cmp(SubMenu.c_str()) > 0 )
 				#endif
 					{
 						break;
 					}
 				}
 
-				pMenu->Insert(iPos, ID_CMD_TOOL_FIRST, SubMenu, pSubMenu);
-			//	pMenu->Append(      ID_CMD_TOOL_FIRST, SubMenu, pSubMenu);
+				pMenu->Insert(iPos, ID_CMD_TOOL_FIRST, SubMenu.c_str(), pSubMenu);
+			//	pMenu->Append(      ID_CMD_TOOL_FIRST, SubMenu.c_str(), pSubMenu);
 			}
 
-			pMenu = pSubMenu; SubMenu = SubMenus.GetNextToken();
+			pMenu = pSubMenu;
 		}
 
 		//-----------------------------------------------------
@@ -233,7 +234,7 @@ bool CWKSP_Tool_Menu::_Get_SubMenu(CWKSP_Tool *pTool, CSG_MetaData *pUser)
 		for(iPos=0; iPos<pMenu->GetMenuItemCount(); iPos++)
 		{
 		#if defined(TOOLS_MENU_SORT_SIMPLE)
-			if( pMenu->FindItemByPosition(iPos)->GetItemLabelText().Cmp(Name) > 0 )
+			if( pMenu->FindItemByPosition(iPos)->GetItemLabelText().Cmp(Tool) > 0 )
 		#else
 			if(	pMenu->FindItemByPosition(iPos)->IsSubMenu() == false
 			&&	pMenu->FindItemByPosition(iPos)->GetItemLabelText().Cmp(Tool) > 0 )

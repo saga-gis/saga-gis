@@ -134,10 +134,10 @@ int CJoin_Table::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter
 {
 	if(	pParameter->Cmp_Identifier("TABLE_A") )
 	{
-		if( pParameter->asPointer() )
+		if( pParameter->asDataObject() )
 		{
-			pParameters->Set_Enabled("RESULT_TABLE" , pParameter->asShapes() == NULL);
-			pParameters->Set_Enabled("RESULT_SHAPES", pParameter->asShapes() != NULL);
+			pParameters->Set_Enabled("RESULT_TABLE" , pParameter->asDataObject()->asShapes() == NULL);
+			pParameters->Set_Enabled("RESULT_SHAPES", pParameter->asDataObject()->asShapes() != NULL);
 		}
 		else
 		{

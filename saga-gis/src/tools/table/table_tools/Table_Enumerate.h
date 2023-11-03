@@ -70,9 +70,9 @@
 class CTable_Enumerate : public CSG_Tool
 {
 public:
-	CTable_Enumerate(bool bShapes);
+	CTable_Enumerate(void);
 
-	virtual CSG_String		Get_MenuPath			(void);
+	virtual CSG_String		Get_MenuPath			(void)	{	return( ";A:Shapes|Attributes" );	}
 
 
 protected:

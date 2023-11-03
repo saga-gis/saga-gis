@@ -56,11 +56,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTable_Cluster_Analysis::CTable_Cluster_Analysis(bool bShapes)
+CTable_Cluster_Analysis::CTable_Cluster_Analysis(void)
 {
-	m_bShapes = bShapes;
-
-	Set_Name		(CSG_String::Format("%s (%s)", _TL("Cluster Analysis"), m_bShapes ? _TL("Shapes") : _TL("Table")));
+	Set_Name		(CSG_String::Format("%s (%s)", _TL("Cluster Analysis"), _TL("Table Fields")));
 
 	Set_Author		("O. Conrad (c) 2010");
 
@@ -79,16 +77,11 @@ CTable_Cluster_Analysis::CTable_Cluster_Analysis(bool bShapes)
 	);
 
 	//-----------------------------------------------------
-	if( m_bShapes )
-	{
-		Parameters.Add_Shapes("", "INPUT" , _TL("Shapes"), _TL(""), PARAMETER_INPUT);
-		Parameters.Add_Shapes("", "RESULT", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-	}
-	else
-	{
-		Parameters.Add_Table("", "INPUT"  , _TL("Table" ), _TL(""), PARAMETER_INPUT);
-		Parameters.Add_Table("", "RESULT" , _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-	}
+	Parameters.Add_Table("",
+		"INPUT"			, _TL("Table" ),
+		_TL(""),
+		PARAMETER_INPUT
+	);
 
 	Parameters.Add_Table_Fields("INPUT",
 		"FIELDS"		, _TL("Features"),
@@ -128,6 +121,34 @@ CTable_Cluster_Analysis::CTable_Cluster_Analysis(bool bShapes)
 		_TL(""),
 		10, 2, true
 	);
+
+	Parameters.Add_Table ("", "RESULT_TABLE" , _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Shapes("", "RESULT_SHAPES", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CTable_Cluster_Analysis::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	pParameter->Cmp_Identifier("INPUT") )
+	{
+		if( pParameter->asDataObject() )
+		{
+			pParameters->Set_Enabled("RESULT_TABLE" , pParameter->asDataObject()->asShapes() == NULL);
+			pParameters->Set_Enabled("RESULT_SHAPES", pParameter->asDataObject()->asShapes() != NULL);
+		}
+		else
+		{
+			pParameters->Set_Enabled("RESULT_TABLE" , false);
+			pParameters->Set_Enabled("RESULT_SHAPES", false);
+		}
+	}
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -159,22 +180,26 @@ bool CTable_Cluster_Analysis::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Table *pTable = Parameters("RESULT")->asTable();
+	CSG_Table *pInput = Parameters("INPUT")->asTable();
 
-	if( pTable && pTable != Parameters("INPUT")->asTable() )
+	CSG_Table *pTable = Parameters(pInput->asShapes() ? "RESULT_SHAPES" : "RESULT_TABLE")->asTable();
+
+	if( pTable && pTable != pInput )
 	{
-		if( m_bShapes )
+		if( pInput->asShapes() )
 		{
-			((CSG_Shapes *)pTable)->Create(*Parameters("INPUT")->asShapes());
+			pTable->asShapes()->Create(*pInput->asShapes());
 		}
 		else
 		{
-			pTable->Create(*Parameters("INPUT")->asTable());
+			pTable->Create(*pInput->asTable());
 		}
+
+		pTable->Fmt_Name("%s (%s)", pTable->Get_Name(), Get_Name().c_str());
 	}
 	else
 	{
-		pTable	= Parameters("INPUT")->asTable();
+		pTable = pInput;
 	}
 
 	//-----------------------------------------------------

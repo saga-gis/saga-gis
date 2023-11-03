@@ -68,9 +68,9 @@
 class CTable_Classify_Supervised : public CSG_Tool
 {
 public:
-	CTable_Classify_Supervised(bool bShapes);
+	CTable_Classify_Supervised(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( m_bShapes ? _TL("A:Shapes|Attributes") : _TL("A:Table|Classification") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( "A:Table|Classification;A:Shapes|Attributes" );	}
 
 
 protected:
@@ -82,7 +82,7 @@ protected:
 
 private:
 
-	bool						m_bShapes, m_bNormalize;
+	bool						m_bNormalize;
 
 	int							*m_Features, m_nFeatures;
 

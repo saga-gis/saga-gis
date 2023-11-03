@@ -67,10 +67,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CField_Formatted_String_Base : public CSG_Tool  
+class CField_Formatted_String : public CSG_Tool  
 {
 public:
-	CField_Formatted_String_Base(bool bShapes);
+	CField_Formatted_String(void);
+
+	virtual CSG_String		Get_MenuPath			(void)	{	return( ";A:Shapes|Attributes" );	}
 
 
 protected:
@@ -98,34 +100,6 @@ private:
 	bool					Get_Formats				(CSG_Table *pTable);
 
 	bool					Set_String				(CSG_Table_Record *pRecord);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CField_Formatted_String : public CField_Formatted_String_Base  
-{
-public:
-	CField_Formatted_String(void) : CField_Formatted_String_Base(false)	{}
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CField_Formatted_String_Shapes : public CField_Formatted_String_Base  
-{
-public:
-	CField_Formatted_String_Shapes(void) : CField_Formatted_String_Base(true)	{}
-
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Shapes|Attributes") );	}
 
 };
 

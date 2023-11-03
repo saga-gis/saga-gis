@@ -67,10 +67,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Record_Statistics_Base : public CSG_Tool  
+class CTable_Record_Statistics : public CSG_Tool  
 {
 public:
-	CTable_Record_Statistics_Base(void);
+	CTable_Record_Statistics(void);
+
+	virtual CSG_String		Get_MenuPath			(void)	{	return( ";A:Shapes|Attributes" );	}
 
 
 protected:
@@ -78,34 +80,6 @@ protected:
 	int						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool			On_Execute				(void);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CTable_Record_Statistics : public CTable_Record_Statistics_Base  
-{
-public:
-	CTable_Record_Statistics(void);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CTable_Record_Statistics_Shapes : public CTable_Record_Statistics_Base  
-{
-public:
-	CTable_Record_Statistics_Shapes(void);
-
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Shapes|Attributes") );	}
 
 };
 

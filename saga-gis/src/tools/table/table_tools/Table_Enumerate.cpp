@@ -58,32 +58,25 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTable_Enumerate::CTable_Enumerate(bool bShapes)
+CTable_Enumerate::CTable_Enumerate(void)
 {
-	Set_Author("O.Conrad (c) 2017");
+	Set_Name		(_TL("Field Enumeration"));
 
-	Set_Description(_TW(
+	Set_Author		("O.Conrad (c) 2017");
+
+	Set_Description	(_TW(
 		"Enumeration of a table attribute, i.e. a unique identifier "
 		"is assigned to identical values of the chosen attribute field. "
 		"If no attribute is chosen, a simple enumeration is done for "
 		"all records, and this with respect to the sorting order "
-		"if the dataset has been indexed.\n"
+		"if the dataset has been indexed."
 	));
 
-	if( bShapes )
-	{
-		Set_Name(_TL("Field Enumeration (Shapes)"));
-
-		Parameters.Add_Shapes("", "INPUT" , _TL("Input" ), _TL(""), PARAMETER_INPUT);
-		Parameters.Add_Shapes("", "OUTPUT", _TL("Output"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-	}
-	else
-	{
-		Set_Name(_TL("Field Enumeration"));
-
-		Parameters.Add_Table ("", "INPUT" , _TL("Input" ), _TL(""), PARAMETER_INPUT);
-		Parameters.Add_Table ("", "OUTPUT", _TL("Output"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-	}
+	Parameters.Add_Table("",
+		"INPUT"	, _TL("Input"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
 
 	Parameters.Add_Table_Field("INPUT",
 		"FIELD"	, _TL("Attribute"),
@@ -111,17 +104,9 @@ CTable_Enumerate::CTable_Enumerate(bool bShapes)
 			_TL("descending")
 		), 0
 	);
-}
 
-//---------------------------------------------------------
-CSG_String CTable_Enumerate::Get_MenuPath(void)
-{
-	if( Parameters("INPUT")->Get_Type() == PARAMETER_TYPE_Shapes )
-	{
-		return( _TL("A:Shapes|Attributes") );
-	}
-
-	return( CSG_Tool::Get_MenuPath() );
+	Parameters.Add_Table ("", "RESULT_TABLE" , _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Shapes("", "RESULT_SHAPES", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 }
 
 
@@ -132,6 +117,20 @@ CSG_String CTable_Enumerate::Get_MenuPath(void)
 //---------------------------------------------------------
 int CTable_Enumerate::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if(	pParameter->Cmp_Identifier("INPUT") )
+	{
+		if( pParameter->asDataObject() )
+		{
+			pParameters->Set_Enabled("RESULT_TABLE" , pParameter->asDataObject()->asShapes() == NULL);
+			pParameters->Set_Enabled("RESULT_SHAPES", pParameter->asDataObject()->asShapes() != NULL);
+		}
+		else
+		{
+			pParameters->Set_Enabled("RESULT_TABLE" , false);
+			pParameters->Set_Enabled("RESULT_SHAPES", false);
+		}
+	}
+
 	if( pParameter->Cmp_Identifier("ENUM") )
 	{
 		CSG_Table *pTable = (*pParameters)("INPUT")->asTable();
@@ -160,18 +159,20 @@ bool CTable_Enumerate::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( Parameters("OUTPUT")->asTable() && Parameters("OUTPUT")->asTable() != pTable )
-	{
-		CSG_Table *pInput = pTable; pTable = Parameters("OUTPUT")->asTable();
+	CSG_Table *pResult = Parameters(pTable->asShapes() ? "RESULT_SHAPES" : "RESULT_TABLE")->asTable();
 
-		if( pTable->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
+	if( pResult && pResult != pTable )
+	{
+		if( pResult->asShapes() )
 		{
-			((CSG_Shapes *)pTable)->Create(*((CSG_Shapes *)pInput));	// copy constructor
+			pResult->Create(*pTable->asShapes());
 		}
 		else
 		{
-			pTable->Create(*pInput);	// copy constructor
+			pResult->Create(*pTable);
 		}
+
+		pTable = pResult;
 
 		pTable->Fmt_Name("%s [%s]", pTable->Get_Name(), _TL("Enumerated"));
 	}

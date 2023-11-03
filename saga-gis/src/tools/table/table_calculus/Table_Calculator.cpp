@@ -1,27 +1,48 @@
 
-/*******************************************************************************
-    TableCalculator.cpp
-    Copyright (C) Victor Olaya
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
-*******************************************************************************/
-
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                         SAGA                          //
+//                                                       //
+//      System for Automated Geoscientific Analyses      //
+//                                                       //
+//                     Tool Library                      //
+//                    Table_Calculus                     //
+//                                                       //
+//-------------------------------------------------------//
+//                                                       //
+//                  Table_Calculator.h                   //
+//                                                       //
+//                    Copyrights (c)                     //
+//            V.Olaya, O.Conrad, J.Spitzmueller          //
+//                                                       //
+//-------------------------------------------------------//
+//                                                       //
+// This file is part of 'SAGA - System for Automated     //
+// Geoscientific Analyses'. SAGA is free software; you   //
+// can redistribute it and/or modify it under the terms  //
+// of the GNU General Public License as published by the //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
+//                                                       //
+// SAGA is distributed in the hope that it will be       //
+// useful, but WITHOUT ANY WARRANTY; without even the    //
+// implied warranty of MERCHANTABILITY or FITNESS FOR A  //
+// PARTICULAR PURPOSE. See the GNU General Public        //
+// License for more details.                             //
+//                                                       //
+// You should have received a copy of the GNU General    //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
+//                                                       //
+//-------------------------------------------------------//
+//                                                       //
+//    e-mail:     oconrad@saga-gis.org                   //
+//                                                       //
+//    contact:    Olaf Conrad                            //
+//                Institute of Geography                 //
+//                University of Hamburg                  //
+//                Germany                                //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -58,8 +79,10 @@ double	fnc_is_NoData_Value(double Value)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTable_Calculator_Base::CTable_Calculator_Base(bool bShapes)
+CTable_Field_Calculator::CTable_Field_Calculator(void)
 {
+	Set_Name	(_TL("Field Calculator"));
+
 	Set_Author	("V.Olaya (c) 2004, O.Conrad (c) 2011, J.Spitzmueller, scilands GmbH (c) 2022");
 
 	CSG_String	s(_TW(
@@ -95,27 +118,20 @@ CTable_Calculator_Base::CTable_Calculator_Base(bool bShapes)
 	Set_Description(s);
 
 	//-----------------------------------------------------
-	if( bShapes )
-	{
-		Set_Name(CSG_String::Format("%s [%s]", _TL("Field Calculator"), _TL("Shapes")));
+	Parameters.Add_Table("",
+		"TABLE"		, _TL("Table"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
 
-		Parameters.Add_Shapes("", "TABLE" , _TL("Shapes"), _TL(""), PARAMETER_INPUT);
-		Parameters.Add_Shapes("", "RESULT", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-	}
-	else
-	{
-		Set_Name(_TL("Field Calculator"));
-
-		Parameters.Add_Table ("", "TABLE" , _TL("Table" ), _TL(""), PARAMETER_INPUT);
-		Parameters.Add_Table ("", "RESULT", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-	}
-
-	//-----------------------------------------------------
 	Parameters.Add_Table_Field("TABLE",
 		"FIELD"		, _TL("Result Field"),
 		_TL("Select a field for the results. If not set a new field for the results will be added."),
 		true
 	);
+
+	Parameters.Add_Table ("", "RESULT_TABLE" , _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Shapes("", "RESULT_SHAPES", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 
 	Parameters.Add_String("FIELD",
 		"NAME"		, _TL("Field Name"),
@@ -154,7 +170,7 @@ CTable_Calculator_Base::CTable_Calculator_Base(bool bShapes)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CTable_Calculator_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CTable_Field_Calculator::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	if( pParameter->Cmp_Identifier("TABLE") )
 	{
@@ -194,7 +210,7 @@ int CTable_Calculator_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CS
 }
 
 //---------------------------------------------------------
-int CTable_Calculator_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CTable_Field_Calculator::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	CSG_Table *pTable = (CSG_Table *)pParameters->Get_Parameter("TABLE")->asDataObject();
 
@@ -202,6 +218,8 @@ int CTable_Calculator_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CS
 	{
 		CSG_Parameter *pField = pParameters->Get_Parameter("FIELD");
 
+		pParameters->Set_Enabled("RESULT_TABLE"  , pTable->asShapes() == NULL);
+		pParameters->Set_Enabled("RESULT_SHAPES" , pTable->asShapes() != NULL);
 		pParameters->Set_Enabled("FIELD"         , true);
 		pParameters->Set_Enabled("NAME"          , pField->asInt() < 0); // not set
 		pParameters->Set_Enabled("SELECTION"     , pTable->Get_Selection_Count() > 0);
@@ -209,6 +227,8 @@ int CTable_Calculator_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CS
 	}
 	else
 	{
+		pParameters->Set_Enabled("RESULT_TABLE"  , false);
+		pParameters->Set_Enabled("RESULT_SHAPES" , false);
 		pParameters->Set_Enabled("FIELD"    	 , false);
 		pParameters->Set_Enabled("NAME"     	 , false);
 		pParameters->Set_Enabled("FIELD_SELECTOR", false);
@@ -223,7 +243,7 @@ int CTable_Calculator_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CS
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTable_Calculator_Base::On_Execute(void)
+bool CTable_Field_Calculator::On_Execute(void)
 {
 	CSG_Table *pTable = Parameters("TABLE")->asTable();
 
@@ -243,21 +263,21 @@ bool CTable_Calculator_Base::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( Parameters("RESULT")->asTable() && Parameters("RESULT")->asTable() != pTable )
-	{
-		pTable = Parameters("RESULT")->asTable();
+	CSG_Table *pResult = Parameters(pTable->asShapes() ? "RESULT_SHAPES" : "RESULT_TABLE")->asTable();
 
-		if( pTable->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
+	if( pResult && pResult != pTable )
+	{
+		if( pResult->asShapes() )
 		{
-			pTable->Create(*Parameters("TABLE")->asShapes());
+			pResult->Create(*pTable->asShapes());
 		}
 		else
 		{
-			pTable->Create(*Parameters("TABLE")->asTable ());
+			pResult->Create(*pTable);
 		}
-	}
 
-	pTable->Set_Name(Parameters("TABLE")->asTable()->Get_Name());
+		pTable = pResult;
+	}
 
 	//-----------------------------------------------------
 	m_Result = Parameters("FIELD")->asInt();
@@ -305,7 +325,7 @@ bool CTable_Calculator_Base::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTable_Calculator_Base::Get_Value(CSG_Table_Record *pRecord)
+bool CTable_Field_Calculator::Get_Value(CSG_Table_Record *pRecord)
 {
 	CSG_Vector Values(m_Values.Get_uSize());
 
@@ -339,7 +359,7 @@ bool CTable_Calculator_Base::Get_Value(CSG_Table_Record *pRecord)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CTable_Calculator_Base::Get_Formula(CSG_String Formula, CSG_Table *pTable, CSG_Array_Int &Values)
+CSG_String CTable_Field_Calculator::Get_Formula(CSG_String Formula, CSG_Table *pTable, CSG_Array_Int &Values)
 {
 	const SG_Char vars[27] = SG_T("abcdefghijklmnopqrstuvwxyz");
 

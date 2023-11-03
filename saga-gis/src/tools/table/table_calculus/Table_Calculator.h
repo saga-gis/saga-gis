@@ -1,22 +1,54 @@
 
-/*******************************************************************************
-    TableCalculator.h
-    Copyright (C) Victor Olaya
+///////////////////////////////////////////////////////////
+//                                                       //
+//                         SAGA                          //
+//                                                       //
+//      System for Automated Geoscientific Analyses      //
+//                                                       //
+//                     Tool Library                      //
+//                    Table_Calculus                     //
+//                                                       //
+//-------------------------------------------------------//
+//                                                       //
+//                  Table_Calculator.h                   //
+//                                                       //
+//                    Copyrights (c)                     //
+//            V.Olaya, O.Conrad, J.Spitzmueller          //
+//                                                       //
+//-------------------------------------------------------//
+//                                                       //
+// This file is part of 'SAGA - System for Automated     //
+// Geoscientific Analyses'. SAGA is free software; you   //
+// can redistribute it and/or modify it under the terms  //
+// of the GNU General Public License as published by the //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
+//                                                       //
+// SAGA is distributed in the hope that it will be       //
+// useful, but WITHOUT ANY WARRANTY; without even the    //
+// implied warranty of MERCHANTABILITY or FITNESS FOR A  //
+// PARTICULAR PURPOSE. See the GNU General Public        //
+// License for more details.                             //
+//                                                       //
+// You should have received a copy of the GNU General    //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
+//                                                       //
+//-------------------------------------------------------//
+//                                                       //
+//    e-mail:     oconrad@saga-gis.org                   //
+//                                                       //
+//    contact:    Olaf Conrad                            //
+//                Institute of Geography                 //
+//                University of Hamburg                  //
+//                Germany                                //
+//                                                       //
+///////////////////////////////////////////////////////////
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+//---------------------------------------------------------
+#ifndef HEADER_INCLUDED__Table_Calculator_H
+#define HEADER_INCLUDED__Table_Calculator_H
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
-*******************************************************************************/
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -35,10 +67,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Calculator_Base : public CSG_Tool  
+class CTable_Field_Calculator : public CSG_Tool  
 {
 public:
-	CTable_Calculator_Base(bool bShapes);
+	CTable_Field_Calculator(void);
+
+	virtual CSG_String		Get_MenuPath			(void)	{	return( ";A:Shapes|Attributes" );	}
 
 
 protected:
@@ -70,36 +104,9 @@ private:
 
 ///////////////////////////////////////////////////////////
 //														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CTable_Calculator : public CTable_Calculator_Base  
-{
-public:
-	CTable_Calculator(void) : CTable_Calculator_Base(false)	{}
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CTable_Calculator_Shapes : public CTable_Calculator_Base  
-{
-public:
-	CTable_Calculator_Shapes(void) : CTable_Calculator_Base(true)	{}
-
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Shapes|Attributes") );	}
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__Table_Calculator_H

@@ -104,8 +104,7 @@ CSG_Tool *		Create_Tool(int i)
 	{
 	case  0: return( new CFit );
 
-	case  1: return( new CTable_Calculator );
-	case  2: return( new CTable_Calculator_Shapes );
+	case  1: return( new CTable_Field_Calculator );
 
 	case  5: return( new CTable_Running_Average );
 	case  7: return( new CTable_PCA );
@@ -119,9 +118,8 @@ CSG_Tool *		Create_Tool(int i)
 	case 12: return( new CTable_mRMR );
 #endif // WITH_MRMR
 
-	case 15: return( new CTable_Field_Statistics() );
-	case 16: return( new CTable_Record_Statistics() );
-	case 17: return( new CTable_Record_Statistics_Shapes() );
+	case 15: return( new CTable_Field_Statistics );
+	case 16: return( new CTable_Record_Statistics );
 
 	case 18: return( new CTable_Aggregate_by_Field() );
 

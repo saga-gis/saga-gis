@@ -108,8 +108,7 @@ CSG_Tool *		Create_Tool(int i)
 	case  0: return( new CTable_Create_Empty );
 	case 22: return( new CTable_Create_Copy );
 	case  1: return( new CTable_Rotate );
-	case  2: return( new CTable_Enumerate(false) );
-	case 21: return( new CTable_Enumerate(true) );
+	case  2: return( new CTable_Enumerate );
 	case  3: return( new CJoin_Table );
 	case  5: return( new CTable_Change_Date_Format );
 	case  6: return( new CTable_Change_Time_Format );
@@ -129,13 +128,10 @@ CSG_Tool *		Create_Tool(int i)
 	case 20: return( new CTable_Categories_to_Indicators );
 
 	case 24: return( new CField_Formatted_String );
-	case 25: return( new CField_Formatted_String_Shapes );
 
-	case 26: return( new CTable_Classify_Supervised(false) );
-	case 27: return( new CTable_Classify_Supervised(true) );
+	case 26: return( new CTable_Classify_Supervised );
 
-	case 28: return( new CTable_Cluster_Analysis(false) );
-	case 29: return( new CTable_Cluster_Analysis(true) );
+	case 28: return( new CTable_Cluster_Analysis );
 
 	//-----------------------------------------------------
 	case 30: return( NULL );

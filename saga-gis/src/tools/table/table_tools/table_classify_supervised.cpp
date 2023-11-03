@@ -56,11 +56,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTable_Classify_Supervised::CTable_Classify_Supervised(bool bShapes)
+CTable_Classify_Supervised::CTable_Classify_Supervised(void)
 {
-	m_bShapes = bShapes;
-
-	Set_Name		(CSG_String::Format("%s (%s)", _TL("Supervised Classification"), m_bShapes ? _TL("Shapes") : _TL("Table")));
+	Set_Name		(CSG_String::Format("%s (%s)", _TL("Supervised Classification"), _TL("Table Fields")));
 
 	Set_Author		("O.Conrad (c) 2012");
 
@@ -80,27 +78,25 @@ CTable_Classify_Supervised::CTable_Classify_Supervised(bool bShapes)
 	));
 
 	//-----------------------------------------------------
-	if( m_bShapes )
-	{
-		Parameters.Add_Shapes("", "SHAPES" , _TL("Shapes"        ), _TL(""), PARAMETER_INPUT);
-		Parameters.Add_Shapes("", "CLASSES", _TL("Classification"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-	}
-	else
-	{
-		Parameters.Add_Table ("", "TABLE"  , _TL("Table"         ), _TL(""), PARAMETER_INPUT);
-		Parameters.Add_Table ("", "CLASSES", _TL("Classification"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-	}
+	Parameters.Add_Table("",
+		"TABLE"			, _TL("Table"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
 
-	Parameters.Add_Table_Fields(m_bShapes ? "SHAPES" : "TABLE",
+	Parameters.Add_Table_Fields("TABLE",
 		"FEATURES"		, _TL("Features"),
 		_TL("")
 	);
 
-	Parameters.Add_Bool(m_bShapes ? "SHAPES" : "TABLE",
+	Parameters.Add_Bool("TABLE",
 		"NORMALISE"		, _TL("Normalise"),
 		_TL(""),
 		false
 	);
+
+	Parameters.Add_Table ("", "RESULT_TABLE" , _TL("Classification"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Shapes("", "RESULT_SHAPES", _TL("Classification"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 
 	//-----------------------------------------------------
 	Parameters.Add_Choice("",
@@ -113,7 +109,7 @@ CTable_Classify_Supervised::CTable_Classify_Supervised(bool bShapes)
 		)
 	);
 
-	Parameters.Add_Table_Field(m_bShapes ? "SHAPES" : "TABLE",
+	Parameters.Add_Table_Field("TABLE",
 		"TRAIN_FIELD"	, _TL("Known Classes Field"),
 		_TL(""),
 		false
@@ -197,6 +193,20 @@ CTable_Classify_Supervised::CTable_Classify_Supervised(bool bShapes)
 //---------------------------------------------------------
 int CTable_Classify_Supervised::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if(	pParameter->Cmp_Identifier("TABLE") )
+	{
+		if( pParameter->asDataObject() )
+		{
+			pParameters->Set_Enabled("RESULT_TABLE" , pParameter->asDataObject()->asShapes() == NULL);
+			pParameters->Set_Enabled("RESULT_SHAPES", pParameter->asDataObject()->asShapes() != NULL);
+		}
+		else
+		{
+			pParameters->Set_Enabled("RESULT_TABLE" , false);
+			pParameters->Set_Enabled("RESULT_SHAPES", false);
+		}
+	}
+
 	if(	pParameter->Cmp_Identifier("TRAIN_WITH") )
 	{
 		pParameters->Set_Enabled("TRAIN_FIELD"    , pParameter->asInt() == 0);
@@ -244,11 +254,11 @@ bool CTable_Classify_Supervised::On_Execute(void)
 	}
 
 	//-------------------------------------------------
-	CSG_Table *pClasses = Parameters("CLASSES")->asTable(); if( !pClasses ) { pClasses = m_pTable; }
+	CSG_Table *pClasses = Parameters(m_pTable->asShapes() ? "RESULT_SHAPES" : "RESULT_TABLE")->asTable(); if( !pClasses ) { pClasses = m_pTable; }
 
 	if( pClasses != m_pTable )
 	{
-		if( m_bShapes )
+		if( pClasses->asShapes() )
 		{
 			pClasses->asShapes()->Create(m_pTable->asShapes()->Get_Type(), NULL, NULL, m_pTable->asShapes()->Get_Vertex_Type());
 		}
@@ -279,7 +289,7 @@ bool CTable_Classify_Supervised::On_Execute(void)
 		{
 			CSG_Table_Record *pClass = pClasses != m_pTable ? pClasses->Add_Record() : pClasses->Get_Record(i);
 
-			if( pClasses != m_pTable && m_bShapes )
+			if( pClasses != m_pTable && m_pTable->asShapes() )
 			{
 				((CSG_Shape	*)pClass)->Assign((CSG_Shape *)m_pTable->Get_Record(i), false);
 			}
@@ -302,7 +312,7 @@ bool CTable_Classify_Supervised::On_Execute(void)
 //---------------------------------------------------------
 bool CTable_Classify_Supervised::Get_Features(void)
 {
-	m_pTable     = Parameters(m_bShapes ? "SHAPES" : "TABLE")->asTable();
+	m_pTable     = Parameters("TABLE")->asTable();
 
 	m_Features   = (int *)Parameters("FEATURES" )->asPointer();
 	m_nFeatures  =        Parameters("FEATURES" )->asInt    ();
@@ -459,7 +469,7 @@ bool CTable_Classify_Supervised::Set_Classifier(CSG_Classifier_Supervised &Class
 //---------------------------------------------------------
 bool CTable_Classify_Supervised::Set_Classification(CSG_Classifier_Supervised &Classifier, int Offset)
 {
-	CSG_Table *pClasses = Parameters("CLASSES")->asTable(); if( !pClasses ) { pClasses = m_pTable; }
+	CSG_Table *pClasses = Parameters(m_pTable->asShapes() ? "RESULT_SHAPES" : "RESULT_TABLE")->asTable(); if( !pClasses ) { pClasses = m_pTable; }
 
 	if( pClasses == m_pTable )
 	{

@@ -90,7 +90,7 @@ const CSG_String	STATS[STATS_COUNT][2]	=
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTable_Record_Statistics_Base::CTable_Record_Statistics_Base(void)
+CTable_Record_Statistics::CTable_Record_Statistics(void)
 {
 	Set_Name		(_TL("Record Statistics"));
 
@@ -100,6 +100,15 @@ CTable_Record_Statistics_Base::CTable_Record_Statistics_Base(void)
 		"This tool calculates record-wise the statistics over the selected attribute fields."
 	));
 
+	Parameters.Add_Table("", "TABLE" , _TL("Table" ), _TL(""), PARAMETER_INPUT);
+
+	Parameters.Add_Table_Fields("TABLE", "FIELDS", _TL("Attributes"),
+		_TL("If no field is selected statistics will be built from all numeric fields.")
+	);
+
+	Parameters.Add_Table ("", "RESULT_TABLE" , _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Shapes("", "RESULT_SHAPES", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+
 	for(int i=0; i<STATS_COUNT; i++)
 	{
 		Parameters.Add_Bool("", STATS[i][0], STATS[i][1], _TL(""));
@@ -108,7 +117,7 @@ CTable_Record_Statistics_Base::CTable_Record_Statistics_Base(void)
 	Parameters.Add_Double(
 		"PCTL", "PCTL_VAL", _TL("Value"),
 		_TL(""),
-		50.0, 0.0, true, 100.0, true
+		50., 0., true, 100., true
 	);
 }
 
@@ -118,8 +127,22 @@ CTable_Record_Statistics_Base::CTable_Record_Statistics_Base(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CTable_Record_Statistics_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CTable_Record_Statistics::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if(	pParameter->Cmp_Identifier("TABLE") )
+	{
+		if( pParameter->asDataObject() )
+		{
+			pParameters->Set_Enabled("RESULT_TABLE" , pParameter->asDataObject()->asShapes() == NULL);
+			pParameters->Set_Enabled("RESULT_SHAPES", pParameter->asDataObject()->asShapes() != NULL);
+		}
+		else
+		{
+			pParameters->Set_Enabled("RESULT_TABLE" , false);
+			pParameters->Set_Enabled("RESULT_SHAPES", false);
+		}
+	}
+
 	if(	pParameter->Cmp_Identifier("PCTL") )
 	{
 		pParameters->Set_Enabled("PCTL_VAL", pParameter->asBool());
@@ -134,10 +157,9 @@ int CTable_Record_Statistics_Base::On_Parameters_Enable(CSG_Parameters *pParamet
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTable_Record_Statistics_Base::On_Execute(void)
+bool CTable_Record_Statistics::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
+	CSG_Table *pTable = Parameters("TABLE")->asTable();
 
 	if( !pTable->is_Valid() || pTable->Get_Field_Count() <= 0 || pTable->Get_Count() <= 0 )
 	{
@@ -147,10 +169,10 @@ bool CTable_Record_Statistics_Base::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Array_Int	_Fields;
+	CSG_Array_Int _Fields;
 
-	int	*Fields	= (int *)Parameters("FIELDS")->asPointer();
-	int	nFields	=        Parameters("FIELDS")->asInt    ();
+	int	*Fields = (int *)Parameters("FIELDS")->asPointer();
+	int	nFields =        Parameters("FIELDS")->asInt    ();
 
 	if( nFields == 0 )
 	{
@@ -158,7 +180,7 @@ bool CTable_Record_Statistics_Base::On_Execute(void)
 		{
 			if( SG_Data_Type_is_Numeric(pTable->Get_Field_Type(i)) )
 			{
-				_Fields.Inc_Array(); _Fields[nFields++]	= i;
+				_Fields.Inc_Array(); _Fields[nFields++] = i;
 			}
 		}
 
@@ -169,23 +191,32 @@ bool CTable_Record_Statistics_Base::On_Execute(void)
 			return( false );
 		}
 
-		Fields	= _Fields.Get_Array();
+		Fields = _Fields.Get_Array();
 	}
 
 	//-----------------------------------------------------
-	if( Parameters("RESULT")->asTable() && Parameters("RESULT")->asTable() != pTable )
+	CSG_Table *pResult = Parameters(pTable->asShapes() ? "RESULT_SHAPES" : "RESULT_TABLE")->asTable();
+
+	if( pResult && pResult != pTable )
 	{
-		pTable	= Parameters("RESULT")->asTable();
-		pTable->Create( *Parameters("TABLE")->asTable());
-		pTable->Set_Name(Parameters("TABLE")->asTable()->Get_Name());
+		if( pResult->asShapes() )
+		{
+			pResult->Create(*pTable->asShapes());
+		}
+		else
+		{
+			pResult->Create(*pTable->asTable ());
+		}
+
+		pTable = pResult;
 	}
 
 	//-----------------------------------------------------
-	double	Percentile	= Parameters("PCTL_VAL")->asDouble();
+	double Percentile = Parameters("PCTL_VAL")->asDouble();
 
-	int	offResult	= pTable->Get_Field_Count();
+	int offResult = pTable->Get_Field_Count();
 
-	bool	bStats[STATS_COUNT];
+	bool bStats[STATS_COUNT];
 
 	{
 		for(int i=0; i<STATS_COUNT; i++)
@@ -207,32 +238,32 @@ bool CTable_Record_Statistics_Base::On_Execute(void)
 	//-----------------------------------------------------
 	for(sLong iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
 	{
-		CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
+		CSG_Table_Record *pRecord = pTable->Get_Record(iRecord);
 
-		CSG_Simple_Statistics	s(bStats[STATS_PCTL]);
+		CSG_Simple_Statistics s(bStats[STATS_PCTL]);
 
 		for(int iField=0; iField<nFields; iField++)
 		{
 			if( !pRecord->is_NoData(Fields[iField]) )
 			{
-				s	+= pRecord->asDouble(Fields[iField]);
+				s += pRecord->asDouble(Fields[iField]);
 			}
 		}
 
 		//-------------------------------------------------
-		int	iField	= offResult;
+		int iField = offResult;
 
 		if( s.Get_Count() > 0 )
 		{
-			if( bStats[STATS_MEAN ]	)	pRecord->Set_Value(iField++, s.Get_Mean    ());
-			if( bStats[STATS_MIN  ]	)	pRecord->Set_Value(iField++, s.Get_Minimum ());
-			if( bStats[STATS_MAX  ]	)	pRecord->Set_Value(iField++, s.Get_Maximum ());
-			if( bStats[STATS_RANGE]	)	pRecord->Set_Value(iField++, s.Get_Range   ());
-			if( bStats[STATS_SUM  ]	)	pRecord->Set_Value(iField++, s.Get_Sum     ());
-			if( bStats[STATS_NUM  ]	)	pRecord->Set_Value(iField++, s.Get_Count   ());
-			if( bStats[STATS_VAR  ]	)	pRecord->Set_Value(iField++, s.Get_Variance());
-			if( bStats[STATS_STDV ]	)	pRecord->Set_Value(iField++, s.Get_StdDev  ());
-			if( bStats[STATS_PCTL ]	)	pRecord->Set_Value(iField++, s.Get_Percentile(Percentile));
+			if( bStats[STATS_MEAN ]	) pRecord->Set_Value(iField++, s.Get_Mean    ());
+			if( bStats[STATS_MIN  ]	) pRecord->Set_Value(iField++, s.Get_Minimum ());
+			if( bStats[STATS_MAX  ]	) pRecord->Set_Value(iField++, s.Get_Maximum ());
+			if( bStats[STATS_RANGE]	) pRecord->Set_Value(iField++, s.Get_Range   ());
+			if( bStats[STATS_SUM  ]	) pRecord->Set_Value(iField++, s.Get_Sum     ());
+			if( bStats[STATS_NUM  ]	) pRecord->Set_Value(iField++, s.Get_Count   ());
+			if( bStats[STATS_VAR  ]	) pRecord->Set_Value(iField++, s.Get_Variance());
+			if( bStats[STATS_STDV ]	) pRecord->Set_Value(iField++, s.Get_StdDev  ());
+			if( bStats[STATS_PCTL ]	) pRecord->Set_Value(iField++, s.Get_Percentile(Percentile));
 		}
 		else
 		{
@@ -253,44 +284,6 @@ bool CTable_Record_Statistics_Base::On_Execute(void)
 	}
 
 	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CTable_Record_Statistics::CTable_Record_Statistics(void)
-	: CTable_Record_Statistics_Base()
-{
-	Parameters.Add_Table("", "RESULT", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-	Parameters.Add_Table("", "TABLE" , _TL("Table" ), _TL(""), PARAMETER_INPUT);
-
-	Parameters.Add_Table_Fields("TABLE", "FIELDS", _TL("Attributes"),
-		_TL("If no field is selected statistics will be built from all numeric fields.")
-	);
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CTable_Record_Statistics_Shapes::CTable_Record_Statistics_Shapes(void)
-	: CTable_Record_Statistics_Base()
-{
-	Set_Name(_TL("Record Statistics (Shapes)"));
-
-	Parameters.Add_Shapes("", "RESULT", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-	Parameters.Add_Shapes("", "TABLE" , _TL("Table"), _TL(""), PARAMETER_INPUT);
-
-	Parameters.Add_Table_Fields("TABLE", "FIELDS", _TL("Attributes"),
-		_TL("If no field is selected statistics will be built from all numeric fields.")
-	);
 }
 
 

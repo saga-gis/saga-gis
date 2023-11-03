@@ -23,6 +23,42 @@ CSG_Data_Manager.Delete_Unsaved(bDetach) &rarr; CSG_Data_Manager.Delete(bDetach,
 ___
 ## SAGA 9.3.0 Tool interface changes
 
+#### Formatted Text (Shapes) ('table_tools', '25')
+The tool has been merged with the "Formatted Text" tool ('table_tools', '24') and has been removed.
+
+#### Formatted Text ('table_tools', '24')
+The tool has been merged with the "Formatted Text (Shapes)" tool. The "RESULT" parameter has been replaced by two new ones, one for tables (&rarr RESULT_TABLE) and one for shapes (&rarr RESULT_SHAPES).
+
+#### Field Enumeration (Shapes) ('table_tools', '21')
+The tool has been merged with the "Field Enumeration" tool ('table_tools', '2') and has been removed.
+
+#### Field Enumeration ('table_tools', '2')
+The tool has been merged with the "Field Enumeration (Shapes)" tool. The "RESULT" parameter has been replaced by two new ones, one for tables (&rarr RESULT_TABLE) and one for shapes (&rarr RESULT_SHAPES).
+
+#### Record Statistics (Shapes) ('table_calculus', '17')
+The tool has been merged with the "Record Statistics" tool ('table_calculus', '16') and has been removed.
+
+#### Record Statistics ('table_tools', '16')
+The tool has been merged with the "Record Statistics (Shapes)" tool. The "RESULT" parameter has been replaced by two new ones, one for tables (&rarr RESULT_TABLE) and one for shapes (&rarr RESULT_SHAPES).
+
+#### Field Calculator (Shapes) ('table_calculus', '2')
+The tool has been merged with the "Field Calculator (Table)" tool ('table_calculus', '1') and has been removed.
+
+#### Field Calculator (Table) ('table_tools', '2')
+The tool has been merged with the "Field Calculator (Shapes)" tool. The "RESULT" parameter has been replaced by two new ones, one for tables (&rarr RESULT_TABLE) and one for shapes (&rarr RESULT_SHAPES).
+
+#### Cluster Analysis (Shapes) ('table_tools', '29')
+The tool has been merged with the "Cluster Analysis (Table)" tool ('table_tools', '28') and has been removed.
+
+#### Cluster Analysis (Table) ('table_tools', '28')
+The tool has been merged with the "Cluster Analysis (Shapes)" tool. The "RESULT" parameter has been replaced by two new ones, one for tables (&rarr RESULT_TABLE) and one for shapes (&rarr RESULT_SHAPES).
+
+#### Supervised Classification (Shapes) ('table_tools', '27')
+The tool has been merged with the "Supervised Classification (Table)" tool ('table_tools', '26') and has been removed.
+
+#### Supervised Classification (Table) ('table_tools', '26')
+The tool has been merged with the "Supervised Classification (Shapes)" tool. The "CLASSES" parameter has been replaced by two new ones, one for tables (&rarr RESULT_TABLE) and one for shapes (&rarr RESULT_SHAPES).
+
 #### Join Attributes from a Table (Shapes) ('table_tools', '4')
 The tool has been merged with the "Join Attributes from a Table" tool ('table_tools', '3') and has been removed.
 

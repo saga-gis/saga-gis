@@ -86,13 +86,13 @@ const CSG_String	g_Keys[Key_Count][3]	=
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CField_Formatted_String_Base::CField_Formatted_String_Base(bool bShapes)
+CField_Formatted_String::CField_Formatted_String(void)
 {
 	Set_Name		(_TL("Formatted Text"));
 
 	Set_Author		("O.Conrad (c) 2019");
 
-	CSG_String	s	=_TW(
+	CSG_String s =_TW(
 		"With this tool you can create new text field contents from the contents "
 		"of other fields. To address other field's contents you have some format options as listed below.\n"
 		"Fields are addressed either by their zero based column number or by their name.\n"
@@ -115,20 +115,12 @@ CField_Formatted_String_Base::CField_Formatted_String_Base(bool bShapes)
 	Set_Description(s);
 
 	//-----------------------------------------------------
-	if( bShapes )
-	{
-		Set_Name(CSG_String::Format("%s [%s]", Get_Name().c_str(), _TL("Shapes")));
+	Parameters.Add_Table("",
+		"TABLE"		, _TL("Table"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
 
-		Parameters.Add_Shapes("", "TABLE" , _TL("Shapes"), _TL(""), PARAMETER_INPUT);
-		Parameters.Add_Shapes("", "RESULT", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-	}
-	else
-	{
-		Parameters.Add_Table ("", "TABLE" , _TL("Table" ), _TL(""), PARAMETER_INPUT);
-		Parameters.Add_Table ("", "RESULT", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-	}
-
-	//-----------------------------------------------------
 	Parameters.Add_Table_Field("TABLE",
 		"FIELD"		, _TL("Field"),
 		_TL(""),
@@ -158,6 +150,9 @@ CField_Formatted_String_Base::CField_Formatted_String_Base(bool bShapes)
 		_TL(""),
 		false
 	);
+
+	Parameters.Add_Table ("", "RESULT_TABLE" , _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Shapes("", "RESULT_SHAPES", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 }
 
 
@@ -166,22 +161,26 @@ CField_Formatted_String_Base::CField_Formatted_String_Base(bool bShapes)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CField_Formatted_String_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CField_Formatted_String::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	CSG_Table	*pTable	= (CSG_Table *)pParameters->Get_Parameter("TABLE")->asDataObject();
+	CSG_Table *pTable = pParameters->Get_Parameter("TABLE")->asTable();
 
 	if( pTable )
 	{
-		CSG_Parameter	*pField	= pParameters->Get_Parameter("FIELD");
+		CSG_Parameter *pField = pParameters->Get_Parameter("FIELD");
 
-		pParameters->Set_Enabled("FIELD"    , true);
-		pParameters->Set_Enabled("NAME"     , pField->asInt() < 0);	// not set
-		pParameters->Set_Enabled("SELECTION", pTable->Get_Selection_Count() > 0);
+		pParameters->Set_Enabled("RESULT_TABLE" , pTable->asShapes() == NULL);
+		pParameters->Set_Enabled("RESULT_SHAPES", pTable->asShapes() != NULL);
+		pParameters->Set_Enabled("FIELD"        , true);
+		pParameters->Set_Enabled("NAME"         , pField->asInt() < 0);	// not set
+		pParameters->Set_Enabled("SELECTION"    , pTable->Get_Selection_Count() > 0);
 	}
 	else
 	{
-		pParameters->Set_Enabled("FIELD"    , false);
-		pParameters->Set_Enabled("NAME"     , false);
+		pParameters->Set_Enabled("RESULT_TABLE" , pTable->asShapes() == NULL);
+		pParameters->Set_Enabled("RESULT_SHAPES", pTable->asShapes() != NULL);
+		pParameters->Set_Enabled("FIELD"        , false);
+		pParameters->Set_Enabled("NAME"         , false);
 	}
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
@@ -193,10 +192,9 @@ int CField_Formatted_String_Base::On_Parameters_Enable(CSG_Parameters *pParamete
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CField_Formatted_String_Base::On_Execute(void)
+bool CField_Formatted_String::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
+	CSG_Table *pTable = Parameters("TABLE")->asTable();
 
 	if( !pTable->is_Valid() || pTable->Get_Field_Count() <= 0 || pTable->Get_Count() <= 0 )
 	{
@@ -212,28 +210,28 @@ bool CField_Formatted_String_Base::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( Parameters("RESULT")->asTable() && Parameters("RESULT")->asTable() != pTable )
-	{
-		pTable	= Parameters("RESULT")->asTable();
+	CSG_Table *pResult = Parameters(pTable->asShapes() ? "RESULT_SHAPES" : "RESULT_TABLE")->asTable();
 
-		if( pTable->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
+	if( pResult && pResult != pTable )
+	{
+		if( pResult->asShapes() )
 		{
-			pTable->Create(*Parameters("TABLE")->asShapes());
+			pResult->Create(*pTable->asShapes());
 		}
 		else
 		{
-			pTable->Create(*Parameters("TABLE")->asTable());
+			pResult->Create(*pTable);
 		}
+
+		pTable = pResult;
 	}
 
-	pTable->Set_Name(Parameters("TABLE")->asTable()->Get_Name());
-
 	//-----------------------------------------------------
-	m_Result	= Parameters("FIELD")->asInt();
+	m_Result = Parameters("FIELD")->asInt();
 
 	if( m_Result < 0 || m_Result >= pTable->Get_Field_Count() )
 	{
-		m_Result	= pTable->Get_Field_Count();
+		m_Result = pTable->Get_Field_Count();
 
 		pTable->Add_Field(Parameters("NAME")->asString(), SG_DATATYPE_String);
 	}
@@ -243,7 +241,7 @@ bool CField_Formatted_String_Base::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_bNoData	= Parameters("USE_NODATA")->asBool();
+	m_bNoData = Parameters("USE_NODATA")->asBool();
 
 	if( pTable->Get_Selection_Count() > 0 && Parameters("SELECTION")->asBool() )
 	{
@@ -275,9 +273,9 @@ bool CField_Formatted_String_Base::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CField_Formatted_String_Base::Set_String(CSG_Table_Record *pRecord)
+bool CField_Formatted_String::Set_String(CSG_Table_Record *pRecord)
 {
-	CSG_String	Result;
+	CSG_String Result;
 
 	for(int i=0; i<m_nFormats; i++)
 	{
@@ -288,12 +286,12 @@ bool CField_Formatted_String_Base::Set_String(CSG_Table_Record *pRecord)
 			return( false );
 		}
 
-		CSG_String	s;
+		CSG_String s;
 
 		switch( m_Formats[i].type )
 		{
 		default:
-			s	= m_Formats[i].format;
+			s = m_Formats[i].format;
 			break;
 
 		case Key_Index:
@@ -301,27 +299,27 @@ bool CField_Formatted_String_Base::Set_String(CSG_Table_Record *pRecord)
 			break;
 
 		case Key_String:
-			s	= pRecord->asString(m_Formats[i].field);
+			s = pRecord->asString(m_Formats[i].field);
 			break;
 
 		case Key_Lower:
-			s	= pRecord->asString(m_Formats[i].field); s.Make_Lower();
+			s = pRecord->asString(m_Formats[i].field); s.Make_Lower();
 			break;
 
 		case Key_Upper:
-			s	= pRecord->asString(m_Formats[i].field); s.Make_Upper();
+			s = pRecord->asString(m_Formats[i].field); s.Make_Upper();
 			break;
 
 		case Key_Integer:
-			s	= SG_Get_String(pRecord->asInt(m_Formats[i].field));
+			s = SG_Get_String(pRecord->asInt(m_Formats[i].field));
 			break;
 
 		case Key_Real:
-			s	= SG_Get_String(pRecord->asDouble(m_Formats[i].field), m_Formats[i].option);
+			s = SG_Get_String(pRecord->asDouble(m_Formats[i].field), m_Formats[i].option);
 			break;
 		}
 
-		Result	+= s;
+		Result += s;
 	}
 
 	pRecord->Set_Value(m_Result, Result);
@@ -335,33 +333,33 @@ bool CField_Formatted_String_Base::Set_String(CSG_Table_Record *pRecord)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CField_Formatted_String_Base::Get_Formats(CSG_Table *pTable)
+bool CField_Formatted_String::Get_Formats(CSG_Table *pTable)
 {
-	CSG_String	s	= Parameters("FORMAT")->asString();
+	CSG_String s = Parameters("FORMAT")->asString();
 
-	CSG_Strings	Tokens;	Tokens.Add("");
+	CSG_Strings Tokens; Tokens.Add("");
 
-	bool	bQuota	= false;
+	bool bQuota = false;
 
 	for(size_t iCharacter=0; iCharacter<s.Length(); iCharacter++)
 	{
-		int	i	= Tokens.Get_Count() - 1;
+		int i = Tokens.Get_Count() - 1;
 
 		switch( s[iCharacter] )
 		{
 		default:
-			Tokens[i]	+= s[iCharacter];
+			Tokens[i] += s[iCharacter];
 			break;
 
 		case '\"':
-			bQuota	= !bQuota;
-			Tokens[i]	+= s[iCharacter];
+			bQuota = !bQuota;
+			Tokens[i] += s[iCharacter];
 			break;
 
 		case '\\':
 			if( ++iCharacter < s.Length() )
 			{
-				Tokens[i]	+= s[iCharacter];
+				Tokens[i] += s[iCharacter];
 			}
 			break;
 
@@ -377,12 +375,12 @@ bool CField_Formatted_String_Base::Get_Formats(CSG_Table *pTable)
 	//-----------------------------------------------------
 	if( Tokens.Get_Count() < 1 )
 	{
-		m_nFormats	= 0;
-		m_Formats	= NULL;
+		m_nFormats = 0;
+		m_Formats  = NULL;
 	}
 
-	m_nFormats	= Tokens.Get_Count();
-	m_Formats	= new TFormat[m_nFormats];
+	m_nFormats = Tokens.Get_Count();
+	m_Formats  = new TFormat[m_nFormats];
 
 	for(int i=0; i<Tokens.Get_Count(); i++)
 	{
@@ -390,28 +388,28 @@ bool CField_Formatted_String_Base::Get_Formats(CSG_Table *pTable)
 
 		if( Tokens[i].Find('\"') == 0 )
 		{
-			m_Formats[i].format	= Tokens[i].AfterFirst('\"').BeforeFirst('\"');
-			m_Formats[i].type	= Key_Count;
-			m_Formats[i].field	= -1;
-			m_Formats[i].option	= 0;
+			m_Formats[i].format = Tokens[i].AfterFirst('\"').BeforeFirst('\"');
+			m_Formats[i].type   = Key_Count;
+			m_Formats[i].field  = -1;
+			m_Formats[i].option = 0;
 		}
 		else
 		{
-			CSG_String	Key	= Tokens[i].BeforeFirst('(');
-			CSG_String	Arg	= Tokens[i].AfterFirst ('(').BeforeFirst(')');
+			CSG_String Key = Tokens[i].BeforeFirst('(');
+			CSG_String Arg = Tokens[i].AfterFirst ('(').BeforeFirst(')');
 
 			if( !Key.CmpNoCase(g_Keys[Key_Index][0]) )
 			{
-				int	Offset;
+				int Offset;
 
-				m_Formats[i].type	= Key_Index;
-				m_Formats[i].option	= Arg.asInt(Offset) ? Offset : 0;
+				m_Formats[i].type   = Key_Index;
+				m_Formats[i].option = Arg.asInt(Offset) ? Offset : 0;
 			}
 			else
 			{
-				CSG_String	Field	= Arg.BeforeFirst(',');	Field.Trim_Both();
+				CSG_String Field = Arg.BeforeFirst(','); Field.Trim_Both();
 
-				m_Formats[i].field	= pTable->Get_Field(Field);
+				m_Formats[i].field = pTable->Get_Field(Field);
 
 				if( m_Formats[i].field < 0 && !Field.asInt(m_Formats[i].field) )
 				{
@@ -420,15 +418,15 @@ bool CField_Formatted_String_Base::Get_Formats(CSG_Table *pTable)
 					return( false );
 				}
 
-				if( !Key.CmpNoCase(g_Keys[Key_String ][0]) )	{	m_Formats[i].type	= Key_String ;	}
-				if( !Key.CmpNoCase(g_Keys[Key_Lower  ][0]) )	{	m_Formats[i].type	= Key_Lower  ;	}
-				if( !Key.CmpNoCase(g_Keys[Key_Upper  ][0]) )	{	m_Formats[i].type	= Key_Upper  ;	}
-				if( !Key.CmpNoCase(g_Keys[Key_Integer][0]) )	{	m_Formats[i].type	= Key_Integer;	}
-				if( !Key.CmpNoCase(g_Keys[Key_Real   ][0]) )	{	m_Formats[i].type	= Key_Real   ;
+				if( !Key.CmpNoCase(g_Keys[Key_String ][0]) ) { m_Formats[i].type = Key_String ; }
+				if( !Key.CmpNoCase(g_Keys[Key_Lower  ][0]) ) { m_Formats[i].type = Key_Lower  ; }
+				if( !Key.CmpNoCase(g_Keys[Key_Upper  ][0]) ) { m_Formats[i].type = Key_Upper  ; }
+				if( !Key.CmpNoCase(g_Keys[Key_Integer][0]) ) { m_Formats[i].type = Key_Integer; }
+				if( !Key.CmpNoCase(g_Keys[Key_Real   ][0]) ) { m_Formats[i].type = Key_Real   ;
 
-					int	Precision;
+					int Precision;
 
-					m_Formats[i].option	= Arg.AfterFirst(',').asInt(Precision) ? Precision : -99;
+					m_Formats[i].option = Arg.AfterFirst(',').asInt(Precision) ? Precision : -99;
 				}
 			}
 		}
