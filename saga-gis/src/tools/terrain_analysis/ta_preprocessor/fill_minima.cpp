@@ -265,18 +265,15 @@ CFillMinima::CFillMinima(void)
 	Parameters.Add_Grid(
 		"", "DEM"		, _TL("DEM"),
 		_TL("digital elevation model [m]"),
-		PARAMETER_INPUT, SG_DATATYPE_Char 
+		PARAMETER_INPUT, true, SG_DATATYPE_Char 
 	);
 
 	Parameters.Add_Grid(
 		"", "RESULT"	, _TL("Filled DEM"),
 		_TL("processed DEM"),
-		PARAMETER_OUTPUT, SG_DATATYPE_Char
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Char
 	);
 }
-
-CFillMinima::~CFillMinima(void)
-{}
 
 
 #define max(a,b) ((a) > (b) ? (a) : (b))

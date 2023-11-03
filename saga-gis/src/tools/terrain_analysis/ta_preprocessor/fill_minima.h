@@ -69,7 +69,6 @@ class CFillMinima : public CSG_Tool_Grid
 {
 public:
 	CFillMinima(void);
-	~CFillMinima(void);
 
 
 protected:
