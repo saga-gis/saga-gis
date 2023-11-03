@@ -371,30 +371,19 @@ CSG_Table & CSG_Table::operator = (const CSG_Table &Table)
 //---------------------------------------------------------
 bool CSG_Table::Assign(CSG_Data_Object *pObject)
 {
-	if( !pObject || !pObject->is_Valid()
-	|| ( pObject->Get_ObjectType() != SG_DATAOBJECT_TYPE_Table
-	  && pObject->Get_ObjectType() != SG_DATAOBJECT_TYPE_Shapes
-	  && pObject->Get_ObjectType() != SG_DATAOBJECT_TYPE_PointCloud	) )
+	if( CSG_Data_Object::Assign(pObject) && pObject->asTable(true) && Create(pObject->asTable(true)) )
 	{
-		return( false );
+		CSG_Table *pTable = pObject->asTable(true);
+
+		for(sLong i=0; i<pTable->Get_Count(); i++)
+		{
+			Add_Record(pTable->Get_Record(i));
+		}
+
+		return( true );
 	}
 
-	CSG_Table *pTable = (CSG_Table *)pObject;
-
-	if( !Create(pTable) )
-	{
-		return( false );
-	}
-
-	for(sLong i=0; i<pTable->Get_Count(); i++)
-	{
-		Add_Record(pTable->Get_Record(i));
-	}
-
-	Get_MetaData() = pTable->Get_MetaData();
-//	Get_History () = pTable->Get_History ();
-
-	return( true );
+	return( false );
 }
 
 //---------------------------------------------------------

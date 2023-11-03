@@ -597,15 +597,9 @@ CSG_MetaData CSG_PointCloud::_Create_Header(void) const
 //---------------------------------------------------------
 bool CSG_PointCloud::Assign(CSG_Data_Object *pObject)
 {
-	if( pObject && pObject->is_Valid() && pObject->Get_ObjectType() == Get_ObjectType() )
+	if( CSG_Data_Object::Assign(pObject) && pObject->asPointCloud(true) )
 	{
-		Destroy();
-
-		CSG_PointCloud *pPoints = (CSG_PointCloud *)pObject;
-
-		Set_Name(pPoints->Get_Name());
-
-		Get_History() = pPoints->Get_History();
+		CSG_PointCloud *pPoints = pObject->asPointCloud(true);
 
 		Get_Projection().Create(pPoints->Get_Projection());
 

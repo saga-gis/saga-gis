@@ -733,6 +733,18 @@ bool CSG_Data_Object::Update(bool bForce)
 //---------------------------------------------------------
 bool CSG_Data_Object::Assign(CSG_Data_Object *pObject)
 {
+	if( pObject )// && pObject->is_Valid() )
+	{
+		Destroy();
+
+		m_Name = pObject->Get_Name();
+
+		Get_MetaData() = pObject->Get_MetaData();
+	//	Get_History () = pObject->Get_History ();
+
+		return( true );
+	}
+
 	return( false );
 }
 
