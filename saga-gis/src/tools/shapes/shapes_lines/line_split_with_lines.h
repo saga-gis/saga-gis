@@ -103,7 +103,9 @@ protected:
 
 private:
 
-	bool					Get_Intersection	(CSG_Shape_Line *pLine, TSG_Point Point, double Epsilon);
+	bool					Get_Intersection	(CSG_Shape_Line *pLine, TSG_Point Point, double Epsilon, double Min_Vertex_Dist, bool Keep_Order);
+
+	void					_Split_Part			(CSG_Shape *pLine, int iPart, TSG_Point &Point, double Epsilon, double Min_Vertex_Dist);
 
 };
 
