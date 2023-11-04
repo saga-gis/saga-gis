@@ -218,13 +218,13 @@ CLine_Split_at_Points::CLine_Split_at_Points(void)
 {
 	Set_Name		(_TL("Split Lines at Points"));
 
-	Set_Author		("O. Conrad (c) 2015");
+	Set_Author		("O. Conrad, V. Wichmann (c) 2015-2023");
 
 	Set_Description	(_TW(
 		"The tool allows one to split lines at certain points. The points must be provided as point shapes.\n"
-		"By using a minimum vertex distance, a splitting close to existing line vertex locations can be avoided. "
-		"If required, the order in which the input lines are stored can be retained, i.e. splitted parts do not "
-		"get inserted at the end but at their original location in the dataset."
+		"The order in which the input lines are stored is retained, i.e. splitted parts are inserted at their "
+		"original location in the dataset. "
+		"By using a minimum vertex distance, a splitting close to existing line vertex locations can be avoided."
 	));
 
 	//-----------------------------------------------------
@@ -266,12 +266,6 @@ CLine_Split_at_Points::CLine_Split_at_Points(void)
 		_TL("The minimum distance of a point to a line vertex in order to split the line at the point's location [map units]."),
 		0., true
 	);
-
-	Parameters.Add_Bool("",
-		"KEEP_ORDER"	, _TL("Keep Line Order"),
-		_TL("Ensure the order in which the input lines are stored. Enabling this option increases computation time."),
-		false
-	);
 }
 
 
@@ -303,14 +297,29 @@ bool CLine_Split_at_Points::On_Execute(void)
 
 	double	Epsilon			= Parameters("EPSILON")->asDouble();
 	double  Min_Vertex_Dist	= Parameters("MIN_VERTEX_DIST")->asDouble();
-	bool	Keep_Order		= Parameters("KEEP_ORDER")->asBool();
 
 	//--------------------------------------------------------
 	for(sLong iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
 	{
-		CSG_Shape_Line	*pLine	= (CSG_Shape_Line *)pIntersect->Add_Shape(pLines->Get_Shape(iLine), SHAPE_COPY);
-
+		CSG_Shape_Line	*pLine	= (CSG_Shape_Line *)pLines->Get_Shape(iLine);
+		
 		CSG_Rect	Extent	= pLine->Get_Extent();	Extent.Inflate(Epsilon, false);
+
+		std::vector<L_PART>	Line_Parts;
+
+		for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
+		{
+			CSG_Shape_Part	*pPart = pLine->Get_Part(iPart);
+
+			L_PART	part;
+
+			for(int iPoint=0; iPoint<pPart->Get_Count(); iPoint++)
+			{
+				part.p.push_back(pPart->Get_Point(iPoint));
+			}
+
+			Line_Parts.push_back(part);
+		}
 
 		for(int iPoint=0; iPoint<pPoints->Get_Count(); iPoint++)
 		{
@@ -318,35 +327,31 @@ bool CLine_Split_at_Points::On_Execute(void)
 
 			if( Extent.Contains(Point) )
 			{
-				Get_Intersection(pLine, Point, Epsilon, Min_Vertex_Dist, Keep_Order);
+				Get_Intersection(Line_Parts, Point, Epsilon, Min_Vertex_Dist);
 			}
 		}
 
-		if( Parameters("OUTPUT")->asInt() == 1 )	// separate lines
+		if( Parameters("OUTPUT")->asInt() == 1 ) // separate lines
 		{
-			if( Keep_Order )
+			for(size_t iPart=0; iPart<Line_Parts.size(); iPart++)
 			{
-				for(int iPart=1; iPart<pLine->Get_Part_Count(); iPart++)
-				{
-					CSG_Shape_Line	*pAdd	= (CSG_Shape_Line *)pIntersect->Add_Shape(pLine, SHAPE_COPY_ATTR);	// only attributes
+				CSG_Shape_Line	*pLineOut	= (CSG_Shape_Line *)pIntersect->Add_Shape(pLines->Get_Shape(iLine), SHAPE_COPY_ATTR);
 
-					pAdd->Add_Part(pLine->Get_Part(iPart));
-				}
-
-				for(int iPart=pLine->Get_Part_Count()-1; iPart>0; iPart--)
+				for(size_t iPoint=0; iPoint<Line_Parts[iPart].p.size(); iPoint++)
 				{
-					pLine->Del_Part(iPart);
+					pLineOut->Add_Point(Line_Parts[iPart].p[iPoint]);
 				}
 			}
-			else
+		}
+		else // polylines
+		{
+			CSG_Shape_Line	*pLineOut	= (CSG_Shape_Line *)pIntersect->Add_Shape(pLines->Get_Shape(iLine), SHAPE_COPY_ATTR);
+
+			for(int iPart=0; (int)iPart<Line_Parts.size(); iPart++)
 			{
-				for(int iPart=pLine->Get_Part_Count()-1; iPart>0; iPart--)
+				for(size_t iPoint=0; iPoint<Line_Parts[iPart].p.size(); iPoint++)
 				{
-					CSG_Shape_Line	*pAdd	= (CSG_Shape_Line *)pIntersect->Add_Shape(pLine, SHAPE_COPY_ATTR);	// only attributes
-
-					pAdd->Add_Part(pLine->Get_Part(iPart));
-
-					pLine->Del_Part(iPart);
+					pLineOut->Add_Point(Line_Parts[iPart].p[iPoint], iPart);
 				}
 			}
 		}
@@ -361,96 +366,58 @@ bool CLine_Split_at_Points::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CLine_Split_at_Points::Get_Intersection(CSG_Shape_Line *pLine, TSG_Point Point, double Epsilon, double Min_Vertex_Dist, bool Keep_Order)
+bool CLine_Split_at_Points::Get_Intersection(std::vector<L_PART> &Line_Parts, TSG_Point Point, double Epsilon, double Min_Vertex_Dist)
 {
-	if( Keep_Order )
+	for(size_t iPart=0; iPart<Line_Parts.size(); iPart++)
 	{
-		CSG_Shapes	Copy;	Copy.Create(SHAPE_TYPE_Line);	// stores for each original line path a shape, which has two paths if the path was split
+		TSG_Point	min_C, C, B, A	= Line_Parts[iPart].p[0];
 
-		for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
+		int min_iPoint = 0; double min_Dist = 1. + Epsilon;
+
+		for(int iPoint=1; iPoint<(int)Line_Parts[iPart].p.size(); iPoint++)
 		{
-			CSG_Shape  *pShape = Copy.Add_Shape();
+			B = A; A = Line_Parts[iPart].p[iPoint];
 
-			pShape->Add_Part(pLine->Get_Part(iPart));
+			double	Dist	= SG_Get_Nearest_Point_On_Line(Point, A, B, C, true);
 
-			_Split_Part(pShape, 0, Point, Epsilon, Min_Vertex_Dist);
-		}
-
-		pLine->Del_Parts();
-
-		for(int iShape=0; iShape<Copy.Get_Count(); iShape++)
-		{
-			CSG_Shape *pShape = Copy.Get_Shape(iShape);
-
-			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			if( min_Dist > Dist && Dist >= 0. )
 			{
-				pLine->Add_Part(pShape->Get_Part(iPart));
+				if( Min_Vertex_Dist > 0. )
+				{
+					if( SG_Get_Distance(Point, A) < Min_Vertex_Dist || SG_Get_Distance(Point, B) < Min_Vertex_Dist )
+					{
+						continue;
+					}
+				}
+
+				min_Dist	= Dist;
+				min_iPoint	= iPoint;
+				min_C		= C;
 			}
 		}
-	}
-	else
-	{
-		for(int iPart=pLine->Get_Part_Count()-1; iPart>=0; iPart--)
+
+		if( min_Dist <= Epsilon )
 		{
-			_Split_Part(pLine, iPart, Point, Epsilon, Min_Vertex_Dist);
+			L_PART	part;
+			
+			part.p.push_back(min_C);
+
+			for(size_t iPoint=min_iPoint; iPoint<Line_Parts[iPart].p.size(); iPoint++)
+			{
+				part.p.push_back(Line_Parts[iPart].p[iPoint]);
+			}
+
+			Line_Parts[iPart].p.erase(Line_Parts[iPart].p.begin() + min_iPoint, Line_Parts[iPart].p.end());
+
+			Line_Parts[iPart].p.push_back(min_C);
+
+			iPart++;
+
+			Line_Parts.insert(Line_Parts.begin() + iPart, part);
 		}
 	}
 
 	return( true );
-}
-
-
-//---------------------------------------------------------
-void CLine_Split_at_Points::_Split_Part(CSG_Shape *pLine, int iPart, TSG_Point &Point, double Epsilon, double Min_Vertex_Dist)
-{
-	CSG_Shape_Part	*pPart	= pLine->Get_Part(iPart);
-
-	TSG_Point	min_C, C, B, A	= pLine->Get_Point(0, iPart);
-
-	int min_iPoint = 0; double min_Dist = 1. + Epsilon;
-
-	for(int iPoint=1; iPoint<pPart->Get_Count(); iPoint++)
-	{
-		B = A; A = pPart->Get_Point(iPoint);
-
-		double	Dist	= SG_Get_Nearest_Point_On_Line(Point, A, B, C, true);
-
-		if( min_Dist > Dist && Dist >= 0. )
-		{
-			if( Min_Vertex_Dist > 0. )
-			{
-				if( SG_Get_Distance(Point, A) < Min_Vertex_Dist || SG_Get_Distance(Point, B) < Min_Vertex_Dist )
-				{
-					continue;
-				}
-			}
-
-			min_Dist	= Dist;
-			min_iPoint	= iPoint;
-			min_C		= C;
-		}
-	}
-
-	if( min_Dist <= Epsilon )
-	{
-		int	addPart	= pLine->Get_Part_Count();
-
-		pLine->Add_Point(min_C, addPart);
-
-		for(int iPoint=min_iPoint; iPoint<pPart->Get_Count(); iPoint++)
-		{
-			pLine->Add_Point(pPart->Get_Point(iPoint), addPart);
-		}
-
-		for(int iPoint=pPart->Get_Count()-1; iPoint>=min_iPoint; iPoint--)
-		{
-			pPart->Del_Point(iPoint);
-		}
-
-		pPart->Add_Point(min_C);
-	}
-
-	return;
 }
 
 
