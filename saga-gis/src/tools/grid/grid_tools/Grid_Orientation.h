@@ -141,4 +141,26 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class CChange_Grid_System : public CSG_Tool_Grid
+{
+public:
+	CChange_Grid_System(void);
+
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("A:Grid|Tools") );	}
+
+
+protected:
+
+	virtual bool			On_Execute		(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Grid_Orientation_H

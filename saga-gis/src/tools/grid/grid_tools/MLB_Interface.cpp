@@ -185,12 +185,14 @@ CSG_Tool *		Create_Tool(int i)
 	case 33:	return( new CGrid_Copy );
 	case 34:	return( new CGrid_Invert );
 	case 35:	return( new CGrid_Mirror );
+	case 42: 	return( new CChange_Grid_System );
 
 	case 37:	return( new CGrid_Combine_Classes );
 
 	case 40:	return( new CGrid_Interpolate_Value_Along_Line );
 
-	case 42:	return( NULL );
+
+	case 43:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

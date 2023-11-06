@@ -339,3 +339,114 @@ bool CGrid_Mirror::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CChange_Grid_System::CChange_Grid_System(void)
+{
+	//-----------------------------------------------------
+	Set_Name		(_TL("Change Grid System"));
+
+	Set_Author		("J. Spitzmueller (c) 2023");
+
+	Set_Description(_TW(
+		"This tool changes the grid system by assigning new origin coordinates (lower left corner)."
+		"<ul>"
+		"<li>Set Origin: Defines the new lower left corner.</li>"
+		"<li>Shift Origin: Moves the origin in the given direction.</li>"
+		"</ul>"
+
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Grid_Output(
+		NULL	, "OUT"	, _TL("Grid"),
+		_TL("")
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "GRID"	, _TL("Grid"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "METHOD"	, _TL("Method"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("Set Origin"),
+			_TL("Shift Origin")
+		)
+	);
+
+	Parameters.Add_Double(
+		NULL 	, "X"	, _TL("X"),
+		_TL(""), 
+		0.0
+	);
+
+	Parameters.Add_Double(
+		NULL 	, "Y"	, _TL("Y"),
+		_TL(""), 
+		0.0
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CChange_Grid_System::On_Execute(void)
+{
+	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
+
+	CSG_Grid_System NewSystem = pGrid->Get_System(); 
+
+	//-----------------------------------------------------
+	switch( Parameters("METHOD")->asInt() )
+	{	
+	case 0:
+
+		NewSystem.Assign( pGrid->Get_Cellsize(), Parameters("X")->asDouble(),
+			Parameters("Y")->asDouble(), pGrid->Get_NX(), pGrid->Get_NY() );
+
+		break;
+
+	case 1:
+
+		NewSystem.Assign( pGrid->Get_Cellsize(), pGrid->Get_XMin() + Parameters("X")->asDouble(),
+			pGrid->Get_YMin() + Parameters("Y")->asDouble(), pGrid->Get_NX(), pGrid->Get_NY() );
+
+		break;
+	}
+
+	CSG_Grid *pOut = SG_Create_Grid( NewSystem, pGrid->Get_Type() );
+
+	if( pOut )
+	{
+		pOut->Set_Name   (pGrid->Get_Name());
+		pOut->Set_Unit   (pGrid->Get_Unit());
+		pOut->Set_Scaling(pGrid->Get_Scaling(), pGrid->Get_Offset());
+
+		for(int y=0; y<pGrid->Get_NY() && Set_Progress(y, pGrid->Get_NY()); y++)
+		{
+			for(int x=0; x<pGrid->Get_NX(); x++)
+			{
+				pOut->Set_Value(x, y, pGrid->asDouble(x, y));
+			}
+		}
+
+		return( Parameters("OUT")->Set_Value(pOut) );
+	}
+		
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+//---------------------------------------------------------
