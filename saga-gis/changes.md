@@ -63,11 +63,10 @@ The tool has been merged with the "Supervised Classification (Shapes)" tool. The
 The tool has been merged with the "Join Attributes from a Table" tool ('table_tools', '3') and has been removed.
 
 #### Join Attributes from a Table ('table_tools', '3')
-The tool has been merged with the "Join Attributes from a Table (Shapes)" tool. The "RESULT" parameter has been replaced by two new ones, one for tables and one for shapes:
+The tool has been merged with the "Join Attributes from a Table (Shapes)" tool. The "RESULT" parameter has been replaced by two new ones, one for tables (&rarr RESULT_TABLE) and one for shapes (&rarr RESULT_SHAPES).
 
--RESULT &rarr; -RESULT_TABLE
-
--RESULT &rarr; -RESULT_SHAPE
+#### Gravitational Process Path Model ('sim_geomorphology', '0')
+The "ENDANGERED" parameter has been replaced by two new ones, one showing from which process paths objects were hit (&rarr ENDANGERED_PATH) and one showing from which source cells of the release area objects were hit (&rarr ENDANGERED_SOURCES)
 
 #### Point Cloud Cutter ('pointcloud_tools', '0')
 | old | new |
