@@ -69,7 +69,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CMandelbrot : public CSG_Tool_Grid_Interactive
+class CMandelbrot : public CSG_Tool_Interactive
 {
 public:
 	CMandelbrot(void);

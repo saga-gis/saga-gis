@@ -210,7 +210,7 @@ void CMandelbrot::Calculate(void)
 	double dx = m_Extent.Get_XRange() / (m_pGrid->Get_NX() - 1.);
 	double dy = m_Extent.Get_YRange() / (m_pGrid->Get_NY() - 1.);
 
-	for(int y=0; y<m_pGrid->Get_NY() && Set_Progress_Rows(y); y++)
+	for(int y=0; y<m_pGrid->Get_NY() && Set_Progress(y, m_pGrid->Get_NY()); y++)
 	{
 		double yPos = m_Extent.Get_YMin() + y * dy;
 

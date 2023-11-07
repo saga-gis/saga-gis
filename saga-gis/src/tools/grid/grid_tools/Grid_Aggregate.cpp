@@ -93,12 +93,12 @@ CGrid_Aggregate::CGrid_Aggregate(void)
 		"METHOD"	, _TL("Method"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s|%s",
-			_TL("Sum"    ),
-			_TL("Minimum"),
-			_TL("Maximum"),
-			_TL("Median" ),
-			_TL("Mean"   ),
-			_TL("Mode"   )
+			_TL("Sum"    ), // 0
+			_TL("Minimum"), // 1
+			_TL("Maximum"), // 2
+			_TL("Median" ), // 3
+			_TL("Mean"   ), // 4
+			_TL("Mode"   )  // 5
 		), 4
 	);
 }
@@ -111,7 +111,7 @@ CGrid_Aggregate::CGrid_Aggregate(void)
 //---------------------------------------------------------
 bool CGrid_Aggregate::On_Execute(void)
 {
-	int	Size	= Parameters("SIZE")->asInt();
+	int Size = Parameters("SIZE")->asInt(), Method = Parameters("METHOD")->asInt();
 
 	CSG_Grid_System	System(Get_Cellsize() * Size, Get_XMin(), Get_YMin(), Get_NX() / Size, Get_NY() / Size);
 
@@ -119,12 +119,11 @@ bool CGrid_Aggregate::On_Execute(void)
 
 	if( !pOutput )
 	{
-		Parameters("OUTPUT")->Set_Value(pOutput = SG_Create_Grid(System, pGrid->Get_Type()));
+		Parameters("OUTPUT")->Set_Value(pOutput = SG_Create_Grid());
 	}
 
+	pOutput->Create(System, Method == 3 || Method == 5 ? pGrid->Get_Type() : SG_DATATYPE_Undefined);
 	pOutput->Set_Name(pGrid->Get_Name());
-
-	int	Method	= Parameters("METHOD")->asInt();
 
 	//-----------------------------------------------------
 	#pragma omp parallel for
