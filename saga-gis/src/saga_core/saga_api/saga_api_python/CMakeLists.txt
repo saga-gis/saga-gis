@@ -58,20 +58,27 @@ if(SWIG_FOUND)
 		swig_link_libraries(saga_api_python ${Python_LIBRARIES})
 
 		if(MSVC)
-			set_property(TARGET saga_api_python PROPERTY OUTPUT_NAME _saga_api)
+			set_property(TARGET saga_api_python PROPERTY OUTPUT_NAME saga_api_python)
 
-		#	install(TARGETS saga_api_python                                                      DESTINATION ${Python_SITEARCH}/PySAGA)
-		#	install(FILES ${CMAKE_BINARY_DIR}/src/saga_core/saga_api/saga_api_python/saga_api.py DESTINATION ${Python_SITEARCH}/PySAGA)
-		#	install(FILES ${CMAKE_SOURCE_DIR}/src/accessories/python/__init__.py                 DESTINATION ${Python_SITEARCH}/PySAGA)
-		#	install(FILES ${CMAKE_SOURCE_DIR}/src/accessories/python/helper.py                   DESTINATION ${Python_SITEARCH}/PySAGA)
-		#	install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/accessories/python/data                    DESTINATION ${Python_SITEARCH}/PySAGA FILES_MATCHING PATTERN "*.py")
+			string(REPLACE "/" "\\" PySAGA_TARGET "\"${CMAKE_BINARY_DIR}/saga_x64/PySAGA\"")
+			string(REPLACE "/" "\\" PySAGA_SOURCE "\"${CMAKE_SOURCE_DIR}/src/accessories/python\"")
+			string(REPLACE "/" "\\" PySAGA_Py_API "\"${CMAKE_BINARY_DIR}/src/saga_core/saga_api/saga_api_python/saga_api.py\"")
+			string(REPLACE "/" "\\" PySAGA_Py_BIN "\"${CMAKE_BINARY_DIR}/src/saga_core/saga_api/saga_api_python/Release/*.pyd\"")
+			message(STATUS "SAGA-Python-API installs to: ${PySAGA_TARGET}")
+			add_custom_command(TARGET saga_api_python POST_BUILD
+				COMMAND IF EXIST "${PySAGA_TARGET}" RMDIR /S/Q "${PySAGA_TARGET}"
+				COMMAND MKDIR "${PySAGA_TARGET}"
+				COMMAND XCOPY /C/S/Q/Y/H "${PySAGA_SOURCE}" "${PySAGA_TARGET}"
+				COMMAND COPY "${PySAGA_Py_API}" "${PySAGA_TARGET}"
+				COMMAND COPY "${PySAGA_Py_BIN}" "${PySAGA_TARGET}"
+			)
 		else()
 			set_property(TARGET saga_api_python PROPERTY OUTPUT_NAME saga_api)
 
 			if(EXISTS ${Python_SITEARCH})
 				option(WITH_PYTHON_PKG "PySAGA package installation (if not checked API modules become installed directly in Python's site/dist-packages folder)" ON)
 				if(WITH_PYTHON_PKG)
-					message(STATUS "SAGA-Python-API installed to: ${Python_SITEARCH}/PySAGA")
+					message(STATUS "SAGA-Python-API installs to: ${Python_SITEARCH}/PySAGA")
 					install(TARGETS saga_api_python                                                      DESTINATION ${Python_SITEARCH}/PySAGA)
 					install(FILES ${CMAKE_BINARY_DIR}/src/saga_core/saga_api/saga_api_python/saga_api.py DESTINATION ${Python_SITEARCH}/PySAGA)
 					install(FILES ${CMAKE_SOURCE_DIR}/src/accessories/python/__init__.py                 DESTINATION ${Python_SITEARCH}/PySAGA)
