@@ -214,7 +214,7 @@ CSG_String CSG_CRSProjector::Get_Description(void)
 	s	+= "\n";
 	s	+= _TL("Proj.4 Version is ") + Get_Version();
 	s	+= "\n";
-	s	+= "<a target=\"_blank\" href=\"http://trac.osgeo.org/proj/\">Proj.4 Homepage</a>";
+	s	+= "<a target=\"_blank\" href=\"https://proj.org\">Proj.4 Homepage</a>";
 
 	return( s );
 }
