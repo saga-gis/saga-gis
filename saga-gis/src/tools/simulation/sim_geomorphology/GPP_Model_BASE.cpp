@@ -428,9 +428,9 @@ void CGPP_Model_Particle::Deposit_Material(CSG_Grid *pGrid, double dSlope)
 }
 
 //---------------------------------------------------------
-void CGPP_Model_Particle::Evaluate_Damage_Potential(CSG_Grid *pObjectClasses, CSG_Grid *pEndangeredPath, CSG_Grid *pEndangeredSources)
+void CGPP_Model_Particle::Evaluate_Damage_Potential(CSG_Grid *pObjectClasses, CSG_Grid *pHazardPaths, CSG_Grid *pHazardSources)
 {
-    int iEndangered = 0;
+    int iObjectClasses = 0;
 
     for(std::vector<PATH_CELL>::reverse_iterator rit=m_vPath.rbegin(); rit!=m_vPath.rend(); ++rit)
     {
@@ -439,35 +439,35 @@ void CGPP_Model_Particle::Evaluate_Damage_Potential(CSG_Grid *pObjectClasses, CS
 
         if( !pObjectClasses->is_NoData(x, y) )
         {
-            int iObject = pObjectClasses->asInt(x, y);
+            int iClass = pObjectClasses->asInt(x, y);
 
-            iEndangered |= iObject;
+            iObjectClasses |= iClass;
         }
 
-        if( pEndangeredPath != NULL && iEndangered > 0 )
+        if( pHazardPaths != NULL && iObjectClasses > 0 )
         {
-            if( pEndangeredPath->is_NoData(x, y) )
+            if( pHazardPaths->is_NoData(x, y) )
             {
-                pEndangeredPath->Set_Value(x, y, iEndangered);
+                pHazardPaths->Set_Value(x, y, iObjectClasses);
             }
             else
             {
-                pEndangeredPath->Set_Value(x, y, pEndangeredPath->asInt(x, y) | iEndangered);
+                pHazardPaths->Set_Value(x, y, pHazardPaths->asInt(x, y) | iObjectClasses);
             }
         }
     }
 
-	if( pEndangeredSources != NULL && iEndangered > 0 )
+	if( pHazardSources != NULL && iObjectClasses > 0 )
 	{
 		GRID_CELL s = Get_Position_Start();
 
-		if( pEndangeredSources->is_NoData(s.x, s.y) )
+		if( pHazardSources->is_NoData(s.x, s.y) )
         {
-            pEndangeredSources->Set_Value(s.x, s.y, iEndangered);
+            pHazardSources->Set_Value(s.x, s.y, iObjectClasses);
         }
         else
         {
-            pEndangeredSources->Set_Value(s.x, s.y, pEndangeredSources->asInt(s.x, s.y) | iEndangered);
+            pHazardSources->Set_Value(s.x, s.y, pHazardSources->asInt(s.x, s.y) | iObjectClasses);
         }
 	}
 
@@ -551,14 +551,14 @@ void CGPP_Model_BASE::Add_Dataset_Parameters(CSG_Parameters *pParameters)
 	);
 
     pParameters->Add_Grid(	
-        NULL, "ENDANGERED_PATH", _TL("Endangered Objects (Path)"), 
-        _TL("Endangered objects, showing process path cells from which objects were hit. Cell values indicate which object classes were hit [combination of object classes]. Optional output in case a grid with potentially endangered objects is provided as input."), 
+        NULL, "HAZARD_PATHS", _TL("Hazard Paths"), 
+        _TL("Process path cells from which objects were hit. Cell values indicate which object classes were hit [combination of object classes]. Optional output in case a grid with potentially endangered objects is provided as input."), 
         PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Long
     );
 
 	pParameters->Add_Grid(	
-        NULL, "ENDANGERED_SOURCES", _TL("Endangered Objects (Sources)"), 
-        _TL("Endangered objects, showing source (release area) cells from which objects were hit. Cell values indicate which object classes were hit [combination of object classes]. Optional output in case a grid with potentially endangered objects is provided as input."), 
+        NULL, "HAZARD_SOURCES", _TL("Hazard Sources"), 
+        _TL("Source (release area) cells from which objects were hit. Cell values indicate which object classes were hit [combination of object classes]. Optional output in case a grid with potentially endangered objects is provided as input."), 
         PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Long
     );
 
@@ -828,8 +828,8 @@ bool CGPP_Model_BASE::Initialize_Parameters(CSG_Parameters &Parameters)
 	m_pDeposition			= Parameters("DEPOSITION")->asGrid();
 	m_pMaxVelocity			= Parameters("MAX_VELOCITY")->asGrid();			if( m_pMaxVelocity != NULL )	m_pMaxVelocity->Assign_NoData();
 	m_pStopPositions		= Parameters("STOP_POSITIONS")->asGrid();		if( m_pStopPositions != NULL )	m_pStopPositions->Assign(0.0);
-    m_pEndangeredPath       = Parameters("ENDANGERED_PATH")->asGrid();
-	m_pEndangeredSources    = Parameters("ENDANGERED_SOURCES")->asGrid();
+    m_pHazardPaths			= Parameters("HAZARD_PATHS")->asGrid();
+	m_pHazardSources		= Parameters("HAZARD_SOURCES")->asGrid();
 	m_pMaterialFlux			= Parameters("MATERIAL_FLUX")->asGrid();		if( m_pMaterialFlux != NULL )	m_pMaterialFlux->Assign(0.0);
 	
 	m_GPP_Deposition_Model	= Parameters("DEPOSITION_MODEL")->asInt();
@@ -858,9 +858,9 @@ bool CGPP_Model_BASE::Initialize_Parameters(CSG_Parameters &Parameters)
 	}
 
     //---------------------------------------------------------
-    if( m_pObjects != NULL && (m_pEndangeredPath == NULL && m_pEndangeredSources == NULL ) )
+    if( m_pObjects != NULL && (m_pHazardPaths == NULL && m_pHazardSources == NULL ) )
     {
-		SG_UI_Msg_Add_Error(_TL("An 'Objects' input grid is provided but none of the two 'Endangered Objects' grids (path and/or sources) is selected as output!"));
+		SG_UI_Msg_Add_Error(_TL("An 'Objects' input grid is provided but none of the two 'hazard' grids (path and/or sources) is selected as output!"));
 		return( false );
     }
 
@@ -927,14 +927,14 @@ void CGPP_Model_BASE::Finalize(CSG_Parameters *pParameters)
         {
             for(int x=0; x<m_pObjects->Get_NX(); x++)
             {
-                if( m_pEndangeredPath != NULL && !m_pEndangeredPath->is_NoData(x, y) )
+                if( m_pHazardPaths != NULL && !m_pHazardPaths->is_NoData(x, y) )
                 {
-                    m_pEndangeredPath->Set_Value(x, y, _Get_ObjectClass_Binary(m_pEndangeredPath->asInt(x, y)));
+                    m_pHazardPaths->Set_Value(x, y, _Get_ObjectClass_Binary(m_pHazardPaths->asInt(x, y)));
                 }
 
-                if( m_pEndangeredSources != NULL && !m_pEndangeredSources->is_NoData(x, y) )
+                if( m_pHazardSources != NULL && !m_pHazardSources->is_NoData(x, y) )
                 {
-                    m_pEndangeredSources->Set_Value(x, y, _Get_ObjectClass_Binary(m_pEndangeredSources->asInt(x, y)));
+                    m_pHazardSources->Set_Value(x, y, _Get_ObjectClass_Binary(m_pHazardSources->asInt(x, y)));
                 }
             }
         }
@@ -1151,7 +1151,7 @@ void CGPP_Model_BASE::Run_GPP_Model(std::vector<class CGPP_Model_Particle> *pvPr
 
                     if( m_pObjects != NULL )
                     {
-                        Particle.Evaluate_Damage_Potential(m_pObjectClasses, m_pEndangeredPath, m_pEndangeredSources);
+                        Particle.Evaluate_Damage_Potential(m_pObjectClasses, m_pHazardPaths, m_pHazardSources);
                     }
 
 					break;
@@ -1207,7 +1207,7 @@ bool CGPP_Model_BASE::Update_Path(CGPP_Model_Particle *pParticle, double dMateri
 
         if( m_pObjects != NULL )
         {
-            pParticle->Evaluate_Damage_Potential(m_pObjectClasses, m_pEndangeredPath, m_pEndangeredSources);
+            pParticle->Evaluate_Damage_Potential(m_pObjectClasses, m_pHazardPaths, m_pHazardSources);
         }
 	}
 
@@ -1786,7 +1786,7 @@ bool CGPP_Model_BASE::Update_Speed(CGPP_Model_Particle *pParticle, CGPP_Model_Pa
 
         if( m_pObjects != NULL )
         {
-            pParticle->Evaluate_Damage_Potential(m_pObjectClasses, m_pEndangeredPath, m_pEndangeredSources);
+            pParticle->Evaluate_Damage_Potential(m_pObjectClasses, m_pHazardPaths, m_pHazardSources);
         }
 	}
 

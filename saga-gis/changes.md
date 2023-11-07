@@ -66,7 +66,7 @@ The tool has been merged with the "Join Attributes from a Table" tool ('table_to
 The tool has been merged with the "Join Attributes from a Table (Shapes)" tool. The "RESULT" parameter has been replaced by two new ones, one for tables (&rarr RESULT_TABLE) and one for shapes (&rarr RESULT_SHAPES).
 
 #### Gravitational Process Path Model ('sim_geomorphology', '0')
-The "ENDANGERED" parameter has been replaced by two new ones, one showing from which process paths objects were hit (&rarr ENDANGERED_PATH) and one showing from which source cells of the release area objects were hit (&rarr ENDANGERED_SOURCES)
+The "ENDANGERED" parameter has been replaced by two new ones, one showing from which process paths objects were hit (&rarr HAZARD_PATHS) and one showing from which source cells of the release area objects were hit (&rarr HAZARD_SOURCES)
 
 #### Point Cloud Cutter ('pointcloud_tools', '0')
 | old | new |
