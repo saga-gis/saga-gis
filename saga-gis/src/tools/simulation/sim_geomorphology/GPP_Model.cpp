@@ -106,8 +106,8 @@ CGPP_Model::CGPP_Model(void)
                          "and reports from which process paths and release areas objects might be hit. In order to enable this "
                          "backtracking, the user must provide an 'Objects' grid as input. The grid can be used to store different types "
                          "or classes of objects, using one-hot categorical data encoding for each object class, i.e. powers "
-                         "of ten: 1, 10, 100, 1000, etc. (all other cells NoData). The 'Endangered Objects' output grid will "
-                         "contain combinations of these numbers if several different classes were hit from a grid cell, allowing "
+                         "of ten: 1, 10, 100, 1000, etc. (all other cells NoData). The 'Hazard Paths' and 'Hazard Sources' output "
+						 "grid will store combinations of these numbers if several different classes were hit from a grid cell, allowing "
                          "to analyse which object classes might be hit from which location.<br/><br/>"
                          "<b>New in version 1.2:</b><br/>"
                          "Since version 1.2 the model supports the optional output of a grid with the material flux. This requires "
@@ -118,7 +118,9 @@ CGPP_Model::CGPP_Model(void)
                          "available material for subsequent runs) and improves the output of material flux."
                          "<b>Version 1.4:</b><br/>"
                          "Since version 1.4 two separate 'Endangered Objects' output grids are created, one encoding the process "
-                         "path cells, the other only the source cells from which objects have been hit."
+                         "path cells, the other only the source cells from which objects have been hit. These optional output "
+						 "parameters also have been renamed ('HAZARD_PATHS', 'HAZARD_SOURCES') to improve the legibility of the "
+						 "parameter interface."
     ));
 
 	Add_Reference("Wichmann, V.", "2017",
@@ -209,14 +211,14 @@ bool CGPP_Model::On_Execute(void)
     //---------------------------------------------------------
     if( m_pObjects != NULL )
     {
-        if( m_pEndangeredPath != NULL )
+        if( m_pHazardPaths != NULL )
         {
-            m_pEndangeredPath->Assign_NoData();
+            m_pHazardPaths->Assign_NoData();
         }
 
-        if( m_pEndangeredSources != NULL )
+        if( m_pHazardSources != NULL )
         {
-            m_pEndangeredSources->Assign_NoData();
+            m_pHazardSources->Assign_NoData();
         }
 
         m_pObjectClasses = new CSG_Grid(m_pObjects, SG_DATATYPE_Int);
@@ -311,8 +313,8 @@ int CGPP_Model::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
     //-----------------------------------------------------
     if(	pParameter->Cmp_Identifier(SG_T("OBJECTS")) )
     {
-        pParameters->Get_Parameter("ENDANGERED_PATH"	        )->Set_Enabled( pParameter->asGrid() != NULL );
-        pParameters->Get_Parameter("ENDANGERED_SOURCES"	        )->Set_Enabled( pParameter->asGrid() != NULL );
+        pParameters->Get_Parameter("HAZARD_PATHS"				)->Set_Enabled( pParameter->asGrid() != NULL );
+        pParameters->Get_Parameter("HAZARD_SOURCES"				)->Set_Enabled( pParameter->asGrid() != NULL );
     }
 
 	//-----------------------------------------------------
