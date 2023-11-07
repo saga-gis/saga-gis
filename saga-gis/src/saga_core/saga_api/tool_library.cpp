@@ -822,7 +822,7 @@ bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Destinati
 				continue;
 			}
 
-			Stream.Printf(Header, pLibrary->Get_Category().c_str(), pLibrary->Get_Name().c_str(), pLibrary->Get_Library_Name().c_str(), pLibrary->Get_Description().c_str());
+			Stream.Printf(Header, pLibrary->Get_Category().c_str(), pLibrary->Get_Name().c_str(), pLibrary->Get_Library_Name().c_str(), SG_HTML_Tag_Replacer(pLibrary->Get_Description()).c_str());
 		}
 
 		for(int iTool=0; iTool<pLibrary->Get_Count(); iTool++)
@@ -870,7 +870,7 @@ bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Destinati
 					continue;
 				}
 
-				Stream.Printf(Header, pLibrary->Get_Category().c_str(), pLibrary->Get_Name().c_str(), pLibrary->Get_Library_Name().c_str(), pLibrary->Get_Description().c_str());
+				Stream.Printf(Header, pLibrary->Get_Category().c_str(), pLibrary->Get_Name().c_str(), pLibrary->Get_Library_Name().c_str(), SG_HTML_Tag_Replacer(pLibrary->Get_Description()).c_str());
 			}
 		}
 
