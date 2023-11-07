@@ -416,20 +416,23 @@ bool CGVMD_Import::Set_Layers(const CSG_Table &Table, const CSG_Unique_String_St
 	int	id	= Table.Get_Field(LayerName);
 
 	//-----------------------------------------------------
-	CSG_Grids	*pGrids	= SG_Create_Grids(System);
-
+	CSG_Grids *pGrids = Parameters("LAYERS")->asGrids();
+	
 	if( !pGrids )
+	{
+		Parameters("LAYERS")->Set_Value(pGrids = SG_Create_Grids());
+	}
+
+	if( !pGrids->Create(System) )
 	{
 		Error_Set(_TL("failed to allocate memory for grid collection"));
 
 		return( false );
 	}
 
-	Parameters("LAYERS")->Set_Value(pGrids);
-
-	int		nz	= Parameters("NLAYERS")->asInt();
-	double	az	=  Table.Get_Minimum(m_zField[0]);
-	double	dz	= (Table.Get_Maximum(m_zField[1]) - az) / (nz - 1.);
+	int    nz = Parameters("NLAYERS")->asInt();
+	double az =  Table.Get_Minimum(m_zField[0]);
+	double dz = (Table.Get_Maximum(m_zField[1]) - az) / (nz - 1.);
 
 	for(int iz=0; iz<nz; iz++)
 	{

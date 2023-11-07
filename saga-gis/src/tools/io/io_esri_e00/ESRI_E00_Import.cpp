@@ -94,11 +94,6 @@ CESRI_E00_Import::CESRI_E00_Import(void)
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Table_Output(
-		"", "TABLE"		, _TL("Table"),
-		_TL("")
-	);
-
 	Parameters.Add_FilePath(
 		"", "FILE"		, _TL("File"),
 		_TL(""),

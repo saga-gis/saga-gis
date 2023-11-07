@@ -358,12 +358,16 @@ CSG_Grid * CESRI_ArcInfo_Import::Read_Header(CSG_File &Stream, TSG_Data_Type Dat
 	double	NoData; Read_Header_Value(Stream, HDR_NODATA, NoData = -9999.);
 
 	//-------------------------------------------------
-	CSG_Grid	*pGrid	= SG_Create_Grid(Datatype, NX, NY, Cellsize, xMin, yMin);
-
-	if( pGrid )
+	CSG_Grid *pGrid = Parameters("GRID")->asGrid();
+	
+	if( !pGrid )
 	{
-		pGrid->Set_NoData_Value(NoData);
+		Parameters("GRID")->Set_Value(pGrid = SG_Create_Grid());
 	}
+
+	pGrid->Create(Datatype, NX, NY, Cellsize, xMin, yMin);
+
+	pGrid->Set_NoData_Value(NoData);
 
 	return( pGrid );
 }

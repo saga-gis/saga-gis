@@ -1613,7 +1613,7 @@ bool CSG_Parameters::DataObjects_Create(void)
 		}
 		else if( P.Get_Type() == PARAMETER_TYPE_DataObject_Output )
 		{
-			if( m_pManager || P.asDataObject() == DATAOBJECT_CREATE )
+			if( (m_pManager && has_GUI()) || P.asDataObject() == DATAOBJECT_CREATE )
 			{
 				P.Set_Value(DATAOBJECT_NOTSET);
 			}
@@ -1777,6 +1777,11 @@ bool CSG_Parameters::DataObjects_Synchronize(void)
 						if( m_pManager )
 						{
 							m_pManager->Add(pObject);
+
+							if( m_pManager == &SG_Get_Data_Manager() )
+							{
+								SG_UI_DataObject_Add(pObject, 0);
+							}
 						}
 
 						SG_UI_DataObject_Update(pObject, SG_UI_DATAOBJECT_UPDATE, NULL);
@@ -1794,6 +1799,11 @@ bool CSG_Parameters::DataObjects_Synchronize(void)
 					if( m_pManager )
 					{
 						m_pManager->Add(pObject);
+
+						if( m_pManager == &SG_Get_Data_Manager() )
+						{
+							SG_UI_DataObject_Add(pObject, 0);
+						}
 					}
 
 					SG_UI_DataObject_Update(pObject, SG_UI_DATAOBJECT_UPDATE, NULL);

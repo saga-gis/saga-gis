@@ -47,35 +47,42 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////
-//                                                       //
-//                                                       //
-//                                                       //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 #ifndef HEADER_INCLUDED__flow_massflux_H
 #define HEADER_INCLUDED__flow_massflux_H
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CFlow_MassFlux : public CSG_Tool_Grid
 {
-public: ////// public members and functions: //////////////
-
+public:
 	CFlow_MassFlux(void);
 
 	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Flow Accumulation|Alternatives") );	}
 
 
-protected: /// protected members and functions: ///////////
+protected:
 
 	virtual bool			On_Execute		(void);
 
 
-private: ///// private members and functions: /////////////
+private:
 
 	int						m_Method;
 
@@ -88,8 +95,6 @@ private: ///// private members and functions: /////////////
 
 	double					Get_Flow		(int x, int y, int Direction);
 	double					Get_Area		(int x, int y);
-
-	bool					Check_Flow		(int x, int y);
 
 };
 

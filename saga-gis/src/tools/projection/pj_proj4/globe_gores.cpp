@@ -129,9 +129,9 @@ int CGlobe_Gores::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 //---------------------------------------------------------
 bool CGlobe_Gores::On_Execute(void)
 {
-	m_pGores	= NULL;
+	m_pGores = NULL;
 
-	int	nGores	= Parameters("NUMBER")->asInt();
+	int nGores = Parameters("NUMBER")->asInt();
 
 	for(int iGore=0; iGore<nGores && Set_Progress(iGore, nGores); iGore++)
 	{
@@ -163,7 +163,7 @@ bool CGlobe_Gores::On_Execute(void)
 //---------------------------------------------------------
 bool CGlobe_Gores::Add_Gore(int iGore, int nGores)
 {
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4);	// Coordinate Transformation (Grid)
+	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4);	// Coordinate Transformation (Grid)
 
 	if(	pTool == NULL )
 	{
@@ -175,15 +175,12 @@ bool CGlobe_Gores::Add_Gore(int iGore, int nGores)
 	pTool->Set_Manager(NULL);
 
 	//-----------------------------------------------------
-	double	Bleed	= 1. + Parameters("BLEED")->asDouble() / 100.;
+	double    Bleed = 1. + Parameters("BLEED")->asDouble() / 100.;
+	double    Width = Bleed * 360. / nGores;
+	double Meridian = (iGore + 0.5) * 360. / nGores;
+	int  Resolution = Parameters("RESOLUTION")->asInt();
 
-	double	Width	= Bleed * 360. / nGores;
-
-	double	Meridian	= (iGore + 0.5) * 360. / nGores;
-
-	int	Resolution	= Parameters("RESOLUTION")->asInt();
-
-	CSG_Grid    Grid(CSG_Grid_System(180. / Resolution, Meridian - Width / 2., -90., Meridian + Width / 2., 90.));
+	CSG_Grid Gore, Grid(CSG_Grid_System(180. / Resolution, Meridian - Width / 2., -90., Meridian + Width / 2., 90.));
 
 	pTool->Set_Parameter("CRS_PROJ4"        , "+proj=longlat +datum=WGS84");
 	pTool->Set_Parameter("SOURCE"           , Parameters("GRID"));
@@ -203,35 +200,25 @@ bool CGlobe_Gores::Add_Gore(int iGore, int nGores)
 	}
 
 	//-----------------------------------------------------
-	double	Easting = iGore * M_PI_360 * 6370997. / nGores;
+	double Easting = iGore * M_PI_360 * 6370997. / nGores;
 	pTool->Set_Parameter("CRS_PROJ4"        , CSG_String::Format("+proj=poly +ellps=sphere +lon_0=%f +x_0=%f", Meridian, Easting));
 	pTool->Set_Parameter("SOURCE"           , &Grid);
+	pTool->Set_Parameter("GRID"             , &Gore);
 	pTool->Set_Parameter("TARGET_AREA"      , true);
 	pTool->Set_Parameter("TARGET_DEFINITION", 0);
 
 	if( !pTool->Execute() )
 	{
-		if( pTool->Get_Parameter("GRID")->asGrid() ) { delete(pTool->Get_Parameter("GRID")->asGrid()); }
-
 		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 		return( false );
 	}
 
-	CSG_Grid	*pGore	= pTool->Get_Parameter("GRID")->asGrid();
-
 	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
-	if( pGore )
-	{
-		Add_Gore(iGore, nGores, pGore);
+	Add_Gore(iGore, nGores, &Gore);
 
-		delete(pGore);
-
-		return( true );
-	}
-
-	return( false );
+	return( true );
 }
 
 
@@ -244,12 +231,14 @@ bool CGlobe_Gores::Add_Gore(int iGore, int nGores, CSG_Grid *pGore)
 {
 	if( !m_pGores )
 	{
-		m_pGores	= SG_Create_Grid(SG_DATATYPE_Float, nGores * pGore->Get_NX(), pGore->Get_NY());
+		m_pGores = Parameters("GORES")->asGrid();
 
 		if( !m_pGores )
 		{
-			return( false );
+			Parameters("GORES")->Set_Value(m_pGores = SG_Create_Grid());
 		}
+
+		m_pGores->Create(SG_DATATYPE_Float, nGores * pGore->Get_NX(), pGore->Get_NY());
 
 		m_pGores->Fmt_Name("%s [%s]", _TL("Globe Gores"), Parameters("GRID")->asGrid()->Get_Name());
 
@@ -257,8 +246,8 @@ bool CGlobe_Gores::Add_Gore(int iGore, int nGores, CSG_Grid *pGore)
 	}
 
 	//-----------------------------------------------------
-	//	int	xOff	= iGore * pGore->Get_NX();
-	int	xOff	= (int)(iGore * (double)m_pGores->Get_NX() / nGores);
+//	int xOff = iGore * pGore->Get_NX();
+	int xOff = (int)(iGore * (double)m_pGores->Get_NX() / nGores);
 
 	#pragma omp parallel for
 	for(int y=0; y<pGore->Get_NY(); y++)

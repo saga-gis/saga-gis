@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: flow_massflux.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,12 +47,6 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 #include "flow_massflux.h"
 
@@ -82,7 +73,7 @@ CFlow_MassFlux::CFlow_MassFlux(void)
 {
 	Set_Name		(_TL("Flow Accumulation (Mass-Flux Method)"));
 
-	Set_Author		("O. Conrad (c) 2009");
+	Set_Author		("O.Conrad (c) 2009");
 
 	Set_Description	(_TW(
 		"The Mass-Flux Method (MFM) for the DEM based calculation of flow accumulation "
@@ -95,8 +86,7 @@ CFlow_MassFlux::CFlow_MassFlux(void)
 		"Land-Surface Parameters and Objects in Hydrology",
 		"In: Hengl, T. & Reuter, H.I. [Eds.]: Geomorphometry: Concepts, Software, Applications. "
 		"Developments in Soil Science, Elsevier, Bd.33, S.293-308.",
-		SG_T("https://www.researchgate.net/profile/Scott_Peckham2/publication/256829608_Chapter_7_Land-Surface_Parameters_and_Objects_in_Hydrology/links/0c960523c979588e91000000.pdf"),
-		SG_T("ResearchGate")
+		SG_T("https://dx.doi.org/10.1016/S0166-2481(08)00007-X"), SG_T("doi:10.1016/S0166-2481(08)00007-X")
 	);
 
 	//-----------------------------------------------------
@@ -122,22 +112,23 @@ CFlow_MassFlux::CFlow_MassFlux(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Node("",
-		"QUARTERS"	, _TL("Create Output of Quarter Cell Information"),
-		_TL("")
+	Parameters.Add_Bool("",
+		"QUARTERS"      , _TL("Create Quarter Cell Information"),
+		_TL(""),
+		false
 	);
 
-	Parameters.Add_Bool("QUARTERS" , "B_SLOPE" , _TL("Slope"            ), _TL(""));
-	Parameters.Add_Grid_Output  ("", "G_SLOPE" , _TL("Slope"            ), _TL(""));
+	Parameters.Add_Grid_List("",
+		"QUARTERS_GRIDS", _TL("Grids"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL, false
+	);
 
-	Parameters.Add_Bool("QUARTERS" , "B_ASPECT", _TL("Aspect"           ), _TL(""));
-	Parameters.Add_Grid_Output  ("", "G_ASPECT", _TL("Aspect"           ), _TL(""));
-
-	Parameters.Add_Bool("QUARTERS" , "B_AREA"  , _TL("Flow Accumulation"), _TL(""));
-	Parameters.Add_Grid_Output  ("", "G_AREA"  , _TL("Flow Accumulation"), _TL(""));
-
-	Parameters.Add_Bool("QUARTERS" , "B_FLOW"  , _TL("Flow Lines"       ), _TL(""));
-	Parameters.Add_Shapes_Output("", "G_FLOW"  , _TL("Flow Lines"       ), _TL(""));
+	Parameters.Add_Shapes("",
+		"FLOW_LINES"    , _TL("Flow Lines"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Line
+	);
 }
 
 
@@ -148,107 +139,106 @@ CFlow_MassFlux::CFlow_MassFlux(void)
 //---------------------------------------------------------
 bool CFlow_MassFlux::On_Execute(void)
 {
-	int			x, y, i, ix, iy;
-	CSG_Grid	*pArea;
+	m_pDEM   = Parameters("DEM"   )->asGrid();
+	m_Method = Parameters("METHOD")->asInt ();
 
-	//-----------------------------------------------------
-	m_pDEM		= Parameters("DEM"   )->asGrid();
-	pArea		= Parameters("AREA"  )->asGrid();
-	m_Method	= Parameters("METHOD")->asInt();
+	CSG_Grid_System	System(0.5 * Get_Cellsize(), Get_XMin() - 0.25 * Get_Cellsize(), Get_YMin() - 0.25 * Get_Cellsize(), 2 * Get_NX(), 2 * Get_NY());
 
-	//-----------------------------------------------------
-	if( 1 )
+	m_Area.Create(System, SG_DATATYPE_Float); m_Area.Assign( 0.); m_Area.Set_NoData_Value(0.);
+	m_dir .Create(System, SG_DATATYPE_Byte ); m_dir .Assign(-1.);
+	m_dif .Create(System, SG_DATATYPE_Float);
+
+	CSG_Grid *pArea = Parameters("AREA")->asGrid();
+
+	if( Parameters("QUARTERS")->asBool() )
 	{
-		CSG_Grid_System	System(0.5 * Get_Cellsize(), Get_XMin() - 0.25 * Get_Cellsize(), Get_YMin() - 0.25 * Get_Cellsize(), 2 * Get_NX(), 2 * Get_NY());
+		m_pSlope  = SG_Create_Grid(System, SG_DATATYPE_Float); m_pSlope ->Set_Name(_TL("Slope" ));
+		m_pAspect = SG_Create_Grid(System, SG_DATATYPE_Float); m_pAspect->Set_Name(_TL("Aspect"));
+	}
+	else
+	{
+		m_pSlope  = NULL;
+		m_pAspect = NULL;
+	}
 
-		m_Area	.Create(System, SG_DATATYPE_Float);
-		m_dir	.Create(System, SG_DATATYPE_Byte);
-		m_dif	.Create(System, SG_DATATYPE_Float);
+	m_pFlow = Parameters("FLOW_LINES")->asShapes(); if( m_pFlow ) { m_pFlow->Create(SHAPE_TYPE_Line, _TL("Flow Lines")); }
 
-		m_dir	.Assign(-1.0);
-		m_Area	.Assign( 0.0);
-		m_Area	.Set_NoData_Value(0.0);
-
-		Parameters("G_SLOPE" )->Set_Value(m_pSlope  = !Parameters("B_SLOPE" )->asBool() ? NULL : SG_Create_Grid(System, SG_DATATYPE_Float));
-		Parameters("G_ASPECT")->Set_Value(m_pAspect = !Parameters("B_ASPECT")->asBool() ? NULL : SG_Create_Grid(System, SG_DATATYPE_Float));
-		Parameters("G_FLOW"  )->Set_Value(m_pFlow   = !Parameters("B_FLOW"  )->asBool() ? NULL : SG_Create_Shapes(SHAPE_TYPE_Line, _TL("Flow Lines")));
-
-		//-------------------------------------------------
-		// Calculate flow portions...
-		for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	//-------------------------------------------------
+	// Calculate flow portions...
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
 		{
-			for(x=0; x<Get_NX(); x++)
+			for(int i=0; i<4; i++)
 			{
-				for(i=0; i<4; i++)
-				{
-					Set_Flow(x, y, i);
-				}
+				Set_Flow(x, y, i);
 			}
 		}
+	}
 
-		//-------------------------------------------------
-		// Check for consistent flow directions...
+	//-------------------------------------------------
+	// Check for consistent flow directions...
 
-		// still missing...
+	// still missing...
 
 
-		//-------------------------------------------------
-		// Calculate flow accumulation...
-		for(y=0, iy=0; y<Get_NY() && Set_Progress_Rows(y); y++, iy+=2)
+	//-------------------------------------------------
+	// Calculate flow accumulation...
+	for(int y=0, iy=0; y<Get_NY() && Set_Progress_Rows(y); y++, iy+=2)
+	{
+		for(int x=0, ix=0; x<Get_NX(); x++, ix+=2)
 		{
-			for(x=0, ix=0; x<Get_NX(); x++, ix+=2)
+			for(int i=0; i<4; i++)
 			{
-				for(i=0; i<4; i++)
-				{
-					Get_Area(ix + xDir[i], iy + yDir[i]);
-				}
+				Get_Area(ix + xDir[i], iy + yDir[i]);
 			}
 		}
+	}
 
-		//-------------------------------------------------
-		// Scale flow accumulation to original cell size...
-		for(y=0, iy=0; y<Get_NY() && Set_Progress_Rows(y); y++, iy+=2)
+	//-------------------------------------------------
+	// Scale flow accumulation to original cell size...
+	for(int y=0, iy=0; y<Get_NY() && Set_Progress_Rows(y); y++, iy+=2)
+	{
+		for(int x=0, ix=0; x<Get_NX(); x++, ix+=2)
 		{
-			for(x=0, ix=0; x<Get_NX(); x++, ix+=2)
+			double Area = 0., d;
+
+			for(int i=0; i<4; i++)
 			{
-				double	Area	= 0.0, d;
-
-				for(i=0; i<4; i++)
+				if( (d = m_Area.asDouble(ix + xDir[i], iy + yDir[i])) > 0.0 )
 				{
-					if( (d = m_Area.asDouble(ix + xDir[i], iy + yDir[i])) > 0.0 )
-					{
-						Area	+= d;
-					}
-				}
-
-				if( Area > 0.0 )
-				{
-					pArea->Set_Value(x, y, Area * m_Area.Get_Cellarea());
-				}
-				else
-				{
-					pArea->Set_NoData(x, y);
+					Area	+= d;
 				}
 			}
+
+			if( Area > 0. )
+			{
+				pArea->Set_Value(x, y, Area * m_Area.Get_Cellarea());
+			}
+			else
+			{
+				pArea->Set_NoData(x, y);
+			}
 		}
-
-		//-------------------------------------------------
-		if( Parameters("B_AREA")->asBool() )
-		{
-			Parameters("G_AREA")->Set_Value(SG_Create_Grid(m_Area));
-		}
-
-		m_Area.Destroy();
-		m_dif .Destroy();
-		m_dir .Destroy();
-
-		DataObject_Set_Colors(pArea, 11, SG_COLORS_WHITE_BLUE);
-
-		return( true );
 	}
 
 	//-----------------------------------------------------
-	return( false );
+	if( Parameters("QUARTERS")->asBool() )
+	{
+		m_Area.Set_Name(_TL("Flow Accumulation"));
+
+		Parameters("QUARTERS_GRIDS")->asGridList()->Add_Item(SG_Create_Grid(m_Area));
+		Parameters("QUARTERS_GRIDS")->asGridList()->Add_Item(m_pSlope);
+		Parameters("QUARTERS_GRIDS")->asGridList()->Add_Item(m_pAspect);
+	}
+
+	m_Area.Destroy();
+	m_dif .Destroy();
+	m_dir .Destroy();
+
+	DataObject_Set_Colors(pArea, 11, SG_COLORS_WHITE_BLUE);
+
+	return( true );
 }
 
 
@@ -259,82 +249,78 @@ bool CFlow_MassFlux::On_Execute(void)
 //---------------------------------------------------------
 bool CFlow_MassFlux::Set_Flow(int x, int y, int Direction)
 {
-	int		dir, ix, iy, jx, jy;
-	double	dif, Z, A, B;
+	int ix, iy, jx, jy;
 
-	if( m_pDEM->is_InGrid(x, y)
-	&&	m_pDEM->is_InGrid(ix = Get_xTo(2 * Direction    , x), iy = Get_yTo(2 * Direction    , y))
-	&&	m_pDEM->is_InGrid(jx = Get_xTo(2 * Direction + 2, x), jy = Get_yTo(2 * Direction + 2, y)) )
+	if( !m_pDEM->is_InGrid(x, y)
+	||  !m_pDEM->is_InGrid(ix = Get_xTo(2 * Direction    , x), iy = Get_yTo(2 * Direction    , y))
+	||  !m_pDEM->is_InGrid(jx = Get_xTo(2 * Direction + 2, x), jy = Get_yTo(2 * Direction + 2, y)) )
 	{
-		Z	=  m_pDEM->asDouble( x,  y);
-		A	= (m_pDEM->asDouble(ix, iy) - Z) / Get_Cellsize();
-		B	= (m_pDEM->asDouble(jx, jy) - Z) / Get_Cellsize();
-
-		dif	= A != 0.0 ? M_PI_180 + atan2(B, A) : (B > 0.0 ? M_PI_270 : (B < 0.0 ? M_PI_090 : -1.0));
-
-		if( dif >= 0.0 )
-		{
-			x	= 2 * x + xDir[Direction];
-			y	= 2 * y + yDir[Direction];
-
-			dif	= fmod(dif + M_PI_090 * Direction, M_PI_360);
-
-			if( m_pFlow )
-			{
-				double		dScale	= 0.50 * m_dir.Get_System().Get_Cellsize();
-				TSG_Point	Point	= m_dir.Get_System().Get_Grid_to_World(x, y);
-				CSG_Shape	*pLine	= m_pFlow->Add_Shape();
-
-				pLine->Add_Point(
-					Point.x - dScale * sin(dif),
-					Point.y - dScale * cos(dif), 0
-				);
-				pLine->Add_Point(Point, 0);
-
-				dScale	= 0.20 * m_dir.Get_System().Get_Cellsize();
-				pLine->Add_Point(
-					Point.x - dScale * sin(dif + 25.0 * M_DEG_TO_RAD),
-					Point.y - dScale * cos(dif + 25.0 * M_DEG_TO_RAD), 1
-				);
-				pLine->Add_Point(Point, 1);
-				pLine->Add_Point(
-					Point.x - dScale * sin(dif - 25.0 * M_DEG_TO_RAD),
-					Point.y - dScale * cos(dif - 25.0 * M_DEG_TO_RAD), 1
-				);
-			}
-
-			if( m_pSlope )	m_pSlope ->Set_Value(x, y, atan(sqrt(A*A + B*B)));
-			if( m_pAspect )	m_pAspect->Set_Value(x, y, dif);
-
-			dir	= (int)(dif / M_PI_090);
-
-			dif	= dif - dir * M_PI_090;
-
-			switch( m_Method )
-			{
-			case 0:
-				dif	= cos(dif) / (cos(dif) + sin(dif));
-				break;
-
-			case 1:
-				dif	= dif < M_PI_045 ? 1.0 - tan(dif) / 2.0 : tan(M_PI_090 - dif) / 2.0;
-				break;
-			}
-
-			m_dir.Set_Value(x, y, dir * 2);
-			m_dif.Set_Value(x, y, dif);
-
-			return( true );
-		}
+		return( false );
 	}
 
-	return( false );
+	double Z =  m_pDEM->asDouble( x,  y);
+	double A = (m_pDEM->asDouble(ix, iy) - Z) / Get_Cellsize();
+	double B = (m_pDEM->asDouble(jx, jy) - Z) / Get_Cellsize();
+
+	double dif = A != 0. ? M_PI_180 + atan2(B, A) : (B > 0. ? M_PI_270 : (B < 0. ? M_PI_090 : -1.));
+
+	if( dif < 0. )
+	{
+		return( false );
+	}
+
+	x = 2 * x + xDir[Direction];
+	y = 2 * y + yDir[Direction];
+
+	dif	= fmod(dif + M_PI_090 * Direction, M_PI_360);
+
+	if( m_pFlow )
+	{
+		double    dScale = 0.5 * m_dir.Get_System().Get_Cellsize();
+		TSG_Point  Point = m_dir.Get_System().Get_Grid_to_World(x, y);
+		CSG_Shape *pLine = m_pFlow->Add_Shape();
+
+		pLine->Add_Point(
+			Point.x - dScale * sin(dif),
+			Point.y - dScale * cos(dif), 0
+		);
+
+		pLine->Add_Point(Point, 0);
+
+		dScale	= 0.2 * m_dir.Get_System().Get_Cellsize();
+		pLine->Add_Point(
+			Point.x - dScale * sin(dif + 25.0 * M_DEG_TO_RAD),
+			Point.y - dScale * cos(dif + 25.0 * M_DEG_TO_RAD), 1
+		);
+
+		pLine->Add_Point(Point, 1);
+		pLine->Add_Point(
+			Point.x - dScale * sin(dif - 25.0 * M_DEG_TO_RAD),
+			Point.y - dScale * cos(dif - 25.0 * M_DEG_TO_RAD), 1
+		);
+	}
+
+	if( m_pSlope  ) { m_pSlope ->Set_Value(x, y, atan(sqrt(A*A + B*B))); }
+	if( m_pAspect ) { m_pAspect->Set_Value(x, y, dif); }
+
+	int dir = (int)(dif / M_PI_090);
+
+	dif = dif - dir * M_PI_090;
+
+	switch( m_Method )
+	{
+	default: dif = cos(dif) / (cos(dif) + sin(dif)); break;
+	case  1: dif = dif < M_PI_045 ? 1. - tan(dif) / 2. : tan(M_PI_090 - dif) / 2.; break;
+	}
+
+	m_dir.Set_Value(x, y, dir * 2.);
+	m_dif.Set_Value(x, y, dif);
+
+	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -343,7 +329,7 @@ inline double CFlow_MassFlux::Get_Flow(int x, int y, int Direction)
 {
 	if( m_dir.is_InGrid(x, y) )
 	{
-		int		i	= m_dir.asInt(x, y);
+		int i = m_dir.asInt(x, y);
 
 		if( Direction == i )
 		{
@@ -352,38 +338,35 @@ inline double CFlow_MassFlux::Get_Flow(int x, int y, int Direction)
 
 		if( Direction == (i + 2) % 8 )
 		{
-			return( 1.0 - m_dif.asDouble(x, y) );
+			return( 1. - m_dif.asDouble(x, y) );
 		}
 	}
 
-	return( 0.0 );
+	return( 0. );
 }
 
 //---------------------------------------------------------
 double CFlow_MassFlux::Get_Area(int x, int y)
 {
-	if( m_Area.is_NoData(x, y) )		// cell has not been processed yet...
+	if( m_Area.is_NoData(x, y) ) // cell has not been processed yet...
 	{
-		int		i, ix, iy;
-		double	d;
+		m_Area.Set_Value(x, y, 1.); // add this cell's contribution...
 
-		m_Area.Set_Value(x, y, 1.0);	// add this cell's contribution...
-
-		for(i=0; i<8; i+=2)
+		for(int i=0; i<8; i+=2)
 		{
-			ix	= Get_xFrom(i, x);
-			iy	= Get_yFrom(i, y);
+			int ix = Get_xFrom(i, x);
+			int iy = Get_yFrom(i, y);
 
-			d	= Get_Flow(ix, iy, i);
+			double d = Get_Flow(ix, iy, i);
 
-			if( d > 0.0 )				// which portion drains ith neighbour into this cell???
+			if( d > 0. ) // which portion drains ith neighbour into this cell???
 			{
-				m_Area.Add_Value(x, y, d * Get_Area(ix, iy));	// then recursive call of this function...
+				m_Area.Add_Value(x, y, d * Get_Area(ix, iy)); // then recursive call of this function...
 			}
 		}
 	}
 
-	return( m_Area.asDouble(x, y) );	// return this cell's area...
+	return( m_Area.asDouble(x, y) ); // return this cell's area...
 }
 
 

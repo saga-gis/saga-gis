@@ -238,8 +238,6 @@ bool CRaw_Import::On_Execute(void)
 
 	pGrid->Set_Name(SG_File_Get_Name(Parameters("FILE")->asString(), false));
 
-	Parameters("GRID")->Set_Value(pGrid);
-
 	//-----------------------------------------------------
 	bool  bRecIsRow = Parameters("ORDER"    )->asInt() == 0;
 	bool bRecInvert = Parameters("TOPDOWN"  )->asBool() == false;
@@ -364,7 +362,16 @@ CSG_Grid * CRaw_Import::Get_Grid(void)
 	}
 
 	//-----------------------------------------------------
-	return( SG_Create_Grid(Type, nx, ny, cs, x, y) );
+	CSG_Grid *pGrid = Parameters("GRID")->asGrid();
+
+	if( !pGrid )
+	{
+		Parameters("GRID")->Set_Value(pGrid = SG_Create_Grid());
+	}
+
+	pGrid->Create(Type, nx, ny, cs, x, y);
+
+	return( pGrid );
 }
 
 

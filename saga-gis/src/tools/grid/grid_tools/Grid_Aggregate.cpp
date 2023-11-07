@@ -93,12 +93,12 @@ CGrid_Aggregate::CGrid_Aggregate(void)
 		"METHOD"	, _TL("Method"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s|%s",
-			_TL("Sum"),
+			_TL("Sum"    ),
 			_TL("Minimum"),
 			_TL("Maximum"),
-			_TL("Median"),
-			_TL("Mean"),
-			_TL("Mode")
+			_TL("Median" ),
+			_TL("Mean"   ),
+			_TL("Mode"   )
 		), 4
 	);
 }
@@ -115,9 +115,12 @@ bool CGrid_Aggregate::On_Execute(void)
 
 	CSG_Grid_System	System(Get_Cellsize() * Size, Get_XMin(), Get_YMin(), Get_NX() / Size, Get_NY() / Size);
 
-	CSG_Grid	*pOutput, *pGrid	= Parameters("INPUT")->asGrid();
+	CSG_Grid *pGrid = Parameters("INPUT")->asGrid(), *pOutput = Parameters("OUTPUT")->asGrid();
 
-	Parameters("OUTPUT")->Set_Value(pOutput = SG_Create_Grid(System, pGrid->Get_Type()));
+	if( !pOutput )
+	{
+		Parameters("OUTPUT")->Set_Value(pOutput = SG_Create_Grid(System, pGrid->Get_Type()));
+	}
 
 	pOutput->Set_Name(pGrid->Get_Name());
 

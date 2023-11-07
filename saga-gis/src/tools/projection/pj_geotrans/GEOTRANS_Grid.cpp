@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: GEOTRANS_Grid.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "GEOTRANS_Grid.h"
 
 
@@ -72,7 +60,6 @@
 //---------------------------------------------------------
 CGEOTRANS_Grid::CGEOTRANS_Grid(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("GeoTrans (Grid)"));
 
 	Set_Author		("O.Conrad (c) 2003");
@@ -86,43 +73,16 @@ CGEOTRANS_Grid::CGEOTRANS_Grid(void)
 	Add_Reference("http://earth-info.nga.mil/GandG/geotrans/");
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_Output("",
-		"OUT_GRID"	, _TL("Grid"),
-		_TL("")
-	);
-
-	Parameters.Add_Grid_Output("",
-		"OUT_X"		, _TL("X Coordinates"),
-		_TL("")
-	);
-
-	Parameters.Add_Grid_Output("",
-		"OUT_Y"		, _TL("Y Coordinates"),
-		_TL("")
-	);
-
-	Parameters.Add_Shapes_Output("",
-		"OUT_SHAPES", _TL("Shapes"),
-		_TL("")
-	);
-
-	//-----------------------------------------------------
 	Parameters.Add_Grid("SOURCE_NODE",
-		"SOURCE"	, _TL("Source"),
+		"SOURCE"    , _TL("Source"),
 		_TL(""),
 		PARAMETER_INPUT
-	);
-
-	Parameters.Add_Bool("TARGET_NODE",
-		"CREATE_XY"	, _TL("Create X/Y Grids"),
-		_TL(""),
-		false
 	);
 
 	Parameters.Add_Choice("TARGET_NODE",
 		"RESAMPLING", _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
@@ -132,6 +92,8 @@ CGEOTRANS_Grid::CGEOTRANS_Grid(void)
 
 	//-----------------------------------------------------
 	m_Grid_Target.Create(Add_Parameters("TARGET", _TL("Target Grid System"), _TL("")));
+	m_Grid_Target.Add_Grid("X", _TL("X Coordinates"), true);
+	m_Grid_Target.Add_Grid("Y", _TL("Y Coordinates"), true);
 }
 
 
@@ -142,13 +104,17 @@ CGEOTRANS_Grid::CGEOTRANS_Grid(void)
 //---------------------------------------------------------
 int CGEOTRANS_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
 int CGEOTRANS_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -159,26 +125,23 @@ int CGEOTRANS_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 bool CGEOTRANS_Grid::On_Execute_Conversion(void)
 {
-	TSG_Data_Type	Type;
-	TSG_Rect		Extent;
-	CSG_Grid		*pSource, *pGrid;
+	CSG_Grid *pSource = Parameters("SOURCE")->asGrid(), *pGrid;
 
-	//-----------------------------------------------------
-	TSG_Grid_Resampling	Resampling;
+	TSG_Grid_Resampling Resampling;
 
 	switch( Parameters("RESAMPLING")->asInt() )
 	{
-	default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
-	case  1:	Resampling	= GRID_RESAMPLING_Bilinear        ;	break;
-	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline   ;	break;
-	case  3:	Resampling	= GRID_RESAMPLING_BSpline         ;	break;
+	default: Resampling = GRID_RESAMPLING_NearestNeighbour; break;
+	case  1: Resampling = GRID_RESAMPLING_Bilinear        ; break;
+	case  2: Resampling = GRID_RESAMPLING_BicubicSpline   ; break;
+	case  3: Resampling = GRID_RESAMPLING_BSpline         ; break;
 	}
 
-	//-----------------------------------------------------
-	pSource	= Parameters("SOURCE")->asGrid();
-	Type	= Resampling == GRID_RESAMPLING_NearestNeighbour ? pSource->Get_Type() : SG_DATATYPE_Float;
+	TSG_Data_Type Type = Resampling == GRID_RESAMPLING_NearestNeighbour ? pSource->Get_Type() : SG_DATATYPE_Float;
 
 	//-----------------------------------------------------
+	TSG_Rect Extent;
+
 	if( Get_Target_Extent(pSource, Extent, true) )
 	{
 		m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), Extent, pSource->Get_NY());
@@ -194,8 +157,6 @@ bool CGEOTRANS_Grid::On_Execute_Conversion(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -283,107 +244,85 @@ bool CGEOTRANS_Grid::Get_Target_Extent(CSG_Grid *pSource, TSG_Rect &Extent, bool
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGEOTRANS_Grid::Set_Grid(CSG_Grid *pSource, CSG_Grid *pTarget, TSG_Grid_Resampling Resampling)
 {
-	int			x, y;
 	double		z;
-	TSG_Point	Pt_Source, Pt_Target;
-	CSG_Grid	*pX, *pY;
 
-	if( pSource && pTarget && Set_Transformation_Inverse() )
+	if( !pSource || !pTarget || !Set_Transformation_Inverse() )
 	{
-		pTarget->Set_NoData_Value_Range(pSource->Get_NoData_Value(), pSource->Get_NoData_Value(true));
-		pTarget->Set_Scaling(pSource->Get_Scaling(), pSource->Get_Offset());
-		pTarget->Set_Name	(pSource->Get_Name());
-		pTarget->Set_Unit	(pSource->Get_Unit());
-
-		pTarget->Assign_NoData();
-
-		if( Parameters("CREATE_XY")->asBool() )
-		{
-			pX	= SG_Create_Grid(pTarget->Get_System(), SG_DATATYPE_Float);
-			pX->Assign_NoData();
-			pX->Set_Name(_TL("X-Coordinate"));
-			Parameters("OUT_X")->Set_Value(pX);
-
-			pY	= SG_Create_Grid(pTarget->Get_System(), SG_DATATYPE_Float);
-			pY->Assign_NoData();
-			pY->Set_Name(_TL("Y-Coordinate"));
-			Parameters("OUT_Y")->Set_Value(pY);
-		}
-		else
-		{
-			pX	= pY	= NULL;
-		}
-
-		//-------------------------------------------------
-		for(y=0, Pt_Target.y=pTarget->Get_YMin(); y<pTarget->Get_NY() && Set_Progress(y, pTarget->Get_NY()); y++, Pt_Target.y+=pTarget->Get_Cellsize())
-		{
-			for(x=0, Pt_Target.x=pTarget->Get_XMin(); x<pTarget->Get_NX(); x++, Pt_Target.x+=pTarget->Get_Cellsize())
-			{
-				Pt_Source	= Pt_Target;
-
-				if( Get_Converted(Pt_Source) )
-				{
-					if( pSource->Get_Value(Pt_Source, z, Resampling) )
-					{
-						pTarget->Set_Value(x, y, z);
-					}
-
-					if( pX && pY )
-					{
-						pX->Set_Value(x, y, Pt_Source.x);
-						pY->Set_Value(x, y, Pt_Source.y);
-					}
-				}
-			}
-		}
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	pTarget->Set_NoData_Value_Range(pSource->Get_NoData_Value(), pSource->Get_NoData_Value(true));
+	pTarget->Set_Scaling(pSource->Get_Scaling(), pSource->Get_Offset());
+	pTarget->Set_Name	(pSource->Get_Name());
+	pTarget->Set_Unit	(pSource->Get_Unit());
+
+	pTarget->Assign_NoData();
+
+	CSG_Grid *pX = m_Grid_Target.Get_Grid("X");
+	CSG_Grid *pY = m_Grid_Target.Get_Grid("Y");
+
+	//-----------------------------------------------------
+	for(int y=0; y<pTarget->Get_NY() && Set_Progress(y, pTarget->Get_NY()); y++)
+	{
+		double py = pTarget->Get_YMin() + y * pTarget->Get_Cellsize();
+
+		for(int x=0; x<pTarget->Get_NX(); x++)
+		{
+			TSG_Point p; p.y = py; p.x = pTarget->Get_XMin() + x * pTarget->Get_Cellsize();
+
+			if( Get_Converted(p) )
+			{
+				if( pSource->Get_Value(p, z, Resampling) )
+				{
+					pTarget->Set_Value(x, y, z);
+				}
+
+				if( pX ) { pX->Set_Value(x, y, p.x); }
+				if( pY ) { pY->Set_Value(x, y, p.y); }
+			}
+		}
+	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
 bool CGEOTRANS_Grid::Set_Shapes(CSG_Grid *pSource, CSG_Shapes *pTarget)
 {
-	int			x, y;
-	TSG_Point	Pt_Source, Pt_Target;
-	CSG_Shape		*pShape;
-
-	if( pSource && pTarget )
+	if( !pSource || !pTarget )
 	{
-		pTarget->Create(SHAPE_TYPE_Point, pSource->Get_Name());
-		pTarget->Add_Field("Z", SG_DATATYPE_Double);
+		return( false );
+	}
 
-		for(y=0, Pt_Source.y=pSource->Get_YMin(); y<pSource->Get_NY() && Set_Progress(y, pSource->Get_NY()); y++, Pt_Source.y+=pSource->Get_Cellsize())
+	pTarget->Create(SHAPE_TYPE_Point, pSource->Get_Name());
+	pTarget->Add_Field("Z", SG_DATATYPE_Double);
+
+	for(int y=0; y<pSource->Get_NY() && Set_Progress(y, pSource->Get_NY()); y++)
+	{
+		double py = pSource->Get_YMin() + y * pSource->Get_Cellsize();
+
+		for(int x=0; x<pSource->Get_NX(); x++)
 		{
-			for(x=0, Pt_Source.x=pSource->Get_XMin(); x<pSource->Get_NX(); x++, Pt_Source.x+=pSource->Get_Cellsize())
+			if( !pSource->is_NoData(x, y) )
 			{
-				if( !pSource->is_NoData(x, y) )
-				{
-					Pt_Target	= Pt_Source;
+				TSG_Point p; p.y = py; p.x = pSource->Get_XMin() + x * pSource->Get_Cellsize();
 
-					if( Get_Converted(Pt_Target) )
-					{
-						pShape		= pTarget->Add_Shape();
-						pShape->Add_Point(Pt_Target);
-						pShape->Set_Value(0, pSource->asDouble(x, y));
-					}
+				if( Get_Converted(p) )
+				{
+					CSG_Shape *pPoint = pTarget->Add_Shape();
+					pPoint->Add_Point(p);
+					pPoint->Set_Value(0, pSource->asDouble(x, y));
 				}
 			}
 		}
-
-		return( true );
 	}
 
-	return( false );
+	return( true );
 }
 
 

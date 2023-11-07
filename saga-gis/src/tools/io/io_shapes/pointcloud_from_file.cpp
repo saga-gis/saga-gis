@@ -63,13 +63,14 @@ CPointCloud_From_File::CPointCloud_From_File(void)
 	Set_Author		("O. Conrad (c) 2009");
 
 	Set_Description	(_TW(
-		"Allows one to import a point cloud from a point shapefile."
+		"Imports a point cloud from a point shapefile."
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_PointCloud_Output("",
+	Parameters.Add_PointCloud("",
 		"POINTS", _TL("Point Cloud"),
-		_TL("")
+		_TL(""),
+		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_FilePath("",
@@ -103,8 +104,6 @@ bool CPointCloud_From_File::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -114,18 +113,22 @@ bool CPointCloud_From_File::Read_Shapefile(const CSG_String &fName)
 
 	if( !Shapes.Create(fName) || Shapes.Get_Count() == 0 )
 	{
+		Error_Fmt("%s\n\"%s\"", _TL("failed to load file!"), fName.c_str());
+
 		return( false );
 	}
 
 	if( Shapes.Get_Type() != SHAPE_TYPE_Point )
 	{
-		 return( false );
+		Error_Fmt("%s\n\"%s\"", _TL("unsupported geometry type! should be point!"), fName.c_str());
+
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	CSG_PointCloud *pPoints = SG_Create_PointCloud();
+	CSG_PointCloud *pPoints = Parameters("POINTS")->asPointCloud();
+	pPoints->Create();
 	pPoints->Set_Name(SG_File_Get_Name(fName, false));
-	Parameters("POINTS")->Set_Value(pPoints);
 
 	for(int iField=0; iField<Shapes.Get_Field_Count(); iField++)
 	{
@@ -136,7 +139,7 @@ bool CPointCloud_From_File::Read_Shapefile(const CSG_String &fName)
 	{
 		CSG_Shape *pPoint = Shapes.Get_Shape(iPoint);
 
-		pPoints->Add_Point(pPoint->Get_Point().x, pPoint->Get_Point().y, 0.0);
+		pPoints->Add_Point(pPoint->Get_Point().x, pPoint->Get_Point().y, 0.);
 
 		for(int iField=0; iField<Shapes.Get_Field_Count(); iField++)
 		{

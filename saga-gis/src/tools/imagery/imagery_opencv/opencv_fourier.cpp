@@ -232,9 +232,8 @@ bool COpenCV_FFT::On_Execute(void)
 	{
 		int nx = Grid[0].cols, ny = Grid[0].rows;
 
-		CSG_Grids &DFT = *(pDFT = SG_Create_Grids());
-
-		Parameters("DFT_OPT")->Set_Value(pDFT);
+		CSG_Grids *pDFT = Parameters("DFT_OPT")->asGrids(); if( !pDFT ) { Parameters("DFT_OPT")->Set_Value(pDFT = SG_Create_Grids()); }
+		CSG_Grids  &DFT = *pDFT;
 
 		DFT.Create(nx, ny, 2, Get_Cellsize(), Get_XMin(), Get_YMin(), 0., SG_Real);
 

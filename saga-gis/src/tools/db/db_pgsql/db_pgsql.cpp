@@ -1999,7 +1999,7 @@ bool CSG_PG_Connection::Raster_Load(CSG_Grid *pGrid, const CSG_String &Table, co
 
 		Add_MetaData(*pGrid, Table + CSG_String::Format(":rid=%d", Info[0].asInt(0))).Add_Child("ID", Info[0].asInt(0));
 
-		SG_Get_Data_Manager().Add(pGrid);
+	//	SG_Get_Data_Manager().Add(pGrid);
 
 		return( true );
 	}

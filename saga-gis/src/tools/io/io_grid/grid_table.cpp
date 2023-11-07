@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: grid_table.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "grid_table.h"
 
 
@@ -72,7 +60,6 @@
 //---------------------------------------------------------
 CGrid_Table_Import::CGrid_Table_Import(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Import Grid from Table"));
 
 	Set_Author		("O.Conrad (c) 2006");
@@ -82,16 +69,16 @@ CGrid_Table_Import::CGrid_Table_Import(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_Output(
-		"", "GRID"		, _TL("Grid"),
+	Parameters.Add_Grid_Output("",
+		"GRID"		, _TL("Grid"),
 		_TL("")
 	);
 
-	Parameters.Add_FilePath(
-		"", "FILE"		, _TL("Table"),
+	Parameters.Add_FilePath("",
+		"FILE"		, _TL("Table"),
 		_TL(""),
-		CSG_String::Format("%s|*.txt;*.dbf;*.csv|%s|*.*",
-			_TL("Table Formats (*.txt, *.dbf, *.csv"),
+		CSG_String::Format("%s (*.txt, *.dbf, *.csv)|*.txt;*.dbf;*.csv|%s|*.*",
+			_TL("Table Formats"),
 			_TL("All Files")
 		)
 	);
@@ -106,13 +93,13 @@ CGrid_Table_Import::CGrid_Table_Import(void)
 	Parameters.Add_Int   ("", "HEADLINES", _TL("Header Lines" ), _TL(""), 0, 0, true);
 
 	Parameters.Add_Data_Type("",
-		"DATA_TYPE"		, _TL("Data Type"),
+		"DATA_TYPE"	, _TL("Data Type"),
 		_TL(""),
 		SG_DATATYPES_Numeric|SG_DATATYPES_Bit
 	);
 
-	Parameters.Add_Choice(
-		"", "TOPDOWN"	, _TL("Line Order"),
+	Parameters.Add_Choice("",
+		"TOPDOWN"	, _TL("Line Order"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
 			_TL("Bottom to Top"),
@@ -129,8 +116,7 @@ CGrid_Table_Import::CGrid_Table_Import(void)
 //---------------------------------------------------------
 bool CGrid_Table_Import::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Table	Table;
+	CSG_Table Table;
 
 	if( !Table.Create(Parameters("FILE")->asString()) )
 	{
@@ -140,7 +126,7 @@ bool CGrid_Table_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int	nx, ny, nHeadLines	= Parameters("HEADLINES")->asInt();
+	int nx, ny, nHeadLines = Parameters("HEADLINES")->asInt();
 
 	if( (nx = Table.Get_Field_Count()) < 1 || (ny = (int)Table.Get_Count()) < 1 )
 	{
@@ -150,7 +136,14 @@ bool CGrid_Table_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid	*pGrid	= SG_Create_Grid(Parameters("DATA_TYPE")->asDataType()->Get_Data_Type(), nx, ny,
+	CSG_Grid *pGrid = Parameters("GRID")->asGrid();
+
+	if( !pGrid )
+	{
+		Parameters("GRID")->Set_Value(pGrid = SG_Create_Grid());
+	}
+
+	pGrid->Create(Parameters("DATA_TYPE")->asDataType()->Get_Data_Type(), nx, ny,
 		Parameters("CELLSIZE")->asDouble(),
 		Parameters("XMIN"    )->asDouble(),
 		Parameters("YMIN"    )->asDouble()
@@ -161,14 +154,12 @@ bool CGrid_Table_Import::On_Execute(void)
 	pGrid->Set_NoData_Value(Parameters("NODATA" )->asDouble());
 	pGrid->Set_Scaling     (Parameters("ZFACTOR")->asDouble());
 
-	Parameters("GRID")->Set_Value(pGrid);
-
 	//-----------------------------------------------------
-	bool	bDown	= Parameters("TOPDOWN")->asInt() == 1;
+	bool bDown = Parameters("TOPDOWN")->asInt() == 1;
 
 	for(int y=0; y<ny && Set_Progress(y, ny); y++)
 	{
-		CSG_Table_Record	*pRecord	= Table.Get_Record(y + nHeadLines);
+		CSG_Table_Record *pRecord = Table.Get_Record(y + nHeadLines);
 
 		for(int x=0, yy=bDown?ny-1-y:y; x<nx; x++)
 		{
@@ -190,7 +181,6 @@ bool CGrid_Table_Import::On_Execute(void)
 //---------------------------------------------------------
 CCRU_Table_Import::CCRU_Table_Import(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Import CRU Grids"));
 
 	Set_Author		("O.Conrad (c) 2016");
@@ -239,8 +229,7 @@ CCRU_Table_Import::CCRU_Table_Import(void)
 //---------------------------------------------------------
 bool CCRU_Table_Import::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_File	File;
+	CSG_File File;
 
 	if( !File.Open(Parameters("FILE")->asString(), SG_FILE_R, false) )
 	{
@@ -250,7 +239,7 @@ bool CCRU_Table_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_String	sLine;
+	CSG_String sLine;
 
 	if( !File.Read_Line(sLine) )
 	{
@@ -260,8 +249,7 @@ bool CCRU_Table_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int		nx, ny, nMonths;
-	double	Cellsize, xMin, yMin, xMax, yMax;
+	int nx, ny, nMonths; double Cellsize, xMin, yMin, xMax, yMax;
 
 	if( !File.Scan(Cellsize)
 	||  !File.Scan(xMin    ) || !File.Scan(yMin    )
@@ -275,7 +263,7 @@ bool CCRU_Table_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid_System	System(Cellsize, xMin, yMin, nx, ny);
+	CSG_Grid_System System(Cellsize, xMin, yMin, nx, ny);
 
 	if( !System.is_Valid() || System.Get_XMax() != xMax || System.Get_YMax() != yMax )
 	{
@@ -285,7 +273,7 @@ bool CCRU_Table_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	bool	bShift	= Parameters("SHIFT")->asBool();
+	bool bShift = Parameters("SHIFT")->asBool();
 
 	if( bShift )
 	{
@@ -293,7 +281,7 @@ bool CCRU_Table_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_String	Name	= SG_File_Get_Name(Parameters("FILE")->asString(), false);
+	CSG_String Name = SG_File_Get_Name(Parameters("FILE")->asString(), false);
 
 	Parameters("GRIDS")->asGridList()->Del_Items();
 
@@ -301,7 +289,7 @@ bool CCRU_Table_Import::On_Execute(void)
 	{
 		Process_Set_Text("%s %d", _TL("Band"), 1 + iMonth);
 
-		CSG_Grid	*pGrid	= SG_Create_Grid(System, SG_DATATYPE_Short);
+		CSG_Grid *pGrid = SG_Create_Grid(System, SG_DATATYPE_Short);
 
 		pGrid->Fmt_Name("%s_%02d", Name.c_str(), 1 + iMonth);
 		pGrid->Set_NoData_Value(-9999);
@@ -316,9 +304,7 @@ bool CCRU_Table_Import::On_Execute(void)
 			{
 				for(int x=0, xx=bShift?nx/2:x, yy=ny-1-y; x<nx; x++, xx++)
 				{
-					double	z;
-
-					CSG_String	s	= sLine.Mid(x * 5, 5);
+					double z; CSG_String s = sLine.Mid(x * 5, 5);
 
 					if( s.asDouble(z) )
 					{

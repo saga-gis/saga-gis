@@ -204,6 +204,7 @@ bool CGrid_Import::On_Execute(void)
 		pGrid->Set_Name(SG_File_Get_Name(File, false) + Suffix);\
 		pGrid->Get_Projection().Create(Projection);\
 		Parameters(Output)->Set_Value(pGrid);\
+		DataObject_Add(pGrid);\
 		DataObject_Set_Colors(pGrid, 11, SG_COLORS_BLACK_WHITE);\
 	}
 
@@ -221,7 +222,9 @@ bool CGrid_Import::On_Execute(void)
 			Colors.Set_Color(i->second.index, SG_GET_R(i->first), SG_GET_G(i->first), SG_GET_B(i->first));
 		}
 
-		CSG_Grid *pRGB = SG_Create_Grid(Histogram.size() <= 2 ? SG_DATATYPE_Bit : SG_DATATYPE_Byte, Image.GetWidth(), Image.GetHeight(), Cellsize, xMin, yMin);
+		CSG_Grid *pRGB = Parameters("OUT_GRID")->asGrid(); if( !pRGB ) { Parameters("OUT_GRID")->Set_Value(pRGB = SG_Create_Grid()); }
+		
+		pRGB->Create(Histogram.size() <= 2 ? SG_DATATYPE_Bit : SG_DATATYPE_Byte, Image.GetWidth(), Image.GetHeight(), Cellsize, xMin, yMin);
 
 		for(int y=0; y<pRGB->Get_NY() && Set_Progress(y, pRGB->Get_NY()); y++)
 		{
@@ -247,6 +250,35 @@ bool CGrid_Import::On_Execute(void)
 	//-----------------------------------------------------
 	// true color...
 
+	else if( Parameters("METHOD")->asInt() != 1 ) // true color...
+	{
+		CSG_Grid *pRGB = Parameters("OUT_GRID")->asGrid(); if( !pRGB ) { Parameters("OUT_GRID")->Set_Value(pRGB = SG_Create_Grid()); }
+
+		pRGB->Create(SG_DATATYPE_Int, Image.GetWidth(), Image.GetHeight(), Cellsize, xMin, yMin);
+
+		for(int y=0; y<pRGB->Get_NY() && Set_Progress(y, pRGB->Get_NY()); y++)
+		{
+			int	yy	= bTransform ? y : pRGB->Get_NY() - 1 - y;
+
+			for(int x=0; x<pRGB->Get_NX(); x++)
+			{
+				pRGB->Set_Value(x, y, SG_GET_RGB(Image.GetRed(x, yy), Image.GetGreen(x, yy), Image.GetBlue(x, yy)));
+			}
+		}
+
+		if( bTransform )
+		{
+			Set_Transformation(&pRGB, m[4], m[5], m[0], m[3], m[2], m[1]);
+		}
+
+		SET_METADATA(pRGB, "", "OUT_GRID");
+
+		DataObject_Set_Parameter(pRGB, "COLORS_TYPE", 5);	// Color Classification Type: RGB Coded Values
+	}
+
+	//-----------------------------------------------------
+	// split channels...
+
 	else
 	{
 		CSG_Grid *pRGB = SG_Create_Grid(SG_DATATYPE_Int, Image.GetWidth(), Image.GetHeight(), Cellsize, xMin, yMin);
@@ -266,33 +298,25 @@ bool CGrid_Import::On_Execute(void)
 			Set_Transformation(&pRGB, m[4], m[5], m[0], m[3], m[2], m[1]);
 		}
 
-		//-------------------------------------------------
-		if( Parameters("METHOD")->asInt() != 1 ) // true color...
-		{
-			SET_METADATA(pRGB, "", "OUT_GRID");
+		CSG_Grid *pR = Parameters("OUT_RED"  )->asGrid(); if( !pR ) { Parameters("OUT_RED"  )->Set_Value(pR = SG_Create_Grid()); } pR->Create(pRGB->Get_System(), SG_DATATYPE_Byte);
+		CSG_Grid *pG = Parameters("OUT_GREEN")->asGrid(); if( !pG ) { Parameters("OUT_GREEN")->Set_Value(pG = SG_Create_Grid()); } pG->Create(pRGB->Get_System(), SG_DATATYPE_Byte);
+		CSG_Grid *pB = Parameters("OUT_BLUE" )->asGrid(); if( !pB ) { Parameters("OUT_BLUE" )->Set_Value(pB = SG_Create_Grid()); } pB->Create(pRGB->Get_System(), SG_DATATYPE_Byte);
 
-			DataObject_Set_Parameter(pRGB, "COLORS_TYPE", 5);	// Color Classification Type: RGB Coded Values
-		}
-		else                                     // split channels...
+		for(int y=0; y<pRGB->Get_NY() && Set_Progress(y, pRGB->Get_NY()); y++)
 		{
-			CSG_Grid *pR = SG_Create_Grid(pRGB->Get_System(), SG_DATATYPE_Byte);
-			CSG_Grid *pG = SG_Create_Grid(pRGB->Get_System(), SG_DATATYPE_Byte);
-			CSG_Grid *pB = SG_Create_Grid(pRGB->Get_System(), SG_DATATYPE_Byte);
-
-			for(int y=0; y<pRGB->Get_NY() && Set_Progress(y, pRGB->Get_NY()); y++)
+			for(int x=0; x<pRGB->Get_NX(); x++)
 			{
-				for(int x=0; x<pRGB->Get_NX(); x++)
-				{
-					pR->Set_Value(x, y, SG_GET_R(pRGB->asInt(x, y)));
-					pG->Set_Value(x, y, SG_GET_G(pRGB->asInt(x, y)));
-					pB->Set_Value(x, y, SG_GET_B(pRGB->asInt(x, y)));
-				}
+				pR->Set_Value(x, y, SG_GET_R(pRGB->asInt(x, y)));
+				pG->Set_Value(x, y, SG_GET_G(pRGB->asInt(x, y)));
+				pB->Set_Value(x, y, SG_GET_B(pRGB->asInt(x, y)));
 			}
-
-			SET_METADATA(pR, " [R]", "OUT_RED"  );
-			SET_METADATA(pG, " [G]", "OUT_GREEN");
-			SET_METADATA(pB, " [B]", "OUT_BLUE" );
 		}
+
+		SET_METADATA(pR, " [R]", "OUT_RED"  );
+		SET_METADATA(pG, " [G]", "OUT_GREEN");
+		SET_METADATA(pB, " [B]", "OUT_BLUE" );
+
+		delete(pRGB);
 	}
 
 	//-----------------------------------------------------

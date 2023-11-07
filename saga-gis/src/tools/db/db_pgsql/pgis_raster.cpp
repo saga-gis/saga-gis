@@ -234,7 +234,7 @@ bool CRaster_Load_Band::On_Execute(void)
 	}
 
 	CSG_Grid *pGrid = Parameters("GRID")->asGrid();
-	
+
 	if( !pGrid )
 	{
 		pGrid = SG_Create_Grid();
@@ -252,7 +252,10 @@ bool CRaster_Load_Band::On_Execute(void)
 		return( false );
 	}
 
-	Parameters("GRID")->Set_Value(pGrid);
+	if( pGrid != Parameters("GRID")->asGrid() )
+	{
+		Parameters("GRID")->Set_Value(pGrid);
+	}
 
 	return( true );
 }
@@ -267,7 +270,6 @@ bool CRaster_Load_Band::On_Execute(void)
 //---------------------------------------------------------
 CRaster_Save::CRaster_Save(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Export Raster to PostGIS"));
 
 	Set_Author		("O.Conrad (c) 2013");

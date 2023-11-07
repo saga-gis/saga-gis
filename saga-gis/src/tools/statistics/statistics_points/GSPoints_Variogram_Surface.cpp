@@ -116,17 +116,17 @@ bool CGSPoints_Variogram_Surface::On_Execute(void)
 	int	nx	= 1 + (int)(pPoints->Get_Extent().Get_XRange() / Lag);
 	int	ny	= 1 + (int)(pPoints->Get_Extent().Get_YRange() / Lag);
 
-	CSG_Grid *pCount      = SG_Create_Grid(SG_DATATYPE_Int  , 1 + 2 * nx, 1 + 2 * ny, Lag, -nx * Lag, -ny * Lag);
-	CSG_Grid *pVariance   = SG_Create_Grid(SG_DATATYPE_Float, 1 + 2 * nx, 1 + 2 * ny, Lag, -nx * Lag, -ny * Lag);
-	CSG_Grid *pCovariance = SG_Create_Grid(SG_DATATYPE_Float, 1 + 2 * nx, 1 + 2 * ny, Lag, -nx * Lag, -ny * Lag);
+	CSG_Grid      *pCount = Parameters("COUNT"     )->asGrid(); if( !pCount      ) { Parameters("COUNT"     )->Set_Value(pCount      = SG_Create_Grid()); }
+	CSG_Grid   *pVariance = Parameters("VARIANCE"  )->asGrid(); if( !pVariance   ) { Parameters("VARIANCE"  )->Set_Value(pVariance   = SG_Create_Grid()); }
+	CSG_Grid *pCovariance = Parameters("COVARIANCE")->asGrid(); if( !pCovariance ) { Parameters("COVARIANCE")->Set_Value(pCovariance = SG_Create_Grid()); }
+
+	pCount     ->Create(SG_DATATYPE_Int  , 1 + 2 * nx, 1 + 2 * ny, Lag, -nx * Lag, -ny * Lag);
+	pVariance  ->Create(SG_DATATYPE_Float, 1 + 2 * nx, 1 + 2 * ny, Lag, -nx * Lag, -ny * Lag);
+	pCovariance->Create(SG_DATATYPE_Float, 1 + 2 * nx, 1 + 2 * ny, Lag, -nx * Lag, -ny * Lag);
 
 	pCount     ->Fmt_Name("%s [%s]"    , pPoints->Get_Name(), _TL("Count"             ));
 	pVariance  ->Fmt_Name("%s [%s: %s]", pPoints->Get_Name(), _TL("Variogram Surface" ), pPoints->Get_Field_Name(Field));
 	pCovariance->Fmt_Name("%s [%s: %s]", pPoints->Get_Name(), _TL("Covariance Surface"), pPoints->Get_Field_Name(Field));
-
-	Parameters("COUNT"     )->Set_Value(pCount     );
-	Parameters("VARIANCE"  )->Set_Value(pVariance  );
-	Parameters("COVARIANCE")->Set_Value(pCovariance);
 
 	//-----------------------------------------------------
 	for(sLong i=0, n=0; i<pPoints->Get_Count() && Set_Progress((double)n, 0.5 * SG_Get_Square(pPoints->Get_Count() / nSkip)); i+=nSkip)
