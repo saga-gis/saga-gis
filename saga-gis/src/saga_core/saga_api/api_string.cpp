@@ -1434,14 +1434,32 @@ CSG_String SG_HTML_Tag_Replacer(const CSG_String &Text)
 	for(int i=0, n; !Tags[i][0].is_Empty(); i++)
 	{
 		_Text.Replace("<"  + Tags[i][0] + ">", Tags[i][1]);
-		_Text.Replace("</" + Tags[i][0] + ">", Tags[i][2]);
 
 		while( (n = _Text.Find("<" + Tags[i][0])) >= 0 )
 		{
 			CSG_String Left(_Text.Left(n)), Right(_Text.Right(_Text.Length() - (n + 1 + Tags[i][0].Length())));
 
+			if( Tags[i][0].Cmp("a") == 0 && (n = Right.BeforeFirst('>').Find("href=\"")) >= 0 )
+			{
+				CSG_String href(Right.Right(Right.Length() - n).BeforeFirst('>').AfterFirst('\"').BeforeFirst('\"'));
+
+				if( !href.is_Empty() && (n = Right.Find("</a>")) >= 0 )
+				{
+					CSG_String text(Right.Left(n).AfterFirst('>'));
+
+					if( !text.is_Empty() )
+					{
+						_Text = Left + "[" + text + "](" + href + ")" + Right.Right(Right.Length() - n);
+
+						continue;
+					}
+				}
+			}
+
 			_Text = Left + Tags[i][1] + Right.AfterFirst('>');
 		}
+
+		_Text.Replace("</" + Tags[i][0] + ">", Tags[i][2]);
 	}
 
 	return( _Text );
