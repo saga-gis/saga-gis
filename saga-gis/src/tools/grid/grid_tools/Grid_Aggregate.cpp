@@ -122,7 +122,7 @@ bool CGrid_Aggregate::On_Execute(void)
 		Parameters("OUTPUT")->Set_Value(pOutput = SG_Create_Grid());
 	}
 
-	pOutput->Create(System, Method == 3 || Method == 5 ? pGrid->Get_Type() : SG_DATATYPE_Undefined);
+	pOutput->Create(System, pGrid->Get_Scaling() == 1. && (Method == 3 || Method == 5) ? pGrid->Get_Type() : SG_DATATYPE_Undefined);
 	pOutput->Set_Name(pGrid->Get_Name());
 
 	//-----------------------------------------------------
@@ -135,7 +135,7 @@ bool CGrid_Aggregate::On_Execute(void)
 		{
 			if( Method == 5 )	// Mode
 			{
-				CSG_Unique_Number_Statistics	s;
+				CSG_Unique_Number_Statistics s;
 
 				for(int iy=yy; iy<yy+Size; iy++)
 				{
@@ -143,12 +143,12 @@ bool CGrid_Aggregate::On_Execute(void)
 					{
 						if( pGrid->is_InGrid(ix, iy) )
 						{
-							s	+= pGrid->asDouble(ix, iy);
+							s += pGrid->asDouble(ix, iy);
 						}
 					}
 				}
 
-				double	Value;
+				double Value;
 
 				if( s.Get_Majority(Value) == false )
 				{
@@ -163,7 +163,7 @@ bool CGrid_Aggregate::On_Execute(void)
 			//---------------------------------------------
 			else
 			{
-				CSG_Simple_Statistics	s(Method == 3);
+				CSG_Simple_Statistics s(Method == 3);
 
 				for(int iy=yy; iy<yy+Size; iy++)
 				{
@@ -171,7 +171,7 @@ bool CGrid_Aggregate::On_Execute(void)
 					{
 						if( pGrid->is_InGrid(ix, iy) )
 						{
-							s	+= pGrid->asDouble(ix, iy);
+							s += pGrid->asDouble(ix, iy);
 						}
 					}
 				}
