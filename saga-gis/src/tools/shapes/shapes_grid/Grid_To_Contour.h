@@ -88,9 +88,9 @@ protected:
 
 private:
 
-	CSG_Grid				*m_pGrid, m_Edge;
+	double					m_zMin, m_zMax;
 
-	CSG_Shapes				*m_pContours;
+	CSG_Grid				*m_pGrid, m_Edge;
 
 
 	bool					is_Edge					(int x, int y);
@@ -100,8 +100,8 @@ private:
 	void					Set_Col					(int x, int y, bool bOn);
 	bool					Get_Col					(int x, int y);
 
-	bool					Get_Contour				(double z              , bool bPart, double minLength);
-	bool					Get_Contour				(double z, int x, int y, bool bPart, double minLength);
+	bool					Get_Contour				(CSG_Shapes     *pContours, double z, double minLength);
+	bool					Get_Contour				(CSG_Shape_Line *pContour , double z, int x, int y);
 	bool					Get_Contour_Cell		(int &Dir, int &x, int &y, bool &bRow);
 
 	bool					Get_Polygons			(CSG_Shapes *pPolygons, CSG_Shape_Line *pContour_Lo, CSG_Shape_Line *pContour_Hi);
@@ -110,6 +110,7 @@ private:
 	bool					Add_Segment				(CSG_Shape *pPolygon, int iPart, CSG_Shape *pContour, bool bAscending);
 	CSG_Shape *				Get_Segment				(const CSG_Shapes &Segments, int &x, int &y, bool &bAscending);
 
+	bool					Split_Line_Parts		(CSG_Shapes *pLines);
 	bool					Split_Polygon_Parts		(CSG_Shapes *pPolygons);
 
 };
