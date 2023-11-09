@@ -691,9 +691,11 @@ void CVIEW_Map_Control::On_Mouse_LDown(wxMouseEvent &event)
 	case MAP_MODE_SELECT:
 		if( _Check_Interactive() )
 		{
+			bCaptureMouse = false;
+
 			m_Drag_Mode   = ((CSG_Tool_Interactive *)g_pTool->Get_Tool())->Get_Drag_Mode();
 
-			bCaptureMouse = !g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_LDOWN, GET_KEYS(event));
+			g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_LDOWN, GET_KEYS(event));
 		}
 		else if( m_pMap->Get_Map_Layer_Active(false) )
 		{
@@ -743,8 +745,6 @@ void CVIEW_Map_Control::On_Mouse_LDown(wxMouseEvent &event)
 	{
 		CaptureMouse();
 	}
-
-	event.Skip();
 }
 
 //---------------------------------------------------------
