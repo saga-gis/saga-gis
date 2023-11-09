@@ -293,7 +293,7 @@ bool CGrid_Terrain_Map::Generate_Morphology()
 	//-----------------------------------------------------
 	if( pOpenness == NULL )
 	{
-		pOpenness = new CSG_Grid(Get_System(), SG_DATATYPE_Float);
+		pOpenness = SG_Create_Grid(Get_System(), SG_DATATYPE_Float);
 		Parameters("OPENNESS")->Set_Value(pOpenness);
 		DataObject_Add(pOpenness);
 	}
@@ -383,9 +383,9 @@ bool CGrid_Terrain_Map::Generate_Contours()
 	//-----------------------------------------------------
 	CSG_Parameters	Parms;
 
-	if( DataObject_Get_Parameters(pContours, Parms) && Parms("UNISYMBOL_COLOR") && Parms("DISPLAY_TRANSPARENCY") )
+	if( DataObject_Get_Parameters(pContours, Parms) && Parms("SINGLE_COLOR") && Parms("DISPLAY_TRANSPARENCY") )
 	{
-		Parms("UNISYMBOL_COLOR")->Set_Value(0);
+		Parms("SINGLE_COLOR")->Set_Value(0);
 		Parms("DISPLAY_TRANSPARENCY")->Set_Value(70);
 
 		DataObject_Set_Parameters(pContours, Parms);
