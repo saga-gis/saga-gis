@@ -476,9 +476,11 @@ bool CPC_Cut_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Intera
 {
 	switch( Mode )
 	{
+	default:
+		break;
+
 	//-----------------------------------------------------
 	case TOOL_INTERACTIVE_LDOWN:
-
 		if( m_bAOIBox )
 		{
 			m_ptDown = ptWorld;
@@ -498,12 +500,10 @@ bool CPC_Cut_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Intera
 
 			DataObject_Update(m_pAOI, SG_UI_DATAOBJECT_SHOW_MAP_ACTIVE);
 		}
-
-		return( true );
+		break;
 
 	//-----------------------------------------------------
 	case TOOL_INTERACTIVE_LUP:
-
 		if( m_bAOIBox )
 		{
 			CSG_Rect r(m_ptDown.x, m_ptDown.y, ptWorld.x, ptWorld.y);
@@ -539,12 +539,10 @@ bool CPC_Cut_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Intera
 
 			return( true );
 		}
-
-		return( false );
+		break;
 
 	//-----------------------------------------------------
 	case TOOL_INTERACTIVE_RDOWN:
-
 		if( !m_bAOIBox )
 		{
 			m_bAdd = false;
@@ -553,8 +551,7 @@ bool CPC_Cut_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Intera
 
 			return( true );
 		}
-
-		return( false );
+		break;
 	}
 
 	return( false );

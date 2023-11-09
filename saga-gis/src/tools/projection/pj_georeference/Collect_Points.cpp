@@ -193,10 +193,12 @@ bool CCollect_Points::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactiv
 			}
 
 			DataObject_Update(m_pPoints);
+
+			return( true );
 		}
 	}
 
-	return( true );
+	return( false );
 }
 
 //---------------------------------------------------------

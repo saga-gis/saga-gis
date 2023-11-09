@@ -231,13 +231,15 @@ bool CShapes_Cut_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_In
 				{
 					Message_Add(_TL("No shapes in region"));
 				}
+
+				return( true );
 			}
 		}
 		break;
 	}
 
 	//-----------------------------------------------------
-	return( true );
+	return( false );
 }
 
 

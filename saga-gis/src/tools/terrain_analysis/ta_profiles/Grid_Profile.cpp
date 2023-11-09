@@ -208,12 +208,11 @@ bool CGrid_Profile::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_
 		break;
 
 	case TOOL_INTERACTIVE_RDOWN:
-		Set_Profile();
 		m_bAdd = false;
-		break;
+		return( Set_Profile() );
 	}
 
-	return( true );
+	return( false );
 }
 
 

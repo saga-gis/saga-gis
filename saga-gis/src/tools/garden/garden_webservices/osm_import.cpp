@@ -134,6 +134,8 @@ bool COSM_Import::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mo
 {
 	switch( Mode )
 	{
+	default: return( false );
+
 	//-----------------------------------------------------
 	case TOOL_INTERACTIVE_LDOWN:
 		if( m_bDown == false )

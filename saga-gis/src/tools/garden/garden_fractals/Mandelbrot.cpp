@@ -155,8 +155,7 @@ bool CMandelbrot::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mo
 	case TOOL_INTERACTIVE_LDOWN:
 	case TOOL_INTERACTIVE_RDOWN:
 		GET_POS(m_Down);
-
-		return( true );
+		break;
 
 	case TOOL_INTERACTIVE_LUP:
 		GET_POS(m_Up);

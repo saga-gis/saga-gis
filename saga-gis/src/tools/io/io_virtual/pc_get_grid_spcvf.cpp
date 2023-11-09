@@ -853,15 +853,13 @@ bool CPointCloud_Get_Grid_SPCVF_Interactive::On_Execute_Position(CSG_Point ptWor
 {
 	switch( Mode )
 	{
-  default:
-    break;
+	default:
+		break;
 
 	//-----------------------------------------------------
 	case TOOL_INTERACTIVE_LDOWN:
-
 		m_ptDown	= ptWorld;
-
-		return( true );
+		break;
 
 	//-----------------------------------------------------
 	case TOOL_INTERACTIVE_LUP:

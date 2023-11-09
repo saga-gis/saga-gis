@@ -158,12 +158,11 @@ bool CGrid_Interpolate_Value_Along_Line::On_Execute_Position(CSG_Point ptWorld, 
 		break;
 
 	case TOOL_INTERACTIVE_RDOWN:
-		Set_Line();
 		m_bAdd	= false;
-		break;
+		return( Set_Line() );
 	}
 
-	return( true );
+	return( false );
 }
 
 

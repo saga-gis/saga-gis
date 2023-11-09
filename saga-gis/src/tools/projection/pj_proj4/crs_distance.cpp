@@ -504,10 +504,12 @@ bool CCRS_Distance_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_
 			Distance.Execute();
 
 			DataObject_Update(Parameters("DISTANCES")->asShapes());
+
+			return( true );
 		}
 	}
 
-	return( true );
+	return( false );
 }
 
 

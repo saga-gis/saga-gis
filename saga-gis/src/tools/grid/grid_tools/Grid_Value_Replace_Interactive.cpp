@@ -119,6 +119,9 @@ bool CGrid_Value_Replace_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG
 {
 	switch( Mode )
 	{
+	default:
+		break;
+
 	//-----------------------------------------------------
 	case TOOL_INTERACTIVE_LDOWN:
 	case TOOL_INTERACTIVE_MOVE_LDOWN:
@@ -151,18 +154,16 @@ bool CGrid_Value_Replace_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG
 				}
 			}
 		}
-		return( true );
 
-	case TOOL_INTERACTIVE_LUP:
-		{
-			DataObject_Update(m_pGrid, SG_UI_DATAOBJECT_UPDATE);
-		}
 		return( true );
 
 	//-----------------------------------------------------
-	default:
-		return( true );
+	case TOOL_INTERACTIVE_LUP:
+		DataObject_Update(m_pGrid, SG_UI_DATAOBJECT_UPDATE);
+		break;
 	}
+
+	return( false );
 }
 
 //---------------------------------------------------------

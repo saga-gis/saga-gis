@@ -146,6 +146,9 @@ bool CSelect_Points::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive
 {
 	switch( Mode )
 	{
+	default:
+		break;
+
 	case TOOL_INTERACTIVE_LUP:
 		m_pSelection->Del_Records();
 
@@ -172,13 +175,10 @@ bool CSelect_Points::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive
 
 		DataObject_Update(m_pSelection);
 
-		break;
-
-	default:
-		break;
+		return( true );
 	}
 
-	return( true );
+	return( false );
 }
 
 

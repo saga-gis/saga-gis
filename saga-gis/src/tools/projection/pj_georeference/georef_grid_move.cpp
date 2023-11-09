@@ -185,10 +185,12 @@ bool CGeoref_Grid_Move::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interact
 			}
 
 			DataObject_Update(m_pGrid);
+
+			return( true );
 		}
 	}
 
-	return( true );
+	return( false );
 }
 
 //---------------------------------------------------------

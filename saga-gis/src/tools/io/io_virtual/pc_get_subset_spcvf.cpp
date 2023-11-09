@@ -980,15 +980,13 @@ bool CPointCloud_Get_Subset_SPCVF_Interactive::On_Execute_Position(CSG_Point ptW
 {
 	switch( Mode )
 	{
-  default:
-    break;
+	default:
+		break;
 
 	//-----------------------------------------------------
 	case TOOL_INTERACTIVE_LDOWN:
-
 		m_ptDown	= ptWorld;
-
-		return( true );
+		break;
 
 	//-----------------------------------------------------
 	case TOOL_INTERACTIVE_LUP:
