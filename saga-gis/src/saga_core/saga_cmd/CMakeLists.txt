@@ -33,5 +33,12 @@ endif()
 # add man page
 add_subdirectory(man)
 
+# Set the RPATH to include the library directory
+set_target_properties(saga_cmd PROPERTIES
+	BUILD_WITH_INSTALL_RPATH TRUE
+	INSTALL_RPATH_USE_LINK_PATH TRUE
+	INSTALL_RPATH "${CMAKE_INSTALL_FULL_LIBDIR}"
+)
+
 # where to install the binary
 install(TARGETS saga_cmd DESTINATION bin)
