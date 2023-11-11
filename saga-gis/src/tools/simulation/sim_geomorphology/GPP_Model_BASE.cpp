@@ -1137,7 +1137,7 @@ void CGPP_Model_BASE::Run_GPP_Model(std::vector<class CGPP_Model_Particle> *pvPr
 						dFluxMaterial = Particle.Get_Material();
 					}
 
-					m_pMaterialFlux->Add_Value(Particle.Get_X(), Particle.Get_Y(), dFluxMaterial);
+					m_pMaterialFlux->Add_Value(Particle.Get_X(), Particle.Get_Y(), dFluxMaterial * m_pDEM->Get_Cellsize());
 				}
 
 				if( !bContinue )
@@ -1778,7 +1778,7 @@ bool CGPP_Model_BASE::Update_Speed(CGPP_Model_Particle *pParticle, CGPP_Model_Pa
 					dFluxMaterial = pParticle->Get_Material();
 				}
 
-				m_pMaterialFlux->Add_Value(pParticle->Get_X(), pParticle->Get_Y(), dFluxMaterial);
+				m_pMaterialFlux->Add_Value(pParticle->Get_X(), pParticle->Get_Y(), dFluxMaterial * m_pDEM->Get_Cellsize());
 			}
 
 			Deposit_Material_On_Stop(pParticle);
