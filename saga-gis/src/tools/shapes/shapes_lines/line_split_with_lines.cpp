@@ -292,11 +292,14 @@ bool CLine_Split_at_Points::On_Execute(void)
 	//--------------------------------------------------------
 	pIntersect->Create(SHAPE_TYPE_Line,
 		CSG_String::Format("%s [%s: %s]", pLines->Get_Name(), _TL("Split"), pPoints->Get_Name()),
-		pLines
+		pLines, pLines->Get_Vertex_Type()
 	);
 
 	double	Epsilon			= Parameters("EPSILON")->asDouble();
 	double  Min_Vertex_Dist	= Parameters("MIN_VERTEX_DIST")->asDouble();
+
+	bool	HasZ			= pLines->Get_Vertex_Type() != SG_VERTEX_TYPE_XY;
+	bool	HasM			= pLines->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM;
 
 	//--------------------------------------------------------
 	for(sLong iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
@@ -316,6 +319,20 @@ bool CLine_Split_at_Points::On_Execute(void)
 			for(int iPoint=0; iPoint<pPart->Get_Count(); iPoint++)
 			{
 				part.p.push_back(pPart->Get_Point(iPoint));
+
+				if( HasZ )
+				{
+					P_ZM zm;
+
+					zm.z = pPart->Get_Z(iPoint);
+
+					if( HasM )
+					{
+						zm.m = pLine->Get_M(iPoint);
+					}
+
+					part.zm.push_back(zm);
+				}
 			}
 
 			Line_Parts.push_back(part);
@@ -327,7 +344,7 @@ bool CLine_Split_at_Points::On_Execute(void)
 
 			if( Extent.Contains(Point) )
 			{
-				Get_Intersection(Line_Parts, Point, Epsilon, Min_Vertex_Dist);
+				Get_Intersection(Line_Parts, Point, HasZ, HasM, Epsilon, Min_Vertex_Dist);
 			}
 		}
 
@@ -337,9 +354,19 @@ bool CLine_Split_at_Points::On_Execute(void)
 			{
 				CSG_Shape_Line	*pLineOut	= (CSG_Shape_Line *)pIntersect->Add_Shape(pLines->Get_Shape(iLine), SHAPE_COPY_ATTR);
 
-				for(size_t iPoint=0; iPoint<Line_Parts[iPart].p.size(); iPoint++)
+				for(int iPoint=0; iPoint<(int)Line_Parts[iPart].p.size(); iPoint++)
 				{
 					pLineOut->Add_Point(Line_Parts[iPart].p[iPoint]);
+
+					if( HasZ )
+					{
+						pLineOut->Set_Z(Line_Parts[iPart].zm[iPoint].z, iPoint);
+
+						if( HasM )
+						{
+							pLineOut->Set_M(Line_Parts[iPart].zm[iPoint].m, iPoint);
+						}
+					}
 				}
 			}
 		}
@@ -352,6 +379,16 @@ bool CLine_Split_at_Points::On_Execute(void)
 				for(size_t iPoint=0; iPoint<Line_Parts[iPart].p.size(); iPoint++)
 				{
 					pLineOut->Add_Point(Line_Parts[iPart].p[iPoint], iPart);
+
+					if( HasZ )
+					{
+						pLineOut->Set_Z(Line_Parts[iPart].zm[iPoint].z, pLineOut->Get_Point_Count(iPart) - 1, iPart);
+
+						if( HasM )
+						{
+							pLineOut->Set_M(Line_Parts[iPart].zm[iPoint].m, pLineOut->Get_Point_Count(iPart) - 1, iPart);
+						}
+					}
 				}
 			}
 		}
@@ -366,17 +403,25 @@ bool CLine_Split_at_Points::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CLine_Split_at_Points::Get_Intersection(std::vector<L_PART> &Line_Parts, TSG_Point Point, double Epsilon, double Min_Vertex_Dist)
+bool CLine_Split_at_Points::Get_Intersection(std::vector<L_PART> &Line_Parts, TSG_Point Point, bool HasZ, bool HasM, double Epsilon, double Min_Vertex_Dist)
 {
 	for(size_t iPart=0; iPart<Line_Parts.size(); iPart++)
 	{
-		TSG_Point	min_C, C, B, A	= Line_Parts[iPart].p[0];
+		TSG_Point	min_C, C, A, B	= Line_Parts[iPart].p[0];
+
+		double Bz, Bm, Az, Am, Cz, Cm, dLine, dShift;
+
+		if( HasZ )	{ Bz = Line_Parts[iPart].zm[0].z; }
+		if( HasM )	{ Bm = Line_Parts[iPart].zm[0].m; }
 
 		int min_iPoint = 0; double min_Dist = 1. + Epsilon;
 
 		for(int iPoint=1; iPoint<(int)Line_Parts[iPart].p.size(); iPoint++)
 		{
-			B = A; A = Line_Parts[iPart].p[iPoint];
+			A = B; B = Line_Parts[iPart].p[iPoint];
+
+			if( HasZ )	{ Az = Bz; Bz = Line_Parts[iPart].zm[iPoint].z;		dLine = SG_Get_Distance(A, B); }
+			if( HasM )	{ Am = Bm; Bm = Line_Parts[iPart].zm[iPoint].m; }
 
 			double	Dist	= SG_Get_Nearest_Point_On_Line(Point, A, B, C, true);
 
@@ -384,7 +429,7 @@ bool CLine_Split_at_Points::Get_Intersection(std::vector<L_PART> &Line_Parts, TS
 			{
 				if( Min_Vertex_Dist > 0. )
 				{
-					if( SG_Get_Distance(Point, A) < Min_Vertex_Dist || SG_Get_Distance(Point, B) < Min_Vertex_Dist )
+					if( SG_Get_Distance(Point, B) < Min_Vertex_Dist || SG_Get_Distance(Point, A) < Min_Vertex_Dist )
 					{
 						continue;
 					}
@@ -393,23 +438,51 @@ bool CLine_Split_at_Points::Get_Intersection(std::vector<L_PART> &Line_Parts, TS
 				min_Dist	= Dist;
 				min_iPoint	= iPoint;
 				min_C		= C;
+
+				if( HasZ )
+				{
+					dShift	= SG_Get_Distance(A, C);
+					Cz		= Az + dShift * (Bz - Az) / dLine;
+					
+					if( HasM )
+					{
+						Cm	= Am + dShift * (Bm - Am) / dLine;
+					}
+				}
 			}
 		}
 
 		if( min_Dist <= Epsilon )
 		{
 			L_PART	part;
+			P_ZM	zm;
 			
 			part.p.push_back(min_C);
+
+			if( HasZ )
+			{
+				zm.z = Cz;
+
+				if( HasM )	{ zm.m = Cm; }
+
+				part.zm.push_back(zm);
+			}
 
 			for(size_t iPoint=min_iPoint; iPoint<Line_Parts[iPart].p.size(); iPoint++)
 			{
 				part.p.push_back(Line_Parts[iPart].p[iPoint]);
+
+				if( HasZ )	{ part.zm.push_back(Line_Parts[iPart].zm[iPoint]); }
 			}
 
 			Line_Parts[iPart].p.erase(Line_Parts[iPart].p.begin() + min_iPoint, Line_Parts[iPart].p.end());
-
 			Line_Parts[iPart].p.push_back(min_C);
+			
+			if( HasZ )
+			{
+				Line_Parts[iPart].zm.erase(Line_Parts[iPart].zm.begin() + min_iPoint, Line_Parts[iPart].zm.end());
+				Line_Parts[iPart].zm.push_back(zm);
+			}
 
 			iPart++;
 

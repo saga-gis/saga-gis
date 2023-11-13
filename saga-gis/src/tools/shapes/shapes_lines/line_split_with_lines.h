@@ -104,12 +104,17 @@ protected:
 
 private:
 
-	//---------------------------------------------------------
+	typedef struct	{
+		double	z { 0. };
+		double	m { 0. };
+	}P_ZM;
+
 	typedef struct	{
 		std::vector<TSG_Point>	p;
+		std::vector<P_ZM>		zm;
 	}L_PART;
 
-	bool					Get_Intersection	(std::vector<L_PART> &Line_Parts, TSG_Point Point, double Epsilon, double Min_Vertex_Dist);
+	bool					Get_Intersection	(std::vector<L_PART> &Line_Parts, TSG_Point Point, bool HasZ, bool HasM, double Epsilon, double Min_Vertex_Dist);
 
 };
 
