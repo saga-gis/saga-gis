@@ -503,7 +503,7 @@ size_t CSG_KDTree_2D::Get_Nearest_Points(double Coordinate[2], size_t Count, dou
 }
 
 //---------------------------------------------------------
-size_t CSG_KDTree_2D::Get_Nearest_Points(double Coordinate[2], size_t Count, double Radius, CSG_Array_Int &Indices, CSG_Vector &Distances)
+size_t CSG_KDTree_2D::Get_Nearest_Points(double Coordinate[2], size_t Count, double Radius, CSG_Array_sLong &Indices, CSG_Vector &Distances)
 {
 	if( Radius > 0. )
 	{
@@ -606,7 +606,7 @@ CSG_Shape * CSG_KDTree_2D::Get_Nearest_Shape(double Coordinate[2])
 }
 
 //---------------------------------------------------------
-size_t      CSG_KDTree_2D::Get_Duplicates(double Coordinate[2], CSG_Array_Int &Indices, CSG_Vector &Distances)
+size_t      CSG_KDTree_2D::Get_Duplicates(double Coordinate[2], CSG_Array_sLong &Indices, CSG_Vector &Distances)
 {
 	nanoflann::SearchParams SearchParams;
 
@@ -648,7 +648,7 @@ size_t      CSG_KDTree_2D::Get_Nearest_Points(double x, double y, size_t Count, 
 	double c[2]; c[0] = x; c[1] = y; return( Get_Nearest_Points(c, Count, Radius) );
 }
 
-size_t      CSG_KDTree_2D::Get_Nearest_Points(double x, double y, size_t Count, double Radius, CSG_Array_Int &Indices, CSG_Vector &Distances)
+size_t      CSG_KDTree_2D::Get_Nearest_Points(double x, double y, size_t Count, double Radius, CSG_Array_sLong &Indices, CSG_Vector &Distances)
 {
 	double c[2]; c[0] = x; c[1] = y; return( Get_Nearest_Points(c, Count, Radius, Indices, Distances) );
 }
@@ -678,7 +678,7 @@ CSG_Shape * CSG_KDTree_2D::Get_Nearest_Shape(double x, double y)
 	double c[2]; c[0] = x; c[1] = y; return( Get_Nearest_Shape(c) );
 }
 
-size_t      CSG_KDTree_2D::Get_Duplicates(double x, double y, CSG_Array_Int &Indices, CSG_Vector &Distances)
+size_t      CSG_KDTree_2D::Get_Duplicates(double x, double y, CSG_Array_sLong &Indices, CSG_Vector &Distances)
 {
 	double c[2]; c[0] = x; c[1] = y; return( Get_Duplicates(c, Indices, Distances) );
 }
@@ -884,7 +884,7 @@ size_t CSG_KDTree_3D::Get_Nearest_Points(double Coordinate[3], size_t Count, dou
 }
 
 //---------------------------------------------------------
-size_t CSG_KDTree_3D::Get_Nearest_Points(double Coordinate[3], size_t Count, double Radius, CSG_Array_Int &Indices, CSG_Vector &Distances)
+size_t CSG_KDTree_3D::Get_Nearest_Points(double Coordinate[3], size_t Count, double Radius, CSG_Array_sLong &Indices, CSG_Vector &Distances)
 {
 	if( Radius > 0. )
 	{
@@ -987,7 +987,7 @@ CSG_Shape * CSG_KDTree_3D::Get_Nearest_Shape(double Coordinate[3])
 }
 
 //---------------------------------------------------------
-size_t      CSG_KDTree_3D::Get_Duplicates(double Coordinate[3], CSG_Array_Int &Indices, CSG_Vector &Distances)
+size_t      CSG_KDTree_3D::Get_Duplicates(double Coordinate[3], CSG_Array_sLong &Indices, CSG_Vector &Distances)
 {
 	nanoflann::SearchParams SearchParams;
 
@@ -1029,7 +1029,7 @@ size_t      CSG_KDTree_3D::Get_Nearest_Points(double x, double y, double z, size
 	double c[3]; c[0] = x; c[1] = y; c[2] = z; return( Get_Nearest_Points(c, Count, Radius) );
 }
 
-size_t      CSG_KDTree_3D::Get_Nearest_Points(double x, double y, double z, size_t Count, double Radius, CSG_Array_Int &Indices, CSG_Vector &Distances)
+size_t      CSG_KDTree_3D::Get_Nearest_Points(double x, double y, double z, size_t Count, double Radius, CSG_Array_sLong &Indices, CSG_Vector &Distances)
 {
 	double c[3]; c[0] = x; c[1] = y; c[2] = z; return( Get_Nearest_Points(c, Count, Radius, Indices, Distances) );
 }
@@ -1059,7 +1059,7 @@ CSG_Shape * CSG_KDTree_3D::Get_Nearest_Shape(double x, double y, double z)
 	double c[3]; c[0] = x; c[1] = y; c[2] = z; return( Get_Nearest_Shape(c) );
 }
 
-size_t      CSG_KDTree_3D::Get_Duplicates(double x, double y, double z, CSG_Array_Int &Indices, CSG_Vector &Distances)
+size_t      CSG_KDTree_3D::Get_Duplicates(double x, double y, double z, CSG_Array_sLong &Indices, CSG_Vector &Distances)
 {
 	double c[3]; c[0] = x; c[1] = y; c[2] = z; return( Get_Duplicates(c, Indices, Distances) );
 }
@@ -1358,7 +1358,7 @@ bool CSG_Parameters_Point_Search_KDTree_2D::Get_Point(sLong Index, double &x, do
 //---------------------------------------------------------
 bool CSG_Parameters_Point_Search_KDTree_2D::Get_Points(double x, double y, CSG_Points_3D &Points)
 {
-	CSG_Array_Int Index; if( Get_Points(x, y, Index) )
+	CSG_Array_sLong Index; if( Get_Points(x, y, Index) )
 	{
 		Points.Clear();
 
@@ -1399,7 +1399,7 @@ bool CSG_Parameters_Point_Search_KDTree_2D::Get_Points(const CSG_Point &p, CSG_P
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Parameters_Point_Search_KDTree_2D::Get_Points(double x, double y, CSG_Array_Int &Indices)
+bool CSG_Parameters_Point_Search_KDTree_2D::Get_Points(double x, double y, CSG_Array_sLong &Indices)
 {
 	if( m_pPoints ) // without search engine
 	{
@@ -1414,13 +1414,13 @@ bool CSG_Parameters_Point_Search_KDTree_2D::Get_Points(double x, double y, CSG_A
 }
 
 //---------------------------------------------------------
-bool CSG_Parameters_Point_Search_KDTree_2D::Get_Points(const CSG_Point &p, CSG_Array_Int &Indices)
+bool CSG_Parameters_Point_Search_KDTree_2D::Get_Points(const CSG_Point &p, CSG_Array_sLong &Indices)
 {
 	return( Get_Points(p.x, p.y, Indices) );
 }
 
 //---------------------------------------------------------
-bool CSG_Parameters_Point_Search_KDTree_2D::Get_Points(double x, double y, CSG_Array_Int &Indices, CSG_Vector &Distances)
+bool CSG_Parameters_Point_Search_KDTree_2D::Get_Points(double x, double y, CSG_Array_sLong &Indices, CSG_Vector &Distances)
 {
 	if( m_pPoints ) // without search engine
 	{
@@ -1433,7 +1433,7 @@ bool CSG_Parameters_Point_Search_KDTree_2D::Get_Points(double x, double y, CSG_A
 }
 
 //---------------------------------------------------------
-bool CSG_Parameters_Point_Search_KDTree_2D::Get_Points(const CSG_Point &p, CSG_Array_Int &Indices, CSG_Vector &Distances)
+bool CSG_Parameters_Point_Search_KDTree_2D::Get_Points(const CSG_Point &p, CSG_Array_sLong &Indices, CSG_Vector &Distances)
 {
 	return( Get_Points(p.x, p.y, Indices, Distances) );
 }

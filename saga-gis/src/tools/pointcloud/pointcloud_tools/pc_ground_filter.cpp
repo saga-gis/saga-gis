@@ -205,7 +205,7 @@ bool CGround_Filter::On_Execute(void)
 		#pragma omp parallel for
 		for(sLong iPoint=iPstart; iPoint<iPend; iPoint++)
 		{
-			CSG_Array_Int Indices; CSG_Vector Distances;
+			CSG_Array_sLong Indices; CSG_Vector Distances;
 
 			Search.Get_Nearest_Points(pPC_in->Get_X(iPoint), pPC_in->Get_Y(iPoint), 0, dRadius, Indices, Distances);
 

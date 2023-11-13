@@ -481,7 +481,7 @@ bool CKriging3D_Base::Get_Points(double x, double y, double z, CSG_Matrix &Point
 {
 	if( m_Search.is_Okay() )
 	{
-		CSG_Array_Int	Index;	CSG_Vector	Distance;
+		CSG_Array_sLong	Index;	CSG_Vector	Distance;
 
 		m_Search.Get_Nearest_Points(x, y, z, m_Search_Options.Get_Max_Points(), m_Search_Options.Get_Radius(), Index, Distance);
 

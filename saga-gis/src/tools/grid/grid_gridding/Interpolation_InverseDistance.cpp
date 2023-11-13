@@ -151,7 +151,7 @@ bool CInterpolation_InverseDistance::Get_Value(double x, double y, double &Value
 	//-----------------------------------------------------
 	if( m_Search.is_Okay() )	// local
 	{
-		CSG_Array_Int Index; CSG_Vector Distance;
+		CSG_Array_sLong Index; CSG_Vector Distance;
 
 		if( m_Search.Get_Nearest_Points(x, y,
 			m_Search_Options.Get_Max_Points(),

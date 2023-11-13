@@ -1244,7 +1244,7 @@ protected:
 
 	void						*m_pKDTree;
 
-	CSG_Array_Int				m_Indices;
+	CSG_Array_sLong				m_Indices;
 
 	CSG_Vector					m_Distances;
 
@@ -1284,23 +1284,23 @@ public:
 	virtual double				Get_Point_Value		(size_t i)	const	{	return( m_Points[i][2] );	}
 
 	virtual size_t				Get_Nearest_Points	(double Coordinate[2], size_t Count, double Radius);
-	virtual size_t				Get_Nearest_Points	(double Coordinate[2], size_t Count, double Radius, CSG_Array_Int &Indices, CSG_Vector &Distances);
+	virtual size_t				Get_Nearest_Points	(double Coordinate[2], size_t Count, double Radius, CSG_Array_sLong &Indices, CSG_Vector &Distances);
 	virtual size_t				Get_Nearest_Points	(double Coordinate[2], size_t Count, size_t *Indices, double *Distances);
 	virtual bool				Get_Nearest_Point	(double Coordinate[2], size_t &Index, double &Distance);
 	virtual bool				Get_Nearest_Point	(double Coordinate[2], size_t &Index);
 	virtual bool				Get_Nearest_Value	(double Coordinate[2], double &Value);
 	virtual CSG_Shape *			Get_Nearest_Shape	(double Coordinate[2]);
-	virtual size_t				Get_Duplicates		(double Coordinate[2], CSG_Array_Int &Indices, CSG_Vector &Distances);
+	virtual size_t				Get_Duplicates		(double Coordinate[2], CSG_Array_sLong &Indices, CSG_Vector &Distances);
 	virtual size_t				Get_Duplicates		(double Coordinate[2]);
 
 	virtual size_t				Get_Nearest_Points	(double x, double y, size_t Count, double Radius);
-	virtual size_t				Get_Nearest_Points	(double x, double y, size_t Count, double Radius, CSG_Array_Int &Indices, CSG_Vector &Distances);
+	virtual size_t				Get_Nearest_Points	(double x, double y, size_t Count, double Radius, CSG_Array_sLong &Indices, CSG_Vector &Distances);
 	virtual size_t				Get_Nearest_Points	(double x, double y, size_t Count, size_t *Indices, double *Distances);
 	virtual bool				Get_Nearest_Point	(double x, double y, size_t &Index, double &Distance);
 	virtual bool				Get_Nearest_Point	(double x, double y, size_t &Index);
 	virtual bool				Get_Nearest_Value	(double x, double y, double &Value);
 	virtual CSG_Shape *			Get_Nearest_Shape	(double x, double y);
-	virtual size_t				Get_Duplicates		(double x, double y, CSG_Array_Int &Indices, CSG_Vector &Distances);
+	virtual size_t				Get_Duplicates		(double x, double y, CSG_Array_sLong &Indices, CSG_Vector &Distances);
 	virtual size_t				Get_Duplicates		(double x, double y);
 
 };
@@ -1336,22 +1336,22 @@ public:
 	virtual size_t				Get_Nearest_Points	(double Coordinate[3], size_t Count, double Radius);
 
 	virtual size_t				Get_Nearest_Points	(double Coordinate[3], size_t Count, size_t *Indices, double *Distances);
-	virtual size_t				Get_Nearest_Points	(double Coordinate[3], size_t Count, double Radius, CSG_Array_Int &Indices, CSG_Vector &Distances);
+	virtual size_t				Get_Nearest_Points	(double Coordinate[3], size_t Count, double Radius, CSG_Array_sLong &Indices, CSG_Vector &Distances);
 	virtual bool				Get_Nearest_Point	(double Coordinate[3], size_t &Index, double &Distance);
 	virtual bool				Get_Nearest_Point	(double Coordinate[3], size_t &Index);
 	virtual bool				Get_Nearest_Value	(double Coordinate[3], double &Value);
 	virtual CSG_Shape *			Get_Nearest_Shape	(double Coordinate[3]);
-	virtual size_t				Get_Duplicates		(double Coordinate[3], CSG_Array_Int &Indices, CSG_Vector &Distances);
+	virtual size_t				Get_Duplicates		(double Coordinate[3], CSG_Array_sLong &Indices, CSG_Vector &Distances);
 	virtual size_t				Get_Duplicates		(double Coordinate[3]);
 
 	virtual size_t				Get_Nearest_Points	(double x, double y, double z, size_t Count, double Radius);
-	virtual size_t				Get_Nearest_Points	(double x, double y, double z, size_t Count, double Radius, CSG_Array_Int &Indices, CSG_Vector &Distances);
+	virtual size_t				Get_Nearest_Points	(double x, double y, double z, size_t Count, double Radius, CSG_Array_sLong &Indices, CSG_Vector &Distances);
 	virtual size_t				Get_Nearest_Points	(double x, double y, double z, size_t Count, size_t *Indices, double *Distances);
 	virtual bool				Get_Nearest_Point	(double x, double y, double z, size_t &Index, double &Distance);
 	virtual bool				Get_Nearest_Point	(double x, double y, double z, size_t &Index);
 	virtual bool				Get_Nearest_Value	(double x, double y, double z, double &Value);
 	virtual CSG_Shape *			Get_Nearest_Shape	(double x, double y, double z);
-	virtual size_t				Get_Duplicates		(double x, double y, double z, CSG_Array_Int &Indices, CSG_Vector &Distances);
+	virtual size_t				Get_Duplicates		(double x, double y, double z, CSG_Array_sLong &Indices, CSG_Vector &Distances);
 	virtual size_t				Get_Duplicates		(double x, double y, double z);
 
 };
@@ -1413,11 +1413,11 @@ public:
 	bool						Get_Points				(double x, double y, CSG_Points_3D &Points);
 	bool						Get_Points				(const CSG_Point &p, CSG_Points_3D &Points);
 
-	bool						Get_Points				(double x, double y, CSG_Array_Int &Indices);
-	bool						Get_Points				(const CSG_Point &p, CSG_Array_Int &Indices);
+	bool						Get_Points				(double x, double y, CSG_Array_sLong &Indices);
+	bool						Get_Points				(const CSG_Point &p, CSG_Array_sLong &Indices);
 
-	bool						Get_Points				(double x, double y, CSG_Array_Int &Indices, CSG_Vector &Distances);
-	bool						Get_Points				(const CSG_Point &p, CSG_Array_Int &Indices, CSG_Vector &Distances);
+	bool						Get_Points				(double x, double y, CSG_Array_sLong &Indices, CSG_Vector &Distances);
+	bool						Get_Points				(const CSG_Point &p, CSG_Array_sLong &Indices, CSG_Vector &Distances);
 
 
 private:

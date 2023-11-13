@@ -244,7 +244,7 @@ bool CGW_Regression::Get_Model(int x, int y, CSG_Regression_Weighted &Model, boo
 	//-----------------------------------------------------
 	else
 	{
-		CSG_Array_Int Index; CSG_Vector Distance;
+		CSG_Array_sLong Index; CSG_Vector Distance;
 
 		if( !m_Search.Get_Points(Point, Index, Distance) )
 		{

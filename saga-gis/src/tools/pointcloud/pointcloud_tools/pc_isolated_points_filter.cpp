@@ -159,7 +159,7 @@ bool CIsolated_Points_Filter::On_Execute(void)
 				Set_Progress(i * SG_OMP_Get_Max_Num_Threads() / (double)pPoints->Get_Count());
 			}
 
-			CSG_Array_Int Indices; CSG_Vector Distances;
+			CSG_Array_sLong Indices; CSG_Vector Distances;
 
 			Search.Get_Nearest_Points(pPoints->Get_X(i), pPoints->Get_Y(i), pPoints->Get_Z(i), 0, Radius, Indices, Distances);
 
@@ -184,7 +184,7 @@ bool CIsolated_Points_Filter::On_Execute(void)
 				Set_Progress(0.5 * i * SG_OMP_Get_Max_Num_Threads() / (double)nPoints);
 			}
 
-			CSG_Array_Int Indices; CSG_Vector Distances;
+			CSG_Array_sLong Indices; CSG_Vector Distances;
 
 			Search.Get_Nearest_Points(pPoints->Get_X(i), pPoints->Get_Y(i), pPoints->Get_Z(i), 0, Radius, Indices, Distances);
 

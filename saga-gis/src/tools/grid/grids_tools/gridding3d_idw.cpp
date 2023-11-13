@@ -299,7 +299,7 @@ bool CGridding3D_IDW::Finalize(void)
 //---------------------------------------------------------
 bool CGridding3D_IDW::Get_Value(double Coordinate[3], double &Value)
 {
-	CSG_Array_Int Index; CSG_Vector Distance;
+	CSG_Array_sLong Index; CSG_Vector Distance;
 
 	if( m_Search.is_Okay() )
 	{
