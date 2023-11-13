@@ -77,7 +77,7 @@ if(SWIG_FOUND)
 			# check if non-standard installation is performed
 			
 			if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-				set(PYTHON_INSTALL_DIR ${Python_SITEARCH})
+				set(PYTHON_INSTALL_DIR ${Python_SITELIB})
 			else()
 				set(PYTHON_INSTALL_DIR ${CMAKE_INSTALL_PREFIX})
 			endif()
