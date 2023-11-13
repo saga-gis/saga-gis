@@ -156,7 +156,7 @@ bool CCut_Lines::On_Execute(void)
 
 	if( pInsPoints != NULL )
 	{
-		pInsPoints->Create(SHAPE_TYPE_Point, CSG_String::Format("%s_inserted_pts", pInputLines->Get_Name()), pInputLines);
+		pInsPoints->Create(SHAPE_TYPE_Point, CSG_String::Format("%s_inserted_pts", pInputLines->Get_Name()), pInputLines, pInputLines->Get_Vertex_Type());
 	}
 	
 	// Check for projection unit. This tool only works with projected
@@ -167,12 +167,10 @@ bool CCut_Lines::On_Execute(void)
 	//	return false;
 	//}
 
-	// Remove everything. Set the name (input + '_cut_xx' xx=length) and
-	// add the line and segment number and the id-field. Remember the field indexes
-	pOutputLines->Assign(pInputLines);
-	pOutputLines->Del_Shapes();
-	pOutputLines->Set_Name(CSG_String::Format("%s_cut", pInputLines->Get_Name()));
-	//pOutputLines->Set_Name(CSG_String::Format("%s_cut_%d", pInputLines->Get_Name(), (int) Cut_Length ));
+	pOutputLines->Create(SHAPE_TYPE_Line, CSG_String::Format("%s_cut", pInputLines->Get_Name()), pInputLines, pInputLines->Get_Vertex_Type());
+
+	bool	HasZ = pInputLines->Get_Vertex_Type() != SG_VERTEX_TYPE_XY;
+	bool	HasM = pInputLines->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM;
 
 	// Note: The Overhang is one of the crucial parts. This accumulates 
 	// the distance walked since the last point. 
@@ -246,16 +244,31 @@ bool CCut_Lines::On_Execute(void)
 			{
 				// Write the first Point to the new shape
 				CSG_Shape *pSegment = pOutputLines->Add_Shape(pLine, SHAPE_COPY_ATTR);
-				pSegment->Add_Point( pPart->Get_Point(0) ); 
+				TSG_Point A, B = pPart->Get_Point(0);
+				double Bz, Bm, Az, Am;
+
+				pSegment->Add_Point( B ); 
+				if( HasZ )
+				{
+					Bz = pPart->Get_Z(0);
+					pSegment->Set_Z(Bz, pSegment->Get_Point_Count() - 1);
+				}
+				if( HasM )
+				{
+					Bm = pPart->Get_M(0);
+					pSegment->Set_M(Bm, pSegment->Get_Point_Count() - 1);
+				}
 
 				// This loop investigates all segments. A segment is a
 				// line between two points so n-1 operations (k=1)
 				for(int k=1; k<pPart->Get_Count(); k++ )
 				{
 					// Investigate the next segment, get the length and reductor
-					TSG_Point Front = pPart->Get_Point(k-1);
-					TSG_Point Back 	= pPart->Get_Point(k);
-					double Length_Seg 	= SG_Get_Distance( Front, Back );
+					A = B; B = pPart->Get_Point(k);
+					if( HasZ )	{ Az = Bz; Bz = pPart->Get_Z(k); }
+					if( HasM )	{ Am = Bm; Bm = pPart->Get_M(k); }
+
+					double Length_Seg 	= SG_Get_Distance( A, B );
 					double Seg_Reductor = Length_Seg;
 
 					if( Target_Cut_Length <= 0.0 )
@@ -284,29 +297,50 @@ bool CCut_Lines::On_Execute(void)
 
 						// Construct the intermediate point with the angel and the
 						// length.
-						double Construct_Angle 	= SG_Get_Angle_Of_Direction( Front, Back );
+						double Construct_Angle 	= SG_Get_Angle_Of_Direction( A, B );
 						double Construct_Dist 	= Length_Seg - Seg_Reductor; 
 						TSG_Point Intermediate_Point;
-						Intermediate_Point.x = Front.x + ( Construct_Dist * sin(Construct_Angle) );
-						Intermediate_Point.y = Front.y + ( Construct_Dist * cos(Construct_Angle) );
+						double Iz, Im;
+
+						Intermediate_Point.x = A.x + ( Construct_Dist * sin(Construct_Angle) );
+						Intermediate_Point.y = A.y + ( Construct_Dist * cos(Construct_Angle) );
+										
+						if( HasZ )
+						{
+							double dShift = SG_Get_Distance(A, Intermediate_Point);
+
+							Iz = Az + dShift * (Bz - Az) / Length_Seg;
+
+							if( HasM )
+							{
+								Im	= Am + dShift * (Bm - Am) / Length_Seg;
+							}
+						}
 
 						// Prevent edge-case caused by Seg_Reductor == Target_Cut_Length 
-						// This checks if the constructed intermediate point is actually Back.
+						// This checks if the constructed intermediate point is actually B.
 						// Break out will just add back at the end of the loop
 						if( k == pPart->Get_Count()-1
-						&& Intermediate_Point.x == Back.x
-						&& Intermediate_Point.y == Back.y )
+						&& Intermediate_Point.x == B.x
+						&& Intermediate_Point.y == B.y )
 							break;
 
 						// Use the intermediate point as last and also as the first point in new shape
 						pSegment->Add_Point( Intermediate_Point );
+						if( HasZ ) { pSegment->Set_Z(Iz, pSegment->Get_Point_Count() - 1); }
+						if( HasM ) { pSegment->Set_M(Im, pSegment->Get_Point_Count() - 1); }
+
 						pSegment = pOutputLines->Add_Shape(pLine, SHAPE_COPY_ATTR);
 						pSegment->Add_Point( Intermediate_Point );
+						if( HasZ ) { pSegment->Set_Z(Iz, pSegment->Get_Point_Count() - 1); }
+						if( HasM ) { pSegment->Set_M(Im, pSegment->Get_Point_Count() - 1); }
 
 						if( pInsPoints != NULL )
 						{
 							CSG_Shape *pShape = pInsPoints->Add_Shape(pLine, SHAPE_COPY_ATTR);
 							pShape->Add_Point( Intermediate_Point );
+							if( HasZ ) { pShape->Set_Z(Iz, pShape->Get_Point_Count() - 1); }
+							if( HasM ) { pShape->Set_M(Im, pShape->Get_Point_Count() - 1); }
 						}
 						
 						// Switch to the default length after the first cut is placed
@@ -318,7 +352,9 @@ bool CCut_Lines::On_Execute(void)
 					}
 
 					// Set existing points
-					pSegment->Add_Point( Back );
+					pSegment->Add_Point( B );
+					if( HasZ ) { pSegment->Set_Z(Bz, pSegment->Get_Point_Count() - 1); }
+					if( HasM ) { pSegment->Set_M(Bm, pSegment->Get_Point_Count() - 1); }
 
 					// Accumulate the overhang
 					// Note: this happens inside the loop over the points (Index k)
