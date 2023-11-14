@@ -72,12 +72,12 @@ if(SWIG_FOUND)
 				COMMAND COPY "${PySAGA_Py_API}" "${PySAGA_TARGET}"
 				COMMAND COPY "${PySAGA_Py_BIN}" "${PySAGA_TARGET}"
 			)
-			else()
+		else()
 			set_property(TARGET saga_api_python PROPERTY OUTPUT_NAME saga_api)
 			# check if non-standard installation is performed
 			
 			if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-				set(PYTHON_INSTALL_DIR ${Python_SITELIB})
+				set(PYTHON_INSTALL_DIR ${Python_SITEARCH})
 			else()
 				set(PYTHON_INSTALL_DIR ${CMAKE_INSTALL_PREFIX})
 			endif()
