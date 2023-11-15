@@ -155,8 +155,8 @@
 #endif	// _TYPEDEF_WORD
 
 //---------------------------------------------------------
-	typedef   signed long long	sLong;
-	typedef unsigned long long	uLong;
+typedef   signed long long		sLong;
+typedef unsigned long long		uLong;
 
 //---------------------------------------------------------
 #if defined(_SAGA_MSW)
@@ -391,7 +391,9 @@ public:
 	bool				Add				(void *Value);
 	bool				Add				(const CSG_Array_Pointer &Array);
 	bool				Set				(sLong Index, void *Value)              {	if( !m_Array.Get_Entry(Index) ) return( false ); *((void **)m_Array.Get_Entry(Index)) = Value; return( true );	}
+#ifndef SWIG
 	void *&				Get				(sLong Index)                           {	return( *((void **)m_Array.Get_Entry(Index)) );	}
+#endif
 	void *				Get				(sLong Index)                  const    {	return( *((void **)m_Array.Get_Entry(Index)) );	}
 	bool				Del				(sLong Index);
 	sLong				Del				(void *Value);
@@ -444,7 +446,9 @@ public:
 	bool				Add				(int Value);
 	bool				Add				(const CSG_Array_Int &Array);
 	bool				Set				(sLong Index, int Value)                {	if( !m_Array.Get_Entry(Index) ) return( false ); *((int *)m_Array.Get_Entry(Index)) = Value; return( true );	}
+#ifndef SWIG
 	int &				Get				(sLong Index)                           {	return( *((int *)m_Array.Get_Entry(Index)) );	}
+#endif
 	int	 				Get				(sLong Index)                  const    {	return( *((int *)m_Array.Get_Entry(Index)) );	}
 
 	bool				Assign			(int Value);
@@ -498,7 +502,9 @@ public:
 	bool				Add				(sLong Value);
 	bool				Add				(const CSG_Array_sLong &Array);
 	bool				Set				(sLong Index, sLong Value)              {	if( !m_Array.Get_Entry(Index) ) return( false ); *((sLong *)m_Array.Get_Entry(Index)) = Value; return( true );	}
+#ifndef SWIG
 	sLong &				Get				(sLong Index)                           {	return( *((sLong *)m_Array.Get_Entry(Index)) );	}
+#endif
 	sLong	 			Get				(sLong Index)                  const    {	return( *((sLong *)m_Array.Get_Entry(Index)) );	}
 
 	bool				Assign			(sLong Value);
