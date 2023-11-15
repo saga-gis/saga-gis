@@ -176,7 +176,7 @@ CSentinel_2_Scene_Import::CSentinel_2_Scene_Import(void)
 		"REFLECTANCE"	, _TL("Reflectance Values"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
-			_TL("digital numbers"),
+			_TL("digital number"),
 			_TL("fraction")
 		), 1
 	);
@@ -430,12 +430,13 @@ bool CSentinel_2_Scene_Import::On_Execute(void)
 		{
 			pBands[i]->Fmt_Name("S2_%s_%dm", Date.c_str(), i == 0 ? 10 : 20);
 			pBands[i]->Get_MetaData().Add_Child(Info_General)->Set_Name("SENTINEL-2");
+			pBands[i]->Get_MetaData().Add_Child(Info_Image  )->Set_Name("BANDS");
 			pBands[i]->Set_Description(Info_General.asText());
 			pBands[i]->Set_Z_Attribute (INFO_FIELD_WAVE);
 			pBands[i]->Set_Z_Name_Field(INFO_FIELD_NAME);
 			pBands[i]->Set_Scaling(Scaling, Offset);
 
-			DataObject_Add(pBands[i], true);
+			DataObject_Add(pBands[i]);
 		}
 	}
 
@@ -508,6 +509,11 @@ bool CSentinel_2_Scene_Import::Get_Scaling(CSG_MetaData &Image, int Band, double
 		{
 			Scaling = 1. / Scaling;
 		}
+		else if( Image("QUANTIFICATION_VALUES_LIST") && Image["QUANTIFICATION_VALUES_LIST"]("BOA_QUANTIFICATION_VALUE")
+		&&       Image["QUANTIFICATION_VALUES_LIST"].Get_Content("BOA_QUANTIFICATION_VALUE", Scaling) && Scaling != 0. )
+		{
+			Scaling = 1. / Scaling;
+		}
 		else
 		{
 			Scaling = 1. / 10000.;
@@ -516,6 +522,11 @@ bool CSentinel_2_Scene_Import::Get_Scaling(CSG_MetaData &Image, int Band, double
 
 	if( Image("Radiometric_Offset_List") && Image["Radiometric_Offset_List"].Get_Children_Count() == 13
 	&&  Image["Radiometric_Offset_List"][Band].Get_Content().asDouble(Offset) )
+	{
+		Offset *= Scaling;
+	}
+	else if( Image("BOA_ADD_OFFSET_VALUES_LIST") && Image["BOA_ADD_OFFSET_VALUES_LIST"].Get_Children_Count() == 13
+	&&       Image["BOA_ADD_OFFSET_VALUES_LIST"][Band].Get_Content().asDouble(Offset) )
 	{
 		Offset *= Scaling;
 	}

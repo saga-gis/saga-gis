@@ -257,7 +257,7 @@ int CLandsat_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 
 			if( bRadiance || bReflectance )
 			{
-				CSG_String Choices(_TL("none"));
+				CSG_String Choices(_TL("digital number"));
 
 				if( bRadiance    ) Choices += CSG_String("|") + _TL("radiance"   );
 				if( bReflectance ) Choices += CSG_String("|") + _TL("reflectance");
