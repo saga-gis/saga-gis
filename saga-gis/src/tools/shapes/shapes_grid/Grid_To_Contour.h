@@ -88,8 +88,6 @@ protected:
 
 private:
 
-	double					m_zMin, m_zMax;
-
 	CSG_Grid				*m_pGrid, m_Edge;
 
 
@@ -104,11 +102,12 @@ private:
 	bool					Get_Contour				(CSG_Shape_Line *pContour , double z, int x, int y);
 	bool					Get_Contour_Cell		(int &Dir, int &x, int &y, bool &bRow);
 
-	bool					Get_Polygons			(CSG_Shapes *pPolygons, CSG_Shape_Line *pContour_Lo, CSG_Shape_Line *pContour_Hi);
-	bool					Add_Contour				(CSG_Shapes &Segments, CSG_Shape_Polygon *pPolygon, CSG_Shape_Line *pContour);
-	bool					Add_Edge				(CSG_Shapes &Segments, int x, int y);
-	bool					Add_Segment				(CSG_Shape *pPolygon, int iPart, CSG_Shape *pContour, bool bAscending);
-	CSG_Shape *				Get_Segment				(const CSG_Shapes &Segments, int &x, int &y, bool &bAscending);
+	bool					Get_Edge_Segments		(CSG_Shapes &Edges, CSG_Shapes *pContours);
+	bool					Add_Edge_Segment		(CSG_Shape &Edge, int x, int y);
+	bool					Add_Edge_Point			(CSG_Shapes &Edges, const CSG_Point &Point, sLong Line, int Part);
+
+	bool					Get_Polygons			(CSG_Shapes *pPolygons, CSG_Shapes &Edges, CSG_Shape_Line *pContour_Lo, CSG_Shape_Line *pContour_Hi);
+	bool					Add_Polygon_Segment		(CSG_Array_Pointer &Segments, CSG_Shape_Part *pPolygon);
 
 	bool					Split_Line_Parts		(CSG_Shapes *pLines);
 	bool					Split_Polygon_Parts		(CSG_Shapes *pPolygons);

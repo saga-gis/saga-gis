@@ -162,9 +162,9 @@ bool CGrid_Classes_To_Shapes::On_Execute(void)
 //---------------------------------------------------------
 bool CGrid_Classes_To_Shapes::Get_Classes(void)
 {
-	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
+	CSG_Grid *pGrid = Parameters("GRID")->asGrid();
 
-	m_pPolygons	= Parameters("POLYGONS")->asShapes();
+	m_pPolygons = Parameters("POLYGONS")->asShapes();
 
 	m_pPolygons->Create(SHAPE_TYPE_Polygon);
 
@@ -180,13 +180,13 @@ bool CGrid_Classes_To_Shapes::Get_Classes(void)
 	m_pPolygons->Set_Name(pGrid->Get_Name());
 
 	//-----------------------------------------------------
-	CSG_Table	*pLUT	= NULL;
+	CSG_Table *pLUT = NULL;
 
 	if( DataObject_Get_Parameter(pGrid, "COLORS_TYPE")
 	&&  DataObject_Get_Parameter(pGrid, "COLORS_TYPE")->asInt() == 1	// Color Classification Type: Lookup Table == 1
 	&&  DataObject_Get_Parameter(pGrid, "LUT") )
 	{
-		pLUT	= DataObject_Get_Parameter(pGrid, "LUT")->asTable();
+		pLUT = DataObject_Get_Parameter(pGrid, "LUT")->asTable();
 	}
 
 	//-----------------------------------------------------
@@ -195,8 +195,6 @@ bool CGrid_Classes_To_Shapes::Get_Classes(void)
 	m_Classes.Create(pGrid->Get_System(), SG_DATATYPE_Int);
 	m_Classes.Set_NoData_Value(-1);
 	m_Classes.Assign_NoData();
-
-	double	Value	= 0.;
 
 	//-----------------------------------------------------
 	if( Parameters("CLASS_ALL")->asInt() == 1 )
@@ -208,22 +206,22 @@ bool CGrid_Classes_To_Shapes::Get_Classes(void)
 			return( false );
 		}
 
-		int	x, y, id	= -1;
+		int x, y; double z = 0.;
 
 		for(sLong i=0; i<Get_NCells() && Set_Progress_Cells(i); i++)
 		{
 			if( pGrid->Get_Sorted(i, x, y, false) )
 			{
-				if( m_pPolygons->Get_Count() == 0 || Value != pGrid->asDouble(x, y) )
+				if( m_pPolygons->Get_Count() == 0 || z != pGrid->asDouble(x, y) )
 				{
-					CSG_Shape	*pPolygon	= m_pPolygons->Add_Shape();
+					CSG_Shape *pPolygon = m_pPolygons->Add_Shape();
 
-					pPolygon->Set_Value(0, 1 + id++);
-					pPolygon->Set_Value(1, Value = pGrid->asDouble(x, y));
-					pPolygon->Set_Value(2, Get_Class_Name(Value, pLUT));
+					pPolygon->Set_Value(0, m_pPolygons->Get_Count());
+					pPolygon->Set_Value(1, z = pGrid->asDouble(x, y));
+					pPolygon->Set_Value(2, Get_Class_Name(z, pLUT));
 				}
 
-				m_Classes.Set_Value(x, y, id);
+				m_Classes.Set_Value(x, y, (int)(m_pPolygons->Get_Count() - 1));
 			}
 		}
 	}
@@ -231,17 +229,19 @@ bool CGrid_Classes_To_Shapes::Get_Classes(void)
 	//-----------------------------------------------------
 	else
 	{
-		CSG_Shape	*pPolygon	= m_pPolygons->Add_Shape();
+		double z = Parameters("CLASS_ID")->asDouble();
+
+		CSG_Shape *pPolygon = m_pPolygons->Add_Shape();
 
 		pPolygon->Set_Value(0, m_pPolygons->Get_Count());
-		pPolygon->Set_Value(1, Value = Parameters("CLASS_ID")->asDouble());
-		pPolygon->Set_Value(2, Get_Class_Name(Value, pLUT));
+		pPolygon->Set_Value(1, z);
+		pPolygon->Set_Value(2, Get_Class_Name(z, pLUT));
 
 		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
 			for(int x=0; x<Get_NX(); x++)
 			{
-				if( pGrid->asDouble(x, y) == Value )
+				if( pGrid->asDouble(x, y) == z )
 				{
 					m_Classes.Set_Value(x, y, 0);
 				}
@@ -254,17 +254,17 @@ bool CGrid_Classes_To_Shapes::Get_Classes(void)
 }
 
 //---------------------------------------------------------
-#define LUT_NAM 1
-#define LUT_MIN	3
-#define LUT_MAX	4
-
 CSG_String CGrid_Classes_To_Shapes::Get_Class_Name(double Value, CSG_Table *pLUT)
 {
 	if( pLUT )	// using LUT ?
 	{
+		#define LUT_NAM 1
+		#define LUT_MIN	3
+		#define LUT_MAX	4
+
 		for(sLong i=0; i<pLUT->Get_Count(); i++)
 		{
-			CSG_Table_Record	*pClass	= pLUT->Get_Record(i);
+			CSG_Table_Record *pClass = pLUT->Get_Record(i);
 
 			if( Value >= pClass->asDouble(LUT_MIN)
 			&&  Value <= pClass->asDouble(LUT_MAX) )
@@ -289,35 +289,35 @@ bool CGrid_Classes_To_Shapes::Get_Edges(void)
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("edge detection"));
 
-	int		y, nEdges	= 0;
-
 	m_Edges.Create(SG_DATATYPE_Int, 2 * Get_NX() + 1, 2 * Get_NY() + 1, 0.5 * Get_Cellsize(), Get_XMin() - 0.5 * Get_Cellsize(), Get_YMin() - 0.5 * Get_Cellsize());
 
 	m_Edges.Set_NoData_Value(-2);
 	m_Edges.Assign_NoData();
 
-	m_bAllVertices	= Parameters("ALLVERTICES")->asBool();
+	m_bAllVertices = Parameters("ALLVERTICES")->asBool();
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Process_Get_Okay(); y++)
+	int nEdges = 0;
+
+	for(int y=0; y<Get_NY() && Process_Get_Okay(); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
 			if( !m_Classes.is_NoData(x, y) )
 			{
-				int	ID	= m_Classes.asInt(x, y);
+				int ID = m_Classes.asInt(x, y);
 
 				for(int i=0; i<8; i+=2)
 				{
-					int	ix	= Get_xTo(i, x);
-					int	iy	= Get_yTo(i, y);
+					int ix = Get_xTo(i, x);
+					int iy = Get_yTo(i, y);
 
 					if( !m_Classes.is_InGrid(ix, iy) || m_Classes.asInt(ix, iy) != ID )
 					{
 						nEdges++;
 
-						ix	= 1 + 2 * x;
-						iy	= 1 + 2 * y;
+						ix = 1 + 2 * x;
+						iy = 1 + 2 * y;
 
 						m_Edges.Set_Value(               ix,                 iy , ID);
 						m_Edges.Set_Value(Get_xTo(i    , ix), Get_yTo(i    , iy), -1);
@@ -340,7 +340,7 @@ bool CGrid_Classes_To_Shapes::Get_Edges(void)
 	Process_Set_Text(_TL("edge collection"));
 
 	//-----------------------------------------------------
-	for(y=0; y<m_Edges.Get_NY() && Set_Progress(y, m_Edges.Get_NY()); y++)
+	for(int y=0; y<m_Edges.Get_NY() && Set_Progress(y, m_Edges.Get_NY()); y++)
 	{
 		for(int x=0; x<m_Edges.Get_NX(); x++)
 		{
@@ -369,7 +369,7 @@ bool CGrid_Classes_To_Shapes::Get_Edges(void)
 //---------------------------------------------------------
 bool CGrid_Classes_To_Shapes::Get_Edge(int x, int y, int i, int Class)
 {
-	CSG_Shape	*pPolygon	= m_pPolygons->Get_Shape(Class);
+	CSG_Shape *pPolygon = m_pPolygons->Get_Shape(Class);
 
 	if( !pPolygon )
 	{
@@ -377,26 +377,24 @@ bool CGrid_Classes_To_Shapes::Get_Edge(int x, int y, int i, int Class)
 	}
 
 	//-----------------------------------------------------
-	int		xFirst, yFirst, ix, iy, iPart;
+	int xFirst = x;
+	int yFirst = y;
 
-	xFirst	= x;
-	yFirst	= y;
-
-	iPart	= pPolygon->Get_Part_Count();
+	int iPart = pPolygon->Get_Part_Count();
 
 	pPolygon->Add_Point(m_Edges.Get_System().Get_Grid_to_World(x, y), iPart);
 
 	//-----------------------------------------------------
 	do
 	{
-		ix	= Get_xTo(i + 2, x);
-		iy	= Get_yTo(i + 2, y);
+		int ix = Get_xTo(i + 2, x);
+		int iy = Get_yTo(i + 2, y);
 
 		if( m_Edges.is_InGrid(ix, iy) && m_Edges.asInt(ix, iy) == -1 )		// go right ?
 		{
 			pPolygon->Add_Point(m_Edges.Get_System().Get_Grid_to_World(x, y), iPart);
 
-			i	= (i + 2) % 8;
+			i = (i + 2) % 8;
 		}
 		else
 		{
@@ -405,8 +403,8 @@ bool CGrid_Classes_To_Shapes::Get_Edge(int x, int y, int i, int Class)
 				m_Edges.Set_NoData(ix, iy);	// erase class id in right cells
 			}
 
-			ix	= Get_xTo(i, x);
-			iy	= Get_yTo(i, y);
+			ix = Get_xTo(i, x);
+			iy = Get_yTo(i, y);
 
 			if( m_Edges.is_InGrid(ix, iy) && m_Edges.asInt(ix, iy) == -1 )	// go ahead ?
 			{
@@ -417,14 +415,14 @@ bool CGrid_Classes_To_Shapes::Get_Edge(int x, int y, int i, int Class)
 			}
 			else
 			{
-				ix	= Get_xTo(i + 6, x);
-				iy	= Get_yTo(i + 6, y);
+				ix = Get_xTo(i + 6, x);
+				iy = Get_yTo(i + 6, y);
 
 				if( m_Edges.is_InGrid(ix, iy) && m_Edges.asInt(ix, iy) == -1 )	// go left ?
 				{
 					pPolygon->Add_Point(m_Edges.Get_System().Get_Grid_to_World(x, y), iPart);
 
-					i	= (i + 6) % 8;
+					i = (i + 6) % 8;
 				}
 				else
 				{
@@ -433,8 +431,8 @@ bool CGrid_Classes_To_Shapes::Get_Edge(int x, int y, int i, int Class)
 			}
 		}
 
-		x	= ix;
-		y	= iy;
+		x = ix;
+		y = iy;
 	}
 	while( x != xFirst || y != yFirst );
 
@@ -461,19 +459,19 @@ bool CGrid_Classes_To_Shapes::Split_Polygons(void)
 {
 	Process_Set_Text(_TL("splitting polygon parts"));
 
-	CSG_Shapes	Polygons(*m_pPolygons);
+	CSG_Shapes Polygons(*m_pPolygons);
 
 	m_pPolygons->Del_Records();
 
 	for(sLong iPolygon=0; iPolygon<Polygons.Get_Count() && Set_Progress(iPolygon, Polygons.Get_Count()); iPolygon++)
 	{
-		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)Polygons.Get_Shape(iPolygon);
+		CSG_Shape_Polygon *pPolygon = (CSG_Shape_Polygon *)Polygons.Get_Shape(iPolygon);
 
 		for(int iPart=0, jPart, iPoint; iPart<pPolygon->Get_Part_Count() && Process_Get_Okay(); iPart++)
 		{
 			if( !pPolygon->is_Lake(iPart) )
 			{
-				CSG_Shape	*pShape	= m_pPolygons->Add_Shape(pPolygon, SHAPE_COPY_ATTR);
+				CSG_Shape *pShape = m_pPolygons->Add_Shape(pPolygon, SHAPE_COPY_ATTR);
 
 				for(iPoint=0, jPart=0; iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
 				{
