@@ -72,12 +72,14 @@ class CPanSharp_IHS : public CSG_Tool_Grid
 public:
 	CPanSharp_IHS(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Image Sharpening") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Image Sharpening") );	}
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 };
 
@@ -92,12 +94,14 @@ class CPanSharp_Brovey : public CSG_Tool_Grid
 public:
 	CPanSharp_Brovey(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Image Sharpening") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Image Sharpening") );	}
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 };
 
@@ -112,12 +116,14 @@ class CPanSharp_CN : public CSG_Tool_Grid
 public:
 	CPanSharp_CN(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Image Sharpening") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Image Sharpening") );	}
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 };
 
@@ -132,12 +138,14 @@ class CPanSharp_PCA : public CSG_Tool_Grid
 public:
 	CPanSharp_PCA(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Image Sharpening") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Image Sharpening") );	}
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 };
 
