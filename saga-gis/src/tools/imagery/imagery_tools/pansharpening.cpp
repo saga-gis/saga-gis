@@ -743,7 +743,7 @@ CPanSharp_PCA::CPanSharp_PCA(void)
 			_TL("correlation matrix"),
 			_TL("variance-covariance matrix"),
 			_TL("sums-of-squares-and-cross-products matrix")
-		), 1
+		), 2
 	);
 
 	Parameters.Add_Choice("",
