@@ -128,8 +128,8 @@ int CGrid_To_Contour::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 
 		if( zStep > 0. )
 		{
-			pParameters->Set_Parameter("ZMIN", zStep * (floor(pParameter->asGrid()->Get_Min() / zStep) + 1.));
-			pParameters->Set_Parameter("ZMAX", zStep * (ceil (pParameter->asGrid()->Get_Max() / zStep) - 1.));
+			pParameters->Set_Parameter("ZMIN", zStep * (ceil (pParameter->asGrid()->Get_Min() / zStep)));
+			pParameters->Set_Parameter("ZMAX", zStep * (floor(pParameter->asGrid()->Get_Max() / zStep)));
 		}
 		else
 		{
@@ -300,7 +300,7 @@ bool CGrid_To_Contour::On_Execute(void)
 	//-----------------------------------------------------
 	double minLength = Parameters("MINLENGTH")->asDouble();
 
-	m_Edge.Create(SG_DATATYPE_Char, m_pGrid->Get_NX() + 1, m_pGrid->Get_NY() + 1, m_pGrid->Get_Cellsize(), m_pGrid->Get_XMin(), m_pGrid->Get_YMin());
+	m_Flag.Create(m_pGrid->Get_System(), SG_DATATYPE_Char);
 
 	Intervals.Sort();
 
@@ -313,6 +313,8 @@ bool CGrid_To_Contour::On_Execute(void)
 			Get_Contour(pContours, Intervals[i], minLength);
 		}
 	}
+
+	m_Flag.Destroy();
 
 	//-----------------------------------------------------
 	CSG_Shapes *pPolygons = Parameters("POLYGONS")->asShapes();
@@ -349,7 +351,7 @@ bool CGrid_To_Contour::On_Execute(void)
 		}
 	}
 
-	m_Edge.Destroy();
+	m_Flag.Destroy();
 
 	//-----------------------------------------------------
 	if( Parameters("LINE_PARTS")->asBool() )
@@ -367,10 +369,6 @@ bool CGrid_To_Contour::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define EDGE_ROW 0x01
-#define EDGE_COL 0x02
-
-//---------------------------------------------------------
 inline bool CGrid_To_Contour::is_Edge(int x, int y)
 {
 	return(  m_pGrid->is_InGrid(x    , y    )
@@ -383,32 +381,6 @@ inline bool CGrid_To_Contour::is_Edge(int x, int y)
 		||  !m_pGrid->is_InGrid(x - 1, y + 1)
 		||  !m_pGrid->is_InGrid(x - 1, y    ) )
 	);
-}
-
-//---------------------------------------------------------
-inline void CGrid_To_Contour::Set_Row(int x, int y, bool bOn)
-{
-	int	Edge = m_Edge.asInt(x, y);
-
-	m_Edge.Set_Value(x, y, bOn ? (Edge | EDGE_ROW) : (Edge & EDGE_COL));
-}
-
-inline bool CGrid_To_Contour::Get_Row(int x, int y)
-{
-	return( (m_Edge.asInt(x, y) & EDGE_ROW) != 0 );
-}
-
-//---------------------------------------------------------
-inline void CGrid_To_Contour::Set_Col(int x, int y, bool bOn)
-{
-	int	Edge = m_Edge.asInt(x, y);
-
-	m_Edge.Set_Value(x, y, bOn ? (Edge | EDGE_COL) : (Edge & EDGE_ROW));
-}
-
-inline bool CGrid_To_Contour::Get_Col(int x, int y)
-{
-	return( (m_Edge.asInt(x, y) & EDGE_COL) != 0 );
 }
 
 
@@ -424,23 +396,33 @@ bool CGrid_To_Contour::Get_Contour(CSG_Shapes *pContours, double z, double minLe
 	{
 		for(int x=0; x<m_pGrid->Get_NX(); x++)
 		{
-			if( !m_pGrid->is_NoData(x, y) )
+			if( m_pGrid->is_NoData(x, y) )
 			{
-				if( m_pGrid->asDouble(x, y) >= z )
+				m_Flag.Set_NoData(x, y);
+			}
+			else if( m_pGrid->asDouble(x, y) < z )
+			{
+				m_Flag.Set_Value(x, y, -1);
+			}
+			else // if( m_pGrid->asDouble(x, y) >= z )
+			{
+				int Flag = 0;
+
+				for(int i=0; i<8; i+=2)
 				{
-					if( m_pGrid->is_InGrid(x + 1, y    ) && m_pGrid->asDouble(x + 1, y    ) <  z ) Set_Row(x, y, true);
-					if( m_pGrid->is_InGrid(x    , y + 1) && m_pGrid->asDouble(x    , y + 1) <  z ) Set_Col(x, y, true);
+					int ix = CSG_Grid_System::Get_xTo(i, x);
+					int iy = CSG_Grid_System::Get_yTo(i, y);
+
+					if( m_pGrid->is_InGrid(ix, iy) && m_pGrid->asDouble(ix, iy) < z )
+					{
+						Flag++;
+					}
 				}
-				else // if( m_pGrid->asDouble(x, y) < z )
-				{
-					if( m_pGrid->is_InGrid(x + 1, y    ) && m_pGrid->asDouble(x + 1, y    ) >= z ) Set_Row(x, y, true);
-					if( m_pGrid->is_InGrid(x    , y + 1) && m_pGrid->asDouble(x    , y + 1) >= z ) Set_Col(x, y, true);
-				}
+
+				m_Flag.Set_Value(x, y, Flag);
 			}
 		}
  	}
-
-//	DataObject_Add(SG_Create_Grid(m_Edge));
 
 	//-----------------------------------------------------
 	CSG_Shape_Line *pContour = pContours->Add_Shape()->asLine();
@@ -453,9 +435,9 @@ bool CGrid_To_Contour::Get_Contour(CSG_Shapes *pContours, double z, double minLe
 	{
 		for(int x=0; x<m_pGrid->Get_NX(); x++)
 		{
-			if( m_Edge.asInt(x, y) && is_Edge(x, y) )
+			if( is_Edge(x, y) )
 			{
-				while( Get_Contour(pContour, z, x, y) );
+				Get_Contour(pContour, z, x, y, true);
 			}
 		}
 	}
@@ -464,7 +446,7 @@ bool CGrid_To_Contour::Get_Contour(CSG_Shapes *pContours, double z, double minLe
 	{
 		for(int x=0; x<m_pGrid->Get_NX(); x++)
 		{
-			while( Get_Contour(pContour, z, x, y) );
+			while( Get_Contour(pContour, z, x, y, false) );
 		}
 	}
 
@@ -493,116 +475,139 @@ bool CGrid_To_Contour::Get_Contour(CSG_Shapes *pContours, double z, double minLe
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_To_Contour::Get_Contour(CSG_Shape_Line *pContour, double z, int x, int y)
+bool CGrid_To_Contour::Get_Contour(CSG_Shape_Line *pContour, double z, int x, int y, bool bEdge)
 {
-	bool bRow;
+	int Dir = Get_Contour_Vertex_First(x, y, bEdge);
 
-	if( x <= 0 || x >= m_pGrid->Get_NX() - 1 )
+	if( Dir >= 0 )
 	{
-		if( Get_Col(x, y) )
+		int iPart = pContour->Get_Part_Count();
+
+		do
 		{
-			bRow = false;
+			Add_Contour_Vertex(pContour, iPart, z, x, y, Dir);
 		}
-		else if( Get_Row(x, y) )
+		while( Get_Contour_Vertex_Next(x, y, Dir) );
+
+		//-------------------------------------------------
+		if( pContour->Get_Point_Count(iPart) > 1 ) // found at least one contour pixel
 		{
-			bRow = true;
+			if( !bEdge )
+			{
+				pContour->Add_Point(pContour->Get_Point(0, iPart), iPart); // close contour line
+			}
 		}
 		else
 		{
-			return( false );
+			pContour->Del_Part(iPart);
 		}
-	}
-	else
-	{
-		if( Get_Row(x, y) )
-		{
-			bRow = true;
-		}
-		else if( Get_Col(x, y) )
-		{
-			bRow = false;
-		}
-		else
-		{
-			return( false );
-		}
+
+		return( true );
 	}
 
-	//-----------------------------------------------------
-	int iPart = pContour->Get_Part_Count();
-
-	for(int Dir=0, x0=x, y0=y, bRow0=bRow?1:0; Dir>=0; )
-	{
-		int zx = bRow ? x + 1 : x;
-		int zy = bRow ? y : y + 1;
-
-		double d = m_pGrid->asDouble(x, y); d = (d - z) / (d - m_pGrid->asDouble(zx, zy));
-
-		pContour->Add_Point(
-			m_pGrid->Get_XMin() + m_pGrid->Get_Cellsize() * (x + d * (zx - (double)x)),
-			m_pGrid->Get_YMin() + m_pGrid->Get_Cellsize() * (y + d * (zy - (double)y)), iPart
-		);
-
-		if( pContour->Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
-		{
-			pContour->Set_Z(z, pContour->Get_Point_Count(iPart) - 1, iPart);
-		}
-
-		if( Get_Contour_Cell(Dir, x, y, bRow) || Get_Contour_Cell(Dir, x, y, bRow) )
-		{
-			if( bRow  )	{ Set_Row(x , y , false); } else { Set_Col(x , y , false); }
-		}
-		else
-		{
-			if( bRow0 )	{ Set_Row(x0, y0, false); } else { Set_Col(x0, y0, false); }
-
-			Dir	= -1;
-		}
-	}
-
-	//-----------------------------------------------------
-	return( pContour->Get_Point_Count(iPart) > 1 ); // found at least one contour pixel
+	return( false );
 }
 
 //---------------------------------------------------------
-inline bool CGrid_To_Contour::Get_Contour_Cell(int &Dir, int &x, int &y, bool &bRow)
+inline int CGrid_To_Contour::Get_Contour_Vertex_First(int x, int y, bool bEdge)
 {
-	if( bRow )
+	if( m_Flag.asInt(x, y) > 0 )
 	{
-		switch( Dir )
+		for(int i=8; i>0; i-=2) // we want to work counter-clockwise
 		{
-		case  0: if( Get_Row(x    , y + 1) ) { Dir = 5;                    y++; return( true ); }	// Norden
-		case  1: if( Get_Col(x + 1, y    ) ) { Dir = 6; bRow = false; x++;      return( true ); }	// Nord-Ost
-		case  2:	// Osten ist nicht...
-		case  3: if( y - 1 >= 0
-				 &&  Get_Col(x + 1, y - 1) ) { Dir = 0; bRow = false; x++; y--; return( true ); }	// Sued-Ost
-		case  4: if( y - 1 >= 0
-				 &&  Get_Row(x    , y - 1) ) { Dir = 1;                    y--; return( true ); }	// Sueden
-		case  5: if( y - 1 >= 0
-				 &&  Get_Col(x    , y - 1) ) { Dir = 2; bRow = false;      y--; return( true ); }	// Sued-West
-		case  6:	// Westen ist nicht...
-		case  7: if( Get_Col(x    , y    ) ) { Dir = 4; bRow = false;           return( true ); }	// Nord-West
-		default:
-			Dir = 0;
+			int ix = CSG_Grid_System::Get_xTo(i, x);
+			int iy = CSG_Grid_System::Get_yTo(i, y);
+
+			if( m_Flag.is_InGrid(ix, iy) && m_Flag.asInt(ix, iy) < 0 )
+			{
+				if( bEdge )
+				{
+					ix = CSG_Grid_System::Get_xTo(i + 2, x);
+					iy = CSG_Grid_System::Get_yTo(i + 2, y);
+
+					if( !m_Flag.is_InGrid(ix, iy) )
+					{
+						return( i );
+					}
+				}
+				else
+				{
+					return( i );
+				}
+			}
 		}
 	}
-	else
+
+	return( -1 );
+}
+
+//---------------------------------------------------------
+inline bool CGrid_To_Contour::Get_Contour_Vertex_Next(int &x, int &y, int &Dir)
+{
+	int xo = CSG_Grid_System::Get_xTo(Dir + 6, x);
+	int yo = CSG_Grid_System::Get_yTo(Dir + 6, y);
+
+	if( m_Flag.is_InGrid(xo, yo) )
 	{
-		switch( Dir )
+		if( m_Flag.asInt(xo, yo) < 0 )
 		{
-		case  0:	// Norden ist nicht...
-		case  1: if( Get_Row(x    , y + 1) ) { Dir = 6; bRow =  true;      y++; return( true ); }	// Nord-Ost
-		case  2: if( Get_Col(x + 1, y    ) ) { Dir = 7;               x++;      return( true ); }	// Osten
-		case  3: if( Get_Row(x    , y    ) ) { Dir = 0; bRow =  true;           return( true ); }	// Sued-Ost
-		case  4:	// Sueden ist nicht...
-		case  5: if( x - 1 >= 0
-				 &&  Get_Row(x - 1, y    ) ) { Dir = 2; bRow =  true; x--;      return( true ); }	// Sued-West
-		case  6: if( x - 1 >= 0
-				 &&  Get_Col(x - 1, y    ) ) { Dir = 3;               x--;      return( true ); }	// Westen
-		case  7: if( x - 1 >= 0
-				 &&  Get_Row(x - 1, y + 1) ) { Dir = 5; bRow =  true; x--; y++; return( true ); }	// Nord-West
-		default:
-			Dir = 0;
+			if( m_Flag.asInt(x, y) > 0 )
+			{
+				Dir = (Dir + 6) % 8;
+
+				return( true );
+			}
+		}
+		else if( m_Flag.asInt(xo, yo) > 0 )
+		{
+			int xd = CSG_Grid_System::Get_xTo(Dir + 7, x);
+			int yd = CSG_Grid_System::Get_yTo(Dir + 7, y);
+
+			if( m_Flag.is_InGrid(xd, yd) && m_Flag.asInt(xd, yd) < 0 )
+			{
+				x = xo; y = yo;
+
+				return( true );
+			}
+		}
+	}
+
+	int xd = CSG_Grid_System::Get_xTo(Dir + 7, x);
+	int yd = CSG_Grid_System::Get_yTo(Dir + 7, y);
+
+	if( m_Flag.is_InGrid(xd, yd) && m_Flag.asInt(xd, yd) > 0 )
+	{
+		x = xd; y = yd; Dir = (Dir + 2) % 8;
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+inline bool CGrid_To_Contour::Add_Contour_Vertex(CSG_Shape_Line *pContour, int iPart, double z, int x, int y, int Dir)
+{
+	if( m_Flag.asInt(x, y) > 0 )
+	{
+		int x1 = CSG_Grid_System::Get_xTo(Dir, x), y1 = CSG_Grid_System::Get_yTo(Dir, y);
+
+		if( m_Flag.is_InGrid(x1, y1) )
+		{
+			double z0 = m_pGrid->asDouble(x, y), z1 = m_pGrid->asDouble(x1, y1);
+
+			double d = (z0 - z) / (z0 - z1);
+
+			CSG_Point_3D p(
+				m_pGrid->Get_XMin() + m_pGrid->Get_Cellsize() * (x + d * (x1 - (double)x)),
+				m_pGrid->Get_YMin() + m_pGrid->Get_Cellsize() * (y + d * (y1 - (double)y)), z
+			);
+
+			pContour->Add_Point(p, iPart);
+
+			m_Flag.Add_Value(x, y, -1);
+
+			return( true );
 		}
 	}
 
@@ -617,12 +622,14 @@ inline bool CGrid_To_Contour::Get_Contour_Cell(int &Dir, int &x, int &y, bool &b
 //---------------------------------------------------------
 bool CGrid_To_Contour::Get_Edge_Segments(CSG_Shapes &Edges, CSG_Shapes *pContours)
 {
+	m_Flag.Create(m_pGrid->Get_System(), SG_DATATYPE_Char);
+
 	#pragma omp parallel for
 	for(int y=0; y<m_pGrid->Get_NY(); y++)
 	{
 		for(int x=0; x<m_pGrid->Get_NX(); x++)
 		{
-			m_Edge.Set_Value(x, y, is_Edge(x, y) ? 1 : 0);
+			m_Flag.Set_Value(x, y, is_Edge(x, y) ? 1 : 0);
 		}
 	}
 
@@ -634,12 +641,14 @@ bool CGrid_To_Contour::Get_Edge_Segments(CSG_Shapes &Edges, CSG_Shapes *pContour
 	{
 		for(int x=0; x<m_pGrid->Get_NX(); x++)
 		{
-			if( m_Edge.asInt(x, y) == 1 )
+			if( m_Flag.asInt(x, y) == 1 )
 			{
 				Add_Edge_Segment(*Edges.Add_Shape(), x, y);
 			}
 		}
 	}
+
+	m_Flag.Destroy();
 
 	for(sLong i=0; i<pContours->Get_Count(); i++)
 	{
@@ -652,7 +661,7 @@ bool CGrid_To_Contour::Get_Edge_Segments(CSG_Shapes &Edges, CSG_Shapes *pContour
 			if( ((Add_Edge_Point(Edges, Point[0], pContour->Get_Index(), iPart) ? 1 : 0)
 			+    (Add_Edge_Point(Edges, Point[1], pContour->Get_Index(), iPart) ? 1 : 0)) == 1 )
 			{
-				Message_Fmt("\n%s: %s (z=%f, line=%lld, part=%d)", _TL("Warning"), _TL("2nd edge node not found"), pContour->asDouble(1), i, iPart);
+				Message_Fmt("\nWarning: one end on edge, the other not (z=%f, line=%lld, part=%d)", pContour->asDouble(1), i, iPart);
 			}
 		}
 	}
@@ -683,18 +692,20 @@ bool CGrid_To_Contour::Get_Edge_Segments(CSG_Shapes &Edges, CSG_Shapes *pContour
 		}
 		else if( Edge.asLong(0) == Edge.asLong(1) ) // needs to determine 'going lower/higher' state in relation to contour elevation
 		{
-			CSG_Point a(Edge.Get_Point(0)), d(Edge.Get_Point(1)); d -= a;
+			CSG_Point p0(Edge.Get_Point(0)), p1(Edge.Get_Point(1)); CSG_Point d((p1 - p0));
 
-			int x, y; m_pGrid->Get_System().Get_World_to_Grid(x, y, a); double dz = m_pGrid->asDouble(x, y);
+			if( SG_Get_Length(d.x, d.y) > m_pGrid->Get_Cellsize() )
+			{
+				p1.x = d.x ? p0.x + 0.5 * m_pGrid->Get_Cellsize() / d.x : p0.x;
+				p1.y = d.y ? p0.y + 0.5 * m_pGrid->Get_Cellsize() / d.y : p0.y;
+			}
+			else
+			{
+				p1.x = p0.x + 0.5 * d.x;
+				p1.y = p0.y + 0.5 * d.y;
+			}
 
-			if( d.x > 0. && m_pGrid->is_InGrid(x + 1, y) ) { dz =  (dz - m_pGrid->asDouble(x + 1, y)); } else
-			if( d.x > 0. && m_pGrid->is_InGrid(x - 1, y) ) { dz = -(dz - m_pGrid->asDouble(x - 1, y)); } else
-			if( d.x < 0. && m_pGrid->is_InGrid(x + 1, y) ) { dz = -(dz - m_pGrid->asDouble(x + 1, y)); } else
-			if( d.x < 0. && m_pGrid->is_InGrid(x - 1, y) ) { dz =  (dz - m_pGrid->asDouble(x - 1, y)); } else
-			if( d.y > 0. && m_pGrid->is_InGrid(x, y + 1) ) { dz =  (dz - m_pGrid->asDouble(x, y + 1)); } else
-			if( d.y > 0. && m_pGrid->is_InGrid(x, y - 1) ) { dz = -(dz - m_pGrid->asDouble(x, y - 1)); } else
-			if( d.y < 0. && m_pGrid->is_InGrid(x, y + 1) ) { dz = -(dz - m_pGrid->asDouble(x, y + 1)); } else
-			if( d.y < 0. && m_pGrid->is_InGrid(x, y - 1) ) { dz =  (dz - m_pGrid->asDouble(x, y - 1)); } else { dz = 0.; }
+			double dz = m_pGrid->Get_Value(p0, GRID_RESAMPLING_Bilinear) - m_pGrid->Get_Value(p1, GRID_RESAMPLING_Bilinear);
 
 			if( dz > 0. )
 			{
@@ -706,7 +717,7 @@ bool CGrid_To_Contour::Get_Edge_Segments(CSG_Shapes &Edges, CSG_Shapes *pContour
 			}
 			else
 			{
-				Message_Fmt("\n%s: %s ", _TL("Warning"), _TL("edge without gradient"));
+				Message_Fmt("\nWarning: gradient detection failed for edge segment\nx=%f, y=%f, z=%f]", p0.x, p0.y, Edge.asLong(0) >= 0 ? pContours->Get_Shape(Edge.asLong(0))->asDouble(1) : -1.);
 			}
 		}
 	}
@@ -725,14 +736,14 @@ bool CGrid_To_Contour::Add_Edge_Segment(CSG_Shape &Edge, int x, int y)
 	{
 		bNext = false;
 
-		m_Edge.Set_Value(x, y, 2);
+		m_Flag.Set_Value(x, y, 2);
 
 		for(int i=0; i<8 && !bNext; i+=2)
 		{
 			int ix = CSG_Grid_System::Get_xTo(i, x);
 			int iy = CSG_Grid_System::Get_yTo(i, y);
 
-			if( m_Edge.is_InGrid(ix, iy) && m_Edge.asInt(ix, iy) == 1 )
+			if( m_Flag.is_InGrid(ix, iy) && m_Flag.asInt(ix, iy) == 1 )
 			{
 				bNext = true;
 
@@ -740,7 +751,7 @@ bool CGrid_To_Contour::Add_Edge_Segment(CSG_Shape &Edge, int x, int y)
 				{
 					iLast = i;
 
-					Edge.Add_Point(m_Edge.Get_System().Get_Grid_to_World(x, y));
+					Edge.Add_Point(m_Flag.Get_System().Get_Grid_to_World(x, y));
 				}
 
 				x = ix; y = iy;

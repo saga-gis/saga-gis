@@ -88,19 +88,16 @@ protected:
 
 private:
 
-	CSG_Grid				*m_pGrid, m_Edge;
+	CSG_Grid				*m_pGrid, m_Flag;
 
 
 	bool					is_Edge					(int x, int y);
 
-	void					Set_Row					(int x, int y, bool bOn);
-	bool					Get_Row					(int x, int y);
-	void					Set_Col					(int x, int y, bool bOn);
-	bool					Get_Col					(int x, int y);
-
 	bool					Get_Contour				(CSG_Shapes     *pContours, double z, double minLength);
-	bool					Get_Contour				(CSG_Shape_Line *pContour , double z, int x, int y);
-	bool					Get_Contour_Cell		(int &Dir, int &x, int &y, bool &bRow);
+	bool					Get_Contour				(CSG_Shape_Line *pContour , double z, int x, int y, bool bEdge);
+	int						Get_Contour_Vertex_First(int x, int y, bool bEdge);
+	bool					Get_Contour_Vertex_Next	(int &x, int &y, int &Dir);
+	bool					Add_Contour_Vertex		(CSG_Shape_Line *pContour, int iPart, double z, int x, int y, int Dir);
 
 	bool					Get_Edge_Segments		(CSG_Shapes &Edges, CSG_Shapes *pContours);
 	bool					Add_Edge_Segment		(CSG_Shape &Edge, int x, int y);
