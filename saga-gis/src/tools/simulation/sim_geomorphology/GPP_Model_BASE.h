@@ -241,6 +241,7 @@ typedef struct	{
 	double		slope;		// downward, as ratio rise/run
 	double		length;
 	double		deposit;
+	double		materialflux;
 				}PATH_CELL;
 
 
@@ -266,7 +267,7 @@ public:
 	double		Get_Z(void);
 	double		Get_Previous_Z(void);
 	void		Set_Position(GRID_CELL gPosition);
-	void		Set_Previous_Position(GRID_CELL gPosition, double dSlope, double dLength, int iExitDir);
+	void		Set_Previous_Position(GRID_CELL gPosition, double dSlope, double dLength, int iExitDir, double dMaterialFlux);
 
 	GRID_CELL	Get_Position_Start(void) const;
 	void		Set_Position_Start(GRID_CELL gPosition);
@@ -299,8 +300,10 @@ public:
 	void		Set_Material(double dMaterial);
 	double		Get_Material_Release(void);
 	void		Deposit_Material(CSG_Grid *pGrid, double dSlope);
+	double		Get_Material_Flux(void);
+	void		Set_Material_Flux(double dMaterialFlux);
 
-    void        Evaluate_Damage_Potential(CSG_Grid *pObjectClasses, CSG_Grid *pHazardPaths, CSG_Grid *pHazardSources);
+    void        Evaluate_Damage_Potential(CSG_Grid *pObjectClasses, CSG_Grid *pHazardPaths, CSG_Grid *pHazardSources, CSG_Grid *pHazardSourceMatl);
 
 protected:
 
@@ -313,6 +316,7 @@ private:
 	double					m_dPathLength;				// accumulated process path length
 	double					m_dMaterialRelease;			// total amount of material in start cell
 	double					m_dMaterial;				// currently available material
+	double					m_dMaterialFlux;			// current material flux
 	double					m_dTanFrictionAngle;		// tangens of friction angle
 	double					m_dFrictionMu;				// friction parameter mu
 	double					m_dFrictionMassToDrag;		// friction parameter M/D
@@ -367,7 +371,7 @@ protected:
 	void		Finalize(CSG_Parameters *pParameters);
 
 	CSG_Grid	*m_pDEM, *m_pReleaseAreas, *m_pMaterial, *m_pFrictionAngles, *m_pImpactAreas, *m_pFrictionMu, *m_pFrictionMassToDrag, *m_pObjects;
-	CSG_Grid	*m_pProcessArea, *m_pDeposition, *m_pMaxVelocity, *m_pStopPositions, *m_pHazardPaths, *m_pHazardSources, *m_pMaterialFlux;
+	CSG_Grid	*m_pProcessArea, *m_pDeposition, *m_pMaxVelocity, *m_pStopPositions, *m_pHazardPaths, *m_pHazardSources, *m_pHazardSourcesMatl, *m_pMaterialFlux;
     CSG_Grid    *m_pObjectClasses;
 
 	int			m_GPP_Path_Model;

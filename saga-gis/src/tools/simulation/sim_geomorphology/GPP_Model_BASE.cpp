@@ -72,6 +72,7 @@ CGPP_Model_Particle::CGPP_Model_Particle(int iReleaseID, GRID_CELL gPosition, do
 	m_dPathLength			= 0.0;
 	m_dMaterialRelease		= dMaterial;
 	m_dMaterial				= dMaterial;
+	m_dMaterialFlux			= 0.0;
 	m_dTanFrictionAngle		= dTanFrictionAngle;
 	m_dFrictionMu			= dFrictionMu;
 	m_dFrictionMassToDrag	= dFrictionMassToDrag;
@@ -145,15 +146,16 @@ void CGPP_Model_Particle::Set_Position(GRID_CELL gPosition)
 }
 
 //---------------------------------------------------------
-void CGPP_Model_Particle::Set_Previous_Position(GRID_CELL gPosition, double dSlope, double dLength, int iExitDir)
+void CGPP_Model_Particle::Set_Previous_Position(GRID_CELL gPosition, double dSlope, double dLength, int iExitDir, double dMaterialFlux)
 {
 	PATH_CELL	cell;
 
-	cell.position	= gPosition;
-	cell.slope		= dSlope;
-	cell.length		= dLength;
-	cell.exitDir	= iExitDir;
-	cell.deposit	= 0.0;
+	cell.position		= gPosition;
+	cell.slope			= dSlope;
+	cell.length			= dLength;
+	cell.exitDir		= iExitDir;
+	cell.deposit		= 0.0;
+	cell.materialflux	= dMaterialFlux;
 
 	m_vPath.push_back(cell);
 }
@@ -222,6 +224,18 @@ void CGPP_Model_Particle::Set_Material(double dMaterial)
 double CGPP_Model_Particle::Get_Material_Release(void)
 {
 	return( m_dMaterialRelease );
+}
+
+//---------------------------------------------------------
+double CGPP_Model_Particle::Get_Material_Flux(void)
+{
+	return( m_dMaterialFlux );
+}
+
+//---------------------------------------------------------
+void CGPP_Model_Particle::Set_Material_Flux(double dMaterialFlux)
+{
+	m_dMaterialFlux = dMaterialFlux;
 }
 
 //---------------------------------------------------------
@@ -428,9 +442,10 @@ void CGPP_Model_Particle::Deposit_Material(CSG_Grid *pGrid, double dSlope)
 }
 
 //---------------------------------------------------------
-void CGPP_Model_Particle::Evaluate_Damage_Potential(CSG_Grid *pObjectClasses, CSG_Grid *pHazardPaths, CSG_Grid *pHazardSources)
+void CGPP_Model_Particle::Evaluate_Damage_Potential(CSG_Grid *pObjectClasses, CSG_Grid *pHazardPaths, CSG_Grid *pHazardSources, CSG_Grid *pHazardSourceMatl)
 {
-    int iObjectClasses = 0;
+    int		iObjectClasses   = 0;
+	double	dMaxMaterialFlux = 0.0;
 
     for(std::vector<PATH_CELL>::reverse_iterator rit=m_vPath.rbegin(); rit!=m_vPath.rend(); ++rit)
     {
@@ -442,6 +457,14 @@ void CGPP_Model_Particle::Evaluate_Damage_Potential(CSG_Grid *pObjectClasses, CS
             int iClass = pObjectClasses->asInt(x, y);
 
             iObjectClasses |= iClass;
+
+			if( pHazardSourceMatl != NULL )
+			{
+				if( dMaxMaterialFlux < (*rit).materialflux )
+				{
+					dMaxMaterialFlux = (*rit).materialflux;
+				}
+			}
         }
 
         if( pHazardPaths != NULL && iObjectClasses > 0 )
@@ -468,6 +491,20 @@ void CGPP_Model_Particle::Evaluate_Damage_Potential(CSG_Grid *pObjectClasses, CS
         else
         {
             pHazardSources->Set_Value(s.x, s.y, pHazardSources->asInt(s.x, s.y) | iObjectClasses);
+        }
+	}
+
+	if( pHazardSourceMatl != NULL && dMaxMaterialFlux > 0.0 )
+	{
+		GRID_CELL s = Get_Position_Start();
+
+		if( pHazardSourceMatl->is_NoData(s.x, s.y) )
+        {
+            pHazardSourceMatl->Set_Value(s.x, s.y, dMaxMaterialFlux / pHazardSourceMatl->Get_Cellsize());
+        }
+        else
+        {
+            pHazardSourceMatl->Add_Value(s.x, s.y, dMaxMaterialFlux / pHazardSourceMatl->Get_Cellsize());
         }
 	}
 
@@ -563,8 +600,14 @@ void CGPP_Model_BASE::Add_Dataset_Parameters(CSG_Parameters *pParameters)
     );
 
 	pParameters->Add_Grid(	
+        NULL, "HAZARD_SOURCES_MATERIAL", _TL("Hazard Sources Material"), 
+        _TL("Source (release area) cells from which objects were hit. Cell values indicate the material amount [m/cell] that has hit objects from that source cell. Optional output in case grids with material amounts and potentially endangered objects are provided as input."), 
+        PARAMETER_OUTPUT_OPTIONAL
+    );
+
+	pParameters->Add_Grid(	
 		NULL, "MATERIAL_FLUX", _TL("Material Flux"), 
-		_TL("Height of the material that has passed through each cell [m]. Optional output in case a grid with material amounts is provided as input."), 
+		_TL("Amount of material that has passed through each cell [m]. Optional output in case a grid with material amounts is provided as input."), 
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 }
@@ -824,13 +867,14 @@ bool CGPP_Model_BASE::Initialize_Parameters(CSG_Parameters &Parameters)
 	else
 		m_dInitVelocity		= 0.0;
 	
-	m_pProcessArea			= Parameters("PROCESS_AREA")->asGrid();			m_pProcessArea->Assign(0.0);
+	m_pProcessArea			= Parameters("PROCESS_AREA")->asGrid();				m_pProcessArea->Assign(0.0);
 	m_pDeposition			= Parameters("DEPOSITION")->asGrid();
-	m_pMaxVelocity			= Parameters("MAX_VELOCITY")->asGrid();			if( m_pMaxVelocity != NULL )	m_pMaxVelocity->Assign_NoData();
-	m_pStopPositions		= Parameters("STOP_POSITIONS")->asGrid();		if( m_pStopPositions != NULL )	m_pStopPositions->Assign(0.0);
-    m_pHazardPaths			= Parameters("HAZARD_PATHS")->asGrid();
-	m_pHazardSources		= Parameters("HAZARD_SOURCES")->asGrid();
-	m_pMaterialFlux			= Parameters("MATERIAL_FLUX")->asGrid();		if( m_pMaterialFlux != NULL )	m_pMaterialFlux->Assign(0.0);
+	m_pMaxVelocity			= Parameters("MAX_VELOCITY")->asGrid();				if( m_pMaxVelocity != NULL )		m_pMaxVelocity->Assign_NoData();
+	m_pStopPositions		= Parameters("STOP_POSITIONS")->asGrid();			if( m_pStopPositions != NULL )		m_pStopPositions->Assign(0.0);
+    m_pHazardPaths			= Parameters("HAZARD_PATHS")->asGrid();				if( m_pHazardPaths != NULL )		m_pHazardPaths->Assign_NoData();
+	m_pHazardSources		= Parameters("HAZARD_SOURCES")->asGrid();			if( m_pHazardSources != NULL )		m_pHazardSources->Assign_NoData();
+	m_pHazardSourcesMatl	= Parameters("HAZARD_SOURCES_MATERIAL")->asGrid();	if( m_pHazardSourcesMatl != NULL )	m_pHazardSourcesMatl->Assign_NoData();
+	m_pMaterialFlux			= Parameters("MATERIAL_FLUX")->asGrid();			if( m_pMaterialFlux != NULL )		m_pMaterialFlux->Assign(0.0);
 	
 	m_GPP_Deposition_Model	= Parameters("DEPOSITION_MODEL")->asInt();
 	m_PercentInitialDeposit	= Parameters("DEPOSITION_INITIAL")->asDouble() / 100.0;
@@ -857,10 +901,24 @@ bool CGPP_Model_BASE::Initialize_Parameters(CSG_Parameters &Parameters)
 		return( false );
 	}
 
-    //---------------------------------------------------------
-    if( m_pObjects != NULL && (m_pHazardPaths == NULL && m_pHazardSources == NULL ) )
+	//---------------------------------------------------------
+    if( m_pMaterialFlux != NULL && m_pMaterial == NULL )
     {
-		SG_UI_Msg_Add_Error(_TL("An 'Objects' input grid is provided but none of the two 'hazard' grids (path and/or sources) is selected as output!"));
+		SG_UI_Msg_Add_Error(_TL("Material flux output requires a material grid as input!"));
+		return( false );
+    }
+
+	//---------------------------------------------------------
+    if( m_pHazardSourcesMatl != NULL && (m_pMaterial == NULL || m_pObjects == NULL) )
+    {
+		SG_UI_Msg_Add_Error(_TL("Hazard sources material output requires a material and an objects grid as input!"));
+		return( false );
+    }
+
+    //---------------------------------------------------------
+    if( m_pObjects != NULL && (m_pHazardPaths == NULL && m_pHazardSources == NULL && m_pHazardSourcesMatl == NULL ) )
+    {
+		SG_UI_Msg_Add_Error(_TL("An 'Objects' input grid is provided but none of the 'hazard' grids (paths, sources or material) is selected as output!"));
 		return( false );
     }
 
@@ -1110,7 +1168,6 @@ void CGPP_Model_BASE::Run_GPP_Model(std::vector<class CGPP_Model_Particle> *pvPr
 
 			Particle.Set_Material(dMaterialRun);
 
-
 			while( true )
 			{
 				if( !Update_Path(&Particle, dMaterialRun, &pvProcessingList->at(iParticle)) )
@@ -1128,16 +1185,21 @@ void CGPP_Model_BASE::Run_GPP_Model(std::vector<class CGPP_Model_Particle> *pvPr
 					}
 				}
 
-				if( m_pMaterialFlux != NULL && Particle.Get_Material() > 0.0 )
+				if( (m_pMaterialFlux != NULL || m_pHazardSourcesMatl != NULL) && Particle.Get_Material() > 0.0 )
 				{
-					double dFluxMaterial = Particle.Get_Material_Release() / m_iIterations;
+					double dMaterial = Particle.Get_Material_Release() / m_iIterations;
 
-					if( Particle.Get_Material() < dFluxMaterial )
+					if( Particle.Get_Material() < dMaterial )
 					{
-						dFluxMaterial = Particle.Get_Material();
+						dMaterial = Particle.Get_Material();
 					}
 
-					m_pMaterialFlux->Add_Value(Particle.Get_X(), Particle.Get_Y(), dFluxMaterial * m_pDEM->Get_Cellsize());
+					Particle.Set_Material_Flux(dMaterial * m_pDEM->Get_Cellsize());
+
+					if( m_pMaterialFlux != NULL )
+					{
+						m_pMaterialFlux->Add_Value(Particle.Get_X(), Particle.Get_Y(), Particle.Get_Material_Flux());
+					}
 				}
 
 				if( !bContinue )
@@ -1151,7 +1213,7 @@ void CGPP_Model_BASE::Run_GPP_Model(std::vector<class CGPP_Model_Particle> *pvPr
 
                     if( m_pObjects != NULL )
                     {
-                        Particle.Evaluate_Damage_Potential(m_pObjectClasses, m_pHazardPaths, m_pHazardSources);
+                        Particle.Evaluate_Damage_Potential(m_pObjectClasses, m_pHazardPaths, m_pHazardSources, m_pHazardSourcesMatl);
                     }
 
 					break;
@@ -1207,7 +1269,7 @@ bool CGPP_Model_BASE::Update_Path(CGPP_Model_Particle *pParticle, double dMateri
 
         if( m_pObjects != NULL )
         {
-            pParticle->Evaluate_Damage_Potential(m_pObjectClasses, m_pHazardPaths, m_pHazardSources);
+            pParticle->Evaluate_Damage_Potential(m_pObjectClasses, m_pHazardPaths, m_pHazardSources, m_pHazardSourcesMatl);
         }
 	}
 
@@ -1324,7 +1386,7 @@ bool CGPP_Model_BASE::Update_Path_Maximum_Slope(CGPP_Model_Particle *pParticle, 
 
 	//---------------------------------------------------------
 	// update previous position
-	pParticle->Set_Previous_Position(pParticle->Get_Position(), pParticle->Get_Slope(), m_pDEM->Get_System().Get_Length(iExitDir), iExitDir);
+	pParticle->Set_Previous_Position(pParticle->Get_Position(), pParticle->Get_Slope(), m_pDEM->Get_System().Get_Length(iExitDir), iExitDir, pParticle->Get_Material_Flux());
 
 	// update current position
 	GRID_CELL	neighbor;
@@ -1530,7 +1592,7 @@ bool CGPP_Model_BASE::Update_Path_Random_Walk(CGPP_Model_Particle *pParticle, bo
 
 	//---------------------------------------------------------
 	// update previous position
-	pParticle->Set_Previous_Position(pParticle->Get_Position(), pParticle->Get_Slope(), m_pDEM->Get_System().Get_Length(iExitDir), iExitDir);
+	pParticle->Set_Previous_Position(pParticle->Get_Position(), pParticle->Get_Slope(), m_pDEM->Get_System().Get_Length(iExitDir), iExitDir, pParticle->Get_Material_Flux());
 
 	// update current position
 	GRID_CELL neighbor;
@@ -1575,7 +1637,7 @@ void  CGPP_Model_BASE::Fill_Sink(CGPP_Model_Particle *pParticle)
 	//---------------------------------------------------------
 	// add sink cell to path
 
-	pParticle->Set_Previous_Position(pParticle->Get_Position(), 0.0, 0.0, -1);
+	pParticle->Set_Previous_Position(pParticle->Get_Position(), 0.0, 0.0, -1, 0.0);
 	
 	
 	//---------------------------------------------------------
@@ -1656,7 +1718,7 @@ void CGPP_Model_BASE::Deposit_Material_On_Stop(CGPP_Model_Particle *pParticle)
 
 	//---------------------------------------------------------
 	// add stop cell to path
-	pParticle->Set_Previous_Position(pParticle->Get_Position(), 0.0, 0.0, -1);
+	pParticle->Set_Previous_Position(pParticle->Get_Position(), 0.0, 0.0, -1, pParticle->Get_Material_Flux());
 	
 
 	//---------------------------------------------------------
@@ -1769,16 +1831,21 @@ bool CGPP_Model_BASE::Update_Speed(CGPP_Model_Particle *pParticle, CGPP_Model_Pa
 
 		if( m_GPP_Deposition_Model > GPP_DEPOSITION_NONE )
 		{
-			if( m_pMaterialFlux != NULL && pParticle->Get_Material() > 0.0 )
+			if( (m_pMaterialFlux != NULL || m_pHazardSourcesMatl != NULL) && pParticle->Get_Material() > 0.0 )
 			{
-				double dFluxMaterial = pParticle->Get_Material_Release() / m_iIterations;
+				double dMaterial = pParticle->Get_Material_Release() / m_iIterations;
 
-				if( pParticle->Get_Material() < dFluxMaterial )
+				if( pParticle->Get_Material() < dMaterial )
 				{
-					dFluxMaterial = pParticle->Get_Material();
+					dMaterial = pParticle->Get_Material();
 				}
 
-				m_pMaterialFlux->Add_Value(pParticle->Get_X(), pParticle->Get_Y(), dFluxMaterial * m_pDEM->Get_Cellsize());
+				pParticle->Set_Material_Flux(dMaterial * m_pDEM->Get_Cellsize());
+
+				if( m_pMaterialFlux != NULL )
+				{
+					m_pMaterialFlux->Add_Value(pParticle->Get_X(), pParticle->Get_Y(), pParticle->Get_Material_Flux());
+				}
 			}
 
 			Deposit_Material_On_Stop(pParticle);
@@ -1786,7 +1853,7 @@ bool CGPP_Model_BASE::Update_Speed(CGPP_Model_Particle *pParticle, CGPP_Model_Pa
 
         if( m_pObjects != NULL )
         {
-            pParticle->Evaluate_Damage_Potential(m_pObjectClasses, m_pHazardPaths, m_pHazardSources);
+            pParticle->Evaluate_Damage_Potential(m_pObjectClasses, m_pHazardPaths, m_pHazardSources, m_pHazardSourcesMatl);
         }
 	}
 

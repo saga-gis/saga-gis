@@ -112,15 +112,19 @@ CGPP_Model::CGPP_Model(void)
                          "<b>New in version 1.2:</b><br/>"
                          "Since version 1.2 the model supports the optional output of a grid with the material flux. This requires "
                          "a 'Material' grid as input. The grid shows the height of the material that has passed in total "
-                         "through each grid cell."
+                         "through each grid cell.<br/><br/>"
                          "<b>Version 1.3:</b><br/>"
                          "Version 1.3 includes a fix for material deposition along the process path (amounts and the update of "
-                         "available material for subsequent runs) and improves the output of material flux."
+                         "available material for subsequent runs) and improves the output of material flux.<br/><br/>"
                          "<b>Version 1.4:</b><br/>"
                          "Since version 1.4 two separate 'Endangered Objects' output grids are created, one encoding the process "
                          "path cells, the other only the source cells from which objects have been hit. These optional output "
 						 "parameters also have been renamed ('HAZARD_PATHS', 'HAZARD_SOURCES') to improve the legibility of the "
-						 "parameter interface."
+						 "parameter interface. A third grid, showing the total amount of material in each source cell that has hit "
+						 "objects from that position, has also been added. This output requires a material grid as input in "
+						 "order to calculate material flux. To determine the total amount, the highest material flux observed "
+						 "to hit an object per path and iteration is summed up and converted back to a material height per cell "
+						 "(comparable to the amount specified in the material input grid.)"
     ));
 
 	Add_Reference("Wichmann, V.", "2017",
@@ -308,6 +312,7 @@ int CGPP_Model::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 		pParameters->Get_Parameter("SINK_MIN_SLOPE"				)->Set_Enabled( pParameter->asGrid() != NULL );
 		pParameters->Get_Parameter("DEPOSITION"					)->Set_Enabled( pParameter->asGrid() != NULL );
 		pParameters->Get_Parameter("MATERIAL_FLUX"				)->Set_Enabled( pParameter->asGrid() != NULL );
+		pParameters->Get_Parameter("HAZARD_SOURCES_MATERIAL"	)->Set_Enabled( pParameter->asGrid() != NULL && pParameters->Get_Parameter("OBJECTS")->asGrid() != NULL );
 	}
 
     //-----------------------------------------------------
@@ -315,6 +320,7 @@ int CGPP_Model::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
     {
         pParameters->Get_Parameter("HAZARD_PATHS"				)->Set_Enabled( pParameter->asGrid() != NULL );
         pParameters->Get_Parameter("HAZARD_SOURCES"				)->Set_Enabled( pParameter->asGrid() != NULL );
+		pParameters->Get_Parameter("HAZARD_SOURCES_MATERIAL"	)->Set_Enabled( pParameter->asGrid() != NULL && pParameters->Get_Parameter("MATERIAL")->asGrid() != NULL );
     }
 
 	//-----------------------------------------------------
