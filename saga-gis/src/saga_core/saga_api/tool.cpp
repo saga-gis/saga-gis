@@ -1322,14 +1322,15 @@ CSG_String CSG_Tool::Get_Script(TSG_Tool_Script_Type Type, bool bHeader, bool bA
 {
 	switch( Type )
 	{
-	case TOOL_SCRIPT_CMD_SHELL            : return( _Get_Script_CMD           (      bHeader, bAllParameters, Type) );
-	case TOOL_SCRIPT_CMD_BATCH            : return( _Get_Script_CMD           (      bHeader, bAllParameters, Type) );
-	case TOOL_SCRIPT_CHAIN                : return( CSG_Tool_Chain::Get_Script(this, bHeader, bAllParameters      ) );
-	case TOOL_SCRIPT_PYTHON               : return( _Get_Script_Python        (      bHeader, bAllParameters      ) );
-	case TOOL_SCRIPT_PYTHON_WRAP_NAME     : return( _Get_Script_Python_Wrap   (      bHeader, true , false        ) );
-	case TOOL_SCRIPT_PYTHON_WRAP_NAME_CALL: return( _Get_Script_Python_Wrap   (      bHeader, true , true         ) );
-	case TOOL_SCRIPT_PYTHON_WRAP_ID       : return( _Get_Script_Python_Wrap   (      bHeader, false, false        ) );
-	case TOOL_SCRIPT_PYTHON_WRAP_ID_CALL  : return( _Get_Script_Python_Wrap   (      bHeader, false, true         ) );
+	case TOOL_SCRIPT_CMD_SHELL                 : return( _Get_Script_CMD           (      bHeader, bAllParameters, Type) );
+	case TOOL_SCRIPT_CMD_BATCH                 : return( _Get_Script_CMD           (      bHeader, bAllParameters, Type) );
+	case TOOL_SCRIPT_CHAIN                     : return( CSG_Tool_Chain::Get_Script(this, bHeader, bAllParameters      ) );
+	case TOOL_SCRIPT_PYTHON                    : return( _Get_Script_Python        (      bHeader, bAllParameters      ) );
+	case TOOL_SCRIPT_PYTHON_WRAP_NAME          : return( _Get_Script_Python_Wrap   (      bHeader, true , false, false ) );
+	case TOOL_SCRIPT_PYTHON_WRAP_NAME_CALL     : return( _Get_Script_Python_Wrap   (      bHeader, true , true , true  ) );
+	case TOOL_SCRIPT_PYTHON_WRAP_NAME_CALL_FULL: return( _Get_Script_Python_Wrap   (      bHeader, true , true , false ) );
+	case TOOL_SCRIPT_PYTHON_WRAP_ID            : return( _Get_Script_Python_Wrap   (      bHeader, false, false, false ) );
+	case TOOL_SCRIPT_PYTHON_WRAP_ID_CALL       : return( _Get_Script_Python_Wrap   (      bHeader, false, true , false ) );
 	}
 
 	return( "" );
@@ -1836,28 +1837,28 @@ void CSG_Tool::_Get_Script_Python(CSG_String &Script, CSG_Parameters *pParameter
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader, bool bName, bool bCall)
+CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader, bool bName, bool bCall, bool bOnlyNonDefaults)
 {
 	CSG_String Arguments, Description, Code;
 
 	for(int i=0; i<Parameters.Get_Count(); i++)	// add input that is not optional in 1st place
 	{
-		_Get_Script_Python_Wrap(Parameters[i], PARAMETER_INPUT         , Arguments, Description, Code, bCall && bHeader);
+		_Get_Script_Python_Wrap(Parameters[i], PARAMETER_INPUT         , Arguments, Description, Code, bCall && bHeader, bOnlyNonDefaults);
 	}
 
 	for(int i=0; i<Parameters.Get_Count(); i++) // add optional input in 2nd place
 	{
-		_Get_Script_Python_Wrap(Parameters[i], PARAMETER_INPUT_OPTIONAL, Arguments, Description, Code, bCall && bHeader);
+		_Get_Script_Python_Wrap(Parameters[i], PARAMETER_INPUT_OPTIONAL, Arguments, Description, Code, bCall && bHeader, bOnlyNonDefaults);
 	}
 
 	for(int i=0; i<Parameters.Get_Count(); i++) // add output
 	{
-		_Get_Script_Python_Wrap(Parameters[i], PARAMETER_OUTPUT        , Arguments, Description, Code, bCall && bHeader);
+		_Get_Script_Python_Wrap(Parameters[i], PARAMETER_OUTPUT        , Arguments, Description, Code, bCall && bHeader, bOnlyNonDefaults);
 	}
 
 	for(int i=0; i<Parameters.Get_Count(); i++) // add options
 	{
-		_Get_Script_Python_Wrap(Parameters[i], 0                       , Arguments, Description, Code, bCall && bHeader);
+		_Get_Script_Python_Wrap(Parameters[i], 0                       , Arguments, Description, Code, bCall && bHeader, bOnlyNonDefaults);
 	}
 
 	//---------------------------------------------------------
@@ -1893,15 +1894,11 @@ CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader, bool bName, bool bCal
 
 	if( bCall )
 	{
+		Script += "from PySAGA.tools import " + Get_Library() + "\n\n";
+
 		if( bHeader )
 		{
-			Script += "#! /usr/bin/env python\n";
-			Script += "from PySAGA import saga_api; from PySAGA.tools import " + Get_Library() + "\n\n";
 			Script += Code + "\n";
-		}
-		else
-		{
-			Script += "from PySAGA.tools import " + Get_Library() + "\n\n";
 		}
 
 		Script += Get_Library() + '.' + Name + "(" + Arguments + ")\n";
@@ -1942,7 +1939,7 @@ CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader, bool bName, bool bCal
 }
 
 //---------------------------------------------------------
-bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Constraint, CSG_String &Arguments, CSG_String &Description, CSG_String &Code, bool bCall, const CSG_String &Prefix)
+bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Constraint, CSG_String &Arguments, CSG_String &Description, CSG_String &Code, bool bCall, bool bOnlyNonDefaults, const CSG_String &Prefix)
 {
 	if( Parameter.do_UseInCMD() == false
 	||  Parameter.is_Information()
@@ -1988,7 +1985,7 @@ bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Const
 
 		for(int i=0; i<(*Parameter.asParameters()).Get_Count(); i++)
 		{
-			if( _Get_Script_Python_Wrap((*Parameter.asParameters())[i], Constraint, Arguments, Description, Code, bCall, ID) )
+			if( _Get_Script_Python_Wrap((*Parameter.asParameters())[i], Constraint, Arguments, Description, Code, bCall, bOnlyNonDefaults, ID) )
 			{
 				bResult = true;
 			}
@@ -2055,7 +2052,7 @@ bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Const
 		}
 		else if( Parameter.is_Option() )
 		{
-			if( Parameter.is_Default() )
+			if( bOnlyNonDefaults && Parameter.is_Default() )
 			{
 				return( false );
 			}
