@@ -76,7 +76,8 @@ CGrid_To_Contour::CGrid_To_Contour(void)
 	Parameters.Add_Bool  ("CONTOUR" , "LINE_PARTS", _TL("Split Line Parts"   ), _TL(""),  true);
 
 	Parameters.Add_Shapes(""        , "POLYGONS"  , _TL("Polygons"           ), _TL(""), PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon);
-	Parameters.Add_Bool  ("POLYGONS", "POLY_PARTS", _TL("Split Polygon Parts"), _TL(""), false);
+	Parameters.Add_Bool  ("POLYGONS", "POLY_PARTS", _TL("Split Polygon Parts"), _TL(""), true);
+	Parameters.Add_Bool  ("POLYGONS", "PARALLEL"  , _TL("Parallel Processing"), _TL(""), true);
 
 	Parameters.Add_Double("",
 		"SCALE"    , _TL("Interpolation Scale"),
@@ -158,7 +159,7 @@ int CGrid_To_Contour::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 
 	if( pParameter->Cmp_Identifier("POLYGONS") )
 	{
-		pParameters->Set_Enabled("POLY_PARTS", pParameter->asPointer() != NULL);
+		pParameter->Set_Children_Enabled(pParameter->asPointer() != NULL);
 	}
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
@@ -332,26 +333,44 @@ bool CGrid_To_Contour::On_Execute(void)
 		pPolygons->Add_Field("MAX"  , SG_DATATYPE_Double);
 		pPolygons->Add_Field("LABEL", SG_DATATYPE_String);
 
-		Get_Polygons(pPolygons, Edges, NULL, pContours->Get_Shape(0)->asLine());
-
-		for(sLong i=1; i<pContours->Get_Count() && Set_Progress(i, pContours->Get_Count()); i++)
+		if( Parameters("PARALLEL")->asBool() )
 		{
-			Get_Polygons(pPolygons, Edges, pContours->Get_Shape(i - 1)->asLine(), pContours->Get_Shape(i)->asLine());
+			pPolygons->Set_Count(pContours->Get_Count() + 1);
+
+			#pragma omp parallel for
+			for(int i=0; i<=(int)pContours->Get_Count(); i++) // omp seems not to work with non-standard variables (=>sLong) ?!
+			{
+				Get_Polygons(*pPolygons->Get_Shape(i)->asPolygon(), Edges,
+					i > 0                      ? pContours->Get_Shape(i - 1)->asLine() : NULL,
+					i < pContours->Get_Count() ? pContours->Get_Shape(i    )->asLine() : NULL
+				);
+			}
 		}
-
-		if( Set_Progress(1.) )
+		else
 		{
-			Get_Polygons(pPolygons, Edges, pContours->Get_Shape(pContours->Get_Count() - 1)->asLine(), NULL);
+			for(sLong i=0; i<=pContours->Get_Count() && Set_Progress(i, pContours->Get_Count()); i++)
+			{
+				Get_Polygons(*pPolygons->Add_Shape()->asPolygon(), Edges,
+					i > 0                      ? pContours->Get_Shape(i - 1)->asLine() : NULL,
+					i < pContours->Get_Count() ? pContours->Get_Shape(i    )->asLine() : NULL
+				);
+			}
 		}
 
 		//-------------------------------------------------
+		for(sLong i=pPolygons->Get_Count()-1; i>=0; i--)
+		{
+			if( pPolygons->Get_Shape(i)->Get_Part_Count() < 1 )
+			{
+				pPolygons->Del_Shape(i);
+			}
+		}
+
 		if( Parameters("POLY_PARTS")->asBool() )
 		{
 			Split_Polygon_Parts(pPolygons);
 		}
 	}
-
-	m_Flag.Destroy();
 
 	//-----------------------------------------------------
 	if( Parameters("LINE_PARTS")->asBool() )
@@ -392,37 +411,34 @@ inline bool CGrid_To_Contour::is_Edge(int x, int y)
 bool CGrid_To_Contour::Get_Contour(CSG_Shapes *pContours, double z, double minLength)
 {
 	#pragma omp parallel for
-	for(int y=0; y<m_pGrid->Get_NY(); y++)	// Find Border Cells
+	for(int y=0; y<m_pGrid->Get_NY(); y++) for(int x=0; x<m_pGrid->Get_NX(); x++) // Find Border Cells
 	{
-		for(int x=0; x<m_pGrid->Get_NX(); x++)
+		if( m_pGrid->is_NoData(x, y) )
 		{
-			if( m_pGrid->is_NoData(x, y) )
-			{
-				m_Flag.Set_NoData(x, y);
-			}
-			else if( m_pGrid->asDouble(x, y) < z )
-			{
-				m_Flag.Set_Value(x, y, -1);
-			}
-			else // if( m_pGrid->asDouble(x, y) >= z )
-			{
-				int Flag = 0;
-
-				for(int i=0; i<8; i+=2)
-				{
-					int ix = CSG_Grid_System::Get_xTo(i, x);
-					int iy = CSG_Grid_System::Get_yTo(i, y);
-
-					if( m_pGrid->is_InGrid(ix, iy) && m_pGrid->asDouble(ix, iy) < z )
-					{
-						Flag++;
-					}
-				}
-
-				m_Flag.Set_Value(x, y, Flag);
-			}
+			m_Flag.Set_NoData(x, y);
 		}
- 	}
+		else if( m_pGrid->asDouble(x, y) < z )
+		{
+			m_Flag.Set_Value(x, y, -1);
+		}
+		else // if( m_pGrid->asDouble(x, y) >= z )
+		{
+			int Flag = 0;
+
+			for(int i=0; i<8; i+=2)
+			{
+				int ix = CSG_Grid_System::Get_xTo(i, x);
+				int iy = CSG_Grid_System::Get_yTo(i, y);
+
+				if( m_pGrid->is_InGrid(ix, iy) && m_pGrid->asDouble(ix, iy) < z )
+				{
+					Flag++;
+				}
+			}
+
+			m_Flag.Set_Value(x, y, Flag);
+		}
+	}
 
 	//-----------------------------------------------------
 	CSG_Shape_Line *pContour = pContours->Add_Shape()->asLine();
@@ -431,23 +447,17 @@ bool CGrid_To_Contour::Get_Contour(CSG_Shapes *pContours, double z, double minLe
 	pContour->Set_Value(1, z);
 
 	//-----------------------------------------------------
-	for(int y=0; y<m_pGrid->Get_NY(); y++)	// find unclosed contours first so that these start/end at edges and not somewhere else
+	for(int y=0; y<m_pGrid->Get_NY(); y++) for(int x=0; x<m_pGrid->Get_NX(); x++) // find unclosed contours first so that these start/end at edges and not somewhere else
 	{
-		for(int x=0; x<m_pGrid->Get_NX(); x++)
+		if( is_Edge(x, y) )
 		{
-			if( is_Edge(x, y) )
-			{
-				Get_Contour(pContour, z, x, y, true);
-			}
+			Get_Contour(pContour, z, x, y, true);
 		}
 	}
 
-	for(int y=0; y<m_pGrid->Get_NY(); y++)
+	for(int y=0; y<m_pGrid->Get_NY(); y++) for(int x=0; x<m_pGrid->Get_NX(); x++)
 	{
-		for(int x=0; x<m_pGrid->Get_NX(); x++)
-		{
-			while( Get_Contour(pContour, z, x, y, false) );
-		}
+		while( Get_Contour(pContour, z, x, y, false) );
 	}
 
 	//-----------------------------------------------------
@@ -490,16 +500,13 @@ bool CGrid_To_Contour::Get_Contour(CSG_Shape_Line *pContour, double z, int x, in
 		while( Get_Contour_Vertex_Next(x, y, Dir) );
 
 		//-------------------------------------------------
-		if( pContour->Get_Point_Count(iPart) > 1 ) // found at least one contour pixel
-		{
-			if( !bEdge )
-			{
-				pContour->Add_Point(pContour->Get_Point(0, iPart), iPart); // close contour line
-			}
-		}
-		else
+		if( pContour->Get_Point_Count(iPart) < 2 ) // found at least one contour segment
 		{
 			pContour->Del_Part(iPart);
+		}
+		else if( !bEdge )
+		{
+			pContour->Add_Point(pContour->Get_Point(0, iPart), iPart); // close contour line
 		}
 
 		return( true );
@@ -627,26 +634,20 @@ bool CGrid_To_Contour::Get_Edge_Segments(CSG_Shapes &Edges, CSG_Shapes *pContour
 	m_Flag.Create(m_pGrid->Get_System(), SG_DATATYPE_Char);
 
 	#pragma omp parallel for
-	for(int y=0; y<m_pGrid->Get_NY(); y++)
+	for(int y=0; y<m_pGrid->Get_NY(); y++) for(int x=0; x<m_pGrid->Get_NX(); x++)
 	{
-		for(int x=0; x<m_pGrid->Get_NX(); x++)
-		{
-			m_Flag.Set_Value(x, y, is_Edge(x, y) ? 1 : 0);
-		}
+		m_Flag.Set_Value(x, y, is_Edge(x, y) ? 1 : 0);
 	}
 
 	Edges.Create(SHAPE_TYPE_Line);
-	Edges.Add_Field("LO", SG_DATATYPE_Long);
-	Edges.Add_Field("HI", SG_DATATYPE_Long);
+	Edges.Add_Field("A", SG_DATATYPE_Long);
+	Edges.Add_Field("B", SG_DATATYPE_Long);
 
-	for(int y=0; y<m_pGrid->Get_NY(); y++)
+	for(int y=0; y<m_pGrid->Get_NY(); y++) for(int x=0; x<m_pGrid->Get_NX(); x++)
 	{
-		for(int x=0; x<m_pGrid->Get_NX(); x++)
+		if( m_Flag.asInt(x, y) == 1 )
 		{
-			if( m_Flag.asInt(x, y) == 1 )
-			{
-				Add_Edge_Segment(*Edges.Add_Shape(), x, y);
-			}
+			Add_Edge_Segment(*Edges.Add_Shape(), x, y);
 		}
 	}
 
@@ -698,25 +699,39 @@ bool CGrid_To_Contour::Get_Edge_Segments(CSG_Shapes &Edges, CSG_Shapes *pContour
 		}
 		else if( Edge.asLong(0) == Edge.asLong(1) ) // needs to determine 'going lower/higher' state in relation to contour elevation
 		{
-			double z = pContours->Get_Shape(Edge.asLong(0))->asDouble(1);
+			#define Edge_Point(i) { p[i] = Edge.Get_Point(i);\
+				p[i].x = (p[i].x - m_pGrid->Get_XMin()) / m_pGrid->Get_Cellsize();\
+				p[i].y = (p[i].y - m_pGrid->Get_YMin()) / m_pGrid->Get_Cellsize();\
+			}
 
-			CSG_Point p0(Edge.Get_Point(0)), p1(Edge.Get_Point(1));
+			CSG_Point p[2]; Edge_Point(0); Edge_Point(1);
 
-			int x = (int)((p0.x - m_pGrid->Get_XMin()) / m_pGrid->Get_Cellsize());
-			int y = (int)((p0.y - m_pGrid->Get_YMin()) / m_pGrid->Get_Cellsize());
-
-			if( p0.x > p1.x ) { x++; } else if( p0.y > p1.y ) { y++; }
-
-			double dz = m_pGrid->asDouble(x, y) - z;
-
-			if( dz == 0. )
+			if( p[0].x > p[1].x || p[0].y > p[1].y )
 			{
-				x = (int)((p1.x - m_pGrid->Get_XMin()) / m_pGrid->Get_Cellsize());
-				y = (int)((p1.y - m_pGrid->Get_YMin()) / m_pGrid->Get_Cellsize());
+				CSG_Point _p = p[0]; p[0] = p[1]; p[1] = _p;
+			}
 
-				if( p1.x > p0.x && x < m_pGrid->Get_NX() - 1 ) { x++; } else if( p1.y > p0.y && y < m_pGrid->Get_NY() - 1 ) { y++; }
+			int x = (int)p[0].x, y = (int)p[0].y;
 
-				dz = m_pGrid->asDouble(x, y) - z;
+			double z = pContours->Get_Shape(Edge.asLong(0))->asDouble(1), dz = 0.;
+
+			if( p[0].x < p[1].x )
+			{
+				if( p[0].x == x )
+				{
+					x += m_pGrid->is_InGrid(x + 1, y) && m_pGrid->asDouble(x + 1, y) != z ? 1 : -1;
+				}
+
+				dz = p[0].x < x ? z - m_pGrid->asDouble(x, y) : m_pGrid->asDouble(x, y) - z;
+			}
+			else // if( p[0].y < p[1].y )
+			{
+				if( p[0].y == y )
+				{
+					y += m_pGrid->is_InGrid(x, y + 1) && m_pGrid->asDouble(x, y + 1) != z ? 1 : -1;
+				}
+
+				dz = p[0].y < y ? z - m_pGrid->asDouble(x, y) : m_pGrid->asDouble(x, y) - z;
 			}
 
 			if( dz > 0. )
@@ -725,7 +740,7 @@ bool CGrid_To_Contour::Get_Edge_Segments(CSG_Shapes &Edges, CSG_Shapes *pContour
 			}
 			else if( dz == 0. )
 			{
-				Message_Fmt("\nWarning: gradient detection failed for edge segment, x=%f (%d), y=%f (%d), z=%f]", p1.x, x, p1.y, y, z);
+				Message_Fmt("\nWarning: gradient detection failed for edge segment, x=%f (%d), y=%f (%d), z=%f]", p[0].x, x, p[0].y, y, z);
 			}
 		}
 	}
@@ -843,23 +858,27 @@ bool CGrid_To_Contour::Add_Edge_Point(CSG_Shapes &Edges, const CSG_Point &Point,
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_To_Contour::Get_Polygons(CSG_Shapes *pPolygons, CSG_Shapes &Edges, CSG_Shape_Line *pContour_Lo, CSG_Shape_Line *pContour_Hi)
+bool CGrid_To_Contour::Get_Polygons(CSG_Shape_Polygon &Polygon, CSG_Shapes &Edges, CSG_Shape_Line *pContour_Lo, CSG_Shape_Line *pContour_Hi)
 {
-	CSG_Shape_Polygon &Polygon = *pPolygons->Add_Shape()->asPolygon();
-
-	Polygon.Set_Value(0, pPolygons->Get_Count());
+	Polygon.Set_Value(0, 1 + Polygon.Get_Index());
 	Polygon.Set_Value(1, pContour_Lo ? pContour_Lo->asDouble(1) : m_pGrid->Get_Min());
 	Polygon.Set_Value(2, pContour_Hi ? pContour_Hi->asDouble(1) : m_pGrid->Get_Max());
 
 	if( pContour_Hi )
 	{
-		Process_Set_Text("%s: < %s", _TL("Polygon"), SG_Get_String(pContour_Hi->asDouble(1), -10).c_str());
+		if( !SG_OMP_Get_Thread_Num() )
+		{
+			Process_Set_Text("%s: < %s", _TL("Polygon"), SG_Get_String(pContour_Hi->asDouble(1), -10).c_str());
+		}
 
 		Polygon.Set_Value(3, "< " + SG_Get_String(pContour_Hi->asDouble(1), -10));
 	}	
 	else if( pContour_Lo )
 	{
-		Process_Set_Text("%s: > %s", _TL("Polygon"), SG_Get_String(pContour_Lo->asDouble(1), -10).c_str());
+		if( !SG_OMP_Get_Thread_Num() )
+		{
+			Process_Set_Text("%s: > %s", _TL("Polygon"), SG_Get_String(pContour_Lo->asDouble(1), -10).c_str());
+		}
 
 		Polygon.Set_Value(3, "> " + SG_Get_String(pContour_Lo->asDouble(1), -10));
 	}
@@ -896,9 +915,9 @@ bool CGrid_To_Contour::Get_Polygons(CSG_Shapes *pPolygons, CSG_Shapes &Edges, CS
 
 		int iPart = Polygon.Get_Part_Count(); Polygon.Add_Part(pSegment);
 
-		CSG_Shape_Part *pPolygon = Polygon.Get_Part(iPart);
+		CSG_Shape_Part *pPart = Polygon.Get_Part(iPart);
 
-		while( Add_Polygon_Segment(Segments, pPolygon) );
+		while( Add_Polygon_Segment(Segments, pPart) );
 
 		if( Polygon.Get_Area(iPart) == 0. )
 		{

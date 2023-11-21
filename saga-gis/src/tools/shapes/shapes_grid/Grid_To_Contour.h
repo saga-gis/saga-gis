@@ -103,7 +103,7 @@ private:
 	bool					Add_Edge_Segment		(CSG_Shape &Edge, int x, int y);
 	bool					Add_Edge_Point			(CSG_Shapes &Edges, const CSG_Point &Point, sLong Line, int Part);
 
-	bool					Get_Polygons			(CSG_Shapes *pPolygons, CSG_Shapes &Edges, CSG_Shape_Line *pContour_Lo, CSG_Shape_Line *pContour_Hi);
+	bool					Get_Polygons			(CSG_Shape_Polygon &Polygon, CSG_Shapes &Edges, CSG_Shape_Line *pContour_Lo, CSG_Shape_Line *pContour_Hi);
 	bool					Add_Polygon_Segment		(CSG_Array_Pointer &Segments, CSG_Shape_Part *pPolygon);
 
 	bool					Split_Line_Parts		(CSG_Shapes *pLines);
