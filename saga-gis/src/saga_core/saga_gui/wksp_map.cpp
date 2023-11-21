@@ -790,13 +790,23 @@ bool CWKSP_Map::Update(CWKSP_Layer *pLayer, bool bMapOnly)
 
 	for(int i=0; i<Get_Count(); i++)
 	{
-		if( Get_Item(i)->Get_Type() == WKSP_ITEM_Map_Layer && ((CWKSP_Map_Layer *)Get_Item(i))->Get_Layer()->Update(pLayer) )
+		if( Get_Item(i)->Get_Type() == WKSP_ITEM_Map_Layer )
 		{
-			bRefresh = true;
-
-			if( !bMapOnly )
+			CWKSP_Map_Layer *pMapLayer = (CWKSP_Map_Layer *)Get_Item(i);
+			
+			if( pMapLayer->Get_Layer()->Update(pLayer) )
 			{
-				Get_Item(i)->Parameters_Changed();
+				bRefresh = true;
+
+				if( pMapLayer->Get_Layer() == pLayer )
+				{
+					pMapLayer->Fit_Colors(Get_Extent());
+				}
+
+				if( !bMapOnly )
+				{
+					pMapLayer->Parameters_Changed();
+				}
 			}
 		}
 	}
