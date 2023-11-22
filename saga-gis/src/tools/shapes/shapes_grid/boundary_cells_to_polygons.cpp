@@ -95,6 +95,12 @@ CBoundary_Cells_to_Polygons::CBoundary_Cells_to_Polygons(void)
 		_TL(""),
 		0.
 	);
+
+	Parameters.Add_Bool("",
+		"ALLVERTICES"   , _TL("Keep Vertices on Straight Lines"),
+		_TL(""),
+		false
+	);
 }
 
 
@@ -131,6 +137,8 @@ bool CBoundary_Cells_to_Polygons::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	bool bAllVertices = Parameters("ALLVERTICES")->asBool();
+
 	CSG_Shapes *pPolygons = Parameters("POLYGONS")->asShapes();
 	pPolygons->Create(SHAPE_TYPE_Polygon);
 	pPolygons->Add_Field("ID", SG_DATATYPE_Int);
@@ -146,7 +154,7 @@ bool CBoundary_Cells_to_Polygons::On_Execute(void)
 
 				pPolygon->Set_Value(0, pPolygons->Get_Count());
 
-				if( !Get_Polygon(Mask, x, y, pPolygon) )
+				if( !Get_Polygon(Mask, x, y, pPolygon, bAllVertices) )
 				{
 					pPolygons->Del_Shape(pPolygon);
 				}
@@ -222,7 +230,7 @@ bool CBoundary_Cells_to_Polygons::Find_Next_Boundary(CSG_Grid &Mask, int x, int 
 }
 
 //---------------------------------------------------------
-bool CBoundary_Cells_to_Polygons::Get_Polygon(CSG_Grid &Mask, int x, int y, CSG_Shape *pPolygon)
+bool CBoundary_Cells_to_Polygons::Get_Polygon(CSG_Grid &Mask, int x, int y, CSG_Shape *pPolygon, bool bAllVertices)
 {
 	int x0 = x, y0 = y, id = Mask.asInt(x, y);
 
@@ -280,9 +288,16 @@ bool CBoundary_Cells_to_Polygons::Get_Polygon(CSG_Grid &Mask, int x, int y, CSG_
 			break;
 		}
 
-		pPolygon->Add_Point(Mask.Get_System().Get_Grid_to_World(x, y));
+		int Next = Direction + 2;
 
-		Find_Next_Boundary(Mask, x, y, Direction += 2);
+		Find_Next_Boundary(Mask, x, y, Next);
+
+		if( bAllVertices || Direction != Next )
+		{
+			Direction = Next;
+
+			pPolygon->Add_Point(Mask.Get_System().Get_Grid_to_World(x, y));
+		}
 
 		x += Get_xTo(Direction);
 		y += Get_yTo(Direction);
