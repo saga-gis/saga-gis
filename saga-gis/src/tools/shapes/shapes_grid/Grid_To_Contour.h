@@ -90,11 +90,13 @@ private:
 
 	CSG_Grid				*m_pGrid, m_Flag;
 
+	CSG_Grids				m_Flags;
+
 
 	bool					is_Edge					(int x, int y);
 
-	bool					Get_Contour				(CSG_Shapes     *pContours, double z, double minLength);
-	bool					Get_Contour				(CSG_Shape_Line *pContour , double z, int x, int y, bool bEdge);
+	bool					Get_Contour				(CSG_Shape_Line *pContour, double z, double minLength);
+	bool					Get_Contour				(CSG_Shape_Line *pContour, double z, int x, int y, bool bEdge);
 	int						Get_Contour_Vertex_First(int x, int y, bool bEdge);
 	bool					Get_Contour_Vertex_Next	(int &x, int &y, int &Dir);
 	bool					Add_Contour_Vertex		(CSG_Shape_Line *pContour, int iPart, double z, int x, int y, int Dir);

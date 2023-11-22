@@ -73,11 +73,12 @@ CGrid_To_Contour::CGrid_To_Contour(void)
 
 	Parameters.Add_Shapes(""        , "CONTOUR"   , _TL("Contour"            ), _TL(""), PARAMETER_OUTPUT         , SHAPE_TYPE_Line   );
 	Parameters.Add_Choice("CONTOUR" , "VERTEX"    , _TL("Vertex Type"        ), _TL(""), "x, y|x, y, z", 0);
+	Parameters.Add_Bool  ("CONTOUR" , "LINE_OMP"  , _TL("Parallel Processing"), _TL(""), true);
 	Parameters.Add_Bool  ("CONTOUR" , "LINE_PARTS", _TL("Split Line Parts"   ), _TL(""), true);
 
 	Parameters.Add_Shapes(""        , "POLYGONS"  , _TL("Polygons"           ), _TL(""), PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon);
-	Parameters.Add_Bool  ("POLYGONS", "POLY_PARTS", _TL("Split Polygon Parts"), _TL(""), true);
 	Parameters.Add_Bool  ("POLYGONS", "POLY_OMP"  , _TL("Parallel Processing"), _TL(""), true);
+	Parameters.Add_Bool  ("POLYGONS", "POLY_PARTS", _TL("Split Polygon Parts"), _TL(""), true);
 
 	Parameters.Add_Double("",
 		"SCALE"    , _TL("Interpolation Scale"),
@@ -301,21 +302,45 @@ bool CGrid_To_Contour::On_Execute(void)
 	//-----------------------------------------------------
 	double minLength = Parameters("MINLENGTH")->asDouble();
 
-	m_Flag.Create(m_pGrid->Get_System(), SG_DATATYPE_Char);
-
 	Intervals.Sort();
 
-	for(int i=0; i<Intervals.Get_N() && Set_Progress(i, Intervals.Get_N()); i++)
-	{
-		if( i == 0 || Intervals[i] != Intervals[i - 1] )
-		{
-			Process_Set_Text("%s: %s", _TL("Contour"), SG_Get_String(Intervals[i], -2).c_str());
+	pContours->Set_Count(Intervals.Get_Size());
 
-			Get_Contour(pContours, Intervals[i], minLength);
+	if( Parameters("LINE_OMP")->asBool() )
+	{
+		m_Flags.Create(m_pGrid->Get_System(), SG_OMP_Get_Max_Num_Threads(), 0., SG_DATATYPE_Char);
+
+		#pragma omp parallel for
+		for(int i=0; i<Intervals.Get_N(); i++)
+		{
+			if( i == 0 || Intervals[i] != Intervals[i - 1] )
+			{
+				Get_Contour(pContours->Get_Shape(i)->asLine(), Intervals[i], minLength);
+			}
+		}
+	}
+	else
+	{
+		m_Flags.Create(m_pGrid->Get_System(), 1, 0., SG_DATATYPE_Char);
+
+		for(int i=0; i<Intervals.Get_N() && Set_Progress(i, Intervals.Get_N()); i++)
+		{
+			if( i == 0 || Intervals[i] != Intervals[i - 1] )
+			{
+				Get_Contour(pContours->Get_Shape(i)->asLine(), Intervals[i], minLength);
+			}
 		}
 	}
 
-	m_Flag.Destroy();
+	m_Flags.Destroy();
+
+	for(sLong i=pContours->Get_Count()-1; i>=0; i--)
+	{
+		if( pContours->Get_Shape(i)->Get_Part_Count() < 1 )
+		{
+			pContours->Del_Shape(i);
+		}
+	}
 
 	//-----------------------------------------------------
 	CSG_Shapes *pPolygons = Parameters("POLYGONS")->asShapes();
@@ -408,9 +433,20 @@ inline bool CGrid_To_Contour::is_Edge(int x, int y)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_To_Contour::Get_Contour(CSG_Shapes *pContours, double z, double minLength)
+bool CGrid_To_Contour::Get_Contour(CSG_Shape_Line *pContour, double z, double minLength)
 {
-	#pragma omp parallel for
+	if( !SG_OMP_Get_Thread_Num() )
+	{
+		Process_Set_Text("%s: %s", _TL("Contour"), SG_Get_String(z, -2).c_str());
+	}
+
+	pContour->Set_Value(0, 1 + pContour->Get_Index());
+	pContour->Set_Value(1, z);
+
+	//-----------------------------------------------------
+	CSG_Grid &m_Flag = m_Flags[SG_OMP_Get_Thread_Num()];
+
+//	#pragma omp parallel for
 	for(int y=0; y<m_pGrid->Get_NY(); y++) for(int x=0; x<m_pGrid->Get_NX(); x++) // Find Border Cells
 	{
 		if( m_pGrid->is_NoData(x, y) )
@@ -441,12 +477,6 @@ bool CGrid_To_Contour::Get_Contour(CSG_Shapes *pContours, double z, double minLe
 	}
 
 	//-----------------------------------------------------
-	CSG_Shape_Line *pContour = pContours->Add_Shape()->asLine();
-
-	pContour->Set_Value(0, pContours->Get_Count());
-	pContour->Set_Value(1, z);
-
-	//-----------------------------------------------------
 	for(int y=0; y<m_pGrid->Get_NY(); y++) for(int x=0; x<m_pGrid->Get_NX(); x++) // find unclosed contours first so that these start/end at edges and not somewhere else
 	{
 		if( is_Edge(x, y) )
@@ -469,14 +499,7 @@ bool CGrid_To_Contour::Get_Contour(CSG_Shapes *pContours, double z, double minLe
 		}
 	}
 
-	if( pContour->Get_Part_Count() < 1 )
-	{
-		pContours->Del_Shape(pContour);
-
-		return( false );
-	}
-
-	return( true );
+	return( pContour->Get_Part_Count() > 0 );
 }
 
 
@@ -518,6 +541,8 @@ bool CGrid_To_Contour::Get_Contour(CSG_Shape_Line *pContour, double z, int x, in
 //---------------------------------------------------------
 inline int CGrid_To_Contour::Get_Contour_Vertex_First(int x, int y, bool bEdge)
 {
+	CSG_Grid &m_Flag = m_Flags[SG_OMP_Get_Thread_Num()];
+
 	if( m_Flag.asInt(x, y) > 0 )
 	{
 		for(int i=8; i>0; i-=2) // we want to work counter-clockwise
@@ -551,6 +576,8 @@ inline int CGrid_To_Contour::Get_Contour_Vertex_First(int x, int y, bool bEdge)
 //---------------------------------------------------------
 inline bool CGrid_To_Contour::Get_Contour_Vertex_Next(int &x, int &y, int &Dir)
 {
+	CSG_Grid &m_Flag = m_Flags[SG_OMP_Get_Thread_Num()];
+
 	int xo = CSG_Grid_System::Get_xTo(Dir + 6, x);
 	int yo = CSG_Grid_System::Get_yTo(Dir + 6, y);
 
@@ -595,6 +622,8 @@ inline bool CGrid_To_Contour::Get_Contour_Vertex_Next(int &x, int &y, int &Dir)
 //---------------------------------------------------------
 inline bool CGrid_To_Contour::Add_Contour_Vertex(CSG_Shape_Line *pContour, int iPart, double z, int x, int y, int Dir)
 {
+	CSG_Grid &m_Flag = m_Flags[SG_OMP_Get_Thread_Num()];
+
 	if( m_Flag.asInt(x, y) > 0 )
 	{
 		int x1 = CSG_Grid_System::Get_xTo(Dir, x), y1 = CSG_Grid_System::Get_yTo(Dir, y);
