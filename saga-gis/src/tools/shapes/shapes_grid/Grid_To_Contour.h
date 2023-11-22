@@ -100,7 +100,8 @@ private:
 	bool					Add_Contour_Vertex		(CSG_Shape_Line *pContour, int iPart, double z, int x, int y, int Dir);
 
 	bool					Get_Edge_Segments		(CSG_Shapes &Edges, CSG_Shapes *pContours);
-	bool					Add_Edge_Segment		(CSG_Shape &Edge, int x, int y);
+	bool					Add_Edge_Segment		(CSG_Shapes &Edges, int x, int y);
+	int						Get_Edge_Flag			(int x, int y, int Dir);
 	bool					Add_Edge_Point			(CSG_Shapes &Edges, const CSG_Point &Point, sLong Line, int Part);
 
 	bool					Get_Polygons			(CSG_Shape_Polygon &Polygon, CSG_Shapes &Edges, CSG_Shape_Line *pContour_Lo, CSG_Shape_Line *pContour_Hi);

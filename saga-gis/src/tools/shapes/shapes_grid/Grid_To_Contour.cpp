@@ -73,11 +73,11 @@ CGrid_To_Contour::CGrid_To_Contour(void)
 
 	Parameters.Add_Shapes(""        , "CONTOUR"   , _TL("Contour"            ), _TL(""), PARAMETER_OUTPUT         , SHAPE_TYPE_Line   );
 	Parameters.Add_Choice("CONTOUR" , "VERTEX"    , _TL("Vertex Type"        ), _TL(""), "x, y|x, y, z", 0);
-	Parameters.Add_Bool  ("CONTOUR" , "LINE_PARTS", _TL("Split Line Parts"   ), _TL(""),  true);
+	Parameters.Add_Bool  ("CONTOUR" , "LINE_PARTS", _TL("Split Line Parts"   ), _TL(""), true);
 
 	Parameters.Add_Shapes(""        , "POLYGONS"  , _TL("Polygons"           ), _TL(""), PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon);
 	Parameters.Add_Bool  ("POLYGONS", "POLY_PARTS", _TL("Split Polygon Parts"), _TL(""), true);
-	Parameters.Add_Bool  ("POLYGONS", "PARALLEL"  , _TL("Parallel Processing"), _TL(""), true);
+	Parameters.Add_Bool  ("POLYGONS", "POLY_OMP"  , _TL("Parallel Processing"), _TL(""), true);
 
 	Parameters.Add_Double("",
 		"SCALE"    , _TL("Interpolation Scale"),
@@ -333,7 +333,7 @@ bool CGrid_To_Contour::On_Execute(void)
 		pPolygons->Add_Field("MAX"  , SG_DATATYPE_Double);
 		pPolygons->Add_Field("LABEL", SG_DATATYPE_String);
 
-		if( Parameters("PARALLEL")->asBool() )
+		if( Parameters("POLY_OMP")->asBool() )
 		{
 			pPolygons->Set_Count(pContours->Get_Count() + 1);
 
@@ -504,7 +504,7 @@ bool CGrid_To_Contour::Get_Contour(CSG_Shape_Line *pContour, double z, int x, in
 		{
 			pContour->Del_Part(iPart);
 		}
-		else if( !bEdge )
+		else if( !bEdge && SG_Get_Distance(pContour->Get_Point(0, iPart, true), pContour->Get_Point(0, iPart, false)) < sqrt(2.) * m_pGrid->Get_Cellsize() )
 		{
 			pContour->Add_Point(pContour->Get_Point(0, iPart), iPart); // close contour line
 		}
@@ -631,12 +631,46 @@ bool CGrid_To_Contour::Get_Edge_Segments(CSG_Shapes &Edges, CSG_Shapes *pContour
 {
 	Process_Set_Text("%s...", _TL("edge segments"));
 
-	m_Flag.Create(m_pGrid->Get_System(), SG_DATATYPE_Char);
+	m_Flag.Create(m_pGrid->Get_System(), SG_DATATYPE_Char); m_Flag.Set_NoData_Value(0);
 
 	#pragma omp parallel for
 	for(int y=0; y<m_pGrid->Get_NY(); y++) for(int x=0; x<m_pGrid->Get_NX(); x++)
 	{
-		m_Flag.Set_Value(x, y, is_Edge(x, y) ? 1 : 0);
+		m_Flag.Set_Value(x, y, m_pGrid->is_NoData(x, y) ? 0 : is_Edge(x, y) ? 1 : -1);
+	}
+
+	#pragma omp parallel for
+	for(int y=0; y<m_pGrid->Get_NY(); y++) for(int x=0; x<m_pGrid->Get_NX(); x++)
+	{
+		if( m_Flag.asInt(x, y) > 0 )
+		{
+			int n = 0;
+
+			for(int i=0; i<8; i++)
+			{
+				if( Get_Edge_Flag(x, y, i) < 0 )
+				{
+					n++;
+				}
+			}
+
+			if( n == 0 )
+			{
+				m_Flag.Set_Value(x, y, 0.);
+			}
+			else if( (Get_Edge_Flag(x, y, 0) > 0 && Get_Edge_Flag(x, y, 4) > 0)
+				&& ( (Get_Edge_Flag(x, y, 1) < 0 || Get_Edge_Flag(x, y, 2) < 0 || Get_Edge_Flag(x, y, 3) < 0)
+				  && (Get_Edge_Flag(x, y, 5) < 0 || Get_Edge_Flag(x, y, 6) < 0 || Get_Edge_Flag(x, y, 7) < 0) ) )
+			{
+				m_Flag.Set_Value(x, y, 2.);
+			}
+			else if( (Get_Edge_Flag(x, y, 2) > 0 && Get_Edge_Flag(x, y, 6) > 0)
+				&& ( (Get_Edge_Flag(x, y, 3) < 0 || Get_Edge_Flag(x, y, 4) < 0 || Get_Edge_Flag(x, y, 5) < 0)
+				  && (Get_Edge_Flag(x, y, 7) < 0 || Get_Edge_Flag(x, y, 0) < 0 || Get_Edge_Flag(x, y, 1) < 0) ) )
+			{
+				m_Flag.Set_Value(x, y, 2.);
+			}
+		}
 	}
 
 	Edges.Create(SHAPE_TYPE_Line);
@@ -645,14 +679,12 @@ bool CGrid_To_Contour::Get_Edge_Segments(CSG_Shapes &Edges, CSG_Shapes *pContour
 
 	for(int y=0; y<m_pGrid->Get_NY(); y++) for(int x=0; x<m_pGrid->Get_NX(); x++)
 	{
-		if( m_Flag.asInt(x, y) == 1 )
-		{
-			Add_Edge_Segment(*Edges.Add_Shape(), x, y);
-		}
+		Add_Edge_Segment(Edges, x, y);
 	}
 
 	m_Flag.Destroy();
 
+	//-----------------------------------------------------
 	for(sLong i=0; i<pContours->Get_Count(); i++)
 	{
 		CSG_Shape *pContour = pContours->Get_Shape(i);
@@ -669,6 +701,7 @@ bool CGrid_To_Contour::Get_Edge_Segments(CSG_Shapes &Edges, CSG_Shapes *pContour
 		}
 	}
 
+	//-----------------------------------------------------
 	for(sLong i=Edges.Get_Count()-1; i>=0; i--)
 	{
 		CSG_Shape_Line &Edge = *Edges.Get_Shape(i)->asLine();
@@ -738,10 +771,6 @@ bool CGrid_To_Contour::Get_Edge_Segments(CSG_Shapes &Edges, CSG_Shapes *pContour
 			{
 				Edge.Add_Value(0, -1);
 			}
-			else if( dz == 0. )
-			{
-				Message_Fmt("\nWarning: gradient detection failed for edge segment, x=%f (%d), y=%f (%d), z=%f]", p[0].x, x, p[0].y, y, z);
-			}
 		}
 	}
 
@@ -749,40 +778,80 @@ bool CGrid_To_Contour::Get_Edge_Segments(CSG_Shapes &Edges, CSG_Shapes *pContour
 }
 
 //---------------------------------------------------------
-bool CGrid_To_Contour::Add_Edge_Segment(CSG_Shape &Edge, int x, int y)
+inline int CGrid_To_Contour::Get_Edge_Flag(int x, int y, int Dir)
 {
-	Edge.Set_Value(0, -1); Edge.Set_Value(1, -1); // mark as fresh segment
+	int ix = CSG_Grid_System::Get_xTo(Dir, x);
+	int iy = CSG_Grid_System::Get_yTo(Dir, y);
 
-	int iLast = -1;
+	return( m_Flag.is_InGrid(ix, iy) ? m_Flag.asInt(ix, iy) : 0 );
+}
 
-	for(bool bNext=true; bNext; )
+//---------------------------------------------------------
+bool CGrid_To_Contour::Add_Edge_Segment(CSG_Shapes &Edges, int x, int y)
+{
+	if( m_Flag.asInt(x, y) < 1 )
 	{
-		bNext = false;
+		return( false );
+	}
 
-		m_Flag.Set_Value(x, y, 2);
+	int Dir = -1;
 
-		for(int i=0; i<8 && !bNext; i+=2)
+	for(int i=0; Dir<0 && i<8; i+=2)
+	{
+		if( Get_Edge_Flag(x, y, i) > 0 && (Get_Edge_Flag(x, y, i + 1) < 0 || Get_Edge_Flag(x, y, i + 2) < 0) )
 		{
-			int ix = CSG_Grid_System::Get_xTo(i, x);
-			int iy = CSG_Grid_System::Get_yTo(i, y);
-
-			if( m_Flag.is_InGrid(ix, iy) && m_Flag.asInt(ix, iy) == 1 )
-			{
-				bNext = true;
-
-				if( i != iLast )
-				{
-					iLast = i;
-
-					Edge.Add_Point(m_Flag.Get_System().Get_Grid_to_World(x, y));
-				}
-
-				x = ix; y = iy;
-			}
+			Dir = i;
 		}
 	}
 
-	Edge.Add_Point(Edge.Get_Point(0));
+	if( Dir < 0 )
+	{
+		m_Flag.Set_Value(x, y, 0.);
+
+		return( false );
+	}
+
+	CSG_Shape &Edge = *Edges.Add_Shape(); Edge.Set_Value(0, -1); Edge.Set_Value(1, -1); // mark as fresh segment
+
+	Edge.Add_Point(m_Flag.Get_System().Get_Grid_to_World(x, y));
+
+	do
+	{
+		m_Flag.Add_Value(x, y, -1);
+
+		int nextDir = -1;
+
+		for(int i=Dir, j=0; nextDir<0 && j<8; i+=2, j+=2)
+		{
+			if( Get_Edge_Flag(x, y, i) > 0 && (Get_Edge_Flag(x, y, i + 1) < 0 || Get_Edge_Flag(x, y, i + 2) < 0) )
+			{
+				if( i != Dir )
+				{
+					Edge.Add_Point(m_Flag.Get_System().Get_Grid_to_World(x, y));
+				}
+
+				nextDir = i % 8;
+
+				x += CSG_Grid_System::Get_xTo(i);
+				y += CSG_Grid_System::Get_yTo(i);
+			}
+		}
+
+		Dir = nextDir;
+	}
+	while( Dir >= 0 );
+
+	if( Edge.Get_Point_Count() < 2 )
+	{
+		Edges.Del_Shape(&Edge);
+
+		return( false );
+	}
+
+	if( !CSG_Point(Edge.Get_Point(0, 0, true)).is_Equal(Edge.Get_Point(0, 0, false)) )
+	{
+		Edge.Add_Point(Edge.Get_Point(0, 0, true));
+	}
 
 	return( true );
 }
