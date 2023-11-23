@@ -5,7 +5,7 @@
 	<name>Laplacian Filter</name>
 	<author>O.Conrad (c) 2017</author>
 	<description>Laplacian filter for grid collections.</description>
-	<menu>Filter</menu>
+	<menu absolute="true">Grid Collection|Filter</menu>
 
 	<parameters>
 		<option varname="GRID_SYSTEM" type="grid_system">

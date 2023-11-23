@@ -5,7 +5,7 @@
 	<name>Rank Filter</name>
 	<author>O.Conrad (c) 2017</author>
 	<description>Rank filter for grid collections. Set rank to fifty percent to apply a median filter.</description>
-	<menu>Filter</menu>
+	<menu absolute="true">Grid Collection|Filter</menu>
 
 	<parameters>
 		<option varname="GRID_SYSTEM" type="grid_system">
