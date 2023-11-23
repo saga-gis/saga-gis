@@ -60,7 +60,6 @@
 //---------------------------------------------------------
 CFilter_3x3::CFilter_3x3(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("User Defined Filter"));
 
 	Set_Author		("O.Conrad (c) 2001");
@@ -71,50 +70,63 @@ CFilter_3x3::CFilter_3x3(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		"", "INPUT"		, _TL("Grid"),
+	Parameters.Add_Grid("",
+		"INPUT"     , _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		"", "RESULT"		, _TL("Filtered Grid"),
+	Parameters.Add_Grid("",
+		"RESULT"    , _TL("Filtered Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Table(
-		"", "FILTER"		, _TL("Filter Matrix"),
+	Parameters.Add_Table("",
+		"FILTER"    , _TL("Kernel"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Bool(
-		"", "ABSOLUTE"	, _TL("Absolute Weighting"),
-		_TL(""),
+	Parameters.Add_FixedTable("FILTER",
+		"FILTER_3X3", _TL("3x3 Kernel"),
+		_TL("")
+	);
+
+	Parameters.Add_Bool("",
+		"ABSOLUTE"  , _TL("Absolute Weighting"),
+		_TL("If not checked to be absolute resulting sum will become devided by the sum of filter kernel's weights."),
 		true
 	);
 
 	//-----------------------------------------------------
-	CSG_Table	Filter;
+	CSG_Table &Kernel = *Parameters("FILTER_3X3")->asTable();
 
-	Filter.Add_Field("1", SG_DATATYPE_Double);
-	Filter.Add_Field("2", SG_DATATYPE_Double);
-	Filter.Add_Field("3", SG_DATATYPE_Double);
+	Kernel.Add_Field("1", SG_DATATYPE_Double);
+	Kernel.Add_Field("2", SG_DATATYPE_Double);
+	Kernel.Add_Field("3", SG_DATATYPE_Double);
 
-	Filter.Add_Record();
-	Filter.Add_Record();
-	Filter.Add_Record();
+	Kernel.Set_Count(3);
 
-	Filter[0][0]	= 0.5;	Filter[0][1]	= 1.0;	Filter[0][2]	= 0.5;
-	Filter[1][0]	= 1.0;	Filter[1][1]	=-6.0;	Filter[1][2]	= 1.0;
-	Filter[2][0]	= 0.5;	Filter[2][1]	= 1.0;	Filter[2][2]	= 0.5;
+	Kernel[0][0] = 0.5; Kernel[0][1] = 1.0;	Kernel[0][2] = 0.5;
+	Kernel[1][0] = 1.0; Kernel[1][1] =-6.0;	Kernel[1][2] = 1.0;
+	Kernel[2][0] = 0.5; Kernel[2][1] = 1.0;	Kernel[2][2] = 0.5;
+}
 
-	Parameters.Add_FixedTable(
-		"", "FILTER_3X3"	, _TL("Default Filter Matrix (3x3)"),
-		_TL(""),
-		&Filter
-	);
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CFilter_3x3::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("FILTER") )
+	{
+		pParameters->Set_Enabled("FILTER_3X3", pParameter->asTable() == NULL);
+	}
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -125,12 +137,11 @@ CFilter_3x3::CFilter_3x3(void)
 //---------------------------------------------------------
 bool CFilter_3x3::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Table	*pFilter	= Parameters("FILTER")->asTable()
+	CSG_Table *pKernel = Parameters("FILTER")->asTable()
 		? Parameters("FILTER"    )->asTable()
 		: Parameters("FILTER_3X3")->asTable();
 
-	if( pFilter->Get_Count() < 1 || pFilter->Get_Field_Count() < 1 )
+	if( pKernel->Get_Count() < 1 || pKernel->Get_Field_Count() < 1 )
 	{
 		Error_Set(_TL("invalid filter matrix"));
 
@@ -138,67 +149,61 @@ bool CFilter_3x3::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Matrix	Filter(pFilter->Get_Field_Count(), pFilter->Get_Count());
+	CSG_Matrix Kernel(pKernel->Get_Field_Count(), pKernel->Get_Count());
 
+	for(int iy=0; iy<Kernel.Get_NY(); iy++)
 	{
-		for(int iy=0; iy<Filter.Get_NY(); iy++)
-		{
-			CSG_Table_Record	*pRecord	= pFilter->Get_Record(iy);
+		CSG_Table_Record *pRecord = pKernel->Get_Record(iy);
 
-			for(int ix=0; ix<Filter.Get_NX(); ix++)
-			{
-				Filter[iy][ix]	= pRecord->asDouble(ix);
-			}
+		for(int ix=0; ix<Kernel.Get_NX(); ix++)
+		{
+			Kernel[iy][ix] = pRecord->asDouble(ix);
 		}
 	}
 
-	int	nx	= (Filter.Get_NX() - 1) / 2;
-	int	ny	= (Filter.Get_NY() - 1) / 2;
+	int nx = (Kernel.Get_NX() - 1) / 2;
+	int ny = (Kernel.Get_NY() - 1) / 2;
 
 	//-----------------------------------------------------
-	CSG_Grid	*pInput 	= Parameters("INPUT" )->asGrid();
-	CSG_Grid	*pResult	= Parameters("RESULT")->asGrid();
+	CSG_Grid *pInput  = Parameters("INPUT" )->asGrid();
+	CSG_Grid *pResult = Parameters("RESULT")->asGrid(), Result;
 
 	if( !pResult || pResult == pInput )
 	{
-		pResult	= SG_Create_Grid(pInput);
+		pResult = &Result; Result.Create(*pInput);
 	}
 	else
 	{
-		pResult->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Filter"));
-
-		pResult->Set_NoData_Value(pInput->Get_NoData_Value());
+		pResult->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("User Defined Filter"));
 	}
 
 	//-----------------------------------------------------
-	bool	bAbsolute	= Parameters("ABSOLUTE")->asBool();
+	bool bAbsolute = Parameters("ABSOLUTE")->asBool();
 
 	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			double	s	= 0.0;
-			double	n	= 0.0;
+			CSG_Simple_Statistics s;
 
 			if( pInput->is_InGrid(x, y) )
 			{
-				for(int iy=0, jy=y-ny; iy<Filter.Get_NY(); iy++, jy++)
+				for(int iy=0, jy=y-ny; iy<Kernel.Get_NY(); iy++, jy++)
 				{
-					for(int ix=0, jx=x-nx; ix<Filter.Get_NX(); ix++, jx++)
+					for(int ix=0, jx=x-nx; ix<Kernel.Get_NX(); ix++, jx++)
 					{
 						if( pInput->is_InGrid(jx, jy) )
 						{
-							s	+=      Filter[iy][ix] * pInput->asDouble(jx, jy);
-							n	+= fabs(Filter[iy][ix]);
+							s.Add_Value(pInput->asDouble(jx, jy), Kernel[iy][ix]);
 						}
 					}
 				}
 			}
 
-			if( n > 0.0 )
+			if( s.Get_Count() > 0 )
 			{
-				pResult->Set_Value(x, y, bAbsolute ? s : s / n);
+				pResult->Set_Value(x, y, bAbsolute ? s.Get_Sum() : s.Get_Mean());
 			}
 			else
 			{
@@ -210,10 +215,6 @@ bool CFilter_3x3::On_Execute(void)
 	//-----------------------------------------------------
 	if( !Parameters("RESULT")->asGrid() || Parameters("RESULT")->asGrid() == pInput )
 	{
-		pInput->Assign(pResult);
-
-		delete(pResult);
-
 		DataObject_Update(pInput);
 	}
 
