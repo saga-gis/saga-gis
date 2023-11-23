@@ -116,6 +116,8 @@ bool CFilter_Rank::On_Execute(void)
 	}
 	else
 	{
+		pResult->Create(Get_System(), m_pInput->Get_Type());
+
 		DataObject_Set_Parameters(pResult, m_pInput);
 
 		pResult->Fmt_Name("%s [%s: %.1f%%]", m_pInput->Get_Name(), _TL("Rank"), 100. * Quantile);
