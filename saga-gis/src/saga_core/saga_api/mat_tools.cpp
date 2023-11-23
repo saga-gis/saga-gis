@@ -528,28 +528,28 @@ void CSG_Simple_Statistics::Add_Value(double Value, double Weight)
 {
 	if( m_nValues == 0 )
 	{
-		m_Minimum	= m_Maximum	= Value;
+		m_Minimum = m_Maximum = Value;
 	}
 	else if( m_Minimum > Value )
 	{
-		m_Minimum	= Value;
+		m_Minimum = Value;
 	}
 	else if( m_Maximum < Value )
 	{
-		m_Maximum	= Value;
+		m_Maximum = Value;
 	}
 
-	if( Weight > 0. )
+	if( Weight )
 	{
-		m_Weights		+= Weight;
-		m_Sum			+= Weight * Value;
-		m_Sum2			+= Weight * Value*Value;
+		m_Weights += fabs(Weight);
+		m_Sum     += Weight * Value;
+		m_Sum2    += Weight * Value*Value;
 
-		m_bEvaluated	= 0;
+		m_bEvaluated = 0;
 
 		if( m_Values.Get_Value_Size() > 0 && m_Values.Inc_Array() )
 		{
-			m_bSorted		= false;
+			m_bSorted = false;
 
 			((double *)m_Values.Get_Array())[m_nValues]	= Value;
 		}
