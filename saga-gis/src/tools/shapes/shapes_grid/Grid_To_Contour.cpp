@@ -529,7 +529,7 @@ bool CGrid_To_Contour::Get_Contour(CSG_Shape_Line *pContour, double z, int x, in
 		}
 		else if( !bEdge && SG_Get_Distance(pContour->Get_Point(0, iPart, true), pContour->Get_Point(0, iPart, false)) < sqrt(2.) * m_pGrid->Get_Cellsize() )
 		{
-			pContour->Add_Point(pContour->Get_Point(0, iPart), iPart); // close contour line
+			pContour->Add_Point(pContour->Get_Point_Z(0, iPart), iPart); // close contour line
 		}
 
 		return( true );
