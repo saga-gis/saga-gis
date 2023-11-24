@@ -466,6 +466,9 @@ protected:
 	bool							_Stats_Invalidate	(int iField)	const;
 	virtual bool					_Stats_Update		(int iField)	const;
 
+	bool							_Save_Text			(const CSG_String &File, bool bHeadline, const SG_Char Separator);
+	bool							_Save_DBase			(const CSG_String &File);
+
 	virtual bool					On_NoData_Changed	(void);
 	virtual bool					On_Update			(void);
 
@@ -491,10 +494,7 @@ private:
 	size_t							_Load_Text_EndQuote	(const CSG_String &Text, const SG_Char Separator);
 
 	bool							_Load_Text			(const CSG_String &File, bool bHeadline, const SG_Char Separator);
-	bool							_Save_Text			(const CSG_String &File, bool bHeadline, const SG_Char Separator);
-
 	bool							_Load_DBase			(const CSG_String &File);
-	bool							_Save_DBase			(const CSG_String &File);
 
 	void							_Index_Update		(void);
 

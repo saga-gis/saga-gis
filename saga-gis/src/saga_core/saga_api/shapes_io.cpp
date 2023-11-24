@@ -97,6 +97,101 @@ bool CSG_Shapes::On_Delete(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+static TSG_Shape_File_Format	gSG_Shape_File_Format_Default	= SHAPE_FILE_FORMAT_ESRI;
+
+//---------------------------------------------------------
+bool					SG_Shapes_Set_File_Format_Default	(int Format)
+{
+	switch( Format )
+	{
+	case SHAPE_FILE_FORMAT_ESRI      :
+	case SHAPE_FILE_FORMAT_GeoPackage:
+	case SHAPE_FILE_FORMAT_GeoJSON   :
+		gSG_Shape_File_Format_Default	= (TSG_Shape_File_Format)Format;
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+TSG_Shape_File_Format	SG_Shapes_Get_File_Format_Default	(void)
+{
+	return( gSG_Shape_File_Format_Default );
+}
+
+//---------------------------------------------------------
+CSG_String				SG_Shapes_Get_File_Extension_Default	(void)
+{
+	switch( gSG_Shape_File_Format_Default )
+	{
+	default:
+	case SHAPE_FILE_FORMAT_ESRI      :	return( "shp"     );
+	case SHAPE_FILE_FORMAT_GeoPackage:	return( "gpkg"    );
+	case SHAPE_FILE_FORMAT_GeoJSON   :	return( "geojson" );
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Shapes::Save(const CSG_String &File, int Format)
+{
+	if( Format == SHAPE_FILE_FORMAT_Undefined )
+	{
+		Format = gSG_Shape_File_Format_Default;
+
+		if( SG_File_Cmp_Extension(File, "shp"    ) ) { Format = SHAPE_FILE_FORMAT_ESRI      ; }
+		if( SG_File_Cmp_Extension(File, "gpkg"   ) ) { Format = SHAPE_FILE_FORMAT_GeoPackage; }
+		if( SG_File_Cmp_Extension(File, "geojson") ) { Format = SHAPE_FILE_FORMAT_GeoJSON   ; }
+
+		if( SG_File_Cmp_Extension(File, "txt"    ) ) { return( _Save_Text (File, true, '\t') ); }
+		if( SG_File_Cmp_Extension(File, "csv"    ) ) { return( _Save_Text (File, true,  ',') ); }
+		if( SG_File_Cmp_Extension(File, "dbf"    ) ) { return( _Save_DBase(File)             ); }
+	}
+
+	//-----------------------------------------------------
+	bool bResult = false;
+
+	SG_UI_Msg_Add(CSG_String::Format("%s %s: %s...", _TL("Saving"), _TL("shapes"), File.c_str()), true);
+
+	switch( Format )
+	{
+	case SHAPE_FILE_FORMAT_ESRI      : bResult = _Save_ESRI(File           ); break;
+	case SHAPE_FILE_FORMAT_GeoPackage: bResult = _Save_GDAL(File, "GPKG"   ); break;
+	case SHAPE_FILE_FORMAT_GeoJSON   : bResult = _Save_GDAL(File, "GeoJSON"); break;
+	}
+
+	//-----------------------------------------------------
+	if( bResult )
+	{
+		Set_Modified(false);
+
+		Set_File_Name(File, true);
+
+		SG_UI_Process_Set_Ready();
+		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+
+		return( true );
+	}
+
+	SG_UI_Process_Set_Ready();
+	SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_Shapes::_Load_GDAL(const CSG_String &File_Name)
 {
 	CSG_Data_Manager Manager;
