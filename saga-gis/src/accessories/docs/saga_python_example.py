@@ -59,15 +59,21 @@ File = 'dem.tif'
 if not os.path.exists(File):
     from PySAGA import helper
     aoi = helper.Get_AOI_From_Extent(560000, 580000, 5700000, 5720000, EPSG=32632)
-    from PySAGA.data import copernicus_dem
-    copernicus_dem.Get_AOI(aoi, '{:s}/{:s}'.format(WorkDir, File))
+    from PySAGA.data import srtm
+    srtm.CGIAR_Get_AOI(aoi, '{:s}/{:s}'.format(WorkDir, File))
 
 #_________________________________________
 dem = saga_api.CSG_Grid(File)
 if not dem.is_Valid():
-    print('failed to load ' + File)
+    print('failed to load ' + File); import sys; sys.exit()
 else:
     print('succcessfully loaded ' + File)
+
+#_________________________________________
+from PySAGA import plot; Plot_Results = True
+
+if Plot_Results:
+    plot.Plot_Grid(dem)
 
 #_________________________________________
 ##########################################
@@ -78,23 +84,37 @@ from PySAGA.tools import ta_morphometry, grid_filter
 slope = saga_api.CSG_Grid(); curvature = saga_api.CSG_Grid()
 
 if ta_morphometry.Run_Slope_Aspect_Curvature(ELEVATION=dem, SLOPE=slope, UNIT_SLOPE='degree', C_GENE=curvature):
-    slope.Save('slope.tif'); curvature.Save('curvature.tif')
+     # save results to file...
+    slope.Save('slope.sg-grd-z'); curvature.Save('curvature.sg-grd-z')
+
+    # ...and plot the results!
+    if Plot_Results:
+        plot.Plot_Grid(slope); plot.Plot_Grid(curvature)
 
 if ta_morphometry.Run_Slope_Aspect_Curvature(ELEVATION=dem, C_TANG=curvature):
     curvature.Save('curvature_tangential.tif')
+    if Plot_Results:
+        plot.Plot_Grid(curvature)
 
 landforms = saga_api.CSG_Grid()
 if ta_morphometry.Run_TPI_Based_Landform_Classification(DEM=dem, LANDFORMS=landforms, RADIUS_A='0; 100', RADIUS_B='100; 1000'):
     landforms.Save('landforms.tif')
+    if Plot_Results:
+        plot.Plot_Grid(landforms)
 
 if grid_filter.Run_MajorityMinority_Filter(INPUT=landforms, KERNEL_RADIUS=3):
     landforms.Save('landforms_filtered.tif')
+    if Plot_Results:
+        plot.Plot_Grid(landforms)
 
 table = saga_api.CSG_Table()
 if ta_morphometry.Run_Hypsometry(ELEVATION=dem, TABLE=table):
     table.Save('hypsometry.txt')
 
     from PySAGA import helper; helper.Print_Table(table)
+
+    if Plot_Results:
+        plot.Plot_Table(table, yFields=[0], xField=1)
 
 #_________________________________________
 ##########################################
