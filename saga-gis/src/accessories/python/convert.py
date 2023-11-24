@@ -47,6 +47,49 @@ from PySAGA import saga_api
 
 #################################################################################
 #________________________________________________________________________________
+def Table_To_NumPy(Table, yFields=[], xField=None):
+    '''
+    Converts a saga_api.CSG_Grid object into a list of numpy arrays.
+    '''
+    try:
+        import numpy
+    except:
+        return None
+
+    try:
+        Table.Get_Count()
+    except:
+        return None
+
+    if xField:
+        try:
+            xField = int(xField)
+        except:
+            xField = -1
+    else:
+        xField = -1
+
+    Fields = []; Data = [numpy.empty(Table.Get_Count(), float)]
+
+    for i in range(0, len(yFields)):
+        try:
+            yFields[i] = int(yFields[i])
+            if yFields[i] >= 0 and yFields[i] < Table.Get_Field_Count():
+                Fields.append(yFields[i]); Data.append(numpy.empty(Table.Get_Count()))
+        except:
+            yFields[i] = -1
+
+    for i in range(0, Table.Get_Count()):
+        Record = Table.Get_Record(i)
+        Data[0][i] = i if xField < 0 else Record.asDouble(xField)
+        for j in range(1, len(Data)):
+            Data[j][i] = Record.asDouble(Fields[j - 1])
+
+    return Data
+
+
+#################################################################################
+#________________________________________________________________________________
 def Grid_To_NumPy(Grid):
     '''
     Converts a saga_api.CSG_Grid object to numpy arrays.

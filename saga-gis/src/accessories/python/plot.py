@@ -43,6 +43,46 @@ from PySAGA import saga_api
 
 #################################################################################
 #
+# Tables...
+#________________________________________________________________________________
+
+#################################################################################
+#________________________________________________________________________________
+def Plot_Table(Table, yFields=[], xField=None):
+    '''
+    Creates a simple plot of a saga_api.CSG_Table object 
+    '''
+    try:
+        import matplotlib
+    except:
+        return False
+
+    from PySAGA import convert
+
+    Data = convert.Table_To_NumPy(Table, yFields, xField)
+    if not Data:
+        return False
+
+    import matplotlib.pyplot as plot
+
+    plot.style.use('classic') # classic, Solarize_Light2, bmh, fivethirtyeight, ggplot, grayscale, ...
+
+    fig, ax = plot.subplots()
+
+    if xField != None and xField >= 0 and xField < Table.Get_Field_Count():
+        ax.set_xlabel(Table.Get_Field_Name(xField))
+
+    for i in range(1, len(Data)):
+        ax.plot(Data[0], Data[i], label=Table.Get_Field_Name(yFields[i - 1]))
+
+    plot.legend()
+    plot.show()
+
+    return True
+
+
+#################################################################################
+#
 # Grids...
 #________________________________________________________________________________
 
