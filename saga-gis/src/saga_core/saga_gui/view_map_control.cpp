@@ -662,6 +662,8 @@ bool CVIEW_Map_Control::_Check_Interactive(bool bProjection)
 //---------------------------------------------------------
 void CVIEW_Map_Control::On_Mouse_LDown(wxMouseEvent &event)
 {
+	SetFocus();
+
 	m_Mouse_Down = m_Mouse_Move = event.GetPosition();
 
 	//-----------------------------------------------------
@@ -818,6 +820,8 @@ void CVIEW_Map_Control::On_Mouse_LUp(wxMouseEvent &event)
 //---------------------------------------------------------
 void CVIEW_Map_Control::On_Mouse_LDClick(wxMouseEvent &event)
 {
+	SetFocus();
+
 	switch( m_Mode )
 	{
 	//-----------------------------------------------------
@@ -842,6 +846,8 @@ void CVIEW_Map_Control::On_Mouse_LDClick(wxMouseEvent &event)
 //---------------------------------------------------------
 void CVIEW_Map_Control::On_Mouse_RDown(wxMouseEvent &event)
 {
+	SetFocus();
+
 	m_pParent->Activate();
 
 	m_Mouse_Down = m_Mouse_Move = event.GetPosition();
@@ -953,6 +959,8 @@ void CVIEW_Map_Control::On_Mouse_RUp(wxMouseEvent &event)
 //---------------------------------------------------------
 void CVIEW_Map_Control::On_Mouse_RDClick(wxMouseEvent &event)
 {
+	SetFocus();
+
 	switch( m_Mode )
 	{
 	//-----------------------------------------------------
@@ -989,6 +997,8 @@ void CVIEW_Map_Control::On_Mouse_RDClick(wxMouseEvent &event)
 //---------------------------------------------------------
 void CVIEW_Map_Control::On_Mouse_MDown(wxMouseEvent &event)
 {
+	SetFocus();
+
 	bool bCaptureMouse = true;
 
 	m_Mouse_Down = m_Mouse_Move = event.GetPosition();
