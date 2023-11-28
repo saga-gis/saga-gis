@@ -965,7 +965,6 @@ bool CSG_Colors::Set_Ramp_Brighness(int Brightness_A, int Brightness_B, int iCol
 //---------------------------------------------------------
 bool CSG_Colors::Random(void)
 {
-	#pragma omp parallel for
 	for(int i=0; i<Get_Count(); i++)
 	{
 		Set_Color(i,
@@ -981,7 +980,6 @@ bool CSG_Colors::Random(void)
 //---------------------------------------------------------
 bool CSG_Colors::Invert(void)
 {
-	#pragma omp parallel for
 	for(int i=0; i<Get_Count(); i++)
 	{
 		Set_Color(i, 255 - Get_Red(i), 255 - Get_Green(i), 255 - Get_Blue(i));
@@ -1006,7 +1004,6 @@ bool CSG_Colors::Revert(void)
 //---------------------------------------------------------
 bool CSG_Colors::Greyscale(void)
 {
-	#pragma omp parallel for
 	for(int i=0; i<Get_Count(); i++)
 	{
 		long	c	= Get_Brightness(i);
