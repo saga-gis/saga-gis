@@ -186,6 +186,9 @@ public:
 
 	virtual bool					Destroy			(void);
 
+	/// Returns the object's reference id (unique).
+	int								Get_RefID		(void)	const	{	return( m_RefID );	}
+
 	/// Returns the object type as defined by TSG_Data_Object_Type. Used for run time type checking.
 	virtual TSG_Data_Object_Type	Get_ObjectType	(void)	const	= 0;
 
@@ -282,7 +285,7 @@ private:
 
 	bool							m_bModified, m_bUpdate, m_File_bNative;
 
-	int								m_File_Type, m_Managed{0};
+	int								m_RefID, m_File_Type, m_Managed{0};
 
 	sLong							m_Max_Samples;
 

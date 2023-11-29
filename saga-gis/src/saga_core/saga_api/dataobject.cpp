@@ -184,28 +184,27 @@ int		SG_Get_History_Ignore_Lists		(void)
 //---------------------------------------------------------
 CSG_Data_Object::CSG_Data_Object(void)
 {
+	static int RefCount = 0;
+
+	m_RefID           = ++RefCount;
+
+	m_pOwner          = NULL;
+
+	m_File_bNative    = false;
+	m_File_Type       = 0;
+
+	m_NoData_Value[0] = -99999.;
+	m_NoData_Value[1] = -99999.;
+
+	m_Max_Samples     = gSG_DataObject_Max_Samples;
+	m_bModified       = true;
+	m_bUpdate         = false;
+
 	m_MetaData.Set_Name("SAGA_METADATA");
 
-	m_pMD_Database		= m_MetaData.Add_Child(SG_META_DATABASE);
-	m_pMD_Source		= m_MetaData.Add_Child(SG_META_SOURCE  );
-	m_pMD_History		= m_MetaData.Add_Child(SG_META_HISTORY );
-
-	//-----------------------------------------------------
-	m_File_bNative		= false;
-	m_File_Type			= 0;
-	m_bModified			= true;
-
-	m_NoData_Value[0]	= -99999.;
-	m_NoData_Value[1]	= -99999.;
-
-	m_Max_Samples		= gSG_DataObject_Max_Samples;
-
-	m_Name				.Clear();
-	m_Description		.Clear();
-
-	m_bUpdate			= false;
-
-	m_pOwner			= NULL;
+	m_pMD_Database    = m_MetaData.Add_Child(SG_META_DATABASE);
+	m_pMD_Source      = m_MetaData.Add_Child(SG_META_SOURCE  );
+	m_pMD_History     = m_MetaData.Add_Child(SG_META_HISTORY );
 }
 
 //---------------------------------------------------------
