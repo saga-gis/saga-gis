@@ -156,6 +156,9 @@ if(WITH_MRMR)
 endif()
 
 #________________________________________
+option(WITH_LIFETIME_TRACKER "Check to build with CSG_Data_Object_LifeTime_Tracker (for special debug purposes" OFF)
+
+#________________________________________
 add_library(saga_api SHARED
 	${SAGA_API_SOURCES}
 	${SAGA_API_PUBLIC_HEADERS} # just cosmetic, show headers in IDE
@@ -183,6 +186,10 @@ target_compile_definitions(saga_api PRIVATE -D_SAGA_API_EXPORTS)
 
 if(WITH_MRMR)
 	target_compile_definitions(saga_api PUBLIC -DWITH_MRMR)
+endif()
+
+if(WITH_LIFETIME_TRACKER)
+	target_compile_definitions(saga_api PUBLIC -DWITH_LIFETIME_TRACKER)
 endif()
 
 # set version number for library

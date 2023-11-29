@@ -303,6 +303,40 @@ private:
 
 ///////////////////////////////////////////////////////////
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifdef WITH_LIFETIME_TRACKER
+
+//---------------------------------------------------------
+/**
+* A simple tool to track CSG_Data_Object construction and
+* destruction. Useful for special debugging purposes.
+*/
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Data_Object_LifeTime_Tracker
+{
+public:
+	friend class CSG_Data_Object;
+
+	CSG_Data_Object_LifeTime_Tracker(void) {}
+
+	static void Track(bool Start = true, bool Reset = false);
+
+private:
+
+	static bool m_bTrack; static int m_nObjects; static int m_Offset;
+
+	static void Constructed(int RefID);
+	static void Destructed (int RefID);
+
+};
+
+#endif // WITH_LIFETIME_TRACKER
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////

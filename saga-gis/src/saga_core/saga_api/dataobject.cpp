@@ -182,6 +182,58 @@ int		SG_Get_History_Ignore_Lists		(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifdef WITH_LIFETIME_TRACKER
+
+//---------------------------------------------------------
+bool CSG_Data_Object_LifeTime_Tracker::m_bTrack   = false;
+int  CSG_Data_Object_LifeTime_Tracker::m_nObjects = 0;
+int  CSG_Data_Object_LifeTime_Tracker::m_Offset   = 0;
+
+//---------------------------------------------------------
+void CSG_Data_Object_LifeTime_Tracker::Track(bool Start, bool Offset)
+{
+	m_bTrack = Start;
+	m_Offset = Offset ? m_nObjects : 0;
+}
+
+//---------------------------------------------------------
+void CSG_Data_Object_LifeTime_Tracker::Constructed(int RefID)
+{
+	#pragma omp critical
+	{
+		++m_nObjects;
+	}
+
+	if( m_bTrack )
+	{
+		SG_UI_Console_Print_StdOut(CSG_String::Format("data object (refid=%04d) constructed, new object count is %d", RefID, m_nObjects - m_Offset));
+	}
+}
+
+//---------------------------------------------------------
+void CSG_Data_Object_LifeTime_Tracker::Destructed(int RefID)
+{
+	#pragma omp critical
+	{
+		--m_nObjects;
+	}
+
+	if( m_bTrack )
+	{
+		SG_UI_Console_Print_StdOut(CSG_String::Format("data-object (refid=%04d) destructed,  new object count is %d", RefID, m_nObjects - m_Offset));
+	}
+}
+
+#endif // WITH_LIFETIME_TRACKER
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CSG_Data_Object::CSG_Data_Object(void)
 {
 	static int RefCount = 0;
@@ -205,12 +257,20 @@ CSG_Data_Object::CSG_Data_Object(void)
 	m_pMD_Database    = m_MetaData.Add_Child(SG_META_DATABASE);
 	m_pMD_Source      = m_MetaData.Add_Child(SG_META_SOURCE  );
 	m_pMD_History     = m_MetaData.Add_Child(SG_META_HISTORY );
+
+#ifdef WITH_LIFETIME_TRACKER
+	CSG_Data_Object_LifeTime_Tracker::Constructed(m_RefID);
+#endif // WITH_LIFETIME_TRACKER
 }
 
 //---------------------------------------------------------
 CSG_Data_Object::~CSG_Data_Object(void)
 {
 	Destroy();
+
+#ifdef WITH_LIFETIME_TRACKER
+	CSG_Data_Object_LifeTime_Tracker::Destructed(m_RefID);
+#endif // WITH_LIFETIME_TRACKER
 }
 
 //---------------------------------------------------------
