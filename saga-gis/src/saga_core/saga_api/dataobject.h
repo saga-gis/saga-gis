@@ -306,7 +306,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifdef WITH_LIFETIME_TRACKER
+//#ifdef WITH_LIFETIME_TRACKER
 
 //---------------------------------------------------------
 /**
@@ -321,7 +321,7 @@ public:
 
 	CSG_Data_Object_LifeTime_Tracker(void) {}
 
-	static void Track(bool Start = true, bool Reset = false);
+	static void Track(bool Start = true, bool Offset = false);
 
 private:
 
@@ -332,7 +332,7 @@ private:
 
 };
 
-#endif // WITH_LIFETIME_TRACKER
+//#endif // WITH_LIFETIME_TRACKER
 
 
 ///////////////////////////////////////////////////////////

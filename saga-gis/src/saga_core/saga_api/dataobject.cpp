@@ -182,7 +182,7 @@ int		SG_Get_History_Ignore_Lists		(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifdef WITH_LIFETIME_TRACKER
+//#ifdef WITH_LIFETIME_TRACKER
 
 //---------------------------------------------------------
 bool CSG_Data_Object_LifeTime_Tracker::m_bTrack   = false;
@@ -224,7 +224,7 @@ void CSG_Data_Object_LifeTime_Tracker::Destructed(int RefID)
 	}
 }
 
-#endif // WITH_LIFETIME_TRACKER
+//#endif // WITH_LIFETIME_TRACKER
 
 
 ///////////////////////////////////////////////////////////
@@ -258,9 +258,9 @@ CSG_Data_Object::CSG_Data_Object(void)
 	m_pMD_Source      = m_MetaData.Add_Child(SG_META_SOURCE  );
 	m_pMD_History     = m_MetaData.Add_Child(SG_META_HISTORY );
 
-#ifdef WITH_LIFETIME_TRACKER
+	//#ifdef WITH_LIFETIME_TRACKER
 	CSG_Data_Object_LifeTime_Tracker::Constructed(m_RefID);
-#endif // WITH_LIFETIME_TRACKER
+	//#endif // WITH_LIFETIME_TRACKER
 }
 
 //---------------------------------------------------------
@@ -268,9 +268,9 @@ CSG_Data_Object::~CSG_Data_Object(void)
 {
 	Destroy();
 
-#ifdef WITH_LIFETIME_TRACKER
+	//#ifdef WITH_LIFETIME_TRACKER
 	CSG_Data_Object_LifeTime_Tracker::Destructed(m_RefID);
-#endif // WITH_LIFETIME_TRACKER
+	//#endif // WITH_LIFETIME_TRACKER
 }
 
 //---------------------------------------------------------
