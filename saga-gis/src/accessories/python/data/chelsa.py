@@ -75,15 +75,29 @@ Download_Retries = 4
 
 #################################################################################
 #________________________________________________________________________________
-def _Variable_Unit_Conversion(Variable):
-    if Variable == 'tas' or Variable == 'tasmin' or Variable == 'tasmax':
+def _Variable_Unit_Conversion(Variable, Monthly):
+    if Variable == 'tas' or Variable == 'tasmin' or Variable == 'tasmax': # temperatures
         return 0.1 , -273.15, 'Celsius'    # 1/10 Kelvin => ° Celsius
 
-    if Variable == 'pr':
-        return 0.1 ,    0.  , 'mm / month' # 1/10 kg / m² / month
+    if Variable == 'pr': # precipitation
+        if Monthly: # monthly time series scaling differs from climatologies !!!
+            return 0.01,    0.  , 'mm / month' # 1/100 kg / m² / month
+        return 0.1 ,    0.  , 'mm / month' # 1/100 kg / m² / month
 
-    if Variable == 'pet':
+    if Variable == 'pet': # potential evaporation
         return 0.01,    0.  , 'mm / month' # 1/100 kg / m² / month
+
+    if Variable == 'hurs': # near-surface relative humidity
+        return 0.01 , 0., '%'
+
+    if Variable == 'rsds': # surface downwelling shortwave flux in air
+        return 0.001 , 0., 'MJ / m2 / day'
+
+    if Variable == 'sfcWind': # near-surface wind speed
+        return 0.001 , 0., 'm / sec'
+
+    if Variable == 'vpd': # vapor pressure deficit
+        return 0.1 , 0., 'Pa'
 
     return 1., 0., None
 
@@ -144,7 +158,7 @@ def Get_Climatology_Month(Variable, Month, AOI=None, bDeleteGlobal=False):
     Get a variable for the area of your interest (AOI)...
     '''
 
-    Scaling, Offset, Unit = _Variable_Unit_Conversion(Variable)
+    Scaling, Offset, Unit = _Variable_Unit_Conversion(Variable, False)
     Target_File = '{:s}/{:s}/{:s}_{:02d}.{:s}'.format(Dir_Target, Variable, Variable, Month, Ext_Target)
     return os.path.exists(Target_File) or Get_Variable(Get_Global_Climatology_Month(Variable, Month), Target_File, AOI, Scaling, Offset, Unit, bDeleteGlobal)
 
@@ -203,7 +217,7 @@ def Get_Projection_Month(Variable, Month, AOI=None, bDeleteGlobal=False):
     Get a variable for the area of your interest (AOI)...
     '''
 
-    Scaling, Offset, Unit = _Variable_Unit_Conversion(Variable)
+    Scaling, Offset, Unit = _Variable_Unit_Conversion(Variable, False)
     Target_File = '{:s}/{:s}/{:s}_{:02d}.{:s}'.format(Dir_Target, Variable, Variable, Month, Ext_Target)
     return os.path.exists(Target_File) or Get_Variable(Get_Global_Climatology_Month(Variable, Month), Target_File, AOI, Scaling, Offset, Unit, bDeleteGlobal)
 
@@ -263,7 +277,7 @@ def Get_Monthly(Variable, Year, Month, AOI=None, bDeleteGlobal=False):
     Get a variable for the area of your interest (AOI)...
     '''
 
-    Scaling, Offset, Unit = _Variable_Unit_Conversion(Variable)
+    Scaling, Offset, Unit = _Variable_Unit_Conversion(Variable, True)
     Target_File = '{:s}/{:s}/{:s}_{:04d}_{:02d}.{:s}'.format(Dir_Target, Variable, Variable, Year, Month, Ext_Target)
     return os.path.exists(Target_File) or Get_Variable(Get_Global_Monthly(Variable, Year, Month), Target_File, AOI, Scaling, Offset, Unit, bDeleteGlobal)
 
