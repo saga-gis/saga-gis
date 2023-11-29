@@ -471,9 +471,42 @@ bool CSG_Grids::is_Compatible(int NX, int NY, double Cellsize, double xMin, doub
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grids::Add_Attribute(const CSG_String &Name, TSG_Data_Type Type, int i)
+bool CSG_Grids::Set_Z_Attribute(int i)
 {
-	return( m_Attributes.Add_Field(Name, Type, i) );
+	if( i >= 0 && i < m_Attributes.Get_Field_Count() )
+	{
+		m_Z_Attribute = i;
+
+		return( Update_Z_Order() );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Grids::Set_Z_Name_Field(int i)
+{
+	if( i >= 0 && i < m_Attributes.Get_Field_Count() )
+	{
+		m_Z_Name = i;
+
+		return( true );
+	}
+
+	return( false );
+}
+
+int CSG_Grids::Get_Z_Name_Field(void)	const
+{
+	return( m_Z_Name >= 0 && m_Z_Name < m_Attributes.Get_Field_Count() ? m_Z_Name : m_Z_Attribute );
+}
+
+//---------------------------------------------------------
+bool CSG_Grids::Add_Attribute(const char       *Name, TSG_Data_Type Type, int Insert) { return( Add_Attribute(CSG_String(Name), Type, Insert) ); }
+bool CSG_Grids::Add_Attribute(const wchar_t    *Name, TSG_Data_Type Type, int Insert) { return( Add_Attribute(CSG_String(Name), Type, Insert) ); }
+bool CSG_Grids::Add_Attribute(const CSG_String &Name, TSG_Data_Type Type, int Insert)
+{
+	return( m_Attributes.Add_Field(Name, Type, Insert) );
 }
 
 //---------------------------------------------------------
@@ -502,34 +535,21 @@ bool CSG_Grids::Del_Attribute(int i)
 }
 
 //---------------------------------------------------------
-bool CSG_Grids::Set_Z_Attribute(int i)
+bool CSG_Grids::Set_Attribute(int i, const char       *Field, const char       *Value) { return( Set_Attribute(i, m_Attributes.Get_Field(Field), CSG_String(Value)) ); }
+bool CSG_Grids::Set_Attribute(int i, const wchar_t    *Field, const wchar_t    *Value) { return( Set_Attribute(i, m_Attributes.Get_Field(Field), CSG_String(Value)) ); }
+bool CSG_Grids::Set_Attribute(int i, const CSG_String &Field, const CSG_String &Value) { return( Set_Attribute(i, m_Attributes.Get_Field(Field),            Value ) ); }
+bool CSG_Grids::Set_Attribute(int i, int               Field, const CSG_String &Value)
 {
-	if( i >= 0 && i < m_Attributes.Get_Field_Count() )
-	{
-		m_Z_Attribute	= i;
-
-		return( Update_Z_Order() );
-	}
-
-	return( false );
+	return( i >= 0 && i < (int)m_Attributes.Get_Count() && m_Attributes[i].Set_Value(Field, Value) );
 }
 
 //---------------------------------------------------------
-bool CSG_Grids::Set_Z_Name_Field(int i)
+bool CSG_Grids::Set_Attribute(int i, const char       *Field, double Value) { return( Set_Attribute(i, m_Attributes.Get_Field(Field), Value) ); }
+bool CSG_Grids::Set_Attribute(int i, const wchar_t    *Field, double Value) { return( Set_Attribute(i, m_Attributes.Get_Field(Field), Value) ); }
+bool CSG_Grids::Set_Attribute(int i, const CSG_String &Field, double Value) { return( Set_Attribute(i, m_Attributes.Get_Field(Field), Value) ); }
+bool CSG_Grids::Set_Attribute(int i, int               Field, double Value)
 {
-	if( i >= 0 && i < m_Attributes.Get_Field_Count() )
-	{
-		m_Z_Name	= i;
-
-		return( true );
-	}
-
-	return( false );
-}
-
-int CSG_Grids::Get_Z_Name_Field(void)	const
-{
-	return( m_Z_Name >= 0 && m_Z_Name < m_Attributes.Get_Field_Count() ? m_Z_Name : m_Z_Attribute );
+	return( i >= 0 && i < (int)m_Attributes.Get_Count() && m_Attributes[i].Set_Value(Field, Value) );
 }
 
 //---------------------------------------------------------

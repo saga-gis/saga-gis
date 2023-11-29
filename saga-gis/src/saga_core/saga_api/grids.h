@@ -210,19 +210,31 @@ public:		///////////////////////////////////////////////
 	//-----------------------------------------------------
 	// Attributes...
 
-	bool							Add_Attribute		(const CSG_String &Name, TSG_Data_Type Type, int iField = -1);
-	bool							Del_Attribute		(int iField);
+	bool							Set_Z_Attribute		(int Field);
+	int								Get_Z_Attribute		(void)	const	{	return( m_Z_Attribute );	}
+
+	bool							Set_Z_Name_Field	(int Field);
+	int								Get_Z_Name_Field	(void)	const;
+
+	bool							Add_Attribute		(const char       *Name, TSG_Data_Type Type, int Insert = -1);
+	bool							Add_Attribute		(const wchar_t    *Name, TSG_Data_Type Type, int Insert = -1);
+	bool							Add_Attribute		(const CSG_String &Name, TSG_Data_Type Type, int Insert = -1);
+	bool							Del_Attribute		(int Field);
 
 	const CSG_Table &				Get_Attributes		(void)	const	{	return(  m_Attributes );	}
 	CSG_Table *						Get_Attributes_Ptr	(void)			{	return( &m_Attributes );	}
 
 	CSG_Table_Record &				Get_Attributes		(int i)	const	{	return( m_Attributes[i] );	}
 
-	bool							Set_Z_Attribute		(int i);
-	int								Get_Z_Attribute		(void)	const	{	return( m_Z_Attribute );	}
+	bool							Set_Attribute		(int i, int               Field, const CSG_String &Value);
+	bool							Set_Attribute		(int i, const CSG_String &Field, const CSG_String &Value);
+	bool							Set_Attribute		(int i, const wchar_t    *Field, const wchar_t    *Value);
+	bool							Set_Attribute		(int i, const char       *Field, const char       *Value);
 
-	bool							Set_Z_Name_Field	(int i);
-	int								Get_Z_Name_Field	(void)	const;
+	bool							Set_Attribute		(int i, int               Field, double            Value);
+	bool							Set_Attribute		(int i, const CSG_String &Field, double            Value);
+	bool							Set_Attribute		(int i, const wchar_t    *Field, double            Value);
+	bool							Set_Attribute		(int i, const char       *Field, double            Value);
 
 	bool							Set_Z				(int i, double Value);
 	double							Get_Z				(int i)	const	{	return( m_Attributes[i].asDouble(m_Z_Attribute) );	}
