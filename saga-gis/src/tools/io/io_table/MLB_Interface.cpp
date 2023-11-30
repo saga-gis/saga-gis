@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -15,7 +12,7 @@
 //                                                       //
 //                   TLB_Interface.cpp                   //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2023 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -43,26 +40,15 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
@@ -79,13 +65,13 @@ CSG_String Get_Info(int i)
 		return( _TL("Import/Export") );
 
 	case TLB_INFO_Author:
-		return( SG_T("SAGA User Group Associaton (c) 2002-10") );
+		return( "SAGA User Group Associaton (c) 2002-23" );
 
 	case TLB_INFO_Description:
 		return( _TL("Tools for the import and export of tables.") );
 
 	case TLB_INFO_Version:
-		return( SG_T("1.0") );
+		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
 		return( _TL("File|Tables") );
@@ -106,13 +92,15 @@ CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
-	case  0:	return( new CTable_Text_Export );
-	case  1:	return( new CTable_Text_Import );
-	case  2:	return( new CTable_Text_Import_Numbers );
-	case  3:	return( new CTable_Text_Import_Fixed_Cols );
-	}
+	case  0: return( new CTable_Text_Export );
+	case  1: return( new CTable_Text_Import );
+	case  2: return( new CTable_Text_Import_Numbers );
+	case  3: return( new CTable_Text_Import_Fixed_Cols );
 
-	return( NULL );
+	//-----------------------------------------------------
+	case  4: return( NULL );
+	default: return( TLB_INTERFACE_SKIP_TOOL );
+	}
 }
 
 

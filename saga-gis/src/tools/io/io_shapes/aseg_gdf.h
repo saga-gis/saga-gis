@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.h 1922 2014-01-09 10:28:46Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -9,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                       io_table                        //
+//                      io_shapes                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    TLB_Interface.h                    //
+//                      aseg_gdf.h                       //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2023 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -43,35 +40,57 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifndef HEADER_INCLUDED__aseg_gdf_H
+#define HEADER_INCLUDED__aseg_gdf_H
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//				Include the SAGA-API here				 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#ifndef HEADER_INCLUDED__io_table_H
-#define HEADER_INCLUDED__io_table_H
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#ifdef io_table_EXPORTS
-	#define	io_table_EXPORT	_SAGA_DLL_EXPORT
-#else
-	#define	io_table_EXPORT	_SAGA_DLL_IMPORT
-#endif
+class CASEG_GDF_Import : public CSG_Tool  
+{
+public:
+	CASEG_GDF_Import(void);
+
+	virtual CSG_String		Get_MenuPath(void)		{	return( _TL("Import") );	}
+
+
+protected:
+
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+
+
+private:
+
+	bool					Read_Record_Type		(const CSG_String &Record, CSG_String &Type);
+	bool					Read_Field				(const CSG_String &Record, CSG_Table_Record &Field);
+	bool					Read_Fields				(const CSG_String &File, CSG_Table &Fields);
+	bool					Read_Data				(const CSG_String &File, CSG_Shapes &Points, const CSG_Table &Fields);
+	bool					Read_Description		(const CSG_String &File, CSG_Shapes &Points);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -81,4 +100,4 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__io_table_H
+#endif // #ifndef HEADER_INCLUDED__aseg_gdf_H
