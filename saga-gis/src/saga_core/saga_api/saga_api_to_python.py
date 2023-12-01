@@ -13,7 +13,6 @@ if os.name == 'nt': # Windows
             '-D_TYPEDEF_WORD',
             '-D_SAGA_API_EXPORTS',
             '-D_SAGA_PYTHON'
-            '-DWITH_LIFETIME_TRACKER'
         ]
     )
 else:               # Linux

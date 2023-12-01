@@ -189,6 +189,8 @@ public:
 	/// Returns the object's reference id (unique).
 	int								Get_RefID		(void)	const	{	return( m_RefID );	}
 
+	int								Get_Managed		(void)	const	{	return( m_Managed );	}
+
 	/// Returns the object type as defined by TSG_Data_Object_Type. Used for run time type checking.
 	virtual TSG_Data_Object_Type	Get_ObjectType	(void)	const	= 0;
 
@@ -258,6 +260,9 @@ public:
 	virtual bool					Set_Max_Samples		(sLong Max_Samples);
 	sLong							Get_Max_Samples		(void)	const	{	return( m_Max_Samples );	}
 
+	/// Activate/deactivate lifetime tracking (data object construction/destruction). Needs compiler flag WITH_LIFETIME_TRACKER being defined.
+	static void						Track				(bool Track = true, bool Offset = false);
+
 
 protected:
 
@@ -283,6 +288,10 @@ protected:
 
 private:
 
+	static bool						m_Track;
+	static int						m_Track_nObjects;
+	static int						m_Track_Offset;
+
 	bool							m_bModified, m_bUpdate, m_File_bNative;
 
 	int								m_RefID, m_File_Type, m_Managed{0};
@@ -306,33 +315,8 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//#ifdef WITH_LIFETIME_TRACKER
-
-//---------------------------------------------------------
-/**
-* A simple tool to track CSG_Data_Object construction and
-* destruction. Useful for special debugging purposes.
-*/
-//---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Data_Object_LifeTime_Tracker
-{
-public:
-	friend class CSG_Data_Object;
-
-	CSG_Data_Object_LifeTime_Tracker(void) {}
-
-	static void Track(bool Start = true, bool Offset = false);
-
-private:
-
-	static bool m_bTrack; static int m_nObjects; static int m_Offset;
-
-	static void Constructed(int RefID);
-	static void Destructed (int RefID);
-
-};
-
-//#endif // WITH_LIFETIME_TRACKER
+/** Safe CSG_Data_Object destruction */
+SAGA_API_DLL_EXPORT bool		SG_Data_Object_Delete		(CSG_Data_Object *pObject);
 
 
 ///////////////////////////////////////////////////////////

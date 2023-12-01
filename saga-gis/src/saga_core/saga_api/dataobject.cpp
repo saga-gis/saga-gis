@@ -182,49 +182,17 @@ int		SG_Get_History_Ignore_Lists		(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//#ifdef WITH_LIFETIME_TRACKER
-
-//---------------------------------------------------------
-bool CSG_Data_Object_LifeTime_Tracker::m_bTrack   = false;
-int  CSG_Data_Object_LifeTime_Tracker::m_nObjects = 0;
-int  CSG_Data_Object_LifeTime_Tracker::m_Offset   = 0;
-
-//---------------------------------------------------------
-void CSG_Data_Object_LifeTime_Tracker::Track(bool Start, bool Offset)
+bool		SG_Data_Object_Delete		(CSG_Data_Object *pObject)
 {
-	m_bTrack = Start;
-	m_Offset = Offset ? m_nObjects : 0;
+	if( pObject && !pObject->Get_Managed() )
+	{
+		delete(pObject);
+
+		return( true );
+	}
+
+	return( false );
 }
-
-//---------------------------------------------------------
-void CSG_Data_Object_LifeTime_Tracker::Constructed(int RefID)
-{
-	#pragma omp critical
-	{
-		++m_nObjects;
-	}
-
-	if( m_bTrack )
-	{
-		SG_UI_Console_Print_StdOut(CSG_String::Format("data object (refid=%04d) constructed, new object count is %d", RefID, m_nObjects - m_Offset));
-	}
-}
-
-//---------------------------------------------------------
-void CSG_Data_Object_LifeTime_Tracker::Destructed(int RefID)
-{
-	#pragma omp critical
-	{
-		--m_nObjects;
-	}
-
-	if( m_bTrack )
-	{
-		SG_UI_Console_Print_StdOut(CSG_String::Format("data-object (refid=%04d) destructed,  new object count is %d", RefID, m_nObjects - m_Offset));
-	}
-}
-
-//#endif // WITH_LIFETIME_TRACKER
 
 
 ///////////////////////////////////////////////////////////
@@ -238,7 +206,10 @@ CSG_Data_Object::CSG_Data_Object(void)
 {
 	static int RefCount = 0;
 
-	m_RefID           = ++RefCount;
+	#pragma omp critical
+	{
+		m_RefID       = ++RefCount;
+	}
 
 	m_pOwner          = NULL;
 
@@ -258,9 +229,17 @@ CSG_Data_Object::CSG_Data_Object(void)
 	m_pMD_Source      = m_MetaData.Add_Child(SG_META_SOURCE  );
 	m_pMD_History     = m_MetaData.Add_Child(SG_META_HISTORY );
 
-	//#ifdef WITH_LIFETIME_TRACKER
-	CSG_Data_Object_LifeTime_Tracker::Constructed(m_RefID);
-	//#endif // WITH_LIFETIME_TRACKER
+	#ifdef WITH_LIFETIME_TRACKER
+	#pragma omp critical
+	{
+		++m_Track_nObjects;
+
+		if( m_Track )
+		{
+			SG_UI_Console_Print_StdOut(CSG_String::Format("data object (refid=%04d) constructed, new object count is %d", m_RefID, m_Track_nObjects - m_Track_Offset));
+		}
+	}
+	#endif // WITH_LIFETIME_TRACKER
 }
 
 //---------------------------------------------------------
@@ -268,9 +247,30 @@ CSG_Data_Object::~CSG_Data_Object(void)
 {
 	Destroy();
 
-	//#ifdef WITH_LIFETIME_TRACKER
-	CSG_Data_Object_LifeTime_Tracker::Destructed(m_RefID);
-	//#endif // WITH_LIFETIME_TRACKER
+	#ifdef WITH_LIFETIME_TRACKER
+	#pragma omp critical
+	{
+		--m_Track_nObjects;
+
+		if( m_Track )
+		{
+			SG_UI_Console_Print_StdOut(CSG_String::Format("data object (refid=%04d) destructed,  new object count is %d", m_RefID, m_Track_nObjects - m_Track_Offset));
+		}
+	}
+	#endif // WITH_LIFETIME_TRACKER
+}
+
+//---------------------------------------------------------
+bool CSG_Data_Object::m_Track = false; int CSG_Data_Object::m_Track_nObjects = 0; int CSG_Data_Object::m_Track_Offset = 0;
+
+//---------------------------------------------------------
+void CSG_Data_Object::Track(bool Track, bool Offset)
+{
+	m_Track = Track; m_Track_Offset = Offset ? m_Track_nObjects : 0;
+
+	SG_UI_Console_Print_StdOut(CSG_String::Format("data object construction/destruction tracker, state=%s, offset=%s, current object count is %d",
+		m_Track ? SG_T("ON") : SG_T("OFF"), m_Track_Offset ? SG_T("ON") : SG_T("OFF"), m_Track_nObjects
+	));
 }
 
 //---------------------------------------------------------
@@ -295,20 +295,18 @@ void CSG_Data_Object::Set_Name(const CSG_String &Name)
 {
 	if( Name.is_Empty() )
 	{
-		m_Name	= _TL("Data");
+		m_Name = _TL("Data");
 	}
 	else
 	{
-		m_Name	= Name;
+		m_Name = Name;
 	}
 }
 
 //---------------------------------------------------------
 void CSG_Data_Object::Fmt_Name(const char *Format, ...)
 {
-	wxString	_s;
-
-	va_list	argptr;
+	wxString _s; va_list argptr;
 	
 #ifdef _SAGA_LINUX
 	wxString _Format(Format); _Format.Replace("%s", "%ls");	// workaround as we only use wide characters since wx 2.9.4 so interpret strings as multibyte
@@ -325,9 +323,7 @@ void CSG_Data_Object::Fmt_Name(const char *Format, ...)
 //---------------------------------------------------------
 void CSG_Data_Object::Fmt_Name(const wchar_t *Format, ...)
 {
-	wxString	_s;
-
-	va_list	argptr;
+	wxString _s; va_list argptr;
 	
 #ifdef _SAGA_LINUX
 	// workaround as we only use wide characters
@@ -339,8 +335,6 @@ void CSG_Data_Object::Fmt_Name(const wchar_t *Format, ...)
 #endif
 
 	va_end(argptr);
-
-	CSG_String	s(&_s);
 
 	Set_Name(CSG_String(&_s));
 }
@@ -354,7 +348,7 @@ const SG_Char * CSG_Data_Object::Get_Name(void) const
 //---------------------------------------------------------
 void CSG_Data_Object::Set_Description(const CSG_String &Description)
 {
-	m_Description	= Description;
+	m_Description = Description;
 }
 
 const SG_Char * CSG_Data_Object::Get_Description(void) const
