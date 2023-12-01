@@ -435,7 +435,7 @@ class Tool_Wrapper:
                 if Parameter and Parameter.is_Output():
                     if Parameter.is_DataObject():
                         if Parameter.asDataObject() and not Data[1]: # delete output created by tool but not requested by user
-                            Object = Parameter.asDataObject(); del Object
+                            saga_api.SG_Data_Object_Delete(Parameter.asDataObject())
                     elif Parameter.is_DataObject_List():
                         if Data[1] != None:
                             Data[1].clear() # should be empty Python list to become filled with the results now
@@ -444,7 +444,7 @@ class Tool_Wrapper:
                             if Data[1] != None and Success:
                                 Data[1].append(Item)
                             else:
-                                del Item
+                                saga_api.SG_Data_Object_Delete(Item)
 
             self.Tool.Reset(); self.Input.clear(); self.Output.clear()
 

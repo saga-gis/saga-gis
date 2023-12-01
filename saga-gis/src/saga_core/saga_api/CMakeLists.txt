@@ -185,14 +185,9 @@ if(WITH_MRMR)
 	target_compile_definitions(saga_api PUBLIC -DWITH_MRMR)
 endif()
 
-#________________________________________
-if(MSVC)
+option(WITH_LIFETIME_TRACKER "Check to build with CSG_Data_Object_LifeTime_Tracker support (for special debug purposes)" OFF)
+if(WITH_LIFETIME_TRACKER)
 	target_compile_definitions(saga_api PUBLIC -DWITH_LIFETIME_TRACKER)
-else() # unix like systems
-	option(WITH_LIFETIME_TRACKER "Check to build with CSG_Data_Object_LifeTime_Tracker (for special debug purposes)" OFF)
-	if(WITH_LIFETIME_TRACKER)
-		target_compile_definitions(saga_api PUBLIC -DWITH_LIFETIME_TRACKER)
-	endif()
 endif()
 
 # set version number for library
