@@ -122,35 +122,11 @@ CGet_Connection::CGet_Connection(void)
 		"Connect to PostgreSQL data source."
 	));
 
-	Parameters.Add_String("",
-		"PG_HOST"	, _TL("Host"),
-		_TL(""),
-		"localhost"
-	);
-
-	Parameters.Add_Int("",
-		"PG_PORT"	, _TL("Port"),
-		_TL(""),
-		5432, 0, true
-	);
-
-	Parameters.Add_String("",
-		"PG_USER"	, _TL("User"),
-		_TL(""),
-		"postgres"
-	);
-
-	Parameters.Add_String("",
-		"PG_PWD"	, _TL("Password"),
-		_TL(""),
-		"postgres", false, true
-	);
-
-	Parameters.Add_String("",
-		"PG_NAME"	, _TL("Database"),
-		_TL(""),
-		""
-	);
+	Parameters.Add_String("", "PG_HOST", _TL("Host"    ), _TL(""), "localhost");
+	Parameters.Add_Int   ("", "PG_PORT", _TL("Port"    ), _TL(""), 5432, 0, true);
+	Parameters.Add_String("", "PG_DB"  , _TL("Database"), _TL(""), "");
+	Parameters.Add_String("", "PG_USER", _TL("User"    ), _TL(""), "postgres");
+	Parameters.Add_String("", "PG_PWD" , _TL("Password"), _TL(""), "postgres", false, true);
 
 	Parameters.Add_Choice("",
 		"PG_LIST"	, _TL("Database"),
@@ -174,11 +150,11 @@ int CGet_Connection::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 			CSG_Table DBs;
 
 			CSG_PG_Connection Connection(
-				pParameters->Get_Parameter("PG_HOST")->asString(),
-				pParameters->Get_Parameter("PG_PORT")->asInt   (),
+				(*pParameters)("PG_HOST")->asString(),
+				(*pParameters)("PG_PORT")->asInt   (),
 				"",
-				pParameters->Get_Parameter("PG_USER")->asString(),
-				pParameters->Get_Parameter("PG_PWD" )->asString()
+				(*pParameters)("PG_USER")->asString(),
+				(*pParameters)("PG_PWD" )->asString()
 			);
 
 			if( Connection.is_Connected() && Connection.Execute("SELECT datname FROM pg_database", &DBs) )
@@ -191,21 +167,21 @@ int CGet_Connection::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 				}
 
 				pParameters->Get_Parameter("PG_LIST")->asChoice()->Set_Items(List);
-				pParameters->Get_Parameter("PG_LIST")->Set_Value(pParameters->Get_Parameter("PG_NAME")->asString());
+				pParameters->Set_Parameter("PG_LIST", pParameters->Get_Parameter("PG_DB"  )->asString());
 				pParameters->Set_Enabled  ("PG_LIST",  true);
-				pParameters->Set_Enabled  ("PG_NAME", false);
-				pParameters->Get_Parameter("PG_NAME")->Set_Value(pParameters->Get_Parameter("PG_LIST")->asString());
+				pParameters->Set_Enabled  ("PG_DB"  , false);
+				pParameters->Set_Parameter("PG_DB"  , pParameters->Get_Parameter("PG_LIST")->asString());
 			}
 			else
 			{
 				pParameters->Set_Enabled  ("PG_LIST", false);
-				pParameters->Set_Enabled  ("PG_NAME",  true);
+				pParameters->Set_Enabled  ("PG_DB"  ,  true);
 			}
 		}
 
 		if( pParameter->Cmp_Identifier("PG_LIST") )
 		{
-			pParameters->Get_Parameter("PG_NAME")->Set_Value(pParameter->asString());
+			pParameters->Set_Parameter("PG_DB", pParameter->asString());
 		}
 	}
 
@@ -216,7 +192,7 @@ int CGet_Connection::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 bool CGet_Connection::On_Execute(void)
 {
 	CSG_String Connection = CSG_String::Format("%s [%s:%d]",
-		Parameters("PG_NAME")->asString(),
+		Parameters("PG_DB"  )->asString(),
 		Parameters("PG_HOST")->asString(),
 		Parameters("PG_PORT")->asInt   ()
 	);
@@ -229,7 +205,7 @@ bool CGet_Connection::On_Execute(void)
 	}
 
 	CSG_PG_Connection *pConnection = SG_PG_Get_Connection_Manager().Add_Connection(
-		Parameters("PG_NAME")->asString(),
+		Parameters("PG_DB"  )->asString(),
 		Parameters("PG_USER")->asString(),
 		Parameters("PG_PWD" )->asString(),
 		Parameters("PG_HOST")->asString(),
@@ -445,7 +421,7 @@ CTransaction_Stop::CTransaction_Stop(void)
 	Parameters.Add_Choice("",
 		"TRANSACT"	, _TL("Transactions"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("rollback"),
 			_TL("commit")
 		), 1
@@ -657,35 +633,11 @@ CDatabase_Create::CDatabase_Create(void)
 		"Creates a new PostgreSQL Database."
 	));
 
-	Parameters.Add_String("",
-		"PG_HOST"	, _TL("Host"),
-		_TL(""),
-		"localhost"
-	);
-
-	Parameters.Add_Int("",
-		"PG_PORT"	, _TL("Port"),
-		_TL(""),
-		5432, 0, true
-	);
-
-	Parameters.Add_String("",
-		"PG_NAME"	, _TL("Database"),
-		_TL(""),
-		"geo_test"
-	);
-
-	Parameters.Add_String("",
-		"PG_USER"	, _TL("User"),
-		_TL(""),
-		"postgres"
-	);
-
-	Parameters.Add_String("",
-		"PG_PWD"	, _TL("Password"),
-		_TL(""),
-		"postgres", false, true
-	);
+	Parameters.Add_String("", "PG_HOST", _TL("Host"    ), _TL(""), "localhost");
+	Parameters.Add_Int   ("", "PG_PORT", _TL("Port"    ), _TL(""), 5432, 0, true);
+	Parameters.Add_String("", "PG_DB"  , _TL("Database"), _TL(""), "dbname");
+	Parameters.Add_String("", "PG_USER", _TL("User"    ), _TL(""), "postgres");
+	Parameters.Add_String("", "PG_PWD" , _TL("Password"), _TL(""), "postgres", false, true);
 }
 
 //---------------------------------------------------------
@@ -693,7 +645,7 @@ bool CDatabase_Create::On_Execute(void)
 {
 	const SG_Char *Host     = Parameters("PG_HOST")->asString();
 	int            Port     = Parameters("PG_PORT")->asInt   ();
-	const SG_Char *Name     = Parameters("PG_NAME")->asString();
+	const SG_Char *Name     = Parameters("PG_DB"  )->asString();
 	const SG_Char *User     = Parameters("PG_USER")->asString();
 	const SG_Char *Password = Parameters("PG_PWD" )->asString();
 
@@ -753,35 +705,11 @@ CDatabase_Destroy::CDatabase_Destroy(void)
 		"Deletes a PostgreSQL Database."
 	));
 
-	Parameters.Add_String("",
-		"PG_HOST"	, _TL("Host"),
-		_TL(""),
-		"localhost"
-	);
-
-	Parameters.Add_Int("",
-		"PG_PORT"	, _TL("Port"),
-		_TL(""),
-		5432, 0, true
-	);
-
-	Parameters.Add_String("",
-		"PG_NAME"	, _TL("Database"),
-		_TL(""),
-		"geo_test"
-	);
-
-	Parameters.Add_String("",
-		"PG_USER"	, _TL("User"),
-		_TL(""),
-		"postgres"
-	);
-
-	Parameters.Add_String("",
-		"PG_PWD"	, _TL("Password"),
-		_TL(""),
-		"postgres", false, true
-	);
+	Parameters.Add_String("", "PG_HOST", _TL("Host"    ), _TL(""), "localhost");
+	Parameters.Add_Int   ("", "PG_PORT", _TL("Port"    ), _TL(""), 5432, 0, true);
+	Parameters.Add_String("", "PG_DB"  , _TL("Database"), _TL(""), "dbname");
+	Parameters.Add_String("", "PG_USER", _TL("User"    ), _TL(""), "postgres");
+	Parameters.Add_String("", "PG_PWD" , _TL("Password"), _TL(""), "postgres", false, true);
 }
 
 //---------------------------------------------------------
@@ -789,7 +717,7 @@ bool CDatabase_Destroy::On_Execute(void)
 {
 	const SG_Char *Host     = Parameters("PG_HOST")->asString();
 	int            Port     = Parameters("PG_PORT")->asInt   ();
-	const SG_Char *Name     = Parameters("PG_NAME")->asString();
+	const SG_Char *Name     = Parameters("PG_DB"  )->asString();
 	const SG_Char *User     = Parameters("PG_USER")->asString();
 	const SG_Char *Password = Parameters("PG_PWD" )->asString();
 

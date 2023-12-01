@@ -2405,7 +2405,7 @@ CSG_PG_Tool::CSG_PG_Tool(void)
 	{
 		Parameters.Add_String("", "PG_HOST"   , _TL("Host"      ), _TL(""), "127.0.0.1"    )->Set_UseInGUI(false);
 		Parameters.Add_Int   ("", "PG_PORT"   , _TL("Port"      ), _TL(""), 5432, 0, true  )->Set_UseInGUI(false);
-		Parameters.Add_String("", "PG_NAME"   , _TL("Database"  ), _TL(""), ""             )->Set_UseInGUI(false);
+		Parameters.Add_String("", "PG_DB"     , _TL("Database"  ), _TL(""), ""             )->Set_UseInGUI(false);
 		Parameters.Add_String("", "PG_USER"   , _TL("User"      ), _TL(""), ""             )->Set_UseInGUI(false);
 		Parameters.Add_String("", "PG_PWD"    , _TL("Password"  ), _TL(""), "", false, true)->Set_UseInGUI(false);
 	}
@@ -2423,7 +2423,7 @@ bool CSG_PG_Tool::On_Before_Execution(void)
 	if( has_CMD() )
 	{
 		m_pConnection = SG_PG_Get_Connection_Manager().Add_Connection(
-			Parameters("PG_NAME")->asString(),
+			Parameters("PG_DB"  )->asString(),
 			Parameters("PG_USER")->asString(),
 			Parameters("PG_PWD" )->asString(),
 			Parameters("PG_HOST")->asString(),

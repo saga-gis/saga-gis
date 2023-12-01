@@ -225,7 +225,7 @@ bool	PGSQL_Connect			(const CSG_String &Host, const CSG_String &Port, const CSG_
 	RUN_TOOL(DB_PGSQL_Get_Connection, false, true,	// CGet_Connection
 			SET_PARAMETER("PG_HOST", Host  )
 		&&	SET_PARAMETER("PG_PORT", Port  )
-		&&	SET_PARAMETER("PG_NAME", DBName)
+		&&	SET_PARAMETER("PG_DB"  , DBName)
 		&&	SET_PARAMETER("PG_USER", CSG_String(&g_Username))
 		&&	SET_PARAMETER("PG_PWD" , CSG_String(&g_Password))
 	);
@@ -1049,7 +1049,7 @@ bool CData_Source_PgSQL::Source_Drop(const wxTreeItemId &Item)
 		RUN_TOOL(DB_PGSQL_DB_Drop, true, true,	// CDatabase_Drop
 			   SET_PARAMETER("PG_HOST", pData->Get_Host    ())
 			&& SET_PARAMETER("PG_PORT", pData->Get_Port    ())
-			&& SET_PARAMETER("PG_NAME", pData->Get_DBName  ())
+			&& SET_PARAMETER("PG_DB"  , pData->Get_DBName  ())
 			&& SET_PARAMETER("PG_USER", pData->Get_Username())
 			&& SET_PARAMETER("PG_PWD" , pData->Get_Password())
 		);
@@ -1089,7 +1089,7 @@ bool CData_Source_PgSQL::Source_Open(CData_Source_PgSQL_Data *pData, bool bDialo
 			&& SET_PARAMETER("PG_PORT", pData->Get_Port    ())
 			&& SET_PARAMETER("PG_USER", pData->Get_Username())
 			&& SET_PARAMETER("PG_PWD" , pData->Get_Password())
-			&& SET_PARAMETER("PG_NAME", pData->Get_DBName  ())
+			&& SET_PARAMETER("PG_DB"  , pData->Get_DBName  ())
 		);
 
 		if( bResult )
