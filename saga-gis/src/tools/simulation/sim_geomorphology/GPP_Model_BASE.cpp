@@ -458,7 +458,7 @@ void CGPP_Model_Particle::Evaluate_Damage_Potential(CSG_Grid *pObjectClasses, CS
 
             iObjectClasses |= iClass;
 
-			if( pHazardSourceMatl != NULL )
+			if( pHazardSourceMatl != NULL && iObjectClasses > 0)
 			{
 				if( dMaxMaterialFlux < (*rit).materialflux )
 				{
