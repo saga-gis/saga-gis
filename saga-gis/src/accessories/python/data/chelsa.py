@@ -324,11 +324,10 @@ def Get_Variable(Global_File, Target_File, AOI, Scaling=1., Offset=0., Unit=None
             _AOI.Add_Shape().Add_Point(Extent.Get_XMax   (), Extent.Get_YCenter())
             _AOI.Add_Shape().Add_Point(Extent.Get_XMax   (), Extent.Get_YMin   ())
             _AOI.Add_Shape().Add_Point(Extent.Get_XCenter(), Extent.Get_YMin   ())
-            if not saga_api.SG_Get_Projected(_AOI, None, saga_api.CSG_Projections().Get_GCS_WGS84()):
-                del(_AOI); saga_api.SG_UI_Msg_Add_Error('failed to project AOI to GCS')
+            if not saga_api.SG_Get_Projected(_AOI, None, saga_api.CSG_Projections.Get_GCS_WGS84()):
+                saga_api.SG_UI_Msg_Add_Error('failed to project AOI to GCS')
                 return None
             Extent = _AOI.Get_Extent(); Extent.Inflate(10 * 30 / 3600, False)
-            del(_AOI)
 
         #________________________________________________________________________
         Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('io_gdal', '0')
