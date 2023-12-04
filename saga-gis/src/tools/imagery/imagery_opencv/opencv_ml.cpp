@@ -253,7 +253,7 @@ bool COpenCV_ML::_Initialize(void)
 {
 	m_pFeatures = Parameters("FEATURES")->asGridList();
 
-	if( m_pFeatures->Get_Grid_Count() < 1 )
+	if( m_pFeatures->Get_Grid_Count() < 1 || !m_pFeatures->Get_Grid(0)->Get_System().is_Valid() )
 	{
 		Error_Set(_TL("invalid features"));
 
@@ -268,19 +268,33 @@ bool COpenCV_ML::_Initialize(void)
 	if( !System.is_Valid() )
 	{
 		System.Create(m_pFeatures->Get_Grid(0)->Get_System());
-
-		Parameters("CLASSES")->Set_Value(m_pClasses = SG_Create_Grid(System, SG_DATATYPE_Short)); DataObject_Add(m_pClasses);
-
-		if( Parameters("PROBABILITY") && Parameters("PROBABILITY")->asPointer() == DATAOBJECT_CREATE )
-		{
-			Parameters("PROBABILITY")->Set_Value(m_pProbability = SG_Create_Grid(System)); DataObject_Add(m_pProbability);
-		}
 	}
 
-	m_pClasses     = Parameters("CLASSES"    )->asGrid();
-	m_pProbability = Parameters("PROBABILITY") ? Parameters("PROBABILITY")->asGrid() : NULL;
+	//-----------------------------------------------------
+	m_pClasses = Parameters("CLASSES")->asGrid();
+
+	if( m_pClasses == NULL )
+	{
+		Parameters("CLASSES")->Set_Value(m_pClasses = SG_Create_Grid(System, SG_DATATYPE_Short)); DataObject_Add(m_pClasses);
+	}
+	else if( !m_pClasses->Get_System().is_Equal(System) )
+	{
+		m_pClasses->Create(System, SG_DATATYPE_Short);
+	}
 
 	m_pClasses->Set_NoData_Value(-1.);
+
+	//-----------------------------------------------------
+	m_pProbability = (CSG_Grid *)(Parameters("PROBABILITY") ? Parameters("PROBABILITY")->asPointer() : NULL);
+
+	if( m_pProbability == DATAOBJECT_CREATE )
+	{
+		Parameters("PROBABILITY")->Set_Value(m_pProbability = SG_Create_Grid(System)); DataObject_Add(m_pProbability);
+	}
+	else if( m_pProbability && !m_pProbability->Get_System().is_Equal(System) )
+	{
+		m_pProbability->Create(System);
+	}
 
 	return( true );
 }

@@ -288,7 +288,7 @@ bool CGrid_Classify_Supervised::On_Execute(void)
 {
 	m_pFeatures = Parameters("GRIDS")->asGridList();
 
-	if( m_pFeatures->Get_Grid_Count() < 1 )
+	if( m_pFeatures->Get_Grid_Count() < 1 || !m_pFeatures->Get_Grid(0)->Get_System().is_Valid() )
 	{
 		Error_Set(_TL("invalid features"));
 
@@ -303,19 +303,33 @@ bool CGrid_Classify_Supervised::On_Execute(void)
 	if( !m_System.is_Valid() )
 	{
 		m_System.Create(m_pFeatures->Get_Grid(0)->Get_System());
-
-		Parameters("CLASSES")->Set_Value(SG_Create_Grid(m_System, SG_DATATYPE_Short));
-
-		if( Parameters("QUALITY")->asPointer() == DATAOBJECT_CREATE )
-		{
-			Parameters("QUALITY")->Set_Value(SG_Create_Grid(m_System));
-		}
 	}
 
+	//-----------------------------------------------------
 	CSG_Grid *pClasses = Parameters("CLASSES")->asGrid();
-	CSG_Grid *pQuality = Parameters("QUALITY")->asGrid();
+
+	if( pClasses == NULL )
+	{
+		Parameters("CLASSES")->Set_Value(pClasses = SG_Create_Grid(m_System, SG_DATATYPE_Short));
+	}
+	else if( !pClasses->Get_System().is_Equal(m_System) )
+	{
+		pClasses->Create(m_System, SG_DATATYPE_Short);
+	}
 
 	pClasses->Set_NoData_Value(-1); pClasses->Assign_NoData();
+
+	//-----------------------------------------------------
+	CSG_Grid *pQuality = (CSG_Grid *)Parameters("QUALITY")->asPointer();
+
+	if( pQuality == DATAOBJECT_CREATE )
+	{
+		Parameters("QUALITY")->Set_Value(pQuality = SG_Create_Grid(m_System));
+	}
+	else if( pQuality && !pQuality->Get_System().is_Equal(m_System) )
+	{
+		pQuality->Create(m_System);
+	}
 
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("training"));
