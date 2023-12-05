@@ -194,6 +194,60 @@ wxString CWKSP_Map_Manager::Get_Description(void)
 	s += "</table>";
 
 	//-----------------------------------------------------
+	#define USAGE_START(title) s += wxString::Format("<h6><b>%s</b></h6><table border=\"1\"><tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\"><b>%s</b></td><td valign=\"top\"><b>%s</b></td></tr>", title, _TL("Keyboard"), _TL("Mouse"), _TL("Description"));
+	#define USAGE_STOP s += "</table>";
+	#define USAGE_ADD(keys, mouse, desc) s += wxString::Format("<tr><td valign=\"top\">%s</td><td valign=\"top\">%s</td><td valign=\"top\">%s</td></tr>", keys, mouse, desc);
+
+	s += wxString::Format("<hr><h5>%s</h5>", _TL("Keyboard and Mouse Usage"));
+
+	s += _TL("Pure keyboard events work only for the map window that has the focus.");
+
+	USAGE_START(_TL("All Modes"));
+	USAGE_ADD(_TL("Left"     ), _TL(""      ), _TL("Move the view left"));
+	USAGE_ADD(_TL("Right"    ), _TL(""      ), _TL("Move the view right"));
+	USAGE_ADD(_TL("Up"       ), _TL(""      ), _TL("Move the view up"));
+	USAGE_ADD(_TL("Down"     ), _TL(""      ), _TL("Move the view down"));
+	USAGE_ADD(_TL("Page Up"  ), _TL(""      ), _TL("Zoom in"));
+	USAGE_ADD(_TL("Page Down"), _TL(""      ), _TL("Zoom out"));
+	USAGE_ADD(_TL(""         ), _TL("Middle"), _TL("Pan"));
+	USAGE_ADD(_TL(""         ), _TL("Wheel" ), _TL("Zoom in/out"));
+	USAGE_STOP;
+
+	USAGE_START(_TL("Zoom"));
+	USAGE_ADD(_TL(""         ), _TL("Left"  ), _TL("Zoom in"));
+	USAGE_ADD(_TL(""         ), _TL("Right" ), _TL("Zoom out"));
+	USAGE_ADD(_TL("Control"  ), _TL("Left"  ), _TL("Copy map to clipboard using maps' clipboard settings"));
+	USAGE_ADD(_TL("Control"  ), _TL("Right" ), _TL("Context menu for map"));
+	USAGE_ADD(_TL("Alternate"), _TL("Left"  ), _TL("Copy map to clipboard as displayed in map window"));
+	USAGE_ADD(_TL("Alternate"), _TL("Right" ), _TL("Show clicked position's coordinates in a dialog"));
+	USAGE_STOP;
+
+	USAGE_START(_TL("Pan"));
+	USAGE_ADD(_TL(""         ), _TL("Left"  ), _TL("Pan"));
+	USAGE_ADD(_TL(""         ), _TL("Right" ), _TL("Context menu"));
+	USAGE_STOP;
+
+	USAGE_START(_TL("Measure"));
+	USAGE_ADD(_TL(""         ), _TL("Left"  ), _TL("Add vertex"));
+	USAGE_ADD(_TL(""         ), _TL("Right" ), _TL("Clear vertices"));
+	USAGE_ADD(_TL("Control"  ), _TL("Right" ), _TL("Context menu"));
+	USAGE_STOP;
+
+	USAGE_START(_TL("Interact with Shapes"));
+	USAGE_ADD(_TL(""         ), _TL("Left"  ), _TL("Clicked shape as new selection"));
+	USAGE_ADD(_TL("Control"  ), _TL("Left"  ), _TL("Add/remove clicked shape to current selection"));
+	USAGE_ADD(_TL(""         ), _TL("Right" ), _TL("Context menu"));
+	USAGE_ADD(_TL("Return"   ), _TL(""      ), _TL("Enter/leave shape edit mode"));
+	USAGE_ADD(_TL("Delete"   ), _TL(""      ), _TL("Delete selection"));
+	USAGE_STOP;
+
+	USAGE_START(_TL("Interact with Grid"));
+	USAGE_ADD(_TL(""         ), _TL("Left"  ), _TL("Select cells"));
+	USAGE_ADD(_TL(""         ), _TL("Right" ), _TL("Context menu"));
+	USAGE_ADD(_TL("Delete"   ), _TL(""      ), _TL("Set selected cells to no-data"));
+	USAGE_STOP;
+
+	//-----------------------------------------------------
 	return( s );
 }
 

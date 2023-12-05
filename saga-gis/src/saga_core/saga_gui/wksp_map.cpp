@@ -221,9 +221,9 @@ wxString CWKSP_Map::Get_Description(void)
 	wxString s;
 
 	//-----------------------------------------------------
-	s	+= wxString::Format("<h4>%s</h4>", _TL("Map"));
+	s += wxString::Format("<h4>%s</h4>", _TL("Map"));
 
-	s	+= "<table border=\"0\">";
+	s += "<table border=\"0\">";
 
 	DESC_ADD_STR(_TL("Name"             ), m_Name.c_str());
 	DESC_ADD_INT(_TL("Layers"           ), Get_Count());
@@ -238,7 +238,7 @@ wxString CWKSP_Map::Get_Description(void)
 	DESC_ADD_STR(_TL("North"            ), SG_Get_String(Get_Extent().Get_YMax  (), n).c_str());
 	DESC_ADD_STR(_TL("South-North"      ), SG_Get_String(Get_Extent().Get_YRange(), n).c_str());
 
-	s	+= "</table>";
+	s += "</table>";
 
 	//-----------------------------------------------------
 	return( s );

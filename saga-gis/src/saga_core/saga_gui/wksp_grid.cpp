@@ -1089,7 +1089,7 @@ bool CWKSP_Grid::_Edit_Clr_Selection(void)
 //---------------------------------------------------------
 bool CWKSP_Grid::_Edit_Del_Selection(void)
 {
-	if( m_Edit_Attributes.Get_Count() > 0 && DLG_Message_Confirm(_TL("Set selected values to no data."), _TL("Delete")) )
+	if( m_Edit_Attributes.Get_Count() > 0 && DLG_Message_Confirm(_TL("Set selected cells to no-data."), _TL("Delete")) )
 	{
 		for(sLong y=0; y<m_Edit_Attributes.Get_Count(); y++)
 		{
