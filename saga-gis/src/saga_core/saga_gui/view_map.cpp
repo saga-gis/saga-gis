@@ -415,7 +415,7 @@ void CVIEW_Map::On_Command_UI(wxUpdateUIEvent &event)
 		break;
 
 	case ID_CMD_MAP_MODE_DISTANCE:
-		event.Check(m_pControl->Get_Mode() == MAP_MODE_DISTANCE);
+		event.Check(m_pControl->Get_Mode() == MAP_MODE_DISTANCE || m_pControl->Get_Mode() == MAP_MODE_DISTANCE_GET);
 		break;
 
 	case ID_CMD_MAP_ZOOM_ACTIVE:

@@ -144,11 +144,6 @@ bool CVIEW_Map_Control::Set_Mode(int Mode)
 		return( false );
 	}
 
-	if( m_Mode == MAP_MODE_DISTANCE && Mode != MAP_MODE_PAN_DOWN ) // don't clear if middle button pressed down for panning
-	{
-		m_Measure.Reset();
-	}
-
 	m_Mode_Previous = m_Mode;
 
 	m_Mode = Mode;
@@ -160,7 +155,6 @@ bool CVIEW_Map_Control::Set_Mode(int Mode)
 	case MAP_MODE_PAN     : SetCursor(IMG_Get_Cursor(ID_IMG_CRS_HAND     )); break;
 	case MAP_MODE_PAN_DOWN: SetCursor(IMG_Get_Cursor(ID_IMG_CRS_HAND_GRAP)); break;
 	case MAP_MODE_SELECT  : SetCursor(IMG_Get_Cursor(ID_IMG_CRS_INFO     )); break;
-	case MAP_MODE_DISTANCE: SetCursor(IMG_Get_Cursor(ID_IMG_CRS_SELECT   )); break;
 	}
 
 	return( true );
@@ -169,15 +163,15 @@ bool CVIEW_Map_Control::Set_Mode(int Mode)
 //---------------------------------------------------------
 inline void CVIEW_Map_Control::_Set_StatusBar(const TSG_Point &Point)
 {
-	static bool	bBuisy	= false;
+	static bool bBuisy = false;
 
 	if( bBuisy == false )
 	{
-		bBuisy	= true;
+		bBuisy = true;
 
 		if( m_pMap->Get_Parameter("GCS_POSITION")->asBool() && m_pMap->Get_Projection().is_Okay() )
 		{
-			CSG_Projection	GCS; GCS.Set_GCS_WGS84(); TSG_Point Position = Point;
+			CSG_Projection GCS; GCS.Set_GCS_WGS84(); TSG_Point Position = Point;
 
 			if( SG_Get_Projected(m_pMap->Get_Projection(), GCS, Position) )
 			{
@@ -191,24 +185,28 @@ inline void CVIEW_Map_Control::_Set_StatusBar(const TSG_Point &Point)
 			STATUSBAR_Set_Text(wxString::Format("Y %f", Point.y), STATUSBAR_VIEW_Y);
 		}
 
-		if( m_Mode == MAP_MODE_DISTANCE )
+		if( m_Mode == MAP_MODE_DISTANCE_GET )
 		{
-			STATUSBAR_Set_Text(wxString::Format("D %f", m_Measure.Get(Point)), STATUSBAR_VIEW_Z);
+			STATUSBAR_Set_Text(m_Measure.Get_Measure(Point), STATUSBAR_VIEW_Z);
+		}
+		else if( m_Mode == MAP_MODE_DISTANCE )
+		{
+		//	STATUSBAR_Set_Text(m_Measure.Get_Measure(     ), STATUSBAR_VIEW_Z);
 		}
 		else if( Get_Active_Layer() )
 		{
 			CWKSP_Layer *pLayer = Get_Active_Layer(); CWKSP_Map_Layer *pMapLayer = m_pMap->Get_Map_Layer(pLayer);
 
-			TSG_Point	p(Point);	double epsilon	= _Get_Client2World(2.); // 2 pixel tolerance...
+			TSG_Point p(Point); double epsilon = _Get_Client2World(2.); // 2 pixel tolerance...
 
 			if( !pMapLayer || pMapLayer->is_Projecting() )
 			{
-				TSG_Point	e(Point); e.x += epsilon; e.y += epsilon;
+				TSG_Point e(Point); e.x += epsilon; e.y += epsilon;
 
 				if( SG_Get_Projected(m_pMap->Get_Projection(), pLayer->Get_Object()->Get_Projection(), p)
 				&&  SG_Get_Projected(m_pMap->Get_Projection(), pLayer->Get_Object()->Get_Projection(), e) )
 				{
-					epsilon	= (fabs(e.x - e.x) + fabs(e.y - e.y)) / 2.;
+					epsilon = (fabs(e.x - e.x) + fabs(e.y - e.y)) / 2.;
 				}
 			}
 
@@ -219,7 +217,7 @@ inline void CVIEW_Map_Control::_Set_StatusBar(const TSG_Point &Point)
 			STATUSBAR_Set_Text("Z", STATUSBAR_VIEW_Z);
 		}
 
-		bBuisy	= false;
+		bBuisy = false;
 	}
 }
 
@@ -412,31 +410,34 @@ void CVIEW_Map_Control::_Draw_CrossHair(wxDC &dc)
 //---------------------------------------------------------
 void CVIEW_Map_Control::_Draw_Measure(wxDC &dc)
 {
-	if( m_Measure.Count() > 0 )
+	if( m_Mode != MAP_MODE_PAN_DOWN && (m_Measure.Count() > 1 || (m_Measure.Count() > 0 && m_Mode == MAP_MODE_DISTANCE_GET)) )
 	{
 		wxPen oldPen(dc.GetPen());
 
-		//-------------------------------------------------
-		dc.SetPen(wxPen(*wxWHITE, 4));
-
-		for(int i=0, j=1; j<m_Measure.Count(); i++, j++)
+		for(int Draw=0; Draw<2; Draw++)
 		{
-			dc.DrawLine(_Get_World2Client(m_Measure[i]), _Get_World2Client(m_Measure[j]));
+			dc.SetPen(Draw == 0 ? wxPen(*wxWHITE, 4) : wxPen(*wxBLACK, 2));
+
+			for(int i=0, j=1; j<m_Measure.Count(); i++, j++)
+			{
+				dc.DrawLine(_Get_World2Client(m_Measure[i]), _Get_World2Client(m_Measure[j]));
+			}
+
+			if( m_Mode == MAP_MODE_DISTANCE_GET )
+			{
+				dc.DrawLine(_Get_World2Client(m_Measure[m_Measure.Count() - 1]), m_Mouse_Move);
+
+				if( m_Measure.Get_Type() == 1 )
+				{
+					dc.DrawLine(_Get_World2Client(m_Measure[0]), m_Mouse_Move);
+				}
+			}
+			else if( m_Measure.Get_Type() == 1 )
+			{
+				dc.DrawLine(_Get_World2Client(m_Measure[0]), _Get_World2Client(m_Measure[m_Measure.Count() - 1]));
+			}
 		}
 
-		dc.DrawLine(_Get_World2Client(m_Measure[m_Measure.Count() - 1]), m_Mouse_Move);
-
-		//-------------------------------------------------
-		dc.SetPen(wxPen(*wxBLACK, 2));
-
-		for(int i=0, j=1; j<m_Measure.Count(); i++, j++)
-		{
-			dc.DrawLine(_Get_World2Client(m_Measure[i]), _Get_World2Client(m_Measure[j]));
-		}
-
-		dc.DrawLine(_Get_World2Client(m_Measure[m_Measure.Count() - 1]), m_Mouse_Move);
-
-		//-------------------------------------------------
 		dc.SetPen(oldPen);
 	}
 }
@@ -662,11 +663,6 @@ bool CVIEW_Map_Control::_Check_Interactive(bool bProjection)
 //---------------------------------------------------------
 void CVIEW_Map_Control::On_Mouse_LDown(wxMouseEvent &event)
 {
-	SetFocus();
-
-	m_Mouse_Down = m_Mouse_Move = event.GetPosition();
-
-	//-----------------------------------------------------
 	if( m_Mode != MAP_MODE_SELECT )	// clipboard copy ?
 	{
 		if( event.ControlDown() )
@@ -685,10 +681,17 @@ void CVIEW_Map_Control::On_Mouse_LDown(wxMouseEvent &event)
 	}
 
 	//-----------------------------------------------------
-	bool bCaptureMouse = true;
+	SetFocus();
+
+	m_Mouse_Down = m_Mouse_Move = event.GetPosition();
+
+	bool bCaptureMouse = false;
 
 	switch( m_Mode )
 	{
+	default:
+		break;
+
 	//-----------------------------------------------------
 	case MAP_MODE_SELECT:
 		if( _Check_Interactive() )
@@ -701,6 +704,8 @@ void CVIEW_Map_Control::On_Mouse_LDown(wxMouseEvent &event)
 		}
 		else if( m_pMap->Get_Map_Layer_Active(false) )
 		{
+			bCaptureMouse = true;
+
 			switch(	Get_Active_Layer()->Get_Type() )
 			{
 			default                  : m_Drag_Mode = TOOL_INTERACTIVE_DRAG_NONE; break;
@@ -722,23 +727,31 @@ void CVIEW_Map_Control::On_Mouse_LDown(wxMouseEvent &event)
 
 	//-----------------------------------------------------
 	case MAP_MODE_DISTANCE:
-		m_Drag_Mode       = TOOL_INTERACTIVE_DRAG_NONE;
+		m_Mode = MAP_MODE_DISTANCE_GET;
+		m_Measure.Reset();
+
+	case MAP_MODE_DISTANCE_GET:
+		m_Drag_Mode   = TOOL_INTERACTIVE_DRAG_NONE;
+		m_Measure.Add(_Get_Client2World(event.GetPosition()));
+		Refresh(false);
 		break;
 
 	//-----------------------------------------------------
 	case MAP_MODE_ZOOM:
-		m_Drag_Mode       = TOOL_INTERACTIVE_DRAG_BOX;
+		m_Drag_Mode   = TOOL_INTERACTIVE_DRAG_BOX;
+		bCaptureMouse = true;
 		break;
 
 	//-----------------------------------------------------
 	case MAP_MODE_PAN:
-		m_Drag_Mode       = TOOL_INTERACTIVE_DRAG_NONE;
+		m_Drag_Mode   = TOOL_INTERACTIVE_DRAG_NONE;
+		bCaptureMouse = true;
 		Set_Mode(MAP_MODE_PAN_DOWN);
 		break;
 
 	//-----------------------------------------------------
 	case MAP_MODE_PAN_DOWN:
-		m_Drag_Mode       = TOOL_INTERACTIVE_DRAG_NONE;
+		m_Drag_Mode = TOOL_INTERACTIVE_DRAG_NONE;
 		break;
 	}
 
@@ -768,6 +781,9 @@ void CVIEW_Map_Control::On_Mouse_LUp(wxMouseEvent &event)
 
 	switch( m_Mode )
 	{
+	default:
+		break;
+
 	//-----------------------------------------------------
 	case MAP_MODE_SELECT:
 		if( _Check_Interactive() )
@@ -792,19 +808,8 @@ void CVIEW_Map_Control::On_Mouse_LUp(wxMouseEvent &event)
 		break;
 
 	//-----------------------------------------------------
-	case MAP_MODE_DISTANCE:
-		m_Measure.Add(_Get_Client2World(event.GetPosition()));
-
-		Refresh(false);
-		break;
-
-	//-----------------------------------------------------
 	case MAP_MODE_ZOOM:
 		_Zoom(m_Mouse_Down, event.GetPosition(), true);
-		break;
-
-	//-----------------------------------------------------
-	case MAP_MODE_PAN:
 		break;
 
 	//-----------------------------------------------------
@@ -824,16 +829,15 @@ void CVIEW_Map_Control::On_Mouse_LDClick(wxMouseEvent &event)
 
 	switch( m_Mode )
 	{
+	default:
+		break;
+
 	//-----------------------------------------------------
 	case MAP_MODE_SELECT:
 		if( _Check_Interactive() )
 		{
 			g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_LDCLICK, GET_KEYS(event));
 		}
-		break;
-
-	//-----------------------------------------------------
-	default:
 		break;
 	}
 }
@@ -848,11 +852,11 @@ void CVIEW_Map_Control::On_Mouse_RDown(wxMouseEvent &event)
 {
 	SetFocus();
 
-	m_pParent->Activate();
-
 	m_Mouse_Down = m_Mouse_Move = event.GetPosition();
 
 	m_Drag_Mode	= TOOL_INTERACTIVE_DRAG_NONE;
+
+	m_pParent->Activate();
 
 	switch( m_Mode )
 	{
@@ -890,40 +894,47 @@ void CVIEW_Map_Control::On_Mouse_RUp(wxMouseEvent &event)
 
 	switch( m_Mode )
 	{
+	default:
+		pMenu = m_pParent->_Create_Menu();
+		break;
+
 	//-----------------------------------------------------
 	case MAP_MODE_SELECT:
 		if( _Check_Interactive() )
 		{
 			g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_RUP, GET_KEYS(event));
 		}
-		else
-		{
-			if( m_pMap->Get_Map_Layer_Active(true) && !Get_Active_Layer()->Edit_On_Mouse_Up(
+		else if( m_pMap->Get_Map_Layer_Active(true) && !Get_Active_Layer()->Edit_On_Mouse_Up(
 				_Get_Client2World(event.GetPosition()), _Get_Client2World(1.), GET_KEYS(event)|TOOL_INTERACTIVE_KEY_RIGHT) )
-			{
-				pMenu = Get_Active_Layer()->Edit_Get_Menu();
-			}
-			else if( event.AltDown() )	// request coordinate
-			{
-				m_pMap->Show_Coordinate(_Get_Client2World(event.GetPosition()));
-			}
+		{
+			pMenu = Get_Active_Layer()->Edit_Get_Menu();
 		}
 		break;
 
 	//-----------------------------------------------------
 	case MAP_MODE_DISTANCE:
-		if( event.ControlDown() )	// context menu
+		if( event.ControlDown() )
 		{
-			pMenu = m_pParent->_Create_Menu();
+			if( m_Measure.Dialog() )
+			{
+				Refresh(false);
+			}
 		}
-		else	// reset
+		else
 		{
 			m_Measure.Reset();
-
 			Refresh(false);
 		}
 		break;
 
+	//-----------------------------------------------------
+	case MAP_MODE_DISTANCE_GET:
+		m_Mode = MAP_MODE_DISTANCE;
+		STATUSBAR_Set_Text(m_Measure.Get_Measure(), STATUSBAR_VIEW_Z);
+		Refresh(false);
+		break;
+
+	//-----------------------------------------------------
 	case MAP_MODE_ZOOM:
 		if( event.ControlDown() )	// context menu
 		{
@@ -937,11 +948,6 @@ void CVIEW_Map_Control::On_Mouse_RUp(wxMouseEvent &event)
 		{
 			_Zoom(m_Mouse_Down, event.GetPosition(), false);
 		}
-		break;
-
-	//-----------------------------------------------------
-	default:
-		pMenu = m_pParent->_Create_Menu();
 		break;
 	}
 
@@ -963,28 +969,15 @@ void CVIEW_Map_Control::On_Mouse_RDClick(wxMouseEvent &event)
 
 	switch( m_Mode )
 	{
+	default:
+		break;
+
 	//-----------------------------------------------------
 	case MAP_MODE_SELECT:
 		if( _Check_Interactive() )
 		{
 			g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_RDCLICK, GET_KEYS(event));
 		}
-		break;
-
-	//-----------------------------------------------------
-	case MAP_MODE_DISTANCE:
-		break;
-
-	//-----------------------------------------------------
-	case MAP_MODE_ZOOM:
-		break;
-
-	//-----------------------------------------------------
-	case MAP_MODE_PAN:
-		break;
-
-	//-----------------------------------------------------
-	case MAP_MODE_PAN_DOWN:
 		break;
 	}
 }
@@ -999,7 +992,7 @@ void CVIEW_Map_Control::On_Mouse_MDown(wxMouseEvent &event)
 {
 	SetFocus();
 
-	bool bCaptureMouse = true;
+	bool bCaptureMouse = true, bPan = true;
 
 	m_Mouse_Down = m_Mouse_Move = event.GetPosition();
 
@@ -1010,27 +1003,26 @@ void CVIEW_Map_Control::On_Mouse_MDown(wxMouseEvent &event)
 
 	//-----------------------------------------------------
 	case MAP_MODE_SELECT:
-		if( _Check_Interactive() && (event.ShiftDown() || event.AltDown() || event.ControlDown())  )
+		if( _Check_Interactive() )
 		{
-			g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_MDOWN, GET_KEYS(event));
-		}
-		else
-		{
-			m_Drag_Mode = TOOL_INTERACTIVE_DRAG_NONE;
-			Set_Mode(MAP_MODE_PAN_DOWN);
+			m_Drag_Mode   = ((CSG_Tool_Interactive *)g_pTool->Get_Tool())->Get_Drag_Mode();
+
+			bCaptureMouse = m_Drag_Mode != TOOL_INTERACTIVE_DRAG_NONE;
+
+			if( g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_MDOWN, GET_KEYS(event)) )
+			{
+				bPan = false;
+			}
 		}
 		break;
+	}
 
 	//-----------------------------------------------------
-	case MAP_MODE_ZOOM: case MAP_MODE_DISTANCE:
+	if( bPan )
+	{
 		m_Drag_Mode = TOOL_INTERACTIVE_DRAG_NONE;
+
 		Set_Mode(MAP_MODE_PAN_DOWN);
-		break;
-
-	//-----------------------------------------------------
-	case MAP_MODE_PAN_DOWN:
-		m_Drag_Mode = TOOL_INTERACTIVE_DRAG_NONE;
-		break;
 	}
 
 	//-----------------------------------------------------
@@ -1038,8 +1030,6 @@ void CVIEW_Map_Control::On_Mouse_MDown(wxMouseEvent &event)
 	{
 		CaptureMouse();
 	}
-
-	event.Skip();
 }
 
 //---------------------------------------------------------
@@ -1106,7 +1096,7 @@ void CVIEW_Map_Control::On_Mouse_Motion(wxMouseEvent &event)
 		break;
 
 	//-----------------------------------------------------
-	case MAP_MODE_DISTANCE:
+	case MAP_MODE_DISTANCE_GET:
 		if( m_Measure.Count() > 0 )
 		{
 			Refresh(false);

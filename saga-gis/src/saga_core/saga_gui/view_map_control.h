@@ -77,6 +77,7 @@ enum
 	MAP_MODE_NONE	= 0,
 	MAP_MODE_SELECT,
 	MAP_MODE_DISTANCE,
+	MAP_MODE_DISTANCE_GET,
 	MAP_MODE_ZOOM,
 	MAP_MODE_PAN,
 	MAP_MODE_PAN_DOWN
@@ -127,37 +128,68 @@ private:
 	class CMeasure
 	{
 	public:
-		CMeasure(void) {}
-
-		void			Reset			(void)			{ Points.Clear(); }
-
-		int				Count			(void)	const	{ return( Points.Get_Count() ); }
-		TSG_Point &		operator []		(int i)			{ return( Points[i] ); }
-
-		double			Get				(const CSG_Point &Point)
+		CMeasure(void)
 		{
-			return( Count() < 1 ? 0. : Length + SG_Get_Distance(Point, Points[Count() - 1]) );
+			m_Parameters.Create(_TL("Measure"));
+			m_Parameters.Add_Choice("", "TYPE"  , _TL("Measure"), _TL(""), CSG_String::Format("%s|%s", _TL("Distance"), _TL("Area")), 0);
+			m_Parameters.Add_Double("", "LENGTH", _TL("Length" ), _TL(""), 0., 0., true);
+			m_Parameters.Add_Double("", "AREA"  , _TL("Area"   ), _TL(""), 0., 0., true);
+		}
+
+		bool			Dialog			(void)
+		{
+			m_Parameters["LENGTH"].Set_Value(m_Length);
+			m_Parameters["AREA"  ].Set_Value(m_Area  );
+			m_Parameters.Set_Enabled("AREA", Get_Type() == 1);
+			return( SG_UI_Dlg_Parameters(&m_Parameters, _TL("Measure")) );
+		}
+
+		bool			Get_Type		(void)	const	{ return( m_Parameters("TYPE")->asInt() ); }
+
+		void			Reset			(void)			{ m_Points.Clear(); m_Length = m_Area = 0.; }
+
+		int				Count			(void)	const	{ return( m_Points.Get_Count() ); }
+		TSG_Point &		operator []		(int i)			{ return( m_Points[i] ); }
+
+		double			Get_Length		(void)	const	{ return( m_Length ); }
+		double			Get_Area		(void)	const	{ return( m_Area   ); }
+
+		double			Get_Length		(const CSG_Point &Point)	const
+		{
+			return( Count() > 0 ? m_Length + SG_Get_Distance(Point, m_Points[Count() - 1]) : 0. );
 		}
 
 		void			Add				(const CSG_Point &Point)
 		{
-			Points.Add(Point);
+			m_Points.Add(Point);
 
-			if( Points.Get_Count() < 2 )
+			if( m_Points.Get_Count() > 1 )
 			{
-				Length  = 0.;
-			}
-			else
-			{
-				Length += SG_Get_Distance(Points[Count() - 2], Points[Count() - 1]);
+				m_Length += SG_Get_Distance(m_Points[Count() - 2], m_Points[Count() - 1]);
+
+				if( m_Points.Get_Count() > 2 )
+				{
+					m_Area = fabs(SG_Get_Polygon_Area(m_Points));
+				}
 			}
 		}
 
+		double			Get_Area		(const CSG_Point &Point)	const
+		{
+			CSG_Points Points(m_Points); Points.Add(Point); return( fabs(SG_Get_Polygon_Area(Points)) );
+		}
+
+		wxString		Get_Measure		(void)                   const { return( Get_Type() == 0 ? wxString::Format("D %f", Get_Length(     )) : wxString::Format("A %f", Get_Area(     )) ); }
+		wxString		Get_Measure		(const CSG_Point &Point) const { return( Get_Type() == 0 ? wxString::Format("D %f", Get_Length(Point)) : wxString::Format("A %f", Get_Area(Point)) ); }
+
+
 	private:
 
-		double					Length;
+		double					m_Length { 0. }, m_Area { 0. };
 
-		CSG_Points				Points;
+		CSG_Points				m_Points;
+
+		CSG_Parameters			m_Parameters;
 
 	};
 	
