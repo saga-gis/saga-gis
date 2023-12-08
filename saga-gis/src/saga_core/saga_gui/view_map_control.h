@@ -93,36 +93,6 @@ enum
 //---------------------------------------------------------
 class CVIEW_Map_Control : public wxPanel
 {
-public:
-	CVIEW_Map_Control(class CVIEW_Map *pParent, class CWKSP_Map *pMap);
-	virtual ~CVIEW_Map_Control(void);
-
-	void						On_Paint			(wxPaintEvent &event);
-	void						On_Size				(wxSizeEvent  &event);
-	void						On_Key_Down			(wxKeyEvent   &event);
-
-	void						On_Mouse_LDown		(wxMouseEvent &event);
-	void						On_Mouse_LUp		(wxMouseEvent &event);
-	void						On_Mouse_LDClick	(wxMouseEvent &event);
-	void						On_Mouse_RDown		(wxMouseEvent &event);
-	void						On_Mouse_RUp		(wxMouseEvent &event);
-	void						On_Mouse_RDClick	(wxMouseEvent &event);
-	void						On_Mouse_MDown		(wxMouseEvent &event);
-	void						On_Mouse_MUp		(wxMouseEvent &event);
-	void						On_Mouse_Motion		(wxMouseEvent &event);
-	void						On_Mouse_Wheel		(wxMouseEvent &event);
-
-	void						On_Mouse_Lost		(wxMouseCaptureLostEvent &event);
-
-	void						Set_CrossHair		(const TSG_Point &Point);
-	void						Set_CrossHair_Off	(void);
-
-	bool						Set_Mode			(int Mode);
-	int							Get_Mode			(void)	{	return( m_Mode );	}
-
-	void						Refresh_Map			(void);
-
-
 private:
 
 	class CMeasure
@@ -185,14 +155,44 @@ private:
 
 	private:
 
-		double					m_Length { 0. }, m_Area { 0. };
+		double			m_Length { 0. }, m_Area { 0. };
 
-		CSG_Points				m_Points;
+		CSG_Points		m_Points;
 
-		CSG_Parameters			m_Parameters;
+		CSG_Parameters	m_Parameters;
 
 	};
-	
+
+
+public:
+	CVIEW_Map_Control(class CVIEW_Map *pParent, class CWKSP_Map *pMap);
+	virtual ~CVIEW_Map_Control(void);
+
+	void						On_Paint			(wxPaintEvent &event);
+	void						On_Size				(wxSizeEvent  &event);
+	void						On_Key_Down			(wxKeyEvent   &event);
+
+	void						On_Mouse_LDown		(wxMouseEvent &event);
+	void						On_Mouse_LUp		(wxMouseEvent &event);
+	void						On_Mouse_LDClick	(wxMouseEvent &event);
+	void						On_Mouse_RDown		(wxMouseEvent &event);
+	void						On_Mouse_RUp		(wxMouseEvent &event);
+	void						On_Mouse_RDClick	(wxMouseEvent &event);
+	void						On_Mouse_MDown		(wxMouseEvent &event);
+	void						On_Mouse_MUp		(wxMouseEvent &event);
+	void						On_Mouse_Motion		(wxMouseEvent &event);
+	void						On_Mouse_Wheel		(wxMouseEvent &event);
+
+	void						On_Mouse_Lost		(wxMouseCaptureLostEvent &event);
+
+	void						Set_CrossHair		(const TSG_Point &Point);
+	void						Set_CrossHair_Off	(void);
+
+	bool						Set_Mode			(int Mode);
+	int							Get_Mode			(void)	{	return( m_Mode );	}
+
+	void						Refresh_Map			(void);
+
 
 private:
 
