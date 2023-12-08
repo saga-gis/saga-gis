@@ -63,11 +63,11 @@ def Plot_Table(Table, yFields=[], xField=None):
     if not Data:
         return False
 
-    import matplotlib.pyplot as plot
+    from matplotlib import pyplot
 
-    plot.style.use('classic') # classic, Solarize_Light2, bmh, fivethirtyeight, ggplot, grayscale, ...
+    pyplot.style.use('classic') # classic, Solarize_Light2, bmh, fivethirtyeight, ggplot, grayscale, ...
 
-    fig, ax = plot.subplots()
+    fig, ax = pyplot.subplots()
 
     if xField != None and xField >= 0 and xField < Table.Get_Field_Count():
         ax.set_xlabel(Table.Get_Field_Name(xField))
@@ -75,8 +75,52 @@ def Plot_Table(Table, yFields=[], xField=None):
     for i in range(1, len(Data)):
         ax.plot(Data[0], Data[i], label=Table.Get_Field_Name(yFields[i - 1]))
 
-    plot.legend()
-    plot.show()
+    pyplot.legend()
+    pyplot.show()
+
+    return True
+
+
+#################################################################################
+#
+# Shapes...
+#________________________________________________________________________________
+
+#################################################################################
+#________________________________________________________________________________
+def Plot_Shapes(Shapes, Show=True):
+    '''
+    Creates a simple plot of a saga_api.CSG_Shapes object 
+    '''
+    try:
+        import matplotlib
+    except:
+        return False
+
+    import numpy; from matplotlib import pyplot
+
+    for iShape in range(0, Shapes.Get_Count()):
+        Shape = Shapes.Get_Shape(iShape)
+        for iPart in range(0, Shape.Get_Part_Count()):
+            x = numpy.empty(Shape.Get_Point_Count(iPart), float)
+            y = numpy.empty(Shape.Get_Point_Count(iPart), float)
+            for iPoint in range(0, Shape.Get_Point_Count(iPart)):
+                Point = Shape.Get_Point(iPoint, iPart)
+                x[iPoint] = Point.x
+                y[iPoint] = Point.y
+
+            if Shapes.Get_Type() == saga_api.SHAPE_TYPE_Point \
+            or Shapes.Get_Type() == saga_api.SHAPE_TYPE_Points:
+                pyplot.plot(x, y, 'o', color='black')
+            if Shapes.Get_Type() == saga_api.SHAPE_TYPE_Line:
+                pyplot.plot(x, y, color='black')#, label='{:s}'.format(Shape.asString(1)))
+            if Shapes.Get_Type() == saga_api.SHAPE_TYPE_Polygon:
+                pyplot.fill(x, y)#, label='{:s}'.format(Shape.asString(1)))
+
+    pyplot.axis('equal')
+
+    if Show:
+        pyplot.show()
 
     return True
 
@@ -88,7 +132,7 @@ def Plot_Table(Table, yFields=[], xField=None):
 
 #################################################################################
 #________________________________________________________________________________
-def Plot_Grid(Grid):
+def Plot_Grid(Grid, Show=True):
     '''
     A simple visualization of a saga_api.CSG_Grid object 
     '''
@@ -101,11 +145,13 @@ def Plot_Grid(Grid):
 
     X, Y, Z = convert.Grid_To_NumPy(Grid)
 
-    import matplotlib.pyplot as plot, matplotlib.cm as cm
+    import matplotlib.pyplot as pyplot, matplotlib.cm as cm
 
-    plot.style.use('classic') # classic, Solarize_Light2, bmh, fivethirtyeight, ggplot, grayscale, ...
-    plot.imshow(Z, cmap=cm.terrain)
-    plot.show()
+    pyplot.style.use('classic') # classic, Solarize_Light2, bmh, fivethirtyeight, ggplot, grayscale, ...
+    pyplot.imshow(Z, extent=[Grid.Get_XMin(), Grid.Get_XMax(), Grid.Get_YMin(), Grid.Get_YMax()], cmap=cm.terrain)
+ 
+    if Show:
+        pyplot.show()
 
     return True
 
