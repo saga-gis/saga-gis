@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: citygml_import.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "citygml_import.h"
 
 
@@ -70,7 +58,6 @@
 //---------------------------------------------------------
 CCityGML_Import::CCityGML_Import(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Import Building Sketches from CityGML"));
 
 	Set_Author		("O.Conrad (c) 2014");
@@ -81,25 +68,24 @@ CCityGML_Import::CCityGML_Import(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		"", "BUILDINGS"	, _TL("Buildings"),
+	Parameters.Add_Shapes("",
+		"BUILDINGS", _TL("Buildings"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_FilePath(
-		"", "FILES"		, _TL("Files"),
+	Parameters.Add_FilePath("",
+		"FILES"    , _TL("Files"),
 		_TL(""),
-		CSG_String::Format("%s (*.xml)|*.xml|%s|*.*",
-			_TL("XML Files"),
-			_TL("All Files")
+		CSG_String::Format("%s|*.xml;*.gml|XML %s (*.xml)|*.xml|GML %s (*.gml)|*.xml|%s|*.*",
+			_TL("Recognized Files"), _TL("Files"), _TL("Files"), _TL("All Files")
 		), NULL, false, false, true
 	);
 
-	Parameters.Add_Bool(
-		"", "PARTS"		, _TL("Check for Building Parts"),
+	Parameters.Add_Bool("",
+		"PARTS"    , _TL("Check for Building Parts"),
 		_TL(""),
-		true
+		false
 	);
 }
 
@@ -118,7 +104,7 @@ bool CCityGML_Import::On_Execute(void)
 		return( false );
 	}
 
-	CSG_Shapes	Buildings(SHAPE_TYPE_Polygon), *pBuildings	= Parameters("BUILDINGS")->asShapes();
+	CSG_Shapes Buildings(SHAPE_TYPE_Polygon), *pBuildings = Parameters("BUILDINGS")->asShapes();
 
 	for(int i=0; i<Files.Get_Count(); i++)
 	{
@@ -130,10 +116,10 @@ bool CCityGML_Import::On_Execute(void)
 		{
 			Add_Buildings(pBuildings, &Buildings);
 
-			CSG_String	Description(pBuildings->Get_Description());
+			CSG_String Description(pBuildings->Get_Description());
 
-			Description	+= "\n";
-			Description	+= Buildings.Get_Name();
+			Description += "\n";
+			Description += Buildings.Get_Name();
 
 			pBuildings->Set_Description(Description);
 		}
@@ -148,9 +134,106 @@ bool CCityGML_Import::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CCityGML_Import::Load_Shapes(const CSG_String &File, CSG_Shapes &Shapes, int Type)
+{
+	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("io_gdal", 3); // Import Shapes
+
+	if( pTool )
+	{
+		CSG_Data_Manager Data; pTool->Set_Manager(&Data);
+
+		pTool->Set_Parameter("FILES"    , File);
+		pTool->Set_Parameter("GEOM_TYPE", Type);
+
+		bool bResult = pTool->Execute() && pTool->Get_Parameter("SHAPES")->asList()->Get_Item_Count() > 0;
+
+		if( bResult )
+		{
+			CSG_Shapes *pShapes = pTool->Get_Parameter("SHAPES")->asList()->Get_Item(0)->asShapes();
+
+			Shapes.Create(*pShapes);
+		}
+
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+		return( bResult && Shapes.Get_Count() > 0 );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CCityGML_Import::Get_Buildings(const CSG_String &File, CSG_Shapes *pPolygons)
+{
+	Process_Set_Text(_TL("importing line strings"));
+
+	if( Load_Shapes(File, *pPolygons, 9) || Load_Shapes(File, *pPolygons, 11) ) // might be provided as polygons in newer versions?!
+	{
+		pPolygons->Set_Name(SG_File_Get_Name(File, false));
+
+		for(int i=0; i<pPolygons->Get_Count(); i++)
+		{
+			CSG_Shape_Polygon *pPolygon = pPolygons->Get_Shape(i)->asPolygon();
+
+			for(int j=pPolygon->Get_Part_Count()-1; j>0; j--)
+			{
+				pPolygon->Del_Part(j);
+			}
+		}
+
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	// import city gml line strings
+
+	CSG_Shapes Lines;
+
+	if( !Load_Shapes(File, Lines, 5) && !Load_Shapes(File, Lines, 7) ) // try to load the line strings
+	{
+		Error_Set(CSG_String::Format("%s: %s", _TL("CityGML import failed"), File.c_str()));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	// convert line strings to polygons
+
+	Process_Set_Text(_TL("polygon conversion"));
+
+	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("shapes_polygons", 3);	// Convert Lines to Polygons
+
+	if(	!pTool )
+	{
+		Error_Set(_TL("could not locate line string to polygon conversion tool"));
+
+		return( false );
+	}
+
+	pTool->Set_Manager(NULL);
+
+	bool bResult
+		=  pTool->Get_Parameters()->Set_Parameter("POLYGONS", pPolygons)
+		&& pTool->Get_Parameters()->Set_Parameter("LINES"   , &Lines)
+		&& pTool->Get_Parameters()->Set_Parameter("MERGE"   , true)
+		&& pTool->Execute();
+
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+	pPolygons->Set_Name(SG_File_Get_Name(File, false));
+
+	//-----------------------------------------------------
+	return( bResult );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CCityGML_Import::Get_Buildings(const CSG_String &File, CSG_Shapes *pBuildings, bool bParts)
 {
-	//-----------------------------------------------------
 	if( !Get_Buildings(File, pBuildings) )
 	{
 		Error_Set(_TL("CityGML file import failed"));
@@ -232,87 +315,35 @@ bool CCityGML_Import::Get_Buildings(const CSG_String &File, CSG_Shapes *pBuildin
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CCityGML_Import::Get_Buildings(const CSG_String &File, CSG_Shapes *pPolygons)
-{
-	//-----------------------------------------------------
-	// import city gml line strings
-
-	Process_Set_Text(_TL("importing line strings"));
-
-	CSG_Data_Manager Manager;
-
-	if( !Manager.Add(File) || !Manager.Shapes().Count() )
-	{
-		Error_Set(CSG_String::Format("%s: %s", _TL("CityGML import failed"), File.c_str()));
-
-		return( false );
-	}
-
-
-	//-----------------------------------------------------
-	// convert line strings to polygons
-
-	Process_Set_Text(_TL("polygon conversion"));
-
-	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("shapes_polygons", 3);	// Convert Lines to Polygons
-
-	if(	!pTool )
-	{
-		Error_Set(_TL("could not locate line string to polygon conversion tool"));
-
-		return( false );
-	}
-
-	pTool->Set_Manager(NULL);
-
-	bool bResult = pTool->Get_Parameters()->Set_Parameter("POLYGONS", pPolygons)
-	            && pTool->Get_Parameters()->Set_Parameter("LINES"   , (CSG_Shapes *)Manager.Shapes()[0].asShapes())
-	            && pTool->Get_Parameters()->Set_Parameter("MERGE"   , true)
-	            && pTool->Execute();
-
-	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
-
-	pPolygons->Set_Name(SG_File_Get_Name(File, false));
-
-	//-----------------------------------------------------
-	return( bResult );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 bool CCityGML_Import::Add_Buildings(CSG_Shapes *pBuildings, CSG_Shapes *pAdd)
 {
-	int	i, j, *Index	= (int *)SG_Malloc(pBuildings->Get_Field_Count() * sizeof(int));
+	int *Index = (int *)SG_Malloc(pBuildings->Get_Field_Count() * sizeof(int));
 
-	for(i=0; i<pBuildings->Get_Field_Count(); i++)
+	for(int i=0; i<pBuildings->Get_Field_Count(); i++)
 	{
-		CSG_String	Name(pBuildings->Get_Field_Name(i));
+		CSG_String Name(pBuildings->Get_Field_Name(i));
 
-		Index[i]	= -1;
+		Index[i] = -1;
 
-		for(j=0; Index[i]<0 && j<pAdd->Get_Field_Count(); j++)
+		for(int j=0; Index[i]<0 && j<pAdd->Get_Field_Count(); j++)
 		{
 			if( !Name.CmpNoCase(pAdd->Get_Field_Name(j)) )
 			{
-				Index[i]	= j;
+				Index[i] = j;
 			}
 		}
 	}
 
-	for(i=0; i<pAdd->Get_Count(); i++)
+	for(int i=0; i<pAdd->Get_Count(); i++)
 	{
-		CSG_Shape	*pPart		= pAdd->Get_Shape(i);
-		CSG_Shape	*pPolygon	= pBuildings->Add_Shape(pPart, SHAPE_COPY_GEOM);
+		CSG_Shape    *pPart = pAdd->Get_Shape(i);
+		CSG_Shape *pPolygon = pBuildings->Add_Shape(pPart, SHAPE_COPY_GEOM);
 
-		for(j=0; j<pBuildings->Get_Field_Count(); j++)
+		for(int j=0; j<pBuildings->Get_Field_Count(); j++)
 		{
 			if( Index[j] >= 0 )
 			{
-				*pPolygon->Get_Value(j)	= *pPart->Get_Value(Index[j]);
+				*pPolygon->Get_Value(j) = *pPart->Get_Value(Index[j]);
 			}
 		}
 	}

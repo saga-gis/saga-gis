@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: citygml_import.h 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//                                                       //												
-//                                                       //												
-//                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__citygml_import_H
 #define HEADER_INCLUDED__citygml_import_H
 
@@ -69,7 +57,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -81,19 +69,20 @@
 //---------------------------------------------------------
 class CCityGML_Import : public CSG_Tool
 {
-public: ////// public members and functions: //////////////
-
+public:
 	CCityGML_Import(void);
 
 	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Import") );	}
 
 
-protected: /// protected members and functions: ///////////
+protected:
 
 	virtual bool		On_Execute				(void);
 
 
-private: ///// private members and functions: /////////////
+private:
+
+	bool				Load_Shapes				(const CSG_String &File, CSG_Shapes &Shapes, int Type);
 
 	bool				Get_Buildings			(const CSG_String &File, CSG_Shapes *pPolygons, bool bParts);
 	bool				Get_Buildings			(const CSG_String &File, CSG_Shapes *pPolygons);
