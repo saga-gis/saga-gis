@@ -107,6 +107,12 @@ if grid_filter.Run_MajorityMinority_Filter(INPUT=landforms, KERNEL_RADIUS=3):
     if Plot_Results:
         plot.Plot_Grid(landforms)
 
+from PySAGA.tools import shapes_grid
+polygons = saga_api.CSG_Shapes()
+shapes_grid.Run_Vectorizing_Grid_Classes(GRID=landforms, POLYGONS=polygons)
+if Plot_Results:
+    plot.Plot_Shapes(polygons)
+
 table = saga_api.CSG_Table()
 if ta_morphometry.Run_Hypsometry(ELEVATION=dem, TABLE=table):
     table.Save('hypsometry.txt')
@@ -140,6 +146,16 @@ from PySAGA.tools import ta_hydrology
 flow_acc = saga_api.CSG_Grid()
 ta_hydrology.Run_Flow_Accumulation_TopDown(ELEVATION=dem_nosinks, FLOW=flow_acc, METHOD='Multiple Triangular Flow Directon')
 flow_acc.Save('flow_acc.tif')
+if Plot_Results:
+    plot.Plot_Grid(flow_acc)
+
+sca = saga_api.CSG_Grid(); twi = saga_api.CSG_Grid()
+ta_morphometry.Run_Slope_Aspect_Curvature(ELEVATION=dem, SLOPE=slope, UNIT_SLOPE='radians')
+ta_hydrology.Run_Flow_Width_and_Specific_Catchment_Area(DEM=dem_nosinks, TCA=flow_acc, SCA=sca)
+ta_hydrology.Run_Topographic_Wetness_Index(SLOPE=slope, AREA=sca, TWI=twi)
+twi.Save('twi.sg-grd-z')
+if Plot_Results:
+    plot.Plot_Grid(twi)
 
 #_________________________________________
 ##########################################
@@ -150,6 +166,10 @@ from PySAGA.tools import shapes_grid
 contour = saga_api.CSG_Shapes()
 shapes_grid.Run_Contour_Lines_from_Grid(GRID=dem, CONTOUR=contour, INTERVALS='equal intervals', ZSTEP=10)
 contour.Save('contour.geojson')
+
+if Plot_Results:
+    plot.Plot_Grid(dem, False) # don't show/finish the plot before the contour lines have been added
+    plot.Plot_Shapes(contour)
 
 #_________________________________________
 ##########################################
