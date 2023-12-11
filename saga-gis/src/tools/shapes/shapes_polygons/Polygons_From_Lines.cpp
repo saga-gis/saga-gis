@@ -164,7 +164,7 @@ bool CPolygons_From_Lines::On_Execute(void)
 
 		if( bMerge )
 		{
-			pLine = Merge_Line(Copy.Add_Shape(pLine));
+			pLine = Merge_Line(Copy.Add_Shape(pLine, SHAPE_COPY_ATTR), Copy.Add_Shape(pLine, SHAPE_COPY_GEOM));
 		}
 
 		for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
@@ -210,22 +210,37 @@ bool CPolygons_From_Lines::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Shape * CPolygons_From_Lines::Merge_Line(CSG_Shape *pLine)
+CSG_Shape * CPolygons_From_Lines::Merge_Line(CSG_Shape *pLine, CSG_Shape *pParts)
 {
-	for(int i=0; i<pLine->Get_Part_Count(); i++)
-	{
-		CSG_Point End(pLine->Get_Point(0, i, true));
+	CSG_Shape_Part *pPart = NULL;
 
-		for(int j=pLine->Get_Part_Count()-1; j>i; j--)
+	while( pParts->Get_Part_Count() > 0 )
+	{
+		if( pPart == NULL )
+		{
+			pLine->Add_Part(pParts->Get_Part(0)); pParts->Del_Part(0);
+
+			pPart = pLine->Get_Part(pLine->Get_Part_Count() - 1);
+		}
+
+		CSG_Point End(pPart->Get_Point(0, false)); bool bFound = false;
+
+		for(int i=0; !bFound && i<pParts->Get_Part_Count(); i++)
 		{
 			bool bAscending;
 
-			if( End == pLine->Get_Point(0, j, bAscending =  true)
-			||  End == pLine->Get_Point(0, j, bAscending = false) )
+			if( End == pParts->Get_Point(0, i, bAscending =  true)
+			||  End == pParts->Get_Point(0, i, bAscending = false) )
 			{
-				pLine->Get_Part(i)->Add_Points(pLine->Get_Part(j));
-				pLine->Del_Part(j);
+				pPart->Add_Points(pParts->Get_Part(i), bAscending);
+				pParts->Del_Part(i);
+				bFound = true;
 			}
+		}
+
+		if( !bFound )
+		{
+			pPart = NULL;
 		}
 	}
 

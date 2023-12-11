@@ -86,7 +86,7 @@ protected:
 
 private:
 
-	CSG_Shape *			Merge_Line				(CSG_Shape *pLine);
+	CSG_Shape *			Merge_Line				(CSG_Shape *pLine, CSG_Shape *pParts);
 
 };
 
