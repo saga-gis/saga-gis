@@ -104,7 +104,7 @@ bool CCityGML_Import::On_Execute(void)
 		return( false );
 	}
 
-	CSG_Shapes Buildings(SHAPE_TYPE_Polygon), *pBuildings = Parameters("BUILDINGS")->asShapes();
+	CSG_Shapes Buildings(SHAPE_TYPE_Polygon), *pBuildings = Parameters("BUILDINGS")->asShapes(); pBuildings->Destroy();
 
 	for(int i=0; i<Files.Get_Count(); i++)
 	{
@@ -165,10 +165,52 @@ bool CCityGML_Import::Load_Shapes(const CSG_String &File, CSG_Shapes &Shapes, in
 //---------------------------------------------------------
 bool CCityGML_Import::Get_Buildings(const CSG_String &File, CSG_Shapes *pPolygons)
 {
-	Process_Set_Text(_TL("importing line strings"));
+	Process_Set_Text(_TL("importing gml"));
 
-	if( Load_Shapes(File, *pPolygons, 9) || Load_Shapes(File, *pPolygons, 11) ) // might be provided as polygons in newer versions?!
+	CSG_Shapes Shapes;
+
+	if( !Load_Shapes(File, Shapes, 0)
+	&&  !Load_Shapes(File, Shapes, 9) && !Load_Shapes(File, Shapes, 11)
+	&&  !Load_Shapes(File, Shapes, 5) && !Load_Shapes(File, Shapes, 7) )
 	{
+		Error_Set(CSG_String::Format("%s: %s", _TL("CityGML import failed"), File.c_str()));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( Shapes.Get_Type() == SHAPE_TYPE_Line )
+	{
+		Process_Set_Text(_TL("polygon conversion"));
+
+		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("shapes_polygons", 3);	// Convert Lines to Polygons
+
+		if(	pTool )
+		{
+			pTool->Set_Manager(NULL);
+
+			bool bResult
+				=  pTool->Set_Parameter("POLYGONS", pPolygons)
+				&& pTool->Set_Parameter("LINES"   , &Shapes)
+				&& pTool->Set_Parameter("MERGE"   , true)
+				&& pTool->Execute();
+
+			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+			pPolygons->Set_Name(SG_File_Get_Name(File, false));
+
+			return( bResult );
+		}
+
+		Error_Set(_TL("could not locate line string to polygon conversion tool"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( Shapes.Get_Type() == SHAPE_TYPE_Polygon )
+	{
+		pPolygons->Create(Shapes);
 		pPolygons->Set_Name(SG_File_Get_Name(File, false));
 
 		for(int i=0; i<pPolygons->Get_Count(); i++)
@@ -185,45 +227,9 @@ bool CCityGML_Import::Get_Buildings(const CSG_String &File, CSG_Shapes *pPolygon
 	}
 
 	//-----------------------------------------------------
-	// import city gml line strings
+	Error_Set(CSG_String::Format("%s: %s", _TL("CityGML import failed"), File.c_str()));
 
-	CSG_Shapes Lines;
-
-	if( !Load_Shapes(File, Lines, 5) && !Load_Shapes(File, Lines, 7) ) // try to load the line strings
-	{
-		Error_Set(CSG_String::Format("%s: %s", _TL("CityGML import failed"), File.c_str()));
-
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	// convert line strings to polygons
-
-	Process_Set_Text(_TL("polygon conversion"));
-
-	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("shapes_polygons", 3);	// Convert Lines to Polygons
-
-	if(	!pTool )
-	{
-		Error_Set(_TL("could not locate line string to polygon conversion tool"));
-
-		return( false );
-	}
-
-	pTool->Set_Manager(NULL);
-
-	bool bResult
-		=  pTool->Get_Parameters()->Set_Parameter("POLYGONS", pPolygons)
-		&& pTool->Get_Parameters()->Set_Parameter("LINES"   , &Lines)
-		&& pTool->Get_Parameters()->Set_Parameter("MERGE"   , true)
-		&& pTool->Execute();
-
-	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
-
-	pPolygons->Set_Name(SG_File_Get_Name(File, false));
-
-	//-----------------------------------------------------
-	return( bResult );
+	return( false );
 }
 
 
