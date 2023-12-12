@@ -555,6 +555,29 @@ bool CSG_Parameter::Cmp_Identifier(const CSG_String &Identifier)	const
 }
 
 //---------------------------------------------------------
+/**
+* Constructs a command line parser conform identifier.
+*/
+//---------------------------------------------------------
+CSG_String CSG_Parameter::Get_CmdID(void)	const
+{
+	CSG_String ID(Get_Parameters()->Get_Identifier());
+
+	if( ID.Length() > 0 )
+	{
+		ID += "_";
+	}
+
+	ID += Get_Identifier();
+
+	ID.Replace(".", "_");
+	ID.Replace("|", "_");
+	ID.Replace(" ", "_");
+
+	return( ID );
+}
+
+//---------------------------------------------------------
 bool CSG_Parameter::Set_Name(const CSG_String &Name)
 {
 	m_Name	= Name;

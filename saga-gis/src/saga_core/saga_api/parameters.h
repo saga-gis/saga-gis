@@ -217,6 +217,7 @@ public:	///////////////////////////////////////////////////
 
 	const SG_Char *					Get_Identifier			(void)	const;
 	bool							Cmp_Identifier			(const CSG_String &Identifier)	const;
+	CSG_String						Get_CmdID				(void)	const;
 	bool							Set_Name				(const CSG_String &Name);
 	const SG_Char *					Get_Name				(void)	const;
 	const SG_Char *					Get_Description			(void)	const;
