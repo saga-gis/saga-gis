@@ -59,8 +59,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <wx/cmdline.h>
-
 #include <saga_api/saga_api.h>
 
 
@@ -109,7 +107,7 @@ private:
 	bool						_Found					(const CSG_String &Name, double       &Value);
 	bool						_Found					(const CSG_String &Name, CSG_DateTime &Value);
 
-	bool						_Set_Parser				(CSG_Parameters *pParameters, wxCmdLineParser &Parser);
+	bool						_Set_Parser				(CSG_Parameters *pParameters, class wxCmdLineParser &Parser);
 
 	bool						_Get_Parameters			(CSG_Parameters *pParameters, bool bInitialize);
 	bool						_Get_Options			(CSG_Parameters *pParameters, bool bInitialize);

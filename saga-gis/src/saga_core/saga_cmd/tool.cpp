@@ -49,6 +49,7 @@
 
 //---------------------------------------------------------
 #include <wx/datetime.h>
+#include <wx/cmdline.h>
 
 #include "callback.h"
 
@@ -214,6 +215,8 @@ CSG_String CCMD_Tool::_Get_ID(CSG_Parameter *pParameter)
 	ID += pParameter->Get_Identifier();
 
 	ID.Replace(".", "_");
+	ID.Replace("|", "_");
+	ID.Replace(" ", "_");
 
 	return( ID );
 }
