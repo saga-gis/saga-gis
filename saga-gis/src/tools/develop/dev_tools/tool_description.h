@@ -87,10 +87,6 @@ private:
 
 	CSG_String			Get_Parameters			(CSG_Tool *pTool);
 
-	CSG_String			Get_ID					(CSG_Parameter *pParameter);
-	CSG_String			Get_Usage				(CSG_Tool *pTool);
-	bool				Get_Usage				(CSG_Parameters *pParameters, class wxCmdLineParser &Parser);
-
 };
 
 

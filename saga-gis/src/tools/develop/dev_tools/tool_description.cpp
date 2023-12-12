@@ -48,8 +48,6 @@
 //---------------------------------------------------------
 #include "tool_description.h"
 
-#include <wx/cmdline.h>
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -166,7 +164,7 @@ CSG_String CTool_Description::Get_Tool_Description(CSG_Tool_Library *pLibrary, C
 		"</pre>\n"
 		"</main>\n";
 
-	CSG_String Summary(pTool->Get_Summary()), Usage(Get_Usage(pTool));
+	CSG_String Summary(pTool->Get_Summary()), Usage(pTool->Get_Script(TOOL_SCRIPT_CMD_USAGE));
 
 	CSG_String Description; Description.Printf(HTML.c_str(), pTool->Get_Name().c_str(), SAGA_VERSION, SAGA_VERSION,
 		pLibrary->Get_Library_Name(), pLibrary->Get_Category().c_str(), pLibrary->Get_Name().c_str(),
@@ -177,7 +175,7 @@ CSG_String CTool_Description::Get_Tool_Description(CSG_Tool_Library *pLibrary, C
 
 	//CSG_String Parameters(Get_Parameters(pTool));
 
-	//CSG_String Usage(Get_Usage(pTool));
+	//CSG_String Usage(pTool->Get_Script(TOOL_SCRIPT_CMD_USAGE));
 
 	//CSG_String Description; Description.Printf(HTML.c_str(), pTool->Get_Name().c_str(), SAGA_VERSION, SAGA_VERSION,
 	//	pLibrary->Get_Library_Name(), pLibrary->Get_Category().c_str(), pLibrary->Get_Name().c_str(),
@@ -223,168 +221,6 @@ CSG_String CTool_Description::Get_Parameters(CSG_Tool *pTool)
 	s += "<tr><td colspan=\"6\">(*) optional</td></tr>\n</table>\n";
 
 	return( s );
-}
-
-//---------------------------------------------------------
-CSG_String CTool_Description::Get_ID(CSG_Parameter *pParameter)
-{
-	CSG_String ID(pParameter->Get_Parameters()->Get_Identifier());
-
-	if( ID.Length() > 0 )
-	{
-		ID += "_";
-	}
-
-	ID += pParameter->Get_Identifier();
-
-	ID.Replace(".", "_");
-	ID.Replace("|", "_");
-	ID.Replace(" ", "_");
-
-	return( ID );
-}
-
-//---------------------------------------------------------
-CSG_String CTool_Description::Get_Usage(CSG_Tool *pTool)
-{
-	wxCmdLineParser Parser; Parser.SetSwitchChars("-");
-
-	Get_Usage(pTool->Get_Parameters(), Parser);
-
-	for(int i=0; i<pTool->Get_Parameters_Count(); i++)
-	{
-		Get_Usage(pTool->Get_Parameters(i), Parser);
-	}
-
-	wxString Usage = wxString::Format("\nUsage: saga_cmd %s %s %s",
-		pTool->Get_Library().c_str(),
-		pTool->Get_ID     ().c_str(),
-		Parser.GetUsageString().AfterFirst(' ').AfterFirst(' ')
-	);
-
-	CSG_String s(&Usage);
-
-	return( s );
-}
-
-//---------------------------------------------------------
-bool CTool_Description::Get_Usage(CSG_Parameters *pParameters, wxCmdLineParser &Parser)
-{
-	if( !pParameters )
-	{
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	for(int i=0; i<pParameters->Get_Count(); i++)
-	{
-		CSG_Parameter *pParameter = pParameters->Get_Parameter(i);
-
-		//-------------------------------------------------
-		if( pParameter->is_DataObject() )	// reset data object parameters, avoids problems when tool is called more than once without un-/reloading
-		{
-			pParameter->Set_Value(DATAOBJECT_NOTSET);
-		}
-		else if( pParameter->is_DataObject_List() )
-		{
-			pParameter->asList()->Del_Items();
-		}
-
-		//-------------------------------------------------
-		if( pParameter->do_UseInCMD() == false )
-		{
-			continue;
-		}
-
-		wxString Description = pParameter->Get_Description(
-			PARAMETER_DESCRIPTION_NAME|PARAMETER_DESCRIPTION_TYPE|PARAMETER_DESCRIPTION_PROPERTIES, SG_T("\n\t")
-		).c_str();
-
-		Description.Replace("\xb", "");	// unicode problem: quick'n'dirty bug fix, to be replaced
-
-		wxString ID(Get_ID(pParameter).c_str());
-
-		if( pParameter->is_Input() || pParameter->is_Output() )
-		{
-			Parser.AddOption(ID, wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_NEEDS_SEPARATOR|wxCMD_LINE_PARAM_OPTIONAL);
-		}
-
-		//-------------------------------------------------
-		else if( pParameter->is_Option() && !pParameter->is_Information() )
-		{
-			switch( pParameter->Get_Type() )
-			{
-			case PARAMETER_TYPE_Parameters  :
-				Get_Usage(pParameter->asParameters(), Parser);
-				break;
-
-			case PARAMETER_TYPE_Bool        :
-				Parser.AddOption(ID, wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-				break;
-
-			case PARAMETER_TYPE_Int         :
-				Parser.AddOption(ID, wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
-				break;
-
-			case PARAMETER_TYPE_Data_Type   :
-			case PARAMETER_TYPE_Choice      :
-			case PARAMETER_TYPE_Choices     :
-			case PARAMETER_TYPE_Table_Field :
-			case PARAMETER_TYPE_Table_Fields:
-				Parser.AddOption(ID, wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-				break;
-
-			case PARAMETER_TYPE_Double      :
-			case PARAMETER_TYPE_Degree      :
-				Parser.AddOption(ID, wxEmptyString, Description, wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
-				break;
-
-			case PARAMETER_TYPE_Date        :
-				Parser.AddOption(ID, wxEmptyString, Description, wxCMD_LINE_VAL_DATE  , wxCMD_LINE_PARAM_OPTIONAL);
-				break;
-
-			case PARAMETER_TYPE_Range       :
-				Parser.AddOption(ID + "_MIN", wxEmptyString, Description, wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
-				Parser.AddOption(ID + "_MAX", wxEmptyString, Description, wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
-				break;
-
-			case PARAMETER_TYPE_Color       :
-				Parser.AddOption(ID, wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-				break;
-
-			case PARAMETER_TYPE_Colors      :
-				Parser.AddOption(ID, wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-				break;
-
-			case PARAMETER_TYPE_String      :
-			case PARAMETER_TYPE_Text        :
-			case PARAMETER_TYPE_FilePath    :
-				Parser.AddOption(ID, wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-				break;
-
-			case PARAMETER_TYPE_FixedTable  :
-				Parser.AddOption(ID, wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-				break;
-
-			case PARAMETER_TYPE_Grid_System :
-				if( pParameter->Get_Children_Count() == 0 )
-				{
-					Parser.AddOption(ID + "_D"   , wxEmptyString, _TL("Cell Size"                          ), wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
-					Parser.AddOption(ID + "_X"   , wxEmptyString, _TL("Lower Left Center Cell X-Coordinate"), wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
-					Parser.AddOption(ID + "_Y"   , wxEmptyString, _TL("Lower Left Center Cell Y-Coordinate"), wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
-					Parser.AddOption(ID + "_NX"  , wxEmptyString, _TL("Number of Columns"                  ), wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
-					Parser.AddOption(ID + "_NY"  , wxEmptyString, _TL("Number of Rows"                     ), wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
-					Parser.AddOption(ID + "_FILE", wxEmptyString, _TL("Grid File"                          ), wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-				}
-				break;
-
-			default:
-				break;
-			}
-		}
-	}
-
-	return( true );
 }
 
 
