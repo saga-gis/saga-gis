@@ -54,6 +54,7 @@
 #include "tool_chain.h"
 
 #include <wx/string.h>
+#include <wx/cmdline.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -1324,6 +1325,7 @@ CSG_String CSG_Tool::Get_Script(TSG_Tool_Script_Type Type, bool bHeader, bool bA
 	{
 	case TOOL_SCRIPT_CMD_SHELL                 : return( _Get_Script_CMD           (      bHeader, bAllParameters, Type) );
 	case TOOL_SCRIPT_CMD_BATCH                 : return( _Get_Script_CMD           (      bHeader, bAllParameters, Type) );
+	case TOOL_SCRIPT_CMD_USAGE                 : return( _Get_Script_CMD_Usage     (                                   ) );
 	case TOOL_SCRIPT_CHAIN                     : return( CSG_Tool_Chain::Get_Script(this, bHeader, bAllParameters      ) );
 	case TOOL_SCRIPT_PYTHON                    : return( _Get_Script_Python        (      bHeader, bAllParameters      ) );
 	case TOOL_SCRIPT_PYTHON_WRAP_NAME          : return( _Get_Script_Python_Wrap   (      bHeader, true , false, false ) );
@@ -1550,6 +1552,144 @@ void CSG_Tool::_Get_Script_CMD(CSG_String &Script, CSG_Parameters *pParameters, 
 				Script	+= Prefix + CSG_String::Format("%s=\"%s\"", GET_ID1(p), p->Get_Name());
 			}
 			break;
+		}
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_String CSG_Tool::_Get_Script_CMD_Usage(void)
+{
+	wxCmdLineParser Parser; Parser.SetSwitchChars("-");
+
+	_Get_Script_CMD_Usage(Get_Parameters(), Parser);
+
+	for(int i=0; i<Get_Parameters_Count(); i++)
+	{
+		_Get_Script_CMD_Usage(Get_Parameters(i), Parser);
+	}
+
+	wxString Usage = wxString::Format("\nUsage: saga_cmd %s %s %s", Get_Library().c_str(), Get_ID().c_str(),
+		Parser.GetUsageString().AfterFirst(' ').AfterFirst(' ')
+	);
+
+	CSG_String _Usage(&Usage);
+
+	return( _Usage );
+}
+
+//---------------------------------------------------------
+void CSG_Tool::_Get_Script_CMD_Usage(CSG_Parameters *pParameters, wxCmdLineParser &Parser)
+{
+	for(int i=0; i<pParameters->Get_Count(); i++)
+	{
+		CSG_Parameter *pParameter = pParameters->Get_Parameter(i);
+
+		//-------------------------------------------------
+		if( pParameter->is_DataObject() )	// reset data object parameters, avoids problems when tool is called more than once without un-/reloading
+		{
+			pParameter->Set_Value(DATAOBJECT_NOTSET);
+		}
+		else if( pParameter->is_DataObject_List() )
+		{
+			pParameter->asList()->Del_Items();
+		}
+
+		//-------------------------------------------------
+		if( pParameter->do_UseInCMD() == false )
+		{
+			continue;
+		}
+
+		wxString Description = pParameter->Get_Description(
+			PARAMETER_DESCRIPTION_NAME|PARAMETER_DESCRIPTION_TYPE|PARAMETER_DESCRIPTION_PROPERTIES, SG_T("\n\t")
+		).c_str();
+
+		Description.Replace("\xb", "");	// unicode problem: quick'n'dirty bug fix, to be replaced
+
+		wxString ID(pParameter->Get_CmdID().c_str());
+
+		if( pParameter->is_Input() || pParameter->is_Output() )
+		{
+			Parser.AddOption(ID, wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_NEEDS_SEPARATOR|wxCMD_LINE_PARAM_OPTIONAL);
+		}
+
+		//-------------------------------------------------
+		else if( pParameter->is_Option() && !pParameter->is_Information() )
+		{
+			switch( pParameter->Get_Type() )
+			{
+			case PARAMETER_TYPE_Parameters  :
+				_Get_Script_CMD_Usage(pParameter->asParameters(), Parser);
+				break;
+
+			case PARAMETER_TYPE_Bool        :
+				Parser.AddOption(ID, wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+				break;
+
+			case PARAMETER_TYPE_Int         :
+				Parser.AddOption(ID, wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
+				break;
+
+			case PARAMETER_TYPE_Data_Type   :
+			case PARAMETER_TYPE_Choice      :
+			case PARAMETER_TYPE_Choices     :
+			case PARAMETER_TYPE_Table_Field :
+			case PARAMETER_TYPE_Table_Fields:
+				Parser.AddOption(ID, wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+				break;
+
+			case PARAMETER_TYPE_Double      :
+			case PARAMETER_TYPE_Degree      :
+				Parser.AddOption(ID, wxEmptyString, Description, wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
+				break;
+
+			case PARAMETER_TYPE_Date        :
+				Parser.AddOption(ID, wxEmptyString, Description, wxCMD_LINE_VAL_DATE  , wxCMD_LINE_PARAM_OPTIONAL);
+				break;
+
+			case PARAMETER_TYPE_Range       :
+				Parser.AddOption(ID + "_MIN", wxEmptyString, Description, wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
+				Parser.AddOption(ID + "_MAX", wxEmptyString, Description, wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
+				break;
+
+			case PARAMETER_TYPE_Color       :
+				Parser.AddOption(ID, wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+				break;
+
+			case PARAMETER_TYPE_Colors      :
+				Parser.AddOption(ID, wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+				break;
+
+			case PARAMETER_TYPE_String      :
+			case PARAMETER_TYPE_Text        :
+			case PARAMETER_TYPE_FilePath    :
+				Parser.AddOption(ID, wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+				break;
+
+			case PARAMETER_TYPE_FixedTable  :
+				Parser.AddOption(ID, wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+				break;
+
+			case PARAMETER_TYPE_Grid_System :
+				if( pParameter->Get_Children_Count() == 0 )
+				{
+					Parser.AddOption(ID + "_D"   , wxEmptyString, _TL("Cell Size"                          ), wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
+					Parser.AddOption(ID + "_X"   , wxEmptyString, _TL("Lower Left Center Cell X-Coordinate"), wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
+					Parser.AddOption(ID + "_Y"   , wxEmptyString, _TL("Lower Left Center Cell Y-Coordinate"), wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
+					Parser.AddOption(ID + "_NX"  , wxEmptyString, _TL("Number of Columns"                  ), wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
+					Parser.AddOption(ID + "_NY"  , wxEmptyString, _TL("Number of Rows"                     ), wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
+					Parser.AddOption(ID + "_FILE", wxEmptyString, _TL("Grid File"                          ), wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+				}
+				break;
+
+			default:
+				break;
+			}
 		}
 	}
 }

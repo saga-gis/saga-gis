@@ -120,6 +120,7 @@ typedef enum
 {
 	TOOL_SCRIPT_CMD_SHELL	= 0,
 	TOOL_SCRIPT_CMD_BATCH,
+	TOOL_SCRIPT_CMD_USAGE,
 	TOOL_SCRIPT_CHAIN,
 	TOOL_SCRIPT_PYTHON,
 	TOOL_SCRIPT_PYTHON_WRAP_NAME,
@@ -247,7 +248,7 @@ public:
 
 	const SG_Char *				Get_Execution_Info			(void)	const	{	return( m_Execution_Info );	}
 
-	CSG_String					Get_Script					(TSG_Tool_Script_Type Type, bool bHeader, bool bAllParameters = false);
+	CSG_String					Get_Script					(TSG_Tool_Script_Type Type, bool bHeader = true, bool bAllParameters = false);
 
 
 protected:
@@ -353,6 +354,9 @@ private:
 
 	CSG_String					_Get_Script_CMD				(bool bHeader, bool bAllParameters, TSG_Tool_Script_Type Type);
 	void						_Get_Script_CMD				(CSG_String &Script, CSG_Parameters *pParameters, bool bAllParameters, TSG_Tool_Script_Type Type);
+
+	CSG_String					_Get_Script_CMD_Usage		(void);
+	void						_Get_Script_CMD_Usage		(CSG_Parameters *pParameters, class wxCmdLineParser &Parser);
 
 	CSG_String					_Get_Script_Python			(bool bHeader, bool bAllParameters);
 	void						_Get_Script_Python			(CSG_String &Script, CSG_Parameters *pParameters, bool bAllParameters, const CSG_String &Prefix = "");
