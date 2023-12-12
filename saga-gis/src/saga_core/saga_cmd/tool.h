@@ -95,8 +95,6 @@ private:
 	CSG_Table					m_Arguments;
 
 
-	CSG_String					_Get_ID					(CSG_Parameter  *pParameter);
-
 	bool						_Parse					(int argc, char *argv[]);
 
 	bool						_has_Unused				(void);
@@ -106,8 +104,6 @@ private:
 	bool						_Found					(const CSG_String &Name, int          &Value);
 	bool						_Found					(const CSG_String &Name, double       &Value);
 	bool						_Found					(const CSG_String &Name, CSG_DateTime &Value);
-
-	bool						_Set_Parser				(CSG_Parameters *pParameters, class wxCmdLineParser &Parser);
 
 	bool						_Get_Parameters			(CSG_Parameters *pParameters, bool bInitialize);
 	bool						_Get_Options			(CSG_Parameters *pParameters, bool bInitialize);
