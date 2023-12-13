@@ -120,7 +120,7 @@ bool CSG_Tool_Library_Interface::Create(const CSG_String &Version, const CSG_Str
 	{
 		if( pTool != TLB_INTERFACE_SKIP_TOOL )
 		{
-			if( SG_UI_Get_Application_Name().Cmp("saga_cmd") == 0 && pTool->is_Interactive() )
+			if( SG_File_Get_Name(SG_UI_Get_Application_Path(), false).Cmp("saga_cmd") == 0 && pTool->is_Interactive() )
 			{
 				delete(pTool);
 			}
