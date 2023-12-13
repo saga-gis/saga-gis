@@ -83,6 +83,11 @@ protected:
 
 private:
 
+	bool				Write_Libraries			(const CSG_String &Folder, CSG_Table &Libraries);
+	bool				Write_All_Tools			(const CSG_String &Folder, CSG_Table &All_Tools);
+
+	bool				Write_Library			(const CSG_String &Folder, CSG_Tool_Library *pLibrary, CSG_Table &Tools);
+
 	CSG_String			Get_Tool_Description	(CSG_Tool_Library *pLibrary, CSG_Tool *pTool);
 
 	CSG_String			Get_Parameters			(CSG_Tool *pTool);
