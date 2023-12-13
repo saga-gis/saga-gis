@@ -229,7 +229,7 @@ wxString CWKSP_Map_Manager::Get_Description(void)
 
 	USAGE_START(_TL("Measure"));
 	USAGE_ADD(_TL(""             ), _TL("Left"  ), _TL("Add vertex"));
-	USAGE_ADD(_TL(""             ), _TL("Right" ), _TL("Clear vertices"));
+	USAGE_ADD(_TL(""             ), _TL("Right" ), _TL("1.) Stop adding vertices, 2.) Clear and restart adding vertices"));
 	USAGE_ADD(_TL("Control"      ), _TL("Right" ), _TL("Context menu"));
 	USAGE_STOP;
 
@@ -247,7 +247,7 @@ wxString CWKSP_Map_Manager::Get_Description(void)
 	USAGE_ADD(_TL("Delete"       ), _TL(""      ), _TL("Set selected cells to no-data"));
 	USAGE_STOP;
 
-	s += _TL("Remark: Pure keyboard events work only for the map window that has the focus.");
+	s += wxString::Format("<p><b>%s:</b>%s</p>", _TL("Remark"), _TL("Pure keyboard events work only for the map window that has the focus."));
 
 	//-----------------------------------------------------
 	return( s );
