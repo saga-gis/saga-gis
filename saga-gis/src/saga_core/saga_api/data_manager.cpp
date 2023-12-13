@@ -490,6 +490,24 @@ CSG_Data_Object * CSG_Data_Manager::_Add_External(const CSG_String &File)
 	SG_Get_Tool_Library_Manager().Delete_Tool(pImport);
 
 	//-----------------------------------------------------
+	// STL Import
+
+	if( !pData && (SG_File_Cmp_Extension(File, "stl"))
+	&&  (pImport = SG_Get_Tool_Library_Manager().Create_Tool("io_shapes", 11)) != NULL // Import Stereo Lithography File (STL)
+	&&   pImport->Set_Parameter("FILE"  , File, PARAMETER_TYPE_FilePath)
+	&&   pImport->Set_Parameter("METHOD", 2) ) // => TIN
+	{
+		CSG_Data_Manager Data; pImport->Set_Manager(&Data);
+
+		if( pImport->Execute() )
+		{
+			Data.Delete(pData = pImport->Get_Parameter("TIN")->asTIN(), true); Add(pData);
+		}
+	}
+
+	SG_Get_Tool_Library_Manager().Delete_Tool(pImport);
+
+	//-----------------------------------------------------
 	SG_UI_Msg_Lock(false);
 
 	return( pData );
