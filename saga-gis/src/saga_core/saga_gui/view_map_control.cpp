@@ -349,7 +349,7 @@ bool CVIEW_Map_Control::_Zoom(bool bZoomIn)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CVIEW_Map_Control::_Move(wxPoint &A, const wxPoint &B)
+bool CVIEW_Map_Control::_Move(wxPoint &A, const wxPoint &B, bool bUpdate)
 {
 	if( A != B )
 	{
@@ -361,6 +361,11 @@ bool CVIEW_Map_Control::_Move(wxPoint &A, const wxPoint &B)
 
 		A = B;
 
+		if( bUpdate )
+		{
+			Update(); _Set_StatusBar(_Get_Client2World(m_Mouse_Move));
+		}
+
 		return( true );
 	}
 
@@ -368,11 +373,11 @@ bool CVIEW_Map_Control::_Move(wxPoint &A, const wxPoint &B)
 }
 
 //---------------------------------------------------------
-bool CVIEW_Map_Control::_Move(const wxPoint &Move)
+bool CVIEW_Map_Control::_Move(const wxPoint &Move, bool bUpdate)
 {
 	wxPoint	A(Move), B(0, 0);
 
-	return( _Move(A, B) );
+	return( _Move(A, B, bUpdate) );
 }
 
 
@@ -596,19 +601,19 @@ void CVIEW_Map_Control::On_Key_Down(wxKeyEvent &event)
 		break;
 
 	case WXK_LEFT:
-		_Move(wxPoint(-10,   0));
+		_Move(wxPoint(-10,   0), true);
 		break;
 
 	case WXK_RIGHT:
-		_Move(wxPoint( 10,   0));
+		_Move(wxPoint( 10,   0), true);
 		break;
 
 	case WXK_UP:
-		_Move(wxPoint(  0, -10));
+		_Move(wxPoint(  0, -10), true);
 		break;
 
 	case WXK_DOWN:
-		_Move(wxPoint(  0,  10));
+		_Move(wxPoint(  0,  10), true);
 		break;
 
 	case WXK_F2:
@@ -917,12 +922,14 @@ void CVIEW_Map_Control::On_Mouse_RUp(wxMouseEvent &event)
 		{
 			if( m_Measure.Dialog() )
 			{
+				STATUSBAR_Set_Text(m_Measure.Get_Measure(), STATUSBAR_VIEW_Z);
 				Refresh(false);
 			}
 		}
 		else
 		{
 			m_Measure.Reset();
+			STATUSBAR_Set_Text(m_Measure.Get_Measure(), STATUSBAR_VIEW_Z);
 			Refresh(false);
 		}
 		break;
