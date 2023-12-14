@@ -121,7 +121,7 @@ bool CTool_Description::On_Execute(void)
 
 		CSG_Table_Record &Library = *Libraries.Add_Record();
 		Library.Set_Value("Category"   , pLibrary->Get_Category    ());
-		Library.Set_Value("Library"    , pLibrary->Get_Library_Name());
+		Library.Set_Value("Library"    , Get_Library(pLibrary)       );
 		Library.Set_Value("Name"       , pLibrary->Get_Name        ());
 		Library.Set_Value("Description", pLibrary->Get_Description ());
 		Library.Set_Value("Tools"      , pLibrary->Get_Count       ());
@@ -134,23 +134,13 @@ bool CTool_Description::On_Execute(void)
 			CSG_Tool *pTool = pLibrary->Get_Tool(iTool);
 
 			CSG_Table_Record &Tool = *Tools.Add_Record();
-			Tool.Set_Value("Library", pLibrary->Get_Library_Name());
+			Tool.Set_Value("Library", Get_Library(pLibrary)       );
 			Tool.Set_Value("ID"     , pTool   ->Get_ID          ());
 			Tool.Set_Value("Tool"   , pTool   ->Get_Name        ());
 			Tool.Set_Value("Menu"   , pTool   ->Get_MenuPath(true));
 			All_Tools.Add_Record(&Tool);
 
-			CSG_String Description = Get_Tool_Description(pLibrary, pTool);
-
-			if( !Description.is_Empty() )
-			{
-				CSG_File Stream(SG_File_Make_Path(Folder, pLibrary->Get_Library_Name() + "_" + pTool->Get_ID(), "html"), SG_FILE_W);
-
-				if( Stream.is_Open() )
-				{
-					Stream.Write(Description);
-				}
-			}
+			Write_Tool(Folder, pLibrary, pTool);
 		}
 
 		//-------------------------------------------------
@@ -159,9 +149,27 @@ bool CTool_Description::On_Execute(void)
 
 	//-----------------------------------------------------
 	Write_Libraries(Folder, Libraries);
-	Write_All_Tools(Folder, All_Tools);
+	Write_Tools    (Folder, All_Tools);
 
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_String CTool_Description::Get_Library(CSG_Tool_Library *pLibrary)
+{
+	CSG_String s(pLibrary->Get_Library_Name());
+
+	if( pLibrary->Get_Type() == TOOL_CHAINS )
+	{
+		s.Prepend("tc_");
+	}
+
+	return( s );
 }
 
 
@@ -174,11 +182,11 @@ bool CTool_Description::Write_Libraries(const CSG_String &Folder, CSG_Table &Lib
 {
 	CSG_String s("<!DOCTYPE html>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width\">\n");
 
-	s += "<title>SAGA-GIS Tool Library Documentation (v" + CSG_String(SAGA_VERSION) + ")</title>\n";
-	s += "<link rel=\"stylesheet\" href=\"./lib/styles.css\">\n";
+	s += "<title>SAGA " + CSG_String(SAGA_VERSION) + " | Tool Library Documentation</title>\n";
+	s += "<link rel=\"stylesheet\" href=\"../styles.css\">\n";
 	s += "<header>\n";
-	s += " <a href=\"https://saga-gis.org/\"><img class=\"logo\" src=\"./icons/logo.png\" alt=\"Logo\" /></a>\n";
-	s += "  <h1>SAGA-GIS Tool Library Documentation (v" + CSG_String(SAGA_VERSION) + ")</h1>\n";
+	s += " <a href=\"https://saga-gis.org/\"><img class=\"logo\" src=\"../logo.png\" alt=\"Logo\" /></a>\n";
+	s += "  <h1>SAGA " + CSG_String(SAGA_VERSION) + " | Tool Library Documentation</h1>\n";
 	s += "  <nav>\n";
 	s += "    <span class=\" a2z\"><a href=\"a2z.html\">Tools A-Z</a></span>\n";
 	s += "    <span><a href=\"https://saga-gis.org/\">Home</a></span>\n";
@@ -209,22 +217,28 @@ bool CTool_Description::Write_Libraries(const CSG_String &Folder, CSG_Table &Lib
 
 	s += "</table>\n</main>\n";
 
+	//-----------------------------------------------------
 	CSG_File Stream(SG_File_Make_Path(Folder, "index", "html"), SG_FILE_W);
 
 	return( Stream.is_Open() && Stream.Write(s) );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-bool CTool_Description::Write_All_Tools(const CSG_String &Folder, CSG_Table &Tools)
+bool CTool_Description::Write_Tools(const CSG_String &Folder, CSG_Table &Tools)
 {
 	CSG_String s("<!DOCTYPE html>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width\">\n");
 
-	s += "<title>Full Tool Index / SAGA-GIS Tool Library Documentation (v" + CSG_String(SAGA_VERSION) + ")</title>\n";
-	s += "<script src=\"./lib/tablesort.js\"></script>\n";
-	s += "<link rel=\"stylesheet\" href=\"./lib/styles.css\">\n";
+	s += "<title>SAGA " + CSG_String(SAGA_VERSION) + " | Tool Library Documentation | Full Tool Index</title>\n";
+	s += "<script src=\"../tablesort.js\"></script>\n";
+	s += "<link rel=\"stylesheet\" href=\"../styles.css\">\n";
 	s += "<header>\n";
-	s += " <a href=\"https://saga-gis.org/\"><img class=\"logo\" src=\"./icons/logo.png\" alt=\"Logo\" /></a>\n";
-	s += "  <h1>SAGA-GIS Tool Library Documentation (v" + CSG_String(SAGA_VERSION) + ")</h1>\n";
+	s += " <a href=\"https://saga-gis.org/\"><img class=\"logo\" src=\"../logo.png\" alt=\"Logo\" /></a>\n";
+	s += "  <h1>SAGA " + CSG_String(SAGA_VERSION) + " | Tool Library Documentation</h1>\n";
 	s += "  <nav>\n";
 	s += "    <span><a href=\"index.html\">Contents</a></span>\n";
 	s += "  </nav>\n";
@@ -250,6 +264,7 @@ bool CTool_Description::Write_All_Tools(const CSG_String &Folder, CSG_Table &Too
 
 	s += "</table>\n</main>\n";
 
+	//-----------------------------------------------------
 	CSG_File Stream(SG_File_Make_Path(Folder, "a2z", "html"), SG_FILE_W);
 
 	return( Stream.is_Open() && Stream.Write(s) );
@@ -265,11 +280,11 @@ bool CTool_Description::Write_Library(const CSG_String &Folder, CSG_Tool_Library
 {
 	CSG_String s("<!DOCTYPE html>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width\">\n");
 
-	s += "<title>Library " + pLibrary->Get_Name() + " / SAGA-GIS Tool Library Documentation (v" + SAGA_VERSION + ")</title>\n";
-	s += "<link rel=\"stylesheet\" href=\"./lib/styles.css\">\n";
+	s += "<title>SAGA " + CSG_String(SAGA_VERSION) + " | Tool Library Documentation | Library</title>\n";
+	s += "<link rel=\"stylesheet\" href=\"../styles.css\">\n";
 	s += "<header>\n";
-	s += " <a href=\"https://saga-gis.org/\"><img class=\"logo\" src=\"./icons/logo.png\" alt=\"Logo\" /></a>\n";
-	s += "  <h1>SAGA-GIS Tool Library Documentation (v" + CSG_String(SAGA_VERSION) + ")</h1>\n";
+	s += " <a href=\"https://saga-gis.org/\"><img class=\"logo\" src=\"../logo.png\" alt=\"Logo\" /></a>\n";
+	s += "  <h1>SAGA " + CSG_String(SAGA_VERSION) + " | Tool Library Documentation</h1>\n";
 	s += "  <nav>\n";
 	s += "    <span class=\" a2z\"><a href=\"a2z.html\">Tools A-Z</a></span>\n";
 	s += "    <span><a href=\"index.html\">Contents</a></span>\n";
@@ -291,13 +306,14 @@ bool CTool_Description::Write_Library(const CSG_String &Folder, CSG_Tool_Library
 	for(sLong i=0; i<Tools.Get_Count(); i++)
 	{
 		s += CSG_String::Format("<li><a href=\"%s_%s.html\">%s</a></li>\n",
-			pLibrary->Get_Library_Name().c_str(), Tools[i].asString("ID"), Tools[i].asString("Tool")
+			Get_Library(pLibrary).c_str(), Tools[i].asString("ID"), Tools[i].asString("Tool")
 		);
 	}
 
 	s += "</ul>\n</main>\n";
 
-	CSG_File Stream(SG_File_Make_Path(Folder, pLibrary->Get_Library_Name(), "html"), SG_FILE_W);
+	//-----------------------------------------------------
+	CSG_File Stream(SG_File_Make_Path(Folder, Get_Library(pLibrary), "html"), SG_FILE_W);
 
 	return( Stream.is_Open() && Stream.Write(s) );
 }
@@ -308,96 +324,153 @@ bool CTool_Description::Write_Library(const CSG_String &Folder, CSG_Tool_Library
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CTool_Description::Get_Tool_Description(CSG_Tool_Library *pLibrary, CSG_Tool *pTool)
+bool CTool_Description::Write_Tool(const CSG_String &Folder, CSG_Tool_Library *pLibrary, CSG_Tool *pTool)
 {
-	const CSG_String HTML =
-		"<!DOCTYPE html>\n"
-		"<meta charset=\"UTF-8\">\n"
-		"<meta name=\"viewport\" content=\"width=device-width\">\n"
-		"<title>Tool %s / SAGA-GIS Tool Library Documentation (v%s)</title>\n" // Tool Name, SAGA Version
-		"<link rel=\"stylesheet\" href=\"./lib/styles.css\">\n"
-		"<header>\n"
-		"  <a href=\"https://saga-gis.org/\"><img class=\"logo\" src=\"./icons/logo.png\" alt=\"Logo\" /></a>\n"
-		"  <h1>SAGA-GIS Tool Library Documentation (v%s)</h1>\n" // SAGA Version
-		"  <nav>\n"
-		"    <span class=\" a2z\"><a href=\"a2z.html\">Tools A-Z</a></span>\n"
-		"    <span><a href=\"index.html\">Contents</a></span>\n"
-		"    <span><a href=\"./%s.html\">%s - %s</a></span>\n" // Library Name (climate_tools), Category, Library's Name (Climate and Weather Tools)
-		"  </nav>\n"
-		"</header>\n"
-		"\n"
-		"<main>\n"
-		//"<h1>%s</h1>\n" // Tool Name
-		//"<p>%s</p>\n" // Tool Description
-		//"<ul>\n"
-		//"<li>Author: %s</li>\n" // Author
-		//"<li>Menu: %s</li>\n" // Menu
-		//"</ul>\n"
-		//"\n"
-		//"<h3>Parameters</h3>\n%s\n" // Parameters
-		"%s\n"
-		"<h3>Command-line</h3>\n"
-		"<pre class=\"usage\">\n%s" // command-line
-		"</pre>\n"
-		"</main>\n";
+	CSG_String s("<!DOCTYPE html>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width\">\n");
 
-	CSG_String Summary(pTool->Get_Summary()), Usage(pTool->Get_Script(TOOL_SCRIPT_CMD_USAGE));
+	s += "<title>SAGA " + CSG_String(SAGA_VERSION) + " | Tool Library Documentation | Tool " + pTool->Get_Name() + "</title>\n";
+	s += "<link rel=\"stylesheet\" href=\"../styles.css\">\n";
+	s += "<header>\n";
+	s += " <a href=\"https://saga-gis.org/\"><img class=\"logo\" src=\"../logo.png\" alt=\"Logo\" /></a>\n";
+	s += "  <h1>SAGA " + CSG_String(SAGA_VERSION) + " | Tool Library Documentation</h1>\n";
+	s += "  <nav>\n";
+	s += "    <span class=\" a2z\"><a href=\"a2z.html\">Tools A-Z</a></span>\n";
+	s += "    <span><a href=\"index.html\">Contents</a></span>\n";
+	s += "    <span><a href=\"./" + Get_Library(pLibrary) + ".html\">" + pLibrary->Get_Category() + " - " + pLibrary->Get_Name() + "</a></span>\n";
+	s += "  </nav>\n";
+	s += "</header>\n";
+	s += "<main>\n";
+	s += "<h1>" + pTool->Get_Name() + "</h1>\n";
+	s += "<ul>\n";
+	s += "<li><b>Author</b>: " + pTool->Get_Author      () + "</li>\n"; // Author
+	CSG_String Menu(pTool->Get_MenuPath(true)); Menu.Replace("|", " | ");
+	s += "<li><b>Menu:</b> " + Menu + "</li>\n"; // Menu
+	s += "</ul>\n";
+	s += "<hr><h3>Description</h3>\n<p>" + pTool->Get_Description() + "</p>\n";
 
-	CSG_String Description; Description.Printf(HTML.c_str(), pTool->Get_Name().c_str(), SAGA_VERSION, SAGA_VERSION,
-		pLibrary->Get_Library_Name().c_str(), pLibrary->Get_Category().c_str(), pLibrary->Get_Name().c_str(),
-		Summary.c_str(), Usage.c_str()
-	);
+	//-----------------------------------------------------
+	if( pTool->Get_References().Get_Count() > 0 )
+	{
+		s += "<hr><h3>References</h3><ul>";
 
-	return( Description );
+		for(int i=0; i<pTool->Get_References().Get_Count(); i++)
+		{
+			s += "<li>" + pTool->Get_References()[i] + "</li>";
+		}
 
-	//CSG_String Parameters(Get_Parameters(pTool));
+		s += "</ul>";
+	}
 
-	//CSG_String Usage(pTool->Get_Script(TOOL_SCRIPT_CMD_USAGE));
+	//-----------------------------------------------------
+	s += "<hr><h3>Parameters</h3>\n";
+	s += Get_Parameters(pTool);
 
-	//CSG_String Description; Description.Printf(HTML.c_str(), pTool->Get_Name().c_str(), SAGA_VERSION, SAGA_VERSION,
-	//	pLibrary->Get_Library_Name(), pLibrary->Get_Category().c_str(), pLibrary->Get_Name().c_str(),
-	//	pTool->Get_Name().c_str(), pTool->Get_Description().c_str(), pTool->Get_Author().c_str(), pTool->Get_MenuPath().c_str(),
-	//	Parameters.c_str(), Usage.c_str()
-	//);
+	//-----------------------------------------------------
+	s += "<hr><h3>Command Line</h3>\n";
+	s += "<pre class=\"usage\">\n" + pTool->Get_Script(TOOL_SCRIPT_CMD_USAGE) + "</pre>\n";
+	s += "</main>\n";
 
-	//return( Description );
+	//-----------------------------------------------------
+	CSG_File Stream(SG_File_Make_Path(Folder, Get_Library(pLibrary) + "_" + pTool->Get_ID(), "html"), SG_FILE_W);
+
+	return( Stream.is_Open() && Stream.Write(s) );
 }
 
 //---------------------------------------------------------
 CSG_String CTool_Description::Get_Parameters(CSG_Tool *pTool)
 {
-	//"<table>\n"
-	//"<tr><th>&nbsp;</th><th>Name</th><th>Type</th><th>Identifier</th><th>Description</th><th>Constraints</th></tr>\n"
-	//<tr><td rowspan=\"6\" class=\"labelSection\">Input</td><td>Temperature (*)</td><td>grid, input, optional</td><td><code>T</code></td><td>[Celsius]</td><td>-</td></tr>
-	//<tr> <td>Relative Humidity (*)</td><td>grid, input, optional</td><td><code>IN_RH</code></td><td>[%]</td><td>-</td></tr>
-	//<tr> <td>Dew Point (*)</td><td>grid, input, optional</td><td><code>IN_DP</code></td><td>[Celsius]</td><td>-</td></tr>
-	//<tr><td rowspan=\"7\" class=\"labelSection\">Output</td><td>Saturation Pressure (*)</td><td>grid, output, optional</td><td><code>OUT_VPSAT</code></td><td>[hPa]</td><td>-</td></tr>
-	//<tr> <td>Dew Point Difference (*)</td><td>grid, output, optional</td><td><code>OUT_DPDIF</code></td><td>[Celsius]</td><td>-</td></tr>
-	//<tr><td rowspan=\"9\" class=\"labelSection\">Options</td><td>Grid System</td><td>grid system</td><td><code>PARAMETERS_GRID_SYSTEM</code></td><td>-</td><td>-</td></tr>
-	//<tr> <td>Default</td><td>floating point number</td><td><code>IN_DP_DEFAULT</code></td><td>default value if no grid has been selected</td><td>Minimum: -273.150000<br>Default: 14.000000</td></tr>
-	//<tr> <td>Conversion from...</td><td>choice</td><td><code>CONVERSION</code></td><td>-</td><td>Available Choices:<br>[0] Vapor Pressure<br>[1] Specific Humidity<br>[2] Relative Humidity<br>[3] Dew Point<br>Default: 0</td></tr>
-	//<tr> <td>Saturation Pressure</td><td>choice</td><td><code>VPSAT_METHOD</code></td><td>Formula used to estimate vapor pressure at saturation.</td><td>Available Choices:<br>[0] Magnus<br>[1] Lowe & Ficke<br>Default: 0</td></tr>
-	//"<tr><td colspan=\"6\">(*) optional</td></tr>\n"
-	//"</table>\n"
+	CSG_Table Table[3];
+	Table[0].Add_Field("Name"       , SG_DATATYPE_String);
+	Table[0].Add_Field("Type"       , SG_DATATYPE_String);
+	Table[0].Add_Field("Identifier" , SG_DATATYPE_String);
+	Table[0].Add_Field("Description", SG_DATATYPE_String);
+	Table[0].Add_Field("Constraints", SG_DATATYPE_String);
 
-	CSG_Parameters *pParameters = pTool->Get_Parameters();
+	Table[1].Create(&Table[0]);
+	Table[2].Create(&Table[0]);
 
-	CSG_String s("<table>\n<tr><th>Name</th><th>Type</th><th>Identifier</th><th>Description</th></tr>\n");
+	Table[0].Set_Name("Input"); Table[1].Set_Name("Output"); Table[2].Set_Name("Options");
 
-	for(int i=0; i<pParameters->Get_Count(); i++)
+	//-----------------------------------------------------
+	Get_Parameters(pTool->Get_Parameters(), Table);
+
+	for(int i=0; i<pTool->Get_Parameters_Count(); i++)
 	{
-		CSG_Parameter &P = *pParameters->Get_Parameter(i);
-
-		s += CSG_String::Format("<tr><td>%s%s</td><td>%s%s%s</td><td><code>%s</code></td><td>%s</td><td>-</td></tr>",
-			P.Get_Name(), P.is_Optional() ? SG_T(" (*)") : SG_T(""),
-			SG_Parameter_Type_Get_Name(P.Get_Type()).c_str(), P.is_Input() ? SG_T(", input") : P.is_Output() ? SG_T(", output") : SG_T(""), !P.is_Option() && P.is_Optional() ? SG_T(", optional") : SG_T(""),
-			P.Get_Identifier(), P.Get_Description()
-		);
+		Get_Parameters(pTool->Get_Parameters(i), Table, pTool->Get_Parameters(i)->Get_Identifier() + ".");
 	}
 
-	s += "<tr><td colspan=\"6\">(*) optional</td></tr>\n</table>\n";
+	//-----------------------------------------------------
+	CSG_String s("<table>\n<tr><th>&nbsp;</th><th>Name</th><th>Type</th><th>Identifier</th><th>Description</th><th>Constraints</th></tr>\n");
+
+	for(int j=0; j<3; j++)
+	{
+		for(int i=0; i<Table[j].Get_Count(); i++)
+		{
+			s += "<tr>";
+
+			if( i == 0 )
+			{
+				s += CSG_String::Format("<td rowspan=\"%d\" class=\"labelSection\">%s</td>", Table[j].Get_Count(), Table[j].Get_Name());
+			}
+
+			s += CSG_String::Format("<td>%s</td><td>%s</td><td><code>%s</code></td><td>%s</td><td>%s</td></tr>",
+				 Table[j][i].asString("Name"       ),
+				 Table[j][i].asString("Type"       ),
+				 Table[j][i].asString("Identifier" ),
+				*Table[j][i].asString("Description") ? Table[j][i].asString("Description") : SG_T("-"),
+				*Table[j][i].asString("Constraints") ? Table[j][i].asString("Constraints") : SG_T("-")
+			);
+		}
+	}
+
+	s += "</table>\n";
 
 	return( s );
+}
+
+//---------------------------------------------------------
+bool CTool_Description::Get_Parameters(CSG_Parameters *pParameters, CSG_Table Table[3], const CSG_String &IDprefix)
+{
+	for(int i=0; i<pParameters->Get_Count(); i++)
+	{
+		CSG_Parameter &P = *pParameters->Get_Parameter(i); CSG_Table_Record *pRecord = NULL;
+
+		if( P.is_Information() || P.Get_Type() == PARAMETER_TYPE_Node )
+		{
+			continue;
+		}
+
+		if( P.is_Input() )
+		{
+			pRecord = Table[0].Add_Record();
+		}
+		else if( P.is_Output() )
+		{
+			pRecord = Table[1].Add_Record();
+		}
+		else if( P.is_Option() )
+		{
+			if( P.asParameters() )
+			{
+				Get_Parameters(P.asParameters(), Table, IDprefix + P.Get_Identifier() + ".");
+			}
+			else
+			{
+				pRecord = Table[2].Add_Record();
+			}
+		}
+
+		if( pRecord )
+		{
+			pRecord->Set_Value("Name"       , P.Get_Name       ());
+			pRecord->Set_Value("Type"       , P.Get_Description(PARAMETER_DESCRIPTION_TYPE));
+			pRecord->Set_Value("Identifier" , P.Get_Identifier ());
+			pRecord->Set_Value("Description", P.Get_Description());
+			pRecord->Set_Value("Constraints", P.Get_Description(PARAMETER_DESCRIPTION_PROPERTIES));
+		}
+	}
+
+	return( true );
 }
 
 

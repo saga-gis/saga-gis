@@ -83,14 +83,15 @@ protected:
 
 private:
 
+	CSG_String			Get_Library				(CSG_Tool_Library *pLibrary);
+
 	bool				Write_Libraries			(const CSG_String &Folder, CSG_Table &Libraries);
-	bool				Write_All_Tools			(const CSG_String &Folder, CSG_Table &All_Tools);
-
+	bool				Write_Tools				(const CSG_String &Folder, CSG_Table &Tools);
 	bool				Write_Library			(const CSG_String &Folder, CSG_Tool_Library *pLibrary, CSG_Table &Tools);
-
-	CSG_String			Get_Tool_Description	(CSG_Tool_Library *pLibrary, CSG_Tool *pTool);
+	bool				Write_Tool				(const CSG_String &Folder, CSG_Tool_Library *pLibrary, CSG_Tool *pTool);
 
 	CSG_String			Get_Parameters			(CSG_Tool *pTool);
+	bool				Get_Parameters			(CSG_Parameters *pParameters, CSG_Table Table[3], const CSG_String &IDprefix = "");
 
 };
 

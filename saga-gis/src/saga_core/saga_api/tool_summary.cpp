@@ -383,8 +383,8 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 			{
 				s += CSG_String::Format("<hr><h4>%s</h4>", _TL("Parameters"));
 				s += CSG_String::Format("<table border=\"1\" width=\"100%%\" valign=\"top\" cellpadding=\"5\" rules=\"all\"><tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>\n",
-						_TL("Name"), _TL("Type"), _TL("Identifier"), _TL("Description"), _TL("Constraints")
-					);
+					_TL("Name"), _TL("Type"), _TL("Identifier"), _TL("Description"), _TL("Constraints")
+				);
 
 				//-----------------------------------------
 				for(int i=0, bFirst=1; i<Parameters.Get_Count(); i++)
