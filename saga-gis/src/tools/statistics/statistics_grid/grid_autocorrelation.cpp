@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: grid_autocorrelation.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -43,12 +40,6 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 #include "grid_autocorrelation.h"
 
@@ -62,7 +53,6 @@
 //---------------------------------------------------------
 CGrid_Autocorrelation::CGrid_Autocorrelation(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Global Moran's I for Grids"));
 
 	Set_Author		("Jan Papmeier (c) 2010");
@@ -91,7 +81,7 @@ CGrid_Autocorrelation::CGrid_Autocorrelation(void)
 	Parameters.Add_Choice(
 		"", "CONTIGUITY"	, _TL("Case of contiguity"),
 		_TL("Choose case: Rook's case contiguity compares only cell wich share an edge. Queen's case contiguity compares also cells which share just corners."),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("Rook"),
 			_TL("Queen")
 		), 1

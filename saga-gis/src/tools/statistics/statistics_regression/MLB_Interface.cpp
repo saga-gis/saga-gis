@@ -46,18 +46,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
@@ -74,13 +65,13 @@ CSG_String Get_Info(int i)
 		return( _TL("Spatial and Geostatistics") );
 
 	case TLB_INFO_Author:
-		return( _TL("O.Conrad (c) 2010" ));
+		return( "O.Conrad (c) 2010" );
 
 	case TLB_INFO_Description:
-		return( _TL("Tools for regression analyses.") );
+		return( _TL("Tools for correlation and regression analyses.") );
 
 	case TLB_INFO_Version:
-		return( SG_T("1.0") );
+		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
 		return( _TL("Spatial and Geostatistics|Regression") );
@@ -109,6 +100,8 @@ CSG_String Get_Info(int i)
 #include "table_trend.h"
 #include "table_regression_multiple.h"
 
+#include "spatial_autocorrelation.h"
+
 
 //---------------------------------------------------------
 // 4. Allow your tools to be created here...
@@ -117,30 +110,32 @@ CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
-	case  0:	return( new CPoint_Grid_Regression );
-	case  1:	return( new CPoint_Multi_Grid_Regression );
-	case 15:	return( new CPoint_Zonal_Multi_Grid_Regression );
-	case  2:	return( new CPoint_Trend_Surface );
+	case  0: return( new CPoint_Grid_Regression );
+	case  1: return( new CPoint_Multi_Grid_Regression );
+	case 15: return( new CPoint_Zonal_Multi_Grid_Regression );
+	case  2: return( new CPoint_Trend_Surface );
 
-	case  3:	return( new CGW_Regression );
-	case  4:	return( new CGW_Regression_Grid );
-	case  5:	return( new CGW_Multi_Regression );
-	case  6:	return( new CGW_Multi_Regression_Grid );
-	case  7:	return( new CGW_Multi_Regression_Points );
-	case 14:	return( new CGWR_Grid_Downscaling );
+	case  3: return( new CGW_Regression );
+	case  4: return( new CGW_Regression_Grid );
+	case  5: return( new CGW_Multi_Regression );
+	case  6: return( new CGW_Multi_Regression_Grid );
+	case  7: return( new CGW_Multi_Regression_Points );
+	case 14: return( new CGWR_Grid_Downscaling );
 
-	case  8:	return( new CGrid_Multi_Grid_Regression );
-	case  9:	return( new CGrids_Trend );
+	case  8: return( new CGrid_Multi_Grid_Regression );
+	case  9: return( new CGrids_Trend );
 
-	case 10:	return( new CTable_Trend );
-	case 11:	return( new CTable_Trend_Shapes );
+	case 10: return( new CTable_Trend );
+	case 11: return( new CTable_Trend_Shapes );
 
-	case 12:	return( new CTable_Regression_Multiple );
-	case 13:	return( new CTable_Regression_Multiple_Shapes );
+	case 12: return( new CTable_Regression_Multiple );
+	case 13: return( new CTable_Regression_Multiple_Shapes );
+
+	case 16: return( new CSpatial_Autocorrelation );
 
 	//-----------------------------------------------------
-	case 19:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
+	case 17: return( NULL );
+	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
 
