@@ -274,6 +274,7 @@ bool CSTL_Import::On_Execute(void)
 				pPolygon->Add_Point(Point[1]);
 				pPolygon->Add_Point(Point[2]);
 				pPolygon->Add_Point(Point[3]);
+				pPolygon->Add_Point(Point[1]);
 
 				pPolygon->Set_Value(0, Attribute);
 				pPolygon->Set_Value(1, (Point[1].z + Point[2].z + Point[3].z) / 3.);
