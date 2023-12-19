@@ -81,7 +81,7 @@ CLine_Split_with_Lines::CLine_Split_with_Lines(void)
 
 	Parameters.Add_Shapes("",
 		"INTERSECT"	, _TL("Intersection"),
-		_TL("The splitted lines."),
+		_TL("The split lines."),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Line
 	);
 
@@ -222,7 +222,7 @@ CLine_Split_at_Points::CLine_Split_at_Points(void)
 
 	Set_Description	(_TW(
 		"The tool allows one to split lines at certain points. The points must be provided as point shapes.\n"
-		"The order in which the input lines are stored is retained, i.e. splitted parts are inserted at their "
+		"The order in which the input lines are stored is retained, i.e. split parts are inserted at their "
 		"original location in the dataset. "
 		"By using a minimum vertex distance, a splitting close to existing line vertex locations can be avoided."
 	));
@@ -242,7 +242,7 @@ CLine_Split_at_Points::CLine_Split_at_Points(void)
 
 	Parameters.Add_Shapes("",
 		"INTERSECT"	, _TL("Intersection"),
-		_TL("The splitted lines."),
+		_TL("The split lines."),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Line
 	);
 
