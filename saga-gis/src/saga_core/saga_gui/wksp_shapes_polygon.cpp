@@ -152,12 +152,12 @@ void CWKSP_Shapes_Polygon::On_Parameters_Changed(void)
 	CWKSP_Shapes::On_Parameters_Changed();
 
 	//-----------------------------------------------------
-	m_bOutline	= m_Parameters("OUTLINE")->asBool();
-	m_Pen		= wxPen(!m_bOutline ? m_pClassify->Get_Unique_Color() : Get_Color_asWX(m_Parameters("OUTLINE_COLOR")->asColor()), m_Parameters("OUTLINE_SIZE")->asInt(), wxPENSTYLE_SOLID);
-	m_Brush		= wxBrush(m_pClassify->Get_Unique_Color(), BrushList_Get_Style("DISPLAY_BRUSH"));
+	m_bOutline  = m_Parameters("OUTLINE")->asBool();
+	m_Pen       = wxPen(!m_bOutline ? m_pClassify->Get_Unique_Color() : Get_Color_asWX(m_Parameters("OUTLINE_COLOR")->asColor()), !m_bOutline ? 1 : m_Parameters("OUTLINE_SIZE")->asInt(), wxPENSTYLE_SOLID);
+	m_Brush     = wxBrush(m_pClassify->Get_Unique_Color(), BrushList_Get_Style("DISPLAY_BRUSH"));
 
-	m_bVertices	= m_Parameters("DISPLAY_POINTS"  )->asInt ();
-	m_bCentroid	= m_Parameters("DISPLAY_CENTROID")->asBool();
+	m_bVertices = m_Parameters("DISPLAY_POINTS"  )->asInt ();
+	m_bCentroid = m_Parameters("DISPLAY_CENTROID")->asBool();
 }
 
 

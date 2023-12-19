@@ -426,9 +426,9 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 	}
 
 	//-----------------------------------------------------
-	m_bOutline	= m_Parameters("OUTLINE")->asBool();
-	m_Pen		= wxPen(!m_bOutline ? m_pClassify->Get_Unique_Color() : Get_Color_asWX(m_Parameters("OUTLINE_COLOR")->asColor()), m_Parameters("OUTLINE_SIZE")->asInt(), wxPENSTYLE_SOLID);
-	m_Brush		= wxBrush(m_pClassify->Get_Unique_Color(), BrushList_Get_Style("DISPLAY_BRUSH"));
+	m_bOutline = m_Parameters("OUTLINE")->asBool();
+	m_Pen      = wxPen(!m_bOutline ? m_pClassify->Get_Unique_Color() : Get_Color_asWX(m_Parameters("OUTLINE_COLOR")->asColor()), !m_bOutline ? 1 : m_Parameters("OUTLINE_SIZE")->asInt(), wxPENSTYLE_SOLID);
+	m_Brush    = wxBrush(m_pClassify->Get_Unique_Color(), BrushList_Get_Style("DISPLAY_BRUSH"));
 }
 
 
