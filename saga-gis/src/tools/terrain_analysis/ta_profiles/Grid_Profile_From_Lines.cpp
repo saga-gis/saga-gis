@@ -86,42 +86,50 @@ CGrid_Profile_From_Lines::CGrid_Profile_From_Lines(void)
 		"Create profiles from a grid based DEM for each line of a lines layer. "
 	));
 
-	Parameters.Add_Grid       (""     , "DEM"     , _TL("Elevation"),
+	Parameters.Add_Grid("",
+		"DEM"     , _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_List  (""     , "VALUES"  , _TL("Values"),
+	Parameters.Add_Grid_List("",
+		"VALUES"  , _TL("Values"),
 		_TL("Additional values to be collected along profile."),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Shapes     (""     , "LINES"   , _TL("Lines"),
+	Parameters.Add_Shapes("",
+		"LINES"   , _TL("Lines"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Line
 	);
 
-	Parameters.Add_Table_Field("LINES", "NAME"    , _TL("Name"),
-		_TL("Attribute to use for splitted line naming (=> each line as new profile)"),
+	Parameters.Add_Table_Field("LINES",
+		"NAME"    , _TL("Name"),
+		_TL("Attribute to use for split line naming (=> each line as new profile)"),
 		true
 	);
 
-	Parameters.Add_Shapes     (""     , "PROFILE" , _TL("Profiles"),
+	Parameters.Add_Shapes("",
+		"PROFILE" , _TL("Profiles"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Shapes_List(""     , "PROFILES", _TL("Profiles"),
+	Parameters.Add_Shapes_List("",
+		"PROFILES", _TL("Profiles"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Bool       (""     , "SPLIT"   , _TL("Each Line as new Profile"),
+	Parameters.Add_Bool("",
+		"SPLIT"   , _TL("Each Line as new Profile"),
 		_TL(""),
 		false
 	);
 
-	Parameters.Add_Bool       (""     , "DIAGRAM", _TL("Show Diagram"),
+	Parameters.Add_Bool("",
+		"DIAGRAM", _TL("Show Diagram"),
 		_TL(""),
 		false
 	)->Set_UseInCMD(false);
