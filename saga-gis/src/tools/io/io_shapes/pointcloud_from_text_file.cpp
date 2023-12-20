@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: pointcloud_from_text_file.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -52,15 +49,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "pointcloud_from_text_file.h"
 
 #include <vector>
@@ -78,7 +66,6 @@
 //---------------------------------------------------------
 CPointCloud_From_Text_File::CPointCloud_From_Text_File(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Import Point Cloud from Text File"));
 
 	Set_Author		("V. Wichmann, LASERDATA GmbH (c) 2009");
@@ -108,65 +95,64 @@ CPointCloud_From_Text_File::CPointCloud_From_Text_File(void)
 		"\"-FIELDNAMES=intensity;class;range -FIELDTYPES=2;2;3\".\n"
 	));
 
-
 	//-----------------------------------------------------
-	Parameters.Add_PointCloud_Output(NULL,
+	Parameters.Add_PointCloud_Output("",
 		"POINTS"	, _TL("Point Cloud"),
 		_TL("")
 	);
 
-	Parameters.Add_FilePath(NULL,
+	Parameters.Add_FilePath("",
 		"FILE"		, _TL("Text File"),
 		_TL("")
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"SEPARATOR"	, _TL("Field Separator"),
 		_TL("Field Separator"),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("tabulator"),
 			_TL("space"),
 			_TL("comma")
 		), 0
 	);
 
-	Parameters.Add_Bool(NULL,
+	Parameters.Add_Bool("",
 		"SKIP_HEADER", _TL("Skip first line"),
         _TL("Skip first line as it contains column names."),
         false
     );
 
-    Parameters.Add_Int(NULL,
+    Parameters.Add_Int("",
 		"XFIELD"	, _TL("X is Column ..."),
 		_TL("The column holding the X-coordinate."),
 		1, 1, true
 	);
 
-    Parameters.Add_Int(NULL,
+    Parameters.Add_Int("",
 		"YFIELD"	, _TL("Y is Column ..."),
 		_TL("The column holding the Y-coordinate."),
 		2, 1, true
 	);
 
-    Parameters.Add_Int(NULL,
+    Parameters.Add_Int("",
 		"ZFIELD"	, _TL("Z is Column ..."),
 		_TL("The column holding the Z-coordinate."),
 		3, 1, true
 	);
 
-	Parameters.Add_String(NULL,
+	Parameters.Add_String("",
 		"FIELDS"    , _TL("Fields"),
 		_TL("The index (starting with 1) of the fields to import, separated by semicolon, e.g. \"5;6;8\""),
 		""
 	);
 
-	Parameters.Add_String(NULL,
+	Parameters.Add_String("",
 		"FIELDNAMES", _TL("Field Names"),
 		_TL("The name to use for each field, separated by semicolon, e.g. \"intensity;class;range\""),
 		""
 	)->Set_UseInGUI(false);
 
-	Parameters.Add_String(NULL,
+	Parameters.Add_String("",
 		"FIELDTYPES", _TL("Field Types"),
 		_TL("The datatype to use for each field, separated by semicolon, e.g. \"2;2;3;\". The number equals the choice selection, see GUI version."),
 		""
@@ -188,27 +174,26 @@ int CPointCloud_From_Text_File::On_Parameter_Changed(CSG_Parameters *pParameters
 {
 	if( pParameter->Cmp_Identifier("FIELDS") )
 	{
-		CSG_String_Tokenizer	tokFields(pParameter->asString(), ";");
+		CSG_String_Tokenizer tokFields(pParameter->asString(), ";");
 
-		CSG_Parameters	&Fields	= *pParameters->Get_Parameter("FIELDSPECS")->asParameters();
+		CSG_Parameters &Fields = *pParameters->Get_Parameter("FIELDSPECS")->asParameters();
 
-		int	nCurrent	= Fields.Get_Count() / 2;
-		int	nFields		= tokFields.Get_Tokens_Count();
+		int	nCurrent = Fields.Get_Count() / 2;
+		int	 nFields = (int)tokFields.Get_Tokens_Count();
 
 		if( nCurrent < nFields )
 		{
 			for(int iField=nCurrent; iField<nFields; iField++)
 			{
-				CSG_Parameter	*pNode	= Fields.Add_String(NULL,
+				CSG_Parameter *pNode = Fields.Add_String("",
 					CSG_String::Format("NAME%03d" , iField),
-					CSG_String::Format("%d. %s"   , iField + 1, _TL("Field Name")), _TL(""),
-					""
+					CSG_String::Format("%d. %s"   , iField + 1, _TL("Field Name")), _TL(""), ""
 				);
 
 				Fields.Add_Choice(pNode,
 					CSG_String::Format("TYPE%03d" , iField),
 					CSG_String::Format("%d. %s"   , iField + 1, _TL("Field Type")), _TL(""),
-					CSG_String::Format("%s|%s|%s|%s|%s|%s|",
+					CSG_String::Format("%s|%s|%s|%s|%s|%s",
 						_TL("1 byte signed integer"),
 						_TL("2 byte signed integer"),
 						_TL("4 byte signed integer"),
@@ -271,7 +256,6 @@ bool CPointCloud_From_Text_File::Get_Data_Type(TSG_Data_Type &Type, const CSG_St
 //---------------------------------------------------------
 bool CPointCloud_From_Text_File::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_File	Stream;
 
 	if( !Stream.Open(Parameters("FILE")->asString(), SG_FILE_R, false) )
@@ -321,9 +305,8 @@ bool CPointCloud_From_Text_File::On_Execute(void)
     }
 
     //-----------------------------------------------------
-    CSG_PointCloud	*pPoints	= SG_Create_PointCloud();
+    CSG_PointCloud *pPoints = Parameters("POINTS")->asPointCloud();
     pPoints->Set_Name(SG_File_Get_Name(Parameters("FILE")->asString(), false));
-    Parameters("POINTS")->Set_Value(pPoints);
 
 	CSG_Array_Int	Fields;
 
