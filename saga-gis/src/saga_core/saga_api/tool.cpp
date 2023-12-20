@@ -2160,7 +2160,7 @@ bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Const
 					? Parameter.asDataObject()->Get_File_Name() : SG_T("data object file")
 				); File.Replace("\\", "/");
 
-				Code += Value + " = saga_api." + SG_Get_DataObject_Class_Name(Parameter.Get_DataObject_Type()) + "('" + File + "') # input data object\n";
+				Code += Value + " = saga_api.SG_Get_Data_Manager().Add_" + SG_Get_DataObject_Class_Name(Parameter.Get_DataObject_Type()).AfterFirst('_') + "('" + File + "') # input data object\n";
 			}
 			else // if( Parameter.is_Output() )
 			{
@@ -2169,7 +2169,7 @@ bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Const
 					return( false );
 				}
 
-				Code += Value + " = saga_api." + SG_Get_DataObject_Class_Name(Parameter.Get_DataObject_Type()) + "() # output data object\n";
+				Code += Value + " = saga_api.SG_Get_Data_Manager().Add_" + SG_Get_DataObject_Class_Name(Parameter.Get_DataObject_Type()).AfterFirst('_') + "() # output data object\n";
 			}
 		}
 		else if( Parameter.is_DataObject_List() )
