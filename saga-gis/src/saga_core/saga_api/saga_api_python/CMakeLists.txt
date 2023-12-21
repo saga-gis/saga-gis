@@ -74,7 +74,11 @@ if(SWIG_FOUND)
 			)
 		else()
 			set_property(TARGET saga_api_python PROPERTY OUTPUT_NAME saga_api)
-			set(PYTHON_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages)
+
+			if(NOT PYTHON_INSTALL_DIR)
+				set(PYTHON_INSTALL_DIR ${Python_SITEARCH} CACHE STRING "PySAGA installation path")
+			endif()
+
 			option(WITH_PYTHON_PKG "PySAGA package installation (if not checked API modules become installed directly in Python's site/dist-packages folder)" ON)
 
 			if(WITH_PYTHON_PKG)
