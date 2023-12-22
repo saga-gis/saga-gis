@@ -179,7 +179,12 @@ int CTable_Create_Empty::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_P
 //---------------------------------------------------------
 bool CTable_Create_Empty::On_Execute(void)
 {
-	CSG_Table *pTable = SG_Create_Table();
+	CSG_Table *pTable = Parameters("TABLE")->asTable();
+
+	if( !pTable )
+	{
+		Parameters("TABLE")->Set_Value(pTable = SG_Create_Table());
+	}
 
 	pTable->Set_Name(Parameters("NAME")->asString());
 
@@ -192,8 +197,6 @@ bool CTable_Create_Empty::On_Execute(void)
 			Fields(GET_ID_TYPE(i))->asDataType()->Get_Data_Type()
 		);
 	}
-
-	Parameters("TABLE")->Set_Value(pTable);
 
 	return( true );
 }

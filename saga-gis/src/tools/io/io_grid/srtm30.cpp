@@ -140,13 +140,14 @@ bool CSRTM30_Import::On_Execute(void)
 	rOut.yMax	= rOut.yMin + (int)((yMax - yMin) / dSize);
 
 	//-----------------------------------------------------
-	pOut		= SG_Create_Grid(SG_DATATYPE_Short,
-					(int)(rOut.xMax - rOut.xMin),
-					(int)(rOut.yMax - rOut.yMin),
-					dSize,
-					xMin + 0.5 * dSize,
-					yMin + 0.5 * dSize
-				);
+	pOut = Parameters("GRID")->asGrid(); if( !pOut ) { Parameters("GRID")->Set_Value(pOut = SG_Create_Grid()); }
+	pOut->Create(SG_DATATYPE_Short,
+		(int)(rOut.xMax - rOut.xMin),
+		(int)(rOut.yMax - rOut.yMin),
+		dSize,
+		xMin + 0.5 * dSize,
+		yMin + 0.5 * dSize
+	);
 
 	pOut->Set_NoData_Value(-9999);
 	pOut->Assign_NoData();
@@ -167,8 +168,6 @@ bool CSRTM30_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Parameters("GRID")->Set_Value(pOut);
-
 	return( true );
 }
 

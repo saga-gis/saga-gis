@@ -1611,13 +1611,6 @@ bool CSG_Parameters::DataObjects_Create(void)
 				bResult = false;
 			}
 		}
-		else if( P.Get_Type() == PARAMETER_TYPE_DataObject_Output )
-		{
-			if( (m_pManager && has_GUI()) || P.asDataObject() == DATAOBJECT_CREATE )
-			{
-				P.Set_Value(DATAOBJECT_NOTSET);
-			}
-		}
 		else if( P.is_Input() )
 		{
 			if( P.is_Enabled() && P.Check(true) == false )
@@ -1653,19 +1646,34 @@ bool CSG_Parameters::DataObjects_Create(void)
 		{
 			CSG_Data_Object *pObject = P.asDataObject();
 
-			if( (pObject == DATAOBJECT_CREATE)
-			||  (pObject == DATAOBJECT_NOTSET && !P.is_Optional())
-			||  (pObject != DATAOBJECT_NOTSET && m_pManager && !m_pManager->Exists(pObject)) )
+			if( pObject != DATAOBJECT_CREATE )
 			{
-				switch( P.Get_Type() )
+				if( P.Get_Type() == PARAMETER_TYPE_DataObject_Output && has_GUI() )
 				{
-				case PARAMETER_TYPE_Table     : pObject = SG_Create_Table     (); break;
-				case PARAMETER_TYPE_Shapes    : pObject = SG_Create_Shapes    (); break;
-				case PARAMETER_TYPE_PointCloud: pObject = SG_Create_PointCloud(); break;
-				case PARAMETER_TYPE_TIN       : pObject = SG_Create_TIN       (); break;
-				case PARAMETER_TYPE_Grid      : pObject = SG_Create_Grid      (); break;
-				case PARAMETER_TYPE_Grids     : pObject = SG_Create_Grids     (); break;
-				default                       : pObject = NULL                  ; break;
+					pObject = (CSG_Data_Object *)DATAOBJECT_CREATE;
+				}
+				else if( m_pManager && !m_pManager->Exists(pObject) )
+				{
+					pObject = (CSG_Data_Object *)DATAOBJECT_NOTSET;
+				}
+
+				if( pObject == DATAOBJECT_NOTSET && !P.is_Optional() )
+				{
+					pObject = (CSG_Data_Object *)DATAOBJECT_CREATE;
+				}
+			}
+
+			if( pObject == DATAOBJECT_CREATE )
+			{
+				switch( P.Get_DataObject_Type() )
+				{
+				case SG_DATAOBJECT_TYPE_Table     : pObject = SG_Create_Table     (); break;
+				case SG_DATAOBJECT_TYPE_Shapes    : pObject = SG_Create_Shapes    (); break;
+				case SG_DATAOBJECT_TYPE_PointCloud: pObject = SG_Create_PointCloud(); break;
+				case SG_DATAOBJECT_TYPE_TIN       : pObject = SG_Create_TIN       (); break;
+				case SG_DATAOBJECT_TYPE_Grid      : pObject = SG_Create_Grid      (); break;
+				case SG_DATAOBJECT_TYPE_Grids     : pObject = SG_Create_Grids     (); break;
+				default                           : pObject = NULL                  ; break;
 				}
 			}
 

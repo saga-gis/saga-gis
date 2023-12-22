@@ -423,16 +423,14 @@ bool CXYZ_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid	*pGrid	= SG_Create_Grid(CSG_Grid_System(Cellsize, Extent), Parameters("TYPE")->asDataType()->Get_Data_Type());
+	CSG_Grid *pGrid = Parameters("GRID")->asGrid(); if( !pGrid ) { Parameters("GRID")->Set_Value(pGrid = SG_Create_Grid()); }
 
-	if( !pGrid )
+	if( !pGrid->Create(CSG_Grid_System(Cellsize, Extent), Parameters("TYPE")->asDataType()->Get_Data_Type()) )
 	{
 		Error_Set(_TL("failed to allocate memory for grid."));
 
 		return( false );
 	}
-
-	Parameters("GRID")->Set_Value(pGrid);
 
 	pGrid->Set_Name(SG_File_Get_Name(Parameters("FILENAME")->asString(), false));
 
@@ -441,9 +439,7 @@ bool CXYZ_Import::On_Execute(void)
 	
 	if( Parameters("COUNT_CREATE")->asBool() )
 	{
-		pCount	= SG_Create_Grid();
-
-		Parameters("COUNT")->Set_Value(pCount);
+		pCount = Parameters("COUNT")->asGrid(); if( !pCount ) { Parameters("COUNT")->Set_Value(pCount = SG_Create_Grid()); }
 	}
 	else
 	{

@@ -336,7 +336,13 @@ bool CSTL_Import::On_Execute(void)
 				);
 			}
 
-			m_pGrid	= SG_Create_Grid(System);
+			m_pGrid = Parameters("GRID")->asGrid();
+
+			if( !m_pGrid )
+			{
+				Parameters("GRID")->Set_Value(m_pGrid = SG_Create_Grid(System) );
+			}
+
 			m_pGrid->Set_Name(SG_File_Get_Name(Parameters("FILE")->asString(), false));
 			m_pGrid->Set_NoData_Value(-99999.);
 			m_pGrid->Assign_NoData();

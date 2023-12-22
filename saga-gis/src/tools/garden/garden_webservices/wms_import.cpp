@@ -513,7 +513,9 @@ bool CWMS_Import::Get_Map(CWebClient &Server, const CSG_String &Path, CWMS_Capab
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid	*pGrid	= SG_Create_Grid(SG_DATATYPE_Int, Image.GetWidth(), Image.GetHeight(), System.Get_Cellsize(), System.Get_XMin(), System.Get_YMin());
+	CSG_Grid *pGrid	= Parameters("MAP")->asGrid(); if( !pGrid ) { Parameters("MAP")->Set_Value(pGrid = SG_Create_Grid()); }
+
+	pGrid->Create(SG_DATATYPE_Int, Image.GetWidth(), Image.GetHeight(), System.Get_Cellsize(), System.Get_XMin(), System.Get_YMin());
 
 	#pragma omp parallel for
 	for(int y=0; y<pGrid->Get_NY(); y++)
@@ -528,8 +530,6 @@ bool CWMS_Import::Get_Map(CWebClient &Server, const CSG_String &Path, CWMS_Capab
 
 	//-----------------------------------------
 	pGrid->Set_Name(Capabilities.m_Title);
-
-	Parameters("MAP")->Set_Value(pGrid);
 
 	DataObject_Set_Parameter(pGrid, "COLORS_TYPE", 5);	// Color Classification Type: RGB Coded Values
 

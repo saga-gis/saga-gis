@@ -118,9 +118,9 @@ bool CMandelbrot::On_Execute(void)
 	m_xJulia        = Parameters("JULIA_X")->asDouble();
 	m_yJulia        = Parameters("JULIA_Y")->asDouble();
 
-	m_pGrid         = SG_Create_Grid(SG_DATATYPE_Int, Parameters("NX")->asInt(), Parameters("NY")->asInt());
+	m_pGrid         = Parameters("GRID")->asGrid(); if( !m_pGrid ) { Parameters("GRID")->Set_Value(m_pGrid = SG_Create_Grid()); }
+	m_pGrid->Create(SG_DATATYPE_Int, Parameters("NX")->asInt(), Parameters("NY")->asInt());
 	m_pGrid->Set_Name(m_Method == 0 ? _TL("Mandelbrot Set") : _TL("Julia Set"));
-	Parameters("GRID")->Set_Value(m_pGrid);
 
 	//-----------------------------------------------------
 	Calculate();

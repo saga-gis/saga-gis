@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: surfer.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "surfer.h"
 
 
@@ -80,7 +68,6 @@
 //---------------------------------------------------------
 CSurfer_Import::CSurfer_Import(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Import Surfer Grid"));
 
 	Set_Author		("O.Conrad (c) 2001");
@@ -144,10 +131,9 @@ int CSurfer_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 bool CSurfer_Import::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_String	File	= Parameters("FILE")->asString();
+	CSG_String File = Parameters("FILE")->asString();
 
-	FILE	*Stream	 = fopen(File.b_str(), "rb");
+	FILE *Stream = fopen(File.b_str(), "rb");
 
 	if( !Stream )
 	{
@@ -156,9 +142,9 @@ bool CSurfer_Import::On_Execute(void)
 		return( false );
 	}
 
-	CSG_Grid	*pGrid	= NULL;
+	CSG_Grid *pGrid = Parameters("GRID")->asGrid(); if( !pGrid ) { Parameters("GRID")->Set_Value(pGrid = SG_Create_Grid()); }
 
-	char	Id[4];	fread(Id, 1, 4 * sizeof(char), Stream);
+	char Id[4]; fread(Id, 1, 4 * sizeof(char), Stream);
 
 	//-----------------------------------------------------
 	if( !strncmp(Id, "DSRB", 4) )	// Surfer 7: Binary...
@@ -190,7 +176,7 @@ bool CSurfer_Import::On_Execute(void)
 				fread(&lValue, 1, sizeof(long), Stream);	// SectionSize...
 
 				//-----------------------------------------
-				if( !feof(Stream) && (pGrid = SG_Create_Grid(SG_DATATYPE_Double, nx, ny, dx, xmin, ymin)) != NULL )
+				if( !feof(Stream) && pGrid->Create(SG_DATATYPE_Double, nx, ny, dx, xmin, ymin) )
 				{
 					double	*Line	= (double *)SG_Malloc(pGrid->Get_NX() * sizeof(double));
 
@@ -226,7 +212,7 @@ bool CSurfer_Import::On_Execute(void)
 		fread(&dValue, 1, sizeof(double), Stream);	// ZMax...
 
 		//-------------------------------------------------
-		if( !feof(Stream) && (pGrid = SG_Create_Grid(SG_DATATYPE_Float, nx, ny, dx, xmin, ymin)) != NULL )
+		if( !feof(Stream) && pGrid->Create(SG_DATATYPE_Float, nx, ny, dx, xmin, ymin) )
 		{
 			float	*Line	= (float *)SG_Malloc(pGrid->Get_NX() * sizeof(float));
 
@@ -256,7 +242,7 @@ bool CSurfer_Import::On_Execute(void)
 		fscanf(Stream, "%lf %lf", &dValue, &dValue);
 
 		//-------------------------------------------------
-		if( !feof(Stream) && (pGrid = SG_Create_Grid(SG_DATATYPE_Float, nx, ny, dx, xmin, ymin)) != NULL )
+		if( !feof(Stream) && pGrid->Create(SG_DATATYPE_Float, nx, ny, dx, xmin, ymin) )
 		{
 			for(int y=0; y<pGrid->Get_NY() && !feof(Stream) && Set_Progress(y, pGrid->Get_NY()); y++)
 			{
@@ -273,13 +259,11 @@ bool CSurfer_Import::On_Execute(void)
 	//-----------------------------------------------------
 	fclose(Stream);
 
-	if( pGrid )
+	if( pGrid->is_Valid() )
 	{
 		pGrid->Set_Name(SG_File_Get_Name(File, false));
 
 		pGrid->Set_NoData_Value(Parameters("NODATA")->asInt() == 0 ? NODATAVALUE : Parameters("NODATA_VAL")->asDouble());
-
-		Parameters("GRID")->Set_Value(pGrid);
 
 		return( true );
 	}
