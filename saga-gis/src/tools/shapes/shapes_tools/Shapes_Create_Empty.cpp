@@ -212,14 +212,19 @@ bool CShapes_Create_Empty::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Shapes *pShapes;
+	CSG_Shapes *pShapes = Parameters("SHAPES")->asShapes();
+
+	if( !pShapes )
+	{
+		Parameters("SHAPES")->Set_Value(pShapes = SG_Create_Shapes());
+	}
 
 	switch( Parameters("TYPE")->asInt() )
 	{
-	default: pShapes = SG_Create_Shapes(SHAPE_TYPE_Point  , Parameters("NAME")->asString(), NULL, Vertex); break;
-	case  1: pShapes = SG_Create_Shapes(SHAPE_TYPE_Points , Parameters("NAME")->asString(), NULL, Vertex); break;
-	case  2: pShapes = SG_Create_Shapes(SHAPE_TYPE_Line   , Parameters("NAME")->asString(), NULL, Vertex); break;
-	case  3: pShapes = SG_Create_Shapes(SHAPE_TYPE_Polygon, Parameters("NAME")->asString(), NULL, Vertex); break;
+	default: pShapes->Create(SHAPE_TYPE_Point  , Parameters("NAME")->asString(), NULL, Vertex); break;
+	case  1: pShapes->Create(SHAPE_TYPE_Points , Parameters("NAME")->asString(), NULL, Vertex); break;
+	case  2: pShapes->Create(SHAPE_TYPE_Line   , Parameters("NAME")->asString(), NULL, Vertex); break;
+	case  3: pShapes->Create(SHAPE_TYPE_Polygon, Parameters("NAME")->asString(), NULL, Vertex); break;
 	}
 
 	//-----------------------------------------------------
@@ -234,8 +239,6 @@ bool CShapes_Create_Empty::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Parameters("SHAPES")->Set_Value(pShapes);
-
 	return( true );
 }
 

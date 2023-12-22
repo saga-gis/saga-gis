@@ -199,12 +199,6 @@ bool CESRI_ArcInfo_Import::On_Execute(void)
 
 			SG_Free(Line);
 		}
-		else
-		{
-			delete(pGrid);
-
-			pGrid	= NULL;
-		}
 	}
 
 	//-----------------------------------------------------
@@ -239,8 +233,6 @@ bool CESRI_ArcInfo_Import::On_Execute(void)
 		pGrid->Set_Name(SG_File_Get_Name(Parameters("FILE")->asString(), false));
 
 		pGrid->Get_Projection().Load(SG_File_Make_Path("", Parameters("FILE")->asString(), "prj"));
-
-		Parameters("GRID")->Set_Value(pGrid);
 
 		return( true );
 	}
