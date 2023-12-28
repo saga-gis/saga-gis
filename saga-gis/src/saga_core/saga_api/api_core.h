@@ -85,7 +85,7 @@
 #else
 	#define	_SAGA_DLL_EXPORT
 	#define	_SAGA_DLL_IMPORT
-	#if defined(NDEBUG) && !defined(_DEBUG)
+	#if !defined(NDEBUG) && !defined(_DEBUG)
 		#define _DEBUG
 	#endif
 #endif
