@@ -76,6 +76,7 @@ if(MSVC)
 		COMMAND COPY "${SOURCE_DIR}3d_view.h"           "$(OutDir)include\\saga_gdi"
 		COMMAND COPY "${SOURCE_DIR}3d_view_tools.h"     "$(OutDir)include\\saga_gdi"
 		COMMAND COPY "${SOURCE_DIR}saga_gdi.h"          "$(OutDir)include\\saga_gdi"
+		COMMAND COPY "${SOURCE_DIR}sgdi_controls.h"     "$(OutDir)include\\saga_gdi"
 		COMMAND COPY "${SOURCE_DIR}sgdi_core.h"         "$(OutDir)include\\saga_gdi"
 		COMMAND COPY "${SOURCE_DIR}sgdi_diagram.h"      "$(OutDir)include\\saga_gdi"
 		COMMAND COPY "${SOURCE_DIR}sgdi_dialog.h"       "$(OutDir)include\\saga_gdi"
