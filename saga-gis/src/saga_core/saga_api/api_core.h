@@ -80,21 +80,18 @@
 
 //---------------------------------------------------------
 #ifdef _SAGA_MSW
-	#define	_SAGA_DLL_EXPORT		__declspec( dllexport )
-	#define	_SAGA_DLL_IMPORT		__declspec( dllimport )
+	#define	_SAGA_DLL_EXPORT __declspec( dllexport )
+	#define	_SAGA_DLL_IMPORT __declspec( dllimport )
 #else
 	#define	_SAGA_DLL_EXPORT
 	#define	_SAGA_DLL_IMPORT
-	#if !defined(NDEBUG) && !defined(_DEBUG)
-		#define _DEBUG
-	#endif
 #endif
 
 //---------------------------------------------------------
 #ifdef _SAGA_API_EXPORTS
-	#define	SAGA_API_DLL_EXPORT		_SAGA_DLL_EXPORT
+	#define	SAGA_API_DLL_EXPORT _SAGA_DLL_EXPORT
 #else
-	#define	SAGA_API_DLL_EXPORT		_SAGA_DLL_IMPORT
+	#define	SAGA_API_DLL_EXPORT _SAGA_DLL_IMPORT
 #endif
 
 

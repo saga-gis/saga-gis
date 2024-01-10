@@ -47,8 +47,8 @@ if(MSVC)
 	set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL /LTCG:OFF" CACHE STRING "" FORCE)
 else()
 	# Unix Flags
-	set(CMAKE_CXX_FLAGS_RELEASE 		"-O3 -Wall -DNDEBUG"			CACHE STRING "")
-	set(CMAKE_CXX_FLAGS_DEBUG 			"-Og -ggdb -Wall"				CACHE STRING "")
+	set(CMAKE_CXX_FLAGS_RELEASE         "-O3 -Wall -DNDEBUG"            CACHE STRING "" FORCE)
+	set(CMAKE_CXX_FLAGS_DEBUG           "-Og -Wall -D_DEBUG -ggdb"      CACHE STRING "" FORCE)
 endif()
 
 # options
