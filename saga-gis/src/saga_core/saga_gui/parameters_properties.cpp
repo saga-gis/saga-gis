@@ -344,7 +344,7 @@ int CParameters_PG_Choice::_Set_Grid_System(void)
 	{
 		for(int i=0; i<pManager->Get_Count(); i++)
 		{
-			_Append(pManager->Get_System(i)->Get_Name(), (void *)&pManager->Get_System(i)->Get_System());
+			_Append(pManager->Get_System(i)->Get_Name(), (long)i);
 
 			if( m_pParameter->asGrid_System()->is_Equal(pManager->Get_System(i)->Get_System()) )
 			{
@@ -455,7 +455,14 @@ void CParameters_PG_Choice::_Set_Parameter_Value(int Choice)
 			break;
 
 		case PARAMETER_TYPE_Grid_System:
-			m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(Choice)));
+			if( g_pData->Get_Grids()->Get_System(Choice) )
+			{
+				m_pParameter->Set_Value((void *)&g_pData->Get_Grids()->Get_System(Choice)->Get_System());
+			}
+			else
+			{
+				m_pParameter->Set_Value((void *)NULL);
+			}
 
 			_Update_Grids();
 			break;
@@ -508,7 +515,7 @@ bool CParameters_PG_Choice::OnEvent(wxPropertyGrid *pPG, wxWindow *pPGCtrl, wxEv
 			{
 				if( m_pParameter->is_Optional() )
 				{
-					Choice = m_choices.GetCount() - (Choice == m_choices.GetCount() - 1 ? 2 : 1);
+					Choice = m_choices.GetCount() - (Choice == (int)m_choices.GetCount() - 1 ? 2 : 1);
 				}
 				else if( m_pParameter->asDataObject() != DATAOBJECT_CREATE )
 				{
