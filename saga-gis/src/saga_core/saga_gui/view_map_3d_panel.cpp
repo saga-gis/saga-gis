@@ -82,7 +82,7 @@ CVIEW_Map_3DPanel::CVIEW_Map_3DPanel(wxWindow *pParent, class CWKSP_Map *pMap)
 
 	m_BoxBuffer = 0.;
 
-	m_Parameters.Add_Grid("GENERAL" , "DEM"    , _TL("Elevation" ), _TL(""), PARAMETER_INPUT);
+	m_Parameters.Add_Grid("GENERAL" , "DEM"    , _TL("Elevation" ), _TL(""), PARAMETER_INPUT, false);
 	m_Parameters.Add_Int ("DEM"     , "DEM_RES", _TL("Resolution"), _TL(""), m_DEM_Res, 2, true);
 
 	m_Parameters.Add_Int ("MAP"     , "MAP_RES", _TL("Resolution"), _TL(""), m_Map_Res, 2, true);
