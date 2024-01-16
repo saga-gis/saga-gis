@@ -743,7 +743,7 @@ void CParameters_Control::_Set_Parameter(wxPGProperty *pProperty)
 
 		if( pParameter->Get_Type() != PARAMETER_TYPE_Date )
 		{
-			_Update_Parameters();
+			_Update_Parameters(pParameter);
 
 			m_pPG->SelectProperty(pProperty);
 		}
@@ -755,7 +755,7 @@ void CParameters_Control::_Set_Parameter(wxPGProperty *pProperty)
 //---------------------------------------------------------
 void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
 {
-	wxPGProperty	*pProperty	= m_pPG->GetProperty(_Get_Identifier(pParameter));
+	wxPGProperty *pProperty = m_pPG->GetProperty(_Get_Identifier(pParameter));
 
 	if( pProperty )
 	{
@@ -805,7 +805,7 @@ void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
 
 		case PARAMETER_TYPE_Date:
 			{
-				wxDateTime	Date(pParameter->asDouble());
+				wxDateTime Date(pParameter->asDouble());
 
 				if( ((wxDateProperty *)pProperty)->GetDateValue() != Date )
 				{
@@ -900,18 +900,18 @@ bool CParameters_Control::Update_DataObjects(void)
 }
 
 //---------------------------------------------------------
-#define UPDATE_DATA_NODE(NODE)	{\
-	wxPGProperty	*pProperty	= m_pPG->GetProperty(NODE);\
+#define SHOW_DATA_NODE(NODE)	{\
+	wxPGProperty *pProperty = m_pPG->GetProperty(NODE);\
 	\
 	if( pProperty )\
 	{\
-		bool	bShow	= false;\
+		bool bShow = false;\
 		\
 		for(size_t i=0; i<pProperty->GetChildCount() && !bShow; i++)\
 		{\
 			if( pProperty->Item(i)->IsEnabled() )\
 			{\
-				bShow	= true;\
+				bShow = true;\
 			}\
 		}\
 		\
@@ -920,7 +920,7 @@ bool CParameters_Control::Update_DataObjects(void)
 }
 
 //---------------------------------------------------------
-void CParameters_Control::_Update_Parameters(void)
+void CParameters_Control::_Update_Parameters(CSG_Parameter *pSender)
 {
 	if( m_pParameters )
 	{
@@ -928,15 +928,18 @@ void CParameters_Control::_Update_Parameters(void)
 
 		for(int i=0; i<m_pParameters->Get_Count(); i++)
 		{
-			_Update_Parameter(m_pParameters->Get_Parameter(i));
+			if( pSender != m_pParameters->Get_Parameter(i) )
+			{
+				_Update_Parameter(m_pParameters->Get_Parameter(i));
+			}
 		}
 
-		UPDATE_DATA_NODE("_DATAOBJECT_GRIDS");
-		UPDATE_DATA_NODE("_DATAOBJECT_TABLES");
-		UPDATE_DATA_NODE("_DATAOBJECT_SHAPES");
-		UPDATE_DATA_NODE("_DATAOBJECT_TINS");
-		UPDATE_DATA_NODE("_DATAOBJECT_POINTCLOUDS");
-		UPDATE_DATA_NODE("_DATAOBJECT_OPTIONS");
+		SHOW_DATA_NODE("_DATAOBJECT_GRIDS"      );
+		SHOW_DATA_NODE("_DATAOBJECT_TABLES"     );
+		SHOW_DATA_NODE("_DATAOBJECT_SHAPES"     );
+		SHOW_DATA_NODE("_DATAOBJECT_POINTCLOUDS");
+		SHOW_DATA_NODE("_DATAOBJECT_TINS"       );
+		SHOW_DATA_NODE("_DATAOBJECT_OPTIONS"    );
 
 		m_pPG->Refresh();
 
