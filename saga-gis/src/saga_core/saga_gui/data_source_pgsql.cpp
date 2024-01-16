@@ -856,6 +856,8 @@ void CData_Source_PgSQL::Update_Sources(void)
 
 		Item = GetNextChild(GetRootItem(), Cookie);
 	}
+
+	UnselectAll();
 }
 
 //---------------------------------------------------------
@@ -1288,11 +1290,6 @@ void CData_Source_PgSQL::Table_Rename(const wxTreeItemId &Item)
 				&& SET_PARAMETER("OUTPUT"    , 0)	// none
 				&& SET_PARAMETER("SQL"       , SQL)
 			);
-
-			if( bResult )
-			{
-				SetItemText(Item, Name);
-			}
 		}
 		break;
 
@@ -1307,11 +1304,6 @@ void CData_Source_PgSQL::Table_Rename(const wxTreeItemId &Item)
 				&& SET_PARAMETER("OUTPUT"    , 0)	// none
 				&& SET_PARAMETER("SQL"       , SQL)
 			);
-
-			if( bResult )
-			{
-				SetItemText(Item, Name);
-			}
 		}
 		break;
 	}
