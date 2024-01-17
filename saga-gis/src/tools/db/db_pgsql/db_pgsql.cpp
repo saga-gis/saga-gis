@@ -1162,39 +1162,20 @@ bool CSG_PG_Connection::Table_Load(CSG_Table &Table, const CSG_String &Table_Nam
 //---------------------------------------------------------
 bool CSG_PG_Connection::Table_Load(CSG_Table &Table, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where, const CSG_String &Group, const CSG_String &Having, const CSG_String &Order, bool bDistinct, bool bVerbose)
 {
-	CSG_String	Select("SELECT");
+	CSG_String Select("SELECT");
 
-	Select	+= bDistinct ? " DISTINCT" : " ALL";
+	Select += bDistinct ? " DISTINCT" : " ALL";
 
 	if( Fields.is_Empty() )
 	{
-		Select	+= " *";
+		Select += " *";
 	}
 	else
 	{
-		Select	+= " " + Fields;
+		Select += " " + Fields;
 	}
 
-	Select	+= " FROM ";
-
-	CSG_Strings	s	= SG_String_Tokenize(Tables, ",");
-
-	for(int i=0; i<s.Get_Count(); i++)
-	{
-		s[i].Trim_Both();
-
-		if( s[i][0] != '\"')
-		{
-			s[i].Prepend("\"").Append("\"");
-		}
-
-		if( i > 0 )
-		{
-			Select	+= ",";
-		}
-
-		Select	+= s[i];
-	}
+	Select += " FROM " + Tables;
 
 	if( Where.Length() )
 	{
