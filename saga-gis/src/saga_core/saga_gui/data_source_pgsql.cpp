@@ -1369,9 +1369,7 @@ void CData_Source_PgSQL::Table_Drop(const wxTreeItemId &Item)
 
 			if( bResult )
 			{
-				Delete(Item);
-
-				MSG_General_Add(_TL("okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
+				MSG_General_Add(_TL("okay"  ), false, false, SG_UI_MSG_STYLE_SUCCESS);
 			}
 			else
 			{
@@ -1393,9 +1391,7 @@ void CData_Source_PgSQL::Table_Drop(const wxTreeItemId &Item)
 
 			if( bResult )
 			{
-				Delete(Item);
-
-				MSG_General_Add(_TL("okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
+				MSG_General_Add(_TL("okay"  ), false, false, SG_UI_MSG_STYLE_SUCCESS);
 			}
 			else
 			{
