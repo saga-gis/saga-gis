@@ -82,6 +82,11 @@ CVIEW_Map_3DPanel::CVIEW_Map_3DPanel(wxWindow *pParent, class CWKSP_Map *pMap)
 
 	m_BoxBuffer = 0.;
 
+	if( m_Parameters.Get_Manager() != &SG_Get_Data_Manager() ) // fix for MacOS App Bundle !
+	{
+		m_Parameters.Set_Manager(&SG_Get_Data_Manager());
+	}
+
 	m_Parameters.Add_Grid("GENERAL" , "DEM"    , _TL("Elevation" ), _TL(""), PARAMETER_INPUT, false);
 	m_Parameters.Add_Int ("DEM"     , "DEM_RES", _TL("Resolution"), _TL(""), m_DEM_Res, 2, true);
 
