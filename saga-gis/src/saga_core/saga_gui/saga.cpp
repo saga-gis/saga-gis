@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSAGA	*g_pSAGA	= NULL;
+CSAGA *g_pSAGA = NULL;
 
 //---------------------------------------------------------
 IMPLEMENT_APP(CSAGA)
@@ -116,9 +116,9 @@ bool CSAGA::OnInit(void)
 
 	wxInitAllImageHandlers();
 
-	wxFileName	App_Path(argv[0]);	App_Path.MakeAbsolute();
+	wxFileName App_Path(argv[0]); App_Path.MakeAbsolute();
 
-	m_App_Path	= App_Path.GetPath();
+	m_App_Path = App_Path.GetPath();
 
 	#if !defined(_DEBUG)
 		wxSetAssertHandler(NULL);	// disable all wx asserts in SAGA release builds
@@ -136,17 +136,17 @@ bool CSAGA::OnInit(void)
 	_Init_Config();
 
 	//-----------------------------------------------------
-	long	Frequency;
+	long Frequency;
 
 	if( CONFIG_Read("/TOOLS", "PROCESS_UPDATE", Frequency) && Frequency > 0 )
 	{
-		m_Process_Frequency	= Frequency;
+		m_Process_Frequency = Frequency;
 	}
 
 	//-----------------------------------------------------
-	bool	bLogo	= argc <= 1 && CONFIG_Read("/TOOLS", "START_LOGO", bLogo) ? bLogo : true;
+	bool bLogo = argc <= 1 && CONFIG_Read("/TOOLS", "START_LOGO", bLogo) ? bLogo : true;
 
-	wxSplashScreen	*pLogo	= !bLogo ? NULL :
+	wxSplashScreen *pLogo = !bLogo ? NULL :
 		new wxSplashScreen(IMG_Get_Splash(),
 			wxSPLASH_CENTRE_ON_SCREEN|wxSPLASH_NO_TIMEOUT, 0, NULL, -1,
 			wxDefaultPosition, wxDefaultSize, wxBORDER_SIMPLE
@@ -155,11 +155,11 @@ bool CSAGA::OnInit(void)
 	wxYield();
 
 	//-----------------------------------------------------
-	wxString	File;
+	wxString File;
 
 	if( !CONFIG_Read("/TOOLS", "LNG_FILE_DIC", File) || !wxFileExists(File) )
 	{
-		File	= wxFileName(Get_App_Path(), "saga", "lng").GetFullPath();
+		File = wxFileName(Get_App_Path(), "saga", "lng").GetFullPath();
 	}
 
 	if( !SG_Get_Translator().Create(&File, false) )
@@ -172,6 +172,10 @@ bool CSAGA::OnInit(void)
 
 	//-----------------------------------------------------
 	SetTopWindow(new CSAGA_Frame());
+
+	#ifdef __WXMAC__
+	SetExitOnFrameDelete(true);
+	#endif
 
 	//-----------------------------------------------------
 	if( pLogo )
@@ -218,16 +222,16 @@ int CSAGA::OnExit(void)
 //---------------------------------------------------------
 void CSAGA::_Init_Config(void)
 {
-	wxConfigBase	*pConfig;
+	wxConfigBase *pConfig;
 
 	#if defined(_SAGA_MSW)
-		wxFileName	fLocal(Get_App_Path(), "saga_gui", "ini");
+		wxFileName fLocal(Get_App_Path(), "saga_gui", "ini");
 
 		if( ( fLocal.FileExists() && (!fLocal.IsFileReadable() || !fLocal.IsFileWritable()))
 		||  (!fLocal.FileExists() && (!fLocal.IsDirReadable () || !fLocal.IsDirWritable ())) )
 		{
-			wxFileName	fUser (wxGetHomeDir(), "saga_gui", "ini");
-		//	wxFileName	fUser (wxStandardPaths::Get().GetUserConfigDir(), "saga_gui", "ini");
+			wxFileName fUser(wxGetHomeDir(), "saga_gui", "ini");
+		//	wxFileName fUser(wxStandardPaths::Get().GetUserConfigDir(), "saga_gui", "ini");
 
 			if(	fLocal.FileExists() && fLocal.IsFileReadable() && !fUser.FileExists() )	// create a copy in user's home directory
 			{
@@ -236,7 +240,7 @@ void CSAGA::_Init_Config(void)
 				wxFileConfig       ic(is); ic.Save(os);
 			}
 
-			fLocal	= fUser;
+			fLocal = fUser;
 		}
 
 		if( (fLocal.FileExists() && fLocal.IsFileWritable()) || (!fLocal.FileExists() && fLocal.IsDirWritable()) )
@@ -245,10 +249,10 @@ void CSAGA::_Init_Config(void)
 		}
 		else
 		{
-			pConfig	= new wxConfig;	// this might go to registry !
+			pConfig = new wxConfig;	// this might go to registry !
 		}
 	#else
-		pConfig	= new wxConfig;
+		pConfig = new wxConfig;
 	#endif
 
 	wxConfigBase::Set(pConfig);
@@ -269,7 +273,7 @@ void CSAGA::On_Key_Down(wxKeyEvent &event)
 		break;
 
 	case WXK_ESCAPE:
-		m_Process_bContinue	= false;
+		m_Process_bContinue = false;
 		break;
 	}
 }
@@ -286,7 +290,7 @@ bool CSAGA::Process_Wait(bool bEnforce)
 
 	if( !bYield && (bEnforce || m_Process_Frequency <= (wxDateTime::UNow() - tYield).GetMilliseconds()) )
 	{
-		bYield	= true;
+		bYield = true;
 
 		Yield(true);
 
@@ -294,10 +298,10 @@ bool CSAGA::Process_Wait(bool bEnforce)
 
 		if( m_Process_Frequency > 0 )
 		{
-			tYield	= wxDateTime::UNow();
+			tYield= wxDateTime::UNow();
 		}
 
-		bYield	= false;
+		bYield = false;
 	}
 
 	return( true );
@@ -306,7 +310,7 @@ bool CSAGA::Process_Wait(bool bEnforce)
 //---------------------------------------------------------
 bool CSAGA::Process_Set_Okay(bool bOkay)
 {
-	m_Process_bContinue	= bOkay;
+	m_Process_bContinue = bOkay;
 
 	return( m_Process_bContinue );
 }
@@ -324,7 +328,7 @@ bool CSAGA::Process_Set_Frequency(size_t Milliseconds)
 {
 	if( Milliseconds > 0 && Milliseconds != m_Process_Frequency )
 	{
-		m_Process_Frequency	= Milliseconds;
+		m_Process_Frequency = Milliseconds;
 
 		return( true );
 	}
@@ -358,9 +362,8 @@ bool CSAGA::Set_Busy(bool bOn, const CSG_String &Message)
 				Flags.Transparency(4 * wxALPHA_OPAQUE / 5);
 				Flags.Text(Message.c_str());
 
-				pInfo     = new wxBusyInfo(Flags);
-
-			//	pInfo     = new wxBusyInfo(_TL("Please wait, working..."), g_pSAGA_Frame);
+				pInfo = new wxBusyInfo(Flags);
+			//	pInfo = new wxBusyInfo(_TL("Please wait, working..."), g_pSAGA_Frame);
 			}
 		}
 
