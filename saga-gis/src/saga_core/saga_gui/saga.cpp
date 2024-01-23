@@ -173,9 +173,9 @@ bool CSAGA::OnInit(void)
 	//-----------------------------------------------------
 	SetTopWindow(new CSAGA_Frame());
 
-	#ifdef __WXMAC__
-	SetExitOnFrameDelete(true);
-	#endif
+//	#ifdef __WXMAC__
+//	SetExitOnFrameDelete(true); // seems to cause crash in macos app bundle
+//	#endif
 
 	//-----------------------------------------------------
 	if( pLogo )
