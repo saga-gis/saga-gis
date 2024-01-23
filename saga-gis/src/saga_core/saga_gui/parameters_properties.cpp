@@ -119,7 +119,7 @@ void CParameters_PG_Choice::_Create(void)
 
 	if( m_pParameter )
 	{
-		int Choice = -1;
+		m_pParameter->Check(); int Choice;
 
 		switch( m_pParameter->Get_Type() )
 		{
@@ -133,7 +133,7 @@ void CParameters_PG_Choice::_Create(void)
 		case PARAMETER_TYPE_Shapes     : Choice = _Set_Shapes     (); break;
 		case PARAMETER_TYPE_TIN        : Choice = _Set_TIN        (); break;
 		case PARAMETER_TYPE_PointCloud : Choice = _Set_PointCloud (); break;
-		default:	break;
+		default                        : Choice = -1                ; break;
 		}
 
 		if( GetGrid() )
@@ -153,8 +153,6 @@ void CParameters_PG_Choice::_Destroy(void)
 {
 	m_choices     .Clear();
 	m_choices_data.Clear();
-
-//	SetChoiceSelection(0);
 }
 
 //---------------------------------------------------------
@@ -221,39 +219,30 @@ int CParameters_PG_Choice::_Set_Table_Field(void)
 //---------------------------------------------------------
 int CParameters_PG_Choice::_Set_Table(void)
 {
-	CWKSP_Table_Manager *pTables;
+	CWKSP_Table_Manager *pManager_Tables = g_pData->Get_Tables();
 
-	if( (pTables = g_pData->Get_Tables()) != NULL )
+	for(int i=0; pManager_Tables && i<pManager_Tables->Get_Count(); i++)
 	{
-		for(int i=0; i<pTables->Get_Count(); i++)
+		_Append(pManager_Tables->Get_Data(i)->Get_Name(), pManager_Tables->Get_Data(i)->Get_Table());
+	}
+
+	CWKSP_Shapes_Manager *pManager_Shapes = g_pData->Get_Shapes();
+
+	for(int i=0; pManager_Shapes && i<pManager_Shapes->Get_Count(); i++)
+	{
+		CWKSP_Shapes_Type *pShapes = (CWKSP_Shapes_Type *)pManager_Shapes->Get_Item(i);
+
+		for(int j=0; j<pShapes->Get_Count(); j++)
 		{
-			_Append(pTables->Get_Data(i)->Get_Name(), pTables->Get_Data(i)->Get_Table());
+			_Append(pShapes->Get_Data(j)->Get_Name(), pShapes->Get_Data(j)->Get_Shapes());
 		}
 	}
 
-	CWKSP_Shapes_Manager *pManager;
+	CWKSP_PointCloud_Manager *pManager_PointClouds = g_pData->Get_PointClouds();
 
-	if( (pManager = g_pData->Get_Shapes()) != NULL )
+	for(int i=0; pManager_PointClouds && i<pManager_PointClouds->Get_Count(); i++)
 	{
-		for(int i=0; i<pManager->Get_Count(); i++)
-		{
-			CWKSP_Shapes_Type *pShapes = (CWKSP_Shapes_Type *)pManager->Get_Item(i);
-
-			for(int j=0; j<pShapes->Get_Count(); j++)
-			{
-				_Append(pShapes->Get_Data(j)->Get_Name(), pShapes->Get_Data(j)->Get_Shapes());
-			}
-		}
-	}
-
-	CWKSP_PointCloud_Manager *pPointClouds;
-
-	if( (pPointClouds = g_pData->Get_PointClouds()) != NULL )
-	{
-		for(int i=0; i<pPointClouds->Get_Count(); i++)
-		{
-			_Append(pPointClouds->Get_Data(i)->Get_Name(), pPointClouds->Get_Data(i)->Get_PointCloud());
-		}
+		_Append(pManager_PointClouds->Get_Data(i)->Get_Name(), pManager_PointClouds->Get_Data(i)->Get_PointCloud());
 	}
 
 	return( _DataObject_Init() );
@@ -262,9 +251,9 @@ int CParameters_PG_Choice::_Set_Table(void)
 //---------------------------------------------------------
 int CParameters_PG_Choice::_Set_Shapes(void)
 {
-	CWKSP_Shapes_Manager *pManager;
+	CWKSP_Shapes_Manager *pManager = g_pData->Get_Shapes();
 
-	if( (pManager = g_pData->Get_Shapes()) != NULL )
+	if( pManager )
 	{
 		int Shape_Type = ((CSG_Parameter_Shapes *)m_pParameter)->Get_Shape_Type();
 
@@ -286,7 +275,25 @@ int CParameters_PG_Choice::_Set_Shapes(void)
 	  ( ((CSG_Parameter_Shapes *)m_pParameter)->Get_Shape_Type() == SHAPE_TYPE_Point
 	 || ((CSG_Parameter_Shapes *)m_pParameter)->Get_Shape_Type() == SHAPE_TYPE_Undefined ) )
 	{
-		return( _Set_PointCloud() );
+		CWKSP_PointCloud_Manager *pManager_PointClouds = g_pData->Get_PointClouds();
+
+		for(int i=0; pManager_PointClouds && i<pManager_PointClouds->Get_Count(); i++)
+		{
+			_Append(pManager_PointClouds->Get_Data(i)->Get_Name(), pManager_PointClouds->Get_Data(i)->Get_PointCloud());
+		}
+	}
+
+	return( _DataObject_Init() );
+}
+
+//---------------------------------------------------------
+int CParameters_PG_Choice::_Set_PointCloud(void)
+{
+	CWKSP_PointCloud_Manager *pManager = g_pData->Get_PointClouds();
+
+	for(int i=0; pManager && i<pManager->Get_Count(); i++)
+	{
+		_Append(pManager->Get_Data(i)->Get_Name(), pManager->Get_Data(i)->Get_Object());
 	}
 
 	return( _DataObject_Init() );
@@ -309,26 +316,8 @@ int CParameters_PG_Choice::_Set_TIN(void)
 }
 
 //---------------------------------------------------------
-int CParameters_PG_Choice::_Set_PointCloud(void)
-{
-	CWKSP_PointCloud_Manager *pManager = g_pData->Get_PointClouds();
-
-	if( pManager )
-	{
-		for(int i=0; i<pManager->Get_Count(); i++)
-		{
-			_Append(pManager->Get_Data(i)->Get_Name(), pManager->Get_Data(i)->Get_Object());
-		}
-	}
-
-	return( _DataObject_Init() );
-}
-
-//---------------------------------------------------------
 int CParameters_PG_Choice::_Set_Grid_System(void)
 {
-	m_pParameter->Check();
-
 	CWKSP_Grid_Manager *pManager = g_pData->Get_Grids();
 
 	if( !pManager || pManager->Get_Count() <= 0 )
@@ -344,7 +333,7 @@ int CParameters_PG_Choice::_Set_Grid_System(void)
 	{
 		for(int i=0; i<pManager->Get_Count(); i++)
 		{
-			_Append(pManager->Get_System(i)->Get_Name(), (long)i);
+			_Append(pManager->Get_System(i)->Get_Name(), (void *)&pManager->Get_System(i)->Get_System());
 
 			if( m_pParameter->asGrid_System()->is_Equal(pManager->Get_System(i)->Get_System()) )
 			{
@@ -383,7 +372,7 @@ int CParameters_PG_Choice::_Set_Grid(void)
 				case WKSP_ITEM_Grids:
 					if( m_pParameter->is_Input() ) // && pItem->Get_Type() == WKSP_ITEM_Grids )
 					{
-						CSG_Grids	*pGrids	= (CSG_Grids *)pItem->Get_Object();
+						CSG_Grids *pGrids = (CSG_Grids *)pItem->Get_Object();
 
 						for(int j=0; j<pGrids->Get_Grid_Count(); j++)
 						{
@@ -426,8 +415,6 @@ int CParameters_PG_Choice::_DataObject_Init(void)
 		_Append(_TL("<not set>"), DATAOBJECT_NOTSET);
 	}
 
-	m_pParameter->Check();
-
 	for(size_t i=0; i<m_choices.GetCount(); i++)
 	{
 		if( m_pParameter->asDataObject() == (void *)m_choices_data.Item(m_choices.GetValue(i)) )
@@ -455,14 +442,7 @@ void CParameters_PG_Choice::_Set_Parameter_Value(int Choice)
 			break;
 
 		case PARAMETER_TYPE_Grid_System:
-			if( g_pData->Get_Grids()->Get_System(Choice) )
-			{
-				m_pParameter->Set_Value((void *)&g_pData->Get_Grids()->Get_System(Choice)->Get_System());
-			}
-			else
-			{
-				m_pParameter->Set_Value((void *)NULL);
-			}
+			m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(Choice)));
 
 			_Update_Grids();
 			break;
@@ -498,54 +478,65 @@ bool CParameters_PG_Choice::OnEvent(wxPropertyGrid *pPG, wxWindow *pPGCtrl, wxEv
 	}
 
 	//-----------------------------------------------------
-	if( event.GetEventType() == wxEVT_RIGHT_DOWN && m_pParameter )
+	if( m_pParameter && m_choices.IsOk() )
 	{
-		int Choice = GetChoiceSelection();
-
-		if( m_pParameter->is_DataObject() )
+		if( event.GetEventType() == wxEVT_RIGHT_DOWN )
 		{
-			if( m_pParameter->is_Input() )
+			int Choice = GetChoiceSelection();
+
+			if( m_pParameter->is_DataObject() )
 			{
-				if( m_pParameter->is_Optional() )
+				if( m_pParameter->is_Input() )
 				{
-					Choice = m_choices.GetCount() - 1;
+					if( m_pParameter->is_Optional() )
+					{
+						Choice = m_choices.GetCount() - 1;
+					}
+				}
+				else // if( m_pParameter->is_Output() )
+				{
+					if( m_pParameter->is_Optional() )
+					{
+						Choice = m_choices.GetCount() - (Choice == (int)m_choices.GetCount() - 1 ? 2 : 1);
+					}
+					else if( m_pParameter->asDataObject() != DATAOBJECT_CREATE )
+					{
+						Choice = m_choices.GetCount() - 1;
+					}
 				}
 			}
-			else // if( m_pParameter->is_Output() )
+			else if( m_pParameter->Get_Type() == PARAMETER_TYPE_Table_Field && m_pParameter->is_Optional() )
 			{
-				if( m_pParameter->is_Optional() )
-				{
-					Choice = m_choices.GetCount() - (Choice == (int)m_choices.GetCount() - 1 ? 2 : 1);
-				}
-				else if( m_pParameter->asDataObject() != DATAOBJECT_CREATE )
-				{
-					Choice = m_choices.GetCount() - 1;
-				}
+				Choice = m_choices.GetCount() - 1;
 			}
+
+			if( Choice != GetChoiceSelection() )
+			{
+				_Set_Parameter_Value(Choice);
+				SetChoiceSelection  (Choice);
+				SetValueInEvent     (Choice);
+
+				return( true );
+			}
+
+			return( false );
 		}
-		else if( m_pParameter->Get_Type() == PARAMETER_TYPE_Table_Field && m_pParameter->is_Optional() )
+
+		//-------------------------------------------------
+		if( event.GetEventType() == wxEVT_COMMAND_COMBOBOX_SELECTED )
 		{
-			Choice = m_choices.GetCount() - 1;
-		}
+			int Choice; wxVariant Variant;
 
-		if( Choice != GetChoiceSelection() )
-		{
-			_Set_Parameter_Value(Choice);
-			SetChoiceSelection  (Choice);
-			SetValueInEvent     (Choice);
+			if( GetEditorClass()->GetValueFromControl(Variant, this, pPGCtrl) && (Choice = (int)Variant.GetInteger()) >= 0 && Choice < (int)m_choices.GetCount() )
+			{
+				_Set_Parameter_Value(Choice);
+				SetChoiceSelection  (Choice);
+				SetValueInEvent     (Choice);
 
-			return( true );
-		}
-	}
+				return( true );
+			}
 
-	//-----------------------------------------------------
-	if( event.GetEventType() == wxEVT_COMMAND_COMBOBOX_SELECTED )
-	{
-		int Choice; wxVariant Variant;
-
-		if( GetEditorClass()->GetValueFromControl(Variant, this, pPGCtrl) && m_choices.IsOk() && (Choice = Variant.GetInteger()) >= 0 && Choice < (int)m_choices.GetCount() && m_pParameter )
-		{
-			_Set_Parameter_Value(Choice);
+			return( false );
 		}
 	}
 
@@ -617,7 +608,7 @@ bool CPG_Parameter_Value::from_String(const wxString &String)
 	default:
 		return( false );
 
-	case PARAMETER_TYPE_Text:
+	case PARAMETER_TYPE_Text    :
 	case PARAMETER_TYPE_FilePath:
 		m_pParameter->Set_Value(CSG_String(&String));
 		return( true );
@@ -673,15 +664,16 @@ bool CPG_Parameter_Value::Check(void) const
 //---------------------------------------------------------
 bool CPG_Parameter_Value::Do_Dialog(void)
 {
-	bool		bModified	= false;
-	wxString	Text;
+	bool bModified = false;
 
 	if( m_pParameter )
 	{
+		wxString Text;
+
 		switch( m_pParameter->Get_Type() )
 		{
 		case PARAMETER_TYPE_Text:
-			bModified	= DLG_Text			(m_pParameter->Get_Name(), Text = m_pParameter->asString());
+			bModified = DLG_Text(m_pParameter->Get_Name(), Text = m_pParameter->asString());
 
 			if( bModified && !m_pParameter->is_Information() )
 			{
@@ -692,25 +684,25 @@ bool CPG_Parameter_Value::Do_Dialog(void)
 			break;
 
 		case PARAMETER_TYPE_FilePath:
-			Text	= m_pParameter->asString();
+			Text = m_pParameter->asString();
 
 			if( m_pParameter->asFilePath()->is_Directory() )
 			{
-				bModified	= DLG_Directory	(Text, _TL("Choose Directory"));
+				bModified = DLG_Directory(Text, _TL("Choose Directory"));
 			}
 			else if( m_pParameter->asFilePath()->is_Save() )
 			{
-				bModified	= DLG_Save		(Text, _TL("Save"), m_pParameter->asFilePath()->Get_Filter());
+				bModified = DLG_Save(Text, _TL("Save"), m_pParameter->asFilePath()->Get_Filter());
 			}
 			else if( m_pParameter->asFilePath()->is_Multiple() == false )
 			{
-				bModified	= DLG_Open		(Text, _TL("Open"), m_pParameter->asFilePath()->Get_Filter());
+				bModified = DLG_Open(Text, _TL("Open"), m_pParameter->asFilePath()->Get_Filter());
 			}
 			else
 			{
-				wxArrayString	Files;
+				wxArrayString Files;
 
-				bModified	= DLG_Open		(Files, _TL("Open"), m_pParameter->asFilePath()->Get_Filter());
+				bModified = DLG_Open(Files, _TL("Open"), m_pParameter->asFilePath()->Get_Filter());
 
 				if( bModified )
 				{
@@ -720,13 +712,13 @@ bool CPG_Parameter_Value::Do_Dialog(void)
 
 						for(size_t i=0; i<Files.GetCount(); i++)
 						{
-							Text	+= i > 0 ? " \"" : "\"";
-							Text	+= Files.Item(i) + "\"";
+							Text += i > 0 ? " \"" : "\"";
+							Text += Files.Item(i) + "\"";
 						}
 					}
 					else
 					{
-						Text	= Files.Item(0);
+						Text = Files.Item(0);
 					}
 				}
 			}
@@ -740,15 +732,15 @@ bool CPG_Parameter_Value::Do_Dialog(void)
 			break;
 
 		case PARAMETER_TYPE_Choices:
-			bModified	= DLG_Choices		(m_pParameter->Get_Name(), m_pParameter->asChoices());
+			bModified = DLG_Choices     (m_pParameter->Get_Name(), m_pParameter->asChoices());
 			break;
 
 		case PARAMETER_TYPE_Table_Fields:
-			bModified	= DLG_Table_Fields	(m_pParameter->Get_Name(), m_pParameter->asTableFields());
+			bModified = DLG_Table_Fields(m_pParameter->Get_Name(), m_pParameter->asTableFields());
 			break;
 
 		case PARAMETER_TYPE_FixedTable:
-			bModified	= DLG_Table			(m_pParameter->Get_Name(), m_pParameter->asTable());
+			bModified = DLG_Table       (m_pParameter->Get_Name(), m_pParameter->asTable());
 			break;
 
 		case PARAMETER_TYPE_Grid_List      :
@@ -757,19 +749,19 @@ bool CPG_Parameter_Value::Do_Dialog(void)
 		case PARAMETER_TYPE_Shapes_List    :
 		case PARAMETER_TYPE_TIN_List       :
 		case PARAMETER_TYPE_PointCloud_List:
-			bModified	= DLG_List			(m_pParameter->Get_Name(), m_pParameter->asList());
+			bModified = DLG_List        (m_pParameter->Get_Name(), m_pParameter->asList());
 			break;
 
 		case PARAMETER_TYPE_Font:
-			bModified	= DLG_Font			(m_pParameter);
+			bModified = DLG_Font        (m_pParameter);
 			break;
 
 		case PARAMETER_TYPE_Colors:
-			bModified	= DLG_Colors		(m_pParameter->asColors());
+			bModified = DLG_Colors      (m_pParameter->asColors());
 			break;
 
 		case PARAMETER_TYPE_Parameters:
-			bModified	= DLG_Parameters	(m_pParameter->asParameters());
+			bModified = DLG_Parameters  (m_pParameter->asParameters());
 			break;
 
 		default:
@@ -812,24 +804,24 @@ CParameters_PG_Range::CParameters_PG_Range(const wxString &label, const wxString
 //---------------------------------------------------------
 wxVariant CParameters_PG_Range::ChildChanged(wxVariant &thisValue, int childIndex, wxVariant &childValue) const
 {
-	CPG_Parameter_Value	&value	= CPG_Parameter_ValueRefFromVariant(thisValue);
+	CPG_Parameter_Value &value = CPG_Parameter_ValueRefFromVariant(thisValue);
 
 	if( GetChildCount() == 2 && value.m_pParameter && value.m_pParameter->Get_Type() == PARAMETER_TYPE_Range )
 	{
 		switch( childIndex )
 		{
-		case 0:	value.m_pParameter->asRange()->Set_Min(childValue.GetDouble());	break;
-		case 1:	value.m_pParameter->asRange()->Set_Max(childValue.GetDouble());	break;
+		case 0: value.m_pParameter->asRange()->Set_Min(childValue.GetDouble()); break;
+		case 1: value.m_pParameter->asRange()->Set_Max(childValue.GetDouble()); break;
 		}
 	}
 
-	wxVariant	v;	v	<< value;	return( v );
+	wxVariant v; v << value; return( v );
 }
 
 //---------------------------------------------------------
 void CParameters_PG_Range::RefreshChildren(void)
 {
-	const CPG_Parameter_Value	&value	= CPG_Parameter_ValueRefFromVariant(m_value);
+	const CPG_Parameter_Value &value = CPG_Parameter_ValueRefFromVariant(m_value);
 
 	if( GetChildCount() == 2 && value.m_pParameter && value.m_pParameter->Get_Type() == PARAMETER_TYPE_Range )
 	{
@@ -851,11 +843,9 @@ CParameters_PG_Degree::CParameters_PG_Degree(const wxString &label, const wxStri
 {
 	if( pParameter && pParameter->Get_Type() == PARAMETER_TYPE_Degree )
 	{
-		m_value	= WXVARIANT(CPG_Parameter_Value(pParameter));
+		m_value = WXVARIANT(CPG_Parameter_Value(pParameter));
 
-		double	d, m, s;
-
-		SG_Decimal_To_Degree(pParameter->asDouble(), d, m, s);
+		double d, m, s; SG_Decimal_To_Degree(pParameter->asDouble(), d, m, s);
 
 		AddPrivateChild( new wxIntProperty  ("Degree", wxPG_LABEL, (int)d));
 		AddPrivateChild( new wxIntProperty  ("Minute", wxPG_LABEL, (int)m));
@@ -866,37 +856,33 @@ CParameters_PG_Degree::CParameters_PG_Degree(const wxString &label, const wxStri
 //---------------------------------------------------------
 wxVariant CParameters_PG_Degree::ChildChanged(wxVariant &thisValue, int childIndex, wxVariant &childValue) const
 {
-	CPG_Parameter_Value	&value	= CPG_Parameter_ValueRefFromVariant(thisValue);
+	CPG_Parameter_Value &value = CPG_Parameter_ValueRefFromVariant(thisValue);
 
 	if( GetChildCount() == 3 && value.m_pParameter && value.m_pParameter->Get_Type() == PARAMETER_TYPE_Degree )
 	{
-		double	d, m, s;
-
-		SG_Decimal_To_Degree(value.m_pParameter->asDouble(), d, m, s);
+		double d, m, s; SG_Decimal_To_Degree(value.m_pParameter->asDouble(), d, m, s);
 
 		switch( childIndex )
 		{
-		case 0:	d	= childValue.GetInteger();	break;
-		case 1:	m	= childValue.GetInteger();	break;
-		case 2:	s	= childValue.GetDouble ();	break;
+		case 0: d = childValue.GetInteger(); break;
+		case 1: m = childValue.GetInteger(); break;
+		case 2: s = childValue.GetDouble (); break;
 		}
 
 		value.m_pParameter->Set_Value(SG_Degree_To_Decimal(d, m, s));
 	}
 
-	wxVariant	v;	v	<< value;	return( v );
+	wxVariant v; v << value; return( v );
 }
 
 //---------------------------------------------------------
 void CParameters_PG_Degree::RefreshChildren(void)
 {
-	const CPG_Parameter_Value	&value	= CPG_Parameter_ValueRefFromVariant(m_value);
+	const CPG_Parameter_Value &value = CPG_Parameter_ValueRefFromVariant(m_value);
 
 	if( GetChildCount() == 3 && value.m_pParameter && value.m_pParameter->Get_Type() == PARAMETER_TYPE_Degree )
 	{
-		double	d, m, s;
-
-		SG_Decimal_To_Degree(value.m_pParameter->asDouble(), d, m, s);
+		double d, m, s; SG_Decimal_To_Degree(value.m_pParameter->asDouble(), d, m, s);
 
 		Item(0)->SetValue((int)d);
 		Item(1)->SetValue((int)m);
@@ -915,13 +901,13 @@ void CParameters_PG_Degree::RefreshChildren(void)
 CParameters_PG_Dialog::CParameters_PG_Dialog(const wxString &label, const wxString &name, CSG_Parameter *pParameter)
 	: wxPGProperty(pParameter ? GET_DATAOBJECT_LABEL(pParameter) : label, name)
 {
-	m_value	= WXVARIANT(CPG_Parameter_Value(pParameter));
+	m_value = WXVARIANT(CPG_Parameter_Value(pParameter));
 }
 
 //---------------------------------------------------------
 wxString CParameters_PG_Dialog::ValueToString(wxVariant &new_value, int argFlags) const
 {
-	const CPG_Parameter_Value	&value	= CPG_Parameter_ValueRefFromVariant(new_value);
+	const CPG_Parameter_Value &value = CPG_Parameter_ValueRefFromVariant(new_value);
 
 	if( value.m_pParameter )
 	{
@@ -936,7 +922,7 @@ bool CParameters_PG_Dialog::OnEvent(wxPropertyGrid *propgrid, wxWindow *primary,
 {
 	if( propgrid->IsMainButtonEvent(event) )
 	{
-		CPG_Parameter_Value	&value	= CPG_Parameter_ValueRefFromVariant(m_value);
+		CPG_Parameter_Value &value = CPG_Parameter_ValueRefFromVariant(m_value);
 
 		if( value.m_pParameter && value.Do_Dialog() )
 		{
@@ -949,11 +935,11 @@ bool CParameters_PG_Dialog::OnEvent(wxPropertyGrid *propgrid, wxWindow *primary,
 	}
 	else if( event.GetEventType() == wxEVT_COMMAND_TEXT_ENTER && primary && propgrid->IsEditorsValueModified() )
 	{
-		CPG_Parameter_Value	&value	= CPG_Parameter_ValueRefFromVariant(m_value);
+		CPG_Parameter_Value &value = CPG_Parameter_ValueRefFromVariant(m_value);
 
 		if( value.m_pParameter && value.m_pParameter->Get_Type() == PARAMETER_TYPE_FilePath )
 		{
-			wxTextCtrl	*pTextCtrl = (wxTextCtrl *)primary;
+			wxTextCtrl *pTextCtrl = (wxTextCtrl *)primary;
 			value.m_pParameter->Set_Value(pTextCtrl->GetValue().wx_str());
 
 			propgrid->EditorsValueWasModified();
@@ -982,16 +968,16 @@ CParameters_PG_Colors::CParameters_PG_Colors(const wxString &label, const wxStri
 //---------------------------------------------------------
 void CParameters_PG_Colors::OnCustomPaint(wxDC &dc, const wxRect &r, wxPGPaintData &pd)
 {
-	const CPG_Parameter_Value	&value	= CPG_Parameter_ValueRefFromVariant(m_value);
+	const CPG_Parameter_Value &value = CPG_Parameter_ValueRefFromVariant(m_value);
 
 	if( value.m_pParameter && value.m_pParameter->Get_Type() == PARAMETER_TYPE_Colors )
 	{
-		CSG_Colors	*pColors	= value.m_pParameter->asColors();
+		CSG_Colors *pColors = value.m_pParameter->asColors();
 
 		for(int i=0, ax, bx=r.GetLeft(); i<pColors->Get_Count(); i++)
 		{
-			ax	= bx;
-			bx	= r.GetLeft() + (int)((i + 1.0) * r.GetWidth() / (double)pColors->Get_Count());
+			ax = bx;
+			bx = r.GetLeft() + (int)((i + 1.) * r.GetWidth() / (double)pColors->Get_Count());
 
 			Draw_FillRect(dc, Get_Color_asWX(pColors->Get_Color(i)), ax, r.GetTop(), bx, r.GetBottom());
 		}

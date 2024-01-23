@@ -2682,12 +2682,7 @@ void CSG_Parameter_Grid::Set_Preferred_Type(TSG_Data_Type Type)
 //---------------------------------------------------------
 CSG_Grid_System * CSG_Parameter_Grid::Get_System(void)	const
 {
-	if( Get_Parent() && Get_Parent()->Get_Type() == PARAMETER_TYPE_Grid_System )
-	{
-		return( Get_Parent()->asGrid_System() );
-	}
-
-	return( NULL );
+	return( Get_Parent() ? Get_Parent()->asGrid_System() : NULL );
 }
 
 //---------------------------------------------------------
