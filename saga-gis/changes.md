@@ -27,46 +27,46 @@ ___
 The tool has been merged with the "Formatted Text" tool ('table_tools', '24') and has been removed.
 
 #### Formatted Text ('table_tools', '24')
-The tool has been merged with the "Formatted Text (Shapes)" tool. The "RESULT" parameter has been replaced by two new ones, one for tables (&rarr RESULT_TABLE) and one for shapes (&rarr RESULT_SHAPES).
+The tool has been merged with the "Formatted Text (Shapes)" tool. The "RESULT" parameter has been replaced by two new ones, one for tables (&rarr; RESULT_TABLE) and one for shapes (&rarr; RESULT_SHAPES).
 
 #### Field Enumeration (Shapes) ('table_tools', '21')
 The tool has been merged with the "Field Enumeration" tool ('table_tools', '2') and has been removed.
 
 #### Field Enumeration ('table_tools', '2')
-The tool has been merged with the "Field Enumeration (Shapes)" tool. The "RESULT" parameter has been replaced by two new ones, one for tables (&rarr RESULT_TABLE) and one for shapes (&rarr RESULT_SHAPES).
+The tool has been merged with the "Field Enumeration (Shapes)" tool. The "RESULT" parameter has been replaced by two new ones, one for tables (&rarr; RESULT_TABLE) and one for shapes (&rarr; RESULT_SHAPES).
 
 #### Record Statistics (Shapes) ('table_calculus', '17')
 The tool has been merged with the "Record Statistics" tool ('table_calculus', '16') and has been removed.
 
 #### Record Statistics ('table_calculus', '16')
-The tool has been merged with the "Record Statistics (Shapes)" tool. The "RESULT" parameter has been replaced by two new ones, one for tables (&rarr RESULT_TABLE) and one for shapes (&rarr RESULT_SHAPES).
+The tool has been merged with the "Record Statistics (Shapes)" tool. The "RESULT" parameter has been replaced by two new ones, one for tables (&rarr; RESULT_TABLE) and one for shapes (&rarr; RESULT_SHAPES).
 
 #### Field Calculator (Shapes) ('table_calculus', '2')
 The tool has been merged with the "Field Calculator" tool ('table_calculus', '1') and has been removed.
 
 #### Field Calculator ('table_calculus', '1')
-The tool has been merged with the "Field Calculator (Shapes)" tool. The "RESULT" parameter has been replaced by two new ones, one for tables (&rarr RESULT_TABLE) and one for shapes (&rarr RESULT_SHAPES).
+The tool has been merged with the "Field Calculator (Shapes)" tool. The "RESULT" parameter has been replaced by two new ones, one for tables (&rarr; RESULT_TABLE) and one for shapes (&rarr; RESULT_SHAPES).
 
 #### Cluster Analysis (Shapes) ('table_tools', '29')
 The tool has been merged with the "Cluster Analysis (Table)" tool ('table_tools', '28') and has been removed.
 
 #### Cluster Analysis (Table) ('table_tools', '28')
-The tool has been merged with the "Cluster Analysis (Shapes)" tool and has been renamed to "Cluster Analysis (Table Fields)". The "RESULT" parameter has been replaced by two new ones, one for tables (&rarr RESULT_TABLE) and one for shapes (&rarr RESULT_SHAPES).
+The tool has been merged with the "Cluster Analysis (Shapes)" tool and has been renamed to "Cluster Analysis (Table Fields)". The "RESULT" parameter has been replaced by two new ones, one for tables (&rarr; RESULT_TABLE) and one for shapes (&rarr; RESULT_SHAPES).
 
 #### Supervised Classification (Shapes) ('table_tools', '27')
 The tool has been merged with the "Supervised Classification (Table)" tool ('table_tools', '26') and has been removed.
 
 #### Supervised Classification (Table) ('table_tools', '26')
-The tool has been merged with the "Supervised Classification (Shapes)" tool and has been renamed to "Supervised Classification (Table Fields)". The "CLASSES" parameter has been replaced by two new ones, one for tables (&rarr RESULT_TABLE) and one for shapes (&rarr RESULT_SHAPES).
+The tool has been merged with the "Supervised Classification (Shapes)" tool and has been renamed to "Supervised Classification (Table Fields)". The "CLASSES" parameter has been replaced by two new ones, one for tables (&rarr; RESULT_TABLE) and one for shapes (&rarr; RESULT_SHAPES).
 
 #### Join Attributes from a Table (Shapes) ('table_tools', '4')
 The tool has been merged with the "Join Attributes from a Table" tool ('table_tools', '3') and has been removed.
 
 #### Join Attributes from a Table ('table_tools', '3')
-The tool has been merged with the "Join Attributes from a Table (Shapes)" tool. The "RESULT" parameter has been replaced by two new ones, one for tables (&rarr RESULT_TABLE) and one for shapes (&rarr RESULT_SHAPES).
+The tool has been merged with the "Join Attributes from a Table (Shapes)" tool. The "RESULT" parameter has been replaced by two new ones, one for tables (&rarr; RESULT_TABLE) and one for shapes (&rarr; RESULT_SHAPES).
 
 #### Gravitational Process Path Model ('sim_geomorphology', '0')
-The "ENDANGERED" parameter has been replaced by two new ones, one showing from which process paths objects were hit (&rarr HAZARD_PATHS) and one showing from which source cells of the release area objects were hit (&rarr HAZARD_SOURCES)
+The "ENDANGERED" parameter has been replaced by two new ones, one showing from which process paths objects were hit (&rarr; HAZARD_PATHS) and one showing from which source cells of the release area objects were hit (&rarr; HAZARD_SOURCES)
 
 #### Point Cloud Cutter ('pointcloud_tools', '0')
 | old | new |
