@@ -352,7 +352,7 @@ def Get_CRUTS(Variable, Year, Month, AOI=None, bDeleteGlobal=False):
     return os.path.exists(Target_File) or Get_Variable(Get_Global_CRUTS(Variable, Year, Month), Target_File, AOI, Scaling, Offset, Unit, True, bDeleteGlobal, -32768)
 
 #________________________________________________________________________________
-def Get_CRUTS_Series(Variable, AOI=None, Years=[1980, 2019], Months=[1, 12], bDeleteGlobal=False):
+def Get_CRUTS_Series(Variable, AOI=None, Years=[1901, 2016], Months=[1, 12], bDeleteGlobal=False):
     for Year in range(Years[0], Years[1] + 1):
         for Month in range(Months[0], Months[1] + 1):
             Get_CRUTS(Variable, Year, Month, AOI, bDeleteGlobal)
