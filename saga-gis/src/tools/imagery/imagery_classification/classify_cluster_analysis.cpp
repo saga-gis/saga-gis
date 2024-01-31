@@ -117,7 +117,7 @@ CGrid_Cluster_Analysis::CGrid_Cluster_Analysis(void)
 
 	Parameters.Add_Int("",
 		"MAXITER"		, _TL("Maximum Iterations"),
-		_TL("maximum number of iterations, ignored if set to zero (default)"),
+		_TL("Maximum number of iterations, ignored if set to zero."),
 		10, 0, true
 	);
 
