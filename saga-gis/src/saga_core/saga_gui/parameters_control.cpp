@@ -250,11 +250,11 @@ void CParameters_Control::On_PG_Changed(wxPropertyGridEvent &event)
 //---------------------------------------------------------
 bool CParameters_Control::Save_Changes(bool bSilent)
 {
-	if( m_pOriginal && m_bModified && (bSilent || DLG_Message_Confirm(_TL("Save changes?"), wxString::Format(wxT("%s: %s"), _TL("Parameters"), m_pParameters->Get_Name().w_str()))) )
+	if( m_pOriginal && m_bModified && (bSilent || DLG_Message_Confirm(_TL("Save changes?"), wxString::Format("%s: %s", _TL("Parameters"), m_pParameters->Get_Name().w_str()))) )
 	{
 		m_pOriginal->Assign_Values(m_pParameters);
 
-		m_bModified	= false;
+		m_bModified = false;
 
 		m_pPG->ClearModifiedStatus();
 		m_pPG->Refresh();

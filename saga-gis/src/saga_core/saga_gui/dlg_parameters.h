@@ -102,6 +102,7 @@ private:
 	void						On_Ok			(wxCommandEvent &event);
 	void						On_Load			(wxCommandEvent &event);
 	void						On_Save			(wxCommandEvent &event);
+	void						On_Apply		(wxCommandEvent &event);
 	void						On_Defaults		(wxCommandEvent &event);
 	void						On_Info			(wxCommandEvent &event);
 

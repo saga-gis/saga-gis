@@ -67,7 +67,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool	CDLG_Parameters::m_bInfo	= false;
+bool CDLG_Parameters::m_bInfo = false;
 
 //---------------------------------------------------------
 IMPLEMENT_CLASS(CDLG_Parameters, CDLG_Base)
@@ -78,6 +78,7 @@ BEGIN_EVENT_TABLE(CDLG_Parameters, CDLG_Base)
 	EVT_BUTTON(ID_BTN_LOAD       , CDLG_Parameters::On_Load    )
 	EVT_BUTTON(ID_BTN_SAVE       , CDLG_Parameters::On_Save    )
 	EVT_BUTTON(ID_BTN_DEFAULTS   , CDLG_Parameters::On_Defaults)
+	EVT_BUTTON(ID_BTN_APPLY      , CDLG_Parameters::On_Apply   )
 	EVT_BUTTON(ID_BTN_DESCRIPTION, CDLG_Parameters::On_Info    )
 END_EVENT_TABLE()
 
@@ -102,9 +103,9 @@ CDLG_Parameters::CDLG_Parameters(CSG_Parameters *pParameters, const wxString &Ca
 		}
 	}
 
-	m_pControl		= new CParameters_Control(this, true);
+	m_pControl    = new CParameters_Control(this, true);
 
-	m_pParameters	= pParameters;
+	m_pParameters = pParameters;
 
 	g_pActive->Get_Parameters()->Update_Parameters(m_pParameters, true);
 
@@ -112,21 +113,27 @@ CDLG_Parameters::CDLG_Parameters(CSG_Parameters *pParameters, const wxString &Ca
 
 	Add_Button(ID_BTN_LOAD);
 	Add_Button(ID_BTN_SAVE);
+
+	if( m_pParameters->Get_Tool() )
+	{
+		Add_Button(ID_BTN_APPLY);
+	}
+
 	Add_Button(ID_BTN_DEFAULTS);
 
 	if( Info.IsEmpty() )
 	{
-		m_pInfo_Button	= NULL;
-		m_pInfo			= NULL;
+		m_pInfo_Button = NULL;
+		m_pInfo        = NULL;
 	}
 	else
 	{
 		Add_Button(0);
 
-		wxString	_Info(Info); _Info.Replace("\n", "<br>");
+		wxString _Info(Info); _Info.Replace("\n", "<br>");
 
-		m_pInfo_Button	= Add_Button(ID_BTN_DESCRIPTION);
-		m_pInfo			= new CActive_Description(this);
+		m_pInfo_Button = Add_Button(ID_BTN_DESCRIPTION);
+		m_pInfo        = new CActive_Description(this);
 		m_pInfo->SetPage(_Info);
 
 		Show_Info(m_bInfo);
@@ -140,7 +147,7 @@ CDLG_Parameters::~CDLG_Parameters(void)
 {
 	if( m_pInfo )
 	{
-		m_bInfo	= m_pInfo->IsShown();
+		m_bInfo = m_pInfo->IsShown();
 	}
 }
 
@@ -168,6 +175,12 @@ void CDLG_Parameters::On_Load(wxCommandEvent &event)
 void CDLG_Parameters::On_Save(wxCommandEvent &event)
 {
 	m_pControl->Save();
+}
+
+//---------------------------------------------------------
+void CDLG_Parameters::On_Apply(wxCommandEvent &event)
+{
+	m_pControl->Save_Changes(true);
 }
 
 //---------------------------------------------------------
