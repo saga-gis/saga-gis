@@ -331,13 +331,11 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 	MSG_General_Add(wxString::Format("%s %s: %s...", _TL("Loading"), _TL("project"), FileName), true, true);
 
 	//-------------------------------------------------
-	bool			bSuccess	= false;
-
-	CSG_MetaData	Project, *pNode;
+	bool bSuccess = false; CSG_MetaData Project, *pNode;
 
 	if( _Compatibility_Load_Data(FileName) )
 	{
-		bSuccess	= true;
+		bSuccess = true;
 	}
 	else if( !wxFileExists(FileName) )
 	{
@@ -361,19 +359,17 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 	}
 	else
 	{
-		CSG_String	Version(Project.Get_Property("VERSION"));
-
-		bSuccess	= true;
+		bSuccess = true; CSG_String Version(Project.Get_Property("VERSION"));
 
 		//-------------------------------------------------
 		g_pData->Get_Menu_Files()->Set_Update(false);
 
-		for(int i=0; i<pNode->Get_Children_Count(); i++)
+		for(int i=0; SG_UI_Process_Get_Okay() && i<pNode->Get_Children_Count(); i++)
 		{
 			_Load_Data(*pNode->Get_Child(i), SG_File_Get_Path(&FileName).w_str(), true , Version);
 		}
 
-		for(int i=0; i<pNode->Get_Children_Count(); i++)
+		for(int i=0; SG_UI_Process_Get_Okay() && i<pNode->Get_Children_Count(); i++)
 		{
 			_Load_Data(*pNode->Get_Child(i), SG_File_Get_Path(&FileName).w_str(), false, Version);
 		}
@@ -390,7 +386,7 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 				g_pSAGA_Frame->GetActiveChild()->Restore();
 			}
 
-			for(int i=0; i<pNode->Get_Children_Count(); i++)
+			for(int i=0; SG_UI_Process_Get_Okay() && i<pNode->Get_Children_Count(); i++)
 			{
 				_Load_Map(*pNode->Get_Child(i), SG_File_Get_Path(&FileName).w_str());
 			}
@@ -429,11 +425,20 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 			g_pData->Get_Menu_Files()->Recent_Add(SG_DATAOBJECT_TYPE_Undefined, FileName);
 		}
 
-		MSG_General_Add(_TL("Project has been successfully loaded."), true, true, SG_UI_MSG_STYLE_SUCCESS);
-
 		m_File_Name	= FileName;
 
 		_Set_Project_Name();
+
+		if( SG_UI_Process_Get_Okay() == false )
+		{
+			SG_UI_Process_Set_Okay();
+
+			MSG_General_Add(_TL("Loading project has been interrupted."), true, true, SG_UI_MSG_STYLE_FAILURE);
+
+			return( false );
+		}
+
+		MSG_General_Add(_TL("Project has been successfully loaded."), true, true, SG_UI_MSG_STYLE_SUCCESS);
 
 		return( true );
 	}

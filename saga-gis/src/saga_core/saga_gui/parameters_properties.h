@@ -99,11 +99,11 @@ protected:
 	void						_Append				(const wxString &Label, void *Value = NULL);
 
 	int							_Set_Choice			(void);
-	int							_Set_Table			(void);
 	int							_Set_Table_Field	(void);
+	int							_Set_Table			(void);
 	int							_Set_Shapes			(void);
-	int							_Set_TIN			(void);
 	int							_Set_PointCloud		(void);
+	int							_Set_TIN			(void);
 	int							_Set_Grid_System	(void);
 	int							_Set_Grid			(void);
 

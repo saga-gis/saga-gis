@@ -250,11 +250,11 @@ void CParameters_Control::On_PG_Changed(wxPropertyGridEvent &event)
 //---------------------------------------------------------
 bool CParameters_Control::Save_Changes(bool bSilent)
 {
-	if( m_pOriginal && m_bModified && (bSilent || DLG_Message_Confirm(_TL("Save changes?"), wxString::Format(wxT("%s: %s"), _TL("Parameters"), m_pParameters->Get_Name().w_str()))) )
+	if( m_pOriginal && m_bModified && (bSilent || DLG_Message_Confirm(_TL("Save changes?"), wxString::Format("%s: %s", _TL("Parameters"), m_pParameters->Get_Name().w_str()))) )
 	{
 		m_pOriginal->Assign_Values(m_pParameters);
 
-		m_bModified	= false;
+		m_bModified = false;
 
 		m_pPG->ClearModifiedStatus();
 		m_pPG->Refresh();
@@ -414,12 +414,13 @@ bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define CHECK_LIST_OUTPUT(p)	if( p->is_Output() ) { pRoot = NULL; break; }
+void CParameters_Control::_Add_Properties(CSG_Parameters *pParameters)
+{
+	#define CHECK_LIST_OUTPUT(p) if( p->is_Output() ) { pRoot = NULL; break; }
 
-//---------------------------------------------------------
-#define CHECK_DATA_NODE(pNode, Name, ID)	if( !pNode )\
+	#define CHECK_DATA_NODE(pNode, Name, ID) if( !pNode )\
 	{\
-		pNode	= new wxPropertyCategory(Name, ID);\
+		pNode = new wxPropertyCategory(Name, ID);\
 		\
 		if( !pData )\
 		{\
@@ -429,11 +430,9 @@ bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 		m_pPG->Insert(pData, -1, pNode);\
 	}\
 	\
-	pRoot	= pNode;
+	pRoot = pNode;
 
-//---------------------------------------------------------
-void CParameters_Control::_Add_Properties(CSG_Parameters *pParameters)
-{
+	//-----------------------------------------------------
 	wxPGProperty *pData        = NULL;
 	wxPGProperty *pGrids       = NULL;
 	wxPGProperty *pShapes      = NULL;
@@ -446,11 +445,11 @@ void CParameters_Control::_Add_Properties(CSG_Parameters *pParameters)
 
 	for(int i=0; i<pParameters->Get_Count(); i++)
 	{
-		CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
+		CSG_Parameter *pParameter = pParameters->Get_Parameter(i);
 
 		if(	pParameter->do_UseInGUI() && pParameter->Get_Parent() == NULL )
 		{
-			wxPGProperty	*pRoot	= NULL;
+			wxPGProperty *pRoot = NULL;
 
 			switch( pParameter->Get_Type() )
 			{
@@ -508,7 +507,7 @@ void CParameters_Control::_Add_Properties(CSG_Parameters *pParameters)
 				{
 					m_pPG->Append(pOptions = new wxPropertyCategory(_TL("Options"), "_DATAOBJECT_OPTIONS"));
 				}
-				pRoot	= pOptions;
+				pRoot = pOptions;
 				break;
 			}
 
@@ -525,7 +524,7 @@ void CParameters_Control::_Add_Property(wxPGProperty *pParent, CSG_Parameter *pP
 {
 	if( pParameter->do_UseInGUI() )
 	{
-		wxPGProperty	*pProperty	= _Get_Property(pParent, pParameter);
+		wxPGProperty *pProperty = _Get_Property(pParent, pParameter);
 
 		if( pParameter->Get_Children_Count() > 0 )
 		{
@@ -542,17 +541,15 @@ void CParameters_Control::_Add_Property(wxPGProperty *pParent, CSG_Parameter *pP
 //---------------------------------------------------------
 wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Parameter *pParameter)
 {
-	#define ADD_PROPERTY(p, limit)	if( pParent ) { m_pPG->Insert(pParent, -1, pProperty = p); } else { m_pPG->Append(pProperty = p); }\
+	#define ADD_PROPERTY(p, limit) if( pParent ) { m_pPG->Insert(pParent, -1, pProperty = p); } else { m_pPG->Append(pProperty = p); }\
 		if( pParameter->is_Information() ) { m_pPG->LimitPropertyEditing(pProperty); m_pPG->EnableProperty(pProperty, false); } else\
-		if( limit ) { m_pPG->LimitPropertyEditing(pProperty); } { CSG_String	s, sDesc;\
-		sDesc	= pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE);\
-		s		= pParameter->Get_Description(PARAMETER_DESCRIPTION_TEXT      ); if( !s.is_Empty() ) { sDesc.Append("\n___\n"); sDesc.Append(s); }\
-		s		= pParameter->Get_Description(PARAMETER_DESCRIPTION_PROPERTIES); if( !s.is_Empty() ) { sDesc.Append("\n___\n"); sDesc.Append(s); }\
+		if( limit ) { m_pPG->LimitPropertyEditing(pProperty); } { CSG_String s, sDesc;\
+		sDesc = pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE);\
+		s     = pParameter->Get_Description(PARAMETER_DESCRIPTION_TEXT      ); if( !s.is_Empty() ) { sDesc.Append("\n___\n"); sDesc.Append(s); }\
+		s     = pParameter->Get_Description(PARAMETER_DESCRIPTION_PROPERTIES); if( !s.is_Empty() ) { sDesc.Append("\n___\n"); sDesc.Append(s); }\
 		m_pPG->SetPropertyHelpString(pProperty, sDesc.c_str()); }
 
-	wxString	Name(pParameter->Get_Name()), ID(pParameter->Get_Identifier());
-
-	wxPGProperty	*pProperty	= NULL;
+	wxPGProperty *pProperty = NULL; wxString Name(pParameter->Get_Name()), ID(pParameter->Get_Identifier());
 
 	switch( pParameter->Get_Type() )
 	{
@@ -670,14 +667,14 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 //---------------------------------------------------------
 wxString CParameters_Control::_Get_Identifier(CSG_Parameter *pParameter)
 {
-	wxString	id;
+	wxString id;
 
 	if( pParameter->Get_Parent() )
 	{
-		id	= _Get_Identifier(pParameter->Get_Parent()) + wxT(".");
+		id = _Get_Identifier(pParameter->Get_Parent()) + ".";
 	}
 
-	id	+= pParameter->Get_Identifier();
+	id += pParameter->Get_Identifier();
 
 	return( id );
 }
@@ -759,8 +756,8 @@ void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
 
 	if( pProperty )
 	{
-		pProperty->Enable( _Get_Enabled(pParameter));
-		pProperty->Hide  (!_Get_Enabled(pParameter));
+		pProperty->Enable(_Get_Enabled(pParameter));
+		pProperty->Hide (!_Get_Enabled(pParameter));
 
 		switch( pParameter->Get_Type() )
 		{
@@ -861,35 +858,32 @@ bool CParameters_Control::Update_DataObjects(void)
 	{
 		for(int i=0; i<m_pParameters->Get_Count(); i++)
 		{
-			CSG_Parameter	*pParameter	= m_pParameters->Get_Parameter(i);
-			wxPGProperty	*pProperty	= m_pPG->GetProperty(_Get_Identifier(pParameter));
+			wxPGProperty *pProperty = m_pPG->GetProperty(_Get_Identifier((*m_pParameters)(i)));
 
 			if( pProperty  )
 			{
-				switch( pParameter->Get_Type() )
+				switch( (*m_pParameters)(i)->Get_Type() )
 				{
 				default:
 					break;
 
-				case PARAMETER_TYPE_Grid_System:
-				case PARAMETER_TYPE_Grid:
-				case PARAMETER_TYPE_Grids:
-				case PARAMETER_TYPE_Table:
-				case PARAMETER_TYPE_Shapes:
-				case PARAMETER_TYPE_TIN:
-				case PARAMETER_TYPE_PointCloud:
+				case PARAMETER_TYPE_Grid_System    :
+				case PARAMETER_TYPE_Grid           :
+				case PARAMETER_TYPE_Grids          :
+				case PARAMETER_TYPE_Table          :
+				case PARAMETER_TYPE_Shapes         :
+				case PARAMETER_TYPE_TIN            :
+				case PARAMETER_TYPE_PointCloud     :
 					((CParameters_PG_Choice *)pProperty)->Update();
 					break;
 
-				case PARAMETER_TYPE_Grid_List:
-				case PARAMETER_TYPE_Grids_List:
-				case PARAMETER_TYPE_Table_List:
-				case PARAMETER_TYPE_Shapes_List:
-				case PARAMETER_TYPE_TIN_List:
+				case PARAMETER_TYPE_Grid_List      :
+				case PARAMETER_TYPE_Grids_List     :
+				case PARAMETER_TYPE_Table_List     :
+				case PARAMETER_TYPE_Shapes_List    :
+				case PARAMETER_TYPE_TIN_List       :
 				case PARAMETER_TYPE_PointCloud_List:
-					if( pParameter->Check() == false )
-					{
-					}
+					(*m_pParameters)(i)->Check();
 					break;
 				}
 			}
@@ -897,26 +891,6 @@ bool CParameters_Control::Update_DataObjects(void)
 	}
 
 	return( true );
-}
-
-//---------------------------------------------------------
-#define SHOW_DATA_NODE(NODE)	{\
-	wxPGProperty *pProperty = m_pPG->GetProperty(NODE);\
-	\
-	if( pProperty )\
-	{\
-		bool bShow = false;\
-		\
-		for(size_t i=0; i<pProperty->GetChildCount() && !bShow; i++)\
-		{\
-			if( pProperty->Item(i)->IsEnabled() )\
-			{\
-				bShow = true;\
-			}\
-		}\
-		\
-		pProperty->Hide(!bShow, wxPG_DONT_RECURSE);\
-	}\
 }
 
 //---------------------------------------------------------
@@ -928,10 +902,40 @@ void CParameters_Control::_Update_Parameters(CSG_Parameter *pSender)
 
 		for(int i=0; i<m_pParameters->Get_Count(); i++)
 		{
-			if( pSender != m_pParameters->Get_Parameter(i) )
+			CSG_Parameter *pParameter = m_pParameters->Get_Parameter(i);
+
+			if( pSender )
 			{
-				_Update_Parameter(m_pParameters->Get_Parameter(i));
+				if( pSender == pParameter )
+				{
+					continue;
+				}
+
+				if( pParameter->asGrid_System() && pParameter == pSender->Get_Parent() )
+				{
+					continue;
+				}
 			}
+
+			_Update_Parameter(pParameter);
+		}
+
+		//-------------------------------------------------
+		#define SHOW_DATA_NODE(NODE) { wxPGProperty *pProperty = m_pPG->GetProperty(NODE);\
+			if( pProperty )\
+			{\
+				bool bShow = false;\
+				\
+				for(size_t i=0; i<pProperty->GetChildCount() && !bShow; i++)\
+				{\
+					if( pProperty->Item(i)->IsEnabled() )\
+					{\
+						bShow = true;\
+					}\
+				}\
+				\
+				pProperty->Hide(!bShow, wxPG_DONT_RECURSE);\
+			}\
 		}
 
 		SHOW_DATA_NODE("_DATAOBJECT_GRIDS"      );
@@ -941,6 +945,7 @@ void CParameters_Control::_Update_Parameters(CSG_Parameter *pSender)
 		SHOW_DATA_NODE("_DATAOBJECT_TINS"       );
 		SHOW_DATA_NODE("_DATAOBJECT_OPTIONS"    );
 
+		//-------------------------------------------------
 		m_pPG->Refresh();
 
 		GetParent()->Thaw();

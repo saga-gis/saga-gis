@@ -69,7 +69,7 @@ Dir_Global = os.getcwd() + '/global'
 Dir_Target = os.getcwd() + '/aoi'
 Ext_Target = 'sg-grd-z'
 
-Download_Root = 'https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL'
+Download_Root = 'https://os.zhdk.cloud.switch.ch/envicloud/chelsa'
 Download_Retries = 4
 
 
@@ -98,6 +98,12 @@ def _Variable_Unit_Conversion(Variable, Monthly):
 
     if Variable == 'vpd': # vapor pressure deficit
         return 0.1 , 0., 'Pa'
+
+    if Variable == 'tmin' or Variable == 'tmax': # CRU TS temperatures
+        return 0.1 ,    0., 'Celsius'    # 1/10 °C => 1 °C
+
+    # if Variable == 'prec': # CRU TS precipitation
+    #     return 0.1 ,    0., 'mm / month' # 1/100 kg / m² / month
 
     return 1., 0., None
 
@@ -128,7 +134,7 @@ def Get_Global_Climatology_Month(Variable, Month):
 
     File       = 'CHELSA_{:s}{:s}_{:02d}_1981-2010_V.2.1.tif'.format(Variable, _Variable_File_Suffix(Variable), Month)
     Local_Dir  = '{:s}/{:s}'.format(Dir_Global, Variable)
-    Remote_Dir = 'climatologies/1981-2010/{:s}'.format(Variable)
+    Remote_Dir = 'chelsa_V2/GLOBAL/climatologies/1981-2010/{:s}'.format(Variable)
 
     return PySAGA.data.helper.Get_File(File, Local_Dir, Download_Root + '/' + Remote_Dir, Download_Retries)
 
@@ -160,7 +166,7 @@ def Get_Climatology_Month(Variable, Month, AOI=None, bDeleteGlobal=False):
 
     Scaling, Offset, Unit = _Variable_Unit_Conversion(Variable, False)
     Target_File = '{:s}/{:s}/{:s}_{:02d}.{:s}'.format(Dir_Target, Variable, Variable, Month, Ext_Target)
-    return os.path.exists(Target_File) or Get_Variable(Get_Global_Climatology_Month(Variable, Month), Target_File, AOI, Scaling, Offset, Unit, bDeleteGlobal)
+    return os.path.exists(Target_File) or Get_Variable(Get_Global_Climatology_Month(Variable, Month), Target_File, AOI, Scaling, Offset, Unit, True, bDeleteGlobal)
 
 #________________________________________________________________________________
 def Get_Climatology(Variable, AOI=None, bDeleteGlobal=False):
@@ -187,7 +193,7 @@ def Get_Global_Projection(Variable, Month, Period = '2041-2070', Model = 'MPI-ES
 
     File       = 'CHELSA_{:s}_r1i1p1f1_w5e5_ssp{:s}_{:s}_{:02d}_{:s}_norm.tif'.format(Model.lower(), SSP, Variable, Month, Period.replace('-', '_'))
     Local_Dir  = '{:s}/{:s}'.format(Dir_Global, Variable)
-    Remote_Dir = 'climatologies/{:s}/{:s}/ssp{:s}/{:s}'.format(Period, Model.upper(), SSP, Variable)
+    Remote_Dir = 'chelsa_V2/GLOBAL/climatologies/{:s}/{:s}/ssp{:s}/{:s}'.format(Period, Model.upper(), SSP, Variable)
 
     return PySAGA.data.helper.Get_File(File, Local_Dir, Download_Root + '/' + Remote_Dir, Download_Retries)
 
@@ -219,7 +225,7 @@ def Get_Projection_Month(Variable, Month, AOI=None, bDeleteGlobal=False):
 
     Scaling, Offset, Unit = _Variable_Unit_Conversion(Variable, False)
     Target_File = '{:s}/{:s}/{:s}_{:02d}.{:s}'.format(Dir_Target, Variable, Variable, Month, Ext_Target)
-    return os.path.exists(Target_File) or Get_Variable(Get_Global_Climatology_Month(Variable, Month), Target_File, AOI, Scaling, Offset, Unit, bDeleteGlobal)
+    return os.path.exists(Target_File) or Get_Variable(Get_Global_Climatology_Month(Variable, Month), Target_File, AOI, Scaling, Offset, Unit, True, bDeleteGlobal)
 
 #________________________________________________________________________________
 def Get_Projection(Variable, AOI=None, bDeleteGlobal=False):
@@ -246,7 +252,7 @@ def Get_Global_Monthly(Variable, Year, Month):
 
     File       = 'CHELSA_{:s}{:s}_{:02d}_{:04d}_V.2.1.tif'.format(Variable, _Variable_File_Suffix(Variable), Month, Year)
     Local_Dir  = '{:s}/{:s}'.format(Dir_Global, Variable)
-    Remote_Dir = 'monthly/{:s}'.format(Variable)
+    Remote_Dir = 'chelsa_V2/GLOBAL/monthly/{:s}'.format(Variable)
 
     return PySAGA.data.helper.Get_File(File, Local_Dir, Download_Root + '/' + Remote_Dir, Download_Retries)
 
@@ -279,7 +285,7 @@ def Get_Monthly(Variable, Year, Month, AOI=None, bDeleteGlobal=False):
 
     Scaling, Offset, Unit = _Variable_Unit_Conversion(Variable, True)
     Target_File = '{:s}/{:s}/{:s}_{:04d}_{:02d}.{:s}'.format(Dir_Target, Variable, Variable, Year, Month, Ext_Target)
-    return os.path.exists(Target_File) or Get_Variable(Get_Global_Monthly(Variable, Year, Month), Target_File, AOI, Scaling, Offset, Unit, bDeleteGlobal)
+    return os.path.exists(Target_File) or Get_Variable(Get_Global_Monthly(Variable, Year, Month), Target_File, AOI, Scaling, Offset, Unit, True, bDeleteGlobal)
 
 #________________________________________________________________________________
 def Get_Monthly_Series(Variable, AOI=None, Years=[1980, 2019], Months=[1, 12], bDeleteGlobal=False):
@@ -290,9 +296,73 @@ def Get_Monthly_Series(Variable, AOI=None, Years=[1980, 2019], Months=[1, 12], b
 
 #################################################################################
 #
+# CRU Time Series...
+#________________________________________________________________________________
+
+#________________________________________________________________________________
+# Returns file path to requested data set or 'None'. Local storage path is defined
+# by the global 'Dir_Global' variable and defaults to 'global' subfolder relative
+# to the current working directory.
+#________________________________________________________________________________
+def Get_Global_CRUTS(Variable, Year, Month):
+    '''
+    Returns file path to requested data set or 'None'. Local storage path is defined
+    by the global 'Dir_Global' variable and defaults to 'global' subfolder relative
+    to the current working directory. Variables provided by CRU Time Series are
+    precipitation, minimum and maximum ('prec', 'tmin', 'tmax').
+    '''
+
+    # https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/chelsa_cruts/prec/CHELSAcruts_prec_10_1901_V.1.0.tif'
+    File       = 'CHELSAcruts_prec_1_1901_V.1.0.tif'
+    File       = 'CHELSAcruts_{:s}_{:d}_{:04d}_V.1.0.tif'.format(Variable, Month, Year)
+    Local_Dir  = '{:s}/{:s}'.format(Dir_Global, Variable)
+    Remote_Dir = 'chelsa_V1/chelsa_cruts/{:s}'.format(Variable)
+
+    return PySAGA.data.helper.Get_File(File, Local_Dir, Download_Root + '/' + Remote_Dir, Download_Retries)
+
+#________________________________________________________________________________
+# Get the original file of a variable for the given monthly and year's range.
+#________________________________________________________________________________
+def Get_Global_CRUTS_Series(Variable, Years = [1980, 2019], Months=[1, 12]):
+    '''
+    Get the original file of a variable for the given monthly and year's range.
+    '''
+
+    nFailed = 0
+    for Year in range(Years[0], Years[1] + 1):
+        for Month in range(1, 12 + 1):
+            if not Get_Global_CRUTS(Variable, Year, Month):
+                nFailed += 1; saga_api.SG_UI_Msg_Add('download failed for {:s}-{:04d}-{:02d}'.format(Variable, Year, Month))
+
+    if nFailed > 0:
+        saga_api.SG_UI_Msg_Add_Error('{:d} download(s) failed'.format(nFailed))
+        return False
+    return True
+
+#________________________________________________________________________________
+# Get a variable for the area of your interest (AOI)...
+#________________________________________________________________________________
+def Get_CRUTS(Variable, Year, Month, AOI=None, bDeleteGlobal=False):
+    '''
+    Get a variable for the area of your interest (AOI)...
+    '''
+
+    Scaling, Offset, Unit = _Variable_Unit_Conversion(Variable, True)
+    Target_File = '{:s}/{:s}/{:s}_{:04d}_{:02d}.{:s}'.format(Dir_Target, Variable, Variable, Year, Month, Ext_Target)
+    return os.path.exists(Target_File) or Get_Variable(Get_Global_CRUTS(Variable, Year, Month), Target_File, AOI, Scaling, Offset, Unit, True, bDeleteGlobal, -32768)
+
+#________________________________________________________________________________
+def Get_CRUTS_Series(Variable, AOI=None, Years=[1901, 2016], Months=[1, 12], bDeleteGlobal=False):
+    for Year in range(Years[0], Years[1] + 1):
+        for Month in range(Months[0], Months[1] + 1):
+            Get_CRUTS(Variable, Year, Month, AOI, bDeleteGlobal)
+
+
+#################################################################################
+#
 # Extract and project a variable to fit the given area of your interest (AOI)...
 #________________________________________________________________________________
-def Get_Variable(Global_File, Target_File, AOI, Scaling=1., Offset=0., Unit=None, Round=True, bDeleteGlobal=False):
+def Get_Variable(Global_File, Target_File, AOI, Scaling=1., Offset=0., Unit=None, Round=True, bDeleteGlobal=False, NoData=None):
     '''
     Extract and project a variable to fit the given area of your interest (AOI)...
     '''
@@ -406,6 +476,8 @@ def Get_Variable(Global_File, Target_File, AOI, Scaling=1., Offset=0., Unit=None
         if not os.path.exists(Target_Dir):
             os.makedirs(Target_Dir)
 
+        if NoData:
+            Grid.Set_NoData_Value(NoData)
         Grid.Set_Scaling(Scaling, Offset)
         Grid.Set_Unit(saga_api.CSG_String(Unit))
         Grid.Save(Target_File)
