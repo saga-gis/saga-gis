@@ -214,8 +214,14 @@ int CTable_Field_Calculator::On_Parameters_Enable(CSG_Parameters *pParameters, C
 {
 	CSG_Table *pTable = (CSG_Table *)pParameters->Get_Parameter("TABLE")->asDataObject();
 
+	if( pParameter->Cmp_Identifier("TABLE") )
+	{
+		On_Parameter_Changed(pParameters, pParameter);
+	}
+
 	if( pTable )
 	{
+
 		CSG_Parameter *pField = pParameters->Get_Parameter("FIELD");
 
 		pParameters->Set_Enabled("RESULT_TABLE"  , pTable->asShapes() == NULL);
