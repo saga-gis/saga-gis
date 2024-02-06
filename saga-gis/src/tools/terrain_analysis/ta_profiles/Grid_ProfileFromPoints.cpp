@@ -226,7 +226,7 @@ bool CProfileFromPoints::Set_Profile(const CSG_Point &A, const CSG_Point &B, boo
 		Add_Point(P);
 	}
 
-	if( bLastPoint && SG_Get_Distance(P, B) > M_ALMOST_ZERO )
+	if( bLastPoint && SG_Get_Distance(P, B) > M_FLT_EPSILON )
 	{
 		Add_Point(B);
 	}

@@ -70,26 +70,26 @@ CPit_Eliminator::CPit_Eliminator(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		"", "DEM"			, _TL("DEM"),
+	Parameters.Add_Grid("",
+		"DEM"        , _TL("DEM"),
 		_TL("Digital Elevation Model that has to be processed"),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		"", "SINKROUTE"		, _TL("Sink Route"),
+	Parameters.Add_Grid("",
+		"SINKROUTE"  , _TL("Sink Route"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		"", "DEM_PREPROC"	, _TL("Preprocessed DEM"),
+	Parameters.Add_Grid("",
+		"DEM_PREPROC", _TL("Preprocessed DEM"),
 		_TL("Preprocessed DEM. If this is not set changes will be stored in the original DEM grid."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(
-		"", "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"     , _TL("Method"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
 			_TL("Deepen Drainage Routes"),
@@ -97,16 +97,22 @@ CPit_Eliminator::CPit_Eliminator(void)
 		), 1
 	);
 
-	Parameters.Add_Bool(
-		"", "THRESHOLD"		, _TL("Threshold"),
+	Parameters.Add_Bool("",
+		"THRESHOLD"  , _TL("Threshold"),
 		_TL(""),
 		false
 	);
 
-	Parameters.Add_Double(
-		"", "THRSHEIGHT"	, _TL("Threshold Height"),
+	Parameters.Add_Double("",
+		"THRSHEIGHT" , _TL("Threshold Height"),
 		_TL("The maximum depth to which a sink is considered for removal."),
 		100., 0., true
+	);
+
+	Parameters.Add_Double("",
+		"EPSILON"    , _TL("Epsilon"),
+		_TL("Difference in elevation used to create non-flat gradient conserving filled/carved surfaces."),
+		1.e-3, M_FLT_EPSILON, true
 	);
 }
 
@@ -134,39 +140,29 @@ int CPit_Eliminator::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 //---------------------------------------------------------
 bool CPit_Eliminator::On_Execute(void)
 {
-	bool		bResult, bKillRoute;
-	int			Method, nPits;
-	CPit_Router	Router;
+	bool bResult = true;
 
-	//-----------------------------------------------------
-	bResult	= true;
+	m_pDEM = Parameters("DEM_PREPROC")->asGrid();
 
-	pRoute	= Parameters("SINKROUTE")	->asGrid();
-	Method	= Parameters("METHOD")		->asInt();
-	pDTM	= Parameters("DEM_PREPROC")	->asGrid();
-
-	if( pDTM == NULL )
+	if( m_pDEM == NULL )
 	{
-		pDTM	= Parameters("DEM")->asGrid();
+		m_pDEM = Parameters("DEM")->asGrid();
 	}
-	else if( pDTM != Parameters("DEM")->asGrid() )
+	else if( m_pDEM != Parameters("DEM")->asGrid() )
 	{
-		pDTM->Assign(Parameters("DEM")->asGrid());
+		m_pDEM->Assign(Parameters("DEM")->asGrid());
 
-		pDTM->Fmt_Name("%s [%s]", Parameters("DEM")->asGrid()->Get_Name(), _TL("no sinks"));
+		m_pDEM->Fmt_Name("%s [%s]", Parameters("DEM")->asGrid()->Get_Name(), _TL("no sinks"));
 	}
 
 	//-----------------------------------------------------
-	bKillRoute	= pRoute == NULL;
+	int nPits = 1; CSG_Grid Route; m_pRoute = Parameters("SINKROUTE")->asGrid();
 
-	if( bKillRoute )
+	if( !m_pRoute )
 	{
-		pRoute	= SG_Create_Grid(pDTM);
-		nPits	= Router.Get_Routes(pDTM, pRoute, Parameters("THRESHOLD")->asBool() ? Parameters("THRSHEIGHT")->asDouble() : -1.0);
-	}
-	else
-	{
-		nPits	= 1;
+		CPit_Router	Router; m_pRoute = &Route; Route.Create(m_pDEM);
+
+		nPits = Router.Get_Routes(m_pDEM, m_pRoute, Parameters("THRESHOLD")->asBool() ? Parameters("THRSHEIGHT")->asDouble() : -1.0);
 	}
 
 	//-----------------------------------------------------
@@ -176,33 +172,25 @@ bool CPit_Eliminator::On_Execute(void)
 
 		Create_goRoute();
 
-		//-------------------------------------------------
-		switch( Method )
+		m_Epsilon = Parameters("EPSILON")->asDouble();
+
+		switch( Parameters("METHOD")->asInt() )
 		{
-		case 0:
+		case  0:
 			Process_Set_Text(_TL("I'm diggin'..."));
 			bResult	= Dig_Channels();
 			break;
 
-		case 1:
+		default:
 			Process_Set_Text(_TL("I'm fillin'..."));
 			bResult	= Fill_Sinks();
 			break;
-
-		default:
-			bResult	= false;
-			break;
 		}
 
-		delete( goRoute );
+		delete( m_goRoute );
 	}
 
 	//-----------------------------------------------------
-	if( bKillRoute )
-	{
-		delete(pRoute);
-	}
-
 	Lock_Destroy();
 
 	return( bResult );
@@ -211,32 +199,28 @@ bool CPit_Eliminator::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CPit_Eliminator::Create_goRoute(void)
 {
-	int		x, y;
+	m_goRoute = SG_Create_Grid(m_pRoute);
 
-	goRoute	= SG_Create_Grid(pRoute);
-
-	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
 			if( !is_InGrid(x,y) )
 			{
-				goRoute->Set_NoData(x, y);
+				m_goRoute->Set_NoData(x, y);
 			}
-			else if( pRoute->asChar(x, y) > 0 )
+			else if( m_pRoute->asChar(x, y) > 0 )
 			{
-				goRoute->Set_Value(x, y, pRoute->asChar(x, y) % 8 );
+				m_goRoute->Set_Value(x, y, m_pRoute->asChar(x, y) % 8 );
 			}
 			else
 			{
-				goRoute->Set_Value(x, y, pDTM->Get_Gradient_NeighborDir(x, y));
+				m_goRoute->Set_Value(x, y, m_pDEM->Get_Gradient_NeighborDir(x, y));
 			}
 		}
 	}
@@ -245,31 +229,24 @@ void CPit_Eliminator::Create_goRoute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CPit_Eliminator::Dig_Channels(void)
 {
-	bool	bPit;
-	int		x, y, i, ix, iy;
-	double	z;
-
-	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
-			z		= pDTM->asDouble(x, y);
+			bool bPit = true; double z = m_pDEM->asDouble(x, y);
 
-			for(i=0, bPit=true; i<8 && bPit; i++)
+			for(int i=0; bPit && i<8; i++)
 			{
-				ix		= Get_xTo(i, x);
-				iy		= Get_yTo(i, y);
+				int ix = Get_xTo(i, x), iy = Get_yTo(i, y);
 
-				if( !is_InGrid(ix, iy) || z > pDTM->asDouble(ix, iy) )
+				if( !is_InGrid(ix, iy) || z > m_pDEM->asDouble(ix, iy) )
 				{
-					bPit	= false;
+					bPit = false;
 				}
 			}
 
@@ -283,59 +260,43 @@ bool CPit_Eliminator::Dig_Channels(void)
 	return( is_Progress() );
 }
 
-
 //---------------------------------------------------------
 void CPit_Eliminator::Dig_Channel(int x, int y)
 {
-	bool	bContinue;
-	int		goDir;
-	double	z;
+	double z = m_pDEM->asDouble(x, y);
 
-	z			= pDTM->asDouble(x, y);
-	bContinue	= true;
-
-	do
+	for(;;)
 	{
-		z		-= M_ALMOST_ZERO;
-		goDir	= goRoute->asChar(x, y);
+		z -= m_Epsilon; int goDir = m_goRoute->asChar(x, y);
 
 		if( goDir < 0 )
 		{
-			bContinue	= false;
+			return;
 		}
-		else
-		{
-			x	= Get_xTo(goDir, x);
-			y	= Get_yTo(goDir, y);
 
-			if( !is_InGrid(x, y) || z > pDTM->asDouble(x, y) )
-			{
-				bContinue	= false;
-			}
-			else
-			{
-				pDTM->Set_Value(x, y, z);
-			}
+		x = Get_xTo(goDir, x);
+		y = Get_yTo(goDir, y);
+
+		if( !is_InGrid(x, y) || z > m_pDEM->asDouble(x, y) )
+		{
+			return;
 		}
+
+		m_pDEM->Set_Value(x, y, z);
 	}
-	while( bContinue );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CPit_Eliminator::Fill_Sinks(void)
 {
-	int		x, y;
-
-	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
 			Fill_Check(x, y);
 		}
@@ -347,24 +308,19 @@ bool CPit_Eliminator::Fill_Sinks(void)
 //---------------------------------------------------------
 void CPit_Eliminator::Fill_Check(int x, int y)
 {
-	bool	bOutlet;
-	int		i, ix, iy, j;
-	double	z;
+	double z = m_pDEM->asDouble	(x, y);
 
-	z	= pDTM		->asDouble	(x, y);
-	i	= goRoute	->asChar	(x, y);
+	int i = m_goRoute->asChar(x, y); int ix = Get_xTo(i, x), iy = Get_yTo(i, y);
 
-	ix	= Get_xTo(i, x);
-	iy	= Get_yTo(i, y);
-
-	if( !is_InGrid(ix, iy) || z > pDTM->asDouble(ix, iy) )
+	if( !is_InGrid(ix, iy) || z > m_pDEM->asDouble(ix, iy) )
 	{
-		for(i=0, j=4, bOutlet=false; i<8 && !bOutlet; i++, j=(j+1)%8)
-		{
-			ix	= Get_xTo(i, x);
-			iy	= Get_yTo(i, y);
+		bool bOutlet = false; int j;
 
-			if( is_InGrid(ix, iy) && goRoute->asChar(ix, iy) == j && z > pDTM->asDouble(ix, iy) )
+		for(i=0, j=4; !bOutlet && i<8; i++, j=(j+1)%8)
+		{
+			ix = Get_xTo(i, x); iy = Get_yTo(i, y);
+
+			if( is_InGrid(ix, iy) && m_goRoute->asChar(ix, iy) == j && z > m_pDEM->asDouble(ix, iy) )
 			{
 				bOutlet	= true;
 			}
@@ -372,13 +328,11 @@ void CPit_Eliminator::Fill_Check(int x, int y)
 
 		if( bOutlet )
 		{
-			Lock_Create();
-			Lock_Set(x, y);
+			Lock_Create(); Lock_Set(x, y);
 
 			for(i=0, j=4; i<8; i++, j=(j+1)%8)
 			{
-				ix	= Get_xTo(i, x);
-				iy	= Get_yTo(i, y);
+				ix = Get_xTo(i, x); iy = Get_yTo(i, y);
 
 				Fill_Sink(ix, iy, j, z);
 			}
@@ -389,24 +343,19 @@ void CPit_Eliminator::Fill_Check(int x, int y)
 //---------------------------------------------------------
 void CPit_Eliminator::Fill_Sink(int x, int y, int j, double z)
 {
-	int		i, ix, iy;
-
-	if( is_InGrid(x, y) && !is_Locked(x, y) && goRoute->asChar(x, y) == j )
+	if( is_InGrid(x, y) && !is_Locked(x, y) && m_goRoute->asChar(x, y) == j )
 	{
 		Lock_Set(x, y);
 
-		z	+= M_ALMOST_ZERO * Get_UnitLength(j);
+		z += m_Epsilon * Get_UnitLength(j);
 
-		if( pDTM->asDouble(x, y) < z )
+		if( m_pDEM->asDouble(x, y) < z )
 		{
-			pDTM->Set_Value(x, y, z);
+			m_pDEM->Set_Value(x, y, z);
 
-			for(i=0, j=4; i<8; i++, j=(j+1)%8)
+			for(int i=0; i<8; i++)
 			{
-				ix	= Get_xTo(i, x);
-				iy	= Get_yTo(i, y);
-
-				Fill_Sink(ix, iy, j, z);
+				Fill_Sink(Get_xTo(i, x), Get_yTo(i, y), (i + 4) % 8, z);
 			}
 		}
 	}

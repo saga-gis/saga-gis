@@ -279,12 +279,12 @@ inline double CSG_Regression::_Y_Transform(double y)
 		return( y );
 
 	case REGRESSION_Rez_Y:
-		if( y == 0. ) { y = M_ALMOST_ZERO; }
+		if( y == 0. ) { y = M_FLT_EPSILON; }
 		return( 1. / y );
 
 	case REGRESSION_Pow:
 	case REGRESSION_Exp:
-		if( y <= 0. ) { y = M_ALMOST_ZERO; }
+		if( y <= 0. ) { y = M_FLT_EPSILON; }
 		return( log(y) );
 	}
 }
@@ -298,12 +298,12 @@ inline double CSG_Regression::_X_Transform(double x)
 		return( x );
 
 	case REGRESSION_Rez_X:
-		if( x == 0. ) { x = M_ALMOST_ZERO; }
+		if( x == 0. ) { x = M_FLT_EPSILON; }
 		return( 1. / x );
 
 	case REGRESSION_Pow:
 	case REGRESSION_Log:
-		if( x <= 0. ) { x = M_ALMOST_ZERO; }
+		if( x <= 0. ) { x = M_FLT_EPSILON; }
 		return( log(x) );
 	}
 }

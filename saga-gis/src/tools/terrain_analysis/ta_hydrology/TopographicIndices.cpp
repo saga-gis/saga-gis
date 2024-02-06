@@ -183,8 +183,8 @@ bool CTWI::On_Execute(void)
 						{
 							Kf	= pKf->asDouble(x, y);
 
-							if( Kf	< M_ALMOST_ZERO )
-								Kf	= M_ALMOST_ZERO;
+							if( Kf	< M_FLT_EPSILON )
+								Kf	= M_FLT_EPSILON;
 
 							Kf	= log(Kf);
 						}
@@ -196,8 +196,8 @@ bool CTWI::On_Execute(void)
 
 					Slope	= tan(pSlope->asDouble(x, y));
 
-					if( Slope	< M_ALMOST_ZERO )
-						Slope	= M_ALMOST_ZERO;
+					if( Slope	< M_FLT_EPSILON )
+						Slope	= M_FLT_EPSILON;
 
 					Area		++;
 					Mean_TWI	+= log((pArea->asDouble(x, y) / (bConvert ? Get_Cellsize() : 1.)) / Slope);
@@ -236,15 +236,15 @@ bool CTWI::On_Execute(void)
 
 				Slope	= tan(pSlope->asDouble(x, y));
 
-				if( Slope	< M_ALMOST_ZERO )
-					Slope	= M_ALMOST_ZERO;
+				if( Slope	< M_FLT_EPSILON )
+					Slope	= M_FLT_EPSILON;
 
 				if( pKf )
 				{
 					Kf	= pKf->asDouble(x, y);
 
-					if( Kf	< M_ALMOST_ZERO )
-						Kf	= M_ALMOST_ZERO;
+					if( Kf	< M_FLT_EPSILON )
+						Kf	= M_FLT_EPSILON;
 				}
 
 				pTWI->Set_Value(x, y, bTopmodel

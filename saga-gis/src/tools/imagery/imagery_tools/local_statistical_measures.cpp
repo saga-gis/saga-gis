@@ -69,7 +69,7 @@ CLocal_Statistical_Measures::CLocal_Statistical_Measures(void)
 	Add_Reference("Zhang, Y.", "2001",
 		"Texture-integrated classification of urban treed areas in high-resolution color-infrared imagery",
 		"Photogrammetric Engineering and Remote Sensing 67(12), 1359-1365.",
-		SG_T("http://web.pdx.edu/~nauna/2001_dec_1359-1365.pdf"), SG_T("online")
+		SG_T("https://web.pdx.edu/~nauna/2001_dec_1359-1365.pdf"), SG_T("online")
 	);
 
 	Parameters.Add_Grid("", "GRID"    , _TL("Grid"    ), _TL(""), PARAMETER_INPUT);
@@ -240,7 +240,7 @@ bool CLocal_Statistical_Measures::Get_Measure(int x, int y)
 		{
 			s			+= z;
 			Energy		+= z*z;
-			Entropy		+= z * log(z > 0.0 ? z : M_ALMOST_ZERO);
+			Entropy		+= z * log(z > 0.0 ? z : M_FLT_EPSILON);
 		}
 	}
 

@@ -167,7 +167,7 @@ bool CHugget_01::On_Execute(void)
 
 	double C         = Parameters("C_INIT"   )->asDouble();
 	double C_Input   = Parameters("C_INPUT"  )->asDouble();
-	double C_Loss    = Parameters("C_OUTPUT" )->asDouble(); if( C_Loss <= 0. ) { C_Loss = M_ALMOST_ZERO; }
+	double C_Loss    = Parameters("C_OUTPUT" )->asDouble(); if( C_Loss <= 0. ) { C_Loss = M_FLT_EPSILON; }
 
 	//-----------------------------------------------------
 	if( dTime >= 1. / C_Loss )

@@ -294,7 +294,7 @@ bool CDiffuse_Pollution_Risk::Set_Flow(void)
 
 			double	SCA	= m_RainAcc.asDouble(x, y) / a;				// rain * specific catchment area
 
-			m_TWI.Set_Value(x, y, log(SCA / (s < M_ALMOST_ZERO ? M_ALMOST_ZERO : s)));
+			m_TWI.Set_Value(x, y, log(SCA / (s < M_FLT_EPSILON ? M_FLT_EPSILON : s)));
 
 			if( pWeight && pWeight->is_NoData(x, y) )
 			{

@@ -1943,10 +1943,12 @@ bool		SG_Matrix_Eigen_Reduction(const CSG_Matrix &Matrix, CSG_Matrix &Eigen_Vect
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
-
+#include <limits>
 //---------------------------------------------------------
 bool		SG_Matrix_LU_Decomposition(int n, int *Permutation, double **Matrix, bool bSilent, int *nRowChanges)
 {
+	float tiny = std::numeric_limits<float>::epsilon();
+
 	CSG_Vector Vector(n); if( nRowChanges ) { (*nRowChanges) = 0; }
 
 	for(int i=0; i<n && (bSilent || SG_UI_Process_Set_Progress(i, n)); i++)
@@ -2027,7 +2029,7 @@ bool		SG_Matrix_LU_Decomposition(int n, int *Permutation, double **Matrix, bool 
 
 		if( Matrix[j][j] == 0. )
 		{
-			Matrix[j][j] = M_ALMOST_ZERO;
+			Matrix[j][j] = M_FLT_EPSILON;
 		}
 
 		if( j != n )

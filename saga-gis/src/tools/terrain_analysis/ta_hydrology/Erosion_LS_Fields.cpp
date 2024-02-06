@@ -365,7 +365,7 @@ bool CErosion_LS_Fields::Get_Flow(void)
 
 			m_pUp_Area  ->Set_Value(x, y, Up_Area);
 			m_pUp_Length->Set_Value(x, y, Up_Length);
-			m_pUp_Slope ->Set_Value(x, y, Up_Slope / (Up_Length < M_ALMOST_ZERO ? M_ALMOST_ZERO : Up_Length));
+			m_pUp_Slope ->Set_Value(x, y, Up_Slope / (Up_Length < M_FLT_EPSILON ? M_FLT_EPSILON : Up_Length));
 		}
 	}
 
@@ -464,7 +464,7 @@ inline double CErosion_LS_Fields::Get_LS(int x, int y, bool bFeet)
 		Slope	= m_pUp_Slope->asDouble(x, y);
 	}
 
-	if( Slope  < M_ALMOST_ZERO ) Slope  = M_ALMOST_ZERO;
+	if( Slope  < M_FLT_EPSILON ) Slope  = M_FLT_EPSILON;
 	if( Aspect < 0.            ) Aspect = 0.           ;
 
 	sin_Slope	= sin(Slope);
@@ -735,7 +735,7 @@ bool CErosion_LS_Fields::Set_Fields(void)
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("Initializing Fields"));
 
-	m_nFields	= pFields->Get_Count();
+	m_nFields = (int)pFields->Get_Count();
 
 	m_Fields.Create(Get_System(), m_nFields < pow(2., 16.) - 1. ? SG_DATATYPE_Word : SG_DATATYPE_DWord);
 	m_Fields.Set_NoData_Value(m_nFields);
@@ -757,7 +757,7 @@ bool CErosion_LS_Fields::Set_Fields(void)
 			{
 				if( m_pDEM->is_InGrid(x, y) && pField->Contains(Get_System().Get_Grid_to_World(x, y)) )
 				{
-					m_Fields.Set_Value(x, y, iField);
+					m_Fields.Set_Value(x, y, (int)iField);
 				}
 			}
 		}

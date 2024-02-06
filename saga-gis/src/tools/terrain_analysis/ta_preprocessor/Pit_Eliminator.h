@@ -84,7 +84,9 @@ protected:
 
 private:
 
-	CSG_Grid				*pDTM, *pRoute, *goRoute;
+	double					m_Epsilon;
+
+	CSG_Grid				*m_pDEM, *m_pRoute, *m_goRoute;
 
 
 	void					Create_goRoute			(void);

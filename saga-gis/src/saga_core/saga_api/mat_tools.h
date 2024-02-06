@@ -117,7 +117,14 @@
 #define N_MEGABYTE_BYTES			0x100000
 
 //---------------------------------------------------------
-#define M_ALMOST_ZERO				(1.e-12)
+#define M_FLT_EPSILON				FLT_EPSILON
+#define M_DBL_EPSILON				DBL_EPSILON
+
+// >>> DEPRECATED >>> //
+#define M_ALMOST_ZERO				(1.e-03)
+#define M_TINY						(1.e-20)
+// <<< DEPRECATED <<< //
+
 
 //---------------------------------------------------------
 #define M_SQR(x)					((x) * (x))

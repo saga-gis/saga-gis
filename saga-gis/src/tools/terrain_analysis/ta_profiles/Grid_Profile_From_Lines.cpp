@@ -338,7 +338,7 @@ bool CGrid_Profile_From_Lines::Set_Profile(sLong ID_Line, bool bStart, const TSG
 		bStart = false;
 	}
 
-	if( bLastPoint && SG_Get_Distance(P, B) > M_ALMOST_ZERO )
+	if( bLastPoint && SG_Get_Distance(P, B) > M_FLT_EPSILON )
 	{
 		Add_Point(ID_Line, bStart, B);
 	}
