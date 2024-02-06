@@ -117,8 +117,8 @@
 #define N_MEGABYTE_BYTES			0x100000
 
 //---------------------------------------------------------
-#define M_ALMOST_ZERO				0.001l
-#define M_TINY						(1.0e-20)
+#define M_ALMOST_ZERO				(1.e-03)
+#define M_TINY						(1.e-20)
 
 //---------------------------------------------------------
 #define M_SQR(x)					((x) * (x))
