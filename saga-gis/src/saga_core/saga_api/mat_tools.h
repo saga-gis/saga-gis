@@ -117,8 +117,17 @@
 #define N_MEGABYTE_BYTES			0x100000
 
 //---------------------------------------------------------
-#define M_FLT_EPSILON				FLT_EPSILON
-#define M_DBL_EPSILON				DBL_EPSILON
+#ifdef FLT_EPSILON
+	#define M_FLT_EPSILON			FLT_EPSILON
+#else
+	#define M_FLT_EPSILON			1.192092896e-07F
+#endif
+
+#ifdef DBL_EPSILON
+	#define M_DBL_EPSILON			DBL_EPSILON
+#else
+	#define M_DBL_EPSILON			2.2204460492503131e-016
+#endif
 
 // >>> DEPRECATED >>> //
 #define M_ALMOST_ZERO				(1.e-03)
