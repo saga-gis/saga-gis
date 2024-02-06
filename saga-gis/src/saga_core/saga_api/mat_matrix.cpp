@@ -2027,7 +2027,7 @@ bool		SG_Matrix_LU_Decomposition(int n, int *Permutation, double **Matrix, bool 
 
 		if( Matrix[j][j] == 0. )
 		{
-			Matrix[j][j] = M_TINY;
+			Matrix[j][j] = M_ALMOST_ZERO;
 		}
 
 		if( j != n )

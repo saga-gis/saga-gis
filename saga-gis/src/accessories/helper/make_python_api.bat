@@ -31,7 +31,7 @@ REM ###################################
 REM File paths, adjusted to your system in the calling batch or take the defaults!
 
 IF "%SWIG%" == "" (
-	SET SWIG=F:\develop\libs\swigwin-4.0.2\swig.exe
+	SET SWIG=F:\develop\libs\swigwin-4.2.0\swig.exe
 )
 
 IF NOT EXIST %SWIG% (
