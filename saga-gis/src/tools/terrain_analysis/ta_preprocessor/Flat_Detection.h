@@ -75,24 +75,22 @@ public:
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual bool			On_Execute			(void);
 
 
 private:
 
-	int						m_Flat_Output, m_nFlats;
-
-	double					m_zFlat;
+	int						m_Flat_Output, m_Neighbour;
 
 	CSG_Grid_Stack			m_Stack;
 
 	CSG_Grid				*m_pDEM, *m_pNoFlats, *m_pFlats, m_Flats;
 
 
-	bool					is_Flat			(int x, int y);
+	bool					Needs_Processing	(int x, int y);
 
-	void					Set_Flat_Cell	(int x, int y);
-	void					Set_Flat		(int x, int y);
+	void					Process_Cell		(int x, int y, int id, double z);
+	void					Process_Flat		(int x, int y, int id);
 
 };
 

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Flat_Detection.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Flat_Detection.h"
 
 
@@ -72,82 +60,90 @@ CFlat_Detection::CFlat_Detection(void)
 {
 	Set_Name		(_TL("Flat Detection"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
-		""
+		"Identifies areas of connected cells sharing identical values. "
+		"Connected cells can be searched by Neumann or Moore neighbourhood. "
 	));
 
-	Parameters.Add_Grid(
-		NULL, "DEM"			, _TL("DEM"),
+	Parameters.Add_Grid("",
+		"DEM"          , _TL("DEM"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL, "NOFLATS"		, _TL("No Flats"),
+	Parameters.Add_Grid("",
+		"NOFLATS"      , _TL("No Flats"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		NULL, "FLATS"		, _TL("Flat Areas"),
+	Parameters.Add_Grid("",
+		"FLATS"        , _TL("Flat Areas"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(
-		NULL, "FLAT_OUTPUT"	, _TL("Flat Area Values"),
+	Parameters.Add_Choice("",
+		"FLAT_OUTPUT"  , _TL("Flat Area Values"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("elevation"),
 			_TL("enumeration")
 		), 0
+	);
+
+	Parameters.Add_Choice("",
+		"NEIGHBOURHOOD", _TL("Neighbourhood"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			SG_T("Neumann"),
+			SG_T("Moore")
+		), 1
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CFlat_Detection::On_Execute(void)
 {
-	//-----------------------------------------------------
-	m_pDEM			= Parameters("DEM")			->asGrid();
-	m_pNoFlats		= Parameters("NOFLATS")		->asGrid();
-	m_pFlats		= Parameters("FLATS")		->asGrid();
-	m_Flat_Output	= Parameters("FLAT_OUTPUT")	->asInt();
+	m_pDEM        = Parameters("DEM"        )->asGrid();
+	m_pNoFlats    = Parameters("NOFLATS"    )->asGrid();
+	m_pFlats      = Parameters("FLATS"      )->asGrid();
+	m_Flat_Output = Parameters("FLAT_OUTPUT")->asInt();
 
 	//-----------------------------------------------------
 	if( m_pNoFlats )
 	{
-		m_pNoFlats	->Assign(m_pDEM);
-		m_pNoFlats	->Fmt_Name("%s [%s]", m_pDEM->Get_Name(), _TL("No Flats"));
+		m_pNoFlats->Assign(m_pDEM);
+		m_pNoFlats->Fmt_Name("%s [%s]", m_pDEM->Get_Name(), _TL("No Flats"));
 	}
 
 	if( m_pFlats )
 	{
-		m_pFlats	->Assign_NoData();
-		m_pFlats	->Fmt_Name("%s [%s]", m_pDEM->Get_Name(), _TL("Flats"));
+		m_pFlats  ->Assign_NoData();
+		m_pFlats  ->Fmt_Name("%s [%s]", m_pDEM->Get_Name(), _TL("Flats"));
 	}
 
-	m_Flats.Create(Get_System(), SG_DATATYPE_Int);
+	m_Flats.Create(Get_System(), SG_DATATYPE_Int); m_Flats.Assign(0.);
 
-	m_Flats.Assign(0.0);
-	m_nFlats	= 0;
+	m_Neighbour = Parameters("NEIGHBOURHOOD")->asInt() == 0 ? 2 : 1;
+
+	int nFlats = 0;
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
-			if( !m_Flats.asInt(x, y) && is_Flat(x, y) )
+			if( Needs_Processing(x, y) )
 			{
-				Set_Flat(x, y);
+				Process_Flat(x, y, ++nFlats);
 			}
 		}
 	}
@@ -156,61 +152,50 @@ bool CFlat_Detection::On_Execute(void)
 	m_Stack.Destroy();
 	m_Flats.Destroy();
 
+	Message_Fmt("%s: %d", _TL("detected flats"), nFlats);
+
 	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CFlat_Detection::is_Flat(int x, int y)
+bool CFlat_Detection::Needs_Processing(int x, int y)
 {
-	if( m_pDEM->is_NoData(x, y) )
+	if( m_Flats.asInt(x, y) == 0 && m_pDEM->is_NoData(x, y) == false )
 	{
-		return( false );
-	}
+		double z = m_pDEM->asDouble(x, y);
 
-	int		i, ix, iy, n;
-	double	z;
-
-	for(i=0, n=0, z=m_pDEM->asDouble(x, y); i<8; i++)
-	{
-		ix	= Get_xTo(i, x);
-		iy	= Get_yTo(i, y);
-
-		if( m_pDEM->is_InGrid(ix, iy) )
+		for(int i=0; i<8; i+=m_Neighbour)
 		{
-			if( z != m_pDEM->asDouble(ix, iy) )
-			{
-				return( false );
-			}
+			int ix = Get_xTo(i, x), iy = Get_yTo(i, y);
 
-			n++;
+			if( m_pDEM->is_InGrid(ix, iy) && m_pDEM->asDouble(ix, iy) == z )
+			{
+				return( true );
+			}
 		}
 	}
 
-	return( n > 0 );
+	return( false );
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CFlat_Detection::Set_Flat_Cell(int x, int y)
+inline void CFlat_Detection::Process_Cell(int x, int y, int id, double z)
 {
-	if( m_pDEM->is_InGrid(x, y) && m_Flats.asInt(x, y) != m_nFlats && m_zFlat == m_pDEM->asDouble(x, y) )
+	if( m_pDEM->is_InGrid(x, y) && m_Flats.asInt(x, y) != id && m_pDEM->asDouble(x, y) == z )
 	{
 		m_Stack.Push(x, y);
 
-		m_Flats.Set_Value(x, y, m_nFlats);
+		m_Flats.Set_Value(x, y, id);
 
 		if( m_pNoFlats )
 		{
@@ -221,39 +206,29 @@ void CFlat_Detection::Set_Flat_Cell(int x, int y)
 		{
 			switch( m_Flat_Output )
 			{
-			default:
-			case 0:	m_pFlats->Set_Value(x, y, m_zFlat);		break;
-			case 1: m_pFlats->Set_Value(x, y, m_nFlats);	break;
+			default: m_pFlats->Set_Value(x, y, z ); break;
+			case  1: m_pFlats->Set_Value(x, y, id); break;
 			}
 		}
 	}
 }
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-void CFlat_Detection::Set_Flat(int x, int y)
+void CFlat_Detection::Process_Flat(int x, int y, int id)
 {
-	m_zFlat		= m_pDEM->asDouble(x, y);
-	m_nFlats	++;
-
 	m_Stack.Clear();
 
-	Set_Flat_Cell(x, y);
+	double z = m_pDEM->asDouble(x, y);
 
-	//-----------------------------------------------------
+	Process_Cell(x, y, id, z);
+
 	while( m_Stack.Get_Size() > 0 && Process_Get_Okay() )
 	{
 		m_Stack.Pop(x, y);
 
-		for(int i=0; i<8; i++)
+		for(int i=0; i<8; i+=m_Neighbour)
 		{
-			Set_Flat_Cell(Get_xTo(i, x), Get_yTo(i, y));
+			Process_Cell(Get_xTo(i, x), Get_yTo(i, y), id, z);
 		}
 	}
 }
