@@ -102,6 +102,7 @@ public:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifdef WITH_GUI
 class CVariogram_Dialog : public CSGDI_Dialog
 {
 public:
@@ -155,7 +156,11 @@ private:
 	DECLARE_EVENT_TABLE()
 
 };
-
+#else
+class CVariogram_Dialog
+{
+};
+#endif
 
 ///////////////////////////////////////////////////////////
 //														 //

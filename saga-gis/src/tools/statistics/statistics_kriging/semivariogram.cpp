@@ -118,7 +118,16 @@ CSemiVariogram::CSemiVariogram(void)
 	)->Set_UseInGUI(false);
 
 	//-----------------------------------------------------
-	m_pVariogram	= has_GUI() ? new CVariogram_Dialog : NULL;
+	#ifdef WITH_GUI
+	if( has_GUI() )
+	{
+		m_pVariogram	= new CVariogram_Dialog;
+	}
+	else
+	#endif
+	{
+		m_pVariogram	= NULL;
+	}
 }
 
 //---------------------------------------------------------
@@ -126,7 +135,9 @@ CSemiVariogram::~CSemiVariogram(void)
 {
 	if( m_pVariogram && SG_UI_Get_Window_Main() )	// don't destroy dialog, if gui is closing (i.e. main window == NULL)
 	{
+		#ifdef WITH_GUI
 		m_pVariogram->Destroy();
+		#endif
 
 		delete(m_pVariogram);
 	}
@@ -177,6 +188,7 @@ bool CSemiVariogram::On_Execute(void)
 
 	pVariogram->Set_Name(pPoints->Get_Name());
 
+	#ifdef WITH_GUI
 	if( m_pVariogram )
 	{
 		bResult = m_pVariogram->Execute   (Points, pVariogram, &Model);
@@ -184,6 +196,7 @@ bool CSemiVariogram::On_Execute(void)
 
 	//-----------------------------------------------------
 	else
+	#endif
 	{
 		bResult = CSG_Variogram::Calculate(Points, pVariogram,
 			Parameters("VAR_NCLASSES")->asInt   (),
