@@ -175,7 +175,11 @@ CKriging_Base::CKriging_Base(void)
 	}
 	else
 	{
+		#ifdef WITH_GUI
 		m_pVariogram	= new CVariogram_Dialog;
+		#else
+		m_pVariogram	= NULL;
+		#endif
 	}
 }
 
@@ -184,7 +188,9 @@ CKriging_Base::~CKriging_Base(void)
 {
 	if( m_pVariogram && has_GUI() && SG_UI_Get_Window_Main() ) // don't destroy dialog, if gui is closing (i.e. main window == NULL)
 	{
+		#ifdef WITH_GUI
 		m_pVariogram->Destroy();
+		#endif
 
 		delete(m_pVariogram);
 	}
@@ -268,11 +274,13 @@ bool CKriging_Base::On_Execute(void)
 	{
 		CSG_Table Variogram;
 
+		#ifdef WITH_GUI
 		if( m_pVariogram )
 		{
 			bResult = m_pVariogram->Execute   (m_Points, &Variogram, &m_Model);
 		}
 		else
+		#endif
 		{
 			bResult = CSG_Variogram::Calculate(m_Points, &Variogram,
 				Parameters("VAR_NCLASSES")->asInt   (),

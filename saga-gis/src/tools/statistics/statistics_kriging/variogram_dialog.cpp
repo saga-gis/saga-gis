@@ -239,6 +239,7 @@ double CSG_Variogram::Get_Lag_Distance(const CSG_Matrix &Points, int Method, int
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifdef WITH_GUI
 class CVariogram_Diagram : public CSGDI_Diagram
 {
 public:
@@ -669,6 +670,7 @@ CSG_String CVariogram_Dialog::Get_Formula(void)
 
 	return( Formula );
 }
+#endif
 
 ///////////////////////////////////////////////////////////
 //														 //

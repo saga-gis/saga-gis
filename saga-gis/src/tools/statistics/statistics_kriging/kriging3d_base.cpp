@@ -180,13 +180,15 @@ CKriging3D_Base::CKriging3D_Base(void)
 	m_Search_Options.Create(&Parameters, "NODE_SEARCH", 16);
 
 	//-----------------------------------------------------
-	if( !has_GUI() )
-	{
-		m_pVariogram	= NULL;
-	}
-	else
+	#ifdef WITH_GUI
+	if( has_GUI() )
 	{
 		m_pVariogram	= new CVariogram_Dialog;
+	}
+	else
+	#endif
+	{
+		m_pVariogram	= NULL;
 	}
 }
 
@@ -195,7 +197,9 @@ CKriging3D_Base::~CKriging3D_Base(void)
 {
 	if( m_pVariogram && has_GUI() && SG_UI_Get_Window_Main() ) // don't destroy dialog, if gui is closing (i.e. main window == NULL)
 	{
+		#ifdef WITH_GUI
 		m_pVariogram->Destroy();
+		#endif
 
 		delete(m_pVariogram);
 	}
@@ -312,11 +316,13 @@ bool CKriging3D_Base::On_Execute(void)
 	{
 		CSG_Table	Variogram;
 
+		#ifdef WITH_GUI
 		if( m_pVariogram )
 		{
 			bResult	= m_pVariogram->Execute   (m_Points, &Variogram, &m_Model);
 		}
 		else
+		#endif
 		{
 			bResult	= CSG_Variogram::Calculate(m_Points, &Variogram,
 				Parameters("VAR_NCLASSES")->asInt   (),
