@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: saga_odbc.h 1507 2012-10-31 18:49:02Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -46,15 +43,6 @@
 //                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -255,8 +243,8 @@ protected:
 
 	CSG_ODBC_Connection *		Get_Connection			(void)	{	return( m_pConnection );	}
 
-	static bool					Set_Constraints			(CSG_Parameters *pParameters, CSG_Table *pTable);
-	static CSG_Buffer			Get_Constraints			(CSG_Parameters *pParameters, CSG_Table *pTable);
+	static bool					Set_Constraints			(CSG_Parameters *pParameters, const CSG_String &Identifier);
+	static CSG_Buffer			Get_Constraints			(CSG_Parameters *pParameters, const CSG_String &Identifier);
 
 
 private:

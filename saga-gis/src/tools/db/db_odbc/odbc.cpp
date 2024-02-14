@@ -126,18 +126,15 @@ bool SG_ODBC_is_Supported(void)
 }
 
 //---------------------------------------------------------
-void _Error_Message(const CSG_String &Message, const CSG_String &Additional = SG_T(""))
+void _Error_Message(const CSG_String &Message, const CSG_String &Additional = "")
 {
 	SG_UI_Msg_Add_Execution(Message, true, SG_UI_MSG_STYLE_FAILURE);
 
-	CSG_String	s(Message);
-
-	s	+= SG_T(":\n");
+	CSG_String s(Message + ":\n");
 
 	if( Additional.Length() > 0 )
 	{
-		s	+= Additional;
-		s	+= SG_T("\n");
+		s += Additional + "\n";
 	}
 
 	SG_UI_Msg_Add_Error(s);
@@ -145,17 +142,15 @@ void _Error_Message(const CSG_String &Message, const CSG_String &Additional = SG
 
 void _Error_Message(otl_exception &e)
 {
-	CSG_String	s;
+	CSG_String s;
 
 	if( e.stm_text && *e.stm_text != '\0' )
 	{
-		s	= (const char *)e.stm_text;
+		s = (const char *)e.stm_text;
 
 		if( e.var_info && *e.var_info != '\0' )
 		{
-			s	+= SG_T(" [");
-			s	+= (const char *)e.var_info;
-			s	+= SG_T("]");
+			s += " [" + CSG_String((const char *)e.var_info) + "]";
 		}
 	}
 
@@ -180,21 +175,18 @@ void _Error_Message(otl_exception &e)
 //---------------------------------------------------------
 CSG_ODBC_Connection::CSG_ODBC_Connection(const CSG_String &Server, const CSG_String &User, const CSG_String &Password, bool bAutoCommit)
 {
-	CSG_String	s;
+	m_DBMS = SG_ODBC_DBMS_Unknown; m_Size_Buffer = 1; m_bAutoCommit = bAutoCommit;
 
-	m_DBMS			= SG_ODBC_DBMS_Unknown;
-	m_Size_Buffer	= 1;
-	m_bAutoCommit	= bAutoCommit;
+	CSG_String s;
 
 	if( User.Length() > 0 )
 	{
-		s	+= SG_T("UID=") + User     + SG_T(";");
-		s	+= SG_T("PWD=") + Password + SG_T(";");
+		s += "UID=" + User + ";PWD=" + Password + ";";
 	}
 
-	s	+= SG_T("DSN=") + Server   + SG_T(";");
+	s += "DSN=" + Server + ";";
 
-	m_pConnection	= new otl_connect();
+	m_pConnection = new otl_connect();
 
 	try
 	{
@@ -210,35 +202,20 @@ CSG_ODBC_Connection::CSG_ODBC_Connection(const CSG_String &Server, const CSG_Str
 	{
 		delete(((otl_connect *)m_pConnection));
 
-		m_pConnection	= NULL;
+		m_pConnection = NULL;
 	}
 	else
 	{
-		m_DSN	= Server;
+		m_DSN = Server;
 
 		//-------------------------------------------------
-		s		= Get_DBMS_Name();
+		s = Get_DBMS_Name();
 
-		if(      !s.CmpNoCase(SG_T("PostgreSQL")) )
-		{
-			m_DBMS	= SG_ODBC_DBMS_PostgreSQL;
-		}
-		else if( !s.CmpNoCase(SG_T("MySQL")) )
-		{
-			m_DBMS	= SG_ODBC_DBMS_MySQL;
-		}
-		else if( !s.CmpNoCase(SG_T("Oracle")) )
-		{
-			m_DBMS	= SG_ODBC_DBMS_Oracle;
-		}
-		else if( !s.CmpNoCase(SG_T("MSQL")) )
-		{
-			m_DBMS	= SG_ODBC_DBMS_MSSQLServer;
-		}
-		else if( !s.CmpNoCase(SG_T("ACCESS")) )
-		{
-			m_DBMS	= SG_ODBC_DBMS_Access;
-		}
+		if( !s.CmpNoCase("PostgreSQL") ) { m_DBMS = SG_ODBC_DBMS_PostgreSQL ; }
+		if( !s.CmpNoCase("MySQL"     ) ) { m_DBMS = SG_ODBC_DBMS_MySQL      ; }
+		if( !s.CmpNoCase("Oracle"    ) ) { m_DBMS = SG_ODBC_DBMS_Oracle     ; }
+		if( !s.CmpNoCase("MSQL"      ) ) { m_DBMS = SG_ODBC_DBMS_MSSQLServer; }
+		if( !s.CmpNoCase("ACCESS"    ) ) { m_DBMS = SG_ODBC_DBMS_Access     ; }
 
 		//-------------------------------------------------
 		Set_Size_Buffer(is_Access() ? 1 : 50);
@@ -254,7 +231,7 @@ CSG_ODBC_Connection::~CSG_ODBC_Connection(void)
 	{
 		delete(((otl_connect *)m_pConnection));
 
-		m_pConnection	= NULL;
+		m_pConnection = NULL;
 	}
 }
 
@@ -268,7 +245,7 @@ bool CSG_ODBC_Connection::Set_Size_Buffer(int Size)
 {
 	if( Size > 0 )
 	{
-		m_Size_Buffer	= Size;
+		m_Size_Buffer = Size;
 
 		return( true );
 	}
@@ -303,16 +280,15 @@ bool CSG_ODBC_Connection::Set_Size_LOB_Max(int Size)
 //---------------------------------------------------------
 CSG_String CSG_ODBC_Connection::_Get_DBMS_Info(int What) const
 {
-	CSG_String	Result;
+	CSG_String Result;
 
 	if( is_Connected() )
 	{
-		SQLSMALLINT	nBuffer;
-		SQLTCHAR	Buffer[256];
+		SQLSMALLINT nBuffer; SQLTCHAR Buffer[256];
 
 		SQLGetInfo(m_Connection.get_connect_struct().get_hdbc(), What, (SQLPOINTER)Buffer, 255, &nBuffer);
 
-		Result	= (const SG_ODBC_CHAR *)Buffer;
+		Result = (const SG_ODBC_CHAR *)Buffer;
 	}
 
 	return( Result );
@@ -344,15 +320,15 @@ int CSG_ODBC_Connection::Get_Tables(CSG_Strings &Tables) const
 	{
 		try
 		{
-			otl_stream	Stream(m_Size_Buffer, "$SQLTables", m_Connection);	// get a list of all tables in the current database.
+			otl_stream Stream(m_Size_Buffer, "$SQLTables", m_Connection); // get a list of all tables in the current database.
 
 			while( !Stream.eof() )
 			{
-				std_string	Catalog, Schema, Table, Type, Remarks;
+				std_string Catalog, Schema, Table, Type, Remarks;
 
 				Stream >> Catalog >> Schema >> Table >> Type >> Remarks;
 
-				Tables	+= Table.c_str();
+				Tables += Table.c_str();
 			}
 		}
 		catch( otl_exception &e )
@@ -367,22 +343,21 @@ int CSG_ODBC_Connection::Get_Tables(CSG_Strings &Tables) const
 //---------------------------------------------------------
 CSG_String CSG_ODBC_Connection::Get_Tables(void) const
 {
-	CSG_String	Tables;
+	CSG_String Tables;
 
 	if( is_Connected() )
 	{
 		try
 		{
-			otl_stream	Stream(m_Size_Buffer, "$SQLTables", m_Connection);	// get a list of all tables in the current database.
+			otl_stream Stream(m_Size_Buffer, "$SQLTables", m_Connection); // get a list of all tables in the current database.
 
 			while( !Stream.eof() )
 			{
-				std_string	Catalog, Schema, Table, Type, Remarks;
+				std_string Catalog, Schema, Table, Type, Remarks;
 
 				Stream >> Catalog >> Schema >> Table >> Type >> Remarks;
 
-				Tables	+= Table.c_str();
-				Tables	+= SG_T("|");
+				Tables += Table.c_str(); Tables += "|";
 			}
 		}
 		catch( otl_exception &e )
@@ -401,15 +376,15 @@ bool CSG_ODBC_Connection::Table_Exists(const CSG_String &Table_Name) const
 	{
 		try
 		{
-			otl_stream	Stream(m_Size_Buffer, "$SQLTables", m_Connection);	// get a list of all tables in the current database.
+			otl_stream Stream(m_Size_Buffer, "$SQLTables", m_Connection); // get a list of all tables in the current database.
 
 			while( !Stream.eof() )
 			{
-				std_string	Catalog, Schema, Table, Type, Remarks;
+				std_string Catalog, Schema, Table, Type, Remarks;
 
 				Stream >> Catalog >> Schema >> Table >> Type >> Remarks;
 
-				if( !Table_Name.Cmp(CSG_String(Table.c_str())) )
+				if( !Table_Name.Cmp(Table.c_str()) )
 				{
 					return( true );
 				}
@@ -427,39 +402,32 @@ bool CSG_ODBC_Connection::Table_Exists(const CSG_String &Table_Name) const
 //---------------------------------------------------------
 CSG_Table CSG_ODBC_Connection::Get_Field_Desc(const CSG_String &Table_Name) const
 {
-	CSG_Table	Fields;
-
-	Fields.Fmt_Name("%s [%s]", Table_Name.c_str(), _TL("Field Description"));
+	CSG_Table Fields; Fields.Fmt_Name("%s [%s]", Table_Name.c_str(), _TL("Field Description"));
 
 	if( is_Connected() )
 	{
 		try
 		{
-			int				i, n;
-			std_string		s;
-			otl_column_desc	*desc;
-			otl_stream		Stream;
+			otl_stream Stream;
 
 			Stream.set_all_column_types(otl_all_num2str|otl_all_date2str);
 
-			Stream.open(m_Size_Buffer, CSG_String::Format(SG_T("$SQLColumns $3:'%s'"), Table_Name.c_str()), m_Connection);	// get a list of all columns.
+			Stream.open(m_Size_Buffer, CSG_String::Format("$SQLColumns $3:'%s'", Table_Name.c_str()), m_Connection); // get a list of all columns.
 
-			desc	= Stream.describe_select(n);
+			int n; otl_column_desc *desc = Stream.describe_select(n);
 
-			for(i=0; i<n; i++)
+			for(int i=0; i<n; i++)
 			{
 				Fields.Add_Field(CSG_String(desc[i].name), SG_DATATYPE_String);
 			}
 
 			while( !Stream.eof() )
 			{
-				CSG_Table_Record	*pField	= Fields.Add_Record();
+				CSG_Table_Record *pField = Fields.Add_Record();
 
-				for(i=0; i<n; i++)
+				for(int i=0; i<n; i++)
 				{
-					Stream >> s;
-
-					pField->Set_Value(i, CSG_String(s.c_str()));
+					std_string s; Stream >> s; pField->Set_Value(i, CSG_String(s.c_str()));
 				}
 			}
 		}
@@ -475,14 +443,11 @@ CSG_Table CSG_ODBC_Connection::Get_Field_Desc(const CSG_String &Table_Name) cons
 //---------------------------------------------------------
 CSG_String CSG_ODBC_Connection::Get_Field_Names(const CSG_String &Table_Name) const
 {
-	CSG_Table	Fields	= Get_Field_Desc(Table_Name);
-
-	CSG_String	Names;
+	CSG_String Names; CSG_Table Fields = Get_Field_Desc(Table_Name);
 
 	for(int i=0; i<Fields.Get_Count(); i++)
 	{
-		Names	+= Fields[i].asString(3);
-		Names	+= SG_T("|");
+		Names += Fields[i].asString(3); Names += "|";
 	}
 
 	return( Names );
@@ -498,20 +463,19 @@ int CSG_ODBC_Connection::_Get_Type_To_SQL(TSG_Data_Type Type)
 {
 	switch( Type )
 	{
-	case SG_DATATYPE_String:	return( otl_var_char   );		// strings
+	case SG_DATATYPE_Color :
+	case SG_DATATYPE_Date  :
+	case SG_DATATYPE_String: return( otl_var_char         ); // strings
 
-	case SG_DATATYPE_Color:
-	case SG_DATATYPE_Char:
-	case SG_DATATYPE_Short:
-	case SG_DATATYPE_Int:
-	case SG_DATATYPE_Long:		return( otl_var_int    );		// non-floating point numbers
+	case SG_DATATYPE_Char  :
+	case SG_DATATYPE_Short :
+	case SG_DATATYPE_Int   :
+	case SG_DATATYPE_Long  : return( otl_var_int          ); // non-floating point numbers
 
-	case SG_DATATYPE_Float:		return( otl_var_float  );		// 32-bit floating point numbers
-	case SG_DATATYPE_Double:	return( otl_var_double );		// 64-bit floating point numbers
+	case SG_DATATYPE_Float : return( otl_var_float        ); // 32-bit floating point numbers
+	case SG_DATATYPE_Double: return( otl_var_double       ); // 64-bit floating point numbers
 
-	case SG_DATATYPE_Date:		return( otl_var_char );			// dates
-
-	case SG_DATATYPE_Binary:	return( otl_var_varchar_long );	// binary
+	case SG_DATATYPE_Binary: return( otl_var_varchar_long ); // binary
 	}
 
 	return( -1 );
@@ -522,26 +486,26 @@ TSG_Data_Type CSG_ODBC_Connection::_Get_Type_From_SQL(int Type)
 {
 	switch( Type )
 	{
-	case otl_var_char:			return( SG_DATATYPE_String );	//  1 | null terminated string
-	case otl_var_short:			return( SG_DATATYPE_Short  );	//  6 | signed 16-bit integer
-	case otl_var_int:			return( SG_DATATYPE_Int    );	//  4 | signed 32-bit integer
-	case otl_var_unsigned_int:	return( SG_DATATYPE_DWord  );	//  5 | unsigned 32-bit integer
-	case otl_var_long_int:		return( SG_DATATYPE_Long   );	//  7 | signed 32-bit integer (for 32-bit, and LLP64 C++ compilers), signed 64-bit integer (for LP-64 C++ compilers)
-	case otl_var_bigint:		return( SG_DATATYPE_Long   );	// 20 | MS SQL Server, DB2, MySQL, PostgreSQL, etc. BIGINT (signed 64-bit integer) type
-	case otl_var_float:			return( SG_DATATYPE_Float  );	//  3 | 4-byte floating point number
-	case otl_var_double:		return( SG_DATATYPE_Double );	//  2 | 8-byte floating point number
+	case otl_var_char         : return( SG_DATATYPE_String ); //  1 | null terminated string
+	case otl_var_short        : return( SG_DATATYPE_Short  ); //  6 | signed 16-bit integer
+	case otl_var_int          : return( SG_DATATYPE_Int    ); //  4 | signed 32-bit integer
+	case otl_var_unsigned_int : return( SG_DATATYPE_DWord  ); //  5 | unsigned 32-bit integer
+	case otl_var_long_int     : return( SG_DATATYPE_Long   ); //  7 | signed 32-bit integer (for 32-bit, and LLP64 C++ compilers), signed 64-bit integer (for LP-64 C++ compilers)
+	case otl_var_bigint       : return( SG_DATATYPE_Long   ); // 20 | MS SQL Server, DB2, MySQL, PostgreSQL, etc. BIGINT (signed 64-bit integer) type
+	case otl_var_float        : return( SG_DATATYPE_Float  ); //  3 | 4-byte floating point number
+	case otl_var_double       : return( SG_DATATYPE_Double ); //  2 | 8-byte floating point number
 
-	case otl_var_db2date:		return( SG_DATATYPE_String );	// 17 | DB2 DATE data type
-	case otl_var_db2time:		return( SG_DATATYPE_String );	// 16 | DB2 TIME data type
-	case otl_var_ltz_timestamp:	return( SG_DATATYPE_String );	// 19 | Oracle 9i/10g/11g TIMESTAMP WITH LOCAL TIME ZONE type
-	case otl_var_timestamp:		return( SG_DATATYPE_String );	//  8 | data type that is mapped into Oracle date/timestamp, DB2 timestamp, MS SQL datetime/datetime2/time/date, Sybase timestamp, etc.
-	case otl_var_tz_timestamp:	return( SG_DATATYPE_String );	// 18 | Oracle timestamp with timezone type
+	case otl_var_db2date      : return( SG_DATATYPE_Date   ); // 17 | DB2 DATE data type
+	case otl_var_db2time      : return( SG_DATATYPE_String ); // 16 | DB2 TIME data type
+	case otl_var_ltz_timestamp: return( SG_DATATYPE_String ); // 19 | Oracle 9i/10g/11g TIMESTAMP WITH LOCAL TIME ZONE type
+	case otl_var_timestamp    : return( SG_DATATYPE_String ); //  8 | data type that is mapped into Oracle date/timestamp, DB2 timestamp, MS SQL datetime/datetime2/time/date, Sybase timestamp, etc.
+	case otl_var_tz_timestamp : return( SG_DATATYPE_String ); // 18 | Oracle timestamp with timezone type
 
-	case otl_var_varchar_long:	return( SG_DATATYPE_String );	//  9 | data type that is mapped into LONG in Oracle 7/8/9/10/11, TEXT in MS SQL Server and Sybase, CLOB in DB2
-	case otl_var_raw:			return( SG_DATATYPE_Binary );	// 23 | RAW, BINARY, VARBINARY, BYTEA, VARCHAR BYTE, CHAR BYTE, etc.
-	case otl_var_raw_long:		return( SG_DATATYPE_Binary );	// 10 | data type that is mapped into LONG RAW in Oracle, IMAGE in MS SQL Server and Sybase, BLOB in DB2
-	case otl_var_clob:			return( SG_DATATYPE_Binary );	// 11 | data type that is mapped into CLOB in Oracle 8/9/10/11
-	case otl_var_blob:			return( SG_DATATYPE_Binary );	// 12 | data type that is mapped into BLOB in Oracle 8/9/10/11
+	case otl_var_varchar_long : return( SG_DATATYPE_String ); //  9 | data type that is mapped into LONG in Oracle 7/8/9/10/11, TEXT in MS SQL Server and Sybase, CLOB in DB2
+	case otl_var_raw          : return( SG_DATATYPE_Binary ); // 23 | RAW, BINARY, VARBINARY, BYTEA, VARCHAR BYTE, CHAR BYTE, etc.
+	case otl_var_raw_long     : return( SG_DATATYPE_Binary ); // 10 | data type that is mapped into LONG RAW in Oracle, IMAGE in MS SQL Server and Sybase, BLOB in DB2
+	case otl_var_clob         : return( SG_DATATYPE_Binary ); // 11 | data type that is mapped into CLOB in Oracle 8/9/10/11
+	case otl_var_blob         : return( SG_DATATYPE_Binary ); // 12 | data type that is mapped into BLOB in Oracle 8/9/10/11
 	}
 
 	return( SG_DATATYPE_Undefined );
@@ -588,11 +552,11 @@ void CSG_ODBC_Connection::Set_Auto_Commit(bool bOn)
 {
 	if( is_Connected() && m_bAutoCommit != bOn )
 	{
-		m_bAutoCommit	= bOn;
+		m_bAutoCommit = bOn;
 
 		if( bOn )
 		{
-			m_Connection.auto_commit_on();
+			m_Connection.auto_commit_on ();
 		}
 		else
 		{
@@ -665,105 +629,75 @@ bool CSG_ODBC_Connection::Table_Create(const CSG_String &Table_Name, const CSG_T
 	}
 
 	//-----------------------------------------------------
-	int			iField;
-	CSG_String	SQL;
+	CSG_String SQL; SQL.Printf("CREATE TABLE \"%s\"(", Table_Name.c_str());
 
-	SQL.Printf(SG_T("CREATE TABLE \"%s\"("), Table_Name.c_str());
-
-	for(iField=0; iField<Table.Get_Field_Count(); iField++)
+	for(int iField=0; iField<Table.Get_Field_Count(); iField++)
 	{
-		CSG_String	s;
+		CSG_String s;
 
 		switch( Table.Get_Field_Type(iField) )
 		{
-		default:
-		case SG_DATATYPE_String:
-			s	= CSG_String::Format(SG_T("VARCHAR(%d)"), Table.Get_Field_Length(iField));
+		case SG_DATATYPE_String: default:
+			s = CSG_String::Format("VARCHAR(%d)", Table.Get_Field_Length(iField));
 			break;
 
-		case SG_DATATYPE_Char:
-			s	= SG_T("SMALLINT");
-			break;
-
-		case SG_DATATYPE_Short:
-			s	= SG_T("SMALLINT");
-			break;
-
-		case SG_DATATYPE_Int:
-			s	= SG_T("INT");
-			break;
-
-		case SG_DATATYPE_Color:
-			s	= SG_T("INT");
-			break;
-
-		case SG_DATATYPE_Long:
-			s	= SG_T("INT");
-			break;
-
-		case SG_DATATYPE_Float:
-			s	= SG_T("FLOAT");
-			break;
-
-		case SG_DATATYPE_Double:
-			s	= is_PostgreSQL()	? SG_T("DOUBLE PRECISION")
-				: SG_T("DOUBLE");
-			break;
-
-		case SG_DATATYPE_Binary:
-			s	= is_PostgreSQL()	? SG_T("BYTEA")
-				: is_Access()		? SG_T("IMAGE")
-				: SG_T("VARBINARY");
-			break;
+		case SG_DATATYPE_Date  : s = "DATE"    ; break;
+		case SG_DATATYPE_Char  : s = "SMALLINT"; break;
+		case SG_DATATYPE_Short : s = "SMALLINT"; break;
+		case SG_DATATYPE_Int   : s = "INT"     ; break;
+		case SG_DATATYPE_Long  : s = "INT"     ; break;
+		case SG_DATATYPE_Float : s = "FLOAT"   ; break;
+		case SG_DATATYPE_Double: s = is_PostgreSQL() ? "DOUBLE PRECISION" : "DOUBLE"; break;
+		case SG_DATATYPE_Binary: s = is_PostgreSQL() ? "BYTEA" : is_Access() ? "IMAGE" : "VARBINARY"; break;
 		}
 
 		//-------------------------------------------------
-		char	Flag	= (int)Flags.Get_Size() == Table.Get_Field_Count() ? Flags[iField] : 0;
+		char Flag = (int)Flags.Get_Size() == Table.Get_Field_Count() ? Flags[iField] : 0;
 
 		if( (Flag & SG_ODBC_PRIMARY_KEY) == 0 )
 		{
 			if( (Flag & SG_ODBC_UNIQUE) != 0 )
 			{
-				s	+= SG_T(" UNIQUE");
+				s += " UNIQUE";
 			}
 
 			if( (Flag & SG_ODBC_NOT_NULL) != 0 )
 			{
-				s	+= SG_T(" NOT NULL");
+				s += " NOT NULL";
 			}
 		}
 
 		//-------------------------------------------------
 		if( iField > 0 )
 		{
-			SQL	+= SG_T(", ");
+			SQL += ", ";
 		}
 
-		SQL	+= CSG_String::Format(SG_T("%s %s"), Table.Get_Field_Name(iField), s.c_str());
+		SQL += CSG_String::Format("%s %s", Table.Get_Field_Name(iField), s.c_str());
 	}
 
 	//-----------------------------------------------------
 	if( (int)Flags.Get_Size() == Table.Get_Field_Count() )
 	{
-		CSG_String	s;
+		CSG_String s;
 
-		for(iField=0; iField<Table.Get_Field_Count(); iField++)
+		for(int iField=0; iField<Table.Get_Field_Count(); iField++)
 		{
 			if( (Flags[iField] & SG_ODBC_PRIMARY_KEY) != 0 )
 			{
-				s	+= s.Length() == 0 ? SG_T(", PRIMARY KEY(") : SG_T(", ");
-				s	+= Table.Get_Field_Name(iField);
+				s += s.Length() == 0 ? ", PRIMARY KEY(" : ", ";
+				s += Table.Get_Field_Name(iField);
 			}
 		}
 
 		if( s.Length() > 0 )
 		{
-			SQL	+= s + SG_T(")");
+			SQL += s + ")";
 		}
 	}
 
 	//-----------------------------------------------------
-	SQL	+= SG_T(")");
+	SQL += ")";
 
 	//-----------------------------------------------------
 	return( Execute(SQL, bCommit) );
@@ -779,7 +713,7 @@ bool CSG_ODBC_Connection::Table_Drop(const CSG_String &Table_Name, bool bCommit)
 		return( false );
 	}
 
-	return( Execute(CSG_String::Format(SG_T("DROP TABLE \"%s\""), Table_Name.c_str()), bCommit) );
+	return( Execute(CSG_String::Format("DROP TABLE \"%s\"", Table_Name.c_str()), bCommit) );
 }
 
 
@@ -802,7 +736,7 @@ bool CSG_ODBC_Connection::Table_Insert(const CSG_String &Table_Name, const CSG_T
 		return( false );
 	}
 
-	CSG_Table	Fields	= Get_Field_Desc(Table_Name);
+	CSG_Table Fields = Get_Field_Desc(Table_Name);
 
 	if( Fields.Get_Count() != Table.Get_Field_Count() )
 	{
@@ -810,88 +744,122 @@ bool CSG_ODBC_Connection::Table_Insert(const CSG_String &Table_Name, const CSG_T
 	}
 
 	//-----------------------------------------------------
-	try
+	for(sLong iRecord=0; iRecord<Table.Get_Count() && SG_UI_Process_Set_Progress(iRecord, Table.Get_Count()); iRecord++)
 	{
-		bool bLOB = false;
-
-		CSG_String Insert;
-		otl_stream Stream;
-
-		//-------------------------------------------------
-		Insert.Printf("INSERT INTO %s VALUES(", Table_Name.c_str());
+		CSG_Table_Record *pRecord = Table.Get_Record(iRecord); CSG_String Values;
 
 		for(int iField=0; iField<Table.Get_Field_Count(); iField++)
 		{
 			if( iField > 0 )
 			{
-				Insert	+= ",";
+				Values += ",";
 			}
 
-			Insert	+= CSG_String::Format(":f%d", 1 + iField);
-
-			switch( Table.Get_Field_Type(iField) )
+			if( pRecord->is_NoData(iField) )
 			{
-			default:
-			case SG_DATATYPE_String: Insert += "<varchar>" ; break;
-			case SG_DATATYPE_Date  : Insert += "<char[12]>"; break;
-			case SG_DATATYPE_Char  : Insert += "<char>"    ; break;
-			case SG_DATATYPE_Short : Insert += "<short>"   ; break;
-			case SG_DATATYPE_Int   : Insert += "<int>"     ; break;
-			case SG_DATATYPE_Color : Insert += "<long>"    ; break;
-			case SG_DATATYPE_Long  : Insert += "<long>"    ; break;
-			case SG_DATATYPE_Float : Insert += "<float>"   ; break;
-			case SG_DATATYPE_Double: Insert += "<double>"  ; break;
+				Values += "NULL";
+			}
+			else switch( Table.Get_Field_Type(iField) )
+			{
+			case SG_DATATYPE_Color :
+			case SG_DATATYPE_String:
+			case SG_DATATYPE_Date  : Values += CSG_String::Format("\'%s\'", pRecord->asString(iField)); break;
+			case SG_DATATYPE_Char  :
+			case SG_DATATYPE_Short :
+			case SG_DATATYPE_Int   :
+			case SG_DATATYPE_Long  : Values += CSG_String::Format("%d"    , pRecord->asInt   (iField)); break;
+			case SG_DATATYPE_Float : 
+			case SG_DATATYPE_Double: Values += CSG_String::Format("%f"    , pRecord->asDouble(iField)); break;
+			default                : Values +=                              pRecord->asString(iField) ; break;
 			}
 		}
 
-		Insert	+= ")";
-
-		Stream.set_all_column_types(otl_all_date2str);
-		Stream.set_lob_stream_mode(bLOB);
-		Stream.open(bLOB ? 1 : m_Size_Buffer, Insert, m_Connection);
-
-		std_string	valString;
-
-		//-------------------------------------------------
-		for(sLong iRecord=0; iRecord<Table.Get_Count() && SG_UI_Process_Set_Progress(iRecord, Table.Get_Count()); iRecord++)
-		{
-			CSG_Table_Record *pRecord = Table.Get_Record(iRecord);
-
-			for(int iField=0; iField<Table.Get_Field_Count(); iField++)
-			{
-				if( pRecord->is_NoData(iField) )
-				{
-					Stream << otl_null();
-				}
-				else switch( Table.Get_Field_Type(iField) )
-				{
-				default:
-				case SG_DATATYPE_String:
-				case SG_DATATYPE_Date:
-					valString	= CSG_String(pRecord->asString(iField));
-					Stream << valString;
-					break;
-
-				case SG_DATATYPE_Char  : Stream << (char)pRecord->asChar  (iField);	break;
-				case SG_DATATYPE_Short : Stream <<       pRecord->asShort (iField);	break;
-				case SG_DATATYPE_Int   : Stream <<       pRecord->asInt   (iField);	break;
-				case SG_DATATYPE_Color :
-				case SG_DATATYPE_Long  : Stream << (long)pRecord->asInt   (iField);	break;
-				case SG_DATATYPE_Float : Stream <<       pRecord->asFloat (iField);	break;
-				case SG_DATATYPE_Double: Stream <<       pRecord->asDouble(iField);	break;
-				}
-			}
-		}
-	}
-	//-----------------------------------------------------
-	catch( otl_exception &e )
-	{
-		_Error_Message(e);
-
-		return( false );
+		Execute("INSERT INTO " + Table_Name + " VALUES(" + Values + ")", false);
 	}
 
-	return( true );
+	return( Commit() );
+
+	//try
+	//{
+	//	bool bLOB = false;
+
+	//	CSG_String Insert;
+	//	otl_stream Stream;
+
+	//	//-------------------------------------------------
+	//	Insert.Printf("INSERT INTO %s VALUES(", Table_Name.c_str());
+
+	//	for(int iField=0; iField<Table.Get_Field_Count(); iField++)
+	//	{
+	//		if( iField > 0 )
+	//		{
+	//			Insert	+= ",";
+	//		}
+
+	//		Insert	+= CSG_String::Format(":f%d", 1 + iField);
+
+	//		switch( Table.Get_Field_Type(iField) )
+	//		{
+	//		default:
+	//		case SG_DATATYPE_String: Insert += "<varchar>" ; break;
+	//		case SG_DATATYPE_Date  : Insert += "<char[12]>"; break;
+	//		case SG_DATATYPE_Char  : Insert += "<char>"    ; break;
+	//		case SG_DATATYPE_Short : Insert += "<short>"   ; break;
+	//		case SG_DATATYPE_Int   : Insert += "<int>"     ; break;
+	//		case SG_DATATYPE_Long  : Insert += "<long>"    ; break;
+	//		case SG_DATATYPE_Float : Insert += "<float>"   ; break;
+	//		case SG_DATATYPE_Double: Insert += "<double>"  ; break;
+	//		}
+	//	}
+
+	//	Insert	+= ")";
+
+	//	Stream.set_all_column_types(otl_all_date2str);
+	//	Stream.set_lob_stream_mode(bLOB);
+	//	Stream.open(bLOB ? 1 : m_Size_Buffer, Insert, m_Connection);
+
+	//	std_string	valString;
+
+	//	//-------------------------------------------------
+	//	for(sLong iRecord=0; iRecord<Table.Get_Count() && SG_UI_Process_Set_Progress(iRecord, Table.Get_Count()); iRecord++)
+	//	{
+	//		CSG_Table_Record *pRecord = Table.Get_Record(iRecord);
+
+	//		for(int iField=0; iField<Table.Get_Field_Count(); iField++)
+	//		{
+	//			if( pRecord->is_NoData(iField) )
+	//			{
+	//				Stream << otl_null();
+	//			}
+	//			else switch( Table.Get_Field_Type(iField) )
+	//			{
+	//			default:
+	//			case SG_DATATYPE_String:
+	//			case SG_DATATYPE_Date  :
+	//				valString	= CSG_String(pRecord->asString(iField));
+	//				Stream << valString;
+	//				break;
+
+	//			case SG_DATATYPE_Char  : Stream << (char)pRecord->asChar  (iField);	break;
+	//			case SG_DATATYPE_Short : Stream <<       pRecord->asShort (iField);	break;
+	//			case SG_DATATYPE_Int   : Stream <<       pRecord->asInt   (iField);	break;
+	//			case SG_DATATYPE_Long  : Stream << (long)pRecord->asInt   (iField);	break;
+	//			case SG_DATATYPE_Float : Stream <<       pRecord->asFloat (iField);	break;
+	//			case SG_DATATYPE_Double: Stream <<       pRecord->asDouble(iField);	break;
+	//			}
+	//		}
+	//	}
+	//}
+
+	////-----------------------------------------------------
+	//catch( otl_exception &e )
+	//{
+	//	_Error_Message(e);
+
+	//	return( false );
+	//}
+
+	//return( true );
 }
 
 
@@ -946,23 +914,15 @@ bool CSG_ODBC_Connection::_Table_Load(CSG_Table &Table, const CSG_String &Select
 	//-----------------------------------------------------
 	try
 	{
-		int				valInt, iField, nFields;
-		long			valLong;
-		float			valFloat;
-		double			valDouble;
-		std_string		valString;
-		otl_long_string	valRaw(m_Connection.get_max_long_size());
-		otl_column_desc	*Fields;
-		otl_stream		Stream;
-		CSG_Bytes		BLOB;
+		otl_stream Stream;
 
-		Stream.set_all_column_types	(otl_all_date2str);
-		Stream.set_lob_stream_mode	(bLOB);
-		Stream.open					(bLOB ? 1 : m_Size_Buffer, Select, m_Connection);
+		Stream.set_all_column_types(otl_all_date2str);
+		Stream.set_lob_stream_mode(bLOB);
+		Stream.open(bLOB ? 1 : m_Size_Buffer, Select, m_Connection);
 
-		Fields	= Stream.describe_select(nFields);
+		int nFields; otl_column_desc *Fields = Stream.describe_select(nFields);
 
-		if( Fields == NULL || nFields <= 0 )
+		if( !Fields || nFields < 1 )
 		{
 			_Error_Message(_TL("no fields in selection"));
 
@@ -970,10 +930,9 @@ bool CSG_ODBC_Connection::_Table_Load(CSG_Table &Table, const CSG_String &Select
 		}
 
 		//-------------------------------------------------
-		Table.Destroy();
-		Table.Set_Name(Name);
+		Table.Destroy(); Table.Set_Name(Name);
 
-		for(iField=0; iField<nFields; iField++)
+		for(int iField=0; iField<nFields; iField++)
 		{
 			if( _Get_Type_From_SQL(Fields[iField].otl_var_dbtype) == SG_DATATYPE_Undefined )
 			{
@@ -988,29 +947,35 @@ bool CSG_ODBC_Connection::_Table_Load(CSG_Table &Table, const CSG_String &Select
 		{
 			CSG_Table_Record *pRecord = Table.Add_Record();
 
-			for(iField=0; iField<nFields; iField++)
+			for(int iField=0; iField<nFields; iField++)
 			{
 				switch( Table.Get_Field_Type(iField) )
 				{
-				case SG_DATATYPE_String: Stream >> valString; if( Stream.is_null() ) pRecord->Set_NoData(iField); else pRecord->Set_Value(iField, CSG_String(valString.c_str()));	break;
+				case SG_DATATYPE_String: { std_string Value; Stream >> Value; if( Stream.is_null() ) pRecord->Set_NoData(iField); else pRecord->Set_Value(iField, Value.c_str()); } break;
+				case SG_DATATYPE_Date  : { std_string Value; Stream >> Value; if( Stream.is_null() ) pRecord->Set_NoData(iField); else pRecord->Set_Value(iField, Value.c_str()); } break;
 				case SG_DATATYPE_Short :			
-				case SG_DATATYPE_Int   : Stream >> valInt   ; if( Stream.is_null() ) pRecord->Set_NoData(iField); else pRecord->Set_Value(iField, valInt);		break;
+				case SG_DATATYPE_Int   : { int        Value; Stream >> Value; if( Stream.is_null() ) pRecord->Set_NoData(iField); else pRecord->Set_Value(iField, Value        ); } break;
 				case SG_DATATYPE_DWord :
-				case SG_DATATYPE_Long  : Stream >> valLong  ; if( Stream.is_null() ) pRecord->Set_NoData(iField); else pRecord->Set_Value(iField, valLong);		break;
-				case SG_DATATYPE_Float : Stream >> valFloat ; if( Stream.is_null() ) pRecord->Set_NoData(iField); else pRecord->Set_Value(iField, valFloat);		break;
-				case SG_DATATYPE_Double: Stream >> valDouble; if( Stream.is_null() ) pRecord->Set_NoData(iField); else pRecord->Set_Value(iField, valDouble);	break;
-				case SG_DATATYPE_Binary: Stream >> valRaw   ; if( Stream.is_null() ) pRecord->Set_NoData(iField); else
+				case SG_DATATYPE_Long  : { long       Value; Stream >> Value; if( Stream.is_null() ) pRecord->Set_NoData(iField); else pRecord->Set_Value(iField, Value        ); } break;
+				case SG_DATATYPE_Float : { float      Value; Stream >> Value; if( Stream.is_null() ) pRecord->Set_NoData(iField); else pRecord->Set_Value(iField, Value        ); } break;
+				case SG_DATATYPE_Double: { double     Value; Stream >> Value; if( Stream.is_null() ) pRecord->Set_NoData(iField); else pRecord->Set_Value(iField, Value        ); } break;
+				case SG_DATATYPE_Binary: { otl_long_string Value(m_Connection.get_max_long_size()); Stream >> Value;
+					if( Stream.is_null() )
 					{
-						BLOB.Clear();
+						pRecord->Set_NoData(iField);
+					}
+					else
+					{
+						CSG_Bytes BLOB;
 
-						for(int i=0; i<valRaw.len(); i++)
+						for(int i=0; i<Value.len(); i++)
 						{
-							BLOB.Add((BYTE)valRaw[i]);
+							BLOB.Add((BYTE)Value[i]);
 						}
 
 						pRecord->Set_Value(iField, BLOB);
 					}
-					break;
+					break; }
 				}
 			}
 		}
@@ -1080,33 +1045,27 @@ bool CSG_ODBC_Connection::Table_Load_BLOBs(CSG_Bytes_Array &BLOBs, const CSG_Str
 	//-----------------------------------------------------
 	try
 	{
-		bool			bLOB	= true;
-		int				nFields;
-		otl_column_desc	*Fields;
-		otl_long_string	valRaw(m_Connection.get_max_long_size());
-		otl_stream		Stream;
-		CSG_String		Select;
-
-		//-------------------------------------------------
-		Select.Printf(SG_T("SELECT %s FROM %s"), Field.c_str(), Table_Name.c_str());
+		CSG_String Select; Select.Printf("SELECT %s FROM %s", Field.c_str(), Table_Name.c_str());
 
 		if( Where.Length() )
 		{
-			Select	+= SG_T(" WHERE ") + Where;
+			Select += " WHERE " + Where;
 		}
 
 		if( Order.Length() )
 		{
-			Select	+= SG_T(" ORDER BY ") + Order;
+			Select += " ORDER BY " + Order;
 		}
 
 		//-------------------------------------------------
-		Stream.set_lob_stream_mode	(bLOB);
-		Stream.open					(bLOB ? 1 : m_Size_Buffer, Select, m_Connection);
+		otl_stream Stream; bool bLOB = true;
 
-		Fields	= Stream.describe_select(nFields);
+		Stream.set_lob_stream_mode(bLOB);
+		Stream.open(bLOB ? 1 : m_Size_Buffer, Select, m_Connection);
 
-		if( Fields == NULL || nFields <= 0 )
+		int nFields; otl_column_desc *Fields = Stream.describe_select(nFields);
+
+		if( !Fields || nFields < 1 )
 		{
 			_Error_Message(_TL("no fields in selection"));
 
@@ -1128,11 +1087,13 @@ bool CSG_ODBC_Connection::Table_Load_BLOBs(CSG_Bytes_Array &BLOBs, const CSG_Str
 		}
 
 		//-------------------------------------------------
+		otl_long_string	valRaw(m_Connection.get_max_long_size());
+
 		BLOBs.Destroy();
 
 		while( !Stream.eof() && SG_UI_Process_Get_Okay() )	// while not end-of-data
 		{
-			CSG_Bytes	*pBLOB	= BLOBs.Add();
+			CSG_Bytes *pBLOB = BLOBs.Add();
 
 			Stream >> valRaw;
 
@@ -1145,6 +1106,7 @@ bool CSG_ODBC_Connection::Table_Load_BLOBs(CSG_Bytes_Array &BLOBs, const CSG_Str
 			}
 		}
 	}
+
 	//-----------------------------------------------------
 	catch( otl_exception &e )
 	{
@@ -1168,9 +1130,7 @@ CSG_ODBC_Connections::CSG_ODBC_Connections(void)
 {
 	otl_connect::otl_initialize(); // initialize ODBC environment
 
-	m_hEnv			= SQL_NULL_HENV;
-	m_nConnections	= 0;
-	m_pConnections	= NULL;
+	m_hEnv = SQL_NULL_HENV; m_nConnections = 0; m_pConnections = NULL;
 
 	Create();
 }
@@ -1192,9 +1152,9 @@ bool CSG_ODBC_Connections::Create(void)
 	Destroy();
 
 #if ODBCVER >= 0x0300
-	SQLRETURN	r	= SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &m_hEnv);
+	SQLRETURN r = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &m_hEnv);
 #else
-	SQLRETURN	r	= SQLAllocEnv(&henv_);
+	SQLRETURN r = SQLAllocEnv(&henv_);
 #endif
 
 	if( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO )
@@ -1224,16 +1184,15 @@ bool CSG_ODBC_Connections::Destroy(void)
 
 		SG_Free(m_pConnections);
 
-		m_nConnections	= 0;
-		m_pConnections	= NULL;
+		m_nConnections = 0; m_pConnections = NULL;
 	}
 
 	if( m_hEnv != SQL_NULL_HENV )
 	{
 #if ODBCVER >= 0x0300
-		SQLRETURN	r	= SQLFreeHandle(SQL_HANDLE_ENV, m_hEnv);
+		SQLRETURN r = SQLFreeHandle(SQL_HANDLE_ENV, m_hEnv);
 #else
-		SQLRETURN	r	= SQLFreeEnv(m_hEnv);
+		SQLRETURN r = SQLFreeEnv(m_hEnv);
 #endif
 
 		if( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO )
@@ -1241,7 +1200,7 @@ bool CSG_ODBC_Connections::Destroy(void)
 			SG_UI_Msg_Add_Error(SG_T("Failed to close ODBC connection."));
 		}
 
-		m_hEnv	= SQL_NULL_HENV;
+		m_hEnv = SQL_NULL_HENV;
 	}
 
 	return( true );
@@ -1255,21 +1214,21 @@ bool CSG_ODBC_Connections::Destroy(void)
 //---------------------------------------------------------
 CSG_ODBC_Connection * CSG_ODBC_Connections::Add_Connection(const CSG_String &Server, const CSG_String &User, const CSG_String &Password)
 {
-	CSG_ODBC_Connection	*pConnection	= new CSG_ODBC_Connection(Server, User, Password);
+	CSG_ODBC_Connection *pConnection = new CSG_ODBC_Connection(Server, User, Password);
 
 	if( pConnection )
 	{
 		if( pConnection->is_Connected() )
 		{
-			m_pConnections	= (CSG_ODBC_Connection **)SG_Realloc(m_pConnections, (m_nConnections + 1) * sizeof(CSG_ODBC_Connection *));
+			m_pConnections = (CSG_ODBC_Connection **)SG_Realloc(m_pConnections, (m_nConnections + 1) * sizeof(CSG_ODBC_Connection *));
 
-			m_pConnections[m_nConnections++]	= pConnection;
+			m_pConnections[m_nConnections++] = pConnection;
 		}
 		else
 		{
 			delete(pConnection);
 
-			pConnection	= NULL;
+			pConnection = NULL;
 		}
 	}
 
@@ -1308,10 +1267,10 @@ bool CSG_ODBC_Connections::Del_Connection(int Index, bool bCommit)
 
 		for(m_nConnections--; Index<m_nConnections; Index++)
 		{
-			m_pConnections[Index]	= m_pConnections[Index + 1];
+			m_pConnections[Index] = m_pConnections[Index + 1];
 		}
 
-		m_pConnections	= (CSG_ODBC_Connection **)SG_Realloc(m_pConnections, m_nConnections * sizeof(CSG_ODBC_Connection *));
+		m_pConnections = (CSG_ODBC_Connection **)SG_Realloc(m_pConnections, m_nConnections * sizeof(CSG_ODBC_Connection *));
 
 		return( true );
 	}
@@ -1544,63 +1503,69 @@ int CSG_ODBC_Tool::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramet
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_ODBC_Tool::Set_Constraints(CSG_Parameters *pParameters, CSG_Table *pTable)
+bool CSG_ODBC_Tool::Set_Constraints(CSG_Parameters *pParameters, const CSG_String &Identifier)
 {
-	if( !pParameters || !pTable )
+	CSG_Parameter *pParent = pParameters ? pParameters->Get_Parameter(Identifier) : NULL;
+
+	if( !pParent || (pParent->Get_Type() != PARAMETER_TYPE_Table && pParent->Get_Type() != PARAMETER_TYPE_Shapes) )
 	{
 		return( false );
 	}
 
-	pParameters->Del_Parameters();
-
-	if( pTable )
-	{
-		pParameters->Add_Node("", "P", _TL("Primary key"), _TL(""));
-		pParameters->Add_Node("", "N", _TL("Not Null"   ), _TL(""));
-		pParameters->Add_Node("", "U", _TL("Unique"     ), _TL(""));
-
-		for(int i=0; i<pTable->Get_Field_Count(); i++)
-		{
-			pParameters->Add_Bool("P", CSG_String::Format("P%d", i), pTable->Get_Field_Name(i), _TL(""), false);
-			pParameters->Add_Bool("N", CSG_String::Format("N%d", i), pTable->Get_Field_Name(i), _TL(""), false);
-			pParameters->Add_Bool("U", CSG_String::Format("U%d", i), pTable->Get_Field_Name(i), _TL(""), false);
-		}
-	}
+	pParameters->Add_Table_Fields(pParent, Identifier + "_PK", _TL("Primary Key"), _TL(""));
+	pParameters->Add_Table_Fields(pParent, Identifier + "_NN", _TL("Not Null"   ), _TL(""));
+	pParameters->Add_Table_Fields(pParent, Identifier + "_UQ", _TL("Unique"     ), _TL(""));
 
 	return( true );
 }
 
 //---------------------------------------------------------
-CSG_Buffer CSG_ODBC_Tool::Get_Constraints(CSG_Parameters *pParameters, CSG_Table *pTable)
+CSG_Buffer CSG_ODBC_Tool::Get_Constraints(CSG_Parameters *pParameters, const CSG_String &Identifier)
 {
 	CSG_Buffer Flags;
 
-	if( pParameters )
+	CSG_Parameter *pParent = pParameters ? pParameters->Get_Parameter(Identifier) : NULL;
+
+	if( !pParent || (pParent->Get_Type() != PARAMETER_TYPE_Table && pParent->Get_Type() != PARAMETER_TYPE_Shapes) )
 	{
-		int nFields = pTable ? pTable->Get_Field_Count() : (pParameters->Get_Count() - 3) / 3;
+		return( Flags );
+	}
 
-		if( nFields * 3 + 3 == pParameters->Get_Count() )
+	CSG_Parameter *pFields;
+
+	Flags.Set_Size(((CSG_Table *)pParent->asDataObject())->Get_Field_Count());
+
+	memset(Flags.Get_Data(), 0, Flags.Get_Size());
+
+	if( (pFields = pParameters->Get_Parameter(Identifier + "_PK")) != NULL && pFields->Get_Type() == PARAMETER_TYPE_Table_Fields )
+	{
+		for(int i=0, Index; i<pFields->asTableFields()->Get_Count(); i++)
 		{
-			for(int i=0; i<nFields; i++)
+			if( (Index = pFields->asTableFields()->Get_Index(i)) >= 0 && Index < (int)Flags.Get_Size() )
 			{
-				char Flag = 0;
+				Flags.Get_Data()[Index]	|= SG_ODBC_PRIMARY_KEY;
+			}
+		}
+	}
 
-				if( pParameters->Get_Parameter(CSG_String::Format("P%d", i))->asBool() )
-				{
-					Flag |= SG_ODBC_PRIMARY_KEY;
-				}
+	if( (pFields = pParameters->Get_Parameter(Identifier + "_NN")) != NULL && pFields->Get_Type() == PARAMETER_TYPE_Table_Fields )
+	{
+		for(int i=0, Index; i<pFields->asTableFields()->Get_Count(); i++)
+		{
+			if( (Index = pFields->asTableFields()->Get_Index(i)) >= 0 && Index < (int)Flags.Get_Size() )
+			{
+				Flags.Get_Data()[Index]	|= SG_ODBC_NOT_NULL;
+			}
+		}
+	}
 
-				if( pParameters->Get_Parameter(CSG_String::Format("N%d", i))->asBool() )
-				{
-					Flag |= SG_ODBC_NOT_NULL;
-				}
-
-				if( pParameters->Get_Parameter(CSG_String::Format("U%d", i))->asBool() )
-				{
-					Flag |= SG_ODBC_UNIQUE;
-				}
-
-				Flags += Flag;
+	if( (pFields = pParameters->Get_Parameter(Identifier + "_UQ")) != NULL && pFields->Get_Type() == PARAMETER_TYPE_Table_Fields )
+	{
+		for(int i=0, Index; i<pFields->asTableFields()->Get_Count(); i++)
+		{
+			if( (Index = pFields->asTableFields()->Get_Index(i)) >= 0 && Index < (int)Flags.Get_Size() )
+			{
+				Flags.Get_Data()[Index]	|= SG_ODBC_UNIQUE;
 			}
 		}
 	}

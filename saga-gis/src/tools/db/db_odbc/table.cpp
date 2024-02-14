@@ -142,7 +142,7 @@ CTable_Info::CTable_Info(void)
 //---------------------------------------------------------
 void CTable_Info::On_Connection_Changed(CSG_Parameters *pParameters)
 {
-	CSG_Parameter *pParameter = pParameters->Get_Parameter("TABLE");
+	CSG_Parameter *pParameter = (*pParameters)("TABLE");
 
 	pParameter->asChoice()->Set_Items(Get_Connection()->Get_Tables());
 	pParameter->Set_Value(pParameter->asString());
@@ -194,7 +194,7 @@ CTable_Load::CTable_Load(void)
 //---------------------------------------------------------
 void CTable_Load::On_Connection_Changed(CSG_Parameters *pParameters)
 {
-	CSG_Parameter *pParameter = pParameters->Get_Parameter("SOURCE");
+	CSG_Parameter *pParameter = (*pParameters)("SOURCE");
 
 	pParameter->asChoice()->Set_Items(Get_Connection()->Get_Tables());
 	pParameter->Set_Value(pParameter->asString());
@@ -232,15 +232,12 @@ CTable_Save::CTable_Save(void)
 		PARAMETER_INPUT
 	);
 
+	Set_Constraints(&Parameters, "TABLE");
+
 	Parameters.Add_String(
 		"", "NAME"  , _TL("Table Name"),
 		_TL(""),
 		""
-	);
-
-	Parameters.Add_Parameters(
-		"", "FLAGS" , _TL("Constraints"),
-		_TL("")
 	);
 
 	Parameters.Add_Choice(
@@ -259,9 +256,7 @@ int CTable_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 {
 	if( pParameter->Cmp_Identifier("TABLE") )
 	{
-		pParameters->Get_Parameter("NAME")->Set_Value(pParameter->asTable() ? pParameter->asTable()->Get_Name() : SG_T(""));
-
-		Set_Constraints(pParameters->Get_Parameter("FLAGS")->asParameters(), pParameter->asTable());
+		pParameters->Set_Parameter("NAME", pParameter->asTable() ? pParameter->asTable()->Get_Name() : SG_T(""));
 	}
 
 	return( CSG_ODBC_Tool::On_Parameter_Changed(pParameters, pParameter) );
@@ -295,7 +290,7 @@ bool CTable_Save::On_Execute(void)
 			}
 			else
 			{
-				bResult = Get_Connection()->Table_Save(Name, Table, Get_Constraints(Parameters("FLAGS")->asParameters(), &Table));
+				bResult = Get_Connection()->Table_Save(Name, Table, Get_Constraints(&Parameters, "TABLE"));
 			}
 			break;
 
@@ -311,7 +306,7 @@ bool CTable_Save::On_Execute(void)
 	}
 	else
 	{
-		bResult	= Get_Connection()->Table_Save(Name, Table, Get_Constraints(Parameters("FLAGS")->asParameters(), &Table));
+		bResult	= Get_Connection()->Table_Save(Name, Table, Get_Constraints(&Parameters, "TABLE"));
 	}
 
 	//-----------------------------------------------------
@@ -351,7 +346,7 @@ CTable_Drop::CTable_Drop(void)
 //---------------------------------------------------------
 void CTable_Drop::On_Connection_Changed(CSG_Parameters *pParameters)
 {
-	CSG_Parameter *pParameter = pParameters->Get_Parameter("TABLE");
+	CSG_Parameter *pParameter = (*pParameters)("TABLE");
 
 	pParameter->asChoice()->Set_Items(Get_Connection()->Get_Tables());
 	pParameter->Set_Value(pParameter->asString());
