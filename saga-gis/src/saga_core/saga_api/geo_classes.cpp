@@ -1365,10 +1365,12 @@ bool CSG_Distance_Weighting::Create_Parameters(CSG_Parameters &Parameters, const
 {
 	if( Add_Parameters(Parameters, Parent, bIDW_Offset) )
 	{
-		if( Parameters("DW_WEIGHTING" ) ) { Parameters("DW_WEIGHTING" )->Set_Value((int)m_Weighting  ); }
-		if( Parameters("DW_IDW_POWER" ) ) { Parameters("DW_IDW_POWER" )->Set_Value(     m_IDW_Power  ); }
-		if( Parameters("DW_IDW_OFFSET") ) { Parameters("DW_IDW_OFFSET")->Set_Value(     m_IDW_bOffset); }
-		if( Parameters("DW_BANDWIDTH" ) ) { Parameters("DW_BANDWIDTH" )->Set_Value(     m_Bandwidth  ); }
+		#define INIT_VALUE(id, val) if( Parameters(id) ) { Parameters(id)->Set_Value(val); Parameters(id)->Set_Default(val); }
+
+		INIT_VALUE("DW_WEIGHTING" ,(int)m_Weighting  );
+		INIT_VALUE("DW_IDW_POWER" ,     m_IDW_Power  );
+		INIT_VALUE("DW_IDW_OFFSET",     m_IDW_bOffset);
+		INIT_VALUE("DW_BANDWIDTH" ,     m_Bandwidth  );
 
 		return( true );
 	}
