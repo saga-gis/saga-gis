@@ -150,6 +150,7 @@ CSG_Tool *		Create_Tool(int i)
 	case 25:	return( new CCloud_Overlap );
 	case 26:	return( new CTemperature_Lapse_Rates );
 	case 30:	return( new CTemperature_Lapse_Downscaling );
+	case 32:	return( new CTemperature_Lapse_Interpolation );
 
 	case 27:	return( new CAirPressure_Scaling );
 	case 29:	return( new CAirHumidity_Conversion );
@@ -157,7 +158,7 @@ CSG_Tool *		Create_Tool(int i)
 	case 28:	return( new CLand_Surface_Temperature );
 
 	//-----------------------------------------------------
-	case 32:	return( NULL );
+	case 33:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

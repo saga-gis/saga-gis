@@ -365,3 +365,383 @@ bool CTemperature_Lapse_Downscaling::Get_Regression(CSG_Grid *pT, CSG_Grid *pZ, 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CTemperature_Lapse_Interpolation::CTemperature_Lapse_Interpolation(void)
+{
+	Set_Name		(_TL("Lapse Rate Based Temperature Interpolation"));
+
+	Set_Author		("O.Conrad (c) 2024");
+
+	Set_Description	(_TW(
+		"The Lapse Rate Based Temperature Interpolation is quite simple, "
+		"but might perform well for mountainous regions, where the "
+		"altitudinal gradient is the main driver for local temperature "
+		"variation. First, a given lapse rate is used to estimate sea "
+		"level temperatures from elevation and temperature data at a "
+		"coarse resolution. Second, the same lapse rate is used to "
+		"estimate the terrain surface temperature using higher resoluted "
+		"elevation data and the spline interpolated sea level temperatures "
+		"from the previous step. "
+		"The lapse rates can be defined as one constant value valid for the "
+		"whole area of interest, or as varying value as defined by an "
+		"additional input grid. Alternatively a constant lapse rate can be "
+		"estimated from the coarse resolution input with a regression analysis. "
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Shapes("", "POINTS"     , _TL("Observations"         ), _TL(""), PARAMETER_INPUT, SHAPE_TYPE_Point);
+	Parameters.Add_Grid  ("", "DEM"        , _TL("Elevation"            ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid  ("", "TEMPERATURE", _TL("Temperature"          ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  ("", "SLT"        , _TL("Sea Level Temperature"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+
+	Parameters.Add_Table_Field("POINTS", "FIELD_T", _TL("Temperature"), _TL(""), false);
+	Parameters.Add_Table_Field("POINTS", "FIELD_Z", _TL("Elevation"  ), _TL(""),  true);
+
+	Parameters.Add_Choice("",
+		"INTERPOLATION" , _TL("Interpolation"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("Multilevel B-Spline Interpolation"),
+			_TL("Inverse Distance Weighted")
+		), 0
+	);
+
+	Parameters.Add_Double("INTERPOLATION",
+		"IDW_POWER"     , _TL("Power"),
+		_TL(""),
+		2.
+	);
+
+	Parameters.Add_Choice("",
+		"LAPSE_METHOD"  , _TL("Lapse Rate"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("user defined lapse rate"),
+			_TL("lapse rate from regression")
+		), 1
+	);
+
+	Parameters.Add_Table("",
+		"REGRS_SUMMARY" , _TL("Regression Summary"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
+	Parameters.Add_Choice("LAPSE_METHOD",
+		"REGRS_LAPSE"   , _TL("Regression"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s",
+			_TL("elevation"),
+			_TL("elevation and position"),
+			_TL("elevation and position (2nd order polynom)")
+		), 1
+	);
+
+	Parameters.Add_Bool("LAPSE_METHOD",
+		"LIMIT_LAPSE"   , _TL("Limit Minimum Lapse Rate"),
+		_TL("If set, lapse rates from regression are limited to a minimum as specified by the constant lapse rate parameter."),
+		false
+	);
+
+	Parameters.Add_Double("LAPSE_METHOD",
+		"CONST_LAPSE"   , _TL("Constant Lapse Rate"),
+		_TL("Constant lapse rate in degree of temperature per 100 meter."),
+		0.6
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CTemperature_Lapse_Interpolation::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("INTERPOLATION") )
+	{
+		pParameters->Set_Enabled("IDW_POWER"    , pParameter->asInt() == 1);
+	}
+
+	if( pParameter->Cmp_Identifier("LAPSE_METHOD") )
+	{
+		int Method = pParameter->asInt(); bool bLimit = (*pParameters)("LIMIT_LAPSE")->asBool();
+
+		pParameters->Set_Enabled("CONST_LAPSE"  , Method == 0 || (Method == 1 && bLimit));
+		pParameters->Set_Enabled("REGRS_SUMMARY", Method == 1);
+		pParameters->Set_Enabled("REGRS_LAPSE"  , Method == 1);
+		pParameters->Set_Enabled("LIMIT_LAPSE"  , Method == 1);
+	}
+
+	if( pParameter->Cmp_Identifier("LIMIT_LAPSE") )
+	{
+		int Method = (*pParameters)("LAPSE_METHOD")->asInt(); bool bLimit = pParameter->asBool();
+
+		pParameters->Set_Enabled("CONST_LAPSE"  , Method == 0 || (Method == 1 && bLimit));
+	}
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CTemperature_Lapse_Interpolation::On_Execute(void)
+{
+	CSG_Shapes Points;
+
+	if( !Get_Points(Points) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	// define the lapse rate
+
+	double dT_lapse = Parameters("CONST_LAPSE")->asDouble() / 100.;
+
+	switch( Parameters("LAPSE_METHOD")->asInt() )
+	{
+	default: // user defined
+		break;
+
+	case  1: // constant lapse rate from regression
+		if( !Get_Regression(Points, dT_lapse) )
+		{
+			return( false );
+		}
+		break;
+	}
+
+	//-----------------------------------------------------
+	// from surface temperatures to sea level temperatures
+
+	for(sLong i=0; i<Points.Get_Count(); i++)
+	{
+		Points[i].Set_Value(0, Points[i].asDouble(0) + dT_lapse * Points[i].asDouble(1));
+	}
+
+	//-----------------------------------------------------
+	// interpolate the sea level temperatures
+
+	CSG_Grid SLT, *pSLT = Parameters("SLT")->asGrid();
+
+	if( !pSLT )
+	{
+		pSLT = &SLT; SLT.Create(Get_System());
+	}
+
+	switch( Parameters("INTERPOLATION")->asInt() )
+	{
+	default:
+		SG_RUN_TOOL_ExitOnError("grid_spline", 4, // Multlevel B-Spline Interpolation
+			   SG_TOOL_PARAMETER_SET("SHAPES"           , &Points)
+			&& SG_TOOL_PARAMETER_SET("FIELD"            , 0      )
+			&& SG_TOOL_PARAMETER_SET("TARGET_DEFINITION", 1      ) // grid or grid system
+			&& SG_TOOL_PARAMETER_SET("TARGET_OUT_GRID"  , pSLT   )
+		);
+		break;
+
+	case  1:
+		SG_RUN_TOOL_ExitOnError("grid_gridding", 1, // Inverse Distance Weighted
+			   SG_TOOL_PARAMETER_SET("POINTS"           , &Points)
+			&& SG_TOOL_PARAMETER_SET("FIELD"            , 0      )
+			&& SG_TOOL_PARAMETER_SET("TARGET_DEFINITION", 1      ) // grid or grid system
+			&& SG_TOOL_PARAMETER_SET("TARGET_OUT_GRID"  , pSLT   )
+			&& SG_TOOL_PARAMETER_SET("SEARCH_RANGE"     , 1      ) // global
+			&& SG_TOOL_PARAMETER_SET("SEARCH_POINTS_ALL", 1      ) // all points within search distance
+		//	&& SG_TOOL_PARAMETER_SET("DW_WEIGHTING"     , 1      ) // inverse distance to a power
+			&& SG_TOOL_PARAMETER_SET("DW_IDW_POWER"     , Parameters("IDW_POWER")->asDouble()) // power
+		);
+		break;
+	}
+
+	pSLT->Fmt_Name("%s [%s]", _TL("Sea Level Temperature"), Points.Get_Name());
+
+	//-----------------------------------------------------
+	// from sea level temperatures to surface temperatures
+
+	CSG_Grid *pDEM = Parameters("DEM")->asGrid(), *pT = Parameters("TEMPERATURE")->asGrid();
+
+	pT->Fmt_Name("%s [%s]", _TL("Temperature"), Points.Get_Name());
+
+	for(int y=0; y<Get_NY() && Set_Progress(y, Get_NY()); y++)
+	{
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
+		{
+			if( !pDEM->is_NoData(x, y) && !pSLT->is_NoData(x, y) )
+			{
+				pT->Set_Value(x, y, pSLT->asDouble(x, y) - dT_lapse * pDEM->asDouble(x, y));
+			}
+			else
+			{
+				pT->Set_NoData(x, y);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CTemperature_Lapse_Interpolation::Get_Points(CSG_Shapes &Points)
+{
+	CSG_Shapes *pPoints = Parameters("POINTS")->asShapes();
+
+	int field_T = Parameters("FIELD_T")->asInt();
+	int field_Z = Parameters("FIELD_Z")->asInt();
+
+	Points.Create(SHAPE_TYPE_Point);
+	
+	Points.Fmt_Name("%s.%s", pPoints->Get_Field_Name(field_T), pPoints->Get_Name());
+
+	Points.Add_Field("T", SG_DATATYPE_Double);
+	Points.Add_Field("Z", SG_DATATYPE_Double);
+
+	if( field_Z >= 0 )
+	{
+		for(sLong i=0; i<pPoints->Get_Count(); i++)
+		{
+			CSG_Shape *pPoint = pPoints->Get_Shape(i);
+
+			if( !pPoint->is_NoData(field_T) && !pPoint->is_NoData(field_Z) )
+			{
+				CSG_Shape &Point = *Points.Add_Shape(pPoint, SHAPE_COPY_GEOM);
+
+				Point.Set_Value(0, pPoint->asDouble(field_T));
+				Point.Set_Value(1, pPoint->asDouble(field_Z));
+			}
+		}
+	}
+	else // if( field_Z < 0 )
+	{
+		CSG_Grid *pDEM = Parameters("DEM")->asGrid();
+
+		for(sLong i=0; i<pPoints->Get_Count(); i++)
+		{
+			CSG_Shape *pPoint = pPoints->Get_Shape(i); double z;
+
+			if( !pPoint->is_NoData(field_T) && pDEM->Get_Value(pPoint->Get_Point(), z) )
+			{
+				CSG_Shape &Point = *Points.Add_Shape(pPoint, SHAPE_COPY_GEOM);
+
+				Point.Set_Value(0, pPoint->asDouble(field_T));
+				Point.Set_Value(1, z);
+			}
+		}
+	}
+
+	return( Points.Get_Count() > 0 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CTemperature_Lapse_Interpolation::Get_Regression(CSG_Shapes &Points, double &dT_lapse)
+{
+	int Method = Parameters("REGRS_LAPSE")->asInt();
+
+	CSG_Vector Sample;
+
+	switch( Method )
+	{
+	default: Sample.Create(2); break; // T = a + b*Z
+	case  1: Sample.Create(4); break; // T = a + b*Z + c*X + d*Y
+	case  2: Sample.Create(6); break; // T = a + b*Z + c*X + d*Y + e*X*X + f*Y*Y
+	}
+
+	const SG_Char *Vars[] = { SG_T("T"), SG_T("Z"), SG_T("X"), SG_T("Y"), SG_T("X^2"), SG_T("Y^2") };
+
+	CSG_Strings	Names(Sample.Get_N(), Vars);
+
+	//-----------------------------------------------------
+	CSG_Matrix Samples;
+
+	for(sLong i=0; i<Points.Get_Count(); i++)
+	{
+		CSG_Shape &Point = *Points.Get_Shape(i); CSG_Point p = Point.Get_Point();
+
+		switch( Method )
+		{
+		case  2: // T = a + b*Z + c*X + d*Y + e*X*X + f*Y*Y
+			Sample[5] = p.y*p.y;
+			Sample[4] = p.x*p.x;
+
+		case  1: // T = a + b*Z + c*X + d*Y
+			Sample[3] = p.y;
+			Sample[2] = p.x;
+
+		default: // T = a + b*Z
+			Sample[1] = Point.asDouble(1);
+			Sample[0] = Point.asDouble(0);
+		}
+
+		Samples.Add_Row(Sample);
+	}
+
+	//-----------------------------------------------------
+	CSG_Regression_Multiple	Regression;
+
+	if( !Regression.Get_Model(Samples, &Names) )
+	{
+		Error_Set(_TL("Regression failed"));
+
+		return( false );
+	}
+
+	Message_Add(Regression.Get_Info(), false);
+
+	dT_lapse = -Regression.Get_RCoeff(0);
+
+	if( Parameters("LIMIT_LAPSE")->asBool() )
+	{
+		double dT_min = Parameters("CONST_LAPSE")->asDouble() / 100.;
+
+		if( dT_lapse < dT_min )
+		{
+			dT_lapse = dT_min;
+		}
+	}
+
+	Message_Fmt("\n\n%s: %g", _TL("Constant lapse rate from regression"), dT_lapse * 100.);
+
+	//-----------------------------------------------------
+	CSG_Table *pSummary = Parameters("REGRS_SUMMARY")->asTable();
+
+	if( pSummary )
+	{
+		pSummary->Destroy();
+		pSummary->Fmt_Name("%s (%s: %s)", _TL("Lapse Rate"), _TL("Regression"), Points.Get_Name());
+		pSummary->Add_Field(_TL("Parameter"), SG_DATATYPE_String);
+		pSummary->Add_Field(_TL("Value"    ), SG_DATATYPE_Double);
+
+		#define Add_Entry(name, value) { CSG_Table_Record &r = *pSummary->Add_Record(); r.Set_Value(0, name); r.Set_Value(1, value); }
+
+		Add_Entry(_TL("Lapse Rate"), dT_lapse * 100.    );
+		Add_Entry(_TL("R-squared" ), Regression.Get_R2());
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

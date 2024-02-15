@@ -91,6 +91,35 @@ private:
 
 ///////////////////////////////////////////////////////////
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CTemperature_Lapse_Interpolation : public CSG_Tool_Grid
+{
+public:
+	CTemperature_Lapse_Interpolation(void);
+
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Temperature") );	}
+
+
+protected:
+
+	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool		On_Execute				(void);
+
+
+private:
+
+	bool				Get_Points				(CSG_Shapes &Points);
+
+	bool				Get_Regression			(CSG_Shapes &Points, double &dT_lapse);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
