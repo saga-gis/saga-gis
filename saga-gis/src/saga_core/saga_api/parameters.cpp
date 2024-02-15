@@ -1202,7 +1202,25 @@ CSG_Parameter * CSG_Parameters::_Add(CSG_Parameter *pSource)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Get_Parameter(const CSG_String &ID)	const
+CSG_Parameter * CSG_Parameters::Get_Parameter(int i, bool MsgOnError) const
+{
+	if( i >= 0 && i < m_nParameters )
+	{
+		return( m_Parameters[i] );
+	}
+
+	if( MsgOnError )
+	{
+		SG_UI_Msg_Add_Error(CSG_String::Format("%s index=[%d]", _TL("Could not find requested parameter!"), i));
+	}
+
+	return( NULL );
+}
+
+//---------------------------------------------------------
+CSG_Parameter * CSG_Parameters::Get_Parameter(const char       *ID, bool MsgOnError) const { return( Get_Parameter(CSG_String(ID), MsgOnError) ); }
+CSG_Parameter * CSG_Parameters::Get_Parameter(const wchar_t    *ID, bool MsgOnError) const { return( Get_Parameter(CSG_String(ID), MsgOnError) ); }
+CSG_Parameter * CSG_Parameters::Get_Parameter(const CSG_String &ID, bool MsgOnError) const
 {
 	if( m_Parameters && !ID.is_Empty() )
 	{
@@ -1217,7 +1235,7 @@ CSG_Parameter * CSG_Parameters::Get_Parameter(const CSG_String &ID)	const
 		//-------------------------------------------------
 		if( ID.Find('.') > 0 )	// id not found? check for sub-parameter ('id.id')!
 		{
-			CSG_Parameter	*pParameter	= Get_Parameter(ID.BeforeFirst('.'));
+			CSG_Parameter *pParameter = Get_Parameter(ID.BeforeFirst('.'));
 
 			if( pParameter )
 			{
@@ -1242,6 +1260,12 @@ CSG_Parameter * CSG_Parameters::Get_Parameter(const CSG_String &ID)	const
 					break;
 				}
 			}
+		}
+
+		//-------------------------------------------------
+		if( MsgOnError )
+		{
+			SG_UI_Msg_Add_Error(CSG_String::Format("%s id=[%s]", _TL("Could not find requested parameter!"), ID.c_str()));
 		}
 	}
 

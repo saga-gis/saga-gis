@@ -1712,8 +1712,11 @@ public:
 	//-----------------------------------------------------
 	CSG_Parameters &			operator =				(const CSG_Parameters &Parameters)	{	Create(Parameters);	return( *this );	}
 
-	CSG_Parameter *				Get_Parameter			(int i               )	const	{	return( i >= 0 && i < m_nParameters ? m_Parameters[i] : NULL );	}
-	CSG_Parameter *				Get_Parameter			(const CSG_String &ID)	const;
+	CSG_Parameter *				Get_Parameter			(int i                                        )	const { return( i >= 0 && i < m_nParameters ? m_Parameters[i] : NULL ); }
+	CSG_Parameter *				Get_Parameter			(int i               , bool MsgOnError        )	const;
+	CSG_Parameter *				Get_Parameter			(const CSG_String &ID, bool MsgOnError = false)	const;
+	CSG_Parameter *				Get_Parameter			(const char       *ID, bool MsgOnError = false)	const;
+	CSG_Parameter *				Get_Parameter			(const wchar_t    *ID, bool MsgOnError = false)	const;
 
 	CSG_Parameter *				operator()				(int i               )	const	{	return(  Get_Parameter(i ) );	}
 	CSG_Parameter *				operator()				(const CSG_String &ID)	const	{	return(  Get_Parameter(ID) );	}
