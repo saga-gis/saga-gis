@@ -348,16 +348,16 @@ SAGA_API_DLL_EXPORT CSG_Tool_Library_Manager &	SG_Get_Tool_Library_Manager	(void
 }
 
 //---------------------------------------------------------
-#define SG_TOOL_PARAMETER_SET(IDENTIFIER, VALUE)	pTool->Get_Parameters()->Set_Parameter(IDENTIFIER, VALUE)
+#define SG_TOOL_PARAMETER_SET(IDENTIFIER, VALUE)	(pTool->Get_Parameters()->Get_Parameter(IDENTIFIER, true) && pTool->Set_Parameter(IDENTIFIER, VALUE))
 
 #define SG_TOOL_PARAMLIST_ADD(IDENTIFIER, VALUE)	(\
-		pTool->Get_Parameters()->Get_Parameter(IDENTIFIER)\
+		pTool->Get_Parameters()->Get_Parameter(IDENTIFIER, true)\
 	&&	pTool->Get_Parameters()->Get_Parameter(IDENTIFIER)->asList()\
 	&&	pTool->Get_Parameters()->Get_Parameter(IDENTIFIER)->asList()->Add_Item(VALUE)\
 )
 
 #define SG_TOOL_SET_DATAOBJECT_LIST(IDENTIFIER, VALUE)	(\
-		pTool->Get_Parameters()->Get_Parameter(IDENTIFIER)\
+		pTool->Get_Parameters()->Get_Parameter(IDENTIFIER, true)\
 	&&	pTool->Get_Parameters()->Get_Parameter(IDENTIFIER)->asList()\
 	&&	pTool->Get_Parameters()->Get_Parameter(IDENTIFIER)->asList()->Assign(VALUE)\
 )
