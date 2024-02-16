@@ -1866,10 +1866,10 @@ CSG_Grids * CSG_Parameters_Grid_Target::Get_Grids(const CSG_String &Identifier, 
 
 	CSG_Grids *pGrids = NULL;
 
-	if( (*m_pParameters)(m_Prefix + "DEFINITION")->asInt() == 0
-	&&  (*m_pParameters)(Identifier + "_CREATE") )
+	if( (*m_pParameters)(m_Prefix + "DEFINITION")->asInt() == 0 && m_pParameters->Get_Tool()->has_GUI() )
 	{
-		if( (*m_pParameters)(Identifier + "_CREATE")->asBool() )
+		if( (*m_pParameters)(Identifier + "_CREATE") == NULL
+		||  (*m_pParameters)(Identifier + "_CREATE")->asBool() )
 		{
 			pGrids = SG_Create_Grids(System, 0, 0., Type);
 		}
@@ -1882,6 +1882,10 @@ CSG_Grids * CSG_Parameters_Grid_Target::Get_Grids(const CSG_String &Identifier, 
 		{
 			pGrids = SG_Create_Grids(System, 0, 0., Type);
 		}
+		else if( pGrids && (pGrids->Get_Type() != Type || !pGrids->Get_System().is_Equal(System)) )
+		{
+			pGrids->Create(System, 0, 0., Type);
+		}
 	}
 
 	if( pGrids && pGrids != pParameter->asGrids() )
@@ -1889,6 +1893,7 @@ CSG_Grids * CSG_Parameters_Grid_Target::Get_Grids(const CSG_String &Identifier, 
 		pParameter->Set_Value(pGrids);
 	}
 
+	//-----------------------------------------------------
 	if( pGrids
 	&&  (*m_pParameters)(m_Prefix + "USER_ZSIZE")
 	&&  (*m_pParameters)(m_Prefix + "USER_ZMIN" )
