@@ -185,7 +185,7 @@ if(WITH_MRMR)
 	target_compile_definitions(saga_api PUBLIC -DWITH_MRMR)
 endif()
 
-option(WITH_LIFETIME_TRACKER "Check to build with CSG_Data_Object_LifeTime_Tracker support (for special debug purposes)" OFF)
+option(WITH_LIFETIME_TRACKER "Check to build with CSG_Data_Object::Track() functionality (data object lifetime tracker)" ON)
 if(WITH_LIFETIME_TRACKER)
 	target_compile_definitions(saga_api PUBLIC -DWITH_LIFETIME_TRACKER)
 endif()

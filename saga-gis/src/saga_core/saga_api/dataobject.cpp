@@ -266,11 +266,15 @@ bool CSG_Data_Object::m_Track = false; int CSG_Data_Object::m_Track_nObjects = 0
 //---------------------------------------------------------
 void CSG_Data_Object::Track(bool Track, bool Offset)
 {
+	#ifdef WITH_LIFETIME_TRACKER
 	m_Track = Track; m_Track_Offset = Offset ? m_Track_nObjects : 0;
 
 	SG_UI_Console_Print_StdOut(CSG_String::Format("data object construction/destruction tracker, state=%s, offset=%s, current object count is %d",
 		m_Track ? SG_T("ON") : SG_T("OFF"), m_Track_Offset ? SG_T("ON") : SG_T("OFF"), m_Track_nObjects
 	));
+	#else
+	SG_UI_Console_Print_StdOut("CSG_Data_Object::Track() functionality (aka data object lifetime tracker) has not been built for this configuration!");
+	#endif // WITH_LIFETIME_TRACKER
 }
 
 //---------------------------------------------------------
