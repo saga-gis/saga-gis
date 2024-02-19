@@ -162,7 +162,7 @@ bool CKriging_Universal::Init_Points(CSG_Shapes *pPoints, int Field, bool bLog)
 //---------------------------------------------------------
 bool CKriging_Universal::Get_Weights(const CSG_Matrix &Points, CSG_Matrix &W)
 {
-	int	i, j, k, n = (int)Points.Get_NRows();
+	sLong n = (int)Points.Get_NRows();
 
 	int nCoords = m_bCoords ? 2 : 0;
 	int nGrids  = m_pPredictors->Get_Grid_Count();
@@ -172,36 +172,36 @@ bool CKriging_Universal::Get_Weights(const CSG_Matrix &Points, CSG_Matrix &W)
 		return( false );
 	}
 
-	for(i=0; i<n; i++)
+	for(sLong i=0; i<n; i++)
 	{
 		W[i][i]           = 0.;	// diagonal...
 		W[i][n] = W[n][i] = 1.;	// edge...
 
-		for(j=i+1; j<n; j++)
+		for(sLong j=i+1; j<n; j++)
 		{
 			W[i][j] = W[j][i] = Get_Weight(Points[i], Points[j]);
 		}
 
-		for(k=0, j=n+1; k<nGrids; k++, j++)
+		for(sLong k=0, j=n+1; k<nGrids; k++, j++)
 		{
-			W[i][j] = W[j][i] = m_pPredictors->Get_Grid(k)->Get_Value(Points[i][0], Points[i][1], m_Resampling);
+			W[i][j] = W[j][i] = m_pPredictors->Get_Grid((int)k)->Get_Value(Points[i][0], Points[i][1], m_Resampling);
 		}
 
-		for(k=0, j=n+nGrids+1; k<nCoords; k++, j++)
+		for(sLong k=0, j=n+nGrids+1; k<nCoords; k++, j++)
 		{
 			W[i][j] = W[j][i] = k == 0 ? Points[i][0] : Points[i][1];
 		}
 	}
 
-	for(i=n; i<=n+nGrids+nCoords; i++)
+	for(sLong i=n; i<=n+nGrids+nCoords; i++)
 	{
-		for(j=n; j<=n+nGrids+nCoords; j++)
+		for(sLong j=n; j<=n+nGrids+nCoords; j++)
 		{
 			W[i][j] = 0.;
 		}
 	}
 
-	return( W.Set_Inverse(m_Search.is_Okay(), n + 1 + nGrids + nCoords) );
+	return( W.Set_Inverse(m_Search.is_Okay(), (int)(n + 1 + nGrids + nCoords)) );
 }
 
 
@@ -212,19 +212,19 @@ bool CKriging_Universal::Get_Weights(const CSG_Matrix &Points, CSG_Matrix &W)
 //---------------------------------------------------------
 bool CKriging_Universal::Get_Value(double x, double y, double &v, double &e)
 {
-	CSG_Matrix	__Points, __W;	double	**P, **W;	int	i, j, n = 0;
+	CSG_Matrix __Points, __W; double **P, **W; sLong n = 0; v = e = 0.;
 
-	if( !m_Search.is_Okay() )	// global
-	{
-		n	= m_Points.Get_NRows();
-		P	= m_Points.Get_Data ();
-		W	= m_W     .Get_Data ();
+	if( !m_Search.is_Okay() )
+	{	// global
+		n = m_Points.Get_NRows();
+		P = m_Points.Get_Data ();
+		W = m_W     .Get_Data ();
 	}
-	else if( Get_Points(x, y, __Points) && Get_Weights(__Points, __W) )	// local
-	{
-		n	= __Points.Get_NRows();
-		P	= __Points.Get_Data ();
-		W	= __W     .Get_Data ();
+	else if( Get_Points(x, y, __Points) && Get_Weights(__Points, __W) )
+	{	// local
+		n = __Points.Get_NRows();
+		P = __Points.Get_Data ();
+		W = __W     .Get_Data ();
 	}
 
 	if( n < 1 )
@@ -233,21 +233,20 @@ bool CKriging_Universal::Get_Value(double x, double y, double &v, double &e)
 	}
 
 	//-----------------------------------------------------
-	int	nCoords	= m_bCoords ? 2 : 0;
-	int	nGrids	= m_pPredictors->Get_Grid_Count();
+	int nCoords = m_bCoords ? 2 : 0, nGrids = m_pPredictors->Get_Grid_Count();
 
-	CSG_Vector	G(n + 1 + nGrids + nCoords);
+	CSG_Vector G(n + 1 + nGrids + nCoords);
 
-	for(i=0; i<n; i++)
+	for(sLong i=0; i<n; i++)
 	{
-		G[i]	= Get_Weight(x, y, P[i][0], P[i][1]);
+		G[i] = Get_Weight(x, y, P[i][0], P[i][1]);
 	}
 
-	G[n]	= 1.;
+	G[n] = 1.;
 
-	for(i=0, j=n+1; i<nGrids; i++, j++)
+	for(sLong i=0, j=n+1; i<nGrids; i++, j++)
 	{
-		if( !m_pPredictors->Get_Grid(i)->Get_Value(x, y, G[j], m_Resampling) )
+		if( !m_pPredictors->Get_Grid((int)i)->Get_Value(x, y, G[j], m_Resampling) )
 		{
 			return( false );
 		}
@@ -255,21 +254,21 @@ bool CKriging_Universal::Get_Value(double x, double y, double &v, double &e)
 
 	if( m_bCoords )
 	{
-		G[n + 1 + nGrids]	= x;
-		G[n + 2 + nGrids]	= y;
+		G[n + 1 + nGrids] = x;
+		G[n + 2 + nGrids] = y;
 	}
 
-	for(i=0, v=0., e=0.; i<n; i++)
+	for(sLong i=0; i<n; i++)
 	{
-		double	Lambda	= 0.;
+		double Lambda = 0.;
 
-		for(j=0; j<=n+nGrids+nCoords; j++)
+		for(sLong j=0; j<=n+nGrids+nCoords; j++)
 		{
-			Lambda	+= W[i][j] * G[j];
+			Lambda += W[i][j] * G[j];
 		}
 
-		v	+= Lambda * P[i][2];
-		e	+= Lambda * G[i];
+		v += Lambda * P[i][2];
+		e += Lambda * G[i];
 	}
 
 	//-----------------------------------------------------

@@ -79,24 +79,24 @@ CKriging3D_Simple::CKriging3D_Simple(void)
 //---------------------------------------------------------
 bool CKriging3D_Simple::Get_Weights(const CSG_Matrix &Points, CSG_Matrix &W)
 {
-	int	n	= Points.Get_NRows();
+	sLong n = Points.Get_NRows();
 
 	if( n < 1 || !W.Create(n, n) )
 	{
 		return( false );
 	}
 
-	for(int i=0; i<n; i++)
+	for(sLong i=0; i<n; i++)
 	{
-		W[i][i] = 0.;	// diagonal...
+		W[i][i] = 0.; // diagonal...
 
-		for(int j=i+1; j<n; j++)
+		for(sLong j=i+1; j<n; j++)
 		{
 			W[i][j] = W[j][i] = Get_Weight(Points[i], Points[j]);
 		}
 	}
 
-	return( W.Set_Inverse(m_Search.is_Okay(), n) );
+	return( W.Set_Inverse(m_Search.is_Okay(), (int)n) );
 }
 	
 
@@ -107,19 +107,19 @@ bool CKriging3D_Simple::Get_Weights(const CSG_Matrix &Points, CSG_Matrix &W)
 //---------------------------------------------------------
 bool CKriging3D_Simple::Get_Value(double x, double y, double z, double &v, double &e)
 {
-	CSG_Matrix	__Points, __W;	double	**P, **W;	int	i, n = 0;
+	CSG_Matrix __Points, __W; double **P, **W; sLong n = 0; v = e = 0.;
 
-	if( !m_Search.is_Okay() )	// global
-	{
-		n	= m_Points.Get_NRows();
-		P	= m_Points.Get_Data ();
-		W	= m_W     .Get_Data ();
+	if( !m_Search.is_Okay() )
+	{	// global
+		n = m_Points.Get_NRows();
+		P = m_Points.Get_Data ();
+		W = m_W     .Get_Data ();
 	}
-	else if( Get_Points(x, y, z, __Points) && Get_Weights(__Points, __W) )	// local
-	{
-		n	= __Points.Get_NRows();
-		P	= __Points.Get_Data ();
-		W	= __W     .Get_Data ();
+	else if( Get_Points(x, y, z, __Points) && Get_Weights(__Points, __W) )
+	{	// local
+		n = __Points.Get_NRows();
+		P = __Points.Get_Data ();
+		W = __W     .Get_Data ();
 	}
 
 	if( n < 1 )
@@ -128,24 +128,24 @@ bool CKriging3D_Simple::Get_Value(double x, double y, double z, double &v, doubl
 	}
 
 	//-----------------------------------------------------
-	CSG_Vector	G(n);
+	CSG_Vector G(n);
 
-	for(i=0; i<n; i++)
+	for(sLong i=0; i<n; i++)
 	{
-		G[i]	= Get_Weight(x, y, z, P[i][0], P[i][1], P[i][2]);
+		G[i] = Get_Weight(x, y, z, P[i][0], P[i][1], P[i][2]);
 	}
 
-	for(i=0, v=0., e=0.; i<n; i++)
+	for(sLong i=0; i<n; i++)
 	{
-		double	Lambda	= 0.;
+		double Lambda = 0.;
 
-		for(int j=0; j<n; j++)
+		for(sLong j=0; j<n; j++)
 		{
-			Lambda	+= W[i][j] * G[j];
+			Lambda += W[i][j] * G[j];
 		}
 
-		v	+= Lambda * P[i][3];
-		e	+= Lambda * G[i];
+		v += Lambda * P[i][3];
+		e += Lambda * G[i];
 	}
 
 	//-----------------------------------------------------
