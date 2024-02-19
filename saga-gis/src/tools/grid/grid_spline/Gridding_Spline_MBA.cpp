@@ -108,15 +108,6 @@ CGridding_Spline_MBA::CGridding_Spline_MBA(void)
 		11, 1, true, 14, true
 	);
 
-	Parameters.Add_Choice("",
-		"DETREND"  , _TL("Detrending"),
-		_TL(""),
-		CSG_String::Format("%s|%s",
-			_TL("no"),
-			_TL("yes")
-		), 0
-	);
-
 	Parameters.Add_Bool("",
 		"UPDATE"   , _TL("Update View"),
 		_TL(""),
