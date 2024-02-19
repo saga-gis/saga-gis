@@ -80,30 +80,29 @@ CGridding_Spline_MBA_3D::CGridding_Spline_MBA_3D(void)
 		"Lee, S., Wolberg, G., Shin, S.Y.", "1997",
 		"Scattered Data Interpolation with Multilevel B-Splines",
 		"IEEE Transactions On Visualisation And Computer Graphics, Vol.3, No.3., p.228-244.",
-		SG_T("https://www.researchgate.net/profile/George_Wolberg/publication/3410822_Scattered_Data_Interpolation_with_Multilevel_B-Splines/links/00b49518719ac9f08a000000/Scattered-Data-Interpolation-with-Multilevel-B-Splines.pdf"),
-		SG_T("ResearchGate")
+		SG_T("https://doi.org/10.1109/2945.620490"), SG_T("doi:10.1109/2945.620490")
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes("",
-		"POINTS"	, _TL("Points"),
+		"POINTS"   , _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Table_Field("POINTS",
-		"Z_FIELD"	, _TL("Z"),
+		"Z_FIELD"  , _TL("Z"),
 		_TL("")
 	);
 
 	Parameters.Add_Double("POINTS",
-		"Z_SCALE"	, _TL("Z Factor"),
+		"Z_SCALE"  , _TL("Z Factor"),
 		_TL(""),
 		1., 0., true
 	);
 
 	Parameters.Add_Table_Field("POINTS",
-		"V_FIELD"	, _TL("Value"),
+		"V_FIELD"  , _TL("Value"),
 		_TL("")
 	);
 
@@ -113,14 +112,14 @@ CGridding_Spline_MBA_3D::CGridding_Spline_MBA_3D(void)
 	m_Grid_Target.Add_Grids("GRIDS", _TL("Grid Collection"), false, true);
 
 	//-----------------------------------------------------
-	Parameters.Add_Double(
-		"", "EPSILON"	, _TL("Threshold Error"),
+	Parameters.Add_Double("",
+		"EPSILON"  , _TL("Threshold Error"),
 		_TL(""),
 		0.0001, 0., true
 	);
 
-	Parameters.Add_Int(
-		"", "LEVEL_MAX"	, _TL("Maximum Level"),
+	Parameters.Add_Int("",
+		"LEVEL_MAX", _TL("Maximum Level"),
 		_TL(""),
 		11, 1, true, 14, true
 	);
@@ -141,11 +140,11 @@ int CGridding_Spline_MBA_3D::On_Parameter_Changed(CSG_Parameters *pParameters, C
 
 	if( pParameter->Cmp_Identifier("POINTS") || pParameter->Cmp_Identifier("Z_FIELD") )
 	{
-		CSG_Shapes	*pPoints = (*pParameters)("POINTS")->asShapes();
+		CSG_Shapes *pPoints = (*pParameters)("POINTS")->asShapes();
 
 		if( pPoints )
 		{
-			int	zField	= pPoints->Get_Vertex_Type() == SG_VERTEX_TYPE_XY ? (*pParameters)("Z_FIELD")->asInt() : -1;
+			int zField = pPoints->Get_Vertex_Type() == SG_VERTEX_TYPE_XY ? (*pParameters)("Z_FIELD")->asInt() : -1;
 
 			m_Grid_Target.Set_User_Defined_ZLevels(pParameters,
 				zField < 0 ? pPoints->Get_ZMin() : pPoints->Get_Minimum(zField),
@@ -180,18 +179,16 @@ int CGridding_Spline_MBA_3D::On_Parameters_Enable(CSG_Parameters *pParameters, C
 //---------------------------------------------------------
 bool CGridding_Spline_MBA_3D::On_Execute(void)
 {
-	bool	bResult	= false;
-
 	if( !Initialize() )
 	{
 		return( false );
 	}
 
-	m_Epsilon	= Parameters("EPSILON")->asDouble();
+	m_Epsilon = Parameters("EPSILON")->asDouble();
 
-	double	Cellsize	= M_GET_MAX(M_GET_MAX(m_pGrids->Get_XRange(), m_pGrids->Get_YRange()), m_pGrids->Get_ZRange());
+	double Cellsize = M_GET_MAX(M_GET_MAX(m_pGrids->Get_XRange(), m_pGrids->Get_YRange()), m_pGrids->Get_ZRange());
 
-	bResult	= _Set_MBA(Cellsize);
+	bool bResult = _Set_MBA(Cellsize);
 
 	m_Points.Destroy();
 
@@ -218,11 +215,11 @@ bool CGridding_Spline_MBA_3D::On_Execute(void)
 //---------------------------------------------------------
 bool CGridding_Spline_MBA_3D::Initialize(void)
 {
-	CSG_Shapes	*pPoints	= Parameters("POINTS")->asShapes();
+	CSG_Shapes *pPoints = Parameters("POINTS")->asShapes();
 
-	int	zField	= pPoints->Get_Vertex_Type() == SG_VERTEX_TYPE_XY ? Parameters("Z_FIELD")->asInt() : -1;
+	int zField = pPoints->Get_Vertex_Type() == SG_VERTEX_TYPE_XY ? Parameters("Z_FIELD")->asInt() : -1;
 
-	int	vField	= Parameters("V_FIELD")->asInt();
+	int vField = Parameters("V_FIELD")->asInt();
 
 	if( (m_pGrids = m_Grid_Target.Get_Grids("GRIDS")) == NULL )
 	{
@@ -231,9 +228,9 @@ bool CGridding_Spline_MBA_3D::Initialize(void)
 
 	m_pGrids->Fmt_Name("%s.%s [%s]", pPoints->Get_Name(), Parameters("V_FIELD")->asString(), Get_Name().c_str());
 
-	m_zCellsize		= Parameters("TARGET_" "USER_ZSIZE")->asDouble();
+	m_zCellsize = Parameters("TARGET_" "USER_ZSIZE")->asDouble();
 
-	double	zScale	= Parameters("Z_SCALE")->asDouble();
+	double zScale = Parameters("Z_SCALE")->asDouble();
 
 	if( zScale == 0. )
 	{
@@ -242,7 +239,7 @@ bool CGridding_Spline_MBA_3D::Initialize(void)
 		return( false );
 	}
 
-	m_zField	= zScale == 1. ? -1 : m_pGrids->Get_Z_Attribute();
+	m_zField = zScale == 1. ? -1 : m_pGrids->Get_Z_Attribute();
 
 	if( m_zField >= 0 )
 	{
@@ -255,7 +252,7 @@ bool CGridding_Spline_MBA_3D::Initialize(void)
 
 		m_pGrids->Set_Z_Attribute(m_pGrids->Get_Attributes().Get_Field_Count() - 1);
 
-		m_zCellsize	*= zScale;
+		m_zCellsize *= zScale;
 	}
 
 	//-----------------------------------------------------
@@ -263,17 +260,16 @@ bool CGridding_Spline_MBA_3D::Initialize(void)
 
 	for(int i=0; i<pPoints->Get_Count(); i++)
 	{
-		CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
+		CSG_Shape *pPoint = pPoints->Get_Shape(i);
 
 		if( (zField < 0 || !pPoint->is_NoData(zField)) && !pPoint->is_NoData(vField) )
 		{
-			CSG_Vector	p(4);
+			CSG_Vector p(4);
 
-			p[0]	= pPoint->Get_Point().x;
-			p[1]	= pPoint->Get_Point().y;
-			p[2]	= zScale * (zField < 0 ? pPoint->Get_Z(0)
-					: pPoint->asDouble(zField));
-			p[3]	= pPoint->asDouble(vField) - pPoints->Get_Mean(vField);	// detrend!
+			p[0] = pPoint->Get_Point().x;
+			p[1] = pPoint->Get_Point().y;
+			p[2] = zScale * (zField < 0 ? pPoint->Get_Z(0) : pPoint->asDouble(zField));
+			p[3] = pPoint->asDouble(vField) - pPoints->Get_Mean(vField); // detrending!
 
 			m_Points.Add_Row(p);
 		}
@@ -285,9 +281,9 @@ bool CGridding_Spline_MBA_3D::Initialize(void)
 //---------------------------------------------------------
 bool CGridding_Spline_MBA_3D::Finalize(void)
 {
-	double	Mean	= Parameters("POINTS")->asShapes()->Get_Mean(Parameters("V_FIELD")->asInt());
+	double Mean = Parameters("POINTS")->asShapes()->Get_Mean(Parameters("V_FIELD")->asInt());
 
-	if( Mean )	// detrend!
+	if( Mean )	// de-detrending!
 	{
 		m_pGrids->Add(Mean);
 	}
@@ -303,15 +299,13 @@ bool CGridding_Spline_MBA_3D::Finalize(void)
 //---------------------------------------------------------
 bool CGridding_Spline_MBA_3D::_Set_MBA(double Cellsize)
 {
-	CSG_Grids	Phi;
+	CSG_Grids Phi;
 
-	bool	bContinue	= true;
+	bool bContinue = true; int nLevels = Parameters("LEVEL_MAX")->asInt();
 
-	int	Levels	= Parameters("LEVEL_MAX")->asInt();
-
-	for(int Level=0; bContinue && Level<Levels && Process_Get_Okay(false); Level++, Cellsize/=2.)
+	for(int Level=0; bContinue && Level<nLevels && Process_Get_Okay(false); Level++, Cellsize/=2.)
 	{
-		bContinue	= BA_Set_Phi(Phi, Cellsize) && _Get_Difference(Phi, Level);
+		bContinue = BA_Set_Phi(Phi, Cellsize) && _Get_Difference(Phi, Level);
 
 		BA_Set_Grids(Phi, Level > 0);
 	}
@@ -327,22 +321,22 @@ bool CGridding_Spline_MBA_3D::_Set_MBA(double Cellsize)
 //---------------------------------------------------------
 bool CGridding_Spline_MBA_3D::_Get_Difference(const CSG_Grids &Phi, int Level)
 {
-	CSG_Simple_Statistics	Differences;
+	CSG_Simple_Statistics Differences;
 
 	for(int i=0; i<m_Points.Get_NRows(); i++)
 	{
-		CSG_Vector	p(4, m_Points[i]);
+		CSG_Vector p(4, m_Points[i]);
 
-		p[0]	= (p[0] - Phi.Get_XMin()) / Phi.Get_Cellsize();
-		p[1]	= (p[1] - Phi.Get_YMin()) / Phi.Get_Cellsize();
-		p[2]	= (p[2] - Phi.Get_ZMin()) / Phi.Get_Cellsize();
-		p[3]	=  p[3] - BA_Get_Phi(Phi, p[0], p[1], p[2]);
+		p[0] = (p[0] - Phi.Get_XMin()) / Phi.Get_Cellsize();
+		p[1] = (p[1] - Phi.Get_YMin()) / Phi.Get_Cellsize();
+		p[2] = (p[2] - Phi.Get_ZMin()) / Phi.Get_Cellsize();
+		p[3] =  p[3] - BA_Get_Phi(Phi, p[0], p[1], p[2]);
 
-		m_Points[i][3]	= p[3];
+		m_Points[i][3] = p[3];
 
 		if( fabs(p[3]) > m_Epsilon )
 		{
-			Differences	+= fabs(p[3]);
+			Differences += fabs(p[3]);
 		}
 	}
 
@@ -384,11 +378,11 @@ inline double CGridding_Spline_MBA_3D::BA_Get_B(int i, double d) const
 //---------------------------------------------------------
 bool CGridding_Spline_MBA_3D::BA_Set_Phi(CSG_Grids &Phi, double Cellsize)
 {
-	int	n	= 4 + (int)(M_GET_MAX(M_GET_MAX(m_pGrids->Get_XRange(), m_pGrids->Get_YRange()), m_pGrids->Get_ZRange()) / Cellsize);
+	int n = 4 + (int)(M_GET_MAX(M_GET_MAX(m_pGrids->Get_XRange(), m_pGrids->Get_YRange()), m_pGrids->Get_ZRange()) / Cellsize);
 
 	Phi.Create(n, n, n, Cellsize, m_pGrids->Get_XMin(), m_pGrids->Get_YMin(), m_pGrids->Get_ZMin(), SG_DATATYPE_Float);
 
-	CSG_Grids	Delta(n, n, n, Cellsize, m_pGrids->Get_XMin(), m_pGrids->Get_YMin(), m_pGrids->Get_ZMin(), SG_DATATYPE_Float);
+	CSG_Grids Delta(n, n, n, Cellsize, m_pGrids->Get_XMin(), m_pGrids->Get_YMin(), m_pGrids->Get_ZMin(), SG_DATATYPE_Float);
 
 	if( Phi.Get_NZ() < n || Delta.Get_NZ() < n )
 	{
@@ -400,42 +394,42 @@ bool CGridding_Spline_MBA_3D::BA_Set_Phi(CSG_Grids &Phi, double Cellsize)
 	//-----------------------------------------------------
 	for(int i=0; i<m_Points.Get_NRows(); i++)
 	{
-		CSG_Vector	p(4, m_Points[i]);
+		CSG_Vector p(4, m_Points[i]);
 
-		int	x	= (int)(p[0] = (p[0] - Phi.Get_XMin()) / Phi.Get_Cellsize());
-		int	y	= (int)(p[1] = (p[1] - Phi.Get_YMin()) / Phi.Get_Cellsize());
-		int	z	= (int)(p[2] = (p[2] - Phi.Get_ZMin()) / Phi.Get_Cellsize());
+		int x = (int)(p[0] = (p[0] - Phi.Get_XMin()) / Phi.Get_Cellsize());
+		int y = (int)(p[1] = (p[1] - Phi.Get_YMin()) / Phi.Get_Cellsize());
+		int z = (int)(p[2] = (p[2] - Phi.Get_ZMin()) / Phi.Get_Cellsize());
 
 		if(	x >= 0 && x < Phi.Get_NX() - 3 && y >= 0 && y < Phi.Get_NY() - 3 && z >= 0 && z < Phi.Get_NZ() - 3 )
 		{
-			int	iz;	double	W[4][4][4], SW2	= 0.;
+			double W[4][4][4], SW2 = 0.;
 
-			for(iz=0; iz<4; iz++)	// compute W[k,l] and Sum[a=0-3, b=0-3](W²[a,b])
+			for(int	iz=0; iz<4; iz++) // compute W[k,l] and Sum[a=0-3, b=0-3](W²[a,b])
 			{
-				double	wz	= BA_Get_B(iz, p[2] - z);
+				double wz = BA_Get_B(iz, p[2] - z);
 
 				for(int iy=0; iy<4; iy++)
 				{
-					double	wyz	= wz * BA_Get_B(iy, p[1] - y);
+					double wyz = wz * BA_Get_B(iy, p[1] - y);
 
 					for(int ix=0; ix<4; ix++)
 					{
-						SW2	+= SG_Get_Square(W[iz][iy][ix] = wyz * BA_Get_B(ix, p[0] - x));
+						SW2 += SG_Get_Square(W[iz][iy][ix] = wyz * BA_Get_B(ix, p[0] - x));
 					}
 				}
 			}
 
 			if( SW2 > 0. )
 			{
-				double	dz	= p[3] / SW2;
+				double dz = p[3] / SW2;
 
-				for(iz=0; iz<4; iz++)
+				for(int	iz=0; iz<4; iz++)
 				{
 					for(int iy=0; iy<4; iy++)
 					{
 						for(int ix=0; ix<4; ix++)
 						{
-							double	wxyz	= W[iz][iy][ix];
+							double wxyz = W[iz][iy][ix];
 
 							Delta.Add_Value(x + ix, y + iy, z + iz, wxyz*wxyz*wxyz * dz); // numerator
 							Phi  .Add_Value(x + ix, y + iy, z + iz, wxyz*wxyz          ); // denominator
@@ -454,11 +448,11 @@ bool CGridding_Spline_MBA_3D::BA_Set_Phi(CSG_Grids &Phi, double Cellsize)
 		{
 			for(int x=0; x<Phi.Get_NX(); x++)
 			{
-				double	v	=  Phi.asDouble(x, y, z);
+				double phi = Phi.asDouble(x, y, z);
 
-				if( v != 0. )
+				if( phi != 0. )
 				{
-					Phi.Set_Value(x, y, z, Delta.asDouble(x, y, z) / v);
+					Phi.Set_Value(x, y, z, Delta.asDouble(x, y, z) / phi);
 				}
 			}
 		}
@@ -471,25 +465,25 @@ bool CGridding_Spline_MBA_3D::BA_Set_Phi(CSG_Grids &Phi, double Cellsize)
 //---------------------------------------------------------
 double CGridding_Spline_MBA_3D::BA_Get_Phi(const CSG_Grids &Phi, double px, double py, double pz) const
 {
-	double	v	= 0.;
+	double v = 0.;
 
-	int	x	= (int)px;	px	-= x;
-	int	y	= (int)py;	py	-= y;
-	int	z	= (int)pz;	pz	-= z;
+	int x = (int)px; px	-= x;
+	int y = (int)py; py	-= y;
+	int z = (int)pz; pz	-= z;
 
 	if(	x >= 0 && x < Phi.Get_NX() - 3 && y >= 0 && y < Phi.Get_NY() - 3 && z >= 0 && z < Phi.Get_NZ() - 3 )
 	{
 		for(int iz=0; iz<4; iz++)
 		{
-			double	bz	= BA_Get_B(iz, pz);
+			double bz = BA_Get_B(iz, pz);
 
 			for(int iy=0; iy<4; iy++)
 			{
-				double	byz	= bz * BA_Get_B(iy, py);
+				double byz = bz * BA_Get_B(iy, py);
 
 				for(int ix=0; ix<4; ix++)
 				{
-					v	+= byz * BA_Get_B(ix, px) * Phi.asDouble(x + ix, y + iy, z + iz);
+					v += byz * BA_Get_B(ix, px) * Phi.asDouble(x + ix, y + iy, z + iz);
 				}
 			}
 		}
@@ -501,20 +495,20 @@ double CGridding_Spline_MBA_3D::BA_Get_Phi(const CSG_Grids &Phi, double px, doub
 //---------------------------------------------------------
 void CGridding_Spline_MBA_3D::BA_Set_Grids(const CSG_Grids &Phi, bool bAdd)
 {
-	double	d	= m_pGrids->Get_Cellsize() / Phi.Get_Cellsize();
+	double d = m_pGrids->Get_Cellsize() / Phi.Get_Cellsize();
 
 	#pragma omp parallel for
 	for(int z=0; z<m_pGrids->Get_NZ(); z++)
 	{
-		double	pz	= z * m_zCellsize / Phi.Get_Cellsize();
+		double pz = z * m_zCellsize / Phi.Get_Cellsize();
 
 		for(int y=0; y<m_pGrids->Get_NY(); y++)
 		{
-			double	py	= y * d;
+			double py = y * d;
 
 			for(int x=0; x<m_pGrids->Get_NX(); x++)
 			{
-				double	px	= x * d;
+				double px = x * d;
 
 				if( bAdd )
 				{	m_pGrids->Add_Value(x, y, z, BA_Get_Phi(Phi, px, py, pz));	}

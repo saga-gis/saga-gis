@@ -63,7 +63,7 @@ CGridding_Spline_Base::CGridding_Spline_Base(bool bGridPoints)
 	if( bGridPoints )
 	{
 		Parameters.Add_Grid("",
-			"GRID"	, _TL("Grid"),
+			"GRID"  , _TL("Grid"),
 			_TL(""),
 			PARAMETER_INPUT
 		);
@@ -77,7 +77,7 @@ CGridding_Spline_Base::CGridding_Spline_Base(bool bGridPoints)
 		);
 
 		Parameters.Add_Table_Field("SHAPES",
-			"FIELD"	, _TL("Attribute"),
+			"FIELD" , _TL("Attribute"),
 			_TL("")
 		);
 	}
@@ -122,36 +122,15 @@ int CGridding_Spline_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGridding_Spline_Base::Initialize(CSG_Points_3D &Points, bool bInGridOnly, bool bDetrend)
-{
-	return( _Get_Grid() && _Get_Points(Points, bInGridOnly, bDetrend) );
-}
-
-//---------------------------------------------------------
 bool CGridding_Spline_Base::Initialize(void)
 {
 	return( _Get_Grid() );
 }
 
 //---------------------------------------------------------
-bool CGridding_Spline_Base::Finalize(bool bDetrend)
+bool CGridding_Spline_Base::Initialize(CSG_Points_3D &Points, bool bInGridOnly, CSG_Simple_Statistics *pStatistics)
 {
-	if( bDetrend )
-	{
-		double	Mean	= Parameters("GRID")
-			? Parameters("GRID"  )->asGrid  ()->Get_Mean()
-			: Parameters("SHAPES")->asShapes()->Get_Mean(Parameters("FIELD")->asInt());
-
-		if( Mean )
-		{
-			for(sLong i=0; i<m_pGrid->Get_NCells(); i++)
-			{
-				m_pGrid->Add_Value(i, Mean);
-			}
-		}
-	}
-
-	return( true );
+	return( _Get_Grid() && _Get_Points(Points, bInGridOnly, pStatistics) );
 }
 
 
@@ -172,13 +151,13 @@ bool CGridding_Spline_Base::_Get_Grid(void)
 	//-----------------------------------------------------
 	if( Parameters("GRID") )
 	{
-		CSG_Grid	*pPoints	= Parameters("GRID")->asGrid();
+		CSG_Grid   *pPoints = Parameters("GRID")->asGrid();
 
 		m_pGrid->Fmt_Name("%s [%s]"   , pPoints->Get_Name(), Get_Name().c_str());
 	}
-	else
+	else // if( Parameters("SHAPES") )
 	{
-		CSG_Shapes	*pPoints	= Parameters("SHAPES")->asShapes();
+		CSG_Shapes *pPoints = Parameters("SHAPES")->asShapes();
 
 		m_pGrid->Fmt_Name("%s.%s [%s]", pPoints->Get_Name(), Parameters("FIELD")->asString(), Get_Name().c_str());
 	}
@@ -193,59 +172,55 @@ bool CGridding_Spline_Base::_Get_Grid(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGridding_Spline_Base::_Get_Points(CSG_Points_3D &Points, bool bInGridOnly, bool bDetrend)
+bool CGridding_Spline_Base::_Get_Points(CSG_Points_3D &Points, bool bInGridOnly, CSG_Simple_Statistics *pStatistics)
 {
-	Points.Clear();
+	Points.Clear(); if( pStatistics ) { pStatistics->Create(); }
 
 	//-----------------------------------------------------
 	if( Parameters("GRID") )
 	{
-		CSG_Grid	*pPoints	= Parameters("GRID")->asGrid();
+		CSG_Grid *pPoints = Parameters("GRID")->asGrid();
 
-		double	Mean	= bDetrend ? pPoints->Get_Mean() : 0.;
-
-		TSG_Point	p; p.y	= pPoints->Get_YMin();
+		TSG_Point p; p.y = pPoints->Get_YMin();
 
 		for(int y=0; y<pPoints->Get_NY() && Set_Progress(y, pPoints->Get_NY()); y++, p.y+=pPoints->Get_Cellsize())
 		{
-			p.x	= pPoints->Get_XMin();
+			p.x = pPoints->Get_XMin();
 
 			for(int x=0; x<pPoints->Get_NX(); x++, p.x+=pPoints->Get_Cellsize())
 			{
 				if( !pPoints->is_NoData(x, y) && (!bInGridOnly || m_pGrid->is_InGrid_byPos(p, false)) )
 				{
-					Points.Add(p.x, p.y, pPoints->asDouble(x, y) - Mean);
+					double z = pPoints->asDouble(x, y);
+
+					Points.Add(p.x, p.y, z); if( pStatistics ) { pStatistics->Add_Value(z); }
 				}
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	else
+	else // if( Parameters("SHAPES") )
 	{
-		CSG_Shapes	*pPoints	= Parameters("SHAPES")->asShapes();
-
-		int	Field	= Parameters("FIELD")->asInt();
-
-		double	Mean	= bDetrend ? pPoints->Get_Mean(Field) : 0.;
+		CSG_Shapes *pPoints = Parameters("SHAPES")->asShapes(); int Field = Parameters("FIELD")->asInt();
 
 		for(sLong i=0; i<pPoints->Get_Count() && Set_Progress(i, pPoints->Get_Count()); i++)
 		{
-			CSG_Shape	*pShape	= pPoints->Get_Shape(i);
+			CSG_Shape *pShape = pPoints->Get_Shape(i);
 
 			if( !pShape->is_NoData(Field) )
 			{
-				double	z	= pShape->asDouble(Field) - Mean;
+				double z = pShape->asDouble(Field);
 
 				for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 				{
 					for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 					{
-						TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
+						TSG_Point p = pShape->Get_Point(iPoint, iPart);
 
 						if( !bInGridOnly || m_pGrid->is_InGrid_byPos(p, false) )
 						{
-							Points.Add(p.x, p.y, z);
+							Points.Add(p.x, p.y, z); if( pStatistics ) { pStatistics->Add_Value(z); }
 						}
 					}
 				}

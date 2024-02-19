@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 /******************************************************************************
  *
  * File:           csa.h
@@ -67,7 +64,9 @@ void csa_setnppc(csa* a, double nppc);
 	#define NaN (*(double*)&lNaN)
 
 	#define copysign	_copysign
-	#define isnan		_isnan
+	#ifndef isnan
+		#define isnan		_isnan
+	#endif
 
 #else
 	static const long long lNaN = 0xfff8000000000000;
@@ -79,4 +78,4 @@ void csa_setnppc(csa* a, double nppc);
 #endif
 //---------------------------------------------------------
 
-#endif
+#endif // #if !defined(_CSA_H)

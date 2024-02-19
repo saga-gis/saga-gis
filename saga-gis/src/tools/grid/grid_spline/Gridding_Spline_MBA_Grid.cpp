@@ -83,13 +83,21 @@ CGridding_Spline_MBA_Grid::CGridding_Spline_MBA_Grid(void)
 		"Lee, S., Wolberg, G., Shin, S.Y.", "1997",
 		"Scattered Data Interpolation with Multilevel B-Splines",
 		"IEEE Transactions On Visualisation And Computer Graphics, Vol.3, No.3., p.228-244.",
-		SG_T("https://www.researchgate.net/profile/George_Wolberg/publication/3410822_Scattered_Data_Interpolation_with_Multilevel_B-Splines/links/00b49518719ac9f08a000000/Scattered-Data-Interpolation-with-Multilevel-B-Splines.pdf"),
-		SG_T("ResearchGate")
+		SG_T("https://doi.org/10.1109/2945.620490"), SG_T("doi:10.1109/2945.620490")
 	);
 
 	//-----------------------------------------------------
+	Parameters.Add_Choice("TARGET",
+		"DATATYPE" , _TL("Data Type"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("same as input grid"),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Float ).c_str()
+		), 0
+	);
+
 	Parameters.Add_Choice("",
-		"METHOD"	, _TL("Refinement"),
+		"METHOD"   , _TL("Refinement"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
 			_TL("no"),
@@ -98,31 +106,22 @@ CGridding_Spline_MBA_Grid::CGridding_Spline_MBA_Grid(void)
 	);
 
 	Parameters.Add_Double("",
-		"EPSILON"	, _TL("Threshold Error"),
+		"EPSILON"  , _TL("Threshold Error"),
 		_TL(""),
 		0.0001, 0., true
 	);
 
 	Parameters.Add_Int("",
-		"LEVEL_MAX"	, _TL("Maximum Level"),
+		"LEVEL_MAX", _TL("Maximum Level"),
 		_TL(""),
 		11, 1, true, 14, true
 	);
 
 	Parameters.Add_Bool("",
-		"UPDATE"	, _TL("Update View"),
+		"UPDATE"   , _TL("Update View"),
 		_TL(""),
 		false
 	)->Set_UseInCMD(false);
-
-	Parameters.Add_Choice("TARGET",
-		"DATATYPE"	, _TL("Data Type"),
-		_TL(""),
-		CSG_String::Format("%s|%s",
-			_TL("same as input grid"),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Float ).c_str()
-		), 0
-	);
 }
 
 
@@ -149,25 +148,27 @@ int CGridding_Spline_MBA_Grid::On_Parameters_Enable(CSG_Parameters *pParameters,
 //---------------------------------------------------------
 bool CGridding_Spline_MBA_Grid::On_Execute(void)
 {
-	bool	bResult	= false;
+	bool bResult = false;
 
 	if( Initialize() )
 	{
+		CSG_Grid *pPoints = Parameters("GRID")->asGrid();
+
 		if( Parameters("DATATYPE")->asInt() == 0 )
 		{
-			m_Points.Create(*Parameters("GRID")->asGrid());
+			m_Points.Create(*pPoints);
 		}
 		else
 		{
-			m_Points.Create(Parameters("GRID")->asGrid(), SG_DATATYPE_Float);
-			m_Points.Assign(Parameters("GRID")->asGrid());
+			m_Points.Create(pPoints, SG_DATATYPE_Float); m_Points.Assign(pPoints);
 		}
 
-		m_Points.Add(-Parameters("GRID")->asGrid()->Get_Mean());	// detrend
+		m_Points.Add(-pPoints->Get_Mean());	// detrending
 
-		m_Epsilon	= Parameters("EPSILON")->asDouble();
+		//-------------------------------------------------
+		m_Epsilon = Parameters("EPSILON")->asDouble();
 
-		double	Cellsize	= M_GET_MAX(m_pGrid->Get_XRange(), m_pGrid->Get_YRange());
+		double Cellsize = M_GET_MAX(m_pGrid->Get_XRange(), m_pGrid->Get_YRange());
 
 		switch( Parameters("METHOD")->asInt() )
 		{
@@ -177,7 +178,8 @@ bool CGridding_Spline_MBA_Grid::On_Execute(void)
 
 		m_Points.Destroy();
 
-		Finalize(true);
+		//-------------------------------------------------
+		m_pGrid->Add(pPoints->Get_Mean()); // de-detrending
 	}
 
 	return( bResult );
@@ -221,17 +223,13 @@ bool CGridding_Spline_MBA_Grid::_Set_MBA(double Cellsize)
 //---------------------------------------------------------
 bool CGridding_Spline_MBA_Grid::_Set_MBA_Refinement(double Cellsize)
 {
-	CSG_Grid	Phi[2];
+	CSG_Grid Phi[2];
 
-	bool	bContinue	= true;
+	bool bContinue = true; int i = 0, nLevels = Parameters("LEVEL_MAX")->asInt();
 
-	int	Levels	= Parameters("LEVEL_MAX")->asInt(), i = 0;
-
-	for(int Level=0; bContinue && Level<Levels && Process_Get_Okay(false); Level++, Cellsize/=2.)
+	for(int Level=0; bContinue && Level<nLevels && Process_Get_Okay(false); Level++, Cellsize/=2.)
 	{
-		i	= Level % 2;
-
-		bContinue	= BA_Set_Phi(Phi[i], Cellsize) && _Get_Difference(Phi[i], Level);
+		i = Level % 2; bContinue = BA_Set_Phi(Phi[i], Cellsize) && _Get_Difference(Phi[i], Level);
 
 		_Set_MBA_Refinement(Phi[(i + 1) % 2], Phi[i]);
 	}
@@ -244,8 +242,8 @@ bool CGridding_Spline_MBA_Grid::_Set_MBA_Refinement(double Cellsize)
 //---------------------------------------------------------
 bool CGridding_Spline_MBA_Grid::_Set_MBA_Refinement(const CSG_Grid &Psi_0, CSG_Grid &Psi_1)
 {
-	if(	2 * (Psi_0.Get_NX() - 4) != (Psi_1.Get_NX() - 4)
-	||	2 * (Psi_0.Get_NY() - 4) != (Psi_1.Get_NY() - 4) )
+	if( 2 * (Psi_0.Get_NX() - 4) != (Psi_1.Get_NX() - 4)
+	||  2 * (Psi_0.Get_NY() - 4) != (Psi_1.Get_NY() - 4) )
 	{
 		return( false );
 	}
@@ -253,17 +251,17 @@ bool CGridding_Spline_MBA_Grid::_Set_MBA_Refinement(const CSG_Grid &Psi_0, CSG_G
 	#pragma omp parallel for
 	for(int y=0; y<Psi_0.Get_NY(); y++)
 	{
-		int	yy	= 2 * y - 1;
+		int	yy = 2 * y - 1;
 
 		for(int x=0, xx=-1; x<Psi_0.Get_NX(); x++, xx+=2)
 		{
-			double	a[3][3];
+			double a[3][3];
 
 			for(int iy=0, jy=y-1; iy<3; iy++, jy++)
 			{
 				for(int ix=0, jx=x-1; ix<3; ix++, jx++)
 				{
-					a[ix][iy]	= Psi_0.is_InGrid(jx, jy, false) ? Psi_0.asDouble(jx, jy) : 0.;
+					a[ix][iy] = Psi_0.is_InGrid(jx, jy, false) ? Psi_0.asDouble(jx, jy) : 0.;
 				}
 			}
 
@@ -306,24 +304,21 @@ bool CGridding_Spline_MBA_Grid::_Set_MBA_Refinement(const CSG_Grid &Psi_0, CSG_G
 //---------------------------------------------------------
 bool CGridding_Spline_MBA_Grid::_Get_Difference(const CSG_Grid &Phi, int Level)
 {
-	CSG_Simple_Statistics	Differences;
+	CSG_Simple_Statistics Differences;
 
-	double	Scale	= m_Points.Get_Cellsize() / Phi.Get_Cellsize();
+	double Scale = m_Points.Get_Cellsize() / Phi.Get_Cellsize();
 
-	for(int y=0; y<m_Points.Get_NY(); y++)
+	for(int y=0; y<m_Points.Get_NY(); y++) for(int x=0; x<m_Points.Get_NX(); x++)
 	{
-		for(int x=0; x<m_Points.Get_NX(); x++)
+		if( !m_Points.is_NoData(x, y) )
 		{
-			if( !m_Points.is_NoData(x, y) )
+			double z = m_Points.asDouble(x, y) - BA_Get_Phi(Phi, x * Scale, y * Scale);
+
+			m_Points.Set_Value(x, y, z);
+
+			if( fabs(z) > m_Epsilon )
 			{
-				double	z	= m_Points.asDouble(x, y) - BA_Get_Phi(Phi, x * Scale, y * Scale);
-
-				m_Points.Set_Value(x, y, z);
-
-				if( fabs(z) > m_Epsilon )
-				{
-					Differences	+= fabs(z);
-				}
+				Differences += fabs(z);
 			}
 		}
 	}
@@ -366,14 +361,14 @@ inline double CGridding_Spline_MBA_Grid::BA_Get_B(int i, double d) const
 //---------------------------------------------------------
 bool CGridding_Spline_MBA_Grid::BA_Set_Phi(CSG_Grid &Phi, double Cellsize)
 {
-	int	n	= 4 + (int)(M_GET_MAX(m_pGrid->Get_XRange(), m_pGrid->Get_YRange()) / Cellsize);
+	int n = 4 + (int)(M_GET_MAX(m_pGrid->Get_XRange(), m_pGrid->Get_YRange()) / Cellsize);
 
 	Phi.Create(SG_DATATYPE_Float, n, n, Cellsize, m_pGrid->Get_XMin(), m_pGrid->Get_YMin());
 
-	CSG_Grid	Delta(Phi.Get_System());
+	CSG_Grid Delta(Phi.Get_System());
 
 	//-----------------------------------------------------
-	double	Scale	= m_Points.Get_Cellsize() / Phi.Get_Cellsize();
+	double Scale = m_Points.Get_Cellsize() / Phi.Get_Cellsize();
 
 	for(int yy=0; yy<m_Points.Get_NY(); yy++) for(int xx=0; xx<m_Points.Get_NX(); xx++)
 	{
@@ -382,33 +377,33 @@ bool CGridding_Spline_MBA_Grid::BA_Set_Phi(CSG_Grid &Phi, double Cellsize)
 			continue;
 		}
 
-		double	p_x	= xx * Scale;	int	x	= (int)p_x;
-		double	p_y	= yy * Scale;	int	y	= (int)p_y;
-		double	p_z	= m_Points.asDouble(xx, yy);
+		double p_x = xx * Scale; int x = (int)p_x;
+		double p_y = yy * Scale; int y = (int)p_y;
+		double p_z = m_Points.asDouble(xx, yy);
 
 		if(	x >= 0 && x < Phi.Get_NX() - 3 && y >= 0 && y < Phi.Get_NY() - 3 )
 		{
-			int	iy;	double	W[4][4], SW2	= 0.;
+			double W[4][4], SW2 = 0.;
 
-			for(iy=0; iy<4; iy++)	// compute W[k,l] and Sum[a=0-3, b=0-3](W²[a,b])
+			for(int	iy=0; iy<4; iy++) // compute W[k,l] and Sum[a=0-3, b=0-3](W²[a,b])
 			{
-				double	wy	= BA_Get_B(iy, p_y - y);
+				double wy = BA_Get_B(iy, p_y - y);
 
 				for(int ix=0; ix<4; ix++)
 				{
-					SW2	+= SG_Get_Square(W[iy][ix] = wy * BA_Get_B(ix, p_x - x));
+					SW2 += SG_Get_Square(W[iy][ix] = wy * BA_Get_B(ix, p_x - x));
 				}
 			}
 
 			if( SW2 > 0. )
 			{
-				p_z	/= SW2;
+				p_z /= SW2;
 
-				for(iy=0; iy<4; iy++)
+				for(int	iy=0; iy<4; iy++)
 				{
 					for(int ix=0; ix<4; ix++)
 					{
-						double	wxy	= W[iy][ix];
+						double wxy = W[iy][ix];
 
 						Delta.Add_Value(x + ix, y + iy, wxy*wxy*wxy * p_z); // numerator
 						Phi  .Add_Value(x + ix, y + iy, wxy*wxy          ); // denominator
@@ -424,11 +419,11 @@ bool CGridding_Spline_MBA_Grid::BA_Set_Phi(CSG_Grid &Phi, double Cellsize)
 	{
 		for(int x=0; x<Phi.Get_NX(); x++)
 		{
-			double	z	=  Phi.asDouble(x, y);
+			double phi = Phi.asDouble(x, y);
 
-			if( z != 0. )
+			if( phi != 0. )
 			{
-				Phi.Set_Value(x, y, Delta.asDouble(x, y) / z);
+				Phi.Set_Value(x, y, Delta.asDouble(x, y) / phi);
 			}
 		}
 	}
@@ -437,23 +432,28 @@ bool CGridding_Spline_MBA_Grid::BA_Set_Phi(CSG_Grid &Phi, double Cellsize)
 	return( true );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 double CGridding_Spline_MBA_Grid::BA_Get_Phi(const CSG_Grid &Phi, double px, double py) const
 {
-	double	z	= 0.;
+	double z = 0.;
 
-	int	x	= (int)px;
-	int	y	= (int)py;
+	int x = (int)px;
+	int y = (int)py;
 
 	if(	x >= 0 && x < Phi.Get_NX() - 3 && y >= 0 && y < Phi.Get_NY() - 3 )
 	{
 		for(int iy=0; iy<4; iy++)
 		{
-			double	by	= BA_Get_B(iy, py - y);
+			double by = BA_Get_B(iy, py - y);
 
 			for(int ix=0; ix<4; ix++)
 			{
-				z	+= by * BA_Get_B(ix, px - x) * Phi.asDouble(x + ix, y + iy);
+				z += by * BA_Get_B(ix, px - x) * Phi.asDouble(x + ix, y + iy);
 			}
 		}
 	}
@@ -464,16 +464,16 @@ double CGridding_Spline_MBA_Grid::BA_Get_Phi(const CSG_Grid &Phi, double px, dou
 //---------------------------------------------------------
 void CGridding_Spline_MBA_Grid::BA_Set_Grid(const CSG_Grid &Phi, bool bAdd)
 {
-	double	d	= m_pGrid->Get_Cellsize() / Phi.Get_Cellsize();
+	double d = m_pGrid->Get_Cellsize() / Phi.Get_Cellsize();
 
 	#pragma omp parallel for
 	for(int y=0; y<m_pGrid->Get_NY(); y++)
 	{
-		double	py	= d * y;
+		double py = d * y;
 
 		for(int x=0; x<m_pGrid->Get_NX(); x++)
 		{
-			double	px	= d * x;
+			double px = d * x;
 
 			if( bAdd )
 			{	m_pGrid->Add_Value(x, y, BA_Get_Phi(Phi, px, py));	}

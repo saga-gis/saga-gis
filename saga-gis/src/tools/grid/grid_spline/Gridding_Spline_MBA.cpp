@@ -83,13 +83,12 @@ CGridding_Spline_MBA::CGridding_Spline_MBA(void)
 		"Lee, S., Wolberg, G., Shin, S.Y.", "1997",
 		"Scattered Data Interpolation with Multilevel B-Splines",
 		"IEEE Transactions On Visualisation And Computer Graphics, Vol.3, No.3., p.228-244.",
-		SG_T("https://www.researchgate.net/profile/George_Wolberg/publication/3410822_Scattered_Data_Interpolation_with_Multilevel_B-Splines/links/00b49518719ac9f08a000000/Scattered-Data-Interpolation-with-Multilevel-B-Splines.pdf"),
-		SG_T("ResearchGate")
+		SG_T("https://doi.org/10.1109/2945.620490"), SG_T("doi:10.1109/2945.620490")
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		"", "METHOD"	, _TL("Refinement"),
+	Parameters.Add_Choice("",
+		"METHOD"   , _TL("Refinement"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
 			_TL("no"),
@@ -97,20 +96,29 @@ CGridding_Spline_MBA::CGridding_Spline_MBA(void)
 		), 0
 	);
 
-	Parameters.Add_Double(
-		"", "EPSILON"	, _TL("Threshold Error"),
+	Parameters.Add_Double("",
+		"EPSILON"  , _TL("Threshold Error"),
 		_TL(""),
-		0.0001, 0.0, true
+		0.0001, 0., true
 	);
 
-	Parameters.Add_Int(
-		"", "LEVEL_MAX"	, _TL("Maximum Level"),
+	Parameters.Add_Int("",
+		"LEVEL_MAX", _TL("Maximum Level"),
 		_TL(""),
 		11, 1, true, 14, true
 	);
 
-	Parameters.Add_Bool(
-		"", "UPDATE"	, _TL("Update View"),
+	Parameters.Add_Choice("",
+		"DETREND"  , _TL("Detrending"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("no"),
+			_TL("yes")
+		), 0
+	);
+
+	Parameters.Add_Bool("",
+		"UPDATE"   , _TL("Update View"),
 		_TL(""),
 		false
 	)->Set_UseInCMD(false);
@@ -140,10 +148,17 @@ int CGridding_Spline_MBA::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_
 //---------------------------------------------------------
 bool CGridding_Spline_MBA::On_Execute(void)
 {
-	bool bResult = false;
+	bool bResult = false; CSG_Simple_Statistics s;
 
-	if( Initialize(m_Points, true, true) )
+	if( Initialize(m_Points, true, &s) )
 	{
+		#pragma omp parallel for
+		for(sLong i=0; i<m_Points.Get_Count(); i++)
+		{
+			m_Points[i].z -= s.Get_Mean(); // detrending
+		}
+
+		//-------------------------------------------------
 		m_Epsilon = Parameters("EPSILON")->asDouble();
 
 		double Cellsize = M_GET_MAX(m_pGrid->Get_XRange(), m_pGrid->Get_YRange());
@@ -156,7 +171,17 @@ bool CGridding_Spline_MBA::On_Execute(void)
 
 		m_Points.Clear();
 
-		Finalize(true);
+		//-------------------------------------------------
+		#pragma omp parallel for
+		for(sLong i=0; i<m_pGrid->Get_NCells(); i++)
+		{
+			if( !m_pGrid->is_NoData(i) )
+			{
+				double z = m_pGrid->asDouble(i) + s.Get_Mean(); // de-detrending
+
+				m_pGrid->Set_Value(i, z < s.Get_Minimum() ? s.Get_Minimum() : z > s.Get_Maximum() ? s.Get_Maximum() : z);
+			}
+		}
 	}
 
 	return( bResult );
@@ -202,15 +227,11 @@ bool CGridding_Spline_MBA::_Set_MBA_Refinement(double Cellsize)
 {
 	CSG_Grid Phi[2];
 
-	bool bContinue = true;
+	bool bContinue = true; int i = 0, nLevels = Parameters("LEVEL_MAX")->asInt();
 
-	int Levels = Parameters("LEVEL_MAX")->asInt(), i = 0;
-
-	for(int Level=0; bContinue && Level<Levels && Process_Get_Okay(false); Level++, Cellsize/=2.)
+	for(int Level=0; bContinue && Level<nLevels && Process_Get_Okay(false); Level++, Cellsize/=2.)
 	{
-		i = Level % 2;
-
-		bContinue = BA_Set_Phi(Phi[i], Cellsize) && _Get_Difference(Phi[i], Level);
+		i = Level % 2; bContinue = BA_Set_Phi(Phi[i], Cellsize) && _Get_Difference(Phi[i], Level);
 
 		_Set_MBA_Refinement(Phi[(i + 1) % 2], Phi[i]);
 	}
@@ -223,8 +244,8 @@ bool CGridding_Spline_MBA::_Set_MBA_Refinement(double Cellsize)
 //---------------------------------------------------------
 bool CGridding_Spline_MBA::_Set_MBA_Refinement(const CSG_Grid &Psi_0, CSG_Grid &Psi_1)
 {
-	if(	2 * (Psi_0.Get_NX() - 4) != (Psi_1.Get_NX() - 4)
-	||	2 * (Psi_0.Get_NY() - 4) != (Psi_1.Get_NY() - 4) )
+	if( 2 * (Psi_0.Get_NX() - 4) != (Psi_1.Get_NX() - 4)
+	||  2 * (Psi_0.Get_NY() - 4) != (Psi_1.Get_NY() - 4) )
 	{
 		return( false );
 	}
@@ -242,7 +263,7 @@ bool CGridding_Spline_MBA::_Set_MBA_Refinement(const CSG_Grid &Psi_0, CSG_Grid &
 			{
 				for(int ix=0, jx=x-1; ix<3; ix++, jx++)
 				{
-					a[ix][iy] = Psi_0.is_InGrid(jx, jy, false) ? Psi_0.asDouble(jx, jy) : 0.0;
+					a[ix][iy] = Psi_0.is_InGrid(jx, jy, false) ? Psi_0.asDouble(jx, jy) : 0.;
 				}
 			}
 
@@ -250,26 +271,26 @@ bool CGridding_Spline_MBA::_Set_MBA_Refinement(const CSG_Grid &Psi_0, CSG_Grid &
 
 			SET_PSI(xx + 0, yy + 0,
 				(  a[0][0] + a[0][2] + a[2][0] + a[2][2]
-				+ (a[0][1] + a[1][0] + a[1][2] + a[2][1]) * 6.0
-				+  a[1][1] * 36.0
-				) / 64.0
+				+ (a[0][1] + a[1][0] + a[1][2] + a[2][1]) * 6.
+				+  a[1][1] * 36.
+				) / 64.
 			);
 
 			SET_PSI(xx + 0, yy + 1,
 				(  a[0][1] + a[0][2] + a[2][1] + a[2][2]
-				+ (a[1][1] + a[1][2]) * 6.0
-				) / 16.0
+				+ (a[1][1] + a[1][2]) * 6.
+				) / 16.
 			);
 
 			SET_PSI(xx + 1, yy + 0,
 				(  a[1][0] + a[1][2] + a[2][0] + a[2][2]
-				+ (a[1][1] + a[2][1]) * 6.0
-				) / 16.0
+				+ (a[1][1] + a[2][1]) * 6.
+				) / 16.
 			);
 
 			SET_PSI(xx + 1, yy + 1,
 				(  a[1][1] + a[1][2] + a[2][1] + a[2][2]
-				) /  4.0
+				) /  4.
 			);
 		}
 	}
