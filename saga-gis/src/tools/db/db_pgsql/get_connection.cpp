@@ -124,9 +124,9 @@ CGet_Connection::CGet_Connection(void)
 
 	Parameters.Add_String("", "PG_HOST", _TL("Host"    ), _TL(""), "localhost");
 	Parameters.Add_Int   ("", "PG_PORT", _TL("Port"    ), _TL(""), 5432, 0, true);
+	Parameters.Add_String("", "PG_DB"  , _TL("Database"), _TL(""), "");
 	Parameters.Add_String("", "PG_USER", _TL("User"    ), _TL(""), "postgres");
 	Parameters.Add_String("", "PG_PWD" , _TL("Password"), _TL(""), "postgres", false, true);
-	Parameters.Add_String("", "PG_DB"  , _TL("Database"), _TL(""), "");
 	Parameters.Add_Choice("", "PG_LIST", _TL("Database"), _TL(""), "")->Set_UseInCMD(false);
 
 	Parameters("PG_DB"  )->Set_Enabled(!has_GUI());
