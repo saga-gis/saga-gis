@@ -1164,38 +1164,16 @@ bool CSG_PG_Connection::Table_Load(CSG_Table &Table, const CSG_String &Tables, c
 {
 	CSG_String Select("SELECT");
 
-	Select += bDistinct ? " DISTINCT" : " ALL";
+	Select += bDistinct ? " DISTINCT " : " ALL ";
 
-	if( Fields.is_Empty() )
-	{
-		Select += " *";
-	}
-	else
-	{
-		Select += " " + Fields;
-	}
+	if( !Fields.is_Empty() ) { Select += Fields; } else { Select += "*"; }
 
 	Select += " FROM " + Tables;
 
-	if( Where.Length() )
-	{
-		Select	+= " WHERE " + Where;
-	}
-
-	if( Group.Length() )
-	{
-		Select	+= " GROUP BY " + Group;
-
-		if( Having.Length() )
-		{
-			Select	+= " HAVING " + Having;
-		}
-	}
-
-	if( Order.Length() )
-	{
-		Select	+= " ORDER BY " + Order;
-	}
+	if( !Where .is_Empty() ) { Select += " WHERE "    + Where ; }
+	if( !Group .is_Empty() ) { Select += " GROUP BY " + Group ; }
+	if( !Having.is_Empty() ) { Select += " HAVING "   + Having; }
+	if( !Order .is_Empty() ) { Select += " ORDER BY " + Order ; }
 
 	if( bVerbose )
 	{
@@ -1268,13 +1246,14 @@ bool CSG_PG_Connection::_Shapes_Load(const CSG_String &geoTable, CSG_String &Fie
 }
 
 //---------------------------------------------------------
-bool CSG_PG_Connection::_Shapes_Load(const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where, const CSG_String &Geometry, bool bBinary, int &SRID, CSG_String &Select)
+bool CSG_PG_Connection::_Shapes_Load(const CSG_String &geoTable, const CSG_String &Geometry, bool bBinary, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where, const CSG_String &Group, const CSG_String &Having, const CSG_String &Order, bool bDistinct, int &SRID, CSG_String &Select)
 {
 	CSG_String geoField;
 
 	if( Shapes_Geometry_Info(geoTable, &geoField, &SRID) )
 	{
-		Select.Printf("SELECT %s, ST_As%s(%s) AS %s FROM \"%s\" ",
+		Select.Printf("SELECT %s %s, ST_As%s(%s) AS %s FROM \"%s\" ",
+			bDistinct ? SG_T("DISTINCT") : SG_T("ALL"),
 			Fields.c_str(),
 			bBinary ? SG_T("Binary") : SG_T("Text"),
 			geoField.c_str(),
@@ -1282,8 +1261,11 @@ bool CSG_PG_Connection::_Shapes_Load(const CSG_String &geoTable, const CSG_Strin
 			geoTable.c_str()
 		);
 
-		if( !Tables.is_Empty() ) { Select +=       "," + Tables; }
-		if( !Where .is_Empty() ) { Select += " WHERE " + Where ; }
+		if( !Tables.is_Empty() ) { Select += ", "         + Tables; }
+		if( !Where .is_Empty() ) { Select += " WHERE "    + Where ; }
+		if( !Group .is_Empty() ) { Select += " GROUP BY " + Group ; }
+		if( !Having.is_Empty() ) { Select += " HAVING "   + Having; }
+		if( !Order .is_Empty() ) { Select += " ORDER BY " + Order ; }
 
 		return( true );
 	}
@@ -1431,12 +1413,12 @@ bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &geoTa
 }
 
 //---------------------------------------------------------
-bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where)
+bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where, const CSG_String &Group, const CSG_String &Having, const CSG_String &Order, bool bDistinct)
 {
 	CSG_String Select; int SRID;
 
-	return( _Shapes_Load(geoTable, Tables, Fields, Where, GEOMETRY_FIELD, has_Version(9), SRID, Select)
-		&&   Shapes_Load(pShapes, Name, Select          , GEOMETRY_FIELD, has_Version(9), SRID) );
+	return( _Shapes_Load(geoTable, GEOMETRY_FIELD, has_Version(9), Tables, Fields, Where, Group, Having, Order, bDistinct, SRID, Select)
+	      && Shapes_Load(pShapes, Name, Select, GEOMETRY_FIELD, has_Version(9), SRID) );
 }
 
 //---------------------------------------------------------
@@ -1504,12 +1486,12 @@ int CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes[4], const CSG_String &geo
 }
 
 //---------------------------------------------------------
-int CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes[4], const CSG_String &Name, const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where)
+int CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes[4], const CSG_String &Name, const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where, const CSG_String &Group, const CSG_String &Having, const CSG_String &Order, bool bDistinct)
 {
 	CSG_String Select; int SRID;
 
-	return( _Shapes_Load(geoTable, Tables, Fields, Where, GEOMETRY_FIELD, has_Version(9), SRID, Select)
-		?    Shapes_Load(pShapes, Name, Select          , GEOMETRY_FIELD, has_Version(9), SRID) : 0 );
+	return( _Shapes_Load(geoTable, GEOMETRY_FIELD, has_Version(9), Tables, Fields, Where, Group, Having, Order, bDistinct, SRID, Select)
+	       ? Shapes_Load(pShapes, Name, Select, GEOMETRY_FIELD, has_Version(9), SRID) : 0 );
 }
 
 //---------------------------------------------------------

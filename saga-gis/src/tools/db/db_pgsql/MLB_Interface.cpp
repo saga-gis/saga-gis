@@ -46,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
 #include "MLB_Interface.h"
@@ -123,7 +114,8 @@ CSG_Tool *		Create_Tool(int i)
 	case 20:	return( new CShapes_Load );
 	case 21:	return( new CShapes_Save );
 	case 22:	return( new CShapes_SRID_Update );
-	case 23:	return( new CShapes_Join );
+	case 23:	return( new CShapes_Join_GUI );
+	case 24:	return( new CShapes_Join );
 
 	case 30:	return( new CRaster_Load );
 	case 33:	return( new CRaster_Load_Band );

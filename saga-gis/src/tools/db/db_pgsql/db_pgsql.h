@@ -139,10 +139,10 @@ public:
 
 	bool						Shapes_Geometry_Info	(const CSG_String &geoTable, CSG_String *geoField, int *SRID);
 	bool						Shapes_Load				(CSG_Shapes *pShapes   , const CSG_String &geoTable);
-	bool						Shapes_Load				(CSG_Shapes *pShapes   , const CSG_String &Name, const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where);
+	bool						Shapes_Load				(CSG_Shapes *pShapes   , const CSG_String &Name, const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where, const CSG_String &Group = "", const CSG_String &Having = "", const CSG_String &Order = "", bool bDistinct = false);
 	bool						Shapes_Load				(CSG_Shapes *pShapes   , const CSG_String &Name, const CSG_String &Select, const CSG_String &geoFieldName, bool bBinary, int SRID = -1);
 	int							Shapes_Load				(CSG_Shapes *pShapes[4], const CSG_String &geoTable);
-	int							Shapes_Load				(CSG_Shapes *pShapes[4], const CSG_String &Name, const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where);
+	int							Shapes_Load				(CSG_Shapes *pShapes[4], const CSG_String &Name, const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where, const CSG_String &Group = "", const CSG_String &Having = "", const CSG_String &Order = "", bool bDistinct = false);
 	int							Shapes_Load				(CSG_Shapes *pShapes[4], const CSG_String &Name, const CSG_String &Select, const CSG_String &geoFieldName, bool bBinary, int SRID = -1);
 	bool						Shapes_Insert			(CSG_Shapes *pShapes   , const CSG_String &geoTable);
 
@@ -165,7 +165,7 @@ private:
 	bool						_Table_Load				(CSG_Table &Data, void *pResult)	const;
 
 	bool						_Shapes_Load			(const CSG_String &geoTable, CSG_String &Fields);
-	bool						_Shapes_Load			(const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where, const CSG_String &Geometry, bool bBinary, int &SRID, CSG_String &Select);
+	bool						_Shapes_Load			(const CSG_String &geoTable, const CSG_String &Geometry, bool bBinary, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where, const CSG_String &Group, const CSG_String &Having, const CSG_String &Order, bool bDistinct, int &SRID, CSG_String &Select);
 	void *						_Shapes_Load			(const CSG_String &Select, const CSG_String &geoFieldName, int &nFields, int &nRecords, int &geoField);
 	bool						_Shape_Get_Type			(const char *WKBytes, bool bBinary, TSG_Shape_Type &Geometry, TSG_Vertex_Type &Vertex);
 	TSG_Shape_Type				_Shape_Get_Type			(const char *WKBytes, bool bBinary);
