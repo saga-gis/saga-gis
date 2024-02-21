@@ -598,7 +598,7 @@ bool CShapes_Join::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Shapes *pShapes = Parameters("SHAPES")->asShapes(); pShapes->Destroy();
 
-	if( !Get_Connection()->Shapes_Load(pShapes, geoTable + "." + joinTable, geoTable, "\"" + joinTable + "\"", Fields, Join + Where, Group, Having, Order, Distinct) )
+	if( !Get_Connection()->Shapes_Load(pShapes, geoTable + "." + joinTable, geoTable, "\"" + joinTable + "\"", Fields, Join + Where, Group, Having, Order, Distinct, true) )
 	{
 		Error_Set(_TL("unable to load vector data from PostGIS database") + CSG_String(":\n") + geoTable + "." + joinTable);
 

@@ -600,45 +600,45 @@ CSG_String CSG_PG_Connection::Get_Field_Names(const CSG_String &Table_Name) cons
 //---------------------------------------------------------
 bool CSG_PG_Connection::Execute(const CSG_String &SQL, CSG_Table *pTable, bool bToUTF8)
 {
-	if( !is_Connected() )	{	_Error_Message(_TL("no database connection"));	return( false );	}
+	if( !is_Connected() ) { _Error_Message(_TL("no database connection")); return( false ); }
 
-	PGresult	*pResult;
+	PGresult *pResult;
 
 	if( bToUTF8 )
 	{
-		CSG_Buffer	SQL_UTF8	= SQL.to_UTF8();
+		CSG_Buffer SQL_UTF8 = SQL.to_UTF8();
 
-		pResult	= PQexec(m_pgConnection, SQL_UTF8.Get_Data());
+		pResult = PQexec(m_pgConnection, SQL_UTF8.Get_Data());
 	}
 	else
 	{
-		pResult	= PQexec(m_pgConnection, SQL);
+		pResult = PQexec(m_pgConnection, SQL);
 	}
 
-	bool	bResult;
+	bool bResult;
 
 	switch( PQresultStatus(pResult) )
 	{
 	default:
-		bResult	= false;
+		bResult = false;
 		PQclear(pResult);
 		_Error_Message(_TL("SQL execution failed"), m_pgConnection);
 		break;
 
 	case PGRES_COMMAND_OK:
-		bResult	= true;
+		bResult = true;
 		PQclear(pResult);
 		break;
 
 	case PGRES_TUPLES_OK:
 		if( pTable )
 		{
-			bResult	= _Table_Load(*pTable, pResult);
+			bResult = _Table_Load(*pTable, pResult);
 			pTable->Set_Name(_TL("Query Result"));
 		}
 		else
 		{
-			bResult	= true;
+			bResult = true;
 			PQclear(pResult);
 		}
 		break;
@@ -1177,7 +1177,14 @@ bool CSG_PG_Connection::Table_Load(CSG_Table &Table, const CSG_String &Tables, c
 
 	if( bVerbose )
 	{
-		SG_UI_Msg_Add_Execution(CSG_String::Format("\n%s: '%s'", _TL("SQL Query"), Select.c_str()), false);
+		if( Select.Length() > 256 )
+		{
+			SG_UI_Msg_Add_Execution(CSG_String::Format("\n%s: '%s...'", _TL("SQL Query"), Select.Left(256).c_str()), false);
+		}
+		else
+		{
+			SG_UI_Msg_Add_Execution(CSG_String::Format("\n%s: '%s'"   , _TL("SQL Query"), Select          .c_str()), false);
+		}
 	}
 
 	if( _Table_Load(Table, Select, Table.Get_Name()) )
@@ -1246,7 +1253,7 @@ bool CSG_PG_Connection::_Shapes_Load(const CSG_String &geoTable, CSG_String &Fie
 }
 
 //---------------------------------------------------------
-bool CSG_PG_Connection::_Shapes_Load(const CSG_String &geoTable, const CSG_String &Geometry, bool bBinary, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where, const CSG_String &Group, const CSG_String &Having, const CSG_String &Order, bool bDistinct, int &SRID, CSG_String &Select)
+bool CSG_PG_Connection::_Shapes_Load(const CSG_String &geoTable, const CSG_String &Geometry, bool bBinary, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where, const CSG_String &Group, const CSG_String &Having, const CSG_String &Order, bool bDistinct, int &SRID, CSG_String &Select, bool bVerbose)
 {
 	CSG_String geoField;
 
@@ -1266,6 +1273,11 @@ bool CSG_PG_Connection::_Shapes_Load(const CSG_String &geoTable, const CSG_Strin
 		if( !Group .is_Empty() ) { Select += " GROUP BY " + Group ; }
 		if( !Having.is_Empty() ) { Select += " HAVING "   + Having; }
 		if( !Order .is_Empty() ) { Select += " ORDER BY " + Order ; }
+
+		if( bVerbose )
+		{
+			SG_UI_Msg_Add_Execution(CSG_String::Format("\n%s: '%s'", _TL("SQL Query"), Select.c_str()), false);
+		}
 
 		return( true );
 	}
@@ -1413,11 +1425,11 @@ bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &geoTa
 }
 
 //---------------------------------------------------------
-bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where, const CSG_String &Group, const CSG_String &Having, const CSG_String &Order, bool bDistinct)
+bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where, const CSG_String &Group, const CSG_String &Having, const CSG_String &Order, bool bDistinct, bool bVerbose)
 {
 	CSG_String Select; int SRID;
 
-	return( _Shapes_Load(geoTable, GEOMETRY_FIELD, has_Version(9), Tables, Fields, Where, Group, Having, Order, bDistinct, SRID, Select)
+	return( _Shapes_Load(geoTable, GEOMETRY_FIELD, has_Version(9), Tables, Fields, Where, Group, Having, Order, bDistinct, SRID, Select, bVerbose)
 	      && Shapes_Load(pShapes, Name, Select, GEOMETRY_FIELD, has_Version(9), SRID) );
 }
 
@@ -1486,11 +1498,11 @@ int CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes[4], const CSG_String &geo
 }
 
 //---------------------------------------------------------
-int CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes[4], const CSG_String &Name, const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where, const CSG_String &Group, const CSG_String &Having, const CSG_String &Order, bool bDistinct)
+int CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes[4], const CSG_String &Name, const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where, const CSG_String &Group, const CSG_String &Having, const CSG_String &Order, bool bDistinct, bool bVerbose)
 {
 	CSG_String Select; int SRID;
 
-	return( _Shapes_Load(geoTable, GEOMETRY_FIELD, has_Version(9), Tables, Fields, Where, Group, Having, Order, bDistinct, SRID, Select)
+	return( _Shapes_Load(geoTable, GEOMETRY_FIELD, has_Version(9), Tables, Fields, Where, Group, Having, Order, bDistinct, SRID, Select, bVerbose)
 	       ? Shapes_Load(pShapes, Name, Select, GEOMETRY_FIELD, has_Version(9), SRID) : 0 );
 }
 
