@@ -125,11 +125,10 @@ CGet_Connection::CGet_Connection(void)
 	Parameters.Add_String("", "PG_HOST", _TL("Host"    ), _TL(""), "localhost");
 	Parameters.Add_Int   ("", "PG_PORT", _TL("Port"    ), _TL(""), 5432, 0, true);
 	Parameters.Add_String("", "PG_DB"  , _TL("Database"), _TL(""), "");
+	Parameters.Add_Choice("", "PG_LIST", _TL("Database"), _TL(""), "")->Set_UseInCMD(false);
 	Parameters.Add_String("", "PG_USER", _TL("User"    ), _TL(""), "postgres");
 	Parameters.Add_String("", "PG_PWD" , _TL("Password"), _TL(""), "postgres", false, true);
-	Parameters.Add_Choice("", "PG_LIST", _TL("Database"), _TL(""), "")->Set_UseInCMD(false);
 
-	Parameters("PG_DB"  )->Set_Enabled(!has_GUI());
 	Parameters("PG_LIST")->Set_Enabled(false);
 }
 
@@ -163,10 +162,10 @@ int CGet_Connection::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 				}
 
 				pParameters->Get_Parameter("PG_LIST")->asChoice()->Set_Items(List);
-				pParameters->Set_Parameter("PG_LIST", pParameters->Get_Parameter("PG_DB"  )->asString());
+				pParameters->Set_Parameter("PG_LIST", (*pParameters)("PG_DB"  )->asString());
 				pParameters->Set_Enabled  ("PG_LIST",  true);
 				pParameters->Set_Enabled  ("PG_DB"  , false);
-				pParameters->Set_Parameter("PG_DB"  , pParameters->Get_Parameter("PG_LIST")->asString());
+				pParameters->Set_Parameter("PG_DB"  , (*pParameters)("PG_LIST")->asString());
 			}
 			else
 			{
@@ -364,7 +363,7 @@ CTransaction_Start::CTransaction_Start(void)
 //---------------------------------------------------------
 void CTransaction_Start::On_Connection_Changed(CSG_Parameters *pParameters)
 {
-	pParameters->Get_Parameter("SAVEPOINT")->Set_Enabled(Get_Connection()->is_Transaction());
+	pParameters->Set_Enabled("SAVEPOINT", Get_Connection()->is_Transaction());
 }
 
 //---------------------------------------------------------
@@ -557,6 +556,11 @@ bool CExecute_SQL::On_Execute(void)
 			}
 			else
 			{
+				if( Command.Length() > 256 )
+				{
+					Command = Command.Left(256) + "...";
+				}
+
 				Message_Fmt("\n%s: %s", _TL("Success"), Command.c_str());
 
 				if( pTable && pTable->Get_Count() > 0 )
