@@ -215,8 +215,10 @@ public:
 	virtual bool					Assign			(CSG_Data_Object *pObject);
 
 	void							Set_Name		(const CSG_String &Name);
-	void							Fmt_Name		(const char    *Format, ...);
-	void							Fmt_Name		(const wchar_t *Format, ...);
+	void							Set_Name		(const char       *Name);
+	void							Set_Name		(const wchar_t    *Name);
+	void							Fmt_Name		(const char       *Format, ...);
+	void							Fmt_Name		(const wchar_t    *Format, ...);
 	const SG_Char *					Get_Name		(void)	const;
 
 	void							Set_Description	(const CSG_String &Description);

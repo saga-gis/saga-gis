@@ -357,12 +357,18 @@ public:
 	TSG_Data_Type					Get_Field_Type		(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Type[iField] : SG_DATATYPE_Undefined );	}
 	int								Get_Field_Length	(int iField, int Encoding = SG_FILE_ENCODING_UNDEFINED)	const;	// returns the maximum number of characters for data type string and zero for all other data types.
 	int								Get_Field			(const CSG_String &Name)	const;	// returns the zero based position of the field named 'Name' or '-1' if there is no field with such name.
+	int								Get_Field			(const char       *Name)	const;	// returns the zero based position of the field named 'Name' or '-1' if there is no field with such name.
+	int								Get_Field			(const wchar_t    *Name)	const;	// returns the zero based position of the field named 'Name' or '-1' if there is no field with such name.
 
 	bool							Set_Field_Name		(int iField, const SG_Char *Name);
 	virtual bool					Set_Field_Type		(int iField, TSG_Data_Type  Type);
 
-	int								Find_Field			(const CSG_String &Name            )	const;
-	bool							Find_Field			(const CSG_String &Name, int &Index)	const;
+	int								Find_Field			(const CSG_String &Name            ) const;
+	int								Find_Field			(const char       *Name            ) const { return( Find_Field(CSG_String(Name)) ); }
+	int								Find_Field			(const wchar_t    *Name            ) const { return( Find_Field(CSG_String(Name)) ); }
+	bool							Find_Field			(const CSG_String &Name, int &Index) const;
+	bool							Find_Field			(const char       *Name, int &Index) const { return( Find_Field(CSG_String(Name)) ); }
+	bool							Find_Field			(const wchar_t    *Name, int &Index) const { return( Find_Field(CSG_String(Name)) ); }
 
 	sLong							Get_N				(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_Count   () : 0  );	}
 	double							Get_Minimum			(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_Minimum () : 0. );	}

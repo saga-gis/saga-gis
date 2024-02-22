@@ -295,6 +295,8 @@ bool CSG_Data_Object::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CSG_Data_Object::Set_Name(const char       *Name) { Set_Name(CSG_String(Name)); }
+void CSG_Data_Object::Set_Name(const wchar_t    *Name) { Set_Name(CSG_String(Name)); }
 void CSG_Data_Object::Set_Name(const CSG_String &Name)
 {
 	if( Name.is_Empty() )

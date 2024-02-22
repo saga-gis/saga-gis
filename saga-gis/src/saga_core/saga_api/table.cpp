@@ -685,6 +685,8 @@ int CSG_Table::Get_Field_Length(int iField, int Encoding)	const
 }
 
 //---------------------------------------------------------
+int CSG_Table::Get_Field(const char       *Name) const { return( Get_Field(CSG_String(Name))); }
+int CSG_Table::Get_Field(const wchar_t    *Name) const { return( Get_Field(CSG_String(Name))); }
 int CSG_Table::Get_Field(const CSG_String &Name) const
 {
 	for(int iField=0; iField<Get_Field_Count(); iField++)
