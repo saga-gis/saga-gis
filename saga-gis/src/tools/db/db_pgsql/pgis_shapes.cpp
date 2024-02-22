@@ -58,7 +58,7 @@
 //---------------------------------------------------------
 CShapes_Load::CShapes_Load(void)
 {
-	Set_Name		(_TL("Import Shapes from PostGIS"));
+	Set_Name		(_TL("Import Shapes"));
 
 	Set_Author		("O.Conrad (c) 2013");
 
@@ -165,7 +165,7 @@ bool CShapes_Load::On_Execute(void)
 //---------------------------------------------------------
 CShapes_Save::CShapes_Save(void)
 {
-	Set_Name		(_TL("Export Shapes to PostGIS"));
+	Set_Name		(_TL("Export Shapes"));
 
 	Set_Author		("O.Conrad (c) 2013");
 

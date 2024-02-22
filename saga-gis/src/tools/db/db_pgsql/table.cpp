@@ -414,7 +414,7 @@ bool CTable_Drop::On_Execute(void)
 //---------------------------------------------------------
 CTable_Query::CTable_Query(void)
 {
-	Set_Name		(_TL("Import Table from SQL Query"));
+	Set_Name		(_TL("Import Table from Query"));
 
 	Set_Author		("O.Conrad (c) 2013");
 

@@ -58,7 +58,7 @@
 //---------------------------------------------------------
 CRaster_Load::CRaster_Load(void)
 {
-	Set_Name		(_TL("Import Raster from PostGIS"));
+	Set_Name		(_TL("Import Raster"));
 
 	Set_Author		("O.Conrad (c) 2013");
 
@@ -144,7 +144,7 @@ bool CRaster_Load::On_Execute(void)
 //---------------------------------------------------------
 CRaster_Load_Band::CRaster_Load_Band(void)
 {
-	Set_Name		(_TL("Import Single Raster Band from PostGIS"));
+	Set_Name		(_TL("Import Single Raster Band"));
 
 	Set_Author		("O.Conrad (c) 2015");
 
@@ -270,7 +270,7 @@ bool CRaster_Load_Band::On_Execute(void)
 //---------------------------------------------------------
 CRaster_Save::CRaster_Save(void)
 {
-	Set_Name		(_TL("Export Raster to PostGIS"));
+	Set_Name		(_TL("Export Raster"));
 
 	Set_Author		("O.Conrad (c) 2013");
 
@@ -461,8 +461,7 @@ bool CRaster_Save::On_Execute(void)
 //---------------------------------------------------------
 CRaster_Collection_Save::CRaster_Collection_Save(void)
 {
-	//-----------------------------------------------------
-	Set_Name		(_TL("Export Grid Collection to PostGIS"));
+	Set_Name		(_TL("Export Grid Collection"));
 
 	Set_Author		("O.Conrad (c) 2017");
 
@@ -472,24 +471,24 @@ CRaster_Collection_Save::CRaster_Collection_Save(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_System("",
-		"GRID_SYSTEM"	, _TL("Grid System"),
+		"GRID_SYSTEM", _TL("Grid System"),
 		_TL("")
 	);
 
 	Parameters.Add_Grids("GRID_SYSTEM",
-		"GRIDS"		, _TL("Grid Collection"),
+		"GRIDS"      , _TL("Grid Collection"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_String("",
-		"NAME"		, _TL("Name"),
+		"NAME"       , _TL("Name"),
 		_TL(""),
 		""
 	);
 
 	Parameters.Add_Choice("",
-		"EXISTS"	, _TL("If table exists..."),
+		"EXISTS"     , _TL("If table exists..."),
 		_TL(""),
 		CSG_String::Format("%s|%s",
 			_TL("abort"),
