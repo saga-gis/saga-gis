@@ -562,11 +562,18 @@ bool CWKSP_Base_Control::_Search_Get_List(CSG_Table *pList, CWKSP_Base_Item *pIt
 		if( (bName && _Search_Compare(String, pItem->Get_Name       (), bCase))
 		||  (bDesc && _Search_Compare(String, pItem->Get_Description(), bCase)) )
 		{
-			CSG_Table_Record	*pRecord	= pList->Add_Record();
+			CSG_Table_Record *pRecord = pList->Add_Record();
 
-			pRecord->Set_Value(0, pItem->Get_Name().wx_str());
+			CSG_String Name(pItem->Get_Name().wx_str());
+
+			if( pItem->Get_Type() == WKSP_ITEM_Tool )
+			{
+				Name.Prepend(CSG_String("[") + ((CWKSP_Tool *)pItem)->Get_Tool()->Get_Library() + "] ");
+			}
+
+			pRecord->Set_Value(0, Name);
 			pRecord->Set_Value(1, pItem->Get_Type_Name(pItem->Get_Type()).wx_str());
-			pRecord->Set_Value(2, CSG_String::Format("%p", pItem));
+			pRecord->Set_Value(2, CSG_String::Format("%p", pItem)); // address pointer
 		}
 	}
 
@@ -584,7 +591,7 @@ bool CWKSP_Base_Control::_Search_Get_List(CSG_Table *pList, CWKSP_Base_Item *pIt
 //---------------------------------------------------------
 CWKSP_Base_Item * CWKSP_Base_Control::Search_Item(const wxString &Caption, TWKSP_Item Type)
 {
-	static CSG_Parameters	Search(Caption);
+	static CSG_Parameters Search(Caption);
 
 	if( Search.Get_Count() == 0 )
 	{
@@ -600,7 +607,7 @@ CWKSP_Base_Item * CWKSP_Base_Control::Search_Item(const wxString &Caption, TWKSP
 	}
 
 	//-----------------------------------------------------
-	CSG_Table	List;
+	CSG_Table List;
 
 	List.Add_Field(_TL("NAME"), SG_DATATYPE_String);
 	List.Add_Field(_TL("TYPE"), SG_DATATYPE_String);
@@ -618,7 +625,7 @@ CWKSP_Base_Item * CWKSP_Base_Control::Search_Item(const wxString &Caption, TWKSP
 	//-----------------------------------------------------
 	List.Set_Index(1, TABLE_INDEX_Ascending, 0, TABLE_INDEX_Ascending);
 
-	wxArrayString	Items;
+	wxArrayString Items;
 
 	for(int i=0; i<List.Get_Count(); i++)
 	{
@@ -633,12 +640,12 @@ CWKSP_Base_Item * CWKSP_Base_Control::Search_Item(const wxString &Caption, TWKSP
 	}
 
 	//-----------------------------------------------------
-	wxSingleChoiceDialog	dlg(MDI_Get_Top_Window(),
+	wxSingleChoiceDialog dlg(MDI_Get_Top_Window(),
 		wxString::Format("%s: '%s'", _TL("Search Result"), Search("STRING")->asString()),
 		Caption, Items
 	);
 
-	void	*pItem;
+	void *pItem;
 
 	if( dlg.ShowModal() != wxID_OK || SG_SSCANF(List[dlg.GetSelection()].asString(2), SG_T("%p"), &pItem) != 1 )
 	{
@@ -651,13 +658,13 @@ CWKSP_Base_Item * CWKSP_Base_Control::Search_Item(const wxString &Caption, TWKSP
 //---------------------------------------------------------
 bool CWKSP_Base_Control::_Search_Item(void)
 {
-	CWKSP_Base_Item	*pItem	= Search_Item(_TL("Locate..."));
+	CWKSP_Base_Item *pItem = Search_Item(_TL("Locate..."));
 
 	if( pItem && pItem->GetId().IsOk() )
 	{
-		EnsureVisible	(pItem->GetId());
-		SelectItem		(pItem->GetId());
-		ScrollTo		(pItem->GetId());
+		EnsureVisible(pItem->GetId());
+		SelectItem   (pItem->GetId());
+		ScrollTo     (pItem->GetId());
 
 		return( true );
 	}
