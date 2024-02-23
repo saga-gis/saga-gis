@@ -1824,7 +1824,7 @@ bool CWKSP_Map::SaveAs_Image_To_KMZ(int nx, int ny)
 	&&  pTool->Set_Parameter("GRID"     , &Map)
 	&&  pTool->Set_Parameter("FILE"     , FileName.GetFullPath().wc_str())
 	&&  pTool->Set_Parameter("COLOURING", 4) // rgb coded values
-	&&  pTool->Set_Parameter("FORMAT"   , 1) // 0 = png, 1 = jpg (default)
+	&&  pTool->Set_Parameter("FORMAT"   , 0) // 0 = png, 1 = jpg (default)
 	&&  pTool->Execute() )
 	{
 		if( P["OPEN"].asBool() )

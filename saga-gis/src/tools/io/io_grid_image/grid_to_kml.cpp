@@ -87,7 +87,7 @@ CGrid_to_KML::CGrid_to_KML(void)
 	Parameters.Add_FilePath("",
 		"FILE"		, _TL("File"),
 		_TL(""),
-		CSG_String::Format("%s (*.kml)|*.kml|%s (*.kmz)|*.kmz",
+		CSG_String::Format("%s (*.kmz)|*.kmz|%s (*.kml)|*.kml",
 			_TL("Compressed Keyhole Markup Language Files"),
 			_TL("Keyhole Markup Language Files")
 		), NULL, true
