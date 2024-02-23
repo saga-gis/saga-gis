@@ -458,7 +458,7 @@ bool CTable_Query::On_Execute(void)
 //---------------------------------------------------------
 CTable_Query_GUI::CTable_Query_GUI(void)
 {
-	Set_Name		(_TL("Import Table from SQL Query (GUI)"));
+	Set_Name		(_TL("Import Table from Query (GUI)"));
 
 	Set_Author		("O.Conrad (c) 2017");
 
