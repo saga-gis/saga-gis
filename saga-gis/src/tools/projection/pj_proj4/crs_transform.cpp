@@ -243,8 +243,6 @@ bool CSG_CRSProjector::_Set_Projection(const CSG_Projection &Projection, void **
 				}
 			}
 		}
-
-	//	Proj4.Replace("+type=crs", "");
 	}
 
 	//-------------------------------------------------
