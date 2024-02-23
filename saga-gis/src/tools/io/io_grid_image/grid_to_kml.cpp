@@ -85,25 +85,24 @@ CGrid_to_KML::CGrid_to_KML(void)
 	);
 
 	Parameters.Add_FilePath("",
-		"FILE"		, _TL("Image File"),
+		"FILE"		, _TL("File"),
 		_TL(""),
-		CSG_String::Format("%s (*.png)|*.png|%s (*.jpg, *.jif, *.jpeg)|*.jpg;*.jif;*.jpeg|%s (*.tif, *.tiff)|*.tif;*.tiff|%s (*.bmp)|*.bmp|%s (*.pcx)|*.pcx",
+		CSG_String::Format("%s (*.kml)|*.kml|%s (*.kmz)|*.kmz",
+			_TL("Compressed Keyhole Markup Language Files"),
+			_TL("Keyhole Markup Language Files")
+		), NULL, true
+	);
+
+	Parameters.Add_Choice("",
+		"FORMAT"	, _TL("Image Format"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|%s|%s",
 			_TL("Portable Network Graphics"),
 			_TL("JPEG - JFIF Compliant"    ),
 			_TL("Tagged Image File Format" ),
 			_TL("Windows or OS/2 Bitmap"   ),
 			_TL("Zsoft Paintbrush"         )
-		), NULL, true
-	);
-
-	Parameters.Add_Choice("",
-		"OUTPUT"	, _TL("Output"),
-		_TL(""),
-		CSG_String::Format("%s|%s|%s",
-			_TL("kml and image files"),
-			_TL("kmz, kml and image files"),
-			_TL("kmz file")
-		), 2
+		), 1
 	);
 
 	if( has_GUI() )
@@ -250,16 +249,13 @@ int CGrid_to_KML::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 //---------------------------------------------------------
 bool CGrid_to_KML::On_Execute(void)
 {
-	//-----------------------------------------------------
-	bool	bDelete	= false;
+	bool bDelete = false;
 
-	CSG_Tool	*pTool;
-
-	CSG_Grid	*pGrid	= Parameters("GRID" )->asGrid(), Image;
-	CSG_Grid	*pShade	= Parameters("SHADE")->asGrid();
+	CSG_Grid *pGrid  = Parameters("GRID" )->asGrid(), Image;
+	CSG_Grid *pShade = Parameters("SHADE")->asGrid();
 
 	//-----------------------------------------------------
-	int	Method	= Parameters("COLOURING")->asInt();
+	int Method = Parameters("COLOURING")->asInt();
 
 	if( Method == 5 )	// same as in graphical user interface
 	{
@@ -273,8 +269,8 @@ bool CGrid_to_KML::On_Execute(void)
 		Image.Set_Name       (pGrid->Get_Name       ());
 		Image.Set_Description(pGrid->Get_Description());
 		Image.Flip();
-		pGrid	= &Image;
-		Method	= 4;	// rgb coded values
+		pGrid  = &Image;
+		Method = 4;	// rgb coded values
 	}
 
 	//-----------------------------------------------------
@@ -286,7 +282,9 @@ bool CGrid_to_KML::On_Execute(void)
 	{
 		Message_Fmt("\n%s (%s: %s)\n", _TL("re-projection to geographic coordinates"), _TL("original"), pGrid->Get_Projection().Get_Name().c_str());
 
-		if(	(pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4)) == NULL )	// Coordinate Transformation (Grid)
+		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4);
+
+		if(	pTool == NULL )	// Coordinate Transformation (Grid)
 		{
 			return( false );
 		}
@@ -298,17 +296,15 @@ bool CGrid_to_KML::On_Execute(void)
 		&&  pTool->Set_Parameter("SOURCE"    , pGrid)
 		&&  pTool->Execute() )
 		{
-			bDelete	= true;
-
-			pGrid	= pTool->Get_Parameter("GRID")->asGrid();
+			bDelete = true; pGrid = pTool->Get_Parameter("GRID")->asGrid();
 
 			if( pShade && pTool->Set_Parameter("SOURCE", pShade) && pTool->Execute() )
 			{
-				pShade	= pTool->Get_Parameter("GRID")->asGrid();
+				pShade = pTool->Get_Parameter("GRID")->asGrid();
 			}
 			else
 			{
-				pShade	= NULL;
+				pShade = NULL;
 			}
 		}
 
@@ -323,12 +319,25 @@ bool CGrid_to_KML::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if(	(pTool = SG_Get_Tool_Library_Manager().Create_Tool("io_grid_image", 0, has_GUI())) == NULL )	// Export Image
+	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("io_grid_image", 0, has_GUI());
+
+	if(	pTool == NULL )	// Export Image
 	{
 		return( false );
 	}
 
-	bool	bResult	= false;
+	bool bResult = false;
+
+	CSG_String File(Parameters("FILE")->asString());
+
+	switch( Parameters("FORMAT")->asInt() )
+	{
+		default: SG_File_Set_Extension(File, "png"); break; // Portable Network Graphics
+		case  1: SG_File_Set_Extension(File, "jpg"); break; // JPEG - JFIF Compliant"    ),
+		case  2: SG_File_Set_Extension(File, "tif"); break; // Tagged Image File Format" ),
+		case  3: SG_File_Set_Extension(File, "bmp"); break; // Windows or OS/2 Bitmap"   ),
+		case  4: SG_File_Set_Extension(File, "pcx"); break; // Zsoft Paintbrush"         )
+	}
 
 	pTool->Set_Manager(NULL);
 
@@ -336,7 +345,7 @@ bool CGrid_to_KML::On_Execute(void)
 	&&  pTool->Set_Parameter("SHADE"       , pShade)
 	&&  pTool->Set_Parameter("COLOURING"   , Method)
 	&&  pTool->Set_Parameter("FILE_KML"    , true  )
-	&&  pTool->Set_Parameter("FILE"        , Parameters("FILE"        ))
+	&&  pTool->Set_Parameter("FILE"        , File  )
 	&&  pTool->Set_Parameter("COL_PALETTE" , Parameters("COL_PALETTE" ))
 	&&  pTool->Set_Parameter("STDDEV"      , Parameters("STDDEV"      ))
 	&&  pTool->Set_Parameter("STRETCH"     , Parameters("STRETCH"     ))
@@ -345,7 +354,7 @@ bool CGrid_to_KML::On_Execute(void)
 	||  pTool->Set_Parameter("SHADE_BRIGHT", Parameters("SHADE_BRIGHT")))
 	&&  pTool->Execute() )
 	{
-		bResult	= true;
+		bResult = true;
 	}
 
 	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
@@ -361,36 +370,26 @@ bool CGrid_to_KML::On_Execute(void)
 		}
 	}
 
-//---------------------------------------------------------
-#define ZIP_ADD_FILE(zip, fn)	{\
-	wxFileInputStream	*pInput;\
-	\
-	if( SG_File_Exists(fn) && (pInput = new wxFileInputStream(fn)) != NULL )\
-	{\
-		zip.PutNextEntry(SG_File_Get_Name(fn, true).c_str());\
-		zip.Write(*pInput);\
-		delete(pInput);\
-	}\
-}
-//---------------------------------------------------------
+	//-----------------------------------------------------
+	File = Parameters("FILE")->asString();
 
-	if( Parameters("OUTPUT")->asInt() != 0 )	// create kmz
+	if( SG_File_Cmp_Extension(File, "kmz") )
 	{
-		CSG_String	Filename	= Parameters("FILE")->asString();	SG_File_Set_Extension(Filename, "kmz");
+		wxDir dir; wxString file; CSG_String Path(SG_File_Get_Path(File));
 
-		wxDir		dir;
-		wxString	file;
-
-		//-------------------------------------------------
-		if( dir.Open(SG_File_Get_Path(Filename).c_str()) && dir.GetFirst(&file, wxString::Format("%s.*", SG_File_Get_Name(Filename, false).c_str()), wxDIR_FILES) )
+		if( dir.Open(Path.c_str()) && dir.GetFirst(&file, wxString::Format("%s.*", SG_File_Get_Name(File, false).c_str()), wxDIR_FILES) )
 		{
-			CSG_Strings	Files;
+			CSG_Strings Files;
 
 			do
 			{
-				if( !SG_File_Cmp_Extension(&file, "kmz") )
+				if( SG_File_Cmp_Extension(&file, "kmz") )
 				{
-					Files	+= SG_File_Make_Path(SG_File_Get_Path(Filename), &file);
+					SG_File_Delete(SG_File_Make_Path(Path, &file));
+				}
+				else
+				{
+					Files += SG_File_Make_Path(Path, &file);
 				}
 			}
 			while( dir.GetNext(&file) );
@@ -398,16 +397,20 @@ bool CGrid_to_KML::On_Execute(void)
 			dir.Close();
 
 			//---------------------------------------------
-			wxZipOutputStream	Zip(new wxFileOutputStream(Filename.c_str()));
+			wxZipOutputStream Zip(new wxFileOutputStream(File.c_str()));
 
 			for(int i=0; i<Files.Get_Count(); i++)
 			{
-				ZIP_ADD_FILE(Zip, Files[i].c_str());
-
-				if( Parameters("OUTPUT")->asInt() != 1 )	// delete kml, image and associated files
+				wxFileInputStream *pInput = new wxFileInputStream(Files[i].c_str());
+				
+				if( pInput != NULL )
 				{
-					SG_File_Delete(Files[i]);
+					Zip.PutNextEntry(SG_File_Get_Name(Files[i], true).c_str());
+					Zip.Write(*pInput);
+					delete(pInput);
 				}
+
+				SG_File_Delete(Files[i]);
 			}
 		}
 	}

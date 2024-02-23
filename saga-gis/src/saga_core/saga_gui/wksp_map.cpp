@@ -1752,8 +1752,20 @@ bool CWKSP_Map::SaveAs_Image_To_KMZ(int nx, int ny)
 	CSG_Parameters P(_TL("Export Map to Google Earth"), SG_T(""), SG_T("SAVE_IMAGE"));
 	P.Set_Callback_On_Parameter_Changed(_On_Parameter_Changed);
 
-	P.Add_FilePath("", "FILE"    , _TL("File"    ), _TL(""), CSG_String::Format("%s|*.kmz|%s|*.*", _TL("KMZ Files"), _TL("All Files")), NULL, true);
-	P.Add_Bool    ("", "LOAD"    , _TL("Load"    ), _TL(""), true);
+	P.Add_FilePath("",
+		"FILE", _TL("File"),
+		_TL("Omitting the target file will create it as temporary file."),
+		CSG_String::Format("%s|*.kmz|%s|*.*",
+			_TL("KMZ Files"),
+			_TL("All Files")
+		), NULL, true
+	);
+
+	P.Add_Bool("",
+		"OPEN", _TL("Open"),
+		_TL("Try to open KMZ file after creation with the associated application (e.g. \'Google Earth\')."),
+		true
+	);
 
 	CSG_Parameters_Grid_Target Target;
 	Target.Create(&P, true, "", "TARGET_");
@@ -1796,9 +1808,10 @@ bool CWKSP_Map::SaveAs_Image_To_KMZ(int nx, int ny)
 	Map.Set_NoData_Value(SG_GET_RGB(MASK_R, MASK_G, MASK_B));
 	Map.Get_Projection().Create(m_Projection);
 
-	for(int y=0, yy=Map.Get_NY()-1; y<Map.Get_NY(); y++, yy--)
+	#pragma omp parallel for
+	for(int y=0; y<Map.Get_NY(); y++)
 	{
-		for(int x=0; x<Map.Get_NX(); x++)
+		for(int x=0, yy=Map.Get_NY()-1-y; x<Map.Get_NX(); x++)
 		{
 			Map.Set_Value(x, y, SG_GET_RGB(Image.GetRed(x, yy), Image.GetGreen(x, yy), Image.GetBlue(x, yy)));
 		}
@@ -1810,11 +1823,11 @@ bool CWKSP_Map::SaveAs_Image_To_KMZ(int nx, int ny)
 	if(	pTool && pTool->Settings_Push()
 	&&  pTool->Set_Parameter("GRID"     , &Map)
 	&&  pTool->Set_Parameter("FILE"     , FileName.GetFullPath().wc_str())
-	&&  pTool->Set_Parameter("COLOURING", 4)	// rgb coded values
-	&&  pTool->Set_Parameter("OUTPUT"   , 2)	// kmz file
+	&&  pTool->Set_Parameter("COLOURING", 4) // rgb coded values
+	&&  pTool->Set_Parameter("FORMAT"   , 1) // 0 = png, 1 = jpg (default)
 	&&  pTool->Execute() )
 	{
-		if( P["LOAD"].asBool() )
+		if( P["OPEN"].asBool() )
 		{
 			Open_Application(FileName.GetFullPath());
 		}

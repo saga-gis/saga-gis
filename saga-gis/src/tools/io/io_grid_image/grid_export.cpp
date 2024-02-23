@@ -453,11 +453,11 @@ bool CGrid_Export::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( Projection.Get_Type() == SG_PROJ_TYPE_CS_Geographic && Parameters("FILE_KML")->asBool() )
+	if( Parameters("FILE_KML")->asBool() )// && (Projection.is_Geographic() || !Projection.is_Okay()) )
 	{
-		CSG_MetaData	KML; KML.Set_Name("kml"); KML.Add_Property("xmlns", "http://www.opengis.net/kml/2.2");
+		CSG_MetaData KML; KML.Set_Name("kml"); KML.Add_Property("xmlns", "http://www.opengis.net/kml/2.2");
 
-		CSG_MetaData	&Overlay	= *KML.Add_Child("GroundOverlay");
+		CSG_MetaData &Overlay = *KML.Add_Child("GroundOverlay");
 
 		Overlay.Add_Child("name"       , Parameters("GRID")->asGrid()->Get_Name());
 		Overlay.Add_Child("description", Parameters("GRID")->asGrid()->Get_Description());
