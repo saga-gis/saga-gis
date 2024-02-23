@@ -85,7 +85,7 @@
 
 	struct PJ_DATUMS
 	{
-		char	*id, *comments;
+		const char *id, *comments;
 	};
 
 	#define TPJ_DATUMS	struct PJ_DATUMS
@@ -124,7 +124,7 @@ CCRS_Base::CCRS_Base(void)
 		"CRS_METHOD"	, _TL("Get CRS Definition from..."),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s",
-			_TL("Proj4 Parameters"),
+			_TL("PROJ Parameters"),
 			_TL("EPSG Code"),
 			_TL("Well Known Text File")
 		), 0
@@ -132,7 +132,7 @@ CCRS_Base::CCRS_Base(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_String("",
-		"CRS_PROJ4"		, _TL("Proj4 Parameters"),
+		"CRS_PROJ4"		, _TL("PROJ Parameters"),
 		_TL(""),
 		m_Projection.Get_Proj4(), true
 	);
@@ -452,7 +452,7 @@ bool CCRS_Base::Get_Projection(CSG_Projection &Projection)
 	default:	// Proj4 Parameters
 		if( !Projection.Create(Parameters("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4) )
 		{
-			Error_Set(_TL("Proj4 definition string error"));
+			Error_Set(_TL("PROJ definition string error"));
 		}
 		break;
 
@@ -1003,10 +1003,11 @@ CSG_String CCRS_Base::Get_User_Definition(CSG_Parameters &P)
 			switch( p.Get_Type() )
 			{
 			case PARAMETER_TYPE_Choice:
-			case PARAMETER_TYPE_String: PROJ4_ADD_STR(key, p.asString());	break;
-			case PARAMETER_TYPE_Bool  : PROJ4_ADD_BOL(key, p.asBool  ());	break;
-			case PARAMETER_TYPE_Int   : PROJ4_ADD_INT(key, p.asInt   ());	break;
-			case PARAMETER_TYPE_Double: PROJ4_ADD_DBL(key, p.asDouble());	break;
+			case PARAMETER_TYPE_String: PROJ4_ADD_STR(key, p.asString()); break;
+			case PARAMETER_TYPE_Bool  : PROJ4_ADD_BOL(key, p.asBool  ()); break;
+			case PARAMETER_TYPE_Int   : PROJ4_ADD_INT(key, p.asInt   ()); break;
+			case PARAMETER_TYPE_Double: PROJ4_ADD_DBL(key, p.asDouble()); break;
+			default                   :                                   break;
 			}
 		}
 	}
