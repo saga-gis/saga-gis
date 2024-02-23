@@ -133,9 +133,17 @@ wxString	Get_FilePath_Relative(const wxString &Directory, const wxString &FileNa
 }
 
 //---------------------------------------------------------
-wxString	Get_FilePath_Absolute(const wxString &Directory, const wxString &FileName)
+wxString	Get_FilePath_Absolute(const wxString &Directory, const wxString &_FileName)
 {
-	wxFileName	fn(FileName);
+	wxString FileName(_FileName);
+
+	#ifdef _SAGA_MSW
+	FileName.Replace("/", "\\");
+	#else
+	FileName.Replace("\\", "/");
+	#endif
+
+	wxFileName fn(FileName);
 
 	if( !fn.IsAbsolute() )
 	{
