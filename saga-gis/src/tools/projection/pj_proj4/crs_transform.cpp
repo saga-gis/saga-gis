@@ -207,14 +207,11 @@ CSG_String CSG_CRSProjector::Get_Description(void)
 {
 	CSG_String	s;
 
-	s	+= _TL("Projection routines make use of the Proj.4 Cartographic Projections library.");
+	s	+= _TL("Projection routines make use of the PROJ generic coordinate transformation software.");
 	s	+= "\n";
-	s	+= _TW("Proj.4 was originally developed by Gerald Evenden and later continued by the "
-		       "United States Department of the Interior, Geological Survey (USGS).");
+	s	+= _TL("PROJ Version is ") + Get_Version();
 	s	+= "\n";
-	s	+= _TL("Proj.4 Version is ") + Get_Version();
-	s	+= "\n";
-	s	+= "<a target=\"_blank\" href=\"https://proj.org\">Proj.4 Homepage</a>";
+	s	+= "<a target=\"_blank\" href=\"https://proj.org\">PROJ Homepage</a>";
 
 	return( s );
 }
@@ -227,15 +224,36 @@ CSG_String CSG_CRSProjector::Get_Description(void)
 //---------------------------------------------------------
 bool CSG_CRSProjector::_Set_Projection(const CSG_Projection &Projection, void **ppProjection, bool bInverse)
 {
-	PROJ4_FREE(*ppProjection);
+	PROJ4_FREE(*ppProjection); CSG_String Proj4(Projection.Get_Proj4());
+
+	{
+		int i = Proj4.Find("+type");
+
+		if( i >= 0 )
+		{
+			CSG_String Right(Proj4.Right(Proj4.Length() - i).AfterFirst('='));
+
+			if( Right.BeforeFirst('+').Find("crs") >= 0 )
+			{
+				Proj4 = Proj4.Left(i);
+				
+				if( (i = Right.Find('+')) >= 0 )
+				{
+					Proj4 += Right.Right(Right.Length() - i);
+				}
+			}
+		}
+
+	//	Proj4.Replace("+type=crs", "");
+	}
 
 	//-------------------------------------------------
 	#if PROJ_VERSION_MAJOR < 6
-	if( (*ppProjection = pj_init_plus(Projection.Get_Proj4())) == NULL )
+	if( (*ppProjection = pj_init_plus(Proj4)) == NULL )
 	{
 		CSG_String	Error(pj_strerrno(pj_errno));
 	#else
-	if( (*ppProjection = proj_create((PJ_CONTEXT *)m_pContext, Projection.Get_Proj4())) == NULL )
+	if( (*ppProjection = proj_create((PJ_CONTEXT *)m_pContext, Proj4)) == NULL )
 	{
 		CSG_String	Error(proj_errno_string(proj_errno((PJ *)(*ppProjection))));
 	#endif

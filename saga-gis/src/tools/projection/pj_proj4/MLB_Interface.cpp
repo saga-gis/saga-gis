@@ -61,7 +61,7 @@ CSG_String Get_Info(int i)
 	switch( i )
 	{
 	case TLB_INFO_Name:	default:
-		return( _TL("Proj.4") );
+		return( _TL("PROJ") );
 
 	case TLB_INFO_Category:
 		return( _TL("Projection") );
@@ -73,7 +73,7 @@ CSG_String Get_Info(int i)
 		return( CSG_CRSProjector::Get_Description() );
 
 	case TLB_INFO_Version:
-		return( _TL("2.0") );
+		return( "2.0" );
 
 	case TLB_INFO_Menu_Path:
 		return( _TL("Projection") );
