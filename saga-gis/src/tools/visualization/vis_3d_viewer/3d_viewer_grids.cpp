@@ -206,6 +206,8 @@ C3D_Viewer_Grids_Panel::C3D_Viewer_Grids_Panel(wxWindow *pParent, CSG_Grids *pGr
 	m_Position[PLANE_SIDE_Y] = 0.5;
 	m_Position[PLANE_SIDE_Z] = 0.5;
 
+	m_Label_zType = m_pGrids->Get_Attributes().Get_Field_Type(m_pGrids->Get_Z_Attribute());
+
 	m_BoxBuffer = 0.;
 
 	m_Projector.Set_zShift(-0.4);
@@ -378,7 +380,7 @@ void C3D_Viewer_Grids_Panel::On_Key_Down(wxKeyEvent &event)
 //---------------------------------------------------------
 void C3D_Viewer_Grids_Panel::On_Mouse_Motion(wxMouseEvent &event)
 {
-	if( HasCapture() && event.Dragging() && event.MiddleIsDown() )
+	if( HasCapture() && event.Dragging() && event.ShiftDown() && event.LeftIsDown() )
 	{
 		m_Projector.Set_Central_Distance(m_Down_Value.x + GET_MOUSE_X_RELDIFF);
 
@@ -388,7 +390,7 @@ void C3D_Viewer_Grids_Panel::On_Mouse_Motion(wxMouseEvent &event)
 
 		Update_View(); Update_Parent();
 
-		return;
+		event.Skip(); return;
 	}
 
 	CSG_3DView_Panel::On_Mouse_Motion(event);

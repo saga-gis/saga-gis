@@ -93,6 +93,7 @@ CSG_3DView_Canvas::CSG_3DView_Canvas(void)
 	m_Labels      = 0;
 	m_Label_Res   = 50;
 	m_Label_Scale = 1.;
+	m_Label_zType = SG_DATATYPE_Undefined; // number
 }
 
 
@@ -539,9 +540,18 @@ void CSG_3DView_Canvas::_Draw_Labels(int Axis, const TSG_Point_3D &A, const TSG_
 			continue;
 		}
 
-		double i = (Value - Min) / (Max - Min); CSG_Point_3D p(A.x + i * D.x, A.y + i * D.y, A.z + i * D.z);
+		double i = (Value - Min) / (Max - Min); CSG_Point_3D p(A.x + i * D.x, A.y + i * D.y, A.z + i * D.z); CSG_String s;
 
-		_Draw_Label(SG_Get_String(Value, -Decimals), p, Rx, Ry, Rz, Align, Resolution, Scale);
+		if( Axis == 2 && m_Label_zType == SG_DATATYPE_Date )
+		{
+			CSG_DateTime d(Value); s = d.Format_ISODate();
+		}
+		else
+		{
+			s = SG_Get_String(Value, -Decimals);
+		}
+
+		_Draw_Label(s, p, Rx, Ry, Rz, Align, Resolution, Scale);
 	}
 }
 

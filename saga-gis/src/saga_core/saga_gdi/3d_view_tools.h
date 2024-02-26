@@ -166,7 +166,7 @@ protected:
 
 	bool						m_bBox, m_bStereo;
 
-	int							m_bgColor, m_North, m_Labels, m_Label_Res;
+	int							m_bgColor, m_North, m_Labels, m_Label_Res, m_Label_zType;
 
 	double						m_dStereo, m_BoxBuffer, m_North_Size, m_Label_Scale;
 
