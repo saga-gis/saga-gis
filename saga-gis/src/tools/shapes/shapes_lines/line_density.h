@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//                    line_density.h                     //
 //                                                       //
-//                 Copyright (C) 2005 by                 //
+//                 Copyright (C) 2024 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -46,87 +46,63 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__line_density_H
+#define HEADER_INCLUDED__line_density_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
 
-//---------------------------------------------------------
-// 2. Place general tool library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-CSG_String Get_Info(int i)
+//---------------------------------------------------------
+class CLine_Density : public CSG_Tool  
 {
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("Lines") );
-
-	case TLB_INFO_Category:
-		return( _TL("Shapes") );
-
-	case TLB_INFO_Author:
-		return( "O. Conrad, V. Wichmann (c) 2005-2024" );
-
-	case TLB_INFO_Description:
-		return( _TL("Tools for lines.") );
-
-	case TLB_INFO_Version:
-		return( "1.0" );
-
-	case TLB_INFO_Menu_Path:
-		return( _TL("Shapes|Lines") );
-	}
-}
+public:
+	CLine_Density(void);
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your tools here...
+protected:
 
-#include "Lines_From_Polygons.h"
-#include "Lines_From_Points.h"
-#include "line_properties.h"
-#include "line_polygon_intersection.h"
-#include "line_simplification.h"
-#include "line_dissolve.h"
-#include "line_split_with_lines.h"
-#include "line_smoothing.h"
-#include "line_crossings.h"
-#include "extract_closed_lines.h"
-#include "line_split.h"
-#include "line_parts_to_separate_lines.h"
-#include "line_flip_direction.h"
-#include "merge_line_parts.h"
-#include "line_density.h"
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your tools to be created here...
+private:
 
-CSG_Tool *		Create_Tool(int i)
-{
-	switch( i )
-	{
-	case  0: return( new CLines_From_Polygons );
-	case  1: return( new CLines_From_Points );
-	case  2: return( new CLine_Properties );
-	case  3: return( new CLine_Polygon_Intersection );
-	case  4: return( new CLine_Simplification );
-	case  5: return( new CLine_Dissolve );
-	case  6: return( new CLine_Split_with_Lines );
-	case  8: return( new CLine_Split_at_Points );
-	case  7: return( new CLine_Smoothing );
-	case  9: return( new CLine_Crossings );
-    case 10: return( new CExtract_Closed_Lines );
-	case 11: return( new CCut_Lines );
-	case 12: return( new CLine_Parts_to_Separate_Lines );
-	case 13: return( new CLine_Flip_Direction );
-	case 14: return( new CMerge_Line_Parts );
-	case 15: return( new CLine_Density );
+	int							m_Population;
 
-	case 16: return( NULL );
-	default: return( TLB_INTERFACE_SKIP_TOOL );
-	}
-}
+	double						m_Radius;
+
+	CSG_Shapes					*m_pLines;
+
+	CSG_Parameters_Grid_Target	m_Grid_Target;
+
+
+	double						Get_Density				(const CSG_Point &Point, bool bAbsolute);
+
+	double						Get_Intersection		(const CSG_Point &Point, const CSG_Point &A, const CSG_Point &B);
+
+	void						Set_Value				(int x, int y, double Value, bool bCheckDuplicates = true);
+
+	void						Set_Line				(CSG_Shape *pShape, bool bFat, double Value);
+	void						Set_Line_Thin			(TSG_Point a, TSG_Point b, double Value);
+	void						Set_Line_Fat			(TSG_Point a, TSG_Point b, double Value);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -136,8 +112,4 @@ CSG_Tool *		Create_Tool(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	TLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__line_density_H
