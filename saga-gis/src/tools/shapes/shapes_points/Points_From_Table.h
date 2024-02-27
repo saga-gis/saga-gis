@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 /*******************************************************************************
     Points_From_Table.cpp
@@ -39,7 +36,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -54,12 +51,22 @@ class CPoints_From_Table : public CSG_Tool
 public:
 	CPoints_From_Table(void);
 
-	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Shapes|Conversion") );	}
+	virtual CSG_String			Get_MenuPath	        (void)	{	return( _TL("A:Shapes|Construction") );	}
+
+    virtual bool				On_Before_Execution		(void);
+    virtual bool				On_After_Execution		(void);
 
 
 protected:
 
-	virtual bool				On_Execute		(void);
+    virtual int                 On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute		        (void);
+
+
+private:
+
+    CSG_Tool                    *m_pCRS { NULL };
 
 };
 
