@@ -58,17 +58,17 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define HDR_NROWS			SG_T("NROWS")
-#define HDR_NCOLS			SG_T("NCOLS")
-#define HDR_X_CORNER		SG_T("XLLCORNER")
-#define HDR_Y_CORNER		SG_T("YLLCORNER")
-#define HDR_X_CENTER		SG_T("XLLCENTER")
-#define HDR_Y_CENTER		SG_T("YLLCENTER")
-#define HDR_CELLSIZE		SG_T("CELLSIZE")
-#define HDR_NODATA			SG_T("NODATA_VALUE")
-#define HDR_BYTEORDER		SG_T("BYTE_ORDER")
-#define HDR_BYTEORDER_HI	SG_T("MSB_FIRST")
-#define HDR_BYTEORDER_LO	SG_T("LSB_FIRST")
+#define HDR_NROWS        SG_T("NROWS"       )
+#define HDR_NCOLS        SG_T("NCOLS"       )
+#define HDR_X_CORNER     SG_T("XLLCORNER"   )
+#define HDR_Y_CORNER     SG_T("YLLCORNER"   )
+#define HDR_X_CENTER     SG_T("XLLCENTER"   )
+#define HDR_Y_CENTER     SG_T("YLLCENTER"   )
+#define HDR_CELLSIZE     SG_T("CELLSIZE"    )
+#define HDR_NODATA       SG_T("NODATA_VALUE")
+#define HDR_BYTEORDER    SG_T("BYTE_ORDER"  )
+#define HDR_BYTEORDER_HI SG_T("MSB_FIRST"   )
+#define HDR_BYTEORDER_LO SG_T("LSB_FIRST"   )
 
 
 ///////////////////////////////////////////////////////////
@@ -90,12 +90,12 @@ CESRI_ArcInfo_Import::CESRI_ArcInfo_Import(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_Output("",
-		"GRID"		, _TL("Grid"),
+		"GRID"      , _TL("Grid"),
 		_TL("")
 	);
 
 	Parameters.Add_FilePath("",
-		"FILE"		, _TL("File"),
+		"FILE"      , _TL("File"),
 		_TL(""),
 		CSG_String::Format("%s|*.asc;*.flt|%s|*.asc|%s|*.flt|%s|*.*",
 			_TL("ESRI Arc/Info Grids"),
@@ -111,7 +111,7 @@ CESRI_ArcInfo_Import::CESRI_ArcInfo_Import(void)
 	);
 
 	Parameters.Add_Choice("NODE_ASCII",
-		"GRID_TYPE"	, _TL("Target Grid Type"),
+		"GRID_TYPE" , _TL("Target Grid Type"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Integer (2 byte)"),
@@ -122,7 +122,7 @@ CESRI_ArcInfo_Import::CESRI_ArcInfo_Import(void)
 	);
 
 	Parameters.Add_Choice("NODE_ASCII",
-		"NODATA"	, _TL("No-Data Value"),
+		"NODATA"    , _TL("No-Data Value"),
 		_TL("Choose whether the input file's NoData value or a user specified NoData value is written"),
 		CSG_String::Format("%s|%s",
 			_TL("Input File's NoData Value"),
@@ -135,12 +135,61 @@ CESRI_ArcInfo_Import::CESRI_ArcInfo_Import(void)
 		_TL(""),
 		-99999.
 	);
+
+	//-----------------------------------------------------
+	Parameters.Add_String("", "CRS_PROJ"     , _TL("PROJ Parameters"), _TL(""),     "")->Set_UseInGUI(false);
+	Parameters.Add_Int   ("", "CRS_CODE"     , _TL("Code ID"        ), _TL(""),     -1)->Set_UseInGUI(false);
+	Parameters.Add_String("", "CRS_AUTHORITY", _TL("Code Authority" ), _TL(""), "EPSG")->Set_UseInGUI(false);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CESRI_ArcInfo_Import::On_Before_Execution(void)
+{
+	if( has_GUI() )
+	{
+		m_pCRS = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 15, true);	// CCRS_Picker
+
+		m_pCRS->Set_Parameter("CRS_EPSG"     ,     -1);
+		m_pCRS->Set_Parameter("CRS_EPSG_AUTH", "EPSG");
+		m_pCRS->Set_Parameter("CRS_PROJ4"    ,     "");
+
+		Parameters.Add_Parameters("POINTS", "CRS_PICKER", _TL("Coordinate Reference System"), _TL(""))
+			->asParameters()->Create(*m_pCRS->Get_Parameters());
+	}
+
+	return( CSG_Tool::On_Before_Execution() );
+}
+
+//---------------------------------------------------------
+bool CESRI_ArcInfo_Import::On_After_Execution(void)
+{
+	if( Parameters("CRS_PICKER") )
+	{
+		Parameters.Del_Parameter("CRS_PICKER");
+		SG_Get_Tool_Library_Manager().Delete_Tool(m_pCRS);
+		m_pCRS = NULL;
+	}
+
+	return( CSG_Tool::On_After_Execution() );
+}
+
+//---------------------------------------------------------
+int CESRI_ArcInfo_Import::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("CRS_PICKER") )
+	{
+		pParameters->Set_Parameter("CRS_CODE"     , (*pParameter->asParameters())("CRS_EPSG"     )->asInt   ());
+		pParameters->Set_Parameter("CRS_AUTHORITY", (*pParameter->asParameters())("CRS_EPSG_AUTH")->asInt   ());
+		pParameters->Set_Parameter("CRS_PROJ"     , (*pParameter->asParameters())("CRS_PROJ4"    )->asString());
+	}
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
+}
 
 //---------------------------------------------------------
 int CESRI_ArcInfo_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
@@ -161,10 +210,10 @@ int CESRI_ArcInfo_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_
 //---------------------------------------------------------
 bool CESRI_ArcInfo_Import::On_Execute(void)
 {
-	int		iNoData	= Parameters("NODATA"    )->asInt   ();
-	double	dNoData	= Parameters("NODATA_VAL")->asDouble();
+	int    iNoData = Parameters("NODATA"    )->asInt   ();
+	double dNoData = Parameters("NODATA_VAL")->asDouble();
 
-	TSG_Data_Type	Datatype;
+	TSG_Data_Type Datatype;
 
 	switch( Parameters("GRID_TYPE")->asInt() )
 	{
@@ -174,9 +223,7 @@ bool CESRI_ArcInfo_Import::On_Execute(void)
 	case  3: Datatype = SG_DATATYPE_Double; break;
 	}
 
-	CSG_Grid	*pGrid	= NULL;
-
-	CSG_File	Stream;
+	CSG_Grid *pGrid = NULL; CSG_File Stream;
 
 	//-----------------------------------------------------
 	// Binary...
@@ -185,7 +232,7 @@ bool CESRI_ArcInfo_Import::On_Execute(void)
 	{
 		if( Stream.Open(SG_File_Make_Path("", Parameters("FILE")->asString(), "flt"), SG_FILE_R, true) )
 		{
-			float	*Line	= (float *)SG_Malloc(pGrid->Get_NX() * sizeof(float));
+			float *Line = (float *)SG_Malloc(pGrid->Get_NX() * sizeof(float));
 
 			for(int iy=0, y=pGrid->Get_NY()-1; iy<pGrid->Get_NY() && !Stream.is_EOF() && Set_Progress(iy, pGrid->Get_NY()); iy++, y--)
 			{
@@ -210,11 +257,11 @@ bool CESRI_ArcInfo_Import::On_Execute(void)
 		{
 			for(int x=0; x<pGrid->Get_NX(); x++)
 			{
-				double	Value	= Read_Value(Stream);
+				double Value = Read_Value(Stream);
 
 				if( iNoData == 1 && Value == pGrid->Get_NoData_Value() )
 				{
-					Value	= dNoData;
+					Value = dNoData;
 				}
 
 				pGrid->Set_Value(x, y, Value);
@@ -232,7 +279,11 @@ bool CESRI_ArcInfo_Import::On_Execute(void)
 	{
 		pGrid->Set_Name(SG_File_Get_Name(Parameters("FILE")->asString(), false));
 
-		pGrid->Get_Projection().Load(SG_File_Make_Path("", Parameters("FILE")->asString(), "prj"));
+		if( !pGrid->Get_Projection().Create(Parameters["CRS_CODE"].asInt(), Parameters["CRS_AUTHORITY"].asString())
+		&&  !pGrid->Get_Projection().Create(Parameters["CRS_PROJ"].asString(), SG_PROJ_FMT_Proj4) )
+		{
+			pGrid->Get_Projection().Load(SG_File_Make_Path("", Parameters("FILE")->asString(), "prj"));
+		}
 
 		return( true );
 	}
@@ -248,7 +299,7 @@ bool CESRI_ArcInfo_Import::On_Execute(void)
 //---------------------------------------------------------
 double CESRI_ArcInfo_Import::Read_Value(CSG_File &Stream)
 {
-	CSG_String	s;	int	c;
+	CSG_String s; int c;
 
 	while( !Stream.is_EOF() && !SG_is_Character_Numeric(c = Stream.Read_Char()) );	// ignore leading white space...
 
@@ -258,10 +309,10 @@ double CESRI_ArcInfo_Import::Read_Value(CSG_File &Stream)
 		{
 			if( c == ',' )
 			{
-				c	= '.';
+				c = '.';
 			}
 
-			s	+= (char)c;
+			s += (char)c;
 		}
 		while( !Stream.is_EOF() && SG_is_Character_Numeric(c = Stream.Read_Char()) );
 	}
@@ -272,13 +323,13 @@ double CESRI_ArcInfo_Import::Read_Value(CSG_File &Stream)
 //---------------------------------------------------------
 CSG_String CESRI_ArcInfo_Import::Read_Header_Line(CSG_File &Stream)
 {
-	CSG_String	s;	int	c;
+	CSG_String s; int c;
 
 	while( !Stream.is_EOF() && (c = Stream.Read_Char()) != 0x0A )
 	{
 		if( c != 0x0D )
 		{
-			s	+= (char)c;
+			s += (char)c;
 		}
 	}
 
@@ -290,11 +341,11 @@ CSG_String CESRI_ArcInfo_Import::Read_Header_Line(CSG_File &Stream)
 //---------------------------------------------------------
 bool CESRI_ArcInfo_Import::Read_Header_Value(CSG_File &Stream, const CSG_String &sKey, int &Value)
 {
-	CSG_String	sLine(Read_Header_Line(Stream));
+	CSG_String sLine(Read_Header_Line(Stream));
 
 	if( sLine.Contains(sKey) )
 	{
-		CSG_String	sValue(sLine.c_str() + sKey.Length());
+		CSG_String sValue(sLine.c_str() + sKey.Length());
 
 		return( sValue.asInt(Value) );
 	}
@@ -305,11 +356,11 @@ bool CESRI_ArcInfo_Import::Read_Header_Value(CSG_File &Stream, const CSG_String 
 //---------------------------------------------------------
 bool CESRI_ArcInfo_Import::Read_Header_Value(CSG_File &Stream, const CSG_String &sKey, double &Value)
 {
-	CSG_String	sLine(Read_Header_Line(Stream));
+	CSG_String sLine(Read_Header_Line(Stream));
 
 	if( sLine.Contains(sKey) )
 	{
-		CSG_String	sValue(sLine.c_str() + sKey.Length());
+		CSG_String sValue(sLine.c_str() + sKey.Length());
 
 		return( sValue.asDouble(Value) );
 	}
@@ -330,12 +381,12 @@ CSG_Grid * CESRI_ArcInfo_Import::Read_Header(CSG_File &Stream, TSG_Data_Type Dat
 	int NY; if( !Read_Header_Value(Stream, HDR_NROWS, NY) ) { return( NULL ); }
 
 	//-------------------------------------------------
-	double	xMin;	bool bCorner_X;
+	double xMin; bool bCorner_X;
 
 	if     ( Read_Header_Value(Stream, HDR_X_CORNER, xMin) ) { bCorner_X =  true; }
 	else if( Read_Header_Value(Stream, HDR_X_CENTER, xMin) ) { bCorner_X = false; } else { return( NULL ); }
 
-	double	yMin;	bool bCorner_Y;
+	double yMin; bool bCorner_Y;
 
 	if     ( Read_Header_Value(Stream, HDR_Y_CORNER, yMin) ) { bCorner_Y =  true; }
 	else if( Read_Header_Value(Stream, HDR_Y_CENTER, yMin) ) { bCorner_Y = false; } else { return( NULL ); }
@@ -347,7 +398,7 @@ CSG_Grid * CESRI_ArcInfo_Import::Read_Header(CSG_File &Stream, TSG_Data_Type Dat
 	if( bCorner_Y ) { yMin += Cellsize / 2.; }
 
 	//-------------------------------------------------
-	double	NoData; Read_Header_Value(Stream, HDR_NODATA, NoData = -9999.);
+	double NoData; Read_Header_Value(Stream, HDR_NODATA, NoData = -9999.);
 
 	//-------------------------------------------------
 	CSG_Grid *pGrid = Parameters("GRID")->asGrid();
