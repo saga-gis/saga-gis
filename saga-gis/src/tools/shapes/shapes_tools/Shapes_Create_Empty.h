@@ -76,6 +76,9 @@ public:
 
 	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Shapes|Construction") );	}
 
+	virtual bool				On_Before_Execution		(void);
+	virtual bool				On_After_Execution		(void);
+
 
 protected:
 
@@ -85,6 +88,9 @@ protected:
 
 
 private:
+
+	CSG_Tool					*m_pCRS { NULL };
+
 
 	static void					Set_Field_Count			(CSG_Parameters *pFields, int nFields);
 
