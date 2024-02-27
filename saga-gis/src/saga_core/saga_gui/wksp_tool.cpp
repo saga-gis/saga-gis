@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Tool	*g_pTool	= NULL;
+CWKSP_Tool *g_pTool = NULL;
 
 
 ///////////////////////////////////////////////////////////
@@ -82,9 +82,9 @@ CWKSP_Tool	*g_pTool	= NULL;
 //---------------------------------------------------------
 CWKSP_Tool::CWKSP_Tool(CSG_Tool *pTool, const wxString &Menu_Library)
 {
-	m_pTool		= pTool;
-	m_Menu_ID	= -1;
-	m_bCloseGUI	= false;
+	m_pTool     = pTool;
+	m_Menu_ID   = -1;
+	m_bCloseGUI = false;
 }
 
 //---------------------------------------------------------
@@ -125,13 +125,11 @@ wxString CWKSP_Tool::Get_Description(void)
 {
 	if( !m_pTool->Get_File_Name().is_Empty() )
 	{
-		CSG_String	Lib_Name	= SG_File_Get_Name(m_pTool->Get_File_Name(), false);
-		CSG_String	File_Path	= SG_File_Make_Path(SG_File_Get_Path(m_pTool->Get_File_Name()), Lib_Name, "");
+		CSG_String Lib_Name, File_Path, Description; CSG_File Stream;
 
-		File_Path	= SG_File_Make_Path(File_Path, CSG_String::Format("%s_%02d", Lib_Name.c_str(), Get_Index()));
-
-		CSG_String	Description;
-		CSG_File	Stream;
+		Lib_Name  = SG_File_Get_Name(m_pTool->Get_File_Name(), false);
+		File_Path = SG_File_Make_Path(SG_File_Get_Path(m_pTool->Get_File_Name()), Lib_Name, "");
+		File_Path = SG_File_Make_Path(File_Path, CSG_String::Format("%s_%02d", Lib_Name.c_str(), Get_Index()));
 
 		if( SG_File_Set_Extension(File_Path, "html") && Stream.Open(File_Path, SG_FILE_R) && Stream.Read(Description, Stream.Length()) )
 		{
@@ -145,20 +143,20 @@ wxString CWKSP_Tool::Get_Description(void)
 	}
 
 	//-----------------------------------------------------
-	wxString	Menu(m_pTool->Get_MenuPath(true).c_str()), Description;
+	wxString Description;
 
 	if( g_pTools->Get_Parameter("HELP_SOURCE")->asInt() == 1 )
 	{
 		Description	= Get_Online_Tool_Description(((CWKSP_Tool_Library *)Get_Manager())->Get_File_Name(), Get_Tool()->Get_ID().c_str());
 	}
 
-	return( m_pTool->Get_Summary(true, &Menu, &Description).c_str() );
+	return( m_pTool->Get_Summary(true, m_pTool->Get_MenuPath(true), &Description).c_str() );
 }
 
 //---------------------------------------------------------
 wxMenu * CWKSP_Tool::Get_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu(Get_Name());
+	wxMenu *pMenu = new wxMenu(Get_Name());
 
 	pMenu->AppendCheckItem(Get_Menu_ID(), _TL("Execute"), _TL("Execute Tool"));
 
@@ -242,7 +240,7 @@ bool CWKSP_Tool::On_Command(int Cmd_ID)
 //---------------------------------------------------------
 void CWKSP_Tool::Set_Menu_ID(int Menu_ID)
 {
-	m_Menu_ID	= Menu_ID;
+	m_Menu_ID = Menu_ID;
 }
 
 
@@ -286,56 +284,53 @@ bool CWKSP_Tool::Set_Projection(const CSG_Projection &Projection)
 //---------------------------------------------------------
 bool CWKSP_Tool::Execute(bool bDialog)
 {
-	bool	bResult	= false;
-
-	//-----------------------------------------------------
 	if( g_pTool )
  	{
-		if( g_pTool == this )
+		if( g_pTool != this )
+		{
+			DLG_Message_Show(_TL("Can't execute a tool while another runs"), _TL("Tool Execution"));
+		}
+		else // if( g_pTool == this )
 		{
 			if( g_pTool->is_Executing() )
 			{
 				if( !bDialog || DLG_Message_Confirm(_TL("Shall execution be stopped?"), m_pTool->Get_Name().c_str()) )
 				{
-					bResult	= true;
-
 					PROCESS_Set_Okay(false);
+
+					return( true );
 				}
 			}
 			else if( m_pTool->is_Interactive() )
 			{
 				if( !bDialog || DLG_Message_Confirm(_TL("Shall execution be stopped?"), m_pTool->Get_Name().c_str()) )
 				{
-					bResult	= ((CSG_Tool_Interactive *)m_pTool)->Execute_Finish();
+					g_pTool = NULL;
 
-					g_pTool	= NULL;
+					return( ((CSG_Tool_Interactive *)m_pTool)->Execute_Finish() );
 				}
 			}
 		}
-		else
-		{
-			DLG_Message_Show(_TL("Can't execute a tool while another runs"), _TL("Tool Execution"));
-		}
+
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	else
+	bool bResult = false; g_pTool = this;
+
+	if( m_pTool->On_Before_Execution() )
 	{
-		g_pTool	= this;
+		#ifndef __WXMAC__
+		g_pTools->Set_Recently_Used(this);
+		#endif
 
-		if( m_pTool->On_Before_Execution() && (!bDialog || DLG_Parameters(m_pTool->Get_Parameters(), "", m_pTool->Get_Summary(false).c_str())) )
+		if( !bDialog || DLG_Parameters(m_pTool->Get_Parameters(), "", m_pTool->Get_Summary(false).c_str()) )
 		{
-			#ifndef __WXMAC__
-				g_pTools->Set_Recently_Used(this);
-			#endif
-
-			MSG_General_Add_Line(); MSG_Execution_Add_Line();
-
-			STATUSBAR_Set_Text(m_pTool->Get_Name().w_str());
+			MSG_General_Add_Line(); MSG_Execution_Add_Line(); STATUSBAR_Set_Text(m_pTool->Get_Name().w_str());
 
 			bResult	= m_pTool->Execute(true);
 
-			m_pTool->On_After_Execution();
+			SG_UI_ProgressAndMsg_Reset();
 
 			g_pActive->Get_Parameters()->Update_Parameters(m_pTool->Get_Parameters(), false);
 
@@ -343,24 +338,23 @@ bool CWKSP_Tool::Execute(bool bDialog)
 			{
 				Do_Beep();
 			}
-
-			SG_UI_ProgressAndMsg_Reset();
 		}
 
-		if( !m_pTool->is_Interactive() || !bResult )
-		{
-			g_pTool	= NULL;
-		}
-
-		if( m_bCloseGUI )
-		{
-			m_bCloseGUI	= false;
-
-			MDI_Get_Frame()->Close();
-		}
+		m_pTool->On_After_Execution();
 	}
 
-	//-----------------------------------------------------
+	if( !bResult || !m_pTool->is_Interactive() )
+	{
+		g_pTool = NULL;
+	}
+
+	if( m_bCloseGUI )
+	{
+		m_bCloseGUI = false;
+
+		MDI_Get_Frame()->Close();
+	}
+
 	return( bResult );
 }
 
@@ -380,7 +374,7 @@ bool CWKSP_Tool::Finish(bool bDialog, bool bCloseGUI)
 {
 	if( Execute(bDialog) )
 	{
-		m_bCloseGUI	= bCloseGUI;
+		m_bCloseGUI = bCloseGUI;
 
 		return( true );
 	}
