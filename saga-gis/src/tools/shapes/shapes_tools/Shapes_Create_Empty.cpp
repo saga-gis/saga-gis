@@ -52,9 +52,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -63,9 +63,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -125,9 +125,7 @@ CShapes_Create_Empty::CShapes_Create_Empty(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_String("SHAPES", "CRS_PROJ"     , _TL("PROJ Parameters"), _TL(""),     "")->Set_UseInGUI(false);
-	Parameters.Add_Int   ("SHAPES", "CRS_CODE"     , _TL("Code ID"        ), _TL(""),     -1)->Set_UseInGUI(false);
-	Parameters.Add_String("SHAPES", "CRS_AUTHORITY", _TL("Code Authority" ), _TL(""), "EPSG")->Set_UseInGUI(false);
+	m_CRS.Create(Parameters, "SHAPES");
 
 	//-----------------------------------------------------
 	Parameters.Add_Int("",
@@ -152,7 +150,7 @@ CShapes_Create_Empty::CShapes_Create_Empty(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -185,23 +183,13 @@ void CShapes_Create_Empty::Set_Field_Count(CSG_Parameters *pFields, int nFields)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CShapes_Create_Empty::On_Before_Execution(void)
 {
-	if( has_GUI() )
-	{
-		m_pCRS = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 15, true);	// CCRS_Picker
-
-		m_pCRS->Set_Parameter("CRS_EPSG"     , Parameters["CRS_CODE"     ].asInt   ());
-		m_pCRS->Set_Parameter("CRS_EPSG_AUTH", Parameters["CRS_AUTHORITY"].asString());
-		m_pCRS->Set_Parameter("CRS_PROJ4"    , Parameters["CRS_PROJ"     ].asString());
-
-		Parameters.Add_Parameters("POINTS", "CRS_PICKER", _TL("Coordinate Reference System"), _TL(""))
-			->asParameters()->Create(*m_pCRS->Get_Parameters());
-	}
+	m_CRS.Activate_GUI();
 
 	return( CSG_Tool::On_Before_Execution() );
 }
@@ -209,12 +197,7 @@ bool CShapes_Create_Empty::On_Before_Execution(void)
 //---------------------------------------------------------
 bool CShapes_Create_Empty::On_After_Execution(void)
 {
-	if( Parameters("CRS_PICKER") )
-	{
-		Parameters.Del_Parameter("CRS_PICKER");
-		SG_Get_Tool_Library_Manager().Delete_Tool(m_pCRS);
-		m_pCRS = NULL;
-	}
+	m_CRS.Deactivate_GUI();
 
 	return( CSG_Tool::On_After_Execution() );
 }
@@ -222,12 +205,7 @@ bool CShapes_Create_Empty::On_After_Execution(void)
 //---------------------------------------------------------
 int CShapes_Create_Empty::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( pParameter->Cmp_Identifier("CRS_PICKER") )
-	{
-		pParameters->Set_Parameter("CRS_CODE"     , (*pParameter->asParameters())("CRS_EPSG"     )->asInt   ());
-		pParameters->Set_Parameter("CRS_AUTHORITY", (*pParameter->asParameters())("CRS_EPSG_AUTH")->asInt   ());
-		pParameters->Set_Parameter("CRS_PROJ"     , (*pParameter->asParameters())("CRS_PROJ4"    )->asString());
-	}
+	m_CRS.On_Parameter_Changed(pParameters, pParameter);
 
 	if( pParameter->Cmp_Identifier("NFIELDS") )
 	{
@@ -239,7 +217,7 @@ int CShapes_Create_Empty::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -270,12 +248,7 @@ bool CShapes_Create_Empty::On_Execute(void)
 	case  3: pShapes->Create(SHAPE_TYPE_Polygon, Parameters("NAME")->asString(), NULL, Vertex); break;
 	}
 
-	//-----------------------------------------------------
-	if( pShapes->Get_Projection().Create(Parameters["CRS_CODE"].asInt(), Parameters["CRS_AUTHORITY"].asString())
-	||  pShapes->Get_Projection().Create(Parameters["CRS_PROJ"].asString(), SG_PROJ_FMT_Proj4) )
-	{
-		Message_Fmt("\n%s: %s\n", _TL("CRS"), pShapes->Get_Projection().Get_Proj4().c_str());
-	}
+	m_CRS.Get_CRS(pShapes->Get_Projection(), true);
 
 	//-----------------------------------------------------
 	CSG_Parameters &Fields = *Parameters("FIELDS")->asParameters();
@@ -294,9 +267,9 @@ bool CShapes_Create_Empty::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -326,7 +299,7 @@ CShapes_Create_Copy::CShapes_Create_Copy(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -339,9 +312,9 @@ bool CShapes_Create_Copy::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

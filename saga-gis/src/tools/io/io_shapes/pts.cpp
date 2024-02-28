@@ -50,15 +50,14 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 //						Import							 //
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CPTS_Import::CPTS_Import(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Import Point Cloud from PTS File"));
 
 	Set_Author		("O.Conrad (c) 2019");
@@ -69,7 +68,7 @@ CPTS_Import::CPTS_Import(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_FilePath("",
-		"FILENAME"	, _TL("File"),
+		"FILENAME", _TL("File"),
 		_TL(""),
 		CSG_String::Format("%s (*.pts)|*.pts|%s|*.*",
 			_TL("pts Files"),
@@ -78,30 +77,61 @@ CPTS_Import::CPTS_Import(void)
 	);
 
 	Parameters.Add_PointCloud("",
-		"POINTS"	, _TL("Points"),
+		"POINTS"  , _TL("Points"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice("",
-		"RGB"		, _TL("Import RGB Values as..."),
+		"RGB"     , _TL("Import RGB Values as..."),
 		_TL(""),
 		CSG_String::Format("%s|%s",
 			_TL("separate values"),
 			_TL("single rgb-coded integer value")
 		), 1
 	);
+
+	m_CRS.Create(Parameters, "POINTS");
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CPTS_Import::On_Before_Execution(void)
+{
+	m_CRS.Activate_GUI();
+
+	return( CSG_Tool::On_Before_Execution() );
+}
+
+//---------------------------------------------------------
+bool CPTS_Import::On_After_Execution(void)
+{
+	m_CRS.Deactivate_GUI();
+
+	return( CSG_Tool::On_After_Execution() );
+}
+
+//---------------------------------------------------------
+int CPTS_Import::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	m_CRS.On_Parameter_Changed(pParameters, pParameter);
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CPTS_Import::On_Execute(void)
 {
-	CSG_File	Stream;
+	CSG_File Stream;
 
 	if( !Stream.Open(Parameters("FILENAME")->asString(), SG_FILE_R) )
 	{
@@ -111,13 +141,15 @@ bool CPTS_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int	RGB	= Parameters("RGB")->asInt();
+	int RGB = Parameters("RGB")->asInt();
 
-	CSG_PointCloud	*pPoints	= Parameters("POINTS")->asPointCloud();
+	CSG_PointCloud *pPoints = Parameters("POINTS")->asPointCloud();
 
 	pPoints->Destroy();
 
 	pPoints->Set_Name(Stream.Get_File_Name());
+
+	m_CRS.Get_CRS(pPoints->Get_Projection(), true);
 
 	pPoints->Add_Field("INTENSITY", SG_DATATYPE_Short);
 
@@ -133,9 +165,7 @@ bool CPTS_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_String	sLine;
-
-	int	nPoints;
+	CSG_String sLine; int nPoints;
 
 	if( !Stream.Read_Line(sLine) || !sLine.asInt(nPoints) )
 	{
@@ -151,7 +181,7 @@ bool CPTS_Import::On_Execute(void)
 		{
 			double x, y, z; int i, r, g, b;
 
-			CSG_Strings	s	= SG_String_Tokenize(sLine);
+			CSG_Strings s = SG_String_Tokenize(sLine);
 
 		//	if( sscanf(sLine.b_str(), "%lf %lf %lf %d %d %d %d", &x, &y, &z, &i, &r, &g, &b) == 7 )
 			if( s.Get_Count() == 7
@@ -182,9 +212,9 @@ bool CPTS_Import::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

@@ -54,9 +54,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
 //                                                       //
-//														 //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -64,9 +64,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
 //                                                       //
-//														 //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -75,27 +75,33 @@ class CPointCloud_From_Text_File : public CSG_Tool
 public:
 	CPointCloud_From_Text_File(void);
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Import") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Import") );	}
+
+	virtual bool				On_Before_Execution		(void);
+	virtual bool				On_After_Execution		(void);
 
 
 protected:
 
-	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool			On_Execute				(void);
+	virtual bool				On_Execute				(void);
 
 
 private:
 
-	bool					Get_Data_Type			(TSG_Data_Type &Type, const CSG_String &Value);
+	CSG_Parameters_CRSPicker	m_CRS;
+
+
+	bool						Get_Data_Type			(TSG_Data_Type &Type, const CSG_String &Value);
 
 };
 
 
 ///////////////////////////////////////////////////////////
-//														 //
 //                                                       //
-//														 //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

@@ -53,9 +53,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
 //                                                       //
-//														 //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -63,9 +63,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
 //                                                       //
-//														 //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -74,35 +74,35 @@ class CRaw_Import : public CSG_Tool
 public:
 	CRaw_Import(void);
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Import") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Import") );	}
 
-	virtual bool			On_Before_Execution		(void);
-	virtual bool			On_After_Execution		(void);
+	virtual bool				On_Before_Execution		(void);
+	virtual bool				On_After_Execution		(void);
 
 
 protected:
 
-	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool			On_Execute				(void);
+	virtual bool				On_Execute				(void);
 
 
 private:
 
-	CSG_Tool				*m_pCRS { NULL };
+	CSG_Parameters_CRSPicker	m_CRS;
 
 
-	bool					Skip					(CSG_File &Stream, size_t nBytes);
+	bool						Skip					(CSG_File &Stream, size_t nBytes);
 
-	CSG_Grid *				Get_Grid				(void);
+	CSG_Grid *					Get_Grid				(void);
 
 };
 
 
 ///////////////////////////////////////////////////////////
-//														 //
 //                                                       //
-//														 //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

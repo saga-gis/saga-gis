@@ -53,9 +53,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
 //                                                       //
-//														 //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -63,9 +63,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
 //                                                       //
-//														 //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -74,19 +74,19 @@ class CXYZ_Export : public CSG_Tool_Grid
 public:
 	CXYZ_Export(void);
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Export") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Export") );	}
 
 
 protected:
 
-	virtual bool			On_Execute				(void);
-	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual bool				On_Execute				(void);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 };
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -95,30 +95,36 @@ class CXYZ_Import : public CSG_Tool
 public:
 	CXYZ_Import(void);
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Import") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Import") );	}
+
+	virtual bool				On_Before_Execution		(void);
+	virtual bool				On_After_Execution		(void);
 
 
 protected:
 
-	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int                 On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool			On_Execute				(void);
+	virtual bool				On_Execute				(void);
 
 
 private:
 
-	CSG_String				m_Delimiters;
+	CSG_String					m_Delimiters;
+
+	CSG_Parameters_CRSPicker	m_CRS;
 
 
-	bool					Read_Values				(CSG_File &Stream, double &x, double &y, double &z);
+	bool						Read_Values				(CSG_File &Stream, double &x, double &y, double &z);
 
 };
 
 
 ///////////////////////////////////////////////////////////
-//														 //
 //                                                       //
-//														 //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

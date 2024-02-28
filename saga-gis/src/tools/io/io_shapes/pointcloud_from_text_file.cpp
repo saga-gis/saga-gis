@@ -58,9 +58,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -165,16 +165,36 @@ CPointCloud_From_Text_File::CPointCloud_From_Text_File(void)
 		"FIELDSPECS", _TL("Specifications"),
 		_TL("")
 	)->Set_UseInCMD(false);
+
+	m_CRS.Create(Parameters);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CPointCloud_From_Text_File::On_Before_Execution(void)
+{
+	m_CRS.Activate_GUI();
+
+	return( CSG_Tool::On_Before_Execution() );
+}
+
+//---------------------------------------------------------
+bool CPointCloud_From_Text_File::On_After_Execution(void)
+{
+	m_CRS.Deactivate_GUI();
+
+	return( CSG_Tool::On_After_Execution() );
+}
 
 //---------------------------------------------------------
 int CPointCloud_From_Text_File::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	m_CRS.On_Parameter_Changed(pParameters, pParameter);
+
 	if( pParameter->Cmp_Identifier("FIELDS") )
 	{
 		CSG_String_Tokenizer tokFields(pParameter->asString(), ";");
@@ -220,7 +240,7 @@ int CPointCloud_From_Text_File::On_Parameter_Changed(CSG_Parameters *pParameters
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -253,7 +273,7 @@ bool CPointCloud_From_Text_File::Get_Data_Type(TSG_Data_Type &Type, const CSG_St
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -295,7 +315,7 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 
 	if( Parameters("SKIP_HEADER")->asBool() )	// header contains field names
 	{
-		CSG_String_Tokenizer	tokValues(sLine, Separator);	// read each field name for later use
+		CSG_String_Tokenizer tokValues(sLine, Separator);	// read each field name for later use
 
 		while( tokValues.Has_More_Tokens() )
 		{
@@ -309,23 +329,26 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 
     //-----------------------------------------------------
     CSG_PointCloud *pPoints = Parameters("POINTS")->asPointCloud();
-    pPoints->Set_Name(SG_File_Get_Name(Parameters("FILE")->asString(), false));
 
-	CSG_Array_Int	Fields;
+	pPoints->Set_Name(SG_File_Get_Name(Parameters("FILE")->asString(), false));
+
+	m_CRS.Get_CRS(pPoints->Get_Projection(), true);
 
     //-----------------------------------------------------
-    if( has_GUI() )
+	CSG_Array_Int Fields;
+
+	if( has_GUI() )
     {
-		CSG_Parameters	&Fields	= *Parameters("FIELDSPECS")->asParameters();
+		CSG_Parameters &Fields = *Parameters("FIELDSPECS")->asParameters();
 
-		int	nFields	= Fields.Get_Count() / 2;
+		int nFields = Fields.Get_Count() / 2;
 
-		CSG_String	Names, Types;
+		CSG_String Names, Types;
 
 		for(int iField=0; iField<nFields; iField++)
 		{
-			Names	+= CSG_String::Format("%s;", Fields(CSG_String::Format("NAME%03d", iField))->asString());
-			Types	+= CSG_String::Format("%d;", Fields(CSG_String::Format("TYPE%03d", iField))->asInt   ());
+			Names += CSG_String::Format("%s;", Fields(CSG_String::Format("NAME%03d", iField))->asString());
+			Types += CSG_String::Format("%d;", Fields(CSG_String::Format("TYPE%03d", iField))->asInt   ());
 		}
 
 		Parameters("FIELDNAMES")->Set_Value(Names);
@@ -333,11 +356,11 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 	}
 
 	{
-		TSG_Data_Type	Type	= SG_DATATYPE_Float;	// default
+		TSG_Data_Type Type = SG_DATATYPE_Float;	// default
 
-		CSG_String_Tokenizer	tokFields(Parameters("FIELDS"    )->asString(), ";");
-		CSG_String_Tokenizer	tokTypes (Parameters("FIELDTYPES")->asString(), ";");
-		CSG_String_Tokenizer	tokNames (Parameters("FIELDNAMES")->asString(), ";");
+		CSG_String_Tokenizer tokFields(Parameters("FIELDS"    )->asString(), ";");
+		CSG_String_Tokenizer tokTypes (Parameters("FIELDTYPES")->asString(), ";");
+		CSG_String_Tokenizer tokNames (Parameters("FIELDNAMES")->asString(), ";");
 
 		while( tokFields.Has_More_Tokens() )
 		{
@@ -350,20 +373,20 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 				return( false );
 			}
 
-			Fields	+= iField - 1;
+			Fields += iField - 1;
 
-			CSG_String	Name;
+			CSG_String Name;
 
 			if( tokNames.Has_More_Tokens() )
 			{
-				Name	= tokNames.Get_Next_Token(); Name.Trim(true); Name.Trim(false);
+				Name = tokNames.Get_Next_Token(); Name.Trim(true); Name.Trim(false);
 			}
 
 			if( Name.is_Empty() )
 			{
 				if( iField - 1 < Values.Get_Count() )
 				{
-					Name	= Values[iField - 1];
+					Name = Values[iField - 1];
 				}
 				else
 				{
@@ -473,9 +496,9 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

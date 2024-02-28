@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: xyz.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,28 +48,18 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "xyz.h"
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 //						Export							 //
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CXYZ_Export::CXYZ_Export(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Export Shapes to XYZ"));
 
 	Set_Author		("O.Conrad (c) 2003");
@@ -83,27 +70,27 @@ CXYZ_Export::CXYZ_Export(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes("",
-		"POINTS"	, _TL("Shapes"),
+		"POINTS"  , _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table_Field("POINTS",
-		"FIELD"		, _TL("Attribute"),
+		"FIELD"   , _TL("Attribute"),
 		_TL(""),
 		true
 	);
 
 	Parameters.Add_Bool("",
-		"HEADER"	, _TL("Save Table Header"),
+		"HEADER"  , _TL("Save Table Header"),
 		_TL(""),
 		true
 	);
 
 	Parameters.Add_Choice("",
-		"SEPARATE"	, _TL("Separate Line/Polygon Points"),
+		"SEPARATE", _TL("Separate Line/Polygon Points"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("none"), SG_T("*"), _TL("number of points")
 		), 0
 	);
@@ -119,23 +106,16 @@ CXYZ_Export::CXYZ_Export(void)
 	);
 }
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 bool CXYZ_Export::On_Execute(void)
 {
-	bool		bHeader;
-	int			Field, off_Field, Separate;
-	CSG_File	Stream;
-	CSG_Shapes	*pPoints;
+	CSG_Shapes *pPoints = Parameters("POINTS")->asShapes();
 
-	//-----------------------------------------------------
-	pPoints		= Parameters("POINTS"  )->asShapes();
-	bHeader		= Parameters("HEADER"  )->asBool();
-	Field		= Parameters("FIELD"   )->asInt();
-	Separate	= pPoints->Get_Type() == SHAPE_TYPE_Point ? 0
-				: Parameters("SEPARATE")->asInt();
-	off_Field	= pPoints->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud ? 2 : 0;
-
-	//-----------------------------------------------------
 	if( pPoints->Get_Field_Count() == 0 )
 	{
 		Error_Set(_TL("data set has no attributes"));
@@ -144,12 +124,21 @@ bool CXYZ_Export::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	CSG_File Stream;
+
 	if( !Stream.Open(Parameters("FILENAME")->asString(), SG_FILE_W, false) )
 	{
 		Error_Set(_TL("could not open file"));
 
 		return( false );
 	}
+
+	//-----------------------------------------------------
+	bool bHeader = Parameters("HEADER"  )->asBool();
+	int    Field = Parameters("FIELD"   )->asInt ();
+	int Separate = pPoints->Get_Type() == SHAPE_TYPE_Point ? 0
+	             : Parameters("SEPARATE")->asInt ();
+	int off_Field = pPoints->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud ? 2 : 0;
 
 	//-----------------------------------------------------
 	if( bHeader )
@@ -171,10 +160,10 @@ bool CXYZ_Export::On_Execute(void)
 		Stream.Printf("\n");
 	}
 
-	//-------------------------------------------------
+	//-----------------------------------------------------
 	for(sLong iShape=0; iShape<pPoints->Get_Count() && Set_Progress(iShape, pPoints->Get_Count()); iShape++)
 	{
-		CSG_Shape	*pShape	= pPoints->Get_Shape(iShape);
+		CSG_Shape *pShape = pPoints->Get_Shape(iShape);
 
 		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{
@@ -191,7 +180,7 @@ bool CXYZ_Export::On_Execute(void)
 
 			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 			{
-				TSG_Point	Point	= pShape->Get_Point(iPoint, iPart);
+				TSG_Point Point = pShape->Get_Point(iPoint, iPart);
 
 				Stream.Printf("%f\t%f", Point.x, Point.y);
 
@@ -201,27 +190,17 @@ bool CXYZ_Export::On_Execute(void)
 					{
 						switch( pPoints->Get_Field_Type(iField) )
 						{
-						case SG_DATATYPE_String:
-						case SG_DATATYPE_Date:
-							Stream.Printf("\t\"%s\"", pShape->asString(iField));
-							break;
-
-						default:
-							Stream.Printf("\t%f"    , pShape->asDouble(iField));
-							break;
+						case SG_DATATYPE_Date  :
+						case SG_DATATYPE_String: Stream.Printf("\t\"%s\"", pShape->asString(iField)); break;
+						default                : Stream.Printf("\t%f"    , pShape->asDouble(iField)); break;
 						}
 					}
 				}
 				else switch( pPoints->Get_Field_Type(Field) )
 				{
-				case SG_DATATYPE_String:
-				case SG_DATATYPE_Date:
-					Stream.Printf("\t\"%s\"", pShape->asString(Field));
-					break;
-
-				default:
-					Stream.Printf("\t%f"    , pShape->asDouble(Field));
-					break;
+				case SG_DATATYPE_Date  :
+				case SG_DATATYPE_String: Stream.Printf("\t\"%s\"", pShape->asString(Field)); break;
+				default                : Stream.Printf("\t%f"    , pShape->asDouble(Field)); break;
 				}
 
 				Stream.Printf("\n");
@@ -229,21 +208,20 @@ bool CXYZ_Export::On_Execute(void)
 		}
 	}
 
-	//-------------------------------------------------
+	//-----------------------------------------------------
 	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 //						Import							 //
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CXYZ_Import::CXYZ_Import(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Import Shapes from XYZ"));
 
 	Set_Author		("O.Conrad (c) 2003");
@@ -256,19 +234,19 @@ CXYZ_Import::CXYZ_Import(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes("",
-		"POINTS"	, _TL("Points"),
+		"POINTS"  , _TL("Points"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Bool("",
-		"HEADLINE"	, "File contains headline",
+		"HEADLINE", "File contains headline",
 		_TL(""),
 		true
 	);
 
 	Parameters.Add_FilePath("",
-		"FILENAME"	, _TL("File"),
+		"FILENAME", _TL("File"),
 		_TL(""),
 		CSG_String::Format("%s (*.xyz)|*.xyz|%s (*.txt)|*.txt|%s|*.*",
 			_TL("XYZ Files"),
@@ -276,12 +254,48 @@ CXYZ_Import::CXYZ_Import(void)
 			_TL("All Files")
 		), NULL, false
 	);
+
+	m_CRS.Create(Parameters, "POINTS");
 }
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CXYZ_Import::On_Before_Execution(void)
+{
+	m_CRS.Activate_GUI();
+
+	return( CSG_Tool::On_Before_Execution() );
+}
+
+//---------------------------------------------------------
+bool CXYZ_Import::On_After_Execution(void)
+{
+	m_CRS.Deactivate_GUI();
+
+	return( CSG_Tool::On_After_Execution() );
+}
+
+//---------------------------------------------------------
+int CXYZ_Import::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	m_CRS.On_Parameter_Changed(pParameters, pParameter);
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CXYZ_Import::On_Execute(void)
 {
-	CSG_File	Stream;
+	CSG_File Stream;
 
 	if( !Stream.Open(Parameters("FILENAME")->asString(), SG_FILE_R) )
 	{
@@ -291,16 +305,18 @@ bool CXYZ_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Shapes	*pPoints	= Parameters("POINTS")->asShapes();
+	CSG_Shapes *pPoints = Parameters("POINTS")->asShapes();
 
 	pPoints->Create(SHAPE_TYPE_Point, SG_File_Get_Name(Parameters("FILENAME")->asString(), false));
+
+	m_CRS.Get_CRS(pPoints->Get_Projection(), true);
 
 	pPoints->Add_Field("Z", SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
 	if( Parameters("HEADLINE")->asBool() )
 	{
-		CSG_String	sLine;
+		CSG_String sLine;
 
 		if( !Stream.Read_Line(sLine) )
 		{
@@ -311,13 +327,13 @@ bool CXYZ_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	sLong	Length	= Stream.Length();
+	sLong Length = Stream.Length();
 
-	double	x, y, z;
+	double x, y, z;
 
 	while( Stream.Scan(x) && Stream.Scan(y) && Stream.Scan(z) && Set_Progress((double)Stream.Tell(), (double)Length) )
 	{
-		CSG_Shape	*pPoint	= pPoints->Add_Shape();
+		CSG_Shape *pPoint = pPoints->Add_Shape();
 
 		pPoint->Add_Point(x, y);
 
@@ -329,9 +345,9 @@ bool CXYZ_Import::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

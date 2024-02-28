@@ -52,9 +52,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -74,42 +74,42 @@ CXYZ_Export::CXYZ_Export(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List("",
-		"GRIDS"		, _TL("Grids"),
+		"GRIDS"    , _TL("Grids"),
 		_TL("The grid(s) to export."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_FilePath("",
-		"FILENAME"	, _TL("File"),
+		"FILENAME" , _TL("File"),
 		_TL("The output file."),
 		CSG_String::Format(
-			"%s|*.xyz|%s|*.txt|%s|*.*",
-			_TL("XYZ files (*.xyz)"),
-			_TL("Text files (*.txt)"),
+			"%s (*.xyz)|*.xyz|%s (*.txt)|*.txt|%s|*.*",
+			_TL("XYZ files"),
+			_TL("Text files"),
 			_TL("All Files")
 		), NULL, true
 	);
 
 	Parameters.Add_Bool("",
-		"HEADER"	, _TL("Write Header"),
+		"HEADER"   , _TL("Write Header"),
 		_TL("Write a header to the .xyz file."),
 		true
 	);
 
 	Parameters.Add_Bool("",
-		"NODATA"	, _TL("Write No-Data"),
+		"NODATA"   , _TL("Write No-Data"),
 		_TL("Write No-Data cells to the .xyz file."),
 		false
 	);
 
 	Parameters.Add_Int("",
-		"PREC"		, _TL("Floating Point Precision"),
+		"PREC"     , _TL("Floating Point Precision"),
 		_TL("Number of decimals of exported floating point values. A value of -1 writes the significant decimals."),
 		2, -1, true
 	);
 
 	Parameters.Add_Choice("",
-		"SEPARATOR"	, _TL("Field Separator"),
+		"SEPARATOR", _TL("Field Separator"),
 		_TL(""),
 		CSG_String::Format("%s|;|,|%s|%s",
 			_TL("tabulator"),
@@ -119,7 +119,7 @@ CXYZ_Export::CXYZ_Export(void)
 	);
 
 	Parameters.Add_String("SEPARATOR",
-		"SEP_OTHER"	, _TL("other"),
+		"SEP_OTHER", _TL("other"),
 		_TL(""),
 		"*"
 	);
@@ -127,13 +127,13 @@ CXYZ_Export::CXYZ_Export(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CXYZ_Export::On_Execute(void)
 {
-	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
+	CSG_Parameter_Grid_List *pGrids = Parameters("GRIDS")->asGridList();
 
 	if( pGrids->Get_Grid_Count() <= 0 )
 	{
@@ -141,7 +141,7 @@ bool CXYZ_Export::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_File	Stream;
+	CSG_File Stream;
 
 	if( !Stream.Open(Parameters("FILENAME")->asString(), SG_FILE_W, false) )
 	{
@@ -151,17 +151,17 @@ bool CXYZ_Export::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int		Precision	= Parameters("PREC"  )->asInt();
+	int Precision = Parameters("PREC")->asInt();
 
-	CSG_String	Separator;
+	CSG_String Separator;
 
 	switch( Parameters("SEPARATOR")->asInt() )
 	{
-	case  0: Separator	= "\t"; break;
-	case  1: Separator	=  ";"; break;
-	case  2: Separator	=  ","; break;
-	case  3: Separator	=  " "; break;
-	default: Separator	= *Parameters("SEP_OTHER")->asString(); break;
+	case  0: Separator = "\t"; break;
+	case  1: Separator =  ";"; break;
+	case  2: Separator =  ","; break;
+	case  3: Separator =  " "; break;
+	default: Separator = *Parameters("SEP_OTHER")->asString(); break;
 	}
 
 	//-----------------------------------------------------
@@ -178,10 +178,9 @@ bool CXYZ_Export::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	bool	bNoData	= Parameters("NODATA")->asBool();
+	bool bNoData = Parameters("NODATA")->asBool();
 
-	TSG_Point	p;	p.y	= Get_YMin();
-	CSG_String	GridValue;
+	TSG_Point p; p.y = Get_YMin(); CSG_String GridValue;
 
 	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++, p.y+=Get_Cellsize())
 	{
@@ -229,9 +228,9 @@ int CXYZ_Export::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -250,17 +249,17 @@ CXYZ_Import::CXYZ_Import(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_Output("",
-		"GRID"		, _TL("Grid"),
+		"GRID"        , _TL("Grid"),
 		_TL("The imported grid.")
 	);
 
 	Parameters.Add_Grid_Output("",
-		"COUNT"		, _TL("Count Grid"),
+		"COUNT"       , _TL("Count Grid"),
 		_TL("The number of values detected in each grid cell.")
 	);
 
 	Parameters.Add_FilePath("",
-		"FILENAME"	, _TL("File"),
+		"FILENAME"    , _TL("File"),
 		_TL("The input file."),
 		CSG_String::Format(
 			"%s|*.xyz;*.txt|%s|*.xyz|%s|*.txt|%s|*.*",
@@ -272,13 +271,13 @@ CXYZ_Import::CXYZ_Import(void)
 	);
 
 	Parameters.Add_Int("",
-		"SKIP"		, _TL("Skip Leading Lines"),
+		"SKIP"        , _TL("Skip Leading Lines"),
 		_TL("The number of leading lines to skip (usually header data)."),
 		0, 0, true
 	);
 
 	Parameters.Add_Choice("",
-		"SEPARATOR"	, _TL("Separator"),
+		"SEPARATOR"   , _TL("Separator"),
 		_TL(""),
 		CSG_String::Format("%s|%s|,|;|%s|%s|",
 			_TL("default delimiters"),
@@ -289,19 +288,19 @@ CXYZ_Import::CXYZ_Import(void)
 	);
 
 	Parameters.Add_String("SEPARATOR",
-		"USER"		, _TL("User Defined"),
+		"USER"        , _TL("User Defined"),
 		_TL("The user defined delimiter."),
 		"*"
 	);
 
 	Parameters.Add_Data_Type("",
-		"TYPE"		, _TL("Data Storage Type"),
+		"TYPE"        , _TL("Data Storage Type"),
 		_TL(""),
 		SG_DATATYPES_Numeric|SG_DATATYPES_Bit
 	);
 
 	Parameters.Add_Double("",
-		"CELLSIZE"	, _TL("Cell Size"),
+		"CELLSIZE"    , _TL("Cell Size"),
 		_TL("The cell size of the output grid. Set to zero to let the tool suggest an appropriate cellsize."),
 		1., 0., true
 	);
@@ -311,12 +310,38 @@ CXYZ_Import::CXYZ_Import(void)
 		_TL("Create a grid with the number of values falling into each target grid cell."),
 		false
 	);
+
+	m_CRS.Create(Parameters);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CXYZ_Import::On_Before_Execution(void)
+{
+	m_CRS.Activate_GUI();
+
+	return( CSG_Tool::On_Before_Execution() );
+}
+
+//---------------------------------------------------------
+bool CXYZ_Import::On_After_Execution(void)
+{
+	m_CRS.Deactivate_GUI();
+
+	return( CSG_Tool::On_After_Execution() );
+}
+
+//---------------------------------------------------------
+int CXYZ_Import::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	m_CRS.On_Parameter_Changed(pParameters, pParameter);
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
+}
 
 //---------------------------------------------------------
 int CXYZ_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
@@ -331,13 +356,13 @@ int CXYZ_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CXYZ_Import::On_Execute(void)
 {
-	CSG_File	Stream;
+	CSG_File Stream;
 
 	if( !Stream.Open(Parameters("FILENAME")->asString(), SG_FILE_R, false) )
 	{
@@ -358,7 +383,7 @@ bool CXYZ_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_String	sLine;
+	CSG_String sLine;
 
 	for(int Skip=Parameters("SKIP")->asInt(); Skip>0; Skip--)
 	{
@@ -368,7 +393,7 @@ bool CXYZ_Import::On_Execute(void)
 	//-----------------------------------------------------
 	Process_Set_Text(CSG_String::Format("%s...", _TL("Reading")));
 
-	CSG_PointCloud Points;	double Length = (double)Stream.Length();
+	CSG_PointCloud Points; double Length = (double)Stream.Length();
 
 	while( !Stream.is_EOF() && Set_Progress((double)Stream.Tell(), Length) )
 	{
@@ -380,7 +405,7 @@ bool CXYZ_Import::On_Execute(void)
 		}
 	}
 
-	CSG_Rect	Extent(Points.Get_Extent());
+	CSG_Rect Extent(Points.Get_Extent());
 
 	if( !(Extent.Get_XRange() > 0. && Extent.Get_YRange() > 0.) )
 	{
@@ -397,22 +422,22 @@ bool CXYZ_Import::On_Execute(void)
 	//-----------------------------------------------------
 	Process_Set_Text(CSG_String::Format("%s...", _TL("Gridding preparations")));
 
-	double	Cellsize	= Parameters("CELLSIZE")->asDouble();
+	double Cellsize = Parameters("CELLSIZE")->asDouble();
 
 	if( Cellsize <= 0. )
 	{
-		Cellsize	= Extent.Get_XRange() / (1. + sqrt(Points.Get_Count() * Extent.Get_XRange() / Extent.Get_YRange()));
+		Cellsize = Extent.Get_XRange() / (1. + sqrt(Points.Get_Count() * Extent.Get_XRange() / Extent.Get_YRange()));
 
-		double	d	= fabs(Points.Get_Point().x - Points.Get_Point(1).x); if( d > 0. && d < Cellsize ) { Cellsize	= d; }
+		double d = fabs(Points.Get_Point().x - Points.Get_Point(1).x); if( d > 0. && d < Cellsize ) { Cellsize	= d; }
 
-		CSG_Parameters	P;	P.Add_Double("", "CELLSIZE", _TL("Cellsize"), _TL(""), Cellsize, 0., true);
+		CSG_Parameters P; P.Add_Double("", "CELLSIZE", _TL("Cellsize"), _TL(""), Cellsize, 0., true);
 
 		if( !SG_UI_Dlg_Parameters(&P, _TL("Continue?")) )
 		{
 			return( false );
 		}
 
-		Cellsize	= P("CELLSIZE")->asDouble();
+		Cellsize = P("CELLSIZE")->asDouble();
 	}
 
 	if( Cellsize <= 0. )
@@ -434,8 +459,10 @@ bool CXYZ_Import::On_Execute(void)
 
 	pGrid->Set_Name(SG_File_Get_Name(Parameters("FILENAME")->asString(), false));
 
+	m_CRS.Get_CRS(pGrid->Get_Projection(), true);
+
 	//-----------------------------------------------------
-	CSG_Grid	Count, *pCount;
+	CSG_Grid Count, *pCount;
 	
 	if( Parameters("COUNT_CREATE")->asBool() )
 	{
@@ -443,19 +470,21 @@ bool CXYZ_Import::On_Execute(void)
 	}
 	else
 	{
-		pCount	= &Count;
+		pCount = &Count;
 	}
 
 	pCount->Create(pGrid->Get_System(), SG_DATATYPE_Byte);
 
 	pCount->Fmt_Name("%s [%s]", pGrid->Get_Name(), _TL("Count"));
 
+	m_CRS.Get_CRS(pCount->Get_Projection());
+
 	//-----------------------------------------------------
 	Process_Set_Text(CSG_String::Format("%s...", _TL("Gridding")));
 
 	for(sLong i=0; i<Points.Get_Count() && Set_Progress(i, Points.Get_Count()); i++)
 	{
-		int	x, y;	CSG_Point_3D	p(Points.Get_Point(i));
+		int x, y; CSG_Point_3D p(Points.Get_Point(i));
 
 		if( pGrid->Get_System().Get_World_to_Grid(x, y, p.x, p.y) )
 		{
@@ -472,7 +501,7 @@ bool CXYZ_Import::On_Execute(void)
 		#pragma omp parallel for
 		for(int x=0; x<pGrid->Get_NX(); x++)
 		{
-			int	nValues	= pCount->asInt(x, y);
+			int nValues = pCount->asInt(x, y);
 
 			if( nValues == 0 )
 			{
@@ -491,17 +520,17 @@ bool CXYZ_Import::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 inline bool CXYZ_Import::Read_Values(CSG_File &Stream, double &x, double &y, double &z)
 {
-	CSG_String	sLine;
+	CSG_String sLine;
 
 	if( Stream.Read_Line(sLine) )
 	{
-		CSG_Strings	Values(SG_String_Tokenize(sLine, m_Delimiters));
+		CSG_Strings Values(SG_String_Tokenize(sLine, m_Delimiters));
 
 		return( Values.Get_Count() > 2 && Values[0].asDouble(x) && Values[1].asDouble(y) && Values[2].asDouble(z) );
 	}
@@ -511,9 +540,9 @@ inline bool CXYZ_Import::Read_Values(CSG_File &Stream, double &x, double &y, dou
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

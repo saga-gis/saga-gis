@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: surfer.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,26 +48,24 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Surfer_H
 #define HEADER_INCLUDED__Surfer_H
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -79,20 +74,30 @@ class CSurfer_Import : public CSG_Tool
 public:
 	CSurfer_Import(void);
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Import") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Import") );	}
+
+	virtual bool				On_Before_Execution		(void);
+	virtual bool				On_After_Execution		(void);
 
 
 protected:
 
-	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int                 On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool			On_Execute				(void);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute		        (void);
+
+
+private:
+
+	CSG_Parameters_CRSPicker	m_CRS;
 
 };
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -101,22 +106,22 @@ class CSurfer_Export : public CSG_Tool_Grid
 public:
 	CSurfer_Export(void);
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Export") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Export") );	}
 
 
 protected:
 
-	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool			On_Execute				(void);
+	virtual bool				On_Execute				(void);
 
 };
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

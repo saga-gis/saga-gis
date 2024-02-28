@@ -52,7 +52,7 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -60,9 +60,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 //						Import							 //
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -78,12 +78,12 @@ CSurfer_Import::CSurfer_Import(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_Output("",
-		"GRID"		, _TL("Grid"),
+		"GRID"     , _TL("Grid"),
 		_TL("")
 	);
 
 	Parameters.Add_FilePath("",
-		"FILE"		, _TL("File"),
+		"FILE"     , _TL("File"),
 		_TL(""),
 		CSG_String::Format("%s (*.grd)|*.grd|%s|*.*",
 			_TL("Surfer Grid"),
@@ -92,7 +92,7 @@ CSurfer_Import::CSurfer_Import(void)
 	);
 
 	Parameters.Add_Choice("",
-		"NODATA"	, _TL("No Data Value"),
+		"NODATA"    , _TL("No Data Value"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
 			_TL("Surfer's No Data Value"),
@@ -105,12 +105,38 @@ CSurfer_Import::CSurfer_Import(void)
 		_TL(""),
 		-99999.
 	);
+
+	m_CRS.Create(Parameters);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSurfer_Import::On_Before_Execution(void)
+{
+	m_CRS.Activate_GUI();
+
+	return( CSG_Tool::On_Before_Execution() );
+}
+
+//---------------------------------------------------------
+bool CSurfer_Import::On_After_Execution(void)
+{
+	m_CRS.Deactivate_GUI();
+
+	return( CSG_Tool::On_After_Execution() );
+}
+
+//---------------------------------------------------------
+int CSurfer_Import::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	m_CRS.On_Parameter_Changed(pParameters, pParameter);
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
+}
 
 //---------------------------------------------------------
 int CSurfer_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
@@ -125,7 +151,7 @@ int CSurfer_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -265,6 +291,8 @@ bool CSurfer_Import::On_Execute(void)
 
 		pGrid->Set_NoData_Value(Parameters("NODATA")->asInt() == 0 ? NODATAVALUE : Parameters("NODATA_VAL")->asDouble());
 
+		m_CRS.Get_CRS(pGrid->Get_Projection(), true);
+
 		return( true );
 	}
 
@@ -273,15 +301,14 @@ bool CSurfer_Import::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 //						Export							 //
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CSurfer_Export::CSurfer_Export(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Export Surfer Grid"));
 
 	Set_Author		("O.Conrad (c) 2001");
@@ -324,7 +351,7 @@ CSurfer_Export::CSurfer_Export(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -342,7 +369,7 @@ int CSurfer_Export::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parame
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -435,9 +462,9 @@ bool CSurfer_Export::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

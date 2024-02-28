@@ -19,9 +19,9 @@
 *******************************************************************************/ 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -29,9 +29,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -52,30 +52,19 @@ CPoints_From_Table::CPoints_From_Table(void)
 	Parameters.Add_Table_Field("TABLE", "Z", _TL("Z"), _TL(""), true);
 
 	Parameters.Add_Shapes("", "POINTS", _TL("Points"), _TL(""), PARAMETER_OUTPUT, SHAPE_TYPE_Point);
-	Parameters.Add_String("POINTS", "CRS_PROJ"     , _TL("PROJ Parameters"), _TL(""),     "")->Set_UseInGUI(false);
-	Parameters.Add_Int   ("POINTS", "CRS_CODE"     , _TL("Code ID"        ), _TL(""),     -1)->Set_UseInGUI(false);
-	Parameters.Add_String("POINTS", "CRS_AUTHORITY", _TL("Code Authority" ), _TL(""), "EPSG")->Set_UseInGUI(false);
+
+	m_CRS.Create(Parameters, "POINTS");
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CPoints_From_Table::On_Before_Execution(void)
 {
-	if( has_GUI() )
-	{
-		m_pCRS = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 15, true);	// CCRS_Picker
-
-		m_pCRS->Set_Parameter("CRS_EPSG"     , Parameters["CRS_CODE"     ].asInt   ());
-		m_pCRS->Set_Parameter("CRS_EPSG_AUTH", Parameters["CRS_AUTHORITY"].asString());
-		m_pCRS->Set_Parameter("CRS_PROJ4"    , Parameters["CRS_PROJ"     ].asString());
-
-		Parameters.Add_Parameters("POINTS", "CRS_PICKER", _TL("Coordinate Reference System"), _TL(""))
-			->asParameters()->Create(*m_pCRS->Get_Parameters());
-	}
+	m_CRS.Activate_GUI();
 
 	return( CSG_Tool::On_Before_Execution() );
 }
@@ -83,12 +72,7 @@ bool CPoints_From_Table::On_Before_Execution(void)
 //---------------------------------------------------------
 bool CPoints_From_Table::On_After_Execution(void)
 {
-	if( Parameters("CRS_PICKER") )
-	{
-		Parameters.Del_Parameter("CRS_PICKER");
-		SG_Get_Tool_Library_Manager().Delete_Tool(m_pCRS);
-		m_pCRS = NULL;
-	}
+	m_CRS.Deactivate_GUI();
 
 	return( CSG_Tool::On_After_Execution() );
 }
@@ -96,19 +80,14 @@ bool CPoints_From_Table::On_After_Execution(void)
 //---------------------------------------------------------
 int CPoints_From_Table::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( pParameter->Cmp_Identifier("CRS_PICKER") )
-	{
-		pParameters->Set_Parameter("CRS_CODE"     , (*pParameter->asParameters())("CRS_EPSG"     )->asInt   ());
-		pParameters->Set_Parameter("CRS_AUTHORITY", (*pParameter->asParameters())("CRS_EPSG_AUTH")->asInt   ());
-		pParameters->Set_Parameter("CRS_PROJ"     , (*pParameter->asParameters())("CRS_PROJ4"    )->asString());
-	}
+	m_CRS.On_Parameter_Changed(pParameters, pParameter);
 
 	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -132,11 +111,7 @@ bool CPoints_From_Table::On_Execute(void)
 
 	Points.Create(SHAPE_TYPE_Point, Table.Get_Name(), &Table, z < 0 ? SG_VERTEX_TYPE_XY : SG_VERTEX_TYPE_XYZ);
 
-	if( Points.Get_Projection().Create(Parameters["CRS_CODE"].asInt(), Parameters["CRS_AUTHORITY"].asString())
-	||  Points.Get_Projection().Create(Parameters["CRS_PROJ"].asString(), SG_PROJ_FMT_Proj4) )
-	{
-		Message_Fmt("\n%s: %s\n", _TL("CRS"), Points.Get_Projection().Get_Proj4().c_str());
-	}
+	m_CRS.Get_CRS(Points.Get_Projection(), true);
 
 	//-----------------------------------------------------
 	for(sLong i=0; i<Table.Get_Count() && Set_Progress(i, Table.Get_Count()); i++)
@@ -162,9 +137,9 @@ bool CPoints_From_Table::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

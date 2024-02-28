@@ -52,9 +52,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -70,12 +70,12 @@ CGrid_Table_Import::CGrid_Table_Import(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_Output("",
-		"GRID"		, _TL("Grid"),
+		"GRID"     , _TL("Grid"),
 		_TL("")
 	);
 
 	Parameters.Add_FilePath("",
-		"FILE"		, _TL("Table"),
+		"FILE"     , _TL("Table"),
 		_TL(""),
 		CSG_String::Format("%s (*.txt, *.dbf, *.csv)|*.txt;*.dbf;*.csv|%s|*.*",
 			_TL("Table Formats"),
@@ -93,24 +93,55 @@ CGrid_Table_Import::CGrid_Table_Import(void)
 	Parameters.Add_Int   ("", "HEADLINES", _TL("Header Lines" ), _TL(""), 0, 0, true);
 
 	Parameters.Add_Data_Type("",
-		"DATA_TYPE"	, _TL("Data Type"),
+		"DATA_TYPE", _TL("Data Type"),
 		_TL(""),
 		SG_DATATYPES_Numeric|SG_DATATYPES_Bit
 	);
 
 	Parameters.Add_Choice("",
-		"TOPDOWN"	, _TL("Line Order"),
+		"TOPDOWN"  , _TL("Line Order"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
 			_TL("Bottom to Top"),
 			_TL("Top to Bottom")
 		), 0
 	);
+
+	m_CRS.Create(Parameters);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Table_Import::On_Before_Execution(void)
+{
+	m_CRS.Activate_GUI();
+
+	return( CSG_Tool::On_Before_Execution() );
+}
+
+//---------------------------------------------------------
+bool CGrid_Table_Import::On_After_Execution(void)
+{
+	m_CRS.Deactivate_GUI();
+
+	return( CSG_Tool::On_After_Execution() );
+}
+
+//---------------------------------------------------------
+int CGrid_Table_Import::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	m_CRS.On_Parameter_Changed(pParameters, pParameter);
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -154,6 +185,8 @@ bool CGrid_Table_Import::On_Execute(void)
 	pGrid->Set_NoData_Value(Parameters("NODATA" )->asDouble());
 	pGrid->Set_Scaling     (Parameters("ZFACTOR")->asDouble());
 
+	m_CRS.Get_CRS(pGrid->Get_Projection(), true);
+
 	//-----------------------------------------------------
 	bool bDown = Parameters("TOPDOWN")->asInt() == 1;
 
@@ -173,9 +206,9 @@ bool CGrid_Table_Import::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -223,7 +256,7 @@ CCRU_Table_Import::CCRU_Table_Import(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -325,9 +358,9 @@ bool CCRU_Table_Import::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
