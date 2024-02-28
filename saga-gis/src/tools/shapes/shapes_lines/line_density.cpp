@@ -50,9 +50,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -86,6 +86,15 @@ CLine_Density::CLine_Density(void)
 	);
 
 	Parameters.Add_Choice("",
+		"SHAPE"     , _TL("Shape"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("circle"),
+			_TL("square")
+		), 0
+	);
+
+	Parameters.Add_Choice("",
 		"OUTPUT"    , _TL("Output"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
@@ -97,7 +106,7 @@ CLine_Density::CLine_Density(void)
 	Parameters.Add_Bool("",
 		"NO_ZERO"   , _TL("Zero as No-Data"),
 		_TL(""),
-		false
+		true
 	);
 
 	m_Grid_Target.Create(&Parameters, true, "", "TARGET_");
@@ -105,7 +114,7 @@ CLine_Density::CLine_Density(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -143,7 +152,7 @@ int CLine_Density::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramet
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -165,15 +174,15 @@ bool CLine_Density::On_Execute(void)
 	//-----------------------------------------------------
 	m_pLines = Parameters("LINES")->asShapes();
 
-	m_Population = Parameters("POPULATION")->asInt();
+	int Population = Parameters("POPULATION")->asInt();
 
-	if( m_Population < 0 )
+	if( Population < 0 )
 	{
 		pGrid->Fmt_Name("%s [%s]"   , _TL("Line Density"), m_pLines->Get_Name());
 	}
 	else
 	{
-		pGrid->Fmt_Name("%s [%s.%s]", _TL("Line Density"), m_pLines->Get_Name(), m_pLines->Get_Field_Name(m_Population));
+		pGrid->Fmt_Name("%s [%s.%s]", _TL("Line Density"), m_pLines->Get_Name(), m_pLines->Get_Field_Name(Population));
 	}
 
 	if( !m_pLines->Get_Extent().Intersects(pGrid->Get_Extent()) )
@@ -186,7 +195,14 @@ bool CLine_Density::On_Execute(void)
 	//-----------------------------------------------------
 	m_Radius = Parameters("RADIUS")->asDouble();
 
-	int bAbsolute = Parameters("OUTPUT")->asInt() == 0;
+	int Shape = Parameters("SHAPE" )->asInt();
+
+	double Norm = 1.;
+
+	if( Parameters("OUTPUT")->asInt() == 1 ) // relative
+	{
+		Norm = m_Radius*m_Radius * (Shape == 0 ? M_PI : 4.); // shape ? 0 = circle, 1 = square
+	}
 
 	//-----------------------------------------------------
 	for(int y=0; y<pGrid->Get_NY() && Set_Progress(y, pGrid->Get_NY()); y++)
@@ -196,9 +212,9 @@ bool CLine_Density::On_Execute(void)
 		#pragma omp parallel for
 		for(int x=0; x<pGrid->Get_NX(); x++)
 		{
-			CSG_Point Point(pGrid->Get_XMin() + x * pGrid->Get_Cellsize(), py);
+			CSG_Point Point(pGrid->Get_XMin() + x * pGrid->Get_Cellsize(), py); // cell center
 
-			pGrid->Set_Value(x, y, Get_Density(Point, bAbsolute));
+			pGrid->Set_Value(x, y, Get_Intersection(Point, Population, Shape) / Norm);
 		}
 	}
 
@@ -208,19 +224,24 @@ bool CLine_Density::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CLine_Density::Get_Density(const CSG_Point &Point, bool bAbsolute)
+double CLine_Density::Get_Intersection(const CSG_Point &Center, int Population, int Shape)
 {
-	double Length = 0.; CSG_Rect r(Point.x - m_Radius, Point.y - m_Radius, Point.x + m_Radius, Point.y + m_Radius);
+	CSG_Rect Square(
+		Center.x - m_Radius, Center.y - m_Radius,
+		Center.x + m_Radius, Center.y + m_Radius
+	);
+
+	double Length = 0.;
 
 	for(sLong i=0; i<m_pLines->Get_Count(); i++)
 	{
 		CSG_Shape_Line *pLine = m_pLines->Get_Shape(i)->asLine();
 
-		if( pLine->Intersects(r) )
+		if( pLine->Intersects(Square) )
 		{
 			double d = 0.;
 
@@ -232,28 +253,32 @@ double CLine_Density::Get_Density(const CSG_Point &Point, bool bAbsolute)
 				{
 					CSG_Point B = A; A = pLine->Get_Point(iPoint, iPart);
 
-					d += Get_Intersection(Point, A, B);
+					switch( Shape )
+					{
+					default: d += Get_Intersection(Center, A, B); break;
+					case  1: d += Get_Intersection(Square, A, B); break;
+					}
 				}
 			}
 
-			Length += m_Population < 0 ? d : d * pLine->asDouble(m_Population);
+			Length += Population < 0 ? d : d * pLine->asDouble(Population);
 		}
 	}
 
-	return( bAbsolute ? Length : Length / (M_PI * m_Radius*m_Radius) );
+	return( Length );
 }
 
 //---------------------------------------------------------
-inline double CLine_Density::Get_Intersection(const CSG_Point &Point, const CSG_Point &A, const CSG_Point &B)
+inline double CLine_Density::Get_Intersection(const CSG_Point &Center, const CSG_Point &A, const CSG_Point &B)
 {
-	if( SG_Get_Distance(Point, A) <= m_Radius )
+	if( SG_Get_Distance(Center, A) <= m_Radius )
 	{
-		if( SG_Get_Distance(Point, B) <= m_Radius )
+		if( SG_Get_Distance(Center, B) <= m_Radius )
 		{
 			return( SG_Get_Distance(A, B) );
 		}
 
-		CSG_Point C; double d = SG_Get_Nearest_Point_On_Line(Point, A, B, C, false);
+		CSG_Point C; double d = SG_Get_Nearest_Point_On_Line(Center, A, B, C, false);
 
 		d = sqrt(m_Radius*m_Radius - d*d) / SG_Get_Distance(C, B);
 
@@ -264,9 +289,9 @@ inline double CLine_Density::Get_Intersection(const CSG_Point &Point, const CSG_
 	}
 
 	//-----------------------------------------------------
-	if( SG_Get_Distance(Point, B) <= m_Radius )
+	if( SG_Get_Distance(Center, B) <= m_Radius )
 	{
-		CSG_Point C; double d = SG_Get_Nearest_Point_On_Line(Point, A, B, C, false);
+		CSG_Point C; double d = SG_Get_Nearest_Point_On_Line(Center, A, B, C, false);
 
 		d = sqrt(m_Radius*m_Radius - d*d) / SG_Get_Distance(C, A);
 
@@ -277,7 +302,7 @@ inline double CLine_Density::Get_Intersection(const CSG_Point &Point, const CSG_
 	}
 
 	//-----------------------------------------------------
-	double d = SG_Get_Distance_To_Line(Point, A, B, false);
+	double d = SG_Get_Distance_To_Line(Center, A, B, true);
 
 	if( d < m_Radius ) // no tangent! ...secant, both points are outside of circle
 	{
@@ -287,11 +312,55 @@ inline double CLine_Density::Get_Intersection(const CSG_Point &Point, const CSG_
 	return( 0. );
 }
 
+//---------------------------------------------------------
+inline double CLine_Density::Get_Intersection(const CSG_Rect &Square, const CSG_Point &A, const CSG_Point &B)
+{
+	if( Square.Contains(A) )
+	{
+		if( Square.Contains(B) )
+		{
+			return( SG_Get_Distance(A, B) );
+		}
+
+		CSG_Point C;
+
+		return( (A.x > B.x && SG_Get_Crossing(C, A, B, CSG_Point(Square.xMin, Square.yMin), CSG_Point(Square.xMin, Square.yMax)))
+			||  (A.x < B.x && SG_Get_Crossing(C, A, B, CSG_Point(Square.xMax, Square.yMin), CSG_Point(Square.xMax, Square.yMax)))
+			||  (A.y > B.y && SG_Get_Crossing(C, A, B, CSG_Point(Square.xMin, Square.yMin), CSG_Point(Square.xMax, Square.yMin)))
+			||  (A.y < B.y && SG_Get_Crossing(C, A, B, CSG_Point(Square.xMin, Square.yMax), CSG_Point(Square.xMax, Square.yMax)))
+			? SG_Get_Distance(A, C) : 0.
+		);
+	}
+
+	//-----------------------------------------------------
+	if( Square.Contains(B) )
+	{
+		CSG_Point C;
+
+		return( (A.x < B.x && SG_Get_Crossing(C, A, B, CSG_Point(Square.xMin, Square.yMin), CSG_Point(Square.xMin, Square.yMax)))
+			||  (A.x > B.x && SG_Get_Crossing(C, A, B, CSG_Point(Square.xMax, Square.yMin), CSG_Point(Square.xMax, Square.yMax)))
+			||  (A.y < B.y && SG_Get_Crossing(C, A, B, CSG_Point(Square.xMin, Square.yMin), CSG_Point(Square.xMax, Square.yMin)))
+			||  (A.y > B.y && SG_Get_Crossing(C, A, B, CSG_Point(Square.xMin, Square.yMax), CSG_Point(Square.xMax, Square.yMax)))
+			? SG_Get_Distance(B, C) : 0.
+		);
+	}
+
+	//-----------------------------------------------------
+	int n = 0; CSG_Point C[2];
+
+	if(          SG_Get_Crossing(C[n], A, B, CSG_Point(Square.xMin, Square.yMin), CSG_Point(Square.xMin, Square.yMax)) ) { n++; }
+	if(          SG_Get_Crossing(C[n], A, B, CSG_Point(Square.xMax, Square.yMin), CSG_Point(Square.xMax, Square.yMax)) ) { n++; }
+	if( n < 2 && SG_Get_Crossing(C[n], A, B, CSG_Point(Square.xMin, Square.yMin), CSG_Point(Square.xMax, Square.yMin)) ) { n++; }
+	if( n < 2 && SG_Get_Crossing(C[n], A, B, CSG_Point(Square.xMin, Square.yMax), CSG_Point(Square.xMax, Square.yMax)) ) { n++; }
+
+	return( n == 2 ? SG_Get_Distance(C[0], C[1]) : 0. );
+}
+
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

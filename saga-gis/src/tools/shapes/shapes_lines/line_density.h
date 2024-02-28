@@ -51,9 +51,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -61,9 +61,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -71,6 +71,8 @@ class CLine_Density : public CSG_Tool
 {
 public:
 	CLine_Density(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( ";A:Grid|Gridding|Lines" );	}
 
 
 protected:
@@ -83,32 +85,24 @@ protected:
 
 private:
 
-	int							m_Population;
+	double						m_Radius { 1. };
 
-	double						m_Radius;
-
-	CSG_Shapes					*m_pLines;
+	CSG_Shapes					*m_pLines { NULL };
 
 	CSG_Parameters_Grid_Target	m_Grid_Target;
 
 
-	double						Get_Density				(const CSG_Point &Point, bool bAbsolute);
-
-	double						Get_Intersection		(const CSG_Point &Point, const CSG_Point &A, const CSG_Point &B);
-
-	void						Set_Value				(int x, int y, double Value, bool bCheckDuplicates = true);
-
-	void						Set_Line				(CSG_Shape *pShape, bool bFat, double Value);
-	void						Set_Line_Thin			(TSG_Point a, TSG_Point b, double Value);
-	void						Set_Line_Fat			(TSG_Point a, TSG_Point b, double Value);
+	double						Get_Intersection		(const CSG_Point &Center, int Population, int Shape);
+	double						Get_Intersection		(const CSG_Point &Center, const CSG_Point &A, const CSG_Point &B);
+	double						Get_Intersection		(const CSG_Rect  &Square, const CSG_Point &A, const CSG_Point &B);
 
 };
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
