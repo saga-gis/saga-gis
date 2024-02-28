@@ -51,12 +51,13 @@
 #include "parameters.h"
 #include "data_manager.h"
 #include "tool.h"
+#include "tool_library.h"
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -92,7 +93,7 @@ CSG_Parameter::~CSG_Parameter(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -115,7 +116,7 @@ CSG_Data_Manager * CSG_Parameter::Get_Manager(void)	const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -132,7 +133,7 @@ CSG_String CSG_Parameter::Get_Type_Name(void)	const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -188,7 +189,7 @@ void CSG_Parameter::ignore_Projection(bool bIgnore)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -539,7 +540,7 @@ TSG_Data_Object_Type CSG_Parameter::Get_DataObject_Type(void)	const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -755,7 +756,7 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	c
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -867,7 +868,7 @@ void CSG_Parameter::_Set_String(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -914,7 +915,7 @@ bool CSG_Parameter::Restore_Default(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -991,7 +992,7 @@ bool CSG_Parameter::Check(bool bSilent)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1091,7 +1092,7 @@ CSG_Parameter_PointCloud_List * CSG_Parameter::asPointCloudList(void) const {	re
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1103,7 +1104,7 @@ void CSG_Parameter::_Add_Child(CSG_Parameter *pChild)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1176,7 +1177,132 @@ bool CSG_Parameter::_Serialize(CSG_MetaData &Entry, bool bSave)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
+//         Coordinate System Reference Picker            //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Parameters_CRSPicker::CSG_Parameters_CRSPicker(void)
+{
+	// nop...
+}
+
+//---------------------------------------------------------
+bool CSG_Parameters_CRSPicker::Create(CSG_Parameters &Parameters, const CSG_String &ParentID)
+{
+	m_pParameters = &Parameters;
+
+	Parameters.Add_String("", "CRS_PROJ"     , _TL("PROJ Parameters"), _TL(""),     "")->Set_UseInGUI(false);
+	Parameters.Add_Int   ("", "CRS_CODE"     , _TL("Code ID"        ), _TL(""),     -1)->Set_UseInGUI(false);
+	Parameters.Add_String("", "CRS_AUTHORITY", _TL("Code Authority" ), _TL(""), "EPSG")->Set_UseInGUI(false);
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Parameters_CRSPicker::Activate_GUI(bool bReset)
+{
+	if( !m_pParameters || !m_pParameters->has_GUI() || m_pCRS )
+	{
+		return( false );
+	}
+
+	m_pCRS = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 15, true); // CCRS_Picker
+
+	if( !m_pCRS )
+	{
+		return( false );
+	}
+
+	m_pCRS->Set_Parameter("CRS_EPSG"     , (*m_pParameters)["CRS_CODE"     ].asInt   ());
+	m_pCRS->Set_Parameter("CRS_EPSG_AUTH", (*m_pParameters)["CRS_AUTHORITY"].asString());
+	m_pCRS->Set_Parameter("CRS_PROJ4"    , (*m_pParameters)["CRS_PROJ"     ].asString());
+
+	m_pParameters->Add_Parameters("POINTS", "CRS_PICKER", _TL("Coordinate Reference System"), _TL(""))
+		->asParameters()->Create(*m_pCRS->Get_Parameters());
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameters_CRSPicker::Deactivate_GUI(void)
+{
+	if( m_pCRS )
+	{
+		m_pParameters->Del_Parameter("CRS_PICKER");
+
+		SG_Get_Tool_Library_Manager().Delete_Tool(m_pCRS);
+
+		m_pCRS = NULL;
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Parameters_CRSPicker::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("CRS_PICKER") )
+	{
+		pParameters->Set_Parameter("CRS_CODE"     , (*pParameter->asParameters())("CRS_EPSG"     )->asInt   ());
+		pParameters->Set_Parameter("CRS_AUTHORITY", (*pParameter->asParameters())("CRS_EPSG_AUTH")->asInt   ());
+		pParameters->Set_Parameter("CRS_PROJ"     , (*pParameter->asParameters())("CRS_PROJ4"    )->asString());
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameters_CRSPicker::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Parameters_CRSPicker::Get_CRS(CSG_Projection &Projection, bool bMessage) const
+{
+	if( Projection.Create((*m_pParameters)["CRS_CODE"].asInt(), (*m_pParameters)["CRS_AUTHORITY"].asString())
+	||  Projection.Create((*m_pParameters)["CRS_PROJ"].asString(), SG_PROJ_FMT_Proj4) )
+	{
+		if( bMessage )
+		{
+			SG_UI_Msg_Add_Execution(CSG_String::Format("\n%s: %s\n", _TL("CRS"), Projection.Get_Proj4().c_str()), false);
+		}
+
+		return( true );
+	}
+
+	if( bMessage )
+	{
+		SG_UI_Msg_Add_Execution(CSG_String::Format("\n%s: %s\n", _TL("Warning"), _TL("undefined coordinate reference system")), false);
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                Grid Target Selector                   //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1246,7 +1372,7 @@ bool CSG_Parameters_Grid_Target::Create(CSG_Parameters *pParameters, bool bAddDe
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1445,7 +1571,7 @@ bool CSG_Parameters_Grid_Target::On_Parameters_Enable(CSG_Parameters *pParameter
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1641,7 +1767,7 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined_ZLevels(CSG_Parameters *pParam
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1728,7 +1854,7 @@ bool CSG_Parameters_Grid_Target::Add_Grids(const CSG_String &Identifier, const C
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1833,7 +1959,7 @@ CSG_Grid * CSG_Parameters_Grid_Target::Get_Grid(const CSG_String &Identifier, TS
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1922,9 +2048,9 @@ CSG_Grids * CSG_Parameters_Grid_Target::Get_Grids(TSG_Data_Type Type)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
