@@ -1753,7 +1753,7 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined_ZLevels(CSG_Parameters *pParam
 		zMax += 0.5 * Size;
 	}
 
-	bool	bCallback	= pParameters->Set_Callback(false);
+	bool bCallback = pParameters->Set_Callback(false);
 
 	pParameters->Set_Parameter(m_Prefix + "USER_ZSIZE", Size   );
 	pParameters->Set_Parameter(m_Prefix + "USER_ZMIN" , zMin   );
@@ -1858,33 +1858,47 @@ bool CSG_Parameters_Grid_Target::Add_Grids(const CSG_String &Identifier, const C
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Grid_System CSG_Parameters_Grid_Target::Get_System(void)
+CSG_Grid_System CSG_Parameters_Grid_Target::Get_System(void) const
+{
+	return( Get_System(m_pParameters) );
+}
+
+//---------------------------------------------------------
+CSG_Grid_System CSG_Parameters_Grid_Target::Get_System(CSG_Parameters *pParameters) const
 {
 	CSG_Grid_System System;
 
-	if( m_pParameters )
+	if( pParameters && (*pParameters)(m_Prefix + "DEFINITION") )
 	{
-		if( (*m_pParameters)(m_Prefix + "DEFINITION")->asInt() == 0 )	// user defined
+		if( (*pParameters)(m_Prefix + "DEFINITION")->asInt() == 0 )	// user defined
 		{
-			double Size = (*m_pParameters)(m_Prefix + "USER_SIZE")->asDouble();
-
-			CSG_Rect r(
-				(*m_pParameters)(m_Prefix + "USER_XMIN")->asDouble(),
-				(*m_pParameters)(m_Prefix + "USER_YMIN")->asDouble(),
-				(*m_pParameters)(m_Prefix + "USER_XMAX")->asDouble(),
-				(*m_pParameters)(m_Prefix + "USER_YMAX")->asDouble()
-			);
-
-			if( (*m_pParameters)(m_Prefix + "USER_FITS")->asInt() == 1 )
+			if( (*pParameters)(m_Prefix + "USER_SIZE")
+			&&  (*pParameters)(m_Prefix + "USER_XMIN")
+			&&  (*pParameters)(m_Prefix + "USER_YMIN")
+			&&  (*pParameters)(m_Prefix + "USER_XMAX")
+			&&  (*pParameters)(m_Prefix + "USER_YMAX")
+			&&  (*pParameters)(m_Prefix + "USER_FITS") )
 			{
-				r.Deflate(0.5 * Size, false);
-			}
+				double Size = (*pParameters)(m_Prefix + "USER_SIZE")->asDouble();
 
-			System.Assign(Size, r);
+				CSG_Rect r(
+					(*pParameters)(m_Prefix + "USER_XMIN")->asDouble(),
+					(*pParameters)(m_Prefix + "USER_YMIN")->asDouble(),
+					(*pParameters)(m_Prefix + "USER_XMAX")->asDouble(),
+					(*pParameters)(m_Prefix + "USER_YMAX")->asDouble()
+				);
+
+				if( (*pParameters)(m_Prefix + "USER_FITS")->asInt() == 1 )
+				{
+					r.Deflate(0.5 * Size, false);
+				}
+
+				System.Assign(Size, r);
+			}
 		}
-		else
+		else if( (*pParameters)(m_Prefix + "SYSTEM") )
 		{
-			CSG_Parameter *pParameter = (*m_pParameters)(m_Prefix + "SYSTEM");
+			CSG_Parameter *pParameter = (*pParameters)(m_Prefix + "SYSTEM");
 
 			if( pParameter->asGrid_System() )
 			{

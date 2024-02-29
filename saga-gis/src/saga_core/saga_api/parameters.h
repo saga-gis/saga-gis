@@ -1653,7 +1653,8 @@ public:
 
 	bool						Set_User_Defined_ZLevels	(CSG_Parameters *pParameters, double zMin, double zMax, int nLevels, int Rounding = 2);
 
-	CSG_Grid_System				Get_System					(void);
+	CSG_Grid_System				Get_System					(void)                        const;
+	CSG_Grid_System				Get_System					(CSG_Parameters *pParameters) const;
 
 	CSG_Grid *					Get_Grid					(const CSG_String &ID, TSG_Data_Type Type = SG_DATATYPE_Float);
 	CSG_Grid *					Get_Grid					(                      TSG_Data_Type Type = SG_DATATYPE_Float);
