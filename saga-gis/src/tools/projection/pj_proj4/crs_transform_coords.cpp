@@ -50,9 +50,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -71,25 +71,25 @@ CCRS_Transform_Coords_Grid::CCRS_Transform_Coords_Grid(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid("",
-		"SOURCE_X"	, _TL("X Coordinate Source"),
+		"SOURCE_X", _TL("X Coordinate Source"),
 		_TL("Grid that provides the source X coordinates."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid("",
-		"SOURCE_Y"	, _TL("Y Coordinate Source"),
+		"SOURCE_Y", _TL("Y Coordinate Source"),
 		_TL("Grid that provides the source Y coordinates."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid("",
-		"TARGET_X"	, _TL("Projected X Coordinates"),
+		"TARGET_X", _TL("Projected X Coordinates"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid("",
-		"TARGET_Y"	, _TL("Projected Y Coordinates"),
+		"TARGET_Y", _TL("Projected Y Coordinates"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -97,20 +97,18 @@ CCRS_Transform_Coords_Grid::CCRS_Transform_Coords_Grid(void)
 	//-----------------------------------------------------
 	CCRS_Picker	Picker;
 
-	Parameters.Add_Parameters("",
-		"SOURCE_CRS", _TL("Source Coordinate System"),
-		_TL("")
-	)->asParameters()->Assign_Parameters(Picker.Get_Parameters());
+	Parameters.Add_Parameters("", "SOURCE_CRS", _TL("Source Coordinate System"), _TL(""))
+		->asParameters()->Assign_Parameters(Picker.Get_Parameters()
+	);
 
-	Parameters.Add_Parameters("",
-		"TARGET_CRS", _TL("Target Coordinate System"),
-		_TL("")
-	)->asParameters()->Assign_Parameters(Picker.Get_Parameters());
+	Parameters.Add_Parameters("", "TARGET_CRS", _TL("Target Coordinate System"), _TL(""))
+		->asParameters()->Assign_Parameters(Picker.Get_Parameters()
+	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -131,15 +129,15 @@ int CCRS_Transform_Coords_Grid::On_Parameters_Enable(CSG_Parameters *pParameters
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CCRS_Transform_Coords_Grid::On_Execute(void)
 {
-	CSG_CRSProjector	Projector;
+	CSG_CRSProjector Projector;
 
-	CSG_Projection	Source(Parameters("SOURCE_CRS")->asParameters()->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+	CSG_Projection Source(Parameters("SOURCE_CRS")->asParameters()->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
 
 	if( !Projector.Set_Source(Source) )
 	{
@@ -148,7 +146,7 @@ bool CCRS_Transform_Coords_Grid::On_Execute(void)
 		return( false );
 	}
 
-	CSG_Projection	Target(Parameters("TARGET_CRS")->asParameters()->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+	CSG_Projection Target(Parameters("TARGET_CRS")->asParameters()->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
 
 	if( !Projector.Set_Source(Source) || !Projector.Set_Target(Target) )
 	{
@@ -158,11 +156,11 @@ bool CCRS_Transform_Coords_Grid::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid	*pSource_X	= Parameters("SOURCE_X")->asGrid();
-	CSG_Grid	*pSource_Y	= Parameters("SOURCE_Y")->asGrid();
+	CSG_Grid *pSource_X = Parameters("SOURCE_X")->asGrid();
+	CSG_Grid *pSource_Y = Parameters("SOURCE_Y")->asGrid();
 
-	CSG_Grid	*pTarget_X	= Parameters("TARGET_X")->asGrid();
-	CSG_Grid	*pTarget_Y	= Parameters("TARGET_Y")->asGrid();
+	CSG_Grid *pTarget_X = Parameters("TARGET_X")->asGrid();
+	CSG_Grid *pTarget_Y = Parameters("TARGET_Y")->asGrid();
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
@@ -172,7 +170,7 @@ bool CCRS_Transform_Coords_Grid::On_Execute(void)
 		{
 			if( !pSource_X->is_NoData(x, y) && !pSource_Y->is_NoData(x, y) )
 			{
-				CSG_Point	Point(pSource_X->asDouble(x, y), pSource_Y->asDouble(x, y));
+				CSG_Point Point(pSource_X->asDouble(x, y), pSource_Y->asDouble(x, y));
 
 				if( Projector.Get_Projection(Point) )
 				{
@@ -194,9 +192,9 @@ bool CCRS_Transform_Coords_Grid::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -215,29 +213,29 @@ CCRS_Transform_Coords_Table::CCRS_Transform_Coords_Table(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Table("",
-		"TABLE"		, _TL("Table"),
+		"TABLE"   , _TL("Table"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table_Field("TABLE",
-		"SOURCE_X"	, _TL("X Coordinate Source"),
+		"SOURCE_X", _TL("X Coordinate Source"),
 		_TL("Table field that provides the source X coordinates.")
 	);
 
 	Parameters.Add_Table_Field("TABLE",
-		"SOURCE_Y"	, _TL("Y Coordinate Source"),
+		"SOURCE_Y", _TL("Y Coordinate Source"),
 		_TL("Table field that provides the source Y coordinates.")
 	);
 
 	Parameters.Add_Table_Field("TABLE",
-		"TARGET_X"	, _TL("Projected X Coordinates"),
+		"TARGET_X", _TL("Projected X Coordinates"),
 		_TL(""),
 		true
 	);
 
 	Parameters.Add_Table_Field("TABLE",
-		"TARGET_Y"	, _TL("Projected Y Coordinates"),
+		"TARGET_Y", _TL("Projected Y Coordinates"),
 		_TL(""),
 		true
 	);
@@ -245,20 +243,18 @@ CCRS_Transform_Coords_Table::CCRS_Transform_Coords_Table(void)
 	//-----------------------------------------------------
 	CCRS_Picker	Picker;
 
-	Parameters.Add_Parameters("",
-		"SOURCE_CRS", _TL("Source Coordinate System"),
-		_TL("")
-	)->asParameters()->Assign_Parameters(Picker.Get_Parameters());
+	Parameters.Add_Parameters("", "SOURCE_CRS", _TL("Source Coordinate System"), _TL(""))
+		->asParameters()->Assign_Parameters(Picker.Get_Parameters()
+	);
 
-	Parameters.Add_Parameters("",
-		"TARGET_CRS", _TL("Target Coordinate System"),
-		_TL("")
-	)->asParameters()->Assign_Parameters(Picker.Get_Parameters());
+	Parameters.Add_Parameters("", "TARGET_CRS", _TL("Target Coordinate System"), _TL(""))
+		->asParameters()->Assign_Parameters(Picker.Get_Parameters()
+	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -279,15 +275,15 @@ int CCRS_Transform_Coords_Table::On_Parameters_Enable(CSG_Parameters *pParameter
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CCRS_Transform_Coords_Table::On_Execute(void)
 {
-	CSG_CRSProjector	Projector;
+	CSG_CRSProjector Projector;
 
-	CSG_Projection	Source(Parameters("SOURCE_CRS")->asParameters()->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+	CSG_Projection Source(Parameters("SOURCE_CRS")->asParameters()->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
 
 	if( !Projector.Set_Source(Source) )
 	{
@@ -296,7 +292,7 @@ bool CCRS_Transform_Coords_Table::On_Execute(void)
 		return( false );
 	}
 
-	CSG_Projection	Target(Parameters("TARGET_CRS")->asParameters()->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+	CSG_Projection Target(Parameters("TARGET_CRS")->asParameters()->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
 
 	if( !Projector.Set_Source(Source) || !Projector.Set_Target(Target) )
 	{
@@ -306,24 +302,24 @@ bool CCRS_Transform_Coords_Table::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
+	CSG_Table *pTable = Parameters("TABLE")->asTable();
 
-	int	Source_X	= Parameters("SOURCE_X")->asInt();
-	int	Source_Y	= Parameters("SOURCE_Y")->asInt();
+	int Source_X = Parameters("SOURCE_X")->asInt();
+	int Source_Y = Parameters("SOURCE_Y")->asInt();
 
-	int	Target_X	= Parameters("TARGET_X")->asInt();
-	int	Target_Y	= Parameters("TARGET_Y")->asInt();
+	int Target_X = Parameters("TARGET_X")->asInt();
+	int Target_Y = Parameters("TARGET_Y")->asInt();
 
 	if( Target_X < 0 )
 	{
-		Target_X	= pTable->Get_Field_Count();
+		Target_X = pTable->Get_Field_Count();
 
 		pTable->Add_Field("X_PROJECTED", SG_DATATYPE_Double);
 	}
 
 	if( Target_Y < 0 )
 	{
-		Target_Y	= pTable->Get_Field_Count();
+		Target_Y = pTable->Get_Field_Count();
 
 		pTable->Add_Field("Y_PROJECTED", SG_DATATYPE_Double);
 	}
@@ -357,9 +353,9 @@ bool CCRS_Transform_Coords_Table::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
