@@ -202,6 +202,14 @@ void CSG_Parameters::Destroy(void)
 void CSG_Parameters::Set_Tool(CSG_Tool *pTool)
 {
 	m_pTool = pTool;
+
+	for(int i=0; i<Get_Count(); i++)
+	{
+		if( m_Parameters[i]->Get_Type() == PARAMETER_TYPE_Parameters )
+		{
+			m_Parameters[i]->asParameters()->Set_Tool(pTool);
+		}
+	}
 }
 
 //---------------------------------------------------------
@@ -1578,11 +1586,16 @@ bool CSG_Parameters::Assign_Parameters(CSG_Parameters *pSource)
 	for(int i=0; i<pSource->m_nParameters; i++)
 	{
 		_Add(pSource->m_Parameters[i]);
+
+		if( m_Parameters[i]->asParameters() )
+		{
+			m_Parameters[i]->asParameters()->Set_Tool(m_pTool);
+		}
 	}
 
 	if( pSource->m_pGrid_System )
 	{
-		m_pGrid_System	= Get_Parameter(pSource->m_pGrid_System->Get_Identifier());
+		m_pGrid_System = Get_Parameter(pSource->m_pGrid_System->Get_Identifier());
 	}
 
 	return( m_nParameters == pSource->m_nParameters );
