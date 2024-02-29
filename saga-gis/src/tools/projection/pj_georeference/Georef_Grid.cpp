@@ -50,9 +50,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -128,17 +128,37 @@ CGeoref_Grid::CGeoref_Grid(void)
 	);
 
 	//-----------------------------------------------------
+	m_CRS.Create(Parameters);
+
 	m_Grid_Target.Create(Add_Parameters("TARGET", _TL("Target Grid System"), _TL("")), true);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGeoref_Grid::On_Before_Execution(void)
+{
+	m_CRS.Activate_GUI();
+
+	return( CSG_Tool::On_Before_Execution() );
+}
+
+//---------------------------------------------------------
+bool CGeoref_Grid::On_After_Execution(void)
+{
+	m_CRS.Deactivate_GUI();
+
+	return( CSG_Tool::On_After_Execution() );
+}
 
 //---------------------------------------------------------
 int CGeoref_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	m_CRS.On_Parameter_Changed(pParameters, pParameter);
+
 	if( pParameter->Cmp_Identifier("REF_SOURCE") && pParameter->asShapes() )
 	{
 		if( pParameter->asShapes()->Get_Field("X_MAP") >= 0 )
@@ -183,24 +203,24 @@ int CGeoref_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGeoref_Grid::On_Execute(void)
 {
-	CSG_Shapes	*pShapes_A	= Parameters("REF_SOURCE")->asShapes();
-	CSG_Shapes	*pShapes_B	= Parameters("REF_TARGET")->asShapes();
+	CSG_Shapes *pShapes_A = Parameters("REF_SOURCE")->asShapes();
+	CSG_Shapes *pShapes_B = Parameters("REF_TARGET")->asShapes();
 
-	int	xField	= Parameters("XFIELD")->asInt();
-	int	yField	= Parameters("YFIELD")->asInt();
+	int xField = Parameters("XFIELD")->asInt();
+	int yField = Parameters("YFIELD")->asInt();
 
 	//-----------------------------------------------------
 	if( ( pShapes_B && m_Engine.Set_Reference(pShapes_A, pShapes_B))
 	||	(!pShapes_B && m_Engine.Set_Reference(pShapes_A, xField, yField))	)
 	{
-		int	Method	= Parameters("METHOD")->asInt();
-		int	Order	= Parameters("ORDER" )->asInt();
+		int Method = Parameters("METHOD")->asInt();
+		int  Order = Parameters("ORDER" )->asInt();
 
 		if( m_Engine.Evaluate(Method, Order) && Get_Conversion() )
 		{
@@ -223,19 +243,16 @@ bool CGeoref_Grid::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGeoref_Grid::Get_Conversion(void)
 {
-	//-----------------------------------------------------
-	CSG_Rect	Extent;
-
-	CSG_Grid	*pSource	= Parameters("GRID")->asGrid();
+	CSG_Rect Extent; CSG_Grid *pSource = Parameters("GRID")->asGrid();
 
 	//-----------------------------------------------------
-	if( !Get_Target_Extent(Extent, true) ||  !m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), Extent, pSource->Get_NY()) )
+	if( !Get_Target_Extent(Extent, true) || !m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), Extent, pSource->Get_NY()) )
 	{
 		Error_Set(_TL("failed to estimate target extent"));
 
@@ -248,7 +265,7 @@ bool CGeoref_Grid::Get_Conversion(void)
 	}
 
 	//-----------------------------------------------------
-	TSG_Grid_Resampling	Resampling;
+	TSG_Grid_Resampling Resampling;
 
 	switch( Parameters("RESAMPLING")->asInt() )
 	{
@@ -258,7 +275,7 @@ bool CGeoref_Grid::Get_Conversion(void)
 	case  3: Resampling = GRID_RESAMPLING_BSpline         ; break;
 	}
 
-	CSG_Grid	*pReferenced	= m_Grid_Target.Get_Grid(
+	CSG_Grid *pReferenced = m_Grid_Target.Get_Grid(
 		Resampling == GRID_RESAMPLING_NearestNeighbour || Parameters("BYTEWISE")->asBool()
 		? pSource->Get_Type() : SG_DATATYPE_Float
 	);
@@ -279,7 +296,7 @@ bool CGeoref_Grid::Get_Conversion(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Parameters  P;
+	CSG_Parameters P;
 
 	if( DataObject_Get_Parameters(pSource, P) )
 	{
@@ -294,7 +311,7 @@ bool CGeoref_Grid::Get_Conversion(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -306,10 +323,10 @@ bool CGeoref_Grid::Get_Target_Extent(CSG_Rect &Extent, bool bEdge)
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
+	CSG_Grid *pGrid = Parameters("GRID")->asGrid();
 
-	Extent.xMin	= Extent.yMin	= 1.;
-	Extent.xMax	= Extent.yMax	= 0.;
+	Extent.xMin = Extent.yMin = 1.;
+	Extent.xMax = Extent.yMax = 0.;
 
 	//-----------------------------------------------------
 	if( bEdge )
@@ -336,7 +353,7 @@ bool CGeoref_Grid::Get_Target_Extent(CSG_Rect &Extent, bool bEdge)
 			{
 				if( !pGrid->is_NoData(x, y) )
 				{
-					TSG_Point	p	= pGrid->Get_System().Get_Grid_to_World(x, y);
+					TSG_Point p = pGrid->Get_System().Get_Grid_to_World(x, y);
 
 					Add_Target_Extent(Extent, p.x, p.y);
 				}
@@ -365,7 +382,7 @@ inline void CGeoref_Grid::Add_Target_Extent(CSG_Rect &Extent, double x, double y
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -377,7 +394,7 @@ bool CGeoref_Grid::Set_Grid(CSG_Grid *pGrid, CSG_Grid *pReferenced, TSG_Grid_Res
 	}
 
 	//-----------------------------------------------------
-	bool	bBytewise   = Parameters("BYTEWISE")->asBool();
+	bool bBytewise = Parameters("BYTEWISE")->asBool();
 
 	//-----------------------------------------------------
 	pReferenced->Set_Name	(pGrid->Get_Name());
@@ -393,8 +410,7 @@ bool CGeoref_Grid::Set_Grid(CSG_Grid *pGrid, CSG_Grid *pReferenced, TSG_Grid_Res
 		#pragma omp parallel for
 		for(int x=0; x<pReferenced->Get_NX(); x++)
 		{
-			double		z;
-			TSG_Point	p	= pReferenced->Get_System().Get_Grid_to_World(x, y);
+			double z; TSG_Point p = pReferenced->Get_System().Get_Grid_to_World(x, y);
 
 			if( m_Engine.Get_Converted(p, true) && pGrid->Get_Value(p, z, Resampling, false, bBytewise) )
 			{
@@ -430,11 +446,11 @@ bool CGeoref_Grid::Set_Points(CSG_Grid *pGrid, CSG_Shapes *pReferenced)
 		{
 			if( !pGrid->is_NoData(x, y) )
 			{
-				TSG_Point	Point	= pGrid->Get_System().Get_Grid_to_World(x, y);
+				TSG_Point Point = pGrid->Get_System().Get_Grid_to_World(x, y);
 
 				if( m_Engine.Get_Converted(Point) )
 				{
-					CSG_Shape	*pPoint	= pReferenced->Add_Shape();
+					CSG_Shape *pPoint = pReferenced->Add_Shape();
 
 					pPoint->Add_Point(Point);
 					pPoint->Set_Value(0, pGrid->asDouble(x, y));
@@ -449,9 +465,9 @@ bool CGeoref_Grid::Set_Points(CSG_Grid *pGrid, CSG_Shapes *pReferenced)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
