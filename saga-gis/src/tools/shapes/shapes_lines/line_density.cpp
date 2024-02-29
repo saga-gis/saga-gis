@@ -66,6 +66,12 @@ CLine_Density::CLine_Density(void)
 		"Line density."
 	));
 
+	Add_Reference("Silverman, B.W.", "2018",
+		"Density estimation for statistics and data analysis",
+		"Routledge, 176p.",
+		SG_T("https://doi.org/10.1201/9781315140919"), SG_T("doi:10.1201/9781315140919")
+	);
+
 	//-----------------------------------------------------
 	Parameters.Add_Shapes("",
 		"LINES"     , _TL("Lines"),
@@ -85,7 +91,16 @@ CLine_Density::CLine_Density(void)
 		1., M_FLT_EPSILON, true
 	);
 
-	Parameters.Add_Choice("",
+	Parameters.Add_Choice("RADIUS",
+		"UNIT"      , _TL("Unit"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("map units"),
+			_TL("cell size")
+		), 0
+	);
+
+	Parameters.Add_Choice("RADIUS",
 		"SHAPE"     , _TL("Shape"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
@@ -101,6 +116,12 @@ CLine_Density::CLine_Density(void)
 			_TL("absolute"),
 			_TL("relative")
 		), 1
+	);
+
+	Parameters.Add_Double("",
+		"SCALING"   , _TL("Scaling"),
+		_TL(""),
+		1.
 	);
 
 	Parameters.Add_Bool("",
@@ -120,21 +141,44 @@ CLine_Density::CLine_Density(void)
 //---------------------------------------------------------
 int CLine_Density::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	#define ADJUST_RADIUS() if( (*pParameters)("UNIT")->asInt() == 0 ) {\
+		CSG_Grid_System System(m_Grid_Target.Get_System(pParameters));\
+		if( System.Get_Cellsize() > 0. )\
+			pParameters->Set_Parameter("RADIUS", ((*pParameters)("SHAPE")->asInt() == 0 ? 0.5 * sqrt(2.) : 0.5) * System.Get_Cellsize());\
+	}
+
 	if(	pParameter->Cmp_Identifier("LINES") )
 	{
 		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes());
 
-		pParameters->Set_Parameter("RADIUS", 0.5 * 1.4142 * (*pParameters)("TARGET_USER_SIZE")->asDouble());
+		ADJUST_RADIUS();
 	}
 
 	if(	pParameter->Cmp_Identifier("TARGET_USER_SIZE") )
 	{
-		pParameters->Set_Parameter("RADIUS", 0.5 * 1.4142 * pParameter->asDouble());
+		ADJUST_RADIUS();
 	}
 
-	if(	pParameter->Cmp_Identifier("TARGET_SYSTEM") && pParameter->asGrid_System()->is_Valid() )
+	if(	pParameter->Cmp_Identifier("TARGET_SYSTEM") )
 	{
-		pParameters->Set_Parameter("RADIUS", 0.5 * 1.4142 * pParameter->asGrid_System()->Get_Cellsize());
+		ADJUST_RADIUS();
+	}
+
+	if(	pParameter->Cmp_Identifier("UNIT") )
+	{
+		if( pParameter->asInt() == 0 )
+		{
+			ADJUST_RADIUS();
+		}
+		else
+		{
+			CSG_Grid_System System(m_Grid_Target.Get_System(pParameters));
+
+			if( System.Get_Cellsize() > 0. )
+			{
+				pParameters->Set_Parameter("RADIUS", (*pParameters)("RADIUS")->asDouble() / System.Get_Cellsize());
+			}
+		}
 	}
 
 	m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
@@ -195,13 +239,18 @@ bool CLine_Density::On_Execute(void)
 	//-----------------------------------------------------
 	m_Radius = Parameters("RADIUS")->asDouble();
 
+	if( Parameters("UNIT")->asInt() == 1 ) // cell size
+	{
+		m_Radius *= pGrid->Get_Cellsize();
+	}
+
 	int Shape = Parameters("SHAPE" )->asInt();
 
-	double Norm = 1.;
+	double Scale = Parameters("SCALING")->asDouble();
 
 	if( Parameters("OUTPUT")->asInt() == 1 ) // relative
 	{
-		Norm = m_Radius*m_Radius * (Shape == 0 ? M_PI : 4.); // shape ? 0 = circle, 1 = square
+		Scale /= m_Radius*m_Radius * (Shape == 0 ? M_PI : 4.); // shape ? 0 = circle, 1 = square
 	}
 
 	//-----------------------------------------------------
@@ -214,7 +263,7 @@ bool CLine_Density::On_Execute(void)
 		{
 			CSG_Point Point(pGrid->Get_XMin() + x * pGrid->Get_Cellsize(), py); // cell center
 
-			pGrid->Set_Value(x, y, Get_Intersection(Point, Population, Shape) / Norm);
+			pGrid->Set_Value(x, y, Scale * Get_Intersection(Point, Population, Shape));
 		}
 	}
 
