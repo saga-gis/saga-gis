@@ -348,6 +348,8 @@ bool CCRS_Transform_Coords_Table::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	DataObject_Update(pTable);
+
 	return( true );
 }
 
