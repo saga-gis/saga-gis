@@ -58,13 +58,13 @@ CSG_String Get_Info(int i)
 		return( _TL("Projection") );
 
 	case TLB_INFO_Author:
-		return( SG_T("SAGA User Group Association (c) 2003-13") );
+		return( "SAGA User Group Association (c) 2003-24" );
 
 	case TLB_INFO_Description:
 		return( _TL("Tools for the georeferencing of spatial data.") );
 
 	case TLB_INFO_Version:
-		return( SG_T("1.0") );
+		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
 		return( _TL("Projection|Georeferencing") );
@@ -91,17 +91,18 @@ CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
-	case  0:	return( new CCollect_Points );
-	case  1:	return( new CGeoref_Grid );
-	case  2:	return( new CGeoref_Shapes );
-	case  3:	return( new CGeoref_Grid_Move );
-	case  4:	return( new CDirect_Georeferencing );
-	case  6:	return( new CDirect_Georeferencing_WorldFile );
-	case  5:	return( new CSet_Grid_Georeference );
-	case  7:	return( new CGeoRef_with_Coordinate_Grids );
+	case  0: return( new CCollect_Points );
+	case  1: return( new CGeoref_Grid(false) );
+	case 10: return( new CGeoref_Grid(true) );
+	case  2: return( new CGeoref_Shapes );
+	case  3: return( new CGeoref_Grid_Move );
+	case  4: return( new CDirect_Georeferencing );
+	case  6: return( new CDirect_Georeferencing_WorldFile );
+	case  5: return( new CSet_Grid_Georeference );
+	case  7: return( new CGeoRef_with_Coordinate_Grids );
 
-	case 10:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
+	case 11: return( NULL );
+	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
 

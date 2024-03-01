@@ -67,10 +67,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGeoref_Grid : public CSG_Tool 
+class CGeoref_Grid : public CSG_Tool_Grid
 {
 public:
-	CGeoref_Grid(void);
+	CGeoref_Grid(bool bList = false);
+
+	virtual bool				do_Sync_Projections		(void)	const	{	return( false  );	}
 
 	virtual bool				On_Before_Execution		(void);
 	virtual bool				On_After_Execution		(void);
@@ -86,6 +88,8 @@ protected:
 
 private:
 
+	bool						m_bList;
+
 	CSG_Parameters_CRSPicker	m_CRS;
 
 	CSG_Parameters_Grid_Target	m_Grid_Target;
@@ -93,13 +97,15 @@ private:
 	CGeoref_Engine				m_Engine;
 
 
-	bool						Get_Conversion			(void);
+	bool						Init_Engine				(CSG_Parameters *pParameters);
 
-	bool						Get_Target_Extent		(CSG_Rect &Extent, bool bEdge);
+	bool						Set_Target_System		(CSG_Parameters *pParameters);
 	void						Add_Target_Extent		(CSG_Rect &Extent, double x, double y);
 
-	bool						Set_Grid				(CSG_Grid *pGrid, CSG_Grid   *pReferenced, TSG_Grid_Resampling Resampling);
-	bool						Set_Points				(CSG_Grid *pGrid, CSG_Shapes *pReferenced);
+	CSG_Data_Object *			Get_Target				(CSG_Data_Object *pSource, TSG_Data_Type Type);
+
+	bool						Rectify					(void);
+	bool						Rectify					(CSG_Array_Pointer &Sources, CSG_Array_Pointer &Targets, TSG_Grid_Resampling Resampling, bool bBytewise);
 
 };
 
