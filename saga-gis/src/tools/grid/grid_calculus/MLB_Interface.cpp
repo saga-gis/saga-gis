@@ -48,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
 #include <saga_api/saga_api.h>
@@ -82,7 +73,7 @@ CSG_String Get_Info(int i)
 		return( _TL("Grid based or related calculations.") );
 
 	case TLB_INFO_Version:
-		return( _TL("1.0") );
+		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
 		return( _TL("Grid|Calculus" ));
@@ -121,41 +112,43 @@ CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
-	case  1:	return( new CGrid_Calculator );
-	case  2:	return( new CGrid_Volume );
+	case  1: return( new CGrid_Calculator );
+	case  2: return( new CGrid_Volume );
 
-	case  4:	return( new CGrid_Plotter );
-	case  5:	return( new CGrid_Geometric_Figures );
-	case  6:	return( new CGrid_Random_Terrain );
-	case  7:	return( new CGrid_Random_Field );
-	case 17:	return( new CGrid_Fractal_Brownian_Noise );
+	case  4: return( new CGrid_Plotter );
+	case  5: return( new CGrid_Geometric_Figures );
+	case  6: return( new CGrid_Random_Terrain );
+	case  7: return( new CGrid_Random_Field );
+	case 17: return( new CGrid_Fractal_Brownian_Noise );
 
-	case  0:	return( new CGrid_Normalise );
-	case 10:	return( new CGrid_Standardise );
+	case  0: return( new CGrid_Normalise );
+	case 10: return( new CGrid_Standardise );
 
-	case  3:	return( new CGrid_Difference );
-	case 18:	return( new CGrid_Division );
-	case  8:	return( new CGrids_Sum );
-	case  9:	return( new CGrids_Product );
+	case 22: return( new CGrid_Addition );
+	case  3: return( new CGrid_Subtraction );
+	case 23: return( new CGrid_Multiplication );
+	case 18: return( new CGrid_Division );
+	case  8: return( new CGrids_Sum );
+	case  9: return( new CGrids_Product );
 
-	case 11:	return( new CFuzzify );
-	case 12:	return( new CFuzzyAND );
-	case 13:	return( new CFuzzyOR );
+	case 11: return( new CFuzzify );
+	case 12: return( new CFuzzyAND );
+	case 13: return( new CFuzzyOR );
 
-	case 14:	return( new CGrid_Metric_Conversion );
+	case 14: return( new CGrid_Metric_Conversion );
 
-	case 15:	return( new CGradient_Cartes_To_Polar );
-	case 16:	return( new CGradient_Polar_To_Cartes );
+	case 15: return( new CGradient_Cartes_To_Polar );
+	case 16: return( new CGradient_Polar_To_Cartes );
 
-	case 19:	return( new Ckff_synthesis );
+	case 19: return( new Ckff_synthesis );
 
-	case 20:	return( new CGrids_Calculator );
+	case 20: return( new CGrids_Calculator );
 
-	case 21:	return( new CGrid_Histogram_Match );
+	case 21: return( new CGrid_Histogram_Match );
 
 	//-----------------------------------------------------
-	case 22:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
+	case 24: return( NULL );
+	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
 
