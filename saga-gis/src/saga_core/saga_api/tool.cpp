@@ -2006,7 +2006,7 @@ CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader, bool bName, bool bCal
 	
 	if( bName )
 	{
-		Name = "Run_" + Get_Name();
+		Name = Get_Name();
 
 		Name.Replace(" ", "_");
 		Name.Replace("(", "");
@@ -2022,7 +2022,7 @@ CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader, bool bName, bool bCal
 	}
 	else
 	{
-		Name = "tool__" + Get_Library() + "_" + Get_ID();
+		Name = "run_tool_" + Get_Library() + "_" + Get_ID();
 
 		Name.Replace(" ", "_");
 	}

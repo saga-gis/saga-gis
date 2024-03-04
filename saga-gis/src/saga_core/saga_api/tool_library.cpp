@@ -800,6 +800,7 @@ bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Destinati
 	}
 
 	//-----------------------------------------------------
+	// skip tool chains in 1st run...
 	for(int iLibrary=0; iLibrary<Get_Count() && SG_UI_Process_Set_Progress(iLibrary, Get_Count()); iLibrary++)
 	{
 		CSG_Tool_Library *pLibrary = Get_Library(iLibrary);
@@ -831,12 +832,18 @@ bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Destinati
 
 			if( pTool && pTool != TLB_INTERFACE_SKIP_TOOL && !pTool->needs_GUI() && !pTool->is_Interactive() && pTool->Get_Parameters_Count() == 0 )
 			{
-				Stream.Write(pTool->Get_Script(bName ? TOOL_SCRIPT_PYTHON_WRAP_NAME : TOOL_SCRIPT_PYTHON_WRAP_ID, false));
+				if( bName )
+				{
+					Stream.Write(pTool->Get_Script(TOOL_SCRIPT_PYTHON_WRAP_NAME, false));
+				}
+
+				Stream.Write(pTool->Get_Script(TOOL_SCRIPT_PYTHON_WRAP_ID, false));
 			}
 		}
 	}
 
 	//-----------------------------------------------------
+	// add tool chains in 2nd run...
 	for(int iLibrary=0; iLibrary<Get_Count() && SG_UI_Process_Set_Progress(iLibrary, Get_Count()); iLibrary++)
 	{
 		CSG_Tool_Library *pLibrary = Get_Library(iLibrary);
@@ -880,7 +887,12 @@ bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Destinati
 
 			if( pTool && pTool != TLB_INTERFACE_SKIP_TOOL && !pTool->needs_GUI() && !pTool->is_Interactive() && pTool->Get_Parameters_Count() == 0 )
 			{
-				Stream.Write(pTool->Get_Script(bName ? TOOL_SCRIPT_PYTHON_WRAP_NAME : TOOL_SCRIPT_PYTHON_WRAP_ID, false));
+				if( bName )
+				{
+					Stream.Write(pTool->Get_Script(TOOL_SCRIPT_PYTHON_WRAP_NAME, false));
+				}
+
+				Stream.Write(pTool->Get_Script(TOOL_SCRIPT_PYTHON_WRAP_ID, false));
 			}
 		}
 	}
