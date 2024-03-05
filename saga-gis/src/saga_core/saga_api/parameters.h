@@ -1378,6 +1378,8 @@ protected:
 	CSG_Parameter_List(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
 
 
+	virtual int					_Set_Value				(void *Value);
+
 	virtual void				_Set_String				(void);
 
 	virtual int					_asInt					(void)	const;
