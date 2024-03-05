@@ -56,9 +56,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 //						CSG_Point						 //
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -134,7 +134,7 @@ double CSG_Point::Get_Length(void)	const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -217,7 +217,7 @@ double CSG_Point_3D::Get_Length(void)	const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -307,9 +307,9 @@ double CSG_Point_4D::Get_Length(void)	const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -364,9 +364,9 @@ bool CSG_Points::Add(double x, double y)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -539,9 +539,9 @@ double CSG_Lines::Get_Length(sLong Index) const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -597,9 +597,9 @@ bool CSG_Points_3D::Add(double x, double y, double z)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -654,9 +654,9 @@ bool CSG_Points_Int::Add(int x, int y)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//						CSG_Rect						 //
-//														 //
+//                                                       //
+//                      CSG_Rect                         //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -689,117 +689,107 @@ CSG_Rect::CSG_Rect(double xMin, double yMin, double xMax, double yMax)
 CSG_Rect::~CSG_Rect(void)
 {}
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-bool CSG_Rect::operator == (const CSG_Rect &Rect) const
+bool CSG_Rect::Create(double _xMin, double _yMin, double _xMax, double _yMax)
 {
-	return( is_Equal(Rect) );
+	xMin = _xMin < _xMax ? _xMin : _xMax;
+	xMax = _xMin < _xMax ? _xMax : _xMin;
+
+	yMin = _yMin < _yMax ? _yMin : _yMax;
+	yMax = _yMin < _yMax ? _yMax : _yMin;
+
+	return( xMin < xMax && yMin < yMax );
 }
 
-bool CSG_Rect::operator != (const CSG_Rect &Rect) const
+//---------------------------------------------------------
+bool CSG_Rect::Create(const CSG_Point &A, const CSG_Point &B)
 {
-	return( !is_Equal(Rect) );
+	return( Create(A.x, A.y, B.x, B.y) );
 }
 
-CSG_Rect & CSG_Rect::operator = (const CSG_Rect &Rect)
+//---------------------------------------------------------
+bool CSG_Rect::Create(const CSG_Rect &Rect)
 {
-	Assign(Rect);
+	return( (Rect.xMin, Rect.yMin, Rect.xMax, Rect.yMax) );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Rect & CSG_Rect::Assign(double xMin, double yMin, double xMax, double yMax)
+{
+	Create(xMin, yMin, xMax, yMax);
 
 	return( *this );
 }
 
-void CSG_Rect::operator += (const CSG_Point &Point)
+CSG_Rect & CSG_Rect::Assign(const CSG_Point &A, const CSG_Point &B)
 {
-	Move( Point.x,  Point.y);
+	Create(A.x, A.y, B.x, B.y);
+
+	return( *this );
 }
 
-void CSG_Rect::operator -= (const CSG_Point &Point)
+CSG_Rect & CSG_Rect::Assign(const CSG_Rect &Rect)
 {
-	Move(-Point.y, -Point.y);
-}
+	Create(Rect.xMin, Rect.yMin, Rect.xMax, Rect.yMax);
 
-//---------------------------------------------------------
-void CSG_Rect::Assign(double xMin, double yMin, double xMax, double yMax)
-{
-	if( xMin < xMax )
-	{
-		this->xMin	= xMin;
-		this->xMax	= xMax;
-	}
-	else
-	{
-		this->xMin	= xMax;
-		this->xMax	= xMin;
-	}
-
-	if( yMin < yMax )
-	{
-		this->yMin	= yMin;
-		this->yMax	= yMax;
-	}
-	else
-	{
-		this->yMin	= yMax;
-		this->yMax	= yMin;
-	}
-}
-
-void CSG_Rect::Assign(const CSG_Point &A, const CSG_Point &B)
-{
-	Assign(A.x, A.y, B.x, B.y);
-}
-
-void CSG_Rect::Assign(const CSG_Rect &Rect)
-{
-	Assign(Rect.xMin, Rect.yMin, Rect.xMax, Rect.yMax);
+	return( *this );
 }
 
 //---------------------------------------------------------
-void CSG_Rect::Set_BottomLeft(double x, double y)
+CSG_Rect & CSG_Rect::Set_BottomLeft(double x, double y)
 {
 	Assign(x, y, xMax, yMax);
+
+	return( *this );
 }
 
-void CSG_Rect::Set_BottomLeft(const CSG_Point &Point)
+CSG_Rect & CSG_Rect::Set_BottomLeft(const CSG_Point &Point)
 {
 	Set_BottomLeft(Point.x, Point.y );
+
+	return( *this );
 }
 
-void CSG_Rect::Set_TopRight(double x, double y)
+CSG_Rect & CSG_Rect::Set_TopRight(double x, double y)
 {
 	Assign(xMin, yMin, x, y);
+
+	return( *this );
 }
 
-void CSG_Rect::Set_TopRight(const CSG_Point &Point)
+CSG_Rect & CSG_Rect::Set_TopRight(const CSG_Point &Point)
 {
 	Set_TopRight(Point.x, Point.y );
+
+	return( *this );
 }
 
 //---------------------------------------------------------
-bool CSG_Rect::is_Equal(double xMin, double yMin, double xMax, double yMax, double epsilon) const
-{
-	return( SG_Is_Equal(this->xMin, xMin, epsilon) && SG_Is_Equal(this->yMin, yMin, epsilon)
-	     && SG_Is_Equal(this->xMax, xMax, epsilon) && SG_Is_Equal(this->yMax, yMax, epsilon) );
-}
-
-bool CSG_Rect::is_Equal(const CSG_Rect &Rect, double epsilon) const
-{
-	return(	is_Equal(Rect.xMin, Rect.yMin, Rect.xMax, Rect.yMax, epsilon) );
-}
-
-//---------------------------------------------------------
-void CSG_Rect::Move(double dx, double dy)
+CSG_Rect & CSG_Rect::Move(double dx, double dy)
 {
 	xMin += dx; yMin += dy;
 	xMax += dx; yMax += dy;
+
+	return( *this );
 }
 
-void CSG_Rect::Move(const CSG_Point &Point)
+CSG_Rect & CSG_Rect::Move(const CSG_Point &Point)
 {
-	Move(Point.x, Point.y);
+	return( Move(Point.x, Point.y) );
 }
 
 //---------------------------------------------------------
-void CSG_Rect::Inflate(double dx, double dy, bool bPercent)
+CSG_Rect & CSG_Rect::Inflate(double dx, double dy, bool bPercent)
 {
 	if( bPercent )
 	{
@@ -811,44 +801,109 @@ void CSG_Rect::Inflate(double dx, double dy, bool bPercent)
 		xMin - dx, yMin - dy,
 		xMax + dx, yMax + dy
 	);
+
+	return( *this );
 }
 
-void CSG_Rect::Inflate(double d, bool bPercent)
+CSG_Rect & CSG_Rect::Inflate(double d, bool bPercent)
 {
-	Inflate(d, d, bPercent);
+	return( Inflate(d, d, bPercent) );
 }
 
-void CSG_Rect::Deflate(double dx, double dy, bool bPercent)
+CSG_Rect & CSG_Rect::Deflate(double dx, double dy, bool bPercent)
 {
-	Inflate(-dx, -dy, bPercent);
+	return( Inflate(-dx, -dy, bPercent) );
 }
 
-void CSG_Rect::Deflate(double d, bool bPercent)
+CSG_Rect & CSG_Rect::Deflate(double d, bool bPercent)
 {
-	Deflate(d, d, bPercent);
+	return( Deflate(d, d, bPercent) );
 }
 
 //---------------------------------------------------------
-void CSG_Rect::Union(double x, double y)
+CSG_Rect & CSG_Rect::Union(double x, double y)
 {
 	if( xMin > x ) { xMin = x; } else if( xMax < x ) { xMax = x; }
 	if( yMin > y ) { yMin = y; } else if( yMax < y ) { yMax = y; }
+
+	return( *this );
 }
 
 //---------------------------------------------------------
-void CSG_Rect::Union(const CSG_Point &Point)
+CSG_Rect & CSG_Rect::Union(const CSG_Point &Point)
 {
 	if( xMin > Point.x ) { xMin = Point.x; } else if( xMax < Point.x ) { xMax = Point.x; }
 	if( yMin > Point.y ) { yMin = Point.y; } else if( yMax < Point.y ) { yMax = Point.y; }
+
+	return( *this );
 }
 
 //---------------------------------------------------------
-void CSG_Rect::Union(const CSG_Rect &Rect)
+CSG_Rect & CSG_Rect::Union(const CSG_Rect &Rect)
 {
 	if( xMin > Rect.Get_XMin() ) { xMin = Rect.Get_XMin(); }
 	if( yMin > Rect.Get_YMin() ) { yMin = Rect.Get_YMin(); }
 	if( xMax < Rect.Get_XMax() ) { xMax = Rect.Get_XMax(); }
 	if( yMax < Rect.Get_YMax() ) { yMax = Rect.Get_YMax(); }
+
+	return( *this );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Rect::is_Equal(double xMin, double yMin, double xMax, double yMax, double epsilon) const
+{
+	return( SG_Is_Equal(this->xMin, xMin, epsilon) && SG_Is_Equal(this->yMin, yMin, epsilon)
+		&& SG_Is_Equal(this->xMax, xMax, epsilon) && SG_Is_Equal(this->yMax, yMax, epsilon) );
+}
+
+bool CSG_Rect::is_Equal(const CSG_Rect &Rect, double epsilon) const
+{
+	return(	is_Equal(Rect.xMin, Rect.yMin, Rect.xMax, Rect.yMax, epsilon) );
+}
+
+//---------------------------------------------------------
+bool CSG_Rect::Contains(double x, double y) const
+{
+	return( xMin <= x && x <= xMax && yMin <= y && y <= yMax );
+}
+
+bool CSG_Rect::Contains(const CSG_Point &Point) const
+{
+	return( Contains(Point.x, Point.y) );
+}
+
+//---------------------------------------------------------
+TSG_Intersection CSG_Rect::Intersects(const CSG_Rect &Rect) const
+{
+	if(	xMax < Rect.Get_XMin() || Rect.Get_XMax() < xMin
+		||	yMax < Rect.Get_YMin() || Rect.Get_YMax() < yMin )
+	{
+		return( INTERSECTION_None );
+	}
+
+	if(	is_Equal(Rect) )
+	{
+		return( INTERSECTION_Identical );
+	}
+
+	if(	Contains(Rect.Get_XMin(), Rect.Get_YMin())
+		&&	Contains(Rect.Get_XMax(), Rect.Get_YMax()) )
+	{
+		return( INTERSECTION_Contains );
+	}
+
+	if(	Rect.Contains(Get_XMin(), Get_YMin())
+		&&	Rect.Contains(Get_XMax(), Get_YMax()) )
+	{
+		return( INTERSECTION_Contained );
+	}
+
+	return( INTERSECTION_Overlaps );
 }
 
 //---------------------------------------------------------
@@ -878,49 +933,9 @@ bool CSG_Rect::Intersect(const CSG_Rect &Rect)
 	return( true );
 }
 
-//---------------------------------------------------------
-TSG_Intersection CSG_Rect::Intersects(const CSG_Rect &Rect) const
-{
-	if(	xMax < Rect.Get_XMin() || Rect.Get_XMax() < xMin
-	||	yMax < Rect.Get_YMin() || Rect.Get_YMax() < yMin )
-	{
-		return( INTERSECTION_None );
-	}
-
-	if(	is_Equal(Rect) )
-	{
-		return( INTERSECTION_Identical );
-	}
-
-	if(	Contains(Rect.Get_XMin(), Rect.Get_YMin())
-	&&	Contains(Rect.Get_XMax(), Rect.Get_YMax()) )
-	{
-		return( INTERSECTION_Contains );
-	}
-
-	if(	Rect.Contains(Get_XMin(), Get_YMin())
-	&&	Rect.Contains(Get_XMax(), Get_YMax()) )
-	{
-		return( INTERSECTION_Contained );
-	}
-
-	return( INTERSECTION_Overlaps );
-}
-
-//---------------------------------------------------------
-bool CSG_Rect::Contains(double x, double y) const
-{
-	return( xMin <= x && x <= xMax && yMin <= y && y <= yMax );
-}
-
-bool CSG_Rect::Contains(const CSG_Point &Point) const
-{
-	return( Contains(Point.x, Point.y) );
-}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1005,192 +1020,174 @@ bool CSG_Rects::Add(const CSG_Rect &Rect)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//						CSG_Rect_Int					 //
-//														 //
+//                                                       //
+//                    CSG_Rect_Int                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CSG_Rect_Int::CSG_Rect_Int(void)
 {
-	Assign(0, 0, 0, 0);
+	Create(0, 0, 0, 0);
 }
 
 CSG_Rect_Int::CSG_Rect_Int(const CSG_Rect_Int &Rect)
 {
-	Assign(Rect.xMin, Rect.yMin, Rect.xMax, Rect.yMax);
+	Create(Rect.xMin, Rect.yMin, Rect.xMax, Rect.yMax);
 }
 
 CSG_Rect_Int::CSG_Rect_Int(const TSG_Rect_Int &Rect)
 {
-	Assign(Rect.xMin, Rect.yMin, Rect.xMax, Rect.yMax);
+	Create(Rect.xMin, Rect.yMin, Rect.xMax, Rect.yMax);
 }
 
 CSG_Rect_Int::CSG_Rect_Int(const TSG_Point_Int &A, const TSG_Point_Int &B)
 {
-	Assign(A.x, A.y, B.x, B.y);
+	Create(A.x, A.y, B.x, B.y);
 }
 
 CSG_Rect_Int::CSG_Rect_Int(int xMin, int yMin, int xMax, int yMax)
 {
-	Assign(xMin, yMin, xMax, yMax);
+	Create(xMin, yMin, xMax, yMax);
 }
 
 //---------------------------------------------------------
 CSG_Rect_Int::~CSG_Rect_Int(void)
 {}
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-bool CSG_Rect_Int::operator == (const CSG_Rect_Int &Rect) const
+bool CSG_Rect_Int::Create(int _xMin, int _yMin, int _xMax, int _yMax)
 {
-	return( is_Equal(Rect) );
+	xMin = _xMin < _xMax ? _xMin : _xMax;
+	xMax = _xMin < _xMax ? _xMax : _xMin;
+
+	yMin = _yMin < _yMax ? _yMin : _yMax;
+	yMax = _yMin < _yMax ? _yMax : _yMin;
+
+	return( xMin < xMax && yMin < yMax );
 }
 
-bool CSG_Rect_Int::operator != (const CSG_Rect_Int &Rect) const
+//---------------------------------------------------------
+bool CSG_Rect_Int::Create(const TSG_Point_Int &A, const TSG_Point_Int &B)
 {
-	return( !is_Equal(Rect) );
+	return( Create(A.x, A.y, B.x, B.y) );
 }
 
-CSG_Rect_Int & CSG_Rect_Int::operator = (const CSG_Rect_Int &Rect)
+//---------------------------------------------------------
+bool CSG_Rect_Int::Create(const CSG_Rect_Int &Rect)
 {
-	Assign(Rect);
+	return( Create(Rect.xMin, Rect.yMin, Rect.xMax, Rect.yMax) );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Rect_Int & CSG_Rect_Int::Assign(int xMin, int yMin, int xMax, int yMax)
+{
+	Create(xMin, yMin, xMax, yMax); return( *this );
+}
+
+CSG_Rect_Int & CSG_Rect_Int::Assign(const TSG_Point_Int &A, const TSG_Point_Int &B)
+{
+	return( Assign(A.x, A.y, B.x, B.y) );
+}
+
+CSG_Rect_Int & CSG_Rect_Int::Assign(const CSG_Rect_Int &Rect)
+{
+	return( Assign(Rect.xMin, Rect.yMin, Rect.xMax, Rect.yMax) );
+}
+
+//---------------------------------------------------------
+CSG_Rect_Int & CSG_Rect_Int::Set_BottomLeft(int x, int y)
+{
+	return( Assign(x, y, xMax, yMax) );
+}
+
+CSG_Rect_Int & CSG_Rect_Int::Set_BottomLeft(const TSG_Point_Int &Point)
+{
+	return( Set_BottomLeft(Point.x, Point.y) );
+}
+
+CSG_Rect_Int & CSG_Rect_Int::Set_TopRight(int x, int y)
+{
+	return( Assign(xMin, yMin, x, y) );
+}
+
+CSG_Rect_Int & CSG_Rect_Int::Set_TopRight(const TSG_Point_Int &Point)
+{
+	return( Set_TopRight(Point.x, Point.y ) );
+}
+
+//---------------------------------------------------------
+CSG_Rect_Int & CSG_Rect_Int::Move(int dx, int dy)
+{
+	xMin += dx; yMin += dy;
+	xMax += dx; yMax += dy;
 
 	return( *this );
 }
 
-void CSG_Rect_Int::operator += (const TSG_Point_Int &Point)
+CSG_Rect_Int & CSG_Rect_Int::Move(const TSG_Point_Int &Point)
 {
-	Move( Point.x,  Point.y);
-}
-
-void CSG_Rect_Int::operator -= (const TSG_Point_Int &Point)
-{
-	Move(-Point.y, -Point.y);
+	return( Move(Point.x, Point.y) );
 }
 
 //---------------------------------------------------------
-void CSG_Rect_Int::Assign(int xMin, int yMin, int xMax, int yMax)
+CSG_Rect_Int & CSG_Rect_Int::Inflate(int dx, int dy)
 {
-	if( xMin < xMax )
-	{
-		this->xMin	= xMin;
-		this->xMax	= xMax;
-	}
-	else
-	{
-		this->xMin	= xMax;
-		this->xMax	= xMin;
-	}
-
-	if( yMin < yMax )
-	{
-		this->yMin	= yMin;
-		this->yMax	= yMax;
-	}
-	else
-	{
-		this->yMin	= yMax;
-		this->yMax	= yMin;
-	}
+	return( Assign(xMin - dx, yMin - dy, xMax + dx, yMax + dy) );
 }
 
-void CSG_Rect_Int::Assign(const TSG_Point_Int &A, const TSG_Point_Int &B)
+CSG_Rect_Int & CSG_Rect_Int::Inflate(int d)
 {
-	Assign(A.x, A.y, B.x, B.y);
+	return( Inflate(d, d) );
 }
 
-void CSG_Rect_Int::Assign(const CSG_Rect_Int &Rect)
+CSG_Rect_Int & CSG_Rect_Int::Deflate(int dx, int dy)
 {
-	Assign(Rect.xMin, Rect.yMin, Rect.xMax, Rect.yMax);
+	return( Inflate(-dx, -dy) );
+}
+
+CSG_Rect_Int & CSG_Rect_Int::Deflate(int d)
+{
+	return( Deflate(d, d) );
 }
 
 //---------------------------------------------------------
-void CSG_Rect_Int::Set_BottomLeft(int x, int y)
-{
-	Assign(x, y, xMax, yMax);
-}
-
-void CSG_Rect_Int::Set_BottomLeft(const TSG_Point_Int &Point)
-{
-	Set_BottomLeft(Point.x, Point.y );
-}
-
-void CSG_Rect_Int::Set_TopRight(int x, int y)
-{
-	Assign(xMin, yMin, x, y);
-}
-
-void CSG_Rect_Int::Set_TopRight(const TSG_Point_Int &Point)
-{
-	Set_TopRight(Point.x, Point.y );
-}
-
-//---------------------------------------------------------
-bool CSG_Rect_Int::is_Equal(int xMin, int yMin, int xMax, int yMax) const
-{
-	return( (this->xMin == xMin) && (this->yMin == yMin)
-		&&  (this->xMax == xMax) && (this->yMax == yMax) );
-}
-
-bool CSG_Rect_Int::is_Equal(const CSG_Rect_Int &Rect) const
-{
-	return(	is_Equal(Rect.xMin, Rect.yMin, Rect.xMax, Rect.yMax) );
-}
-
-//---------------------------------------------------------
-void CSG_Rect_Int::Move(int dx, int dy)
-{
-	xMin += dx; yMin += dy;
-	xMax += dx; yMax += dy;
-}
-
-void CSG_Rect_Int::Move(const TSG_Point_Int &Point)
-{
-	Move(Point.x, Point.y);
-}
-
-//---------------------------------------------------------
-void CSG_Rect_Int::Inflate(int dx, int dy)
-{
-	Assign(xMin - dx, yMin - dy, xMax + dx, yMax + dy);
-}
-
-void CSG_Rect_Int::Inflate(int d)
-{
-	Inflate(d, d);
-}
-
-void CSG_Rect_Int::Deflate(int dx, int dy)
-{
-	Inflate(-dx, -dy);
-}
-
-void CSG_Rect_Int::Deflate(int d)
-{
-	Deflate(d, d);
-}
-
-//---------------------------------------------------------
-void CSG_Rect_Int::Union(int x, int y)
+CSG_Rect_Int & CSG_Rect_Int::Union(int x, int y)
 {
 	if( xMin > x ) { xMin = x; } else if( xMax < x ) { xMax = x; }
 	if( yMin > y ) { yMin = y; } else if( yMax < y ) { yMax = y; }
+
+	return( *this );
 }
 
 //---------------------------------------------------------
-void CSG_Rect_Int::Union(const TSG_Point_Int &Point)
+CSG_Rect_Int & CSG_Rect_Int::Union(const TSG_Point_Int &Point)
 {
 	if( xMin > Point.x ) { xMin = Point.x; } else if( xMax < Point.x ) { xMax = Point.x; }
 	if( yMin > Point.y ) { yMin = Point.y; } else if( yMax < Point.y ) { yMax = Point.y; }
+
+	return( *this );
 }
 
 //---------------------------------------------------------
-void CSG_Rect_Int::Union(const CSG_Rect_Int &Rect)
+CSG_Rect_Int & CSG_Rect_Int::Union(const CSG_Rect_Int &Rect)
 {
 	if( xMin > Rect.Get_XMin() ) { xMin = Rect.Get_XMin(); }
 	if( yMin > Rect.Get_YMin() ) { yMin = Rect.Get_YMin(); }
 	if( xMax < Rect.Get_XMax() ) { xMax = Rect.Get_XMax(); }
 	if( yMax < Rect.Get_YMax() ) { yMax = Rect.Get_YMax(); }
+
+	return( *this );
 }
 
 //---------------------------------------------------------
@@ -1218,6 +1215,34 @@ bool CSG_Rect_Int::Intersect(const CSG_Rect_Int &Rect)
 	}
 
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Rect_Int::is_Equal(int xMin, int yMin, int xMax, int yMax) const
+{
+	return( (this->xMin == xMin) && (this->yMin == yMin)
+		&&  (this->xMax == xMax) && (this->yMax == yMax) );
+}
+
+bool CSG_Rect_Int::is_Equal(const CSG_Rect_Int &Rect) const
+{
+	return(	is_Equal(Rect.xMin, Rect.yMin, Rect.xMax, Rect.yMax) );
+}
+
+//---------------------------------------------------------
+bool CSG_Rect_Int::Contains(double x, double y) const
+{
+	return( xMin <= x && x <= xMax && yMin <= y && y <= yMax );
+}
+
+bool CSG_Rect_Int::Contains(const TSG_Point_Int &Point) const
+{
+	return( Contains(Point.x, Point.y) );
 }
 
 //---------------------------------------------------------
@@ -1249,20 +1274,9 @@ TSG_Intersection CSG_Rect_Int::Intersects(const CSG_Rect_Int &Rect) const
 	return( INTERSECTION_Overlaps );
 }
 
-//---------------------------------------------------------
-bool CSG_Rect_Int::Contains(double x, double y) const
-{
-	return( xMin <= x && x <= xMax && yMin <= y && y <= yMax );
-}
-
-bool CSG_Rect_Int::Contains(const TSG_Point_Int &Point) const
-{
-	return( Contains(Point.x, Point.y) );
-}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1340,9 +1354,9 @@ bool CSG_Rects_Int::Add(const CSG_Rect_Int &Rect)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1465,7 +1479,7 @@ bool CSG_Distance_Weighting::Set_Parameters(CSG_Parameters &Parameters)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1512,9 +1526,9 @@ bool CSG_Distance_Weighting::Set_BandWidth(double Value)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

@@ -55,9 +55,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -70,9 +70,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -81,9 +81,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -91,9 +91,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -118,9 +118,9 @@ enum class TSG_Point_Type
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -256,7 +256,7 @@ private:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -349,7 +349,7 @@ private:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -410,7 +410,7 @@ public:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -454,9 +454,9 @@ private:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -478,24 +478,26 @@ public:
 
 	~CSG_Rect(void);
 
-	bool						operator ==		(const CSG_Rect &Rect) const;
-	bool						operator !=		(const CSG_Rect &Rect) const;
+	bool						Create			(double xMin, double yMin, double xMax, double yMax);
+	bool						Create			(const CSG_Point &A, const CSG_Point &B);
+	bool						Create			(const CSG_Rect &Rect);
 
-	CSG_Rect &					operator  =		(const CSG_Rect &Rect);
-	void						operator +=		(const CSG_Point &Point);
-	void						operator -=		(const CSG_Point &Point);
+	bool						operator ==		(const CSG_Rect &Rect) const { return(  is_Equal(Rect) ); }
+	bool						operator !=		(const CSG_Rect &Rect) const { return( !is_Equal(Rect) ); }
 
-	void						Assign			(double xMin, double yMin, double xMax, double yMax);
-	void						Assign			(const CSG_Point &A, const CSG_Point &B);
-	void						Assign			(const CSG_Rect &Rect);
+	CSG_Rect &					operator  =		(const CSG_Rect &Rect)   { Assign(Rect); return( *this ); }
 
-	void						Set_BottomLeft	(double x, double y);
-	void						Set_BottomLeft	(const CSG_Point &Point);
-	void						Set_TopRight	(double x, double y);
-	void						Set_TopRight	(const CSG_Point &Point);
+	CSG_Rect &					operator +=		(const CSG_Point &Point) { Move(  Point.x,  Point.y); return( *this ); }
+	CSG_Rect &					operator -=		(const CSG_Point &Point) { Move( -Point.x, -Point.y); return( *this ); }
 
-	bool						is_Equal		(double xMin, double yMin, double xMax, double yMax, double epsilon = 0.) const;
-	bool						is_Equal		(const CSG_Rect &Rect                              , double epsilon = 0.) const;
+	CSG_Rect &					Assign			(double xMin, double yMin, double xMax, double yMax);
+	CSG_Rect &					Assign			(const CSG_Point &A, const CSG_Point &B);
+	CSG_Rect &					Assign			(const CSG_Rect &Rect);
+
+	CSG_Rect &					Set_BottomLeft	(double x, double y);
+	CSG_Rect &					Set_BottomLeft	(const CSG_Point &Point);
+	CSG_Rect &					Set_TopRight	(double x, double y);
+	CSG_Rect &					Set_TopRight	(const CSG_Point &Point);
 
 	double						Get_XMin		(void) const	{	return( xMin );	}
 	double						Get_XMax		(void) const	{	return( xMax );	}
@@ -515,23 +517,26 @@ public:
 	double						Get_XCenter		(void) const	{	return( (xMin + xMax) / 2. );	}
 	double						Get_YCenter		(void) const	{	return( (yMin + yMax) / 2. );	}
 
-	void						Move			(double dx, double dy);
-	void						Move			(const CSG_Point &Point);
+	CSG_Rect &					Move			(double dx, double dy);
+	CSG_Rect &					Move			(const CSG_Point &Point);
 
-	void						Inflate			(double d, bool bPercent = true);
-	void						Deflate			(double d, bool bPercent = true);
-	void						Inflate			(double dx, double dy, bool bPercent = true);
-	void						Deflate			(double dx, double dy, bool bPercent = true);
+	CSG_Rect &					Inflate			(double d, bool bPercent = true);
+	CSG_Rect &					Deflate			(double d, bool bPercent = true);
+	CSG_Rect &					Inflate			(double dx, double dy, bool bPercent = true);
+	CSG_Rect &					Deflate			(double dx, double dy, bool bPercent = true);
 
-	void						Union			(double x, double y);
-	void						Union			(const CSG_Point &Point);
-	void						Union			(const CSG_Rect &Rect);
+	CSG_Rect &					Union			(double x, double y);
+	CSG_Rect &					Union			(const CSG_Point &Point);
+	CSG_Rect &					Union			(const CSG_Rect &Rect);
 	bool						Intersect		(const CSG_Rect &Rect);
 
-	TSG_Intersection			Intersects		(const CSG_Rect &Rect)		const;
+	bool						is_Equal		(double xMin, double yMin, double xMax, double yMax, double epsilon = 0.) const;
+	bool						is_Equal		(const CSG_Rect &Rect                              , double epsilon = 0.) const;
 
 	bool						Contains		(double x, double y)		const;
 	bool						Contains		(const CSG_Point &Point)	const;
+
+	TSG_Intersection			Intersects		(const CSG_Rect &Rect)		const;
 
 };
 
@@ -568,7 +573,7 @@ private:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -590,24 +595,26 @@ public:
 
 	~CSG_Rect_Int(void);
 
-	bool						operator ==		(const CSG_Rect_Int &Rect) const;
-	bool						operator !=		(const CSG_Rect_Int &Rect) const;
+	bool						Create			(int xMin, int yMin, int xMax, int yMax);
+	bool						Create			(const TSG_Point_Int &A, const TSG_Point_Int &B);
+	bool						Create			(const CSG_Rect_Int &Rect);
 
-	CSG_Rect_Int &				operator  =		(const CSG_Rect_Int &Rect);
-	void						operator +=		(const TSG_Point_Int &Point);
-	void						operator -=		(const TSG_Point_Int &Point);
+	bool						operator ==		(const CSG_Rect_Int &Rect) const { return(  is_Equal(Rect) ); }
+	bool						operator !=		(const CSG_Rect_Int &Rect) const { return( !is_Equal(Rect) ); }
 
-	void						Assign			(int xMin, int yMin, int xMax, int yMax);
-	void						Assign			(const TSG_Point_Int &A, const TSG_Point_Int &B);
-	void						Assign			(const CSG_Rect_Int &Rect);
+	CSG_Rect_Int &				operator  =		(const CSG_Rect_Int &Rect)   { Assign(Rect); return( *this ); }
 
-	void						Set_BottomLeft	(int x, int y);
-	void						Set_BottomLeft	(const TSG_Point_Int &Point);
-	void						Set_TopRight	(int x, int y);
-	void						Set_TopRight	(const TSG_Point_Int &Point);
+	CSG_Rect_Int &				operator +=		(const TSG_Point_Int &Point) { Move( Point.x,  Point.y); return( *this ); }
+	CSG_Rect_Int &				operator -=		(const TSG_Point_Int &Point) { Move(-Point.x, -Point.y); return( *this ); }
 
-	bool						is_Equal		(int xMin, int yMin, int xMax, int yMax) const;
-	bool						is_Equal		(const CSG_Rect_Int &Rect              ) const;
+	CSG_Rect_Int &				Assign			(int xMin, int yMin, int xMax, int yMax);
+	CSG_Rect_Int &				Assign			(const TSG_Point_Int &A, const TSG_Point_Int &B);
+	CSG_Rect_Int &				Assign			(const CSG_Rect_Int &Rect);
+
+	CSG_Rect_Int &				Set_BottomLeft	(int x, int y);
+	CSG_Rect_Int &				Set_BottomLeft	(const TSG_Point_Int &Point);
+	CSG_Rect_Int &				Set_TopRight	(int x, int y);
+	CSG_Rect_Int &				Set_TopRight	(const TSG_Point_Int &Point);
 
 	int							Get_XMin		(void) const	{	return( xMin );	}
 	int							Get_XMax		(void) const	{	return( xMax );	}
@@ -623,23 +630,26 @@ public:
 	TSG_Point_Int				Get_TopLeft		(void) const	{	TSG_Point_Int p; p.x = xMin; p.y = yMax; return( p );	}
 	TSG_Point_Int				Get_BottomRight	(void) const	{	TSG_Point_Int p; p.x = xMax; p.y = yMin; return( p );	}
 
-	void						Move			(int dx, int dy);
-	void						Move			(const TSG_Point_Int &Point);
+	CSG_Rect_Int &				Move			(int dx, int dy);
+	CSG_Rect_Int &				Move			(const TSG_Point_Int &Point);
 
-	void						Inflate			(int d);
-	void						Deflate			(int d);
-	void						Inflate			(int dx, int dy);
-	void						Deflate			(int dx, int dy);
+	CSG_Rect_Int &				Inflate			(int d);
+	CSG_Rect_Int &				Deflate			(int d);
+	CSG_Rect_Int &				Inflate			(int dx, int dy);
+	CSG_Rect_Int &				Deflate			(int dx, int dy);
 
-	void						Union			(int x, int y);
-	void						Union			(const TSG_Point_Int &Point);
-	void						Union			(const CSG_Rect_Int &Rect);
+	CSG_Rect_Int &				Union			(int x, int y);
+	CSG_Rect_Int &				Union			(const TSG_Point_Int &Point);
+	CSG_Rect_Int &				Union			(const CSG_Rect_Int &Rect);
 	bool						Intersect		(const CSG_Rect_Int &Rect);
 
-	TSG_Intersection			Intersects		(const CSG_Rect_Int &Rect)   const;
+	bool						is_Equal		(int xMin, int yMin, int xMax, int yMax) const;
+	bool						is_Equal		(const CSG_Rect_Int &Rect              ) const;
 
 	bool						Contains		(double x, double y)         const;
 	bool						Contains		(const TSG_Point_Int &Point) const;
+
+	TSG_Intersection			Intersects		(const CSG_Rect_Int &Rect)   const;
 
 };
 
@@ -675,9 +685,9 @@ private:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -692,7 +702,7 @@ TSG_Distance_Weighting;
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -760,9 +770,9 @@ private:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -825,7 +835,7 @@ SAGA_API_DLL_EXPORT double				SG_Get_Projection_Unit_To_Meter		(TSG_Projection_U
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -916,7 +926,7 @@ private:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1011,9 +1021,9 @@ SAGA_API_DLL_EXPORT bool		SG_Grid_Get_Geographic_Coordinates		(CSG_Grid *pGrid, 
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 //						Functions						 //
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1059,9 +1069,9 @@ SAGA_API_DLL_EXPORT double		SG_Get_Polygon_Area				(const CSG_Points &Points);
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
