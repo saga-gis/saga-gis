@@ -1,4 +1,5 @@
 # From QGIS project: https://github.com/qgis/QGIS/blob/master/cmake/FindPostgres.cmake
+# (modified: commented out finding native script; EXEC_PROGRAM -> execute_process)
 # __________
 # Find PostgreSQL
 # ~~~~~~~~~~~~~~~
@@ -20,16 +21,16 @@
 # For cmake < 3.20 this also requires server components.
 # Once the minimum cmake version for QGIS is bumped to 3.20
 # we can get rid of our custom script
-find_package(PostgreSQL)
-if(${PostgreSQL_FOUND})
-  set(POSTGRES_INCLUDE /usr/local/include)
-  set(POSTGRES_LIBRARY ${PostgreSQL_LIBRARIES})
-  set(POSTGRES_FOUND TRUE)
-  if(EXISTS "${POSTGRES_INCLUDE_DIR}/pg_config.h")
-    set(HAVE_PGCONFIG TRUE)
-  endif()
-  return()
-endif()
+#find_package(PostgreSQL)
+#if(${PostgreSQL_FOUND})
+#  set(POSTGRES_INCLUDE /usr/local/include)
+#  set(POSTGRES_LIBRARY ${PostgreSQL_LIBRARIES})
+#  set(POSTGRES_FOUND TRUE)
+#  if(EXISTS "${POSTGRES_INCLUDE_DIR}/pg_config.h")
+#    set(HAVE_PGCONFIG TRUE)
+#  endif()
+#  return()
+#endif()
 
 IF(ANDROID)
   SET(POSTGRES_INCLUDE_DIR ${POSTGRES_INCLUDE_DIR} CACHE STRING INTERNAL)
@@ -70,21 +71,21 @@ ELSE(WIN32)
     
     IF (POSTGRES_CONFIG) 
       # set INCLUDE_DIR
-      EXEC_PROGRAM(${POSTGRES_CONFIG}
-        ARGS --includedir
-        OUTPUT_VARIABLE PG_TMP)
+      execute_process(COMMAND ${POSTGRES_CONFIG} --includedir
+        OUTPUT_VARIABLE PG_TMP
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
       SET(POSTGRES_INCLUDE_DIR ${PG_TMP} CACHE STRING INTERNAL)
 
       # set LIBRARY_DIR
-      EXEC_PROGRAM(${POSTGRES_CONFIG}
-        ARGS --libdir
-        OUTPUT_VARIABLE PG_TMP)
+      execute_process(COMMAND ${POSTGRES_CONFIG} --includedir
+        OUTPUT_VARIABLE PG_TMP
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
       IF (APPLE)
         SET(POSTGRES_LIBRARY ${PG_TMP}/libpq.dylib CACHE STRING INTERNAL)
       ELSEIF (CYGWIN)
-        EXEC_PROGRAM(${POSTGRES_CONFIG}
-        ARGS --libs
-        OUTPUT_VARIABLE PG_TMP)
+        execute_process(COMMAND ${POSTGRES_CONFIG} --includedir
+          OUTPUT_VARIABLE PG_TMP
+          OUTPUT_STRIP_TRAILING_WHITESPACE)
 
         STRING(REGEX MATCHALL "[-][L]([^ ;])+" _LDIRS "${PG_TMP}")
         STRING(REGEX MATCHALL "[-][l]([^ ;])+" _LLIBS "${PG_TMP}")
