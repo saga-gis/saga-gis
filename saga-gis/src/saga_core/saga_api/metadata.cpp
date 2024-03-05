@@ -48,14 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <wx/xml/xml.h>
 #include <wx/wfstream.h>
 #include <wx/sstream.h>
@@ -67,9 +59,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -127,13 +119,13 @@ CSG_MetaData::CSG_MetaData(CSG_MetaData *pParent)
 {
 	_On_Construction();
 
-	m_pParent	= pParent;
+	m_pParent = pParent;
 }
 
 //---------------------------------------------------------
 void CSG_MetaData::_On_Construction(void)
 {
-	m_pParent	= NULL;
+	m_pParent = NULL;
 
 	m_Children.Create(sizeof(CSG_MetaData **), 0, TSG_Array_Growth::SG_ARRAY_GROWTH_1);
 }
@@ -147,7 +139,7 @@ CSG_MetaData::~CSG_MetaData(void)
 //---------------------------------------------------------
 void CSG_MetaData::Destroy(void)
 {
-	CSG_MetaData	**m_pChildren	= (CSG_MetaData **)m_Children.Get_Array();
+	CSG_MetaData **m_pChildren = (CSG_MetaData **)m_Children.Get_Array();
 
 	for(int i=0; i<Get_Children_Count(); i++)
 	{
@@ -156,18 +148,18 @@ void CSG_MetaData::Destroy(void)
 
 	m_Children.Destroy();
 
-//	m_pParent	= NULL;
+//	m_pParent = NULL;
 
-//	m_Name			.Clear();
-//	m_Content		.Clear();
+//	m_Name       .Clear();
+//	m_Content    .Clear();
 
-	m_Prop_Names	.Clear();
-	m_Prop_Values	.Clear();
+	m_Prop_Names .Clear();
+	m_Prop_Values.Clear();
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -208,7 +200,7 @@ CSG_MetaData * CSG_MetaData::Add_Child(const CSG_MetaData &MetaData, bool bAddCh
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -219,16 +211,16 @@ CSG_MetaData * CSG_MetaData::Ins_Child(int Position)
 		return( NULL );
 	}
 
-	CSG_MetaData	**pChildren	= (CSG_MetaData **)m_Children.Get_Array();
+	CSG_MetaData **pChildren = (CSG_MetaData **)m_Children.Get_Array();
 
 	if( Position < 0 || Position >= Get_Children_Count() )
 	{
-		Position	= Get_Children_Count() - 1;
+		Position = Get_Children_Count() - 1;
 	}
 
 	for(int i=Get_Children_Count()-1; i>Position; i--)
 	{
-		pChildren[i]	= pChildren[i - 1];
+		pChildren[i] = pChildren[i - 1];
 	}
 
 	return( pChildren[Position] = new CSG_MetaData(this) );
@@ -237,12 +229,12 @@ CSG_MetaData * CSG_MetaData::Ins_Child(int Position)
 //---------------------------------------------------------
 CSG_MetaData * CSG_MetaData::Ins_Child(const CSG_String &Name, const CSG_String &Content, int Position)
 {
-	CSG_MetaData	*pChild	= Ins_Child(Position);
+	CSG_MetaData *pChild = Ins_Child(Position);
 
 	if( pChild )
 	{
-		pChild->m_Name		= Name;
-		pChild->m_Content	= Content;
+		pChild->m_Name    = Name;
+		pChild->m_Content = Content;
 	}
 
 	return( pChild );
@@ -270,7 +262,7 @@ CSG_MetaData * CSG_MetaData::Ins_Child(const CSG_String &Name, sLong Content, in
 
 CSG_MetaData * CSG_MetaData::Ins_Child(const CSG_MetaData &MetaData, int Position, bool bAddChildren)
 {
-	CSG_MetaData	*pChild	= Ins_Child(Position);
+	CSG_MetaData *pChild = Ins_Child(Position);
 
 	if( pChild )
 	{
@@ -282,7 +274,7 @@ CSG_MetaData * CSG_MetaData::Ins_Child(const CSG_MetaData &MetaData, int Positio
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -296,25 +288,25 @@ bool CSG_MetaData::Mov_Child(int from_Index, int to_Index)
 
 	if( from_Index != to_Index )
 	{
-		CSG_MetaData	**pChildren	= (CSG_MetaData **)m_Children.Get_Array();
-		CSG_MetaData	*pChild	= pChildren[from_Index];
+		CSG_MetaData **pChildren = (CSG_MetaData **)m_Children.Get_Array();
+		CSG_MetaData  *pChild    = pChildren[from_Index];
 
 		if( from_Index < to_Index )
 		{
 			for(int i=from_Index; i<to_Index; i++)
 			{
-				pChildren[i]	= pChildren[i + 1];
+				pChildren[i] = pChildren[i + 1];
 			}
 		}
 		else // if( from_Index > to_Index )
 		{
 			for(int i=from_Index; i>to_Index; i--)
 			{
-				pChildren[i]	= pChildren[i - 1];
+				pChildren[i] = pChildren[i - 1];
 			}
 		}
 
-		pChildren[to_Index]	= pChild;
+		pChildren[to_Index] = pChild;
 	}
 
 	return( true );
@@ -322,7 +314,7 @@ bool CSG_MetaData::Mov_Child(int from_Index, int to_Index)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -330,13 +322,13 @@ bool CSG_MetaData::Del_Child(int Index)
 {
 	if( Index >= 0 && Index < Get_Children_Count() )
 	{
-		CSG_MetaData	**pChildren	= (CSG_MetaData **)m_Children.Get_Array();
+		CSG_MetaData **pChildren = (CSG_MetaData **)m_Children.Get_Array();
 
 		delete(pChildren[Index]);
 
 		for(int i=Index, j=Index+1; j<Get_Children_Count(); i++, j++)
 		{
-			pChildren[i]	= pChildren[j];
+			pChildren[i] = pChildren[j];
 		}
 
 		m_Children.Dec_Array();
@@ -345,6 +337,22 @@ bool CSG_MetaData::Del_Child(int Index)
 	}
 
 	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_MetaData::Del_Child(const CSG_String &Name)
+{
+	if( Name.Find('.') > 0 )
+	{
+		CSG_MetaData *pParent = Get_Child(Name.BeforeLast('.'));
+
+		if( pParent )
+		{
+			return( pParent->Del_Child(Name.AfterLast('.')) );
+		}
+	}
+
+	return( Del_Child(_Get_Child(Name)) );
 }
 
 //---------------------------------------------------------
@@ -415,6 +423,22 @@ bool CSG_MetaData::Del_Children(int Depth, const SG_Char *Name)
 }
 
 //---------------------------------------------------------
+CSG_MetaData * CSG_MetaData::Get_Child(const CSG_String &Name) const
+{
+	if( Name.Find('.') > 0 )
+	{
+		CSG_MetaData *pEntry = Get_Child(Name.BeforeFirst('.'));
+
+		if( pEntry )
+		{
+			return( pEntry->Get_Child(Name.AfterFirst('.')) );
+		}
+	}
+
+	return( Get_Child(_Get_Child(Name)) );
+}
+
+//---------------------------------------------------------
 int CSG_MetaData::_Get_Child(const CSG_String &Name) const
 {
 	for(int i=0; i<Get_Children_Count(); i++)
@@ -430,7 +454,7 @@ int CSG_MetaData::_Get_Child(const CSG_String &Name) const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -441,17 +465,30 @@ bool CSG_MetaData::Cmp_Name(const CSG_String &String, bool bNoCase) const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_MetaData::Get_Content(const CSG_String &Name, CSG_String &Value)	const
+const SG_Char * CSG_MetaData::Get_Content(const CSG_String &Name) const
 {
-	const SG_Char	*cString	= Name.is_Empty() ? Get_Content().c_str() : Get_Content(Name);
+	if( Name.is_Empty() )
+	{
+		return( m_Content );
+	}
+
+	CSG_MetaData *pEntry = Get_Child(Name);
+
+	return( pEntry ? pEntry->Get_Content().c_str() : NULL );
+}
+
+//---------------------------------------------------------
+bool CSG_MetaData::Get_Content(const CSG_String &Name, CSG_String &Value) const
+{
+	const SG_Char *cString = Name.is_Empty() ? Get_Content().c_str() : Get_Content(Name);
 
 	if( cString )
 	{
-		Value	= cString;
+		Value = cString;
 
 		return( true );
 	}
@@ -460,42 +497,22 @@ bool CSG_MetaData::Get_Content(const CSG_String &Name, CSG_String &Value)	const
 }
 
 //---------------------------------------------------------
-bool CSG_MetaData::Get_Content(const CSG_String &Name, double     &Value)	const
-{
-	CSG_String	s;
+bool CSG_MetaData::Get_Content(const CSG_String &Name, double &Value) const { CSG_String s; return( Get_Content(Name, s) && s.asDouble  (Value) ); }
+bool CSG_MetaData::Get_Content(const CSG_String &Name, int    &Value) const { CSG_String s; return( Get_Content(Name, s) && s.asInt     (Value) ); }
+bool CSG_MetaData::Get_Content(const CSG_String &Name, sLong  &Value) const { CSG_String s; return( Get_Content(Name, s) && s.asLongLong(Value) ); }
 
-	return( Get_Content(Name, s) && s.asDouble(Value) );
-}
-
-//---------------------------------------------------------
-bool CSG_MetaData::Get_Content(const CSG_String &Name, int        &Value)	const
-{
-	CSG_String	s;
-
-	return( Get_Content(Name, s) && s.asInt(Value) );
-}
-
-//---------------------------------------------------------
-bool CSG_MetaData::Get_Content(const CSG_String &Name, sLong      &Value)	const
-{
-	CSG_String	s;
-
-	return( Get_Content(Name, s) && s.asLongLong(Value) );
-}
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CSG_MetaData::Fmt_Content(const char *Format, ...)
 {
-	wxString	s;
-
-	va_list	argptr;
+	wxString s; va_list argptr;
 
 #ifdef _SAGA_LINUX
-	wxString	_Format(Format);	_Format.Replace("%s", "%ls");	// workaround as we only use wide characters since wx 2.9.4 so interpret strings as multibyte
+	wxString _Format(Format); _Format.Replace("%s", "%ls");	// workaround as we only use wide characters since wx 2.9.4 so interpret strings as multibyte
 	va_start(argptr, _Format);
 	s.PrintfV(_Format, argptr);
 #else
@@ -503,7 +520,7 @@ void CSG_MetaData::Fmt_Content(const char *Format, ...)
 	s.PrintfV(Format, argptr);
 #endif
 
-	m_Content	= CSG_String(&s);
+	m_Content = CSG_String(&s);
 
 	va_end(argptr);
 }
@@ -511,12 +528,10 @@ void CSG_MetaData::Fmt_Content(const char *Format, ...)
 //---------------------------------------------------------
 void CSG_MetaData::Fmt_Content(const wchar_t *Format, ...)
 {
-	wxString	s;
-
-	va_list	argptr;
+	wxString s; va_list argptr;
 
 #ifdef _SAGA_LINUX
-	wxString	_Format(Format);	_Format.Replace("%s", "%ls");	// workaround as we only use wide characters since wx 2.9.4 so interpret strings as multibyte
+	wxString _Format(Format); _Format.Replace("%s", "%ls");	// workaround as we only use wide characters since wx 2.9.4 so interpret strings as multibyte
 	va_start(argptr, _Format);
 	s.PrintfV(_Format, argptr);
 #else
@@ -524,7 +539,7 @@ void CSG_MetaData::Fmt_Content(const wchar_t *Format, ...)
 	s.PrintfV(Format, argptr);
 #endif
 
-	m_Content	= CSG_String(&s);
+	m_Content = CSG_String(&s);
 
 	va_end(argptr);
 }
@@ -537,7 +552,7 @@ bool CSG_MetaData::Cmp_Content(const CSG_String &String, bool bNoCase) const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -599,18 +614,18 @@ bool CSG_MetaData::Del_Property(int i)
 //---------------------------------------------------------
 bool CSG_MetaData::Set_Property(const CSG_String &Name, const CSG_String &Value, bool bAddIfNotExists)
 {
-	int		Index;
+	int Index = _Get_Property(Name);
 
-	if( (Index = _Get_Property(Name)) >= 0 )
+	if( Index >= 0 )
 	{
-		m_Prop_Values[Index]	= Value;
+		m_Prop_Values[Index] = Value;
 
 		return( true );
 	}
 	else if( bAddIfNotExists )
 	{
-		m_Prop_Names	.Add(Name);
-		m_Prop_Values	.Add(Value);
+		m_Prop_Names .Add(Name);
+		m_Prop_Values.Add(Value);
 
 		return( true );
 	}
@@ -636,11 +651,11 @@ bool CSG_MetaData::Set_Property(const CSG_String &Name, sLong Value, bool bAddIf
 //---------------------------------------------------------
 bool CSG_MetaData::Get_Property(const CSG_String &Name, CSG_String &Value)	const
 {
-	const SG_Char	*cString	= Get_Property(Name);
+	const SG_Char *cString = Get_Property(Name);
 
 	if( cString )
 	{
-		Value	= cString;
+		Value = cString;
 
 		return( true );
 	}
@@ -648,26 +663,9 @@ bool CSG_MetaData::Get_Property(const CSG_String &Name, CSG_String &Value)	const
 	return( false );
 }
 
-bool CSG_MetaData::Get_Property(const CSG_String &Name, double &Value)	const
-{
-	CSG_String	s;
-
-	return( Get_Property(Name, s) && s.asDouble(Value) );
-}
-
-bool CSG_MetaData::Get_Property(const CSG_String &Name, int &Value)	const
-{
-	CSG_String	s;
-
-	return( Get_Property(Name, s) && s.asInt(Value) );
-}
-
-bool CSG_MetaData::Get_Property(const CSG_String &Name, sLong &Value)	const
-{
-	CSG_String	s;
-
-	return( Get_Property(Name, s) && s.asLongLong(Value) );
-}
+bool CSG_MetaData::Get_Property(const CSG_String &Name, double &Value) const { CSG_String s; return( Get_Property(Name, s) && s.asDouble  (Value) ); }
+bool CSG_MetaData::Get_Property(const CSG_String &Name, int    &Value) const { CSG_String s; return( Get_Property(Name, s) && s.asInt     (Value) ); }
+bool CSG_MetaData::Get_Property(const CSG_String &Name, sLong  &Value) const { CSG_String s; return( Get_Property(Name, s) && s.asLongLong(Value) ); }
 
 //---------------------------------------------------------
 bool CSG_MetaData::Cmp_Property(const CSG_String &Name, const CSG_String &String, bool bNoCase) const
@@ -693,40 +691,38 @@ int CSG_MetaData::_Get_Property(const CSG_String &Name) const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CSG_String CSG_MetaData::asText(int Flags) const
 {
-	CSG_String	s;
+	CSG_String s;
 
 	if( Flags == 0 )
 	{
 		for(int i=0; i<Get_Children_Count(); i++)
 		{
-			s	+= Get_Child(i)->Get_Name() + ":\t" + Get_Child(i)->Get_Content() + "\n";
+			s += Get_Child(i)->Get_Name() + ":\t" + Get_Child(i)->Get_Content() + "\n";
 		}
 	}
 	else
 	{
-		wxXmlDocument	XML;
-
-		wxXmlNode	*pRoot	= new wxXmlNode(NULL, wxXML_ELEMENT_NODE, Get_Name().c_str());
+		wxXmlDocument XML; wxXmlNode *pRoot = new wxXmlNode(NULL, wxXML_ELEMENT_NODE, Get_Name().c_str());
 
 		XML.SetRoot(pRoot);
 
 		_Save(pRoot);
 
-		wxStringOutputStream	Stream;
+		wxStringOutputStream Stream;
 
 		XML.Save(Stream);
 
-		s	= &Stream.GetString();
+		s = &Stream.GetString();
 
-		if( Flags == 2 )	// remove <xml>
+		if( Flags == 2 ) // remove <xml>
 		{
-			s	= s.AfterFirst('\n');
+			s = s.AfterFirst('\n');
 		}
 	}
 
@@ -736,14 +732,14 @@ CSG_String CSG_MetaData::asText(int Flags) const
 //---------------------------------------------------------
 CSG_Table CSG_MetaData::Get_Table(int Flags) const
 {
-	CSG_Table	t;
+	CSG_Table t;
 
 	t.Add_Field("NAME" , SG_DATATYPE_String);
 	t.Add_Field("VALUE", SG_DATATYPE_String);
 
 	for(int i=0; i<Get_Children_Count(); i++)
 	{
-		CSG_Table_Record	*r	= t.Add_Record();
+		CSG_Table_Record *r = t.Add_Record();
 
 		r->Set_Value(0, Get_Child(i)->Get_Name());
 		r->Set_Value(1, Get_Child(i)->Get_Content());
@@ -754,7 +750,7 @@ CSG_Table CSG_MetaData::Get_Table(int Flags) const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -764,8 +760,8 @@ bool CSG_MetaData::Assign(const CSG_MetaData &MetaData, bool bAddChildren)
 	{
 		Destroy();
 
-		Set_Name	(MetaData.Get_Name   ());
-		Set_Content	(MetaData.Get_Content());
+		Set_Name   (MetaData.Get_Name   ());
+		Set_Content(MetaData.Get_Content());
 
 		for(int i=0; i<MetaData.Get_Property_Count(); i++)
 		{
@@ -783,7 +779,7 @@ bool CSG_MetaData::Assign(const CSG_MetaData &MetaData, bool bAddChildren)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -794,13 +790,13 @@ bool CSG_MetaData::Load(const CSG_String &File, const SG_Char *Extension)
 	//-----------------------------------------------------
 	if( File.Find("http://") == 0 )
 	{
-		CSG_String	s(File.Right(File.Length() - CSG_String("http://").Length()));
+		CSG_String s(File.Right(File.Length() - CSG_String("http://").Length()));
 
 		return( Load_HTTP(s.BeforeFirst('/'), s.AfterFirst('/')) );
 	}
 
 	//-----------------------------------------------------
-	CSG_String	_File(SG_File_Make_Path("", File, Extension));
+	CSG_String _File(SG_File_Make_Path("", File, Extension));
 
 	if( !SG_File_Exists(_File) )
 	{
@@ -814,7 +810,7 @@ bool CSG_MetaData::Load(const CSG_String &File, const SG_Char *Extension)
 	}
 
 	//-----------------------------------------------------
-	wxXmlDocument	XML;
+	wxXmlDocument XML;
 
 	if( XML.Load(_File.c_str()) )
 	{
@@ -832,7 +828,7 @@ bool CSG_MetaData::Load(CSG_File &File)
 {
 	Destroy();
 
-	wxXmlDocument	XML;
+	wxXmlDocument XML;
 
 	if( File.is_Reading() && XML.Load(*((wxInputStream *)File.Get_Stream())) )
 	{
@@ -847,21 +843,21 @@ bool CSG_MetaData::Load(CSG_File &File)
 //---------------------------------------------------------
 void CSG_MetaData::_Load(wxXmlNode *pNode)
 {
-	m_Name		= pNode->GetName       ().wc_str();
-	m_Content	= pNode->GetNodeContent().wc_str();
+	m_Name    = pNode->GetName       ().wc_str();
+	m_Content = pNode->GetNodeContent().wc_str();
 
 	//-----------------------------------------------------
-	wxXmlAttribute	*pProperty	= pNode->GetAttributes();
+	wxXmlAttribute *pProperty = pNode->GetAttributes();
 
 	while( pProperty )
 	{
 		Add_Property(&pProperty->GetName(), &pProperty->GetValue());
 
-		pProperty	= pProperty->GetNext();
+		pProperty = pProperty->GetNext();
 	}
 
 	//-----------------------------------------------------
-	wxXmlNode	*pChild	= pNode->GetChildren();
+	wxXmlNode *pChild = pNode->GetChildren();
 
 	while( pChild )
 	{
@@ -870,21 +866,19 @@ void CSG_MetaData::_Load(wxXmlNode *pNode)
 			Add_Child()->_Load(pChild);
 		}
 
-		pChild	= pChild->GetNext();
+		pChild = pChild->GetNext();
 	}
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSG_MetaData::Save(const CSG_String &File, const SG_Char *Extension) const
 {
-	wxXmlDocument	XML;
-
-	wxXmlNode	*pRoot	= new wxXmlNode(NULL, wxXML_ELEMENT_NODE, Get_Name().c_str());
+	wxXmlDocument XML; wxXmlNode *pRoot = new wxXmlNode(NULL, wxXML_ELEMENT_NODE, Get_Name().c_str());
 
 	XML.SetRoot(pRoot);
 
@@ -901,9 +895,7 @@ bool CSG_MetaData::Save(const CSG_String &File, const SG_Char *Extension) const
 //---------------------------------------------------------
 bool CSG_MetaData::Save(CSG_File &File) const
 {
-	wxXmlDocument	XML;
-
-	wxXmlNode	*pRoot	= new wxXmlNode(NULL, wxXML_ELEMENT_NODE, Get_Name().c_str());
+	wxXmlDocument XML; wxXmlNode *pRoot = new wxXmlNode(NULL, wxXML_ELEMENT_NODE, Get_Name().c_str());
 
 	XML.SetRoot(pRoot);
 
@@ -920,27 +912,24 @@ bool CSG_MetaData::Save(CSG_File &File) const
 //---------------------------------------------------------
 void CSG_MetaData::_Save(wxXmlNode *pNode) const
 {
-	int		i;
-
-	//-----------------------------------------------------
-	pNode->SetName	 (CSG_String(Get_Name().Length() ? Get_Name() : CSG_String("NODE")).c_str());
+	pNode->SetName(CSG_String(Get_Name().Length() ? Get_Name() : CSG_String("NODE")).c_str());
 	pNode->SetContent(Get_Content().c_str());
 
 	if( Get_Content().Length() > 0 || (Get_Property_Count() == 0 && Get_Children_Count() == 0) )
 	{
-		wxXmlNode	*pChild	= new wxXmlNode(pNode, wxXML_TEXT_NODE, SG_T("TEXT"));
+		wxXmlNode *pChild = new wxXmlNode(pNode, wxXML_TEXT_NODE, SG_T("TEXT"));
 
 		pChild->SetContent(Get_Content().c_str());
 	}
 
 	//-----------------------------------------------------
-	for(i=0; i<Get_Property_Count(); i++)
+	for(int i=0; i<Get_Property_Count(); i++)
 	{
 		pNode->AddAttribute(Get_Property_Name(i).c_str(), Get_Property(i));
 	}
 
 	//-----------------------------------------------------
-	for(i=Get_Children_Count()-1; i>=0; i--)
+	for(int i=Get_Children_Count()-1; i>=0; i--)
 	{
 		Get_Child(i)->_Save(new wxXmlNode(pNode, wxXML_ELEMENT_NODE, Get_Child(i)->Get_Name().c_str()));
 	}
@@ -948,7 +937,7 @@ void CSG_MetaData::_Save(wxXmlNode *pNode) const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -956,9 +945,7 @@ bool CSG_MetaData::from_XML(const CSG_String &_XML)
 {
 	Destroy();
 
-	wxXmlDocument	XML;
-
-	wxMemoryInputStream	Stream((const void *)_XML.b_str(), (size_t)_XML.Length());
+	wxXmlDocument XML; wxMemoryInputStream Stream((const void *)_XML.b_str(), (size_t)_XML.Length());
 
 	if( XML.Load(Stream) )
 	{
@@ -973,23 +960,21 @@ bool CSG_MetaData::from_XML(const CSG_String &_XML)
 //---------------------------------------------------------
 bool CSG_MetaData::to_XML(CSG_String &_XML) const
 {
-	wxXmlDocument	XML;
-
-	wxXmlNode	*pRoot	= new wxXmlNode(NULL, wxXML_ELEMENT_NODE, Get_Name().c_str());
+	wxXmlDocument XML; wxXmlNode *pRoot = new wxXmlNode(NULL, wxXML_ELEMENT_NODE, Get_Name().c_str());
 
 	XML.SetRoot(pRoot);
 
 	_Save(pRoot);
 
-	wxMemoryOutputStream	Stream;
+	wxMemoryOutputStream Stream;
 
 	if( XML.Save(Stream) )
 	{
-		CSG_Array	s(sizeof(char), Stream.GetSize());
+		CSG_Array s(sizeof(char), Stream.GetSize());
 
 		Stream.CopyTo(s.Get_Array(), s.Get_Size());
 
-		_XML	= (const char *)s.Get_Array();
+		_XML = (const char *)s.Get_Array();
 
 		return( true );
 	}
@@ -999,7 +984,7 @@ bool CSG_MetaData::to_XML(CSG_String &_XML) const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1008,16 +993,16 @@ bool CSG_MetaData::Load_HTTP(const CSG_String &Server, const CSG_String &Path, c
 	Destroy();
 
 	//-----------------------------------------------------
-	wxHTTP	HTTP;
+	wxHTTP HTTP;
 
-	if( Username && *Username )	{	HTTP.SetUser    (Username);	}
-	if( Password && *Password )	{	HTTP.SetPassword(Password);	}
+	if( Username && *Username ) { HTTP.SetUser    (Username); }
+	if( Password && *Password ) { HTTP.SetPassword(Password); }
 
-	wxString	s	= Server.c_str();
+	wxString s = Server.c_str();
 
 	if( s.Find("http://") == 0 )
 	{
-		s	= s.Right(s.Length() - wxString("http://").Length());
+		s = s.Right(s.Length() - wxString("http://").Length());
 	}
 
 	if( !HTTP.Connect(s) )
@@ -1026,21 +1011,21 @@ bool CSG_MetaData::Load_HTTP(const CSG_String &Server, const CSG_String &Path, c
 	}
 
 	//-----------------------------------------------------
-	s	= Path.c_str();
+	s = Path.c_str();
 
 	if( s[0] != '/' )
 	{
 		s.Prepend("/");
 	}
 
-	wxInputStream	*pStream	= HTTP.GetInputStream(s);
+	wxInputStream *pStream = HTTP.GetInputStream(s);
 
 	if( !pStream )
 	{
 		return( false );
 	}
 
-	wxXmlDocument	XML;
+	wxXmlDocument XML;
 
 	if( XML.Load(*pStream) )
 	{
@@ -1058,24 +1043,7 @@ bool CSG_MetaData::Load_HTTP(const CSG_String &Server, const CSG_String &Path, c
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CSG_MetaData::from_WKT(const CSG_String &WKT)
-{
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CSG_MetaData::to_WKT(CSG_String &WKT) const
-{
-	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1192,9 +1160,9 @@ bool CSG_MetaData::to_JSON(CSG_String &JSON)	const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1412,9 +1380,9 @@ bool CSG_HTTP::Request(const CSG_String &Request, const SG_Char *File)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1508,9 +1476,9 @@ bool	SG_FTP_Download(const CSG_String &Target_Directory, const CSG_String &Sourc
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
