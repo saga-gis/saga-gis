@@ -100,6 +100,8 @@ CSG_String Get_Info(int i)
 #include "sentinel_2_scene_import.h"
 #include "sentinel_3_scene_import.h"
 
+#include "spot_scene_import.h"
+
 #include "Spectral_Profile.h"
 
 #include "topographic_correction.h"
@@ -143,8 +145,10 @@ CSG_Tool *		Create_Tool(int i)
 	case 20: return( new CDetect_Clouds );
 	case 21: return( new CDetect_CloudShadows );
 
+	case 22: return( new CSPOT_Scene_Import );
+
 	//-----------------------------------------------------
-	case 22: return( NULL );
+	case 23: return( NULL );
 	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
