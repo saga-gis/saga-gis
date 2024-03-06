@@ -115,9 +115,6 @@ public:
 	bool						from_XML			(const CSG_String &XML);
 	bool						to_XML				(      CSG_String &XML)		const;
 
-	bool						from_WKT			(const CSG_String &WKT);
-	bool						to_WKT				(      CSG_String &WKT)		const;
-
 	bool						Load_JSON			(const CSG_String &File);
 	bool						Save_JSON			(const CSG_String &File)	const;
 
