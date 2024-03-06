@@ -57,17 +57,21 @@
 //---------------------------------------------------------
 CSPOT_Scene_Import::CSPOT_Scene_Import(void)
 {
-	Set_Name		(_TL("Import SPOT 1-5 Scene"));
+	Set_Name		(_TL("Import SPOT Scene"));
 
 	Set_Author		("O.Conrad (c) 2024");
 
 	Set_Description	(_TW(
 		"Imports a SPOT (Satellite Pour l'Observation de la Terre) scene. "
-		"Currently this is only a simple import tool for SPOT level 1A data. "
+		"Currently this is just a simple import support tool for SPOT level 1A data. "
 	));
 
 	Add_Reference("https://regards.cnes.fr/user/swh/modules/60",
 		SG_T("Spot World Heritage at CNES")
+	);
+
+	Add_Reference("https://earth.esa.int/eogateway/catalog/spot1-5-esa-archive",
+		SG_T("SPOT 1-5 ESA archive")
 	);
 
 	//-----------------------------------------------------
@@ -119,28 +123,9 @@ CSPOT_Scene_Import::CSPOT_Scene_Import(void)
 		false
 	);
 
-	Parameters.Add_Double("PROJECTION", "OFFSET_X", CSG_String::Format("%s X", _TL("Offset")), _TL(""));
-	Parameters.Add_Double("PROJECTION", "OFFSET_Y", CSG_String::Format("%s Y", _TL("Offset")), _TL(""));
-
-	//-----------------------------------------------------
-	//Parameters.Add_Choice("",
-	//	"CALIBRATION", _TL("Radiometric Calibration"),
-	//	_TL(""),
-	//	CSG_String::Format("%s|%s|%s",
-	//		_TL("digital numbers"),
-	//		_TL("radiance"),
-	//		_TL("reflectance")
-	//	), 0
-	//);
-
-	//Parameters.Add_Choice("CALIBRATION",
-	//	"DATA_TYPE"  , _TL("Output Data Type"),
-	//	_TL(""),
-	//	CSG_String::Format("%s|%s",
-	//		_TL("integers with scaling"),
-	//		_TL("floating point numbers")
-	//	), 0
-	//);
+	Parameters.Add_Node("PROJECTION", "SHIFT", _TL("Adjustment"), _TL(""));
+	Parameters.Add_Double("SHIFT", "SHIFT_X", CSG_String::Format("%s.x", _TL("Shift")), _TL(""));
+	Parameters.Add_Double("SHIFT", "SHIFT_Y", CSG_String::Format("%s.y", _TL("Shift")), _TL(""));
 }
 
 
@@ -227,30 +212,21 @@ bool CSPOT_Scene_Import::On_Execute(void)
 		return( false );
 	}
 
-	//-----------------------------------------------------
-	CSG_String File;
+	CSG_String File = "IMAGERY.TIF"; Metadata.Get_Content("Data_Access.Data_File.DATA_FILE_PATH", File);
 
-	if( !Metadata.Get_Content("Data_Access.Data_File.DATA_FILE_PATH", File) )
-	{
-		File = "IMAGERY.TIF";
-	}
+	int Mission = 0; Metadata.Get_Content("Dataset_Sources.Source_Information.Scene_Source.MISSION_INDEX", Mission);
 
 	int Level = Metadata["Data_Processing.PROCESSING_LEVEL"].Cmp_Content("1A", true) ? 1 : 2;
 
-	CSG_Grids Bands, *pBands;
-
-	if( Level == 1 )
-	{
-		pBands = &Bands;
-	}
-	else
-	{
-		pBands = SG_Create_Grids();
-	}
+	//-----------------------------------------------------
+	CSG_Grids Bands, *pBands; pBands = Level == 1 ? &Bands : SG_Create_Grids();
 
 	if( !pBands->Load(SG_File_Make_Path(SG_File_Get_Path(Metafile), File)) )
 	{
-		delete(pBands);
+		if( pBands != &Bands )
+		{
+			delete(pBands);
+		}
 
 		Error_Fmt("%s [%s]", _TL("failed to load imagery"), File.c_str());
 
@@ -260,7 +236,11 @@ bool CSPOT_Scene_Import::On_Execute(void)
 	//-----------------------------------------------------
 	Parameters("BANDS")->asGridList()->Del_Items();
 
-	if( Level == 1 )
+	if( Level != 1 )
+	{
+		Parameters("BANDS")->asGridList()->Add_Item(pBands);
+	}
+	else
 	{
 		if( !Georeference(Metadata, Bands) )
 		{
@@ -269,15 +249,13 @@ bool CSPOT_Scene_Import::On_Execute(void)
 
 		pBands = Parameters("BANDS")->asGridList()->Get_Item(0)->asGrids();
 	}
-	else
-	{
-		Parameters("BANDS")->asGridList()->Add_Item(pBands);
-	}
 
 	//-----------------------------------------------------
 	Metadata.Del_Child("Dataset_Frame");
 	Metadata.Del_Child("Raster_CS");
 	Metadata.Del_Child("Geoposition");
+	Metadata.Del_Child("Image_Display");
+	Metadata.Del_Child("Data_Strip.Ephemeris.Points");
 	Metadata.Del_Child("Data_Strip.Models");
 	Metadata.Del_Child("Data_Strip.Satellite_Attitudes");
 	Metadata.Del_Child("Data_Strip.Sensor_Configuration");
@@ -291,17 +269,73 @@ bool CSPOT_Scene_Import::On_Execute(void)
 		Metadata.Get_Content("Dataset_Sources.Source_Information.Scene_Source.IMAGING_DATE" )
 	);
 
-	return( true );
+	//-----------------------------------------------------
+	pBands->Add_Attribute("INDEX"   , SG_DATATYPE_Short , 0);
+	pBands->Add_Attribute("NAME"    , SG_DATATYPE_String, 1);
+	pBands->Add_Attribute("WAVE"    , SG_DATATYPE_Double, 2);
+	pBands->Add_Attribute("WAVE_MIN", SG_DATATYPE_Double, 3);
+	pBands->Add_Attribute("WAVE_MAX", SG_DATATYPE_Double, 4);
+
+	for(int i=0; i<pBands->Get_NZ(); i++)
+	{
+		Set_Band_Info(pBands, i, Mission);
+	}
+
+	pBands->Set_Z_Attribute(2); pBands->Set_Z_Name_Field(1); pBands->Del_Attribute(5);
 
 	//-----------------------------------------------------
-	//int  Calibration = Parameters("CALIBRATION")->asInt ();
+	if( pBands->Get_NZ() > 1 )
+	{
+		DataObject_Add(pBands);
 
-	//double SunHeight = -1;
+		DataObject_Set_Parameter(pBands, "BAND_R", 0); // green
+		DataObject_Set_Parameter(pBands, "BAND_G", 1); // red
+		DataObject_Set_Parameter(pBands, "BAND_B", 2); // nir
+	}
 
-	//if( Info_Scene("SUN_ELEVATION") )
-	//{
-	//	SunHeight = Info_Scene["SUN_ELEVATION"].Get_Content().asDouble();
-	//}
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSPOT_Scene_Import::Set_Band_Info(CSG_Grids *pBands, int Band, int Mission)
+{
+	pBands->Set_Attribute(Band, 0, 1 + Band);
+
+	if( !Mission )
+	{
+		pBands->Set_Attribute(Band, 1, CSG_String::Format("Band %i", 1 + Band));
+		pBands->Set_Attribute(Band, 2, 1 + Band);
+		pBands->Set_Attribute(Band, 3, 1 + Band);
+		pBands->Set_Attribute(Band, 4, 1 + Band);
+
+		return( false );
+	}
+
+	static double Waves[4][5][2] = // [Sensor][Index][Range]
+	{
+		{ { 0.50, 0.73 }, { 0.50, 0.59 }, { 0.61, 0.68 }, { 0.78, 0.89 }, { -1.0, -1.0 } }, // SPOT 1/2/3
+		{ { 0.61, 0.68 }, { 0.50, 0.59 }, { 0.61, 0.68 }, { 0.78, 0.89 }, { 1.58, 1.75 } }, // SPOT 4
+		{ { 0.48, 0.71 }, { 0.50, 0.59 }, { 0.61, 0.68 }, { 0.78, 0.89 }, { 1.58, 1.75 } }, // SPOT 5
+		{ { 0.45, 0.74 }, { 0.45, 0.52 }, { 0.53, 0.59 }, { 0.62, 0.69 }, { 0.78, 0.89 } }  // SPOT 6/7
+	};
+
+	static CSG_String Names[6] = { "Panchromatic", "Blue", "Green", "Red", "NIR", "SWIR"};
+
+	int Sensor = Mission < 4 ? 0 : Mission < 5 ? 1 : Mission < 6 ? 2 : 3;
+
+	double *Wave = Waves[Sensor][pBands->Get_NZ() == 1 ? 0 : 1 + Band];
+
+	pBands->Set_Attribute(Band, 1, Names[pBands->Get_NZ() == 1 ? 0 : Mission < 6 ? 2 + Band : 1 + Band]);
+	pBands->Set_Attribute(Band, 2, (Wave[0] + Wave[1]) / 2.);
+	pBands->Set_Attribute(Band, 3,  Wave[0]);
+	pBands->Set_Attribute(Band, 4,  Wave[1]);
+
+	return( true );
 }
 
 
@@ -337,16 +371,33 @@ bool CSPOT_Scene_Import::Georeference(const CSG_MetaData &Metadata, CSG_Grids &B
 
 		xField = 4; yField = 5; EPSG = (UTM_South ? 32700 : 32600) + UTM_Zone;
 
-		if( Parameters("OFFSET_X")->asDouble() || Parameters("OFFSET_Y")->asDouble() )
+		if( Parameters("SHIFT_X")->asDouble() || Parameters("SHIFT_Y")->asDouble() )
 		{
 			for(sLong i=0; i<Frame.Get_Count(); i++)
 			{
-				Frame.Get_Shape(i)->Add_Value(xField, Parameters("OFFSET_X")->asDouble());
-				Frame.Get_Shape(i)->Add_Value(yField, Parameters("OFFSET_Y")->asDouble());
+				Frame.Get_Shape(i)->Add_Value(xField, Parameters("SHIFT_X")->asDouble());
+				Frame.Get_Shape(i)->Add_Value(yField, Parameters("SHIFT_Y")->asDouble());
 			}
 		}
 
-		Cellsize = nRows == 6000 ? 10. : 20.;
+		int Mission = 0; Metadata.Get_Content("Dataset_Sources.Source_Information.Scene_Source.MISSION_INDEX", Mission);
+		int nBands  = 0; Metadata.Get_Content("Raster_Dimensions.NBANDS"                                     , nBands );
+
+		if( Mission && nBands )
+		{
+			Cellsize = nBands == 1
+				? (Mission < 5 ? 10. : Mission < 6 ?  5. : 1.5)  // panchromatic
+				: (Mission < 5 ? 20. : Mission < 6 ? 10. : 6. ); // spectral
+		}
+		else
+		{
+			Cellsize = SG_Get_Distance(
+				Frame[0].asDouble(xField), Frame[0].asDouble(yField), // lower left image pixel
+				Frame[3].asDouble(xField), Frame[3].asDouble(yField)  // upper left image pixel
+			) / (1. + nRows);
+
+			Cellsize = floor(0.5 + Cellsize); // round to meter
+		}
 
 		Extent.Create(
 			Cellsize * floor(Frame.Get_Minimum(xField) / Cellsize), Cellsize * ceil(Frame.Get_Minimum(yField) / Cellsize),
@@ -357,19 +408,19 @@ bool CSPOT_Scene_Import::Georeference(const CSG_MetaData &Metadata, CSG_Grids &B
 	{
 		xField = 2; yField = 3; EPSG = 4326;
 
-		if( Parameters("OFFSET_X")->asDouble() || Parameters("OFFSET_Y")->asDouble() )
+		if( Parameters("SHIFT_X")->asDouble() || Parameters("SHIFT_Y")->asDouble() )
 		{
 			for(sLong i=0; i<Frame.Get_Count(); i++)
 			{
-				Frame.Get_Shape(i)->Add_Value(xField, Parameters("OFFSET_X")->asDouble());
-				Frame.Get_Shape(i)->Add_Value(yField, Parameters("OFFSET_Y")->asDouble());
+				Frame.Get_Shape(i)->Add_Value(xField, Parameters("SHIFT_X")->asDouble());
+				Frame.Get_Shape(i)->Add_Value(yField, Parameters("SHIFT_Y")->asDouble());
 			}
 		}
 
 		Cellsize = SG_Get_Distance(
 			Frame[0].asDouble(xField), Frame[0].asDouble(yField),
-			Frame[1].asDouble(xField), Frame[1].asDouble(yField)
-		) / nRows;
+			Frame[3].asDouble(xField), Frame[3].asDouble(yField)
+		) / (1. + nRows);
 
 		Extent.Create(
 			Frame.Get_Minimum(xField), Frame.Get_Minimum(yField),
@@ -385,6 +436,7 @@ bool CSPOT_Scene_Import::Georeference(const CSG_MetaData &Metadata, CSG_Grids &B
 	&&  pTool->Set_Parameter("REF_SOURCE"      , &Frame)
 	&&  pTool->Set_Parameter("XFIELD"          , xField)
 	&&  pTool->Set_Parameter("YFIELD"          , yField)
+	&&  pTool->Set_Parameter("METHOD"          , 0) // automatic
 	&&  pTool->Set_Parameter("CRS_CODE"        , EPSG)
 	&&  pTool->Set_Parameter("TARGET_USER_SIZE", Cellsize)
 	&&  pTool->Set_Parameter("TARGET_USER_XMIN", Extent.xMin)

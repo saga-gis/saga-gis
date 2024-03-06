@@ -85,6 +85,8 @@ private:
 
 	bool					Load_Metadata			(CSG_MetaData &Metadata, const CSG_String &File, bool bVerbose = true);
 
+	bool					Set_Band_Info			(CSG_Grids *pBands, int Band, int Mission);
+
 	static bool				Get_Reference_Frame		(const CSG_MetaData &Metadata, CSG_Shapes &Frame);
 	static bool				Set_Reference_UTM		(CSG_Shapes &Frame, int UTM_Zone, bool UTM_South);
 
