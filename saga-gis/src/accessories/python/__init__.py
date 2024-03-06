@@ -73,14 +73,37 @@ saga_api.SG_Initialize_Environment(AutoLoadTools, True, SAGA_Path)
 #_________________________________________
 def Version():
 	import sys
-	saga_api.SG_UI_Msg_Add('_______')
-	saga_api.SG_UI_Msg_Add('Python-' + sys.version)
-	saga_api.SG_UI_Msg_Add('SAGA-{:s} (loaded {:d} libraries, {:d} tools)'.format(saga_api.SAGA_VERSION,
+	print('_______')
+	print('Python-' + sys.version)
+	print('SAGA-{:s} (loaded {:d} libraries, {:d} tools)'.format(saga_api.SAGA_VERSION,
 		saga_api.SG_Get_Tool_Library_Manager().Get_Count(),
 		saga_api.SG_Get_Tool_Library_Manager().Get_Tool_Count()
 	))
-	saga_api.SG_UI_Msg_Add('_______\n')
+	print('_______\n')
+	return True
 
+#_________________________________________
+def Summary(LibraryID='', ToolID=''):
+	import sys
+	print('_______')
+	print('Python-' + sys.version)
+	print('SAGA-{:s}'.format(saga_api.SAGA_VERSION))
+	if not LibraryID:
+		print(saga_api.SG_Get_Tool_Library_Manager().Get_Summary(saga_api.SG_SUMMARY_FMT_FLAT).c_str())
+	else:
+		Library = saga_api.SG_Get_Tool_Library_Manager().Get_Library(LibraryID, True)
+		if not Library:
+			print('\nError: could not find library with ID \'{:s}\'\n_______\n'.format(LibraryID))
+			return False
+		if not ToolID:
+			print(Library.Get_Summary(saga_api.SG_SUMMARY_FMT_FLAT).c_str())
+		else:
+			Tool = Library.Get_Tool(ToolID)
+			if not Tool:
+				print('\nError: could not find tool with ID \'{:s}.{:s}\'\n_______\n'.format(LibraryID, ToolID))
+				return False
+			print(Tool.Get_Summary(True, Tool.Get_MenuPath(True), Tool.Get_Description(), saga_api.SG_SUMMARY_FMT_FLAT).c_str())
+	print('_______\n')
 	return True
 
 
