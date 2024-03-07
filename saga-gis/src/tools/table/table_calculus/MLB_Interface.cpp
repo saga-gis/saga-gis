@@ -125,8 +125,10 @@ CSG_Tool *		Create_Tool(int i)
 
 	case 19: return( new CConfusion_Matrix() );
 
+	case 20: return( new CTable_Aggregation );
+
 	//-----------------------------------------------------
-	case 20: return( NULL );
+	case 21: return( NULL );
 	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

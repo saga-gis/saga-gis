@@ -158,6 +158,8 @@ bool CTable_Running_Average::On_Execute(void)
 
 	if( !pTable->is_Valid() )
 	{
+		Error_Set(_TL("invalid input table"));
+
 		return( false );
 	}
 
@@ -192,6 +194,8 @@ bool CTable_Running_Average::On_Execute(void)
 	int fStDv   = GET_FIELD("STDV"   , SG_T("STDV"     )); if( fStDv   >= 0 ) Parameters("FIELD_STDV"   )->Set_Value(fStDv  );
 	int fStDvLo = GET_FIELD("STDV_LO", SG_T("STDV_LOW" )); if( fStDvLo >= 0 ) Parameters("FIELD_STDV_LO")->Set_Value(fStDvLo);
 	int fStDvHi = GET_FIELD("STDV_HI", SG_T("STDV_HIGH")); if( fStDvHi >= 0 ) Parameters("FIELD_STDV_HI")->Set_Value(fStDvHi);
+
+	#undef GET_FIELD
 
 	//-----------------------------------------------------
 	for(sLong i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
@@ -244,6 +248,190 @@ bool CTable_Running_Average::On_Execute(void)
 		DataObject_Update(pTable);
 	}
 
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CTable_Aggregation::CTable_Aggregation(void)
+{
+	Set_Name		(_TL("Record Aggregation"));
+
+	Set_Author		("O.Conrad (c) 2024");
+
+	Set_Description	(_TW(
+		"This is a simple tool to aggregate the values of the selected "
+		"attribute by statistical means for the given number of records. "
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Table("",
+		"INPUT"      , _TL("Table"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Table("",
+		"OUTPUT"     , _TL("Aggregation"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Table_Field("INPUT",
+		"FIELD"      , _TL("Field"),
+		_TL("")
+	);
+
+	Parameters.Add_Table_Field("INPUT",
+		"INDEX"      , _TL("Order by..."),
+		_TL(""),
+		true
+	);
+
+	Parameters.Add_Table_Field("INPUT",
+		"IDENTIFIER" , _TL("Identifier"),
+		_TL("")
+		, true
+	);
+
+	Parameters.Add_Int("",
+		"LENGTH"     , _TL("Number of Records"),
+		_TL("The total number of records to be taken into account for aggregated statistics."),
+		10, 2, true
+	);
+
+	//-----------------------------------------------------
+	Parameters.Add_Bool("", "MEAN"   , _TL("Mean"                     ), _TL(""),  true);
+	Parameters.Add_Bool("", "MEDIAN" , _TL("Median"                   ), _TL(""), false);
+	Parameters.Add_Bool("", "MIN"    , _TL("Minimum"                  ), _TL(""), false);
+	Parameters.Add_Bool("", "MAX"    , _TL("Maximum"                  ), _TL(""), false);
+	Parameters.Add_Bool("", "STDV"   , _TL("Standard Deviation"       ), _TL(""), false);
+	Parameters.Add_Bool("", "STDV_LO", _TL("Lower Standard Deviation" ), _TL(""), false);
+	Parameters.Add_Bool("", "STDV_HI", _TL("Higher Standard Deviation"), _TL(""), false);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CTable_Aggregation::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CTable_Aggregation::On_Execute(void)
+{
+	CSG_Table *pTable = Parameters("INPUT")->asTable();
+
+	if( !pTable->is_Valid() )
+	{
+		Error_Set(_TL("invalid input table"));
+
+		return( false );
+	}
+
+	int Field_ID = Parameters("IDENTIFIER")->asInt();
+	int Field    = Parameters("FIELD"     )->asInt();
+
+	//-----------------------------------------------------
+	CSG_Index Index;
+
+	if( Parameters("INDEX")->asInt() >= 0 )
+	{
+		pTable->Set_Index(Index, Parameters("INDEX")->asInt());
+	}
+
+	//-----------------------------------------------------
+	CSG_Table *pAggregate = Parameters("OUTPUT")->asTable();
+
+	pAggregate->Destroy();
+	pAggregate->Fmt_Name("%s.%s", pTable->Get_Name(), pTable->Get_Field_Name(Field));
+
+	if( Field_ID >= 0 )
+	{
+		pAggregate->Add_Field(pTable->Get_Field_Name(Field_ID), pTable->Get_Field_Type(Field_ID));
+	}
+
+	//-----------------------------------------------------
+	#define GET_FIELD(id, name)	(Parameters(id)->asBool() && pAggregate->Add_Field(CSG_String::Format("%s (%s)", pTable->Get_Field_Name(Field), name), SG_DATATYPE_Double) ? pAggregate->Get_Field_Count() - 1 : -1)
+
+	int fMean   = GET_FIELD("MEAN"   , SG_T("MEAN"     ));
+	int fMedian = GET_FIELD("MEDIAN" , SG_T("MEDIAN"   ));
+	int fMin    = GET_FIELD("MIN"    , SG_T("MINIMUM"  ));
+	int fMax    = GET_FIELD("MAX"    , SG_T("MAXIMUM"  ));
+	int fStDv   = GET_FIELD("STDV"   , SG_T("STDV"     ));
+	int fStDvLo = GET_FIELD("STDV_LO", SG_T("STDV_LOW" ));
+	int fStDvHi = GET_FIELD("STDV_HI", SG_T("STDV_HIGH"));
+
+	#undef GET_FIELD
+
+	//-----------------------------------------------------
+	int Length = Parameters("LENGTH")->asInt();
+
+	if( Length > pTable->Get_Count() )
+	{
+		Message_Fmt("\n%s: %s (%d > %d", _TL("Warning"), _TL("number of aggregation records exceeds table's record count"), Length, (int)pTable->Get_Count());
+	}
+
+	//-----------------------------------------------------
+	for(sLong i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i+=Length)
+	{
+		CSG_Simple_Statistics s(fMedian >= 0);
+
+		for(sLong j=i, n=i+Length; j<n && j<pTable->Get_Count(); j++)
+		{
+			CSG_Table_Record *pRecord = pTable->Get_Record(Index.is_Okay() ? Index[j] : j);
+
+			if( pRecord && !pRecord->is_NoData(Field) )
+			{
+				s += pRecord->asDouble(Field);
+			}
+		}
+
+		CSG_Table_Record *pRecord = pAggregate->Add_Record();
+
+		if( Field_ID >= 0 )
+		{
+			pRecord->Set_Value(0, pTable->Get_Record(Index.is_Okay() ? Index[i] : i)->asString(Field_ID));
+		}
+
+		if( s.Get_Count() > 0 )
+		{
+			if( fMean   >= 0 ) pRecord->Set_Value(fMean  , s.Get_Mean   ());
+			if( fMedian >= 0 ) pRecord->Set_Value(fMedian, s.Get_Median ());
+			if( fMin    >= 0 ) pRecord->Set_Value(fMin   , s.Get_Minimum());
+			if( fMax    >= 0 ) pRecord->Set_Value(fMax   , s.Get_Maximum());
+			if( fStDv   >= 0 ) pRecord->Set_Value(fStDv  , s.Get_StdDev ());
+			if( fStDvLo >= 0 ) pRecord->Set_Value(fStDvLo, s.Get_Mean   () - s.Get_StdDev());
+			if( fStDvHi >= 0 ) pRecord->Set_Value(fStDvHi, s.Get_Mean   () + s.Get_StdDev());
+		}
+		else
+		{
+			if( fMean   >= 0 ) pRecord->Set_NoData(fMean  );
+			if( fMedian >= 0 ) pRecord->Set_NoData(fMedian);
+			if( fMin    >= 0 ) pRecord->Set_NoData(fMin   );
+			if( fMax    >= 0 ) pRecord->Set_NoData(fMax   );
+			if( fStDv   >= 0 ) pRecord->Set_NoData(fStDv  );
+			if( fStDvLo >= 0 ) pRecord->Set_NoData(fStDvLo);
+			if( fStDvHi >= 0 ) pRecord->Set_NoData(fStDvHi);
+		}
+	}
+
+	//-----------------------------------------------------
 	return( true );
 }
 
