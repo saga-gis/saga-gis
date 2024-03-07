@@ -761,42 +761,15 @@ bool CGrid_To_Contour::Get_Edge_Segments(CSG_Shapes &Edges, CSG_Shapes *pContour
 		}
 		else if( Edge.asLong(0) == Edge.asLong(1) ) // needs to determine 'going lower/higher' state in relation to contour elevation
 		{
-			#define Edge_Point(i) { p[i] = Edge.Get_Point(i);\
-				p[i].x = (p[i].x - m_pGrid->Get_XMin()) / m_pGrid->Get_Cellsize();\
-				p[i].y = (p[i].y - m_pGrid->Get_YMin()) / m_pGrid->Get_Cellsize();\
-			}
+			CSG_Point p[2] = { Edge.Get_Point(0), Edge.Get_Point(1) };
 
-			CSG_Point p[2]; Edge_Point(0); Edge_Point(1);
+			p[1].x = p[0].x + 0.5 * (p[1].x - p[0].x);
+			p[1].y = p[0].y + 0.5 * (p[1].y - p[0].y);
 
-			if( p[0].x > p[1].x || p[0].y > p[1].y )
-			{
-				CSG_Point _p = p[0]; p[0] = p[1]; p[1] = _p;
-			}
+			double dz = m_pGrid->Get_Value(p[1], GRID_RESAMPLING_Bilinear)
+			          - m_pGrid->Get_Value(p[0], GRID_RESAMPLING_Bilinear);
 
-			int x = (int)p[0].x, y = (int)p[0].y;
-
-			double z = pContours->Get_Shape(Edge.asLong(0))->asDouble(1), dz = 0.;
-
-			if( p[0].x < p[1].x )
-			{
-				if( p[0].x == x )
-				{
-					x += m_pGrid->is_InGrid(x + 1, y) && m_pGrid->asDouble(x + 1, y) != z ? 1 : -1;
-				}
-
-				dz = p[0].x < x ? z - m_pGrid->asDouble(x, y) : m_pGrid->asDouble(x, y) - z;
-			}
-			else // if( p[0].y < p[1].y )
-			{
-				if( p[0].y == y )
-				{
-					y += m_pGrid->is_InGrid(x, y + 1) && m_pGrid->asDouble(x, y + 1) != z ? 1 : -1;
-				}
-
-				dz = p[0].y < y ? z - m_pGrid->asDouble(x, y) : m_pGrid->asDouble(x, y) - z;
-			}
-
-			if( dz > 0. )
+			if( dz < 0. )
 			{
 				Edge.Add_Value(0, -1);
 			}
@@ -1017,7 +990,7 @@ bool CGrid_To_Contour::Get_Polygons(CSG_Shape_Polygon &Polygon, CSG_Shapes &Edge
 
 		while( Add_Polygon_Segment(Segments, pPart) );
 
-		if( Polygon.Get_Area(iPart) == 0. )
+		if( !Polygon.Get_Area(iPart) )
 		{
 			Polygon.Del_Part(iPart);
 		}
