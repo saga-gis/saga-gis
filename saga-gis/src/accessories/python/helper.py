@@ -381,7 +381,7 @@ class Tool_Wrapper:
 
     #____________________________________
     def Set_Output(self, ID, Object):
-        if self.is_Okay():
+        if self.is_Okay() and Object:
             self.Output.append([ID, Object])
 
     #____________________________________
