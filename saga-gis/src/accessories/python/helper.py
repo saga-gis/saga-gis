@@ -376,12 +376,12 @@ class Tool_Wrapper:
 
     #____________________________________
     def Set_Input(self, ID, Object):
-        if self.is_Okay() and Object:
+        if self.is_Okay() and Object != None:
             self.Input.append([ID, Object])
 
     #____________________________________
     def Set_Output(self, ID, Object):
-        if self.is_Okay() and Object:
+        if self.is_Okay() and Object != None:
             self.Output.append([ID, Object])
 
     #____________________________________
