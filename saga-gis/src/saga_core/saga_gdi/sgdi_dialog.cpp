@@ -153,6 +153,8 @@ int CSGDI_Dialog::ShowModal(void)
 //---------------------------------------------------------
 bool CSGDI_Dialog::Add_Output(wxWindow *pOutput)
 {
+	pOutput->Reparent((wxWindow *)((wxStaticBoxSizer *)m_pOutput_Sizer)->GetStaticBox()); // wxStaticBoxSizer items should be created as children of its wxStaticBox and not of wxDialog
+
 	m_pOutput_Sizer->Add(pOutput, 1, wxALL|wxEXPAND, SGDI_CTRL_SPACE);
 
 	return( true );
@@ -161,6 +163,9 @@ bool CSGDI_Dialog::Add_Output(wxWindow *pOutput)
 //---------------------------------------------------------
 bool CSGDI_Dialog::Add_Output(wxWindow *pOutput_A, wxWindow *pOutput_B, int Proportion_A, int Proportion_B)
 {
+	pOutput_A->Reparent((wxWindow *)((wxStaticBoxSizer *)m_pOutput_Sizer)->GetStaticBox());
+	pOutput_B->Reparent((wxWindow *)((wxStaticBoxSizer *)m_pOutput_Sizer)->GetStaticBox());
+
 	m_pOutput_Sizer->Add(pOutput_A, Proportion_A, wxALL|wxEXPAND, SGDI_CTRL_SPACE);
 	m_pOutput_Sizer->Add(pOutput_B, Proportion_B, wxALL|wxEXPAND, SGDI_CTRL_SPACE);
 
