@@ -195,6 +195,30 @@ bool CSPOT_Scene_Import::Load_Metadata(CSG_MetaData &Metadata, const CSG_String 
 	return( true );
 }
 
+//---------------------------------------------------------
+CSG_String CSPOT_Scene_Import::Get_File_Path(const CSG_MetaData &Metadata, const CSG_String &Root)
+{
+	CSG_String File;
+
+	if( !Metadata("Data_Access.Data_File.DATA_FILE_PATH")
+	||  !Metadata["Data_Access.Data_File.DATA_FILE_PATH"].Get_Property("href", File) || File.is_Empty() )
+	{
+		File = "IMAGERY.TIF";
+	}
+
+	if( !SG_File_Exists(SG_File_Make_Path(Root, File)) )
+	{
+		File.Make_Lower();
+
+		if( !SG_File_Exists(SG_File_Make_Path(Root, File)) )
+		{
+			File.Make_Upper();
+		}
+	}
+
+	return( SG_File_Make_Path(Root, File) );
+}
+
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -212,7 +236,15 @@ bool CSPOT_Scene_Import::On_Execute(void)
 		return( false );
 	}
 
-	CSG_String File = "IMAGERY.TIF"; Metadata.Get_Content("Data_Access.Data_File.DATA_FILE_PATH", File);
+	//-----------------------------------------------------
+	CSG_String File = Get_File_Path(Metadata, SG_File_Get_Path(Metafile));
+
+	if( !SG_File_Exists(File) )
+	{
+		Error_Fmt("%s [%s]", _TL("failed to locate imagery file"), File.c_str());
+
+		return( false );
+	}
 
 	int Mission = 0; Metadata.Get_Content("Dataset_Sources.Source_Information.Scene_Source.MISSION_INDEX", Mission);
 
@@ -221,14 +253,14 @@ bool CSPOT_Scene_Import::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Grids Bands, *pBands; pBands = Level == 1 ? &Bands : SG_Create_Grids();
 
-	if( !pBands->Load(SG_File_Make_Path(SG_File_Get_Path(Metafile), File)) )
+	if( !pBands->Load(File) )
 	{
 		if( pBands != &Bands )
 		{
 			delete(pBands);
 		}
 
-		Error_Fmt("%s [%s]", _TL("failed to load imagery"), File.c_str());
+		Error_Fmt("%s [%s]", _TL("failed to load imagery file"), File.c_str());
 
 		return( false );
 	}
@@ -459,6 +491,8 @@ bool CSPOT_Scene_Import::Georeference(const CSG_MetaData &Metadata, CSG_Grids &B
 
 	//-----------------------------------------------------
 	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+	Error_Fmt("%s", _TL("failed to project imagery"));
 
 	return( false );
 }
