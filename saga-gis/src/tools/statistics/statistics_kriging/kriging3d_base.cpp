@@ -119,7 +119,7 @@ CKriging3D_Base::CKriging3D_Base(void)
 	Parameters.Add_String("",
 		"VAR_MODEL"		, _TL("Model"),
 		_TL(""),
-		"a + b * x"
+		"b * x" // 'linear (no nugget)', the most robust model
 	)->Set_UseInGUI(false);
 
 	//-----------------------------------------------------
