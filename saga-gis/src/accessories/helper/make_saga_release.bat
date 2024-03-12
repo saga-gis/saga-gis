@@ -198,13 +198,24 @@ REM clean up...
 
 RMDIR /S/Q "%SAGA_RELEASE_NAME%_x64"
 
+POPD
+
+
+REM ___________________________________
+REM ###################################
+REM Create Tool Documentation
+REM ###################################
+
+MKDIR "%CD%\saga_tool_doc"
+MKDIR "%CD%\saga_tool_doc\%SAGA_RELEASE%"
+
+"%SAGA_BIN%\saga_cmd" dev_tools 10 -FOLDER="%CD%\saga_tool_doc\%SAGA_RELEASE%"
+
 
 REM ___________________________________
 REM ###################################
 REM END: MAKE RELEASE
 REM ###################################
-
-POPD
 
 CLS
 
@@ -227,6 +238,10 @@ ECHO.
 ECHO - Upload API Documentation to saga-gis.org
 ECHO.    saga_api_doc (HTML)
 ECHO.
+ECHO - Upload SAGA Tool Documentation
+ECHO.    upload created version folder to www.saga-gis.org/saga_tool_doc/%SAGA_RELEASE%
+ECHO.    add new link to www.saga-gis.org/saga_tool_doc/index.html
+ECHO.
 IF /i "%SWITCH_TO_BRANCH%" == "" (
 ECHO - Add new bug tracker milestone for next aspired version
 ECHO     major.minor version without patch number: saga-%SAGA_VERSION_NEXT%
@@ -248,10 +263,6 @@ ECHO.    ./saga-gis/src/accessories/helper/doxygen_saga_api_html
 ECHO.    ./saga-gis/src/accessories/helper/saga_setup_x64.iss
 ECHO.    ./saga-gis/src/accessories/helper/make_saga_release.bat (this file!)
 ECHO.  and commit: SAGA version updated to next aspired version %SAGA_RELEASE_NEXT%
-ECHO.
-ECHO - Create SAGA Tools Reference Documentation
-ECHO.    sagadoc-code: ./parse_modules.py
-ECHO.    upload created version folder to saga-gis.org and update link
 ECHO.
 ECHO - Commit a comment like: SAGA version updated to %SAGA_RELEASE%
 ECHO.    https://sourceforge.net/p/saga-gis/news/
