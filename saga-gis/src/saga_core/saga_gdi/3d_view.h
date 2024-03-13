@@ -61,7 +61,6 @@
 #include <wx/panel.h>
 #include <wx/image.h>
 #include <wx/menu.h>
-#include <wx/frame.h>
 
 #include "saga_gdi.h"
 
@@ -93,6 +92,7 @@ class SGDI_API_DLL_EXPORT CSG_3DView_Panel : public wxPanel, public CSG_3DView_C
 {
 public:
 	CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape = NULL);
+	virtual ~CSG_3DView_Panel(void);
 
 	CSG_Parameters				m_Parameters;
 
@@ -163,24 +163,8 @@ protected:
 
 private:
 
-	class CTwin : public wxFrame
-	{
-	public:
-		CTwin(wxWindow *pParent);
+	class wxFrame				*m_pTwin { NULL };
 
-		wxImage m_Image;
-
-		bool					Update_Size				(const wxSize &Size);
-
-		virtual void			On_Paint				(wxPaintEvent &event);
-
-		DECLARE_EVENT_TABLE()
-	};
-
-	CSG_3DView_Panel::CTwin		*m_pTwin { NULL };
-
-
-private:
 
 	static int					_On_Parameter_Changed	(CSG_Parameter *pParameter, int Flags);
 

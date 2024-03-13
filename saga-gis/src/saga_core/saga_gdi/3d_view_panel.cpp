@@ -49,6 +49,8 @@
 //---------------------------------------------------------
 #include <wx/dcclient.h>
 #include <wx/clipbrd.h>
+#include <wx/display.h>
+#include <wx/frame.h>
 
 #include "3d_view.h"
 
@@ -60,41 +62,75 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-BEGIN_EVENT_TABLE(CSG_3DView_Panel::CTwin, wxFrame)
-	EVT_PAINT      (CSG_3DView_Panel::CTwin::On_Paint)
-END_EVENT_TABLE()
-
-//---------------------------------------------------------
-CSG_3DView_Panel::CTwin::CTwin(wxWindow *pParent)
-	: wxFrame(pParent, wxID_ANY, wxString::Format("%s | %s", _TL("Stereo View"), _TL("Right Eye")), wxDefaultPosition, wxDefaultSize, wxCAPTION|wxSTAY_ON_TOP)
+class CSG_3DView_Twin : public wxFrame
 {
-	Show();
-}
+public:
 
-//---------------------------------------------------------
-bool CSG_3DView_Panel::CTwin::Update_Size(const wxSize &Size)
-{
-	SetClientSize(Size);
+	wxImage m_Image;
 
-	if( !m_Image.IsOk() || Size.x != m_Image.GetWidth() || Size.y != m_Image.GetHeight() )
+
+	//-----------------------------------------------------
+	CSG_3DView_Twin(wxWindow *pParent, const wxPoint &Position)
+		: wxFrame(pParent, wxID_ANY, wxString::Format("%s | %s", _TL("Stereo View"), _TL("Right Eye")), wxDefaultPosition, wxDefaultSize, wxCAPTION|wxSTAY_ON_TOP)
 	{
-		if( !m_Image.Create(Size.x, Size.y) )
+		Sync_Position(Position);
+
+		Show();
+	}
+
+
+	//-----------------------------------------------------
+	void	On_Paint		(wxPaintEvent &event)
+	{
+		if( m_Image.IsOk() && m_Image.GetWidth() > 0 && m_Image.GetHeight() > 0 )
 		{
-			return( false );
+			wxPaintDC dc(this); dc.DrawBitmap(wxBitmap(m_Image), 0, 0, false);
 		}
 	}
 
-	return( true );
-}
+	//-----------------------------------------------------
+	bool	Update_Size		(const wxSize &Size)
+	{
+		SetClientSize(Size);
+
+		if( !m_Image.IsOk() || Size.x != m_Image.GetWidth() || Size.y != m_Image.GetHeight() )
+		{
+			if( !m_Image.Create(Size.x, Size.y) )
+			{
+				return( false );
+			}
+		}
+
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	bool	Sync_Position	(const wxPoint &Position)
+	{
+		if( wxDisplay::GetCount() > 1 && wxDisplay::GetFromPoint(Position) != wxNOT_FOUND )
+		{
+			int i = wxDisplay::GetFromPoint(Position); int j = (i + 1) % wxDisplay::GetCount();
+
+			wxRect ir(wxDisplay(i).GetGeometry()), jr(wxDisplay(j).GetGeometry());
+
+			wxPoint p(Position.x - ir.x + jr.x, Position.y - ir.y + jr.y);
+
+			Move(p);
+
+			return( true );
+		}
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	DECLARE_EVENT_TABLE()
+};
 
 //---------------------------------------------------------
-void CSG_3DView_Panel::CTwin::On_Paint(wxPaintEvent &WXUNUSED(event))
-{
-	if( m_Image.IsOk() && m_Image.GetWidth() > 0 && m_Image.GetHeight() > 0 )
-	{
-		wxPaintDC dc(this); dc.DrawBitmap(wxBitmap(m_Image), 0, 0, false);
-	}
-}
+BEGIN_EVENT_TABLE(CSG_3DView_Twin, wxFrame)
+	EVT_PAINT      (CSG_3DView_Twin::On_Paint)
+END_EVENT_TABLE()
 
 
 ///////////////////////////////////////////////////////////
@@ -232,6 +268,15 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	);
 
 	m_Play_State = SG_3DVIEW_PLAY_STOP;
+}
+
+//---------------------------------------------------------
+CSG_3DView_Panel::~CSG_3DView_Panel(void)
+{
+	if( m_pTwin )
+	{
+		StereoTwin_Toggle();
+	}
 }
 
 
@@ -629,6 +674,7 @@ void CSG_3DView_Panel::On_Key_Down(wxKeyEvent &event)
 		case '0'         : m_dStereo += 0.5       ; break;
 
 		case 'T'         : StereoTwin_Toggle()    ; break;
+		case 'Z'         : if( m_pTwin ) { ((CSG_3DView_Twin *)m_pTwin)->Sync_Position(GetScreenPosition()); } break;
 
 		case 'B'         : m_bBox     = !m_bBox   ; break;
 
@@ -855,9 +901,9 @@ bool CSG_3DView_Panel::Update_View(bool bStatistics)
 
 	Set_Image(m_Image);
 
-	if( m_pTwin && m_pTwin->Update_Size(Size) )
+	if( m_pTwin && ((CSG_3DView_Twin *)m_pTwin)->Update_Size(Size) )
 	{
-		Set_Image_Twin(m_pTwin->m_Image);
+		Set_Image_Twin(((CSG_3DView_Twin *)m_pTwin)->m_Image);
 	}
 
 	//-----------------------------------------------------
@@ -867,7 +913,7 @@ bool CSG_3DView_Panel::Update_View(bool bStatistics)
 	{
 		Refresh(false); Update();
 
-		if( m_pTwin && m_pTwin->m_Image.IsOk() )
+		if( m_pTwin && ((CSG_3DView_Twin *)m_pTwin)->m_Image.IsOk() )
 		{
 			m_pTwin->Refresh(false); m_pTwin->Update();
 		}
@@ -888,7 +934,7 @@ bool CSG_3DView_Panel::StereoTwin_Toggle(void)
 {
 	if( m_pTwin == NULL )
 	{
-		m_pTwin = new CSG_3DView_Panel::CTwin(GetParent());
+		m_pTwin = new CSG_3DView_Twin((wxWindow *)SG_UI_Get_Window_Main(), GetScreenPosition());
 	}
 	else
 	{
