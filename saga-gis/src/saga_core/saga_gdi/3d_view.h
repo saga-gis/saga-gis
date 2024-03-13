@@ -61,6 +61,7 @@
 #include <wx/panel.h>
 #include <wx/image.h>
 #include <wx/menu.h>
+#include <wx/frame.h>
 
 #include "saga_gdi.h"
 
