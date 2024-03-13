@@ -52,9 +52,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -62,9 +62,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -146,9 +146,9 @@ private:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -188,7 +188,8 @@ protected:
 	double						Get_Dim					(double x0, double y0, double z0, double x1, double y1, double z1, double x2, double y2, double z2, const CSG_Vector &LightSource, int Shading, double zScale = 1000.);
 	double						Get_Dim					(const CSG_Point_3D &p0, const CSG_Point_3D &p1, const CSG_Point_3D &p2, const CSG_Vector &LightSource, int Shading, double zScale = 1000.);
 
-	void						Set_Image				(BYTE *pRGB, int NX, int NY);
+	bool						Set_Image				(class wxImage &Image);
+	bool						Set_Image_Twin			(class wxImage &Image);
 	bool						Set_Drape				(CSG_Grid *pDrape);
 
 	void						Draw_Point				(int x, int y, double z, int Color, int Size);
@@ -219,7 +220,7 @@ private:
 
 	int							m_Image_NX, m_Image_NY, m_Color_Mode;
 
-	BYTE						*m_Image_pRGB;
+	BYTE						*m_Image_pRGB { NULL }, *m_Image_pTwin { NULL };
 
 	CSG_Matrix					m_Image_zMax;
 
@@ -233,9 +234,9 @@ private:
 	void						_Draw_North				(void);
 
 	void						_Draw_Labels			(int Front);
-	void						_Draw_Labels			(double Min, double Max,         const TSG_Point_3D &P, double Rx, double Ry, double Rz                             , int Resolution = 100, double Scale = 1.);
+	void						_Draw_Labels			(double Min, double Max,          const TSG_Point_3D &P, double Rx, double Ry, double Rz                             , int Resolution = 100, double Scale = 1.);
 	void						_Draw_Labels			(int Axis, const TSG_Point_3D &A, const TSG_Point_3D &B, double Rx, double Ry, double Rz, int Align = LABEL_ALIGN_TOP, int Resolution = 100, double Scale = 1.);
-	void						_Draw_Label				(const CSG_String &Text,         const TSG_Point_3D &P, double Rx, double Ry, double Rz, int Align = LABEL_ALIGN_TOP, int Resolution = 100, double Scale = 1.);
+	void						_Draw_Label				(const CSG_String &Text,          const TSG_Point_3D &P, double Rx, double Ry, double Rz, int Align = LABEL_ALIGN_TOP, int Resolution = 100, double Scale = 1.);
 
 	void						_Draw_Image				(class wxImage &Image, const CSG_Vector &Move, const CSG_Matrix &Rotate, int BGColor = -1, int xOffset = 0, int yOffset = 0);
 
@@ -248,9 +249,9 @@ private:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

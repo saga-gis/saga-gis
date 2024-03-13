@@ -54,9 +54,53 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+BEGIN_EVENT_TABLE(CSG_3DView_Panel::CTwin, wxFrame)
+	EVT_PAINT      (CSG_3DView_Panel::CTwin::On_Paint)
+END_EVENT_TABLE()
+
+//---------------------------------------------------------
+CSG_3DView_Panel::CTwin::CTwin(wxWindow *pParent)
+	: wxFrame(pParent, wxID_ANY, wxString::Format("%s | %s", _TL("Stereo View"), _TL("Right Eye")), wxDefaultPosition, wxDefaultSize, wxCAPTION|wxSTAY_ON_TOP)
+{
+	Show();
+}
+
+//---------------------------------------------------------
+bool CSG_3DView_Panel::CTwin::Update_Size(const wxSize &Size)
+{
+	SetClientSize(Size);
+
+	if( !m_Image.IsOk() || Size.x != m_Image.GetWidth() || Size.y != m_Image.GetHeight() )
+	{
+		if( !m_Image.Create(Size.x, Size.y) )
+		{
+			return( false );
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+void CSG_3DView_Panel::CTwin::On_Paint(wxPaintEvent &WXUNUSED(event))
+{
+	if( m_Image.IsOk() && m_Image.GetWidth() > 0 && m_Image.GetHeight() > 0 )
+	{
+		wxPaintDC dc(this); dc.DrawBitmap(wxBitmap(m_Image), 0, 0, false);
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -75,7 +119,7 @@ enum
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -95,7 +139,7 @@ END_EVENT_TABLE()
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -192,7 +236,7 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -411,7 +455,7 @@ bool CSG_3DView_Panel::Parameter_Value_Add(const CSG_String &ID, double Value, b
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -426,7 +470,7 @@ void CSG_3DView_Panel::Update_Parent(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -467,6 +511,7 @@ CSG_Table CSG_3DView_Panel::Get_Shortcuts(void)
 	ADD_SHORTCUT("A"        , _TL("Anaglyph"));
 	ADD_SHORTCUT("9"        , _TL("Decrease Eye Distance Angle for Anaglyph View"));
 	ADD_SHORTCUT("0"        , _TL("Increase Eye Distance Angle for Anaglyph View"));
+//	ADD_SHORTCUT("T"        , _TL("Stereo View Twin Window"));
 
 	ADD_SHORTCUT("Ctrl+C"   , _TL("Copy to Clipboard"));
 
@@ -517,7 +562,7 @@ CSG_String CSG_3DView_Panel::Get_Usage(const CSG_Table &Shortcuts)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -583,6 +628,8 @@ void CSG_3DView_Panel::On_Key_Down(wxKeyEvent &event)
 		case '9'         : m_dStereo -= 0.5       ; break;
 		case '0'         : m_dStereo += 0.5       ; break;
 
+		case 'T'         : StereoTwin_Toggle()    ; break;
+
 		case 'B'         : m_bBox     = !m_bBox   ; break;
 
 		case 'N'         : m_North    = (m_North  + 1) % 3; break;
@@ -595,7 +642,7 @@ void CSG_3DView_Panel::On_Key_Down(wxKeyEvent &event)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -741,7 +788,7 @@ void CSG_3DView_Panel::On_Mouse_Wheel(wxMouseEvent &event)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -757,7 +804,7 @@ bool CSG_3DView_Panel::On_Before_Draw(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -806,7 +853,12 @@ bool CSG_3DView_Panel::Update_View(bool bStatistics)
 		}
 	}
 
-	Set_Image(m_Image.GetData(), m_Image.GetWidth(), m_Image.GetHeight() );
+	Set_Image(m_Image);
+
+	if( m_pTwin && m_pTwin->Update_Size(Size) )
+	{
+		Set_Image_Twin(m_pTwin->m_Image);
+	}
 
 	//-----------------------------------------------------
 	CSG_Grid *pDrape = m_pDrape; if( m_pDrape && !m_Parameters("MAP_DRAPE")->asBool() ) m_pDrape = NULL;
@@ -814,6 +866,11 @@ bool CSG_3DView_Panel::Update_View(bool bStatistics)
 	if( Draw() )
 	{
 		Refresh(false); Update();
+
+		if( m_pTwin && m_pTwin->m_Image.IsOk() )
+		{
+			m_pTwin->Refresh(false); m_pTwin->Update();
+		}
 	}
 
 	m_pDrape = pDrape;
@@ -823,9 +880,27 @@ bool CSG_3DView_Panel::Update_View(bool bStatistics)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_3DView_Panel::StereoTwin_Toggle(void)
+{
+	if( m_pTwin == NULL )
+	{
+		m_pTwin = new CSG_3DView_Panel::CTwin(GetParent());
+	}
+	else
+	{
+		delete(m_pTwin); m_pTwin = NULL;
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -852,9 +927,9 @@ bool CSG_3DView_Panel::Save_toClipboard(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1055,9 +1130,9 @@ bool CSG_3DView_Panel::_Play(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

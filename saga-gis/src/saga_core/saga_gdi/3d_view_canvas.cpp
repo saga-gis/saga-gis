@@ -55,9 +55,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -72,9 +72,9 @@ enum
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -98,20 +98,44 @@ CSG_3DView_Canvas::CSG_3DView_Canvas(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_3DView_Canvas::Set_Image(BYTE *pRGB, int NX, int NY)
+bool CSG_3DView_Canvas::Set_Image(wxImage &Image)
 {
-	m_Image_pRGB = pRGB;
+	if( Image.IsOk() && Image.GetWidth() > 0 && Image.GetHeight() > 0 )
+	{
+		m_Image_pRGB = Image.GetData  (); m_Image_pTwin = NULL;
+		m_Image_NX   = Image.GetWidth ();
+		m_Image_NY   = Image.GetHeight();
+		m_Image_zMax.Create   (m_Image_NX, m_Image_NY);
+		m_Projector.Set_Screen(m_Image_NX, m_Image_NY);
 
-	m_Image_NX   = NX;
-	m_Image_NY   = NY;
+		return( true );
+	}
 
-	m_Image_zMax.Create(m_Image_NX, m_Image_NY);
+	m_Image_pRGB = NULL; m_Image_pTwin = NULL;
+	m_Image_NX   = 0;
+	m_Image_NY   = 0;
+	m_Image_zMax.Destroy();
 
-	m_Projector.Set_Screen(m_Image_NX, m_Image_NY);
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_3DView_Canvas::Set_Image_Twin(wxImage &Image)
+{
+	if( Image.IsOk() && Image.GetWidth() == m_Image_NX && Image.GetHeight() == m_Image_NY )
+	{
+		m_Image_pTwin = Image.GetData();
+
+		return( true );
+	}
+
+	m_Image_pTwin = NULL;
+
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -171,7 +195,7 @@ bool CSG_3DView_Canvas::Draw(void)
 	int Front = _Draw_Get_Box_Front();
 
 	//-----------------------------------------------------
-	if( m_bStereo == false )
+	if( m_bStereo == false && m_Image_pTwin == NULL )
 	{
 		m_Color_Mode = COLOR_MODE_RGB;
 
@@ -179,7 +203,7 @@ bool CSG_3DView_Canvas::Draw(void)
 	}
 
 	//-----------------------------------------------------
-	else
+	else if( m_bStereo == true && m_Image_pTwin == NULL )
 	{
 		double rx = m_Projector.Get_xRotation();
 		double ry = m_Projector.Get_yRotation(), dy = cos(rx) * m_dStereo * M_DEG_TO_RAD / 2.;
@@ -206,6 +230,34 @@ bool CSG_3DView_Canvas::Draw(void)
 		m_Projector.Set_zRotation(rz);
 	}
 
+	//-----------------------------------------------------
+	else // if( m_Image_pTwin )
+	{
+		m_Color_Mode = COLOR_MODE_RGB;
+
+		double rx = m_Projector.Get_xRotation();
+		double ry = m_Projector.Get_yRotation(), dy = cos(rx) * m_dStereo * M_DEG_TO_RAD / 2.;
+		double rz = m_Projector.Get_zRotation(), dz = sin(rx) * m_dStereo * M_DEG_TO_RAD / 2.;
+
+		//-------------------------------------------------
+		m_Projector.Set_yRotation(ry - dy);
+		m_Projector.Set_zRotation(rz - dz);
+
+		m_Image_zMax.Assign(999999.); On_Draw(); _Draw_Box(); _Draw_Labels(Front); _Draw_North();
+
+		//-------------------------------------------------
+		m_Projector.Set_yRotation(ry + dy);
+		m_Projector.Set_zRotation(rz + dz);
+
+		BYTE *pRGB = m_Image_pRGB; m_Image_pRGB = m_Image_pTwin; _Draw_Background();
+		m_Image_zMax.Assign(999999.); On_Draw(); _Draw_Box(); _Draw_Labels(Front); _Draw_North();
+		m_Image_pRGB = pRGB;
+
+		//-------------------------------------------------
+		m_Projector.Set_yRotation(ry);
+		m_Projector.Set_zRotation(rz);
+	}
+
 	bDrawing = false;
 
 	return( true );
@@ -213,7 +265,7 @@ bool CSG_3DView_Canvas::Draw(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -248,7 +300,7 @@ void CSG_3DView_Canvas::_Draw_Background(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -320,7 +372,7 @@ void CSG_3DView_Canvas::_Draw_Box(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -399,7 +451,7 @@ void CSG_3DView_Canvas::_Draw_North(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -600,7 +652,7 @@ void CSG_3DView_Canvas::_Draw_Label(const CSG_String &Text, const TSG_Point_3D &
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -667,7 +719,7 @@ void CSG_3DView_Canvas::_Draw_Image(wxImage &Image, const CSG_Vector &Move, cons
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -782,7 +834,7 @@ inline void CSG_3DView_Canvas::_Draw_Pixel(int x, int y, double z, int color)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -812,7 +864,7 @@ void CSG_3DView_Canvas::Draw_Point(int x, int y, double z, int Color, int Size)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -934,7 +986,7 @@ void CSG_3DView_Canvas::Draw_Line(const TSG_Point_3D &a, const TSG_Point_3D &b, 
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1170,7 +1222,7 @@ inline void CSG_3DView_Canvas::_Draw_Triangle_Line(int y, double a[], double b[]
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1254,9 +1306,9 @@ void CSG_3DView_Canvas::Draw_Polygon(CSG_Shape_Polygon &Polygon, int Color)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
