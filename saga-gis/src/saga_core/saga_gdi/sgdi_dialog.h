@@ -112,7 +112,7 @@ private:
 
 	wxSizer					*m_pCtrl_Sizer;
 
-	wxStaticBoxSizer		*m_pOutput_Sizer;
+	class wxStaticBoxSizer	*m_pOutput_Sizer;
 
 	class wxScrolledWindow	*m_pCtrl;
 

@@ -155,7 +155,7 @@ bool CSGDI_Dialog::Add_Output(wxWindow *pOutput, bool bReparent)
 {
 	if( bReparent ) // wxStaticBoxSizer items should be created as children of its wxStaticBox and not of wxDialog (except wxPanel objects?!)
 	{
-		pOutput->Reparent(m_pOutput_Sizer->GetStaticBox());
+		pOutput->Reparent((wxWindow *)m_pOutput_Sizer->GetStaticBox());
 	}
 
 	m_pOutput_Sizer->Add(pOutput, 1, wxALL|wxEXPAND, SGDI_CTRL_SPACE);
@@ -168,8 +168,8 @@ bool CSGDI_Dialog::Add_Output(wxWindow *pOutput_A, wxWindow *pOutput_B, int Prop
 {
 	if( bReparent ) // wxStaticBoxSizer items should be created as children of its wxStaticBox and not of wxDialog (except wxPanel objects?!)
 	{
-		pOutput_A->Reparent(m_pOutput_Sizer->GetStaticBox());
-		pOutput_B->Reparent(m_pOutput_Sizer->GetStaticBox());
+		pOutput_A->Reparent((wxWindow *)m_pOutput_Sizer->GetStaticBox());
+		pOutput_B->Reparent((wxWindow *)m_pOutput_Sizer->GetStaticBox());
 	}
 
 	m_pOutput_Sizer->Add(pOutput_A, Proportion_A, wxALL|wxEXPAND, SGDI_CTRL_SPACE);
