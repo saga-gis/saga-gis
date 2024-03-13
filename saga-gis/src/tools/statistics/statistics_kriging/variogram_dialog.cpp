@@ -450,7 +450,7 @@ CVariogram_Dialog::CVariogram_Dialog(void)
 	Add_Output(
 		m_pDiagram = new CVariogram_Diagram(this),
 		m_pFormula = new wxTextCtrl(this, wxID_ANY, Get_Formula(1), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER),
-		1, 0
+		1, 0, true
 	);
 
 	//-----------------------------------------------------
@@ -592,7 +592,7 @@ void CVariogram_Dialog::Set_Model(void)
 			s	+= wxString::Format("\n%s:\t%.2f%%", _TL("Determination"   ), m_pModel->Get_R2() * 100.0);
 			s	+= wxString::Format("\n%s:\t%.*f"  , _TL("Fitting range"   ), SG_Get_Significant_Decimals(m_pDistance->Get_Value()), m_pDistance->Get_Value());
 			s	+= wxString::Format("\n%s:\t%d"    , _TL("Samples in range"), m_pModel->Get_Data_Count());
-			s	+= wxString::Format("\n%s:\t%ld"   , _TL("Lag Classes"     ), m_pVariogram->Get_Count());
+			s	+= wxString::Format("\n%s:\t%d"    , _TL("Lag Classes"     ), (int)m_pVariogram->Get_Count());
 			s	+= wxString::Format("\n%s:\t%.2f"  , _TL("Lag Distance"    ), m_Settings("LAGDIST")->asDouble());
 			s	+= wxString::Format("\n%s:\t%.2f"  , _TL("Maximum Distance"), m_Settings("MAXDIST")->asDouble());
 

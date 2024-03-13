@@ -102,15 +102,17 @@ protected:
 	CSGDI_SpinCtrl *		Add_SpinCtrl		(const wxString &Name, double Value, double minValue, double maxValue, bool bValueAsPercent = false, int ID = wxID_ANY, int Width = SGDI_CTRL_WIDTH);
 	void					Add_CustomCtrl		(const wxString &Name, wxWindow *pControl);
 
-	bool					Add_Output			(wxWindow *pOutput);
-	bool					Add_Output			(wxWindow *pOutput_A, wxWindow *pOutput_B, int Proportion_A = 1, int Proportion_B = 0);
+	bool					Add_Output			(wxWindow *pOutput, bool bReparent = false);
+	bool					Add_Output			(wxWindow *pOutput_A, wxWindow *pOutput_B, int Proportion_A = 1, int Proportion_B = 0, bool bReparent = false);
 
 
 private:
 
 	wxColour				m_Ctrl_Color;
 
-	wxSizer					*m_pCtrl_Sizer, *m_pOutput_Sizer;
+	wxSizer					*m_pCtrl_Sizer;
+
+	wxStaticBoxSizer		*m_pOutput_Sizer;
 
 	class wxScrolledWindow	*m_pCtrl;
 
