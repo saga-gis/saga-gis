@@ -2008,6 +2008,11 @@ CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader, bool bName, bool bCal
 	{
 		Name = Get_Name();
 
+		if( isdigit(Name[0]) ) // ...in case first letter is a numeric character, what is not allowed for Python function names!
+		{
+			Name.Prepend("_");
+		}
+	
 		Name.Replace(" ", "_");
 		Name.Replace("(", "");
 		Name.Replace(")", "");
