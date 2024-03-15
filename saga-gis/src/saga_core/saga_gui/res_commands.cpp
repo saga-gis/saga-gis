@@ -63,9 +63,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -303,9 +303,10 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAP3D_CENTRAL_LESS:		return( _TL("Decrease Perspectivic Distance") );
 	case ID_CMD_MAP3D_CENTRAL_MORE:		return( _TL("Increase Perspectivic Distance") );
 	case ID_CMD_MAP3D_CENTRAL:			return( _TL("Central Projection") );
-	case ID_CMD_MAP3D_STEREO:			return( _TL("Anaglyph") );
-	case ID_CMD_MAP3D_STEREO_LESS:		return( _TL("Decrease Eye Distance Angle for Anaglyph View") );
-	case ID_CMD_MAP3D_STEREO_MORE:		return( _TL("Increase Eye Distance Angle for Anaglyph View") );
+	case ID_CMD_MAP3D_ANAGLYPH:			return( _TL("Anaglyph") );
+	case ID_CMD_MAP3D_STEREO_VIEW:		return( _TL("Stereo View Twin Window") );
+	case ID_CMD_MAP3D_STEREO_LESS:		return( _TL("Decrease Eye Distance Angle for Stereo View") );
+	case ID_CMD_MAP3D_STEREO_MORE:		return( _TL("Increase Eye Distance Angle for Stereo View") );
 	case ID_CMD_MAP3D_INTERPOLATED:		return( _TL("Interpolated Colors") );
 	case ID_CMD_MAP3D_SAVE:				return( _TL("Save as Image...") );
 	case ID_CMD_MAP3D_SEQ_POS_ADD:		return( _TL("Add Position") );
@@ -463,7 +464,7 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_MAP3D_SHIFT_Y_MORE:		return( ID_IMG_TB_MAP3D_SHIFT_Y_MORE );
 	case ID_CMD_MAP3D_SHIFT_Z_LESS:		return( ID_IMG_TB_MAP3D_SHIFT_Z_LESS );
 	case ID_CMD_MAP3D_SHIFT_Z_MORE:		return( ID_IMG_TB_MAP3D_SHIFT_Z_MORE );
-	case ID_CMD_MAP3D_STEREO:			return( ID_IMG_TB_MAP3D_STEREO );
+	case ID_CMD_MAP3D_ANAGLYPH:			return( ID_IMG_TB_MAP3D_STEREO );
 
 	case ID_CMD_LAYOUT_PAGE_SETUP:		return( ID_IMG_TB_LAYOUT_PAGE_SETUP );
 	case ID_CMD_LAYOUT_PRINT_SETUP:		return( ID_IMG_TB_LAYOUT_PRINT_SETUP );
@@ -506,9 +507,9 @@ int CMD_Get_ImageID(int Cmd_ID)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -539,9 +540,9 @@ void CMD_Menu_Ins_Item(wxMenu *pMenu, bool bCheck, int Cmd_ID, int Position)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -591,9 +592,9 @@ void CMD_ToolBar_Add_Separator(wxToolBarBase *pToolBar)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

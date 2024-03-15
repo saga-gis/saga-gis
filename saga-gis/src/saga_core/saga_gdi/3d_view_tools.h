@@ -164,9 +164,9 @@ public:
 
 protected:
 
-	bool						m_bBox, m_bStereo;
+	bool						m_bBox;
 
-	int							m_bgColor, m_North, m_Labels, m_Label_Res, m_Label_zType;
+	int							m_bgColor, m_North, m_Labels, m_Label_Res, m_Label_zType, m_Stereo;
 
 	double						m_dStereo, m_BoxBuffer, m_North_Size, m_Label_Scale;
 

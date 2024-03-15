@@ -66,14 +66,16 @@ class CSG_3DView_Twin : public wxFrame
 {
 public:
 
-	wxImage m_Image;
+	wxImage m_Image; CSG_3DView_Panel *m_pPanel { NULL };
 
 
 	//-----------------------------------------------------
-	CSG_3DView_Twin(wxWindow *pParent, const wxPoint &Position)
+	CSG_3DView_Twin(wxWindow *pParent, CSG_3DView_Panel *pPanel)
 		: wxFrame(pParent, wxID_ANY, wxString::Format("%s | %s", _TL("Stereo View"), _TL("Right Eye")), wxDefaultPosition, wxDefaultSize, wxCAPTION|wxSTAY_ON_TOP)
 	{
-		Sync_Position(Position);
+		m_pPanel = pPanel;
+
+		Sync_Position();
 
 		Show();
 	}
@@ -89,8 +91,10 @@ public:
 	}
 
 	//-----------------------------------------------------
-	bool	Update_Size		(const wxSize &Size)
+	bool	Sync_Size		(void)
 	{
+		wxSize Size(m_pPanel->GetClientSize());
+
 		SetClientSize(Size);
 
 		if( !m_Image.IsOk() || Size.x != m_Image.GetWidth() || Size.y != m_Image.GetHeight() )
@@ -105,8 +109,10 @@ public:
 	}
 
 	//-----------------------------------------------------
-	bool	Sync_Position	(const wxPoint &Position)
+	bool	Sync_Position	(void)
 	{
+		wxPoint Position = m_pPanel->GetScreenPosition();
+
 		if( wxDisplay::GetCount() > 1 && wxDisplay::GetFromPoint(Position) != wxNOT_FOUND )
 		{
 			int i = wxDisplay::GetFromPoint(Position); int j = (i + 1) % wxDisplay::GetCount();
@@ -115,7 +121,7 @@ public:
 
 			wxPoint p(Position.x - ir.x + jr.x, Position.y - ir.y + jr.y);
 
-			Move(p);
+			SetPosition(p);
 
 			return( true );
 		}
@@ -216,7 +222,7 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 
 	m_Parameters.Add_Color ("3D_VIEW" , "BGCOLOR"     , _TL("Background Color"     ), _TL(""), SG_COLOR_WHITE);
 
-	m_Parameters.Add_Bool  ("3D_VIEW" , "STEREO"      , _TL("Anaglyph"             ), _TL(""), m_bStereo);
+	m_Parameters.Add_Choice("3D_VIEW" , "STEREO"      , _TL("Stereo View"          ), _TL(""), CSG_String::Format("%s|%s|%s", _TL("off"), _TL("anaglyph"), _TL("twin window for right eye")));
 	m_Parameters.Add_Double("STEREO"  , "STEREO_DIST" , _TL("Eye Distance [Degree]"), _TL(""), m_dStereo, 0., true, 180., true);
 
 	//-----------------------------------------------------
@@ -275,7 +281,7 @@ CSG_3DView_Panel::~CSG_3DView_Panel(void)
 {
 	if( m_pTwin )
 	{
-		StereoTwin_Toggle();
+		delete(m_pTwin);
 	}
 }
 
@@ -303,7 +309,7 @@ bool CSG_3DView_Panel::Update_Parameters(bool bSave)
 		m_Parameters["CENTRAL_DIST"].Set_Value(m_Projector.Get_Central_Distance());
 
 		//-------------------------------------------------
-		m_Parameters["STEREO"      ].Set_Value(m_bStereo    );
+		m_Parameters["STEREO"      ].Set_Value(m_Stereo     );
 		m_Parameters["STEREO_DIST" ].Set_Value(m_dStereo    );
 
 		m_Parameters["BGCOLOR"     ].Set_Value(m_bgColor    );
@@ -343,7 +349,7 @@ bool CSG_3DView_Panel::Update_Parameters(bool bSave)
 		m_Projector.Set_Central_Distance(m_Parameters["CENTRAL_DIST"].asDouble());
 
 		//-------------------------------------------------
-		m_bStereo     = m_Parameters["STEREO"     ].asBool  ();
+		m_Stereo      = m_Parameters["STEREO"     ].asInt   ();
 		m_dStereo     = m_Parameters["STEREO_DIST"].asDouble();
 
 		m_bgColor     = m_Parameters["BGCOLOR"    ].asColor ();
@@ -412,11 +418,6 @@ int CSG_3DView_Panel::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 		pParameters->Set_Enabled("MAP_DRAPE_MODE", pParameter->asBool());
 	}
 
-	if( pParameter->Cmp_Identifier("STEREO") )
-	{
-		pParameters->Set_Enabled("STEREO_DIST", pParameter->asBool());
-	}
-
 	if( pParameter->Cmp_Identifier("NORTH") )
 	{
 		pParameter->Set_Children_Enabled(pParameter->asBool());
@@ -425,6 +426,11 @@ int CSG_3DView_Panel::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 	if( pParameter->Cmp_Identifier("LABELS") )
 	{
 		pParameter->Set_Children_Enabled(pParameter->asInt() != 2);
+	}
+
+	if( pParameter->Cmp_Identifier("STEREO") )
+	{
+		pParameters->Set_Enabled("STEREO_DIST", pParameter->asInt() != 0);
 	}
 
 	return( 1 );
@@ -553,10 +559,11 @@ CSG_Table CSG_3DView_Panel::Get_Shortcuts(void)
 	ADD_SHORTCUT("7"        , _TL("Increase Perspective Distance for Central Projection"));
 	ADD_SHORTCUT("8"        , _TL("Decrease Perspective Distance for Central Projection"));
 
-	ADD_SHORTCUT("A"        , _TL("Anaglyph"));
-	ADD_SHORTCUT("9"        , _TL("Decrease Eye Distance Angle for Anaglyph View"));
-	ADD_SHORTCUT("0"        , _TL("Increase Eye Distance Angle for Anaglyph View"));
-//	ADD_SHORTCUT("T"        , _TL("Stereo View Twin Window"));
+	ADD_SHORTCUT("T"        , _TL("Toggle Stereo View Twin Window"));
+	ADD_SHORTCUT("U"        , _TL("Synchronize Stereo View Twin Window Position"));
+	ADD_SHORTCUT("A"        , _TL("Toggle Anaglyph View"));
+	ADD_SHORTCUT("9"        , _TL("Decrease Eye Distance Angle for Stereo View"));
+	ADD_SHORTCUT("0"        , _TL("Increase Eye Distance Angle for Stereo View"));
 
 	ADD_SHORTCUT("Ctrl+C"   , _TL("Copy to Clipboard"));
 
@@ -669,14 +676,14 @@ void CSG_3DView_Panel::On_Key_Down(wxKeyEvent &event)
 		case '7'         : m_Projector.Inc_Central_Distance( 0.1); break;
 		case '8'         : m_Projector.Inc_Central_Distance(-0.1); break;
 
-		case 'A'         : m_bStereo  = !m_bStereo; break;
-		case '9'         : m_dStereo -= 0.5       ; break;
-		case '0'         : m_dStereo += 0.5       ; break;
+		case '9'         : m_dStereo -= 0.5; break;
+		case '0'         : m_dStereo += 0.5; break;
 
-		case 'T'         : StereoTwin_Toggle()    ; break;
-		case 'Z'         : if( m_pTwin ) { ((CSG_3DView_Twin *)m_pTwin)->Sync_Position(GetScreenPosition()); } break;
+		case 'A'         : Set_Stereo_Mode(m_Stereo != 1 ? 1 : 0); break;
+		case 'T'         : Set_Stereo_Mode(m_Stereo != 2 ? 2 : 0); break;
+		case 'U'         : if( m_pTwin ) { m_pTwin->Sync_Position(); } break;
 
-		case 'B'         : m_bBox     = !m_bBox   ; break;
+		case 'B'         : m_bBox     = !m_bBox           ; break;
 
 		case 'N'         : m_North    = (m_North  + 1) % 3; break;
 		case 'L'         : m_Labels   = (m_Labels + 1) % 3; break;
@@ -901,9 +908,11 @@ bool CSG_3DView_Panel::Update_View(bool bStatistics)
 
 	Set_Image(m_Image);
 
-	if( m_pTwin && ((CSG_3DView_Twin *)m_pTwin)->Update_Size(Size) )
+	Set_Stereo_Mode(m_Stereo);
+
+	if( m_pTwin && m_pTwin->Sync_Size() )
 	{
-		Set_Image_Twin(((CSG_3DView_Twin *)m_pTwin)->m_Image);
+		Set_Image_Twin(m_pTwin->m_Image);
 	}
 
 	//-----------------------------------------------------
@@ -913,7 +922,7 @@ bool CSG_3DView_Panel::Update_View(bool bStatistics)
 	{
 		Refresh(false); Update();
 
-		if( m_pTwin && ((CSG_3DView_Twin *)m_pTwin)->m_Image.IsOk() )
+		if( m_pTwin && m_pTwin->m_Image.IsOk() )
 		{
 			m_pTwin->Refresh(false); m_pTwin->Update();
 		}
@@ -930,16 +939,19 @@ bool CSG_3DView_Panel::Update_View(bool bStatistics)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_3DView_Panel::StereoTwin_Toggle(void)
+bool CSG_3DView_Panel::Set_Stereo_Mode(int Mode)
 {
-	if( m_pTwin == NULL )
-	{
-		m_pTwin = new CSG_3DView_Twin((wxWindow *)SG_UI_Get_Window_Main(), GetScreenPosition());
-	}
-	else
+	if( Mode != 2 && m_pTwin != NULL )
 	{
 		delete(m_pTwin); m_pTwin = NULL;
 	}
+
+	if( Mode == 2 && m_pTwin == NULL )
+	{
+		m_pTwin = new CSG_3DView_Twin((wxWindow *)SG_UI_Get_Window_Main(), this);
+	}
+
+	m_Stereo = Mode;
 
 	return( true );
 }

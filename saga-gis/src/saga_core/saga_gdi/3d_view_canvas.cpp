@@ -86,7 +86,7 @@ CSG_3DView_Canvas::CSG_3DView_Canvas(void)
 	m_bgColor     = SG_COLOR_WHITE;
 	m_bBox        = true;
 	m_BoxBuffer   = 0.01;
-	m_bStereo     = false;
+	m_Stereo      = 0;
 	m_dStereo     = 1.;
 	m_North       = 1;
 	m_North_Size  = 15.;
@@ -195,7 +195,7 @@ bool CSG_3DView_Canvas::Draw(void)
 	int Front = _Draw_Get_Box_Front();
 
 	//-----------------------------------------------------
-	if( m_bStereo == false && m_Image_pTwin == NULL )
+	if( m_Stereo == 0 || (m_Stereo == 2 && m_Image_pTwin == NULL) )
 	{
 		m_Color_Mode = COLOR_MODE_RGB;
 
@@ -203,7 +203,7 @@ bool CSG_3DView_Canvas::Draw(void)
 	}
 
 	//-----------------------------------------------------
-	else if( m_bStereo == true && m_Image_pTwin == NULL )
+	else if( m_Stereo == 1 )
 	{
 		double rx = m_Projector.Get_xRotation();
 		double ry = m_Projector.Get_yRotation(), dy = cos(rx) * m_dStereo * M_DEG_TO_RAD / 2.;
@@ -273,7 +273,7 @@ void CSG_3DView_Canvas::_Draw_Background(void)
 {
 	BYTE r, g, b;
 
-	if( m_bStereo )	// greyscale
+	if( m_Stereo == 1 ) // anaglyph => greyscale
 	{
 		r = g = b = (int)((SG_GET_R(m_bgColor) + SG_GET_G(m_bgColor) + SG_GET_B(m_bgColor)) / 3.);
 	}

@@ -104,7 +104,7 @@ public:
 
 	static CSG_String			Get_Usage				(void);
 
-	bool						StereoTwin_Toggle		(void);
+	bool						Set_Stereo_Mode			(int Mode);
 
 	bool						Save_asImage			(const CSG_String &FileName);
 	bool						Save_toClipboard		(void);
@@ -163,7 +163,7 @@ protected:
 
 private:
 
-	class wxFrame				*m_pTwin { NULL };
+	class CSG_3DView_Twin		*m_pTwin { NULL };
 
 
 	static int					_On_Parameter_Changed	(CSG_Parameter *pParameter, int Flags);
@@ -193,7 +193,8 @@ enum
 	MENU_BOX,
 	MENU_LABELS,
 	MENU_NORTH,
-	MENU_STEREO,
+	MENU_ANAGLYPH,
+	MENU_STEREO_VIEW,
 	MENU_CENTRAL,
 	MENU_TO_CLIPBOARD,
 	MENU_ROTATE_X_INC,

@@ -63,9 +63,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -83,9 +83,9 @@ enum
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -101,9 +101,9 @@ END_EVENT_TABLE()
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -140,7 +140,7 @@ CVIEW_Map_3D::~CVIEW_Map_3D(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -165,7 +165,7 @@ void CVIEW_Map_3D::Update_StatusBar(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -178,7 +178,7 @@ void CVIEW_Map_3D::On_Size(wxSizeEvent &event)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -224,7 +224,8 @@ wxMenu * CVIEW_Map_3D::_Create_Menu(void)
 
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu    ,  true, ID_CMD_MAP3D_CENTRAL);
-	CMD_Menu_Add_Item(pMenu    ,  true, ID_CMD_MAP3D_STEREO);
+	CMD_Menu_Add_Item(pMenu    ,  true, ID_CMD_MAP3D_ANAGLYPH);
+	CMD_Menu_Add_Item(pMenu    ,  true, ID_CMD_MAP3D_STEREO_VIEW);
 
 	return( pMenu );
 }
@@ -237,7 +238,7 @@ wxToolBarBase * CVIEW_Map_3D::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_PARAMETERS);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_TO_CLIPBOARD);
 	CMD_ToolBar_Add_Separator(pToolBar);
-	CMD_ToolBar_Add_Item(pToolBar,  true, ID_CMD_MAP3D_STEREO);
+	CMD_ToolBar_Add_Item(pToolBar,  true, ID_CMD_MAP3D_ANAGLYPH);
 	CMD_ToolBar_Add_Separator(pToolBar);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_ROTATE_X_LESS);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_ROTATE_X_MORE);
@@ -264,7 +265,7 @@ wxToolBarBase * CVIEW_Map_3D::_Create_ToolBar(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -360,11 +361,12 @@ void CVIEW_Map_3D::On_Command(wxCommandEvent &event)
 	case ID_CMD_MAP3D_EXAGGERATE_LESS: m_pPanel->Get_Projector().Inc_zScaling(-0.5); break;
 	case ID_CMD_MAP3D_EXAGGERATE_MORE: m_pPanel->Get_Projector().Inc_zScaling( 0.5); break;
 
-	case ID_CMD_MAP3D_CENTRAL        : m_pPanel->Get_Projector().do_Central(m_pPanel->Get_Projector().is_Central() == false);	break;
+	case ID_CMD_MAP3D_CENTRAL        : m_pPanel->Get_Projector().do_Central(m_pPanel->Get_Projector().is_Central() == false); break;
 	case ID_CMD_MAP3D_CENTRAL_LESS   : m_pPanel->Get_Projector().Inc_Central_Distance( 0.1); break;
 	case ID_CMD_MAP3D_CENTRAL_MORE   : m_pPanel->Get_Projector().Inc_Central_Distance(-0.1); break;
 
-	case ID_CMD_MAP3D_STEREO         : m_pPanel->Parameter_Value_Toggle("STEREO"); return;
+	case ID_CMD_MAP3D_ANAGLYPH       : m_pPanel->Set_Stereo_Mode(m_pPanel->m_Parameters("STEREO")->asInt() != 1 ? 1 : 0); break;
+	case ID_CMD_MAP3D_STEREO_VIEW    : m_pPanel->Set_Stereo_Mode(m_pPanel->m_Parameters("STEREO")->asInt() != 2 ? 2 : 0); break;
 	}
 
 	m_pPanel->Update_Parameters(true); m_pPanel->Update_View();
@@ -379,7 +381,8 @@ void CVIEW_Map_3D::On_Command_UI(wxUpdateUIEvent &event)
 	case ID_CMD_MAP3D_CENTRAL_MORE : event.Enable(m_pPanel->Get_Projector().is_Central()); break;
 	case ID_CMD_MAP3D_CENTRAL      : event.Check (m_pPanel->Get_Projector().is_Central()); break;
 
-	case ID_CMD_MAP3D_STEREO       : event.Check (m_pPanel->m_Parameters("STEREO")->asBool()           ); break;
+	case ID_CMD_MAP3D_ANAGLYPH     : event.Check (m_pPanel->m_Parameters("STEREO")->asInt() == 1); break;
+	case ID_CMD_MAP3D_STEREO_VIEW  : event.Check (m_pPanel->m_Parameters("STEREO")->asInt() == 2); break;
 	case ID_CMD_MAP3D_SEQ_PLAY     : event.Check (m_pPanel->Play_Get_State() == SG_3DVIEW_PLAY_RUN_ONCE); break;
 	case ID_CMD_MAP3D_SEQ_PLAY_LOOP: event.Check (m_pPanel->Play_Get_State() == SG_3DVIEW_PLAY_RUN_LOOP); break;
 	case ID_CMD_MAP3D_SEQ_SAVE     : event.Check (m_pPanel->Play_Get_State() == SG_3DVIEW_PLAY_RUN_SAVE); break;
@@ -388,9 +391,9 @@ void CVIEW_Map_3D::On_Command_UI(wxUpdateUIEvent &event)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

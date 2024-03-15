@@ -53,9 +53,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -149,7 +149,8 @@ void CSG_3DView_Dialog::On_Button(wxCommandEvent &event)
 		pMenu->AppendCheckItem(MENU_BOX          , wxString::Format("%s [B]"        , _TL("Bounding Box"      )));
 		pMenu->AppendCheckItem(MENU_LABELS       , wxString::Format("%s [L]"        , _TL("Axis Labeling"     )));
 		pMenu->AppendCheckItem(MENU_NORTH        , wxString::Format("%s [N]"        , _TL("North Arrow"       )));
-		pMenu->AppendCheckItem(MENU_STEREO       , wxString::Format("%s [A]"        , _TL("Anaglyph"          )));
+		pMenu->AppendCheckItem(MENU_ANAGLYPH     , wxString::Format("%s [A]"        , _TL("Anaglyph"          )));
+		pMenu->AppendCheckItem(MENU_STEREO_VIEW  , wxString::Format("%s [T]"        , _TL("Stereo View"       )));
 		pMenu->AppendCheckItem(MENU_CENTRAL      , wxString::Format("%s [C]"        , _TL("Central Projection")));
 
 		pMenu->AppendSeparator();
@@ -229,7 +230,9 @@ void CSG_3DView_Dialog::On_Menu(wxCommandEvent &event)
 	case MENU_BOX          : m_pPanel->Parameter_Value_Toggle("BOX"   ); return;
 	case MENU_LABELS       : m_pPanel->Parameter_Value_Toggle("LABELS"); return;
 	case MENU_NORTH        : m_pPanel->Parameter_Value_Toggle("NORTH" ); return;
-	case MENU_STEREO       : m_pPanel->Parameter_Value_Toggle("STEREO"); return;
+
+	case MENU_ANAGLYPH     : m_pPanel->Set_Stereo_Mode(m_pPanel->m_Parameters("STEREO")->asInt() != 1 ? 1 : 0); break;
+	case MENU_STEREO_VIEW  : m_pPanel->Set_Stereo_Mode(m_pPanel->m_Parameters("STEREO")->asInt() != 2 ? 2 : 0); break;
 
 	case MENU_ROTATE_X_DEC : m_pPanel->Get_Projector().Inc_xRotation(-4., true); break;
 	case MENU_ROTATE_X_INC : m_pPanel->Get_Projector().Inc_xRotation( 4., true); break;
@@ -263,9 +266,10 @@ void CSG_3DView_Dialog::On_Menu_UI(wxUpdateUIEvent &event)
 {
 	switch( event.GetId() )
 	{
-	case MENU_BOX          : event.Check(m_pPanel->m_Parameters("BOX"   )->asBool()); break;
-	case MENU_NORTH        : event.Check(m_pPanel->m_Parameters("NORTH" )->asBool()); break;
-	case MENU_STEREO       : event.Check(m_pPanel->m_Parameters("STEREO")->asBool()); break;
+	case MENU_BOX          : event.Check(m_pPanel->m_Parameters("BOX"   )->asBool()    ); break;
+	case MENU_NORTH        : event.Check(m_pPanel->m_Parameters("NORTH" )->asBool()    ); break;
+	case MENU_ANAGLYPH     : event.Check(m_pPanel->m_Parameters("STEREO")->asInt() == 1); break;
+	case MENU_STEREO_VIEW  : event.Check(m_pPanel->m_Parameters("STEREO")->asInt() == 2); break;
 	case MENU_LABELS       : event.Check(m_pPanel->m_Parameters("LABELS")->asInt() != 2); break;
 
 	case MENU_CENTRAL      : event.Check(m_pPanel->Get_Projector().is_Central()); break;
@@ -286,9 +290,9 @@ void CSG_3DView_Dialog::Update_Controls(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
