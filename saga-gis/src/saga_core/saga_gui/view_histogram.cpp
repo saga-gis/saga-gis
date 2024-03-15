@@ -382,7 +382,7 @@ void CVIEW_Histogram::Draw_Histogram(wxDC &dc)
 
 		int y = (int)(dy * FUNC_NORMAL(Minimum));
 
-		for(size_t i=1; i<r.GetWidth(); i++)
+		for(size_t i=1; i<(size_t)r.GetWidth(); i++)
 		{
 			double x = Minimum + i * dx; int ay = y; y = (int)(dy * FUNC_NORMAL(x));
 
@@ -399,7 +399,6 @@ void CVIEW_Histogram::Draw_Frame(wxDC &dc)
 	wxRect r(Get_Histogram_Box(dc.GetSize()));
 
 	const int FontSize  = 12;
-	const int Precision = 3;
 
 	dc.SetPen(*wxBLACK_PEN);
 

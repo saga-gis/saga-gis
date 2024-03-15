@@ -809,8 +809,6 @@ void CWKSP_Grid::_LUT_Create(void)
 
 			double	Minimum, Maximum	= Get_Grid()->Get_Histogram().Get_Quantile(0.);
 
-			double	Step	= 1. / Colors.Get_Count();
-
 			for(int iClass=0; iClass<Colors.Get_Count(); iClass++)
 			{
 				Minimum	= Maximum;
@@ -1705,8 +1703,8 @@ void CWKSP_Grid::_Draw_Values(CWKSP_Map_DC &dc_Map)
 	bx		= Get_Grid()->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMax());
 	by		= Get_Grid()->Get_System().Get_yWorld_to_Grid(dc_Map.m_rWorld.Get_YMax());
 
-	if( ax < 0 )	ax	= 0;	if( bx >= Get_Grid()->Get_NX() )	bx	= Get_Grid()->Get_NX() - 1;
-	if( ay < 0 )	ax	= 0;	if( by >= Get_Grid()->Get_NY() )	by	= Get_Grid()->Get_NY() - 1;
+	if( ax < 0 ) { ax = 0; } if( bx >= Get_Grid()->Get_NX() ) { bx = Get_Grid()->Get_NX() - 1; }
+	if( ay < 0 ) { ax = 0; } if( by >= Get_Grid()->Get_NY() ) { by = Get_Grid()->Get_NY() - 1; }
 
 	axDC	= dc_Map.xWorld2DC(Get_Grid()->Get_System().Get_xGrid_to_World(ax));
 	ayDC	= dc_Map.yWorld2DC(Get_Grid()->Get_System().Get_yGrid_to_World(ay));

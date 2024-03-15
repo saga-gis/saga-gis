@@ -363,6 +363,10 @@ void C3D_Viewer_Shapes_Panel::Draw_Shape(CSG_Shape *pShape, int Field_Color)
 			}
 		}
 		break;
+
+	//-----------------------------------------------------
+	default:
+		break;
 	}
 }
 

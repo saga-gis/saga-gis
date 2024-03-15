@@ -62,9 +62,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -92,7 +92,7 @@ void CWKSP_Data_Menu_File::Destroy(void)
 			CONFIG_Write("RECENT_FILES/" + m_Group, wxString::Format("FILE_%02zu", i + 1), m_Files[i]);
 		}
 
-		for(size_t i=m_Files.Count(); i<=m_CmdID[1]; i++)
+		for(size_t i=m_Files.Count(); i<=(size_t)m_CmdID[1]; i++)
 		{
 			CONFIG_Delete("RECENT_FILES/" + m_Group, wxString::Format("FILE_%02zu", i + 1));
 		}
@@ -104,7 +104,7 @@ void CWKSP_Data_Menu_File::Destroy(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -197,7 +197,7 @@ wxMenu * CWKSP_Data_Menu_File::Create(TSG_Data_Object_Type DataType)
 		{
 			bool bAdd = wxFileExists(File);
 
-			for(int j=0; bAdd && j<m_Files.Count(); j++)
+			for(size_t j=0; bAdd && j<m_Files.Count(); j++)
 			{
 				bAdd = File.Cmp(m_Files[j]) != 0;
 			}
@@ -217,7 +217,7 @@ wxMenu * CWKSP_Data_Menu_File::Create(TSG_Data_Object_Type DataType)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -275,7 +275,7 @@ void CWKSP_Data_Menu_File::Update(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -287,7 +287,7 @@ void CWKSP_Data_Menu_File::Add(const wxString &File)
 	{
 		m_Files.Insert(File, 0);
 
-		while( m_Files.Count() > m_CmdID[1] )
+		while( m_Files.Count() > (size_t)m_CmdID[1] )
 		{
 			m_Files.RemoveAt(m_CmdID[1]);
 		}
@@ -314,7 +314,7 @@ bool CWKSP_Data_Menu_File::Get(wxArrayString &Files, bool bAppend)
 		Files.Clear();
 	}
 
-	for(int i=0; i<m_Files.GetCount(); i++)
+	for(size_t i=0; i<m_Files.GetCount(); i++)
 	{
 		if( wxFileExists(m_Files[i]) )
 		{
@@ -327,7 +327,7 @@ bool CWKSP_Data_Menu_File::Get(wxArrayString &Files, bool bAppend)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -335,7 +335,7 @@ bool CWKSP_Data_Menu_File::Open(int CmdID)
 {
 	bool bSuccess = false; int i = CmdID - m_CmdID[0];
 
-	if( i >= 0 && i < m_Files.GetCount() )
+	if( i >= 0 && i < (int)m_Files.GetCount() )
 	{
 		switch( m_DataType )
 		{
@@ -362,9 +362,9 @@ bool CWKSP_Data_Menu_File::Open(int CmdID)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
