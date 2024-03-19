@@ -123,7 +123,7 @@ CGrid_Rectangle_Clip::CGrid_Rectangle_Clip(void)
 //---------------------------------------------------------
 bool CGrid_Rectangle_Clip::On_Execute(void)
 {
-	CSG_Grid		*pGrid_in, *pGrid_out;
+	CSG_Grid		*pGrid_in;
 	CSG_Shapes		*pShapes;
 	int				iMethod;
 
@@ -178,9 +178,11 @@ bool CGrid_Rectangle_Clip::On_Execute(void)
 		Extent.Set_BottomLeft(minX, minY);
 	}
 
-	CSG_Grid_System		GridSystem(pGrid_in->Get_Cellsize(), Extent);
+	CSG_Grid_System	GridSystem(pGrid_in->Get_Cellsize(), Extent);
 
-	pGrid_out = SG_Create_Grid(GridSystem, pGrid_in->Get_Type());
+	CSG_Grid *pGrid_out = Parameters("OUTPUT")->asGrid(); if( !pGrid_out ) { Parameters("OUTPUT")->Set_Value(pGrid_out = SG_Create_Grid()); }
+
+	pGrid_out->Create(GridSystem, pGrid_in->Get_Type());
 	pGrid_out->Set_NoData_Value(pGrid_in->Get_NoData_Value());
 	pGrid_out->Fmt_Name("%s (%s)", _TL("Clip"), pGrid_in->Get_Name());
 	pGrid_out->Assign_NoData();
@@ -204,8 +206,6 @@ bool CGrid_Rectangle_Clip::On_Execute(void)
 
 
 	//-----------------------------------------------------
-	Parameters("OUTPUT")->Set_Value(pGrid_out);
-
 	return( true );
 }
 
