@@ -1105,8 +1105,6 @@ int CWKSP_Data_Manager::_Modified_Changed(CSG_Parameter *pParameter, int Flags)
 //---------------------------------------------------------
 bool CWKSP_Data_Manager::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *pItem, const wxString &Directory, bool bSelections)
 {
-	int		i;
-
 	if( pItem && pParameters )
 	{
 		switch( pItem->Get_Type() )
@@ -1123,7 +1121,7 @@ bool CWKSP_Data_Manager::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_I
 		case WKSP_ITEM_PointCloud_Manager:
 		case WKSP_ITEM_Grid_Manager      :
 		case WKSP_ITEM_Grid_System       :
-			for(i=0; i<((CWKSP_Base_Manager *)pItem)->Get_Count(); i++)
+			for(int i=0; i<((CWKSP_Base_Manager *)pItem)->Get_Count(); i++)
 			{
 				_Modified_Get(pParameters, ((CWKSP_Base_Manager *)pItem)->Get_Item(i), Directory, bSelections && !pItem->is_Selected());
 			}
@@ -1162,7 +1160,7 @@ bool CWKSP_Data_Manager::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_I
 	}
 
 	//-----------------------------------------------------
-	wxString	Filter, Extension;
+	wxString Filter, Extension;
 
 	switch( pItem->Get_Type() )
 	{
@@ -1172,18 +1170,20 @@ bool CWKSP_Data_Manager::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_I
 	case WKSP_ITEM_PointCloud: Filter = DLG_Get_FILE_Filter(ID_DLG_POINTCLOUD_SAVE); Extension = "sg-pts-z"; break;
 	case WKSP_ITEM_Grid      : Filter = DLG_Get_FILE_Filter(ID_DLG_GRID_SAVE      ); Extension = SG_Grid_Get_File_Extension_Default().c_str(); break;
 	case WKSP_ITEM_Grids     : Filter = DLG_Get_FILE_Filter(ID_DLG_GRIDS_SAVE     ); Extension = "sg-gds-z"; break;
-	default:	return( false );
+	default: return( false );
 	}
 
 	//-----------------------------------------------------
-	wxFileName	Path(pObject->Get_File_Name());
+	wxFileName Path(pObject->Get_File_Name());
 
 	if( !Path.FileExists() )
 	{
-		wxString	Name(pObject->Get_Name());
+		wxString Name(pObject->Get_Name());
 
-		Name.Replace(".", "-");
-		Name.Replace(":", "-");
+		Name.Replace("." , "_");
+		Name.Replace(":" , "_");
+		Name.Replace("/" , "_");
+		Name.Replace("\\", "_");
 
 		Path.SetPath(Directory);
 		Path.SetExt (Extension);
@@ -1199,15 +1199,15 @@ bool CWKSP_Data_Manager::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_I
 				Path.SetName(Name + wxString::Format("_%d", i));
 			}
 
-			bOkay	= !Path.FileExists();
+			bOkay = !Path.FileExists();
 
 			for(int j=0; bOkay && j<pParameters->Get_Count(); j++)
 			{
-				CSG_Parameter	*p	= pParameters->Get_Parameter(j);
+				CSG_Parameter &P = *pParameters->Get_Parameter(j);
 
-				if( p->Get_Type() == PARAMETER_TYPE_FilePath && Path == p->asString() )
+				if( P.Get_Type() == PARAMETER_TYPE_FilePath && Path == P.asString() )
 				{
-					bOkay	= false;
+					bOkay = false;
 				}
 			}
 		}
