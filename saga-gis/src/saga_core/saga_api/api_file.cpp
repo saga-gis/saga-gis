@@ -112,28 +112,32 @@ bool CSG_File::Open(const CSG_String &FileName, int Mode, bool bBinary, int Enco
 {
 	Close();
 
+	if( !SG_Dir_Exists(SG_File_Get_Path(FileName)) )
+	{
+		return( false );
+	}
+
 	if( Mode == SG_FILE_R && !SG_File_Exists(FileName) )
 	{
 		return( false );
 	}
 
-	m_FileName	= FileName;
-	m_Mode		= Mode;
+	m_FileName = FileName; m_Mode = Mode;
 
 	Set_Encoding(Encoding);
 
 	switch( m_Mode )
 	{
 	case SG_FILE_W:
-		m_pStream	= new wxFFileOutputStream(FileName.c_str(), bBinary ? "wb" : "w");
+		m_pStream = new wxFFileOutputStream(FileName.c_str(), bBinary ? "wb" : "w");
 		break;
 
 	case SG_FILE_R:
-		m_pStream	= new wxFFileInputStream (FileName.c_str(), bBinary ? "rb" : "r");
+		m_pStream = new wxFFileInputStream (FileName.c_str(), bBinary ? "rb" : "r");
 		break;
 
 	default: // SG_FILE_RW
-		m_pStream	= new wxFFileStream      (FileName.c_str(), SG_File_Exists(FileName)
+		m_pStream = new wxFFileStream      (FileName.c_str(), SG_File_Exists(FileName)
 			? (bBinary ? "r+b" : "r+")
 			: (bBinary ? "w+b" : "w+")
 		);
@@ -157,7 +161,7 @@ bool CSG_File::Close(void)
 	{
 		delete(m_pStream_Base);
 
-		m_pStream	= NULL;
+		m_pStream = NULL;
 	}
 
 	Set_Encoding(SG_FILE_ENCODING_UNDEFINED);
@@ -579,21 +583,29 @@ CSG_File_Zip::~CSG_File_Zip(void)
 //---------------------------------------------------------
 bool CSG_File_Zip::Open(const CSG_String &FileName, int Mode, int Encoding)
 {
-	wxLogNull	logNo;	// suppress user notification dialog for invalid zip files
-
 	Close();
 
-	m_Mode	= Mode;
+	if( !SG_Dir_Exists(SG_File_Get_Path(FileName)) )
+	{
+		return( false );
+	}
 
-	Set_Encoding(Encoding);
+	if( Mode == SG_FILE_R && !SG_File_Exists(FileName) )
+	{
+		return( false );
+	}
+
+	wxLogNull logNo; // suppress user notification dialog for invalid zip files
+
+	m_Mode = Mode; Set_Encoding(Encoding);
 
 	if( Mode == SG_FILE_W )
 	{
-		m_pStream	= new wxZipOutputStream(new wxFileOutputStream(FileName.c_str()));
+		m_pStream = new wxZipOutputStream(new wxFileOutputStream(FileName.c_str()));
 	}
 	else if( Mode == SG_FILE_R && SG_File_Exists(FileName) )
 	{
-		m_pStream	= new wxZipInputStream (new wxFileInputStream (FileName.c_str()));
+		m_pStream = new wxZipInputStream (new wxFileInputStream (FileName.c_str()));
 	}
 
 	if( !m_pStream || !m_pStream_Base->IsOk() )
@@ -605,11 +617,11 @@ bool CSG_File_Zip::Open(const CSG_String &FileName, int Mode, int Encoding)
 
 	if( is_Reading() )
 	{
-		wxZipEntry	*pEntry;
+		wxZipEntry *pEntry;
 
 		while( (pEntry = ((wxZipInputStream *)m_pStream)->GetNextEntry()) != NULL )
 		{
-			m_Files	+= pEntry;
+			m_Files += pEntry;
 		}
 	}
 
