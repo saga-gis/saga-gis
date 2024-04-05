@@ -53,8 +53,8 @@ if os.name == 'nt': # Windows
 
 	if 'add_dll_directory' in dir(os):
 		os.add_dll_directory(SAGA_Path)
-	else:
-		os.environ['PATH'] = SAGA_Path + ';' + os.environ['PATH']
+
+	os.environ['PATH'] = SAGA_Path + ';' + os.environ['PATH']
 
 
 #_________________________________________
