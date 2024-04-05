@@ -80,7 +80,8 @@ CHillShade::CHillShade(void)
 	Add_Reference(
 		"Tarini, M. / Cignoni, P. / Montani, C.", "2006",
 		"Ambient Occlusion and Edge Cueing to Enhance Real Time Molecular Visualization",
-		"IEEE Transactions on Visualization and Computer Graphics, Vol. 12, No. 5, pp. 1237-1244."
+		"IEEE Transactions on Visualization and Computer Graphics, Vol. 12, No. 5, pp. 1237-1244.",
+		SG_T("https://doi.org/10.1109/tvcg.2006.115"), SG_T("doi:10.1109/tvcg.2006.115")
 	);
 
 	//-----------------------------------------------------
@@ -240,6 +241,20 @@ bool CHillShade::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	if( Parameters("METHOD")->asInt() == 3 )	// Shadows Only
+	{
+		DataObject_Set_Parameter(m_pShade, "SINGLE_COLOR", (int)SG_COLOR_BLACK);
+		DataObject_Set_Parameter(m_pShade, "COLORS_TYPE", 0);	// Single Symbol
+	}
+	else
+	{
+		DataObject_Set_Colors   (m_pShade, 11, SG_COLORS_BLACK_WHITE, true);
+		DataObject_Set_Parameter(m_pShade, "COLORS_TYPE", 3);	// Graduated Colors
+	}
+
+	//-----------------------------------------------------
+	m_pShade->Fmt_Name("%s.%s", m_pDEM->Get_Name(), _TL("Hillshade"));
+
 	if( Parameters("METHOD")->asInt() >= 3 )
 	{
 		m_pShade->Set_Unit(_TL(""));
@@ -253,18 +268,6 @@ bool CHillShade::On_Execute(void)
 		m_pShade->Set_Unit(_TL("degree"));
 
 		m_pShade->Multiply(M_RAD_TO_DEG);
-	}
-
-	//-----------------------------------------------------
-	if( Parameters("METHOD")->asInt() == 3 )	// Shadows Only
-	{
-		DataObject_Set_Parameter(m_pShade, "SINGLE_COLOR", (int)SG_COLOR_BLACK);
-		DataObject_Set_Parameter(m_pShade, "COLORS_TYPE", 0);	// Single Symbol
-	}
-	else
-	{
-		DataObject_Set_Colors   (m_pShade, 11, SG_COLORS_BLACK_WHITE, true);
-		DataObject_Set_Parameter(m_pShade, "COLORS_TYPE", 3);	// Graduated Colors
 	}
 
 	//-----------------------------------------------------
