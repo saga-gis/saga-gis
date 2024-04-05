@@ -371,12 +371,18 @@ bool CGrid_Terrain_Map::Generate_Contours()
 		DataObject_Add(pContours);
 	}
 
+	CSG_Grid *pGrid = Parameters("DEM")->asGrid();
+	double	 zStep	= Parameters("EQUIDISTANCE")->asDouble();
+
 
 	//-----------------------------------------------------
-	RUN_TOOL("shapes_grid"			, 5,
-			SET_PARAMETER("GRID"		, Parameters("DEM"))
+	RUN_TOOL("shapes_grid"				, 5,
+			SET_PARAMETER("GRID"		, pGrid)
 		&&	SET_PARAMETER("CONTOUR"		, pContours)
-		&&	SET_PARAMETER("ZSTEP"		, Parameters("EQUIDISTANCE"))
+		&&	SET_PARAMETER("INTERVALS"	, 1)
+    	&&	SET_PARAMETER("ZMIN"		, zStep * (ceil (pGrid->Get_Min() / zStep)))
+    	&&	SET_PARAMETER("ZMAX"		, zStep * (floor(pGrid->Get_Max() / zStep)))
+		&&	SET_PARAMETER("ZSTEP"		, zStep)
 	)
 
 
