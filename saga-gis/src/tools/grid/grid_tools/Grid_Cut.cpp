@@ -67,6 +67,16 @@ CSG_Grid_System Fit_Extent(const CSG_Grid_System &System, const CSG_Rect &Extent
 		System.Fit_yto_Grid_System(Extent.Get_YMax())
 	);
 
+	if( r.xMax > Extent.xMax && fabs((r.xMax - Extent.xMax) - System.Get_Cellsize() / 2) <= M_DBL_EPSILON )
+	{
+		r.xMax -= System.Get_Cellsize();
+	}
+	
+	if( r.yMax > Extent.yMax && fabs((r.yMax - Extent.yMax) - System.Get_Cellsize() / 2) <= M_DBL_EPSILON )
+	{
+		r.yMax -= System.Get_Cellsize();
+	}
+
 	r.Intersect(System.Get_Extent());
 
 	return( CSG_Grid_System(System.Get_Cellsize(), r) );
