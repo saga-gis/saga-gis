@@ -60,15 +60,15 @@
 //---------------------------------------------------------
 CGrid_To_Points::CGrid_To_Points(void)
 {
-	Set_Name		(_TL("Grid Values to Points"));
+	Set_Name		(_TL("Grid Cells to Points/Polygons"));
 
 	Set_Author		("O.Conrad (c) 2001");
 
 	Set_Description	(_TW(
-		"This tool saves grid values to point (grid nodes) or polygon (grid cells) shapes. Optionally only points "
-		"can be saved, which are contained by polygons of the specified shapes layer. "
-		"In addition, it is possible to exclude all cells that are coded NoData in the "
-		"first grid of the grid list."
+		"This tool saves grid cell values to point (grid nodes) or polygon (grid cells) "
+		"shapes. Optionally only points can be saved, which are contained by polygons of "
+		"the specified polygons layer. In addition, it is possible to exclude all cells "
+		"that are coded NoData in the first grid of the grid list."
 	));
 
 	Parameters.Add_Grid_List("",
