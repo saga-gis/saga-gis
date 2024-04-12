@@ -861,8 +861,6 @@ bool CGrid_To_Contour::Add_Edge_Segment(CSG_Shapes &Edges, int x, int y)
 //---------------------------------------------------------
 bool CGrid_To_Contour::Add_Edge_Point(CSG_Shapes &Edges, const CSG_Point &Point, sLong Line, int Part)
 {
-	int Result = 0, pos_iPoint = -1, pos_iPart = -1;
-
 	for(sLong i=0; i<Edges.Get_Count(); i++)
 	{
 		CSG_Shape_Line &Edge = *Edges.Get_Shape(i)->asLine();
@@ -989,6 +987,13 @@ bool CGrid_To_Contour::Get_Polygons(CSG_Shape_Polygon &Polygon, CSG_Shapes &Edge
 		CSG_Shape_Part *pPart = Polygon.Get_Part(iPart);
 
 		while( Add_Polygon_Segment(Segments, pPart) );
+
+		if( !CSG_Point(pPart->Get_Point(0, true)).is_Equal(pPart->Get_Point(0, false)) )
+		{
+			pPart->Revert_Points();
+
+			while( Add_Polygon_Segment(Segments, pPart) );
+		}
 
 		if( !Polygon.Get_Area(iPart) )
 		{
