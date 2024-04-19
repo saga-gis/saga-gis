@@ -258,7 +258,7 @@ bool CFill_Sinks::Fill_Sink(int x, int y)
 			x	= Get_xTo(0, x);
 			y	= Get_yTo(0, y);
 		}
-		else if( Stack.Pop(x, y, i) && i < 8 )
+		else if( Stack.Get_Size() > 0 && Stack.Pop(x, y, i) && i < 8 )
 		{
 			Stack.Push(x, y, 1 + i);
 
