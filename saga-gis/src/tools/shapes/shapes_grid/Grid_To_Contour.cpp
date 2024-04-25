@@ -763,8 +763,8 @@ bool CGrid_To_Contour::Get_Edge_Segments(CSG_Shapes &Edges, CSG_Shapes *pContour
 		{
 			CSG_Point p[2] = { Edge.Get_Point(0), Edge.Get_Point(1) };
 
-			p[1].x = p[0].x + 0.5 * (p[1].x - p[0].x);
-			p[1].y = p[0].y + 0.5 * (p[1].y - p[0].y);
+			p[1].x = p[0].x + 0.5 * m_pGrid->Get_Cellsize() * (p[1].x > p[0].x ? 1 : p[1].x < p[0].x ? -1 : 0);
+			p[1].y = p[0].y + 0.5 * m_pGrid->Get_Cellsize() * (p[1].y > p[0].y ? 1 : p[1].y < p[0].y ? -1 : 0);
 
 			double dz = m_pGrid->Get_Value(p[1], GRID_RESAMPLING_Bilinear)
 			          - m_pGrid->Get_Value(p[0], GRID_RESAMPLING_Bilinear);
@@ -987,13 +987,6 @@ bool CGrid_To_Contour::Get_Polygons(CSG_Shape_Polygon &Polygon, CSG_Shapes &Edge
 		CSG_Shape_Part *pPart = Polygon.Get_Part(iPart);
 
 		while( Add_Polygon_Segment(Segments, pPart) );
-
-		if( !CSG_Point(pPart->Get_Point(0, true)).is_Equal(pPart->Get_Point(0, false)) )
-		{
-			pPart->Revert_Points();
-
-			while( Add_Polygon_Segment(Segments, pPart) );
-		}
 
 		if( !Polygon.Get_Area(iPart) )
 		{
