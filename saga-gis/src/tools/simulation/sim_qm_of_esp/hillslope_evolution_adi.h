@@ -68,7 +68,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -105,6 +105,8 @@ private:
 
 	bool				is_Channel				(int x, int y);
 	double				Get_Elevation			(int x, int y);
+
+	bool				tridag					(const CSG_Vector &a, const CSG_Vector &b, const CSG_Vector &c, const CSG_Vector &r, CSG_Vector &u);
 
 };
 

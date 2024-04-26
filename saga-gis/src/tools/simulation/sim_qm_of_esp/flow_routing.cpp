@@ -65,16 +65,23 @@ CFlow_Routing::CFlow_Routing(void)
 	Set_Description	(_TW(
 		"Calculation of flow accumulation, aka upslope contributing area, "
 		"with the multiple flow direction method after Freeman (1991)."
+
+		"<hr>This tool implements suggested code examples from the text book "
+		"<i>Quantitative Modeling of Earth Surface Processes</i> (Pelletier 2008) "
+		"and serves as demonstration on code adaptions for the SAGA API. "
+		"Note that this tool may be of limited use for operational purposes!"
 	));
 
-	Add_Reference("Freeman, G.T.",
-		"1991", "Calculating catchment area with divergent flow based on a rectangular grid",
-		"Computers & Geosciences, 17, pp.413-422."
+	Add_Reference("Freeman, G.T.", "1991",
+		"Calculating catchment area with divergent flow based on a regular grid",
+		"Computers and Geosciences, 17:413-22.",
+		SG_T("https://doi.org/10.1016/0098-3004(91)90048-I"), SG_T("doi:10.1016/0098-3004(91)90048-I")
 	);
 
 	Add_Reference("Pelletier, J.D.",
 		"2008", "Quantitative Modeling of Earth Surface Processes",
-		"Cambridge, 295p."
+		"Cambridge, 295p.",
+		SG_T("https://doi.org/10.1017/CBO9780511813849"), SG_T("doi:10.1017/CBO9780511813849")
 	);
 
 	//-----------------------------------------------------
@@ -93,7 +100,7 @@ CFlow_Routing::CFlow_Routing(void)
 	Parameters.Add_Choice("",
 		"PREPROC"	, _TL("Preprocessing"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("none"),
 			_TL("fill sinks temporarily"),
 			_TL("fill sinks permanently")

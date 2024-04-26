@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: hillslope_evolution_ftcs.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "hillslope_evolution_ftcs.h"
 
 
@@ -70,18 +58,23 @@
 //---------------------------------------------------------
 CHillslope_Evolution_FTCS::CHillslope_Evolution_FTCS(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Diffusive Hillslope Evolution (FTCS)"));
 
 	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
 		"Simulation of diffusive hillslope evolution using a Forward-Time-Centered-Space (FTCS) method."
+
+		"<hr>This tool implements suggested code examples from the text book "
+		"<i>Quantitative Modeling of Earth Surface Processes</i> (Pelletier 2008) "
+		"and serves as demonstration on code adaptions for the SAGA API. "
+		"Note that this tool may be of limited use for operational purposes!"
 	));
 
 	Add_Reference("Pelletier, J.D.",
 		"2008", "Quantitative Modeling of Earth Surface Processes",
-		"Cambridge, 295p."
+		"Cambridge, 295p.",
+		SG_T("https://doi.org/10.1017/CBO9780511813849"), SG_T("doi:10.1017/CBO9780511813849")
 	);
 
 	//-----------------------------------------------------
@@ -175,34 +168,29 @@ int CHillslope_Evolution_FTCS::On_Parameters_Enable(CSG_Parameters *pParameters,
 //---------------------------------------------------------
 bool CHillslope_Evolution_FTCS::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Grid	DEM(Get_System());
+	CSG_Grid DEM(Get_System()); m_pDEM_Old = &DEM;
 
-	m_pDEM_Old	= &DEM;
-
-	m_pDEM		= Parameters("MODEL")->asGrid();
+	m_pDEM = Parameters("MODEL")->asGrid();
 
 	m_pDEM->Assign(Parameters("DEM")->asGrid());
 
 	DataObject_Set_Colors(Parameters("DIFF")->asGrid(), 10, SG_COLORS_RED_GREY_BLUE, true);
 
 	//-----------------------------------------------------
-	double	k, dTime, nTime;
-
-	k		= Parameters("KAPPA"   )->asDouble();
-	nTime	= Parameters("DURATION")->asDouble();
+	double     k = Parameters("KAPPA"   )->asDouble();
+	double nTime = Parameters("DURATION")->asDouble(), dTime;
 
 	if( Parameters("TIMESTEP")->asInt() == 0 )
 	{
-		dTime	= Parameters("DTIME")->asDouble();
+		dTime = Parameters("DTIME")->asDouble();
 	}
 	else
 	{
-		dTime	= 0.5 * Get_Cellarea() / (2.0 * k);
+		dTime = 0.5 * Get_Cellarea() / (2.0 * k);
 
 		if( Parameters("NEIGHBOURS")->asInt() == 1 )
 		{
-			dTime	/= sqrt(2.0);
+			dTime /= sqrt(2.);
 		}
 	}
 
@@ -210,7 +198,7 @@ bool CHillslope_Evolution_FTCS::On_Execute(void)
 	{
 		Message_Fmt("\n%s: %s [%f]", _TL("Warning"), _TL("Time step exceeds duration"), dTime);
 
-		dTime	= nTime;
+		dTime = nTime;
 	}
 
 	Message_Fmt("\n%s: %f", _TL("Time Step"), dTime);
@@ -242,11 +230,11 @@ bool CHillslope_Evolution_FTCS::On_Execute(void)
 //---------------------------------------------------------
 void CHillslope_Evolution_FTCS::Set_Difference(void)
 {
-	CSG_Grid	*pDiff	= Parameters("DIFF")->asGrid();
+	CSG_Grid *pDiff = Parameters("DIFF")->asGrid();
 
 	if( pDiff )
 	{
-		CSG_Grid	*pDEM	= Parameters("DEM")->asGrid();
+		CSG_Grid *pDEM = Parameters("DEM")->asGrid();
 
 		#pragma omp parallel for
 		for(sLong i=0; i<Get_NCells(); i++)
@@ -276,7 +264,7 @@ void CHillslope_Evolution_FTCS::Set_Difference(void)
 //---------------------------------------------------------
 void CHillslope_Evolution_FTCS::Set_Diffusion(double dFactor)
 {
-	int	iStep	= Parameters("NEIGHBOURS")->asInt() == 1 ? 1 : 2;
+	int iStep = Parameters("NEIGHBOURS")->asInt() == 1 ? 1 : 2;
 
 	m_pDEM_Old->Assign(m_pDEM);
 
@@ -287,17 +275,16 @@ void CHillslope_Evolution_FTCS::Set_Diffusion(double dFactor)
 		{
 			if( !m_pDEM_Old->is_NoData(x, y) )
 			{
-				double	z	= m_pDEM_Old->asDouble(x, y);
-				double	dz	= 0.0;
+				double z  = m_pDEM_Old->asDouble(x, y);
+				double dz = 0.;
 
 				for(int i=0; i<8; i+=iStep)
 				{
-					int	ix	= Get_xTo(i, x);
-					int	iy	= Get_yTo(i, y);
+					int ix = Get_xTo(i, x), iy = Get_yTo(i, y);
 
 					if( m_pDEM_Old->is_InGrid(ix, iy) )
 					{
-						dz	+= (m_pDEM_Old->asDouble(ix, iy) - z) / Get_UnitLength(i);
+						dz += (m_pDEM_Old->asDouble(ix, iy) - z) / Get_UnitLength(i);
 					}
 				}
 
@@ -306,37 +293,6 @@ void CHillslope_Evolution_FTCS::Set_Diffusion(double dFactor)
 		}
 	}
 }
-
-/*/---------------------------------------------------------
-void CHillslope_Evolution_FTCS::Set_Diffusion(double dFactor)
-{
-	m_pDEM_Old->Assign(m_pDEM);
-
-	#pragma omp parallel for
-	for(int y=0; y<Get_NY(); y++)
-	{
-		for(int x=0; x<Get_NX(); x++)
-		{
-			if( !m_pDEM_Old->is_NoData(x, y) )
-			{
-				double	z, dz;
-
-				z	= m_pDEM_Old->asDouble(x, y);
-				dz	= -4.0 * z;
-
-				for(int i=0; i<8; i+=2)
-				{
-					int	ix	= Get_xTo(i, x);
-					int	iy	= Get_yTo(i, y);
-
-					dz	+= m_pDEM_Old->is_InGrid(ix, iy) ? m_pDEM_Old->asDouble(ix, iy) : z;
-				}
-
-				m_pDEM->Add_Value(x, y, dFactor * dz);
-			}
-		}
-	}
-}/**/
 
 
 ///////////////////////////////////////////////////////////

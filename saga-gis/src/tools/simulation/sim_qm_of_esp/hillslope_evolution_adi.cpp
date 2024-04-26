@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: hillslope_evolution_adi.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,60 +46,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "hillslope_evolution_adi.h"
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool tridag(const CSG_Vector &a, const CSG_Vector &b, const CSG_Vector &c, const CSG_Vector &r, CSG_Vector &u)
-{
-	int			i, n = a.Get_N();
-	double		beta;
-	CSG_Vector	gamma(n);
-
-	if( n < 2 || n != b.Get_N() || n != c.Get_N() || n != r.Get_N() || b[0] == 0.0 )
-	{
-		return( false );
-	}
-
-	u.Create(n);
-
-	u[0]	= r[0] / (beta = b[0]);
-
-	for(i=1; i<n; i++)
-	{
-		gamma[i]	= c[i - 1] / beta;
-		beta		= b[i] - a[i] * gamma[i];
-
-		if( beta == 0.0 )
-		{
-			return( false );
-		}
-
-		u[i]	= (r[i] - a[i] * u[i - 1]) / beta;
-	}
-
-	for(i=n-2; i>=0; i--)
-	{
-		u[i]	-= gamma[i + 1] * u[i + 1];
-	}
-
-	return( true );
-}
 
 
 ///////////////////////////////////////////////////////////
@@ -114,18 +58,23 @@ bool tridag(const CSG_Vector &a, const CSG_Vector &b, const CSG_Vector &c, const
 //---------------------------------------------------------
 CHillslope_Evolution_ADI::CHillslope_Evolution_ADI(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Diffusive Hillslope Evolution (ADI)"));
 
 	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
 		"Simulation of diffusive hillslope evolution using an Alternating-Direction-Implicit (ADI) method."
+
+		"<hr>This tool implements suggested code examples from the text book "
+		"<i>Quantitative Modeling of Earth Surface Processes</i> (Pelletier 2008) "
+		"and serves as demonstration on code adaptions for the SAGA API. "
+		"Note that this tool may be of limited use for operational purposes!"
 	));
 
 	Add_Reference("Pelletier, J.D.",
 		"2008", "Quantitative Modeling of Earth Surface Processes",
-		"Cambridge, 295p."
+		"Cambridge, 295p.",
+		SG_T("https://doi.org/10.1017/CBO9780511813849"), SG_T("doi:10.1017/CBO9780511813849")
 	);
 
 	//-----------------------------------------------------
@@ -216,38 +165,29 @@ int CHillslope_Evolution_ADI::On_Parameters_Enable(CSG_Parameters *pParameters, 
 //---------------------------------------------------------
 bool CHillslope_Evolution_ADI::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Grid	DEM(Get_System()), Channels(Get_System(), SG_DATATYPE_Byte);
+	CSG_Grid DEM(Get_System()), Channels(Get_System(), SG_DATATYPE_Byte);
 
-	m_pDEM_Old	= &DEM;
+	m_pDEM_Old = &DEM;
 
-	m_pDEM		= Parameters("MODEL"   )->asGrid();
-	m_pChannels	= Parameters("CHANNELS")->asGrid();
+	m_pDEM      = Parameters("MODEL"   )->asGrid();
+	m_pChannels = Parameters("CHANNELS")->asGrid();
 
 	m_pDEM->Assign(Parameters("DEM")->asGrid());
 
 	DataObject_Set_Colors(Parameters("DIFF")->asGrid(), 10, SG_COLORS_RED_GREY_BLUE, true);
 
 	//-----------------------------------------------------
-	double	k, dTime, nTime;
-
-	k		= Parameters("KAPPA"   )->asDouble();
-	nTime	= Parameters("DURATION")->asDouble();
-
-	if( Parameters("TIMESTEP")->asInt() == 0 )
-	{
-		dTime	= Parameters("DTIME")->asDouble();
-	}
-	else
-	{
-		dTime	= 0.5 * Get_Cellarea() / (2.0 * k);
-	}
+	double     k = Parameters("KAPPA"   )->asDouble();
+	double nTime = Parameters("DURATION")->asDouble();
+	double dTime = Parameters("TIMESTEP")->asInt() == 0
+	             ? Parameters("DTIME"   )->asDouble()
+	             : 0.5 * Get_Cellarea() / (2. * k);
 
 	if( dTime > nTime )
 	{
 		Message_Fmt("\n%s: %s [%f]", _TL("Warning"), _TL("Time step exceeds duration"), dTime);
 
-		dTime	= nTime;
+		dTime = nTime;
 	}
 
 	Message_Fmt("\n%s: %f", _TL("Time Step"), dTime);
@@ -279,11 +219,11 @@ bool CHillslope_Evolution_ADI::On_Execute(void)
 //---------------------------------------------------------
 void CHillslope_Evolution_ADI::Set_Difference(void)
 {
-	CSG_Grid	*pDiff	= Parameters("DIFF")->asGrid();
+	CSG_Grid *pDiff = Parameters("DIFF")->asGrid();
 
 	if( pDiff )
 	{
-		CSG_Grid	*pDEM	= Parameters("DEM")->asGrid();
+		CSG_Grid *pDEM = Parameters("DEM")->asGrid();
 
 		#pragma omp parallel for
 		for(sLong i=0; i<Get_NCells(); i++)
@@ -310,6 +250,13 @@ void CHillslope_Evolution_ADI::Set_Difference(void)
 //														 //
 ///////////////////////////////////////////////////////////
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 inline bool CHillslope_Evolution_ADI::is_Channel(int x, int y)
 {
@@ -328,52 +275,50 @@ inline double CHillslope_Evolution_ADI::Get_Elevation(int x, int y)
 //---------------------------------------------------------
 void CHillslope_Evolution_ADI::Set_Diffusion(double dFactor)
 {
-	int		x, y;
-
 	for(int i=0; i<5 && Process_Get_Okay(); i++)
 	{
 		m_pDEM_Old->Assign(m_pDEM);
 
-		#pragma omp parallel for private(x, y)
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
-			CSG_Vector	a(Get_NY()), b(Get_NY()), c(Get_NY()), u(Get_NY()), r(Get_NY());
+			CSG_Vector a(Get_NY()), b(Get_NY()), c(Get_NY()), u(Get_NY()), r(Get_NY());
 
-			for(y=0; y<Get_NY(); y++)
+			for(int y=0; y<Get_NY(); y++)
 			{
 				if( y == 0 )
 				{
-					a[y]	= is_Channel(x, y) ? 0 : -dFactor;
-					b[y]	= 1;
-					c[y]	= 0;
-					r[y]	= m_pDEM_Old->asDouble(x, y);
+					a[y] = is_Channel(x, y) ? 0 : -dFactor;
+					b[y] = 1;
+					c[y] = 0;
+					r[y] = m_pDEM_Old->asDouble(x, y);
 				}
 				else if( y == Get_NY() - 1 )
 				{
-					a[y]	= 0;
-					b[y]	= 1;
-					c[y]	= is_Channel(x, y) ? 0 : -dFactor;
-					r[y]	= m_pDEM_Old->asDouble(x, y);
+					a[y] = 0;
+					b[y] = 1;
+					c[y] = is_Channel(x, y) ? 0 : -dFactor;
+					r[y] = m_pDEM_Old->asDouble(x, y);
 				}
 				else if( is_Channel(x, y) )
 				{
-					b[y]	= 1;
-					a[y]	= 0;
-					c[y]	= 0;
-					r[y]	= m_pDEM_Old->asDouble(x, y);
+					b[y] = 1;
+					a[y] = 0;
+					c[y] = 0;
+					r[y] = m_pDEM_Old->asDouble(x, y);
 				}
 				else // if( !is_Channel(x, y) )
 				{
-					a[y]	= -dFactor;
-					c[y]	= -dFactor;
-					b[y]	= 4 * dFactor + 1;
-					r[y]	= m_pDEM_Old->asDouble(x, y) + dFactor * (Get_Elevation(x - 1, y) + Get_Elevation(x + 1, y));
+					a[y] = -dFactor;
+					c[y] = -dFactor;
+					b[y] = 4 * dFactor + 1;
+					r[y] = m_pDEM_Old->asDouble(x, y) + dFactor * (Get_Elevation(x - 1, y) + Get_Elevation(x + 1, y));
 				}
 			}
 
 			tridag(a, b, c, r, u);
 
-			for(y=0; y<Get_NY(); y++)
+			for(int y=0; y<Get_NY(); y++)
 			{
 				m_pDEM->Set_Value(x, y, u[y]);
 			}
@@ -382,46 +327,46 @@ void CHillslope_Evolution_ADI::Set_Diffusion(double dFactor)
 		//-------------------------------------------------
 		m_pDEM_Old->Assign(m_pDEM);
 
-		#pragma omp parallel for private(x, y)
-		for(y=0; y<Get_NY(); y++)
+		#pragma omp parallel for
+		for(int y=0; y<Get_NY(); y++)
 		{
-			CSG_Vector	a(Get_NX()), b(Get_NX()), c(Get_NX()), u(Get_NX()), r(Get_NX());
+			CSG_Vector a(Get_NX()), b(Get_NX()), c(Get_NX()), u(Get_NX()), r(Get_NX());
 
-			for(x=0; x<Get_NX(); x++)
+			for(int x=0; x<Get_NX(); x++)
 			{
 				if( x == 0 )
 				{
-					a[x]	= is_Channel(x, y) ? 0 : -dFactor;
-					b[x]	= 1;
-					c[x]	= 0;
-					r[x]	= m_pDEM_Old->asDouble(x, y);
+					a[x] = is_Channel(x, y) ? 0 : -dFactor;
+					b[x] = 1;
+					c[x] = 0;
+					r[x] = m_pDEM_Old->asDouble(x, y);
 				}
 				else if( x == Get_NX() - 1 )
 				{
-					a[x]	= 0;
-					b[x]	= 1;
-					c[x]	= is_Channel(x, y) ? 0 : -dFactor;
-					r[x]	= m_pDEM_Old->asDouble(x, y);
+					a[x] = 0;
+					b[x] = 1;
+					c[x] = is_Channel(x, y) ? 0 : -dFactor;
+					r[x] = m_pDEM_Old->asDouble(x, y);
 				}
 				else if( is_Channel(x, y) )
 				{
-					a[x]	= 0;
-					b[x]	= 1;
-					c[x]	= 0;
-					r[x]	= m_pDEM_Old->asDouble(x, y);
+					a[x] = 0;
+					b[x] = 1;
+					c[x] = 0;
+					r[x] = m_pDEM_Old->asDouble(x, y);
 				}
 				else // if( !is_Channel(x, y) )
 				{
-					a[x]	= -dFactor;
-					c[x]	= -dFactor;
-					b[x]	= 4 * dFactor + 1;
-					r[x]	= m_pDEM_Old->asDouble(x, y) + dFactor * (Get_Elevation(x, y - 1) + Get_Elevation(x, y + 1));
+					a[x] = -dFactor;
+					c[x] = -dFactor;
+					b[x] = 4 * dFactor + 1;
+					r[x] = m_pDEM_Old->asDouble(x, y) + dFactor * (Get_Elevation(x, y - 1) + Get_Elevation(x, y + 1));
 				}
 			}
 
 			tridag(a, b, c, r, u);
 
-			for(x=0; x<Get_NX(); x++)
+			for(int x=0; x<Get_NX(); x++)
 			{
 				m_pDEM->Set_Value(x, y, u[x]);
 			}
@@ -429,107 +374,40 @@ void CHillslope_Evolution_ADI::Set_Diffusion(double dFactor)
 	}
 }
 
-/*/---------------------------------------------------------
-void CHillslope_Evolution_ADI::Set_Diffusion(double dFactor)
+//---------------------------------------------------------
+bool CHillslope_Evolution_ADI::tridag(const CSG_Vector &a, const CSG_Vector &b, const CSG_Vector &c, const CSG_Vector &r, CSG_Vector &u)
 {
-	int		x, y;
+	int n = a.Get_N(); CSG_Vector gamma(n);
 
-	for(int i=0; i<5 && Process_Get_Okay(); i++)
+	if( n < 2 || n != b.Get_N() || n != c.Get_N() || n != r.Get_N() || b[0] == 0.0 )
 	{
-		m_pDEM_Old->Assign(m_pDEM);
-
-		#pragma omp parallel for private(x, y)
-		for(x=0; x<Get_NX(); x++)
-		{
-			CSG_Vector	a(Get_NY()), b(Get_NY()), c(Get_NY()), u(Get_NY()), r(Get_NY());
-
-			for(y=0; y<Get_NY(); y++)
-			{
-				if( !is_Channel(x, y) )
-				{
-					a[y]	= -dFactor;
-					c[y]	= -dFactor;
-					b[y]	= 4 * dFactor + 1;
-					r[y]	= m_pDEM_Old->asDouble(x, y) + dFactor * (Get_Elevation(x - 1, y) + Get_Elevation(x + 1, y));
-				}
-				else
-				{
-					b[y]	= 1;
-					a[y]	= 0;
-					c[y]	= 0;
-					r[y]	= m_pDEM_Old->asDouble(x, y);
-				}
-
-				if( y == 0 )
-				{
-					b[y]	= 1;
-					c[y]	= 0;
-					r[y]	= m_pDEM_Old->asDouble(x, y);
-				}
-				else if( y == Get_NY() - 1 )
-				{
-					b[y]	= 1;
-					a[y]	= 0;
-					r[y]	= m_pDEM_Old->asDouble(x, y);
-				}
-			}
-
-			tridag(a, b, c, r, u);
-
-			for(y=0; y<Get_NY(); y++)
-			{
-				m_pDEM->Set_Value(x, y, u[y]);
-			}
-		}
-
-		//-------------------------------------------------
-		m_pDEM_Old->Assign(m_pDEM);
-
-		#pragma omp parallel for private(x, y)
-		for(y=0; y<Get_NY(); y++)
-		{
-			CSG_Vector	a(Get_NX()), b(Get_NX()), c(Get_NX()), u(Get_NX()), r(Get_NX());
-
-			for(x=0; x<Get_NX(); x++)
-			{
-				if( !is_Channel(x, y) )
-				{
-					a[x]	= -dFactor;
-					c[x]	= -dFactor;
-					b[x]	= 4 * dFactor + 1;
-					r[x]	= m_pDEM_Old->asDouble(x, y) + dFactor * (Get_Elevation(x, y - 1) + Get_Elevation(x, y + 1));
-				}
-				else
-				{
-					b[x]	= 1;
-					a[x]	= 0;
-					c[x]	= 0;
-					r[x]	= m_pDEM_Old->asDouble(x, y);
-				}
-
-				if( x == 0 )
-				{
-					b[x]	= 1;
-					c[x]	= 0;
-					r[x]	= m_pDEM_Old->asDouble(x, y);
-				}
-				else if( x == Get_NX() - 1 )
-				{
-					b[x]	= 1;
-					a[x]	= 0;
-					r[x]	= m_pDEM_Old->asDouble(x, y);
-				}
-			}
-
-			tridag(a, b, c, r, u);
-
-			for(x=0; x<Get_NX(); x++)
-			{
-				m_pDEM->Set_Value(x, y, u[x]);
-			}
-		}
+		return( false );
 	}
-}/**/
+
+	u.Create(n); double beta = b[0];
+
+	u[0] = r[0] / beta;
+
+	for(int i=1; i<n; i++)
+	{
+		gamma[i] = c[i - 1] / beta;
+		beta     = b[i] - a[i] * gamma[i];
+
+		if( beta == 0.0 )
+		{
+			return( false );
+		}
+
+		u[i] = (r[i] - a[i] * u[i - 1]) / beta;
+	}
+
+	for(int i=n-2; i>=0; i--)
+	{
+		u[i] -= gamma[i + 1] * u[i + 1];
+	}
+
+	return( true );
+}
 
 
 ///////////////////////////////////////////////////////////

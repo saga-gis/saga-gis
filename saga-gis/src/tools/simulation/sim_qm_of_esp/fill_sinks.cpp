@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: fill_sinks.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -46,15 +43,6 @@
 //                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -119,18 +107,23 @@ public:
 //---------------------------------------------------------
 CFill_Sinks::CFill_Sinks(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Fill Sinks (QM of ESP)"));
 
 	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
 		"Filling in pits and flats in a DEM."
+
+		"<hr>This tool implements suggested code examples from the text book "
+		"<i>Quantitative Modeling of Earth Surface Processes</i> (Pelletier 2008) "
+		"and serves as demonstration on code adaptions for the SAGA API. "
+		"Note that this tool may be of limited use for operational purposes!"
 	));
 
 	Add_Reference("Pelletier, J.D.",
 		"2008", "Quantitative Modeling of Earth Surface Processes",
-		"Cambridge, 295p."
+		"Cambridge, 295p.",
+		SG_T("https://doi.org/10.1017/CBO9780511813849"), SG_T("doi:10.1017/CBO9780511813849")
 	);
 
 	//-----------------------------------------------------
@@ -167,12 +160,12 @@ CFill_Sinks::CFill_Sinks(void)
 //---------------------------------------------------------
 bool CFill_Sinks::On_Execute(void)
 {
-	CSG_Grid	*pDEM, *pSinks;
+	CSG_Grid *pDEM, *pSinks;
 
-	pDEM		= Parameters("DEM"   )->asGrid();
-	m_pDEM		= Parameters("FILLED")->asGrid();
-	pSinks		= Parameters("SINKS" )->asGrid();
-	m_dzFill	= Parameters("DZFILL")->asDouble();
+	pDEM     = Parameters("DEM"   )->asGrid();
+	m_pDEM   = Parameters("FILLED")->asGrid();
+	pSinks   = Parameters("SINKS" )->asGrid();
+	m_dzFill = Parameters("DZFILL")->asDouble();
 
 	m_pDEM->Assign(pDEM);
 	m_pDEM->Fmt_Name("%s [%s]", pDEM->Get_Name(), _TL("No Sinks"));
@@ -186,7 +179,7 @@ bool CFill_Sinks::On_Execute(void)
 	{
 		pSinks->Assign(m_pDEM);
 		pSinks->Subtract(*pDEM);
-		pSinks->Set_NoData_Value(0.0);
+		pSinks->Set_NoData_Value(0.);
 	}
 
 	return( true );
@@ -203,15 +196,15 @@ bool CFill_Sinks::Fill_Sinks(CSG_Grid *pDEM, CSG_Grid *pFilled, double dzFill)
 	//-----------------------------------------------------
 	if( pFilled )
 	{
-		m_pDEM	= pFilled;
+		m_pDEM = pFilled;
 		m_pDEM->Assign(pDEM);
 	}
 	else
 	{
-		m_pDEM	= pDEM;
+		m_pDEM = pDEM;
 	}
 
-	m_dzFill	= dzFill;
+	m_dzFill = dzFill;
 
 
 	return( Fill_Sinks() );
@@ -225,7 +218,7 @@ bool CFill_Sinks::Fill_Sinks(CSG_Grid *pDEM, CSG_Grid *pFilled, double dzFill)
 //---------------------------------------------------------
 bool CFill_Sinks::Fill_Sinks(void)
 {
-	if( m_dzFill <= 0.0 )
+	if( m_dzFill <= 0. )
 	{
 		return( false );
 	}
@@ -246,8 +239,7 @@ bool CFill_Sinks::Fill_Sinks(void)
 //---------------------------------------------------------
 bool CFill_Sinks::Fill_Sink(int x, int y)
 {
-	int		i;
-	CStack	Stack;
+	CStack Stack; int i;
 
 	do
 	{
@@ -258,7 +250,7 @@ bool CFill_Sinks::Fill_Sink(int x, int y)
 			x	= Get_xTo(0, x);
 			y	= Get_yTo(0, y);
 		}
-		else if( Stack.Get_Size() > 0 && Stack.Pop(x, y, i) && i < 8 )
+		else if( Stack.Pop(x, y, i) && i < 8 )
 		{
 			Stack.Push(x, y, 1 + i);
 
@@ -278,22 +270,20 @@ bool CFill_Sinks::Fill_Cell(int x, int y)
 	{
 		for(bool bFilled=false, bSingle=true; ; )
 		{
-			bool	bPit	= true;
-			double	zMin	= m_pDEM->asDouble(x, y);
+			bool bPit = true; double zMin = m_pDEM->asDouble(x, y);
 
 			for(int i=0; i<8; i++)
 			{
-				int	ix	= Get_xTo(i, x);
-				int	iy	= Get_yTo(i, y);
+				int ix = Get_xTo(i, x), iy = Get_yTo(i, y);
 
 				if( m_pDEM->is_InGrid(ix, iy) )
 				{
-					bSingle	= false;
+					bSingle = false;
 
 					if( m_pDEM->asDouble(ix, iy) < zMin )
 					{
-						zMin	= m_pDEM->asDouble(ix, iy);
-						bPit	= false;
+						zMin = m_pDEM->asDouble(ix, iy);
+						bPit = false;
 					}
 				}
 			}
@@ -302,7 +292,7 @@ bool CFill_Sinks::Fill_Cell(int x, int y)
 			{
 				m_pDEM->Set_Value(x, y, zMin + m_dzFill);
 
-				bFilled	= true;
+				bFilled = true;
 			}
 			else
 			{
@@ -313,58 +303,6 @@ bool CFill_Sinks::Fill_Cell(int x, int y)
 
 	return( false );
 }
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-/*/---------------------------------------------------------
-void CFill_Sinks::Fill_Sinks(int x, int y)
-{
-	if( Fill_Cell(x, y) )
-	{
-		for(int i=0; i<8; i++)
-		{
-			Fill_Sinks(Get_xTo(i, x), Get_yTo(i, y));
-		}
-	}
-}/**/
-
-/*/---------------------------------------------------------
-void CFill_Sinks::Fill_Sinks(int x, int y)
-{
-	if( x > 0 && x < Get_NX() - 1 && y > 0 && y < Get_NY() - 1 && !m_pDEM->is_NoData(x, y) )
-	{
-		int		i;
-		double	zMin;
-
-		for(i=0, zMin=m_pDEM->asDouble(x, y); i<8; i++)
-		{
-			int	ix	= Get_xTo(i, x);
-			int	iy	= Get_yTo(i, y);
-
-			if( m_pDEM->is_InGrid(ix, iy) && m_pDEM->asDouble(ix, iy) < zMin )
-			{
-				zMin	= m_pDEM->asDouble(ix, iy);
-			}
-		}
-
-		if( m_pDEM->asDouble(x, y) <= zMin )
-		{
-			m_pDEM->Set_Value(x, y, zMin + m_dzFill);
-
-			Fill_Sinks(x, y);
-
-			for(i=0; i<8; i++)
-			{
-				Fill_Sinks(Get_xTo(i, x), Get_yTo(i, y));
-			}
-		}
-	}
-}/**/
 
 
 ///////////////////////////////////////////////////////////

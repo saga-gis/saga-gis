@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.cpp 911 2011-11-11 11:11:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,18 +46,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
@@ -83,7 +71,8 @@ CSG_String Get_Info(int i)
 		return( _TW(
 			"Quantitative Modeling of Earth Surface Processes.\n"
 			"SAGA implementations following the examples from the text book:\n"
-			"Pelletier, J.D. (2008): Quantitative Modeling of Earth Surface Processes. Cambridge, 295p.\n"
+			"Pelletier, J.D. (2008): Quantitative Modeling of Earth Surface Processes. Cambridge, 295p. "
+			"<a href=\"https://doi.org/10.1017/CBO9780511813849\">doi:10.1017/CBO9780511813849</a>"
 		));
 
 	case TLB_INFO_Version:
