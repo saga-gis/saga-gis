@@ -962,7 +962,7 @@ protected:
 
 	void *					Get_Record_Pop	(void)
 	{
-		if( m_Stack.Get_Size() > 0 )
+		if( m_Stack.Get_Size() > 1 )
 		{
 			memcpy(m_Stack.Get_Array(), m_Stack.Get_Entry(m_Stack.Get_Size() - 1), m_Stack.Get_Value_Size());
 
