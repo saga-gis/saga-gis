@@ -130,8 +130,8 @@ int CGrid_To_Contour::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 
 		if( zStep > 0. )
 		{
-			pParameters->Set_Parameter("ZMIN", zStep * (ceil (pParameter->asGrid()->Get_Min() / zStep)));
-			pParameters->Set_Parameter("ZMAX", zStep * (floor(pParameter->asGrid()->Get_Max() / zStep)));
+			pParameters->Set_Parameter("ZMIN", zStep * (floor(pParameter->asGrid()->Get_Min() / zStep)));
+			pParameters->Set_Parameter("ZMAX", zStep * (ceil (pParameter->asGrid()->Get_Max() / zStep)));
 		}
 		else
 		{
