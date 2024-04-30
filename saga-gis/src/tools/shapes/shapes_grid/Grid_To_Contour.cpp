@@ -761,15 +761,15 @@ bool CGrid_To_Contour::Get_Edge_Segments(CSG_Shapes &Edges, CSG_Shapes *pContour
 		}
 		else if( Edge.asLong(0) == Edge.asLong(1) ) // needs to determine 'going lower/higher' state in relation to contour elevation
 		{
-			CSG_Point p[2] = { Edge.Get_Point(0), Edge.Get_Point(1) };
+			CSG_Point p(Edge.Get_Point(0)), d(Edge.Get_Point(1)); d.x -= p.x; d.y -= p.y;
 
-			p[1].x = p[0].x + 0.5 * m_pGrid->Get_Cellsize() * (p[1].x > p[0].x ? 1 : p[1].x < p[0].x ? -1 : 0);
-			p[1].y = p[0].y + 0.5 * m_pGrid->Get_Cellsize() * (p[1].y > p[0].y ? 1 : p[1].y < p[0].y ? -1 : 0);
+			int x = (int)floor((p.x - m_pGrid->Get_XMin()) / m_pGrid->Get_Cellsize());
+			int y = (int)floor((p.y - m_pGrid->Get_YMin()) / m_pGrid->Get_Cellsize());
 
-			double dz = m_pGrid->Get_Value(p[1], GRID_RESAMPLING_Bilinear)
-			          - m_pGrid->Get_Value(p[0], GRID_RESAMPLING_Bilinear);
-
-			if( dz < 0. )
+			if( (d.x < 0. && m_pGrid->asDouble(x + 1, y) > m_pGrid->asDouble(x, y))
+			||  (d.x > 0. && m_pGrid->asDouble(x + 1, y) < m_pGrid->asDouble(x, y))
+			||  (d.y < 0. && m_pGrid->asDouble(x, y + 1) > m_pGrid->asDouble(x, y))
+			||  (d.y > 0. && m_pGrid->asDouble(x, y + 1) < m_pGrid->asDouble(x, y)) )
 			{
 				Edge.Add_Value(0, -1);
 			}
