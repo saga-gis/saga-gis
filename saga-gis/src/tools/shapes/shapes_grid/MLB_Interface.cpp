@@ -97,6 +97,7 @@ CSG_String Get_Info(int i)
 #include "grid_rectangle_clip.h"
 #include "Grid_Class_Statistics_For_Polygons.h"
 #include "boundary_cells_to_polygons.h"
+#include "grid_line_direction.h"
 
 
 //---------------------------------------------------------
@@ -127,9 +128,10 @@ CSG_Tool *		Create_Tool(int i)
 	case 18: return( new CGrid_Class_Statistics_For_Polygons );
 
 	case 19: return( new CBoundary_Cells_to_Polygons );
+	case 20: return( new CGridLineDirection );
 
 	//-----------------------------------------------------
-	case 20: return( NULL );
+	case 21: return( NULL );
 	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
