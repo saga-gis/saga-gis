@@ -112,7 +112,9 @@ bool CSG_File::Open(const CSG_String &FileName, int Mode, bool bBinary, int Enco
 {
 	Close();
 
-	if( !SG_Dir_Exists(SG_File_Get_Path(FileName)) )
+	CSG_String Path(SG_File_Get_Path(FileName));
+
+	if( !Path.is_Empty() && !SG_Dir_Exists(Path) )
 	{
 		return( false );
 	}
