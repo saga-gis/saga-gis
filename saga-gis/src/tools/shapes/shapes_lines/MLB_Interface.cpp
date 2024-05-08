@@ -97,6 +97,8 @@ CSG_String Get_Info(int i)
 #include "line_flip_direction.h"
 #include "merge_line_parts.h"
 #include "line_density.h"
+#include "topologize.h"
+#include "upstream_edges.h"
 
 
 //---------------------------------------------------------
@@ -122,8 +124,10 @@ CSG_Tool *		Create_Tool(int i)
 	case 13: return( new CLine_Flip_Direction );
 	case 14: return( new CMerge_Line_Parts );
 	case 15: return( new CLine_Density );
+	case 16: return( new CLine_Topology );
+	case 17: return( new CLine_UpstreamEdges );
 
-	case 16: return( NULL );
+	case 18: return( NULL );
 	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
