@@ -222,6 +222,38 @@ CSG_String CSG_CRSProjector::Get_Description(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_CRSProjector::Convert_CRS_Format(const CSG_String &Definition, CSG_String *pPROJ, CSG_String *pWKT1, CSG_String *pWKT2, CSG_String *pESRI)
+{
+	#if PROJ_VERSION_MAJOR < 6
+		return( false );
+	#else
+		if( Definition.Find("+proj") >= 0 && Definition.Find("+type=crs") < 0 )
+		{
+			return( Convert_CRS_Format(Definition + " +type=crs", pPROJ, pWKT1, pWKT2, pESRI) );
+		}
+
+		PJ *pProjection = proj_create(0, Definition);
+
+		if( pProjection )
+		{
+			if( pPROJ ) { *pPROJ = proj_as_proj_string(0, pProjection, PJ_PROJ_STRING_TYPE::PJ_PROJ_5, NULL); }
+			if( pWKT1 ) { *pWKT1 = proj_as_wkt        (0, pProjection, PJ_WKT_TYPE::PJ_WKT1_GDAL, NULL); }
+			if( pWKT2 ) { *pWKT2 = proj_as_wkt        (0, pProjection, PJ_WKT_TYPE::PJ_WKT2_2015, NULL); }
+			if( pESRI ) { *pESRI = proj_as_wkt        (0, pProjection, PJ_WKT_TYPE::PJ_WKT1_ESRI, NULL); }
+
+			proj_destroy(pProjection);
+		}
+
+		return( pProjection != NULL );
+	#endif
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_CRSProjector::_Set_Projection(const CSG_Projection &Projection, void **ppProjection, bool bInverse)
 {
 	PROJ4_FREE(*ppProjection); CSG_String Proj4(Projection.Get_Proj4());

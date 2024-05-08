@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//                  crs_definition.cpp                   //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2024 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -40,116 +40,98 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#if PROJ_VERSION_MAJOR >= 6
 
+//---------------------------------------------------------
+#include "crs_definition.h"
 #include "crs_transform.h"
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-// 2. Place general tool library informations here...
-
-CSG_String Get_Info(int i)
+CCRS_Definition::CCRS_Definition(void)
 {
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("PROJ") );
+	Set_Name		(_TL("Coordinate Reference System Format Conversion"));
 
-	case TLB_INFO_Category:
-		return( _TL("Projection") );
+	Set_Author		("O.Conrad (c) 2024");
 
-	case TLB_INFO_Author:
-		return( "O. Conrad (c) 2004-24" );
+	Set_Description	(_TW(
+		"This tool allows you to define the Coordinate Reference System (CRS) "
+		"for the supplied data sets. The tool applies no transformation to "
+		"the data sets, it just updates their CRS metadata.\n"
+		"A complete and correct description of the CRS of a dataset is necessary "
+		"in order to be able to actually apply a projection with one of the "
+		"'Coordinate Transformation' tools."
+	));
 
-	case TLB_INFO_Description:
-		return( CSG_CRSProjector::Get_Description() );
+	//-----------------------------------------------------
+	Parameters.Add_String("",
+		"DEFINITION", _TL("Definition"),
+		_TL(""),
+		"+proj=longlat +datum=WGS84 +no_defs +type=crs"
+	);
 
-	case TLB_INFO_Version:
-		return( "2.0" );
-
-	case TLB_INFO_Menu_Path:
-		return( _TL("Projection") );
-	}
+	Parameters.Add_Info_String("", "PROJ", _TL("PROJ" ), _TL(""), "", false);
+	Parameters.Add_Info_String("", "WKT1", _TL("WKT-1"), _TL(""), "",  true);
+	Parameters.Add_Info_String("", "WKT2", _TL("WKT-2"), _TL(""), "",  true);
+	Parameters.Add_Info_String("", "ESRI", _TL("ESRI" ), _TL(""), "", false);
 }
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your tools here...
-
-#include "crs_assign.h"
-
-#include "crs_transform_shapes.h"
-#include "crs_transform_grid.h"
-#include "crs_transform_point.h"
-#include "crs_transform_utm.h"
-#include "crs_transform_coords.h"
-
-#include "gcs_lon_range.h"
-#include "gcs_graticule.h"
-#include "gcs_rotated_grid.h"
-
-#include "crs_indicatrix.h"
-#include "crs_grid_geogcoords.h"
-#include "crs_distance.h"
-
-#include "crs_definition.h"
-
-#include "globe_gores.h"
-
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 4. Allow your tools to be created here...
-
-CSG_Tool *		Create_Tool(int i)
+int CCRS_Definition::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	switch( i )
+	if( pParameter->Cmp_Identifier("DEFINITION") )
 	{
-	case  0: return( new CCRS_Assign() );
+		CSG_String PROJ, WKT1, WKT2, ESRI;
 
-	case 29: return( new CCRS_Transform_Point() );
+		CSG_CRSProjector::Convert_CRS_Format(pParameter->asString(), &PROJ, &WKT1, &WKT2, &ESRI);
 
-	case  1: return( new CCRS_Transform_Shapes    (true ) );
-	case  2: return( new CCRS_Transform_Shapes    (false) );
-	case  3: return( new CCRS_Transform_Grid      (true ) );
-	case  4: return( new CCRS_Transform_Grid      (false) );
-
-	case 23: return( new CCRS_Transform_UTM_Grids (true ) );
-	case 24: return( new CCRS_Transform_UTM_Grids (false) );
-	case 25: return( new CCRS_Transform_UTM_Shapes(true ) );
-	case 26: return( new CCRS_Transform_UTM_Shapes(false) );
-
-	#if PROJ_VERSION_MAJOR >= 6
-	case 19: return( new CCRS_Definition() );
-	#endif
-
-	case 15: return( new CCRS_Picker() );
-
-	case 13: return( new CGCS_Grid_Longitude_Range() );
-	case 14: return( new CGCS_Graticule() );
-	case 18: return( new CGCS_Rotated_Grid() );
-
-	case 16: return( new CCRS_Indicatrix() );
-	case 17: return( new CCRS_Grid_GeogCoords() );
-	case 20: return( new CCRS_Distance_Lines() );
-	case 21: return( new CCRS_Distance_Points() );
-	case 22: return( new CCRS_Distance_Interactive() );
-
-	case 30: return( new CCRS_Transform_Coords_Grid () );
-	case 31: return( new CCRS_Transform_Coords_Table() );
-
-	case 32: return( new CGlobe_Gores() );
-
-	case 33: return( NULL );
-	default: return( TLB_INTERFACE_SKIP_TOOL );
+		pParameters->Set_Parameter("PROJ", PROJ);
+		pParameters->Set_Parameter("WKT1", WKT1);
+		pParameters->Set_Parameter("WKT2", WKT2);
+		pParameters->Set_Parameter("ESRI", ESRI);
 	}
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CCRS_Definition::On_Execute(void)
+{
+	CSG_String PROJ, WKT1, WKT2, ESRI;
+
+	if( CSG_CRSProjector::Convert_CRS_Format(Parameters("DEFINITION")->asString(), &PROJ, &WKT1, &WKT2, &ESRI) )
+	{
+		Set_Parameter("PROJ", PROJ);
+		Set_Parameter("WKT1", WKT1);
+		Set_Parameter("WKT2", WKT2);
+		Set_Parameter("ESRI", ESRI);
+
+		return( true );
+	}
+
+	return( false );
 }
 
 
@@ -160,8 +142,4 @@ CSG_Tool *		Create_Tool(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	TLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #if PROJ_VERSION_MAJOR >= 6

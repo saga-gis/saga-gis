@@ -82,6 +82,8 @@ public:
 
 	static CSG_String		Get_Version					(void);
 	static CSG_String		Get_Description				(void);
+	static bool				Convert_CRS_Format			(const CSG_String &Definition, CSG_String *pPROJ = NULL, CSG_String *pWKT1 = NULL, CSG_String *pWKT2 = NULL, CSG_String *pESRI = NULL);
+
 
 	bool					Set_Source					(const CSG_Projection &Projection);
 	const CSG_Projection &	Get_Source					(void)	const		{	return( m_Source );	}
