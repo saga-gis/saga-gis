@@ -587,7 +587,9 @@ bool CSG_File_Zip::Open(const CSG_String &FileName, int Mode, int Encoding)
 {
 	Close();
 
-	if( !SG_Dir_Exists(SG_File_Get_Path(FileName)) )
+	CSG_String Path(SG_File_Get_Path(FileName));
+
+	if( !Path.is_Empty() && !SG_Dir_Exists(Path) )
 	{
 		return( false );
 	}
