@@ -680,26 +680,27 @@ typedef CSG_Tool_Library_Interface *	(* TSG_PFNC_TLB_Get_Interface)	(void);
 #define TLB_INTERFACE_SKIP_TOOL			((CSG_Tool *)0x1)
 
 //---------------------------------------------------------
-#define TLB_INTERFACE_INITIALIZE	CSG_Tool_Library_Interface	TLB_Interface;\
+#define TLB_INTERFACE_ESTABLISH CSG_Tool_Library_Interface TLB_Interface;\
 \
 extern "C" _SAGA_DLL_EXPORT CSG_Tool_Library_Interface *	TLB_Get_Interface   (void)\
 {\
 	return( &TLB_Interface );\
 }\
-\
-extern "C" _SAGA_DLL_EXPORT bool TLB_Initialize	(const SG_Char *TLB_Path)\
+
+//---------------------------------------------------------
+#define TLB_INTERFACE_INITIALIZE extern "C" _SAGA_DLL_EXPORT bool TLB_Initialize(const SG_Char *TLB_Path)\
 {\
 	return( TLB_Interface.Create(SAGA_VERSION, TLB_Path, Get_Info, Create_Tool) );\
 }\
 
 //---------------------------------------------------------
-#define TLB_INTERFACE_FINALIZE		extern "C" _SAGA_DLL_EXPORT bool TLB_Finalize	(void)\
+#define TLB_INTERFACE_FINALIZE   extern "C" _SAGA_DLL_EXPORT bool TLB_Finalize  (void)\
 {\
 	return( true );\
 }\
 
 //---------------------------------------------------------
-#define TLB_INTERFACE	TLB_INTERFACE_INITIALIZE TLB_INTERFACE_FINALIZE
+#define TLB_INTERFACE	TLB_INTERFACE_ESTABLISH TLB_INTERFACE_INITIALIZE TLB_INTERFACE_FINALIZE
 
 //---------------------------------------------------------
 #ifndef SWIG

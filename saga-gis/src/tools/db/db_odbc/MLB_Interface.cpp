@@ -50,7 +50,7 @@
 //---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
@@ -99,22 +99,22 @@ CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
-	case  9:	return( new CGet_Servers );
-	case  0:	return( new CGet_Connection );
-	case  1:	return( new CDel_Connection );
-	case 11:	return( new CDel_Connections );
-	case  2:	return( new CTransaction );
-	case  3:	return( new CExecute_SQL );
+	case  9: return( new CGet_Servers );
+	case  0: return( new CGet_Connection );
+	case  1: return( new CDel_Connection );
+	case 11: return( new CDel_Connections );
+	case  2: return( new CTransaction );
+	case  3: return( new CExecute_SQL );
 
-	case 10:	return( new CTable_List );
-	case  4:	return( new CTable_Info );
-	case  5:	return( new CTable_Load );
-	case  6:	return( new CTable_Save );
-	case  7:	return( new CTable_Drop );
-	case  8:	return( new CTable_Query );
+	case 10: return( new CTable_List );
+	case  4: return( new CTable_Info );
+	case  5: return( new CTable_Load );
+	case  6: return( new CTable_Save );
+	case  7: return( new CTable_Drop );
+	case  8: return( new CTable_Query );
 
-	case 12:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
+	case 12: return( NULL );
+	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
 
@@ -126,11 +126,8 @@ CSG_Tool *		Create_Tool(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	TLB_INTERFACE_INITIALIZE
-
-//}}AFX_SAGA
+TLB_INTERFACE_ESTABLISH
+TLB_INTERFACE_INITIALIZE
 
 //---------------------------------------------------------
 extern "C" _SAGA_DLL_EXPORT bool TLB_Finalize	(void)
