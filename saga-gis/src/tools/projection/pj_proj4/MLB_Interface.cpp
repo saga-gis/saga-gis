@@ -160,8 +160,34 @@ CSG_Tool *		Create_Tool(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+TLB_INTERFACE_ESTABLISH
+TLB_INTERFACE_FINALIZE
 
-	TLB_INTERFACE
+//---------------------------------------------------------
+#include <proj.h>
 
-//}}AFX_SAGA
+//---------------------------------------------------------
+extern "C" _SAGA_DLL_EXPORT bool TLB_Initialize	(const SG_Char *TLB_Path)
+{
+	#if _SAGA_MSW && PROJ_VERSION_MAJOR >= 6
+	CSG_String Path;
+	if( SG_Get_Environment("PROJ_LIB", &Path) )
+	{
+		char *Paths[1] = { NULL };
+		Path.to_UTF8(&Paths[0]);
+		proj_context_set_search_paths(NULL, 1, Paths);
+		SG_FREE_SAFE(Paths[0]);
+	}
+	#endif
+
+	return( TLB_Interface.Create(SAGA_VERSION, TLB_Path, Get_Info, Create_Tool) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

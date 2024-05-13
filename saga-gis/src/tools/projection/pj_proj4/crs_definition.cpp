@@ -79,13 +79,15 @@ CCRS_Definition::CCRS_Definition(void)
 	Parameters.Add_String("",
 		"DEFINITION", _TL("Definition"),
 		_TL(""),
-		"+proj=longlat +datum=WGS84 +no_defs +type=crs"
+		"epsg:4326"
 	);
 
 	Parameters.Add_Info_String("", "PROJ", _TL("PROJ" ), _TL(""), "", false);
 	Parameters.Add_Info_String("", "WKT1", _TL("WKT-1"), _TL(""), "",  true);
 	Parameters.Add_Info_String("", "WKT2", _TL("WKT-2"), _TL(""), "",  true);
 	Parameters.Add_Info_String("", "ESRI", _TL("ESRI" ), _TL(""), "", false);
+
+	On_Parameter_Changed(&Parameters, Parameters("DEFINITION"));
 }
 
 
