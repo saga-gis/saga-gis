@@ -82,7 +82,17 @@ public:
 
 	static CSG_String		Get_Version					(void);
 	static CSG_String		Get_Description				(void);
-	static bool				Convert_CRS_Format			(const CSG_String &Definition, CSG_String *pPROJ = NULL, CSG_String *pWKT1 = NULL, CSG_String *pWKT2 = NULL, CSG_String *pESRI = NULL);
+
+	typedef enum {
+		CRS_Format_PROJ, CRS_Format_JSON, CRS_Format_ESRI, CRS_Format_WKT1, CRS_Format_WKT2, CRS_Format_WKT2015, CRS_Format_WKT2018, CRS_Format_WKT2019
+	} TCRS_Format;
+
+	static CSG_String		Convert_CRS_Format			(const CSG_String &Definition, TCRS_Format Format, bool bMultiLine = true, bool bSimplified = true);
+	static CSG_String		Convert_CRS_To_PROJ			(const CSG_String &Definition);
+	static CSG_String		Convert_CRS_To_JSON			(const CSG_String &Definition, bool bMultiLine);
+	static CSG_String		Convert_CRS_To_ESRI			(const CSG_String &Definition);
+	static CSG_String		Convert_CRS_To_WKT1			(const CSG_String &Definition, bool bMultiLine);
+	static CSG_String		Convert_CRS_To_WKT2			(const CSG_String &Definition, bool bMultiLine, bool bSimplified);
 
 
 	bool					Set_Source					(const CSG_Projection &Projection);

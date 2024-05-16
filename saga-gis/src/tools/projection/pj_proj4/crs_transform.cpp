@@ -222,30 +222,68 @@ CSG_String CSG_CRSProjector::Get_Description(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_CRSProjector::Convert_CRS_Format(const CSG_String &Definition, CSG_String *pPROJ, CSG_String *pWKT1, CSG_String *pWKT2, CSG_String *pESRI)
+CSG_String CSG_CRSProjector::Convert_CRS_To_PROJ(const CSG_String &Definition)
 {
-	#if PROJ_VERSION_MAJOR < 6
-		return( false );
-	#else
-		if( Definition.Find("+proj") >= 0 && Definition.Find("+type=crs") < 0 )
+	return( Convert_CRS_Format(Definition, CRS_Format_PROJ) );
+}
+
+CSG_String CSG_CRSProjector::Convert_CRS_To_JSON(const CSG_String &Definition, bool bMultiLine)
+{
+	return( Convert_CRS_Format(Definition, CRS_Format_JSON, bMultiLine) );
+}
+
+CSG_String CSG_CRSProjector::Convert_CRS_To_ESRI(const CSG_String &Definition)
+{
+	return( Convert_CRS_Format(Definition, CRS_Format_ESRI) );
+}
+
+CSG_String CSG_CRSProjector::Convert_CRS_To_WKT1(const CSG_String &Definition, bool bMultiLine)
+{
+	return( Convert_CRS_Format(Definition, CRS_Format_WKT1, bMultiLine) );
+}
+
+CSG_String CSG_CRSProjector::Convert_CRS_To_WKT2(const CSG_String &Definition, bool bMultiLine, bool bSimplified)
+{
+	return( Convert_CRS_Format(Definition, CRS_Format_WKT2, bMultiLine, bSimplified) );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_CRSProjector::Convert_CRS_Format(const CSG_String &Definition, TCRS_Format Format, bool bMultiLine, bool bSimplified)
+{
+	if( Definition.Find("+proj") >= 0 && Definition.Find("+type=crs") < 0 )
+	{
+		return( Convert_CRS_Format(Definition + " +type=crs", Format, bMultiLine) );
+	}
+
+	#if PROJ_VERSION_MAJOR >= 6
+	PJ *pProjection = proj_create(0, Definition);
+
+	if( pProjection )
+	{
+		const char *s = NULL, *options[] = { bMultiLine ? "MULTILINE=YES" : "MULTILINE=NO", NULL };
+
+		switch( Format )
 		{
-			return( Convert_CRS_Format(Definition + " +type=crs", pPROJ, pWKT1, pWKT2, pESRI) );
+		case CRS_Format_PROJ   : s = proj_as_proj_string(0, pProjection, PJ_PROJ_STRING_TYPE::PJ_PROJ_5, 0); break;
+		case CRS_Format_JSON   : s = proj_as_projjson(0, pProjection, options); break;
+		case CRS_Format_ESRI   : s = proj_as_wkt(0, pProjection, PJ_WKT_TYPE::PJ_WKT1_ESRI, options); break;
+		case CRS_Format_WKT1   : s = proj_as_wkt(0, pProjection, PJ_WKT_TYPE::PJ_WKT1_GDAL, options); break;
+		case CRS_Format_WKT2   : s = proj_as_wkt(0, pProjection, bSimplified ? PJ_WKT_TYPE::PJ_WKT2_2015_SIMPLIFIED : PJ_WKT_TYPE::PJ_WKT2_2015, options); break;
+		case CRS_Format_WKT2015: s = proj_as_wkt(0, pProjection, bSimplified ? PJ_WKT_TYPE::PJ_WKT2_2015_SIMPLIFIED : PJ_WKT_TYPE::PJ_WKT2_2015, options); break;
+		case CRS_Format_WKT2018: s = proj_as_wkt(0, pProjection, bSimplified ? PJ_WKT_TYPE::PJ_WKT2_2018_SIMPLIFIED : PJ_WKT_TYPE::PJ_WKT2_2018, options); break;
+		case CRS_Format_WKT2019: s = proj_as_wkt(0, pProjection, bSimplified ? PJ_WKT_TYPE::PJ_WKT2_2019_SIMPLIFIED : PJ_WKT_TYPE::PJ_WKT2_2019, options); break;
 		}
 
-		PJ *pProjection = proj_create(0, Definition);
+		proj_destroy(pProjection);
 
-		if( pProjection )
+		if( s && *s )
 		{
-			if( pPROJ ) { *pPROJ = proj_as_proj_string(0, pProjection, PJ_PROJ_STRING_TYPE::PJ_PROJ_5, NULL); }
-			if( pWKT1 ) { *pWKT1 = proj_as_wkt        (0, pProjection, PJ_WKT_TYPE::PJ_WKT1_GDAL, NULL); }
-			if( pWKT2 ) { *pWKT2 = proj_as_wkt        (0, pProjection, PJ_WKT_TYPE::PJ_WKT2_2015, NULL); }
-			if( pESRI ) { *pESRI = proj_as_wkt        (0, pProjection, PJ_WKT_TYPE::PJ_WKT1_ESRI, NULL); }
-
-			proj_destroy(pProjection);
+			return( CSG_String::from_UTF8(s) );
 		}
-
-		return( pProjection != NULL );
+	}
 	#endif
+
+	return( "" );
 }
 
 
