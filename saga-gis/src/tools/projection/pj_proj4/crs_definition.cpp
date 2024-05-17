@@ -67,13 +67,20 @@ CCRS_Definition::CCRS_Definition(void)
 	Set_Author		("O.Conrad (c) 2024");
 
 	Set_Description	(_TW(
-		"This tool allows you to define the Coordinate Reference System (CRS) "
-		"for the supplied data sets. The tool applies no transformation to "
-		"the data sets, it just updates their CRS metadata.\n"
-		"A complete and correct description of the CRS of a dataset is necessary "
-		"in order to be able to actually apply a projection with one of the "
-		"'Coordinate Transformation' tools."
+		"Type in a Coordinate Reference System (CRS) definition and "
+		"find its representation in various formats. Supported input formats are:<ul>"
+		"<li>proj strings</li>"
+		"<li>WKT strings</li>"
+		"<li>object codes (e.g. \"EPSG:4326\", \"ESRI:31493\", \"urn:ogc:def:crs:EPSG::4326\", \"urn:ogc:def:coordinateOperation:EPSG::1671\")</li>"
+		"<li>object names (e.g. \"WGS 84\", \"WGS 84 / UTM zone 31N\", \"Germany_Zone_3\". In this case as uniqueness is not guaranteed, heuristics are applied to determine the appropriate best match.</li>"
+		"<li>OGC URN combining references for compound CRS (e.g \"urn:ogc:def:crs,crs:EPSG::2393,crs:EPSG::5717\" or custom abbreviated syntax \"EPSG:2393+5717\")</li>"
+		"<li>OGC URN combining references for concatenated operations (e.g. \"urn:ogc:def:coordinateOperation,coordinateOperation:EPSG::3895,coordinateOperation:EPSG::1618\")</li>"
+		"<li>PROJJSON strings (find the jsonschema at <a href=\"https://proj.org/schemas/v0.4/projjson.schema.json\">proj.org</a>)</li>"
+		"<li>compound CRS made from two object names separated with \" + \" (e.g. \"WGS 84 + EGM96 height\")</li>"
+		"</ul>"
 	));
+
+	Add_Reference("https://proj.org", SG_T("PROJ Homepage"));
 
 	//-----------------------------------------------------
 	Parameters.Add_String("",
@@ -89,7 +96,9 @@ CCRS_Definition::CCRS_Definition(void)
 	Parameters.Add_Info_String("", "ESRI", _TL("ESRI" ), _TL(""), "", false);
 
 	Parameters.Add_Bool("", "MULTILINE" , _TL("Multiline" ), _TL("applies to JSON and WKT"), true);
-	Parameters.Add_Bool("", "SIMPLIFIED", _TL("Simplified"), _TL("applies to WKT-2"       ), true);
+	Parameters.Add_Bool("WKT2", "SIMPLIFIED", _TL("Simplified"), _TL("applies to WKT-2"       ), true);
+
+	Parameters.Add_Table("", "FORMATS", _TL("Formats"), _TL(""), PARAMETER_OUTPUT_OPTIONAL)->Set_UseInGUI(false);
 
 	On_Parameter_Changed(&Parameters, Parameters("DEFINITION"));
 }
@@ -109,10 +118,10 @@ int CCRS_Definition::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 		bool bMultiLine = (*pParameters)["MULTILINE"].asBool(), bSimplified = (*pParameters)["SIMPLIFIED"].asBool();
 
 		pParameters->Set_Parameter("PROJ", CSG_CRSProjector::Convert_CRS_To_PROJ(Definition));
-		pParameters->Set_Parameter("ESRI", CSG_CRSProjector::Convert_CRS_To_ESRI(Definition));
-		pParameters->Set_Parameter("JSON", CSG_CRSProjector::Convert_CRS_To_JSON(Definition, bMultiLine));
 		pParameters->Set_Parameter("WKT1", CSG_CRSProjector::Convert_CRS_To_WKT1(Definition, bMultiLine));
 		pParameters->Set_Parameter("WKT2", CSG_CRSProjector::Convert_CRS_To_WKT2(Definition, bMultiLine, bSimplified));
+		pParameters->Set_Parameter("JSON", CSG_CRSProjector::Convert_CRS_To_JSON(Definition, bMultiLine));
+		pParameters->Set_Parameter("ESRI", CSG_CRSProjector::Convert_CRS_To_ESRI(Definition));
 	}
 
 	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
@@ -131,10 +140,26 @@ bool CCRS_Definition::On_Execute(void)
 	bool bMultiLine = Parameters["MULTILINE"].asBool(), bSimplified = Parameters["SIMPLIFIED"].asBool();
 
 	Set_Parameter("PROJ", CSG_CRSProjector::Convert_CRS_To_PROJ(Definition));
-	Set_Parameter("ESRI", CSG_CRSProjector::Convert_CRS_To_ESRI(Definition));
-	Set_Parameter("JSON", CSG_CRSProjector::Convert_CRS_To_JSON(Definition, bMultiLine));
 	Set_Parameter("WKT1", CSG_CRSProjector::Convert_CRS_To_WKT1(Definition, bMultiLine));
 	Set_Parameter("WKT2", CSG_CRSProjector::Convert_CRS_To_WKT2(Definition, bMultiLine, bSimplified));
+	Set_Parameter("JSON", CSG_CRSProjector::Convert_CRS_To_JSON(Definition, bMultiLine));
+	Set_Parameter("ESRI", CSG_CRSProjector::Convert_CRS_To_ESRI(Definition));
+
+	if( Parameters["FORMATS"].asTable() )
+	{
+		CSG_Table &Formats = *Parameters["FORMATS"].asTable(); Formats.Destroy(); Formats.Set_Name(_TL("CRS Definition"));
+
+		Formats.Add_Field("Format"    , SG_DATATYPE_String);
+		Formats.Add_Field("Definition", SG_DATATYPE_String);
+
+		#define Add_Format(id) { CSG_Table_Record &r = *Formats.Add_Record(); r.Set_Value(0, Parameters[id].Get_Name()); r.Set_Value(1, Parameters[id].asString()); }
+
+		Add_Format("PROJ");
+		Add_Format("WKT1");
+		Add_Format("WKT2");
+		Add_Format("JSON");
+		Add_Format("ESRI");
+	}
 
 	return( SG_STR_LEN(Parameters["WKT2"].asString()) );
 }

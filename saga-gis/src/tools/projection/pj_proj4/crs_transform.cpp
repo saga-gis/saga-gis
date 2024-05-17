@@ -256,7 +256,7 @@ CSG_String CSG_CRSProjector::Convert_CRS_Format(const CSG_String &Definition, TC
 	}
 
 	#if PROJ_VERSION_MAJOR >= 6
-	PJ *pProjection = proj_create(0, Definition);
+	CSG_String CRS; PJ *pProjection = proj_create(0, Definition);
 
 	if( pProjection )
 	{
@@ -274,16 +274,16 @@ CSG_String CSG_CRSProjector::Convert_CRS_Format(const CSG_String &Definition, TC
 		case CRS_Format_WKT2019: s = proj_as_wkt(0, pProjection, bSimplified ? PJ_WKT_TYPE::PJ_WKT2_2019_SIMPLIFIED : PJ_WKT_TYPE::PJ_WKT2_2019, options); break;
 		}
 
-		proj_destroy(pProjection);
-
 		if( s && *s )
 		{
-			return( CSG_String::from_UTF8(s) );
+			CRS = CSG_String::from_UTF8(s);
 		}
+
+		proj_destroy(pProjection);
 	}
 	#endif
 
-	return( "" );
+	return( CRS );
 }
 
 
