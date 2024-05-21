@@ -778,10 +778,14 @@ private:
 //---------------------------------------------------------
 typedef enum
 {
-	SG_PROJ_FMT_WKT,
-	SG_PROJ_FMT_Proj4,
-	SG_PROJ_FMT_EPSG,
-	SG_PROJ_FMT_Undefined
+	SG_PROJ_FMT_WKT1,
+	SG_PROJ_FMT_WKT2,
+	SG_PROJ_FMT_PROJ,
+	SG_PROJ_FMT_ESRI,
+	SG_PROJ_FMT_Undefined,
+	SG_PROJ_FMT_WKT   = SG_PROJ_FMT_WKT1,
+	SG_PROJ_FMT_Proj4 = SG_PROJ_FMT_PROJ,
+	SG_PROJ_FMT_EPSG
 }
 TSG_Projection_Format;
 
@@ -823,16 +827,6 @@ typedef enum
 }
 TSG_Projection_Unit;
 
-//---------------------------------------------------------
-SAGA_API_DLL_EXPORT TSG_Projection_Type	SG_Get_Projection_Type				(const CSG_String &Identifier);
-SAGA_API_DLL_EXPORT CSG_String			SG_Get_Projection_Type_Identifier	(TSG_Projection_Type Type);
-SAGA_API_DLL_EXPORT CSG_String			SG_Get_Projection_Type_Name			(TSG_Projection_Type Type);
-
-SAGA_API_DLL_EXPORT TSG_Projection_Unit	SG_Get_Projection_Unit				(const CSG_String &Identifier);
-SAGA_API_DLL_EXPORT CSG_String			SG_Get_Projection_Unit_Identifier	(TSG_Projection_Unit Unit);
-SAGA_API_DLL_EXPORT CSG_String			SG_Get_Projection_Unit_Name			(TSG_Projection_Unit Unit, bool bSimple = false);
-SAGA_API_DLL_EXPORT double				SG_Get_Projection_Unit_To_Meter		(TSG_Projection_Unit Unit);
-
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -851,75 +845,80 @@ public:
 
 									CSG_Projection			(const CSG_Projection &Projection);
 	bool							Create					(const CSG_Projection &Projection);
-	bool							Assign					(const CSG_Projection &Projection);
-	CSG_Projection &				operator =				(const CSG_Projection &Projection)	{	Assign(Projection);	return( *this );	}
+	CSG_Projection &				operator =				(const CSG_Projection &Projection) { Create(Projection); return( *this ); }
 
-									CSG_Projection			(int Authority_ID, const SG_Char *Authority = NULL);
-	bool							Create					(int Authority_ID, const SG_Char *Authority = NULL);
-	bool							Assign					(int Authority_ID, const SG_Char *Authority = NULL);
-	CSG_Projection &				operator =				(int Authority_ID)					{	Assign(Authority_ID);	return( *this );	}
+									CSG_Projection			(int Code, const SG_Char *Authority = NULL);
+	bool							Create					(int Code, const SG_Char *Authority = NULL);
+	CSG_Projection &				operator =				(int Code)                         { Create(Code      ); return( *this ); }
 
-									CSG_Projection			(const CSG_String &Projection, TSG_Projection_Format Format = SG_PROJ_FMT_WKT);
-	bool							Create					(const CSG_String &Projection, TSG_Projection_Format Format = SG_PROJ_FMT_WKT);
-	bool							Assign					(const CSG_String &Projection, TSG_Projection_Format Format = SG_PROJ_FMT_WKT);
-	CSG_Projection &				operator =				(const CSG_String &Projection)		{	Assign(Projection);	return( *this );	}
+									CSG_Projection			(const CSG_String &Definition, TSG_Projection_Format Format = SG_PROJ_FMT_WKT);
+	bool							Create					(const CSG_String &Definition, TSG_Projection_Format Format = SG_PROJ_FMT_WKT);
+	CSG_Projection &				operator =				(const CSG_String &Definition)     { Create(Definition); return( *this ); }
 
 									CSG_Projection			(const CSG_String &WKT, const CSG_String &Proj4);
 	bool							Create					(const CSG_String &WKT, const CSG_String &Proj4);
-	bool							Assign					(const CSG_String &WKT, const CSG_String &Proj4);
+
+	bool							Assign					(const CSG_Projection &Projection)                                             { return( Create(Projection        ) ); }
+	bool							Assign					(int Code, const SG_Char *Authority = NULL)                                    { return( Create(Code, Authority   ) ); }
+	bool							Assign					(const CSG_String &Definition, TSG_Projection_Format Format = SG_PROJ_FMT_WKT) { return( Create(Definition, Format) ); }
+	bool							Assign					(const CSG_String &WKT, const CSG_String &Proj4)                               { return( Create(WKT, Proj4        ) ); }
 
 	bool							is_Okay					(void)	const	{	return( m_Type != SG_PROJ_TYPE_CS_Undefined );	}
-	bool							is_Equal				(const CSG_Projection &Projection)	const;
-	bool							operator ==				(const CSG_Projection &Projection)	const	{	return( is_Equal(Projection) == true  );	}
-	bool							operator !=				(const CSG_Projection &Projection)	const	{	return( is_Equal(Projection) == false );	}
+	bool							is_Equal				(const CSG_Projection &Projection) const;
+	bool							operator ==				(const CSG_Projection &Projection) const { return( is_Equal(Projection) == true  ); }
+	bool							operator !=				(const CSG_Projection &Projection) const { return( is_Equal(Projection) == false ); }
 
 	bool							Set_GCS_WGS84			(void);
 	bool							Set_UTM_WGS84			(int Zone, bool bSouth = false);
 
-	bool							Load					(const CSG_String &FileName, TSG_Projection_Format Format = SG_PROJ_FMT_WKT);
-	bool							Save					(const CSG_String &FileName, TSG_Projection_Format Format = SG_PROJ_FMT_WKT)	const;
+	bool							Load					(const CSG_String &File, TSG_Projection_Format Format = SG_PROJ_FMT_Undefined);
+	bool							Save					(const CSG_String &File, TSG_Projection_Format Format = SG_PROJ_FMT_WKT) const;
 
-	bool							Load					(CSG_File &Stream, TSG_Projection_Format Format = SG_PROJ_FMT_WKT);
-	bool							Save					(CSG_File &Stream, TSG_Projection_Format Format = SG_PROJ_FMT_WKT)	const;
+	bool							Load					(CSG_File &Stream      , TSG_Projection_Format Format = SG_PROJ_FMT_Undefined);
+	bool							Save					(CSG_File &Stream      , TSG_Projection_Format Format = SG_PROJ_FMT_WKT) const;
 
 	bool							Load					(const CSG_MetaData &Projection);
-	bool							Save					(      CSG_MetaData &Projection)	const;
+	bool							Save					(      CSG_MetaData &Projection) const;
 
-	const CSG_String &				Get_Name				(void)	const	{	return( m_Name          );	}
-	const CSG_String &				Get_WKT					(void)	const	{	return( m_WKT           );	}
-	const CSG_String &				Get_Proj4				(void)	const	{	return( m_Proj4         );	}
-	const CSG_String &				Get_Authority			(void)	const	{	return( m_Authority     );	}
-	int								Get_Authority_ID		(void)	const	{	return( m_Authority_ID  );	}
-	int								Get_EPSG				(void)	const	{	return( m_Authority.Cmp("EPSG") ? -1 : m_Authority_ID );	}
+	const CSG_String &				Get_Name				(void)	const	{	return( m_Name      );	}
+
+	const CSG_String &				Get_WKT					(void)	const	{	return( m_WKT1      );	}
+	const CSG_String &				Get_WKT1				(void)	const	{	return( m_WKT1      );	}
+	const CSG_String &				Get_WKT2				(void)	const	{	return( m_WKT2      );	}
+	const CSG_String &				Get_PROJ				(void)	const	{	return( m_PROJ      );	}
+	const CSG_String &				Get_ESRI				(void)	const	{	return( m_ESRI      );	}
+	const CSG_String &				Get_Authority			(void)	const	{	return( m_Authority );	}
+	int								Get_Code				(void)	const	{	return( m_Code      );	}
+
+	const CSG_String &				Get_Proj4				(void)	const	{	return( m_PROJ      );	}
+	int								Get_Authority_ID		(void)	const	{	return( m_Code      );	}
+	int								Get_EPSG				(void)	const	{	return( m_Authority.CmpNoCase("EPSG") ? -1 : m_Code );	}
 
 	CSG_String						Get_Description			(void)	const;
-
-	TSG_Projection_Type				Get_Type				(void)	const	{	return( m_Type  );	}
-	CSG_String						Get_Type_Identifier		(void)	const	{	return( SG_Get_Projection_Type_Identifier(m_Type) );	}
-	CSG_String						Get_Type_Name			(void)	const	{	return( SG_Get_Projection_Type_Name      (m_Type) );	}
 
 	bool							is_Projection			(void)	const	{	return( m_Type == SG_PROJ_TYPE_CS_Projected  );	}
 	bool							is_Geographic			(void)	const	{	return( m_Type == SG_PROJ_TYPE_CS_Geographic );	}
 	bool							is_Geocentric			(void)	const	{	return( m_Type == SG_PROJ_TYPE_CS_Geocentric );	}
 
+	TSG_Projection_Type				Get_Type				(void)	const	{	return( m_Type );	}
+	CSG_String						Get_Type_Identifier		(void)	const;
+	CSG_String						Get_Type_Name			(void)	const;
 
-	TSG_Projection_Unit				Get_Unit				(void)	const	{	return( m_Unit  );	}
-	CSG_String						Get_Unit_Identifier		(void)	const	{	return( SG_Get_Projection_Unit_Identifier(m_Unit) );	}
-	CSG_String						Get_Unit_Name			(void)	const	{	return( m_Unit_Name     );	}
-	double							Get_Unit_To_Meter		(void)	const	{	return( m_Unit_To_Meter );	}
+	TSG_Projection_Unit				Get_Unit				(void)	const	{	return( m_Unit );	}
+	CSG_String						Get_Unit_Identifier		(void)	const;
+	CSG_String						Get_Unit_Name			(void)	const;
+	double							Get_Unit_To_Meter		(void)	const;
 
 
 private:
 
-	int								m_Authority_ID;
-
-	double							m_Unit_To_Meter;
+	int								m_Code;
 
 	TSG_Projection_Type				m_Type;
 
 	TSG_Projection_Unit				m_Unit;
 
-	CSG_String						m_Name, m_WKT, m_Proj4, m_Authority, m_Unit_Name;
+	CSG_String						m_Name, m_Authority, m_PROJ, m_WKT1, m_WKT2, m_ESRI;
 
 
 };
@@ -950,6 +949,8 @@ public:
 
 	void							Destroy					(void);
 
+	static bool						Parse					(const CSG_String &Definition, CSG_String *WKT1 = NULL, CSG_String *WKT2 = NULL, CSG_String *PROJ = NULL, CSG_String *ESRI = NULL);
+
 	bool							Reset_Dictionary		(void);
 	bool							Load_Dictionary			(const CSG_String &FileName);
 	bool							Save_Dictionary			(const CSG_String &FileName);
@@ -965,8 +966,8 @@ public:
 	CSG_Projection					Get_Projection			(sLong Index)	const;
 	CSG_Projection					operator []				(sLong Index)	const	{	return( Get_Projection(Index) );	}
 
-	bool							Get_Projection			(CSG_Projection &Projection,                              int EPSG_ID     )	const;
-	bool							Get_Projection			(CSG_Projection &Projection, const CSG_String &Authority, int Authority_ID)	const;
+	bool							Get_Projection			(CSG_Projection &Projection,                              int EPSG_Code) const;
+	bool							Get_Projection			(CSG_Projection &Projection, const CSG_String &Authority, int      Code) const;
 
 	CSG_String						Get_Names_List			(TSG_Projection_Type Type = SG_PROJ_TYPE_CS_Undefined)	const;
 
@@ -980,6 +981,15 @@ public:
 
 	static const CSG_Projection &	Get_GCS_WGS84			(void);
 	static CSG_Projection			Get_UTM_WGS84			(int Zone, bool bSouth = false);
+
+	static TSG_Projection_Type		Get_CS_Type				(const CSG_String &Identifier);
+	static CSG_String				Get_CS_Type_Identifier	(TSG_Projection_Type Type);
+	static CSG_String				Get_CS_Type_Name		(TSG_Projection_Type Type);
+
+	static TSG_Projection_Unit		Get_Unit				(const CSG_String &Identifier);
+	static const CSG_String			Get_Unit_Identifier		(TSG_Projection_Unit Unit);
+	static const CSG_String			Get_Unit_Name			(TSG_Projection_Unit Unit, bool bSimple = true);
+	static double					Get_Unit_To_Meter		(TSG_Projection_Unit Unit);
 
 
 private:
@@ -1011,13 +1021,23 @@ private:
 SAGA_API_DLL_EXPORT CSG_Projections &	SG_Get_Projections	(void);
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT bool		SG_Get_Projected				(class CSG_Shapes *pSource, class CSG_Shapes *pTarget, const CSG_Projection &Target);
+SAGA_API_DLL_EXPORT TSG_Projection_Type	SG_Get_Projection_Type				(const CSG_String &Identifier);
+SAGA_API_DLL_EXPORT CSG_String			SG_Get_Projection_Type_Identifier	(TSG_Projection_Type Type);
+SAGA_API_DLL_EXPORT CSG_String			SG_Get_Projection_Type_Name			(TSG_Projection_Type Type);
 
-SAGA_API_DLL_EXPORT bool		SG_Get_Projected				(const CSG_Projection &Source, const CSG_Projection &Target, TSG_Point &Point    );
-SAGA_API_DLL_EXPORT bool		SG_Get_Projected				(const CSG_Projection &Source, const CSG_Projection &Target, TSG_Rect  &Rectangle);
+SAGA_API_DLL_EXPORT TSG_Projection_Unit	SG_Get_Projection_Unit				(const CSG_String &Identifier);
+SAGA_API_DLL_EXPORT CSG_String			SG_Get_Projection_Unit_Identifier	(TSG_Projection_Unit Unit);
+SAGA_API_DLL_EXPORT CSG_String			SG_Get_Projection_Unit_Name			(TSG_Projection_Unit Unit, bool bSimple = false);
+SAGA_API_DLL_EXPORT double				SG_Get_Projection_Unit_To_Meter		(TSG_Projection_Unit Unit);
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT bool		SG_Grid_Get_Geographic_Coordinates		(CSG_Grid *pGrid, CSG_Grid *pLon, CSG_Grid *pLat);
+SAGA_API_DLL_EXPORT bool				SG_Get_Projected					(class CSG_Shapes *pSource, class CSG_Shapes *pTarget, const CSG_Projection &Target);
+
+SAGA_API_DLL_EXPORT bool				SG_Get_Projected					(const CSG_Projection &Source, const CSG_Projection &Target, TSG_Point &Point    );
+SAGA_API_DLL_EXPORT bool				SG_Get_Projected					(const CSG_Projection &Source, const CSG_Projection &Target, TSG_Rect  &Rectangle);
+
+//---------------------------------------------------------
+SAGA_API_DLL_EXPORT bool				SG_Grid_Get_Geographic_Coordinates	(CSG_Grid *pGrid, CSG_Grid *pLon, CSG_Grid *pLat);
 
 
 ///////////////////////////////////////////////////////////

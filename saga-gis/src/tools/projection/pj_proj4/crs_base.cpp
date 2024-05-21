@@ -302,10 +302,7 @@ CSG_Projection CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 
 		if( Code >= 0 )
 		{
-			if( !Projection.Create(Code, (*pParameters)("CRS_EPSG_AUTH")->asString()) )
-			{
-				SG_UI_Dlg_Message(_TL("Unknown Authority Code"), _TL("Warning"));
-			}
+			Projection.Create(Code, (*pParameters)("CRS_EPSG_AUTH")->asString());
 		}
 	}
 

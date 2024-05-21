@@ -63,173 +63,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Projections		gSG_Projections;
+CSG_Projections gSG_Projections;
 
 //---------------------------------------------------------
-CSG_Projections &	SG_Get_Projections(void)
+CSG_Projections & SG_Get_Projections(void)
 {
 	return( gSG_Projections );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-TSG_Projection_Type	SG_Get_Projection_Type				(const CSG_String &Identifier)
-{
-	if( !Identifier.CmpNoCase("PROJCS") ) { return( SG_PROJ_TYPE_CS_Projected  ); }
-	if( !Identifier.CmpNoCase("GEOGCS") ) { return( SG_PROJ_TYPE_CS_Geographic ); }
-	if( !Identifier.CmpNoCase("GEOCCS") ) { return( SG_PROJ_TYPE_CS_Geocentric ); }
-
-	return( SG_PROJ_TYPE_CS_Undefined );
-}
-
-//---------------------------------------------------------
-CSG_String			SG_Get_Projection_Type_Identifier	(TSG_Projection_Type Type)
-{
-	switch( Type )
-	{
-	case SG_PROJ_TYPE_CS_Projected : return( "PROJCS"    );
-	case SG_PROJ_TYPE_CS_Geographic: return( "GEOGCS"    );
-	case SG_PROJ_TYPE_CS_Geocentric: return( "GEOCCS"    );
-	default                        : return( "UNDEFINED" );
-	}
-}
-
-//---------------------------------------------------------
-CSG_String			SG_Get_Projection_Type_Name			(TSG_Projection_Type Type)
-{
-	switch( Type )
-	{
-	case SG_PROJ_TYPE_CS_Projected : return( _TL("Projected Coordinate System" ) );
-	case SG_PROJ_TYPE_CS_Geographic: return( _TL("Geographic Coordinate System") );
-	case SG_PROJ_TYPE_CS_Geocentric: return( _TL("Geocentric Coordinate System") );
-	default                        : return( _TL("Undefined Coordinate System" ) );
-	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-const char	SG_Projection_Units[SG_PROJ_UNIT_Undefined + 1][3][32]	=
-{
-	{	"km"    , "Kilometers" , "Kilometer"					},
-	{	"m"    	, "Meters"	   , "Meter"						},
-	{	"dm"    , "Decimeters" , "Decimeter"					},
-	{	"cm"    , "Centimeters", "Centimeter"					},
-	{	"mm"    , "Millimeters", "Millimeter"					},
-	{	"kmi"   , "Miles"      , "International Nautical Mile"	},
-	{	"in"    , "Inches"     , "International Inch"			},
-	{	"ft"    , "Feet"       , "International Foot"			},
-	{	"yd"    , "Yards"      , "International Yard"			},
-	{	"mi"    , "Miles"      , "International Statute Mile"	},
-	{	"fath"  , "Fathoms"    , "International Fathom"			},
-	{	"ch"    , "Chains"     , "International Chain"			},
-	{	"link"  , "Links"      , "International Link"			},
-	{	"us-in" , "Inches"     , "U.S. Surveyor's Inch"			},
-	{	"us-ft" , "Feet"       , "U.S. Surveyor's Foot"			},
-	{	"us-yd" , "Yards"      , "U.S. Surveyor's Yard"			},
-	{	"us-ch" , "Chains"     , "U.S. Surveyor's Chain"		},
-	{	"us-mi" , "Miles"      , "U.S. Surveyor's Statute Mile"	},
-	{	"ind-yd", "Yards"      , "Indian Yard"					},
-	{	"ind-ft", "Feet"       , "Indian Foot"					},
-	{	"ind-ch", "Chains"     , "Indian Chain"					},
-	{	""      , ""           , ""								}
-};
-
-//---------------------------------------------------------
-// same as proj4.
-TSG_Projection_Unit	SG_Get_Projection_Unit				(const CSG_String &Identifier)
-{
-	for(int i=0; i<SG_PROJ_UNIT_Undefined; i++)
-	{
-		if( !Identifier.CmpNoCase(SG_Projection_Units[i][0])
-		||  !Identifier.CmpNoCase(SG_Projection_Units[i][2]) )
-		{
-			return( (TSG_Projection_Unit)i );
-		}
-	}
-
-	return( !Identifier.CmpNoCase("metre") ? SG_PROJ_UNIT_Meter : SG_PROJ_UNIT_Undefined );
-}
-
-//---------------------------------------------------------
-// same as proj4.
-CSG_String			SG_Get_Projection_Unit_Identifier	(TSG_Projection_Unit Unit)
-{
-	if(	Unit < 0 || Unit > SG_PROJ_UNIT_Undefined )
-	{
-		Unit = SG_PROJ_UNIT_Undefined;
-	}
-
-	return( SG_Projection_Units[Unit][0] );
-}
-
-//---------------------------------------------------------
-CSG_String			SG_Get_Projection_Unit_Name			(TSG_Projection_Unit Unit, bool bSimple)
-{
-	if(	Unit < 0 || Unit > SG_PROJ_UNIT_Undefined )
-	{
-		Unit = SG_PROJ_UNIT_Undefined;
-	}
-
-	return( SG_Projection_Units[Unit][bSimple ? 1 : 2] );
-}
-
-//---------------------------------------------------------
-double				SG_Get_Projection_Unit_To_Meter		(TSG_Projection_Unit Unit)
-{
-	switch( Unit )
-	{
-	case SG_PROJ_UNIT_Kilometer        : return( 1000. );
-	case SG_PROJ_UNIT_Meter            : return( 1. );
-	case SG_PROJ_UNIT_Decimeter        : return( 0.1 );
-	case SG_PROJ_UNIT_Centimeter       : return( 0.01 );
-	case SG_PROJ_UNIT_Millimeter       : return( 0.001 );
-	case SG_PROJ_UNIT_Int_Nautical_Mile: return( 1852. );
-	case SG_PROJ_UNIT_Int_Inch         : return( 0.0254 );
-	case SG_PROJ_UNIT_Int_Foot         : return( 0.3048 );
-	case SG_PROJ_UNIT_Int_Yard         : return( 0.9144 );
-	case SG_PROJ_UNIT_Int_Statute_Mile : return( 1609.344 );
-	case SG_PROJ_UNIT_Int_Fathom       : return( 1.8288 );
-	case SG_PROJ_UNIT_Int_Chain        : return( 20.1168 );
-	case SG_PROJ_UNIT_Int_Link         : return( 0.201168 );
-	case SG_PROJ_UNIT_US_Inch          : return( 1. / 39.37 );
-	case SG_PROJ_UNIT_US_Foot          : return( 0.304800609601219 );
-	case SG_PROJ_UNIT_US_Yard          : return( 0.914401828803658 );
-	case SG_PROJ_UNIT_US_Chain         : return( 20.11684023368047 );
-	case SG_PROJ_UNIT_US_Statute_Mile  : return( 1609.347218694437 );
-	case SG_PROJ_UNIT_Indian_Yard      : return( 0.91439523 );
-	case SG_PROJ_UNIT_Indian_Foot      : return( 0.30479841 );
-	case SG_PROJ_UNIT_Indian_Chain     : return( 20.11669506 );
-	default                            : return( 1. );
-	}
-}
-
-//---------------------------------------------------------
-bool				SG_Set_Projection_Unit		(const CSG_MetaData &m, TSG_Projection_Unit &Unit, CSG_String &Name, double &To_Meter)
-{
-	if( m("UNIT") )
-	{
-		if( m["UNIT"].Get_Property("name", Name) && (Unit = SG_Get_Projection_Unit(Name)) != SG_PROJ_UNIT_Undefined )
-		{
-			Name     = SG_Get_Projection_Unit_Name    (Unit);
-			To_Meter = SG_Get_Projection_Unit_To_Meter(Unit);
-		}
-		else if( !m["UNIT"].Get_Content().asDouble(To_Meter) || To_Meter <= 0. )
-		{
-			To_Meter =  1.;
-		}
-
-		return( true );
-	}
-
-	return( false );
 }
 
 
@@ -258,122 +97,67 @@ CSG_Projection::CSG_Projection(const CSG_Projection &Projection)
 
 bool CSG_Projection::Create(const CSG_Projection &Projection)
 {
-	return( Assign(Projection) );
-}
-
-bool CSG_Projection::Assign(const CSG_Projection &Projection)
-{
 	m_Name          = Projection.m_Name;
 	m_Type          = Projection.m_Type;
 	m_Unit          = Projection.m_Unit;
-	m_Unit_To_Meter = Projection.m_Unit_To_Meter;
-	m_Unit_Name     = Projection.m_Unit_Name;
-	m_WKT           = Projection.m_WKT;
-	m_Proj4         = Projection.m_Proj4;
+
+	m_WKT1          = Projection.m_WKT1;
+	m_WKT2          = Projection.m_WKT2;
+	m_PROJ          = Projection.m_PROJ;
+	m_ESRI          = Projection.m_ESRI;
 	m_Authority     = Projection.m_Authority;
-	m_Authority_ID  = Projection.m_Authority_ID;
+	m_Code          = Projection.m_Code;
 
 	return( true );
 }
 
 //---------------------------------------------------------
-CSG_Projection::CSG_Projection(int Authority_ID, const SG_Char *Authority)
+CSG_Projection::CSG_Projection(int Code, const SG_Char *Authority)
 {
-	Destroy();
-
-	Create(Authority_ID, Authority);
+	Create(Code, Authority);
 }
 
-bool CSG_Projection::Create(int Authority_ID, const SG_Char *Authority)
+bool CSG_Projection::Create(int Code, const SG_Char *Authority)
 {
-	return( Assign(Authority_ID, Authority) );
-}
-
-bool CSG_Projection::Assign(int Authority_ID, const SG_Char *Authority)
-{
-	return( Authority && *Authority
-		? gSG_Projections.Get_Projection(*this, Authority, Authority_ID)
-		: gSG_Projections.Get_Projection(*this,            Authority_ID)
-	);
+	return( Create(CSG_String::Format("%s:%d", Authority && *Authority ? Authority : SG_T("EPSG"), Code)) );
 }
 
 //---------------------------------------------------------
-CSG_Projection::CSG_Projection(const CSG_String &Projection, TSG_Projection_Format Format)
+CSG_Projection::CSG_Projection(const CSG_String &Definition, TSG_Projection_Format Format)
 {
-	Create(Projection, Format);
+	Create(Definition, Format);
 }
 
-bool CSG_Projection::Create(const CSG_String &Projection, TSG_Projection_Format Format)
+bool CSG_Projection::Create(const CSG_String &Definition, TSG_Projection_Format Format)
 {
-	return( Assign(Projection, Format) );
-}
+	if( Format == SG_PROJ_FMT_EPSG )
+	{
+		int id; return( Definition.asInt(id) && Create(CSG_String::Format("EPSG:%d", id)) );
+	}
 
-bool CSG_Projection::Assign(const CSG_String &Projection, TSG_Projection_Format Format)
-{
 	Destroy();
 
-	if( !Projection.is_Empty() )
+	if( CSG_Projections::Parse(Definition, &m_WKT1, &m_WKT2, &m_PROJ, &m_ESRI) )
 	{
-		switch( Format )
+		CSG_MetaData WKT(CSG_Projections::WKT_to_MetaData(m_WKT1));
+
+		m_Type = CSG_Projections::Get_CS_Type(WKT.Get_Name());
+
+		m_Name = WKT.Get_Property("name");
+
+		if( WKT("UNIT") && WKT["UNIT"].Get_Property("name") )
 		{
-		case SG_PROJ_FMT_EPSG:
-		{
-			int id; return( Projection.asInt(id) && Assign(id, SG_T("EPSG")) );
+			m_Unit = CSG_Projections::Get_Unit(WKT["UNIT"].Get_Property("name"));
 		}
 
-		//-------------------------------------------------
-		case SG_PROJ_FMT_Proj4:
+		CSG_String Authority; int Code;
+
+		if(	WKT.Get_Property("authority_name", Authority) && WKT.Get_Property("authority_code", Code) )
 		{
-			CSG_String WKT;
-
-			if( gSG_Projections.WKT_from_Proj4(WKT, Projection) )
-			{
-				CSG_MetaData MD(gSG_Projections.WKT_to_MetaData(WKT));
-
-				m_WKT   = WKT;
-				m_Proj4 = Projection; 
-				m_Name  = MD.Get_Property("name");
-				m_Type  = SG_Get_Projection_Type(MD.Get_Name());
-
-				SG_Set_Projection_Unit(MD, m_Unit, m_Unit_Name, m_Unit_To_Meter);
-
-				return( true );
-			}
-
-			break;
+			m_Authority = Authority; m_Code = Code;
 		}
 
-		//-------------------------------------------------
-		case SG_PROJ_FMT_WKT:
-		{
-			CSG_MetaData MD(gSG_Projections.WKT_to_MetaData(Projection)); int Code; CSG_String Authority;
-
-			if(	MD.Get_Property("authority_name", Authority) && Authority.CmpNoCase("EPSG") == 0
-				&&	MD.Get_Property("authority_code", Code     ) && gSG_Projections.Get_Projection(*this, Code) )
-			{
-				return( true );
-			}
-
-			CSG_String Proj4;
-
-			if( gSG_Projections.WKT_to_Proj4(Proj4, Projection) )
-			{
-				m_Proj4 = Proj4;
-			}
-
-			m_WKT   = Projection;
-			m_Name  = MD.Get_Property("name");
-			m_Type  = SG_Get_Projection_Type(MD.Get_Name());
-
-			SG_Set_Projection_Unit(MD, m_Unit, m_Unit_Name, m_Unit_To_Meter);
-
-			return( true );
-		}
-
-		//-------------------------------------------------
-		default:
-			break;
-		}
+		return( true );
 	}
 
 	return( false );
@@ -387,14 +171,9 @@ CSG_Projection::CSG_Projection(const CSG_String &WKT, const CSG_String &Proj4)
 
 bool CSG_Projection::Create(const CSG_String &WKT, const CSG_String &Proj4)
 {
-	return( Assign(WKT, Proj4) );
-}
-
-bool CSG_Projection::Assign(const CSG_String &WKT, const CSG_String &Proj4)
-{
-	if( Assign(WKT) )
+	if( Create(WKT) )
 	{
-		m_Proj4 = Proj4;
+		m_PROJ = Proj4;
 
 		return( true );
 	}
@@ -405,15 +184,16 @@ bool CSG_Projection::Assign(const CSG_String &WKT, const CSG_String &Proj4)
 //---------------------------------------------------------
 void CSG_Projection::Destroy(void)
 {
-	m_Name          = _TL("undefined");
-	m_Type          = SG_PROJ_TYPE_CS_Undefined;
-	m_Unit          = SG_PROJ_UNIT_Undefined;
-	m_Unit_To_Meter = 1.;
-	m_Unit_Name     .Clear();
-	m_WKT           .Clear();
-	m_Proj4         .Clear();
-	m_Authority     .Clear();
-	m_Authority_ID = -1;
+	m_Name      = _TL("undefined");
+	m_Type      = SG_PROJ_TYPE_CS_Undefined;
+	m_Unit      = SG_PROJ_UNIT_Undefined;
+
+	m_WKT1      .Clear();
+	m_WKT2      .Clear();
+	m_PROJ      .Clear();
+	m_ESRI      .Clear();
+	m_Authority .Clear();
+	m_Code      = -1;
 }
 
 
@@ -442,11 +222,9 @@ bool CSG_Projection::Load(CSG_File &Stream, TSG_Projection_Format Format)
 {
 	if( Stream.is_Reading() )
 	{
-		CSG_String s;
+		CSG_String s; Stream.Read(s, (size_t)Stream.Length());
 
-		Stream.Read(s, (size_t)Stream.Length());
-
-		return( Assign(s, Format) );
+		return( Create(s, Format) );
 	}
 
 	return( false );
@@ -459,11 +237,11 @@ bool CSG_Projection::Save(CSG_File &Stream, TSG_Projection_Format Format)	const
 	{
 		switch( Format )
 		{
-		case SG_PROJ_FMT_WKT: default:
-			return( Stream.Write(m_WKT  ) == m_WKT  .Length() );
-
-		case SG_PROJ_FMT_Proj4:
-			return( Stream.Write(m_Proj4) == m_Proj4.Length() );
+		default:
+		case SG_PROJ_FMT_WKT1: return( !m_WKT1.is_Empty() && Stream.Write(m_WKT1) == m_WKT1.Length() );
+		case SG_PROJ_FMT_WKT2: return( !m_WKT2.is_Empty() && Stream.Write(m_WKT2) == m_WKT2.Length() );
+		case SG_PROJ_FMT_PROJ: return( !m_PROJ.is_Empty() && Stream.Write(m_PROJ) == m_PROJ.Length() );
+		case SG_PROJ_FMT_ESRI: return( !m_ESRI.is_Empty() && Stream.Write(m_ESRI) == m_ESRI.Length() );
 		}
 	}
 
@@ -473,18 +251,19 @@ bool CSG_Projection::Save(CSG_File &Stream, TSG_Projection_Format Format)	const
 //---------------------------------------------------------
 bool CSG_Projection::Load(const CSG_MetaData &Projection)
 {
-	CSG_MetaData *pEntry = Projection.Get_Child("OGC_WKT");
-
-	if( pEntry != NULL )
+	if( Projection("OGC_WKT") && Projection("PROJ4") )
 	{
-		Assign(pEntry->Get_Content(), SG_PROJ_FMT_WKT);
+		return( Create(Projection["OGC_WKT"].Get_Content(), Projection["OGC_WKT"].Get_Content()) );
+	}
 
-		if( (pEntry = Projection.Get_Child("PROJ4")) != NULL )
-		{
-			m_Proj4	= pEntry->Get_Content();
-		}
+	if( Projection("OGC_WKT") )
+	{
+		return( Create(Projection["OGC_WKT"].Get_Content(), SG_PROJ_FMT_WKT ) );
+	}
 
-		return( true );
+	if( Projection("PROJ4"  ) )
+	{
+		return( Create(Projection["PROJ4"  ].Get_Content(), SG_PROJ_FMT_PROJ) );
 	}
 
 	return( false );
@@ -495,8 +274,8 @@ bool CSG_Projection::Save(CSG_MetaData &Projection) const
 {
 	Projection.Del_Children();
 
-	Projection.Add_Child("OGC_WKT", m_WKT      );
-	Projection.Add_Child("PROJ4"  , m_Proj4    );
+	Projection.Add_Child("OGC_WKT", m_WKT1     );
+	Projection.Add_Child("PROJ4"  , m_PROJ     );
 	Projection.Add_Child("EPSG"   , Get_EPSG() );
 
 	return( true );
@@ -508,19 +287,51 @@ bool CSG_Projection::Save(CSG_MetaData &Projection) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define WKT_GCS_WGS84	"GEOGCS[\"WGS 84\",AUTHORITY[\"EPSG\",\"4326\"]],"\
+CSG_String CSG_Projection::Get_Type_Identifier(void) const
+{
+	return( SG_Get_Projection_Type_Identifier(m_Type) );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_Projection::Get_Type_Name(void) const
+{
+	return( SG_Get_Projection_Type_Name(m_Type) );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_Projection::Get_Unit_Identifier(void) const
+{
+	return( SG_Get_Projection_Unit_Identifier(m_Unit) );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_Projection::Get_Unit_Name(void) const
+{
+	return( CSG_Projections::Get_Unit_Name(m_Unit) );
+}
+
+//---------------------------------------------------------
+double CSG_Projection::Get_Unit_To_Meter(void) const
+{
+	return( CSG_Projections::Get_Unit_To_Meter(m_Unit) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define WKT_GCS_WGS84 "GEOGCS[\"WGS 84\",AUTHORITY[\"EPSG\",\"4326\"]],"\
 	"DATUM[\"WGS_1984\",AUTHORITY[\"EPSG\",\"6326\"]],"\
 		"SPHEROID[\"WGS 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],"\
 	"PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],"\
 	"UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]"
 
 //---------------------------------------------------------
-#define PROJ4_GCS_WGS84	"+proj=longlat +datum=WGS84 +no_defs"
-
-//---------------------------------------------------------
 bool CSG_Projection::Set_GCS_WGS84(void)
 {
-	return( Create(WKT_GCS_WGS84, PROJ4_GCS_WGS84) );
+	return( Create(WKT_GCS_WGS84) );
 }
 
 //---------------------------------------------------------
@@ -531,7 +342,6 @@ bool CSG_Projection::Set_UTM_WGS84(int Zone, bool bSouth)
 		return( false );
 	}
 
-	//-----------------------------------------------------
 	int	EPSG_ID	= (bSouth ? 32700 : 32600) + Zone;
 
 	if( Create(EPSG_ID) )
@@ -540,7 +350,7 @@ bool CSG_Projection::Set_UTM_WGS84(int Zone, bool bSouth)
 	}
 
 	//-----------------------------------------------------
-	CSG_String	WKT, Proj4;
+	CSG_String WKT;
 
 	WKT.Printf("PROJCS[\"WGS 84 / UTM zone %d%c\",%s"						// Zone, N/S, Datum
 		"PROJECTION[\"Transverse_Mercator\"],AUTHORITY[\"EPSG\",\"%d\"]]"	// EPSG ID
@@ -555,9 +365,7 @@ bool CSG_Projection::Set_UTM_WGS84(int Zone, bool bSouth)
 		Zone, bSouth ? 'S' : 'N', CSG_String(WKT_GCS_WGS84).c_str(), EPSG_ID, 6 * (Zone - 1) - 177, bSouth ? 10000000 : 0
 	);
 
-	Proj4.Printf("+proj=utm +zone=%d%s +datum=WGS84 +units=m +no_defs", Zone, bSouth ? SG_T(" +south") : SG_T(""));
-
-	return( Create(WKT, Proj4) );
+	return( Create(WKT) );
 }
 
 
@@ -573,27 +381,27 @@ bool CSG_Projection::is_Equal(const CSG_Projection &Projection)	const
 		return( false );
 	}
 
-	if( !is_Okay() )	// both are not valid
+	if( !is_Okay() ) // both are not valid
 	{
 		return( true );
 	}
 
 	if( !m_Authority.is_Empty() && !Projection.m_Authority.is_Empty() )
 	{
-		return(	m_Authority.CmpNoCase(Projection.m_Authority) == 0 && m_Authority_ID == Projection.m_Authority_ID );
+		return(	m_Authority.CmpNoCase(Projection.m_Authority) == 0 && m_Code == Projection.m_Code );
 	}
 
-	if( m_Proj4.CmpNoCase(Projection.m_Proj4) == 0 )	// the simple case, identical strings...
+	if( m_PROJ.CmpNoCase(Projection.m_PROJ) == 0 ) // the simple case, identical strings...
 	{
 		return( true );
 	}
 
 	//-----------------------------------------------------
-	CSG_MetaData Parms[2];	// okay, let's perform a more detailed check...
+	CSG_MetaData Parms[2]; // okay, let's perform a more detailed check...
 
 	for(int j=0; j<2; j++) // collect the key/value pairs
 	{
-		CSG_Strings s = SG_String_Tokenize(j == 0 ? m_Proj4 : Projection.m_Proj4, "+");
+		CSG_Strings s = SG_String_Tokenize(j == 0 ? m_PROJ : Projection.m_PROJ, "+");
 
 		for(int i=0; i<s.Get_Count(); i++)
 		{
@@ -658,8 +466,8 @@ bool CSG_Projection::is_Equal(const CSG_Projection &Projection)	const
 		}\
 	}
 
-	GET_DATUM(Datum[0],            m_Proj4);
-	GET_DATUM(Datum[1], Projection.m_Proj4);
+	GET_DATUM(Datum[0],            m_PROJ);
+	GET_DATUM(Datum[1], Projection.m_PROJ);
 
 	return( Datum[0].is_Same_As(Datum[1]) );
 }
@@ -670,25 +478,40 @@ bool CSG_Projection::is_Equal(const CSG_Projection &Projection)	const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CSG_Projection::Get_Description(void)	const
+CSG_String CSG_Projection::Get_Description(void) const
 {
-	CSG_String	s;
-
-	s	= SG_Get_Projection_Type_Name(m_Type);
+	CSG_String s = SG_Get_Projection_Type_Name(m_Type);
 
 	if( is_Okay() )
 	{
-		if( m_Authority.Length() > 0 && m_Authority_ID > 0 )
+		if( m_Name.Length() > 0 && m_Name.CmpNoCase("unknown") )
 		{
-			s	+= CSG_String::Format(" [%s %d]", m_Authority.c_str(), m_Authority_ID);
+			s += "\n" + m_Name;
 		}
 
-		s	+= ":\n" + m_Name;
-
-		if( m_Proj4.Length() > 0 )
+		if( m_Authority.Length() > 0 && m_Code > 0 )
 		{
-			s	+= "\n[" + m_Proj4 + "]";
+			s += CSG_String::Format("\n[%s:%d]", m_Authority.c_str(), m_Code);
 		}
+
+		if( m_PROJ.Length() > 0 )
+		{
+			s += "\n[" + m_PROJ + "]";
+		}
+
+		CSG_MetaData WKT(CSG_Projections::WKT_to_MetaData(m_WKT1));
+
+		#define ADD_INFO(name, value) if( name && value ) { s += CSG_String::Format("<tr><td>%s</td><td>%s</td></tr>", name, value->Get_Content().c_str()); }
+		s += "<table border=\"1\">";
+		ADD_INFO(_TL("Projection"), WKT("PROJECTION"));
+		for(int i=0; i<WKT.Get_Children_Count(); i++)
+		{
+			if( WKT[i].Cmp_Name("PARAMETER", false) )
+			{
+				ADD_INFO(WKT[i].Get_Property("name"), WKT(i));
+			}
+		}
+		s += "</table>";
 	}
 
 	return( s );
@@ -704,7 +527,7 @@ CSG_String CSG_Projection::Get_Description(void)	const
 //---------------------------------------------------------
 enum ESG_PROJ_FIELD_ID
 {
-	PRJ_FIELD_SRID		= 0,
+	PRJ_FIELD_SRID = 0,
 	PRJ_FIELD_AUTH_NAME,
 	PRJ_FIELD_AUTH_SRID,
 	PRJ_FIELD_SRTEXT,
@@ -723,23 +546,23 @@ CSG_Projections::CSG_Projections(void)
 }
 
 //---------------------------------------------------------
-CSG_Projections::CSG_Projections(bool bLoadDefaults)
+CSG_Projections::CSG_Projections(bool LoadDefaults)
 {
 	_On_Construction();
 
-	Create(bLoadDefaults);
+	Create(LoadDefaults);
 }
 
-bool CSG_Projections::Create(bool bLoadDefaults)
+bool CSG_Projections::Create(bool LoadDefaults)
 {
 	Destroy();
 
-	if( bLoadDefaults )	// load spatial reference system database and dictionary
+	if( LoadDefaults ) // load spatial reference system database and dictionary
 	{
 		#if defined(_SAGA_LINUX)
-			CSG_String	Path_Shared	= SHARE_PATH;
+			CSG_String Path_Shared = SHARE_PATH;
 		#else
-			CSG_String	Path_Shared	= SG_UI_Get_Application_Path(true);
+			CSG_String Path_Shared = SG_UI_Get_Application_Path(true);
 		#endif
 
 		SG_UI_Msg_Lock(true);
@@ -764,9 +587,7 @@ CSG_Projections::CSG_Projections(const CSG_String &File_DB)
 bool CSG_Projections::Create(const CSG_String &File_DB)
 {
 	SG_UI_Msg_Lock(true);
-
-	bool	bResult	= Load_DB(File_DB);
-
+	bool bResult = Load_DB(File_DB);
 	SG_UI_Msg_Lock(false);
 
 	return( bResult );
@@ -775,7 +596,7 @@ bool CSG_Projections::Create(const CSG_String &File_DB)
 //---------------------------------------------------------
 void CSG_Projections::_On_Construction(void)
 {
-	m_pProjections	= new CSG_Table;
+	m_pProjections = new CSG_Table;
 
 	m_pProjections->Add_Field("srid"     , SG_DATATYPE_Int   );	// PRJ_FIELD_SRID
 	m_pProjections->Add_Field("auth_name", SG_DATATYPE_String);	// PRJ_FIELD_AUTH_NAME
@@ -803,126 +624,6 @@ void CSG_Projections::Destroy(void)
 	}
 
 	Reset_Dictionary();
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CSG_Projections::Reset_Dictionary(void)
-{
-	_Set_Dictionary(m_Proj4_to_WKT,  1);
-	_Set_Dictionary(m_WKT_to_Proj4, -1);
-
-	return( true );
-}
-
-//---------------------------------------------------------
-bool CSG_Projections::Load_Dictionary(const CSG_String &FileName)
-{
-	CSG_Table	Table;
-
-	if( SG_File_Exists(FileName) && Table.Create(FileName) && Table.Get_Field_Count() >= 3 )
-	{
-		CSG_Table	Proj4_to_WKT(&Table), WKT_to_Proj4(&Table);
-
-		for(sLong i=0; i<Table.Get_Count(); i++)
-		{
-			switch( Table[i].asString(1)[0] )
-			{
-			case SG_T('<'):	// ignore proj4 to wkt translation
-				WKT_to_Proj4.Add_Record(Table.Get_Record(i));
-				break;
-
-			case SG_T('>'):	// ignore wkt to proj4 translation
-				Proj4_to_WKT.Add_Record(Table.Get_Record(i));
-				break;
-
-			default:
-				Proj4_to_WKT.Add_Record(Table.Get_Record(i));
-				WKT_to_Proj4.Add_Record(Table.Get_Record(i));
-			}
-		}
-
-		m_Proj4_to_WKT.Create(&Proj4_to_WKT, 0, 2, true);
-		m_WKT_to_Proj4.Create(&WKT_to_Proj4, 2, 0, true);
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CSG_Projections::Save_Dictionary(const CSG_String &File)
-{
-	CSG_Table	Table;
-
-	return( _Set_Dictionary(Table, 0) && Table.Save(File) );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CSG_Projections::Load_DB(const CSG_String &FileName, bool bAppend)
-{
-	if( m_pProjections && SG_File_Exists(FileName) )
-	{
-		CSG_Table Table;
-
-		if( Table.Create(FileName) )
-		{
-			Table.Set_Index(PRJ_FIELD_SRTEXT, TABLE_INDEX_Ascending);
-
-			if( !bAppend )
-			{
-				m_pProjections->Del_Records();
-			}
-
-			for(sLong i=0; i<Table.Get_Count() && SG_UI_Process_Set_Progress(i, Table.Get_Count()); i++)
-			{
-				m_pProjections->Add_Record(Table.Get_Record_byIndex(i));
-			}
-
-			return( true );
-		}
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CSG_Projections::Save_DB(const CSG_String &File)
-{
-	return( m_pProjections->Save(File) );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-const CSG_Projection & CSG_Projections::Get_GCS_WGS84(void)
-{
-	static CSG_Projection Projection(WKT_GCS_WGS84, PROJ4_GCS_WGS84);
-
-	return( Projection );
-}
-
-//---------------------------------------------------------
-CSG_Projection CSG_Projections::Get_UTM_WGS84(int Zone, bool bSouth)
-{
-	CSG_Projection Projection;
-
-	Projection.Set_UTM_WGS84(Zone, bSouth);
-
-	return( Projection );
 }
 
 
@@ -965,41 +666,37 @@ CSG_Projection CSG_Projections::Get_Projection(sLong Index)	const
 	{
 		CSG_Table_Record *pRecord = m_pProjections->Get_Record(Index);
 
-		Projection.m_Authority    = pRecord->asString(PRJ_FIELD_AUTH_NAME);
-		Projection.m_Authority_ID = pRecord->asInt   (PRJ_FIELD_AUTH_SRID);
-		Projection.m_WKT          = pRecord->asString(PRJ_FIELD_SRTEXT   );
-		Projection.m_Proj4        = pRecord->asString(PRJ_FIELD_PROJ4TEXT);
+		Projection.m_Authority = pRecord->asString(PRJ_FIELD_AUTH_NAME);
+		Projection.m_Code      = pRecord->asInt   (PRJ_FIELD_AUTH_SRID);
+		Projection.m_WKT1      = pRecord->asString(PRJ_FIELD_SRTEXT   );
+		Projection.m_PROJ      = pRecord->asString(PRJ_FIELD_PROJ4TEXT);
 
-		CSG_MetaData m = WKT_to_MetaData(Projection.m_WKT);
+		CSG_MetaData WKT = WKT_to_MetaData(Projection.m_WKT1);
 
-		Projection.m_Name = m.Get_Property("name");
-		Projection.m_Type = !m.Get_Name().Cmp("GEOCCS") ? SG_PROJ_TYPE_CS_Geocentric
-		                  : !m.Get_Name().Cmp("GEOGCS") ? SG_PROJ_TYPE_CS_Geographic
-		                  : !m.Get_Name().Cmp("PROJCS") ? SG_PROJ_TYPE_CS_Projected
-		                  :                               SG_PROJ_TYPE_CS_Undefined;
-
-		SG_Set_Projection_Unit(m, Projection.m_Unit, Projection.m_Unit_Name, Projection.m_Unit_To_Meter);
+		Projection.m_Name = WKT.Get_Property("name");
+		Projection.m_Type = Get_CS_Type(WKT.Get_Name());
+		Projection.m_Unit = WKT("UNIT") && WKT["UNIT"].Get_Property("name") ?
+			Get_Unit(WKT["UNIT"].Get_Property("name")) : SG_PROJ_UNIT_Undefined;
 	}
 
 	return( Projection );
 }
 
 //---------------------------------------------------------
-bool CSG_Projections::Get_Projection(CSG_Projection &Projection, int EPSG_ID)	const
+bool CSG_Projections::Get_Projection(CSG_Projection &Projection, int EPSG_Code) const
 {
-	return( Get_Projection(Projection, "", EPSG_ID) );
+	return( Get_Projection(Projection, "EPSG", EPSG_Code) );
 }
 
-bool CSG_Projections::Get_Projection(CSG_Projection &Projection, const CSG_String &Authority, int Authority_ID)	const
+bool CSG_Projections::Get_Projection(CSG_Projection &Projection, const CSG_String &Authority, int Code) const
 {
 	for(sLong i=0; i<m_pProjections->Get_Count(); i++)
 	{
-		CSG_Table_Record	*pProjection	= m_pProjections->Get_Record(i);
+		CSG_Table_Record *pProjection = m_pProjections->Get_Record(i);
 
-		if( Authority_ID == pProjection->asInt(PRJ_FIELD_AUTH_SRID)
-		&& (Authority.is_Empty() || Authority.CmpNoCase(pProjection->asString(PRJ_FIELD_AUTH_NAME)) == 0) )
+		if( Code == pProjection->asInt(PRJ_FIELD_AUTH_SRID) && !Authority.CmpNoCase(pProjection->asString(PRJ_FIELD_AUTH_NAME)) )
 		{
-			Projection	= Get_Projection(i);
+			Projection = Get_Projection(i);
 
 			return( true );
 		}
@@ -1014,13 +711,169 @@ bool CSG_Projections::Get_Projection(CSG_Projection &Projection, const CSG_Strin
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Projections::Load_DB(const CSG_String &FileName, bool bAppend)
+{
+	CSG_Table Table;
+
+	if( m_pProjections && SG_File_Exists(FileName) && Table.Create(FileName) )
+	{
+		Table.Set_Index(PRJ_FIELD_SRTEXT, TABLE_INDEX_Ascending);
+
+		if( !bAppend )
+		{
+			m_pProjections->Del_Records();
+		}
+
+		for(sLong i=0; i<Table.Get_Count() && SG_UI_Process_Set_Progress(i, Table.Get_Count()); i++)
+		{
+			m_pProjections->Add_Record(Table.Get_Record_byIndex(i));
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Projections::Save_DB(const CSG_String &File)
+{
+	return( m_pProjections->Save(File) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Projections::Parse(const CSG_String &Definition, CSG_String *WKT1, CSG_String *WKT2, CSG_String *PROJ, CSG_String *ESRI)
+{
+	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 19); // Coordinate Reference System Format Conversion
+
+	if( pTool )
+	{
+		pTool->Set_Parameter("DEFINITION", Definition);
+		pTool->Set_Parameter("MULTILINE" , false);
+		pTool->Set_Parameter("SIMPLIFIED", true);
+
+		SG_UI_ProgressAndMsg_Lock(true);
+		bool bResult = pTool->Execute();
+		SG_UI_ProgressAndMsg_Lock(false);
+
+		if( bResult )
+		{
+			if( WKT1 ) { *WKT1 = pTool->Get_Parameter("WKT1")->asString(); }
+			if( WKT2 ) { *WKT2 = pTool->Get_Parameter("WKT2")->asString(); }
+			if( PROJ ) { *PROJ = pTool->Get_Parameter("PROJ")->asString(); }
+			if( ESRI ) { *ESRI = pTool->Get_Parameter("ESRI")->asString(); }
+		}
+
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+		return( bResult );
+	}
+
+	//-----------------------------------------------------
+	else if( !Definition.is_Empty() ) // proj.lib parser not available ...fallback!
+	{
+		if( Definition.Find("+proj") == 0 )
+		{
+			CSG_String WKT;
+
+			if( gSG_Projections.WKT_from_Proj4(WKT, Definition) )
+			{
+				if( WKT1 ) { *WKT1 = WKT       ; }
+				if( PROJ ) { *PROJ = Definition; }
+
+				return( true );
+			}
+
+			return( false );
+		}
+
+		//-------------------------------------------------
+		CSG_MetaData WKT(CSG_Projections::WKT_to_MetaData(Definition));
+
+		int Code; CSG_String Authority; CSG_Projection Projection;
+
+		if(	WKT.Get_Property("authority_name", Authority) && WKT.Get_Property("authority_code", Code)
+		&&  gSG_Projections.Get_Projection(Projection, Authority, Code) )
+		{
+			if( WKT1 ) { *WKT1 = Projection.Get_WKT1(); }
+			if( WKT2 ) { *WKT2 = Projection.Get_WKT2(); }
+			if( PROJ ) { *PROJ = Projection.Get_PROJ(); }
+			if( ESRI ) { *ESRI = Projection.Get_ESRI(); }
+
+			return( true );
+		}
+
+		//-------------------------------------------------
+		CSG_String Proj4;
+
+		if( gSG_Projections.WKT_to_Proj4(Proj4, Definition) )
+		{
+			if( WKT1 ) { *WKT1 = Definition; }
+			if( PROJ ) { *PROJ = Proj4     ; }
+
+			return( true );
+		}
+
+		//-------------------------------------------------
+		Authority = Definition.BeforeFirst(':');
+
+		if( !Authority.is_Empty() && Definition.AfterFirst(':').asInt(Code)
+		&&  gSG_Projections.Get_Projection(Projection, Authority, Code) )
+		{
+			if( WKT1 ) { *WKT1 = Projection.Get_WKT1(); }
+			if( WKT2 ) { *WKT2 = Projection.Get_WKT2(); }
+			if( PROJ ) { *PROJ = Projection.Get_PROJ(); }
+			if( ESRI ) { *ESRI = Projection.Get_ESRI(); }
+
+			return( true );
+		}
+	}
+
+	//-----------------------------------------------------
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+const CSG_Projection & CSG_Projections::Get_GCS_WGS84(void)
+{
+	static CSG_Projection Projection(WKT_GCS_WGS84);
+
+	return( Projection );
+}
+
+//---------------------------------------------------------
+CSG_Projection CSG_Projections::Get_UTM_WGS84(int Zone, bool bSouth)
+{
+	CSG_Projection Projection;
+
+	Projection.Set_UTM_WGS84(Zone, bSouth);
+
+	return( Projection );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_Projections::EPSG_to_Proj4(CSG_String &Proj4, int EPSG_Code) const
 {
 	for(sLong i=0; i<m_pProjections->Get_Count(); i++)
 	{
 		if( m_pProjections->Get_Record(i)->asInt(PRJ_FIELD_AUTH_SRID) == EPSG_Code )
 		{
-			Proj4	= m_pProjections->Get_Record(i)->asString(PRJ_FIELD_PROJ4TEXT);
+			Proj4 = m_pProjections->Get_Record(i)->asString(PRJ_FIELD_PROJ4TEXT);
 
 			return( true );
 		}
@@ -1038,7 +891,7 @@ bool CSG_Projections::EPSG_to_WKT(CSG_String &WKT, int EPSG_Code) const
 	{
 		if( m_pProjections->Get_Record(i)->asInt(PRJ_FIELD_AUTH_SRID) == EPSG_Code )
 		{
-			WKT		= m_pProjections->Get_Record(i)->asString(PRJ_FIELD_SRTEXT);
+			WKT = m_pProjections->Get_Record(i)->asString(PRJ_FIELD_SRTEXT);
 
 			return( true );
 		}
@@ -1055,32 +908,30 @@ bool CSG_Projections::EPSG_to_WKT(CSG_String &WKT, int EPSG_Code) const
 //---------------------------------------------------------
 CSG_String CSG_Projections::Get_Names_List(TSG_Projection_Type Type) const
 {
-	CSG_String	Names;
+	CSG_String Names;
 
 	for(int i=0; i<Get_Count(); i++)
 	{
-		CSG_Table_Record	*pProjection	= m_pProjections->Get_Record(i);
+		CSG_Table_Record *pProjection = m_pProjections->Get_Record(i);
 
-		CSG_String	WKT		= pProjection->asString(PRJ_FIELD_SRTEXT);
-		int			SRID	= pProjection->asInt   (PRJ_FIELD_SRID);
+		CSG_String WKT = pProjection->asString(PRJ_FIELD_SRTEXT);
+		int       SRID = pProjection->asInt   (PRJ_FIELD_SRID  );
 
-		TSG_Projection_Type	iType;
-
-		iType	= !WKT.BeforeFirst('[').Cmp("PROJCS") ? SG_PROJ_TYPE_CS_Projected
-				: !WKT.BeforeFirst('[').Cmp("GEOGCS") ? SG_PROJ_TYPE_CS_Geographic
-				: !WKT.BeforeFirst('[').Cmp("GEOCCS") ? SG_PROJ_TYPE_CS_Geocentric
-				: SG_PROJ_TYPE_CS_Undefined;
+		TSG_Projection_Type _Type =
+			!WKT.BeforeFirst('[').Cmp("PROJCS") ? SG_PROJ_TYPE_CS_Projected  :
+			!WKT.BeforeFirst('[').Cmp("GEOGCS") ? SG_PROJ_TYPE_CS_Geographic :
+			!WKT.BeforeFirst('[').Cmp("GEOCCS") ? SG_PROJ_TYPE_CS_Geocentric : SG_PROJ_TYPE_CS_Undefined;
 
 		if( Type == SG_PROJ_TYPE_CS_Undefined )
 		{
-			Names	+= CSG_String::Format("{%d}%s: %s|", SRID,
-				SG_Get_Projection_Type_Name(iType).c_str(),
+			Names += CSG_String::Format("{%d}%s: %s|", SRID,
+				SG_Get_Projection_Type_Name(_Type).c_str(),
 				WKT.AfterFirst('\"').BeforeFirst('\"').c_str()
 			);
 		}
-		else if( Type == iType )
+		else if( Type == _Type )
 		{
-			Names	+= CSG_String::Format("{%d}%s|", SRID,
+			Names += CSG_String::Format("{%d}%s|", SRID,
 				WKT.AfterFirst('\"').BeforeFirst('\"').c_str()
 			);
 		}
@@ -1875,9 +1726,167 @@ bool CSG_Projections::WKT_from_Proj4(CSG_String &WKT, const CSG_String &Proj4) c
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+TSG_Projection_Type CSG_Projections::Get_CS_Type(const CSG_String &Identifier)
+{
+	if( !Identifier.CmpNoCase("PROJCS") ) { return( SG_PROJ_TYPE_CS_Projected  ); }
+	if( !Identifier.CmpNoCase("GEOGCS") ) { return( SG_PROJ_TYPE_CS_Geographic ); }
+	if( !Identifier.CmpNoCase("GEOCCS") ) { return( SG_PROJ_TYPE_CS_Geocentric ); }
+
+	return( SG_PROJ_TYPE_CS_Undefined );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_Projections::Get_CS_Type_Identifier(TSG_Projection_Type Type)
+{
+	switch( Type )
+	{
+	case SG_PROJ_TYPE_CS_Projected : return( "PROJCS"    );
+	case SG_PROJ_TYPE_CS_Geographic: return( "GEOGCS"    );
+	case SG_PROJ_TYPE_CS_Geocentric: return( "GEOCCS"    );
+	default                        : return( "UNDEFINED" );
+	}
+}
+
+//---------------------------------------------------------
+CSG_String CSG_Projections::Get_CS_Type_Name(TSG_Projection_Type Type)
+{
+	switch( Type )
+	{
+	case SG_PROJ_TYPE_CS_Projected : return( _TL("Projected Coordinate System" ) );
+	case SG_PROJ_TYPE_CS_Geographic: return( _TL("Geographic Coordinate System") );
+	case SG_PROJ_TYPE_CS_Geocentric: return( _TL("Geocentric Coordinate System") );
+	default                        : return( _TL("Undefined Coordinate System" ) );
+	}
+}
+
+//---------------------------------------------------------
+TSG_Projection_Unit CSG_Projections::Get_Unit(const CSG_String &Identifier)
+{
+	for(int i=0; i<SG_PROJ_UNIT_Undefined; i++)
+	{
+		TSG_Projection_Unit Unit = (TSG_Projection_Unit)i;
+
+		if( !Identifier.CmpNoCase(Get_Unit_Identifier(Unit))
+		||  !Identifier.CmpNoCase(Get_Unit_Name      (Unit)) )
+		{
+			return( (TSG_Projection_Unit)i );
+		}
+	}
+
+	return( !Identifier.CmpNoCase("metre") ? SG_PROJ_UNIT_Meter : SG_PROJ_UNIT_Undefined );
+}
+
+//---------------------------------------------------------
+const CSG_String CSG_Projections::Get_Unit_Identifier(TSG_Projection_Unit Unit)
+{
+	const CSG_String Units[SG_PROJ_UNIT_Undefined] = {
+		"km"    , // Kilometers
+		"m"    	, // Meters
+		"dm"    , // Decimeters
+		"cm"    , // Centimeters
+		"mm"    , // Millimeters
+		"kmi"   , // Miles
+		"in"    , // Inches
+		"ft"    , // Feet
+		"yd"    , // Yards
+		"mi"    , // Miles
+		"fath"  , // Fathoms
+		"ch"    , // Chains
+		"link"  , // Links
+		"us-in" , // Inches
+		"us-ft" , // Feet
+		"us-yd" , // Yards
+		"us-ch" , // Chains
+		"us-mi" , // Miles
+		"ind-yd", // Yards
+		"ind-ft", // Feet
+		"ind-ch"  // Chains
+	};
+
+	if(	Unit >= 0 && Unit < SG_PROJ_UNIT_Undefined )
+	{
+		return( Units[Unit] );
+	}
+
+	return( "" );
+}
+
+//---------------------------------------------------------
+const CSG_String CSG_Projections::Get_Unit_Name(TSG_Projection_Unit Unit, bool bSimple)
+{
+	const CSG_String Units[SG_PROJ_UNIT_Undefined][3] = {
+		{	"km"    , "Kilometers" , "Kilometer"					},
+		{	"m"    	, "Meters"	   , "Meter"						},
+		{	"dm"    , "Decimeters" , "Decimeter"					},
+		{	"cm"    , "Centimeters", "Centimeter"					},
+		{	"mm"    , "Millimeters", "Millimeter"					},
+		{	"kmi"   , "Miles"      , "International Nautical Mile"	},
+		{	"in"    , "Inches"     , "International Inch"			},
+		{	"ft"    , "Feet"       , "International Foot"			},
+		{	"yd"    , "Yards"      , "International Yard"			},
+		{	"mi"    , "Miles"      , "International Statute Mile"	},
+		{	"fath"  , "Fathoms"    , "International Fathom"			},
+		{	"ch"    , "Chains"     , "International Chain"			},
+		{	"link"  , "Links"      , "International Link"			},
+		{	"us-in" , "Inches"     , "U.S. Surveyor's Inch"			},
+		{	"us-ft" , "Feet"       , "U.S. Surveyor's Foot"			},
+		{	"us-yd" , "Yards"      , "U.S. Surveyor's Yard"			},
+		{	"us-ch" , "Chains"     , "U.S. Surveyor's Chain"		},
+		{	"us-mi" , "Miles"      , "U.S. Surveyor's Statute Mile"	},
+		{	"ind-yd", "Yards"      , "Indian Yard"					},
+		{	"ind-ft", "Feet"       , "Indian Foot"					},
+		{	"ind-ch", "Chains"     , "Indian Chain"					},
+	};
+
+	if(	Unit >= 0 && Unit < SG_PROJ_UNIT_Undefined )
+	{
+		return( Units[Unit][bSimple ? 1 : 2] );
+	}
+
+	return( "" );
+}
+
+//---------------------------------------------------------
+double CSG_Projections::Get_Unit_To_Meter(TSG_Projection_Unit Unit)
+{
+	switch( Unit )
+	{
+	case SG_PROJ_UNIT_Kilometer        : return( 1000. );
+	case SG_PROJ_UNIT_Meter            : return( 1. );
+	case SG_PROJ_UNIT_Decimeter        : return( 0.1 );
+	case SG_PROJ_UNIT_Centimeter       : return( 0.01 );
+	case SG_PROJ_UNIT_Millimeter       : return( 0.001 );
+	case SG_PROJ_UNIT_Int_Nautical_Mile: return( 1852. );
+	case SG_PROJ_UNIT_Int_Inch         : return( 0.0254 );
+	case SG_PROJ_UNIT_Int_Foot         : return( 0.3048 );
+	case SG_PROJ_UNIT_Int_Yard         : return( 0.9144 );
+	case SG_PROJ_UNIT_Int_Statute_Mile : return( 1609.344 );
+	case SG_PROJ_UNIT_Int_Fathom       : return( 1.8288 );
+	case SG_PROJ_UNIT_Int_Chain        : return( 20.1168 );
+	case SG_PROJ_UNIT_Int_Link         : return( 0.201168 );
+	case SG_PROJ_UNIT_US_Inch          : return( 1. / 39.37 );
+	case SG_PROJ_UNIT_US_Foot          : return( 0.304800609601219 );
+	case SG_PROJ_UNIT_US_Yard          : return( 0.914401828803658 );
+	case SG_PROJ_UNIT_US_Chain         : return( 20.11684023368047 );
+	case SG_PROJ_UNIT_US_Statute_Mile  : return( 1609.347218694437 );
+	case SG_PROJ_UNIT_Indian_Yard      : return( 0.91439523 );
+	case SG_PROJ_UNIT_Indian_Foot      : return( 0.30479841 );
+	case SG_PROJ_UNIT_Indian_Chain     : return( 20.11669506 );
+	default                            : return( 1. );
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_Projections::_Set_Dictionary(CSG_Table &Dictionary, int Direction)
 {
-	const int n = 214; const char Translation[n][4][128] = {
+	const char Translation[][4][128] = {
 //	{ PROJ4			, DIR	, WELL-KNOWN-TEXT							, DESCRIPTION, *) projection type not verified
 
 //	--- projection types ---
@@ -1887,6 +1896,9 @@ bool CSG_Projections::_Set_Dictionary(CSG_Table &Dictionary, int Direction)
 	{ "airy"		, " ", "Airy 1830"									, "Airy 1830" },
 	{ "aitoff"		, " ", "Sphere_Aitoff"								, "Aitoff" },
 	{ "alsk"		, " ", "Mod_Stererographics_of_Alaska"				, "*) Mod. Stererographics of Alaska" },
+	{ "Amersfoort"	, "<", "D_Amersfoort"								, "[ESRI] datum RD_NEW" },
+	{ "Amersfoort"	, "<", "GCS_Amersfoort"								, "[ESRI] GCS RD_NEW" },
+	{ "Amersfoort / RD New", "<", "Amersfoort_RD_New"					, "[ESRI] RD_NEW" },
 	{ "apian"		, " ", "Apian_Globular_I"							, "*) Apian Globular I" },
 	{ "august"		, " ", "August_Epicycloidal"						, "*) August Epicycloidal" },
 	{ "bacon"		, " ", "Bacon_Globular"								, "*) Bacon Globular" },
@@ -2047,57 +2059,57 @@ bool CSG_Projections::_Set_Dictionary(CSG_Table &Dictionary, int Direction)
 	{ "y_0"			, " ", "false_northing"			, "False northing" },
 
 //	--- special projection parameters ---
-	{ "azi"			, " ", "", "" },
-	{ "belgium"		, " ", "", "" },
-	{ "beta"		, " ", "", "" },
-	{ "czech"		, " ", "", "" },
-	{ "gamma"		, " ", "", "" },
-	{ "geoc"		, " ", "", "" },
-	{ "guam"		, " ", "", "" },
+//	{ "azi"			, " ", "", "" },
+//	{ "belgium"		, " ", "", "" },
+//	{ "beta"		, " ", "", "" },
+//	{ "czech"		, " ", "", "" },
+//	{ "gamma"		, " ", "", "" },
+//	{ "geoc"		, " ", "", "" },
+//	{ "guam"		, " ", "", "" },
 	{ "h"			, " ", "satellite_height", "Satellite height (geos - Geostationary Satellite View)" },
-	{ "lat_b"		, " ", "", "" },
-	{ "lat_t"		, " ", "", "" },
-	{ "lon_1"		, " ", "", "" },
-	{ "lon_2"		, " ", "", "" },
-	{ "lsat"		, " ", "", "" },
-	{ "m"			, " ", "", "" },
-	{ "M"			, " ", "", "" },
-	{ "n"			, " ", "", "" },
-	{ "no_cut"		, " ", "", "" },
-	{ "no_off"		, " ", "", "" },
-	{ "no_rot"		, " ", "", "" },
-	{ "ns"			, " ", "", "" },
-	{ "o_alpha"		, " ", "", "" },
-	{ "o_lat_1"		, " ", "", "" },
-	{ "o_lat_2"		, " ", "", "" },
-	{ "o_lat_c"		, " ", "", "" },
-	{ "o_lat_p"		, " ", "", "" },
-	{ "o_lon_1"		, " ", "", "" },
-	{ "o_lon_2"		, " ", "", "" },
-	{ "o_lon_c"		, " ", "", "" },
-	{ "o_lon_p"		, " ", "", "" },
-	{ "o_proj"		, " ", "", "" },
-	{ "over"		, " ", "", "" },
-	{ "p"			, " ", "", "" },
-	{ "path"		, " ", "", "" },
-	{ "q"			, " ", "", "" },
-	{ "R"			, " ", "", "" },
-	{ "R_a"			, " ", "", "" },
-	{ "R_A"			, " ", "", "" },
-	{ "R_g"			, " ", "", "" },
-	{ "R_h"			, " ", "", "" },
-	{ "R_lat_a"		, " ", "", "" },
-	{ "R_lat_g"		, " ", "", "" },
-	{ "rot"			, " ", "", "" },
-	{ "R_V"			, " ", "", "" },
-	{ "s"			, " ", "", "" },
-	{ "sym"			, " ", "", "" },
-	{ "t"			, " ", "", "" },
-	{ "theta"		, " ", "", "" },
-	{ "tilt"		, " ", "", "" },
-	{ "vopt"		, " ", "", "" },
-	{ "W"			, " ", "", "" },
-	{ "westo"		, " ", "", "" },
+//	{ "lat_b"		, " ", "", "" },
+//	{ "lat_t"		, " ", "", "" },
+//	{ "lon_1"		, " ", "", "" },
+//	{ "lon_2"		, " ", "", "" },
+//	{ "lsat"		, " ", "", "" },
+//	{ "m"			, " ", "", "" },
+//	{ "M"			, " ", "", "" },
+//	{ "n"			, " ", "", "" },
+//	{ "no_cut"		, " ", "", "" },
+//	{ "no_off"		, " ", "", "" },
+//	{ "no_rot"		, " ", "", "" },
+//	{ "ns"			, " ", "", "" },
+//	{ "o_alpha"		, " ", "", "" },
+//	{ "o_lat_1"		, " ", "", "" },
+//	{ "o_lat_2"		, " ", "", "" },
+//	{ "o_lat_c"		, " ", "", "" },
+//	{ "o_lat_p"		, " ", "", "" },
+//	{ "o_lon_1"		, " ", "", "" },
+//	{ "o_lon_2"		, " ", "", "" },
+//	{ "o_lon_c"		, " ", "", "" },
+//	{ "o_lon_p"		, " ", "", "" },
+//	{ "o_proj"		, " ", "", "" },
+//	{ "over"		, " ", "", "" },
+//	{ "p"			, " ", "", "" },
+//	{ "path"		, " ", "", "" },
+//	{ "q"			, " ", "", "" },
+//	{ "R"			, " ", "", "" },
+//	{ "R_a"			, " ", "", "" },
+//	{ "R_A"			, " ", "", "" },
+//	{ "R_g"			, " ", "", "" },
+//	{ "R_h"			, " ", "", "" },
+//	{ "R_lat_a"		, " ", "", "" },
+//	{ "R_lat_g"		, " ", "", "" },
+//	{ "rot"			, " ", "", "" },
+//	{ "R_V"			, " ", "", "" },
+//	{ "s"			, " ", "", "" },
+//	{ "sym"			, " ", "", "" },
+//	{ "t"			, " ", "", "" },
+//	{ "theta"		, " ", "", "" },
+//	{ "tilt"		, " ", "", "" },
+//	{ "vopt"		, " ", "", "" },
+//	{ "W"			, " ", "", "" },
+//	{ "westo"		, " ", "", "" },
 
 //	--- core projection types and parameters that don't require explicit translation ---
 //	{ "lonlat"		, " ", "GEOGCS", "Lat/long (Geodetic)"	},
@@ -2121,7 +2133,8 @@ bool CSG_Projections::_Set_Dictionary(CSG_Table &Dictionary, int Direction)
 //	{ "zone			, " ", "", "UTM zone"	},
 //	{ "lon_wrap"	, " ", "", "Center longitude to use for wrapping (see below)"	},
 //	{ "over"		, " ", "", "Allow longitude output outside -180 to 180 range, disables wrapping (see below)"	},
-	{ ""			, " ", "", "" }	};	// dummy
+	{ "", "", "", "" }	// end of records
+};
 
 	//-----------------------------------------------------
 	Dictionary.Destroy();
@@ -2134,7 +2147,7 @@ bool CSG_Projections::_Set_Dictionary(CSG_Table &Dictionary, int Direction)
 		Dictionary.Add_Field("WKT"  , SG_DATATYPE_String);
 		Dictionary.Add_Field("DESC" , SG_DATATYPE_String);
 
-		for(int i=0; i<n; i++)
+		for(int i=0; *Translation[i][0]; i++)
 		{
 			CSG_Table_Record &Entry = *Dictionary.Add_Record();
 
@@ -2149,7 +2162,7 @@ bool CSG_Projections::_Set_Dictionary(CSG_Table &Dictionary, int Direction)
 		Dictionary.Add_Field("PROJ4", SG_DATATYPE_String);
 		Dictionary.Add_Field("WKT"  , SG_DATATYPE_String);
 
-		for(int i=0; i<n; i++)
+		for(int i=0; *Translation[i][0]; i++)
 		{
 			if( Translation[i][1][0] != '<' )	// only WKT to Proj4
 			{
@@ -2165,7 +2178,7 @@ bool CSG_Projections::_Set_Dictionary(CSG_Table &Dictionary, int Direction)
 		Dictionary.Add_Field("WKT"  , SG_DATATYPE_String);
 		Dictionary.Add_Field("PROJ4", SG_DATATYPE_String);
 
-		for(int i=0; i<n; i++)
+		for(int i=0; *Translation[i][0]; i++)
 		{
 			if( Translation[i][1][0] != '>' )	// only Proj4 to WKT
 			{
@@ -2183,9 +2196,134 @@ bool CSG_Projections::_Set_Dictionary(CSG_Table &Dictionary, int Direction)
 //---------------------------------------------------------
 bool CSG_Projections::_Set_Dictionary(CSG_Translator &Dictionary, int Direction)
 {
-	CSG_Table	Table;
+	CSG_Table Table;
 
 	return( _Set_Dictionary(Table, Direction) && Dictionary.Create(&Table, 0, 1, true) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Projections::Reset_Dictionary(void)
+{
+	return( _Set_Dictionary(m_Proj4_to_WKT, 1) && _Set_Dictionary(m_WKT_to_Proj4, -1) );
+}
+
+//---------------------------------------------------------
+bool CSG_Projections::Load_Dictionary(const CSG_String &File)
+{
+	CSG_Table Table;
+
+	if( SG_File_Exists(File) && Table.Create(File) && Table.Get_Field_Count() >= 3 )
+	{
+		CSG_Table Proj4_to_WKT(&Table), WKT_to_Proj4(&Table);
+
+		for(sLong i=0; i<Table.Get_Count(); i++)
+		{
+			switch( Table[i].asString(1)[0] )
+			{
+			case '<':	// ignore proj4 to wkt translation
+				WKT_to_Proj4.Add_Record(Table.Get_Record(i));
+				break;
+
+			case '>':	// ignore wkt to proj4 translation
+				Proj4_to_WKT.Add_Record(Table.Get_Record(i));
+				break;
+
+			default:
+				Proj4_to_WKT.Add_Record(Table.Get_Record(i));
+				WKT_to_Proj4.Add_Record(Table.Get_Record(i));
+			}
+		}
+
+		m_Proj4_to_WKT.Create(&Proj4_to_WKT, 0, 2, true);
+		m_WKT_to_Proj4.Create(&WKT_to_Proj4, 2, 0, true);
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Projections::Save_Dictionary(const CSG_String &File)
+{
+	CSG_Table Table;
+
+	return( _Set_Dictionary(Table, 0) && Table.Save(File) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+TSG_Projection_Type	SG_Get_Projection_Type(const CSG_String &Identifier)
+{
+	return( CSG_Projections::Get_CS_Type(Identifier) );
+}
+
+//---------------------------------------------------------
+CSG_String			SG_Get_Projection_Type_Identifier(TSG_Projection_Type Type)
+{
+	return( CSG_Projections::Get_CS_Type_Identifier(Type) );
+}
+
+//---------------------------------------------------------
+CSG_String			SG_Get_Projection_Type_Name(TSG_Projection_Type Type)
+{
+	return( CSG_Projections::Get_CS_Type_Name(Type) );
+}
+
+//---------------------------------------------------------
+TSG_Projection_Unit	SG_Get_Projection_Unit(const CSG_String &Identifier) // same as proj4.
+{
+	return( CSG_Projections::Get_Unit(Identifier) );
+}
+
+//---------------------------------------------------------
+CSG_String			SG_Get_Projection_Unit_Identifier(TSG_Projection_Unit Unit) // same as proj4.
+{
+	return( CSG_Projections::Get_Unit_Identifier(Unit) );
+}
+
+//---------------------------------------------------------
+CSG_String			SG_Get_Projection_Unit_Name(TSG_Projection_Unit Unit, bool bSimple)
+{
+	return( CSG_Projections::Get_Unit_Name(Unit, bSimple) );
+}
+
+//---------------------------------------------------------
+double				SG_Get_Projection_Unit_To_Meter(TSG_Projection_Unit Unit)
+{
+	return( CSG_Projections::Get_Unit_To_Meter(Unit) );
+}
+
+//---------------------------------------------------------
+bool				SG_Set_Projection_Unit(const CSG_MetaData &m, TSG_Projection_Unit &Unit, CSG_String &Name, double &To_Meter)
+{
+	if( m("UNIT") )
+	{
+		if( m["UNIT"].Get_Property("name", Name) && (Unit = SG_Get_Projection_Unit(Name)) != SG_PROJ_UNIT_Undefined )
+		{
+			Name     = SG_Get_Projection_Unit_Name    (Unit);
+			To_Meter = SG_Get_Projection_Unit_To_Meter(Unit);
+		}
+		else if( !m["UNIT"].Get_Content().asDouble(To_Meter) || To_Meter <= 0. )
+		{
+			To_Meter =  1.;
+		}
+
+		return( true );
+	}
+
+	return( false );
 }
 
 

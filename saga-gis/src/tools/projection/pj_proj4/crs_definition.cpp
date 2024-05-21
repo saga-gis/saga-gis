@@ -95,7 +95,7 @@ CCRS_Definition::CCRS_Definition(void)
 	Parameters.Add_Info_String("", "JSON", _TL("JSON" ), _TL(""), "",  true);
 	Parameters.Add_Info_String("", "ESRI", _TL("ESRI" ), _TL(""), "", false);
 
-	Parameters.Add_Bool("", "MULTILINE" , _TL("Multiline" ), _TL("applies to JSON and WKT"), true);
+	Parameters.Add_Bool(""    , "MULTILINE" , _TL("Multiline" ), _TL("applies to JSON and WKT"), true);
 	Parameters.Add_Bool("WKT2", "SIMPLIFIED", _TL("Simplified"), _TL("applies to WKT-2"       ), true);
 
 	Parameters.Add_Table("", "FORMATS", _TL("Formats"), _TL(""), PARAMETER_OUTPUT_OPTIONAL)->Set_UseInGUI(false);
