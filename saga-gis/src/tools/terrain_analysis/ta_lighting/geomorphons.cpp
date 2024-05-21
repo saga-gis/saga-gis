@@ -145,7 +145,7 @@ CGeomorphons::CGeomorphons(void)
 
 	Parameters.Add_Double(
 		"", "RADIUS"		, _TL("Radial Limit"),
-		_TL(""),
+		_TL("The radial limit (search radius) [map units]."),
 		10000., 0., true
 	);
 
@@ -231,8 +231,6 @@ bool CGeomorphons::On_Execute(void)
 
 	if( pLUT )
 	{
-		CSG_Table	*pTable	= pLUT->asTable();
-
 		pLUT->asTable()->Del_Records();
 
 		for(int i=0; i<id_count; i++)
