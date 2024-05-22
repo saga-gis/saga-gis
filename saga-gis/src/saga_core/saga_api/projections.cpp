@@ -251,20 +251,17 @@ bool CSG_Projection::Save(CSG_File &Stream, TSG_Projection_Format Format)	const
 //---------------------------------------------------------
 bool CSG_Projection::Load(const CSG_MetaData &Projection)
 {
-	if( Projection("OGC_WKT") && Projection("PROJ4") )
-	{
-		return( Create(Projection["OGC_WKT"].Get_Content(), Projection["OGC_WKT"].Get_Content()) );
-	}
+	if( Projection("WKT1") ) { return( Create(Projection["WKT1"].Get_Content()) ); }
+	if( Projection("PROJ") ) { return( Create(Projection["PROJ"].Get_Content()) ); }
 
-	if( Projection("OGC_WKT") )
-	{
-		return( Create(Projection["OGC_WKT"].Get_Content(), SG_PROJ_FMT_WKT ) );
-	}
+	//-----------------------------------------------------
+	// >>> backward compatibilty
 
-	if( Projection("PROJ4"  ) )
-	{
-		return( Create(Projection["PROJ4"  ].Get_Content(), SG_PROJ_FMT_PROJ) );
-	}
+	if( Projection("OGC_WKT") ) { return( Create(Projection["OGC_WKT"].Get_Content()) ); }
+	if( Projection("PROJ4"  ) ) { return( Create(Projection["PROJ4"  ].Get_Content()) ); }
+
+	// <<< backward compatibilty
+	//-----------------------------------------------------
 
 	return( false );
 }
@@ -274,11 +271,109 @@ bool CSG_Projection::Save(CSG_MetaData &Projection) const
 {
 	Projection.Del_Children();
 
-	Projection.Add_Child("OGC_WKT", m_WKT1     );
-	Projection.Add_Child("PROJ4"  , m_PROJ     );
-	Projection.Add_Child("EPSG"   , Get_EPSG() );
+	Projection.Add_Child("WKT1", m_WKT1);
+	Projection.Add_Child("PROJ", m_PROJ);
+	Projection.Add_Child("CODE", m_Code)->Add_Property("authority", m_Authority);
 
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_String CSG_Projection::Get_Description(bool bDetails) const
+{
+	if( !is_Okay() )
+	{
+		return( _TL("Unknown Spatial Reference") );
+	}
+
+	CSG_MetaData WKT(CSG_Projections::WKT_to_MetaData(m_WKT1)), *pGCS = NULL;
+
+	if( !bDetails )
+	{
+		CSG_String s;
+		
+		if( !m_Name.is_Empty() && m_Name.CmpNoCase("unknown") )
+		{
+			s = m_Name;
+		}
+		else if( WKT("PROJECTION") )
+		{
+			s.Printf("%s [%s]", WKT.Get_Content("PROJECTION"), _TL("user defined")); s.Replace("_", " ");
+		}
+		else
+		{
+			s.Printf("[%s]", _TL("user defined"));
+		}
+
+		if( m_Code > 0 && !m_Authority.is_Empty() )
+		{
+			s += CSG_String::Format(" [%s:%d]", m_Authority.c_str(), m_Code);
+		}
+
+		return( s );
+	}
+
+	//-----------------------------------------------------
+	#define ADD_HEAD(name, value) { CSG_String n(name), v(value); n.Replace("_", " "); v.Replace("_", " "); s += CSG_String::Format("<tr><th>%s</th><th>%s</th></tr>", n.c_str(), v.c_str()); }
+	#define ADD_INFO(name, value) { CSG_String n(name), v(value); n.Replace("_", " "); v.Replace("_", " "); s += CSG_String::Format("<tr><td>%s</td><td>%s</td></tr>", n.c_str(), v.c_str()); }
+	#define ADD_CONT(name, entry)       if( name && entry                              ) { ADD_INFO(name, entry->Get_Content()     ); }
+	#define ADD_PROP(name, entry, prop) if( name && entry && entry->Get_Property(prop) ) { ADD_INFO(name, entry->Get_Property(prop)); }
+
+	CSG_String s = "<table border=\"1\">";
+
+	if( is_Projection() )
+	{
+		ADD_HEAD(_TL("Projected Coordinate System" ), WKT.Get_Property("name") && !WKT.Cmp_Property("name", "unknown", true) ? WKT.Get_Property("name") : SG_T(""));
+		ADD_CONT(_TL("Projection"                  ), WKT("PROJECTION"));
+		if( m_Code > 0 && !m_Authority.is_Empty() )
+		{
+			ADD_INFO(_TL("Authority Code"          ), CSG_String::Format("%d", m_Code) );
+			ADD_INFO(_TL("Authority"               ), m_Authority);
+		}
+	//	ADD_PROP(_TL("Authority Code"              ), WKT("PROJECTION"), "authority_code");
+	//	ADD_PROP(_TL("Authority"                   ), WKT("PROJECTION"), "authority_name");
+		ADD_PROP(_TL("Linear Unit"                 ), WKT("UNIT"), "name");
+
+		for(int i=0; i<WKT.Get_Children_Count(); i++)
+		{
+			if( WKT[i].Cmp_Name("PARAMETER") )
+			{
+				CSG_String Name(WKT[i].Get_Property("name")); Name.Replace("_", " ");
+				ADD_INFO(Name.c_str(), WKT[i].Get_Content().c_str());
+			}
+		}
+
+		pGCS = WKT("GEOGCS");
+	}
+	else
+	{
+		pGCS = &WKT;
+	}
+
+	if( pGCS && pGCS->Cmp_Name("GEOGCS") )
+	{
+		ADD_HEAD(_TL("Geographic Coordinate System"),   pGCS->Get_Property("name") && !pGCS->Cmp_Property("name", "unknown", true) ? pGCS->Get_Property("name") : _TL(""));
+		ADD_PROP(_TL("Authority Code"              ),   pGCS, "authority_code");
+		ADD_PROP(_TL("Authority"                   ),   pGCS, "authority_name");
+		ADD_PROP(_TL("Prime Meridian"              ), (*pGCS)("PRIMEM"        ), "name");
+		ADD_PROP(_TL("Angular Unit"                ), (*pGCS)("UNIT"          ), "name");
+		ADD_PROP(_TL("Datum"                       ), (*pGCS)("DATUM"         ), "name");
+		ADD_PROP(_TL("Spheroid"                    ), (*pGCS)("DATUM.SPHEROID"), "name");
+		ADD_CONT(_TL("Semimajor Axis"              ), (*pGCS)("DATUM.SPHEROID.a" ));
+		ADD_CONT(_TL("Inverse Flattening"          ), (*pGCS)("DATUM.SPHEROID.rf"));
+	}
+
+	s += "</table>";
+
+//	if( m_WKT1.Length() > 0 ) { s += "\n[" + m_WKT1 + "]"; }
+//	if( m_PROJ.Length() > 0 ) { s += "\n[" + m_PROJ + "]"; }
+
+	return( s );
 }
 
 
@@ -470,51 +565,6 @@ bool CSG_Projection::is_Equal(const CSG_Projection &Projection)	const
 	GET_DATUM(Datum[1], Projection.m_PROJ);
 
 	return( Datum[0].is_Same_As(Datum[1]) );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CSG_String CSG_Projection::Get_Description(void) const
-{
-	CSG_String s = SG_Get_Projection_Type_Name(m_Type);
-
-	if( is_Okay() )
-	{
-		if( m_Name.Length() > 0 && m_Name.CmpNoCase("unknown") )
-		{
-			s += "\n" + m_Name;
-		}
-
-		if( m_Authority.Length() > 0 && m_Code > 0 )
-		{
-			s += CSG_String::Format("\n[%s:%d]", m_Authority.c_str(), m_Code);
-		}
-
-		if( m_PROJ.Length() > 0 )
-		{
-			s += "\n[" + m_PROJ + "]";
-		}
-
-		CSG_MetaData WKT(CSG_Projections::WKT_to_MetaData(m_WKT1));
-
-		#define ADD_INFO(name, value) if( name && value ) { s += CSG_String::Format("<tr><td>%s</td><td>%s</td></tr>", name, value->Get_Content().c_str()); }
-		s += "<table border=\"1\">";
-		ADD_INFO(_TL("Projection"), WKT("PROJECTION"));
-		for(int i=0; i<WKT.Get_Children_Count(); i++)
-		{
-			if( WKT[i].Cmp_Name("PARAMETER", false) )
-			{
-				ADD_INFO(WKT[i].Get_Property("name"), WKT(i));
-			}
-		}
-		s += "</table>";
-	}
-
-	return( s );
 }
 
 
@@ -969,7 +1019,7 @@ bool CSG_Projections::_WKT_to_MetaData(CSG_MetaData &MetaData, const CSG_String 
 			switch( WKT[i] )
 			{
 			default            : bAdd =  true;                      break;
-			case '\"': case ' ': bAdd = false;                      break;
+			case '\"'          : bAdd = false;                      break;
 			case '[' : case '(': bAdd = ++l > 1;                    break;
 			case ']' : case ')': bAdd = l-- > 1;                    break;
 			case ',' :     if( !(bAdd = l   > 1) ) Content.Add(""); break;
@@ -977,7 +1027,7 @@ bool CSG_Projections::_WKT_to_MetaData(CSG_MetaData &MetaData, const CSG_String 
 
 			if( bAdd )
 			{
-				Content[Content.Get_Count() - 1]	+= WKT[i];
+				Content[Content.Get_Count() - 1] += WKT[i];
 			}
 		}
 	}
@@ -988,7 +1038,7 @@ bool CSG_Projections::_WKT_to_MetaData(CSG_MetaData &MetaData, const CSG_String 
 	}
 
 	//-----------------------------------------------------
-	if( !Key.Cmp("AUTHORITY" ) && Content.Get_Count() == 2 )	// AUTHORITY  ["<name>", "<code>"]
+	if( !Key.Cmp("AUTHORITY") && Content.Get_Count() == 2 )	// AUTHORITY  ["<name>", "<code>"]
 	{
 		MetaData.Add_Property("authority_name", Content[0]);
 		MetaData.Add_Property("authority_code", Content[1]);
@@ -996,7 +1046,7 @@ bool CSG_Projections::_WKT_to_MetaData(CSG_MetaData &MetaData, const CSG_String 
 		return( true );
 	}
 
-	CSG_MetaData	*pKey	= MetaData.Add_Child(Key);
+	CSG_MetaData *pKey = MetaData.Add_Child(Key);
 
 	if(	(!Key.Cmp("GEOCCS"    ) && Content.Get_Count() >= 4)  	// GEOCCS     ["<name>", <datum>, <prime meridian>, <linear unit> {,<axis>, <axis>, <axis>} {,<authority>}]
 	||	(!Key.Cmp("GEOGCS"    ) && Content.Get_Count() >= 4)  	// GEOGCS     ["<name>", <datum>, <prime meridian>, <angular unit> {,<twin axes>} {,<authority>}]
@@ -1051,7 +1101,7 @@ bool CSG_Projections::_WKT_to_MetaData(CSG_MetaData &MetaData, const CSG_String 
 //---------------------------------------------------------
 CSG_MetaData CSG_Projections::WKT_to_MetaData(const CSG_String &WKT)
 {
-	CSG_MetaData	MetaData;
+	CSG_MetaData MetaData;
 
 	_WKT_to_MetaData(MetaData, WKT);
 

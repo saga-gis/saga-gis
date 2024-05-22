@@ -96,12 +96,12 @@ CWKSP_Grids::CWKSP_Grids(CSG_Grids *pGrids)
 //---------------------------------------------------------
 wxString CWKSP_Grids::Get_Description(void)
 {
-	wxString	s;
+	wxString s;
 
 	//-----------------------------------------------------
-	s	+= wxString::Format("<h4>%s</h4>", _TL("Grids"));
+	s += wxString::Format("<h4>%s</h4>", _TL("Grids"));
 
-	s	+= "<table border=\"0\">";
+	s += "<table border=\"0\">";
 
 	DESC_ADD_STR (_TL("Name"               ), m_pObject->Get_Name());
 	DESC_ADD_STR (_TL("Description"        ), m_pObject->Get_Description());
@@ -120,7 +120,7 @@ wxString CWKSP_Grids::Get_Description(void)
 	{
 		DESC_ADD_STR(_TL("Data Source"     ), m_pObject->Get_File_Name(false));
 
-		//	const CSG_MetaData	&DB	= m_pObject->Get_MetaData_DB();
+	//	const CSG_MetaData	&DB	= m_pObject->Get_MetaData_DB();
 	//	if( DB("DBMS") ) DESC_ADD_STR(_TL("DBMS"    ), DB["DBMS"].Get_Content().c_str());
 	//	if( DB("HOST") ) DESC_ADD_STR(_TL("Host"    ), DB["DBMS"].Get_Content().c_str());
 	//	if( DB("PORT") ) DESC_ADD_STR(_TL("Port"    ), DB["DBMS"].Get_Content().c_str());
@@ -132,7 +132,7 @@ wxString CWKSP_Grids::Get_Description(void)
 	}
 
 	DESC_ADD_STR (_TL("Modified"          ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
-	DESC_ADD_STR (_TL("Projection"        ), m_pObject->Get_Projection().Get_Description().c_str());
+	DESC_ADD_STR (_TL("Spatial Reference" ), m_pObject->Get_Projection().Get_Description().c_str());
 	DESC_ADD_STR (_TL("West"              ), SG_Get_String(Get_Grids()->Get_XMin        (), -CSG_Grid_System::Get_Precision()).c_str());
 	DESC_ADD_STR (_TL("East"              ), SG_Get_String(Get_Grids()->Get_XMax        (), -CSG_Grid_System::Get_Precision()).c_str());
 	DESC_ADD_STR (_TL("West-East"         ), SG_Get_String(Get_Grids()->Get_XRange      (), -CSG_Grid_System::Get_Precision()).c_str());
@@ -144,20 +144,36 @@ wxString CWKSP_Grids::Get_Description(void)
 	DESC_ADD_INT (_TL("Number of Rows"    ), Get_Grids()->Get_NY          ());
 	DESC_ADD_INT (_TL("Number of Bands"   ), Get_Grids()->Get_NZ          ());
 	DESC_ADD_LONG(_TL("Number of Cells"   ), Get_Grids()->Get_NCells      ());
-	DESC_ADD_LONG(_TL("No Data Cells"     ), Get_Grids()->Get_NoData_Count());
+	DESC_ADD_STR (_TL("Memory Size"       ), Get_nBytes_asString(Get_Grids()->Get_Memory_Size(), 2).c_str());
 	DESC_ADD_STR (_TL("Z-Attribute"       ), Get_Grids()->Get_Attributes().Get_Field_Name(Get_Grids()->Get_Z_Attribute()));
 	DESC_ADD_STR (_TL("Value Type"        ), SG_Data_Type_Get_Name(Get_Grids()->Get_Type()).c_str());
-	DESC_ADD_FLT (_TL("Value Minimum"     ), Get_Grids()->Get_Min         ());
-	DESC_ADD_FLT (_TL("Value Maximum"     ), Get_Grids()->Get_Max         ());
-	DESC_ADD_FLT (_TL("Value Range"       ), Get_Grids()->Get_Range       ());
 	DESC_ADD_STR (_TL("No Data Value"     ), Get_Grids()->Get_NoData_Value() < Get_Grids()->Get_NoData_Value(true) ? CSG_String::Format("%f - %f", Get_Grids()->Get_NoData_Value(), Get_Grids()->Get_NoData_Value(true)).c_str() : SG_Get_String(Get_Grids()->Get_NoData_Value(), -2).c_str());
-	DESC_ADD_FLT (_TL("Arithmetic Mean"   ), Get_Grids()->Get_Mean        ());
-	DESC_ADD_FLT (_TL("Standard Deviation"), Get_Grids()->Get_StdDev      ());
-	DESC_ADD_STR (_TL("Memory Size"       ), Get_nBytes_asString(Get_Grids()->Get_Memory_Size(), 2).c_str());
 
-	s	+= "</table>";
+	double Samples = 100. * (double)Get_Grid()->Get_Max_Samples() / (double)Get_Grid()->Get_NCells();
 
-	s	+= Get_TableInfo_asHTML(&Get_Grids()->Get_Attributes());
+	DESC_ADD_STR (_TL("No Data Cells"     ), wxString::Format("%lld%s", Get_Grids()->Get_NoData_Count(), Samples < 100. ? " (*)" : ""));
+	DESC_ADD_STR (_TL("Value Minimum"     ), wxString::Format("%s%s", SG_Get_String(Get_Grids()->Get_Min   (), -20).c_str(), Samples < 100. ? "*" : ""));
+	DESC_ADD_STR (_TL("Value Maximum"     ), wxString::Format("%s%s", SG_Get_String(Get_Grids()->Get_Max   (), -20).c_str(), Samples < 100. ? "*" : ""));
+	DESC_ADD_STR (_TL("Value Range"       ), wxString::Format("%s%s", SG_Get_String(Get_Grids()->Get_Range (), -20).c_str(), Samples < 100. ? "*" : ""));
+	DESC_ADD_STR (_TL("Arithmetic Mean"   ), wxString::Format("%s%s", SG_Get_String(Get_Grids()->Get_Mean  (), -20).c_str(), Samples < 100. ? "*" : ""));
+	DESC_ADD_STR (_TL("Standard Deviation"), wxString::Format("%s%s", SG_Get_String(Get_Grids()->Get_StdDev(), -20).c_str(), Samples < 100. ? "*" : ""));
+
+	if( Samples < 100. )
+	{
+		DESC_ADD_STR(_TL("Sample Size"    ), wxString::Format("%lld (%.02f%%)", Get_Grids()->Get_Max_Samples(), Samples));
+	}
+
+	s += "</table>";
+
+	if( Samples < 100. )
+	{
+		s += wxString::Format("<small>*) <i>%s", _TL("Statistics are based on a subset of the data set. The sample size to be used can be changed in the settings.</i></small>"));
+	}
+
+	s += wxString::Format("<hr><h4>%s</h4>", _TL("Coordinate System Details"));
+	s += m_pObject->Get_Projection().Get_Description(true).c_str();
+
+	s += Get_TableInfo_asHTML(&Get_Grids()->Get_Attributes());
 
 	//-----------------------------------------------------
 	return( s );

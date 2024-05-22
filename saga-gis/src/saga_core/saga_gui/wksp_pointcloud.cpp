@@ -109,12 +109,12 @@ CWKSP_PointCloud::~CWKSP_PointCloud(void)
 //---------------------------------------------------------
 wxString CWKSP_PointCloud::Get_Description(void)
 {
-	wxString	s;
+	wxString s;
 
 	//-----------------------------------------------------
-	s	+= wxString::Format("<h4>%s</h4>", _TL("Point Cloud"));
+	s += wxString::Format("<h4>%s</h4>", _TL("Point Cloud"));
 
-	s	+= "<table border=\"0\">";
+	s += "<table border=\"0\">";
 
 	DESC_ADD_STR  (_TL("Name"            ), m_pObject->Get_Name());
 	DESC_ADD_STR  (_TL("Description"     ), m_pObject->Get_Description());
@@ -129,28 +129,31 @@ wxString CWKSP_PointCloud::Get_Description(void)
 		DESC_ADD_STR(_TL("Data Source"   ), _TL("memory"));
 	}
 
-	DESC_ADD_STR (_TL("Modified"        ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
-	DESC_ADD_STR (_TL("Projection"      ), m_pObject->Get_Projection().Get_Description().c_str());
-	DESC_ADD_FLT (_TL("West"            ), Get_PointCloud()->Get_Extent().Get_XMin());
-	DESC_ADD_FLT (_TL("East"            ), Get_PointCloud()->Get_Extent().Get_XMax());
-	DESC_ADD_FLT (_TL("West-East"       ), Get_PointCloud()->Get_Extent().Get_XRange());
-	DESC_ADD_FLT (_TL("South"           ), Get_PointCloud()->Get_Extent().Get_YMin());
-	DESC_ADD_FLT (_TL("North"           ), Get_PointCloud()->Get_Extent().Get_YMax());
-	DESC_ADD_FLT (_TL("South-North"     ), Get_PointCloud()->Get_Extent().Get_YRange());
-	DESC_ADD_FLT (_TL("Z Minimum"       ), Get_PointCloud()->Get_ZMin());
-	DESC_ADD_FLT (_TL("Z Maximum"       ), Get_PointCloud()->Get_ZMax());
-	DESC_ADD_FLT (_TL("Z Range"         ), Get_PointCloud()->Get_ZMax() - Get_PointCloud()->Get_ZMin());
-	DESC_ADD_LONG(_TL("Number of Points"), Get_PointCloud()->Get_Count());
-	DESC_ADD_LONG(_TL("Selected"        ), Get_PointCloud()->Get_Selection_Count());
+	DESC_ADD_STR (_TL("Modified"         ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
+	DESC_ADD_STR (_TL("Spatial Reference"), m_pObject->Get_Projection().Get_Description().c_str());
+	DESC_ADD_FLT (_TL("West"             ), Get_PointCloud()->Get_Extent().Get_XMin());
+	DESC_ADD_FLT (_TL("East"             ), Get_PointCloud()->Get_Extent().Get_XMax());
+	DESC_ADD_FLT (_TL("West-East"        ), Get_PointCloud()->Get_Extent().Get_XRange());
+	DESC_ADD_FLT (_TL("South"            ), Get_PointCloud()->Get_Extent().Get_YMin());
+	DESC_ADD_FLT (_TL("North"            ), Get_PointCloud()->Get_Extent().Get_YMax());
+	DESC_ADD_FLT (_TL("South-North"      ), Get_PointCloud()->Get_Extent().Get_YRange());
+	DESC_ADD_FLT (_TL("Z Minimum"        ), Get_PointCloud()->Get_ZMin());
+	DESC_ADD_FLT (_TL("Z Maximum"        ), Get_PointCloud()->Get_ZMax());
+	DESC_ADD_FLT (_TL("Z Range"          ), Get_PointCloud()->Get_ZMax() - Get_PointCloud()->Get_ZMin());
+	DESC_ADD_LONG(_TL("Number of Points" ), Get_PointCloud()->Get_Count());
+	DESC_ADD_LONG(_TL("Selected"         ), Get_PointCloud()->Get_Selection_Count());
 
-	s	+= "</table>";
+	s += "</table>";
 
-	s	+= Get_TableInfo_asHTML(Get_PointCloud());
+	s += wxString::Format("<hr><h4>%s</h4>", _TL("Coordinate System Details"));
+	s += m_pObject->Get_Projection().Get_Description(true).c_str();
+
+	s += Get_TableInfo_asHTML(Get_PointCloud());
 
 	//-----------------------------------------------------
-//	s	+= wxString::Format("<hr><b>%s</b><font size=\"-1\">", _TL("Data History"));
-//	s	+= Get_PointCloud()->Get_History().Get_HTML();
-//	s	+= wxString::Format("</font");
+//	s += wxString::Format("<hr><b>%s</b><font size=\"-1\">", _TL("Data History"));
+//	s += Get_PointCloud()->Get_History().Get_HTML();
+//	s += wxString::Format("</font");
 
 	//-----------------------------------------------------
 	return( s );
@@ -159,7 +162,7 @@ wxString CWKSP_PointCloud::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_PointCloud::Get_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu(m_pObject->Get_Name());
+	wxMenu *pMenu = new wxMenu(m_pObject->Get_Name());
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_POINTCLOUD_SHOW);
@@ -191,7 +194,7 @@ wxMenu * CWKSP_PointCloud::Get_Menu(void)
 	pMenu->AppendSeparator();
 
 	//-----------------------------------------------------
-	wxMenu	*pSubMenu	= new wxMenu(_TL("Classification"));
+	wxMenu *pSubMenu = new wxMenu(_TL("Classification"));
 
 	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_POINTCLOUD_RANGE_MINMAX);
 	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_POINTCLOUD_RANGE_STDDEV150);
@@ -200,7 +203,7 @@ wxMenu * CWKSP_PointCloud::Get_Menu(void)
 	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Classification"), pSubMenu);
 
 	//-----------------------------------------------------
-	wxMenu	*pTable	= new wxMenu(_TL("Table"));
+	wxMenu *pTable = new wxMenu(_TL("Table"));
 
 	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLE_SHOW);
 //	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLE_DIAGRAM);

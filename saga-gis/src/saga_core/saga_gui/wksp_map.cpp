@@ -227,7 +227,7 @@ wxString CWKSP_Map::Get_Description(void)
 
 	DESC_ADD_STR(_TL("Name"             ), m_Name.c_str());
 	DESC_ADD_INT(_TL("Layers"           ), Get_Count());
-	DESC_ADD_STR(_TL("Coordinate System"), m_Projection.Get_Description().c_str());
+	DESC_ADD_STR(_TL("Spatial Reference"), m_Projection.Get_Description().c_str());
 
 	int n = Get_Extent().Get_Diameter() > 1 ? 0 : -99;
 
@@ -240,6 +240,9 @@ wxString CWKSP_Map::Get_Description(void)
 
 	s += "</table>";
 
+	s += wxString::Format("<hr><h4>%s</h4>", _TL("Coordinate System Details"));
+	s += m_Projection.Get_Description(true).c_str();
+
 	//-----------------------------------------------------
 	return( s );
 }
@@ -247,9 +250,9 @@ wxString CWKSP_Map::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_Map::Get_Menu(void)
 {
-	wxMenu	*pMenu;
+	wxMenu *pMenu;
 
-	pMenu	= new wxMenu(_TL("Map"));
+	pMenu = new wxMenu(_TL("Map"));
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_SHOW);

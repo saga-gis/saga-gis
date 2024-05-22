@@ -72,7 +72,7 @@
 CWKSP_TIN::CWKSP_TIN(CSG_TIN *pTIN)
 	: CWKSP_Layer(pTIN)
 {
-	m_pTable	= new CWKSP_Table(pTIN);
+	m_pTable = new CWKSP_Table(pTIN);
 
 	m_Edit_Attributes.Destroy();
 	m_Edit_Attributes.Add_Field(_TL("Name" ), SG_DATATYPE_String);
@@ -98,44 +98,47 @@ CWKSP_TIN::~CWKSP_TIN(void)
 //---------------------------------------------------------
 wxString CWKSP_TIN::Get_Description(void)
 {
-	wxString	s;
+	wxString s;
 
 	//-----------------------------------------------------
-	s	+= wxString::Format("<b>%s</b><table border=\"0\">", _TL("TIN"));
+	s += wxString::Format("<b>%s</b><table border=\"0\">", _TL("TIN"));
 
-	s	+= "<table border=\"0\">";
+	s += "<table border=\"0\">";
 
-	DESC_ADD_STR(_TL("Name"            ), m_pObject->Get_Name());
-	DESC_ADD_STR(_TL("Description"     ), m_pObject->Get_Description());
+	DESC_ADD_STR(_TL("Name"              ), m_pObject->Get_Name());
+	DESC_ADD_STR(_TL("Description"       ), m_pObject->Get_Description());
 
 	if( SG_File_Exists(m_pObject->Get_File_Name(false)) )
 	{
-		DESC_ADD_STR(_TL("Data Source" ), SG_File_Get_Path(m_pObject->Get_File_Name(false)      ).c_str());
-		DESC_ADD_STR(_TL("File"        ), SG_File_Get_Name(m_pObject->Get_File_Name(false), true).c_str());
+		DESC_ADD_STR(_TL("Data Source"   ), SG_File_Get_Path(m_pObject->Get_File_Name(false)      ).c_str());
+		DESC_ADD_STR(_TL("File"          ), SG_File_Get_Name(m_pObject->Get_File_Name(false), true).c_str());
 	}
 	else
 	{
-		DESC_ADD_STR(_TL("Data Source" ), _TL("memory"));
+		DESC_ADD_STR(_TL("Data Source"   ), _TL("memory"));
 	}
 
-	DESC_ADD_STR (_TL("Modified"        ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
-	DESC_ADD_STR (_TL("Projection"      ), m_pObject->Get_Projection().Get_Description().c_str());
-	DESC_ADD_FLT (_TL("West"            ), asTIN()->Get_Extent().Get_XMin());
-	DESC_ADD_FLT (_TL("East"            ), asTIN()->Get_Extent().Get_XMax());
-	DESC_ADD_FLT (_TL("West-East"       ), asTIN()->Get_Extent().Get_XRange());
-	DESC_ADD_FLT (_TL("South"           ), asTIN()->Get_Extent().Get_YMin());
-	DESC_ADD_FLT (_TL("North"           ), asTIN()->Get_Extent().Get_YMax());
-	DESC_ADD_FLT (_TL("South-North"     ), asTIN()->Get_Extent().Get_YRange());
-	DESC_ADD_LONG(_TL("Number of Points"), asTIN()->Get_Node_Count());
+	DESC_ADD_STR (_TL("Modified"         ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
+	DESC_ADD_STR (_TL("Spatial Reference"), m_pObject->Get_Projection().Get_Description().c_str());
+	DESC_ADD_FLT (_TL("West"             ), asTIN()->Get_Extent().Get_XMin  ());
+	DESC_ADD_FLT (_TL("East"             ), asTIN()->Get_Extent().Get_XMax  ());
+	DESC_ADD_FLT (_TL("West-East"        ), asTIN()->Get_Extent().Get_XRange());
+	DESC_ADD_FLT (_TL("South"            ), asTIN()->Get_Extent().Get_YMin  ());
+	DESC_ADD_FLT (_TL("North"            ), asTIN()->Get_Extent().Get_YMax  ());
+	DESC_ADD_FLT (_TL("South-North"      ), asTIN()->Get_Extent().Get_YRange());
+	DESC_ADD_LONG(_TL("Number of Points" ), asTIN()->Get_Node_Count());
 
-	s	+= "</table>";
+	s += "</table>";
 
-	s	+= Get_TableInfo_asHTML(asTIN());
+	s += wxString::Format("<hr><h4>%s</h4>", _TL("Coordinate System Details"));
+	s += m_pObject->Get_Projection().Get_Description(true).c_str();
+
+	s += Get_TableInfo_asHTML(asTIN());
 
 	//-----------------------------------------------------
-//	s	+= wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), _TL("Data History"));
-//	s	+= asTIN()->Get_History().Get_HTML();
-//	s	+= wxString::Format(wxT("</font"));
+//	s += wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), _TL("Data History"));
+//	s += asTIN()->Get_History().Get_HTML();
+//	s += wxString::Format(wxT("</font"));
 
 	//-----------------------------------------------------
 	return( s );

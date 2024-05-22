@@ -77,24 +77,24 @@
 CWKSP_Shapes::CWKSP_Shapes(CSG_Shapes *pShapes)
 	: CWKSP_Layer(pShapes)
 {
-	m_pTable		= new CWKSP_Table(pShapes);
+	m_pTable      = new CWKSP_Table(pShapes);
 
-	m_fInfo			= -1;
+	m_fInfo       = -1;
 
 	m_Edit_Shapes.Create(pShapes->Get_Type());
-	m_Edit_pShape	= NULL;
+	m_Edit_pShape = NULL;
 
 	m_Edit_Attributes.Destroy();
 	m_Edit_Attributes.Add_Field(_TL("Name" ), SG_DATATYPE_String);
 	m_Edit_Attributes.Add_Field(_TL("Value"), SG_DATATYPE_String);
 
-	m_Edit_Color    = *wxBLACK;
-	m_Edit_bGleam	= true;
-	m_Edit_Mode		= EDIT_SHAPE_MODE_Normal;
+	m_Edit_Color  = *wxBLACK;
+	m_Edit_bGleam = true;
+	m_Edit_Mode   = EDIT_SHAPE_MODE_Normal;
 
-	m_Sel_Color		= *wxRED;
+	m_Sel_Color   = *wxRED;
 
-	m_bVertices		= 0;
+	m_bVertices   = 0;
 }
 
 //---------------------------------------------------------
@@ -111,79 +111,82 @@ CWKSP_Shapes::~CWKSP_Shapes(void)
 //---------------------------------------------------------
 wxString CWKSP_Shapes::Get_Description(void)
 {
-	wxString	s;
+	wxString s;
 
 	//-----------------------------------------------------
-	s	+= wxString::Format("<h4>%s</h4>", _TL("Shapes"));
+	s += wxString::Format("<h4>%s</h4>", _TL("Shapes"));
 
-	s	+= "<table border=\"0\">";
+	s += "<table border=\"0\">";
 
-	DESC_ADD_STR(_TL("Name"              ), m_pObject->Get_Name());
-	DESC_ADD_STR(_TL("Description"       ), m_pObject->Get_Description());
+	DESC_ADD_STR(_TL("Name"               ), m_pObject->Get_Name());
+	DESC_ADD_STR(_TL("Description"        ), m_pObject->Get_Description());
 
 	if( SG_File_Exists(m_pObject->Get_File_Name(false)) )
 	{
-		DESC_ADD_STR(_TL("Data Source"   ), SG_File_Get_Path(m_pObject->Get_File_Name(false)      ).c_str());
-		DESC_ADD_STR(_TL("File"          ), SG_File_Get_Name(m_pObject->Get_File_Name(false), true).c_str());
+		DESC_ADD_STR(_TL("Data Source"    ), SG_File_Get_Path(m_pObject->Get_File_Name(false)      ).c_str());
+		DESC_ADD_STR(_TL("File"           ), SG_File_Get_Name(m_pObject->Get_File_Name(false), true).c_str());
 
 		if( m_pObject->Get_MetaData()("GDAL_DRIVER") )
 		{
-			DESC_ADD_STR(_TL("Driver"    ), m_pObject->Get_MetaData()["GDAL_DRIVER"].Get_Content().c_str());
+			DESC_ADD_STR(_TL("Driver"     ), m_pObject->Get_MetaData()["GDAL_DRIVER"].Get_Content().c_str());
 		}
 	}
 	else if( m_pObject->Get_MetaData_DB().Get_Children_Count() )
 	{
-		DESC_ADD_STR(_TL("Data Source"   ), m_pObject->Get_File_Name(false));
+		DESC_ADD_STR(_TL("Data Source"    ), m_pObject->Get_File_Name(false));
 	}
 	else
 	{
-		DESC_ADD_STR(_TL("Data Source"   ), _TL("memory"));
+		DESC_ADD_STR(_TL("Data Source"    ), _TL("memory"));
 	}
 
-	DESC_ADD_STR  (_TL("Modified"        ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
-	DESC_ADD_STR  (_TL("Projection"      ), m_pObject->Get_Projection().Get_Description().c_str());
-	DESC_ADD_FLT  (_TL("West"            ), Get_Shapes()->Get_Extent().Get_XMin  ());
-	DESC_ADD_FLT  (_TL("East"            ), Get_Shapes()->Get_Extent().Get_XMax  ());
-	DESC_ADD_FLT  (_TL("West-East"       ), Get_Shapes()->Get_Extent().Get_XRange());
-	DESC_ADD_FLT  (_TL("South"           ), Get_Shapes()->Get_Extent().Get_YMin  ());
-	DESC_ADD_FLT  (_TL("North"           ), Get_Shapes()->Get_Extent().Get_YMax  ());
-	DESC_ADD_FLT  (_TL("South-North"     ), Get_Shapes()->Get_Extent().Get_YRange());
-	DESC_ADD_STR  (_TL("Type"            ), SG_Get_ShapeType_Name(Get_Shapes()->Get_Type()).c_str());
+	DESC_ADD_STR  (_TL("Modified"         ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
+	DESC_ADD_STR  (_TL("Spatial Reference"), m_pObject->Get_Projection().Get_Description().c_str());
+	DESC_ADD_FLT  (_TL("West"             ), Get_Shapes()->Get_Extent().Get_XMin  ());
+	DESC_ADD_FLT  (_TL("East"             ), Get_Shapes()->Get_Extent().Get_XMax  ());
+	DESC_ADD_FLT  (_TL("West-East"        ), Get_Shapes()->Get_Extent().Get_XRange());
+	DESC_ADD_FLT  (_TL("South"            ), Get_Shapes()->Get_Extent().Get_YMin  ());
+	DESC_ADD_FLT  (_TL("North"            ), Get_Shapes()->Get_Extent().Get_YMax  ());
+	DESC_ADD_FLT  (_TL("South-North"      ), Get_Shapes()->Get_Extent().Get_YRange());
+	DESC_ADD_STR  (_TL("Type"             ), SG_Get_ShapeType_Name(Get_Shapes()->Get_Type()).c_str());
 
 	switch( Get_Shapes()->Get_Vertex_Type() )
 	{
 	default:
-		DESC_ADD_STR  (_TL("Vertex Type" ), _TL("X, Y"      ));
+		DESC_ADD_STR  (_TL("Vertex Type"  ), _TL("X, Y"      ));
 		break;
 	case  1:
-		DESC_ADD_STR  (_TL("Vertex Type" ), _TL("X, Y, Z"   ));
-		DESC_ADD_FLT  (_TL("Z Minimum"   ), Get_Shapes()->Get_ZMin());
-		DESC_ADD_FLT  (_TL("Z Maximum"   ), Get_Shapes()->Get_ZMax());
-		DESC_ADD_FLT  (_TL("Z Range"     ), Get_Shapes()->Get_ZMax() - Get_Shapes()->Get_ZMin());
+		DESC_ADD_STR  (_TL("Vertex Type"  ), _TL("X, Y, Z"   ));
+		DESC_ADD_FLT  (_TL("Z Minimum"    ), Get_Shapes()->Get_ZMin());
+		DESC_ADD_FLT  (_TL("Z Maximum"    ), Get_Shapes()->Get_ZMax());
+		DESC_ADD_FLT  (_TL("Z Range"      ), Get_Shapes()->Get_ZMax() - Get_Shapes()->Get_ZMin());
 		break;
 	case  2:
-		DESC_ADD_STR  (_TL("Vertex Type"     ), _TL("X, Y, Z, M"));
-		DESC_ADD_FLT  (_TL("Z Minimum"   ), Get_Shapes()->Get_ZMin());
-		DESC_ADD_FLT  (_TL("Z Maximum"   ), Get_Shapes()->Get_ZMax());
-		DESC_ADD_FLT  (_TL("Z Range"     ), Get_Shapes()->Get_ZMax() - Get_Shapes()->Get_ZMin());
-		DESC_ADD_FLT  (_TL("M Minimum"   ), Get_Shapes()->Get_MMin());
-		DESC_ADD_FLT  (_TL("M Maximum"   ), Get_Shapes()->Get_MMax());
-		DESC_ADD_FLT  (_TL("M Range"     ), Get_Shapes()->Get_MMax() - Get_Shapes()->Get_MMin());
+		DESC_ADD_STR  (_TL("Vertex Type"  ), _TL("X, Y, Z, M"));
+		DESC_ADD_FLT  (_TL("Z Minimum"    ), Get_Shapes()->Get_ZMin());
+		DESC_ADD_FLT  (_TL("Z Maximum"    ), Get_Shapes()->Get_ZMax());
+		DESC_ADD_FLT  (_TL("Z Range"      ), Get_Shapes()->Get_ZMax() - Get_Shapes()->Get_ZMin());
+		DESC_ADD_FLT  (_TL("M Minimum"    ), Get_Shapes()->Get_MMin());
+		DESC_ADD_FLT  (_TL("M Maximum"    ), Get_Shapes()->Get_MMax());
+		DESC_ADD_FLT  (_TL("M Range"      ), Get_Shapes()->Get_MMax() - Get_Shapes()->Get_MMin());
 		break;
 	}
 
-	DESC_ADD_LONG(_TL("Number of Shapes"), Get_Shapes()->Get_Count());
-	DESC_ADD_LONG(_TL("Selected"        ), Get_Shapes()->Get_Selection_Count());
-	DESC_ADD_STR (_TL("File Encoding"   ), Get_Shapes()->Get_File_Encoding() ? SG_T("UTF-8") : SG_T("ANSI"));
+	DESC_ADD_LONG(_TL("Number of Shapes"  ), Get_Shapes()->Get_Count());
+	DESC_ADD_LONG(_TL("Selected"          ), Get_Shapes()->Get_Selection_Count());
+	DESC_ADD_STR (_TL("File Encoding"     ), Get_Shapes()->Get_File_Encoding() ? SG_T("UTF-8") : SG_T("ANSI"));
 
-	s	+= "</table>";
+	s += "</table>";
 
-	s	+= Get_TableInfo_asHTML(Get_Shapes());
+	s += wxString::Format("<hr><h4>%s</h4>", _TL("Coordinate System Details"));
+	s += m_pObject->Get_Projection().Get_Description(true).c_str();
+
+	s += Get_TableInfo_asHTML(Get_Shapes());
 
 	//-----------------------------------------------------
-//	s	+= wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), _TL("Data History"));
-//	s	+= Get_Shapes()->Get_History().Get_HTML();
-//	s	+= wxString::Format(wxT("</font"));
+//	s += wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), _TL("Data History"));
+//	s += Get_Shapes()->Get_History().Get_HTML();
+//	s += wxString::Format(wxT("</font"));
 
 	return( s );
 }

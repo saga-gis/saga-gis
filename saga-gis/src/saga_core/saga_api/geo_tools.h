@@ -776,7 +776,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum
+enum TSG_Projection_Format
 {
 	SG_PROJ_FMT_WKT1,
 	SG_PROJ_FMT_WKT2,
@@ -786,21 +786,19 @@ typedef enum
 	SG_PROJ_FMT_WKT   = SG_PROJ_FMT_WKT1,
 	SG_PROJ_FMT_Proj4 = SG_PROJ_FMT_PROJ,
 	SG_PROJ_FMT_EPSG
-}
-TSG_Projection_Format;
+};
 
 //---------------------------------------------------------
-typedef enum
+enum TSG_Projection_Type
 {
 	SG_PROJ_TYPE_CS_Projected,
 	SG_PROJ_TYPE_CS_Geographic,
 	SG_PROJ_TYPE_CS_Geocentric,
 	SG_PROJ_TYPE_CS_Undefined
-}
-TSG_Projection_Type;
+};
 
 //---------------------------------------------------------
-typedef enum
+enum TSG_Projection_Unit
 {
 	SG_PROJ_UNIT_Kilometer,
 	SG_PROJ_UNIT_Meter,
@@ -824,8 +822,7 @@ typedef enum
 	SG_PROJ_UNIT_Indian_Foot,
 	SG_PROJ_UNIT_Indian_Chain,
 	SG_PROJ_UNIT_Undefined
-}
-TSG_Projection_Unit;
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -880,6 +877,8 @@ public:
 	bool							Load					(const CSG_MetaData &Projection);
 	bool							Save					(      CSG_MetaData &Projection) const;
 
+	CSG_String						Get_Description			(bool bDetails = false)	const;
+
 	const CSG_String &				Get_Name				(void)	const	{	return( m_Name      );	}
 
 	const CSG_String &				Get_WKT					(void)	const	{	return( m_WKT1      );	}
@@ -893,8 +892,6 @@ public:
 	const CSG_String &				Get_Proj4				(void)	const	{	return( m_PROJ      );	}
 	int								Get_Authority_ID		(void)	const	{	return( m_Code      );	}
 	int								Get_EPSG				(void)	const	{	return( m_Authority.CmpNoCase("EPSG") ? -1 : m_Code );	}
-
-	CSG_String						Get_Description			(void)	const;
 
 	bool							is_Projection			(void)	const	{	return( m_Type == SG_PROJ_TYPE_CS_Projected  );	}
 	bool							is_Geographic			(void)	const	{	return( m_Type == SG_PROJ_TYPE_CS_Geographic );	}

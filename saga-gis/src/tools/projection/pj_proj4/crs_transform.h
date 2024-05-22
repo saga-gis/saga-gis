@@ -83,9 +83,9 @@ public:
 	static CSG_String		Get_Version					(void);
 	static CSG_String		Get_Description				(void);
 
-	typedef enum {
-		CRS_Format_PROJ, CRS_Format_JSON, CRS_Format_ESRI, CRS_Format_WKT1, CRS_Format_WKT2, CRS_Format_WKT2015, CRS_Format_WKT2018, CRS_Format_WKT2019
-	} TCRS_Format;
+	enum class TCRS_Format {
+		PROJ, JSON, ESRI, WKT1, WKT2, WKT2015, WKT2018, WKT2019
+	};
 
 	static CSG_String		Convert_CRS_Format			(const CSG_String &Definition, TCRS_Format Format, bool bMultiLine = true, bool bSimplified = true);
 	static CSG_String		Convert_CRS_To_PROJ			(const CSG_String &Definition);

@@ -102,12 +102,12 @@ CWKSP_Grid::CWKSP_Grid(CSG_Grid *pGrid)
 //---------------------------------------------------------
 wxString CWKSP_Grid::Get_Description(void)
 {
-	wxString	s;
+	wxString s;
 
 	//-----------------------------------------------------
-	s	+= wxString::Format("<h4>%s</h4>", _TL("Grid"));
+	s += wxString::Format("<h4>%s</h4>", _TL("Grid"));
 
-	s	+= "<table border=\"0\">";
+	s += "<table border=\"0\">";
 
 	DESC_ADD_STR (_TL("Name"               ), m_pObject->Get_Name());
 	DESC_ADD_STR (_TL("Description"        ), m_pObject->Get_Description());
@@ -150,7 +150,7 @@ wxString CWKSP_Grid::Get_Description(void)
 		DESC_ADD_STR(_TL("File Cache"     ), _TL("activated"));
 	}
 
-	DESC_ADD_STR (_TL("Projection"        ), m_pObject->Get_Projection().Get_Description().c_str());
+	DESC_ADD_STR (_TL("Spatial Reference" ), m_pObject->Get_Projection().Get_Description().c_str());
 	DESC_ADD_STR (_TL("West"              ), SG_Get_String(Get_Grid()->Get_XMin        (), -CSG_Grid_System::Get_Precision()).c_str());
 	DESC_ADD_STR (_TL("East"              ), SG_Get_String(Get_Grid()->Get_XMax        (), -CSG_Grid_System::Get_Precision()).c_str());
 	DESC_ADD_STR (_TL("West-East"         ), SG_Get_String(Get_Grid()->Get_XRange      (), -CSG_Grid_System::Get_Precision()).c_str());
@@ -177,17 +177,20 @@ wxString CWKSP_Grid::Get_Description(void)
 		DESC_ADD_STR(_TL("Sample Size"    ), wxString::Format("%lld* (%.02f%%)", Get_Grid()->Get_Max_Samples(), Samples));
 	}
 
-	//-----------------------------------------------------
-//	s.Append(wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), _TL("Data History")));
-//	s.Append(Get_Grid()->Get_History().Get_HTML());
-//	s.Append(wxString::Format(wxT("</font")));
-
-	s	+= "</table>";
+	s += "</table>";
 
 	if( Samples < 100. )
 	{
-		s	+= wxString::Format("*) %s", _TL("Statistics are based on a subset of the data set. The sample size to be used can be changed in the settings."));
+		s += wxString::Format("<small>*) <i>%s", _TL("Statistics are based on a subset of the data set. The sample size to be used can be changed in the settings.</i></small>"));
 	}
+
+	s += wxString::Format("<hr><h4>%s</h4>", _TL("Coordinate System Details"));
+	s += m_pObject->Get_Projection().Get_Description(true).c_str();
+
+	//-----------------------------------------------------
+	//	s.Append(wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), _TL("Data History")));
+	//	s.Append(Get_Grid()->Get_History().Get_HTML());
+	//	s.Append(wxString::Format(wxT("</font")));
 
 	return( s );
 }
@@ -195,7 +198,7 @@ wxString CWKSP_Grid::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_Grid::Get_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu(m_pObject->Get_Name());
+	wxMenu *pMenu = new wxMenu(m_pObject->Get_Name());
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRID_SHOW);
