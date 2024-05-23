@@ -32,10 +32,9 @@ set(_icon_target)
 # appdata
 install(FILES org.saga-gis.saga-gui.appdata.xml DESTINATION share/metainfo)
 
-# tip, srs and dic
+# tip-of-the-day and srs
 install(FILES saga_tip.txt DESTINATION share/saga)
 install(FILES saga_srs.txt DESTINATION share/saga RENAME saga_prj.srs)
-install(FILES saga_dic.txt DESTINATION share/saga RENAME saga_prj.dic)
 
 # cosmetic: add to custom target to show up in IDE
 add_custom_target(saga-gui-res-otherfiles SOURCES
@@ -43,7 +42,6 @@ add_custom_target(saga-gui-res-otherfiles SOURCES
 	org.saga-gis.saga-gui.appdata.xml
 	saga_tip.txt
 	saga_srs.txt
-	saga_dic.txt
 	)
 
 # TODO: dist-hook
