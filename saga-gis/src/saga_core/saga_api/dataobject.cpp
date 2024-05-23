@@ -796,8 +796,8 @@ bool CSG_Data_Object::Assign(CSG_Data_Object *pObject)
 	{
 		Destroy();
 
-		m_Name = pObject->Get_Name();
-
+		m_Name         = pObject->Get_Name();
+		m_Projection   = pObject->m_Projection;
 		Get_MetaData() = pObject->Get_MetaData();
 	//	Get_History () = pObject->Get_History ();
 
