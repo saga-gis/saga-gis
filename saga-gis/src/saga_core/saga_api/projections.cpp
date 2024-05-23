@@ -767,7 +767,7 @@ const SG_Char * CSG_Projections::Get_Projection(int Code, const SG_Char *_Author
 		}
 	}
 
-	return( false );
+	return( NULL );
 }
 
 //---------------------------------------------------------
