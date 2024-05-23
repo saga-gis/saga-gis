@@ -1022,7 +1022,7 @@ CSG_Grid * CSG_GDAL_DataSet::Read(int i)
 		{
 			if( Get_MetaData_Item(Data, "proj4_string") )
 			{
-				pGrid->Get_Projection().Create(Data, SG_PROJ_FMT_Proj4);
+				pGrid->Get_Projection().Create(Data);
 			}
 		}
 	}

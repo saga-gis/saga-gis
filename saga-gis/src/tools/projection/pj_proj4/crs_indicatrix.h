@@ -88,7 +88,7 @@ private:
 	CSG_Points				m_Circle;
 
 
-	bool					Get_Indicatrix				(double lon, double lat, CSG_Shape *pIndicatrix);
+	bool					Get_Indicatrix		(double lon, double lat, CSG_Shape *pIndicatrix);
 
 };
 

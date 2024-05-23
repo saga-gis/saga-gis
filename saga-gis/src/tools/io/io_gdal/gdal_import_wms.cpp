@@ -540,7 +540,7 @@ CSG_String CGDAL_Import_WMS::Get_Request(void)
 	}
 	else
 	{
-		SG_Get_Projected(CSG_Projections::Get_GCS_WGS84(), Projection, r);
+		SG_Get_Projected(CSG_Projection::Get_GCS_WGS84(), Projection, r);
 	}
 
 	//-----------------------------------------------------

@@ -388,23 +388,23 @@ public:
 		double	Width	= rDC.GetWidth() * rWorld.Get_XRange() / rMap.GetWidth();
 
 		//-------------------------------------------------
-		CSG_String	Unit;
+		CSG_String Unit;
 
 		if( m_Parameters("UNIT")->asInt() >= 1 )
 		{
-			CSG_Projection	Projection(m_pLayout->Get_Map()->Get_Projection());
+			CSG_Projection Projection(m_pLayout->Get_Map()->Get_Projection());
 
 			if( Projection.is_Okay() )
 			{
-				Unit	= SG_Get_Projection_Unit_Name(Projection.Get_Unit(), true);
+				Unit = CSG_Projections::Get_Unit_Name(Projection.Get_Unit(), true);
 
-				if( Unit.is_Empty() )	Unit	= Projection.Get_Unit_Name();
+				if( Unit.is_Empty() ) Unit = Projection.Get_Unit_Name();
 
-				if( Projection.Get_Unit() == SG_PROJ_UNIT_Meter && Width > 10000. )
+				if( Projection.Get_Unit() == ESG_Projection_Unit::Meter && Width > 10000. )
 				{
-					Unit	 = SG_Get_Projection_Unit_Name(SG_PROJ_UNIT_Kilometer, true);
+					Unit   = CSG_Projections::Get_Unit_Name(ESG_Projection_Unit::Kilometer, true);
 
-					Width	/= 1000.;
+					Width /= 1000.;
 				}
 			}
 		}

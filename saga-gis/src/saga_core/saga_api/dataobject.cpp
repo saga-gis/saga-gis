@@ -758,7 +758,7 @@ bool CSG_Data_Object::Save_MetaData(CSG_File &Stream)
 		m_MetaData.Add_Child("DESCRIPTION", Get_Description());
 
 	//-----------------------------------------------------
-	if( m_Projection.Get_Type() == SG_PROJ_TYPE_CS_Undefined )
+	if( m_Projection.Get_Type() == ESG_CRS_Type::Undefined )
 		m_MetaData.Del_Child(SG_META_PROJECTION);
 	else if( m_MetaData(SG_META_PROJECTION) )
 		m_Projection.Save(*m_MetaData(SG_META_PROJECTION));

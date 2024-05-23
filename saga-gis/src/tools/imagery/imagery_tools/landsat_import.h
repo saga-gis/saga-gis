@@ -87,7 +87,7 @@ private: ///// private members and functions: /////////////
 
 	CSG_Grid *			Get_Band				(const CSG_String &File);
 
-	CSG_Grid *			Get_Projection			(CSG_Grid *pGrid, const CSG_String &Proj4);
+	CSG_Grid *			Get_Projection			(CSG_Grid *pGrid, const CSG_Projection &Projection);
 
 };
 

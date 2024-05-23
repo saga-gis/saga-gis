@@ -1280,7 +1280,7 @@ bool CSG_Parameters_CRSPicker::On_Parameters_Enable(CSG_Parameters *pParameters,
 bool CSG_Parameters_CRSPicker::Get_CRS(CSG_Projection &Projection, bool bMessage) const
 {
 	if( Projection.Create((*m_pParameters)["CRS_CODE"].asInt(), (*m_pParameters)["CRS_AUTHORITY"].asString())
-	||  Projection.Create((*m_pParameters)["CRS_PROJ"].asString(), SG_PROJ_FMT_Proj4) )
+	||  Projection.Create((*m_pParameters)["CRS_PROJ"].asString()) )
 	{
 		if( bMessage )
 		{

@@ -82,7 +82,7 @@ CCRS_Distance_Calculator::~CCRS_Distance_Calculator(void)
 bool CCRS_Distance_Calculator::Create(const CSG_Projection &Projection, double Epsilon)
 {
 	if( !m_ProjToGCS.Set_Source(Projection)
-	||  !m_ProjToGCS.Set_Target(CSG_Projection("+proj=longlat +datum=WGS84", SG_PROJ_FMT_Proj4))
+	||  !m_ProjToGCS.Set_Target(CSG_Projection::Get_GCS_WGS84())
 	||  !m_Projector.Set_Target(Projection) )
 	{
 		return( false );
@@ -108,7 +108,7 @@ double CCRS_Distance_Calculator::Get_Orthodrome(const TSG_Point &A, const TSG_Po
 	if( m_ProjToGCS.Get_Projection(P) )
 	{
 		m_Projector.Set_Source(CSG_Projection(
-			CSG_String::Format("+proj=aeqd +R=6371000 +lon_0=%f +lat_0=%f", P.x, P.y), SG_PROJ_FMT_Proj4)
+			CSG_String::Format("+proj=aeqd +R=6371000 +lon_0=%f +lat_0=%f", P.x, P.y))
 		);
 
 		m_Projector.Set_Inverse();
@@ -131,7 +131,7 @@ double CCRS_Distance_Calculator::Get_Loxodrome(const TSG_Point &A, const TSG_Poi
 {
 	TSG_Point	AA, BB;
 
-	m_Projector.Set_Source(CSG_Projection("+proj=merc +datum=WGS84", SG_PROJ_FMT_Proj4));
+	m_Projector.Set_Source(CSG_Projection("+proj=merc +datum=WGS84"));
 
 	m_Projector.Set_Inverse();
 
@@ -477,7 +477,7 @@ bool CCRS_Distance_Interactive::On_Execute(void)
 		return( false );
 	}
 
-	return( m_Projection.Create(CRS.Get_Parameters()->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4) );
+	return( m_Projection.Create(CRS.Get_Parameters()->Get_Parameter("CRS_PROJ4")->asString()) );
 }
 
 //---------------------------------------------------------

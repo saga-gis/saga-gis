@@ -1385,7 +1385,7 @@ void CWKSP_Map::Set_Projection(void)
 
 			if( _P["CRS_EPSG"].asInt() < 0 || !Projection.Create(_P["CRS_EPSG"].asInt(), _P["CRS_EPSG_AUTH"].asString()) )
 			{
-				Projection.Create(_P["CRS_PROJ4"].asString(), SG_PROJ_FMT_Proj4);
+				Projection.Create(_P["CRS_PROJ4"].asString());
 			}
 
 			if( P("ONTHEFLY")->asBool() )
@@ -2386,13 +2386,13 @@ bool CWKSP_Map::Draw_ScaleBar(CWKSP_Map_DC &dc_Map, const CSG_Rect &rWorld, cons
 
 	if( m_Projection.is_Okay() && m_Parameters("SCALE_UNIT")->asBool() )
 	{
-		Unit	= SG_Get_Projection_Unit_Name(m_Projection.Get_Unit(), true);
+		Unit	= CSG_Projections::Get_Unit_Name(m_Projection.Get_Unit(), true);
 
 		if( Unit.is_Empty() )	Unit	= m_Projection.Get_Unit_Name();
 
-		if( m_Projection.Get_Unit() == SG_PROJ_UNIT_Meter && dWidth > 10000. )
+		if( m_Projection.Get_Unit() == ESG_Projection_Unit::Meter && dWidth > 10000. )
 		{
-			Unit	 = SG_Get_Projection_Unit_Name(SG_PROJ_UNIT_Kilometer, true);
+			Unit	 = CSG_Projections::Get_Unit_Name(ESG_Projection_Unit::Kilometer, true);
 			dWidth	/= 1000.;
 		}
 	}
@@ -2456,7 +2456,7 @@ void CWKSP_Map::Show_Coordinate(const CSG_Point &Coordinate) const
 	{
 		TSG_Point	Degree(Coordinate);
 
-		if( m_Projection.is_Geographic() || SG_Get_Projected(m_Projection, CSG_Projections::Get_GCS_WGS84(), Degree) )
+		if( m_Projection.is_Geographic() || SG_Get_Projected(m_Projection, CSG_Projection::Get_GCS_WGS84(), Degree) )
 		{
 			if( !m_Projection.is_Geographic() )
 			{

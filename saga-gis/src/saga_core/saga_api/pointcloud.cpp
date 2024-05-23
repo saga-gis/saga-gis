@@ -283,7 +283,7 @@ bool CSG_PointCloud::_Load(const CSG_String &File)
 
 			if( Stream.Get_File(_File + "sg-prj") )
 			{
-				Get_Projection().Load(Stream, SG_PROJ_FMT_WKT);
+				Get_Projection().Load(Stream);
 			}
 		}
 	}
@@ -295,7 +295,7 @@ bool CSG_PointCloud::_Load(const CSG_String &File)
 		{
 			Load_MetaData(File);
 
-			Get_Projection().Load(SG_File_Make_Path("", File, "sg-prj"), SG_PROJ_FMT_WKT);
+			Get_Projection().Load(SG_File_Make_Path("", File, "sg-prj"));
 		}
 	}
 
@@ -384,7 +384,7 @@ bool CSG_PointCloud::Save(const CSG_String &_File, int Format)
 
 				if( Get_Projection().is_Okay() )
 				{
-					Get_Projection().Save(SG_File_Make_Path("", File, "sg-prj"), SG_PROJ_FMT_WKT);
+					Get_Projection().Save(SG_File_Make_Path("", File, "sg-prj"));
 				}
 
 				bResult = true;

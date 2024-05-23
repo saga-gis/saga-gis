@@ -608,12 +608,12 @@ CSG_Projection CPointCloud_Create_SPCVF::_Get_Projection(const CSG_String &FileN
 
 		if( Stream.Get_File(_FileName + "sg-prj") )
 		{
-			Projection.Load(Stream, SG_PROJ_FMT_WKT);
+			Projection.Load(Stream);
 		}
 	}
 	else // if( SG_File_Cmp_Extension(FileName, "sg-pts"/"spc") ) // POINTCLOUD_FILE_FORMAT_Normal
 	{
-		Projection.Load(SG_File_Make_Path("", FileName, "sg-prj"), SG_PROJ_FMT_WKT);
+		Projection.Load(SG_File_Make_Path("", FileName, "sg-prj"));
 	}
 
 	return( Projection );

@@ -2479,18 +2479,18 @@ int CSG_PG_Tool::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		if(	pParameter->Cmp_Identifier("CRS_EPSG_GEOGCS")
 		||  pParameter->Cmp_Identifier("CRS_EPSG_PROJCS") )
 		{
-			int EPSG;
+			CSG_String Authority_Code;
 
-			if( pParameter->asChoice()->Get_Data(EPSG) )
+			if( pParameter->asChoice()->Get_Data(Authority_Code) )
 			{
-				Projection.Create(EPSG);
+				Projection.Create(Authority_Code);
 			}
 		}
 
 		if( Projection.is_Okay() )
 		{
-			pParameters->Set_Parameter("CRS_EPSG"     , Projection.Get_Authority_ID());
-			pParameters->Set_Parameter("CRS_EPSG_AUTH", Projection.Get_Authority   ());
+			pParameters->Set_Parameter("CRS_EPSG"     , Projection.Get_Code     ());
+			pParameters->Set_Parameter("CRS_EPSG_AUTH", Projection.Get_Authority());
 
 			if(	!pParameter->Cmp_Identifier("CRS_EPSG_GEOGCS") ) { pParameters->Set_Parameter("CRS_EPSG_GEOGCS", 0); }
 			if(	!pParameter->Cmp_Identifier("CRS_EPSG_PROJCS") ) { pParameters->Set_Parameter("CRS_EPSG_PROJCS", 0); }
@@ -2536,15 +2536,8 @@ bool CSG_PG_Tool::Add_SRID_Picker(CSG_Parameters *pParameters)
 
 	if( has_CMD() == false )
 	{
-		pParameters->Add_Choice(
-			"CRS_EPSG", "CRS_EPSG_GEOGCS", _TL("Geographic Coordinate Systems"), _TL(""),
-			CSG_String::Format("{0}<%s>|", _TL("select")) + SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Geographic)
-		);
-
-		pParameters->Add_Choice(
-			"CRS_EPSG", "CRS_EPSG_PROJCS", _TL("Projected Coordinate Systems" ), _TL(""),
-			CSG_String::Format("{0}<%s>|", _TL("select")) + SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Projected)
-		);
+		pParameters->Add_Choice("CRS_EPSG", "CRS_EPSG_GEOGCS", _TL("Geographic Coordinate Systems"), _TL(""), SG_Get_Projections().Get_Names_List(ESG_CRS_Type::Geographic));
+		pParameters->Add_Choice("CRS_EPSG", "CRS_EPSG_PROJCS", _TL("Projected Coordinate Systems" ), _TL(""), SG_Get_Projections().Get_Names_List(ESG_CRS_Type::Projection));
 	}
 
 	return( true );

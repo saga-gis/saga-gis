@@ -73,8 +73,8 @@ int CAddCoordinates::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 			pParameters->Set_Enabled("Y"  , true);
 			pParameters->Set_Enabled("Z"  , pParameter->asShapes()->Get_Vertex_Type() != SG_VERTEX_TYPE_XY);
 			pParameters->Set_Enabled("M"  , pParameter->asShapes()->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM);
-			pParameters->Set_Enabled("LON", pParameter->asShapes()->Get_Projection().Get_Type() == SG_PROJ_TYPE_CS_Projected);
-			pParameters->Set_Enabled("LAT", pParameter->asShapes()->Get_Projection().Get_Type() == SG_PROJ_TYPE_CS_Projected);
+			pParameters->Set_Enabled("LON", pParameter->asShapes()->Get_Projection().Get_Type() == ESG_CRS_Type::Projection);
+			pParameters->Set_Enabled("LAT", pParameter->asShapes()->Get_Projection().Get_Type() == ESG_CRS_Type::Projection);
 		}
 		else
 		{
@@ -98,7 +98,7 @@ int CAddCoordinates::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 //---------------------------------------------------------
 bool CAddCoordinates::On_Execute(void)
 {
-	CSG_Shapes	*pPoints	= Parameters("OUTPUT")->asShapes();
+	CSG_Shapes *pPoints = Parameters("OUTPUT")->asShapes();
 
 	if( pPoints && pPoints != Parameters("INPUT")->asShapes() )
 	{
@@ -106,7 +106,7 @@ bool CAddCoordinates::On_Execute(void)
 	}
 	else
 	{
-		pPoints	= Parameters("INPUT")->asShapes();
+		pPoints = Parameters("INPUT")->asShapes();
 	}
 
 	//-----------------------------------------------------
@@ -133,10 +133,10 @@ bool CAddCoordinates::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Shapes	Points;
+	CSG_Shapes Points;
 
-	if( (Parameters("LON")->asBool() || Parameters("LAT")->asBool()) && pPoints->Get_Projection().Get_Type() == SG_PROJ_TYPE_CS_Projected
-	&&  SG_Get_Projected(pPoints, &Points, CSG_Projection("+proj=longlat +ellps=WGS84 +datum=WGS84", SG_PROJ_FMT_Proj4)) )
+	if( (Parameters("LON")->asBool() || Parameters("LAT")->asBool()) && pPoints->Get_Projection().Get_Type() == ESG_CRS_Type::Projection
+	&&  SG_Get_Projected(pPoints, &Points, CSG_Projection::Get_GCS_WGS84()) )
 	{
 		if( Parameters("LON")->asBool() )
 		{
@@ -152,7 +152,7 @@ bool CAddCoordinates::On_Execute(void)
 	//-----------------------------------------------------
 	for(sLong i=0; i<pPoints->Get_Count() && Set_Progress(i, pPoints->Get_Count()); i++)
 	{
-		CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
+		CSG_Shape *pPoint = pPoints->Get_Shape(i);
 
 		if( xField >= 0 ) pPoint->Set_Value(xField, pPoint->Get_Point().x);
 		if( yField >= 0 ) pPoint->Set_Value(yField, pPoint->Get_Point().y);
@@ -161,7 +161,7 @@ bool CAddCoordinates::On_Execute(void)
 
 		if( i < Points.Get_Count() )
 		{
-			TSG_Point	Point	= Points.Get_Shape(i)->Get_Point();
+			CSG_Point Point(Points.Get_Shape(i)->Get_Point());
 
 			if( lonField >= 0 )	pPoint->Set_Value(lonField, Point.x);
 			if( latField >= 0 )	pPoint->Set_Value(latField, Point.y);

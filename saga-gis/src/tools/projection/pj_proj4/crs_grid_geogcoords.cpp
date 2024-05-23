@@ -60,7 +60,7 @@ CCRS_Grid_GeogCoords::CCRS_Grid_GeogCoords(void)
 {
 	Set_Name		(_TL("Geographic Coordinate Grids"));
 
-	Set_Author		("O. Conrad (c) 2014");
+	Set_Author		("O.Conrad (c) 2014");
 
 	Set_Description	(_TW(
 		"Creates for a given grid geographic coordinate information, "
@@ -98,7 +98,7 @@ CCRS_Grid_GeogCoords::CCRS_Grid_GeogCoords(void)
 //---------------------------------------------------------
 bool CCRS_Grid_GeogCoords::On_Execute(void)
 {
-	CSG_CRSProjector	Projector;
+	CSG_CRSProjector Projector;
 
 	if( !Projector.Set_Source(Parameters("GRID")->asGrid()->Get_Projection()) )
 	{
@@ -107,20 +107,20 @@ bool CCRS_Grid_GeogCoords::On_Execute(void)
 		return( false );
 	}
 
-	Projector.Set_Target(CSG_Projection("+proj=longlat +ellps=WGS84 +datum=WGS84", SG_PROJ_FMT_Proj4));
+	Projector.Set_Target(CSG_Projection::Get_GCS_WGS84());
 
 	//-----------------------------------------------------
-	CSG_Grid	*pLon	= Parameters("LON")->asGrid();
-	CSG_Grid	*pLat	= Parameters("LAT")->asGrid();
+	CSG_Grid *pLon = Parameters("LON")->asGrid();
+	CSG_Grid *pLat = Parameters("LAT")->asGrid();
 
 	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		double	yWorld	= Get_YMin() + y * Get_Cellsize();
+		double yWorld = Get_YMin() + y * Get_Cellsize();
 
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			CSG_Point	p(Get_XMin() + x * Get_Cellsize(), yWorld);
+			CSG_Point p(Get_XMin() + x * Get_Cellsize(), yWorld);
 
 			if( Projector.Get_Projection(p) )
 			{

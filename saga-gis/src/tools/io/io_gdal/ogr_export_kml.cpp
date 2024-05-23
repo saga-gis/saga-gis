@@ -123,11 +123,11 @@ bool COGR_Export_KML::On_Execute(void)
 	CSG_Shapes	Shapes, *pShapes	= Parameters("SHAPES")->asShapes();
 
 	//-----------------------------------------------------
-	if( pShapes->Get_Projection().Get_Type() == SG_PROJ_TYPE_CS_Undefined )
+	if( pShapes->Get_Projection().Get_Type() == ESG_CRS_Type::Undefined )
 	{
 		Message_Add(_TL("layer uses undefined coordinate system, assuming geographic coordinates"));
 	}
-	else if( pShapes->Get_Projection().Get_Type() != SG_PROJ_TYPE_CS_Geographic )
+	else if( pShapes->Get_Projection().Get_Type() != ESG_CRS_Type::Geographic )
 	{
 		Message_Fmt("\n%s (%s: %s)\n", _TL("re-projection to geographic coordinates"), _TL("original"), pShapes->Get_Projection().Get_Name().c_str());
 
@@ -136,7 +136,7 @@ bool COGR_Export_KML::On_Execute(void)
 		SG_RUN_TOOL(bResult, "pj_proj4", 2,
 				SG_TOOL_PARAMETER_SET("SOURCE"   , pShapes)
 			&&	SG_TOOL_PARAMETER_SET("TARGET"   , &Shapes)
-			&&	SG_TOOL_PARAMETER_SET("CRS_PROJ4", SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"))
+			&&	SG_TOOL_PARAMETER_SET("CRS_PROJ4", CSG_Projection::Get_GCS_WGS84().Get_WKT())
 		);
 
 		if( bResult )

@@ -346,7 +346,7 @@ bool CGDAL_Import_ASTER::Get_System(const CSG_MetaData &MetaData, TSG_Rect &Exte
 			Proj4	+= "+south ";
 		}
 
-		Projection.Create(Proj4, SG_PROJ_FMT_Proj4);
+		Projection.Create(Proj4);
 	}
 
 	return( true );

@@ -258,7 +258,7 @@ CSG_Grid * CLandsat_Import::Get_Band(const CSG_String &File)
 	//-----------------------------------------------------
 	else if( Parameters("PROJECTION")->asInt() == 2 )	// Geographic Coordinates
 	{
-		pBand = Get_Projection(Manager.Grid(0).asGrid(), "+proj=longlat +ellps=WGS84 +datum=WGS84");
+		pBand = Get_Projection(Manager.Grid(0).asGrid(), CSG_Projection::Get_GCS_WGS84().Get_WKT());
 	}
 
 	//-----------------------------------------------------
@@ -266,21 +266,20 @@ CSG_Grid * CLandsat_Import::Get_Band(const CSG_String &File)
 	{
 		CSG_Grid *pTmp = Manager.Grid(0).asGrid();
 
-		CSG_String Projection = pTmp->Get_Projection().Get_Proj4();
+		CSG_String Projection = pTmp->Get_Projection().Get_PROJ();
 
-		if( Projection.Find("+proj=utm") >= 0
+		if( Projection.Find("+proj=utm") >= 0 && Projection.Find("+zone") >= 0
 		&&  (  (Projection.Find("+south") >= 0 && Parameters("PROJECTION")->asInt() == 0)
 		    || (Projection.Find("+south") <  0 && Parameters("PROJECTION")->asInt() == 1))
 		&&  (pBand = SG_Create_Grid(pTmp->Get_Type(), pTmp->Get_NX(), pTmp->Get_NY(), pTmp->Get_Cellsize(),
 				pTmp->Get_XMin(), pTmp->Get_YMin() + (Parameters("PROJECTION")->asInt() == 1 ? 10000000 : -10000000)
 			)) != NULL )
 		{
-			if( Parameters("PROJECTION")->asInt() == 1 )
-				Projection.Append (" +south");
+			CSG_String Zone = Projection.Right(Projection.Length() - Projection.Find("+zone")).AfterFirst('=');
+			if( Parameters("PROJECTION")->asInt() == 1 ) // south
+				pBand->Get_Projection().Set_UTM_WGS84(Zone.asInt(),  true);
 			else
-				Projection.Replace(" +south", "");
-
-			pBand->Get_Projection().Create(Projection, SG_PROJ_FMT_Proj4);
+				pBand->Get_Projection().Set_UTM_WGS84(Zone.asInt(), false);
 
 			pBand->Set_Name              (pTmp->Get_Name());
 			pBand->Set_Description       (pTmp->Get_Description());
@@ -315,14 +314,14 @@ CSG_Grid * CLandsat_Import::Get_Band(const CSG_String &File)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Grid * CLandsat_Import::Get_Projection(CSG_Grid *pGrid, const CSG_String &Proj4)
+CSG_Grid * CLandsat_Import::Get_Projection(CSG_Grid *pGrid, const CSG_Projection &Projection)
 {
 	if( pGrid->Get_Projection().is_Okay() == false )
 	{
 		return( NULL );
 	}
 
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4);	// Coordinate Transformation (Grid)
+	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4); // Coordinate Transformation (Grid)
 
 	if(	pTool == NULL )
 	{
@@ -333,13 +332,13 @@ CSG_Grid * CLandsat_Import::Get_Projection(CSG_Grid *pGrid, const CSG_String &Pr
 
 	pTool->Set_Manager(NULL);
 
-	if( pTool->Set_Parameter("CRS_PROJ4" , Proj4)
+	if( pTool->Set_Parameter("CRS_PROJ4" , Projection.Get_WKT())
 	&&  pTool->Set_Parameter("SOURCE"    , pGrid)
 	&&  pTool->Set_Parameter("RESAMPLING", Parameters("RESAMPLING"))
 //	&&  pTool->Set_Parameter("DATA_TYPE" , 10) // "Preserve" => is already default!
 	&&  pTool->Execute() )
 	{
-		pGrid	= pTool->Get_Parameters()->Get_Parameter("GRID")->asGrid();
+		pGrid = pTool->Get_Parameters()->Get_Parameter("GRID")->asGrid();
 
 		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 

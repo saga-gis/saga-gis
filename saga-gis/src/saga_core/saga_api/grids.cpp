@@ -1976,7 +1976,7 @@ bool CSG_Grids::_Load_Normal(const CSG_String &_FileName)
 
 	Load_MetaData(FileName);
 
-	Get_Projection().Load(SG_File_Make_Path("", FileName, "sg-prj"), SG_PROJ_FMT_WKT);
+	Get_Projection().Load(SG_File_Make_Path("", FileName, "sg-prj"));
 
 	return( true );
 }
@@ -2017,7 +2017,7 @@ bool CSG_Grids::_Save_Normal(const CSG_String &_FileName)
 	//-----------------------------------------------------
 	Save_MetaData(FileName);
 
-	Get_Projection().Save(SG_File_Make_Path("", FileName, "sg-prj"), SG_PROJ_FMT_WKT);
+	Get_Projection().Save(SG_File_Make_Path("", FileName, "sg-prj"));
 
 	return( true );
 }
@@ -2070,7 +2070,7 @@ bool CSG_Grids::_Load_Compressed(const CSG_String &_FileName)
 
 	if( Stream.Get_File(FileName + "sg-prj") )
 	{
-		Get_Projection().Load(Stream, SG_PROJ_FMT_WKT);
+		Get_Projection().Load(Stream);
 	}
 
 	return( true );
@@ -2111,7 +2111,7 @@ bool CSG_Grids::_Save_Compressed(const CSG_String &_FileName)
 
 	if( Stream.Add_File(FileName + "sg-prj") )
 	{
-		Get_Projection().Save(Stream, SG_PROJ_FMT_WKT);
+		Get_Projection().Save(Stream);
 	}
 
 	return( true );

@@ -5,6 +5,36 @@ This document lists backward incompatible changes and provides hints on how thes
 
 ___
 ___
+## SAGA 9.5.0 API changes
+
+#### enum TSG_Projection_Format >> enum class ESG_CRS_Format
+replace "SG_PROJ_FMT_..." with "ESG_CRS_Format::..."
+
+#### enum TSG_Projection_Type >> enum class ESG_CRS_Type
+replace "SG_PROJ_TYPE_..." with "ESG_CRS_Type::..."
+
+#### enum TSG_Projection_Unit >> enum class ESG_Projection_Unit
+replace "SG_PROJ_UNIT_..." with "ESG_Projection_Unit::..."
+
+### Changes to CSG_Projections
+*Load_DB()* renamed to *Load()*
+*Save_DB()* renamed to *Save()*
+
+*static const CSG_Projection & CSG_Projections::Get_GCS_WGS84(void)* moved to CSG_Projection
+*static const CSG_Projection & CSG_Projections::Get_UTM_WGS84(int Zone, bool bSouth = false)* moved to CSG_Projection
+
+### Dropped/moved global functions
+use static functions of class *CSG_Projections* instead:
+
+TSG_Projection_Type SG_Get_Projection_Type           (const CSG_String &Identifier)           >> CSG_Projections::Get_CRS_Type(...)
+CSG_String          SG_Get_Projection_Type_Identifier(TSG_Projection_Type Type)               >> CSG_Projections::Get_CRS_Type_Identifier(...)
+CSG_String          SG_Get_Projection_Type_Name      (TSG_Projection_Type Type)               >> CSG_Projections::Get_CRS_Type_Name(...)
+TSG_Projection_Unit SG_Get_Projection_Unit           (const CSG_String &Identifier)           >> CSG_Projections::Get_Unit(...)
+CSG_String          SG_Get_Projection_Unit_Identifier(TSG_Projection_Unit Unit)               >> CSG_Projections::Get_Unit_Identifier(...)
+CSG_String          SG_Get_Projection_Unit_Name      (TSG_Projection_Unit Unit, bool bSimple) >> CSG_Projections::Get_Unit_Name(...)
+double              SG_Get_Projection_Unit_To_Meter  (TSG_Projection_Unit Unit)               >> CSG_Projections::Get_Unit_To_Meter(...)
+
+___
 ## SAGA 9.3.0 API changes
 
 #### CSG_Shapes::Destroy()

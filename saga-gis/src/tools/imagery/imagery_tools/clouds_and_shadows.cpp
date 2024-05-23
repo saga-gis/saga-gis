@@ -98,7 +98,7 @@ bool Get_Sun_Position(CSG_Grid *pGrid, double &Azimuth, double &Height)
 			CSG_DateTime Time; CSG_Point Center(pGrid->Get_Extent().Get_Center());
 
 			if( Time.Parse_Format(MetaData["SENTINEL-2"]["PRODUCT_START_TIME"].Get_Content(), "%Y-%m-%dT%H:%M:%S")
-			&&  SG_Get_Projected(pGrid->Get_Projection(), CSG_Projections::Get_GCS_WGS84(), Center)
+			&&  SG_Get_Projected(pGrid->Get_Projection(), CSG_Projection::Get_GCS_WGS84(), Center)
 			&&  SG_Get_Sun_Position(Time.From_UTC().Get_JDN(), M_DEG_TO_RAD * Center.x, M_DEG_TO_RAD * Center.y, Height, Azimuth) )
 			{
 				Azimuth *= M_RAD_TO_DEG; Height *= M_RAD_TO_DEG;

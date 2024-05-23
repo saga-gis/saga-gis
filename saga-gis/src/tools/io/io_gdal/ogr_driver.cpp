@@ -694,28 +694,18 @@ TSG_Vertex_Type CSG_OGR_DataSet::Get_Coordinate_Type(int iLayer)	const
 //---------------------------------------------------------
 CSG_Projection CSG_OGR_DataSet::Get_Projection(int iLayer)	const
 {
-	CSG_Projection	Projection;
+	CSG_Projection Projection;
 
 	if( Get_Layer(iLayer) && OGR_L_GetSpatialRef(Get_Layer(iLayer)) )
 	{
-		char	*pWKT	= NULL;	OSRExportToWkt  (OGR_L_GetSpatialRef(Get_Layer(iLayer)), &pWKT  );
-		char	*pProj4	= NULL;	OSRExportToProj4(OGR_L_GetSpatialRef(Get_Layer(iLayer)), &pProj4);
+		char *WKT = NULL; OSRExportToWkt(OGR_L_GetSpatialRef(Get_Layer(iLayer)), &WKT);
 
-		if( pWKT && *pWKT && pProj4 && *pProj4 )
+		if( WKT )
 		{
-			Projection.Create(pWKT, pProj4);
-		}
-		else if( pWKT   && *pWKT   )
-		{
-			Projection.Create(pWKT  , SG_PROJ_FMT_WKT  );
-		}
-		else if( pProj4 && *pProj4 )
-		{
-			Projection.Create(pProj4, SG_PROJ_FMT_Proj4);
-		}
+			Projection.Create(WKT);
 
-		if( pWKT   ) { OGRFree(pWKT  ); }
-		if( pProj4 ) { OGRFree(pProj4); }
+			OGRFree(WKT);
+		}
 	}
 
 	return( Projection );
@@ -731,7 +721,6 @@ CSG_Projection CSG_OGR_DataSet::Get_Projection(int iLayer)	const
 //---------------------------------------------------------
 CSG_Shapes * CSG_OGR_DataSet::Read(int iLayer, int iGeomTypeChoice)
 {
-	//-----------------------------------------------------
 	OGRLayerH	pLayer	= Get_Layer(iLayer);
 
 	if( !pLayer )

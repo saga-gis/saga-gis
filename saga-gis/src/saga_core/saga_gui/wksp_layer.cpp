@@ -932,9 +932,7 @@ void CWKSP_Layer::_Set_Projection(void)
 		
 		if( !Projection.is_Okay() )
 		{
-			Projection.Create(
-				pTool->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4
-			);
+			Projection.Create(pTool->Get_Parameter("CRS_PROJ4")->asString());
 		}
 
 		if( Projection.is_Okay() && !Projection.is_Equal(Get_Object()->Get_Projection()) )

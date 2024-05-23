@@ -1051,19 +1051,18 @@ CSG_Grid * CLandsat_Scene_Import::Load_Band(const CSG_String &File)
 
 		CSG_String Projection = pTmp->Get_Projection().Get_Proj4();
 
-		if( Projection.Find("+proj=utm") >= 0
+		if( Projection.Find("+proj=utm") >= 0 && Projection.Find("+zone") >= 0
 		&&  (  (Projection.Find("+south") >= 0 && Parameters("PROJECTION")->asInt() == 0)
 		    || (Projection.Find("+south") <  0 && Parameters("PROJECTION")->asInt() == 1))
 		&&  (pBand = SG_Create_Grid(pTmp->Get_Type(), pTmp->Get_NX(), pTmp->Get_NY(), pTmp->Get_Cellsize(),
 				pTmp->Get_XMin(), pTmp->Get_YMin() + (Parameters("PROJECTION")->asInt() == 1 ? 10000000 : -10000000)
 			)) != NULL )
 		{
-			if( Parameters("PROJECTION")->asInt() == 1 )
-				Projection.Append (" +south");
+			CSG_String Zone = Projection.Right(Projection.Length() - Projection.Find("+zone")).AfterFirst('=');
+			if( Parameters("PROJECTION")->asInt() == 1 ) // south
+				pBand->Get_Projection().Set_UTM_WGS84(Zone.asInt(),  true);
 			else
-				Projection.Replace(" +south", "");
-
-			pBand->Get_Projection().Create(Projection, SG_PROJ_FMT_Proj4);
+				pBand->Get_Projection().Set_UTM_WGS84(Zone.asInt(), false);
 
 			pBand->Set_Name              (pTmp->Get_Name());
 			pBand->Set_Description       (pTmp->Get_Description());
@@ -1094,7 +1093,7 @@ CSG_Grid * CLandsat_Scene_Import::Load_Band(const CSG_String &File)
 
 			pTool->Set_Manager(NULL);
 
-			if( pTool->Set_Parameter("CRS_PROJ4" , SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"))
+			if( pTool->Set_Parameter("CRS_PROJ4" , CSG_Projection::Get_GCS_WGS84().Get_WKT())
 			&&  pTool->Set_Parameter("SOURCE"    , pBand)
 			&&  pTool->Set_Parameter("RESAMPLING", Parameters("RESAMPLING"))
 		//	&&  pTool->Set_Parameter("DATA_TYPE" , 10) // "Preserve" => is already default!
@@ -1112,7 +1111,7 @@ CSG_Grid * CLandsat_Scene_Import::Load_Band(const CSG_String &File)
 	//-----------------------------------------------------
 	else if( Parameters("PROJECTION")->asInt() == 3 )	// Different UTM Zone
 	{
-		CSG_Projection Projection = CSG_Projections::Get_UTM_WGS84(
+		CSG_Projection Projection = CSG_Projection::Get_UTM_WGS84(
 			Parameters("UTM_ZONE" )->asInt (),
 			Parameters("UTM_SOUTH")->asBool()
 		);

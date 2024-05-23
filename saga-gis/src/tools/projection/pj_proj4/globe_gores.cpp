@@ -182,7 +182,7 @@ bool CGlobe_Gores::Add_Gore(int iGore, int nGores)
 
 	CSG_Grid Gore, Grid(CSG_Grid_System(180. / Resolution, Meridian - Width / 2., -90., Meridian + Width / 2., 90.));
 
-	pTool->Set_Parameter("CRS_PROJ4"        , "+proj=longlat +datum=WGS84");
+	pTool->Set_Parameter("CRS_PROJ4"        , CSG_Projection::Get_GCS_WGS84().Get_WKT());
 	pTool->Set_Parameter("SOURCE"           , Parameters("GRID"));
 	pTool->Set_Parameter("GRID"             , &Grid);
 	pTool->Set_Parameter("RESAMPLING"       , 3); // B-Spline Interpolation

@@ -336,7 +336,7 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid, CSG_Grid *pTarget)
 	//-----------------------------------------------------
 	Set_Target_Area(pGrid->Get_System(), pTarget->Get_System());
 
-	bool	bGeogCS_Adjust	= m_Projector.Get_Source().Get_Type() == SG_PROJ_TYPE_CS_Geographic && pGrid->Get_XMax() > 180.;
+	bool bGeogCS_Adjust = m_Projector.Get_Source().Get_Type() == ESG_CRS_Type::Geographic && pGrid->Get_XMax() > 180.;
 
 	//-------------------------------------------------
 	pTarget->Get_Projection().Create(m_Projector.Get_Target());
@@ -451,7 +451,7 @@ bool CCRS_Transform_Grid::Transform(const CSG_Array_Pointer &Grids, CSG_Paramete
 
 	Set_Target_Area(Source_System, Target_System);
 
-	bool bGeogCS_Adjust = m_Projector.Get_Source().Get_Type() == SG_PROJ_TYPE_CS_Geographic && Source_System.Get_XMax() > 180.;
+	bool bGeogCS_Adjust = m_Projector.Get_Source().Get_Type() == ESG_CRS_Type::Geographic && Source_System.Get_XMax() > 180.;
 
 	TSG_Data_Type Type = Parameters("DATA_TYPE")->asDataType()->Get_Data_Type();
 
@@ -765,7 +765,7 @@ bool CCRS_Transform_Grid::Set_Target_System(CSG_Parameters *pParameters, int Res
 	}
 
 	if( !Projection.is_Okay() || !System.is_Valid()
-	||  !m_Projector.Set_Target(CSG_Projection(pParameters->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4))
+	||  !m_Projector.Set_Target(CSG_Projection(pParameters->Get_Parameter("CRS_PROJ4")->asString()))
 	||  !m_Projector.Get_Target().is_Okay()
 	||  !m_Projector.Set_Source(Projection) )
 	{
@@ -913,7 +913,7 @@ bool CCRS_Transform_Grid::Set_Target_Area(const CSG_Grid_System &Source, const C
 	//-----------------------------------------------------
 	CSG_Rect	r(Source.Get_Extent());
 
-	if( m_Projector.Get_Source().Get_Type() == SG_PROJ_TYPE_CS_Geographic )
+	if( m_Projector.Get_Source().Get_Type() == ESG_CRS_Type::Geographic )
 	{
 		if( r.Get_XMax() > 180. )	r.Move(-180., 0.);
 		if( r.Get_YMin() < -90. )	r.yMin	= -90.;

@@ -379,7 +379,7 @@ bool CSG_Grid::_Load_Native(const CSG_String &FileName, bool bCached, bool bLoad
 	m_nBytes_Value	= SG_Data_Type_Get_Size(m_Type);
 	m_nBytes_Line	= m_Type == SG_DATATYPE_Bit ? 1 + Get_NX() / 8 : Get_NX() * m_nBytes_Value;
 
-	Get_Projection().Load(SG_File_Make_Path("", FileName, "prj"), SG_PROJ_FMT_WKT);
+	Get_Projection().Load(SG_File_Make_Path("", FileName, "prj"));
 
 	if( !bLoadData )
 	{
@@ -473,7 +473,7 @@ bool CSG_Grid::_Save_Native(const CSG_String &_FileName, TSG_Grid_File_Format Fo
 		{
 			Save_MetaData(FileName);
 
-			Get_Projection().Save(SG_File_Make_Path("", FileName, "prj"), SG_PROJ_FMT_WKT);
+			Get_Projection().Save(SG_File_Make_Path("", FileName, "prj"));
 
 			Info.Save_AUX_XML(SG_File_Make_Path("", FileName, "sdat"));
 
@@ -552,7 +552,7 @@ bool CSG_Grid::_Load_Compressed(const CSG_String &_FileName, bool bCached, bool 
 
 	if( Stream.Get_File(FileName + "prj") )
 	{
-		Get_Projection().Load(Stream, SG_PROJ_FMT_WKT);
+		Get_Projection().Load(Stream);
 	}
 
 	if( !bLoadData )
@@ -597,7 +597,7 @@ bool CSG_Grid::_Save_Compressed(const CSG_String &_FileName)
 		&&  Stream.Add_File(FileName + "sdat") && _Save_Binary(Stream, m_Type, false, bBigEndian) )
 		{
 			Stream.Add_File(FileName + "mgrd"        ); Save_MetaData(Stream);
-			Stream.Add_File(FileName + "prj"         ); Get_Projection().Save(Stream, SG_PROJ_FMT_WKT);
+			Stream.Add_File(FileName + "prj"         ); Get_Projection().Save(Stream);
 			Stream.Add_File(FileName + "sdat.aux.xml"); Info.Save_AUX_XML(Stream);
 
 			return( true );

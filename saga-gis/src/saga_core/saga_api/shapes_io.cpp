@@ -551,7 +551,7 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 	}
 
 	//-----------------------------------------------------
-	Get_Projection().Load(SG_File_Make_Path("", File_Name, "prj"), SG_PROJ_FMT_WKT);
+	Get_Projection().Load(SG_File_Make_Path("", File_Name, "prj"));
 
 	//-----------------------------------------------------
 	Load_MetaData(File_Name);
@@ -872,7 +872,7 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 	fSHX.Write_Int(fSHX_Size, true);
 
 	//-----------------------------------------------------
-	Get_Projection().Save(SG_File_Make_Path("", File_Name, "prj"), SG_PROJ_FMT_WKT);
+	Get_Projection().Save(SG_File_Make_Path("", File_Name, "prj"));
 
 	//-----------------------------------------------------
 	CSG_MetaData	*pFields	= Get_MetaData_DB().Get_Child("FIELDS");

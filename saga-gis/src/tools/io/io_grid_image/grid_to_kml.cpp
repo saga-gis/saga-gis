@@ -234,7 +234,7 @@ int CGrid_to_KML::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 		CSG_Grid	*pGrid	= pParameters->Get_Parameter("GRID")->asGrid();
 
 		pParameters->Set_Enabled("RESAMPLING",
-			pGrid && pGrid->Get_Projection().Get_Type() == SG_PROJ_TYPE_CS_Projected && pParameters->Get_Parameter("COLOURING")->asInt() < 4
+			pGrid && pGrid->Get_Projection().Get_Type() == ESG_CRS_Type::Projection && pParameters->Get_Parameter("COLOURING")->asInt() < 4
 		);
 	}
 
@@ -274,11 +274,11 @@ bool CGrid_to_KML::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( pGrid->Get_Projection().Get_Type() == SG_PROJ_TYPE_CS_Undefined )
+	if( pGrid->Get_Projection().Get_Type() == ESG_CRS_Type::Undefined )
 	{
 		Message_Add(_TL("layer uses undefined coordinate system, assuming geographic coordinates"));
 	}
-	else if( pGrid->Get_Projection().Get_Type() != SG_PROJ_TYPE_CS_Geographic )
+	else if( pGrid->Get_Projection().Get_Type() != ESG_CRS_Type::Geographic )
 	{
 		Message_Fmt("\n%s (%s: %s)\n", _TL("re-projection to geographic coordinates"), _TL("original"), pGrid->Get_Projection().Get_Name().c_str());
 
@@ -291,7 +291,7 @@ bool CGrid_to_KML::On_Execute(void)
 
 		pTool->Set_Manager(NULL);
 
-		if( pTool->Set_Parameter("CRS_PROJ4" , "+proj=longlat +ellps=WGS84 +datum=WGS84")
+		if( pTool->Set_Parameter("CRS_PROJ4" , CSG_Projection::Get_GCS_WGS84().Get_WKT())
 		&&  pTool->Set_Parameter("RESAMPLING", Method < 4 && Parameters("RESAMPLING")->asBool() ? 4 : 0)
 		&&  pTool->Set_Parameter("SOURCE"    , pGrid)
 		&&  pTool->Execute() )
@@ -599,7 +599,7 @@ bool CGrid_from_KML::Load_Overlay(const SG_Char *Dir, const CSG_MetaData &KML)
 	if( KML("Description") && !KML["Description"].Get_Content().is_Empty() )
 		pGrid->Set_Name(KML["Description"].Get_Content());
 
-	pGrid->Get_Projection().Assign("+proj=longlat +ellps=WGS84 +datum=WGS84", SG_PROJ_FMT_Proj4);
+	pGrid->Get_Projection().Set_GCS_WGS84();
 
 	#pragma omp parallel for
 	for(int y=0; y<pGrid->Get_NY(); y++)

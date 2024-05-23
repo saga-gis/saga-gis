@@ -137,7 +137,7 @@ bool CGDAL_CatalogueVRT::On_Execute(void)
 
 		if (WKT.Length() > 0)
 		{
-			pCatalogue->Get_Projection().Assign(WKT, SG_PROJ_FMT_WKT);
+			pCatalogue->Get_Projection().Assign(WKT);
 		}
 	}
 

@@ -276,12 +276,12 @@ int CSolarRadiation::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 		srcCenter.Get_Projection() = pParameter->asGrid()->Get_Projection();
 		srcCenter.Add_Shape()->Add_Point(pParameter->asGrid()->Get_System().Get_Extent().Get_Center());
 
-		bool	bResult;
+		bool bResult;
 
 		SG_RUN_TOOL(bResult, "pj_proj4", 2,	// Coordinate Transformation (Shapes)
 			   SG_TOOL_PARAMETER_SET("SOURCE"   , &srcCenter)
 			&& SG_TOOL_PARAMETER_SET("TARGET"   , &dstCenter)
-			&& SG_TOOL_PARAMETER_SET("CRS_PROJ4", SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"))
+			&& SG_TOOL_PARAMETER_SET("CRS_PROJ4", CSG_Projection::Get_GCS_WGS84().Get_WKT())
 		)
 
 		if( bResult )

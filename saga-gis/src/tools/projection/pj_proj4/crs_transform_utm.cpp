@@ -58,22 +58,22 @@
 //---------------------------------------------------------
 bool		CRS_Get_UTM_Zone	(const CSG_Rect &Extent, const CSG_Projection &Source, int &Zone, bool &bSouth)
 {
-	CSG_CRSProjector	Projector;
+	CSG_CRSProjector Projector;
 
-	Projector.Set_Target(CSG_Projection("+proj=longlat +datum=WGS84", SG_PROJ_FMT_Proj4));
+	Projector.Set_Target(CSG_Projection::Get_GCS_WGS84());
 
-	TSG_Point	Point	= Extent.Get_Center();
+	CSG_Point Point(Extent.Get_Center());
 
 	if( Projector.Set_Source(Source) && Projector.Get_Projection(Point) )
 	{
 		if( Point.x < -180. )
 		{
-			Point.x	= 360. + fmod(Point.x, 360.);
+			Point.x = 360. + fmod(Point.x, 360.);
 		}
 
-		Zone	= 1 + (int)fmod(floor((Point.x + 180.) / 6.), 60.);
+		Zone   = 1 + (int)fmod(floor((Point.x + 180.) / 6.), 60.);
 
-		bSouth	= Point.y < 0.;
+		bSouth = Point.y < 0.;
 
 		return( true );
 	}
@@ -84,23 +84,7 @@ bool		CRS_Get_UTM_Zone	(const CSG_Rect &Extent, const CSG_Projection &Source, in
 //---------------------------------------------------------
 CSG_Projection	CRS_Get_UTM_Projection	(int Zone, bool bSouth)
 {
-	CSG_Projection	UTM;
-
-	int	EPSG_ID	= (bSouth ? 32700 : 32600) + Zone;
-
-	if( UTM.Create(EPSG_ID) )
-	{
-		return( UTM );
-	}
-
-	//-----------------------------------------------------
-	CSG_String	Proj4;
-
-	Proj4.Printf("+proj=utm +zone=%d%s +datum=WGS84 +units=m +no_defs", Zone, bSouth ? SG_T(" +south") : SG_T(""));
-
-	UTM.Create(Proj4, SG_PROJ_FMT_Proj4);
-
-	return( UTM );
+	return( CSG_Projection::Get_UTM_WGS84(Zone, bSouth) );
 }
 
 

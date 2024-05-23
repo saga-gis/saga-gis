@@ -125,7 +125,6 @@ bool	Config_Create	(wxConfigBase *pConfig)
 	Config_Write(pConfig,   "CMD", "XML_MESSAGE"         , false   );	// x: message output as xml
 
 	Config_Write(pConfig, "TOOLS", "LNG_FILE_DIC"        , SG_T(""));	// translation dictionary
-	Config_Write(pConfig, "TOOLS", "PROJECTIONS"         , false   );	// load projections dictionary
 	Config_Write(pConfig, "TOOLS", "OMP_THREADS_MAX"     , SG_OMP_Get_Max_Num_Procs());
 	Config_Write(pConfig, "TOOLS", "ADD_LIB_PATHS"       , SG_T(""));	// additional tool library paths (aka SAGA_TLB)
 

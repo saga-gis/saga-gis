@@ -58,7 +58,6 @@
 //---------------------------------------------------------
 CGDAL_Catalogue::CGDAL_Catalogue(void)
 {
-	//-----------------------------------------------------
 	Set_Name	(_TL("Create Raster Catalogue from Files"));
 
 	Set_Author	("O.Conrad (c) 2015");
@@ -69,7 +68,7 @@ CGDAL_Catalogue::CGDAL_Catalogue(void)
 		SG_T("https://gdal.org"), SG_T("Link")
 	);
 
-	CSG_String	Description;
+	CSG_String 	Description;
 
 	Description	= _TW(
 		"Create a raster catalogue from selected files. Output is a polygon layer "
@@ -190,7 +189,7 @@ bool CGDAL_Catalogue::On_Execute(void)
 
 			if( !pCatalogue->Get_Projection().is_Okay() )
 			{
-				pCatalogue->Get_Projection().Create(DataSet.Get_Projection(), SG_PROJ_FMT_WKT);
+				pCatalogue->Get_Projection().Create(DataSet.Get_Projection());
 			}
 		}
 	}
@@ -209,7 +208,6 @@ bool CGDAL_Catalogue::On_Execute(void)
 //---------------------------------------------------------
 CGDAL_Catalogues::CGDAL_Catalogues(void)
 {
-	//-----------------------------------------------------
 	Set_Name	(_TL("Create Raster Catalogues from Directory"));
 
 	Set_Author	("O.Conrad (c) 2015");
@@ -250,40 +248,40 @@ CGDAL_Catalogues::CGDAL_Catalogues(void)
 	Set_Description(Description);
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes_List(
-		NULL	, "CATALOGUES"		, _TL("Raster Catalogues"),
+	Parameters.Add_Shapes_List("",
+		"CATALOGUES"   , _TL("Raster Catalogues"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "CATALOGUE_GCS"	, _TL("Raster Catalogue"),
+	Parameters.Add_Shapes("",
+		"CATALOGUE_GCS", _TL("Raster Catalogue"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "CATALOGUE_UKN"	, _TL("Raster Catalogue (unknown CRS)"),
+	Parameters.Add_Shapes("",
+		"CATALOGUE_UKN", _TL("Raster Catalogue (unknown CRS)"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "DIRECTORY"		, _TL("Directory"),
+	Parameters.Add_FilePath("",
+		"DIRECTORY"    , _TL("Directory"),
 		_TL(""),
 		NULL, NULL, false, true
 	);
 
-	Parameters.Add_String(
-		NULL	, "EXTENSIONS"		, _TL("Extensions"),
+	Parameters.Add_String("",
+		"EXTENSIONS"   , _TL("Extensions"),
 		_TL(""),
 		"sgrd; tif"
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "OUTPUT"		, _TL("Output"),
+	Parameters.Add_Choice("",
+		"OUTPUT"       , _TL("Output"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("one catalogue for each coordinate system"),
 			_TL("one catalogue using geographic coordinates")
 		), 1
@@ -316,7 +314,6 @@ int CGDAL_Catalogues::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 //---------------------------------------------------------
 bool CGDAL_Catalogues::On_Execute(void)
 {
-	//-----------------------------------------------------
 	m_Directory	= Parameters("DIRECTORY")->asString();
 
 	if( !SG_Dir_Exists(m_Directory) )
@@ -325,11 +322,11 @@ bool CGDAL_Catalogues::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_pCatalogues	= Parameters("CATALOGUES")->asShapesList();
-	m_pCatalogues	->Del_Items();
+	m_pCatalogues  = Parameters("CATALOGUES")->asShapesList();
+	m_pCatalogues->Del_Items();
 
 	//-----------------------------------------------------
-	CSG_String_Tokenizer	Extensions(Parameters("EXTENSIONS")->asString(), ";");
+	CSG_String_Tokenizer Extensions(Parameters("EXTENSIONS")->asString(), ";");
 
 	while( Extensions.Has_More_Tokens() )
 	{
@@ -368,7 +365,7 @@ bool CGDAL_Catalogues::On_Execute(void)
 	//-----------------------------------------------------
 	if( Parameters("OUTPUT")->asInt() == 1 )	// one catalogue using geographic coordinates
 	{
-		Get_Catalogue(CSG_Projection("+proj=longlat +datum=WGS84", SG_PROJ_FMT_Proj4),
+		Get_Catalogue(CSG_Projection::Get_GCS_WGS84(),
 			Parameters("CATALOGUE_GCS")->asShapes(), _TL("Raster Catalogue")
 		);
 
@@ -378,7 +375,7 @@ bool CGDAL_Catalogues::On_Execute(void)
 
 		for(int i=m_pCatalogues->Get_Item_Count()-1; i>=0 && Process_Get_Okay(true); i--)
 		{
-			CSG_Shapes	*pCatalogue	= m_pCatalogues->Get_Shapes(i);
+			CSG_Shapes *pCatalogue = m_pCatalogues->Get_Shapes(i);
 
 			Add_To_Geographic(pCatalogue);
 
@@ -473,12 +470,12 @@ int CGDAL_Catalogues::Add_Directory(const CSG_String &Directory)
 //---------------------------------------------------------
 int CGDAL_Catalogues::Add_File(const CSG_String &File)
 {
-	CSG_String	Name	= SG_File_Get_Name(File, true);
+	CSG_String Name = SG_File_Get_Name(File, true);
 
 	Process_Set_Text("%s: %s", _TL("analyzing"), Name.c_str());
 
 	//-----------------------------------------------------
-	CSG_GDAL_DataSet	DataSet;
+	CSG_GDAL_DataSet DataSet;
 
 	if( DataSet.Open_Read(File) == false )
 	{
@@ -486,9 +483,9 @@ int CGDAL_Catalogues::Add_File(const CSG_String &File)
 	}
 
 	//-----------------------------------------------------
-	CSG_Projection	Projection(DataSet.Get_Projection(), SG_PROJ_FMT_WKT);
+	CSG_Projection Projection(DataSet.Get_Projection());
 
-	CSG_Shapes	*pCatalogue	= Get_Catalogue(Projection);
+	CSG_Shapes *pCatalogue = Get_Catalogue(Projection);
 
 	if( !pCatalogue )
 	{

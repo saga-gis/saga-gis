@@ -46,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "crs_indicatrix.h"
 
 
@@ -67,10 +58,9 @@
 //---------------------------------------------------------
 CCRS_Indicatrix::CCRS_Indicatrix(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Tissot's Indicatrix"));
 
-	Set_Author		("O. Conrad (c) 2014");
+	Set_Author		("O.Conrad (c) 2014");
 
 	Set_Description	(_TW(
 		"Creates a shapes layer with Tissot's indicatrices for chosen projection."
@@ -79,28 +69,28 @@ CCRS_Indicatrix::CCRS_Indicatrix(void)
 	Set_Description	(Get_Description() + "\n" + CSG_CRSProjector::Get_Description());
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		NULL	, "TARGET"	, _TL("Indicatrix"),
+	Parameters.Add_Shapes("",
+		"TARGET", _TL("Indicatrix"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NY"		, _TL("Number in Latitudinal Direction"),
+	Parameters.Add_Int("",
+		"NY"    , _TL("Number in Latitudinal Direction"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 5, 1, true
+		5, 1, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NX"		, _TL("Number in Meridional Direction"),
+	Parameters.Add_Int("",
+		"NX"    , _TL("Number in Meridional Direction"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 11, 1, true
+		11, 1, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "SCALE"	, _TL("Size"),
+	Parameters.Add_Double("",
+		"SCALE" , _TL("Size"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 25.0, 1.0, true
+		25., 1., true
 	);
 }
 
@@ -125,27 +115,26 @@ enum
 //---------------------------------------------------------
 bool CCRS_Indicatrix::On_Execute_Transformation(void)
 {
-	//-----------------------------------------------------
-	double	yStep	= 180.0 / Parameters("NY")->asDouble();
-	double	xStep	= 360.0 / Parameters("NX")->asDouble();
+	double yStep = 180. / Parameters("NY")->asDouble();
+	double xStep = 360. / Parameters("NX")->asDouble();
 
-	m_Size	= 1.0;
-	m_Scale	= (40000000.0 / 360.0) * (yStep < xStep ? yStep : xStep) * 0.005 * Parameters("SCALE")->asDouble() / m_Size;
+	m_Size	= 1.;
+	m_Scale	= (40000000. / 360.) * (yStep < xStep ? yStep : xStep) * 0.005 * Parameters("SCALE")->asDouble() / m_Size;
 
 	//-----------------------------------------------------
-	m_Circle.Add(0.0, 0.0);
+	m_Circle.Add(0., 0.);
 	m_Circle.Add(sin(M_PI_090), cos(M_PI_090));
-	m_Circle.Add(0.0, 0.0);
+	m_Circle.Add(0., 0.);
 
-	for(double a=0.0; a<M_PI_360; a+=2.0*M_DEG_TO_RAD)
+	for(double a=0.; a<M_PI_360; a+=2.*M_DEG_TO_RAD)
 	{
 		m_Circle.Add(sin(a), cos(a));
 	}
 
 	//-----------------------------------------------------
-	CSG_Shapes	*pTarget	= Parameters("TARGET")->asShapes();
+	CSG_Shapes *pTarget = Parameters("TARGET")->asShapes();
 
-	pTarget->Create(SHAPE_TYPE_Polygon, CSG_String::Format(SG_T("%s [%s]"), _TL("Indicatrix"), m_Projector.Get_Target().Get_Name().c_str()));
+	pTarget->Create(SHAPE_TYPE_Polygon, CSG_String::Format("%s [%s]", _TL("Indicatrix"), m_Projector.Get_Target().Get_Name().c_str()));
 
 	pTarget->Get_Projection() = m_Projector.Get_Target();
 
@@ -159,13 +148,13 @@ bool CCRS_Indicatrix::On_Execute_Transformation(void)
 	pTarget->Add_Field("PHI", SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
-	int		nDropped	= 0;
+	int nDropped = 0;
 
-	for(double lat=-90.0+yStep/2.0; lat<90.0; lat+=yStep)
+	for(double lat=-90.+yStep/2.; lat<90.; lat+=yStep)
 	{
-		for(double lon=-180.0+xStep/2.0; lon<180.0; lon+=xStep)
+		for(double lon=-180.+xStep/2.; lon<180.; lon+=xStep)
 		{
-			CSG_Shape	*pIndicatrix	= pTarget->Add_Shape();
+			CSG_Shape *pIndicatrix = pTarget->Add_Shape();
 
 			if( !Get_Indicatrix(lon, lat, pIndicatrix) )
 			{
@@ -196,13 +185,10 @@ bool CCRS_Indicatrix::On_Execute_Transformation(void)
 bool CCRS_Indicatrix::Get_Indicatrix(double lon, double lat, CSG_Shape *pIndicatrix)
 {
 	m_Projector.Set_Source(
-		CSG_Projection(CSG_String::Format(SG_T("+proj=ortho +lon_0=%f +lat_0=%f +datum=WGS84"), lon, lat), SG_PROJ_FMT_Proj4)
+		CSG_Projection(CSG_String::Format("+proj=ortho +lon_0=%f +lat_0=%f +datum=WGS84", lon, lat))
 	);
 
-	TSG_Point	Center, Point;
-
-	Center.x	= 0.0;
-	Center.y	= 0.0;
+	CSG_Point Center;
 
 	if( !m_Projector.Get_Projection(Center) )
 	{
@@ -210,35 +196,33 @@ bool CCRS_Indicatrix::Get_Indicatrix(double lon, double lat, CSG_Shape *pIndicat
 	}
 
 	//-----------------------------------------------------
-	Point.x		= m_Size;
-	Point.y		= 0.0;
+	CSG_Point Point(m_Size, 0.);
 
 	if( !m_Projector.Get_Projection(Point) )
 	{
 		return( false );
 	}
 
-	double	h	= SG_Get_Distance(Center, Point) / m_Size;
+	double h = SG_Get_Distance(Center, Point) / m_Size;
 
 	//-----------------------------------------------------
-	Point.x		= 0.0;
-	Point.y		= m_Size;
+	Point.x = 0.; Point.y = m_Size;
 
 	if( !m_Projector.Get_Projection(Point) )
 	{
 		return( false );
 	}
 
-	double	k	= SG_Get_Distance(Center, Point) / m_Size;
+	double k = SG_Get_Distance(Center, Point) / m_Size;
 
 	//-----------------------------------------------------
-	double	a	= h > k ? h : k;	// major semi-axis
-	double	b	= h > k ? k : h;	// minor semi-axis
+	double a = h > k ? h : k; // major semi-axis
+	double b = h > k ? k : h; // minor semi-axis
 
 	for(int iPoint=0; iPoint<m_Circle.Get_Count(); iPoint++)
 	{
-		Point.x	= m_Size * m_Circle[iPoint].x;
-		Point.y	= m_Size * m_Circle[iPoint].y;
+		Point.x = m_Size * m_Circle[iPoint].x;
+		Point.y = m_Size * m_Circle[iPoint].y;
 
 		if( !m_Projector.Get_Projection(Point) )
 		{
@@ -247,27 +231,27 @@ bool CCRS_Indicatrix::Get_Indicatrix(double lon, double lat, CSG_Shape *pIndicat
 
 		if( iPoint >= 3 )
 		{
-			double	d	= SG_Get_Distance(Center, Point) / m_Size;
+			double d = SG_Get_Distance(Center, Point) / m_Size;
 
 			if( a < d )
 			{
-				a	= d;
+				a = d;
 			}
 			else if( b > d )
 			{
-				b	= d;
+				b = d;
 			}
 		}
 
-		Point.x	= Center.x + m_Scale * (Point.x - Center.x);
-		Point.y	= Center.y + m_Scale * (Point.y - Center.y);
+		Point.x = Center.x + m_Scale * (Point.x - Center.x);
+		Point.y = Center.y + m_Scale * (Point.y - Center.y);
 
 		pIndicatrix->Add_Point(Point);
 	}
 
 	//-----------------------------------------------------
-	double	w	= 2.0 * M_RAD_TO_DEG * asin((a - b) / (a + b));
-	double	phi	= a * b;
+	double w = 2. * M_RAD_TO_DEG * asin((a - b) / (a + b));
+	double phi = a * b;
 
 	pIndicatrix->Set_Value(FIELD_LON, SG_Get_Rounded(lon, 2));
 	pIndicatrix->Set_Value(FIELD_LAT, SG_Get_Rounded(lat, 2));

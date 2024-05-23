@@ -189,15 +189,15 @@ CCRS_Base::CCRS_Base(void)
 	);
 
 	Parameters.Add_Choice("CRS_EPSG",
-		"CRS_EPSG_GEOGCS"	, _TL("Geographic Coordinate Systems"),
+		"CRS_EPSG_GEOGCS", _TL("Geographic Coordinate Systems"),
 		_TL(""),
-		CSG_String::Format("{0}<%s>|", _TL("select")) + SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Geographic)
+		SG_Get_Projections().Get_Names_List(ESG_CRS_Type::Geographic)
 	)->Set_UseInCMD(false);
 
 	Parameters.Add_Choice("CRS_EPSG",
-		"CRS_EPSG_PROJCS"	, _TL("Projected Coordinate Systems"),
+		"CRS_EPSG_PROJCS", _TL("Projected Coordinate Systems"),
 		_TL(""),
-		CSG_String::Format("{0}<%s>|", _TL("select")) + SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Projected)
+		SG_Get_Projections().Get_Names_List(ESG_CRS_Type::Projection)
 	)->Set_UseInCMD(false);
 
 	//-----------------------------------------------------
@@ -218,7 +218,7 @@ CCRS_Base::CCRS_Base(void)
 //---------------------------------------------------------
 bool CCRS_Base::On_Before_Execution(void)
 {
-	m_Projection.Create(Parameters("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+	m_Projection.Create(Parameters("CRS_PROJ4")->asString());
 
 	if( m_Projection.is_Okay() && Parameters("CRS_DIALOG") )
 	{
@@ -243,48 +243,23 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 
 CSG_Projection CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	CSG_Projection	Projection;
+	CSG_Projection Projection;
 
 	//-----------------------------------------------------
 	if( pParameter->Cmp_Identifier("CRS_PROJ4" )
 	||  pParameter->Cmp_Identifier("CRS_DIALOG") )
 	{
-		CSG_String	sProj4;
+		CSG_String Definition;
 
 		if( pParameter->Cmp_Identifier("CRS_PROJ4") )
-			sProj4 = pParameter->asString();
+			Definition = pParameter->asString();
 		else
-			sProj4 = Get_User_Definition(*pParameter->asParameters());
+			Definition = Get_User_Definition(*pParameter->asParameters());
 
-		Projection.Create(sProj4, SG_PROJ_FMT_Proj4);
-
-		if( !Projection.is_Okay() )
+		if( !Projection.Create(Definition) )
 		{
-			#define WKT_GCS_WGS84	"GEOGCS[\"WGS 84\"],DATUM[\"WGS_1984\"],SPHEROID[\"WGS 84\",6378137,298.257223563],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433]"
-
-			Projection.Create(WKT_GCS_WGS84, sProj4);
+			Projection.Set_GCS_WGS84();
 		}
-
-//#if PROJ_VERSION_MAJOR >= 6
-//		if( !Projection.is_Okay() )
-//		{
-//			PJ	*Proj4	= proj_create(PJ_DEFAULT_CTX, sProj4);
-//
-//			if( Proj4 )
-//			{
-//				const char	*WKT	= proj_as_wkt(PJ_DEFAULT_CTX, Proj4, PJ_WKT2_2015_SIMPLIFIED, NULL);
-//
-//				if( WKT )
-//				{
-//					Projection.Create(WKT, pParameter->asString());
-//
-//					Message_Fmt("\n___\n%s:\n%s", sProj4.c_str(), CSG_String(WKT).c_str());
-//				}
-//
-//				proj_destroy(Proj4);
-//			}
-//		}
-//#endif
 	}
 
 	//-----------------------------------------------------
@@ -292,7 +267,7 @@ CSG_Projection CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 	{
 		Projection.Load(pParameter->asString());
 
-		pParameter->Set_Value(CSG_String(""));	// clear
+		pParameter->Set_Value(""); // clear
 	}
 
 	//-----------------------------------------------------
@@ -310,11 +285,11 @@ CSG_Projection CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 	if(	pParameter->Cmp_Identifier("CRS_EPSG_GEOGCS")
 	||	pParameter->Cmp_Identifier("CRS_EPSG_PROJCS") )
 	{
-		int EPSG;
+		CSG_String Authority_Code;
 
-		if( pParameter->asChoice()->Get_Data(EPSG) && Projection.Create(EPSG) )
+		if( pParameter->asChoice()->Get_Data(Authority_Code) )
 		{
-			pParameters->Set_Parameter("CRS_EPSG_AUTH", "EPSG");
+			Projection.Create(Authority_Code);
 		}
 	}
 
@@ -440,28 +415,28 @@ bool CCRS_Base::Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pP
 //---------------------------------------------------------
 bool CCRS_Base::Get_Projection(CSG_Projection &Projection)
 {
-	if( has_GUI() )	// gui? projection is also updated on parameter changed event!
+	if( has_GUI() ) // gui? projection has already been updated on parameter changed event!
 	{
-		Projection	= m_Projection;
+		Projection = m_Projection;
 	}
 	else switch( Parameters("CRS_METHOD")->asInt() )	// no gui? check out, how projection shall be initialized!
 	{
-	default:	// Proj4 Parameters
-		if( !Projection.Create(Parameters("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4) )
+	default: // Definition String
+		if( !Projection.Create(Parameters("CRS_PROJ4")->asString()) )
 		{
 			Error_Set(_TL("PROJ definition string error"));
 		}
 		break;
 
-	case  1:	// EPSG Code
+	case  1: // Authority Code
 		if( !Projection.Create(Parameters("CRS_EPSG")->asInt(), Parameters("CRS_EPSG_AUTH")->asString()) )
 		{
 			Error_Set(_TL("Authority code error"));
 		}
 		break;
 
-	case  2:	// Well Known Text File
-		if( !Projection.Load (Parameters("CRS_FILE")->asString()) )
+	case  2: // Well Known Text File
+		if( !Projection.Load  (Parameters("CRS_FILE")->asString()) )
 		{
 			Error_Set(_TL("Well Known Text file error"));
 		}

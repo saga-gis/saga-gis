@@ -259,7 +259,7 @@ int CGrid_Export::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 {
 	if( pParameter->Cmp_Identifier("GRID") )
 	{
-		pParameters->Set_Enabled("FILE_KML"       , pParameter->asPointer() && pParameter->asGrid()->Get_Projection().Get_Type() == SG_PROJ_TYPE_CS_Geographic);
+		pParameters->Set_Enabled("FILE_KML"       , pParameter->asPointer() && pParameter->asGrid()->Get_Projection().Get_Type() == ESG_CRS_Type::Geographic);
 	}
 
 	if( pParameter->Cmp_Identifier("COLOURING") )
@@ -449,7 +449,7 @@ bool CGrid_Export::On_Execute(void)
 
 	if( Projection.is_Okay() )
 	{
-		Projection.Save(SG_File_Make_Path("", fName, "prj"), SG_PROJ_FMT_WKT);
+		Projection.Save(SG_File_Make_Path("", fName, "prj"), ESG_CRS_Format::WKT);
 	}
 
 	//-----------------------------------------------------

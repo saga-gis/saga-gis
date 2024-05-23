@@ -207,7 +207,7 @@ bool CGCS_Graticule::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_Projector.Set_Source(CSG_Projection("+proj=longlat +ellps=WGS84 +datum=WGS84", SG_PROJ_FMT_Proj4));
+	m_Projector.Set_Source(CSG_Projection::Get_GCS_WGS84());
 
 	if( !m_Projector.Set_Target(Projection) )
 	{
