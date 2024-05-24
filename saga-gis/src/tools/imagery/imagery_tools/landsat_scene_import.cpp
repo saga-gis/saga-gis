@@ -1093,7 +1093,7 @@ CSG_Grid * CLandsat_Scene_Import::Load_Band(const CSG_String &File)
 
 			pTool->Set_Manager(NULL);
 
-			if( pTool->Set_Parameter("CRS_PROJ4" , CSG_Projection::Get_GCS_WGS84().Get_WKT())
+			if( pTool->Set_Parameter("CRS_STRING", CSG_Projection::Get_GCS_WGS84().Get_WKT())
 			&&  pTool->Set_Parameter("SOURCE"    , pBand)
 			&&  pTool->Set_Parameter("RESAMPLING", Parameters("RESAMPLING"))
 		//	&&  pTool->Set_Parameter("DATA_TYPE" , 10) // "Preserve" => is already default!
@@ -1122,11 +1122,11 @@ CSG_Grid * CLandsat_Scene_Import::Load_Band(const CSG_String &File)
 
 			if(	pTool )
 			{
-				Message_Fmt("\n%s (%s: %s >> %s)\n", _TL("re-projection to different UTM Zone"), _TL("original"), pBand->Get_Projection().Get_Proj4().c_str(), Projection.Get_Proj4().c_str());
+				Message_Fmt("\n%s (%s: %s >> %s)\n", _TL("re-projection to different UTM Zone"), _TL("original"), pBand->Get_Projection().Get_PROJ().c_str(), Projection.Get_PROJ().c_str());
 
 				pTool->Set_Manager(NULL);
 
-				if( pTool->Set_Parameter("CRS_PROJ4"       , Projection.Get_Proj4())
+				if( pTool->Set_Parameter("CRS_STRING"      , Projection.Get_WKT())
 				&&  pTool->Set_Parameter("SOURCE"          , pBand)
 				&&  pTool->Set_Parameter("RESAMPLING"      , Parameters("RESAMPLING"))
 			//	&&  pTool->Set_Parameter("DATA_TYPE"       , 10) // "Preserve" => is already default!

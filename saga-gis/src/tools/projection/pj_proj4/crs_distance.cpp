@@ -477,7 +477,7 @@ bool CCRS_Distance_Interactive::On_Execute(void)
 		return( false );
 	}
 
-	return( m_Projection.Create(CRS.Get_Parameters()->Get_Parameter("CRS_PROJ4")->asString()) );
+	return( m_Projection.Create(CRS.Get_Parameters()->Get_Parameter("CRS_WKT")->asString()) );
 }
 
 //---------------------------------------------------------
@@ -493,13 +493,13 @@ bool CCRS_Distance_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_
 		{
 			CCRS_Distance_Points	Distance;
 
-			Distance.Set_Parameter("DISTANCES", Parameters("DISTANCES")->asShapes());
-			Distance.Set_Parameter("EPSILON"  , Parameters("EPSILON"  )->asDouble());
-			Distance.Set_Parameter("CRS_PROJ4", m_Projection.Get_Proj4());
-			Distance.Set_Parameter("COORD_X1" , m_Down .x);
-			Distance.Set_Parameter("COORD_Y1" , m_Down .y);
-			Distance.Set_Parameter("COORD_X2" , ptWorld.x);
-			Distance.Set_Parameter("COORD_Y2" , ptWorld.y);
+			Distance.Set_Parameter("DISTANCES" , Parameters("DISTANCES")->asShapes());
+			Distance.Set_Parameter("EPSILON"   , Parameters("EPSILON"  )->asDouble());
+			Distance.Set_Parameter("CRS_STRING", m_Projection.Get_WKT());
+			Distance.Set_Parameter("COORD_X1"  , m_Down .x);
+			Distance.Set_Parameter("COORD_Y1"  , m_Down .y);
+			Distance.Set_Parameter("COORD_X2"  , ptWorld.x);
+			Distance.Set_Parameter("COORD_Y2"  , ptWorld.y);
 
 			Distance.Execute();
 

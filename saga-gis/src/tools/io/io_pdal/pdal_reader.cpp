@@ -417,10 +417,7 @@ void CPDAL_Reader::_Init_PointCloud(CSG_PointCloud *pPoints, pdal::PointLayoutPt
 {
     if( !SpatialRef.empty() )
     {
-        pPoints->Get_Projection().Create(
-            CSG_String(SpatialRef.getWKT  ().c_str()),
-            CSG_String(SpatialRef.getProj4().c_str())
-        );
+        pPoints->Get_Projection().Create(SpatialRef.getWKT().c_str());
     }
 
     for(int Field=0; !g_Attributes[Field].ID.is_Empty(); Field++)

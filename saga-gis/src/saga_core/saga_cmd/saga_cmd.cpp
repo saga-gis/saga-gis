@@ -919,7 +919,7 @@ void		Create_Batch	(const CSG_String &File)
 		"saga_cmd %%FLAGS%% io_gdal              0 -FILES=srtm.tif -GRIDS=srtm -TRANSFORM=true\n"
 		"saga_cmd %%FLAGS%% pj_proj4             7 -SOURCE=srtm.sgrd -GET_USER_GRID=dem.sgrd -GET_USER_SIZE=1000.0 -SOURCE_PROJ=\"+proj=longlat +datum=WGS84\" -TARGET_PROJ=\"+proj=cea +datum=WGS84 +lat_ts=0\"\n"
 		"REM alternative method 4 might need to load projection data base with EPSG codes (use --flags=p)\n"
-		"REM saga_cmd -f=qp pj_proj4             4 -SOURCE=srtm.sgrd -GET_USER_GRID=dem.sgrd -GET_USER_SIZE=1000.0 -CRS_PROJ4=\"+proj=cea +datum=WGS84 +lat_ts=0\"\n"
+		"REM saga_cmd -f=qp pj_proj4             4 -SOURCE=srtm.sgrd -GET_USER_GRID=dem.sgrd -GET_USER_SIZE=1000.0 -CRS_STRING=\"+proj=cea +datum=WGS84 +lat_ts=0\"\n"
 		"\n"
 		":GO\n"
 		"ECHO ____________________________\n"

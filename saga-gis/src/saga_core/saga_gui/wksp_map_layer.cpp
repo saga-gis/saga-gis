@@ -712,7 +712,7 @@ bool CWKSP_Map_Layer::Draw(CWKSP_Map_DC &dc_Map, int Flags)
 		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4);	// Coordinate Transformation (Grid)
 
 		if( pTool && pTool->Set_Manager(NULL)
-			&&  pTool->Set_Parameter("CRS_PROJ4"        , prj_Map.Get_Proj4())
+			&&  pTool->Set_Parameter("CRS_STRING"       , prj_Map.Get_WKT())
 			&&  pTool->Set_Parameter("RESAMPLING"       , m_pLayer->Get_Parameter("DISPLAY_RESAMPLING")->asInt() ? 3 : 0)
 			&&  pTool->Set_Parameter("DATA_TYPE"        , true)
 			&&  pTool->Set_Parameter("TARGET_AREA"      , m_bProject_Area)
@@ -752,7 +752,7 @@ bool CWKSP_Map_Layer::Draw(CWKSP_Map_DC &dc_Map, int Flags)
 		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 3);	// Coordinate Transformation (Grid List)
 
 		if( pTool && pTool->Set_Manager(NULL)
-			&&  pTool->Set_Parameter("CRS_PROJ4"        , prj_Map.Get_Proj4())
+			&&  pTool->Set_Parameter("CRS_STRING"       , prj_Map.Get_WKT())
 			&&  pTool->Set_Parameter("RESAMPLING"       , m_pLayer->Get_Parameter("DISPLAY_RESAMPLING")->asInt() ? 3 : 0)
 		//	&&  SG_TOOL_PARAMETER_SET("DATA_TYPE"       , 10) // "Preserve" => is already default!
 			&&  pTool->Set_Parameter("TARGET_AREA"      , true)

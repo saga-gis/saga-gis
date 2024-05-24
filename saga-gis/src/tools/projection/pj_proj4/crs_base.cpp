@@ -117,53 +117,67 @@
 //---------------------------------------------------------
 CCRS_Base::CCRS_Base(void)
 {
-	m_Projection.Create(4326);	// EPSG: GCS WGS84
+	m_Projection.Set_GCS_WGS84();
 
 	//-----------------------------------------------------
 	Parameters.Add_Choice("",
 		"CRS_METHOD"	, _TL("Get CRS Definition from..."),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s",
-			_TL("PROJ Parameters"),
-			_TL("EPSG Code"),
+			_TL("Definition String"),
+			_TL("Authority Code"),
 			_TL("Well Known Text File")
 		), 0
 	)->Set_UseInGUI(false);
 
 	//-----------------------------------------------------
 	Parameters.Add_String("",
-		"CRS_PROJ4"		, _TL("PROJ Parameters"),
-		_TL(""),
-		m_Projection.Get_Proj4(), true
+		"CRS_STRING"	, _TL("Definition String"),
+		_TL("Supported formats comprise PROJ and WKT strings, object codes (e.g. \"EPSG:4326\")"),
+		m_Projection.Get_WKT(), true
 	);
 
+	Parameters.Add_Choice("CRS_STRING",
+		"CRS_DISPLAY"	, _TL("Display Definition as..."),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s",
+			_TL("PROJ"),
+			_TL("WKT-1"),
+			_TL("WKT-2")
+		), 0
+	)->Set_UseInCMD(false);
+
 	//-----------------------------------------------------
-	Parameters.Add_Parameters("CRS_PROJ4",
+	Parameters.Add_Parameters("CRS_STRING",
 		"CRS_DIALOG"	, _TL("User Defined"),
 		_TL("")
 	)->Set_UseInCMD(false);
 
 	Set_User_Parameters(*Parameters("CRS_DIALOG")->asParameters());
 
-	Parameters.Add_Parameters("CRS_PROJ4",
-		"CRS_PICKER"	, _TL("Pick from Data Set"),
-		_TL("")
-	)->Set_UseInCMD(false);
+	//-----------------------------------------------------
+	if( has_GUI() )
+	{
+		Parameters.Add_Parameters("CRS_STRING",
+			"CRS_PICKER"	, _TL("Pick from Data Set"),
+			_TL("")
+		)->Set_UseInCMD(false);
 
-	Parameters("CRS_PICKER")->asParameters()->Add_Grid("",
-		"CRS_GRID"		, _TL("Grid"),
-		_TL(""),
-		PARAMETER_INPUT_OPTIONAL, false
-	);
+		Parameters("CRS_PICKER")->asParameters()->Add_Grid("",
+			"CRS_GRID"		, _TL("Grid"),
+			_TL(""),
+			PARAMETER_INPUT_OPTIONAL, false
+		)->Set_UseInCMD(false);
 
-	Parameters("CRS_PICKER")->asParameters()->Add_Shapes("",
-		"CRS_SHAPES"	, _TL("Shapes"),
-		_TL(""),
-		PARAMETER_INPUT_OPTIONAL
-	);
+		Parameters("CRS_PICKER")->asParameters()->Add_Shapes("",
+			"CRS_SHAPES"	, _TL("Shapes"),
+			_TL(""),
+			PARAMETER_INPUT_OPTIONAL
+		)->Set_UseInCMD(false);
+	}
 
 	//-----------------------------------------------------
-	Parameters.Add_FilePath("CRS_PROJ4",
+	Parameters.Add_FilePath("CRS_STRING",
 		"CRS_FILE"		, _TL("Well Known Text File"),
 		_TL(""),
 		CSG_String::Format("%s|*.prj;*.wkt;*.txt|%s (*.prj)|*.prj|%s (*.wkt)|*.wkt|%s (*.txt)|*.txt|%s|*.*",
@@ -176,31 +190,48 @@ CCRS_Base::CCRS_Base(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Int("CRS_PROJ4",
-		"CRS_EPSG"		, _TL("Authority Code"),
+	Parameters.Add_Int("CRS_STRING",
+		"CRS_CODE"		, _TL("Authority Code"),
 		_TL(""),
-		m_Projection.Get_EPSG()
+		m_Projection.Get_Code()
 	);
 
-	Parameters.Add_String("CRS_EPSG",
-		"CRS_EPSG_AUTH"	, _TL("Authority"),
+	Parameters.Add_String("CRS_CODE",
+		"CRS_AUTHORITY"	, _TL("Authority"),
 		_TL(""),
-		"EPSG"
+		m_Projection.Get_Authority()
 	);
 
-	Parameters.Add_Choice("CRS_EPSG",
-		"CRS_EPSG_GEOGCS", _TL("Geographic Coordinate Systems"),
-		_TL(""),
-		SG_Get_Projections().Get_Names_List(ESG_CRS_Type::Geographic)
-	)->Set_UseInCMD(false);
+	if( has_GUI() )
+	{		
+		Parameters.Add_Choice("CRS_CODE",
+			"CRS_GEOGCS", _TL("Geographic Coordinate Systems"),
+			_TL(""),
+			SG_Get_Projections().Get_Names_List(ESG_CRS_Type::Geographic)
+		)->Set_UseInCMD(false);
 
-	Parameters.Add_Choice("CRS_EPSG",
-		"CRS_EPSG_PROJCS", _TL("Projected Coordinate Systems"),
-		_TL(""),
-		SG_Get_Projections().Get_Names_List(ESG_CRS_Type::Projection)
-	)->Set_UseInCMD(false);
+		Parameters.Add_Choice("CRS_CODE",
+			"CRS_PROJCS", _TL("Projected Coordinate Systems"),
+			_TL(""),
+			SG_Get_Projections().Get_Names_List(ESG_CRS_Type::Projection)
+		)->Set_UseInCMD(false);
+	}
 
 	//-----------------------------------------------------
+	Parameters.Add_Info_String("", "CRS_WKT", _TL("Well Known Text"), _TL(""), "")->Set_Enabled(false); // for requesting projection in a generic/safe way
+	Parameters("CRS_WKT")->Set_UseInCMD(false);
+	Parameters("CRS_WKT")->Set_UseInGUI(false);
+
+	On_Parameter_Changed(&Parameters, Parameters("CRS_STRING"));
+
+	//-----------------------------------------------------
+	//if( !has_GUI() )
+	{
+		Parameters.Add_String("", "CRS_PROJ4"    , "Proj4 String"  , "Deprecated! For backward compatibility only! Use \"CRS_STRING\" parameter instead!"   , ""    )->Set_UseInGUI(false);
+		Parameters.Add_Int   ("", "CRS_EPSG"     , "Authority Code", "Deprecated! For backward compatibility only! Use \"CRS_CODE\" parameter instead!"     , -1    )->Set_UseInGUI(false);
+		Parameters.Add_String("", "CRS_EPSG_AUTH", "Authority"     , "Deprecated! For backward compatibility only! Use \"CRS_AUTHORITY\" parameter instead!", "EPSG")->Set_UseInGUI(false);
+	}
+
 #if PROJ_VERSION_MAJOR < 6
 	Parameters.Add_Bool("",
 		"PRECISE"		, _TL("Precise Datum Conversion"),
@@ -218,11 +249,13 @@ CCRS_Base::CCRS_Base(void)
 //---------------------------------------------------------
 bool CCRS_Base::On_Before_Execution(void)
 {
-	m_Projection.Create(Parameters("CRS_PROJ4")->asString());
+	m_Projection.Create(Parameters("CRS_STRING")->asString());
+
+	Parameters.Set_Parameter("CRS_WKT", m_Projection.Get_WKT());
 
 	if( m_Projection.is_Okay() && Parameters("CRS_DIALOG") )
 	{
-		Set_User_Definition(*Parameters("CRS_DIALOG")->asParameters(), Parameters("CRS_PROJ4")->asString());
+		Set_User_Definition(*Parameters("CRS_DIALOG")->asParameters(), m_Projection.Get_PROJ());
 	}
 
 	return( true );
@@ -231,39 +264,52 @@ bool CCRS_Base::On_Before_Execution(void)
 //---------------------------------------------------------
 int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	CSG_Projection	Projection	= Parameter_Changed(pParameters, pParameter);
+	//-----------------------------------------------------
+	// >>> for backward compatibility only!
+	// if( pParameter->Cmp_Identifier("CRS_PROJ4"    ) ) { pParameters->Set_Parameter("CRS_STRING"   , pParameter->asString()); return( On_Parameter_Changed(pParameters, (*pParameters)("CRS_STRING"   )) ); }
+	// if( pParameter->Cmp_Identifier("CRS_EPSG"     ) ) { pParameters->Set_Parameter("CRS_CODE"     , pParameter->asInt   ()); return( On_Parameter_Changed(pParameters, (*pParameters)("CRS_CODE"     )) ); }
+	// if( pParameter->Cmp_Identifier("CRS_EPSG_AUTH") ) { pParameters->Set_Parameter("CRS_AUTHORITY", pParameter->asString()); return( On_Parameter_Changed(pParameters, (*pParameters)("CRS_AUTHORITY")) ); }
+	// <<< for backward compatibility only!
+	//-----------------------------------------------------
+
+	if( pParameter->Cmp_Identifier("CRS_DISPLAY") )
+	{
+		if( m_Projection.is_Okay() )
+		{
+			switch( pParameter->asInt() )
+			{
+			default: pParameters->Set_Parameter("CRS_STRING", m_Projection.Get_PROJ()); break;
+			case  1: pParameters->Set_Parameter("CRS_STRING", m_Projection.Get_WKT1()); break;
+			case  2: pParameters->Set_Parameter("CRS_STRING", m_Projection.Get_WKT2()); break;
+			}
+		}
+
+		return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
+	}
+
+	//-----------------------------------------------------
+	CSG_Projection Projection = Parameter_Changed(pParameters, pParameter);
 
 	if( Projection.is_Okay() )
 	{
-		m_Projection	= Projection;
+		m_Projection = Projection;
 	}
 
 	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
+//---------------------------------------------------------
 CSG_Projection CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	CSG_Projection Projection;
 
 	//-----------------------------------------------------
-	if( pParameter->Cmp_Identifier("CRS_PROJ4" )
-	||  pParameter->Cmp_Identifier("CRS_DIALOG") )
+	if( pParameter->Cmp_Identifier("CRS_STRING") )
 	{
-		CSG_String Definition;
-
-		if( pParameter->Cmp_Identifier("CRS_PROJ4") )
-			Definition = pParameter->asString();
-		else
-			Definition = Get_User_Definition(*pParameter->asParameters());
-
-		if( !Projection.Create(Definition) )
-		{
-			Projection.Set_GCS_WGS84();
-		}
+		Projection.Create(pParameter->asString());
 	}
 
-	//-----------------------------------------------------
-	if(	pParameter->Cmp_Identifier("CRS_FILE") )
+	if( pParameter->Cmp_Identifier("CRS_FILE") )
 	{
 		Projection.Load(pParameter->asString());
 
@@ -271,19 +317,13 @@ CSG_Projection CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 	}
 
 	//-----------------------------------------------------
-	if(	pParameter->Cmp_Identifier("CRS_EPSG") || pParameter->Cmp_Identifier("CRS_EPSG_AUTH") )
+	if( pParameter->Cmp_Identifier("CRS_CODE") || pParameter->Cmp_Identifier("CRS_AUTHORITY") )
 	{
-		int Code = (*pParameters)("CRS_EPSG")->asInt();
-
-		if( Code >= 0 )
-		{
-			Projection.Create(Code, (*pParameters)("CRS_EPSG_AUTH")->asString());
-		}
+		Projection.Create((*pParameters)("CRS_CODE")->asInt(), (*pParameters)("CRS_AUTHORITY")->asString());
 	}
 
 	//-----------------------------------------------------
-	if(	pParameter->Cmp_Identifier("CRS_EPSG_GEOGCS")
-	||	pParameter->Cmp_Identifier("CRS_EPSG_PROJCS") )
+	if( pParameter->Cmp_Identifier("CRS_GEOGCS") || pParameter->Cmp_Identifier("CRS_PROJCS") )
 	{
 		CSG_String Authority_Code;
 
@@ -294,10 +334,15 @@ CSG_Projection CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 	}
 
 	//-----------------------------------------------------
-	if(	pParameter->Cmp_Identifier("CRS_GRID"  ) ) { (*pParameters)("CRS_SHAPES")              ->Set_Value(DATAOBJECT_NOTSET); }
-	if(	pParameter->Cmp_Identifier("CRS_SHAPES") ) { (*pParameters)("CRS_GRID"  )->Get_Parent()->Set_Value(DATAOBJECT_NOTSET); }
+	if( pParameter->Cmp_Identifier("CRS_DIALOG") )
+	{
+		Projection.Create(Get_User_Definition(*pParameter->asParameters()));
+	}
 
-	if(	pParameter->Cmp_Identifier("CRS_PICKER") )
+	//-----------------------------------------------------
+	if( pParameter->Cmp_Identifier("CRS_GRID"  ) ) { (*pParameters)("CRS_SHAPES")              ->Set_Value(DATAOBJECT_NOTSET); }
+	if( pParameter->Cmp_Identifier("CRS_SHAPES") ) { (*pParameters)("CRS_GRID"  )->Get_Parent()->Set_Value(DATAOBJECT_NOTSET); }
+	if( pParameter->Cmp_Identifier("CRS_PICKER") )
 	{
 		CSG_Data_Object *pPick;
 
@@ -317,20 +362,44 @@ CSG_Projection CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 	}
 
 	//-----------------------------------------------------
-	if( Projection.is_Okay() && (*pParameters)("CRS_PROJ4") )
+	if( Projection.is_Okay() )
 	{
-		pParameters->Set_Parameter("CRS_PROJ4"    , Projection.Get_Proj4       ());
-		pParameters->Set_Parameter("CRS_EPSG"     , Projection.Get_Authority_ID());
-		pParameters->Set_Parameter("CRS_EPSG_AUTH", Projection.Get_Authority   ());
+		switch( (*pParameters)("CRS_DISPLAY")->asInt() )
+		{
+		default: pParameters->Set_Parameter("CRS_STRING", Projection.Get_PROJ()); break;
+		case  1: pParameters->Set_Parameter("CRS_STRING", Projection.Get_WKT1()); break;
+		case  2: pParameters->Set_Parameter("CRS_STRING", Projection.Get_WKT2()); break;
+		}
+
+		pParameters->Set_Parameter("CRS_CODE"     , Projection.Get_Authority_ID());
+		pParameters->Set_Parameter("CRS_AUTHORITY", Projection.Get_Authority   ());
 
 		if( (*pParameters)("CRS_DIALOG") )
 		{
-			Set_User_Definition(*(*pParameters)("CRS_DIALOG")->asParameters(), Projection.Get_Proj4());
+			Set_User_Definition(*(*pParameters)("CRS_DIALOG")->asParameters(), Projection.Get_PROJ());
 		}
 
-		if(	!pParameter->Cmp_Identifier("CRS_EPSG_GEOGCS") ) { pParameters->Set_Parameter("CRS_EPSG_GEOGCS", 0); }
-		if(	!pParameter->Cmp_Identifier("CRS_EPSG_PROJCS") ) { pParameters->Set_Parameter("CRS_EPSG_PROJCS", 0); }
+		if(	!pParameter->Cmp_Identifier("CRS_GEOGCS") ) { pParameters->Set_Parameter("CRS_GEOGCS", 0); }
+		if(	!pParameter->Cmp_Identifier("CRS_PROJCS") ) { pParameters->Set_Parameter("CRS_PROJCS", 0); }
+
+		pParameters->Set_Parameter("CRS_WKT", Projection.Get_WKT());
 	}
+	else
+	{
+		pParameters->Set_Parameter("CRS_WKT", "");
+	}
+
+	//-----------------------------------------------------
+	// >>> for backward compatibility only!
+	{
+		bool bCallback = pParameters->Set_Callback(false);
+		pParameters->Set_Parameter("CRS_PROJ4"    , (*pParameters)("CRS_STRING"   ));
+		pParameters->Set_Parameter("CRS_EPSG"     , (*pParameters)("CRS_CODE"     ));
+		pParameters->Set_Parameter("CRS_EPSG_AUTH", (*pParameters)("CRS_AUTHORITY"));
+		pParameters->Set_Callback(bCallback);
+	}
+	// <<< for backward compatibility only!
+	//-----------------------------------------------------
 
 	//-----------------------------------------------------
 	return( Projection );
@@ -422,14 +491,14 @@ bool CCRS_Base::Get_Projection(CSG_Projection &Projection)
 	else switch( Parameters("CRS_METHOD")->asInt() )	// no gui? check out, how projection shall be initialized!
 	{
 	default: // Definition String
-		if( !Projection.Create(Parameters("CRS_PROJ4")->asString()) )
+		if( !Projection.Create(Parameters("CRS_STRING")->asString()) )
 		{
-			Error_Set(_TL("PROJ definition string error"));
+			Error_Set(_TL("definition string error"));
 		}
 		break;
 
 	case  1: // Authority Code
-		if( !Projection.Create(Parameters("CRS_EPSG")->asInt(), Parameters("CRS_EPSG_AUTH")->asString()) )
+		if( !Projection.Create(Parameters("CRS_EPSG")->asInt(), Parameters("CRS_AUTHORITY")->asString()) )
 		{
 			Error_Set(_TL("Authority code error"));
 		}
@@ -489,7 +558,7 @@ bool CCRS_Base::Set_User_Parameters(CSG_Parameters &P)
 		Name	= Args.BeforeFirst('\n');
 		Args	= Args.AfterFirst ('\n').AfterFirst('\n').AfterFirst('\t');
 
-	//	CSG_Projection	Projection("+proj=" + ID, SG_PROJ_FMT_Proj4); if( !Projection.is_Okay() ) continue;
+	//	CSG_Projection Projection("+proj=" + ID); if( !Projection.is_Okay() ) continue;
 
 		Projections	+=   "{" + ID + "}"  + Name + "|";
 		Description	+= "\n[" + ID + "] " + Name;
@@ -859,39 +928,39 @@ bool CCRS_Base::Add_User_Projection(CSG_Parameters &P, const CSG_String &ID, con
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define PROJ4_ADD_BOL(key, val)	if( val ) Proj4 += CSG_String::Format("+%s ", CSG_String(key).c_str());
-#define PROJ4_ADD_INT(key, val)	Proj4 += CSG_String::Format("+%s=%d ", CSG_String(key).c_str(), val);
-#define PROJ4_ADD_DBL(key, val)	Proj4 += CSG_String::Format("+%s=%s ", CSG_String(key).c_str(), SG_Get_String(val, -32).c_str());
-#define PROJ4_ADD_STR(key, val)	Proj4 += CSG_String::Format("+%s=%s ", CSG_String(key).c_str(), CSG_String(val).c_str());
-#define PROJ4_GET_PRM(parm_id)	P(ID + parm_id)
+#define PROJ_ADD_BOL(key, val)	if( val ) Proj += CSG_String::Format("+%s ", CSG_String(key).c_str());
+#define PROJ_ADD_INT(key, val)	Proj += CSG_String::Format("+%s=%d ", CSG_String(key).c_str(), val);
+#define PROJ_ADD_DBL(key, val)	Proj += CSG_String::Format("+%s=%s ", CSG_String(key).c_str(), SG_Get_String(val, -32).c_str());
+#define PROJ_ADD_STR(key, val)	Proj += CSG_String::Format("+%s=%s ", CSG_String(key).c_str(), CSG_String(val).c_str());
+#define PROJ_GET_PRM(parm_id)	P(ID + parm_id)
 
 //---------------------------------------------------------
 CSG_String CCRS_Base::Get_User_Definition(CSG_Parameters &P)
 {
-	CSG_String	Proj4, ID	= P("PROJ_TYPE")->asChoice()->Get_Data();
+	CSG_String	Proj, ID = P("PROJ_TYPE")->asChoice()->Get_Data();
 
 	//-----------------------------------------------------
-	PROJ4_ADD_STR("proj", ID);
+	PROJ_ADD_STR("proj", ID);
 
-	if( P("LON_0")->asDouble() )	PROJ4_ADD_DBL("lon_0", P("LON_0")->asDouble());
-	if( P("LAT_0")->asDouble() )	PROJ4_ADD_DBL("lat_0", P("LAT_0")->asDouble());
+	if( P("LON_0")->asDouble() ) PROJ_ADD_DBL("lon_0", P("LON_0")->asDouble());
+	if( P("LAT_0")->asDouble() ) PROJ_ADD_DBL("lat_0", P("LAT_0")->asDouble());
 
-	if( P("X_0"  )->asDouble() )	PROJ4_ADD_DBL("x_0"  , P("X_0"  )->asDouble());
-	if( P("Y_0"  )->asDouble() )	PROJ4_ADD_DBL("y_0"  , P("Y_0"  )->asDouble());
+	if( P("X_0"  )->asDouble() ) PROJ_ADD_DBL("x_0"  , P("X_0"  )->asDouble());
+	if( P("Y_0"  )->asDouble() ) PROJ_ADD_DBL("y_0"  , P("Y_0"  )->asDouble());
 
 	if( P("K_0")->asDouble() != 1.0 && P("K_0")->asDouble() > 0.0 )
 	{
-		PROJ4_ADD_DBL("k_0", P("K_0")->asDouble());
+		PROJ_ADD_DBL("k_0", P("K_0")->asDouble());
 	}
 
-	PROJ4_ADD_STR("units", P("UNIT")->asChoice()->Get_Data());
+	PROJ_ADD_STR("units", P("UNIT")->asChoice()->Get_Data());
 
 	//-----------------------------------------------------
 	switch( P("DATUM_DEF")->asInt() )
 	{
 	case 0:	// predefined datum
 
-		PROJ4_ADD_STR("datum", P("DATUM")->asChoice()->Get_Data());
+		PROJ_ADD_STR("datum", P("DATUM")->asChoice()->Get_Data());
 
 		break;
 
@@ -901,39 +970,39 @@ CSG_String CCRS_Base::Get_User_Definition(CSG_Parameters &P)
 		switch( P("ELLIPSOID")->asInt() )
 		{
 		case 0:	// Predefined Ellipsoid
-			PROJ4_ADD_STR("ellps", P("ELLPS_DEF")->asChoice()->Get_Data());
+			PROJ_ADD_STR("ellps", P("ELLPS_DEF")->asChoice()->Get_Data());
 			break;
 
 		case 1:	// Semiminor axis
-			PROJ4_ADD_DBL("a"    , P("ELLPS_A" )->asDouble());
-			PROJ4_ADD_DBL("b"    , P("ELLPS_B" )->asDouble());
+			PROJ_ADD_DBL("a"    , P("ELLPS_A" )->asDouble());
+			PROJ_ADD_DBL("b"    , P("ELLPS_B" )->asDouble());
 			break;
 
 		case 2:	// Flattening
-			PROJ4_ADD_DBL("a"    , P("ELLPS_A" )->asDouble());
-			PROJ4_ADD_DBL("f"    , P("ELLPS_F" )->asDouble());
+			PROJ_ADD_DBL("a"    , P("ELLPS_A" )->asDouble());
+			PROJ_ADD_DBL("f"    , P("ELLPS_F" )->asDouble());
 			break;
 
 		case 3:	// Reciprocal Flattening
-			PROJ4_ADD_DBL("a"    , P("ELLPS_A" )->asDouble());
-			PROJ4_ADD_DBL("rf"   , P("ELLPS_RF")->asDouble());
+			PROJ_ADD_DBL("a"    , P("ELLPS_A" )->asDouble());
+			PROJ_ADD_DBL("rf"   , P("ELLPS_RF")->asDouble());
 			break;
 
 		case 4:	// Eccentricity
-			PROJ4_ADD_DBL("a"    , P("ELLPS_A" )->asDouble());
-			PROJ4_ADD_DBL("e"    , P("ELLPS_E" )->asDouble());
+			PROJ_ADD_DBL("a"    , P("ELLPS_A" )->asDouble());
+			PROJ_ADD_DBL("e"    , P("ELLPS_E" )->asDouble());
 			break;
 
 		case 5:	// Eccentricity Squared
-			PROJ4_ADD_DBL("a"    , P("ELLPS_A" )->asDouble());
-			PROJ4_ADD_DBL("es"   , P("ELLPS_ES")->asDouble());
+			PROJ_ADD_DBL("a"    , P("ELLPS_A" )->asDouble());
+			PROJ_ADD_DBL("es"   , P("ELLPS_ES")->asDouble());
 			break;
 		}
 
 		switch( P("DATUM_SHIFT")->asInt() )
 		{
 		case 1:	// 3 parameters
-			PROJ4_ADD_STR("towgs84", CSG_String::Format("%s,%s,%s",
+			PROJ_ADD_STR("towgs84", CSG_String::Format("%s,%s,%s",
 				SG_Get_String(P("DS_DX")->asDouble(), -32).c_str(),
 				SG_Get_String(P("DS_DY")->asDouble(), -32).c_str(),
 				SG_Get_String(P("DS_DZ")->asDouble(), -32).c_str())
@@ -941,7 +1010,7 @@ CSG_String CCRS_Base::Get_User_Definition(CSG_Parameters &P)
 			break;
 
 		case 2:	// 7 parameters
-			PROJ4_ADD_STR("towgs84", CSG_String::Format("%s,%s,%s,%s,%s,%s,%s",
+			PROJ_ADD_STR("towgs84", CSG_String::Format("%s,%s,%s,%s,%s,%s,%s",
 				SG_Get_String(P("DS_DX")->asDouble(), -32).c_str(),
 				SG_Get_String(P("DS_DY")->asDouble(), -32).c_str(),
 				SG_Get_String(P("DS_DZ")->asDouble(), -32).c_str(),
@@ -955,7 +1024,7 @@ CSG_String CCRS_Base::Get_User_Definition(CSG_Parameters &P)
 		case 3:	// datum shift grid...
 			if( SG_File_Exists(P("DATUM_GRID")->asString()) )
 			{
-				PROJ4_ADD_STR("nadgrids", P("DATUM_GRID")->asString());
+				PROJ_ADD_STR("nadgrids", P("DATUM_GRID")->asString());
 			}
 			break;
 		}
@@ -968,27 +1037,27 @@ CSG_String CCRS_Base::Get_User_Definition(CSG_Parameters &P)
 	{
 		for(int i=0; i<P(ID)->Get_Children_Count(); i++)
 		{
-			CSG_Parameter	&p	= *P(ID)->Get_Child(i);
+			CSG_Parameter &p = *P(ID)->Get_Child(i);
 
-			CSG_String	key = p.Get_Identifier() + ID.Length();
+			CSG_String key = p.Get_Identifier() + ID.Length();
 
 			switch( p.Get_Type() )
 			{
 			case PARAMETER_TYPE_Choice:
-			case PARAMETER_TYPE_String: PROJ4_ADD_STR(key, p.asString()); break;
-			case PARAMETER_TYPE_Bool  : PROJ4_ADD_BOL(key, p.asBool  ()); break;
-			case PARAMETER_TYPE_Int   : PROJ4_ADD_INT(key, p.asInt   ()); break;
-			case PARAMETER_TYPE_Double: PROJ4_ADD_DBL(key, p.asDouble()); break;
+			case PARAMETER_TYPE_String: PROJ_ADD_STR(key, p.asString()); break;
+			case PARAMETER_TYPE_Bool  : PROJ_ADD_BOL(key, p.asBool  ()); break;
+			case PARAMETER_TYPE_Int   : PROJ_ADD_INT(key, p.asInt   ()); break;
+			case PARAMETER_TYPE_Double: PROJ_ADD_DBL(key, p.asDouble()); break;
 			default                   :                                   break;
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	PROJ4_ADD_BOL("no_defs", P("NO_DEFS")->asBool());
-	PROJ4_ADD_BOL("over"   , P("OVER"   )->asBool());
+	PROJ_ADD_BOL("no_defs", P("NO_DEFS")->asBool());
+	PROJ_ADD_BOL("over"   , P("OVER"   )->asBool());
 
-	return( Proj4 );
+	return( Proj );
 }
 
 
@@ -998,16 +1067,16 @@ CSG_String CCRS_Base::Get_User_Definition(CSG_Parameters &P)
 
 //---------------------------------------------------------
 #define _K(key)					(CSG_String("+") + key)
-#define PROJ4_HAS_KEY(key)		(Proj4.Find(_K(key)) >= 0)
-#define PROJ4_HAS_VAL(key)		(Proj4.Find(_K(key)) >= 0 && !Proj4.Right(Proj4.Length() - Proj4.Find(_K(key))).BeforeFirst('=').Cmp(_K(key)))
-#define PROJ4_GET_VAL(key)		(Proj4.Right(PROJ4_HAS_VAL(key) ? Proj4.Length() - Proj4.Find(_K(key)) : 0).AfterFirst('=').BeforeFirst(' '))
+#define PROJ_HAS_KEY(key)		(Proj.Find(_K(key)) >= 0)
+#define PROJ_HAS_VAL(key)		(Proj.Find(_K(key)) >= 0 && !Proj.Right(Proj.Length() - Proj.Find(_K(key))).BeforeFirst('=').Cmp(_K(key)))
+#define PROJ_GET_VAL(key)		(Proj.Right(PROJ_HAS_VAL(key) ? Proj.Length() - Proj.Find(_K(key)) : 0).AfterFirst('=').BeforeFirst(' '))
 
-#define PROJ4_SET_BOL(key, id)	{             if( P(id)                                     ) P(id)->Set_Value(PROJ4_HAS_KEY(key) ? 1 : 0); }
-#define PROJ4_SET_INT(key, id)	{ int    val; if( P(id) && PROJ4_GET_VAL(key).asInt   (val) ) P(id)->Set_Value(val); }
-#define PROJ4_SET_FLT(key, id)	{ double val; if( P(id) && PROJ4_GET_VAL(key).asDouble(val) ) P(id)->Set_Value(val); }
-#define PROJ4_SET_STR(key, id)	{             if( P(id) && PROJ4_HAS_VAL(key)               ) P(id)->Set_Value(PROJ4_GET_VAL(key)); }
+#define PROJ_SET_BOL(key, id)	{             if( P(id)                                     ) P(id)->Set_Value(PROJ_HAS_KEY(key) ? 1 : 0); }
+#define PROJ_SET_INT(key, id)	{ int    val; if( P(id) && PROJ_GET_VAL(key).asInt   (val) ) P(id)->Set_Value(val); }
+#define PROJ_SET_FLT(key, id)	{ double val; if( P(id) && PROJ_GET_VAL(key).asDouble(val) ) P(id)->Set_Value(val); }
+#define PROJ_SET_STR(key, id)	{             if( P(id) && PROJ_HAS_VAL(key)               ) P(id)->Set_Value(PROJ_GET_VAL(key)); }
 
-#define PROJ4_SET_CHC(key, id)	if( P(id) ) { CSG_Parameter_Choice *pList = P(id)->asChoice(); CSG_String s(PROJ4_GET_VAL(key));\
+#define PROJ_SET_CHC(key, id)	if( P(id) ) { CSG_Parameter_Choice *pList = P(id)->asChoice(); CSG_String s(PROJ_GET_VAL(key));\
 		for(int i=0; i<pList->Get_Count(); i++)\
 		{\
 			if( !pList->Get_Item_Data(i).Cmp(s) )\
@@ -1018,46 +1087,46 @@ CSG_String CCRS_Base::Get_User_Definition(CSG_Parameters &P)
 	}
 
 //---------------------------------------------------------
-bool CCRS_Base::Set_User_Definition(CSG_Parameters &P, const CSG_String &Proj4)
+bool CCRS_Base::Set_User_Definition(CSG_Parameters &P, const CSG_String &Proj)
 {
 	P.Restore_Defaults();
 
-	PROJ4_SET_CHC("proj"   , "PROJ_TYPE");
-	PROJ4_SET_CHC("datum"  , "DATUM"    );
-	PROJ4_SET_CHC("ellps"  , "ELLPS_DEF");
-	PROJ4_SET_CHC("units"  , "UNIT"     );
+	PROJ_SET_CHC("proj"   , "PROJ_TYPE");
+	PROJ_SET_CHC("datum"  , "DATUM"    );
+	PROJ_SET_CHC("ellps"  , "ELLPS_DEF");
+	PROJ_SET_CHC("units"  , "UNIT"     );
 
-	PROJ4_SET_FLT("lon_0"  , "LON_0"    );
-	PROJ4_SET_FLT("lat_0"  , "LAT_0"    );
-	PROJ4_SET_FLT("x_0"    , "X_0"      );
-	PROJ4_SET_FLT("y_0"    , "Y_0"      );
-	PROJ4_SET_FLT("k_0"    , "K_0"      );
+	PROJ_SET_FLT("lon_0"  , "LON_0"    );
+	PROJ_SET_FLT("lat_0"  , "LAT_0"    );
+	PROJ_SET_FLT("x_0"    , "X_0"      );
+	PROJ_SET_FLT("y_0"    , "Y_0"      );
+	PROJ_SET_FLT("k_0"    , "K_0"      );
 
-	PROJ4_SET_FLT("a"      , "ELLPS_A"  );
-	PROJ4_SET_FLT("b"      , "ELLPS_B"  );
-	PROJ4_SET_FLT("f"      , "ELLPS_F"  );
-	PROJ4_SET_FLT("rf"     , "ELLPS_RF" );
-	PROJ4_SET_FLT("e"      , "ELLPS_E"  );
-	PROJ4_SET_FLT("es"     , "ELLPS_ES" );
+	PROJ_SET_FLT("a"      , "ELLPS_A"  );
+	PROJ_SET_FLT("b"      , "ELLPS_B"  );
+	PROJ_SET_FLT("f"      , "ELLPS_F"  );
+	PROJ_SET_FLT("rf"     , "ELLPS_RF" );
+	PROJ_SET_FLT("e"      , "ELLPS_E"  );
+	PROJ_SET_FLT("es"     , "ELLPS_ES" );
 
-	PROJ4_SET_BOL("no_defs", "NO_DEFS"  );
-	PROJ4_SET_BOL("over"   , "OVER"     );
+	PROJ_SET_BOL("no_defs", "NO_DEFS"  );
+	PROJ_SET_BOL("over"   , "OVER"     );
 
 	//-----------------------------------------------------
 //	switch( P("DATUM_DEF")->asInt() )
-	if( PROJ4_HAS_VAL("datum") )	P("DATUM_DEF")->Set_Value(0);	//	case 0:	// predefined datum
-	else							P("DATUM_DEF")->Set_Value(1);	//	case 1:	// user defined datum
+	if( PROJ_HAS_VAL("datum") ) P("DATUM_DEF")->Set_Value(0);	//	case 0:	// predefined datum
+	else                        P("DATUM_DEF")->Set_Value(1);	//	case 1:	// user defined datum
 
 //	switch( P("ELLIPSOID")->asInt() )
-	if( PROJ4_HAS_VAL("ellps") )	P("ELLIPSOID")->Set_Value(0);	//	case 0:	// Predefined Ellipsoid
-	if( PROJ4_HAS_VAL("b"    ) )	P("ELLIPSOID")->Set_Value(1);	//	case 1:	// Semiminor axis
-	if( PROJ4_HAS_VAL("f"    ) )	P("ELLIPSOID")->Set_Value(2);	//	case 2:	// Flattening
-	if( PROJ4_HAS_VAL("rf"   ) )	P("ELLIPSOID")->Set_Value(3);	//	case 3:	// Reciprocal Flattening
-	if( PROJ4_HAS_VAL("e"    ) )	P("ELLIPSOID")->Set_Value(4);	//	case 4:	// Eccentricity
-	if( PROJ4_HAS_VAL("es"   ) )	P("ELLIPSOID")->Set_Value(5);	//	case 5:	// Eccentricity Squared
+	if( PROJ_HAS_VAL("ellps") )	P("ELLIPSOID")->Set_Value(0);	//	case 0:	// Predefined Ellipsoid
+	if( PROJ_HAS_VAL("b"    ) )	P("ELLIPSOID")->Set_Value(1);	//	case 1:	// Semiminor axis
+	if( PROJ_HAS_VAL("f"    ) )	P("ELLIPSOID")->Set_Value(2);	//	case 2:	// Flattening
+	if( PROJ_HAS_VAL("rf"   ) )	P("ELLIPSOID")->Set_Value(3);	//	case 3:	// Reciprocal Flattening
+	if( PROJ_HAS_VAL("e"    ) )	P("ELLIPSOID")->Set_Value(4);	//	case 4:	// Eccentricity
+	if( PROJ_HAS_VAL("es"   ) )	P("ELLIPSOID")->Set_Value(5);	//	case 5:	// Eccentricity Squared
 
 //	switch( P("DATUM_SHIFT")->asInt() )
-	CSG_String_Tokenizer	params(PROJ4_GET_VAL("towgs84"), ", ");
+	CSG_String_Tokenizer params(PROJ_GET_VAL("towgs84"), ", ");
 
 	if( params.Get_Tokens_Count() == 3 || params.Get_Tokens_Count() == 7 )
 	{
@@ -1079,11 +1148,11 @@ bool CCRS_Base::Set_User_Definition(CSG_Parameters &P, const CSG_String &Proj4)
 		P("DS_RZ")->Set_Value(params.Get_Next_Token().asDouble());
 		P("DS_SC")->Set_Value(params.Get_Next_Token().asDouble());
 	}
-	else if( PROJ4_HAS_VAL("nadgrids") && SG_File_Exists(PROJ4_GET_VAL("nadgrids")) )
+	else if( PROJ_HAS_VAL("nadgrids") && SG_File_Exists(PROJ_GET_VAL("nadgrids")) )
 	{
 		P("DATUM_SHIFT")->Set_Value(3);	//	case 3:	// datum shift grid...
 
-		PROJ4_SET_STR("nadgrids", "DATUM_GRID");
+		PROJ_SET_STR("nadgrids", "DATUM_GRID");
 	}
 	else
 	{
@@ -1097,17 +1166,17 @@ bool CCRS_Base::Set_User_Definition(CSG_Parameters &P, const CSG_String &Proj4)
 	{
 		for(int i=0; i<P(ID)->Get_Children_Count(); i++)
 		{
-			CSG_Parameter	&p	= *P(ID)->Get_Child(i);
+			CSG_Parameter &p = *P(ID)->Get_Child(i);
 
-			CSG_String	key = p.Get_Identifier() + ID.Length();
+			CSG_String key = p.Get_Identifier() + ID.Length();
 
 			switch( p.Get_Type() )
 			{
 			case PARAMETER_TYPE_Choice:
-			case PARAMETER_TYPE_String: p.Set_Value(PROJ4_GET_VAL(key)           );	break;
-			case PARAMETER_TYPE_Bool  : p.Set_Value(PROJ4_HAS_KEY(key) ? 1 : 0   );	break;
-			case PARAMETER_TYPE_Int   : p.Set_Value(PROJ4_GET_VAL(key).asInt   ());	break;
-			case PARAMETER_TYPE_Double: p.Set_Value(PROJ4_GET_VAL(key).asDouble());	break;
+			case PARAMETER_TYPE_String: p.Set_Value(PROJ_GET_VAL(key)           );	break;
+			case PARAMETER_TYPE_Bool  : p.Set_Value(PROJ_HAS_KEY(key) ? 1 : 0   );	break;
+			case PARAMETER_TYPE_Int   : p.Set_Value(PROJ_GET_VAL(key).asInt   ());	break;
+			case PARAMETER_TYPE_Double: p.Set_Value(PROJ_GET_VAL(key).asDouble());	break;
 			default: break;
 			}
 		}
@@ -1129,7 +1198,6 @@ bool CCRS_Base::Set_User_Definition(CSG_Parameters &P, const CSG_String &Proj4)
 //---------------------------------------------------------
 CCRS_Picker::CCRS_Picker(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Coordinate Reference System Picker"));
 
 	Set_Author		("O.Conrad (c) 2014");
@@ -1143,14 +1211,14 @@ CCRS_Picker::CCRS_Picker(void)
 //---------------------------------------------------------
 bool CCRS_Picker::On_Execute(void)
 {
-	CSG_Projection	Target;
+	CSG_Projection Target;
 
 	if( !Get_Projection(Target) )
 	{
 		return( false );
 	}
 
-	Message_Fmt("\n%s: %s", _TL("target"), Target.Get_Proj4().c_str());
+	Message_Fmt("\n%s: %s", _TL("target"), Target.Get_PROJ().c_str());
 
 	return( true );
 }
@@ -1165,21 +1233,20 @@ bool CCRS_Picker::On_Execute(void)
 //---------------------------------------------------------
 bool CCRS_Transform::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Projection	Target;
+	CSG_Projection Target;
 
 	if( !Get_Projection(Target) || !m_Projector.Set_Target(Target) )
 	{
 		return( false );
 	}
 
-	Message_Fmt("\n%s: %s", _TL("source"), m_Projector.Get_Source().Get_Proj4().c_str());
-	Message_Fmt("\n%s: %s", _TL("target"), m_Projector.Get_Target().Get_Proj4().c_str());
+	Message_Fmt("\n%s: %s", _TL("source"), m_Projector.Get_Source().Get_PROJ().c_str());
+	Message_Fmt("\n%s: %s", _TL("target"), m_Projector.Get_Target().Get_PROJ().c_str());
 
 	//-----------------------------------------------------
 	m_Projector.Set_Precise_Mode(Parameters("PRECISE") && Parameters("PRECISE")->asBool());
 
-	bool	bResult	= On_Execute_Transformation();
+	bool bResult = On_Execute_Transformation();
 
 	m_Projector.Destroy();
 

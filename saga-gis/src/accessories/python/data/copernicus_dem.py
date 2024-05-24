@@ -291,7 +291,7 @@ def Get_AOI(AOI, Target_File, Target_Resolution=0, Round=True, SrcRes_1arcsec=Tr
 
         Tool.Reset()
         Tool.Set_Parameter('CRS_METHOD', 0)  # 'Proj4 Parameters'
-        Tool.Set_Parameter('CRS_PROJ4' , AOI.Get_Projection().Get_Proj4())
+        Tool.Set_Parameter('CRS_STRING', AOI.Get_Projection().Get_WKT())
         Tool.Set_Parameter('SOURCE'    , Grid)
         Tool.Set_Parameter('RESAMPLING', 3)  # B-Spline
         Tool.Set_Parameter('DATA_TYPE' , 10) # Preserve

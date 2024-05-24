@@ -997,22 +997,7 @@ CSG_Grid * CSG_GDAL_DataSet::Read(int i)
 	pGrid->Set_Scaling    (zScale, zOffset);
 
 	//-----------------------------------------------------
-	OGRSpatialReferenceH SRef = OSRNewSpatialReference(Get_Projection());
-
-	char *Proj4 = NULL;
-
-	if( OSRExportToProj4(SRef, &Proj4) == OGRERR_NONE )
-	{
-		pGrid->Get_Projection().Create(Get_Projection(), Proj4);
-
-		CPLFree(Proj4);
-	}
-	else
-	{
-		pGrid->Get_Projection().Create(Get_Projection());
-	}
-
-	CPLFree(SRef);
+	pGrid->Get_Projection().Create(Get_Projection());
 
 	if( pGrid->Get_Projection().is_Okay() == false )
 	{

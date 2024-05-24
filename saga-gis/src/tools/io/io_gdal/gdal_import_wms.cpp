@@ -374,7 +374,7 @@ bool CGDAL_Import_WMS::Get_Projected(CSG_Grid *pBands[3], CSG_Grid *pTarget)
 	//-----------------------------------------------------
 	pTool->Set_Manager(NULL);
 
-	if( SG_TOOL_PARAMETER_SET("CRS_PROJ4"        , pTarget->Get_Projection().Get_Proj4())
+	if( SG_TOOL_PARAMETER_SET("CRS_STRING"       , pTarget->Get_Projection().Get_WKT())
 	&&  SG_TOOL_PARAMETER_SET("RESAMPLING"       , 3)
 //	&&  SG_TOOL_PARAMETER_SET("DATA_TYPE"        , 10) // "Preserve" => is already default!
 	&&  SG_TOOL_PARAMLIST_ADD("SOURCE"           , pBands[0])

@@ -446,7 +446,7 @@ bool CWKSP_Map_Graticule::Get_Graticule(const CSG_Rect &Extent)
 				&& pTool->Set_Parameter("RESOLUTION", m_Parameters("RESOLUTION"))
 				&& pTool->Set_Parameter("GRATICULE" , &m_Graticule)
 				&& pTool->Set_Parameter("COORDS"    , &m_Coordinates)
-				&& pTool->Set_Parameter("CRS_PROJ4" , Get_Map()->Get_Projection().Get_Proj4())
+				&& pTool->Set_Parameter("CRS_STRING", Get_Map()->Get_Projection().Get_WKT())
 				&& pTool->On_Before_Execution()
 				&& pTool->Execute();
 

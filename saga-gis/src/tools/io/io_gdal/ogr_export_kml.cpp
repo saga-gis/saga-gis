@@ -134,9 +134,9 @@ bool COGR_Export_KML::On_Execute(void)
 		bool	bResult;
 
 		SG_RUN_TOOL(bResult, "pj_proj4", 2,
-				SG_TOOL_PARAMETER_SET("SOURCE"   , pShapes)
-			&&	SG_TOOL_PARAMETER_SET("TARGET"   , &Shapes)
-			&&	SG_TOOL_PARAMETER_SET("CRS_PROJ4", CSG_Projection::Get_GCS_WGS84().Get_WKT())
+				SG_TOOL_PARAMETER_SET("SOURCE"    , pShapes)
+			&&	SG_TOOL_PARAMETER_SET("TARGET"    , &Shapes)
+			&&	SG_TOOL_PARAMETER_SET("CRS_STRING", CSG_Projection::Get_GCS_WGS84().Get_WKT())
 		);
 
 		if( bResult )

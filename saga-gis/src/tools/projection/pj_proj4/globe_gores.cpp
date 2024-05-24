@@ -182,7 +182,7 @@ bool CGlobe_Gores::Add_Gore(int iGore, int nGores)
 
 	CSG_Grid Gore, Grid(CSG_Grid_System(180. / Resolution, Meridian - Width / 2., -90., Meridian + Width / 2., 90.));
 
-	pTool->Set_Parameter("CRS_PROJ4"        , CSG_Projection::Get_GCS_WGS84().Get_WKT());
+	pTool->Set_Parameter("CRS_STRING"       , CSG_Projection::Get_GCS_WGS84().Get_WKT());
 	pTool->Set_Parameter("SOURCE"           , Parameters("GRID"));
 	pTool->Set_Parameter("GRID"             , &Grid);
 	pTool->Set_Parameter("RESAMPLING"       , 3); // B-Spline Interpolation
@@ -201,7 +201,7 @@ bool CGlobe_Gores::Add_Gore(int iGore, int nGores)
 
 	//-----------------------------------------------------
 	double Easting = iGore * M_PI_360 * 6370997. / nGores;
-	pTool->Set_Parameter("CRS_PROJ4"        , CSG_String::Format("+proj=poly +ellps=sphere +lon_0=%f +x_0=%f", Meridian, Easting));
+	pTool->Set_Parameter("CRS_STRING"       , CSG_String::Format("+proj=poly +ellps=sphere +lon_0=%f +x_0=%f", Meridian, Easting));
 	pTool->Set_Parameter("SOURCE"           , &Grid);
 	pTool->Set_Parameter("GRID"             , &Gore);
 	pTool->Set_Parameter("TARGET_AREA"      , true);

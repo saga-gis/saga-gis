@@ -103,7 +103,7 @@ CCRS_Transform_UTM_Grids::CCRS_Transform_UTM_Grids(bool bList)
 		bList ? _TL("Grid List") : _TL("Grid")
 	));
 
-	Set_Author		("O. Conrad (c) 2017");
+	Set_Author		("O.Conrad (c) 2017");
 
 	Set_Description	(_TW(
 		"Project grids into UTM coordinates."
@@ -125,8 +125,8 @@ CCRS_Transform_UTM_Grids::CCRS_Transform_UTM_Grids(bool bList)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Set_Enabled("CRS_PROJ4", false);
-	Parameters.Set_Enabled("PRECISE"  , false);
+	Parameters.Set_Enabled("CRS_STRING", false);
+	Parameters.Set_Enabled("PRECISE"   , false);
 }
 
 //---------------------------------------------------------
@@ -147,13 +147,9 @@ int CCRS_Transform_UTM_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, 
 
 				pParameters->Set_Parameter("UTM_ZONE"     , Zone  );
 				pParameters->Set_Parameter("UTM_SOUTH"    , bSouth);
-				pParameters->Set_Parameter("CRS_PROJ4"    , UTM.Get_Proj4       ());
-				pParameters->Set_Parameter("CRS_EPSG"     , UTM.Get_Authority_ID());
-				pParameters->Set_Parameter("CRS_EPSG_AUTH", UTM.Get_Authority   ());
+				pParameters->Set_Parameter("CRS_STRING"   , UTM.Get_WKT());
 
-				return( CCRS_Transform_Grid::On_Parameter_Changed(pParameters, (*pParameters)
-					(UTM.Get_EPSG() > 0 ? "CRS_EPSG" : "CRS_PROJ4")
-				));
+				return( CCRS_Transform_Grid::On_Parameter_Changed(pParameters, (*pParameters)("CRS_STRING")) );
 			}
 		}
 	}
@@ -167,13 +163,9 @@ int CCRS_Transform_UTM_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, 
 			(*pParameters)("UTM_SOUTH")->asBool()
 		);
 
-		pParameters->Set_Parameter("CRS_PROJ4"    , UTM.Get_Proj4       ());
-		pParameters->Set_Parameter("CRS_EPSG"     , UTM.Get_Authority_ID());
-		pParameters->Set_Parameter("CRS_EPSG_AUTH", UTM.Get_Authority   ());
+		pParameters->Set_Parameter("CRS_STRING", UTM.Get_WKT());
 
-		return( CCRS_Transform_Grid::On_Parameter_Changed(pParameters, (*pParameters)
-			(UTM.Get_EPSG() > 0 ? "CRS_EPSG" : "CRS_PROJ4")
-		));
+		return( CCRS_Transform_Grid::On_Parameter_Changed(pParameters, (*pParameters)("CRS_STRING")) );
 	}
 
 	//-----------------------------------------------------
@@ -218,8 +210,8 @@ CCRS_Transform_UTM_Shapes::CCRS_Transform_UTM_Shapes(bool bList)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Set_Enabled("CRS_PROJ4", false);
-	Parameters.Set_Enabled("PRECISE"  , false);
+	Parameters.Set_Enabled("CRS_STRING", false);
+	Parameters.Set_Enabled("PRECISE"   , false);
 }
 
 //---------------------------------------------------------
@@ -234,15 +226,11 @@ int CCRS_Transform_UTM_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters,
 		{
 			CSG_Projection	UTM	= CRS_Get_UTM_Projection(Zone, bSouth);
 
-			pParameters->Set_Parameter("UTM_ZONE"     , Zone  );
-			pParameters->Set_Parameter("UTM_SOUTH"    , bSouth);
-			pParameters->Set_Parameter("CRS_PROJ4"    , UTM.Get_Proj4       ());
-			pParameters->Set_Parameter("CRS_EPSG"     , UTM.Get_Authority_ID());
-			pParameters->Set_Parameter("CRS_EPSG_AUTH", UTM.Get_Authority   ());
+			pParameters->Set_Parameter("UTM_ZONE"  , Zone  );
+			pParameters->Set_Parameter("UTM_SOUTH" , bSouth);
+			pParameters->Set_Parameter("CRS_STRING", UTM.Get_WKT());
 
-			return( CCRS_Transform_Shapes::On_Parameter_Changed(pParameters, (*pParameters)
-				(UTM.Get_EPSG() > 0 ? "CRS_EPSG" : "CRS_PROJ4")
-			));
+			return( CCRS_Transform_Shapes::On_Parameter_Changed(pParameters, (*pParameters)("CRS_STRING")) );
 		}
 	}
 
@@ -255,13 +243,9 @@ int CCRS_Transform_UTM_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters,
 			(*pParameters)("UTM_SOUTH")->asBool()
 		);
 
-		pParameters->Set_Parameter("CRS_PROJ4"    , UTM.Get_Proj4       ());
-		pParameters->Set_Parameter("CRS_EPSG"     , UTM.Get_Authority_ID());
-		pParameters->Set_Parameter("CRS_EPSG_AUTH", UTM.Get_Authority   ());
+		pParameters->Set_Parameter("CRS_STRING", UTM.Get_WKT());
 
-		return( CCRS_Transform_Shapes::On_Parameter_Changed(pParameters, (*pParameters)
-			(UTM.Get_EPSG() > 0 ? "CRS_EPSG" : "CRS_PROJ4")
-		));
+		return( CCRS_Transform_Shapes::On_Parameter_Changed(pParameters, (*pParameters)("CRS_STRING")) );
 	}
 
 	//-----------------------------------------------------

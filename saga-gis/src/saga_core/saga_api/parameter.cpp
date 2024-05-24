@@ -1220,9 +1220,9 @@ bool CSG_Parameters_CRSPicker::Activate_GUI(bool bReset)
 		return( false );
 	}
 
-	m_pCRS->Set_Parameter("CRS_EPSG"     , (*m_pParameters)["CRS_CODE"     ].asInt   ());
-	m_pCRS->Set_Parameter("CRS_EPSG_AUTH", (*m_pParameters)["CRS_AUTHORITY"].asString());
-	m_pCRS->Set_Parameter("CRS_PROJ4"    , (*m_pParameters)["CRS_PROJ"     ].asString());
+	m_pCRS->Set_Parameter("CRS_STRING"   , (*m_pParameters)["CRS_PROJ"     ].asString());
+	m_pCRS->Set_Parameter("CRS_CODE"     , (*m_pParameters)["CRS_CODE"     ].asInt   ());
+	m_pCRS->Set_Parameter("CRS_AUTHORITY", (*m_pParameters)["CRS_AUTHORITY"].asString());
 
 	m_pParameters->Add_Parameters("POINTS", "CRS_PICKER", _TL("Coordinate Reference System"), _TL(""))
 		->asParameters()->Create(*m_pCRS->Get_Parameters());
@@ -1257,9 +1257,9 @@ bool CSG_Parameters_CRSPicker::On_Parameter_Changed(CSG_Parameters *pParameters,
 {
 	if( pParameter->Cmp_Identifier("CRS_PICKER") )
 	{
-		pParameters->Set_Parameter("CRS_CODE"     , (*pParameter->asParameters())("CRS_EPSG"     )->asInt   ());
-		pParameters->Set_Parameter("CRS_AUTHORITY", (*pParameter->asParameters())("CRS_EPSG_AUTH")->asInt   ());
-		pParameters->Set_Parameter("CRS_PROJ"     , (*pParameter->asParameters())("CRS_PROJ4"    )->asString());
+		pParameters->Set_Parameter("CRS_PROJ"     , (*pParameter->asParameters())("CRS_WKT"      )->asString());
+		pParameters->Set_Parameter("CRS_CODE"     , (*pParameter->asParameters())("CRS_CODE"     )->asInt   ());
+		pParameters->Set_Parameter("CRS_AUTHORITY", (*pParameter->asParameters())("CRS_AUTHORITY")->asInt   ());
 	}
 
 	return( true );

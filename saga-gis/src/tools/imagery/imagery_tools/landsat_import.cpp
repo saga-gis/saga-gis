@@ -332,7 +332,7 @@ CSG_Grid * CLandsat_Import::Get_Projection(CSG_Grid *pGrid, const CSG_Projection
 
 	pTool->Set_Manager(NULL);
 
-	if( pTool->Set_Parameter("CRS_PROJ4" , Projection.Get_WKT())
+	if( pTool->Set_Parameter("CRS_STRING", Projection.Get_WKT())
 	&&  pTool->Set_Parameter("SOURCE"    , pGrid)
 	&&  pTool->Set_Parameter("RESAMPLING", Parameters("RESAMPLING"))
 //	&&  pTool->Set_Parameter("DATA_TYPE" , 10) // "Preserve" => is already default!

@@ -161,16 +161,16 @@ int CCRS_Transform_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_P
 {
 	int	Result	= CCRS_Transform::On_Parameter_Changed(pParameters, pParameter);
 
-	if( pParameter->Cmp_Identifier("CRS_METHOD"     )
-	||  pParameter->Cmp_Identifier("CRS_PROJ4"      )
-	||  pParameter->Cmp_Identifier("CRS_DIALOG"     )
-	||  pParameter->Cmp_Identifier("CRS_PICKER"     )
-	||  pParameter->Cmp_Identifier("CRS_FILE"       )
-	||  pParameter->Cmp_Identifier("CRS_EPSG"       )
-	||  pParameter->Cmp_Identifier("CRS_EPSG_AUTH"  )
-	||  pParameter->Cmp_Identifier("CRS_EPSG_GEOGCS")
-	||  pParameter->Cmp_Identifier("CRS_EPSG_PROJCS")
-	||  pParameter->Cmp_Identifier("SOURCE"         ) )
+	if( pParameter->Cmp_Identifier("CRS_METHOD"   )
+	||  pParameter->Cmp_Identifier("CRS_STRING"   )
+	||  pParameter->Cmp_Identifier("CRS_DIALOG"   )
+	||  pParameter->Cmp_Identifier("CRS_PICKER"   )
+	||  pParameter->Cmp_Identifier("CRS_FILE"     )
+	||  pParameter->Cmp_Identifier("CRS_CODE"     )
+	||  pParameter->Cmp_Identifier("CRS_AUTHORITY")
+	||  pParameter->Cmp_Identifier("CRS_GEOGCS"   )
+	||  pParameter->Cmp_Identifier("CRS_PROJCS"   )
+	||  pParameter->Cmp_Identifier("SOURCE"       ) )
 	{
 		Set_Target_System(pParameters, 100, false);
 
@@ -736,7 +736,7 @@ inline void CCRS_Transform_Grid::Get_MinMax(TSG_Rect &r, double x, double y)
 //---------------------------------------------------------
 bool CCRS_Transform_Grid::Set_Target_System(CSG_Parameters *pParameters, int Resolution, bool bEdges)
 {
-	if( !pParameters || !pParameters->Get_Parameter("SOURCE") || !pParameters->Get_Parameter("CRS_PROJ4") )
+	if( !pParameters || !pParameters->Get_Parameter("SOURCE") || !pParameters->Get_Parameter("CRS_WKT") )
 	{
 		return( false );
 	}
@@ -764,8 +764,12 @@ bool CCRS_Transform_Grid::Set_Target_System(CSG_Parameters *pParameters, int Res
 		System	= pParameters->Get_Parameter("SOURCE")->asGrid()->Get_System();
 	}
 
+	CSG_String p(pParameters->Get_Parameter("CRS_WKT")->asString());
+	CSG_Projection pt(p);
+
 	if( !Projection.is_Okay() || !System.is_Valid()
-	||  !m_Projector.Set_Target(CSG_Projection(pParameters->Get_Parameter("CRS_PROJ4")->asString()))
+//	||  !m_Projector.Set_Target(pParameters->Get_Parameter("CRS_WKT")->asString())
+	||  !m_Projector.Set_Target(pt)
 	||  !m_Projector.Get_Target().is_Okay()
 	||  !m_Projector.Set_Source(Projection) )
 	{

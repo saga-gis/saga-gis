@@ -1369,9 +1369,7 @@ void CWKSP_Map::Set_Projection(void)
 	{
 		CSG_Parameters P(*pTool->Get_Parameters());
 
-		P.Set_Parameter("CRS_PROJ4"    , m_Projection.Get_Proj4       ());
-		P.Set_Parameter("CRS_EPSG"     , m_Projection.Get_Authority_ID());
-		P.Set_Parameter("CRS_EPSG_AUTH", m_Projection.Get_Authority   ());
+		P.Set_Parameter("CRS_STRING"   , m_Projection.Get_WKT());
 
 		P.Add_Bool("", "ONTHEFLY", _TL("On-The-Fly Projection"),
 			_TL("Turn on the on-the-fly projection for all layers in the map."),
@@ -1383,10 +1381,7 @@ void CWKSP_Map::Set_Projection(void)
 		{
 			CSG_Projection Projection; CSG_Parameters &_P = *pTool->Get_Parameters();
 
-			if( _P["CRS_EPSG"].asInt() < 0 || !Projection.Create(_P["CRS_EPSG"].asInt(), _P["CRS_EPSG_AUTH"].asString()) )
-			{
-				Projection.Create(_P["CRS_PROJ4"].asString());
-			}
+			Projection.Create(_P["CRS_WKT"].asString());
 
 			if( P("ONTHEFLY")->asBool() )
 			{
