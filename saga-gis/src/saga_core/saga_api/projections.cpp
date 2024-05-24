@@ -90,8 +90,6 @@ CSG_Projection::~CSG_Projection(void)
 //---------------------------------------------------------
 CSG_Projection::CSG_Projection(const CSG_Projection &Projection)
 {
-	Destroy();
-
 	Create(Projection);
 }
 
@@ -112,34 +110,49 @@ bool CSG_Projection::Create(const CSG_Projection &Projection)
 }
 
 //---------------------------------------------------------
-CSG_Projection::CSG_Projection(int Code, const SG_Char *Authority)
+CSG_Projection::CSG_Projection(const char *Definition)
 {
-	Create(Code, Authority);
+	Create(Definition);
 }
 
-bool CSG_Projection::Create(int Code, const SG_Char *Authority)
+bool CSG_Projection::Create(const char *Definition)
 {
-	if( gSG_Projections.Get_Projection(Code, Authority) ) // request SAGA's internal CRS database first (might provide special definitions not included in PROJ's default database)
+	if( Definition && *Definition)
 	{
-		return( Create(gSG_Projections.Get_Projection(Code, Authority)) );
+		return( Create(CSG_String(Definition)) );
 	}
 
-	return( Create(CSG_String::Format("%s:%d", Authority && *Authority ? Authority : SG_T("EPSG"), Code)) );
+	Destroy();
+
+	return( false );
 }
 
 //---------------------------------------------------------
-CSG_Projection::CSG_Projection(const CSG_String &Definition, ESG_CRS_Format Format)
+CSG_Projection::CSG_Projection(const wchar_t *Definition)
 {
-	Create(Definition, Format);
+	Create(Definition);
 }
 
-bool CSG_Projection::Create(const CSG_String &Definition, ESG_CRS_Format Format)
+bool CSG_Projection::Create(const wchar_t *Definition)
 {
-	if( Format == ESG_CRS_Format::EPSG )
+	if( Definition && *Definition )
 	{
-		int id; return( Definition.asInt(id) && Create(CSG_String::Format("EPSG:%d", id)) );
+		return( Create(CSG_String(Definition)) );
 	}
 
+	Destroy();
+
+	return( false );
+}
+
+//---------------------------------------------------------
+CSG_Projection::CSG_Projection(const CSG_String &Definition)
+{
+	Create(Definition);
+}
+
+bool CSG_Projection::Create(const CSG_String &Definition)
+{
 	Destroy();
 
 	if( CSG_Projections::Parse(Definition, &m_WKT1, &m_WKT2, &m_PROJ, &m_ESRI) )
@@ -169,21 +182,19 @@ bool CSG_Projection::Create(const CSG_String &Definition, ESG_CRS_Format Format)
 }
 
 //---------------------------------------------------------
-CSG_Projection::CSG_Projection(const CSG_String &WKT, const CSG_String &Proj4)
+CSG_Projection::CSG_Projection(int Code, const SG_Char *Authority)
 {
-	Create(WKT, Proj4);
+	Create(Code, Authority);
 }
 
-bool CSG_Projection::Create(const CSG_String &WKT, const CSG_String &Proj4)
+bool CSG_Projection::Create(int Code, const SG_Char *Authority)
 {
-	if( Create(WKT) )
+	if( gSG_Projections.Get_Projection(Code, Authority) ) // request SAGA's internal CRS database first (might provide special definitions not included in PROJ's default database)
 	{
-		m_PROJ = Proj4;
-
-		return( true );
+		return( Create(gSG_Projections.Get_Projection(Code, Authority)) );
 	}
 
-	return( false );
+	return( Create(CSG_String::Format("%s:%d", Authority && *Authority ? Authority : SG_T("EPSG"), Code)) );
 }
 
 //---------------------------------------------------------
@@ -207,11 +218,11 @@ void CSG_Projection::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Projection::Load(const CSG_String &FileName, ESG_CRS_Format Format)
+bool CSG_Projection::Load(const CSG_String &FileName)
 {
 	CSG_File Stream(FileName, SG_FILE_R, false);
 
-	return( Load(Stream, Format) );
+	return( Load(Stream) );
 }
 
 //---------------------------------------------------------
@@ -223,13 +234,13 @@ bool CSG_Projection::Save(const CSG_String &FileName, ESG_CRS_Format Format) con
 }
 
 //---------------------------------------------------------
-bool CSG_Projection::Load(CSG_File &Stream, ESG_CRS_Format Format)
+bool CSG_Projection::Load(CSG_File &Stream)
 {
 	if( Stream.is_Reading() )
 	{
 		CSG_String s; Stream.Read(s, (size_t)Stream.Length());
 
-		return( Create(s, Format) );
+		return( Create(s) );
 	}
 
 	return( false );
@@ -247,6 +258,7 @@ bool CSG_Projection::Save(CSG_File &Stream, ESG_CRS_Format Format)	const
 		case ESG_CRS_Format::WKT2: return( !m_WKT2.is_Empty() && Stream.Write(m_WKT2) == m_WKT2.Length() );
 		case ESG_CRS_Format::PROJ: return( !m_PROJ.is_Empty() && Stream.Write(m_PROJ) == m_PROJ.Length() );
 		case ESG_CRS_Format::ESRI: return( !m_ESRI.is_Empty() && Stream.Write(m_ESRI) == m_ESRI.Length() );
+		case ESG_CRS_Format::CODE: return( !m_Authority.is_Empty() && m_Code > 0 && Stream.Printf("%s:%d", m_Authority.c_str(), m_Code) );
 		}
 	}
 
@@ -408,83 +420,83 @@ bool CSG_Projection::is_Equal(const CSG_Projection &Projection)	const
 	}
 
 	//-----------------------------------------------------
-	CSG_MetaData WKT(CSG_Projections::_WKT_to_MetaData(m_WKT1)), *pGCS = NULL; // okay, let's perform a more detailed check...
+	// CSG_MetaData WKT(CSG_Projections::_WKT_to_MetaData(m_WKT1)), *pGCS = NULL; // okay, let's perform a more detailed check...
 
-	return( false );
+	// return( false );
 	//-----------------------------------------------------
-	//CSG_MetaData Parms[2]; // okay, let's perform a more detailed check...
+	CSG_MetaData Parms[2]; // okay, let's perform a more detailed check...
 
-	//for(int j=0; j<2; j++) // collect the key/value pairs
-	//{
-	//	CSG_Strings s = SG_String_Tokenize(j == 0 ? m_PROJ : Projection.m_PROJ, "+");
+	for(int j=0; j<2; j++) // collect the key/value pairs
+	{
+		CSG_Strings s = SG_String_Tokenize(j == 0 ? m_PROJ : Projection.m_PROJ, "+");
 
-	//	for(int i=0; i<s.Get_Count(); i++)
-	//	{
-	//		CSG_String key = s[i].BeforeFirst('='); key.Trim_Both(); key.Make_Lower();
-	//		CSG_String val = s[i].AfterFirst ('='); val.Trim_Both(); val.Make_Lower();
+		for(int i=0; i<s.Get_Count(); i++)
+		{
+			CSG_String key = s[i].BeforeFirst('='); key.Trim_Both(); key.Make_Lower();
+			CSG_String val = s[i].AfterFirst ('='); val.Trim_Both(); val.Make_Lower();
 
-	//		if( !key.is_Empty() && key.Cmp("no_defs") && !Parms[j](key) ) // key must not be empty, no_defs might be ignored, no key should appear twice!
-	//		{
-	//			Parms[j].Add_Child(key, val);
-	//		}
-	//	}
-	//}
+			if( !key.is_Empty() && key.Cmp("no_defs") && !Parms[j](key) ) // key must not be empty, no_defs might be ignored, no key should appear twice!
+			{ 
+				Parms[j].Add_Child(key, val);
+			}
+		}
+	}
 
-	//for(int j=0, k=1; j<2; j++, k=++k%2) // cross check
-	//{
-	//	for(int i=0; i<Parms[j].Get_Children_Count(); i++)
-	//	{
-	//		CSG_String key = Parms[j][i].Get_Name();
+	for(int j=0, k=1; j<2; j++, k=++k%2) // cross check
+	{
+		for(int i=0; i<Parms[j].Get_Children_Count(); i++)
+		{
+			CSG_String key = Parms[j][i].Get_Name();
 
-	//		if( Parms[k](key) )
-	//		{
-	//			if( !Parms[k][key].Cmp_Content(Parms[j][i].Get_Content()) )
-	//			{
-	//				double	d[2];
+			if( Parms[k](key) )
+			{
+				if( !Parms[k][key].Cmp_Content(Parms[j][i].Get_Content()) )
+				{
+					double	d[2];
 
-	//				if( !Parms[j].Get_Content().asDouble(d[0])	// does the numerical value representation match ?
-	//				||  !Parms[j].Get_Content().asDouble(d[1]) || d[0] != d[1] )
-	//				{
-	//					return( false );
-	//				}
-	//			}
-	//		}
-	//		else // key not present in other list, check for blacklist...
-	//		{
-	//			if( !key.CmpNoCase("units") && Parms[j].Cmp_Content("m") ) // meter is default(!?)
-	//			{
-	//				continue;
-	//			}
+					if( !Parms[j].Get_Content().asDouble(d[0])	// does the numerical value representation match ?
+					||  !Parms[j].Get_Content().asDouble(d[1]) || d[0] != d[1] )
+					{
+						return( false );
+					}
+				}
+			}
+			else // key not present in other list, check for blacklist...
+			{
+				if( !key.CmpNoCase("units") && Parms[j].Cmp_Content("m") ) // meter is default(!?)
+				{
+					continue;
+				}
 
-	//			if( !key.CmpNoCase("datum"  ) // ignore everything related to datum, will be checked below...
-	//			||  !key.CmpNoCase("ellps"  )
-	//			||  !key.CmpNoCase("a"      )
-	//			||  !key.CmpNoCase("b"      )
-	//			||  !key.CmpNoCase("rf"     )
-	//			||  !key.CmpNoCase("e"      )
-	//			||  !key.CmpNoCase("es"     )
-	//			||  !key.CmpNoCase("ellps"  )
-	//			||  !key.CmpNoCase("towgs84") )
-	//			{
-	//				continue;
-	//			}
-	//		}
-	//	}
-	//}
+				if( !key.CmpNoCase("datum"  ) // ignore everything related to datum, will be checked below...
+				||  !key.CmpNoCase("ellps"  )
+				||  !key.CmpNoCase("a"      )
+				||  !key.CmpNoCase("b"      )
+				||  !key.CmpNoCase("rf"     )
+				||  !key.CmpNoCase("e"      )
+				||  !key.CmpNoCase("es"     )
+				||  !key.CmpNoCase("ellps"  )
+				||  !key.CmpNoCase("towgs84") )
+				{
+					continue;
+				}
+			}
+		}
+	}
 
-	////-----------------------------------------------------
-	//CSG_String Datum[2];
+	//-----------------------------------------------------
+	CSG_String Datum[2];
 
-	//#define GET_DATUM(d, p) { CSG_String s; CSG_Projections::_Proj4_Get_Datum(s, p); d.Clear();\
-	//	for(int i=0, add=1; i<s.Length(); i++) {\
-	//		if( s[i] == '\"' ) { add = add ? 0 : 1; } else if( add ) { d += s[i]; }\
-	//	}\
-	//}
+	#define GET_DATUM(d, p) { CSG_String s; CSG_Projections::_Proj4_Get_Datum(s, p); d.Clear();\
+		for(int i=0, add=1; i<s.Length(); i++) {\
+			if( s[i] == '\"' ) { add = add ? 0 : 1; } else if( add ) { d += s[i]; }\
+		}\
+	}
 
-	//GET_DATUM(Datum[0],            m_PROJ);
-	//GET_DATUM(Datum[1], Projection.m_PROJ);
+	GET_DATUM(Datum[0],            m_PROJ);
+	GET_DATUM(Datum[1], Projection.m_PROJ);
 
-	//return( Datum[0].is_Same_As(Datum[1]) );
+	return( Datum[0].is_Same_As(Datum[1]) );
 }
 
 
@@ -528,24 +540,22 @@ double CSG_Projection::Get_Unit_To_Meter(void) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define WKT_GCS_WGS84 "GEOGCS[\"WGS 84\",AUTHORITY[\"EPSG\",\"4326\"]],"\
-	"DATUM[\"WGS_1984\",AUTHORITY[\"EPSG\",\"6326\"]],"\
-		"SPHEROID[\"WGS 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],"\
-	"PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],"\
-	"UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]"
-
-//---------------------------------------------------------
 const CSG_Projection & CSG_Projection::Get_GCS_WGS84(void)
 {
-	static CSG_Projection Projection(WKT_GCS_WGS84);
+	static CSG_Projection GCS_WGS84;
 
-	return( Projection );
+	if( !GCS_WGS84.is_Okay() )
+	{
+		GCS_WGS84.Set_GCS_WGS84();
+	}
+
+	return( GCS_WGS84 );
 }
 
 //---------------------------------------------------------
 bool CSG_Projection::Set_GCS_WGS84(void)
 {
-	return( Create(WKT_GCS_WGS84) );
+	return( Create(4326) );
 }
 
 //---------------------------------------------------------
@@ -574,6 +584,12 @@ bool CSG_Projection::Set_UTM_WGS84(int Zone, bool bSouth)
 	}
 
 	//-----------------------------------------------------
+	#define WKT_GCS_WGS84 "GEOGCS[\"WGS 84\",AUTHORITY[\"EPSG\",\"4326\"]],"\
+		"DATUM[\"WGS_1984\",AUTHORITY[\"EPSG\",\"6326\"]],"\
+			"SPHEROID[\"WGS 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],"\
+		"PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],"\
+		"UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]"
+
 	CSG_String WKT;
 
 	WKT.Printf("PROJCS[\"WGS 84 / UTM zone %d%c\",%s"						// Zone, N/S, Datum
@@ -2291,10 +2307,10 @@ bool	SG_Get_Projected	(CSG_Shapes *pSource, CSG_Shapes *pTarget, const CSG_Proje
 		{
 			CSG_Data_Manager Data; Data.Add(pSource); pTool->Set_Manager(&Data);
 
-			pTool->Set_Parameter("SOURCE"   , pSource);
-			pTool->Set_Parameter("CRS_PROJ4", Target.Get_Proj4());
-			pTool->Set_Parameter("COPY"     , false);
-			pTool->Set_Parameter("PARALLEL" , true);
+			pTool->Set_Parameter("SOURCE"    , pSource);
+			pTool->Set_Parameter("CRS_STRING", Target.Get_WKT());
+			pTool->Set_Parameter("COPY"      , false);
+			pTool->Set_Parameter("PARALLEL"  , true);
 
 			SG_UI_ProgressAndMsg_Lock(true);
 			bool bResult = pTool->Execute();

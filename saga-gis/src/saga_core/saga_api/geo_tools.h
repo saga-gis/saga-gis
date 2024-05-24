@@ -778,7 +778,7 @@ private:
 //---------------------------------------------------------
 enum class ESG_CRS_Format
 {
-	WKT1, WKT2, PROJ, ESRI, Undefined, WKT = WKT1, Proj4 = PROJ, EPSG
+	WKT1, WKT2, PROJ, ESRI, CODE, Undefined, WKT = WKT1
 };
 
 //---------------------------------------------------------
@@ -834,21 +834,25 @@ public:
 	bool							Create					(const CSG_Projection &Projection);
 	CSG_Projection &				operator =				(const CSG_Projection &Projection) { Create(Projection); return( *this ); }
 
+									CSG_Projection			(const char       *Definition);
+	bool							Create					(const char       *Definition);
+	CSG_Projection &				operator =				(const char       *Definition)     { Create(Definition); return( *this ); }
+
+									CSG_Projection			(const wchar_t    *Definition);
+	bool							Create					(const wchar_t    *Definition);
+	CSG_Projection &				operator =				(const wchar_t    *Definition)     { Create(Definition); return( *this ); }
+
+									CSG_Projection			(const CSG_String &Definition);
+	bool							Create					(const CSG_String &Definition);
+	CSG_Projection &				operator =				(const CSG_String &Definition)     { Create(Definition); return( *this ); }
+
 									CSG_Projection			(int Code, const SG_Char *Authority = NULL);
 	bool							Create					(int Code, const SG_Char *Authority = NULL);
 	CSG_Projection &				operator =				(int Code)                         { Create(Code      ); return( *this ); }
 
-									CSG_Projection			(const CSG_String &Definition, ESG_CRS_Format Format = ESG_CRS_Format::WKT);
-	bool							Create					(const CSG_String &Definition, ESG_CRS_Format Format = ESG_CRS_Format::WKT);
-	CSG_Projection &				operator =				(const CSG_String &Definition)     { Create(Definition); return( *this ); }
-
-									CSG_Projection			(const CSG_String &WKT, const CSG_String &Proj4);
-	bool							Create					(const CSG_String &WKT, const CSG_String &Proj4);
-
-	bool							Assign					(const CSG_Projection &Projection)                                          { return( Create(Projection        ) ); }
-	bool							Assign					(int Code, const SG_Char *Authority = NULL)                                 { return( Create(Code, Authority   ) ); }
-	bool							Assign					(const CSG_String &Definition, ESG_CRS_Format Format = ESG_CRS_Format::WKT) { return( Create(Definition, Format) ); }
-	bool							Assign					(const CSG_String &WKT, const CSG_String &Proj4)                            { return( Create(WKT, Proj4        ) ); }
+	bool							Assign					(const CSG_Projection &Projection)          { return( Create(Projection      ) ); }
+	bool							Assign					(const CSG_String &Definition)              { return( Create(Definition      ) ); }
+	bool							Assign					(int Code, const SG_Char *Authority = NULL) { return( Create(Code, Authority ) ); }
 
 	bool							is_Okay					(void)	const	{	return( m_Type != ESG_CRS_Type::Undefined );	}
 	bool							is_Equal				(const CSG_Projection &Projection) const;
@@ -861,10 +865,10 @@ public:
 	static CSG_Projection			Get_UTM_WGS84			(int Zone, bool bSouth = false);
 	bool							Set_UTM_WGS84			(int Zone, bool bSouth = false);
 
-	bool							Load					(const CSG_String &File, ESG_CRS_Format Format = ESG_CRS_Format::Undefined);
+	bool							Load					(const CSG_String &File);
 	bool							Save					(const CSG_String &File, ESG_CRS_Format Format = ESG_CRS_Format::WKT) const;
 
-	bool							Load					(CSG_File &Stream      , ESG_CRS_Format Format = ESG_CRS_Format::Undefined);
+	bool							Load					(CSG_File &Stream);
 	bool							Save					(CSG_File &Stream      , ESG_CRS_Format Format = ESG_CRS_Format::WKT) const;
 
 	bool							Load					(const CSG_MetaData &Projection);
