@@ -2466,18 +2466,12 @@ int CSG_PG_Tool::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 	{
 		CSG_Projection Projection;
 
-		if(	pParameter->Cmp_Identifier("CRS_EPSG") || pParameter->Cmp_Identifier("CRS_EPSG_AUTH") )
+		if(	pParameter->Cmp_Identifier("CRS_CODE") || pParameter->Cmp_Identifier("CRS_AUTHORITY") )
 		{
-			int Code = (*pParameters)("CRS_EPSG")->asInt();
-
-			if( Code >= 0 && !Projection.Create(Code) ) //, (*pParameters)("CRS_EPSG_AUTH")->asString()) )
-			{
-				SG_UI_Dlg_Message(_TL("Unknown Authority Code"), _TL("Warning"));
-			}
+			Projection.Create((*pParameters)("CRS_CODE")->asInt(), (*pParameters)("CRS_AUTHORITY")->asString());
 		}
 
-		if(	pParameter->Cmp_Identifier("CRS_EPSG_GEOGCS")
-		||  pParameter->Cmp_Identifier("CRS_EPSG_PROJCS") )
+		if(	pParameter->Cmp_Identifier("CRS_GEOGCS") || pParameter->Cmp_Identifier("CRS_PROJCS") )
 		{
 			CSG_String Authority_Code;
 
@@ -2489,11 +2483,11 @@ int CSG_PG_Tool::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 
 		if( Projection.is_Okay() )
 		{
-			pParameters->Set_Parameter("CRS_EPSG"     , Projection.Get_Code     ());
-			pParameters->Set_Parameter("CRS_EPSG_AUTH", Projection.Get_Authority());
+			pParameters->Set_Parameter("CRS_CODE"     , Projection.Get_Code     ());
+			pParameters->Set_Parameter("CRS_AUTHORITY", Projection.Get_Authority());
 
-			if(	!pParameter->Cmp_Identifier("CRS_EPSG_GEOGCS") ) { pParameters->Set_Parameter("CRS_EPSG_GEOGCS", 0); }
-			if(	!pParameter->Cmp_Identifier("CRS_EPSG_PROJCS") ) { pParameters->Set_Parameter("CRS_EPSG_PROJCS", 0); }
+			if(	!pParameter->Cmp_Identifier("CRS_GEOGCS") ) { pParameters->Set_Parameter("CRS_GEOGCS", 0); }
+			if(	!pParameter->Cmp_Identifier("CRS_PROJCS") ) { pParameters->Set_Parameter("CRS_PROJCS", 0); }
 		}
 	}
 
@@ -2527,17 +2521,18 @@ bool CSG_PG_Tool::Add_SRID_Picker(CSG_Parameters *pParameters)
 		pParameters = &Parameters;
 	}
 
-	if( pParameters->Get_Parameter("CRS_EPSG") )
+	if( pParameters->Get_Parameter("CRS_CODE") )
 	{
 		return( false ); // don't add twice ...
 	}
 
-	pParameters->Add_Int("", "CRS_EPSG", _TL("EPSG Code"), _TL(""), -1, -1, true);
+	pParameters->Add_Int   (""        , "CRS_CODE"     , _TL("Authority Code"), _TL(""), -1, -1, true);
+	pParameters->Add_String("CRS_CODE", "CRS_AUTHORITY", _TL("Authority"     ), _TL(""), "EPSG");
 
 	if( has_CMD() == false )
 	{
-		pParameters->Add_Choice("CRS_EPSG", "CRS_EPSG_GEOGCS", _TL("Geographic Coordinate Systems"), _TL(""), SG_Get_Projections().Get_Names_List(ESG_CRS_Type::Geographic));
-		pParameters->Add_Choice("CRS_EPSG", "CRS_EPSG_PROJCS", _TL("Projected Coordinate Systems" ), _TL(""), SG_Get_Projections().Get_Names_List(ESG_CRS_Type::Projection));
+		pParameters->Add_Choice("CRS_CODE", "CRS_GEOGCS", _TL("Geographic Coordinate Systems"), _TL(""), SG_Get_Projections().Get_Names_List(ESG_CRS_Type::Geographic));
+		pParameters->Add_Choice("CRS_CODE", "CRS_PROJCS", _TL("Projected Coordinate Systems" ), _TL(""), SG_Get_Projections().Get_Names_List(ESG_CRS_Type::Projection));
 	}
 
 	return( true );
@@ -2546,7 +2541,7 @@ bool CSG_PG_Tool::Add_SRID_Picker(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 bool CSG_PG_Tool::Set_SRID_Picker_Enabled(CSG_Parameters *pParameters, bool bEnable)
 {
-	CSG_Parameter *pParameter = pParameters ? pParameters->Get_Parameter("CRS_EPSG") : NULL;
+	CSG_Parameter *pParameter = pParameters ? pParameters->Get_Parameter("CRS_CODE") : NULL;
 
 	if( pParameter )
 	{
@@ -2559,20 +2554,14 @@ bool CSG_PG_Tool::Set_SRID_Picker_Enabled(CSG_Parameters *pParameters, bool bEna
 }
 
 //---------------------------------------------------------
-bool CSG_PG_Tool::Set_SRID(CSG_Parameters *pParameters, int SRID)
+bool CSG_PG_Tool::Set_SRID(CSG_Parameters *pParameters, const CSG_Projection &CRS)
 {
-	CSG_Parameter *pParameter = pParameters ? pParameters->Get_Parameter("CRS_EPSG") : NULL;
-
-	if( pParameter )
+	if( pParameters )
 	{
-		CSG_Projection Projection;
+		pParameters->Set_Parameter("CRS_CODE"     , CRS.Get_Code     ());
+		pParameters->Set_Parameter("CRS_AUTHORITY", CRS.Get_Authority());
 
-		if( SG_Get_Projections().Get_Projection(Projection, SRID) )
-		{
-			pParameter->Set_Value(SRID);
-
-			return( true );
-		}
+		return( true );
 	}
 
 	return( false );
@@ -2586,7 +2575,7 @@ int CSG_PG_Tool::Get_SRID(CSG_Parameters *pParameters)
 		pParameters = &Parameters;
 	}
 
-	CSG_Parameter *pParameter = pParameters->Get_Parameter("CRS_EPSG");
+	CSG_Parameter *pParameter = pParameters->Get_Parameter("CRS_CODE");
 
 	return( pParameter ? pParameter->asInt() : -1 );
 }

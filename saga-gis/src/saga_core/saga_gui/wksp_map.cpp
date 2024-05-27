@@ -886,8 +886,8 @@ CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 
 		s += _TL("The coordinate system used by the layer is not identical with the one of the map!");
 		s += "\n";
-		s += wxString::Format("\n%s:\n  [%s]", _TL("Map"  ),                         m_Projection  .Get_Proj4().c_str());
-		s += wxString::Format("\n%s:\n  [%s]", _TL("Layer"), pLayer->Get_Object()->Get_Projection().Get_Proj4().c_str());
+		s += wxString::Format("\n%s:\n  [%s]", _TL("Map"  ),                         m_Projection  .Get_PROJ().c_str());
+		s += wxString::Format("\n%s:\n  [%s]", _TL("Layer"), pLayer->Get_Object()->Get_Projection().Get_PROJ().c_str());
 		s += "\n\n";
 		s += _TL("Do you want to activate on-the-fly projection for this layer in the map?");
 		s += "\n";
@@ -2455,7 +2455,7 @@ void CWKSP_Map::Show_Coordinate(const CSG_Point &Coordinate) const
 		{
 			if( !m_Projection.is_Geographic() )
 			{
-				P.Add_Node("", "MAP", m_Projection.Get_Name(), m_Projection.Get_Proj4());
+				P.Add_Node("", "MAP", m_Projection.Get_Name(), m_Projection.Get_PROJ());
 				P.Add_Info_Value("MAP", "MAP_X", _TL("Easting" ), _TL(""), PARAMETER_TYPE_Double, Coordinate.x);
 				P.Add_Info_Value("MAP", "MAP_Y", _TL("Northing"), _TL(""), PARAMETER_TYPE_Double, Coordinate.y);
 			}

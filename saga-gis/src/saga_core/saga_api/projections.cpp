@@ -2341,8 +2341,8 @@ bool	SG_Get_Projected	(const CSG_Projection &Source, const CSG_Projection &Targe
 		if( pTool )
 		{
 			pTool->Set_Manager(NULL);
-			pTool->Set_Parameter("TARGET_CRS", Target.Get_Proj4());
-			pTool->Set_Parameter("SOURCE_CRS", Source.Get_Proj4());
+			pTool->Set_Parameter("TARGET_CRS", Target.Get_WKT());
+			pTool->Set_Parameter("SOURCE_CRS", Source.Get_WKT());
 			pTool->Set_Parameter("SOURCE_X"  , Point.x);
 			pTool->Set_Parameter("SOURCE_Y"  , Point.y);
 

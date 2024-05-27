@@ -294,7 +294,9 @@ CSG_String CSG_CRSProjector::Convert_CRS_Format(const CSG_String &Definition, TC
 //---------------------------------------------------------
 bool CSG_CRSProjector::_Set_Projection(const CSG_Projection &Projection, void **ppProjection, bool bInverse)
 {
-	PROJ4_FREE(*ppProjection); CSG_String Proj4(Projection.Get_Proj4());
+	PROJ4_FREE(*ppProjection);
+
+	CSG_String Proj4(Projection.Get_Proj4());
 
 	{
 		int i = Proj4.Find("+type");
@@ -306,7 +308,7 @@ bool CSG_CRSProjector::_Set_Projection(const CSG_Projection &Projection, void **
 			if( Right.BeforeFirst('+').Find("crs") >= 0 )
 			{
 				Proj4 = Proj4.Left(i);
-				
+
 				if( (i = Right.Find('+')) >= 0 )
 				{
 					Proj4 += Right.Right(Right.Length() - i);
@@ -319,14 +321,14 @@ bool CSG_CRSProjector::_Set_Projection(const CSG_Projection &Projection, void **
 	#if PROJ_VERSION_MAJOR < 6
 	if( (*ppProjection = pj_init_plus(Proj4)) == NULL )
 	{
-		CSG_String	Error(pj_strerrno(pj_errno));
+		CSG_String Error(pj_strerrno(pj_errno));
 	#else
 	if( (*ppProjection = proj_create((PJ_CONTEXT *)m_pContext, Proj4)) == NULL )
 	{
-		CSG_String	Error(proj_errno_string(proj_errno((PJ *)(*ppProjection))));
+		CSG_String Error(proj_errno_string(proj_errno((PJ *)(*ppProjection))));
 	#endif
 
-		SG_UI_Msg_Add_Error(CSG_String::Format("Proj4 [%s]: %s", _TL("initialization"), Error.c_str()));
+		SG_UI_Msg_Add_Error(CSG_String::Format("PROJ [%s]: %s", _TL("initialization"), Error.c_str()));
 
 		return( false );
 	}
@@ -338,7 +340,7 @@ bool CSG_CRSProjector::_Set_Projection(const CSG_Projection &Projection, void **
 	if( bInverse && !proj_pj_info((PJ *)(*ppProjection)).has_inverse )
 	#endif
 	{
-		SG_UI_Msg_Add_Error(CSG_String::Format("Proj4 [%s]: %s", _TL("initialization"), _TL("inverse transformation not available")));
+		SG_UI_Msg_Add_Error(CSG_String::Format("PROJ [%s]: %s", _TL("initialization"), _TL("inverse transformation not available")));
 
 		return( false );
 	}
@@ -386,7 +388,7 @@ bool CSG_CRSProjector::Set_Inverse(bool bOn)
 		return( true );
 	}
 
-	SG_UI_Msg_Add_Error(CSG_String::Format("Proj4 [%s]: %s", _TL("initialization"), _TL("inverse transformation not available")));
+	SG_UI_Msg_Add_Error(CSG_String::Format("PROJ [%s]: %s", _TL("initialization"), _TL("inverse transformation not available")));
 
 	return( false );
 }

@@ -1193,9 +1193,9 @@ bool CSG_Parameters_CRSPicker::Create(CSG_Parameters &Parameters, const CSG_Stri
 {
 	m_pParameters = &Parameters;
 
-	Parameters.Add_String("", "CRS_PROJ"     , _TL("PROJ Parameters"), _TL(""),     "")->Set_UseInGUI(false);
-	Parameters.Add_Int   ("", "CRS_CODE"     , _TL("Code ID"        ), _TL(""),     -1)->Set_UseInGUI(false);
-	Parameters.Add_String("", "CRS_AUTHORITY", _TL("Code Authority" ), _TL(""), "EPSG")->Set_UseInGUI(false);
+	Parameters.Add_String(ParentID, "CRS_STRING", _TL("Coordinate System Definition"),
+		_TL("Supported formats comprise PROJ and WKT strings, object codes (e.g. \"EPSG:4326\")."), ""
+	)->Set_UseInGUI(false);
 
 	return( true );
 }
@@ -1220,12 +1220,11 @@ bool CSG_Parameters_CRSPicker::Activate_GUI(bool bReset)
 		return( false );
 	}
 
-	m_pCRS->Set_Parameter("CRS_STRING"   , (*m_pParameters)["CRS_PROJ"     ].asString());
-	m_pCRS->Set_Parameter("CRS_CODE"     , (*m_pParameters)["CRS_CODE"     ].asInt   ());
-	m_pCRS->Set_Parameter("CRS_AUTHORITY", (*m_pParameters)["CRS_AUTHORITY"].asString());
+	m_pCRS->Set_Parameter("CRS_STRING", (*m_pParameters)["CRS_STRING"].asString());
 
-	m_pParameters->Add_Parameters("POINTS", "CRS_PICKER", _TL("Coordinate Reference System"), _TL(""))
-		->asParameters()->Create(*m_pCRS->Get_Parameters());
+	m_pParameters->Add_Parameters((*m_pParameters)("CRS_STRING")->Get_Parent(),
+		"CRS_PICKER", _TL("Coordinate Reference System"), _TL("")
+	)->asParameters()->Create(*m_pCRS->Get_Parameters());
 
 	return( true );
 }
@@ -1257,9 +1256,7 @@ bool CSG_Parameters_CRSPicker::On_Parameter_Changed(CSG_Parameters *pParameters,
 {
 	if( pParameter->Cmp_Identifier("CRS_PICKER") )
 	{
-		pParameters->Set_Parameter("CRS_PROJ"     , (*pParameter->asParameters())("CRS_WKT"      )->asString());
-		pParameters->Set_Parameter("CRS_CODE"     , (*pParameter->asParameters())("CRS_CODE"     )->asInt   ());
-		pParameters->Set_Parameter("CRS_AUTHORITY", (*pParameter->asParameters())("CRS_AUTHORITY")->asInt   ());
+		pParameters->Set_Parameter("CRS_STRING", (*pParameter->asParameters())("CRS_WKT")->asString());
 	}
 
 	return( true );
@@ -1279,12 +1276,11 @@ bool CSG_Parameters_CRSPicker::On_Parameters_Enable(CSG_Parameters *pParameters,
 //---------------------------------------------------------
 bool CSG_Parameters_CRSPicker::Get_CRS(CSG_Projection &Projection, bool bMessage) const
 {
-	if( Projection.Create((*m_pParameters)["CRS_CODE"].asInt(), (*m_pParameters)["CRS_AUTHORITY"].asString())
-	||  Projection.Create((*m_pParameters)["CRS_PROJ"].asString()) )
+	if( Projection.Create((*m_pParameters)["CRS_STRING"].asString()) )
 	{
 		if( bMessage )
 		{
-			SG_UI_Msg_Add_Execution(CSG_String::Format("\n%s: %s\n", _TL("CRS"), Projection.Get_Proj4().c_str()), false);
+			SG_UI_Msg_Add_Execution(CSG_String::Format("\n%s: %s\n", _TL("CRS"), Projection.Get_PROJ().c_str()), false);
 		}
 
 		return( true );

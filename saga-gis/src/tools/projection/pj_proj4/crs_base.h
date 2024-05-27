@@ -90,9 +90,6 @@ protected:
 
 private:
 
-	CSG_Projection			m_Projection;
-
-
 	bool					Set_User_Parameters		(CSG_Parameters &Parameters);
 	bool					Add_User_Projection		(CSG_Parameters &Parameters, const CSG_String &ID, const CSG_String &Args);
 

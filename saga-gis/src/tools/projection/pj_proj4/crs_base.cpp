@@ -117,7 +117,7 @@
 //---------------------------------------------------------
 CCRS_Base::CCRS_Base(void)
 {
-	m_Projection.Set_GCS_WGS84();
+	CSG_Projection Default(CSG_Projection::Get_GCS_WGS84());
 
 	//-----------------------------------------------------
 	Parameters.Add_Choice("",
@@ -133,8 +133,8 @@ CCRS_Base::CCRS_Base(void)
 	//-----------------------------------------------------
 	Parameters.Add_String("",
 		"CRS_STRING"	, _TL("Definition String"),
-		_TL("Supported formats comprise PROJ and WKT strings, object codes (e.g. \"EPSG:4326\")"),
-		m_Projection.Get_WKT(), true
+		_TL("Supported formats comprise PROJ and WKT strings, object codes (e.g. \"EPSG:4326\")."),
+		Default.Get_WKT(), true
 	);
 
 	Parameters.Add_Choice("CRS_STRING",
@@ -193,13 +193,13 @@ CCRS_Base::CCRS_Base(void)
 	Parameters.Add_Int("CRS_STRING",
 		"CRS_CODE"		, _TL("Authority Code"),
 		_TL(""),
-		m_Projection.Get_Code()
+		Default.Get_Code()
 	);
 
 	Parameters.Add_String("CRS_CODE",
 		"CRS_AUTHORITY"	, _TL("Authority"),
 		_TL(""),
-		m_Projection.Get_Authority()
+		Default.Get_Authority()
 	);
 
 	if( has_GUI() )
@@ -218,7 +218,7 @@ CCRS_Base::CCRS_Base(void)
 	}
 
 	//-----------------------------------------------------
-	Parameters.Add_Info_String("", "CRS_WKT", _TL("Well Known Text"), _TL(""), "")->Set_Enabled(false); // for requesting projection in a generic/safe way
+	Parameters.Add_Info_String("", "CRS_WKT", _TL("Well Known Text"), _TL(""), Default.Get_WKT())->Set_Enabled(false); // for requesting projection in a generic/safe way
 	Parameters("CRS_WKT")->Set_UseInCMD(false);
 	Parameters("CRS_WKT")->Set_UseInGUI(false);
 
@@ -249,13 +249,11 @@ CCRS_Base::CCRS_Base(void)
 //---------------------------------------------------------
 bool CCRS_Base::On_Before_Execution(void)
 {
-	m_Projection.Create(Parameters("CRS_STRING")->asString());
+	CSG_Projection Projection(Parameters("CRS_WKT")->asString());
 
-	Parameters.Set_Parameter("CRS_WKT", m_Projection.Get_WKT());
-
-	if( m_Projection.is_Okay() && Parameters("CRS_DIALOG") )
+	if( Projection.is_Okay() && Parameters("CRS_DIALOG") )
 	{
-		Set_User_Definition(*Parameters("CRS_DIALOG")->asParameters(), m_Projection.Get_PROJ());
+		Set_User_Definition(*Parameters("CRS_DIALOG")->asParameters(), Projection.Get_PROJ());
 	}
 
 	return( true );
@@ -266,21 +264,23 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 {
 	//-----------------------------------------------------
 	// >>> for backward compatibility only!
-	// if( pParameter->Cmp_Identifier("CRS_PROJ4"    ) ) { pParameters->Set_Parameter("CRS_STRING"   , pParameter->asString()); return( On_Parameter_Changed(pParameters, (*pParameters)("CRS_STRING"   )) ); }
-	// if( pParameter->Cmp_Identifier("CRS_EPSG"     ) ) { pParameters->Set_Parameter("CRS_CODE"     , pParameter->asInt   ()); return( On_Parameter_Changed(pParameters, (*pParameters)("CRS_CODE"     )) ); }
-	// if( pParameter->Cmp_Identifier("CRS_EPSG_AUTH") ) { pParameters->Set_Parameter("CRS_AUTHORITY", pParameter->asString()); return( On_Parameter_Changed(pParameters, (*pParameters)("CRS_AUTHORITY")) ); }
+	if( pParameter->Cmp_Identifier("CRS_PROJ4"    ) ) { pParameters->Set_Parameter("CRS_STRING"   , pParameter->asString()); return( On_Parameter_Changed(pParameters, (*pParameters)("CRS_STRING"   )) ); }
+	if( pParameter->Cmp_Identifier("CRS_EPSG"     ) ) { pParameters->Set_Parameter("CRS_CODE"     , pParameter->asInt   ()); return( On_Parameter_Changed(pParameters, (*pParameters)("CRS_CODE"     )) ); }
+	if( pParameter->Cmp_Identifier("CRS_EPSG_AUTH") ) { pParameters->Set_Parameter("CRS_AUTHORITY", pParameter->asString()); return( On_Parameter_Changed(pParameters, (*pParameters)("CRS_AUTHORITY")) ); }
 	// <<< for backward compatibility only!
 	//-----------------------------------------------------
 
 	if( pParameter->Cmp_Identifier("CRS_DISPLAY") )
 	{
-		if( m_Projection.is_Okay() )
+		CSG_Projection Projection(Parameters("WKT")->asString());
+
+		if( Projection.is_Okay() )
 		{
 			switch( pParameter->asInt() )
 			{
-			default: pParameters->Set_Parameter("CRS_STRING", m_Projection.Get_PROJ()); break;
-			case  1: pParameters->Set_Parameter("CRS_STRING", m_Projection.Get_WKT1()); break;
-			case  2: pParameters->Set_Parameter("CRS_STRING", m_Projection.Get_WKT2()); break;
+			default: pParameters->Set_Parameter("CRS_STRING", Projection.Get_PROJ()); break;
+			case  1: pParameters->Set_Parameter("CRS_STRING", Projection.Get_WKT1()); break;
+			case  2: pParameters->Set_Parameter("CRS_STRING", Projection.Get_WKT2()); break;
 			}
 		}
 
@@ -288,12 +288,7 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	}
 
 	//-----------------------------------------------------
-	CSG_Projection Projection = Parameter_Changed(pParameters, pParameter);
-
-	if( Projection.is_Okay() )
-	{
-		m_Projection = Projection;
-	}
+	Parameter_Changed(pParameters, pParameter);
 
 	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
@@ -304,7 +299,7 @@ CSG_Projection CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 	CSG_Projection Projection;
 
 	//-----------------------------------------------------
-	if( pParameter->Cmp_Identifier("CRS_STRING") )
+	if( pParameter->Cmp_Identifier("CRS_STRING") || pParameter->Cmp_Identifier("CRS_WKT") )
 	{
 		Projection.Create(pParameter->asString());
 	}
@@ -371,8 +366,8 @@ CSG_Projection CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 		case  2: pParameters->Set_Parameter("CRS_STRING", Projection.Get_WKT2()); break;
 		}
 
-		pParameters->Set_Parameter("CRS_CODE"     , Projection.Get_Authority_ID());
-		pParameters->Set_Parameter("CRS_AUTHORITY", Projection.Get_Authority   ());
+		pParameters->Set_Parameter("CRS_CODE"     , Projection.Get_Code     ());
+		pParameters->Set_Parameter("CRS_AUTHORITY", Projection.Get_Authority());
 
 		if( (*pParameters)("CRS_DIALOG") )
 		{
@@ -383,10 +378,6 @@ CSG_Projection CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 		if(	!pParameter->Cmp_Identifier("CRS_PROJCS") ) { pParameters->Set_Parameter("CRS_PROJCS", 0); }
 
 		pParameters->Set_Parameter("CRS_WKT", Projection.Get_WKT());
-	}
-	else
-	{
-		pParameters->Set_Parameter("CRS_WKT", "");
 	}
 
 	//-----------------------------------------------------
@@ -486,28 +477,28 @@ bool CCRS_Base::Get_Projection(CSG_Projection &Projection)
 {
 	if( has_GUI() ) // gui? projection has already been updated on parameter changed event!
 	{
-		Projection = m_Projection;
+		Projection.Create(Parameters("CRS_WKT")->asString());
 	}
 	else switch( Parameters("CRS_METHOD")->asInt() )	// no gui? check out, how projection shall be initialized!
 	{
 	default: // Definition String
 		if( !Projection.Create(Parameters("CRS_STRING")->asString()) )
 		{
-			Error_Set(_TL("definition string error"));
+			Error_Set(_TL("Definition String Error"));
 		}
 		break;
 
 	case  1: // Authority Code
 		if( !Projection.Create(Parameters("CRS_EPSG")->asInt(), Parameters("CRS_AUTHORITY")->asString()) )
 		{
-			Error_Set(_TL("Authority code error"));
+			Error_Set(_TL("Authority Code Error"));
 		}
 		break;
 
 	case  2: // Well Known Text File
 		if( !Projection.Load  (Parameters("CRS_FILE")->asString()) )
 		{
-			Error_Set(_TL("Well Known Text file error"));
+			Error_Set(_TL("Well Known Text File Error"));
 		}
 		break;
 	}

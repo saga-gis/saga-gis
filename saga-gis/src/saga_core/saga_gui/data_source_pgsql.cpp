@@ -305,10 +305,10 @@ bool	PGSQL_has_Connections	(double vPostGIS)
 //---------------------------------------------------------
 bool	PGSQL_Save_Table	(CSG_Table *pTable)
 {
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Table_Save, true);
+	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Table_Save, true);
 
-	bool	bResult	= pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("TABLE", pTable)
-		&&  DLG_Parameters(pTool->Get_Parameters()) && pTool->Execute();
+	bool bResult = pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("TABLE", pTable)
+		&& DLG_Parameters(pTool->Get_Parameters()) && pTool->Execute();
 
 	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
@@ -318,10 +318,10 @@ bool	PGSQL_Save_Table	(CSG_Table *pTable)
 //---------------------------------------------------------
 bool	PGSQL_Save_Shapes	(CSG_Shapes *pShapes)
 {
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Shapes_Save, true);
+	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Shapes_Save, true);
 
-	bool	bResult	= pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("SHAPES", pShapes)
-		&&  DLG_Parameters(pTool->Get_Parameters()) && pTool->Execute();
+	bool bResult = pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("SHAPES", pShapes)
+		&& DLG_Parameters(pTool->Get_Parameters()) && pTool->Execute();
 
 	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
@@ -331,15 +331,17 @@ bool	PGSQL_Save_Shapes	(CSG_Shapes *pShapes)
 //---------------------------------------------------------
 bool	PGSQL_Save_Grid		(CSG_Grid *pGrid)
 {
-	bool	bResult	= false;
+	bool bResult = false;
 
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Raster_Save, true);
+	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Raster_Save, true);
 
 	if(	pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("NAME", pGrid->Get_Name()) )
 	{
 		pTool->Get_Parameter("GRIDS")->asList()->Del_Items();
 		pTool->Get_Parameter("GRIDS")->asList()->Add_Item(pGrid);
-		pTool->Set_Parameter("CRS_EPSG", pGrid->Get_Projection().Get_EPSG());
+
+		pTool->Set_Parameter("CRS_AUTHORITY", pGrid->Get_Projection().Get_Authority());
+		pTool->Set_Parameter("CRS_CODE"     , pGrid->Get_Projection().Get_Code     ());
 
 		bResult	= DLG_Parameters(pTool->Get_Parameters()) && pTool->Execute();
 	}
@@ -352,10 +354,10 @@ bool	PGSQL_Save_Grid		(CSG_Grid *pGrid)
 //---------------------------------------------------------
 bool	PGSQL_Save_Grids		(CSG_Grids *pGrids)
 {
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Rasters_Save, true);
+	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Rasters_Save, true);
 
-	bool	bResult	= pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("GRIDS", pGrids)
-		&&  DLG_Parameters(pTool->Get_Parameters()) && pTool->Execute();
+	bool bResult = pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("GRIDS", pGrids)
+		&& DLG_Parameters(pTool->Get_Parameters()) && pTool->Execute();
 
 	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 

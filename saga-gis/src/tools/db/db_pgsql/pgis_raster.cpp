@@ -358,7 +358,7 @@ int CRaster_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 			
 			if( SG_Get_Data_Manager().Exists(pGrid) && pGrid->Get_Projection().is_Okay() && pGrid->Get_Projection().Get_EPSG() > 0 )
 			{
-				Set_SRID(pParameters, pGrid->Get_Projection().Get_EPSG());
+				Set_SRID(pParameters, pGrid->Get_Projection());
 
 				break;
 			}
@@ -518,7 +518,7 @@ int CRaster_Collection_Save::On_Parameter_Changed(CSG_Parameters *pParameters, C
 
 			if( pGrids->Get_Projection().is_Okay() && pGrids->Get_Projection().Get_EPSG() > 0 )
 			{
-				Set_SRID(pParameters, pGrids->Get_Projection().Get_EPSG());
+				Set_SRID(pParameters, pGrids->Get_Projection());
 			}
 		}
 	}

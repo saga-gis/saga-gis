@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: georef_grid_move.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "georef_grid_move.h"
 
 
@@ -72,10 +60,9 @@
 //---------------------------------------------------------
 CGeoref_Grid_Move::CGeoref_Grid_Move(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Move Grid"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2008"));
+	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
 		"This tool allows one to interactively move a grid to a new location. Once the tool is "
@@ -88,12 +75,12 @@ CGeoref_Grid_Move::CGeoref_Grid_Move(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_Output(
-		NULL	, "GRID"	, _TL("Grid"),
+		"", "GRID"  , _TL("Grid"),
 		_TL("")
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "SOURCE"	, _TL("Source"),
+		"", "SOURCE", _TL("Source"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
@@ -102,31 +89,23 @@ CGeoref_Grid_Move::CGeoref_Grid_Move(void)
 	Set_Drag_Mode(TOOL_INTERACTIVE_DRAG_LINE);
 }
 
-//---------------------------------------------------------
-CGeoref_Grid_Move::~CGeoref_Grid_Move(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGeoref_Grid_Move::On_Execute(void)
 {
-	m_pGrid		= Parameters("SOURCE")->asGrid();
-	m_pSource	= NULL;
-	m_bModified	= m_pGrid->is_Modified();
+	m_pGrid     = Parameters("SOURCE")->asGrid();
+	m_pSource   = NULL;
+	m_bModified = m_pGrid->is_Modified();
 
 	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -135,7 +114,7 @@ bool CGeoref_Grid_Move::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interact
 {
 	if( Mode == TOOL_INTERACTIVE_LDOWN )
 	{
-		m_Down	= ptWorld;
+		m_Down = ptWorld;
 	}
 	else if( Mode == TOOL_INTERACTIVE_LUP )
 	{
@@ -143,27 +122,25 @@ bool CGeoref_Grid_Move::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interact
 		{
 			if( m_pSource == NULL )
 			{
-				m_pSource	= new CSG_Grid(*m_pGrid);
-				m_pSource	->Set_Name(m_pGrid->Get_Name());
+				m_pSource = new CSG_Grid(*m_pGrid);
+				m_pSource->Set_Name(m_pGrid->Get_Name());
 
-				m_Move		= m_Down - ptWorld;
+				m_Move  = m_Down - ptWorld;
 			}
 			else
 			{
-				m_Move	+= m_Down - ptWorld;
+				m_Move += m_Down - ptWorld;
 			}
 
 			//---------------------------------------------
-			int		x, y, ix, iy, dx, dy;
+			int dx = (int)(0.5 + m_Move.x / m_pSource->Get_Cellsize());
+			int dy = (int)(0.5 + m_Move.y / m_pSource->Get_Cellsize());
 
-			dx		= (int)(0.5 + m_Move.x / m_pSource->Get_Cellsize());
-			dy		= (int)(0.5 + m_Move.y / m_pSource->Get_Cellsize());
-
-			for(y=0, iy=dy; y<m_pGrid->Get_NY() && Set_Progress(y, m_pGrid->Get_NY()); y++, iy++)
+			for(int y=0, iy=dy; y<m_pGrid->Get_NY() && Set_Progress(y, m_pGrid->Get_NY()); y++, iy++)
 			{
 				if( iy >= 0 && iy < m_pSource->Get_NY() )
 				{
-					for(x=0, ix=dx; x<m_pGrid->Get_NX(); x++, ix++)
+					for(int x=0, ix=dx; x<m_pGrid->Get_NX(); x++, ix++)
 					{
 						if( ix >= 0 && ix < m_pSource->Get_NX() )
 						{
@@ -177,7 +154,7 @@ bool CGeoref_Grid_Move::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interact
 				}
 				else
 				{
-					for(x=0; x<m_pGrid->Get_NX(); x++)
+					for(int x=0; x<m_pGrid->Get_NX(); x++)
 					{
 						m_pGrid->Set_NoData(x, y);
 					}
@@ -202,7 +179,7 @@ bool CGeoref_Grid_Move::On_Execute_Finish(void)
 		m_pGrid->Set_Modified(m_bModified);
 		DataObject_Update(m_pGrid);
 
-		if( m_Move.x == 0.0 && m_Move.y == 0.0 )
+		if( m_Move.x == 0. && m_Move.y == 0. )
 		{
 			Message_Add(_TL("No translation set by user"));
 		}

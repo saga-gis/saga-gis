@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: georef_grid_move.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Georef_Grid_Move_H
 #define HEADER_INCLUDED__Georef_Grid_Move_H
 
@@ -71,7 +59,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -85,24 +73,23 @@ class CGeoref_Grid_Move : public CSG_Tool_Interactive
 {
 public:
 	CGeoref_Grid_Move(void);
-	virtual ~CGeoref_Grid_Move(void);
 
 
 protected:
 
-	virtual bool				On_Execute				(void);
-	virtual bool				On_Execute_Position		(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
-	virtual bool				On_Execute_Finish		(void);
+	virtual bool	On_Execute				(void);
+	virtual bool	On_Execute_Position		(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
+	virtual bool	On_Execute_Finish		(void);
 
 
 
 private:
 
-	bool						m_bModified;
+	bool			m_bModified;
 
-	CSG_Point					m_Down, m_Move;
+	CSG_Point		m_Down, m_Move;
 
-	CSG_Grid					*m_pGrid, *m_pSource;
+	CSG_Grid		*m_pGrid, *m_pSource;
 
 
 };

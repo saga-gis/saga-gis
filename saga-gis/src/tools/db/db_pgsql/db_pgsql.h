@@ -240,7 +240,7 @@ protected:
 
 	bool						Add_SRID_Picker			(CSG_Parameters *pParameters = NULL);
 	bool						Set_SRID_Picker_Enabled	(CSG_Parameters *pParameters, bool bEnable = true);
-	bool						Set_SRID				(CSG_Parameters *pParameters, int SRID);
+	bool						Set_SRID				(CSG_Parameters *pParameters, const CSG_Projection &CRS);
 	int							Get_SRID				(CSG_Parameters *pParameters = NULL);
 
 	static bool					Set_Constraints			(CSG_Parameters *pParameters, const CSG_String &Identifier);

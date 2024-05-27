@@ -215,7 +215,7 @@ int CShapes_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 		{
 			pParameters->Set_Parameter("NAME", CSG_PG_Connection::Make_Table_Name(pParameter->asShapes()->Get_Name()));
 
-			Set_SRID(pParameters, pParameter->asShapes()->Get_Projection().Get_EPSG());
+			Set_SRID(pParameters, pParameter->asShapes()->Get_Projection());
 		}
 		else
 		{

@@ -388,7 +388,7 @@ bool CSPOT_Scene_Import::Georeference(const CSG_MetaData &Metadata, CSG_Grids &B
 	}
 
 	//-----------------------------------------------------
-	int nRows, xField, yField, EPSG; double Cellsize; CSG_Rect Extent;
+	int nRows, xField, yField; double Cellsize; CSG_Rect Extent; CSG_Projection Projection;
 
 	if( !Metadata["Raster_Dimensions"].Get_Content("NROWS", nRows) )
 	{
@@ -401,7 +401,7 @@ bool CSPOT_Scene_Import::Georeference(const CSG_MetaData &Metadata, CSG_Grids &B
 		bool UTM_South = Parameters("UTM_SOUTH")->asBool();
 		Set_Reference_UTM(Frame, UTM_Zone, UTM_South);
 
-		xField = 4; yField = 5; EPSG = (UTM_South ? 32700 : 32600) + UTM_Zone;
+		xField = 4; yField = 5; Projection.Set_UTM_WGS84(UTM_Zone, UTM_South);
 
 		if( Parameters("SHIFT_X")->asDouble() || Parameters("SHIFT_Y")->asDouble() )
 		{
@@ -438,7 +438,7 @@ bool CSPOT_Scene_Import::Georeference(const CSG_MetaData &Metadata, CSG_Grids &B
 	}
 	else
 	{
-		xField = 2; yField = 3; EPSG = 4326;
+		xField = 2; yField = 3; Projection.Set_GCS_WGS84();
 
 		if( Parameters("SHIFT_X")->asDouble() || Parameters("SHIFT_Y")->asDouble() )
 		{
@@ -469,7 +469,7 @@ bool CSPOT_Scene_Import::Georeference(const CSG_MetaData &Metadata, CSG_Grids &B
 	&&  pTool->Set_Parameter("XFIELD"          , xField)
 	&&  pTool->Set_Parameter("YFIELD"          , yField)
 	&&  pTool->Set_Parameter("METHOD"          , 0) // automatic
-	&&  pTool->Set_Parameter("CRS_CODE"        , EPSG)
+	&&  pTool->Set_Parameter("CRS_STRING"      , Projection.Get_WKT())
 	&&  pTool->Set_Parameter("TARGET_USER_SIZE", Cellsize)
 	&&  pTool->Set_Parameter("TARGET_USER_XMIN", Extent.xMin)
 	&&  pTool->Set_Parameter("TARGET_USER_XMAX", Extent.xMax)
@@ -547,7 +547,8 @@ bool CSPOT_Scene_Import::Get_Reference_Frame(const CSG_MetaData &Metadata, CSG_S
 //---------------------------------------------------------
 bool CSPOT_Scene_Import::Set_Reference_UTM(CSG_Shapes &Frame, int UTM_Zone, bool UTM_South)
 {
-	int EPSG = (UTM_South ? 32700 : 32600) + UTM_Zone;
+	CSG_Projection GCS; GCS.Set_GCS_WGS84();
+	CSG_Projection UTM; UTM.Set_UTM_WGS84(UTM_Zone, UTM_South);
 
 	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 31); // Coordinate Conversion (Table)
 
@@ -557,10 +558,10 @@ bool CSPOT_Scene_Import::Set_Reference_UTM(CSG_Shapes &Frame, int UTM_Zone, bool
 	&&  pTool->Set_Parameter("SOURCE_Y", "FRAME_LAT")
 	&&  pTool->Set_Parameter("TARGET_X", "FRAME_X"  )
 	&&  pTool->Set_Parameter("TARGET_Y", "FRAME_Y"  )
-	&&  pTool->Set_Parameter("SOURCE_CRS.CRS_METHOD",    1) // EPSG CODE
-	&&  pTool->Set_Parameter("SOURCE_CRS.CRS_EPSG"  , 4236) // GCS/WGS84
-	&&  pTool->Set_Parameter("TARGET_CRS.CRS_METHOD",    1) // EPSG CODE
-	&&  pTool->Set_Parameter("TARGET_CRS.CRS_EPSG"  , EPSG) // UTM/WGS84
+	&&  pTool->Set_Parameter("SOURCE_CRS.CRS_METHOD", 0) // Definition String
+	&&  pTool->Set_Parameter("SOURCE_CRS.CRS_STRING", GCS.Get_WKT())
+	&&  pTool->Set_Parameter("TARGET_CRS.CRS_METHOD", 0) // Definition String
+	&&  pTool->Set_Parameter("TARGET_CRS.CRS_STRING", UTM.Get_WKT())
 	&&  pTool->Execute() )
 	{
 		Frame.Get_Projection().Set_UTM_WGS84(UTM_Zone, UTM_South);

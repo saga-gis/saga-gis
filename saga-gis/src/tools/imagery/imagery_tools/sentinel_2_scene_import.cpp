@@ -603,7 +603,7 @@ CSG_Grid * CSentinel_2_Scene_Import::Load_Band(const CSG_String &Path, const CSG
 	//-----------------------------------------------------
 	else if( Parameters("PROJECTION")->asInt() <= 1 ) // UTM North or South
 	{
-		CSG_Grid *pTmp = pBand; CSG_String Projection = pTmp->Get_Projection().Get_Proj4();
+		CSG_Grid *pTmp = pBand; CSG_String Projection = pTmp->Get_Projection().Get_PROJ();
 
 		if( Projection.Find("+proj=utm") >= 0 && Projection.Find("+zone") >= 0
 		&&  (  (Projection.Find("+south") >= 0 && Parameters("PROJECTION")->asInt() == 0)

@@ -511,7 +511,7 @@ int CGDAL_Catalogues::Add_File(const CSG_String &File)
 	pEntry->Set_Value(2, Filename_Absolute       );
 	pEntry->Set_Value(3, Filename_Relative       );
 	pEntry->Set_Value(4, DataSet.Get_Projection());
-	pEntry->Set_Value(5, Projection.Get_Proj4  ());
+	pEntry->Set_Value(5, Projection.Get_PROJ   ());
 	pEntry->Set_Value(6, DataSet.Get_Count     ());
 	pEntry->Set_Value(7, System.Get_Cellsize   ());
 	pEntry->Set_Value(8, System.Get_NX         ());
