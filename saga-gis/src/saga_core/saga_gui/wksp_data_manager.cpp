@@ -82,6 +82,7 @@
 
 #include "wksp_map_manager.h"
 
+#include "wksp_tool_manager.h"
 #include "wksp_tool.h"
 
 #include "active.h"
@@ -385,11 +386,11 @@ wxFileName Get_SAGA_GUI_CFG(void)
 bool CWKSP_Data_Manager::Initialise(void)
 {
 	//-----------------------------------------------------
-	if( m_pProject->Has_File_Name() )	{	return( m_pProject->Load(false) );	}
+	if( m_pProject->Has_File_Name() ) { return( m_pProject->Load(false) ); }
 	//-----------------------------------------------------
 
 	//-----------------------------------------------------
-	wxFileName	fProject, fLastState	= Get_SAGA_GUI_CFG();
+	wxFileName fProject, fLastState = Get_SAGA_GUI_CFG();
 
 	switch( m_Parameters("PROJECT_START")->asInt() )
 	{
@@ -401,18 +402,18 @@ bool CWKSP_Data_Manager::Initialise(void)
 
 	case 2:	// always ask what to do
 		{
-			wxArrayString	Projects;
+			wxArrayString Projects;
 
 			Projects.Add(wxString::Format("[%s]", _TL("empty")));
 
-			if( fLastState.FileExists() )
+			if( fLastState.FileExists() && g_pTools->Get_Parameter("SAVE_CONFIG")->asBool() )
 			{
 				Projects.Add(wxString::Format("[%s]", _TL("last state")));
 			}
 
 			m_pMenu_Files->Recent_Get(SG_DATAOBJECT_TYPE_Undefined, Projects, true);
 
-			wxSingleChoiceDialog	dlg(MDI_Get_Top_Window(), _TL("Startup Project"), _TL("Select Startup Project"), Projects);
+			wxSingleChoiceDialog dlg(MDI_Get_Top_Window(), _TL("Startup Project"), _TL("Select Startup Project"), Projects);
 
 			if( Projects.Count() <= 1 || dlg.ShowModal() != wxID_OK || dlg.GetSelection() == 0 )
 			{	// empty
@@ -431,17 +432,15 @@ bool CWKSP_Data_Manager::Initialise(void)
 	}
 
 	//-----------------------------------------------------
-	//wxString	FileName	= Get_FilePath_Absolute(g_pSAGA->Get_App_Path(), fProject.GetFullPath());
-
 	return( false );
 }
 
 //---------------------------------------------------------
 bool CWKSP_Data_Manager::Finalise(void)
 {
-	wxFileName	fProject	= Get_SAGA_GUI_CFG();
+	wxFileName fProject = Get_SAGA_GUI_CFG();
 
-	if( Get_Count() > 0 )
+	if( Get_Count() > 0 && g_pTools->Get_Parameter("SAVE_CONFIG")->asBool() )
 	{	// last state
 		m_pProject->Save(fProject.GetFullPath(), false);
 
