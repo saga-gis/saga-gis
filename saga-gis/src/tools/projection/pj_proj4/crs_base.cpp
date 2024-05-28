@@ -249,12 +249,7 @@ CCRS_Base::CCRS_Base(void)
 //---------------------------------------------------------
 bool CCRS_Base::On_Before_Execution(void)
 {
-	CSG_Projection Projection(Parameters("CRS_WKT")->asString());
-
-	if( Projection.is_Okay() && Parameters("CRS_DIALOG") )
-	{
-		Set_User_Definition(*Parameters("CRS_DIALOG")->asParameters(), Projection.Get_PROJ());
-	}
+	Parameter_Changed(&Parameters, Parameters("CRS_WKT"));
 
 	return( true );
 }
@@ -262,40 +257,22 @@ bool CCRS_Base::On_Before_Execution(void)
 //---------------------------------------------------------
 int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	//-----------------------------------------------------
-	// >>> for backward compatibility only!
-	if( pParameter->Cmp_Identifier("CRS_PROJ4"    ) ) { pParameters->Set_Parameter("CRS_STRING"   , pParameter->asString()); return( On_Parameter_Changed(pParameters, (*pParameters)("CRS_STRING"   )) ); }
-	if( pParameter->Cmp_Identifier("CRS_EPSG"     ) ) { pParameters->Set_Parameter("CRS_CODE"     , pParameter->asInt   ()); return( On_Parameter_Changed(pParameters, (*pParameters)("CRS_CODE"     )) ); }
-	if( pParameter->Cmp_Identifier("CRS_EPSG_AUTH") ) { pParameters->Set_Parameter("CRS_AUTHORITY", pParameter->asString()); return( On_Parameter_Changed(pParameters, (*pParameters)("CRS_AUTHORITY")) ); }
-	// <<< for backward compatibility only!
-	//-----------------------------------------------------
-
-	if( pParameter->Cmp_Identifier("CRS_DISPLAY") )
-	{
-		CSG_Projection Projection(Parameters("WKT")->asString());
-
-		if( Projection.is_Okay() )
-		{
-			switch( pParameter->asInt() )
-			{
-			default: pParameters->Set_Parameter("CRS_STRING", Projection.Get_PROJ()); break;
-			case  1: pParameters->Set_Parameter("CRS_STRING", Projection.Get_WKT1()); break;
-			case  2: pParameters->Set_Parameter("CRS_STRING", Projection.Get_WKT2()); break;
-			}
-		}
-
-		return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
-	}
-
-	//-----------------------------------------------------
 	Parameter_Changed(pParameters, pParameter);
 
 	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
-CSG_Projection CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+bool CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	//-----------------------------------------------------
+	// >>> for backward compatibility only!
+	if( pParameter->Cmp_Identifier("CRS_PROJ4"    ) ) { pParameters->Set_Parameter("CRS_STRING"   , pParameter->asString()); return( Parameter_Changed(pParameters, (*pParameters)("CRS_STRING"   )) ); }
+	if( pParameter->Cmp_Identifier("CRS_EPSG"     ) ) { pParameters->Set_Parameter("CRS_CODE"     , pParameter->asInt   ()); return( Parameter_Changed(pParameters, (*pParameters)("CRS_CODE"     )) ); }
+	if( pParameter->Cmp_Identifier("CRS_EPSG_AUTH") ) { pParameters->Set_Parameter("CRS_AUTHORITY", pParameter->asString()); return( Parameter_Changed(pParameters, (*pParameters)("CRS_AUTHORITY")) ); }
+	// <<< for backward compatibility only!
+	//-----------------------------------------------------
+
 	CSG_Projection Projection;
 
 	//-----------------------------------------------------
@@ -304,6 +281,12 @@ CSG_Projection CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 		Projection.Create(pParameter->asString());
 	}
 
+	if( pParameter->Cmp_Identifier("CRS_DISPLAY") )
+	{
+		Projection.Create((*pParameters)("CRS_WKT")->asString());
+	}
+
+	//-----------------------------------------------------
 	if( pParameter->Cmp_Identifier("CRS_FILE") )
 	{
 		Projection.Load(pParameter->asString());
@@ -359,12 +342,7 @@ CSG_Projection CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 	//-----------------------------------------------------
 	if( Projection.is_Okay() )
 	{
-		switch( (*pParameters)("CRS_DISPLAY")->asInt() )
-		{
-		default: pParameters->Set_Parameter("CRS_STRING", Projection.Get_PROJ()); break;
-		case  1: pParameters->Set_Parameter("CRS_STRING", Projection.Get_WKT1()); break;
-		case  2: pParameters->Set_Parameter("CRS_STRING", Projection.Get_WKT2()); break;
-		}
+		pParameters->Set_Parameter("CRS_WKT", Projection.Get_WKT());
 
 		pParameters->Set_Parameter("CRS_CODE"     , Projection.Get_Code     ());
 		pParameters->Set_Parameter("CRS_AUTHORITY", Projection.Get_Authority());
@@ -377,23 +355,27 @@ CSG_Projection CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 		if(	!pParameter->Cmp_Identifier("CRS_GEOGCS") ) { pParameters->Set_Parameter("CRS_GEOGCS", 0); }
 		if(	!pParameter->Cmp_Identifier("CRS_PROJCS") ) { pParameters->Set_Parameter("CRS_PROJCS", 0); }
 
-		pParameters->Set_Parameter("CRS_WKT", Projection.Get_WKT());
+		switch( (*pParameters)("CRS_DISPLAY")->asInt() )
+		{
+		default: pParameters->Set_Parameter("CRS_STRING", Projection.Get_PROJ()); break;
+		case  1: pParameters->Set_Parameter("CRS_STRING", Projection.Get_WKT1()); break;
+		case  2: pParameters->Set_Parameter("CRS_STRING", Projection.Get_WKT2()); break;
+		}
+
+		//-------------------------------------------------
+		// >>> for backward compatibility only!
+		{	bool bCallback = pParameters->Set_Callback(false);
+			pParameters->Set_Parameter("CRS_PROJ4"    , (*pParameters)("CRS_STRING"   ));
+			pParameters->Set_Parameter("CRS_EPSG"     , (*pParameters)("CRS_CODE"     ));
+			pParameters->Set_Parameter("CRS_EPSG_AUTH", (*pParameters)("CRS_AUTHORITY"));
+			pParameters->Set_Callback(bCallback);	}
+		// <<< for backward compatibility only!
+		//-------------------------------------------------
+
+		return( true );
 	}
 
-	//-----------------------------------------------------
-	// >>> for backward compatibility only!
-	{
-		bool bCallback = pParameters->Set_Callback(false);
-		pParameters->Set_Parameter("CRS_PROJ4"    , (*pParameters)("CRS_STRING"   ));
-		pParameters->Set_Parameter("CRS_EPSG"     , (*pParameters)("CRS_CODE"     ));
-		pParameters->Set_Parameter("CRS_EPSG_AUTH", (*pParameters)("CRS_AUTHORITY"));
-		pParameters->Set_Callback(bCallback);
-	}
-	// <<< for backward compatibility only!
-	//-----------------------------------------------------
-
-	//-----------------------------------------------------
-	return( Projection );
+	return( false );
 }
 
 //---------------------------------------------------------

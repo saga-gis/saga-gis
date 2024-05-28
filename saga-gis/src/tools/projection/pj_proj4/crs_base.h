@@ -74,7 +74,7 @@ public:
 
 	virtual bool			do_Sync_Projections		(void)	const	{	return( false );	}
 
-	static CSG_Projection	Parameter_Changed		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	static bool				Parameter_Changed		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 	static bool				Parameters_Enable		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
