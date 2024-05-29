@@ -246,7 +246,7 @@ def Get_AOI(AOI, Target_File, Target_Resolution=0, Round=True, SrcRes_1arcsec=Tr
             _AOI.Add_Shape().Add_Point(Extent.Get_XMax   (), Extent.Get_YCenter())
             _AOI.Add_Shape().Add_Point(Extent.Get_XMax   (), Extent.Get_YMin   ())
             _AOI.Add_Shape().Add_Point(Extent.Get_XCenter(), Extent.Get_YMin   ())
-            if not saga_api.SG_Get_Projected(_AOI, None, saga_api.CSG_Projections.Get_GCS_WGS84()):
+            if not saga_api.SG_Get_Projected(_AOI, None, saga_api.CSG_Projection.Get_GCS_WGS84()):
                 saga_api.SG_UI_Console_Print_StdErr('failed to project AOI to GCS')
                 return None
             Extent = _AOI.Get_Extent()#; Extent.Inflate(10 * 3 / 3600, False)
