@@ -807,8 +807,9 @@ bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Destinati
 
 		if( !pLibrary->Get_Category    ().Cmp("SAGA Development" ) // generally exclude certain categories/libraries
 		||  !pLibrary->Get_Category    ().Cmp("Garden"           )
-		||  !pLibrary->Get_Library_Name().Cmp("vis_3d_viewer"    )
 		||  !pLibrary->Get_Library_Name().Cmp("grid_calculus_bsl")
+		||  !pLibrary->Get_Library_Name().Cmp("pj_geotrans"      )
+		||  !pLibrary->Get_Library_Name().Cmp("vis_3d_viewer"    )
 		||   pLibrary->Get_Type() == TOOL_CHAINS                 ) // exclude tool chains in 1st run
 		{
 			continue;
@@ -850,7 +851,7 @@ bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Destinati
 
 		if( !pLibrary->Get_Category().Cmp("SAGA Development" ) // generally exclude certain categories
 		||  !pLibrary->Get_Category().Cmp("Garden"           )
-		||   pLibrary->Get_Type() != TOOL_CHAINS             ) // process tool chains in 2nd run
+		||   pLibrary->Get_Type() != TOOL_CHAINS             ) // only process tool chains in 2nd run
 		{
 			continue;
 		}
