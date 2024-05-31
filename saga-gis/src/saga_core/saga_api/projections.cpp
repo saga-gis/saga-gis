@@ -189,12 +189,12 @@ CSG_Projection::CSG_Projection(int Code, const SG_Char *Authority)
 
 bool CSG_Projection::Create(int Code, const SG_Char *Authority)
 {
-	if( gSG_Projections.Get_Projection(Code, Authority) ) // request SAGA's internal CRS database first (might provide special definitions not included in PROJ's default database)
+	if( Create(CSG_String::Format("%s:%d", Authority && *Authority ? Authority : SG_T("EPSG"), Code)) )
 	{
-		return( Create(gSG_Projections.Get_Projection(Code, Authority)) );
+		return( true );
 	}
 
-	return( Create(CSG_String::Format("%s:%d", Authority && *Authority ? Authority : SG_T("EPSG"), Code)) );
+	return( Create(gSG_Projections.Get_Projection(Code, Authority)) ); // request SAGA's internal CRS database (might provide definitions not included in PROJ's default database)
 }
 
 //---------------------------------------------------------
@@ -763,7 +763,7 @@ const SG_Char * CSG_Projections::Get_Projection(int Code, const SG_Char *_Author
 		}
 	}
 
-	return( NULL );
+	return( SG_T("") );
 }
 
 //---------------------------------------------------------
