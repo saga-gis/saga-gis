@@ -381,6 +381,7 @@ CSG_String CSG_Projection::Get_Description(bool bDetails) const
 		ADD_PROP(_TL("Spheroid"                    ), (*pGCS)("DATUM.SPHEROID"), "name");
 		ADD_CONT(_TL("Semimajor Axis"              ), (*pGCS)("DATUM.SPHEROID.a" ));
 		ADD_CONT(_TL("Inverse Flattening"          ), (*pGCS)("DATUM.SPHEROID.rf"));
+		ADD_CONT(_TL("Extension"                   ), (*pGCS)("DATUM.EXTENSION"));
 	}
 
 	s += "</table>";
@@ -474,6 +475,11 @@ bool CSG_Projection::is_Equal(const CSG_Projection &Projection)	const
 		if( !CMP_TOWGS84("ry") ) { return( false ); }
 		if( !CMP_TOWGS84("rz") ) { return( false ); }
 		if( !CMP_TOWGS84("sc") ) { return( false ); }
+	}
+
+	if( (*pGCS[0])("DATUM.EXTENSION") || (*pGCS[1])("DATUM.EXTENSION") )
+	{
+		if( !CMP_CONTENT((*pGCS[0])("DATUM.EXTENSION"), (*pGCS[1])("DATUM.EXTENSION")) ) { return( false ); }
 	}
 
 	return( true );
@@ -1098,6 +1104,12 @@ bool CSG_Projections::_WKT_to_MetaData(CSG_MetaData &MetaData, const CSG_String 
 		pKey->Add_Child("ry"     , Content[4]);
 		pKey->Add_Child("rz"     , Content[5]);
 		pKey->Add_Child("sc"     , Content[6]);
+	}
+
+	if( (!Key.Cmp("EXTENSION" ) && Content.Get_Count() >= 2) )	// EXTENSION  [<name>, <value>]
+	{
+		pKey->Add_Property("name", Content[0]);
+		pKey->Set_Content(         Content[1]);
 	}
 
 	if( (!Key.Cmp("PROJECTION") && Content.Get_Count() >= 1) )	// PROJECTION ["<name>" {,<authority>}]
