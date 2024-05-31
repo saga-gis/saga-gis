@@ -276,9 +276,24 @@ bool CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pP
 	CSG_Projection Projection;
 
 	//-----------------------------------------------------
-	if( pParameter->Cmp_Identifier("CRS_STRING") || pParameter->Cmp_Identifier("CRS_WKT") )
+	if( pParameter->Cmp_Identifier("CRS_WKT") )
 	{
 		Projection.Create(pParameter->asString());
+	}
+
+	else if( pParameter->Cmp_Identifier("CRS_STRING") )
+	{
+		CSG_String Definition(pParameter->asString()); Definition.Trim();
+
+		if( Definition.Find("[ERROR]") == 0 )
+		{
+			Definition.Replace("[ERROR]", ""); Definition.Trim();
+		}
+
+		if( Projection.Create(Definition) == false )
+		{
+			Definition.Prepend("[ERROR] "); pParameters->Set_Parameter("CRS_STRING", Definition);
+		}
 	}
 
 	else if( pParameter->Cmp_Identifier("CRS_DISPLAY") )
@@ -346,15 +361,16 @@ bool CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pP
 	}
 
 	//-----------------------------------------------------
-	pParameters->Set_Parameter("CRS_WKT"      , Projection.Get_WKT      ());
-	pParameters->Set_Parameter("CRS_CODE"     , Projection.Get_Code     ());
-	pParameters->Set_Parameter("CRS_AUTHORITY", Projection.Get_Authority());
+	pParameters->Set_Parameter("CRS_WKT", Projection.Get_WKT());
 
 	if(	!pParameter->Cmp_Identifier("CRS_GEOGCS") ) { pParameters->Set_Parameter("CRS_GEOGCS", 0); }
 	if(	!pParameter->Cmp_Identifier("CRS_PROJCS") ) { pParameters->Set_Parameter("CRS_PROJCS", 0); }
 
 	if( Projection.is_Okay() )
 	{
+		pParameters->Set_Parameter("CRS_CODE"     , Projection.Get_Code     ());
+		pParameters->Set_Parameter("CRS_AUTHORITY", Projection.Get_Authority());
+
 		if( (*pParameters)("CRS_DIALOG") )
 		{
 			Set_User_Definition(*(*pParameters)("CRS_DIALOG")->asParameters(), Projection.Get_PROJ());
@@ -371,11 +387,15 @@ bool CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pP
 	}
 	else
 	{
-		CSG_String Definition((*pParameters)("CRS_STRING")->asString());
-
-		if( Definition.Find("[ERROR] ") != 0 )
+		if( !pParameter->Cmp_Identifier("CRS_CODE") && !pParameter->Cmp_Identifier("CRS_AUTHORITY") )
 		{
-			Definition.Prepend("[ERROR] "); pParameters->Set_Parameter("CRS_STRING", Definition);
+			pParameters->Set_Parameter("CRS_CODE"     , Projection.Get_Code     ());
+			pParameters->Set_Parameter("CRS_AUTHORITY", Projection.Get_Authority());
+		}
+
+		if( !pParameter->Cmp_Identifier("CRS_STRING") )
+		{
+			pParameters->Set_Parameter("CRS_STRING", "[ERROR]");
 		}
 	}
 
