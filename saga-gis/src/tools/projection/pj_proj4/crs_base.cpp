@@ -281,13 +281,13 @@ bool CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pP
 		Projection.Create(pParameter->asString());
 	}
 
-	if( pParameter->Cmp_Identifier("CRS_DISPLAY") )
+	else if( pParameter->Cmp_Identifier("CRS_DISPLAY") )
 	{
 		Projection.Create((*pParameters)("CRS_WKT")->asString());
 	}
 
 	//-----------------------------------------------------
-	if( pParameter->Cmp_Identifier("CRS_FILE") )
+	else if( pParameter->Cmp_Identifier("CRS_FILE") )
 	{
 		Projection.Load(pParameter->asString());
 
@@ -295,13 +295,13 @@ bool CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pP
 	}
 
 	//-----------------------------------------------------
-	if( pParameter->Cmp_Identifier("CRS_CODE") || pParameter->Cmp_Identifier("CRS_AUTHORITY") )
+	else if( pParameter->Cmp_Identifier("CRS_CODE") || pParameter->Cmp_Identifier("CRS_AUTHORITY") )
 	{
 		Projection.Create((*pParameters)("CRS_CODE")->asInt(), (*pParameters)("CRS_AUTHORITY")->asString());
 	}
 
 	//-----------------------------------------------------
-	if( pParameter->Cmp_Identifier("CRS_GEOGCS") || pParameter->Cmp_Identifier("CRS_PROJCS") )
+	else if( pParameter->Cmp_Identifier("CRS_GEOGCS") || pParameter->Cmp_Identifier("CRS_PROJCS") )
 	{
 		CSG_String Authority_Code;
 
@@ -312,15 +312,15 @@ bool CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pP
 	}
 
 	//-----------------------------------------------------
-	if( pParameter->Cmp_Identifier("CRS_DIALOG") )
+	else if( pParameter->Cmp_Identifier("CRS_DIALOG") )
 	{
 		Projection.Create(Get_User_Definition(*pParameter->asParameters()));
 	}
 
 	//-----------------------------------------------------
-	if( pParameter->Cmp_Identifier("CRS_GRID"  ) ) { (*pParameters)("CRS_SHAPES")              ->Set_Value(DATAOBJECT_NOTSET); }
-	if( pParameter->Cmp_Identifier("CRS_SHAPES") ) { (*pParameters)("CRS_GRID"  )->Get_Parent()->Set_Value(DATAOBJECT_NOTSET); }
-	if( pParameter->Cmp_Identifier("CRS_PICKER") )
+	else if( pParameter->Cmp_Identifier("CRS_GRID"  ) ) { (*pParameters)("CRS_SHAPES")              ->Set_Value(DATAOBJECT_NOTSET); return( false ); }
+	else if( pParameter->Cmp_Identifier("CRS_SHAPES") ) { (*pParameters)("CRS_GRID"  )->Get_Parent()->Set_Value(DATAOBJECT_NOTSET); return( false ); }
+	else if( pParameter->Cmp_Identifier("CRS_PICKER") )
 	{
 		CSG_Data_Object *pPick;
 
@@ -340,42 +340,56 @@ bool CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pP
 	}
 
 	//-----------------------------------------------------
+	else // CRS definition has not been changed, just return...
+	{
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	pParameters->Set_Parameter("CRS_WKT"      , Projection.Get_WKT      ());
+	pParameters->Set_Parameter("CRS_CODE"     , Projection.Get_Code     ());
+	pParameters->Set_Parameter("CRS_AUTHORITY", Projection.Get_Authority());
+
+	if(	!pParameter->Cmp_Identifier("CRS_GEOGCS") ) { pParameters->Set_Parameter("CRS_GEOGCS", 0); }
+	if(	!pParameter->Cmp_Identifier("CRS_PROJCS") ) { pParameters->Set_Parameter("CRS_PROJCS", 0); }
+
 	if( Projection.is_Okay() )
 	{
-		pParameters->Set_Parameter("CRS_WKT", Projection.Get_WKT());
-
-		pParameters->Set_Parameter("CRS_CODE"     , Projection.Get_Code     ());
-		pParameters->Set_Parameter("CRS_AUTHORITY", Projection.Get_Authority());
-
 		if( (*pParameters)("CRS_DIALOG") )
 		{
 			Set_User_Definition(*(*pParameters)("CRS_DIALOG")->asParameters(), Projection.Get_PROJ());
 		}
 
-		if(	!pParameter->Cmp_Identifier("CRS_GEOGCS") ) { pParameters->Set_Parameter("CRS_GEOGCS", 0); }
-		if(	!pParameter->Cmp_Identifier("CRS_PROJCS") ) { pParameters->Set_Parameter("CRS_PROJCS", 0); }
-
 		switch( (*pParameters)("CRS_DISPLAY")->asInt() )
 		{
 		default: pParameters->Set_Parameter("CRS_STRING", Projection.Get_PROJ()); break;
-		case  1: pParameters->Set_Parameter("CRS_STRING", Projection.Get_WKT1()); break;
-		case  2: pParameters->Set_Parameter("CRS_STRING", Projection.Get_WKT2()); break;
+		case  1: pParameters->Set_Parameter("CRS_STRING", CSG_CRSProjector::Convert_CRS_To_WKT1(Projection.Get_WKT(), true      )); break;
+		case  2: pParameters->Set_Parameter("CRS_STRING", CSG_CRSProjector::Convert_CRS_To_WKT2(Projection.Get_WKT(), true, true)); break;
+	//	case  1: pParameters->Set_Parameter("CRS_STRING", Projection.Get_WKT1()); break;
+	//	case  2: pParameters->Set_Parameter("CRS_STRING", Projection.Get_WKT2()); break;
 		}
+	}
+	else
+	{
+		CSG_String Definition((*pParameters)("CRS_STRING")->asString());
 
-		//-------------------------------------------------
-		// >>> for backward compatibility only!
-		{	bool bCallback = pParameters->Set_Callback(false);
-			pParameters->Set_Parameter("CRS_PROJ4"    , (*pParameters)("CRS_STRING"   ));
-			pParameters->Set_Parameter("CRS_EPSG"     , (*pParameters)("CRS_CODE"     ));
-			pParameters->Set_Parameter("CRS_EPSG_AUTH", (*pParameters)("CRS_AUTHORITY"));
-			pParameters->Set_Callback(bCallback);	}
-		// <<< for backward compatibility only!
-		//-------------------------------------------------
-
-		return( true );
+		if( Definition.Find("[ERROR] ") != 0 )
+		{
+			Definition.Prepend("[ERROR] "); pParameters->Set_Parameter("CRS_STRING", Definition);
+		}
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	// >>> for backward compatibility only!
+	{	bool bCallback = pParameters->Set_Callback(false);
+	pParameters->Set_Parameter("CRS_PROJ4"    , Projection.Get_PROJ     ());
+	pParameters->Set_Parameter("CRS_EPSG"     , Projection.Get_Code     ());
+	pParameters->Set_Parameter("CRS_EPSG_AUTH", Projection.Get_Authority());
+	pParameters->Set_Callback(bCallback);	}
+	// <<< for backward compatibility only!
+	//-----------------------------------------------------
+
+	return( Projection.is_Okay() );
 }
 
 //---------------------------------------------------------
