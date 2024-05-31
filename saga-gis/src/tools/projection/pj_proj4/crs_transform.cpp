@@ -276,7 +276,7 @@ CSG_String CSG_CRSProjector::Convert_CRS_Format(const CSG_String &Definition, TC
 
 		if( s && *s )
 		{
-			CRS = CSG_String::from_UTF8(s);
+			CRS = CSG_String::from_UTF8(s); CRS.Replace("\"unknown\"", "\"<custom>\"");
 		}
 
 		proj_destroy(pProjection);
