@@ -90,7 +90,7 @@
 //---------------------------------------------------------
 int Scatter_Plot_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
 {
-	CSG_Parameters	*pParameters	= pParameter ? pParameter->Get_Parameters() : NULL;
+	CSG_Parameters *pParameters = pParameter ? pParameter->Get_Parameters() : NULL;
 
 	if( pParameters )
 	{
@@ -117,19 +117,52 @@ int Scatter_Plot_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
 				pParameters->Set_Enabled("DENSITY_PAL", pParameter->asInt() == 1);
 				pParameters->Set_Enabled("DENSITY_LEG", pParameter->asInt() == 1);
 			}
+
+			if( pParameter->Cmp_Identifier("X_ADJUST") )
+			{
+				pParameters->Set_Enabled("X_RANGE", pParameter->asInt() == 1);
+			}
+
+			if( pParameter->Cmp_Identifier("Y_ADJUST") )
+			{
+				pParameters->Set_Enabled("Y_RANGE", pParameter->asInt() == 1);
+			}
+
+			if( pParameter->Cmp_Identifier("Z_ADJUST") )
+			{
+				pParameters->Set_Enabled("Z_RANGE", pParameter->asInt() == 1);
+			}
 		}
 
 		if( Flags & PARAMETER_CHECK_VALUES )
 		{
 			if( pParameter->Cmp_Identifier("CMP_WITH") )
 			{
-				//	pParameters->Get_Parameter("OPTIONS")->asParameters()->
-				//	             Get_Parameter("DISPLAY")->Set_Value(pParameter->asInt() == 0 ? 1 : 0);
+			//	pParameters->Get_Parameter("OPTIONS")->asParameters()->
+			//	             Get_Parameter("DISPLAY")->Set_Value(pParameter->asInt() == 0 ? 1 : 0);
 				pParameters->Get_Parameter("DISPLAY")->Set_Value(pParameter->asInt() == 0 ? 1 : 0);
 
 				pParameters->Set_Enabled("DENSITY_RES", pParameter->asInt() == 0);
 				pParameters->Set_Enabled("DENSITY_PAL", pParameter->asInt() == 0);
 				pParameters->Set_Enabled("DENSITY_LEG", pParameter->asInt() == 0);
+				pParameters->Set_Enabled("Z_RANGE"    , pParameter->asInt() == 0);
+			}
+
+			if( pParameter->Cmp_Identifier("GRID") && pParameter->asGrid() )
+			{
+				pParameters->Set_Parameter("Y_RANGE.MIN", pParameter->asGrid()->Get_Min());
+				pParameters->Set_Parameter("Y_RANGE.MAX", pParameter->asGrid()->Get_Max());
+			}
+
+			if( pParameter->Cmp_Identifier("POINTS") || pParameter->Cmp_Identifier("FIELD") )
+			{
+				CSG_Table *pTable = (*pParameters)("POINTS")->asTable(); int Field = (*pParameters)("FIELD")->asInt();
+
+				if( pTable && Field >= 0 )
+				{
+					pParameters->Set_Parameter("Y_RANGE.MIN", pTable->Get_Minimum(Field));
+					pParameters->Set_Parameter("Y_RANGE.MAX", pTable->Get_Maximum(Field));
+				}
 			}
 		}
 
@@ -151,13 +184,13 @@ IMPLEMENT_CLASS(CVIEW_ScatterPlot, CVIEW_Base);
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CVIEW_ScatterPlot, CVIEW_Base)
-	EVT_PAINT			(CVIEW_ScatterPlot::On_Paint)
-	EVT_SIZE			(CVIEW_ScatterPlot::On_Size)
+	EVT_PAINT(CVIEW_ScatterPlot::On_Paint)
+	EVT_SIZE (CVIEW_ScatterPlot::On_Size)
 
-	EVT_MENU			(ID_CMD_SCATTERPLOT_PARAMETERS	, CVIEW_ScatterPlot::On_Parameters)
-	EVT_MENU			(ID_CMD_SCATTERPLOT_UPDATE		, CVIEW_ScatterPlot::On_Update)
-	EVT_MENU			(ID_CMD_SCATTERPLOT_AS_TABLE	, CVIEW_ScatterPlot::On_AsTable)
-	EVT_MENU			(ID_CMD_SCATTERPLOT_TO_CLIPBOARD, CVIEW_ScatterPlot::On_ToClipboard)
+	EVT_MENU (ID_CMD_SCATTERPLOT_PARAMETERS  , CVIEW_ScatterPlot::On_Parameters)
+	EVT_MENU (ID_CMD_SCATTERPLOT_UPDATE      , CVIEW_ScatterPlot::On_Update)
+	EVT_MENU (ID_CMD_SCATTERPLOT_AS_TABLE    , CVIEW_ScatterPlot::On_AsTable)
+	EVT_MENU (ID_CMD_SCATTERPLOT_TO_CLIPBOARD, CVIEW_ScatterPlot::On_ToClipboard)
 END_EVENT_TABLE()
 
 
@@ -171,11 +204,11 @@ END_EVENT_TABLE()
 CVIEW_ScatterPlot::CVIEW_ScatterPlot(CWKSP_Data_Item *pItem)
 	: CVIEW_Base(pItem, ID_VIEW_SCATTERPLOT, wxString::Format("%s: %s", _TL("Scatterplot"), pItem->Get_Object()->Get_Name()), ID_IMG_WND_SCATTERPLOT, false)
 {
-	m_pItem		= pItem;
+	m_pItem  = pItem;
 
-	m_pGrid		= NULL;
-	m_pGrids	= NULL;
-	m_pTable	= NULL;
+	m_pGrid  = NULL;
+	m_pGrids = NULL;
+	m_pTable = NULL;
 
 	switch( m_pItem->Get_Type() )
 	{
@@ -225,7 +258,7 @@ void CVIEW_ScatterPlot::Do_Update(void)
 //---------------------------------------------------------
 wxMenu * CVIEW_ScatterPlot::_Create_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu;
+	wxMenu *pMenu = new wxMenu;
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SCATTERPLOT_PARAMETERS);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SCATTERPLOT_UPDATE);
@@ -238,7 +271,7 @@ wxMenu * CVIEW_ScatterPlot::_Create_Menu(void)
 //---------------------------------------------------------
 wxToolBarBase * CVIEW_ScatterPlot::_Create_ToolBar(void)
 {
-	wxToolBarBase	*pToolBar	= CMD_ToolBar_Create(ID_TB_VIEW_SCATTERPLOT);
+	wxToolBarBase *pToolBar = CMD_ToolBar_Create(ID_TB_VIEW_SCATTERPLOT);
 
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_SCATTERPLOT_PARAMETERS);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_SCATTERPLOT_UPDATE);
@@ -256,8 +289,8 @@ wxToolBarBase * CVIEW_ScatterPlot::_Create_ToolBar(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//#define m_Options	(*m_Parameters("OPTIONS")->asParameters())
-#define m_Options	m_Parameters
+//#define m_Options (*m_Parameters("OPTIONS")->asParameters())
+#define m_Options m_Parameters
 
 //---------------------------------------------------------
 void CVIEW_ScatterPlot::_On_Construction(void)
@@ -265,27 +298,29 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 	SYS_Set_Color_BG_Window(this);
 
 	//-----------------------------------------------------
+	double Range[2] = { 0., 0. };
+
 	if( m_pGrid )
 	{
 		m_Parameters.Add_Grid("",
-			"GRID"		, _TL("Grid"),
+			"GRID"      , _TL("Grid"),
 			_TL(""),
 			PARAMETER_INPUT, false
 		);
 
 		m_Parameters.Add_Shapes("",
-			"POINTS"	, _TL("Points"),
+			"POINTS"    , _TL("Points"),
 			_TL(""),
 			PARAMETER_INPUT, SHAPE_TYPE_Point
 		);
 
 		m_Parameters.Add_Table_Field("POINTS",
-			"FIELD"		, _TL("Attribute"),
+			"FIELD"     , _TL("Attribute"),
 			_TL("")
 		);
 
 		m_Parameters.Add_Choice("",
-			"CMP_WITH"	, _TL("Compare with..."),
+			"CMP_WITH"  , _TL("Compare with..."),
 			_TL(""),
 			CSG_String::Format("%s|%s|",
 				_TL("another grid"),
@@ -303,10 +338,12 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 				_TL("B-Spline Interpolation")
 			), 3
 		);
+
+		Range[0] = m_pGrid->Get_Min(); Range[1] = m_pGrid->Get_Max();
 	}
 	else if( m_pGrids )
 	{
-		CSG_String	sChoices;
+		CSG_String sChoices;
 
 		for(int i=0; i<m_pGrids->Get_Grid_Count(); i++)
 		{
@@ -315,10 +352,12 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 
 		m_Parameters.Add_Choice("", "BAND_X", "X", _TL(""), sChoices, 0);
 		m_Parameters.Add_Choice("", "BAND_Y", "Y", _TL(""), sChoices, 1);
+
+		Range[0] = m_pGrids->Get_Min(); Range[1] = m_pGrids->Get_Max();
 	}
 	else if( m_pTable )
 	{
-		CSG_String	sChoices;
+		CSG_String sChoices;
 
 		for(int i=0; i<m_pTable->Get_Field_Count(); i++)
 		{
@@ -338,38 +377,69 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 		100000, 0, true
 	);
 
+	m_Options.Add_Choice("",
+		"X_ADJUST"   , _TL("X Range"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("auto-adjust"),
+			_TL("adjust manually")
+		), 0
+	);
+
+	m_Options.Add_Range("X_ADJUST",
+		"X_RANGE"    , _TL("Value Bounds"),
+		_TL(""),
+		Range[0], Range[1]
+	);
+
+	m_Options.Add_Choice("",
+		"Y_ADJUST"   , _TL("Y Range"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("auto-adjust"),
+			_TL("adjust manually")
+		), 0
+	);
+
+	m_Options.Add_Range("Y_ADJUST",
+		"Y_RANGE"    , _TL("Value Bounds"),
+		_TL(""),
+		Range[0], Range[1]
+	);
+
+	//-----------------------------------------------------
 	m_Options.Add_Bool("",
-		"REG_SHOW"	, _TL("Show Regression"),
+		"REG_SHOW"   , _TL("Show Regression"),
 		_TL(""),
 		true
 	);
 
 	m_Options.Add_String("REG_SHOW",
-		"REG_FORMULA", _TL("Regression Formula"),
+		"REG_FORMULA" , _TL("Regression Formula"),
 		_TL(""),
 		"a + b * x"
 	);
 
 	m_Options.Add_Color("REG_SHOW",
-		"REG_COLOR"	, _TL("Line Colour"),
+		"REG_COLOR"   , _TL("Line Colour"),
 		_TL(""),
 		SG_COLOR_RED
 	);
 
 	m_Options.Add_Int("REG_SHOW",
-		"REG_SIZE"	, _TL("Line Size"),
+		"REG_SIZE"    , _TL("Line Size"),
 		_TL(""),
 		0, 0, true
 	);
 
 	m_Options.Add_Info_String("REG_SHOW",
-		"REG_INFO"	, _TL("Regression Details"),
+		"REG_INFO"    , _TL("Regression Details"),
 		_TL(""),
 		_TL(""), true
 	);
 
 	m_Options.Add_Choice("",
-		"DISPLAY"	, _TL("Display Type"),
+		"DISPLAY"     , _TL("Display Type"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
 			_TL("Points"),
@@ -378,26 +448,41 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 	);
 
 	m_Options.Add_Int("DISPLAY",
-		"DENSITY_RES"	, _TL("Display Resolution"),
+		"DENSITY_RES", _TL("Display Resolution"),
 		_TL(""),
 		50, 10, true
 	);
 
-	CSG_Colors	Colors(7, SG_COLORS_RAINBOW);
+	CSG_Colors Colors(7, SG_COLORS_RAINBOW);
 
 	Colors.Set_Color(0, 255, 255, 255);
 	Colors.Set_Count(100);
 
 	m_Options.Add_Colors("DISPLAY",
-		"DENSITY_PAL"	, _TL("Colors"),
+		"DENSITY_PAL", _TL("Colors"),
 		_TL(""),
 		&Colors
 	);
 
 	m_Options.Add_Bool("DISPLAY",
-		"DENSITY_LEG"	, _TL("Show Legend"),
+		"DENSITY_LEG", _TL("Show Legend"),
 		_TL(""),
 		true
+	);
+
+	m_Options.Add_Choice("DISPLAY",
+		"Z_ADJUST"   , _TL("Range"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("auto-adjust"),
+			_TL("adjust manually")
+		), 0
+	);
+
+	m_Options.Add_Range("Z_ADJUST",
+		"Z_RANGE"    , _TL("Value Bounds"),
+		_TL(""),
+		0, 100, 0., true
 	);
 
 	//-----------------------------------------------------
@@ -429,7 +514,7 @@ void CVIEW_ScatterPlot::On_AsTable(wxCommandEvent &event)
 {
 	if( m_Trend.Get_Data_Count() > 1 )
 	{
-		CSG_Table	*pTable	= new CSG_Table;
+		CSG_Table *pTable = SG_Create_Table();
 
 		pTable->Fmt_Name("%s: [%s]-[%s]", _TL("Scatterplot"), m_sX.c_str(), m_sY.c_str());
 
@@ -439,7 +524,7 @@ void CVIEW_ScatterPlot::On_AsTable(wxCommandEvent &event)
 
 		for(int i=0; i<m_Trend.Get_Data_Count() && PROGRESSBAR_Set_Position(i, m_Trend.Get_Data_Count()); i++)
 		{
-			CSG_Table_Record	*pRecord	= pTable->Add_Record();
+			CSG_Table_Record *pRecord = pTable->Add_Record();
 
 			pRecord->Set_Value(0, i + 1);
 			pRecord->Set_Value(1, m_Trend.Get_Data_X(i));
@@ -455,8 +540,7 @@ void CVIEW_ScatterPlot::On_AsTable(wxCommandEvent &event)
 //---------------------------------------------------------
 void CVIEW_ScatterPlot::On_ToClipboard(wxCommandEvent &event)
 {
-	wxBitmap	BMP(GetSize());
-	wxMemoryDC	dc;
+	wxBitmap BMP(GetSize()); wxMemoryDC dc;
 	
 	dc.SelectObject(BMP);
 	dc.SetBackground(*wxWHITE_BRUSH);
@@ -468,7 +552,7 @@ void CVIEW_ScatterPlot::On_ToClipboard(wxCommandEvent &event)
 
 	if( wxTheClipboard->Open() )
 	{
-		wxBitmapDataObject	*pBMP	= new wxBitmapDataObject;
+		wxBitmapDataObject *pBMP = new wxBitmapDataObject;
 		pBMP->SetBitmap(BMP);
 		wxTheClipboard->SetData(pBMP);
 		wxTheClipboard->Close();
@@ -494,14 +578,13 @@ void CVIEW_ScatterPlot::On_Size(wxSizeEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_DC_X(x)	(r.GetLeft  () + (int)(0.5 + dx * ((x) - m_Trend.Get_Data_XMin())))
-#define GET_DC_Y(y)	(r.GetBottom() - (int)(0.5 + dy * ((y) - m_Trend.Get_Data_YMin())))
+#define GET_DC_X(x)	(r.GetLeft  () + (int)(0.5 + dx * ((x) - m_xRange[0])))
+#define GET_DC_Y(y)	(r.GetBottom() - (int)(0.5 + dy * ((y) - m_yRange[0])))
 
 //---------------------------------------------------------
 void CVIEW_ScatterPlot::On_Paint(wxPaintEvent &event)
 {
-	wxPaintDC	dc(this);
-	wxRect		r(wxPoint(0, 0), GetClientSize());
+	wxPaintDC dc(this); wxRect r(wxPoint(0, 0), GetClientSize());
 
 	Draw_Edge(dc, EDGE_STYLE_SUNKEN, r);
 
@@ -511,7 +594,7 @@ void CVIEW_ScatterPlot::On_Paint(wxPaintEvent &event)
 //---------------------------------------------------------
 void CVIEW_ScatterPlot::_Draw(wxDC &dc, wxRect r)
 {
-	r	= _Draw_Get_rDiagram(r);
+	r = _Draw_Get_rDiagram(r);
 
 	if( m_Trend.Get_Data_Count() > 1 )
 	{
@@ -553,7 +636,7 @@ wxRect CVIEW_ScatterPlot::_Draw_Get_rDiagram(wxRect r)
 //---------------------------------------------------------
 void CVIEW_ScatterPlot::_Draw_Regression(wxDC &dc, wxRect r)
 {
-	wxPen	oldPen	= dc.GetPen();
+	wxPen oldPen = dc.GetPen();
 
 	dc.SetPen(wxPen(
 		m_Options("REG_COLOR")->asColor(),
@@ -561,8 +644,8 @@ void CVIEW_ScatterPlot::_Draw_Regression(wxDC &dc, wxRect r)
 	));
 
 	//-----------------------------------------------------
-	double	dx	= (r.GetWidth () - 1.) / m_Trend.Get_Data_XStats().Get_Range();
-	double	dy	= (r.GetHeight() - 1.) / m_Trend.Get_Data_YStats().Get_Range();
+	double dx = (r.GetWidth () - 1.) / m_xRange[2]; // m_Trend.Get_Data_XStats().Get_Range();
+	double dy = (r.GetHeight() - 1.) / m_yRange[2]; // m_Trend.Get_Data_YStats().Get_Range();
 
 	//-----------------------------------------------------
 	dc.DrawCircle(
@@ -570,14 +653,14 @@ void CVIEW_ScatterPlot::_Draw_Regression(wxDC &dc, wxRect r)
 		GET_DC_Y(m_Trend.Get_Data_YStats().Get_Mean()), 2
 	);
 
-	double	ex	= m_Trend.Get_Data_XStats().Get_Range() / (double)r.GetWidth();
-	double	x	= m_Trend.Get_Data_XMin();
+	double ex = m_xRange[2] / (double)r.GetWidth(); // m_Trend.Get_Data_XStats().Get_Range() / (double)r.GetWidth();
+	double  x = m_xRange[0];
 
 	for(int ix=0, ay, by=0; ix<r.GetWidth(); ix++, x+=ex)
 	{
-		double	y	= m_Trend.Get_Value(x);
+		double y = m_Trend.Get_Value(x);
 
-		ay	= by; by = r.GetBottom() - (int)(dy * (y - m_Trend.Get_Data_YMin()));
+		ay = by; by = r.GetBottom() - (int)(dy * (y - m_yRange[0]));
 
 		if( ix > 0 && r.GetTop() < ay && ay < r.GetBottom() && r.GetTop() < by && by < r.GetBottom() )
 		{
@@ -596,7 +679,7 @@ void CVIEW_ScatterPlot::_Draw_Regression(wxDC &dc, wxRect r)
 //---------------------------------------------------------
 void CVIEW_ScatterPlot::_Draw_Legend(wxDC &dc, wxRect r)
 {
-	CSG_Colors	Colors(*m_Options("DENSITY_PAL")->asColors());
+	CSG_Colors Colors(*m_Options("DENSITY_PAL")->asColors());
 
 	Colors.Set_Count(r.GetHeight());
 
@@ -609,34 +692,39 @@ void CVIEW_ScatterPlot::_Draw_Legend(wxDC &dc, wxRect r)
 
 	Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);
 
-	Draw_Text(dc, TEXTALIGN_BOTTOMLEFT, 2 + r.GetRight(), r.GetBottom(), "0");
-	Draw_Text(dc, TEXTALIGN_TOPLEFT   , 2 + r.GetRight(), r.GetTop   (), wxString::Format("%d", (int)m_Count.Get_Max()));
+	int Min = m_Options("Z_ADJUST")->asInt() ? m_Options("Z_RANGE.MIN")->asDouble() : 0;
+	int Max = m_Options("Z_ADJUST")->asInt() ? m_Options("Z_RANGE.MAX")->asDouble() : (int)m_Count.Get_Max();
+
+	Draw_Text(dc, TEXTALIGN_BOTTOMLEFT, 2 + r.GetRight(), r.GetBottom(), wxString::Format("%d", Min));
+	Draw_Text(dc, TEXTALIGN_TOPLEFT   , 2 + r.GetRight(), r.GetTop   (), wxString::Format("%d", Max));
 }
 
 //---------------------------------------------------------
 void CVIEW_ScatterPlot::_Draw_Image(wxDC &dc, wxRect r)
 {
-	CSG_Colors	*pColors	= m_Options("DENSITY_PAL")->asColors();
+	CSG_Colors *pColors = m_Options("DENSITY_PAL")->asColors();
 
 	wxImage	Image(r.GetWidth(), r.GetHeight());
 
-	double	dCount	= (pColors->Get_Count() - 2.0) / log(1.0 + m_Count.Get_Max());
+	int Min = m_Options("Z_ADJUST")->asInt() ? m_Options("Z_RANGE.MIN")->asDouble() : 0;
+	int Max = m_Options("Z_ADJUST")->asInt() ? m_Options("Z_RANGE.MAX")->asDouble() : (int)m_Count.Get_Max();
+	int Range = Max - Min;
 
-	double	dx		= (m_Count.Get_NX() - 1.0) / (double)r.GetWidth ();
-	double	dy		= (m_Count.Get_NY() - 1.0) / (double)r.GetHeight();
+	double dCount = (pColors->Get_Count() - 2.) / log(1. + Range);
+
+	double dx = (m_Count.Get_NX() - 1.) / (double)r.GetWidth ();
+	double dy = (m_Count.Get_NY() - 1.) / (double)r.GetHeight();
 
 	//-----------------------------------------------------
 	#pragma omp parallel for
 	for(int y=Image.GetHeight()-1; y>=0; y--)
 	{
-		double	Count;
-		double	ix	= 0.0;
-		double	iy	= m_Count.Get_NY() - 1 - y * dy;
+		double Count, ix = 0., iy = m_Count.Get_NY() - 1 - y * dy;
 
 		for(int x=0; x<Image.GetWidth(); x++, ix+=dx)
 		{
-			int	i	= m_Count.Get_Value(ix, iy, Count) && Count > 0.0 ? (int)(log(1.0 + Count) * dCount) : 0;
-
+			Count = !m_Count.Get_Value(ix, iy, Count) || Count < Min ? 0. : Count - Min; if( Count > Range ) { Count = Range; }
+			int i = (int)(log(1. + Count) * dCount);
 			Image.SetRGB(x, y, pColors->Get_Red(i), pColors->Get_Green(i), pColors->Get_Blue(i));
 		}
 	}
@@ -647,8 +735,8 @@ void CVIEW_ScatterPlot::_Draw_Image(wxDC &dc, wxRect r)
 //---------------------------------------------------------
 void CVIEW_ScatterPlot::_Draw_Points(wxDC &dc, wxRect r)
 {
-	double	dx	= (r.GetWidth () - 1.) / m_Trend.Get_Data_XStats().Get_Range();
-	double	dy	= (r.GetHeight() - 1.) / m_Trend.Get_Data_YStats().Get_Range();
+	double dx = (r.GetWidth () - 1.) / m_xRange[2]; // m_Trend.Get_Data_XStats().Get_Range();
+	double dy = (r.GetHeight() - 1.) / m_yRange[2]; // m_Trend.Get_Data_YStats().Get_Range();
 
 	for(int i=0; i<m_Trend.Get_Data_Count(); i++)
 	{
@@ -667,17 +755,17 @@ void CVIEW_ScatterPlot::_Draw_Frame(wxDC &dc, wxRect r)
 
 	//-------------------------------------------------
 	Draw_Scale(dc, wxRect(r.GetLeft(), r.GetBottom(), r.GetWidth(), 20),
-		m_Trend.Get_Data_XMin(), m_Trend.Get_Data_XMax(),
+		m_xRange[0], m_xRange[1], // m_Trend.Get_Data_XMin(), m_Trend.Get_Data_XMax(),
 		true , true , true
 	);
 
 	Draw_Scale(dc, wxRect(r.GetLeft() - 20, r.GetTop(), 20, r.GetHeight()),
-		m_Trend.Get_Data_YMin(), m_Trend.Get_Data_YMax(),
+		m_yRange[0], m_yRange[1], // m_Trend.Get_Data_YMin(), m_Trend.Get_Data_YMax(),
 		false, false, false
 	);
 
 	Draw_Text(dc, TEXTALIGN_BOTTOMCENTER,
-		r.GetLeft() - 25, r.GetTop() + r.GetHeight() / 2, 90.0,
+		r.GetLeft() - 25, r.GetTop() + r.GetHeight() / 2, 90.,
 		m_sY.c_str()
 	);
 
@@ -701,7 +789,7 @@ void CVIEW_ScatterPlot::_Draw_Frame(wxDC &dc, wxRect r)
 //---------------------------------------------------------
 bool CVIEW_ScatterPlot::_Update_Data(void)
 {
-	bool	bResult;
+	bool bResult;
 
 	m_Trend.Clr_Data();
 
@@ -709,20 +797,20 @@ bool CVIEW_ScatterPlot::_Update_Data(void)
 
 	if( m_pGrid )
 	{
-		bResult	= m_Parameters("CMP_WITH")->asInt() == 0
+		bResult = m_Parameters("CMP_WITH")->asInt() == 0
 			? _Initialize_Grids(m_pGrid, m_Parameters("GRID")->asGrid())
 			: _Initialize_Shapes();
 	}
 	else if( m_pGrids )
 	{
-		bResult	= _Initialize_Grids(
+		bResult = _Initialize_Grids(
 			m_pGrids->Get_Grid_Ptr(m_Parameters("BAND_X")->asInt()),
 			m_pGrids->Get_Grid_Ptr(m_Parameters("BAND_Y")->asInt())
 		);
 	}
 	else // if( m_pTable )
 	{
-		bResult	= _Initialize_Table();
+		bResult = _Initialize_Table();
 	}
 
 	PROCESS_Set_Okay(true);
@@ -730,17 +818,31 @@ bool CVIEW_ScatterPlot::_Update_Data(void)
 	//-----------------------------------------------------
 	if( bResult )
 	{
-		CSG_String	Info(_TL("Regression"));
+		m_xRange[0] = m_Options("X_ADJUST")->asInt() ? m_Options("X_RANGE.MIN")->asDouble() : m_Trend.Get_Data_XMin();
+		m_xRange[1] = m_Options("X_ADJUST")->asInt() ? m_Options("X_RANGE.MAX")->asDouble() : m_Trend.Get_Data_XMax();
+		m_xRange[2] = m_xRange[1] - m_xRange[0];
+
+		m_yRange[0] = m_Options("Y_ADJUST")->asInt() ? m_Options("Y_RANGE.MIN")->asDouble() : m_Trend.Get_Data_YMin();
+		m_yRange[1] = m_Options("Y_ADJUST")->asInt() ? m_Options("Y_RANGE.MAX")->asDouble() : m_Trend.Get_Data_YMax();
+		m_yRange[2] = m_yRange[1] - m_yRange[0];
+
+		bResult = m_xRange[2] && m_yRange[2];
+	}
+
+	//-----------------------------------------------------
+	if( bResult )
+	{
+		CSG_String Info(_TL("Regression"));
 
 		if( !m_Trend.Set_Formula(m_Options("REG_FORMULA")->asString()) || !m_Trend.Get_Trend() )
 		{
-			Info	+= CSG_String::Format(" %s!\n", _TL("failed"));
-			Info	+= m_Trend.Get_Error();
+			Info += CSG_String::Format(" %s!\n", _TL("failed"));
+			Info += m_Trend.Get_Error();
 		}
 		else
 		{
-			Info	+= CSG_String::Format(" %s\n", _TL("Details"));
-			Info	+= m_Trend.Get_Formula(SG_TREND_STRING_Complete);
+			Info += CSG_String::Format(" %s\n", _TL("Details"));
+			Info += m_Trend.Get_Formula(SG_TREND_STRING_Complete);
 		}
 
 		m_Options("REG_INFO")->Set_Value(Info);
@@ -760,17 +862,17 @@ bool CVIEW_ScatterPlot::_Update_Data(void)
 //---------------------------------------------------------
 bool CVIEW_ScatterPlot::_Initialize_Count(void)
 {
-	int	Resolution	= m_Options("DENSITY_RES")->asInt();
+	int Resolution = m_Options("DENSITY_RES")->asInt();
 
-	m_Count.Create(SG_DATATYPE_Int, Resolution, Resolution, 1.0);
+	m_Count.Create(SG_DATATYPE_Int, Resolution, Resolution, 1.);
 
-	double	dx	= (m_Count.Get_NX() - 1.) / (m_Trend.Get_Data_XMax() - m_Trend.Get_Data_XMin());
-	double	dy	= (m_Count.Get_NY() - 1.) / (m_Trend.Get_Data_YMax() - m_Trend.Get_Data_YMin());
+	double dx = (m_Count.Get_NX() - 1.) / m_xRange[2];
+	double dy = (m_Count.Get_NY() - 1.) / m_yRange[2];
 
 	for(int i=0; i<m_Trend.Get_Data_Count(); i++)
 	{
-		int x	= (int)(0.5 + dx * (m_Trend.Get_Data_X(i) - m_Trend.Get_Data_XMin()));
-		int y	= (int)(0.5 + dy * (m_Trend.Get_Data_Y(i) - m_Trend.Get_Data_YMin()));
+		int x = (int)(0.5 + dx * (m_Trend.Get_Data_X(i) - m_xRange[0])); // m_Trend.Get_Data_XMin()));
+		int y = (int)(0.5 + dy * (m_Trend.Get_Data_Y(i) - m_yRange[0])); // m_Trend.Get_Data_YMin()));
 
 		if( m_Count.is_InGrid(x, y, false) )
 		{
@@ -803,13 +905,13 @@ bool CVIEW_ScatterPlot::_Initialize_Grids(CSG_Grid *pGrid_X, CSG_Grid *pGrid_Y)
 	m_sX.Printf("%s", pGrid_X->Get_Name());
 	m_sY.Printf("%s", pGrid_Y->Get_Name());
 
-	bool	bEqual		= pGrid_X->Get_System() == pGrid_Y->Get_System();
-	int		maxSamples	= m_Options("SAMPLES_MAX")->asInt();
-	double	Step		= maxSamples > 0 && pGrid_X->Get_NCells() > maxSamples ? pGrid_X->Get_NCells() / maxSamples : 1.0;
+	bool    bEqual = pGrid_X->Get_System() == pGrid_Y->Get_System();
+	int maxSamples = m_Options("SAMPLES_MAX")->asInt();
+	double	  Step = maxSamples > 0 && pGrid_X->Get_NCells() > maxSamples ? pGrid_X->Get_NCells() / maxSamples : 1.0;
 
 	for(double dCell=0; dCell<pGrid_X->Get_NCells() && PROGRESSBAR_Set_Position(dCell, pGrid_X->Get_NCells()); dCell+=Step)
 	{
-		sLong	iCell	= (sLong)dCell;
+		sLong iCell = (sLong)dCell;
 
 		if( !pGrid_X->is_NoData(iCell) )
 		{
@@ -822,12 +924,12 @@ bool CVIEW_ScatterPlot::_Initialize_Grids(CSG_Grid *pGrid_X, CSG_Grid *pGrid_Y)
 			}
 			else
 			{
-				TSG_Point	p	= pGrid_X->Get_System().Get_Grid_to_World(
+				TSG_Point p = pGrid_X->Get_System().Get_Grid_to_World(
 					(int)(iCell % pGrid_X->Get_NX()),
 					(int)(iCell / pGrid_X->Get_NX())
 				);
 
-				double	y;
+				double y;
 
 				if(	pGrid_Y->Get_Value(p, y) )
 				{
@@ -848,8 +950,8 @@ bool CVIEW_ScatterPlot::_Initialize_Grids(CSG_Grid *pGrid_X, CSG_Grid *pGrid_Y)
 //---------------------------------------------------------
 bool CVIEW_ScatterPlot::_Initialize_Shapes(void)
 {
-	CSG_Shapes	*pPoints	= m_Parameters("POINTS")->asShapes();
-	int			Field		= m_Parameters("FIELD" )->asInt();
+	CSG_Shapes *pPoints = m_Parameters("POINTS")->asShapes();
+	int           Field = m_Parameters("FIELD" )->asInt();
 
 	TSG_Grid_Resampling	Resampling;
 
@@ -874,12 +976,12 @@ bool CVIEW_ScatterPlot::_Initialize_Shapes(void)
 	m_sX.Printf("%s", m_pGrid->Get_Name());
 	m_sY.Printf("%s", pPoints->Get_Field_Name(Field));
 
-	int	maxSamples	= m_Options("SAMPLES_MAX")->asInt();
-	double	x, Step	= maxSamples > 0 && pPoints->Get_Count() > maxSamples ? pPoints->Get_Count() / maxSamples : 1.0;
+	int maxSamples = m_Options("SAMPLES_MAX")->asInt();
+	double x, Step = maxSamples > 0 && pPoints->Get_Count() > maxSamples ? pPoints->Get_Count() / maxSamples : 1.0;
 
 	for(double i=0; i<pPoints->Get_Count() && PROGRESSBAR_Set_Position(i, pPoints->Get_Count()); i+=Step)
 	{
-		CSG_Shape	*pShape	= pPoints->Get_Shape((int)i);
+		CSG_Shape *pShape = pPoints->Get_Shape((int)i);
 
 		if( !pShape->is_NoData(Field) && m_pGrid->Get_Value(pShape->Get_Point(), x, Resampling) )
 		{
@@ -898,8 +1000,8 @@ bool CVIEW_ScatterPlot::_Initialize_Shapes(void)
 //---------------------------------------------------------
 bool CVIEW_ScatterPlot::_Initialize_Table(void)
 {
-	int	xField	= m_Parameters("FIELD_X")->asInt();
-	int	yField	= m_Parameters("FIELD_Y")->asInt();
+	int xField = m_Parameters("FIELD_X")->asInt();
+	int yField = m_Parameters("FIELD_Y")->asInt();
 
 	CHECK_DATA(m_pTable);
 
@@ -908,8 +1010,8 @@ bool CVIEW_ScatterPlot::_Initialize_Table(void)
 		return( false );
 	}
 
-	int	maxSamples	= m_Options("SAMPLES_MAX")->asInt();
-	double	Step	= maxSamples > 0 && m_pTable->Get_Count() > maxSamples ? m_pTable->Get_Count() / maxSamples : 1.0;
+	int maxSamples = m_Options("SAMPLES_MAX")->asInt();
+	double    Step = maxSamples > 0 && m_pTable->Get_Count() > maxSamples ? m_pTable->Get_Count() / maxSamples : 1.;
 
 	m_sTitle.Printf("%s: [%s]", _TL("Scatterplot"), m_pTable->Get_Name());
 
@@ -918,7 +1020,7 @@ bool CVIEW_ScatterPlot::_Initialize_Table(void)
 
 	for(double i=0; i<m_pTable->Get_Count() && PROGRESSBAR_Set_Position(i, m_pTable->Get_Count()); i+=Step)
 	{
-		CSG_Table_Record	*pRecord	= m_pTable->Get_Record((int)i);
+		CSG_Table_Record *pRecord = m_pTable->Get_Record((int)i);
 
 		if( !pRecord->is_NoData(xField) && !pRecord->is_NoData(yField) )
 		{
