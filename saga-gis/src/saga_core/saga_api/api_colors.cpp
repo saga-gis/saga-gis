@@ -76,6 +76,12 @@ long		SG_Color_Get_Random	(void)
 }
 
 //---------------------------------------------------------
+long		SG_Color_From_RGB	(int Red, int Green, int Blue, int Alpha)
+{
+	return(	SG_GET_RGBA(Red, Green, Blue, Alpha) );
+}
+
+//---------------------------------------------------------
 bool		SG_Color_From_Text	(const CSG_String &Text, long &Color)
 {	// from wx/src/common/colourcmn.cpp, hexadecimal prefixed with # ("HTML syntax") see https://drafts.csswg.org/css-color/#hex-notation
 
