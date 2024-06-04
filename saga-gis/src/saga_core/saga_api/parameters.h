@@ -1001,6 +1001,8 @@ protected:
 	CSG_Table					m_Table;
 
 
+	virtual int					_Set_Value				(void *Value);
+
 	virtual void				_Set_String				(void);
 
 	virtual void *				_asPointer				(void)	const;
