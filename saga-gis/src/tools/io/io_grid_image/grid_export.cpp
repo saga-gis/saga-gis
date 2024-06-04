@@ -194,16 +194,14 @@ CGrid_Export::CGrid_Export(void)
 	);
 
 	//-----------------------------------------------------
-	CSG_Table	*pLUT	= Parameters.Add_FixedTable("", "LUT", _TL("Lookup Table"), _TL(""))->asTable();
+	CSG_Table *pLUT = Parameters.Add_FixedTable("", "LUT", _TL("Lookup Table"), _TL(""))->asTable();
 
 	pLUT->Set_Name(_TL("Table"));
-
 	pLUT->Add_Field("Color"      , SG_DATATYPE_Color );
 	pLUT->Add_Field("Name"       , SG_DATATYPE_String);
 	pLUT->Add_Field("Description", SG_DATATYPE_String);
 	pLUT->Add_Field("Minimum"    , SG_DATATYPE_Double);
 	pLUT->Add_Field("Maximum"    , SG_DATATYPE_Double);
-
 	pLUT->Add_Record();
 
 	//-----------------------------------------------------
@@ -428,7 +426,7 @@ bool CGrid_Export::On_Execute(void)
 	//-----------------------------------------------------
 	if( Parameters("FILE_WORLD")->asBool() )
 	{
-		CSG_File	Stream;
+		CSG_File Stream;
 
 		if     ( SG_File_Cmp_Extension(fName, "bmp") ) Stream.Open(SG_File_Make_Path("", fName, "bpw"), SG_FILE_W, false);
 		else if( SG_File_Cmp_Extension(fName, "jpg") ) Stream.Open(SG_File_Make_Path("", fName, "jgw"), SG_FILE_W, false);
@@ -441,15 +439,16 @@ bool CGrid_Export::On_Execute(void)
 			Stream.Printf("%.10f\n%f\n%f\n%.10f\n%.10f\n%.10f\n",
 				Get_Cellsize(), 0., 0., -Get_Cellsize(), Get_XMin(), Get_YMax()
 			);
+
+			CSG_Projection Projection = Parameters("GRID")->asGrid()->Get_Projection();
+
+			if( Projection.is_Okay() && Stream.Open(fName + ".aux.xml", SG_FILE_W, false) )
+			{
+				Stream.Write("<PAMDataset><SRS>" + Projection.Get_WKT() + "</SRS></PAMDataset>");
+
+				Projection.Save(SG_File_Make_Path("", fName, "prj"), ESG_CRS_Format::WKT);
+			}
 		}
-	}
-
-	//-----------------------------------------------------
-	CSG_Projection	Projection	= Parameters("GRID")->asGrid()->Get_Projection();
-
-	if( Projection.is_Okay() )
-	{
-		Projection.Save(SG_File_Make_Path("", fName, "prj"), ESG_CRS_Format::WKT);
 	}
 
 	//-----------------------------------------------------
