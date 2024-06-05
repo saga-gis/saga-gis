@@ -282,7 +282,7 @@ bool CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pP
 
 	else if( pParameter->Cmp_Identifier("CRS_STRING") )
 	{
-		CSG_String Definition(pParameter->asString()); Definition.Trim();
+		CSG_String Definition(pParameter->asString()); Definition.Trim(); Definition.Replace("\\n", "");
 
 		if( Definition.Find("[ERROR]") == 0 )
 		{
