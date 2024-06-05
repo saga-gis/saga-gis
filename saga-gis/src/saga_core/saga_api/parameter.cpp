@@ -654,7 +654,7 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	c
 
 		if( do_UseInGUI() != do_UseInCMD() )
 		{
-			s += CSG_String::Format(", %s", do_UseInGUI() ? SG_T("GUI") : SG_T("CMD"));
+			s += CSG_String::Format("\n[%s]", do_UseInGUI() ? SG_T("GUI") : SG_T("CMD"));
 		}
 	}
 
@@ -672,8 +672,7 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	c
 		default:
 			break;
 
-		case PARAMETER_TYPE_Data_Type:
-		case PARAMETER_TYPE_Choice:
+		case PARAMETER_TYPE_Data_Type  :
 			SEPARATE; s += CSG_String::Format("%s:", _TL("Available Choices"));
 
 			for(int i=0; i<asChoice()->Get_Count(); i++)
@@ -682,16 +681,39 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	c
 			}
 			break;
 
-		case PARAMETER_TYPE_Choices:
-			SEPARATE; s += CSG_String::Format("%s:", _TL("Available Choices"));
-
-			for(int i=0; i<asChoices()->Get_Item_Count(); i++)
+		case PARAMETER_TYPE_Choice     :
+			if( do_UseInCMD() || asChoice()->Get_Count() < 32 )
 			{
-				s += CSG_String::Format("%s[%d] %s", Separator, i, asChoices()->Get_Item(i).c_str());
+				SEPARATE; s += CSG_String::Format("%s:", _TL("Available Choices"));
+
+				for(int i=0; i<asChoice()->Get_Count(); i++)
+				{
+					s += CSG_String::Format("%s[%d] %s", Separator, i, asChoice()->Get_Item(i));
+				}
+			}
+			else
+			{
+				SEPARATE; s += CSG_String::Format("%d %s:", asChoice()->Get_Count(), _TL("Choices"));
 			}
 			break;
 
-		case PARAMETER_TYPE_Int:
+		case PARAMETER_TYPE_Choices   :
+			if( do_UseInCMD() || asChoices()->Get_Item_Count() < 32 )
+			{
+				SEPARATE; s += CSG_String::Format("%s:", _TL("Available Choices"));
+
+				for(int i=0; i<asChoices()->Get_Item_Count(); i++)
+				{
+					s += CSG_String::Format("%s[%d] %s", Separator, i, asChoices()->Get_Item(i).c_str());
+				}
+			}
+			else
+			{
+				SEPARATE; s += CSG_String::Format("%d %s:", asChoices()->Get_Item_Count(), _TL("Choices"));
+			}
+			break;
+
+		case PARAMETER_TYPE_Int       :
 			if( asValue()->has_Minimum() )
 			{
 				SEPARATE; s += CSG_String::Format("%s: %d", _TL("Minimum"), (int)asValue()->Get_Minimum());
@@ -703,9 +725,9 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	c
 			}
 			break;
 
-		case PARAMETER_TYPE_Double:
-		case PARAMETER_TYPE_Degree:
-//		case PARAMETER_TYPE_Range:
+		case PARAMETER_TYPE_Double    :
+		case PARAMETER_TYPE_Degree    :
+//		case PARAMETER_TYPE_Range     :
 			if( asValue()->has_Minimum() )
 			{
 				SEPARATE; s += CSG_String::Format("%s: %f", _TL("Minimum"), asValue()->Get_Minimum());
@@ -718,7 +740,7 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	c
 			break;
 
 		case PARAMETER_TYPE_FixedTable:
-			SEPARATE;	s	+= CSG_String::Format("%d %s:%s", asTable()->Get_Field_Count(), _TL("Fields"), Separator);
+			SEPARATE; s += CSG_String::Format("%d %s:%s", asTable()->Get_Field_Count(), _TL("Fields"), Separator);
 
 			for(int i=0; i<asTable()->Get_Field_Count(); i++)
 			{
@@ -727,11 +749,16 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	c
 			break;
 
 		case PARAMETER_TYPE_Parameters:
-			SEPARATE; s += CSG_String::Format("%d %s:%s", asParameters()->Get_Count(), _TL("Parameters"), Separator);
+			SEPARATE; s += CSG_String::Format("%d %s", asParameters()->Get_Count(), _TL("Parameters"));
 
-			for(int i=0; i<asParameters()->Get_Count(); i++)
+			if( do_UseInCMD() )
 			{
-				s += CSG_String::Format("- %d. %s%s", i + 1, asParameters()->Get_Parameter(i)->Get_Description(Flags, Separator).c_str(), Separator);
+				s += CSG_String::Format(":%s", Separator);
+
+				for(int i=0; i<asParameters()->Get_Count(); i++)
+				{
+					s += CSG_String::Format("- %d. %s%s", i + 1, asParameters()->Get_Parameter(i)->Get_Description(Flags, Separator).c_str(), Separator);
+				}
 			}
 			break;
 		}
