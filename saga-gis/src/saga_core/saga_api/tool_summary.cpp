@@ -400,8 +400,8 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 
 						s += CSG_String::Format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>",
 							pParameter->Get_Name(),
-							pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE      ).c_str(),
-							pParameter->Get_Identifier (),
+							pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE).c_str(), pParameter->do_UseInCMD() ?
+							pParameter->Get_Identifier () : SG_T(""),
 							pParameter->Get_Description(),
 							pParameter->Get_Description(PARAMETER_DESCRIPTION_PROPERTIES).c_str()
 						);
@@ -422,8 +422,8 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 
 						s += CSG_String::Format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>",
 							pParameter->Get_Name(),
-							pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE      ).c_str(),
-							pParameter->Get_Identifier (),
+							pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE).c_str(), pParameter->do_UseInCMD() ?
+							pParameter->Get_Identifier () : SG_T(""),
 							pParameter->Get_Description(),
 							pParameter->Get_Description(PARAMETER_DESCRIPTION_PROPERTIES).c_str()
 						);
@@ -444,8 +444,8 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 
 						s += CSG_String::Format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>",
 							pParameter->Get_Name(),
-							pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE      ).c_str(),
-							pParameter->Get_Identifier (),
+							pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE).c_str(), pParameter->do_UseInCMD() ?
+							pParameter->Get_Identifier () : SG_T(""),
 							pParameter->Get_Description(),
 							pParameter->Get_Description(PARAMETER_DESCRIPTION_PROPERTIES).c_str()
 						);
