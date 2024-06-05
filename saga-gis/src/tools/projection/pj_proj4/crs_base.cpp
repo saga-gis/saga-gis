@@ -430,6 +430,18 @@ bool CCRS_Base::Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pP
 		{
 			CSG_String ID; pParameter->asChoice()->Get_Data(ID);
 
+			bool bGCS = !ID.Cmp("longlat") || !ID.Cmp("geogoffset");
+			bool bUTM = !ID.Cmp("utm");
+
+			pParameters->Set_Enabled("OVER" ,  bGCS);
+			pParameters->Set_Enabled("UNIT" , !bGCS);
+
+			pParameters->Set_Enabled("LON_0", !bGCS && !bUTM);
+			pParameters->Set_Enabled("LAT_0", !bGCS && !bUTM);
+			pParameters->Set_Enabled("X_0"  , !bGCS && !bUTM);
+			pParameters->Set_Enabled("Y_0"  , !bGCS && !bUTM);
+			pParameters->Set_Enabled("K_0"  , !bGCS && !bUTM);
+
 			for(int i=0; i<pParameters->Get_Count(); i++)
 			{
 				CSG_Parameter &p = (*pParameters)[i];
@@ -532,13 +544,13 @@ bool CCRS_Base::Get_Projection(CSG_Projection &Projection)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define WGS84_ELLPS_A	6378137.000
-#define WGS84_ELLPS_B	6356752.314
+#define WGS84_ELLPS_A 6378137.000
+#define WGS84_ELLPS_B 6356752.314
 
 //---------------------------------------------------------
 bool CCRS_Base::Set_User_Parameters(CSG_Parameters &P)
 {
-	CSG_String		Projections, Datums, Ellipsoids, Units, Description;
+	CSG_String Projections, Datums, Ellipsoids, Units, Description;
 
 	P.Add_Choice("", "PROJ_TYPE", _TL("Projection Type"), _TL(""), "");
 
@@ -558,31 +570,62 @@ bool CCRS_Base::Set_User_Parameters(CSG_Parameters &P)
 
 	// Projection -----------------------------------------
 
-	Description	= _TL("Available Projections:");
+	const char *Blacklist[] = { "noop",
+		"lonlat", "latlong", "latlon", // geodetic alias
+		"affine", "helmert",
+		"hgridshift", "vgridshift", "xyzgridshift",
+		NULL
+	};
+
+	CSG_Table List;
+	List.Add_Field("id"  , SG_DATATYPE_String);
+	List.Add_Field("name", SG_DATATYPE_String);
+	List.Add_Field("desc", SG_DATATYPE_String);
 
 	for(TPJ_PROJS *pProjection=PJ_GET_PROJS; pProjection->id; ++pProjection)
 	{
-		CSG_String	ID(pProjection->id), Args(*pProjection->descr), Name;
+		CSG_String ID(pProjection->id);
 
-		Name	= Args.BeforeFirst('\n');
-		Args	= Args.AfterFirst ('\n').AfterFirst('\n').AfterFirst('\t');
-
-	//	CSG_Projection Projection("+proj=" + ID); if( !Projection.is_Okay() ) continue;
-
-		Projections	+=   "{" + ID + "}"  + Name + "|";
-		Description	+= "\n[" + ID + "] " + Name;
-
-		if( !Args.is_Empty() )
+		for(int i=0; Blacklist[i]; i++)
 		{
-			Description	+= " (" + Args + ")";
+			if( !ID.Cmp(Blacklist[i]) )
+			{
+				ID.Clear(); break;
+			}
+		}
 
-			Add_User_Projection(P, ID, Args);
+		if( !ID.is_Empty() )
+		{
+			CSG_String Args(*pProjection->descr);
+			CSG_Table_Record &Entry = *List.Add_Record();
+			Entry.Set_Value(0, ID);
+			Entry.Set_Value(1, ID.Cmp("longlat") ? Args.BeforeFirst('\n') : CSG_String("Geographic Coordinates (Longitudes/Latitudes)"));
+			Entry.Set_Value(2, Args.AfterFirst ('\n').AfterFirst('\n').AfterFirst('\t'));
 		}
 	}
 
-	if( Projections.is_Empty() )
+	if( List.Get_Count() < 1 )
 	{
 		return( false );
+	}
+
+	List.Set_Index(1);
+
+	Description	= _TL("Available Projections:");
+
+	for(sLong i=0; i<List.Get_Count(); i++)
+	{
+		CSG_String ID(List[i].asString(0)), Name(List[i].asString(1)), Args(List[i].asString(2));
+
+		Projections +=   "{" + ID + "}"  + Name + "|";
+		Description += "\n[" + ID + "] " + Name;
+
+		if( !Args.is_Empty() )
+		{
+			Description += " (" + Args + ")";
+
+			Add_User_Projection(P, ID, Args);
+		}
 	}
 
 	P("PROJ_TYPE")->asChoice()->Set_Items(Projections);
@@ -591,25 +634,25 @@ bool CCRS_Base::Set_User_Parameters(CSG_Parameters &P)
 	// Datums ---------------------------------------------
 	for(TPJ_DATUMS *pDatum=PJ_GET_DATUMS; pDatum->id; ++pDatum)
 	{
-		CSG_String	id(pDatum->id), comments(pDatum->comments);
+		CSG_String id(pDatum->id), comments(pDatum->comments);
 
-		Datums		+= CSG_String::Format("{%s}%s|", id.c_str(), comments.Length() ? comments.c_str() : id.c_str());
+		Datums     += CSG_String::Format("{%s}%s|", id.c_str(), comments.Length() ? comments.c_str() : id.c_str());
 	}
 
 	// Ellipsoids -----------------------------------------
 	for(TPJ_ELLPS *pEllipse=PJ_GET_ELLPS; pEllipse->id; ++pEllipse)
 	{
-		CSG_String	id(pEllipse->id), name(pEllipse->name), _major(pEllipse->major), ell(pEllipse->ell);
+		CSG_String id(pEllipse->id), name(pEllipse->name), _major(pEllipse->major), ell(pEllipse->ell);
 
-		Ellipsoids	+= CSG_String::Format("{%s}%s (%s, %s)|", id.c_str(), name.c_str(), _major.c_str(), ell.c_str());
+		Ellipsoids += CSG_String::Format("{%s}%s (%s, %s)|", id.c_str(), name.c_str(), _major.c_str(), ell.c_str());
 	}
 
 	// Units ----------------------------------------------
 	for(TPJ_UNITS *pUnit=PJ_GET_UNITS; pUnit->id; ++pUnit)
 	{
-		CSG_String	id(pUnit->id), name(pUnit->name), to_meter(pUnit->to_meter);
+		CSG_String id(pUnit->id), name(pUnit->name), to_meter(pUnit->to_meter);
 
-		Units		+= CSG_String::Format("{%s}%s (%s)|", id.c_str(), name.c_str(), to_meter.c_str());
+		Units      += CSG_String::Format("{%s}%s (%s)|", id.c_str(), name.c_str(), to_meter.c_str());
 	}
 
 
@@ -681,15 +724,16 @@ bool CCRS_Base::Set_User_Parameters(CSG_Parameters &P)
 	//-----------------------------------------------------
 	// General Settings...
 
-	P.Add_Double("GENERAL", "LON_0"  , _TL("Central Meridian"), _TL(""), 0.0);
-	P.Add_Double("GENERAL", "LAT_0"  , _TL("Central Parallel"), _TL(""), 0.0);
-	P.Add_Double("GENERAL", "X_0"    , _TL("False Easting"   ), _TL(""), 0.0);
-	P.Add_Double("GENERAL", "Y_0"    , _TL("False Northing"  ), _TL(""), 0.0);
-	P.Add_Double("GENERAL", "K_0"    , _TL("Scale Factor"    ), _TL(""), 1.0, 0.0, true);
+	P.Add_Double("GENERAL", "LON_0"  , _TL("Central Meridian"), _TL(""), 0.);
+	P.Add_Double("GENERAL", "LAT_0"  , _TL("Central Parallel"), _TL(""), 0.);
+	P.Add_Double("GENERAL", "X_0"    , _TL("False Easting"   ), _TL(""), 0.);
+	P.Add_Double("GENERAL", "Y_0"    , _TL("False Northing"  ), _TL(""), 0.);
+	P.Add_Double("GENERAL", "K_0"    , _TL("Scale Factor"    ), _TL(""), 1., 0., true);
 	P.Add_Choice("GENERAL", "UNIT"   , _TL("Unit"            ), _TL(""), Units, 1);
-	P.Add_Bool  ("GENERAL", "NO_DEFS", _TL("Ignore Defaults" ), _TL(""), false);
 
 	P.Add_Bool  ("GENERAL", "OVER"   , _TL("Allow longitudes outside -180 to 180 Range"), _TL(""), false);
+
+	P.Add_Bool  ("GENERAL", "NO_DEFS", _TL("Ignore Defaults" ), _TL(""), false);
 
 	//-----------------------------------------------------
 	On_Parameters_Enable(&P, P("PROJ_TYPE"));
@@ -708,7 +752,7 @@ bool CCRS_Base::Set_User_Parameters(CSG_Parameters &P)
 //---------------------------------------------------------
 bool CCRS_Base::Add_User_Projection(CSG_Parameters &P, const CSG_String &ID, const CSG_String &Args)
 {
-	P.Add_Node("", ID, _TL("Type Specific Settings"), Args);
+	P.Add_Node("", ID, _TL("Projection Settings"), Args);
 
 	//-----------------------------------------------------
 	// Cylindrical Projections...
@@ -717,7 +761,7 @@ bool CCRS_Base::Add_User_Projection(CSG_Parameters &P, const CSG_String &ID, con
 	||	!ID.CmpNoCase("eqc" )		// Equidistant Cylindrical (Plate Caree) 
 	||	!ID.CmpNoCase("merc") )		// Mercator 
 	{
-		PRM_ADD_DBL("lat_ts", _TL("True Scale Latitude"), 0.0);
+		PRM_ADD_DBL("lat_ts", _TL("True Scale Latitude"), 0.);
 	}
 
 	if(	!ID.CmpNoCase("utm" ) )		// Universal Transverse Mercator (UTM)
@@ -728,10 +772,10 @@ bool CCRS_Base::Add_User_Projection(CSG_Parameters &P, const CSG_String &ID, con
 
 	if(	!ID.CmpNoCase("omerc") )	// Oblique Mercator 
 	{
-		PRM_ADD_DBL("lat_1", _TL("Latitude 1" ),  40.0);
-		PRM_ADD_DBL("lon_1", _TL("Longitude 1"), -20.0);
-		PRM_ADD_DBL("lat_2", _TL("Latitude 2" ),  50.0);
-		PRM_ADD_DBL("lon_2", _TL("Longitude 2"),  20.0);
+		PRM_ADD_DBL("lat_1", _TL("Latitude 1" ),  40.);
+		PRM_ADD_DBL("lon_1", _TL("Longitude 1"), -20.);
+		PRM_ADD_DBL("lat_2", _TL("Latitude 2" ),  50.);
+		PRM_ADD_DBL("lon_2", _TL("Longitude 2"),  20.);
 	}
 
 	//-----------------------------------------------------
@@ -739,36 +783,36 @@ bool CCRS_Base::Add_User_Projection(CSG_Parameters &P, const CSG_String &ID, con
 
 	if(	!ID.CmpNoCase("gn_sinu") )	// General Sinusoidal Series
 	{
-		PRM_ADD_DBL("m", "m", 0.5           );
-		PRM_ADD_DBL("n", "n", 1.0 + M_PI_045);
+		PRM_ADD_DBL("m", "m", 0.5          );
+		PRM_ADD_DBL("n", "n", 1. + M_PI_045);
 	}
 
 	if(	!ID.CmpNoCase("loxim") )	// Loximuthal
 	{
-		PRM_ADD_DBL("lat_1", _TL("Latitude 1"), 40.0);
+		PRM_ADD_DBL("lat_1", _TL("Latitude 1"), 40.);
 	}
 
 	if(	!ID.CmpNoCase("urmfps") )	// Urmaev Flat-Polar Sinusoidal
 	{
-		PRM_ADD_DBL("n", "n", 1.0);
+		PRM_ADD_DBL("n", "n", 1.);
 	}
 
 	if(	!ID.CmpNoCase("urm5") )		// Urmaev V
 	{
-		PRM_ADD_DBL("n"    , "n"    ,  1.0);
-		PRM_ADD_DBL("q"    , "q"    ,  1.0);
-		PRM_ADD_DBL("alphi", "alphi", 45.0);
+		PRM_ADD_DBL("n"    , "n"    ,  1.);
+		PRM_ADD_DBL("q"    , "q"    ,  1.);
+		PRM_ADD_DBL("alphi", "alphi", 45.);
 	}
 
 	if(	!ID.CmpNoCase("wink1")		// Winkel I
 	||	!ID.CmpNoCase("wag3" ) )	// Wagner III
 	{
-		PRM_ADD_DBL("lat_ts", _TL("True Scale Latitude"), 45.0);
+		PRM_ADD_DBL("lat_ts", _TL("True Scale Latitude"), 45.);
 	}
 
 	if(	!ID.CmpNoCase("wink2") )	// Winkel II
 	{
-		PRM_ADD_DBL("lat_1", _TL("Latitude 1"), 40.0);
+		PRM_ADD_DBL("lat_1", _TL("Latitude 1"), 40.);
 	}
 
 
@@ -786,37 +830,37 @@ bool CCRS_Base::Add_User_Projection(CSG_Parameters &P, const CSG_String &ID, con
 	||	!ID.CmpNoCase("tissot") 	// Tissot 
 	||	!ID.CmpNoCase("vitk1" ) )	// Vitkovsky I 
 	{
-		PRM_ADD_DBL("lat_1", _TL("Latitude 1"), 33.0);
-		PRM_ADD_DBL("lat_2", _TL("Latitude 2"), 45.0);
+		PRM_ADD_DBL("lat_1", _TL("Latitude 1"), 33.);
+		PRM_ADD_DBL("lat_2", _TL("Latitude 2"), 45.);
 	}
 
 	if(	!ID.CmpNoCase("lcc") )		// Lambert Conformal Conic 
 	{
-		PRM_ADD_DBL("lat_1", _TL("Latitude 1"), 33.0);
-		PRM_ADD_DBL("lat_2", _TL("Latitude 2"), 45.0);
+		PRM_ADD_DBL("lat_1", _TL("Latitude 1"), 33.);
+		PRM_ADD_DBL("lat_2", _TL("Latitude 2"), 45.);
 	}
 
 	if( !ID.CmpNoCase("leac") )		// Lambert Equal Area Conic
 	{
-		PRM_ADD_DBL("lat_1", _TL("Latitude 1"), 45.0);
+		PRM_ADD_DBL("lat_1", _TL("Latitude 1"), 45.);
 		PRM_ADD_BOL("south", _TL("South"     ), false);
 	}
 
 	if(	!ID.CmpNoCase("rpoly") )	// Rectangular Polyconic
 	{
-		PRM_ADD_DBL("lat_ts", _TL("True Scale Latitude"), 45.0);
+		PRM_ADD_DBL("lat_ts", _TL("True Scale Latitude"), 45.);
 	}
 
 	if(	!ID.CmpNoCase("mpoly") )	// Modified Polyconic
 	{
-		PRM_ADD_DBL("lat_1", _TL("Latitude 1"), 33.0);
-		PRM_ADD_DBL("lat_2", _TL("Latitude 2"), 45.0);
+		PRM_ADD_DBL("lat_1", _TL("Latitude 1"), 33.);
+		PRM_ADD_DBL("lat_2", _TL("Latitude 2"), 45.);
 		PRM_ADD_BOL("lotsa", _TL("Lotsa"     ), true);
 	}
 
 	if(	!ID.CmpNoCase("bonne") )	// Bonne
 	{
-		PRM_ADD_DBL("lat_1", _TL("Latitude 1"), 45.0);
+		PRM_ADD_DBL("lat_1", _TL("Latitude 1"), 45.);
 	}
 
 
@@ -825,7 +869,7 @@ bool CCRS_Base::Add_User_Projection(CSG_Parameters &P, const CSG_String &ID, con
 
 	if(	!ID.CmpNoCase("stere") )	// Stereographic
 	{
-		PRM_ADD_DBL("lat_ts", _TL("True Scale Latitude"), 45.0);
+		PRM_ADD_DBL("lat_ts", _TL("True Scale Latitude"), 45.);
 	}
 
 	if(	!ID.CmpNoCase("ups") )		// Universal Polar Stereographic
@@ -835,13 +879,13 @@ bool CCRS_Base::Add_User_Projection(CSG_Parameters &P, const CSG_String &ID, con
 
 	if(	!ID.CmpNoCase("airy") )	// Airy
 	{
-		PRM_ADD_DBL("lat_b" , _TL("Latitude B"), 45.0);
+		PRM_ADD_DBL("lat_b" , _TL("Latitude B"), 45.);
 		PRM_ADD_BOL("no_cut", _TL("No Cut"    ), true);
 	}
 
 	if(	!ID.CmpNoCase("nsper") )	// Near-sided perspective
 	{
-		PRM_ADD_DBL("h", _TL("Height of view point"), 1.0);
+		PRM_ADD_DBL("h", _TL("Height of view point"), 1.);
 	}
 
 	if(	!ID.CmpNoCase("aeqd") )	// Azimuthal Equidistant
@@ -852,12 +896,12 @@ bool CCRS_Base::Add_User_Projection(CSG_Parameters &P, const CSG_String &ID, con
 	if(	!ID.CmpNoCase("hammer") )	// Hammer & Eckert-Greifendorff
 	{
 		PRM_ADD_DBL("W", _TL("W"), 0.5);
-		PRM_ADD_DBL("M", _TL("M"), 1.0);
+		PRM_ADD_DBL("M", _TL("M"), 1. );
 	}
 
 	if(	!ID.CmpNoCase("wintri") )	// Winkel Tripel 
 	{
-		PRM_ADD_DBL("lat_1", _TL("Latitude 1"), 40.0);
+		PRM_ADD_DBL("lat_1", _TL("Latitude 1"), 40.);
 	}
 
 
@@ -867,15 +911,15 @@ bool CCRS_Base::Add_User_Projection(CSG_Parameters &P, const CSG_String &ID, con
 	if(	!ID.CmpNoCase("ocea" )		// Oblique Cylindrical Equal Area
 	||	!ID.CmpNoCase("tpeqd") )	// Two Point Equidistant 
 	{
-		PRM_ADD_DBL("lat_1", _TL("Latitude 1" ),  40.0);
-		PRM_ADD_DBL("lon_1", _TL("Longitude 1"), -20.0);
-		PRM_ADD_DBL("lat_2", _TL("Latitude 2" ),  50.0);
-		PRM_ADD_DBL("lon_2", _TL("Longitude 2"),  20.0);
+		PRM_ADD_DBL("lat_1", _TL("Latitude 1" ),  40.);
+		PRM_ADD_DBL("lon_1", _TL("Longitude 1"), -20.);
+		PRM_ADD_DBL("lat_2", _TL("Latitude 2" ),  50.);
+		PRM_ADD_DBL("lon_2", _TL("Longitude 2"),  20.);
 	}
 
 	if(	!ID.CmpNoCase("geos") )	// Geostationary Satellite View
 	{
-		PRM_ADD_DBL("h"    , _TL("Satellite Height [m]"), 35785831.0);
+		PRM_ADD_DBL("h"    , _TL("Satellite Height [m]"), 35785831.);
 		PRM_ADD_CHO("sweep", _TL("Sweep Angle"         ), "x|y|");
 	}
 
@@ -887,43 +931,43 @@ bool CCRS_Base::Add_User_Projection(CSG_Parameters &P, const CSG_String &ID, con
 
 	if(	!ID.CmpNoCase("labrd") )	// Laborde
 	{
-		PRM_ADD_DBL("azi", _TL("Azimuth"), 19.0);
+		PRM_ADD_DBL("azi", _TL("Azimuth"), 19.);
 	}
 
 	if(	!ID.CmpNoCase("lagrng") )	// Lagrange
 	{
-		PRM_ADD_DBL("lat_1", _TL("Latitude 1"), 0.0);
-		PRM_ADD_DBL("W"    , _TL("W"         ), 2.0);
+		PRM_ADD_DBL("lat_1", _TL("Latitude 1"), 0.);
+		PRM_ADD_DBL("W"    , _TL("W"         ), 2.);
 	}
 
 	if(	!ID.CmpNoCase("chamb") )	// Chamberlin Trimetric
 	{
-		PRM_ADD_DBL("lat_1", _TL("Latitude 1" ),  30.0);
-		PRM_ADD_DBL("lon_1", _TL("Longitude 1"), -20.0);
-		PRM_ADD_DBL("lat_2", _TL("Latitude 2" ),  40.0);
-		PRM_ADD_DBL("lon_2", _TL("Longitude 2"),  00.0);
-		PRM_ADD_DBL("lat_3", _TL("Latitude 3" ),  50.0);
-		PRM_ADD_DBL("lon_3", _TL("Longitude 3"),  20.0);
+		PRM_ADD_DBL("lat_1", _TL("Latitude 1" ),  30.);
+		PRM_ADD_DBL("lon_1", _TL("Longitude 1"), -20.);
+		PRM_ADD_DBL("lat_2", _TL("Latitude 2" ),  40.);
+		PRM_ADD_DBL("lon_2", _TL("Longitude 2"),  00.);
+		PRM_ADD_DBL("lat_3", _TL("Latitude 3" ),  50.);
+		PRM_ADD_DBL("lon_3", _TL("Longitude 3"),  20.);
 	}
 
 	if(	!ID.CmpNoCase("oea") )		// Oblated Equal Area
 	{
-		PRM_ADD_DBL("m"    , _TL("m"    ),  1.0);
-		PRM_ADD_DBL("n"    , _TL("n"    ),  1.0);
-		PRM_ADD_DBL("theta", _TL("theta"), 45.0);
+		PRM_ADD_DBL("m"    , _TL("m"    ),  1.);
+		PRM_ADD_DBL("n"    , _TL("n"    ),  1.);
+		PRM_ADD_DBL("theta", _TL("theta"), 45.);
 	}
 
 	if(	!ID.CmpNoCase("tpers") )	// Tilted perspective
 	{
-		PRM_ADD_DBL("tilt", _TL("Tilt"   ),   45.0);
-		PRM_ADD_DBL("azi" , _TL("Azimuth"),   45.0);
-		PRM_ADD_DBL("h"   , _TL("h"      ), 1000.0);
+		PRM_ADD_DBL("tilt", _TL("Tilt"   ),   45.);
+		PRM_ADD_DBL("azi" , _TL("Azimuth"),   45.);
+		PRM_ADD_DBL("h"   , _TL("h"      ), 1000.);
 	}
 
 	if(	!ID.CmpNoCase("ob_tran") )	// General Oblique Transformation
 	{
-		PRM_ADD_DBL("o_lat_p", _TL("Latitude Pole" ), 40.0);
-		PRM_ADD_DBL("o_lon_p", _TL("Longitude Pole"), 40.0);
+		PRM_ADD_DBL("o_lat_p", _TL("Latitude Pole" ), 40.);
+		PRM_ADD_DBL("o_lon_p", _TL("Longitude Pole"), 40.);
 	}
 
 	//-----------------------------------------------------
@@ -940,7 +984,7 @@ bool CCRS_Base::Add_User_Projection(CSG_Parameters &P, const CSG_String &ID, con
 #define PROJ_ADD_INT(key, val)	Proj += CSG_String::Format("+%s=%d ", CSG_String(key).c_str(), val);
 #define PROJ_ADD_DBL(key, val)	Proj += CSG_String::Format("+%s=%s ", CSG_String(key).c_str(), SG_Get_String(val, -32).c_str());
 #define PROJ_ADD_STR(key, val)	Proj += CSG_String::Format("+%s=%s ", CSG_String(key).c_str(), CSG_String(val).c_str());
-#define PROJ_GET_PRM(parm_id)	P(ID + parm_id)
+#define PROJ_GET_PRM(parm_id )	P(ID + parm_id)
 
 //---------------------------------------------------------
 CSG_String CCRS_Base::Get_User_Definition(CSG_Parameters &P)
@@ -950,18 +994,21 @@ CSG_String CCRS_Base::Get_User_Definition(CSG_Parameters &P)
 	//-----------------------------------------------------
 	PROJ_ADD_STR("proj", ID);
 
-	if( P("LON_0")->asDouble() ) PROJ_ADD_DBL("lon_0", P("LON_0")->asDouble());
-	if( P("LAT_0")->asDouble() ) PROJ_ADD_DBL("lat_0", P("LAT_0")->asDouble());
+	if( P("LON_0")->is_Enabled() && P("LON_0")->asDouble() ) PROJ_ADD_DBL("lon_0", P("LON_0")->asDouble());
+	if( P("LAT_0")->is_Enabled() && P("LAT_0")->asDouble() ) PROJ_ADD_DBL("lat_0", P("LAT_0")->asDouble());
 
-	if( P("X_0"  )->asDouble() ) PROJ_ADD_DBL("x_0"  , P("X_0"  )->asDouble());
-	if( P("Y_0"  )->asDouble() ) PROJ_ADD_DBL("y_0"  , P("Y_0"  )->asDouble());
+	if( P("X_0"  )->is_Enabled() && P("X_0"  )->asDouble() ) PROJ_ADD_DBL("x_0"  , P("X_0"  )->asDouble());
+	if( P("Y_0"  )->is_Enabled() && P("Y_0"  )->asDouble() ) PROJ_ADD_DBL("y_0"  , P("Y_0"  )->asDouble());
 
-	if( P("K_0")->asDouble() != 1.0 && P("K_0")->asDouble() > 0.0 )
+	if( P("K_0"  )->is_Enabled() && P("K_0"  )->asDouble() != 1. && P("K_0")->asDouble() > 0. )
 	{
 		PROJ_ADD_DBL("k_0", P("K_0")->asDouble());
 	}
 
-	PROJ_ADD_STR("units", P("UNIT")->asChoice()->Get_Data());
+	if( P("UNIT")->is_Enabled() )
+	{
+		PROJ_ADD_STR("units", P("UNIT")->asChoice()->Get_Data());
+	}
 
 	//-----------------------------------------------------
 	switch( P("DATUM_DEF")->asInt() )
