@@ -232,9 +232,9 @@ CCRS_Base::CCRS_Base(void)
 	// >>> for backward compatibility only!
 	if( !has_GUI() )
 	{
-		Parameters.Add_String("", "CRS_PROJ4"    , "Proj4 String"  , "Deprecated! For backward compatibility only! Use \"CRS_STRING\" parameter instead!"   , "")->Set_UseInGUI(false);
-		Parameters.Add_Int   ("", "CRS_EPSG"     , "Authority Code", "Deprecated! For backward compatibility only! Use \"CRS_CODE\" parameter instead!"     , -1)->Set_UseInGUI(false);
-		Parameters.Add_String("", "CRS_EPSG_AUTH", "Authority"     , "Deprecated! For backward compatibility only! Use \"CRS_AUTHORITY\" parameter instead!", "")->Set_UseInGUI(false);
+		Parameters.Add_String("", "CRS_PROJ4"    , "[deprecated] Proj4 String"  , "Deprecated! For backward compatibility only! Use \"CRS_STRING\" parameter instead!"   , "")->Set_UseInGUI(false);
+		Parameters.Add_Int   ("", "CRS_EPSG"     , "[deprecated] Authority Code", "Deprecated! For backward compatibility only! Use \"CRS_CODE\" parameter instead!"     , -1)->Set_UseInGUI(false);
+		Parameters.Add_String("", "CRS_EPSG_AUTH", "[deprecated] Authority"     , "Deprecated! For backward compatibility only! Use \"CRS_AUTHORITY\" parameter instead!", "")->Set_UseInGUI(false);
 	}
 	// <<< for backward compatibility only!
 	//-----------------------------------------------------
