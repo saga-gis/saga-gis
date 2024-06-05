@@ -338,8 +338,8 @@ CSG_String CSG_Projection::Get_Description(bool bDetails) const
 	//-----------------------------------------------------
 	#define ADD_HEAD(name, value) { CSG_String n(name), v(value); n.Replace("_", " "); v.Replace("_", " "); s += CSG_String::Format("<tr><th>%s</th><th>%s</th></tr>", n.c_str(), v.c_str()); }
 	#define ADD_INFO(name, value) { CSG_String n(name), v(value); n.Replace("_", " "); v.Replace("_", " "); s += CSG_String::Format("<tr><td>%s</td><td>%s</td></tr>", n.c_str(), v.c_str()); }
-	#define ADD_CONT(name, entry)       if( name && entry                              ) { ADD_INFO(name, entry->Get_Content()     ); }
-	#define ADD_PROP(name, entry, prop) if( name && entry && entry->Get_Property(prop) ) { ADD_INFO(name, entry->Get_Property(prop)); }
+	#define ADD_CONT(name, entry)       if( entry                              ) { ADD_INFO(name, entry->Get_Content()     ); }
+	#define ADD_PROP(name, entry, prop) if( entry && entry->Get_Property(prop) ) { ADD_INFO(name, entry->Get_Property(prop)); }
 
 	CSG_String s = "<table border=\"1\">";
 
@@ -382,6 +382,14 @@ CSG_String CSG_Projection::Get_Description(bool bDetails) const
 		ADD_CONT(_TL("Semimajor Axis"              ), (*pGCS)("DATUM.SPHEROID.a" ));
 		ADD_CONT(_TL("Inverse Flattening"          ), (*pGCS)("DATUM.SPHEROID.rf"));
 		ADD_CONT(_TL("Extension"                   ), (*pGCS)("DATUM.EXTENSION"));
+
+		ADD_CONT(CSG_String::Format("%s, %s [X]", _TL("Datum Shift"), _TL("Translation")), (*pGCS)("DATUM.TOWGS84.dx"));
+		ADD_CONT(CSG_String::Format("%s, %s [Y]", _TL("Datum Shift"), _TL("Translation")), (*pGCS)("DATUM.TOWGS84.dy"));
+		ADD_CONT(CSG_String::Format("%s, %s [Z]", _TL("Datum Shift"), _TL("Translation")), (*pGCS)("DATUM.TOWGS84.dz"));
+		ADD_CONT(CSG_String::Format("%s, %s [X]", _TL("Datum Shift"), _TL("Rotation"   )), (*pGCS)("DATUM.TOWGS84.rx"));
+		ADD_CONT(CSG_String::Format("%s, %s [Y]", _TL("Datum Shift"), _TL("Rotation"   )), (*pGCS)("DATUM.TOWGS84.ry"));
+		ADD_CONT(CSG_String::Format("%s, %s [Z]", _TL("Datum Shift"), _TL("Rotation"   )), (*pGCS)("DATUM.TOWGS84.rz"));
+		ADD_CONT(CSG_String::Format("%s, %s [X]", _TL("Datum Shift"), _TL("Scaling"    )), (*pGCS)("DATUM.TOWGS84.sc"));
 	}
 
 	s += "</table>";
