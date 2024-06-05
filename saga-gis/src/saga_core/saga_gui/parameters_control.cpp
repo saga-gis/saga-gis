@@ -712,38 +712,36 @@ void CParameters_Control::_Set_Parameter(wxPGProperty *pProperty)
 		default:
 			break;
 
-		case PARAMETER_TYPE_Date:
-			pParameter->Set_Value(((wxDateProperty *)pProperty)->GetDateValue().GetJDN());
+		case PARAMETER_TYPE_String  :
+		case PARAMETER_TYPE_FilePath:
+			pParameter->Set_Value(m_pPG->GetPropertyValueAsString(pProperty).wx_str());
 			break;
 
-		case PARAMETER_TYPE_String:
-		case PARAMETER_TYPE_FilePath: { wxString Value(m_pPG->GetPropertyValueAsString(pProperty));
-			if( pParameter->Set_Value(Value.wx_str()) && Value.Cmp(pParameter->asString()) != 0 )
-			{
-				m_pPG->SetPropertyValue(pProperty, pParameter->asString());
-			}
-			break; }
-
-		case PARAMETER_TYPE_Bool:
-			pParameter->Set_Value(m_pPG->GetPropertyValueAsBool(pProperty));
+		case PARAMETER_TYPE_Bool    :
+			pParameter->Set_Value(m_pPG->GetPropertyValueAsBool  (pProperty));
 			break;
 
-		case PARAMETER_TYPE_Int:
-			pParameter->Set_Value(m_pPG->GetPropertyValueAsInt(pProperty));
+		case PARAMETER_TYPE_Int     :
+			pParameter->Set_Value(m_pPG->GetPropertyValueAsInt   (pProperty));
 			break;
 
-		case PARAMETER_TYPE_Double:
+		case PARAMETER_TYPE_Double  :
 			pParameter->Set_Value(m_pPG->GetPropertyValueAsDouble(pProperty));
 			break;
 
-		case PARAMETER_TYPE_Color:
+		case PARAMETER_TYPE_Color   :
 			pParameter->Set_Value(Get_Color_asInt(((wxColourProperty *)pProperty)->GetVal().m_colour));
+			break;
+
+		case PARAMETER_TYPE_Date    :
+			pParameter->Set_Value(((wxDateProperty *)pProperty)->GetDateValue().GetJDN());
+			pParameter = NULL; // no further processing
 			break;
 		}
 
-		if( pParameter->Get_Type() != PARAMETER_TYPE_Date )
+		if( pParameter )
 		{
-			_Update_Parameters(pParameter);
+			_Update_Parameters();
 
 			m_pPG->SelectProperty(pProperty);
 		}
