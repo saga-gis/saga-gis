@@ -131,7 +131,7 @@ CCRS_Base::CCRS_Base(void)
 	Parameters.Add_String("",
 		"CRS_STRING"     , _TL("Definition String"),
 		_TL("Supported formats comprise PROJ and WKT strings, object codes (e.g. \"EPSG:4326\")."),
-		CSG_CRSProjector::Convert_CRS_To_PROJ("epsg:4326"), true
+		CSG_CRSProjector::Convert_CRS_To_PROJ("epsg:4326")
 	);
 
 	if( has_GUI() )

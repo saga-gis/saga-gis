@@ -717,9 +717,12 @@ void CParameters_Control::_Set_Parameter(wxPGProperty *pProperty)
 			break;
 
 		case PARAMETER_TYPE_String:
-		case PARAMETER_TYPE_FilePath:
-			pParameter->Set_Value(m_pPG->GetPropertyValueAsString(pProperty).wx_str());
-			break;
+		case PARAMETER_TYPE_FilePath: { wxString Value(m_pPG->GetPropertyValueAsString(pProperty));
+			if( pParameter->Set_Value(Value.wx_str()) && Value.Cmp(pParameter->asString()) != 0 )
+			{
+				m_pPG->SetPropertyValue(pProperty, pParameter->asString());
+			}
+			break; }
 
 		case PARAMETER_TYPE_Bool:
 			pParameter->Set_Value(m_pPG->GetPropertyValueAsBool(pProperty));
