@@ -535,7 +535,7 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 				{
 					CSG_Parameter *pParameter = Parameters(i);
 
-					if( pParameter->is_Input() )
+					if( pParameter->is_Input() && (has_GUI() || pParameter->do_UseInCMD()) )
 					{
 						if( bFirst )
 						{
@@ -559,7 +559,7 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 				{
 					CSG_Parameter *pParameter = Parameters(i);
 
-					if( pParameter->is_Output() )
+					if( pParameter->is_Output() && (has_GUI() || pParameter->do_UseInCMD()) )
 					{
 						if( bFirst )
 						{
@@ -583,7 +583,7 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 				{
 					CSG_Parameter *pParameter = Parameters(i);
 
-					if( pParameter->is_Option() && pParameter->Get_Type() != PARAMETER_TYPE_Grid_System )
+					if( pParameter->is_Option() && (has_GUI() || pParameter->do_UseInCMD()) && pParameter->Get_Type() != PARAMETER_TYPE_Grid_System )
 					{
 						if( bFirst )
 						{

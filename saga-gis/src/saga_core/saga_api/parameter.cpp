@@ -594,7 +594,7 @@ const SG_Char * CSG_Parameter::Get_Name(void)	const
 //---------------------------------------------------------
 bool CSG_Parameter::Set_Description(const CSG_String &Description)
 {
-	m_Description	= Description;
+	m_Description = Description;
 
 	return( true );
 }
@@ -654,7 +654,10 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	c
 
 		if( do_UseInGUI() != do_UseInCMD() )
 		{
-			s += CSG_String::Format("\n[%s]", do_UseInGUI() ? SG_T("GUI") : SG_T("CMD"));
+			if( m_pParameters->has_GUI() || do_UseInGUI() )
+			{
+				s += CSG_String::Format("\n[%s]", do_UseInGUI() ? SG_T("GUI") : SG_T("CMD"));
+			}
 		}
 	}
 
