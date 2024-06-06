@@ -307,25 +307,20 @@ bool CVIEW_Table_Control::_Update_Records(bool bViews)
 	//-----------------------------------------------------
 	for(int iField=0; iField<m_pTable->Get_Field_Count(); iField++)
 	{
-		BeginBatch();
-
-		for(int i=0; i<m_pData->GetNumberRows(); i++)
+		if( m_pTable->Get_Field_Type(iField) == SG_DATATYPE_Color )
 		{
-			if( m_pTable->Get_Field_Type(iField) == SG_DATATYPE_Color )
+			BeginBatch();
+
+			for(int i=0; i<m_pData->GetNumberRows(); i++)
 			{
 				wxColour Colour(Get_Color_asWX(m_pData->Get_Record(i)->asInt(iField)));
 
 				SetCellBackgroundColour(i, iField, Colour);
 				SetCellTextColour      (i, iField, Colour);
 			}
-			else
-			{
-				SetCellBackgroundColour(i, iField, GetDefaultCellBackgroundColour());
-				SetCellTextColour      (i, iField, GetDefaultCellTextColour      ());
-			}
-		}
 
-		EndBatch();
+			EndBatch();
+		}
 	}
 
 	//-----------------------------------------------------
@@ -1038,7 +1033,7 @@ void CVIEW_Table_Control::On_Field_Type(wxCommandEvent &event)
 
 	if( DLG_Parameters(&P) )
 	{
-		bool bChanged = false;
+		bool bChanged = false, bResetColors = false;
 
 		for(int i=0; i<m_pTable->Get_Field_Count(); i++)
 		{
@@ -1046,14 +1041,24 @@ void CVIEW_Table_Control::On_Field_Type(wxCommandEvent &event)
 
 			if( Type != m_pTable->Get_Field_Type(i) )
 			{
-				m_pTable->Set_Field_Type(i, Type);
-
 				bChanged = true;
+
+				if( m_pTable->Get_Field_Type(i) == SG_DATATYPE_Color )
+				{
+					bResetColors = true;
+				}
+
+				m_pTable->Set_Field_Type(i, Type);
 			}
 		}
 
 		if( bChanged )
 		{
+			if( bResetColors )
+			{
+				DeleteRows(0, GetNumberRows(), false);
+			}
+
 			Update_Table();
 
 			g_pData->Update(m_pTable, NULL);
