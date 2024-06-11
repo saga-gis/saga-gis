@@ -114,6 +114,11 @@ int CCRS_Definition::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 	if( pParameter->Cmp_Identifier("DEFINITION") || pParameter->Cmp_Identifier("MULTILINE") || pParameter->Cmp_Identifier("SIMPLIFIED") )
 	{
 		CSG_String Definition((*pParameters)["DEFINITION"].asString());
+		
+		if( Definition.Replace("\\n", "\n") > 0 )
+		{
+			Definition.Trim(); pParameter->Set_Value(Definition);
+		}
 
 		bool bMultiLine = (*pParameters)["MULTILINE"].asBool(), bSimplified = (*pParameters)["SIMPLIFIED"].asBool();
 
