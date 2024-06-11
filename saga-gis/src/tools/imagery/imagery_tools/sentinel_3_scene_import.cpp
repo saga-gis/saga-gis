@@ -163,7 +163,7 @@ CSentinel_3_Scene_Import::CSentinel_3_Scene_Import(void)
 	Parameters.Add_Double("",
 		"RESOLUTION"	, _TL("Target Resolution"),
 		_TL(""),
-		10. / 3600., 0.001, true, 1., true
+		10. / 3600., 0.001, true
 	);
 
 	Parameters.Add_Bool("",
@@ -171,12 +171,45 @@ CSentinel_3_Scene_Import::CSentinel_3_Scene_Import(void)
 		_TL(""),
 		true
 	);
+
+	m_CRS.Create(Parameters);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSentinel_3_Scene_Import::On_Before_Execution(void)
+{
+	m_CRS.Activate_GUI();
+
+	return( CSG_Tool::On_Before_Execution() );
+}
+
+//---------------------------------------------------------
+bool CSentinel_3_Scene_Import::On_After_Execution(void)
+{
+	m_CRS.Deactivate_GUI();
+
+	return( CSG_Tool::On_After_Execution() );
+}
+
+//---------------------------------------------------------
+int CSentinel_3_Scene_Import::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	m_CRS.On_Parameter_Changed(pParameters, pParameter);
+
+	if( pParameter->Cmp_Identifier("CRS_PICKER") )
+	{
+		CSG_Projection Projection((*pParameters)("CRS_STRING")->asString());
+
+		pParameters->Set_Parameter("RESOLUTION", Projection.is_Projection() ? 300. : 10. / 3600.);
+	}
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
+}
 
 //---------------------------------------------------------
 int CSentinel_3_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
@@ -205,15 +238,53 @@ bool CSentinel_3_Scene_Import::On_Execute(void)
 	CSG_Grid *pLon = Load_Band(Directory, "geo_coordinates", "longitude");
 	CSG_Grid *pLat = Load_Band(Directory, "geo_coordinates",  "latitude");
 
-	if( !pLon || !pLat )
+	if( !pLon || !pLat || pLon->Get_System().is_Equal(pLat->Get_System()) == false )
 	{
 		m_Data.Delete();
+
+		Error_Set(_TL("failed to load geographic coordinates"));
 
 		return( false );
 	}
 
 	pLon->Set_Scaling(0.000001);
 	pLat->Set_Scaling(0.000001);
+
+	CSG_Projection Projection, GCS_WGS84; GCS_WGS84.Set_GCS_WGS84();
+
+	if( !m_CRS.Get_CRS(Projection) || Projection == GCS_WGS84 )
+	{
+		Projection.Set_GCS_WGS84();
+	}
+	else
+	{
+		CSG_Grid *pX = m_Data.Add_Grid(), *pY = m_Data.Add_Grid();
+
+		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 30); // Coordinate Conversion (Grids)
+
+		if( !pTool || !pTool->Set_Manager(&m_Data) || !pTool->On_Before_Execution()
+		||  !pTool->Set_Parameter("SOURCE_CRS.CRS_STRING", GCS_WGS84.Get_WKT())
+		||  !pTool->Set_Parameter("SOURCE_X"             , pLon)
+		||  !pTool->Set_Parameter("SOURCE_Y"             , pLat)
+		||  !pTool->Set_Parameter("TARGET_CRS.CRS_STRING", Projection.Get_WKT())
+		||  !pTool->Set_Parameter("TARGET_X"             , pX)
+		||  !pTool->Set_Parameter("TARGET_Y"             , pY)
+		||  !pTool->Execute() )
+		{
+			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+			m_Data.Delete();
+
+			Error_Set(_TL("failed to project geographic coordinates"));
+
+			return( false );
+		}
+
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+		m_Data.Delete(pLon); pLon = pX;
+		m_Data.Delete(pLat); pLat = pY;
+	}
 
 	//-----------------------------------------------------
 	CSG_Table Info_Bands(Get_Info_Bands());
@@ -226,7 +297,7 @@ bool CSentinel_3_Scene_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( pBands->Get_Grid_Count() < 1 || !Georeference(pLon, pLat, pBands) )
+	if( pBands->Get_Grid_Count() < 1 || !Georeference(pLon, pLat, pBands, Projection) )
 	{
 		return( false );
 	}
@@ -357,7 +428,7 @@ CSG_Grid * CSentinel_3_Scene_Import::Load_Band(const CSG_String &Directory, cons
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSentinel_3_Scene_Import::Georeference(CSG_Grid *pLon, CSG_Grid *pLat, CSG_Parameter_Grid_List *pBands)
+bool CSentinel_3_Scene_Import::Georeference(CSG_Grid *pLon, CSG_Grid *pLat, CSG_Parameter_Grid_List *pBands, const CSG_Projection &Projection)
 {
 	Process_Set_Text("%s", _TL("georeferencing"));
 
@@ -400,7 +471,7 @@ bool CSentinel_3_Scene_Import::Georeference(CSG_Grid *pLon, CSG_Grid *pLat, CSG_
 	{
 		CSG_Grid *pBand = pOutput->Get_Grid(i);
 
-		pBand->Get_Projection().Set_GCS_WGS84();
+		pBand->Get_Projection().Create(Projection);
 
 		pBands->Add_Item(pBand);
 	}

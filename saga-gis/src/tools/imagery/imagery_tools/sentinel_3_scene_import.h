@@ -71,28 +71,34 @@ class CSentinel_3_Scene_Import : public CSG_Tool
 public:
 	CSentinel_3_Scene_Import(void);
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:File|Satellite Imagery") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:File|Satellite Imagery") );	}
+
+	virtual bool				On_Before_Execution		(void);
+	virtual bool				On_After_Execution		(void);
 
 
 protected:
 
-	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int                 On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool			On_Execute				(void);
+	virtual bool				On_Execute				(void);
 
 
 private:
 
-	CSG_Data_Manager		m_Data;
+	CSG_Data_Manager			m_Data;
+
+	CSG_Parameters_CRSPicker	m_CRS;
 
 
-	static CSG_Table		Get_Info_Bands			(void);
+	static CSG_Table			Get_Info_Bands			(void);
 
-	CSG_Grid *				Load_Band				(const CSG_String &Directory, const CSG_String &File, const CSG_String &Band = "");
+	CSG_Grid *					Load_Band				(const CSG_String &Directory, const CSG_String &File, const CSG_String &Band = "");
 
-	bool					Georeference			(CSG_Grid *pLon, CSG_Grid *pLat, CSG_Parameter_Grid_List *pBands);
+	bool						Georeference			(CSG_Grid *pLon, CSG_Grid *pLat, CSG_Parameter_Grid_List *pBands, const CSG_Projection &Projection);
 
-	bool					Load_Classification		(CSG_Grid *pGrid, const CSG_String &File);
+	bool						Load_Classification		(CSG_Grid *pGrid, const CSG_String &File);
 
 };
 
