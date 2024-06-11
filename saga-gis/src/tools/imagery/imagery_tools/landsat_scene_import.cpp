@@ -157,14 +157,13 @@ CLandsat_Scene_Import::CLandsat_Scene_Import(void)
 
 	Parameters.Add_Choice("",
 		"PROJECTION"	, _TL("Coordinate System"),
-		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s",
-			_TL("UTM North"),
+		_TL("If using the extent option in combination with \'Different UTM Zone\' or \'Geographic Coordinates\' extent is expected to be defined with UTM North coordinates."),
+		CSG_String::Format("%s|%s|%s|%s",
+			_TL("UTM North"), // original
 			_TL("UTM South"),
-			_TL("Geographic Coordinates"),
 			_TL("Different UTM Zone"),
-			_TL("original")
-		), 4
+			_TL("Geographic Coordinates")
+		), 0
 	);
 
 	Parameters.Add_Choice("PROJECTION",
@@ -286,8 +285,8 @@ int CLandsat_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 	if( pParameter->Cmp_Identifier("PROJECTION") )
 	{
 		pParameters->Set_Enabled("RESAMPLING"   , pParameter->asInt() == 2 || pParameter->asInt() == 3);
-		pParameters->Set_Enabled("UTM_ZONE"     , pParameter->asInt() == 3);
-		pParameters->Set_Enabled("UTM_SOUTH"    , pParameter->asInt() == 3);
+		pParameters->Set_Enabled("UTM_ZONE"     , pParameter->asInt() == 2);
+		pParameters->Set_Enabled("UTM_SOUTH"    , pParameter->asInt() == 2);
 	}
 
 	if(	pParameter->Cmp_Identifier("EXTENT") )
@@ -994,9 +993,13 @@ CSG_Grid * CLandsat_Scene_Import::Load_Grid(const CSG_String &File)
 		break;
 	}
 
+	if( Parameters("PROJECTION")->asInt() == 1 ) // UTM South
+	{
+		Extent.Move(0, -10000000); // assume target extent is provided as UTM South coordinates
+	}
+
 	//-----------------------------------------------------
-	CSG_Grid *pGrid = NULL;
-	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("io_gdal", 0);	// Import Raster
+	CSG_Grid *pGrid = NULL; CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("io_gdal", 0);	// Import Raster
 
 	if( pTool && pTool->Set_Manager(NULL)
 		&&  pTool->Set_Parameter("FILES"      , File)
@@ -1039,43 +1042,24 @@ CSG_Grid * CLandsat_Scene_Import::Load_Band(const CSG_String &File)
 	}
 
 	//-----------------------------------------------------
-	else if( Parameters("PROJECTION")->asInt() >= 4 ) // keep as it is provided
+	else if( Parameters("PROJECTION")->asInt() == 1 ) // UTM South
 	{
-		// nothing to do be further done...
-	}
-
-	//-----------------------------------------------------
-	else if( Parameters("PROJECTION")->asInt() <= 1 ) // UTM
-	{
-		CSG_Grid *pTmp = pBand;
-
-		CSG_String Projection = pTmp->Get_Projection().Get_PROJ();
+		CSG_Grid *pTmp = pBand; CSG_String Projection = pTmp->Get_Projection().Get_PROJ();
 
 		if( Projection.Find("+proj=utm") >= 0 && Projection.Find("+zone") >= 0
-		&&  (  (Projection.Find("+south") >= 0 && Parameters("PROJECTION")->asInt() == 0)
-		    || (Projection.Find("+south") <  0 && Parameters("PROJECTION")->asInt() == 1))
-		&&  (pBand = SG_Create_Grid(pTmp->Get_Type(), pTmp->Get_NX(), pTmp->Get_NY(), pTmp->Get_Cellsize(),
-				pTmp->Get_XMin(), pTmp->Get_YMin() + (Parameters("PROJECTION")->asInt() == 1 ? 10000000 : -10000000)
-			)) != NULL )
+		&&  (pBand = SG_Create_Grid(pTmp->Get_Type(), pTmp->Get_NX(), pTmp->Get_NY(), pTmp->Get_Cellsize(), pTmp->Get_XMin(), pTmp->Get_YMin() + 10000000)) != NULL )
 		{
 			CSG_String Zone = Projection.Right(Projection.Length() - Projection.Find("+zone")).AfterFirst('=');
-			if( Parameters("PROJECTION")->asInt() == 1 ) // south
-				pBand->Get_Projection().Set_UTM_WGS84(Zone.asInt(),  true);
-			else
-				pBand->Get_Projection().Set_UTM_WGS84(Zone.asInt(), false);
-
+			pBand->Get_Projection().Set_UTM_WGS84(Zone.asInt(),  true);
 			pBand->Set_Name              (pTmp->Get_Name());
 			pBand->Set_Description       (pTmp->Get_Description());
 			pBand->Set_NoData_Value_Range(pTmp->Get_NoData_Value(), pTmp->Get_NoData_Value(true));
 			pBand->Set_Scaling           (pTmp->Get_Scaling(), pTmp->Get_Offset());
 
 			#pragma omp parallel for
-			for(int y=0; y<pBand->Get_NY(); y++)
+			for(int y=0; y<pBand->Get_NY(); y++) for(int x=0; x<pBand->Get_NX(); x++)
 			{
-				for(int x=0; x<pBand->Get_NX(); x++)
-				{
-					pBand->Set_Value(x, y, pTmp->asDouble(x, y));
-				}
+				pBand->Set_Value(x, y, pTmp->asDouble(x, y));
 			}
 
 			delete(pTmp);
@@ -1083,33 +1067,7 @@ CSG_Grid * CLandsat_Scene_Import::Load_Band(const CSG_String &File)
 	}
 
 	//-----------------------------------------------------
-	else if( Parameters("PROJECTION")->asInt() == 2 )	// Geographic Coordinates
-	{
-		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4);	// Coordinate Transformation (Grid)
-
-		if(	pTool )
-		{
-			Message_Fmt("\n%s (%s: %s)\n", _TL("re-projection to geographic coordinates"), _TL("original"), pBand->Get_Projection().Get_Name().c_str());
-
-			pTool->Set_Manager(NULL);
-
-			if( pTool->Set_Parameter("CRS_STRING", CSG_Projection::Get_GCS_WGS84().Get_WKT())
-			&&  pTool->Set_Parameter("SOURCE"    , pBand)
-			&&  pTool->Set_Parameter("RESAMPLING", Parameters("RESAMPLING"))
-		//	&&  pTool->Set_Parameter("DATA_TYPE" , 10) // "Preserve" => is already default!
-			&&  pTool->Execute() )
-			{
-				delete(pBand);
-
-				pBand = pTool->Get_Parameters()->Get_Parameter("GRID")->asGrid();
-			}
-
-			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
-		}
-	}
-
-	//-----------------------------------------------------
-	else if( Parameters("PROJECTION")->asInt() == 3 )	// Different UTM Zone
+	else if( Parameters("PROJECTION")->asInt() == 2 )	// Different UTM Zone
 	{
 		CSG_Projection Projection = CSG_Projection::Get_UTM_WGS84(
 			Parameters("UTM_ZONE" )->asInt (),
@@ -1140,6 +1098,32 @@ CSG_Grid * CLandsat_Scene_Import::Load_Band(const CSG_String &File)
 
 				SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 			}
+		}
+	}
+
+	//-----------------------------------------------------
+	else if( Parameters("PROJECTION")->asInt() == 3 )	// Geographic Coordinates
+	{
+		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4);	// Coordinate Transformation (Grid)
+
+		if(	pTool )
+		{
+			Message_Fmt("\n%s (%s: %s)\n", _TL("re-projection to geographic coordinates"), _TL("original"), pBand->Get_Projection().Get_Name().c_str());
+
+			pTool->Set_Manager(NULL);
+
+			if( pTool->Set_Parameter("CRS_STRING", CSG_Projection::Get_GCS_WGS84().Get_WKT())
+			&&  pTool->Set_Parameter("SOURCE"    , pBand)
+			&&  pTool->Set_Parameter("RESAMPLING", Parameters("RESAMPLING"))
+		//	&&  pTool->Set_Parameter("DATA_TYPE" , 10) // "Preserve" => is already default!
+			&&  pTool->Execute() )
+			{
+				delete(pBand);
+
+				pBand = pTool->Get_Parameters()->Get_Parameter("GRID")->asGrid();
+			}
+
+			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 		}
 	}
 
