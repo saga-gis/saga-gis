@@ -73,6 +73,8 @@ public:
 
 	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:File|Satellite Imagery") );	}
 
+	virtual bool			do_Sync_Projections		(void)	const	{	return( false  );	}
+
 
 protected:
 
