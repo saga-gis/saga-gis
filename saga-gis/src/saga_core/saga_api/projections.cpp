@@ -1627,6 +1627,7 @@ bool CSG_Projections::_Proj4_Get_Unit(CSG_String &Value, const CSG_String &Proj4
 
 	//-----------------------------------------------------
 	Value = "UNIT[\"metre\",1]";
+//	Value = "UNIT[\"degree\",0.01745329251994328]]";
 
 	return( false );
 }
@@ -1634,7 +1635,7 @@ bool CSG_Projections::_Proj4_Get_Unit(CSG_String &Value, const CSG_String &Proj4
 //---------------------------------------------------------
 bool CSG_Projections::_WKT_from_Proj4(CSG_String &WKT, const CSG_String &Proj4) const
 {
-	CSG_String  Value, GeogCS, ProjCS;
+	CSG_String Value, ProjCS;
 
 	//-----------------------------------------------------
 	if( !_Proj4_Read_Parameter(ProjCS, Proj4, "proj") )
@@ -1642,6 +1643,31 @@ bool CSG_Projections::_WKT_from_Proj4(CSG_String &WKT, const CSG_String &Proj4) 
 		SG_UI_Msg_Add_Error(CSG_String::Format("Proj4 >> WKT: %s", _TL("no projection type defined")));
 
 		return( false );
+	}
+
+	//-----------------------------------------------------
+	// GEOCCS["<name>
+	//    DATUM  ["<name>
+	//        SPHEROID["<name>", <semi-major axis>, <inverse flattening>],
+	//       *TOWGS84 [<dx>, <dy>, <dz>, <rx>, <ry>, <rz>, <sc>]
+	//    ],
+	//    PRIMEM ["<name>", <longitude>],
+	//    UNIT   ["<name>", <conversion factor>],
+	//   *AXIS   ["<name>", NORTH|SOUTH|EAST|WEST|UP|DOWN|OTHER],
+	//   *AXIS   ["<name>", NORTH|SOUTH|EAST|WEST|UP|DOWN|OTHER]
+	// ]
+
+	if(	!ProjCS.CmpNoCase("geocent") )
+	{
+		WKT = "GEOGCS[\"GCS\"";
+
+		if( _Proj4_Get_Datum         (Value, Proj4) ) { WKT += "," + Value; }
+		if( _Proj4_Get_Prime_Meridian(Value, Proj4) ) { WKT += "," + Value; }
+		if( _Proj4_Get_Unit          (Value, Proj4) ) { WKT += "," + Value; }
+
+		WKT += "]";
+
+		return( true );
 	}
 
 	//-----------------------------------------------------
@@ -1656,14 +1682,14 @@ bool CSG_Projections::_WKT_from_Proj4(CSG_String &WKT, const CSG_String &Proj4) 
 	//   *AXIS   ["<name>", NORTH|SOUTH|EAST|WEST|UP|DOWN|OTHER]
 	// ]
 
-	GeogCS = "GEOGCS[\"GCS\",";
+	CSG_String GeogCS = "GEOGCS[\"GCS\"";
 
-	_Proj4_Get_Datum         (Value, Proj4); GeogCS += Value; GeogCS += ",";
-	_Proj4_Get_Prime_Meridian(Value, Proj4); GeogCS += Value; GeogCS += ",";
+	if( _Proj4_Get_Datum         (Value, Proj4) ) { GeogCS += "," + Value; }
+	if( _Proj4_Get_Prime_Meridian(Value, Proj4) ) { GeogCS += "," + Value; }
+	if( _Proj4_Get_Unit          (Value, Proj4) ) { GeogCS += "," + Value; } else { GeogCS += "UNIT[\"degree\",0.01745329251994328]"; }
 
-	GeogCS += "UNIT[\"degree\",0.01745329251994328]]";
+	GeogCS += "]";
 
-	//-----------------------------------------------------
 	if(	!ProjCS.CmpNoCase("lonlat") || !ProjCS.CmpNoCase("longlat")
 	||	!ProjCS.CmpNoCase("latlon") || !ProjCS.CmpNoCase("latlong") )
 	{
@@ -1747,11 +1773,11 @@ bool CSG_Projections::_WKT_from_Proj4(CSG_String &WKT, const CSG_String &Proj4) 
 	//-----------------------------------------------------
 	// Unit ...
 
-	_Proj4_Get_Unit(Value, Proj4);
-
-	WKT += "," + Value + "]";
+	if( _Proj4_Get_Unit(Value, Proj4) ) { WKT += "," + Value; }
 
 	//-----------------------------------------------------
+	WKT += "]";
+
 	return( true );
 }
 
