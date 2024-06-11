@@ -2620,29 +2620,33 @@ CSG_Parameter_Data_Object_Output::CSG_Parameter_Data_Object_Output(CSG_Parameter
 //---------------------------------------------------------
 int CSG_Parameter_Data_Object_Output::_Set_Value(void *Value)
 {
-	CSG_Data_Object	*pDataObject	= (CSG_Data_Object *)Value;
+	CSG_Data_Object *pDataObject = (CSG_Data_Object *)Value;
 
-	if( pDataObject == DATAOBJECT_CREATE )
+	if( m_pDataObject != pDataObject )
 	{
-		pDataObject	= NULL;
-	}
-
-	if( m_pDataObject != pDataObject && (pDataObject == NULL || pDataObject->Get_ObjectType() == m_Type) )
-	{
-		m_pDataObject	= pDataObject;
-
-		if( Get_Manager() )
+		if( pDataObject == DATAOBJECT_NOTSET || pDataObject == DATAOBJECT_CREATE )
 		{
-			Get_Manager()->Add(m_pDataObject);
+			m_pDataObject = pDataObject;
+		}
+		else if( pDataObject->Get_ObjectType() == m_Type )
+		{
+			m_pDataObject = pDataObject;
 
-			if( Get_Manager() == &SG_Get_Data_Manager() )	// prevent that local data manager send their data objects to gui
+			if( Get_Manager() )
 			{
-				SG_UI_DataObject_Add(m_pDataObject, false);
+				Get_Manager()->Add(m_pDataObject);
+
+				if( Get_Manager() == &SG_Get_Data_Manager() )	// prevent that local data manager send their data objects to gui
+				{
+					SG_UI_DataObject_Add(m_pDataObject, false);
+				}
 			}
 		}
+
+		return( SG_PARAMETER_DATA_SET_CHANGED );
 	}
 
-	return( SG_PARAMETER_DATA_SET_CHANGED );
+	return( SG_PARAMETER_DATA_SET_TRUE );
 }
 
 //---------------------------------------------------------
