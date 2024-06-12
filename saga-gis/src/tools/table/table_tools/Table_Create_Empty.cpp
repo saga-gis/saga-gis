@@ -90,9 +90,10 @@ CTable_Create_Empty::CTable_Create_Empty(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Table_Output("",
+	Parameters.Add_Table("",
 		"TABLE"  , _TL("Table"),
-		_TL("")
+		_TL(""),
+		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_String("",
@@ -115,11 +116,11 @@ CTable_Create_Empty::CTable_Create_Empty(void)
 
 	Set_Field_Count(pFields, Parameters("NFIELDS")->asInt());
 
-	(*pFields)(GET_ID_NAME(0))->Set_Value("ID");
-	(*pFields)(GET_ID_TYPE(0))->Set_Value( 3  );
+	(*pFields)(GET_ID_NAME(0))->Set_Value("ID"  );
+	(*pFields)(GET_ID_TYPE(0))->Set_Value( 3    );
 
 	(*pFields)(GET_ID_NAME(1))->Set_Value("Name");
-	(*pFields)(GET_ID_TYPE(1))->Set_Value( 0  );
+	(*pFields)(GET_ID_TYPE(1))->Set_Value( 0    );
 }
 
 
@@ -161,6 +162,17 @@ void CTable_Create_Empty::Set_Field_Count(CSG_Parameters *pFields, int nFields)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CTable_Create_Empty::On_Before_Execution(void)
+{
+	if( has_GUI() )
+	{
+		Parameters.Set_Parameter("TABLE", DATAOBJECT_CREATE);
+	}
+
+	return( CSG_Tool::On_Before_Execution() );
+}
+
+//---------------------------------------------------------
 int CTable_Create_Empty::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	if( pParameter->Cmp_Identifier("NFIELDS") )
@@ -181,10 +193,7 @@ bool CTable_Create_Empty::On_Execute(void)
 {
 	CSG_Table *pTable = Parameters("TABLE")->asTable();
 
-	if( !pTable )
-	{
-		Parameters("TABLE")->Set_Value(pTable = SG_Create_Table());
-	}
+	pTable->Create();
 
 	pTable->Set_Name(Parameters("NAME")->asString());
 

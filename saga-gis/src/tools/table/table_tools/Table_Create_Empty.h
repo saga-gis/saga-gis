@@ -76,6 +76,8 @@ public:
 
 	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Table|Construction") );	}
 
+	virtual bool				On_Before_Execution		(void);
+
 
 protected:
 
