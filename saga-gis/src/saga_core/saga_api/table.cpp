@@ -136,6 +136,11 @@ CSG_Table::CSG_Table(void)
 	_On_Construction();
 }
 
+bool CSG_Table::Create(void)
+{
+	Destroy(); return( true );
+}
+
 //---------------------------------------------------------
 CSG_Table::CSG_Table(const CSG_Table &Table)
 	: CSG_Data_Object()

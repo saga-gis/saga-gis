@@ -286,7 +286,8 @@ class SAGA_API_DLL_EXPORT CSG_Table : public CSG_Data_Object
 
 public:
 
-	CSG_Table(void);
+									CSG_Table			(void);
+	bool							Create				(void);
 
 									CSG_Table			(const CSG_Table &Table);
 	bool							Create				(const CSG_Table &Table);
