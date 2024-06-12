@@ -92,9 +92,10 @@ CShapes_Create_Empty::CShapes_Create_Empty(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes_Output("",
+	Parameters.Add_Shapes("",
 		"SHAPES" , _TL("Shapes"),
-		_TL("")
+		_TL(""),
+		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_String("",
@@ -141,11 +142,11 @@ CShapes_Create_Empty::CShapes_Create_Empty(void)
 
 	Set_Field_Count(pFields, Parameters("NFIELDS")->asInt());
 
-	(*pFields)(GET_ID_NAME(0))->Set_Value("ID");
-	(*pFields)(GET_ID_TYPE(0))->Set_Value( 3  );
+	(*pFields)(GET_ID_NAME(0))->Set_Value("ID"  );
+	(*pFields)(GET_ID_TYPE(0))->Set_Value( 3    );
 
 	(*pFields)(GET_ID_NAME(1))->Set_Value("Name");
-	(*pFields)(GET_ID_TYPE(1))->Set_Value( 0  );
+	(*pFields)(GET_ID_TYPE(1))->Set_Value( 0    );
 }
 
 
@@ -191,6 +192,11 @@ bool CShapes_Create_Empty::On_Before_Execution(void)
 {
 	m_CRS.Activate_GUI();
 
+	if( has_GUI() )
+	{
+		Parameters.Set_Parameter("SHAPES", DATAOBJECT_CREATE);
+	}
+
 	return( CSG_Tool::On_Before_Execution() );
 }
 
@@ -234,11 +240,6 @@ bool CShapes_Create_Empty::On_Execute(void)
 
 	//-----------------------------------------------------
 	CSG_Shapes *pShapes = Parameters("SHAPES")->asShapes();
-
-	if( !pShapes )
-	{
-		Parameters("SHAPES")->Set_Value(pShapes = SG_Create_Shapes());
-	}
 
 	switch( Parameters("TYPE")->asInt() )
 	{
