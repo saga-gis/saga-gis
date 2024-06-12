@@ -92,9 +92,6 @@ private:
 
 	CSG_Parameters_CRSPicker	m_CRS;
 
-
-	bool						Get_Data_Type			(TSG_Data_Type &Type, const CSG_String &Value);
-
 };
 
 

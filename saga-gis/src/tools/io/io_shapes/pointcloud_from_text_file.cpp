@@ -96,9 +96,9 @@ CPointCloud_From_Text_File::CPointCloud_From_Text_File(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_PointCloud_Output("",
+	Parameters.Add_PointCloud("",
 		"POINTS"	, _TL("Point Cloud"),
-		_TL("")
+		_TL(""), PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_FilePath("",
@@ -112,10 +112,11 @@ CPointCloud_From_Text_File::CPointCloud_From_Text_File(void)
 	Parameters.Add_Choice("",
 		"SEPARATOR"	, _TL("Field Separator"),
 		_TL("Field Separator"),
-		CSG_String::Format("%s|%s|%s",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("tabulator"),
-			_TL("space"),
-			_TL("comma")
+			_TL("space"    ),
+			_TL("comma"    ),
+			_TL("semicolon")
 		), 0
 	);
 
@@ -161,10 +162,13 @@ CPointCloud_From_Text_File::CPointCloud_From_Text_File(void)
 		""
 	)->Set_UseInGUI(false);
 
-	Parameters.Add_Parameters(Parameters("FIELDS"),
-		"FIELDSPECS", _TL("Specifications"),
-		_TL("")
-	)->Set_UseInCMD(false);
+	if( has_GUI() )
+	{
+		Parameters.Add_Parameters("FIELDS",
+			"FIELDSPECS", _TL("Field Definition"),
+			_TL("")
+		)->Set_UseInCMD(false);
+	}
 
 	m_CRS.Create(Parameters);
 }
@@ -179,6 +183,11 @@ bool CPointCloud_From_Text_File::On_Before_Execution(void)
 {
 	m_CRS.Activate_GUI();
 
+	if( has_GUI() )
+	{
+		Parameters.Set_Parameter("POINTS", DATAOBJECT_CREATE);
+	}
+
 	return( CSG_Tool::On_Before_Execution() );
 }
 
@@ -190,49 +199,58 @@ bool CPointCloud_From_Text_File::On_After_Execution(void)
 	return( CSG_Tool::On_After_Execution() );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define GET_ID_NAME(i)	CSG_String::Format("NAME%d", i)
+#define GET_ID_TYPE(i)	CSG_String::Format("TYPE%d", i)
+
 //---------------------------------------------------------
 int CPointCloud_From_Text_File::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	m_CRS.On_Parameter_Changed(pParameters, pParameter);
 
-	if( pParameter->Cmp_Identifier("FIELDS") )
+	if( pParameter->Cmp_Identifier("FIELDS") && pParameters->Get_Parameter("FIELDSPECS")->asParameters() )
 	{
-		CSG_String_Tokenizer tokFields(pParameter->asString(), ";");
+		CSG_Array_Int Fields; CSG_Strings sFields = SG_String_Tokenize(pParameter->asString(), ";,");
 
-		CSG_Parameters &Fields = *pParameters->Get_Parameter("FIELDSPECS")->asParameters();
+		for(int i=0; i<sFields.Get_Count(); i++)
+		{
+			int Field; if( sFields[i].asInt(Field) && Field > 0 ) { Fields += Field; }
+		}
 
-		int	nCurrent = Fields.Get_Count() / 2;
-		int	 nFields = (int)tokFields.Get_Tokens_Count();
+		CSG_Parameters *pFields = pParameters->Get_Parameter("FIELDSPECS")->asParameters();
+
+		int nFields = (int)Fields.Get_Size(), nCurrent = pFields->Get_Count() / 2;
+
+		for(int i=0; i<nCurrent && i<nFields; i++)
+		{
+			pFields->Get_Parameter(GET_ID_NAME(i))->Set_Name(CSG_String::Format("%s %d", _TL("Field"), Fields[i]));
+		}
 
 		if( nCurrent < nFields )
 		{
-			for(int iField=nCurrent; iField<nFields; iField++)
+			for(int i=nCurrent; i<nFields; i++)
 			{
-				CSG_Parameter *pNode = Fields.Add_String("",
-					CSG_String::Format("NAME%03d" , iField),
-					CSG_String::Format("%d. %s"   , iField + 1, _TL("Field Name")), _TL(""), ""
-				);
+				CSG_String Name(CSG_String::Format("%s %d", _TL("Field"), Fields[i]));
 
-				Fields.Add_Choice(pNode,
-					CSG_String::Format("TYPE%03d" , iField),
-					CSG_String::Format("%d. %s"   , iField + 1, _TL("Field Type")), _TL(""),
-					CSG_String::Format("%s|%s|%s|%s|%s|%s",
-						_TL("1 byte signed integer"),
-						_TL("2 byte signed integer"),
-						_TL("4 byte signed integer"),
-						_TL("4 byte floating point"),
-						_TL("8 byte floating point"),
-						_TL("string"))
-				);
+				pFields->Add_String   (""            , GET_ID_NAME(i),      Name  , _TL("Name"), Name);
+				pFields->Add_Data_Type(GET_ID_NAME(i), GET_ID_TYPE(i), _TL("Type"), _TL("Type"), SG_DATATYPES_Numeric|SG_DATATYPES_String, SG_DATATYPE_Float);
 			}
 		}
 		else if( nCurrent > nFields )
 		{
-			for(int iField=nCurrent-1; iField>=nFields; iField--)
+			for(int i=nCurrent, j=2*nCurrent; i>nFields; i--)
 			{
-				Fields.Del_Parameter(iField);
+				pFields->Del_Parameter(--j);
+				pFields->Del_Parameter(--j);
 			}
 		}
+
+		pParameters->Set_Enabled("FIELDSPECS", nFields > 0);
 	}
 
 	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
@@ -244,42 +262,9 @@ int CPointCloud_From_Text_File::On_Parameter_Changed(CSG_Parameters *pParameters
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPointCloud_From_Text_File::Get_Data_Type(TSG_Data_Type &Type, const CSG_String &Value)
-{
-	int	iType;
-
-	if( Value.asInt(iType) )
-	{
-		switch( iType )
-		{
-		case  0: Type = SG_DATATYPE_Char  ; return( true );
-		case  1: Type = SG_DATATYPE_Short ; return( true );
-		case  2: Type = SG_DATATYPE_Int   ; return( true );
-		case  3: Type = SG_DATATYPE_Float ; return( true );
-		case  4: Type = SG_DATATYPE_Double; return( true );
-		case  5: Type = SG_DATATYPE_String; return( true );
-		}
-	}
-
-	if( !Value.CmpNoCase("char"  ) ) { Type = SG_DATATYPE_Char  ; return( true ); }
-	if( !Value.CmpNoCase("short" ) ) { Type = SG_DATATYPE_Short ; return( true ); }
-	if( !Value.CmpNoCase("int"   ) ) { Type = SG_DATATYPE_Int   ; return( true ); }
-	if( !Value.CmpNoCase("float" ) ) { Type = SG_DATATYPE_Float ; return( true ); }
-	if( !Value.CmpNoCase("double") ) { Type = SG_DATATYPE_Double; return( true ); }
-	if( !Value.CmpNoCase("string") ) { Type = SG_DATATYPE_String; return( true ); }
-
-	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 bool CPointCloud_From_Text_File::On_Execute(void)
 {
-	CSG_File	Stream;
+	CSG_File Stream;
 
 	if( !Stream.Open(Parameters("FILE")->asString(), SG_FILE_R, false) )
 	{
@@ -288,23 +273,8 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 		return( false );
 	}
 
-	//-----------------------------------------------------
-	int	xField	= Parameters("XFIELD")->asInt() - 1;
-	int	yField	= Parameters("YFIELD")->asInt() - 1;
-	int	zField	= Parameters("ZFIELD")->asInt() - 1;
-
-	char	Separator;
-
-	switch( Parameters("SEPARATOR")->asInt() )
-    {
-	default:	Separator	= '\t';	break;
-    case  1:	Separator	=  ' ';	break;
-    case  2:	Separator	=  ',';	break;
-    }
-
     //-----------------------------------------------------
-	CSG_String	sLine;
-	CSG_Strings	Values;
+	CSG_String sLine;
 
 	if( !Stream.Read_Line(sLine) )
 	{
@@ -313,123 +283,123 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 		return( false );
 	}
 
-	if( Parameters("SKIP_HEADER")->asBool() )	// header contains field names
-	{
-		CSG_String_Tokenizer tokValues(sLine, Separator);	// read each field name for later use
+	//-----------------------------------------------------
+	char Separator;
 
-		while( tokValues.Has_More_Tokens() )
-		{
-			Values	+= tokValues.Get_Next_Token();
-		}
-	}
-	else
+	switch( Parameters("SEPARATOR")->asInt() )
     {
-		Stream.Seek_Start();
-    }
+	default: Separator = '\t'; break;
+    case  1: Separator =  ' '; break;
+	case  2: Separator =  ','; break;
+	case  3: Separator =  ';'; break;
+	}
+
+	//-----------------------------------------------------
+	CSG_Strings Values = SG_String_Tokenize(sLine, Separator); // read first line to retrieve the number of fields
+
+	int nFields = Values.Get_Count();
+
+	if( !Parameters("SKIP_HEADER")->asBool() )
+	{
+		Stream.Seek_Start(); Values.Clear();
+	}
+
+	//-----------------------------------------------------
+	int xField = Parameters("XFIELD")->asInt() - 1; if( xField < 0 || xField >= nFields ) { Error_Fmt("%s\n0 < x(%d) < %d", _TL("Field index is out-of-range!"), 1 + xField, 1 + nFields); return( false ); }
+	int yField = Parameters("YFIELD")->asInt() - 1; if( yField < 0 || yField >= nFields ) { Error_Fmt("%s\n0 < y(%d) < %d", _TL("Field index is out-of-range!"), 1 + yField, 1 + nFields); return( false ); }
+	int zField = Parameters("ZFIELD")->asInt() - 1; if( zField < 0 || zField >= nFields ) { Error_Fmt("%s\n0 < z(%d) < %d", _TL("Field index is out-of-range!"), 1 + zField, 1 + nFields); return( false ); }
 
     //-----------------------------------------------------
     CSG_PointCloud *pPoints = Parameters("POINTS")->asPointCloud();
+
+	pPoints->Create();
 
 	pPoints->Set_Name(SG_File_Get_Name(Parameters("FILE")->asString(), false));
 
 	m_CRS.Get_CRS(pPoints->Get_Projection(), true);
 
     //-----------------------------------------------------
-	CSG_Array_Int Fields;
-
 	if( has_GUI() )
     {
 		CSG_Parameters &Fields = *Parameters("FIELDSPECS")->asParameters();
 
-		int nFields = Fields.Get_Count() / 2;
+		CSG_String Names, Types; int nFields = Fields.Get_Count() / 2;
 
-		CSG_String Names, Types;
-
-		for(int iField=0; iField<nFields; iField++)
+		for(int i=0; i<nFields; i++)
 		{
-			Names += CSG_String::Format("%s;", Fields(CSG_String::Format("NAME%03d", iField))->asString());
-			Types += CSG_String::Format("%d;", Fields(CSG_String::Format("TYPE%03d", iField))->asInt   ());
+			Names += CSG_String::Format("%s;", Fields(GET_ID_NAME(i))->asString());
+			Types += CSG_String::Format("%d;", Fields(GET_ID_TYPE(i))->asString());
 		}
 
 		Parameters("FIELDNAMES")->Set_Value(Names);
 		Parameters("FIELDTYPES")->Set_Value(Types);
 	}
 
+	//-----------------------------------------------------
+	CSG_Array_Int Fields;
+
 	{
-		TSG_Data_Type Type = SG_DATATYPE_Float;	// default
+		CSG_Strings Field(SG_String_Tokenize(Parameters("FIELDS"    )->asString(), ";,"));
+		CSG_Strings Names(SG_String_Tokenize(Parameters("FIELDNAMES")->asString(), ";,"));
+		CSG_Strings Types(SG_String_Tokenize(Parameters("FIELDTYPES")->asString(), ";,"));
 
-		CSG_String_Tokenizer tokFields(Parameters("FIELDS"    )->asString(), ";");
-		CSG_String_Tokenizer tokTypes (Parameters("FIELDTYPES")->asString(), ";");
-		CSG_String_Tokenizer tokNames (Parameters("FIELDNAMES")->asString(), ";");
-
-		while( tokFields.Has_More_Tokens() )
+		for(int i=0, Index; i<Field.Get_Count(); i++)
 		{
-			int	iField;
-
-			if( !tokFields.Get_Next_Token().asInt(iField) || iField < 1 )
+			if( !Field[i].asInt(Index) || Index < 1 || Index > nFields )
 			{
-				Error_Set(_TL("Error parsing attribute field index"));
+				Error_Fmt("%s\n%s\n0 < \"%s\" < %d", _TL("Error parsing attribute field index!"), _TL("Provided value is not an integer or out-of-range!"),
+					Field[i].c_str(), 1 + nFields
+				);
 
 				return( false );
 			}
 
-			Fields += iField - 1;
+			Fields += Index - 1;
 
-			CSG_String Name;
-
-			if( tokNames.Has_More_Tokens() )
-			{
-				Name = tokNames.Get_Next_Token(); Name.Trim(true); Name.Trim(false);
-			}
+			CSG_String Name(i < Names.Get_Count() ? Names[i] : i < nFields ? Values[i] : CSG_String("")); Name.Trim_Both();
 
 			if( Name.is_Empty() )
 			{
-				if( iField - 1 < Values.Get_Count() )
-				{
-					Name = Values[iField - 1];
-				}
-				else
-				{
-					Name.Printf("FIELD%02d", iField);
-				}
+				Name.Printf("Field %d", Index);
 			}
 
-			if( tokTypes.Has_More_Tokens() )
+			int Type; if( i >= Types.Get_Count() || !Types[i].asInt(Type) ) { Type = -1; }
+
+			switch( Type )
 			{
-				Get_Data_Type(Type, tokTypes.Get_Next_Token());
+			case  0: pPoints->Add_Field(Name, SG_DATATYPE_String); break;
+			case  1: pPoints->Add_Field(Name, SG_DATATYPE_Byte  ); break;
+			case  2: pPoints->Add_Field(Name, SG_DATATYPE_Char  ); break;
+			case  3: pPoints->Add_Field(Name, SG_DATATYPE_Word  ); break;
+			case  4: pPoints->Add_Field(Name, SG_DATATYPE_Short ); break;
+			case  5: pPoints->Add_Field(Name, SG_DATATYPE_DWord ); break;
+			case  6: pPoints->Add_Field(Name, SG_DATATYPE_Int   ); break;
+			case  7: pPoints->Add_Field(Name, SG_DATATYPE_ULong ); break;
+			case  8: pPoints->Add_Field(Name, SG_DATATYPE_Long  ); break;
+			default: pPoints->Add_Field(Name, SG_DATATYPE_Float ); break;
+			case 10: pPoints->Add_Field(Name, SG_DATATYPE_Double); break;
 			}
-
-			pPoints->Add_Field(Name, Type);
 		}
 	}
 
     //-----------------------------------------------------
 	Process_Set_Text(_TL("Importing data ..."));
 
-	int		nLines	= 0;
-	sLong	Length	= Stream.Length();
+	sLong nLines = 0, Length = Stream.Length();
 
 	while( Stream.Read_Line(sLine) )
     {
 		nLines++;
 
-		if( pPoints->Get_Count() % 10000 == 0 && !Set_Progress((double)Stream.Tell(), (double)Length) )
+		if( pPoints->Get_Count() % 10000 == 0 && !Set_Progress(Stream.Tell(), Length) )
 		{
-			return( true );	// user break
+			break; // user break
 		}
 
 	    //-------------------------------------------------
-		CSG_String_Tokenizer	tokValues(sLine, Separator);
+		Values = SG_String_Tokenize(sLine, Separator); // read every column in this line and fill vector
 
-		Values.Clear();
-
-		while( tokValues.Has_More_Tokens() )	// read every column in this line and fill vector
-        {
-			Values	+= tokValues.Get_Next_Token();
-        }
-
-	    //-------------------------------------------------
-		double	x, y, z;
+		double x, y, z;
 
 		if( xField >= Values.Get_Count() || !Values[xField].asDouble(x)
 		||  yField >= Values.Get_Count() || !Values[yField].asDouble(y)
@@ -455,28 +425,26 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 				pPoints->Set_Attribute(iAttribute, Values[Fields[iAttribute]]);
 				break;
 
-			default:
-				{
-					double	Value;
+			default: {
+				double Value;
 
-					if( Values[Fields[iAttribute]].asDouble(Value) )
-					{
-						pPoints->Set_Attribute(iAttribute, Value);
-					}
-					else
-					{
-						pPoints->Set_NoData(3 + iAttribute);
-					}
+				if( Values[Fields[iAttribute]].asDouble(Value) )
+				{
+					pPoints->Set_Attribute(iAttribute, Value);
 				}
-				break;
+				else
+				{
+					pPoints->Set_NoData(3 + iAttribute);
+				}
+				break; }
 			}
 		}
     }
 
     //-----------------------------------------------------
-	DataObject_Set_Parameter(pPoints, "DISPLAY_VALUE_AGGREGATE", 3);	// highest z
-	DataObject_Set_Parameter(pPoints, "COLORS_TYPE"            , 3);	// graduated colors
-	DataObject_Set_Parameter(pPoints, "METRIC_ATTRIB"          , 2);	// z attrib
+	DataObject_Set_Parameter(pPoints, "DISPLAY_VALUE_AGGREGATE", 3); // highest z
+	DataObject_Set_Parameter(pPoints, "COLORS_TYPE"            , 3); // graduated colors
+	DataObject_Set_Parameter(pPoints, "METRIC_ATTRIB"          , 2); // z attrib
 	DataObject_Set_Parameter(pPoints, "METRIC_ZRANGE", pPoints->Get_Minimum(2), pPoints->Get_Maximum(2));
 
 	DataObject_Update(pPoints);
