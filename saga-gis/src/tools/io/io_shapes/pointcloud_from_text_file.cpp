@@ -213,7 +213,7 @@ int CPointCloud_From_Text_File::On_Parameter_Changed(CSG_Parameters *pParameters
 {
 	m_CRS.On_Parameter_Changed(pParameters, pParameter);
 
-	if( pParameter->Cmp_Identifier("FIELDS") && pParameters->Get_Parameter("FIELDSPECS")->asParameters() )
+	if( pParameter->Cmp_Identifier("FIELDS") && pParameters->Get_Parameter("FIELDSPECS") )
 	{
 		CSG_Array_Int Fields; CSG_Strings sFields = SG_String_Tokenize(pParameter->asString(), ";,");
 
@@ -289,7 +289,7 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 	switch( Parameters("SEPARATOR")->asInt() )
     {
 	default: Separator = '\t'; break;
-    case  1: Separator =  ' '; break;
+	case  1: Separator =  ' '; break;
 	case  2: Separator =  ','; break;
 	case  3: Separator =  ';'; break;
 	}
