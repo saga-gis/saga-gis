@@ -59,7 +59,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-BYTE	CSG_Grid::m_Bitmask[8]	= { 0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80 };
+BYTE CSG_Grid::m_Bitmask[8] = { 0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80 };
 
 
 ///////////////////////////////////////////////////////////
@@ -202,21 +202,21 @@ CSG_Grid::CSG_Grid(TSG_Data_Type Type, int NX, int NY, double Cellsize, double x
 //---------------------------------------------------------
 void CSG_Grid::_On_Construction(void)
 {
-	m_Type			= SG_DATATYPE_Undefined;
+	m_Type         = SG_DATATYPE_Undefined;
 
-	m_Values		= NULL;
+	m_Values       = NULL;
 
-	m_Cache_Stream	= NULL;
-	m_Cache_Offset	= 0;
-	m_Cache_bSwap	= false;
-	m_Cache_bFlip	= false;
+	m_Cache_Stream = NULL;
+	m_Cache_Offset = 0;
+	m_Cache_bSwap  = false;
+	m_Cache_bFlip  = false;
 
-	m_zScale		= 1.;
-	m_zOffset		= 0.;
+	m_zScale       = 1.;
+	m_zOffset      = 0.;
 
-	m_Index			= NULL;
+	m_Index        = NULL;
 
-	m_pOwner		= NULL;
+	m_pOwner       = NULL;
 
 	Set_Update_Flag();
 }
@@ -239,12 +239,9 @@ bool CSG_Grid::Create(const CSG_Grid &Grid)
 		Get_MetaData().Create (Grid.Get_MetaData());
 
 		#pragma omp parallel for
-		for(int y=0; y<Get_NY(); y++)
+		for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
 		{
-			for(int x=0; x<Get_NX(); x++)
-			{
-				Set_Value(x, y, Grid.asDouble(x, y, false), false);
-			}
+			Set_Value(x, y, Grid.asDouble(x, y, false), false);
 		}
 
 		return( true );
@@ -256,21 +253,13 @@ bool CSG_Grid::Create(const CSG_Grid &Grid)
 //---------------------------------------------------------
 bool CSG_Grid::Create(CSG_Grid *pGrid, TSG_Data_Type Type, bool bCached)
 {
-	if( pGrid )
+	if( pGrid && Create(pGrid->Get_System(), Type == SG_DATATYPE_Undefined ? pGrid->Get_Type() : Type, bCached) )
 	{
-		if( Type == SG_DATATYPE_Undefined )
-		{
-			Type	= pGrid->Get_Type();
-		}
+		Set_NoData_Value_Range(pGrid->Get_NoData_Value(), pGrid->Get_NoData_Value(true));
 
-		if( Create(Type, pGrid->Get_NX(), pGrid->Get_NY(), pGrid->Get_Cellsize(), pGrid->Get_XMin(), pGrid->Get_YMin(), bCached) )
-		{
-			Set_NoData_Value_Range(pGrid->Get_NoData_Value(), pGrid->Get_NoData_Value(true));
+		Get_Projection() = pGrid->Get_Projection();
 
-			Get_Projection()	= pGrid->Get_Projection();
-
-			return( true );
-		}
+		return( true );
 	}
 
 	return( false );
@@ -279,7 +268,41 @@ bool CSG_Grid::Create(CSG_Grid *pGrid, TSG_Data_Type Type, bool bCached)
 //---------------------------------------------------------
 bool CSG_Grid::Create(const CSG_Grid_System &System, TSG_Data_Type Type, bool bCached)
 {
-	return( Create(Type, System.Get_NX(), System.Get_NY(), System.Get_Cellsize(), System.Get_XMin(), System.Get_YMin(), bCached) );
+	Destroy();
+
+	switch( (m_Type = Type) )
+	{
+	case SG_DATATYPE_Bit   : Set_NoData_Value(          0.); break;
+	case SG_DATATYPE_Byte  : Set_NoData_Value(          0.); break;
+	case SG_DATATYPE_Char  : Set_NoData_Value(       -127.); break;
+	case SG_DATATYPE_Word  : Set_NoData_Value(      65535.); break;
+	case SG_DATATYPE_Short : Set_NoData_Value(     -32767.); break;
+	case SG_DATATYPE_DWord : Set_NoData_Value( 4294967295.); break;
+	case SG_DATATYPE_Int   : Set_NoData_Value(-2147483647.); break;
+	case SG_DATATYPE_ULong : Set_NoData_Value( 4294967295.); break;
+	case SG_DATATYPE_Long  : Set_NoData_Value(-2147483647.); break;
+	case SG_DATATYPE_Float : Set_NoData_Value(     -99999.); break;
+	case SG_DATATYPE_Double: Set_NoData_Value(     -99999.); break;
+	case SG_DATATYPE_Color : Set_NoData_Value( 4294967295.); break;
+
+	default                : Set_NoData_Value(     -99999.);
+		m_Type = SG_DATATYPE_Float;
+		break;
+	}
+
+	if( m_System.Create(System) == false )
+	{
+		m_System.Create(1., System.Get_XMin(), System.Get_YMin(), System.Get_NX(), System.Get_NY());
+	}
+
+	m_Statistics.Invalidate();
+
+	m_nBytes_Value = SG_Data_Type_Get_Size(m_Type);
+	m_nBytes_Line  = m_Type == SG_DATATYPE_Bit ? 1 + Get_NX() / 8 : Get_NX() * m_nBytes_Value;
+
+	Set_Max_Samples(SG_DataObject_Get_Max_Samples() > 0 ? SG_DataObject_Get_Max_Samples() : Get_NCells());
+
+	return( _Memory_Create(bCached) );
 }
 
 //---------------------------------------------------------
@@ -291,7 +314,7 @@ bool CSG_Grid::Create(const CSG_String &File, TSG_Data_Type Type, bool bCached, 
 
 	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Loading grid"), File.c_str()), true);
 
-	m_Type	= Type;
+	m_Type = Type;
 
 	if( _Load_PGSQL     (File, bCached, bLoadData)
 	||  _Load_Native    (File, bCached, bLoadData)
@@ -323,9 +346,7 @@ bool CSG_Grid::Create(TSG_Data_Type Type, int NX, int NY, double Cellsize, doubl
 {
 	Destroy();
 
-	_Set_Properties(Type, NX, NY, Cellsize, xMin, yMin);
-
-	return( _Memory_Create(bCached) );
+	return( Create(CSG_Grid_System(Cellsize, xMin, yMin, NX, NY), Type, bCached) );
 }
 
 
@@ -351,14 +372,13 @@ bool CSG_Grid::Destroy(void)
 {
 	_Memory_Destroy();
 
-	m_Type		= SG_DATATYPE_Undefined;
+	m_Type    = SG_DATATYPE_Undefined;
 
-	m_zScale	= 1.;
-	m_zOffset	= 0.;
+	m_zScale  = 1.;
+	m_zOffset = 0.;
 
-	m_Unit		.Clear();
-
-	m_System	.Assign(0., 0., 0., 0, 0);
+	m_Unit  .Clear  ();
+	m_System.Destroy();
 
 	return( CSG_Data_Object::Destroy() );
 }
@@ -366,43 +386,7 @@ bool CSG_Grid::Destroy(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//						Header							 //
-//														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CSG_Grid::_Set_Properties(TSG_Data_Type Type, int NX, int NY, double Cellsize, double xMin, double yMin)
-{
-	m_Type	= Type;
-
-	switch( m_Type )
-	{
-	case SG_DATATYPE_Bit   : Set_NoData_Value(          0.);	break;
-	case SG_DATATYPE_Byte  : Set_NoData_Value(          0.);	break;
-	case SG_DATATYPE_Char  : Set_NoData_Value(       -127.);	break;
-	case SG_DATATYPE_Word  : Set_NoData_Value(      65535.);	break;
-	case SG_DATATYPE_Short : Set_NoData_Value(     -32767.);	break;
-	case SG_DATATYPE_DWord : Set_NoData_Value( 4294967295.);	break;
-	case SG_DATATYPE_Int   : Set_NoData_Value(-2147483647.);	break;
-	case SG_DATATYPE_ULong : Set_NoData_Value( 4294967295.);	break;
-	case SG_DATATYPE_Long  : Set_NoData_Value(-2147483647.);	break;
-	case SG_DATATYPE_Float : Set_NoData_Value(     -99999.);	break;
-	case SG_DATATYPE_Double: Set_NoData_Value(     -99999.);	break;
-	case SG_DATATYPE_Color : Set_NoData_Value( 4294967295.);	break;
-
-	default:
-	m_Type = SG_DATATYPE_Float;	Set_NoData_Value(  -99999.);	break;
-	}
-
-	m_System.Assign(Cellsize > 0. ? Cellsize : 1., xMin, yMin, NX, NY);
-
-	m_Statistics.Invalidate();
-
-	m_nBytes_Value	= SG_Data_Type_Get_Size(m_Type);
-	m_nBytes_Line	= m_Type == SG_DATATYPE_Bit ? 1 + Get_NX() / 8 : Get_NX() * m_nBytes_Value;
-
-	Set_Max_Samples(SG_DataObject_Get_Max_Samples() > 0 ? SG_DataObject_Get_Max_Samples() : Get_NCells());
-}
 
 //---------------------------------------------------------
 void CSG_Grid::Set_Unit(const CSG_String &Unit)
