@@ -86,6 +86,12 @@ CGrid_To_Contour::CGrid_To_Contour(void)
 		1., 0., true
 	);
 
+	Parameters.Add_Int("",
+		"PRECISION", _TL("Coordinate Precision"),
+		_TL("Decimal digits. Precision used to address coordinates. Ignored if negative (default)."),
+		-1, -1, true
+	);
+
 	Parameters.Add_Bool("",
 		"BOUNDARY" , _TL("Boundary Extension"),
 		_TL("Extend contours beyond boundary. Internally input grid is extrapolated by one cell size in each direction (top, down, left, right)."),
@@ -174,7 +180,21 @@ int CGrid_To_Contour::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 //---------------------------------------------------------
 bool CGrid_To_Contour::On_Execute(void)
 {
-	m_pGrid = Parameters("GRID")->asGrid();
+	CSG_Grid Grid; m_pGrid = Parameters("GRID")->asGrid();
+
+	if( Parameters("PRECISION")->asInt() >= 0 )
+	{
+		if( !Grid.Create(CSG_Grid_System(m_pGrid->Get_System(), Parameters("PRECISION")->asInt()), Grid.Get_Type()) )
+		{
+			Error_Set(_TL("could allocate memory for patched grid"));
+
+			return( false );
+		}
+
+		Grid.Assign(m_pGrid, GRID_RESAMPLING_NearestNeighbour);
+
+		m_pGrid = &Grid;
+	}
 
 	//-----------------------------------------------------
 	CSG_Shapes *pContours = Parameters("CONTOUR")->asShapes();
@@ -444,18 +464,18 @@ bool CGrid_To_Contour::Get_Contour(CSG_Shape_Line *pContour, double z, double mi
 	pContour->Set_Value(1, z);
 
 	//-----------------------------------------------------
-	CSG_Grid &m_Flag = m_Flags[SG_OMP_Get_Thread_Num()];
+	CSG_Grid &Flags = m_Flags[SG_OMP_Get_Thread_Num()];
 
-//	#pragma omp parallel for
+	#pragma omp parallel for
 	for(int y=0; y<m_pGrid->Get_NY(); y++) for(int x=0; x<m_pGrid->Get_NX(); x++) // Find Border Cells
 	{
 		if( m_pGrid->is_NoData(x, y) )
 		{
-			m_Flag.Set_NoData(x, y);
+			Flags.Set_NoData(x, y);
 		}
 		else if( m_pGrid->asDouble(x, y) < z )
 		{
-			m_Flag.Set_Value(x, y, -1);
+			Flags.Set_Value(x, y, -1);
 		}
 		else // if( m_pGrid->asDouble(x, y) >= z )
 		{
@@ -472,7 +492,7 @@ bool CGrid_To_Contour::Get_Contour(CSG_Shape_Line *pContour, double z, double mi
 				}
 			}
 
-			m_Flag.Set_Value(x, y, Flag);
+			Flags.Set_Value(x, y, Flag);
 		}
 	}
 
@@ -541,23 +561,23 @@ bool CGrid_To_Contour::Get_Contour(CSG_Shape_Line *pContour, double z, int x, in
 //---------------------------------------------------------
 inline int CGrid_To_Contour::Get_Contour_Vertex_First(int x, int y, bool bEdge)
 {
-	CSG_Grid &m_Flag = m_Flags[SG_OMP_Get_Thread_Num()];
+	CSG_Grid &Flags = m_Flags[SG_OMP_Get_Thread_Num()];
 
-	if( m_Flag.asInt(x, y) > 0 )
+	if( Flags.asInt(x, y) > 0 )
 	{
 		for(int i=8; i>0; i-=2) // we want to work counter-clockwise
 		{
 			int ix = CSG_Grid_System::Get_xTo(i, x);
 			int iy = CSG_Grid_System::Get_yTo(i, y);
 
-			if( m_Flag.is_InGrid(ix, iy) && m_Flag.asInt(ix, iy) < 0 )
+			if( Flags.is_InGrid(ix, iy) && Flags.asInt(ix, iy) < 0 )
 			{
 				if( bEdge )
 				{
 					ix = CSG_Grid_System::Get_xTo(i + 2, x);
 					iy = CSG_Grid_System::Get_yTo(i + 2, y);
 
-					if( !m_Flag.is_InGrid(ix, iy) )
+					if( !Flags.is_InGrid(ix, iy) )
 					{
 						return( i );
 					}
@@ -576,28 +596,28 @@ inline int CGrid_To_Contour::Get_Contour_Vertex_First(int x, int y, bool bEdge)
 //---------------------------------------------------------
 inline bool CGrid_To_Contour::Get_Contour_Vertex_Next(int &x, int &y, int &Dir)
 {
-	CSG_Grid &m_Flag = m_Flags[SG_OMP_Get_Thread_Num()];
+	CSG_Grid &Flags = m_Flags[SG_OMP_Get_Thread_Num()];
 
 	int xo = CSG_Grid_System::Get_xTo(Dir + 6, x);
 	int yo = CSG_Grid_System::Get_yTo(Dir + 6, y);
 
-	if( m_Flag.is_InGrid(xo, yo) )
+	if( Flags.is_InGrid(xo, yo) )
 	{
-		if( m_Flag.asInt(xo, yo) < 0 )
+		if( Flags.asInt(xo, yo) < 0 )
 		{
-			if( m_Flag.asInt(x, y) > 0 )
+			if( Flags.asInt(x, y) > 0 )
 			{
 				Dir = (Dir + 6) % 8;
 
 				return( true );
 			}
 		}
-		else if( m_Flag.asInt(xo, yo) > 0 )
+		else if( Flags.asInt(xo, yo) > 0 )
 		{
 			int xd = CSG_Grid_System::Get_xTo(Dir + 7, x);
 			int yd = CSG_Grid_System::Get_yTo(Dir + 7, y);
 
-			if( m_Flag.is_InGrid(xd, yd) && m_Flag.asInt(xd, yd) < 0 )
+			if( Flags.is_InGrid(xd, yd) && Flags.asInt(xd, yd) < 0 )
 			{
 				x = xo; y = yo;
 
@@ -609,7 +629,7 @@ inline bool CGrid_To_Contour::Get_Contour_Vertex_Next(int &x, int &y, int &Dir)
 	int xd = CSG_Grid_System::Get_xTo(Dir + 7, x);
 	int yd = CSG_Grid_System::Get_yTo(Dir + 7, y);
 
-	if( m_Flag.is_InGrid(xd, yd) && m_Flag.asInt(xd, yd) > 0 )
+	if( Flags.is_InGrid(xd, yd) && Flags.asInt(xd, yd) > 0 )
 	{
 		x = xd; y = yd; Dir = (Dir + 2) % 8;
 
@@ -622,13 +642,13 @@ inline bool CGrid_To_Contour::Get_Contour_Vertex_Next(int &x, int &y, int &Dir)
 //---------------------------------------------------------
 inline bool CGrid_To_Contour::Add_Contour_Vertex(CSG_Shape_Line *pContour, int iPart, double z, int x, int y, int Dir)
 {
-	CSG_Grid &m_Flag = m_Flags[SG_OMP_Get_Thread_Num()];
+	CSG_Grid &Flags = m_Flags[SG_OMP_Get_Thread_Num()];
 
-	if( m_Flag.asInt(x, y) > 0 )
+	if( Flags.asInt(x, y) > 0 )
 	{
 		int x1 = CSG_Grid_System::Get_xTo(Dir, x), y1 = CSG_Grid_System::Get_yTo(Dir, y);
 
-		if( m_Flag.is_InGrid(x1, y1) )
+		if( Flags.is_InGrid(x1, y1) )
 		{
 			double z0 = m_pGrid->asDouble(x, y), z1 = m_pGrid->asDouble(x1, y1);
 
@@ -641,7 +661,7 @@ inline bool CGrid_To_Contour::Add_Contour_Vertex(CSG_Shape_Line *pContour, int i
 
 			pContour->Add_Point(p, iPart);
 
-			m_Flag.Add_Value(x, y, -1);
+			Flags.Add_Value(x, y, -1);
 
 			return( true );
 		}
