@@ -201,17 +201,17 @@ class SAGA_API_DLL_EXPORT CSG_Grid_System
 public:
 	CSG_Grid_System(void);
 
-								CSG_Grid_System		(const CSG_Grid_System &System);
-	bool						Create				(const CSG_Grid_System &System);
+								CSG_Grid_System		(const CSG_Grid_System &System, int Precision = -1);
+	bool						Create				(const CSG_Grid_System &System, int Precision = -1);
 
-								CSG_Grid_System		(double Cellsize, const CSG_Rect &Extent);
-	bool						Create				(double Cellsize, const CSG_Rect &Extent);
+								CSG_Grid_System		(double Cellsize, const CSG_Rect &Extent, int Precision = -1);
+	bool						Create				(double Cellsize, const CSG_Rect &Extent, int Precision = -1);
 
-								CSG_Grid_System		(double Cellsize, double xMin, double yMin, double xMax, double yMax);
-	bool						Create				(double Cellsize, double xMin, double yMin, double xMax, double yMax);
+								CSG_Grid_System		(double Cellsize, double xMin, double yMin, double xMax, double yMax, int Precision = -1);
+	bool						Create				(double Cellsize, double xMin, double yMin, double xMax, double yMax, int Precision = -1);
 
-								CSG_Grid_System		(double Cellsize, double xMin, double yMin, int NX, int NY);
-	bool						Create				(double Cellsize, double xMin, double yMin, int NX, int NY);
+								CSG_Grid_System		(double Cellsize, double xMin, double yMin, int NX, int NY, int Precision = -1);
+	bool						Create				(double Cellsize, double xMin, double yMin, int NX, int NY, int Precision = -1);
 
 	~CSG_Grid_System(void);
 
@@ -897,8 +897,6 @@ private:	///////////////////////////////////////////////
 
 	//-----------------------------------------------------
 	void						_On_Construction		(void);
-
-	void						_Set_Properties			(TSG_Data_Type Type, int NX, int NY, double Cellsize, double xMin, double yMin);
 
 	bool						_Set_Index				(void);
 	bool						_Get_Index				(void)

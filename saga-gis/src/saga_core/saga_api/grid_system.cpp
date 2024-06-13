@@ -60,20 +60,31 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int		CSG_Grid_System::m_Precision	= 16;	// 16 decimal digits, default precision used for storing cellsize and extent
+/**
+* decimal digits, default precision used for storing cellsize and extent
+**/
+// 
+int CSG_Grid_System::m_Precision = 16;
 
 //---------------------------------------------------------
+/**
+* Set the default precision given as number of decimals used
+* to store coordinates and cell sizes. Ignored if set to a
+* negative value.
+**/
 int CSG_Grid_System::Set_Precision(int Decimals)
 {
-	if( Decimals >= 0 )
-	{
-		m_Precision	= Decimals;
-	}
+	m_Precision = Decimals;
 
 	return( m_Precision );
 }
 
 //---------------------------------------------------------
+/**
+* Get the default precision (number of decimals) used
+* to store coordinates and cell sizes.
+* A negative value indicates that this is ignored.
+**/
 int CSG_Grid_System::Get_Precision(void)
 {
 	return( m_Precision );
@@ -91,27 +102,27 @@ CSG_Grid_System::CSG_Grid_System(void)
 }
 
 //---------------------------------------------------------
-CSG_Grid_System::CSG_Grid_System(const CSG_Grid_System &System)
+CSG_Grid_System::CSG_Grid_System(const CSG_Grid_System &System, int Precision)
 {
-	Create(System);
+	Create(System, Precision);
 }
 
 //---------------------------------------------------------
-CSG_Grid_System::CSG_Grid_System(double Cellsize, const CSG_Rect &Extent)
+CSG_Grid_System::CSG_Grid_System(double Cellsize, const CSG_Rect &Extent, int Precision)
 {
-	Create(Cellsize, Extent);
+	Create(Cellsize, Extent, Precision);
 }
 
 //---------------------------------------------------------
-CSG_Grid_System::CSG_Grid_System(double Cellsize, double xMin, double yMin, double xMax, double yMax)
+CSG_Grid_System::CSG_Grid_System(double Cellsize, double xMin, double yMin, double xMax, double yMax, int Precision)
 {
-	Create(Cellsize, xMin, yMin, xMax, yMax);
+	Create(Cellsize, xMin, yMin, xMax, yMax, Precision);
 }
 
 //---------------------------------------------------------
-CSG_Grid_System::CSG_Grid_System(double Cellsize, double xMin, double yMin, int NX, int NY)
+CSG_Grid_System::CSG_Grid_System(double Cellsize, double xMin, double yMin, int NX, int NY, int Precision)
 {
-	Create(Cellsize, xMin, yMin, NX, NY);
+	Create(Cellsize, xMin, yMin, NX, NY, Precision);
 }
 
 //---------------------------------------------------------
@@ -126,34 +137,39 @@ CSG_Grid_System::~CSG_Grid_System(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid_System::Create(const CSG_Grid_System &System)
+bool CSG_Grid_System::Create(const CSG_Grid_System &System, int Precision)
 {
-	m_NX			= System.m_NX;
-	m_NY			= System.m_NY;
-	m_NCells		= System.m_NCells;
+	if( Precision >= 0 )
+	{
+		return( Create(System.Get_Cellsize(), System.Get_XMin(), System.Get_YMin(), System.Get_NX(), System.Get_NY(), Precision) );
+	}
 
-	m_Cellsize		= System.m_Cellsize;
-	m_Cellarea		= System.m_Cellarea;
-	m_Diagonal		= System.m_Diagonal;
+	m_NX           = System.m_NX;
+	m_NY           = System.m_NY;
+	m_NCells       = System.m_NCells;
 
-	m_Extent		= System.m_Extent;
-	m_Extent_Cells	= System.m_Extent_Cells;
+	m_Cellsize     = System.m_Cellsize;
+	m_Cellarea     = System.m_Cellarea;
+	m_Diagonal     = System.m_Diagonal;
+
+	m_Extent       = System.m_Extent;
+	m_Extent_Cells = System.m_Extent_Cells;
 
 	return( is_Valid() );
 }
 
 //---------------------------------------------------------
-bool CSG_Grid_System::Create(double Cellsize, const CSG_Rect &Extent)
+bool CSG_Grid_System::Create(double Cellsize, const CSG_Rect &Extent, int Precision)
 {
 	if( Cellsize > 0. && Extent.Get_XRange() >= 0. && Extent.Get_YRange() >= 0. )
 	{
-		int		nx	= 1 + (int)(0.5 + Extent.Get_XRange() / Cellsize);
-		int		ny	= 1 + (int)(0.5 + Extent.Get_YRange() / Cellsize);
+		int nx = 1 + (int)(0.5 + Extent.Get_XRange() / Cellsize);
+		int ny = 1 + (int)(0.5 + Extent.Get_YRange() / Cellsize);
 
-		double	x	= fabs(Cellsize - Extent.Get_XRange() / (nx - 1.)) <= 0. ? Extent.Get_XMin() : Extent.Get_Center().x - Cellsize * (nx - 1.) / 2.;
-		double	y	= fabs(Cellsize - Extent.Get_YRange() / (ny - 1.)) <= 0. ? Extent.Get_YMin() : Extent.Get_Center().y - Cellsize * (ny - 1.) / 2.;
+		double x = fabs(Cellsize - Extent.Get_XRange() / (nx - 1.)) <= 0. ? Extent.Get_XMin() : Extent.Get_Center().x - Cellsize * (nx - 1.) / 2.;
+		double y = fabs(Cellsize - Extent.Get_YRange() / (ny - 1.)) <= 0. ? Extent.Get_YMin() : Extent.Get_Center().y - Cellsize * (ny - 1.) / 2.;
 
-		return( Create(Cellsize, x, y, nx, ny) );
+		return( Create(Cellsize, x, y, nx, ny, Precision) );
 	}
 
 	Destroy();
@@ -162,53 +178,43 @@ bool CSG_Grid_System::Create(double Cellsize, const CSG_Rect &Extent)
 }
 
 //---------------------------------------------------------
-bool CSG_Grid_System::Create(double Cellsize, double xMin, double yMin, double xMax, double yMax)
+bool CSG_Grid_System::Create(double Cellsize, double xMin, double yMin, double xMax, double yMax, int Precision)
 {
-	return( Create(Cellsize, CSG_Rect(xMin, yMin, xMax, yMax)) );
+	return( Create(Cellsize, CSG_Rect(xMin, yMin, xMax, yMax), Precision) );
 }
 
 //---------------------------------------------------------
-bool CSG_Grid_System::Create(double Cellsize, double xMin, double yMin, int NX, int NY)
+bool CSG_Grid_System::Create(double Cellsize, double xMin, double yMin, int NX, int NY, int Precision)
 {
 	if( Cellsize > 0. && NX > 0 && NY > 0 )
 	{
-		Cellsize	= SG_Get_Rounded(Cellsize, m_Precision);
-		xMin		= SG_Get_Rounded(xMin    , m_Precision);
-		yMin		= SG_Get_Rounded(yMin    , m_Precision);
+		Cellsize = SG_Get_Rounded(Cellsize, Precision == -1 ? m_Precision : Precision);
+		xMin     = SG_Get_Rounded(xMin    , Precision == -1 ? m_Precision : Precision);
+		yMin     = SG_Get_Rounded(yMin    , Precision == -1 ? m_Precision : Precision);
 
 		if( Cellsize > 0. )
 		{
-			m_NX		= NX;
-			m_NY		= NY;
-			m_NCells	= (sLong)NY * NX;
+			m_NX           = NX;
+			m_NY           = NY;
+			m_NCells       = (sLong)NY * NX;
 
-			m_Cellsize	= Cellsize;
-			m_Cellarea	= Cellsize * Cellsize;
-			m_Diagonal	= Cellsize * sqrt(2.);
+			m_Cellsize     = Cellsize;
+			m_Cellarea     = Cellsize * Cellsize;
+			m_Diagonal     = Cellsize * sqrt(2.);
 
-			m_Extent.xMin	= xMin;
-			m_Extent.yMin	= yMin;
-			m_Extent.xMax	= xMin + (NX - 1.) * Cellsize;
-			m_Extent.yMax	= yMin + (NY - 1.) * Cellsize;
+			m_Extent.xMin  = xMin;
+			m_Extent.yMin  = yMin;
+			m_Extent.xMax  = xMin + (NX - 1.) * Cellsize;
+			m_Extent.yMax  = yMin + (NY - 1.) * Cellsize;
 
-			m_Extent_Cells	= m_Extent;
+			m_Extent_Cells = m_Extent;
 			m_Extent_Cells.Inflate(0.5 * Cellsize, false);
 
 			return( true );
 		}
 	}
 
-	//-----------------------------------------------------
-	m_NX			= 0;
-	m_NY			= 0;
-	m_NCells		= 0;
-
-	m_Cellsize		= 0.;
-	m_Cellarea		= 0.;
-	m_Diagonal		= 0.;
-
-	m_Extent		.Assign(0., 0., 0., 0.);
-	m_Extent_Cells	.Assign(0., 0., 0., 0.);
+	Destroy();
 
 	return( false );
 }
@@ -216,7 +222,16 @@ bool CSG_Grid_System::Create(double Cellsize, double xMin, double yMin, int NX, 
 //---------------------------------------------------------
 bool CSG_Grid_System::Destroy(void)
 {
-	Create(0., 0., 0., 0, 0);
+	m_NX       = 0;
+	m_NY       = 0;
+	m_NCells   = 0;
+
+	m_Cellsize = 0.;
+	m_Cellarea = 0.;
+	m_Diagonal = 0.;
+
+	m_Extent      .Create(0., 0., 0., 0.);
+	m_Extent_Cells.Create(0., 0., 0., 0.);
 
 	return( true );
 }
@@ -242,7 +257,7 @@ bool CSG_Grid_System::Assign(double Cellsize, double xMin, double yMin, int NX, 
 //---------------------------------------------------------
 bool CSG_Grid_System::is_Valid(void) const
 {
-	return( m_Cellsize > 0. );
+	return( m_Cellsize > 0. && m_NX > 0 && m_NY > 0 );
 }
 
 //---------------------------------------------------------
@@ -270,7 +285,7 @@ const SG_Char * CSG_Grid_System::Get_Name(bool bShort)
 	}
 	else
 	{
-		m_Name	= _TL("<not set>");
+		m_Name = _TL("<not set>");
 	}
 
 	return( m_Name );
