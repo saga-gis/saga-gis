@@ -350,8 +350,8 @@ void CGrid_Cluster_Analysis::Save_LUT(CSG_Grid *pCluster)
 
 			pClass->Set_Value(1, CSG_String::Format("%s %d", _TL("Cluster"), iCluster + 1));
 			pClass->Set_Value(2, "");
-			pClass->Set_Value(3, iCluster + 1);
-			pClass->Set_Value(4, iCluster + 1);
+			pClass->Set_Value(3, iCluster + (Parameters("OLDVERSION")->asBool() ? 0 : 1));
+			pClass->Set_Value(4, iCluster + (Parameters("OLDVERSION")->asBool() ? 0 : 1));
 
 			if( bRGB )
 			{
