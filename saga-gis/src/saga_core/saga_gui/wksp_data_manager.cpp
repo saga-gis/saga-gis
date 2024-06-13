@@ -251,8 +251,8 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 
 	m_Parameters.Add_Int("NODE_GRID",
 		"GRID_COORD_PRECISION"	, _TL("Coordinate Precision"),
-		_TL("Precision used to store coordinates and cell sizes (i.e. number of decimals)."),
-		10, 0, true
+		_TL("Precision used to store coordinates and cell sizes (i.e. number of decimals). Ignored if negative."),
+		10, -1, true
 	);
 
 	m_Parameters.Add_Int("NODE_GRID",
