@@ -335,6 +335,11 @@ bool CParameters_Control::Save(void)
 
 	if( DLG_Save(File_Path, ID_DLG_PARAMETERS_SAVE) )
 	{
+		if( !SG_File_Cmp_Extension(&File_Path, "sg-parameters") )
+		{
+			File_Path += ".sg-parameters";
+		}
+
 		if( m_pParameters->Serialize(&File_Path, true) )
 		{
 			return( true );

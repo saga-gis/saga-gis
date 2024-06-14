@@ -101,8 +101,6 @@ private:
 	bool					_Copy_To_Database	(class CWKSP_Data_Item *pData, const wxString &Connection);
 
 	//-----------------------------------------------------
-	bool	_Compatibility_Data			(TSG_Data_Type Type, class CSG_Parameters *pParameters, const CSG_String &Version);
-
 	bool	_Compatibility_Load_Data	(const wxString &FileName);
 	bool	_Compatibility_Load_Data	(CSG_File &Stream, const wxString &ProjectDir);
 	bool	_Compatibility_Load_Map		(CSG_File &Stream, const wxString &ProjectDir);

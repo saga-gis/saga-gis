@@ -862,7 +862,8 @@ bool CWKSP_Data_Manager::Open(const wxString &File)
 	}
 
 	//-----------------------------------------------------
-	if( SG_File_Cmp_Extension(&File, "sprj") )
+	if( SG_File_Cmp_Extension(&File, "sg-project")
+	||  SG_File_Cmp_Extension(&File, "sprj"      ) )
 	{
 		return( m_pProject->Load(File, false, true) );
 	}

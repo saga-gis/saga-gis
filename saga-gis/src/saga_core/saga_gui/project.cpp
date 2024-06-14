@@ -210,6 +210,11 @@ bool CWKSP_Project::Copy(void)
 	{
 		return( false );
 	}
+ 
+ 	if( SG_File_Cmp_Extension(&m_File_Name, "sg-project") )
+	{
+		FileName = FileName.Left(FileName.Length() - 11);
+	}
 
 	wxFileName Directory(FileName);
 
@@ -461,15 +466,22 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Project::_Save(const wxString &FileName, bool bSaveModified, bool bUpdateMenu)
+bool CWKSP_Project::_Save(const wxString &_File_Name, bool bSaveModified, bool bUpdateMenu)
 {
-	wxString oldFileName(m_File_Name);
+	wxString File_Name(_File_Name);
 
-	m_File_Name	= FileName;
+	if( !SG_File_Cmp_Extension(&File_Name, "sg-project") && !SG_File_Cmp_Extension(&File_Name, "sprj") )
+	{
+		File_Name += ".sg-project";
+	}
+
+	wxString old_File_Name(m_File_Name);
+
+	m_File_Name	= File_Name;
 
 	if( bSaveModified && !g_pData->Save_Modified() )
 	{
-		m_File_Name	= oldFileName;
+		m_File_Name	= old_File_Name;
 
 		return( false );
 	}
@@ -477,7 +489,7 @@ bool CWKSP_Project::_Save(const wxString &FileName, bool bSaveModified, bool bUp
 	//-----------------------------------------------------
 	CSG_MetaData Project, *pNode = Project.Add_Child("DATA");
 
-	wxString ProjectDir(SG_File_Get_Path(&FileName).w_str());
+	wxString ProjectDir(SG_File_Get_Path(&File_Name).w_str());
 
 	Project.Set_Name    ("SAGA_PROJECT");
 	Project.Add_Property("VERSION", SAGA_VERSION);
@@ -527,7 +539,7 @@ bool CWKSP_Project::_Save(const wxString &FileName, bool bSaveModified, bool bUp
 	//-----------------------------------------------------
 	if( g_pMaps->Get_Count() > 0 )
 	{
-		pNode	= Project.Add_Child("MAPS");
+		pNode = Project.Add_Child("MAPS");
 
 		for(int i=0; i<g_pMaps->Get_Count(); i++)
 		{
@@ -536,13 +548,13 @@ bool CWKSP_Project::_Save(const wxString &FileName, bool bSaveModified, bool bUp
 	}
 
 	//-----------------------------------------------------
-	if( Project.Save(&FileName) )
+	if( Project.Save(&File_Name) )
 	{
-		m_File_Name	= FileName;
+		m_File_Name	= File_Name;
 
 		if( bUpdateMenu )
 		{
-			g_pData->Get_Menu_Files()->Recent_Add(SG_DATAOBJECT_TYPE_Undefined, FileName);
+			g_pData->Get_Menu_Files()->Recent_Add(SG_DATAOBJECT_TYPE_Undefined, m_File_Name);
 		}
 
 		MSG_General_Add(_TL("Project has been saved."), true, true, SG_UI_MSG_STYLE_SUCCESS);
@@ -558,7 +570,7 @@ bool CWKSP_Project::_Save(const wxString &FileName, bool bSaveModified, bool bUp
 
 	if( bUpdateMenu )
 	{
-		g_pData->Get_Menu_Files()->Recent_Del(SG_DATAOBJECT_TYPE_Undefined, FileName);
+		g_pData->Get_Menu_Files()->Recent_Del(SG_DATAOBJECT_TYPE_Undefined, File_Name);
 	}
 
 	MSG_General_Add(_TL("Could not save project."), true, true, SG_UI_MSG_STYLE_FAILURE);
@@ -874,46 +886,6 @@ bool CWKSP_Project::_Save_Map(CSG_MetaData &Entry, const wxString &ProjectDir, C
 
 ///////////////////////////////////////////////////////////
 //														 //
-//					v2.1 Compatibility					 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CWKSP_Project::_Compatibility_Data(TSG_Data_Type Type, CSG_Parameters *pParameters, const CSG_String &Version)
-{
-	if( !pParameters )
-	{
-		return( false );
-	}
-
-	if( !Version.Cmp(SAGA_VERSION) )
-	{
-		return( true );
-	}
-
-	//-----------------------------------------------------
-	if( Version.is_Empty() )
-	{
-		CSG_Parameter	*pParameter;
-
-		if( Type == SG_DATAOBJECT_TYPE_Grid )
-		{
-			if( (pParameter = pParameters->Get_Parameter("COLORS_TYPE")) != NULL )
-			{
-				if( pParameter->asInt() == 3 )
-				{	// 0:Single >> 1:LUT >> 2:Discrete >> 3:Graduated >> 4:RGB Overlay >> 5:RGB Composite >> 6:Shade
-					pParameter->Set_Value(5);	// RGB moved to position 5
-				}
-			}
-		}
-	}
-
-	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
 //					v2.0 Compatibility					 //
 //														 //
 ///////////////////////////////////////////////////////////
@@ -997,7 +969,6 @@ bool CWKSP_Project::_Compatibility_Load_Data(CSG_File &Stream, const wxString &P
 					if( pItem->Get_Parameters() )
 					{
 						pItem->Get_Parameters()->Serialize_Compatibility(Stream);
-						_Compatibility_Data((TSG_Data_Type)Type, pItem->Get_Parameters(), "");
 						pItem->Parameters_Changed();
 					}
 				}

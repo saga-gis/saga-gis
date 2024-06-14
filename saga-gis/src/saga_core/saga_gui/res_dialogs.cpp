@@ -221,14 +221,16 @@ bool DLG_Get_FILE_Filter_GDAL_Read(int Type, wxString &Filter)
 
 	if( Type == 2 )					// all recognized
 	{
-		ADD_FILTER("sprj"    );
-		ADD_FILTER("sg-pts"  );
-		ADD_FILTER("sg-pts-z");
-		ADD_FILTER("spc"     );
-		ADD_FILTER("las"     );
-		ADD_FILTER("txt"     );
-		ADD_FILTER("csv"     );
-		ADD_FILTER("dbf"     );
+		ADD_FILTER("sg-project");
+		ADD_FILTER("sprj"      );
+		ADD_FILTER("sg-pts"    );
+		ADD_FILTER("sg-pts-z"  );
+		ADD_FILTER("spc"       );
+		ADD_FILTER("las"       );
+		ADD_FILTER("laz"       );
+		ADD_FILTER("txt"       );
+		ADD_FILTER("csv"       );
+		ADD_FILTER("dbf"       );
 	}
 
 	return( bResult );
@@ -248,7 +250,7 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 		return( wxString::Format(
 			"%s|%s|"
 			"%s (*.dll, *.so, *.xml)|*.dll;*.so;*.xml;*.dylib|"
-			"%s (*.sprj)|*.sprj|"
+			"%s (*.sg-project, *.sprj)|*.sg-project;*.sprj|"
 			"%s (*.sgrd, *.sg-grd-z)|*.sgrd;*.sg-grd;*.sg-grd-z;*.dgm;*.grd|"
 			"%s (*.sg-gds, *.sg-gds-z)|*.sg-gds;*.sg-gds-z|"
 			"%s (*.shp)|*.shp|"
@@ -281,9 +283,16 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 
 	//-----------------------------------------------------
 	case ID_DLG_PROJECT_OPEN:
+		return( wxString::Format(
+			"%s (*.sg-project, *.sprj)|*.sg-project;*.sprj|"
+			"%s|*.*",
+			_TL("SAGA Projects"),
+			_TL("All Files")
+		));
+
 	case ID_DLG_PROJECT_SAVE:
 		return( wxString::Format(
-			"%s (*.sprj)|*.sprj|"
+			"%s (*.sg-project)|*.sg-project|"
 			"%s|*.*",
 			_TL("SAGA Projects"),
 			_TL("All Files")
@@ -502,9 +511,16 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 
 	//-----------------------------------------------------
 	case ID_DLG_PARAMETERS_OPEN:
+		return( wxString::Format(
+			"%s (*.sg-parameters, *.sprm)|*.sg-parameters;*.sprm|"
+			"%s|*.*",
+			_TL("SAGA Parameter Files"),
+			_TL("All Files")
+		));
+
 	case ID_DLG_PARAMETERS_SAVE:
 		return( wxString::Format(
-			"%s (*.sprm)|*.sprm|"
+			"%s (*.sg-parameters)|*.sg-parameters|"
 			"%s|*.*",
 			_TL("SAGA Parameter Files"),
 			_TL("All Files")
