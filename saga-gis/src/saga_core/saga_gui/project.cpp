@@ -211,7 +211,7 @@ bool CWKSP_Project::Copy(void)
 		return( false );
 	}
  
- 	if( SG_File_Cmp_Extension(&m_File_Name, "sg-project") )
+ 	if( SG_File_Cmp_Extension(&FileName, "sg-project") )
 	{
 		FileName = FileName.Left(FileName.Length() - 11);
 	}
