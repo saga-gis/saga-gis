@@ -493,8 +493,8 @@ public:		///////////////////////////////////////////////
 									CSG_Grid		(const CSG_Grid_System &System, TSG_Data_Type Type = SG_DATATYPE_Undefined, bool bCached = false);
 	bool							Create			(const CSG_Grid_System &System, TSG_Data_Type Type = SG_DATATYPE_Undefined, bool bCached = false);
 
-									CSG_Grid		(TSG_Data_Type Type, int NX, int NY, double Cellsize = 0.0, double xMin = 0.0, double yMin = 0.0, bool bCached = false);
-	bool							Create			(TSG_Data_Type Type, int NX, int NY, double Cellsize = 0.0, double xMin = 0.0, double yMin = 0.0, bool bCached = false);
+									CSG_Grid		(TSG_Data_Type Type, int NX, int NY, double Cellsize = 1.0, double xMin = 0.0, double yMin = 0.0, bool bCached = false);
+	bool							Create			(TSG_Data_Type Type, int NX, int NY, double Cellsize = 1.0, double xMin = 0.0, double yMin = 0.0, bool bCached = false);
 
 
 	//-----------------------------------------------------
