@@ -112,6 +112,8 @@ private:
 	bool					Split_Line_Parts		(CSG_Shapes *pLines);
 	bool					Split_Polygon_Parts		(CSG_Shapes *pPolygons);
 
+	bool					Rescale_Coordinates		(CSG_Shapes *pShapes);
+
 };
 
 

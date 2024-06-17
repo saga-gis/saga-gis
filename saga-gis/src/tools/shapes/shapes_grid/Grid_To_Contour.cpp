@@ -80,16 +80,16 @@ CGrid_To_Contour::CGrid_To_Contour(void)
 	Parameters.Add_Bool  ("POLYGONS", "POLY_OMP"  , _TL("Parallel Processing"), _TL(""), true);
 	Parameters.Add_Bool  ("POLYGONS", "POLY_PARTS", _TL("Split Polygon Parts"), _TL(""), true);
 
+	Parameters.Add_Bool  ("POLYGONS",
+		"PRECISION", _TL("Coordinate Precision Fix"),
+		_TL("Check to avoid coordinate precision issues with polygon construction, particularly helpful with geographic coordinates or in general with comparatively small cell sizes."),
+		false
+	);
+
 	Parameters.Add_Double("",
 		"SCALE"    , _TL("Interpolation Scale"),
 		_TL("set greater one for line smoothing"),
 		1., 0., true
-	);
-
-	Parameters.Add_Int("",
-		"PRECISION", _TL("Coordinate Precision"),
-		_TL("Decimal digits. Precision used to address coordinates. Ignored if negative (default)."),
-		-1, -1, true
 	);
 
 	Parameters.Add_Bool("",
@@ -182,16 +182,22 @@ bool CGrid_To_Contour::On_Execute(void)
 {
 	CSG_Grid Grid; m_pGrid = Parameters("GRID")->asGrid();
 
-	if( Parameters("PRECISION")->asInt() >= 0 )
+	if( Parameters("POLYGONS")->asShapes() && Parameters("PRECISION")->asBool() )
 	{
-		if( !Grid.Create(CSG_Grid_System(m_pGrid->Get_System(), Parameters("PRECISION")->asInt()), Grid.Get_Type()) )
+		if( !Grid.Create(Grid.Get_Type(), m_pGrid->Get_NX(), m_pGrid->Get_NY()) )
 		{
-			Error_Set(_TL("could allocate memory for patched grid"));
+			Error_Set(_TL("could allocate memory for internal grid system"));
 
 			return( false );
 		}
 
-		Grid.Assign(m_pGrid, GRID_RESAMPLING_NearestNeighbour);
+		Grid.Set_NoData_Value_Range(m_pGrid->Get_NoData_Value(false), m_pGrid->Get_NoData_Value(false));
+
+		#pragma omp parallel for
+		for(sLong i=0; i<Grid.Get_NCells(); i++)
+		{
+			Grid.Set_Value(i, m_pGrid->asDouble(i));
+		}
 
 		m_pGrid = &Grid;
 	}
@@ -422,6 +428,10 @@ bool CGrid_To_Contour::On_Execute(void)
 	{
 		Split_Line_Parts(pContours);
 	}
+
+	//-----------------------------------------------------
+	Rescale_Coordinates(pContours);
+	Rescale_Coordinates(pPolygons);
 
 	//-----------------------------------------------------
 	return( pContours->Get_Count() > 0 );
@@ -1102,6 +1112,43 @@ bool CGrid_To_Contour::Split_Polygon_Parts(CSG_Shapes *pPolygons)
 	}
 
 	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_To_Contour::Rescale_Coordinates(CSG_Shapes *pShapes)
+{
+	if( !pShapes || !(Parameters("POLYGONS")->asShapes() && Parameters("PRECISION")->asBool()) )
+	{
+		return( false );
+	}
+
+	CSG_Grid_System System = Parameters("GRID")->asGrid()->Get_System();
+
+	#pragma omp parallel for
+	for(int i=0; i<pShapes->Get_Count(); i++)
+	{
+		CSG_Shape *pShape = pShapes->Get_Shape(i);
+
+		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+		{
+			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+			{
+				CSG_Point p = pShape->Get_Point(iPoint, iPart);
+
+				pShape->Set_Point(
+					System.Get_XMin() + System.Get_Cellsize() * p.x,
+					System.Get_YMin() + System.Get_Cellsize() * p.y, iPoint, iPart
+				);
+			}
+		}
+	}
+
 	return( true );
 }
 
