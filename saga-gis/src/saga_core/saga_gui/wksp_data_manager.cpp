@@ -147,7 +147,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_Parameters.Add_Choice("NODE_PROJECT",
 		"PROJECT_MAP_ARRANGE", _TL("Map Window Arrangement"),
 		_TL("Initial map window arrangement after a project has been loaded."),
-		#ifdef _SAGA_MSW
+		#ifndef MDI_TABBED
 		CSG_String::Format("%s|%s|%s|%s|%s",
 			_TL("Cascade"),
 			_TL("Tile Horizontally"),
@@ -364,16 +364,16 @@ CWKSP_Data_Manager::~CWKSP_Data_Manager(void)
 wxFileName Get_SAGA_GUI_CFG(void)
 {
 #ifdef _SAGA_LINUX
-//	wxFileName	fProject(wxString(getenv( "HOME"), wxConvFile ), wxT("saga_gui"), wxT("cfg"));
+//	wxFileName	fProject(wxString(getenv( "HOME"), wxConvFile ), wxT("saga_gui"), wxT("sg-project"));
 	CSG_String	sHome(getenv("HOME"));
-	wxFileName	fProject(sHome.c_str(), "saga_gui", "cfg");
+	wxFileName	fProject(sHome.c_str(), "saga_gui", "sg-project");
 #else
-	wxFileName	fProject(g_pSAGA->Get_App_Path(), "saga_gui", "cfg");
+	wxFileName	fProject(g_pSAGA->Get_App_Path(), "saga_gui", "sg-project");
 
 	if(	( fProject.FileExists() && (!fProject.IsFileReadable() || !fProject.IsFileWritable()))
 	||	(!fProject.FileExists() && (!fProject.IsDirReadable () || !fProject.IsDirWritable ())) )
 	{
-		fProject.Assign(wxGetHomeDir(), "saga_gui", "cfg");
+		fProject.Assign(wxGetHomeDir(), "saga_gui", "sg-project");
 	}
 #endif
 

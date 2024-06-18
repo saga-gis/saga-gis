@@ -139,7 +139,7 @@ bool CWKSP_Project::_Set_Project_Name(void)
 	{
 		wxFileName	fn(m_File_Name);
 
-		if( fn.GetFullName().CmpNoCase("saga_gui.cfg") )
+		if( fn.GetFullName().CmpNoCase("saga_gui.sg-project") || fn.GetFullName().CmpNoCase("saga_gui.cfg") )
 		{
 			g_pSAGA_Frame->Set_Project_Name(m_File_Name);
 
@@ -160,23 +160,23 @@ bool CWKSP_Project::_Set_Project_Name(void)
 //---------------------------------------------------------
 bool CWKSP_Project::Load(bool bAdd)
 {
-	wxString	FileName;
+	wxString File;
 
-	return( DLG_Open(FileName, ID_DLG_PROJECT_OPEN) && _Load(FileName, bAdd, true) );
+	return( DLG_Open(File, ID_DLG_PROJECT_OPEN) && _Load(File, bAdd, true) );
 }
 
 //---------------------------------------------------------
-bool CWKSP_Project::Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
+bool CWKSP_Project::Load(const wxString &File, bool bAdd, bool bUpdateMenu)
 {
-	return( _Load(FileName, bAdd, bUpdateMenu) );
+	return( _Load(File, bAdd, bUpdateMenu) );
 }
 
 //---------------------------------------------------------
 bool CWKSP_Project::Save(void)
 {
-	wxString	FileName;
+	wxString File;
 
-	return( DLG_Save(FileName, ID_DLG_PROJECT_SAVE) && _Save(FileName, true, true) );
+	return( DLG_Save(File, ID_DLG_PROJECT_SAVE) && _Save(File, true, true) );
 }
 
 //---------------------------------------------------------
@@ -191,9 +191,9 @@ bool CWKSP_Project::Save(bool bSaveAsOnError)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Project::Save(const wxString &FileName, bool bSaveModified)
+bool CWKSP_Project::Save(const wxString &File, bool bSaveModified)
 {
-	return( _Save(FileName, bSaveModified, false) );
+	return( _Save(File, bSaveModified, false) );
 }
 
 
@@ -204,19 +204,19 @@ bool CWKSP_Project::Save(const wxString &FileName, bool bSaveModified)
 //---------------------------------------------------------
 bool CWKSP_Project::Copy(void)
 {
-	wxString FileName;
+	wxString File;
 
-	if( !DLG_Save(FileName, ID_DLG_PROJECT_SAVE) )
+	if( !DLG_Save(File, ID_DLG_PROJECT_SAVE) )
 	{
 		return( false );
 	}
  
- 	if( SG_File_Cmp_Extension(&FileName, "sg-project") )
+ 	if( SG_File_Cmp_Extension(&File, "sg-project") )
 	{
-		FileName = FileName.Left(FileName.Length() - 11);
+		File = File.Left(File.Length() - 11);
 	}
 
-	wxFileName Directory(FileName);
+	wxFileName Directory(File);
 
 	Directory.AppendDir(Directory.GetFullName());
 
@@ -315,9 +315,9 @@ bool CWKSP_Project::_Copy_To_Database(CWKSP_Data_Item *pItem, const wxString &Co
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
+bool CWKSP_Project::_Load(const wxString &File, bool bAdd, bool bUpdateMenu)
 {
-	if( wxFileExists(FileName) && !bAdd && g_pData->Get_Count() > 0 )
+	if( wxFileExists(File) && !bAdd && g_pData->Get_Count() > 0 )
 	{
 		switch( DLG_Message_YesNoCancel(_TL("Close all data sets"), _TL("Load Project")) )
 		{
@@ -333,20 +333,20 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 
 	//-------------------------------------------------
 	MSG_General_Add_Line();
-	MSG_General_Add(wxString::Format("%s %s: %s...", _TL("Loading"), _TL("project"), FileName), true, true);
+	MSG_General_Add(wxString::Format("%s %s: %s...", _TL("Loading"), _TL("project"), File), true, true);
 
 	//-------------------------------------------------
-	bool bSuccess = false; CSG_MetaData Project, *pNode;
+	bool bSuccess = false; CSG_MetaData Project;
 
-	if( _Compatibility_Load_Data(FileName) )
+	if( _Compatibility_Load_Data(File) )
 	{
 		bSuccess = true;
 	}
-	else if( !wxFileExists(FileName) )
+	else if( !wxFileExists(File) )
 	{
 		MSG_Error_Add(_TL("file does not exist."            ), true, true, SG_UI_MSG_STYLE_FAILURE);
 	}
-	else if( !Project.Load(&FileName) )
+	else if( !Project.Load(&File) )
 	{
 		MSG_Error_Add(_TL("could not read project file."    ), true, true, SG_UI_MSG_STYLE_FAILURE);
 	}
@@ -354,11 +354,11 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 	{
 		MSG_Error_Add(_TL("invalid project file."           ), true, true, SG_UI_MSG_STYLE_FAILURE);
 	}
-	else if( (pNode = Project.Get_Child("DATA")) == NULL || pNode->Get_Children_Count() <= 0 )
+	else if( Project("DATA") == NULL || Project["DATA"].Get_Children_Count() < 1 )
 	{
 		MSG_Error_Add(_TL("no data entries in project file."), true, true, SG_UI_MSG_STYLE_FAILURE);
 	}
-	else if( !_Load_DBConnections(*pNode) )
+	else if( !_Load_DBConnections(Project["DATA"]) )
 	{
 		MSG_Error_Add(_TL("could not connect to database."  ), true, true, SG_UI_MSG_STYLE_FAILURE);
 	}
@@ -369,14 +369,14 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 		//-------------------------------------------------
 		g_pData->Get_Menu_Files()->Set_Update(false);
 
-		for(int i=0; SG_UI_Process_Get_Okay() && i<pNode->Get_Children_Count(); i++)
+		for(int i=0; SG_UI_Process_Get_Okay() && i<Project["DATA"].Get_Children_Count(); i++)
 		{
-			_Load_Data(*pNode->Get_Child(i), SG_File_Get_Path(&FileName).w_str(), true , Version);
+			_Load_Data(Project["DATA"][i], SG_File_Get_Path(&File).w_str(), true , Version);
 		}
 
-		for(int i=0; SG_UI_Process_Get_Okay() && i<pNode->Get_Children_Count(); i++)
+		for(int i=0; SG_UI_Process_Get_Okay() && i<Project["DATA"].Get_Children_Count(); i++)
 		{
-			_Load_Data(*pNode->Get_Child(i), SG_File_Get_Path(&FileName).w_str(), false, Version);
+			_Load_Data(Project["DATA"][i], SG_File_Get_Path(&File).w_str(), false, Version);
 		}
 
 		g_pData->Get_Menu_Files()->Set_Update(true);
@@ -384,33 +384,43 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 		//-------------------------------------------------
 		g_pSAGA_Frame->Freeze();
 
-		if( (pNode = Project.Get_Child("MAPS")) != NULL && pNode->Get_Children_Count() > 0 )
+		if( Project("MAPS") != NULL )
 		{
-			if( g_pSAGA_Frame->GetActiveChild() && g_pSAGA_Frame->GetActiveChild()->IsMaximized() )
+			if( Project("MAPS.PARAMETERS") )
 			{
-				g_pSAGA_Frame->GetActiveChild()->Restore();
+				for(int i=0; i<Project["MAPS.PARAMETERS"].Get_Children_Count(); i++)
+				{
+					if( Project["MAPS.PARAMETERS"][i].Cmp_Name("OPTION") && Project["MAPS.PARAMETERS"][i].Cmp_Property("id", "THUMBNAILS") )
+					{
+						Project["MAPS.PARAMETERS"].Del_Child(i); break; // show thumbnails tab should only be changed through GUI (a change would prompt for restart)
+					}
+				}
+
+				g_pMaps->Get_Parameters()->Serialize(Project["MAPS.PARAMETERS"], false);
 			}
 
-			for(int i=0; SG_UI_Process_Get_Okay() && i<pNode->Get_Children_Count(); i++)
+			if( Project["MAPS"].Get_Children_Count() > 0 )
 			{
-				_Load_Map(*pNode->Get_Child(i), SG_File_Get_Path(&FileName).w_str());
+				if( g_pSAGA_Frame->GetActiveChild() && g_pSAGA_Frame->GetActiveChild()->IsMaximized() )
+				{
+					g_pSAGA_Frame->GetActiveChild()->Restore();
+				}
+
+				for(int i=0; SG_UI_Process_Get_Okay() && i<Project["MAPS"].Get_Children_Count(); i++)
+				{
+					_Load_Map(Project["MAPS"][i], SG_File_Get_Path(&File).w_str());
+				}
 			}
 		}
 
-		#ifdef _SAGA_MSW
+		#ifndef MDI_TABBED
 		if( g_pMaps->Get_Count() > 1 )
 		{
 			switch( g_pData->Get_Parameter("PROJECT_MAP_ARRANGE")->asInt() )
 			{
-		//	case 0:	g_pSAGA_Frame->Cascade();          break;
 			case 1:	g_pSAGA_Frame->Tile(wxHORIZONTAL); break;
 			case 2:	g_pSAGA_Frame->Tile(wxVERTICAL  ); break;
-			case 3:
-				if( g_pSAGA_Frame->GetActiveChild() )
-				{
-					g_pSAGA_Frame->GetActiveChild()->Maximize();
-				}
-				break;
+			case 3: if( g_pSAGA_Frame->GetActiveChild() ) { g_pSAGA_Frame->GetActiveChild()->Maximize(); } break;
 			}
 		}
 		else if( g_pSAGA_Frame->GetActiveChild() )
@@ -427,10 +437,10 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 	{
 		if( bUpdateMenu )
 		{
-			g_pData->Get_Menu_Files()->Recent_Add(SG_DATAOBJECT_TYPE_Undefined, FileName);
+			g_pData->Get_Menu_Files()->Recent_Add(SG_DATAOBJECT_TYPE_Undefined, File);
 		}
 
-		m_File_Name	= FileName;
+		m_File_Name	= File;
 
 		_Set_Project_Name();
 
@@ -450,10 +460,12 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 
 	if( bUpdateMenu )
 	{
-		g_pData->Get_Menu_Files()->Recent_Del(SG_DATAOBJECT_TYPE_Undefined, FileName);
+		g_pData->Get_Menu_Files()->Recent_Del(SG_DATAOBJECT_TYPE_Undefined, File);
 	}
 
-	if( FileName.AfterLast('.').CmpNoCase("cfg") )
+	CSG_String Name(SG_File_Get_Name(&File, true));
+
+	if( Name.CmpNoCase("saga_gui.sg-project") || !SG_File_Cmp_Path(SG_UI_Get_Application_Path(true), SG_File_Get_Path(&File)) )
 	{
 		MSG_General_Add(_TL("failed"), false, false, SG_UI_MSG_STYLE_FAILURE);
 	}
@@ -466,18 +478,18 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Project::_Save(const wxString &_File_Name, bool bSaveModified, bool bUpdateMenu)
+bool CWKSP_Project::_Save(const wxString &_File, bool bSaveModified, bool bUpdateMenu)
 {
-	wxString File_Name(_File_Name);
+	wxString File(_File);
 
-	if( !SG_File_Cmp_Extension(&File_Name, "sg-project") && !SG_File_Cmp_Extension(&File_Name, "sprj") )
+	if( !SG_File_Cmp_Extension(&File, "sg-project") && !SG_File_Cmp_Extension(&File, "sprj") )
 	{
-		File_Name += ".sg-project";
+		File += ".sg-project";
 	}
 
 	wxString old_File_Name(m_File_Name);
 
-	m_File_Name	= File_Name;
+	m_File_Name	= File;
 
 	if( bSaveModified && !g_pData->Save_Modified() )
 	{
@@ -487,33 +499,32 @@ bool CWKSP_Project::_Save(const wxString &_File_Name, bool bSaveModified, bool b
 	}
 
 	//-----------------------------------------------------
-	CSG_MetaData Project, *pNode = Project.Add_Child("DATA");
+	CSG_MetaData Project, &Data = *Project.Add_Child("DATA");
 
-	wxString ProjectDir(SG_File_Get_Path(&File_Name).w_str());
+	wxString ProjectDir(SG_File_Get_Path(&File).w_str());
 
-	Project.Set_Name    ("SAGA_PROJECT");
-	Project.Add_Property("VERSION", SAGA_VERSION);
+	Project.Set_Name("SAGA_PROJECT"); Project.Add_Property("VERSION", SAGA_VERSION);
 
 	//-----------------------------------------------------
 	CWKSP_Table_Manager *pTables = g_pData->Get_Tables();
 
 	for(int i=0; pTables && i<pTables->Get_Count(); i++)
 	{
-		_Save_Data(*pNode, ProjectDir, pTables->Get_Data(i));
+		_Save_Data(Data, ProjectDir, pTables->Get_Data(i));
 	}
 
 	CWKSP_TIN_Manager *pTINs = g_pData->Get_TINs();
 
 	for(int i=0; pTINs && i<pTINs->Get_Count(); i++)
 	{
-		_Save_Data(*pNode, ProjectDir, pTINs->Get_Data(i));
+		_Save_Data(Data, ProjectDir, pTINs->Get_Data(i));
 	}
 
 	CWKSP_PointCloud_Manager *pPointClouds = g_pData->Get_PointClouds();
 
 	for(int i=0; pPointClouds && i<pPointClouds->Get_Count(); i++)
 	{
-		_Save_Data(*pNode, ProjectDir, pPointClouds->Get_Data(i));
+		_Save_Data(Data, ProjectDir, pPointClouds->Get_Data(i));
 	}
 
 	CWKSP_Shapes_Manager *pShapes = g_pData->Get_Shapes();
@@ -522,7 +533,7 @@ bool CWKSP_Project::_Save(const wxString &_File_Name, bool bSaveModified, bool b
 	{
 		for(int i=0; i<pShapes->Get_Shapes_Type(j)->Get_Count(); i++)
 		{
-			_Save_Data(*pNode, ProjectDir, pShapes->Get_Shapes_Type(j)->Get_Data(i));
+			_Save_Data(Data, ProjectDir, pShapes->Get_Shapes_Type(j)->Get_Data(i));
 		}
 	}
 
@@ -532,25 +543,27 @@ bool CWKSP_Project::_Save(const wxString &_File_Name, bool bSaveModified, bool b
 	{
 		for(int i=0; i<pGrids->Get_System(j)->Get_Count(); i++)
 		{
-			_Save_Data(*pNode, ProjectDir, ((CWKSP_Data_Item *)pGrids->Get_System(j)->Get_Item(i)));
+			_Save_Data(Data, ProjectDir, ((CWKSP_Data_Item *)pGrids->Get_System(j)->Get_Item(i)));
 		}
 	}
 
 	//-----------------------------------------------------
+	CSG_MetaData &Maps = *Project.Add_Child("MAPS");
+
+	g_pMaps->Get_Parameters()->Serialize(*Maps.Add_Child("PARAMETERS"), true);
+
 	if( g_pMaps->Get_Count() > 0 )
 	{
-		pNode = Project.Add_Child("MAPS");
-
 		for(int i=0; i<g_pMaps->Get_Count(); i++)
 		{
-			_Save_Map(*pNode, ProjectDir, g_pMaps->Get_Map(i));
+			_Save_Map(Maps, ProjectDir, g_pMaps->Get_Map(i));
 		}
 	}
 
 	//-----------------------------------------------------
-	if( Project.Save(&File_Name) )
+	if( Project.Save(&File) )
 	{
-		m_File_Name	= File_Name;
+		m_File_Name	= File;
 
 		if( bUpdateMenu )
 		{
@@ -570,7 +583,7 @@ bool CWKSP_Project::_Save(const wxString &_File_Name, bool bSaveModified, bool b
 
 	if( bUpdateMenu )
 	{
-		g_pData->Get_Menu_Files()->Recent_Del(SG_DATAOBJECT_TYPE_Undefined, File_Name);
+		g_pData->Get_Menu_Files()->Recent_Del(SG_DATAOBJECT_TYPE_Undefined, File);
 	}
 
 	MSG_General_Add(_TL("Could not save project."), true, true, SG_UI_MSG_STYLE_FAILURE);
@@ -586,44 +599,44 @@ bool CWKSP_Project::_Save(const wxString &_File_Name, bool bSaveModified, bool b
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Project::_Load_DBConnections(CSG_MetaData &Data)
+bool CWKSP_Project::_Load_DBConnections(const CSG_MetaData &Data)
 {
-	CSG_Strings	Connections;
+	CSG_Strings Connections;
 
 	for(int i=0; i<Data.Get_Children_Count(); i++)
 	{
-		CSG_String	Connection(Data[i].Get_Child("FILE") ? Data[i].Get_Child("FILE")->Get_Content() : "");
+		CSG_String Connection(Data[i].Get_Child("FILE") ? Data[i].Get_Child("FILE")->Get_Content() : "");
 
 		if( !Connection.BeforeFirst(':').CmpNoCase("PGSQL") )
 		{
-			Connection	= Connection.AfterFirst(':');	CSG_String	Host  (Connection.BeforeFirst(':'));
-			Connection	= Connection.AfterFirst(':');	CSG_String	Port  (Connection.BeforeFirst(':'));
-			Connection	= Connection.AfterFirst(':');	CSG_String	DBName(Connection.BeforeFirst(':'));
+			Connection = Connection.AfterFirst(':'); CSG_String Host  (Connection.BeforeFirst(':'));
+			Connection = Connection.AfterFirst(':'); CSG_String Port  (Connection.BeforeFirst(':'));
+			Connection = Connection.AfterFirst(':'); CSG_String DBName(Connection.BeforeFirst(':'));
 
-			Connection	= Host + ":" + Port + ":" + DBName;
+			Connection = Host + ":" + Port + ":" + DBName;
 
-			bool	bAdd	= true;
+			bool  bAdd = true;
 
 			for(int j=0; j<Connections.Get_Count() && bAdd; j++)
 			{
 				if( !Connection.Cmp(Connections[j]) )
 				{
-					bAdd	= false;
+					bAdd = false;
 				}
 			}
 
 			if( bAdd )
 			{
-				Connections	+= Connection;
+				Connections += Connection;
 			}
 		}
 	}
 
 	for(int i=0; i<Connections.Get_Count(); i++)
 	{
-		CSG_String	Host  (Connections[i].BeforeFirst(':'));
-		CSG_String	Port  (Connections[i].AfterFirst (':').BeforeLast(':'));
-		CSG_String	DBName(Connections[i].AfterLast  (':'));
+		CSG_String Host  (Connections[i].BeforeFirst(':'));
+		CSG_String Port  (Connections[i].AfterFirst (':').BeforeLast(':'));
+		CSG_String DBName(Connections[i].AfterLast  (':'));
 
 		if( !PGSQL_Connect(Host, Port, DBName) )
 		{
@@ -639,13 +652,8 @@ bool CWKSP_Project::_Load_DBConnections(CSG_MetaData &Data)
 //														 //
 ///////////////////////////////////////////////////////////
 
-bool SG_File_Cmp_Path(const CSG_String &Path1, const CSG_String &Path2)
-{
-	return( true );
-}
-
 //---------------------------------------------------------
-bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, bool bLoad, const CSG_String &Version)
+bool CWKSP_Project::_Load_Data(const CSG_MetaData &Entry, const wxString &ProjectDir, bool bLoad, const CSG_String &Version)
 {
 	if( !Entry.Cmp_Name("DATASET") || !Entry("FILE") || Entry["FILE"].Get_Content().is_Empty() )
 	{
@@ -852,27 +860,30 @@ bool CWKSP_Project::_Save_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Project::_Load_Map(CSG_MetaData &Entry, const wxString &ProjectDir)
+bool CWKSP_Project::_Load_Map(const CSG_MetaData &Entry, const wxString &ProjectDir)
 {
-	CWKSP_Map *pMap = new CWKSP_Map;
-
-	if( g_pMaps->Add(pMap) && pMap->Serialize(Entry, ProjectDir, false) )
+	if( Entry.Cmp_Name("MAP") )
 	{
-		int Restore; Restore = Entry.Get_Property("SHOWN", Restore) ? Restore : 1;
+		CWKSP_Map *pMap = new CWKSP_Map;
 
-		#ifdef _SAGA_MSW
-		if( Restore && g_pData->Get_Parameter("PROJECT_MAP_ARRANGE")->asInt() != 4 )
-		#else
-		if( Restore && g_pData->Get_Parameter("PROJECT_MAP_ARRANGE")->asInt() != 1 )
-		#endif
+		if( g_pMaps->Add(pMap) && pMap->Serialize(*((CSG_MetaData *)&Entry), ProjectDir, false) )
 		{
-			pMap->View_Show(true);
+			int Restore; Restore = Entry.Get_Property("SHOWN", Restore) ? Restore : 1;
+
+			#ifndef MDI_TABBED
+			if( Restore && g_pData->Get_Parameter("PROJECT_MAP_ARRANGE")->asInt() != 4 )
+			#else
+			if( Restore && g_pData->Get_Parameter("PROJECT_MAP_ARRANGE")->asInt() != 1 )
+			#endif
+			{
+				pMap->View_Show(true);
+			}
+
+			return( true );
 		}
 
-		return( true );
+		g_pMaps->Get_Control()->Del_Item(pMap, true);
 	}
-
-	g_pMaps->Get_Control()->Del_Item(pMap, true);
 
 	return( false );
 }
@@ -904,12 +915,12 @@ bool CWKSP_Project::_Save_Map(CSG_MetaData &Entry, const wxString &ProjectDir, C
 #define MAP_ENTRY_NAME		wxT("[MAP_ENTRY_NAME]")
 
 //---------------------------------------------------------
-bool CWKSP_Project::_Compatibility_Load_Data(const wxString &FileName)
+bool CWKSP_Project::_Compatibility_Load_Data(const wxString &File)
 {
 	CSG_String	sLine;
 	CSG_File	Stream;
 
-	if( !Stream.Open(&FileName, SG_FILE_R, true) )
+	if( !Stream.Open(&File, SG_FILE_R, true) )
 	{
 		return( false );
 	}
@@ -925,7 +936,7 @@ bool CWKSP_Project::_Compatibility_Load_Data(const wxString &FileName)
 	g_pSAGA_Frame->Freeze();
 
 	g_pData->Get_Menu_Files()->Set_Update(false);
-	while( _Compatibility_Load_Data(Stream, SG_File_Get_Path(&FileName).w_str()) );
+	while( _Compatibility_Load_Data(Stream, SG_File_Get_Path(&File).w_str()) );
 	g_pData->Get_Menu_Files()->Set_Update(true);
 
 	//-------------------------------------------------
@@ -933,14 +944,14 @@ bool CWKSP_Project::_Compatibility_Load_Data(const wxString &FileName)
 
 	if( !sLine.Cmp(MAP_ENTRIES_BEGIN) )
 	{
-		while( _Compatibility_Load_Map(Stream, SG_File_Get_Path(&FileName).w_str()) );
+		while( _Compatibility_Load_Map(Stream, SG_File_Get_Path(&File).w_str()) );
 	}
 
-	#ifdef _SAGA_MSW
+	#ifndef MDI_TABBED
 	switch( g_pData->Get_Parameter("PROJECT_MAP_ARRANGE")->asInt() )
 	{
-	case 1:	g_pSAGA_Frame->Tile(wxHORIZONTAL);	break;
-	case 2:	g_pSAGA_Frame->Tile(wxVERTICAL  );	break;
+	case 1: g_pSAGA_Frame->Tile(wxHORIZONTAL); break;
+	case 2: g_pSAGA_Frame->Tile(wxVERTICAL  ); break;
 	}
 	#endif
 

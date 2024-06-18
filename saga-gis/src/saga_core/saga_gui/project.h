@@ -89,13 +89,13 @@ private:
 	bool					_Load				(const wxString &FileName, bool bAdd, bool bUpdateMenu);
 	bool					_Save				(const wxString &FileName, bool bSaveModified, bool bUpdateMenu);
 
-	bool					_Load_DBConnections	(CSG_MetaData &Data);
+	bool					_Load_DBConnections	(const CSG_MetaData &Data);
 
-	bool					_Load_Data			(CSG_MetaData &Entry, const wxString &ProjectDir, bool bLoad, const CSG_String &Version);
-	bool					_Save_Data			(CSG_MetaData &Entry, const wxString &ProjectDir, class CWKSP_Data_Item *pItem);
+	bool					_Load_Data			(const CSG_MetaData &Entry, const wxString &ProjectDir, bool bLoad, const CSG_String &Version);
+	bool					_Save_Data			(      CSG_MetaData &Entry, const wxString &ProjectDir, class CWKSP_Data_Item *pItem);
 
-	bool					_Load_Map			(CSG_MetaData &Entry, const wxString &ProjectDir);
-	bool					_Save_Map			(CSG_MetaData &Entry, const wxString &ProjectDir, class CWKSP_Map *pMap);
+	bool					_Load_Map			(const CSG_MetaData &Entry, const wxString &ProjectDir);
+	bool					_Save_Map			(      CSG_MetaData &Entry, const wxString &ProjectDir, class CWKSP_Map *pMap);
 
 	bool					_Copy_To_File		(class CWKSP_Data_Item *pData, const wxString &Directory);
 	bool					_Copy_To_Database	(class CWKSP_Data_Item *pData, const wxString &Connection);

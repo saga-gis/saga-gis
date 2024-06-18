@@ -87,7 +87,7 @@ CWKSP_Map_Manager *g_pMaps = NULL;
 //---------------------------------------------------------
 CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 {
-	g_pMaps = this; m_Numbering = 0;
+	g_pMaps = this; m_Numbering = 0; m_Parameters.Set_Name(_TL("Maps"));
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Bool (""          , "THUMBNAILS"        , _TL("Thumbnails"     ), _TL(""), true);
@@ -331,7 +331,7 @@ int CWKSP_Map_Manager::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 		{
 			if( pParameter->Cmp_Identifier("THUMBNAILS") )
 			{
-				if( DLG_Message_Confirm(_TL("Close now ?"), _TL("Restart SAGA to apply the changes")) )
+				if( pParameter->asBool() != m_Parameters["THUMBNAILS"].asBool() && DLG_Message_Confirm(_TL("Close now ?"), _TL("Restart SAGA to apply the changes")) )
 				{
 					m_Parameters.Assign_Values(pParameters);
 
