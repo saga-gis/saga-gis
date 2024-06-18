@@ -176,7 +176,7 @@ REM collect files...
 MKDIR "%SAGA_RELEASE_NAME%_x64"
 PUSHD "%SAGA_RELEASE_NAME%_x64"
 XCOPY /C/S/Q/Y/H "%SAGA_BIN%"
-DEL /F *.ini *.cfg *.exp *.pdb *.tmp tools\*.exp tools\*.lib tools\*.pdb tools\dev_*.*
+DEL /F *.ini *.cfg *.sg-project *.exp *.pdb *.tmp tools\*.exp tools\*.lib tools\*.pdb tools\dev_*.*
 POPD
 
 REM ___________________________________

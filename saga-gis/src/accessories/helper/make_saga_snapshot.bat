@@ -28,7 +28,7 @@ SET SAGA_CONFIG=x64
 MKDIR "%SAGA_VERSION%_%SAGA_CONFIG%"
 PUSHD "%SAGA_VERSION%_%SAGA_CONFIG%"
 XCOPY /C/S/Q/Y/H "%SAGA_DIR_X64%"
-DEL /F *.ini *.cfg *.exp *.pdb *.tmp tools\*.exp tools\*.lib tools\*.pdb tools\dev_*.*
+DEL /F *.ini *.cfg *.sg-project *.exp *.pdb *.tmp tools\*.exp tools\*.lib tools\*.pdb tools\dev_*.*
 RMDIR /S/Q PySAGA\__pycache__
 POPD
 
