@@ -941,6 +941,14 @@ CSG_String		SG_File_Make_Path(const CSG_String &Directory, const CSG_String &Nam
 }
 
 //---------------------------------------------------------
+bool			SG_File_Cmp_Path(const CSG_String &Path1, const CSG_String &Path2)
+{
+	wxFileName a(wxString(Path1.c_str())), b(wxString(Path2.c_str()));
+
+	return( a.SameAs(b) );
+}
+
+//---------------------------------------------------------
 bool			SG_File_Cmp_Extension(const CSG_String &FileName, const CSG_String &Extension)
 {
 	return( SG_File_Get_Extension(FileName).CmpNoCase(Extension) == 0 );
