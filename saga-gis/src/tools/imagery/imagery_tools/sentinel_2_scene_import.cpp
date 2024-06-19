@@ -192,8 +192,9 @@ CSentinel_2_Scene_Import::CSentinel_2_Scene_Import(void)
 	Parameters.Add_Choice("",
 		"PROJECTION"	, _TL("Coordinate System"),
 		_TL("If using the extent option in combination with \'Different UTM Zone\' or \'Geographic Coordinates\' extent is expected to be defined with UTM North coordinates."),
-		CSG_String::Format("%s|%s|%s|%s",
-			_TL("UTM North"), // original
+		CSG_String::Format("%s|%s|%s|%s|%s",
+			_TL("original"),
+			_TL("UTM North"),
 			_TL("UTM South"),
 			_TL("Different UTM Zone"),
 			_TL("Geographic Coordinates")
@@ -278,10 +279,10 @@ int CSentinel_2_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, 
 
 	if( pParameter->Cmp_Identifier("PROJECTION") )
 	{
-		pParameters->Set_Enabled("RESAMPLING", pParameter->asInt() == 2 || pParameter->asInt() == 3);
-		pParameters->Set_Enabled("UTM_ZONE"  , pParameter->asInt() == 2);
-		pParameters->Set_Enabled("UTM_SOUTH" , pParameter->asInt() == 2);
-		pParameters->Set_Enabled("RESOLUTION", pParameter->asInt() != 2 && pParameter->asInt() != 3);
+		pParameters->Set_Enabled("RESAMPLING", pParameter->asInt() == 3 || pParameter->asInt() == 4);
+		pParameters->Set_Enabled("UTM_ZONE"  , pParameter->asInt() == 3);
+		pParameters->Set_Enabled("UTM_SOUTH" , pParameter->asInt() == 3);
+		pParameters->Set_Enabled("RESOLUTION", pParameter->asInt() != 3 && pParameter->asInt() != 4);
 	}
 
 	if(	pParameter->Cmp_Identifier("EXTENT") )
@@ -328,7 +329,7 @@ bool CSentinel_2_Scene_Import::On_Execute(void)
 	bool bLoadSCL = Parameters("LOAD_SCL") && Parameters("LOAD_SCL")->asBool() && bLevel2;
 	bool bLoad60m = Parameters("LOAD_60M") && Parameters("LOAD_60M")->asBool();
 
-	int Resolution = Parameters("PROJECTION")->asInt() != 2 && Parameters("PROJECTION")->asInt() != 3 ? Parameters("RESOLUTION")->asInt() : 0;
+	int Resolution = Parameters("PROJECTION")->asInt() != 3 && Parameters("PROJECTION")->asInt() != 4 ? Parameters("RESOLUTION")->asInt() : 0;
 
 	bool bMultiGrids = Parameters("MULTI2GRIDS")->asBool();
 
@@ -586,40 +587,52 @@ CSG_Grid * CSentinel_2_Scene_Import::Load_Band(const CSG_String &Path, const CSG
 		return( NULL );
 	}
 
-	pBand->Set_NoData_Value(0);	// landsat 8 pretends to use a value of 65535 (2^16 - 1)
+	pBand->Set_NoData_Value(0);
 
 	if( !pBand->Get_Projection().is_Okay() )
 	{
-		// undefined coordinate system, nothing to do be further done...
+		// undefined coordinate system, nothing that further can be done...
 	}
 
 	//-----------------------------------------------------
-	else if( Parameters("PROJECTION")->asInt() == 1 ) // UTM South
+	else if( Parameters("PROJECTION")->asInt() == 1 || Parameters("PROJECTION")->asInt() == 2 ) // UTM North/South
 	{
-		CSG_Grid *pTmp = pBand; CSG_String Projection = pTmp->Get_Projection().Get_PROJ();
+		CSG_Projection Target, Source = pBand->Get_Projection();
 
-		if( Projection.Find("+proj=utm") >= 0 && Projection.Find("+zone") >= 0
-		&&  (pBand = SG_Create_Grid(pTmp->Get_Type(), pTmp->Get_NX(), pTmp->Get_NY(), pTmp->Get_Cellsize(), pTmp->Get_XMin(), pTmp->Get_YMin() + 10000000)) != NULL )
+		if( Source.Get_PROJ().Find("+proj=utm") >= 0 && Source.Get_PROJ().Find("+zone") >= 0 )
 		{
-			CSG_String Zone = Projection.Right(Projection.Length() - Projection.Find("+zone")).AfterFirst('=');
-			pBand->Get_Projection().Set_UTM_WGS84(Zone.asInt(),  true);
-			pBand->Set_Name              (pTmp->Get_Name());
-			pBand->Set_Description       (pTmp->Get_Description());
-			pBand->Set_NoData_Value_Range(pTmp->Get_NoData_Value(), pTmp->Get_NoData_Value(true));
-			pBand->Set_Scaling           (pTmp->Get_Scaling(), pTmp->Get_Offset());
+			CSG_String Zone = Source.Get_PROJ().Right(Source.Get_PROJ().Length() - Source.Get_PROJ().Find("+zone")).AfterFirst('=');
 
-			#pragma omp parallel for
-			for(int y=0; y<pBand->Get_NY(); y++) for(int x=0; x<pBand->Get_NX(); x++)
+			if( Target.Set_UTM_WGS84(Zone.asInt(), Parameters("PROJECTION")->asInt() == 2) && Target != Source
+			&& ((Parameters("PROJECTION")->asInt() == 1 && Source.Get_PROJ().Find("+south") >= 0)
+			 || (Parameters("PROJECTION")->asInt() == 2 && Source.Get_PROJ().Find("+south") <  0) ) )
 			{
-				pBand->Set_Value(x, y, pTmp->asDouble(x, y));
-			}
+				CSG_Grid *pTmp = pBand; pBand = SG_Create_Grid(pTmp->Get_Type(), pTmp->Get_NX(), pTmp->Get_NY(), pTmp->Get_Cellsize(), pTmp->Get_XMin(),
+					pTmp->Get_YMin() + (Parameters("PROJECTION")->asInt() == 1 ? -10000000 : 10000000)
+				);
 
-			delete(pTmp);
+				if( pBand )
+				{
+					pBand->Get_Projection().Create(Target);
+					pBand->Set_Name              (pTmp->Get_Name());
+					pBand->Set_Description       (pTmp->Get_Description());
+					pBand->Set_NoData_Value_Range(pTmp->Get_NoData_Value(), pTmp->Get_NoData_Value(true));
+					pBand->Set_Scaling           (pTmp->Get_Scaling(), pTmp->Get_Offset());
+
+					#pragma omp parallel for
+					for(int y=0; y<pBand->Get_NY(); y++) for(int x=0; x<pBand->Get_NX(); x++)
+					{
+						pBand->Set_Value(x, y, pTmp->asDouble(x, y));
+					}
+
+					delete(pTmp);
+				}
+			}
 		}
 	}
 
 	//-----------------------------------------------------
-	else if( Parameters("PROJECTION")->asInt() == 2 )	// Different UTM Zone
+	else if( Parameters("PROJECTION")->asInt() == 3 )	// Different UTM Zone
 	{
 		CSG_Projection Projection = CSG_Projection::Get_UTM_WGS84(
 			Parameters("UTM_ZONE" )->asInt (),
@@ -654,7 +667,7 @@ CSG_Grid * CSentinel_2_Scene_Import::Load_Band(const CSG_String &Path, const CSG
 	}
 
 	//-----------------------------------------------------
-	else if( Parameters("PROJECTION")->asInt() == 3 )	// Geographic Coordinates
+	else if( Parameters("PROJECTION")->asInt() == 4 )	// Geographic Coordinates
 	{
 		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4);	// Coordinate Transformation (Grid)
 
@@ -713,11 +726,6 @@ CSG_Grid * CSentinel_2_Scene_Import::Load_Grid(const CSG_String &File)
 		Extent = Parameters("EXTENT_SHAPES")->asShapes     ()->Get_Extent();
 		Extent.Inflate(Parameters("EXTENT_BUFFER")->asDouble(), false);
 		break;
-	}
-
-	if( Parameters("PROJECTION")->asInt() == 1 ) // UTM South
-	{
-		Extent.Move(0, -10000000); // assume target extent is provided as UTM South coordinates
 	}
 
 	//-----------------------------------------------------
