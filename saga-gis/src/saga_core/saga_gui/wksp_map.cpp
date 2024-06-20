@@ -392,94 +392,100 @@ void CWKSP_Map::On_Create_Parameters(void)
 	///////////////////////////////////////////////////////
 	//-----------------------------------------------------
 	m_Parameters.Add_Node("",
-		"NODE_GENERAL"	, _TL("General"),
+		"NODE_GENERAL"  , _TL("General"),
 		_TL("")
 	);
 
 	m_Parameters.Add_String("NODE_GENERAL",
-		"NAME"			, _TL("Name"),
+		"NAME"          , _TL("Name"),
 		_TL(""),
 		&m_Name
 	);
 
+	m_Parameters.Add_Color("NODE_GENERAL",
+		"BACKGROUND"    , _TL("Background Color"),
+		_TL(""),
+		g_pMaps->Get_Parameter("BACKGROUND")->asColor()
+	);
+
 	m_Parameters.Add_Bool("NODE_GENERAL",
-		"GOTO_NEWLAYER"	, _TL("Zoom to Added Layer"),
+		"GOTO_NEWLAYER" , _TL("Zoom to Added Layer"),
 		_TL(""),
 		g_pMaps->Get_Parameter("GOTO_NEWLAYER")->asBool()
 	);
 
 	m_Parameters.Add_Bool("NODE_GENERAL",
-		"SYNC_MAPS"		, _TL("Synchronize Map Extents"),
+		"SYNC_MAPS"     , _TL("Synchronize Map Extents"),
 		_TL(""),
 		false
 	);
 
 	m_Parameters.Add_Bool("NODE_GENERAL",
-		"CRS_CHECK"		, _TL("CRS Check"),
+		"CRS_CHECK"     , _TL("CRS Check"),
 		_TL("Perform a coordinate system compatibility check before a layer is added."),
 		g_pMaps->Get_Parameter("CRS_CHECK")->asBool()
 	);
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Bool("NODE_GENERAL",
-		"GCS_POSITION"	, _TL("Position as Geographic Coordinates"),
+		"GCS_POSITION"  , _TL("Position as Geographic Coordinates"),
 		_TL("Display mouse position in status bar as geographic coordinates."),
 		false
 	);
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Bool("NODE_GENERAL",
-		"SEL_EXTENT"	, _TL("Show Extent"),
+		"SEL_EXTENT"    , _TL("Show Extent"),
 		_TL("Display selected extent in map."),
 		false
 	);
 
 	m_Parameters.Add_Color("SEL_EXTENT",
-		"SEL_COLOUR"	, _TL("Colour"),
+		"SEL_COLOUR"    , _TL("Colour"),
 		_TL(""),
 		SG_GET_RGB(222, 222, 222)
 	);
 
 	m_Parameters.Add_Double("SEL_EXTENT",
-		"SEL_TRANSP"	, _TL("Transparency [%]"),
+		"SEL_TRANSP"    , _TL("Transparency [%]"),
 		_TL(""),
 		50., 0., true, 100., true
 	);
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Bool("NODE_GENERAL",
-		"FRAME_SHOW"	, _TL("Frame"),
+		"FRAME_SHOW"    , _TL("Frame"),
 		_TL(""),
 		g_pMaps->Get_Parameter("FRAME_SHOW")->asBool()
 	);
 
 	m_Parameters.Add_Int("FRAME_SHOW",
-		"FRAME_WIDTH"	, _TL("Size"),
+		"FRAME_WIDTH"   , _TL("Size"),
 		_TL(""),
 		g_pMaps->Get_Parameter("FRAME_WIDTH")->asInt(), 10, true
 	);
 
 	m_Parameters.Add_Bool("FRAME_SHOW",
-		"FRAME_SCALE"	, _TL("Scale"),
+		"FRAME_SCALE"   , _TL("Scale"),
 		_TL("Displays the scale instead of coordinates in the bottom and left frame boxes, if there is no scale bar shown in the map."),
 		false
 	);
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Bool("NODE_GENERAL",
-		"NORTH_SHOW"	, _TL("North Arrow"),
+		"NORTH_SHOW"    , _TL("North Arrow"),
 		_TL(""),
 		false
 	);
 
 	m_Parameters.Add_Double("NORTH_SHOW",
-		"NORTH_ANGLE"	, _TL("Direction"),
+		"NORTH_ANGLE"   , _TL("Direction"),
 		_TL(""),
 		0., -180., true, 360., true
 	);
 
 	m_Parameters.Add_Double("NORTH_SHOW",
-		"NORTH_SIZE"	, _TL("Size"),
+		"NORTH_SIZE"    , _TL("Size"),
 		_TL("Size given as percentage of map size"),
 		 5., 1., true, 100., true
 	);
@@ -497,20 +503,20 @@ void CWKSP_Map::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_Bool("NORTH_SHOW",
-		"NORTH_EXTENT"	, _TL("Relate to Extent"),
+		"NORTH_EXTENT"  , _TL("Relate to Extent"),
 		_TL("Relate position and size to selected map extent."),
 		false
 	);
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Bool("NODE_GENERAL",
-		"SCALE_SHOW"	, _TL("Scale Bar"),
+		"SCALE_SHOW"    , _TL("Scale Bar"),
 		_TL(""),
 		g_pMaps->Get_Parameter("SCALE_BAR")->asBool()
 	);
 
 	m_Parameters.Add_Choice("SCALE_SHOW",
-		"SCALE_STYLE"	, _TL("Style"),
+		"SCALE_STYLE"   , _TL("Style"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
 			_TL("scale line"),
@@ -519,19 +525,19 @@ void CWKSP_Map::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_Bool("SCALE_SHOW",
-		"SCALE_UNIT"	, _TL("Unit"),
+		"SCALE_UNIT"    , _TL("Unit"),
 		_TL(""),
 		true
 	);
 
 	m_Parameters.Add_Double("SCALE_SHOW",
-		"SCALE_WIDTH"	, _TL("Width"),
+		"SCALE_WIDTH"   , _TL("Width"),
 		_TL("Width given as percentage of map size"),
 		40., 1., true, 100., true
 	);
 
 	m_Parameters.Add_Double("SCALE_SHOW",
-		"SCALE_HEIGHT"	, _TL("Height"),
+		"SCALE_HEIGHT"  , _TL("Height"),
 		_TL("Height given as percentage of map size"),
 		 4., 0.1, true, 100., true
 	);
@@ -549,7 +555,7 @@ void CWKSP_Map::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_Bool("SCALE_SHOW",
-		"SCALE_EXTENT"	, _TL("Relate to Extent"),
+		"SCALE_EXTENT"  , _TL("Relate to Extent"),
 		_TL("Relate position and size to selected map extent."),
 		false
 	);
@@ -1566,9 +1572,9 @@ CSG_Point CWKSP_Map::Get_World(wxRect rClient, wxPoint Point)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define MASK_R	254
-#define MASK_G	255
-#define MASK_B	255
+#define MASK_R 254
+#define MASK_G 255
+#define MASK_B 255
 
 //---------------------------------------------------------
 bool CWKSP_Map::Get_Image(wxImage &Image, const CSG_Grid_System &System)
@@ -2140,9 +2146,9 @@ void CWKSP_Map::Draw_Map(wxDC &dc, double Zoom, const wxRect &rClient, int Flags
 //---------------------------------------------------------
 void CWKSP_Map::Draw_Map(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wxRect &rClient, int Flags, int Background)
 {
-	CWKSP_Map_DC	dc_Map(rWorld, rClient, Zoom, Background);
+	CWKSP_Map_DC dc_Map(rWorld, rClient, Zoom, Background >= 0 ? Background : m_Parameters("BACKGROUND")->asInt());
 
-	int	Flag_Labels	= !(Flags & LAYER_DRAW_FLAG_NOLABELS) ? 0 : LAYER_DRAW_FLAG_NOLABELS;
+	int Flag_Labels = !(Flags & LAYER_DRAW_FLAG_NOLABELS) ? 0 : LAYER_DRAW_FLAG_NOLABELS;
 
 	//-----------------------------------------------------
 	for(int i=Get_Count()-1; i>=0; i--)

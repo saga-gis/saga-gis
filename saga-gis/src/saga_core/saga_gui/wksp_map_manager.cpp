@@ -128,6 +128,7 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 	//-----------------------------------------------------
 	m_Parameters.Add_Node  ("NODE_DEFAULTS", "NODE_NEW_MAPS", _TL("New Maps"), _TL(""));
 
+	m_Parameters.Add_Color ("NODE_NEW_MAPS", "BACKGROUND"   , _TL("Background Color"   ), _TL(""), SG_COLOR_WHITE);
 	m_Parameters.Add_Bool  ("NODE_NEW_MAPS", "GOTO_NEWLAYER", _TL("Zoom to added layer"), _TL(""), false);
 	m_Parameters.Add_Bool  ("NODE_NEW_MAPS", "CRS_CHECK"    , _TL("CRS Check"          ), _TL("Perform a coordinate system compatibility check before a layer is added."), true);
 	m_Parameters.Add_Bool  ("NODE_NEW_MAPS", "SCALE_BAR"    , _TL("Scale Bar"          ), _TL(""), false);
