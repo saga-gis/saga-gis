@@ -70,49 +70,62 @@ CGrid_Color_Blend::CGrid_Color_Blend(void)
 	));
 
 	Parameters.Add_Grid_List("",
-		"GRIDS"			, _TL("Grids"),
+		"GRIDS"         , _TL("Grids"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid("",
-		"GRID"			, _TL("Grid"),
+		"GRID"          , _TL("Grid Animation"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_FilePath("",
-		"FILE"			, _TL("Save Images"),
+		"FILE"          , _TL("Save Images"),
 		_TL(""),
-		CSG_String::Format("%s|*.png|%s|*.jpg;*.jif;*.jpeg|%s|*.tif;*.tiff|%s|*.bmp|%s|*.pcx",
+		CSG_String::Format("%s|*.png|%s|*.jpg;*.jif;*.jpeg|%s|*.tif;*.tiff|%s|*.bmp|%s (*.gif)|*.gif|%s|*.pcx",
 			_TL("Portable Network Graphics"),
 			_TL("JPEG - JFIF Compliant"),
 			_TL("Tagged Image File Format"),
 			_TL("Windows or OS/2 Bitmap"),
+			_TL("Compuserve Graphics Interchange Format"),
 			_TL("Zsoft Paintbrush")
 		), NULL, true
 	);
 
+	Parameters.Add_Bool("FILE",
+		"FILE_NODATA"   , _TL("Set Transparency for No-Data"),
+		_TL(""),
+		true
+	);
+
+	Parameters.Add_Color("FILE",
+		"FILE_BGCOL"    , _TL("Background Color"),
+		_TL("Background color used for no-data cells when storing frames to file."),
+		SG_COLOR_WHITE
+	);
+
 	Parameters.Add_Colors("",
-		"COLORS"		, _TL("Colours"),
+		"COLORS"        , _TL("Colors"),
 		_TL("")
 	);
 
 	Parameters.Add_Int("",
-		"NSTEPS"		, _TL("Interpolation Steps"),
+		"NSTEPS"        , _TL("Interpolation Steps"),
 		_TL(""),
 		0, 0, true
 	);
 
 	Parameters.Add_Bool("",
-		"PROGRESS"		, _TL("Progress Bar"),
+		"PROGRESS"      , _TL("Progress Bar"),
 		_TL(""),
 		false
 	);
 
 	Parameters.Add_Choice("",
-		"LOOP"			, _TL("Loop"),
-		_TL(""),
+		"LOOP"          , _TL("Loop"),
+		_TL("Endless loop (3rd option) is ignored if file output is activated."),
 		CSG_String::Format("%s|%s|%s",
 			_TL("do not loop"),
 			_TL("loop to first grid"),
@@ -121,7 +134,7 @@ CGrid_Color_Blend::CGrid_Color_Blend(void)
 	);
 
 	Parameters.Add_Choice("",
-		"RANGE"			, _TL("Histogram Stretch"),
+		"RANGE"         , _TL("Histogram Stretch"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s",
 			_TL("each grid's range"),
@@ -133,25 +146,25 @@ CGrid_Color_Blend::CGrid_Color_Blend(void)
 	);
 
 	Parameters.Add_Double("RANGE",
-		"RANGE_PERCENT"	, _TL("Percent Stretch"),
+		"RANGE_PERCENT" , _TL("Percent Stretch"),
 		_TL(""),
 		2., 0., true, 50., true
 	);
 
 	Parameters.Add_Double("RANGE",
-		"RANGE_STDDEV"	, _TL("Standard Deviation"),
+		"RANGE_STDDEV"  , _TL("Standard Deviation"),
 		_TL(""),
 		2., 0., true
 	);
 
 	Parameters.Add_Bool("RANGE_STDDEV",
-		"RANGE_KEEP"	, _TL("Keep in Range"),
+		"RANGE_KEEP"    , _TL("Keep in Range"),
 		_TL(""),
 		true
 	);
 
 	Parameters.Add_Range("RANGE",
-		"RANGE_USER"	, _TL("Range"),
+		"RANGE_USER"    , _TL("Range"),
 		_TL(""),
 		2., 0., true
 	);
@@ -186,6 +199,16 @@ int CGrid_Color_Blend::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Par
 		pParameters->Set_Enabled("RANGE_USER"   , pParameter->asInt() == 4);
 	}
 
+	if( pParameter->Cmp_Identifier("FILE") )
+	{
+		pParameters->Set_Enabled("FILE_NODATA", *pParameter->asString());
+	}
+
+	if( pParameter->Cmp_Identifier("FILE_NODATA") )
+	{
+		pParameters->Set_Enabled("FILE_BGCOL", pParameter->asBool() == false);
+	}
+
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
@@ -197,7 +220,7 @@ int CGrid_Color_Blend::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Par
 //---------------------------------------------------------
 bool CGrid_Color_Blend::On_Execute(void)
 {
-	m_pGrids	= Parameters("GRIDS")->asGridList();
+	m_pGrids = Parameters("GRIDS")->asGridList();
 
 	if( m_pGrids->Get_Grid_Count() < 2 )
 	{
@@ -210,74 +233,78 @@ bool CGrid_Color_Blend::On_Execute(void)
 	case 0:	// each grid's range
 	case 1:	// each grid's standard deviation
 		{
-			m_Range_Min	= 0.;
-			m_Range_Max	= 0.;
+			m_Range_Min = 0.;
+			m_Range_Max = 0.;
 		}
 		break;
 
 	case 2:	// overall range
 		{
-			CSG_Simple_Statistics	s(m_pGrids->Get_Grid(0)->Get_Statistics());
+			CSG_Simple_Statistics s(m_pGrids->Get_Grid(0)->Get_Statistics());
 
 			for(int i=1; i<m_pGrids->Get_Grid_Count(); i++)
 			{
-				s	+= m_pGrids->Get_Grid(i)->Get_Statistics();
+				s += m_pGrids->Get_Grid(i)->Get_Statistics();
 			}
 
-			double	d	= Parameters("RANGE_PERCENT")->asDouble() / 100.;
+			double d = Parameters("RANGE_PERCENT")->asDouble() / 100.;
 
-			m_Range_Min	= s.Get_Minimum() + d * s.Get_Range();
-			m_Range_Max	= s.Get_Maximum() - d * s.Get_Range();
+			m_Range_Min = s.Get_Minimum() + d * s.Get_Range();
+			m_Range_Max = s.Get_Maximum() - d * s.Get_Range();
 		}
 		break;
 
 	case 3:	// overall standard deviation
 		{
-			CSG_Simple_Statistics	s(m_pGrids->Get_Grid(0)->Get_Statistics());
+			CSG_Simple_Statistics s(m_pGrids->Get_Grid(0)->Get_Statistics());
 
 			for(int i=1; i<m_pGrids->Get_Grid_Count(); i++)
 			{
-				s	+= m_pGrids->Get_Grid(i)->Get_Statistics();
+				s += m_pGrids->Get_Grid(i)->Get_Statistics();
 			}
 
-			double	d	= Parameters("RANGE_STDDEV")->asDouble();
+			double d = Parameters("RANGE_STDDEV")->asDouble();
 
-			m_Range_Min	= s.Get_Mean() - d * s.Get_StdDev(); if( Parameters("RANGE_KEEP")->asBool() && m_Range_Min < s.Get_Minimum() ) m_Range_Min = s.Get_Minimum();
-			m_Range_Max	= s.Get_Mean() + d * s.Get_StdDev(); if( Parameters("RANGE_KEEP")->asBool() && m_Range_Max > s.Get_Maximum() ) m_Range_Max = s.Get_Maximum();
+			m_Range_Min = s.Get_Mean() - d * s.Get_StdDev(); if( Parameters("RANGE_KEEP")->asBool() && m_Range_Min < s.Get_Minimum() ) m_Range_Min = s.Get_Minimum();
+			m_Range_Max = s.Get_Mean() + d * s.Get_StdDev(); if( Parameters("RANGE_KEEP")->asBool() && m_Range_Max > s.Get_Maximum() ) m_Range_Max = s.Get_Maximum();
 		}
 		break;
 
 	case 4:	// user defined
 		{
-			m_Range_Min	= Parameters("RANGE_USER")->asRange()->Get_Min();
-			m_Range_Max	= Parameters("RANGE_USER")->asRange()->Get_Max();
+			m_Range_Min = Parameters("RANGE_USER")->asRange()->Get_Min();
+			m_Range_Max = Parameters("RANGE_USER")->asRange()->Get_Max();
 		}
 		break;
 	}
 
 	//-----------------------------------------------------
-	m_pGrid	= Parameters("GRID")->asGrid();
-	m_pGrid	->Set_Name(_TL("Grid Animation"));
-	m_pGrid	->Assign(m_pGrids->Get_Grid(0));
+	m_pGrid = Parameters("GRID")->asGrid();
+	m_pGrid->Set_Name(_TL("Grid Animation"));
+	m_pGrid->Assign(m_pGrids->Get_Grid(0));
 
 	DataObject_Set_Colors(m_pGrid, *Parameters("COLORS")->asColors());
 	DataObject_Update    (m_pGrid, SG_UI_DATAOBJECT_SHOW_MAP);
 
 	//-----------------------------------------------------
-	int nGrids = Parameters("LOOP")->asInt() ? m_pGrids->Get_Grid_Count() : m_pGrids->Get_Grid_Count() - 1;
+	m_File = Parameters("FILE")->asString();
 
-	m_File = Parameters("FILE")->asString(); m_iFile = 0; m_nFiles = nGrids * (1 + Parameters("NSTEPS")->asInt());
+	int Loop = Parameters("LOOP")->asInt(); if( Loop == 3 && !m_File.is_Empty() ) { Loop = 3; }
+
+	int nGrids = Loop ? m_pGrids->Get_Grid_Count() : m_pGrids->Get_Grid_Count() - 1;
+
+	 m_iFile = 0; m_nFiles = nGrids * (1 + Parameters("NSTEPS")->asInt());
 
 	do
 	{
 		for(int iGrid=0; iGrid<nGrids && Process_Get_Okay(); iGrid++)
 		{
-			Blend(iGrid);
+			Blend(iGrid, Loop > 0);
 		}
 
 		m_File.Clear();
 	}
-	while( Parameters("LOOP")->asInt() == 2 && Process_Get_Okay() );
+	while( Loop == 2 && Process_Get_Okay() );
 
 	//-----------------------------------------------------
 	return( true );
@@ -289,37 +316,37 @@ bool CGrid_Color_Blend::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGrid_Color_Blend::Blend(int iGrid)
+void CGrid_Color_Blend::Blend(int iGrid, bool bLoop)
 {
-	CSG_Grid	*pA	= m_pGrids->Get_Grid( iGrid                                  );
-	CSG_Grid	*pB	= m_pGrids->Get_Grid((iGrid + 1) % m_pGrids->Get_Grid_Count());
+	CSG_Grid *pA = m_pGrids->Get_Grid( iGrid                                  );
+	CSG_Grid *pB = m_pGrids->Get_Grid((iGrid + 1) % m_pGrids->Get_Grid_Count());
 
-	int	nSteps	= 1 + Parameters("NSTEPS")->asInt();
+	int nSteps = 1 + Parameters("NSTEPS")->asInt();
 
 	for(int iStep=1; iStep<=nSteps && Process_Get_Okay(); iStep++)
 	{
-		double	d	= iStep / (double)nSteps;
+		double d = iStep / (double)nSteps;
 
 		#pragma omp parallel for
 		for(int y=0; y<Get_NY(); y++)
 		{
 			for(int x=0; x<Get_NX(); x++)
 			{
-				if( !pA->is_NoData(x, y) && !pB->is_NoData(x, y) )
+				if( pA->is_NoData(x, y) || pB->is_NoData(x, y) )
 				{
-					double	a	= pA->asDouble(x, y);
-					double	b	= pB->asDouble(x, y);
-
-					m_pGrid->Set_Value(x, y, a + d * (b - a));
+					m_pGrid->Set_NoData(x, y);
 				}
 				else
 				{
-					m_pGrid->Set_NoData(x, y);
+					double a = pA->asDouble(x, y);
+					double b = pB->asDouble(x, y);
+
+					m_pGrid->Set_Value(x, y, a + d * (b - a));
 				}
 			}
 		}
 
-		Set_Progress(iGrid + d, Parameters("LOOP")->asInt() ? m_pGrids->Get_Grid_Count() : m_pGrids->Get_Grid_Count() - 1);
+		Set_Progress(iGrid + d, bLoop ? m_pGrids->Get_Grid_Count() : m_pGrids->Get_Grid_Count() - 1);
 
 		Save();
 	}
@@ -333,26 +360,26 @@ void CGrid_Color_Blend::Blend(int iGrid)
 //---------------------------------------------------------
 bool CGrid_Color_Blend::Set_Progress(double Position, double Range)
 {
-	bool	bResult	= CSG_Tool_Grid::Set_Progress(Position, Range);
+	bool bResult = CSG_Tool_Grid::Set_Progress(Position, Range);
 
 	//-----------------------------------------------------
 	switch( Parameters("RANGE")->asInt() )
 	{
 	case 0:	// each grid's range
 		{
-			double	d	= Parameters("RANGE_PERCENT")->asDouble() / 100.;
+			double d = Parameters("RANGE_PERCENT")->asDouble() / 100.;
 
-			m_Range_Min	= m_pGrid->Get_Min() + d * m_pGrid->Get_Range();
-			m_Range_Max	= m_pGrid->Get_Max() - d * m_pGrid->Get_Range();
+			m_Range_Min = m_pGrid->Get_Min() + d * m_pGrid->Get_Range();
+			m_Range_Max = m_pGrid->Get_Max() - d * m_pGrid->Get_Range();
 		}
 		break;
 
 	case 1:	// each grid's standard deviation
 		{
-			double	d	= Parameters("RANGE_STDDEV")->asDouble();
+			double d = Parameters("RANGE_STDDEV")->asDouble();
 
-			m_Range_Min	= m_pGrid->Get_Mean() - d * m_pGrid->Get_StdDev(); if( Parameters("RANGE_KEEP")->asBool() && m_Range_Min < m_pGrid->Get_Min() ) m_Range_Min = m_pGrid->Get_Min();
-			m_Range_Max	= m_pGrid->Get_Mean() + d * m_pGrid->Get_StdDev(); if( Parameters("RANGE_KEEP")->asBool() && m_Range_Max > m_pGrid->Get_Max() ) m_Range_Max = m_pGrid->Get_Max();
+			m_Range_Min = m_pGrid->Get_Mean() - d * m_pGrid->Get_StdDev(); if( Parameters("RANGE_KEEP")->asBool() && m_Range_Min < m_pGrid->Get_Min() ) m_Range_Min = m_pGrid->Get_Min();
+			m_Range_Max = m_pGrid->Get_Mean() + d * m_pGrid->Get_StdDev(); if( Parameters("RANGE_KEEP")->asBool() && m_Range_Max > m_pGrid->Get_Max() ) m_Range_Max = m_pGrid->Get_Max();
 		}
 		break;
 	}
@@ -360,13 +387,13 @@ bool CGrid_Color_Blend::Set_Progress(double Position, double Range)
 	//-----------------------------------------------------
 	if( Parameters("PROGRESS")->asBool() )
 	{
-		double	Mid	= m_Range_Min + (m_Range_Max - m_Range_Min) / 2.;
+		double Mid = m_Range_Min + (m_Range_Max - m_Range_Min) / 2.;
 
-		int		Value	= (int)(0.5 + (Get_NX() - 1) * Position / Range);
+		int  Value = (int)(0.5 + (Get_NX() - 1) * Position / Range);
 
 		for(int x=0; x<Get_NX(); x++)
 		{
-			int	y	= 0;
+			int y = 0;
 
 			if( x < Value )
 			{
@@ -402,8 +429,10 @@ bool CGrid_Color_Blend::Set_Progress(double Position, double Range)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGrid_Color_Blend::Save(void)
+bool CGrid_Color_Blend::Save(void)
 {
+	bool bResult = false;
+
 	if( !m_File.is_Empty() )
 	{
 		int Width = 1 + int(log10(m_nFiles));
@@ -414,15 +443,17 @@ void CGrid_Color_Blend::Save(void)
 			SG_File_Get_Extension(m_File)
 		);
 
-		bool bResult;
-
 		SG_RUN_TOOL(bResult, "io_grid_image", 0,
-				SG_TOOL_PARAMETER_SET("GRID"      , m_pGrid)
-			&&	SG_TOOL_PARAMETER_SET("FILE"      , File   )
-			&&	SG_TOOL_PARAMETER_SET("FILE_WORLD", false  )
-			&&	SG_TOOL_PARAMETER_SET("FILE_KML"  , false  )
+				SG_TOOL_PARAMETER_SET("GRID"       , m_pGrid)
+			&&	SG_TOOL_PARAMETER_SET("FILE"       , File   )
+			&&	SG_TOOL_PARAMETER_SET("FILE_WORLD" , false  )
+			&&	SG_TOOL_PARAMETER_SET("FILE_KML"   , false  )
+			&&	SG_TOOL_PARAMETER_SET("NO_DATA"    , Parameters("FILE_NODATA"))
+			&&	SG_TOOL_PARAMETER_SET("NO_DATA_COL", Parameters("FILE_BGCOL" ))
 		)
 	}
+
+	return( false );
 }
 
 

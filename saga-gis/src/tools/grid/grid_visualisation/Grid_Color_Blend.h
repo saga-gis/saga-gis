@@ -100,9 +100,9 @@ private:
 	CSG_Parameter_Grid_List	*m_pGrids;
 
 
-	void					Blend					(int iGrid);
+	void					Blend					(int iGrid, bool bLoop);
 
-	void					Save					(void);
+	bool					Save					(void);
 
 };
 
