@@ -76,40 +76,47 @@ CGrid_Export::CGrid_Export(void)
 	Parameters.Add_Grid("", "SHADE", _TL("Shade"), _TL(""), PARAMETER_INPUT_OPTIONAL);
 
 	Parameters.Add_FilePath("",
-		"FILE"		, _TL("Image File"),
+		"FILE"           , _TL("Image File"),
 		_TL(""),
-		CSG_String::Format("%s (*.png)|*.png|%s (*.jpg, *.jif, *.jpeg)|*.jpg;*.jif;*.jpeg|%s (*.tif, *.tiff)|*.tif;*.tiff|%s (*.bmp)|*.bmp|%s (*.pcx)|*.pcx",
+		CSG_String::Format("%s (*.png)|*.png|%s (*.jpg, *.jif, *.jpeg)|*.jpg;*.jif;*.jpeg|%s (*.tif, *.tiff)|*.tif;*.tiff|%s (*.bmp)|*.bmp|%s (*.gif)|*.gif|%s (*.pcx)|*.pcx",
 			_TL("Portable Network Graphics"),
 			_TL("JPEG - JFIF Compliant"),
 			_TL("Tagged Image File Format"),
 			_TL("Windows or OS/2 Bitmap"),
+			_TL("Compuserve Graphics Interchange Format"),
 			_TL("Zsoft Paintbrush")
 		), NULL, true
 	);
 
 	Parameters.Add_Bool("",
-		"FILE_WORLD", _TL("Create World File"),
+		"FILE_WORLD"     , _TL("Create World File"),
 		_TL("Store georeference along image to an additional file."),
 		true
 	);
 
 	Parameters.Add_Bool("",
-		"FILE_KML"	, _TL("Create KML File"),
+		"FILE_KML"       , _TL("Create KML File"),
 		_TL("Expects that the input grid uses geographic coordinates."),
 		false
 	);
 
 	Parameters.Add_Bool("",
-		"NO_DATA"	, _TL("Set Transparency for No-Data"),
+		"NO_DATA"        , _TL("Set Transparency for No-Data"),
 		_TL(""),
 		true
+	);
+
+	Parameters.Add_Color("NO_DATA",
+		"NO_DATA_COL"    , _TL("No-Data Color"),
+		_TL(""),
+		SG_COLOR_WHITE
 	);
 
 	//-----------------------------------------------------
 	if( has_GUI() )
 	{
 		Parameters.Add_Choice("",
-			"COLOURING"		, _TL("Coloring"),
+			"COLOURING"  , _TL("Coloring"),
 			_TL(""),
 			CSG_String::Format("%s|%s|%s|%s|%s|%s",
 				_TL("histogram stretch to standard deviation"),
@@ -124,7 +131,7 @@ CGrid_Export::CGrid_Export(void)
 	else
 	{
 		Parameters.Add_Choice("",
-			"COLOURING"		, _TL("Coloring"),
+			"COLOURING"  , _TL("Coloring"),
 			_TL(""),
 			CSG_String::Format("%s|%s|%s|%s|%s",
 				_TL("histogram stretch to standard deviation"),
@@ -136,49 +143,49 @@ CGrid_Export::CGrid_Export(void)
 		);
 
 		Parameters.Add_Int("",
-			"COL_COUNT"		, _TL("Number of Colors"),
+			"COL_COUNT"  , _TL("Number of Colors"),
 			_TL(""),
 			100
 		);
 
 		Parameters.Add_Bool("",
-			"COL_REVERT"	, _TL("Revert Palette"),
+			"COL_REVERT" , _TL("Revert Palette"),
 			_TL(""),
 			false
 		);
 	}
 
 	Parameters.Add_Colors("",
-		"COL_PALETTE"	, _TL("Colors Palette"),
+		"COL_PALETTE"    , _TL("Colors Palette"),
 		_TL("")
 	);
 
 	Parameters.Add_Bool("COL_PALETTE",
-		"GRADUATED"		, _TL("Graduated Colors"),
+		"GRADUATED"      , _TL("Graduated Colors"),
 		_TL(""),
 		true
 	);
 
 	Parameters.Add_Double("COL_PALETTE",
-		"STDDEV"		, _TL("Standard Deviation"),
+		"STDDEV"         , _TL("Standard Deviation"),
 		_TL(""),
 		2., 0., true
 	);
 
 	Parameters.Add_Range("COL_PALETTE",
-		"LINEAR"		, _TL("Percentage Range"),
+		"LINEAR"         , _TL("Percentage Range"),
 		_TL(""),
 		0., 100.
 	);
 
 	Parameters.Add_Range("COL_PALETTE",
-		"STRETCH"		, _TL("Value Range"),
+		"STRETCH"        , _TL("Value Range"),
 		_TL(""),
 		0., 100.
 	);
 
 	Parameters.Add_Choice("COL_PALETTE",
-		"SCALE_MODE"	, _TL("Scaling"),
+		"SCALE_MODE"     , _TL("Scaling"),
 		_TL("Scaling applied to coloring choices (i) grid's standard deviation, (ii) grid's value range, (iii) specified value range"),
 		CSG_String::Format("%s|%s|%s",
 			_TL("linear intervals"),
@@ -188,7 +195,7 @@ CGrid_Export::CGrid_Export(void)
 	);
 
 	Parameters.Add_Double("SCALE_MODE",
-		"SCALE_LOG"		, _TL("Geometrical Interval Factor"),
+		"SCALE_LOG"      , _TL("Geometrical Interval Factor"),
 		_TL(""),
 		10., 0.001, true
 	);
@@ -208,7 +215,7 @@ CGrid_Export::CGrid_Export(void)
 	Parameters.Add_Node("", "SHADE_NODE", _TL("Shading"), _TL(""));
 
 	Parameters.Add_Double("SHADE_NODE",
-		"SHADE_TRANS"	, _TL("Transparency"),
+		"SHADE_TRANS", _TL("Transparency"),
 		_TL("The transparency of the shade [%]"),
 		75., 0., true, 100., true
 	);
@@ -223,13 +230,13 @@ CGrid_Export::CGrid_Export(void)
 	);
 
 	Parameters.Add_Range("SHADE_NODE",
-		"SHADE_BRIGHT"	, _TL("Linear"),
+		"SHADE_BRIGHT"   , _TL("Linear"),
 		_TL("Minimum and maximum [%], the range for histogram stretch."),
 		0., 100.
 	);
 
 	Parameters.Add_Double("SHADE_NODE",
-		"SHADE_STDDEV"	, _TL("Standard Deviation"),
+		"SHADE_STDDEV"   , _TL("Standard Deviation"),
 		_TL(""),
 		2., 0., true
 	);
@@ -258,6 +265,11 @@ int CGrid_Export::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 	if( pParameter->Cmp_Identifier("GRID") )
 	{
 		pParameters->Set_Enabled("FILE_KML"       , pParameter->asPointer() && pParameter->asGrid()->Get_Projection().Get_Type() == ESG_CRS_Type::Geographic);
+	}
+
+	if( pParameter->Cmp_Identifier("NO_DATA") )
+	{
+		pParameters->Set_Enabled("NO_DATA_COL"    , pParameter->asBool() == false);
 	}
 
 	if( pParameter->Cmp_Identifier("COLOURING") )
@@ -298,8 +310,7 @@ int CGrid_Export::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 //---------------------------------------------------------
 bool CGrid_Export::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Grid	Grid(Get_System(), SG_DATATYPE_Int);
+	CSG_Grid Grid(Get_System(), SG_DATATYPE_Int);
 
 	switch( Parameters("COLOURING")->asInt() )
 	{
@@ -331,89 +342,104 @@ bool CGrid_Export::On_Execute(void)
 
 			return( false );
 		}
+		else
+		{
+			CSG_Grid *pGrid = Parameters("GRID")->asGrid();
+
+			#pragma omp parallel for
+			for(int y=0; y<Get_NY(); y++) for(int x=0, yy=Get_NY()-y-1; x<Get_NX(); x++)
+			{
+				if( pGrid->is_NoData(x, y) )
+				{
+					Grid.Set_NoData(x, yy);
+				}
+			}
+		}
 		break;
 	}
 
 	Add_Shading(Grid);
 
 	//-----------------------------------------------------
-	wxImage	Image(Get_NX(), Get_NY());
+	wxImage Image(Get_NX(), Get_NY()); long BgColor = Parameters("NO_DATA_COL")->asColor();
 
 	if( Parameters("NO_DATA")->asBool() && Grid.Get_NoData_Count() > 0 )
 	{
-		Image.SetAlpha();
+		Image.SetAlpha(); BgColor = SG_COLOR_WHITE;
 	}
 
 	#pragma omp parallel for
-	for(int y=0; y<Get_NY(); y++)
+	for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
 	{
-		for(int x=0; x<Get_NX(); x++)
+		if( Grid.is_NoData(x, y) == false )
 		{
-			if( !Grid.is_NoData(x, y) )
+			int c = Grid.asInt(x, y);
+
+			Image.SetRGB(x, y, SG_GET_R(c), SG_GET_G(c), SG_GET_B(c));
+
+			if( Image.HasAlpha() )
 			{
-				int	c	= Grid.asInt(x, y);
-
-				Image.SetRGB(x, y, SG_GET_R(c), SG_GET_G(c), SG_GET_B(c));
-
-				if( Image.HasAlpha() )
-				{
-					Image.SetAlpha(x, y, wxIMAGE_ALPHA_OPAQUE);
-				}
+				Image.SetAlpha(x, y, wxIMAGE_ALPHA_OPAQUE);
 			}
-			else
-			{
-				Image.SetRGB(x, y, 255, 255, 255);
+		}
+		else
+		{
+			Image.SetRGB(x, y, SG_GET_R(BgColor), SG_GET_G(BgColor), SG_GET_B(BgColor));
 
-				if( Image.HasAlpha() )
-				{
-					Image.SetAlpha(x, y, wxIMAGE_ALPHA_TRANSPARENT);
-				}
+			if( Image.HasAlpha() )
+			{
+				Image.SetAlpha(x, y, wxIMAGE_ALPHA_TRANSPARENT);
 			}
 		}
 	}
 
-	if( Parameters("NO_DATA")->asBool() && Grid.Get_NoData_Count() > 0 )
-	{
-		wxQuantize::Quantize(Image, Image);
-
-		Image.ConvertAlphaToMask();
-	}
-
 	//-------------------------------------------------
-	CSG_String	fName(Parameters("FILE")->asString());
+	CSG_String fName(Parameters("FILE")->asString());
+
+	if( SG_File_Cmp_Extension(fName, "gif") )
+	{
+		wxImage _Image(Image);
+
+		wxQuantize::Quantize(_Image, Image);
+
+		if( Image.HasAlpha() )
+		{
+			Image.ConvertAlphaToMask();
+		}
+	}
 
 	if( !SG_File_Cmp_Extension(fName, "bmp")
 	&&  !SG_File_Cmp_Extension(fName, "jpg")
 	&&  !SG_File_Cmp_Extension(fName, "pcx")
 	&&  !SG_File_Cmp_Extension(fName, "png")
+	&&  !SG_File_Cmp_Extension(fName, "gif")
 	&&  !SG_File_Cmp_Extension(fName, "tif") )
 	{
-		fName	= SG_File_Make_Path("", fName, "png");
+		fName = SG_File_Make_Path("", fName, "png");
 
 		Parameters("FILE")->Set_Value(fName);
 	}
 
 	//-----------------------------------------------------
-	wxImageHandler	*pImgHandler = NULL;
+	wxImageHandler *pHandler = NULL;
 
-	if( !has_GUI() )
+	if( !SG_UI_Get_Window_Main() )
 	{
-		if     ( SG_File_Cmp_Extension(fName, "jpg") )	pImgHandler = new wxJPEGHandler;
-		else if( SG_File_Cmp_Extension(fName, "pcx") )	pImgHandler = new wxPCXHandler ;
-		else if( SG_File_Cmp_Extension(fName, "tif") )	pImgHandler = new wxTIFFHandler;
+		if     ( SG_File_Cmp_Extension(fName, "jpg") ) { wxImage::AddHandler(pHandler = new wxJPEGHandler); }
+		else if( SG_File_Cmp_Extension(fName, "pcx") ) { wxImage::AddHandler(pHandler = new wxPCXHandler ); }
+		else if( SG_File_Cmp_Extension(fName, "tif") ) { wxImage::AddHandler(pHandler = new wxTIFFHandler); }
+		else if( SG_File_Cmp_Extension(fName, "gif") ) { wxImage::AddHandler(pHandler = new wxGIFHandler ); }
 #ifdef _SAGA_MSW
-		else if( SG_File_Cmp_Extension(fName, "bmp") )	pImgHandler = new wxBMPHandler ;
+		else if( SG_File_Cmp_Extension(fName, "bmp") ) { wxImage::AddHandler(pHandler = new wxBMPHandler ); }
 #endif
-		else/*if(SG_File_Cmp_Extension(fName, "png") )*/pImgHandler = new wxPNGHandler ;
-
-		wxImage::AddHandler(pImgHandler);
+		else                                           { wxImage::AddHandler(pHandler = new wxPNGHandler ); }
 	}
 
-	bool	bOkay	= Image.SaveFile(fName.c_str());
+	bool bOkay = Image.SaveFile(fName.c_str());
 
-	if( !SG_UI_Get_Window_Main() && pImgHandler != NULL )
+	if( !SG_UI_Get_Window_Main() && pHandler )
 	{
-		wxImage::RemoveHandler(pImgHandler->GetName());
+		wxImage::RemoveHandler(pHandler->GetName());
 	}
 
 	if( !bOkay )
@@ -432,6 +458,7 @@ bool CGrid_Export::On_Execute(void)
 		else if( SG_File_Cmp_Extension(fName, "jpg") ) Stream.Open(SG_File_Make_Path("", fName, "jgw"), SG_FILE_W, false);
 		else if( SG_File_Cmp_Extension(fName, "pcx") ) Stream.Open(SG_File_Make_Path("", fName, "pxw"), SG_FILE_W, false);
 		else if( SG_File_Cmp_Extension(fName, "png") ) Stream.Open(SG_File_Make_Path("", fName, "pgw"), SG_FILE_W, false);
+		else if( SG_File_Cmp_Extension(fName, "gif") ) Stream.Open(SG_File_Make_Path("", fName, "gfw"), SG_FILE_W, false);
 		else if( SG_File_Cmp_Extension(fName, "tif") ) Stream.Open(SG_File_Make_Path("", fName, "tfw"), SG_FILE_W, false);
 
 		if( Stream.is_Open() )
@@ -482,10 +509,10 @@ bool CGrid_Export::On_Execute(void)
 //---------------------------------------------------------
 bool CGrid_Export::Set_Metric(CSG_Grid &Grid)
 {
-	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
+	CSG_Grid *pGrid = Parameters("GRID")->asGrid();
 
 	//-----------------------------------------------------
-	CSG_Colors	Colors(*Parameters("COL_PALETTE")->asColors());
+	CSG_Colors Colors(*Parameters("COL_PALETTE")->asColors());
 
 	if( !has_GUI() )
 	{
@@ -497,28 +524,28 @@ bool CGrid_Export::Set_Metric(CSG_Grid &Grid)
 		}
 	}
 
-	bool	bGraduated	= Parameters("GRADUATED")->asBool();
+	bool bGraduated = Parameters("GRADUATED")->asBool();
 
 	//-----------------------------------------------------
-	double	Minimum, Maximum, Scale	= Parameters("SCALE_LOG")->asDouble();
+	double Minimum, Maximum, Scale = Parameters("SCALE_LOG")->asDouble();
 
-	int		Mode	= Parameters("SCALE_MODE")->asInt();
+	int Mode = Parameters("SCALE_MODE")->asInt();
 
 	switch( Parameters("COLOURING")->asInt() )
 	{
 	default:	// histogram stretch to standard deviation
-		Minimum	= pGrid->Get_Mean() - Parameters("STDDEV")->asDouble() * pGrid->Get_StdDev(); if( Minimum < pGrid->Get_Min() ) Minimum = pGrid->Get_Min();
-		Maximum	= pGrid->Get_Mean() + Parameters("STDDEV")->asDouble() * pGrid->Get_StdDev(); if( Maximum > pGrid->Get_Max() ) Maximum = pGrid->Get_Max();
+		Minimum = pGrid->Get_Mean() - Parameters("STDDEV")->asDouble() * pGrid->Get_StdDev(); if( Minimum < pGrid->Get_Min() ) Minimum = pGrid->Get_Min();
+		Maximum = pGrid->Get_Mean() + Parameters("STDDEV")->asDouble() * pGrid->Get_StdDev(); if( Maximum > pGrid->Get_Max() ) Maximum = pGrid->Get_Max();
 		break;
 
 	case  1:	// histogram stretch to percentage range
-		Minimum	= pGrid->Get_Min() + pGrid->Get_Range() * Parameters("LINEAR.MIN")->asDouble() / 100.;
-		Maximum	= pGrid->Get_Max() + pGrid->Get_Range() * Parameters("LINEAR.MAX")->asDouble() / 100.;
+		Minimum = pGrid->Get_Min() + pGrid->Get_Range() * Parameters("LINEAR.MIN")->asDouble() / 100.;
+		Maximum = pGrid->Get_Max() + pGrid->Get_Range() * Parameters("LINEAR.MAX")->asDouble() / 100.;
 		break;
 
 	case  2:	// histogram stretch to value range
-		Minimum	= Parameters("STRETCH.MIN")->asDouble();
-		Maximum	= Parameters("STRETCH.MAX")->asDouble();
+		Minimum = Parameters("STRETCH.MIN")->asDouble();
+		Maximum = Parameters("STRETCH.MAX")->asDouble();
 		break;
 	}
 
@@ -533,7 +560,7 @@ bool CGrid_Export::Set_Metric(CSG_Grid &Grid)
 	#pragma omp parallel for
 	for(int y=0; y<Get_NY(); y++)
 	{
-		int	yy	= Get_NY() - y - 1;
+		int yy = Get_NY() - y - 1;
 
 		for(int x=0; x<Get_NX(); x++)
 		{
@@ -543,22 +570,22 @@ bool CGrid_Export::Set_Metric(CSG_Grid &Grid)
 			}
 			else
 			{
-				double	z	= (pGrid->asDouble(x, yy) - Minimum) / (Maximum - Minimum);
+				double z = (pGrid->asDouble(x, yy) - Minimum) / (Maximum - Minimum);
 
 				switch( Mode )
 				{
 				case  1:	// logarithmic up
-					z	= z <= 0. ? 0. : log(1. + Scale * z) / log(1. + Scale);
+					z = z <= 0. ? 0. : log(1. + Scale * z) / log(1. + Scale);
 					break;
 
 				case  2:	// logarithmic down
-					z	= 1. - z;
-					z	= z <= 0. ? 0. : log(1. + Scale * z) / log(1. + Scale);
-					z	= 1. - z;
+					z = 1. - z;
+					z = z <= 0. ? 0. : log(1. + Scale * z) / log(1. + Scale);
+					z = 1. - z;
 					break;
 				}
 
-				z	*= Colors.Get_Count();
+				z *= Colors.Get_Count();
 
 				Grid.Set_Value(x, y, bGraduated ? Colors.Get_Interpolated(z) : Colors.Get_Color((int)z));
 			}
