@@ -453,7 +453,7 @@ bool CGrid_Color_Blend::Save_Frame(void)
 
 		if( pGrid )
 		{
-			double Scale =  m_Range_Min < m_Range_Max ? 200. / (m_Range_Max + m_Range_Min) : 1.;
+			double Scale =  m_Range_Min < m_Range_Max ? 200. / (m_Range_Max - m_Range_Min) : 1.;
 			pGrid->Fmt_Name("%d", m_iFile);
 			pGrid->Set_NoData_Value(255);
 
@@ -507,14 +507,6 @@ bool CGrid_Color_Blend::Save_Frames(void)
 
 	if( Parameters("FRAMES") )
 	{
-		int Width = 1 + int(log10(m_nFiles));
-
-		CSG_String File = SG_File_Make_Path(
-			SG_File_Get_Path     (m_File), CSG_String::Format("%s%0*d",
-			SG_File_Get_Name     (m_File, false).c_str(), Width, m_iFile++),
-			SG_File_Get_Extension(m_File)
-		);
-
 		SG_RUN_TOOL(bResult, "io_grid_image", 4,
 				SG_TOOL_PARAMETER_SET("GRIDS"      , Parameters("FRAMES"))
 			&&	SG_TOOL_PARAMETER_SET("FILE"       , Parameters("FILE"  ))

@@ -544,7 +544,7 @@ bool CExport_GIF_Animation::Set_Metric(CSG_Grid &Grid, CSG_Grid &RGB)
 		break;
 	}
 
-	if( Minimum >= Maximum || Grid.Get_Range() <= 0. )
+	if( Minimum >= Maximum )
 	{
 		Error_Set(_TL("invalid user specified value range."));
 
