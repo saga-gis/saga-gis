@@ -103,22 +103,22 @@ CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
-	case  0:	return( new CDVWK_SoilMoisture );
-	case  1:	return( new CKinWav_D8 );
-	case  2:	return( new CTOPMODEL );
-	case  3:	return( new CWaterRetentionCapacity );
-	case  4:	return( new CDiffuse_Pollution_Risk );
-	case  5:	return( new CSim_Diffusion_Gradient );
-	case  6:	return( new CSim_Diffusion_Concentration );
-	case  7:	return( new CSim_Diffusion_Gradient_And_Concentration );
-	case  8:	return( new CTimed_Flow_Accumulation );
-	case  9:	return( new COverland_Flow );
-	case 10:	return( new CSoilWater_Glugla_Table );
-	case 11:	return( new CSoilWater_Glugla_Grid );
-	case 12:	return( new CSoilWater_Glugla_Coefficient );
+	case  0: return( new CDVWK_SoilMoisture );
+//	case  1: return( new CKinWav_D8 );
+	case  2: return( new CTOPMODEL );
+	case  3: return( new CWaterRetentionCapacity );
+	case  4: return( new CDiffuse_Pollution_Risk );
+	case  5: return( new CSim_Diffusion_Gradient );
+	case  6: return( new CSim_Diffusion_Concentration );
+	case  7: return( new CSim_Diffusion_Gradient_And_Concentration );
+	case  8: return( new CTimed_Flow_Accumulation );
+	case  9: return( new COverland_Flow );
+	case 10: return( new CSoilWater_Glugla_Table );
+	case 11: return( new CSoilWater_Glugla_Grid );
+	case 12: return( new CSoilWater_Glugla_Coefficient );
 
-	case 13:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
+	case 13: return( NULL );
+	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
 
