@@ -509,11 +509,11 @@ bool CExport_GIF_Animation::Set_Metric(CSG_Grid &Grid, CSG_Grid &RGB)
 {
 	CSG_Colors Colors(*Parameters("COL_PALETTE")->asColors());
 
-	if( !has_GUI() )
+	if( !has_GUI() && Parameters("COL_COUNT") )
 	{
 		Colors.Set_Count(Parameters("COL_COUNT")->asInt());
 
-		if( Parameters("COL_REVERT")->asBool() )
+		if( Parameters("COL_REVERT") && Parameters("COL_REVERT")->asBool() )
 		{
 			Colors.Revert();
 		}

@@ -82,8 +82,8 @@ CGrid_Color_Blend::CGrid_Color_Blend(void)
 	);
 
 	Parameters.Add_FilePath("",
-		"FILE"          , _TL("Save Images"),
-		_TL(""),
+		"FILE"          , _TL("Save Frames"),
+		_TL("Store each frame as image file. If GIF format is selected one animated image file will be created."),
 		CSG_String::Format("%s|*.png|%s|*.jpg;*.jif;*.jpeg|%s|*.tif;*.tiff|%s|*.bmp|%s (*.gif)|*.gif|%s|*.pcx",
 			_TL("Portable Network Graphics"),
 			_TL("JPEG - JFIF Compliant"),
@@ -104,6 +104,12 @@ CGrid_Color_Blend::CGrid_Color_Blend(void)
 		"FILE_BGCOL"    , _TL("Background Color"),
 		_TL("Background color used for no-data cells when storing frames to file."),
 		SG_COLOR_WHITE
+	);
+
+	Parameters.Add_Int("",
+		"FILE_DELAY"    , _TL("Delay"),
+		_TL("Delay, in milliseconds, to wait between each frame. Applies to animated GIF files."),
+		100, 0, true
 	);
 
 	Parameters.Add_Colors("",
@@ -201,12 +207,13 @@ int CGrid_Color_Blend::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Par
 
 	if( pParameter->Cmp_Identifier("FILE") )
 	{
-		pParameters->Set_Enabled("FILE_NODATA", *pParameter->asString());
+		pParameters->Set_Enabled("FILE_NODATA"  , *pParameter->asString());
+		pParameters->Set_Enabled("FILE_DELAY"   , SG_File_Cmp_Extension(pParameter->asString(), "gif"));
 	}
 
 	if( pParameter->Cmp_Identifier("FILE_NODATA") )
 	{
-		pParameters->Set_Enabled("FILE_BGCOL", pParameter->asBool() == false);
+		pParameters->Set_Enabled("FILE_BGCOL"   , pParameter->asBool() == false);
 	}
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
@@ -289,12 +296,18 @@ bool CGrid_Color_Blend::On_Execute(void)
 	//-----------------------------------------------------
 	m_File = Parameters("FILE")->asString();
 
-	int Loop = Parameters("LOOP")->asInt(); if( Loop == 3 && !m_File.is_Empty() ) { Loop = 3; }
+	if( SG_File_Cmp_Extension(m_File, "gif") )
+	{
+		Parameters.Add_Grid_List("", "FRAMES", "", "", PARAMETER_INPUT_OPTIONAL, false);
+	}
+
+	int Loop = Parameters("LOOP")->asInt(); if( Loop == 3 && !m_File.is_Empty() ) { Loop = 2; }
 
 	int nGrids = Loop ? m_pGrids->Get_Grid_Count() : m_pGrids->Get_Grid_Count() - 1;
 
 	 m_iFile = 0; m_nFiles = nGrids * (1 + Parameters("NSTEPS")->asInt());
 
+	//-----------------------------------------------------
 	do
 	{
 		for(int iGrid=0; iGrid<nGrids && Process_Get_Okay(); iGrid++)
@@ -307,6 +320,8 @@ bool CGrid_Color_Blend::On_Execute(void)
 	while( Loop == 2 && Process_Get_Okay() );
 
 	//-----------------------------------------------------
+	Save_Frames();
+
 	return( true );
 }
 
@@ -348,7 +363,7 @@ void CGrid_Color_Blend::Blend(int iGrid, bool bLoop)
 
 		Set_Progress(iGrid + d, bLoop ? m_pGrids->Get_Grid_Count() : m_pGrids->Get_Grid_Count() - 1);
 
-		Save();
+		Save_Frame();
 	}
 }
 
@@ -393,19 +408,17 @@ bool CGrid_Color_Blend::Set_Progress(double Position, double Range)
 
 		for(int x=0; x<Get_NX(); x++)
 		{
-			int y = 0;
-
 			if( x < Value )
 			{
-				m_pGrid->Set_Value(x, y++, m_Range_Min);
-				m_pGrid->Set_Value(x, y++,         Mid);
-				m_pGrid->Set_Value(x, y++, m_Range_Max);
+				m_pGrid->Set_Value (x, 0, m_Range_Min);
+				m_pGrid->Set_Value (x, 1,         Mid);
+				m_pGrid->Set_Value (x, 2, m_Range_Max);
 			}
 			else
 			{
-				m_pGrid->Set_NoData(x, y++);
-				m_pGrid->Set_NoData(x, y++);
-				m_pGrid->Set_NoData(x, y++);
+				m_pGrid->Set_NoData(x, 0);
+				m_pGrid->Set_NoData(x, 1);
+				m_pGrid->Set_NoData(x, 2);
 			}
 		}
 	}
@@ -429,11 +442,42 @@ bool CGrid_Color_Blend::Set_Progress(double Position, double Range)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Color_Blend::Save(void)
+bool CGrid_Color_Blend::Save_Frame(void)
 {
 	bool bResult = false;
 
-	if( !m_File.is_Empty() )
+	//-----------------------------------------------------
+	if( Parameters("FRAMES") )
+	{
+		CSG_Grid *pGrid = SG_Create_Grid(Get_System(), SG_DATATYPE_Byte);
+
+		if( pGrid )
+		{
+			double Scale =  m_Range_Min < m_Range_Max ? 200. / (m_Range_Max + m_Range_Min) : 1.;
+			pGrid->Fmt_Name("%d", m_iFile);
+			pGrid->Set_NoData_Value(255);
+
+			#pragma omp parallel for
+			for(int i=0; i<Get_NCells(); i++)
+			{
+				if( m_pGrid->is_NoData(i) )
+				{
+					pGrid->Set_NoData(i);
+				}
+				else
+				{
+					double z = Scale * (m_pGrid->asDouble(i) - m_Range_Min);
+
+					pGrid->Set_Value(i, z < 0. ? 0. : z > 200. ? 200. : z);
+				}
+			}
+
+			return( Parameters("FRAMES")->asGridList()->Add_Item(pGrid) );
+		}
+	}
+
+	//-----------------------------------------------------
+	else if( !m_File.is_Empty() )
 	{
 		int Width = 1 + int(log10(m_nFiles));
 
@@ -453,7 +497,48 @@ bool CGrid_Color_Blend::Save(void)
 		)
 	}
 
-	return( false );
+	return( bResult );
+}
+
+//---------------------------------------------------------
+bool CGrid_Color_Blend::Save_Frames(void)
+{
+	bool bResult = false;
+
+	if( Parameters("FRAMES") )
+	{
+		int Width = 1 + int(log10(m_nFiles));
+
+		CSG_String File = SG_File_Make_Path(
+			SG_File_Get_Path     (m_File), CSG_String::Format("%s%0*d",
+			SG_File_Get_Name     (m_File, false).c_str(), Width, m_iFile++),
+			SG_File_Get_Extension(m_File)
+		);
+
+		SG_RUN_TOOL(bResult, "io_grid_image", 4,
+				SG_TOOL_PARAMETER_SET("GRIDS"      , Parameters("FRAMES"))
+			&&	SG_TOOL_PARAMETER_SET("FILE"       , Parameters("FILE"  ))
+			&&	SG_TOOL_PARAMETER_SET("FILE_WORLD" , false )
+			&&	SG_TOOL_PARAMETER_SET("FILE_KML"   , false )
+			&&	SG_TOOL_PARAMETER_SET("COLOURING"  , 2     ) // histogram stretch to value range
+			&&	SG_TOOL_PARAMETER_SET("COL_PALETTE", Parameters("COLORS"     ))
+			&&	SG_TOOL_PARAMETER_SET("STRETCH.MIN",   0.  )
+			&&	SG_TOOL_PARAMETER_SET("STRETCH.MAX", 200.  )
+			&&	SG_TOOL_PARAMETER_SET("DELAY"      , Parameters("FILE_DELAY" ))
+			&&	SG_TOOL_PARAMETER_SET("NO_DATA"    , Parameters("FILE_NODATA"))
+			&&	SG_TOOL_PARAMETER_SET("NO_DATA_COL", Parameters("FILE_BGCOL" ))
+		)
+
+		//-------------------------------------------------
+		for(int i=0; i<Parameters("FRAMES")->asGridList()->Get_Grid_Count(); i++)
+		{
+			delete(Parameters("FRAMES")->asGridList()->Get_Grid(i));
+		}
+
+		Parameters.Del_Parameter("FRAMES");
+	}
+
+	return( bResult );
 }
 
 

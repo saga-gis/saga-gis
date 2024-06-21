@@ -102,7 +102,8 @@ private:
 
 	void					Blend					(int iGrid, bool bLoop);
 
-	bool					Save					(void);
+	bool					Save_Frame				(void);
+	bool					Save_Frames				(void);
 
 };
 
