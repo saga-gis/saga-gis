@@ -63,7 +63,7 @@
 //---------------------------------------------------------
 CGrid_Import::CGrid_Import(void)
 {
-	Set_Name		(_TL("Import Image (bmp, jpg, png, tif, gif, pnm, xpm)"));
+	Set_Name		(_TL("Import Image File"));
 
 	Set_Author		("O.Conrad (c) 2005");
 
@@ -73,43 +73,51 @@ CGrid_Import::CGrid_Import(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_Output("",
-		"OUT_GRID"	, _TL("Image"),
+		"OUT_GRID" , _TL("Image"),
 		_TL("")
 	);
 
 	Parameters.Add_Grid_Output("",
-		"OUT_RED"	, _TL("Image (Red Channel)"),
+		"OUT_RED"  , _TL("Image (Red Channel)"),
 		_TL("")
 	);
 
 	Parameters.Add_Grid_Output("",
-		"OUT_GREEN"	, _TL("Image (Green Channel)"),
+		"OUT_GREEN", _TL("Image (Green Channel)"),
 		_TL("")
 	);
 
 	Parameters.Add_Grid_Output("",
-		"OUT_BLUE"	, _TL("Image (Blue Channel)"),
+		"OUT_BLUE" , _TL("Image (Blue Channel)"),
 		_TL("")
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_FilePath("",
-		"FILE"		, _TL("Image File"),
+		"FILE"     , _TL("Image File"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
-			_TL("All Recognized File Types"                   ), SG_T("*.bmp;*.ico;*.gif;*.jpg;*.jif;*.jpeg;*.pcx;*.png;*.pnm;*.tif;*.tiff;*.xpm"),
-			_TL("CompuServe Graphics Interchange (*.gif)"     ), SG_T("*.gif"),
-			_TL("JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)"), SG_T("*.jpg;*.jif;*.jpeg"),
-			_TL("Portable Network Graphics (*.png)"           ), SG_T("*.png"),
-			_TL("Tagged Image File Format (*.tif, *.tiff)"    ), SG_T("*.tif;*.tiff"),
-			_TL("Windows or OS/2 Bitmap (*.bmp)"              ), SG_T("*.bmp"),
-			_TL("Zsoft Paintbrush (*.pcx)"                    ), SG_T("*.pcx"),
-			_TL("All Files"                                   ), SG_T("*.*")
+		CSG_String::Format(
+			"%s"                        "|*.bmp;*.ico;*.gif;*.jpg;*.jif;*.jpeg;*.pcx;*.png;*.pnm;*.tif;*.tiff;*.xpm|"
+			"%s (*.gif)"                "|*.gif|"
+			"%s (*.jpg, *.jif, *.jpeg)" "|*.jpg;*.jif;*.jpeg|"
+			"%s (*.png)"                "|*.png|"
+			"%s (*.tif, *.tiff)"        "|*.tif;*.tiff|"
+			"%s (*.bmp)"                "|*.bmp|"
+			"%s (*.pcx)"                "|*.pcx|"
+			"%s"                        "|*.*",
+			_TL("Recognized File Types"          ),
+			_TL("CompuServe Graphics Interchange"),
+			_TL("JPEG - JFIF Compliant"          ),
+			_TL("Portable Network Graphics"      ),
+			_TL("Tagged Image File Format"       ),
+			_TL("Windows or OS/2 Bitmap"         ),
+			_TL("Zsoft Paintbrush"               ),
+			_TL("All Files"                      )
 		)
 	);
 
 	Parameters.Add_Choice("",
-		"METHOD"	, _TL("Options"),
+		"METHOD"   , _TL("Options"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s",
 			_TL("Standard"),
@@ -127,7 +135,7 @@ CGrid_Import::CGrid_Import(void)
 //---------------------------------------------------------
 bool CGrid_Import::On_Execute(void)
 {
-	CSG_String	File	= Parameters("FILE")->asString();
+	CSG_String File = Parameters("FILE")->asString();
 
 	if( !SG_File_Exists(File) )
 	{
@@ -142,7 +150,7 @@ bool CGrid_Import::On_Execute(void)
 		wxInitAllImageHandlers();
 	}
 
-	wxImage	Image;
+	wxImage Image;
 
 	if( !Image.LoadFile(File.c_str()) )
 	{
@@ -150,13 +158,13 @@ bool CGrid_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_File	Stream;
+	CSG_File Stream;
 
-	if     ( SG_File_Cmp_Extension(File, "bmp") ) { if( !Stream.Open(SG_File_Make_Path("", File, "bpw"), SG_FILE_R, false) ) { Stream.Open(SG_File_Make_Path("", File,  "bpwx"), SG_FILE_R, false); } }
-	else if( SG_File_Cmp_Extension(File, "jpg") ) { if( !Stream.Open(SG_File_Make_Path("", File, "jgw"), SG_FILE_R, false) ) { Stream.Open(SG_File_Make_Path("", File,  "jgwx"), SG_FILE_R, false); } }
-	else if( SG_File_Cmp_Extension(File, "png") ) { if( !Stream.Open(SG_File_Make_Path("", File, "pgw"), SG_FILE_R, false) ) { Stream.Open(SG_File_Make_Path("", File,  "pgwx"), SG_FILE_R, false); } }
-	else if( SG_File_Cmp_Extension(File, "tif") ) { if( !Stream.Open(SG_File_Make_Path("", File, "tfw"), SG_FILE_R, false) ) { Stream.Open(SG_File_Make_Path("", File,  "tfwx"), SG_FILE_R, false); } }
-	else                                          {                                                                            Stream.Open(SG_File_Make_Path("", File, "world"), SG_FILE_R, false);   }
+	if( SG_File_Cmp_Extension(File, "bmp") ) { if( !Stream.Open(SG_File_Make_Path("", File, "bpw"), SG_FILE_R, false) ) { Stream.Open(SG_File_Make_Path("", File,  "bpwx"), SG_FILE_R, false); } } else
+	if( SG_File_Cmp_Extension(File, "jpg") ) { if( !Stream.Open(SG_File_Make_Path("", File, "jgw"), SG_FILE_R, false) ) { Stream.Open(SG_File_Make_Path("", File,  "jgwx"), SG_FILE_R, false); } } else
+	if( SG_File_Cmp_Extension(File, "png") ) { if( !Stream.Open(SG_File_Make_Path("", File, "pgw"), SG_FILE_R, false) ) { Stream.Open(SG_File_Make_Path("", File,  "pgwx"), SG_FILE_R, false); } } else
+	if( SG_File_Cmp_Extension(File, "tif") ) { if( !Stream.Open(SG_File_Make_Path("", File, "tfw"), SG_FILE_R, false) ) { Stream.Open(SG_File_Make_Path("", File,  "tfwx"), SG_FILE_R, false); } } else
+	                                         {                                                                          { Stream.Open(SG_File_Make_Path("", File, "world"), SG_FILE_R, false); } }
 
 	bool bTransform = false; double xMin = 0., yMin = 0., Cellsize = 1., m[6];
 
@@ -331,47 +339,47 @@ bool CGrid_Import::On_Execute(void)
 //---------------------------------------------------------
 void CGrid_Import::Set_Transformation(CSG_Grid **ppImage, double ax, double ay, double dx, double dy, double rx, double ry)
 {
-	CSG_Vector	A(2);	CSG_Matrix	D(2, 2), DInv;
+	CSG_Vector A(2); CSG_Matrix	D(2, 2), DInv;
 
 	A[0]    = ax; A[1]    = ay;
 	D[0][0] = dx; D[0][1] = rx;
 	D[1][0] = ry; D[1][1] = dy;
 
-	DInv	= D.Get_Inverse();
+	DInv    = D.Get_Inverse();
 
 	//-----------------------------------------------------
-	CSG_Grid	*pSource	= *ppImage;
+	CSG_Grid *pSource = *ppImage;
 
-	TSG_Rect	r;	CSG_Vector	XSrc(2), XTgt(2);
+	TSG_Rect r; CSG_Vector XSrc(2), XTgt(2);
 
-	XSrc[0]	= pSource->Get_XMin();	XSrc[1]	= pSource->Get_YMin();	XTgt	= D * XSrc + A;
-	r.xMin	= r.xMax	= XTgt[0];
-	r.yMin	= r.yMax	= XTgt[1];
+	XSrc[0] = pSource->Get_XMin(); XSrc[1] = pSource->Get_YMin(); XTgt = D * XSrc + A;
+	r.xMin  = r.xMax = XTgt[0];
+	r.yMin  = r.yMax = XTgt[1];
 
-	XSrc[0]	= pSource->Get_XMin();	XSrc[1]	= pSource->Get_YMax();	XTgt	= D * XSrc + A;
-	if( r.xMin > XTgt[0] )	r.xMin	= XTgt[0];	else if( r.xMax < XTgt[0] )	r.xMax	= XTgt[0];
-	if( r.yMin > XTgt[1] )	r.yMin	= XTgt[1];	else if( r.yMax < XTgt[1] )	r.yMax	= XTgt[1];
+	XSrc[0] = pSource->Get_XMin(); XSrc[1] = pSource->Get_YMax(); XTgt = D * XSrc + A;
+	if( r.xMin > XTgt[0] ) r.xMin = XTgt[0]; else if( r.xMax < XTgt[0] ) r.xMax = XTgt[0];
+	if( r.yMin > XTgt[1] ) r.yMin = XTgt[1]; else if( r.yMax < XTgt[1] ) r.yMax = XTgt[1];
 
-	XSrc[0]	= pSource->Get_XMax();	XSrc[1]	= pSource->Get_YMax();	XTgt	= D * XSrc + A;
-	if( r.xMin > XTgt[0] )	r.xMin	= XTgt[0];	else if( r.xMax < XTgt[0] )	r.xMax	= XTgt[0];
-	if( r.yMin > XTgt[1] )	r.yMin	= XTgt[1];	else if( r.yMax < XTgt[1] )	r.yMax	= XTgt[1];
+	XSrc[0] = pSource->Get_XMax(); XSrc[1] = pSource->Get_YMax(); XTgt = D * XSrc + A;
+	if( r.xMin > XTgt[0] ) r.xMin = XTgt[0]; else if( r.xMax < XTgt[0] ) r.xMax = XTgt[0];
+	if( r.yMin > XTgt[1] ) r.yMin = XTgt[1]; else if( r.yMax < XTgt[1] ) r.yMax = XTgt[1];
 
-	XSrc[0]	= pSource->Get_XMax();	XSrc[1]	= pSource->Get_YMin();	XTgt	= D * XSrc + A;
-	if( r.xMin > XTgt[0] )	r.xMin	= XTgt[0];	else if( r.xMax < XTgt[0] )	r.xMax	= XTgt[0];
-	if( r.yMin > XTgt[1] )	r.yMin	= XTgt[1];	else if( r.yMax < XTgt[1] )	r.yMax	= XTgt[1];
+	XSrc[0] = pSource->Get_XMax(); XSrc[1] = pSource->Get_YMin(); XTgt = D * XSrc + A;
+	if( r.xMin > XTgt[0] ) r.xMin = XTgt[0]; else if( r.xMax < XTgt[0] ) r.xMax = XTgt[0];
+	if( r.yMin > XTgt[1] ) r.yMin = XTgt[1]; else if( r.yMax < XTgt[1] ) r.yMax = XTgt[1];
 
 	//-----------------------------------------------------
 	double z = fabs(dx) < fabs(dy) ? fabs(dx) : fabs(dy);	// guess a suitable cellsize; could be improved...
 	int    x = 1 + (int)((r.xMax - r.xMin) / z);
 	int    y = 1 + (int)((r.yMax - r.yMin) / z);
 
-	CSG_Grid	*pTarget	= *ppImage	= SG_Create_Grid(pSource->Get_Type(), x, y, z, r.xMin, r.yMin);
+	CSG_Grid *pTarget = *ppImage = SG_Create_Grid(pSource->Get_Type(), x, y, z, r.xMin, r.yMin);
 
 	for(y=0, XTgt[1]=pTarget->Get_YMin(); y<pTarget->Get_NY() && Set_Progress(y, pTarget->Get_NY()); y++, XTgt[1]+=pTarget->Get_Cellsize())
 	{
 		for(x=0, XTgt[0]=pTarget->Get_XMin(); x<pTarget->Get_NX(); x++, XTgt[0]+=pTarget->Get_Cellsize())
 		{
-			XSrc	= DInv * (XTgt - A);
+			XSrc = DInv * (XTgt - A);
 
 			if( pSource->Get_Value(XSrc[0], XSrc[1], z, GRID_RESAMPLING_NearestNeighbour) )
 			{

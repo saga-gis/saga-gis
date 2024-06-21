@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    Grid_Export.cpp                    //
+//                export_gif_animation.cpp               //
 //                                                       //
-//                 Copyright (C) 2005 by                 //
+//                 Copyright (C) 2024 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -46,11 +46,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <wx/filename.h>
+#include <wx/wfstream.h>
+#include <wx/anidecod.h>
+#include <wx/imaggif.h>
 #include <wx/image.h>
 #include <wx/quantize.h>
 
-#include "grid_export.h"
+#include "export_gif_animation.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -60,45 +62,42 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CGrid_Export::CGrid_Export(void)
+CExport_GIF_Animation::CExport_GIF_Animation(void)
 {
-	Set_Name		(_TL("Export to Image File"));
+	Set_Name		(_TL("Export Animated GIF File"));
 
-	Set_Author		("O.Conrad (c) 2005");
+	Set_Author		("O.Conrad (c) 2024");
 
 	Set_Description	(_TW(
-		"With this tool you can save a RGB to an image file. "
-		"Optionally, a shade RGB can be overlayed using the "
-		"specified transparency and brightness adjustment. "
+		"Create an animated GIF file from a list of rasters. "
 		"\nIf input rasters come with geographic coordinates an additional"
 		"option for KML file creation (Google Earth) is selectable. "
 	));
 
-	Parameters.Add_Grid("", "GRID" , _TL("GRID" ), _TL(""), PARAMETER_INPUT         );
-	Parameters.Add_Grid("", "SHADE", _TL("Shade"), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Grid_List("", "GRIDS", _TL("Grids"), _TL(""), PARAMETER_INPUT         );
+	Parameters.Add_Grid     ("", "SHADE", _TL("Shade"), _TL(""), PARAMETER_INPUT_OPTIONAL);
 
 	Parameters.Add_FilePath("",
 		"FILE"           , _TL("Image File"),
 		_TL(""),
-		CSG_String::Format("%s (*.png)|*.png|%s (*.jpg, *.jif, *.jpeg)|*.jpg;*.jif;*.jpeg|%s (*.tif, *.tiff)|*.tif;*.tiff|%s (*.bmp)|*.bmp|%s (*.gif)|*.gif|%s (*.pcx)|*.pcx",
-			_TL("Portable Network Graphics"),
-			_TL("JPEG - JFIF Compliant"),
-			_TL("Tagged Image File Format"),
-			_TL("Windows or OS/2 Bitmap"),
-			_TL("CompuServe Graphics Interchange"),
-			_TL("Zsoft Paintbrush")
-		), NULL, true
+		CSG_String::Format("%s (*.gif)|*.gif", _TL("CompuServe Graphics Interchange")), NULL, true
+	);
+
+	Parameters.Add_Int("",
+		"DELAY"          , _TL("Delay"),
+		_TL("Delay, in milliseconds, to wait between each frame."),
+		100, 0, true
 	);
 
 	Parameters.Add_Bool("",
 		"FILE_WORLD"     , _TL("Create World File"),
 		_TL("Store georeference along image to an additional file."),
-		true
+		false
 	);
 
 	Parameters.Add_Bool("",
 		"FILE_KML"       , _TL("Create KML File"),
-		_TL("Expects that the input RGB uses geographic coordinates."),
+		_TL("Expects that the input grid uses geographic coordinates."),
 		false
 	);
 
@@ -188,7 +187,7 @@ CGrid_Export::CGrid_Export(void)
 
 	Parameters.Add_Choice("COL_PALETTE",
 		"SCALE_MODE"     , _TL("Scaling"),
-		_TL("Scaling applied to coloring choices (i) RGB's standard deviation, (ii) RGB's value range, (iii) specified value range"),
+		_TL("Scaling applied to coloring choices (i) grid's standard deviation, (ii) grid's value range, (iii) specified value range"),
 		CSG_String::Format("%s|%s|%s",
 			_TL("linear intervals"),
 			_TL("increasing geometrical intervals"),
@@ -250,23 +249,52 @@ CGrid_Export::CGrid_Export(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CGrid_Export::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CExport_GIF_Animation::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( pParameter->Cmp_Identifier("GRID") && pParameter->asGrid() )
+	if( pParameter->Cmp_Identifier("GRIDS") && pParameter->asGridList()->Get_Grid_Count() > 0 )
 	{
-		pParameters->Set_Parameter("STRETCH.MIN", pParameter->asGrid()->Get_Min());
-		pParameters->Set_Parameter("STRETCH.MAX", pParameter->asGrid()->Get_Max());
+		CSG_Grid *pGrid = pParameter->asGridList()->Get_Grid(0);
+
+		double min = pGrid->Get_Min(), max = pGrid->Get_Max();
+
+		for(int i=1; i<pParameter->asGridList()->Get_Grid_Count(); i++)
+		{
+			pGrid = pParameter->asGridList()->Get_Grid(i);
+
+			if( min > pGrid->Get_Min() ) { min = pGrid->Get_Min(); }
+			if( max < pGrid->Get_Max() ) { max = pGrid->Get_Max(); }
+		}
+
+		pParameters->Set_Parameter("STRETCH.MIN", min);
+		pParameters->Set_Parameter("STRETCH.MAX", max);
+	}
+
+	if( pParameter->Cmp_Identifier("FILE") )
+	{
+		CSG_String File(pParameter->asString());
+
+		if( !File.is_Empty() && !SG_File_Cmp_Extension(File, "gif") )
+		{
+			pParameters->Set_Parameter("FILE", File + ".gif");
+		}
 	}
 
 	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
-int CGrid_Export::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CExport_GIF_Animation::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( pParameter->Cmp_Identifier("GRID") )
+	if( pParameter->Cmp_Identifier("GRIDS") )
 	{
-		pParameters->Set_Enabled("FILE_KML"     , pParameter->asPointer() && pParameter->asGrid()->Get_Projection().Get_Type() == ESG_CRS_Type::Geographic);
+		bool bGeographic = pParameter->asGridList()->Get_Grid_Count() > 0;
+
+		for(int i=0; bGeographic && i<pParameter->asGridList()->Get_Grid_Count(); i++)
+		{
+			bGeographic = pParameter->asGridList()->Get_Grid(i)->Get_Projection().is_Geographic();
+		}
+
+		pParameters->Set_Enabled("FILE_KML"     , bGeographic);
 	}
 
 	if( pParameter->Cmp_Identifier("NO_DATA") )
@@ -310,16 +338,117 @@ int CGrid_Export::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Export::On_Execute(void)
+bool CExport_GIF_Animation::On_Execute(void)
+{
+	CSG_Parameter_Grid_List *pGrids = Parameters("GRIDS")->asGridList();
+
+	if( pGrids->Get_Grid_Count() < 1 )
+	{
+		Error_Set(_TL("Nothing to do! No input grids for animation."));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	wxImageArray Images;
+
+	for(int i=0; i<pGrids->Get_Grid_Count() && Set_Progress(i, pGrids->Get_Grid_Count()); i++)
+	{
+		wxImage *pImage = Get_Image(*pGrids->Get_Grid(i));
+
+		if( pImage )
+		{
+			Images.Add(pImage);
+		}
+	}
+
+	if( Images.GetCount() < 1 )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_String File(Parameters("FILE")->asString());
+
+	if( !SG_File_Cmp_Extension(File, "gif") )
+	{
+		File = SG_File_Make_Path("", File, "gif");
+
+		Parameters("FILE")->Set_Value(File);
+	}
+
+	//-----------------------------------------------------
+	wxFileOutputStream Stream(File.c_str());
+
+	if( !Stream.IsOk() )
+	{
+		Error_Fmt("%s\n\"%s\"", _TL("failed to create image file!"), File.c_str());
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	wxGIFHandler Handler;
+
+	if( !Handler.SaveAnimation(Images, &Stream, true, Parameters("DELAY")->asInt()) )
+	{
+		Error_Fmt("%s\n\"%s\"", _TL("failed to save image file"), File.c_str());
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( Parameters("FILE_WORLD")->asBool() )
+	{
+		CSG_File Stream(SG_File_Make_Path("", File, "gfw"), SG_FILE_W, false);
+
+		if( Stream.is_Open() )
+		{
+			Stream.Printf("%.10f\n%f\n%f\n%.10f\n%.10f\n%.10f\n",
+				Get_Cellsize(), 0., 0., -Get_Cellsize(), Get_XMin(), Get_YMax()
+			);
+		}
+	}
+
+	//-----------------------------------------------------
+	if( Parameters("FILE_KML")->asBool() && Parameters("FILE_KML")->is_Enabled() )// && (Projection.is_Geographic() || !Projection.is_Okay()) )
+	{
+		CSG_MetaData KML; KML.Set_Name("kml"); KML.Add_Property("xmlns", "http://www.opengis.net/kml/2.2");
+
+		CSG_MetaData &Overlay = *KML.Add_Child("GroundOverlay");
+
+		Overlay.Add_Child("name"       , SG_File_Get_Name(File, true));
+		Overlay.Add_Child("description", "Created by SAGA");
+		Overlay.Add_Child("Icon"       )->Add_Child("href" , SG_File_Get_Name(File, true));
+		Overlay.Add_Child("LatLonBox"  );
+		Overlay.Get_Child("LatLonBox"  )->Add_Child("north", Get_YMax());
+		Overlay.Get_Child("LatLonBox"  )->Add_Child("south", Get_YMin());
+		Overlay.Get_Child("LatLonBox"  )->Add_Child("east" , Get_XMax());
+		Overlay.Get_Child("LatLonBox"  )->Add_Child("west" , Get_XMin());
+
+		KML.Save(File, SG_T("kml"));
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class wxImage * CExport_GIF_Animation::Get_Image(CSG_Grid &Grid)
 {
 	CSG_Grid RGB(Get_System(), SG_DATATYPE_Int);
 
 	switch( Parameters("COLOURING")->asInt() )
 	{
-	default: if( !Set_Metric(*Parameters("GRID")->asGrid(), RGB) ) { return( false ); } break; // stretch to RGB's standard deviation
-	case  3: if( !Set_LUT   (*Parameters("GRID")->asGrid(), RGB) ) { return( false ); } break; // lookup table
-	case  4: if( !Set_RGB   (*Parameters("GRID")->asGrid(), RGB) ) { return( false ); } break; // rgb coded values
-	case  5: if( !Set_GUI   (*Parameters("GRID")->asGrid(), RGB) ) { return( false ); } break; // same as in graphical user interface
+	default: if( !Set_Metric(Grid, RGB) ) { return( NULL ); } break; // stretch to RGB's standard deviation
+	case  3: if( !Set_LUT   (Grid, RGB) ) { return( NULL ); } break; // lookup table
+	case  4: if( !Set_RGB   (Grid, RGB) ) { return( NULL ); } break; // rgb coded values
+	case  5: if( !Set_GUI   (Grid, RGB) ) { return( NULL ); } break; // same as in graphical user interface
 	}
 
 	Add_Shading(RGB);
@@ -358,111 +487,16 @@ bool CGrid_Export::On_Execute(void)
 	}
 
 	//-------------------------------------------------
-	CSG_String File(Parameters("FILE")->asString());
+	wxImage *pImage = new wxImage;
 
-	if( SG_File_Cmp_Extension(File, "gif") )
+	wxQuantize::Quantize(Image, *pImage);
+
+	if( pImage->HasAlpha() )
 	{
-		wxImage _Image(Image);
-
-		wxQuantize::Quantize(_Image, Image);
-
-		if( Image.HasAlpha() )
-		{
-			Image.ConvertAlphaToMask();
-		}
+		pImage->ConvertAlphaToMask();
 	}
 
-	if( !SG_File_Cmp_Extension(File, "bmp")
-	&&  !SG_File_Cmp_Extension(File, "jpg")
-	&&  !SG_File_Cmp_Extension(File, "pcx")
-	&&  !SG_File_Cmp_Extension(File, "png")
-	&&  !SG_File_Cmp_Extension(File, "gif")
-	&&  !SG_File_Cmp_Extension(File, "tif") )
-	{
-		File = SG_File_Make_Path("", File, "png");
-
-		Parameters("FILE")->Set_Value(File);
-	}
-
-	//-----------------------------------------------------
-	wxImageHandler *pHandler = NULL;
-
-	if( !SG_UI_Get_Window_Main() )
-	{
-		#ifdef _SAGA_MSW
-		if( SG_File_Cmp_Extension(File, "bmp") ) { wxImage::AddHandler(pHandler = new wxBMPHandler ); } else
-		#endif
-		if( SG_File_Cmp_Extension(File, "jpg") ) { wxImage::AddHandler(pHandler = new wxJPEGHandler); } else
-		if( SG_File_Cmp_Extension(File, "pcx") ) { wxImage::AddHandler(pHandler = new wxPCXHandler ); } else
-		if( SG_File_Cmp_Extension(File, "tif") ) { wxImage::AddHandler(pHandler = new wxTIFFHandler); } else
-		if( SG_File_Cmp_Extension(File, "gif") ) { wxImage::AddHandler(pHandler = new wxGIFHandler ); } else
-												{ wxImage::AddHandler(pHandler = new wxPNGHandler ); }
-	}
-
-	bool bOkay = Image.SaveFile(File.c_str());
-
-	if( !SG_UI_Get_Window_Main() && pHandler )
-	{
-		wxImage::RemoveHandler(pHandler->GetName());
-	}
-
-	if( !bOkay )
-	{
-		Error_Fmt("%s [%s]", _TL("failed to save image file"), File.c_str());
-
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	if( Parameters("FILE_WORLD")->asBool() )
-	{
-		CSG_File Stream;
-
-		if( SG_File_Cmp_Extension(File, "bmp") ) { Stream.Open(SG_File_Make_Path("", File, "bpw"), SG_FILE_W, false); } else
-		if( SG_File_Cmp_Extension(File, "jpg") ) { Stream.Open(SG_File_Make_Path("", File, "jgw"), SG_FILE_W, false); } else
-		if( SG_File_Cmp_Extension(File, "pcx") ) { Stream.Open(SG_File_Make_Path("", File, "pxw"), SG_FILE_W, false); } else
-		if( SG_File_Cmp_Extension(File, "png") ) { Stream.Open(SG_File_Make_Path("", File, "pgw"), SG_FILE_W, false); } else
-		if( SG_File_Cmp_Extension(File, "gif") ) { Stream.Open(SG_File_Make_Path("", File, "gfw"), SG_FILE_W, false); } else
-		if( SG_File_Cmp_Extension(File, "tif") ) { Stream.Open(SG_File_Make_Path("", File, "tfw"), SG_FILE_W, false); }
-
-		if( Stream.is_Open() )
-		{
-			Stream.Printf("%.10f\n%f\n%f\n%.10f\n%.10f\n%.10f\n",
-				Get_Cellsize(), 0., 0., -Get_Cellsize(), Get_XMin(), Get_YMax()
-			);
-
-			CSG_Projection Projection = Parameters("GRID")->asGrid()->Get_Projection();
-
-			if( Projection.is_Okay() && Stream.Open(File + ".aux.xml", SG_FILE_W, false) )
-			{
-				Stream.Write("<PAMDataset><SRS>" + Projection.Get_WKT() + "</SRS></PAMDataset>");
-
-				Projection.Save(SG_File_Make_Path("", File, "prj"), ESG_CRS_Format::WKT);
-			}
-		}
-	}
-
-	//-----------------------------------------------------
-	if( Parameters("FILE_KML")->asBool() && Parameters("GRID")->asGrid()->Get_Projection().is_Geographic() )
-	{
-		CSG_MetaData KML; KML.Set_Name("kml"); KML.Add_Property("xmlns", "http://www.opengis.net/kml/2.2");
-
-		CSG_MetaData &Overlay = *KML.Add_Child("GroundOverlay");
-
-		Overlay.Add_Child("name"       , Parameters("GRID")->asGrid()->Get_Name());
-		Overlay.Add_Child("description", Parameters("GRID")->asGrid()->Get_Description());
-		Overlay.Add_Child("Icon"       )->Add_Child("href" , SG_File_Get_Name(File, true));
-		Overlay.Add_Child("LatLonBox"  );
-		Overlay.Get_Child("LatLonBox"  )->Add_Child("north", Get_YMax());
-		Overlay.Get_Child("LatLonBox"  )->Add_Child("south", Get_YMin());
-		Overlay.Get_Child("LatLonBox"  )->Add_Child("east" , Get_XMax());
-		Overlay.Get_Child("LatLonBox"  )->Add_Child("west" , Get_XMin());
-
-		KML.Save(File, SG_T("kml"));
-	}
-
-	//-----------------------------------------------------
-	return( true );
+	return( pImage );
 }
 
 
@@ -471,7 +505,7 @@ bool CGrid_Export::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Export::Set_Metric(CSG_Grid &Grid, CSG_Grid &RGB)
+bool CExport_GIF_Animation::Set_Metric(CSG_Grid &Grid, CSG_Grid &RGB)
 {
 	CSG_Colors Colors(*Parameters("COL_PALETTE")->asColors());
 
@@ -552,7 +586,7 @@ bool CGrid_Export::Set_Metric(CSG_Grid &Grid, CSG_Grid &RGB)
 }
 
 //---------------------------------------------------------
-bool CGrid_Export::Set_LUT(CSG_Grid &Grid, CSG_Grid &RGB)
+bool CExport_GIF_Animation::Set_LUT(CSG_Grid &Grid, CSG_Grid &RGB)
 {
 	CSG_Table LUT;
 
@@ -597,7 +631,7 @@ bool CGrid_Export::Set_LUT(CSG_Grid &Grid, CSG_Grid &RGB)
 }
 
 //---------------------------------------------------------
-bool CGrid_Export::Set_RGB(CSG_Grid &Grid, CSG_Grid &RGB)
+bool CExport_GIF_Animation::Set_RGB(CSG_Grid &Grid, CSG_Grid &RGB)
 {
 	#pragma omp parallel for
 	for(int y=0; y<Get_NY(); y++) for(int x=0, yy=Get_NY()-y-1; x<Get_NX(); x++)
@@ -616,7 +650,7 @@ bool CGrid_Export::Set_RGB(CSG_Grid &Grid, CSG_Grid &RGB)
 }
 
 //---------------------------------------------------------
-bool CGrid_Export::Set_GUI(CSG_Grid &Grid, CSG_Grid &RGB)
+bool CExport_GIF_Animation::Set_GUI(CSG_Grid &Grid, CSG_Grid &RGB)
 {
 	if( !SG_UI_DataObject_asImage(&Grid, &RGB) )
 	{
@@ -643,7 +677,7 @@ bool CGrid_Export::Set_GUI(CSG_Grid &Grid, CSG_Grid &RGB)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Export::Add_Shading(CSG_Grid &RGB)
+bool CExport_GIF_Animation::Add_Shading(CSG_Grid &RGB)
 {
 	CSG_Grid *pGrid = Parameters("SHADE")->asGrid();
 

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -13,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    TLB_Interface.h                    //
+//                 export_gif_animation.h                //
 //                                                       //
-//                 Copyright (C) 2005 by                 //
+//                 Copyright (C) 2024 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,37 +38,63 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    SAGA User Group Association            //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifndef HEADER_INCLUDED__export_gif_animation_H
+#define HEADER_INCLUDED__export_gif_animation_H
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//				Include the SAGA-API here				 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#ifndef HEADER_INCLUDED__io_grid_image_H
-#define HEADER_INCLUDED__io_grid_image_H
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#ifdef io_grid_image_EXPORTS
-	#define	io_grid_image_EXPORT	_SAGA_DLL_EXPORT
-#else
-	#define	io_grid_image_EXPORT	_SAGA_DLL_IMPORT
-#endif
+class CExport_GIF_Animation : public CSG_Tool_Grid
+{
+public:
+	CExport_GIF_Animation(void);
+
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Export") );	}
+
+
+protected:
+
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+
+
+private:
+
+	class wxImage *			Get_Image				(CSG_Grid &Grid);
+
+	bool					Set_Metric				(CSG_Grid &Grid, CSG_Grid &RGB);
+	bool					Set_LUT					(CSG_Grid &Grid, CSG_Grid &RGB);
+	bool					Set_RGB					(CSG_Grid &Grid, CSG_Grid &RGB);
+	bool					Set_GUI					(CSG_Grid &Grid, CSG_Grid &RGB);
+
+	bool					Add_Shading				(CSG_Grid &RGB);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -81,4 +104,4 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__io_grid_image_H
+#endif // #ifndef HEADER_INCLUDED__export_gif_animation_H

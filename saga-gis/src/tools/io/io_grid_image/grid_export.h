@@ -87,11 +87,12 @@ protected:
 
 private:
 
-	bool					Set_Metric				(CSG_Grid &Grid);
-	bool					Set_LUT					(CSG_Grid &Grid);
-	bool					Set_RGB					(CSG_Grid &Grid);
+	bool					Set_Metric				(CSG_Grid &Grid, CSG_Grid &RGB);
+	bool					Set_LUT					(CSG_Grid &Grid, CSG_Grid &RGB);
+	bool					Set_RGB					(CSG_Grid &Grid, CSG_Grid &RGB);
+	bool					Set_GUI					(CSG_Grid &Grid, CSG_Grid &RGB);
 
-	bool					Add_Shading				(CSG_Grid &Grid);
+	bool					Add_Shading				(CSG_Grid &RGB);
 
 };
 

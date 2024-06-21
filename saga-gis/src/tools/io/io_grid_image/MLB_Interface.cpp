@@ -87,6 +87,7 @@ CSG_String Get_Info(int i)
 #include "grid_export.h"
 #include "grid_import.h"
 #include "grid_to_kml.h"
+#include "export_gif_animation.h"
 
 
 //---------------------------------------------------------
@@ -100,8 +101,9 @@ CSG_Tool *		Create_Tool(int i)
 	case  1: return( new CGrid_Import );
 	case  2: return( new CGrid_to_KML );
 	case  3: return( new CGrid_from_KML );
+	case  4: return( new CExport_GIF_Animation );
 
-	case  4: return( NULL );
+	case  5: return( NULL );
 	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
