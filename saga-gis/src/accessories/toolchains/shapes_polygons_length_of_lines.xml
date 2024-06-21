@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchain saga-version="7.6.1">
+	<group>shapes_polygons</group>
+	<identifier>length_of_lines</identifier>
+	<author>O.Conrad (c) 2024</author>
+	<name>Total Length of Lines per Polygon</name>
+	<description>Calculates the total length of all input line segments intersecting each polygon and adds the information as new attribute field to the polygon layer.</description>
+	<menu absolute="true">Shapes|Polygons</menu>
+
+	<parameters>
+		<input varname="POLYGONS" type="shapes" feature_type="polygon">
+			<name>Polygons</name>
+		</input>
+		<input varname="LINES" type="shapes" feature_type="line">
+			<name>Lines</name>
+		</input>
+	<!--<output varname="DISSOLVED" type="shapes">
+			<name>Dissolved Lines</name>
+		</output>-->
+	</parameters>
+
+	<tools>
+		<tool library="table_tools" tool="2" name="Table Field Enumeration">
+			<input  id="INPUT">POLYGONS</input>
+		</tool>
+
+		<tool library="shapes_lines" tool="3" name="Line-Polygon Intersection">
+			<option id="ATTRIBUTES">0</option>
+			<input  id="POLYGONS">POLYGONS</input>
+			<input  id="LINES">LINES</input>
+			<output id="INTERSECT">INTERSECT</output>
+		</tool>
+
+		<tool library="shapes_lines" tool="5" name="Line Dissolve">
+			<option id="FIELDS">[ENUM]</option>
+			<input  id="LINES">INTERSECT</input>
+			<output id="DISSOLVED">DISSOLVED</output>
+		</tool>
+
+		<tool library="shapes_lines" tool="2" name="Line Properties">
+			<option id="BPARTS">false</option>
+			<option id="BPOINTS">false</option>
+			<option id="BLENGTH">true</option>
+			<input  id="LINES">DISSOLVED</input>
+		</tool>
+
+		<tool library="table_tools" tool="3" name="Join Attributes from a Table">
+			<option id="FIELDS_ALL">false</option>
+			<option id="KEEP_ALL">true</option>
+			<option id="CMP_CASE">true</option>
+			<input  id="TABLE_A">POLYGONS</input>
+			<option id="ID_A">ENUM</option>
+			<input  id="TABLE_B">DISSOLVED</input>
+			<option id="ID_B">ENUM</option>
+			<option id="FIELDS">[LENGTH]</option>
+		<!--<output id="RESULT_SHAPES">OUTPUT</output>-->
+		</tool>
+	</tools>
+</toolchain>
