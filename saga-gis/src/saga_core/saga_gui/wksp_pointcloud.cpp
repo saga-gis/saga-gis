@@ -957,7 +957,7 @@ bool CWKSP_PointCloud::Edit_Set_Attributes(void)
 //---------------------------------------------------------
 void CWKSP_PointCloud::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 {
-	if( Get_Extent().Intersects(dc_Map.m_rWorld) && dc_Map.IMG_Draw_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.) )
+	if( Get_Extent().Intersects(dc_Map.rWorld()) && dc_Map.Draw_Image_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.) )
 	{
 		if( (Flags & LAYER_DRAW_FLAG_THUMBNAIL) == 0 )
 		{
@@ -968,7 +968,7 @@ void CWKSP_PointCloud::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 			_Draw_Thumbnail(dc_Map);
 		}
 
-		dc_Map.IMG_Draw_End();
+		dc_Map.Draw_Image_End();
 	}
 }
 
@@ -982,7 +982,7 @@ inline void CWKSP_PointCloud::_Draw_Point(CWKSP_Map_DC &dc_Map, int x, int y, do
 {
 	if( m_Aggregation == 1 )	// last value
 	{
-		dc_Map.IMG_Set_Pixel(x, y, Color);
+		dc_Map.Draw_Image_Pixel(x, y, Color);
 	}
 	else if( m_Z.is_InGrid(x, y) )
 	{
@@ -991,14 +991,14 @@ inline void CWKSP_PointCloud::_Draw_Point(CWKSP_Map_DC &dc_Map, int x, int y, do
 		case 0:	// first value
 			if( m_N.asInt(x, y) == 0 )
 			{
-				dc_Map.IMG_Set_Pixel(x, y, Color);
+				dc_Map.Draw_Image_Pixel(x, y, Color);
 			}
 			break;
 
 		case 2:	// lowest z
 			if( m_N.asInt(x, y) == 0 || z < m_Z.asDouble(x, y) )
 			{
-				dc_Map.IMG_Set_Pixel(x, y, Color);
+				dc_Map.Draw_Image_Pixel(x, y, Color);
 				m_Z.Set_Value(x, y, z);
 			}
 			break;
@@ -1006,7 +1006,7 @@ inline void CWKSP_PointCloud::_Draw_Point(CWKSP_Map_DC &dc_Map, int x, int y, do
 		case 3:	// highest z
 			if( m_N.asInt(x, y) == 0 || z > m_Z.asDouble(x, y) )
 			{
-				dc_Map.IMG_Set_Pixel(x, y, Color);
+				dc_Map.Draw_Image_Pixel(x, y, Color);
 				m_Z.Set_Value(x, y, z);
 			}
 			break;
@@ -1043,8 +1043,8 @@ void CWKSP_PointCloud::_Draw_Points(CWKSP_Map_DC &dc_Map)
 
 	if( m_Aggregation != 1 )
 	{
-		m_Z.Create(SG_DATATYPE_Double, dc_Map.m_rDC.GetWidth(), dc_Map.m_rDC.GetHeight());
-		m_N.Create(SG_DATATYPE_Int   , dc_Map.m_rDC.GetWidth(), dc_Map.m_rDC.GetHeight());
+		m_Z.Create(SG_DATATYPE_Double, dc_Map.rDC().GetWidth(), dc_Map.rDC().GetHeight());
+		m_N.Create(SG_DATATYPE_Int   , dc_Map.rDC().GetWidth(), dc_Map.rDC().GetHeight());
 	}
 
 	//-----------------------------------------------------
@@ -1060,7 +1060,7 @@ void CWKSP_PointCloud::_Draw_Points(CWKSP_Map_DC &dc_Map)
 		{
 			TSG_Point_3D Point = pPoints->Get_Point();
 
-			if( dc_Map.m_rWorld.Contains(Point.x, Point.y) )
+			if( dc_Map.rWorld().Contains(Point.x, Point.y) )
 			{
 				int x = (int)dc_Map.xWorld2DC(Point.x);
 				int y = (int)dc_Map.yWorld2DC(Point.y);
@@ -1088,7 +1088,7 @@ void CWKSP_PointCloud::_Draw_Thumbnail(CWKSP_Map_DC &dc_Map)
 {
 	CSG_PointCloud *pPoints = Get_PointCloud();
 
-	sLong n = 1 + (sLong)(pPoints->Get_Count() / (2 * dc_Map.m_rDC.GetWidth() * dc_Map.m_rDC.GetHeight()));
+	sLong n = 1 + (sLong)(pPoints->Get_Count() / (2 * dc_Map.rDC().GetWidth() * dc_Map.rDC().GetHeight()));
 
 	for(sLong i=0; i<pPoints->Get_Count(); i+=n)
 	{
@@ -1103,7 +1103,7 @@ void CWKSP_PointCloud::_Draw_Thumbnail(CWKSP_Map_DC &dc_Map)
 
 			int Color; m_pClassify->Get_Class_Color_byValue(pPoints->Get_Value(m_fValue), Color);
 
-			dc_Map.IMG_Set_Pixel(x, y, Color);
+			dc_Map.Draw_Image_Pixel(x, y, Color);
 		}
 	}
 }

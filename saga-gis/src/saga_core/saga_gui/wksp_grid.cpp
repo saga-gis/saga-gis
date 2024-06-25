@@ -1152,21 +1152,18 @@ bool CWKSP_Grid::Fit_Colors(const CSG_Rect &rWorld)
 //---------------------------------------------------------
 bool CWKSP_Grid::asImage(CSG_Grid *pImage)
 {
-	wxBitmap	BMP;
+	wxBitmap Bitmap;
 
-	if( pImage && Get_Image_Grid(BMP) )
+	if( pImage && Get_Image_Grid(Bitmap) )
 	{
-		wxImage	IMG(BMP.ConvertToImage());
+		wxImage	Image(Bitmap.ConvertToImage());
 
 		pImage->Create(Get_Grid(), SG_DATATYPE_Int);
 
 		#pragma omp parallel for
-		for(int y=0; y<pImage->Get_NY(); y++)
+		for(int y=0; y<pImage->Get_NY(); y++) for(int x=0; x<pImage->Get_NX(); x++)
 		{
-			for(int x=0; x<pImage->Get_NX(); x++)
-			{
-				pImage->Set_Value(x, y, SG_GET_RGB(IMG.GetRed(x, y), IMG.GetGreen(x, y), IMG.GetBlue(x, y)));
-			}
+			pImage->Set_Value(x, y, SG_GET_RGB(Image.GetRed(x, y), Image.GetGreen(x, y), Image.GetBlue(x, y)));
 		}
 
 		return( true );
@@ -1241,11 +1238,11 @@ bool CWKSP_Grid::_Save_Image(void)
 //---------------------------------------------------------
 bool CWKSP_Grid::_Save_Image_Clipboard(void)
 {
-	wxBitmap	Bitmap;
+	wxBitmap Bitmap;
 
 	if( Get_Image_Grid(Bitmap) && wxTheClipboard->Open() )
 	{
-		wxBitmapDataObject	*pBitmap	= new wxBitmapDataObject;
+		wxBitmapDataObject *pBitmap = new wxBitmapDataObject;
 		pBitmap->SetBitmap(Bitmap);
 		wxTheClipboard->SetData(pBitmap);
 		wxTheClipboard->Close();
@@ -1257,30 +1254,22 @@ bool CWKSP_Grid::_Save_Image_Clipboard(void)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Grid::Get_Image_Grid(wxBitmap &BMP, bool bFitSize)
+bool CWKSP_Grid::Get_Image_Grid(wxBitmap &Bitmap, bool bFitSize)
 {
-	if( bFitSize || (BMP.GetWidth() > 0 && BMP.GetHeight() > 0) )
+	if( bFitSize || (Bitmap.GetWidth() > 0 && Bitmap.GetHeight() > 0) )
 	{
 		Set_Buisy_Cursor(true);
 
 		if( bFitSize )
 		{
-			BMP.Create(Get_Grid()->Get_NX(), Get_Grid()->Get_NY());
+			Bitmap.Create(Get_Grid()->Get_NX(), Get_Grid()->Get_NY());
 		}
 
-		wxMemoryDC		dc;
-		wxRect			r(0, 0, BMP.GetWidth(), BMP.GetHeight());
-		CWKSP_Map_DC	dc_Map(Get_Extent(), r, 1., SG_GET_RGB(255, 255, 255));
+		CWKSP_Map_DC dc_Map(Get_Extent(), wxRect(0, 0, Bitmap.GetWidth(), Bitmap.GetHeight()), 1., -1, true);
 
 		On_Draw(dc_Map, false);
 
-		dc.SelectObject(BMP);
-		dc.SetBackground(*wxWHITE_BRUSH);
-		dc.Clear();
-
-		dc_Map.Draw(dc);
-
-		dc.SelectObject(wxNullBitmap);
+		dc_Map.Get_Bitmap(Bitmap);
 
 		Set_Buisy_Cursor(false);
 
@@ -1291,16 +1280,15 @@ bool CWKSP_Grid::Get_Image_Grid(wxBitmap &BMP, bool bFitSize)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Grid::Get_Image_Legend(wxBitmap &BMP, double Zoom)
+bool CWKSP_Grid::Get_Image_Legend(wxBitmap &Bitmap, double Zoom)
 {
 	if( Zoom > 0. )
 	{
-		wxMemoryDC	dc;
-		wxSize		s(Get_Legend()->Get_Size(Zoom, 1.));
+		wxMemoryDC dc; wxSize s(Get_Legend()->Get_Size(Zoom, 1.));
 
-		BMP.Create(s.GetWidth(), s.GetHeight());
+		Bitmap.Create(s.GetWidth(), s.GetHeight());
 
-		dc.SelectObject(BMP);
+		dc.SelectObject(Bitmap);
 		dc.SetBackground(*wxWHITE_BRUSH);
 		dc.Clear();
 
@@ -1322,95 +1310,90 @@ bool CWKSP_Grid::Get_Image_Legend(wxBitmap &BMP, double Zoom)
 //---------------------------------------------------------
 void CWKSP_Grid::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 {
-	if(	Get_Extent().Intersects(dc_Map.m_rWorld) == INTERSECTION_None )
+	if(	Get_Extent().Intersects(dc_Map.rWorld()) != INTERSECTION_None )
 	{
-		return;
-	}
+		int Mode =
+			m_pClassify->Get_Mode() == CLASSIFY_SHADE                                          ? IMG_MODE_SHADING :
+			m_pClassify->Get_Mode() == CLASSIFY_RGB && m_Parameters("RGB_ALPHA"    )->asBool() ? IMG_MODE_TRANSPARENT_ALPHA :
+			m_pClassify->Get_Mode() != CLASSIFY_RGB && m_Parameters("DISPLAY_ALPHA")->asGrid() ? IMG_MODE_TRANSPARENT_ALPHA : IMG_MODE_TRANSPARENT;
 
-	//-----------------------------------------------------
-	int	Mode	= m_pClassify->Get_Mode() == CLASSIFY_SHADE                                          ? IMG_MODE_SHADING
-				: m_pClassify->Get_Mode() == CLASSIFY_RGB && m_Parameters("RGB_ALPHA"    )->asBool() ? IMG_MODE_TRANSPARENT_ALPHA
-				: m_pClassify->Get_Mode() != CLASSIFY_RGB && m_Parameters("DISPLAY_ALPHA")->asGrid() ? IMG_MODE_TRANSPARENT_ALPHA
-				: IMG_MODE_TRANSPARENT;
+		if( dc_Map.Draw_Image_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100., Mode) )
+		{
+			m_pAlpha   = m_Parameters("DISPLAY_ALPHA"  )->asGrid  ();
+			m_Alpha[0] = m_Parameters("ALPHA_RANGE.MIN")->asDouble();
+			m_Alpha[1] = m_Parameters("ALPHA_RANGE.MAX")->asDouble() - m_Alpha[0]; m_Alpha[1] = m_Alpha[1] ? 255. / m_Alpha[1] : 1.;
 
-	if( !dc_Map.IMG_Draw_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100., Mode) )
-	{
-		return;
-	}
+			//---------------------------------------------
+			TSG_Grid_Resampling Resampling;
 
-	//-----------------------------------------------------
-	m_pAlpha   = m_Parameters("DISPLAY_ALPHA"  )->asGrid  ();
-	m_Alpha[0] = m_Parameters("ALPHA_RANGE.MIN")->asDouble();
-	m_Alpha[1] = m_Parameters("ALPHA_RANGE.MAX")->asDouble() - m_Alpha[0]; m_Alpha[1] = m_Alpha[1] ? 255. / m_Alpha[1] : 1.;
+			switch( m_Parameters(m_pClassify->Get_Mode() == CLASSIFY_LUT ? "LUT_RESAMPLING" : "DISPLAY_RESAMPLING")->asInt() )
+			{
+			default: Resampling = GRID_RESAMPLING_NearestNeighbour; break;
+			case  1: Resampling = GRID_RESAMPLING_Bilinear        ; break;
+			case  2: Resampling = GRID_RESAMPLING_BicubicSpline   ; break;
+			case  3: Resampling = GRID_RESAMPLING_BSpline         ; break;
+			}
 
-	//-----------------------------------------------------
-	TSG_Grid_Resampling	Resampling;
+			//---------------------------------------------
+			m_Shade_Mode =
+				m_Parameters("COLORS_TYPE"    )->asInt() != CLASSIFY_SHADE ?
+				m_Parameters("DISPLAY_SHADING")->asInt() : 0;
 
-	switch( m_Parameters(m_pClassify->Get_Mode() == CLASSIFY_LUT ? "LUT_RESAMPLING" : "DISPLAY_RESAMPLING")->asInt() )
-	{
-	default: Resampling = GRID_RESAMPLING_NearestNeighbour; break;
-	case  1: Resampling = GRID_RESAMPLING_Bilinear        ; break;
-	case  2: Resampling = GRID_RESAMPLING_BicubicSpline   ; break;
-	case  3: Resampling = GRID_RESAMPLING_BSpline         ; break;
-	}
+			if( m_Shade_Mode && Get_Grid()->Get_Range() > 0. )
+			{
+				//	m_Shade_Parms[0] = m_Parameters("SHADING_EXAGG")->asDouble() * Get_Grid()->Get_Cellsize() / Get_Grid()->Get_StdDev();
+				m_Shade_Parms[0] = m_Parameters("SHADING_EXAGG")->asDouble() * Get_Grid()->Get_Cellsize() / 25.;
+				m_Shade_Parms[1] = sin(M_DEG_TO_RAD * m_Parameters("SHADING_HEIGHT")->asDouble());
+				m_Shade_Parms[2] = cos(M_DEG_TO_RAD * m_Parameters("SHADING_HEIGHT")->asDouble());
+				m_Shade_Parms[3] =     M_DEG_TO_RAD * m_Parameters("SHADING_AZIMUTH")->asDouble();
+				m_Shade_Parms[4] = m_Parameters("SHADING_MIN")->asDouble();
+				m_Shade_Parms[5] = m_Parameters("SHADING_MAX")->asDouble() - m_Shade_Parms[4];
+			}
 
-	//-----------------------------------------------------
-	m_Shade_Mode	= m_Parameters("COLORS_TYPE"    )->asInt() != CLASSIFY_SHADE
-					? m_Parameters("DISPLAY_SHADING")->asInt() : 0;
+			//---------------------------------------------
+			m_pClassify->Set_Shade_Mode(m_Parameters("SHADE_MODE")->asInt());
 
-	if( m_Shade_Mode && Get_Grid()->Get_Range() > 0. )
-	{
-	//	m_Shade_Parms[0]	= m_Parameters("SHADING_EXAGG")->asDouble() * Get_Grid()->Get_Cellsize() / Get_Grid()->Get_StdDev();
-		m_Shade_Parms[0]	= m_Parameters("SHADING_EXAGG")->asDouble() * Get_Grid()->Get_Cellsize() / 25.;
-		m_Shade_Parms[1]	= sin(M_DEG_TO_RAD * m_Parameters("SHADING_HEIGHT")->asDouble());
-		m_Shade_Parms[2]	= cos(M_DEG_TO_RAD * m_Parameters("SHADING_HEIGHT")->asDouble());
-		m_Shade_Parms[3]	=     M_DEG_TO_RAD * m_Parameters("SHADING_AZIMUTH")->asDouble();
-		m_Shade_Parms[4]	= m_Parameters("SHADING_MIN")->asDouble();
-		m_Shade_Parms[5]	= m_Parameters("SHADING_MAX")->asDouble() - m_Shade_Parms[4];
-	}
+			if(	dc_Map.DC2World() >= Get_Grid()->Get_Cellsize()
+			||	Resampling != GRID_RESAMPLING_NearestNeighbour
+			||  m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY )
+			{
+				_Draw_Grid_Nodes(dc_Map, Resampling);
+			}
+			else
+			{
+				_Draw_Grid_Cells(dc_Map);
+			}
 
-	//-----------------------------------------------------
-	m_pClassify->Set_Shade_Mode(m_Parameters("SHADE_MODE")->asInt());
+			//---------------------------------------------
+			dc_Map.Draw_Image_End();
 
-	if(	dc_Map.m_DC2World >= Get_Grid()->Get_Cellsize()
-	||	Resampling != GRID_RESAMPLING_NearestNeighbour
-	||  m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY )
-	{
-		_Draw_Grid_Nodes(dc_Map, Resampling);
-	}
-	else
-	{
-		_Draw_Grid_Cells(dc_Map);
-	}
+			if( (Flags & LAYER_DRAW_FLAG_NOLABELS) == 0 )
+			{
+				_Draw_Values(dc_Map);
+			}
 
-	//-----------------------------------------------------
-	dc_Map.IMG_Draw_End();
-
-	if( (Flags & LAYER_DRAW_FLAG_NOLABELS) == 0 )
-	{
-		_Draw_Values(dc_Map);
-	}
-
-	if( (Flags & LAYER_DRAW_FLAG_NOEDITS) == 0 )
-	{
-		_Draw_Edit(dc_Map);
+			if( (Flags & LAYER_DRAW_FLAG_NOEDITS) == 0 )
+			{
+				_Draw_Edit(dc_Map);
+			}
+		}
 	}
 }
 
 //---------------------------------------------------------
 void CWKSP_Grid::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling)
 {
-	CSG_Grid *pOverlay[2]; CSG_Scaler	Scaler[2];
+	CSG_Grid *pOverlay[2]; CSG_Scaler Scaler[2];
 
 	_Get_Overlay(pOverlay, Scaler);
 
-	CSG_Rect	rMap(dc_Map.m_rWorld);	rMap.Intersect(Get_Grid()->Get_Extent(true));
+	CSG_Rect rMap(dc_Map.rWorld());	rMap.Intersect(Get_Grid()->Get_Extent(true));
 
-	int	axDC	= (int)dc_Map.xWorld2DC(rMap.Get_XMin());	if( axDC < 0 )	axDC	= 0;
-	int	bxDC	= (int)dc_Map.xWorld2DC(rMap.Get_XMax());	if( bxDC >= dc_Map.m_rDC.GetWidth () )	bxDC	= dc_Map.m_rDC.GetWidth () - 1;
-	int	ayDC	= (int)dc_Map.yWorld2DC(rMap.Get_YMin());	if( ayDC >= dc_Map.m_rDC.GetHeight() )	ayDC	= dc_Map.m_rDC.GetHeight() - 1;
-	int	byDC	= (int)dc_Map.yWorld2DC(rMap.Get_YMax());	if( byDC < 0 )	byDC	= 0;
-	int	nyDC	= abs(ayDC - byDC);
+	int axDC = (int)dc_Map.xWorld2DC(rMap.Get_XMin()); if( axDC <  0                        ) { axDC = 0;                            }
+	int bxDC = (int)dc_Map.xWorld2DC(rMap.Get_XMax()); if( bxDC >= dc_Map.rDC().GetWidth () ) { bxDC = dc_Map.rDC().GetWidth () - 1; }
+	int ayDC = (int)dc_Map.yWorld2DC(rMap.Get_YMin()); if( ayDC >= dc_Map.rDC().GetHeight() ) { ayDC = dc_Map.rDC().GetHeight() - 1; }
+	int byDC = (int)dc_Map.yWorld2DC(rMap.Get_YMax()); if( byDC <  0                        ) { byDC = 0;                            }
+	int nyDC = abs(ayDC - byDC);
 
 	if( Get_Grid()->is_Cached() )
 	{
@@ -1434,7 +1417,7 @@ void CWKSP_Grid::_Get_Overlay(CSG_Grid *pOverlay[2], CSG_Scaler Scaler[2])
 {
 	if( m_pClassify->Get_Mode() != CLASSIFY_OVERLAY )
 	{
-		pOverlay [0] = pOverlay [1] = NULL;
+		pOverlay[0] = pOverlay [1] = NULL;
 	}
 	else
 	{
@@ -1477,7 +1460,7 @@ void CWKSP_Grid::_Get_Overlay(CSG_Grid *pOverlay[2], CSG_Scaler Scaler[2])
 			}
 			else if( g_pData->Get(pOverlay[i]) )
 			{
-				CWKSP_Layer_Classify	*pClassify	= ((CWKSP_Layer *)g_pData->Get(pOverlay[i]))->Get_Classifier();
+				CWKSP_Layer_Classify *pClassify = ((CWKSP_Layer *)g_pData->Get(pOverlay[i]))->Get_Classifier();
 
 				Scaler[i].Create(pClassify->Get_Metric_Minimum(), pClassify->Get_Metric_Maximum(),
 					pClassify->Get_Metric_Mode() == METRIC_MODE_LOGUP   ?  pClassify->Get_Metric_LogFactor() :
@@ -1495,27 +1478,27 @@ void CWKSP_Grid::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resa
 
 	switch( m_Parameters("OVERLAY_MODE")->asInt() )
 	{
-	default: Overlay[0] = 0; Overlay[1] = 1; Overlay[2] = 2; break;	// this = r, pOverlay[0] = g, pOverlay[1] = r
-	case  1: Overlay[0] = 1; Overlay[1] = 0; Overlay[2] = 2; break;	// this = g, pOverlay[0] = r, pOverlay[1] = b
-	case  2: Overlay[0] = 2; Overlay[1] = 0; Overlay[2] = 1; break;	// this = b, pOverlay[0] = r, pOverlay[1] = g
+	default: Overlay[0] = 0; Overlay[1] = 1; Overlay[2] = 2; break; // this = r, pOverlay[0] = g, pOverlay[1] = r
+	case  1: Overlay[0] = 1; Overlay[1] = 0; Overlay[2] = 2; break; // this = g, pOverlay[0] = r, pOverlay[1] = b
+	case  2: Overlay[0] = 2; Overlay[1] = 0; Overlay[2] = 1; break; // this = b, pOverlay[0] = r, pOverlay[1] = g
 	}
 
-	double	xMap	= dc_Map.xDC2World(axDC);
-	double	yMap	= dc_Map.yDC2World( yDC);
+	double xMap = dc_Map.xDC2World(axDC);
+	double yMap = dc_Map.yDC2World( yDC);
 
-	for(int xDC=axDC; xDC<=bxDC; xMap+=dc_Map.m_DC2World, xDC++)
+	for(int xDC=axDC; xDC<=bxDC; xMap+=dc_Map.DC2World(), xDC++)
 	{
-		double	Value;
+		double Value;
 
 		if( Get_Grid()->Get_Value(xMap, yMap, Value, Resampling, false, m_pClassify->Get_Mode() == CLASSIFY_RGB) )
 		{
 			if( m_pClassify->Get_Mode() != CLASSIFY_OVERLAY )
 			{
-				int  Color;
+				int Color;
 
 				if( m_pClassify->Get_Class_Color_byValue(Value, Color) )
 				{
-					dc_Map.IMG_Set_Pixel(xDC, yDC, _Get_Shading(xMap, yMap, Color, Resampling));
+					dc_Map.Draw_Image_Pixel(xDC, yDC, _Get_Shading(xMap, yMap, Color, Resampling));
 				}
 			}
 			else
@@ -1531,7 +1514,7 @@ void CWKSP_Grid::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resa
 				Value = pOverlay[1] && pOverlay[1]->Get_Value(xMap, yMap, Value, Resampling) ? Scaler[1].to_Relative(Value) : 1.;
 				Color[Overlay[2]] = Value <= 0. ? 0 : Value >= 1. ? 255 : (BYTE)(255. * Value);
 
-				dc_Map.IMG_Set_Pixel(xDC, yDC, _Get_Shading(xMap, yMap, *(int *)Color, Resampling));
+				dc_Map.Draw_Image_Pixel(xDC, yDC, _Get_Shading(xMap, yMap, *(int *)Color, Resampling));
 			}
 		}
 	}
@@ -1540,30 +1523,30 @@ void CWKSP_Grid::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resa
 //---------------------------------------------------------
 void CWKSP_Grid::_Draw_Grid_Cells(CWKSP_Map_DC &dc_Map)
 {
-	int	xa	= Get_Grid()->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMin()); if( xa <  0                    ) xa = 0;
-	int	ya	= Get_Grid()->Get_System().Get_yWorld_to_Grid(dc_Map.m_rWorld.Get_YMin()); if( ya <  0                    ) ya = 0;
-	int	xb	= Get_Grid()->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMax()); if( xb >= Get_Grid()->Get_NX() ) xb = Get_Grid()->Get_NX() - 1;
-	int	yb	= Get_Grid()->Get_System().Get_yWorld_to_Grid(dc_Map.m_rWorld.Get_YMax()); if( yb >= Get_Grid()->Get_NY() ) yb = Get_Grid()->Get_NY() - 1;
+	int xa = Get_Grid()->Get_System().Get_xWorld_to_Grid(dc_Map.rWorld().Get_XMin()); if( xa <  0                    ) xa = 0;
+	int ya = Get_Grid()->Get_System().Get_yWorld_to_Grid(dc_Map.rWorld().Get_YMin()); if( ya <  0                    ) ya = 0;
+	int xb = Get_Grid()->Get_System().Get_xWorld_to_Grid(dc_Map.rWorld().Get_XMax()); if( xb >= Get_Grid()->Get_NX() ) xb = Get_Grid()->Get_NX() - 1;
+	int yb = Get_Grid()->Get_System().Get_yWorld_to_Grid(dc_Map.rWorld().Get_YMax()); if( yb >= Get_Grid()->Get_NY() ) yb = Get_Grid()->Get_NY() - 1;
 
-	double	dDC	 = Get_Grid()->Get_Cellsize() * dc_Map.m_World2DC;
+	double  dDC = Get_Grid()->Get_Cellsize() * dc_Map.World2DC();
 
-	double	axDC = dc_Map.xWorld2DC(Get_Grid()->Get_System().Get_xGrid_to_World(xa)) + dDC / 2.;
-	double	ayDC = dc_Map.yWorld2DC(Get_Grid()->Get_System().Get_yGrid_to_World(ya)) - dDC / 2.;
+	double axDC = dc_Map.xWorld2DC(Get_Grid()->Get_System().Get_xGrid_to_World(xa)) + dDC / 2.;
+	double ayDC = dc_Map.yWorld2DC(Get_Grid()->Get_System().Get_yGrid_to_World(ya)) - dDC / 2.;
 
 	//-----------------------------------------------------
-	double	yDC	= ayDC;
+	double  yDC = ayDC;
 
 	for(int y=ya, yaDC=(int)(ayDC), ybDC=(int)(ayDC+dDC); y<=yb; y++, ybDC=yaDC, yaDC=(int)(yDC-=dDC))
 	{
-		double	xDC	= axDC;
+		double xDC = axDC;
 
 		for(int x=xa, xaDC=(int)(axDC-dDC), xbDC=(int)(axDC); x<=xb; x++, xaDC=xbDC, xbDC=(int)(xDC+=dDC))
 		{
-			int	Color;
+			int Color;
 
 			if( Get_Grid()->is_InGrid(x, y) && m_pClassify->Get_Class_Color_byValue(Get_Grid()->asDouble(x, y), Color) )
 			{
-				dc_Map.IMG_Set_Rect(xaDC, yaDC, xbDC, ybDC, _Get_Shading(x, y, Color));
+				dc_Map.Draw_Image_Pixels(xaDC, yaDC, xbDC, ybDC, _Get_Shading(x, y, Color));
 			}
 		}
 	}
@@ -1572,13 +1555,13 @@ void CWKSP_Grid::_Draw_Grid_Cells(CWKSP_Map_DC &dc_Map)
 //---------------------------------------------------------
 inline void CWKSP_Grid::_Set_Shading(double Shade, int &Color)
 {
-	Shade	= m_Shade_Parms[5] * ((1. - Shade / M_PI_090) - m_Shade_Parms[4]);
+	Shade = m_Shade_Parms[5] * ((1. - Shade / M_PI_090) - m_Shade_Parms[4]);
 
-	int	r	= (int)(Shade * SG_GET_R(Color)); if( r < 0 ) r = 0; else if( r > 255 ) r = 255;
-	int	g	= (int)(Shade * SG_GET_G(Color)); if( g < 0 ) g = 0; else if( g > 255 ) g = 255;
-	int	b	= (int)(Shade * SG_GET_B(Color)); if( b < 0 ) b = 0; else if( b > 255 ) b = 255;
+	int r = (int)(Shade * SG_GET_R(Color)); if( r < 0 ) r = 0; else if( r > 255 ) r = 255;
+	int g = (int)(Shade * SG_GET_G(Color)); if( g < 0 ) g = 0; else if( g > 255 ) g = 255;
+	int b = (int)(Shade * SG_GET_B(Color)); if( b < 0 ) b = 0; else if( b > 255 ) b = 255;
 
-	Color	= SG_GET_RGB(r, g, b);
+	Color = SG_GET_RGB(r, g, b);
 }
 
 //---------------------------------------------------------
@@ -1586,11 +1569,11 @@ inline int CWKSP_Grid::_Get_Shading(int x, int y, int Color)
 {
 	if( m_Shade_Mode )
 	{
-		double	s, a;
+		double s, a;
 
 		if( Get_Grid()->Get_Gradient(x, y, s, a) )
 		{
-			s	= M_PI_090 - atan(m_Shade_Parms[0] * tan(s));
+			s = M_PI_090 - atan(m_Shade_Parms[0] * tan(s));
 
 			if( m_Shade_Mode == 1 )
 			{
@@ -1612,9 +1595,9 @@ inline int CWKSP_Grid::_Get_Shading(int x, int y, int Color)
 
 	if( m_pAlpha )
 	{
-		double	Alpha;	TSG_Point	p	= Get_Grid()->Get_System().Get_Grid_to_World(x, y);
+		CSG_Point p = Get_Grid()->Get_System().Get_Grid_to_World(x, y);
 
-		Alpha	= m_pAlpha->Get_Value(p, Alpha) ? (Alpha - m_Alpha[0]) * m_Alpha[1] : 1.;
+		double Alpha = m_pAlpha->Get_Value(p, Alpha) ? (Alpha - m_Alpha[0]) * m_Alpha[1] : 1.;
 
 		((BYTE *)&Color)[3] = Alpha <= 0. ? 0 : Alpha >= 255. ? 255 : (BYTE)Alpha;
 	}
@@ -1627,11 +1610,11 @@ inline int CWKSP_Grid::_Get_Shading(double x, double y, int Color, TSG_Grid_Resa
 {
 	if( m_Shade_Mode )
 	{
-		double	s, a;
+		double s, a;
 
 		if( Get_Grid()->Get_Gradient(x, y, s, a, Resampling) )
 		{
-			s	= M_PI_090 - atan(m_Shade_Parms[0] * tan(s));
+			s = M_PI_090 - atan(m_Shade_Parms[0] * tan(s));
 
 			if( m_Shade_Mode == 1 )
 			{
@@ -1653,9 +1636,7 @@ inline int CWKSP_Grid::_Get_Shading(double x, double y, int Color, TSG_Grid_Resa
 
 	if( m_pAlpha )
 	{
-		double	Alpha;
-		
-		Alpha	= m_pAlpha->Get_Value(x, y, Alpha, Resampling) ? (Alpha - m_Alpha[0]) * m_Alpha[1] : 1.;
+		double Alpha = m_pAlpha->Get_Value(x, y, Alpha, Resampling) ? (Alpha - m_Alpha[0]) * m_Alpha[1] : 1.;
 
 		((BYTE *)&Color)[3] = Alpha <= 0. ? 0 : Alpha >= 255. ? 255 : (BYTE)Alpha;
 	}
@@ -1666,76 +1647,71 @@ inline int CWKSP_Grid::_Get_Shading(double x, double y, int Color, TSG_Grid_Resa
 //---------------------------------------------------------
 void CWKSP_Grid::_Draw_Values(CWKSP_Map_DC &dc_Map)
 {
-	if(	!m_Parameters("VALUES_SHOW")->asBool() || Get_Grid()->Get_Cellsize() * dc_Map.m_World2DC <= 40 )
+	if(	!m_Parameters("VALUES_SHOW")->asBool() || Get_Grid()->Get_Cellsize() * dc_Map.World2DC() <= 40 )
 	{
 		return;
 	}
 
 	//-----------------------------------------------------
-	int			ax, ay, bx, by, Decimals, Effect;
-	double		axDC, ayDC, dDC;
-	wxColour	Effect_Color;
-	wxFont		Font;
+	double   dDC = Get_Grid()->Get_Cellsize() * dc_Map.World2DC();
+	int Decimals = m_Parameters("VALUES_DECIMALS")->asInt();
+	wxFont  Font = Get_Font(m_Parameters("VALUES_FONT")); Font.SetPointSize((int)(dDC * m_Parameters("VALUES_SIZE")->asDouble() / 100.));
+	dc_Map.SetFont(Font);
+	dc_Map.Get_DC().SetTextForeground(Get_Color_asWX(m_Parameters("VALUES_FONT")->asColor()));
 
-	dDC			= Get_Grid()->Get_Cellsize() * dc_Map.m_World2DC;
-	Decimals	= m_Parameters("VALUES_DECIMALS")->asInt();
-	Font		= Get_Font(m_Parameters("VALUES_FONT"));
-	Font.SetPointSize((int)(dDC * m_Parameters("VALUES_SIZE")->asDouble() / 100.));
-	dc_Map.dc.SetFont(Font);
-	dc_Map.dc.SetTextForeground(Get_Color_asWX(m_Parameters("VALUES_FONT")->asColor()));
+	int Effect;
 
 	switch( m_Parameters("VALUES_EFFECT")->asInt() )
 	{
-	default: Effect	= TEXTEFFECT_NONE       ;	break;
-	case  1: Effect	= TEXTEFFECT_FRAME      ;	break;
-	case  2: Effect	= TEXTEFFECT_TOP        ;	break;
-	case  3: Effect	= TEXTEFFECT_TOPLEFT    ;	break;
-	case  4: Effect	= TEXTEFFECT_LEFT       ;	break;
-	case  5: Effect	= TEXTEFFECT_BOTTOMLEFT ;	break;
-	case  6: Effect	= TEXTEFFECT_BOTTOM     ;	break;
-	case  7: Effect	= TEXTEFFECT_BOTTOMRIGHT;	break;
-	case  8: Effect	= TEXTEFFECT_RIGHT      ;	break;
-	case  9: Effect	= TEXTEFFECT_TOPRIGHT   ;	break;
+	default: Effect = TEXTEFFECT_NONE       ; break;
+	case  1: Effect = TEXTEFFECT_FRAME      ; break;
+	case  2: Effect = TEXTEFFECT_TOP        ; break;
+	case  3: Effect = TEXTEFFECT_TOPLEFT    ; break;
+	case  4: Effect = TEXTEFFECT_LEFT       ; break;
+	case  5: Effect = TEXTEFFECT_BOTTOMLEFT ; break;
+	case  6: Effect = TEXTEFFECT_BOTTOM     ; break;
+	case  7: Effect = TEXTEFFECT_BOTTOMRIGHT; break;
+	case  8: Effect = TEXTEFFECT_RIGHT      ; break;
+	case  9: Effect = TEXTEFFECT_TOPRIGHT   ; break;
 	}
 
-	Effect_Color	= m_Parameters("VALUES_EFFECT_COLOR")->asColor();
+	wxColour Effect_Color = m_Parameters("VALUES_EFFECT_COLOR")->asColor();
 
 	//-------------------------------------------------
-	ax		= Get_Grid()->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMin());
-	ay		= Get_Grid()->Get_System().Get_yWorld_to_Grid(dc_Map.m_rWorld.Get_YMin());
-	bx		= Get_Grid()->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMax());
-	by		= Get_Grid()->Get_System().Get_yWorld_to_Grid(dc_Map.m_rWorld.Get_YMax());
+	int ax = Get_Grid()->Get_System().Get_xWorld_to_Grid(dc_Map.rWorld().Get_XMin());
+	int ay = Get_Grid()->Get_System().Get_yWorld_to_Grid(dc_Map.rWorld().Get_YMin());
+	int bx = Get_Grid()->Get_System().Get_xWorld_to_Grid(dc_Map.rWorld().Get_XMax());
+	int by = Get_Grid()->Get_System().Get_yWorld_to_Grid(dc_Map.rWorld().Get_YMax());
 
 	if( ax < 0 ) { ax = 0; } if( bx >= Get_Grid()->Get_NX() ) { bx = Get_Grid()->Get_NX() - 1; }
 	if( ay < 0 ) { ax = 0; } if( by >= Get_Grid()->Get_NY() ) { by = Get_Grid()->Get_NY() - 1; }
 
-	axDC	= dc_Map.xWorld2DC(Get_Grid()->Get_System().Get_xGrid_to_World(ax));
-	ayDC	= dc_Map.yWorld2DC(Get_Grid()->Get_System().Get_yGrid_to_World(ay));
+	double axDC = dc_Map.xWorld2DC(Get_Grid()->Get_System().Get_xGrid_to_World(ax));
+	double ayDC = dc_Map.yWorld2DC(Get_Grid()->Get_System().Get_yGrid_to_World(ay));
 
-	int	ny	= by - ay;
+	int ny = by - ay;
 
 	//-------------------------------------------------
 	for(int y=0; y<=ny; y++)
 	{
-		int		x;
-		double	xDC, yDC	= ayDC - y * dDC;// dc_Map.m_World2DC;
+		double xDC = axDC, yDC = ayDC - y * dDC; // dc_Map.World2DC();
 
-		for(x=ax, xDC=axDC; x<=bx; x++, xDC+=dDC)
+		for(int x=ax; x<=bx; x++, xDC+=dDC)
 		{
 			if( Get_Grid()->is_InGrid(x, ay + y) )
 			{
-				double	Value	= Get_Grid()->asDouble(x, ay + y);
+				double Value = Get_Grid()->asDouble(x, ay + y);
 
 				switch( m_pClassify->Get_Mode() )
 				{
 				case CLASSIFY_RGB:
-					Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, (int)xDC, (int)yDC, wxString::Format(
+					dc_Map.DrawText(TEXTALIGN_CENTER, (int)xDC, (int)yDC, wxString::Format(
 						"R%03d G%03d B%03d", SG_GET_R((int)Value), SG_GET_G((int)Value), SG_GET_B((int)Value)
 					), Effect, Effect_Color);
 					break;
 
 				default:
-					Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, (int)xDC, (int)yDC, wxString::Format(
+					dc_Map.DrawText(TEXTALIGN_CENTER, (int)xDC, (int)yDC, wxString::Format(
 						"%.*f", Decimals, Value
 					), Effect, Effect_Color);
 					break;
@@ -1750,26 +1726,21 @@ void CWKSP_Grid::_Draw_Edit(CWKSP_Map_DC &dc_Map)
 {
 	if( m_Edit_Attributes.Get_Count() > 0 )
 	{
-		CSG_Rect	r(
+		CSG_Rect r(
 			-Get_Grid()->Get_Cellsize() / 2. + Get_Grid()->Get_System().Get_xGrid_to_World(m_xSel),
 			-Get_Grid()->Get_Cellsize() / 2. + Get_Grid()->Get_System().Get_yGrid_to_World(m_ySel),
 			-Get_Grid()->Get_Cellsize() / 2. + Get_Grid()->Get_System().Get_xGrid_to_World(m_xSel + m_Edit_Attributes.Get_Field_Count() - 1),
 			-Get_Grid()->Get_Cellsize() / 2. + Get_Grid()->Get_System().Get_yGrid_to_World(m_ySel + m_Edit_Attributes.Get_Count())
 		);
 
-		TSG_Point_Int	a(dc_Map.World2DC(r.Get_TopLeft    ()));
-		TSG_Point_Int	b(dc_Map.World2DC(r.Get_BottomRight()));
+		TSG_Point_Int a(dc_Map.World2DC(r.Get_TopLeft    ())); a.x -= 1; a.y -= 1;
+		TSG_Point_Int b(dc_Map.World2DC(r.Get_BottomRight())); b.x -= 1; b.y -= 1;
 
-		a.x	-= 1;
-		b.x	-= 1;
-		a.y	-= 1;
-		b.y	-= 1;
-
-		dc_Map.dc.SetPen(wxPen(wxColour(255, 0, 0), 2, wxPENSTYLE_SOLID));
-		dc_Map.dc.DrawLine(a.x, a.y, a.x, b.y);
-		dc_Map.dc.DrawLine(a.x, b.y, b.x, b.y);
-		dc_Map.dc.DrawLine(b.x, b.y, b.x, a.y);
-		dc_Map.dc.DrawLine(a.x, a.y, b.x, a.y);
+		dc_Map.SetPen(wxPen(wxColour(255, 0, 0), 2, wxPENSTYLE_SOLID));
+		dc_Map.DrawLine(a.x, a.y, a.x, b.y);
+		dc_Map.DrawLine(a.x, b.y, b.x, b.y);
+		dc_Map.DrawLine(b.x, b.y, b.x, a.y);
+		dc_Map.DrawLine(a.x, a.y, b.x, a.y);
 	}
 }
 

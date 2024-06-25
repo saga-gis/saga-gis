@@ -2146,7 +2146,7 @@ void CWKSP_Map::Draw_Map(wxDC &dc, double Zoom, const wxRect &rClient, int Flags
 //---------------------------------------------------------
 void CWKSP_Map::Draw_Map(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wxRect &rClient, int Flags, int Background)
 {
-	CWKSP_Map_DC dc_Map(rWorld, rClient, Zoom, Background >= 0 ? Background : m_Parameters("BACKGROUND")->asInt());
+	CWKSP_Map_DC dc_Map(rWorld, rClient, Zoom, m_Parameters("BACKGROUND")->asInt());
 
 	int Flag_Labels = !(Flags & LAYER_DRAW_FLAG_NOLABELS) ? 0 : LAYER_DRAW_FLAG_NOLABELS;
 
@@ -2311,8 +2311,8 @@ bool CWKSP_Map::Draw_North_Arrow(CWKSP_Map_DC &dc_Map, const CSG_Rect &rWorld, c
 	wxRect	r	= !m_Parameters("NORTH_EXTENT")->asBool() ? wxRect(0, 0, rClient.GetWidth(), rClient.GetHeight()) : wxRect(
 		(int)(dc_Map.xWorld2DC   (Get_Extent().Get_XMin  ())),
 		(int)(dc_Map.yWorld2DC   (Get_Extent().Get_YMax  ())),
-		(int)(dc_Map.m_World2DC * Get_Extent().Get_XRange()),
-		(int)(dc_Map.m_World2DC * Get_Extent().Get_YRange())
+		(int)(dc_Map.World2DC() * Get_Extent().Get_XRange()),
+		(int)(dc_Map.World2DC() * Get_Extent().Get_YRange())
 	);
 
 	double	cos_a	= cos(-m_Parameters("NORTH_ANGLE")->asDouble() * M_DEG_TO_RAD);
@@ -2337,20 +2337,20 @@ bool CWKSP_Map::Draw_North_Arrow(CWKSP_Map_DC &dc_Map, const CSG_Rect &rWorld, c
 
 		if( side == 0 )
 		{
-		//	dc_Map.dc.SetPen     (wxPen  (*wxWHITE, 3));
-		//	dc_Map.dc.DrawLines  (3, Points);
+		//	dc_Map.SetPen     (wxPen  (*wxWHITE, 3));
+		//	dc_Map.DrawLines  (3, Points);
 
-			dc_Map.dc.SetPen     (wxPen  (*wxBLACK, 0));
-			dc_Map.dc.SetBrush   (wxBrush(*wxBLACK));
-			dc_Map.dc.DrawPolygon(3, Points);
-            dc_Map.dc.DrawPolygon(3, Points);
+			dc_Map.SetPen     (wxPen  (*wxBLACK, 0));
+			dc_Map.SetBrush   (wxBrush(*wxBLACK));
+			dc_Map.DrawPolygon(3, Points);
+            dc_Map.DrawPolygon(3, Points);
 		}
 		else
 		{
-			dc_Map.dc.SetPen     (wxPen  (*wxBLACK, 0));
-			dc_Map.dc.SetBrush   (wxBrush(*wxWHITE));
-			dc_Map.dc.DrawPolygon(3, Points);
-		//	dc_Map.dc.DrawLines  (3, Points);
+			dc_Map.SetPen     (wxPen  (*wxBLACK, 0));
+			dc_Map.SetBrush   (wxBrush(*wxWHITE));
+			dc_Map.DrawPolygon(3, Points);
+		//	dc_Map.DrawLines  (3, Points);
 		}
 	}
 
@@ -2365,45 +2365,46 @@ bool CWKSP_Map::Draw_ScaleBar(CWKSP_Map_DC &dc_Map, const CSG_Rect &rWorld, cons
 		return( true );
 	}
 
-	double	dWidth	= 0.01 * m_Parameters("SCALE_WIDTH")->asDouble();
+	double dWidth = 0.01 * m_Parameters("SCALE_WIDTH")->asDouble();
 
-	wxRect	r	= !m_Parameters("SCALE_EXTENT")->asBool() ? wxRect(0, 0, rClient.GetWidth(), rClient.GetHeight()) : wxRect(
+	wxRect r = !m_Parameters("SCALE_EXTENT")->asBool() ? wxRect(0, 0, rClient.GetWidth(), rClient.GetHeight()) : wxRect(
 		(int) dc_Map .xWorld2DC  (Get_Extent().Get_XMin  ()),
 		(int) dc_Map .yWorld2DC  (Get_Extent().Get_YMax  ()),
-		(int)(dc_Map.m_World2DC * Get_Extent().Get_XRange()),
-		(int)(dc_Map.m_World2DC * Get_Extent().Get_YRange())
+		(int)(dc_Map.World2DC() * Get_Extent().Get_XRange()),
+		(int)(dc_Map.World2DC() * Get_Extent().Get_YRange())
 	);
 
-	r	= wxRect(
+	r = wxRect(
 		(int)(0.5 + r.GetWidth () * 0.01 * m_Parameters("SCALE_OFFSET_X")->asDouble()) + r.GetX(), r.GetY() + r.GetHeight() -
 		(int)(0.5 + r.GetHeight() * 0.01 * m_Parameters("SCALE_OFFSET_Y")->asDouble()),
 		(int)(0.5 + r.GetWidth () * dWidth),
 		(int)(0.5 + r.GetHeight() * 0.01 * m_Parameters("SCALE_HEIGHT"  )->asDouble())
 	);
 
-	dWidth	= dc_Map.m_DC2World * r.GetWidth();
+	dWidth = dc_Map.DC2World() * r.GetWidth();
 
-	CSG_String	Unit;
+	CSG_String Unit;
 
 	if( m_Projection.is_Okay() && m_Parameters("SCALE_UNIT")->asBool() )
 	{
-		Unit	= CSG_Projections::Get_Unit_Name(m_Projection.Get_Unit(), true);
+		Unit = CSG_Projections::Get_Unit_Name(m_Projection.Get_Unit(), true);
 
-		if( Unit.is_Empty() )	Unit	= m_Projection.Get_Unit_Name();
+		if( Unit.is_Empty() ) Unit = m_Projection.Get_Unit_Name();
 
 		if( m_Projection.Get_Unit() == ESG_Projection_Unit::Meter && dWidth > 10000. )
 		{
-			Unit	 = CSG_Projections::Get_Unit_Name(ESG_Projection_Unit::Kilometer, true);
-			dWidth	/= 1000.;
+			dWidth /= 1000.; Unit = CSG_Projections::Get_Unit_Name(ESG_Projection_Unit::Kilometer, true);
 		}
 	}
 
-	int	Style	= SCALE_STYLE_LINECONN|SCALE_STYLE_GLOOMING;
+	int Style = SCALE_STYLE_LINECONN|SCALE_STYLE_GLOOMING;
 
 	if( m_Parameters("SCALE_STYLE")->asInt() == 1 )
-		Style	|= SCALE_STYLE_BLACKWHITE;
+	{
+		Style |= SCALE_STYLE_BLACKWHITE;
+	}
 
-	Draw_Scale(dc_Map.dc, r, 0., dWidth, SCALE_HORIZONTAL, SCALE_TICK_TOP, Style, Unit.c_str());
+	Draw_Scale(dc_Map.Get_DC(), r, 0., dWidth, SCALE_HORIZONTAL, SCALE_TICK_TOP, Style, Unit.c_str());
 
 	return( true );
 }
@@ -2416,28 +2417,28 @@ bool CWKSP_Map::Draw_Extent(CWKSP_Map_DC &dc_Map, const CSG_Rect &rWorld, const 
 		return( true );
 	}
 
-	if( dc_Map.IMG_Draw_Begin(m_Parameters("SEL_TRANSP")->asDouble() / 100.) )
+	if( dc_Map.Draw_Image_Begin(m_Parameters("SEL_TRANSP")->asDouble() / 100.) )
 	{
-		int	Colour	= m_Parameters("SEL_COLOUR")->asColor();
+		int Color = m_Parameters("SEL_COLOUR")->asColor();
 
-		wxRect	r(0, 0, rClient.GetWidth(), rClient.GetHeight()); r.Inflate(1);
+		wxRect r(0, 0, rClient.GetWidth(), rClient.GetHeight()); r.Inflate(1);
 
 		if( rWorld.Get_XRange() > Get_Extent().Get_XRange() )
 		{
-			int	d	= (int)(0.5 + dc_Map.m_World2DC * (rWorld.Get_XRange() - Get_Extent().Get_XRange()) / 2.);
+			int d = (int)(0.5 + dc_Map.World2DC() * (rWorld.Get_XRange() - Get_Extent().Get_XRange()) / 2.);
 
-			dc_Map.IMG_Set_Rect(r.GetLeft (), r.GetTop(), r.GetLeft () + d, r.GetBottom(), Colour);
-			dc_Map.IMG_Set_Rect(r.GetRight(), r.GetTop(), r.GetRight() - d, r.GetBottom(), Colour);
+			dc_Map.Draw_Image_Pixels(r.GetLeft (), r.GetTop(), r.GetLeft () + d, r.GetBottom(), Color);
+			dc_Map.Draw_Image_Pixels(r.GetRight(), r.GetTop(), r.GetRight() - d, r.GetBottom(), Color);
 		}
 		else
 		{
-			int	d	= (int)(0.5 + dc_Map.m_World2DC * (rWorld.Get_YRange() - Get_Extent().Get_YRange()) / 2.);
+			int d = (int)(0.5 + dc_Map.World2DC() * (rWorld.Get_YRange() - Get_Extent().Get_YRange()) / 2.);
 
-			dc_Map.IMG_Set_Rect(r.GetLeft(), r.GetTop   (), r.GetRight(), r.GetTop   () + d, Colour);
-			dc_Map.IMG_Set_Rect(r.GetLeft(), r.GetBottom(), r.GetRight(), r.GetBottom() - d, Colour);
+			dc_Map.Draw_Image_Pixels(r.GetLeft(), r.GetTop   (), r.GetRight(), r.GetTop   () + d, Color);
+			dc_Map.Draw_Image_Pixels(r.GetLeft(), r.GetBottom(), r.GetRight(), r.GetBottom() - d, Color);
 		}
 
-		dc_Map.IMG_Draw_End();
+		dc_Map.Draw_Image_End();
 	}
 
 	return( true );

@@ -539,8 +539,8 @@ bool CWKSP_Shapes_Point::Get_Style_Size(int &min_Size, int &max_Size, double &mi
 //---------------------------------------------------------
 inline void CWKSP_Shapes_Point::Draw_Initialize(CWKSP_Map_DC &dc_Map, int Flags)
 {
-	dc_Map.dc.SetBrush(m_Brush);
-	dc_Map.dc.SetPen  (m_Pen  );
+	dc_Map.SetBrush(m_Brush);
+	dc_Map.SetPen  (m_Pen  );
 
 	m_Sel_Color_Fill	= Get_Color_asWX(m_Parameters("SEL_COLOR_FILL")->asInt());
 
@@ -568,8 +568,8 @@ inline bool CWKSP_Shapes_Point::Draw_Initialize(CWKSP_Map_DC &dc_Map, int &Size,
 	//-----------------------------------------------------
 	if( Selection )
 	{
-		dc_Map.dc.SetBrush(wxBrush(m_Sel_Color_Fill, m_Brush.GetStyle()));
-		dc_Map.dc.SetPen(wxPen(m_Sel_Color, Selection == 1 ? 2 : 0, wxPENSTYLE_SOLID));
+		dc_Map.SetBrush(wxBrush(m_Sel_Color_Fill, m_Brush.GetStyle()));
+		dc_Map.SetPen(wxPen(m_Sel_Color, Selection == 1 ? 2 : 0, wxPENSTYLE_SOLID));
 	}
 	else
 	{
@@ -582,12 +582,12 @@ inline bool CWKSP_Shapes_Point::Draw_Initialize(CWKSP_Map_DC &dc_Map, int &Size,
 
 		if( !m_Brush.IsTransparent() )
 		{
-			wxBrush	Brush(m_Brush);	Brush.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color)); dc_Map.dc.SetBrush(Brush);
+			wxBrush	Brush(m_Brush);	Brush.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color)); dc_Map.SetBrush(Brush);
 		}
 
 		if( !m_bOutline )
 		{
-			wxPen	Pen  (m_Pen  );	Pen  .SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color)); dc_Map.dc.SetPen(Pen);
+			wxPen	Pen  (m_Pen  );	Pen  .SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color)); dc_Map.SetPen(Pen);
 		}
 	}
 
@@ -598,8 +598,8 @@ inline bool CWKSP_Shapes_Point::Draw_Initialize(CWKSP_Map_DC &dc_Map, int &Size,
 	{
 		switch( m_Parameters("LABEL_ATTRIB_SIZE_TYPE")->asInt() )
 		{
-		default: m_Label_Offset *= dc_Map.m_Scale   ; break;
-		case  1: m_Label_Offset *= dc_Map.m_World2DC; break;
+		default: m_Label_Offset *= dc_Map.Scale()   ; break;
+		case  1: m_Label_Offset *= dc_Map.World2DC(); break;
 		}
 	}
 
@@ -613,8 +613,8 @@ inline bool CWKSP_Shapes_Point::Draw_Initialize(CWKSP_Map_DC &dc_Map, int &Size,
 
 	switch( m_Size_Type )
 	{
-	default: dSize *= dc_Map.m_Scale   ; break;
-	case  1: dSize *= dc_Map.m_World2DC; break;
+	default: dSize *= dc_Map.Scale()   ; break;
+	case  1: dSize *= dc_Map.World2DC(); break;
 	}
 
 	return( (Size = (int)(0.5 + dSize)) > 0 );
@@ -638,7 +638,7 @@ void CWKSP_Shapes_Point::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int
 				&&  !pShape->is_NoData(m_Beachball[1])
 				&&  !pShape->is_NoData(m_Beachball[2])	)
 				{
-					_Beachball_Draw(dc_Map.dc, p.x, p.y, Size,
+					_Beachball_Draw(dc_Map, p.x, p.y, Size,
 						pShape->asDouble(m_Beachball[0]),
 						pShape->asDouble(m_Beachball[1]),
 						pShape->asDouble(m_Beachball[2])
@@ -662,30 +662,30 @@ void CWKSP_Shapes_Point::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int
 					{
 						r.Inflate(1);
 
-						dc_Map.dc.DrawRectangle(r);
+						dc_Map.DrawRectangle(r);
 					}
 
-					dc_Map.dc.DrawBitmap(wxBitmap(m_Symbol.Scale(2 * sx, 2 * sy)), p.x - sx, p.y - sy, true);
+					dc_Map.DrawBitmap(wxBitmap(m_Symbol.Scale(2 * sx, 2 * sy)), p.x - sx, p.y - sy, true);
 				}
 			}
 
 			//---------------------------------------------
 			else
 			{
-				Draw_Symbol(dc_Map.dc, p.x, p.y, Size);
+				Draw_Symbol(dc_Map, p.x, p.y, Size);
 			}
 
 			//---------------------------------------------
 			if( m_Image_Field >= 0 )
 			{
-				_Image_Draw(dc_Map.dc, p.x, p.y, Size, pShape->asString(m_Image_Field));
+				_Image_Draw(dc_Map, p.x, p.y, Size, pShape->asString(m_Image_Field));
 			}
 
 			//---------------------------------------------
 			if( Selection )
 			{
-				dc_Map.dc.SetBrush(m_Brush);
-				dc_Map.dc.SetPen  (m_Pen  );
+				dc_Map.SetBrush(m_Brush);
+				dc_Map.SetPen  (m_Pen  );
 			}
 		}
 	}
@@ -707,7 +707,7 @@ void CWKSP_Shapes_Point::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, con
 
 	double	Angle	= m_iLabel_Angle < 0 ? m_Label_Angle : pShape->asDouble(m_iLabel_Angle);
 
-	Draw_Text(dc_Map.dc, m_Label_Align, p.x, p.y, Angle, Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
+	dc_Map.DrawText(m_Label_Align, p.x, p.y, Angle, Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
 }
 
 
@@ -777,48 +777,68 @@ void CWKSP_Shapes_Point::Draw_Symbol(wxDC &dc, int x, int y, int Size)
 	}
 }
 
+//---------------------------------------------------------
+void CWKSP_Shapes_Point::Draw_Symbol(CWKSP_Map_DC &dc, int x, int y, int Size)
+{
+	switch( m_Symbol_Type )
+	{
+	default: DRAW_CIRCLE(1.0)                      ; break;	// circle
+	case  1: DRAW_SQUARE                           ; break;	// square
+	case  2: DRAW_RHOMBUS                          ; break;	// rhombus
+	case  3: DRAW_TRIANGLE_UP                      ; break;	// triangle up
+	case  4: DRAW_TRIANGLE_DOWN                    ; break;	// triangle down
+	case  5: DRAW_CIRCLE(1.0)  ; DRAW_SQUARE       ; break;	// square in circle
+	case  6: DRAW_CIRCLE(1.1)  ; DRAW_RHOMBUS      ; break;	// rhombus in circle
+	case  7: DRAW_CIRCLE(1.0)  ; DRAW_TRIANGLE_UP  ; break;	// triangle up in circle
+	case  8: DRAW_CIRCLE(1.0)  ; DRAW_TRIANGLE_DOWN; break;	// triangle down in circle
+	case  9: DRAW_SQUARE       ; DRAW_CIRCLE(0.7)  ; break;	// circle in square
+	case 10: DRAW_RHOMBUS      ; DRAW_CIRCLE(0.7)  ; break;	// circle in rhombus
+	case 11: DRAW_TRIANGLE_UP  ; DRAW_CIRCLE(0.5)  ; break;	// circle in triangle up
+	case 12: DRAW_TRIANGLE_DOWN; DRAW_CIRCLE(0.5)  ; break;	// circle in triangle down
+	}
+}
 
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Point::_Image_Draw(wxDC &dc, int x, int y, int size, const wxString &file)
+void CWKSP_Shapes_Point::_Image_Draw(CWKSP_Map_DC &dc_Map, int x, int y, int size, const wxString &file)
 {
-	wxFileName	fn(file);
+	wxFileName fn(file);
 
 	if( fn.IsRelative() )
 	{
 		fn.MakeAbsolute(SG_File_Get_Path(Get_Shapes()->Get_File_Name()).c_str());
 	}
 
-	wxImage	Symbol;
+	wxImage Symbol;
 
 	if( fn.Exists() && Symbol.LoadFile(fn.GetFullPath()) )
 	{
-		double	s	= m_Image_Scale  * size;
-		double	o	= m_Image_Offset * size;
+		double s = m_Image_Scale  * size;
+		double o = m_Image_Offset * size;
 
-		int		sx	= Symbol.GetWidth ();
-		int		sy	= Symbol.GetHeight();
+		int   sx = Symbol.GetWidth ();
+		int   sy = Symbol.GetHeight();
 
-		double	d	= (double)sx / (double)sy;
+		double d = (double)sx / (double)sy;
 
 		switch( m_Image_Fit )
 		{
 		default:
-			sx	= d >  1.0 ? s : (int)(0.5 + s * d);
-			sy	= d <= 1.0 ? s : (int)(0.5 + s / d);
+			sx = d >  1. ? s : (int)(0.5 + s * d);
+			sy = d <= 1. ? s : (int)(0.5 + s / d);
 			break;
 
-		case  1:	// width
-			sx	= s;
-			sy	= (int)(0.5 + s / d);
+		case  1: // width
+			sx = s;
+			sy = (int)(0.5 + s / d);
 			break;
 
-		case  2:	// height
-			sx	= (int)(0.5 + s * d);
-			sy	= s;
+		case  2: // height
+			sx = (int)(0.5 + s * d);
+			sy = s;
 			break;
 		}
 
@@ -832,7 +852,7 @@ void CWKSP_Shapes_Point::_Image_Draw(wxDC &dc, int x, int y, int size, const wxS
 			if( m_Image_Align & TEXTALIGN_YCENTER ) { y -= sy / 2; } else
 			if( m_Image_Align & TEXTALIGN_BOTTOM  ) { y -= o + sy; }
 
-			dc.DrawBitmap(wxBitmap(Symbol.Scale(sx, sy)), x, y, true);
+			dc_Map.DrawBitmap(wxBitmap(Symbol.Scale(sx, sy)), x, y, true);
 		}
 	}
 }
@@ -843,28 +863,26 @@ void CWKSP_Shapes_Point::_Image_Draw(wxDC &dc, int x, int y, int size, const wxS
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Point::_Beachball_Draw(wxDC &dc, int x, int y, int size, double strike, double dip, double rake)
+void CWKSP_Shapes_Point::_Beachball_Draw(CWKSP_Map_DC &dc_Map, int x, int y, int size, double strike, double dip, double rake)
 {
-	const double	dArc	= 5.0;
+	const double dArc = 5.;
 
-	strike	*= M_DEG_TO_RAD;
-	dip		*= M_DEG_TO_RAD;
-	rake	*= M_DEG_TO_RAD;
+	strike *= M_DEG_TO_RAD; dip *= M_DEG_TO_RAD; rake *= M_DEG_TO_RAD;
 
-	CSG_Shapes	Plot(SHAPE_TYPE_Polygon);
+	CSG_Shapes Plot(SHAPE_TYPE_Polygon);
 
-	Plot.Add_Shape();	// 0, unit circle
+	Plot.Add_Shape(); // 0, unit circle
 
-	for(double a=0.0; a<M_PI_360; a+=dArc*M_DEG_TO_RAD)
+	for(double a=0.; a<M_PI_360; a+=dArc*M_DEG_TO_RAD)
 	{
 		Plot.Get_Shape(0)->Add_Point(sin(a), cos(a));
 	}
 
-	CSG_Vector	N(3);
+	CSG_Vector N(3);
 
 	N[0] = 0; N[1] = 0; N[2] = 1;
 
-	SG_VectorR3_Rotate(N, 1, dip);
+	SG_VectorR3_Rotate(N, 1,    dip);
 	SG_VectorR3_Rotate(N, 2, strike);
 
 	_Beachball_Get_Plane(Plot.Add_Shape(), Plot.Get_Shape(0), N);	// 1, fault plane
@@ -873,8 +891,8 @@ void CWKSP_Shapes_Point::_Beachball_Draw(wxDC &dc, int x, int y, int size, doubl
 
 	rake = fmod(rake, M_PI_360); if( rake < -M_PI_180 ) rake += M_PI_360; else if( rake > M_PI_180 ) rake -= M_PI_360;
 
-	SG_VectorR3_Rotate(N, 2, -rake);
-	SG_VectorR3_Rotate(N, 1, dip);
+	SG_VectorR3_Rotate(N, 2,  -rake);
+	SG_VectorR3_Rotate(N, 1,    dip);
 	SG_VectorR3_Rotate(N, 2, strike);
 
 	_Beachball_Get_Plane(Plot.Add_Shape(), Plot.Get_Shape(0), N);	// 2, auxiliary plane
@@ -883,9 +901,9 @@ void CWKSP_Shapes_Point::_Beachball_Draw(wxDC &dc, int x, int y, int size, doubl
 	SG_Shape_Get_Intersection(Plot.Get_Shape(0), Plot.Get_Shape(1)->asPolygon(), Plot.Add_Shape());	// 3
 	SG_Shape_Get_Difference  (Plot.Get_Shape(0), Plot.Get_Shape(1)->asPolygon(), Plot.Add_Shape());	// 4
 
-	CSG_Shape_Polygon	*pPlot[2];
+	CSG_Shape_Polygon *pPlot[2];
 
-	if( rake < 0.0 )
+	if( rake < 0. )
 	{
 		SG_Shape_Get_Difference  (Plot.Get_Shape(3), Plot.Get_Shape(2)->asPolygon(), pPlot[0] = (CSG_Shape_Polygon *)Plot.Add_Shape());
 		SG_Shape_Get_Intersection(Plot.Get_Shape(4), Plot.Get_Shape(2)->asPolygon(), pPlot[1] = (CSG_Shape_Polygon *)Plot.Add_Shape());
@@ -897,33 +915,33 @@ void CWKSP_Shapes_Point::_Beachball_Draw(wxDC &dc, int x, int y, int size, doubl
 	}
 
 	//-----------------------------------------------------
-	dc.DrawCircle(x, y, size);
+	dc_Map.DrawCircle(x, y, size);
 
-	wxBrush	b = dc.GetBrush(); dc.SetBrush(*wxWHITE_BRUSH);
+	wxBrush b = dc_Map.Get_DC().GetBrush(); dc_Map.SetBrush(*wxWHITE_BRUSH);
 
 	for(int i=0; i<2; i++)
 	{
-		// SG_Shape_Get_Offset(pPlot[i], -0.01, dArc);
+	//	SG_Shape_Get_Offset(pPlot[i], -0.01, dArc);
 		_Beachball_Get_Scaled(pPlot[i], x,  y, size);
 
 		if( pPlot[i]->Get_Area() > 1 )
 		{
-			wxPoint	*Points	= new wxPoint[pPlot[i]->Get_Point_Count(0)];
+			wxPoint *Points = new wxPoint[pPlot[i]->Get_Point_Count(0)];
 
 			for(int iPoint=0; iPoint<pPlot[i]->Get_Point_Count(0); iPoint++)
 			{
-				TSG_Point	p		= pPlot[i]->Get_Point(iPoint, 0);
-				Points[iPoint].x	= (int)(p.x + 0.5);
-				Points[iPoint].y	= (int)(p.y + 0.5);
+				CSG_Point p(pPlot[i]->Get_Point(iPoint, 0));
+				Points[iPoint].x = (int)(p.x + 0.5);
+				Points[iPoint].y = (int)(p.y + 0.5);
 			}
 
-			dc.DrawPolygon(pPlot[i]->Get_Point_Count(0), Points);
+			dc_Map.DrawPolygon(pPlot[i]->Get_Point_Count(0), Points);
 
 			delete[](Points);
 		}
 	}
 
-	dc.SetBrush(b);
+	dc_Map.SetBrush(b);
 }
 
 //---------------------------------------------------------

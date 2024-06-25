@@ -112,12 +112,14 @@ protected:
 	virtual void				Draw_Shape				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Selection);
 	virtual void				Draw_Label				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label);
 
+	void						Draw_Symbol				(CWKSP_Map_DC &dc, int x, int y, int size);
+
 
 private:
 
-	void						_Image_Draw				(wxDC &dc, int x, int y, int size, const wxString &file);
+	void						_Image_Draw				(CWKSP_Map_DC &dc, int x, int y, int size, const wxString &file);
 
-	void						_Beachball_Draw			(wxDC &dc, int x, int y, int size, double strike, double dip, double rake);
+	void						_Beachball_Draw			(CWKSP_Map_DC &dc, int x, int y, int size, double strike, double dip, double rake);
 	void						_Beachball_Get_Plane	(CSG_Shape *pPlane, CSG_Shape *pCircle, const CSG_Vector &Normal);
 	void						_Beachball_Get_Scaled	(CSG_Shape *pShape, double x, double y, double size);
 

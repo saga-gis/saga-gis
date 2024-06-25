@@ -333,7 +333,7 @@ void CWKSP_Shapes_Line::Draw_Initialize(CWKSP_Map_DC &dc_Map, int Flags)
 
 	m_Pen.SetStyle((wxPenStyle)(m_Line_Style = PenList_Get_Style("LINE_STYLE")));
 
-	dc_Map.dc.SetPen(m_Pen);
+	dc_Map.SetPen(m_Pen);
 }
 
 //---------------------------------------------------------
@@ -380,8 +380,8 @@ void CWKSP_Shapes_Line::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int 
 
 		switch( m_Size_Type )
 		{
-		default: Size *= dc_Map.m_Scale   ; break;
-		case  1: Size *= dc_Map.m_World2DC; break;
+		default: Size *= dc_Map.Scale()   ; break;
+		case  1: Size *= dc_Map.World2DC(); break;
 		}
 
 		Pen.SetWidth(Size < 0 ? 0 : (int)(0.5 + Size));
@@ -390,7 +390,7 @@ void CWKSP_Shapes_Line::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int 
 	//-----------------------------------------------------
 	if( m_Effect )
 	{
-		wxColour	Color	= Pen.GetColour();	Pen.SetColour(m_Effect_Color);	dc_Map.dc.SetPen(Pen);
+		wxColour	Color	= Pen.GetColour();	Pen.SetColour(m_Effect_Color);	dc_Map.SetPen(Pen);
 
 		if( m_Effect & TEXTEFFECT_TOP         )	_Draw_Shape(dc_Map, pShape,  0, -1);
 		if( m_Effect & TEXTEFFECT_TOPLEFT     )	_Draw_Shape(dc_Map, pShape, -1, -1);
@@ -405,11 +405,11 @@ void CWKSP_Shapes_Line::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int 
 	}
 
 	//-----------------------------------------------------
-	dc_Map.dc.SetPen(Pen);
+	dc_Map.SetPen(Pen);
 
 	_Draw_Shape(dc_Map, pShape);
 
-	dc_Map.dc.SetPen(m_Pen);
+	dc_Map.SetPen(m_Pen);
 }
 
 //---------------------------------------------------------
@@ -425,7 +425,7 @@ void CWKSP_Shapes_Line::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int
 			{
 				TSG_Point_Int B = A; A = dc_Map.World2DC(pShape->Get_Point(iPoint, iPart)); A.x += xOffset; A.y += yOffset;
 
-				dc_Map.dc.DrawLine(A.x, A.y, B.x, B.y);
+				dc_Map.DrawLine(A.x, A.y, B.x, B.y);
 			}
 		}
 	}
@@ -446,7 +446,7 @@ void CWKSP_Shapes_Line::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, cons
 	{
 		TSG_Point_Int	C	= dc_Map.World2DC(pLine->Get_Centroid());
 
-		Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, C.x, C.y, Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
+		dc_Map.DrawText(TEXTALIGN_CENTER, C.x, C.y, Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
 	} break;
 
 	//-----------------------------------------------------
@@ -475,7 +475,7 @@ void CWKSP_Shapes_Line::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, cons
 
 						TSG_Point_Int	C	= dc_Map.World2DC(A);
 
-						Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, C.x, C.y, Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
+						dc_Map.DrawText(TEXTALIGN_CENTER, C.x, C.y, Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
 					}
 					else
 					{
@@ -484,11 +484,11 @@ void CWKSP_Shapes_Line::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, cons
 
 						if( m_Label_Orient == 0 )
 						{
-							Draw_Text(dc_Map.dc, m_Label_Align, A.x, A.y, GET_ANGLE(B, A), Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
+							dc_Map.DrawText(m_Label_Align, A.x, A.y, GET_ANGLE(B, A), Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
 						}
 						else
 						{
-							Draw_Text(dc_Map.dc, m_Label_Align, B.x, B.y, GET_ANGLE(A, B), Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
+							dc_Map.DrawText(m_Label_Align, B.x, B.y, GET_ANGLE(A, B), Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
 						}
 					}
 				}
@@ -499,11 +499,11 @@ void CWKSP_Shapes_Line::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, cons
 	//-----------------------------------------------------
 	case  3:	// along line labeling
 	{
-		wxCoord	Width, Height;	dc_Map.dc.GetTextExtent(Label, &Width, &Height);
+		wxCoord	Width, Height;	dc_Map.Get_DC().GetTextExtent(Label, &Width, &Height);
 
 		for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
 		{
-			if( pLine->Get_Point_Count(iPart) < 2 || Width > dc_Map.m_World2DC * pLine->Get_Length(iPart) )
+			if( pLine->Get_Point_Count(iPart) < 2 || Width > dc_Map.World2DC() * pLine->Get_Length(iPart) )
 			{
 				continue;
 			}
@@ -536,11 +536,11 @@ void CWKSP_Shapes_Line::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, cons
 
 						if( m_Label_Orient == 0 )
 						{
-							Draw_Text(dc_Map.dc, m_Label_Align, A.x, A.y, GET_ANGLE(B, A), Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
+							dc_Map.DrawText(m_Label_Align, A.x, A.y, GET_ANGLE(B, A), Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
 						}
 						else
 						{
-							Draw_Text(dc_Map.dc, m_Label_Align, B.x, B.y, GET_ANGLE(A, B), Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
+							dc_Map.DrawText(m_Label_Align, B.x, B.y, GET_ANGLE(A, B), Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
 						}
 					}
 				}
@@ -608,15 +608,15 @@ void CWKSP_Shapes_Line::Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
 	{
 		if( m_Edit_bGleam )
 		{
-			dc_Map.dc.SetPen(wxPen(m_Edit_Color, 3));
-			dc_Map.dc.SetLogicalFunction(wxINVERT);
+			dc_Map.SetPen(wxPen(m_Edit_Color, 3));
+			dc_Map.Get_DC().SetLogicalFunction(wxINVERT);
 
 			_Draw_Shape(dc_Map, m_Edit_pShape);
 
-			dc_Map.dc.SetLogicalFunction(wxCOPY);
+			dc_Map.Get_DC().SetLogicalFunction(wxCOPY);
 		}
 
-		dc_Map.dc.SetPen(wxPen(m_Edit_Color));
+		dc_Map.SetPen(wxPen(m_Edit_Color));
 
 		_Draw_Shape(dc_Map, m_Edit_pShape);
 

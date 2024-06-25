@@ -1081,30 +1081,30 @@ void CWKSP_Shapes::Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
 		{
 			for(int iPoint=0; iPoint<m_Edit_pShape->Get_Point_Count(iPart); iPoint++)
 			{
-				_Edit_Shape_Draw_Point(dc_Map.dc, dc_Map.World2DC(m_Edit_pShape->Get_Point(iPoint, iPart)), false);
+				_Edit_Shape_Draw_Point(dc_Map.Get_DC(), dc_Map.World2DC(m_Edit_pShape->Get_Point(iPoint, iPart)), false);
 			}
 		}
 
 		if( m_Edit_iPart >= 0 && m_Edit_iPoint >= 0 )
 		{
-			_Edit_Shape_Draw_Point(dc_Map.dc, dc_Map.World2DC(m_Edit_pShape->Get_Point(m_Edit_iPoint, m_Edit_iPart)), true);
+			_Edit_Shape_Draw_Point(dc_Map.Get_DC(), dc_Map.World2DC(m_Edit_pShape->Get_Point(m_Edit_iPoint, m_Edit_iPart)), true);
 		}
 
 		if( m_Parameters("EDIT_SNAP_LIST")->asShapesList()->Get_Item_Count() > 0 )
 		{
 			int	iPoint	= m_Parameters("EDIT_SNAP_DIST")->asInt();
 
-			dc_Map.dc.SetBrush(wxNullBrush);
-			dc_Map.dc.SetPen  (*wxWHITE);
-			dc_Map.dc.DrawCircle(1 + iPoint, 1 + iPoint, iPoint - 1);
-			dc_Map.dc.DrawCircle(1 + iPoint, 1 + iPoint, iPoint + 1);
+			dc_Map.SetBrush(wxNullBrush);
+			dc_Map.SetPen  (*wxWHITE);
+			dc_Map.DrawCircle(1 + iPoint, 1 + iPoint, iPoint - 1);
+			dc_Map.DrawCircle(1 + iPoint, 1 + iPoint, iPoint + 1);
 
-			dc_Map.dc.SetPen  (*wxBLACK);
-			dc_Map.dc.DrawCircle(1 + iPoint, 1 + iPoint, iPoint);
+			dc_Map.SetPen  (*wxBLACK);
+			dc_Map.DrawCircle(1 + iPoint, 1 + iPoint, iPoint);
 
-			dc_Map.dc.SetBrush(*wxBLACK);
-			dc_Map.dc.SetPen  (*wxBLACK);
-			dc_Map.dc.DrawCircle(1 + iPoint, 1 + iPoint, 1);
+			dc_Map.SetBrush(*wxBLACK);
+			dc_Map.SetPen  (*wxBLACK);
+			dc_Map.DrawCircle(1 + iPoint, 1 + iPoint, 1);
 		}
 	}
 }

@@ -732,7 +732,7 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Grid *pGrid)
 			}
 		}
 
-		if( m_Histogram.Update() && m_Histogram.Get_Element_Count() < pGrid->Get_Max_Samples() )	// any no-data cells ?
+		if( m_Histogram.Update() && m_Histogram.Get_Element_Count() < (size_t)pGrid->Get_Max_Samples() )	// any no-data cells ?
 		{
 			d	*= (double)m_Histogram.Get_Element_Count() / (double)pGrid->Get_Max_Samples();
 		}
@@ -772,7 +772,7 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Grids *pGrids)
 			}
 		}
 
-		if( m_Histogram.Update() && m_Histogram.Get_Element_Count() < pGrids->Get_Max_Samples() )	// any no-data cells ?
+		if( m_Histogram.Update() && m_Histogram.Get_Element_Count() < (size_t)pGrids->Get_Max_Samples() )	// any no-data cells ?
 		{
 			d	*= (double)m_Histogram.Get_Element_Count() / (double)pGrids->Get_Max_Samples();
 		}
@@ -836,7 +836,7 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Shapes *pShapes, int Attribute,
 			}
 		}
 
-		if( m_Histogram.Update() && m_Histogram.Get_Element_Count() < pShapes->Get_Max_Samples() )	// any no-data cells ?
+		if( m_Histogram.Update() && m_Histogram.Get_Element_Count() < (size_t)pShapes->Get_Max_Samples() )	// any no-data cells ?
 		{
 			d	*= (double)m_Histogram.Get_Element_Count() / (double)pShapes->Get_Max_Samples();
 		}

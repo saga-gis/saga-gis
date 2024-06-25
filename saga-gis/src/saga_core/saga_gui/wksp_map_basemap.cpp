@@ -512,7 +512,7 @@ bool CWKSP_Map_BaseMap::Draw(CWKSP_Map_DC &dc_Map)
 	if( !m_Parameters("SHOW_ALWAYS")->asBool() )
 	{
 		CSG_Parameter_Range	*pRange	= m_Parameters("SHOW_RANGE")->asRange();
-		double	dRange	= dc_Map.m_rWorld.Get_XRange() > dc_Map.m_rWorld.Get_YRange() ? dc_Map.m_rWorld.Get_XRange() : dc_Map.m_rWorld.Get_YRange();
+		double	dRange	= dc_Map.rWorld().Get_XRange() > dc_Map.rWorld().Get_YRange() ? dc_Map.rWorld().Get_XRange() : dc_Map.rWorld().Get_YRange();
 
 		if( dRange < pRange->Get_Min() || pRange->Get_Max() < dRange )
 		{
@@ -521,7 +521,7 @@ bool CWKSP_Map_BaseMap::Draw(CWKSP_Map_DC &dc_Map)
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid_System	System(dc_Map.m_DC2World, dc_Map.m_rWorld.Get_XMin(), dc_Map.m_rWorld.Get_YMin(), dc_Map.m_rDC.GetWidth(), dc_Map.m_rDC.GetHeight());
+	CSG_Grid_System	System(dc_Map.DC2World(), dc_Map.rWorld().Get_XMin(), dc_Map.rWorld().Get_YMin(), dc_Map.rDC().GetWidth(), dc_Map.rDC().GetHeight());
 
 	if( !System.is_Equal(m_BaseMap.Get_System()) && !Set_BaseMap(System) )
 	{
@@ -529,18 +529,18 @@ bool CWKSP_Map_BaseMap::Draw(CWKSP_Map_DC &dc_Map)
 	}
 
 	//-----------------------------------------------------
-	if( dc_Map.IMG_Draw_Begin(m_Parameters("TRANSPARENCY")->asDouble() / 100.) )
+	if( dc_Map.Draw_Image_Begin(m_Parameters("TRANSPARENCY")->asDouble() / 100.) )
 	{
 		#pragma omp parallel for
 		for(int y=0; y<m_BaseMap.Get_NY(); y++)	for(int x=0, yy=m_BaseMap.Get_NY()-y-1; x<m_BaseMap.Get_NX(); x++)
 		{
 			if( !m_BaseMap.is_NoData(x, yy) )
 			{
-				dc_Map.IMG_Set_Pixel(x, y, m_BaseMap.asInt(x, yy));
+				dc_Map.Draw_Image_Pixel(x, y, m_BaseMap.asInt(x, yy));
 			}
 		}
 
-		dc_Map.IMG_Draw_End();
+		dc_Map.Draw_Image_End();
 	}
 
 	//-----------------------------------------------------

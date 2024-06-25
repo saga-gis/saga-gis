@@ -125,12 +125,12 @@ CWKSP_Layer *	Get_Active_Layer(void)
 CWKSP_Layer::CWKSP_Layer(CSG_Data_Object *pObject)
 	: CWKSP_Data_Item(pObject)
 {
-	m_pClassify		= new CWKSP_Layer_Classify;
-	m_pLegend		= new CWKSP_Layer_Legend(this);
+	m_pClassify  = new CWKSP_Layer_Classify;
+	m_pLegend    = new CWKSP_Layer_Legend(this);
 
-	m_pHistogram	= NULL;
+	m_pHistogram = NULL;
 
-	m_Edit_Index	= 0;
+	m_Edit_Index = 0;
 }
 
 //---------------------------------------------------------
@@ -160,14 +160,14 @@ bool CWKSP_Layer::On_Command(int Cmd_ID)
 		return( CWKSP_Data_Item::On_Command(Cmd_ID) );
 
 	case ID_CMD_WKSP_ITEM_RETURN:
-	case ID_CMD_SHAPES_SHOW:
-	case ID_CMD_GRID_SHOW:
-	case ID_CMD_TIN_SHOW:
-	case ID_CMD_POINTCLOUD_SHOW:
+	case ID_CMD_SHAPES_SHOW     :
+	case ID_CMD_GRID_SHOW       :
+	case ID_CMD_TIN_SHOW        :
+	case ID_CMD_POINTCLOUD_SHOW :
 		g_pMaps->Add(this);
 		break;
 
-	case ID_CMD_DATA_PROJECTION:
+	case ID_CMD_DATA_PROJECTION :
 		_Set_Projection();
 		break;
 	}
@@ -845,9 +845,8 @@ bool CWKSP_Layer::_Set_Thumbnail(bool bRefresh)
 {
 	if( m_pObject && m_Thumbnail.IsOk() && m_Thumbnail.GetWidth() > 0 && m_Thumbnail.GetHeight() > 0 )
 	{
-		wxMemoryDC		dc;
-		wxRect			r(0, 0, m_Thumbnail.GetWidth(), m_Thumbnail.GetHeight());
-		CWKSP_Map_DC	dc_Map(Get_Extent(), r, 1., SG_GET_RGB(255, 255, 255));
+		wxMemoryDC dc; wxRect r(0, 0, m_Thumbnail.GetWidth(), m_Thumbnail.GetHeight());
+		CWKSP_Map_DC dc_Map(Get_Extent(), r);
 
 		Draw(dc_Map, LAYER_DRAW_FLAG_NOEDITS|LAYER_DRAW_FLAG_NOLABELS|LAYER_DRAW_FLAG_THUMBNAIL);
 
@@ -1023,21 +1022,21 @@ bool CWKSP_Layer::Draw(CWKSP_Map_DC &dc_Map, int Flags, CSG_Data_Object *pObject
 {
 	if( pObject && pObject->is_Valid() && pObject->Get_ObjectType() == m_pObject->Get_ObjectType() )
 	{
-		CSG_Data_Object	*pOriginal	= m_pObject;
+		CSG_Data_Object	*pOriginal = m_pObject;
 
-		m_pObject	= pObject;
+		m_pObject = pObject;
 
 		On_Draw(dc_Map, Flags);
 
-		m_pObject	= pOriginal;
+		m_pObject = pOriginal;
 	}
 	else
 	{
 		On_Draw(dc_Map, Flags);
 	}
 
-	dc_Map.dc.SetBrush(wxNullBrush);
-	dc_Map.dc.SetPen  (wxNullPen  );
+	dc_Map.SetBrush(wxNullBrush);
+	dc_Map.SetPen  (wxNullPen  );
 
 	return( true );
 }

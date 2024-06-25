@@ -1077,30 +1077,22 @@ void CWKSP_Grids::_Save_Image(void)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Grids::Get_Image_Grid(wxBitmap &BMP, bool bFitSize)
+bool CWKSP_Grids::Get_Image_Grid(wxBitmap &Bitmap, bool bFitSize)
 {
-	if( bFitSize || (BMP.GetWidth() > 0 && BMP.GetHeight() > 0) )
+	if( bFitSize || (Bitmap.GetWidth() > 0 && Bitmap.GetHeight() > 0) )
 	{
 		Set_Buisy_Cursor(true);
 
 		if( bFitSize )
 		{
-			BMP.Create(Get_Grids()->Get_NX(), Get_Grids()->Get_NY());
+			Bitmap.Create(Get_Grids()->Get_NX(), Get_Grids()->Get_NY());
 		}
 
-		wxMemoryDC		dc;
-		wxRect			r(0, 0, BMP.GetWidth(), BMP.GetHeight());
-		CWKSP_Map_DC	dc_Map(Get_Extent(), r, 1., SG_GET_RGB(255, 255, 255));
+		CWKSP_Map_DC dc_Map(Get_Extent(), wxRect(0, 0, Bitmap.GetWidth(), Bitmap.GetHeight()), 1., -1, true);
 
 		On_Draw(dc_Map, false);
 
-		dc.SelectObject(BMP);
-		dc.SetBackground(*wxWHITE_BRUSH);
-		dc.Clear();
-
-		dc_Map.Draw(dc);
-
-		dc.SelectObject(wxNullBitmap);
+		dc_Map.Get_Bitmap(Bitmap);
 
 		Set_Buisy_Cursor(false);
 
@@ -1111,16 +1103,15 @@ bool CWKSP_Grids::Get_Image_Grid(wxBitmap &BMP, bool bFitSize)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Grids::Get_Image_Legend(wxBitmap &BMP, double Zoom)
+bool CWKSP_Grids::Get_Image_Legend(wxBitmap &Bitmap, double Zoom)
 {
 	if( Zoom > 0. )
 	{
-		wxMemoryDC	dc;
-		wxSize		s(Get_Legend()->Get_Size(Zoom, 1.));
+		wxMemoryDC dc; wxSize s(Get_Legend()->Get_Size(Zoom, 1.));
 
-		BMP.Create(s.GetWidth(), s.GetHeight());
+		Bitmap.Create(s.GetWidth(), s.GetHeight());
 
-		dc.SelectObject(BMP);
+		dc.SelectObject(Bitmap);
 		dc.SetBackground(*wxWHITE_BRUSH);
 		dc.Clear();
 
@@ -1142,7 +1133,7 @@ bool CWKSP_Grids::Get_Image_Legend(wxBitmap &BMP, double Zoom)
 //---------------------------------------------------------
 void CWKSP_Grids::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 {
-	if( Get_Grid() == NULL || Get_Grids()->Get_NZ() < 1 || Get_Extent().Intersects(dc_Map.m_rWorld) == INTERSECTION_None )
+	if( Get_Grid() == NULL || Get_Grids()->Get_NZ() < 1 || Get_Extent().Intersects(dc_Map.rWorld()) == INTERSECTION_None )
 	{
 		return;
 	}
@@ -1150,7 +1141,7 @@ void CWKSP_Grids::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	//-----------------------------------------------------
 	int	Mode = m_pClassify->Get_Mode() == CLASSIFY_OVERLAY && Get_Grid(3) ? IMG_MODE_TRANSPARENT_ALPHA : IMG_MODE_TRANSPARENT;
 
-	if( !dc_Map.IMG_Draw_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100., Mode) )
+	if( !dc_Map.Draw_Image_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100., Mode) )
 	{
 		return;
 	}
@@ -1184,7 +1175,7 @@ void CWKSP_Grids::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	}
 
 	//-----------------------------------------------------
-	if(	dc_Map.m_DC2World >= Get_Grids()->Get_Cellsize() || Resampling != GRID_RESAMPLING_NearestNeighbour )
+	if(	dc_Map.DC2World() >= Get_Grids()->Get_Cellsize() || Resampling != GRID_RESAMPLING_NearestNeighbour )
 	{
 		_Draw_Grid_Nodes(dc_Map, Resampling);
 	}
@@ -1194,7 +1185,7 @@ void CWKSP_Grids::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	}
 
 	//-----------------------------------------------------
-	dc_Map.IMG_Draw_End();
+	dc_Map.Draw_Image_End();
 }
 
 //---------------------------------------------------------
@@ -1216,11 +1207,11 @@ void CWKSP_Grids::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Res
 	}
 
 	//-----------------------------------------------------
-	CSG_Rect	rMap(dc_Map.m_rWorld);	rMap.Intersect(Get_Grids()->Get_Extent(true));
+	CSG_Rect	rMap(dc_Map.rWorld());	rMap.Intersect(Get_Grids()->Get_Extent(true));
 
 	int	axDC	= (int)dc_Map.xWorld2DC(rMap.Get_XMin());	if( axDC < 0 )	axDC	= 0;
-	int	bxDC	= (int)dc_Map.xWorld2DC(rMap.Get_XMax());	if( bxDC >= dc_Map.m_rDC.GetWidth () )	bxDC	= dc_Map.m_rDC.GetWidth () - 1;
-	int	ayDC	= (int)dc_Map.yWorld2DC(rMap.Get_YMin());	if( ayDC >= dc_Map.m_rDC.GetHeight() )	ayDC	= dc_Map.m_rDC.GetHeight() - 1;
+	int	bxDC	= (int)dc_Map.xWorld2DC(rMap.Get_XMax());	if( bxDC >= dc_Map.rDC().GetWidth () )	bxDC	= dc_Map.rDC().GetWidth () - 1;
+	int	ayDC	= (int)dc_Map.yWorld2DC(rMap.Get_YMin());	if( ayDC >= dc_Map.rDC().GetHeight() )	ayDC	= dc_Map.rDC().GetHeight() - 1;
 	int	byDC	= (int)dc_Map.yWorld2DC(rMap.Get_YMax());	if( byDC < 0 )	byDC	= 0;
 	int	nyDC	= abs(ayDC - byDC);
 
@@ -1236,67 +1227,62 @@ void CWKSP_Grids::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Res
 //---------------------------------------------------------
 void CWKSP_Grids::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling, CSG_Grid *pBands[4], bool bBandWise, int yDC, int axDC, int bxDC)
 {
-	double	xMap	= dc_Map.xDC2World(axDC);
-	double	yMap	= dc_Map.yDC2World( yDC);
+	double xMap = dc_Map.xDC2World(axDC);
+	double yMap = dc_Map.yDC2World( yDC);
 
-	for(int xDC=axDC; xDC<=bxDC; xMap+=dc_Map.m_DC2World, xDC++)
+	for(int xDC=axDC; xDC<=bxDC; xMap+=dc_Map.DC2World(), xDC++)
 	{
 		if( m_pClassify->Get_Mode() != CLASSIFY_OVERLAY )
 		{
-			double	z;
+			double z; int c;
 
-			if( pBands[0]->Get_Value(xMap, yMap, z, Resampling, false) )
+			if( pBands[0]->Get_Value(xMap, yMap, z, Resampling, false) && m_pClassify->Get_Class_Color_byValue(z, c) )
 			{
-				int  c;
-
-				if( m_pClassify->Get_Class_Color_byValue(z, c) )
-				{
-					dc_Map.IMG_Set_Pixel(xDC, yDC, c);
-				}
+				dc_Map.Draw_Image_Pixel(xDC, yDC, c);
 			}
 		}
 		else
 		{
-			double	z[4];	bool	bOkay;
+			double z[4]; bool bOkay;
 
 			if( pBands[3] == NULL )
 			{
-				bOkay	= pBands[0]->Get_Value(xMap, yMap, z[0], Resampling, false)
-					&&    pBands[1]->Get_Value(xMap, yMap, z[1], Resampling, false)
-					&&    pBands[2]->Get_Value(xMap, yMap, z[2], Resampling, false);
-				z[3]	= 255.;
+				bOkay = pBands[0]->Get_Value(xMap, yMap, z[0], Resampling, false)
+				     && pBands[1]->Get_Value(xMap, yMap, z[1], Resampling, false)
+				     && pBands[2]->Get_Value(xMap, yMap, z[2], Resampling, false);
+				z[3]  = 255.;
 			}
 			else
 			{
-				z[3]	= (pBands[3]->Get_Value(xMap, yMap, Resampling) - m_Alpha[0]) * m_Alpha[1];
+				z[3] = (pBands[3]->Get_Value(xMap, yMap, Resampling) - m_Alpha[0]) * m_Alpha[1];
 
 				if( (bOkay = z[3] > 0.) == true )
 				{
 					if( z[3] > 255. )
 					{
-						z[3]	= 255.;
+						z[3] = 255.;
 					}
 
-					z[0]	= pBands[0]->Get_Value(xMap, yMap, Resampling);
-					z[1]	= pBands[1]->Get_Value(xMap, yMap, Resampling);
-					z[2]	= pBands[2]->Get_Value(xMap, yMap, Resampling);
+					z[0] = pBands[0]->Get_Value(xMap, yMap, Resampling);
+					z[1] = pBands[1]->Get_Value(xMap, yMap, Resampling);
+					z[2] = pBands[2]->Get_Value(xMap, yMap, Resampling);
 				}
 			}
 
 			if( bOkay )
 			{
-				BYTE c[4];	c[3] = (BYTE)z[3];
+				BYTE c[4]; c[3] = (BYTE)z[3];
 
 				for(int i=0; i<3; i++)
 				{
-					double	d	= bBandWise
+					double d = bBandWise
 						? 255. * m_Classify[i].Get_MetricToRelative(z[i])
 						: 255. * m_pClassify ->Get_MetricToRelative(z[i]);
 
 					c[i] = d < 0. ? 0 : d > 255. ? 255 : (BYTE)d;
 				}
 
-				dc_Map.IMG_Set_Pixel(xDC, yDC, *(int *)&c);
+				dc_Map.Draw_Image_Pixel(xDC, yDC, *(int *)&c);
 			}
 		}
 	}
@@ -1305,9 +1291,9 @@ void CWKSP_Grids::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Res
 //---------------------------------------------------------
 void CWKSP_Grids::_Draw_Grid_Cells(CWKSP_Map_DC &dc_Map)
 {
-	bool	bBandWise	= m_Parameters("OVERLAY_FIT")->asInt() != 0;	// bandwise statistics
+	bool bBandWise = m_Parameters("OVERLAY_FIT")->asInt() != 0;	// bandwise statistics
 
-	CSG_Grid	*pBands[4];
+	CSG_Grid *pBands[4];
 
 	if( m_pClassify->Get_Mode() == CLASSIFY_OVERLAY )
 	{
@@ -1323,32 +1309,32 @@ void CWKSP_Grids::_Draw_Grid_Cells(CWKSP_Map_DC &dc_Map)
 	}
 
 	//-----------------------------------------------------
-	int xa	= Get_Grids()->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMin()); if( xa <  0                     ) xa = 0;
-	int	ya	= Get_Grids()->Get_System().Get_yWorld_to_Grid(dc_Map.m_rWorld.Get_YMin()); if( ya <  0                     ) ya = 0;
-	int	xb	= Get_Grids()->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMax()); if( xb >= Get_Grids()->Get_NX() ) xb = Get_Grids()->Get_NX() - 1;
-	int	yb	= Get_Grids()->Get_System().Get_yWorld_to_Grid(dc_Map.m_rWorld.Get_YMax()); if( yb >= Get_Grids()->Get_NY() ) yb = Get_Grids()->Get_NY() - 1;
+	int xa = Get_Grids()->Get_System().Get_xWorld_to_Grid(dc_Map.rWorld().Get_XMin()); if( xa <  0                     ) xa = 0;
+	int ya = Get_Grids()->Get_System().Get_yWorld_to_Grid(dc_Map.rWorld().Get_YMin()); if( ya <  0                     ) ya = 0;
+	int xb = Get_Grids()->Get_System().Get_xWorld_to_Grid(dc_Map.rWorld().Get_XMax()); if( xb >= Get_Grids()->Get_NX() ) xb = Get_Grids()->Get_NX() - 1;
+	int yb = Get_Grids()->Get_System().Get_yWorld_to_Grid(dc_Map.rWorld().Get_YMax()); if( yb >= Get_Grids()->Get_NY() ) yb = Get_Grids()->Get_NY() - 1;
 
-	double	dDC  = Get_Grids()->Get_Cellsize() * dc_Map.m_World2DC;
+	double  dDC = Get_Grids()->Get_Cellsize() * dc_Map.World2DC();
 
-	double	axDC = dc_Map.xWorld2DC(Get_Grids()->Get_System().Get_xGrid_to_World(xa)) + dDC / 2.;
-	double	ayDC = dc_Map.yWorld2DC(Get_Grids()->Get_System().Get_yGrid_to_World(ya)) - dDC / 2.;
+	double axDC = dc_Map.xWorld2DC(Get_Grids()->Get_System().Get_xGrid_to_World(xa)) + dDC / 2.;
+	double ayDC = dc_Map.yWorld2DC(Get_Grids()->Get_System().Get_yGrid_to_World(ya)) - dDC / 2.;
 
 	//-----------------------------------------------------
-	double	yDC	= ayDC;
+	double  yDC = ayDC;
 
 	for(int y=ya, yaDC=(int)(ayDC), ybDC=(int)(ayDC+dDC); y<=yb; y++, ybDC=yaDC, yaDC=(int)(yDC-=dDC))
 	{
-		double	xDC	= axDC;
+		double xDC = axDC;
 
 		for(int x=xa, xaDC=(int)(axDC-dDC), xbDC=(int)(axDC); x<=xb; x++, xaDC=xbDC, xbDC=(int)(xDC+=dDC))
 		{
 			if( m_pClassify->Get_Mode() != CLASSIFY_OVERLAY )
 			{
-				int  c;
+				int c;
 
 				if( pBands[0]->is_InGrid(x, y) && m_pClassify->Get_Class_Color_byValue(pBands[0]->asDouble(x, y), c) )
 				{
-					dc_Map.IMG_Set_Rect(xaDC, yaDC, xbDC, ybDC, c);
+					dc_Map.Draw_Image_Pixels(xaDC, yaDC, xbDC, ybDC, c);
 				}
 			}
 			else if( pBands[0]->is_InGrid(x, y, !pBands[3])
@@ -1360,7 +1346,7 @@ void CWKSP_Grids::_Draw_Grid_Cells(CWKSP_Map_DC &dc_Map)
 
 				for(int i=0; i<3; i++)
 				{
-					double	d	= bBandWise
+					double d = bBandWise
 						? 255. * m_Classify[i].Get_MetricToRelative(pBands[i]->asDouble(x, y))
 						: 255. * m_pClassify ->Get_MetricToRelative(pBands[i]->asDouble(x, y));
 
@@ -1369,18 +1355,18 @@ void CWKSP_Grids::_Draw_Grid_Cells(CWKSP_Map_DC &dc_Map)
 
 				if( pBands[3] )
 				{
-					double	d	= (pBands[3]->asDouble(x, y) - m_Alpha[0]) * m_Alpha[1];
+					double d = (pBands[3]->asDouble(x, y) - m_Alpha[0]) * m_Alpha[1];
 
 					if( d > 0. )
 					{
 						c[3] = d < 255. ? (BYTE)d : 255;
 
-						dc_Map.IMG_Set_Rect(xaDC, yaDC, xbDC, ybDC, *(int *)&c);
+						dc_Map.Draw_Image_Pixels(xaDC, yaDC, xbDC, ybDC, *(int *)&c);
 					}
 				}
 				else
 				{
-					dc_Map.IMG_Set_Rect(xaDC, yaDC, xbDC, ybDC, *(int *)&c);
+					dc_Map.Draw_Image_Pixels(xaDC, yaDC, xbDC, ybDC, *(int *)&c);
 				}
 			}
 		}

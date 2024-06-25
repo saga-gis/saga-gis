@@ -606,7 +606,7 @@ bool CWKSP_Map_Layer::_Projected_Shapes_Draw(CWKSP_Map_DC &dc_Map, int Flags, CS
 	}
 	else
 	{
-		CSG_Rect	rMap(dc_Map.m_rWorld);	rMap.Inflate(dc_Map.m_DC2World, false);	// inflate by one pixel
+		CSG_Rect	rMap(dc_Map.rWorld());	rMap.Inflate(dc_Map.DC2World(), false);	// inflate by one pixel
 
 		_Projected_Shapes_Clipped(rMap, pShapes, Shapes);
 	}
@@ -631,7 +631,7 @@ bool CWKSP_Map_Layer::Draw(CWKSP_Map_DC &dc_Map, int Flags)
 
 	if( !m_bProject || !_Projected_Get_Projections(prj_Layer, prj_Map) )
 	{
-		if( m_pLayer->do_Show(dc_Map.m_rWorld) )
+		if( m_pLayer->do_Show(dc_Map.rWorld()) )
 		{
 			m_pLayer->Draw(dc_Map, Flags);
 		}
@@ -640,7 +640,7 @@ bool CWKSP_Map_Layer::Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	}
 
 	//-----------------------------------------------------
-	CSG_Rect	rLayer(_Projected_Get_Layer_Extent(dc_Map.m_rWorld));
+	CSG_Rect	rLayer(_Projected_Get_Layer_Extent(dc_Map.rWorld()));
 
 	if( !m_pLayer->do_Show(rLayer, false) )
 	{
@@ -699,7 +699,7 @@ bool CWKSP_Map_Layer::Draw(CWKSP_Map_DC &dc_Map, int Flags)
 			return( true );
 		}
 
-		CSG_Grid_System	System(dc_Map.m_DC2World, dc_Map.m_rWorld.Get_XMin(), dc_Map.m_rWorld.Get_YMin(), dc_Map.dc.GetSize().GetWidth(), dc_Map.dc.GetSize().GetHeight());
+		CSG_Grid_System	System(dc_Map.DC2World(), dc_Map.rWorld().Get_XMin(), dc_Map.rWorld().Get_YMin(), dc_Map.Get_DC().GetSize().GetWidth(), dc_Map.Get_DC().GetSize().GetHeight());
 
 		if( !System.is_Valid() || !Grid.Create(System, pGrid->Get_Type()) )
 		{
@@ -739,7 +739,7 @@ bool CWKSP_Map_Layer::Draw(CWKSP_Map_DC &dc_Map, int Flags)
 			return( true );
 		}
 
-		CSG_Grid_System	System(dc_Map.m_DC2World, dc_Map.m_rWorld.Get_XMin(), dc_Map.m_rWorld.Get_YMin(), dc_Map.dc.GetSize().GetWidth(), dc_Map.dc.GetSize().GetHeight());
+		CSG_Grid_System	System(dc_Map.DC2World(), dc_Map.rWorld().Get_XMin(), dc_Map.rWorld().Get_YMin(), dc_Map.Get_DC().GetSize().GetWidth(), dc_Map.Get_DC().GetSize().GetHeight());
 
 		if( !System.is_Valid() )
 		{

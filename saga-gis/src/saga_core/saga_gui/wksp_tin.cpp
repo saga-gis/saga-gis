@@ -372,7 +372,7 @@ bool CWKSP_TIN::Edit_Set_Attributes(void)
 //---------------------------------------------------------
 void CWKSP_TIN::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 {
-	if( Get_Extent().Intersects(dc_Map.m_rWorld) != INTERSECTION_None )
+	if( Get_Extent().Intersects(dc_Map.rWorld()) != INTERSECTION_None )
 	{
 		if( m_fValue >= 0 )
 		{
@@ -403,7 +403,7 @@ void CWKSP_TIN::_Draw_Points(CWKSP_Map_DC &dc_Map)
 	{
 		TSG_Point_Int	Point	= dc_Map.World2DC(asTIN()->Get_Node(i)->Get_Point());
 
-		dc_Map.dc.DrawCircle(Point.x, Point.y, 5);
+		dc_Map.DrawCircle(Point.x, Point.y, 5);
 	}
 }
 
@@ -418,20 +418,20 @@ void CWKSP_TIN::_Draw_Edges(CWKSP_Map_DC &dc_Map)
 		Point[0]	= dc_Map.World2DC(pEdge->Get_Node(0)->Get_Point());
 		Point[1]	= dc_Map.World2DC(pEdge->Get_Node(1)->Get_Point());
 
-		dc_Map.dc.DrawLine(Point[0].x, Point[0].y, Point[1].x, Point[1].y);
+		dc_Map.DrawLine(Point[0].x, Point[0].y, Point[1].x, Point[1].y);
 	}
 }
 
 //---------------------------------------------------------
 void CWKSP_TIN::_Draw_Triangles(CWKSP_Map_DC &dc_Map)
 {
-	if(	m_Parameters("DISPLAY_TRIANGES")->asBool() && dc_Map.IMG_Draw_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.) )
+	if(	m_Parameters("DISPLAY_TRIANGES")->asBool() && dc_Map.Draw_Image_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.) )
 	{
 		for(sLong iTriangle=0; iTriangle<asTIN()->Get_Triangle_Count(); iTriangle++)
 		{
 			CSG_TIN_Triangle	*pTriangle	= asTIN()->Get_Triangle(iTriangle);
 
-			if( dc_Map.m_rWorld.Intersects(pTriangle->Get_Extent()) != INTERSECTION_None )
+			if( dc_Map.rWorld().Intersects(pTriangle->Get_Extent()) != INTERSECTION_None )
 			{
 				TPoint	p[3];
 
@@ -449,7 +449,7 @@ void CWKSP_TIN::_Draw_Triangles(CWKSP_Map_DC &dc_Map)
 			}
 		}
 
-		dc_Map.IMG_Draw_End();
+		dc_Map.Draw_Image_End();
 	}
 }
 
@@ -462,7 +462,7 @@ void CWKSP_TIN::_Draw_Triangles(CWKSP_Map_DC &dc_Map)
 #define SORT_POINTS_Y(a, b)	if( p[a].y < p[b].y ) {	pp = p[a]; p[a] = p[b]; p[b] = pp;	}
 #define SORT_POINTS_X(a, b)	if( p[a].x < p[b].x ) {	pp = p[a]; p[a] = p[b]; p[b] = pp;	}
 
-#define DRAW_PIXEL(x, y, z)	if( m_pClassify->Get_Class_Color_byValue(z, Color) )	{	dc_Map.IMG_Set_Pixel(x, y, Color);	}
+#define DRAW_PIXEL(x, y, z)	if( m_pClassify->Get_Class_Color_byValue(z, Color) ) { dc_Map.Draw_Image_Pixel(x, y, Color); }
 
 //---------------------------------------------------------
 void CWKSP_TIN::_Draw_Triangle(CWKSP_Map_DC &dc_Map, TPoint p[3])
@@ -479,7 +479,7 @@ void CWKSP_TIN::_Draw_Triangle(CWKSP_Map_DC &dc_Map, TPoint p[3])
 	//-----------------------------------------------------
 	if( p[2].y == p[0].y )
 	{
-		if( p[0].y >= 0 && p[0].y < dc_Map.m_rDC.GetHeight() )
+		if( p[0].y >= 0 && p[0].y < dc_Map.rDC().GetHeight() )
 		{
 			SORT_POINTS_X(1, 0);
 			SORT_POINTS_X(2, 0);
@@ -488,7 +488,7 @@ void CWKSP_TIN::_Draw_Triangle(CWKSP_Map_DC &dc_Map, TPoint p[3])
 			//---------------------------------------------
 			if( p[2].x == p[0].x )
 			{
-				if(	p[0].x >= 0 && p[0].x < dc_Map.m_rDC.GetWidth() )
+				if(	p[0].x >= 0 && p[0].x < dc_Map.rDC().GetWidth() )
 				{
 					DRAW_PIXEL(p[0].x, p[0].y, p[0].z > p[1].z
 						? (p[0].z > p[2].z ? p[0].z : p[2].z)
@@ -507,7 +507,7 @@ void CWKSP_TIN::_Draw_Triangle(CWKSP_Map_DC &dc_Map, TPoint p[3])
 	}
 
 	//-----------------------------------------------------
-	else if( !((p[0].y < 0 && p[2].y < 0) || (p[0].y >= dc_Map.m_rDC.GetHeight() && p[2].y >= dc_Map.m_rDC.GetHeight())) )
+	else if( !((p[0].y < 0 && p[2].y < 0) || (p[0].y >= dc_Map.rDC().GetHeight() && p[2].y >= dc_Map.rDC().GetHeight())) )
 	{
 		dy		=  p[2].y - p[0].y;
 		dx_a	= (p[2].x - p[0].x) / dy;
@@ -533,9 +533,9 @@ void CWKSP_TIN::_Draw_Triangle(CWKSP_Map_DC &dc_Map, TPoint p[3])
 					z_a		 = p[0].z - p[0].y * dz_a;
 				}
 
-				if( (y_j = p[j].y) > dc_Map.m_rDC.GetHeight() )
+				if( (y_j = p[j].y) > dc_Map.rDC().GetHeight() )
 				{
-					y_j		= dc_Map.m_rDC.GetHeight();
+					y_j		= dc_Map.rDC().GetHeight();
 				}
 
 				for( ; y<y_j; y++, x+=dx, z+=dz, x_a+=dx_a, z_a+=dz_a)
@@ -570,9 +570,9 @@ inline void CWKSP_TIN::_Draw_Triangle_Line(CWKSP_Map_DC &dc_Map, int xa, int xb,
 			xa	 = 0;
 		}
 
-		if( xb >= dc_Map.m_rDC.GetWidth() )
+		if( xb >= dc_Map.rDC().GetWidth() )
 		{
-			xb	= dc_Map.m_rDC.GetWidth() - 1;
+			xb	= dc_Map.rDC().GetWidth() - 1;
 		}
 
 		for(int x=xa; x<=xb; x++, za+=dz)
@@ -580,7 +580,7 @@ inline void CWKSP_TIN::_Draw_Triangle_Line(CWKSP_Map_DC &dc_Map, int xa, int xb,
 			DRAW_PIXEL(x, y, za);
 		}
 	}
-	else if( xa >= 0 && xa < dc_Map.m_rDC.GetWidth() )
+	else if( xa >= 0 && xa < dc_Map.rDC().GetWidth() )
 	{
 		DRAW_PIXEL(xa, y, za);
 	}

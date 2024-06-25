@@ -466,15 +466,16 @@ bool CWKSP_Map_Graticule::Get_Graticule(const CSG_Rect &Extent)
 //---------------------------------------------------------
 bool CWKSP_Map_Graticule::Draw(CWKSP_Map_DC &dc_Map)
 {
-	if( !Get_Graticule(dc_Map.m_rWorld) || m_Graticule.Get_Count() <= 0 )
+	if( !Get_Graticule(dc_Map.rWorld()) || m_Graticule.Get_Count() <= 0 )
 	{
 		return( false );
 	}
 
 	if( !m_Parameters("SHOW_ALWAYS")->asBool() )
 	{
-		CSG_Parameter_Range	*pRange	= m_Parameters("SHOW_RANGE")->asRange();
-		double	dRange	= dc_Map.m_rWorld.Get_XRange() > dc_Map.m_rWorld.Get_YRange() ? dc_Map.m_rWorld.Get_XRange() : dc_Map.m_rWorld.Get_YRange();
+		CSG_Parameter_Range *pRange = m_Parameters("SHOW_RANGE")->asRange();
+
+		double dRange = dc_Map.rWorld().Get_XRange() > dc_Map.rWorld().Get_YRange() ? dc_Map.rWorld().Get_XRange() : dc_Map.rWorld().Get_YRange();
 
 		if( dRange < pRange->Get_Min() || pRange->Get_Max() < dRange )
 		{
@@ -483,50 +484,50 @@ bool CWKSP_Map_Graticule::Draw(CWKSP_Map_DC &dc_Map)
 	}
 
 	//-----------------------------------------------------
-	CWKSP_Map_DC	*pDC	= m_Parameters("TRANSPARENCY")->asDouble() > 0.0 ? new CWKSP_Map_DC(dc_Map.m_rWorld, dc_Map.m_rDC, dc_Map.m_Scale, SG_GET_RGB(255, 255, 255)) : NULL;
-	CWKSP_Map_DC	&dc		= pDC ? *pDC : dc_Map;
+	if( m_Parameters("TRANSPARENCY")->asDouble() > 0. )
+	{
+		dc_Map.Draw_Layer_Begin();
+	}
 
 	//-----------------------------------------------------
-	wxPen	Pen(m_Parameters("COLOR")->asColor(), m_Parameters("SIZE")->asInt());
+	wxPen Pen(m_Parameters("COLOR")->asColor(), m_Parameters("SIZE")->asInt());
 
 	switch( m_Parameters("LINE_STYLE")->asInt() )
 	{
-	default:
-	case  0:	Pen.SetStyle(wxPENSTYLE_SOLID           );	break; // Solid style.
-	case  1:	Pen.SetStyle(wxPENSTYLE_DOT             );	break; // Dotted style.
-	case  2:	Pen.SetStyle(wxPENSTYLE_LONG_DASH       );	break; // Long dashed style.
-	case  3:	Pen.SetStyle(wxPENSTYLE_SHORT_DASH      );	break; // Short dashed style.
-	case  4:	Pen.SetStyle(wxPENSTYLE_DOT_DASH        );	break; // Dot and dash style.
-	case  5:	Pen.SetStyle(wxPENSTYLE_BDIAGONAL_HATCH );	break; // Backward diagonal hatch.
-	case  6:	Pen.SetStyle(wxPENSTYLE_CROSSDIAG_HATCH );	break; // Cross-diagonal hatch.
-	case  7:	Pen.SetStyle(wxPENSTYLE_FDIAGONAL_HATCH );	break; // Forward diagonal hatch.
-	case  8:	Pen.SetStyle(wxPENSTYLE_CROSS_HATCH     );	break; // Cross hatch.
-	case  9:	Pen.SetStyle(wxPENSTYLE_HORIZONTAL_HATCH);	break; // Horizontal hatch.
-	case 10:	Pen.SetStyle(wxPENSTYLE_VERTICAL_HATCH  );	break; // Vertical hatch.
-//	case 11:	Pen.SetStyle(wxPENSTYLE_STIPPLE         );	break; // Use the stipple bitmap. 
-//	case 12:	Pen.SetStyle(wxPENSTYLE_USER_DASH       );	break; // Use the user dashes: see wxPen::SetDashes.
-//	case 13:	Pen.SetStyle(wxPENSTYLE_TRANSPARENT     );	break; // No pen is used.
+	default: Pen.SetStyle(wxPENSTYLE_SOLID           ); break; // Solid style.
+	case  1: Pen.SetStyle(wxPENSTYLE_DOT             ); break; // Dotted style.
+	case  2: Pen.SetStyle(wxPENSTYLE_LONG_DASH       ); break; // Long dashed style.
+	case  3: Pen.SetStyle(wxPENSTYLE_SHORT_DASH      ); break; // Short dashed style.
+	case  4: Pen.SetStyle(wxPENSTYLE_DOT_DASH        ); break; // Dot and dash style.
+	case  5: Pen.SetStyle(wxPENSTYLE_BDIAGONAL_HATCH ); break; // Backward diagonal hatch.
+	case  6: Pen.SetStyle(wxPENSTYLE_CROSSDIAG_HATCH ); break; // Cross-diagonal hatch.
+	case  7: Pen.SetStyle(wxPENSTYLE_FDIAGONAL_HATCH ); break; // Forward diagonal hatch.
+	case  8: Pen.SetStyle(wxPENSTYLE_CROSS_HATCH     ); break; // Cross hatch.
+	case  9: Pen.SetStyle(wxPENSTYLE_HORIZONTAL_HATCH); break; // Horizontal hatch.
+	case 10: Pen.SetStyle(wxPENSTYLE_VERTICAL_HATCH  ); break; // Vertical hatch.
+//	case 11: Pen.SetStyle(wxPENSTYLE_STIPPLE         ); break; // Use the stipple bitmap. 
+//	case 12: Pen.SetStyle(wxPENSTYLE_USER_DASH       ); break; // Use the user dashes: see wxPen::SetDashes.
+//	case 13: Pen.SetStyle(wxPENSTYLE_TRANSPARENT     ); break; // No pen is used.
 	}
 
-	dc.dc.SetPen(Pen);
+	dc_Map.SetPen(Pen);
 
 	//-----------------------------------------------------
 	for(sLong iLine=0; iLine<m_Graticule.Get_Count(); iLine++)
 	{
-		CSG_Shape	*pLine	= m_Graticule.Get_Shape(iLine);
+		CSG_Shape *pLine = m_Graticule.Get_Shape(iLine);
 
 		for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
 		{
 			if( pLine->Get_Point_Count(iPart) > 1 )
 			{
-				TSG_Point_Int	B, A	= dc.World2DC(pLine->Get_Point(0, iPart));
+				TSG_Point_Int B, A = dc_Map.World2DC(pLine->Get_Point(0, iPart));
 
 				for(int iPoint=1; iPoint<pLine->Get_Point_Count(iPart); iPoint++)
 				{
-					B		= A;
-					A		= dc.World2DC(pLine->Get_Point(iPoint, iPart));
+					B = A; A = dc_Map.World2DC(pLine->Get_Point(iPoint, iPart));
 
-					dc.dc.DrawLine(A.x, A.y, B.x, B.y);
+					dc_Map.DrawLine(A.x, A.y, B.x, B.y);
 				}
 			}
 		}
@@ -535,62 +536,59 @@ bool CWKSP_Map_Graticule::Draw(CWKSP_Map_DC &dc_Map)
 	//-----------------------------------------------------
 	if( m_Parameters("LABEL")->asBool() )
 	{
-		int	Size	= (int)(0.5 + 0.01 * m_Parameters("LABEL_SIZE")->asDouble()
-		*	( dc.m_rDC.GetWidth() < dc.m_rDC.GetHeight()
-			? dc.m_rDC.GetWidth() : dc.m_rDC.GetHeight() )
+		int Size = (int)(0.5 + 0.01 * m_Parameters("LABEL_SIZE")->asDouble()
+		*   ( dc_Map.rDC().GetWidth() < dc_Map.rDC().GetHeight()
+		    ? dc_Map.rDC().GetWidth() : dc_Map.rDC().GetHeight() )
 		);
 
 		if( Size > 2 )
 		{
-			int			Effect, Units	= m_Parameters("LABEL_UNITS")->asInt(), Decimals = m_Parameters("LABEL_DECIMALS")->asInt();
-			wxColour	Effect_Color	= Get_Color_asWX(m_Parameters("LABEL_EFFCOL")->asInt());
-			wxFont		Font	= Get_Font(m_Parameters("LABEL_FONT"));
+			int      Effect, Units = m_Parameters("LABEL_UNITS")->asInt(), Decimals = m_Parameters("LABEL_DECIMALS")->asInt();
+			wxColour Effect_Color  = Get_Color_asWX(m_Parameters("LABEL_EFFCOL")->asInt());
+			wxFont   Font          = Get_Font(m_Parameters("LABEL_FONT"));
 
 			Font.SetPointSize(Size);
 
-			dc.dc.SetFont(Font);
-			dc.dc.SetTextForeground(m_Parameters("LABEL_FONT")->asColor());
+			dc_Map.SetFont(Font);
+			dc_Map.Get_DC().SetTextForeground(m_Parameters("LABEL_FONT")->asColor());
 
 			switch( m_Parameters("LABEL_EFFECT")->asInt() )
 			{
-			default:	Effect	= TEXTEFFECT_NONE       ;	break;
-			case  1:	Effect	= TEXTEFFECT_FRAME      ;	break;
-			case  2:	Effect	= TEXTEFFECT_TOP        ;	break;
-			case  3:	Effect	= TEXTEFFECT_TOPLEFT    ;	break;
-			case  4:	Effect	= TEXTEFFECT_LEFT       ;	break;
-			case  5:	Effect	= TEXTEFFECT_BOTTOMLEFT ;	break;
-			case  6:	Effect	= TEXTEFFECT_BOTTOM     ;	break;
-			case  7:	Effect	= TEXTEFFECT_BOTTOMRIGHT;	break;
-			case  8:	Effect	= TEXTEFFECT_RIGHT      ;	break;
-			case  9:	Effect	= TEXTEFFECT_TOPRIGHT   ;	break;
+			default: Effect = TEXTEFFECT_NONE       ; break;
+			case  1: Effect = TEXTEFFECT_FRAME      ; break;
+			case  2: Effect = TEXTEFFECT_TOP        ; break;
+			case  3: Effect = TEXTEFFECT_TOPLEFT    ; break;
+			case  4: Effect = TEXTEFFECT_LEFT       ; break;
+			case  5: Effect = TEXTEFFECT_BOTTOMLEFT ; break;
+			case  6: Effect = TEXTEFFECT_BOTTOM     ; break;
+			case  7: Effect = TEXTEFFECT_BOTTOMRIGHT; break;
+			case  8: Effect = TEXTEFFECT_RIGHT      ; break;
+			case  9: Effect = TEXTEFFECT_TOPRIGHT   ; break;
 			}
 
 			for(sLong iPoint=0; iPoint<m_Coordinates.Get_Count(); iPoint++)
 			{
-				CSG_Shape	*pPoint	= m_Coordinates.Get_Shape(iPoint);
+				CSG_Shape *pPoint = m_Coordinates.Get_Shape(iPoint);
 
-				TSG_Point_Int	p(dc.World2DC(pPoint->Get_Point()));
-				wxString		Type(pPoint->asString(0));
+				TSG_Point_Int p(dc_Map.World2DC(pPoint->Get_Point())); wxString Type(pPoint->asString(0));
 
-				int	Align	= !Type.Cmp("LAT_MIN") ? TEXTALIGN_CENTERLEFT
-							: !Type.Cmp("LAT_MAX") ? TEXTALIGN_CENTERRIGHT
-							: !Type.Cmp("LON_MIN") ? TEXTALIGN_BOTTOMCENTER
-							: !Type.Cmp("LON_MAX") ? TEXTALIGN_TOPCENTER
-							: TEXTALIGN_CENTER;
+				int Align =
+					!Type.Cmp("LAT_MIN") ? TEXTALIGN_CENTERLEFT   :
+					!Type.Cmp("LAT_MAX") ? TEXTALIGN_CENTERRIGHT  :
+					!Type.Cmp("LON_MIN") ? TEXTALIGN_BOTTOMCENTER :
+					!Type.Cmp("LON_MAX") ? TEXTALIGN_TOPCENTER    : TEXTALIGN_CENTER;
 
-				CSG_String	Coordinate(Get_Unit(pPoint, Units, Decimals, (Align & TEXTALIGN_YCENTER) != 0));
+				CSG_String Coordinate(Get_Unit(pPoint, Units, Decimals, (Align & TEXTALIGN_YCENTER) != 0));
 
-				Draw_Text(dc.dc, Align, p.x, p.y, 0.0, Coordinate.c_str(), Effect, Effect_Color);
+				dc_Map.DrawText(Align, p.x, p.y, 0.0, Coordinate.c_str(), Effect, Effect_Color);
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	if( pDC )
+	if( m_Parameters("TRANSPARENCY")->asDouble() > 0. )
 	{
-		dc_Map.Draw_DC(dc, m_Parameters("TRANSPARENCY")->asDouble() / 100.0);
-
-		delete(pDC);
+		dc_Map.Draw_Layer_End(m_Parameters("TRANSPARENCY")->asDouble() / 100.);
 	}
 
 	return( true );

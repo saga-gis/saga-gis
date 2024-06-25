@@ -72,6 +72,8 @@ class CTable_Text_Replacer : public CSG_Tool
 public:
 	CTable_Text_Replacer(void);
 
+	virtual CSG_String	Get_MenuPath			(void)	{	return( ";A:Shapes|Attributes" );	}
+
 
 protected:
 

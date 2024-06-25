@@ -1162,7 +1162,7 @@ wxString CWKSP_Shapes::Get_Name_Attribute(void)
 void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 {
 	//-----------------------------------------------------
-	if( Get_Extent().Intersects(dc_Map.m_rWorld) == INTERSECTION_None )
+	if( Get_Extent().Intersects(dc_Map.rWorld()) == INTERSECTION_None )
 	{
 		if( m_Edit_pShape )
 		{
@@ -1186,30 +1186,30 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	}
 
 	//-----------------------------------------------------
-	double	Transparency	= m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.;
+	if( m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() > 0. )
+	{
+		dc_Map.Draw_Layer_Begin();
+	}
 
-	CWKSP_Map_DC	*pDC	= Transparency > 0. ? new CWKSP_Map_DC(dc_Map.m_rWorld, dc_Map.m_rDC, dc_Map.m_Scale, SG_GET_RGB(254, 255, 255)) : NULL;
-	CWKSP_Map_DC	&dc		= pDC ? *pDC : dc_Map;
+	m_Sel_Color   = Get_Color_asWX(m_Parameters("SEL_COLOR" )->asInt());
+	m_Edit_Color  = Get_Color_asWX(m_Parameters("EDIT_COLOR")->asInt());
+	m_Edit_bGleam =                m_Parameters("EDIT_GLEAM")->asBool();
 
-	m_Sel_Color		= Get_Color_asWX(m_Parameters("SEL_COLOR" )->asInt());
-	m_Edit_Color	= Get_Color_asWX(m_Parameters("EDIT_COLOR")->asInt());
-	m_Edit_bGleam	=                m_Parameters("EDIT_GLEAM")->asBool();
-
-	Draw_Initialize(dc, Flags);
+	Draw_Initialize(dc_Map, Flags);
 
 	//-----------------------------------------------------
 	if( (Flags & LAYER_DRAW_FLAG_NOEDITS) != 0 || !(m_Edit_pShape || Get_Shapes()->Get_Selection_Count()) )
 	{
 		for(sLong iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
 		{
-			_Draw_Shape(dc, Get_Shapes()->Get_Shape(iShape));
+			_Draw_Shape(dc_Map, Get_Shapes()->Get_Shape(iShape));
 		}
 
 		if( _Chart_is_Valid() )
 		{
 			for(sLong iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
 			{
-				_Draw_Chart(dc, Get_Shapes()->Get_Shape(iShape));
+				_Draw_Chart(dc_Map, Get_Shapes()->Get_Shape(iShape));
 			}
 		}
 	}
@@ -1219,7 +1219,7 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 		{
 			if( !Get_Shapes()->Get_Shape(iShape)->is_Selected() )
 			{
-				_Draw_Shape(dc, Get_Shapes()->Get_Shape(iShape));
+				_Draw_Shape(dc_Map, Get_Shapes()->Get_Shape(iShape));
 			}
 		}
 
@@ -1227,37 +1227,37 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 		{
 			if( iShape != m_Edit_Index )
 			{
-				_Draw_Shape(dc, Get_Shapes()->Get_Selection(iShape), 2);
+				_Draw_Shape(dc_Map, Get_Shapes()->Get_Selection(iShape), 2);
 			}
 		}
 
 		//-------------------------------------------------
 		if( !m_Edit_pShape )
 		{
-			_Draw_Shape(dc, Get_Shapes()->Get_Selection(m_Edit_Index), 1);
+			_Draw_Shape(dc_Map, Get_Shapes()->Get_Selection(m_Edit_Index), 1);
 		}
 		else
 		{
-			Edit_Shape_Draw(dc);
+			Edit_Shape_Draw(dc_Map);
 		}
 
 		if( m_Edit_Mode == EDIT_SHAPE_MODE_Split )
 		{
-			CSG_Shape	*pSplit	= m_Edit_Shapes.Get_Shape(1);
+			CSG_Shape *pSplit = m_Edit_Shapes.Get_Shape(1);
 
 			if( pSplit && pSplit->Get_Point_Count() > 1 )
 			{
 				for(int i=0; i<=1; i++)
 				{
-					dc_Map.dc.SetPen(wxPen(i == 0 ? *wxWHITE : *wxBLACK, i == 0 ? 3 : 1));
+					dc_Map.SetPen(wxPen(i == 0 ? *wxWHITE : *wxBLACK, i == 0 ? 3 : 1));
 
-					TSG_Point_Int	B, A	= dc_Map.World2DC(pSplit->Get_Point());
+					TSG_Point_Int B, A = dc_Map.World2DC(pSplit->Get_Point());
 
 					for(int iPoint=1; iPoint<pSplit->Get_Point_Count(); iPoint++)
 					{
-						B	= A;	A	= dc_Map.World2DC(pSplit->Get_Point(iPoint));
+						B = A; A = dc_Map.World2DC(pSplit->Get_Point(iPoint));
 
-						dc_Map.dc.DrawLine(A.x, A.y, B.x, B.y);
+						dc_Map.DrawLine(A.x, A.y, B.x, B.y);
 					}
 				}
 			}
@@ -1267,52 +1267,50 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	//-----------------------------------------------------
 	if( (Flags & LAYER_DRAW_FLAG_NOLABELS) == 0 && m_fLabel >= 0 )	// Labels
 	{
-		int		iSize	= m_Parameters("LABEL_ATTRIB_SIZE_BY"  )->asInt();
-		double	dSize	= m_Parameters("LABEL_ATTRIB_SIZE_TYPE")->asInt() == 1 ?
-			dc.m_World2DC * m_Parameters("LABEL_ATTRIB_SIZE")->asDouble() : 1.;
+		int    iSize = m_Parameters("LABEL_ATTRIB_SIZE_BY"  )->asInt();
+		double dSize = m_Parameters("LABEL_ATTRIB_SIZE_TYPE")->asInt() == 1 ?
+			dc_Map.World2DC() * m_Parameters("LABEL_ATTRIB_SIZE")->asDouble() : 1.;
 
-		dc.dc.SetFont(Get_Font (m_Parameters("LABEL_ATTRIB_FONT")));
-		dc.dc.SetTextForeground(m_Parameters("LABEL_ATTRIB_FONT")->asColor());
+		dc_Map.SetFont(Get_Font(m_Parameters("LABEL_ATTRIB_FONT")));
+		dc_Map.Get_DC().SetTextForeground(m_Parameters("LABEL_ATTRIB_FONT")->asColor());
 
 		if( iSize >= 0 && iSize < Get_Shapes()->Get_Field_Count() )	// size by attribute
 		{
 			for(sLong iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
 			{
-				int	Size	= (int)(0.5 + dSize * Get_Shapes()->Get_Shape(iShape)->asDouble(iSize));
+				int Size = (int)(0.5 + dSize * Get_Shapes()->Get_Shape(iShape)->asDouble(iSize));
 
 				if( Size > 0 )
 				{
-					_Draw_Label(dc, Get_Shapes()->Get_Shape(iShape), Size);
+					_Draw_Label(dc_Map, Get_Shapes()->Get_Shape(iShape), Size);
 				}
 			}
 		}
 		else	// one size fits all
 		{
-			int	Size	= m_Parameters("LABEL_ATTRIB_SIZE_TYPE")->asInt() == 1 ? (int)(0.5 + dSize) : dc.dc.GetFont().GetPointSize();
+			int Size = m_Parameters("LABEL_ATTRIB_SIZE_TYPE")->asInt() == 1 ? (int)(0.5 + dSize) : dc_Map.Get_DC().GetFont().GetPointSize();
 
 			if( Size > 0 )
 			{
 				for(sLong iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
 				{
-					_Draw_Label(dc, Get_Shapes()->Get_Shape(iShape), Size);
+					_Draw_Label(dc_Map, Get_Shapes()->Get_Shape(iShape), Size);
 				}
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	if( pDC )	// Transparency ?
+	if( m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() > 0. ) // Transparency ?
 	{
-		dc_Map.Draw_DC(dc, Transparency);
-
-		delete(pDC);
+		dc_Map.Draw_Layer_End(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.);
 	}
 }
 
 //---------------------------------------------------------
 void CWKSP_Shapes::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)
 {
-	if( pShape && dc_Map.m_rWorld.Intersects(pShape->Get_Extent()) != INTERSECTION_None )
+	if( pShape && dc_Map.rWorld().Intersects(pShape->Get_Extent()) != INTERSECTION_None )
 	{
 		Draw_Shape(dc_Map, pShape, Selection);
 
@@ -1320,8 +1318,8 @@ void CWKSP_Shapes::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Sele
 		{
 			bool bLabel = m_bVertices == 2 && (Selection || m_pObject->asShapes()->Get_Selection_Count() == 0);
 
-			wxPen   oldPen  (dc_Map.dc.GetPen  ()); dc_Map.dc.SetPen  (*wxBLACK_PEN  );
-			wxBrush oldBrush(dc_Map.dc.GetBrush()); dc_Map.dc.SetBrush(*wxWHITE_BRUSH);
+			wxPen   oldPen  (dc_Map.Get_DC().GetPen  ()); dc_Map.SetPen  (*wxBLACK_PEN  );
+			wxBrush oldBrush(dc_Map.Get_DC().GetBrush()); dc_Map.SetBrush(*wxWHITE_BRUSH);
 
 			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
@@ -1329,17 +1327,17 @@ void CWKSP_Shapes::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Sele
 				{
 					TSG_Point_Int A = dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
 
-					dc_Map.dc.DrawCircle(A.x, A.y, 2);
+					dc_Map.DrawCircle(A.x, A.y, 2);
 
 					if( bLabel )
 					{
-						Draw_Text(dc_Map.dc, TEXTALIGN_TOPLEFT, A.x, A.y, wxString::Format("%d", iPoint + 1));
+						dc_Map.DrawText(TEXTALIGN_TOPLEFT, A.x, A.y, wxString::Format("%d", iPoint + 1));
 					}
 				}
 			}
 
-			dc_Map.dc.SetPen  (oldPen  );
-			dc_Map.dc.SetBrush(oldBrush);
+			dc_Map.SetPen  (oldPen  );
+			dc_Map.SetBrush(oldBrush);
 		}
 	}
 }
@@ -1347,19 +1345,19 @@ void CWKSP_Shapes::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Sele
 //---------------------------------------------------------
 void CWKSP_Shapes::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int PointSize)
 {
-	if( pShape && dc_Map.m_rWorld.Intersects(pShape->Get_Extent()) != INTERSECTION_None )
+	if( pShape && dc_Map.rWorld().Intersects(pShape->Get_Extent()) != INTERSECTION_None )
 	{
 		wxString	Label(pShape->asString(m_fLabel, m_Label_Prec));	Label.Trim(true).Trim(false);
 
 		if( !Label.IsEmpty() )
 		{
-			if( PointSize > 0 && PointSize != dc_Map.dc.GetFont().GetPointSize() )
+			if( PointSize > 0 && PointSize != dc_Map.Get_DC().GetFont().GetPointSize() )
 			{
-				wxFont	Font(dc_Map.dc.GetFont());
+				wxFont	Font(dc_Map.Get_DC().GetFont());
 
 				Font.SetPointSize(PointSize);
 
-				dc_Map.dc.SetFont(Font);
+				dc_Map.SetFont(Font);
 			}
 
 			Draw_Label(dc_Map, pShape, Label);
@@ -1663,7 +1661,7 @@ bool CWKSP_Shapes::_Chart_Get_Options(void)
 //---------------------------------------------------------
 void CWKSP_Shapes::_Draw_Chart(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 {
-	if( dc_Map.m_rWorld.Intersects(pShape->Get_Extent()) != INTERSECTION_None )
+	if( dc_Map.rWorld().Intersects(pShape->Get_Extent()) != INTERSECTION_None )
 	{
 		int			s;
 		double		dSize	= m_Chart_sSize;
@@ -1679,7 +1677,7 @@ void CWKSP_Shapes::_Draw_Chart(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 			}
 		}
 
-		s	= (int)(dSize * (m_Chart_sType == 1 ? dc_Map.m_World2DC : dc_Map.m_Scale));
+		s	= (int)(dSize * (m_Chart_sType == 1 ? dc_Map.World2DC() : dc_Map.Scale()));
 
 		switch( pShape->Get_Type() )
 		{
@@ -1687,7 +1685,7 @@ void CWKSP_Shapes::_Draw_Chart(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 		case SHAPE_TYPE_Polygon:	p	= dc_Map.World2DC(((CSG_Shape_Polygon *)pShape)->Get_Centroid());	break;
 		}
 
-		dc_Map.dc.SetPen(*wxBLACK_PEN);
+		dc_Map.SetPen(*wxBLACK_PEN);
 
 		switch( m_Chart_Type )
 		{
@@ -1712,22 +1710,20 @@ void CWKSP_Shapes::_Draw_Chart_Pie(CWKSP_Map_DC &dc_Map, CSG_Table_Record *pReco
 
 	if( sum > 0. )
 	{
-		sum	= M_PI_360 / sum;
+		sum = M_PI_360 / sum;
 
 		for(i=0, jx=x, jy=y-size, d=0.; i<m_Chart.Get_Count(); i++)
 		{
 			if( !bOutline )
-			dc_Map.dc.SetPen	(wxPen  (Get_Color_asWX(m_Chart[i].y)));
-			dc_Map.dc.SetBrush	(wxBrush(Get_Color_asWX(m_Chart[i].y)));
+			dc_Map.SetPen  (wxPen  (Get_Color_asWX(m_Chart[i].y)));
+			dc_Map.SetBrush(wxBrush(Get_Color_asWX(m_Chart[i].y)));
 
-			d	+= sum * fabs(pRecord->asDouble(m_Chart[i].x));
+			d += sum * fabs(pRecord->asDouble(m_Chart[i].x));
 
-			ix	= jx;
-			iy	= jy;
-			jx	= x - (int)(size * sin(-d));
-			jy	= y - (int)(size * cos(-d));
+			ix = jx; jx = x - (int)(size * sin(-d));
+			iy = jy; jy = y - (int)(size * cos(-d));
 
-			dc_Map.dc.DrawArc(jx, jy, ix, iy, x, y);
+			dc_Map.DrawArc(jx, jy, ix, iy, x, y);
 		}
 	}
 }
@@ -1754,18 +1750,18 @@ void CWKSP_Shapes::_Draw_Chart_Bar(CWKSP_Map_DC &dc_Map, CSG_Table_Record *pReco
 		for(i=0, ix=x-sx/2.; i<m_Chart.Get_Count(); i++, ix+=dx)
 		{
 			if( !bOutline )
-			dc_Map.dc.SetPen	(wxPen  (Get_Color_asWX(m_Chart[i].y)));
-			dc_Map.dc.SetBrush	(wxBrush(Get_Color_asWX(m_Chart[i].y)));
+			dc_Map.SetPen	(wxPen  (Get_Color_asWX(m_Chart[i].y)));
+			dc_Map.SetBrush	(wxBrush(Get_Color_asWX(m_Chart[i].y)));
 
 			dy	= -pRecord->asDouble(m_Chart[i].x) * max;
 
-			dc_Map.dc.DrawRectangle((int)ix, y, (int)dx, (int)dy);
+			dc_Map.DrawRectangle((int)ix, y, (int)dx, (int)dy);
 		}
 
 		if( !bOutline )
 		{
-			dc_Map.dc.SetPen(*wxBLACK_PEN);
-			dc_Map.dc.DrawLine(x - sx / 2, y, x + sx / 2, y);
+			dc_Map.SetPen(*wxBLACK_PEN);
+			dc_Map.DrawLine(x - sx / 2, y, x + sx / 2, y);
 		}
 	}
 }

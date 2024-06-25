@@ -179,8 +179,8 @@ int CWKSP_Shapes_Polygon::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_
 //---------------------------------------------------------
 void CWKSP_Shapes_Polygon::Draw_Initialize(CWKSP_Map_DC &dc_Map, int Flags)
 {
-	dc_Map.dc.SetBrush(m_Brush);
-	dc_Map.dc.SetPen(m_Pen);
+	dc_Map.SetBrush(m_Brush);
+	dc_Map.SetPen(m_Pen);
 
 	m_Sel_Color_Fill[0]	= Get_Color_asWX(m_Parameters("SEL_COLOR_FILL_0")->asInt());
 	m_Sel_Color_Fill[1]	= Get_Color_asWX(m_Parameters("SEL_COLOR_FILL_1")->asInt());
@@ -192,13 +192,13 @@ void CWKSP_Shapes_Polygon::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, i
 	//-----------------------------------------------------
 	if( Selection )
 	{
-		dc_Map.dc.SetBrush(wxBrush(Selection == 1 ? m_Sel_Color_Fill[0] : m_Sel_Color_Fill[1], m_Brush.GetStyle()));
-		dc_Map.dc.SetPen  (wxPen(m_Sel_Color, 0, wxPENSTYLE_SOLID));
+		dc_Map.SetBrush(wxBrush(Selection == 1 ? m_Sel_Color_Fill[0] : m_Sel_Color_Fill[1], m_Brush.GetStyle()));
+		dc_Map.SetPen  (wxPen(m_Sel_Color, 0, wxPENSTYLE_SOLID));
 
 		dc_Map.Draw_Polygon((CSG_Shape_Polygon *)pShape);
 
-		dc_Map.dc.SetBrush(m_Brush);
-		dc_Map.dc.SetPen  (m_Pen  );
+		dc_Map.SetBrush(m_Brush);
+		dc_Map.SetPen  (m_Pen  );
 
 		return;
 	}
@@ -211,12 +211,12 @@ void CWKSP_Shapes_Polygon::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, i
 		if( Get_Class_Color(pShape, Color) || m_bNoData )
 		{
 			m_Brush.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
-			dc_Map.dc.SetBrush(m_Brush);
+			dc_Map.SetBrush(m_Brush);
 
 			if( !m_bOutline )
 			{
 				m_Pen.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
-				dc_Map.dc.SetPen(m_Pen);
+				dc_Map.SetPen(m_Pen);
 			}
 
 			dc_Map.Draw_Polygon((CSG_Shape_Polygon *)pShape);
@@ -228,7 +228,7 @@ void CWKSP_Shapes_Polygon::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, i
 	{
 		TSG_Point	Point	= ((CSG_Shape_Polygon *)pShape)->Get_Centroid();
 
-		dc_Map.dc.DrawCircle((int)dc_Map.xWorld2DC(Point.x), (int)dc_Map.yWorld2DC(Point.y), 2);
+		dc_Map.DrawCircle((int)dc_Map.xWorld2DC(Point.x), (int)dc_Map.yWorld2DC(Point.y), 2);
 	}
 }
 
@@ -239,7 +239,7 @@ void CWKSP_Shapes_Polygon::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, c
 	{
 		TSG_Point_Int	p	= dc_Map.World2DC(((CSG_Shape_Polygon *)pShape)->Get_Centroid());
 
-		Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, p.x, p.y, Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
+		dc_Map.DrawText(TEXTALIGN_CENTER, p.x, p.y, Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
 	}
 	else
 	{
@@ -249,7 +249,7 @@ void CWKSP_Shapes_Polygon::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, c
 			{
 				TSG_Point_Int	p	= dc_Map.World2DC(((CSG_Shape_Polygon *)pShape)->Get_Centroid());
 
-				Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, p.x, p.y, Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
+				dc_Map.DrawText(TEXTALIGN_CENTER, p.x, p.y, Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
 			}
 		}
 	}
@@ -323,7 +323,7 @@ void CWKSP_Shapes_Polygon::_Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
 			{
 				TSG_Point_Int B = A; A = dc_Map.World2DC(m_Edit_pShape->Get_Point(iPoint, iPart));
 
-				dc_Map.dc.DrawLine(A.x, A.y, B.x, B.y);
+				dc_Map.DrawLine(A.x, A.y, B.x, B.y);
 			}
 		}
 		else if( m_Edit_pShape->Get_Point_Count(iPart) == 2 )
@@ -331,7 +331,7 @@ void CWKSP_Shapes_Polygon::_Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
 			TSG_Point_Int	A	= dc_Map.World2DC(m_Edit_pShape->Get_Point(0, iPart));
 			TSG_Point_Int	B	= dc_Map.World2DC(m_Edit_pShape->Get_Point(1, iPart));
 
-			dc_Map.dc.DrawLine(A.x, A.y, B.x, B.y);
+			dc_Map.DrawLine(A.x, A.y, B.x, B.y);
 		}
 	}
 }
@@ -343,15 +343,15 @@ void CWKSP_Shapes_Polygon::Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
 	{
 		if( m_Edit_bGleam )
 		{
-			dc_Map.dc.SetPen(wxPen(m_Edit_Color, 3));
-			dc_Map.dc.SetLogicalFunction(wxINVERT);
+			dc_Map.SetPen(wxPen(m_Edit_Color, 3));
+			dc_Map.Get_DC().SetLogicalFunction(wxINVERT);
 
 			_Edit_Shape_Draw(dc_Map);
 
-			dc_Map.dc.SetLogicalFunction(wxCOPY);
+			dc_Map.Get_DC().SetLogicalFunction(wxCOPY);
 		}
 
-		dc_Map.dc.SetPen(wxPen(m_Edit_Color));
+		dc_Map.SetPen(wxPen(m_Edit_Color));
 
 		_Edit_Shape_Draw(dc_Map);
 
