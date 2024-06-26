@@ -487,14 +487,14 @@ class wxImage * CExport_GIF_Animation::Get_Image(CSG_Grid &Grid)
 	}
 
 	//-------------------------------------------------
+	if( Image.HasAlpha() )
+	{
+		Image.ConvertAlphaToMask();
+	}
+
 	wxImage *pImage = new wxImage;
 
 	wxQuantize::Quantize(Image, *pImage);
-
-	if( pImage->HasAlpha() )
-	{
-		pImage->ConvertAlphaToMask();
-	}
 
 	return( pImage );
 }
