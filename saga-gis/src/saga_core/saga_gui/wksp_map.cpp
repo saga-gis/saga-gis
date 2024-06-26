@@ -2146,47 +2146,54 @@ void CWKSP_Map::Draw_Map(wxDC &dc, double Zoom, const wxRect &rClient, int Flags
 //---------------------------------------------------------
 void CWKSP_Map::Draw_Map(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wxRect &rClient, int Flags, int Background)
 {
-	CWKSP_Map_DC dc_Map(rWorld, rClient, Zoom, m_Parameters("BACKGROUND")->asInt());
+	CSG_Map_DC dc_Map(rWorld, rClient, Zoom, Background >= 0 ? Background : m_Parameters("BACKGROUND")->asInt());
 
+	Draw_Map(dc_Map, Flags);
+
+	dc.DrawBitmap(dc_Map.Get_Bitmap(), rClient.GetLeft(), rClient.GetTop(), false);
+}
+
+//---------------------------------------------------------
+void CWKSP_Map::Draw_Map(CSG_Map_DC &dc, int Flags)
+{
 	int Flag_Labels = !(Flags & LAYER_DRAW_FLAG_NOLABELS) ? 0 : LAYER_DRAW_FLAG_NOLABELS;
 
-	//-----------------------------------------------------
 	for(int i=Get_Count()-1; i>=0; i--)
 	{
 		switch( Get_Item(i)->Get_Type() )
 		{
 		case WKSP_ITEM_Map_Layer:
-			{
-				CWKSP_Map_Layer     *pLayer	= (CWKSP_Map_Layer     *)Get_Item(i);
+		{
+			CWKSP_Map_Layer     *pLayer	= (CWKSP_Map_Layer     *)Get_Item(i);
 
-				if( pLayer->do_Show() )
-				{
-					pLayer->Draw(dc_Map, !(Flags & LAYER_DRAW_FLAG_NOEDITS) && pLayer->Get_Layer() == Get_Active_Layer() ? Flags : Flag_Labels);
-				}
+			if( pLayer->do_Show() )
+			{
+				pLayer->Draw(dc, !(Flags & LAYER_DRAW_FLAG_NOEDITS) && pLayer->Get_Layer() == Get_Active_Layer() ? Flags : Flag_Labels);
 			}
-			break;
+		}
+		break;
 
 		case WKSP_ITEM_Map_Graticule:
-			{
-				CWKSP_Map_Graticule *pLayer	= (CWKSP_Map_Graticule *)Get_Item(i);
+		{
+			CWKSP_Map_Graticule *pLayer	= (CWKSP_Map_Graticule *)Get_Item(i);
 
-				if( pLayer->do_Show() )//&& pLayer->Get_Graticule(Get_Extent()) )
-				{
-					pLayer->Draw(dc_Map);
-				}
+			if( pLayer->do_Show() )//&& pLayer->Get_Graticule(Get_Extent()) )
+			{
+				pLayer->Draw(dc);
 			}
-			break;
+		}
+		break;
 
 		case WKSP_ITEM_Map_BaseMap:
-			{
-				CWKSP_Map_BaseMap   *pLayer	= (CWKSP_Map_BaseMap   *)Get_Item(i);
+		{
+			CWKSP_Map_BaseMap   *pLayer	= (CWKSP_Map_BaseMap   *)Get_Item(i);
 
-				if( pLayer->do_Show() )
-				{
-					pLayer->Draw(dc_Map);
-				}
+			if( pLayer->do_Show() )
+			{
+				pLayer->Draw(dc);
 			}
-			break;
+		}
+		break;
 
 		default:
 			break;
@@ -2194,12 +2201,9 @@ void CWKSP_Map::Draw_Map(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wx
 	}
 
 	//-----------------------------------------------------
-	Draw_Extent     (dc_Map, rWorld, rClient);
-	Draw_ScaleBar   (dc_Map, rWorld, rClient);
-	Draw_North_Arrow(dc_Map, rWorld, rClient);
-
-	//-----------------------------------------------------
-	dc_Map.Draw(dc);
+	Draw_Extent     (dc);
+	Draw_ScaleBar   (dc);
+	Draw_North_Arrow(dc);
 }
 
 //---------------------------------------------------------
@@ -2292,65 +2296,64 @@ bool CWKSP_Map::Draw_Legend(wxDC &dc, double Zoom_Map, double Zoom, wxPoint Posi
 //---------------------------------------------------------
 bool CWKSP_Map::Get_Legend_Size(wxSize &Size, double Zoom_Map, double Zoom)
 {
-	wxBitmap	bmp(10, 10);
-	wxMemoryDC	dc(bmp);
+	wxBitmap bmp(10, 10); wxMemoryDC dc(bmp);
 
 	return( Draw_Legend(dc, Zoom_Map, Zoom, wxPoint(0, 0), &Size) );
 }
 
 //---------------------------------------------------------
-bool CWKSP_Map::Draw_North_Arrow(CWKSP_Map_DC &dc_Map, const CSG_Rect &rWorld, const wxRect &rClient)
+bool CWKSP_Map::Draw_North_Arrow(CSG_Map_DC &dc)
 {
 	if( !m_Parameters("NORTH_SHOW")->asBool() )
 	{
 		return( true );
 	}
 
-	const double	Arrow[3][2]	= { { 0., 1. }, { 0.5, -1. }, { 0., -0.5 } };
+	const double Arrow[3][2] = { { 0., 1. }, { 0.5, -1. }, { 0., -0.5 } };
 
-	wxRect	r	= !m_Parameters("NORTH_EXTENT")->asBool() ? wxRect(0, 0, rClient.GetWidth(), rClient.GetHeight()) : wxRect(
-		(int)(dc_Map.xWorld2DC   (Get_Extent().Get_XMin  ())),
-		(int)(dc_Map.yWorld2DC   (Get_Extent().Get_YMax  ())),
-		(int)(dc_Map.World2DC() * Get_Extent().Get_XRange()),
-		(int)(dc_Map.World2DC() * Get_Extent().Get_YRange())
+	wxRect r = !m_Parameters("NORTH_EXTENT")->asBool() ? wxRect(dc.rDC()) : wxRect(
+		(int)(dc.xWorld2DC    (Get_Extent().Get_XMin  ())),
+		(int)(dc.yWorld2DC    (Get_Extent().Get_YMax  ())),
+		(int)(dc. World2DC() * Get_Extent().Get_XRange()),
+		(int)(dc. World2DC() * Get_Extent().Get_YRange())
 	);
 
-	double	cos_a	= cos(-m_Parameters("NORTH_ANGLE")->asDouble() * M_DEG_TO_RAD);
-	double	sin_a	= sin(-m_Parameters("NORTH_ANGLE")->asDouble() * M_DEG_TO_RAD);
-	double	scale	= m_Parameters("NORTH_SIZE")->asDouble() * 0.01 * M_GET_MIN(r.GetWidth(), r.GetHeight());
+	double cos_a = cos(-m_Parameters("NORTH_ANGLE")->asDouble() * M_DEG_TO_RAD);
+	double sin_a = sin(-m_Parameters("NORTH_ANGLE")->asDouble() * M_DEG_TO_RAD);
+	double scale = m_Parameters("NORTH_SIZE")->asDouble() * 0.01 * M_GET_MIN(r.GetWidth(), r.GetHeight());
 
-	int		xOff	= r.GetX() + (int)(0.5 +                 m_Parameters("NORTH_OFFSET_X")->asDouble() * 0.01 * r.GetWidth ());
-	int		yOff	= r.GetY() + (int)(0.5 + r.GetHeight() - m_Parameters("NORTH_OFFSET_Y")->asDouble() * 0.01 * r.GetHeight());
+	int xOff = r.GetX() + (int)(0.5 +                 m_Parameters("NORTH_OFFSET_X")->asDouble() * 0.01 * r.GetWidth ());
+	int yOff = r.GetY() + (int)(0.5 + r.GetHeight() - m_Parameters("NORTH_OFFSET_Y")->asDouble() * 0.01 * r.GetHeight());
 
 	for(int side=0; side<=1; side++)
 	{
-		wxPoint	Points[3];
+		wxPoint Points[3];
 
 		for(int i=0; i<3; i++)
 		{
-			double	x	= scale * Arrow[i][0] * (side ? 1 : -1);
-			double	y	= scale * Arrow[i][1];
+			double x = scale * Arrow[i][0] * (side ? 1 : -1);
+			double y = scale * Arrow[i][1];
 
-			Points[i].x	= xOff + (int)(0.5 + cos_a * x - sin_a * y);
-			Points[i].y	= yOff - (int)(0.5 + sin_a * x + cos_a * y);
+			Points[i].x = xOff + (int)(0.5 + cos_a * x - sin_a * y);
+			Points[i].y = yOff - (int)(0.5 + sin_a * x + cos_a * y);
 		}
 
 		if( side == 0 )
 		{
-		//	dc_Map.SetPen     (wxPen  (*wxWHITE, 3));
-		//	dc_Map.DrawLines  (3, Points);
+		//	dc.SetPen     (wxPen  (*wxWHITE, 3));
+		//	dc.DrawLines  (3, Points);
 
-			dc_Map.SetPen     (wxPen  (*wxBLACK, 0));
-			dc_Map.SetBrush   (wxBrush(*wxBLACK));
-			dc_Map.DrawPolygon(3, Points);
-            dc_Map.DrawPolygon(3, Points);
+			dc.SetPen     (wxPen  (*wxBLACK, 0));
+			dc.SetBrush   (wxBrush(*wxBLACK));
+			dc.DrawPolygon(3, Points);
+            dc.DrawPolygon(3, Points);
 		}
 		else
 		{
-			dc_Map.SetPen     (wxPen  (*wxBLACK, 0));
-			dc_Map.SetBrush   (wxBrush(*wxWHITE));
-			dc_Map.DrawPolygon(3, Points);
-		//	dc_Map.DrawLines  (3, Points);
+			dc.SetPen     (wxPen  (*wxBLACK, 0));
+			dc.SetBrush   (wxBrush(*wxWHITE));
+			dc.DrawPolygon(3, Points);
+		//	dc.DrawLines  (3, Points);
 		}
 	}
 
@@ -2358,7 +2361,7 @@ bool CWKSP_Map::Draw_North_Arrow(CWKSP_Map_DC &dc_Map, const CSG_Rect &rWorld, c
 }
 
 //---------------------------------------------------------
-bool CWKSP_Map::Draw_ScaleBar(CWKSP_Map_DC &dc_Map, const CSG_Rect &rWorld, const wxRect &rClient)
+bool CWKSP_Map::Draw_ScaleBar(CSG_Map_DC &dc)
 {
 	if( !is_ScaleBar() )
 	{
@@ -2367,11 +2370,11 @@ bool CWKSP_Map::Draw_ScaleBar(CWKSP_Map_DC &dc_Map, const CSG_Rect &rWorld, cons
 
 	double dWidth = 0.01 * m_Parameters("SCALE_WIDTH")->asDouble();
 
-	wxRect r = !m_Parameters("SCALE_EXTENT")->asBool() ? wxRect(0, 0, rClient.GetWidth(), rClient.GetHeight()) : wxRect(
-		(int) dc_Map .xWorld2DC  (Get_Extent().Get_XMin  ()),
-		(int) dc_Map .yWorld2DC  (Get_Extent().Get_YMax  ()),
-		(int)(dc_Map.World2DC() * Get_Extent().Get_XRange()),
-		(int)(dc_Map.World2DC() * Get_Extent().Get_YRange())
+	wxRect r = !m_Parameters("SCALE_EXTENT")->asBool() ? wxRect(dc.rDC()) : wxRect(
+		(int) dc.xWorld2DC    (Get_Extent().Get_XMin  ()),
+		(int) dc.yWorld2DC    (Get_Extent().Get_YMax  ()),
+		(int)(dc. World2DC() * Get_Extent().Get_XRange()),
+		(int)(dc. World2DC() * Get_Extent().Get_YRange())
 	);
 
 	r = wxRect(
@@ -2381,7 +2384,7 @@ bool CWKSP_Map::Draw_ScaleBar(CWKSP_Map_DC &dc_Map, const CSG_Rect &rWorld, cons
 		(int)(0.5 + r.GetHeight() * 0.01 * m_Parameters("SCALE_HEIGHT"  )->asDouble())
 	);
 
-	dWidth = dc_Map.DC2World() * r.GetWidth();
+	dWidth = dc.DC2World() * r.GetWidth();
 
 	CSG_String Unit;
 
@@ -2404,41 +2407,41 @@ bool CWKSP_Map::Draw_ScaleBar(CWKSP_Map_DC &dc_Map, const CSG_Rect &rWorld, cons
 		Style |= SCALE_STYLE_BLACKWHITE;
 	}
 
-	Draw_Scale(dc_Map.Get_DC(), r, 0., dWidth, SCALE_HORIZONTAL, SCALE_TICK_TOP, Style, Unit.c_str());
+	Draw_Scale(dc.Get_DC(), r, 0., dWidth, SCALE_HORIZONTAL, SCALE_TICK_TOP, Style, Unit.c_str());
 
 	return( true );
 }
 
 //---------------------------------------------------------
-bool CWKSP_Map::Draw_Extent(CWKSP_Map_DC &dc_Map, const CSG_Rect &rWorld, const wxRect &rClient)
+bool CWKSP_Map::Draw_Extent(CSG_Map_DC &dc)
 {
-	if( !m_Parameters("SEL_EXTENT")->asBool() || rWorld == Get_Extent() )
+	if( !m_Parameters("SEL_EXTENT")->asBool() || dc.rWorld() == Get_Extent() )
 	{
 		return( true );
 	}
 
-	if( dc_Map.Draw_Image_Begin(m_Parameters("SEL_TRANSP")->asDouble() / 100.) )
+	if( dc.Draw_Image_Begin(m_Parameters("SEL_TRANSP")->asDouble() / 100.) )
 	{
 		int Color = m_Parameters("SEL_COLOUR")->asColor();
 
-		wxRect r(0, 0, rClient.GetWidth(), rClient.GetHeight()); r.Inflate(1);
+		wxRect r(dc.rDC()); r.Inflate(1);
 
-		if( rWorld.Get_XRange() > Get_Extent().Get_XRange() )
+		if( dc.rWorld().Get_XRange() > Get_Extent().Get_XRange() )
 		{
-			int d = (int)(0.5 + dc_Map.World2DC() * (rWorld.Get_XRange() - Get_Extent().Get_XRange()) / 2.);
+			int d = (int)(0.5 + dc.World2DC() * (dc.rWorld().Get_XRange() - Get_Extent().Get_XRange()) / 2.);
 
-			dc_Map.Draw_Image_Pixels(r.GetLeft (), r.GetTop(), r.GetLeft () + d, r.GetBottom(), Color);
-			dc_Map.Draw_Image_Pixels(r.GetRight(), r.GetTop(), r.GetRight() - d, r.GetBottom(), Color);
+			dc.Draw_Image_Pixels(r.GetLeft (), r.GetTop(), r.GetLeft () + d, r.GetBottom(), Color);
+			dc.Draw_Image_Pixels(r.GetRight(), r.GetTop(), r.GetRight() - d, r.GetBottom(), Color);
 		}
 		else
 		{
-			int d = (int)(0.5 + dc_Map.World2DC() * (rWorld.Get_YRange() - Get_Extent().Get_YRange()) / 2.);
+			int d = (int)(0.5 + dc.World2DC() * (dc.rWorld().Get_YRange() - Get_Extent().Get_YRange()) / 2.);
 
-			dc_Map.Draw_Image_Pixels(r.GetLeft(), r.GetTop   (), r.GetRight(), r.GetTop   () + d, Color);
-			dc_Map.Draw_Image_Pixels(r.GetLeft(), r.GetBottom(), r.GetRight(), r.GetBottom() - d, Color);
+			dc.Draw_Image_Pixels(r.GetLeft(), r.GetTop   (), r.GetRight(), r.GetTop   () + d, Color);
+			dc.Draw_Image_Pixels(r.GetLeft(), r.GetBottom(), r.GetRight(), r.GetBottom() - d, Color);
 		}
 
-		dc_Map.Draw_Image_End();
+		dc.Draw_Image_End();
 	}
 
 	return( true );

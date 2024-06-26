@@ -63,7 +63,7 @@
 
 #include "wksp_layer_classify.h"
 
-#include "wksp_map_dc.h"
+#include <saga_gdi/map_dc.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -97,7 +97,7 @@ public:
 	virtual double					Get_Value_Mean			(void)								= 0;
 	virtual double					Get_Value_StdDev		(void)								= 0;
 
-	bool							Draw					(CWKSP_Map_DC &dc_Map, int Flags = 0, CSG_Data_Object *pObject = NULL);
+	bool							Draw					(CSG_Map_DC &dc_Map, int Flags = 0, CSG_Data_Object *pObject = NULL);
 
 	class CWKSP_Layer_Classify *	Get_Classifier			(void)	{	return( m_pClassify );	}
 
@@ -159,7 +159,7 @@ protected:
 	virtual void					On_Update_Views			(bool bAll);
 	virtual void					On_Update_Views			(void)			{}
 
-	virtual void					On_Draw					(CWKSP_Map_DC &dc_Map, int Flags)	= 0;
+	virtual void					On_Draw					(CSG_Map_DC &dc_Map, int Flags)	= 0;
 
 	void							ColorsParms_Add			(void);
 	void							ColorsParms_On_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);

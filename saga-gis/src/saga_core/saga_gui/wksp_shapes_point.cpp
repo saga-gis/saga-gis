@@ -537,7 +537,7 @@ bool CWKSP_Shapes_Point::Get_Style_Size(int &min_Size, int &max_Size, double &mi
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline void CWKSP_Shapes_Point::Draw_Initialize(CWKSP_Map_DC &dc_Map, int Flags)
+inline void CWKSP_Shapes_Point::Draw_Initialize(CSG_Map_DC &dc_Map, int Flags)
 {
 	dc_Map.SetBrush(m_Brush);
 	dc_Map.SetPen  (m_Pen  );
@@ -557,7 +557,7 @@ inline void CWKSP_Shapes_Point::Draw_Initialize(CWKSP_Map_DC &dc_Map, int Flags)
 }
 
 //---------------------------------------------------------
-inline bool CWKSP_Shapes_Point::Draw_Initialize(CWKSP_Map_DC &dc_Map, int &Size, CSG_Shape *pShape, int Selection)
+inline bool CWKSP_Shapes_Point::Draw_Initialize(CSG_Map_DC &dc_Map, int &Size, CSG_Shape *pShape, int Selection)
 {
 	//-----------------------------------------------------
 	if( m_Brush.IsTransparent() && !m_bOutline && !Selection )
@@ -621,7 +621,7 @@ inline bool CWKSP_Shapes_Point::Draw_Initialize(CWKSP_Map_DC &dc_Map, int &Size,
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Point::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)
+void CWKSP_Shapes_Point::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)
 {
 	if( m_iSize < 0 || !pShape->is_NoData(m_iSize) )
 	{
@@ -692,7 +692,7 @@ void CWKSP_Shapes_Point::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Point::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label)
+void CWKSP_Shapes_Point::Draw_Label(CSG_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label)
 {
 	TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Point()));
 
@@ -778,7 +778,7 @@ void CWKSP_Shapes_Point::Draw_Symbol(wxDC &dc, int x, int y, int Size)
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Point::Draw_Symbol(CWKSP_Map_DC &dc, int x, int y, int Size)
+void CWKSP_Shapes_Point::Draw_Symbol(CSG_Map_DC &dc, int x, int y, int Size)
 {
 	switch( m_Symbol_Type )
 	{
@@ -803,7 +803,7 @@ void CWKSP_Shapes_Point::Draw_Symbol(CWKSP_Map_DC &dc, int x, int y, int Size)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Point::_Image_Draw(CWKSP_Map_DC &dc_Map, int x, int y, int size, const wxString &file)
+void CWKSP_Shapes_Point::_Image_Draw(CSG_Map_DC &dc_Map, int x, int y, int size, const wxString &file)
 {
 	wxFileName fn(file);
 
@@ -863,7 +863,7 @@ void CWKSP_Shapes_Point::_Image_Draw(CWKSP_Map_DC &dc_Map, int x, int y, int siz
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Point::_Beachball_Draw(CWKSP_Map_DC &dc_Map, int x, int y, int size, double strike, double dip, double rake)
+void CWKSP_Shapes_Point::_Beachball_Draw(CSG_Map_DC &dc_Map, int x, int y, int size, double strike, double dip, double rake)
 {
 	const double dArc = 5.;
 

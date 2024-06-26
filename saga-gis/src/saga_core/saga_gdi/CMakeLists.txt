@@ -7,6 +7,7 @@ set(SAGA_GDI_SOURCES
 	3d_view_dialog.cpp
 	3d_view_panel.cpp
 	3d_view_projector.cpp
+	map_dc.cpp
 	sgdi_controls.cpp
 	sgdi_diagram.cpp
 	sgdi_dialog.cpp
@@ -15,6 +16,7 @@ set(SAGA_GDI_SOURCES
 	saga_gdi.cpp
 	3d_view.h
 	3d_view_tools.h
+	map_dc.h
 	saga_gdi.h
 	sgdi_controls.h
 	sgdi_core.h
@@ -26,6 +28,7 @@ set(SAGA_GDI_SOURCES
 set(SAGA_GDI_PUBLIC_HEADERS
 	3d_view.h
 	3d_view_tools.h
+	map_dc.h
 	saga_gdi.h
 	sgdi_controls.h
 	sgdi_core.h

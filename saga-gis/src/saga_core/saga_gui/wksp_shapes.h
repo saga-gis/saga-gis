@@ -162,7 +162,7 @@ protected:
 
 	virtual void				On_Update_Views			(void);
 
-	virtual void				On_Draw					(CWKSP_Map_DC &dc_Map, int Flags);
+	virtual void				On_Draw					(CSG_Map_DC &dc_Map, int Flags);
 
 	bool						Get_Class_Color			(CSG_Shape *pShape, int &Color);
 
@@ -174,13 +174,13 @@ protected:
 	CSG_Parameter *				PenList_Add				(const CSG_String &ParentID, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description);
 	int							PenList_Get_Style		(const CSG_String &Identifier);
 
-	virtual void				Draw_Initialize			(CWKSP_Map_DC &dc_Map, int Flags)												= 0;
-	virtual void				Draw_Shape				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)			= 0;
-	virtual void				Draw_Label				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label)	= 0;
+	virtual void				Draw_Initialize			(CSG_Map_DC &dc_Map, int Flags)												= 0;
+	virtual void				Draw_Shape				(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)			= 0;
+	virtual void				Draw_Label				(CSG_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label)	= 0;
 
 	virtual void				Edit_Shape_Draw_Move	(wxDC &dc, const CSG_Rect &rWorld, const wxPoint &Point, const TSG_Point &ptWorld);
 	virtual void				Edit_Shape_Draw_Move	(wxDC &dc, const CSG_Rect &rWorld, const wxPoint &Point);
-	virtual void				Edit_Shape_Draw			(CWKSP_Map_DC &dc_Map);
+	virtual void				Edit_Shape_Draw			(CSG_Map_DC &dc_Map);
 	virtual int					Edit_Shape_HitTest		(CSG_Point Point, double max_Dist, int &iPart, int &iPoint);
 	virtual void				Edit_Snap_Point_ToLine	(CSG_Point Point, CSG_Point &snap_Point, double &snap_Dist, CSG_Shape *pShape);
 
@@ -190,8 +190,8 @@ private:
 	void						_LUT_Create				(void);
 	void						_LUT_Import				(void);
 
-	void						_Draw_Shape				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Selection = 0);
-	void						_Draw_Label				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int PointSize = 0);
+	void						_Draw_Shape				(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Selection = 0);
+	void						_Draw_Label				(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int PointSize = 0);
 
 
 	//-----------------------------------------------------
@@ -210,9 +210,9 @@ private:
 	bool						_Chart_Set_Options		(void);
 	bool						_Chart_Get_Options		(void);
 
-	void						_Draw_Chart				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape);
-	void						_Draw_Chart_Pie			(CWKSP_Map_DC &dc_Map, CSG_Table_Record *pRecord, bool bOutline, int x, int y, int size);
-	void						_Draw_Chart_Bar			(CWKSP_Map_DC &dc_Map, CSG_Table_Record *pRecord, bool bOutline, int x, int y, int sx, int sy);
+	void						_Draw_Chart				(CSG_Map_DC &dc_Map, CSG_Shape *pShape);
+	void						_Draw_Chart_Pie			(CSG_Map_DC &dc_Map, CSG_Table_Record *pRecord, bool bOutline, int x, int y, int size);
+	void						_Draw_Chart_Bar			(CSG_Map_DC &dc_Map, CSG_Table_Record *pRecord, bool bOutline, int x, int y, int sx, int sy);
 
 
 	//-----------------------------------------------------

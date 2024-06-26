@@ -106,8 +106,9 @@ public:
 
 protected:
 
-	bool						Get_Image_Grid			(wxBitmap &BMP, bool bFitSize = true);
-	bool						Get_Image_Legend		(wxBitmap &BMP, double Zoom);
+	bool						Get_Image				(wxImage  &Image , bool bFitSize = true, int Width = 0, int Height = 0);
+	bool						Get_Bitmap				(wxBitmap &Bitmap, bool bFitSize = true, int Width = 0, int Height = 0);
+	bool						Get_Bitmap_Legend		(wxBitmap &Bitmap, double Zoom);
 
 	bool						Set_Grid_Choices		(CSG_Parameters *pParameters);
 
@@ -117,7 +118,7 @@ protected:
 
 	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
 
-	virtual void				On_Draw					(CWKSP_Map_DC &dc_Map, int Flags);
+	virtual void				On_Draw					(CSG_Map_DC &dc_Map, int Flags);
 
 
 private:
@@ -136,11 +137,12 @@ private:
 
 	void						_LUT_Create				(void);
 
-	void						_Save_Image				(void);
+	bool						_Save_Image				(void);
+	bool						_Save_Image_Clipboard	(void);
 
-	void						_Draw_Grid_Nodes		(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling);
-	void						_Draw_Grid_Nodes		(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling, CSG_Grid *pBands[4], bool bBandWise, int yDC, int axDC, int bxDC);
-	void						_Draw_Grid_Cells		(CWKSP_Map_DC &dc_Map);
+	void						_Draw_Grid_Nodes		(CSG_Map_DC &dc_Map, TSG_Grid_Resampling Resampling);
+	void						_Draw_Grid_Nodes		(CSG_Map_DC &dc_Map, TSG_Grid_Resampling Resampling, CSG_Grid *pBands[4], bool bBandWise, int yDC, int axDC, int bxDC);
+	void						_Draw_Grid_Cells		(CSG_Map_DC &dc_Map);
 
 };
 

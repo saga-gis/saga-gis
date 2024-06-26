@@ -955,7 +955,7 @@ bool CWKSP_PointCloud::Edit_Set_Attributes(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_PointCloud::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
+void CWKSP_PointCloud::On_Draw(CSG_Map_DC &dc_Map, int Flags)
 {
 	if( Get_Extent().Intersects(dc_Map.rWorld()) && dc_Map.Draw_Image_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.) )
 	{
@@ -978,7 +978,7 @@ void CWKSP_PointCloud::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline void CWKSP_PointCloud::_Draw_Point(CWKSP_Map_DC &dc_Map, int x, int y, double z, int Color)
+inline void CWKSP_PointCloud::_Draw_Point(CSG_Map_DC &dc_Map, int x, int y, double z, int Color)
 {
 	if( m_Aggregation == 1 )	// last value
 	{
@@ -1017,7 +1017,7 @@ inline void CWKSP_PointCloud::_Draw_Point(CWKSP_Map_DC &dc_Map, int x, int y, do
 }
 
 //---------------------------------------------------------
-void CWKSP_PointCloud::_Draw_Point(CWKSP_Map_DC &dc_Map, int x, int y, double z, int Color, int Radius)
+void CWKSP_PointCloud::_Draw_Point(CSG_Map_DC &dc_Map, int x, int y, double z, int Color, int Radius)
 {
 	_Draw_Point(dc_Map, x, y, z, Color);
 
@@ -1037,7 +1037,7 @@ void CWKSP_PointCloud::_Draw_Point(CWKSP_Map_DC &dc_Map, int x, int y, double z,
 }
 
 //---------------------------------------------------------
-void CWKSP_PointCloud::_Draw_Points(CWKSP_Map_DC &dc_Map)
+void CWKSP_PointCloud::_Draw_Points(CSG_Map_DC &dc_Map)
 {
 	m_Aggregation = m_Parameters("DISPLAY_VALUE_AGGREGATE")->asInt();
 
@@ -1084,7 +1084,7 @@ void CWKSP_PointCloud::_Draw_Points(CWKSP_Map_DC &dc_Map)
 }
 
 //---------------------------------------------------------
-void CWKSP_PointCloud::_Draw_Thumbnail(CWKSP_Map_DC &dc_Map)
+void CWKSP_PointCloud::_Draw_Thumbnail(CSG_Map_DC &dc_Map)
 {
 	CSG_PointCloud *pPoints = Get_PointCloud();
 

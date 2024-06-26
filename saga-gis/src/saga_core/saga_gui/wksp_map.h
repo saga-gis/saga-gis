@@ -185,13 +185,15 @@ public:
 
 	void						Draw_Map				(wxDC &dc                        , double Zoom, const wxRect &rClient, int Flags = 0, int Background = -1);
 	void						Draw_Map				(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wxRect &rClient, int Flags = 0, int Background = -1);
+	void						Draw_Map				(class CSG_Map_DC &dc, int Flags = 0);
+
 	void						Draw_Frame				(wxDC &dc, wxRect rMap, int Width);
 	void						Draw_Frame				(wxDC &dc, const CSG_Rect &rWorld, wxRect rMap, int Width, bool bScaleBar);
 	bool						Draw_Legend				(wxDC &dc, double Zoom_Map, double Zoom, wxPoint Position, wxSize *pSize = NULL);
 
-	bool						Draw_North_Arrow		(class CWKSP_Map_DC &dc_Map, const CSG_Rect &rWorld, const wxRect &rClient);
-	bool						Draw_ScaleBar			(class CWKSP_Map_DC &dc_Map, const CSG_Rect &rWorld, const wxRect &rClient);
-	bool						Draw_Extent				(class CWKSP_Map_DC &dc_Map, const CSG_Rect &rWorld, const wxRect &rClient);
+	bool						Draw_North_Arrow		(class CSG_Map_DC &dc);
+	bool						Draw_ScaleBar			(class CSG_Map_DC &dc);
+	bool						Draw_Extent				(class CSG_Map_DC &dc);
 
 	const wxBitmap &			Get_Thumbnail			(int dx, int dy);
 

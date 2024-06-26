@@ -110,19 +110,19 @@ protected:
 
 	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
 
-	virtual void				Draw_Initialize			(CWKSP_Map_DC &dc_Map, int Flags);
-	virtual void				Draw_Shape				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Selection);
-	virtual void				Draw_Label				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label);
+	virtual void				Draw_Initialize			(CSG_Map_DC &dc_Map, int Flags);
+	virtual void				Draw_Shape				(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Selection);
+	virtual void				Draw_Label				(CSG_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label);
 
 	virtual void				Edit_Shape_Draw_Move	(wxDC &dc, const CSG_Rect &rWorld, const wxPoint &Point);
-	virtual void				Edit_Shape_Draw			(CWKSP_Map_DC &dc_Map);
+	virtual void				Edit_Shape_Draw			(CSG_Map_DC &dc_Map);
 	virtual int					Edit_Shape_HitTest		(CSG_Point Point, double max_Dist, int &iPart, int &iPoint);
 	virtual void				Edit_Snap_Point_ToLine	(CSG_Point Point, CSG_Point &snap_Point, double &snap_Dist, CSG_Shape *pShape);
 
 
 private:
 
-	void						_Edit_Shape_Draw		(CWKSP_Map_DC &dc_Map);
+	void						_Edit_Shape_Draw		(CSG_Map_DC &dc_Map);
 
 };
 

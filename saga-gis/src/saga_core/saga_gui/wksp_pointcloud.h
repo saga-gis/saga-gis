@@ -114,7 +114,7 @@ protected:
 
 	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
 
-	virtual void				On_Draw					(CWKSP_Map_DC &dc_Map, int Flags);
+	virtual void				On_Draw					(CSG_Map_DC &dc_Map, int Flags);
 
 
 private:
@@ -130,10 +130,10 @@ private:
 
 	void						_LUT_Create				(void);
 
-	void						_Draw_Point				(CWKSP_Map_DC &dc_Map, int x, int y, double z, int Color);
-	void						_Draw_Point				(CWKSP_Map_DC &dc_Map, int x, int y, double z, int Color, int Radius);
-	void						_Draw_Points			(CWKSP_Map_DC &dc_Map);
-	void						_Draw_Thumbnail			(CWKSP_Map_DC &dc_Map);
+	void						_Draw_Point				(CSG_Map_DC &dc_Map, int x, int y, double z, int Color);
+	void						_Draw_Point				(CSG_Map_DC &dc_Map, int x, int y, double z, int Color, int Radius);
+	void						_Draw_Points			(CSG_Map_DC &dc_Map);
+	void						_Draw_Thumbnail			(CSG_Map_DC &dc_Map);
 
 	void						_AttributeList_Set		(CSG_Parameter *pFields, bool bAddNoField);
 

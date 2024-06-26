@@ -104,7 +104,7 @@ public:
 
 	class CWKSP_Map *			Get_Map					(void)	{	return( (class CWKSP_Map *)Get_Manager() );	}
 
-	bool						Draw					(class CWKSP_Map_DC &dc);
+	bool						Draw					(class CSG_Map_DC &dc);
 
 	bool						Load					(CSG_MetaData &Entry);
 	bool						Save					(CSG_MetaData &Entry);

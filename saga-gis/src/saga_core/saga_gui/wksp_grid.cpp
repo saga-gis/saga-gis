@@ -1152,18 +1152,23 @@ bool CWKSP_Grid::Fit_Colors(const CSG_Rect &rWorld)
 //---------------------------------------------------------
 bool CWKSP_Grid::asImage(CSG_Grid *pImage)
 {
-	wxBitmap Bitmap;
+	wxImage Image;
 
-	if( pImage && Get_Image_Grid(Bitmap) )
+	if( pImage && Get_Image(Image) )
 	{
-		wxImage	Image(Bitmap.ConvertToImage());
-
 		pImage->Create(Get_Grid(), SG_DATATYPE_Int);
 
 		#pragma omp parallel for
 		for(int y=0; y<pImage->Get_NY(); y++) for(int x=0; x<pImage->Get_NX(); x++)
 		{
-			pImage->Set_Value(x, y, SG_GET_RGB(Image.GetRed(x, y), Image.GetGreen(x, y), Image.GetBlue(x, y)));
+			if( Image.HasAlpha() )
+			{
+				pImage->Set_Value(x, y, SG_GET_RGBA(Image.GetRed(x, y), Image.GetGreen(x, y), Image.GetBlue(x, y), Image.GetAlpha(x, y)));
+			}
+			else
+			{
+				pImage->Set_Value(x, y, SG_GET_RGB (Image.GetRed(x, y), Image.GetGreen(x, y), Image.GetBlue(x, y)));
+			}
 		}
 
 		return( true );
@@ -1175,51 +1180,51 @@ bool CWKSP_Grid::asImage(CSG_Grid *pImage)
 //---------------------------------------------------------
 bool CWKSP_Grid::_Save_Image(void)
 {
-	static CSG_Parameters	P(NULL, _TL("Save Grid as Image..."), _TL(""), SG_T(""));
+	static CSG_Parameters P(NULL, _TL("Save Grid as Image..."), _TL(""), SG_T(""));
 
 	if( P.Get_Count() == 0 )
 	{
-		P.Add_Bool  ("", "WORLD", _TL("Save Georeference"), _TL(""), true);
-		P.Add_Bool  ("", "LG"   , _TL("Legend: Save"     ), _TL(""), true);
+		P.Add_Bool  ("", "WORLD", _TL("Save Georeference"), _TL(""),  true);
+		P.Add_Bool  ("", "LG"   , _TL("Legend: Save"     ), _TL(""), false);
 		P.Add_Double("", "LZ"   , _TL("Legend: Zoom"     ), _TL(""), 1., 0., true);
 	}
 
 	//-----------------------------------------------------
-	int			Type;
-	wxString	File;
-	wxBitmap	Bitmap;
+	wxString File; int Type; wxImage Image;
 
-	if( !DLG_Image_Save(File, Type) || !DLG_Parameters(&P) || !Get_Image_Grid(Bitmap) )
+	if( !DLG_Image_Save(File, Type) || !DLG_Parameters(&P) || !Get_Image(Image) )
 	{
 		return( false );
 	}
 
-	Bitmap.SaveFile(File, (wxBitmapType)Type);
+	Image.SaveFile(File, (wxBitmapType)Type);
 
 	//-----------------------------------------------------
-	if( P("LG")->asBool() && Get_Image_Legend(Bitmap, P("LZ")->asDouble()) )
+	wxBitmap Bitmap;
+
+	if( P("LG")->asBool() && Get_Bitmap_Legend(Bitmap, P("LZ")->asDouble()) )
 	{
-		wxFileName	fn(File); fn.SetName(wxString::Format("%s_legend", fn.GetName().c_str()));
+		wxFileName fn(File); fn.SetName(wxString::Format("%s_legend", fn.GetName().c_str()));
 
 		Bitmap.SaveFile(fn.GetFullPath(), (wxBitmapType)Type);
 	}
 
 	if( P("WORLD")->asBool() )
 	{
-		wxFileName	fn(File);
+		wxFileName fn(File);
 
 		switch( Type )
 		{
-		default                : fn.SetExt("world");	break;
-		case wxBITMAP_TYPE_BMP : fn.SetExt("bpw"  );	break;
-		case wxBITMAP_TYPE_GIF : fn.SetExt("gfw"  );	break;
-		case wxBITMAP_TYPE_JPEG: fn.SetExt("jgw"  );	break;
-		case wxBITMAP_TYPE_PNG : fn.SetExt("pgw"  );	break;
-		case wxBITMAP_TYPE_PCX : fn.SetExt("pxw"  );	break;
-		case wxBITMAP_TYPE_TIF : fn.SetExt("tfw"  );	break; 
+		default                : fn.SetExt("world"); break;
+		case wxBITMAP_TYPE_BMP : fn.SetExt("bpw"  ); break;
+		case wxBITMAP_TYPE_GIF : fn.SetExt("gfw"  ); break;
+		case wxBITMAP_TYPE_JPEG: fn.SetExt("jgw"  ); break;
+		case wxBITMAP_TYPE_PNG : fn.SetExt("pgw"  ); break;
+		case wxBITMAP_TYPE_PCX : fn.SetExt("pxw"  ); break;
+		case wxBITMAP_TYPE_TIF : fn.SetExt("tfw"  ); break; 
 		}
 
-		CSG_File	Stream;
+		CSG_File Stream;
 
 		if( Stream.Open(fn.GetFullPath().wx_str(), SG_FILE_W, false) )
 		{
@@ -1240,10 +1245,9 @@ bool CWKSP_Grid::_Save_Image_Clipboard(void)
 {
 	wxBitmap Bitmap;
 
-	if( Get_Image_Grid(Bitmap) && wxTheClipboard->Open() )
+	if( Get_Bitmap(Bitmap) && wxTheClipboard->Open() )
 	{
-		wxBitmapDataObject *pBitmap = new wxBitmapDataObject;
-		pBitmap->SetBitmap(Bitmap);
+		wxBitmapDataObject *pBitmap = new wxBitmapDataObject(Bitmap);
 		wxTheClipboard->SetData(pBitmap);
 		wxTheClipboard->Close();
 
@@ -1254,18 +1258,40 @@ bool CWKSP_Grid::_Save_Image_Clipboard(void)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Grid::Get_Image_Grid(wxBitmap &Bitmap, bool bFitSize)
+bool CWKSP_Grid::Get_Image(wxImage &Image, bool bFitSize, int Width, int Height)
 {
-	if( bFitSize || (Bitmap.GetWidth() > 0 && Bitmap.GetHeight() > 0) )
+	if( bFitSize || Width  < 1 ) { Width  = Get_Grid()->Get_NX(); }
+	if( bFitSize || Height < 1 ) { Height = Get_Grid()->Get_NY(); }
+
+	if( Width > 0 && Height > 0 && Image.Create(Width, Height) )
 	{
 		Set_Buisy_Cursor(true);
 
-		if( bFitSize )
-		{
-			Bitmap.Create(Get_Grid()->Get_NX(), Get_Grid()->Get_NY());
-		}
+		CSG_Map_DC dc_Map(Get_Extent(), wxRect(0, 0, Width, Height), 1., -1, true);
 
-		CWKSP_Map_DC dc_Map(Get_Extent(), wxRect(0, 0, Bitmap.GetWidth(), Bitmap.GetHeight()), 1., -1, true);
+		On_Draw(dc_Map, false);
+
+		dc_Map.Get_Image(Image);
+
+		Set_Buisy_Cursor(false);
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Grid::Get_Bitmap(wxBitmap &Bitmap, bool bFitSize, int Width, int Height)
+{
+	if( bFitSize || Width  < 1 ) { Width  = bFitSize ? Get_Grid()->Get_NX() : Bitmap.GetWidth (); }
+	if( bFitSize || Height < 1 ) { Height = bFitSize ? Get_Grid()->Get_NY() : Bitmap.GetHeight(); }
+
+	if( Width > 0 && Height > 0 && Bitmap.Create(Width, Height) )
+	{
+		Set_Buisy_Cursor(true);
+
+		CSG_Map_DC dc_Map(Get_Extent(), Bitmap.GetSize(), 1., -1, true);
 
 		On_Draw(dc_Map, false);
 
@@ -1280,7 +1306,7 @@ bool CWKSP_Grid::Get_Image_Grid(wxBitmap &Bitmap, bool bFitSize)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Grid::Get_Image_Legend(wxBitmap &Bitmap, double Zoom)
+bool CWKSP_Grid::Get_Bitmap_Legend(wxBitmap &Bitmap, double Zoom)
 {
 	if( Zoom > 0. )
 	{
@@ -1308,14 +1334,15 @@ bool CWKSP_Grid::Get_Image_Legend(wxBitmap &Bitmap, double Zoom)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Grid::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
+void CWKSP_Grid::On_Draw(CSG_Map_DC &dc_Map, int Flags)
 {
 	if(	Get_Extent().Intersects(dc_Map.rWorld()) != INTERSECTION_None )
 	{
-		int Mode =
-			m_pClassify->Get_Mode() == CLASSIFY_SHADE                                          ? IMG_MODE_SHADING :
-			m_pClassify->Get_Mode() == CLASSIFY_RGB && m_Parameters("RGB_ALPHA"    )->asBool() ? IMG_MODE_TRANSPARENT_ALPHA :
-			m_pClassify->Get_Mode() != CLASSIFY_RGB && m_Parameters("DISPLAY_ALPHA")->asGrid() ? IMG_MODE_TRANSPARENT_ALPHA : IMG_MODE_TRANSPARENT;
+		CSG_Map_DC::Mode Mode = (
+			m_pClassify->Get_Mode() == CLASSIFY_SHADE                                          ? CSG_Map_DC::Mode::Shade :
+			m_pClassify->Get_Mode() == CLASSIFY_RGB && m_Parameters("RGB_ALPHA"    )->asBool() ? CSG_Map_DC::Mode::Alpha :
+			m_pClassify->Get_Mode() != CLASSIFY_RGB && m_Parameters("DISPLAY_ALPHA")->asGrid() ? CSG_Map_DC::Mode::Alpha : CSG_Map_DC::Mode::Transparent
+		);
 
 		if( dc_Map.Draw_Image_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100., Mode) )
 		{
@@ -1381,7 +1408,7 @@ void CWKSP_Grid::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 }
 
 //---------------------------------------------------------
-void CWKSP_Grid::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling)
+void CWKSP_Grid::_Draw_Grid_Nodes(CSG_Map_DC &dc_Map, TSG_Grid_Resampling Resampling)
 {
 	CSG_Grid *pOverlay[2]; CSG_Scaler Scaler[2];
 
@@ -1472,7 +1499,7 @@ void CWKSP_Grid::_Get_Overlay(CSG_Grid *pOverlay[2], CSG_Scaler Scaler[2])
 }
 
 //---------------------------------------------------------
-void CWKSP_Grid::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling, int yDC, int axDC, int bxDC, CSG_Grid *pOverlay[2], CSG_Scaler Scaler[2])
+void CWKSP_Grid::_Draw_Grid_Nodes(CSG_Map_DC &dc_Map, TSG_Grid_Resampling Resampling, int yDC, int axDC, int bxDC, CSG_Grid *pOverlay[2], CSG_Scaler Scaler[2])
 {
 	int	Overlay[3];
 
@@ -1521,7 +1548,7 @@ void CWKSP_Grid::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resa
 }
 
 //---------------------------------------------------------
-void CWKSP_Grid::_Draw_Grid_Cells(CWKSP_Map_DC &dc_Map)
+void CWKSP_Grid::_Draw_Grid_Cells(CSG_Map_DC &dc_Map)
 {
 	int xa = Get_Grid()->Get_System().Get_xWorld_to_Grid(dc_Map.rWorld().Get_XMin()); if( xa <  0                    ) xa = 0;
 	int ya = Get_Grid()->Get_System().Get_yWorld_to_Grid(dc_Map.rWorld().Get_YMin()); if( ya <  0                    ) ya = 0;
@@ -1645,7 +1672,7 @@ inline int CWKSP_Grid::_Get_Shading(double x, double y, int Color, TSG_Grid_Resa
 }
 
 //---------------------------------------------------------
-void CWKSP_Grid::_Draw_Values(CWKSP_Map_DC &dc_Map)
+void CWKSP_Grid::_Draw_Values(CSG_Map_DC &dc_Map)
 {
 	if(	!m_Parameters("VALUES_SHOW")->asBool() || Get_Grid()->Get_Cellsize() * dc_Map.World2DC() <= 40 )
 	{
@@ -1722,7 +1749,7 @@ void CWKSP_Grid::_Draw_Values(CWKSP_Map_DC &dc_Map)
 }
 
 //---------------------------------------------------------
-void CWKSP_Grid::_Draw_Edit(CWKSP_Map_DC &dc_Map)
+void CWKSP_Grid::_Draw_Edit(CSG_Map_DC &dc_Map)
 {
 	if( m_Edit_Attributes.Get_Count() > 0 )
 	{

@@ -370,7 +370,7 @@ bool CWKSP_TIN::Edit_Set_Attributes(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_TIN::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
+void CWKSP_TIN::On_Draw(CSG_Map_DC &dc_Map, int Flags)
 {
 	if( Get_Extent().Intersects(dc_Map.rWorld()) != INTERSECTION_None )
 	{
@@ -397,7 +397,7 @@ void CWKSP_TIN::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_TIN::_Draw_Points(CWKSP_Map_DC &dc_Map)
+void CWKSP_TIN::_Draw_Points(CSG_Map_DC &dc_Map)
 {
 	for(int i=0; i<asTIN()->Get_Node_Count(); i++)
 	{
@@ -408,7 +408,7 @@ void CWKSP_TIN::_Draw_Points(CWKSP_Map_DC &dc_Map)
 }
 
 //---------------------------------------------------------
-void CWKSP_TIN::_Draw_Edges(CWKSP_Map_DC &dc_Map)
+void CWKSP_TIN::_Draw_Edges(CSG_Map_DC &dc_Map)
 {
 	for(int i=0; i<asTIN()->Get_Edge_Count(); i++)
 	{
@@ -423,7 +423,7 @@ void CWKSP_TIN::_Draw_Edges(CWKSP_Map_DC &dc_Map)
 }
 
 //---------------------------------------------------------
-void CWKSP_TIN::_Draw_Triangles(CWKSP_Map_DC &dc_Map)
+void CWKSP_TIN::_Draw_Triangles(CSG_Map_DC &dc_Map)
 {
 	if(	m_Parameters("DISPLAY_TRIANGES")->asBool() && dc_Map.Draw_Image_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.) )
 	{
@@ -465,7 +465,7 @@ void CWKSP_TIN::_Draw_Triangles(CWKSP_Map_DC &dc_Map)
 #define DRAW_PIXEL(x, y, z)	if( m_pClassify->Get_Class_Color_byValue(z, Color) ) { dc_Map.Draw_Image_Pixel(x, y, Color); }
 
 //---------------------------------------------------------
-void CWKSP_TIN::_Draw_Triangle(CWKSP_Map_DC &dc_Map, TPoint p[3])
+void CWKSP_TIN::_Draw_Triangle(CSG_Map_DC &dc_Map, TPoint p[3])
 {
 	int		i, j, y, y_j, Color;
 	double	x, x_a, dx, dx_a, dy, z, z_a, dz, dz_a;
@@ -555,7 +555,7 @@ void CWKSP_TIN::_Draw_Triangle(CWKSP_Map_DC &dc_Map, TPoint p[3])
 }
 
 //---------------------------------------------------------
-inline void CWKSP_TIN::_Draw_Triangle_Line(CWKSP_Map_DC &dc_Map, int xa, int xb, int y, double za, double zb)
+inline void CWKSP_TIN::_Draw_Triangle_Line(CSG_Map_DC &dc_Map, int xa, int xb, int y, double za, double zb)
 {
 	int		Color;
 	double	dz;

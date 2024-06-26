@@ -68,7 +68,7 @@ CWKSP_Shapes_Points::CWKSP_Shapes_Points(CSG_Shapes *pShapes)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Points::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)
+void CWKSP_Shapes_Points::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)
 {
 	if( (m_iSize >= 0 && pShape->is_NoData(m_iSize)) || (m_fValue >= 0 && pShape->is_NoData(m_fValue)) )
 		return;
@@ -97,7 +97,7 @@ void CWKSP_Shapes_Points::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, in
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Points::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label)
+void CWKSP_Shapes_Points::Draw_Label(CSG_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label)
 {
 	TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Extent().Get_Center()));
 

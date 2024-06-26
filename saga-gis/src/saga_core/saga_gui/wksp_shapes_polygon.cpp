@@ -177,7 +177,7 @@ int CWKSP_Shapes_Polygon::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Polygon::Draw_Initialize(CWKSP_Map_DC &dc_Map, int Flags)
+void CWKSP_Shapes_Polygon::Draw_Initialize(CSG_Map_DC &dc_Map, int Flags)
 {
 	dc_Map.SetBrush(m_Brush);
 	dc_Map.SetPen(m_Pen);
@@ -187,7 +187,7 @@ void CWKSP_Shapes_Polygon::Draw_Initialize(CWKSP_Map_DC &dc_Map, int Flags)
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Polygon::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)
+void CWKSP_Shapes_Polygon::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)
 {
 	//-----------------------------------------------------
 	if( Selection )
@@ -233,7 +233,7 @@ void CWKSP_Shapes_Polygon::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, i
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Polygon::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label)
+void CWKSP_Shapes_Polygon::Draw_Label(CSG_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label)
 {
 	if( 0 )
 	{
@@ -311,7 +311,7 @@ void CWKSP_Shapes_Polygon::Edit_Shape_Draw_Move(wxDC &dc, const CSG_Rect &rWorld
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Polygon::_Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
+void CWKSP_Shapes_Polygon::_Edit_Shape_Draw(CSG_Map_DC &dc_Map)
 {
 	for(int iPart=0; m_Edit_pShape && iPart<m_Edit_pShape->Get_Part_Count(); iPart++)
 	{
@@ -337,7 +337,7 @@ void CWKSP_Shapes_Polygon::_Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Polygon::Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
+void CWKSP_Shapes_Polygon::Edit_Shape_Draw(CSG_Map_DC &dc_Map)
 {
 	if( m_Edit_pShape )
 	{

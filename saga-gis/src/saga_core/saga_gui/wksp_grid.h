@@ -107,15 +107,16 @@ public:
 
 protected:
 
-	bool						Get_Image_Grid			(wxBitmap &BMP, bool bFitSize = true);
-	bool						Get_Image_Legend		(wxBitmap &BMP, double Zoom);
+	bool						Get_Image				(wxImage  &Image , bool bFitSize = true, int Width = 0, int Height = 0);
+	bool						Get_Bitmap				(wxBitmap &Bitmap, bool bFitSize = true, int Width = 0, int Height = 0);
+	bool						Get_Bitmap_Legend		(wxBitmap &Bitmap, double Zoom);
 
 	virtual void				On_Create_Parameters	(void);
 	virtual void				On_DataObject_Changed	(void);
 	virtual void				On_Parameters_Changed	(void);
 	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
 
-	virtual void				On_Draw					(CWKSP_Map_DC &dc_Map, int Flags);
+	virtual void				On_Draw					(CSG_Map_DC &dc_Map, int Flags);
 
 
 private:
@@ -137,16 +138,16 @@ private:
 
 	void						_Get_Overlay			(CSG_Grid *pOverlay[2], CSG_Scaler Scaler[2]);
 
-	void						_Draw_Grid_Nodes		(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling);
-	void						_Draw_Grid_Nodes		(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling, int yDC, int axDC, int bxDC, CSG_Grid *pOverlay[2], CSG_Scaler Scaler[2]);
-	void						_Draw_Grid_Cells		(CWKSP_Map_DC &dc_Map);
+	void						_Draw_Grid_Nodes		(CSG_Map_DC &dc_Map, TSG_Grid_Resampling Resampling);
+	void						_Draw_Grid_Nodes		(CSG_Map_DC &dc_Map, TSG_Grid_Resampling Resampling, int yDC, int axDC, int bxDC, CSG_Grid *pOverlay[2], CSG_Scaler Scaler[2]);
+	void						_Draw_Grid_Cells		(CSG_Map_DC &dc_Map);
 
 	void						_Set_Shading			(double Shade, int &Color);
 	int							_Get_Shading			(double x, double y, int Color, TSG_Grid_Resampling Resampling);
 	int							_Get_Shading			(int    x, int    y, int Color);
 
-	void						_Draw_Values			(CWKSP_Map_DC &dc_Map);
-	void						_Draw_Edit				(CWKSP_Map_DC &dc_Map);
+	void						_Draw_Values			(CSG_Map_DC &dc_Map);
+	void						_Draw_Edit				(CSG_Map_DC &dc_Map);
 
 };
 

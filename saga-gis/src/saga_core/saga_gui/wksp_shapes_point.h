@@ -107,19 +107,19 @@ protected:
 
 	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
 
-	virtual void				Draw_Initialize			(CWKSP_Map_DC &dc_Map, int Flags);
-	virtual bool				Draw_Initialize			(CWKSP_Map_DC &dc_Map, int &Size, CSG_Shape *pShape, int Selection);
-	virtual void				Draw_Shape				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Selection);
-	virtual void				Draw_Label				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label);
+	virtual void				Draw_Initialize			(CSG_Map_DC &dc_Map, int Flags);
+	virtual bool				Draw_Initialize			(CSG_Map_DC &dc_Map, int &Size, CSG_Shape *pShape, int Selection);
+	virtual void				Draw_Shape				(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Selection);
+	virtual void				Draw_Label				(CSG_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label);
 
-	void						Draw_Symbol				(CWKSP_Map_DC &dc, int x, int y, int size);
+	void						Draw_Symbol				(CSG_Map_DC &dc, int x, int y, int size);
 
 
 private:
 
-	void						_Image_Draw				(CWKSP_Map_DC &dc, int x, int y, int size, const wxString &file);
+	void						_Image_Draw				(CSG_Map_DC &dc, int x, int y, int size, const wxString &file);
 
-	void						_Beachball_Draw			(CWKSP_Map_DC &dc, int x, int y, int size, double strike, double dip, double rake);
+	void						_Beachball_Draw			(CSG_Map_DC &dc, int x, int y, int size, double strike, double dip, double rake);
 	void						_Beachball_Get_Plane	(CSG_Shape *pPlane, CSG_Shape *pCircle, const CSG_Vector &Normal);
 	void						_Beachball_Get_Scaled	(CSG_Shape *pShape, double x, double y, double size);
 

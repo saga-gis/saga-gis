@@ -318,7 +318,7 @@ bool CWKSP_Shapes_Line::Get_Style_Size(int &min_Size, int &max_Size, double &min
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Line::Draw_Initialize(CWKSP_Map_DC &dc_Map, int Flags)
+void CWKSP_Shapes_Line::Draw_Initialize(CSG_Map_DC &dc_Map, int Flags)
 {
 	m_Label_Style	= m_Parameters("LABEL_STYLE"    )->asInt();
 	m_Label_Freq	= m_Parameters("LABEL_FREQUENCY")->asInt();
@@ -337,7 +337,7 @@ void CWKSP_Shapes_Line::Draw_Initialize(CWKSP_Map_DC &dc_Map, int Flags)
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Line::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)
+void CWKSP_Shapes_Line::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)
 {
 	wxPen	Pen(m_Pen);
 
@@ -413,7 +413,7 @@ void CWKSP_Shapes_Line::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int 
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Line::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int xOffset, int yOffset)
+void CWKSP_Shapes_Line::_Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int xOffset, int yOffset)
 {
 	for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 	{
@@ -435,7 +435,7 @@ void CWKSP_Shapes_Line::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int
 #define GET_ANGLE(a, b)	M_RAD_TO_DEG * (b.x != a.x ? M_PI_180 - atan2((double)(b.y - a.y), (double)(b.x - a.x)) : (b.y > a.y ? M_PI_270 : (b.y < a.y ? M_PI_090 : 0.0)))
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Line::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label)
+void CWKSP_Shapes_Line::Draw_Label(CSG_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label)
 {
 	CSG_Shape_Line	*pLine	= (CSG_Shape_Line *)pShape;
 
@@ -602,7 +602,7 @@ void CWKSP_Shapes_Line::Edit_Shape_Draw_Move(wxDC &dc, const CSG_Rect &rWorld, c
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Line::Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
+void CWKSP_Shapes_Line::Edit_Shape_Draw(CSG_Map_DC &dc_Map)
 {
 	if( m_Edit_pShape )
 	{

@@ -5,15 +5,16 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    User Interface                     //
+//           Application Programming Interface           //
 //                                                       //
-//                    Program: SAGA                      //
+//                  Library: SAGA_GDI                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    WKSP_Map_DC.h                      //
+//                       map_dc.h                        //
 //                                                       //
-//          Copyright (C) 2005 by Olaf Conrad            //
+//                 Copyright (C) 2024 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -38,9 +39,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -48,8 +47,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Map_DC_H
-#define _HEADER_INCLUDED__SAGA_GUI__WKSP_Map_DC_H
+#ifndef _HEADER_INCLUDED__SAGA_GDI__map_dc_H
+#define _HEADER_INCLUDED__SAGA_GDI__map_dc_H
 
 
 ///////////////////////////////////////////////////////////
@@ -62,7 +61,8 @@
 #include <wx/dcmemory.h>
 #include <wx/image.h>
 
-#include <saga_api/saga_api.h>
+//---------------------------------------------------------
+#include "sgdi_core.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -72,27 +72,23 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-enum
-{
-	IMG_MODE_OPAQUE	= 0,
-	IMG_MODE_SHADING,
-	IMG_MODE_TRANSPARENT,
-	IMG_MODE_TRANSPARENT_ALPHA
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CWKSP_Map_DC
+class SGDI_API_DLL_EXPORT CSG_Map_DC
 {
 public:
-	CWKSP_Map_DC(const CSG_Rect &rWorld, const wxRect &rDC, double Scale = 1., int Background = -1, bool bMask = false);
-	virtual ~CWKSP_Map_DC(void);
+
+	enum class Mode
+	{
+		Opaque = 0, Transparent, Alpha, Shade
+	};
+
+	//-----------------------------------------------------
+	CSG_Map_DC(void);
+	CSG_Map_DC(const CSG_Rect &rWorld, const wxRect &rDC, double Scale = 1., int Background = -1, bool bMask = false);
+
+	virtual ~CSG_Map_DC(void);
+
+	bool						Create					(const CSG_Rect &rWorld, const wxRect &rDC, double Scale = 1., int Background = -1, bool bMask = false);
+	bool						Destroy					(void);
 
 	//-----------------------------------------------------
 	wxMemoryDC &				Get_DC					(void) { return( m_dc ); }
@@ -160,6 +156,7 @@ public:
 	//-----------------------------------------------------
 	void						Set_Font				(wxFont &Font);
 
+	wxBitmap					Get_Bitmap				(void);
 	bool						Get_Bitmap				(wxBitmap &Bitmap);
 	bool						Get_Image				(wxImage  &Image );
 
@@ -170,29 +167,30 @@ public:
 	void						Draw_Polygon			(CSG_Shape_Polygon *pPolygon);
 
 	//-----------------------------------------------------
-	bool						Draw_Image_Begin		(double Transparency, int Mode = IMG_MODE_TRANSPARENT);
+	bool						Draw_Image_Begin		(double Transparency, Mode Mode = Mode::Transparent);
 	bool						Draw_Image_End			(void);
 
 	void						Draw_Image_Pixels		(int x1, int y1, int x2, int y2, int Color);
-	void						Draw_Image_Pixel		(int x, int y, int Color)
+	void						Draw_Image_Pixel		(int  x, int  y                , int Color)
 	{
 		if( x >= 0 && x < m_img_nx )
 		{
-			_Draw_Image_Pixel(3 * (y * m_img_nx + x), Color);
+			_Draw_Image_Pixel(y * m_img_nx + x, Color);
 		}
 	}
-
-	//-----------------------------------------------------
-	void						Draw					(wxDC &dc_Target);
 
 
 private:
 
-	BYTE						*m_img_rgb { NULL }, *m_img_mask { NULL }, m_Background[3];
+	BYTE						*m_img_rgb { NULL }, *m_img_mask { NULL };
 
-	int							m_img_nx { 0 }, m_img_nBytes { 0 }, m_img_mode { 0 };
+	int							m_img_nx { 0 }, m_img_ny { 0 }, m_img_nPixels { 0 };
+	
+	Mode						m_img_mode { Mode::Opaque };
 
-	double						m_World2DC, m_DC2World, m_Opacity, m_Scale;
+	double						m_World2DC { 1. }, m_DC2World { 1. }, m_Opacity { 1. }, m_Scale { 1. };
+
+	CSG_Array					m_Mask;
 
 	CSG_Rect					m_rWorld;
 
@@ -200,7 +198,7 @@ private:
 
 	wxImage						m_img;
 
-	wxBitmap					m_bmp, m_bmp_mask, m_layer_bmp, m_layer_mask;
+	wxBitmap					m_bmp, m_bmp_mask, m_bmp_layer;
 
 	wxMemoryDC					m_dc, m_dc_mask;
 
@@ -208,55 +206,54 @@ private:
 	//-----------------------------------------------------
 	void						_Draw_Image_Pixel		(int i, int Color)
 	{
-		if( i >= 0 && i < m_img_nBytes )
+		if( i >= 0 && i < m_img_nPixels )
 		{
-			BYTE r = SG_GET_R(Color), g = SG_GET_G(Color), b = SG_GET_B(Color);
+			BYTE r = SG_GET_R(Color), g = SG_GET_G(Color), b = SG_GET_B(Color), *rgb = m_img_rgb + 3 * i;
 
 			switch( m_img_mode )
 			{
-			case IMG_MODE_OPAQUE: default: {
+			case Mode::Opaque: default: {
 				break; }
 
-			case IMG_MODE_SHADING: {
-				r = (BYTE)(r * m_img_rgb[i + 0] / 255.);
-				g = (BYTE)(g * m_img_rgb[i + 1] / 255.);
-				b = (BYTE)(b * m_img_rgb[i + 2] / 255.);
+			case Mode::Shade: {
+				r = (BYTE)(r * rgb[0] / 255.);
+				g = (BYTE)(g * rgb[1] / 255.);
+				b = (BYTE)(b * rgb[2] / 255.);
 				break; }
 
-			case IMG_MODE_TRANSPARENT: {
+			case Mode::Transparent: {
 				if( m_Opacity <= 0. ) { return; }
 				if( m_Opacity <  1. )
 				{
-					r = (BYTE)(r * m_Opacity + (1. - m_Opacity) * m_img_rgb[i + 0]);
-					g = (BYTE)(g * m_Opacity + (1. - m_Opacity) * m_img_rgb[i + 1]);
-					b = (BYTE)(b * m_Opacity + (1. - m_Opacity) * m_img_rgb[i + 2]);
+					r = (BYTE)(r * m_Opacity + (1. - m_Opacity) * rgb[0]);
+					g = (BYTE)(g * m_Opacity + (1. - m_Opacity) * rgb[1]);
+					b = (BYTE)(b * m_Opacity + (1. - m_Opacity) * rgb[2]);
 				}
 				break; }
 
-			case IMG_MODE_TRANSPARENT_ALPHA: {
+			case Mode::Alpha: {
 				double Opacity = m_Opacity * SG_GET_A(Color) / 255.;
 
 				if( Opacity <= 0. ) { return; }
 				if( Opacity <  1. )
 				{
-					r = (BYTE)(r *   Opacity + (1. -   Opacity) * m_img_rgb[i + 0]);
-					g = (BYTE)(g *   Opacity + (1. -   Opacity) * m_img_rgb[i + 1]);
-					b = (BYTE)(b *   Opacity + (1. -   Opacity) * m_img_rgb[i + 2]);
+					r = (BYTE)(r *   Opacity + (1. -   Opacity) * rgb[0]);
+					g = (BYTE)(g *   Opacity + (1. -   Opacity) * rgb[1]);
+					b = (BYTE)(b *   Opacity + (1. -   Opacity) * rgb[2]);
 				}
 				break; }
 			}
 
-			m_img_rgb[i + 0] = r;
-			m_img_rgb[i + 1] = g;
-			m_img_rgb[i + 2] = b;
+			rgb[0] = r;
+			rgb[1] = g;
+			rgb[2] = b;
 
 			if( m_img_mask )
 			{
-				m_img_mask[i] = 1;
+				m_img_mask[i] = 255;
 			}
 		}
 	}
-
 };
 
 
@@ -267,4 +264,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Map_DC_H
+#endif // #ifndef _HEADER_INCLUDED__SAGA_GDI__map_dc_H

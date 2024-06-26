@@ -76,7 +76,6 @@ set(SAGA_GUI_SOURCES
 	wksp_map_basemap.cpp
 	wksp_map_buttons.cpp
 	wksp_map_control.cpp
-	wksp_map_dc.cpp
 	wksp_map_graticule.cpp
 	wksp_map_layer.cpp
 	wksp_map_manager.cpp
@@ -172,7 +171,6 @@ set(SAGA_GUI_SOURCES
 	wksp_map_basemap.h
 	wksp_map_buttons.h
 	wksp_map_control.h
-	wksp_map_dc.h
 	wksp_map_graticule.h
 	wksp_map_layer.h
 	wksp_map_manager.h

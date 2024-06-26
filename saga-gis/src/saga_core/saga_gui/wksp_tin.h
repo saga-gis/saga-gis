@@ -128,16 +128,16 @@ protected:
 	virtual void				On_Parameters_Changed	(void);
 	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
 
-	virtual void				On_Draw					(CWKSP_Map_DC &dc_Map, int Flags);
+	virtual void				On_Draw					(CSG_Map_DC &dc_Map, int Flags);
 
 
 private:
 
-	void						_Draw_Points			(CWKSP_Map_DC &dc_Map);
-	void						_Draw_Edges				(CWKSP_Map_DC &dc_Map);
-	void						_Draw_Triangles			(CWKSP_Map_DC &dc_Map);
-	void						_Draw_Triangle			(CWKSP_Map_DC &dc_Map, TPoint p[3]);
-	void						_Draw_Triangle_Line		(CWKSP_Map_DC &dc_Map, int xa, int xb, int y, double za, double zb);
+	void						_Draw_Points			(CSG_Map_DC &dc_Map);
+	void						_Draw_Edges				(CSG_Map_DC &dc_Map);
+	void						_Draw_Triangles			(CSG_Map_DC &dc_Map);
+	void						_Draw_Triangle			(CSG_Map_DC &dc_Map, TPoint p[3]);
+	void						_Draw_Triangle_Line		(CSG_Map_DC &dc_Map, int xa, int xb, int y, double za, double zb);
 
 };
 

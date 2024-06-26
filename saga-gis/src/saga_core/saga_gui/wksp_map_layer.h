@@ -101,7 +101,7 @@ public:
 
 	CSG_Rect					Get_Extent			(void);
 
-	bool						Draw				(CWKSP_Map_DC &dc_Map, int Flags);
+	bool						Draw				(CSG_Map_DC &dc_Map, int Flags);
 
 
 private:
@@ -115,7 +115,7 @@ private:
 	bool						_Projected_Get_Projections	(CSG_Projection &prj_Layer, CSG_Projection &prj_Map);
 	CSG_Rect					_Projected_Get_Layer_Extent	(const CSG_Rect &rMap);
 	bool						_Projected_Shapes_Clipped	(const CSG_Rect &rMap, CSG_Shapes *pShapes, CSG_Shapes &Clipped);
-	bool						_Projected_Shapes_Draw		(CWKSP_Map_DC &dc_Map, int Flags, CSG_Shapes *pShapes, bool bSelection = false);
+	bool						_Projected_Shapes_Draw		(CSG_Map_DC &dc_Map, int Flags, CSG_Shapes *pShapes, bool bSelection = false);
 
 };
 

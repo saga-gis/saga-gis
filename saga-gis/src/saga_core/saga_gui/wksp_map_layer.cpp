@@ -596,7 +596,7 @@ bool CWKSP_Map_Layer::_Projected_Shapes_Clipped(const CSG_Rect &rMap, CSG_Shapes
 }
 
 //---------------------------------------------------------
-bool CWKSP_Map_Layer::_Projected_Shapes_Draw(CWKSP_Map_DC &dc_Map, int Flags, CSG_Shapes *pShapes, bool bSelection)
+bool CWKSP_Map_Layer::_Projected_Shapes_Draw(CSG_Map_DC &dc_Map, int Flags, CSG_Shapes *pShapes, bool bSelection)
 {
 	CSG_Shapes	Shapes;
 
@@ -625,7 +625,7 @@ bool CWKSP_Map_Layer::_Projected_Shapes_Draw(CWKSP_Map_DC &dc_Map, int Flags, CS
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Map_Layer::Draw(CWKSP_Map_DC &dc_Map, int Flags)
+bool CWKSP_Map_Layer::Draw(CSG_Map_DC &dc_Map, int Flags)
 {
 	CSG_Projection	prj_Layer, prj_Map;
 

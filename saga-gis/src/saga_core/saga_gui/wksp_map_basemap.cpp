@@ -59,7 +59,7 @@
 #include "wksp_map.h"
 #include "wksp_map_manager.h"
 #include "wksp_map_basemap.h"
-#include "wksp_map_dc.h"
+#include <saga_gdi/map_dc.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -507,7 +507,7 @@ bool CWKSP_Map_BaseMap::Set_BaseMap(const CSG_Grid_System &System)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Map_BaseMap::Draw(CWKSP_Map_DC &dc_Map)
+bool CWKSP_Map_BaseMap::Draw(CSG_Map_DC &dc_Map)
 {
 	if( !m_Parameters("SHOW_ALWAYS")->asBool() )
 	{

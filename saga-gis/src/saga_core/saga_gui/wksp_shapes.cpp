@@ -1159,7 +1159,7 @@ wxString CWKSP_Shapes::Get_Name_Attribute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
+void CWKSP_Shapes::On_Draw(CSG_Map_DC &dc_Map, int Flags)
 {
 	//-----------------------------------------------------
 	if( Get_Extent().Intersects(dc_Map.rWorld()) == INTERSECTION_None )
@@ -1308,7 +1308,7 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)
+void CWKSP_Shapes::_Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)
 {
 	if( pShape && dc_Map.rWorld().Intersects(pShape->Get_Extent()) != INTERSECTION_None )
 	{
@@ -1343,7 +1343,7 @@ void CWKSP_Shapes::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Sele
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int PointSize)
+void CWKSP_Shapes::_Draw_Label(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int PointSize)
 {
 	if( pShape && dc_Map.rWorld().Intersects(pShape->Get_Extent()) != INTERSECTION_None )
 	{
@@ -1659,7 +1659,7 @@ bool CWKSP_Shapes::_Chart_Get_Options(void)
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes::_Draw_Chart(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
+void CWKSP_Shapes::_Draw_Chart(CSG_Map_DC &dc_Map, CSG_Shape *pShape)
 {
 	if( dc_Map.rWorld().Intersects(pShape->Get_Extent()) != INTERSECTION_None )
 	{
@@ -1698,7 +1698,7 @@ void CWKSP_Shapes::_Draw_Chart(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes::_Draw_Chart_Pie(CWKSP_Map_DC &dc_Map, CSG_Table_Record *pRecord, bool bOutline, int x, int y, int size)
+void CWKSP_Shapes::_Draw_Chart_Pie(CSG_Map_DC &dc_Map, CSG_Table_Record *pRecord, bool bOutline, int x, int y, int size)
 {
 	int		i, ix, iy, jx, jy;
 	double	d, sum;
@@ -1729,7 +1729,7 @@ void CWKSP_Shapes::_Draw_Chart_Pie(CWKSP_Map_DC &dc_Map, CSG_Table_Record *pReco
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes::_Draw_Chart_Bar(CWKSP_Map_DC &dc_Map, CSG_Table_Record *pRecord, bool bOutline, int x, int y, int sx, int sy)
+void CWKSP_Shapes::_Draw_Chart_Bar(CSG_Map_DC &dc_Map, CSG_Table_Record *pRecord, bool bOutline, int x, int y, int sx, int sy)
 {
 	int		i;
 	double	d, dx, dy, max, ix;

@@ -57,7 +57,7 @@
 
 #include "wksp_map.h"
 #include "wksp_map_graticule.h"
-#include "wksp_map_dc.h"
+#include <saga_gdi/map_dc.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -464,7 +464,7 @@ bool CWKSP_Map_Graticule::Get_Graticule(const CSG_Rect &Extent)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Map_Graticule::Draw(CWKSP_Map_DC &dc_Map)
+bool CWKSP_Map_Graticule::Draw(CSG_Map_DC &dc_Map)
 {
 	if( !Get_Graticule(dc_Map.rWorld()) || m_Graticule.Get_Count() <= 0 )
 	{

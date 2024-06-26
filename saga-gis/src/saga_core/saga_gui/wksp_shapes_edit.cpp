@@ -1073,7 +1073,7 @@ void CWKSP_Shapes::Edit_Shape_Draw_Move(wxDC &dc, const CSG_Rect &rWorld, const 
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes::Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
+void CWKSP_Shapes::Edit_Shape_Draw(CSG_Map_DC &dc_Map)
 {
 	if( m_Edit_pShape )
 	{

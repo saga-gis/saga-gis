@@ -845,22 +845,28 @@ bool CWKSP_Layer::_Set_Thumbnail(bool bRefresh)
 {
 	if( m_pObject && m_Thumbnail.IsOk() && m_Thumbnail.GetWidth() > 0 && m_Thumbnail.GetHeight() > 0 )
 	{
-		wxMemoryDC dc; wxRect r(0, 0, m_Thumbnail.GetWidth(), m_Thumbnail.GetHeight());
-		CWKSP_Map_DC dc_Map(Get_Extent(), r);
+		CSG_Map_DC dc_Map(Get_Extent(), m_Thumbnail.GetSize(), 1.);
 
-		Draw(dc_Map, LAYER_DRAW_FLAG_NOEDITS|LAYER_DRAW_FLAG_NOLABELS|LAYER_DRAW_FLAG_THUMBNAIL);
+		if( Draw(dc_Map, LAYER_DRAW_FLAG_NOEDITS|LAYER_DRAW_FLAG_NOLABELS|LAYER_DRAW_FLAG_THUMBNAIL) )
+		{
+			wxBitmap Bitmap;
 
-		dc.SelectObject(m_Thumbnail);
-		dc.SetBackground(*wxWHITE_BRUSH);
-		dc.Clear();
+			if( dc_Map.Get_Bitmap(Bitmap) )
+			{
+				wxMemoryDC dc;
 
-		dc_Map.Draw(dc);
+				dc.SelectObject(m_Thumbnail);
+				dc.DrawBitmap(Bitmap, 0, 0, false);
+				dc.SelectObject(wxNullBitmap);
 
-		dc.SelectObject(wxNullBitmap);
+				if( bRefresh && g_pData_Buttons )
+				{
+					g_pData_Buttons->Refresh(false);
+				}
 
-		if( bRefresh && g_pData_Buttons ) { g_pData_Buttons->Refresh(false); }
-
-		return( true );
+				return( true );
+			}
+		}
 	}
 
 	return( false );
@@ -1018,7 +1024,7 @@ bool CWKSP_Layer::do_Show(CSG_Rect const &Map_Extent, bool bIntersects)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Layer::Draw(CWKSP_Map_DC &dc_Map, int Flags, CSG_Data_Object *pObject)
+bool CWKSP_Layer::Draw(CSG_Map_DC &dc_Map, int Flags, CSG_Data_Object *pObject)
 {
 	if( pObject && pObject->is_Valid() && pObject->Get_ObjectType() == m_pObject->Get_ObjectType() )
 	{
