@@ -51,6 +51,10 @@
 #include <wx/clipbrd.h>
 #include <wx/display.h>
 #include <wx/frame.h>
+#include <wx/anidecod.h>
+#include <wx/imaggif.h>
+#include <wx/wfstream.h>
+#include <wx/quantize.h>
 
 #include "3d_view.h"
 
@@ -1137,6 +1141,10 @@ bool CSG_3DView_Panel::_Play(void)
 		return( false );
 	}
 
+	bool bAnimation = m_Play_State == SG_3DVIEW_PLAY_RUN_SAVE && SG_File_Cmp_Extension(m_Parameters("PLAY_FILE")->asString(), "gif");
+
+	wxImageArray Images;
+
 	//-----------------------------------------------------
 	CSG_Matrix	Position(2, 9);
 
@@ -1165,17 +1173,51 @@ bool CSG_3DView_Panel::_Play(void)
 
 			if( m_Play_State == SG_3DVIEW_PLAY_RUN_SAVE )
 			{
-				m_Image.SaveFile(SG_File_Make_Path(
-					SG_File_Get_Path     (m_Parameters("PLAY_FILE")->asString()),
-					SG_File_Get_Name     (m_Parameters("PLAY_FILE")->asString(), false) + CSG_String::Format(SG_T("%03d"), iFrame),
-					SG_File_Get_Extension(m_Parameters("PLAY_FILE")->asString())
-				).c_str());
+				if( bAnimation )
+				{
+					wxImage *pImage = new wxImage;
+
+					if( m_Image.HasAlpha() )
+					{
+						m_Image.ConvertAlphaToMask();
+					}
+
+					wxQuantize::Quantize(m_Image, *pImage);
+
+					Images.Add(pImage);
+				}
+				else
+				{
+					m_Image.SaveFile(SG_File_Make_Path(
+						SG_File_Get_Path     (m_Parameters("PLAY_FILE")->asString()),
+						SG_File_Get_Name     (m_Parameters("PLAY_FILE")->asString(), false) + CSG_String::Format("%03d", iFrame),
+						SG_File_Get_Extension(m_Parameters("PLAY_FILE")->asString())
+					).c_str());
+				}
 			}
 
 			SG_UI_Process_Get_Okay();
 		}
 	}
 
+	//-----------------------------------------------------
+	if( bAnimation && Images.Count() > 0 )
+	{
+		wxFileOutputStream Stream(m_Parameters("PLAY_FILE")->asString()); wxGIFHandler Handler;
+
+		SG_UI_Process_Set_Busy(true);
+
+		bool bResult = !Stream.IsOk() || !Handler.SaveAnimation(Images, &Stream, true, 100);
+
+		SG_UI_Process_Set_Busy(false);
+
+		if( !bResult )
+		{
+			SG_UI_Dlg_Error(CSG_String::Format("%s\n\"%s\"", _TL("failed to create animation file!"), m_Parameters("PLAY_FILE")->asString()), _TL("3D View"));
+		}
+	}
+
+	//-----------------------------------------------------
 	if( m_Play_State != SG_3DVIEW_PLAY_RUN_LOOP )
 	{
 		m_Play_State = SG_3DVIEW_PLAY_STOP;
