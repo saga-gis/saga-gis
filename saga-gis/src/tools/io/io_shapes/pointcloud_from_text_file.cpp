@@ -96,9 +96,10 @@ CPointCloud_From_Text_File::CPointCloud_From_Text_File(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_PointCloud_Output("",
+	Parameters.Add_PointCloud("",
 		"POINTS"	, _TL("Point Cloud"),
-		_TL("")
+		_TL(""),
+		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_FilePath("",
