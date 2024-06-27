@@ -258,6 +258,8 @@ bool CSG_3DView_Canvas::Draw(void)
 		m_Projector.Set_zRotation(rz);
 	}
 
+	On_After_Draw();
+
 	bDrawing = false;
 
 	return( true );

@@ -246,12 +246,12 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Node("",
-		"PLAYER"	, _TL("Sequencer"),
+		"PLAYER"    , _TL("Sequencer"),
 		_TL("")
 	);
 
 	m_pPlay	= m_Parameters.Add_FixedTable("PLAYER",
-		"PLAY"		, _TL("Sequencer Positions"),
+		"PLAY"      , _TL("View Positions"),
 		_TL("")
 	)->asTable();
 
@@ -265,16 +265,35 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	m_pPlay->Add_Field(_TL("Central Distance"), SG_DATATYPE_Double);
 	m_pPlay->Add_Field(_TL("Steps to Next"   ), SG_DATATYPE_Int   );
 
+	m_Parameters.Add_Bool("PLAYER",
+		"PLAY_FIRST", _TL("Proceed to first View Position"),
+		_TL("If played once, the end of sequence will proceed to first view position. Also applies when frames will be stored to animated GIF file."),
+		true
+	);
+
 	m_Parameters.Add_FilePath("PLAYER",
-		"PLAY_FILE"	, _TL("Image File"),
+		"PLAY_FILE" , _TL("Image File"),
 		_TL("file path, name and type used to save frames to image files"),
-		CSG_String::Format("%s (*.bmp)|*.bmp|%s (*.jpg, *.jif, *.jpeg)|*.jpg;*.jif;*.jpeg|%s (*.pcx)|*.pcx|%s (*.png)|*.png|%s (*.tif, *.tiff)|*.tif;*.tiff",
-			_TL("Windows or OS/2 Bitmap"),
-			_TL("JPEG - JFIF Compliant"),
-			_TL("Zsoft Paintbrush"),
-			_TL("Portable Network Graphics"),
-			_TL("Tagged Image File Format")
+		CSG_String::Format(
+			"%s (*.png)"                "|*.png|"
+			"%s (*.jpg, *.jif, *.jpeg)" "|*.jpg;*.jif;*.jpeg|"
+			"%s (*.tif, *.tiff)"        "|*.tif;*.tiff|"
+			"%s (*.gif)"                "|*.gif|"
+			"%s (*.bmp)"                "|*.bmp|"
+			"%s (*.pcx)"                "|*.pcx",
+			_TL("Portable Network Graphics"  ),
+			_TL("JPEG - JFIF Compliant"      ),
+			_TL("Tagged Image File Format"   ),
+			_TL("Graphics Interchange Format"),
+			_TL("Windows or OS/2 Bitmap"     ),
+			_TL("Zsoft Paintbrush"           )
 		), NULL, true
+	);
+
+	m_Parameters.Add_Int("PLAY_FILE",
+		"PLAY_DELAY", _TL("Delay"),
+		_TL("Delay, in milliseconds, to wait between each frame. Used when storing animated GIF."),
+		100, 0, true
 	);
 
 	m_Play_State = SG_3DVIEW_PLAY_STOP;
@@ -435,6 +454,11 @@ int CSG_3DView_Panel::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 	if( pParameter->Cmp_Identifier("STEREO") )
 	{
 		pParameters->Set_Enabled("STEREO_DIST", pParameter->asInt() != 0);
+	}
+
+	if( pParameter->Cmp_Identifier("PLAY_FILE") )
+	{
+		pParameters->Set_Enabled("PLAY_DELAY", SG_File_Cmp_Extension(pParameter->asString(), "gif"));
 	}
 
 	return( 1 );
@@ -1132,13 +1156,33 @@ bool CSG_3DView_Panel::_Play(void)
 	}
 
 	//-----------------------------------------------------
-	if( m_Play_State == SG_3DVIEW_PLAY_RUN_SAVE && *m_Parameters("PLAY_FILE")->asString() == '\0' )
+	CSG_String File;
+
+	if( m_Play_State == SG_3DVIEW_PLAY_RUN_SAVE )
 	{
-		SG_UI_Dlg_Error(_TL("invalid image file path"), _TL("3D View Sequencer"));
+		File = m_Parameters["PLAY_FILE"].asString();
 
-		m_Play_State = SG_3DVIEW_PLAY_STOP;
+		if( File.is_Empty() )
+		{
+			wxFileDialog dlg(GetParent(),
+				m_Parameters["PLAY_FILE"].Get_Name(), "", "",
+				m_Parameters["PLAY_FILE"].asFilePath()->Get_Filter(), wxFD_SAVE|wxFD_OVERWRITE_PROMPT
+			);
 
-		return( false );
+			if( dlg.ShowModal() == wxID_OK )
+			{
+				File = dlg.GetPath().wx_str();
+			}
+		}
+
+		if( File.is_Empty() )
+		{
+			SG_UI_Dlg_Error(_TL("invalid image file path"), _TL("3D View Sequencer"));
+
+			m_Play_State = SG_3DVIEW_PLAY_STOP;
+
+			return( false );
+		}
 	}
 
 	bool bAnimation = m_Play_State == SG_3DVIEW_PLAY_RUN_SAVE && SG_File_Cmp_Extension(m_Parameters("PLAY_FILE")->asString(), "gif");
@@ -1146,11 +1190,11 @@ bool CSG_3DView_Panel::_Play(void)
 	wxImageArray Images;
 
 	//-----------------------------------------------------
-	CSG_Matrix	Position(2, 9);
+	CSG_Matrix Position(2, 9);
 
 	PLAYER_READ(0);
 
-	int nPositions = (int)m_pPlay->Get_Count() + (m_Play_State == SG_3DVIEW_PLAY_RUN_LOOP ? 1 : 0);
+	int nPositions = (int)m_pPlay->Get_Count() + (m_Play_State == SG_3DVIEW_PLAY_RUN_LOOP || m_Parameters["PLAY_FIRST"].asBool() ? 1 : 0);
 
 	for(int iRecord=1, iFrame=0; iRecord<nPositions && m_Play_State!=SG_3DVIEW_PLAY_STOP; iRecord++)
 	{
@@ -1207,7 +1251,7 @@ bool CSG_3DView_Panel::_Play(void)
 
 		SG_UI_Process_Set_Busy(true);
 
-		bool bResult = !Stream.IsOk() || !Handler.SaveAnimation(Images, &Stream, true, 100);
+		bool bResult = Stream.IsOk() && Handler.SaveAnimation(Images, &Stream, true, m_Parameters["PLAY_DELAY"].asInt());
 
 		SG_UI_Process_Set_Busy(false);
 

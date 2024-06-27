@@ -181,6 +181,7 @@ protected:
 
 	virtual bool				On_Before_Draw			(void)	{	return( true );	}
 	virtual bool				On_Draw					(void)	= 0;
+	virtual bool				On_After_Draw			(void)	{	return( true );	}
 
 	virtual int					Get_Color				(double Value);
 	virtual int					Dim_Color				(int Color, double Dim);

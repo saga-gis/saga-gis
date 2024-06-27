@@ -75,6 +75,7 @@ protected:
 
 	virtual bool				On_Before_Draw			(void);
 	virtual bool				On_Draw					(void);
+	virtual bool				On_After_Draw			(void);
 
 	virtual int					Get_Color				(double Value);
 
@@ -83,7 +84,7 @@ private:
 
 	bool						m_Color_bGrad;
 
-	double						m_Color_Min, m_Color_Scale, m_Radius;
+	double						m_Color_Min, m_Color_Scale, m_Scale;
 
 	CSG_Colors					m_Colors;
 
@@ -132,6 +133,7 @@ C3D_Viewer_Globe_Grid_Panel::C3D_Viewer_Globe_Grid_Panel(wxWindow *pParent, CSG_
 	m_Parameters("BGCOLOR")->Set_Value(m_bgColor = (int)SG_GET_RGB(192, 192, 192));
 	m_Parameters("BOX"    )->Set_Value(m_bBox    = false);
 	m_Parameters("LABELS" )->Set_Value(m_Labels  = 2);
+	m_Parameters("NORTH"  )->Set_Value(m_North   = 0);
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Double("GENERAL"    , "RADIUS"      , _TL("Radius"      ), _TL(""), 6371., 0., true);
@@ -222,8 +224,8 @@ bool C3D_Viewer_Globe_Grid_Panel::Create_Nodes(void)
 //---------------------------------------------------------
 void C3D_Viewer_Globe_Grid_Panel::Update_Statistics(void)
 {
-	double Radius = m_Parameters("RADIUS")->asDouble();
-	double zScale = m_pZ ? m_Parameters("Z_SCALE")->asDouble() : 0.;
+	double Radius = m_Parameters("RADIUS" )->asDouble();
+	double zScale = m_Parameters("Z_SCALE")->asDouble();
 
 	m_Data_Min.x = m_Data_Max.x = 0.;
 	m_Data_Min.y = m_Data_Max.y = 0.;
@@ -271,6 +273,17 @@ void C3D_Viewer_Globe_Grid_Panel::Update_Parent(void)
 //---------------------------------------------------------
 void C3D_Viewer_Globe_Grid_Panel::On_Key_Down(wxKeyEvent &event)
 {
+	if( !event.ControlDown() && (event.GetKeyCode() == WXK_F1 || event.GetKeyCode() == WXK_F2) )
+	{
+		m_Projector.Inc_zScaling(event.GetKeyCode() == WXK_F1 ? -0.5 : 0.5);
+
+		m_Parameters.Set_Parameter("Z_SCALE", m_Projector.Get_zScaling());
+
+		Update_Statistics(); Update_View();
+
+		return;
+	}
+
 	CSG_3DView_Panel::On_Key_Down(event);
 }
 
@@ -322,7 +335,19 @@ int C3D_Viewer_Globe_Grid_Panel::Get_Color(double Value)
 //---------------------------------------------------------
 bool C3D_Viewer_Globe_Grid_Panel::On_Before_Draw(void)
 {
+	CSG_3DView_Panel::On_Before_Draw();
+
+	m_Scale = m_Projector.Get_zScaling();
+
 	m_Projector.Set_zScaling(1.);
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool C3D_Viewer_Globe_Grid_Panel::On_After_Draw(void)
+{
+	m_Projector.Set_zScaling(m_Scale);
 
 	return( true );
 }
