@@ -84,13 +84,19 @@ CGrid_Color_Blend::CGrid_Color_Blend(void)
 	Parameters.Add_FilePath("",
 		"FILE"          , _TL("Save Frames"),
 		_TL("Store each frame as image file. If GIF format is selected one animated image file will be created."),
-		CSG_String::Format("%s|*.png|%s|*.jpg;*.jif;*.jpeg|%s|*.tif;*.tiff|%s|*.bmp|%s (*.gif)|*.gif|%s|*.pcx",
-			_TL("Portable Network Graphics"),
-			_TL("JPEG - JFIF Compliant"),
-			_TL("Tagged Image File Format"),
-			_TL("Windows or OS/2 Bitmap"),
-			_TL("Compuserve Graphics Interchange Format"),
-			_TL("Zsoft Paintbrush")
+		CSG_String::Format(
+			"%s (*.png)"                "|*.png|"
+			"%s (*.jpg, *.jif, *.jpeg)" "|*.jpg;*.jif;*.jpeg|"
+			"%s (*.tif, *.tiff)"        "|*.tif;*.tiff|"
+			"%s (*.gif)"                "|*.gif|"
+			"%s (*.bmp)"                "|*.bmp|"
+			"%s (*.pcx)"                "|*.pcx",
+			_TL("Portable Network Graphics"  ),
+			_TL("JPEG - JFIF Compliant"      ),
+			_TL("Tagged Image File Format"   ),
+			_TL("Graphics Interchange Format"),
+			_TL("Windows or OS/2 Bitmap"     ),
+			_TL("Zsoft Paintbrush"           )
 		), NULL, true
 	);
 

@@ -98,21 +98,21 @@ CGrid_Import::CGrid_Import(void)
 		_TL(""),
 		CSG_String::Format(
 			"%s"                        "|*.bmp;*.ico;*.gif;*.jpg;*.jif;*.jpeg;*.pcx;*.png;*.pnm;*.tif;*.tiff;*.xpm|"
-			"%s (*.gif)"                "|*.gif|"
-			"%s (*.jpg, *.jif, *.jpeg)" "|*.jpg;*.jif;*.jpeg|"
 			"%s (*.png)"                "|*.png|"
+			"%s (*.jpg, *.jif, *.jpeg)" "|*.jpg;*.jif;*.jpeg|"
 			"%s (*.tif, *.tiff)"        "|*.tif;*.tiff|"
+			"%s (*.gif)"                "|*.gif|"
 			"%s (*.bmp)"                "|*.bmp|"
 			"%s (*.pcx)"                "|*.pcx|"
 			"%s"                        "|*.*",
-			_TL("Recognized File Types"          ),
-			_TL("CompuServe Graphics Interchange"),
-			_TL("JPEG - JFIF Compliant"          ),
-			_TL("Portable Network Graphics"      ),
-			_TL("Tagged Image File Format"       ),
-			_TL("Windows or OS/2 Bitmap"         ),
-			_TL("Zsoft Paintbrush"               ),
-			_TL("All Files"                      )
+			_TL("Recognized File Types"      ),
+			_TL("Portable Network Graphics"  ),
+			_TL("JPEG - JFIF Compliant"      ),
+			_TL("Tagged Image File Format"   ),
+			_TL("Graphics Interchange Format"),
+			_TL("Windows or OS/2 Bitmap"     ),
+			_TL("Zsoft Paintbrush"           ),
+			_TL("All Files"                  )
 		)
 	);
 

@@ -80,7 +80,7 @@ CExport_GIF_Animation::CExport_GIF_Animation(void)
 	Parameters.Add_FilePath("",
 		"FILE"           , _TL("Image File"),
 		_TL(""),
-		CSG_String::Format("%s (*.gif)|*.gif", _TL("CompuServe Graphics Interchange")), NULL, true
+		CSG_String::Format("%s (*.gif)|*.gif", _TL("Graphics Interchange Format")), NULL, true
 	);
 
 	Parameters.Add_Int("",

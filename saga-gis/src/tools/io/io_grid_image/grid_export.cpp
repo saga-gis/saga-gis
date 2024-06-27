@@ -80,13 +80,19 @@ CGrid_Export::CGrid_Export(void)
 	Parameters.Add_FilePath("",
 		"FILE"           , _TL("Image File"),
 		_TL(""),
-		CSG_String::Format("%s (*.png)|*.png|%s (*.jpg, *.jif, *.jpeg)|*.jpg;*.jif;*.jpeg|%s (*.tif, *.tiff)|*.tif;*.tiff|%s (*.bmp)|*.bmp|%s (*.gif)|*.gif|%s (*.pcx)|*.pcx",
-			_TL("Portable Network Graphics"),
-			_TL("JPEG - JFIF Compliant"),
-			_TL("Tagged Image File Format"),
-			_TL("Windows or OS/2 Bitmap"),
-			_TL("CompuServe Graphics Interchange"),
-			_TL("Zsoft Paintbrush")
+		CSG_String::Format(
+			"%s (*.png)"                "|*.png|"
+			"%s (*.jpg, *.jif, *.jpeg)" "|*.jpg;*.jif;*.jpeg|"
+			"%s (*.tif, *.tiff)"        "|*.tif;*.tiff|"
+			"%s (*.gif)"                "|*.gif|"
+			"%s (*.bmp)"                "|*.bmp|"
+			"%s (*.pcx)"                "|*.pcx",
+			_TL("Portable Network Graphics"  ),
+			_TL("JPEG - JFIF Compliant"      ),
+			_TL("Tagged Image File Format"   ),
+			_TL("Graphics Interchange Format"),
+			_TL("Windows or OS/2 Bitmap"     ),
+			_TL("Zsoft Paintbrush"           )
 		), NULL, true
 	);
 

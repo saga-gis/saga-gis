@@ -1149,18 +1149,18 @@ bool		DLG_Image_Save(wxString &File_Path, int &Type, const wxString &def_Dir, co
 
 	wxFileDialog	dlg(
 		MDI_Get_Top_Window(), _TL("Save As Image"), Dir, def_File, wxString::Format(
-			"%s (*.bmp)|*.bmp|"
+			"%s (*.png)|*.png|"
 			"%s (*.jpg)|*.jpg;*.jif;*.jpeg|"
 			"%s (*.tif)|*.tif;*.tiff|"
-			"%s (*.png)|*.png|"
 			"%s (*.gif)|*.gif|"
+			"%s (*.bmp)|*.bmp|"
 			"%s (*.pcx)|*.pcx",
-			_TL("Windows or OS/2 Bitmap"),
-			_TL("JPEG - JFIF Compliant"),
-			_TL("Tagged Image File Format"),
-			_TL("Portable Network Graphics"),
-			_TL("CompuServe Graphics Interchange"),
-			_TL("Zsoft Paintbrush")
+			_TL("Portable Network Graphics"  ),
+			_TL("JPEG - JFIF Compliant"      ),
+			_TL("Tagged Image File Format"   ),
+			_TL("Graphics Interchange Format"),
+			_TL("Windows or OS/2 Bitmap"     ),
+			_TL("Zsoft Paintbrush"           )
 		), wxFD_SAVE|wxFD_OVERWRITE_PROMPT
 	);
 

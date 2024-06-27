@@ -148,23 +148,23 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 		_TL(""),
 		CSG_String::Format(
 			"%s|*.bmp;*.ico;*.gif;*.jpg;*.jif;*.jpeg;*.pcx;*.png;*.pnm;*.tif;*.tiff;*.xpm|"
-			"%s (*.bmp)|*.bmp|"
-			"%s (*.jpg)|*.jpg;*.jif;*.jpeg|"
 			"%s (*.png)|*.png|"
-			"%s (*.pcx)|*.pcx|"
-			"%s (*.xpm)|*.xpm|"
+			"%s (*.jpg)|*.jpg;*.jif;*.jpeg|"
 			"%s (*.tif)|*.tif;*.tiff|"
 			"%s (*.gif)|*.gif|"
+			"%s (*.bmp)|*.bmp|"
+			"%s (*.pcx)|*.pcx|"
+			"%s (*.xpm)|*.xpm|"
 			"%s|*.*",
-			_TL("Image Files"),
-			_TL("Windows or OS/2 Bitmap"),
-			_TL("JPEG - JFIF Compliant"),
-			_TL("Portable Network Graphics"),
-			_TL("Zsoft Paintbrush"),
-			_TL("X11 Pixel Map"),
-			_TL("Tagged Image File Format"),
-			_TL("CompuServe Graphics Interchange"),
-			_TL("All Files")
+			_TL("Recognized File Types"      ),
+			_TL("Portable Network Graphics"  ),
+			_TL("JPEG - JFIF Compliant"      ),
+			_TL("Tagged Image File Format"   ),
+			_TL("Graphics Interchange Format"),
+			_TL("Windows or OS/2 Bitmap"     ),
+			_TL("Zsoft Paintbrush"           ),
+			_TL("X11 Pixel Map"              ),
+			_TL("All Files"                  )
 		)
 	);
 
