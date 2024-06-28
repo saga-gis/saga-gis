@@ -927,9 +927,14 @@ CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 
 	if( Get_Count() == 1 )
 	{
-		if( pLayer->Get_Object() )
+		if( g_pMaps->Get_Parameter("NAMING")->asInt() == 1 && pLayer->Get_Object() )
 		{
 			m_Name = pLayer->Get_Object()->Get_Name();
+
+			if( m_Name.Length() > g_pMaps->Get_Parameter("NAMING_LENGTH")->asInt() )
+			{
+				m_Name = m_Name.Left(g_pMaps->Get_Parameter("NAMING_LENGTH")->asInt() - 3) + "...";
+			}
 		}
 
 		m_Name.Prepend(g_pMaps->Get_Numbering());
