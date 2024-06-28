@@ -1138,16 +1138,16 @@ bool		DLG_Open(wxArrayString &File_Paths, const wxString &Caption, const wxStrin
 //---------------------------------------------------------
 bool		DLG_Image_Save(wxString &File_Path, int &Type, const wxString &def_Dir, const wxString &def_File)
 {
-	static	int	Filter_Index	= 3;
+	static int Filter_Index = 0;
 
-	wxString	Dir(def_Dir);
+	wxString Dir(def_Dir);
 
 	if( !wxDirExists(def_Dir) )
 	{
 		CONFIG_Read(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(-1), Dir);
 	}
 
-	wxFileDialog	dlg(
+	wxFileDialog dlg(
 		MDI_Get_Top_Window(), _TL("Save As Image"), Dir, def_File, wxString::Format(
 			"%s (*.png)|*.png|"
 			"%s (*.jpg)|*.jpg;*.jif;*.jpeg|"
@@ -1168,18 +1168,18 @@ bool		DLG_Image_Save(wxString &File_Path, int &Type, const wxString &def_Dir, co
 
 	if( dlg.ShowModal() == wxID_OK )
 	{
-		File_Path		= dlg.GetPath();
-		Filter_Index	= dlg.GetFilterIndex();
+		File_Path    = dlg.GetPath();
+		Filter_Index = dlg.GetFilterIndex();
 
 		switch( Filter_Index )
 		{
-		default: Type	= wxBITMAP_TYPE_BMP ;	break;
-		case  1: Type	= wxBITMAP_TYPE_JPEG;	break;
-		case  2: Type	= wxBITMAP_TYPE_TIF ;	break;
-		case  3: Type	= wxBITMAP_TYPE_PNG ;	break;
-		case  4: Type	= wxBITMAP_TYPE_GIF ;	break;
- 		case  5: Type	= wxBITMAP_TYPE_PCX ;	break;
-		case  6: Type	= wxBITMAP_TYPE_PNM ;	break;
+		default: Type = wxBITMAP_TYPE_PNG ; break;
+		case  1: Type = wxBITMAP_TYPE_JPEG; break;
+		case  2: Type = wxBITMAP_TYPE_TIF ; break;
+		case  3: Type = wxBITMAP_TYPE_GIF ; break;
+		case  4: Type = wxBITMAP_TYPE_BMP ; break;
+ 		case  5: Type = wxBITMAP_TYPE_PCX ; break;
+		case  6: Type = wxBITMAP_TYPE_PNM ; break;
 		}
 
 		if( !wxDirExists(def_Dir) )

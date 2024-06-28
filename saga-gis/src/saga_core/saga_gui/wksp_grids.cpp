@@ -778,8 +778,6 @@ void CWKSP_Grids::_LUT_Create(void)
 
 			double	Minimum, Maximum	= Get_Grids()->Get_Histogram().Get_Quantile(0.);
 
-			double	Step	= 1. / Colors.Get_Count();
-
 			for(int iClass=0; iClass<Colors.Get_Count(); iClass++)
 			{
 				Minimum	= Maximum;

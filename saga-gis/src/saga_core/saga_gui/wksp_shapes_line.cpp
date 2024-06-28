@@ -437,14 +437,14 @@ void CWKSP_Shapes_Line::_Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int x
 //---------------------------------------------------------
 void CWKSP_Shapes_Line::Draw_Label(CSG_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label)
 {
-	CSG_Shape_Line	*pLine	= (CSG_Shape_Line *)pShape;
+	CSG_Shape_Line *pLine = (CSG_Shape_Line *)pShape;
 
 	switch( m_Label_Style )
 	{
 	//-----------------------------------------------------
 	case  0:	// one label at the polyline centroid
 	{
-		TSG_Point_Int	C	= dc_Map.World2DC(pLine->Get_Centroid());
+		TSG_Point_Int C = dc_Map.World2DC(pLine->Get_Centroid());
 
 		dc_Map.DrawText(TEXTALIGN_CENTER, C.x, C.y, Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
 	} break;
@@ -455,32 +455,30 @@ void CWKSP_Shapes_Line::Draw_Label(CSG_Map_DC &dc_Map, CSG_Shape *pShape, const 
 	{
 		for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
 		{
-			double	d = 0.0, c = 0.5 * pLine->Get_Length(iPart);
-
-			TSG_Point	A = pLine->Get_Point(0, iPart);
+			double d = 0., c = 0.5 * pLine->Get_Length(iPart);
 
 			for(int i=1, j=0; d<c && i<pLine->Get_Point_Count(iPart); i++, j++)
 			{
-				d	+= SG_Get_Distance(pLine->Get_Point(i, iPart), pLine->Get_Point(j, iPart));
+				d += SG_Get_Distance(pLine->Get_Point(i, iPart), pLine->Get_Point(j, iPart));
 
 				if( d >= c )
 				{
 					if( m_Label_Style == 1 )
 					{
-						TSG_Point	A	= pLine->Get_Point(i, iPart);
-						TSG_Point	B	= pLine->Get_Point(j, iPart);
+						TSG_Point A = pLine->Get_Point(i, iPart);
+						TSG_Point B = pLine->Get_Point(j, iPart);
 
-						A.x	+= 0.5 * (B.x - A.x);
-						A.y	+= 0.5 * (B.y - A.y);
+						A.x += 0.5 * (B.x - A.x);
+						A.y += 0.5 * (B.y - A.y);
 
-						TSG_Point_Int	C	= dc_Map.World2DC(A);
+						TSG_Point_Int C = dc_Map.World2DC(A);
 
 						dc_Map.DrawText(TEXTALIGN_CENTER, C.x, C.y, Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
 					}
 					else
 					{
-						TSG_Point_Int	A	= dc_Map.World2DC(pLine->Get_Point(i, iPart));
-						TSG_Point_Int	B	= dc_Map.World2DC(pLine->Get_Point(j, iPart));
+						TSG_Point_Int A = dc_Map.World2DC(pLine->Get_Point(i, iPart));
+						TSG_Point_Int B = dc_Map.World2DC(pLine->Get_Point(j, iPart));
 
 						if( m_Label_Orient == 0 )
 						{
@@ -499,7 +497,7 @@ void CWKSP_Shapes_Line::Draw_Label(CSG_Map_DC &dc_Map, CSG_Shape *pShape, const 
 	//-----------------------------------------------------
 	case  3:	// along line labeling
 	{
-		wxCoord	Width, Height;	dc_Map.Get_DC().GetTextExtent(Label, &Width, &Height);
+		wxCoord Width, Height; dc_Map.Get_DC().GetTextExtent(Label, &Width, &Height);
 
 		for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
 		{
@@ -508,31 +506,29 @@ void CWKSP_Shapes_Line::Draw_Label(CSG_Map_DC &dc_Map, CSG_Shape *pShape, const 
 				continue;
 			}
 
-			bool			bLabel	= false;
-			double			d		= 0.0;
-			TSG_Point_Int	B, A	= dc_Map.World2DC(pLine->Get_Point(0, iPart));
+			bool bLabel = false; double d = 0.; TSG_Point_Int B, A = dc_Map.World2DC(pLine->Get_Point(0, iPart));
 
 			for(int iPoint=1; iPoint<pLine->Get_Point_Count(iPart); iPoint++)
 			{
 				//-----------------------------------------
 				if( !bLabel )
 				{
-					B	= A; A	= dc_Map.World2DC(pLine->Get_Point(iPoint, iPart));
+					B = A; A = dc_Map.World2DC(pLine->Get_Point(iPoint, iPart));
 
 					if( (d += SG_Get_Distance(A.x, A.y, B.x, B.y)) > m_Label_Freq * Width )
 					{
-						B	= A; bLabel	= true;
+						B = A; bLabel = true;
 					}
 				}
 
 				//-----------------------------------------
 				else
 				{
-					A	= dc_Map.World2DC(pLine->Get_Point(iPoint, iPart));
+					A = dc_Map.World2DC(pLine->Get_Point(iPoint, iPart));
 
 					if( SG_Get_Distance(A.x, A.y, B.x, B.y) > Width )
 					{
-						d	= 0.0;	bLabel	= false;
+						d = 0.; bLabel = false;
 
 						if( m_Label_Orient == 0 )
 						{
