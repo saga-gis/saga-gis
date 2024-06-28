@@ -126,10 +126,6 @@ bool CSG_Map_DC::Create(const CSG_Rect &rWorld, const wxRect &rDC, double Scale,
 	m_dc.SetBackground(wxBrush(Background < 0 ? *wxWHITE : wxColour(SG_GET_R(Background), SG_GET_G(Background), SG_GET_B(Background))));
 	m_dc.Clear();
 
-	m_dc_mask.SetBrush         (*wxWHITE_BRUSH);
-	m_dc_mask.SetPen           (*wxWHITE_PEN);
-	m_dc_mask.SetTextForeground(*wxWHITE);
-
 	if( (m_img_mask = bMask ? (BYTE *)m_Mask.Create(sizeof(BYTE), m_img_nPixels) : NULL) != NULL )
 	{
 		memset(m_img_mask, 0, m_img_nPixels);
@@ -234,12 +230,15 @@ bool CSG_Map_DC::Draw_Layer_Begin(void)
 {
 	m_bmp_layer.Create(m_img_nx, m_img_ny);
 	m_dc       .SelectObject(m_bmp_layer);
-	m_dc       .SetBackground(*wxWHITE_BRUSH);
+	m_dc       .SetBackground    (*wxWHITE_BRUSH);
 	m_dc       .Clear();
 
 	m_bmp_mask .Create(m_img_nx, m_img_ny);
 	m_dc_mask  .SelectObject(m_bmp_mask);
-	m_dc_mask  .SetBackground(*wxBLACK_BRUSH);
+	m_dc_mask  .SetBrush         (*wxWHITE_BRUSH);
+	m_dc_mask  .SetPen           (*wxWHITE_PEN);
+	m_dc_mask  .SetTextForeground(*wxWHITE);
+	m_dc_mask  .SetBackground    (*wxBLACK_BRUSH);
 	m_dc_mask  .Clear();
 
 	return( true );
