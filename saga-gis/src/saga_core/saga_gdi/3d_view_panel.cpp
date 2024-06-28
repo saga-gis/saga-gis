@@ -55,6 +55,7 @@
 #include <wx/imaggif.h>
 #include <wx/wfstream.h>
 #include <wx/quantize.h>
+#include <wx/filedlg.h>
 
 #include "3d_view.h"
 
@@ -1185,7 +1186,7 @@ bool CSG_3DView_Panel::_Play(void)
 		}
 	}
 
-	bool bAnimation = m_Play_State == SG_3DVIEW_PLAY_RUN_SAVE && SG_File_Cmp_Extension(m_Parameters("PLAY_FILE")->asString(), "gif");
+	bool bAnimation = m_Play_State == SG_3DVIEW_PLAY_RUN_SAVE && SG_File_Cmp_Extension(File, "gif");
 
 	wxImageArray Images;
 
@@ -1233,9 +1234,9 @@ bool CSG_3DView_Panel::_Play(void)
 				else
 				{
 					m_Image.SaveFile(SG_File_Make_Path(
-						SG_File_Get_Path     (m_Parameters("PLAY_FILE")->asString()),
-						SG_File_Get_Name     (m_Parameters("PLAY_FILE")->asString(), false) + CSG_String::Format("%03d", iFrame),
-						SG_File_Get_Extension(m_Parameters("PLAY_FILE")->asString())
+						SG_File_Get_Path     (File),
+						SG_File_Get_Name     (File, false) + CSG_String::Format("%03d", iFrame),
+						SG_File_Get_Extension(File)
 					).c_str());
 				}
 			}
@@ -1247,7 +1248,7 @@ bool CSG_3DView_Panel::_Play(void)
 	//-----------------------------------------------------
 	if( bAnimation && Images.Count() > 0 )
 	{
-		wxFileOutputStream Stream(m_Parameters("PLAY_FILE")->asString()); wxGIFHandler Handler;
+		wxFileOutputStream Stream(File.c_str()); wxGIFHandler Handler;
 
 		SG_UI_Process_Set_Busy(true);
 
@@ -1257,7 +1258,7 @@ bool CSG_3DView_Panel::_Play(void)
 
 		if( !bResult )
 		{
-			SG_UI_Dlg_Error(CSG_String::Format("%s\n\"%s\"", _TL("failed to create animation file!"), m_Parameters("PLAY_FILE")->asString()), _TL("3D View"));
+			SG_UI_Dlg_Error(CSG_String::Format("%s\n\"%s\"", _TL("failed to create animation file!"), File.c_str()), _TL("3D View"));
 		}
 	}
 
