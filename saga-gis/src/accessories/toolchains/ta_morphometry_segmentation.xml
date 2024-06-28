@@ -41,22 +41,22 @@
 			<option id="METHOD">1</option>
 			<option id="DLEVEL">3.000000</option>
 			<option id="NDIRS">8</option>
-			<input id="DEM">ELEVATION</input>
+			<input  id="DEM">ELEVATION</input>
 		</tool>
 		<tool library="ta_morphometry" tool="0" name="Slope, Aspect, Curvature">
 			<output id="SLOPE">SLOPE</output>
 			<option id="UNIT_SLOPE">0</option>
-			<input id="ELEVATION">ELEVATION</input>
+			<input  id="ELEVATION">ELEVATION</input>
 		</tool>
 		<tool library="ta_morphometry" tool="18" name="Topographic Position Index (TPI)">
-			<input id="DEM">ELEVATION</input>
+			<input  id="DEM">ELEVATION</input>
 			<output id="TPI">TPI</output>
 			<option id="STANDARD">no</option>
 			<option id="DW_WEIGHTING">0</option>
 			<option id="RADIUS" varname="true">TPI_RADIUS</option>
 		</tool>
 		<tool library="ta_hydrology" tool="15" name="SAGA Wetness Index">
-			<input id="DEM">ELEVATION</input>
+			<input  id="DEM">ELEVATION</input>
 			<output id="AREA"></output>
 			<output id="SLOPE"></output>
 			<output id="AREA_MOD"></output>
@@ -69,12 +69,12 @@
 			<option id="SLOPE_WEIGHT">1.000000</option>
 		</tool>
 		<tool library="statistics_grid" tool="8" name="Principle Components Analysis">
-			<input id="GRIDS">ELEVATION</input>
-			<input id="GRIDS">TWI</input>
-			<input id="GRIDS">SLOPE</input>
-			<input id="GRIDS">TPI</input>
-			<input id="GRIDS">OPEN_POS</input>
-			<input id="GRIDS">OPEN_NEG</input>
+			<input  id="GRIDS">ELEVATION</input>
+			<input  id="GRIDS">TWI</input>
+			<input  id="GRIDS">SLOPE</input>
+			<input  id="GRIDS">TPI</input>
+			<input  id="GRIDS">OPEN_POS</input>
+			<input  id="GRIDS">OPEN_NEG</input>
 			<output id="PCA">FEATURES</output>
 			<option id="METHOD">1</option>
 			<option id="COMPONENTS">4</option>
@@ -85,7 +85,7 @@
 			<option id="METHOD">0</option>
 			<option id="BAND_WIDTH" varname="true">BAND_WIDTH</option>
 			<option id="NORMALIZE">TRUE</option>
-			<input id="FEATURES">FEATURES</input>
+			<input  id="FEATURES">FEATURES</input>
 		</tool>
 		<tool library="imagery_segmentation" tool="3" name="Simple Region Growing">
 			<output id="SEGMENTS">SEGMENTS_GRID</output>
@@ -97,8 +97,8 @@
 			<option id="THRESHOLD">0.000000</option>
 			<option id="REFRESH">FALSE</option>
 			<option id="LEAFSIZE">256</option>
-			<input id="SEEDS">SEED_GRID</input>
-			<input id="FEATURES">FEATURES</input>
+			<input  id="SEEDS">SEED_GRID</input>
+			<input  id="FEATURES">FEATURES</input>
 		</tool>
 		<tool library="shapes_grid" tool="6" name="Vectorising Grid Classes">
 			<output id="POLYGONS">SEGMENTS</output>
@@ -106,7 +106,7 @@
 			<option id="CLASS_ID">1.000000</option>
 			<option id="SPLIT">0</option>
 			<option id="ALLVERTICES">FALSE</option>
-			<input id="GRID">SEGMENTS_GRID</input>
+			<input  id="GRID">SEGMENTS_GRID</input>
 		</tool>
 		<tool library="shapes_grid" tool="2" name="Grid Statistics for Polygons">
 			<output id="RESULT">CLUSTERS</output>
@@ -120,27 +120,27 @@
 			<option id="MEAN">TRUE</option>
 			<option id="VAR">FALSE</option>
 			<option id="STDDEV">FALSE</option>
-			<input id="GRIDS">FEATURES</input>
-			<input id="POLYGONS">SEGMENTS</input>
+			<input  id="GRIDS">FEATURES</input>
+			<input  id="POLYGONS">SEGMENTS</input>
 		</tool>
-		<tool library="table_tools" tool="29" name="Cluster Analysis (Shapes)">
+		<tool library="table_tools" tool="28" name="Cluster Analysis (Shapes)">
 			<option id="FIELDS">3,4,5,6,7,8,9,10,11,12,13,14</option>
 			<option id="METHOD">1</option>
 			<option id="NCLUSTER" varname="true">NCLUSTER</option>
 			<option id="NORMALISE">TRUE</option>
-			<input id="INPUT">CLUSTERS</input>
+			<input  id="INPUT">CLUSTERS</input>
 		</tool>
 		<tool library="shapes_polygons" tool="5" name="Polygon Dissolve">
 			<output id="DISSOLVED">DISSOLVED</output>
 			<option id="FIELDS">CLUSTER</option>
 			<option id="BND_KEEP">FALSE</option>
 			<option id="STATISTICS">&lt;no attributes&gt;</option>
-			<input id="POLYGONS">CLUSTERS</input>
+			<input  id="POLYGONS">CLUSTERS</input>
 		</tool>
 		<tool library="shapes_polygons" tool="10" name="Polygon Parts to Separate Polygons">
 			<output id="PARTS">OBJECTS</output>
 			<option id="LAKES">FALSE</option>
-			<input id="POLYGONS">DISSOLVED</input>
+			<input  id="POLYGONS">DISSOLVED</input>
 		</tool>
 	</tools>
 </toolchain>
