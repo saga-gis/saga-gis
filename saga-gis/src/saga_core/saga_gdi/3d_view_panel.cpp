@@ -855,7 +855,7 @@ void CSG_3DView_Panel::On_Mouse_Wheel(wxMouseEvent &event)
 
 		Update_View(); Update_Parent();
 
-		m_Mouse_Wheel_Accumulator -= event.GetWheelDelta();
+		m_Mouse_Wheel_Accumulator = 0;
 	}
 
 	if( m_Mouse_Wheel_Accumulator <= -event.GetWheelDelta() )
@@ -864,7 +864,7 @@ void CSG_3DView_Panel::On_Mouse_Wheel(wxMouseEvent &event)
 
 		Update_View(); Update_Parent();
 
-		m_Mouse_Wheel_Accumulator += event.GetWheelDelta();
+		m_Mouse_Wheel_Accumulator = 0;
 	}
 }
 
