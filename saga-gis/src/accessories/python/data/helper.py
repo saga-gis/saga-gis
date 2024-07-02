@@ -80,6 +80,7 @@ def Get_File(File, Local_Dir, Remote_Dir, Download_Retries = 4, Overwrite = Fals
     while Retry > 0:
         try:
             import wget
+            print('\n')
             Local_File = wget.download(Remote_File, Local_Dir) # returns full path to downloaded file or 'None'
             if Local_File:
                 saga_api.SG_UI_Console_Print_StdOut('')

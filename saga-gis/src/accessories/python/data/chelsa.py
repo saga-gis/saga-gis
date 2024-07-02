@@ -218,19 +218,19 @@ def Get_Global_Projection_AllMonths(Variable, Period = '2041-2070', Model = 'MPI
 #________________________________________________________________________________
 # Get a variable for the area of your interest (AOI)...
 #________________________________________________________________________________
-def Get_Projection_Month(Variable, Month, AOI=None, bDeleteGlobal=False):
+def Get_Projection_Month(Variable, Month, AOI=None, bDeleteGlobal=False, Period = '2041-2070', Model = 'MPI-ESM1-2-HR', SSP = '585'):
     '''
     Get a variable for the area of your interest (AOI)...
     '''
 
     Scaling, Offset, Unit = _Variable_Unit_Conversion(Variable, False)
-    Target_File = '{:s}/{:s}/{:s}_{:02d}.{:s}'.format(Dir_Target, Variable, Variable, Month, Ext_Target)
-    return os.path.exists(Target_File) or Get_Variable(Get_Global_Climatology_Month(Variable, Month), Target_File, AOI, Scaling, Offset, Unit, True, bDeleteGlobal)
+    Target_File = '{:s}/{:s}/{:s}_{:s}_ssp{:s}_{:s}_{:02d}.{:s}'.format(Dir_Target, Variable, Variable, Model, SSP, Period, Month, Ext_Target)
+    return os.path.exists(Target_File) or Get_Variable(Get_Global_Projection(Variable, Month, Period, Model, SSP), Target_File, AOI, Scaling, Offset, Unit, True, bDeleteGlobal)
 
 #________________________________________________________________________________
-def Get_Projection(Variable, AOI=None, bDeleteGlobal=False):
+def Get_Projection(Variable, AOI=None, bDeleteGlobal=False, Period = '2041-2070', Model = 'MPI-ESM1-2-HR', SSP = '585'):
     for Month in range(1, 12 + 1):
-        Get_Projection_Month(Variable, Month, AOI, bDeleteGlobal)
+        Get_Projection_Month(Variable, Month, AOI, bDeleteGlobal, Period, Model, SSP)
 
 
 #################################################################################
