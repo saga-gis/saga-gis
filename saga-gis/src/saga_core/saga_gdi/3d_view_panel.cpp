@@ -247,12 +247,12 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Node("",
-		"PLAYER"    , _TL("Sequencer"),
+		"PLAYER"     , _TL("Sequencer"),
 		_TL("")
 	);
 
 	m_pPlay	= m_Parameters.Add_FixedTable("PLAYER",
-		"PLAY"      , _TL("View Positions"),
+		"PLAY"       , _TL("View Positions"),
 		_TL("")
 	)->asTable();
 
@@ -267,13 +267,13 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	m_pPlay->Add_Field(_TL("Steps to Next"   ), SG_DATATYPE_Int   );
 
 	m_Parameters.Add_Bool("PLAYER",
-		"PLAY_FIRST", _TL("Proceed to first View Position"),
+		"PLAY_FIRST" , _TL("Proceed to first View Position"),
 		_TL("If played once, the end of sequence will proceed to first view position. Also applies when frames will be stored to animated GIF file."),
 		true
 	);
 
 	m_Parameters.Add_FilePath("PLAYER",
-		"PLAY_FILE" , _TL("Image File"),
+		"PLAY_FILE"  , _TL("Image File"),
 		_TL("file path, name and type used to save frames to image files"),
 		CSG_String::Format(
 			"%s (*.png)"                "|*.png|"
@@ -292,9 +292,15 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	);
 
 	m_Parameters.Add_Int("PLAY_FILE",
-		"PLAY_DELAY", _TL("Delay"),
+		"PLAY_DELAY" , _TL("Delay"),
 		_TL("Delay, in milliseconds, to wait between each frame. Used when storing animated GIF."),
 		100, 0, true
+	);
+
+	m_Parameters.Add_Int("PLAY_FILE",
+		"PLAY_COLORS", _TL("Color Depth"),
+		_TL("Number of color entries used when storing animated GIF."),
+		236, 2, true, 256, true
 	);
 
 	m_Play_State = SG_3DVIEW_PLAY_STOP;
@@ -459,7 +465,8 @@ int CSG_3DView_Panel::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 
 	if( pParameter->Cmp_Identifier("PLAY_FILE") )
 	{
-		pParameters->Set_Enabled("PLAY_DELAY", SG_File_Cmp_Extension(pParameter->asString(), "gif"));
+		pParameters->Set_Enabled("PLAY_DELAY" , SG_File_Cmp_Extension(pParameter->asString(), "gif"));
+		pParameters->Set_Enabled("PLAY_COLORS", SG_File_Cmp_Extension(pParameter->asString(), "gif"));
 	}
 
 	return( 1 );
@@ -1227,7 +1234,7 @@ bool CSG_3DView_Panel::_Play(void)
 						m_Image.ConvertAlphaToMask();
 					}
 
-					wxQuantize::Quantize(m_Image, *pImage);
+					wxQuantize::Quantize(m_Image, *pImage, m_Parameters["PLAY_COLORS"].asInt());
 
 					Images.Add(pImage);
 				}

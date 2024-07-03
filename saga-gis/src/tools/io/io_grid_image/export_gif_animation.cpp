@@ -89,6 +89,12 @@ CExport_GIF_Animation::CExport_GIF_Animation(void)
 		100, 0, true
 	);
 
+	Parameters.Add_Int("",
+		"COLORS"         , _TL("Color Depth"),
+		_TL("Number of color entries to be used."),
+		236, 2, true, 256, true
+	);
+
 	Parameters.Add_Bool("",
 		"FILE_WORLD"     , _TL("Create World File"),
 		_TL("Store georeference along image to an additional file."),
@@ -158,7 +164,8 @@ CExport_GIF_Animation::CExport_GIF_Animation(void)
 
 	Parameters.Add_Colors("",
 		"COL_PALETTE"    , _TL("Colors Palette"),
-		_TL("")
+		_TL(""),
+		SG_COLORS_RAINBOW
 	);
 
 	Parameters.Add_Bool("COL_PALETTE",
@@ -494,7 +501,7 @@ class wxImage * CExport_GIF_Animation::Get_Image(CSG_Grid &Grid)
 
 	wxImage *pImage = new wxImage;
 
-	wxQuantize::Quantize(Image, *pImage);
+	wxQuantize::Quantize(Image, *pImage, Parameters["COLORS"].asInt());
 
 	return( pImage );
 }

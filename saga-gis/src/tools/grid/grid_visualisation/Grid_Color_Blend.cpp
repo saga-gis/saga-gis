@@ -118,9 +118,16 @@ CGrid_Color_Blend::CGrid_Color_Blend(void)
 		100, 0, true
 	);
 
+	Parameters.Add_Int("",
+		"FILE_COLORS"   , _TL("Color Depth"),
+		_TL("Number of color entries used when storing animated GIF."),
+		236, 2, true, 256, true
+	);
+
 	Parameters.Add_Colors("",
 		"COLORS"        , _TL("Colors"),
-		_TL("")
+		_TL(""),
+		SG_COLORS_RAINBOW
 	);
 
 	Parameters.Add_Int("",
@@ -215,6 +222,7 @@ int CGrid_Color_Blend::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Par
 	{
 		pParameters->Set_Enabled("FILE_NODATA"  , *pParameter->asString());
 		pParameters->Set_Enabled("FILE_DELAY"   , SG_File_Cmp_Extension(pParameter->asString(), "gif"));
+		pParameters->Set_Enabled("FILE_COLORS"  , SG_File_Cmp_Extension(pParameter->asString(), "gif"));
 	}
 
 	if( pParameter->Cmp_Identifier("FILE_NODATA") )
@@ -307,7 +315,7 @@ bool CGrid_Color_Blend::On_Execute(void)
 		Parameters.Add_Grid_List("", "FRAMES", "", "", PARAMETER_INPUT_OPTIONAL, false);
 	}
 
-	int Loop = Parameters("LOOP")->asInt(); if( Loop == 3 && !m_File.is_Empty() ) { Loop = 2; }
+	int Loop = Parameters("LOOP")->asInt(); if( Loop == 2 && !m_File.is_Empty() ) { Loop = 1; }
 
 	int nGrids = Loop ? m_pGrids->Get_Grid_Count() : m_pGrids->Get_Grid_Count() - 1;
 
@@ -459,7 +467,7 @@ bool CGrid_Color_Blend::Save_Frame(void)
 
 		if( pGrid )
 		{
-			double Scale =  m_Range_Min < m_Range_Max ? 200. / (m_Range_Max - m_Range_Min) : 1.;
+			double Scale =  m_Range_Min < m_Range_Max ? 254. / (m_Range_Max - m_Range_Min) : 1.;
 			pGrid->Fmt_Name("%d", m_iFile);
 			pGrid->Set_NoData_Value(255);
 
@@ -474,7 +482,7 @@ bool CGrid_Color_Blend::Save_Frame(void)
 				{
 					double z = Scale * (m_pGrid->asDouble(i) - m_Range_Min);
 
-					pGrid->Set_Value(i, z < 0. ? 0. : z > 200. ? 200. : z);
+					pGrid->Set_Value(i, z < 0. ? 0. : z > 254. ? 254. : z);
 				}
 			}
 
@@ -521,8 +529,9 @@ bool CGrid_Color_Blend::Save_Frames(void)
 			&&	SG_TOOL_PARAMETER_SET("COLOURING"  , 2     ) // histogram stretch to value range
 			&&	SG_TOOL_PARAMETER_SET("COL_PALETTE", Parameters("COLORS"     ))
 			&&	SG_TOOL_PARAMETER_SET("STRETCH.MIN",   0.  )
-			&&	SG_TOOL_PARAMETER_SET("STRETCH.MAX", 200.  )
+			&&	SG_TOOL_PARAMETER_SET("STRETCH.MAX", 254.  )
 			&&	SG_TOOL_PARAMETER_SET("DELAY"      , Parameters("FILE_DELAY" ))
+			&&	SG_TOOL_PARAMETER_SET("COLORS"     , Parameters("FILE_COLORS"))
 			&&	SG_TOOL_PARAMETER_SET("NO_DATA"    , Parameters("FILE_NODATA"))
 			&&	SG_TOOL_PARAMETER_SET("NO_DATA_COL", Parameters("FILE_BGCOL" ))
 		)

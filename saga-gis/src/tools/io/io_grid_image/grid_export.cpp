@@ -165,7 +165,14 @@ CGrid_Export::CGrid_Export(void)
 
 	Parameters.Add_Colors("",
 		"COL_PALETTE"    , _TL("Colors Palette"),
-		_TL("")
+		_TL(""),
+		SG_COLORS_RAINBOW
+	);
+
+	Parameters.Add_Int("",
+		"COL_DEPTH"      , _TL("Color Depth"),
+		_TL("Number of color entries used when storing GIF."),
+		236, 2, true, 256, true
 	);
 
 	Parameters.Add_Bool("COL_PALETTE",
@@ -275,6 +282,11 @@ int CGrid_Export::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 		pParameters->Set_Enabled("FILE_KML"     , pParameter->asPointer() && pParameter->asGrid()->Get_Projection().Get_Type() == ESG_CRS_Type::Geographic);
 	}
 
+	if( pParameter->Cmp_Identifier("FILE") )
+	{
+		pParameters->Set_Enabled("COL_DEPTH"    , SG_File_Cmp_Extension(pParameter->asString(), "gif"));
+	}
+
 	if( pParameter->Cmp_Identifier("NO_DATA") )
 	{
 		pParameters->Set_Enabled("NO_DATA_COL"  , pParameter->asBool() == false);
@@ -368,14 +380,14 @@ bool CGrid_Export::On_Execute(void)
 
 	if( SG_File_Cmp_Extension(File, "gif") )
 	{
-		wxImage _Image(Image);
-
-		wxQuantize::Quantize(_Image, Image);
-
 		if( Image.HasAlpha() )
 		{
 			Image.ConvertAlphaToMask();
 		}
+
+		wxImage _Image(Image);
+
+		wxQuantize::Quantize(_Image, Image, Parameters["COL_DEPTH"].asInt());
 	}
 
 	if( !SG_File_Cmp_Extension(File, "bmp")

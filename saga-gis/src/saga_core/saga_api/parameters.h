@@ -1799,8 +1799,9 @@ public:
 
 	CSG_Parameter *				Add_FilePath			(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, const SG_Char *Filter = NULL, const SG_Char *Default = NULL, bool bSave = false, bool bDirectory = false, bool bMultiple = false);
 
+	CSG_Parameter *				Add_Colors				(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Palette = 0, int nColors = 11, bool bRevert = false);
+	CSG_Parameter *				Add_Colors				(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, CSG_Colors    *pInit);
 	CSG_Parameter *				Add_Font				(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, const SG_Char *pInit = NULL);
-	CSG_Parameter *				Add_Colors				(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, CSG_Colors    *pInit = NULL);
 	CSG_Parameter *				Add_FixedTable			(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, CSG_Table     *pInit = NULL);
 
 	CSG_Parameter *				Add_Grid_System			(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, CSG_Grid_System *pInit = NULL);
