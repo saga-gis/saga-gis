@@ -473,6 +473,23 @@ int CSG_3DView_Panel::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 }
 
 //---------------------------------------------------------
+bool CSG_3DView_Panel::Parameters_Dialog(void)
+{
+	Update_Parameters(true);
+
+	if( SG_UI_Dlg_Parameters(&m_Parameters, m_Parameters.Get_Name()) )
+	{
+		Update_Parameters(false);
+		Update_Parent();
+		Update_View(true);
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 bool CSG_3DView_Panel::Parameter_Value_Toggle(const CSG_String &ID, bool bUpdate)
 {
 	CSG_Parameter *pParameter = m_Parameters(ID);
@@ -601,6 +618,8 @@ CSG_Table CSG_3DView_Panel::Get_Shortcuts(void)
 	ADD_SHORTCUT("9"        , _TL("Decrease Eye Distance Angle for Stereo View"));
 	ADD_SHORTCUT("0"        , _TL("Increase Eye Distance Angle for Stereo View"));
 
+	ADD_SHORTCUT("Shift+P"  , _TL("Properties"));
+
 	ADD_SHORTCUT("Ctrl+C"   , _TL("Copy to Clipboard"));
 
 	ADD_SHORTCUT("Ctrl+A"   , CSG_String::Format("%s, %s", _TL("Sequencer"), _TL("Add Position"          )));
@@ -657,7 +676,18 @@ CSG_String CSG_3DView_Panel::Get_Usage(const CSG_Table &Shortcuts)
 void CSG_3DView_Panel::On_Key_Down(wxKeyEvent &event)
 {
 	//-----------------------------------------------------
-	if( event.ControlDown() )
+	if( event.ShiftDown() )
+	{
+		switch( event.GetKeyCode() )
+		{
+		default : event.Skip       (); return;
+
+		case 'P': Parameters_Dialog(); return;
+		}
+	}
+
+	//-----------------------------------------------------
+	else if( event.ControlDown() )
 	{
 		switch( event.GetKeyCode() )
 		{

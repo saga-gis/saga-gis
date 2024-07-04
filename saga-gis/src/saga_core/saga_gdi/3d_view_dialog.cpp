@@ -210,18 +210,7 @@ void CSG_3DView_Dialog::On_Menu(wxCommandEvent &event)
 
 	case MENU_CLOSE        : Close(); return;
 
-	case MENU_PROPERTIES   :
-		m_pPanel->Update_Parameters(true);
-
-		if( SG_UI_Dlg_Parameters(&m_pPanel->m_Parameters, m_pPanel->m_Parameters.Get_Name()) )
-		{
-			m_pPanel->Update_Parameters(false);
-
-			Update_Controls();
-
-			m_pPanel->Update_View(true);
-		}
-		return;
+	case MENU_PROPERTIES   : m_pPanel->Parameters_Dialog(); return;
 
 	case MENU_USAGE        : SG_UI_Dlg_Info(m_pPanel->Get_Usage(), _TL("Usage")); return;
 

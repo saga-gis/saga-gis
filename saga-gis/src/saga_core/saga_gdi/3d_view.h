@@ -99,6 +99,8 @@ public:
 	virtual bool				Update_Parameters		(bool bSave);
 	virtual bool				Update_View				(bool bStatistics = false);
 
+	bool						Parameters_Dialog		(void);
+
 	bool						Parameter_Value_Toggle	(const CSG_String &ID              , bool bUpdate = true);
 	bool						Parameter_Value_Add		(const CSG_String &ID, double Value, bool bUpdate = true);
 
