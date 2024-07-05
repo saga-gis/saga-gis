@@ -308,6 +308,8 @@ public:
 
 		if( m_Parameters["FRAME_SHOW"].asBool() )
 		{
+			dc.SetTextForeground(*wxBLACK);
+
 			m_pLayout->Get_Map()->Draw_Frame(dc, rWorld, rMap, rMap.x - rFrame.x, false);
 		}
 

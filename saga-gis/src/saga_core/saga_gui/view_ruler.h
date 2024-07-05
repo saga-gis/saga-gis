@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef _HEADER_INCLUDED__SAGA_GUI__VIEW_Ruler_H
 #define _HEADER_INCLUDED__SAGA_GUI__VIEW_Ruler_H
 
@@ -81,15 +69,15 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define RULER_HORIZONTAL		0x00
-#define RULER_VERTICAL			0x01
-#define RULER_EDGE_BLACK		0x02
-#define RULER_EDGE_SUNKEN		0x04
-#define RULER_DESCENDING		0x08
-#define RULER_MODE_NORMAL		0x10
-#define RULER_MODE_CORNERS		0x20
-#define RULER_MODE_SCALE		0x40
-#define RULER_TICKATBOTTOM		0x80
+#define RULER_HORIZONTAL   0x00
+#define RULER_VERTICAL     0x01
+#define RULER_EDGE_BLACK   0x02
+#define RULER_EDGE_SUNKEN  0x04
+#define RULER_DESCENDING   0x08
+#define RULER_MODE_NORMAL  0x10
+#define RULER_MODE_CORNERS 0x20
+#define RULER_MODE_SCALE   0x40
+#define RULER_TICKATBOTTOM 0x80
 
 
 ///////////////////////////////////////////////////////////
@@ -105,8 +93,6 @@ public:
 	CVIEW_Ruler(wxWindow *pParent, int Style = RULER_HORIZONTAL);
 	virtual ~CVIEW_Ruler(void);
 
-	void						On_Paint			(wxPaintEvent &event);
-
 	void						Set_Mode			(int Mode);
 	void						Set_Range			(double Min, double Max);
 	void						Set_Range_Core		(double Min, double Max);
@@ -121,13 +107,19 @@ private:
 
 	double						m_Min, m_Max, m_Min_Core, m_Max_Core;
 
+
+	void 						On_SysColourChanged (wxSysColourChangedEvent &event);
+
+	void						On_Paint			(wxPaintEvent &event);
+
+	void						_Draw				(wxDC &dc, const wxRect &r);
 	void						_Draw_Corners		(wxDC &dc, int Width, int Height);
 	void						_Draw_Core			(wxDC &dc, int Width, int Height);
 	void						_Draw_Position		(wxDC &dc, int Width, int Height, int Position);
 
 
-//---------------------------------------------------------
-DECLARE_EVENT_TABLE()
+	//-----------------------------------------------------
+	DECLARE_EVENT_TABLE()
 };
 
 

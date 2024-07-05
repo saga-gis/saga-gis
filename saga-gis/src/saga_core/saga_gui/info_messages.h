@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef _HEADER_INCLUDED__SAGA_GUI__INFO_Messages_H
 #define _HEADER_INCLUDED__SAGA_GUI__INFO_Messages_H
 
@@ -86,9 +74,9 @@ class CINFO_Messages : public wxTextCtrl
 public:
 	CINFO_Messages(wxWindow *pParent);
 
-	void						Add_Time		(bool bNewLine = true);
-	void						Add_Line		(void);
-	void						Add_String		(wxString sMessage, bool bNewLine = true, bool bTime = false, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
+	void						Add_Time			(bool bNewLine = true);
+	void						Add_Line			(void);
+	void						Add_String			(wxString sMessage, bool bNewLine = true, bool bTime = false, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
 
 
 private:
@@ -96,19 +84,21 @@ private:
 	int							m_MaxLength;
 
 
-	void						On_Context_Menu	(wxMouseEvent   &event);
+	void						On_SysColourChanged	(wxSysColourChangedEvent &event);
 
-	void						On_Copy			(wxCommandEvent &event);
-	void						On_Clear		(wxCommandEvent &event);
-	void						On_SelectAll	(wxCommandEvent &event);
+	void						On_Context_Menu		(wxMouseEvent   &event);
 
-	void						_Add_Text		(wxString Text);
+	void						On_Copy				(wxCommandEvent &event);
+	void						On_Clear			(wxCommandEvent &event);
+	void						On_SelectAll		(wxCommandEvent &event);
 
-	void						_Set_Style		(TSG_UI_MSG_STYLE Style);
+	void						_Add_Text			(const wxString &Text);
+
+	void						_Set_Style			(TSG_UI_MSG_STYLE Style);
 
 
-//---------------------------------------------------------
-wxDECLARE_EVENT_TABLE();
+	//-----------------------------------------------------
+	wxDECLARE_EVENT_TABLE();
 };
 
 

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <wx/datetime.h>
 
 #include "helper.h"
@@ -78,11 +66,13 @@
 
 //---------------------------------------------------------
 wxBEGIN_EVENT_TABLE(CINFO_Messages, wxTextCtrl)
-	EVT_RIGHT_UP	(CINFO_Messages::On_Context_Menu)
+	EVT_SYS_COLOUR_CHANGED(CINFO_Messages::On_SysColourChanged)
 
-	EVT_MENU		(ID_CMD_INFO_SELECTALL	, CINFO_Messages::On_SelectAll)
-	EVT_MENU		(ID_CMD_INFO_COPY		, CINFO_Messages::On_Copy)
-	EVT_MENU		(ID_CMD_INFO_CLEAR		, CINFO_Messages::On_Clear)
+	EVT_RIGHT_UP(CINFO_Messages::On_Context_Menu)
+
+	EVT_MENU(ID_CMD_INFO_SELECTALL, CINFO_Messages::On_SelectAll)
+	EVT_MENU(ID_CMD_INFO_COPY     , CINFO_Messages::On_Copy)
+	EVT_MENU(ID_CMD_INFO_CLEAR    , CINFO_Messages::On_Clear)
 wxEND_EVENT_TABLE()
 
 
@@ -94,22 +84,35 @@ wxEND_EVENT_TABLE()
 
 //---------------------------------------------------------
 CINFO_Messages::CINFO_Messages(wxWindow *pParent)
-	: wxTextCtrl(pParent, ID_WND_INFO_MESSAGES, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_RICH2|wxTE_NOHIDESEL|wxTE_MULTILINE|wxTE_READONLY|wxSUNKEN_BORDER)
+	: wxTextCtrl(pParent, ID_WND_INFO_MESSAGES, "", wxDefaultPosition, wxDefaultSize, wxTE_RICH2|wxTE_NOHIDESEL|wxTE_MULTILINE|wxTE_READONLY|wxSUNKEN_BORDER)
 {
-	m_MaxLength	= 0x10000;
+	SetBackgroundColour(SYS_Get_Color(wxSYS_COLOUR_WINDOW));
+
+	m_MaxLength  = 0x10000;
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CINFO_Messages::On_SysColourChanged(wxSysColourChangedEvent &event)
+{
+	SetBackgroundColour(SYS_Get_Color(wxSYS_COLOUR_WINDOW));
+
+	event.Skip();
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CINFO_Messages::On_Context_Menu(wxMouseEvent &event)
 {
-	wxMenu	Menu;
+	wxMenu Menu;
 
 	CMD_Menu_Add_Item(&Menu, false, ID_CMD_INFO_CLEAR);
 	CMD_Menu_Add_Item(&Menu, false, ID_CMD_INFO_SELECTALL);
@@ -139,9 +142,7 @@ void CINFO_Messages::On_Copy(wxCommandEvent &WXUNUSED(event))
 {
 	if( GetStringSelection().IsEmpty() )
 	{
-		SelectAll();
-		Copy();
-		SetSelection(GetLastPosition(), GetLastPosition());
+		SelectAll(); Copy(); SetSelection(GetLastPosition(), GetLastPosition());
 	}
 	else
 	{
@@ -152,20 +153,18 @@ void CINFO_Messages::On_Copy(wxCommandEvent &WXUNUSED(event))
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CINFO_Messages::_Add_Text(wxString Text)
+void CINFO_Messages::_Add_Text(const wxString &Text)
 {
-	int		i, n;
-
 	if( m_MaxLength <= (int)(GetLastPosition() + Text.Length()) )
 	{
-		for(i=0, n=0; i<GetNumberOfLines() && n<(int)Text.Length(); i++)
+		int n = 0;
+
+		for(int i=0; i<GetNumberOfLines() && n<(int)Text.Length(); i++)
 		{
-			n	+= 1 + GetLineLength(i);
+			n += 1 + GetLineLength(i);
 		}
 
 		Remove(0, n + 1);
@@ -175,93 +174,93 @@ void CINFO_Messages::_Add_Text(wxString Text)
 }
 
 //---------------------------------------------------------
-void CINFO_Messages::_Set_Style(TSG_UI_MSG_STYLE Style)
+void CINFO_Messages::_Set_Style(TSG_UI_MSG_STYLE Style_Code)
 {
-	int			i	= 0;
-	wxColour	c	= wxColour(0, 0, 0);
-	wxFont		f	= wxSystemSettings::GetFont(wxSYS_ANSI_VAR_FONT);//wxSYS_SYSTEM_FONT);
-	wxTextAttr	t;
+	wxTextAttr Style(GetDefaultStyle());
 
-	f.SetPointSize((int)(0.5 + 0.9 * f.GetPointSize()));	// generally scale message window font to 90 percent
+//	Style.SetTextColour(wxSYS_COLOUR_WINDOWTEXT);
+	Style.SetTextColour(wxSystemSettings::GetAppearance().IsDark() ? *wxWHITE : *wxBLACK);
 
+	wxFont Font(Style.GetFont());
 
-	switch( Style )
+	if( !Font.IsOk() )
 	{
-	default:
-	case SG_UI_MSG_STYLE_NORMAL:
+		Font = wxSystemSettings::GetFont(wxSYS_DEFAULT_GUI_FONT);
+		Font.SetPointSize((int)(0.5 + 0.9 * Font.GetPointSize())); // generally scale message window font to 90 percent
+	}
+
+	Font.SetStyle (wxFONTSTYLE_NORMAL );
+	Font.SetWeight(wxFONTWEIGHT_NORMAL);
+
+	switch( Style_Code )
+	{
+	case SG_UI_MSG_STYLE_NORMAL: default:
 		break;
 
 	case SG_UI_MSG_STYLE_BOLD:
-		f.SetWeight(wxFONTWEIGHT_BOLD);
+		Font.SetWeight(wxFONTWEIGHT_BOLD);
 		break;
 
 	case SG_UI_MSG_STYLE_ITALIC:
-		f.SetStyle(wxFONTSTYLE_ITALIC);
+		Font.SetStyle(wxFONTSTYLE_ITALIC);
 		break;
 
 	case SG_UI_MSG_STYLE_SUCCESS:
-		c	= wxColour(  0, 127,   0);
+		Style.SetTextColour(wxSystemSettings::GetAppearance().IsDark() ? wxColour(0, 255, 0) : wxColour(0, 127, 0));
 		break;
 
 	case SG_UI_MSG_STYLE_FAILURE:
-		c	= wxColour(127,   0,   0);
+		Style.SetTextColour(wxSystemSettings::GetAppearance().IsDark() ? wxColour(255, 0, 0) : wxColour(127, 0, 0));
 		break;
 
 	case SG_UI_MSG_STYLE_BIG:
-		f.SetWeight(wxFONTWEIGHT_BOLD);
-		f.SetPointSize((int)(0.5 + 1.1 * f.GetPointSize()));
+		Font.SetWeight(wxFONTWEIGHT_BOLD);
+	//	Font.SetNumericWeight(wxFONTSIZE_SMALL);
 		break;
 
 	case SG_UI_MSG_STYLE_SMALL:
-		f.SetWeight(wxFONTWEIGHT_LIGHT);
-		f.SetPointSize((int)(0.5 + 0.9 * f.GetPointSize()));
+		Font.SetWeight(wxFONTWEIGHT_LIGHT);
+	//	Font.SetNumericWeight(wxFONTSIZE_LARGE);
 		break;
 
 	case SG_UI_MSG_STYLE_01:
-		i	= 50;
-		c	= wxColour(  0,   0, 127);
-		f.SetWeight(wxFONTWEIGHT_LIGHT);
+		Style.SetLeftIndent(50);
+		Style.SetTextColour(wxSystemSettings::GetAppearance().IsDark() ? wxColour(0, 127, 255) : wxColour(0, 0, 127));
+		Font.SetWeight(wxFONTWEIGHT_LIGHT);
 		break;
 
 	case SG_UI_MSG_STYLE_02:
 		break;
 
 	case SG_UI_MSG_STYLE_03:
-		c	= wxColour(  0,   0, 127);
-		f.SetWeight(wxFONTWEIGHT_BOLD);
+		Style.SetTextColour(wxSystemSettings::GetAppearance().IsDark() ? wxColour(0, 127, 255) : wxColour(0, 0, 127));
+		Font.SetWeight(wxFONTWEIGHT_BOLD);
 		break;
 	}
 
+	Style.SetFont(Font);
 
-	t.SetLeftIndent(i);
-	t.SetTextColour(c);
-	t.SetFont(f);
-
-	SetDefaultStyle(t);
+	SetDefaultStyle(Style);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CINFO_Messages::Add_Time(bool bNewLine)
 {
-	wxDateTime	Time;
-
 	if( bNewLine )
 	{
-		_Add_Text(wxT("\n"));
+		_Add_Text("\n");
 	}
 
-	Time.SetToCurrent();
+	wxDateTime Time; Time.SetToCurrent();
 
 	_Set_Style(SG_UI_MSG_STYLE_03);
 
-	_Add_Text(wxString::Format(wxT("[%s/%s]"),
+	_Add_Text(wxString::Format("[%s/%s]",
 		Time.FormatISODate().c_str(),
 		Time.FormatISOTime().c_str())
 	);
@@ -270,27 +269,25 @@ void CINFO_Messages::Add_Time(bool bNewLine)
 //---------------------------------------------------------
 void CINFO_Messages::Add_Line(void)
 {
-	CSG_Colors	c;
-
 	SetDefaultStyle(wxTextAttr(wxNullColour, wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW)));
 
-	_Add_Text(wxT("\n\n"));
+	_Add_Text("\n\n");
 
-	c.Set_Ramp(
+	CSG_Colors Colors; Colors.Set_Ramp(
 		Get_Color_asInt(wxSystemSettings::GetColour(wxSYS_COLOUR_ACTIVECAPTION)),
 		Get_Color_asInt(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW))
 	);
 
-	c.Set_Count(100);
+	Colors.Set_Count(100);
 
-	for(int i=0; i<c.Get_Count(); i++)
+	for(int i=0; i<Colors.Get_Count(); i++)
 	{
 		SetDefaultStyle(wxTextAttr(
-			Get_Color_asWX(c.Get_Color(c.Get_Count() - 1 - i)),
-			Get_Color_asWX(c.Get_Color(i))
+			Get_Color_asWX(Colors.Get_Color(Colors.Get_Count() - 1 - i)),
+			Get_Color_asWX(Colors.Get_Color(i))
 		));
 
-		_Add_Text(wxT("  "));
+		_Add_Text("  ");
 	}
 
 	SetDefaultStyle(wxTextAttr(wxNullColour, wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW)));
@@ -303,14 +300,14 @@ void CINFO_Messages::Add_String(wxString sMessage, bool bNewLine, bool bTime, TS
 	{
 		if( bNewLine )
 		{
-			_Add_Text(wxT("\n"));
+			_Add_Text("\n");
 		}
 
 		if( bTime )
 		{
 			Add_Time(false);
 
-			_Add_Text(wxT(" "));
+			_Add_Text(" ");
 		}
 
 		_Set_Style(Style);

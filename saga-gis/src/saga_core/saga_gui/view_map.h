@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,15 +45,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -112,39 +100,40 @@ private:
 
 	void							_Set_Positions				(void);
 
-	void							On_Paint					(wxPaintEvent    &event);
-	void							On_Size						(wxSizeEvent     &event);
-	void							On_Key_Down					(wxKeyEvent      &event);
+	void							On_SysColourChanged			(wxSysColourChangedEvent &event);
+	void							On_Paint					(wxPaintEvent            &event);
+	void							On_Size						(wxSizeEvent             &event);
+	void							On_Key_Down					(wxKeyEvent              &event);
 
-	virtual void					On_Command_UI				(wxUpdateUIEvent &event);
+	virtual void					On_Command_UI				(wxUpdateUIEvent         &event);
 
-	void							On_Map_3D_Show				(wxCommandEvent  &event);
-	void							On_Map_Layout_Show			(wxCommandEvent  &event);
-	void							On_Map_Save_Image			(wxCommandEvent  &event);
-	void							On_Map_Save_Image_On_Change	(wxCommandEvent  &event);
-	void							On_Map_Save_Image_To_KMZ	(wxCommandEvent  &event);
-	void							On_Map_Save_Image_To_Memory	(wxCommandEvent  &event);
-	void							On_Map_Save_Image_Clipboard	(wxCommandEvent  &event);
-	void							On_Map_Save_Image_ClipboardL(wxCommandEvent  &event);
+	void							On_Map_3D_Show				(wxCommandEvent          &event);
+	void							On_Map_Layout_Show			(wxCommandEvent          &event);
+	void							On_Map_Save_Image			(wxCommandEvent          &event);
+	void							On_Map_Save_Image_On_Change	(wxCommandEvent          &event);
+	void							On_Map_Save_Image_To_KMZ	(wxCommandEvent          &event);
+	void							On_Map_Save_Image_To_Memory	(wxCommandEvent          &event);
+	void							On_Map_Save_Image_Clipboard	(wxCommandEvent          &event);
+	void							On_Map_Save_Image_ClipboardL(wxCommandEvent          &event);
 
-	void							On_Map_Zoom_Full			(wxCommandEvent  &event);
-	void							On_Map_Zoom_Back			(wxCommandEvent  &event);
-	void							On_Map_Zoom_Forward			(wxCommandEvent  &event);
-	void							On_Map_Zoom_Active			(wxCommandEvent  &event);
-	void							On_Map_PanTo_Active			(wxCommandEvent  &event);
-	void							On_Map_Zoom_Selection		(wxCommandEvent  &event);
-	void							On_Map_Zoom_Extent			(wxCommandEvent  &event);
-	void							On_Map_Zoom_Synchronize		(wxCommandEvent  &event);
-	void							On_Map_ScaleBar				(wxCommandEvent  &event);
-	void							On_Map_North_Arrow			(wxCommandEvent  &event);
-	void							On_Map_Graticule			(wxCommandEvent  &event);
-	void							On_Map_BaseMap				(wxCommandEvent  &event);
-	void							On_Map_CrossHair			(wxCommandEvent  &event);
+	void							On_Map_Zoom_Full			(wxCommandEvent          &event);
+	void							On_Map_Zoom_Back			(wxCommandEvent          &event);
+	void							On_Map_Zoom_Forward			(wxCommandEvent          &event);
+	void							On_Map_Zoom_Active			(wxCommandEvent          &event);
+	void							On_Map_PanTo_Active			(wxCommandEvent          &event);
+	void							On_Map_Zoom_Selection		(wxCommandEvent          &event);
+	void							On_Map_Zoom_Extent			(wxCommandEvent          &event);
+	void							On_Map_Zoom_Synchronize		(wxCommandEvent          &event);
+	void							On_Map_ScaleBar				(wxCommandEvent          &event);
+	void							On_Map_North_Arrow			(wxCommandEvent          &event);
+	void							On_Map_Graticule			(wxCommandEvent          &event);
+	void							On_Map_BaseMap				(wxCommandEvent          &event);
+	void							On_Map_CrossHair			(wxCommandEvent          &event);
 
-	void							On_Map_Mode_Zoom			(wxCommandEvent  &event);
-	void							On_Map_Mode_Pan				(wxCommandEvent  &event);
-	void							On_Map_Mode_Select			(wxCommandEvent  &event);
-	void							On_Map_Mode_Distance		(wxCommandEvent  &event);
+	void							On_Map_Mode_Zoom			(wxCommandEvent          &event);
+	void							On_Map_Mode_Pan				(wxCommandEvent          &event);
+	void							On_Map_Mode_Select			(wxCommandEvent          &event);
+	void							On_Map_Mode_Distance		(wxCommandEvent          &event);
 
 
 	//-----------------------------------------------------

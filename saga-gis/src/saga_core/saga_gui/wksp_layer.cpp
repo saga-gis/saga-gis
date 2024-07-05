@@ -845,7 +845,7 @@ bool CWKSP_Layer::_Set_Thumbnail(bool bRefresh)
 {
 	if( m_pObject && m_Thumbnail.IsOk() && m_Thumbnail.GetWidth() > 0 && m_Thumbnail.GetHeight() > 0 )
 	{
-		CSG_Map_DC dc_Map(Get_Extent(), m_Thumbnail.GetSize(), 1.);
+		CSG_Map_DC dc_Map(Get_Extent(), m_Thumbnail.GetSize(), 1., Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_WINDOW)));
 
 		if( Draw(dc_Map, LAYER_DRAW_FLAG_NOEDITS|LAYER_DRAW_FLAG_NOLABELS|LAYER_DRAW_FLAG_THUMBNAIL) )
 		{

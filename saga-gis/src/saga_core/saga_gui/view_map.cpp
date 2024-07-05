@@ -76,37 +76,38 @@ IMPLEMENT_CLASS(CVIEW_Map, CVIEW_Base);
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CVIEW_Map, CVIEW_Base)
-	EVT_PAINT			(CVIEW_Map::On_Paint)
-	EVT_SIZE			(CVIEW_Map::On_Size)
-	EVT_KEY_DOWN		(CVIEW_Map::On_Key_Down)
+	EVT_SYS_COLOUR_CHANGED(CVIEW_Map::On_SysColourChanged)
+	EVT_PAINT             (CVIEW_Map::On_Paint)
+	EVT_SIZE              (CVIEW_Map::On_Size)
+	EVT_KEY_DOWN          (CVIEW_Map::On_Key_Down)
 
-	EVT_MENU			(ID_CMD_MAP_3D_SHOW						, CVIEW_Map::On_Map_3D_Show)
-	EVT_MENU			(ID_CMD_MAP_LAYOUT_SHOW					, CVIEW_Map::On_Map_Layout_Show)
-	EVT_MENU			(ID_CMD_MAP_SCALEBAR					, CVIEW_Map::On_Map_ScaleBar)
-	EVT_MENU			(ID_CMD_MAP_NORTH_ARROW					, CVIEW_Map::On_Map_North_Arrow)
-	EVT_MENU			(ID_CMD_MAP_GRATICULE_ADD				, CVIEW_Map::On_Map_Graticule)
-	EVT_MENU			(ID_CMD_MAP_BASEMAP_ADD					, CVIEW_Map::On_Map_BaseMap)
-	EVT_MENU			(ID_CMD_MAP_SAVE_IMAGE					, CVIEW_Map::On_Map_Save_Image)
-	EVT_MENU			(ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE		, CVIEW_Map::On_Map_Save_Image_On_Change)
-	EVT_MENU			(ID_CMD_MAPS_SAVE_IMAGE_TO_KMZ			, CVIEW_Map::On_Map_Save_Image_To_KMZ)
-	EVT_MENU			(ID_CMD_MAPS_SAVE_IMAGE_TO_MEMORY		, CVIEW_Map::On_Map_Save_Image_To_Memory)
-	EVT_MENU			(ID_CMD_MAPS_SAVE_TO_CLIPBOARD			, CVIEW_Map::On_Map_Save_Image_Clipboard)
-	EVT_MENU			(ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND	, CVIEW_Map::On_Map_Save_Image_ClipboardL)
+	EVT_MENU(ID_CMD_MAP_3D_SHOW                  , CVIEW_Map::On_Map_3D_Show)
+	EVT_MENU(ID_CMD_MAP_LAYOUT_SHOW              , CVIEW_Map::On_Map_Layout_Show)
+	EVT_MENU(ID_CMD_MAP_SCALEBAR                 , CVIEW_Map::On_Map_ScaleBar)
+	EVT_MENU(ID_CMD_MAP_NORTH_ARROW              , CVIEW_Map::On_Map_North_Arrow)
+	EVT_MENU(ID_CMD_MAP_GRATICULE_ADD            , CVIEW_Map::On_Map_Graticule)
+	EVT_MENU(ID_CMD_MAP_BASEMAP_ADD              , CVIEW_Map::On_Map_BaseMap)
+	EVT_MENU(ID_CMD_MAP_SAVE_IMAGE               , CVIEW_Map::On_Map_Save_Image)
+	EVT_MENU(ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE     , CVIEW_Map::On_Map_Save_Image_On_Change)
+	EVT_MENU(ID_CMD_MAPS_SAVE_IMAGE_TO_KMZ       , CVIEW_Map::On_Map_Save_Image_To_KMZ)
+	EVT_MENU(ID_CMD_MAPS_SAVE_IMAGE_TO_MEMORY    , CVIEW_Map::On_Map_Save_Image_To_Memory)
+	EVT_MENU(ID_CMD_MAPS_SAVE_TO_CLIPBOARD       , CVIEW_Map::On_Map_Save_Image_Clipboard)
+	EVT_MENU(ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND, CVIEW_Map::On_Map_Save_Image_ClipboardL)
 
-	EVT_MENU			(ID_CMD_MAP_ZOOM_FULL					, CVIEW_Map::On_Map_Zoom_Full)
-	EVT_MENU			(ID_CMD_MAP_ZOOM_BACK					, CVIEW_Map::On_Map_Zoom_Back)
-	EVT_MENU			(ID_CMD_MAP_ZOOM_FORWARD				, CVIEW_Map::On_Map_Zoom_Forward)
-	EVT_MENU			(ID_CMD_MAP_ZOOM_ACTIVE					, CVIEW_Map::On_Map_Zoom_Active)
-	EVT_MENU			(ID_CMD_MAP_PAN_ACTIVE					, CVIEW_Map::On_Map_PanTo_Active)
-	EVT_MENU			(ID_CMD_MAP_ZOOM_SELECTION				, CVIEW_Map::On_Map_Zoom_Selection)
-	EVT_MENU			(ID_CMD_MAP_ZOOM_EXTENT					, CVIEW_Map::On_Map_Zoom_Extent)
-	EVT_MENU			(ID_CMD_MAP_SYNCHRONIZE					, CVIEW_Map::On_Map_Zoom_Synchronize)
-	EVT_MENU			(ID_CMD_MAP_CROSSHAIR					, CVIEW_Map::On_Map_CrossHair)
+	EVT_MENU(ID_CMD_MAP_ZOOM_FULL                , CVIEW_Map::On_Map_Zoom_Full)
+	EVT_MENU(ID_CMD_MAP_ZOOM_BACK                , CVIEW_Map::On_Map_Zoom_Back)
+	EVT_MENU(ID_CMD_MAP_ZOOM_FORWARD             , CVIEW_Map::On_Map_Zoom_Forward)
+	EVT_MENU(ID_CMD_MAP_ZOOM_ACTIVE              , CVIEW_Map::On_Map_Zoom_Active)
+	EVT_MENU(ID_CMD_MAP_PAN_ACTIVE               , CVIEW_Map::On_Map_PanTo_Active)
+	EVT_MENU(ID_CMD_MAP_ZOOM_SELECTION           , CVIEW_Map::On_Map_Zoom_Selection)
+	EVT_MENU(ID_CMD_MAP_ZOOM_EXTENT              , CVIEW_Map::On_Map_Zoom_Extent)
+	EVT_MENU(ID_CMD_MAP_SYNCHRONIZE              , CVIEW_Map::On_Map_Zoom_Synchronize)
+	EVT_MENU(ID_CMD_MAP_CROSSHAIR                , CVIEW_Map::On_Map_CrossHair)
 
-	EVT_MENU			(ID_CMD_MAP_MODE_ZOOM					, CVIEW_Map::On_Map_Mode_Zoom)
-	EVT_MENU			(ID_CMD_MAP_MODE_PAN					, CVIEW_Map::On_Map_Mode_Pan)
-	EVT_MENU			(ID_CMD_MAP_MODE_SELECT					, CVIEW_Map::On_Map_Mode_Select)
-	EVT_MENU			(ID_CMD_MAP_MODE_DISTANCE				, CVIEW_Map::On_Map_Mode_Distance)
+	EVT_MENU(ID_CMD_MAP_MODE_ZOOM                , CVIEW_Map::On_Map_Mode_Zoom)
+	EVT_MENU(ID_CMD_MAP_MODE_PAN                 , CVIEW_Map::On_Map_Mode_Pan)
+	EVT_MENU(ID_CMD_MAP_MODE_SELECT              , CVIEW_Map::On_Map_Mode_Select)
+	EVT_MENU(ID_CMD_MAP_MODE_DISTANCE            , CVIEW_Map::On_Map_Mode_Distance)
 END_EVENT_TABLE()
 
 
@@ -120,7 +121,7 @@ END_EVENT_TABLE()
 CVIEW_Map::CVIEW_Map(CWKSP_Map *pMap, int Frame_Width)
 	: CVIEW_Base(pMap, ID_VIEW_MAP, pMap->Get_Name().Trim(false).Trim(true), ID_IMG_WND_MAP, false)
 {
-	SYS_Set_Color_BG_Window(this);
+	SetBackgroundColour(SYS_Get_Color(wxSYS_COLOUR_WINDOW));
 
 	m_pMap       = pMap;
 
@@ -236,12 +237,21 @@ void CVIEW_Map::Do_Update(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CVIEW_Map::On_SysColourChanged(wxSysColourChangedEvent& event)
+{
+	SetBackgroundColour(SYS_Get_Color(wxSYS_COLOUR_WINDOW));
+
+	event.Skip(); // propagate event to child windows (i.e. rulers)
+}
+
+//---------------------------------------------------------
 void CVIEW_Map::On_Paint(wxPaintEvent &event)
 {
 	if( m_Ruler_Size > 1 )
 	{
-		wxPaintDC	dc(this);
-		wxRect		rClient(wxPoint(0, 0), GetClientSize()), rMap(rClient);
+		wxPaintDC dc(this); wxRect rClient(wxPoint(0, 0), GetClientSize()), rMap(rClient);
+
+		dc.SetPen(wxPen(SYS_Get_Color(wxSYS_COLOUR_WINDOWTEXT)));
 
 		rMap.Deflate(m_Ruler_Size - 1);
 

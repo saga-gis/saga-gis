@@ -64,7 +64,8 @@
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CVIEW_Ruler, wxPanel)
-	EVT_PAINT			(CVIEW_Ruler::On_Paint)
+	EVT_SYS_COLOUR_CHANGED(CVIEW_Ruler::On_SysColourChanged)
+	EVT_PAINT             (CVIEW_Ruler::On_Paint           )
 END_EVENT_TABLE()
 
 
@@ -78,7 +79,7 @@ END_EVENT_TABLE()
 CVIEW_Ruler::CVIEW_Ruler(wxWindow *pParent, int Style)
 	: wxPanel(pParent, -1, wxDefaultPosition, wxDefaultSize, wxFULL_REPAINT_ON_RESIZE)
 {
-	SYS_Set_Color_BG_Window(this);
+	SetBackgroundColour(SYS_Get_Color(wxSYS_COLOUR_WINDOW));
 
 	m_bHorizontal = (Style & RULER_VERTICAL    ) == false;
 	m_bAscendent  = (Style & RULER_DESCENDING  ) == false;
@@ -103,15 +104,27 @@ CVIEW_Ruler::~CVIEW_Ruler(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CVIEW_Ruler::On_SysColourChanged(wxSysColourChangedEvent &event)
+{
+	SetBackgroundColour(SYS_Get_Color(wxSYS_COLOUR_WINDOW));
+}
+
+//---------------------------------------------------------
 void CVIEW_Ruler::On_Paint(wxPaintEvent &event)
 {
 	wxPaintDC dc(this);
+	
+	_Draw(dc, GetClientSize());
+}
 
-	//-----------------------------------------------------
-	wxRect r(wxPoint(0, 0), GetClientSize());
-
+//---------------------------------------------------------
+void CVIEW_Ruler::_Draw(wxDC &dc, const wxRect &r)
+{
 	int Width  = m_bHorizontal ? r.GetWidth () : r.GetHeight();
 	int Height = m_bHorizontal ? r.GetHeight() : r.GetWidth ();
+
+	dc.SetTextForeground(SYS_Get_Color(wxSYS_COLOUR_WINDOWTEXT) );
+	dc.SetPen(wxPen     (SYS_Get_Color(wxSYS_COLOUR_WINDOWTEXT)));
 
 	_Draw_Core(dc, Width, Height);
 
@@ -196,6 +209,22 @@ void CVIEW_Ruler::_Draw_Core(wxDC &dc, int Width, int Height)
 	}
 }
 
+//---------------------------------------------------------
+void CVIEW_Ruler::_Draw_Position(wxDC &dc, int Width, int Height, int Position)
+{
+	if( m_Position >= 0 && m_Position < Width )
+	{
+		if( m_bHorizontal )
+		{
+			dc.DrawLine(Position, 0, Position, Height);
+		}
+		else
+		{
+			dc.DrawLine(0, Position, Height, Position);
+		}
+	}
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -246,38 +275,9 @@ void CVIEW_Ruler::Set_Range_Core(double Min, double Max)
 //---------------------------------------------------------
 void CVIEW_Ruler::Set_Position(int Position)
 {
-	wxClientDC dc(this);
-
-	int Width  = m_bHorizontal ? GetClientSize().x : GetClientSize().y;
-	int Height = m_bHorizontal ? GetClientSize().y : GetClientSize().x;
-
-	_Draw_Position(dc, Width, Height, m_Position);
-
 	m_Position	= Position;
 
-	_Draw_Position(dc, Width, Height, m_Position);
-}
-
-//---------------------------------------------------------
-void CVIEW_Ruler::_Draw_Position(wxDC &dc, int Width, int Height, int Position)
-{
-	if( m_Position >= 0 && m_Position < Width )
-	{
-		wxRasterOperationMode	lf	= dc.GetLogicalFunction();
-
-		dc.SetLogicalFunction(wxINVERT);
-
-		if( m_bHorizontal )
-		{
-			dc.DrawLine(Position, 0, Position, Height);
-		}
-		else
-		{
-			dc.DrawLine(0, Position, Height, Position);
-		}
-
-		dc.SetLogicalFunction(lf);
-	}
+	Refresh(false);
 }
 
 
