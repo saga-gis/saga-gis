@@ -179,7 +179,7 @@ void CINFO_Messages::_Set_Style(TSG_UI_MSG_STYLE Style_Code)
 {
 	wxTextAttr Style(GetDefaultStyle());
 
-	Style.SetTextColour(wxSYS_COLOUR_WINDOWTEXT);
+	Style.SetTextColour(SYS_Get_Color(wxSYS_COLOUR_WINDOWTEXT));
 
 	bool bDark = wxSystemSettings::GetAppearance().IsUsingDarkBackground();
 
