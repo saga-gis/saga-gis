@@ -30,15 +30,15 @@ REM ___________________________________
 REM Version
 
 SET SAGA_VERSION=9.5
-SET SAGA_RELEASE=9.5.0
-SET SAGA_VERSION_NEXT=9.6
-SET SAGA_RELEASE_NEXT=9.6.0
+SET SAGA_RELEASE=9.5.1
+SET SAGA_VERSION_NEXT=9.5
+SET SAGA_RELEASE_NEXT=9.5.2
 SET SAGA_RELEASE_NAME=saga-%SAGA_RELEASE%
 
 REM !!! For all bug-fix-releases !!!
 REM Don't forget to activate the variable
 REM - SWITCH_TO_BRANCH -
-REM SET SWITCH_TO_BRANCH=saga-%SAGA_VERSION%
+SET SWITCH_TO_BRANCH=saga-%SAGA_VERSION%
 
 
 REM ___________________________________
