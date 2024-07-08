@@ -397,7 +397,7 @@ bool CVIEW_Map_3DPanel::On_Draw(void)
 			LightSource[1] = sin(decline) * sin(azimuth);
 			LightSource[2] = cos(decline);
 
-			_Draw_Bottom(zMin, Color, LightSource);
+		//	_Draw_Bottom(zMin, Color, LightSource);
 
 			for(int i=0; i<2; i++)
 			{

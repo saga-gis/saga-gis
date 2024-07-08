@@ -87,7 +87,7 @@ CVIEW_Ruler::CVIEW_Ruler(wxWindow *pParent, int Style)
 	m_Mode        = (Style & RULER_MODE_SCALE  ) ? 1 : ((Style & RULER_MODE_CORNERS) ? 2 : 0);
 	m_Edge        = (Style & RULER_EDGE_BLACK  ) ? 1 : ((Style & RULER_EDGE_SUNKEN ) ? 2 : 0);
 
-	m_Position    = -1;
+	m_Position[0] = m_Position[1] = -1;
 	m_Min         =  0;
 	m_Max         =  1;
 	m_Min_Core    =  1;
@@ -113,8 +113,8 @@ void CVIEW_Ruler::On_SysColourChanged(wxSysColourChangedEvent &event)
 void CVIEW_Ruler::On_Paint(wxPaintEvent &event)
 {
 	wxPaintDC dc(this);
-	
-	_Draw(dc, GetClientSize());
+
+	_Draw(dc, wxRect(GetClientAreaOrigin(), GetClientSize()));
 }
 
 //---------------------------------------------------------
@@ -122,6 +122,13 @@ void CVIEW_Ruler::_Draw(wxDC &dc, const wxRect &r)
 {
 	int Width  = m_bHorizontal ? r.GetWidth () : r.GetHeight();
 	int Height = m_bHorizontal ? r.GetHeight() : r.GetWidth ();
+
+	if( m_Position[0] != m_Position[1] )
+	{
+		dc.SetPen(wxPen(SYS_Get_Color(wxSYS_COLOUR_WINDOW)));
+
+		_Draw_Position(dc, Width, Height, m_Position[0]); m_Position[0] = m_Position[1];
+	}
 
 	dc.SetTextForeground(SYS_Get_Color(wxSYS_COLOUR_WINDOWTEXT) );
 	dc.SetPen(wxPen     (SYS_Get_Color(wxSYS_COLOUR_WINDOWTEXT)));
@@ -145,7 +152,7 @@ void CVIEW_Ruler::_Draw(wxDC &dc, const wxRect &r)
 	}
 
 	//-----------------------------------------------------
-	_Draw_Position(dc, Width, Height, m_Position);
+	_Draw_Position(dc, Width, Height, m_Position[0]);
 }
 
 
@@ -212,7 +219,7 @@ void CVIEW_Ruler::_Draw_Core(wxDC &dc, int Width, int Height)
 //---------------------------------------------------------
 void CVIEW_Ruler::_Draw_Position(wxDC &dc, int Width, int Height, int Position)
 {
-	if( m_Position >= 0 && m_Position < Width )
+	if( Position >= 0 && Position < Width )
 	{
 		if( m_bHorizontal )
 		{
@@ -275,9 +282,23 @@ void CVIEW_Ruler::Set_Range_Core(double Min, double Max)
 //---------------------------------------------------------
 void CVIEW_Ruler::Set_Position(int Position)
 {
-	m_Position	= Position;
+	if( m_Position[0] != Position )
+	{
+	#ifdef _SAGA_MSW
+		wxClientDC dc(this); wxRect r(GetClientAreaOrigin(), GetClientSize());
 
-	Refresh(false);
+		int Width  = m_bHorizontal ? r.GetWidth () : r.GetHeight();
+		int Height = m_bHorizontal ? r.GetHeight() : r.GetWidth ();
+
+		dc.SetLogicalFunction(wxINVERT);
+		_Draw_Position(dc, Width, Height, m_Position[0]);
+		_Draw_Position(dc, Width, Height, m_Position[0] = m_Position[1] = Position);
+	#else
+		m_Position[1] = Position;
+
+		Refresh(false);
+	#endif
+	}
 }
 
 

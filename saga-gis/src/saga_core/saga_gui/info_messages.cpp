@@ -48,6 +48,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <wx/settings.h>
 #include <wx/datetime.h>
 
 #include "helper.h"
@@ -178,14 +179,16 @@ void CINFO_Messages::_Set_Style(TSG_UI_MSG_STYLE Style_Code)
 {
 	wxTextAttr Style(GetDefaultStyle());
 
-//	Style.SetTextColour(wxSYS_COLOUR_WINDOWTEXT);
-	Style.SetTextColour(wxSystemSettings::GetAppearance().IsDark() ? *wxWHITE : *wxBLACK);
+	Style.SetTextColour(wxSYS_COLOUR_WINDOWTEXT);
+
+	bool bDark = wxSystemSettings::GetAppearance().IsUsingDarkBackground();
 
 	wxFont Font(Style.GetFont());
 
 	if( !Font.IsOk() )
 	{
-		Font = wxSystemSettings::GetFont(wxSYS_DEFAULT_GUI_FONT);
+	//	Font = wxSystemSettings::GetFont(wxSYS_DEFAULT_GUI_FONT);
+		Font = GetFont();
 		Font.SetPointSize((int)(0.5 + 0.9 * Font.GetPointSize())); // generally scale message window font to 90 percent
 	}
 
@@ -206,11 +209,11 @@ void CINFO_Messages::_Set_Style(TSG_UI_MSG_STYLE Style_Code)
 		break;
 
 	case SG_UI_MSG_STYLE_SUCCESS:
-		Style.SetTextColour(wxSystemSettings::GetAppearance().IsDark() ? wxColour(0, 255, 0) : wxColour(0, 127, 0));
+		Style.SetTextColour(bDark ? wxColour(0, 255, 0) : wxColour(0, 127, 0));
 		break;
 
 	case SG_UI_MSG_STYLE_FAILURE:
-		Style.SetTextColour(wxSystemSettings::GetAppearance().IsDark() ? wxColour(255, 0, 0) : wxColour(127, 0, 0));
+		Style.SetTextColour(bDark ? wxColour(255, 0, 0) : wxColour(127, 0, 0));
 		break;
 
 	case SG_UI_MSG_STYLE_BIG:
@@ -225,7 +228,7 @@ void CINFO_Messages::_Set_Style(TSG_UI_MSG_STYLE Style_Code)
 
 	case SG_UI_MSG_STYLE_01:
 		Style.SetLeftIndent(50);
-		Style.SetTextColour(wxSystemSettings::GetAppearance().IsDark() ? wxColour(0, 127, 255) : wxColour(0, 0, 127));
+		Style.SetTextColour(bDark ? wxColour(0, 127, 255) : wxColour(0, 0, 127));
 		Font.SetWeight(wxFONTWEIGHT_LIGHT);
 		break;
 
@@ -233,7 +236,7 @@ void CINFO_Messages::_Set_Style(TSG_UI_MSG_STYLE Style_Code)
 		break;
 
 	case SG_UI_MSG_STYLE_03:
-		Style.SetTextColour(wxSystemSettings::GetAppearance().IsDark() ? wxColour(0, 127, 255) : wxColour(0, 0, 127));
+		Style.SetTextColour(bDark ? wxColour(0, 127, 255) : wxColour(0, 0, 127));
 		Font.SetWeight(wxFONTWEIGHT_BOLD);
 		break;
 	}

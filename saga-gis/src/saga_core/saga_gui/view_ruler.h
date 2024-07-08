@@ -103,7 +103,7 @@ private:
 
 	bool						m_bHorizontal, m_bAscendent, m_bTickAtTop;
 
-	int							m_Mode, m_Edge, m_Position;
+	int							m_Mode, m_Edge, m_Position[2];
 
 	double						m_Min, m_Max, m_Min_Core, m_Max_Core;
 
