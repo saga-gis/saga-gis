@@ -38,7 +38,7 @@ SET SAGA_RELEASE_NAME=saga-%SAGA_RELEASE%
 REM !!! For all bug-fix-releases !!!
 REM Don't forget to activate the variable
 REM - SWITCH_TO_BRANCH -
-SET SWITCH_TO_BRANCH=saga-%SAGA_VERSION%
+SET SWITCH_TO_BRANCH=%SAGA_VERSION%
 
 
 REM ___________________________________
