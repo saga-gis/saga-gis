@@ -864,7 +864,7 @@ bool CWKSP_Project::_Load_Map(const CSG_MetaData &Entry, const wxString &Project
 {
 	if( Entry.Cmp_Name("MAP") )
 	{
-		CWKSP_Map *pMap = new CWKSP_Map;
+		CWKSP_Map *pMap = new CWKSP_Map; pMap->Lock_Synchronising(true);
 
 		if( g_pMaps->Add(pMap) && pMap->Serialize(*((CSG_MetaData *)&Entry), ProjectDir, false) )
 		{
@@ -876,7 +876,7 @@ bool CWKSP_Project::_Load_Map(const CSG_MetaData &Entry, const wxString &Project
 			if( Restore && g_pData->Get_Parameter("PROJECT_MAP_ARRANGE")->asInt() != 1 )
 			#endif
 			{
-				pMap->View_Show(true);
+				pMap->View_Show(true); pMap->Lock_Synchronising(false);
 			}
 
 			return( true );
