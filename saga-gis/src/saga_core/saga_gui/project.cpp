@@ -137,9 +137,9 @@ bool CWKSP_Project::_Set_Project_Name(void)
 {
 	if( Has_File_Name() )
 	{
-		wxFileName	fn(m_File_Name);
+		wxFileName fn(m_File_Name);
 
-		if( fn.GetFullName().CmpNoCase("saga_gui.sg-project") || fn.GetFullName().CmpNoCase("saga_gui.cfg") )
+		if( fn.GetFullName().CmpNoCase("saga_gui.sg-project") && fn.GetFullName().CmpNoCase("saga_gui.cfg") )
 		{
 			g_pSAGA_Frame->Set_Project_Name(m_File_Name);
 
