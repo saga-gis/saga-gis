@@ -1271,7 +1271,7 @@ void CWKSP_Map::Set_Synchronising(bool bOn)
 		m_Parameters("SYNC_MAPS")->Set_Value(bOn ? 1 : 0);
 	}
 
-	if( bOn )
+	if( bOn && m_Sync_bLock < 1 )
 	{
 		((CWKSP_Map_Manager *)Get_Manager())->Set_Extents(Get_Extent(), m_Projection);
 	}
