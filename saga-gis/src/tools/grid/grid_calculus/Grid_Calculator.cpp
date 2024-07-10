@@ -89,17 +89,23 @@ CGrid_Calculator_Base::CGrid_Calculator_Base(void)
 		"(g1 - g2) / (g1 + g2)"
 	);
 
-	Parameters.Add_String("",
-		"NAME"		, _TL("Name"),
-		_TL(""),
-		_TL("Calculation")
-	);
+	if( has_GUI() )
+	{
+		Parameters.Add_Choice("",
+			"NAMING", _TL("Naming"),
+			_TL(""),
+			CSG_String::Format("%s|%s",
+				_TL("user defined"),
+				_TL("formula"     )
+			)
+		)->Set_UseInCMD(false);
 
-	Parameters.Add_Bool("NAME",
-		"FNAME"		, _TL("Take Formula"),
-		_TL(""),
-		false
-	);
+		Parameters.Add_String("NAMING",
+			"NAME"		, _TL("Name"),
+			_TL(""),
+			_TL("Calculation")
+		)->Set_UseInCMD(false);
+	}
 
 	Parameters.Add_Bool("",
 		"USE_NODATA", _TL("Use No-Data"),
@@ -122,21 +128,17 @@ CGrid_Calculator_Base::CGrid_Calculator_Base(void)
 //---------------------------------------------------------
 int CGrid_Calculator_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	pParameter->Cmp_Identifier("FORMULA")
-	||	pParameter->Cmp_Identifier("FNAME"  ) )
-	{
-		if( (*pParameters)("FNAME")->asBool() )
-		{
-			pParameters->Set_Parameter("NAME", CSG_String::Format("%s [%s]", _TL("Calculation"), (*pParameters)("FORMULA")->asString()));
-		}
-	}
-
 	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
 int CGrid_Calculator_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if( pParameter->Cmp_Identifier("NAMING") )
+	{
+		pParameters->Set_Enabled("NAME", pParameter->asInt() == 0);
+	}
+
 	if( pParameter->Cmp_Identifier("XGRIDS") )
 	{
 		pParameters->Set_Enabled("RESAMPLING", pParameter->asList()->Get_Item_Count() > 0);
@@ -459,12 +461,21 @@ bool CGrid_Calculator::On_Execute(void)
 		pResult->Create(Get_System(), Get_Result_Type());
 	}
 
-	pResult->Set_Name(Parameters("NAME")->asString());
-
 	//-----------------------------------------------------
 	if( !Initialize(m_pGrids->Get_Grid_Count(), m_pGrids_X->Get_Grid_Count()) )
 	{
 		return( false );
+	}
+
+	//-----------------------------------------------------
+	switch( Parameters("NAMING")->asInt() )
+	{
+	default: pResult->Set_Name(Parameters("NAME"   )->asString()); break;
+	case  1: { CSG_String Name(Parameters("FORMULA")->asString());
+		for(int i=0; i<m_pGrids  ->Get_Grid_Count(); i++) { Name.Replace(CSG_String::Format("g%d", 1 + i), m_pGrids  ->Get_Grid(i)->Get_Name()); }
+		for(int i=0; i<m_pGrids_X->Get_Grid_Count(); i++) { Name.Replace(CSG_String::Format("h%d", 1 + i), m_pGrids_X->Get_Grid(i)->Get_Name()); }
+		pResult->Set_Name(Name);
+		break; }
 	}
 
 	//-----------------------------------------------------
@@ -649,12 +660,21 @@ bool CGrids_Calculator::On_Execute(void)
 		pResult->Create(Get_System(), pGrids->Get_Attributes(), pGrids->Get_Z_Attribute(), Get_Result_Type(), true);
 	}
 
-	pResult->Set_Name(Parameters("NAME")->asString());
-
 	//-----------------------------------------------------
 	if( !Initialize(m_pGrids->Get_Item_Count(), m_pGrids_X->Get_Item_Count()) )
 	{
 		return( false );
+	}
+
+	//-----------------------------------------------------
+	switch( Parameters("NAMING")->asInt() )
+	{
+	default: pResult->Set_Name(Parameters("NAME"   )->asString()); break;
+	case  1: { CSG_String Name(Parameters("FORMULA")->asString());
+		for(int i=0; i<m_pGrids  ->Get_Item_Count(); i++) { Name.Replace(CSG_String::Format("g%d", 1 + i), m_pGrids  ->Get_Grids(i)->Get_Name()); }
+		for(int i=0; i<m_pGrids_X->Get_Item_Count(); i++) { Name.Replace(CSG_String::Format("h%d", 1 + i), m_pGrids_X->Get_Grids(i)->Get_Name()); }
+		pResult->Set_Name(Name);
+		break; }
 	}
 
 	//-----------------------------------------------------
