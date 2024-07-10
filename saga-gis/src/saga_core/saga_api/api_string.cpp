@@ -1183,18 +1183,14 @@ bool SG_is_Character_Numeric(int Character)
 //---------------------------------------------------------
 CSG_String		SG_Get_CurrentTimeStr(bool bWithDate)
 {
-	CSG_String	s;
-	wxDateTime	t;
-
-	t.SetToCurrent();
+	CSG_String s; wxDateTime t; t.SetToCurrent();
 
 	if( bWithDate )
 	{
-		s.Append(t.FormatISODate().wc_str());
-		s.Append(SG_T("/"));
+		s += t.FormatISODate().wc_str(); s += "/";
 	}
 
-	s.Append(t.FormatISOTime().wc_str());
+	s += t.FormatISOTime().wc_str();
 
 	return( s );
 }
@@ -1209,58 +1205,44 @@ CSG_String		SG_Get_CurrentTimeStr(bool bWithDate)
 //---------------------------------------------------------
 CSG_String		SG_Double_To_Degree(double Value)
 {
-	SG_Char		c;
-	int			d, h;
-	double		s;
-	CSG_String	String;
+	int deg, min; double sec; char sig = Value < 0. ? '-' : '+';
 
-	if( Value < 0.0 )
+	if( Value < 0. )
 	{
-		Value	= -Value;
-		c		= SG_T('-');
-	}
-	else
-	{
-		c		= SG_T('+');
+		Value = -Value;
 	}
 
-	Value	= fmod(Value, 360.0);
-	d		= (int)Value;
-	Value	= 60.0 * (Value - d);
-	h		= (int)Value;
-	Value	= 60.0 * (Value - h);
-	s		= Value;
+	Value = fmod(Value, 360.);
+	deg   = (int)Value;
+	Value = 60. * (Value - deg);
+	min   = (int)Value;
+	Value = 60. * (Value - min);
+	sec   = Value;
 
-	String.Printf(SG_T("%c%03d\xb0%02d'%02.*f''"), c, d, h, SG_Get_Significant_Decimals(s), s);
-
-	return( String );
+	return( CSG_String::Format(SG_T("%c%03d\xb0%02d'%02.*f''"), sig, deg, min, SG_Get_Significant_Decimals(sec), sec) );
 }
 
 //---------------------------------------------------------
 double			SG_Degree_To_Double(const CSG_String &String)
 {
-	double		d, h, s, sig;
+	double sig = 1., deg = 0., min = 0., sec = 0.;
 
-	sig	= 1.0;
-	d	= h	= s	= 0.0;
-
-	if( String.BeforeFirst('\xb0').asDouble(d) )
+	if( String.BeforeFirst(SG_T('\xb0')).asDouble(deg) )
 	{
-		if( d < 0.0 )
+		if( deg < 0. )
 		{
-			sig	= -1.0;
-			d	= -d;
+			sig	= -1.; deg = -deg;
 		}
 
-		String.AfterFirst('\xb0').asDouble(h);
-		String.AfterFirst('\''  ).asDouble(s);
+		String.AfterFirst(SG_T('\xb0')).asDouble(min);
+		String.AfterFirst(SG_T('\''  )).asDouble(sec);
 	}
 	else
 	{
-		String.asDouble(d);
+		String.asDouble(deg);
 	}
 
-	return( sig * (d + h / 60.0 + s / (60.0 * 60.0)) );
+	return( sig * (deg + min / 60. + sec / 3600.) );
 }
 
 
@@ -1273,21 +1255,20 @@ double			SG_Degree_To_Double(const CSG_String &String)
 //---------------------------------------------------------
 int				SG_Get_Significant_Decimals(double Value, int maxDecimals)
 {
-	int		Decimals;
-	double	Reminder;
+	int decimals;
 
-	Value	= fabs(Value);
+	Value = fabs(Value);
 
-	for(Decimals=0; Decimals<maxDecimals; Decimals++)
+	for(decimals=0; decimals<maxDecimals; decimals++)
 	{
-		Reminder	= Value - floor(Value);
+		double Remainder = Value - floor(Value);
 
-		if( Reminder == 0.0 )
+		if( Remainder == 0. )
 		{
-			return( Decimals );
+			return( decimals );
 		}
 
-		Value	= 10.0 * Value;
+		Value *= 10.;
 	}
 
 	return( maxDecimals );
