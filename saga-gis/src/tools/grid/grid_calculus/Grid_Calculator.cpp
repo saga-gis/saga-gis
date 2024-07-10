@@ -468,7 +468,7 @@ bool CGrid_Calculator::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	switch( Parameters("NAMING")->asInt() )
+	switch( Parameters("NAMING") ? Parameters("NAMING")->asInt() : 1 )
 	{
 	default: pResult->Set_Name(Parameters("NAME"   )->asString()); break;
 	case  1: { CSG_String Name(Parameters("FORMULA")->asString());
@@ -667,7 +667,7 @@ bool CGrids_Calculator::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	switch( Parameters("NAMING")->asInt() )
+	switch( Parameters("NAMING") ? Parameters("NAMING")->asInt() : 1 )
 	{
 	default: pResult->Set_Name(Parameters("NAME"   )->asString()); break;
 	case  1: { CSG_String Name(Parameters("FORMULA")->asString());
