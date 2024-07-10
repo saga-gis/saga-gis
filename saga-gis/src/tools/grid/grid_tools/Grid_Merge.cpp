@@ -110,7 +110,7 @@ void CGrid_Merge::Add_Parameters(CSG_Parameters &Parameters)
 		"NAME"		, _TL("Name"),
 		_TL(""),
 		_TL("Mosaic")
-	);
+	)->Set_UseInCMD(false);
 
 	Parameters.Add_Data_Type("",
 		"TYPE"		, _TL("Data Storage Type"),
@@ -395,7 +395,10 @@ bool CGrid_Merge::Initialize(void)
 	}
 
 	//-----------------------------------------------------
-	m_pMosaic->Set_Name(Parameters("NAME")->asString());
+	if( has_GUI() )
+	{
+		m_pMosaic->Set_Name(Parameters("NAME")->asString());
+	}
 
 	m_pMosaic->Assign_NoData();
 
@@ -999,7 +1002,10 @@ bool CGrids_Merge::On_Execute(void)
 	DataObject_Add(pMosaic);
 	DataObject_Set_Parameters(pMosaic, pGrids);
 
-	pMosaic->Set_Name(Parameters("NAME")->asString());
+	if( has_GUI() )
+	{
+		pMosaic->Set_Name(Parameters("NAME")->asString());
+	}
 
 	return( true );
 }
