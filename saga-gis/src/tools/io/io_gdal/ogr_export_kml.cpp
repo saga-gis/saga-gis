@@ -157,10 +157,10 @@ bool COGR_Export_KML::On_Execute(void)
 			"DATUM[\"World Geodetic System 1984\","\
 				"ELLIPSOID[\"WGS 84\",6378137,298.257223563]],"\
 			"CS[ellipsoidal,2],"\
-				"AXIS[\"geodetic longitude (Lon)\",east],"\ // axis order 1st longitude, 2nd latitude
-		"AXIS[\"geodetic latitude (Lat)\",north],"\
-			"UNIT[\"degree\",0.0174532925199433],"\
-			"ID[\"EPSG\",4326]]"
+				"AXIS[\"geodetic longitude (Lon)\",east],"\
+			"AXIS[\"geodetic latitude (Lat)\",north],"\
+				"UNIT[\"degree\",0.0174532925199433],"\
+				"ID[\"EPSG\",4326]]"
 
 			pShapes->Get_Projection().Create(WKT2_GCS_WGS84);
 	}
