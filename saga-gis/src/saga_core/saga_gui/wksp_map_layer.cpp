@@ -598,7 +598,7 @@ bool CWKSP_Map_Layer::_Projected_Shapes_Clipped(const CSG_Rect &rMap, CSG_Shapes
 //---------------------------------------------------------
 bool CWKSP_Map_Layer::_Projected_Shapes_Draw(CSG_Map_DC &dc_Map, int Flags, CSG_Shapes *pShapes, bool bSelection)
 {
-	CSG_Shapes	Shapes;
+	CSG_Shapes Shapes;
 
 	if( pShapes->Get_Type() != SHAPE_TYPE_Polygon )
 	{
@@ -606,7 +606,7 @@ bool CWKSP_Map_Layer::_Projected_Shapes_Draw(CSG_Map_DC &dc_Map, int Flags, CSG_
 	}
 	else
 	{
-		CSG_Rect	rMap(dc_Map.rWorld());	rMap.Inflate(dc_Map.DC2World(), false);	// inflate by one pixel
+		CSG_Rect rMap(dc_Map.rWorld());	rMap.Inflate(dc_Map.DC2World(), false);	// inflate by one pixel
 
 		_Projected_Shapes_Clipped(rMap, pShapes, Shapes);
 	}
@@ -627,7 +627,7 @@ bool CWKSP_Map_Layer::_Projected_Shapes_Draw(CSG_Map_DC &dc_Map, int Flags, CSG_
 //---------------------------------------------------------
 bool CWKSP_Map_Layer::Draw(CSG_Map_DC &dc_Map, int Flags)
 {
-	CSG_Projection	prj_Layer, prj_Map;
+	CSG_Projection prj_Layer, prj_Map;
 
 	if( !m_bProject || !_Projected_Get_Projections(prj_Layer, prj_Map) )
 	{
@@ -640,7 +640,7 @@ bool CWKSP_Map_Layer::Draw(CSG_Map_DC &dc_Map, int Flags)
 	}
 
 	//-----------------------------------------------------
-	CSG_Rect	rLayer(_Projected_Get_Layer_Extent(dc_Map.rWorld()));
+	CSG_Rect rLayer(_Projected_Get_Layer_Extent(dc_Map.rWorld()));
 
 	if( !m_pLayer->do_Show(rLayer, false) )
 	{
@@ -651,13 +651,13 @@ bool CWKSP_Map_Layer::Draw(CSG_Map_DC &dc_Map, int Flags)
 	{
 	//-----------------------------------------------------
 	case SG_DATAOBJECT_TYPE_Shapes: {
-		CSG_Shapes	*pShapes	= m_pLayer->Get_Object()->asShapes();
+		CSG_Shapes *pShapes = m_pLayer->Get_Object()->asShapes();
 
 		_Projected_Shapes_Draw(dc_Map, Flags, pShapes);
 
 		if( pShapes->Get_Selection_Count() > 0 )
 		{
-			CSG_Shapes	Selection(pShapes->Get_Type(), pShapes->Get_Name(), pShapes);
+			CSG_Shapes Selection(pShapes->Get_Type(), pShapes->Get_Name(), pShapes);
 
 			for(sLong i=0; i<pShapes->Get_Selection_Count(); i++)
 			{
@@ -671,7 +671,7 @@ bool CWKSP_Map_Layer::Draw(CSG_Map_DC &dc_Map, int Flags)
 
 	//-----------------------------------------------------
 	case SG_DATAOBJECT_TYPE_PointCloud: {
-		CSG_PointCloud	Points, *pPoints	= m_pLayer->Get_Object()->asPointCloud();
+		CSG_PointCloud Points, *pPoints = m_pLayer->Get_Object()->asPointCloud();
 
 		Points.Create(pPoints);
 		Points.Get_Projection().Create(pPoints->Get_Projection());
@@ -692,7 +692,7 @@ bool CWKSP_Map_Layer::Draw(CSG_Map_DC &dc_Map, int Flags)
 
 	//-----------------------------------------------------
 	case SG_DATAOBJECT_TYPE_Grid: {
-		CSG_Grid	Grid, *pGrid = m_pLayer->Get_Object()->asGrid();
+		CSG_Grid Grid, *pGrid = m_pLayer->Get_Object()->asGrid();
 
 		if( !pGrid->Get_Extent().Intersects(rLayer) )	// == INTERSECTION_None
 		{
@@ -709,19 +709,23 @@ bool CWKSP_Map_Layer::Draw(CSG_Map_DC &dc_Map, int Flags)
 		//-------------------------------------------------
 		SG_UI_ProgressAndMsg_Lock(true);
 
-		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4);	// Coordinate Transformation (Grid)
+		int Resampling = m_pLayer->Get_Parameter("DISPLAY_RESAMPLING")->asInt();
+
+		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4);	// Coordinate Transformation (Grid)
 
 		if( pTool && pTool->Set_Manager(NULL)
 			&&  pTool->Set_Parameter("CRS_STRING"       , prj_Map.Get_WKT())
-			&&  pTool->Set_Parameter("RESAMPLING"       , m_pLayer->Get_Parameter("DISPLAY_RESAMPLING")->asInt() ? 3 : 0)
-			&&  pTool->Set_Parameter("DATA_TYPE"        , true)
+			&&  pTool->Set_Parameter("RESAMPLING"       , Resampling ? Resampling : 0)
+		//	&&  SG_TOOL_PARAMETER_SET("DATA_TYPE"       , 10) // "Preserve" => is already default!
 			&&  pTool->Set_Parameter("TARGET_AREA"      , m_bProject_Area)
 			&&  pTool->Set_Parameter("TARGET_DEFINITION", 1)
 			&&  pTool->Set_Parameter("SOURCE"           , pGrid)
 			&&  pTool->Set_Parameter("GRID"             , &Grid)
 			&&  pTool->Execute() )
 		{
+			m_pLayer->Get_Parameter("DISPLAY_RESAMPLING")->Set_Value(0);
 			m_pLayer->Draw(dc_Map, Flags, &Grid);
+			m_pLayer->Get_Parameter("DISPLAY_RESAMPLING")->Set_Value(Resampling);
 		}
 
 		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
@@ -732,7 +736,7 @@ bool CWKSP_Map_Layer::Draw(CSG_Map_DC &dc_Map, int Flags)
 
 	//-----------------------------------------------------
 	case SG_DATAOBJECT_TYPE_Grids: {
-		CSG_Grids	*pGrids = m_pLayer->Get_Object()->asGrids();
+		CSG_Grids *pGrids = m_pLayer->Get_Object()->asGrids();
 
 		if( !pGrids->Get_Extent().Intersects(rLayer) )	// == INTERSECTION_None
 		{
@@ -749,11 +753,13 @@ bool CWKSP_Map_Layer::Draw(CSG_Map_DC &dc_Map, int Flags)
 		//-------------------------------------------------
 		SG_UI_ProgressAndMsg_Lock(true);
 
-		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 3);	// Coordinate Transformation (Grid List)
+		int Resampling = m_pLayer->Get_Parameter("DISPLAY_RESAMPLING")->asInt();
+
+		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 3);	// Coordinate Transformation (Grid List)
 
 		if( pTool && pTool->Set_Manager(NULL)
 			&&  pTool->Set_Parameter("CRS_STRING"       , prj_Map.Get_WKT())
-			&&  pTool->Set_Parameter("RESAMPLING"       , m_pLayer->Get_Parameter("DISPLAY_RESAMPLING")->asInt() ? 3 : 0)
+			&&  pTool->Set_Parameter("RESAMPLING"       , Resampling ? Resampling : 0)
 		//	&&  SG_TOOL_PARAMETER_SET("DATA_TYPE"       , 10) // "Preserve" => is already default!
 			&&  pTool->Set_Parameter("TARGET_AREA"      , true)
 			&&  pTool->Set_Parameter("TARGET_DEFINITION", 0)
@@ -765,7 +771,9 @@ bool CWKSP_Map_Layer::Draw(CSG_Map_DC &dc_Map, int Flags)
 			&&  pTool->Get_Parameter("SOURCE")->asList()->Add_Item(pGrids)
 			&&  pTool->Execute() && (pGrids = (CSG_Grids *)pTool->Get_Parameter("GRIDS")->asList()->Get_Item(0)) != NULL )
 		{
+			m_pLayer->Get_Parameter("DISPLAY_RESAMPLING")->Set_Value(0);
 			m_pLayer->Draw(dc_Map, Flags, pGrids);
+			m_pLayer->Get_Parameter("DISPLAY_RESAMPLING")->Set_Value(Resampling);
 
 			delete(pGrids);
 		}
