@@ -150,7 +150,7 @@ bool COGR_Export_KML::On_Execute(void)
 			Message_Fmt("\n%s: %s\n", _TL("re-projection"), _TL("failed" ));
 		}
 	}
-	#if GDAL_VERSION_MAJOR < 3 || (GDAL_VERSION_MAJOR == 3 && GDAL_VERSION_MINOR < 5)
+	#if GDAL_VERSION_MAJOR == 3 && GDAL_VERSION_MINOR < 5
 	else // if( pShapes->Get_Projection().Get_Type() == ESG_CRS_Type::Geographic )
 	{
 		#define WKT2_GCS_WGS84 "GEODCRS[\"WGS 84\","\
