@@ -578,11 +578,20 @@ bool CSG_Projection::Set_UTM_WGS84(int Zone, bool bSouth)
 	}
 
 	//-----------------------------------------------------
-	#define WKT_GCS_WGS84 "GEOGCS[\"WGS 84\",AUTHORITY[\"EPSG\",\"4326\"]],"\
+	#define WKT1_GCS_WGS84 "GEOGCS[\"WGS 84\",AUTHORITY[\"EPSG\",\"4326\"]],"\
 		"DATUM[\"WGS_1984\",AUTHORITY[\"EPSG\",\"6326\"]],"\
 			"SPHEROID[\"WGS 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],"\
 		"PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],"\
 		"UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]"
+
+	#define WKT2_GCS_WGS84 "GEODCRS[\"WGS 84\","\
+		"DATUM[\"World Geodetic System 1984\","\
+			"ELLIPSOID[\"WGS 84\",6378137,298.257223563]],"\
+		"CS[ellipsoidal,2],"\
+			"AXIS[\"geodetic longitude (Lon)\",east],"\
+			"AXIS[\"geodetic latitude (Lat)\",north],"\
+			"UNIT[\"degree\",0.0174532925199433],"\
+		"ID[\"EPSG\",4326]]"
 
 	CSG_String WKT;
 
@@ -596,7 +605,7 @@ bool CSG_Projection::Set_UTM_WGS84(int Zone, bool bSouth)
 			"AXIS[\"Easting\",EAST],"
 			"AXIS[\"Northing\",NORTH],"
 			"UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]]",
-		Zone, bSouth ? 'S' : 'N', CSG_String(WKT_GCS_WGS84).c_str(), EPSG_ID, 6 * (Zone - 1) - 177, bSouth ? 10000000 : 0
+		Zone, bSouth ? 'S' : 'N', CSG_String(WKT2_GCS_WGS84).c_str(), EPSG_ID, 6 * (Zone - 1) - 177, bSouth ? 10000000 : 0
 	);
 
 	return( Create(WKT) );

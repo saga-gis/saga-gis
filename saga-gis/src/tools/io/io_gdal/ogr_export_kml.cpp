@@ -120,7 +120,7 @@ int COGR_Export_KML::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 //---------------------------------------------------------
 bool COGR_Export_KML::On_Execute(void)
 {
-	CSG_Shapes	Shapes, *pShapes	= Parameters("SHAPES")->asShapes();
+	CSG_Shapes Shapes, *pShapes = Parameters("SHAPES")->asShapes();
 
 	//-----------------------------------------------------
 	if( pShapes->Get_Projection().Get_Type() == ESG_CRS_Type::Undefined )
@@ -131,17 +131,17 @@ bool COGR_Export_KML::On_Execute(void)
 	{
 		Message_Fmt("\n%s (%s: %s)\n", _TL("re-projection to geographic coordinates"), _TL("original"), pShapes->Get_Projection().Get_Name().c_str());
 
-		bool	bResult;
+		bool bResult;
 
 		SG_RUN_TOOL(bResult, "pj_proj4", 2,
-				SG_TOOL_PARAMETER_SET("SOURCE"    , pShapes)
-			&&	SG_TOOL_PARAMETER_SET("TARGET"    , &Shapes)
-			&&	SG_TOOL_PARAMETER_SET("CRS_STRING", CSG_Projection::Get_GCS_WGS84().Get_WKT())
+			   SG_TOOL_PARAMETER_SET("SOURCE"    , pShapes)
+			&& SG_TOOL_PARAMETER_SET("TARGET"    , &Shapes)
+			&& SG_TOOL_PARAMETER_SET("CRS_STRING", CSG_Projection::Get_GCS_WGS84().Get_WKT())
 		);
 
 		if( bResult )
 		{
-			pShapes	= &Shapes;
+			pShapes = &Shapes;
 
 			Message_Fmt("\n%s: %s\n", _TL("re-projection"), _TL("success"));
 		}
@@ -150,9 +150,24 @@ bool COGR_Export_KML::On_Execute(void)
 			Message_Fmt("\n%s: %s\n", _TL("re-projection"), _TL("failed" ));
 		}
 	}
+	#if GDAL_VERSION_MAJOR < 3 || (GDAL_VERSION_MAJOR == 3 && GDAL_VERSION_MINOR < 5)
+	else // if( pShapes->Get_Projection().Get_Type() == ESG_CRS_Type::Geographic )
+	{
+		#define WKT2_GCS_WGS84 "GEODCRS[\"WGS 84\","\
+			"DATUM[\"World Geodetic System 1984\","\
+				"ELLIPSOID[\"WGS 84\",6378137,298.257223563]],"\
+			"CS[ellipsoidal,2],"\
+				"AXIS[\"geodetic longitude (Lon)\",east],"\ // axis order 1st longitude, 2nd latitude
+		"AXIS[\"geodetic latitude (Lat)\",north],"\
+			"UNIT[\"degree\",0.0174532925199433],"\
+			"ID[\"EPSG\",4326]]"
+
+			pShapes->Get_Projection().Create(WKT2_GCS_WGS84);
+	}
+	#endif
 
 	//-----------------------------------------------------
-	CSG_OGR_DataSet	DataSource;
+	CSG_OGR_DataSet DataSource;
 
 	if( !DataSource.Create(Parameters("FILE")->asString(), "KML", "") )
 	{

@@ -914,11 +914,16 @@ bool CSG_OGR_DataSet::Write(CSG_Shapes *pShapes, const CSG_String &CreationOptio
 	}
 
 	//-----------------------------------------------------
-	OGRSpatialReferenceH	pSRS	= NULL;
+	OGRSpatialReferenceH pSRS = NULL;
 
 	if( pShapes->Get_Projection().is_Okay() )
 	{
-		if( pShapes->Get_Projection().Get_EPSG() > 0
+		if( OSRValidate       (pSRS = OSRNewSpatialReference(pShapes->Get_Projection().Get_WKT().b_str())) != OGRERR_NONE )
+		{
+			OSRDestroySpatialReference(pSRS); pSRS = NULL;
+		}
+
+		if( !pSRS && pShapes->Get_Projection().Get_EPSG() > 0
 		&&  OSRImportFromEPSG (pSRS = OSRNewSpatialReference(NULL), pShapes->Get_Projection().Get_EPSG ()) != OGRERR_NONE )
 		{
 			OSRDestroySpatialReference(pSRS); pSRS = NULL;
@@ -929,10 +934,17 @@ bool CSG_OGR_DataSet::Write(CSG_Shapes *pShapes, const CSG_String &CreationOptio
 		{
 			OSRDestroySpatialReference(pSRS); pSRS = NULL;
 		}
+
+		#if GDAL_VERSION_MAJOR > 3 || (GDAL_VERSION_MAJOR == 3 && GDAL_VERSION_MINOR >= 5)
+		if( pSRS )
+		{
+			OSRSetAxisMappingStrategy(pSRS, OAMS_TRADITIONAL_GIS_ORDER);
+		}
+		#endif
 	}
 
-    //--------------------------------------------------------
-    char	**pOptions	= CreationOptions.is_Empty() ? NULL : CSLTokenizeString2(CreationOptions, " ", CSLT_STRIPLEADSPACES);
+	//--------------------------------------------------------
+    char **pOptions = CreationOptions.is_Empty() ? NULL : CSLTokenizeString2(CreationOptions, " ", CSLT_STRIPLEADSPACES);
 
 #ifdef GDAL_V2_0_OR_NEWER
 	OGRLayerH	pLayer	= GDALDatasetCreateLayer(m_pDataSet, CSG_String(pShapes->Get_Name()), pSRS,
