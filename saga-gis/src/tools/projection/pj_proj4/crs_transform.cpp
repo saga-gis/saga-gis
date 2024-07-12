@@ -250,6 +250,11 @@ CSG_String CSG_CRSProjector::Convert_CRS_To_WKT2(const CSG_String &Definition, b
 //---------------------------------------------------------
 CSG_String CSG_CRSProjector::Convert_CRS_Format(const CSG_String &Definition, TCRS_Format Format, bool bMultiLine, bool bSimplified)
 {
+	if( Definition.is_Empty() )
+	{
+		return( "" );
+	}
+
 	if( Definition.Find("+proj") >= 0 && Definition.Find("+type=crs") < 0 )
 	{
 		return( Convert_CRS_Format(Definition + " +type=crs", Format, bMultiLine) );

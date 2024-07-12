@@ -228,9 +228,19 @@ bool CSG_Projection::Load(const CSG_String &FileName)
 //---------------------------------------------------------
 bool CSG_Projection::Save(const CSG_String &FileName, ESG_CRS_Format Format) const
 {
-	CSG_File Stream(FileName, SG_FILE_W, false);
+	if( is_Okay() )
+	{
+		CSG_File Stream(FileName, SG_FILE_W, false);
 
-	return( is_Okay() && Save(Stream, Format) );
+		return( Save(Stream, Format) );
+	}
+
+	if( SG_File_Exists(FileName) )
+	{
+		SG_File_Delete(FileName);
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -853,6 +863,11 @@ bool CSG_Projections::Save(const CSG_String &File)
 //---------------------------------------------------------
 bool CSG_Projections::Parse(const CSG_String &Definition, CSG_String *WKT1, CSG_String *WKT2, CSG_String *PROJ, CSG_String *ESRI)
 {
+	if( Definition.is_Empty() )
+	{
+		return( false );
+	}
+
 	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 19); // Coordinate Reference System Format Conversion
 
 	if( pTool )
@@ -879,7 +894,7 @@ bool CSG_Projections::Parse(const CSG_String &Definition, CSG_String *WKT1, CSG_
 	}
 
 	//-----------------------------------------------------
-	else if( !Definition.is_Empty() ) // proj.lib parser not available ...fallback!
+	else // proj.lib parser not available ...fallback!
 	{
 		if( Definition.Find("+proj") == 0 )
 		{
