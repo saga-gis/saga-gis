@@ -142,6 +142,11 @@ bool CCRS_Definition::On_Execute(void)
 {
 	CSG_String Definition(Parameters["DEFINITION"].asString());
 
+	if( Definition.is_Empty() )
+	{
+		return( false );
+	}
+
 	bool bMultiLine = Parameters["MULTILINE"].asBool(), bSimplified = Parameters["SIMPLIFIED"].asBool();
 
 	Set_Parameter("PROJ", CSG_CRSProjector::Convert_CRS_To_PROJ(Definition));
