@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <wx/wx.h>
 #include <wx/treectrl.h>
 #include <wx/imaglist.h>
@@ -82,7 +70,7 @@
 //---------------------------------------------------------
 enum
 {
-	IMG_MESSAGES	= 0,
+	IMG_MESSAGES = 0,
 	IMG_EXECUTION,
 	IMG_ERROR
 };
@@ -95,7 +83,7 @@ enum
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CINFO	*g_pINFO	= NULL;
+CINFO *g_pINFO = NULL;
 
 
 ///////////////////////////////////////////////////////////
@@ -119,7 +107,7 @@ END_EVENT_TABLE()
 CINFO::CINFO(wxWindow *pParent)
 	: wxNotebook(pParent, ID_WND_INFO, wxDefaultPosition, wxDefaultSize, wxNB_TOP|wxNB_MULTILINE, _TL("Messages"))
 {
-	g_pINFO		= this;
+	g_pINFO = this;
 
 	//-----------------------------------------------------
 	AssignImageList(new wxImageList(IMG_SIZE_NOTEBOOK, IMG_SIZE_NOTEBOOK, true, 0));
@@ -129,9 +117,9 @@ CINFO::CINFO(wxWindow *pParent)
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_INFO_ERROR);
 	
 	//-----------------------------------------------------
-	m_pGeneral		= new CINFO_Messages(this);
-	m_pExecution	= new CINFO_Messages(this);
-	m_pErrors		= new CINFO_Messages(this);
+	m_pGeneral   = new CINFO_Messages(this);
+	m_pExecution = new CINFO_Messages(this);
+	m_pErrors    = new CINFO_Messages(this);
 }
 
 //---------------------------------------------------------
@@ -145,7 +133,7 @@ void CINFO::Add_Pages(void)
 //---------------------------------------------------------
 CINFO::~CINFO(void)
 {
-	g_pINFO		= NULL;
+	g_pINFO = NULL;
 }
 
 
