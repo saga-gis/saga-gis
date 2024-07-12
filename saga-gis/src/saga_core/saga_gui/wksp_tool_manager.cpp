@@ -77,7 +77,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Tool_Manager	*g_pTools	= NULL;
+CWKSP_Tool_Manager *g_pTools = NULL;
 
 
 ///////////////////////////////////////////////////////////
@@ -87,27 +87,25 @@ CWKSP_Tool_Manager	*g_pTools	= NULL;
 //---------------------------------------------------------
 CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 {
-	g_pTools		= this;
-
-	m_pMenu_Tools	= new CWKSP_Tool_Menu;
+	g_pTools = this; m_pMenu_Tools = new CWKSP_Tool_Menu;
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Node("", "NODE_GENERAL", _TL("General"), _TL(""));
 
 	m_Parameters.Add_Bool("NODE_GENERAL",
-		"START_LOGO"	, _TL("Show Logo at Start Up"),
+		"START_LOGO"     , _TL("Show Logo at Start Up"),
 		_TL(""),
 		true
 	);
 
 	m_Parameters.Add_Int("NODE_GENERAL",
-		"PROCESS_UPDATE", _TL("Process Update Frequency"),
+		"PROCESS_UPDATE" , _TL("Process Update Frequency"),
 		_TL("[milliseconds]"),
 		g_pSAGA->Process_Get_Frequency(), 1, true
 	);
 
 	m_Parameters.Add_Bool("NODE_GENERAL",
-		"SAVE_CONFIG"	, _TL("Save Configuration"),
+		"SAVE_CONFIG"    , _TL("Save Configuration"),
 		_TL("disabling might help to shut down faster, particularly if started from slow devices"),
 		true
 	);
@@ -126,13 +124,13 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 	m_Parameters.Add_Node("", "NODE_TOOLS", _TL("Tools"), _TL(""));
 
 	m_Parameters.Add_Bool("NODE_TOOLS",
-		"BEEP"			, _TL("Beep when finished"),
+		"BEEP"           , _TL("Beep when finished"),
 		_TL(""),
 		false
 	);
 
 	m_Parameters.Add_Choice("NODE_TOOLS",
-		"HELP_SOURCE"	, _TL("Tool Description Source"),
+		"HELP_SOURCE"    , _TL("Tool Description Source"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
 			_TL("built-in"),
@@ -140,11 +138,17 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 		), 0
 	);
 
+	m_Parameters.Add_Int("NODE_TOOLS",
+		"MESSAGE_SCALE"  , _TL("Message Font Scaling"),
+		_TL("Percentage of the default window font size. Applies only to new message window output (general, execution, errors)."),
+		90., 10., true, 200., true
+	);
+
 	//-----------------------------------------------------
 	m_Parameters.Add_Node("", "NODE_FILES", _TL("Files"), _TL(""));
 
 	m_Parameters.Add_FilePath("NODE_FILES",
-		"LNG_FILE_DIC"	, _TL("Language Translations"),
+		"LNG_FILE_DIC"   , _TL("Language Translations"),
 		_TL("Dictionary for translations from built-in (English) to local language (editable text table, utf-8 encoded). You need to restart SAGA to apply the changes."),
 		CSG_String::Format("%s|*.lng;*.txt|%s (*.lng)|*.lng|%s (*.txt)|*.txt|%s|*.*",
 			_TL("Recognized Files"),
@@ -155,7 +159,7 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 	);
 
 	m_Parameters.Add_FilePath("NODE_FILES",
-		"TOOL_MENUS"	, _TL("User defined tool menus"),
+		"TOOL_MENUS"     , _TL("User defined tool menus"),
 		_TL("User defined tool menus."),
 		CSG_String::Format("%s|*.xml|%s|*.*",
 			_TL("XML Files (*.xml)"),
@@ -167,7 +171,7 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 	m_Parameters.Add_Node("", "NODE_LOOK", _TL("Appearance"), _TL(""));
 
 	m_Parameters.Add_Int("NODE_LOOK",
-		"LOOK_TB_SIZE"	, _TL("Tool Bar Button Size"),
+		"LOOK_TB_SIZE"   , _TL("Tool Bar Button Size"),
 		_TL("Tool bar button sizes. You need to restart SAGA to apply the changes."),
 		24, 16, true
 	);
@@ -184,7 +188,7 @@ CWKSP_Tool_Manager::~CWKSP_Tool_Manager(void)
 {
 	delete(m_pMenu_Tools);
 
-	g_pTools	= NULL;
+	g_pTools = NULL;
 }
 
 
@@ -193,8 +197,8 @@ CWKSP_Tool_Manager::~CWKSP_Tool_Manager(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define CFG_LIBS	"/LIBS"
-#define CFG_LIBF	"LIB_%03d"
+#define CFG_LIBS "/LIBS"
+#define CFG_LIBF "LIB_%03d"
 
 //---------------------------------------------------------
 bool CWKSP_Tool_Manager::Initialise(void)

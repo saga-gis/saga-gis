@@ -75,8 +75,8 @@ public:
 
 	void						Add_Pages		(void);
 
-	class CINFO_Messages *		Get_General		(void)	{	return( m_pGeneral );	}
-	class CINFO_Messages *		Get_Errors		(void)	{	return( m_pErrors );	}
+	class CINFO_Messages *		Get_General		(void)	{	return( m_pGeneral   );	}
+	class CINFO_Messages *		Get_Errors		(void)	{	return( m_pErrors    );	}
 	class CINFO_Messages *		Get_Execution	(void)	{	return( m_pExecution );	}
 
 
