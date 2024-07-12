@@ -423,8 +423,8 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 {
 	wxImage	Image(_Get_XPM(ID_IMG));
 
-	Image.SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_X, 15);
-	Image.SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_Y, 15);
+	Image.SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_X, 16);
+	Image.SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_Y, 16);
 
 	return( wxCursor(Image) );
 }
@@ -802,9 +802,7 @@ wxIconBundle	IMG_Get_Icons(int ID_IMG)
 //---------------------------------------------------------
 wxCursor		IMG_Get_Cursor(int ID_IMG)
 {
-    wxImage	Image;
-
-    const char *SVG = _Get_SVG(ID_IMG);
+    wxImage	Image; const char *SVG = _Get_SVG(ID_IMG);
 
     if( SVG )
     {
@@ -812,15 +810,15 @@ wxCursor		IMG_Get_Cursor(int ID_IMG)
         
         Image = Bitmaps.GetBitmap(wxSize(32, 32)).ConvertToImage();
 
-        Image.SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_X, Image.GetWidth() / 2 - 1);
-        Image.SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_Y, Image.GetWidth() / 2 - 1);
+        Image.SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_X, Image.GetWidth() / 2);
+        Image.SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_Y, Image.GetWidth() / 2);
     }
     else
     {
 	    Image = IMG_Get_Image(ID_IMG);
 
-        Image.SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_X, 15);
-        Image.SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_Y, 15);
+        Image.SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_X, Image.GetWidth() / 2);
+        Image.SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_Y, Image.GetWidth() / 2);
     }
     
 	return( wxCursor(Image) );
