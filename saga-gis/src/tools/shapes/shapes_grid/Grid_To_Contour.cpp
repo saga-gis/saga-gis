@@ -182,8 +182,12 @@ bool CGrid_To_Contour::On_Execute(void)
 {
 	CSG_Grid Grid; m_pGrid = Parameters("GRID")->asGrid();
 
+	double minLength = Parameters("MINLENGTH")->asDouble();
+
 	if( Parameters("POLYGONS")->asShapes() && Parameters("PRECISION")->asBool() )
 	{
+		minLength /= m_pGrid->Get_Cellsize();
+
 		if( !Grid.Create(Grid.Get_Type(), m_pGrid->Get_NX(), m_pGrid->Get_NY()) )
 		{
 			Error_Set(_TL("could allocate memory for internal grid system"));
@@ -191,6 +195,7 @@ bool CGrid_To_Contour::On_Execute(void)
 			return( false );
 		}
 
+		Grid.Set_Name(m_pGrid->Get_Name());
 		Grid.Set_NoData_Value_Range(m_pGrid->Get_NoData_Value(false), m_pGrid->Get_NoData_Value(false));
 
 		#pragma omp parallel for
@@ -326,8 +331,6 @@ bool CGrid_To_Contour::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	double minLength = Parameters("MINLENGTH")->asDouble();
-
 	Intervals.Sort();
 
 	pContours->Set_Count(Intervals.Get_Size());
