@@ -621,6 +621,19 @@ bool		SG_UI_DataObject_Add(CSG_Data_Object *pDataObject, int Show)
 }
 
 //---------------------------------------------------------
+bool		SG_UI_DataObject_Del(CSG_Data_Object *pDataObject, bool bConfirm)
+{
+	if( gSG_UI_Callback && pDataObject )
+	{
+		CSG_UI_Parameter p1(pDataObject), p2(bConfirm);
+
+		return( gSG_UI_Callback(CALLBACK_DATAOBJECT_DEL, p1, p2) != 0 );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 bool		SG_UI_DataObject_Update(CSG_Data_Object *pDataObject, int Show, CSG_Parameters *pParameters)
 {
 	if( gSG_UI_Callback && pDataObject )

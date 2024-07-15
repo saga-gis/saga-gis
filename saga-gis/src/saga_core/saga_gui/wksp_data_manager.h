@@ -104,8 +104,6 @@ public:
 	class CWKSP_PointCloud_Manager *Get_PointClouds		(void)		{	return( m_pPointClouds );	}
 	class CWKSP_Grid_Manager *		Get_Grids			(void)		{	return( m_pGrids       );	}
 
-	class CWKSP_Layer *				Get_Layer			(CSG_Data_Object *pObject);
-
 	class CWKSP_Data_Menu_Files *	Get_Menu_Files		(void)		{	return( m_pMenu_Files );	}
 
 	class CWKSP_Data_Item *			Open				(const wxString &File, int DataType);
@@ -121,9 +119,11 @@ public:
 
 	class CWKSP_Data_Item *			Add					(class CSG_Data_Object *pObject);
 	class CWKSP_Data_Item *			Get					(class CSG_Data_Object *pObject);
+	class CWKSP_Layer *				Get_Layer			(class CSG_Data_Object *pObject);
 	class CWKSP_Data_Item *			Get_byFile			(const wxString &File);
 	class CWKSP_Data_Item *			Get_byID			(const wxString &ID);
 	class CWKSP_Data_Item *			Get_byID_or_File	(const SG_Char *ID, const SG_Char *File, const SG_Char *Root = NULL);
+	bool							Del					(class CSG_Data_Object *pObject, bool bConfirm);
 	bool							Update				(class CSG_Data_Object *pObject, class CSG_Parameters *pParameters);
 	bool							Update_Views		(class CSG_Data_Object *pObject);
 	bool							Show				(class CSG_Data_Object *pObject, int Flags = 0);

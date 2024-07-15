@@ -214,7 +214,7 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	m_Parameters.Add_Double("SHIFT"   , "SHIFT_Z"     , _TL("In/Out"               ), _TL(""), m_Projector.Get_zShift());
 
 	m_Parameters.Add_Choice("3D_VIEW" , "CENTRAL"     , _TL("Projection"           ), _TL(""), CSG_String::Format("%s|%s", _TL("parallel"), _TL("central")), 1);
-	m_Parameters.Add_Double("CENTRAL" , "CENTRAL_DIST", _TL("Perspectivic Distance"), _TL(""), m_Projector.Get_Central_Distance(), 0.1, true);
+	m_Parameters.Add_Double("CENTRAL" , "CENTRAL_DIST", _TL("Perspective Distance" ), _TL(""), m_Projector.Get_Central_Distance(), 0.1, true);
 
 	m_Parameters.Add_Bool  ("3D_VIEW" , "BOX"         , _TL("Bounding Box"         ), _TL(""), true);
 

@@ -107,7 +107,10 @@ CVertexInspector::CVertexInspector(void)
 
 bool CVertexInspector::On_Execute_Finish(void)
 {
-	Get_Manager()->Delete(m_pIndicator);
+	if( SG_UI_DataObject_Del(m_pIndicator, false) )
+	{
+		m_pIndicator = NULL;
+	}
 
 	return true;
 }

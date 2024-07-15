@@ -1571,6 +1571,7 @@ typedef enum
 	CALLBACK_MESSAGE_ADD_EXECUTION,
 
 	CALLBACK_DATAOBJECT_ADD,
+	CALLBACK_DATAOBJECT_DEL,
 	CALLBACK_DATAOBJECT_UPDATE,
 	CALLBACK_DATAOBJECT_SHOW,
 	CALLBACK_DATAOBJECT_ASIMAGE,
@@ -1672,6 +1673,7 @@ SAGA_API_DLL_EXPORT void					SG_UI_ProgressAndMsg_Lock	(bool bOn);
 SAGA_API_DLL_EXPORT void					SG_UI_ProgressAndMsg_Reset	(void);
 
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Add		(class CSG_Data_Object *pDataObject, int Show);
+SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Del		(class CSG_Data_Object *pDataObject, bool bConfirm);
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Update		(class CSG_Data_Object *pDataObject, int Show, class CSG_Parameters *pParameters);
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Show		(class CSG_Data_Object *pDataObject, int Show);
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_asImage	(class CSG_Data_Object *pDataObject, class CSG_Grid *pGrid);

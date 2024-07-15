@@ -243,6 +243,14 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 
 	//-----------------------------------------------------
+	case CALLBACK_DATAOBJECT_DEL:
+
+		Result	= g_pData->Del((CSG_Data_Object *)Param_1.Pointer, Param_2.Boolean) ? 1 : 0;
+
+		break;
+
+
+	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_UPDATE:
 
 		Result	= g_pData->Update((CSG_Data_Object *)Param_1.Pointer, (CSG_Parameters *)Param_2.Pointer) ? 1 : 0;

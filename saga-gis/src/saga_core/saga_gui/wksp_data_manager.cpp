@@ -1329,6 +1329,46 @@ CWKSP_Base_Manager * CWKSP_Data_Manager::Get_Manager(TSG_Data_Object_Type Type, 
 }
 
 //---------------------------------------------------------
+void CWKSP_Data_Manager::Del_Manager(CWKSP_Base_Item *pItem)
+{
+	if( pItem == m_pTables      ) { m_pTables      = NULL; }
+	if( pItem == m_pTINs        ) { m_pTINs        = NULL; }
+	if( pItem == m_pPointClouds ) { m_pPointClouds = NULL; }
+	if( pItem == m_pShapes      ) { m_pShapes      = NULL; }
+	if( pItem == m_pGrids       ) { m_pGrids       = NULL; }
+
+	if( Get_Count() == 0 )
+	{
+		m_pProject->Clr_File_Name();
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CWKSP_Data_Item * CWKSP_Data_Manager::Add(CSG_Data_Object *pObject)
+{
+	if( SG_Get_Data_Manager().Add(pObject) && Get_Manager(pObject->Get_ObjectType(), true) )
+	{
+		switch( pObject->Get_ObjectType() )
+		{
+		case SG_DATAOBJECT_TYPE_Table     : return( (CWKSP_Data_Item *)m_pTables     ->Add_Data((CSG_Table      *)pObject) );
+		case SG_DATAOBJECT_TYPE_TIN       : return( (CWKSP_Data_Item *)m_pTINs       ->Add_Data((CSG_TIN        *)pObject) );
+		case SG_DATAOBJECT_TYPE_PointCloud: return( (CWKSP_Data_Item *)m_pPointClouds->Add_Data((CSG_PointCloud *)pObject) );
+		case SG_DATAOBJECT_TYPE_Shapes    : return( (CWKSP_Data_Item *)m_pShapes     ->Add_Data((CSG_Shapes     *)pObject) );
+		case SG_DATAOBJECT_TYPE_Grid      : return( (CWKSP_Data_Item *)m_pGrids      ->Add_Data((CSG_Grid       *)pObject) );
+		case SG_DATAOBJECT_TYPE_Grids     : return( (CWKSP_Data_Item *)m_pGrids      ->Add_Data((CSG_Grids      *)pObject) );
+		default: break;
+		}
+	}
+
+	return( NULL );
+}
+
+//---------------------------------------------------------
 CWKSP_Data_Item * CWKSP_Data_Manager::Get(CSG_Data_Object *pObject)
 {
 	if( pObject && pObject != DATAOBJECT_CREATE && Get_Manager(pObject->Get_ObjectType()) )
@@ -1341,6 +1381,25 @@ CWKSP_Data_Item * CWKSP_Data_Manager::Get(CSG_Data_Object *pObject)
 		case SG_DATAOBJECT_TYPE_Shapes    : return( (CWKSP_Data_Item *)m_pShapes     ->Get_Data((CSG_Shapes     *)pObject) );
 		case SG_DATAOBJECT_TYPE_Grid      : return( (CWKSP_Data_Item *)m_pGrids      ->Get_Data((CSG_Grid       *)pObject) );
 		case SG_DATAOBJECT_TYPE_Grids     : return( (CWKSP_Data_Item *)m_pGrids      ->Get_Data((CSG_Grids      *)pObject) );
+		default: break;
+		}
+	}
+
+	return( NULL );
+}
+
+//---------------------------------------------------------
+CWKSP_Layer * CWKSP_Data_Manager::Get_Layer(CSG_Data_Object *pObject)
+{
+	if( pObject && pObject != DATAOBJECT_CREATE && Get_Manager(pObject->Get_ObjectType()) )
+	{
+		switch( pObject->Get_ObjectType() )
+		{
+		case SG_DATAOBJECT_TYPE_TIN       : return( (CWKSP_Layer *)m_pTINs       ->Get_Data((CSG_TIN        *)pObject) );
+		case SG_DATAOBJECT_TYPE_PointCloud: return( (CWKSP_Layer *)m_pPointClouds->Get_Data((CSG_PointCloud *)pObject) );
+		case SG_DATAOBJECT_TYPE_Shapes    : return( (CWKSP_Layer *)m_pShapes     ->Get_Data((CSG_Shapes     *)pObject) );
+		case SG_DATAOBJECT_TYPE_Grid      : return( (CWKSP_Layer *)m_pGrids      ->Get_Data((CSG_Grid       *)pObject) );
+		case SG_DATAOBJECT_TYPE_Grids     : return( (CWKSP_Layer *)m_pGrids      ->Get_Data((CSG_Grids      *)pObject) );
 		default: break;
 		}
 	}
@@ -1404,57 +1463,9 @@ CWKSP_Data_Item * CWKSP_Data_Manager::Get_byID_or_File(const SG_Char *ID, const 
 }
 
 //---------------------------------------------------------
-CWKSP_Data_Item * CWKSP_Data_Manager::Add(CSG_Data_Object *pObject)
+bool CWKSP_Data_Manager::Del(CSG_Data_Object *pObject, bool bConfirm)
 {
-	if( SG_Get_Data_Manager().Add(pObject) && Get_Manager(pObject->Get_ObjectType(), true) )
-	{
-		switch( pObject->Get_ObjectType() )
-		{
-		case SG_DATAOBJECT_TYPE_Table     : return( (CWKSP_Data_Item *)m_pTables     ->Add_Data((CSG_Table      *)pObject) );
-		case SG_DATAOBJECT_TYPE_TIN       : return( (CWKSP_Data_Item *)m_pTINs       ->Add_Data((CSG_TIN        *)pObject) );
-		case SG_DATAOBJECT_TYPE_PointCloud: return( (CWKSP_Data_Item *)m_pPointClouds->Add_Data((CSG_PointCloud *)pObject) );
-		case SG_DATAOBJECT_TYPE_Shapes    : return( (CWKSP_Data_Item *)m_pShapes     ->Add_Data((CSG_Shapes     *)pObject) );
-		case SG_DATAOBJECT_TYPE_Grid      : return( (CWKSP_Data_Item *)m_pGrids      ->Add_Data((CSG_Grid       *)pObject) );
-		case SG_DATAOBJECT_TYPE_Grids     : return( (CWKSP_Data_Item *)m_pGrids      ->Add_Data((CSG_Grids      *)pObject) );
-		default: break;
-		}
-	}
-
-	return( NULL );
-}
-
-//---------------------------------------------------------
-CWKSP_Layer * CWKSP_Data_Manager::Get_Layer(CSG_Data_Object *pObject)
-{
-	if( pObject && pObject != DATAOBJECT_CREATE && Get_Manager(pObject->Get_ObjectType()) )
-	{
-		switch( pObject->Get_ObjectType() )
-		{
-		case SG_DATAOBJECT_TYPE_TIN       : return( (CWKSP_Layer *)m_pTINs       ->Get_Data((CSG_TIN        *)pObject) );
-		case SG_DATAOBJECT_TYPE_PointCloud: return( (CWKSP_Layer *)m_pPointClouds->Get_Data((CSG_PointCloud *)pObject) );
-		case SG_DATAOBJECT_TYPE_Shapes    : return( (CWKSP_Layer *)m_pShapes     ->Get_Data((CSG_Shapes     *)pObject) );
-		case SG_DATAOBJECT_TYPE_Grid      : return( (CWKSP_Layer *)m_pGrids      ->Get_Data((CSG_Grid       *)pObject) );
-		case SG_DATAOBJECT_TYPE_Grids     : return( (CWKSP_Layer *)m_pGrids      ->Get_Data((CSG_Grids      *)pObject) );
-		default: break;
-		}
-	}
-
-	return( NULL );
-}
-
-//---------------------------------------------------------
-void CWKSP_Data_Manager::Del_Manager(CWKSP_Base_Item *pItem)
-{
-	if( pItem == m_pTables      )	m_pTables		= NULL;
-	if( pItem == m_pTINs        )	m_pTINs			= NULL;
-	if( pItem == m_pPointClouds )	m_pPointClouds	= NULL;
-	if( pItem == m_pShapes      )	m_pShapes		= NULL;
-	if( pItem == m_pGrids       )	m_pGrids		= NULL;
-
-	if( Get_Count() == 0 )
-	{
-		m_pProject->Clr_File_Name();
-	}
+	return( Get_Control()->Del_Item(Get(pObject), bConfirm) );
 }
 
 
