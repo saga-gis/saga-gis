@@ -524,6 +524,18 @@ protected:
 	virtual void				On_Update_Choices		(wxCommandEvent &event);
 	virtual void				On_Update_Control		(wxCommandEvent &event);
 
+	//-----------------------------------------------------
+	#ifdef __WXMAC__
+	virtual void				On_Menu					(wxCommandEvent &event)
+	{
+		switch( event.GetId() )
+		{
+		default: CSG_3DView_Dialog::On_Menu(event); return;
+		case MENU_PROPERTIES: { CSG_Parameters P(m_pPanel->Get_Parameters()); if( SG_UI_Dlg_Parameters(&P, P.Get_Name()) ) { m_pPanel->Set_Parameters(P); } return; }
+		}
+	}
+	#endif
+
 
 private:
 
