@@ -89,18 +89,6 @@ private:
 
 	void						Draw_Shape				(CSG_Shape *pShape, int Field_Color);
 
-	//-----------------------------------------------------
-	#ifdef __WXMAC__
-	virtual void				On_Menu					(wxCommandEvent &event)
-	{
-		switch( event.GetId() )
-		{
-		default: CSG_3DView_Dialog::On_Menu(event); return;
-		case MENU_PROPERTIES: { CSG_Parameters P(m_pPanel->Get_Parameters()); if( SG_UI_Dlg_Parameters(&P, P.Get_Name()) ) { m_pPanel->Set_Parameters(P); } return; }
-		}
-	}
-	#endif
-
 
 	//-----------------------------------------------------
 	DECLARE_EVENT_TABLE()
@@ -398,6 +386,21 @@ public:
 	{
 		Create(new C3D_Viewer_Shapes_Panel(this, pShapes, Field_Color));
 	}
+
+
+protected:
+
+	//-----------------------------------------------------
+	#ifdef __WXMAC__
+	virtual void				On_Menu					(wxCommandEvent &event)
+	{
+		switch( event.GetId() )
+		{
+		default: CSG_3DView_Dialog::On_Menu(event); return;
+		case MENU_PROPERTIES: { CSG_Parameters P(m_pPanel->Get_Parameters()); if( SG_UI_Dlg_Parameters(&P, P.Get_Name()) ) { m_pPanel->Set_Parameters(P); } return; }
+		}
+	}
+	#endif
 
 };
 
