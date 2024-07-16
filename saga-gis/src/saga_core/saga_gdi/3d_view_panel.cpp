@@ -473,17 +473,23 @@ int CSG_3DView_Panel::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 }
 
 //---------------------------------------------------------
-const CSG_Parameters & CSG_3DView_Panel::Get_Parameters(void)
+CSG_Parameters & CSG_3DView_Panel::Get_Parameters(bool bUpdate)
 {
-	Update_Parameters(true);
+	if( bUpdate )
+	{
+		Update_Parameters(true);
+	}
 
 	return( m_Parameters );
 }
 
 //---------------------------------------------------------
-bool CSG_3DView_Panel::Set_Parameters(const CSG_Parameters &Parameters)
+bool CSG_3DView_Panel::Set_Parameters(CSG_Parameters *pParameters)
 {
-	m_Parameters.Assign_Values((CSG_Parameters *)&Parameters);
+	if( pParameters )
+	{
+		m_Parameters.Assign_Values(pParameters);
+	}
 
 	Update_Parameters(false);
 	Update_Parent();

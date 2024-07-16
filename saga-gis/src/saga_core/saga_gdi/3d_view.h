@@ -96,8 +96,8 @@ public:
 
 	CSG_Parameters				m_Parameters;
 
-	const CSG_Parameters &		Get_Parameters			(void);
-	bool						Set_Parameters			(const CSG_Parameters &Parameters);
+	CSG_Parameters &			Get_Parameters			(bool bUpdate = true);
+	bool						Set_Parameters			(CSG_Parameters *pParameters = NULL);
 
 	virtual bool				Update_Parameters		(bool bSave);
 	virtual bool				Update_View				(bool bStatistics = false);
