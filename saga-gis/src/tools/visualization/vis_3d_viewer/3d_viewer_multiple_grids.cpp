@@ -388,7 +388,7 @@ protected:
 		default: CSG_3DView_Dialog::On_Menu(event); return;
 
 		#ifdef __WXMAC__
-		case MENU_PROPERTIES: { CSG_Parameters P(m_pPanel->Get_Parameters()); if( SG_UI_Dlg_Parameters(&P, P.Get_Name()) ) { m_pPanel->Set_Parameters(P); } return; }
+		case MENU_PROPERTIES: if( SG_UI_Dlg_Parameters(&m_pPanel->Get_Parameters(), "") ) { m_pPanel->Set_Parameters(); } return;
 		#endif
 
 		case MENU_SCALE_Z_DEC: m_pPanel->Parameter_Value_Add("Z_SCALE", -0.5); break;

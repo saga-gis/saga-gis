@@ -450,7 +450,7 @@ bool		SG_UI_Dlg_Parameters(CSG_Parameters *pParameters, const CSG_String &Captio
 {
 	if( gSG_UI_Callback && pParameters )
 	{
-		CSG_UI_Parameter p1(pParameters), p2(Caption);
+		CSG_UI_Parameter p1(pParameters), p2(Caption.is_Empty() ? pParameters->Get_Name() : Caption);
 
 		return( gSG_UI_Callback(CALLBACK_DLG_PARAMETERS, p1, p2) != 0 );
 	}

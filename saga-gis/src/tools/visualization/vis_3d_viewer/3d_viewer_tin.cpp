@@ -573,7 +573,7 @@ void C3D_Viewer_TIN_Dialog::On_Menu(wxCommandEvent &event)
 	default: CSG_3DView_Dialog::On_Menu(event); break;
 
 	#ifdef __WXMAC__
-	case MENU_PROPERTIES: { CSG_Parameters P(m_pPanel->Get_Parameters()); if( SG_UI_Dlg_Parameters(&P, P.Get_Name()) ) { m_pPanel->Set_Parameters(P); } return; }
+	case MENU_PROPERTIES: if( SG_UI_Dlg_Parameters(&m_pPanel->Get_Parameters(), "") ) { m_pPanel->Set_Parameters(); } return;
 	#endif
 
 	case MENU_USAGE      : SG_UI_Dlg_Info(C3D_Viewer_TIN_Panel::Get_Usage(), _TL("Usage")); return;
