@@ -1465,7 +1465,7 @@ CWKSP_Data_Item * CWKSP_Data_Manager::Get_byID_or_File(const SG_Char *ID, const 
 //---------------------------------------------------------
 bool CWKSP_Data_Manager::Del(CSG_Data_Object *pObject, bool bConfirm)
 {
-	return( Get_Control()->Del_Item(Get(pObject), bConfirm) );
+	return( Get_Control()->Del_Item(Get(pObject), bConfirm == false) ); // bConfirm == true/false => bSilent == false/true
 }
 
 
