@@ -99,7 +99,7 @@ CSG_Table CSentinel_3_Scene_Import::Get_Info_Bands(void)
 	ADD_INFO_BAND( 400    , 15   , 21.6 , 62.95 , 413.5, 2188, "Aerosol correction, improved water constituent retrieval."                                             );
 	ADD_INFO_BAND( 412.5  , 10   , 25.93, 74.14 , 501.3, 2061, "Yellow substance and detrital pigments (Turbidity)."                                                   );
 	ADD_INFO_BAND( 442.5  , 10   , 23.96, 65.61 , 466.1, 1811, "Chl absorption max., Biogeochemistry, vegetation."                                                     );
-	ADD_INFO_BAND( 442    , 10   , 19.78, 51.21 , 483.3, 1541, "High Chl, other pigments."                                                                             );
+	ADD_INFO_BAND( 490    , 10   , 19.78, 51.21 , 483.3, 1541, "High Chl, other pigments."                                                                             );
 	ADD_INFO_BAND( 510    , 10   , 17.45, 44.39 , 449.6, 1488, "Chl, sediment, turbidity, red tide."                                                                   );
 	ADD_INFO_BAND( 560    , 10   , 12.73, 31.49 , 524.5, 1280, "Chlorophyll reference (Chl minimum)"                                                                   );
 	ADD_INFO_BAND( 620    , 10   ,  8.86, 21.14 , 397.9,  997, "Sediment loading"                                                                                      );
