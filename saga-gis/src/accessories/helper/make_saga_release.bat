@@ -98,7 +98,7 @@ POPD
 
 REM ___________________________________
 REM Include the Python Toolboxes
-CALL ..\make_python_toolboxes.bat "%SAGA_RELEASE_NAME%\saga-gis\src\accessories\python\tools"
+%PYTHON% ..\create_python_toolboxes.py "%SAGA_RELEASE_NAME%\saga-gis\src\accessories\python\tools"
 
 REM ___________________________________
 REM Zip Source Code
@@ -139,12 +139,13 @@ CMD /C CALL ..\make_python_api.bat install false 3.10 F:\develop\libs\Python\Pyt
 CMD /C CALL ..\make_python_api.bat install false 3.11 F:\develop\libs\Python\Python-3.11
 CMD /C CALL ..\make_python_api.bat install true  3.12 F:\develop\libs\Python\Python-3.12
 
+
 REM ___________________________________
 REM ###################################
 REM PySAGA Toolboxes
 REM ###################################
 
-CALL ..\make_python_toolboxes.bat
+%PYTHON% ..\create_python_toolboxes.py
 
 
 REM ___________________________________
