@@ -64,6 +64,8 @@ CVertexInspector::CVertexInspector(void)
 
 	Set_Author 	("J. Spitzm\u00FCller \u00A9 scilands GmbH 2024");
 
+	Set_Version ("1.1");
+
 	Set_Description(_TW(
 		"This interactive tool is designed to inspect and manage individual vertices of geometries. "
  		"It allows users to select vertices on the map using a drag box. All vertices within the "
@@ -367,7 +369,22 @@ int CVertexInspector::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 			pChoice->Del_Items();
 			for( auto& tuple : Vec )
 			{
-				pChoice->Add_Item(CSG_String::Format("%d/%d %s %d", count, max, _TL("Point"), std::get<2>(tuple)), CSG_String::Format("%d", std::get<2>(tuple) ));
+				CSG_String End = "";
+				CSG_Shape *pShape = std::get<0>(tuple);
+				if( pShape->Get_Type() == SHAPE_TYPE_Polygon )
+				{
+					if( std::get<2>(tuple) == 0 )
+					{
+						End = " (First)";
+					}
+
+					if( std::get<2>(tuple) == pShape->Get_Point_Count(Part)-1 )
+					{
+						End = " (Last)";
+					}
+
+				}
+				pChoice->Add_Item(CSG_String::Format("%d/%d %s %d%s", count, max, _TL("Point"), std::get<2>(tuple), End.c_str()), CSG_String::Format("%d", std::get<2>(tuple) ));
 				count++;
 			}
 
@@ -468,6 +485,8 @@ bool CVertexInspector::Select_from_Drag_Box( CSG_Rect Drag_Box )
 	}
 
 	pParameter->Set_Value(0);
+
+	On_Parameter_Changed( pParameters, pParameter );
 	
 	if( Dlg_Parameters(pParameters) )
 	{
