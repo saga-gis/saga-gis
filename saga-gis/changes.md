@@ -5,6 +5,15 @@ This document lists backward incompatible changes and provides hints on how thes
 
 ___
 ___
+## SAGA 9.5.1 Tool interface changes
+
+#### Grid Calculator ('grid_calculus', '1')
+The "NAME" parameter has been removed (the parameter is only available in saga_gui). The "FNAME" parameter has been removed.
+
+#### Mosaicking ('grid_tools', '3')
+The "NAME" parameter has been removed (the parameter is only available in saga_gui).
+
+___
 ## SAGA 9.5.0 API changes
 
 #### enum TSG_Projection_Format >> enum class ESG_CRS_Format
