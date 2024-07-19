@@ -80,19 +80,29 @@ protected:
 
 private: 
 
+	struct Index
+	{
+		CSG_Shapes 	*shapes = NULL;
+		CSG_Shape 	*shape = NULL;
+		sLong 		part = 0;
+		sLong 		point = 0;
+
+	}; 
+
 	bool 				m_bDown = false;
 	bool 				m_bConfirm = false;
 	TSG_Point 			m_ptDown = {};
 
 	TSG_Point_4D 		m_ptOld = {0.0,0.0,0.0,0.0};
 	TSG_Point_4D 		m_ptNew = {0.0,0.0,0.0,0.0};
-	std::tuple<CSG_Shapes*, CSG_Shape*, sLong, sLong> m_LastPoint;
+	Index m_LastPoint;
 
 	CSG_Shapes 			*m_pIndicator = NULL;
 
 	CSG_Parameter_Shapes_List *m_pList;
 
-	std::map<sLong, std::map<sLong, std::map<sLong, std::vector<std::tuple<CSG_Shape*, sLong, sLong>>>>> m_Map;
+	std::map<sLong, std::map<sLong, std::map<sLong, std::vector<Index>>>> m_Map;
+	
 };
 
 

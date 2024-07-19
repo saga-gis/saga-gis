@@ -64,10 +64,10 @@ CVertexInspector::CVertexInspector(void)
 
 	Set_Author 	("J. Spitzm\u00FCller \u00A9 scilands GmbH 2024");
 
-	Set_Version ("1.1");
+	Set_Version ("1.2");
 
 	Set_Description(_TW(
-		"This interactive tool is designed to inspect and manage individual vertices of geometries. "
+		"This interactive tool is designed to inspect and manipulate individual vertices of geometries. "
  		"It allows users to select vertices on the map using a drag box. All vertices within the "
 		"drag box are then sorted hierarchically by dataset, shape, and part, and the X, Y, Z and M "
 		"(if available) values are displayed. The tool offers two "
@@ -160,10 +160,10 @@ bool CVertexInspector::Handle_Mutable_Point()
 
 	if( Set )
 	{
-		CSG_Shapes 	*pShapes = std::get<0>(m_LastPoint);
-		CSG_Shape 	*pShape = std::get<1>(m_LastPoint);
-		sLong 		Part = std::get<2>(m_LastPoint);
-		sLong 		Point = std::get<3>(m_LastPoint);
+		CSG_Shapes 	*pShapes 	= m_LastPoint.shapes;
+		CSG_Shape 	*pShape 	= m_LastPoint.shape;
+		sLong 		Part 		= m_LastPoint.part;
+		sLong 		Point 		= m_LastPoint.point;
 
 		double x = m_ptNew.x;
 		double y = m_ptNew.y;
@@ -224,11 +224,11 @@ int CVertexInspector::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 			pParameters->Get_Parameter("SHAPE")->asChoice()->Get_Data(Shape);
 			pParameters->Get_Parameter("PART")->asChoice()->Get_Data(Part);
 
-			std::tuple<CSG_Shape*, sLong, sLong> Obj = m_Map.at(Dataset).at(Shape).at(Part).at(pParameter->asInt());
+			Index Obj = m_Map.at(Dataset).at(Shape).at(Part).at(pParameter->asInt());
 
-			CSG_Shape *pShape = std::get<0>(Obj);
-			sLong part = std::get<1>(Obj);
-			sLong point = std::get<2>(Obj);
+			CSG_Shape *pShape = Obj.shape;
+			sLong part = Obj.part;
+			sLong point = Obj.point;
 
 			TSG_Vertex_Type Dims = pShape->Get_Vertex_Type();
 
@@ -291,7 +291,7 @@ int CVertexInspector::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 			int Dataset = -1;	
 			pParameters->Get_Parameter("DATASET")->asChoice()->Get_Data(Dataset);
 			
-			std::map<sLong, std::map<sLong, std::vector<std::tuple<CSG_Shape*, sLong, sLong>>>> Map = m_Map.at(Dataset);
+			std::map<sLong, std::map<sLong, std::vector<Index>>> Map = m_Map.at(Dataset);
 
 			CSG_Parameter_Choice *pChoice = pParameters->Get_Parameter("SHAPE")->asChoice();
 			pChoice->Del_Items();
@@ -313,7 +313,7 @@ int CVertexInspector::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 			pParameters->Get_Parameter("DATASET")->asChoice()->Get_Data(Dataset);
 			pParameters->Get_Parameter("SHAPE")->asChoice()->Get_Data(Shape);
 
-			std::map<sLong, std::vector<std::tuple<CSG_Shape*, sLong, sLong>>> Map = m_Map.at(Dataset).at(Shape);
+			std::map<sLong, std::vector<Index>> Map = m_Map.at(Dataset).at(Shape);
 
 			CSG_Shapes *pShapes = m_pList->Get_Item(Dataset)->asShapes();
 			TSG_Shape_Type Type = pShapes->Get_Type();
@@ -360,7 +360,7 @@ int CVertexInspector::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 			pParameters->Get_Parameter("DATASET")->asChoice()->Get_Data(Dataset);
 			pParameters->Get_Parameter("SHAPE")->asChoice()->Get_Data(Shape);
 			pParameters->Get_Parameter("PART")->asChoice()->Get_Data(Part);
-			std::vector<std::tuple<CSG_Shape*, sLong, sLong>> Vec = m_Map.at(Dataset).at(Shape).at(Part);
+			std::vector<Index> Vec = m_Map.at(Dataset).at(Shape).at(Part);
 
 			int count = 1;
 			int max = Vec.size();
@@ -370,21 +370,21 @@ int CVertexInspector::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 			for( auto& tuple : Vec )
 			{
 				CSG_String End = "";
-				CSG_Shape *pShape = std::get<0>(tuple);
+				CSG_Shape *pShape = tuple.shape;
 				if( pShape->Get_Type() == SHAPE_TYPE_Polygon )
 				{
-					if( std::get<2>(tuple) == 0 )
+					if( tuple.point == 0 )
 					{
 						End = " (First)";
 					}
 
-					if( std::get<2>(tuple) == pShape->Get_Point_Count(Part)-1 )
+					if( tuple.point == pShape->Get_Point_Count(Part)-1 )
 					{
 						End = " (Last)";
 					}
 
 				}
-				pChoice->Add_Item(CSG_String::Format("%d/%d %s %d%s", count, max, _TL("Point"), std::get<2>(tuple), End.c_str()), CSG_String::Format("%d", std::get<2>(tuple) ));
+				pChoice->Add_Item(CSG_String::Format("%d/%d %s %d%s", count, max, _TL("Point"), tuple.point, End.c_str()), CSG_String::Format("%d", tuple.point ));
 				count++;
 			}
 
@@ -447,8 +447,9 @@ bool CVertexInspector::Select_from_Drag_Box( CSG_Rect Drag_Box )
 				{
 					if( Drag_Box.Contains(pShape->Get_Point(point,part)) )
 					{
-						// Access or insert elements witch the operator[]
-						m_Map[list][shape][part].push_back({pShape, part, point});
+						// Insert elements witch the operator[] 
+						m_Map[list][shape][part].push_back({NULL, pShape, part, point});
+
 					}
 				}
 			}
@@ -464,9 +465,11 @@ bool CVertexInspector::Select_from_Drag_Box( CSG_Rect Drag_Box )
 	CSG_Parameter 	*pParameter  = pParameters->Get_Parameter("DATASET");
 	CSG_Parameter_Choice *pChoice = pParameter->asChoice();
 	pChoice->Del_Items();
-	int count = 1;
-	int max = m_Map.size();
+	int Count = 1;
+	int Max = m_Map.size();
 
+	// std::map uses a std::pair to store keys and values
+	// auto& pair is a std::pair
 	for( auto& pair : m_Map )
 	{
 		CSG_Shapes *pShapes = m_pList->Get_Item(pair.first)->asShapes();
@@ -480,12 +483,15 @@ bool CVertexInspector::Select_from_Drag_Box( CSG_Rect Drag_Box )
 	 		case SHAPE_TYPE_Polygon:	Type = "Polygon"; 	break;
 		}
 
-		pChoice->Add_Item(CSG_String::Format("%d/%d %s %d: \"%s\" (%s)", count, max, _TL("Dataset"), pair.first, pShapes->Get_Name(), Type.c_str()), CSG_String::Format("%d", pair.first));
-		count++;
+		// "1/2 Dataset 0 "Perimeter_Buffer" (Polygon)"
+		pChoice->Add_Item(CSG_String::Format("%d/%d %s %d: \"%s\" (%s)", Count, Max, _TL("Dataset"), pair.first, pShapes->Get_Name(), Type.c_str()), CSG_String::Format("%d", pair.first));
+		Count++;
 	}
 
+	// The Set_Value will not always trigger a callback to the On_Parameter_Changed 
+	// if the content is not changed. This happens in a reselection on the same datasets
+	// So triggering the callback manually
 	pParameter->Set_Value(0);
-
 	On_Parameter_Changed( pParameters, pParameter );
 	
 	if( Dlg_Parameters(pParameters) )
