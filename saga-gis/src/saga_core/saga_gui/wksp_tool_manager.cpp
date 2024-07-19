@@ -48,6 +48,7 @@
 //---------------------------------------------------------
 #include <wx/dir.h>
 #include <wx/filename.h>
+#include <wx/config.h>
 
 #include <saga_api/saga_api.h>
 
@@ -138,12 +139,6 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 		), 0
 	);
 
-	m_Parameters.Add_Int("NODE_TOOLS",
-		"MESSAGE_SCALE"  , _TL("Message Font Scaling"),
-		_TL("Percentage of the default window font size. Applies only to new message window output (general, execution, errors)."),
-		90., 10., true, 200., true
-	);
-
 	//-----------------------------------------------------
 	m_Parameters.Add_Node("", "NODE_FILES", _TL("Files"), _TL(""));
 
@@ -177,6 +172,12 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 	);
 
 	m_Parameters.Add_Int("NODE_LOOK",
+		"MESSAGE_SCALE"  , _TL("Message Font Scaling"),
+		_TL("Percentage of the default window font size. Applies only to new message window output (general, execution, errors)."),
+		90., 10., true, 200., true
+	);
+
+	m_Parameters.Add_Int("NODE_LOOK",
 		"FLOAT_PRECISION", _TL("Floating Point Precision"),
 		_TL("Sets the (max) precision used when floating point values are rendered as text in settings controls. The value set to -1 means infinite precision."),
 		10, -1, true
@@ -197,10 +198,6 @@ CWKSP_Tool_Manager::~CWKSP_Tool_Manager(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define CFG_LIBS "/LIBS"
-#define CFG_LIBF "LIB_%03d"
-
-//---------------------------------------------------------
 bool CWKSP_Tool_Manager::Initialise(void)
 {
 	CONFIG_Read("/TOOLS", "DLG_INFO", CDLG_Parameters::m_bInfo);
@@ -217,9 +214,9 @@ bool CWKSP_Tool_Manager::Initialise(void)
 
 	//-----------------------------------------------------
 	#ifdef _SAGA_MSW
-		wxString	Default_Path(g_pSAGA->Get_App_Path());
+		wxString Default_Path(g_pSAGA->Get_App_Path());
 	#else
-		wxString	Default_Path(TOOLS_PATH);
+		wxString Default_Path(TOOLS_PATH);
 	#endif
 
 	//-----------------------------------------------------
@@ -228,21 +225,21 @@ bool CWKSP_Tool_Manager::Initialise(void)
 	#ifdef __GNUC__
 	if( bCompatible ) // gcc builds: don't load stored libraries when there is no abi compatibility assured!
 	{
-		long	Number;
+		long Number;
 
 		if( !CONFIG_Read("/VERSION", "GNUC" , Number) || Number != __GNUC__ )
 		{
-			bCompatible	= false;
+			bCompatible = false;
 		}
 		#ifdef __GNUC_MINOR__
 			else if( !CONFIG_Read("/VERSION", "GNUC_MINOR" , Number) || Number != __GNUC_MINOR__ )
 			{
-				bCompatible	= false;
+				bCompatible = false;
 			}
 			#ifdef __GNUC_PATCHLEVEL__
 				else if( !CONFIG_Read("/VERSION", "GNUC_PATCHLEVEL" , Number) || Number != __GNUC_PATCHLEVEL__ )
 				{
-					bCompatible	= false;
+					bCompatible = false;
 				}
 			#endif
 		#endif
@@ -252,22 +249,32 @@ bool CWKSP_Tool_Manager::Initialise(void)
 	//-----------------------------------------------------
 	if( bCompatible )
 	{
-		wxString	Library;
+		wxConfigBase *pConfig = wxConfigBase::Get();
 
-		for(int i=0; CONFIG_Read(CFG_LIBS, wxString::Format(CFG_LIBF, i), Library); i++)
+		pConfig->SetPath("/LIBS");
+
+		long Index; wxString Entry;
+
+		if( pConfig->GetFirstEntry(Entry, Index) )
 		{
-			if( !wxFileExists(Library) )
+			do
 			{
-				wxFileName	fn(Library);
+				wxString Library = pConfig->Read(Entry);
 
-				fn.MakeAbsolute(Default_Path);
+				if( !wxFileExists(Library) )
+				{
+					wxFileName FileName(Library);
 
-				Library	= fn.GetFullPath();
+					FileName.MakeAbsolute(Default_Path);
+
+					Library	= FileName.GetFullPath();
+				}
+
+				SG_UI_Progress_Lock(true);
+				SG_Get_Tool_Library_Manager().Add_Library(&Library);
+				SG_UI_Progress_Lock(false);
 			}
-
-			SG_UI_Progress_Lock(true);
-			SG_Get_Tool_Library_Manager().Add_Library(&Library);
-			SG_UI_Progress_Lock(false);
+			while( pConfig->GetNextEntry(Entry, Index) );
 		}
 	}
 
@@ -301,33 +308,33 @@ bool CWKSP_Tool_Manager::Finalise(void)
 
 	//-----------------------------------------------------
 	#ifdef _SAGA_MSW
-		wxString	Default_Path(g_pSAGA->Get_App_Path());
+		wxString Default_Path(g_pSAGA->Get_App_Path());
 	#else
-		wxString	Default_Path(TOOLS_PATH);
+		wxString Default_Path(TOOLS_PATH);
 	#endif
 
-	CONFIG_Delete(CFG_LIBS);
+	CONFIG_Delete("/LIBS");
 
 	for(int i=0, n=0; i<Get_Count(); i++)
 	{
-		CWKSP_Tool_Group	*pGroup	= Get_Group(i);
+		CWKSP_Tool_Group *pGroup = Get_Group(i);
 
 		for(int j=0; j<pGroup->Get_Count(); j++)
 		{
-			CSG_Tool_Library	*pLibrary	= pGroup->Get_Library(j)->Get_Library();
+			CSG_Tool_Library *pLibrary = pGroup->Get_Library(j)->Get_Library();
 
 			if( pLibrary->Get_Type() == TOOL_CHAINS )
 			{
 				for(int j=0; j<pLibrary->Get_Count(); j++)
 				{
-					CONFIG_Write(CFG_LIBS, wxString::Format(CFG_LIBF, n++),
+					CONFIG_Write("/LIBS", wxString::Format("LIB_%03d", n++),
 						Get_FilePath_Relative(Default_Path.c_str(), pLibrary->Get_File_Name(j).c_str())
 					);
 				}
 			}
 			else
 			{
-				CONFIG_Write(CFG_LIBS, wxString::Format(CFG_LIBF, n++),
+				CONFIG_Write("/LIBS", wxString::Format("LIB_%03d", n++),
 					Get_FilePath_Relative(Default_Path.c_str(), pLibrary->Get_File_Name().c_str())
 				);
 			}
