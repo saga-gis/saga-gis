@@ -236,9 +236,50 @@ wxConfigBase *	Config_Default(bool bCreate)
 }
 
 //---------------------------------------------------------
-bool	Config_Load		(void)
+bool	Config_Create	(const CSG_String &File)
 {
-	wxConfigBase	*pConfig	= Config_Default(false);
+	wxConfigBase *pConfig;
+
+	if( File.is_Empty() )
+	{
+		SG_UI_Console_Print_StdOut(CSG_String::Format("\n%s...", _TL("creating default configuration")), '\0');
+
+		pConfig = Config_Default(true);
+	}
+	else
+	{
+		SG_UI_Console_Print_StdOut(CSG_String::Format("\n%s\n>>%s\n...", _TL("creating default configuration"), File.c_str()), '\0');
+
+		pConfig = new wxFileConfig(wxEmptyString, wxEmptyString, File.c_str(), File.c_str(), wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_GLOBAL_FILE|wxCONFIG_USE_RELATIVE_PATH);
+	}
+
+	Config_Create(pConfig);
+
+	delete(pConfig);
+
+	SG_UI_Console_Print_StdOut(CSG_String::Format("%s", _TL("ready")));
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool	Config_Load		(const CSG_String &File)
+{
+	wxConfigBase *pConfig = NULL;
+
+	if( File.is_Empty() )
+	{
+		pConfig = Config_Default(false);
+	}
+	else if( SG_File_Exists(File) )
+	{
+		pConfig = new wxFileConfig(wxEmptyString, wxEmptyString, File.c_str(), File.c_str(), wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_GLOBAL_FILE|wxCONFIG_USE_RELATIVE_PATH);
+	}
 
 	if( pConfig )
 	{
@@ -252,47 +293,78 @@ bool	Config_Load		(void)
 	return( false );
 }
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-bool	Config_Load		(const CSG_String &File)
+bool	Config_Libraries	(CSG_Strings &Libraries, const CSG_String &File)
 {
-	if( !SG_File_Exists(File) )
+	wxConfigBase *pConfig = NULL;
+
+	if( File.is_Empty() )
+	{
+		pConfig = Config_Default(false);
+	}
+	else if( SG_File_Exists(File) )
+	{
+		pConfig = new wxFileConfig(wxEmptyString, wxEmptyString, File.c_str(), File.c_str(), wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_GLOBAL_FILE|wxCONFIG_USE_RELATIVE_PATH);
+	}
+
+	if( pConfig == NULL )
 	{
 		return( false );
 	}
 
-	wxConfigBase	*pConfig	= new wxFileConfig(wxEmptyString, wxEmptyString, File.c_str(), File.c_str(), wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_GLOBAL_FILE|wxCONFIG_USE_RELATIVE_PATH);
-
-	Config_Load(pConfig);
-
-	delete(pConfig);
-
-	return( true );
-}
-
-
-//---------------------------------------------------------
-bool	Config_Create	(const CSG_String &File)
-{
-	wxConfigBase	*pConfig;
-
-	if( File.is_Empty() )
+	if( pConfig->HasGroup("/LIBS") == false )
 	{
-		SG_UI_Console_Print_StdOut(CSG_String::Format("\n%s...", _TL("creating default configuration")), '\0');
+		delete(pConfig);
 
-		pConfig	= Config_Default(true);
-	}
-	else
-	{
-		SG_UI_Console_Print_StdOut(CSG_String::Format("\n%s\n>>%s\n...", _TL("creating default configuration"), File.c_str()), '\0');
-
-		pConfig	= new wxFileConfig(wxEmptyString, wxEmptyString, File.c_str(), File.c_str(), wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_GLOBAL_FILE|wxCONFIG_USE_RELATIVE_PATH);
+		return( false );
 	}
 
-	Config_Create(pConfig);
+	//--------------------------------------------------------
+	// group is there, return true and fill the list of
+	// libraries/tool-chains to be loaded (might be empty!)
+
+	pConfig->SetPath("/LIBS");
+
+	long Index; wxString Entry;
+
+	if( pConfig->GetFirstEntry(Entry, Index) )
+	{
+		#ifdef _SAGA_MSW
+			wxString Default_Path(SG_UI_Get_Application_Path(true).c_str());
+		#else
+			wxString Default_Path(TOOLS_PATH);
+		#endif
+
+		Libraries.Clear();
+
+		//-----------------------------------------------------
+		do
+		{
+			wxString Library = pConfig->Read(Entry);
+
+			if( !wxFileExists(Library) )
+			{
+				wxFileName FileName(Library);
+
+				FileName.MakeAbsolute(Default_Path);
+
+				Library	= FileName.GetFullPath();
+			}
+
+			if( wxFileExists(Library) )
+			{
+				Libraries += &Library;
+			}
+		}
+		while( pConfig->GetNextEntry(Entry, Index) );
+	}
 
 	delete(pConfig);
-
-	SG_UI_Console_Print_StdOut(CSG_String::Format("%s", _TL("ready")));
 
 	return( true );
 }

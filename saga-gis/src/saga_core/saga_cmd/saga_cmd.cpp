@@ -50,6 +50,7 @@
 
 #include <wx/app.h>
 #include <wx/utils.h>
+#include <wx/filename.h>
 
 #include "config.h"
 #include "callback.h"
@@ -68,7 +69,7 @@ bool		Run				(int argc, char *argv[]);
 bool		Execute			(int argc, char *argv[]);
 bool		Execute_Script	(const CSG_String &Script);
 
-bool		Load_Libraries	(void);
+bool		Load_Libraries	(const CSG_String &Library = "");
 
 bool		Check_First		(const CSG_String &Argument, int argc, char *argv[]);
 bool		Check_Flags		(const CSG_String &Argument);
@@ -86,6 +87,9 @@ void		Print_Version	(void);
 
 void		Create_Batch	(const CSG_String &File);
 void		Create_Docs		(const CSG_String &Directory);
+
+//---------------------------------------------------------
+CSG_String	m_Config_File;
 
 
 ///////////////////////////////////////////////////////////
@@ -184,17 +188,24 @@ bool		Run(int argc, char *argv[])
 	Print_Logo();
 
 	//-----------------------------------------------------
-	if( !Load_Libraries() )
+	if( argc == 2 && SG_File_Exists(CSG_String(argv[1])) )
+	{
+		if( !Load_Libraries() )
+		{
+			Print_Get_Help();
+
+			return( false );
+		}
+
+		return( Execute_Script(argv[1]) );
+	}
+
+	//-----------------------------------------------------
+	if( !Load_Libraries(argc < 2 ? "" : argv[1]) )
 	{
 		Print_Get_Help();
 
 		return( false );
-	}
-
-	//-----------------------------------------------------
-	if( argc == 2 && SG_File_Exists(CSG_String(argv[1])) )
-	{
-		return( Execute_Script(argv[1]) );
 	}
 
 	return( Execute(argc, argv) );
@@ -210,14 +221,27 @@ bool		Run(int argc, char *argv[])
 //---------------------------------------------------------
 bool		Execute(int argc, char *argv[])
 {
-	//-----------------------------------------------------
 	CSG_String Library = argc < 2 ? "" : argv[1];
 
 	if( SG_Get_Tool_Library_Manager().Get_Library(Library, true) == NULL )
 	{
-		Print_Libraries();
+	#ifdef _SAGA_MSW
+		CSG_String Path(CSG_String::Format("%s\\tools\\%s.dll", SG_UI_Get_Application_Path(true).c_str(), Library.c_str()));
+	#else
+		CSG_String Path(CSG_String::Format("%s/lib%s.so", TOOLS_PATH, Library.c_str()));
+	#endif
 
-		return( false );
+		if( SG_Get_Tool_Library_Manager().Add_Library(Path) == NULL )
+		{
+			SG_File_Set_Extension(Path, "xml");
+
+			if( SG_Get_Tool_Library_Manager().Add_Library(Path) == NULL )
+			{
+				Print_Libraries();
+
+				return( false );
+			}
+		}
 	}
 
 	//-----------------------------------------------------
@@ -425,19 +449,39 @@ bool		Execute_Script(const CSG_String &Script)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		Load_Libraries(void)
+bool		Load_Libraries(const CSG_String &Library)
 {
-	bool	bShow	= CMD_Get_Show_Messages();
+	bool Messages = CMD_Get_Show_Messages();
 
+	//-----------------------------------------------------
+	CSG_Strings Libraries;
+
+	if( Config_Libraries(Libraries, m_Config_File) ) // only load selected libraries (list might be empty!)
+	{
+		CMD_Set_Show_Messages(false);
+
+		SG_Initialize_Environment(false, true, NULL, false); // initialize without loading tools
+
+		for(int i=0; i<Libraries.Get_Count(); i++)
+		{
+			SG_Get_Tool_Library_Manager().Add_Library(Libraries[i]);
+		}
+
+		CMD_Set_Show_Messages(Messages);
+
+		return( true );
+	}
+
+	//-----------------------------------------------------
 	CMD_Set_Show_Messages(false);
 
-	SG_Initialize_Environment(true, true, NULL, false);	// loads default tools, but skip wx-initialization (already done in main())
+	SG_Initialize_Environment(true, true, NULL, false); // load default tools, but skip wx-initialization (already done in main())
 
-	CMD_Set_Show_Messages(bShow);
+	CMD_Set_Show_Messages(Messages);
 
-	if( SG_Get_Tool_Library_Manager().Get_Count() <= 0 )
+	if( SG_Get_Tool_Library_Manager().Get_Count() < 1 )
 	{
-		CMD_Print_Error("could not load any tool library");
+		CMD_Print_Error("could not load tool libraries");
 
 		return( false );
 	}
@@ -565,7 +609,7 @@ bool		Check_Flags		(const CSG_String &Argument)
 	//-----------------------------------------------------
 	else if( !s.Cmp("-C") || !s.Cmp("--config") )
 	{
-		Config_Load(CSG_String(Argument).AfterFirst('='));
+		Config_Load(m_Config_File = CSG_String(Argument).AfterFirst('='));
 
 		return( true );
 	}

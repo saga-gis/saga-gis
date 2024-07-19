@@ -67,9 +67,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool	Config_Load		(void);
-bool	Config_Load		(const CSG_String &File);
-bool	Config_Create	(const CSG_String &File);
+bool Config_Create    (const CSG_String &File);
+
+bool Config_Load      (const CSG_String &File = "");
+
+bool Config_Libraries (CSG_Strings &Libraries, const CSG_String &File = "");
 
 
 ///////////////////////////////////////////////////////////
