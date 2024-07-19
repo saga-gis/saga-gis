@@ -375,12 +375,12 @@ int CVertexInspector::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 				{
 					if( tuple.point == 0 )
 					{
-						End = " (First)";
+						End = " (Start)";
 					}
 
 					if( tuple.point == pShape->Get_Point_Count(Part)-1 )
 					{
-						End = " (Last)";
+						End = " (End)";
 					}
 
 				}
