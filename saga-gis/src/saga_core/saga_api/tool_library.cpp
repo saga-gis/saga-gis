@@ -356,7 +356,7 @@ bool CSG_Tool_Library_Manager::Add_Default_Libraries(bool bVerbose)
 			#endif
 
 			#ifdef SHARE_PATH
-				SG_Get_Tool_Library_Manager().Add_Directory(CSG_String(SHARE_PATH) + "/toolchains"); // look for tool chains
+				SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(SHARE_PATH, "toolchains")); // look for tool chains
 			#endif
 		}
 	}
@@ -727,17 +727,17 @@ bool CSG_Tool_Library_Manager::_Add_Library(const CSG_String &Library)
 		if(  Add_Library       (         CSG_String::Format("%s/../Tools/lib%s.dylib", SG_UI_Get_Application_Path(true).c_str(), Library.c_str())) ) { bOkay = true; }
 		if( _Add_Library_Chains(Library, CSG_String::Format("%s/../Tools"            , SG_UI_Get_Application_Path(true).c_str()                 )) ) { bOkay = true; }
 		#ifdef TOOLS_PATH
-		if(  Add_Library       (         CSG_String::Format("%s/lib%s.dylib"         , TOOLS_PATH                              , Library.c_str())) ) { bOkay = true; }
+		if(  Add_Library       (         CSG_String::Format("%s/lib%s.dylib"         , CSG_String(TOOLS_PATH).c_str()          , Library.c_str())) ) { bOkay = true; }
 		#endif
 		#ifdef SHARE_PATH
-		if( _Add_Library_Chains(Library, CSG_String::Format("%s/toolchains"          , SHARE_PATH                                               )) ) { bOkay = true; }
+		if( _Add_Library_Chains(Library, CSG_String::Format("%s/toolchains"          , CSG_String(SHARE_PATH).c_str()                           )) ) { bOkay = true; }
 		#endif
 	#else // #if defined(_SAGA_LINUX)
 		#ifdef TOOLS_PATH
-		if(  Add_Library       (         CSG_String::Format("%s/lib%s.so"            , TOOLS_PATH                              , Library.c_str())) ) { bOkay = true; }
+		if(  Add_Library       (         CSG_String::Format("%s/lib%s.so"            , CSG_String(TOOLS_PATH).c_str()          , Library.c_str())) ) { bOkay = true; }
 		#endif
 		#ifdef SHARE_PATH
-		if( _Add_Library_Chains(Library, CSG_String::Format("%s/toolchains"          , SHARE_PATH                                               )) ) { bOkay = true; }
+		if( _Add_Library_Chains(Library, CSG_String::Format("%s/toolchains"          , CSG_String(SHARE_PATH).c_str()                           )) ) { bOkay = true; }
 		#endif
 	#endif
 
