@@ -422,7 +422,7 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::Add_Library(const CSG_String &File)
 	&&  SG_File_Cmp_Extension(File, "dylib") == false
 	&&  SG_File_Cmp_Extension(File, "so"   ) == false )
 	{
-		return( false );
+		return( NULL );
 	}
 
 	//-----------------------------------------------------
