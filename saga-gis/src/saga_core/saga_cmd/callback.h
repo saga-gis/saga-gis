@@ -72,16 +72,16 @@
 void					CMD_Set_Tool			(class CCMD_Tool *pCMD_Tool);
 
 //---------------------------------------------------------
-void					CMD_Set_Show_Messages	(bool bOn);
 bool					CMD_Get_Show_Messages	(void);
+bool					CMD_Set_Show_Messages	(bool bOn);
 
-void					CMD_Set_Show_Progress	(bool bOn);
 bool					CMD_Get_Show_Progress	(void);
+bool					CMD_Set_Show_Progress	(bool bOn);
 
-void					CMD_Set_Interactive		(bool bOn);
 bool					CMD_Get_Interactive		(void);
+bool					CMD_Set_Interactive		(bool bOn);
 
-void					CMD_Set_XML				(bool bOn);
+bool					CMD_Set_XML				(bool bOn);
 bool					CMD_Get_XML				(void);
 
 //---------------------------------------------------------

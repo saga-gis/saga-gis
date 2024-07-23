@@ -69,7 +69,7 @@ bool		Run				(int argc, char *argv[]);
 bool		Execute			(int argc, char *argv[]);
 bool		Execute_Script	(const CSG_String &Script);
 
-bool		Load_Libraries	(const CSG_String &Library = "");
+bool		Load_Libraries	(bool bDefaults);
 
 bool		Check_First		(const CSG_String &Argument, int argc, char *argv[]);
 bool		Check_Flags		(const CSG_String &Argument);
@@ -113,15 +113,13 @@ int		main	(int argc, char *argv[])
 
 //---------------------------------------------------------
 #if !defined(_DEBUG)
-	wxSetAssertHandler(NULL);		// disable all wx asserts in SAGA release builds
+	wxSetAssertHandler(NULL); // disable all wx asserts in SAGA release builds
 
 	#if !defined(_OPENMP) && defined(_SAGA_MSW)
 		#define _TOOL_EXCEPTION
 	#endif
 #endif
 //---------------------------------------------------------
-
-	bool bResult	= false;
 
 ///////////////////////////////////////////////////////////
 #ifdef _TOOL_EXCEPTION
@@ -130,7 +128,7 @@ _try
 #endif
 ///////////////////////////////////////////////////////////
 
-	bResult	= Run(argc, argv);
+	bool bResult = Run(argc, argv);
 
 ///////////////////////////////////////////////////////////
 #ifdef _TOOL_EXCEPTION
@@ -171,7 +169,9 @@ bool		Run(int argc, char *argv[])
 
 	SG_Set_UI_Callback(CMD_Get_Callback());
 
-	Config_Load();	// first load default configuration (if available). can be modified subsequently by flags
+	SG_Initialize_Environment(false, true, NULL, false); // initialize environment, but skip wx-initialization (already done in main())
+
+	Config_Load(); // first load default configuration (if available). can be modified subsequently by flags
 
 	//-----------------------------------------------------
 	if( Check_First(argv[1], argc - 2, argv + 2) )
@@ -185,27 +185,14 @@ bool		Run(int argc, char *argv[])
 		argc--;	argv++;
 	}
 
+	//-----------------------------------------------------
 	Print_Logo();
 
-	//-----------------------------------------------------
+	Load_Libraries(false);
+
 	if( argc == 2 && SG_File_Exists(CSG_String(argv[1])) )
 	{
-		if( !Load_Libraries() )
-		{
-			Print_Get_Help();
-
-			return( false );
-		}
-
 		return( Execute_Script(argv[1]) );
-	}
-
-	//-----------------------------------------------------
-	if( !Load_Libraries(argc < 2 ? "" : argv[1]) )
-	{
-		Print_Get_Help();
-
-		return( false );
 	}
 
 	return( Execute(argc, argv) );
@@ -223,28 +210,6 @@ bool		Execute(int argc, char *argv[])
 {
 	CSG_String Library = argc < 2 ? "" : argv[1];
 
-	if( SG_Get_Tool_Library_Manager().Get_Library(Library, true) == NULL )
-	{
-	#ifdef _SAGA_MSW
-		CSG_String Path(CSG_String::Format("%s\\tools\\%s.dll", SG_UI_Get_Application_Path(true).c_str(), Library.c_str()));
-	#else
-		CSG_String Path(CSG_String::Format("%s/lib%s.so", TOOLS_PATH, Library.c_str()));
-	#endif
-
-		if( SG_Get_Tool_Library_Manager().Add_Library(Path) == NULL )
-		{
-			SG_File_Set_Extension(Path, "xml");
-
-			if( SG_Get_Tool_Library_Manager().Add_Library(Path) == NULL )
-			{
-				Print_Libraries();
-
-				return( false );
-			}
-		}
-	}
-
-	//-----------------------------------------------------
 	CSG_Tool *pTool = argc < 3 ? NULL : SG_Get_Tool_Library_Manager().Get_Tool(Library, CSG_String(argv[2]));
 
 	if( pTool == NULL )
@@ -449,18 +414,13 @@ bool		Execute_Script(const CSG_String &Script)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		Load_Libraries(const CSG_String &Library)
+bool		Load_Libraries(bool bDefaults)
 {
-	bool Messages = CMD_Get_Show_Messages();
-
-	//-----------------------------------------------------
 	CSG_Strings Libraries;
 
-	if( Config_Libraries(Libraries, m_Config_File) ) // only load selected libraries (list might be empty!)
+	if( Config_Libraries(Libraries, m_Config_File) ) // load selected libraries
 	{
-		CMD_Set_Show_Messages(false);
-
-		SG_Initialize_Environment(false, true, NULL, false); // initialize without loading tools
+		bool Messages = CMD_Set_Show_Messages(false);
 
 		for(int i=0; i<Libraries.Get_Count(); i++)
 		{
@@ -468,22 +428,19 @@ bool		Load_Libraries(const CSG_String &Library)
 		}
 
 		CMD_Set_Show_Messages(Messages);
-
-		return( true );
 	}
 
 	//-----------------------------------------------------
-	CMD_Set_Show_Messages(false);
-
-	SG_Initialize_Environment(true, true, NULL, false); // load default tools, but skip wx-initialization (already done in main())
-
-	CMD_Set_Show_Messages(Messages);
-
-	if( SG_Get_Tool_Library_Manager().Get_Count() < 1 )
+	if( bDefaults )
 	{
-		CMD_Print_Error("could not load tool libraries");
+		SG_Get_Tool_Library_Manager().Add_Default_Libraries();
 
-		return( false );
+		if( SG_Get_Tool_Library_Manager().Get_Count() < 1 )
+		{
+			CMD_Print_Error("could not load tool libraries");
+
+			return( false );
+		}
 	}
 
 	return( true );
@@ -550,12 +507,6 @@ bool		Check_First		(const CSG_String &Argument, int argc, char *argv[])
 //---------------------------------------------------------
 bool		Check_Flags		(const CSG_String &Argument)
 {
-#if   defined(_SAGA_LINUX)
-	CSG_String	Path_Shared	= SHARE_PATH;
-#elif defined(_SAGA_MSW)
-	CSG_String	Path_Shared	= SG_UI_Get_Application_Path(true);
-#endif
-
 	//-----------------------------------------------------
 	CSG_String	s(Argument.BeforeFirst('='));
 
@@ -570,9 +521,19 @@ bool		Check_Flags		(const CSG_String &Argument)
 
 		if( s.Find('l') >= 0 )	// l: load translation dictionary
 		{
+			#if defined(_SAGA_LINUX) && defined(SHARE_PATH)
+			CSG_String Path_Shared = SG_File_Make_Path(SHARE_PATH, "saga", "lng")
+			#else
+			CSG_String Path_Shared = SG_File_Make_Path(SG_UI_Get_Application_Path(true), "saga", "lng");
+			#endif
+
 			CMD_Print(CSG_String::Format("\n%s:", _TL("loading translation dictionary")));
 			CMD_Print(CSG_String::Format("\n%s.\n",
-				SG_Get_Translator().Create(SG_File_Make_Path(Path_Shared, SG_T("saga"), SG_T("lng")), false)
+				#if defined(_SAGA_LINUX) && defined(SHARE_PATH)
+					SG_Get_Translator().Create(SG_File_Make_Path(SHARE_PATH                      , "saga", "lng"), false)
+				#else
+					SG_Get_Translator().Create(SG_File_Make_Path(SG_UI_Get_Application_Path(true), "saga", "lng"), false)
+				#endif
 				? _TL("success") : _TL("failed")
 			));
 		}
@@ -638,6 +599,8 @@ bool		Check_Flags		(const CSG_String &Argument)
 //---------------------------------------------------------
 void		Print_Libraries	(void)
 {
+	Load_Libraries(true);
+
 	if( CMD_Get_Show_Messages() )
 	{
 		if( CMD_Get_XML() )
@@ -658,32 +621,22 @@ void		Print_Libraries	(void)
 //---------------------------------------------------------
 void		Print_Tools		(const CSG_String &Library)
 {
-	if( CMD_Get_Show_Messages() )
+	CSG_Tool_Library *pLibrary[2] = {
+		SG_Get_Tool_Library_Manager().Get_Library(Library, true, ESG_Library_Type::Library),
+		SG_Get_Tool_Library_Manager().Get_Library(Library, true, ESG_Library_Type::Chain  )
+	};
+
+	if( !pLibrary[0] && !pLibrary[1] )
 	{
-		if( CMD_Get_XML() )
+		Print_Libraries();
+	}
+	else if( CMD_Get_Show_Messages() )
+	{
+		if( pLibrary[0] ) { CMD_Print(pLibrary[0]->Get_Summary(CMD_Get_XML() ? SG_SUMMARY_FMT_XML : SG_SUMMARY_FMT_FLAT, false)); }
+		if( pLibrary[1] ) { CMD_Print(pLibrary[1]->Get_Summary(CMD_Get_XML() ? SG_SUMMARY_FMT_XML : SG_SUMMARY_FMT_FLAT, false)); }
+
+		if( !CMD_Get_XML() )
 		{
-			for(int i=0; i<SG_Get_Tool_Library_Manager().Get_Count(); i++)
-			{
-				CSG_Tool_Library *pLibrary = SG_Get_Tool_Library_Manager().Get_Library(i);
-
-				if( !pLibrary->Get_Library_Name().Cmp(Library) )
-				{
-					CMD_Print(pLibrary->Get_Summary(SG_SUMMARY_FMT_XML , false));
-				}
-			}
-		}
-		else
-		{
-			for(int i=0; i<SG_Get_Tool_Library_Manager().Get_Count(); i++)
-			{
-				CSG_Tool_Library *pLibrary = SG_Get_Tool_Library_Manager().Get_Library(i);
-
-				if( !pLibrary->Get_Library_Name().Cmp(Library) )
-				{
-					CMD_Print(pLibrary->Get_Summary(SG_SUMMARY_FMT_FLAT, false));
-				}
-			}
-
 			CMD_Print_Error(_TL("select a tool"));
 
 			Print_Get_Help();
@@ -876,16 +829,28 @@ void		Print_Help		(const CSG_String &Library)
 {
 	Print_Logo();
 
-	CSG_Tool_Library *pLibrary;
+	CSG_Tool_Library *pLibrary[2] = {
+		SG_Get_Tool_Library_Manager().Get_Library(Library, true, ESG_Library_Type::Library),
+		SG_Get_Tool_Library_Manager().Get_Library(Library, true, ESG_Library_Type::Chain  )
+	};
 
-	if( !Load_Libraries() || !(pLibrary = SG_Get_Tool_Library_Manager().Get_Library(Library, true)) )
+	if( !pLibrary[0] && !pLibrary[1] )
 	{
 		Print_Libraries();
 	}
 	else
 	{
-		CMD_Print(SG_HTML_Tag_Replacer(pLibrary->Get_Description()));
-		CMD_Print(pLibrary->Get_Summary(SG_SUMMARY_FMT_FLAT, false));
+		if( pLibrary[0] )
+		{
+			CMD_Print(SG_HTML_Tag_Replacer(pLibrary[0]->Get_Description()));
+			CMD_Print(pLibrary[0]->Get_Summary(SG_SUMMARY_FMT_FLAT, false));
+		}
+
+		if( pLibrary[1] )
+		{
+			CMD_Print(SG_HTML_Tag_Replacer(pLibrary[1]->Get_Description()));
+			CMD_Print(pLibrary[1]->Get_Summary(SG_SUMMARY_FMT_FLAT, false));
+		}
 	}
 }
 
@@ -894,24 +859,17 @@ void		Print_Help		(const CSG_String &Library, const CSG_String &Tool)
 {
 	Print_Logo();
 
-	if( !Load_Libraries() || !SG_Get_Tool_Library_Manager().Get_Library(Library, true) )
+	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Get_Tool(Library, Tool);
+
+	if( !pTool )
 	{
-		Print_Libraries();
+		Print_Tools(Library);
 	}
 	else
 	{
-		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Get_Tool(Library, Tool);
+		Print_Execution(pTool);
 
-		if( !pTool )
-		{
-			Print_Tools(Library);
-		}
-		else
-		{
-			Print_Execution(pTool);
-
-			CMD_Print(pTool->Get_Summary(true, "", "", SG_SUMMARY_FMT_FLAT));
-		}
+		CMD_Print(pTool->Get_Summary(true, "", "", SG_SUMMARY_FMT_FLAT));
 	}
 }
 
@@ -1037,7 +995,7 @@ void		Create_Docs		(const CSG_String &Directory)
 
 	CMD_Print(_TL("creating tool documentation files"));
 
-	CSG_String	_Directory(Directory.is_Empty() ? SG_Dir_Get_Current() : Directory);
+	CSG_String _Directory(Directory.is_Empty() ? SG_Dir_Get_Current() : Directory);
 
 	if( !SG_Dir_Exists(_Directory) )
 	{
@@ -1046,7 +1004,7 @@ void		Create_Docs		(const CSG_String &Directory)
 		return;
 	}
 
-	if( Load_Libraries() )
+	if( Load_Libraries(true) )
 	{
 		CMD_Set_Show_Messages(false);
 

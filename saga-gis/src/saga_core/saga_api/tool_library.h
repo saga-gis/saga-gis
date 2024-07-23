@@ -88,12 +88,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum
+enum class ESG_Library_Type
 {
-	TOOL_LIBRARY		= 0,
-	TOOL_CHAINS
-}
-TSG_Tool_Library_Type;
+	Library, Chain, Undefined
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -109,7 +107,7 @@ class SAGA_API_DLL_EXPORT CSG_Tool_Library
 
 public:
 
-	virtual TSG_Tool_Library_Type	Get_Type			(void)	const	{	return( TOOL_LIBRARY );	}
+	virtual ESG_Library_Type		Get_Type			(void)	const	{	return( ESG_Library_Type::Library );	}
 
 	bool							is_Valid			(void)	const	{	return( Get_Count() > 0 );	}
 
@@ -145,10 +143,10 @@ public:
 	virtual CSG_String				Get_File_Name		(int i)	const	{	return( "" );	}
 	virtual CSG_String				Get_Menu			(int i)	const;
 
-	void							Add_Reference			(const CSG_String &Authors, const CSG_String &Year, const CSG_String &Title, const CSG_String &Where, const SG_Char *Link = NULL, const SG_Char *Link_Text = NULL);
-	void							Add_Reference			(const CSG_String &Link, const SG_Char *Link_Text = NULL);
-	void							Del_References			(void);
-	const CSG_Strings &				Get_References			(void)	const	{	return( m_References );		}
+	void							Add_Reference		(const CSG_String &Authors, const CSG_String &Year, const CSG_String &Title, const CSG_String &Where, const SG_Char *Link = NULL, const SG_Char *Link_Text = NULL);
+	void							Add_Reference		(const CSG_String &Link, const SG_Char *Link_Text = NULL);
+	void							Del_References		(void);
+	const CSG_Strings &				Get_References		(void)	const	{	return( m_References );		}
 
 
 protected:
@@ -193,6 +191,8 @@ public:
 	int							Get_Count				(void)	const	{	return( m_nLibraries );	}
 	int							Get_Tool_Count			(void)	const;
 
+	bool						Add_Default_Libraries	(bool bVerbose = false);
+
 	CSG_Tool_Library *			Add_Library				(const CSG_String &File);
 	CSG_Tool_Library *			Add_Library				(const char       *File);
 	CSG_Tool_Library *			Add_Library				(const wchar_t    *File);
@@ -205,9 +205,9 @@ public:
 	bool						Del_Library				(CSG_Tool_Library *pLibrary);
 
 	CSG_Tool_Library *			Get_Library				(int i)	const	{	return( i >= 0 && i < Get_Count() ? m_pLibraries[i] : NULL );	}
-	CSG_Tool_Library *			Get_Library				(const CSG_String &Name, bool bLibrary)	const;
-	CSG_Tool_Library *			Get_Library				(const char       *Name, bool bLibrary)	const;
-	CSG_Tool_Library *			Get_Library				(const wchar_t    *Name, bool bLibrary)	const;
+	CSG_Tool_Library *			Get_Library				(const CSG_String &Name, bool bLibrary, ESG_Library_Type Type = ESG_Library_Type::Undefined)	const;
+	CSG_Tool_Library *			Get_Library				(const char       *Name, bool bLibrary, ESG_Library_Type Type = ESG_Library_Type::Undefined)	const;
+	CSG_Tool_Library *			Get_Library				(const wchar_t    *Name, bool bLibrary, ESG_Library_Type Type = ESG_Library_Type::Undefined)	const;
 
 	bool						is_Loaded				(CSG_Tool_Library *pLibrary)	const;
 
@@ -239,7 +239,10 @@ private:
 	CSG_Tool_Library			**m_pLibraries;
 
 
-	CSG_Tool_Library *			_Add_Tool_Chain			(const CSG_String &File);
+	bool						_Add_Library			(const CSG_String &Library);
+	bool						_Add_Library_Chains		(const CSG_String &Library, const CSG_String &Directory);
+
+	CSG_Tool_Library *			_Add_Tool_Chain			(const CSG_String &File, bool bReload = true);
 
 };
 

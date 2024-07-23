@@ -1694,6 +1694,7 @@ SAGA_API_DLL_EXPORT int						SG_UI_Window_Arrange		(int Arrange);
 SAGA_API_DLL_EXPORT void *					SG_UI_Get_Window_Main		(void);
 SAGA_API_DLL_EXPORT CSG_String				SG_UI_Get_Application_Path	(bool bPathOnly = false);
 SAGA_API_DLL_EXPORT CSG_String				SG_UI_Get_Application_Name	(void);
+SAGA_API_DLL_EXPORT CSG_String				SG_UI_Get_API_Path			(void);
 
 
 ///////////////////////////////////////////////////////////
@@ -1703,7 +1704,7 @@ SAGA_API_DLL_EXPORT CSG_String				SG_UI_Get_Application_Name	(void);
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT bool					SG_Initialize_Environment	(bool bLibraries = true, bool bProjections = true, const SG_Char *Directory = NULL, bool bInitializeWX = true);
+SAGA_API_DLL_EXPORT bool					SG_Initialize_Environment	(bool bLibraries = true, bool bProjections = true, const SG_Char *SAGA_Path = NULL, bool bInitializeWX = true);
 SAGA_API_DLL_EXPORT bool					SG_Uninitialize_Environment	(void);
 
 

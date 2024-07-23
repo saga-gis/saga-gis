@@ -164,7 +164,7 @@ CSG_String CTool_Description::Get_Library(CSG_Tool_Library *pLibrary)
 {
 	CSG_String s(pLibrary->Get_Library_Name());
 
-	if( pLibrary->Get_Type() == TOOL_CHAINS )
+	if( pLibrary->Get_Type() == ESG_Library_Type::Chain )
 	{
 		s.Prepend("tc_");
 	}

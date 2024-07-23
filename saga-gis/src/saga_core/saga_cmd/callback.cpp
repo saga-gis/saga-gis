@@ -83,12 +83,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-static CCMD_Tool	*g_pCMD_Tool	= NULL;
+static CCMD_Tool *g_pCMD_Tool = NULL;
 
 //---------------------------------------------------------
-void			CMD_Set_Tool		(CCMD_Tool *pCMD_Tool)
+void        CMD_Set_Tool          (CCMD_Tool *pCMD_Tool)
 {
-	g_pCMD_Tool	= pCMD_Tool;
+	g_pCMD_Tool = pCMD_Tool;
 }
 
 
@@ -97,32 +97,32 @@ void			CMD_Set_Tool		(CCMD_Tool *pCMD_Tool)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-static bool		g_bShow_Messages		= true;
+static bool g_bShow_Messages      = true;
 
-void			CMD_Set_Show_Messages	(bool bOn)	{	g_bShow_Messages	= bOn;	}
+bool        CMD_Get_Show_Messages (void)     { return( g_bShow_Messages ); }
 
-bool			CMD_Get_Show_Messages	(void)		{	return( g_bShow_Messages );	}
-
-//---------------------------------------------------------
-static bool		g_bShow_Progress		= true;
-
-void			CMD_Set_Show_Progress	(bool bOn)	{	g_bShow_Progress = bOn;	}
-
-bool			CMD_Get_Show_Progress	(void)		{	return( g_bShow_Progress );	}
+bool        CMD_Set_Show_Messages (bool bOn) { bool bLast = g_bShow_Messages; g_bShow_Messages = bOn; return( bLast ); }
 
 //---------------------------------------------------------
-static bool		g_bInteractive			= false;
+static bool g_bShow_Progress      = true;
 
-void			CMD_Set_Interactive		(bool bOn)	{	g_bInteractive = bOn;	}
+bool        CMD_Get_Show_Progress (void)     { return( g_bShow_Progress ); }
 
-bool			CMD_Get_Interactive		(void)		{	return( g_bInteractive );	}
+bool        CMD_Set_Show_Progress (bool bOn) { bool bLast = g_bShow_Progress; g_bShow_Progress = bOn; return( bLast ); }
 
 //---------------------------------------------------------
-static bool		g_bXML					= false;
+static bool g_bInteractive        = false;
 
-void			CMD_Set_XML				(bool bOn)	{	g_bXML = bOn;	}
+bool        CMD_Get_Interactive   (void)     { return( g_bInteractive ); }
 
-bool			CMD_Get_XML				(void)		{	return( g_bXML );	}
+bool        CMD_Set_Interactive   (bool bOn) { bool bLast = g_bInteractive  ; g_bInteractive   = bOn; return( bLast ); }
+
+//---------------------------------------------------------
+static bool g_bXML                = false;
+
+bool        CMD_Get_XML           (void)     { return( g_bXML ); }
+
+bool        CMD_Set_XML           (bool bOn) { bool bLast = g_bXML          ; g_bXML           = bOn; return( bLast ); }
 
 
 ///////////////////////////////////////////////////////////

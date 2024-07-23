@@ -323,7 +323,7 @@ bool CWKSP_Tool_Manager::Finalise(void)
 		{
 			CSG_Tool_Library *pLibrary = pGroup->Get_Library(j)->Get_Library();
 
-			if( pLibrary->Get_Type() == TOOL_CHAINS )
+			if( pLibrary->Get_Type() == ESG_Library_Type::Chain )
 			{
 				for(int j=0; j<pLibrary->Get_Count(); j++)
 				{
@@ -639,7 +639,7 @@ bool CWKSP_Tool_Manager::_Update(bool bSyncToCtrl)
 
 				pGroup->Add_Library(pLibrary);
 			}
-			else if( pItem->Get_Library()->Get_Type() == TOOL_CHAINS )
+			else if( pItem->Get_Library()->Get_Type() == ESG_Library_Type::Chain )
 			{
 				pItem->Update();
 			}

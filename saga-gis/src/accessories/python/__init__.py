@@ -60,7 +60,7 @@ if os.name == 'nt': # Windows
 #_________________________________________
 ##########################################
 
-AutoLoadTools = True
+AutoLoadTools = False
 
 from PySAGA import saga_api
 
@@ -96,7 +96,12 @@ def Summary(LibraryID='', ToolID=''):
 			print('\nError: could not find library with ID \'{:s}\'\n_______\n'.format(LibraryID))
 			return False
 		if not ToolID:
-			print(Library.Get_Summary(saga_api.SG_SUMMARY_FMT_FLAT).c_str())
+			Library = saga_api.SG_Get_Tool_Library_Manager().Get_Library(LibraryID, True, saga_api.ESG_Library_Type_Library)
+			if Library:
+				print(Library.Get_Summary(saga_api.SG_SUMMARY_FMT_FLAT).c_str())
+			Library = saga_api.SG_Get_Tool_Library_Manager().Get_Library(LibraryID, True, saga_api.ESG_Library_Type_Chain)
+			if Library:
+				print(Library.Get_Summary(saga_api.SG_SUMMARY_FMT_FLAT).c_str())
 		else:
 			Tool = Library.Get_Tool(ToolID)
 			if not Tool:

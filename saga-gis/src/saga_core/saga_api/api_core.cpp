@@ -274,7 +274,7 @@ class CSG_App_Initialize
 public:
 	CSG_App_Initialize(void)
 	{
-		m_Initialized	= 0;
+		m_Initialized = 0;
 	}
 
 	virtual ~CSG_App_Initialize(void)
@@ -339,22 +339,41 @@ CSG_App_Initialize	g_App_Initialize;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_String			g_SAGA_Path;
+
+//---------------------------------------------------------
+CSG_String	SG_UI_Get_API_Path	(void)
+{
+	if( g_SAGA_Path.is_Empty() && SG_UI_Get_Application_Name().Find("saga") == 0 )
+	{
+		g_SAGA_Path = SG_UI_Get_Application_Path(true);
+	}
+
+	return( g_SAGA_Path );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool SG_Add_Dll_Paths(const wxString &Directory, wxString &Paths)
 {
-	wxDir	Dir(Directory);
+	wxDir Dir(Directory);
 
 	if( Dir.IsOpened() )
 	{
-		wxString	Path;
+		wxString Path;
 
 		if( Dir.GetFirst(&Path, "*.dll", wxDIR_HIDDEN|wxDIR_FILES) )
 		{
 			if( !Path.IsEmpty() )
 			{
-				Paths	+= ";";
+				Paths += ";";
 			}
 
-			Paths	+= Directory;
+			Paths += Directory;
 		}
 
 		if( Dir.GetFirst(&Path, "gdal_netCDF.dll", wxDIR_HIDDEN|wxDIR_FILES) )
@@ -371,12 +390,11 @@ bool SG_Add_Dll_Paths(const wxString &Directory, wxString &Paths)
 		{
 			do
 			{
-				wxString	SubDir(Directory + "\\" + Path);
+				wxString SubDir(Directory + "\\" + Path);
 
-				if(      !Path.CmpNoCase("gdal-plugins") ) { wxSetEnv("GDAL_DRIVER_PATH", SubDir); }
-				else if( !Path.CmpNoCase("gdal-data"   ) ) { wxSetEnv("GDAL_DATA"       , SubDir); }
-				else if( !Path.CmpNoCase("proj-data"   ) ) { wxSetEnv("PROJ_LIB"        , SubDir); }
-				else
+				if( !Path.CmpNoCase("gdal-plugins") ) { wxSetEnv("GDAL_DRIVER_PATH", SubDir); } else
+				if( !Path.CmpNoCase("gdal-data"   ) ) { wxSetEnv("GDAL_DATA"       , SubDir); } else
+				if( !Path.CmpNoCase("proj-data"   ) ) { wxSetEnv("PROJ_LIB"        , SubDir); } else
 				{
 					SG_Add_Dll_Paths(SubDir, Paths);
 				}
@@ -389,7 +407,7 @@ bool SG_Add_Dll_Paths(const wxString &Directory, wxString &Paths)
 }
 
 //---------------------------------------------------------
-bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char *Directory, bool bInitializeWX)
+bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char *SAGA_Path, bool bInitializeWX)
 {
 	#ifdef _DEBUG
 	SG_UI_Console_Print_StdOut("\n!!! Loading SAGA API => DEBUG !!!");
@@ -409,18 +427,20 @@ bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char
 
 		SG_UI_ProgressAndMsg_Lock(true);
 
-		#ifdef _SAGA_MSW
+		#if defined(_SAGA_MSW)
 		{
 			wxString App_Path, Dll_Paths, System_Paths;
 
-			if( Directory && SG_Dir_Exists(Directory) )
+			if( SAGA_Path && SG_Dir_Exists(SAGA_Path) )
 			{
-				App_Path = Directory;
+				App_Path = SAGA_Path;
 			}
 			else
 			{
 				App_Path = SG_UI_Get_Application_Path(true).c_str();
 			}
+
+			g_SAGA_Path = &App_Path;
 
 			wxGetEnv("PATH", &System_Paths);
 
@@ -431,11 +451,6 @@ bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char
 				wxSetEnv("PATH", Dll_Paths);
 			}
 
-			if( bLibraries )
-			{
-				SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(&App_Path, "tools"), false);
-			}
-
 			if( bProjections )
 			{
 				SG_Get_Projections().Load(SG_File_Make_Path(&App_Path, "saga_prj", "srs"));
@@ -444,20 +459,6 @@ bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char
 		#elif defined(__WXMAC__)
 		{
 			CSG_String App_Path(SG_UI_Get_Application_Path(true));
-
-			if( bLibraries )
-			{
-				if( SG_Get_Tool_Library_Manager().Add_Directory(App_Path + "/../Tools", false) < 1 )
-				{
-					#ifdef TOOLS_PATH
-					SG_Get_Tool_Library_Manager().Add_Directory(TOOLS_PATH);
-					#endif
-
-					#ifdef SHARE_PATH
-					SG_Get_Tool_Library_Manager().Add_Directory(CSG_String(SHARE_PATH) + "/toolchains");	// look for tool chains
-					#endif
-				}
-			}
 
 			if( bProjections )
 			{
@@ -472,18 +473,8 @@ bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char
 			if( SG_Dir_Exists(App_Path + "/proj-data") ) { wxSetEnv("PROJ_LIB" , wxString::Format("%s/proj-data", App_Path.c_str())); }
 			if( SG_Dir_Exists(App_Path + "/gdal-data") ) { wxSetEnv("GDAL_DATA", wxString::Format("%s/gdal-data", App_Path.c_str())); }
 		}
-		#else // #ifdef _SAGA_LINUX
+		#else // #if defined(_SAGA_LINUX)
 		{
-			if( bLibraries )
-			{
-				#ifdef TOOLS_PATH
-				SG_Get_Tool_Library_Manager().Add_Directory(TOOLS_PATH);
-				#endif
-				#ifdef SHARE_PATH
-				SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(SHARE_PATH, "toolchains"));	// look for tool chains
-				#endif
-			}
-
 			if( bProjections )
 			{
 				#ifdef SHARE_PATH
@@ -495,29 +486,15 @@ bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char
 
 		SG_UI_ProgressAndMsg_Lock(false);
 	}
-		
+
 	//-----------------------------------------------------
 	if( bLibraries )
 	{
-		wxString Path;
+		SG_UI_ProgressAndMsg_Lock(true);
 
-		if( wxGetEnv("SAGA_TLB", &Path) )
-		{
-			SG_UI_ProgressAndMsg_Lock(true);
+		SG_Get_Tool_Library_Manager().Add_Default_Libraries();
 
-			#ifdef _SAGA_MSW
-				CSG_Strings	Paths = SG_String_Tokenize(&Path, ";" ); // colon (':') would split drive from paths!
-			#else // #ifdef _SAGA_LINUX
-				CSG_Strings	Paths = SG_String_Tokenize(&Path, ";:"); // colon (':') is more native to non-windows os than semi-colon (';'), we support both...
-			#endif
-
-			for(int i=0; i<Paths.Get_Count(); i++)
-			{
-				SG_Get_Tool_Library_Manager().Add_Directory(Paths[i]);
-			}
-
-			SG_UI_ProgressAndMsg_Lock(false);
-		}
+		SG_UI_ProgressAndMsg_Lock(false);
 	}
 
 	//-----------------------------------------------------

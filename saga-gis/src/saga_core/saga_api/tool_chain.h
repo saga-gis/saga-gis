@@ -176,7 +176,7 @@ class SAGA_API_DLL_EXPORT CSG_Tool_Chains : public CSG_Tool_Library
 
 public:
 
-	virtual TSG_Tool_Library_Type	Get_Type			(void)		const	{	return( TOOL_CHAINS );	}
+	virtual ESG_Library_Type		Get_Type			(void)		const	{	return( ESG_Library_Type::Chain );	}
 
 	virtual CSG_String				Get_Info			(int Type)	const;
 

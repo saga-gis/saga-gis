@@ -314,7 +314,7 @@ def PyList_to_Grid_Collection(List, Name='Grid Collection'):
 #________________________________________________________________________________
 
 #________________________________________________________________________________
-def Create_Toolboxes(Path='', SingleFile=False, UseToolName=True, Clean=True):
+def Create_Toolboxes(Path='', SingleFile=False, UseToolName=True, Clean=True, LoadDefaults=False):
     '''
     PySAGA Tool Interface Generator
     ----------
@@ -326,7 +326,7 @@ def Create_Toolboxes(Path='', SingleFile=False, UseToolName=True, Clean=True):
     - SingleFile [`boolean`] : if `True` a single Python module will be created for all function calls, else one module for each tool library will be created
     - UseToolName [`boolean`]: if `True` function names will be based on the tool names, else these will named from `library` + `tool id`
     - Clean [`boolean`]: if `True` and not a single file is targeted all files from the target folder will be deleted before the new ones are generated
-
+    - LoadDefaults [`boolean`]: if `True` libraries and tool chains will be loaded from default directories (if not done yet). Otherwise tool interfaces will only generated for the loaded libraries. Default libraries will also be loaded if no library has been loaded so far.
     Returns
     ----------
     `boolean` : `True` on success, `False` on failure.
@@ -336,6 +336,9 @@ def Create_Toolboxes(Path='', SingleFile=False, UseToolName=True, Clean=True):
         import os; Path = os.path.dirname(__file__) + '/tools'
         if SingleFile:
             Path = Path + '.py'
+
+    if LoadDefaults or saga_api.SG_Get_Tool_Library_Manager().Get_Count() < 1:
+        saga_api.SG_Get_Tool_Library_Manager().Add_Default_Libraries()
 
     return saga_api.SG_Get_Tool_Library_Manager().Create_Python_ToolBox(saga_api.CSG_String(Path), Clean, UseToolName, SingleFile)
 
