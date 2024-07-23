@@ -522,7 +522,7 @@ bool		Check_Flags		(const CSG_String &Argument)
 		if( s.Find('l') >= 0 )	// l: load translation dictionary
 		{
 			#if defined(_SAGA_LINUX) && defined(SHARE_PATH)
-			CSG_String Path_Shared = SG_File_Make_Path(SHARE_PATH, "saga", "lng")
+			CSG_String Path_Shared = SG_File_Make_Path(SHARE_PATH, "saga", "lng");
 			#else
 			CSG_String Path_Shared = SG_File_Make_Path(SG_UI_Get_Application_Path(true), "saga", "lng");
 			#endif
