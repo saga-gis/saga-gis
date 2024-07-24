@@ -365,7 +365,11 @@ bool CExport_GIF_Animation::On_Execute(void)
 
 		if( pImage )
 		{
-			Images.Add(pImage);
+			#if wxMAJOR_VERSION >= 3 && wxMINOR_VERSION >= 3
+				Images.Add(*pImage);
+			#else
+				Images.Add(pImage);
+			#endif
 		}
 	}
 

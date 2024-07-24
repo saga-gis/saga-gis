@@ -1292,7 +1292,11 @@ bool CSG_3DView_Panel::_Play(void)
 
 					wxQuantize::Quantize(m_Image, *pImage, m_Parameters["PLAY_COLORS"].asInt());
 
-					Images.Add(pImage);
+					#if wxMAJOR_VERSION >= 3 && wxMINOR_VERSION >= 3
+						Images.Add(*pImage);
+					#else
+						Images.Add(pImage);
+					#endif
 				}
 				else
 				{
