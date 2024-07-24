@@ -149,12 +149,17 @@ bool CSG_Tool_Chain::Create(const CSG_Tool_Chain &Tool, bool bWithGUI)
 //---------------------------------------------------------
 bool CSG_Tool_Chain::Create(const CSG_String &File)
 {
-	CSG_MetaData	Chain;
+	if( !SG_File_Cmp_Extension(File, "xml") )
+	{
+		return( false );
+	}
 
 	if( File.Right(sizeof(".pyt.xml")).Make_Lower().Find(".pyt.xml") >= 0 )
 	{
 		return( false );
 	}
+
+	CSG_MetaData Chain;
 
 	if( !Chain.Load(File) )
 	{
