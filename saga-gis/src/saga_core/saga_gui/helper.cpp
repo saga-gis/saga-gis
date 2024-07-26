@@ -321,28 +321,6 @@ wxColour	SYS_Get_Color(wxSystemColour index)
 	return( wxSystemSettings::GetColour(index) );
 }
 
-//---------------------------------------------------------
-void		SYS_Set_Color_BG(wxWindow *pWindow, wxSystemColour index)
-{
-	if( pWindow )
-	{
-		pWindow->SetBackgroundColour(SYS_Get_Color(index));
-	}
-}
-
-//---------------------------------------------------------
-void		SYS_Set_Color_BG_Window(wxWindow *pWindow)
-{
-	if( pWindow )
-	{
-#if defined(__WXMSW__)
-		pWindow->SetBackgroundColour(SYS_Get_Color(wxSYS_COLOUR_WINDOW));
-#else
-		pWindow->SetBackgroundColour(*wxWHITE);
-#endif
-	}
-}
-
 
 ///////////////////////////////////////////////////////////
 //														 //

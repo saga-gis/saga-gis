@@ -114,8 +114,6 @@ END_EVENT_TABLE()
 CVIEW_Map_Control::CVIEW_Map_Control(CVIEW_Map *pParent, CWKSP_Map *pMap)
 	: wxPanel(pParent, -1, wxDefaultPosition, wxDefaultSize, wxFULL_REPAINT_ON_RESIZE)
 {
-	SYS_Set_Color_BG_Window(this);
-
 	m_pParent   = (CVIEW_Map *)pParent;
 	m_pMap      = pMap;
 
@@ -490,7 +488,7 @@ void CVIEW_Map_Control::_Draw_Pan(wxDC &dc)
 {
 	if( m_Mode == MAP_MODE_PAN_DOWN && m_Mouse_Down != m_Mouse_Move )
 	{
-		dc.SetBackground(*wxWHITE_BRUSH); dc.Clear();
+		dc.SetBackground(Get_Color_asWX(m_pMap->Get_Parameter("BACKGROUND")->asColor())); dc.Clear();
 		dc.DrawBitmap(m_Bitmap,
 			m_Mouse_Move.x - m_Mouse_Down.x,
 			m_Mouse_Move.y - m_Mouse_Down.y, false

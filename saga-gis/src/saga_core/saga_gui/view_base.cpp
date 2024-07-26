@@ -76,8 +76,9 @@ IMPLEMENT_CLASS(CVIEW_Base, MDI_ChildFrame);
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CVIEW_Base, MDI_ChildFrame)
-	EVT_SIZE			(CVIEW_Base::On_Size)
-	EVT_ACTIVATE		(CVIEW_Base::On_Activate)
+	EVT_SYS_COLOUR_CHANGED(CVIEW_Base::On_SysColourChanged)
+	EVT_SIZE              (CVIEW_Base::On_Size            )
+	EVT_ACTIVATE          (CVIEW_Base::On_Activate        )
 END_EVENT_TABLE()
 
 //---------------------------------------------------------
@@ -94,6 +95,8 @@ bool CVIEW_Base::m_bUpdates = true;
 CVIEW_Base::CVIEW_Base(class CWKSP_Base_Item *pOwner, int View_ID, wxString Caption, int Icon_ID, bool bShow)
 	: MDI_ChildFrame(g_pSAGA_Frame, -1, Caption, MDI_Get_Def_Position(), MDI_Get_Def_Size(), wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE)
 {
+	SetBackgroundColour(SYS_Get_Color(wxSYS_COLOUR_WINDOW));
+
 	m_pOwner     = pOwner;
 	m_View_ID    = View_ID;
 
@@ -223,6 +226,19 @@ void CVIEW_Base::On_Size(wxSizeEvent &event)
 	{
 		event.Skip();
 	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Base::On_SysColourChanged(wxSysColourChangedEvent &event)
+{
+	SetBackgroundColour(SYS_Get_Color(wxSYS_COLOUR_WINDOW));
+
+	event.Skip();
 }
 
 

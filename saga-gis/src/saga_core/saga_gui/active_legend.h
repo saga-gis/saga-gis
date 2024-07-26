@@ -76,25 +76,25 @@ class CActive_Legend : public wxScrolledWindow
 public:
 	CActive_Legend(wxWindow *pParent);
 
-	void						On_Key_Down		(wxKeyEvent      &event);
-	void						On_Mouse_RDown	(wxMouseEvent    &event);
+	void						On_Key_Down				(wxKeyEvent      &event);
+	void						On_Mouse_RDown			(wxMouseEvent    &event);
 
-	void						On_Copy			(wxCommandEvent  &event);
+	void						On_Copy					(wxCommandEvent  &event);
 
-	void						On_Size_Inc		(wxCommandEvent  &event);
-	void						On_Size_Dec		(wxCommandEvent  &event);
+	void						On_Size_Inc				(wxCommandEvent  &event);
+	void						On_Size_Dec				(wxCommandEvent  &event);
 
-	void						On_BG_Black		(wxCommandEvent  &event);
-	void						On_BG_Black_UI	(wxUpdateUIEvent &event);
+	void						On_Background_Invert	(wxCommandEvent  &event);
+	void						On_Background_Invert_UI	(wxUpdateUIEvent &event);
 
-	virtual void				OnDraw			(wxDC &dc);
+	virtual void				OnDraw					(wxDC &dc);
 
-	void						Set_Item		(class CWKSP_Base_Item *pItem);
+	void						Set_Item				(class CWKSP_Base_Item *pItem);
 
 
 private:
 
-	static bool					m_BG_Black;
+	static bool					m_Background_Invert;
 
 	static double				m_Zoom;
 

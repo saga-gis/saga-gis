@@ -295,9 +295,6 @@ wxToolBarBase * CVIEW_ScatterPlot::_Create_ToolBar(void)
 //---------------------------------------------------------
 void CVIEW_ScatterPlot::_On_Construction(void)
 {
-	SYS_Set_Color_BG_Window(this);
-
-	//-----------------------------------------------------
 	double Range[2] = { 0., 0. };
 
 	if( m_pGrid )
@@ -453,9 +450,9 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 		50, 10, true
 	);
 
-	CSG_Colors Colors(7, SG_COLORS_RAINBOW);
+	CSG_Colors Colors(7, SG_COLORS_RAINBOW); wxColor Background(SYS_Get_Color(wxSYS_COLOUR_WINDOW));
 
-	Colors.Set_Color(0, 255, 255, 255);
+	Colors.Set_Color(0, Background.GetRed(), Background.GetGreen(), Background.GetBlue());
 	Colors.Set_Count(100);
 
 	m_Options.Add_Colors("DISPLAY",
@@ -543,7 +540,7 @@ void CVIEW_ScatterPlot::On_ToClipboard(wxCommandEvent &event)
 	wxBitmap BMP(GetSize()); wxMemoryDC dc;
 	
 	dc.SelectObject(BMP);
-	dc.SetBackground(*wxWHITE_BRUSH);
+	dc.SetBackground(SYS_Get_Color(wxSYS_COLOUR_WINDOW));
 	dc.Clear();
 
 	_Draw(dc, wxRect(BMP.GetSize()));
@@ -586,7 +583,12 @@ void CVIEW_ScatterPlot::On_Paint(wxPaintEvent &event)
 {
 	wxPaintDC dc(this); wxRect r(wxPoint(0, 0), GetClientSize());
 
+	dc.SetBackground(SYS_Get_Color(wxSYS_COLOUR_WINDOW)); dc.Clear();
+
 	Draw_Edge(dc, EDGE_STYLE_SUNKEN, r);
+
+	dc.SetPen           (SYS_Get_Color(wxSYS_COLOUR_WINDOWTEXT));
+	dc.SetTextForeground(SYS_Get_Color(wxSYS_COLOUR_WINDOWTEXT));
 
 	_Draw(dc, r);
 }

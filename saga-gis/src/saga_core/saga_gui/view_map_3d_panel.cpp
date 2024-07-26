@@ -96,6 +96,8 @@ CVIEW_Map_3DPanel::CVIEW_Map_3DPanel(wxWindow *pParent, class CWKSP_Map *pMap)
 
 	m_Parameters.Set_Enabled("MAP_DRAPE", false);
 
+	m_Parameters["BGCOLOR"   ].Set_Value(   pMap ->Get_Parameter("BACKGROUND"    )->asInt   ());
+
 	m_Parameters["Z_SCALE"   ].Set_Value( g_pMaps->Get_Parameter("3DVIEW_Z_SCALE")->asDouble());
 
 	m_Parameters["ROTATION_X"].Set_Value( 55. );
@@ -107,6 +109,8 @@ CVIEW_Map_3DPanel::CVIEW_Map_3DPanel(wxWindow *pParent, class CWKSP_Map *pMap)
 	m_Parameters["SHIFT_Z"   ].Set_Value( -0.4);
 
 	m_Parameters["BOX"       ].Set_Value(false);
+
+	CSG_3DView_Panel::Update_Parameters(false);
 }
 
 

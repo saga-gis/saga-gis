@@ -135,16 +135,16 @@ END_EVENT_TABLE()
 CVIEW_Layout::CVIEW_Layout(CVIEW_Layout_Info *pLayout)
 	: CVIEW_Base(pLayout->Get_Map(), ID_VIEW_LAYOUT, _TL("Layout"), ID_IMG_WND_LAYOUT, false)
 {
+	SetBackgroundColour(SYS_Get_Color(wxSYS_COLOUR_3DFACE));
+
 	SetTitle(wxString::Format("%s [%s]", pLayout->Get_Map()->Get_Name().c_str(), _TL("Layout")));
 
-	SYS_Set_Color_BG(this, wxSYS_COLOUR_3DFACE);
+	m_pRuler_X = new CVIEW_Ruler(this, RULER_HORIZONTAL|RULER_EDGE_SUNKEN);
+	m_pRuler_Y = new CVIEW_Ruler(this, RULER_VERTICAL  |RULER_EDGE_SUNKEN);
 
-	m_pRuler_X	= new CVIEW_Ruler(this, RULER_HORIZONTAL|RULER_EDGE_SUNKEN);
-	m_pRuler_Y	= new CVIEW_Ruler(this, RULER_VERTICAL  |RULER_EDGE_SUNKEN);
+	m_pLayout  = pLayout;
 
-	m_pLayout	= pLayout;
-
-	m_pControl	= new CVIEW_Layout_Control(this, pLayout);
+	m_pControl = new CVIEW_Layout_Control(this, pLayout);
 	m_pControl->SetSize(GetClientSize());
 
 	Do_Show();
@@ -158,7 +158,7 @@ CVIEW_Layout::CVIEW_Layout(CVIEW_Layout_Info *pLayout)
 //---------------------------------------------------------
 wxMenu * CVIEW_Layout::_Create_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu, *pSubMenu;
+	wxMenu *pMenu = new wxMenu, *pSubMenu;
 
 	CMD_Menu_Add_Item(pMenu   , false, ID_CMD_LAYOUT_LOAD);
 	CMD_Menu_Add_Item(pMenu   , false, ID_CMD_LAYOUT_SAVE);
@@ -201,7 +201,7 @@ wxMenu * CVIEW_Layout::_Create_Menu(void)
 //---------------------------------------------------------
 wxToolBarBase * CVIEW_Layout::_Create_ToolBar(void)
 {
-	wxToolBarBase	*pToolBar	= CMD_ToolBar_Create(ID_TB_VIEW_LAYOUT);
+	wxToolBarBase *pToolBar = CMD_ToolBar_Create(ID_TB_VIEW_LAYOUT);
 
 //	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_LAYOUT_PROPERTIES);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_LAYOUT_PAGE_SETUP);

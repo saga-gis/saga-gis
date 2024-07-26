@@ -89,14 +89,14 @@ BEGIN_EVENT_TABLE(CActive_Legend, wxScrolledWindow)
 	EVT_KEY_DOWN  (CActive_Legend::On_Key_Down)
 	EVT_RIGHT_DOWN(CActive_Legend::On_Mouse_RDown)
 
-	EVT_MENU     (ID_CMD_DATA_LEGEND_COPY             , CActive_Legend::On_Copy       )
-	EVT_MENU     (ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND, CActive_Legend::On_Copy       )
+	EVT_MENU     (ID_CMD_DATA_LEGEND_COPY             , CActive_Legend::On_Copy                )
+	EVT_MENU     (ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND, CActive_Legend::On_Copy                )
 
-	EVT_MENU     (ID_CMD_DATA_LEGEND_SIZE_INC         , CActive_Legend::On_Size_Inc   )
-	EVT_MENU     (ID_CMD_DATA_LEGEND_SIZE_DEC         , CActive_Legend::On_Size_Dec   )
+	EVT_MENU     (ID_CMD_DATA_LEGEND_SIZE_INC         , CActive_Legend::On_Size_Inc            )
+	EVT_MENU     (ID_CMD_DATA_LEGEND_SIZE_DEC         , CActive_Legend::On_Size_Dec            )
 
-	EVT_MENU     (ID_CMD_DATA_LEGEND_BG_BLACK         , CActive_Legend::On_BG_Black   )
-	EVT_UPDATE_UI(ID_CMD_DATA_LEGEND_BG_BLACK         , CActive_Legend::On_BG_Black_UI)
+	EVT_MENU     (ID_CMD_DATA_LEGEND_BACKGROUND_INVERT, CActive_Legend::On_Background_Invert   )
+	EVT_UPDATE_UI(ID_CMD_DATA_LEGEND_BACKGROUND_INVERT, CActive_Legend::On_Background_Invert_UI)
 END_EVENT_TABLE()
 
 
@@ -105,10 +105,10 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool   CActive_Legend::m_BG_Black = false;
+bool   CActive_Legend::m_Background_Invert = false;
 
 //---------------------------------------------------------
-double CActive_Legend::m_Zoom     = 1.;
+double CActive_Legend::m_Zoom             = 1.;
 
 
 ///////////////////////////////////////////////////////////
@@ -119,12 +119,12 @@ double CActive_Legend::m_Zoom     = 1.;
 CActive_Legend::CActive_Legend(wxWindow *pParent)
 	: wxScrolledWindow(pParent, ID_WND_ACTIVE_LEGEND, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER|wxFULL_REPAINT_ON_RESIZE)
 {
-	SYS_Set_Color_BG(this, wxSYS_COLOUR_WINDOW);
+	SetBackgroundColour(SYS_Get_Color(wxSYS_COLOUR_WINDOW));
 
-	m_pItem		= NULL;
+	m_pItem   = NULL;
 
-	m_xScroll	= 0;
-	m_yScroll	= 0;
+	m_xScroll = 0;
+	m_yScroll = 0;
 }
 
 
@@ -135,7 +135,7 @@ CActive_Legend::CActive_Legend(wxWindow *pParent)
 //---------------------------------------------------------
 void CActive_Legend::Set_Item(CWKSP_Base_Item *pItem)
 {
-	m_pItem	= pItem;
+	m_pItem = pItem;
 
 	Refresh();
 }
@@ -159,14 +159,14 @@ void CActive_Legend::On_Mouse_RDown(wxMouseEvent &event)
 		return;
 	}
 
-	wxMenu	Menu(_TL("Legend"));
+	wxMenu Menu(_TL("Legend"));
 
 	CMD_Menu_Add_Item(&Menu, false, m_pItem->Get_Type() == WKSP_ITEM_Map ? ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND : ID_CMD_DATA_LEGEND_COPY);
 	Menu.AppendSeparator();
 	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DATA_LEGEND_SIZE_INC);
 	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DATA_LEGEND_SIZE_DEC);
 	Menu.AppendSeparator();
-	CMD_Menu_Add_Item(&Menu,  true, ID_CMD_DATA_LEGEND_BG_BLACK);
+	CMD_Menu_Add_Item(&Menu,  true, ID_CMD_DATA_LEGEND_BACKGROUND_INVERT);
 
 	PopupMenu(&Menu, event.GetPosition());
 
@@ -197,26 +197,25 @@ void CActive_Legend::On_Copy(wxCommandEvent &event)
 		return;
 	}
 
-	wxPoint		p(5, 5);
-	wxSize		s(0, 0);
-	wxBitmap	BMP;
-	wxMemoryDC	dc;
-	
+	wxPoint p(5, 5); wxSize s(0, 0);
+	wxBitmap BMP(GetClientSize()); wxMemoryDC dc;
+
+	dc.SelectObject(BMP);
 	((CWKSP_Layer *)m_pItem)->Get_Legend()->Draw(dc, m_Zoom, 1.0, p, &s);
+	dc.SelectObject(wxNullBitmap);
 
 	BMP.Create(s.GetWidth() + p.x, s.GetHeight() + p.y);
 	dc.SelectObject(BMP);
 
-	if( m_BG_Black )
+	bool bDarkBG = wxSystemSettings::GetAppearance().IsUsingDarkBackground();
+
+	if( m_Background_Invert )
 	{
-		dc.SetTextForeground(*wxWHITE      );
-		dc.SetBackground    (*wxBLACK_BRUSH);
+		bDarkBG = !bDarkBG;
 	}
-	else
-	{
-		dc.SetTextForeground(*wxBLACK      );
-		dc.SetBackground    (*wxWHITE_BRUSH);
-	}
+
+	dc.SetBackground    (bDarkBG ? *wxBLACK : *wxWHITE);
+	dc.SetTextForeground(bDarkBG ? *wxWHITE : *wxBLACK);
 
 	dc.Clear();
 
@@ -236,7 +235,7 @@ void CActive_Legend::On_Copy(wxCommandEvent &event)
 //---------------------------------------------------------
 void CActive_Legend::On_Size_Inc(wxCommandEvent &event)
 {
-	m_Zoom	*= 1.25;
+	m_Zoom *= 1.25;
 
 	Refresh();
 }
@@ -244,31 +243,33 @@ void CActive_Legend::On_Size_Inc(wxCommandEvent &event)
 //---------------------------------------------------------
 void CActive_Legend::On_Size_Dec(wxCommandEvent &event)
 {
-	m_Zoom	/= 1.25;
+	m_Zoom /= 1.25;
 
 	Refresh();
 }
 
 //---------------------------------------------------------
-void CActive_Legend::On_BG_Black(wxCommandEvent &event)
+void CActive_Legend::On_Background_Invert(wxCommandEvent &event)
 {
-	m_BG_Black = !m_BG_Black;
+	m_Background_Invert = !m_Background_Invert;
 
-	if( m_BG_Black )
+	if( m_Background_Invert )
 	{
-		SetBackgroundColour(*wxBLACK);
+		SetBackgroundColour(wxSystemSettings::GetAppearance().IsUsingDarkBackground()
+			? *wxWHITE : *wxBLACK
+		);
 	}
 	else
 	{
-		SYS_Set_Color_BG(this, wxSYS_COLOUR_WINDOW);
+		SetBackgroundColour(SYS_Get_Color(wxSYS_COLOUR_WINDOW));
 	}
 
 	Refresh();
 }
 
-void CActive_Legend::On_BG_Black_UI(wxUpdateUIEvent &event)
+void CActive_Legend::On_Background_Invert_UI(wxUpdateUIEvent &event)
 {
-	event.Check(m_BG_Black);
+	event.Check(m_Background_Invert);
 }
 
 
@@ -279,14 +280,19 @@ void CActive_Legend::On_BG_Black_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CActive_Legend::OnDraw(wxDC &dc)
 {
-	wxPoint	p(5, 5);
-	wxSize	s(0, 0);
+	wxPoint p(5, 5); wxSize s(0, 0);
 
 	if( m_pItem && m_pItem->GetId().IsOk() )
 	{
-		if( m_BG_Black )
+		if( m_Background_Invert )
 		{
-			dc.SetTextForeground(*wxWHITE);
+			dc.SetTextForeground(wxSystemSettings::GetAppearance().IsUsingDarkBackground()
+				? *wxBLACK : *wxWHITE
+			);
+		}
+		else
+		{
+			dc.SetTextForeground(SYS_Get_Color(wxSYS_COLOUR_WINDOWTEXT));
 		}
 
 		switch( m_pItem->Get_Type() )
@@ -296,11 +302,11 @@ void CActive_Legend::OnDraw(wxDC &dc)
 		case WKSP_ITEM_Shapes    :
 		case WKSP_ITEM_TIN       :
 		case WKSP_ITEM_PointCloud:
-			((CWKSP_Layer *)m_pItem)->Get_Legend()->Draw(dc, m_Zoom, 1.0, p, &s);
+			((CWKSP_Layer *)m_pItem)->Get_Legend()->Draw(dc, m_Zoom, 1., p, &s);
 			break;
 
 		case WKSP_ITEM_Map       :
-			((CWKSP_Map   *)m_pItem)->Draw_Legend(dc, 1.0, m_Zoom, p, &s);
+			((CWKSP_Map   *)m_pItem)->Draw_Legend(dc, 1., m_Zoom, p, &s);
 			break;
 
 		default:
@@ -308,13 +314,13 @@ void CActive_Legend::OnDraw(wxDC &dc)
 		}
 	}
 
-	s.x	+= p.x + SCROLL_BAR_DX;
-	s.y	+= p.y + SCROLL_BAR_DY;
+	s.x += p.x + SCROLL_BAR_DX;
+	s.y += p.y + SCROLL_BAR_DY;
 
 	if(	m_xScroll != s.x || m_yScroll != s.y )
 	{
-		m_xScroll	= s.x;
-		m_yScroll	= s.y;
+		m_xScroll = s.x;
+		m_yScroll = s.y;
 
 		SetScrollbars(SCROLL_RATE, SCROLL_RATE, m_xScroll / SCROLL_RATE, m_yScroll / SCROLL_RATE);
 	}

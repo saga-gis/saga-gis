@@ -178,7 +178,7 @@ END_EVENT_TABLE()
 CVIEW_Table_Diagram_Control::CVIEW_Table_Diagram_Control(wxWindow *pParent, CWKSP_Table *pTable)
 	: wxScrolledWindow(pParent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER|wxFULL_REPAINT_ON_RESIZE)
 {
-	SYS_Set_Color_BG_Window(this);
+	SetBackgroundColour(SYS_Get_Color(wxSYS_COLOUR_WINDOW));
 
 	m_pTable = pTable->Get_Table();
 
@@ -234,24 +234,24 @@ bool CVIEW_Table_Diagram_Control::Update_Diagram(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define MIN_SIZE		100
+#define MIN_SIZE      100
 
-#define SCROLL_RATE		5
+#define SCROLL_RATE   5
 
-#define SCROLL_BAR_DX	wxSystemSettings::GetMetric(wxSYS_VSCROLL_X)
-#define SCROLL_BAR_DY	wxSystemSettings::GetMetric(wxSYS_HSCROLL_Y)
+#define SCROLL_BAR_DX wxSystemSettings::GetMetric(wxSYS_VSCROLL_X)
+#define SCROLL_BAR_DY wxSystemSettings::GetMetric(wxSYS_HSCROLL_Y)
 
 //---------------------------------------------------------
 bool CVIEW_Table_Diagram_Control::Fit_Size(void)
 {
-	wxSize	Size(GetParent()->GetClientSize());
+	wxSize Size(GetParent()->GetClientSize());
 
-	Size.x	-= (int)(1.5 * SCROLL_BAR_DX);
-	Size.y	-= (int)(1.5 * SCROLL_BAR_DY);
+	Size.x -= (int)(1.5 * SCROLL_BAR_DX);
+	Size.y -= (int)(1.5 * SCROLL_BAR_DY);
 
 	if( m_Parameters("FIX_RATIO")->asBool() )
 	{
-		double	Ratio	= m_Parameters("RATIO")->asDouble();
+		double Ratio = m_Parameters("RATIO")->asDouble();
 
 		if( Size.x / (double)Size.y > Ratio )
 		{
@@ -275,9 +275,9 @@ bool CVIEW_Table_Diagram_Control::Set_Size(const wxSize &Size)
 	{
 		if( Size.x != m_Size.x || Size.y != m_Size.y )
 		{
-			bSizing	= true;
+			bSizing = true;
 
-			m_Size	= Size;
+			m_Size  = Size;
 		
 			SetScrollbars(SCROLL_RATE, SCROLL_RATE,
 				(m_Size.x + SCROLL_BAR_DX) / SCROLL_RATE,
@@ -307,8 +307,8 @@ bool CVIEW_Table_Diagram_Control::Set_Zoom(double Zoom, wxPoint Center)
 	{
 		int x, y; GetViewStart(&x, &y);
 
-		x	= (int)((Zoom * (x * SCROLL_RATE + Center.x) - GetClientSize().x / 2) / SCROLL_RATE);
-		y	= (int)((Zoom * (y * SCROLL_RATE + Center.y) - GetClientSize().y / 2) / SCROLL_RATE);
+		x = (int)((Zoom * (x * SCROLL_RATE + Center.x) - GetClientSize().x / 2) / SCROLL_RATE);
+		y = (int)((Zoom * (y * SCROLL_RATE + Center.y) - GetClientSize().y / 2) / SCROLL_RATE);
 
 		if( Set_Size(wxSize((int)(m_Size.x * Zoom), (int)(m_Size.y * Zoom))) )
 		{
@@ -344,7 +344,7 @@ void CVIEW_Table_Diagram_Control::On_Mouse_LDown(wxMouseEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Diagram_Control::On_Mouse_RDown(wxMouseEvent &event)
 {
-	wxMenu	Menu;
+	wxMenu Menu;
 
 	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DIAGRAM_TO_CLIPBOARD);
 	Menu.AppendSeparator();
@@ -397,10 +397,21 @@ void CVIEW_Table_Diagram_Control::On_Key_Down(wxKeyEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Diagram_Control::OnDraw(wxDC &dc)
 {
-	wxBitmap	Bmp(m_Size);
-	wxMemoryDC	dc_Bmp(Bmp);
+	wxBitmap Bmp(m_Size); wxMemoryDC dc_Bmp(Bmp);
 
-	dc_Bmp.SetBackground(*wxWHITE_BRUSH);
+	if( m_Parameters("INVERT_COLORS")->asBool() )
+	{
+		bool bDarkBG = wxSystemSettings::GetAppearance().IsUsingDarkBackground();
+
+		dc_Bmp.SetBackground    (bDarkBG ? *wxWHITE : *wxBLACK);
+		dc_Bmp.SetTextForeground(bDarkBG ? *wxBLACK : *wxWHITE);
+	}
+	else
+	{
+		dc_Bmp.SetBackground    (SYS_Get_Color(wxSYS_COLOUR_WINDOW    ));
+		dc_Bmp.SetTextForeground(SYS_Get_Color(wxSYS_COLOUR_WINDOWTEXT));
+	}
+
 	dc_Bmp.Clear();
 
 	_Draw(dc_Bmp, m_Size);
@@ -632,6 +643,8 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 	//-----------------------------------------------------
 	m_Parameters.Add_Font  (""            , "FONT"              , _TL("Font"              ), _TL(""));
 
+	m_Parameters.Add_Bool  (""            , "INVERT_COLORS"     , _TL("Inverse Colors"    ), _TL("Use inverse background/foreground colors."));
+
 	m_Parameters.Add_Bool  (""            , "LEGEND"            , _TL("Legend"            ), _TL(""), true);
 	m_Parameters.Add_Int   ("LEGEND"      , "LEGEND_WIDTH"      , _TL("Width"             ), _TL("Percent"), 15, 0, true, 50, true);
 
@@ -838,9 +851,9 @@ void CVIEW_Table_Diagram_Control::_Draw(wxDC &dc, wxRect rDC)
 	}
 
 	//-----------------------------------------------------
-	int	 wLegend = m_Parameters("LEGEND")->asBool() ? (int)(rDC.GetWidth () * 0.01 * m_Parameters("LEGEND_WIDTH")->asInt()) : 0;
+	int wLegend = m_Parameters("LEGEND")->asBool() ? (int)(rDC.GetWidth () * 0.01 * m_Parameters("LEGEND_WIDTH")->asInt()) : 0;
 
-	wxRect	r(wxPoint(
+	wxRect r(wxPoint(
 		rDC.GetLeft  () + m_Parameters("MARGIN_LEFT"  )->asInt(),
 		rDC.GetTop   () + m_Parameters("MARGIN_TOP"   )->asInt()), wxPoint(
 		rDC.GetRight () - m_Parameters("MARGIN_RIGHT" )->asInt() - wLegend,
@@ -848,24 +861,24 @@ void CVIEW_Table_Diagram_Control::_Draw(wxDC &dc, wxRect rDC)
 	);
 
 	//-----------------------------------------------------
-	double	dy, dx;
+	double dy, dx;
 
 	if( m_xField < 0 )
 	{
-		dx	= r.GetWidth () / (double)m_pTable->Get_Count();
-		dy	= r.GetHeight() / (m_yMax - m_yMin);
+		dx = r.GetWidth () / (double)m_pTable->Get_Count();
+		dy = r.GetHeight() / (m_yMax - m_yMin);
 	}
 	else if( m_xMin < m_xMax )
 	{
-		dx	= r.GetWidth () / (m_xMax - m_xMin);
+		dx = r.GetWidth () / (m_xMax - m_xMin);
 
 		if( m_yScale > 0. )
 		{
-			dy	= dx * m_yScale; m_yMax = m_yMin + r.GetHeight() / dy;
+			dy = dx * m_yScale; m_yMax = m_yMin + r.GetHeight() / dy;
 		}
 		else if( m_yMin < m_yMax )
 		{
-			dy	= r.GetHeight() / (m_yMax - m_yMin);
+			dy = r.GetHeight() / (m_yMax - m_yMin);
 		}
 		else
 		{
@@ -917,10 +930,10 @@ void CVIEW_Table_Diagram_Control::_Draw(wxDC &dc, wxRect rDC)
 //---------------------------------------------------------
 void CVIEW_Table_Diagram_Control::_Draw_Frame(wxDC &dc, wxRect r, double dx, double dy)
 {
-	const int	dyFont	= 12;
+	const int dyFont = 12;
 
 	//-----------------------------------------------------
-	dc.SetPen(*wxBLACK);
+	dc.SetPen(dc.GetTextForeground());
 
 	if( m_Parameters("FRAME_FULL")->asInt() == 0 )
 	{
@@ -1033,19 +1046,19 @@ void CVIEW_Table_Diagram_Control::_Draw_Frame(wxDC &dc, wxRect r, double dx, dou
 //---------------------------------------------------------
 void CVIEW_Table_Diagram_Control::_Draw_Legend(wxDC &dc, wxRect r)
 {
-	int	dyFont	= (int)(0.08 * r.GetWidth());
-	int	dyBox	= dyFont + 4;
-	int	dxBox	= dyFont * 2;
+	int dyFont = (int)(0.08 * r.GetWidth());
+	int dyBox  = dyFont + 4;
+	int dxBox  = dyFont * 2;
 
 	const int minMargin = 10;
 
 	r.SetTopLeft(wxPoint(r.GetLeft() + minMargin, r.GetBottom() - m_Fields.Get_Size() * dyBox));
 
-	wxFont	Font(dc.GetFont());
+	wxFont Font(dc.GetFont());
 	Font.SetPointSize(dyFont);
 	dc.SetFont(Font);
 
-	dc.SetPen(*wxBLACK_PEN);
+	dc.SetPen(dc.GetTextForeground());
 
 	//-----------------------------------------------------
 	for(int iField=0; iField<(int)m_Fields.Get_Size(); iField++)
@@ -1079,8 +1092,8 @@ void CVIEW_Table_Diagram_Control::_Draw_Points(wxDC &dc, wxRect r, double dx, do
 
 	if( zField < 0 )
 	{
-		dc.SetPen  (wxPen  (bOutline ? *wxBLACK : Get_Color_asWX(m_Colors.Get_Color(iField))));
-		dc.SetBrush(wxBrush(                      Get_Color_asWX(m_Colors.Get_Color(iField))));
+		dc.SetPen  (wxPen  (bOutline ? dc.GetTextForeground() : Get_Color_asWX(m_Colors.Get_Color(iField))));
+		dc.SetBrush(wxBrush(                                    Get_Color_asWX(m_Colors.Get_Color(iField))));
 
 		for(sLong iRecord=0; iRecord<m_pTable->Get_Count(); iRecord++)
 		{
@@ -1219,9 +1232,7 @@ END_EVENT_TABLE()
 CVIEW_Table_Diagram::CVIEW_Table_Diagram(CWKSP_Table *pTable, CSG_Parameters *pParameters)
 	: CVIEW_Base(pTable, ID_VIEW_TABLE_DIAGRAM, wxString::Format("%s [%s]", _TL("Diagram"), pTable->Get_Name().c_str()), ID_IMG_WND_DIAGRAM, false)
 {
-	SYS_Set_Color_BG_Window(this);
-
-	m_pControl	= new CVIEW_Table_Diagram_Control(this, pTable);
+	m_pControl = new CVIEW_Table_Diagram_Control(this, pTable);
 
 	if( m_pControl->Set_Parameters(pParameters) )
 	{

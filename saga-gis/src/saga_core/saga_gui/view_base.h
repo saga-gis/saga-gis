@@ -109,9 +109,10 @@ protected:
 
 	void						Set_Size_Min		(int x, int y);
 
-	void						On_Size				(wxSizeEvent     &event);
-	void						On_Activate			(wxActivateEvent &event);
-	void						On_Quit				(wxCommandEvent  &event);
+	void						On_SysColourChanged	(wxSysColourChangedEvent &event);
+	void						On_Size				(wxSizeEvent             &event);
+	void						On_Activate			(wxActivateEvent         &event);
+	void						On_Quit				(wxCommandEvent          &event);
 
 
 private:

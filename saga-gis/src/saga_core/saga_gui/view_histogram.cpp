@@ -114,13 +114,11 @@ END_EVENT_TABLE()
 CVIEW_Histogram::CVIEW_Histogram(CWKSP_Layer *pLayer)
 	: CVIEW_Base(pLayer, ID_VIEW_HISTOGRAM, pLayer->Get_Name(), ID_IMG_WND_HISTOGRAM)
 {
-	SYS_Set_Color_BG_Window(this);
-
 	m_pLayer         = pLayer;
 
 	m_bCumulative    = false;
 	m_bGaussian      = false;
-	m_Gaussian_Color = 0;
+	m_Gaussian_Color = Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_WINDOWTEXT));
 	m_Gaussian_Size  = 1;
 	m_bColored       = true;
 
@@ -142,7 +140,7 @@ CVIEW_Histogram::CVIEW_Histogram(CWKSP_Layer *pLayer)
 //---------------------------------------------------------
 wxMenu * CVIEW_Histogram::_Create_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu;
+	wxMenu *pMenu = new wxMenu;
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_HISTOGRAM_PARAMETERS);
 	pMenu->AppendSeparator();
@@ -158,7 +156,7 @@ wxMenu * CVIEW_Histogram::_Create_Menu(void)
 //---------------------------------------------------------
 wxToolBarBase * CVIEW_Histogram::_Create_ToolBar(void)
 {
-	wxToolBarBase	*pToolBar	= CMD_ToolBar_Create(ID_TB_VIEW_HISTOGRAM);
+	wxToolBarBase *pToolBar = CMD_ToolBar_Create(ID_TB_VIEW_HISTOGRAM);
 
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_HISTOGRAM_PARAMETERS);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_HISTOGRAM_CUMULATIVE);
@@ -220,6 +218,9 @@ void CVIEW_Histogram::Draw(wxDC &dc)
 {
 	wxFont Font; Font.SetFamily(wxFONTFAMILY_SWISS); dc.SetFont(Font);
 
+	dc.SetPen           (SYS_Get_Color(wxSYS_COLOUR_WINDOWTEXT));
+	dc.SetTextForeground(SYS_Get_Color(wxSYS_COLOUR_WINDOWTEXT));
+
 	Draw_Histogram(dc);
 	Draw_Frame    (dc);
 }
@@ -253,11 +254,13 @@ void CVIEW_Histogram::Draw_Bar(wxDC &dc, wxColour Color, int x[2], int y[3], int
 
 	if( y[1] >= y[2] )
 	{
+		bool bDark = wxSystemSettings::GetAppearance().IsUsingDarkBackground();
+
 		Color = SYS_Get_Color(wxSYS_COLOUR_WINDOW);
 
 		for(int ix=x[0]; ix<x[1]; ix++)
 		{
-			wxColour Next(StdDev[0] <= ix && ix <= StdDev[1] ? wxColour(222, 222, 222) : Color);
+			wxColour Next(StdDev[0] <= ix && ix <= StdDev[1] ? (bDark ? wxColour(192, 192, 192) : wxColour(64, 64, 64)) : Color);
 
 			if( Invert[0] <= ix && ix <= Invert[1] )
 			{
@@ -318,7 +321,9 @@ void CVIEW_Histogram::Draw_Histogram(wxDC &dc)
 	}
 
 	//-----------------------------------------------------
-	wxColor Color = SYS_Get_Color(wxSYS_COLOUR_ACTIVECAPTION); // wxSYS_COLOUR_BTNSHADOW);
+	bool bDark = wxSystemSettings::GetAppearance().IsUsingDarkBackground();
+
+	wxColor Color = bDark ? wxColour(200, 200, 200) : SYS_Get_Color(wxSYS_COLOUR_ACTIVECAPTION); // wxSYS_COLOUR_BTNSHADOW);
 
 	double dx = (double)r.GetWidth() / (double)Histogram.Get_Class_Count();
 
@@ -326,7 +331,7 @@ void CVIEW_Histogram::Draw_Histogram(wxDC &dc)
 
 	for(size_t iClass=0; iClass<Histogram.Get_Class_Count(); iClass++)
 	{
-		double	Value	= m_bCumulative
+		double Value = m_bCumulative
 			? Histogram.Get_Cumulative(iClass) / (double)Histogram.Get_Element_Count  ()
 			: Histogram.Get_Elements  (iClass) / (double)Histogram.Get_Element_Maximum();
 
@@ -335,14 +340,14 @@ void CVIEW_Histogram::Draw_Histogram(wxDC &dc)
 
 		if( m_bColored && m_pLayer->Get_Classifier()->Get_Mode() != CLASSIFY_OVERLAY && m_pLayer->Get_Classifier()->Get_Mode() != CLASSIFY_SHADE )
 		{
-			Color	= m_pLayer->Get_Classifier()->Get_Class_Color(iClass);
+			Color = m_pLayer->Get_Classifier()->Get_Class_Color(iClass);
 		}
 
 		Draw_Bar(dc, Color, x, y, Invert, StdDev);
 	}
 
 	//-----------------------------------------------------
-	if( s.Get_Count() > 0 )
+	if( s.Get_Count() > 0 ) // plot gaussian normal distribution
 	{
 		#define FUNC_NORMAL(X) (m_bCumulative\
 			? (1. / (1. + exp(-((X - s.Get_Mean()) / (0.5 * s.Get_StdDev())))) - y0)\
@@ -354,8 +359,8 @@ void CVIEW_Histogram::Draw_Histogram(wxDC &dc)
 			dc.DrawLine(ix, r.GetBottom(), ix, r.GetBottom() - (int)(dy * FUNC_NORMAL(X)));\
 		}
 
-		double	Minimum = m_pLayer->Get_Classifier()->Get_RelativeToMetric(0.);
-		double	Maximum = m_pLayer->Get_Classifier()->Get_RelativeToMetric(1.);
+		double Minimum = m_pLayer->Get_Classifier()->Get_RelativeToMetric(0.);
+		double Maximum = m_pLayer->Get_Classifier()->Get_RelativeToMetric(1.);
 
 		double dx = (Maximum - Minimum) / (double)r.GetWidth(), dy = r.GetHeight() - 1;
 
@@ -363,15 +368,15 @@ void CVIEW_Histogram::Draw_Histogram(wxDC &dc)
 
 		if( m_bCumulative )
 		{
-			dy	/= (yMax - yMin); y0 = yMin;
+			dy /= (yMax - yMin); y0 = yMin;
 		}
 		else if( s.Get_Mean() < Minimum )
 		{
-			dy	/= yMin;
+			dy /= yMin;
 		}
 		else if( s.Get_Mean() > Maximum )
 		{
-			dy	/= yMax;
+			dy /= yMax;
 		}
 
 		wxPen oldPen(dc.GetPen()); dc.SetPen(wxPen(Get_Color_asWX(m_Gaussian_Color), m_Gaussian_Size));
@@ -400,7 +405,7 @@ void CVIEW_Histogram::Draw_Frame(wxDC &dc)
 
 	const int FontSize  = 12;
 
-	dc.SetPen(*wxBLACK_PEN);
+	wxPen oldPen(dc.GetPen()); dc.SetPen(SYS_Get_Color(wxSYS_COLOUR_WINDOWTEXT));
 
 	Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);
 
@@ -472,6 +477,8 @@ void CVIEW_Histogram::Draw_Frame(wxDC &dc)
 			}
 		break; }
 	}
+
+	dc.SetPen(oldPen);
 }
 
 //---------------------------------------------------------

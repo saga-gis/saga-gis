@@ -56,6 +56,7 @@
 #include <wx/wfstream.h>
 #include <wx/quantize.h>
 #include <wx/filedlg.h>
+#include <wx/settings.h>
 
 #include "3d_view.h"
 
@@ -193,6 +194,10 @@ END_EVENT_TABLE()
 CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	: wxPanel(pParent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL|wxSUNKEN_BORDER|wxNO_FULL_REPAINT_ON_RESIZE)
 {
+	wxColour bgColor = wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW);
+
+	SetBackgroundColour(bgColor);
+
 	m_Parameters.Create(this, _TL("3D View"));
 
 	m_Parameters.Set_Callback_On_Parameter_Changed(_On_Parameter_Changed);
@@ -225,7 +230,7 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	m_Parameters.Add_Int   ("LABELS"  , "LABEL_RES"   , _TL("Resolution"           ), _TL(""), m_Label_Res, 20, true, 1000, true);
 	m_Parameters.Add_Double("LABELS"  , "LABEL_SCALE" , _TL("Size"                 ), _TL(""), m_Label_Scale, 0.1, true, 10., true);
 
-	m_Parameters.Add_Color ("3D_VIEW" , "BGCOLOR"     , _TL("Background Color"     ), _TL(""), SG_COLOR_WHITE);
+	m_Parameters.Add_Color ("3D_VIEW" , "BGCOLOR"     , _TL("Background Color"     ), _TL(""), m_bgColor = SG_GET_RGB(bgColor.Red(), bgColor.Green(), bgColor.Blue()));
 
 	m_Parameters.Add_Choice("3D_VIEW" , "STEREO"      , _TL("Stereo View"          ), _TL(""), CSG_String::Format("%s|%s|%s", _TL("off"), _TL("anaglyph"), _TL("twin window for right eye")));
 	m_Parameters.Add_Double("STEREO"  , "STEREO_DIST" , _TL("Eye Distance [Degree]"), _TL(""), m_dStereo, 0., true, 180., true);
