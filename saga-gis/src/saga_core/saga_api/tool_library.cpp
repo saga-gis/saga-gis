@@ -187,17 +187,17 @@ CSG_Tool * CSG_Tool_Library::Get_Tool(const CSG_String &Name, TSG_Tool_Type Type
   * a tool simultaneously with different settings.
 */
 //---------------------------------------------------------
-CSG_Tool * CSG_Tool_Library::Create_Tool(int Index, bool bWithGUI)
+CSG_Tool * CSG_Tool_Library::Create_Tool(int Index, bool bWithGUI, bool bWithCMD)
 {
-	return( m_pInterface ? m_pInterface->Create_Tool(Index, bWithGUI) : NULL );
+	return( m_pInterface ? m_pInterface->Create_Tool(Index, bWithGUI, bWithCMD) : NULL );
 }
 
 //---------------------------------------------------------
-CSG_Tool * CSG_Tool_Library::Create_Tool(const char       *Name, bool bWithGUI)	{	return( Create_Tool(CSG_String(Name), bWithGUI) );	}
-CSG_Tool * CSG_Tool_Library::Create_Tool(const wchar_t    *Name, bool bWithGUI)	{	return( Create_Tool(CSG_String(Name), bWithGUI) );	}
-CSG_Tool * CSG_Tool_Library::Create_Tool(const CSG_String &Name, bool bWithGUI)
+CSG_Tool * CSG_Tool_Library::Create_Tool(const char       *Name, bool bWithGUI, bool bWithCMD)	{	return( Create_Tool(CSG_String(Name), bWithGUI, bWithCMD) );	}
+CSG_Tool * CSG_Tool_Library::Create_Tool(const wchar_t    *Name, bool bWithGUI, bool bWithCMD)	{	return( Create_Tool(CSG_String(Name), bWithGUI, bWithCMD) );	}
+CSG_Tool * CSG_Tool_Library::Create_Tool(const CSG_String &Name, bool bWithGUI, bool bWithCMD)
 {
-	int Index; return( Name.asInt(Index) ? Create_Tool(Index, bWithGUI) : NULL );
+	int Index; return( Name.asInt(Index) ? Create_Tool(Index, bWithGUI, bWithCMD) : NULL );
 }
 
 //---------------------------------------------------------
@@ -831,17 +831,17 @@ CSG_Tool * CSG_Tool_Library_Manager::Get_Tool(const CSG_String &Library, const C
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const char       *Library, int              Index, bool bWithGUI)	const	{	return( Create_Tool(CSG_String(Library), Index, bWithGUI) );	}
-CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const wchar_t    *Library, int              Index, bool bWithGUI)	const	{	return( Create_Tool(CSG_String(Library), Index, bWithGUI) );	}
-CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const CSG_String &Library, int              Index, bool bWithGUI)	const
+CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const char       *Library, int              Index, bool bWithGUI, bool bWithCMD)	const	{	return( Create_Tool(CSG_String(Library), Index, bWithGUI, bWithCMD) );	}
+CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const wchar_t    *Library, int              Index, bool bWithGUI, bool bWithCMD)	const	{	return( Create_Tool(CSG_String(Library), Index, bWithGUI, bWithCMD) );	}
+CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const CSG_String &Library, int              Index, bool bWithGUI, bool bWithCMD)	const
 {
-	return( Create_Tool(Library, CSG_String::Format("%d", Index), bWithGUI) );
+	return( Create_Tool(Library, CSG_String::Format("%d", Index), bWithGUI, bWithCMD) );
 }
 
 //---------------------------------------------------------
-CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const char       *Library, const char       *Name, bool bWithGUI)	const	{	return( Create_Tool(CSG_String(Library), CSG_String(Name), bWithGUI) );	}
-CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const wchar_t    *Library, const wchar_t    *Name, bool bWithGUI)	const	{	return( Create_Tool(CSG_String(Library), CSG_String(Name), bWithGUI) );	}
-CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const CSG_String &Library, const CSG_String &Name, bool bWithGUI)	const
+CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const char       *Library, const char       *Name, bool bWithGUI, bool bWithCMD)	const	{	return( Create_Tool(CSG_String(Library), CSG_String(Name), bWithGUI, bWithCMD) );	}
+CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const wchar_t    *Library, const wchar_t    *Name, bool bWithGUI, bool bWithCMD)	const	{	return( Create_Tool(CSG_String(Library), CSG_String(Name), bWithGUI, bWithCMD) );	}
+CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const CSG_String &Library, const CSG_String &Name, bool bWithGUI, bool bWithCMD)	const
 {
 	SG_Get_Tool_Library_Manager()._Add_Library(Library);
 
@@ -849,7 +849,7 @@ CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const CSG_String &Library, cons
 	{
 		if( Get_Library(i)->Get_Library_Name().Cmp(Library) == 0 )
 		{
-			CSG_Tool *pTool = Get_Library(i)->Create_Tool(Name, bWithGUI);
+			CSG_Tool *pTool = Get_Library(i)->Create_Tool(Name, bWithGUI, bWithCMD);
 
 			if( pTool )
 			{
@@ -939,6 +939,8 @@ bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Destinati
 		}
 	}
 
+	SG_UI_Set_Application_Name("python");
+
 	//-----------------------------------------------------
 	// skip tool chains in 1st run...
 	for(int iLibrary=0; iLibrary<Get_Count() && SG_UI_Process_Set_Progress(iLibrary, Get_Count()); iLibrary++)
@@ -969,7 +971,7 @@ bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Destinati
 
 		for(int iTool=0; iTool<pLibrary->Get_Count(); iTool++)
 		{
-			CSG_Tool *pTool = pLibrary->Get_Tool(iTool);
+			CSG_Tool *pTool = pLibrary->Create_Tool(iTool, false, false);
 
 			if( pTool && pTool != TLB_INTERFACE_SKIP_TOOL && !pTool->needs_GUI() && !pTool->is_Interactive() && pTool->Get_Parameters_Count() == 0 )
 			{
@@ -980,6 +982,8 @@ bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Destinati
 
 				Stream.Write(pTool->Get_Script(TOOL_SCRIPT_PYTHON_WRAP_ID, false));
 			}
+
+			pLibrary->Delete_Tool(pTool);
 		}
 	}
 
@@ -1024,7 +1028,7 @@ bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Destinati
 
 		for(int iTool=0; iTool<pLibrary->Get_Count(); iTool++)
 		{
-			CSG_Tool *pTool = pLibrary->Get_Tool(iTool);
+			CSG_Tool *pTool = pLibrary->Create_Tool(iTool, false, false);
 
 			if( pTool && pTool != TLB_INTERFACE_SKIP_TOOL && !pTool->needs_GUI() && !pTool->is_Interactive() && pTool->Get_Parameters_Count() == 0 )
 			{
@@ -1035,8 +1039,13 @@ bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Destinati
 
 				Stream.Write(pTool->Get_Script(TOOL_SCRIPT_PYTHON_WRAP_ID, false));
 			}
+
+			pLibrary->Delete_Tool(pTool);
 		}
 	}
+
+	//-----------------------------------------------------
+	SG_UI_Set_Application_Name(); // reset
 
 	return( true );
 }

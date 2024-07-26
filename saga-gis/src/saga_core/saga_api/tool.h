@@ -151,6 +151,7 @@ class SAGA_API_DLL_EXPORT CSG_Tool
 {
 	friend class CSG_Tool_Interactive_Base;
 	friend class CSG_Tool_Library_Interface;
+	friend class CSG_Tool_Library_Manager;
 	friend class CSG_Tool_Chain;
 
 public:
@@ -651,7 +652,7 @@ public:
 	int							Get_Count				(void);
 	CSG_Tool *					Get_Tool				(int i);
 
-	CSG_Tool *					Create_Tool				(int i, bool bWithGUI = false);
+	CSG_Tool *					Create_Tool				(int i, bool bWithGUI = false, bool bWithCMD =true);
 	bool						Delete_Tool				(CSG_Tool *pTool);
 	bool						Delete_Tools			(void);
 

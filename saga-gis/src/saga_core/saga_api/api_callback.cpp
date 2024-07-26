@@ -50,7 +50,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <wx/stdpaths.h>
 #include <wx/app.h>
 
 #include "api_core.h"
@@ -806,26 +805,6 @@ void *		SG_UI_Get_Window_Main		(void)
 	}
 
 	return( NULL );
-}
-
-//---------------------------------------------------------
-CSG_String	SG_UI_Get_Application_Path	(bool bPathOnly)
-{
-	CSG_String App_Path(wxStandardPaths::Get().GetExecutablePath().wc_str());
-
-	if( bPathOnly )
-	{
-		App_Path = SG_File_Get_Path(App_Path);
-	}
-
-	return( SG_File_Get_Path_Absolute(App_Path) );
-}
-
-//---------------------------------------------------------
-CSG_String	SG_UI_Get_Application_Name	(void)
-{
-	return( wxApp::GetInstance()->GetAppName().wc_str() );
-//	return( SG_File_Get_Name(SG_UI_Get_Application_Path(false), false) );
 }
 
 

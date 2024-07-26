@@ -193,7 +193,7 @@ CSG_Tool * CSG_Tool_Library_Interface::Get_Tool(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Tool * CSG_Tool_Library_Interface::Create_Tool(int ID, bool bWithGUI)
+CSG_Tool * CSG_Tool_Library_Interface::Create_Tool(int ID, bool bWithGUI, bool bWithCMD)
 {
 	CSG_Tool *pTool = m_Fnc_Create_Tool ? m_Fnc_Create_Tool(ID) : NULL;
 
@@ -204,6 +204,7 @@ CSG_Tool * CSG_Tool_Library_Interface::Create_Tool(int ID, bool bWithGUI)
 		pTool->m_Library_Menu = m_Info[TLB_INFO_Menu_Path];
 		pTool->m_File_Name    = m_Info[TLB_INFO_File     ];
 		pTool->m_bGUI         = bWithGUI && pTool->m_bGUI;
+		pTool->m_bCMD         = bWithCMD && pTool->m_bCMD;
 
 		m_xTools.Add(pTool);
 

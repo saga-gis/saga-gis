@@ -62,11 +62,12 @@ CPySAGA_Tools::CPySAGA_Tools(void)
 
 	Set_Author	("O.Conrad (c) 2023");
 
-	Parameters.Add_Choice  ("", "TARGET", "Target"        , "", "single file|one file per library", 1);
-	Parameters.Add_FilePath("", "FILE"  , "File"          , "", SG_T("Python Files|*.py|All Files|*.*"), NULL, true);
-	Parameters.Add_FilePath("", "FOLDER", "Folder"        , "", NULL, NULL, true, true);
-	Parameters.Add_Choice  ("", "NAMING", "Function Names", "", "tool name|library + tool id", 0);
-	Parameters.Add_Bool    ("", "CLEAN" , "Make Clean"    , "", true);
+	Parameters.Add_Choice  ("", "TARGET"  , "Target"                , "", "single file|one file per library", 1);
+	Parameters.Add_FilePath("", "FILE"    , "File"                  , "", SG_T("Python Files|*.py|All Files|*.*"), NULL, true);
+	Parameters.Add_FilePath("", "FOLDER"  , "Folder"                , "", NULL, NULL, true, true);
+	Parameters.Add_Choice  ("", "NAMING"  , "Function Names"        , "", "tool name|library + tool id", 0);
+	Parameters.Add_Bool    ("", "CLEAN"   , "Make Clean"            , "", true);
+	Parameters.Add_Bool    ("", "LOADDEFS", "Load Default Libraries", "", true);
 }
 
 
@@ -96,6 +97,11 @@ bool CPySAGA_Tools::On_Execute(void)
 {
 	bool bName  = Parameters["NAMING"].asInt() == 0;
 	bool bClean = Parameters["CLEAN" ].asBool();
+
+	if( Parameters["LOADDEFS"].asBool() )
+	{
+		SG_Get_Tool_Library_Manager().Add_Default_Libraries();
+	}
 
 	if( Parameters["TARGET"].asInt() == 0 ) // single file
 	{

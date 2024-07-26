@@ -80,8 +80,8 @@ public:
 	CSG_Tool_Chain(void);
 	virtual ~CSG_Tool_Chain(void);
 
-								CSG_Tool_Chain			(const CSG_Tool_Chain &Tool, bool bWithGUI);
-	bool						Create					(const CSG_Tool_Chain &Tool, bool bWithGUI);
+								CSG_Tool_Chain			(const CSG_Tool_Chain &Tool, bool bWithGUI, bool bWithCMD);
+	bool						Create					(const CSG_Tool_Chain &Tool, bool bWithGUI, bool bWithCMD);
 
 								CSG_Tool_Chain			(const CSG_String &File);
 	bool						Create					(const CSG_String &File);
@@ -186,7 +186,7 @@ public:
 
 	virtual CSG_Tool *				Get_Tool			(int Index, TSG_Tool_Type Type = TOOL_TYPE_Base)	const;
 
-	virtual CSG_Tool *				Create_Tool			(const CSG_String &Name, bool bWithGUI = false);
+	virtual CSG_Tool *				Create_Tool			(const CSG_String &Name, bool bWithGUI = false, bool bWithCMD = true);
 	virtual bool					Delete_Tool			(CSG_Tool *pTool);
 	virtual bool					Delete_Tools		(void);
 

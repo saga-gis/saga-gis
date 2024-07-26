@@ -51,6 +51,7 @@
 #include <wx/utils.h>
 #include <wx/app.h>
 #include <wx/dir.h>
+#include <wx/stdpaths.h>
 
 #include "api_core.h"
 #include "tool_library.h"
@@ -339,17 +340,58 @@ CSG_App_Initialize	g_App_Initialize;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String			g_SAGA_Path;
+CSG_String	g_SAGA_API_Path;
 
-//---------------------------------------------------------
 CSG_String	SG_UI_Get_API_Path	(void)
 {
-	if( g_SAGA_Path.is_Empty() && SG_UI_Get_Application_Name().Find("saga") == 0 )
+	if( g_SAGA_API_Path.is_Empty() && SG_UI_Get_Application_Name().Find("saga") == 0 )
 	{
-		g_SAGA_Path = SG_UI_Get_Application_Path(true);
+		g_SAGA_API_Path = SG_UI_Get_Application_Path(true);
 	}
 
-	return( g_SAGA_Path );
+	return( g_SAGA_API_Path );
+}
+
+//---------------------------------------------------------
+CSG_String	SG_UI_Get_Application_Path	(bool bPathOnly)
+{
+	static CSG_String App_Path;
+
+	if( App_Path.is_Empty() )
+	{
+		App_Path = wxApp::GetInstance()->GetAppName().wc_str();
+	}
+
+	CSG_String Path(App_Path);
+
+	if( bPathOnly )
+	{
+		Path = SG_File_Get_Path(App_Path);
+	}
+
+	return( SG_File_Get_Path_Absolute(Path) );
+}
+
+//---------------------------------------------------------
+CSG_String	g_App_Name;
+
+CSG_String	SG_UI_Get_Application_Name	(void)
+{
+	if( g_App_Name.is_Empty() )
+	{
+		g_App_Name = wxApp::GetInstance()->GetAppName().wc_str();
+	}
+
+	return( g_App_Name );
+}
+
+CSG_String	SG_UI_Set_Application_Name	(const CSG_String &Name)
+{
+	CSG_String oldName(g_App_Name);
+
+	g_App_Name = Name;
+
+	return( oldName );
 }
 
 
@@ -440,7 +482,7 @@ bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char
 				App_Path = SG_UI_Get_Application_Path(true).c_str();
 			}
 
-			g_SAGA_Path = &App_Path;
+			g_SAGA_API_Path = &App_Path;
 
 			wxGetEnv("PATH", &System_Paths);
 

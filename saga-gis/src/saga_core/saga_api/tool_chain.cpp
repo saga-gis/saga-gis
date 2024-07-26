@@ -82,9 +82,9 @@ CSG_Tool_Chain::CSG_Tool_Chain(void)
 }
 
 //---------------------------------------------------------
-CSG_Tool_Chain::CSG_Tool_Chain(const CSG_Tool_Chain &Tool, bool bWithGUI)
+CSG_Tool_Chain::CSG_Tool_Chain(const CSG_Tool_Chain &Tool, bool bWithGUI, bool bWithCMD)
 {
-	Create(Tool, bWithGUI);
+	Create(Tool, bWithGUI, bWithCMD);
 }
 
 //---------------------------------------------------------
@@ -130,7 +130,7 @@ void CSG_Tool_Chain::Set_Library_Menu(const CSG_String &Menu)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Tool_Chain::Create(const CSG_Tool_Chain &Tool, bool bWithGUI)
+bool CSG_Tool_Chain::Create(const CSG_Tool_Chain &Tool, bool bWithGUI, bool bWithCMD)
 {
 	if( !Create(Tool.m_Chain) )
 	{
@@ -142,6 +142,7 @@ bool CSG_Tool_Chain::Create(const CSG_Tool_Chain &Tool, bool bWithGUI)
 	m_Library_Menu = Tool.m_Library_Menu;
 	m_File_Name	   = Tool.m_File_Name;
 	m_bGUI         = bWithGUI && m_bGUI;
+	m_bCMD         = bWithCMD && m_bCMD;
 
 	return( true );
 }
@@ -2111,7 +2112,7 @@ bool CSG_Tool_Chains::Add_Tool(CSG_Tool_Chain *pTool)
 //---------------------------------------------------------
 CSG_Tool * CSG_Tool_Chains::Get_Tool(int Index, TSG_Tool_Type Type) const
 {
-	CSG_Tool	*pTool	= Index >= 0 && Index < Get_Count() ? (CSG_Tool_Chain *)m_Tools[Index] : NULL;
+	CSG_Tool *pTool = Index >= 0 && Index < Get_Count() ? (CSG_Tool_Chain *)m_Tools[Index] : NULL;
 
 	return(	pTool && (Type == TOOL_TYPE_Base || Type == pTool->Get_Type()) ? pTool : NULL );
 }
@@ -2122,13 +2123,13 @@ CSG_Tool * CSG_Tool_Chains::Get_Tool(int Index, TSG_Tool_Type Type) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Tool * CSG_Tool_Chains::Create_Tool(const CSG_String &Name, bool bWithGUI)
+CSG_Tool * CSG_Tool_Chains::Create_Tool(const CSG_String &Name, bool bWithGUI, bool bWithCMD)
 {
-	CSG_Tool	*pTool	= CSG_Tool_Library::Get_Tool(Name);
+	CSG_Tool *pTool = CSG_Tool_Library::Get_Tool(Name);
 
 	if( pTool && pTool->Get_Type() == TOOL_TYPE_Chain )
 	{
-		m_xTools.Add(pTool = new CSG_Tool_Chain(*((CSG_Tool_Chain *)pTool), bWithGUI));
+		m_xTools.Add(pTool = new CSG_Tool_Chain(*((CSG_Tool_Chain *)pTool), bWithGUI, bWithCMD));
 
 		return( pTool );
 	}
