@@ -57,6 +57,8 @@
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
+#include <vector>
+#include <array>
 
 
 ///////////////////////////////////////////////////////////
@@ -125,6 +127,53 @@ private:
 	bool					Get_Reflectance			(CSG_Grid *pBand, const CSG_Table_Record &Info_Band, double SunHeight);
 	bool					Get_Temperature			(CSG_Grid *pBand, const CSG_Table_Record &Info_Band);
 
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+struct LUT_Keys 
+{
+	long Color; const char *Name; const char *Description; int Value;
+};
+
+struct QA_Keys
+{
+	CSG_Grid *pGridTarget; TSG_Data_Type Type; const char *ID; size_t Pos; size_t Len; const char *Band; const char *Band_Name; const char *Desc; 
+};
+
+
+struct Input 
+{
+	CSG_Grid *pGridInput; std::vector<QA_Keys> Keys; bool Add_LUT; std::vector<LUT_Keys> LUT;
+};
+
+//---------------------------------------------------------
+class CLandsat_QA_Import : public CSG_Tool_Grid
+{
+public:
+	CLandsat_QA_Import(void);
+
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:File|Satellite Imagery") );	}
+
+protected:
+
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+
+
+private:
+
+	CSG_Table_Record* 		Set_Grids_Attribute		(CSG_Table &Table, QA_Keys Key);
+	double 					Decode_Value			(short Value, size_t Position, size_t Length);
+	bool 					Create_LUT				(CSG_Grid *pGrid, std::vector<LUT_Keys> Keys);
+	bool 					Set_LUT					(CSG_Table_Record *pRec, LUT_Keys Key);
+
+	bool 					Set_Inputs				(std::vector<Input> &Input );
 };
 
 

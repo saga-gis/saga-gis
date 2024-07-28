@@ -46,6 +46,8 @@
 
 //---------------------------------------------------------
 #include "landsat_scene_import.h"
+#include <bitset>
+#include <vector>
 
 
 ///////////////////////////////////////////////////////////
@@ -1327,3 +1329,506 @@ bool CLandsat_Scene_Import::Get_Temperature(CSG_Grid *pBand, const CSG_Table_Rec
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+std::vector<LUT_Keys> Generic_Bool =
+{
+	{ SG_COLOR_RED, 		"True"															,"",  1 },  		
+};
+
+//---------------------------------------------------------
+std::vector<LUT_Keys> Generic_Confidece =
+{
+	{ SG_COLOR_YELLOW, 		"Low confidence"															,"",  1 },  		
+	{ SG_COLOR_RED, 		"High confidence"															,"",  3 },  		
+};
+
+//---------------------------------------------------------
+std::vector<LUT_Keys> TM_ETM_C2_QA_Pix_LUT =
+{
+	//{ SG_COLOR_BLACK, 		"Fill"																			,"",     1 },	
+	//{ SG_COLOR_WHITE, 		"Clear with lows set"															,"",  5440 },  		
+	{ SG_COLOR_YELLOW, 		"Dilated cloud over land"														,"",  5442 },  		
+	{ SG_COLOR_BLUE, 		"Water with lows set"															,"",  5504 },  		
+	{ SG_COLOR_YELLOW, 		"Dilated cloud over water"														,"",  5506 },  		
+	{ SG_COLOR_YELLOW, 		"Mid conf cloud"																,"",  5696 },  	
+	{ SG_COLOR_YELLOW, 		"Mid conf cloud over water"														,"",  5760 },  		
+	{ SG_COLOR_YELLOW, 		"High conf Cloud"																,"",  5896 },  			
+	{ SG_COLOR_GREEN, 		"High conf cloud shadow"														,"",  7440 },  		
+	{ SG_COLOR_GREEN, 		"Water with cloud shadow"														,"",  7568 },  		
+	{ SG_COLOR_GREEN, 		"Mid conf cloud with shadow"													,"",  7696 },  		
+	{ SG_COLOR_GREEN, 		"Mid conf cloud with shadow over water"											,"",  7824 },  		
+	{ SG_COLOR_GREEN, 		"High conf cloud with shadow"													,"",  7960 },  	
+	{ SG_COLOR_GREEN, 		"High conf cloud with shadow over water"										,"",  8088 },  		
+	{ SG_COLOR_BLUE_LIGHT, 	"High conf snow/ice"															,"", 13664 }  	
+};
+
+//---------------------------------------------------------
+std::vector<LUT_Keys> OLI_TIRS_C2_QA_Pix_LUT 
+{
+	//{ SG_COLOR_BLACK, 			"Fill"																	, "",		   1 }, 	
+	//{ SG_COLOR_BLUE_LIGHT, 	"Clear with lows set"               									    , "",      21824 },
+	{ SG_COLOR_YELLOW, 		"Dilated cloud over land"               									 	, "", 21826 },
+	{ SG_COLOR_BLUE, 		"Water with lows set"                   									 	, "", 21888 },
+	{ SG_COLOR_YELLOW, 		"Dilated cloud over water"              									 	, "", 21890 },
+	{ SG_COLOR_YELLOW, 		"Mid conf cloud"                        									 	, "", 22080 },
+	{ SG_COLOR_YELLOW, 		"Mid conf cloud over water"             									 	, "", 22144 },
+	{ SG_COLOR_YELLOW, 		"High conf Cloud"                       									 	, "", 22280 },
+	{ SG_COLOR_GREEN, 		"High conf cloud shadow"                									 	, "", 23888 },
+	{ SG_COLOR_GREEN, 		"Water with cloud shadow"               									 	, "", 23952 },
+	{ SG_COLOR_GREEN, 		"Mid conf cloud with shadow"            									 	, "", 24088 },
+	{ SG_COLOR_GREEN, 		"Mid conf cloud with shadow over water" 									 	, "", 24216 },
+	{ SG_COLOR_GREEN, 		"High conf cloud with shadow"           									 	, "", 24344 },
+	{ SG_COLOR_GREEN, 		"High conf cloud with shadow over water"									 	, "", 24472 },
+	{ SG_COLOR_BLUE_LIGHT, 	"High conf snow/ice" 															, "", 30048 },
+	{ SG_COLOR_YELLOW, 		"High conf Cirrus"                      									 	, "", 54596 },
+	{ SG_COLOR_YELLOW, 		"Cirrus, mid cloud"                     									 	, "", 54852 },
+	{ SG_COLOR_YELLOW, 		"Cirrus, high cloud"                    									 	, "", 55052 }
+};
+
+
+//---------------------------------------------------------
+std::vector<LUT_Keys> OLI_TIRS_C2_QA_Aerosol_LUT 
+{
+	//{ SG_COLOR_WHITE, 		"Fill"																			, "",   1 }, 
+	{ SG_COLOR_WHITE, 		"Valid aerosol retrieval"                                                		, "",   2 },
+	{ SG_COLOR_WHITE, 		"Water"                                                                     	, "",   4 },
+	{ SG_COLOR_WHITE, 		"Aerosol interpolated"                                                       	, "",  32 }, 
+	{ SG_COLOR_WHITE, 		"Valid aerosol ret., low aerosol"                                            	, "",  66 }, 
+	{ SG_COLOR_WHITE, 		"Water, low aerosol"                                                         	, "",  68 }, 
+	{ SG_COLOR_WHITE, 		"Aerosol interpolated, low aerosol"                                          	, "",  96 }, 
+	{ SG_COLOR_WHITE, 		"Water pixel used in interpolation, aerosol interpolated, low aerosol"       	, "", 100 },
+	{ SG_COLOR_WHITE, 		"Valid aerosol retrieval, medium aerosol"                                    	, "", 130 },
+	{ SG_COLOR_WHITE, 		"Water, medium aerosol"                                                      	, "", 132 },
+	{ SG_COLOR_WHITE, 		"Aerosol interpolated, medium aerosol"                                       	, "", 160 },
+	{ SG_COLOR_WHITE, 		"Water pixel used in interpolation, aerosol interpolated, medium aerosol"    	, "", 164 },
+	{ SG_COLOR_WHITE, 		"High aerosol"                                                               	, "", 192 },
+	{ SG_COLOR_WHITE, 		"Valid aerosol retrieval, high aerosol"                                      	, "", 194 },
+	{ SG_COLOR_WHITE, 		"Water, high aerosol"                                                       	, "", 196 },
+	{ SG_COLOR_WHITE, 		"Aerosol interpolated, high aerosol"                                         	, "", 224 },
+	{ SG_COLOR_WHITE, 		"Water pixel used in interpolation, aerosol interpolated, high aerosol"      	, "", 228 }
+};
+
+//"Attribute Pixel Value"
+//"Fill" 																							1
+//"Valid Aerosol Retrieval (center pixel of 3x3 window)" 											2
+//"Valid Aerosol Retrieval (center pixel of 3x3 window)" 											66
+//"Valid Aerosol Retrieval (center pixel of 3x3 window)" 											130
+//"Valid Aerosol Retrieval (center pixel of 3x3 window)" 											194
+//"Water Pixel (or water pixel was used in the fill-the-window interpolation)" 						4
+//"Water Pixel (or water pixel was used in the fill-the-window interpolation)" 						68
+//"Water Pixel (or water pixel was used in the fill-the-window interpolation)" 						100
+//"Water Pixel (or water pixel was used in the fill-the-window interpolation)" 						132
+//"Water Pixel (or water pixel was used in the fill-the-window interpolation)" 						164
+//"Water Pixel (or water pixel was used in the fill-the-window interpolation)" 						196
+//"Water Pixel (or water pixel was used in the fill-the-window interpolation)" 						228
+//"Non-center window pixel for which aerosol was interpolated from surrounding 3x3 center pixels" 	32
+//"Non-center window pixel for which aerosol was interpolated from surrounding 3x3 center pixels" 	96
+//"Non-center window pixel for which aerosol was interpolated from surrounding 3x3 center pixels" 	100
+//"Non-center window pixel for which aerosol was interpolated from surrounding 3x3 center pixels" 	160
+//"Non-center window pixel for which aerosol was interpolated from surrounding 3x3 center pixels" 	164
+//"Non-center window pixel for which aerosol was interpolated from surrounding 3x3 center pixels" 	224
+//"Non-center window pixel for which aerosol was interpolated from surrounding 3x3 center pixels" 	228
+//"Low-level aerosol" 																				66
+//"Low-level aerosol" 																				68
+//"Low-level aerosol" 																				96
+//"Low-level aerosol" 																				100
+//"Medium-level aerosol" 																			130
+//"Medium-level aerosol" 																			132
+//"Medium-level aerosol" 																			160
+//"Medium-level aerosol" 																			164
+//"High-level aerosol" 																				192
+//"High-level aerosol" 																				194
+//"High-level aerosol" 																				196
+//"High-level aerosol" 																				224
+//"High-level aerosol" 																				228
+
+//---------------------------------------------------------
+std::vector<QA_Keys> MSS_C2_L1_QA_Pix =
+{
+	{NULL, SG_DATATYPE_Bit, 	"0", 0, 1, "Fill", 				"Fill", 			"Fill"},
+	{NULL, SG_DATATYPE_Bit, 	"3", 3, 1, "Cloud", 			"Cloud", 			"Cloud"},
+	{NULL, SG_DATATYPE_Byte,  "8-9", 8, 2, "Cloud_Confidence", 	"Cloud Confidence", "Cloud Confidence"},
+};
+
+//---------------------------------------------------------
+std::vector<QA_Keys> MSS_C2_L1_QA_Sat =
+{
+	{NULL, SG_DATATYPE_Bit, "0", 0, 1, "B1_Sat", 		"Band 1", 			"Band 1 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "1", 1, 1, "B2_Sat", 		"Band 2", 			"Band 2 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "2", 2, 1, "B3_Sat", 		"Band 3", 			"Band 3 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "3", 3, 1, "B4_Sat", 		"Band 4", 			"Band 4 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "4", 4, 1, "B5_Sat", 		"Band 5", 			"Band 5 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "5", 5, 1, "B6_Sat", 		"Band 6", 			"Band 6 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "6", 6, 1, "B7_Sat", 		"Band 7", 			"Band 7 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "9", 9, 1, "Dropped", 	"Dropped Pixel", 	"Dropped Pixel"}
+};
+
+//---------------------------------------------------------
+std::vector<QA_Keys> TM_ETM_C2_L1_QA_Sat =
+{
+	{NULL, SG_DATATYPE_Bit, "0", 0, 1, "B1_Sat", 		"Band 1", 			"Band 1 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "1", 1, 1, "B2_Sat", 		"Band 2", 			"Band 2 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "2", 2, 1, "B3_Sat", 		"Band 3", 			"Band 3 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "3", 3, 1, "B4_Sat", 		"Band 4", 			"Band 4 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "4", 4, 1, "B5_Sat", 		"Band 5", 			"Band 5 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "5", 5, 1, "B6L_Sat", 		"Band 6L", 			"Band 6L Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "6", 6, 1, "B7_Sat", 		"Band 7", 			"Band 7 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "8", 8, 1, "B6H_Sat", 		"Band 6H", 			"Band 6H Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "9", 9, 1, "Dropped", 	"Dropped Pixel", 	"Dropped Pixel"}
+};
+
+//---------------------------------------------------------
+std::vector<QA_Keys> TM_ETM_C2_L1_QA_Pix =
+{
+	{NULL, SG_DATATYPE_Bit, 	"0", 	 0, 	1, "Fill", 				"Fill", 			"Fill"},
+	{NULL, SG_DATATYPE_Bit, 	"1", 	 1, 	1, "Dilated_Cloud", 	"Dilated Fill", 	"Dilated Fill"},
+	{NULL, SG_DATATYPE_Bit, 	"3", 	 3, 	1, "Cloud", 			"Cloud", 			"Cloud"},
+	{NULL, SG_DATATYPE_Bit, 	"4", 	 4, 	1, "Cloud_Shadow", 		"Cloud Shadow", 	"Cloud Shadow"},
+	{NULL, SG_DATATYPE_Bit, 	"5", 	 5, 	1, "Snow", 				"Snow", 			"Snow"},
+	{NULL, SG_DATATYPE_Bit, 	"6", 	 6, 	1, "Clear", 			"Clear", 			"Clear"},
+	{NULL, SG_DATATYPE_Bit, 	"7", 	 7, 	1, "Water", 			"Water", 			"Water"},
+	{NULL, SG_DATATYPE_Byte, 	"8-9", 	 8, 	2, "Cloud_Confidence", 	"Cloud Confidence", "Cloud Confidence"},
+	{NULL, SG_DATATYPE_Byte, 	"10-11",10, 	2, "Shadow_Confidence", "Shadow Confidence","Cloud Shadow Confidence"},
+	{NULL, SG_DATATYPE_Byte, 	"12-13",12, 	2, "Snow_Confidence", 	"Snow Confidence",	"Snow/Ice Confidence"},
+};
+
+//---------------------------------------------------------
+std::vector<QA_Keys> OLI_TIRS_C2_L1_QA_Sat =
+{
+	{NULL, SG_DATATYPE_Bit,  "0", 	0, 	1, "B1_Sat", 		"Band 1", 			"Band 1 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit,  "1", 	1, 	1, "B2_Sat", 		"Band 2", 			"Band 2 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit,  "2", 	2, 	1, "B3_Sat", 		"Band 3", 			"Band 3 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit,  "3", 	3, 	1, "B4_Sat", 		"Band 4", 			"Band 4 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit,  "4", 	4, 	1, "B5_Sat", 		"Band 5", 			"Band 5 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit,  "5", 	5, 	1, "B6_Sat", 		"Band 6", 			"Band 6 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit,  "6", 	6, 	1, "B7_Sat", 		"Band 7", 			"Band 7 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit,  "8", 	8, 	1, "B9_Sat", 		"Band 9", 			"Band 9 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "11", 	11,	1, "Terrain_occlusion", 	"Terrain occlusion","Terrain occlusion"}
+};
+
+//---------------------------------------------------------
+std::vector<QA_Keys> OLI_TIRS_C2_L1_QA_Pix =
+{
+	{NULL, SG_DATATYPE_Bit, 	"0", 	 0, 	1, "Fill", 				"Fill", 			"Fill"},
+	{NULL, SG_DATATYPE_Bit, 	"1", 	 1, 	1, "Dilated_Cloud", 	"Dilated Fill", 	"Dilated Fill"},
+	{NULL, SG_DATATYPE_Bit, 	"2", 	 2, 	1, "Cirrus", 			"Cirrus", 			"Cirrus"},
+	{NULL, SG_DATATYPE_Bit, 	"3", 	 3, 	1, "Cloud", 			"Cloud", 			"Cloud"},
+	{NULL, SG_DATATYPE_Bit, 	"4", 	 4, 	1, "Cloud_Shadow", 		"Cloud Shadow", 	"Cloud Shadow"},
+	{NULL, SG_DATATYPE_Bit, 	"5", 	 5, 	1, "Snow", 				"Snow", 			"Snow"},
+	{NULL, SG_DATATYPE_Bit, 	"6", 	 6, 	1, "Clear", 			"Clear", 			"Clear"},
+	{NULL, SG_DATATYPE_Bit, 	"7", 	 7, 	1, "Water", 			"Water", 			"Water"},
+	{NULL, SG_DATATYPE_Byte, 	"8-9", 	 8, 	2, "Cloud_Confidence", 	"Cloud Confidence", "Cloud Confidence"},
+	{NULL, SG_DATATYPE_Byte, 	"10-11",10, 	2, "Shadow_Confidence", "Shadow Confidence","Cloud Shadow Confidence"},
+	{NULL, SG_DATATYPE_Byte, 	"12-13",12, 	2, "Snow_Confidence", 	"Snow Confidence",	"Snow/Ice Confidence"},
+	{NULL, SG_DATATYPE_Byte, 	"14-15",14,		2, "Cirrus_Confidence", "Cirrus Confidence","Cirrus Confidence"}
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CLandsat_QA_Import::CLandsat_QA_Import(void)
+{
+	Set_Name		(_TL("Decode Landsat Quality Assessment Bands"));
+
+	Set_Author		("J.Spitzmueller (c) 2024");
+
+	Set_Version 	("0.7");
+
+	Set_Description	(_TW(
+		"This tool decodes Landsat Multispectral Scanner System (MSS), Thematic Mapper (TM), "
+		"Enhanced Thematic Mapper Plus (ETM+), and Operational Land Imager/Thermal Infrared Sensor (OLI/TIRS) "
+		"Quality Assessment (QA) bands. It splits these QA bands into individual bands and optionally aggregates "
+		"them into a Grid Collection. \n\n"
+
+		"Currently, the tool supports Pixel and Radiometric Saturation Quality Assessment bands from Collection 2 (Level 1 and 2). "
+		"It also provides value interpretation for certain sensors and QA bands, which can be optionally added to the input datasets "
+		"for classified displaying in the GUI."
+	));
+
+	Add_Reference("https://www.usgs.gov/media/files/landsat-1-5-mss-collection-2-level-1-data-format-control-book",
+		SG_T("Landsat 1-5 MSS Collection 2 Level 1 Data Format Control Book V3")
+	);
+
+	Add_Reference("https://www.usgs.gov/media/files/landsat-4-7-collection-2-level-2-science-product-guide",
+		SG_T("Landsat 4-7 Collection 2 Level 2 Science Product Guide V4")
+	);
+
+	Add_Reference("https://www.usgs.gov/media/files/landsat-8-9-collection-2-level-2-science-product-guide",
+		SG_T("Landsat 8-9 Collection 2 Level 2 Science Product Guide V6")
+	);
+
+	//-----------------------------------------------------
+
+	Parameters.Add_Choice("",
+		"SENSOR", _TL("Spacecraft (Sensor)"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s",
+			_TL("Landsat 1-5 (MSS)"),
+			_TL("Landsat 4-7 (TM & ETM+)"),
+			_TL("Landsat 8-9 (OLI/TIRS)")
+		), 0
+	);
+
+	//Parameters.Add_Choice("",
+	//	"CL", _TL("Collection and Level"),
+	//	_TL(""),
+	//	CSG_String::Format("%s|%s",
+	//		_TL("Collection 2 Level 1"),
+	//		_TL("Collection 2 Level 2")
+	//	), 0
+	//);
+
+	Parameters.Add_Grid("", "IN_QA_PIXEL",		_TL("Pixel QA Band"), 						_TL("\"QA_PIXEL\"-Suffix"), 	PARAMETER_INPUT_OPTIONAL, true, SG_DATATYPE_Word );
+	Parameters.Add_Grid("", "IN_QA_RADSAT", 	_TL("Radiometric Saturation QA Band"), 		_TL("\"QA_RADSAT\"-Suffix"), 	PARAMETER_INPUT_OPTIONAL, true, SG_DATATYPE_Word );
+	//Parameters.Add_Grid("", "IN_SR_QA_AEROSOL", _TL("SR Aerosol QA Band"), 				_TL("\"SR_QA_AEROSOL\"-Suffix"),PARAMETER_INPUT_OPTIONAL, true, SG_DATATYPE_Byte );
+	
+	Parameters.Add_Grid_List("", "OUTPUT",		_TL("Output"), 						_TL(""), 	PARAMETER_OUTPUT );
+
+	Parameters.Add_Bool("", "GRIDS", _TL("Output as Grid Collection"), _TL(""), false );
+	Parameters.Add_Bool("", "SET_LUT", _TL("Classify Colors of Input"), _TL(""), true )->do_UseInGUI();
+
+
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CLandsat_QA_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	pParameters->Set_Enabled("SET_LUT", 		pParameters->Get_Parameter("SENSOR")->asInt() > 0 && pParameters->Get_Parameter("IN_QA_PIXEL")->asGrid() );
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+//---------------------------------------------------------
+bool CLandsat_QA_Import::On_Execute(void)
+{
+	CSG_Grids *pBands = NULL; CSG_Table Info_Bands;
+
+	Info_Bands.Add_Field("ID", 			SG_DATATYPE_String );
+	Info_Bands.Add_Field("BIT_POS", 	SG_DATATYPE_Int );
+	Info_Bands.Add_Field("BIT_LEN", 	SG_DATATYPE_Int );
+	Info_Bands.Add_Field("BAND", 		SG_DATATYPE_String );
+	Info_Bands.Add_Field("BAND_NAME", 	SG_DATATYPE_String );
+	Info_Bands.Add_Field("FLAG_DESC",  	SG_DATATYPE_String );
+
+	Parameters("OUTPUT" )->asGridList()->Del_Items();
+
+	std::vector<Input> 	Inputs; 
+
+	if( !Set_Inputs( Inputs ) )
+	{
+		Error_Set(_TL("No input datasets provided"));
+		return false;
+	}
+
+	for( auto Input : Inputs )
+	{
+		if( Parameters("GRIDS")->asBool() )
+		{
+			if( (pBands = SG_Create_Grids( Get_System(), Info_Bands)) == NULL )
+			{
+				Error_Set(_TL("Memory allocation failed"));
+				return false;
+			}
+
+			pBands->Set_Name(Input.pGridInput->Get_Name());
+			//pBands->Get_MetaData().Add_Child(Info_Scene)->Set_Name("LANDSAT");
+			//pBands->Set_Description(Info_Scene.asText());
+			//pBands->Set_Z_Attribute (4);
+			//pBands->Set_Z_Name_Field(2);
+		}
+
+		
+		for( QA_Keys &Key : Input.Keys )
+		{
+			if( (Key.pGridTarget = SG_Create_Grid(Get_System(), Key.Type)) == NULL )
+	  		{
+				Error_Set(_TL("Memory allocation failed"));
+				return false;
+			}
+
+			Process_Set_Text(CSG_String::Format("Decode Flag: %s", CSG_String(Key.Band_Name).c_str() ));
+			#pragma omp parallel for
+			for( sLong i=0; i<Get_NCells(); i++ )
+			{
+				// Note: Decode_Value only supports one or two bits decoding
+				double Value = Decode_Value( Input.pGridInput->asShort(i), Key.Pos, Key.Len );
+				Key.pGridTarget->Set_Value(i, Value , false);
+			}
+			
+			if( pBands )
+			{
+				pBands->Add_Grid( *Set_Grids_Attribute( Info_Bands, Key), Key.pGridTarget );
+			}
+			else
+	  		{
+				Key.pGridTarget->Set_Name( CSG_String::Format("%s_%s", Input.pGridInput->Get_Name(), CSG_String(Key.Band).c_str()) );
+					
+				if( has_GUI() )
+				{
+					// Do the Update first. This will ensure the LUT is created by the GUI. 
+					SG_UI_DataObject_Add( Key.pGridTarget, SG_UI_DATAOBJECT_UPDATE );
+					Create_LUT( Key.pGridTarget , Key.Len == 1 ? Generic_Bool : Generic_Confidece );
+				}
+
+				Parameters("OUTPUT" )->asGridList()->Add_Item( Key.pGridTarget );
+			}
+		}
+
+		if( pBands )
+		{
+			Parameters("OUTPUT" )->asGridList()->Add_Item( pBands );
+		}
+	}
+			
+	//-----------------------------------------------------
+	return( Parameters("OUTPUT")->asGridList()->Get_Grid_Count() > 0 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CLandsat_QA_Import::Set_Inputs( std::vector<Input> &Input )
+{
+	int Sensor = Parameters("SENSOR")->asInt();
+	CSG_Grid *pGrid = pGrid = Parameters("IN_QA_PIXEL")->asGrid();
+
+	if( (pGrid = Parameters("IN_QA_RADSAT")->asGrid()) )
+	{
+		std::vector<QA_Keys> 	Keys;
+	
+		switch( Sensor )
+		{
+			case 	0: Keys = MSS_C2_L1_QA_Sat;	 		break;
+			case 	1: Keys = TM_ETM_C2_L1_QA_Sat; 		break;
+			case 	2: Keys = OLI_TIRS_C2_L1_QA_Sat; 	break;
+		}
+		Input.push_back( {pGrid, Keys, false} );
+	}
+
+	if( (pGrid = Parameters("IN_QA_PIXEL")->asGrid()) )
+	{
+		std::vector<QA_Keys> 	Keys;
+	
+		switch( Sensor )
+		{
+			case 	0: Keys = MSS_C2_L1_QA_Pix; 		break;
+			case 	1: 
+				Keys = TM_ETM_C2_L1_QA_Pix; 		
+				if( has_GUI() && Parameters("SET_LUT")->asBool() ) Create_LUT( pGrid, TM_ETM_C2_QA_Pix_LUT );
+				break;
+			case 	2: 
+				Keys = OLI_TIRS_C2_L1_QA_Pix; 	
+				if( has_GUI() && Parameters("SET_LUT")->asBool() ) Create_LUT( pGrid, OLI_TIRS_C2_QA_Pix_LUT );
+				break;
+		}
+		Input.push_back( {pGrid, Keys, false} );
+	}
+
+	//-----------------------------------------------------
+	return( Input.size() > 0 );
+	
+}
+
+
+//---------------------------------------------------------
+CSG_Table_Record* CLandsat_QA_Import::Set_Grids_Attribute(CSG_Table &Table, QA_Keys Key)
+{
+	CSG_Table_Record *pRec = Table.Add_Record();
+
+	pRec->Set_Value(0, Key.Band		);
+	pRec->Set_Value(1, Key.Pos		);
+	pRec->Set_Value(2, Key.Len		);
+	pRec->Set_Value(3, Key.ID		);
+	pRec->Set_Value(4, Key.Band_Name);
+	pRec->Set_Value(5, Key.Desc		);
+
+	//-----------------------------------------------------
+	return pRec;
+}
+
+
+//---------------------------------------------------------
+double CLandsat_QA_Import::Decode_Value( short Value, size_t Position, size_t Length )
+{
+	std::bitset<16> BitMask(Value);
+
+	if( Length == 1 )
+	{
+		return (double) BitMask[Position];
+	}
+	// I was kinda lazy to implement arbitrary length since i 
+	// only saw two bits used for one flag until now...
+	else if( Length == 2 )
+	{
+		std::bitset<2> Extract(0);
+		Extract[0] = BitMask[Position	 ];
+		Extract[1] = BitMask[Position + 1];
+
+		return (double) Extract.to_ulong();
+	}
+
+	//-----------------------------------------------------
+	return (double) BitMask.to_ulong();
+}
+
+
+//---------------------------------------------------------
+bool CLandsat_QA_Import::Set_LUT(CSG_Table_Record *pRec, LUT_Keys Key)
+{
+	pRec->Set_Value(0, Key.Color 		); 
+	pRec->Set_Value(1, Key.Name 		); 
+	pRec->Set_Value(2, Key.Description 	); 
+	pRec->Set_Value(3, Key.Value 		);
+	pRec->Set_Value(4, Key.Value 		);
+
+	//-----------------------------------------------------
+	return true;
+}
+
+
+//---------------------------------------------------------
+bool CLandsat_QA_Import::Create_LUT(CSG_Grid *pGrid, std::vector<LUT_Keys> Keys)
+{
+	CSG_Parameter 	*pLUT 	= DataObject_Get_Parameter(pGrid, "LUT");
+
+ 	// Early check. If the Grid is unknown to the GUI the "LUT" Parameter is a nullptr
+	// so the asTable() is unsafe
+	if( pLUT == NULL )
+	{
+		return false;
+	}
+
+	CSG_Table 		*pTable = pLUT->asTable();
+	
+	if( pTable )
+	{
+		pTable->Del_Records();
+
+		for( LUT_Keys Key : Keys  )
+		{
+			Set_LUT( pTable->Add_Record(), Key );
+		}
+
+		return( DataObject_Set_Parameter(pGrid, pLUT) && DataObject_Set_Parameter(pGrid, "COLORS_TYPE", 1) );
+	}
+
+	//-----------------------------------------------------
+	return false;
+}
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
