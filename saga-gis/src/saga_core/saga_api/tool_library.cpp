@@ -385,7 +385,7 @@ bool CSG_Tool_Library_Manager::Add_Default_Libraries(bool bVerbose)
 
 		for(int i=0; i<Path.Get_Count(); i++)
 		{
-			SG_Get_Tool_Library_Manager().Add_Directory(Paths[i]);
+			SG_Get_Tool_Library_Manager().Add_Directory(Path[i]);
 		}
 	}
 
