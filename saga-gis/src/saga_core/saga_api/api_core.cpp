@@ -359,7 +359,7 @@ CSG_String	SG_UI_Get_Application_Path	(bool bPathOnly)
 
 	if( App_Path.is_Empty() )
 	{
-		App_Path = wxApp::GetInstance()->GetAppName().wc_str();
+		App_Path = wxStandardPaths::Get().GetExecutablePath().wc_str();
 	}
 
 	CSG_String Path(App_Path);
