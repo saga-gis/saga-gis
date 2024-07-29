@@ -140,7 +140,7 @@ struct LUT_Keys
 	long Color; const char *Name; const char *Description; int Value;
 };
 
-struct QA_Keys
+struct Flag_Info
 {
 	CSG_Grid *pGridTarget; TSG_Data_Type Type; const char *ID; size_t Pos; size_t Len; const char *Band; const char *Band_Name; const char *Desc; 
 };
@@ -148,7 +148,7 @@ struct QA_Keys
 
 struct Input 
 {
-	CSG_Grid *pGridInput; std::vector<QA_Keys> Keys; bool Add_LUT; std::vector<LUT_Keys> LUT;
+	CSG_Grid *pGridInput; std::vector<Flag_Info> Flags; bool Add_LUT; std::vector<LUT_Keys> LUT;
 };
 
 //---------------------------------------------------------
@@ -162,18 +162,21 @@ public:
 protected:
 
 	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool			On_Execute				(void);
 
 
 private:
 
-	CSG_Table_Record* 		Set_Grids_Attribute		(CSG_Table &Table, QA_Keys Key);
+	CSG_Table_Record* 		Set_Grids_Attribute		(CSG_Table &Table, Flag_Info Flag);
 	double 					Decode_Value			(short Value, size_t Position, size_t Length);
 	bool 					Create_LUT				(CSG_Grid *pGrid, std::vector<LUT_Keys> Keys);
 	bool 					Set_LUT					(CSG_Table_Record *pRec, LUT_Keys Key);
 
 	bool 					Set_Inputs				(std::vector<Input> &Input );
+	std::vector<Flag_Info> 	Get_Flags 				(CSG_Parameter *pParameter , int Sensor );
+	std::vector<Flag_Info> 	Get_Flags_Selection 	(CSG_Parameter *pParameter , int Sensor );
 };
 
 

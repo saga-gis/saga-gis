@@ -1442,7 +1442,7 @@ std::vector<LUT_Keys> OLI_TIRS_C2_QA_Aerosol_LUT
 //"High-level aerosol" 																				228
 
 //---------------------------------------------------------
-std::vector<QA_Keys> MSS_C2_L1_QA_Pix =
+std::vector<Flag_Info> MSS_C2_L1_QA_Pix =
 {
 	{NULL, SG_DATATYPE_Bit, 	"0", 0, 1, "Fill", 				"Fill", 			"Fill"},
 	{NULL, SG_DATATYPE_Bit, 	"3", 3, 1, "Cloud", 			"Cloud", 			"Cloud"},
@@ -1450,7 +1450,7 @@ std::vector<QA_Keys> MSS_C2_L1_QA_Pix =
 };
 
 //---------------------------------------------------------
-std::vector<QA_Keys> MSS_C2_L1_QA_Sat =
+std::vector<Flag_Info> MSS_C2_L1_QA_Sat =
 {
 	{NULL, SG_DATATYPE_Bit, "0", 0, 1, "B1_Sat", 		"Band 1", 			"Band 1 Data Saturation"},
 	{NULL, SG_DATATYPE_Bit, "1", 1, 1, "B2_Sat", 		"Band 2", 			"Band 2 Data Saturation"},
@@ -1463,7 +1463,7 @@ std::vector<QA_Keys> MSS_C2_L1_QA_Sat =
 };
 
 //---------------------------------------------------------
-std::vector<QA_Keys> TM_ETM_C2_L1_QA_Sat =
+std::vector<Flag_Info> TM_ETM_C2_L1_QA_Sat =
 {
 	{NULL, SG_DATATYPE_Bit, "0", 0, 1, "B1_Sat", 		"Band 1", 			"Band 1 Data Saturation"},
 	{NULL, SG_DATATYPE_Bit, "1", 1, 1, "B2_Sat", 		"Band 2", 			"Band 2 Data Saturation"},
@@ -1477,7 +1477,7 @@ std::vector<QA_Keys> TM_ETM_C2_L1_QA_Sat =
 };
 
 //---------------------------------------------------------
-std::vector<QA_Keys> TM_ETM_C2_L1_QA_Pix =
+std::vector<Flag_Info> TM_ETM_C2_L1_QA_Pix =
 {
 	{NULL, SG_DATATYPE_Bit, 	"0", 	 0, 	1, "Fill", 				"Fill", 			"Fill"},
 	{NULL, SG_DATATYPE_Bit, 	"1", 	 1, 	1, "Dilated_Cloud", 	"Dilated Fill", 	"Dilated Fill"},
@@ -1492,7 +1492,7 @@ std::vector<QA_Keys> TM_ETM_C2_L1_QA_Pix =
 };
 
 //---------------------------------------------------------
-std::vector<QA_Keys> OLI_TIRS_C2_L1_QA_Sat =
+std::vector<Flag_Info> OLI_TIRS_C2_L1_QA_Sat =
 {
 	{NULL, SG_DATATYPE_Bit,  "0", 	0, 	1, "B1_Sat", 		"Band 1", 			"Band 1 Data Saturation"},
 	{NULL, SG_DATATYPE_Bit,  "1", 	1, 	1, "B2_Sat", 		"Band 2", 			"Band 2 Data Saturation"},
@@ -1506,7 +1506,7 @@ std::vector<QA_Keys> OLI_TIRS_C2_L1_QA_Sat =
 };
 
 //---------------------------------------------------------
-std::vector<QA_Keys> OLI_TIRS_C2_L1_QA_Pix =
+std::vector<Flag_Info> OLI_TIRS_C2_L1_QA_Pix =
 {
 	{NULL, SG_DATATYPE_Bit, 	"0", 	 0, 	1, "Fill", 				"Fill", 			"Fill"},
 	{NULL, SG_DATATYPE_Bit, 	"1", 	 1, 	1, "Dilated_Cloud", 	"Dilated Fill", 	"Dilated Fill"},
@@ -1534,13 +1534,13 @@ CLandsat_QA_Import::CLandsat_QA_Import(void)
 
 	Set_Author		("J.Spitzmueller (c) 2024");
 
-	Set_Version 	("0.7");
+	Set_Version 	("0.8");
 
 	Set_Description	(_TW(
 		"This tool decodes Landsat Multispectral Scanner System (MSS), Thematic Mapper (TM), "
 		"Enhanced Thematic Mapper Plus (ETM+), and Operational Land Imager/Thermal Infrared Sensor (OLI/TIRS) "
 		"Quality Assessment (QA) bands. It splits these QA bands into individual bands and optionally aggregates "
-		"them into a Grid Collection. \n\n"
+		"them into a Grid Collection. It is also possible to select individual flags for output. \n\n"
 
 		"Currently, the tool supports Pixel and Radiometric Saturation Quality Assessment bands from Collection 2 (Level 1 and 2). "
 		"It also provides value interpretation for certain sensors and QA bands, which can be optionally added to the input datasets "
@@ -1580,14 +1580,19 @@ CLandsat_QA_Import::CLandsat_QA_Import(void)
 	//	), 0
 	//);
 
+	
 	Parameters.Add_Grid("", "IN_QA_PIXEL",		_TL("Pixel QA Band"), 						_TL("\"QA_PIXEL\"-Suffix"), 	PARAMETER_INPUT_OPTIONAL, true, SG_DATATYPE_Word );
 	Parameters.Add_Grid("", "IN_QA_RADSAT", 	_TL("Radiometric Saturation QA Band"), 		_TL("\"QA_RADSAT\"-Suffix"), 	PARAMETER_INPUT_OPTIONAL, true, SG_DATATYPE_Word );
 	//Parameters.Add_Grid("", "IN_SR_QA_AEROSOL", _TL("SR Aerosol QA Band"), 				_TL("\"SR_QA_AEROSOL\"-Suffix"),PARAMETER_INPUT_OPTIONAL, true, SG_DATATYPE_Byte );
+	//
+	Parameters.Add_Choices("IN_QA_PIXEL", 		"IN_QA_PIX_SELECTION", _TL("Selection"), _TL(""), "" );
+	Parameters.Add_Choices("IN_QA_RADSAT", 		"IN_QA_RADSAT_SELECTION", _TL("Selection"), _TL(""), "" );
 	
 	Parameters.Add_Grid_List("", "OUTPUT",		_TL("Output"), 						_TL(""), 	PARAMETER_OUTPUT );
 
-	Parameters.Add_Bool("", "GRIDS", _TL("Output as Grid Collection"), _TL(""), false );
-	Parameters.Add_Bool("", "SET_LUT", _TL("Classify Colors of Input"), _TL(""), true )->do_UseInGUI();
+	Parameters.Add_Bool("", "SELECTION", 	_TL("Select individual Bands"), 	_TL(""), false );
+	Parameters.Add_Bool("", "GRIDS", 		_TL("Output as Grid Collection"), 	_TL(""), false );
+	Parameters.Add_Bool("", "SET_LUT", 		_TL("Classify Colors of Input"), 	_TL(""), true  )->do_UseInGUI();
 
 
 }
@@ -1600,17 +1605,52 @@ CLandsat_QA_Import::CLandsat_QA_Import(void)
 //---------------------------------------------------------
 int CLandsat_QA_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	pParameters->Set_Enabled("SET_LUT", 		pParameters->Get_Parameter("SENSOR")->asInt() > 0 && pParameters->Get_Parameter("IN_QA_PIXEL")->asGrid() );
+	pParameters->Set_Enabled("SET_LUT", 					pParameters->Get_Parameter("SENSOR")->asInt() > 0 && pParameters->Get_Parameter("IN_QA_PIXEL")->asGrid() );
+
+	pParameters->Set_Enabled("IN_QA_PIX_SELECTION", 		pParameters->Get_Parameter("SELECTION")->asBool() );		
+	pParameters->Set_Enabled("IN_QA_RADSAT_SELECTION", 		pParameters->Get_Parameter("SELECTION")->asBool() );
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
+int CLandsat_QA_Import::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->is_Input() || pParameter->Cmp_Identifier("SENSOR") )
+	{
+		// Use this Array to loop rather than if/else mess with repeated task
+		CSG_Parameter* Input_Parameter[] = { pParameters->Get_Parameter("IN_QA_PIXEL"), pParameters->Get_Parameter("IN_QA_RADSAT") };
+		for( auto pInput : Input_Parameter )
+		{
+			// Check for usage (has a grid) and ensure the first child is actually a CSG_Parameter_Choices
+			CSG_Parameter_Choices *pChoices = NULL;
+			if( pInput->asGrid() && (pChoices = pInput->Get_Child(0)->asChoices()) )
+			{
+				pChoices->Del_Items();
+
+				std::vector<Flag_Info> 	Flags = Get_Flags( pInput, pParameters->Get_Parameter("SENSOR")->asInt() );
+				for( size_t i=0; i<Flags.size(); i++ )
+				{
+					Flag_Info Flag = Flags.at(i);
+					// Bury the Index in the Item-Data. This will later be recovered 
+					pChoices->Add_Item( Flag.Desc, CSG_String::Format("%d", i) );
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 
 //---------------------------------------------------------
 bool CLandsat_QA_Import::On_Execute(void)
 {
-	CSG_Grids *pBands = NULL; CSG_Table Info_Bands;
+	CSG_Grids *pBits = NULL; 
+	CSG_Grids *pBytes = NULL; 
 
+	CSG_Table Info_Bands;
 	Info_Bands.Add_Field("ID", 			SG_DATATYPE_String );
 	Info_Bands.Add_Field("BIT_POS", 	SG_DATATYPE_Int );
 	Info_Bands.Add_Field("BIT_LEN", 	SG_DATATYPE_Int );
@@ -1620,8 +1660,10 @@ bool CLandsat_QA_Import::On_Execute(void)
 
 	Parameters("OUTPUT" )->asGridList()->Del_Items();
 
+	// Organizing of the Inputs. The Tool offers multiple optional 
+	// Parameter Input Grids which are handled differently based of the Sensor and
+	// the collection and potentially level and the user selection.
 	std::vector<Input> 	Inputs; 
-
 	if( !Set_Inputs( Inputs ) )
 	{
 		Error_Set(_TL("No input datasets provided"));
@@ -1630,61 +1672,70 @@ bool CLandsat_QA_Import::On_Execute(void)
 
 	for( auto Input : Inputs )
 	{
-		if( Parameters("GRIDS")->asBool() )
+		for( Flag_Info &Flag : Input.Flags )
 		{
-			if( (pBands = SG_Create_Grids( Get_System(), Info_Bands)) == NULL )
-			{
-				Error_Set(_TL("Memory allocation failed"));
-				return false;
-			}
-
-			pBands->Set_Name(Input.pGridInput->Get_Name());
-			//pBands->Get_MetaData().Add_Child(Info_Scene)->Set_Name("LANDSAT");
-			//pBands->Set_Description(Info_Scene.asText());
-			//pBands->Set_Z_Attribute (4);
-			//pBands->Set_Z_Name_Field(2);
-		}
-
-		
-		for( QA_Keys &Key : Input.Keys )
-		{
-			if( (Key.pGridTarget = SG_Create_Grid(Get_System(), Key.Type)) == NULL )
+			if( (Flag.pGridTarget = SG_Create_Grid(Get_System(), Flag.Type)) == NULL )
 	  		{
 				Error_Set(_TL("Memory allocation failed"));
 				return false;
 			}
 
-			Process_Set_Text(CSG_String::Format("Decode Flag: %s", CSG_String(Key.Band_Name).c_str() ));
+			Process_Set_Text(CSG_String::Format("Decode Flag: %s", CSG_String(Flag.Band_Name).c_str() ));
 			#pragma omp parallel for
 			for( sLong i=0; i<Get_NCells(); i++ )
 			{
-				// Note: Decode_Value only supports one or two bits decoding
-				double Value = Decode_Value( Input.pGridInput->asShort(i), Key.Pos, Key.Len );
-				Key.pGridTarget->Set_Value(i, Value , false);
+				// Note: Decode_Value only supports one or two bits decoding until this point
+				double Value = Decode_Value( Input.pGridInput->asShort(i), Flag.Pos, Flag.Len );
+				Flag.pGridTarget->Set_Value(i, Value , false);
 			}
 			
-			if( pBands )
+			// Grid Collection
+			if( Parameters("GRIDS")->asBool() )
 			{
-				pBands->Add_Grid( *Set_Grids_Attribute( Info_Bands, Key), Key.pGridTarget );
+				if( Flag.Type == SG_DATATYPE_Bit )
+				{
+					if( pBits == NULL )
+					{
+						pBits = SG_Create_Grids( Get_System(), Info_Bands);
+						pBits->Set_Name(Input.pGridInput->Get_Name());
+					}
+					pBits->Add_Grid( *Set_Grids_Attribute( Info_Bands, Flag), Flag.pGridTarget );
+				}
+				if( Flag.Type == SG_DATATYPE_Byte )
+				{
+					if( pBytes == NULL )
+					{
+						pBytes = SG_Create_Grids( Get_System(), Info_Bands);
+						pBytes->Set_Name(Input.pGridInput->Get_Name());
+					}
+					pBytes->Add_Grid( *Set_Grids_Attribute( Info_Bands, Flag), Flag.pGridTarget );
+				}
 			}
 			else
 	  		{
-				Key.pGridTarget->Set_Name( CSG_String::Format("%s_%s", Input.pGridInput->Get_Name(), CSG_String(Key.Band).c_str()) );
+				Flag.pGridTarget->Set_Name( CSG_String::Format("%s_%s", Input.pGridInput->Get_Name(), CSG_String(Flag.Band).c_str()) );
 					
 				if( has_GUI() )
 				{
 					// Do the Update first. This will ensure the LUT is created by the GUI. 
-					SG_UI_DataObject_Add( Key.pGridTarget, SG_UI_DATAOBJECT_UPDATE );
-					Create_LUT( Key.pGridTarget , Key.Len == 1 ? Generic_Bool : Generic_Confidece );
+					SG_UI_DataObject_Add( Flag.pGridTarget, SG_UI_DATAOBJECT_UPDATE );
+					Create_LUT( Flag.pGridTarget , Flag.Len == 1 ? Generic_Bool : Generic_Confidece );
 				}
 
-				Parameters("OUTPUT" )->asGridList()->Add_Item( Key.pGridTarget );
+				Parameters("OUTPUT" )->asGridList()->Add_Item( Flag.pGridTarget );
 			}
 		}
 
-		if( pBands )
+		CSG_Parameter_Grid_List *pGridList = Parameters("OUTPUT" )->asGridList();
+		if( pBits )
 		{
-			Parameters("OUTPUT" )->asGridList()->Add_Item( pBands );
+			pGridList->Add_Item( pBits );
+			pBits = NULL;
+		}
+		if( pBytes )
+		{
+			pGridList->Add_Item( pBytes );
+			pBytes = NULL;
 		}
 	}
 			
@@ -1698,60 +1749,93 @@ bool CLandsat_QA_Import::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CLandsat_QA_Import::Set_Inputs( std::vector<Input> &Input )
+std::vector<Flag_Info> CLandsat_QA_Import::Get_Flags( CSG_Parameter *pParameter, int Sensor )
 {
-	int Sensor = Parameters("SENSOR")->asInt();
-	CSG_Grid *pGrid = pGrid = Parameters("IN_QA_PIXEL")->asGrid();
-
-	if( (pGrid = Parameters("IN_QA_RADSAT")->asGrid()) )
+	if( pParameter->Cmp_Identifier("IN_QA_RADSAT") && pParameter->asGrid() )
 	{
-		std::vector<QA_Keys> 	Keys;
-	
-		switch( Sensor )
-		{
-			case 	0: Keys = MSS_C2_L1_QA_Sat;	 		break;
-			case 	1: Keys = TM_ETM_C2_L1_QA_Sat; 		break;
-			case 	2: Keys = OLI_TIRS_C2_L1_QA_Sat; 	break;
-		}
-		Input.push_back( {pGrid, Keys, false} );
+		if( Sensor == 0 )
+			return MSS_C2_L1_QA_Sat;
+		if( Sensor == 1 )
+			return TM_ETM_C2_L1_QA_Sat;
+		if( Sensor == 2 )
+			return OLI_TIRS_C2_L1_QA_Sat;
 	}
-
-	if( (pGrid = Parameters("IN_QA_PIXEL")->asGrid()) )
-	{
-		std::vector<QA_Keys> 	Keys;
 	
-		switch( Sensor )
-		{
-			case 	0: Keys = MSS_C2_L1_QA_Pix; 		break;
-			case 	1: 
-				Keys = TM_ETM_C2_L1_QA_Pix; 		
-				if( has_GUI() && Parameters("SET_LUT")->asBool() ) Create_LUT( pGrid, TM_ETM_C2_QA_Pix_LUT );
-				break;
-			case 	2: 
-				Keys = OLI_TIRS_C2_L1_QA_Pix; 	
-				if( has_GUI() && Parameters("SET_LUT")->asBool() ) Create_LUT( pGrid, OLI_TIRS_C2_QA_Pix_LUT );
-				break;
-		}
-		Input.push_back( {pGrid, Keys, false} );
+	if( pParameter->Cmp_Identifier("IN_QA_PIXEL") && pParameter->asGrid() )
+	{
+		if( Sensor == 0 )
+			return MSS_C2_L1_QA_Pix;
+		if( Sensor == 1 )
+			return TM_ETM_C2_L1_QA_Pix;
+		if( Sensor == 2 )
+			return OLI_TIRS_C2_L1_QA_Pix;
 	}
 
 	//-----------------------------------------------------
-	return( Input.size() > 0 );
-	
+	return std::vector<Flag_Info>();
 }
 
 
 //---------------------------------------------------------
-CSG_Table_Record* CLandsat_QA_Import::Set_Grids_Attribute(CSG_Table &Table, QA_Keys Key)
+std::vector<Flag_Info> CLandsat_QA_Import::Get_Flags_Selection( CSG_Parameter *pParameter, int Sensor )
+{
+	std::vector<Flag_Info> Flags = Get_Flags( pParameter, Sensor ); std::vector<Flag_Info> Selection = {};
+
+	CSG_Parameter_Choices *pChoices = NULL;
+	if( (pChoices = pParameter->Get_Child(0)->asChoices()) )
+	{
+		for( int i=0; i<pChoices->Get_Selection_Count(); i++ )
+		{
+			// Recover the selected indices from the Item-Data
+			Selection.push_back( Flags.at(pChoices->Get_Selection_Data(i).asInt()) );
+		}
+	}
+
+	//-----------------------------------------------------
+	return Selection;
+}
+
+
+//---------------------------------------------------------
+bool CLandsat_QA_Import::Set_Inputs( std::vector<Input> &Input )
+{
+	int Sensor 		= Parameters("SENSOR")->asInt();
+	bool Selection 	= Parameters("SELECTION")->asBool();
+	CSG_Parameter* Input_Parameter[] = { Parameters("IN_QA_PIXEL"), Parameters("IN_QA_RADSAT") };
+	
+	for( auto P : Input_Parameter )
+	{
+		CSG_Grid *pGrid = P->asGrid();
+		if( pGrid )
+	 	{
+			Input.push_back({ pGrid, Selection ? Get_Flags_Selection(P, Sensor) : Get_Flags(P, Sensor) , false} );
+		
+			if( P->Cmp_Identifier("IN_QA_PIXEL") )
+			{
+				if( Sensor == 1 && has_GUI() && Parameters("SET_LUT")->asBool() ) 
+					Create_LUT( pGrid, TM_ETM_C2_QA_Pix_LUT );
+				if( Sensor == 2 && has_GUI() && Parameters("SET_LUT")->asBool() ) 
+					Create_LUT( pGrid, OLI_TIRS_C2_QA_Pix_LUT );
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( Input.size() > 0 );
+}
+
+
+//---------------------------------------------------------
+CSG_Table_Record* CLandsat_QA_Import::Set_Grids_Attribute(CSG_Table &Table, Flag_Info Flag)
 {
 	CSG_Table_Record *pRec = Table.Add_Record();
 
-	pRec->Set_Value(0, Key.Band		);
-	pRec->Set_Value(1, Key.Pos		);
-	pRec->Set_Value(2, Key.Len		);
-	pRec->Set_Value(3, Key.ID		);
-	pRec->Set_Value(4, Key.Band_Name);
-	pRec->Set_Value(5, Key.Desc		);
+	pRec->Set_Value(0, Flag.Band		);
+	pRec->Set_Value(1, Flag.Pos			);
+	pRec->Set_Value(2, Flag.Len			);
+	pRec->Set_Value(3, Flag.ID			);
+	pRec->Set_Value(4, Flag.Band_Name	);
+	pRec->Set_Value(5, Flag.Desc		);
 
 	//-----------------------------------------------------
 	return pRec;
@@ -1784,16 +1868,13 @@ double CLandsat_QA_Import::Decode_Value( short Value, size_t Position, size_t Le
 
 
 //---------------------------------------------------------
-bool CLandsat_QA_Import::Set_LUT(CSG_Table_Record *pRec, LUT_Keys Key)
+bool CLandsat_QA_Import::Set_LUT(CSG_Table_Record *pRec, LUT_Keys Flag)
 {
-	pRec->Set_Value(0, Key.Color 		); 
-	pRec->Set_Value(1, Key.Name 		); 
-	pRec->Set_Value(2, Key.Description 	); 
-	pRec->Set_Value(3, Key.Value 		);
-	pRec->Set_Value(4, Key.Value 		);
-
-	//-----------------------------------------------------
-	return true;
+	return( pRec->Set_Value(0, Flag.Color 		) 
+		&& 	pRec->Set_Value(1, Flag.Name 		) 
+		&& 	pRec->Set_Value(2, Flag.Description ) 
+		&& 	pRec->Set_Value(3, Flag.Value 		)
+		&& 	pRec->Set_Value(4, Flag.Value 		) );
 }
 
 
@@ -1804,13 +1885,9 @@ bool CLandsat_QA_Import::Create_LUT(CSG_Grid *pGrid, std::vector<LUT_Keys> Keys)
 
  	// Early check. If the Grid is unknown to the GUI the "LUT" Parameter is a nullptr
 	// so the asTable() is unsafe
-	if( pLUT == NULL )
-	{
-		return false;
-	}
+	if( pLUT == NULL ){ return false; }
 
 	CSG_Table 		*pTable = pLUT->asTable();
-	
 	if( pTable )
 	{
 		pTable->Del_Records();
@@ -1820,6 +1897,7 @@ bool CLandsat_QA_Import::Create_LUT(CSG_Grid *pGrid, std::vector<LUT_Keys> Keys)
 			Set_LUT( pTable->Add_Record(), Key );
 		}
 
+		//-------------------------------------------------
 		return( DataObject_Set_Parameter(pGrid, pLUT) && DataObject_Set_Parameter(pGrid, "COLORS_TYPE", 1) );
 	}
 
