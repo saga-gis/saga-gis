@@ -46,6 +46,7 @@
 
 //---------------------------------------------------------
 #include "landsat_scene_import.h"
+#include "saga_api/api_core.h"
 #include <bitset>
 #include <vector>
 
@@ -1342,6 +1343,15 @@ std::vector<LUT_Keys> Generic_Confidece =
 };
 
 //---------------------------------------------------------
+std::vector<LUT_Keys> Aerosol_Level =
+{
+	{ SG_COLOR_GREY, 		"Climatology"															,"",  0 },  		
+	{ SG_COLOR_YELLOW, 		"Low"																	,"",  1 },  		
+	{ SG_COLOR_YELLOW_DARK, "Medium"																,"",  2 },  		
+	{ SG_COLOR_RED, 		"High"																	,"",  3 },  		
+};
+
+//---------------------------------------------------------
 std::vector<LUT_Keys> TM_ETM_C2_QA_Pix_LUT =
 {
 	//{ SG_COLOR_BLACK, 		"Fill"																			,"",     1 },	
@@ -1389,22 +1399,22 @@ std::vector<LUT_Keys> OLI_TIRS_C2_QA_Pix_LUT
 std::vector<LUT_Keys> OLI_TIRS_C2_QA_Aerosol_LUT 
 {
 	//{ SG_COLOR_WHITE, 		"Fill"																			, "",   1 }, 
-	{ SG_COLOR_WHITE, 		"Valid aerosol retrieval"                                                		, "",   2 },
-	{ SG_COLOR_WHITE, 		"Water"                                                                     	, "",   4 },
-	{ SG_COLOR_WHITE, 		"Aerosol interpolated"                                                       	, "",  32 }, 
-	{ SG_COLOR_WHITE, 		"Valid aerosol ret., low aerosol"                                            	, "",  66 }, 
-	{ SG_COLOR_WHITE, 		"Water, low aerosol"                                                         	, "",  68 }, 
-	{ SG_COLOR_WHITE, 		"Aerosol interpolated, low aerosol"                                          	, "",  96 }, 
-	{ SG_COLOR_WHITE, 		"Water pixel used in interpolation, aerosol interpolated, low aerosol"       	, "", 100 },
-	{ SG_COLOR_WHITE, 		"Valid aerosol retrieval, medium aerosol"                                    	, "", 130 },
-	{ SG_COLOR_WHITE, 		"Water, medium aerosol"                                                      	, "", 132 },
-	{ SG_COLOR_WHITE, 		"Aerosol interpolated, medium aerosol"                                       	, "", 160 },
-	{ SG_COLOR_WHITE, 		"Water pixel used in interpolation, aerosol interpolated, medium aerosol"    	, "", 164 },
-	{ SG_COLOR_WHITE, 		"High aerosol"                                                               	, "", 192 },
-	{ SG_COLOR_WHITE, 		"Valid aerosol retrieval, high aerosol"                                      	, "", 194 },
-	{ SG_COLOR_WHITE, 		"Water, high aerosol"                                                       	, "", 196 },
-	{ SG_COLOR_WHITE, 		"Aerosol interpolated, high aerosol"                                         	, "", 224 },
-	{ SG_COLOR_WHITE, 		"Water pixel used in interpolation, aerosol interpolated, high aerosol"      	, "", 228 }
+	{ SG_COLOR_BLUE_LIGHT, 		"Valid aerosol retrieval"                                                		, "",   2 },
+	{ SG_COLOR_BLUE, 			"Water"                                                                     	, "",   4 },
+	{ SG_COLOR_BLUE_LIGHT, 		"Aerosol interpolated"                                                       	, "",  32 }, 
+	{ SG_COLOR_BLUE_LIGHT, 		"Valid aerosol ret., low aerosol"                                            	, "",  66 }, 
+	{ SG_COLOR_BLUE, 			"Water, low aerosol"                                                         	, "",  68 }, 
+	{ SG_COLOR_BLUE_LIGHT, 		"Aerosol interpolated, low aerosol"                                          	, "",  96 }, 
+	{ SG_COLOR_BLUE, 			"Water pixel used in interpolation, aerosol interpolated, low aerosol"       	, "", 100 },
+	{ SG_COLOR_BLUE_LIGHT, 		"Valid aerosol retrieval, medium aerosol"                                    	, "", 130 },
+	{ SG_COLOR_BLUE, 			"Water, medium aerosol"                                                      	, "", 132 },
+	{ SG_COLOR_BLUE_LIGHT, 		"Aerosol interpolated, medium aerosol"                                       	, "", 160 },
+	{ SG_COLOR_BLUE, 			"Water pixel used in interpolation, aerosol interpolated, medium aerosol"    	, "", 164 },
+	{ SG_COLOR_BLUE_LIGHT, 		"High aerosol"                                                               	, "", 192 },
+	{ SG_COLOR_BLUE_LIGHT, 		"Valid aerosol retrieval, high aerosol"                                      	, "", 194 },
+	{ SG_COLOR_BLUE, 			"Water, high aerosol"                                                       	, "", 196 },
+	{ SG_COLOR_BLUE_LIGHT, 		"Aerosol interpolated, high aerosol"                                         	, "", 224 },
+	{ SG_COLOR_BLUE, 			"Water pixel used in interpolation, aerosol interpolated, high aerosol"      	, "", 228 }
 };
 
 //"Attribute Pixel Value"
@@ -1522,6 +1532,16 @@ std::vector<Flag_Info> OLI_TIRS_C2_L1_QA_Pix =
 	{NULL, SG_DATATYPE_Byte, 	"14-15",14,		2, "Cirrus_Confidence", "Cirrus Confidence","Cirrus Confidence"}
 };
 
+//---------------------------------------------------------
+std::vector<Flag_Info> OLI_TIRS_C2_L1_QA_Aerosol =
+{
+	{NULL, SG_DATATYPE_Bit, 	"0", 	 0, 	1, "Fill", 					"Fill", 					"Fill"},
+	{NULL, SG_DATATYPE_Bit, 	"1", 	 1, 	1, "Valid_Aerosol", 		"Valid Aerosol", 			"Valid aerosol retrieval"},
+	{NULL, SG_DATATYPE_Bit, 	"2", 	 2, 	1, "Water", 				"Water", 					"Water"},
+	{NULL, SG_DATATYPE_Bit, 	"5", 	 5, 	1, "Interpolated_Aerosol", 	"Interpolated Aerosol", 	"Interpolated Aerosol"},
+	{NULL, SG_DATATYPE_Byte, 	"6-7", 	 6, 	2, "Aerosol_Level", 		"Aerosol Level", 			"Aerosol Level"},
+};
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -1534,7 +1554,7 @@ CLandsat_QA_Import::CLandsat_QA_Import(void)
 
 	Set_Author		("J.Spitzmueller (c) 2024");
 
-	Set_Version 	("0.8");
+	Set_Version 	("0.9");
 
 	Set_Description	(_TW(
 		"This tool decodes Landsat Multispectral Scanner System (MSS), Thematic Mapper (TM), "
@@ -1542,7 +1562,7 @@ CLandsat_QA_Import::CLandsat_QA_Import(void)
 		"Quality Assessment (QA) bands. It splits these QA bands into individual bands and optionally aggregates "
 		"them into a Grid Collection. It is also possible to select individual flags for output. \n\n"
 
-		"Currently, the tool supports Pixel and Radiometric Saturation Quality Assessment bands from Collection 2 (Level 1 and 2). "
+		"Currently, the tool supports Pixel, Radiometric Saturation and Surface Reflectance Aerosol (only OLI/TIRS) Quality Assessment bands from Collection 2 (Level 1 and 2). "
 		"It also provides value interpretation for certain sensors and QA bands, which can be optionally added to the input datasets "
 		"for classified displaying in the GUI."
 	));
@@ -1568,7 +1588,7 @@ CLandsat_QA_Import::CLandsat_QA_Import(void)
 			_TL("Landsat 1-5 (MSS)"),
 			_TL("Landsat 4-7 (TM & ETM+)"),
 			_TL("Landsat 8-9 (OLI/TIRS)")
-		), 0
+		), 2
 	);
 
 	//Parameters.Add_Choice("",
@@ -1583,12 +1603,13 @@ CLandsat_QA_Import::CLandsat_QA_Import(void)
 	
 	Parameters.Add_Grid("", "IN_QA_PIXEL",		_TL("Pixel QA Band"), 						_TL("\"QA_PIXEL\"-Suffix"), 	PARAMETER_INPUT_OPTIONAL, true, SG_DATATYPE_Word );
 	Parameters.Add_Grid("", "IN_QA_RADSAT", 	_TL("Radiometric Saturation QA Band"), 		_TL("\"QA_RADSAT\"-Suffix"), 	PARAMETER_INPUT_OPTIONAL, true, SG_DATATYPE_Word );
-	//Parameters.Add_Grid("", "IN_SR_QA_AEROSOL", _TL("SR Aerosol QA Band"), 				_TL("\"SR_QA_AEROSOL\"-Suffix"),PARAMETER_INPUT_OPTIONAL, true, SG_DATATYPE_Byte );
+	Parameters.Add_Grid("", "IN_SR_QA_AEROSOL", _TL("SR Aerosol QA Band"), 					_TL("\"SR_QA_AEROSOL\"-Suffix"),PARAMETER_INPUT_OPTIONAL, true, SG_DATATYPE_Byte );
 	//
-	Parameters.Add_Choices("IN_QA_PIXEL", 		"IN_QA_PIX_SELECTION", _TL("Selection"), _TL(""), "" );
-	Parameters.Add_Choices("IN_QA_RADSAT", 		"IN_QA_RADSAT_SELECTION", _TL("Selection"), _TL(""), "" );
+	Parameters.Add_Choices("IN_QA_PIXEL", 		"IN_QA_PIX_SELECTION", 						_TL("Flag Selection"), _TL(""), "" );
+	Parameters.Add_Choices("IN_QA_RADSAT", 		"IN_QA_RADSAT_SELECTION", 					_TL("Flag Selection"), _TL(""), "" );
+	Parameters.Add_Choices("IN_SR_QA_AEROSOL", 	"IN_SR_QA_AEROSOL_SELECTION", 				_TL("Flag Selection"), _TL(""), "" );
 	
-	Parameters.Add_Grid_List("", "OUTPUT",		_TL("Output"), 						_TL(""), 	PARAMETER_OUTPUT );
+	Parameters.Add_Grid_List("", "OUTPUT",		_TL("Output"), 								_TL(""), 	PARAMETER_OUTPUT );
 
 	Parameters.Add_Bool("", "SELECTION", 	_TL("Select individual Bands"), 	_TL(""), false );
 	Parameters.Add_Bool("", "GRIDS", 		_TL("Output as Grid Collection"), 	_TL(""), false );
@@ -1605,13 +1626,18 @@ CLandsat_QA_Import::CLandsat_QA_Import(void)
 //---------------------------------------------------------
 int CLandsat_QA_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	pParameters->Set_Enabled("SET_LUT", 					pParameters->Get_Parameter("SENSOR")->asInt() > 0 && pParameters->Get_Parameter("IN_QA_PIXEL")->asGrid() );
+	pParameters->Set_Enabled("SET_LUT", 					(pParameters->Get_Parameter("SENSOR")->asInt() >  0 && pParameters->Get_Parameter("IN_QA_PIXEL")->asGrid())
+														||	(pParameters->Get_Parameter("SENSOR")->asInt() == 2 && pParameters->Get_Parameter("IN_SR_QA_AEROSOL")->asGrid()) );
+	
+	pParameters->Set_Enabled("IN_SR_QA_AEROSOL", 			pParameters->Get_Parameter("SENSOR")->asInt() == 2);
 
+	pParameters->Set_Enabled("IN_SR_QA_AEROSOL_SELECTION", 	pParameters->Get_Parameter("SELECTION")->asBool() && pParameters->Get_Parameter("SENSOR")->asInt() == 2 );
 	pParameters->Set_Enabled("IN_QA_PIX_SELECTION", 		pParameters->Get_Parameter("SELECTION")->asBool() );		
 	pParameters->Set_Enabled("IN_QA_RADSAT_SELECTION", 		pParameters->Get_Parameter("SELECTION")->asBool() );
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
+
 
 //---------------------------------------------------------
 int CLandsat_QA_Import::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
@@ -1619,12 +1645,12 @@ int CLandsat_QA_Import::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 	if( pParameter->is_Input() || pParameter->Cmp_Identifier("SENSOR") )
 	{
 		// Use this Array to loop rather than if/else mess with repeated task
-		CSG_Parameter* Input_Parameter[] = { pParameters->Get_Parameter("IN_QA_PIXEL"), pParameters->Get_Parameter("IN_QA_RADSAT") };
+		CSG_Parameter* Input_Parameter[] = { pParameters->Get_Parameter("IN_QA_PIXEL"), pParameters->Get_Parameter("IN_QA_RADSAT"), pParameters->Get_Parameter("IN_SR_QA_AEROSOL") };
 		for( auto pInput : Input_Parameter )
 		{
 			// Check for usage (has a grid) and ensure the first child is actually a CSG_Parameter_Choices
 			CSG_Parameter_Choices *pChoices = NULL;
-			if( pInput->asGrid() && (pChoices = pInput->Get_Child(0)->asChoices()) )
+			if( pInput->asGrid() && pInput->Get_Child(0) && (pChoices = pInput->Get_Child(0)->asChoices()) )
 			{
 				pChoices->Del_Items();
 
@@ -1719,7 +1745,7 @@ bool CLandsat_QA_Import::On_Execute(void)
 				{
 					// Do the Update first. This will ensure the LUT is created by the GUI. 
 					SG_UI_DataObject_Add( Flag.pGridTarget, SG_UI_DATAOBJECT_UPDATE );
-					Create_LUT( Flag.pGridTarget , Flag.Len == 1 ? Generic_Bool : Generic_Confidece );
+					Create_LUT( Flag.pGridTarget , Get_LUT( Flag ) );
 				}
 
 				Parameters("OUTPUT" )->asGridList()->Add_Item( Flag.pGridTarget );
@@ -1749,6 +1775,18 @@ bool CLandsat_QA_Import::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+std::vector<LUT_Keys> CLandsat_QA_Import::Get_LUT( Flag_Info Flag )
+{
+	if( CSG_String(Flag.Band).is_Same_As("Aerosol_Level") )
+	{ 
+		return Aerosol_Level;
+	}
+
+	return( Flag.Len == 1 ? Generic_Bool : Generic_Confidece );
+}
+
+
+//---------------------------------------------------------
 std::vector<Flag_Info> CLandsat_QA_Import::Get_Flags( CSG_Parameter *pParameter, int Sensor )
 {
 	if( pParameter->Cmp_Identifier("IN_QA_RADSAT") && pParameter->asGrid() )
@@ -1770,6 +1808,12 @@ std::vector<Flag_Info> CLandsat_QA_Import::Get_Flags( CSG_Parameter *pParameter,
 		if( Sensor == 2 )
 			return OLI_TIRS_C2_L1_QA_Pix;
 	}
+	
+	if( pParameter->Cmp_Identifier("IN_SR_QA_AEROSOL") && pParameter->asGrid() )
+	{
+		if( Sensor == 2 )
+			return OLI_TIRS_C2_L1_QA_Aerosol;
+	}
 
 	//-----------------------------------------------------
 	return std::vector<Flag_Info>();
@@ -1782,7 +1826,7 @@ std::vector<Flag_Info> CLandsat_QA_Import::Get_Flags_Selection( CSG_Parameter *p
 	std::vector<Flag_Info> Flags = Get_Flags( pParameter, Sensor ); std::vector<Flag_Info> Selection = {};
 
 	CSG_Parameter_Choices *pChoices = NULL;
-	if( (pChoices = pParameter->Get_Child(0)->asChoices()) )
+	if( pParameter->Get_Child(0) && (pChoices = pParameter->Get_Child(0)->asChoices()) )
 	{
 		for( int i=0; i<pChoices->Get_Selection_Count(); i++ )
 		{
@@ -1801,7 +1845,7 @@ bool CLandsat_QA_Import::Set_Inputs( std::vector<Input> &Input )
 {
 	int Sensor 		= Parameters("SENSOR")->asInt();
 	bool Selection 	= Parameters("SELECTION")->asBool();
-	CSG_Parameter* Input_Parameter[] = { Parameters("IN_QA_PIXEL"), Parameters("IN_QA_RADSAT") };
+	CSG_Parameter* Input_Parameter[] = { Parameters("IN_QA_PIXEL"), Parameters("IN_QA_RADSAT") , Parameters("IN_SR_QA_AEROSOL")};
 	
 	for( auto P : Input_Parameter )
 	{
@@ -1816,6 +1860,12 @@ bool CLandsat_QA_Import::Set_Inputs( std::vector<Input> &Input )
 					Create_LUT( pGrid, TM_ETM_C2_QA_Pix_LUT );
 				if( Sensor == 2 && has_GUI() && Parameters("SET_LUT")->asBool() ) 
 					Create_LUT( pGrid, OLI_TIRS_C2_QA_Pix_LUT );
+			}
+			
+			if( P->Cmp_Identifier("IN_SR_QA_AEROSOL") )
+			{
+				if( Sensor == 2 && has_GUI() && Parameters("SET_LUT")->asBool() ) 
+					Create_LUT( pGrid, OLI_TIRS_C2_QA_Aerosol_LUT );
 			}
 		}
 	}
@@ -1870,11 +1920,13 @@ double CLandsat_QA_Import::Decode_Value( short Value, size_t Position, size_t Le
 //---------------------------------------------------------
 bool CLandsat_QA_Import::Set_LUT(CSG_Table_Record *pRec, LUT_Keys Flag)
 {
-	return( pRec->Set_Value(0, Flag.Color 		) 
-		&& 	pRec->Set_Value(1, Flag.Name 		) 
-		&& 	pRec->Set_Value(2, Flag.Description ) 
-		&& 	pRec->Set_Value(3, Flag.Value 		)
-		&& 	pRec->Set_Value(4, Flag.Value 		) );
+	pRec->Set_Value(0, Flag.Color 		); 
+	pRec->Set_Value(1, Flag.Name 		); 
+	pRec->Set_Value(2, Flag.Description ); 
+	pRec->Set_Value(3, Flag.Value 		);
+	pRec->Set_Value(4, Flag.Value 		);
+
+	return true;
 }
 
 

@@ -173,6 +173,7 @@ private:
 	double 					Decode_Value			(short Value, size_t Position, size_t Length);
 	bool 					Create_LUT				(CSG_Grid *pGrid, std::vector<LUT_Keys> Keys);
 	bool 					Set_LUT					(CSG_Table_Record *pRec, LUT_Keys Key);
+	std::vector<LUT_Keys> 	Get_LUT					(Flag_Info Flag);
 
 	bool 					Set_Inputs				(std::vector<Input> &Input );
 	std::vector<Flag_Info> 	Get_Flags 				(CSG_Parameter *pParameter , int Sensor );
