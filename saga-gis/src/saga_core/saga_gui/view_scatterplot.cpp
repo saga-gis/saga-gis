@@ -450,15 +450,10 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 		50, 10, true
 	);
 
-	CSG_Colors Colors(7, SG_COLORS_RAINBOW); wxColor Background(SYS_Get_Color(wxSYS_COLOUR_WINDOW));
-
-	Colors.Set_Color(0, Background.GetRed(), Background.GetGreen(), Background.GetBlue());
-	Colors.Set_Count(100);
-
 	m_Options.Add_Colors("DISPLAY",
 		"DENSITY_PAL", _TL("Colors"),
 		_TL(""),
-		&Colors
+		SG_COLORS_RAINBOW, 7
 	);
 
 	m_Options.Add_Bool("DISPLAY",
@@ -482,6 +477,12 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 		0, 100, 0., true
 	);
 
+	m_Options.Add_Choice("",
+		"COLOR_MODE"  , _TL("Color Mode"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s", _TL("system"), _TL("bright"), _TL("dark"))
+	);
+
 	//-----------------------------------------------------
 	m_Parameters.Set_Callback_On_Parameter_Changed(&Scatter_Plot_On_Parameter_Changed);
 }
@@ -496,6 +497,8 @@ void CVIEW_ScatterPlot::On_Parameters(wxCommandEvent &event)
 {
 	if( DLG_Parameters(&m_Parameters) )
 	{
+		SetBackgroundColour(SYS_Get_Color_Background(m_Options("COLOR_MODE")->asInt()));
+
 		_Update_Data();
 	}
 }
@@ -583,12 +586,12 @@ void CVIEW_ScatterPlot::On_Paint(wxPaintEvent &event)
 {
 	wxPaintDC dc(this); wxRect r(wxPoint(0, 0), GetClientSize());
 
-	dc.SetBackground(SYS_Get_Color(wxSYS_COLOUR_WINDOW)); dc.Clear();
+	dc.SetBackground(SYS_Get_Color_Background(m_Options("COLOR_MODE")->asInt())); dc.Clear();
 
 	Draw_Edge(dc, EDGE_STYLE_SUNKEN, r);
 
-	dc.SetPen           (SYS_Get_Color(wxSYS_COLOUR_WINDOWTEXT));
-	dc.SetTextForeground(SYS_Get_Color(wxSYS_COLOUR_WINDOWTEXT));
+	dc.SetPen           (SYS_Get_Color_Foreground(m_Options("COLOR_MODE")->asInt()));
+	dc.SetTextForeground(SYS_Get_Color_Foreground(m_Options("COLOR_MODE")->asInt()));
 
 	_Draw(dc, r);
 }
@@ -624,6 +627,27 @@ void CVIEW_ScatterPlot::_Draw(wxDC &dc, wxRect r)
 	{
 		Draw_Text(dc, TEXTALIGN_CENTER, r.GetLeft() + r.GetWidth() / 2, r.GetTop() + r.GetHeight() / 2, _TL("Invalid data!"));
 	}
+}
+
+//---------------------------------------------------------
+CSG_Colors CVIEW_ScatterPlot::_Get_Colors(int nColors)
+{
+	CSG_Colors Colors, *pColors = m_Options("DENSITY_PAL")->asColors();
+
+	wxColor Background(SYS_Get_Color_Background(m_Options("COLOR_MODE")->asInt()));
+
+	Colors.Set_Count(pColors->Get_Count() + 1);
+
+	Colors.Set_Color(0, Background.GetRed(), Background.GetGreen(), Background.GetBlue());
+
+	for(int i=0; i<pColors->Get_Count(); i++)
+	{
+		Colors[i + 1] = pColors->Get_Color(i);
+	}
+
+	Colors.Set_Count(nColors);
+
+	return( Colors );
 }
 
 //---------------------------------------------------------
@@ -681,9 +705,7 @@ void CVIEW_ScatterPlot::_Draw_Regression(wxDC &dc, wxRect r)
 //---------------------------------------------------------
 void CVIEW_ScatterPlot::_Draw_Legend(wxDC &dc, wxRect r)
 {
-	CSG_Colors Colors(*m_Options("DENSITY_PAL")->asColors());
-
-	Colors.Set_Count(r.GetHeight());
+	CSG_Colors Colors(_Get_Colors(r.GetHeight()));
 
 	for(int i=0, y=r.GetBottom(); i<Colors.Get_Count(); i++, y--)
 	{
@@ -704,7 +726,7 @@ void CVIEW_ScatterPlot::_Draw_Legend(wxDC &dc, wxRect r)
 //---------------------------------------------------------
 void CVIEW_ScatterPlot::_Draw_Image(wxDC &dc, wxRect r)
 {
-	CSG_Colors *pColors = m_Options("DENSITY_PAL")->asColors();
+	CSG_Colors Colors(_Get_Colors());
 
 	wxImage	Image(r.GetWidth(), r.GetHeight());
 
@@ -712,7 +734,7 @@ void CVIEW_ScatterPlot::_Draw_Image(wxDC &dc, wxRect r)
 	int Max = m_Options("Z_ADJUST")->asInt() ? m_Options("Z_RANGE.MAX")->asDouble() : (int)m_Count.Get_Max();
 	int Range = Max - Min;
 
-	double dCount = (pColors->Get_Count() - 2.) / log(1. + Range);
+	double dCount = (Colors.Get_Count() - 2.) / log(1. + Range);
 
 	double dx = (m_Count.Get_NX() - 1.) / (double)r.GetWidth ();
 	double dy = (m_Count.Get_NY() - 1.) / (double)r.GetHeight();
@@ -727,7 +749,7 @@ void CVIEW_ScatterPlot::_Draw_Image(wxDC &dc, wxRect r)
 		{
 			Count = !m_Count.Get_Value(ix, iy, Count) || Count < Min ? 0. : Count - Min; if( Count > Range ) { Count = Range; }
 			int i = (int)(log(1. + Count) * dCount);
-			Image.SetRGB(x, y, pColors->Get_Red(i), pColors->Get_Green(i), pColors->Get_Blue(i));
+			Image.SetRGB(x, y, Colors.Get_Red(i), Colors.Get_Green(i), Colors.Get_Blue(i));
 		}
 	}
 

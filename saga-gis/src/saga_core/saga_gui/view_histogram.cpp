@@ -118,18 +118,18 @@ CVIEW_Histogram::CVIEW_Histogram(CWKSP_Layer *pLayer)
 
 	m_bCumulative    = false;
 	m_bGaussian      = false;
-	m_Gaussian_Color = Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_WINDOWTEXT));
 	m_Gaussian_Size  = 1;
 	m_bColored       = true;
 
 	m_XLabeling      = 0;
 
+	m_Color_Mode     = 0;
 	m_Margin_Left    = 30;
 	m_Margin_Bottom  = m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_LUT ? 100 : 30;
 
 	m_bMouse_Down    = false;
 
-	Do_Update();
+	Do_Update(); Update();
 }
 
 
@@ -218,8 +218,8 @@ void CVIEW_Histogram::Draw(wxDC &dc)
 {
 	wxFont Font; Font.SetFamily(wxFONTFAMILY_SWISS); dc.SetFont(Font);
 
-	dc.SetPen           (SYS_Get_Color(wxSYS_COLOUR_WINDOWTEXT));
-	dc.SetTextForeground(SYS_Get_Color(wxSYS_COLOUR_WINDOWTEXT));
+	dc.SetPen           (SYS_Get_Color_Foreground(m_Color_Mode));
+	dc.SetTextForeground(SYS_Get_Color_Foreground(m_Color_Mode));
 
 	Draw_Histogram(dc);
 	Draw_Frame    (dc);
@@ -254,13 +254,13 @@ void CVIEW_Histogram::Draw_Bar(wxDC &dc, wxColour Color, int x[2], int y[3], int
 
 	if( y[1] >= y[2] )
 	{
-		bool bDark = wxSystemSettings::GetAppearance().IsUsingDarkBackground();
+		bool bDark = m_Color_Mode == 0 ? wxSystemSettings::GetAppearance().IsUsingDarkBackground() : m_Color_Mode == 2;
 
-		Color = SYS_Get_Color(wxSYS_COLOUR_WINDOW);
+		Color = SYS_Get_Color_Background(m_Color_Mode);
 
 		for(int ix=x[0]; ix<x[1]; ix++)
 		{
-			wxColour Next(StdDev[0] <= ix && ix <= StdDev[1] ? (bDark ? wxColour(192, 192, 192) : wxColour(64, 64, 64)) : Color);
+			wxColour Next(StdDev[0] <= ix && ix <= StdDev[1] ? (bDark ? wxColour(96, 96, 96) : wxColour(192, 192, 192)) : Color);
 
 			if( Invert[0] <= ix && ix <= Invert[1] )
 			{
@@ -321,7 +321,7 @@ void CVIEW_Histogram::Draw_Histogram(wxDC &dc)
 	}
 
 	//-----------------------------------------------------
-	bool bDark = wxSystemSettings::GetAppearance().IsUsingDarkBackground();
+	bool bDark = m_Color_Mode == 0 ? wxSystemSettings::GetAppearance().IsUsingDarkBackground() : m_Color_Mode == 2;
 
 	wxColor Color = bDark ? wxColour(200, 200, 200) : SYS_Get_Color(wxSYS_COLOUR_ACTIVECAPTION); // wxSYS_COLOUR_BTNSHADOW);
 
@@ -379,7 +379,7 @@ void CVIEW_Histogram::Draw_Histogram(wxDC &dc)
 			dy /= yMax;
 		}
 
-		wxPen oldPen(dc.GetPen()); dc.SetPen(wxPen(Get_Color_asWX(m_Gaussian_Color), m_Gaussian_Size));
+		wxPen oldPen(dc.GetPen()); dc.SetPen(wxPen(SYS_Get_Color_Foreground(m_Color_Mode), m_Gaussian_Size));
 
 		DRAW_LINE(s.Get_Mean()                 );
 		DRAW_LINE(s.Get_Mean() - s.Get_StdDev());
@@ -405,7 +405,7 @@ void CVIEW_Histogram::Draw_Frame(wxDC &dc)
 
 	const int FontSize  = 12;
 
-	wxPen oldPen(dc.GetPen()); dc.SetPen(SYS_Get_Color(wxSYS_COLOUR_WINDOWTEXT));
+	wxPen oldPen(dc.GetPen()); dc.SetPen(SYS_Get_Color_Foreground(m_Color_Mode));
 
 	Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);
 
@@ -649,13 +649,16 @@ void CVIEW_Histogram::On_Properties(wxCommandEvent &event)
 		CSG_String::Format("%s|%s", _TL("horizontal"), _TL("diagonal"), _TL("vertical")), m_XLabeling
 	);
 
+	P.Add_Bool  (""        , "GAUSSIAN"      , _TL("Normal Distribution"), _TL(""), m_bGaussian  );
+	P.Add_Int   ("GAUSSIAN", "GAUSSIAN_SIZE" , _TL("Line Width"         ), _TL(""), m_Gaussian_Size, 1, true);
+
+	P.Add_Choice(""        , "COLOR_MODE"    , _TL("Color Mode"         ), _TL(""),
+		CSG_String::Format("%s|%s|%s", _TL("system"), _TL("bright"), _TL("dark")) , m_Color_Mode
+	);
+
 	P.Add_Node  (""        , "MARGINS"       , _TL("Margins"            ), _TL(""));
 	P.Add_Int   ("MARGINS" , "MARGIN_LEFT"   , _TL("Left"               ), _TL(""), m_Margin_Left  , 10, true);
 	P.Add_Int   ("MARGINS" , "MARGIN_BOTTOM" , _TL("Bottom"             ), _TL(""), m_Margin_Bottom, 10, true);
-
-	P.Add_Bool  (""        , "GAUSSIAN"      , _TL("Normal Distribution"), _TL(""), m_bGaussian  );
-	P.Add_Color ("GAUSSIAN", "GAUSSIAN_COLOR", _TL("Color"              ), _TL(""), m_Gaussian_Color);
-	P.Add_Int   ("GAUSSIAN", "GAUSSIAN_SIZE" , _TL("Line Width"         ), _TL(""), m_Gaussian_Size, 1, true);
 
 	//-----------------------------------------------------
 	P.Set_Enabled("NCLASSES",
@@ -675,12 +678,14 @@ void CVIEW_Histogram::On_Properties(wxCommandEvent &event)
 
 		m_bCumulative    = P("CUMULATIVE"    )->asBool();
 		m_bColored       = P("COLORED"       )->asBool();
-		m_XLabeling      = P("XLABELING"     )->asInt();
-		m_Margin_Left    = P("MARGIN_LEFT"   )->asInt();
-		m_Margin_Bottom  = P("MARGIN_BOTTOM" )->asInt();
+		m_XLabeling      = P("XLABELING"     )->asInt ();
 		m_bGaussian      = P("GAUSSIAN"      )->asBool();
-		m_Gaussian_Color = P("GAUSSIAN_COLOR")->asInt();
-		m_Gaussian_Size  = P("GAUSSIAN_SIZE" )->asInt();
+		m_Gaussian_Size  = P("GAUSSIAN_SIZE" )->asInt ();
+		m_Color_Mode     = P("COLOR_MODE"    )->asInt ();
+		m_Margin_Left    = P("MARGIN_LEFT"   )->asInt ();
+		m_Margin_Bottom  = P("MARGIN_BOTTOM" )->asInt ();
+
+		SetBackgroundColour(SYS_Get_Color_Background(m_Color_Mode));
 
 		Refresh();
 	}

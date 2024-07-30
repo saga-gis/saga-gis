@@ -86,7 +86,7 @@ private:
 
 	bool							m_bCumulative, m_bGaussian, m_bColored, m_bMouse_Down;
 
-	int								m_XLabeling, m_Margin_Left, m_Margin_Bottom, m_Gaussian_Color, m_Gaussian_Size;
+	int								m_XLabeling, m_Gaussian_Size, m_Color_Mode, m_Margin_Left, m_Margin_Bottom;
 
 	wxPoint							m_Mouse_Down, m_Mouse_Move;
 

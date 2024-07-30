@@ -95,6 +95,9 @@ int					Get_Color_asInt					(wxColour Color);
 
 wxColour			SYS_Get_Color					(wxSystemColour index);
 
+wxColour			SYS_Get_Color_Background		(int Mode = 0);
+wxColour			SYS_Get_Color_Foreground		(int Mode = 0);
+
 //---------------------------------------------------------
 wxWindow *			MDI_Get_Frame					(void);
 

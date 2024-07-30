@@ -118,6 +118,8 @@ private:
 	bool							_Initialize_Shapes			(void);
 	bool							_Initialize_Table			(void);
 
+	CSG_Colors						_Get_Colors					(int nColors = 255);
+
 	void							_Draw						(wxDC &dc, wxRect r);
 	wxRect							_Draw_Get_rDiagram			(wxRect r);
 	void							_Draw_Legend				(wxDC &dc, wxRect r);

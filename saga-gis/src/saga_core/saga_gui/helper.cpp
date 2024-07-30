@@ -321,6 +321,28 @@ wxColour	SYS_Get_Color(wxSystemColour index)
 	return( wxSystemSettings::GetColour(index) );
 }
 
+//---------------------------------------------------------
+wxColour	SYS_Get_Color_Background(int Mode)
+{
+	switch( Mode )
+	{
+	default: return( wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW) );
+	case  1: return( *wxWHITE ); // bright
+	case  2: return( *wxBLACK ); // dark
+	}
+}
+
+//---------------------------------------------------------
+wxColour	SYS_Get_Color_Foreground(int Mode)
+{
+	switch( Mode )
+	{
+	default: return( wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT) );
+	case  1: return( *wxBLACK ); // bright
+	case  2: return( *wxWHITE ); // dark
+	}
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

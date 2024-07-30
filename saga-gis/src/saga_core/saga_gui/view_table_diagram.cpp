@@ -399,18 +399,8 @@ void CVIEW_Table_Diagram_Control::OnDraw(wxDC &dc)
 {
 	wxBitmap Bmp(m_Size); wxMemoryDC dc_Bmp(Bmp);
 
-	if( m_Parameters("INVERT_COLORS")->asBool() )
-	{
-		bool bDarkBG = wxSystemSettings::GetAppearance().IsUsingDarkBackground();
-
-		dc_Bmp.SetBackground    (bDarkBG ? *wxWHITE : *wxBLACK);
-		dc_Bmp.SetTextForeground(bDarkBG ? *wxBLACK : *wxWHITE);
-	}
-	else
-	{
-		dc_Bmp.SetBackground    (SYS_Get_Color(wxSYS_COLOUR_WINDOW    ));
-		dc_Bmp.SetTextForeground(SYS_Get_Color(wxSYS_COLOUR_WINDOWTEXT));
-	}
+	dc_Bmp.SetBackground    (SYS_Get_Color_Background(m_Parameters["COLOR_MODE"].asInt()));
+	dc_Bmp.SetTextForeground(SYS_Get_Color_Foreground(m_Parameters["COLOR_MODE"].asInt()));
 
 	dc_Bmp.Clear();
 
@@ -431,10 +421,9 @@ void CVIEW_Table_Diagram_Control::SaveToClipboard(void)
 {
 	Set_Buisy_Cursor(true);
 
-	wxBitmap	Bmp(m_Size);
-	wxMemoryDC	dc_Bmp(Bmp);
+	wxBitmap Bmp(m_Size); wxMemoryDC dc_Bmp(Bmp);
 
-	dc_Bmp.SetBackground(*wxWHITE_BRUSH);
+	dc_Bmp.SetBackground(SYS_Get_Color_Background(m_Parameters["COLOR_MODE"].asInt()));
 	dc_Bmp.Clear();
 
 	_Draw(dc_Bmp, wxRect(m_Size));
@@ -443,7 +432,7 @@ void CVIEW_Table_Diagram_Control::SaveToClipboard(void)
 
 	if( wxTheClipboard->Open() )
 	{
-		wxBitmapDataObject	*pBmp	= new wxBitmapDataObject;
+		wxBitmapDataObject *pBmp = new wxBitmapDataObject;
 		pBmp->SetBitmap(Bmp);
 		wxTheClipboard->SetData(pBmp);
 		wxTheClipboard->Close();
@@ -643,7 +632,7 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 	//-----------------------------------------------------
 	m_Parameters.Add_Font  (""            , "FONT"              , _TL("Font"              ), _TL(""));
 
-	m_Parameters.Add_Bool  (""            , "INVERT_COLORS"     , _TL("Inverse Colors"    ), _TL("Use inverse background/foreground colors."));
+	m_Parameters.Add_Choice(""            , "COLOR_MODE"        , _TL("Color Mode"        ), _TL(""), CSG_String::Format("%s|%s|%s", _TL("system"), _TL("bright"), _TL("dark")));
 
 	m_Parameters.Add_Bool  (""            , "LEGEND"            , _TL("Legend"            ), _TL(""), true);
 	m_Parameters.Add_Int   ("LEGEND"      , "LEGEND_WIDTH"      , _TL("Width"             ), _TL("Percent"), 15, 0, true, 50, true);
