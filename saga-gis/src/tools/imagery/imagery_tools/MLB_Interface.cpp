@@ -106,6 +106,7 @@ CSG_String Get_Info(int i)
 
 #include "topographic_correction.h"
 #include "clouds_and_shadows.h"
+#include "fmask.h"
 
 
 //---------------------------------------------------------
@@ -145,11 +146,12 @@ CSG_Tool *		Create_Tool(int i)
 
 	case 20: return( new CDetect_Clouds );
 	case 21: return( new CDetect_CloudShadows );
+	case 24: return( new CFmask );
 
 	case 22: return( new CSPOT_Scene_Import );
 
 	//-----------------------------------------------------
-	case 24: return( NULL );
+	case 25: return( NULL );
 	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
