@@ -59,6 +59,8 @@
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
+#include <bitset>
+#include <functional>
 
 
 ///////////////////////////////////////////////////////////
@@ -66,9 +68,13 @@
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+//typedef enum SpectralBand
+//{
+//	RED = 0, GREEN, BLUE, NIR, SWIR1, SWIR2, TIR, QARAD
+//} SpectralBand;
 
 //---------------------------------------------------------
-class CDetect_Clouds : public CSG_Tool_Grid
+class CDetect_Clouds : public CSG_Tool
 {
 public:
 	CDetect_Clouds(void);
@@ -89,11 +95,20 @@ private:
 	bool						m_bCelsius { false };
 
 	CSG_Grid					*m_pBand[8];
+	
+	CSG_Grid					*m_pResults[6];
+
+	CSG_Grid_System 			m_pSystem;
 
 
-	bool						Get_Brightness			(int x, int y, double &b, double &g, double &r, double &nir, double &swir1, double &swir2, double &tir, double &cirr);
+	bool						Get_Brightness			(int x, int y, int Band, double &Value);
+	double 						Get_Brightness			(int x, int y, int Band, bool &Eval );
+	bool 						Is_Saturated			(int x, int y, int Band );
+
+
 	int							Get_Fmask				(int x, int y);
 	bool						Set_Fmask				(CSG_Grid *pClouds);
+	bool						Set_Fmask_Pass_One_Two	();
 
 	bool						Set_ACCA				(CSG_Grid *pClouds);
 
