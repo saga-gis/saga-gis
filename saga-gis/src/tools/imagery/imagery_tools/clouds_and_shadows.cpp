@@ -58,22 +58,6 @@ enum
 	ID_NONE = 0, ID_CLOUD = 1, ID_CLOUD_WARM = 2, ID_SHADOW = 3
 };
 
-enum Sensor : int
-{
-	TM = 0, ETM = 1, OLI_TIRS = 2
-};
-
-enum
-{
-	RESULT_PCP = 0, RESULT_WATER, RESULT_SNOW, RESULT_LCP, RESULT_PCL, RESULT_WCP
-};
-
-
-enum 
-{	
-	RED = 0, GREEN, BLUE, NIR, SWIR1, SWIR2, TIR, QARAD
-};
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -139,7 +123,7 @@ CDetect_Clouds::CDetect_Clouds(void)
 {
 	Set_Name		(_TL("Cloud Detection"));
 
-	Set_Author		(SG_T("J.Spitzmüller, O.Conrad (c) 2024"));
+	Set_Author		(SG_T("J.Spitzmüller, O.Conrad (c) 2023"));
 
 	Set_Description	(_TW(
 		"This tool implements pass one of the Function of mask (Fmask) algorithm "
@@ -182,57 +166,29 @@ CDetect_Clouds::CDetect_Clouds(void)
 	);
 
 	//-----------------------------------------------------
-//	Parameters.Add_Grid_System("", "BANDS_VNIR"   , _TL("Grid System"), _TL(""));
-	Parameters.Add_Grid_System("", "BANDS_15M"	, _TL("15 Meter Band"), _TL(""));
-	Parameters.Add_Grid_System("", "BANDS_30M"	, _TL("30 Meter Band"), _TL(""));
-	Parameters.Add_Grid_System("", "BANDS_60M"	, _TL("60 Meter Band"), _TL(""));
-	Parameters.Add_Grid_System("", "BANDS_120M"	, _TL("120 Meter Band"), _TL(""));
-	Parameters.Add_Grid_System("", "BANDS_100M"	, _TL("100 Meter Band"), _TL(""));
-
-	Parameters.Add_Grid("BANDS_30M", "BLUE_TM"   , _TL("Blue (Band 1)"                ), _TL(""), PARAMETER_INPUT );
-	Parameters.Add_Grid("BANDS_30M", "GREEN_TM"  , _TL("Green (Band 2)"               ), _TL(""), PARAMETER_INPUT );
-	Parameters.Add_Grid("BANDS_30M", "RED_TM"    , _TL("Red (Band 3)"                 ), _TL(""), PARAMETER_INPUT );
-	Parameters.Add_Grid("BANDS_30M", "NIR_TM"    , _TL("Near Infrared (Band 4)"       ), _TL(""), PARAMETER_INPUT );
-	Parameters.Add_Grid("BANDS_30M", "SWIR1_TM"  , _TL("Shortwave Infrared 1 (Band 5)"), _TL(""), PARAMETER_INPUT );
-	Parameters.Add_Grid("BANDS_30M", "SWIR2_TM"  , _TL("Shortwave Infrared 2 (Band 7)"), _TL(""), PARAMETER_INPUT );
-	Parameters.Add_Grid("BANDS_30M", "QARAD_TM"  , _TL("Radiometric Saturation QA"	  ), _TL(""), PARAMETER_INPUT );
-	Parameters.Add_Grid("BANDS_60M", "THERMAL_ETM", _TL("Thermal Infrared (Band 6)"	), _TL(""), PARAMETER_INPUT	);
-	Parameters.Add_Grid("BANDS_120M","THERMAL_TM", _TL("Thermal Infrared (Band 6)"	), _TL(""), PARAMETER_INPUT	);
-	Parameters.Add_Grid("BANDS_15M", "PANCROMATIC_ETM", _TL("Thermal Infrared (Band 8)"	), _TL(""), PARAMETER_INPUT	);
-	
-	Parameters.Add_Grid("BANDS_30M", "COASTAL_OLI"   , _TL("Blue (Band 1)"                ), _TL(""), PARAMETER_INPUT );
-	Parameters.Add_Grid("BANDS_30M", "BLUE_OLI"   , _TL("Blue (Band 2)"                ), _TL(""), PARAMETER_INPUT );
-	Parameters.Add_Grid("BANDS_30M", "GREEN_OLI"  , _TL("Green (Band 3)"               ), _TL(""), PARAMETER_INPUT );
-	Parameters.Add_Grid("BANDS_30M", "RED_OLI"    , _TL("Red (Band 4)"                 ), _TL(""), PARAMETER_INPUT );
-	Parameters.Add_Grid("BANDS_30M", "NIR_OLI"    , _TL("Near Infrared (Band 5)"       ), _TL(""), PARAMETER_INPUT );
-	Parameters.Add_Grid("BANDS_30M", "SWIR1_OLI"  , _TL("Shortwave Infrared 1 (Band 6)"), _TL(""), PARAMETER_INPUT );
-	Parameters.Add_Grid("BANDS_30M", "SWIR2_OLI"  , _TL("Shortwave Infrared 2 (Band 7)"), _TL(""), PARAMETER_INPUT );
-	Parameters.Add_Grid("BANDS_15M", "PANCROMATIC_OLI", _TL("Pancromatic (Band 8)"	), _TL(""), PARAMETER_INPUT	);
-	Parameters.Add_Grid("BANDS_30M", "CIRRUS_OLI", _TL("Thermal Infrared (Band 9)"	), _TL(""), PARAMETER_INPUT	);
-	Parameters.Add_Grid("BANDS_100M","THERMAL_OLI", _TL("Thermal Infrared 1 (Band 10)"	), _TL(""), PARAMETER_INPUT	);
-	Parameters.Add_Grid("BANDS_100M","THERMAL_OLI", _TL("Thermal Infrared 2 (Band 11)"	), _TL(""), PARAMETER_INPUT	);
-
-
-
-	Parameters.Add_Choice("", "THERMAL_UNIT", _TL("Unit" ), _TL(""), CSG_String::Format("%s|%s", _TL("Kelvin"), _TL("Celsius")), 0);
-
-
-	//-----------------------------------------------------
-	Parameters.Add_Grid("BANDS_30M",
+	Parameters.Add_Grid("",
 		"CLOUDS"      , _TL("Clouds"),
 		_TL(""),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Char
 	);
 
+//	Parameters.Add_Grid_System("", "BANDS_VNIR"   , _TL("Grid System"), _TL(""));
+	Parameters.Add_Grid_System("", "BANDS_SWIR"   , _TL("Grid System"), _TL(""));
+	Parameters.Add_Grid_System("", "BANDS_THERMAL", _TL("Grid System"), _TL(""));
+	Parameters.Add_Grid_System("", "BANDS_CIRRUS" , _TL("Grid System"), _TL(""));
+
+	Parameters.Add_Grid("BANDS_VNIR"   , "BAND_BLUE"   , _TL("Blue"                ), _TL(""), PARAMETER_INPUT         );
+	Parameters.Add_Grid("BANDS_VNIR"   , "BAND_GREEN"  , _TL("Green"               ), _TL(""), PARAMETER_INPUT         );
+	Parameters.Add_Grid("BANDS_VNIR"   , "BAND_RED"    , _TL("Red"                 ), _TL(""), PARAMETER_INPUT         );
+	Parameters.Add_Grid("BANDS_VNIR"   , "BAND_NIR"    , _TL("Near Infrared"       ), _TL(""), PARAMETER_INPUT         );
+	Parameters.Add_Grid("BANDS_SWIR"   , "BAND_SWIR1"  , _TL("Shortwave Infrared 1"), _TL(""), PARAMETER_INPUT         , false);
+	Parameters.Add_Grid("BANDS_SWIR"   , "BAND_SWIR2"  , _TL("Shortwave Infrared 2"), _TL(""), PARAMETER_INPUT         , false);
+	Parameters.Add_Grid("BANDS_THERMAL", "BAND_THERMAL", _TL("Thermal"             ), _TL(""), PARAMETER_INPUT_OPTIONAL, false);
+	Parameters.Add_Grid("BANDS_CIRRUS" , "BAND_CIRRUS" , _TL("Cirrus"              ), _TL(""), PARAMETER_INPUT_OPTIONAL, false);
+
+	Parameters.Add_Choice("BAND_THERMAL", "THERMAL_UNIT", _TL("Unit" ), _TL(""), CSG_String::Format("%s|%s", _TL("Kelvin"), _TL("Celsius")), 0);
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice("",
-		"SENSOR", _TL("Sensor (Spacecraft)"),
-		_TL(""),
-		"TM (Landsat 4,5)|ETM+ (Landsat 7)|OLI/TIRS (Landsat 8)", 0 
-	);
-
-
 	Parameters.Add_Choice("",
 		"ALGORITHM"  , _TL("Algorithm"),
 		_TL(""),
@@ -314,73 +270,41 @@ int CDetect_Clouds::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parame
 		}
 	}
 
-	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
 int CDetect_Clouds::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	int Sensor = pParameters->Get_Parameter("SENSOR")->asInt();
+	if( pParameter->Cmp_Identifier("BAND_THERMAL") )
+	{
+		pParameters->Set_Enabled("THERMAL_UNIT", pParameter->asGrid());
+	}
 
-	pParameters->Set_Enabled("BANDS_15M",		Sensor == ETM || Sensor == OLI_TIRS );
-	pParameters->Set_Enabled("BANDS_30M",		Sensor == TM  || Sensor == ETM || Sensor == OLI_TIRS );
-	pParameters->Set_Enabled("BANDS_60M",		Sensor == ETM );
-	pParameters->Set_Enabled("BANDS_120M",		Sensor == TM);
-	pParameters->Set_Enabled("BANDS_100M",		Sensor == OLI_TIRS);
+	if( pParameter->Cmp_Identifier("ALGORITHM") )
+	{
+		pParameters->Set_Enabled("BAND_BLUE"   , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("BAND_SWIR2"  , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("BANDS_CIRRUS", pParameter->asInt() == 0);
 
-	pParameters->Set_Enabled("BLUE_TM", 		Sensor == TM || Sensor == ETM ); 
-	pParameters->Set_Enabled("GREEN_TM",		Sensor == TM || Sensor == ETM );
-	pParameters->Set_Enabled("RED_TM" , 		Sensor == TM || Sensor == ETM );   
-	pParameters->Set_Enabled("NIR_TM" , 		Sensor == TM || Sensor == ETM );   
-	pParameters->Set_Enabled("SWIR1_TM" , 		Sensor == TM || Sensor == ETM ); 
-	pParameters->Set_Enabled("SWIR2_TM" , 		Sensor == TM || Sensor == ETM ); 
-	pParameters->Set_Enabled("THERMAL_TM", 		Sensor == TM  );
-	pParameters->Set_Enabled("THERMAL_ETM", 	Sensor == ETM );
-	pParameters->Set_Enabled("PANCROMATIC_ETM", Sensor == ETM );
-	
-	pParameters->Set_Enabled("COASTAL_OLI", 	Sensor == OLI_TIRS );
-	pParameters->Set_Enabled("BLUE_OLI" , 		Sensor == OLI_TIRS );
-	pParameters->Set_Enabled("GREEN_OLI", 		Sensor == OLI_TIRS );
-	pParameters->Set_Enabled("RED_OLI", 		Sensor == OLI_TIRS );
-	pParameters->Set_Enabled("NIR_OLI", 		Sensor == OLI_TIRS );
-	pParameters->Set_Enabled("SWIR1_OLI", 		Sensor == OLI_TIRS );
-	pParameters->Set_Enabled("SWIR2_OLI", 		Sensor == OLI_TIRS );
-	pParameters->Set_Enabled("PANCROMATIC_OLI", Sensor == OLI_TIRS );
-	pParameters->Set_Enabled("CIRRUS_OLI", 		Sensor == OLI_TIRS );
-	pParameters->Set_Enabled("THERMAL_OLI", 	Sensor == OLI_TIRS );
-	//pParameters->Set_Enabled("THERMAL_OLI", 	Sensor == OLI_TIRS );
+		pParameters->Set_Enabled("ACCA_B56C"   , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("ACCA_B45R"   , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("ACCA_HIST_N" , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("ACCA_CSIG"   , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("ACCA_PASS2"  , pParameter->asInt() == 1);
+	}
 
-	
-	
-	//if( pParameter->Cmp_Identifier("BAND_THERMAL") )
-	//{
-	//	pParameters->Set_Enabled("THERMAL_UNIT", pParameter->asGrid());
-	//}
+	if( pParameter->Cmp_Identifier("SHADOWS") )
+	{
+		pParameter->Set_Children_Enabled(pParameter->asBool());
+	}
 
-	//if( pParameter->Cmp_Identifier("ALGORITHM") )
-	//{
-	//	pParameters->Set_Enabled("BAND_BLUE"   , pParameter->asInt() == 0);
-	//	pParameters->Set_Enabled("BAND_SWIR2"  , pParameter->asInt() == 0);
-	//	pParameters->Set_Enabled("BANDS_CIRRUS", pParameter->asInt() == 0);
+	pParameters->Set_Enabled("ACCA_SHADOW" ,
+		(*pParameters)("ALGORITHM")->asInt () == 1
+	 && (*pParameters)("SHADOWS"  )->asBool() == false
+	);
 
-	//	pParameters->Set_Enabled("ACCA_B56C"   , pParameter->asInt() == 1);
-	//	pParameters->Set_Enabled("ACCA_B45R"   , pParameter->asInt() == 1);
-	//	pParameters->Set_Enabled("ACCA_HIST_N" , pParameter->asInt() == 1);
-	//	pParameters->Set_Enabled("ACCA_CSIG"   , pParameter->asInt() == 1);
-	//	pParameters->Set_Enabled("ACCA_PASS2"  , pParameter->asInt() == 1);
-	//}
-
-	//if( pParameter->Cmp_Identifier("SHADOWS") )
-	//{
-	//	pParameter->Set_Children_Enabled(pParameter->asBool());
-	//}
-
-	//pParameters->Set_Enabled("ACCA_SHADOW" ,
-	//	(*pParameters)("ALGORITHM")->asInt () == 1
-	// && (*pParameters)("SHADOWS"  )->asBool() == false
-	//);
-
-	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -391,23 +315,14 @@ int CDetect_Clouds::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 bool CDetect_Clouds::On_Execute(void)
 {
-	/*
-	m_pSystem = Parameters("BAND_BLUE")->asGrid()->Get_System();
-
-	m_pBand[0] = Parameters("BLUE_TM"   )->asGrid();
-	m_pBand[1] = Parameters("GREEN_TM"  )->asGrid();
-	m_pBand[2] = Parameters("RED_TM"    )->asGrid();
-	m_pBand[3] = Parameters("NIR_TM"    )->asGrid();
-	m_pBand[4] = Parameters("SWIR1_TM"  )->asGrid();
-	m_pBand[5] = Parameters("SWIR2_TM"  )->asGrid();
-	m_pBand[6] = Parameters("THERMAL_TM")->asGrid();
-	//m_pBand[7] = Parameters("CIRRUS" )->asGrid();
-	
-	m_pResults[RESULT_PCP] 		= SG_Create_Grid( m_pSystem, SG_DATATYPE_Bit );	//PCP
-	m_pResults[RESULT_WATER] 	= SG_Create_Grid( m_pSystem, SG_DATATYPE_Bit );	//Water
-	m_pResults[RESULT_SNOW] 	= SG_Create_Grid( m_pSystem, SG_DATATYPE_Bit );	//Snow 
-	m_pResults[RESULT_LCP] 		= SG_Create_Grid( m_pSystem, SG_DATATYPE_Float );
-	m_pResults[RESULT_WCP] 		= SG_Create_Grid( m_pSystem, SG_DATATYPE_Float );
+	m_pBand[0] = Parameters("BAND_BLUE"   )->asGrid();
+	m_pBand[1] = Parameters("BAND_GREEN"  )->asGrid();
+	m_pBand[2] = Parameters("BAND_RED"    )->asGrid();
+	m_pBand[3] = Parameters("BAND_NIR"    )->asGrid();
+	m_pBand[4] = Parameters("BAND_SWIR1"  )->asGrid();
+	m_pBand[5] = Parameters("BAND_SWIR2"  )->asGrid();
+	m_pBand[6] = Parameters("BAND_THERMAL")->asGrid();
+	m_pBand[7] = Parameters("BAND_CIRRUS" )->asGrid();
 
 	m_bCelsius = Parameters("THERMAL_UNIT")->asInt() == 1;
 
@@ -415,8 +330,6 @@ bool CDetect_Clouds::On_Execute(void)
 
 	//-----------------------------------------------------
 	CSG_Grid *pClouds = Parameters("CLOUDS")->asGrid();
-
-	m_pResults[RESULT_PCL] = pClouds;
 
 	CSG_Parameter *pLUT = DataObject_Get_Parameter(pClouds, "LUT");
 
@@ -495,7 +408,7 @@ bool CDetect_Clouds::On_Execute(void)
 	//-----------------------------------------------------
 	if( bResult && Parameters("SHADOWS")->asBool() )
 	{
-		CDetect_CloudShadows Tool; CSG_Grid Shadows(m_pSystem, SG_DATATYPE_Char);
+		CDetect_CloudShadows Tool; CSG_Grid Shadows(Get_System(), SG_DATATYPE_Char);
 
 		Tool.Set_Manager(NULL);
 		Tool.Set_Parameter("CLOUDS" , pClouds);
@@ -515,7 +428,7 @@ bool CDetect_Clouds::On_Execute(void)
 		if( (bResult = Tool.Execute()) == true )
 		{
 			#pragma omp parallel for
-			for(sLong i=0; i<m_pSystem.Get_NCells(); i++)
+			for(sLong i=0; i<Get_NCells(); i++)
 			{
 				if( Shadows.asInt(i) && !pClouds->asInt(i) )
 				{
@@ -527,25 +440,6 @@ bool CDetect_Clouds::On_Execute(void)
 
 	//-----------------------------------------------------
 	return( bResult );
-	*/
-	return true;
-}
-
-/*
-bool CDetect_Clouds::Is_Saturated(int x, int y, int Band)
-{
-	size_t Band_No = 0;
-	switch( Band )
-	{
-		default: return false;
-		case GREEN: 	Band_No = 1; 	break;
-		case RED: 		Band_No = 2; 	break;
-	}
-
-	unsigned short Short = m_pBand[QARAD]->asShort(x,y);
-	std::bitset<16> Bits(Short);
-
-	return (bool) Bits[Band_No];
 }
 
 
@@ -554,208 +448,23 @@ bool CDetect_Clouds::Is_Saturated(int x, int y, int Band)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline bool CDetect_Clouds::Get_Brightness(int x, int y, int Band, double &Value )
+inline bool CDetect_Clouds::Get_Brightness(int x, int y, double &b, double &g, double &r, double &nir, double &swir1, double &swir2, double &tir, double &cirr)
 {
-	CSG_Point p;
-	if( Band > NIR )
-	{
-		p = m_pSystem.Get_Grid_to_World(x, y);
-	}
+	if( m_pBand[0] ) { if( m_pBand[0]->is_NoData(x, y) ) { return( false ); } b   = m_pBand[0]->asDouble(x, y); } else { b   = -1.; }
+	if( m_pBand[1] ) { if( m_pBand[1]->is_NoData(x, y) ) { return( false ); } g   = m_pBand[1]->asDouble(x, y); } else { g   = -1.; }
+	if( m_pBand[2] ) { if( m_pBand[2]->is_NoData(x, y) ) { return( false ); } r   = m_pBand[2]->asDouble(x, y); } else { r   = -1.; }
+	if( m_pBand[3] ) { if( m_pBand[3]->is_NoData(x, y) ) { return( false ); } nir = m_pBand[3]->asDouble(x, y); } else { nir = -1.; }
 
-	switch( Band )
-	{
-		case RED: 	if( m_pBand[RED] ) 	{ if( m_pBand[RED]->is_NoData(  x, y) ) 	{ return( false ); } Value   = m_pBand[RED]->asDouble(  x, y); 	} else { Value = -1.; } break;
-		case GREEN: if( m_pBand[GREEN]) { if( m_pBand[GREEN]->is_NoData(x, y) ) 	{ return( false ); } Value   = m_pBand[GREEN]->asDouble(x, y); 	} else { Value = -1.; } break;
-		case BLUE: 	if( m_pBand[BLUE] ) { if( m_pBand[BLUE]->is_NoData( x, y) ) 	{ return( false ); } Value   = m_pBand[BLUE]->asDouble( x, y); 	} else { Value = -1.; } break;
-		case NIR: 	if( m_pBand[BLUE] ) { if( m_pBand[NIR]->is_NoData(  x, y) ) 	{ return( false ); } Value   = m_pBand[NIR]->asDouble(  x, y); 	} else { Value = -1.; } break;
-		case SWIR1:	if( m_pBand[SWIR1]) { if(!m_pBand[SWIR1]->Get_Value(p, Value) ) { return( false ); } 											} else { Value = -1.; } break;
-		case SWIR2:	if( m_pBand[SWIR2]) { if(!m_pBand[SWIR2]->Get_Value(p, Value) ) { return( false ); } 											} else { Value = -1.; }	break;
-		case TIR:	if( m_pBand[TIR] )  { if(!m_pBand[TIR]->Get_Value(  p, Value) ) { return( false ); } } else { Value = -1.; } if( m_bCelsius && m_pBand[TIR] ) { Value += 273.15; } break;
-		//case CIR:	if( m_pBand[7] ) { if( !m_pBand[7]->Get_Value(p, cirr ) ) { return( false ); } } else { cirr  = -1.; }
-	}
+	CSG_Point p(Get_System().Get_Grid_to_World(x, y));
+
+	if( m_pBand[4] ) { if( !m_pBand[4]->Get_Value(p, swir1) ) { return( false ); } } else { swir1 = -1.; }
+	if( m_pBand[5] ) { if( !m_pBand[5]->Get_Value(p, swir2) ) { return( false ); } } else { swir2 = -1.; }
+	if( m_pBand[6] ) { if( !m_pBand[6]->Get_Value(p, tir  ) ) { return( false ); } } else { tir   = -1.; } if( m_bCelsius && m_pBand[6] ) { tir += 273.15; }
+	if( m_pBand[7] ) { if( !m_pBand[7]->Get_Value(p, cirr ) ) { return( false ); } } else { cirr  = -1.; }
+
 	return( true );
 }
 
-double CDetect_Clouds::Get_Brightness(int x, int y, int Band, bool &Eval )
-{
-	CSG_Point p;
-	double Value;
-	if( Band > NIR )
-	{
-		p = m_pSystem.Get_Grid_to_World(x, y);
-	}
-
-	switch( Band )
-	{
-		case RED: 	if( m_pBand[RED] ) 	{ if( m_pBand[RED]->is_NoData(  x, y) ) 	{ Eval = false; return -1.0; } return m_pBand[RED]->asDouble(  x, y); } else { Eval = false; } break;
-		case GREEN: if( m_pBand[GREEN]) { if( m_pBand[GREEN]->is_NoData(x, y) ) 	{ Eval = false; return -1.0; } return m_pBand[GREEN]->asDouble(x, y); } else { Eval = false; } break;
-		case BLUE: 	if( m_pBand[BLUE] )	{ if( m_pBand[BLUE]->is_NoData( x, y) ) 	{ Eval = false; return -1.0; } return m_pBand[BLUE]->asDouble( x, y); } else { Eval = false; } break;
-		case NIR: 	if( m_pBand[NIR] ) 	{ if( m_pBand[NIR]->is_NoData(  x, y) ) 	{ Eval = false; return -1.0; } return m_pBand[NIR]->asDouble(  x, y); } else { Eval = false; } break;
-		case SWIR1:	if( m_pBand[SWIR1] ){ if(!m_pBand[SWIR1]->Get_Value(p, Value) ) { Eval = false; return -1.0; } return Value; 						  } else { Eval = false; } break;
-		case SWIR2: if( m_pBand[SWIR2] ){ if(!m_pBand[SWIR2]->Get_Value(p, Value) ) { Eval = false; return -1.0; } return Value; 						  } else { Eval = false; } break;
-		case TIR: 	if( m_pBand[TIR] ) 	{ if(!m_pBand[TIR]->Get_Value(  p, Value) ) { Eval = false; return -1.0; } return Value; 						  } else { Eval = false; } break;
-	}
-	return -1.;
-}
-
-
-//---------------------------------------------------------
-bool CDetect_Clouds::Set_Fmask_Pass_One_Two(void)
-{
-	CSG_Simple_Statistics Clear_Sky_Water = CSG_Simple_Statistics(true);
-	CSG_Simple_Statistics Clear_Sky_Land = CSG_Simple_Statistics(true);
-
-	for( int x=0; x<m_pSystem.Get_NX(); x++ )
-	{
-		for( int y=0; y<m_pSystem.Get_NY(); y++ )
-		{
-	  		bool Eval = true;
-			double Red 	= Get_Brightness( x, y, RED, 	Eval ); 
-			double Green= Get_Brightness( x, y, GREEN, 	Eval ); 
-			double Blue = Get_Brightness( x, y, GREEN, 	Eval ); 
-			double Nir 	= Get_Brightness( x, y, NIR,	Eval ); 
-			double Swir1= Get_Brightness( x, y, SWIR1, 	Eval ); 
-			double Swir2= Get_Brightness( x, y, SWIR2, 	Eval ); 
-			double Tir 	= Get_Brightness( x, y, TIR, 	Eval ); 
-
-			if( !Eval )
-			{
-				
-			}
-
-			// Eq. 1
-			double NDSI = (Green - Swir1) / (Green + Swir2);
-			double NDVI = (Nir - Red) / (Nir + Red);
-			bool Basic_Test = Swir2 > 0.03 && Tir < 27.0 && NDSI < 0.8 && NDVI < 0.8;
-			
-			// Eq. 20
-			if( NDVI > 0.15 && Tir < 3.8 && Nir > 0.11 && Green > 0.1 )
-			{
-				m_pResults[RESULT_SNOW]->Set_Value( x, y, 1.0 );
-			}
-			else
-	  		{
-				m_pResults[RESULT_SNOW]->Set_Value( x, y, 0.0 );
-			}
-			
-			// Eq. 2
-			double MV = ( Red + Green + Blue )/3.0;
-	 		double Whitenes = (fabs((Blue - MV)/MV) + fabs((Green - MV)/MV) + fabs((Red - MV)/MV));
-			bool Whitenes_Test = Whitenes  >= 0.7;
-
-			// Eq. 3
-			double HOT = Blue - 0.5 * Red - 0.08; 
-			bool HOT_Test = HOT > 0.0;
-
-			// Eq. 4
-			bool B4_B5_Test = Nir /  Swir1 > 0.75;
-
-			// Eq. 5
-			bool Water_Test = ( NDVI < 0.01 && Nir < 0.11 ) ||( NDVI < 0.1 && Nir < 0.01 );
-			if( Water_Test ) 
-			{
-				m_pResults[RESULT_PCP]->Set_Value(x,y, 1.0 );
-			}
-			else 
-			{
-				m_pResults[RESULT_PCP]->Set_Value(x,y, 0.0 );
-			}
-
-
-			// Eq. 6
-			if( Basic_Test && Whitenes_Test && HOT_Test && B4_B5_Test )
-			{
-				m_pResults[RESULT_PCP]->Set_Value(x,y, 1.0 );
-			}
-			else
-	  		{
-				m_pResults[RESULT_PCP]->Set_Value(x,y, 0.0 );
-
-				bool Eval;
-				double Swir2= Get_Brightness( x, y, SWIR2, 	Eval ); 
-				double Tir 	= Get_Brightness( x, y, TIR, 	Eval ); 
-
-				// Eq. 7
-				if( Water_Test &&  Swir2 < 0.03 )
-				{	
-					Clear_Sky_Water += Tir;
-				}
-
-				// Eq. 12
-				if( !Water_Test )
-				{
-					Clear_Sky_Land += Tir;
-					// Eq. 15
-					// Calculating Variability_Prob in pass bc every needed value is here.
-					// Store the Variability_Prob in the lCloud_Prop Grid.
-					double modNDSI = Is_Saturated( x, y, GREEN) && Swir1 > Green ? 0. : NDSI;
-					double modNDVI = Is_Saturated( x, y, RED) 	&& Nir 	 > Red 	 ? 0. : NDSI;
-					m_pResults[RESULT_LCP]->Set_Value( x, y, 1.0 - std::max( std::abs(modNDSI), std::max( std::abs(modNDVI), Whitenes)));
-				}
-			}
-		}
-	}
-
-	// Eq. 8
-	double T_Water 	= Clear_Sky_Water.Get_Percentile(82.5);
-	// Eq. 13
-	double T_Low 	= Clear_Sky_Land.Get_Percentile(17.5);
-	double T_High 	= Clear_Sky_Land.Get_Percentile(82.5);
-	
-	for( int x=0; x<m_pSystem.Get_NX(); x++ )
-	{
-		for( int y=0; y<m_pSystem.Get_NY(); y++ )
-		{
-			bool Eval;
-			double Swir1= Get_Brightness( x, y, SWIR1, 	Eval ); 
-			double Tir 	= Get_Brightness( x, y, TIR, 	Eval ); 
-
-			// Eq. 9
-			double wTemp_Prob = (T_Water - Tir) / 4.;
-
-			// Eq. 10
-			double Brightness_Prob = std::min( Swir1, 0.11 )/ 0.11;
-
-			// Eq. 11	
-			m_pResults[RESULT_WCP]->Set_Value( x, y, wTemp_Prob * Brightness_Prob );
-
-			// Eq. 14
-			double lTemp_Prob = ( T_High + 4.0 - Tir ) / ( T_High + 4.0 - ( T_Low - 4.0 )); 
-			// The Variability_Prob is actually calculated in pass one and stored in the lCloud_Prop Grid.
-			// Now recover the value and overwrite with lCloud_Prop after calculation.
-			double Variability_Prob = m_pResults[RESULT_LCP]->asDouble( x, y);
-			// Eq. 16
-			m_pResults[RESULT_LCP]->Set_Value( x, y, lTemp_Prob * Variability_Prob );
-	 	}
-	}
-
-	// Eq. 17
-	double Land_threshold = m_pResults[RESULT_LCP]->Get_Percentile(82.5);
-
-	for( int x=0; x<m_pSystem.Get_NX(); x++ )
-	{
-		for( int y=0; y<m_pSystem.Get_NY(); y++ )
-		{
-			bool Eval;
-			double Tir 	= Get_Brightness( x, y, TIR, 	Eval ); 
-
-			// Equation. 18
-			if( ( m_pResults[RESULT_WATER]->asInt(x,y) == 1 && m_pResults[RESULT_PCP]->asInt(x,y) == 1 		&& m_pResults[RESULT_WCP]->asFloat(x,y) > 0.5)
-			||  ( m_pResults[RESULT_WATER]->asInt(x,y) == 0 && m_pResults[RESULT_PCP]->asInt(x,y) == 1 		&& m_pResults[RESULT_LCP]->asFloat(x,y) > Land_threshold) 
-			||  ( m_pResults[RESULT_WATER]->asInt(x,y) == 0 && m_pResults[RESULT_LCP]->asFloat(x,y) > 0.99)
-			||	( Tir < T_Low - 35.0 ) )
-	 		{
-	  			m_pResults[RESULT_PCL]->Set_Value(x,y, 1.0);
-			}
-	 	}
-	}
-	
-
-	return true;
-}
-*/
-
-/*
 //---------------------------------------------------------
 inline int CDetect_Clouds::Get_Fmask(int x, int y)
 {
@@ -765,25 +474,6 @@ inline int CDetect_Clouds::Get_Fmask(int x, int y)
 	{
 		return( ID_NONE );
 	}
-
-
-	double ndsi = (g - swir1) / (g + swir2);
-	
-	double ndvi = (nir - r) / (nir + r);
-
-	bool basic_test = swir2 > 0.03 && tir < 27.0 && ndsi < 0.8 && ndvi < 0.8;
-	
-	double mv = (r+g+b)/3;
-	
-	bool whitenes_test = (fabs((b - mv)/mv) + fabs((g - mv)/mv) + fabs((r - mv)/mv))  >= 0.7;
-
-	double hot = b - 0.5 * r - 0.08; 
-
-	bool hot_test = hot > 0.0;
-
-	bool b4_b5 = nir / swir1 > 0.75;
-
-	bool water_test = ( ndvi < 0.01 && nir < 0.11 ) ||( ndvi < 0.1 && nir < 0.01 ) 
 
 	if( cirr > 0.01 ) // cirrus
 	{
@@ -833,10 +523,10 @@ inline int CDetect_Clouds::Get_Fmask(int x, int y)
 //---------------------------------------------------------
 bool CDetect_Clouds::Set_Fmask(CSG_Grid *pClouds)
 {
-	for(int y=0; y<m_pSystem.Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
 		#pragma omp parallel for
-		for(int x=0; x<m_pSystem.Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
 			pClouds->Set_Value(x, y, Get_Fmask(x, y));
 		}
@@ -882,7 +572,6 @@ bool CDetect_Clouds::Set_ACCA(CSG_Grid *pClouds)
 	return( true );
 }
 
-*/
 
 ///////////////////////////////////////////////////////////
 //														 //
