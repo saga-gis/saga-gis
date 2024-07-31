@@ -65,7 +65,7 @@ CPySAGA_Tools::CPySAGA_Tools(void)
 	Parameters.Add_Choice  ("", "TARGET"  , "Target"                , "", "single file|one file per library", 1);
 	Parameters.Add_FilePath("", "FILE"    , "File"                  , "", SG_T("Python Files|*.py|All Files|*.*"), NULL, true);
 	Parameters.Add_FilePath("", "FOLDER"  , "Folder"                , "", NULL, NULL, true, true);
-	Parameters.Add_Choice  ("", "NAMING"  , "Function Names"        , "", "tool name|library + tool id", 0);
+	Parameters.Add_Choice  ("", "NAMING"  , "Function Names"        , "", "\'tool name\' + \'library + tool id\'|\'library + tool id\'", 0);
 	Parameters.Add_Bool    ("", "CLEAN"   , "Make Clean"            , "", true);
 	Parameters.Add_Bool    ("", "LOADDEFS", "Load Default Libraries", "", true);
 }

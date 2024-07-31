@@ -971,9 +971,9 @@ bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Destinati
 
 		for(int iTool=0; iTool<pLibrary->Get_Count(); iTool++)
 		{
-			CSG_Tool *pTool = pLibrary->Create_Tool(iTool, false, false);
+			CSG_Tool *pTool = pLibrary->Create_Tool(pLibrary->Get_Tool(iTool)->Get_ID(), false, false);
 
-			if( pTool && pTool != TLB_INTERFACE_SKIP_TOOL && !pTool->needs_GUI() && !pTool->is_Interactive() && pTool->Get_Parameters_Count() == 0 )
+			if( pTool && !pTool->needs_GUI() && !pTool->is_Interactive() && pTool->Get_Parameters_Count() == 0 )
 			{
 				if( bName )
 				{
@@ -1028,9 +1028,9 @@ bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Destinati
 
 		for(int iTool=0; iTool<pLibrary->Get_Count(); iTool++)
 		{
-			CSG_Tool *pTool = pLibrary->Create_Tool(iTool, false, false);
+			CSG_Tool *pTool = pLibrary->Create_Tool(pLibrary->Get_Tool(iTool)->Get_ID(), false, false);
 
-			if( pTool && pTool != TLB_INTERFACE_SKIP_TOOL && !pTool->needs_GUI() && !pTool->is_Interactive() && pTool->Get_Parameters_Count() == 0 )
+			if( pTool && !pTool->needs_GUI() && !pTool->is_Interactive() && pTool->Get_Parameters_Count() == 0 )
 			{
 				if( bName )
 				{
