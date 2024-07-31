@@ -202,7 +202,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_ScatterPlot::CVIEW_ScatterPlot(CWKSP_Data_Item *pItem)
-	: CVIEW_Base(pItem, ID_VIEW_SCATTERPLOT, wxString::Format("%s: %s", _TL("Scatterplot"), pItem->Get_Object()->Get_Name()), ID_IMG_WND_SCATTERPLOT, false)
+	: CVIEW_Base(pItem, ID_VIEW_SCATTERPLOT, wxString::Format("%s | %s", _TL("Scatterplot"), pItem->Get_Object()->Get_Name()), ID_IMG_WND_SCATTERPLOT, false)
 {
 	m_pItem  = pItem;
 
@@ -480,7 +480,7 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 	m_Options.Add_Choice("",
 		"COLOR_MODE"  , _TL("Color Mode"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s", _TL("system"), _TL("bright"), _TL("dark"))
+		CSG_String::Format("%s|%s|%s", _TL("system"), _TL("light"), _TL("dark"))
 	);
 
 	//-----------------------------------------------------

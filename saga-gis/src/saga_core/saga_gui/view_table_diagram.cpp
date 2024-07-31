@@ -178,8 +178,6 @@ END_EVENT_TABLE()
 CVIEW_Table_Diagram_Control::CVIEW_Table_Diagram_Control(wxWindow *pParent, CWKSP_Table *pTable)
 	: wxScrolledWindow(pParent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER|wxFULL_REPAINT_ON_RESIZE)
 {
-	SetBackgroundColour(SYS_Get_Color(wxSYS_COLOUR_WINDOW));
-
 	m_pTable = pTable->Get_Table();
 
 	_Initialize();
@@ -214,6 +212,9 @@ bool CVIEW_Table_Diagram_Control::Set_Parameters(CSG_Parameters *pParameters)
 			{
 				Fit_Size();
 			}
+
+			GetParent()->SetBackgroundColour(SYS_Get_Color_Background(m_Parameters["COLOR_MODE"].asInt()));
+			GetParent()->Refresh(false);
 
 			return( true );
 		}
@@ -632,7 +633,7 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 	//-----------------------------------------------------
 	m_Parameters.Add_Font  (""            , "FONT"              , _TL("Font"              ), _TL(""));
 
-	m_Parameters.Add_Choice(""            , "COLOR_MODE"        , _TL("Color Mode"        ), _TL(""), CSG_String::Format("%s|%s|%s", _TL("system"), _TL("bright"), _TL("dark")));
+	m_Parameters.Add_Choice(""            , "COLOR_MODE"        , _TL("Color Mode"        ), _TL(""), CSG_String::Format("%s|%s|%s", _TL("system"), _TL("light"), _TL("dark")));
 
 	m_Parameters.Add_Bool  (""            , "LEGEND"            , _TL("Legend"            ), _TL(""), true);
 	m_Parameters.Add_Int   ("LEGEND"      , "LEGEND_WIDTH"      , _TL("Width"             ), _TL("Percent"), 15, 0, true, 50, true);
@@ -1219,7 +1220,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_Table_Diagram::CVIEW_Table_Diagram(CWKSP_Table *pTable, CSG_Parameters *pParameters)
-	: CVIEW_Base(pTable, ID_VIEW_TABLE_DIAGRAM, wxString::Format("%s [%s]", _TL("Diagram"), pTable->Get_Name().c_str()), ID_IMG_WND_DIAGRAM, false)
+	: CVIEW_Base(pTable, ID_VIEW_TABLE_DIAGRAM, wxString::Format("%s | %s", _TL("Diagram"), pTable->Get_Object()->Get_Name()), ID_IMG_WND_DIAGRAM, false)
 {
 	m_pControl = new CVIEW_Table_Diagram_Control(this, pTable);
 

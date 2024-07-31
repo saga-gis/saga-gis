@@ -112,7 +112,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_Histogram::CVIEW_Histogram(CWKSP_Layer *pLayer)
-	: CVIEW_Base(pLayer, ID_VIEW_HISTOGRAM, pLayer->Get_Name(), ID_IMG_WND_HISTOGRAM)
+	: CVIEW_Base(pLayer, ID_VIEW_HISTOGRAM, wxString::Format("%s | %s", _TL("Histogram"), pLayer->Get_Object()->Get_Name()), ID_IMG_WND_HISTOGRAM)
 {
 	m_pLayer         = pLayer;
 
@@ -129,7 +129,7 @@ CVIEW_Histogram::CVIEW_Histogram(CWKSP_Layer *pLayer)
 
 	m_bMouse_Down    = false;
 
-	Do_Update(); Update();
+	Do_Update();
 }
 
 
@@ -186,6 +186,8 @@ void CVIEW_Histogram::Do_Update(void)
 	{
 		Refresh();
 	}
+
+	Update();
 }
 
 
@@ -653,7 +655,7 @@ void CVIEW_Histogram::On_Properties(wxCommandEvent &event)
 	P.Add_Int   ("GAUSSIAN", "GAUSSIAN_SIZE" , _TL("Line Width"         ), _TL(""), m_Gaussian_Size, 1, true);
 
 	P.Add_Choice(""        , "COLOR_MODE"    , _TL("Color Mode"         ), _TL(""),
-		CSG_String::Format("%s|%s|%s", _TL("system"), _TL("bright"), _TL("dark")) , m_Color_Mode
+		CSG_String::Format("%s|%s|%s", _TL("system"), _TL("light"), _TL("dark"))  , m_Color_Mode
 	);
 
 	P.Add_Node  (""        , "MARGINS"       , _TL("Margins"            ), _TL(""));
