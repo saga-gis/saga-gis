@@ -424,7 +424,8 @@ void CVIEW_Table_Diagram_Control::SaveToClipboard(void)
 
 	wxBitmap Bmp(m_Size); wxMemoryDC dc_Bmp(Bmp);
 
-	dc_Bmp.SetBackground(SYS_Get_Color_Background(m_Parameters["COLOR_MODE"].asInt()));
+	dc_Bmp.SetBackground    (SYS_Get_Color_Background(m_Parameters["COLOR_MODE"].asInt()));
+	dc_Bmp.SetTextForeground(SYS_Get_Color_Foreground(m_Parameters["COLOR_MODE"].asInt()));
 	dc_Bmp.Clear();
 
 	_Draw(dc_Bmp, wxRect(m_Size));

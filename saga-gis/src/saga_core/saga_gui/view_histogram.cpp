@@ -721,13 +721,13 @@ void CVIEW_Histogram::On_Set_MinMax(wxCommandEvent &event)
 //---------------------------------------------------------
 void CVIEW_Histogram::On_AsTable(wxCommandEvent &event)
 {
-	CWKSP_Layer_Classify	*pClassifier	= ((CWKSP_Layer *)m_pOwner)->Get_Classifier();
+	CWKSP_Layer_Classify *pClassifier = ((CWKSP_Layer *)m_pOwner)->Get_Classifier();
 
 	if( pClassifier->Get_Class_Count() > 0 )
 	{
-		CSG_Data_Object	*pObject	= ((CWKSP_Layer *)m_pOwner)->Get_Object();
+		CSG_Data_Object *pObject = ((CWKSP_Layer *)m_pOwner)->Get_Object();
 
-		CSG_Table	*pTable	= new CSG_Table;
+		CSG_Table *pTable = SG_Create_Table();
 
 		pTable->Fmt_Name("%s: %s", _TL("Histogram"), pObject->Get_Name());
 
@@ -740,20 +740,20 @@ void CVIEW_Histogram::On_AsTable(wxCommandEvent &event)
 		pTable->Add_Field(_TL("CENTER"), SG_DATATYPE_Double);
 		pTable->Add_Field(_TL("MAX"   ), SG_DATATYPE_Double);
 
-		double	dArea	= pObject->asGrid() != NULL ? pObject->asGrid()->Get_Cellarea() : 1.;
+		double dArea = pObject->asGrid() != NULL ? pObject->asGrid()->Get_Cellarea() : 1.;
 
 		for(int i=0; i<pClassifier->Get_Class_Count(); i++)
 		{
-			CSG_Table_Record	*pRecord	= pTable->Add_Record();
+			CSG_Table_Record &Class = *pTable->Add_Record();
 
-			pRecord->Set_Value(0, i + 1);
-			pRecord->Set_Value(1, pClassifier->Histogram_Get().Get_Elements  (i) * dArea);
-			pRecord->Set_Value(2, pClassifier->Histogram_Get().Get_Elements  (i));
-			pRecord->Set_Value(3, pClassifier->Histogram_Get().Get_Cumulative(i));
-			pRecord->Set_Value(4, pClassifier->Get_Class_Name                (i).wx_str());
-			pRecord->Set_Value(5, pClassifier->Get_Class_Value_Minimum       (i));
-			pRecord->Set_Value(6, pClassifier->Get_Class_Value_Center        (i));
-			pRecord->Set_Value(7, pClassifier->Get_Class_Value_Maximum       (i));
+			Class.Set_Value(0, i + 1);
+			Class.Set_Value(1, pClassifier->Histogram_Get().Get_Elements  (i) * dArea);
+			Class.Set_Value(2, pClassifier->Histogram_Get().Get_Elements  (i));
+			Class.Set_Value(3, pClassifier->Histogram_Get().Get_Cumulative(i));
+			Class.Set_Value(4, pClassifier->Get_Class_Name                (i).wx_str());
+			Class.Set_Value(5, pClassifier->Get_Class_Value_Minimum       (i));
+			Class.Set_Value(6, pClassifier->Get_Class_Value_Center        (i));
+			Class.Set_Value(7, pClassifier->Get_Class_Value_Maximum       (i));
 		}
 
 		g_pData->Add(pTable);
@@ -767,7 +767,7 @@ void CVIEW_Histogram::On_ToClipboard(wxCommandEvent &event)
 
 	wxMemoryDC dc(Bitmap);
 
-	dc.SetBackground(*wxWHITE_BRUSH); dc.Clear();
+	dc.SetBackground(SYS_Get_Color_Background(m_Color_Mode)); dc.Clear();
 
 	Draw(dc);
 

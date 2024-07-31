@@ -543,7 +543,7 @@ void CVIEW_ScatterPlot::On_ToClipboard(wxCommandEvent &event)
 	wxBitmap BMP(GetSize()); wxMemoryDC dc;
 	
 	dc.SelectObject(BMP);
-	dc.SetBackground(SYS_Get_Color(wxSYS_COLOUR_WINDOW));
+	dc.SetBackground(SYS_Get_Color_Background(m_Options("COLOR_MODE")->asInt()));
 	dc.Clear();
 
 	_Draw(dc, wxRect(BMP.GetSize()));
@@ -590,15 +590,15 @@ void CVIEW_ScatterPlot::On_Paint(wxPaintEvent &event)
 
 	Draw_Edge(dc, EDGE_STYLE_SUNKEN, r);
 
-	dc.SetPen           (SYS_Get_Color_Foreground(m_Options("COLOR_MODE")->asInt()));
-	dc.SetTextForeground(SYS_Get_Color_Foreground(m_Options("COLOR_MODE")->asInt()));
-
 	_Draw(dc, r);
 }
 
 //---------------------------------------------------------
 void CVIEW_ScatterPlot::_Draw(wxDC &dc, wxRect r)
 {
+	dc.SetPen           (SYS_Get_Color_Foreground(m_Options("COLOR_MODE")->asInt()));
+	dc.SetTextForeground(SYS_Get_Color_Foreground(m_Options("COLOR_MODE")->asInt()));
+
 	r = _Draw_Get_rDiagram(r);
 
 	if( m_Trend.Get_Data_Count() > 1 )
