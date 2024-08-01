@@ -68,19 +68,19 @@ COverland_Flow::COverland_Flow(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid("",
-		"DEM"		, _TL("Elevation"),
+		"DEM"              , _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid_or_Const("",
-		"ROUGHNESS"	, _TL("Roughness"),
+		"ROUGHNESS"        , _TL("Roughness"),
 		_TL("Ks Strickler = 1/n Manning"),
 		20., 0., true
 	);
 
 	Parameters.Add_Choice("ROUGHNESS",
-		"STRICKLER"	, _TL("Type"),
+		"STRICKLER"        , _TL("Type"),
 		_TL("Ks Strickler = 1/n Gauckler-Manning"),
 		CSG_String::Format("%s|%s",
 			SG_T("Strickler Ks, [m^1/3 / s]"),
@@ -90,109 +90,109 @@ COverland_Flow::COverland_Flow(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_or_Const("",
-		"INTER_MAX"	, _TL("Interception Capacity [mm]"),
+		"INTER_MAX"        , _TL("Interception Capacity [mm]"),
 		_TL(""),
 		0., 0., true
 	);
 
 	Parameters.Add_Grid_or_Const("",
-		"POND_MAX"	, _TL("Ponding Capacity [mm]"),
+		"POND_MAX"         , _TL("Ponding Capacity [mm]"),
 		_TL(""),
 		0., 0., true
 	);
 
 	Parameters.Add_Grid_or_Const("",
-		"INFIL_MAX"	, _TL("Infiltration Capacity [mm/h]"),
+		"INFIL_MAX"        , _TL("Infiltration Capacity [mm/h]"),
 		_TL(""),
 		0., 0., true
 	);
 
 	Parameters.Add_Grid("",
-		"INTERCEPT"	, _TL("Interception [mm]"),
+		"INTERCEPT"        , _TL("Interception [mm]"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid("",
-		"PONDING"	, _TL("Ponding [mm]"),
+		"PONDING"          , _TL("Ponding [mm]"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid("",
-		"INFILTRAT"	, _TL("Infiltration [mm]"),
+		"INFILTRAT"        , _TL("Infiltration [mm]"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid("",
-		"FLOW"		, _TL("Flow [mm]"),
+		"FLOW"             , _TL("Flow [mm]"),
 		_TL(""),
 		has_GUI() ? PARAMETER_OUTPUT : PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid("",
-		"VELOCITY"	, _TL("Velocity [m/h]"),
+		"VELOCITY"         , _TL("Velocity [m/h]"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_System("",
-		"WEATHER"	, _TL("Weather Grid System"),
+		"WEATHER"          , _TL("Weather Grid System"),
 		_TL("")
 	);
 
 	Parameters.Add_Grid_or_Const("WEATHER",
-		"PRECIP"	, _TL("Precipitation [mm/h]"),
+		"PRECIP"           , _TL("Precipitation [mm/h]"),
 		_TL(""),
 		0., 0., true
 	);
 
 	Parameters.Add_Grid_or_Const("WEATHER",
-		"ET_POT"	, _TL("Potential Evapotranspiration [mm/h]"),
+		"ET_POT"           , _TL("Potential Evapotranspiration [mm/h]"),
 		_TL(""),
 		0., 0., true
 	);
 
 	Parameters.Add_Bool("",
-		"RESET"		, _TL("Reset"),
+		"RESET"            , _TL("Reset"),
 		_TL("If checked storages (flow, ponding, interception) and sinks (infiltration) will be set to zero."),
 		true
 	);
 
 	Parameters.Add_Double("",
-		"TIME_STOP"	, _TL("Simulation Time [h]"),
+		"TIME_STOP"        , _TL("Simulation Time [h]"),
 		_TL("Simulation time in hours."),
 		6., 0., true
 	);
 
 	Parameters.Add_Double("",
-		"TIME_STEP"	, _TL("Time Step Adjustment"),
+		"TIME_STEP"        , _TL("Time Step Adjustment"),
 		_TL("Choosing a lower value will result in a better numerical precision but also in a longer calculation time."),
 		0.5, 0.01, true, 1., true
 	);
 
 //	Parameters.Add_Double("",
-//		"V_MIN"		, _TL("Minimum Velocity [m/h]"),
+//		"V_MIN"            , _TL("Minimum Velocity [m/h]"),
 //		_TL(""),
 //		0., 0., true
 //	);
 
 	Parameters.Add_Bool("",
-		"FLOW_OUT"	, _TL("Overland Flow Summary"),
+		"FLOW_OUT"         , _TL("Overland Flow Summary"),
 		_TL("Report the amount of overland flow that left the covered area."),
 		false
 	);
 
 	Parameters.Add_Table("",
-		"SUMMARY"	, _TL("Overland Flow Summary"),
+		"SUMMARY"          , _TL("Overland Flow Summary"),
 			_TL(""),
 			PARAMETER_OUTPUT_OPTIONAL
 		);
 
 	Parameters.Add_Double("",
-		"TIME_UPDATE", _TL("Map Update Frequency [Minutes]"),
+		"TIME_UPDATE"      , _TL("Map Update Frequency"),
 		_TL("Map update frequency in minutes. Set to zero to update each simulation time step."),
 		1., 0., true
 	);
@@ -202,6 +202,37 @@ COverland_Flow::COverland_Flow(void)
 
 	Parameters.Add_Bool("TIME_UPDATE", "UPDATE_VELO_FIXED"                     , _TL("Fixed Color Stretch for Velocity"), _TL(""), true);
 	Parameters.Add_Range(              "UPDATE_VELO_FIXED", "UPDATE_VELO_RANGE", _TL("Fixed Color Stretch"             ), _TL(""), 750., 1., 0., true);
+
+	//-----------------------------------------------------
+	Parameters.Add_Shapes("",
+		"MONITOR_POINTS"   , _TL("Monitors"),
+		_TL(""),
+		PARAMETER_INPUT_OPTIONAL, SHAPE_TYPE_Point
+	);
+
+	Parameters.Add_Table_Field("MONITOR_POINTS",
+		"MONITOR_NAME"     , _TL("Name"),
+		_TL("Used to name time series fields. Will simply be enumerated if not set."),
+		true
+	);
+
+	Parameters.Add_Table("MONITOR_POINTS",
+		"MONITOR_SERIES"   , _TL("Time Series"),
+		_TL("Flow accumulation values collected for each monitor point."),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Double("MONITOR_SERIES",
+		"MONITOR_UPDATE"   , _TL("Monitor Update Frequency"),
+		_TL("Monitor update frequency in minutes. Set to zero to update each simulation time step."),
+		1., 0., true
+	);
+
+	Parameters.Add_Bool("MONITOR_SERIES",
+		"MONITOR_RESET"    , _TL("Reset"),
+		_TL(""),
+		false
+	);
 }
 
 
@@ -258,6 +289,11 @@ int COverland_Flow::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 		pParameters->Set_Enabled("SUMMARY", pParameter->asBool());
 	}
 
+	if( pParameter->Cmp_Identifier("MONITOR_POINTS") )
+	{
+		pParameter->Set_Children_Enabled(pParameter->asShapes());
+	}
+
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
@@ -277,9 +313,17 @@ bool COverland_Flow::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	double	Update_Last	= 0., Update = Parameters("TIME_UPDATE")->asDouble() / 60.;	// from minutes to hours
+	double Update_Last  = 0., Update  = Parameters("TIME_UPDATE"   )->asDouble() / 60.; // from minutes to hours
 
-	double	Time, Time_Stop	= Parameters("TIME_STOP")->asDouble();
+	double Monitor_Last = 0., Monitor = Parameters("MONITOR_UPDATE")->asDouble() / 60., Monitor_Time = 0.;
+
+	if( m_pMonitor_Points && m_pMonitor_Series->Get_Count() > 0 )
+	{
+		Monitor_Time = m_pMonitor_Series->Get_Record(m_pMonitor_Series->Get_Count() - 1)->asDouble(0);
+	}
+
+	//-----------------------------------------------------
+	double Time, Time_Stop = Parameters("TIME_STOP")->asDouble();
 
 	for(Time=0.; Time<=Time_Stop && Set_Time_Stamp(Time); Time+=m_dTime)
 	{
@@ -291,19 +335,29 @@ bool COverland_Flow::On_Execute(void)
 		{
 			if( Update > 0. )
 			{
-				Update_Last	= Update * (1. + floor(Time / Update));
+				Update_Last = Update * (1. + floor(Time / Update));
 			}
 
 			Do_Updates();
+		}
+
+		if( m_pMonitor_Points && Time >= Monitor_Last )
+		{
+			if( Monitor > 0. )
+			{
+				Monitor_Last = Monitor * (1. + floor(Time / Monitor));
+			}
+
+			Do_Monitor(Monitor_Time + Time);
 		}
 
 		SG_UI_ProgressAndMsg_Lock(false);
 	}
 
 	//-----------------------------------------------------
-	double	s	= Time;
-	int		h	= (int)s; s = 60. * (s - h);
-	int		m	= (int)s; s = 60. * (s - m);
+	double s = Time;
+	int    h = (int)s; s = 60. * (s - h);
+	int    m = (int)s; s = 60. * (s - m);
 
 	Message_Fmt("\n____\n%s: %02dh %02dm %02fs (= %g %s)\n", _TL("Simulation Time"), h, m, s, Time, _TL("hours"));
 
@@ -360,7 +414,7 @@ bool COverland_Flow::Initialize(void)
 	m_vMin  = 0.; // = Parameters("V_MIN"    )->asDouble();
 
 	m_bFlow_Out      = Parameters("FLOW_OUT" )->asBool  ();
-	m_Flow_Out		 = 0.;
+	m_Flow_Out       = 0.;
 
 	//-----------------------------------------------------
 	if( Parameters("RESET")->asBool() )
@@ -407,6 +461,35 @@ bool COverland_Flow::Initialize(void)
 	m_Flow.Create(Get_System()       , SG_DATATYPE_Float);
 	m_v   .Create(Get_System(), 9, 0., SG_DATATYPE_Float);
 
+	//-----------------------------------------------------
+	m_pMonitor_Points = Parameters("MONITOR_POINTS")->asShapes();
+	m_pMonitor_Series = Parameters("MONITOR_SERIES")->asTable ();
+
+	if( m_pMonitor_Points && m_pMonitor_Points->Get_Count() > 0 )
+	{
+		if( Parameters("MONITOR_RESET")->asBool() || m_pMonitor_Points->Get_Count() != m_pMonitor_Series->Get_Field_Count() - 1 )
+		{
+			m_pMonitor_Series->Destroy();
+			m_pMonitor_Series->Set_Name(_TL("Monitors"));
+			m_pMonitor_Series->Add_Field("Time", SG_DATATYPE_Double);
+
+			int Name = Parameters("MONITOR_NAME")->asInt();
+
+			for(int i=0; i<m_pMonitor_Points->Get_Count(); i++)
+			{
+				if( Name < 0 )
+				{
+					m_pMonitor_Series->Add_Field(CSG_String::Format("Monitor%02d", i), SG_DATATYPE_Double);
+				}
+				else
+				{
+					m_pMonitor_Series->Add_Field(m_pMonitor_Points->Get_Shape(i)->asString(Name), SG_DATATYPE_Double);
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
 	return( true );
 }
 
@@ -509,12 +592,48 @@ bool COverland_Flow::Do_Updates(void)
 	return( true );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool COverland_Flow::Do_Monitor(double Time)
+{
+	CSG_Table_Record &Monitors = *m_pMonitor_Series->Add_Record();
+
+	Monitors.Set_Value(0, Time);
+
+	for(int i=0; i<m_pMonitor_Points->Get_Count(); i++)
+	{
+		CSG_Point Point(m_pMonitor_Points->Get_Shape(i)->Get_Point()); double Flow;
+
+		if( m_pFlow->Get_Value(Point, Flow) )
+		{
+			Monitors.Set_Value (1 + i, Flow);
+		}
+		else
+		{
+			Monitors.Set_NoData(1 + i);
+		}
+	}
+
+	DataObject_Update(m_pMonitor_Series);
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 bool COverland_Flow::Set_Time_Stamp(double Time)
 {
-	double	s	= Time;
-	int		h	= (int)s; s = 60. * (s - h);
-	int		m	= (int)s; s = 60. * (s - m);
+	double s = Time;
+	int    h = (int)s; s = 60. * (s - h);
+	int    m = (int)s; s = 60. * (s - m);
 
 	Process_Set_Text(CSG_String::Format("%s: %02d:%02d:%02d %s: %.2f [min]",
 		_TL("Time"), h, m, (int)s,
@@ -532,7 +651,7 @@ bool COverland_Flow::Set_Time_Stamp(double Time)
 //---------------------------------------------------------
 bool COverland_Flow::Do_Time_Step(void)
 {
-	m_vMax	= 0.;
+	m_vMax = 0.;
 
 	#pragma omp parallel for
 	for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
@@ -543,7 +662,7 @@ bool COverland_Flow::Do_Time_Step(void)
 	//-----------------------------------------------------
 	if( m_vMax > 0. )
 	{
-		m_dTime	= Parameters("TIME_STEP")->asDouble() * Get_Cellsize() / m_vMax;	// Courant–Friedrichs–Lewy (CFL) condition
+		m_dTime = Parameters("TIME_STEP")->asDouble() * Get_Cellsize() / m_vMax; // Courant–Friedrichs–Lewy (CFL) condition
 
 		#pragma omp parallel for
 		for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
@@ -553,7 +672,7 @@ bool COverland_Flow::Do_Time_Step(void)
 	}
 	else
 	{
-		m_dTime	= 1. / 60.;	// 1 min
+		m_dTime = 1. / 60.;	// 1 min
 	}
 
 	//-----------------------------------------------------

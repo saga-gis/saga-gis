@@ -94,11 +94,16 @@ private:
 
 	CSG_Grids				m_v;
 
+	CSG_Shapes				*m_pMonitor_Points;
+
+	CSG_Table				*m_pMonitor_Series;
+
 
 	bool					Initialize				(void);
 	bool					Finalize				(void);
 
 	bool					Do_Updates				(void);
+	bool					Do_Monitor				(double Time);
 
 	bool					Set_Time_Stamp			(double Time);
 
