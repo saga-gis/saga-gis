@@ -94,7 +94,7 @@ END_EVENT_TABLE()
 CWKSP_Map_Button::CWKSP_Map_Button(wxWindow *pParent, CWKSP_Map *pMap)
 	: wxPanel(pParent, -1, wxDefaultPosition, wxDefaultSize, wxRAISED_BORDER)
 {
-	m_pMap	= pMap;
+	m_pMap = pMap;
 }
 
 
@@ -113,9 +113,7 @@ void CWKSP_Map_Button::On_Paint(wxPaintEvent &event)
 		}
 
 		//-------------------------------------------------
-		wxPaintDC	dc(this);
-
-		wxRect		r(GetClientRect());
+		wxPaintDC dc(this); wxRect r(GetClientRect());
 
 		dc.DrawBitmap(m_pMap->Get_Thumbnail(r.GetWidth() - 1, r.GetHeight() - 1),
 			r.GetLeft(), r.GetTop(), true
@@ -126,9 +124,13 @@ void CWKSP_Map_Button::On_Paint(wxPaintEvent &event)
 		{
 			dc.SetPen(wxPen(Get_Color_asWX(g_pMaps->Get_Parameter("THUMBNAIL_SELCOLOR")->asColor())));
 
-			Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);	r.Deflate(1);
-			Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);	r.Deflate(1);
+			Draw_Edge(dc, EDGE_STYLE_SIMPLE, r); r.Deflate(1);
+			Draw_Edge(dc, EDGE_STYLE_SIMPLE, r); r.Deflate(1);
 			Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);
+		}
+		else
+		{
+			Draw_Edge(dc, EDGE_STYLE_RAISED, r);
 		}
 	}
 }
@@ -141,7 +143,7 @@ void CWKSP_Map_Button::On_Paint(wxPaintEvent &event)
 //---------------------------------------------------------
 void CWKSP_Map_Button::On_Key(wxKeyEvent &event)
 {
-	wxCommandEvent	Command;
+	wxCommandEvent Command;
 
 	switch( event.GetKeyCode() )
 	{
@@ -180,7 +182,7 @@ void CWKSP_Map_Button::On_Mouse_RDown(wxMouseEvent &event)
 {
 	if( _Set_Active() )
 	{
-		wxMenu	*pMenu	= m_pMap->Get_Menu();
+		wxMenu *pMenu = m_pMap->Get_Menu();
 
 		if( pMenu )
 		{
@@ -206,7 +208,7 @@ bool CWKSP_Map_Button::_Set_Active(void)
 		return( g_pMap_Ctrl->Set_Item_Selected(m_pMap) );
 	}
 
-	m_pMap	= NULL;
+	m_pMap = NULL;
 
 	return( false );
 }
@@ -225,7 +227,7 @@ bool CWKSP_Map_Button::_Set_Active(void)
 #define SCROLL_BAR_DY	wxSystemSettings::GetMetric(wxSYS_HSCROLL_Y)
 
 //---------------------------------------------------------
-CWKSP_Map_Buttons	*g_pMap_Buttons	= NULL;
+CWKSP_Map_Buttons *g_pMap_Buttons = NULL;
 
 
 ///////////////////////////////////////////////////////////
@@ -251,19 +253,19 @@ END_EVENT_TABLE()
 CWKSP_Map_Buttons::CWKSP_Map_Buttons(wxWindow *pParent)
 	: wxScrolledWindow(pParent, -1, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER|wxFULL_REPAINT_ON_RESIZE)
 {
-	g_pMap_Buttons	= this;
+	g_pMap_Buttons = this;
 
-	m_xScroll		= 0;
-	m_yScroll		= 0;
+	m_xScroll      = 0;
+	m_yScroll      = 0;
 
-	m_Items			= NULL;
-	m_nItems		= 0;
+	m_Items        = NULL;
+	m_nItems       = 0;
 }
 
 //---------------------------------------------------------
 CWKSP_Map_Buttons::~CWKSP_Map_Buttons(void)
 {
-	g_pMap_Buttons	= NULL;
+	g_pMap_Buttons = NULL;
 
 	_Del_Items();
 }
@@ -290,7 +292,7 @@ void CWKSP_Map_Buttons::On_Mouse_LDown(wxMouseEvent &event)
 //---------------------------------------------------------
 void CWKSP_Map_Buttons::On_Mouse_RDown(wxMouseEvent &event)
 {
-	wxMenu	*pMenu	= g_pMaps->Get_Menu();
+	wxMenu *pMenu = g_pMaps->Get_Menu();
 
 	if( pMenu )
 	{
@@ -339,8 +341,7 @@ bool CWKSP_Map_Buttons::_Del_Items(void)
 		SG_Free(m_Items);
 	}
 
-	m_Items		= NULL;
-	m_nItems	= 0;
+	m_Items = NULL; m_nItems = 0;
 
 	return( true );
 }
@@ -378,8 +379,8 @@ bool CWKSP_Map_Buttons::_Add_Item(CWKSP_Map *pMap)
 {
 	if( pMap )
 	{
-		m_Items	= (CWKSP_Map_Button **)SG_Realloc(m_Items, (m_nItems + 1) * sizeof(CWKSP_Map_Button *));
-		m_Items[m_nItems++]	= new CWKSP_Map_Button(this, pMap);
+		m_Items = (CWKSP_Map_Button **)SG_Realloc(m_Items, (m_nItems + 1) * sizeof(CWKSP_Map_Button *));
+		m_Items[m_nItems++] = new CWKSP_Map_Button(this, pMap);
 
 		return( true );
 	}
@@ -395,54 +396,50 @@ bool CWKSP_Map_Buttons::_Add_Item(CWKSP_Map *pMap)
 //---------------------------------------------------------
 void CWKSP_Map_Buttons::_Set_Positions(void)
 {
-	int		Size, xSize, ySize, xPos, yPos, xAdd, yAdd;
+	int  Size = g_pMaps->Get_Parameter("THUMBNAIL_SIZE")->asInt();
 
-	Size	= g_pMaps->Get_Parameter("THUMBNAIL_SIZE")->asInt();
-
-	xSize	= GetClientSize().x - SCROLL_BAR_DX;
+	int xSize = GetClientSize().x - SCROLL_BAR_DX, ySize;
 
 	if( xSize < Size + THUMBNAIL_DIST )
 	{
-		xSize	= Size + THUMBNAIL_DIST;
+		xSize = Size + THUMBNAIL_DIST;
 	}
 
-	xPos	= THUMBNAIL_DIST;
-	yPos	= THUMBNAIL_DIST;
-	xAdd	= 0;
-	yAdd	= 0;
+	int xPos = THUMBNAIL_DIST, xAdd = 0;
+	int yPos = THUMBNAIL_DIST, yAdd = 0;
 
 	//-----------------------------------------------------
 	for(int i=0, x, y; i<m_nItems; i++)
 	{
-		CWKSP_Map_Button	*pItem	= m_Items[i];
+		CWKSP_Map_Button *pItem = m_Items[i];
 
 		{
-			xAdd	= Size;
+			xAdd = Size;
 
 			if( xPos + xAdd >= xSize )
 			{
-				xPos	 = THUMBNAIL_DIST;
-				yPos	+= yAdd;
-				yAdd	 = THUMBNAIL_DIST + Size;
+				xPos  = THUMBNAIL_DIST;
+				yPos += yAdd;
+				yAdd  = THUMBNAIL_DIST + Size;
 			}
 
-			yAdd	= Size + THUMBNAIL_DIST;
+			yAdd = Size + THUMBNAIL_DIST;
 
 			CalcScrolledPosition(xPos, yPos, &x, &y);
 			pItem->SetSize(x, y, Size, Size);
 
-			xPos	+= THUMBNAIL_DIST + xAdd;
+			xPos += THUMBNAIL_DIST + xAdd;
 		}
 	}
 
 	//-----------------------------------------------------
-	xSize	+= SCROLL_BAR_DX;
-	ySize	 = SCROLL_BAR_DY + yPos + yAdd;
+	xSize += SCROLL_BAR_DX;
+	ySize  = SCROLL_BAR_DY + yPos + yAdd;
 
 	if(	m_xScroll != xSize || m_yScroll != ySize )
 	{
-		m_xScroll	= xSize;
-		m_yScroll	= ySize;
+		m_xScroll = xSize;
+		m_yScroll = ySize;
 
 		SetScrollbars(SCROLL_RATE, SCROLL_RATE, m_xScroll / SCROLL_RATE, m_yScroll / SCROLL_RATE);
 	}

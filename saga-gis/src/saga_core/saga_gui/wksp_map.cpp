@@ -402,10 +402,17 @@ void CWKSP_Map::On_Create_Parameters(void)
 		&m_Name
 	);
 
-	m_Parameters.Add_Color("NODE_GENERAL",
-		"BACKGROUND"    , _TL("Background Color"),
+	m_Parameters.Add_Choice("NODE_GENERAL",
+		"BG_COLOR"      , _TL("Background Color"),
 		_TL(""),
-		g_pMaps->Get_Parameter("BACKGROUND")->asColor()
+		CSG_String::Format("%s|%s", _TL("system"), _TL("user defined")),
+		g_pMaps->Get_Parameter("BG_COLOR")->asInt()
+	);
+
+	m_Parameters.Add_Color("BG_COLOR",
+		"BG_USER"       , _TL("User Defined"),
+		_TL(""),
+		g_pMaps->Get_Parameter("BG_USER")->asColor()
 	);
 
 	m_Parameters.Add_Bool("NODE_GENERAL",
@@ -585,6 +592,11 @@ int CWKSP_Map::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 {
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
+		if(	pParameter->Cmp_Identifier("BG_COLOR") )
+		{
+			pParameter->Set_Children_Enabled(pParameter->asInt ());
+		}
+
 		if(	pParameter->Cmp_Identifier("SEL_EXTENT") )
 		{
 			pParameter->Set_Children_Enabled(pParameter->asBool());
@@ -2143,6 +2155,17 @@ bool CWKSP_Map::_Set_Thumbnail(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+wxColour CWKSP_Map::Get_Background(void)
+{
+	return( m_Parameters["BG_COLOR"].asInt() ? Get_Color_asWX(m_Parameters["BG_USER"].asInt()) : SYS_Get_Color_Background() );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 void CWKSP_Map::Draw_Map(wxDC &dc, double Zoom, const wxRect &rClient, int Flags, int Background)
 {
 	Draw_Map(dc, Get_World(rClient), Zoom, rClient, Flags, Background);
@@ -2151,7 +2174,7 @@ void CWKSP_Map::Draw_Map(wxDC &dc, double Zoom, const wxRect &rClient, int Flags
 //---------------------------------------------------------
 void CWKSP_Map::Draw_Map(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wxRect &rClient, int Flags, int Background)
 {
-	CSG_Map_DC dc_Map(rWorld, rClient, Zoom, Background >= 0 ? Background : m_Parameters("BACKGROUND")->asInt());
+	CSG_Map_DC dc_Map(rWorld, rClient, Zoom, Background >= 0 ? Background : Get_Background().GetRGB());
 
 	Draw_Map(dc_Map, Flags);
 

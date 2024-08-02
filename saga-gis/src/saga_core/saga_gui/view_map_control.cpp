@@ -488,7 +488,7 @@ void CVIEW_Map_Control::_Draw_Pan(wxDC &dc)
 {
 	if( m_Mode == MAP_MODE_PAN_DOWN && m_Mouse_Down != m_Mouse_Move )
 	{
-		dc.SetBackground(Get_Color_asWX(m_pMap->Get_Parameter("BACKGROUND")->asColor())); dc.Clear();
+		dc.SetBackground(m_pMap->Get_Background()); dc.Clear();
 		dc.DrawBitmap(m_Bitmap,
 			m_Mouse_Move.x - m_Mouse_Down.x,
 			m_Mouse_Move.y - m_Mouse_Down.y, false

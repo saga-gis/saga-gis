@@ -183,6 +183,8 @@ public:
 	bool						SaveAs_Image_To_Grid	(CSG_Grid &Grid, int Size);
 	bool						SaveAs_Image_On_Change	(void);
 
+	wxColour					Get_Background			(void);
+
 	void						Draw_Map				(wxDC &dc                        , double Zoom, const wxRect &rClient, int Flags = 0, int Background = -1);
 	void						Draw_Map				(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wxRect &rClient, int Flags = 0, int Background = -1);
 	void						Draw_Map				(class CSG_Map_DC &dc, int Flags = 0);

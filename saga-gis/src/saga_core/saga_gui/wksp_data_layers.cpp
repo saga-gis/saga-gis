@@ -127,7 +127,7 @@ void CWKSP_Data_Button::On_Paint(wxPaintEvent &event)
 {
 	if( m_pItem )
 	{
-		wxPaintDC	dc(this);
+		wxPaintDC dc(this);
 
 		//-------------------------------------------------
 		if( is_Manager() )
@@ -143,7 +143,7 @@ void CWKSP_Data_Button::On_Paint(wxPaintEvent &event)
 				SetToolTip(m_pItem->Get_Name());
 			}
 
-			wxRect	r(GetClientRect());
+			wxRect r(GetClientRect());
 
 			if( m_pItem->Get_Type() == WKSP_ITEM_Table )
 			{
@@ -166,6 +166,10 @@ void CWKSP_Data_Button::On_Paint(wxPaintEvent &event)
 				Draw_Edge(dc, EDGE_STYLE_SIMPLE, r); r.Deflate(1);
 				Draw_Edge(dc, EDGE_STYLE_SIMPLE, r); r.Deflate(1);
 				Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);
+			}
+			else
+			{
+				Draw_Edge(dc, EDGE_STYLE_RAISED, r);
 			}
 		}
 	}
@@ -221,7 +225,7 @@ void CWKSP_Data_Button::On_Mouse_RDown(wxMouseEvent &event)
 		_Set_Active(false);
 	}
 
-	wxMenu	*pMenu	= g_pData_Ctrl->Get_Menu();
+	wxMenu *pMenu = g_pData_Ctrl->Get_Menu();
 
 	if( pMenu )
 	{
@@ -272,7 +276,7 @@ bool CWKSP_Data_Button::_Set_Active(bool bKeepOthers)
 		return( true );
 	}
 
-	m_pItem	= NULL;
+	m_pItem = NULL;
 
 	return( false );
 }
@@ -291,7 +295,7 @@ bool CWKSP_Data_Button::_Set_Active(bool bKeepOthers)
 #define SCROLL_BAR_DY	wxSystemSettings::GetMetric(wxSYS_HSCROLL_Y)
 
 //---------------------------------------------------------
-CWKSP_Data_Buttons	*g_pData_Buttons	= NULL;
+CWKSP_Data_Buttons *g_pData_Buttons = NULL;
 
 
 ///////////////////////////////////////////////////////////
@@ -317,19 +321,19 @@ END_EVENT_TABLE()
 CWKSP_Data_Buttons::CWKSP_Data_Buttons(wxWindow *pParent)
 	: wxScrolledWindow(pParent, -1, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER|wxFULL_REPAINT_ON_RESIZE)
 {
-	g_pData_Buttons	= this;
+	g_pData_Buttons = this;
 
-	m_xScroll		= 0;
-	m_yScroll		= 0;
+	m_xScroll       = 0;
+	m_yScroll       = 0;
 
-	m_Items			= NULL;
-	m_nItems		= 0;
+	m_Items         = NULL;
+	m_nItems        = 0;
 }
 
 //---------------------------------------------------------
 CWKSP_Data_Buttons::~CWKSP_Data_Buttons(void)
 {
-	g_pData_Buttons	= NULL;
+	g_pData_Buttons = NULL;
 
 	_Del_Items();
 }
@@ -356,7 +360,7 @@ void CWKSP_Data_Buttons::On_Mouse_LDown(wxMouseEvent &event)
 //---------------------------------------------------------
 void CWKSP_Data_Buttons::On_Mouse_RDown(wxMouseEvent &event)
 {
-	wxMenu	*pMenu	= g_pData->Get_Menu();
+	wxMenu *pMenu = g_pData->Get_Menu();
 
 	if( pMenu )
 	{
@@ -405,8 +409,7 @@ bool CWKSP_Data_Buttons::_Del_Items(void)
 		SG_Free(m_Items);
 	}
 
-	m_Items		= NULL;
-	m_nItems	= 0;
+	m_Items = NULL; m_nItems = 0;
 
 	return( true );
 }
@@ -462,8 +465,8 @@ bool CWKSP_Data_Buttons::_Add_Item(CWKSP_Data_Item *pItem)
 {
 	if( pItem )
 	{
-		m_Items	= (CWKSP_Data_Button **)SG_Realloc(m_Items, (m_nItems + 1) * sizeof(CWKSP_Data_Button *));
-		m_Items[m_nItems++]	= new CWKSP_Data_Button(this, pItem);
+		m_Items = (CWKSP_Data_Button **)SG_Realloc(m_Items, (m_nItems + 1) * sizeof(CWKSP_Data_Button *));
+		m_Items[m_nItems++] = new CWKSP_Data_Button(this, pItem);
 
 		return( true );
 	}
@@ -476,8 +479,8 @@ bool CWKSP_Data_Buttons::_Add_Item(CWKSP_Base_Manager *pItem)
 {
 	if( pItem )
 	{
-		m_Items	= (CWKSP_Data_Button **)SG_Realloc(m_Items, (m_nItems + 1) * sizeof(CWKSP_Data_Button *));
-		m_Items[m_nItems++]	= new CWKSP_Data_Button(this, pItem);
+		m_Items = (CWKSP_Data_Button **)SG_Realloc(m_Items, (m_nItems + 1) * sizeof(CWKSP_Data_Button *));
+		m_Items[m_nItems++] = new CWKSP_Data_Button(this, pItem);
 
 		return( true );
 	}
@@ -493,66 +496,62 @@ bool CWKSP_Data_Buttons::_Add_Item(CWKSP_Base_Manager *pItem)
 //---------------------------------------------------------
 void CWKSP_Data_Buttons::_Set_Positions(void)
 {
-	int		Size, xSize, ySize, xPos, yPos, xAdd, yAdd;
+	int  Size = g_pData->Get_Parameter("THUMBNAIL_SIZE")->asInt();
 
-	Size	= g_pData->Get_Parameter("THUMBNAIL_SIZE")->asInt();
-
-	xSize	= GetClientSize().x - SCROLL_BAR_DX;
+	int xSize = GetClientSize().x - SCROLL_BAR_DX, ySize;
 
 	if( xSize < Size + THUMBNAIL_DIST )
 	{
-		xSize	= Size + THUMBNAIL_DIST;
+		xSize = Size + THUMBNAIL_DIST;
 	}
 
-	xPos	= 0;
-	yPos	= 0;
-	xAdd	= 0;
-	yAdd	= 0;
+	int xPos = 0, xAdd = 0;
+	int yPos = 0, yAdd = 0;
 
 	//-----------------------------------------------------
 	for(int i=0, x, y; i<m_nItems; i++)
 	{
-		CWKSP_Data_Button	*pItem	= m_Items[i];
+		CWKSP_Data_Button *pItem = m_Items[i];
 
 		if( pItem->is_Manager() )
 		{
-			xPos	 = THUMBNAIL_DIST;
-			yPos	+= yAdd;	if( yPos > 0 )	yPos	+= THUMBNAIL_DIST;
+			xPos  = THUMBNAIL_DIST;
+			yPos += yAdd; if( yPos > 0 ) yPos += THUMBNAIL_DIST;
 
 			CalcScrolledPosition(0, yPos, &x, &y);
 			pItem->SetSize(x, y, xSize + SCROLL_BAR_DX, -1, wxSIZE_USE_EXISTING);
 
-			yPos	+= THUMBNAIL_DIST + pItem->GetSize().y;
-			yAdd	 = 0;
+			yPos += THUMBNAIL_DIST + pItem->GetSize().y;
+			yAdd  = 0;
 		}
 		else
 		{
-			xAdd	= Size;
+			xAdd = Size;
 
 			if( xPos + xAdd >= xSize )
 			{
-				xPos	 = THUMBNAIL_DIST;
-				yPos	+= yAdd;
-				yAdd	 = THUMBNAIL_DIST + Size;
+				xPos  = THUMBNAIL_DIST;
+				yPos += yAdd;
+				yAdd  = THUMBNAIL_DIST + Size;
 			}
 
-			yAdd	= Size + THUMBNAIL_DIST;
+			yAdd = Size + THUMBNAIL_DIST;
 
 			CalcScrolledPosition(xPos, yPos, &x, &y);
 			pItem->SetSize(x, y, Size, Size);
 
-			xPos	+= THUMBNAIL_DIST + xAdd;
+			xPos += THUMBNAIL_DIST + xAdd;
 		}
 	}
 
 	//-----------------------------------------------------
-	xSize	+= SCROLL_BAR_DX;
-	ySize	 = SCROLL_BAR_DY + yPos + yAdd;
+	xSize += SCROLL_BAR_DX;
+	ySize  = SCROLL_BAR_DY + yPos + yAdd;
 
 	if(	m_xScroll != xSize || m_yScroll != ySize )
 	{
-		m_xScroll	= xSize;
-		m_yScroll	= ySize;
+		m_xScroll = xSize;
+		m_yScroll = ySize;
 
 		SetScrollbars(SCROLL_RATE, SCROLL_RATE, m_xScroll / SCROLL_RATE, m_yScroll / SCROLL_RATE);
 	}

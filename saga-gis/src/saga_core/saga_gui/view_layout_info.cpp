@@ -304,7 +304,7 @@ public:
 	{
 		wxRect rFrame(m_pLayout->Get_Paper2DC(m_Rect)), rMap(Get_Rect_DC()); CSG_Rect rWorld(Get_Rect_World());
 
-		m_pLayout->Get_Map()->Draw_Map(dc, rWorld, m_pLayout->Get_Paper2DC(), rMap, LAYER_DRAW_FLAG_NOEDITS);
+		m_pLayout->Get_Map()->Draw_Map(dc, rWorld, m_pLayout->Get_Paper2DC(), rMap, LAYER_DRAW_FLAG_NOEDITS, m_pLayout->Get_Map()->Get_Parameter("BG_COLOR")->asInt() ? -1 : SG_COLOR_WHITE);
 
 		if( m_Parameters["FRAME_SHOW"].asBool() )
 		{
