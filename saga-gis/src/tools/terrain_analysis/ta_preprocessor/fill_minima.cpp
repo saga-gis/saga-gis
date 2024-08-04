@@ -246,10 +246,10 @@ CFillMinima::CFillMinima(void)
 
 	Set_Author 		("Neil Flood (c) 2015, Justus Spitzmueller (c) 2023");
 
-	Set_Version 	("1.0");
+	Set_Version 	("1.1");
 
 	Set_Description(_TW(
-		"Minima filling. Currently only for unsigned 1 byte integer grids."
+		"Minima filling for integer grids."
 	));
 
 	Add_Reference("https://www.pythonfmask.org/",
@@ -265,128 +265,170 @@ CFillMinima::CFillMinima(void)
 	Parameters.Add_Grid(
 		"", "DEM"		, _TL("DEM"),
 		_TL("digital elevation model [m]"),
-		PARAMETER_INPUT, true, SG_DATATYPE_Char 
+		PARAMETER_INPUT, true
 	);
 
 	Parameters.Add_Grid(
 		"", "RESULT"	, _TL("Filled DEM"),
 		_TL("processed DEM"),
-		PARAMETER_OUTPUT, true, SG_DATATYPE_Char
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Byte 
+	);
+
+	Parameters.Add_Int(
+		"", "BOUNDARY", _TL("Boundary Value"), _TL(""), 1
 	);
 }
 
 
-#define max(a,b) ((a) > (b) ? (a) : (b))
+//#define max(a,b) ((a) > (b) ? (a) : (b))
 
 
-static int	xnb[] = { 0,-1, 1, 0,-1, 1,-1, 1};
-static int	ynb[] = {-1, 0, 0, 1,-1,-1, 1, 1};
+static int	xnb[] = { 0, 1, 1, 1, 0,-1,-1,-1};
+static int	ynb[] = { 1, 1, 0,-1,-1,-1, 0, 1};
 
 bool CFillMinima::On_Execute(void)
 {
 	CSG_Grid *pInput = Parameters("DEM")->asGrid();
 	CSG_Grid *pImg2 = Parameters("RESULT")->asGrid();
 
-	pImg2->Set_NoData_Value(pInput->Get_NoData_Value());
+	pImg2->Create( Get_System(), pInput->Get_Type() );
+	pImg2->Set_Name( CSG_String::Format("%s_Fill", pInput->Get_Name()) );
+
+	double NoDataValue = pInput->Get_NoData_Value();
+	pImg2->Set_NoData_Value( NoDataValue );
 	pImg2->Set_Scaling( pInput->Get_Scaling(), pInput->Get_Offset() );
 
-	// boundaryval?
 	int hMin = 0;
 	int hMax = 0;
-	for( sLong i=0; i<pInput->Get_NCells(); i++ )
+
+	Process_Set_Text(_TL("Creating statistics"));
+	for(sLong y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		int value = pInput->asInt(i, false);
-		hMin = std::min( hMin, value );
-		hMax = max( hMax, value );
+		#pragma omp parallel for
+		for(sLong x=0; x<Get_NX(); x++)
+		{
+			int value = pInput->asInt(x, y, false);
+			hMin = std::min( hMin, value );
+			hMax = std::max( hMax, value );
+		}
 	}
-	//double dBoundaryVal = pInput->Get_Scaling();
-	double dBoundaryVal = hMin;
+	
 
+	int BoundaryVal = Parameters("BOUNDARY")->asInt();
+	
+	Process_Set_Text(_TL("Initializing output"));
+	for(sLong y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	{
+		#pragma omp parallel for
+		for(sLong x=0; x<Get_NX(); x++)
+		{
+			pImg2->Set_Value( x, y, pInput->is_NoData(x,y) ? NoDataValue : hMax, false);
+		}
+	}
 
-
-	//for( int i=0; i<Get_NX(); i ++ )
-	//{
-	//	int y = Get_NY()-1;
-	//	pImg2->Set_Value( i, 0, pInput->asDouble(i, 0));		
-	//	pImg2->Set_Value( i, y, pInput->asDouble(i, y));		
-	//}
-
-	//for( int i=0; i<Get_NY(); i ++ )
-	//{
-	//	int x = Get_NX()-1;
-	//	pImg2->Set_Value( 0, i, pInput->asDouble(0, i));		
-	//	pImg2->Set_Value( x, i, pInput->asDouble(x, i));		
-	//}
 	
 	PixelQueue *pixQ = PQ_init(hMin,hMax);
-	for( int y=0; y<pInput->Get_NY(); y++ )
-	{
-		for( int x=0; x<pInput->Get_NX(); x++ )
-		{
-			if( pInput->is_NoData(x,y) )
-			{
-				int max = 0;
-				int count = 0;
-				for(int i=0; i<8; i++)
-				{
-					int xn = x + xnb[i];
-					int yn = y + ynb[i];
 
-					if( xn >= 0 && xn < Get_NX() && yn >= 0 && yn < Get_NY() )
+	sLong nx = pInput->Get_NX();
+	sLong ny = pInput->Get_NY();
+
+	Process_Set_Text(_TL("Initializing boundary"));
+	if( pInput->Get_NoData_Count() == 0 )
+	{
+		int Range = Get_NX() + Get_NY();	
+		Set_Progress(0, Range);
+		
+		for( int x=0; x<nx; x++ )
+		{
+			PQel *p = newPix(0, x);
+			PQ_add(pixQ, p, BoundaryVal);
+			pImg2->Set_Value(x, 0, BoundaryVal, false);
+			
+			p = newPix(ny-1, x);
+			PQ_add(pixQ, p, BoundaryVal);
+			pImg2->Set_Value(x, ny-1, BoundaryVal, false);
+		}
+
+		Set_Progress(Get_NX(), Range);
+		
+		for( int y=1; y<ny-1; y++ )
+		{
+			PQel *p = newPix(y, nx-1);
+			PQ_add(pixQ, p, BoundaryVal);
+			pImg2->Set_Value(nx-1, y, BoundaryVal, false);
+			p = newPix(y, 0);
+			PQ_add(pixQ, p, BoundaryVal);
+			pImg2->Set_Value(0, y, BoundaryVal, false);
+		}
+		
+		//for( int x=0; x<nx; x++ )
+		//{
+		//	PQel *p = newPix(0, x);
+		//	PQ_add(pixQ, p, BoundaryVal);
+		//	pImg2->Set_Value(x, 0, BoundaryVal, false);
+		//}
+
+		//for( int y=1; y<ny-1; y++ )
+		//{
+		//	PQel *p = newPix(y, nx-1);
+		//	PQ_add(pixQ, p, BoundaryVal);
+		//	pImg2->Set_Value(nx-1, y, BoundaryVal, false);
+		//}
+		//
+		//for( int x=nx-1; x<=0; x-- )
+		//{
+		//	PQel *p = newPix(ny-1, x);
+		//	PQ_add(pixQ, p, BoundaryVal);
+		//	pImg2->Set_Value(x, ny-1, BoundaryVal, false);
+		//}
+		//
+		//for( int y=ny-1; y<=1 ; y++ )
+		//{
+		//	PQel *p = newPix(y, 0);
+		//	PQ_add(pixQ, p, BoundaryVal);
+		//	pImg2->Set_Value(0, y, BoundaryVal, false);
+		//}
+	}
+	else 
+	{
+		for( sLong y=0; y<Get_NY() && Set_Progress_Rows(y); y++ )
+		{
+			for( sLong x=0; x<Get_NX(); x++ )
+			{
+	   			for( int i=0; i<8; i++ )
+		   		{
+					int xdiff = x + xnb[i];
+					int ydiff = y + ynb[i];
+					
+					// This also checks nodata (last bool)
+					if( !pInput->is_InGrid( xdiff, ydiff, true ) )
 					{
-						if( !pInput->is_NoData(xn,yn) )
-						{
-							count++;
-							max = max( max, pInput->asInt(xn, yn, false) );
-						}
+						PQel *p = newPix(y, x);
+						PQ_add(pixQ, p, BoundaryVal);
+						pImg2->Set_Value(x, y, BoundaryVal, false);
+
+						// Get out of the loop
+						break;
 					}
-				}
-				if( count > 0 )
-				{
-					//pImg2->Set_Value(x,y, max); 
-					//p = newPix(r, c);
-					PQel *p = newPix(y, x); // does the row/cols matter?
-					//h = img(r, c);
-					//PQ_add(pixQ, p, img(r, c));
-					PQ_add(pixQ, p, max);
-				}
-				else
-	  			{
-					pImg2->Set_NoData(x,y);
-				}
-			}
-			else
-	  		{
-				pImg2->Set_Value(x,y, hMax, false);
+	   			}
 			}
 		}
 	}
 
-	//for( int y=0; y<Get_NY(); y ++ )
-	//{
-	//	for( int x=0; x<Get_NX(); x ++ )
-	//	{
-	//		if( pInput->is_NoData(x,y) )
-	//		{
-	//			//p = newPix(r, c);
-	//			PQel *p = newPix(y, x); // does the row/cols matter?
-	//			//h = img(r, c);
-	//			//PQ_add(pixQ, p, img(r, c));
-	//			PQ_add(pixQ, p, dBoundaryVal);
-
-	//		}
-	//	}
-	//}
 
     /* Process until stability */
+    PQel *p, *nbrs, *pNbr, *pNext;
     int hCrt = (int)hMin;
+	
+	Process_Set_Text(_TL("Fill minima"));
     do 
 	{
+		Set_Progress( hCrt, hMax );
         while (! PQ_empty(pixQ, hCrt)) 
 		{
-            PQel *p = PQ_first(pixQ, hCrt);
-            PQel *nbrs = neighbours(p, Get_NY(), Get_NX());
-            PQel *pNbr = nbrs;
+            p = PQ_first(pixQ, hCrt);
+            nbrs = neighbours(p, Get_NY(), Get_NX());
+            pNbr = nbrs;
             while (pNbr != NULL) 
 			{
                 int r = pNbr->i;
@@ -399,13 +441,13 @@ bool CFillMinima::On_Execute(void)
                     int img2val = pImg2->asInt(c,r, false);
                     if (img2val == hMax) 
 					{
-                        img2val = max(hCrt, imgval);
+                        img2val = std::max(hCrt, imgval);
                         //*((npy_int16*)PyArray_GETPTR2(pimg2, r, c)) = img2val;
 						pImg2->Set_Value(c,r, img2val, false);
                         PQ_add(pixQ, pNbr, img2val);
                     }
                 }
-                PQel *pNext = pNbr->next;
+                pNext = pNbr->next;
                 free(pNbr);
                 pNbr = pNext;
             }
