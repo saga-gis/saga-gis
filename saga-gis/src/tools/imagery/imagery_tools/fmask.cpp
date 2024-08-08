@@ -62,14 +62,14 @@ enum Sensor : int
 
 enum
 {
-	RESULT_PCP = 0, RESULT_WATER, RESULT_SNOW, RESULT_LCP, RESULT_PCL, RESULT_WCP
+	RESULT_PCP = 0, RESULT_WATER, RESULT_SNOW, RESULT_LCP, RESULT_PCL, RESULT_PCSL, RESULT_WCP, RESULT_FFN
 };
 
 
-enum 
-{	
-	RED = 0, GREEN, BLUE, NIR, SWIR1, SWIR2, TIR, QARAD
-};
+//enum 
+//{	
+//	RED = 0, GREEN, BLUE, NIR, SWIR1, SWIR2, TIR, QARAD
+//};
 
 
 ///////////////////////////////////////////////////////////
@@ -192,7 +192,8 @@ CFmask::CFmask(void)
 	Parameters.Add_Grid("BANDS_30M", "NIR_TM"    , _TL("Near Infrared (Band 4)"       ), _TL(""), PARAMETER_INPUT );
 	Parameters.Add_Grid("BANDS_30M", "SWIR1_TM"  , _TL("Shortwave Infrared 1 (Band 5)"), _TL(""), PARAMETER_INPUT );
 	Parameters.Add_Grid("BANDS_30M", "SWIR2_TM"  , _TL("Shortwave Infrared 2 (Band 7)"), _TL(""), PARAMETER_INPUT );
-	Parameters.Add_Grid("BANDS_30M", "QARAD_TM"  , _TL("Radiometric Saturation QA"	  ), _TL(""), PARAMETER_INPUT );
+	Parameters.Add_Grid("BANDS_30M", "QARAD_G_TM", _TL("Radiometric Saturation Green" ), _TL(""), PARAMETER_INPUT );
+	Parameters.Add_Grid("BANDS_30M", "QARAD_R_TM", _TL("Radiometric Saturation Red"	  ), _TL(""), PARAMETER_INPUT );
 	Parameters.Add_Grid("BANDS_60M", "THERMAL_ETM", _TL("Thermal Infrared (Band 6)"	), _TL(""), PARAMETER_INPUT	);
 	Parameters.Add_Grid("BANDS_120M","THERMAL_TM", _TL("Thermal Infrared (Band 6)"	), _TL(""), PARAMETER_INPUT	);
 	Parameters.Add_Grid("BANDS_15M", "PANCROMATIC_ETM", _TL("Thermal Infrared (Band 8)"	), _TL(""), PARAMETER_INPUT	);
@@ -405,6 +406,8 @@ bool CFmask::On_Execute(void)
 	m_pResults[RESULT_LCP] 		= SG_Create_Grid( m_pSystem, SG_DATATYPE_Float );
 	m_pResults[RESULT_WCP] 		= SG_Create_Grid( m_pSystem, SG_DATATYPE_Float );
 
+
+
 	m_bCelsius = Parameters("THERMAL_UNIT")->asInt() == 1;
 
 	int Algorithm = Parameters("ALGORITHM")->asInt();
@@ -522,24 +525,13 @@ bool CFmask::On_Execute(void)
 	//}
 
 	//-----------------------------------------------------
-	return( bResult );
+	//return( bResult );
 	return true;
 }
 
-bool CFmask::Is_Saturated(int x, int y, int Band)
+bool CFmask::Is_Saturated(int x, int y, SpectralBand Band)
 {
-	size_t Band_No = 0;
-	switch( Band )
-	{
-		default: return false;
-		case GREEN: 	Band_No = 1; 	break;
-		case RED: 		Band_No = 2; 	break;
-	}
-
-	unsigned short Short = m_pBand[QARAD]->asShort(x,y);
-	std::bitset<16> Bits(Short);
-
-	return (bool) Bits[Band_No];
+	return (bool) m_pBand[Band]->asInt(x,y);
 }
 
 
@@ -596,8 +588,9 @@ double CFmask::Get_Brightness(int x, int y, int Band, bool &Eval )
 //---------------------------------------------------------
 bool CFmask::Set_Fmask_Pass_One_Two(void)
 {
-	CSG_Simple_Statistics Clear_Sky_Water = CSG_Simple_Statistics(true);
-	CSG_Simple_Statistics Clear_Sky_Land = CSG_Simple_Statistics(true);
+	CSG_Simple_Statistics Clear_Sky_Water 	 = CSG_Simple_Statistics(true);
+	CSG_Simple_Statistics Clear_Sky_Land 	 = CSG_Simple_Statistics(true);
+	CSG_Simple_Statistics Clear_Sky_Land_Nir = CSG_Simple_Statistics(true);
 
 	for( int x=0; x<m_pSystem.Get_NX(); x++ )
 	{
@@ -606,7 +599,7 @@ bool CFmask::Set_Fmask_Pass_One_Two(void)
 	  		bool Eval = true;
 			double Red 	= Get_Brightness( x, y, RED, 	Eval ); 
 			double Green= Get_Brightness( x, y, GREEN, 	Eval ); 
-			double Blue = Get_Brightness( x, y, GREEN, 	Eval ); 
+			double Blue = Get_Brightness( x, y, BLUE, 	Eval ); 
 			double Nir 	= Get_Brightness( x, y, NIR,	Eval ); 
 			double Swir1= Get_Brightness( x, y, SWIR1, 	Eval ); 
 			double Swir2= Get_Brightness( x, y, SWIR2, 	Eval ); 
@@ -679,6 +672,7 @@ bool CFmask::Set_Fmask_Pass_One_Two(void)
 				if( !Water_Test )
 				{
 					Clear_Sky_Land += Tir;
+					Clear_Sky_Land_Nir += Nir;
 					// Eq. 15
 					// Calculating Variability_Prob in pass bc every needed value is here.
 					// Store the Variability_Prob in the lCloud_Prop Grid.
@@ -695,6 +689,13 @@ bool CFmask::Set_Fmask_Pass_One_Two(void)
 	// Eq. 13
 	double T_Low 	= Clear_Sky_Land.Get_Percentile(17.5);
 	double T_High 	= Clear_Sky_Land.Get_Percentile(82.5);
+
+	double Lower_Level_NIR = Clear_Sky_Land_Nir.Get_Percentile(17.5);
+
+	if( !Get_Flood_Fill( Lower_Level_NIR ) )
+	{
+		return false;
+	}
 	
 	for( int x=0; x<m_pSystem.Get_NX(); x++ )
 	{
@@ -731,7 +732,11 @@ bool CFmask::Set_Fmask_Pass_One_Two(void)
 		for( int y=0; y<m_pSystem.Get_NY(); y++ )
 		{
 			bool Eval;
-			double Tir 	= Get_Brightness( x, y, TIR, 	Eval ); 
+			double Tir = Get_Brightness( x, y, TIR, 	Eval ); 
+			double Nir = Get_Brightness( x, y, NIR, 	Eval );
+
+			// Equation 19
+			m_pResults[RESULT_PCSL]->Set_Value(x,y m_pResults[RESULT_FFN]->asFloat(x,y) - Nir > 0.02 ? 1.0 : 0.0);
 
 			// Equation. 18
 			if( ( m_pResults[RESULT_WATER]->asInt(x,y) == 1 && m_pResults[RESULT_PCP]->asInt(x,y) == 1 		&& m_pResults[RESULT_WCP]->asFloat(x,y) > 0.5)
@@ -746,6 +751,24 @@ bool CFmask::Set_Fmask_Pass_One_Two(void)
 	
 
 	return true;
+}
+
+bool CFmask::Get_Flood_Fill( double Boundary )
+{
+
+	CSG_Tool	*pTool = SG_Get_Tool_Library_Manager().Create_Tool("ta_preprocessor", 8, false);
+
+	if( pTool == NULL )
+		return false;
+	
+	bool	bResult	=
+		  	pTool->Set_Parameter("DEM", m_pBand[NIR])
+		&&  pTool->Set_Parameter("BOUNDARY", (int) Boundary )
+		&&  pTool->Execute();
+
+	return bResult 
+		&& (m_pResults[RESULT_FFN] = pTool->Get_Parameter("RESULT")->asGrid())
+		&& SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 }
 
 /*

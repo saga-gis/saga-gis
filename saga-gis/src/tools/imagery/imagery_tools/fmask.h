@@ -67,10 +67,10 @@
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
-//typedef enum SpectralBand
-//{
-//	RED = 0, GREEN, BLUE, NIR, SWIR1, SWIR2, TIR, QARAD
-//} SpectralBand;
+typedef enum SpectralBand
+{
+	RED = 0, GREEN, BLUE, NIR, SWIR1, SWIR2, TIR, QARAD_G, QARAD_R
+} SpectralBand;
 
 //---------------------------------------------------------
 class CFmask : public CSG_Tool
@@ -93,16 +93,18 @@ private:
 
 	bool						m_bCelsius { false };
 
-	CSG_Grid					*m_pBand[8];
+	CSG_Grid					*m_pBand[10];
 	
-	CSG_Grid					*m_pResults[6];
+	CSG_Grid					*m_pResults[8];
 
 	CSG_Grid_System 			m_pSystem;
 
 
 	bool						Get_Brightness			(int x, int y, int Band, double &Value);
 	double 						Get_Brightness			(int x, int y, int Band, bool &Eval );
-	bool 						Is_Saturated			(int x, int y, int Band );
+	bool 						Is_Saturated			(int x, int y, SpectralBand Band);
+
+	bool 						Get_Flood_Fill			(double Boundary);
 
 	bool 						Get_Sun_Position		(CSG_Grid *pGrid, double &Azimuth, double &Height);
 
