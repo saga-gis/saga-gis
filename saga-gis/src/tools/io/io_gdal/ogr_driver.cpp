@@ -500,7 +500,7 @@ bool CSG_OGR_DataSet::Create(const CSG_String &File, const CSG_String &DriverNam
             return( false );
         }
 
-		m_pDataSet	= GDALCreate(pDriver, File, 0, 0, 0, GDT_Unknown, pOptions);
+		m_pDataSet	= GDALCreate(pDriver, File.to_UTF8().Get_Data(), 0, 0, 0, GDT_Unknown, pOptions);
 
         CSLDestroy(pOptions);
 	}
