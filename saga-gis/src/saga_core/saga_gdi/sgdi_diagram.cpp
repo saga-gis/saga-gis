@@ -78,13 +78,13 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSGDI_Diagram::CSGDI_Diagram(wxWindow *pParent)
+CSGDI_Diagram::CSGDI_Diagram(wxWindow *pParent, const wxString &xLabel, const wxString &yLabel)
 	: wxPanel(pParent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL|wxSUNKEN_BORDER)
 {
 	SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW));
 
-	m_xName		= _TL("X");
-	m_yName		= _TL("Y");
+	m_xLabel = xLabel;
+	m_yLabel = yLabel;
 }
 
 //---------------------------------------------------------
@@ -119,8 +119,7 @@ void CSGDI_Diagram::_On_Mouse_Click(wxMouseEvent &event)
 {
 	if( event.RightDown() && SG_UI_Dlg_Continue(_TL("Copy to Clipboard"), _TL("Variogram")) )
 	{
-		wxBitmap	BMP(GetSize());
-		wxMemoryDC	dc;
+		wxBitmap BMP(GetSize()); wxMemoryDC dc;
 	
 		dc.SelectObject(BMP);
 		dc.SetBackground(*wxWHITE_BRUSH);
@@ -132,7 +131,7 @@ void CSGDI_Diagram::_On_Mouse_Click(wxMouseEvent &event)
 
 		if( wxTheClipboard->Open() )
 		{
-			wxBitmapDataObject	*pBMP	= new wxBitmapDataObject;
+			wxBitmapDataObject *pBMP = new wxBitmapDataObject;
 			pBMP->SetBitmap(BMP);
 			wxTheClipboard->SetData(pBMP);
 			wxTheClipboard->Close();
@@ -143,9 +142,7 @@ void CSGDI_Diagram::_On_Mouse_Click(wxMouseEvent &event)
 //---------------------------------------------------------
 void CSGDI_Diagram::_On_Paint(wxPaintEvent &WXUNUSED(event))
 {
-	wxPaintDC	dc(this);
-
-	_Draw(dc);
+	wxPaintDC dc(this); _Draw(dc);
 }
 
 
@@ -161,22 +158,20 @@ bool CSGDI_Diagram::_Draw(wxDC &dc)
 {
 	if( m_xMin < m_xMax && m_yMin < m_yMax )
 	{
-		double	dx, dy;
+		m_rDiagram = wxRect(RULER_LABEL_HEIGHT, 0, GetClientSize().x - RULER_LABEL_HEIGHT, GetClientSize().y - RULER_LABEL_HEIGHT);
 
-		m_rDiagram	= wxRect(RULER_LABEL_HEIGHT, 0, GetClientSize().x - RULER_LABEL_HEIGHT, GetClientSize().y - RULER_LABEL_HEIGHT);
-
-		dc.SetTextForeground(wxColour(0, 0, 0));
+		dc.SetTextForeground(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT));
 		dc.SetFont(wxFont((int)(0.5 * RULER_LABEL_HEIGHT), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 
-		Draw_Text(dc, TEXTALIGN_TOPCENTER   , 0, m_rDiagram.GetY() + m_rDiagram.GetHeight() / 2, 90, m_yName);
-		Draw_Text(dc, TEXTALIGN_BOTTOMCENTER, m_rDiagram.GetX() + m_rDiagram.GetWidth() / 2, GetClientSize().y, m_xName);
+		Draw_Text(dc, TEXTALIGN_TOPCENTER   , 0, m_rDiagram.GetY() + m_rDiagram.GetHeight() / 2,                90, m_yLabel);
+		Draw_Text(dc, TEXTALIGN_BOTTOMCENTER,    m_rDiagram.GetX() + m_rDiagram.GetWidth () / 2, GetClientSize().y, m_xLabel);
 
 		Draw_Ruler(dc, m_rDiagram, true , m_xMin, m_xMax);
 		Draw_Ruler(dc, m_rDiagram, false, m_yMin, m_yMax);
 
 		//---------------------------------------------------------------------
-		dx	= m_rDiagram.GetWidth()  / (m_xMax - m_xMin);
-		dy	= m_rDiagram.GetHeight() / (m_yMax - m_yMin);
+		double dx = m_rDiagram.GetWidth()  / (m_xMax - m_xMin);
+		double dy = m_rDiagram.GetHeight() / (m_yMax - m_yMin);
 
 		On_Draw(dc, m_rDiagram);
 
@@ -195,7 +190,7 @@ bool CSGDI_Diagram::_Draw(wxDC &dc)
 //---------------------------------------------------------
 int CSGDI_Diagram::Get_xToScreen(double x, bool bKeepInRange)
 {
-	int		i	= m_rDiagram.GetX() + (int)(m_rDiagram.GetWidth () * (x - m_xMin) / (m_xMax - m_xMin));
+	int i = m_rDiagram.GetX() + (int)(m_rDiagram.GetWidth () * (x - m_xMin) / (m_xMax - m_xMin));
 
 	if( bKeepInRange )
 	{
@@ -211,7 +206,7 @@ int CSGDI_Diagram::Get_xToScreen(double x, bool bKeepInRange)
 //---------------------------------------------------------
 int CSGDI_Diagram::Get_yToScreen(double y, bool bKeepInRange)
 {
-	int		i	= m_rDiagram.GetY() - (int)(m_rDiagram.GetHeight() * (y - m_yMin) / (m_yMax - m_yMin)) + m_rDiagram.GetHeight();
+	int i = m_rDiagram.GetY() - (int)(m_rDiagram.GetHeight() * (y - m_yMin) / (m_yMax - m_yMin)) + m_rDiagram.GetHeight();
 
 	if( bKeepInRange )
 	{
@@ -227,32 +222,28 @@ int CSGDI_Diagram::Get_yToScreen(double y, bool bKeepInRange)
 //---------------------------------------------------------
 bool CSGDI_Diagram::Get_ToScreen(wxPoint &Point, double x, double y)
 {
-	bool	bResult	= true;
+	bool bResult = true;
 
-	Point.x	= Get_xToScreen(x, false);
+	Point.x = Get_xToScreen(x, false);
 
-	if( Point.x			< m_rDiagram.GetLeft  () - DIAGRAM_BUFFER )
+	if( Point.x < m_rDiagram.GetLeft  () - DIAGRAM_BUFFER )
 	{
-		Point.x			= m_rDiagram.GetLeft  () - DIAGRAM_BUFFER;
-		bResult			= false;
-	}
-	else if( Point.x	> m_rDiagram.GetRight () + DIAGRAM_BUFFER )
+		Point.x = m_rDiagram.GetLeft  () - DIAGRAM_BUFFER; bResult = false;
+	} else
+	if( Point.x > m_rDiagram.GetRight () + DIAGRAM_BUFFER )
 	{
-		Point.x			= m_rDiagram.GetRight () + DIAGRAM_BUFFER;
-		bResult			= false;
+		Point.x = m_rDiagram.GetRight () + DIAGRAM_BUFFER; bResult = false;
 	}
 
-	Point.y	= Get_yToScreen(y, false);
+	Point.y = Get_yToScreen(y, false);
 
-	if( Point.y			< m_rDiagram.GetTop   () - DIAGRAM_BUFFER )
+	if( Point.y < m_rDiagram.GetTop   () - DIAGRAM_BUFFER )
 	{
-		Point.y			= m_rDiagram.GetTop   () - DIAGRAM_BUFFER;
-		bResult			= false;
-	}
-	else if( Point.y	> m_rDiagram.GetBottom() + DIAGRAM_BUFFER )
+		Point.y = m_rDiagram.GetTop   () - DIAGRAM_BUFFER; bResult = false;
+	} else
+	if( Point.y > m_rDiagram.GetBottom() + DIAGRAM_BUFFER )
 	{
-		Point.y			= m_rDiagram.GetBottom() + DIAGRAM_BUFFER;
-		bResult			= false;
+		Point.y = m_rDiagram.GetBottom() + DIAGRAM_BUFFER; bResult = false;
 	}
 
 	return( bResult );

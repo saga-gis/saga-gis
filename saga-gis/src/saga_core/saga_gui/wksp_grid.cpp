@@ -859,7 +859,7 @@ void CWKSP_Grid::_LUT_Create(void)
 	}
 
 	//-----------------------------------------------------
-	PROGRESSBAR_Set_Position(0);
+	PROGRESSBAR_Set_Ready();
 
 	if( Classes.Get_Count() > 0 )
 	{

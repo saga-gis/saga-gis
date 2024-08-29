@@ -169,18 +169,22 @@ END_EVENT_TABLE()
 CParameters_Control::CParameters_Control(wxWindow *pParent, bool bDialog)
 	: wxPanel(pParent, -1, wxDefaultPosition, wxDefaultSize, wxNO_BORDER|wxCLIP_CHILDREN)
 {
-	m_pParameters	= new CSG_Parameters;
-	m_pOriginal		= NULL;
+	m_pParameters = new CSG_Parameters;
+	m_pOriginal   = NULL;
 
-	m_bFocus		= 0;
+	m_bFocus      = 0;
 
-	m_pPGM	= new CParameters_Grid_Manager;
+	m_pPGM        = new CParameters_Grid_Manager;
 	
-	m_pPG	= m_pPGM->Initialize(this);
+	m_pPG         = m_pPGM->Initialize(this);
 
 //	m_pPGM->SetDescBoxHeight(bDialog ? 100 : 50);
 
+	#if wxCHECK_VERSION(3, 3, 0)
+	m_pPG->AddActionTrigger(wxPGKeyboardAction::PressButton, WXK_SPACE);
+	#else
 	m_pPG->AddActionTrigger(wxPG_ACTION_PRESS_BUTTON, WXK_SPACE);
+	#endif
 
 //	m_pPG->SetExtraStyle(wxPG_EX_HELP_AS_TOOLTIPS);
 //	m_pPG->SetCellDisabledTextColour(wxColour(200, 200, 200));
@@ -900,6 +904,31 @@ bool CParameters_Control::Update_DataObjects(void)
 }
 
 //---------------------------------------------------------
+void CParameters_Control::_Show_Data_Node(const wxString &Node)
+{
+	wxPGProperty *pProperty = m_pPG->GetProperty(Node);
+
+	if( pProperty )
+	{
+		bool bShow = false;
+
+		for(size_t i=0; i<pProperty->GetChildCount() && !bShow; i++)
+		{
+			if( pProperty->Item(i)->IsEnabled() )
+			{
+				bShow = true;
+			}
+		}
+
+		#if wxCHECK_VERSION(3, 3, 0)
+		pProperty->Hide(!bShow, wxPGPropertyValuesFlags::DontRecurse);
+		#else
+		pProperty->Hide(!bShow, wxPG_DONT_RECURSE);
+		#endif
+	}
+}
+
+//---------------------------------------------------------
 void CParameters_Control::_Update_Parameters(CSG_Parameter *pSender)
 {
 	if( m_pParameters )
@@ -927,29 +956,12 @@ void CParameters_Control::_Update_Parameters(CSG_Parameter *pSender)
 		}
 
 		//-------------------------------------------------
-		#define SHOW_DATA_NODE(NODE) { wxPGProperty *pProperty = m_pPG->GetProperty(NODE);\
-			if( pProperty )\
-			{\
-				bool bShow = false;\
-				\
-				for(size_t i=0; i<pProperty->GetChildCount() && !bShow; i++)\
-				{\
-					if( pProperty->Item(i)->IsEnabled() )\
-					{\
-						bShow = true;\
-					}\
-				}\
-				\
-				pProperty->Hide(!bShow, wxPG_DONT_RECURSE);\
-			}\
-		}
-
-		SHOW_DATA_NODE("_DATAOBJECT_GRIDS"      );
-		SHOW_DATA_NODE("_DATAOBJECT_TABLES"     );
-		SHOW_DATA_NODE("_DATAOBJECT_SHAPES"     );
-		SHOW_DATA_NODE("_DATAOBJECT_POINTCLOUDS");
-		SHOW_DATA_NODE("_DATAOBJECT_TINS"       );
-		SHOW_DATA_NODE("_DATAOBJECT_OPTIONS"    );
+		_Show_Data_Node("_DATAOBJECT_GRIDS"      );
+		_Show_Data_Node("_DATAOBJECT_TABLES"     );
+		_Show_Data_Node("_DATAOBJECT_SHAPES"     );
+		_Show_Data_Node("_DATAOBJECT_POINTCLOUDS");
+		_Show_Data_Node("_DATAOBJECT_TINS"       );
+		_Show_Data_Node("_DATAOBJECT_OPTIONS"    );
 
 		//-------------------------------------------------
 		m_pPG->Refresh();

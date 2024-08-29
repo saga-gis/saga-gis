@@ -240,78 +240,78 @@ double CSG_Variogram::Get_Lag_Distance(const CSG_Matrix &Points, int Method, int
 
 //---------------------------------------------------------
 #ifdef WITH_GUI
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CVariogram_Diagram : public CSGDI_Diagram
 {
 public:
 	CVariogram_Diagram(wxWindow *pParent);
 
 
-	bool						m_bPairs, m_bErrors;
+	bool			m_bPairs, m_bErrors;
 
 
-	void						Initialize				(CSG_Trend *pModel, CSG_Table *pVariogram);
+	void			Initialize		(CSG_Trend *pModel, CSG_Table *pVariogram);
 
-	void						Set_Variogram			(void);
+	void			Set_Variogram	(void);
 
 
 private:
 
-	CSG_Table					*m_pVariogram;
+	CSG_Table		*m_pVariogram;
 
-	CSG_Trend					*m_pModel;
+	CSG_Trend		*m_pModel;
 
 
-	virtual void				On_Draw					(wxDC &dc, wxRect rDraw);
+	virtual void	On_Draw			(wxDC &dc, wxRect rDraw);
 
 };
 
 //---------------------------------------------------------
 CVariogram_Diagram::CVariogram_Diagram(wxWindow *pParent)
-	: CSGDI_Diagram(pParent)
+	: CSGDI_Diagram(pParent, _TL("Distance"), _TL("Variance"))
 {
-	m_xName			= _TL("Distance");
-	m_yName			= _TL("Variance");
+	m_bPairs     = false;
+	m_bErrors    = false;
 
-	m_pModel		= NULL;
-	m_pVariogram	= NULL;
-
-	m_bPairs		= false;
-	m_bErrors		= false;
+	m_pModel     = NULL;
+	m_pVariogram = NULL;
 }
 
 //---------------------------------------------------------
 void CVariogram_Diagram::Initialize(CSG_Trend *pModel, CSG_Table *pVariogram)
 {
-	m_pModel		= pModel;
-	m_pVariogram	= pVariogram;
+	m_pModel     = pModel;
+	m_pVariogram = pVariogram;
 }
 
 //---------------------------------------------------------
 void CVariogram_Diagram::Set_Variogram(void)
 {
-	m_xMin	= m_yMin	= 0.0;
-	m_xMax	= (1.0 + 0.00) * m_pVariogram->Get_Maximum(CSG_Variogram::FIELD_DISTANCE);
-	m_yMax	= (1.0 + 0.02) * m_pVariogram->Get_Maximum(CSG_Variogram::FIELD_VAR_EXP );
+	m_xMin = m_yMin = 0.0;
+	m_xMax = (1.0 + 0.00) * m_pVariogram->Get_Maximum(CSG_Variogram::FIELD_DISTANCE);
+	m_yMax = (1.0 + 0.02) * m_pVariogram->Get_Maximum(CSG_Variogram::FIELD_VAR_EXP );
 }
 
 //---------------------------------------------------------
 void CVariogram_Diagram::On_Draw(wxDC &dc, wxRect rDraw)
 {
-	m_bErrors	= false;
+	m_bErrors = false;
 
 	if( m_pVariogram->Get_Count() > 0 && rDraw.GetWidth() > 0 && rDraw.GetHeight() > 0 )
 	{
-		int		i, ix, iy, jx, jy;
-		double	x, dx;
-
-		//-------------------------------------------------
 		if( m_pModel->Get_Data_Count() > 0 && !dc.IsKindOf(wxCLASSINFO(wxMemoryDC)) )
 		{
-			ix	= Get_xToScreen(m_pModel->Get_Data_XMax());
+			int ix = Get_xToScreen(m_pModel->Get_Data_XMax());
 			
 			if( ix < rDraw.GetRight() )
 			{
-				dc.SetPen  (wxPen(wxColour(  0, 127,   0), 2));
+				dc.SetPen  (wxPen(wxColour(000, 127, 000), 2));
 				dc.DrawLine(ix, Get_yToScreen(m_yMin), ix, Get_yToScreen(m_yMax));
 			}
 		}
@@ -319,17 +319,17 @@ void CVariogram_Diagram::On_Draw(wxDC &dc, wxRect rDraw)
 		//-------------------------------------------------
 		if( m_bPairs && m_pVariogram->Get_Maximum(CSG_Variogram::FIELD_COUNT) > 0 )
 		{
-			double	dScale	= m_yMax / m_pVariogram->Get_Maximum(CSG_Variogram::FIELD_COUNT);
+			double dScale = m_yMax / m_pVariogram->Get_Maximum(CSG_Variogram::FIELD_COUNT);
 
 			dc.SetPen  (wxColour(191, 191, 191));
 			dc.SetBrush(wxColour(191, 191, 191));
 
-			for(i=0; i<m_pVariogram->Get_Count(); i++)
+			for(int i=0; i<m_pVariogram->Get_Count(); i++)
 			{
-				CSG_Table_Record	*pRecord	= m_pVariogram->Get_Record(i);
+				CSG_Table_Record *pRecord = m_pVariogram->Get_Record(i);
 
-				ix	= Get_xToScreen(pRecord->asDouble(CSG_Variogram::FIELD_DISTANCE));
-				iy	= Get_yToScreen(pRecord->asDouble(CSG_Variogram::FIELD_COUNT   ) * dScale);
+				int ix = Get_xToScreen(pRecord->asDouble(CSG_Variogram::FIELD_DISTANCE));
+				int iy = Get_yToScreen(pRecord->asDouble(CSG_Variogram::FIELD_COUNT   ) * dScale);
 
 				dc.DrawCircle(ix, iy, 3);
 			}
@@ -339,12 +339,12 @@ void CVariogram_Diagram::On_Draw(wxDC &dc, wxRect rDraw)
 		dc.SetPen  (wxColour(127, 127, 127));
 		dc.SetBrush(wxColour(  0,   0,   0));
 
-		for(i=0; i<m_pVariogram->Get_Count(); i++)
+		for(int i=0; i<m_pVariogram->Get_Count(); i++)
 		{
-			CSG_Table_Record	*pRecord	= m_pVariogram->Get_Record(i);
+			CSG_Table_Record *pRecord = m_pVariogram->Get_Record(i);
 
-			ix	= Get_xToScreen(pRecord->asDouble(CSG_Variogram::FIELD_DISTANCE));
-			iy	= Get_yToScreen(pRecord->asDouble(CSG_Variogram::FIELD_VAR_EXP ));
+			int ix = Get_xToScreen(pRecord->asDouble(CSG_Variogram::FIELD_DISTANCE));
+			int iy = Get_yToScreen(pRecord->asDouble(CSG_Variogram::FIELD_VAR_EXP ));
 
 			dc.DrawCircle(ix, iy, 3);
 		}
@@ -352,27 +352,27 @@ void CVariogram_Diagram::On_Draw(wxDC &dc, wxRect rDraw)
 		//-------------------------------------------------
 		if( m_pModel->is_Okay() )
 		{
-			dx	= (m_xMax - m_xMin) / (double)rDraw.GetWidth();
+			double dx = (m_xMax - m_xMin) / (double)rDraw.GetWidth();
 
-			ix	= Get_xToScreen(m_xMin);
-			iy	= Get_yToScreen(m_pModel->Get_Value(m_xMin));
+			int ix    = Get_xToScreen(m_xMin);
+			int iy    = Get_yToScreen(m_pModel->Get_Value(m_xMin));
 
-			int	yMin	= Get_yToScreen(m_yMin);
-			int	yMax	= yMin;
+			int	yMin  = Get_yToScreen(m_yMin);
+			int	yMax  = yMin;
 
 			if( iy > yMin )
 			{
-				iy	= yMin;
+				iy = yMin;
 			}
 
-			for(x=m_xMin+dx; x<=m_xMax; x+=dx)
+			for(double x=m_xMin+dx; x<=m_xMax; x+=dx)
 			{
-				jx	= ix;	ix	= Get_xToScreen(x);
-				jy	= iy;	iy	= Get_yToScreen(m_pModel->Get_Value(x));
+				int jx = ix; ix = Get_xToScreen(x);
+				int jy = iy; iy = Get_yToScreen(m_pModel->Get_Value(x));
 
 				if( yMax >= iy )
 				{
-					yMax	= iy;
+					yMax = iy;
 
 					dc.SetPen(wxPen(*wxBLUE, 2));
 				}
@@ -382,10 +382,10 @@ void CVariogram_Diagram::On_Draw(wxDC &dc, wxRect rDraw)
 
 					if( iy > yMin )
 					{
-						iy	= yMin;
+						iy = yMin;
 					}
 
-					m_bErrors	= true;
+					m_bErrors = true;
 				}
 
 				dc.DrawLine(jx, jy, ix, iy);
@@ -397,33 +397,31 @@ void CVariogram_Diagram::On_Draw(wxDC &dc, wxRect rDraw)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CVariogram_Dialog, CSGDI_Dialog)
-	EVT_BUTTON		(wxID_ANY	, CVariogram_Dialog::On_Button)
-	EVT_CHECKBOX	(wxID_ANY	, CVariogram_Dialog::On_Update_Control)
-	EVT_TEXT_ENTER	(wxID_ANY	, CVariogram_Dialog::On_Update_Control)
-	EVT_SLIDER		(wxID_ANY	, CVariogram_Dialog::On_Update_Control)
-	EVT_CHOICE		(wxID_ANY	, CVariogram_Dialog::On_Update_Choices)
+	EVT_BUTTON    (wxID_ANY, CVariogram_Dialog::On_Button        )
+	EVT_CHECKBOX  (wxID_ANY, CVariogram_Dialog::On_Update_Control)
+	EVT_TEXT_ENTER(wxID_ANY, CVariogram_Dialog::On_Update_Control)
+	EVT_SLIDER    (wxID_ANY, CVariogram_Dialog::On_Update_Control)
+	EVT_CHOICE    (wxID_ANY, CVariogram_Dialog::On_Update_Choices)
 END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVariogram_Dialog::CVariogram_Dialog(void)
 	: CSGDI_Dialog(_TL("Variogram"))
 {
-	m_pPoints		= NULL;
-	m_nPoints		= 0;
-	m_Field			= 0;
-	m_zField		= -2;
-	m_pVariogram	= NULL;
-	m_pModel		= NULL;
-	m_Distance		= -1;
+	m_pPoints    = NULL;
+	m_nPoints    = 0;
+	m_Field      = 0;
+	m_zField     = -2;
+	m_pVariogram = NULL;
+	m_pModel     = NULL;
+	m_Distance   = -1;
 
 	//-----------------------------------------------------
-	wxArrayString	Formulas;
+	wxArrayString Formulas;
 
 	Formulas.Add("linear (no nugget)");
 	Formulas.Add("linear"            );
@@ -440,16 +438,16 @@ CVariogram_Dialog::CVariogram_Dialog(void)
 	Add_Button(_TL("Ok"    ), wxID_OK);
 	Add_Button(_TL("Cancel"), wxID_CANCEL);
 
-	Add_Spacer(); m_pSettings   = Add_Button  (_TL("Settings"              ), wxID_ANY);
-	Add_Spacer(); m_pPairs      = Add_CheckBox(_TL("Number of Pairs"       ), false);
-	Add_Spacer(); m_pFormulas   = Add_Choice  (_TL("Predefined Functions"  ), Formulas, 1);
-	Add_Spacer(); m_pDistance   = Add_Slider  (_TL("Function Fitting Range"), 1, 0, 1);
-	Add_Spacer(); m_pSummary    = Add_TextCtrl(_TL("Summary"               ), wxTE_MULTILINE|wxTE_READONLY);
+	Add_Spacer(); m_pSettings = Add_Button  (_TL("Settings"              ), wxID_ANY);
+	Add_Spacer(); m_pPairs    = Add_CheckBox(_TL("Number of Pairs"       ), false);
+	Add_Spacer(); m_pFormulas = Add_Choice  (_TL("Predefined Functions"  ), Formulas, 1);
+	Add_Spacer(); m_pDistance = Add_Slider  (_TL("Function Fitting Range"), 1, 0, 1);
+	Add_Spacer(); m_pSummary  = Add_TextCtrl(_TL("Summary"               ), wxTE_MULTILINE|wxTE_READONLY);
 
 	//-----------------------------------------------------
 	Add_Output(
 		m_pDiagram = new CVariogram_Diagram(this),
-		m_pFormula = new wxTextCtrl(this, wxID_ANY, Get_Formula(1), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER),
+		m_pFormula = new wxTextCtrl(this, wxID_ANY, Get_Formula(0), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER),
 		1, 0, true
 	);
 
@@ -467,19 +465,19 @@ bool CVariogram_Dialog::Execute(const CSG_Matrix &Points, CSG_Table *pVariogram,
 {
 	if( m_pPoints != &Points || m_nPoints != Points.Get_NRows() || m_Diagonal != CSG_Variogram::Get_Diagonal(Points) )
 	{
-		m_pPoints	= &Points;
-		m_nPoints	= Points.Get_NRows();
+		m_pPoints  = &Points;
+		m_nPoints  = Points.Get_NRows();
 
-		m_Diagonal	= CSG_Variogram::Get_Diagonal(Points);
+		m_Diagonal = CSG_Variogram::Get_Diagonal(Points);
 
 		m_Settings("SKIP"   )->Set_Value(1 + m_nPoints / 10000);
 		m_Settings("LAGDIST")->Set_Value(CSG_Variogram::Get_Lag_Distance(Points, 0, m_Settings("SKIP")->asInt()));
 		m_Settings("MAXDIST")->Set_Value(m_Diagonal * 0.5);
 	}
 
-	m_pVariogram	= pVariogram;
-	m_pModel		= pModel;
-	m_Distance		= -1.;
+	m_pVariogram = pVariogram;
+	m_pModel     = pModel;
+	m_Distance   = -1.;
 
 	m_pDiagram->Initialize(m_pModel, m_pVariogram);
 
@@ -523,8 +521,8 @@ void CVariogram_Dialog::On_Button(wxCommandEvent &event)
 //---------------------------------------------------------
 void CVariogram_Dialog::Set_Variogram(void)
 {
-	double	lagDist	= m_Settings("LAGDIST")->asDouble();
-	double	maxDist	= m_Settings("MAXDIST")->asDouble();
+	double lagDist = m_Settings("LAGDIST")->asDouble();
+	double maxDist = m_Settings("MAXDIST")->asDouble();
 
 	if( lagDist > 0. )
 	{
@@ -549,16 +547,15 @@ void CVariogram_Dialog::Set_Variogram(void)
 //---------------------------------------------------------
 void CVariogram_Dialog::Set_Model(void)
 {
-	//-----------------------------------------------------
 	if( m_Distance < 0 || m_Distance != m_pDistance->Get_Value() )
 	{
-		m_Distance	= m_pDistance->Get_Value();
+		m_Distance = m_pDistance->Get_Value();
 
 		m_pModel->Clr_Data();
 
 		for(int i=0; i<m_pVariogram->Get_Count(); i++)
 		{
-			CSG_Table_Record	*pRecord	= m_pVariogram->Get_Record(i);
+			CSG_Table_Record *pRecord = m_pVariogram->Get_Record(i);
 
 			if( pRecord->asDouble(CSG_Variogram::FIELD_DISTANCE) <= m_Distance )
 			{
@@ -582,19 +579,19 @@ void CVariogram_Dialog::Set_Model(void)
 		}
 		else
 		{
-			wxString	s(m_pModel->Get_Formula(SG_TREND_STRING_Function).c_str());
+			wxString s(m_pModel->Get_Formula(SG_TREND_STRING_Function).c_str());
 
 			if( m_pDiagram->m_bErrors )
 			{
-				s	+= wxString::Format("\n%s: %s\n", _TL("Warning"), _TL("Function returns negative and/or decreasing values."));
+				s += wxString::Format("\n%s: %s\n", _TL("Warning"), _TL("Function returns negative and/or decreasing values."));
 			}
 
-			s	+= wxString::Format("\n%s:\t%.2f%%", _TL("Determination"   ), m_pModel->Get_R2() * 100.0);
-			s	+= wxString::Format("\n%s:\t%.*f"  , _TL("Fitting range"   ), SG_Get_Significant_Decimals(m_pDistance->Get_Value()), m_pDistance->Get_Value());
-			s	+= wxString::Format("\n%s:\t%d"    , _TL("Samples in range"), m_pModel->Get_Data_Count());
-			s	+= wxString::Format("\n%s:\t%d"    , _TL("Lag Classes"     ), (int)m_pVariogram->Get_Count());
-			s	+= wxString::Format("\n%s:\t%.2f"  , _TL("Lag Distance"    ), m_Settings("LAGDIST")->asDouble());
-			s	+= wxString::Format("\n%s:\t%.2f"  , _TL("Maximum Distance"), m_Settings("MAXDIST")->asDouble());
+			s += wxString::Format("\n%s:\t%.2f%%", _TL("Determination"   ), m_pModel->Get_R2() * 100.0);
+			s += wxString::Format("\n%s:\t%.*f"  , _TL("Fitting range"   ), SG_Get_Significant_Decimals(m_pDistance->Get_Value()), m_pDistance->Get_Value());
+			s += wxString::Format("\n%s:\t%d"    , _TL("Samples in range"), m_pModel->Get_Data_Count());
+			s += wxString::Format("\n%s:\t%d"    , _TL("Lag Classes"     ), (int)m_pVariogram->Get_Count());
+			s += wxString::Format("\n%s:\t%.2f"  , _TL("Lag Distance"    ), m_Settings("LAGDIST")->asDouble());
+			s += wxString::Format("\n%s:\t%.2f"  , _TL("Maximum Distance"), m_Settings("MAXDIST")->asDouble());
 
 			m_pSummary->SetValue(s);
 
@@ -602,7 +599,7 @@ void CVariogram_Dialog::Set_Model(void)
 		}
 	}
 
-	m_pDiagram->m_bPairs	= m_pPairs->GetValue();
+	m_pDiagram->m_bPairs = m_pPairs->GetValue();
 
 	m_pDiagram->Refresh(true);
 
@@ -630,24 +627,20 @@ const char * CVariogram_Dialog::Get_Formula(int Index)
 //---------------------------------------------------------
 CSG_String CVariogram_Dialog::Get_Formula(void)
 {
-	CSG_String_Tokenizer	Tokens(m_pFormula->GetValue().wx_str(), ";");
+	CSG_String Formula; CSG_Strings Tokens = SG_String_Tokenize(m_pFormula->GetValue().wx_str(), ";");
 
-	CSG_String	Formula;
-
-	if( Tokens.Get_Tokens_Count() > 0 )
+	if( Tokens.Get_Count() > 0 )
 	{
-		Formula	= Tokens.Get_Next_Token();
+		Formula	= Tokens[0];
 
-		while( Tokens.Has_More_Tokens() )
+		for(int i=1; i<Tokens.Get_Count(); i++)
 		{
-			CSG_String	Token	= Tokens.Get_Next_Token();
-
-			CSG_String	val	= Token. AfterFirst('='); val.Trim(true); val.Trim(false);
-			CSG_String	var	= Token.BeforeFirst('='); var.Trim(true); var.Trim(false);
+			CSG_String val = Tokens[i]. AfterFirst('='); val.Trim(true); val.Trim(false);
+			CSG_String var = Tokens[i].BeforeFirst('='); var.Trim(true); var.Trim(false);
 
 			if( var.Length() == 1 && val.Length() > 0 )
 			{
-				CSG_String	tmp;
+				CSG_String tmp;
 
 				for(size_t i=0, n=Formula.Length()-1; i<Formula.Length(); i++)
 				{
@@ -655,22 +648,30 @@ CSG_String CVariogram_Dialog::Get_Formula(void)
 					&& !(i > 0 && isalpha(Formula[i - 1]))
 					&& !(i < n && isalpha(Formula[i + 1])) )
 					{
-						tmp	+= val;
+						tmp += val;
 					}
 					else
 					{
-						tmp	+= Formula[i];
+						tmp += Formula[i];
 					}
 				}
 
-				Formula	= tmp;
+				Formula = tmp;
 			}
 		}
 	}
 
 	return( Formula );
 }
-#endif
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifdef WITH_GUI
+
 
 ///////////////////////////////////////////////////////////
 //														 //

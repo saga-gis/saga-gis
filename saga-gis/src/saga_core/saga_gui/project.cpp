@@ -574,7 +574,7 @@ bool CWKSP_Project::_Save(const wxString &_File, bool bSaveModified, bool bUpdat
 
 		_Set_Project_Name();
 
-		PROGRESSBAR_Set_Position(0);
+		PROGRESSBAR_Set_Ready();
 
 		return( true );
 	}
@@ -588,7 +588,7 @@ bool CWKSP_Project::_Save(const wxString &_File, bool bSaveModified, bool bUpdat
 
 	MSG_General_Add(_TL("Could not save project."), true, true, SG_UI_MSG_STYLE_FAILURE);
 
-	PROGRESSBAR_Set_Position(0);
+	PROGRESSBAR_Set_Ready();
 
 	return( false );
 }

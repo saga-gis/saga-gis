@@ -914,6 +914,13 @@ bool CSAGA_Frame::Process_Get_Okay(bool bBlink)
 {
 	if( bBlink )
 	{
+		#ifdef _SAGA_MSW
+		if( !m_pProgressBar->IsShown() )
+		{
+			m_pProgressBar->Show();
+		}
+		#endif
+
 		m_pProgressBar->Pulse();
 	}
 
@@ -925,6 +932,13 @@ bool CSAGA_Frame::Process_Set_Okay(bool bOkay)
 {
 	StatusBar_Set_Text(_TL("ready"));
 
+	#ifdef _SAGA_MSW
+	if( wxSystemSettings::GetAppearance().IsDark() )
+	{
+		m_pProgressBar->Hide();
+	}
+	#endif
+
 	m_pProgressBar->SetValue(0);
 
 	g_pSAGA->Process_Set_Okay(bOkay);
@@ -933,30 +947,24 @@ bool CSAGA_Frame::Process_Set_Okay(bool bOkay)
 }
 
 //---------------------------------------------------------
-bool CSAGA_Frame::ProgressBar_Set_Position(int Position)
+bool CSAGA_Frame::ProgressBar_Set_Position(double Position, double Range)
 {
-	if( Position < 0 )
+	if( !m_pProgressBar->IsShown() )
 	{
-		Position	= 0;
-	}
-	else if( Position > 100 )
-	{
-		Position	= 100;
+		m_pProgressBar->Show();
 	}
 
-	if( m_pProgressBar->GetValue() != Position )
+	int Value = Range > 0. ? (int)(0.5 + 100. * Position / Range) : 0;
+
+	if( Value < 0 ) { Value = 0; } else if( Value > 100 ) { Value = 100; }
+
+	if( m_pProgressBar->GetValue() != Value )
 	{
-		m_pProgressBar->SetValue(Position);
-	//	m_pProgressBar->SetLabel(wxString::Format("%d%%", Position));
+		m_pProgressBar->SetValue(Value);
+	//	m_pProgressBar->SetLabel(wxString::Format("%d%%", Value));
 	}
 
 	return( g_pSAGA->Process_Get_Okay() );
-}
-
-//---------------------------------------------------------
-bool CSAGA_Frame::ProgressBar_Set_Position(double Position, double Range)
-{
-	return( ProgressBar_Set_Position(Range > 0.0 ? (int)(0.5 + 100.0 * Position / Range) : 0) );
 }
 
 //---------------------------------------------------------
@@ -964,7 +972,7 @@ void CSAGA_Frame::StatusBar_Set_Text(const wxString &Text, int iPane)
 {
 	if( iPane < 0 || iPane >= STATUSBAR_PROGRESS )
 	{
-		iPane	= STATUSBAR_DEFAULT;
+		iPane = STATUSBAR_DEFAULT;
 	}
 
 	SetStatusText(Text, iPane);

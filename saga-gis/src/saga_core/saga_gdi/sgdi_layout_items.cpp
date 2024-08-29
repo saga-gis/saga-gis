@@ -777,7 +777,7 @@ bool CSGDI_Layout_Items::Select(const wxPoint &Point)
 	//-----------------------------------------------------
 	CSGDI_Layout_Item	*pActivate	= NULL;
 
-	for(size_t i=0, j=m_Items.Get_uSize()-1; !pActivate && i<m_Items.Get_Size(); i++, j--)
+	for(size_t i=0, j=m_Items.Get_uSize()-1; !pActivate && i<m_Items.Get_uSize(); i++, j--)
 	{
 		if( Get_Item(j)->is_Shown() && Get_Item(j)->_Tracker_Contains(Point) )
 		{

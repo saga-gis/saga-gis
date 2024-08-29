@@ -531,7 +531,7 @@ void CVIEW_ScatterPlot::On_AsTable(wxCommandEvent &event)
 			pRecord->Set_Value(2, m_Trend.Get_Data_Y(i));
 		}
 
-		PROGRESSBAR_Set_Position(0);
+		PROGRESSBAR_Set_Ready();
 
 		g_pData->Add(pTable);
 	}
@@ -837,7 +837,7 @@ bool CVIEW_ScatterPlot::_Update_Data(void)
 		bResult = _Initialize_Table();
 	}
 
-	PROCESS_Set_Okay(true);
+	PROCESS_Set_Okay();
 
 	//-----------------------------------------------------
 	if( bResult )

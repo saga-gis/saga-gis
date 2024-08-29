@@ -93,7 +93,6 @@ public:
 	bool						Process_Get_Okay			(bool bBlink);
 	bool						Process_Set_Okay			(bool bOkay = true);
 
-	bool						ProgressBar_Set_Position	(int Position);
 	bool						ProgressBar_Set_Position	(double Position, double Range);
 
 	void						Set_Project_Name			(wxString Project_Name = wxEmptyString);

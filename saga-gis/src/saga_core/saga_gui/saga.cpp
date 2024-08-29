@@ -124,6 +124,10 @@ bool CSAGA::OnInit(void)
 		wxSetAssertHandler(NULL);	// disable all wx asserts in SAGA release builds
 	#endif
 
+	#if _SAGA_MSW && wxCHECK_VERSION(3, 3, 0)
+		MSWEnableDarkMode();
+	#endif
+
 	/* workaround: wxwidgets 2.9.3 is complaining about setlocale
 	 * mismatch between c setlocale and wxLocale. since saga has its own
 	 * translation system, we use english as default. this assures

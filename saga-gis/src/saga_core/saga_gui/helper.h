@@ -156,7 +156,7 @@ bool				PROCESS_Set_Okay				(bool bOkay = true);
 
 bool				PROCESS_Set_Busy				(bool bOn = true, const CSG_String &Message = "");
 
-bool				PROGRESSBAR_Set_Position		(int Position);
+bool				PROGRESSBAR_Set_Ready			(void);
 bool				PROGRESSBAR_Set_Position		(double Position, double Range);
 
 //---------------------------------------------------------

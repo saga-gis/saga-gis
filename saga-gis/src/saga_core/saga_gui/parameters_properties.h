@@ -180,7 +180,13 @@ public:
 	bool						Update				(void)			{	SetValue(m_value);	return( true );	}
 
 	virtual bool				OnEvent				(wxPropertyGrid *pPG, wxWindow *pPGCtrl, wxEvent &event);
+
+	#if wxCHECK_VERSION(3, 3, 0)
+	virtual wxString			ValueToString		(wxVariant &value, wxPGPropValFormatFlags argFlags = wxPGPropValFormatFlags::Null)	const;
+	#else
 	virtual wxString			ValueToString		(wxVariant &value, int argFlags = 0)	const;
+	#endif
+
 	virtual const wxPGEditor *	DoGetEditorClass	(void)	const	{	return( wxPGEditor_TextCtrlAndButton );	}
 
 };

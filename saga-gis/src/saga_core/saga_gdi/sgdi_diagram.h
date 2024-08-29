@@ -71,16 +71,16 @@
 class SGDI_API_DLL_EXPORT CSGDI_Diagram : public wxPanel
 {
 public:
-	CSGDI_Diagram(wxWindow *pParent);
+	CSGDI_Diagram(wxWindow *pParent, const wxString &xLabel = "X", const wxString &yLabel = "Y");
 	virtual ~CSGDI_Diagram(void);
-
-	wxString			m_xName, m_yName;
 
 	bool				Set_xScale				(double Minimum, double Maximum);
 	bool				Set_yScale				(double Minimum, double Maximum);
 
 
 protected:
+
+	wxString			m_xLabel, m_yLabel;
 
 	double				m_xMin, m_xMax, m_yMin, m_yMax;
 
@@ -96,8 +96,8 @@ private:
 
 	wxRect				m_rDiagram;
 
-	void				_On_Mouse_Click			(wxMouseEvent	&event);
-	void				_On_Paint				(wxPaintEvent	&event);
+	void				_On_Mouse_Click			(wxMouseEvent &event);
+	void				_On_Paint				(wxPaintEvent &event);
 
 	bool				_Draw					(wxDC &dc);
 

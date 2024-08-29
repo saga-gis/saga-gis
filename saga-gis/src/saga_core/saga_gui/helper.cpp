@@ -866,11 +866,11 @@ bool		PROCESS_Set_Busy(bool bOn, const CSG_String &Message)
 }
 
 //---------------------------------------------------------
-bool		PROGRESSBAR_Set_Position(int Position)
+bool		PROGRESSBAR_Set_Ready(void)
 {
 	if( g_pSAGA_Frame )
 	{
-		return( g_pSAGA_Frame->ProgressBar_Set_Position(Position) );
+		return( g_pSAGA_Frame->Process_Set_Okay() );
 	}
 
 	return( true );

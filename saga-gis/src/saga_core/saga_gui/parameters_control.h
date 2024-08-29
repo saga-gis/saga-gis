@@ -119,6 +119,7 @@ private:
 
 	void							_Set_Parameter		(wxPGProperty *pProperty);
 	class CSG_Parameter *			_Get_Parameter		(wxPGProperty *pProperty);
+	void							_Show_Data_Node		(const wxString &Node);
 	void							_Update_Parameters	(class CSG_Parameter *pSender = NULL);
 	void							_Update_Parameter	(class CSG_Parameter *pParameter);
 	void							_Init_Pararameters	(void);

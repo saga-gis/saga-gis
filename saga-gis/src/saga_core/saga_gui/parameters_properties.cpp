@@ -905,7 +905,11 @@ CParameters_PG_Dialog::CParameters_PG_Dialog(const wxString &label, const wxStri
 }
 
 //---------------------------------------------------------
-wxString CParameters_PG_Dialog::ValueToString(wxVariant &new_value, int argFlags) const
+#if wxCHECK_VERSION(3, 3, 0)
+wxString CParameters_PG_Dialog::ValueToString(wxVariant &new_value, wxPGPropValFormatFlags argFlags) const
+#else
+wxString CParameters_PG_Dialog::ValueToString(wxVariant &new_value, int                    argFlags) const
+#endif
 {
 	const CPG_Parameter_Value &value = CPG_Parameter_ValueRefFromVariant(new_value);
 
