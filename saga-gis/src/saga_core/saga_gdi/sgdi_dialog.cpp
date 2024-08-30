@@ -90,8 +90,6 @@ CSGDI_Dialog::CSGDI_Dialog(const wxString &Name, int Style)
 		Maximize();
 	}
 
-	m_Ctrl_Color    = *wxBLACK;
-
 	m_pOutput_Sizer = new wxStaticBoxSizer(wxVERTICAL, this);
 
 	wxSizer	*pSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -201,8 +199,6 @@ wxStaticText * CSGDI_Dialog::Add_Label(const wxString &Name, bool bCenter, int I
 
 	wxStaticText *pLabel = new wxStaticText(m_pCtrl, ID, Name, wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE);
 
-	pLabel->SetForegroundColour(m_Ctrl_Color);
-
 	m_pCtrl_Sizer->Add(pLabel, 0, wxLEFT|wxRIGHT|wxTOP|(bCenter ? (int)wxALIGN_CENTER : (int)wxEXPAND), SGDI_CTRL_SMALLSPACE);
 
 	m_pCtrl->SetVirtualSize(m_pCtrl_Sizer->GetSize());
@@ -243,7 +239,6 @@ wxCheckBox * CSGDI_Dialog::Add_CheckBox(const wxString &Name, bool bCheck, int I
 {
 	wxCheckBox *pCheckBox = new wxCheckBox(m_pCtrl, ID, Name, wxDefaultPosition, wxDefaultSize, 0);
 
-	pCheckBox->SetForegroundColour(m_Ctrl_Color);
 	pCheckBox->SetValue(bCheck);
 
 	m_pCtrl_Sizer->Add(pCheckBox, 0, wxALIGN_LEFT|wxALL, SGDI_CTRL_SMALLSPACE);

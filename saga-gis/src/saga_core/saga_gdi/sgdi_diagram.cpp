@@ -81,8 +81,6 @@ END_EVENT_TABLE()
 CSGDI_Diagram::CSGDI_Diagram(wxWindow *pParent, const wxString &xLabel, const wxString &yLabel)
 	: wxPanel(pParent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL|wxSUNKEN_BORDER)
 {
-	SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW));
-
 	m_xLabel = xLabel;
 	m_yLabel = yLabel;
 }
@@ -142,6 +140,8 @@ void CSGDI_Diagram::_On_Mouse_Click(wxMouseEvent &event)
 //---------------------------------------------------------
 void CSGDI_Diagram::_On_Paint(wxPaintEvent &WXUNUSED(event))
 {
+	SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW));
+
 	wxPaintDC dc(this); _Draw(dc);
 }
 

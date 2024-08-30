@@ -108,8 +108,6 @@ protected:
 
 private:
 
-	wxColour				m_Ctrl_Color;
-
 	wxSizer					*m_pCtrl_Sizer;
 
 	class wxStaticBoxSizer	*m_pOutput_Sizer;
