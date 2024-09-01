@@ -69,7 +69,7 @@ COGR_Export::COGR_Export(void)
 	);
 
 	CSG_String	Description, Formats, Filter;
-
+	
 	Description	= _TW(
 		"The \"OGR Vector Data Export\" tool exports vector data to various file formats using the "
 		"\"Geospatial Data Abstraction Library\" (GDAL) by Frank Warmerdam. "
@@ -80,30 +80,43 @@ COGR_Export::COGR_Export(void)
 	Description	+= _TL("Following vector formats are currently supported:");
 
 	Description	+= CSG_String::Format("\n<table border=\"1\"><tr><th>%s</th><th>%s</th><th>%s</th></tr>\n",
-		_TL("ID"), _TL("Name"), _TL("Extension")
+		_TL("Name"), _TL("ID"), _TL("Extension")
 	);
 
 	Filter.Printf("%s|*.*", _TL("All Files"));
+
+	typedef struct {
+        CSG_String	ID;
+		CSG_String	Ext;
+    }D_INFO;
+
+	std::map<std::wstring, D_INFO>	Drivers;	// key = long name, values = shortname and file extension (if available)
 
 	for(int i=0; i<SG_Get_OGR_Drivers().Get_Count(); i++)
     {
 		if( SG_Get_OGR_Drivers().is_Vector(i) && SG_Get_OGR_Drivers().Can_Write(i) )
 		{
-			CSG_String	ID		= SG_Get_OGR_Drivers().Get_Description(i).c_str();
-			CSG_String	Name	= SG_Get_OGR_Drivers().Get_Name       (i).c_str();
-			CSG_String	Ext		= SG_Get_OGR_Drivers().Get_Extension  (i).c_str();
+			D_INFO d;
+			std::wstring Name	= SG_Get_OGR_Drivers().Get_Name       (i).c_str();
+			d.ID				= SG_Get_OGR_Drivers().Get_Description(i).c_str();
+			d.Ext				= SG_Get_OGR_Drivers().Get_Extension  (i).c_str();
 
-			Description	+= "<tr><td>" + ID + "</td><td>" + Name + "</td><td>" + Ext + "</td></tr>";
-			Formats		+= "{" + ID + "}" + Name + "|";
-
-			if( !Ext.is_Empty() )
-			{
-				Ext.Replace("/", ";");
-
-				Filter	+= "|" + Name + "|*." + Ext;
-			}
+			Drivers.insert(std::pair<std::wstring, D_INFO>(Name, d));
 		}
-    }
+	}
+
+	for(std::map<std::wstring, D_INFO>::iterator it=Drivers.begin(); it!=Drivers.end(); ++it)
+	{
+		Description	+= "<tr><td>" + CSG_String(it->first.c_str()) + "</td><td>" + it->second.ID  + "</td><td>" + it->second.Ext + "</td></tr>";
+		Formats		+= "{" + it->second.ID + "}" + CSG_String(it->first.c_str()) + "|";
+
+		if( !it->second.Ext.is_Empty() )
+		{
+			it->second.Ext.Replace("/", ";");
+
+			Filter	+= "|" + CSG_String(it->first.c_str()) + "|*." + it->second.Ext;
+		}
+	}
 
 	Description	+= "</table>";
 

@@ -81,28 +81,41 @@ CGDAL_Import::CGDAL_Import(void)
 	Description	+= _TL("Following raster formats are currently supported:");
 
 	Description	+= CSG_String::Format("\n<table border=\"1\"><tr><th>%s</th><th>%s</th><th>%s</th></tr>",
-		_TL("ID"), _TL("Name"), _TL("Extension")
+		_TL("Name"), _TL("ID"), _TL("Extension")
 	);
+
+	typedef struct {
+        CSG_String	ID;
+		CSG_String	Ext;
+    }D_INFO;
+
+	std::map<std::wstring, D_INFO>	Drivers;	// key = long name, values = shortname and file extension (if available)
 
 	for(int i=0; i<SG_Get_GDAL_Drivers().Get_Count(); i++)
     {
 		if( SG_Get_GDAL_Drivers().is_Raster(i) && SG_Get_GDAL_Drivers().Can_Read(i) )
 		{
-			CSG_String	ID		= SG_Get_GDAL_Drivers().Get_Description(i).c_str();
-			CSG_String	Name	= SG_Get_GDAL_Drivers().Get_Name       (i).c_str();
-			CSG_String	Ext		= SG_Get_GDAL_Drivers().Get_Extension  (i).c_str();
+			D_INFO d;
+			std::wstring Name	= SG_Get_GDAL_Drivers().Get_Name       (i).c_str();
+			d.ID				= SG_Get_GDAL_Drivers().Get_Description(i).c_str();
+			d.Ext				= SG_Get_GDAL_Drivers().Get_Extension  (i).c_str();
 
-			Description	+= "<tr><td>" + ID + "</td><td>" + Name + "</td><td>" + Ext + "</td></tr>";
-
-			if( !Ext.is_Empty() )
-			{
-				Ext.Replace("/", ";");
-
-				Filter		+= Name + "|*." + Ext + "|";
-				Filter_All	+= (Filter_All.is_Empty() ? "*." : ";*.") + Ext;
-			}
+			Drivers.insert(std::pair<std::wstring, D_INFO>(Name, d));
 		}
-    }
+	}
+
+	for(std::map<std::wstring, D_INFO>::iterator it=Drivers.begin(); it!=Drivers.end(); ++it)
+	{
+		Description	+= "<tr><td>" + CSG_String(it->first.c_str()) + "</td><td>" + it->second.ID  + "</td><td>" + it->second.Ext + "</td></tr>";
+
+		if( !it->second.Ext.is_Empty() )
+		{
+			it->second.Ext.Replace("/", ";");
+
+			Filter	+= "|" + CSG_String(it->first.c_str()) + "|*." + it->second.Ext;
+			Filter_All	+= (Filter_All.is_Empty() ? "*." : ";*.") + it->second.Ext;
+		}
+	}
 
 	Description	+= "</table>";
 
