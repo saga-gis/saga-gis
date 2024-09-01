@@ -87,6 +87,10 @@
 			#define GDAL_V2_1_OR_NEWER
 		#endif
 	#endif
+
+	#if GDAL_VERSION_MAJOR > 3 || GDAL_VERSION_MINOR >= 8
+		#define GDAL_V3_8_OR_NEWER
+	#endif
 #endif
 
 

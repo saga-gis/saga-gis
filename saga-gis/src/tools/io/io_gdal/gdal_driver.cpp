@@ -82,6 +82,10 @@ CSG_GDAL_Drivers::CSG_GDAL_Drivers(void)
 {
 	GDALAllRegister();
 
+#ifdef GDAL_V3_8_OR_NEWER
+	GDALRegisterPlugins();
+#endif
+
 	// affects Windows only, might be appropriate for applications
 	// that treat filenames as being in the local encoding.
 	// for more info see: http://trac.osgeo.org/gdal/wiki/ConfigOptions
