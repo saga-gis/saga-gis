@@ -231,12 +231,13 @@ bool CSG_Grid::Create(const CSG_Grid &Grid)
 {
 	if( Create(Grid.Get_System(), Grid.Get_Type()) )
 	{
-		Set_Name              (Grid.Get_Name       ());
-		Set_Description       (Grid.Get_Description());
-		Set_Unit              (Grid.Get_Unit       ());
-		Set_NoData_Value_Range(Grid.Get_NoData_Value(), Grid.Get_NoData_Value(true));
-		Set_Scaling           (Grid.Get_Scaling(), Grid.Get_Offset());
-		Get_MetaData().Create (Grid.Get_MetaData());
+		Set_Name               (Grid.Get_Name       ());
+		Set_Description        (Grid.Get_Description());
+		Set_Unit               (Grid.Get_Unit       ());
+		Set_NoData_Value_Range (Grid.Get_NoData_Value(), Grid.Get_NoData_Value(true));
+		Set_Scaling            (Grid.Get_Scaling(), Grid.Get_Offset());
+		Get_MetaData  ().Create(Grid.Get_MetaData   ());
+		Get_Projection().Create(Grid.Get_Projection ());
 
 		#pragma omp parallel for
 		for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)

@@ -47,6 +47,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <wx/settings.h>
 #include <wx/dcmemory.h>
 
 #include "variogram_dialog.h"
@@ -66,42 +67,42 @@ bool CSG_Variogram::Calculate(const CSG_Matrix &Points, CSG_Table *pVariogram, i
 		return( false );
 	}
 
-	if( maxDistance <= 0. && (maxDistance = Get_Diagonal(Points)) <= 0. )	// bounding box' diagonal
+	if( maxDistance <= 0. && (maxDistance = Get_Diagonal(Points)) <= 0. ) // bounding box' diagonal
 	{
 		return( false );
 	}
 
 	if( nSkip < 1 )
 	{
-		nSkip	= 1;
+		nSkip = 1;
 	}
 
 	//-----------------------------------------------------
-	CSG_Vector	Count   (nClasses);
-	CSG_Vector	Variance(nClasses);
+	CSG_Vector Count   (nClasses);
+	CSG_Vector Variance(nClasses);
 
-	double	lagDistance	= maxDistance / nClasses;
+	double lagDistance = maxDistance / nClasses;
 
 	//-----------------------------------------------------
 	for(int i=0, n=0; i<Points.Get_NRows() - nSkip && SG_UI_Process_Set_Progress((double)n, 0.5 * SG_Get_Square(Points.Get_NRows() / nSkip)); i+=nSkip)
 	{
-		CSG_Vector	Point	= Points.Get_Row(i);
+		CSG_Vector Point = Points.Get_Row(i);
 
 		for(int j=i+nSkip; j<Points.Get_NRows(); j+=nSkip, n++)
 		{
-			CSG_Vector	d = Point - Points.Get_Row(j); int	k; double v;
+			CSG_Vector d = Point - Points.Get_Row(j); int k; double v;
 
 			switch( d.Get_N() )
 			{
 			case  3: k = (int)(sqrt(d[0]*d[0] + d[1]*d[1]            ) / lagDistance); v = d[2]; break;
 			case  4: k = (int)(sqrt(d[0]*d[0] + d[1]*d[1] + d[2]*d[2]) / lagDistance); v = d[3]; break;
-			default: k = nClasses;
+			default: k = nClasses                                                    ; v = 0.  ; break;
 			}
 
 			if( k < nClasses )
 			{
-				Count	[k]	++;
-				Variance[k]	+= v*v;
+				Count	[k] ++;
+				Variance[k] += v*v;
 			}
 		}
 	}
@@ -118,16 +119,16 @@ bool CSG_Variogram::Calculate(const CSG_Matrix &Points, CSG_Table *pVariogram, i
 	pVariogram->Add_Field(_TL("Var.cum."), SG_DATATYPE_Double);	// FIELD_VAR_CUM
 	pVariogram->Add_Field(_TL("Model"   ), SG_DATATYPE_Double);	// FIELD_VAR_MODEL
 
-	double	v	= 0.;
+	double v = 0.;
 
 	for(int i=0, n=0; i<nClasses; i++)
 	{
 		if( Count[i] > 0 )
 		{
-			n	+= (int)Count[i];
-			v	+= Variance[i];
+			n += (int)Count[i];
+			v += Variance[i];
 
-			CSG_Table_Record	*pRecord	= pVariogram->Add_Record();
+			CSG_Table_Record *pRecord = pVariogram->Add_Record();
 
 			pRecord->Set_Value(FIELD_CLASS   , (i + 1));
 			pRecord->Set_Value(FIELD_DISTANCE, (i + 1) * lagDistance);
@@ -144,7 +145,7 @@ bool CSG_Variogram::Calculate(const CSG_Matrix &Points, CSG_Table *pVariogram, i
 //---------------------------------------------------------
 bool CSG_Variogram::Get_Extent(const CSG_Matrix &Points, CSG_Matrix &Extent)
 {
-	CSG_Simple_Statistics	s;
+	CSG_Simple_Statistics s;
 
 	switch( Points.Get_NCols() )
 	{
@@ -172,7 +173,7 @@ bool CSG_Variogram::Get_Extent(const CSG_Matrix &Points, CSG_Matrix &Extent)
 //---------------------------------------------------------
 double CSG_Variogram::Get_Diagonal(const CSG_Matrix &Points)
 {
-	double	d	= 0.;	CSG_Simple_Statistics	s;
+	double d = 0.; CSG_Simple_Statistics s;
 
 	switch( Points.Get_NCols() )
 	{
@@ -195,28 +196,28 @@ double CSG_Variogram::Get_Lag_Distance(const CSG_Matrix &Points, int Method, int
 {
 	if( Method == 0 )
 	{
-		if( nSkip < 1 )	{	nSkip	= 1;	}
+		if( nSkip < 1 ) { nSkip = 1; }
 
-		CSG_Simple_Statistics	s;	size_t	Index[2];	double	Distance[2];
+		CSG_Simple_Statistics s; size_t Index[2]; double Distance[2];
 
 		switch( Points.Get_NCols() )
 		{
-		case  3: {	CSG_KDTree_2D	Search(Points);
+		case  3: { CSG_KDTree_2D Search(Points);
 			for(int i=0; i<Points.Get_NRows(); i+=nSkip)
 			{
 				if( Search.Get_Nearest_Points(Points[i], 2, Index, Distance) == 2 && Distance[1] > 0. )
 				{
-					s	+= Distance[1];
+					s += Distance[1];
 				}
 			}
 			break;	}
 
-		case  4: {	CSG_KDTree_3D	Search(Points);
+		case  4: { CSG_KDTree_3D Search(Points);
 			for(int i=0; i<Points.Get_NRows(); i+=nSkip)
 			{
 				if( Search.Get_Nearest_Points(Points[i], 2, Index, Distance) == 2 && Distance[1] > 0. )
 				{
-					s	+= Distance[1];
+					s += Distance[1];
 				}
 			}
 			break;	}
@@ -321,8 +322,10 @@ void CVariogram_Diagram::On_Draw(wxDC &dc, wxRect rDraw)
 		{
 			double dScale = m_yMax / m_pVariogram->Get_Maximum(CSG_Variogram::FIELD_COUNT);
 
-			dc.SetPen  (wxColour(191, 191, 191));
-			dc.SetBrush(wxColour(191, 191, 191));
+			wxColour Colour(wxSystemSettings::GetAppearance().IsDark() ? wxColour(127, 127, 127) : wxColour(191, 191, 191));
+
+			dc.SetPen  (Colour);
+			dc.SetBrush(Colour);
 
 			for(int i=0; i<m_pVariogram->Get_Count(); i++)
 			{
@@ -337,7 +340,7 @@ void CVariogram_Diagram::On_Draw(wxDC &dc, wxRect rDraw)
 
 		//-------------------------------------------------
 		dc.SetPen  (wxColour(127, 127, 127));
-		dc.SetBrush(wxColour(  0,   0,   0));
+		dc.SetBrush(wxSystemSettings::GetAppearance().IsDark() ? wxColour(255, 255, 255) : wxColour(  0,   0,   0));
 
 		for(int i=0; i<m_pVariogram->Get_Count(); i++)
 		{
@@ -536,7 +539,7 @@ void CVariogram_Dialog::Set_Variogram(void)
 		);
 
 		m_pDistance->Set_Range(0.0, m_pVariogram->Get_Maximum(CSG_Variogram::FIELD_DISTANCE));
-		m_pDistance->Set_Value(m_pVariogram->Get_Maximum(CSG_Variogram::FIELD_DISTANCE));
+		m_pDistance->Set_Value(     m_pVariogram->Get_Maximum(CSG_Variogram::FIELD_DISTANCE));
 
 		m_pDiagram->Set_Variogram();
 
