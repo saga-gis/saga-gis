@@ -473,7 +473,7 @@ bool CSG_OGR_DataSet::Create(const CSG_String &File)
 {
 	Destroy();
 
-	m_pDataSet	= GDALOpenEx(File, GDAL_OF_VECTOR, NULL, NULL, NULL);
+	m_pDataSet	= GDALOpenEx(File.to_UTF8().Get_Data(), GDAL_OF_VECTOR, NULL, NULL, NULL);
 
 	return( m_pDataSet != NULL );
 }

@@ -86,10 +86,6 @@ CSG_GDAL_Drivers::CSG_GDAL_Drivers(void)
 	GDALRegisterPlugins();
 #endif
 
-	// affects Windows only, might be appropriate for applications
-	// that treat filenames as being in the local encoding.
-	// for more info see: http://trac.osgeo.org/gdal/wiki/ConfigOptions
-	CPLSetConfigOption("GDAL_FILENAME_IS_UTF8", "NO");
 }
 
 //---------------------------------------------------------
@@ -304,13 +300,13 @@ bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name, const char *Driver
 	#ifdef GDAL_V2_0_OR_NEWER
 	if( Drivers )
 	{
-		m_pDataSet	= GDALOpenEx(File_Name, GA_ReadOnly, Drivers, NULL, NULL);
+		m_pDataSet	= GDALOpenEx(File_Name.to_UTF8().Get_Data(), GA_ReadOnly, Drivers, NULL, NULL);
 	}
 	#else
 		m_pDataSet	= NULL;
 	#endif
 
-	if( !m_pDataSet && (m_pDataSet = GDALOpen(File_Name, GA_ReadOnly)) == NULL )
+	if( !m_pDataSet && (m_pDataSet = GDALOpen(File_Name.to_UTF8().Get_Data(), GA_ReadOnly)) == NULL )
 	{
 		return( false );
 	}
@@ -565,7 +561,7 @@ bool CSG_GDAL_DataSet::Open_Write(const CSG_String &File_Name, const CSG_String 
 		return( false );
 	}
 
-	if( (m_pDataSet = GDALCreate(pDriver, File_Name, System.Get_NX(), System.Get_NY(), NBands, (GDALDataType)gSG_GDAL_Drivers.Get_GDAL_Type(Type), pOptions)) == NULL )
+	if( (m_pDataSet = GDALCreate(pDriver, File_Name.to_UTF8().Get_Data(), System.Get_NX(), System.Get_NY(), NBands, (GDALDataType)gSG_GDAL_Drivers.Get_GDAL_Type(Type), pOptions)) == NULL )
 	{
 		SG_UI_Msg_Add_Error(_TL("Could not create dataset."));
 
