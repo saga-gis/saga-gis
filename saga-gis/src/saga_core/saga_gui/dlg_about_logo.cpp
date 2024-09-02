@@ -47,6 +47,7 @@
 
 //---------------------------------------------------------
 #include <wx/dcclient.h>
+#include <wx/settings.h>
 
 #include "res_images.h"
 
