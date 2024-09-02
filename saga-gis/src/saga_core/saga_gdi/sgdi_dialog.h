@@ -92,7 +92,7 @@ public:
 
 protected:
 
-	wxWindow *				Get_Control			(void) { return( m_pCtrl ); }
+	wxWindow *				Get_Control			(void) { return( (wxWindow *)m_pCtrl ); }
 
 	void					Add_Spacer			(int Space = SGDI_CTRL_SPACE);
 	wxStaticText *			Add_Label			(const wxString &Name, bool bCenter, int ID = wxID_ANY);
