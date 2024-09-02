@@ -122,6 +122,21 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 #endif
 
 	//-----------------------------------------------------
+#if _SAGA_MSW && wxCHECK_VERSION(3, 3, 0)
+	m_Parameters.Add_Node("", "NODE_DISPLAY", _TL("Display"), _TL(""));
+
+	m_Parameters.Add_Choice("NODE_DISPLAY",
+		"DISPLAY_MODE"   , _TL("Mode"),
+		_TL("Change display mode. You need to restart SAGA to apply the changes."),
+		CSG_String::Format("%s|%s|%s",
+			_TL("system"),
+			_TL("light"),
+			_TL("dark")
+		), 0
+	);
+#endif
+
+	//-----------------------------------------------------
 	m_Parameters.Add_Node("", "NODE_TOOLS", _TL("Tools"), _TL(""));
 
 	m_Parameters.Add_Bool("NODE_TOOLS",
@@ -358,7 +373,8 @@ int CWKSP_Tool_Manager::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 		if( g_pSAGA_Frame && g_pData )
 		{
 			if( pParameter->Cmp_Identifier("LNG_FILE_DIC")
-			||  pParameter->Cmp_Identifier("LOOK_TB_SIZE") )
+			||  pParameter->Cmp_Identifier("LOOK_TB_SIZE")
+			||  pParameter->Cmp_Identifier("DISPLAY_MODE") )
 			{
 				if( DLG_Message_Confirm(_TL("Close now ?"), _TL("Restart SAGA to apply the changes")) )
 				{
