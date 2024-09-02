@@ -1,7 +1,7 @@
 /* XPM */
 static const char *xpm_logo_scilands[] = {
 "213 64 937 2",
-"  	c #FFFFFF",
+"  	c None",
 ". 	c #FAFAFA",
 "+ 	c #F0F0F0",
 "@ 	c #D0D0D0",
