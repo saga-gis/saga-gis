@@ -92,6 +92,8 @@ public:
 
 protected:
 
+	wxWindow *				Get_Control			(void) { return( m_pCtrl ); }
+
 	void					Add_Spacer			(int Space = SGDI_CTRL_SPACE);
 	wxStaticText *			Add_Label			(const wxString &Name, bool bCenter, int ID = wxID_ANY);
 	wxButton *				Add_Button			(const wxString &Name, int ID, const wxSize &Size = SGDI_BTN_SIZE);

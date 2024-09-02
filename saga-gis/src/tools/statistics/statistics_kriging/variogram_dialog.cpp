@@ -438,7 +438,7 @@ CVariogram_Dialog::CVariogram_Dialog(void)
 	Formulas.Add("spherical"         );
 
 	//-----------------------------------------------------
-	Add_Button(_TL("Ok"    ), wxID_OK);
+	Add_Button(_TL("Ok"    ), wxID_OK    );
 	Add_Button(_TL("Cancel"), wxID_CANCEL);
 
 	Add_Spacer(); m_pSettings = Add_Button  (_TL("Settings"              ), wxID_ANY);
@@ -449,8 +449,8 @@ CVariogram_Dialog::CVariogram_Dialog(void)
 
 	//-----------------------------------------------------
 	Add_Output(
-		m_pDiagram = new CVariogram_Diagram(this),
-		m_pFormula = new wxTextCtrl(this, wxID_ANY, Get_Formula(0), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER),
+		m_pDiagram = new CVariogram_Diagram(Get_Control()),
+		m_pFormula = new wxTextCtrl(Get_Control(), wxID_ANY, Get_Formula(0), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER),
 		1, 0, true
 	);
 
