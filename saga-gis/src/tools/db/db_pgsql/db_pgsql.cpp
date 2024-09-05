@@ -145,11 +145,21 @@ CSG_PG_Connection::CSG_PG_Connection(const CSG_String &Host, int Port, const CSG
 
 bool CSG_PG_Connection::Create(const CSG_String &Host, int Port, const CSG_String &Name, const CSG_String &User, const CSG_String &Password, bool bAutoCommit)
 {
-	m_bTransaction	= false;
+	m_bTransaction = false;
 
+#ifdef _SAGA_MSW
+	CSG_String ConnectInfo;
+
+	ConnectInfo.Printf("host=%s port=%d user=%s password=%s dbname=\'%s\' gssencmode=disable",
+		Host.c_str(), Port, User.c_str(), Password.c_str(), Name.c_str()
+	);
+
+	m_pConnection = PQconnectdb(ConnectInfo);
+#else
 	m_pConnection	= Name.is_Empty()
 		? PQsetdbLogin(Host, CSG_String::Format("%d", Port), NULL, NULL, NULL, User, Password)
 		: PQsetdbLogin(Host, CSG_String::Format("%d", Port), NULL, NULL, Name, User, Password);
+#endif
 
 	if( PQstatus(m_pgConnection) != CONNECTION_OK )
 	{
@@ -160,7 +170,7 @@ bool CSG_PG_Connection::Create(const CSG_String &Host, int Port, const CSG_Strin
 		return( false );
 	}
 
-	CSG_String	Encoding	= pg_encoding_to_char(PQclientEncoding(m_pgConnection));
+	CSG_String Encoding = pg_encoding_to_char(PQclientEncoding(m_pgConnection));
 
 	if( Encoding.CmpNoCase("UTF8") )
 	{
