@@ -670,28 +670,18 @@ bool CSG_Projections::Create(bool LoadDefault)
 		#endif
 
 		SG_UI_Msg_Lock(true);
-		Load(SG_File_Make_Path(Path_Shared, "saga_prj", "srs"));
+
+		_Load(m_pProjections, SG_File_Make_Path(Path_Shared, "saga", "srs"));
+
+		if( _Load(m_pPreferences, SG_File_Make_Path(Path_Shared, "saga_preferences", "srs")) )
+		{
+			_Add_Preferences();
+		}
+
 		SG_UI_Msg_Lock(false);
 	}
 
 	return( true );
-}
-
-//---------------------------------------------------------
-CSG_Projections::CSG_Projections(const CSG_String &File)
-{
-	_On_Construction();
-
-	Create(File);
-}
-
-bool CSG_Projections::Create(const CSG_String &File_DB)
-{
-	SG_UI_Msg_Lock(true);
-	bool bResult = Load(File_DB);
-	SG_UI_Msg_Lock(false);
-
-	return( bResult );
 }
 
 //---------------------------------------------------------
@@ -705,6 +695,8 @@ void CSG_Projections::_On_Construction(void)
 	m_pProjections->Add_Field("srtext"   , SG_DATATYPE_String);	// PRJ_FIELD_SRTEXT
 	m_pProjections->Add_Field("proj4text", SG_DATATYPE_String);	// PRJ_FIELD_PROJ4TEXT
 
+	m_pPreferences = new CSG_Table(m_pProjections);
+
 	_Set_Dictionary();
 }
 
@@ -714,15 +706,14 @@ CSG_Projections::~CSG_Projections(void)
 	Destroy();
 
 	delete(m_pProjections);
+	delete(m_pPreferences);
 }
 
 //---------------------------------------------------------
 void CSG_Projections::Destroy(void)
 {
-	if( m_pProjections )
-	{
-		m_pProjections->Del_Records();
-	}
+	if( m_pProjections ) { m_pProjections->Del_Records(); }
+	if( m_pPreferences ) { m_pPreferences->Del_Records(); }
 }
 
 
@@ -757,14 +748,12 @@ bool CSG_Projections::Add(const SG_Char *WKT, const SG_Char *Proj4, const SG_Cha
 }
 
 //---------------------------------------------------------
-CSG_Projection CSG_Projections::Get_Projection(sLong Index)	const
+CSG_Projection CSG_Projections::_Get_Projection(CSG_Table_Record *pProjection)
 {
 	CSG_Projection Projection;
 
-	if( Index >= 0 && Index < m_pProjections->Get_Count() )
+	if( pProjection )
 	{
-		CSG_Table_Record *pProjection = m_pProjections->Get_Record(Index);
-
 		Projection.m_Authority = pProjection->asString(PRJ_FIELD_AUTH_NAME);
 		Projection.m_Code      = pProjection->asInt   (PRJ_FIELD_AUTH_SRID);
 		Projection.m_WKT1      = pProjection->asString(PRJ_FIELD_SRTEXT   );
@@ -779,6 +768,12 @@ CSG_Projection CSG_Projections::Get_Projection(sLong Index)	const
 	}
 
 	return( Projection );
+}
+
+//---------------------------------------------------------
+CSG_Projection CSG_Projections::Get_Projection(sLong Index)	const
+{
+	return( _Get_Projection(m_pProjections->Get_Record(Index)) );
 }
 
 //---------------------------------------------------------
@@ -810,9 +805,9 @@ bool CSG_Projections::Get_Projection(CSG_Projection &Projection, int Code, const
 
 		if( Code == pProjection->asInt(PRJ_FIELD_AUTH_SRID) && !Authority.CmpNoCase(pProjection->asString(PRJ_FIELD_AUTH_NAME)) )
 		{
-			Projection = Get_Projection(i);
+			Projection = _Get_Projection(pProjection);
 
-			return( true );
+			return( Projection.is_Okay() );
 		}
 	}
 
@@ -825,28 +820,117 @@ bool CSG_Projections::Get_Projection(CSG_Projection &Projection, int Code, const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Projections::Load(const CSG_String &File, bool bAppend)
+bool CSG_Projections::_Add_Preferences(void)
+{
+	if( !m_pProjections || !m_pPreferences || m_pPreferences->Get_Count() < 1 )
+	{
+		return( false );
+	}
+
+	m_pProjections->Set_Index(PRJ_FIELD_AUTH_NAME, TABLE_INDEX_Ascending, PRJ_FIELD_AUTH_SRID, TABLE_INDEX_Ascending);
+	m_pPreferences->Set_Index(PRJ_FIELD_AUTH_NAME, TABLE_INDEX_Ascending, PRJ_FIELD_AUTH_SRID, TABLE_INDEX_Ascending);
+
+	for(sLong iPreference=0, iProjection=0; iPreference<m_pPreferences->Get_Count() && iProjection<m_pProjections->Get_Count(); )
+	{
+		CSG_Table_Record *pPreference = m_pPreferences->Get_Record_byIndex(iPreference);
+		CSG_Table_Record *pProjection = m_pProjections->Get_Record_byIndex(iProjection);
+
+		CSG_String Authority = pProjection->asString(PRJ_FIELD_AUTH_NAME);
+
+		int Comparison = Authority.CmpNoCase(pPreference->asString(PRJ_FIELD_AUTH_NAME));
+		
+		if( Comparison < 0 ) { iProjection++; } else if( Comparison > 0 ) { iPreference++; } else
+		{
+			Comparison = pProjection->asInt(PRJ_FIELD_AUTH_SRID) - pPreference->asInt(PRJ_FIELD_AUTH_SRID);
+
+			if( Comparison < 0 ) { iProjection++; } else if( Comparison > 0 ) { iPreference++; } else
+			{
+				pProjection->Set_Value(PRJ_FIELD_SRTEXT   , pPreference->asString(PRJ_FIELD_SRTEXT   ));
+				pProjection->Set_Value(PRJ_FIELD_PROJ4TEXT, pPreference->asString(PRJ_FIELD_PROJ4TEXT));
+
+				m_pPreferences->Select(iPreference++); iProjection++;
+			}
+		}
+	}
+
+	m_pProjections->Del_Index();
+	m_pPreferences->Del_Index();
+
+	if( m_pPreferences->Get_Selection_Count() < m_pPreferences->Get_Count() )
+	{
+		for(sLong iPreference=0; iPreference<m_pPreferences->Get_Count(); iPreference++)
+		{
+			CSG_Table_Record *pPreference = m_pPreferences->Get_Record_byIndex(iPreference);
+
+			if( !pPreference->is_Selected() )
+			{
+				m_pProjections->Add_Record(pPreference);
+			}
+		}
+	}
+	
+	m_pPreferences->Select(); // unselect all records
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Projections::_Get_Preferences(CSG_Projection &Projection, int Code, const CSG_String &Authority) const
+{
+	for(sLong i=0; i<m_pPreferences->Get_Count(); i++)
+	{
+		CSG_Table_Record *pProjection = m_pPreferences->Get_Record(i);
+
+		if( Code == pProjection->asInt(PRJ_FIELD_AUTH_SRID) && !Authority.CmpNoCase(pProjection->asString(PRJ_FIELD_AUTH_NAME)) )
+		{
+			Projection = _Get_Projection(pProjection);
+
+			return( Projection.is_Okay() );
+		}
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Projections::_Load(CSG_Table *pTable, const CSG_String &File, bool bAppend) const
 {
 	CSG_Table Table;
 
-	if( m_pProjections && SG_File_Exists(File) && Table.Create(File) )
+	if( pTable && Table.Create(File) && Table.Get_Count() > 0 && Table.Get_Field_Count() >= 5 )
 	{
-		Table.Set_Index(PRJ_FIELD_SRTEXT, TABLE_INDEX_Ascending);
-
-		if( !bAppend )
+		if( bAppend )
 		{
-			m_pProjections->Del_Records();
+			for(sLong i=0; i<pTable->Get_Count(); i++)
+			{
+				Table.Add_Record(pTable->Get_Record(i));
+			}
 		}
 
-		for(sLong i=0; i<Table.Get_Count() && SG_UI_Process_Set_Progress(i, Table.Get_Count()); i++)
+		pTable->Del_Records();
+
+		Table.Set_Index(PRJ_FIELD_SRTEXT, TABLE_INDEX_Ascending);
+
+		for(sLong i=0; i<Table.Get_Count(); i++)
 		{
-			m_pProjections->Add_Record(Table.Get_Record_byIndex(i));
+			pTable->Add_Record(Table.Get_Record_byIndex(i));
 		}
 
 		return( true );
 	}
 
 	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Projections::Load(const CSG_String &File, bool bAppend)
+{
+	return( _Load(m_pProjections, File, bAppend) );
 }
 
 //---------------------------------------------------------
@@ -868,9 +952,26 @@ bool CSG_Projections::Parse(const CSG_String &Definition, CSG_String *WKT1, CSG_
 		return( false );
 	}
 
+	//-----------------------------------------------------
+	if( !Definition.BeforeFirst(':').is_Empty() ) // check white list first !
+	{
+		CSG_Projection Projection; int Code;
+
+		if( Definition.AfterFirst(':').asInt(Code) && gSG_Projections._Get_Preferences(Projection, Code, Definition.BeforeFirst(':')) )
+		{
+			if( WKT1 ) { *WKT1 = Projection.Get_WKT1(); }
+			if( WKT2 ) { *WKT2 = Projection.Get_WKT2(); }
+			if( PROJ ) { *PROJ = Projection.Get_PROJ(); }
+			if( ESRI ) { *ESRI = Projection.Get_ESRI(); }
+
+			return( true );
+		}
+	}
+
+	//-----------------------------------------------------
 	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 19); // Coordinate Reference System Format Conversion
 
-	if( pTool )
+	if( pTool ) // check proj.lib
 	{
 		pTool->Set_Parameter("DEFINITION", Definition);
 		pTool->Set_Parameter("MULTILINE" , false);
@@ -1011,9 +1112,11 @@ CSG_String CSG_Projections::Get_Names_List(ESG_CRS_Type Type, bool bAddSelect) c
 		Names.Printf("{}<%s>|", _TL("select"));
 	}
 
+	m_pProjections->Set_Index(PRJ_FIELD_SRTEXT, TABLE_INDEX_Ascending);
+
 	for(int i=0; i<Get_Count(); i++)
 	{
-		CSG_Table_Record *pProjection = m_pProjections->Get_Record(i);
+		CSG_Table_Record *pProjection = m_pProjections->Get_Record_byIndex(i);
 
 		CSG_String WKT = pProjection->asString(PRJ_FIELD_SRTEXT);
 

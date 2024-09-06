@@ -938,9 +938,6 @@ public:
 									CSG_Projections			(bool LoadDefault);
 	bool							Create					(bool LoadDefault = true);
 
-									CSG_Projections			(const CSG_String &File);
-	bool							Create					(const CSG_String &File);
-
 	void							Destroy					(void);
 
 	static bool						Parse					(const CSG_String &Definition, CSG_String *WKT1 = NULL, CSG_String *WKT2 = NULL, CSG_String *PROJ = NULL, CSG_String *ESRI = NULL);
@@ -955,10 +952,10 @@ public:
 
 	CSG_Projection					operator []				(sLong Index)	const	{	return( Get_Projection(Index) );	}
 	CSG_Projection					Get_Projection			(sLong Index)	const;
-	const SG_Char *					Get_Projection			(                            int Code, const SG_Char *Authority = NULL) const;
-	bool							Get_Projection			(CSG_Projection &Projection, int Code, const SG_Char *Authority = NULL) const;
+	const SG_Char *					Get_Projection			(                            int Code, const SG_Char    *Authority = NULL) const;
+	bool							Get_Projection			(CSG_Projection &Projection, int Code, const SG_Char    *Authority = NULL) const;
 
-	CSG_String						Get_Names_List			(ESG_CRS_Type Type = ESG_CRS_Type::Undefined, bool bAddSelect = true)	const;
+	CSG_String						Get_Names_List			(ESG_CRS_Type Type = ESG_CRS_Type::Undefined, bool bAddSelect = true)      const;
 
 	static ESG_CRS_Type				Get_CRS_Type			(const CSG_String &Identifier);
 	static CSG_String				Get_CRS_Type_Identifier	(ESG_CRS_Type Type);
@@ -972,7 +969,7 @@ public:
 
 private:
 
-	class CSG_Table					*m_pProjections;
+	class CSG_Table					*m_pProjections, *m_pPreferences;
 
 
 	void							_On_Construction			(void);
@@ -982,6 +979,12 @@ private:
 
 	CSG_Translator					m_WKT_to_Proj4, m_Proj4_to_WKT, m_EPSG_to_Idx;
 
+	bool							_Load						(class CSG_Table *pTable, const CSG_String &File, bool bAppend = false) const;
+
+	static CSG_Projection			_Get_Projection				(class CSG_Table_Record *pProjection);
+
+	bool							_Add_Preferences			(void);
+	bool							_Get_Preferences			(CSG_Projection &Projection, int Code, const CSG_String &Authority) const;
 
 	static CSG_MetaData				_WKT_to_MetaData			(const CSG_String &WKT);
 	static bool						_WKT_to_MetaData			(CSG_MetaData &MetaData, const CSG_String &WKT);

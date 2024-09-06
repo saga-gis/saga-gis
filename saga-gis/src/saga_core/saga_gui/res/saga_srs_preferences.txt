@@ -1,0 +1,1 @@
+srid	auth_name	auth_srid	srtext	proj4text
