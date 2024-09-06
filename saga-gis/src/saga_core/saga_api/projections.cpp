@@ -841,7 +841,7 @@ bool CSG_Projections::_Add_Preferences(void)
 		
 		if( Comparison < 0 ) { iProjection++; } else if( Comparison > 0 ) { iPreference++; } else
 		{
-			Comparison = pProjection->asInt(PRJ_FIELD_AUTH_SRID) - pPreference->asInt(PRJ_FIELD_AUTH_SRID);
+			Comparison = pPreference->asInt(PRJ_FIELD_AUTH_SRID) - pProjection->asInt(PRJ_FIELD_AUTH_SRID);
 
 			if( Comparison < 0 ) { iProjection++; } else if( Comparison > 0 ) { iPreference++; } else
 			{
