@@ -122,7 +122,7 @@ int CCRS_Definition::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 
 		CSG_Projection Projection;
 
-		if( SG_Get_Projections().Get_Preference(Projection, Definition) )
+		if( SG_Get_Projections().Get_Preference(Projection, Definition) ) // check preference list first!
 		{
 			Definition = Projection.Get_WKT1();
 		}
@@ -152,6 +152,13 @@ bool CCRS_Definition::On_Execute(void)
 	if( Definition.is_Empty() )
 	{
 		return( false );
+	}
+
+	CSG_Projection Projection;
+
+	if( SG_Get_Projections().Get_Preference(Projection, Definition) ) // check preference list first!
+	{
+		Definition = Projection.Get_WKT1();
 	}
 
 	bool bMultiLine = Parameters["MULTILINE"].asBool(), bSimplified = Parameters["SIMPLIFIED"].asBool();
