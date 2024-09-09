@@ -120,6 +120,13 @@ int CCRS_Definition::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 			Definition.Trim(); pParameter->Set_Value(Definition);
 		}
 
+		CSG_Projection Projection;
+
+		if( SG_Get_Projections().Get_Preference(Projection, Definition) )
+		{
+			Definition = Projection.Get_WKT1();
+		}
+
 		bool bMultiLine = (*pParameters)["MULTILINE"].asBool(), bSimplified = (*pParameters)["SIMPLIFIED"].asBool();
 
 		pParameters->Set_Parameter("PROJ", CSG_CRSProjector::Convert_CRS_To_PROJ(Definition));

@@ -935,8 +935,8 @@ public:
 	CSG_Projections(void);
 	virtual ~CSG_Projections(void);
 
-									CSG_Projections			(bool LoadDefault);
-	bool							Create					(bool LoadDefault = true);
+									CSG_Projections			(bool LoadCodeList);
+	bool							Create					(bool LoadCodeList = true);
 
 	void							Destroy					(void);
 
@@ -954,6 +954,9 @@ public:
 	CSG_Projection					Get_Projection			(sLong Index)	const;
 	const SG_Char *					Get_Projection			(                            int Code, const SG_Char    *Authority = NULL) const;
 	bool							Get_Projection			(CSG_Projection &Projection, int Code, const SG_Char    *Authority = NULL) const;
+
+	bool							Get_Preference			(CSG_Projection &Projection, int Code, const CSG_String &Authority       ) const;
+	bool							Get_Preference			(CSG_Projection &Projection          , const CSG_String &Authority_Code  ) const;
 
 	CSG_String						Get_Names_List			(ESG_CRS_Type Type = ESG_CRS_Type::Undefined, bool bAddSelect = true)      const;
 
@@ -984,7 +987,6 @@ private:
 	static CSG_Projection			_Get_Projection				(class CSG_Table_Record *pProjection);
 
 	bool							_Add_Preferences			(void);
-	bool							_Get_Preferences			(CSG_Projection &Projection, int Code, const CSG_String &Authority) const;
 
 	static CSG_MetaData				_WKT_to_MetaData			(const CSG_String &WKT);
 	static bool						_WKT_to_MetaData			(CSG_MetaData &MetaData, const CSG_String &WKT);

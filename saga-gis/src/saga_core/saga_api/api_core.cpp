@@ -505,10 +505,7 @@ bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char
 		}
 		#endif
 
-		if( bProjections )
-		{
-			SG_Get_Projections().Create();
-		}
+		SG_Get_Projections().Create(bProjections);
 
 		SG_UI_ProgressAndMsg_Lock(false);
 	}

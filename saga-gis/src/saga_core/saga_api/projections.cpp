@@ -650,47 +650,43 @@ CSG_Projections::CSG_Projections(void)
 }
 
 //---------------------------------------------------------
-CSG_Projections::CSG_Projections(bool LoadDefault)
+CSG_Projections::CSG_Projections(bool LoadCodeList)
 {
 	_On_Construction();
 
-	Create(LoadDefault);
+	Create(LoadCodeList);
 }
 
-bool CSG_Projections::Create(bool LoadDefault)
+bool CSG_Projections::Create(bool LoadCodeList)
 {
 	Destroy();
 
-	if( LoadDefault ) // load spatial reference system database and dictionary
-	{
-		CSG_String Path_Shared;
+	CSG_String Path_Shared;
 
-		#if defined(__WXMAC__)
-			Path_Shared = SG_UI_Get_Application_Path(true);
-			#ifdef SHARE_PATH
-			if( !SG_File_Exists(SG_File_Make_Path(Path_Shared, "saga", "srs")) )
-			{
-				Path_Shared = SHARE_PATH;
-			}
-			#endif
-		#elif defined(_SAGA_LINUX)
-			#ifdef SHARE_PATH
-			Path_Shared = SHARE_PATH;
-			#endif
-		#else
-			Path_Shared = SG_UI_Get_Application_Path(true);
-		#endif
-
-		SG_UI_Msg_Lock(true);
-
-		_Load(m_pProjections, SG_File_Make_Path(Path_Shared, "saga", "srs"));
-
-		if( _Load(m_pPreferences, SG_File_Make_Path(Path_Shared, "saga_preferences", "srs")) )
+	#if defined(__WXMAC__)
+		Path_Shared = SG_UI_Get_Application_Path(true);
+		#ifdef SHARE_PATH
+		if( !SG_File_Exists(SG_File_Make_Path(Path_Shared, "saga", "srs")) )
 		{
-			_Add_Preferences();
+			Path_Shared = SHARE_PATH;
 		}
+		#endif
+	#elif defined(_SAGA_LINUX)
+		#ifdef SHARE_PATH
+		Path_Shared = SHARE_PATH;
+		#endif
+	#else
+		Path_Shared = SG_UI_Get_Application_Path(true);
+	#endif
 
-		SG_UI_Msg_Lock(false);
+	if( LoadCodeList ) // load spatial reference system database
+	{
+		_Load(m_pProjections, SG_File_Make_Path(Path_Shared, "saga", "srs"));
+	}
+
+	if( _Load(m_pPreferences, SG_File_Make_Path(Path_Shared, "saga_preferences", "srs")) ) // always try to load preferences!
+	{
+		_Add_Preferences();
 	}
 
 	return( true );
@@ -771,6 +767,27 @@ CSG_Projection CSG_Projections::_Get_Projection(CSG_Table_Record *pProjection)
 		Projection.m_WKT1      = pProjection->asString(PRJ_FIELD_SRTEXT   );
 		Projection.m_PROJ      = pProjection->asString(PRJ_FIELD_PROJ4TEXT);
 
+		//-------------------------------------------------
+		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 19); // Coordinate Reference System Format Conversion
+
+		if( pTool ) // check proj.lib, still need to construct WKT-2 and ESRI definitions...
+		{
+			pTool->Set_Parameter("DEFINITION", Projection.m_WKT1);
+			pTool->Set_Parameter("MULTILINE" , false);
+			pTool->Set_Parameter("SIMPLIFIED", true);
+
+			SG_UI_ProgressAndMsg_Lock(true);
+			bool bResult = pTool->Execute();
+			SG_UI_ProgressAndMsg_Lock(false);
+
+			if( bResult )
+			{
+				Projection.m_WKT2 = pTool->Get_Parameter("WKT2")->asString();
+				Projection.m_ESRI = pTool->Get_Parameter("ESRI")->asString();
+			}
+		}
+
+		//-------------------------------------------------
 		CSG_MetaData WKT = _WKT_to_MetaData(Projection.m_WKT1);
 
 		Projection.m_Name = WKT.Get_Property("name");
@@ -887,7 +904,7 @@ bool CSG_Projections::_Add_Preferences(void)
 }
 
 //---------------------------------------------------------
-bool CSG_Projections::_Get_Preferences(CSG_Projection &Projection, int Code, const CSG_String &Authority) const
+bool CSG_Projections::Get_Preference(CSG_Projection &Projection, int Code, const CSG_String &Authority) const
 {
 	for(sLong i=0; i<m_pPreferences->Get_Count(); i++)
 	{
@@ -904,6 +921,19 @@ bool CSG_Projections::_Get_Preferences(CSG_Projection &Projection, int Code, con
 	return( false );
 }
 
+//---------------------------------------------------------
+bool CSG_Projections::Get_Preference(CSG_Projection &Projection, const CSG_String &Authority_Code) const
+{
+	int Code; CSG_String Authority(Authority_Code.BeforeFirst(':'));
+
+	if( !Authority.is_Empty() && Authority_Code.AfterFirst(':').asInt(Code) )
+	{
+		return( Get_Preference(Projection, Code, Authority) );
+	}
+
+	return( false );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -913,6 +943,8 @@ bool CSG_Projections::_Get_Preferences(CSG_Projection &Projection, int Code, con
 bool CSG_Projections::_Load(CSG_Table *pTable, const CSG_String &File, bool bAppend) const
 {
 	CSG_Table Table;
+
+	SG_UI_Msg_Lock(true);
 
 	if( pTable && Table.Create(File) && Table.Get_Count() > 0 && Table.Get_Field_Count() >= 5 )
 	{
@@ -933,8 +965,12 @@ bool CSG_Projections::_Load(CSG_Table *pTable, const CSG_String &File, bool bApp
 			pTable->Add_Record(Table.Get_Record_byIndex(i));
 		}
 
+		SG_UI_Msg_Lock(false);
+
 		return( true );
 	}
+
+	SG_UI_Msg_Lock(false);
 
 	return( false );
 }
@@ -969,7 +1005,7 @@ bool CSG_Projections::Parse(const CSG_String &Definition, CSG_String *WKT1, CSG_
 	{
 		CSG_Projection Projection; int Code;
 
-		if( Definition.AfterFirst(':').asInt(Code) && gSG_Projections._Get_Preferences(Projection, Code, Definition.BeforeFirst(':')) )
+		if( Definition.AfterFirst(':').asInt(Code) && gSG_Projections.Get_Preference(Projection, Code, Definition.BeforeFirst(':')) )
 		{
 			if( WKT1 ) { *WKT1 = Projection.Get_WKT1(); }
 			if( WKT2 ) { *WKT2 = Projection.Get_WKT2(); }
