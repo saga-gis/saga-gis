@@ -492,39 +492,23 @@ bool SG_Initialize_Environment(bool bLibraries, bool bProjections, const SG_Char
 
 				wxSetEnv("PATH", Dll_Paths);
 			}
-
-			if( bProjections )
-			{
-				SG_Get_Projections().Load(SG_File_Make_Path(&App_Path, "saga_prj", "srs"));
-			}
 		}
 		#elif defined(__WXMAC__)
 		{
 			CSG_String App_Path(SG_UI_Get_Application_Path(true));
-
-			if( bProjections )
-			{
-				if( SG_Get_Projections().Load(App_Path + "/saga_prj.srs") == false )
-				{
-					#ifdef SHARE_PATH
-					SG_Get_Projections().Load(CSG_String(SHARE_PATH) + "/saga_prj.srs");
-					#endif
-				}
-			}
 
 			if( SG_Dir_Exists(App_Path + "/proj-data") ) { wxSetEnv("PROJ_LIB" , wxString::Format("%s/proj-data", App_Path.c_str())); }
 			if( SG_Dir_Exists(App_Path + "/gdal-data") ) { wxSetEnv("GDAL_DATA", wxString::Format("%s/gdal-data", App_Path.c_str())); }
 		}
 		#else // #if defined(_SAGA_LINUX)
 		{
-			if( bProjections )
-			{
-				#ifdef SHARE_PATH
-				SG_Get_Projections().Load(SG_File_Make_Path(SHARE_PATH, "saga_prj", "srs"));
-				#endif
-			}
 		}
 		#endif
+
+		if( bProjections )
+		{
+			SG_Get_Projections().Create();
+		}
 
 		SG_UI_ProgressAndMsg_Lock(false);
 	}

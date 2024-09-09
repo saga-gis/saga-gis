@@ -663,10 +663,22 @@ bool CSG_Projections::Create(bool LoadDefault)
 
 	if( LoadDefault ) // load spatial reference system database and dictionary
 	{
-		#if defined(_SAGA_LINUX)
-			CSG_String Path_Shared = SHARE_PATH;
+		CSG_String Path_Shared;
+
+		#if defined(__WXMAC__)
+			Path_Shared = SG_UI_Get_Application_Path(true);
+			#ifdef SHARE_PATH
+			if( !SG_File_Exists(SG_File_Make_Path(Path_Shared, "saga", "srs")) )
+			{
+				Path_Shared = SHARE_PATH;
+			}
+			#endif
+		#elif defined(_SAGA_LINUX)
+			#ifdef SHARE_PATH
+			Path_Shared = SHARE_PATH;
+			#endif
 		#else
-			CSG_String Path_Shared = SG_UI_Get_Application_Path(true);
+			Path_Shared = SG_UI_Get_Application_Path(true);
 		#endif
 
 		SG_UI_Msg_Lock(true);
