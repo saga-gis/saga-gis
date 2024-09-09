@@ -1177,7 +1177,7 @@ CSG_String CSG_Projections::Get_Names_List(ESG_CRS_Type Type, bool bAddSelect) c
 		{
 			Names += CSG_String::Format("{%s:%d}%s: %s|",
 				pProjection->asString(PRJ_FIELD_AUTH_NAME),
-				pProjection->asInt   (PRJ_FIELD_SRID     ),
+				pProjection->asInt   (PRJ_FIELD_AUTH_SRID),
 				CSG_Projections::Get_CRS_Type_Name(_Type).c_str(),
 				WKT.AfterFirst('\"').BeforeFirst('\"').c_str()
 			);
@@ -1186,7 +1186,7 @@ CSG_String CSG_Projections::Get_Names_List(ESG_CRS_Type Type, bool bAddSelect) c
 		{
 			Names += CSG_String::Format("{%s:%d}%s|",
 				pProjection->asString(PRJ_FIELD_AUTH_NAME),
-				pProjection->asInt   (PRJ_FIELD_SRID     ),
+				pProjection->asInt   (PRJ_FIELD_AUTH_SRID),
 				WKT.AfterFirst('\"').BeforeFirst('\"').c_str()
 			);
 		}
