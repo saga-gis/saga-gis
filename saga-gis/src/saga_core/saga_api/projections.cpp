@@ -1003,9 +1003,9 @@ bool CSG_Projections::Parse(const CSG_String &Definition, CSG_String *WKT1, CSG_
 	//-----------------------------------------------------
 	if( !Definition.BeforeFirst(':').is_Empty() ) // check white list first !
 	{
-		CSG_Projection Projection; int Code;
+		CSG_Projection Projection;
 
-		if( Definition.AfterFirst(':').asInt(Code) && gSG_Projections.Get_Preference(Projection, Code, Definition.BeforeFirst(':')) )
+		if( gSG_Projections.Get_Preference(Projection, Definition) )
 		{
 			if( WKT1 ) { *WKT1 = Projection.Get_WKT1(); }
 			if( WKT2 ) { *WKT2 = Projection.Get_WKT2(); }
