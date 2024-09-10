@@ -1279,13 +1279,13 @@ bool CCRS_Transform::On_Execute(void)
 		return( false );
 	}
 
-	Message_Fmt("\n%s: %s", _TL("source"), m_Projector.Get_Source().Get_PROJ().c_str());
-	Message_Fmt("\n%s: %s", _TL("target"), m_Projector.Get_Target().Get_PROJ().c_str());
-
 	//-----------------------------------------------------
 	m_Projector.Set_Precise_Mode(Parameters("PRECISE") && Parameters("PRECISE")->asBool());
 
 	bool bResult = On_Execute_Transformation();
+
+	Message_Fmt("\n\n%s: %s", _TL("source"), m_Projector.Get_Source().Get_PROJ().c_str());
+	Message_Fmt(  "\n%s: %s", _TL("target"), m_Projector.Get_Target().Get_PROJ().c_str());
 
 	m_Projector.Destroy();
 

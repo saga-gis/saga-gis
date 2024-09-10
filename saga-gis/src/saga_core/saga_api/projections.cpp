@@ -924,11 +924,16 @@ bool CSG_Projections::Get_Preference(CSG_Projection &Projection, int Code, const
 //---------------------------------------------------------
 bool CSG_Projections::Get_Preference(CSG_Projection &Projection, const CSG_String &Authority_Code) const
 {
-	int Code; CSG_String Authority(Authority_Code.BeforeFirst(':'));
+	int i = Authority_Code.Find(':');
 
-	if( !Authority.is_Empty() && Authority_Code.AfterFirst(':').asInt(Code) )
+	if( i > 1 && i < Authority_Code.Length() - 2 )
 	{
-		return( Get_Preference(Projection, Code, Authority) );
+		int Code; CSG_String Authority(Authority_Code.BeforeFirst(':'));
+
+		if( !Authority.is_Empty() && Authority_Code.AfterFirst(':').asInt(Code) )
+		{
+			return( Get_Preference(Projection, Code, Authority) );
+		}
 	}
 
 	return( false );
@@ -1001,25 +1006,9 @@ bool CSG_Projections::Parse(const CSG_String &Definition, CSG_String *WKT1, CSG_
 	}
 
 	//-----------------------------------------------------
-	if( !Definition.BeforeFirst(':').is_Empty() ) // check white list first !
-	{
-		CSG_Projection Projection;
-
-		if( gSG_Projections.Get_Preference(Projection, Definition) )
-		{
-			if( WKT1 ) { *WKT1 = Projection.Get_WKT1(); }
-			if( WKT2 ) { *WKT2 = Projection.Get_WKT2(); }
-			if( PROJ ) { *PROJ = Projection.Get_PROJ(); }
-			if( ESRI ) { *ESRI = Projection.Get_ESRI(); }
-
-			return( true );
-		}
-	}
-
-	//-----------------------------------------------------
 	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 19); // Coordinate Reference System Format Conversion
 
-	if( pTool ) // check proj.lib
+	if( pTool ) // check proj.lib, ...will check white list first !
 	{
 		pTool->Set_Parameter("DEFINITION", Definition);
 		pTool->Set_Parameter("MULTILINE" , false);
