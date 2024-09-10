@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,15 +47,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "pc_reclass_extract.h"
 
 
@@ -71,279 +59,561 @@
 //---------------------------------------------------------
 CPC_Reclass_Extract::CPC_Reclass_Extract(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
 	Set_Name(_TL("Point Cloud Reclassifier / Subset Extractor"));
 
-	Set_Author(SG_T("Volker Wichmann (c) 2009, LASERDATA GmbH"));
+	Set_Author("Volker Wichmann (c) 2009, LASERDATA GmbH");
 
 	Set_Description	(_TW(
-		"The tool can be used to either reclassify a Point Cloud attribute or to extract "
+		"The tool can be used to either reclassify a Point Cloud attribute, to extract, or drop "
 		"a subset of a Point Cloud based on the values of an attribute.\n\n"
-		"The tool provides three different options:\n"
-		"(a) reclassification of (or extraction based on) single values,\n"
-		"(b) reclassification of (or extraction based on) a range of values and\n"
-		"(c) reclassification of (or extraction based on) value ranges specified in a lookup table.\n\n"
+		"The tool provides three different methods for selection of points to become reclassified/extracted/deleted:"
+		"<ol>"
+		"<li>single value</li>"
+		"<li>value range</li>"
+		"<li>value ranges specified in a lookup table</li>"
+		"</ol>\n\n"
 		"Each of these three options provides it's own parameters. The 'new value' parameters are "
 		"irrelevant in case a subset is extracted.\n\n"
 		"In addition to these settings, two special cases ('NoData values' and 'other values' not "
 		"included in the parameter setup) are supported:\n"
 		"In mode (a) and (b) the 'NoData option' is evaluated before the method settings, in mode "
 		"(c) the option is evaluated only if the NoData value isn't included in the lookup table.\n"
-		"The 'other values' option is always evaluated after checking the method settings.\n\n")
-	);
-
+		"The 'other values' option is always evaluated after checking the method settings.\n\n"
+		"Have in mind that subset deletion will be performed on the input point cloud!"
+	));
 
 	//-----------------------------------------------------
-	Parameters.Add_PointCloud(
-		NULL	, "INPUT"		,_TL("Point Cloud"),
+	Parameters.Add_PointCloud("",
+		"INPUT"        ,_TL("Point Cloud"),
 		_TL("Point Cloud to reclassify/extract"),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		Parameters("INPUT"), "ATTRIB", _TL("Attribute"),
+	Parameters.Add_Table_Field("INPUT",
+		"ATTRIB"       , _TL("Attribute"),
 		_TL("Attribute to process."),
 		false
 	);
 
-	Parameters.Add_PointCloud(
-		NULL	, "RESULT"		, _TL("Result"),
+	Parameters.Add_PointCloud("",
+		"RESULT"       , _TL("Result"),
 		_TL("Reclassified or extracted Point Cloud."),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "MODE"	, _TL("Mode of operation"),
+	Parameters.Add_Choice("",
+		"MODE"         , _TL("Mode of Operation"),
 		_TL("Choose whether to reclassify a Point Cloud or to extract a subset from a Point Cloud."),
-		_TL("Reclassify|Extract Subset|"), 0
+		CSG_String::Format("%s|%s|%s",
+			_TL("Reclassify"),
+			_TL("Extract Subset"),
+			_TL("Drop Subset")
+		), 0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "CREATE_ATTRIB"	, _TL("Create new Attribute"),
+	Parameters.Add_Bool("",
+		"CREATE_ATTRIB", _TL("Create new Attribute"),
 		_TL("Check this to create a new attribute with the reclassification result. If unchecked, the existing attribute is updated."),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"       , _TL("Selection Method"),
 		_TL("Select the desired method: 1. a single value or a range defined by a single value is reclassified, 2. a range of values is reclassified, 3. the lookup table is used to reclassify the grid."),
-		_TL("single|range|simple table|user supplied table|"), 0
+		CSG_String::Format("%s|%s|%s|%s",
+			_TL("single value"       ),
+			_TL("value range"        ),
+			_TL("simple table"       ),
+			_TL("user supplied table")
+		), 0
 	);
 
 
 	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL	, "OLD"			, _TL("old value"),
-		_TL("Value to reclassify."),
-		PARAMETER_TYPE_Double, 0
+	Parameters.Add_Double("",
+		"OLD"          , _TL("Value"),
+		_TL("Value to reclassify, extract or drop."),
+		0.
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NEW"			, _TL("new value"),
+	Parameters.Add_Double("",
+		"NEW"          , _TL("New Value"),
 		_TL("New value."),
-		PARAMETER_TYPE_Double, 1
+		1.
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "SOPERATOR"	, _TL("operator"),
+	Parameters.Add_Choice("",
+		"SOPERATOR"    , _TL("Operator"),
 		_TL("Select the desired operator (<;.;=; >;.); it is possible to define a range above or below the old value."),
-
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("="),
-			_TL("<"),
-			_TL("<="),
-			_TL(">="),
-			_TL(">")
-		), 0
+		"=|<|<=|>=|>|<>", 0
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL	, "MIN"			, _TL("minimum value"),
+	Parameters.Add_Double("",
+		"MIN"          , _TL("Minimum Value"),
 		_TL("Minimum value of the range to be reclassified."),
-		PARAMETER_TYPE_Double, 0
+		0.
 	);
 
-	Parameters.Add_Value(
-		NULL	, "MAX"			, _TL("maximum value"),
+	Parameters.Add_Double("",
+		"MAX"          , _TL("Maximum Value"),
 		_TL("Maximum value of the range to be reclassified."),
-		PARAMETER_TYPE_Double, 10
+		10.
 	);
 
-	Parameters.Add_Value(
-		NULL	, "RNEW"		, _TL("new value"),
+	Parameters.Add_Double("",
+		"RNEW"         , _TL("New Value"),
 		_TL("new value"),
-		PARAMETER_TYPE_Double, 5
+		5.
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "ROPERATOR"	, _TL("operator"),
+	Parameters.Add_Choice("",
+		"ROPERATOR"    , _TL("Operator"),
 		_TL("Select operator: eg. min < value < max."),
-
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("<="),
-			_TL("<")
+		CSG_String::Format("%s|%s|%s|%s",
+			_TL("minimum <= value <= maximum"),
+			_TL("minimum < value < maximum"),
+			_TL("value < minimum or value > maximum"),
+			_TL("value <= minimum or value >= maximum")
 		), 0
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_FixedTable(
-		NULL	, "RETAB"		, _TL("Lookup Table"),
+	Parameters.Add_FixedTable("",
+		"RETAB"        , _TL("Lookup Table"),
 		_TL("Lookup table used in method \"table\"")
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "TOPERATOR"	, _TL("operator"),
+	Parameters.Add_Choice("",
+		"TOPERATOR"    , _TL("Operator"),
 		_TL("Select the desired operator (min < value < max; min . value < max; min .value . max; min < value . max)."),
-
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
-			_TL("min <= value < max"),
-			_TL("min <= value <= max"),
-			_TL("min < value <= max"),
-			_TL("min < value < max")
+		CSG_String::Format("%s|%s|%s|%s",
+			_TL("minimum <= value < maximum"),
+			_TL("minimum <= value <= maximum"),
+			_TL("minimum < value <= maximum"),
+			_TL("minimum < value < maximum")
 		), 0
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Table(
-		NULL	, "RETAB_2"		, _TL("Lookup Table"),
+	Parameters.Add_Table("",
+		"RETAB_2"      , _TL("Lookup Table"),
 		_TL("Lookup table used in method \"user supplied table\""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "F_MIN"		, _TL("minimum value"),
+	Parameters.Add_Table_Field("RETAB_2",
+		"F_MIN"        , _TL("Minimum Value"),
 		_TL("")
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "F_MAX"		, _TL("maximum value"),
+	Parameters.Add_Table_Field("RETAB_2",
+		"F_MAX"        , _TL("Maximum Value"),
 		_TL("")
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "F_CODE"		, _TL("new value"),
+	Parameters.Add_Table_Field("RETAB_2",
+		"F_CODE"       , _TL("New Value"),
 		_TL("")
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Node(
-		NULL, "OPTIONS"			, _TL("Special cases"),
+	Parameters.Add_Node("",
+		"OPTIONS"      , _TL("Special Cases"),
 		_TL("Parameter settings for No-Data and all other values.")
 	);
 
-	Parameters.Add_Value(
-		pNode	, "NODATAOPT"	, _TL("no data values"),
+	Parameters.Add_Bool("OPTIONS",
+		"NODATAOPT"    , _TL("No-Data Values"),
 		_TL("Use this option to reclassify No-Data values independently of the method settings."),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Value(
-		Parameters("NODATAOPT")	, "NODATA"		, _TL("new value"),
+	Parameters.Add_Double("NODATAOPT",
+		"NODATA"       , _TL("New Value"),
 		_TL("new value"),
-		PARAMETER_TYPE_Double, 0
+		0.
 	);
 
-	Parameters.Add_Value(
-		pNode	, "OTHEROPT"	, _TL("other values"),
+	Parameters.Add_Bool("OPTIONS",
+		"OTHEROPT"     , _TL("Other Values"),
 		_TL("Use this option to reclassify all other values that are not specified in the options above."),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Value(
-		Parameters("OTHEROPT")	, "OTHERS"		, _TL("new value"),
+	Parameters.Add_Double("OTHEROPT",
+		"OTHERS"       , _TL("New Value"),
 		_TL("new value"),
-		PARAMETER_TYPE_Double, 0
+		0.
 	);
 
 	//-----------------------------------------------------
-	CSG_Table			*pLookup;
-	CSG_Table_Record	*pRecord;
+	CSG_Table *pLookup = Parameters("RETAB")->asTable();
 
-	pLookup	= Parameters("RETAB")->asTable();
+	pLookup->Add_Field(_TL("minimum"), SG_DATATYPE_Double);
+	pLookup->Add_Field(_TL("maximum"), SG_DATATYPE_Double);
+	pLookup->Add_Field(_TL("new"    ), SG_DATATYPE_Double);
 
-	pLookup->Add_Field(_TL("minimum")	, SG_DATATYPE_Double);
-	pLookup->Add_Field(_TL("maximum")	, SG_DATATYPE_Double);
-	pLookup->Add_Field(_TL("new")		, SG_DATATYPE_Double);
+	#define ADD_RECORD(min, max, new) { CSG_Table_Record &r = *pLookup->Add_Record(); r.Set_Value(0, min); r.Set_Value(1, max); r.Set_Value(2, new); }
 
-	pRecord	= pLookup->Add_Record();	pRecord->Set_Value(0,  0.0);	pRecord->Set_Value(1, 10.0);	pRecord->Set_Value(2, 1.0);
-	pRecord	= pLookup->Add_Record();	pRecord->Set_Value(0, 10.0);	pRecord->Set_Value(1, 20.0);	pRecord->Set_Value(2, 2.0);
+	ADD_RECORD( 0., 10., 1.);
+	ADD_RECORD(10., 20., 2.);
 }
-
-//---------------------------------------------------------
-CPC_Reclass_Extract::~CPC_Reclass_Extract(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CPC_Reclass_Extract::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	pParameter->Cmp_Identifier("METHOD") || pParameter->Cmp_Identifier("MODE") )
+	{
+		int Operation = (*pParameters)("MODE"  )->asInt(); // 0 == reclassify, 1 == extract, 2 == drop
+		int    Method = (*pParameters)("METHOD")->asInt();
+
+		pParameters->Set_Enabled("RESULT"       , Operation != 2);
+		pParameters->Set_Enabled("CREATE_ATTRIB", Operation == 0);
+
+		// single
+		pParameters->Set_Enabled("OLD"          , Method == 0);
+		pParameters->Set_Enabled("NEW"          , Method == 0 && Operation == 0);
+		pParameters->Set_Enabled("SOPERATOR"    , Method == 0);
+
+		// range
+		pParameters->Set_Enabled("MIN"          , Method == 1);
+		pParameters->Set_Enabled("MAX"          , Method == 1);
+		pParameters->Set_Enabled("RNEW"         , Method == 1 && Operation == 0);
+		pParameters->Set_Enabled("ROPERATOR"    , Method == 1);
+
+		// simple table
+		pParameters->Set_Enabled("RETAB"        , Method == 2);
+
+		// user supplied table
+		pParameters->Set_Enabled("RETAB_2"      , Method == 3);
+
+		// lookup table
+		pParameters->Set_Enabled("TOPERATOR"    , Method >= 2);
+
+		// other options
+		pParameters->Set_Enabled("OPTIONS"      , Operation == 0);
+	}
+
+	if(	pParameter->Cmp_Identifier("NODATAOPT") )
+	{
+		pParameters->Set_Enabled("NODATA"       , pParameter->asInt() > 0);
+	}
+
+	if(	pParameter->Cmp_Identifier("OTHEROPT") )
+	{
+		pParameters->Set_Enabled("OTHERS"       , pParameter->asInt() > 0);
+	}
+
+	//-----------------------------------------------------
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CPC_Reclass_Extract::On_Execute(void)
 {
-	int				method;
-	CSG_Parameters	sParms;
+	m_pInput    = Parameters("INPUT" )->asPointCloud();
+	m_AttrField = Parameters("ATTRIB")->asInt();
 
-	m_pInput		= Parameters("INPUT")->asPointCloud();
-	m_pResult		= Parameters("RESULT")->asPointCloud();
-	method			= Parameters("METHOD")->asInt();
-	m_AttrField		= Parameters("ATTRIB")->asInt();
-	m_bExtract		= Parameters("MODE")->asInt() == 0 ? false : true;
-	m_bCreateAttrib	= Parameters("CREATE_ATTRIB")->asBool();
+	m_Operation = Parameters("MODE"  )->asInt();
 
-	m_pResult->Create(m_pInput);
-
-	if (m_bExtract)
-		m_pResult->Fmt_Name("%s_subset_%s", m_pInput->Get_Name(), m_pInput->Get_Field_Name(m_AttrField));
-	else
+	switch( m_Operation )
 	{
+	case  0: // reclass
+		m_pResult = Parameters("RESULT")->asPointCloud();
+		m_pResult->Create(m_pInput);
 		m_pResult->Fmt_Name("%s_reclass_%s", m_pInput->Get_Name(), m_pInput->Get_Field_Name(m_AttrField));
-		if( m_bCreateAttrib )
+
+		if( (m_bCreateAttrib = Parameters("CREATE_ATTRIB")->asBool()) == true )
+		{
 			m_pResult->Add_Field(CSG_String::Format("%s_reclass", m_pInput->Get_Field_Name(m_AttrField)), m_pInput->Get_Field_Type(m_AttrField));
+		}
+		break;
+
+	case  1: // extract
+		m_pResult = Parameters("RESULT")->asPointCloud();
+		m_pResult->Create(m_pInput);
+		m_pResult->Fmt_Name("%s_subset_%s", m_pInput->Get_Name(), m_pInput->Get_Field_Name(m_AttrField));
+		break;
+
+	case  2: // drop
+		m_pResult = NULL;
+		m_pInput->Select(); // clear selection
+		break;
 	}
 
-	m_iOrig = 0;	// counter of unchanged points
+	m_iOrig = 0; // counter of unchanged points
 
 	//-----------------------------------------------------
-	switch( method )
+	switch( Parameters("METHOD")->asInt() )
 	{
-	case 0:	Reclass_Single();		break;
-	case 1:	Reclass_Range();		break;
-	case 2:	if( Reclass_Table(false) )
-				break;
-			else
-				return( false );
-	case 3:	if( Reclass_Table(true) )
-				break;
-			else
-				return( false );
+	case  0: if( !Reclass_Single()     ) { return( false ); } break;
+	case  1: if( !Reclass_Range ()     ) { return( false ); } break;
+	case  2: if( !Reclass_Table(false) ) { return( false ); } break;
+	case  3: if( !Reclass_Table(true ) ) { return( false ); } break;
 	default: break;
 	}
 
 	//-----------------------------------------------------
-	DataObject_Update(m_pResult);
-
-	DataObject_Get_Parameters(m_pResult, sParms);
-	if (m_bExtract)
-		Set_Display_Attributes(m_pResult, 2, sParms);
-	else
+	switch( m_Operation )
 	{
-		if( m_bCreateAttrib )
-			Set_Display_Attributes(m_pResult, m_pResult->Get_Field_Count()-1, sParms);
-		else
-			Set_Display_Attributes(m_pResult, m_AttrField, sParms);
+	case  0: // reclass
+		Set_Display_Attributes(m_bCreateAttrib ? m_pResult->Get_Field_Count() - 1 : m_AttrField);
+
+		Message_Fmt("\n%s: %lld (%lld)\n", _TL("number of reclassified points."), m_pInput->Get_Count() - m_iOrig, m_pInput->Get_Count());
+		break;
+
+	case  1: // extract
+		Set_Display_Attributes(2);
+
+		Message_Fmt("\n%s: %lld (%lld)\n ", _TL("number of extracted points."  ), m_pInput->Get_Count() - m_iOrig, m_pInput->Get_Count());
+		break;
+
+	case  2: // drop
+		m_iOrig = m_pInput->Get_Selection_Count(); m_pInput->Del_Selection();
+
+		DataObject_Update(m_pInput);
+
+		Message_Fmt("\n%s: %lld (%lld)\n ", _TL("number of dropped points."    ), m_iOrig, m_pInput->Get_Count() + m_iOrig);
+		break;
 	}
 
-	if( m_bExtract)
-		SG_UI_Msg_Add(CSG_String::Format(_TL("%lld points out of %lld extracted."   ), m_pInput->Get_Count()-m_iOrig, m_pInput->Get_Count()), true);
-	else
-		SG_UI_Msg_Add(CSG_String::Format(_TL("%lld points out of %lld reclassified."), m_pInput->Get_Count()-m_iOrig, m_pInput->Get_Count()), true);
+	//-----------------------------------------------------
+	return( true );
+}
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CPC_Reclass_Extract::Reclass_Single(void)
+{
+	double    oldValue = Parameters("OLD"   )->asDouble();
+	double    newValue = Parameters("NEW"   )->asDouble();
+	double      others = Parameters("OTHERS")->asDouble();
+	double      noData = Parameters("NODATA")->asDouble();
+
+	int          opera = Parameters("SOPERATOR")->asInt();
+
+	bool      otherOpt = (m_Operation == 1) ? false : Parameters("OTHEROPT")->asBool();
+	bool     noDataOpt = (m_Operation == 1) ? false : Parameters("NODATAOPT")->asBool();
+
+	bool      floating = m_pInput->Get_Field_Type(m_AttrField) == SG_DATATYPE_Double || m_pInput->Get_Field_Type(m_AttrField) == SG_DATATYPE_Float;
+
+	double noDataValue = m_pInput->Get_NoData_Value();
+
+	for(sLong i=0, n=m_pInput->Get_Count(); i<n && Set_Progress(i, n); i++)
+	{
+		double value = floating ? m_pInput->Get_Value(i, m_AttrField) : (int)m_pInput->Get_Value(i, m_AttrField);
+
+		if( noDataOpt == true && value == noDataValue ) // noData option
+		{
+			Set_Value(i, noData);
+		}
+		else
+		{
+			bool set = false;
+
+			switch( opera )
+			{
+			case 0: set = value == oldValue; break; // operator ==
+			case 1: set = value <  oldValue; break; // operator <
+			case 2: set = value <= oldValue; break; // operator <=
+			case 3: set = value >= oldValue; break; // operator >=
+			case 4: set = value >  oldValue; break; // operator >
+			case 5: set = value != oldValue; break; // operator <>
+			}
+
+			if( set ) // reclass old value
+			{
+				if( m_Operation == 2 ) // drop
+				{
+					m_pInput->Select(i, true);
+				}
+				else
+				{
+					Set_Value(i, newValue);
+				}
+			}
+			else if( otherOpt == true && value != noDataValue ) // other values option
+			{
+				Set_Value(i, others);
+			}
+			else
+			{
+				if( (m_Operation == 0) )
+				{
+					Set_Value(i, value); // or original value
+				}
+
+				m_iOrig++;
+			}
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CPC_Reclass_Extract::Reclass_Range(void)
+{
+	double    minValue = Parameters("MIN"   )->asDouble();
+	double    maxValue = Parameters("MAX"   )->asDouble();
+	double    newValue = Parameters("RNEW"  )->asDouble();
+	double      others = Parameters("OTHERS")->asDouble();
+	double      noData = Parameters("NODATA")->asDouble();
+
+	int          opera = Parameters("ROPERATOR")->asInt();
+
+	bool      otherOpt = (m_Operation == 1) ? false : Parameters("OTHEROPT" )->asBool();
+	bool     noDataOpt = (m_Operation == 1) ? false : Parameters("NODATAOPT")->asBool();
+
+	bool      floating = m_pInput->Get_Field_Type(m_AttrField) == SG_DATATYPE_Double || m_pInput->Get_Field_Type(m_AttrField) == SG_DATATYPE_Float;
+
+	double noDataValue = m_pInput->Get_NoData_Value();
+
+	for(sLong i=0, n=m_pInput->Get_Count(); i<n && Set_Progress(i, n); i++)
+	{
+		double value = floating ? m_pInput->Get_Value(i, m_AttrField) : (int)m_pInput->Get_Value(i, m_AttrField);
+
+		if( noDataOpt == true && value == noDataValue ) // noData option
+		{
+			Set_Value(i, noData);
+		}
+		else
+		{
+			bool set = false;
+
+			switch( opera )
+			{
+			case 0: set = minValue <= value && value <= maxValue; break; // min <= value <= max
+			case 1: set = minValue <  value && value <  maxValue; break; // min <  value <  max
+			case 2: set = minValue >  value || value >  maxValue; break; // value <  min or value >  max
+			case 3: set = minValue >= value || value >= maxValue; break; // value <= min or value >= max
+			}
+
+			if( set ) // reclass old range
+			{
+				if( m_Operation == 2 ) // drop
+				{
+					m_pInput->Select(i, true);
+				}
+				else
+				{
+					Set_Value(i, newValue);
+				}
+			}
+			else if( otherOpt == true && value != noDataValue ) // other values option
+			{
+				Set_Value(i, others);
+			}
+			else // or original value
+			{
+				if( (m_Operation == 0) )
+				{
+					Set_Value(i, value);
+				}
+
+				m_iOrig++;
+			}
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CPC_Reclass_Extract::Reclass_Table(bool bUser)
+{
+	CSG_Table  *pReTab = Parameters(bUser ? "RETAB_2" : "RETAB")->asTable();
+
+	if( pReTab == NULL )
+	{
+		Error_Set(_TL("You must specify a reclass table with a minimium (field 1), a maximum (field 2) and a code value (field 3)!\n"));
+
+		return( false );
+	}
+
+	if( pReTab->Get_Count() == 0 )
+	{
+		Error_Set(_TL("You must specify a reclass table with a minimium of one record!\n"));
+
+		return( false );
+	}
+
+	int     field_Min  = bUser ? Parameters("F_MIN" )->asInt() : 0;
+	int     field_Max  = bUser ? Parameters("F_MAX" )->asInt() : 1;
+	int     field_Code = bUser ? Parameters("F_CODE")->asInt() : 2;
+
+	int          opera = Parameters("TOPERATOR")->asInt();
+
+	double      others = Parameters("OTHERS")->asDouble();
+	double      noData = Parameters("NODATA")->asDouble();
+
+	bool      otherOpt = (m_Operation == 1) ? false : Parameters("OTHEROPT" )->asBool();
+	bool     noDataOpt = (m_Operation == 1) ? false : Parameters("NODATAOPT")->asBool();
+
+	double noDataValue = m_pInput->Get_NoData_Value();
+
+	for(sLong i=0, n=m_pInput->Get_Count(); i<n && Set_Progress(i, n); i++)
+	{
+		double value = m_pInput->Get_Value(i, m_AttrField); bool set = false;
+
+		for(sLong iRecord=0; !set && iRecord<pReTab->Get_Count(); iRecord++) // reclass
+		{
+			CSG_Table_Record *pRecord = pReTab->Get_Record(iRecord);
+
+			switch( opera )
+			{
+			case 0: set = value >= pRecord->asDouble(field_Min) && value <  pRecord->asDouble(field_Max); break; // min <= value <  max
+			case 1: set = value >= pRecord->asDouble(field_Min) && value <= pRecord->asDouble(field_Max); break; // min <= value <= max
+			case 2: set = value >  pRecord->asDouble(field_Min) && value <= pRecord->asDouble(field_Max); break; // min <  value <= max
+			case 3: set = value >  pRecord->asDouble(field_Min) && value <  pRecord->asDouble(field_Max); break; // min <  value <  max
+			}
+
+			if( set == true && m_Operation != 2 )
+			{
+				Set_Value(i, pRecord->asDouble(field_Code));
+			}
+		}
+
+		if( set == false )
+		{
+			if( noDataOpt == true && value == noDataValue ) // noData option
+			{
+				Set_Value(i, noData);
+			}
+			else if( otherOpt == true && value != noDataValue) // other values option
+			{
+				Set_Value(i, others);
+			}
+			else // or original value
+			{
+				if( (m_Operation == 0) )
+				{
+					Set_Value(i, value);
+				}
+
+				m_iOrig++;
+			}
+		}
+		else if( m_Operation == 2 ) // drop
+		{
+			m_pInput->Select(i, true);
+		}
+	}
 
 	return( true );
 }
@@ -351,410 +621,60 @@ bool CPC_Reclass_Extract::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CPC_Reclass_Extract::Reclass_Range(void)
-{
-	bool		otherOpt, noDataOpt, floating;
-	int			opera;
-	double		minValue, maxValue, value, others, noData, noDataValue, newValue;
-
-	minValue	= Parameters("MIN")->asDouble();
-	maxValue	= Parameters("MAX")->asDouble();
-	newValue	= Parameters("RNEW")->asDouble();
-	others		= Parameters("OTHERS")->asDouble();
-	noData		= Parameters("NODATA")->asDouble();
-	opera		= Parameters("ROPERATOR")->asInt();
-
-	otherOpt	= m_bExtract ? false : Parameters("OTHEROPT")->asBool();
-	noDataOpt	= m_bExtract ? false : Parameters("NODATAOPT")->asBool();
-
-	noDataValue = m_pInput->Get_NoData_Value();
-
-	if( (m_pInput->Get_Field_Type(m_AttrField) == SG_DATATYPE_Double) || (m_pInput->Get_Field_Type(m_AttrField) == SG_DATATYPE_Float) )
-		floating = true;
-	else
-		floating = false;
-
-	for (sLong i=0; i<m_pInput->Get_Count() && Set_Progress(i, m_pInput->Get_Count()); i++)
-	{
-		if( floating == true )
-			value = m_pInput->Get_Value(i, m_AttrField);
-		else
-			value = (int)m_pInput->Get_Value(i, m_AttrField);
-
-		if( opera == 0 )												// operator <=
-		{
-			if( noDataOpt == true && value == noDataValue )				// noData option
-				Set_Value(i, noData);
-			else if( minValue <= value && value <= maxValue )			// reclass old range
-				Set_Value(i, newValue);
-			else if( otherOpt == true && value != noDataValue )			// other values option
-				Set_Value(i, others);
-			else
-			{
-				if (!m_bExtract)
-					Set_Value(i, value);								// or original value
-
-				m_iOrig++;
-			}
-		}
-
-		if( opera == 1 )												// operator <
-		{
-			if( noDataOpt == true && value == noDataValue )				// noData option
-				Set_Value(i, noData);
-			else if( minValue < value && value < maxValue )				// reclass old range
-				Set_Value(i, newValue);
-			else if( otherOpt == true && value != noDataValue )			// other values option
-				Set_Value(i, others);
-			else
-			{
-				if (!m_bExtract)
-					Set_Value(i, value);								// or original value
-
-				m_iOrig++;
-			}
-		}
-	}
-
-	return;
-}
-
-//---------------------------------------------------------
-void CPC_Reclass_Extract::Reclass_Single(void)
-{
-	bool		otherOpt, noDataOpt, floating;
-	int			opera;
-	double		oldValue, newValue, value, others, noData, noDataValue;
-
-	oldValue	= Parameters("OLD")->asDouble();
-	newValue	= Parameters("NEW")->asDouble();
-	others		= Parameters("OTHERS")->asDouble();
-	noData		= Parameters("NODATA")->asDouble();
-	opera		= Parameters("SOPERATOR")->asInt();
-
-	otherOpt	= m_bExtract ? false : Parameters("OTHEROPT")->asBool();
-	noDataOpt	= m_bExtract ? false : Parameters("NODATAOPT")->asBool();
-
-	noDataValue = m_pInput->Get_NoData_Value();
-
-	if( (m_pInput->Get_Field_Type(m_AttrField) == SG_DATATYPE_Double) || (m_pInput->Get_Field_Type(m_AttrField) == SG_DATATYPE_Float) )
-		floating = true;
-	else
-		floating = false;
-
-
-	for (sLong i=0; i<m_pInput->Get_Count() && Set_Progress(i, m_pInput->Get_Count()); i++)
-	{
-		if( floating == true )
-			value = m_pInput->Get_Value(i, m_AttrField);
-		else
-			value = (int)m_pInput->Get_Value(i, m_AttrField);
-
-
-		if( opera == 0 )												// operator =
-		{
-			if( noDataOpt == true && value == noDataValue )				// noData option
-				Set_Value(i, noData);
-			else if( value == oldValue )								// reclass old value
-				Set_Value(i, newValue);
-			else if( otherOpt == true && value != noDataValue )			// other values option
-				Set_Value(i, others);
-			else
-			{
-				if (!m_bExtract)
-					Set_Value(i, value);								// or original value
-
-				m_iOrig++;
-			}
-		}
-
-		if( opera == 1 )												// operator <
-		{
-			if( noDataOpt == true && value == noDataValue )				// noData option
-				Set_Value(i, noData);
-			else if( value < oldValue )									// reclass old value
-				Set_Value(i, newValue);
-			else if( otherOpt == true && value != noDataValue )			// other values option
-				Set_Value(i, others);
-			else
-			{
-				if (!m_bExtract)
-					Set_Value(i, value);								// or original value
-
-				m_iOrig++;
-			}
-		}
-
-		if( opera == 2 )												// operator <=
-		{
-			if( noDataOpt == true && value == noDataValue )				// noData option
-				Set_Value(i, noData);
-			else if( value <= oldValue )								// reclass old value
-				Set_Value(i, newValue);
-			else if( otherOpt == true && value != noDataValue )			// other values option
-				Set_Value(i, others);
-			else
-			{
-				if (!m_bExtract)
-					Set_Value(i, value);								// or original value
-
-				m_iOrig++;
-			}
-		}
-
-		if( opera == 3 )												// operator >=
-		{
-			if( noDataOpt == true && value == noDataValue )				// noData option
-				Set_Value(i, noData);
-			else if( value >= oldValue )								// reclass old value
-				Set_Value(i, newValue);
-			else if( otherOpt == true && value != noDataValue )			// other values option
-				Set_Value(i, others);
-			else
-			{
-				if (!m_bExtract)
-					Set_Value(i, value);								// or original value
-
-				m_iOrig++;
-			}
-		}
-
-		if( opera == 4 )												// operator >
-		{
-			if( noDataOpt == true && value == noDataValue )				// noData option
-				Set_Value(i, noData);
-			else if( value > oldValue )									// reclass old value
-				Set_Value(i, newValue);
-			else if( otherOpt == true && value != noDataValue )			// other values option
-				Set_Value(i, others);
-			else
-			{
-				if (!m_bExtract)
-					Set_Value(i, value);								// or original value
-
-				m_iOrig++;
-			}
-		}
-	}
-
-	return;
-}
-
-
-//---------------------------------------------------------
-bool CPC_Reclass_Extract::Reclass_Table(bool bUser)
-{
-	bool				set, otherOpt, noDataOpt;
-	int					opera, field_Min, field_Max, field_Code;
-	double				value, others, noData, noDataValue;
-
-	CSG_Table			*pReTab;
-	CSG_Table_Record	*pRecord = NULL;
-
-	if( bUser )
-	{
-		pReTab			= Parameters("RETAB_2")	->asTable();
-		field_Min		= Parameters("F_MIN")	->asInt();
-		field_Max		= Parameters("F_MAX")	->asInt();
-		field_Code		= Parameters("F_CODE")	->asInt();
-	}
-	else
-	{
-		pReTab			= Parameters("RETAB")	->asTable();
-		field_Min		= 0;
-		field_Max		= 1;
-		field_Code		= 2;
-	}
-
-	others		= Parameters("OTHERS")->asDouble();
-	noData		= Parameters("NODATA")->asDouble();
-	opera		= Parameters("TOPERATOR")->asInt();
-
-	otherOpt	= m_bExtract ? false : Parameters("OTHEROPT")->asBool();
-	noDataOpt	= m_bExtract ? false : Parameters("NODATAOPT")->asBool();
-
-	noDataValue	= m_pInput->Get_NoData_Value();
-
-
-	if( pReTab == NULL )
-	{
-		Error_Set(_TL("You must specify a reclass table with a minimium (field 1), a maximum (field 2) and a code value (field 3)!\n"));
-		return( false );
-	}
-
-	if( pReTab->Get_Count() == 0 )
-	{
-		Error_Set(_TL("You must specify a reclass table with a minimium of one record!\n"));
-		return( false );
-	}
-
-
-	for (sLong i=0; i<m_pInput->Get_Count() && Set_Progress(i, m_pInput->Get_Count()); i++)
-	{
-		value	= m_pInput->Get_Value(i, m_AttrField);
-		set		= false;
-
-		for(sLong iRecord=0; iRecord<pReTab->Get_Count(); iRecord++)	// reclass
-		{
-			pRecord		= pReTab->Get_Record(iRecord);
-
-			if( opera == 0 )										// min <= value < max
-			{
-				if( value >= pRecord->asDouble(field_Min) && value < pRecord->asDouble(field_Max) )
-				{
-					Set_Value(i, pRecord->asDouble(field_Code));
-					set = true;
-					break;
-				}
-			}
-			else if( opera == 1 )									// min <= value <= max
-			{
-				if( value >= pRecord->asDouble(field_Min) && value <= pRecord->asDouble(field_Max) )
-				{
-					Set_Value(i, pRecord->asDouble(field_Code));
-					set = true;
-					break;
-				}
-			}
-			else if( opera == 2 )									// min < value <= max
-			{
-				if( value > pRecord->asDouble(field_Min) && value <= pRecord->asDouble(field_Max) )
-				{
-					Set_Value(i, pRecord->asDouble(field_Code));
-					set = true;
-					break;
-				}
-			}
-			else if( opera == 3 )									// min < value < max
-			{
-				if( value > pRecord->asDouble(field_Min) && value < pRecord->asDouble(field_Max) )
-				{
-					Set_Value(i, pRecord->asDouble(field_Code));
-					set = true;
-					break;
-				}
-			}
-		}
-
-		if( set == false )
-		{
-			if( noDataOpt == true && value == noDataValue )			// noData option
-				Set_Value(i, noData);
-			else if( otherOpt == true && value != noDataValue)		// other values option
-				Set_Value(i, others);
-			else
-			{
-				if (!m_bExtract)
-					Set_Value(i, value);							// or original value
-
-				m_iOrig++;
-			}
-		}
-	}
-
-	return (true);
-}
-
 
 //---------------------------------------------------------
 void CPC_Reclass_Extract::Set_Value(sLong i, double value)
 {
-	m_pResult->Add_Point(m_pInput->Get_X(i), m_pInput->Get_Y(i), m_pInput->Get_Z(i));
-
-	for (int j=0; j<m_pInput->Get_Attribute_Count(); j++)
+	if( m_pResult )
 	{
-		switch (m_pInput->Get_Attribute_Type(j))
+		m_pResult->Add_Point(m_pInput->Get_X(i), m_pInput->Get_Y(i), m_pInput->Get_Z(i));
+
+		for(int j=0; j<m_pInput->Get_Attribute_Count(); j++)
 		{
-		default:					m_pResult->Set_Attribute(j, m_pInput->Get_Attribute(i, j));		break;
-		case SG_DATATYPE_Date:
-		case SG_DATATYPE_String:	CSG_String sAttr; m_pInput->Get_Attribute(i, j, sAttr); m_pResult->Set_Attribute(j, sAttr);		break;
+			switch( m_pInput->Get_Attribute_Type(j) )
+			{
+			default                : {
+				m_pResult->Set_Attribute(j, m_pInput->Get_Attribute(i, j));
+				break; }
+
+			case SG_DATATYPE_Date  :
+			case SG_DATATYPE_String: { CSG_String s;
+				m_pInput ->Get_Attribute(i, j, s);
+				m_pResult->Set_Attribute(j, s);
+				break; }
+			}
+		}
+
+		if( m_Operation == 0 )
+		{
+			m_pResult->Set_Value(m_bCreateAttrib ? m_pResult->Get_Field_Count() - 1 : m_AttrField, value);
 		}
 	}
 
-	if (!m_bExtract)
-	{
-		if (m_bCreateAttrib)
-			m_pResult->Set_Value(m_pResult->Get_Field_Count()-1, value);
-		else
-			m_pResult->Set_Value(m_AttrField, value);
-	}
-
 	return;
 }
 
 
-//---------------------------------------------------------
-void CPC_Reclass_Extract::Set_Display_Attributes(CSG_PointCloud *pPC, int iField, CSG_Parameters &sParms)
-{
-	if (sParms("METRIC_ATTRIB")	&& sParms("COLORS_TYPE") && sParms("METRIC_COLORS")
-		&& sParms("METRIC_ZRANGE") && sParms("DISPLAY_VALUE_AGGREGATE"))
-	{
-		sParms("DISPLAY_VALUE_AGGREGATE")->Set_Value(3);		// highest z
-		sParms("COLORS_TYPE")->Set_Value(2);                    // graduated color
-		sParms("METRIC_COLORS")->asColors()->Set_Count(255);    // number of colors
-		sParms("METRIC_ATTRIB")->Set_Value(iField);				// attrib
-		sParms("METRIC_ZRANGE")->asRange()->Set_Range(pPC->Get_Minimum(iField), pPC->Get_Maximum(iField));
-	}
-
-	DataObject_Set_Parameters(pPC, sParms);
-	DataObject_Update(pPC);
-
-	return;
-}
-
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CPC_Reclass_Extract::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+void CPC_Reclass_Extract::Set_Display_Attributes(int Attribute)
 {
-	if(	pParameter->Cmp_Identifier(SG_T("METHOD")) || pParameter->Cmp_Identifier(SG_T("MODE")) )
+	if( m_pResult )
 	{
-		int		iMode	= pParameters->Get_Parameter("MODE")->asInt();		// 0 == reclassify, 1 == extract
-		int		Value	= pParameters->Get_Parameter("METHOD")->asInt();
+		DataObject_Update(m_pResult);
 
-		pParameters->Get_Parameter("CREATE_ATTRIB")->Set_Enabled(iMode == 0);
+		DataObject_Set_Parameter(m_pResult, "METRIC_ATTRIB", Attribute);
+		DataObject_Set_Parameter(m_pResult, "METRIC_ZRANGE",
+			m_pResult->Get_Minimum(Attribute),
+			m_pResult->Get_Maximum(Attribute)
+		);
 
-		// single
-		pParameters->Get_Parameter("OLD"		)->Set_Enabled(Value == 0);
-		pParameters->Get_Parameter("NEW"		)->Set_Enabled(Value == 0 && iMode == 0);
-		pParameters->Get_Parameter("SOPERATOR"	)->Set_Enabled(Value == 0);
-
-		// range
-		pParameters->Get_Parameter("MIN"		)->Set_Enabled(Value == 1);
-		pParameters->Get_Parameter("MAX"		)->Set_Enabled(Value == 1);
-		pParameters->Get_Parameter("RNEW"		)->Set_Enabled(Value == 1 && iMode == 0);
-		pParameters->Get_Parameter("ROPERATOR"	)->Set_Enabled(Value == 1);
-
-		// simple table
-		pParameters->Get_Parameter("RETAB"		)->Set_Enabled(Value == 2);
-
-		// user supplied table
-		pParameters->Get_Parameter("RETAB_2"	)->Set_Enabled(Value == 3);
-
-		// lookup table
-		pParameters->Get_Parameter("TOPERATOR"	)->Set_Enabled(Value >= 2);
-
-		// other options
-		pParameters->Get_Parameter("NODATAOPT"	)->Set_Enabled(iMode == 0);
-		pParameters->Get_Parameter("OTHEROPT"	)->Set_Enabled(iMode == 0);
+		DataObject_Update(m_pResult);
 	}
-
-	if(	pParameter->Cmp_Identifier(SG_T("NODATAOPT")) )
-	{
-		pParameters->Get_Parameter("NODATA"		)->Set_Enabled(pParameter->asInt() > 0);
-	}
-
-	if(	pParameter->Cmp_Identifier(SG_T("OTHEROPT")) )
-	{
-		pParameters->Get_Parameter("OTHERS"		)->Set_Enabled(pParameter->asInt() > 0);
-	}
-
-	//-----------------------------------------------------
-	return (1);
 }
 
 

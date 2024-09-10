@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,15 +47,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__PC_Reclass_Extract_H
 #define HEADER_INCLUDED__PC_Reclass_Extract_H
 
@@ -70,7 +58,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -84,34 +72,35 @@ class CPC_Reclass_Extract : public CSG_Tool
 {
 public:
 	CPC_Reclass_Extract(void);
-	virtual ~CPC_Reclass_Extract(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
 
-	virtual bool				On_Execute				(void);
+	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual int					On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual bool		On_Execute				(void);
 
 
 private:
 
-	int				m_Single;
-	bool			m_bExtract, m_bCreateAttrib;
-	int				m_AttrField;
-	sLong			m_iOrig;
+	bool				m_bCreateAttrib;
 
-	CSG_PointCloud	*m_pInput, *m_pResult;
+	int					m_Operation, m_Single, m_AttrField;
+
+	sLong				m_iOrig;
+
+	CSG_PointCloud		*m_pInput, *m_pResult;
 
 
-	void			Reclass_Single			(void);
-	void			Reclass_Range			(void);
-	bool			Reclass_Table			(bool bUser);
-	void			Set_Value				(sLong i, double value);
+	bool				Reclass_Single			(void);
+	bool				Reclass_Range			(void);
+	bool				Reclass_Table			(bool bUser);
 
-	void			Set_Display_Attributes	(CSG_PointCloud *pPC, int iField, CSG_Parameters &sParms);
+	void				Set_Value				(sLong i, double value);
+
+	void				Set_Display_Attributes	(int Attribute);
 
 };
 
