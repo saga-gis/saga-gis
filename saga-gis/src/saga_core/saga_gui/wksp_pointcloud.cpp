@@ -90,6 +90,22 @@ CWKSP_PointCloud::CWKSP_PointCloud(CSG_PointCloud *pPointCloud)
 	m_Parameters("COLORS_TYPE"  )->Set_Value(CLASSIFY_GRADUATED);
 	m_Parameters("METRIC_ATTRIB")->Set_Value(2);
 
+	CSG_Table &LUT = *m_Parameters("LUT")->asTable(); LUT.Del_Records();
+
+	#define ADD_CLASS(color, name, value) { CSG_Table_Record &r = *LUT.Add_Record(); r.Set_Value(0, color); r.Set_Value(1, name); r.Set_Value(3, value); r.Set_Value(4, value); }
+
+	ADD_CLASS(12632256, "Created, Never Classified"   ,  0);
+	ADD_CLASS( 8421504, "Unclassified"                ,  1);
+	ADD_CLASS( 4227327, "Ground"                      ,  2);
+	ADD_CLASS(   65408, "Low Vegetation"              ,  3);
+	ADD_CLASS(   54528, "Medium Vegetation"           ,  4);
+	ADD_CLASS(   32768, "High Vegetation"             ,  5);
+	ADD_CLASS(     255, "Building"                    ,  6);
+	ADD_CLASS(   16512, "Low Point (Noise)"           ,  7);
+	ADD_CLASS(16711808, "Model Key-Point (Mass Point)",  8);
+	ADD_CLASS(16711680, "Water"                       ,  9);
+	ADD_CLASS(16711935, "Overlap Points"              , 12);
+
 	On_Parameter_Changed(&m_Parameters, m_Parameters("METRIC_ATTRIB"), PARAMETER_CHECK_ALL);
 
 	Parameters_Changed();
@@ -1074,9 +1090,12 @@ void CWKSP_PointCloud::_Draw_Points(CSG_Map_DC &dc_Map)
 				}
 				else
 				{
-					int Color; m_pClassify->Get_Class_Color_byValue(pPoints->Get_Value(m_fValue), Color);
-
-					_Draw_Point(dc_Map, x, y, Point.z, Color, m_PointSize);
+					int Color;
+					
+					if( m_pClassify->Get_Class_Color_byValue(pPoints->Get_Value(m_fValue), Color) )
+					{
+						_Draw_Point(dc_Map, x, y, Point.z, Color, m_PointSize);
+					}
 				}
 			}
 		}
@@ -1101,9 +1120,12 @@ void CWKSP_PointCloud::_Draw_Thumbnail(CSG_Map_DC &dc_Map)
 			int x = (int)dc_Map.xWorld2DC(Point.x);
 			int y = (int)dc_Map.yWorld2DC(Point.y);
 
-			int Color; m_pClassify->Get_Class_Color_byValue(pPoints->Get_Value(m_fValue), Color);
+			int Color;
 
-			dc_Map.Draw_Image_Pixel(x, y, Color);
+			if( m_pClassify->Get_Class_Color_byValue(pPoints->Get_Value(m_fValue), Color) )
+			{
+				dc_Map.Draw_Image_Pixel(x, y, Color);
+			}
 		}
 	}
 }
