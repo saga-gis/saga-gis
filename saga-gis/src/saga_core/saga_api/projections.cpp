@@ -173,6 +173,8 @@ bool CSG_Projection::Create(const CSG_String &Definition)
 		if(	WKT.Get_Property("authority_name", Authority) && WKT.Get_Property("authority_code", Code) )
 		{
 			m_Authority = Authority; m_Code = Code;
+
+			SG_Get_Projections().Get_Preference(*this, Code, Authority);
 		}
 
 		return( true );
@@ -877,7 +879,9 @@ bool CSG_Projections::_Add_Preferences(void)
 				pProjection->Set_Value(PRJ_FIELD_SRTEXT   , pPreference->asString(PRJ_FIELD_SRTEXT   ));
 				pProjection->Set_Value(PRJ_FIELD_PROJ4TEXT, pPreference->asString(PRJ_FIELD_PROJ4TEXT));
 
-				m_pPreferences->Select(iPreference++, true); iProjection++;
+				m_pPreferences->Select(pPreference, true);
+
+				iProjection++; iPreference++;
 			}
 		}
 	}
@@ -889,7 +893,7 @@ bool CSG_Projections::_Add_Preferences(void)
 	{
 		for(sLong iPreference=0; iPreference<m_pPreferences->Get_Count(); iPreference++)
 		{
-			CSG_Table_Record *pPreference = m_pPreferences->Get_Record_byIndex(iPreference);
+			CSG_Table_Record *pPreference = m_pPreferences->Get_Record(iPreference);
 
 			if( !pPreference->is_Selected() )
 			{

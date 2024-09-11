@@ -267,8 +267,7 @@ CSG_String CSG_CRSProjector::Convert_CRS_Format(const CSG_String &Definition, TC
 
 		if( Format == TCRS_Format::PROJ )
 		{
-		//	return( Projection.Get_PROJ() ); // might not follow the convention!
-			return( Convert_CRS_Format(Projection.Get_PROJ(), Format, bMultiLine, bSimplified) );
+			return( Projection.Get_PROJ() ); // might not follow the convention!
 		}
 
 		return( Convert_CRS_Format(Projection.Get_WKT1(), Format, bMultiLine, bSimplified) );
@@ -377,13 +376,13 @@ bool CSG_CRSProjector::_Set_Projection(const CSG_Projection &Projection, void **
 //---------------------------------------------------------
 bool CSG_CRSProjector::Set_Source(const CSG_Projection &Projection)
 {
-	return( Projection.is_Okay() && _Set_Projection(Projection, &m_pSource,  true) && m_Source.Create(Projection) );
+	return( Projection.is_Okay() && m_Source.Create(Projection) && _Set_Projection(Projection, &m_pSource,  true) );
 }
 
 //---------------------------------------------------------
 bool CSG_CRSProjector::Set_Target(const CSG_Projection &Projection)
 {
-	return( Projection.is_Okay() && _Set_Projection(Projection, &m_pTarget, false) && m_Target.Create(Projection) );
+	return( Projection.is_Okay() && m_Target.Create(Projection) && _Set_Projection(Projection, &m_pTarget, false) );
 }
 
 
