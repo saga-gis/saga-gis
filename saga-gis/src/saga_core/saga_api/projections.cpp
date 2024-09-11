@@ -870,14 +870,14 @@ bool CSG_Projections::_Add_Preferences(void)
 		
 		if( Comparison < 0 ) { iProjection++; } else if( Comparison > 0 ) { iPreference++; } else
 		{
-			Comparison = pPreference->asInt(PRJ_FIELD_AUTH_SRID) - pProjection->asInt(PRJ_FIELD_AUTH_SRID);
+			Comparison = pProjection->asInt(PRJ_FIELD_AUTH_SRID) - pPreference->asInt(PRJ_FIELD_AUTH_SRID);
 
 			if( Comparison < 0 ) { iProjection++; } else if( Comparison > 0 ) { iPreference++; } else
 			{
 				pProjection->Set_Value(PRJ_FIELD_SRTEXT   , pPreference->asString(PRJ_FIELD_SRTEXT   ));
 				pProjection->Set_Value(PRJ_FIELD_PROJ4TEXT, pPreference->asString(PRJ_FIELD_PROJ4TEXT));
 
-				m_pPreferences->Select(iPreference++); iProjection++;
+				m_pPreferences->Select(iPreference++, true); iProjection++;
 			}
 		}
 	}
