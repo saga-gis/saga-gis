@@ -678,7 +678,7 @@ bool CSG_Projections::Create(bool LoadCodeList)
 		Path_Shared = SHARE_PATH;
 		#endif
 	#else
-		Path_Shared = SG_UI_Get_Application_Path(true);
+		Path_Shared = SG_UI_Get_API_Path();
 	#endif
 
 	if( LoadCodeList ) // load spatial reference system database
@@ -766,15 +766,17 @@ CSG_Projection CSG_Projections::_Get_Projection(CSG_Table_Record *pProjection)
 	{
 		Projection.m_Authority = pProjection->asString(PRJ_FIELD_AUTH_NAME);
 		Projection.m_Code      = pProjection->asInt   (PRJ_FIELD_AUTH_SRID);
-		Projection.m_WKT1      = pProjection->asString(PRJ_FIELD_SRTEXT   );
 		Projection.m_PROJ      = pProjection->asString(PRJ_FIELD_PROJ4TEXT);
+		Projection.m_WKT1      = pProjection->asString(PRJ_FIELD_SRTEXT   );
+		Projection.m_WKT2      = pProjection->asString(PRJ_FIELD_SRTEXT   );
 
 		//-------------------------------------------------
 		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 19); // Coordinate Reference System Format Conversion
 
 		if( pTool ) // check proj.lib, still need to construct WKT-2 and ESRI definitions...
 		{
-			pTool->Set_Parameter("DEFINITION", Projection.m_WKT1);
+			pTool->Set_Callback(false);
+			pTool->Set_Parameter("DEFINITION", pProjection->asString(PRJ_FIELD_SRTEXT));
 			pTool->Set_Parameter("MULTILINE" , false);
 			pTool->Set_Parameter("SIMPLIFIED", true);
 
@@ -784,9 +786,13 @@ CSG_Projection CSG_Projections::_Get_Projection(CSG_Table_Record *pProjection)
 
 			if( bResult )
 			{
+				Projection.m_PROJ = pTool->Get_Parameter("PROJ")->asString();
+				Projection.m_WKT1 = pTool->Get_Parameter("WKT1")->asString();
 				Projection.m_WKT2 = pTool->Get_Parameter("WKT2")->asString();
 				Projection.m_ESRI = pTool->Get_Parameter("ESRI")->asString();
 			}
+
+			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 		}
 
 		//-------------------------------------------------
@@ -1014,6 +1020,7 @@ bool CSG_Projections::Parse(const CSG_String &Definition, CSG_String *WKT1, CSG_
 
 	if( pTool ) // check proj.lib, ...will check white list first !
 	{
+		pTool->Set_Callback(false);
 		pTool->Set_Parameter("DEFINITION", Definition);
 		pTool->Set_Parameter("MULTILINE" , false);
 		pTool->Set_Parameter("SIMPLIFIED", true);
@@ -2452,6 +2459,7 @@ bool	SG_Get_Projected	(CSG_Shapes *pSource, CSG_Shapes *pTarget, const CSG_Proje
 		{
 			CSG_Data_Manager Data; Data.Add(pSource); pTool->Set_Manager(&Data);
 
+			pTool->Set_Callback(false);
 			pTool->Set_Parameter("SOURCE"    , pSource);
 			pTool->Set_Parameter("CRS_STRING", Target.Get_WKT());
 			pTool->Set_Parameter("COPY"      , false);
@@ -2486,6 +2494,7 @@ bool	SG_Get_Projected	(const CSG_Projection &Source, const CSG_Projection &Targe
 		if( pTool )
 		{
 			pTool->Set_Manager(NULL);
+			pTool->Set_Callback(false);
 			pTool->Set_Parameter("TARGET_CRS", Target.Get_WKT());
 			pTool->Set_Parameter("SOURCE_CRS", Source.Get_WKT());
 			pTool->Set_Parameter("SOURCE_X"  , Point.x);

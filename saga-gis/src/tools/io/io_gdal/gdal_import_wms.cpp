@@ -256,11 +256,15 @@ int CGDAL_Import_WMS::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 //---------------------------------------------------------
 bool CGDAL_Import_WMS::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_Grid_System	System;
 
 	if( !Get_WMS_System(System, Parameters("TARGET")->asGrid()) )
 	{
+		if( !SG_UI_Msg_is_Locked() )
+		{
+			Error_Set(_TL("failed to retrieve map image data"));
+		}
+
 		return( false );
 	}
 
@@ -374,14 +378,14 @@ bool CGDAL_Import_WMS::Get_Projected(CSG_Grid *pBands[3], CSG_Grid *pTarget)
 	//-----------------------------------------------------
 	pTool->Set_Manager(NULL);
 
-	if( SG_TOOL_PARAMETER_SET("CRS_STRING"       , pTarget->Get_Projection().Get_WKT())
-	&&  SG_TOOL_PARAMETER_SET("RESAMPLING"       , 3)
-//	&&  SG_TOOL_PARAMETER_SET("DATA_TYPE"        , 10) // "Preserve" => is already default!
-	&&  SG_TOOL_PARAMLIST_ADD("SOURCE"           , pBands[0])
-	&&  SG_TOOL_PARAMLIST_ADD("SOURCE"           , pBands[1])
-	&&  SG_TOOL_PARAMLIST_ADD("SOURCE"           , pBands[2])
-	&&  SG_TOOL_PARAMETER_SET("TARGET_DEFINITION", 1)
-	&&  SG_TOOL_PARAMETER_SET("TARGET_SYSTEM"    , (void *)&pTarget->Get_System())
+	if( pTool->Set_Parameter("CRS_STRING"       , pTarget->Get_Projection().Get_WKT())
+	&&  pTool->Set_Parameter("RESAMPLING"       , 3)
+//	&&  pTool->Set_Parameter("DATA_TYPE"        , 10) // "Preserve" => is already default!
+	&&  pTool->Set_Parameter("SOURCE"           , pBands[0])
+	&&  pTool->Set_Parameter("SOURCE"           , pBands[1])
+	&&  pTool->Set_Parameter("SOURCE"           , pBands[2])
+	&&  pTool->Set_Parameter("TARGET_DEFINITION", 1)
+	&&  pTool->Set_Parameter("TARGET_SYSTEM"    , (void *)&pTarget->Get_System())
 	&&  pTool->Execute() )
 	{
 		CSG_Parameter_Grid_List	*pGrids	= pTool->Get_Parameters()->Get_Parameter("GRIDS")->asGridList();
@@ -567,7 +571,7 @@ CSG_String CGDAL_Import_WMS::Get_Request(void)
 	pEntry->Add_Child("YOrigin"    ,          "top");	// Can be used to define the position of the Y origin with respect to the tile grid. Possible values are 'top', 'bottom', and 'default', where the default behavior is mini-driver-specific. (TMS mini-driver only, optional, defaults to 'bottom' for TMS)
 
 	//-----------------------------------------------------
-	CSG_String CRS(CSG_String::Format("EPSG:%d", Projection.Get_Authority_ID()));
+	CSG_String CRS(CSG_String::Format("EPSG:%d", Projection.Get_Code()));
 
 	pEntry	= XML.Add_Child("Projection",       CRS);	// Image projection (optional, defaults to value reported by mini-driver or EPSG:4326)
 

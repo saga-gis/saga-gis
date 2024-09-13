@@ -878,7 +878,7 @@ public:
 
 	const CSG_String &				Get_Name				(void)	const	{	return( m_Name      );	}
 
-	const CSG_String &				Get_WKT					(void)	const	{	return( m_WKT1      );	}
+	const CSG_String &				Get_WKT					(void)	const	{	return( m_WKT2      );	}
 	const CSG_String &				Get_WKT1				(void)	const	{	return( m_WKT1      );	}
 	const CSG_String &				Get_WKT2				(void)	const	{	return( m_WKT2      );	}
 	const CSG_String &				Get_PROJ				(void)	const	{	return( m_PROJ      );	}

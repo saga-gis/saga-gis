@@ -260,9 +260,9 @@ CSG_String CSG_CRSProjector::Convert_CRS_Format(const CSG_String &Definition, TC
 
 	if( SG_Get_Projections().Get_Preference(Projection, Definition) )
 	{
-		if( Format == TCRS_Format::WKT1 && bMultiLine == false )
+		if( Format == TCRS_Format::WKT2 && bMultiLine == false )
 		{
-			return( Projection.Get_WKT1() );
+			return( Projection.Get_WKT2() );
 		}
 
 		if( Format == TCRS_Format::PROJ )
@@ -270,7 +270,7 @@ CSG_String CSG_CRSProjector::Convert_CRS_Format(const CSG_String &Definition, TC
 			return( Projection.Get_PROJ() ); // might not follow the convention!
 		}
 
-		return( Convert_CRS_Format(Projection.Get_WKT1(), Format, bMultiLine, bSimplified) );
+		return( Convert_CRS_Format(Projection.Get_WKT2(), Format, bMultiLine, bSimplified) );
 	}
 
 	//-----------------------------------------------------
@@ -293,7 +293,7 @@ CSG_String CSG_CRSProjector::Convert_CRS_Format(const CSG_String &Definition, TC
 		case TCRS_Format::JSON   : s = proj_as_projjson   (0, pProjection, options); break;
 		case TCRS_Format::ESRI   : s = proj_as_wkt        (0, pProjection, PJ_WKT_TYPE::PJ_WKT1_ESRI, options); break;
 		case TCRS_Format::WKT1   : s = proj_as_wkt        (0, pProjection, PJ_WKT_TYPE::PJ_WKT1_GDAL, options); break;
-		case TCRS_Format::WKT2   : s = proj_as_wkt        (0, pProjection, bSimplified ? PJ_WKT_TYPE::PJ_WKT2_2015_SIMPLIFIED : PJ_WKT_TYPE::PJ_WKT2_2015, options); break;
+		case TCRS_Format::WKT2   :
 		case TCRS_Format::WKT2015: s = proj_as_wkt        (0, pProjection, bSimplified ? PJ_WKT_TYPE::PJ_WKT2_2015_SIMPLIFIED : PJ_WKT_TYPE::PJ_WKT2_2015, options); break;
 		case TCRS_Format::WKT2018: s = proj_as_wkt        (0, pProjection, bSimplified ? PJ_WKT_TYPE::PJ_WKT2_2018_SIMPLIFIED : PJ_WKT_TYPE::PJ_WKT2_2018, options); break;
 		case TCRS_Format::WKT2019: s = proj_as_wkt        (0, pProjection, bSimplified ? PJ_WKT_TYPE::PJ_WKT2_2019_SIMPLIFIED : PJ_WKT_TYPE::PJ_WKT2_2019, options); break;
@@ -301,7 +301,7 @@ CSG_String CSG_CRSProjector::Convert_CRS_Format(const CSG_String &Definition, TC
 
 		if( s && *s )
 		{
-			CRS = CSG_String::from_UTF8(s); CRS.Replace("\"unknown\"", "\"<custom>\"");
+			CRS = CSG_String::from_UTF8(s); if( CRS.is_Empty() ) { CRS = s; } CRS.Replace("\"unknown\"", "\"<custom>\"");
 		}
 
 		proj_destroy(pProjection);

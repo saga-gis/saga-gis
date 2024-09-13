@@ -215,7 +215,7 @@ CCRS_Base::CCRS_Base(void)
 	}
 
 	//-----------------------------------------------------
-	Parameters.Add_Info_String("", "CRS_WKT", _TL("Well Known Text"), _TL(""), CSG_CRSProjector::Convert_CRS_To_WKT1("epsg:4326", false))->Set_Enabled(false); // for requesting projection in a generic/safe way
+	Parameters.Add_Info_String("", "CRS_WKT", _TL("Well Known Text"), _TL(""), CSG_CRSProjector::Convert_CRS_To_WKT2("epsg:4326", false, false))->Set_Enabled(false); // for requesting projection in a generic/safe way
 	Parameters("CRS_WKT")->Set_UseInCMD(false);
 	Parameters("CRS_WKT")->Set_UseInGUI(false);
 
