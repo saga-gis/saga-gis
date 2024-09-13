@@ -65,7 +65,15 @@ CLines_From_Points::CLines_From_Points(void)
 	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
-		"Converts points to line(s)."
+		"The tool allows one to convert points into lines. Several attributes can be specified to control "
+		"the construction of the lines:"
+		"<ol>"
+		"<li>an attribute that specifies the order of the points along each line</li>"
+		"<li>an attribute with a line identifier that is used to separate lines</li>"
+		"<li>an attribute with height information that is used as vertex Z value (output shapes layer will be of type XYZ)</li>"
+		"<li>an attribute with measure information that is used as vertex M value (output shapes layer will be of type XYZM)</li>"
+		"</ol>\n\n"
+		"If no attributes are specified, a single line is constructed from the points in the saved sequence."
 	));
 
 	//-----------------------------------------------------
@@ -75,6 +83,7 @@ CLines_From_Points::CLines_From_Points(void)
 	Parameters.Add_Table_Field("POINTS", "ORDER"    , _TL("Order by..."   ), _TL(""), true);
 	Parameters.Add_Table_Field("POINTS", "SEPARATE" , _TL("Separate by..."), _TL(""), true);
 	Parameters.Add_Table_Field("POINTS", "ELEVATION", _TL("Elevation"     ), _TL(""), true);
+	Parameters.Add_Table_Field("POINTS", "MEASURE"  , _TL("Measure"       ), _TL(""), true);
 
 	Parameters.Add_Double("",
 		"MAXDIST"	, _TL("Maximum Distance"),
@@ -114,13 +123,36 @@ bool CLines_From_Points::On_Execute(void)
 	int Order    = Parameters("ORDER"    )->asInt();
 	int Separate = Parameters("SEPARATE" )->asInt();
 	int Z        = Parameters("ELEVATION")->asInt();
+	int M        = Parameters("MEASURE"  )->asInt();
 
 	double maxDist = Parameters("MAXDIST")->asDouble();
 
 	//-------------------------------------------------
+	if( M >= 0 && Z < 0 )
+	{
+		Error_Set(_TL("a measure can only be used if a height attribute is also available"));
+
+		return( false );
+	}
+
+	//-------------------------------------------------
 	CSG_Shapes *pLines = Parameters("LINES")->asShapes();
 
-	pLines->Create(SHAPE_TYPE_Line, pPoints->Get_Name(), NULL, Z >= 0 ? SG_VERTEX_TYPE_XYZ : SG_VERTEX_TYPE_XY);
+	TSG_Vertex_Type VertexType = SG_VERTEX_TYPE_XY;
+
+	if( Z >= 0 )
+	{
+		if( M >= 0 )
+		{
+			VertexType = SG_VERTEX_TYPE_XYZM;
+		}
+		else
+		{
+			VertexType = SG_VERTEX_TYPE_XYZ;
+		}
+	}
+
+	pLines->Create(SHAPE_TYPE_Line, pPoints->Get_Name(), NULL, VertexType);
 
 	pLines->Add_Field("ID", SG_DATATYPE_Int);
 
@@ -176,6 +208,11 @@ bool CLines_From_Points::On_Execute(void)
 		if( Z >= 0 )
 		{
 			pLine->Set_Z(pPoint->asDouble(Z), pLine->Get_Point_Count() - 1);
+		}
+
+		if( M >= 0 )
+		{
+			pLine->Set_M(pPoint->asDouble(M), pLine->Get_Point_Count() - 1);
 		}
 	}
 
