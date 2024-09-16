@@ -1168,10 +1168,43 @@ CSG_String CSG_Projections::Get_Names_List(ESG_CRS_Type Type, bool bAddSelect) c
 
 		CSG_String WKT = pProjection->asString(PRJ_FIELD_SRTEXT);
 
-		ESG_CRS_Type _Type =
-			!WKT.BeforeFirst('[').Cmp("PROJCS") ? ESG_CRS_Type::Projection :
-			!WKT.BeforeFirst('[').Cmp("GEOGCS") ? ESG_CRS_Type::Geographic :
-			!WKT.BeforeFirst('[').Cmp("GEOCCS") ? ESG_CRS_Type::Geocentric : ESG_CRS_Type::Undefined;
+		if( WKT.Length() == 0 )
+		{
+			continue;
+		}
+
+		CSG_String Test = WKT.BeforeFirst('[');
+
+		ESG_CRS_Type _Type;
+		bool		 bSet = false;
+
+		// check WKT1 and WKT2 keys
+		#define COMPARE_AND_SET(Test, _Type, bSet) { \
+			if(		 !Test.Cmp("PROJCS") || !Test.Cmp("PROJCRS") )		{ _Type = ESG_CRS_Type::Projection; bSet = true; } \
+			else if( !Test.Cmp("GEOGCS") || !Test.Cmp("GEOGCRS") )		{ _Type = ESG_CRS_Type::Geographic; bSet = true; } \
+			else if( !Test.Cmp("GEOCCS") || !Test.Cmp("GEOCCRS") )		{ _Type = ESG_CRS_Type::Geocentric; bSet = true; } \
+			else														{ _Type = ESG_CRS_Type::Undefined;               } \
+		}
+
+		COMPARE_AND_SET(Test, _Type, bSet);
+
+		if( !bSet )
+		{
+			// check nested keys like "COMPOUNDRDS[..., GEOGCRS[" or "BOUNDCRS[SOURCECRS[GEODCRS["
+
+			CSG_String Temp = WKT.AfterFirst('[');
+
+			for(int i=0; i<2; i++)
+			{
+				Test = Temp.BeforeFirst('[');
+
+				COMPARE_AND_SET(Test, _Type, bSet);
+
+				if( bSet )	{ break; }
+
+				Temp = Temp.AfterFirst('[');
+			}
+		}
 
 		if( Type == ESG_CRS_Type::Undefined )
 		{
