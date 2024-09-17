@@ -247,8 +247,10 @@ public:
 
 
 	//-----------------------------------------------------
+	CSG_Grid_System &			operator =			(const CSG_Grid_System &System);
+
 	bool						operator ==			(const CSG_Grid_System &System) const;
-	void						operator =			(const CSG_Grid_System &System);
+	bool						operator !=			(const CSG_Grid_System &System) const;
 
 	bool						is_Equal			(const CSG_Grid_System &System) const;
 	bool						is_Equal			(double Cellsize, const TSG_Rect &Extent) const;
