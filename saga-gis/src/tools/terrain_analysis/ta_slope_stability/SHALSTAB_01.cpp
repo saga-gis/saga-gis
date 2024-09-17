@@ -87,16 +87,25 @@ CSHALSTAB::CSHALSTAB(void)
 		"For computation, a slope (in radians) and a catchment area (in m2) grid are required. "
 		"Additionally, information on material density (g/cm3), material friction angle (&deg;), material hydraulic conductivity (m/hr), bulk cohesion (MPa) "
 		"and depth to potential shear plane (m) are required that can be specified either globally or through grids. "
+		"The minimum and maximum grids (or global values) specify the range of values from which each soil parameter is sampled. "
+		"The number of sample runs determines how many values for each soil parameter are randomly taken from the range of values "
+		"found for each grid cell. Finally, the mean value of the samples taken is calculated (per cell) and used as the soil "
+		"parameter value in the stability equations. This introduces a probabilistic component in addition to the spatial "
+		"variability of the soil parameters. If you want to work with static values, enter the same value for minimum and "
+		"maximum and set the number of samples to one.\n"
 		"The tool produces a continuous CR (mm/day) raster with unconditionally stable cells blanked, and unconditionally unstable cells as CR = 0. "
-		"Optionally, a classified CR grid can be calculated representing seven stability classes.\n"
-		"\n"
-		"Reference: "
-		"<a href=\"http://www.agu.org/pubs/crossref/1994/93WR02979.shtml\">Montgomery D. R., Dietrich, W. E. (1994) A physically based model for the topographic control on shallow landsliding. Water Resources Research, 30, 1153-1171.</a>.\n"
-
+		"Optionally, a classified CR grid can be calculated representing seven stability classes."
 	));
 
+	Add_Reference(SG_T("Montgomery D. R., Dietrich, W. E."), "1994",
+		SG_T("A physically based model for the topographic control on shallow landsliding"),
+		"Water Resources Research, 30, 1153-1171.",
+		SG_T("https://doi.org/10.1029/93WR02979"), SG_T("doi:10.1029/93WR02979")
+	);
+
+
 	Parameters.Add_Grid(
-		NULL, "A", "Slope grid (rad)", "A slope angle grid (in radíans)", PARAMETER_INPUT
+		NULL, "A", "Slope grid (rad)", "A slope angle grid (in radians)", PARAMETER_INPUT
 		);
 	
 	Parameters.Add_Grid(
@@ -184,7 +193,7 @@ CSHALSTAB::CSHALSTAB(void)
 		);
 	
 	Parameters.Add_Value(
-		NULL, "fK", "Parameter sampling runs", "Number of sampling cycles",PARAMETER_TYPE_Int, 1						//Initialisierung eines fixen wertes vs Grid für cohesion
+		NULL, "fK", "Number of sampling runs", "Number of sampling cycles", PARAMETER_TYPE_Int, 1
 		);
 	
 	Parameters.Add_Grid(
@@ -230,7 +239,7 @@ bool CSHALSTAB::On_Execute(void)
 	double		fEmax	= Parameters("fEmax")->asDouble();
 	double		fFmax	= Parameters("fFmax")->asDouble();	
 	double		fJmax	= Parameters("fJmax")->asDouble();
-	double		fK		= Parameters("fK")->asInt();
+	int			fK		= Parameters("fK")->asInt();
 	double		grav	= 9.81;
 
 	CSG_Grid	*pA, *pB, *pCmin, *pDmin, *pEmin, *pFmin, *pG, *pH, *pJmin, *pCmax, *pDmax, *pEmax, *pFmax, *pJmax;
@@ -300,7 +309,7 @@ bool CSHALSTAB::On_Execute(void)
 			else
 			{
 
-				cperc = ((cmax - cmin) / cmax) * 100;				//calculate parameter range %: density
+				cperc = int(((cmax - cmin) / cmax) * 100);				//calculate parameter range %: density
 				if (cperc > 0)
 				{
 					n = 0;
@@ -319,7 +328,7 @@ bool CSHALSTAB::On_Execute(void)
 					c = cmax;
 				}
 
-				dperc = ((dmax - dmin) / dmax) * 100;
+				dperc = int(((dmax - dmin) / dmax) * 100);
 				if (dperc > 0)
 				{
 					n = 0;
@@ -338,7 +347,7 @@ bool CSHALSTAB::On_Execute(void)
 					d = dmax;
 				}
 
-				eperc = ((emax - emin) / emax) * 100;
+				eperc = int(((emax - emin) / emax) * 100);
 				if (eperc > 0)
 				{
 					n = 0;
@@ -357,7 +366,7 @@ bool CSHALSTAB::On_Execute(void)
 					e = emax;
 				}
 
-				fperc = ((fmax - fmin) / fmax) * 100;
+				fperc = int(((fmax - fmin) / fmax) * 100);
 				if (fperc > 0)
 				{
 					n = 0;
@@ -376,7 +385,7 @@ bool CSHALSTAB::On_Execute(void)
 					f = fmax;
 				}
 
-				jperc = ((jmax - jmin) / jmax) * 100;
+				jperc = int(((jmax - jmin) / jmax) * 100);
 				if (jperc > 0)
 				{
 					n = 0;
