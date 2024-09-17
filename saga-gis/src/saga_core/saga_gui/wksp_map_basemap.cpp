@@ -410,7 +410,7 @@ bool CWKSP_Map_BaseMap::Dlg_Parameters(void)
 //---------------------------------------------------------
 bool CWKSP_Map_BaseMap::Set_BaseMap(const CSG_Grid_System &System)
 {
-	CSG_Tool	*pTool;
+	CSG_Tool *pTool;
 
 	if(	!Get_Map()->Get_Projection().is_Okay() || !(pTool = SG_Get_Tool_Library_Manager().Create_Tool("io_gdal", 9)) )
 	{
@@ -422,25 +422,26 @@ bool CWKSP_Map_BaseMap::Set_BaseMap(const CSG_Grid_System &System)
 	SG_UI_ProgressAndMsg_Lock(true);
 
 	//-----------------------------------------------------
-	CSG_Grid	BaseMap;
+	CSG_Grid_System _System(System);
 
 	if( m_Parameters("RESOLUTION")->asDouble() > 1. )
 	{
-		BaseMap.Create(CSG_Grid_System(m_Parameters("RESOLUTION")->asDouble() * System.Get_Cellsize(), System.Get_Extent(true)), SG_DATATYPE_Int);
+		_System.Create(m_Parameters("RESOLUTION")->asDouble() * System.Get_Cellsize(), System.Get_Extent(true));
 	}
-	else
+
+	if( _System != m_BaseMap.Get_System() )
 	{
-		BaseMap.Create(System);
+		m_BaseMap.Create(_System, SG_DATATYPE_Int);
 	}
 
-	BaseMap.Get_Projection()	= Get_Map()->Get_Projection();
+	m_BaseMap.Get_Projection() = Get_Map()->Get_Projection();
 
-	m_pTool	= pTool;	// remember the last created base map tool instance
+	m_pTool = pTool; // remember the last created base map tool instance
 
-	pTool->Set_Manager(NULL);
+	pTool->Set_Manager(NULL); pTool->Set_Callback(false);
 
-	if( pTool->Set_Parameter("TARGET"     , &BaseMap)
-	&&  pTool->Set_Parameter("TARGET_MAP" , &BaseMap)
+	if( pTool->Set_Parameter("TARGET"     , &m_BaseMap)
+	&&  pTool->Set_Parameter("TARGET_MAP" , &m_BaseMap)
 	&&  pTool->Set_Parameter("SERVER"     , m_Parameters("SERVER"     ))
 	&&  pTool->Set_Parameter("SERVER_USER", m_Parameters("SERVER_USER"))
 	&&  pTool->Set_Parameter("SERVER_EPSG", m_Parameters("SERVER_EPSG"))
@@ -451,33 +452,33 @@ bool CWKSP_Map_BaseMap::Set_BaseMap(const CSG_Grid_System &System)
 	{
 		m_pTool	= NULL;
 
-		m_BaseMap.Create(System, SG_DATATYPE_Int);
+		int Threshold = m_Parameters("BRIGHTNESS")->asDouble() < 100. ? (int)(0.5 + 3 * 255 * m_Parameters("BRIGHTNESS")->asDouble() / 100.) : -1;
 
-		if( System == BaseMap.Get_System() )
+		if( System != m_BaseMap.Get_System() )
 		{
-			#pragma omp parallel for
-			for(sLong i=0; i<m_BaseMap.Get_NCells(); i++)
-			{
-				m_BaseMap.Set_Value(i, BaseMap.asInt(i));
-			}
-		}
-		else
-		{
+			CSG_Grid BaseMap(m_BaseMap); m_BaseMap.Create(System, SG_DATATYPE_Int);
+
 			#pragma omp parallel for
 			for(int y=0; y<m_BaseMap.Get_NY(); y++)	for(int x=0; x<m_BaseMap.Get_NX(); x++)
 			{
-				m_BaseMap.Set_Value(x, y, BaseMap.Get_Value(System.Get_Grid_to_World(x, y), GRID_RESAMPLING_BSpline, true));
+				int c = BaseMap.Get_Value(System.Get_Grid_to_World(x, y), GRID_RESAMPLING_BSpline, true);
+
+				if( Threshold > 0 && Threshold < (SG_GET_R(c) + SG_GET_G(c) + SG_GET_B(c)) )
+				{
+					m_BaseMap.Set_NoData(x, y);
+				}
+				else
+				{
+					m_BaseMap.Set_Value(x, y, c);
+				}
 			}
 		}
-
-		if( m_Parameters("BRIGHTNESS")->asDouble() < 100. )
+		else if( Threshold > 0 )
 		{
-			int	Threshold	= (int)(0.5 + 3 * 255 * m_Parameters("BRIGHTNESS")->asDouble() / 100.);
-
 			#pragma omp parallel for
 			for(sLong i=0; i<m_BaseMap.Get_NCells(); i++)
 			{
-				int	c	= m_BaseMap.asInt(i);
+				int c = m_BaseMap.asInt(i);
 
 				if( Threshold < (SG_GET_R(c) + SG_GET_G(c) + SG_GET_B(c)) )
 				{

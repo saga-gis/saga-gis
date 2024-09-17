@@ -262,7 +262,7 @@ bool CGDAL_Import_WMS::On_Execute(void)
 	{
 		if( !SG_UI_Msg_is_Locked() )
 		{
-			Error_Set(_TL("failed to retrieve map image data"));
+			Error_Set(_TL("failed to project target extent to server SRS"));
 		}
 
 		return( false );
