@@ -297,15 +297,22 @@ const SG_Char * CSG_Grid_System::Get_Name(bool bShort)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid_System::operator == (const CSG_Grid_System &System) const
+CSG_Grid_System & CSG_Grid_System::operator = (const CSG_Grid_System &System)
 {
-	return( is_Equal(System) );
+	Create(System);
+
+	return( *this );
 }
 
 //---------------------------------------------------------
-void CSG_Grid_System::operator = (const CSG_Grid_System &System)
+bool CSG_Grid_System::operator == (const CSG_Grid_System &System) const
 {
-	Create(System);
+	return( is_Equal(System) ==  true );
+}
+
+bool CSG_Grid_System::operator != (const CSG_Grid_System &System) const
+{
+	return( is_Equal(System) == false );
 }
 
 
