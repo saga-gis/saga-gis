@@ -157,24 +157,64 @@ bool CSG_Projection::Create(const CSG_String &Definition)
 
 	if( CSG_Projections::Parse(Definition, &m_WKT1, &m_WKT2, &m_PROJ, &m_ESRI) )
 	{
-		CSG_MetaData WKT(CSG_Projections::_WKT_to_MetaData(m_WKT1));
-
-		m_Type = CSG_Projections::Get_CRS_Type(WKT.Get_Name());
-
-		m_Name = WKT.Get_Property("name");
-
-		if( WKT("UNIT") && WKT["UNIT"].Get_Property("name") )
+		if( !m_WKT1.is_Empty() )
 		{
-			m_Unit = CSG_Projections::Get_Unit(WKT["UNIT"].Get_Property("name"));
+			CSG_MetaData WKT(CSG_Projections::_WKT_to_MetaData(m_WKT1));
+
+			m_Type = CSG_Projections::Get_CRS_Type(WKT.Get_Name());
+
+			m_Name = WKT.Get_Property("name");
+
+			if( WKT("UNIT") && WKT["UNIT"].Get_Property("name") )
+			{
+				m_Unit = CSG_Projections::Get_Unit(WKT["UNIT"].Get_Property("name"));
+			}
+
+			CSG_String Authority; int Code;
+
+			if(	WKT.Get_Property("authority_name", Authority) && WKT.Get_Property("authority_code", Code) )
+			{
+				m_Authority = Authority; m_Code = Code;
+
+				SG_Get_Projections().Get_Preference(*this, Code, Authority);
+			}
+		}
+		else if( !m_WKT2.is_Empty() )
+		{
+			CSG_String WKT(m_WKT2);
+
+			m_Type = CSG_Projections::Get_CRS_Type(WKT.BeforeFirst('['));
+
+			for(int j=0; m_Type == ESG_CRS_Type::Undefined && j<2; j++)
+			{
+				WKT = WKT.AfterFirst('['); // check nested keys like "COMPOUNDRDS[..., GEOGCRS[" or "BOUNDCRS[SOURCECRS[GEODCRS["...
+
+				m_Type = CSG_Projections::Get_CRS_Type(WKT.BeforeFirst('['));
+			}
+
+			m_Name = WKT.AfterFirst('\"').BeforeFirst('\"');
+
+			if(	WKT.Find(",ID[") > 0 )
+			{
+				CSG_String ID(WKT.AfterLast('[').BeforeFirst(']'));
+
+				m_Authority = ID.AfterFirst('\"').BeforeFirst('\"');
+
+				if( !m_Authority.is_Empty() && ID.AfterFirst(',').asInt(m_Code) )
+				{
+					SG_Get_Projections().Get_Preference(*this, m_Code, m_Authority);
+				}
+			}
 		}
 
-		CSG_String Authority; int Code;
-
-		if(	WKT.Get_Property("authority_name", Authority) && WKT.Get_Property("authority_code", Code) )
+		if( m_Authority.is_Empty() || m_Code < 0 )
 		{
-			m_Authority = Authority; m_Code = Code;
+			CSG_Strings Tokens = SG_String_Tokenize(Definition, ":");
 
-			SG_Get_Projections().Get_Preference(*this, Code, Authority);
+			if( Tokens.Get_Count() == 2 && !Tokens[0].is_Empty() && Tokens[1].asInt(m_Code) )
+			{
+				m_Authority = Tokens[0]; m_Authority.Make_Upper();
+			}
 		}
 
 		return( true );
@@ -1153,18 +1193,16 @@ bool CSG_Projections::_EPSG_to_WKT(CSG_String &WKT, int EPSG_Code) const
 //---------------------------------------------------------
 CSG_String CSG_Projections::Get_Names_List(ESG_CRS_Type Type, bool bAddSelect) const
 {
-	CSG_String Names;
+	CSG_Table Projections;
 
-	if( bAddSelect )
+	Projections.Add_Field("NAME", SG_DATATYPE_String);
+	Projections.Add_Field("AUTH", SG_DATATYPE_String);
+	Projections.Add_Field("CODE", SG_DATATYPE_Int   );
+	Projections.Add_Field("TYPE", SG_DATATYPE_String);
+
+	for(int i=0; i<m_pProjections->Get_Count(); i++)
 	{
-		Names.Printf("{}<%s>|", _TL("select"));
-	}
-
-	m_pProjections->Set_Index(PRJ_FIELD_SRTEXT, TABLE_INDEX_Ascending);
-
-	for(int i=0; i<Get_Count(); i++)
-	{
-		CSG_Table_Record *pProjection = m_pProjections->Get_Record_byIndex(i);
+		CSG_Table_Record *pProjection = m_pProjections->Get_Record(i);
 
 		CSG_String WKT = pProjection->asString(PRJ_FIELD_SRTEXT);
 
@@ -1173,54 +1211,52 @@ CSG_String CSG_Projections::Get_Names_List(ESG_CRS_Type Type, bool bAddSelect) c
 			continue;
 		}
 
-		CSG_String Test = WKT.BeforeFirst('[');
+		ESG_CRS_Type _Type = Get_CRS_Type(WKT.BeforeFirst('['));
 
-		ESG_CRS_Type _Type;
-		bool		 bSet = false;
-
-		// check WKT1 and WKT2 keys
-		#define COMPARE_AND_SET(Test, _Type, bSet) { \
-			if(		 !Test.Cmp("PROJCS") || !Test.Cmp("PROJCRS") )		{ _Type = ESG_CRS_Type::Projection; bSet = true; } \
-			else if( !Test.Cmp("GEOGCS") || !Test.Cmp("GEOGCRS") )		{ _Type = ESG_CRS_Type::Geographic; bSet = true; } \
-			else if( !Test.Cmp("GEOCCS") || !Test.Cmp("GEOCCRS") )		{ _Type = ESG_CRS_Type::Geocentric; bSet = true; } \
-			else														{ _Type = ESG_CRS_Type::Undefined;               } \
-		}
-
-		COMPARE_AND_SET(Test, _Type, bSet);
-
-		if( !bSet )
+		for(int j=0; _Type == ESG_CRS_Type::Undefined && j<2; j++)
 		{
-			// check nested keys like "COMPOUNDRDS[..., GEOGCRS[" or "BOUNDCRS[SOURCECRS[GEODCRS["
+			WKT = WKT.AfterFirst('['); // check nested keys like "COMPOUNDRDS[..., GEOGCRS[" or "BOUNDCRS[SOURCECRS[GEODCRS["...
 
-			CSG_String Temp = WKT.AfterFirst('[');
-
-			for(int i=0; i<2; i++)
-			{
-				Test = Temp.BeforeFirst('[');
-
-				COMPARE_AND_SET(Test, _Type, bSet);
-
-				if( bSet )	{ break; }
-
-				Temp = Temp.AfterFirst('[');
-			}
+			_Type = Get_CRS_Type(WKT.BeforeFirst('['));
 		}
 
+		if( _Type != ESG_CRS_Type::Undefined && (Type == ESG_CRS_Type::Undefined || Type == _Type) )
+		{
+			CSG_Table_Record &Projection = *Projections.Add_Record();
+
+			Projection.Set_Value(0, WKT.AfterFirst('\"').BeforeFirst('\"'));
+			Projection.Set_Value(1, pProjection->asString(PRJ_FIELD_AUTH_NAME));
+			Projection.Set_Value(2, pProjection->asInt   (PRJ_FIELD_AUTH_SRID));
+			Projection.Set_Value(3, CSG_Projections::Get_CRS_Type_Name(_Type));
+		}
+	}
+
+	CSG_String Names;
+
+	if( bAddSelect )
+	{
+		Names.Printf("{}<%s>|", _TL("select"));
+	}
+
+	Projections.Set_Index(3, TABLE_INDEX_Ascending, 0, TABLE_INDEX_Ascending);
+
+	for(int i=0; i<Projections.Get_Count(); i++)
+	{
 		if( Type == ESG_CRS_Type::Undefined )
 		{
 			Names += CSG_String::Format("{%s:%d}%s: %s|",
-				pProjection->asString(PRJ_FIELD_AUTH_NAME),
-				pProjection->asInt   (PRJ_FIELD_AUTH_SRID),
-				CSG_Projections::Get_CRS_Type_Name(_Type).c_str(),
-				WKT.AfterFirst('\"').BeforeFirst('\"').c_str()
+				Projections[i].asString(1),
+				Projections[i].asInt   (2),
+				Projections[i].asString(3),
+				Projections[i].asString(0)
 			);
 		}
-		else if( Type == _Type )
+		else
 		{
 			Names += CSG_String::Format("{%s:%d}%s|",
-				pProjection->asString(PRJ_FIELD_AUTH_NAME),
-				pProjection->asInt   (PRJ_FIELD_AUTH_SRID),
-				WKT.AfterFirst('\"').BeforeFirst('\"').c_str()
+				Projections[i].asString(1),
+				Projections[i].asInt   (2),
+				Projections[i].asString(0)
 			);
 		}
 	}
@@ -1999,9 +2035,10 @@ bool CSG_Projections::_WKT_from_Proj4(CSG_String &WKT, const CSG_String &Proj4) 
 //---------------------------------------------------------
 ESG_CRS_Type CSG_Projections::Get_CRS_Type(const CSG_String &Identifier)
 {
-	if( !Identifier.CmpNoCase("PROJCS") ) { return( ESG_CRS_Type::Projection ); }
-	if( !Identifier.CmpNoCase("GEOGCS") ) { return( ESG_CRS_Type::Geographic ); }
-	if( !Identifier.CmpNoCase("GEOCCS") ) { return( ESG_CRS_Type::Geocentric ); }
+	if( !Identifier.CmpNoCase("PROJCS") || !Identifier.CmpNoCase("PROJCRS") ) { return( ESG_CRS_Type::Projection ); }
+	if( !Identifier.CmpNoCase("GEOGCS") || !Identifier.CmpNoCase("GEOGCRS") ) { return( ESG_CRS_Type::Geographic ); }
+	if( !Identifier.CmpNoCase("GEOCCS") || !Identifier.CmpNoCase("GEOCCRS") ) { return( ESG_CRS_Type::Geocentric ); }
+	if( !Identifier.CmpNoCase("GEODCS") || !Identifier.CmpNoCase("GEODCRS") ) { return( ESG_CRS_Type::Geographic ); }
 
 	return( ESG_CRS_Type::Undefined );
 }
