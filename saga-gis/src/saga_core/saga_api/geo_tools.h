@@ -778,13 +778,13 @@ private:
 //---------------------------------------------------------
 enum class ESG_CRS_Format
 {
-	WKT1, WKT2, PROJ, ESRI, CODE, Undefined, WKT = WKT1
+	WKT1, WKT2, PROJ, JSON, ESRI, CODE, Undefined, WKT = WKT1
 };
 
 //---------------------------------------------------------
 enum class ESG_CRS_Type
 {
-	Geographic, Geocentric, Projection, Undefined
+	Geographic, Geodetic, Geocentric, Projection, Undefined
 };
 
 //---------------------------------------------------------
@@ -879,10 +879,12 @@ public:
 	const CSG_String &				Get_Name				(void)	const	{	return( m_Name      );	}
 
 	const CSG_String &				Get_WKT					(void)	const	{	return( m_WKT2      );	}
-	const CSG_String &				Get_WKT1				(void)	const	{	return( m_WKT1      );	}
+	      CSG_String				Get_WKT1				(void)	const;
 	const CSG_String &				Get_WKT2				(void)	const	{	return( m_WKT2      );	}
 	const CSG_String &				Get_PROJ				(void)	const	{	return( m_PROJ      );	}
-	const CSG_String &				Get_ESRI				(void)	const	{	return( m_ESRI      );	}
+	      CSG_String				Get_JSON				(void)	const;
+	      CSG_String				Get_ESRI				(void)	const;
+	      CSG_String				Get_XML					(void)	const;
 	const CSG_String &				Get_Authority			(void)	const	{	return( m_Authority );	}
 	int								Get_Code				(void)	const	{	return( m_Code      );	}
 
@@ -891,6 +893,7 @@ public:
 	int								Get_EPSG				(void)	const	{	return( m_Authority.CmpNoCase("EPSG") ? -1 : m_Code );	}
 
 	bool							is_Geographic			(void)	const	{	return( m_Type == ESG_CRS_Type::Geographic );	}
+	bool							is_Geodetic				(void)	const	{	return( m_Type == ESG_CRS_Type::Geodetic   );	}
 	bool							is_Geocentric			(void)	const	{	return( m_Type == ESG_CRS_Type::Geocentric );	}
 	bool							is_Projection			(void)	const	{	return( m_Type == ESG_CRS_Type::Projection );	}
 
@@ -912,8 +915,7 @@ private:
 
 	ESG_Projection_Unit				m_Unit;
 
-	CSG_String						m_Name, m_Authority, m_PROJ, m_WKT1, m_WKT2, m_ESRI;
-
+	CSG_String						m_Name, m_Authority, m_PROJ, m_WKT2;
 
 };
 
@@ -941,6 +943,7 @@ public:
 	void							Destroy					(void);
 
 	static bool						Parse					(const CSG_String &Definition, CSG_String *WKT1 = NULL, CSG_String *WKT2 = NULL, CSG_String *PROJ = NULL, CSG_String *ESRI = NULL);
+	static CSG_String				Parse					(const CSG_String &Definition, ESG_CRS_Format Format);
 
 	bool							Load					(const CSG_String &File, bool bAppend = false);
 	bool							Save					(const CSG_String &File);
@@ -969,6 +972,8 @@ public:
 	static const CSG_String			Get_Unit_Name			(ESG_Projection_Unit Unit, bool bSimple = true);
 	static double					Get_Unit_To_Meter		(ESG_Projection_Unit Unit);
 
+	static CSG_String				Convert_WKT2_to_XML		(const CSG_String &WKT);
+
 
 private:
 
@@ -980,7 +985,7 @@ private:
 
 private:
 
-	CSG_Translator					m_WKT_to_Proj4, m_Proj4_to_WKT, m_EPSG_to_Idx;
+	CSG_Translator					m_WKT1_to_Proj4, m_Proj4_to_WKT1, m_EPSG_to_Idx;
 
 	bool							_Load						(class CSG_Table *pTable, const CSG_String &File, bool bAppend = false) const;
 
@@ -988,12 +993,15 @@ private:
 
 	bool							_Add_Preferences			(void);
 
-	static CSG_MetaData				_WKT_to_MetaData			(const CSG_String &WKT);
-	static bool						_WKT_to_MetaData			(CSG_MetaData &MetaData, const CSG_String &WKT);
+	static CSG_MetaData				_WKT2_to_MetaData			(const CSG_String &WKT, bool bTrim);
+	static bool						_WKT2_to_MetaData			(CSG_MetaData &MetaData, const CSG_String &WKT);
 
-	bool							_WKT_to_Proj4				(CSG_String &Proj4, const CSG_String &WKT  )	const;
-	bool							_WKT_from_Proj4				(CSG_String &WKT  , const CSG_String &Proj4)	const;
-	bool							_WKT_to_Proj4_Set_Datum		(CSG_String &Proj4, const CSG_MetaData &WKT)	const;
+	static CSG_MetaData				_WKT1_to_MetaData			(const CSG_String &WKT);
+	static bool						_WKT1_to_MetaData			(CSG_MetaData &MetaData, const CSG_String &WKT);
+
+	bool							_WKT1_to_Proj4				(CSG_String &Proj4, const CSG_String &WKT  )	const;
+	bool							_WKT1_from_Proj4			(CSG_String &WKT  , const CSG_String &Proj4)	const;
+	bool							_WKT1_to_Proj4_Set_Datum	(CSG_String &Proj4, const CSG_MetaData &WKT)	const;
 
 	static bool						_Proj4_Find_Parameter		(                   const CSG_String &Proj4, const CSG_String &Key);
 	static bool						_Proj4_Read_Parameter		(CSG_String &Value, const CSG_String &Proj4, const CSG_String &Key);
@@ -1001,9 +1009,6 @@ private:
 	static bool						_Proj4_Get_Datum			(CSG_String &Value, const CSG_String &Proj4);
 	static bool						_Proj4_Get_Prime_Meridian	(CSG_String &Value, const CSG_String &Proj4);
 	static bool						_Proj4_Get_Unit				(CSG_String &Value, const CSG_String &Proj4);
-
-	bool							_EPSG_to_Proj4				(CSG_String &Proj4, int EPSG_Code)	const;
-	bool							_EPSG_to_WKT				(CSG_String &WKT  , int EPSG_Code)	const;
 
 	bool							_Set_Dictionary				(void);
 	bool							_Set_Dictionary				(CSG_Table &Dictionary, int Direction);
