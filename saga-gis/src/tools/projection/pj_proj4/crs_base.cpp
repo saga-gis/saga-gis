@@ -145,19 +145,19 @@ CCRS_Base::CCRS_Base(void)
 				_TL("WKT-2")
 			), 0
 		)->Set_UseInCMD(false);
+
+		Parameters.Add_Int("CRS_STRING",
+			"CRS_CODE"       , _TL("Authority Code"),
+			_TL(""),
+			4326
+		)->Set_UseInCMD(false);
+
+		Parameters.Add_String("CRS_CODE",
+			"CRS_AUTHORITY"  , _TL("Authority"),
+			_TL(""),
+			"EPSG"
+		)->Set_UseInCMD(false);
 	}
-
-	Parameters.Add_Int("CRS_STRING",
-		"CRS_CODE"       , _TL("Authority Code"),
-		_TL(""),
-		4326
-	);
-
-	Parameters.Add_String("CRS_CODE",
-		"CRS_AUTHORITY"  , _TL("Authority"),
-		_TL(""),
-		"EPSG"
-	);
 
 	Parameters.Add_FilePath("CRS_STRING",
 		"CRS_FILE"       , _TL("Well Known Text File"),
