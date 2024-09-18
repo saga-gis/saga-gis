@@ -58,7 +58,6 @@
 //---------------------------------------------------------
 CGDAL_Import_WMS::CGDAL_Import_WMS(void)
 {
-	//-----------------------------------------------------
 	Set_Name	(_TL("Import TMS Image"));
 
 	Set_Author	("O.Conrad (c) 2016");
@@ -91,11 +90,6 @@ CGDAL_Import_WMS::CGDAL_Import_WMS(void)
 		"TARGET_MAP"	, _TL("Target Map"),
 		_TL(""),
 		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Grid_Output("",
-		"MAP"		, _TL("Map"),
-		_TL("")
 	);
 
 	//-----------------------------------------------------
@@ -171,12 +165,12 @@ CGDAL_Import_WMS::CGDAL_Import_WMS(void)
 //---------------------------------------------------------
 int CGDAL_Import_WMS::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	CSG_Parameter *pXMin = pParameters->Get_Parameter("XMIN");
-	CSG_Parameter *pYMin = pParameters->Get_Parameter("YMIN");
-	CSG_Parameter *pXMax = pParameters->Get_Parameter("XMAX");
-	CSG_Parameter *pYMax = pParameters->Get_Parameter("YMAX");
-	CSG_Parameter *pNX   = pParameters->Get_Parameter("NX"  );
-	CSG_Parameter *pNY   = pParameters->Get_Parameter("NY"  );
+	#define pXMin (*pParameters)("XMIN")
+	#define pYMin (*pParameters)("YMIN")
+	#define pXMax (*pParameters)("XMAX")
+	#define pYMax (*pParameters)("YMAX")
+	#define pNX   (*pParameters)("NX"  )
+	#define pNY   (*pParameters)("NY"  )
 
 	if( pParameter->Cmp_Identifier("NX") )
 	{
@@ -256,9 +250,9 @@ int CGDAL_Import_WMS::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 //---------------------------------------------------------
 bool CGDAL_Import_WMS::On_Execute(void)
 {
-	CSG_Grid_System	System;
+	CSG_Grid_System	System; CSG_Projection Projection;
 
-	if( !Get_WMS_System(System, Parameters("TARGET")->asGrid()) )
+	if( !Get_WMS_System(System, Projection) )
 	{
 		if( !SG_UI_Msg_is_Locked() )
 		{
@@ -271,7 +265,7 @@ bool CGDAL_Import_WMS::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Grid *pBands[3];
 
-	if( !Get_Bands(pBands, System) )
+	if( !Get_WMS_Bands(pBands, System, Projection) )
 	{
 		Error_Set(_TL("failed to retrieve map image data"));
 
@@ -294,9 +288,9 @@ bool CGDAL_Import_WMS::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Projection CGDAL_Import_WMS::Get_WMS_Projection(void)
+bool CGDAL_Import_WMS::Get_WMS_System(CSG_Grid_System &System, CSG_Projection &Projection)
 {
-	CSG_Projection Projection(Parameters("SERVER")->asInt() >= Parameters("SERVER")->asChoice()->Get_Count()
+	Projection.Create(Parameters("SERVER")->asInt() >= Parameters("SERVER")->asChoice()->Get_Count()
 		? Parameters("SERVER_EPSG")->asInt() : 3857
 	); // predefines default to EPSG:3857 => Web Mercator
 
@@ -305,12 +299,9 @@ CSG_Projection CGDAL_Import_WMS::Get_WMS_Projection(void)
 		Projection.Set_GCS_WGS84();
 	}
 
-	return( Projection );
-}
+	//-----------------------------------------------------
+	CSG_Grid *pTarget = Parameters("TARGET")->asGrid();
 
-//---------------------------------------------------------
-bool CGDAL_Import_WMS::Get_WMS_System(CSG_Grid_System &System, CSG_Grid *pTarget)
-{
 	if( !pTarget )
 	{
 		CSG_Rect Extent(
@@ -329,77 +320,52 @@ bool CGDAL_Import_WMS::Get_WMS_System(CSG_Grid_System &System, CSG_Grid *pTarget
 		return( false );
 	}
 
-	CSG_Shapes rTarget(SHAPE_TYPE_Point), rSource;
+	CSG_Shapes Points(SHAPE_TYPE_Point);
 
-	rTarget.Get_Projection() = pTarget->Get_Projection();
+	Points.Get_Projection() = pTarget->Get_Projection();
 
 	CSG_Rect Extent = pTarget->Get_Extent(true);
 
-	rTarget.Add_Shape()->Add_Point(Extent.Get_XMin   (), Extent.Get_YMin   ());
-	rTarget.Add_Shape()->Add_Point(Extent.Get_XMin   (), Extent.Get_YCenter());
-	rTarget.Add_Shape()->Add_Point(Extent.Get_XMin   (), Extent.Get_YMax   ());
-	rTarget.Add_Shape()->Add_Point(Extent.Get_XCenter(), Extent.Get_YMax   ());
-	rTarget.Add_Shape()->Add_Point(Extent.Get_XMax   (), Extent.Get_YMax   ());
-	rTarget.Add_Shape()->Add_Point(Extent.Get_XMax   (), Extent.Get_YCenter());
-	rTarget.Add_Shape()->Add_Point(Extent.Get_XMax   (), Extent.Get_YMin   ());
-	rTarget.Add_Shape()->Add_Point(Extent.Get_XCenter(), Extent.Get_YMin   ());
+	Points.Add_Shape()->Add_Point(Extent.Get_XMin   (), Extent.Get_YMin   ());
+	Points.Add_Shape()->Add_Point(Extent.Get_XMin   (), Extent.Get_YCenter());
+	Points.Add_Shape()->Add_Point(Extent.Get_XMin   (), Extent.Get_YMax   ());
+	Points.Add_Shape()->Add_Point(Extent.Get_XCenter(), Extent.Get_YMax   ());
+	Points.Add_Shape()->Add_Point(Extent.Get_XMax   (), Extent.Get_YMax   ());
+	Points.Add_Shape()->Add_Point(Extent.Get_XMax   (), Extent.Get_YCenter());
+	Points.Add_Shape()->Add_Point(Extent.Get_XMax   (), Extent.Get_YMin   ());
+	Points.Add_Shape()->Add_Point(Extent.Get_XCenter(), Extent.Get_YMin   ());
 
 	//-----------------------------------------------------
-	if( !SG_Get_Projected(&rTarget, &rSource, Get_WMS_Projection()) )
+	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 2); // Coordinate Transformation (Shapes)
+
+	if( pTool )
 	{
-		return( false );
-	}
+		SG_UI_ProgressAndMsg_Lock(true);
 
-	Extent = rSource.Get_Extent();
+		pTool->Set_Manager(NULL); pTool->Set_Callback(false);
 
-	double Cellsize = Extent.Get_XRange() / pTarget->Get_NX() < Extent.Get_YRange() / pTarget->Get_NY()
-		            ? Extent.Get_XRange() / pTarget->Get_NX() : Extent.Get_YRange() / pTarget->Get_NY();
+		if( pTool->Set_Parameter("SOURCE"    , &Points)
+		&&  pTool->Set_Parameter("CRS_STRING", Projection.Get_WKT2())
+		&&  pTool->Set_Parameter("COPY"      , false)
+		&&  pTool->Set_Parameter("PARALLEL"  , true)
+		&&  pTool->Execute() )
+		{
+			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+			SG_UI_ProgressAndMsg_Lock(false);
 
-	System.Assign(Cellsize, Extent);
+			Extent = Points.Get_Extent();
 
-	return( true );
-}
+			double Cellsize = Extent.Get_XRange() / pTarget->Get_NX() < Extent.Get_YRange() / pTarget->Get_NY()
+							? Extent.Get_XRange() / pTarget->Get_NX() : Extent.Get_YRange() / pTarget->Get_NY();
 
+			System.Create(Cellsize, Extent);
 
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CGDAL_Import_WMS::Get_Projected(CSG_Grid *pBands[3], CSG_Grid *pTarget)
-{
-	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 3);	// Coordinate Transformation (Grid List);
-
-	if(	!pTool )
-	{
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	pTool->Set_Manager(NULL);
-
-	if( pTool->Set_Parameter("CRS_STRING"       , pTarget->Get_Projection().Get_WKT())
-	&&  pTool->Set_Parameter("RESAMPLING"       , 3)
-//	&&  pTool->Set_Parameter("DATA_TYPE"        , 10) // "Preserve" => is already default!
-	&&  pTool->Set_Parameter("SOURCE"           , pBands[0])
-	&&  pTool->Set_Parameter("SOURCE"           , pBands[1])
-	&&  pTool->Set_Parameter("SOURCE"           , pBands[2])
-	&&  pTool->Set_Parameter("TARGET_DEFINITION", 1)
-	&&  pTool->Set_Parameter("TARGET_SYSTEM"    , (void *)&pTarget->Get_System())
-	&&  pTool->Execute() )
-	{
-		CSG_Parameter_Grid_List	*pGrids	= pTool->Get_Parameters()->Get_Parameter("GRIDS")->asGridList();
-
-		delete(pBands[0]); pBands[0] = pGrids->Get_Grid(0);
-		delete(pBands[1]); pBands[1] = pGrids->Get_Grid(1);
-		delete(pBands[2]); pBands[2] = pGrids->Get_Grid(2);
+			return( true );
+		}
 
 		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
-
-		return( true );
+		SG_UI_ProgressAndMsg_Lock(false);
 	}
-
-	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 	return( false );
 }
@@ -410,52 +376,95 @@ bool CGDAL_Import_WMS::Get_Projected(CSG_Grid *pBands[3], CSG_Grid *pTarget)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGDAL_Import_WMS::Set_Image(CSG_Grid *pBands[3])
+CSG_String CGDAL_Import_WMS::Get_WMS_Request(const CSG_Projection &Projection)
 {
-	CSG_Grid *pMap = Parameters("TARGET_MAP")->asGrid();
+	CSG_String Server;
 
-	if( !pMap )
+	switch( Parameters("SERVER")->asInt() )
 	{
-		pMap = SG_Create_Grid();
+	case  0: Server = "tile.openstreetmap.org/${z}/${x}/${y}.png"                                                     ;	break; // Open Street Map
+	case  1: Server = "mt.google.com/vt/lyrs=m&x=${x}&y=${y}&z=${z}"                                                  ;	break; // Google Map
+	case  2: Server = "mt.google.com/vt/lyrs=s&x=${x}&y=${y}&z=${z}"                                                  ;	break; // Google Satellite
+	case  3: Server = "mt.google.com/vt/lyrs=y&x=${x}&y=${y}&z=${z}"                                                  ;	break; // Google Hybrid
+	case  4: Server = "mt.google.com/vt/lyrs=t&x=${x}&y=${y}&z=${z}"                                                  ;	break; // Google Terrain
+	case  5: Server = "mt.google.com/vt/lyrs=p&x=${x}&y=${y}&z=${z}"                                                  ;	break; // Google Terrain, Streets and Water
+	case  6: Server = "services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/${z}/${y}/${x}" ;	break; // ArcGIS MapServer Tiles
+	case  7: Server = "sgx.geodatenzentrum.de/wmts_topplus_open/tile/1.0.0/web/default/WEBMERCATOR/${z}/${y}/${x}.png";	break; // TopPlusOpen
+	case  8: Server = "tiles.emodnet-bathymetry.eu/2020/baselayer/web_mercator/${z}/${x}/${y}.png"                    ; break; // EMODnet
+	default: Server = Parameters("SERVER_USER")->asString();                                                          ;	break; // user defined
+//	case  x: Server = "s3.amazonaws.com/com.modestmaps.bluemarble/${z}-r${y}-c${x}.jpg"                               ;	break; // Blue Marble
 	}
-
-	if( !pMap->Get_System().is_Equal(pBands[0]->Get_System()) )
-	{
-		pMap->Create(pBands[0]->Get_System(), SG_DATATYPE_Int);
-	}
-
-	pMap->Set_Name(_TL("Open Street Map"));
-
-	pMap->Get_Projection() = pBands[0]->Get_Projection();
 
 	//-----------------------------------------------------
-	bool bGrayscale = Parameters("GRAYSCALE")->asBool();
+	CSG_Rect r;
 
-	#pragma omp parallel for
-	for(int y=0; y<pMap->Get_NY(); y++)	for(int x=0; x<pMap->Get_NX(); x++)
+	if( Projection.is_Geographic() )
 	{
-		if( bGrayscale )
-		{
-			double z = (pBands[0]->asInt(x, y) + pBands[1]->asInt(x, y) + pBands[2]->asInt(x, y)) / 3.;
-
-			pMap->Set_Value(x, y, SG_GET_RGB(z, z, z));
-		}
-		else
-		{
-			pMap->Set_Value(x, y, SG_GET_RGB(pBands[0]->asInt(x, y), pBands[1]->asInt(x, y), pBands[2]->asInt(x, y)));
-		}
+		r.xMin = -180.; r.xMax = 180.;
+		r.yMin =  -90.; r.yMax =  90.;
+	}
+	else if( Projection.Get_Code() == 3857 ) // Web Mercator ?
+	{
+		r.xMin = -20037508.34; r.xMax = 20037508.34;
+		r.yMin = -20037508.34; r.yMax = 20037508.34;
+	}
+	else
+	{
+		SG_Get_Projected(CSG_Projection::Get_GCS_WGS84(), Projection, r);
 	}
 
-	delete(pBands[0]);
-	delete(pBands[1]);
-	delete(pBands[2]);
+	//-----------------------------------------------------
+	CSG_MetaData XML, *pEntry;
 
-	Parameters("MAP")->Set_Value(pMap);
+	XML.Set_Name("GDAL_WMS");
 
-	DataObject_Add(pMap);
-	DataObject_Set_Parameter(pMap, "COLORS_TYPE", 5);	// Color Classification Type: RGB Coded Values
+	//-----------------------------------------------------
+	pEntry = XML.Add_Child("Service");	pEntry->Add_Property("name", "TMS");
 
-	return( true );
+	pEntry->Add_Child("ServerUrl"  , "https://" + Server);
+
+	//-----------------------------------------------------
+	pEntry = XML.Add_Child("DataWindow");             // Define size and extents of the data. (required, except for TiledWMS and VirtualEarth)
+
+	pEntry->Add_Child("UpperLeftX" ,         r.xMin); // X (longitude) coordinate of upper-left corner. (optional, defaults to -180.0, except for VirtualEarth)
+	pEntry->Add_Child("UpperLeftY" ,         r.yMax); // Y (latitude) coordinate of upper-left corner. (optional, defaults to 90.0, except for VirtualEarth)
+	pEntry->Add_Child("LowerRightX",         r.xMax); // X (longitude) coordinate of lower-right corner. (optional, defaults to 180.0, except for VirtualEarth)
+	pEntry->Add_Child("LowerRightY",         r.yMin); // Y (latitude) coordinate of lower-right corner. (optional, defaults to -90.0, except for VirtualEarth)
+
+	pEntry->Add_Child("TileLevel"  ,             18); // Tile level at highest resolution. (tiled image sources only, optional, defaults to 0)
+	pEntry->Add_Child("TileCountX" ,              1); // Can be used to define image size, SizeX = TileCountX * BlockSizeX * 2TileLevel. (tiled image sources only, optional, defaults to 0)
+	pEntry->Add_Child("TileCountY" ,              1); // Can be used to define image size, SizeY = TileCountY * BlockSizeY * 2TileLevel. (tiled image sources only, optional, defaults to 0)
+	pEntry->Add_Child("YOrigin"    ,          "top"); // Can be used to define the position of the Y origin with respect to the tile grid. Possible values are 'top', 'bottom', and 'default', where the default behavior is mini-driver-specific. (TMS mini-driver only, optional, defaults to 'bottom' for TMS)
+
+	//-----------------------------------------------------
+	CSG_String CRS(CSG_String::Format("EPSG:%d", Projection.Get_Code()));
+
+	pEntry = XML.Add_Child("Projection",       CRS);  // Image projection (optional, defaults to value reported by mini-driver or EPSG:4326)
+
+	//-----------------------------------------------------
+	pEntry = XML.Add_Child("BandsCount",         3);  // Number of bands/channels, 1 for grayscale data, 3 for RGB, 4 for RGBA. (optional, defaults to 3)
+
+	int Blocksize = Parameters("BLOCKSIZE")->asInt();
+	pEntry = XML.Add_Child("BlockSizeX", Blocksize);  // Block size in pixels. (optional, defaults to 1024, except for VirtualEarth)
+	pEntry = XML.Add_Child("BlockSizeY", Blocksize);
+
+	//-----------------------------------------------------
+	if( Parameters("CACHE")->asBool() )
+	{
+		pEntry = XML.Add_Child("Cache");
+
+		CSG_String Path(Parameters("CACHE_DIR")->asString());
+
+		if( !SG_Dir_Exists(Path) )
+		{
+			Path = SG_Dir_Get_Temp();
+		}
+
+		pEntry->Add_Child("Path", SG_File_Make_Path(Path, "gdalwmscache"));
+	}
+
+	//-----------------------------------------------------
+	return( XML.asText(2) );
 }
 
 
@@ -464,11 +473,11 @@ bool CGDAL_Import_WMS::Set_Image(CSG_Grid *pBands[3])
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGDAL_Import_WMS::Get_Bands(CSG_Grid *pBands[3], const CSG_Grid_System &System)
+bool CGDAL_Import_WMS::Get_WMS_Bands(CSG_Grid *pBands[3], const CSG_Grid_System &System, const CSG_Projection &Projection)
 {
 	CSG_GDAL_DataSet DataSet;
 
-	if( DataSet.Open_Read(Get_Request(), System) == false || DataSet.Get_Count() != 3 )
+	if( DataSet.Open_Read(Get_WMS_Request(Projection), System) == false || DataSet.Get_Count() != 3 )
 	{
 		return( false );
 	}
@@ -508,97 +517,98 @@ bool CGDAL_Import_WMS::Get_Bands(CSG_Grid *pBands[3], const CSG_Grid_System &Sys
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CGDAL_Import_WMS::Get_Request(void)
+bool CGDAL_Import_WMS::Get_Projected(CSG_Grid *pBands[3], CSG_Grid *pTarget)
 {
-	CSG_String Server;
+	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 3); // Coordinate Transformation (Grid List);
 
-	switch( Parameters("SERVER")->asInt() )
+	if(	pTool )
 	{
-	case  0: Server = "tile.openstreetmap.org/${z}/${x}/${y}.png"                                                     ;	break;	// Open Street Map
-	case  1: Server = "mt.google.com/vt/lyrs=m&x=${x}&y=${y}&z=${z}"                                                  ;	break;	// Google Map
-	case  2: Server = "mt.google.com/vt/lyrs=s&x=${x}&y=${y}&z=${z}"                                                  ;	break;	// Google Satellite
-	case  3: Server = "mt.google.com/vt/lyrs=y&x=${x}&y=${y}&z=${z}"                                                  ;	break;	// Google Hybrid
-	case  4: Server = "mt.google.com/vt/lyrs=t&x=${x}&y=${y}&z=${z}"                                                  ;	break;	// Google Terrain
-	case  5: Server = "mt.google.com/vt/lyrs=p&x=${x}&y=${y}&z=${z}"                                                  ;	break;	// Google Terrain, Streets and Water
-	case  6: Server = "services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/${z}/${y}/${x}" ;	break;	// ArcGIS MapServer Tiles
-	case  7: Server = "sgx.geodatenzentrum.de/wmts_topplus_open/tile/1.0.0/web/default/WEBMERCATOR/${z}/${y}/${x}.png";	break;	// TopPlusOpen
-	case  8: Server = "tiles.emodnet-bathymetry.eu/2020/baselayer/web_mercator/${z}/${x}/${y}.png"                    ; break;	// EMODnet
-	default: Server = Parameters("SERVER_USER")->asString();                                                          ;	break;	// user defined
-//	case  x: Server = "s3.amazonaws.com/com.modestmaps.bluemarble/${z}-r${y}-c${x}.jpg"                               ;	break;	// Blue Marble
-	}
+		SG_UI_ProgressAndMsg_Lock(true);
 
-	//-----------------------------------------------------
-	CSG_Projection Projection(Get_WMS_Projection());
+		pTool->Set_Manager(NULL); pTool->Set_Callback(false);
 
-	TSG_Rect r;
-
-	if( Projection.is_Geographic() )
-	{
-		r.xMin = -180.; r.xMax = 180.;
-		r.yMin =  -90.; r.yMax =  90.;
-	}
-	else if( Projection.Get_Authority_ID() == 3857 ) // Web Mercator ?
-	{
-		r.xMin = -20037508.34; r.xMax = 20037508.34;
-		r.yMin = -20037508.34; r.yMax = 20037508.34;
-	}
-	else
-	{
-		SG_Get_Projected(CSG_Projection::Get_GCS_WGS84(), Projection, r);
-	}
-
-	//-----------------------------------------------------
-	CSG_MetaData XML, *pEntry;
-
-	XML.Set_Name("GDAL_WMS");
-
-	//-----------------------------------------------------
-	pEntry	= XML.Add_Child("Service");	pEntry->Add_Property("name", "TMS");
-
-	pEntry->Add_Child("ServerUrl"  , "https://" + Server);
-
-	//-----------------------------------------------------
-	pEntry	= XML.Add_Child("DataWindow");		// Define size and extents of the data. (required, except for TiledWMS and VirtualEarth)
-
-	pEntry->Add_Child("UpperLeftX" ,         r.xMin);	// X (longitude) coordinate of upper-left corner. (optional, defaults to -180.0, except for VirtualEarth)
-	pEntry->Add_Child("UpperLeftY" ,         r.yMax);	// Y (latitude) coordinate of upper-left corner. (optional, defaults to 90.0, except for VirtualEarth)
-	pEntry->Add_Child("LowerRightX",         r.xMax);	// X (longitude) coordinate of lower-right corner. (optional, defaults to 180.0, except for VirtualEarth)
-	pEntry->Add_Child("LowerRightY",         r.yMin);	// Y (latitude) coordinate of lower-right corner. (optional, defaults to -90.0, except for VirtualEarth)
-
-	pEntry->Add_Child("TileLevel"  ,             18);	// Tile level at highest resolution. (tiled image sources only, optional, defaults to 0)
-	pEntry->Add_Child("TileCountX" ,              1);	// Can be used to define image size, SizeX = TileCountX * BlockSizeX * 2TileLevel. (tiled image sources only, optional, defaults to 0)
-	pEntry->Add_Child("TileCountY" ,              1);	// Can be used to define image size, SizeY = TileCountY * BlockSizeY * 2TileLevel. (tiled image sources only, optional, defaults to 0)
-	pEntry->Add_Child("YOrigin"    ,          "top");	// Can be used to define the position of the Y origin with respect to the tile grid. Possible values are 'top', 'bottom', and 'default', where the default behavior is mini-driver-specific. (TMS mini-driver only, optional, defaults to 'bottom' for TMS)
-
-	//-----------------------------------------------------
-	CSG_String CRS(CSG_String::Format("EPSG:%d", Projection.Get_Code()));
-
-	pEntry	= XML.Add_Child("Projection",       CRS);	// Image projection (optional, defaults to value reported by mini-driver or EPSG:4326)
-
-	//-----------------------------------------------------
-	pEntry	= XML.Add_Child("BandsCount",         3);	// Number of bands/channels, 1 for grayscale data, 3 for RGB, 4 for RGBA. (optional, defaults to 3)
-
-	int Blocksize = Parameters("BLOCKSIZE")->asInt();
-	pEntry	= XML.Add_Child("BlockSizeX", Blocksize);	// Block size in pixels. (optional, defaults to 1024, except for VirtualEarth)
-	pEntry	= XML.Add_Child("BlockSizeY", Blocksize);
-
-	//-----------------------------------------------------
-	if( Parameters("CACHE")->asBool() )
-	{
-		pEntry	= XML.Add_Child("Cache");
-
-		CSG_String	Path	= Parameters("CACHE_DIR")->asString();
-
-		if( !SG_Dir_Exists(Path) )
+		if( pTool->Set_Parameter("CRS_STRING"       , pTarget->Get_Projection().Get_WKT())
+		&&  pTool->Set_Parameter("SOURCE"           , pBands[0])
+		&&  pTool->Set_Parameter("SOURCE"           , pBands[1])
+		&&  pTool->Set_Parameter("SOURCE"           , pBands[2])
+	//	&&  pTool->Set_Parameter("DATA_TYPE"        , 10) // "Preserve" => is already default!
+		&&  pTool->Set_Parameter("RESAMPLING"       ,  3)
+		&&  pTool->Set_Parameter("TARGET_DEFINITION",  1)
+		&&  pTool->Set_Parameter("TARGET_SYSTEM"    , (void *)&pTarget->Get_System())
+		&&  pTool->Execute() )
 		{
-			Path	= SG_Dir_Get_Temp();
+			CSG_Parameter_Grid_List	*pGrids	= pTool->Get_Parameters()->Get_Parameter("GRIDS")->asGridList();
+
+			delete(pBands[0]); pBands[0] = pGrids->Get_Grid(0);
+			delete(pBands[1]); pBands[1] = pGrids->Get_Grid(1);
+			delete(pBands[2]); pBands[2] = pGrids->Get_Grid(2);
+
+			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+			SG_UI_ProgressAndMsg_Lock(false);
+
+			return( true );
 		}
 
-		pEntry->Add_Child("Path", SG_File_Make_Path(Path, "gdalwmscache"));
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+		SG_UI_ProgressAndMsg_Lock(false);
 	}
 
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGDAL_Import_WMS::Set_Image(CSG_Grid *pBands[3])
+{
+	CSG_Grid *pMap = Parameters("TARGET_MAP")->asGrid();
+
+	if( !pMap )
+	{
+		pMap = SG_Create_Grid(pBands[0]->Get_System(), SG_DATATYPE_Int);
+	}
+	else if( pMap->Get_System() != pBands[0]->Get_System() )
+	{
+		pMap->Create(pBands[0]->Get_System(), SG_DATATYPE_Int);
+	}
+
+	pMap->Set_Name(Parameters("SERVER")->asString());
+
+	pMap->Get_Projection() = pBands[0]->Get_Projection();
+
 	//-----------------------------------------------------
-	return( XML.asText(2) );
+	bool bGrayscale = Parameters("GRAYSCALE")->asBool();
+
+	#pragma omp parallel for
+	for(sLong i=0; i<pMap->Get_NCells(); i++)
+	{
+		if( bGrayscale )
+		{
+			double z = (pBands[0]->asInt(i) + pBands[1]->asInt(i) + pBands[2]->asInt(i)) / 3.;
+
+			pMap->Set_Value(i, SG_GET_RGB(z, z, z));
+		}
+		else
+		{
+			pMap->Set_Value(i, SG_GET_RGB(pBands[0]->asInt(i), pBands[1]->asInt(i), pBands[2]->asInt(i)));
+		}
+	}
+
+	delete(pBands[0]);
+	delete(pBands[1]);
+	delete(pBands[2]);
+
+	if( Get_Manager() == &SG_Get_Data_Manager() && this == SG_Get_Tool_Library_Manager().Get_Tool("io_gdal", 9) )
+	{
+		DataObject_Add(pMap); DataObject_Set_Parameter(pMap, "COLORS_TYPE", 5); // Color Classification Type: RGB Coded Values
+	}
+
+	return( true );
 }
 
 

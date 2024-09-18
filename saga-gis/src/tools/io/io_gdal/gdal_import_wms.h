@@ -85,16 +85,15 @@ protected:
 
 private:
 
-	bool						Set_Image				(CSG_Grid *pBands[3]);
+	bool						Get_WMS_System			(CSG_Grid_System &System, CSG_Projection &Projection);
+
+	CSG_String					Get_WMS_Request			(const CSG_Projection &Projection);
+
+	bool						Get_WMS_Bands			(CSG_Grid *pBands[3], const CSG_Grid_System &System, const CSG_Projection &Projection);
 
 	bool						Get_Projected			(CSG_Grid *pBands[3], CSG_Grid *pTarget);
 
-	bool						Get_Bands				(CSG_Grid *pBands[3], const CSG_Grid_System &System);
-
-	CSG_String					Get_Request				(void);
-
-	CSG_Projection				Get_WMS_Projection		(void);
-	bool						Get_WMS_System			(CSG_Grid_System &System, CSG_Grid *pTarget);
+	bool						Set_Image				(CSG_Grid *pBands[3]);
 
 };
 

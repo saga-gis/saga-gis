@@ -512,8 +512,9 @@ bool CWKSP_Map_BaseMap::Draw(CSG_Map_DC &dc_Map)
 {
 	if( !m_Parameters("SHOW_ALWAYS")->asBool() )
 	{
-		CSG_Parameter_Range	*pRange	= m_Parameters("SHOW_RANGE")->asRange();
-		double	dRange	= dc_Map.rWorld().Get_XRange() > dc_Map.rWorld().Get_YRange() ? dc_Map.rWorld().Get_XRange() : dc_Map.rWorld().Get_YRange();
+		CSG_Parameter_Range *pRange = m_Parameters("SHOW_RANGE")->asRange();
+
+		double dRange = dc_Map.rWorld().Get_XRange() > dc_Map.rWorld().Get_YRange() ? dc_Map.rWorld().Get_XRange() : dc_Map.rWorld().Get_YRange();
 
 		if( dRange < pRange->Get_Min() || pRange->Get_Max() < dRange )
 		{
@@ -524,9 +525,12 @@ bool CWKSP_Map_BaseMap::Draw(CSG_Map_DC &dc_Map)
 	//-----------------------------------------------------
 	CSG_Grid_System	System(dc_Map.DC2World(), dc_Map.rWorld().Get_XMin(), dc_Map.rWorld().Get_YMin(), dc_Map.rDC().GetWidth(), dc_Map.rDC().GetHeight());
 
-	if( !System.is_Equal(m_BaseMap.Get_System()) && !Set_BaseMap(System) )
+	if( System != m_BaseMap.Get_System() )
 	{
-		return( false );
+		if( !Set_BaseMap(System) )
+		{
+			return( false );
+		}
 	}
 
 	//-----------------------------------------------------
