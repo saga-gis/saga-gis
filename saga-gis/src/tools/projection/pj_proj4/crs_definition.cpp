@@ -101,6 +101,9 @@ CCRS_Definition::CCRS_Definition(void)
 	Parameters.Add_Info_String("", "WKT2", _TL("WKT-2"), _TL(""), "",  true);
 	Parameters.Add_Info_String("", "JSON", _TL("JSON" ), _TL(""), "",  true);
 	Parameters.Add_Info_String("", "ESRI", _TL("ESRI" ), _TL(""), "", false);
+	#ifdef _DEBUG
+	Parameters.Add_Info_String("", "XML" , _TL("XML"  ), _TL(""), "",  true);
+	#endif
 
 	Parameters.Add_Bool(""    , "MULTILINE" , _TL("Multiline" ), _TL("applies to JSON and WKT"), true);
 	Parameters.Add_Bool("WKT2", "SIMPLIFIED", _TL("Simplified"), _TL("applies to WKT-2"       ), true);
@@ -139,6 +142,9 @@ int CCRS_Definition::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 		if( Format >= 5 || Format == 2 ) { pParameters->Set_Parameter("WKT2", CSG_CRSProjector::Convert_CRS_To_WKT2(Definition, bMultiLine, bSimplified)); }
 		if( Format >= 5 || Format == 3 ) { pParameters->Set_Parameter("JSON", CSG_CRSProjector::Convert_CRS_To_JSON(Definition, bMultiLine             )); }
 		if( Format >= 5 || Format == 4 ) { pParameters->Set_Parameter("ESRI", CSG_CRSProjector::Convert_CRS_To_ESRI(Definition                         )); }
+		#ifdef _DEBUG
+		if( Format >= 5 || Format == 2 ) { pParameters->Set_Parameter("XML" , CSG_Projections::Convert_WKT2_to_XML((*pParameters)("WKT2")->asString()  )); }
+		#endif
 	}
 
 	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
@@ -156,6 +162,9 @@ int CCRS_Definition::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 		pParameters->Set_Enabled("WKT2", Format >= 5 || Format == 2);
 		pParameters->Set_Enabled("JSON", Format >= 5 || Format == 3);
 		pParameters->Set_Enabled("ESRI", Format >= 5 || Format == 4);
+		#ifdef _DEBUG
+		pParameters->Set_Enabled("XML" , Format >= 5 || Format == 2);
+		#endif
 	}
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
@@ -185,6 +194,9 @@ bool CCRS_Definition::On_Execute(void)
 	Set_Parameter("WKT2", Format < 5 && Format != 2 ? CSG_String("") : CSG_CRSProjector::Convert_CRS_To_WKT2(Definition, bMultiLine, bSimplified));
 	Set_Parameter("JSON", Format < 5 && Format != 3 ? CSG_String("") : CSG_CRSProjector::Convert_CRS_To_JSON(Definition, bMultiLine             ));
 	Set_Parameter("ESRI", Format < 5 && Format != 4 ? CSG_String("") : CSG_CRSProjector::Convert_CRS_To_ESRI(Definition                         ));
+	#ifdef _DEBUG
+	Set_Parameter("XML" , Format < 5 && Format != 2 ? CSG_String("") : CSG_Projections::Convert_WKT2_to_XML(Parameters("WKT2")->asString()      ));
+	#endif
 
 	if( Parameters["FORMATS"].asTable() )
 	{
