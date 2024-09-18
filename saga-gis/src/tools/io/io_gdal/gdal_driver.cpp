@@ -325,6 +325,13 @@ bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name, const CSG_Grid_Sys
 
 	if( (m_pVrtSource = GDALOpen(File_Name, GA_ReadOnly)) == NULL )
 	{
+		const char *msg = CPLGetLastErrorMsg();
+
+		if( msg )
+		{
+			SG_UI_Msg_Add_Error(msg);
+		}
+
 		return( false );
 	}
 
