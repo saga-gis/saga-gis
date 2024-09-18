@@ -89,6 +89,13 @@ CCRS_Definition::CCRS_Definition(void)
 		"epsg:4326"
 	);
 
+	Parameters.Add_Choice("",
+		"FORMAT"    , _TL("Format"),
+		_TL(""),
+		CSG_String::Format("PROJ|WKT-1|WKT-2|JSON|ESRI|%s", _TL("all")
+		), has_GUI() ? 5 : 2
+	);
+
 	Parameters.Add_Info_String("", "PROJ", _TL("PROJ" ), _TL(""), "", false);
 	Parameters.Add_Info_String("", "WKT1", _TL("WKT-1"), _TL(""), "",  true);
 	Parameters.Add_Info_String("", "WKT2", _TL("WKT-2"), _TL(""), "",  true);
@@ -100,7 +107,10 @@ CCRS_Definition::CCRS_Definition(void)
 
 	Parameters.Add_Table("", "FORMATS", _TL("Formats"), _TL(""), PARAMETER_OUTPUT_OPTIONAL)->Set_UseInGUI(false);
 
-	On_Parameter_Changed(&Parameters, Parameters("DEFINITION"));
+	if( has_GUI() )
+	{
+		On_Parameter_Changed(&Parameters, Parameters("DEFINITION"));
+	}
 }
 
 
@@ -111,7 +121,7 @@ CCRS_Definition::CCRS_Definition(void)
 //---------------------------------------------------------
 int CCRS_Definition::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( pParameter->Cmp_Identifier("DEFINITION") || pParameter->Cmp_Identifier("MULTILINE") || pParameter->Cmp_Identifier("SIMPLIFIED") )
+	if( pParameter->Cmp_Identifier("DEFINITION") || pParameter->Cmp_Identifier("FORMAT") || pParameter->Cmp_Identifier("MULTILINE") || pParameter->Cmp_Identifier("SIMPLIFIED") )
 	{
 		CSG_String Definition((*pParameters)["DEFINITION"].asString());
 		
@@ -120,16 +130,35 @@ int CCRS_Definition::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 			Definition.Trim(); pParameter->Set_Value(Definition);
 		}
 
-		bool bMultiLine = (*pParameters)["MULTILINE"].asBool(), bSimplified = (*pParameters)["SIMPLIFIED"].asBool();
+		int       Format = (*pParameters)["FORMAT"    ].asInt ();
+		bool  bMultiLine = (*pParameters)["MULTILINE" ].asBool();
+		bool bSimplified = (*pParameters)["SIMPLIFIED"].asBool();
 
-		pParameters->Set_Parameter("PROJ", CSG_CRSProjector::Convert_CRS_To_PROJ(Definition));
-		pParameters->Set_Parameter("WKT1", CSG_CRSProjector::Convert_CRS_To_WKT1(Definition, bMultiLine));
-		pParameters->Set_Parameter("WKT2", CSG_CRSProjector::Convert_CRS_To_WKT2(Definition, bMultiLine, bSimplified));
-		pParameters->Set_Parameter("JSON", CSG_CRSProjector::Convert_CRS_To_JSON(Definition, bMultiLine));
-		pParameters->Set_Parameter("ESRI", CSG_CRSProjector::Convert_CRS_To_ESRI(Definition));
+		if( Format >= 5 || Format == 0 ) { pParameters->Set_Parameter("PROJ", CSG_CRSProjector::Convert_CRS_To_PROJ(Definition                         )); }
+		if( Format >= 5 || Format == 1 ) { pParameters->Set_Parameter("WKT1", CSG_CRSProjector::Convert_CRS_To_WKT1(Definition, bMultiLine             )); }
+		if( Format >= 5 || Format == 2 ) { pParameters->Set_Parameter("WKT2", CSG_CRSProjector::Convert_CRS_To_WKT2(Definition, bMultiLine, bSimplified)); }
+		if( Format >= 5 || Format == 3 ) { pParameters->Set_Parameter("JSON", CSG_CRSProjector::Convert_CRS_To_JSON(Definition, bMultiLine             )); }
+		if( Format >= 5 || Format == 4 ) { pParameters->Set_Parameter("ESRI", CSG_CRSProjector::Convert_CRS_To_ESRI(Definition                         )); }
 	}
 
 	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
+int CCRS_Definition::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("FORMAT") )
+	{
+		int Format = pParameter->asInt();
+
+		pParameters->Set_Enabled("PROJ", Format >= 5 || Format == 0);
+		pParameters->Set_Enabled("WKT1", Format >= 5 || Format == 1);
+		pParameters->Set_Enabled("WKT2", Format >= 5 || Format == 2);
+		pParameters->Set_Enabled("JSON", Format >= 5 || Format == 3);
+		pParameters->Set_Enabled("ESRI", Format >= 5 || Format == 4);
+	}
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -147,13 +176,15 @@ bool CCRS_Definition::On_Execute(void)
 		return( false );
 	}
 
-	bool bMultiLine = Parameters["MULTILINE"].asBool(), bSimplified = Parameters["SIMPLIFIED"].asBool();
+	int       Format = Parameters["FORMAT"    ].asInt ();
+	bool  bMultiLine = Parameters["MULTILINE" ].asBool();
+	bool bSimplified = Parameters["SIMPLIFIED"].asBool();
 
-	Set_Parameter("PROJ", CSG_CRSProjector::Convert_CRS_To_PROJ(Definition));
-	Set_Parameter("WKT1", CSG_CRSProjector::Convert_CRS_To_WKT1(Definition, bMultiLine));
-	Set_Parameter("WKT2", CSG_CRSProjector::Convert_CRS_To_WKT2(Definition, bMultiLine, bSimplified));
-	Set_Parameter("JSON", CSG_CRSProjector::Convert_CRS_To_JSON(Definition, bMultiLine));
-	Set_Parameter("ESRI", CSG_CRSProjector::Convert_CRS_To_ESRI(Definition));
+	Set_Parameter("PROJ", Format < 5 && Format != 0 ? CSG_String("") : CSG_CRSProjector::Convert_CRS_To_PROJ(Definition                         ));
+	Set_Parameter("WKT1", Format < 5 && Format != 1 ? CSG_String("") : CSG_CRSProjector::Convert_CRS_To_WKT1(Definition, bMultiLine             ));
+	Set_Parameter("WKT2", Format < 5 && Format != 2 ? CSG_String("") : CSG_CRSProjector::Convert_CRS_To_WKT2(Definition, bMultiLine, bSimplified));
+	Set_Parameter("JSON", Format < 5 && Format != 3 ? CSG_String("") : CSG_CRSProjector::Convert_CRS_To_JSON(Definition, bMultiLine             ));
+	Set_Parameter("ESRI", Format < 5 && Format != 4 ? CSG_String("") : CSG_CRSProjector::Convert_CRS_To_ESRI(Definition                         ));
 
 	if( Parameters["FORMATS"].asTable() )
 	{
@@ -164,14 +195,23 @@ bool CCRS_Definition::On_Execute(void)
 
 		#define Add_Format(id) { CSG_Table_Record &r = *Formats.Add_Record(); r.Set_Value(0, Parameters[id].Get_Name()); r.Set_Value(1, Parameters[id].asString()); }
 
-		Add_Format("PROJ");
-		Add_Format("WKT1");
-		Add_Format("WKT2");
-		Add_Format("JSON");
-		Add_Format("ESRI");
+		if( Format >= 5 || Format == 0 ) { Add_Format("PROJ"); }
+		if( Format >= 5 || Format == 1 ) { Add_Format("WKT1"); }
+		if( Format >= 5 || Format == 2 ) { Add_Format("WKT2"); }
+		if( Format >= 5 || Format == 3 ) { Add_Format("JSON"); }
+		if( Format >= 5 || Format == 4 ) { Add_Format("ESRI"); }
 	}
 
-	return( SG_STR_LEN(Parameters["WKT2"].asString()) );
+	switch( Format )
+	{
+	case  0: Definition = Parameters["PROJ"].asString(); break;
+	case  1: Definition = Parameters["WKT1"].asString(); break;
+	default: Definition = Parameters["WKT2"].asString(); break;
+	case  3: Definition = Parameters["JSON"].asString(); break;
+	case  4: Definition = Parameters["ESRI"].asString(); break;
+	}
+
+	return( Definition.is_Empty() == false );
 }
 
 
