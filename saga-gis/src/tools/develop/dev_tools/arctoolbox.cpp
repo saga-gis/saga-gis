@@ -87,8 +87,14 @@ CArcToolBox::CArcToolBox(void)
 		"",
 		CSG_String::Format("%s|%s",
 			SG_T("10.1"),
-			SG_T("10.2, 10.3")
+			SG_T("10.2, 10.3 or later(?!)")
 		), 1
+	);
+
+	Parameters.Add_Bool(
+		"", "LOAD_ALL"		, "Load All Standard Tool Libraries",
+		"",
+		true
 	);
 }
 
@@ -103,6 +109,11 @@ bool CArcToolBox::On_Execute(void)
 	int		nTools	= 0;
 
 	m_ArcVersion	= Parameters("ARC_VERSION")->asInt();
+
+	if( Parameters("LOAD_ALL")->asBool() )
+	{
+		SG_Get_Tool_Library_Manager().Add_Default_Libraries();
+	}
 
 	//-----------------------------------------------------
 	for(int iLibrary=0; iLibrary<SG_Get_Tool_Library_Manager().Get_Count() && Set_Progress(iLibrary, SG_Get_Tool_Library_Manager().Get_Count()); iLibrary++)
