@@ -129,7 +129,7 @@ REM ###################################
 REM PySAGA
 REM ###################################
 
-RMDIR /S/Q %SAGA_BIN%\PySAGA
+RMDIR /S/Q "%SAGA_BIN%\PySAGA"
 
 CMD /C CALL ..\make_python_api.bat install false 3.6  F:\develop\libs\Python\Python-3.6
 CMD /C CALL ..\make_python_api.bat install false 3.7  F:\develop\libs\Python\Python-3.7
@@ -146,6 +146,8 @@ REM PySAGA Toolboxes
 REM ###################################
 
 %PYTHON% ..\create_python_toolboxes.py
+
+RMDIR /S/Q "%SAGA_BIN%\PySAGA\__pycache__"
 
 
 REM ___________________________________
