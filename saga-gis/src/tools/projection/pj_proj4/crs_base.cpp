@@ -232,9 +232,9 @@ CCRS_Base::CCRS_Base(void)
 	// >>> for backward compatibility only!
 	if( !has_GUI() )
 	{
-		Parameters.Add_String("", "CRS_PROJ4"    , "[deprecated] Proj4 String"  , "Deprecated! For backward compatibility only! Use \"CRS_STRING\" parameter instead!"   , "")->Set_UseInGUI(false);
-		Parameters.Add_Int   ("", "CRS_EPSG"     , "[deprecated] Authority Code", "Deprecated! For backward compatibility only! Use \"CRS_CODE\" parameter instead!"     , -1)->Set_UseInGUI(false);
-		Parameters.Add_String("", "CRS_EPSG_AUTH", "[deprecated] Authority"     , "Deprecated! For backward compatibility only! Use \"CRS_AUTHORITY\" parameter instead!", "")->Set_UseInGUI(false);
+		Parameters.Add_String("", "CRS_PROJ4"    , "[deprecated] Proj4 String"  , "Deprecated! For backward compatibility only! Use \"CRS_STRING\" parameter instead (e.g. \"+proj=longlat +datum=WGS84\")!", "")->Set_UseInGUI(false);
+		Parameters.Add_Int   ("", "CRS_EPSG"     , "[deprecated] Authority Code", "Deprecated! For backward compatibility only! Use \"CRS_STRING\" parameter instead (e.g. \"EPSG:4326\")!"                 , -1)->Set_UseInGUI(false);
+		Parameters.Add_String("", "CRS_EPSG_AUTH", "[deprecated] Authority"     , "Deprecated! For backward compatibility only! Use \"CRS_STRING\" parameter instead (e.g. \"EPSG:4326\")!"                 , "")->Set_UseInGUI(false);
 	}
 	// <<< for backward compatibility only!
 	//-----------------------------------------------------
@@ -266,9 +266,9 @@ bool CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pP
 {
 	//-----------------------------------------------------
 	// >>> for backward compatibility only!
-	if( pParameter->Cmp_Identifier("CRS_PROJ4"    ) ) { pParameters->Set_Parameter("CRS_STRING"   , pParameter->asString()); return( Parameter_Changed(pParameters, (*pParameters)("CRS_STRING"   )) ); }
-	if( pParameter->Cmp_Identifier("CRS_EPSG"     ) ) { pParameters->Set_Parameter("CRS_CODE"     , pParameter->asInt   ()); return( Parameter_Changed(pParameters, (*pParameters)("CRS_CODE"     )) ); }
-	if( pParameter->Cmp_Identifier("CRS_EPSG_AUTH") ) { pParameters->Set_Parameter("CRS_AUTHORITY", pParameter->asString()); return( Parameter_Changed(pParameters, (*pParameters)("CRS_AUTHORITY")) ); }
+	if( pParameter->Cmp_Identifier("CRS_PROJ4"    ) ) { pParameters->Set_Parameter("CRS_STRING", pParameter->asString()                                                                                       ); return( Parameter_Changed(pParameters, (*pParameters)("CRS_STRING")) ); }
+	if( pParameter->Cmp_Identifier("CRS_EPSG"     ) ) { pParameters->Set_Parameter("CRS_STRING", CSG_String::Format("%s:%d", (*pParameters)("CRS_EPSG_AUTH")->asString(), (*pParameters)("CRS_EPSG")->asInt())); return( Parameter_Changed(pParameters, (*pParameters)("CRS_STRING")) ); }
+	if( pParameter->Cmp_Identifier("CRS_EPSG_AUTH") ) { pParameters->Set_Parameter("CRS_STRING", CSG_String::Format("%s:%d", (*pParameters)("CRS_EPSG_AUTH")->asString(), (*pParameters)("CRS_EPSG")->asInt())); return( Parameter_Changed(pParameters, (*pParameters)("CRS_STRING")) ); }
 	// <<< for backward compatibility only!
 	//-----------------------------------------------------
 
