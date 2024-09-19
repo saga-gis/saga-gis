@@ -79,8 +79,6 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -95,67 +93,69 @@
 
 //---------------------------------------------------------
 #ifndef M_PI
-#define M_PI						3.141592653589793
+#define M_PI                     3.141592653589793
 #endif
 
-#define M_PI_045					(M_PI / 4.)
-#define M_PI_090					(M_PI / 2.)
-#define M_PI_135					(M_PI * 3. / 4.)
-#define M_PI_180					(M_PI)
-#define M_PI_225					(M_PI * 5. / 4.)
-#define M_PI_270					(M_PI * 3. / 2.)
-#define M_PI_315					(M_PI * 7. / 4.)
-#define M_PI_360					(M_PI * 2.)
+#define M_PI_045                 (M_PI / 4.)
+#define M_PI_090                 (M_PI / 2.)
+#define M_PI_135                 (M_PI * 3. / 4.)
+#define M_PI_180                 (M_PI)
+#define M_PI_225                 (M_PI * 5. / 4.)
+#define M_PI_270                 (M_PI * 3. / 2.)
+#define M_PI_315                 (M_PI * 7. / 4.)
+#define M_PI_360                 (M_PI * 2.)
 
-#define M_RAD_TO_DEG				(180. / M_PI)
-#define M_DEG_TO_RAD				(M_PI / 180.)
-
-//---------------------------------------------------------
-#define M_EULER						2.718281828459045
+#define M_RAD_TO_DEG             (180. / M_PI)
+#define M_DEG_TO_RAD             (M_PI / 180.)
 
 //---------------------------------------------------------
-#define N_MEGABYTE_BYTES			0x100000
+#define M_EULER                  2.718281828459045
+
+//---------------------------------------------------------
+#define N_MEGABYTE_BYTES         0x100000
 
 //---------------------------------------------------------
 #ifdef FLT_EPSILON
-	#define M_FLT_EPSILON			FLT_EPSILON
+	#define M_FLT_EPSILON        FLT_EPSILON
 #else
-	#define M_FLT_EPSILON			1.192092896e-07F
+	#define M_FLT_EPSILON        1.192092896e-07F
 #endif
 
 #ifdef DBL_EPSILON
-	#define M_DBL_EPSILON			DBL_EPSILON
+	#define M_DBL_EPSILON        DBL_EPSILON
 #else
-	#define M_DBL_EPSILON			2.2204460492503131e-016
+	#define M_DBL_EPSILON        2.2204460492503131e-016
 #endif
 
 // >>> DEPRECATED >>> //
-#define M_ALMOST_ZERO				(1.e-03)
-#define M_TINY						(1.e-20)
+#define M_ALMOST_ZERO            (1.e-03)
+#define M_TINY                   (1.e-20)
 // <<< DEPRECATED <<< //
 
 
 //---------------------------------------------------------
-#define M_SQR(x)					((x) * (x))
-#define M_SQRT(x)					sqrt((double)(x))
-#define M_GET_LENGTH(x, y)			sqrt((double)((x)*(x) + (y)*(y)))
+#define M_SQR(x)                  ((x) * (x))
+#define M_SQRT(x)                 sqrt((double)(x))
+#define M_GET_LENGTH(x, y)        sqrt((double)((x)*(x) + (y)*(y)))
 
-#define M_GET_MIN(a, b)				(((a) < (b)) ? (a) : (b))
-#define M_GET_MAX(a, b)				(((a) > (b)) ? (a) : (b))
-#define M_SET_MINMAX(min, max, x)	if( min > x ) { min = x; } else if( max < x ) { max = x; }
+#define M_GET_MIN(a, b)           (((a) < (b)) ? (a) : (b))
+#define M_GET_MAX(a, b)           (((a) > (b)) ? (a) : (b))
+#define M_SET_MINMAX(min, max, x) if( min > x ) { min = x; } else if( max < x ) { max = x; }
 
-#define M_SET_SIGN(x, sign)			((sign) < 0 ? (x < 0 ? x : -x) : (x > 0 ? x : -x))
+#define M_SET_SIGN(x, sign)       ((sign) < 0 ? (x < 0 ? x : -x) : (x > 0 ? x : -x))
+
+#define M_HAS_DECIMALS(x)         (x - floor(x) > 0.)
 
 //---------------------------------------------------------
-#define SG_ROUND_TO_BYTE(x)			((BYTE )(x < 0. ? x - 0.5 : x + 0.5))
-#define SG_ROUND_TO_CHAR(x)			((char )(x < 0. ? x - 0.5 : x + 0.5))
-#define SG_ROUND_TO_WORD(x)			((WORD )(x < 0. ? x - 0.5 : x + 0.5))
-#define SG_ROUND_TO_SHORT(x)		((short)(x < 0. ? x - 0.5 : x + 0.5))
-#define SG_ROUND_TO_DWORD(x)		((DWORD)(x < 0. ? x - 0.5 : x + 0.5))
-#define SG_ROUND_TO_INT(x)			((int  )(x < 0. ? x - 0.5 : x + 0.5))
-#define SG_ROUND_TO_LONG(x)			((long )(x < 0. ? x - 0.5 : x + 0.5))
-#define SG_ROUND_TO_ULONG(x)		((uLong)(x < 0. ? x - 0.5 : x + 0.5))
-#define SG_ROUND_TO_SLONG(x)		((sLong)(x < 0. ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_BYTE(x)       ((BYTE )(x < 0. ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_CHAR(x)       ((char )(x < 0. ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_WORD(x)       ((WORD )(x < 0. ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_SHORT(x)      ((short)(x < 0. ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_DWORD(x)      ((DWORD)(x < 0. ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_INT(x)        ((int  )(x < 0. ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_LONG(x)       ((long )(x < 0. ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_ULONG(x)      ((uLong)(x < 0. ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_SLONG(x)      ((sLong)(x < 0. ? x - 0.5 : x + 0.5))
 
 
 ///////////////////////////////////////////////////////////
