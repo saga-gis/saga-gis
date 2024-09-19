@@ -161,7 +161,7 @@ bool CSG_Projection::Create(const CSG_String &Definition)
 
 		m_Name = WKT.Get_Property("NAME"); if( m_Name.is_Empty() ) { m_Name = "unnamed"; }
 
-		if( !WKT("ID") || !WKT["ID"].Get_Content("VALUE", m_Code) || !WKT["ID"].Get_Property("NAME", m_Authority) )
+		if( !WKT("ID") || !WKT["ID"].Get_Content("VAL1", m_Code) || !WKT["ID"].Get_Property("NAME", m_Authority) )
 		{
 			CSG_Strings Tokens = SG_String_Tokenize(Definition, ":");
 
@@ -174,8 +174,6 @@ bool CSG_Projection::Create(const CSG_String &Definition)
 				m_Authority.Clear(); m_Code = -1;
 			}
 		}
-
-	//	CSG_String xml; WKT.to_XML(xml);
 
 		return( true );
 	}
@@ -353,8 +351,6 @@ CSG_String CSG_Projection::Get_Description(bool bDetails) const
 		return( _TL("Unknown Spatial Reference") );
 	}
 
-	CSG_MetaData WKT(CSG_Projections::_WKT2_to_MetaData(Get_WKT2(), true)), *pGCS = NULL;
-
 	if( !bDetails )
 	{
 		CSG_String s;
@@ -362,10 +358,6 @@ CSG_String CSG_Projection::Get_Description(bool bDetails) const
 		if( !m_Name.is_Empty() && m_Name.CmpNoCase("unknown") )
 		{
 			s = m_Name;
-		}
-		else if( WKT("CONVERSION.METHOD") )
-		{
-			s.Printf("%s [%s]", WKT["CONVERSION.METHOD"].Get_Property("NAME"), _TL("user defined")); s.Replace("_", " ");
 		}
 		else
 		{
@@ -386,160 +378,86 @@ CSG_String CSG_Projection::Get_Description(bool bDetails) const
 	#define ADD_CONT(name, entry)       if( entry                              ) { ADD_INFO(name, entry->Get_Content()     ); }
 	#define ADD_PROP(name, entry, prop) if( entry && entry->Get_Property(prop) ) { ADD_INFO(name, entry->Get_Property(prop)); }
 
+	CSG_MetaData WKT(CSG_Projections::_WKT2_to_MetaData(Get_WKT2(), false)), *pGCS = NULL;
+
 	CSG_String s = "<table border=\"1\">";
 
 	if( is_Projection() )
 	{
-		ADD_HEAD(_TL("Projected Coordinate System" ), WKT.Get_Property("NAME") && !WKT.Cmp_Property("NAME", "unknown", true) ? WKT.Get_Property("NAME") : SG_T(""));
-		ADD_CONT(_TL("Projection"                  ), WKT("CONVERSION.METHOD"));
+		CSG_MetaData &PRJ = WKT.Cmp_Name("PROJCRS") ? WKT : WKT[0].Cmp_Name("PROJCRS") ? WKT[0] : WKT[0][0];
+
+		ADD_HEAD(_TL("Projected Coordinate System" ), PRJ.Get_Property("NAME") && !PRJ.Cmp_Property("NAME", "unknown", true) ? PRJ.Get_Property("NAME") : SG_T(""));
+		ADD_PROP(_TL("Projection"                  ), PRJ("CONVERSION.METHOD"), "NAME");
+
 		if( m_Code > 0 && !m_Authority.is_Empty() )
 		{
 			ADD_INFO(_TL("Authority Code"          ), CSG_String::Format("%d", m_Code) );
 			ADD_INFO(_TL("Authority"               ), m_Authority);
 		}
-	//	ADD_PROP(_TL("Linear Unit"                 ), WKT("UNIT"), "name");
 
-		if( WKT("CONVERSION") )
+		ADD_PROP(_TL("Linear Unit"                 ), PRJ("UNIT"), "NAME");
+
+		if( PRJ("CONVERSION") )
 		{
-			for(int i=0; i<WKT["CONVERSION"].Get_Children_Count(); i++)
+			for(int i=0; i<PRJ["CONVERSION"].Get_Children_Count(); i++)
 			{
-				if( WKT["CONVERSION"][i].Cmp_Name("PARAMETER") )
+				CSG_MetaData &Parameter = PRJ["CONVERSION"][i];
+
+				if( Parameter.Cmp_Name("PARAMETER") && Parameter("VAL1") )
 				{
-					CSG_String Name(WKT[i].Get_Property("name")); Name.Replace("_", " ");
-					ADD_INFO(Name.c_str(), WKT[i].Get_Content().c_str());
+					CSG_String Name(Parameter.Get_Property("NAME")); Name.Replace("_", " ");
+
+					ADD_INFO(Name.c_str(), Parameter["VAL1"].Get_Content().c_str());
 				}
 			}
 		}
 
-		pGCS = WKT("BASEGEODCRS");
+		pGCS = PRJ("BASEGEODCRS");
 	}
 	else if( is_Geographic() )
 	{
-		if( WKT.Cmp_Name("GEOGCRS") || WKT.Cmp_Name("GEODCRS") )
-		{
-			pGCS = &WKT;
-		}
+		pGCS = WKT   .Cmp_Name("GEOGCRS") || WKT   .Cmp_Name("GEODCRS") ? &WKT
+		     : WKT[0].Cmp_Name("GEOGCRS") || WKT[0].Cmp_Name("GEODCRS") ? &WKT[0] : &WKT[0][0];
 	}
 
 	if( pGCS )
 	{
-		ADD_HEAD(_TL("Geographic Coordinate System"),   pGCS->Get_Property("NAME") && !pGCS->Cmp_Property("NAME", "unknown", true) ? pGCS->Get_Property("NAME") : _TL(""));
-		ADD_CONT(_TL("Authority Code"              ), (*pGCS)("ID.VAL1"));
-		ADD_PROP(_TL("Authority"                   ), (*pGCS)("ID"               ), "NAME");
-		ADD_PROP(_TL("Prime Meridian"              ), (*pGCS)("PRIMEM"           ), "NAME");
-		ADD_PROP(_TL("Angular Unit"                ), (*pGCS)("PRIMEM.LENGTHUNIT"), "NAME");
-		ADD_PROP(_TL("Datum"                       ), (*pGCS)("DATUM"            ), "NAME");
-		ADD_PROP(_TL("Spheroid"                    ), (*pGCS)("DATUM.ELLIPSOID"  ), "NAME");
-		ADD_CONT(_TL("Semimajor Axis"              ), (*pGCS)("DATUM.ELLIPSOID.VAL1"));
-		ADD_CONT(_TL("Inverse Flattening"          ), (*pGCS)("DATUM.ELLIPSOID.VAL2"));
-		ADD_CONT(_TL("Extension"                   ), (*pGCS)("DATUM.EXTENSION"     ));
+		CSG_MetaData &GCS = *pGCS;
 
-		ADD_CONT(CSG_String::Format("%s, %s [X]", _TL("Datum Shift"), _TL("Translation")), (*pGCS)("DATUM.TOWGS84.dx"));
-		ADD_CONT(CSG_String::Format("%s, %s [Y]", _TL("Datum Shift"), _TL("Translation")), (*pGCS)("DATUM.TOWGS84.dy"));
-		ADD_CONT(CSG_String::Format("%s, %s [Z]", _TL("Datum Shift"), _TL("Translation")), (*pGCS)("DATUM.TOWGS84.dz"));
-		ADD_CONT(CSG_String::Format("%s, %s [X]", _TL("Datum Shift"), _TL("Rotation"   )), (*pGCS)("DATUM.TOWGS84.rx"));
-		ADD_CONT(CSG_String::Format("%s, %s [Y]", _TL("Datum Shift"), _TL("Rotation"   )), (*pGCS)("DATUM.TOWGS84.ry"));
-		ADD_CONT(CSG_String::Format("%s, %s [Z]", _TL("Datum Shift"), _TL("Rotation"   )), (*pGCS)("DATUM.TOWGS84.rz"));
-		ADD_CONT(CSG_String::Format("%s, %s [X]", _TL("Datum Shift"), _TL("Scaling"    )), (*pGCS)("DATUM.TOWGS84.sc"));
+		ADD_HEAD(_TL("Geographic Coordinate System"), GCS.Get_Property("NAME") && !GCS.Cmp_Property("NAME", "unknown", true) ? GCS.Get_Property("NAME") : _TL(""));
+		ADD_CONT(_TL("Authority Code"              ), GCS("ID.VAL1"));
+		ADD_PROP(_TL("Authority"                   ), GCS("ID"               ), "NAME");
+		ADD_PROP(_TL("Prime Meridian"              ), GCS("PRIMEM"           ), "NAME");
+		ADD_PROP(_TL("Angular Unit"                ), GCS("PRIMEM.LENGTHUNIT"), "NAME");
+		ADD_PROP(_TL("Datum"                       ), GCS("DATUM"            ), "NAME");
+		ADD_PROP(_TL("Spheroid"                    ), GCS("DATUM.ELLIPSOID"  ), "NAME");
+		ADD_CONT(_TL("Semimajor Axis"              ), GCS("DATUM.ELLIPSOID.VAL1"));
+		ADD_CONT(_TL("Inverse Flattening"          ), GCS("DATUM.ELLIPSOID.VAL2"));
+		ADD_CONT(_TL("Extension"                   ), GCS("DATUM.EXTENSION"     ));
+
+		if( WKT("ABRIDGEDTRANSFORMATION") )
+		{
+			CSG_MetaData &Transformation = WKT["ABRIDGEDTRANSFORMATION"];
+
+			ADD_HEAD(_TL("Transformation"), Transformation.Get_Property("NAME"));
+
+			for(int i=0; i<Transformation.Get_Children_Count(); i++)
+			{
+				CSG_MetaData &Parameter = Transformation[i];
+
+				if( Parameter.Cmp_Name("PARAMETER") && Parameter("VAL1") )
+				{
+					CSG_String Name(Parameter.Get_Property("NAME")); Name.Replace("_", " ");
+
+					ADD_INFO(Name.c_str(), Parameter["VAL1"].Get_Content().c_str());
+				}
+			}
+		}
 	}
 
 	s += "</table>";
 
-	//	if( m_WKT1.Length() > 0 ) { s += "\n[" + m_WKT1 + "]"; }
-	//	if( m_PROJ.Length() > 0 ) { s += "\n[" + m_PROJ + "]"; }
-
 	return( s );
-//
-//	CSG_MetaData WKT(CSG_Projections::_WKT1_to_MetaData(Get_WKT1())), *pGCS = NULL;
-//
-//	if( !bDetails )
-//	{
-//		CSG_String s;
-//		
-//		if( !m_Name.is_Empty() && m_Name.CmpNoCase("unknown") )
-//		{
-//			s = m_Name;
-//		}
-//		else if( WKT("PROJECTION") )
-//		{
-//			s.Printf("%s [%s]", WKT.Get_Content("PROJECTION"), _TL("user defined")); s.Replace("_", " ");
-//		}
-//		else
-//		{
-//			s.Printf("[%s]", _TL("user defined"));
-//		}
-//
-//		if( m_Code > 0 && !m_Authority.is_Empty() )
-//		{
-//			s += CSG_String::Format(" [%s:%d]", m_Authority.c_str(), m_Code);
-//		}
-//
-//		return( s );
-//	}
-//
-//	//-----------------------------------------------------
-//	#define ADD_HEAD(name, value) { CSG_String n(name), v(value); n.Replace("_", " "); v.Replace("_", " "); s += CSG_String::Format("<tr><th>%s</th><th>%s</th></tr>", n.c_str(), v.c_str()); }
-//	#define ADD_INFO(name, value) { CSG_String n(name), v(value); n.Replace("_", " "); v.Replace("_", " "); s += CSG_String::Format("<tr><td>%s</td><td>%s</td></tr>", n.c_str(), v.c_str()); }
-//	#define ADD_CONT(name, entry)       if( entry                              ) { ADD_INFO(name, entry->Get_Content()     ); }
-//	#define ADD_PROP(name, entry, prop) if( entry && entry->Get_Property(prop) ) { ADD_INFO(name, entry->Get_Property(prop)); }
-//
-//	CSG_String s = "<table border=\"1\">";
-//
-//	if( is_Projection() )
-//	{
-//		ADD_HEAD(_TL("Projected Coordinate System" ), WKT.Get_Property("name") && !WKT.Cmp_Property("name", "unknown", true) ? WKT.Get_Property("name") : SG_T(""));
-//		ADD_CONT(_TL("Projection"                  ), WKT("PROJECTION"));
-//		if( m_Code > 0 && !m_Authority.is_Empty() )
-//		{
-//			ADD_INFO(_TL("Authority Code"          ), CSG_String::Format("%d", m_Code) );
-//			ADD_INFO(_TL("Authority"               ), m_Authority);
-//		}
-//		ADD_PROP(_TL("Linear Unit"                 ), WKT("UNIT"), "name");
-//
-//		for(int i=0; i<WKT.Get_Children_Count(); i++)
-//		{
-//			if( WKT[i].Cmp_Name("PARAMETER") )
-//			{
-//				CSG_String Name(WKT[i].Get_Property("name")); Name.Replace("_", " ");
-//				ADD_INFO(Name.c_str(), WKT[i].Get_Content().c_str());
-//			}
-//		}
-//
-//		pGCS = WKT("GEOGCS");
-//	}
-//	else if( is_Geographic() )
-//	{
-//		pGCS = &WKT;
-//	}
-//
-//	if( pGCS && pGCS->Cmp_Name("GEOGCS") )
-//	{
-//		ADD_HEAD(_TL("Geographic Coordinate System"),   pGCS->Get_Property("name") && !pGCS->Cmp_Property("name", "unknown", true) ? pGCS->Get_Property("name") : _TL(""));
-//		ADD_PROP(_TL("Authority Code"              ),   pGCS, "authority_code");
-//		ADD_PROP(_TL("Authority"                   ),   pGCS, "authority_name");
-//		ADD_PROP(_TL("Prime Meridian"              ), (*pGCS)("PRIMEM"        ), "name");
-//		ADD_PROP(_TL("Angular Unit"                ), (*pGCS)("UNIT"          ), "name");
-//		ADD_PROP(_TL("Datum"                       ), (*pGCS)("DATUM"         ), "name");
-//		ADD_PROP(_TL("Spheroid"                    ), (*pGCS)("DATUM.SPHEROID"), "name");
-//		ADD_CONT(_TL("Semimajor Axis"              ), (*pGCS)("DATUM.SPHEROID.a" ));
-//		ADD_CONT(_TL("Inverse Flattening"          ), (*pGCS)("DATUM.SPHEROID.rf"));
-//		ADD_CONT(_TL("Extension"                   ), (*pGCS)("DATUM.EXTENSION"));
-//
-//		ADD_CONT(CSG_String::Format("%s, %s [X]", _TL("Datum Shift"), _TL("Translation")), (*pGCS)("DATUM.TOWGS84.dx"));
-//		ADD_CONT(CSG_String::Format("%s, %s [Y]", _TL("Datum Shift"), _TL("Translation")), (*pGCS)("DATUM.TOWGS84.dy"));
-//		ADD_CONT(CSG_String::Format("%s, %s [Z]", _TL("Datum Shift"), _TL("Translation")), (*pGCS)("DATUM.TOWGS84.dz"));
-//		ADD_CONT(CSG_String::Format("%s, %s [X]", _TL("Datum Shift"), _TL("Rotation"   )), (*pGCS)("DATUM.TOWGS84.rx"));
-//		ADD_CONT(CSG_String::Format("%s, %s [Y]", _TL("Datum Shift"), _TL("Rotation"   )), (*pGCS)("DATUM.TOWGS84.ry"));
-//		ADD_CONT(CSG_String::Format("%s, %s [Z]", _TL("Datum Shift"), _TL("Rotation"   )), (*pGCS)("DATUM.TOWGS84.rz"));
-//		ADD_CONT(CSG_String::Format("%s, %s [X]", _TL("Datum Shift"), _TL("Scaling"    )), (*pGCS)("DATUM.TOWGS84.sc"));
-//	}
-//
-//	s += "</table>";
-//
-////	if( m_WKT1.Length() > 0 ) { s += "\n[" + m_WKT1 + "]"; }
-////	if( m_PROJ.Length() > 0 ) { s += "\n[" + m_PROJ + "]"; }
-//
-//	return( s );
 }
 
 
@@ -720,34 +638,41 @@ bool CSG_Projection::Set_UTM_WGS84(int Zone, bool bSouth)
 	}
 
 	//-----------------------------------------------------
-	#define WKT1_GCS_WGS84 "GEOGCS[\"WGS 84\",AUTHORITY[\"EPSG\",\"4326\"]],"\
-		"DATUM[\"WGS_1984\",AUTHORITY[\"EPSG\",\"6326\"]],"\
-			"SPHEROID[\"WGS 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],"\
-		"PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],"\
-		"UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]"
-
-	#define WKT2_GCS_WGS84 "GEODCRS[\"WGS 84\","\
-		"DATUM[\"World Geodetic System 1984\","\
-			"ELLIPSOID[\"WGS 84\",6378137,298.257223563]],"\
-		"CS[ellipsoidal,2],"\
-			"AXIS[\"geodetic longitude (Lon)\",east],"\
-			"AXIS[\"geodetic latitude (Lat)\",north],"\
-			"UNIT[\"degree\",0.0174532925199433],"\
-		"ID[\"EPSG\",4326]]"
-
-	CSG_String WKT;
-
-	WKT.Printf("PROJCS[\"WGS 84 / UTM zone %d%c\",%s"						// Zone, N/S, Datum
-		"PROJECTION[\"Transverse_Mercator\"],AUTHORITY[\"EPSG\",\"%d\"]]"	// EPSG ID
-			"PARAMETER[\"latitude_of_origin\",0],"
-			"PARAMETER[\"central_meridian\",%d],"							// Central Meridian
-			"PARAMETER[\"scale_factor\",0.9996],"
-			"PARAMETER[\"false_easting\",500000],"
-			"PARAMETER[\"false_northing\",%d],"								// False Northing
-			"AXIS[\"Easting\",EAST],"
-			"AXIS[\"Northing\",NORTH],"
-			"UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]]",
-		Zone, bSouth ? 'S' : 'N', CSG_String(WKT2_GCS_WGS84).c_str(), EPSG_ID, 6 * (Zone - 1) - 177, bSouth ? 10000000 : 0
+	CSG_String WKT; WKT.Printf(
+		"PROJCRS[\"WGS 84 / UTM zone %d%c\","                   // Zone, N/S
+		"    BASEGEODCRS[\"WGS 84\","
+		"        DATUM[\"World Geodetic System 1984\","
+		"            ELLIPSOID[\"WGS 84\",6378137,298.257223563,"
+		"                LENGTHUNIT[\"metre\",1]]],"
+		"        PRIMEM[\"Greenwich\",0,"
+		"            ANGLEUNIT[\"degree\",0.0174532925199433]]],"
+		"    CONVERSION[\"UTM zone 32N\","
+		"        METHOD[\"Transverse Mercator\","
+		"            ID[\"EPSG\",9807]],"
+		"        PARAMETER[\"Latitude of natural origin\",0,"
+		"            ANGLEUNIT[\"degree\",0.0174532925199433],"
+		"            ID[\"EPSG\",8801]],"
+		"        PARAMETER[\"Longitude of natural origin\",%d," // Central Meridian
+		"            ANGLEUNIT[\"degree\",0.0174532925199433],"
+		"            ID[\"EPSG\",8802]],"
+		"        PARAMETER[\"Scale factor at natural origin\",0.9996,"
+		"            SCALEUNIT[\"unity\",1],"
+		"            ID[\"EPSG\",8805]],"
+		"        PARAMETER[\"False easting\",500000,"
+		"            LENGTHUNIT[\"metre\",1],"
+		"            ID[\"EPSG\",8806]],"
+		"        PARAMETER[\"False northing\",%d,"              // False Northing
+		"            LENGTHUNIT[\"metre\",1],"
+		"            ID[\"EPSG\",8807]]],"
+		"    CS[Cartesian,2],"
+		"        AXIS[\"(E)\",east,"
+		"            ORDER[1],"
+		"            LENGTHUNIT[\"metre\",1]],"
+		"        AXIS[\"(N)\",north,"
+		"            ORDER[2],"
+		"            LENGTHUNIT[\"metre\",1]],"
+		"    ID[\"EPSG\",32632]]",                              // EPSG ID
+		Zone, bSouth ? 'S' : 'N', 6 * (Zone - 1) - 177, bSouth ? 10000000 : 0, EPSG_ID
 	);
 
 	return( Create(WKT) );
