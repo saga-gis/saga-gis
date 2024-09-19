@@ -84,6 +84,12 @@ CQGIS_ToolBox::CQGIS_ToolBox(void)
 		"",
 		"Category|Library"
 	);
+
+	Parameters.Add_Bool(
+		"", "LOAD_ALL" , "Load All Standard Tool Libraries",
+		"",
+		true
+	);
 }
 
 
@@ -94,6 +100,12 @@ CQGIS_ToolBox::CQGIS_ToolBox(void)
 //---------------------------------------------------------
 bool CQGIS_ToolBox::On_Execute(void)
 {
+	if( Parameters("LOAD_ALL")->asBool() )
+	{
+		SG_Get_Tool_Library_Manager().Add_Default_Libraries();
+	}
+
+	//-----------------------------------------------------
 	CSG_String Directory(Parameters("DIRECTORY")->asString());
 
 	if( Parameters("CLEAR")->asBool() )
