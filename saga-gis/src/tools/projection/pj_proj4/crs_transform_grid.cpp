@@ -741,18 +741,17 @@ bool CCRS_Transform_Grid::Set_Target_System(CSG_Parameters *pParameters, int Res
 		return( false );
 	}
 
-	CSG_Projection	Projection;
-	CSG_Grid_System	System;
+	CSG_Projection Projection; CSG_Grid_System System;
 
 	if( m_bList )
 	{
-		CSG_Data_Object	*pItem	= pParameters->Get_Parameter("SOURCE")->asGridList()->Get_Item(0);
+		CSG_Data_Object *pItem = pParameters->Get_Parameter("SOURCE")->asGridList()->Get_Item(0);
 
 		if( pItem )
 		{
 			Projection.Create(pItem->Get_Projection());
 
-			System	= pItem->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid
+			System = pItem->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid
 				? ((CSG_Grid  *)pItem)->Get_System()
 				: ((CSG_Grids *)pItem)->Get_System();
 		}
@@ -761,7 +760,7 @@ bool CCRS_Transform_Grid::Set_Target_System(CSG_Parameters *pParameters, int Res
 	{
 		Projection.Create(pParameters->Get_Parameter("SOURCE")->asGrid()->Get_Projection());
 
-		System	= pParameters->Get_Parameter("SOURCE")->asGrid()->Get_System();
+		System = pParameters->Get_Parameter("SOURCE")->asGrid()->Get_System();
 	}
 
 	CSG_String p(pParameters->Get_Parameter("CRS_WKT")->asString());
@@ -777,8 +776,7 @@ bool CCRS_Transform_Grid::Set_Target_System(CSG_Parameters *pParameters, int Res
 	}
 
 	//-----------------------------------------------------
-	int			x, y;
-	TSG_Rect	Extent;
+	TSG_Rect Extent;
 
 	Extent.xMin	= Extent.yMin	= 1.;
 	Extent.xMax	= Extent.yMax	= 0.;
@@ -791,38 +789,38 @@ bool CCRS_Transform_Grid::Set_Target_System(CSG_Parameters *pParameters, int Res
 	//-----------------------------------------------------
 	if( bEdges )	// edges
 	{
-		double	d;
+		double dy = System.Get_YMin(); int yStep = 1 + System.Get_NY() / Resolution;
 
-		int	yStep	= 1 + System.Get_NY() / Resolution;
-
-		for(y=0, d=System.Get_YMin(); y<System.Get_NY(); y+=yStep, d+=yStep*System.Get_Cellsize())
+		for(int y=0; y<System.Get_NY(); y+=yStep, dy+=yStep*System.Get_Cellsize())
 		{
-			Get_MinMax(Extent, System.Get_Extent().Get_XMin   (), d);
-			Get_MinMax(Extent, System.Get_Extent().Get_XCenter(), d);
-			Get_MinMax(Extent, System.Get_Extent().Get_XMax   (), d);
+			Get_MinMax(Extent, System.Get_Extent().Get_XMin   (), dy);
+			Get_MinMax(Extent, System.Get_Extent().Get_XCenter(), dy);
+			Get_MinMax(Extent, System.Get_Extent().Get_XMax   (), dy);
 		}
 
-		int	xStep	= 1 + System.Get_NX() / Resolution;
+		double dx = System.Get_XMin(); int xStep = 1 + System.Get_NX() / Resolution;
 
-		for(x=0, d=System.Get_XMin(); x<System.Get_NX(); x+=xStep, d+=xStep*System.Get_Cellsize())
+		for(int x=0; x<System.Get_NX(); x+=xStep, dx+=xStep*System.Get_Cellsize())
 		{
-			Get_MinMax(Extent, d, System.Get_Extent().Get_YMin   ());
-			Get_MinMax(Extent, d, System.Get_Extent().Get_YCenter());
-			Get_MinMax(Extent, d, System.Get_Extent().Get_YMax   ());
+			Get_MinMax(Extent, dx, System.Get_Extent().Get_YMin   ());
+			Get_MinMax(Extent, dx, System.Get_Extent().Get_YCenter());
+			Get_MinMax(Extent, dx, System.Get_Extent().Get_YMax   ());
 		}
 	}
 
 	//-----------------------------------------------------
 	else			// all cells
 	{
-		TSG_Point	p;
+		TSG_Point p; p.y=System.Get_YMin();
 
-		int	xStep	= 1 + System.Get_NX() / Resolution;
-		int	yStep	= 1 + System.Get_NY() / Resolution;
+		int xStep = 1 + System.Get_NX() / Resolution;
+		int yStep = 1 + System.Get_NY() / Resolution;
 
-		for(y=0, p.y=System.Get_YMin(); y<System.Get_NY(); y+=yStep, p.y+=yStep*System.Get_Cellsize())
+		for(int y=0; y<System.Get_NY(); y+=yStep, p.y+=yStep*System.Get_Cellsize())
 		{
-			for(x=0, p.x=System.Get_XMin(); x<System.Get_NX(); x+=xStep, p.x+=xStep*System.Get_Cellsize())
+			p.x=System.Get_XMin();
+
+			for(int x=0; x<System.Get_NX(); x+=xStep, p.x+=xStep*System.Get_Cellsize())
 			{
 				Get_MinMax(Extent, p.x, p.y);
 			}
@@ -830,8 +828,8 @@ bool CCRS_Transform_Grid::Set_Target_System(CSG_Parameters *pParameters, int Res
 	}
 
 	return(	Extent.xMin < Extent.xMax && Extent.yMin < Extent.yMax
-		&&	m_Grid_Target.Set_User_Defined(pParameters, Extent, System.Get_NY())
-		&&  m_Grid_Target.Get_System().is_Valid()
+	    &&  m_Grid_Target.Set_User_Defined(pParameters, Extent, System.Get_NY())
+	    &&  m_Grid_Target.Get_System().is_Valid()
 	);
 }
 

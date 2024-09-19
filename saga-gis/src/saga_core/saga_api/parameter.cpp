@@ -1373,6 +1373,7 @@ bool CSG_Parameters_Grid_Target::Create(CSG_Parameters *pParameters, bool bAddDe
 	m_pParameters->Add_Double(TargetID, m_Prefix + "USER_YMAX", _TL("North"   ), _TL(""), 100.);
 	m_pParameters->Add_Int   (TargetID, m_Prefix + "USER_COLS", _TL("Columns" ), _TL("Number of cells in East-West direction."  ), 101, 1, true);
 	m_pParameters->Add_Int   (TargetID, m_Prefix + "USER_ROWS", _TL("Rows"    ), _TL("Number of cells in North-South direction."), 101, 1, true);
+	m_pParameters->Add_Bool  (TargetID, m_Prefix + "USER_FLAT", _TL("Rounding"), _TL("Round bounding coordinates to multiples of cell size. Ignored if cell size has decimal places."), true);
 	m_pParameters->Add_Choice(TargetID, m_Prefix + "USER_FITS", _TL("Fit"     ), _TL(""),
 		CSG_String::Format("%s|%s",
 			_TL("nodes"),
@@ -1424,6 +1425,7 @@ bool CSG_Parameters_Grid_Target::On_Parameter_Changed(CSG_Parameters *pParameter
 	&&  !pParameter->Cmp_Identifier(Prefix + "USER_YMAX")
 	&&  !pParameter->Cmp_Identifier(Prefix + "USER_ROWS")
 	&&  !pParameter->Cmp_Identifier(Prefix + "USER_COLS")
+	&&  !pParameter->Cmp_Identifier(Prefix + "USER_FLAT")
 	&&  !pParameter->Cmp_Identifier(Prefix + "USER_FITS") )
 	{
 		return( true );
@@ -1436,6 +1438,7 @@ bool CSG_Parameters_Grid_Target::On_Parameter_Changed(CSG_Parameters *pParameter
 	CSG_Parameter *pYMax = (*pParameters)(Prefix + "USER_YMAX");
 	CSG_Parameter *pRows = (*pParameters)(Prefix + "USER_ROWS");
 	CSG_Parameter *pCols = (*pParameters)(Prefix + "USER_COLS");
+	CSG_Parameter *pFlat = (*pParameters)(Prefix + "USER_FLAT");
 	CSG_Parameter *pFits = (*pParameters)(Prefix + "USER_FITS");
 
 	double Size = pSize->asDouble();
@@ -1491,6 +1494,10 @@ bool CSG_Parameters_Grid_Target::On_Parameter_Changed(CSG_Parameters *pParameter
 		{
 			yMin  = yMax - Size * (yMin > yMax ? (pRows->asInt() - 1) : (int)(0.5 + (yMax - yMin) / Size));
 		}
+		else if( pParameter->Cmp_Identifier(pFlat->Get_Identifier()) )
+		{
+			bChanged = pFlat->asBool();
+		}
 		else
 		{
 			bChanged = false; // none of the relevant parameters did change so far
@@ -1500,6 +1507,13 @@ bool CSG_Parameters_Grid_Target::On_Parameter_Changed(CSG_Parameters *pParameter
 	//-----------------------------------------------------
 	if( bChanged )
 	{
+		if( (pParameter->Cmp_Identifier(pSize->Get_Identifier()) || pParameter->Cmp_Identifier(pFlat->Get_Identifier()))
+		&&  pFlat->asBool() && !M_HAS_DECIMALS(Size) ) // rounding of bounds
+		{
+			xMin = floor(xMin / Size) * Size; xMax = ceil(xMax / Size) * Size;
+			yMin = floor(yMin / Size) * Size; yMax = ceil(yMax / Size) * Size;
+		}
+
 		pCols->Set_Value(1 + (int)((xMax - xMin) / Size));
 		pRows->Set_Value(1 + (int)((yMax - yMin) / Size));
 
@@ -1588,6 +1602,7 @@ bool CSG_Parameters_Grid_Target::On_Parameters_Enable(CSG_Parameters *pParameter
 	pParameters->Set_Enabled(Prefix + "USER_YMAX", pParameter->asInt() == 0);
 	pParameters->Set_Enabled(Prefix + "USER_ROWS", pParameter->asInt() == 0);
 	pParameters->Set_Enabled(Prefix + "USER_COLS", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(Prefix + "USER_FLAT", pParameter->asInt() == 0);
 	pParameters->Set_Enabled(Prefix + "USER_FITS", pParameter->asInt() == 0);
 	pParameters->Set_Enabled(Prefix + "USER_OPTS", pParameter->asInt() == 0);
 	pParameters->Set_Enabled(Prefix + "USER_Z"   , pParameter->asInt() == 0);
@@ -1647,7 +1662,7 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, c
 
 	int    Cols = 1 + (int)(0.5 + r.Get_XRange() / Size);
 
-	if( Rounding > 0 )
+	if( Rounding > 0 ) // rounding of cell size!
 	{
 		Size = SG_Get_Rounded_To_SignificantFigures(Size, Rounding);
 
@@ -1657,6 +1672,13 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, c
 	}
 
 	r.xMax = r.Get_XMin() + Size * (Cols - 1);
+
+	//-----------------------------------------------------
+	if( (*pParameters)(m_Prefix + "USER_FLAT")->asBool() && !M_HAS_DECIMALS(Size) ) // rounding of bounds
+	{
+		r.xMin = floor(r.xMin / Size) * Size; r.xMax = ceil(r.xMax / Size) * Size;
+		r.yMin = floor(r.yMin / Size) * Size; r.yMax = ceil(r.yMax / Size) * Size;
+	}
 
 	//-----------------------------------------------------
 	if( (*pParameters)(m_Prefix + "USER_FITS")->asInt() == 1 ) // fit to cells
