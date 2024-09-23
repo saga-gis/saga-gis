@@ -62,7 +62,8 @@ CTool_Description::CTool_Description(void)
 
 	Set_Author	("O.Conrad (c) 2023");
 
-	Parameters.Add_FilePath("", "FOLDER", "Folder", "", NULL, NULL, true, true);
+	Parameters.Add_FilePath("", "FOLDER"  , "Folder"                , "", NULL, NULL, true, true);
+	Parameters.Add_Bool    ("", "LOADDEFS", "Load Default Libraries", "", true);
 }
 
 
@@ -106,6 +107,12 @@ bool CTool_Description::On_Execute(void)
 	All_Tools.Add_Field("ID"         , SG_DATATYPE_String);
 	All_Tools.Add_Field("Tool"       , SG_DATATYPE_String);
 	All_Tools.Add_Field("Menu"       , SG_DATATYPE_String);
+
+	//---------------------------------------------------------
+	if( Parameters["LOADDEFS"].asBool() )
+	{
+		SG_Get_Tool_Library_Manager().Add_Default_Libraries();
+	}
 
 	//---------------------------------------------------------
 	for(int iLibrary=0, nTotal=0; iLibrary<SG_Get_Tool_Library_Manager().Get_Count(); iLibrary++)
