@@ -267,8 +267,10 @@ bool CSG_Grid::Create(CSG_Grid *pGrid, TSG_Data_Type Type, bool bCached)
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::Create(const CSG_Grid_System &System, TSG_Data_Type Type, bool bCached)
+bool CSG_Grid::Create(const CSG_Grid_System &_System, TSG_Data_Type Type, bool bCached)
 {
+	CSG_Grid_System System(_System); // just in case _System is identical with this->m_System
+
 	Destroy();
 
 	switch( (m_Type = Type) )
@@ -299,7 +301,7 @@ bool CSG_Grid::Create(const CSG_Grid_System &System, TSG_Data_Type Type, bool bC
 	m_Statistics.Invalidate();
 
 	m_nBytes_Value = SG_Data_Type_Get_Size(m_Type);
-	m_nBytes_Line  = m_Type == SG_DATATYPE_Bit ? 1 + Get_NX() / 8 : Get_NX() * m_nBytes_Value;
+	m_nBytes_Line  = m_Type == SG_DATATYPE_Bit ? 1 + (size_t)Get_NX() / 8 : (size_t)Get_NX() * m_nBytes_Value;
 
 	Set_Max_Samples(SG_DataObject_Get_Max_Samples() > 0 ? SG_DataObject_Get_Max_Samples() : Get_NCells());
 

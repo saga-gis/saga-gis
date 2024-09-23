@@ -138,20 +138,24 @@ int CGrid_RGB_Composite::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 //---------------------------------------------------------
 bool CGrid_RGB_Composite::On_Execute(void)
 {
-	CSG_Grid	*pBand[4];	double	Offset[4], Scale[4];
+	CSG_Grid *pBand[4]; double Offset[4], Scale[4];
 
-	pBand[0]	= _Get_Grid(Parameters("R_GRID")->asGrid(), Offset[0], Scale[0]);
-	pBand[1]	= _Get_Grid(Parameters("G_GRID")->asGrid(), Offset[1], Scale[1]);
-	pBand[2]	= _Get_Grid(Parameters("B_GRID")->asGrid(), Offset[2], Scale[2]);
-	pBand[3]	= _Get_Grid(Parameters("A_GRID")->asGrid(), Offset[3], Scale[3]);
+	pBand[0] = _Get_Grid(Parameters("R_GRID")->asGrid(), Offset[0], Scale[0]);
+	pBand[1] = _Get_Grid(Parameters("G_GRID")->asGrid(), Offset[1], Scale[1]);
+	pBand[2] = _Get_Grid(Parameters("B_GRID")->asGrid(), Offset[2], Scale[2]);
+	pBand[3] = _Get_Grid(Parameters("A_GRID")->asGrid(), Offset[3], Scale[3]);
 
 	//-----------------------------------------------------
-	CSG_Grid	*pRGB	= Parameters("RGB")->asGrid();
+	CSG_Grid *pRGB = Parameters("RGB")->asGrid();
 
-	pRGB->Create(pRGB->Get_System(), SG_DATATYPE_Int);
+	if( pRGB->Get_Type() != SG_DATATYPE_Int )
+	{
+		pRGB->Create(pRGB->Get_System(), SG_DATATYPE_Int);
+	}
+
 	pRGB->Set_Name(_TL("Composite"));
 
-	bool	bNoData	= Parameters("NODATA")->asBool() == false;
+	bool bNoData = Parameters("NODATA")->asBool() == false;
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
@@ -177,13 +181,13 @@ bool CGrid_RGB_Composite::On_Execute(void)
 				{
 					if( pBand[i] )
 					{
-						double	d	= Scale[i] * (pBand[i]->asDouble(x, y) - Offset[i]);
+						double d = Scale[i] * (pBand[i]->asDouble(x, y) - Offset[i]);
 						
-						c[i]	= d < 0. ? 0 : d > 255. ? 255 : (BYTE)d;
+						c[i] = d < 0. ? 0 : d > 255. ? 255 : (BYTE)d;
 					}
 					else
 					{
-						c[i]	= 255;
+						c[i] = 255;
 					}
 				}
 
