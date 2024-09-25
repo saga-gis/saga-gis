@@ -159,24 +159,29 @@ bool CSG_Projection::Create(const CSG_String &Definition)
 
 		m_Type = CSG_Projections::Get_CRS_Type(WKT.Get_Name());
 
-		m_Name = WKT.Get_Property("NAME"); if( m_Name.is_Empty() ) { m_Name = "unnamed"; }
-
-		if( !WKT("ID") || !WKT["ID"].Get_Content("VAL1", m_Code) || !WKT["ID"].Get_Property("NAME", m_Authority) )
+		if( m_Type != ESG_CRS_Type::Undefined )
 		{
-			CSG_Strings Tokens = SG_String_Tokenize(Definition, ":");
+			m_Name = WKT.Get_Property("NAME"); if( m_Name.is_Empty() ) { m_Name = "unnamed"; }
 
-			if( Tokens.Get_Count() == 2 && !Tokens[0].is_Empty() && Tokens[1].asInt(m_Code) )
+			if( !WKT("ID") || !WKT["ID"].Get_Content("VAL1", m_Code) || !WKT["ID"].Get_Property("NAME", m_Authority) )
 			{
-				m_Authority = Tokens[0]; m_Authority.Make_Upper();
+				CSG_Strings Tokens = SG_String_Tokenize(Definition, ":");
+
+				if( Tokens.Get_Count() == 2 && !Tokens[0].is_Empty() && Tokens[1].asInt(m_Code) )
+				{
+					m_Authority = Tokens[0]; m_Authority.Make_Upper();
+				}
+				else
+				{
+					m_Authority.Clear(); m_Code = -1;
+				}
 			}
-			else
-			{
-				m_Authority.Clear(); m_Code = -1;
-			}
+
+			return( true );
 		}
-
-		return( true );
 	}
+
+	Destroy();
 
 	return( false );
 }
