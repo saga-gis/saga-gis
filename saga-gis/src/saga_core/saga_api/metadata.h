@@ -145,7 +145,7 @@ public:
 
 	int							Get_Count			(void) const                    { return( (int)m_Children.Get_Size() ); }
 	int							Get_Children_Count	(void) const                    { return( (int)m_Children.Get_Size() ); }
-	CSG_MetaData *				Get_Child			(int Index)              const	{ return( Index >= 0 ? *((CSG_MetaData **)m_Children.Get_Entry((size_t)Index)) : NULL ); }
+	CSG_MetaData *				Get_Child			(int Index)              const	{ return( Index >= 0 && Index < (int)m_Children.Get_Size() ? *((CSG_MetaData **)m_Children.Get_Entry((size_t)Index)) : NULL ); }
 	CSG_MetaData *				Get_Child			(const CSG_String &Name) const;
 	CSG_MetaData *				Add_Child			(void);
 	CSG_MetaData *				Add_Child			(const CSG_String &Name);
