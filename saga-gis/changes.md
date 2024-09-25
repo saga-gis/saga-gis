@@ -5,6 +5,15 @@ This document lists backward incompatible changes and provides hints on how thes
 
 ___
 ___
+## SAGA 9.6.0 Tool interface changes
+
+#### Coordinate Transformation Tools
+
+The "CRS_EPSG" and "CRS_EPSG_AUTH" parameters have been deprecated on the command line (but are still available in the GUI), please use the new parameter (identifier) "CRS_STRING" instead (see also the section on [SAGA 9.5.0 Tool interface changes](#crsdefinition)). For example: CRS_STRING="EPSG:4326"
+
+
+___
+___
 ## SAGA 9.5.1 Tool interface changes
 
 #### Grid Calculator ('grid_calculus', '1')
@@ -43,6 +52,25 @@ CSG_String          SG_Get_Projection_Unit_Identifier(TSG_Projection_Unit Unit) 
 CSG_String          SG_Get_Projection_Unit_Name      (TSG_Projection_Unit Unit, bool bSimple) >> CSG_Projections::Get_Unit_Name(...)
 double              SG_Get_Projection_Unit_To_Meter  (TSG_Projection_Unit Unit)               >> CSG_Projections::Get_Unit_To_Meter(...)
 
+___
+## SAGA 9.5.0 Tool interface changes
+
+#### Coordinate Transformation Tools {#crsdefinition}
+
+The coordinate transformation tools can now use a PROJ definition to specify the projection instead of a proj4 string. The old parameter (identifier) "CRS_PROJ4" has been deprecated, please use the new parameter (identifier) "CRS_STRING".
+
+ The following input formats are now supported as Coordinate Reference System (CRS) definition:
+
+* proj strings
+* WKT strings
+* object codes (e.g. "EPSG:4326", "ESRI:31493", "urn:ogc:def:crs:EPSG::4326", "urn:ogc:def:coordinateOperation:EPSG::1671")
+* object names (e.g. "WGS 84", "WGS 84 / UTM zone 31N", "Germany_Zone_3"). In this case as uniqueness is not guaranteed, heuristics are applied to determine the appropriate best match.
+* OGC URN combining references for compound CRS (e.g "urn:ogc:def:crs,crs:EPSG::2393,crs:EPSG::5717" or custom abbreviated syntax "EPSG:2393+5717")
+* OGC URN combining references for concatenated operations (e.g. "urn:ogc:def:coordinateOperation,coordinateOperation:EPSG::3895,coordinateOperation:EPSG::1618")
+* PROJJSON strings (find the jsonschema at [proj.org](https://proj.org/schemas/v0.4/projjson.schema.json))
+* compound CRS made from two object names separated with " + " (e.g. "WGS 84 + EGM96 height")
+
+___
 ___
 ## SAGA 9.3.0 API changes
 
