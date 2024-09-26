@@ -100,14 +100,12 @@ bool CCRS_Grid_GeogCoords::On_Execute(void)
 {
 	CSG_CRSProjector Projector;
 
-	if( !Projector.Set_Source(Parameters("GRID")->asGrid()->Get_Projection()) )
+	if( !Projector.Set_Transformation(Parameters("GRID")->asGrid()->Get_Projection(), CSG_Projection::Get_GCS_WGS84()) )
 	{
-		Error_Set(_TL("Could not initialize grid projection."));
+		Error_Set(_TL("Could not initialize coordinate transformation."));
 
 		return( false );
 	}
-
-	Projector.Set_Target(CSG_Projection::Get_GCS_WGS84());
 
 	//-----------------------------------------------------
 	CSG_Grid *pLon = Parameters("LON")->asGrid();

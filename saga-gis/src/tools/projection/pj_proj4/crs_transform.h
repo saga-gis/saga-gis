@@ -78,7 +78,7 @@ public:
 	bool					Destroy						(void);
 
 	bool					Set_Copies					(int nCopies = 0);
-	CSG_CRSProjector &		operator []					(int iCopy);
+	CSG_CRSProjector &		operator []					(int iCopy) { return( iCopy > 0 && iCopy <= m_nCopies ? m_Copies[iCopy - 1] : *this ); }
 
 	static CSG_String		Get_Version					(void);
 	static CSG_String		Get_Description				(void);
@@ -95,43 +95,46 @@ public:
 	static CSG_String		Convert_CRS_To_WKT2			(const CSG_String &Definition, bool bMultiLine, bool bSimplified);
 
 
-	bool					Set_Source					(const CSG_Projection &Projection);
-	const CSG_Projection &	Get_Source					(void)	const		{	return( m_Source );	}
+	bool					Set_Source					(const CSG_Projection &Projection, bool bSetTransformation = false);
+	const CSG_Projection &	Get_Source					(void) const { return( m_Source ); }
 
-	bool					Set_Target					(const CSG_Projection &Projection);
-	const CSG_Projection &	Get_Target					(void)	const		{	return( m_Target );	}
+	bool					Set_Target					(const CSG_Projection &Projection, bool bSetTransformation = false);
+	const CSG_Projection &	Get_Target					(void) const { return( m_Target ); }
 
+	bool					Set_Transformation			(void);
+	bool					Set_Transformation			(const CSG_Projection &Source, const CSG_Projection &Target);
+
+	bool					Set_Forward					(bool bOn = true);
+	bool					Get_Forward					(void) const { return( !m_bInverse ); }
 	bool					Set_Inverse					(bool bOn = true);
-	bool					Get_Inverse					(void)	const		{	return( m_bInverse );	}
+	bool					Get_Inverse					(void) const { return(  m_bInverse ); }
+	bool					Has_Inverse					(void) const;
 
-	bool					Set_Precise_Mode			(bool bOn = true);
-	bool					Get_Precise_Mode			(void)	const		{	return( m_pGCS != NULL );	}
-
-	bool					Get_Projection				(double &x, double &y)	const;
-	bool					Get_Projection				(TSG_Point &Point)		const;
-	bool					Get_Projection				(CSG_Point &Point)		const;
-
-	bool					Get_Projection				(double &x, double &y, double &z)	const;
-	bool					Get_Projection				(TSG_Point_3D &Point)				const;
-	bool					Get_Projection				(CSG_Point_3D &Point)				const;
+	bool					Get_Projection				(double &x, double &y           ) const;
+	bool					Get_Projection				(double &x, double &y, double &z) const;
+	bool					Get_Projection				(TSG_Point    &Point)             const;
+	bool					Get_Projection				(CSG_Point    &Point)             const;
+	bool					Get_Projection				(TSG_Point_3D &Point)             const;
+	bool					Get_Projection				(CSG_Point_3D &Point)             const;
 
 
 private:
 
-	bool					m_bInverse;
+	bool					m_bInverse = false;
 
-	void					*m_pContext, *m_pSource, *m_pTarget, *m_pGCS;
+	void					*m_pContext = NULL, *m_pTransformation = NULL;
 
 	CSG_Projection			m_Source, m_Target;
 
-	int						m_nCopies;
+	int						m_nCopies = 0;
 
-	CSG_CRSProjector		*m_Copies;
+	CSG_CRSProjector		*m_Copies = NULL;
 
 
 	void					_On_Construction			(void);
 
-	bool					_Set_Projection				(const CSG_Projection &Projection, void **ppProjection, bool bInverse);
+	bool					_Set_Transformation			(void                *pSource, void                *pTarget, void **ppTransformation) const;
+	bool					_Set_Transformation			(const CSG_Projection &Source, const CSG_Projection &Target, void **ppTransformation) const;
 
 };
 

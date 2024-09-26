@@ -81,14 +81,12 @@ CCRS_Distance_Calculator::~CCRS_Distance_Calculator(void)
 //---------------------------------------------------------
 bool CCRS_Distance_Calculator::Create(const CSG_Projection &Projection, double Epsilon)
 {
-	if( !m_ProjToGCS.Set_Source(Projection)
-	||  !m_ProjToGCS.Set_Target(CSG_Projection::Get_GCS_WGS84())
-	||  !m_Projector.Set_Target(Projection) )
+	if( !m_ProjToGCS.Set_Transformation(Projection, CSG_Projection::Get_GCS_WGS84()) || !m_Projector.Set_Target(Projection) )
 	{
 		return( false );
 	}
 
-	m_Epsilon	= Epsilon;
+	m_Epsilon = Epsilon;
 
 	return( true );
 }
@@ -101,21 +99,19 @@ bool CCRS_Distance_Calculator::Create(const CSG_Projection &Projection, double E
 //---------------------------------------------------------
 double CCRS_Distance_Calculator::Get_Orthodrome(const TSG_Point &A, const TSG_Point &B, CSG_Shape *pLine)
 {
-	static const TSG_Point	P0	= { 0.0, 0.0 };
+	static const TSG_Point P0 = { 0., 0. };
 
-	TSG_Point	P	= A;
+	TSG_Point P = A;
 
 	if( m_ProjToGCS.Get_Projection(P) )
 	{
-		m_Projector.Set_Source(CSG_Projection(
-			CSG_String::Format("+proj=aeqd +R=6371000 +lon_0=%f +lat_0=%f", P.x, P.y))
-		);
+		CSG_Projection Projection(CSG_String::Format("+proj=aeqd +R=6371000 +lon_0=%f +lat_0=%f", P.x, P.y));
 
 		m_Projector.Set_Inverse();
 
-		if( m_Projector.Get_Projection(P = B) )
+		if( m_Projector.Set_Source(Projection, true) && m_Projector.Get_Projection(P = B) )
 		{
-			m_Projector.Set_Inverse(false);
+			m_Projector.Set_Forward();
 
 			Add_Segment(P0, P, pLine);
 
@@ -129,7 +125,7 @@ double CCRS_Distance_Calculator::Get_Orthodrome(const TSG_Point &A, const TSG_Po
 //---------------------------------------------------------
 double CCRS_Distance_Calculator::Get_Loxodrome(const TSG_Point &A, const TSG_Point &B, CSG_Shape *pLine)
 {
-	TSG_Point	AA, BB;
+	TSG_Point AA, BB;
 
 	m_Projector.Set_Source(CSG_Projection("+proj=merc +datum=WGS84"));
 
@@ -138,9 +134,9 @@ double CCRS_Distance_Calculator::Get_Loxodrome(const TSG_Point &A, const TSG_Poi
 	if( m_Projector.Get_Projection(AA = A)
 	&&  m_Projector.Get_Projection(BB = B) )
 	{
-		double	Length	= 0.0;
+		double Length = 0.;
 
-		m_Projector.Set_Inverse(false);
+		m_Projector.Set_Forward();
 
 		Add_Segment(AA, BB, pLine, &Length);
 

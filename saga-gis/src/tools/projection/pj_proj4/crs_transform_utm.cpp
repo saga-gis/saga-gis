@@ -58,13 +58,9 @@
 //---------------------------------------------------------
 bool		CRS_Get_UTM_Zone	(const CSG_Rect &Extent, const CSG_Projection &Source, int &Zone, bool &bSouth)
 {
-	CSG_CRSProjector Projector;
+	CSG_CRSProjector Projector; CSG_Point Point(Extent.Get_Center());
 
-	Projector.Set_Target(CSG_Projection::Get_GCS_WGS84());
-
-	CSG_Point Point(Extent.Get_Center());
-
-	if( Projector.Set_Source(Source) && Projector.Get_Projection(Point) )
+	if( Projector.Set_Transformation(Source, CSG_Projection::Get_GCS_WGS84()) && Projector.Get_Projection(Point) )
 	{
 		if( Point.x < -180. )
 		{

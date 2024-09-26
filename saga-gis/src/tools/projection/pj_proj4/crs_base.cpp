@@ -56,56 +56,39 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#if PROJ_VERSION_MAJOR < 6
-	extern "C" {
-		#include <projects.h>
-	}
-
-	#define PJ_GET_PROJS	pj_get_list_ref()
-	#define PJ_GET_DATUMS	pj_get_datums_ref()
-	#define PJ_GET_ELLPS	pj_get_ellps_ref()
-	#define PJ_GET_UNITS	pj_get_units_ref()
-
-	#define TPJ_PROJS		struct PJ_LIST
-	#define TPJ_DATUMS		struct PJ_DATUMS
-	#define TPJ_ELLPS		struct PJ_ELLPS
-	#define TPJ_UNITS		struct PJ_UNITS
+#include <proj.h>
 
 //---------------------------------------------------------
-#else
-	#include <proj.h>
+#define PJ_GET_PROJS proj_list_operations()
+#define PJ_GET_ELLPS proj_list_ellps()
+#define PJ_GET_UNITS proj_list_units()
 
-	#define PJ_GET_PROJS	proj_list_operations()
-	#define PJ_GET_ELLPS	proj_list_ellps()
-	#define PJ_GET_UNITS	proj_list_units()
+#define TPJ_PROJS const PJ_OPERATIONS
+#define TPJ_ELLPS const PJ_ELLPS
+#define TPJ_UNITS const PJ_UNITS
 
-	#define TPJ_PROJS		const PJ_OPERATIONS
-	#define TPJ_ELLPS		const PJ_ELLPS
-	#define TPJ_UNITS		const PJ_UNITS
+//---------------------------------------------------------
+struct PJ_DATUMS
+{
+	const char *id, *comments;
+};
 
-	struct PJ_DATUMS
-	{
-		const char *id, *comments;
-	};
+#define TPJ_DATUMS struct PJ_DATUMS
 
-	#define TPJ_DATUMS	struct PJ_DATUMS
-
-	struct PJ_DATUMS	PJ_GET_DATUMS[]	=
-	{
-		{ "WGS84"        , "WGS84"                                },
-		{ "GGRS87"       , "Greek Geodetic Reference System 1987" },
-		{ "NAD83"        , "North American Datum 1983"            },
-		{ "NAD27"        , "North American Datum 1927"            },
-		{ "potsdam"      , "Potsdam Rauenberg 1950 DHDN"          },
-		{ "carthage"     , "Carthage 1934 Tunisia"                },
-		{ "hermannskogel", "Hermannskogel"                        },
-		{ "ire65"        , "Ireland 1965"                         },
-		{ "nzgd49"       , "New Zealand Geodetic Datum 1949"      },
-		{ "OSGB36"       , "Airy 1830"                            },
-		{ NULL           , NULL                                   }
-	};
-
-#endif
+struct PJ_DATUMS PJ_GET_DATUMS[] =
+{
+	{ "WGS84"        , "WGS84"                                },
+	{ "GGRS87"       , "Greek Geodetic Reference System 1987" },
+	{ "NAD83"        , "North American Datum 1983"            },
+	{ "NAD27"        , "North American Datum 1927"            },
+	{ "potsdam"      , "Potsdam Rauenberg 1950 DHDN"          },
+	{ "carthage"     , "Carthage 1934 Tunisia"                },
+	{ "hermannskogel", "Hermannskogel"                        },
+	{ "ire65"        , "Ireland 1965"                         },
+	{ "nzgd49"       , "New Zealand Geodetic Datum 1949"      },
+	{ "OSGB36"       , "Airy 1830"                            },
+	{ NULL           , NULL                                   }
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -218,26 +201,6 @@ CCRS_Base::CCRS_Base(void)
 	Parameters.Add_Info_String("", "CRS_WKT", _TL("Well Known Text"), _TL(""), CSG_CRSProjector::Convert_CRS_To_WKT2("epsg:4326", false, false))->Set_Enabled(false); // for requesting projection in a generic/safe way
 	Parameters("CRS_WKT")->Set_UseInCMD(false);
 	Parameters("CRS_WKT")->Set_UseInGUI(false);
-
-	//-----------------------------------------------------
-	#if PROJ_VERSION_MAJOR < 6
-	Parameters.Add_Bool("",
-		"PRECISE", _TL("Precise Datum Conversion"),
-		_TL("avoids precision problems when source and target crs use different geodedtic datums."),
-		false
-	);
-	#endif
-
-	//-----------------------------------------------------
-	// >>> for backward compatibility only!
-	if( !has_GUI() )
-	{
-		Parameters.Add_String("", "CRS_PROJ4"    , "[deprecated] Proj4 String"  , "Deprecated! For backward compatibility only! Use \"CRS_STRING\" parameter instead (e.g. \"+proj=longlat +datum=WGS84\")!", "")->Set_UseInGUI(false);
-		Parameters.Add_Int   ("", "CRS_EPSG"     , "[deprecated] Authority Code", "Deprecated! For backward compatibility only! Use \"CRS_STRING\" parameter instead (e.g. \"EPSG:4326\")!"                 , -1)->Set_UseInGUI(false);
-		Parameters.Add_String("", "CRS_EPSG_AUTH", "[deprecated] Authority"     , "Deprecated! For backward compatibility only! Use \"CRS_STRING\" parameter instead (e.g. \"EPSG:4326\")!"                 , "")->Set_UseInGUI(false);
-	}
-	// <<< for backward compatibility only!
-	//-----------------------------------------------------
 }
 
 
@@ -264,14 +227,6 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 //---------------------------------------------------------
 bool CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	//-----------------------------------------------------
-	// >>> for backward compatibility only!
-	if( pParameter->Cmp_Identifier("CRS_PROJ4"    ) ) { pParameters->Set_Parameter("CRS_STRING", pParameter->asString()                                                                                       ); return( Parameter_Changed(pParameters, (*pParameters)("CRS_STRING")) ); }
-	if( pParameter->Cmp_Identifier("CRS_EPSG"     ) ) { pParameters->Set_Parameter("CRS_STRING", CSG_String::Format("%s:%d", (*pParameters)("CRS_EPSG_AUTH")->asString(), (*pParameters)("CRS_EPSG")->asInt())); return( Parameter_Changed(pParameters, (*pParameters)("CRS_STRING")) ); }
-	if( pParameter->Cmp_Identifier("CRS_EPSG_AUTH") ) { pParameters->Set_Parameter("CRS_STRING", CSG_String::Format("%s:%d", (*pParameters)("CRS_EPSG_AUTH")->asString(), (*pParameters)("CRS_EPSG")->asInt())); return( Parameter_Changed(pParameters, (*pParameters)("CRS_STRING")) ); }
-	// <<< for backward compatibility only!
-	//-----------------------------------------------------
-
 	CSG_Projection Projection;
 
 	//-----------------------------------------------------
@@ -400,16 +355,6 @@ bool CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pP
 			pParameters->Set_Parameter("CRS_STRING", "[ERROR]");
 		}
 	}
-
-	//-----------------------------------------------------
-	// >>> for backward compatibility only!
-	{	bool bCallback = pParameters->Set_Callback(false);
-	pParameters->Set_Parameter("CRS_PROJ4"    , Projection.Get_PROJ     ());
-	pParameters->Set_Parameter("CRS_EPSG"     , Projection.Get_Code     ());
-	pParameters->Set_Parameter("CRS_EPSG_AUTH", Projection.Get_Authority());
-	pParameters->Set_Callback(bCallback);	}
-	// <<< for backward compatibility only!
-	//-----------------------------------------------------
 
 	return( Projection.is_Okay() );
 }
@@ -1280,8 +1225,6 @@ bool CCRS_Transform::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_Projector.Set_Precise_Mode(Parameters("PRECISE") && Parameters("PRECISE")->asBool());
-
 	bool bResult = On_Execute_Transformation();
 
 	Message_Fmt("\n\n%s: %s", _TL("source"), m_Projector.Get_Source().Get_PROJ().c_str());

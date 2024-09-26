@@ -184,9 +184,12 @@ bool CCRS_Indicatrix::On_Execute_Transformation(void)
 //---------------------------------------------------------
 bool CCRS_Indicatrix::Get_Indicatrix(double lon, double lat, CSG_Shape *pIndicatrix)
 {
-	m_Projector.Set_Source(
-		CSG_Projection(CSG_String::Format("+proj=ortho +lon_0=%f +lat_0=%f +datum=WGS84", lon, lat))
-	);
+	CSG_Projection Source(CSG_String::Format("+proj=ortho +lon_0=%f +lat_0=%f +datum=WGS84", lon, lat));
+
+	if( !m_Projector.Set_Source(Source, true) )
+	{
+		return( false );
+	}
 
 	CSG_Point Center;
 

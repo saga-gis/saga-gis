@@ -237,12 +237,7 @@ bool CCRS_Transform_Shapes::On_Execute_Transformation(void)
 //---------------------------------------------------------
 bool CCRS_Transform_Shapes::Transform(CSG_Shapes *pShapes)
 {
-	if( !pShapes || !pShapes->is_Valid() )
-	{
-		return( false );
-	}
-
-	if( !m_Projector.Set_Source(pShapes->Get_Projection()) )
+	if( !pShapes || !pShapes->is_Valid() || !m_Projector.Set_Source(pShapes->Get_Projection(), true) )
 	{
 		return( false );
 	}

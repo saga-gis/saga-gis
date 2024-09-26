@@ -201,15 +201,7 @@ bool CGCS_Graticule::On_Execute(void)
 {
 	CSG_Projection Projection;
 
-	if( !Get_Projection(Projection) )
-	{
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	m_Projector.Set_Source(CSG_Projection::Get_GCS_WGS84());
-
-	if( !m_Projector.Set_Target(Projection) )
+	if( !Get_Projection(Projection) || !m_Projector.Set_Transformation(CSG_Projection::Get_GCS_WGS84(), Projection) )
 	{
 		m_Projector.Destroy();
 

@@ -156,7 +156,7 @@ bool CCRS_Transform_Point::Transform(double &x, double &y, const CSG_Projection 
 {
 	CSG_CRSProjector Projector;
 
-	return( Projector.Set_Source(Source) && Projector.Set_Target(Target) && Projector.Get_Projection(x, y) );
+	return( Projector.Set_Transformation(Source, Target) && Projector.Get_Projection(x, y) );
 }
 
 
